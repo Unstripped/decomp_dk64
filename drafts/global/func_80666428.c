@@ -1,13 +1,16 @@
-// func_80666428 (src/global/6AD90.c): func_80666428 (src/global/6AD90.c): stage 4-5, parked NON_MATCHING. fdiff full=81 text=81 shape=6 (was 191/207): frame 0x60 + s0 exact, a1..a3 prologue exact. Remaining: (a) sp34 at 0x48 not 0x34 and f32 CSE spill at 0x30 not 0x40 (target: s32 triple sp34/38/3C at 0x34..0x3C, f32 at 0x40; ours puts the f32 spill at the lowest slot, so triple/spill cannot both match), (b) at the first 'beq t1,at' target has move a0,zero in delay slot (val2 in a0) while ours move a2,zero/a1 before beq (callee-save: val2 held in a2), t-reg numbering skew (target t8,t5,t7 / ours t4..). Wins: unk6A &= 0xFBF1 BEFORE unk10C = -1 (fixes t1/t9/t0 order in first block); drop '& 0xFF' on func_8066A08C result (val2 u8 declared so no andi twice); case 7 as else-if chain without trailing break; u8 temp reuse random search (comb.py) over per-arm temp names + decl order + pads gave 118 -> 81. Tried: permuter 600s x2 (best 797 base, nothing zero), deadsweep sweep (no gain), inline sp34/38/3C/sp40 expressions (arg0 loses s0, worse).
+// func_80666428 (src/global/6AD90.c): stage 5: deadsweep gives 81->80 (if (val2 == 0) {} puts val2 in a0). Stack-normalised shape=0: only regs + 2 slot diffs left. Target: val2=a0/sp5E=v1 with 'move v1,zero; beq; move a0,zero' (sp5E=0;val2=0; no else) but that variant shifts first-block t-regs (full~186); the 3 u8-expression isops (sp5F ucvt, 2x (x*k)&0xFF) get coloured v0/a0/a1 (adjsave 3) where target leaves them as ugen t-temps; triple spill at 0x34..0x3C + f32 spill at 0x40 not reproducible with named s32s (spill lands 0x30). Tried: decl hill-climb+pads, operand/cast forms (540), prototype return toggles, unnamed triple (arg0 loses s0), permuter 540s (585->582), deadsweep 2 rounds.
 #include "common.h"
 #include "actor.h"
 
-typedef struct Col6AF83Sub174 {
+void collisionClearFlags(void);
+extern u8 D_807F94B4;
+
+typedef struct CollisionQueryPlayerState {
     u8 pad0[0x1F0];
     u32 unk1F0;
-} Col6AF83Sub174;
+} CollisionQueryPlayerState;
 
-typedef struct Col6AF83Actor {
+typedef struct CollisionQueryActor {
     u8 pad0[0x5C];
     u16 unk5C;
     u8 pad5E[6];
@@ -29,8 +32,8 @@ typedef struct Col6AF83Actor {
     u8 pad10E[2];
     u8 unk110;
     u8 pad111[0x63];
-    Col6AF83Sub174 *unk174;
-} Col6AF83Actor;
+    CollisionQueryPlayerState *unk174;
+} CollisionQueryActor;
 
 u8 func_8062BCC8(void *, f32, f32, f32, s32);
 u8 collisionTestSubmeshBoundary(f32, f32, f32 *, s32);
@@ -66,7 +69,7 @@ extern u8 D_807F94AC;
 extern s8 D_807F94AD;
 extern s8 D_807F94B2;
 extern u8 D_807F94B6;
-extern Col6AF83Sub174 *D_807F94B8;
+extern CollisionQueryPlayerState *D_807F94B8;
 extern u8 D_807F9510;
 
 s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5, u8 *arg6, f32 *arg7, u8 arg8) {
@@ -93,16 +96,16 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         return 0;
     }
     if (arg0 != NULL) {
-        ((Col6AF83Actor *)arg0)->unk110 = 0;
-        ((Col6AF83Actor *)arg0)->unk6A &= 0xFBF1;
-        ((Col6AF83Actor *)arg0)->unk10C = -1;
+        ((CollisionQueryActor *)arg0)->unk110 = 0;
+        ((CollisionQueryActor *)arg0)->unk6A &= 0xFBF1;
+        ((CollisionQueryActor *)arg0)->unk10C = -1;
         D_807F94B6 = 0;
         D_807F9464 = 0;
         D_807F946C = 0;
         D_807F946D = arg8;
-        ((Col6AF83Actor *)arg0)->unk64 &= ~0x40;
-        if (((Col6AF83Actor *)arg0)->unk5C & 1) {
-            D_807F94B8 = ((Col6AF83Actor *)arg0)->unk174;
+        ((CollisionQueryActor *)arg0)->unk64 &= ~0x40;
+        if (((CollisionQueryActor *)arg0)->unk5C & 1) {
+            D_807F94B8 = ((CollisionQueryActor *)arg0)->unk174;
             D_807F94B8->unk1F0 &= ~0x6000;
         }
     }
@@ -117,8 +120,8 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     sp58 = arg2;
     sp5F = collisionTestSubmeshBoundary(arg1, arg3, &sp58, (s32)arg0);
     if ((sp5F != 0) && (arg0 != NULL)) {
-        ((Col6AF83Actor *)arg0)->unkA8 = sp58;
-        ((Col6AF83Actor *)arg0)->unkD0 = D_807F949E;
+        ((CollisionQueryActor *)arg0)->unkA8 = sp58;
+        ((CollisionQueryActor *)arg0)->unkD0 = D_807F949E;
     }
     val2 = 0;
     if (D_807F94B4 != 2) {
@@ -129,6 +132,7 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     } else {
         sp5E = 0;
     }
+    if (val2 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     sp3C = (sp5E * 2) & 0xFF;
     sp38 = (val2 * 4) & 0xFF;
     sp34 = sp5F;
@@ -188,12 +192,12 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         if (arg0 != NULL) {
             sp5E = D_807F949E;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
             sp5F = sp5E;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
-            ((Col6AF83Actor *)arg0)->unkD1 = sp5F;
-            ((Col6AF83Actor *)arg0)->unkDA = D_807F9498;
-            ((Col6AF83Actor *)arg0)->unkD8 = D_807F9490;
-            ((Col6AF83Actor *)arg0)->unkA4 = sp58;
-            if ((D_807F94B6 != 0) && (((Col6AF83Actor *)arg0)->unk6C & 1)) {
-                ((Col6AF83Actor *)arg0)->unk6A |= 0x400;
+            ((CollisionQueryActor *)arg0)->unkD1 = sp5F;
+            ((CollisionQueryActor *)arg0)->unkDA = D_807F9498;
+            ((CollisionQueryActor *)arg0)->unkD8 = D_807F9490;
+            ((CollisionQueryActor *)arg0)->unkA4 = sp58;
+            if ((D_807F94B6 != 0) && (((CollisionQueryActor *)arg0)->unk6C & 1)) {
+                ((CollisionQueryActor *)arg0)->unk6A |= 0x400;
             }
         }
         D_807F94A4 = D_807F9498;
@@ -206,12 +210,12 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     case 2:
         if (arg0 != NULL) {
             sp5E = D_807F949F;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
-            ((Col6AF83Actor *)arg0)->unkD1 = sp5E;
-            ((Col6AF83Actor *)arg0)->unkDA = D_807F949A;
-            ((Col6AF83Actor *)arg0)->unkD8 = D_807F9492;
-            ((Col6AF83Actor *)arg0)->unkA4 = sp54;
-            if (((Col6AF83Actor *)arg0)->unk6C & 1) {
-                ((Col6AF83Actor *)arg0)->unk110 = 1;
+            ((CollisionQueryActor *)arg0)->unkD1 = sp5E;
+            ((CollisionQueryActor *)arg0)->unkDA = D_807F949A;
+            ((CollisionQueryActor *)arg0)->unkD8 = D_807F9492;
+            ((CollisionQueryActor *)arg0)->unkA4 = sp54;
+            if (((CollisionQueryActor *)arg0)->unk6C & 1) {
+                ((CollisionQueryActor *)arg0)->unk110 = 1;
             }
         }
         D_807F94A4 = D_807F949A;
@@ -224,13 +228,13 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     case 3:
         if (arg0 != NULL) {
             sp5E = D_807F94A0;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
-            ((Col6AF83Actor *)arg0)->unkD1 = sp5E;
-            ((Col6AF83Actor *)arg0)->unkDA = D_807F949C;
-            ((Col6AF83Actor *)arg0)->unkD8 = D_807F9494;
-            ((Col6AF83Actor *)arg0)->unkA4 = sp50;
-            if (((Col6AF83Actor *)arg0)->unk6C & 1) {
+            ((CollisionQueryActor *)arg0)->unkD1 = sp5E;
+            ((CollisionQueryActor *)arg0)->unkDA = D_807F949C;
+            ((CollisionQueryActor *)arg0)->unkD8 = D_807F9494;
+            ((CollisionQueryActor *)arg0)->unkA4 = sp50;
+            if (((CollisionQueryActor *)arg0)->unk6C & 1) {
                 func_8067A7EC(arg0, (s32)D_807F9470, *(s32 *)&D_807F9474, *(s32 *)&D_807F9478, D_807F947C, (s32)D_807F9480, *(u8 *)&D_807F94B2);
-                ((Col6AF83Actor *)arg0)->unk6A |= 8;
+                ((CollisionQueryActor *)arg0)->unk6A |= 8;
             }
         }
         D_807F94A4 = D_807F949C;

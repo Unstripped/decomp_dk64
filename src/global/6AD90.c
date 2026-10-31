@@ -282,6 +282,7 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     } else {
         sp5E = 0;
     }
+    if (val2 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     sp3C = (sp5E * 2) & 0xFF;
     sp38 = (val2 * 4) & 0xFF;
     sp34 = sp5F;
@@ -1507,32 +1508,24 @@ void collisionAttachActorToObjectNode(struct CollisionActorWork *, s16, s8, u8, 
 #define MODEL_SLOT_ENTRIES ((ModelSlotCollisionView *)D_807F6000)
 
 u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 *arg5) {
-    f64 ny;
+    s32 pad;
+    CollisionActorTri *tri_end;
     CollisionActorTri *hit_tri;
-    ModelSlotTriBufferView *sp90;
-    f32 pad1[1];
-    f32 temp_ft5;
     CollisionActorTri *tri;
-    f64 temp_ft4;
-    f64 nx;
-    f64 nz;
-    f32 pad2[4];
-    f32 temp_fs1;
-    s16 sp9A;
+    f64 nx, ny, nz;
     f64 d;
-    f64 temp_fa0;
-    ModelSlotHitFlagsView *sub7C;
-    f64 temp_fs2;
-    f64 temp_fv1;
+    f64 dx01, dy01, dz01, dx02, dy02, dz02;
     f32 y;
-    f64 temp_fv0;
+    ModelSlotHitFlagsView *sub7C;
+    f32 padB[8];
     f32 hit_y;
     u8 hit;
-    f32 temp_fa1;
+    s32 pad9C;
+    s16 sp9A;
+    s32 pad94;
+    ModelSlotTriBufferView *sp90;
     s32 sp8C;
-    f64 temp_fs3;
-    CollisionActorTri *tri_end;
-    f32 spv[3];
+    s32 padLo[2];
 
     hit = 0;
     hit_y = 999999.0f;
@@ -1543,7 +1536,7 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
         return 0;
     }
 
-    sp90 = &MODEL_SLOT_ENTRIES[sp9A].unk48;
+    sp90 = (ModelSlotTriBufferView *)(sp9A * 0x90 + (u8 *)MODEL_SLOT_ENTRIES + 0x48); // FAKE: operand order of the slot address add
     if (arg0 != NULL && MODEL_SLOT_ENTRIES[sp9A].unk70 != NULL && D_807F946D != 0) {
         actorCheckNearbyNodeInteractions(arg0, sp9A, MODEL_SLOT_ENTRIES[sp9A].unk70);
     }
@@ -1587,24 +1580,18 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
         do {
             if (collisionCheckTriangleBoundingBoxXZ((struct CollisionTriF *)tri, arg2, arg3) != 0 &&
                 func_80669E04((struct CollisionTriF *)tri, arg2, arg3) != 0 &&
-                collisionCheckSurfaceFilter(tri->unk27, sp90->unk25) != 0 &&
-                ((spv[2] = tri->x[1],
-                  temp_fa1 = tri->x[0],
-                  spv[1] = tri->y[1],
-                  temp_ft5 = tri->y[0],
-                  temp_fa0 = (f64)(temp_fa1 - spv[2]),
-                  spv[0] = tri->z[1],
-                  temp_ft4 = (f64)(temp_ft5 - spv[1]),
-                  temp_fs1 = tri->z[0],
-                  temp_fv0 = (f64)(temp_fs1 - spv[0]),
-                  temp_fs2 = (f64)(temp_fa1 - tri->x[2]),
-                  temp_fs3 = (f64)(temp_ft5 - tri->y[2]),
-                  temp_fv1 = (f64)(temp_fs1 - tri->z[2]),
-                  nx = (temp_ft4 * temp_fv1) - (temp_fv0 * temp_fs3),
-                  ny = (temp_fv0 * temp_fs2) - (temp_fa0 * temp_fv1),
-                  nz = (temp_fa0 * temp_fs3) - (temp_ft4 * temp_fs2),
-                  d = -(((f64)spv[0] * nz) + ((nx * (f64)spv[2]) + (ny * (f64)spv[1]))),
-                  0.01 < ny * 2000.0) || ny * 2000.0 < -0.01)) {
+                collisionCheckSurfaceFilter(tri->unk27, sp90->unk25) != 0) {
+                dx01 = (f64)(tri->x[0] - tri->x[1]);
+                dy01 = (f64)(tri->y[0] - tri->y[1]);
+                dz01 = (f64)(tri->z[0] - tri->z[1]);
+                dx02 = (f64)(tri->x[0] - tri->x[2]);
+                dy02 = (f64)(tri->y[0] - tri->y[2]);
+                dz02 = (f64)(tri->z[0] - tri->z[2]);
+                nx = (dy01 * dz02) - (dz01 * dy02);
+                ny = (dz01 * dx02) - (dx01 * dz02);
+                nz = (dx01 * dy02) - (dy01 * dx02);
+                d = -((nx * (f64)tri->x[1]) + (ny * (f64)tri->y[1]) + (nz * (f64)tri->z[1]));
+                if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
                 if (arg0 != NULL) {
                     y = (f32)((2000.0 * (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)))) - 1000.0);
                     func_80666D88(arg4, y, 0, (Actor *)arg0, 0);
@@ -1623,6 +1610,7 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
                         hit = 1;
                         hit_y = y;
                     }
+                }
                 }
             }
             tri++;
@@ -2084,38 +2072,21 @@ extern s8 D_807F94AD;
 s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     f32 pad;
     CollisionBoxTriView *hit_tri;
-    f32 pad128[6];
-    f64 sp108;
-    f32 pad108[22];
-    f32 hit_y;
-    f32 padAC[4];
-    Actor *hit_actor;
-    f32 pad98[2];
-    f32 sp8C;
-    ActorEntry *entry;
-    f32 sp84;
-    f32 sp80;
-    f32 sp78;
-    f32 temp_fa1;
-    f32 temp_fs1;
-    f32 y;
-    f32 temp_ft5;
-    f64 temp_fa0;
-    f64 ny;
-    f64 nz;
-    f64 temp_fs2;
-    f64 temp_fs3;
-    f64 nx;
-    f64 temp_ft4;
-    f64 temp_fv0;
-    f64 temp_fv1;
+    f64 nx, ny, nz;
     f64 d;
+    f64 dx01, dy01, dz01, dx02, dy02, dz02;
+    f32 y;
     s32 hit;
     s32 i;
     s32 j;
     Actor *actor;
     CollisionBoxTriView *tri;
     u16 actor_count;
+    f32 pad108[3];
+    f32 hit_y;
+    f32 padAC[4];
+    Actor *hit_actor;
+    f32 pad98[2];
 
     hit = 0;
     hit_y = 999999.0f;
@@ -2123,9 +2094,8 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     actor_count = gActiveActorCount;
     i = 0;
     if ((s32)actor_count > 0) {
-        entry = gActiveActors;
         do {
-            actor = entry->actor;
+            actor = gActiveActors[i].actor;
             if (!(actor->unk60 & 0x2000)) {
                 if (actor->unk140 != NULL && arg0 != actor && (actor->unk60 & 0x10)) {
                     tri = actor->unk140->unk98;
@@ -2134,25 +2104,18 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
                         do {
                             if ((collisionCheckBoxTriangleBoundsXZ((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
                                 (func_8066A988((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
-                                (tri->unk56 != 0) &&
-                                ((temp_fa1 = tri->unk24,
-                                  sp8C = tri->unk28,
-                                  temp_ft5 = tri->unk30,
-                                  sp84 = tri->unk34,
-                                  temp_fa0 = (f64)(temp_fa1 - sp8C),
-                                  temp_fs1 = tri->unk3C,
-                                  sp80 = tri->unk40,
-                                  temp_ft4 = (f64)(temp_ft5 - sp84),
-                                  temp_fv0 = (f64)(temp_fs1 - sp80),
-                                  temp_fs2 = (f64)(temp_fa1 - tri->unk2C),
-                                  temp_fs3 = (f64)(temp_ft5 - tri->unk38),
-                                  sp78 = sp8C,
-                                  temp_fv1 = (f64)(temp_fs1 - tri->unk44),
-                                  nx = (temp_ft4 * temp_fv1) - (temp_fv0 * temp_fs3),
-                                  ny = (temp_fv0 * temp_fs2) - (temp_fa0 * temp_fv1),
-                                  nz = (temp_fa0 * temp_fs3) - (temp_ft4 * temp_fs2),
-                                  d = -(((f64)sp80 * nz) + ((nx * (f64)sp78) + (ny * (f64)sp84))),
-                                  0.01 < ny * 2000.0) || ny * 2000.0 < -0.01)) {
+                                (tri->unk56 != 0)) {
+                                dx01 = (f64)(tri->unk24 - tri->unk28);
+                                dy01 = (f64)(tri->unk30 - tri->unk34);
+                                dz01 = (f64)(tri->unk3C - tri->unk40);
+                                dx02 = (f64)(tri->unk24 - tri->unk2C);
+                                dy02 = (f64)(tri->unk30 - tri->unk38);
+                                dz02 = (f64)(tri->unk3C - tri->unk44);
+                                nx = (dy01 * dz02) - (dz01 * dy02);
+                                ny = (dz01 * dx02) - (dx01 * dz02);
+                                nz = (dx01 * dy02) - (dy01 * dx02);
+                                d = -((nx * (f64)tri->unk28) + (ny * (f64)tri->unk34) + (nz * (f64)tri->unk40));
+                                if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
                                     if (arg0 != NULL) {
                                         if (D_807F94BC == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                                         func_80666D88(arg3, (f32)((2000.0 * (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)))) - 1000.0), 0, arg0, 0);
@@ -2170,6 +2133,7 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
                                             hit_y = y;
                                         }
                                     }
+                                }
                             }
                             j++;
                             tri++;
@@ -2178,7 +2142,6 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
                 }
             }
             i++;
-            entry++;
         } while (i < (s32)gActiveActorCount);
     }
 
