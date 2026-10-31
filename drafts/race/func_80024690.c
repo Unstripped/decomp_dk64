@@ -1,4 +1,4 @@
-// func_80024690 (src/race/0.c): stage 5 (QL2 pass 3): same size/frame/saved regs; 14 text lines left of 1236 (was 333 text). Remaining: (1) ang16 narrowing sll/sra+move v1 vs target raw mfc1 t3 (array/addr-taken forms give raw E but 2 hidden ring temps skew every later t-reg; volatile gives E=t3 but reloads) (2) first entry ptr (case 2 tail) v0 vs a0 (3) li v0,101 scheduled before swc1 196(t0) instead of after lw t1 (4) case0 head: target 'move a0,v1; beqz v1; move v0,v1' vs ours 'move v0,v1; beqz; andi a0,v1,0xff' (y must be u8 for v1/v0/a0 colours). Wins: L4_S->unk25++; scalar s16 ang16; case0 sel=loaded var, y=result var, arms 'sp54->unk35 = sp54->unk35 + 1; y = sp54->unk35;'; case-5 selector shares the tmp(ang) local; first sp44 site via (sp44 + unk24)->; actorUpdateFloorContactAndTilt f32 arg; csModelStateSetFirstByte(s16,s16). mathAngleStepToward must stay s32 here.
+// func_80024690 (src/race/0.c): stage 5 (R3d wave 3): same size/frame/saved regs; 24 diff lines of 1079 insns (was 28): new FAKE 'if (L4_S == 0) {}' after the 3 ang16 statements fixed the case-2 tail 'first entry ptr' v0/a0. Left: (1) ang16: target pre-as1 is probably identical to ours (E web v0, cvtl web v1 ring t3) but as1 DELETES the sll/sra pair and renames E to t3 (mfc1 t3/addu t4,t3,t3); ours keeps sll v1/sra t3 + 'move v1,t3' in the jal delay slot because uopt cand 205 (cvtl(E), 3.0) is coloured v1 and as1 treats v1 as live-out. Forms that give raw E (s16 arr[1]/[2] idx1 at 102(sp), *(s16*)&ang16 =, tmp var) make E a ring temp but forward cvtl twice (4 hidden ring picks deleted by as1) so every later t-reg is +2; x2 ('ang16*2') gives raw + only 2 picks but sll not addu; stores whose RHS is bare trunc of a call (m8 toy) reload instead of forward but E has f64 math. (2) li v0,101 vs addiu v1 (lui/addiu pair) scheduling unchanged by flag statement position. (3) case0 head 'move a0,v1;beqz;move v0,v1' vs 'move v0,v1;beqz;andi a0,v1,0xff' (y u8). Dead-if sweep over every statement x 10 pointer snippets found nothing below 24.
 typedef struct {
     u8 pad0[0x1C];
     u16 unk1C;
@@ -286,6 +286,7 @@ void func_80024690(void) {
         ang16 = (s32)((f64)func_80611BB4(-sp6C, -sp68) * 4096.0 / 6.2831854820251465);
         mathAngleStepToward(&L4_D->unkE6, (ang16 + ang16 - L4_D->unkEE) & 0xFFF, 0x32);
         mathAngleStepToward(&L4_D->unkEE, ang16, 0xF);
+        if (L4_S == 0) {} // FAKE: dead pointer test, steers t-register allocation
         if (L4_S->unk25 == (sp44 + L4_S->unk24)->unk0 && (sp44 + L4_S->unk24)->unk8 == 2 && sp54->unk34 == 3) {
             if (sp54->unk36 == 1) {
                 L4_D->unk154 = 0xA;

@@ -466,6 +466,7 @@ void func_80024690(void) {
         ang16 = (s32)((f64)func_80611BB4(-sp6C, -sp68) * 4096.0 / 6.2831854820251465);
         mathAngleStepToward(&L4_D->unkE6, (ang16 + ang16 - L4_D->unkEE) & 0xFFF, 0x32);
         mathAngleStepToward(&L4_D->unkEE, ang16, 0xF);
+        if (L4_S == 0) {} // FAKE: dead pointer test, steers t-register allocation
         if (L4_S->unk25 == (sp44 + L4_S->unk24)->unk0 && (sp44 + L4_S->unk24)->unk8 == 2 && sp54->unk34 == 3) {
             if (sp54->unk36 == 1) {
                 L4_D->unk154 = 0xA;
