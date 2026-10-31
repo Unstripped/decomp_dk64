@@ -65,7 +65,11 @@ void camStartShakeFromPoint(void *, s32, s32, f32, f32, f32, f32, f32);
 extern void *gCamActor;
 extern void *effectPuffRiseUpdate;
 extern void *D_8074E880[];
-#ifdef NON_MATCHING
+typedef struct {
+    u8 b[4];
+} OlSPick4;
+extern OlSPick4 D_80035B80;
+
 u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
     s32 min_dist;
     s32 dists[16];
@@ -87,8 +91,8 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
     }
 
     if (D_807FBB4C->unk80 < D_807FBB40->unk80 - 10.0f) {
-        u8 center[4] = {5, 6, 9, 10};
-        return center[(randomNonNegative() >> 15) % 4];
+        OlSPick4 center = D_80035B80;
+        return center.b[(randomNonNegative() >> 15) % 4];
     }
 
     diff_row = (s8)((s32)arg1[0] / 4 - (s32)arg1[3] / 4);
@@ -107,7 +111,8 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
     if (arg0->unk14 >= 3) {
         return val;
     }
-    if (val == arg1[2] || val == start_val) {
+    if (arg1[2] - val == 0) {}  // FAKE: steers temp ring / beq operand order
+    if (arg1[2] - val == 0 || val == start_val) {  // FAKE: a - b == 0 keeps the load as first beq operand
         if (diff_row != 0 || val == start_val) {
             if (dists[(start_val - 1) & 0xF] < dists[(start_val + 1) & 0xF] && (start_val & 3) != 0) {
                 start_val--;
@@ -128,10 +133,6 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
     }
     return val;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/bossPickWaypointStep.s")
-#endif
 
 void func_8003340C(u8 *arg0) {
     s32 temp_v0;
