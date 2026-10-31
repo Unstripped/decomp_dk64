@@ -20,6 +20,8 @@ SEG is the asm directory name: boot, global, or an overlay (boss, jetpac, ...).
 the source file in the same directory (the one whose GLOBAL_ASM line names
 `asm/<seg>/nonmatchings/.../<FUNC>.s`); a name that is unmatched in only one segment needs no
 copy. Drafts whose segment can't be determined are reported and skipped, never guessed.
+`save` and `collect` refuse a draft containing `#pragma GLOBAL_ASM` lines; they and `paste`
+refuse one that defines another function the src file already defines (a saved private copy).
 `prune` runs after every merge: a function that left GLOBAL_ASM is matched.
 `paste` replaces FUNC's `GLOBAL_ASM` line (or the whole `#ifdef NON_MATCHING` park around it)
 in its src file with the draft minus its header, for "text-identical, reloc only" reports;
