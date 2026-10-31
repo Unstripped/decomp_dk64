@@ -417,7 +417,6 @@ Gfx *func_8002C63C(Gfx *arg0, RaceUnknown174 *arg1) {
     return arg0;
 }
 
-#ifdef NON_MATCHING
 typedef struct RaceE76CView {
     char pad0[0x34];
     u8 unk34;
@@ -471,8 +470,7 @@ Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
         _sprintf(sp68, "%s %d %s %d", sp50, var_t0, sp4C, temp_t1->unk24);
         arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)(2.0f * (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), sp68, 4);
         g0 = arg0++;
-        g0->words.w0 = 0xDA380007;
-        g0->words.w1 = (u32)&D_20000C0;
+        g0->words.w0 = 0xDA380007; g0->words.w1 = (u32)&D_20000C0; // FAKE: same-line stores steer the ori/addiu schedule
         g0 = arg0++;
         g0->words.w0 = 0xDA380005;
         g0->words.w1 = (u32)((u8 *)arg1 + (D_807444FC << 6) + 0x50);
@@ -495,10 +493,6 @@ Gfx *func_8002C76C(Gfx *arg0, RaceUnknown174 *arg1) {
     }
     return arg0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/race/nonmatchings/7BD0/func_8002C76C.s")
-#endif
 
 
 s32 func_807142D8(void);
