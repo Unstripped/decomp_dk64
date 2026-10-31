@@ -1,18 +1,19 @@
-// textDrawStringVtx (src/global/100180.c): Stage 6 (NM7): parked NON_MATCHING; frame 0xC8, saved set s0-s8/ra, .text 9312 all match; full=198 shape=78 (L3 253/116). IR matches target for w/w4/h/h4 (w4=glyph[2]; w=w4; w4*=4 gives raw copy + sext pair), index-form compare D_807549FC[font][line-1]&&[line] (hoisted line load + separate reload), final-flush 'if (count) {}' keeps blez loop, 'i' split into len/tmp/i (target uses v1/v0/a3) with g12->g1 and g7->g3 merged to keep frame 0xC8. Remaining diff: regalloc only (count/gx/h4/yoff/const 0x7000000/mask: want count s8, vp s1, g9+gx s2, w4 s3, const s4, x s5, yoff a3, h4 t0, w t1, h t2); m5 variant (no len/tmp, full=210) matched dl s0 vp s1 w4 s3 x s5 count s8 w t1 but h4 s2 (prio 83 > count 58). Priority = savings/#blocks: dead 'if (V && V) {}' adds blocks (dilutes short ranges) and refs (raises V).
+// textDrawStringVtx (src/global/100180.c): Stage 6: parked NON_MATCHING; full=197 shape=77 (493 vs 490 lines). vtxSetQuadGradientColors has 3 params (definition in 103AB0.c, target passes a0-a2 only): the old 4th arg yoff was a phantom that pinned yoff to a3; replaced by trailing dead 'if (yoff && yoff) {}' after the line loop (FAKE, same score 197/77). Target spills around textLoadFontSheetGfx: yoff 131(sp) h4 126 w 122 h 120 (a3,t0,t1,t2) + t3 at 88, flags at 92, fi in a reg; mine spills fi (108) and 64/72/84. Callee void<->s32 toggles (heapFreeDeferred, vtxSet) no effect. deadsweep rounds incl. 25 locals: no improvement.
 extern Mtx D_20000C0;
 extern Gfx D_2000180;
 Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
 void heapFreeDeferred(void *);
 Gfx *func_805FD030(Gfx *);
-void vtxSetQuadGradientColors(void *, u8, u8, s8);
+void vtxSetQuadGradientColors(void *, u8, u8);
 
-#define L3CMD(g, a, b) \
+#define TEXT_GFX_CMD(g, a, b) \
     { (g) = (Gfx *)(dl++); (g)->words.w0 = (a); (g)->words.w1 = (b); }
-#define L3QUAD(g, v0, v1, v2, v3) \
-    L3CMD(g, (_SHIFTL(G_QUAD, 24, 8) | __gsSP1Quadrangle_w1f(v0, v1, v2, v3, 0)), __gsSP1Quadrangle_w2f(v0, v1, v2, v3, 0))
-#define L3VTX(g, v, n, v0) \
-    L3CMD(g, _SHIFTL(G_VTX, 24, 8) | _SHIFTL((n), 12, 8) | _SHIFTL((v0) + (n), 1, 7), (unsigned int)(v))
+#define TEXT_GFX_QUAD(g, v0, v1, v2, v3) \
+    TEXT_GFX_CMD(g, (_SHIFTL(G_QUAD, 24, 8) | __gsSP1Quadrangle_w1f(v0, v1, v2, v3, 0)), __gsSP1Quadrangle_w2f(v0, v1, v2, v3, 0))
+#define TEXT_GFX_VTX(g, v, n, v0) \
+    TEXT_GFX_CMD(g, _SHIFTL(G_VTX, 24, 8) | _SHIFTL((n), 12, 8) | _SHIFTL((v0) + (n), 1, 7), (unsigned int)(v))
 
+// deadsweep round 1: full=197 text=197 inserted `if (yoff && yoff) {}` at line 182
 Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     u8 line;
     u8 idx;
@@ -69,27 +70,27 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
         font ^= 0x80;
         center = 1;
     }
-    L3CMD(g1, 0xE3001201, 0x2000);
+    TEXT_GFX_CMD(g1, 0xE3001201, 0x2000);
     if (!(flags & 4)) {
-        L3CMD(g2, 0xDA380007, (u32)&D_20000C0);
+        TEXT_GFX_CMD(g2, 0xDA380007, (u32)&D_20000C0);
     }
     if (flags & 0x12) {
-        L3CMD(g3, 0xE7000000, 0);
-        L3CMD(g4, 0xFC121824, 0xFF33FFFF);
+        TEXT_GFX_CMD(g3, 0xE7000000, 0);
+        TEXT_GFX_CMD(g4, 0xFC121824, 0xFF33FFFF);
     }
     if (flags & 0x20) {
-        L3CMD(g5, 0xE7000000, 0);
-        L3CMD(g6, 0xFC121803, 0xFF0FFFFF);
+        TEXT_GFX_CMD(g5, 0xE7000000, 0);
+        TEXT_GFX_CMD(g6, 0xFC121803, 0xFF0FFFFF);
     }
     if (flags & 1) {
-        L3CMD(g3, 0xDA380003, (u32)&D_2000180);
+        TEXT_GFX_CMD(g3, 0xDA380003, (u32)&D_2000180);
     }
     dl = func_805FD030(dl);
     fi = D_80754A34 + font * 6;
     line = 1;
     if (fi[1] + 1 >= 2) {
         do {
-            L3CMD(g8, 0xE7000000, 0);
+            TEXT_GFX_CMD(g8, 0xE7000000, 0);
             started = 0;
             ch = *str++;
             if (ch) {
@@ -148,14 +149,14 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                             vp++;
                             vp++;
                             if (flags & 0x32) {
-                                vtxSetQuadGradientColors(vp - 4, idx, flags, yoff);
+                                vtxSetQuadGradientColors(vp - 4, idx, flags);
                             }
                             count += 4;
                             if (count >= 0x20) {
-                                L3VTX(g9, osVirtualToPhysical(batch), 0x20, 0);
+                                TEXT_GFX_VTX(g9, osVirtualToPhysical(batch), 0x20, 0);
                                 i = count / 4;
                                 while (i-- > 0) {
-                                    L3QUAD(g10, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
+                                    TEXT_GFX_QUAD(g10, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
                                 }
                                 count = 0;
                                 batch = vp;
@@ -182,11 +183,11 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
             }
             x = startX;
             if (count != 0) {
-                L3VTX(g11, osVirtualToPhysical(batch), count, 0);
+                TEXT_GFX_VTX(g11, osVirtualToPhysical(batch), count, 0);
                 batch = vp;
                 i = count / 4;
                 while (i-- > 0) {
-                    L3QUAD(g1, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
+                    TEXT_GFX_QUAD(g1, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
                 }
                 if (count) {}
                 count = 0;
@@ -194,7 +195,8 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
             str = strStart;
             line++;
         } while (line < fi[1] + 1);
+        if (yoff && yoff) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
-    L3CMD(g1, 0xE7000000, 0);
+    TEXT_GFX_CMD(g1, 0xE7000000, 0);
     return dl;
 }

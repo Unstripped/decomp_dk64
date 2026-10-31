@@ -1,10 +1,10 @@
-// func_8002A7F8 (src/race/6650.c): FE3c: stage 5, 24 diff lines (was 30). then-arm now: sp4E=(s16)(s32)(cos*sp20); fv0 = sin*sp20; sp4E &= 0xFFF; a3 = (s32)fv0 & 0xFFF (float temp splits the call from the mask so the sp4E reload/andi lands at t4,t5 like target). Remaining: then-arm raw trunc goes to 'mfc1 a3' (dest hint) vs target 'mfc1 t9' + andi t0/sll t1/sra a3, plus 3 later t-reg numbers (else-arm sra/sll, final mfc1). Split forms (a3=(s32)fv0; a3&=0xFFF) give the target then-arm exactly but shift the else-arm ring (li t7 vs t4, +3 hidden temps); else-arm 'a0=(a0+0x800)&0xFFF' merged hints a0 (46). Tried ~1000 statement-order/cast/var-reuse/dummy-stmt variants. actorUpdateFloorContactAndTilt prototype must be (Actor_BB40 *, f32) in 6650.c (only decl in file).
+// func_8002A7F8 (src/race/6650.c): QOv1: stage 5, 10 diff lines, shape identical (registers only). Then-arm raw trunc goes to 'mfc1 a3' (dest hint) vs target 'mfc1 t9' + andi t0/sll t1/sra a3, then 3 later t-reg numbers (else-arm sra t1 vs t3, sll/sra t4 vs t3, final mfc1 t3 vs t4). Split form (a3=(s32)fv0; a3&=0xFFF) gives target then-arm exactly but shifts else-arm ring (li t7 vs t4, 48 diff lines). deadsweep (20 syms incl all locals, 8400 variants), permuter 540s, void<->s32 callee toggles, temp var forms: no gain. file decl of actorUpdateFloorContactAndTilt must be f32.
 void actorUpdateFloorContactAndTilt(Actor_BB40 *, f32); /* file decl must be f32 (li a1,0 for 0.0f); was s32 */
 void func_8002A7F8(Struct_sp58 *arg0) {
     f32 sp5C;
     f32 sp58;
     f32 sp54;
-    volatile u8 sp53;
+    volatile u8 sp53; // FAKE: keeps sp53 in its stack slot (reloaded after calls)
     s16 a1;
     s16 sp4E;
     s16 a3;

@@ -1,4 +1,4 @@
-// func_80029118 (src/critter/5110.c): stage 6, score 20 (park in src now = draft). Last pair: case 0xFE 'lui v0,%hi(D_80029FA4); lhu a2' is v0, target v1. Mechanism (cc -S, .scratch/C0c6/S.sh): the lui reg is NOT a ring temp: as1 reuses the ORIGINAL destination of the lhu ('lhu $2,D_80029FA4; move $6,$2' -> lhu a2 + lui $2). So the value web must be coloured $3 (reg 2) not $2: value web (cand 147) is coloured first with reg 1 and tmp (merged webs bb2+bb81, 'and $3,$2,65535') takes reg 2 (that is what fixed the first read). To get v1 for both the single merged web needs reg 1 blocked in bb2 and the 0xFE join block by a higher-priority candidate; found none. Tried 96 combos (tmp u16/s16/s32/u32, arg D_80029FA4/tmp/(u16)tmp/(s32)tmp, store order, if(!tmp){} / if(tmp&&tmp){} dummies), tmp2 copies, z=0 first, tmp=0 after: none < 20. Merging first read into same web as arg gives v0 in both (40). NOTE: the 'if (sp70 && sp70) {}' dummy reads sp70 uninitialised on case 0xFF (UB); it is a search hint only and is NOT in the src park.
+// func_80029118 (src/critter/5110.c): stage 6, 2-line diff: case 0xFE 'lui v0,%hi(D_80029FA4); lhu a2,%lo(v0)' is v0, target v1 (rest identical, incl. frame/stack; first read D_807FCC40[4] kept: plain D_807FCC44 CSEs lui with the store -> 35 diff lines). Needs the UB dummy 'if (sp70 && sp70) {}' in case 0xFF (promotes sp70 to a register so default arm does lw v0,0x70(sp); search hint only, NOT in the src park). Mechanism: lui reg = original dest of the lhu (as1 reuses it), so the value web must be coloured $3. Retried this unit (QOv2): toggling void->s32/u8/u16 return of every callee (camStartPath, func_805FF800/628, sfxPlayOnFreeSlot, flagSet, slotQueueSetShownValue, hudSpawnCountdownTimer, func_8070D8C0, camResumePath, actorSetStateTwo, sfxAllocateChannel, renderCallbacksRegister, camIsPathPaused) in all 256 combos + pairs: all identical; deadsweep round 1 (9009 variants, extra tmp/temp_s0/var_s0/sp*) no improvement; w/ 'tmp = D_807FCC44' direct: worse (35).
 typedef struct Struct_807FBB40_174 {
     s16 unk0;
     u8 unk2;
@@ -45,7 +45,7 @@ void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void func_805FF800(s32 *, s32 *);
 void func_805FF628(s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
-Gfx *func_800296DC(Gfx *, Struct_807FBB40 *);
+Gfx *critterRenderCenterImage(Gfx *, Struct_807FBB40 *);
 
 void func_80029118(void) {
     s32 pad88;
@@ -194,5 +194,5 @@ void func_80029118(void) {
         D_807FBB40->unk154 = 0xFE;
         break;
     }
-    renderCallbacksRegister(&func_800296DC, D_807FBB40, 3);
+    renderCallbacksRegister(&critterRenderCenterImage, D_807FBB40, 3);
 }

@@ -1,16 +1,16 @@
-// func_80709890 (src/global/10E1D0.c): stage 6 (the 15-line figure was WITH a dead `if (k && k) {}` read before k is assigned; removed as an uninitialised read, re-measure; NM6 base unchanged, 15 diff lines, regs only; NM9 diagnosis): in uopt -l 5 the loop walker p (cand M -20, merged loops 1+3) has intrinsic forbidden [v0,v1] because its def block holds the call-return v0 (R) and the loaded-value temp (M -28, adj 22) takes v1 first; target has p=v0, loaded=v1, unk8/unkC/unk18 = a0/a1/a3. A dead 'if (arg0 && arg0) {}' after the 3rd call (new bb) frees v0 (loaded temp then takes v0 and p v1: swapped) and a dead 'if (p) {}' before the loop-3 walker raises p priority -> p=v0, loaded=v1 (matches) but score 20 (unk18 stays in a reg, 28 const to a1). Searched: deadsweep (-extra all), random dead-stmt SA 1400s from base and from that variant, loop forms, p/r separate vars, reordering the 3rd call store, moving k&&k: none below 15. Untested: one walker variable shared by all three loops (priority sum) with p+=7 stride form.
-typedef struct EaEntry {
+// func_80709890 (src/global/10E1D0.c): stage 6: 12 diff lines (regs only, 149 insns identical shape). KEY WIN (2026-10-31): loop 3 needs its OWN walker local (u32 *r; 'b->unk0 = r = (u32 *)...; while (*r++ != -1)') instead of reusing p: 48 -> 11 lines (merged p loops 1+3 forced p's intrinsic forbidden [v0,v1]). Two dead block-split statements remain (FAKE-tagged): 'if (arg0 && arg0) {}' after the 3rd heapAlloc (frees v0 so loop-1 walker p=v0, loaded=v1 now match) and deadsweep's 'if (r == 0) {}' after the loop-3 while brace: 8 lines. Left: unk8/unkC/unk18 values land a1/a3/a0 instead of a0/a1/a3 (unk18 expression candidate adj 4.0 > unk8/unkC 3.0 colours first). Tried: named locals / chained assignments / ordering for the three field values, 400 random decl orders, deadsweep round 2 (no gain), permuter (only dead 'if (k) {}').
+typedef struct MeshEntry {
     u32 unk0;
     u8 pad[0x18];
-} EaEntry;
+} MeshEntry;
 
-typedef struct EaBlockB {
+typedef struct MeshBlobTail {
     u32 *unk0;
     s32 *unk4;
     u8 *unk8;
-} EaBlockB;
+} MeshBlobTail;
 
-typedef struct EaBlockA {
+typedef struct MeshBlobHeader {
     s32 unk0;
     s32 unk4;
     u8 *unk8;
@@ -20,17 +20,18 @@ typedef struct EaBlockA {
     u32 *unk18;
     s32 *unk1C;
     s32 *unk20;
-} EaBlockA;
+} MeshBlobHeader;
 
 void *heapAlloc(s32);
 
-s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) {
+s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **arg2, s32 **arg3) {
     s32 count;
     s32 k;
     s32 sum;
-    EaBlockB *b;
+    MeshBlobTail *b;
     u32 *p;
-    EaEntry *q;
+    u32 *r;
+    MeshEntry *q;
 
     if (arg0 == NULL) {
         return 0;
@@ -41,6 +42,7 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
     gFbTileTable = heapAlloc(0x708);
     arg0->unk10 = heapAlloc(arg0->unk0 * 0x10);
     arg0->unk14 = heapAlloc(arg0->unk0 * 0x10);
+    if (arg0 && arg0) {} // FAKE: block split after the 3rd heapAlloc frees $v0 for walker p
     arg0->unk8 = (u8 *)arg0 + 0x2C;
     arg0->unkC = arg0->unk8 + arg0->unk0 * 0xC;
     arg0->unk18 = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C);
@@ -53,18 +55,18 @@ s32 func_80709890(EaBlockA *arg0, EaBlockA **arg1, EaBlockB **arg2, s32 **arg3) 
     arg0->unk1C = arg0->unk20 + count;
     *arg1 = arg0;
     if (arg2 != NULL) {
-        b = (EaBlockB *)(arg0->unk1C + count);
+        b = (MeshBlobTail *)(arg0->unk1C + count);
         b->unk8 = (u8 *)(b + 1);
-        q = (EaEntry *)b->unk8;
-        if (gFbTileTable && gFbTileTable) {}
+        q = (MeshEntry *)b->unk8;
+        if (gFbTileTable && gFbTileTable) {} // FAKE: block split steering loop-2 walker regalloc
         count = 1;
         while ((q++)->unk0 != 0) {
             count++;
         }
-        b->unk0 = (u32 *)(b->unk8 + count * 0x1C);
         k = 1;
-        p = b->unk0;
-        while (*p++ != -1) {
+        b->unk0 = r = (u32 *)(b->unk8 + count * 0x1C);
+        while (*r++ != -1) {
+            if (r == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             k++;
         }
         b->unk4 = (s32 *)((u8 *)b->unk0 + k * 4);

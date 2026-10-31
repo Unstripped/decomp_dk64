@@ -1,4 +1,4 @@
-// func_8062C29C (src/global/2F550.c): Stage 5 (NM2F3). Unchanged structure (frame 0xE0, saved set, stream). New: widening the gDPSetTileSize args with a u64 mask no-op (`(X0 & 0xFFFFFFFFFFFFFFFFu)` for uls, `(X0 + 0x7C) & 0xFFFFFFFFFFFFFFFFu` for lrs) changes the w1 load order to target (468 then 464) and cuts the diff 395->239 lines; first-word t-reg choice (target t9,t7; mine t3,t4) still cascades. Joining macro statements onto one line has NO effect here (150 random join masks, identical output). permuter 2x600s: 1735->1300->995, no zero.
+// func_8062C29C (src/global/2F550.c): Stage 5 (QS3, parked NON_MATCHING in 2F550.c). Same frame 0xE0/saved set; text diff starts only at the gDPSetTileSize words (206 diff lines, rest is t-reg cascade): target loads 468 into t9 / 464 into t7 and schedules andi,andi,sll,or(at),or; mine t3/t4 and andi,or(at),andi,sll,or; w1 target does lrs andi+sll before lrt andi. u64 no-op mask on uls/lrs is the only thing that changes it (others no effect: casts s32/u32/f64, per-operand masks 2^4, mask on shifted terms/whole word/F2 const, operand/assoc order (uopt canonicalises), hand-written _g form, locals for words, dummy statements/dead loads before, s32 field type; permuter 570s from this base: no gain). First-load t-reg (t3 vs t9) independent of all source forms tried.
 typedef struct L8062C29CPlayer {
     u8 pad0[4];
     void *unk4;
@@ -70,8 +70,8 @@ Gfx *func_8062C29C(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f
     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
     gfx = func_80722294(gfx, L8062C29CP.unk4, D_807FC929);
     gSPSegment(gfx++, 5, osVirtualToPhysical(dl));
-    gDPSetTileSize(dl++, 0, (L8062C29CP.unk1D0[D_807444FC][0] & 0xFFFFFFFFFFFFFFFFu), L8062C29CP.unk1D0[D_807444FC][1],
-                   (L8062C29CP.unk1D0[D_807444FC][0] + 0x7C) & 0xFFFFFFFFFFFFFFFFu, L8062C29CP.unk1D0[D_807444FC][1] + 0x7C);
+    gDPSetTileSize(dl++, 0, (L8062C29CP.unk1D0[D_807444FC][0] & 0xFFFFFFFFFFFFFFFFu), L8062C29CP.unk1D0[D_807444FC][1], // FAKE: u64 mask no-op steers load order
+                   (L8062C29CP.unk1D0[D_807444FC][0] + 0x7C) & 0xFFFFFFFFFFFFFFFFu, L8062C29CP.unk1D0[D_807444FC][1] + 0x7C); // FAKE: u64 mask no-op steers load order
     gSPEndDisplayList(dl++);
     viewportSetFromRect(L8062C29CP.unk250[D_807444FC], L8062C29CP.unk270, L8062C29CP.unk272, L8062C29CP.unk274, L8062C29CP.unk276);
     gSPPerspNormalize(gfx++, L8062C29CP.unk188);

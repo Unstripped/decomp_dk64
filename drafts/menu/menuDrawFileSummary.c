@@ -1,4 +1,4 @@
-// menuDrawFileSummary (src/menu/3E10.c): stage 4 (parked NON_MATCHING in 3E10 copy; frame 240 = target, same saved set s0-s6,f20-f30): text 157 diff lines (stack-ref lines 45). Remaining: post-loop FP web colouring (target x1/x2 one in-place web f20, sc f22, -x f24, four f26, 0.5f f28, 0.0f hoisted f30; ours x2 f20/x1 f22, four f28, 0.5f f30, 0.0f unhoisted), spD0/spCC load order (target loads spCC->f12 first), spA4 at sp+168 vs target 164 (spD0/spCC at 208/204 match with spCC declared after spD0 variants differ), a2/a3 arg order for menuSetElementCoordinates. Found: fs0/fs1/fs2 merged into x/sc, px into y (floats reused), spD0/spCC read later via (s32), y=D_80033F4C;y-=0x140, 85*four int const, declaration order sc,four,y,py,p,temp_s4,x,i then spD0,spCC,fv1,spA4. Greedy dead-statement sweeps (7 globals+floats, 3 rounds) only 157->154; 864 syntactic float-expression variants no gain; decomp-permuter 700s no real gain.
+// menuDrawFileSummary (src/menu/3E10.c): from .scratch/QMenu/menuDrawFileSummary_best.c
 extern s8 D_80033804;
 extern s32 D_8003380C;
 extern s32 D_80033810;
@@ -6,7 +6,7 @@ extern u32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
 extern u32 D_8076A064;
-s32 menuSetElementCoordinates(s32, s32, f32, f32, f32);
+Gfx *menuSetElementCoordinates(Gfx *, s32, f32, f32, f32);
 Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, s32, s32, s16, s32, f32, f32, s32, f32);
 f32 func_80612794(s16);
 
@@ -15,12 +15,12 @@ s32 menuDrawFileSummary(void *arg0, Gfx *arg1) {
     s16 y;
     s16 py;
     void *temp_s4 = *(void **)((u8 *)arg0 + 0x174);
-    s32 i = 0;
     s8 *p = &D_80033804;
+    s32 i = 0;
     f32 sc = 3.0f;
     f32 four;
-    f32 spCC;
     f32 spD0;
+    f32 spCC;
     char spA4[0x20];
     f32 fv1;
 
