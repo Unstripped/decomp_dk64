@@ -1,4 +1,4 @@
-// func_80722294 (src/global/126260.c): stage 5; frame 0xB8 reached, exact 6304 bytes; $s0-$s4 callee-saved set matched ($s0=i, $s1=arg0, $s2=command, $s3=arg1, $s4=secondary); color[3] array home at 0x60-0x68 matches; secondary Lights7 indexed array matches; remaining diff regalloc s1/s2 swap and 4-byte stack offset shift
+// func_80722294 (src/global/126260.c): stage 5: frame 0xB8, s0-s4 set and s1=arg0/s2=command now match, mnemonic stream identical (only 2 sched swaps); remaining diff = ugen t-temp LRU phase in the first block: target idx lbu->t9 then an invisible touch (t3) before the *120 mul (t4); mine touches t9 for the cb reload before idx (t3). Tried ~300 forms of primary/secondary address expr. Fixes found: (void*) cast on unkCD arg (v1), cnt=command copy, 4th Gfx local, 0xDC080000|..|0xA, secondary declared before primary
 typedef struct {
     u8 pad0[0x5C];
     u16 unk5C;
@@ -43,8 +43,8 @@ s32 func_80721814(s32, Command *, f32, f32, f32, s16);
 Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
     u8 is_player;
     s32 color_base;
-    Ambient *primary;
     Light *secondary;
+    Ambient *primary;
     L126b_ActorView *actor;
     s32 command;
     s16 camera_rotation;
@@ -63,6 +63,7 @@ Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
     f32 y;
     f32 z;
     f32 color[3];
+    s32 cnt;
 
     actor = (L126b_ActorView *)arg1;
     if (arg1 == D_807FBB4C) {
@@ -76,7 +77,7 @@ Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
     secondary = &((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].l[0];
 
     if (actor->unkCD != 0) {
-        actorGetNodePos(arg1, actor->unkCD, &x, &y, &z);
+        actorGetNodePos(arg1, (void *)actor->unkCD, &x, &y, &z); // FAKE: pointer cast keeps the node id in v1 (move a1,v1)
     } else {
         x = actor->x;
         y = actor->y;
@@ -169,25 +170,28 @@ Gfx *func_80722294(Gfx *arg0, Actor *arg1, s16 arg2) {
         primary->l.colc[0] = 0;
     }
 
-    for (i = 0; i < command; i++) {
+    cnt = command; // FAKE: separate loop-bound/count web (swaps s1/s2 priority)
+    for (i = 0; i < cnt; i++) {
         Gfx *dl = arg0++;
-        dl->words.w0 = 0xDC08000A | ((((i * 0x18 + 0x30) / 8) & 0xFF) << 8);
+        dl->words.w0 = (0xDC080000 | ((((i * 0x18 + 0x30) / 8) & 0xFF) << 8)) | 0xA;
         dl->words.w1 = (u32)&((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].l[i];
     }
     {
         Gfx *gdl1 = arg0++;
         Gfx *gdl2 = arg0++;
-        gdl1->words.w0 = 0xDC08000A | ((((command * 0x18 + 0x30) / 8) & 0xFF) << 8);
+        Gfx *gdl3;
+        gdl1->words.w0 = (0xDC080000 | ((((command * 0x18 + 0x30) / 8) & 0xFF) << 8)) | 0xA;
         gdl1->words.w1 = (u32)&((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].a;
         gdl2->words.w1 = command * 0x18;
         gdl2->words.w0 = 0xDB020000;
-        arg0->words.w1 = 0;
-        arg0->words.w0 = 0xE7000000;
+        gdl3 = arg0++;
+        gdl3->words.w1 = 0;
+        gdl3->words.w0 = 0xE7000000;
     }
 
     D_807FDB75++;
     if (D_807FDB75 >= 0x18) {
         D_807FDB75--;
     }
-    return arg0 + 1;
+    return arg0;
 }
