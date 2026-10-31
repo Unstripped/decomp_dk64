@@ -68,7 +68,7 @@ Split at every TU boundary BEFORE round 1, seed the stubs' shared externs, keep 
    `python3 tools/unit_check.py coverage src/<seg>/<file>.c <Agent>=<funcs>...`.
 4. Dispatch up to 6 agents, each in PRIVATE COPY mode from a named base commit.
 5. As each agent reports: check the report against its list and the stage of anything
-   parked; append it to `.scratch/all-reports.md`. A zero-yield copy is not merged.
+   parked; append it to `.scratch/all-reports.md`. A zero-yield copy is merged only for parks (merge.md).
    `python3 tools/drafts.py collect`, then `git diff drafts/` (restore any note it
    replaced), then
    `tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage include/<h>.h] .scratch/<A> <base> src/<seg>/<f>.c`
