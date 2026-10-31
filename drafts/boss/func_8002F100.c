@@ -1,4 +1,4 @@
-// func_8002F100 (src/boss/B100.c): stage 6 (unchanged, 4 exact diff lines: slti v0 first vs slti at after addiu). Pass 4 sweep (~150 variants): if (TIMER_STATE->unk2C-- < 4) reproduces the exact slti v0/addiu/beqz/sh order (cmp becomes a real candidate) but shifts coloring: switch temp cand 43 v0->v1, t (cand121) a0->v0, ptr v1->a0, load a0->a1 (116 diff lines). Compensation tried without effect: local decl permutations (24), case1/case4 forms (fld/dec/--), t as s32/u16, extra t2 local replacing pad, nov forms for case3 head/else-if, (t=unk2C--)<4 (cmp after store -> slti at), c=t<4 locals (folds to at), comma/|/+ compare forms, inverted if arms.
+// func_8002F100 (src/boss/B100.c): stage 6, 14 diff lines (regalloc only): needs t in a0 (target) not v0 in cases 1/3/4 of the 0x27 switch. Form that fixes slti v0/addiu order: 'if (TIMER_STATE->unk2C-- < 4)' + 'void projectileSpawnWithShockwave' prototype (s32 breaks it). Score 0 reached ONLY with a dead use of uninitialised t: 'if (t == 0) {}' after 'sp4C->unk15++;' in 0x27 case 0 (rejected by project rule). Replacement search without uninit t: deadsweep sweep --extra sp4C sp48 (8820 variants, no gain); dead t uses after every t assignment (if(t==0)/if(t)/t=t/&0xFFFF: no gain); t assigned at top or in case 0 + dead use (no gain); 120 decl permutations (no gain); A/B/C/D/E forms of the unk2C-- compare (worse). Docker went down before the --forms '@ = @;' sweep could run.
 typedef struct BossPhaseState {
     u8 pad0[0x14];
     u8 unk14;
@@ -66,18 +66,14 @@ typedef struct BossConfig {
 } BossConfig;
 
 extern u8 *D_80035A90[];
-extern void *D_807FBB4C;
 extern BossGlobalC924 *D_807FC924;
-extern void *D_807FDC90;
 extern BossConfig *D_807FDC9C;
-extern BossWaypointList *D_807FDCA0;
 extern void *gCamActor;
 
 void behaviourFrameBegin(void);
 void func_8070B308(s32);
 void camSetSecondTarget(void *, s32, s32);
 void func_80724CA4(s32, s32);
-s32 flagGet(s32, s32);
 void zoneEntryGetPosition(s32, s32, void *, void *, void *);
 void bossRoundFrame(u8 *);
 void camStartPath(void *, s32, u8);
@@ -92,12 +88,11 @@ void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(void *, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 func_806CC190(s16, s16, f32);
-s32 projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
+void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s32, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 s32 currentActorTestClearFlag(void);
-s32 bossScriptStep(u8 *, s32, f32);
 void func_8072A450(void);
 s32 func_8072881C(s32, void *);
 
@@ -206,15 +201,13 @@ void func_8002F100(void) {
             MAIN_ACTOR->unk155++;
             break;
         case 2:
-            MAIN_ACTOR->unkE6 = func_806CC190(MAIN_ACTOR->unkE6, mathAngleBetweenPoints2D((f32)D_807FDCA0->unk14->unk0, (f32)D_807FDCA0->unk14->unk4, MAIN_ACTOR->unk7C, MAIN_ACTOR->unk84), 10.0f);
+            MAIN_ACTOR->unkE6 = func_806CC190(MAIN_ACTOR->unkE6, mathAngleBetweenPoints2D((f32)((BossWaypointList *)D_807FDCA0)->unk14->unk0, (f32)((BossWaypointList *)D_807FDCA0)->unk14->unk4, MAIN_ACTOR->unk7C, MAIN_ACTOR->unk84), 10.0f);
             break;
         case 3:
             t = TIMER_STATE->unk2C;
             if (t != 0 && (u32)D_8076A064 % 5 == 0) {
                 projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 150, 3, (f32)((f64)(u32)sp4C->unk14 * 0.01 + 1.04), 0.0f, 0.0f, 0.0f);
-                t = TIMER_STATE->unk2C;
-                TIMER_STATE->unk2C = t - 1;
-                if (t < 4) {
+                if (TIMER_STATE->unk2C-- < 4) {
                     SECOND_ACTOR->unk168 = 0;
                 } else {
                     sfxPlayAtPositionPooled(MAIN_ACTOR->unk7C, MAIN_ACTOR->unk80, MAIN_ACTOR->unk84, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
