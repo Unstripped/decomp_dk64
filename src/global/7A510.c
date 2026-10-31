@@ -3,7 +3,6 @@
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/7A510/func_80675810.s")
 
-#ifdef NON_MATCHING
 typedef struct KaP2_ActorAFC {
     u8 pad0[0x5A];
     s16 unk5A;
@@ -40,7 +39,7 @@ void func_80675AFC(KaP2_ActorAFC *arg0, KaP2_ActorAFC *arg1) {
                     found = 0;
                 }
                 for (j = 0; !found && j < D_807FBB70.unk201;) {
-                    if (arg1 == (KaP2_ActorAFC *)D_807FBB70.unk204[j] && D_807FBB70.unk244[j] == entry->unk5) {
+                    if (arg1 == (KaP2_ActorAFC *)D_807FBB70.unk204[j] && D_807FBB70.unk244[j] == ((s8 *)entry)[5]) {  // FAKE: byte-indexed unk5 read makes IDO emit the load operand first (bnel t2,t0)
                         found = 1;
                     } else {
                         j++;
@@ -62,10 +61,6 @@ void func_80675AFC(KaP2_ActorAFC *arg0, KaP2_ActorAFC *arg1) {
         entry++;
     } while (!done);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7A510/func_80675AFC.s")
-#endif
 
 s32 func_80675C70(s16 arg0, s16 arg1, s16 arg2) {
     if (arg2 == arg0) {

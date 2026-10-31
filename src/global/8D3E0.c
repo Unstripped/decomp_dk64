@@ -852,7 +852,6 @@ s32 func_80689BAC(s16 arg0) {
     return 0;
 }
 
-#ifdef NON_MATCHING
 s32 actorListFindClosestTargetIndex(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
     s32 total = *arg0;
     s32 bestIndex = -1;
@@ -867,7 +866,7 @@ s32 actorListFindClosestTargetIndex(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32
     for (i = 0; i < total; i++) {
         item = &((ActorListRecord *)(list + 1))[i];
         for (j = 0; j < arg2; j++) {
-            if (arg1[j] == item->unk32 + 0x10U) { // FAKE: unsigned 0x10U keeps IDO from rewriting the compare to x - 16 == y
+            if (arg1[j] == (0, item->unk32 + 0x10U)) { // FAKE: 0x10U keeps IDO from rewriting the compare to x - 16 == y; the comma wrapper puts the arg1[j] operand first in bnel
                 dist = ((item->unk08 - arg5) * (item->unk08 - arg5)) + (((item->unk00 - arg3) * (item->unk00 - arg3)) + ((item->unk04 - arg4) * (item->unk04 - arg4)));
                 if (dist < minDistance) {
                     minDistance = dist;
@@ -878,10 +877,6 @@ s32 actorListFindClosestTargetIndex(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32
     }
     return bestIndex;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/8D3E0/actorListFindClosestTargetIndex.s")
-#endif
 
 typedef struct ActorListPlayerEntry {
     u8 unk0;
