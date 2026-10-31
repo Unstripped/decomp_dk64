@@ -1,4 +1,5 @@
-// func_80636FFC (src/global/36880.c): Stage 4 (NMBig): same s0,s1 + frame 0x138; 37 diff lines in mini-TU compare. Needs file proto 's32 func_80636D38();' (K&R; verified modelSlotInit still matches) -> slot ptr in v1. Layout: dummy block locals { s32 pad4; } after seg10 macro / { s32 pad5; } after DL9 macro / { s32 pad6; } before final PipeSync reproduce spill homes 0x70-0x7C,0x58 (no pad3 hack). Remaining: (1) selptr/t8 spill slots 0x38/0x3C vs target 0x3C/0x40 (target has 2 extra late CSE-temp homes at frame bottom, dummy locals cannot reach there); (2) guRotateF x3 blocks: as1 hoists 'addiu a0,sp,184' (and li a2/a3,lui at in 3rd) above c.eq.d, bc1tl vs target bc1t+lui delay; (3) flags: target 'lbu a0,0x8c(v1); move v0,a0' (live-range split a0/v0), mine v0 only. Tried: line joins of if/rotate/cat, local angle var, casts, flag var forms (u8/s32/cond/mix), permuter 900s stack-diffs and 600s plain.
+// func_80636FFC (src/global/36880.c): Stage 4 (NMBig): same s0,s1 + frame 0x138, 43024 bytes, 19 diff lines. Needs file proto 's32 func_80636D38();' (K&R; modelSlotInit still matches). Remaining: (1) ugen spill slots 0x38/0x3C vs target 0x3C/0x40: target has 1 fewer local home word + 1 extra unused temp word (moving/removing pad/pad2/padq tried at every decl position: frame or diff 19 at best, never <19); (2) guRotateF x3: as1/uopt emits 'addiu a0,sp,184' before c.eq.d (and li a2/a3,lui at in 3rd) vs target after bc1tl; &spB8[0][0]/(f32*)spB8/&spB8[0] forms at any subset of the 8 call sites, 0.0f/!(==)/(f64) compare forms: no change; (3) flags: target 'lbu a0,0x8c(v1)' vs mine v0 (3 lines).
+// needs file proto: s32 func_80636D38(); (replace 'void func_80636D38(void *, s32, s32);')
 typedef struct {
     /* 0x00 */ u8 pad0[0x60];
     /* 0x60 */ u8 unk60;
@@ -7,22 +8,22 @@ typedef struct {
     /* 0x64 */ s16 unk64;
     /* 0x66 */ u8 pad66[0x32];
     /* 0x98 */ s16 unk98;
-} L80636FFCModel;
+} OlB6Model;
 
 typedef struct {
     /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ struct L80636FFCCtl *unk4;
+    /* 0x04 */ struct OlB6Ctl *unk4;
     /* 0x08 */ u8 pad8[0x214];
     /* 0x21C */ f32 unk21C;
     /* 0x220 */ f32 unk220;
     /* 0x224 */ f32 unk224;
     /* 0x228 */ u8 pad228[0xC8];
-} L80636FFCPlayer; /* 0x2F0 */
+} OlB6Player; /* 0x2F0 */
 
-typedef struct L80636FFCCtl {
+typedef struct OlB6Ctl {
     /* 0x00 */ u8 pad0[0x58];
     /* 0x58 */ s32 unk58;
-} L80636FFCCtl;
+} OlB6Ctl;
 
 typedef struct {
     /* 0x00 */ f32 unk0;
@@ -46,7 +47,7 @@ typedef struct {
     /* 0xC3 */ u8 unkC3;
     /* 0xC4 */ u8 unkC4;
     /* 0xC5 */ u8 unkC5;
-} L80636FFCObj;
+} OlB6Obj;
 
 void texAnimUpdateNodes(ModelSegmentData *);
 void func_8063E6B4(void *);
@@ -57,9 +58,9 @@ void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
 f32 renderScaleDistanceByFov(f32);
 Gfx *renderSetSegment6AndFog(Gfx *, s16, u8);
 
-#define L80636FFC_PLAYER(i) (((L80636FFCPlayer *)D_807FC924)[i])
+#define OlB6_PLAYER(i) (((OlB6Player *)D_807FC924)[i])
 
-Gfx *func_80636FFC(L80636FFCObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, s16 arg6, s32 arg7) {
+Gfx *func_80636FFC(OlB6Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, s16 arg6, s32 arg7) {
     f32 spF8[4][4];
     f32 spB8[4][4];
     f32 dx;
@@ -68,7 +69,7 @@ Gfx *func_80636FFC(L80636FFCObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
     u8 sel;
     u8 *sel78;
     f32 scale;
-    L80636FFCModel *model;
+    OlB6Model *model;
     s32 pad;
     u8 sp97;
     u8 sp96;
@@ -83,9 +84,9 @@ Gfx *func_80636FFC(L80636FFCObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
         func_8063E6B4((void *)&arg5);
     }
     if (arg5 != 0) {
-        dx = L80636FFC_PLAYER(D_807FC929).unk21C - arg0->unk0;
-        dy = L80636FFC_PLAYER(D_807FC929).unk220 - arg0->unk4;
-        dz = L80636FFC_PLAYER(D_807FC929).unk224 - arg0->unk8;
+        dx = OlB6_PLAYER(D_807FC929).unk21C - arg0->unk0;
+        dy = OlB6_PLAYER(D_807FC929).unk220 - arg0->unk4;
+        dz = OlB6_PLAYER(D_807FC929).unk224 - arg0->unk8;
         dx *= dx;
         dy *= dy;
         dz *= dz;
@@ -168,7 +169,7 @@ Gfx *func_80636FFC(L80636FFCObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
     if (arg5 != 0) {
         if (arg0->unkB6 != -1 && (model = D_807F6000[sp90].unk7C) != NULL && model->unk60 == 1) {
             func_8063E6B4(model);
-            sp92 = ((L80636FFCModel *)D_807F6000[sp90].unk7C)->unk64;
+            sp92 = ((OlB6Model *)D_807F6000[sp90].unk7C)->unk64;
         } else {
             renderCalcPlayerDistanceAlpha(arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC0, arg0->unkB4, &sp92);
             if (arg0->unkB6 != -1) {
@@ -197,19 +198,19 @@ Gfx *func_80636FFC(L80636FFCObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, 
         if (arg0->unkB6 != -1) {
             s32 fl = D_807F6000[sp90].unk8C;
             if (fl != 0) {
-                if ((fl & 0x8) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 2) {
+                if ((fl & 0x8) && OlB6_PLAYER(D_807FC929).unk4->unk58 != 2) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x2) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 3) {
+                if ((D_807F6000[sp90].unk8C & 0x2) && OlB6_PLAYER(D_807FC929).unk4->unk58 != 3) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x4) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 5) {
+                if ((D_807F6000[sp90].unk8C & 0x4) && OlB6_PLAYER(D_807FC929).unk4->unk58 != 5) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x1) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 6) {
+                if ((D_807F6000[sp90].unk8C & 0x1) && OlB6_PLAYER(D_807FC929).unk4->unk58 != 6) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x10) && L80636FFC_PLAYER(D_807FC929).unk4->unk58 != 4) {
+                if ((D_807F6000[sp90].unk8C & 0x10) && OlB6_PLAYER(D_807FC929).unk4->unk58 != 4) {
                     sp92 = 0x64;
                 }
             }
