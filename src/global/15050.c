@@ -351,11 +351,10 @@ s32 heapInitGeneralPool(s32 owner, s32 start, s32 size) {
     return D_807F0A28++;
 }
 
-#ifdef NON_MATCHING
 void heapSortPools(void);
 
 s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
-    u16 bs;
+    u32 bs;
     u32 stride;
     u32 rem;
     HeapBlock *cur;
@@ -363,21 +362,22 @@ s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
     HeapBlock *next;
     HeapBlock *end;
 
-    bs = (blockSize + 0xF) & ~0xF;
-    stride = bs + 0x10;
+    blockSize = (blockSize + 0xF) & ~0xF;
+    bs = blockSize; // FAKE: u32 copy of the narrowed formal; keeps the loop store off a ucvt temp
+    stride = blockSize + 0x10;
     rem = size % stride;
     if (rem == 0) {
         rem = stride;
     }
     size = size - rem + 0x10;
-    end = (HeapBlock *)(start + size - 0x10);
     D_807F0988[D_807F0A28].size = size;
     D_807F0988[D_807F0A28].blockSize = bs;
-    prev = NULL;
     D_807F0988[D_807F0A28].owner = owner;
     D_807F0988[D_807F0A28].start = start;
     D_807F0988[D_807F0A28].freeList = (HeapBlock *)start;
     cur = (HeapBlock *)start;
+    end = (HeapBlock *)(start + size - 0x10);
+    prev = NULL;
     do {
         next = (HeapBlock *)((u8 *)cur + stride);
         cur->physPrev = prev;
@@ -386,7 +386,7 @@ s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
         cur->next = next;
         prev = cur;
         cur = next;
-    } while (next < (HeapBlock *)(start + size - 0x10));
+    } while (cur < end);
     prev->next = NULL;
     *(u64 *)end = 0;
     *(u64 *)&end->next = 0;
@@ -398,10 +398,6 @@ s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
     heapSortPools();
     return D_807F0A28 - 1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/heapInitBlockPool.s")
-#endif
 
 void heapSortPools(void) {
     u32 i;
@@ -420,7 +416,6 @@ void heapSortPools(void) {
     }
 }
 
-#ifdef NON_MATCHING
 s32 heapReleasePool(s32 idx) {
     HeapBlock *blk;
     HeapBlock *tail;
@@ -428,10 +423,13 @@ s32 heapReleasePool(s32 idx) {
     s32 ok;
     s32 count;
     u16 bs;
+    s32 x;
+    s32 y;
 
     ok = 1;
     start = D_807F0988[idx].start;
     if (idx != 0) {
+        if (start && start) {} // FAKE: steers uopt coloring (start live range / x as a candidate)
         count = D_807F0A28;
         if (count >= 2) {
             bs = D_807F0988[idx].blockSize;
@@ -448,7 +446,11 @@ s32 heapReleasePool(s32 idx) {
                         blk = tail->next;
                     } while (blk != NULL);
                 }
-                if (bs + (s32)tail + 0x20 != D_807F0988[idx].size + (s32)start) {
+                x = bs + (s32)tail;
+                x += 0x20;
+                if (x == 0) {} // FAKE: steers uopt coloring (start live range / x as a candidate)
+                y = D_807F0988[idx].size + (s32)start;
+                if (x != y) {
                     ok = 0;
                 }
             } else {
@@ -470,25 +472,20 @@ s32 heapReleasePool(s32 idx) {
             }
             return idx;
         }
+        if (D_807F0988[idx].owner) {} // FAKE: steers uopt coloring (permuter-found)
     }
     return 0;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/heapReleasePool.s")
-#endif
-
-#ifdef NON_MATCHING
 s32 func_8061116C(void);
 extern s32 D_80746A34;
 
-void *heapAlloc(u32 size) {
-    s32 n;
-    HeapPool *pool;
-    HeapBlock *blk;
-    HeapBlock *res;
+void *heapAlloc(u32 size) { while (1) { // LAYOUT: loop header on the function line; a later .loc line makes as1 schedule the prologue differently
+        s32 n;
+        HeapPool *pool;
+        HeapBlock *blk;
+        HeapBlock *res;
 
-    while (1) {
         size = (size + 0xF) & ~0xF;
         n = D_807F0A50;
         if (n != 0) {
@@ -524,10 +521,6 @@ void *heapAlloc(u32 size) {
         return NULL;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/heapAlloc.s")
-#endif
 
 u8 func_80611154(void) {
     return D_80746A37;

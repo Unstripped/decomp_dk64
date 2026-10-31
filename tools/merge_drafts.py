@@ -217,14 +217,14 @@ def lost_functions(base_text, draft_text):
     """Symbols whose GLOBAL_ASM line is in the base but neither that line nor a C definition
     is in the draft: an agent deleted another function's pragma (the link then fails with an
     undefined reference from data, e.g. a callback table). A function counts as defined by
-    `T name(...)` without a trailing `;`; a standalone data/rodata pragma (`D_....s`) by a
+    `T name(...)` without a trailing `;` (or `T name(...) {` with code after it on that line); a standalone data/rodata pragma (`D_....s`) by a
     non-extern file-scope object definition `T name[...] = ...;` / `T name;`."""
     lost = []
     for path, name in re.findall(r'GLOBAL_ASM\("([^"]*/(\w+)\.s)"\)', base_text):
         if f'GLOBAL_ASM("{path}")' in draft_text:
             continue
         n = re.escape(name)
-        if re.search(rf"^[A-Za-z_][\w \t\*]*\b{n}\([^;]*$", draft_text, re.M):
+        if re.search(rf"^[A-Za-z_][\w \t\*]*\b{n}\(([^;]*$|[^;{{}}]*\)\s*\{{)", draft_text, re.M):
             continue
         # K&R definition: `T name(a, b) T1 a; T2 *b; {` (identifier list, then declarations)
         if re.search(rf"^[A-Za-z_][\w \t\*]*\b{n}\(\s*\w+(?:\s*,\s*\w+)*\s*\)\s*"
