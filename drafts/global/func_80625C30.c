@@ -1,28 +1,22 @@
-// func_80625C30 (src/global/201B0.c): stage 5: semantics decoded (min/max bounds, 400-grid snap, insertion sort of {idx,key} pairs by key then entry.unk18, group table). Only diff: 7 fewer insns - target has extra index copies (move s2,s0 before sll in loop1; move a0,t5 / move a0,t6 in sort loop; load order key before idx). Tried j copies, pointer-arith, off var, for/break loop.
-typedef struct CamE3Pair {
+// func_80625C30 (src/global/201B0.c): stage 5: 13 insns short (299 vs 312); target has index copies move s2,s0 in loop1, move a0,t5 and a0,t6 in insertion sort loop; tested struct copy, s32 locals, macro cleanup
+typedef struct OlG_CamZonePair {
     /* 0x0 */ s16 unk0;
     /* 0x2 */ s16 unk2;
-} CamE3Pair;
+} OlG_CamZonePair;
 
-typedef struct CamE3Ent {
-    /* 0x00 */ u8 pad0[0x18];
-    /* 0x18 */ u8 unk18;
-    /* 0x19 */ u8 pad19[3];
-} CamE3Ent; // size = 0x1C
-
-typedef struct CamE3Path {
+typedef struct OlG_CamPathZoneEntries {
     /* 0x00 */ u8 pad0[0xC0];
     /* 0xC0 */ s16 unkC0;
     /* 0xC2 */ u8 padC2[2];
-    /* 0xC4 */ CamE3Ent *unkC4;
-} CamE3Path;
+    /* 0xC4 */ CamZoneEntry *unkC4;
+} OlG_CamPathZoneEntries;
 
 void *heapAlloc(s32);
 void heapFree(void *);
 
-#define CAME3_PATH ((CamE3Path *)D_807476FC)
-#define CAME3_SORT ((CamE3Pair *)D_80747704)
-#define CAME3_GROUP ((CamE3Pair *)D_807476C0)
+#define OlG_CAM_ZONE_GROUP ((OlG_CamZonePair *)gCamZoneGroups)
+#define OlG_CAM_ZONE_SORT ((OlG_CamZonePair *)gCamZoneSorted)
+#define CAM_ZONE_ENTRIES_PATH ((OlG_CamPathZoneEntries *)gCamActivePaths)
 
 void func_80625C30(void) {
     s16 i;
@@ -31,56 +25,56 @@ void func_80625C30(void) {
     s16 key;
     s16 idx;
 
-    func_80625B3C(&D_807F5CD2, &D_807F5CD6, &D_807F5CD4);
-    D_807F5CD6 = D_807F5CD6 / 400 * 400 + 400;
-    D_807F5CD2 = D_807F5CD2 / 400 * 400;
-    D_807F5CD8 = (D_807F5CD6 - D_807F5CD2) / 400;
-    D_807F5CD4 = D_807F5CD4 / 400 * 400;
-    if (D_80747704 != NULL) {
-        heapFree(D_80747704);
+    camGetZoneBounds(&gCamZoneMinX, &gCamZoneMaxX, &gCamZoneMinZ);
+    gCamZoneMaxX = gCamZoneMaxX / 400 * 400 + 400;
+    gCamZoneMinX = gCamZoneMinX / 400 * 400;
+    gCamZoneGridWidth = (gCamZoneMaxX - gCamZoneMinX) / 400;
+    gCamZoneMinZ = gCamZoneMinZ / 400 * 400;
+    if (gCamZoneSorted != NULL) {
+        heapFree(gCamZoneSorted);
     }
-    D_80747704 = heapAlloc(CAME3_PATH->unkC0 * 4 + 4);
-    for (i = 0; i < CAME3_PATH->unkC0; i++) {
-        CAME3_SORT[i].unk0 = i;
-        CAME3_SORT[i].unk2 = func_80625A80(i);
+    gCamZoneSorted = heapAlloc(CAM_ZONE_ENTRIES_PATH->unkC0 * 4 + 4);
+    for (i = 0; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
+        OlG_CAM_ZONE_SORT[i].unk0 = i;
+        OlG_CAM_ZONE_SORT[i].unk2 = camGetZoneCell(i);
     }
-    for (i = 1; i < CAME3_PATH->unkC0; i++) {
-        key = CAME3_SORT[i].unk2;
-        idx = CAME3_SORT[i].unk0;
+    for (i = 1; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
+        key = OlG_CAM_ZONE_SORT[i].unk2;
+        idx = OlG_CAM_ZONE_SORT[i].unk0;
         j = i;
         while (j > 0 &&
-               (key < CAME3_SORT[j - 1].unk2 ||
-                (key == CAME3_SORT[j - 1].unk2 &&
-                 CAME3_PATH->unkC4[CAME3_SORT[j - 1].unk0].unk18 < CAME3_PATH->unkC4[CAME3_SORT[j].unk0].unk18))) {
-            CAME3_SORT[j].unk0 = CAME3_SORT[j - 1].unk0;
-            CAME3_SORT[j].unk2 = CAME3_SORT[j - 1].unk2;
+               (key < OlG_CAM_ZONE_SORT[j - 1].unk2 ||
+                (key == OlG_CAM_ZONE_SORT[j - 1].unk2 &&
+                 CAM_ZONE_ENTRIES_PATH->unkC4[OlG_CAM_ZONE_SORT[j - 1].unk0].unk18 < CAM_ZONE_ENTRIES_PATH->unkC4[OlG_CAM_ZONE_SORT[j].unk0].unk18))) {
+            OlG_CAM_ZONE_SORT[j].unk0 = OlG_CAM_ZONE_SORT[j - 1].unk0;
+            OlG_CAM_ZONE_SORT[j].unk2 = OlG_CAM_ZONE_SORT[j - 1].unk2;
             j--;
         }
         if (j != i) {
-            CAME3_SORT[j].unk0 = idx;
-            CAME3_SORT[j].unk2 = key;
+            OlG_CAM_ZONE_SORT[j].unk0 = idx;
+            OlG_CAM_ZONE_SORT[j].unk2 = key;
         }
     }
-    D_807F5CDA = 1;
-    for (i = CAME3_PATH->unkC0 - 1; i > 0; i--) {
-        if (CAME3_SORT[i].unk2 != CAME3_SORT[i - 1].unk2) {
-            D_807F5CDA++;
+    gCamZoneGroupCount = 1;
+    for (i = CAM_ZONE_ENTRIES_PATH->unkC0 - 1; i > 0; i--) {
+        if (OlG_CAM_ZONE_SORT[i].unk2 != OlG_CAM_ZONE_SORT[i - 1].unk2) {
+            gCamZoneGroupCount++;
         }
     }
-    if (D_807476C0 != NULL) {
-        heapFree(D_807476C0);
+    if (gCamZoneGroups != NULL) {
+        heapFree(gCamZoneGroups);
     }
-    D_807476C0 = heapAlloc(D_807F5CDA * 4 + 4);
-    CAME3_GROUP[0].unk0 = CAME3_SORT[0].unk2;
-    CAME3_GROUP[0].unk2 = 0;
+    gCamZoneGroups = heapAlloc(gCamZoneGroupCount * 4 + 4);
+    OlG_CAM_ZONE_GROUP[0].unk0 = OlG_CAM_ZONE_SORT[0].unk2;
+    OlG_CAM_ZONE_GROUP[0].unk2 = 0;
     k = 1;
-    for (i = 1; i < CAME3_PATH->unkC0; i++) {
-        if (CAME3_SORT[i].unk2 != CAME3_SORT[i - 1].unk2) {
-            CAME3_GROUP[k].unk0 = CAME3_SORT[i].unk2;
-            CAME3_GROUP[k].unk2 = i;
+    for (i = 1; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
+        if (OlG_CAM_ZONE_SORT[i].unk2 != OlG_CAM_ZONE_SORT[i - 1].unk2) {
+            OlG_CAM_ZONE_GROUP[k].unk0 = OlG_CAM_ZONE_SORT[i].unk2;
+            OlG_CAM_ZONE_GROUP[k].unk2 = i;
             k++;
         }
     }
-    CAME3_GROUP[k].unk0 = -1;
-    CAME3_GROUP[k].unk2 = CAME3_PATH->unkC0;
+    OlG_CAM_ZONE_GROUP[k].unk0 = -1;
+    OlG_CAM_ZONE_GROUP[k].unk2 = CAM_ZONE_ENTRIES_PATH->unkC0;
 }

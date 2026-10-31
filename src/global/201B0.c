@@ -1289,26 +1289,21 @@ void func_8061D6A8(CamFollowState *cam) {
 }
 
 
-#ifdef NON_MATCHING
-void func_806F3DB0(u16, void *);
+void func_806F3DB0(void);
 
-typedef struct CamPathStepListRaw {
+typedef struct OlG_CamPathStepListRaw {
     /* 0x0 */ u8 pad0[4];
     /* 0x4 */ s16 *unk4;
     /* 0x8 */ s16 *unk8;
-} CamPathStepListRaw;
+} OlG_CamPathStepListRaw;
 
 void func_8061D898(void) {
     ((CamActor *)gCamPathActor)->unk168 = 0;
     ((CamActor *)gCamPathActor)->unk160 = 0.0;
     gCamPathNode = gCamActivePaths->unkD0[gCamPathIndex].unk4[gCamPathStep];
-    gCamPathFramesLeft = ((CamPathStepListRaw *)&gCamActivePaths->unkD0[gCamPathIndex])->unk8[gCamPathStep];
-    func_806F3DB0(gCamPathStep, &gCamPathActor);
+    gCamPathFramesLeft = ((OlG_CamPathStepListRaw *)&gCamActivePaths->unkD0[gCamPathIndex])->unk8[gCamPathStep];
+    func_806F3DB0();
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_8061D898.s")
-#endif
 
 void camSetPath(u8 arg0) {
     gCamPathIndex = arg0;
@@ -4455,19 +4450,26 @@ void camGetZoneBounds(s16 *arg0, s16 *arg1, s16 *arg2) {
     *arg2 -= 0xC8;
 }
 
-#ifdef NON_MATCHING
-typedef struct CamPathZoneEntries {
+typedef struct OlG_CamZonePair {
+    /* 0x0 */ s16 unk0;
+    /* 0x2 */ s16 unk2;
+} OlG_CamZonePair;
+
+typedef struct OlG_CamPathZoneEntries {
     /* 0x00 */ u8 pad0[0xC0];
     /* 0xC0 */ s16 unkC0;
     /* 0xC2 */ u8 padC2[2];
     /* 0xC4 */ CamZoneEntry *unkC4;
-} CamPathZoneEntries;
+} OlG_CamPathZoneEntries;
 
 void *heapAlloc(s32);
 void heapFree(void *);
 
-#define CAM_ZONE_ENTRIES_PATH ((CamPathZoneEntries *)gCamActivePaths)
+#define OlG_CAM_ZONE_GROUP ((OlG_CamZonePair *)gCamZoneGroups)
+#define OlG_CAM_ZONE_SORT ((OlG_CamZonePair *)gCamZoneSorted)
+#define CAM_ZONE_ENTRIES_PATH ((OlG_CamPathZoneEntries *)gCamActivePaths)
 
+#ifdef NON_MATCHING
 void func_80625C30(void) {
     s16 i;
     s16 j;
@@ -4485,29 +4487,29 @@ void func_80625C30(void) {
     }
     gCamZoneSorted = heapAlloc(CAM_ZONE_ENTRIES_PATH->unkC0 * 4 + 4);
     for (i = 0; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
-        CAM_ZONE_SORT[i].unk0 = i;
-        CAM_ZONE_SORT[i].unk2 = camGetZoneCell(i);
+        OlG_CAM_ZONE_SORT[i].unk0 = i;
+        OlG_CAM_ZONE_SORT[i].unk2 = camGetZoneCell(i);
     }
     for (i = 1; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
-        key = CAM_ZONE_SORT[i].unk2;
-        idx = CAM_ZONE_SORT[i].unk0;
+        key = OlG_CAM_ZONE_SORT[i].unk2;
+        idx = OlG_CAM_ZONE_SORT[i].unk0;
         j = i;
         while (j > 0 &&
-               (key < CAM_ZONE_SORT[j - 1].unk2 ||
-                (key == CAM_ZONE_SORT[j - 1].unk2 &&
-                 CAM_ZONE_ENTRIES_PATH->unkC4[CAM_ZONE_SORT[j - 1].unk0].unk18 < CAM_ZONE_ENTRIES_PATH->unkC4[CAM_ZONE_SORT[j].unk0].unk18))) {
-            CAM_ZONE_SORT[j].unk0 = CAM_ZONE_SORT[j - 1].unk0;
-            CAM_ZONE_SORT[j].unk2 = CAM_ZONE_SORT[j - 1].unk2;
+               (key < OlG_CAM_ZONE_SORT[j - 1].unk2 ||
+                (key == OlG_CAM_ZONE_SORT[j - 1].unk2 &&
+                 CAM_ZONE_ENTRIES_PATH->unkC4[OlG_CAM_ZONE_SORT[j - 1].unk0].unk18 < CAM_ZONE_ENTRIES_PATH->unkC4[OlG_CAM_ZONE_SORT[j].unk0].unk18))) {
+            OlG_CAM_ZONE_SORT[j].unk0 = OlG_CAM_ZONE_SORT[j - 1].unk0;
+            OlG_CAM_ZONE_SORT[j].unk2 = OlG_CAM_ZONE_SORT[j - 1].unk2;
             j--;
         }
         if (j != i) {
-            CAM_ZONE_SORT[j].unk0 = idx;
-            CAM_ZONE_SORT[j].unk2 = key;
+            OlG_CAM_ZONE_SORT[j].unk0 = idx;
+            OlG_CAM_ZONE_SORT[j].unk2 = key;
         }
     }
     gCamZoneGroupCount = 1;
     for (i = CAM_ZONE_ENTRIES_PATH->unkC0 - 1; i > 0; i--) {
-        if (CAM_ZONE_SORT[i].unk2 != CAM_ZONE_SORT[i - 1].unk2) {
+        if (OlG_CAM_ZONE_SORT[i].unk2 != OlG_CAM_ZONE_SORT[i - 1].unk2) {
             gCamZoneGroupCount++;
         }
     }
@@ -4515,18 +4517,18 @@ void func_80625C30(void) {
         heapFree(gCamZoneGroups);
     }
     gCamZoneGroups = heapAlloc(gCamZoneGroupCount * 4 + 4);
-    CAM_ZONE_GROUP[0].unk0 = CAM_ZONE_SORT[0].unk2;
-    CAM_ZONE_GROUP[0].unk2 = 0;
+    OlG_CAM_ZONE_GROUP[0].unk0 = OlG_CAM_ZONE_SORT[0].unk2;
+    OlG_CAM_ZONE_GROUP[0].unk2 = 0;
     k = 1;
     for (i = 1; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
-        if (CAM_ZONE_SORT[i].unk2 != CAM_ZONE_SORT[i - 1].unk2) {
-            CAM_ZONE_GROUP[k].unk0 = CAM_ZONE_SORT[i].unk2;
-            CAM_ZONE_GROUP[k].unk2 = i;
+        if (OlG_CAM_ZONE_SORT[i].unk2 != OlG_CAM_ZONE_SORT[i - 1].unk2) {
+            OlG_CAM_ZONE_GROUP[k].unk0 = OlG_CAM_ZONE_SORT[i].unk2;
+            OlG_CAM_ZONE_GROUP[k].unk2 = i;
             k++;
         }
     }
-    CAM_ZONE_GROUP[k].unk0 = -1;
-    CAM_ZONE_GROUP[k].unk2 = CAM_ZONE_ENTRIES_PATH->unkC0;
+    OlG_CAM_ZONE_GROUP[k].unk0 = -1;
+    OlG_CAM_ZONE_GROUP[k].unk2 = CAM_ZONE_ENTRIES_PATH->unkC0;
 }
 #else
 
