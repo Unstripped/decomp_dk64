@@ -252,7 +252,6 @@ void func_80033A80(s8 arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct BossF_Model {
     struct BossF_ModelSub *unk0;
     u8 padF4[0x38 - 4];
@@ -422,6 +421,7 @@ void func_80033AF0(void) {
     f32 sp68;
     f32 sp64;
     f32 sp60;
+    u8 left;
 
 #define sp83 L.f83
 #define sp7F L.f7F
@@ -578,7 +578,11 @@ void func_80033AF0(void) {
             sub->unk0 = sub->unk1;
             v = st->unk18;
             if (v != 0) {
-                sub->unk1 = D_80035BD8[st->unk18 = --v];
+                left = v;
+                left--;
+                if (v) {} // FAKE: keeps v live past the decrement so the raw temp does not share its register
+                st->unk18 = left;
+                sub->unk1 = D_80035BD8[left];
                 BF->unk155 = 3;
             } else {
                 actorScriptStart(D_807FBB40, 0x224);
@@ -946,10 +950,6 @@ block_131:
 #undef BP
 #undef BX
 #undef BPTS
-#else
-
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/func_80033AF0.s")
-#endif
 
 void func_8003575C(void) {
     f32 dx, dz;
