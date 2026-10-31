@@ -1,4 +1,4 @@
-// func_80027FAC (src/menu/3E10.c): stage 5-6 (parked NON_MATCHING): frame 0x60, no callee-saved, structure/branches match; harness diff 225 -> 129 lines. Now the chain value *var_a0 is in a1 (was spilled to 44(sp)) and the early loads match: 'lb v1,0(a3); lui t0; sll; addu a0,t0,t6; lh a1,0(a0)'. Key fix: compute 'var_a1 = -6 - *var_a0;' BEFORE 'if (D_800337F4 == 0)' in the '< -5' arm (target hoists the sub/sll/sra above the bnez; with the use inside the call block uopt 'forbade' every temp reg for the chain value). Remaining: var_a0 pointer still spilled to 72(sp) (target keeps it in a0; both cand 86/88 'not colored (-ve save)'), so the equality arms get separate tails in the target (lh/sb/sb/b each) and shared in mine; var_a1/var_a0_2/temp_t2 home slots 70/68 vs 64/60; t-reg ring t5/t8 after. Tried: NM4 exhaustive dead sweep (4 rounds beam 2, ~12.6k variants/round) found if (D_80033F54 && D_80033F54) {}, if (D_800336A4) {}, if (var_a1 && var_a1) {}, if (sp4F == 0) {} dead stmts; idx=D_80033F54 local cache variant (worse: 329), tail duplication into if/else (worse), pad locals.
+// func_80027FAC (src/menu/3E10.c): func_80027FAC (src/menu/3E10.c): stage 5 (QMenu round 2, parked NON_MATCHING): frame 0x60, no callee-saved, masked-register diff ~32 lines of 455 (was ~74). KEY FIX: the 4/5-way id test is a SWITCH (case -2,-3,-4,-5 written in descending order so bodies lay out -2,-3,-4,-5 with the beq chain -5..-2 and separate 'b' tails per arm); default holds the '< -5' / '>= 0' / random arms. Value local must be 'int cur = *var_a0' (s16 cur -> spilled sh/lh 54(sp); camStartPath(0, cur, 1) as the call arg keeps cur out of a1: use cur for switch + '<-5' + '>=0' tests but '*var_a0' for 'var_a1 = -6 - *var_a0' hoist and the camStartPath arg). Decl order var_a1,var_v0,temp_t2,var_a0_2 puts var_a0_2 home at 60(sp). Remaining: (1) 'move a2,a1' selector copy after the first beq (target has the switch value and compare value in ONE a1 web), (2) var_a1 home 70(sp) vs 64, (3) start-of-function t5/t6 ring shift (struct copy w1 temp t5 vs t6; decrement t6 vs t5) so ~190 text lines differ in register names only, (4) lh 2(a0) arm loads scheduled one slot late. deadsweep (locals via --forms): 'if (var_a1 && var_a1) {}' after the 2nd 'do {' (201->153), 'if (var_a1 == 0) {}' after 'if (var_a0_2 == temp_t2) {' (->126), 'if (sp4F == 0) {}' after 'D_80033F56 = 1;' (->101) cut text diff but are fakes; not applied. Arrays as deadsweep targets (if (D_800336A4) {}) emit code: rejected.
 typedef struct {
     s32 unk0;
     s32 unk4;
@@ -34,14 +34,14 @@ void actorFindActiveByType(s32, s32 *);
 void actorScriptStart(void *, s32);
 s32 camIsCutsceneActive();
 void camStartPath(void *, s32, s32);
-s32 flagGet(s32, s32);
+s32 flagGet(s16, u8);
 s32 randomLcgNext();
 f32 randomFloat();
 void func_8067AB20(s32, s32, s32, s32, void *, s32);
 void gfxSetBackgroundBlend(f32);
 void lightSetColor(f32, f32, f32, s32);
 void menuHandleScrollInput();
-void menuUpdateItemTransition(void *, void *, s32);
+void menuUpdateItemTransition(void *, MenuScreenState *, s32);
 void menuUpdateScrollAnimation();
 void spawnNodesSetActorStateByFlag(s32, s32);
 
@@ -52,9 +52,10 @@ void func_80027FAC(void *arg0, s32 arg1) {
     s8 sp4F;
     s16 *var_a0;
     s16 var_a1;
-    s16 var_a0_2;
-    s16 temp_t2;
     s32 var_v0;
+    s16 temp_t2;
+    s16 var_a0_2;
+    int cur;
     f32 var_ft4;
 
     var_a3 = *(MenuL1b_S174 **)((u8 *)arg0 + 0x174);
@@ -122,78 +123,76 @@ void func_80027FAC(void *arg0, s32 arg1) {
     D_80033F52 -= 1;
     if (D_80033F52 <= 0) {
         var_a0 = &D_800336A4[D_80033F54];
-        if (*var_a0 != -5) {
-            if (*var_a0 != -4) {
-                if (*var_a0 != -3) {
-                    if (*var_a0 == -2) {
-                        D_80033F54 += 2;
-                        sp4F = 1;
-                        D_80033F52 = var_a0[1];
-                    } else if (*var_a0 < -5) {
-                        var_a1 = -6 - *var_a0;
-                        if (D_800337F4 == 0) {
-                            actorScriptStart(D_807FBB4C, D_80033724[(s16)var_a1]);
-                            var_a0 = &D_800336A4[D_80033F54];
-                        }
-                        D_80033F54 += 2;
-                        D_80033F52 = var_a0[1];
-                    } else if (*var_a0 >= 0) {
-                        camStartPath(0, *var_a0, 1);
-                        D_80033F52 = D_800336A4[D_80033F54 + 1];
-                        D_80033F54 += 2;
-                    } else {
-                        var_a1 = 0;
-                        var_a0_2 = (s32)(randomFloat(0) * 10.0f);
-                        D_80033F52 = (randomLcgNext() & 0x7F) + 0x12C;
-                        D_80033F54 = 0;
-                        if (D_80033F54 && D_80033F54) {}
-                        if (var_a0_2 >= 0xB) {
-                            var_a0_2 = 0;
-                        }
-                        var_v0 = 1 << var_a0_2;
-                        temp_t2 = var_a0_2;
-                        if (D_800336A0 & var_v0) {
-                            do {
-                                var_a0_2 += 1;
-                                if (var_a0_2 == 0xB) {
-                                    var_a0_2 = 0;
-                                }
-                                var_v0 = 1 << var_a0_2;
-                                if (var_a0_2 == temp_t2) {
-                                    if (D_800336A4) {}
-                                    D_800336A0 = 0;
-                                }
-                            } while (D_800336A0 & var_v0);
-                        }
-                        D_800336A0 |= var_v0;
-                        if (var_a0_2 != 0) {
-                            do {
-                                if (D_800336A4[D_80033F54] != -1) {
-                                    do {
-                                        if (var_a1 && var_a1) {}
-                                        D_80033F54 += 1;
-                                    } while (D_800336A4[D_80033F54] != -1);
-                                }
-                                var_a1 += 1;
-                                D_80033F54 += 1;
-                            } while (var_a1 != var_a0_2);
-                        }
-                    }
-                } else {
-                    if (sp4F == 0) {}
-                    D_80033F54 += 2;
-                    sp4F = -1;
-                    D_80033F52 = var_a0[1];
-                }
-            } else {
-                D_80033F54 += 2;
-                D_80033F52 = var_a0[1];
-                D_80033F56 = 1;
-            }
-        } else {
+        cur = *var_a0;
+        switch (cur) {
+        case -2:
+            D_80033F54 += 2;
+            sp4F = 1;
+            D_80033F52 = var_a0[1];
+            break;
+        case -3:
+            D_80033F54 += 2;
+            sp4F = -1;
+            D_80033F52 = var_a0[1];
+            break;
+        case -4:
+            D_80033F54 += 2;
+            D_80033F52 = var_a0[1];
+            D_80033F56 = 1;
+            break;
+        case -5:
             D_80033F54 += 2;
             D_80033F52 = var_a0[1];
             D_80033F56 = 0;
+            break;
+        default:
+        if (cur < -5) {
+            var_a1 = -6 - *var_a0;
+            if (D_800337F4 == 0) {
+                actorScriptStart(D_807FBB4C, D_80033724[(s16)var_a1]);
+                var_a0 = &D_800336A4[D_80033F54];
+            }
+            D_80033F54 += 2;
+            D_80033F52 = var_a0[1];
+        } else if (cur >= 0) {
+            camStartPath(0, cur, 1);
+            D_80033F52 = D_800336A4[D_80033F54 + 1];
+            D_80033F54 += 2;
+        } else {
+            var_a1 = 0;
+            var_a0_2 = (s32)(randomFloat(0) * 10.0f);
+            D_80033F52 = (randomLcgNext() & 0x7F) + 0x12C;
+            D_80033F54 = 0;
+            if (var_a0_2 >= 0xB) {
+                var_a0_2 = 0;
+            }
+            var_v0 = 1 << var_a0_2;
+            temp_t2 = var_a0_2;
+            if (D_800336A0 & var_v0) {
+                do {
+                    var_a0_2 += 1;
+                    if (var_a0_2 == 0xB) {
+                        var_a0_2 = 0;
+                    }
+                    var_v0 = 1 << var_a0_2;
+                    if (var_a0_2 == temp_t2) {
+                        D_800336A0 = 0;
+                    }
+                } while (D_800336A0 & var_v0);
+            }
+            D_800336A0 |= var_v0;
+            if (var_a0_2 != 0) {
+                do {
+                    if (D_800336A4[D_80033F54] != -1) {
+                        do {
+                            D_80033F54 += 1;
+                        } while (D_800336A4[D_80033F54] != -1);
+                    }
+                    var_a1 += 1;
+                    D_80033F54 += 1;
+                } while (var_a1 != var_a0_2);
+            }
+        }
         }
     }
     if (sp4F != 0) {

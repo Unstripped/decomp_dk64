@@ -165,9 +165,10 @@ void func_80027FAC(void *arg0, s32 arg1) {
     s8 sp4F;
     s16 *var_a0;
     s16 var_a1;
-    s16 var_a0_2;
-    s16 temp_t2;
     s32 var_v0;
+    s16 temp_t2;
+    s16 var_a0_2;
+    int cur;
     f32 var_ft4;
 
     var_a3 = *(MenuL1b_S174 **)((u8 *)arg0 + 0x174);
@@ -235,74 +236,76 @@ void func_80027FAC(void *arg0, s32 arg1) {
     D_80033F52 -= 1;
     if (D_80033F52 <= 0) {
         var_a0 = &D_800336A4[D_80033F54];
-        if (*var_a0 != -5) {
-            if (*var_a0 != -4) {
-                if (*var_a0 != -3) {
-                    if (*var_a0 == -2) {
-                        D_80033F54 += 2;
-                        sp4F = 1;
-                        D_80033F52 = var_a0[1];
-                    } else if (*var_a0 < -5) {
-                        var_a1 = -6 - *var_a0;
-                        if (D_800337F4 == 0) {
-                            actorScriptStart(D_807FBB4C, D_80033724[(s16)var_a1]);
-                            var_a0 = &D_800336A4[D_80033F54];
-                        }
-                        D_80033F54 += 2;
-                        D_80033F52 = var_a0[1];
-                    } else if (*var_a0 >= 0) {
-                        camStartPath(0, *var_a0, 1);
-                        D_80033F52 = D_800336A4[D_80033F54 + 1];
-                        D_80033F54 += 2;
-                    } else {
-                        var_a1 = 0;
-                        var_a0_2 = (s32)(randomFloat(0) * 10.0f);
-                        D_80033F52 = (randomLcgNext() & 0x7F) + 0x12C;
-                        D_80033F54 = 0;
-                        if (var_a0_2 >= 0xB) {
-                            var_a0_2 = 0;
-                        }
-                        var_v0 = 1 << var_a0_2;
-                        temp_t2 = var_a0_2;
-                        if (D_800336A0 & var_v0) {
-                            do {
-                                var_a0_2 += 1;
-                                if (var_a0_2 == 0xB) {
-                                    var_a0_2 = 0;
-                                }
-                                var_v0 = 1 << var_a0_2;
-                                if (var_a0_2 == temp_t2) {
-                                    D_800336A0 = 0;
-                                }
-                            } while (D_800336A0 & var_v0);
-                        }
-                        D_800336A0 |= var_v0;
-                        if (var_a0_2 != 0) {
-                            do {
-                                if (D_800336A4[D_80033F54] != -1) {
-                                    do {
-                                        D_80033F54 += 1;
-                                    } while (D_800336A4[D_80033F54] != -1);
-                                }
-                                var_a1 += 1;
-                                D_80033F54 += 1;
-                            } while (var_a1 != var_a0_2);
-                        }
-                    }
-                } else {
-                    D_80033F54 += 2;
-                    sp4F = -1;
-                    D_80033F52 = var_a0[1];
-                }
-            } else {
-                D_80033F54 += 2;
-                D_80033F52 = var_a0[1];
-                D_80033F56 = 1;
-            }
-        } else {
+        cur = *var_a0;
+        switch (cur) {
+        case -2:
+            D_80033F54 += 2;
+            sp4F = 1;
+            D_80033F52 = var_a0[1];
+            break;
+        case -3:
+            D_80033F54 += 2;
+            sp4F = -1;
+            D_80033F52 = var_a0[1];
+            break;
+        case -4:
+            D_80033F54 += 2;
+            D_80033F52 = var_a0[1];
+            D_80033F56 = 1;
+            break;
+        case -5:
             D_80033F54 += 2;
             D_80033F52 = var_a0[1];
             D_80033F56 = 0;
+            break;
+        default:
+        if (cur < -5) {
+            var_a1 = -6 - *var_a0;
+            if (D_800337F4 == 0) {
+                actorScriptStart(D_807FBB4C, D_80033724[(s16)var_a1]);
+                var_a0 = &D_800336A4[D_80033F54];
+            }
+            D_80033F54 += 2;
+            D_80033F52 = var_a0[1];
+        } else if (cur >= 0) {
+            camStartPath(0, cur, 1);
+            D_80033F52 = D_800336A4[D_80033F54 + 1];
+            D_80033F54 += 2;
+        } else {
+            var_a1 = 0;
+            var_a0_2 = (s32)(randomFloat(0) * 10.0f);
+            D_80033F52 = (randomLcgNext() & 0x7F) + 0x12C;
+            D_80033F54 = 0;
+            if (var_a0_2 >= 0xB) {
+                var_a0_2 = 0;
+            }
+            var_v0 = 1 << var_a0_2;
+            temp_t2 = var_a0_2;
+            if (D_800336A0 & var_v0) {
+                do {
+                    var_a0_2 += 1;
+                    if (var_a0_2 == 0xB) {
+                        var_a0_2 = 0;
+                    }
+                    var_v0 = 1 << var_a0_2;
+                    if (var_a0_2 == temp_t2) {
+                        D_800336A0 = 0;
+                    }
+                } while (D_800336A0 & var_v0);
+            }
+            D_800336A0 |= var_v0;
+            if (var_a0_2 != 0) {
+                do {
+                    if (D_800336A4[D_80033F54] != -1) {
+                        do {
+                            D_80033F54 += 1;
+                        } while (D_800336A4[D_80033F54] != -1);
+                    }
+                    var_a1 += 1;
+                    D_80033F54 += 1;
+                } while (var_a1 != var_a0_2);
+            }
+        }
         }
     }
     if (sp4F != 0) {
@@ -591,12 +594,12 @@ s32 menuDrawFileSummary(void *arg0, Gfx *arg1) {
     s16 y;
     s16 py;
     void *temp_s4 = *(void **)((u8 *)arg0 + 0x174);
-    s32 i = 0;
     s8 *p = &D_80033804;
+    s32 i = 0;
     f32 sc = 3.0f;
     f32 four;
-    f32 spCC;
     f32 spD0;
+    f32 spCC;
     char spA4[0x20];
     f32 fv1;
 
@@ -2313,14 +2316,13 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/D_80033BE8.s")
 
-#ifdef NON_MATCHING
 extern s8 D_80033F60;
 extern s8 D_80033F61;
 extern s16 D_80744518;
 extern char *D_800339AC[];
 extern u32 D_8076A064;
 
-s32 menuDrawHighScoreTable(void *arg0, s32 arg1) {
+Gfx *menuDrawHighScoreTable(void *arg0, Gfx *arg1) {
     void *temp_s0;
     f32 sp140;
     f32 sp13C;
@@ -2346,7 +2348,7 @@ s32 menuDrawHighScoreTable(void *arg0, s32 arg1) {
         i = 1;
     }
     if (i != 0) {
-        arg1 = (s32)hudDrawScaledText((Gfx *)arg1, 0x280, var_s3, 0.6f, sp68);
+        arg1 = hudDrawScaledText(arg1, 0x280, var_s3, 0.6f, sp68);
     }
     i = 0;
     func_800317E8(temp_s0, 20.0f, 120.0f, &sp140, &sp13C, 2, 0, 2.0f);
@@ -2357,7 +2359,7 @@ s32 menuDrawHighScoreTable(void *arg0, s32 arg1) {
     } else {
         sp130 = D_80744568;
     }
-    do {
+    for (i = 0; i < 5; i++) {
         _sprintf(sp68, "%d.", i + 1);
         e = (MenuHighScoreEntry *)((u8 *)sp130 + i * 6);
         arg1 = textDrawStringVtx(arg1, 1, (s16)(ft4 + 0x50), var_s3, sp68, 1);
@@ -2369,13 +2371,9 @@ s32 menuDrawHighScoreTable(void *arg0, s32 arg1) {
             arg1 = textDrawStringVtx(arg1, 0x81, (s16)(ft4 + 0x118), var_s3 + 0x34, D_800339AC[D_80033F61], 1);
         }
         var_s3 += 0x6C;
-    } while (++i < 5);
+    }
     return arg1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/menuDrawHighScoreTable.s")
-#endif
 
 extern s8 D_80033F60;
 
@@ -2903,7 +2901,7 @@ Gfx *menuUpdateStateDispatch(MenuScreenActor *arg0, s32 arg1, Gfx *arg2, s32 arg
         break;
     case 12:
         if (arg1 == 1) {
-            return (Gfx *)menuDrawHighScoreTable(arg0, arg2);
+            return menuDrawHighScoreTable(arg0, arg2);
         }
         if (arg1 == 2) {
             menuHandleHighScoreNameEntryInput(arg0, sp18);
