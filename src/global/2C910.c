@@ -26,7 +26,6 @@ void actorSetTintFromPalette(u8 arg0) {
     D_807FBB44->unk16C = D_80757F70[arg0].b;
 }
 
-#ifdef NON_MATCHING
 u8 *_strchr(u8 *, s32);
 u32 _strcspn(u8 *, char *);
 u8 *_strncpy(u8 *, u8 *, u32);
@@ -40,11 +39,11 @@ u8 arg0;
 u16 arg1;
 u8 arg2;
 {
-    u8 sp98[0x40];
+    u8 *s;
+    u8 sp98[0x3C];
     u8 sp58[0x40];
     u8 sp44[0x14];
     s16 idx;
-    u8 *s;
 
     s = textTableGetString(1, arg0, 1);
     if (_strchr(s, 0x3A) != 0) {
@@ -73,10 +72,6 @@ u8 arg2;
     textSpawnMarkerChecked(0, 0, 0xCD, s, 0, arg1, 0x32, 0x32);
     actorSetTintFromPalette(arg2);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2C910/func_80627C5C.s")
-#endif
 
 extern Actor *D_807FBB4C;
 Actor *spawnNodeActivate(s16, s32);
