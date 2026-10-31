@@ -39,17 +39,19 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   worth one dedicated agent; a second dedicated pass is worth it only with new findings in
   the context (F4C0 revisit: third passes on 104F0/17B90 parks matched 0 of 20; a first
   pass on old `-g` parks with the compiler's rule in the task matched 2 of 2).
-- Revisit of old parks: wave 1 per-file tasks (1-5 functions, large ones alone), wave 2
-  regrouped across files by diff KIND (ring/LRU, FP, frame, "audit callee prototypes first")
-  naming the wave-1 findings that fit, wave 3 the leftovers with the newest levers listed in the
-  task (oldest-leftovers-2: 21 of 64 in 30 agents, then 15 in 10, then 3 in 6).
+- Revisit of old parks: wave 1 per-file tasks (1-5 functions, large ones alone), then waves of
+  2-5 agents regrouped by diff KIND (ring, spill slot, web/priority, loop shape) whose task
+  text lists the newest levers from the merged reports; keep going while a wave matches ~1+
+  per agent (actor revisit 2: 25 of 40 in 18 tasks + 4 re-prompts, then 4/5, 4/5, 4/3, 4/2
+  agents; oldest-leftovers-2: 21 of 64 in 30, 15 in 10, 3 in 6).
 - Each `tasks[]` item lists its functions with the last diff note and stage; agents start
   from the stored draft (`tools/drafts.py show <seg> <FUNC>`), not m2c.
 - The agent's budget is its context window and request cap, not wall-clock time: the brief
   gates on outcome (every function matched, or back on its `GLOBAL_ASM` line with a staged
   draft and no untried idea). No `date`/minute gates: they only make finished agents idle.
 - Re-prompting a finished agent with its file's next chunk, large function or near-misses
-  (new copy from HEAD) was the best-yielding refill (2C700 unit: 4 large functions this way),
+  (new copy from HEAD) was the best-yielding refill (2C700 unit: 4 large functions this way;
+  actor revisit 2: agents done in under ~20 min took 2-4 sibling parks each, BnelOps 4 of 6),
   but only while it is under ~120 requests: a re-prompt shares the original request cap
   (arcade/menu unit: an agent at ~140 finished 1 of a 6-function list). Above that, spawn fresh.
 

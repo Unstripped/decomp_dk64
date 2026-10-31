@@ -22,16 +22,14 @@ Read the matched functions already in your file and REUSE its declarations and s
 their owners; the C needs `void func_ADDR(void) {}` right after the owner>
 
 Register-allocation toolbox (most later-round near misses are regalloc only): access a
-global struct pointer directly vs caching it in a local; local declaration order; split
-or merge temporaries, s32 vs narrow temps, scope temps per switch case; commutative
-operand order; sequential vs chained assignment; exact prototypes (void vs s32 return,
-f32 vs unprototyped, a callback symbol declared as a function rather than `&D_...`);
-nested call argument vs sequential assignment; ternary vs if/else; `do {} while` vs
-`while`. Loop-invariant hoisting order follows first use in the loop. A `$v0`/`$v1` swap:
-toggle void→`s32` returns of ALL callees (one in another switch case fixed it). A `lbu a0;
-move v1,a0` copy with swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`.
-Before reporting a match, diff `objdump -dr` relocations of your function against expected:
-swapped externs in a comparison look identical in the text.
+global struct pointer directly vs caching it in a local; local declaration order; split or
+merge temporaries, s32 vs narrow temps, scope temps per switch case; commutative operand
+order; sequential vs chained assignment; exact prototypes (void vs s32 return, f32 vs
+unprototyped, a callback symbol declared as a function rather than `&D_...`); nested call
+argument vs sequential assignment; ternary vs if/else; `do {} while` vs `while`; signedness
+of compares and selectors (constant webs are typed). A `lbu a0; move v1,a0` copy with
+swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a match, diff
+`objdump -dr` relocations against expected (swapped externs look identical in the text).
 
 # Concurrency rules (several agents run at once)
 - NEVER run `tools/dk make` (any target), `make split`, `python3 -m splat`, `make expected`,
@@ -118,7 +116,11 @@ swapped externs in a comparison look identical in the text.
   any register question; every `tools/dk` call under ~10 min (permuter `-j 2 --seconds 600`,
   deadsweep `--rounds 1` per call, rerun on the improved body: a 40-min sweep starved the gate).
   At stage 4+ run `tools/dk python3 tools/deadsweep.py sweep <copy> <src> FUNC --extra <each
-  local>` first; reject any dead use (also from permuter) of a local unassigned on that path.
+  local>` first. When it and the permuter stall, write your own harness (it matched most parks
+  of the 2026-10-31 unit): a grid over 1-5 statements' spellings (casts, chained/split
+  assignments, order) or a random hill-climb accepting ties, scored per region with branch
+  targets blanked, the `.o` deleted before each probe and one scratch file per parallel job.
+  Reject any dead use (also from permuter) of a local unassigned on that path.
 - Any construct you keep only to steer codegen (deadsweep statements, `volatile`, `x ^ 0`,
   `do {} while (0)`) ends in a trailing `// FAKE: <what it steers>` comment (AGENTS.md
   Conventions); keep deadsweep's own tag. Shared globals use the type most of `src/` gives
@@ -135,31 +137,29 @@ swapped externs in a comparison look identical in the text.
 #endif
 ```
 
-  Notice the required blank line before `#pragma GLOBAL_ASM`. Check that the parked C
-  compiles with `tools/fdiff.sh --non-matching <copy> <src> [FUNC]` (compile only) and that
-  the plain `tools/fdiff.sh` still gives OK/TEXT OK. Parked functions still count as
-  unmatched. If not genuinely equivalent, keep the draft in `drafts/` instead.
+  Notice the required blank line before `#pragma GLOBAL_ASM`. Check the parked C compiles with
+  `tools/fdiff.sh --non-matching <copy> <src> [FUNC]` and the plain `tools/fdiff.sh` still gives
+  OK/TEXT OK. Parks count as unmatched; not genuinely equivalent: keep the draft in `drafts/`.
 
 # Method
 Your budget is finite: near-misses first, then never-attempted functions smallest to largest;
 after a serious effort on one, move on and come back if budget remains. Before writing C,
 read the matched C that `tools/dk python3 tools/similar.py -s <segment> <FUNC>` lists, then
 take starter C from `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`. First check every
-callee's return type, return WIDTH and arity against its CURRENT definition in `src/` (`void`
-vs `s32`, `u8`/`s16` declared `s32`, phantom params: each flips the caller's v0/v1 or ring;
-matched ~12 near-misses in one unit). Compile and fdiff every assigned function once.
+callee's return type and WIDTH, parameter widths and arity against its CURRENT definition in
+`src/` (`void` vs `s32`, `u8`/`s16` declared `s32`, phantom params: each flips the caller's
+v0/v1, ring or `andi`s; an unused-result `s32` callee takes one ring temp). Fdiff each once.
 When the permuter (or anything else) reaches score 0, put the readable C into your copy in place
 of the function's `GLOBAL_ASM` line and confirm with fdiff: a draft-only match is not merged.
 Stop on outcome, not time: report as soon as every assigned function is matched, or is back
 on its exact `GLOBAL_ASM` line with a saved draft whose note names the stage and the exact
 remaining diff, and you have no untried idea left (a few attempts in a row that no longer
-shrink the diff). Never wait or idle to fill time. Save the draft after every attempt that
-improves it, so nothing is lost if your context runs out. Keep context small: diff one
-function's objdump at a time and pipe long output through `head`. A function reported at
-stage 1-3 with untried next steps is unfinished work. A frame-size mismatch is stage 3 at most.
-A function's own rodata constants (the `dlabel D_8075xxxx` blocks inside its `.s`) are C
-literals of the right type (`0.35f`, `1.07`), one occurrence per rodata entry in source
-order; never `extern f64 D_8075...` for them (identical code, but `.rodata` fails).
+shrink the diff). Never idle to fill time. Save the draft after every improving attempt.
+Keep context small: diff one function's objdump at a time, pipe long output through `head`.
+A function reported at stage 1-3 with untried next steps is unfinished work; a frame-size
+mismatch is stage 3 at most. A function's own rodata constants (`dlabel D_8075xxxx` in its
+`.s`) are C literals of the right type (`0.35f`, `1.07`), one per rodata entry in source
+order, never `extern f64 D_8075...` (identical code, but `.rodata` fails).
 Report every assigned function, matched or not. One that won't match gets its exact original
 `#pragma GLOBAL_ASM(...)` line back (or a NON_MATCHING park, see above) and EVERY unmatched
 function gets a saved draft (even "no stored draft" ones):
