@@ -13,24 +13,24 @@ This repository contains no game data. You need your own copy of the ROM to buil
 Percentages are matched C function bytes out of all function bytes in each code segment. Assets (textures, models, text) are not counted; see [ROADMAP.md](ROADMAP.md).
 
 <!-- progress:start -->
-**Overall: 79.58%** of code bytes matched (1,382,952 / 1,737,776 bytes, 4,160 / 4,499 functions)
+**Overall: 83.13%** of code bytes matched (1,444,540 / 1,737,756 bytes, 4,199 / 4,499 functions)
 
-`████████████████████████████████░░░░░░░░`
+`█████████████████████████████████░░░░░░░`
 
 | Segment | Contents | Progress | Bytes | Functions |
 |---|---|---|--:|--:|
 | `boot` | boot, libultra, inflate | `████████████████░░░░` 79.6% | 42,820 / 53,796 | 191 / 229 |
-| `global` | main game code | `████████████████░░░░` 78.6% | 1,040,660 / 1,323,504 | 3,336 / 3,601 |
-| `multiplayer` | `ovl02`, multiplayer modes | `██████████████████░░` 87.9% | 10,660 / 12,132 | 30 / 31 |
+| `global` | main game code | `████████████████░░░░` 82.1% | 1,086,596 / 1,323,484 | 3,368 / 3,601 |
+| `multiplayer` | `ovl02`, multiplayer modes | `████████████████████` 100.0% | 12,132 / 12,132 | 31 / 31 |
 | `minecart` | `ovl03`, minecart rides | `████████████████████` 100.0% | 19,332 / 19,332 | 25 / 25 |
 | `bonus` | `ovl04`, bonus barrels | `█████████████████░░░` 83.8% | 32,668 / 38,972 | 44 / 47 |
-| `race` | `ovl05`, races | `████████████████░░░░` 81.4% | 38,972 / 47,848 | 109 / 113 |
-| `critter` | `ovl06`, critter minigames | `█████████████████░░░` 82.5% | 18,560 / 22,496 | 52 / 55 |
-| `boss` | `ovl07`, boss fights | `████████████████░░░░` 78.2% | 56,144 / 71,784 | 75 / 79 |
+| `race` | `ovl05`, races | `█████████████████░░░` 86.7% | 41,484 / 47,848 | 111 / 113 |
+| `critter` | `ovl06`, critter minigames | `███████████████████░` 97.2% | 21,860 / 22,496 | 54 / 55 |
+| `boss` | `ovl07`, boss fights | `██████████████████░░` 88.3% | 63,420 / 71,784 | 76 / 79 |
 | `arcade` | `ovl08`, Donkey Kong arcade | `██████████████████░░` 90.9% | 52,592 / 57,880 | 95 / 98 |
 | `jetpac` | `ovl09`, Jetpac | `█████████████████░░░` 85.2% | 24,524 / 28,796 | 102 / 108 |
-| `menu` | `ovl10`, main menu / file select | `███████████████░░░░░` 75.2% | 46,020 / 61,236 | 101 / 113 |
-| **Total** |  | `████████████████░░░░` 79.6% | 1,382,952 / 1,737,776 | 4,160 / 4,499 |
+| `menu` | `ovl10`, main menu / file select | `███████████████░░░░░` 76.9% | 47,112 / 61,236 | 102 / 113 |
+| **Total** |  | `█████████████████░░░` 83.1% | 1,444,540 / 1,737,756 | 4,199 / 4,499 |
 <!-- progress:end -->
 
 Refresh after a matching build with `tools/dk python3 tools/progress.py --readme`.
