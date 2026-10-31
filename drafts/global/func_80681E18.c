@@ -1,4 +1,11 @@
-// func_80681E18 (src/global/80150.c): Stage 5 (LgFB6b): frame 0x58, s0/ra match; 18 text diff lines with the 3 deadsweep FAKEs (score 150), another deadsweep round (var_v1 D_807FBB40 D_807FBB70 D_807FBB68, 4200 variants) found nothing. Remaining: (a) (D_807FBB68&2)?0:1 arg temp v1 vs target v0 (named u8/s32 temp, !(..), ==0 forms, void/s32/u8 toggles of slotQueueUpdate and sfxPlay.. all worse or equal); (b) case 3 target reloads s0 only after the unk144 store (nofake variant fixes case 3 to 1 insn but shifts the D_807FBB70 base a2->a3 and ring: score 195); (c) case 20 loop: target orders lbu v1,0x254(a2) before the bottom lw s0,0(t0). Dead 'if (var_v1) {}' after slotQueueUpdate wrecks the frame (3784).
+// func_80681E18 (src/global/80150.c): LgC71b stage 5: 18 lines with 3 deadsweep FAKEs (nofake 149: a2/a3/t1 colours of &D_807FBB70 / const 1 shift). Left: ternary arg v1 vs v0, case 3 lw t7 vs s0, case 20 loop lbu v1 (unk254 candidate coloured v1 in target, ternary then takes v0) / lw s0 order. void/s32 audit of all callees, for/while loop forms, flag locals: no gain. Hypothesis: D_807FBB70.unk254 should be a v1 candidate (guard+bottom CSE).
+extern u8 D_807FC950[][0x5E];
+extern s16 D_80750390;
+
+void sfxAllocateChannel(s32, f32);
+void slotQueueUpdate(s32, u8, s32);
+void func_806C7BAC(s32, Actor *);
+
 void func_80681E18(void) {
     TagBarrelGroundHit *var_v1;
     s32 pad[3];

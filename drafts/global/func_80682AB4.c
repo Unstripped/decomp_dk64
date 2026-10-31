@@ -1,7 +1,4 @@
-// func_80682AB4 (src/global/80150.c): Stage 4: frame 0x78/saves match; diff 12 lines: temp_s5 mfc1 chain t0/t1/t2 vs s5 and lb unk20 t4 vs v1/t2, hoisted 'addiu s3' placement, fcsr t7/t8; used 0.0f at clamp, temp_s5 loaded separately, dir copy fake, permuter best 70
-f32 func_80612790(s16);
-f32 func_80612794(s16);
-
+// func_80682AB4 (src/global/80150.c): LgC71b stage 4: 17 diff lines / 12 text. Callee audit (void/s32 all, none helps), deadsweep (no gain), temp_s5 chain forms grid (cast placement, s32 temp, split vars) none better; dropping 'dir' FAKE + (s16)(s32)(..)&0xFFF cast-first chain form matches lines 1-88 (mfc1 t0/t1/t2, lb t4) but loop-start t-ring is 5 slots off (mfc1 t2 vs t7, fcsr temps): 39 lines. register keyword not needed.
 typedef struct TagBarrelOrbitKong {
     u8 pad0[4];
     u16 unk4;
@@ -12,13 +9,14 @@ typedef struct TagBarrelOrbitKong {
     s8 unk20;
 } TagBarrelOrbitKong;
 
+
 void func_80682AB4(void *arg0) {
     TagBarrelOrbitKong *arg = (TagBarrelOrbitKong *)arg0;
     f32 sp70 = D_807FBB40->unk7C;
     f32 sp6C = D_807FBB40->unk80 - 10.0f;
     f32 sp68 = D_807FBB40->unk84;
     s32 var_s1;
-    register f32 temp_fs1;
+    f32 temp_fs1;
     f32 var_fv0;
     f32 var_fv1;
     s16 temp_s5;

@@ -1897,7 +1897,7 @@ void func_80682AB4(void *arg0) {
     f32 sp6C = D_807FBB40->unk80 - 10.0f;
     f32 sp68 = D_807FBB40->unk84;
     s32 var_s1;
-    register f32 temp_fs1;
+    f32 temp_fs1;
     f32 var_fv0;
     f32 var_fv1;
     s16 temp_s5;
@@ -2428,14 +2428,13 @@ s32 tagBarrelIsKongUnlocked(ActorGroup5 *arg0, s32 arg1) {
     return ret;
 }
 
-#ifdef NON_MATCHING
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern Mtx D_2000180;
 extern s16 D_80744490;
 extern s16 D_80744494;
 
-Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, s32);
 u32 textGetFontHeight(s32);
 
@@ -2464,7 +2463,7 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
     s32 spX;
     u8 pad70[0x38];
     s32 sp6C;
-    s32 sp44;
+    s16 sp44;
 
     temp_s1 = (TagBarrelDataN3 *)arg1->unk174;
     spF0 = (f32)((f64)(D_80744494 - 0x1E) * 4.0);
@@ -2476,8 +2475,8 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
     gSPMatrix(arg0++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(arg0++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     sp44 = (s16)(s32)spF0;
-    arg0 = renderRotatedSprite(arg0, (((u32)(D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF, 0, 2, 0x20, 0x10, 0xA0, sp44, 5.0f, 5.0f, 0, 0.0f);
-    arg0 = renderRotatedSprite(arg0, (((u32)(D_8076A064 >> 1) % 12) + 0x83) & 0xFFFF, 0, 2, 0x20, 0x10, spX = (s32)((f64)(D_80744490 - 0x28) * 4.0), sp44, 5.0f, 5.0f, 0xB4, 0.0f); // FAKE: spX keeps arg 7 in an int temp (no swc1 merge)
+    arg0 = renderRotatedSprite(arg0, (u16)(((u32)(D_8076A064 >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, 0xA0, sp44, 5.0f, 5.0f, 0, 0.0f);
+    arg0 = renderRotatedSprite(arg0, (u16)(((u32)(D_8076A064 >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, (s32)((f64)(D_80744490 - 0x28) * 4.0), sp44, 5.0f, 5.0f, 0xB4, 0.0f);
     spF8 = (f32)(u32)temp_s1->unk4 * 0.05f;
     sp6C = tagBarrelIsKongUnlocked((ActorGroup5 *)temp_s1, temp_s1->unk6);
     spF0 -= (f32) textGetFontHeight(1) * 1.2f;
@@ -2486,8 +2485,7 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
         temp_fv0 = 1.0f - spF8;
         temp_fv1 = temp_fv0 * 0.5f;
         var_fa0 = temp_fv1;
-        if (temp_s1->unk20 >= 0) { // FAKE: empty arm flips the branch polarity/float reg colouring
-        } else {
+        if (temp_s1->unk20 < 0) {
             var_fa0 = 1.0f - temp_fv1;
         }
         temp_fv1_2 = 2.0f * temp_fv0;
@@ -2508,8 +2506,8 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
         arg0 = hudDrawScaledText(arg0, (s16)(s32)var_fa0, (s16)(s32)spF0, 0.6f, sp6C);
     }
     if (temp_s1->unk4 != 0) {
-        temp_v0 = tagBarrelIsKongUnlocked((ActorGroup5 *)temp_s1, temp_s1->unk7);
-        if (temp_v0 != 0) {
+        sp6C = tagBarrelIsKongUnlocked((ActorGroup5 *)temp_s1, temp_s1->unk7);
+        if (sp6C != 0) {
             temp_fv0_3 = 0.5f * spF8;
             var_fa0_2 = temp_fv0_3;
             if (temp_s1->unk20 > 0) {
@@ -2522,23 +2520,19 @@ Gfx *func_80683AD8(Gfx *arg0, Actor *arg1) {
             } else {
                 temp_fa1 = temp_fv0_4 - 1.0f;
                 if (temp_fa1 > 1.0f) {
-                    var_fv1_2 = 1.0f;
+                    var_fv1 = 1.0f;
                 } else {
-                    var_fv1_2 = temp_fa1;
+                    var_fv1 = temp_fa1;
                 }
-                var_fv0_2 = var_fv1_2;
+                var_fv0_2 = var_fv1;
             }
             var_fv0_2 *= 255.0f;
             gDPSetPrimColor(arg0++, 0, 0, 255, 255, 255, (u32)var_fv0_2);
-            arg0 = hudDrawScaledText(arg0, (s16)(s32)var_fa0_2, (s16)(s32)spF0, 0.6f, temp_v0);
+            arg0 = hudDrawScaledText(arg0, (s16)(s32)var_fa0_2, (s16)(s32)spF0, 0.6f, sp6C);
         }
     }
     return arg0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_80683AD8.s")
-#endif
 
 void tagBarrelInitUnlockedKongs(Actor *arg0) {
     s32 i;

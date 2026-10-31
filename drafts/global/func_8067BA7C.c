@@ -1,5 +1,4 @@
-// func_8067BA7C (src/global/80150.c): stage 3: C is behaviourally equal and the jump table + all case order/regs match (frame 0x30); only diff is &D_807FBB40 not hoisted into callee-saved s1 (uopt const web adjsave<=0: reloads stay lui/lw, v1 hoist only via dead if(D_807FBB40){} at end of case 21). Toy TU shows web flips only with ~+4..6 extra address uses (e.g. 4 redundant stores); dead ifs/if(0){}/deadsweep/permuter (480s) found nothing. Tried nested-if, local state, pointer-to-pointer, case-order variants.
-// func_8067BA7C: needs &D_807FBB40 hoisted into callee-saved s1 (frame 0x30 then matches). Remaining diff: ours keeps lui/lw per reload (no s1), jump table cases match.
+// func_8067BA7C (src/global/80150.c): LgC71b stage 3 (unchanged): &D_807FBB40 not hoisted into s1 (119 diff lines). Callee void/s32 flips of all 10 callees, 'x = x + 1' / 'x += 0' forms, dead if(D_807FBB40==0){} before switch / !=0 after: no change (117 best).
 void animSetSpeed(Actor *, s32, f32);
 void animSetLoopMode(Actor *, s32, s32);
 void animSetDirection(Actor *, s32, s32);
