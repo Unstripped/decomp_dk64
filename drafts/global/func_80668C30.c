@@ -1,4 +1,4 @@
-// func_80668C30 (src/global/6AD90.c): func_80668C30 (src/global/6AD90.c): stage 4/5 (64 text rows, shape 9, was 119): frame 0xC8 + slot layout exact. Remaining: f12/f18 (var_fa0/var_ft5) FP register swap in the spill reloads (target ldc1 f14,152;f18,136;f12,160;f16,144), li v1,1 vs move v1,t4 (hoisted 1), case-body f-reg numbering. Wins: split hx/hz half-sums with t0_d/t1_d before mid_x/mid_z, per-case assignment order (13824-perm search), decl-order hill-climb. Tried: m2c int temps (frame wrong), dead-stmt sweeps, mismatch spellings.
+// func_80668C30 (src/global/6AD90.c): func_80668C30 (src/global/6AD90.c): stage 5, parked NON_MATCHING. Registers now right: u32 mismatch (fixes li v1,1 vs move v1,t4: the s32 1 is CSE'd with the case/ternary 1 constant, a u32 one is not) and case assignments in declaration order var_fa0,fa1,ft4,ft5 (uopt FP var regs f12,f14,f16,f18 follow first-appearance order, so ft5 gets f18) -> shape 0 (instruction shapes identical), spill slots 136..160 and f12/f18 now match. Remaining (full=99 only from ordering): (1) prologue FIFO temp ring one slot off (mtc1 t1,f8/add.d f6 in target vs f6/f8 ours; 4480 hx,hz,t0,mid_x,t1,mid_z,d1,d2 statement orders tried, none fixes it and keep f22..f28), (2) in each case body the target emits a1,b1,mulA,c1,mulB,c2... (source order a,b,c: ring a1=f4,b1=f6,c1=f8,c2=f4) but ours emits c first then a,b (ring c1=f4...): all 6 a/b/c statement orders and mul operand swaps (96 forms), inlining a/b into the compare, q1/q2 temps in place of the pads: no change.
 s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
     f64 t0_d;
     f64 hx;
@@ -16,7 +16,7 @@ s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
     f64 var_fs0;
     f64 t1_d;
     s32 i;
-    s32 mismatch = 0;
+    u32 mismatch = 0;
 
     hx = (f64)(arg0[1] + arg0[2]) * 0.5;
     hz = (f64)(arg0[7] + arg0[8]) * 0.5;
@@ -30,21 +30,21 @@ s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
     for (i = 0; i < 3; i++) {
         switch (i) {
         case 0:
-            var_ft5 = t1_d;
+            var_fa0 = (f64)(arg0[1] - arg0[0]);
             var_fa1 = (f64)(arg0[7] - arg0[6]);
             var_ft4 = t0_d;
-            var_fa0 = (f64)(arg0[1] - arg0[0]);
+            var_ft5 = t1_d;
             break;
         case 1:
-            var_ft4 = t0_d;
-            var_ft5 = t1_d;
             var_fa0 = (f64)(arg0[2] - arg0[0]);
             var_fa1 = (f64)(arg0[8] - arg0[6]);
+            var_ft4 = t0_d;
+            var_ft5 = t1_d;
             break;
         case 2:
             var_fa0 = (f64)(arg0[2] - arg0[1]);
-            var_ft4 = (f64)arg0[1];
             var_fa1 = (f64)(arg0[8] - arg0[7]);
+            var_ft4 = (f64)arg0[1];
             var_ft5 = (f64)arg0[7];
             break;
         }

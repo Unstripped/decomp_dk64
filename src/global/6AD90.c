@@ -2,7 +2,6 @@
 #include "actor.h"
 
 
-#ifdef NON_MATCHING
 typedef struct {
     u8 pad0[4];
     u32 unk4;
@@ -68,11 +67,11 @@ void func_80666090(CollisionMeshHeader *arg0) {
     a3 = var_s1 + 4;
     for (i = 0; i < D_807F9518; i++) {
         ((CollisionMeshCellEntry *)D_807F9514)[i].unk8 = 0;
-        if (D_807F9514 && D_807F9514) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         a2 = a3 + 4;
         off = a3 - var_s1;
         ((CollisionMeshCellEntry *)D_807F9514)[i].unkC = base + off + 4;
-        a1 = var_s1 + *(u32 *)a3;
+        off = *(u32 *)a3;
+        a1 = var_s1 + off;
         a3 = a1;
         if (D_807F951C) {
             ((CollisionMeshCellEntry *)D_807F9514)[i].unk0 = (u32)a2;
@@ -89,10 +88,6 @@ void func_80666090(CollisionMeshHeader *arg0) {
     }
     D_807F94B4 = 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80666090.s")
-#endif
 
 extern u8 D_807F94B4;
 
@@ -1383,7 +1378,7 @@ s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
     f64 var_fs0;
     f64 t1_d;
     s32 i;
-    s32 mismatch = 0;
+    u32 mismatch = 0;
 
     hx = (f64)(arg0[1] + arg0[2]) * 0.5;
     hz = (f64)(arg0[7] + arg0[8]) * 0.5;
@@ -1397,21 +1392,21 @@ s32 func_80668C30(s16 *arg0, f32 arg1, f32 arg2) {
     for (i = 0; i < 3; i++) {
         switch (i) {
         case 0:
-            var_ft5 = t1_d;
+            var_fa0 = (f64)(arg0[1] - arg0[0]);
             var_fa1 = (f64)(arg0[7] - arg0[6]);
             var_ft4 = t0_d;
-            var_fa0 = (f64)(arg0[1] - arg0[0]);
+            var_ft5 = t1_d;
             break;
         case 1:
-            var_ft4 = t0_d;
-            var_ft5 = t1_d;
             var_fa0 = (f64)(arg0[2] - arg0[0]);
             var_fa1 = (f64)(arg0[8] - arg0[6]);
+            var_ft4 = t0_d;
+            var_ft5 = t1_d;
             break;
         case 2:
             var_fa0 = (f64)(arg0[2] - arg0[1]);
-            var_ft4 = (f64)arg0[1];
             var_fa1 = (f64)(arg0[8] - arg0[7]);
+            var_ft4 = (f64)arg0[1];
             var_ft5 = (f64)arg0[7];
             break;
         }
@@ -1973,7 +1968,7 @@ u8 func_80669E04(CollisionTriF *arg0, f32 arg1, f32 arg2) {
     f64 b;
     f64 c;
     s32 i;
-    s32 outside;
+    u32 outside;
     s32 sideP;
     s32 sideC;
 
@@ -2344,7 +2339,7 @@ u8 func_8066A988(CollisionBoxTriangle *arg0, f32 arg1, f32 arg2) {
     f64 b;
     f64 c;
     s32 i;
-    s32 outside;
+    u32 outside;
     s32 sideP;
     s32 sideC;
 

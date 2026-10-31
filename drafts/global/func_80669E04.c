@@ -1,4 +1,4 @@
-// func_80669E04 (src/global/6AD90.c): func_80669E04 (src/global/6AD90.c): stage 4, parked NON_MATCHING, unchanged C (fdiff full=94 text=94 shape=77, 162 vs 165 lines). Prologue only: target keeps x1/x2/z2 f32 in regs (f18/f16/f20) for the pre-loop sums and spills them later, but z1/x0/z0 are plain stack vars (store at def then immediate reload: swc1 f8,0x58; lwc1 f10,0x58) -- ours enregisters all six. Target shares ONE 0.5 const pair in f0/f1 (ours rematerialises 4x: (double)z0 candidate takes f0 in ours, f14 in target). NM4 pass tried without gain: 6 statement-order/cx-form random searches (best 91), decl-order hill-climb w/ pads, f64 mid temps (mx/mz), 0.5 as named local, /2.0 and /2 forms, volatile on every subset of the six floats (worse), assign cx/cz inside loop, dead cx=0.0 redefs, deadsweep sweep (no improving statement), uopt -l 5/6 trace (cx/cz candidates 36/45 colour f22/f24 like target; difference is only which of the 6 f32 homes colour pre-loop).
+// func_80669E04 (src/global/6AD90.c): func_80669E04 (src/global/6AD90.c): stage 4, parked NON_MATCHING (fdiff full=93 text=93 shape=76; was 94/77). New: u32 outside gives target's li v1,1 (s32 1 CSE'd with the switch/ternary 1; the 68C30 twin too). Remaining: prologue only. Target keeps x1/x2/z2 f32 in regs (f18/f16/f20) for the pre-loop sums but z1/x0/z0 are plain stack vars (store at def then immediate reload swc1 f8,0x58; lwc1 f10,0x58; cvt.d.s fs5 from the reload): ours enregisters all six; target shares one 0.5 pair in f0/f1 (ours rematerialises 4x). Frame layout in target (offsets 56 z0 temp/double, z0 68, x0 84,z1 88,z2 92,x1 96,x2 100, doubles 136..160) needs decl order x2,x1,z2,z1,x0 (first-declared highest) then 3 reg-only words, z0, 1 word, and 8+8 reserved double words above/below dx..oz: named d1,d2,x0d,z0d,hx,hz variants (gen over 1500 random G1/G2 splits) never reproduced that layout, frame 224/232 (extra 3-4 conversion temps keep homes). deadsweep sweep (1 round, all locals) best 84 with 'if (sideC && sideC) {}' (not adopted: shape unchanged); permuter -j2 540s: no gain. See 68C30 note: FP var registers follow first-appearance order, not declaration order; try that on case bodies.
 #include "common.h"
 
 typedef struct CollisionTriF {
@@ -24,7 +24,7 @@ u8 func_80669E04(CollisionTriF *arg0, f32 arg1, f32 arg2) {
     f64 b;
     f64 c;
     s32 i;
-    s32 outside;
+    u32 outside;
     s32 sideP;
     s32 sideC;
 
