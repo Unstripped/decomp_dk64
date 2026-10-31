@@ -1,38 +1,38 @@
-// func_806A1AC4 (src/global/A6280.c): stage 4: frame 0x58 vs 0x50 (one extra unused slot before cb at 0x44 vs 0x40); +2 instrs (sll/sra sign-extend of i at func_80714950 call); double conversion now cvt.d.w (speed = intExpr * 0.01); dz inlined; i s16; cb spilled
+// func_806A1AC4 (src/global/A6280.c): stage 4: score 10 - 281/281 instrs identical (incl sll/sra, double cvt, cb at 0x40) except frame 0x58 vs 0x50; tried inlining dx, merging dx/speed, if/else if for switches, order cb,dx,speed,i
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
-
 
 extern s32 D_8076A064;
 extern s32 D_8071FFA0;
 extern ActorGlobalState D_807FBB70;
 
+s32 flagGet(s16, s32);
+void func_80613C48(Actor *, s16, f32, f32);
 void func_80728950(s32);
 void actorSetUniformScale(Actor *, f32);
-s32 flagGet(s16, s32);
-void func_80614EBC(Actor *, s32);
 void currentActorAnimSetFrame(s32, s32);
 void resQueueRemove(Actor *);
 void func_8070D8C0(Actor *, s32, s32);
-void func_8061CC40(Actor *, s32, s32);
+void camStartPath(Actor *, s32, s32);
 void flagSet(s32, s32, s32);
-s32 func_80611A44(void);
+void actorScriptStart(Actor *, s32);
+void scriptSetActorRampTarget(void *, f32, f32);
+s32 randomNonNegative(void);
+void effectDecelDriftFadeUpdate(void);
 void func_8071498C(void *);
-void func_80714950(s16);
+void func_80714950(s32);
 void func_807149B8(s32);
 void func_807149C8(s32, s32, s32, s32);
 void func_80714998(s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void func_8072881C(s32, void *);
-void func_8071E864(void);
-
-void func_80613C48(Actor *, s16, f32, f32);
+void actorUpdateModelMatrix(Actor *, s32);
 
 void func_806A1AC4(void) {
-    s16 i;
     void *cb;
     f32 dx;
     f32 speed;
+    s16 i;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk60 &= ~0x8000;
@@ -56,7 +56,7 @@ void func_806A1AC4(void) {
         if (D_807FBB70.unk254 != 0 && D_807FBB70.unk258[0] == 1) {
             resQueueRemove(D_807FBB40);
             func_8070D8C0(D_807FBB40, 0x1F, 1);
-            func_8061CC40(D_807FBB40, 0x12, 1);
+            camStartPath(D_807FBB40, 0x12, 1);
             flagSet(0xFB, 1, 0);
             D_807FBB40->unk154 = 1;
         } else if (flagGet(0xFB, 0) == 0 && flagGet(0x21, 2) == 0) {
@@ -69,7 +69,7 @@ void func_806A1AC4(void) {
         break;
     case 1:
         if (D_807FBB70.unk254 != 0 && D_807FBB70.unk258[0] == 1) {
-            func_80614EBC(D_807FBB40, 0x328);
+            actorScriptStart(D_807FBB40, 0x328);
             D_807FBB40->unk154 = 2;
             D_807FBB40->unk144 = 2;
             D_807FBB40->unk60 |= 4;
@@ -79,9 +79,9 @@ void func_806A1AC4(void) {
         switch (D_807FBB40->unk155[0]) {
         case 0:
             if (!(D_8076A064 & 7)) {
-                cb = (void *)func_8071E864;
+                cb = (void *)effectDecelDriftFadeUpdate;
                 for (i = 0; i < 0xC; i++) {
-                    speed = (((func_80611A44() >> 15) % 32767) % 171 + 0x96) * 0.01;
+                    speed = (((randomNonNegative() >> 15) % 32767) % 171 + 0x96) * 0.01;
                     func_8071498C(cb);
                     func_80714950(i);
                     func_807149B8(1);

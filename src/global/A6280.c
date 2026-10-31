@@ -107,7 +107,64 @@ void actorSeekTargetUpdate(void) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A6280/func_806A18A8.s")
+typedef struct OlESub178 {
+    u8 unk0;
+    u8 unk1;
+} OlESub178;
+
+typedef struct OlESub11C {
+    u8 pad0[0xB8];
+    f32 unkB8;
+} OlESub11C;
+
+typedef struct OlESub4 {
+    u8 pad0[0x64];
+    u16 unk64;
+} OlESub4;
+
+void func_80724CA4(s32, s32);
+void func_8067B238(Actor *, void *, f32);
+void actorUpdatePulseIntensity(s32);
+void actorScriptStart(Actor *, s32);
+void scriptSetActorRampTarget(void *, f32, f32);
+void func_8065D254(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+
+void func_806A18A8(void) {
+    OlESub178 *sp44;
+    OlESub11C *sp40;
+
+    sp44 = ((ActorView *)D_807FBB40)->unk178;
+    sp40 = (OlESub11C *)D_807FBB40->unk11C;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        func_80724CA4(2, 2);
+    }
+    func_8067B238(D_807FBB40, sp40, 0.15f);
+    if (D_807FBB40->unk154 != 0) {
+        actorUpdatePulseIntensity(1);
+        if (sp44->unk1 == 0) {
+            D_807FBB40->unk154 = 0;
+        }
+    }
+    if (0.0f != sp40->unkB8) {
+        if (sp40->unkB8 > 50.0f && ((OlESub4 *)D_807FBB40->unk4)->unk64 != 0x233) {
+            actorScriptStart(D_807FBB40, 0x233);
+        } else if (50.0f >= sp40->unkB8) {
+            if (((OlESub4 *)D_807FBB40->unk4)->unk64 != 0x232) {
+                actorScriptStart(D_807FBB40, 0x232);
+            }
+        }
+        scriptSetActorRampTarget(D_807FBB40, sp40->unkB8 * 0.01, 4.0f);
+    } else {
+        if (((OlESub4 *)D_807FBB40->unk4)->unk64 != 0x234) {
+            actorScriptStart(D_807FBB40, 0x234);
+        }
+    }
+    func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0xA, 0xA, 1, 0x12C, 0xC8, 0, 1.0f);
+    actorUpdateModelMatrix(D_807FBB40, 0);
+}
+
+void func_806A1ABC(void) {
+}
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A6280/func_806A1AC4.s")
 
@@ -131,7 +188,109 @@ void actorPlaySoundVariantAndFinish(void) {
 static void stub_806A1FD0(void) {
 }
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A6280/func_806A1FD8.s")
+typedef struct OlESub174 {
+    s16 unk0;
+    u8 pad2[2];
+    f32 unk4;
+    f32 unk8;
+} OlESub174;
+
+extern s32 D_8071FF18;
+
+void actorDespawn(Actor *);
+s32 actorListLookupEntry(u16);
+s32 actorTableContains(Actor *);
+void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
+void func_80717D4C(void);
+s32 flagGet(s16, s32);
+void func_80714998(s32);
+void func_807149B8(s32);
+void func_8071498C(void *);
+void func_80714950(s32);
+void func_807149C8(s32, s32, s32, s32);
+void func_80714CC0(void *, f32, f32, f32, f32);
+
+void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
+
+void func_806A1FD8(void) {
+    s32 count;
+    s32 i;
+    s32 node;
+    u8 found;
+    f32 sp54;
+    f32 sp50;
+    f32 sp4C;
+    OlESub174 *sub;
+    Actor *act;
+
+    sub = D_807FBB40->unk174;
+    if (!(D_807FBB40->unk60 & 0x10)) {
+        D_807FBB40->unk64 |= 8;
+        sub->unk0 = 0;
+        sub->unk4 = 0.0f;
+        sub->unk8 = D_807FBB40->unk80;
+        ((ActorView *)D_807FBB40)->unk130 = 0x46;
+        ((ActorView *)D_807FBB40)->unk131 = 0x14;
+        node = actorListFindIdByActor(D_807FBB40);
+        i = actorListLookupEntry(node);
+        if (flagGet(i, 0) != 0) {
+            actorDespawn(D_807FBB40);
+        }
+    }
+    if (D_807FBB4C->unk154 == 0x2D && D_807FBB4C->unk155[0] != 0) {
+        found = 0;
+        if (D_807FBB40->unk114 != NULL) {
+            count = D_807FBB40->unk114->count;
+            do { i = 0; } while (0);
+            if (count != 0) {
+                do {
+                    act = (Actor *)D_807FBB40->unk114->items[i];
+                    if (actorTableContains(act) != 0 && act == D_807FBB4C) {
+                        found = 1;
+                    }
+                    count--;
+                    i++;
+                } while (count != 0 && found == 0);
+            }
+        }
+        if (found != 0) {
+            node = 1;
+            if (sub->unk0 == 0) {
+                do {
+                    func_80714998(2);
+                    func_807149B8(1);
+                    func_8071498C(&func_80717D4C);
+                    func_80714950(-0x64);
+                    func_807149C8(0x64, 0x46, 0x1E, 0xFF);
+                    actorGetNodePos(D_807FBB40, node, &sp54, &sp50, &sp4C);
+                    func_80714CC0(&D_8071FF18, 2.0f, sp54, sp50 + 10.0, sp4C);
+                    node++;
+                } while (node != 9);
+                sub->unk0 = 0xF;
+                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1C1, 0xFF, 0x7F, 1);
+            }
+        }
+    }
+    if (sub->unk0 >= 2) {
+        sub->unk0--;
+    }
+    if (sub->unk0 == 2) {
+        node = actorListFindIdByActor(D_807FBB40);
+        i = actorListLookupEntry(node);
+        actorSpawnNodeEntryScaled(0x8C, D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f, D_807FBB40->unk84, 0, 1, i, 0);
+    }
+    if (sub->unk0 < 0xA && sub->unk0 != 0) {
+        sub->unk4 = sub->unk4 + 1.0;
+        if (sub->unk4 > 20.0) {
+            sfxAllocateChannel(0x90, 1.0f);
+            actorDespawn(D_807FBB40);
+        }
+    }
+    D_807FBB40->unk80 -= sub->unk4;
+    actorUpdateModelMatrix(D_807FBB40, 0);
+    D_807FBB40->unk80 = sub->unk8;
+}
 
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A6280/func_806A2328.s")

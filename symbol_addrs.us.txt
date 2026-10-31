@@ -240,6 +240,7 @@ animSetChannelFrames = 0x806A0F78; // type:func
 actorSetGroupState = 0x806A1008; // type:func
 actorSetNodeValuesForFrame = 0x806A10BC; // type:func
 actorSeekTargetUpdate = 0x806A1580; // type:func
+func_806A1ABC = 0x806A1ABC; // type:func
 actorFinishInRange = 0x806A1F28; // type:func
 actorPlaySoundVariantAndFinish = 0x806A1F64; // type:func
 actorPlaceModelAtCamera = 0x806A285C; // type:func
