@@ -37,7 +37,8 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   (revisit unit: 18 queued that way, 9 matched, every merge took the reported base).
 - Later passes: ≤6 functions, near-misses first. A stage-6 near-miss of 1–8 instructions is
   worth one dedicated agent; a second dedicated pass is worth it only with new findings in
-  the context.
+  the context (F4C0 revisit: third passes on 104F0/17B90 parks matched 0 of 20; a first
+  pass on old `-g` parks with the compiler's rule in the task matched 2 of 2).
 - Each `tasks[]` item lists its functions with the last diff note and stage; agents start
   from the stored draft (`tools/drafts.py show <seg> <FUNC>`), not m2c.
 - The agent's budget is its context window and request cap, not wall-clock time: the brief

@@ -84,6 +84,9 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
     most common clash: 7 in the 2C700 unit): give the prototype the definition's types;
     a typedef'd struct param needs a forward `struct Tag;` line before the prototype.
   Name every unified type in later tasks' `context` (and `local://findings.md`).
+- Conflict with an empty `src` side and a copy side starting with a stale pragma: a sibling
+  matched the function above the copy's new code. Take the copy side minus that pragma in
+  `.scratch/merged/<f>.c`, `cp` it to `src`, gate `- -`.
 - Per-agent types on a fresh unseeded file (`ActAActor`, `BehBActor`): one unify agent per file
   right after round 1 (PRIVATE COPY, merged like a round), building one struct per object in
   a shared header (additive only) and one top declaration block. Two files on one header:
@@ -112,7 +115,8 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
   that compile: hoist the matched code's declarations above the park, delete the park's
   copies, cast inside it; hand this to the agent already working that park (B100 unit).
 - A parked definition with a prototype rejects parked callers passing extra args: write it
-  K&R-style (`void f(a, b) T *a; s32 b; {`) so the file's `void f();` accepts both.
+  K&R-style (`void f(a, b) T *a; s32 b; {`) so the file's `void f();` accepts both. A park
+  calling a matched ANSI callee with extra args (stale `a2`/`a3` in the asm): drop them.
 - A stray prototype of X inside another function's parked block makes `permute.py` /
   `uopt_trace.sh` treat X as parked.
 - Park stage-6 drafts yourself when an agent did not: paste into the parked form,

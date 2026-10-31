@@ -41,7 +41,7 @@ swapped externs in a comparison look identical in the text.
   `tools/dk` call pausing on `dk: waiting for ... lock` while the gate runs is normal: wait.
 - Never `pkill`/`kill` by pattern (`pkill -f "permute.py run"` killed every sibling's
   permuter): stop only a PID you started.
-- Put every scratch/probe file (also `cc -S` output) under `.scratch/<YourName>/`, never the repo root.
+- Put every scratch/probe file (`cc -S` output, objdump/`.s` dumps) under `.scratch/<YourName>/`, never the repo root.
 - PRIVATE COPY mode: create your copy ONCE from the exact base commit in your task
   (`git show <commit>:src/<seg>/<file>.c > .scratch/<YourName>/<file>.c`); never re-copy it or
   `cp` it over `src`; after any multi-line replace, `diff` it against the base (block replaces

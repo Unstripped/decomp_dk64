@@ -77,8 +77,12 @@ then tell running agents not to re-copy from `src`.
   after it.
 - `drafts.py prune` prunes every segment (it deleted another session's global drafts):
   scope pruning with `unit_check.py drafts --prune src/<seg>/*.c`.
-- ok-fine reads from Python eval: `r = await tool.mcp__ok_fine_read_concept({...})`; the
-  payload is `r['details']['structuredContent']` (`r['text']` is elided past ~90 KB).
-  `write_concept` takes `frontmatter` (object) and `body`: copy both from the read, drop
-  `verified`/`generated`, append sources and body, pass `expectedRevision`. `cp` into `xd://`
-  fails; `cp` into `local://` works.
+- ok-fine from Python eval: `r = await tool.write({'path': 'xd://mcp__ok_fine_read_concept',
+  'content': json.dumps({...})})`; the payload is `r['details']['xdev']['inner']['structuredContent']`
+  (`r['text']` is elided past ~90 KB). `write_concept` takes `frontmatter` (object) and `body`:
+  copy both from the read, drop `verified`/`generated`, append sources and body, pass
+  `expectedRevision`. `cp` into `xd://` fails; `cp` into `local://` works.
+- `local://` paths resolve in the bash tool only: Python `subprocess` (e.g. `ledger.py record
+  --task`) needs the session's real local dir (the path `write('local://x')` returns).
+- `make NON_MATCHING=1` ending in `global.gz ... exceed segment size` is expected (parks
+  change code size); only its compile and link errors matter.
