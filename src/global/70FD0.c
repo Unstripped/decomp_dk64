@@ -79,7 +79,7 @@ void actorSub140Free(ActorSub140 *);
 void actorSetNodeValue(Actor *, s32, u16);
 void actorOrNodeFlags(Actor *, s32, u8);
 void actorClearNodeFlags(Actor *, s32, u8);
-void actorSub140Alloc(f32, f32, f32, f32, f32, f32, s32, s32, s32);
+ActorSub140 *actorSub140Alloc(f32, f32, f32, f32, f32, f32, s32, s32, s32);
 void actorFreeModelNodeList(Actor *);
 void actorSetNodeFlag(Actor *, s32);
 void actorClearNodeFlag(Actor *, s32);
@@ -1021,8 +1021,6 @@ typedef struct ActorPointNode {
     /* 0x1C */ struct ActorPointNode *next;
 } ActorPointNode;
 
-typedef ActorSub140 *(*ActorSub140AllocFn)(f32, f32, f32, f32, f32, f32, s32, s32, s32);
-
 ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8, u8 *arg9) {
     register ActorSub140 *sub140;
     register void *s2;
@@ -1037,7 +1035,7 @@ ActorSub140 *func_8066E2C0(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
     ActorSphereNodeSrc *node;
     ActorPointNode *subnode;
 
-    sub140 = ((ActorSub140AllocFn)actorSub140Alloc)(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+    sub140 = actorSub140Alloc(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
     if (arg9 != NULL) {
         s3 = *(s32 *)arg9;
         arg9 += 4;
@@ -1216,7 +1214,7 @@ void func_8066E6C8(Actor *arg0, s32 arg1, u8 arg2) {
     }
 }
 
-void actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8) {
+ActorSub140 *actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6, s32 arg7, s32 arg8) {
     ActorSub140 *temp_v0;
 
     temp_v0 = (ActorSub140 *)heapAlloc(sizeof(ActorSub140));
@@ -1246,6 +1244,7 @@ void actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5
     temp_v0->unkA4 = 0;
     temp_v0->unkA8 = 0;
     temp_v0->unkAC = 0;
+    return temp_v0;
 }
 
 typedef struct ActorModelSubNode {
