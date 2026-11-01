@@ -4,7 +4,6 @@
 void func_806A3700(s32 arg0, s32 arg1) {
 }
 
-#ifdef NON_MATCHING
 typedef struct SpriteModel {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ u8 unk2;
@@ -53,7 +52,6 @@ void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     Gfx *dl;
     SpriteModel *mdl;
     f32 res;
-    f32 sp4C;
 
     dl = (Gfx *) *arg0;
     spE8.h = D_8075A740;
@@ -64,7 +62,7 @@ void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
         sp5C = ((SpriteSource *) arg2)->unk18 * 0.5f * 4.0f;
         guTranslateF(sp68, -sp60, -sp5C, 0.0f);
         guMtxCatF(spA8, sp68, spA8);
-        mdl->unk88 = (f32) ((f64) mdl->unk88 + 0.320000000000000007);
+        mdl->unk88 = (f32) ((f64) mdl->unk88 + 0.418879032135009766);
         if ((mdl->unk0 & 8) != 0) {
             fa = (f32) ((f64) mdl->unk88 * 0.5);
             if (fa <= 6.2831855f) {
@@ -75,7 +73,8 @@ void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
         if ((mdl->unk0 & 4) != 0) {
             fa = mdl->unk88;
             if (fa <= 6.2831855f) {
-                res = (0.25f * (sinApprox(fa - 1.5707964f) + 1.0f)) + 1.0f;
+                res = sinApprox(fa - 1.5707964f) + 1.0f;
+                res = 0.25f * res + 1.0f;
             } else {
                 res = 1.0f;
             }
@@ -83,8 +82,11 @@ void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
             guMtxCatF(spA8, sp68, spA8);
         }
         if ((mdl->unk0 & 2) != 0) {
-            sp4C = (4.0f * sinApprox(mdl->unk88)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f);
-            guTranslateF(sp68, sp4C, (4.0f * sinApprox(mdl->unk88)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f), 0.0f);
+            f32 jitterX;
+            f32 jitterY;
+            jitterX = (4.0f * sinApprox(mdl->unk88)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f);
+            jitterY = (4.0f * sinApprox(mdl->unk88)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f);
+            guTranslateF(sp68, jitterX, jitterY, 0.0f);
             guMtxCatF(spA8, sp68, spA8);
         }
         guTranslateF(sp68, sp60, sp5C, 0.0f);
@@ -101,10 +103,6 @@ void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     spE8.b = mdl->unk2;
     *arg0 = (s32) textDrawStringVtx(dl, 6, 0, 0, (u16 *) &spE8, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/A8400/textBoxRenderNode.s")
-#endif
 
 void textBoxRenderNode(s32 *, void *, void *, void *);
 
