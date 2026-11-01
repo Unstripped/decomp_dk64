@@ -138,16 +138,16 @@ void controllerLatchPad(OSContPad *pad);
 void controllerUpdate(void) {
     s16 timer;
     OSContPad *pad;
+    s32 sum;
+    s32 buttons;
+    u32 compact;
+    u32 *p;
+    u16 pressed;
     s32 padIdx;
     s32 k;
-    s32 bit;
-    u32 *p;
     u8 mask;
+    u32 bit;
     u8 i;
-    u16 pressed;
-    u32 sum;
-    s32 buttons;
-    s32 compact;
 
     compact = func_8071432C();
     D_807ECD60.button = D_807ECD58.button;
@@ -175,7 +175,7 @@ void controllerUpdate(void) {
             if (D_807ECD09) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             i = 0;
             do {
-                if (D_807ECD09 & (1 << i)) {
+                if (D_807ECD09 & (1U << i)) {
                     if (D_807ECD48) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     D_807ECDE8[i].button |= D_807ECDF4[i].button & 0x1000;
                 }
@@ -187,17 +187,18 @@ void controllerUpdate(void) {
             controllerLatchPad(D_807ECDF4);
             playerStateWaypointAimUpdate(D_807ECDE8, D_807ECDF4);
             break;
+            if (D_807ECDF8 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }
     if (compact != 0) {
         controllerCompactPads(D_807ECDE8);
     }
-    D_807ECD66 = (D_807ECD58.button ^ D_807ECD60.button) & D_807ECD58.button;
     sum = 0;
+    D_807ECD66 = (D_807ECD58.button ^ D_807ECD60.button) & D_807ECD58.button;
     p = (u32 *)heapTickDeferredFrees;
     while (p < (u32 *)func_80611844) {
         sum += *p;
-        p++;
+        p += 1;
     }
     padIdx = 0;
     k = 0; // FAKE: gives k a long live range so uopt colours timer/k/pad like the target (needs the dead read below)
@@ -206,9 +207,9 @@ void controllerUpdate(void) {
     }
     for (i = 0; i < 4; i++) {
         if (compact != 0) {
-            mask = D_807ECDF8 & (1 << i);
+            mask = D_807ECDF8 & (1U << i);
         } else {
-            mask = D_807ECD09 & (1 << i);
+            mask = D_807ECD09 & (1U << i);
             padIdx = i;
         }
         if (i == 0 && D_807463B8 == 2) {
@@ -223,29 +224,29 @@ void controllerUpdate(void) {
             if (D_807463B8 == 0) {
                 if (D_8076A0B1 & 0x11) {
                     pad->button &= 0x1000;
-                    buttons = *(u16 *)pad;
                     pad->stick_x = 0;
-                    pressed = 0;
                     pad->stick_y = 0;
+                    pressed = 0;
+                    buttons = *(u16 *)pad;
                 }
             }
             CtrlAPressed[padIdx] = pressed;
             for (k = 0; k < 16; k++) {
                 bit = 1 << k;
-                if ((buttons & bit) != 0) {
+                if ((buttons & bit)) {
                     D_807ECD68[padIdx][k]--;
                     timer = D_807ECD68[padIdx][k];
                     if (timer <= 0) {
-                        D_807ECD68[padIdx][k] = 2;
                         CtrlARepeat[padIdx] |= bit;
+                        D_807ECD68[padIdx][k] = 2;
                     } else if (timer == 11U) {
                         CtrlARepeat[padIdx] |= bit;
                     } else {
                         CtrlARepeat[padIdx] &= ~bit;
                     }
                 } else {
-                    D_807ECD68[padIdx][k] = 12;
                     CtrlARepeat[padIdx] &= ~bit;
+                    D_807ECD68[padIdx][k] = 12;
                 }
             }
             if (compact != 0) {
