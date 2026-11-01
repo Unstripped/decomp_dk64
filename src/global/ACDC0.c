@@ -1464,11 +1464,9 @@ extern s8 D_807FC7F9;
 
 s32 hudPauseMenuSlidePage(HudEntry *arg0, s32 arg1, s32 arg2) {
     s32 dir;
-    s32 new_var;
     s32 idx;
     s32 v;
     s32 d;
-    s32 idx2;
 
     if (arg1 == 0) {
         dir = 0;
@@ -1498,8 +1496,7 @@ s32 hudPauseMenuSlidePage(HudEntry *arg0, s32 arg1, s32 arg2) {
         }
     }
     if (arg1 != 0) {
-        idx2 = arg0->unk15;
-        d = arg0->unkC[idx2];
+        d = arg0->unkC[arg0->unk15];
         if (d >= 0x15) {
             d = 0x14;
         }
@@ -1508,12 +1505,10 @@ s32 hudPauseMenuSlidePage(HudEntry *arg0, s32 arg1, s32 arg2) {
         }
         arg0->unkC[0] -= d;
         arg0->unkC[1] -= d;
-        if (arg0->unkC[idx2] == 0) {
-            new_var = 1 - idx2;
-            arg0->unk8[new_var] = arg0->unk8[idx2];
-            d = arg0->unk15;
+        if (arg0->unkC[arg0->unk15] == 0) {
+            arg0->unk8[1 - arg0->unk15] = arg0->unk8[arg0->unk15];
+            (&D_807FC7F9)[-arg0->unk15] = 0;
             arg1 = 0;
-            (&D_807FC7F9)[-d] = 0;
             sfxPlayOnFreeSlot(0x97, 0x4650, 63.0f, 1.0f, 0, 0);
             D_8075052C = 3;
         }
@@ -1579,7 +1574,6 @@ Gfx *hudDrawDimOverlay(Gfx *dl, Actor *actor) {
     return gfxFillScreenColor(dl, 0, 0, 0, 0x46);
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -1708,11 +1702,13 @@ void hudPauseMenuIconUpdate(HudIconObj *arg0, s8 *arg1) {
             arg0->unk344 = (480.0 - (f64)(func_80612790(ang) * sc)) + (f64)sp40;
             if (type == 8) {
                 ang = (D_8076A064 * 0x78) & 0xFFF;
-                arg0->unk344 = arg0->unk344 + func_80612794(ang) * 10.0f;
+                sc = func_80612794(ang);
+                arg0->unk344 = arg0->unk344 + sc * 10.0f;
             }
             if (type == 0xF) {
                 ang = (D_8076A064 * 0x78) & 0xFFF;
-                arg0->unk364 = arg0->unk364 * (1.0 + (f64)func_80612794(ang) * 0.2);
+                sc = func_80612794(ang);
+                arg0->unk364 = arg0->unk364 * (1.0 + (f64)sc * 0.2);
             }
             if (type == 5 || type == 8 || type == 0xF) {
                 i = 0xFF - (s32)(((f64)arg0->unk344 - 240.0) * 1.5);
@@ -1732,7 +1728,8 @@ void hudPauseMenuIconUpdate(HudIconObj *arg0, s8 *arg1) {
             if (sc < 400.0f) {
                 item->unk24 = (f64)item->unk24 - 1.0;
                 if ((f64)item->unk24 < 0.0) {
-                    item->unk20 = (f64)item->unk20 + (1000.0 + (f64)randomFloat() * 2000.0);
+                    sc = randomFloat();
+                    item->unk20 = (f64)item->unk20 + (1000.0 + (f64)sc * 2000.0);
                     ang = (s32)item->unk20 & 0xFFF;
                     item->unk20 = ang;
                     sc = ((f64)randomFloat() * 40.0 + 20.0) * 4.0;
@@ -1746,9 +1743,7 @@ void hudPauseMenuIconUpdate(HudIconObj *arg0, s8 *arg1) {
                 }
             }
             sc = (f64)(item->unk18 - item->unk10) * 0.1;
-            if (sc < -8.0) {
-                sc = -8.0f;
-            }
+            if (sc < -8.0) sc = -8.0f; // LAYOUT: one-line if steers as1 scheduling of the hoisted item->unk14 load
             if (sc > 8.0) {
                 sc = 8.0f;
             }
@@ -1794,10 +1789,6 @@ void hudPauseMenuIconUpdate(HudIconObj *arg0, s8 *arg1) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/hudPauseMenuIconUpdate.s")
-#endif
 
 Gfx *hudDrawTextScreen(Gfx *dl, Actor *actor) {
     char buf[0x28];
