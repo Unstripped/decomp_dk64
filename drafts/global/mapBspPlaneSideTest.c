@@ -1,5 +1,5 @@
-// mapBspPlaneSideTest (src/global/2F550.c): Stage 4 (NM2F3). 200 insns, frame 0x80 matches (was 0x78). Stack variable layout solved: ea 0x74, eb 0x68, c 0x5C, n 0x50, p 0x40 (padded to 0x4C), s1 0x3C, len 0x38, nx 0x34, ny 0x30, nz 0x2C, d 0x28. Deadsweep reduced diff to 111. Only load/store scheduling in cross product and s2 inlining remain.
-typedef struct OlD_Plane {
+// mapBspPlaneSideTest (src/global/2F550.c): Stage 4 (NM2F3). 200 insns, frame 0x80 matches, diff 111 (load/store scheduling in cross product and s2 inlining)
+typedef struct Bsp_Plane {
     /* 0x00 */ u8 pad0[0x4C];
     /* 0x4C */ f32 unk4C;
     /* 0x50 */ f32 unk50;
@@ -8,11 +8,11 @@ typedef struct OlD_Plane {
     /* 0x5C */ s16 unk5C[3];
     /* 0x62 */ s16 unk62[3];
     /* 0x68 */ s16 unk68[3];
-} OlD_Plane;
+} Bsp_Plane;
 
-s32 mapBspPlaneDistanceCheck(OlD_Plane *, f32, f32, f32);
+s32 mapBspPlaneDistanceCheck(Bsp_Plane *, f32, f32, f32);
 
-#define arg0 ((OlD_Plane *)arg0v)
+#define arg0 ((Bsp_Plane *)arg0v)
 u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 ea[3];
     f32 eb[3];
