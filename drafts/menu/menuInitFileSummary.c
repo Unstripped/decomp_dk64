@@ -1,4 +1,4 @@
-// menuInitFileSummary (src/menu/3E10.c): stage 4+ (frame 0x80, 241 insns = expected). Remaining text diff: loop 1 colours (target q=s2,p=s0,end=s1 i.e. end(&D_80033809 hoisted) coloured before q; mine q=s1,end=s2: q adjsave 15.5 > end) and 'beq v0,t6' vs target 'beq t6,v0' (sp64 vs call result operand order). OlP revisit tried: end/p/q init statement order (all 6 perms), explicit end local (decl top/last; +8 frame), reusing p2/a1 as end (worse), do/while form variants (q++ before/after, *q++, != vs <, > flipped) all stay at 13 diff lines, compare operand order/cast/!(==) forms, deadsweep sweep (4033 variants incl. extras p q p2 i k j a1 row temp_s6 sp64) no gain, permuter 300s no gain. Index-loop form 'for (i=1;i<5;i++) D[i]=flagGet(B0[i-1])' unrolls (not the target).
+// menuInitFileSummary (src/menu/3E10.c): stage 4+ (frame 0x80): p2 = &D_80033805 - 1 drops s3 pointerization; remaining diff is loop 1 q/end regalloc (s1/s2 swap) and beq t6, v0 (open issue)
 extern u8 D_80720CF0;
 extern u8 D_80720D14;
 extern u8 D_8072052C;
@@ -16,7 +16,7 @@ extern u32 D_80033814;
 extern s8 D_80033F48;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
-extern u32 D_80671880;
+extern u32 actorUpdateCollisionSpheres;
 typedef struct Menu3A_Struct174 {
     f32 unk0;
     f32 unk4;
@@ -35,7 +35,7 @@ int osPiReadIo(u32, u32 *);
 extern s8 D_80033809;
 
 void menuInitFileSummary(void *arg0, s32 arg1) {
-    Menu3A_Struct174 *temp_s6 = *(Menu3A_Struct174 **)((u8 *)arg0 + 0x174);
+    MenuScreenState *temp_s6 = *(MenuScreenState **)((u8 *)arg0 + 0x174);
     u8 *row = D_807FC950[0];
     s8 *p;
     s16 *q;
@@ -54,12 +54,13 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
     D_80033804 = 1;
     q = &D_807505B2;
     p = &D_80033805;
+    arg0 = &D_80033809;
     do {
         k = flagGet(q[-1], 0);
         q++;
         *p++ = k;
-    } while (p < &D_80033809);
-    for (p2 = &D_80033804, i = 0; i != 5; i++) {
+    } while (p < (s8 *)arg0);
+    for (p2 = &D_80033805 - 1, i = 0; i != 5; i++) {
         if (*p2 != 0) {
             a1 = D_80750518[i];
         } else {
@@ -69,8 +70,8 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
         p2++;
     }
     osPiReadIo(func_800297A8(0xAFFE1464), &sp64);
-    if (func_800297A8(0x0107183B) != sp64) {
-        *(u32 *)(s32)&D_80671880 = 0x03E00008;
+    if (sp64 != func_800297A8(0x0107183B)) {
+        *(u32 *)(s32)&actorUpdateCollisionSpheres = 0x03E00008;
     }
     D_8003380C = 0;
     for (k = 0; k != 5; k++) {
@@ -79,8 +80,6 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
         }
         row += 0x5E;
     }
-    if (i) {}
-    if (D_80033804 && D_80033804) {}
     D_80033814 = D_80750AB0 / 60;
     D_80033810 = (s32)D_80033814 / 60;
     D_80033814 = D_80033814 - D_80033810 * 60;

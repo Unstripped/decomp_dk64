@@ -700,12 +700,13 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
     D_80033804 = 1;
     q = &D_807505B2;
     p = &D_80033805;
+    arg0 = &D_80033809;
     do {
         k = flagGet(q[-1], 0);
         q++;
         *p++ = k;
-    } while (p < &D_80033809);
-    for (p2 = &D_80033804, i = 0; i != 5; i++) {
+    } while (p < (s8 *)arg0);
+    for (p2 = &D_80033805 - 1, i = 0; i != 5; i++) {
         if (*p2 != 0) {
             a1 = D_80750518[i];
         } else {
@@ -715,7 +716,7 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
         p2++;
     }
     osPiReadIo(func_800297A8(0xAFFE1464), &sp64);
-    if (func_800297A8(0x0107183B) != sp64) {
+    if (sp64 != func_800297A8(0x0107183B)) {
         *(u32 *)(s32)&actorUpdateCollisionSpheres = 0x03E00008;
     }
     D_8003380C = 0;
@@ -863,10 +864,9 @@ void menuMysteryHandleInput(MenuScreenActor *arg0, s32 arg1) {
 }
 
 
-#ifdef NON_MATCHING
 Gfx *func_8002A088(void *arg0, Gfx *arg1) {
     void *temp_a0 = *(void **)((u8 *)arg0 + 0x174);
-    int ty;
+    s32 pad;
     f32 sp11C;
     Gfx *g;
     f32 sp120;
@@ -888,17 +888,14 @@ Gfx *func_8002A088(void *arg0, Gfx *arg1) {
     } else {
         _sprintf(sp3C, "%s %d", (char *)D_80033F28[7], D_80033F48 + 1);
     }
-    ty = (s16)(y - 0x3C);
-    arg1 = hudDrawScaledText(hudDrawScaledText(arg1, sp106, y, 0.6f, sp3C), (s16)(sp118 * 4.0f), (u16)ty, 0.6f, (char *)D_80033F28[8]);
+    arg1 = hudDrawScaledText(arg1, sp106, y, 0.6f, sp3C);
+    y -= 0x3C;
+    arg1 = hudDrawScaledText(arg1, (s16)(sp118 * 4.0f), y, 0.6f, (char *)D_80033F28[8]);
     func_800317E8(temp_a0, 160.0f, 80.0f, &sp118, &sp114, 5, 0, 2.0f);
     arg1 = hudDrawScaledText(arg1, (s16)(sp118 * 4.0f), (s16)(sp114 * 4.0f), 0.6f, (char *)D_80033F28[9]);
     func_800317E8(temp_a0, 80.0f, 120.0f, &sp118, &sp114, 5, 0, 2.0f);
-    return hudDrawScaledText(hudDrawScaledText(arg1, (s16)(sp118 * 4.0f), (s16)(sp114 * 4.0f), 0.6f, (char *)D_80033F28[10]), (s16)(0x500 - (s32)(sp118 * 4.0f)), (s16)(sp114 * 4.0f), 0.6f, (char *)D_80033F28[11]);
+    return hudDrawScaledText(hudDrawScaledText(arg1, (s16)(sp118 * 4.0f), (s16)(sp114 * 4.0f), 0.6f, D_80033F28[10]), 0x500 - (s16)(sp118 * 4.0f), (s16)(sp114 * 4.0f), 0.6f, D_80033F28[11]);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002A088.s")
-#endif
 
 extern s8 D_80033FAC;
 
@@ -2222,6 +2219,8 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
     MenuHighScoreEntry *table;
     s8 v1;
     s32 v0;
+    s32 new_var; // FAKE: constant held in a local, stops IDO CSEing &D_800339C0
+    s32 tmp;
     u8 *p;
 
     if (D_800339A8 == 0) {
@@ -2247,13 +2246,15 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
             } else {
                 v1 = 0;
             }
+            new_var = 0xF; // FAKE: see new_var
             v0 = 0;
             D_800339C0 = v1;
             if (v1 == 1 || v1 >= 0x10) {
                 v0 = arg1;
                 if (v1 >= 0x10) {
-                    D_800339C0 = 0xF;
-                    if (!(gFrameCounter & 1)) {
+                    D_800339C0 = new_var;
+                    tmp = gFrameCounter;
+                    if (!(tmp & 1)) {
                         v0 = 0;
                     }
                 }
@@ -3351,10 +3352,10 @@ s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *ar
         arg1 -= 5;
     }
     ret = arg1;
-    D_8003378C[arg1 * 4 + 2] = D_8003373C[arg1 * 4];
-    D_8003373C[arg1 * 4 + 2] = -D_8003378C[arg1 * 4];
-    D_8003378C[arg1 * 4 + 3] = D_8003373C[arg1 * 4 + 1];
-    D_8003373C[arg1 * 4 + 3] = -D_8003378C[arg1 * 4 + 1];
+    D_8003378C[(4 * arg1) + 2] = D_8003373C[(arg1 * 2 * 2)]; // FAKE: mixed spellings of arg1 * 4 in the 4 stores steer uopt CSE temps
+    D_8003373C[(arg1 * 2 * 2) + 2] = -D_8003378C[arg1 * 4];
+    D_8003378C[arg1 * 4 + 3] = D_8003373C[(arg1 * 2 * 2) + 1];
+    D_8003373C[(arg1 * 2 * 2) + 3] = -D_8003378C[(4 * arg1) + 1];
     *arg2 = menuEvaluateSpline((f32 *)((u8 *)D_8003373C + ((arg1 * 4) << 2)), ((MenuNM2_Sel *)arg0)->unk4, NULL);
     *arg3 = menuEvaluateSpline((f32 *)((u8 *)D_8003378C + ((arg1 * 4) << 2)), ((MenuNM2_Sel *)arg0)->unk4, NULL);
     if (*arg3 < -40.0f) {
@@ -3369,7 +3370,7 @@ s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *ar
         *arg5 = 0x80;
     }
     *arg6 = 0xFF;
-    if (&D_8003373C[arg1 * 4] == D_8003373C) {
+    if (D_8003373C == &D_8003373C[(arg1 * 2 * 2)]) {
         *arg3 *= 1.0f - D_80033F3C;
         *arg4 += D_80033F3C * 3.5f;
         if (D_80033F3C != 0.0f) {
