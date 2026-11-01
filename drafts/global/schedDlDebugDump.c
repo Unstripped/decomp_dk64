@@ -1,12 +1,14 @@
-// schedDlDebugDump (src/global/131B0.c): stage 4-5 (parked in 131B0.c): frame 0xB8 + callee set match; 3 deadsweep FAKEs. Lever found: spelling the osContGetReadData arg as (u8*)&D_807F0564+4 stops uopt CSEing lda D_807F0568 with the .button read (removes the s1 pointer, text diff 145->140 incl. reloc-clean). Remaining: lda D_80746A2C (3 uses: !=0 read, >0 read, -- store) still pointerized into a1 where target re-lui's per access and keeps load values in a0/a1/a2 (uopt value candidates); buttons lands in a0 not v1 (ucvt(raw) candidate 16 takes v1 first); alt-base spellings of A2C/A1C accesses (*(s8*)((u8*)&D_80746A28+4)) hill-climb plateau ~121 text; permuter 540s best 3380 vs 3595 (no signal); op/i s0/s1 swap in the loop untouched
+// schedDlDebugDump (src/global/131B0.c): stage 4-5 (frame 0xB8 + callee set match; text diff 140->123, 413 vs 415 insns). Parked in 131B0.c with 4 FAKEs: (u8*)&D_807F0564+4 arg spelling (no lda D_807F0568 CSE), plus deadsweep 'if (D_80746A2C && D_80746A2C) {}' after the 0x1000 block, which un-pointerizes lda D_80746A2C into per-access lui (-17 text). Remaining: target keeps hi(A2C)/hi(A1C) as hoisted lui candidates in a1/a0 before 'beqz s0' (lb a1 / lh a0 reuse the base reg: value cands a1=A2C a0=A1C a2=A18, buttons in v1) where mine lui's into ring temps t7/t1 and puts values in v0/t-regs; buttons lands a0 not v1; loop op/i s0/s1 swap (target op s1, i s0? mine reversed) untouched. Tried: neighbour-symbol spellings (A2C=A28+4 / A24+8, A1C=A18+4 / A20-4) via HC (60k compiles, best text 111 but size 417), deadsweep round 2 no gain, decl perm, typed raw/buttons.
+#include "common.h"
+
 typedef struct {
     u8 op;
     char name[13];
     u8 size;
     u8 warn;
-} Sched1DlOp;
+} DlOpInfo;
 
-extern Sched1DlOp D_8074685C[];
+extern DlOpInfo D_8074685C[];
 extern s8 D_80746A2C;
 extern s16 D_80746A1C;
 extern u32 D_80746A18;
@@ -21,6 +23,7 @@ extern u32 D_80744478;
 extern void faultFontSetColorMode(s32);
 extern void controllerStartRead(void);
 
+#ifdef NON_MATCHING
 s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     u8 op;
     s32 size;
@@ -30,7 +33,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     s32 off;
     s32 colorIdx;
     s32 found;
-    Sched1DlOp *e;
+    DlOpInfo *e;
     s32 n;
     s32 mode;
     s32 done;
@@ -45,7 +48,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     done = 0;
     ret = 0;
     if (arg0 == 0) {
-        osContGetReadData((OSContPad *)((u8 *)&D_807F0564 + 4));  // FAKE: arg spelled off D_807F0564 so uopt does not CSE lda D_807F0568 with the .button read (pointerizes it into s1)
+        osContGetReadData((OSContPad *)((u8 *)&D_807F0564 + 4));  // FAKE: arg spelled off D_807F0564 so uopt does not CSE lda D_807F0568 with the .button read
         raw = D_807F0568.button;
         buttons = raw;
         if (arg1 != 0 && D_80746A2C != 0) {
@@ -57,6 +60,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     D_80746A2C--;
                 }
             }
+            if (D_80746A2C && D_80746A2C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
         if (buttons & 0x400) {
             if (!(D_80746A1C & 0x400)) {

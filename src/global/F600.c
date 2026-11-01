@@ -136,18 +136,18 @@ void controllerLatchPad(OSContPad *pad);
 #define CtrlARepeat ((u16 *)D_807ECD50)
 
 void controllerUpdate(void) {
-    s32 compact;
-    u8 i;
-    s32 padIdx;
-    u8 mask;
-    s32 bit;
-    s32 k;
-    OSContPad *pad;
-    u16 pressed;
-    u16 buttons;
     s16 timer;
-    u32 sum;
+    OSContPad *pad;
+    s32 padIdx;
+    s32 k;
+    s32 bit;
     u32 *p;
+    u8 mask;
+    u8 i;
+    u16 pressed;
+    u32 sum;
+    s32 buttons;
+    s32 compact;
 
     compact = func_8071432C();
     D_807ECD60.button = D_807ECD58.button;
@@ -194,10 +194,13 @@ void controllerUpdate(void) {
     }
     D_807ECD66 = (D_807ECD58.button ^ D_807ECD60.button) & D_807ECD58.button;
     sum = 0;
-    for (p = (u32 *)func_80611730; p < (u32 *)func_80611844; p++) {
+    p = (u32 *)func_80611730;
+    while (p < (u32 *)func_80611844) {
         sum += *p;
+        p++;
     }
     padIdx = 0;
+    k = 0; // FAKE: gives k a long live range so uopt colours timer/k/pad like the target (needs the dead read below)
     if (sum != 0x624C9A6C) {
         D_8076A064 = 0;
     }
@@ -210,33 +213,32 @@ void controllerUpdate(void) {
         }
         if (i == 0 && D_807463B8 == 2) {
             if (D_807463B8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            mask |= 1;
+            mask = mask | 1;
         }
         if (mask != 0) {
             pad = (OSContPad *)((u16 *)D_807ECD10 + padIdx * 3);
-            buttons = pad->button;
-            pressed = (CtrlAHeld[padIdx] ^ buttons) & buttons;
-            CtrlAHeld[padIdx] = buttons;
+            buttons = *(u16 *)pad;
+            pressed = (CtrlAHeld[padIdx] ^ pad->button) & pad->button;
+            CtrlAHeld[padIdx] = pad->button;
             if (D_807463B8 == 0) {
                 if (D_8076A0B1 & 0x11) {
-                    pad->button = buttons & 0x1000;
-                    buttons &= 0x1000;
+                    pad->button &= 0x1000;
+                    buttons = *(u16 *)pad;
                     pad->stick_x = 0;
-                    pad->stick_y = 0;
                     pressed = 0;
-                    if (D_807ECDF4) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                    pad->stick_y = 0;
                 }
             }
             CtrlAPressed[padIdx] = pressed;
-            for (k = 0; k != 16; k++) {
+            for (k = 0; k < 16; k++) {
                 bit = 1 << k;
-                if (buttons & bit) {
+                if ((buttons & bit) != 0) {
                     D_807ECD68[padIdx][k]--;
                     timer = D_807ECD68[padIdx][k];
                     if (timer <= 0) {
                         D_807ECD68[padIdx][k] = 2;
                         CtrlARepeat[padIdx] |= bit;
-                    } else if (timer == 11) {
+                    } else if (timer == 11U) {
                         CtrlARepeat[padIdx] |= bit;
                     } else {
                         CtrlARepeat[padIdx] &= ~bit;
@@ -251,8 +253,9 @@ void controllerUpdate(void) {
             }
         }
     }
+    if (k != 0) {} // FAKE: long live range for k (see k = 0 above)
     D_807ECDEC = D_807ECD10;
-    D_807ECDF0 = CtrlAPressed[0];
+    D_807ECDF0 = D_807ECD48[0];
 }
 #else
 

@@ -746,7 +746,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     done = 0;
     ret = 0;
     if (arg0 == 0) {
-        osContGetReadData((OSContPad *)&D_807F0568);
+        osContGetReadData((OSContPad *)((u8 *)&D_807F0564 + 4));  // FAKE: arg spelled off D_807F0564 so uopt does not CSE lda D_807F0568 with the .button read
         raw = D_807F0568.button;
         buttons = raw;
         if (arg1 != 0 && D_80746A2C != 0) {
@@ -758,6 +758,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     D_80746A2C--;
                 }
             }
+            if (D_80746A2C && D_80746A2C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
         if (buttons & 0x400) {
             if (!(D_80746A1C & 0x400)) {
