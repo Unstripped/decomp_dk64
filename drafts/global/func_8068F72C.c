@@ -1,4 +1,4 @@
-// func_8068F72C (src/global/936B0.c): func_8068F72C (src/global/936B0.c): stage 5 parked NON_MATCHING (R3c): score 177->159 by naming the first unkB8 reload in the fv0 chain with the dead local sp40 (FP webs now match: sp50 f12, 0.0 const f14, first web f2, second f0). Left: t-ring phase from the arg3 block (target fl loads t2,t3 vs mine t0,t1), sp48 narrowing chain (target mfc1 t9/andi t8/sll t0/sra v0 pure ring temps; mine mfc1 v0 because uopt splits sp48 (cand 17) into v0 pieces for each chain node), and sp58==2 -> sp48 -0x1E/-0x28 wants if/else shape (bne;li -40;b;li -30) but if/else/ternary/other-local variants all score worse (+3 insns). Tried: callee return widths (s16/s32 for mathAngleSignedDistance/190: same), later sp48 var swapped to sp34/temp_v0/sp4A, mask/cast injection sweep on every assignment, dead-use sweeps (sp48/sp4A/sp58/args).
+// func_8068F72C (src/global/936B0.c): MidB R5: stage 5 parked, deadsweep score 70->28 (558 insns = expected). Left: sp48 narrowing chain in arg3 block (target mfc1 t9/andi t8/sll t0/sra v0 ring temps, mine mfc1 v0 + t6/t9: uopt splits sp48 per chain node), t-ring phase t2,t3 vs t0,t1 (lbu 47/46 after it), f2 vs f0 for unkAC load in !arg2 block, lui+lw D_807FBB40 vs lw s0,0(s1) at the tail (dead D_807FBB40 test at end needed: without it +3 insns). sp58==2 now if/else with sp48 -0x28 in else (+dead sp48&&sp48). Tried: s32/u16/s16 extra locals for narrowing chain, 85 spellings of the chain (casts, | 0, ^0, temps, split stmts), sp48 temp swaps (temp_v0/sp34/sp4A), if/else/ternary shapes, local for unkAC in arg2/!arg2 blocks (sp38/sp40/sp54/fa0), self-assign grid, 3 hill-climbs (~80k compiles) with frame/size weighting.
 typedef struct ActorMoveState {
     s16 unk0;
     s16 unk2;
@@ -76,6 +76,7 @@ void actorUpdateFloorContactAndTilt(Actor *, f32);
 void func_8002F490(void *);
 
 #define S ((ActorMoveState *)arg0)
+
 void func_8068F72C(arg0, arg1, arg2, arg3)
 void *arg0;
 s32 arg1;
@@ -161,15 +162,14 @@ u8 arg3;
     }
     sp50 = S->unk10 * S->unkC;
     if (arg3) {
-        if (sp48) {} // FAKE: extra ref lets uopt colour sp48 (v0) across the arg3 block
         sp48 = (s32)((f32)sp48 + sp50 * 200.0f) & 0xFFF;
         if (fl[3] != 0 || fl[2] != 0) {
             if (ACTOR_MOVE_VIEW->unkE8) {} // FAKE: hoists the unkE8 load to the arm start
             sp4A = (s32)((f64)sp4A + ((f64)(S->unk4 * -50.0f) + (f64)ACTOR_MOVE_VIEW->unkB8 * -0.5)) & 0xFFF;
         } else {
-            if (ACTOR_MOVE_VIEW->unkE8) {} // FAKE: hoists the unkE8 load to the arm start
             sp4A = ACTOR_MOVE_VIEW->unkE8;
         }
+        if (!sp4A) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         ACTOR_MOVE_VIEW->unkE8 = mathAngleEaseToward(ACTOR_MOVE_VIEW->unkE8, sp4A, 4.0f);
         ACTOR_MOVE_VIEW->unkE4 = mathAngleEaseToward(ACTOR_MOVE_VIEW->unkE4, sp48, 5.0f);
     }
@@ -183,18 +183,20 @@ u8 arg3;
     if (fv0 < 0.0f) {
         fv0 = 0.0f;
     }
-    sp48 = -0x28;
     if (sp58 == 2) {
         sp48 = -0x1E;
+    } else {
+        if (sp48 && sp48) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        sp48 = -0x28;
     }
     S->unk0 = (s32)((f64)S->unk0 + (f64)(sp50 * (f32)sp48) * (1.0 + (f64)fv0 * 0.05));
     S->unk0 = S->unk0 & 0xFFF;
     if (arg2) {
         fa0 = ACTOR_MOVE_VIEW->unk80;
-        if (sp48) {} // FAKE: extra ref reshapes the FP/ang candidates in the arg2 block
-        fv0 = ACTOR_MOVE_VIEW->unkAC;
-        if (fa0 < fv0) {
-            ACTOR_MOVE_VIEW->unkC0 = ACTOR_MOVE_VIEW->unkC0 + ((fv0 - fa0) * 3.0f + 15.0f);
+        sp54 = ACTOR_MOVE_VIEW->unkAC;
+        if (fa0 < sp54) {
+            if (fl[3] != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            ACTOR_MOVE_VIEW->unkC0 = ACTOR_MOVE_VIEW->unkC0 + ((sp54 - fa0) * 3.0f + 15.0f);
             fv0 = ACTOR_MOVE_VIEW->unkC0;
             if (fv0 > 0.0f) {
                 fa0 = fv0;
@@ -211,7 +213,6 @@ u8 arg3;
         ((ActorMoveStepFlag *)arg1)->unk4 = 0;
         if (fl[3] != 0) {
             if (sp58 == 2) {
-                if (sp58) {} // FAKE: extra ref keeps sp58 in a0 (not reloaded)
                 ACTOR_MOVE_VIEW->unkC0 = 200.0f;
             } else {
                 ACTOR_MOVE_VIEW->unkC0 = (f32)D_8075033C;
@@ -224,6 +225,7 @@ u8 arg3;
     if (ACTOR_MOVE_VIEW->unkC0 < fv0) {
         ACTOR_MOVE_VIEW->unkC0 = fv0;
     }
+    if (sp58 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     actorStepPhysics(D_807FBB40, ACTOR_MOVE_VIEW->unkE6, S->unk0);
     actorApplyVelocity(D_807FBB40);
     actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
@@ -236,6 +238,7 @@ u8 arg3;
     if (D_807FBB64 & 0x2000) {
         func_8002F490(arg0);
     }
+    if (D_807FBB40 && D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (fl[2] != 0 && !(ACTOR_MOVE_VIEW->unk6C & 1)) {
         ACTOR_MOVE_VIEW->unkC0 = -10.0f;
     }

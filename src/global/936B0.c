@@ -529,15 +529,14 @@ u8 arg3;
     }
     sp50 = S->unk10 * S->unkC;
     if (arg3) {
-        if (sp48) {} // FAKE: extra ref lets uopt colour sp48 (v0) across the arg3 block
         sp48 = (s32)((f32)sp48 + sp50 * 200.0f) & 0xFFF;
         if (fl[3] != 0 || fl[2] != 0) {
             if (ACTOR_MOVE_VIEW->unkE8) {} // FAKE: hoists the unkE8 load to the arm start
             sp4A = (s32)((f64)sp4A + ((f64)(S->unk4 * -50.0f) + (f64)ACTOR_MOVE_VIEW->unkB8 * -0.5)) & 0xFFF;
         } else {
-            if (ACTOR_MOVE_VIEW->unkE8) {} // FAKE: hoists the unkE8 load to the arm start
             sp4A = ACTOR_MOVE_VIEW->unkE8;
         }
+        if (!sp4A) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         ACTOR_MOVE_VIEW->unkE8 = mathAngleEaseToward(ACTOR_MOVE_VIEW->unkE8, sp4A, 4.0f);
         ACTOR_MOVE_VIEW->unkE4 = mathAngleEaseToward(ACTOR_MOVE_VIEW->unkE4, sp48, 5.0f);
     }
@@ -551,18 +550,20 @@ u8 arg3;
     if (fv0 < 0.0f) {
         fv0 = 0.0f;
     }
-    sp48 = -0x28;
     if (sp58 == 2) {
         sp48 = -0x1E;
+    } else {
+        if (sp48 && sp48) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        sp48 = -0x28;
     }
     S->unk0 = (s32)((f64)S->unk0 + (f64)(sp50 * (f32)sp48) * (1.0 + (f64)fv0 * 0.05));
     S->unk0 = S->unk0 & 0xFFF;
     if (arg2) {
         fa0 = ACTOR_MOVE_VIEW->unk80;
-        if (sp48) {} // FAKE: extra ref reshapes the FP/ang candidates in the arg2 block
-        fv0 = ACTOR_MOVE_VIEW->unkAC;
-        if (fa0 < fv0) {
-            ACTOR_MOVE_VIEW->unkC0 = ACTOR_MOVE_VIEW->unkC0 + ((fv0 - fa0) * 3.0f + 15.0f);
+        sp54 = ACTOR_MOVE_VIEW->unkAC;
+        if (fa0 < sp54) {
+            if (fl[3] != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            ACTOR_MOVE_VIEW->unkC0 = ACTOR_MOVE_VIEW->unkC0 + ((sp54 - fa0) * 3.0f + 15.0f);
             fv0 = ACTOR_MOVE_VIEW->unkC0;
             if (fv0 > 0.0f) {
                 fa0 = fv0;
@@ -579,7 +580,6 @@ u8 arg3;
         ((ActorMoveStepFlag *)arg1)->unk4 = 0;
         if (fl[3] != 0) {
             if (sp58 == 2) {
-                if (sp58) {} // FAKE: extra ref keeps sp58 in a0 (not reloaded)
                 ACTOR_MOVE_VIEW->unkC0 = 200.0f;
             } else {
                 ACTOR_MOVE_VIEW->unkC0 = (f32)D_8075033C;
@@ -592,6 +592,7 @@ u8 arg3;
     if (ACTOR_MOVE_VIEW->unkC0 < fv0) {
         ACTOR_MOVE_VIEW->unkC0 = fv0;
     }
+    if (sp58 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     actorStepPhysics(D_807FBB40, ACTOR_MOVE_VIEW->unkE6, S->unk0);
     actorApplyVelocity(D_807FBB40);
     actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
@@ -604,6 +605,7 @@ u8 arg3;
     if (D_807FBB64 & 0x2000) {
         func_8002F490(arg0);
     }
+    if (D_807FBB40 && D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (fl[2] != 0 && !(ACTOR_MOVE_VIEW->unk6C & 1)) {
         ACTOR_MOVE_VIEW->unkC0 = -10.0f;
     }
