@@ -2508,7 +2508,55 @@ typedef struct ModelSegmentOwner {
 void texAnimNodeUpdateBuffers(ModelSegmentNode *, s32 *, s32 *, u8 *, s16 *);
 void collisionBstLookupByHash(s32, s32 *, s32 *);
 
+#ifdef NON_MATCHING
+void modelSegmentFreeUnusedTextures(ModelSlot *arg0, void *arg1, ModelChainOwner *arg2) {
+    u32 mid, start;
+    DisplayListTextureNode *s3;
+    u8 head, tail;
+    volatile u8 flag;
+    ModelSegmentData *seg;
+
+    seg = (ModelSegmentData *)arg2;
+    mid = seg->unkA8;
+    start = seg->unkA0;
+    if (mid == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    s3 = seg->unkB8;
+    head = (mid - start) >> 3;
+    if (head && head) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    tail = (seg->unkB0 - mid) >> 3;
+    if (s3 != NULL || !(arg0->unk8C & 0x20)) {
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+    if (arg0->unk8C & 0x20) {
+        if (flag != 0) {
+            ((DisplayListFreeCounter *)arg1)->unk3C -= 1;
+            start = seg->unkA0;
+            dlFreeUnusedTextures(start, start + head * 8, (s32)seg->unkB8, 0, 0);
+            if (tail && tail) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            dlFreeUnusedTextures(mid, mid + tail * 8, (s32)seg->unkB8, 1, 0);
+            s3 = seg->unkB8;
+        } else {
+            displayListFreeQueueAdd(start, start + head * 8, mid, mid + tail * 8, (s32)arg1);
+            s3 = seg->unkB8;
+        }
+    }
+    if (s3 != NULL) {
+        dlFreeUnusedTextures(seg->unkA4, seg->unkA4 + head * 8, (s32)s3, 0, 0);
+        dlFreeUnusedTextures(seg->unkAC, seg->unkAC + tail * 8, (s32)seg->unkB8, 1, 0);
+        heapFreeDeferred((void *)seg->unkA4);
+        heapFreeDeferred((void *)seg->unkAC);
+    }
+    if (flag != 0) {
+        assetFreeBuffer(arg1, 0xAF7, 7);
+    }
+    heapFreeDeferred(arg2);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/modelSegmentFreeUnusedTextures.s")
+#endif
 
 void dlFreeUnusedTextures(arg0, arg1, arg2, arg3, arg4)
 DisplayListCmd *arg0;
@@ -2787,6 +2835,7 @@ void modelSlotsStepSegmentCommands(void) {
         }
     }
 }
+
 
 
 
@@ -4335,7 +4384,8 @@ void modelSlotSerializeAll(u8 **arg0, s32 *arg1) {
     if (D_807F6010 != NULL) {
         heapFree(D_807F6010);
     }
-    size = D_80747D70 * 0x30 + 8; p = gCsVarsDirty; do { if (*p) { size += 0x24; count++; } p++; } while (p < &D_807F6902); size += actorListGetSerializedSize();
+    size = D_80747D70 * 0x30 + 8;
+    p = gCsVarsDirty; do { if (*p) { size += 0x24; count++; } p++; } while (p < &D_807F6902); size += actorListGetSerializedSize();
     D_807F6010 = heapAlloc(size);
     *(s32 *)D_807F6010 = D_80747D70;
     out = (ModelSlotSerializedOut *)(D_807F6010 + 4);
