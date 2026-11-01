@@ -1,10 +1,10 @@
-// eepromHalveRecords (src/global/104F0.c): stage 4: frame 0x30, all callee-saved regs match (s0-s3, fs0, ra); all regalloc matched via declaration order swap (i before entry) and dead statement; diff is 1 insn (4 bytes): move s1,s0 vs lui/addiu s1,D_807FC950 at loop preheader and sb s0,0(s3) before loop vs inside
+// eepromHalveRecords (src/global/104F0.c): stage 4: 1-insn diff: move s1,s0 vs lui/addiu s1,D_807FC950 at loop preheader; tested 7k+ spellings/dead tests/declarations
 extern s32 flagGet(s32, s32);
 extern s32 func_806F6EDC(void);
 extern s32 slotQueueGetMaxValue(s32, s32);
-extern u8 gPlayerCharacterId;
 extern u8 D_807FC950[];
 extern u8 D_807FC952;
+extern u8 gPlayerCharacterId;
 
 void eepromHalveRecords(void) {
     s32 i;
@@ -26,10 +26,9 @@ void eepromHalveRecords(void) {
         s32 v = slotQueueGetMaxValue(2, 0);
         *(s16 *)(D_807FC950 + 0x2F0) = (s16)(u32)((f64)(u32)v * 0.5);
     }
-    if (gPlayerCharacterId && gPlayerCharacterId) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     entry = D_807FC950;
-    i = 0;
-    do {
+    if (gPlayerCharacterId && gPlayerCharacterId) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    i = 0; do { // LAYOUT:
         gPlayerCharacterId = i;
         if (entry[4] != 0) {
             s32 v = slotQueueGetMaxValue(7, 0);
