@@ -695,15 +695,11 @@ typedef struct CritterPlayer {
 extern CritterPlayer *D_807FBB48;
 extern CritterZone *critterPlayerZone;
 
-#ifdef NON_MATCHING
 void critterUpdateZoneProximity(CritterObj *obj) {
     CritterViewer *m;
     f32 lim;
     f32 fv0;
-    f32 dx;
-    f32 dz;
     f32 dist;
-    f32 ddy;
     s16 half;
     s32 f;
 
@@ -711,9 +707,7 @@ void critterUpdateZoneProximity(CritterObj *obj) {
     lim = (f32)(obj->homeZone->shape.unk10 + 0x1DE84);
     if (obj->homeZone->frame != D_807444FC) {
         half = (obj->homeZone->shape.unk4 + obj->homeZone->shape.unk8) >> 1;
-        dx = (f32)obj->homeZone->x - D_807FBB48->x;
-        dz = (f32)obj->homeZone->z - D_807FBB48->z;
-        dx = dx * dx + dz * dz;
+        dist = ((f32)obj->homeZone->x - D_807FBB48->x) * ((f32)obj->homeZone->x - D_807FBB48->x) + ((f32)obj->homeZone->z - D_807FBB48->z) * ((f32)obj->homeZone->z - D_807FBB48->z);
         fv0 = 0.0f;
         f = critterPlayerZone->y < obj->homeZone->y + half;
         if (f) {
@@ -722,17 +716,14 @@ void critterUpdateZoneProximity(CritterObj *obj) {
         f = (u8)f != 0;
         if (f) {
             f = 0;
-            if (dx < (f32)obj->homeZone->shape.unk10) {
+            if (dist < (f32)obj->homeZone->shape.unk10) {
                 f = 1;
             }
         }
         obj->homeZone->near = f;
         obj->homeZone->frame = D_807444FC;
-        m = &gPlayerSlots[gCurrentPlayerIndex];
-        dz = (f32)obj->homeZone->z - m->z;
-        dx = (f32)obj->homeZone->x - m->x;
-        ddy = (f32)obj->homeZone->y - m->y;
-        dist = dz * dz + (dx * dx + ddy * ddy);
+        m = (CritterViewer *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * sizeof(CritterViewer)); // FAKE: int temp ring
+        dist = ((f32)obj->homeZone->z - m->z) * ((f32)obj->homeZone->z - m->z) + (((f32)obj->homeZone->x - m->x) * ((f32)obj->homeZone->x - m->x) + ((f32)obj->homeZone->y - m->y) * ((f32)obj->homeZone->y - m->y));
         obj->homeZone->distSq = dist;
         if (dist < lim) {
             fv0 = (lim - dist) * 0.000051020408f;
@@ -748,10 +739,6 @@ void critterUpdateZoneProximity(CritterObj *obj) {
         obj->flags &= ~1;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/critter/nonmatchings/0/critterUpdateZoneProximity.s")
-#endif
 
 CritterZone *critterGetZone(CritterGroup *grp, u8 idx) {
     CritterZone *ptr = grp->zones;
