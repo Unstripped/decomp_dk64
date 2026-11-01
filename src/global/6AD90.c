@@ -231,11 +231,8 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     u8 new2;
     u8 val2;
     u8 sp4D;
-    s32 sp34;
     u8 new_var;
     f32 sp40;
-    s32 sp3C;
-    s32 sp38;
 
     D_807F946E = 0;
     if (D_807F94B4 == 1) {
@@ -273,7 +270,6 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         ((CollisionQueryActor *)arg0)->unkA8 = sp58;
         ((CollisionQueryActor *)arg0)->unkD0 = D_807F949E;
     }
-    val2 = 0;
     if (D_807F94B4 != 2) {
         sp54 = 99999.0f;
         sp5E = func_8062BCC8(arg0, arg1, arg3, arg2, (s32)&sp54);
@@ -281,12 +277,21 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         val2 = func_8066A08C(arg0, arg1, arg3, arg2, &sp50);
     } else {
         sp5E = 0;
+        val2 = 0;
     }
-    if (val2 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    sp3C = (sp5E * 2) & 0xFF;
-    sp38 = (val2 * 4) & 0xFF;
-    sp34 = sp5F;
-    switch ((sp5F + sp3C + sp38) & 0xFF) {
+    if (sp5E == 0) {}  // FAKE: dead test
+    sp5E = sp5E * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    sp5E = sp5E & 0x1FF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if (((sp5E * 2) & 0xFF)) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if (((val2 * 4) & 0xFF) == 0) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if (((val2 * 4) & 0xFF) == 0) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    sp5E = sp5E & 0x1FF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    sp5E = sp5E + 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    switch ((((sp5E * 2) & 0xFF) + sp5F + ((val2 * 4) & 0xFF)) & 0xFF) {
     case 0:
         sp4D = 0;
         break;
@@ -340,9 +345,7 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         break;
     case 1:
         if (arg0 != NULL) {
-            sp5E = D_807F949E;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
-            sp5F = sp5E;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
-            ((CollisionQueryActor *)arg0)->unkD1 = sp5F;
+            ((CollisionQueryActor *)arg0)->unkD1 = D_807F949E;
             ((CollisionQueryActor *)arg0)->unkDA = D_807F9498;
             ((CollisionQueryActor *)arg0)->unkD8 = D_807F9490;
             ((CollisionQueryActor *)arg0)->unkA4 = sp58;
@@ -353,14 +356,12 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         D_807F94A4 = D_807F9498;
         D_807F94A2 = D_807F9490;
         D_807F948C = sp58;
-        val2 = D_807F94AB;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
-        D_807F94AA = val2;
+        D_807F94AA = D_807F94AB;
         D_807F951D = 1;
         break;
     case 2:
         if (arg0 != NULL) {
-            sp5E = D_807F949F;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
-            ((CollisionQueryActor *)arg0)->unkD1 = sp5E;
+            ((CollisionQueryActor *)arg0)->unkD1 = D_807F949F;
             ((CollisionQueryActor *)arg0)->unkDA = D_807F949A;
             ((CollisionQueryActor *)arg0)->unkD8 = D_807F9492;
             ((CollisionQueryActor *)arg0)->unkA4 = sp54;
@@ -371,14 +372,12 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         D_807F94A4 = D_807F949A;
         D_807F94A2 = D_807F9492;
         D_807F948C = sp54;
-        val2 = D_807F94AC;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
-        D_807F94AA = val2;
+        D_807F94AA = D_807F94AC;
         D_807F951D = 2;
         break;
     case 3:
         if (arg0 != NULL) {
-            sp5E = D_807F94A0;  // FAKE: reusing u8 locals as temps steers arg0 into s0 / spill order
-            ((CollisionQueryActor *)arg0)->unkD1 = sp5E;
+            ((CollisionQueryActor *)arg0)->unkD1 = D_807F94A0;
             ((CollisionQueryActor *)arg0)->unkDA = D_807F949C;
             ((CollisionQueryActor *)arg0)->unkD8 = D_807F9494;
             ((CollisionQueryActor *)arg0)->unkA4 = sp50;
@@ -399,7 +398,7 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     *arg6 = D_807F946C;
     *arg7 = D_807F9468;
     D_807F94B4 = 0;
-    return (sp34 | sp3C | sp38) & 0xFF;
+    return (sp5F | ((sp5E * 2) & 0xFF) | ((val2 * 4) & 0xFF)) & 0xFF;
 }
 #else
 
