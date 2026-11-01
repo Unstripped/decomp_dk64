@@ -1398,7 +1398,7 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
     s16 sp4A;
     u8 sp49;
     u8 var_v1;
-    u8 sp48;
+    u8 pad;
 
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp4E);
@@ -1406,12 +1406,11 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
     scriptReadU16((u8 *)&sp4A);
     scriptReadU8(&sp49);
     if (((PlayerSoundView *)gPlayerSlots)[((GlobalSoundState *)gActivePlayerState)->unk1A4].unk2C0 == 2) {
+        var_v1 = 0xA;
         if (sp4E == 1) {
             sp4D = (u32)((f64)(u32)sp4D * 0.5);
         }
-        sp48 = 0xA;
         camStartShakeFromPoint(((GlobalSoundState *)gActivePlayerState)->unk104, 0xA, 8, ((ActorSoundPosView *)arg0)->unk7C, ((ActorSoundPosView *)arg0)->unk80, ((ActorSoundPosView *)arg0)->unk84, 100.0f, 800.0f);
-        var_v1 = 0xA;
     } else if (((PlayerSoundView *)gPlayerSlots)[((GlobalSoundState *)gActivePlayerState)->unk1A4].unk2C0 == 0) {
         var_v1 = 0xFF;
         sp4D = (u32)((f64)(u32)sp4D * 0.5);
@@ -1433,7 +1432,6 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
             break;
         }
     }
-    sp48 = var_v1;
     sp4E = func_8060A7C0(sp4E, arg0, ((ActorSoundPosView *)arg0)->unk78);
     if ((sp4E == 2) || (sp4E == 8)) {
         sp49 = 0xA;
@@ -1625,14 +1623,13 @@ typedef struct ScriptSoundState {
 extern s16 *D_807FBB5C;
 void sfxPlayAtPositionForPlayer(f32, f32, f32, s16, u8, u8, u8, u8, f32);
 
-#ifdef NON_MATCHING
 void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
     u8 pad0, pad1, pad2;
     u8 var_v1;
     s32 pitch;
     s32 temp_v0;
-
-    arg1 = D_807FBB5C[(arg1 * 7 + arg0->unk58 - 2) & 0xFFFF];
+    temp_v0 = (arg1 * 7 + arg0->unk58 - 2) & 0xFFFF;
+    arg1 = D_807FBB5C[temp_v0];
     var_v1 = 0xFF;
     if (arg1 == 0) {
         if (((ScriptSoundState *)gActivePlayerState)->unkC4 != 0) {
@@ -1641,13 +1638,13 @@ void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
     }
     temp_v0 = gPlayerSlots[((ScriptSoundState *)gActivePlayerState)->unk1A4].unk2C0;
     pitch = 0x7F;
-    if (temp_v0 == 2) {
+    if (temp_v0 == 2U) {
         temp_v0 = 10;
     } else if (temp_v0 == 0) {
         temp_v0 = 80;
         var_v1 = (u8)(u32)((f64)(var_v1 ^ 0) * 0.5);
     } else {
-        if (arg0->unk58 == (0, 2) || arg0->unk58 == 4) {
+        if (arg0->unk58 == 2 || arg0->unk58 == 4) {
             temp_v0 = 50;
         } else {
             temp_v0 = 60;
@@ -1655,10 +1652,6 @@ void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
     }
     sfxPlayAtPositionForPlayer(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, var_v1, pitch, arg2, temp_v0, 0.3f);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/sfxPlayScriptActorSoundForPlayer.s")
-#endif
 
 void sfxPlayScriptActorSoundForPlayer(Actor *, s16, u8);
 void sfxStopSlotSound(Actor *, u8);
