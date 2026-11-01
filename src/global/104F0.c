@@ -781,69 +781,39 @@ extern s32 D_80750AB0;
 extern u16 D_807FC930[];
 extern u8 gPlayerCount;
 
-#ifdef NON_MATCHING
-void eepromLoadPlayerData(s32 arg0, s32 arg1) {
-    s32 i;
-    u8 selector;
-    u8 *base;
-    u8 *entry;
-    u8 *field;
-    u16 *sum;
-    s32 j;
-    s32 value;
-
-    base = D_807FC950;
-    if (base && base) {} // FAKE: keep base in register
-    selector = arg0;
-    if (selector && selector) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+void eepromLoadPlayerData(u8 arg0, s32 arg1) { u8 *base; s32 i; u8 *entry; s32 j; s32 k; base = (u8 *)((u32)D_807FC950 | 0); if (base) {} // LAYOUT:
     entry = base;
     D_80750AC0 = 1;
     func_806C9AE0();
-    if (D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
-    D_807467C8 = selector;
+    D_807467C8 = arg0;
     gPlayerCharacterId = 0;
-    if (func_8060C6B8(0xD, 0, 0, selector) == 0) {
-        eepromClearSlotData(selector, 0);
+    if (func_8060C6B8(0xD, 0, 0, arg0) == 0) {
+        eepromClearSlotData(arg0 & 0xFF, 0);
     }
     if (arg1 != 0) {
         eepromCopySlot();
     }
     gPlayerCount = 0;
-    base[0x2FC] = func_8060C6B8(0xC, 0, 0, selector);
+    base[0x2FC] = func_8060C6B8(0xC, 0, 0, arg0);
     healthRefill(0);
     collectibleCountsClear();
-    D_80750AB0 = func_8060C6B8(0xE, 0, 0, selector);
+    D_80750AB0 = func_8060C6B8(0xE, 0, 0, arg0);
     i = 0;
-    if (D_807FC930) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     do {
-        j = 0;
-        field = entry;
-        do {
-            *field++ = func_8060C6B8(j + 4, i, 0, selector);
-            j++;
-        } while (j != 5);
-        *(s16 *)(entry + 6) = func_8060C6B8(9, i, 0, selector);
-        entry[5] = func_8060C6B8(0xA, i, 0, selector);
-        if (func_8060C6B8(0xB, i, 0, selector) != 0) {
+        for (j = 0; j != 5; j++)
+            entry[j] = func_8060C6B8(j + 4, (u8)i, 0, arg0);
+        *(s16 *)(entry + 6) = func_8060C6B8(9, (u8)i, 0, arg0);
+        entry[5] = func_8060C6B8(0xA, (u8)i, 0, arg0);
+        if (func_8060C6B8(0xB, (u8)i, 0, arg0) != 0) {
             entry[5] |= 0x80;
         }
-        if (D_807FC930) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        field = entry;
-        j = 0;
-        sum = D_807FC930;
-        do {
-            *(s16 *)(field + 0xA) = func_8060C6B8(1, i, j, selector);
-            value = func_8060C6B8(2, i, j, selector);
-            *(s16 *)(field + 0x26) = value;
-            *sum += value;
-            *(s16 *)(field + 0x42) = func_8060C6B8(3, i, j, selector);
-            j++;
-            field += 2;
-            sum++;
-        } while (j != 8);
+        for (k = 0; k != 8; k++) {
+            ((u16 *)(entry + 0xA))[k] = func_8060C6B8(1, (u8)i, (u8)k, arg0);
+            D_807FC930[k] += ((u16 *)(entry + 0x26))[k] = func_8060C6B8(2, (u8)i, (u8)k, arg0);
+            ((u16 *)(entry + 0x42))[k] = func_8060C6B8(3, (u8)i, (u8)k, arg0);
+        }
         i++;
-        if (D_807467C8 && D_807467C8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         entry += 0x5E;
     } while (i != 5);
     if (arg1 != 0) {
@@ -851,10 +821,6 @@ void eepromLoadPlayerData(s32 arg0, s32 arg1) {
     }
     gPlayerCharacterId = 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromLoadPlayerData.s")
-#endif
 
 void func_8060DEA8(void) {
     eepromDispatchCommand(2);
@@ -864,7 +830,6 @@ extern u32 func_805FC98C(void);
 extern s32 func_80714394(void);
 extern s32 func_8071432C(void);
 
-#ifdef NON_MATCHING
 void eepromSavePlayerData(void) {
     u8 *entry;
     u8 *base;
@@ -872,15 +837,14 @@ void eepromSavePlayerData(void) {
     u32 value;
     s32 i;
     s32 j;
-    u8 *field;
+    s32 k;
 
     if (gPlayerCount == 1) {
         if (func_80714394() != 0 || func_8071432C() != 0) {
-            base = D_807FC950;
+            base = (u8 *)((u32)D_807FC950 | 0);
             entry = base;
             total = func_805FC98C();
             value = func_8060C724(D_807467C8);
-            if (D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (total >= 0x400000U) {
                 total = -1;
             }
@@ -890,28 +854,24 @@ void eepromSavePlayerData(void) {
             func_8060C648(0xF, 0, 0, D_807467C8, D_807467C8);
             func_8060C648(0x10, 0, 0, D_807467C8, value);
             i = 0;
+            if (value && value) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             do {
-                u8 row_idx = i;
                 j = 0;
-                if (D_807467C8 && D_807467C8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                field = entry;
                 do {
-                    func_8060C648(j + 4, row_idx, 0, D_807467C8, *field);
+                    func_8060C648(j + 4, (u8)i, 0, D_807467C8, entry[j]);
                     j++;
-                    field++;
                 } while (j != 5);
-                func_8060C648(9, row_idx, 0, D_807467C8, *(u16 *)(entry + 6));
-                func_8060C648(0xA, row_idx, 0, D_807467C8, entry[5] & 0x7F);
-                func_8060C648(0xB, row_idx, 0, D_807467C8, ((s32)entry[5] >> 7) & 1);
-                j = 0;
-                field = entry;
+                func_8060C648(9, (u8)i, 0, D_807467C8, *(u16 *)(entry + 6));
+                func_8060C648(0xA, (u8)i, 0, D_807467C8, entry[5] & 0x7F);
+                func_8060C648(0xB, (u8)i, 0, D_807467C8, ((s32)entry[5] >> 7) & 1);
+                k = 0;
                 do {
-                    func_8060C648(1, row_idx, (u8)j, D_807467C8, *(u16 *)(field + 0xA));
-                    func_8060C648(2, row_idx, (u8)j, D_807467C8, *(u16 *)(field + 0x26));
-                    func_8060C648(3, row_idx, (u8)j, D_807467C8, *(u16 *)(field + 0x42));
-                    j++;
-                    field += 2;
-                } while (j != 8);
+                    u8 col_idx = k;
+                    func_8060C648(1, (u8)i, col_idx, D_807467C8, ((u16 *)(entry + 0xA))[k]);
+                    func_8060C648(2, (u8)i, col_idx, D_807467C8, ((u16 *)(entry + 0x26))[k]);
+                    func_8060C648(3, (u8)i, col_idx, D_807467C8, ((u16 *)(entry + 0x42))[k]);
+                    k++;
+                } while (k != 8);
                 i++;
                 entry += 0x5E;
             } while (i != 5);
@@ -919,10 +879,6 @@ void eepromSavePlayerData(void) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromSavePlayerData.s")
-#endif
 
 void eepromThreadMain(void *arg0) {
     OSMesg msg;
