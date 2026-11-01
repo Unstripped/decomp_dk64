@@ -1,4 +1,4 @@
-// func_8002881C (src/bonus/2690.c): stage 5 (OlR2d revisit): unchanged: frame 0x58 + every insn match; ONLY diff 'sh t1,6(v0); slti at,v1,7' order in first vertex-loop join block (target slti before sh). ugen -S shows no .alias/.noalias in this function and blt $3,7 at loop end (as1 hoists slti over fx/fy diamonds, placement after the sh store). Earlier notes (160k mutants, permuter 20 min, deadsweep 5148) stand.
+// func_8002881C (src/bonus/2690.c): stage 5 (W2Bonus revisit): frame 0x58 + all 392 insns match except 'sh t1,6(v0); slti at,v1,7' order in vertex-loop join block; deadsweep with --extra across all 8 locals 0 gain, line joins across all lines no change, as1 hoists slti from loop-latch blt to join block after sh
 #include "common.h"
 
 typedef struct {
@@ -7,28 +7,28 @@ typedef struct {
     u16 unk2;
     s16 unk4;
     s16 unk6;
-} OlV_D2Ent;
+} W2B_D2Ent;
 
 typedef struct {
     char pad0[0x1C];
-    OlV_D2Ent *unk1C;
-} OlV_D2Model;
+    W2B_D2Ent *unk1C;
+} W2B_D2Model;
 
 typedef struct {
     char pad0[0x20];
     f32 unk20;
-} OlV_D2Info;
+} W2B_D2Info;
 
 typedef struct {
     char pad0[4];
     u8 unk4;
     u8 unk5;
-} OlV_D2Sub;
+} W2B_D2Sub;
 
-typedef struct OlV_D2Actor OlV_D2Actor;
-struct OlV_D2Actor {
+typedef struct W2B_D2Actor W2B_D2Actor;
+struct W2B_D2Actor {
     char pad0[4];
-    OlV_D2Model *unk4;
+    W2B_D2Model *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x82];
@@ -40,12 +40,12 @@ struct OlV_D2Actor {
     u8 unk155;
     char pad156[0x1E];
     void *unk174;
-    OlV_D2Info *unk178;
+    W2B_D2Info *unk178;
 };
 
 typedef struct {
-    OlV_D2Actor *unk0;
-    OlV_D2Actor *unk4;
+    W2B_D2Actor *unk0;
+    W2B_D2Actor *unk4;
     f32 unk8;
     f32 unkC;
     s8 unk10;
@@ -54,34 +54,34 @@ typedef struct {
     f32 unk14;
     f32 unk18;
     u8 unk1C;
-} OlV_D2Link;
-#define BD2 ((OlV_D2Actor *)D_807FBB40)
+} W2B_D2Link;
+#define W2B_BD2 ((W2B_D2Actor *)D_807FBB40)
 
 extern u8 D_807FBD70;
 void *heapAlloc(s32);
 void heapClearBlock(void *);
 
 void func_8002881C(void) {
-    OlV_D2Link *link = BD2->unk174;
+    W2B_D2Link *link = W2B_BD2->unk174;
     s16 *sp50 = link->unk0->unk174;
-    OlV_D2Info *sp4C = link->unk0->unk178;
-    OlV_D2Sub *sub;
-    OlV_D2Ent *chk;
+    W2B_D2Info *sp4C = link->unk0->unk178;
+    W2B_D2Sub *sub;
+    W2B_D2Ent *chk;
     s32 vb[2];
     f32 sp38;
-    OlV_D2Ent *p;
+    W2B_D2Ent *p;
     f32 fx;
     f32 fy;
     f32 sp28;
     s32 i;
 
-    if (!(BD2->unk60 & 0x10)) {
-        BD2->unk144 = 0x24;
+    if (!(W2B_BD2->unk60 & 0x10)) {
+        W2B_BD2->unk144 = 0x24;
         link->unkC = 275.0f;
         link->unk8 = 275.0f;
         link->unk10 = link->unk11;
-        BD2->unk4->unk1C = heapAlloc(0x38);
-        heapClearBlock(BD2->unk4->unk1C);
+        W2B_BD2->unk4->unk1C = heapAlloc(0x38);
+        heapClearBlock(W2B_BD2->unk4->unk1C);
     }
     sub = link->unk4->unk174;
     if (D_807FBD70 == 4 && sub->unk4 == 0 && link->unk10 == -1) {
@@ -115,7 +115,7 @@ void func_8002881C(void) {
             actorScriptStart(D_807FBB40, 0x1F6);
         }
     }
-    chk = BD2->unk4->unk1C;
+    chk = W2B_BD2->unk4->unk1C;
     if (chk != 0) {
         vb[1] = 0;
         vb[0] = (s32)chk;
@@ -130,7 +130,7 @@ void func_8002881C(void) {
         if (fy < 0.0f) {
             fy = 65535.0f + fy;
         }
-        p = (OlV_D2Ent *)(vb[1] * 8 + vb[0]);
+        p = (W2B_D2Ent *)(vb[1] * 8 + vb[0]);
         do {
             p->unk1 = i;
             i++;
@@ -150,7 +150,7 @@ void func_8002881C(void) {
             }
             p++;
         } while (i < 7);
-        switch (BD2->unk155) {
+        switch (W2B_BD2->unk155) {
         case 0:
             link->unk18 = link->unk18 + (sp38 - link->unk18) * 0.1;
             break;
