@@ -764,7 +764,7 @@ void menuHandleFileSelectInput(MenuScreenActor *arg0, s32 arg1) {
 }
 
 
-#ifdef NON_MATCHING
+
 Gfx *menuDrawFileSlotLabel(void *arg0, Gfx *arg1) {
     void *temp_a0 = *(void **)((u8 *)arg0 + 0x174);
     s32 sp120;
@@ -789,19 +789,10 @@ Gfx *menuDrawFileSlotLabel(void *arg0, Gfx *arg1) {
     } else {
         _sprintf(sp34, "%s %d", (char *)D_80033F28[7], sp120 + 1);
     }
-    ty = (s16)(y - 0x3C);
-    return hudDrawScaledText(
-        hudDrawScaledText(arg1, spFE, y, 0.6f, sp34),
-        (s16)(sp110 * 4.0f),
-        (u16)ty,
-        0.6f,
-        (char *)D_80033F28[8]
-    );
+    arg1 = hudDrawScaledText(arg1, spFE, y, 0.6f, sp34);
+    y -= 0x3C;
+    return hudDrawScaledText(arg1, (s16)(sp110 * 4.0f), y, 0.6f, (char *)D_80033F28[8]);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/menuDrawFileSlotLabel.s")
-#endif
 
 
 void menuInitFileSelect(MenuScreenActor *arg0, s32 arg1) {
