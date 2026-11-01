@@ -296,9 +296,9 @@ void mtxTranslateL(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3) {
     guMtxF2L(sp18, arg0);
 }
 
-#ifdef NON_MATCHING
 void func_8070CDD0(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4) {
-    f32 padtop[4]; // FAKE: pad words steer the frame size
+    f32 padtop[3]; // FAKE: pad words steer the frame size
+    f32 t;
     f32 m00;
     f32 m10;
     f32 m20;
@@ -330,13 +330,14 @@ void func_8070CDD0(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4) {
         arg4 = arg4 * inv;
         m11 = sqrtf((arg2 * arg2) + (arg4 * arg4));
         inv = 1.0 / m11;
+        t = -arg2 * inv;
         m00 = -arg4 * inv;
-        m22 = -arg4;
-        m20 = -arg2;
-        m10 = arg3 * (m20 * inv);
-        m12 = arg3 * m00;
-        m02 = -m20 * inv;
+        m10 = arg3 * t;
         m21 = -arg3;
+        m02 = -t;
+        m12 = arg3 * m00;
+        m20 = -arg2;
+        m22 = -arg4;
     }
     arg0->m[0][0] = m00;
     arg0->m[1][0] = m10;
@@ -348,33 +349,29 @@ void func_8070CDD0(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4) {
     arg0->m[3][1] = 0.0f;
     arg0->m[0][2] = m02;
     arg0->m[1][2] = m12;
+    arg0->m[2][2] = m22;
     arg0->m[3][2] = 0.0f;
     arg0->m[0][3] = 0.0f;
     arg0->m[1][3] = 0.0f;
     arg0->m[2][3] = 0.0f;
     arg0->m[3][3] = 1.0f;
-    arg0->m[2][2] = m22;
     arg1->m[0][0] = m00;
     arg1->m[1][0] = 0.0f;
+    arg1->m[2][0] = m02;
     arg1->m[3][0] = 0.0f;
     arg1->m[0][1] = m10;
     arg1->m[1][1] = m11;
-    arg1->m[2][0] = m02;
+    arg1->m[2][1] = m12;
     arg1->m[3][1] = 0.0f;
     arg1->m[0][2] = m20;
     arg1->m[1][2] = m21;
-    arg1->m[2][1] = m12;
+    arg1->m[2][2] = m22;
     arg1->m[3][2] = 0.0f;
     arg1->m[0][3] = 0.0f;
     arg1->m[1][3] = 0.0f;
     arg1->m[2][3] = 0.0f;
     arg1->m[3][3] = 1.0f;
-    arg1->m[2][2] = m22;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070CDD0.s")
-#endif
 
 void func_8070D020(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4) {
     Mat4F sp60;
@@ -387,7 +384,8 @@ void func_8070D020(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4) {
 
 #ifdef NON_MATCHING
 void func_8070D07C(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
-    f32 padtop[4]; // FAKE: pad words steer the frame size
+    f32 padtop[3]; // FAKE: pad words steer the frame size
+    f32 t;
     f32 m00;
     f32 m10;
     f32 m20;
@@ -418,37 +416,39 @@ void func_8070D07C(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 a
         arg3 = arg3 * inv;
         arg4 = arg4 * inv;
         m11 = sqrtf((arg2 * arg2) + (arg4 * arg4));
-        m22 = -arg4;
         inv = 1.0 / m11;
+        t = -arg2 * inv;
         m00 = -arg4 * inv;
+        m10 = arg3 * t;
         m21 = -arg3;
-        m20 = -arg2;
-        m10 = arg3 * (m20 * inv);
-        m02 = -(m20 * inv);
+        m02 = -t;
         m12 = arg3 * m00;
+        m20 = -arg2;
+        m22 = -arg4;
     }
     arg0->m[0][0] = m00;
-    arg0->m[3][0] = -arg5;
     arg0->m[1][0] = m10;
-    arg0->m[2][0] = m20;
+    arg0->m[3][0] = -arg5;
     arg0->m[3][1] = -arg6;
+    arg0->m[2][0] = m20;
+    arg0->m[2][2] = m22;
     arg0->m[0][1] = 0.0f;
     arg0->m[1][1] = m11;
     arg0->m[2][1] = m21;
     arg0->m[0][2] = m02;
     arg0->m[1][2] = m12;
-    arg0->m[2][2] = m22;
     arg0->m[0][3] = 0.0f;
-    arg0->m[3][3] = 1.0f;
     arg0->m[1][3] = 0.0f;
+    arg0->m[3][3] = 1.0f;
     arg0->m[2][3] = 0.0f;
     arg0->m[3][2] = -arg7;
     arg1->m[3][1] = (arg5 * m10) + (arg6 * m11) + (arg7 * m12);
     arg1->m[0][0] = m00;
-    arg1->m[3][0] = (arg5 * m00) + (arg7 * m02);
     arg1->m[1][0] = 0.0f;
     arg1->m[2][0] = m02;
     arg1->m[0][1] = m10;
+    arg1->m[3][0] = (arg5 * m00) + (arg7 * m02);
+    arg1->m[3][3] = 1.0f;
     arg1->m[1][1] = m11;
     arg1->m[2][1] = m12;
     arg1->m[0][2] = m20;
@@ -456,7 +456,6 @@ void func_8070D07C(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 a
     arg1->m[2][2] = m22;
     arg1->m[0][3] = 0.0f;
     arg1->m[1][3] = 0.0f;
-    arg1->m[3][3] = 1.0f;
     arg1->m[3][2] = (arg5 * m20) + (arg6 * m21) + (arg7 * m22);
     arg1->m[2][3] = 0.0f;
 }

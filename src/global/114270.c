@@ -506,7 +506,6 @@ Gfx *func_807105D4(Gfx *arg0, u8 arg1) {
 
 #undef L105D4_TEXTURE
 
-#ifdef NON_MATCHING
 typedef struct L10CA0Entry {
     s16 unk0; u8 pad2[6]; f32 unk8; f32 unkC; f32 unk10; u8 pad14[0xC];
     s16 unk20; s16 unk22; s16 unk24; u8 pad26[2]; f32 unk28; u8 pad2C[0x84];
@@ -547,6 +546,7 @@ Gfx *effectSpriteRenderPool(Gfx *arg0, Actor *arg1) {
 
     if ((D_807FBB4C->unk154 == 3) || (D_807FBB4C->unk154 == 5)) {
         f32 rem = (((L10CA0CamView *)gCamActor)->unkB4 > 180.0f) ? 0.0f : 180.0f - ((L10CA0CamView *)gCamActor)->unkB4;
+        if (count == 0) {}  // FAKE: deadsweep dead statement (steers uopt: count's temp slot)
         D_807FD9EC = (f32)((f64)rem * 0.02 * 240.0);
     } else {
         D_807FD9EC = 240.0f;
@@ -621,10 +621,6 @@ Gfx *effectSpriteRenderPool(Gfx *arg0, Actor *arg1) {
 
 #undef L10CA0_POOL
 #undef L10CA0_TEX
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/114270/effectSpriteRenderPool.s")
-#endif
 
 typedef struct AngBPlayerView {
     u8 pad0[0x2C4];
