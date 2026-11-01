@@ -1,4 +1,4 @@
-// controllerBuildSubcommandList (src/global/17B90.c): stage 4+: matches frame 0x38, callee-saved set s0-s7,ra, stack layout; ~20 lines regalloc diff in inner loop and entry save scheduling
+// controllerBuildSubcommandList (src/global/17B90.c): stage 4+: matches frame 0x38, callee-saved set s0-s7,ra, stack layout; score 17 (plain C without (0,X) fakes; ~10 lines regalloc diff in entry save scheduling and inner loop)
 typedef struct ControllerSubCmd {
     u32 unk0;
     u32 unk4;
@@ -23,13 +23,13 @@ void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg
     s32 found;
     u32 search_cmd;
 
-    curr = arg0;
     tail = arg2;
+    curr = arg0;
     if (arg0 != arg1) {
         do {
             cmd0 = curr->unk0;
-            if (((cmd0 >> 24) == (0, 0xDE)) && (((cmd0 >> 16) & 0xFF) == (0, 1))) {
-                id = (u32)(curr->unk4 * 0x10) >> 0x1C;
+            if (((cmd0 >> 24) == 0xDE) && (((cmd0 >> 16) & 0xFF) == 1)) {
+                id = (curr->unk4 << 4) >> 28;
                 search = arg0;
                 found = 0;
                 if (arg0 != arg1) {

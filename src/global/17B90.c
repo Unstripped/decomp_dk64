@@ -62,13 +62,13 @@ void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg
     s32 found;
     u32 search_cmd;
 
-    curr = arg0;
     tail = arg2;
+    curr = arg0;
     if (arg0 != arg1) {
         do {
             cmd0 = curr->unk0;
-            if (((cmd0 >> 24) == (0, 0xDE)) && (((cmd0 >> 16) & 0xFF) == (0, 1))) {
-                id = (u32)(curr->unk4 * 0x10) >> 0x1C;
+            if (((cmd0 >> 24) == 0xDE) && (((cmd0 >> 16) & 0xFF) == 1)) {
+                id = (curr->unk4 << 4) >> 28;
                 search = arg0;
                 found = 0;
                 if (arg0 != arg1) {
