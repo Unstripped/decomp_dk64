@@ -1,4 +1,4 @@
-// controllerAnimSetState (src/global/17B90.c): stage 5: frame 0x38, 2 saved regs s0/s1 match target (improved from starter frame 0x30/3 saved regs); first 80+ instructions match 1:1; remaining diff is float zero regalloc in unk40/resource paths and store reordering
+// controllerAnimSetState (src/global/17B90.c): stage 5: score 205 (improved from 1600+); temp_f > (f32)0 generated missing mtc1 zero , double literals 0.0 on slot8->unk18 and anim->unk80 matched  regalloc, delay slot and tail store scheduling matched; remaining diff is regalloc swap
 #include "common.h"
 
 typedef struct {
@@ -49,13 +49,13 @@ typedef struct {
 typedef struct {
     void *unk0;
     AnimDataState *unk4;
-} RvT2_ControllerStateView;
+} ControllerStateView;
 
 void func_80613944();
 void *controllerAnimCacheGetOrLoad(s32 id);
 void controllerApplyMotionWindow();
 
-void controllerAnimSetState(RvT2_ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     void *pad;
     AnimDataState *anim;
     AnimSlotState *slot0;
@@ -65,6 +65,7 @@ void controllerAnimSetState(RvT2_ControllerStateView *arg0, s16 arg1, f32 arg2, 
     AnimResourceState *resource;
     f32 temp_f;
     s16 temp_s;
+    u8 temp_u;
 
     anim = (AnimDataState *)arg0->unk4;
     slot0 = anim->unk0;
@@ -104,7 +105,7 @@ void controllerAnimSetState(RvT2_ControllerStateView *arg0, s16 arg1, f32 arg2, 
 
     if (arg3 > 0.0f) {
         temp_f = anim->unk48;
-        if (temp_f > 0.0f) {
+        if (temp_f > (f32)0) {
             anim->unk40 = temp_f;
         } else {
             anim->unk40 = -temp_f;
@@ -130,8 +131,8 @@ void controllerAnimSetState(RvT2_ControllerStateView *arg0, s16 arg1, f32 arg2, 
         slot8->unk10 = arg1;
         slot8->unk1C = resource->unk4;
         slot8->unk14 = 0.0f;
-        slot8->unk34 = 0.0f;
         slot8->unk18 = (f32)(resource->unk12 - 1);
+        slot8->unk34 = 0.0f;
         slot8->unk24 = resource->unk0;
         slot8->unk2C = resource->unk0;
         slot8->unk28 = resource->unk0;
@@ -141,7 +142,7 @@ void controllerAnimSetState(RvT2_ControllerStateView *arg0, s16 arg1, f32 arg2, 
         slot8->unk10 = -1;
         slot8->unk1C = 0;
         slot8->unk14 = 0.0f;
-        slot8->unk18 = 0.0f;
+        slot8->unk18 = 0.0;
         slot8->unk34 = 0.0f;
         slot8->unk24 = 0.0f;
         slot8->unk2C = 0.0f;
@@ -151,14 +152,14 @@ void controllerAnimSetState(RvT2_ControllerStateView *arg0, s16 arg1, f32 arg2, 
 
     anim->unk78 = 0;
     anim->unk7C = 0;
-    anim->unk80 = 0.0f;
+    anim->unk80 = 0.0;
+    anim->unk8 = slot0;
+    temp_u = ((u8 *)&anim->unk28)[1];
     temp_s = anim->unk2A;
     anim->unkC = slot4;
     anim->unk0 = slot8;
     anim->unk4 = slotC;
-    anim->unk8 = slot0;
-    anim->unk2A = ((u8 *)&anim->unk28)[1];
+    anim->unk2A = temp_u;
     anim->unk28 = temp_s;
-
-    controllerApplyMotionWindow(arg0, slot8, arg2);
+    controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)slot8, arg2);
 }

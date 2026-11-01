@@ -1,4 +1,4 @@
-// controllerAnimInit (src/global/17B90.c): stage 5: frame 0x28, 4 saved regs match target; score 245 in permuter; u16 arg1 matches entry home store and andi mask; diff only in delay-slot store scheduling of unk80 vs unk48
+// controllerAnimInit (src/global/17B90.c): stage 5: score 65 (improved from 245); anim->unk80 = 0.0 double literal matched delay-slot unk80 vs unk48 store scheduling; remaining 12 insns diff is t6/t7 regalloc swap
 #include "common.h"
 
 typedef struct {
@@ -62,31 +62,38 @@ typedef struct {
     s32 unk50;
 } AnimControllerInit;
 
-void *func_80612E90(void *, s16, s32);
+typedef struct {
+    u8 pad[0x20];
+    u8 unk20;
+} CtrlB_Asset;
+
+void *func_80612E90(void *, s32, s32);
 void *heapAlloc(s32);
+void guMtxIdent(Mtx *);
+void guMtxIdentF(float mf[4][4]);
 
 s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
-    void *resource;
+    CtrlB_Asset *resource;
     s32 i;
     void *alloc;
     AnimStateInit *anim;
 
-    resource = func_80612E90(arg0, arg1, 0);
+    resource = (CtrlB_Asset *)func_80612E90(arg0, arg1, 0);
     if (resource != NULL) {
         arg0->unk0 = resource;
         arg0->unk4C = 0;
         arg0->unk50 = 0;
 
-        alloc = heapAlloc((*(u8 *)((u8 *)resource + 0x20) << 7) + 0x170);
+        alloc = heapAlloc((resource->unk20 << 7) + 0x170);
         arg0->unk4 = (AnimStateInit *)alloc;
         arg0->unk4->unk0 = (AnimSlotInit *)((u8 *)alloc + 0x90);
         arg0->unk4->unk4 = (AnimSlotInit *)((u8 *)alloc + 0xC8);
         arg0->unk4->unk8 = (AnimSlotInit *)((u8 *)alloc + 0x100);
         arg0->unk4->unkC = (AnimSlotInit *)((u8 *)alloc + 0x138);
         arg0->unk4->unk14 = (Mtx *)((u8 *)alloc + 0x170);
-        arg0->unk4->unk18 = (Mtx *)((u8 *)arg0->unk4->unk14 + (*(u8 *)((u8 *)resource + 0x20) << 6));
+        arg0->unk4->unk18 = (Mtx *)((resource->unk20 << 6) + (u8 *)arg0->unk4->unk14);
 
-        for (i = 0; i < *(u8 *)((u8 *)resource + 0x20); i++) {
+        for (i = 0; i < resource->unk20; i++) {
             guMtxIdent((Mtx *)((u8 *)arg0->unk4->unk14 + (i << 6)));
             guMtxIdent((Mtx *)((u8 *)arg0->unk4->unk18 + (i << 6)));
         }
@@ -129,7 +136,7 @@ s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
         anim->unk44 = 0.0f;
         anim->unk58 = 0.0f;
         anim->unk48 = 1.0f;
-        anim->unk80 = 0.0f;
+        anim->unk80 = 0.0;
 
         return 1;
     }

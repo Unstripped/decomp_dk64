@@ -1,4 +1,4 @@
-// controllerAnimFreeSub (src/global/17B90.c): stage 5: frame 0x40 and 7 saved regs match; parked NON_MATCHING; loop bound reload into t8 vs v0 reuse and cmdList comparison order
+// controllerAnimFreeSub (src/global/17B90.c): stage 5: frame 0x40 and 7 saved regs match; u8 unk8 matched lbu/sb, (u16)D_807FBB30-1 matched lhu, &D_807FB630[32] matched 99c-9d0; remaining diff is D_807FB7B0 preheader order
 #include "common.h"
 
 typedef struct {
@@ -7,13 +7,6 @@ typedef struct {
     void *unk4C;
     void *unk50;
 } ControllerViewB;
-
-typedef struct {
-    u16 unk0;
-    u16 unk2;
-    u32 unk4;
-    u32 unk8;
-} ControllerStateEntry;
 
 typedef struct {
     u32 unk0;
@@ -29,26 +22,33 @@ typedef struct {
     ControllerCmdListB *commands;
 } ControllerSubB;
 
+void assetFreeBuffer(void *, s32, s32);
+
 struct AnimCacheEntry {
     s32 id;
     s32 refCount;
     void *asset;
 };
 extern struct AnimCacheEntry D_807FB7B0[];
-extern ControllerStateEntry D_807FB630[];
-extern s16 D_807FBB30;
+typedef struct {
+    u16 unk0;
+    u16 unk2;
+    u32 unk4;
+    u8 unk8;
+} CtrlB_StateEntry;
 
-void assetFreeBuffer(void *, s32, s32);
+extern CtrlB_StateEntry D_807FB630[];
+extern s16 D_807FBB30;
 
 void controllerAnimFreeSub(arg0, arg1)
 ControllerViewB *arg0;
 u8 arg1;
 {
     ControllerSubB *sub;
-    ControllerStateEntry *entry;
+    CtrlB_StateEntry *entry;
     ControllerCmdB *cmd;
     ControllerCmdListB *cmdList;
-    ControllerStateEntry *last;
+    CtrlB_StateEntry *last;
     u32 val;
 
     switch (arg1) {
@@ -67,14 +67,14 @@ u8 arg1;
     }
 
     if (sub != NULL) {
-        entry = D_807FB630;
+        entry = (CtrlB_StateEntry *)D_807FB630;
         do {
             if (entry->unk4 == (u32)sub) {
                 break;
             }
-        } while (++entry != (ControllerStateEntry *)D_807FB7B0);
+        } while (++entry != (CtrlB_StateEntry *)&D_807FB630[32]);
 
-        if (entry == (ControllerStateEntry *)D_807FB7B0) {
+        if (entry == (CtrlB_StateEntry *)D_807FB7B0) {
             return;
         }
 
@@ -90,11 +90,11 @@ u8 arg1;
                         }
                     }
                     cmd++;
-                } while ((ControllerCmdB *)cmdList != cmd);
+                } while (cmd != (ControllerCmdB *)cmdList);
             }
 
-            val = D_807FBB30 - 1;
-            last = &D_807FB630[(u16)val];
+            val = (u16)D_807FBB30 - 1;
+            last = (CtrlB_StateEntry *)&D_807FB630[(u16)val];
             D_807FBB30 = val;
 
             entry->unk0 = last->unk0;

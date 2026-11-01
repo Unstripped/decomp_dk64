@@ -153,7 +153,7 @@ void controllerCommandRelocateAssets(ControllerCommand *arg0, ControllerCommand 
     }
 }
 
-typedef struct {
+typedef struct ControllerStateEntry {
     u16 unk0;
     u16 unk2;
     u32 unk4;
@@ -256,9 +256,14 @@ typedef struct {
     s32 unk50;
 } AnimControllerInit;
 
+typedef struct {
+    u8 pad[0x20];
+    u8 unk20;
+} CtrlB_Asset;
+
 #ifdef NON_MATCHING
 s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
-    void *resource;
+    CtrlB_Asset *resource;
     s32 i;
     void *alloc;
     AnimStateInit *anim;
@@ -268,16 +273,16 @@ s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
         arg0->unk4C = 0;
         arg0->unk50 = 0;
 
-        alloc = heapAlloc((*(u8 *)((u8 *)resource + 0x20) << 7) + 0x170);
+        alloc = heapAlloc((resource->unk20 << 7) + 0x170);
         arg0->unk4 = (AnimStateInit *)alloc;
         arg0->unk4->unk0 = (AnimSlotInit *)((u8 *)alloc + 0x90);
         arg0->unk4->unk4 = (AnimSlotInit *)((u8 *)alloc + 0xC8);
         arg0->unk4->unk8 = (AnimSlotInit *)((u8 *)alloc + 0x100);
         arg0->unk4->unkC = (AnimSlotInit *)((u8 *)alloc + 0x138);
         arg0->unk4->unk14 = (Mtx *)((u8 *)alloc + 0x170);
-        arg0->unk4->unk18 = (Mtx *)((u8 *)arg0->unk4->unk14 + (*(u8 *)((u8 *)resource + 0x20) << 6));
+        arg0->unk4->unk18 = (Mtx *)((resource->unk20 << 6) + (u8 *)arg0->unk4->unk14);
 
-        for (i = 0; i < *(u8 *)((u8 *)resource + 0x20); i++) {
+        for (i = 0; i < resource->unk20; i++) {
             guMtxIdent((Mtx *)((u8 *)arg0->unk4->unk14 + (i << 6)));
             guMtxIdent((Mtx *)((u8 *)arg0->unk4->unk18 + (i << 6)));
         }
@@ -290,7 +295,6 @@ s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
         anim->unk34 = 0.15f;
         anim->unk38 = 0.15f;
         anim->unk3C = 0.15f;
-
         anim->unk0->unk4 = 0.0f;
         anim->unk0->unk8 = 0.0f;
         anim->unk0->unk0 = NULL;
@@ -320,7 +324,7 @@ s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
         anim->unk44 = 0.0f;
         anim->unk58 = 0.0f;
         anim->unk48 = 1.0f;
-        anim->unk80 = 0.0f;
+        anim->unk80 = 0.0;
 
         return 1;
     }
@@ -387,6 +391,12 @@ struct AnimCacheEntry {
     void *asset;
 };
 extern struct AnimCacheEntry D_807FB7B0[];
+typedef struct {
+    u16 unk0;
+    u16 unk2;
+    u32 unk4;
+    u8 unk8;
+} CtrlB_StateEntry;
 
 #ifdef NON_MATCHING
 void controllerAnimFreeSub(arg0, arg1)
@@ -394,12 +404,11 @@ ControllerViewB *arg0;
 u8 arg1;
 {
     ControllerSubB *sub;
-    ControllerStateEntry *entry;
+    CtrlB_StateEntry *entry;
     ControllerCmdB *cmd;
     ControllerCmdListB *cmdList;
-    ControllerStateEntry *last;
+    CtrlB_StateEntry *last;
     u32 val;
-
     switch (arg1) {
     case 0:
         sub = arg0->unk0;
@@ -416,14 +425,14 @@ u8 arg1;
     }
 
     if (sub != NULL) {
-        entry = D_807FB630;
+        entry = (CtrlB_StateEntry *)D_807FB630;
         do {
             if (entry->unk4 == (u32)sub) {
                 break;
             }
-        } while (++entry != (ControllerStateEntry *)D_807FB7B0);
+        } while (++entry != (CtrlB_StateEntry *)&D_807FB630[32]);
 
-        if (entry == (ControllerStateEntry *)D_807FB7B0) {
+        if (entry == (CtrlB_StateEntry *)D_807FB7B0) {
             return;
         }
 
@@ -439,11 +448,11 @@ u8 arg1;
                         }
                     }
                     cmd++;
-                } while ((ControllerCmdB *)cmdList != cmd);
+                } while (cmd != (ControllerCmdB *)cmdList);
             }
 
-            val = D_807FBB30 - 1;
-            last = &D_807FB630[(u16)val];
+            val = (u16)D_807FBB30 - 1;
+            last = (CtrlB_StateEntry *)&D_807FB630[(u16)val];
             D_807FBB30 = val;
 
             entry->unk0 = last->unk0;
@@ -616,7 +625,7 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
 
     if (arg3 > 0.0f) {
         temp_f = anim->unk48;
-        if (temp_f > 0.0f) {
+        if (temp_f > (f32)0) {
             anim->unk40 = temp_f;
         } else {
             anim->unk40 = -temp_f;
@@ -642,8 +651,8 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
         slot8->unk10 = arg1;
         slot8->unk1C = resource->unk4;
         slot8->unk14 = 0.0f;
-        slot8->unk34 = 0.0f;
         slot8->unk18 = (f32)(resource->unk12 - 1);
+        slot8->unk34 = 0.0f;
         slot8->unk24 = resource->unk0;
         slot8->unk2C = resource->unk0;
         slot8->unk28 = resource->unk0;
@@ -653,7 +662,7 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
         slot8->unk10 = -1;
         slot8->unk1C = 0;
         slot8->unk14 = 0.0f;
-        slot8->unk18 = 0.0f;
+        slot8->unk18 = 0.0;
         slot8->unk34 = 0.0f;
         slot8->unk24 = 0.0f;
         slot8->unk2C = 0.0f;
@@ -663,13 +672,13 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
 
     anim->unk78 = 0;
     anim->unk7C = 0;
-    anim->unk80 = 0.0f;
+    anim->unk80 = 0.0;
+    anim->unk8 = slot0;
     temp_u = ((u8 *)&anim->unk28)[1];
     temp_s = anim->unk2A;
     anim->unkC = slot4;
     anim->unk0 = slot8;
     anim->unk4 = slotC;
-    anim->unk8 = slot0;
     anim->unk2A = temp_u;
     anim->unk28 = temp_s;
     controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)slot8, arg2);
