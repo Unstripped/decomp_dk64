@@ -1,4 +1,4 @@
-// func_80728300 (src/global/1295B0.c): Stage 3/4: 338 vs 337 insns. Line 149 forward decl made unprototyped 'void func_80728300();' in 1295B0.c (allowed, func_80724C78 caller matches). (cnt << 1) * 3 and (cnt << 1) * 5 at alloc calls gives target shifts and 2 multu. Remaining: target s0-s7 (frame 0x60; src t0 and p a3 both caller-saved with spills) vs built s0-s8 (frame 0x58; p gets s2, i gets s8, src v1).
+// func_80728300 (src/global/1295B0.c): Stage 3/4 (full=183, text=185, shape=46): deadsweep steer on same. Remaining: target s0-s7 (frame 0x60; src t0 and p a3 both caller-saved with spills) vs built s0-s8 (frame 0x58; p gets s2, i gets s8, src v1).
 #include "common.h"
 
 typedef struct C1S6 {
@@ -48,6 +48,7 @@ void func_80728300(s16 *arg0, C1Rec24List *arg1, SpawnNodeList *arg2) {
     void *mem;
     s32 t;
 
+    if (same && same) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     src = arg0;
     if (src != NULL) {
         t = *src++;
@@ -96,6 +97,7 @@ void func_80728300(s16 *arg0, C1Rec24List *arg1, SpawnNodeList *arg2) {
                         same = 0;
                     }
                     prev = rec->unkC[j].v[1];
+                    if (same && same) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 }
                 j++;
             } while (j < cnt);

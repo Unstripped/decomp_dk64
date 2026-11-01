@@ -395,15 +395,17 @@ s32 lineSegmentIntersect2D(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16
         half = det / two;
     }
     if (b1 * c2 < b2 * c1) {
-        *arg8 = ((b1 * c2 - b2 * c1) - half) / det;
+        two = (b1 * c2 - b2 * c1) - half;
     } else {
-        *arg8 = ((b1 * c2 - b2 * c1) + half) / det;
+        two = (b1 * c2 - b2 * c1) + half;
     }
+    *arg8 = two / det;
     if (a2 * c1 < a1 * c2) {
-        y = ((a2 * c1 - a1 * c2) - half) / det;
+        two = (a2 * c1 - a1 * c2) - half;
     } else {
-        y = ((a2 * c1 - a1 * c2) + half) / det;
+        two = (a2 * c1 - a1 * c2) + half;
     }
+    y = two / det;
     *arg9 = y;
     ix = (s32)*arg8;
     if ((ix == arg0 && (s16)(s32)y == arg1) || (ix == arg2 && (s16)(s32)y == arg3) || (ix == arg4 && (s16)(s32)y == arg5) || (ix == arg6 && (s16)(s32)y == arg7)) {
