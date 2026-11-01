@@ -1458,7 +1458,6 @@ Gfx *hudDrawScaledText(Gfx *dl, s16 arg1, s16 arg2, f32 scale, void *arg4) {
     return dl;
 }
 
-#ifdef NON_MATCHING
 extern s8 D_807FC7F9;
 
 s32 hudPauseMenuSlidePage(HudEntry *arg0, s32 arg1, s32 arg2) {
@@ -1496,6 +1495,7 @@ s32 hudPauseMenuSlidePage(HudEntry *arg0, s32 arg1, s32 arg2) {
     }
     if (arg1 != 0) {
         d = arg0->unkC[arg0->unk15];
+        if (arg0->unk8[arg0->unk15]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (d >= 0x15) {
             d = 0x14;
         }
@@ -1503,6 +1503,8 @@ s32 hudPauseMenuSlidePage(HudEntry *arg0, s32 arg1, s32 arg2) {
             d = -0x14;
         }
         arg0->unkC[0] -= d;
+        if (arg0->unk8[arg0->unk15]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (arg0->unkC[arg0->unk15]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         arg0->unkC[1] -= d;
         if (arg0->unkC[arg0->unk15] == 0) {
             arg0->unk8[1 - arg0->unk15] = arg0->unk8[arg0->unk15];
@@ -1514,10 +1516,6 @@ s32 hudPauseMenuSlidePage(HudEntry *arg0, s32 arg1, s32 arg2) {
     }
     return arg1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/hudPauseMenuSlidePage.s")
-#endif
 
 
 void hudPauseMenuRefreshTotals(void) {
