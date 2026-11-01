@@ -1,4 +1,4 @@
-// func_8064AC28 (src/global/478F0.c): OlW stage 4 (unchanged, 19-28 diff lines by fv metric). Re-read target: p lives in stack home 0xA4 (sw v0,0xA4 after heapAlloc, lw v1/a0,0xA4 reload in each branch of flagGet) and each branch ends with a MIRRORED pair (flag branch: lw v1; or a0,v1; else: lw a0; or v1,a0) so a0 and v1 are two separate webs both holding p at the join (a0 = part[0] stores, v1 = loop-2 base + unk4F); both loops compute addiu s0,v1,6 separately (no PRE). Hill-climb 5400 iters of statement swaps/joins/decl swaps: no change. Needs two distinct p-valued variables whose copies are not propagated.
+// func_8064AC28 (src/global/478F0.c): stage 4, 19 diff lines: mirrored pair a0/v1 across flagGet branches (p split into two live ranges: v1 on flagGet!=0 where v1 free, a0 on else where v1 holds constant 2). Root cause of 19-line diff is uopt PRE on v1+6 into a0 which clobbers a0 on path 2. Deadsweep (1044 variants) found no improving statement.
 void csModelStateSetFirstByte(s16, s16);
 extern u8 gPlayerCharacterId;
 typedef struct CsEntry {

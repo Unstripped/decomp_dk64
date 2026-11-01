@@ -1,4 +1,4 @@
-// csSplineLightStep (src/global/478F0.c): OlR2a: stage 5 unchanged (27 diff lines). Re-checked: frac is cand 17 (adjsave 0.5, forbidden f4-f10, assigned f16); target leaves it uncoloured (swc1 108(sp) in the bgez delay slot). Dead-if sweeps: deadsweep 560 variants (0 improving), own scan of every statement boundary x 16 symbols x 4 forms (none gave a 108(sp) store), 2-3 stacked dead ifs at idx lines (6^k combos, none), inline (*arg0 - i) (54), f64 frac (62). frac cannot be uncoloured by lowering adjsave with dead ifs.
+// csSplineLightStep (src/global/478F0.c): stage 5, 27 diff lines: frac assigned f16 (adjsave 0.5) vs left in stack home 0x6C(sp). Tested f32 frac[1] memory-resident local which reproduces exact delay-slot swc1 and jal-delay lwc1 ft4/ft5 instructions; remaining blocker is preventing uopt from assigning f16 to scalar frac without altering 0x70 frame.
 f32 splineEvalCubic(f64, f32, f32, f32, f32);
 
 void csSplineLightStep(f32 *arg0, s16 arg1, s16 arg2, f32 arg3) {

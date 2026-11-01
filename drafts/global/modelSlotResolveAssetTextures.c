@@ -1,4 +1,4 @@
-// modelSlotResolveAssetTextures (src/global/36880.c): stage 4, parked NON_MATCHING: frame 0x48 + s0/s1/ra match; 118 vs 113 insns. Target loads obj into v0 then move s1,v0 after first store; flags in a3 (ours v1); stack slot order permuted
+// modelSlotResolveAssetTextures (src/global/36880.c): stage 3 (118 vs 113 insns; frame 0x48 + s0/s1/ra match; not parked). Target loads obj into v0 then move s1,v0 after first store; flags in a3 (ours v1); stack slot order permuted. The volatile formal/seg2 here are probes, not final C
 s32 dlResolveNodeTextures(DisplayListCmd *, DisplayListCmd *, ModelSegmentNode *, u8);
 
 s32 modelSlotResolveAssetTextures(arg0, arg1, arg2)

@@ -1,4 +1,4 @@
-// func_80646058 (src/global/478F0.c): OlW stage 4 (unchanged, 13 diff lines). uopt -l 6 trace: start (cand 43, M var -4) is split into 43 and 293 and BOTH 'not colored (-ve save)'; target colors the pre-loop segment into a1 (lw a1,0(s0); addiu t2,a1,1; compare uses a1; sw a1,0x84(sp) sunk into the beql slot at loop entry, in-loop compare reloads lw t8,0x84(sp)). So the pre-loop segment needs positive cycle savings (more pre-loop uses or fewer defs); the remaining li a0/li t8 order and 0x44-vs-0x3c spill slot follow from that. Hill-climb 5300 iters statement swaps/joins/decl swaps: no change (score 21 fv metric).
+// func_80646058 (src/global/478F0.c): stage 4, 13 diff lines: start (cand 43) not colored (-ve save) in current vs target coloring pre-loop into a1, sinking sw a1,0x84(sp) into beql slot at loop entry. Deadsweep ran 8094 variants with 0 improvements; operand swap p->idx==start and branch variations tested.
 typedef struct CsPointHitState {
     /* 0x00 */ s32 idx;
     /* 0x04 */ s32 timer;
