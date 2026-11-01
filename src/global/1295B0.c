@@ -891,8 +891,8 @@ extern u8 gPlayerCount;
 extern u8 D_80755698[];
 extern s32 gCurrentMap;
 void actorScriptStart(void *, s32);
-s16 controllerLookupStateByHash(void *, s32);
-void actorUpdateFloorContactAndTilt(void *, s32);
+s16 controllerLookupStateByHash(void *);
+void actorUpdateFloorContactAndTilt(void *, f32);
 void behaviourSetAnimIds(s16, s16, s16, s16);
 void actorSetTargetSpeed(void *, u8);
 s32 randomNonNegative(void);
@@ -984,7 +984,7 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
             if (act->unk58 == 0xFE) {
                 *(s16 *)entry = D_8075570C[node->unkA];
             } else {
-                *(s16 *)entry = controllerLookupStateByHash(act, 0xFF);
+                *(s16 *)entry = controllerLookupStateByHash(act);
             }
             break;
     }
@@ -1063,7 +1063,7 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     node->unk34 = 0.75f;
     act->unkA4 = node->unk6;
     if (type != 8) {
-        actorUpdateFloorContactAndTilt(act, 0);
+        actorUpdateFloorContactAndTilt(act, 0.0f);
         if (D_807FBB68 & 2) {
             act->unk110 = 0;
         } else if ((type == 4) || (act->unk58 == 0xF8)) {
@@ -1078,13 +1078,10 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
         ((A4Act *)D_807FBB40)->unk6C |= 4;
     }
 }
-
 #else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/spawnNodeInitActorFromEntry.s")
 #endif
-
-
 
 u8 spawnNodeHasState(u8, u8);
 

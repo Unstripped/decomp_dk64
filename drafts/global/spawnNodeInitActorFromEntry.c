@@ -1,4 +1,4 @@
-// spawnNodeInitActorFromEntry (src/global/1295B0.c): Stage 5: 398/399 insns, frame 0x40 exact, same switch/jtbl; 1 extra li a1,255 before jal controllerLookupStateByHash due to a1/a2 reg swap (CSE constant), entry spill 0x24 vs 0x20; deadsweep round 1 tried 6396 variants without improvement
+// spawnNodeInitActorFromEntry (src/global/1295B0.c): Stage 5: 398/398 insns, frame 0x40 exact; fixed extra li a1,255 and reg swap by setting controllerLookupStateByHash to 1 arg, fixed move a1,zero to li a1,0 with f32 proto on actorUpdateFloorContactAndTilt; remaining diff is stack slot of entry/case6 v1 (0x20/0x28 vs 0x24)
 typedef struct A4Act {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ void *unk4;
@@ -134,8 +134,8 @@ extern u8 gPlayerCount;
 extern u8 D_80755698[];
 extern s32 gCurrentMap;
 void actorScriptStart(void *, s32);
-s16 controllerLookupStateByHash(void *, s32);
-void actorUpdateFloorContactAndTilt(void *, s32);
+s16 controllerLookupStateByHash(void *);
+void actorUpdateFloorContactAndTilt(void *, f32);
 void behaviourSetAnimIds(s16, s16, s16, s16);
 void actorSetTargetSpeed(void *, u8);
 s32 randomNonNegative(void);
@@ -150,8 +150,7 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     u8 type;
     s32 v;
     A4Entry *entry;
-
-    act = arg0;
+act = arg0;
     node = arg1;
     st = act->unk174;
     type = D_80755698[node->unk44];
@@ -227,7 +226,7 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
             if (act->unk58 == 0xFE) {
                 *(s16 *)entry = D_8075570C[node->unkA];
             } else {
-                *(s16 *)entry = controllerLookupStateByHash(act, 0xFF);
+                *(s16 *)entry = controllerLookupStateByHash(act);
             }
             break;
     }
@@ -306,7 +305,7 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     node->unk34 = 0.75f;
     act->unkA4 = node->unk6;
     if (type != 8) {
-        actorUpdateFloorContactAndTilt(act, 0);
+        actorUpdateFloorContactAndTilt(act, 0.0f);
         if (D_807FBB68 & 2) {
             act->unk110 = 0;
         } else if ((type == 4) || (act->unk58 == 0xF8)) {
