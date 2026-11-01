@@ -1,4 +1,4 @@
-// dmaReadAssetDecompress (src/global/FE40.c): stage 4: frame size 0x68, callee-saved set (s0-s4, ra) and text size 752 bytes exact
+// dmaReadAssetDecompress (src/global/FE40.c): stage 4: frame 0x68, saves s0-s4/ra, exact 752 bytes; stack slots 0x5C/0x58/0x50 match, remaining diff in decompression dispatch/cleanup
 extern s8 D_80746834;
 extern OSMesgQueue D_807655F0;
 extern OSIoMesg D_807ECE00;
@@ -9,13 +9,13 @@ void gunzip(void *, void *, void *);
 void func_80002790(void *, void *, void *, s32);
 
 void dmaReadAssetDecompress(u32 arg0, void *arg1, s32 *arg2, u8 arg3, u8 arg4, u8 arg5, void *arg6) {
-    void *sp5C;
-    void *sp58;
-    void *sp50;
-    void *ptr;
     s32 count;
     s32 size;
+    void *sp5C;
+    void *sp58;
     u32 chunks;
+    void *sp50;
+    void *ptr;
 
     sp58 = arg1;
     count = 0;

@@ -11,13 +11,13 @@ void gunzip(void *, void *, void *);
 void func_80002790(void *, void *, void *, s32);
 
 void dmaReadAssetDecompress(u32 arg0, void *arg1, s32 *arg2, u8 arg3, u8 arg4, u8 arg5, void *arg6) {
-    void *sp5C;
-    void *sp58;
-    void *sp50;
-    void *ptr;
     s32 count;
     s32 size;
+    void *sp5C;
+    void *sp58;
     u32 chunks;
+    void *sp50;
+    void *ptr;
 
     sp58 = arg1;
     count = 0;

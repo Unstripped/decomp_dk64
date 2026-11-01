@@ -61,7 +61,6 @@ extern OSMesgQueue D_807659E8;
 extern u8 D_807F059C[];
 extern OSMesgQueue gScheduler;
 
-#ifdef NON_MATCHING
 void schedSubmitGfxTask(void *arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, u8 arg5) {
     SchedGfxTask *msg;
     s32 size;
@@ -83,12 +82,12 @@ void schedSubmitGfxTask(void *arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, u8 arg
     msg->dram_stack_size = 0x400;
     msg->output_buff = (void *)D_807F05A4;
     msg->output_buff_size = D_807F05A4 + D_807F0984;
-    msg->yield_data_ptr = D_8076B320;
-    msg->msgQ = &D_807659E8;
-    msg->data_size = arg1 * 8;
-    msg->yield_data_size = 0xC00;
     msg->data_ptr = arg0;
+    msg->data_size = arg1 * 8;
+    msg->yield_data_ptr = D_8076B320;
+    msg->yield_data_size = 0xC00;
     msg->next = NULL;
+    msg->msgQ = &D_807659E8;
     msg->msg = (OSMesg)((arg2 << 16) | arg4);
     msg->flags = 3;
     if (arg3) {
@@ -106,10 +105,6 @@ void schedSubmitGfxTask(void *arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, u8 arg
     }
     osSendMesg(&gScheduler, msg, 1);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/14CF0/schedSubmitGfxTask.s")
-#endif
 
 extern s8 D_80746834;
 
