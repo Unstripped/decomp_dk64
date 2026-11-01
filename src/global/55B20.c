@@ -1193,67 +1193,55 @@ s32 mapNodeBoxContainsPoint(void *arg0, f32 arg1, f32 arg2) {
     return 1;
 }
 
-#ifdef NON_MATCHING
 s32 mapNodeTriangleContainsPoint(void *arg0, f32 arg1, f32 arg2) {
-    f64 lead0;
     f64 cz;
-    f64 cx;
-    f64 c;
-    f64 dz;
-    f64 oz;
-    f64 ox;
-    f64 dx;
     f64 mx;
+    f64 cx;
     f64 mz;
+    f64 dx;
+    f64 dz;
+    f64 ox;
+    f64 oz;
+    f64 c;
+    f64 lead0; // FAKE: unused pad local, keeps the 0xC8 frame and the dx/dz/ox/oz home slots
     u16 flag;
     s32 i;
 
+    flag = 0;
     mx = (((MapCollisionNode *)arg0)->unk4 + ((MapCollisionNode *)arg0)->unk2) * 0.5;
     mz = (((MapCollisionNode *)arg0)->unk10 + ((MapCollisionNode *)arg0)->unkE) * 0.5;
     cx = (((MapCollisionNode *)arg0)->unk0 + mx) * 0.5;
     cz = (((MapCollisionNode *)arg0)->unkC + mz) * 0.5;
-    flag = 0;
-    i = 0;
-    if (cz == 0.0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
-    do {
+    for (i = 0; i < 3; i++) {
         switch (i) {
         case 0:
-            ox = ((MapCollisionNode *)arg0)->unk0;
             dx = ((MapCollisionNode *)arg0)->unk2 - ((MapCollisionNode *)arg0)->unk0;
             dz = ((MapCollisionNode *)arg0)->unkE - ((MapCollisionNode *)arg0)->unkC;
+            ox = ((MapCollisionNode *)arg0)->unk0;
             oz = ((MapCollisionNode *)arg0)->unkC;
-            if (dz > 0.0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
             break;
         case 1:
-            oz = ((MapCollisionNode *)arg0)->unkC;
-            ox = ((MapCollisionNode *)arg0)->unk0;
             dx = ((MapCollisionNode *)arg0)->unk4 - ((MapCollisionNode *)arg0)->unk0;
             dz = ((MapCollisionNode *)arg0)->unk10 - ((MapCollisionNode *)arg0)->unkC;
-            if (arg1 * 2.0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
+            ox = ((MapCollisionNode *)arg0)->unk0;
+            oz = ((MapCollisionNode *)arg0)->unkC;
             break;
         case 2:
             dx = ((MapCollisionNode *)arg0)->unk4 - ((MapCollisionNode *)arg0)->unk2;
-            ox = ((MapCollisionNode *)arg0)->unk2;
             dz = ((MapCollisionNode *)arg0)->unk10 - ((MapCollisionNode *)arg0)->unkE;
+            ox = ((MapCollisionNode *)arg0)->unk2;
             oz = ((MapCollisionNode *)arg0)->unkE;
-            if (i) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
             break;
         }
+        mx = (arg1 - ox) * dz; // mx/mz reused as the two cross products
+        mz = (arg2 - oz) * dx;
         c = (cx - ox) * dz - (cz - oz) * dx;
-        if (!i) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
-        i++;
-        if (oz == 0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
-        if (((arg2 - oz) * dx <= (arg1 - ox) * dz ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
+        if ((mz <= mx ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
             flag = 1;
         }
-    } while (i != 3);
-    if (arg1 > 0.0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
+    }
     return (flag == 0) & 0xFF;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapNodeTriangleContainsPoint.s")
-#endif
 
 
 typedef struct {
@@ -1522,8 +1510,8 @@ typedef struct FrustumCorners {
 
 extern FrustumCorners D_807F5DF0;
 void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, void *arg8, void *arg9, void *arg10) {
-    f32 uv3;
-    f32 t;
+    f32 uv3; // FAKE: unused pad slot, keeps the frame / home slots of q..uv0
+    f32 q; // FAKE: named quotient (steers FP colouring: quotients take f0)
     f32 a;
     f32 uv2;
     f32 uv1;
@@ -1532,13 +1520,15 @@ void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4,
     s32 i;
     MapPlayer *p;
 
-    p = &D_807FC924[arg7];
-    a = ((((f32)(arg0 - p->unk270)) / (f32)p->unk278) * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
-    uv3 = a;
-    uv2 = ((((f32)(arg2 - p->unk270)) / (f32)p->unk278) * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
-    t = D_807F5DF0.unk1C - D_807F5DF0.unk4;
-    uv1 = (t * (((f32)(arg1 - p->unk272)) / (f32)p->unk27A)) + D_807F5DF0.unk4;
-    uv0 = (t * (((f32)(arg3 - p->unk272)) / (f32)p->unk27A)) + D_807F5DF0.unk4;
+    p = (MapPlayer *)((u8 *)D_807FC924 + arg7 * 0x2F0);
+    q = ((f32)(arg0 - p->unk270)) / (f32)p->unk278;
+    a = (q * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
+    q = ((f32)(arg2 - p->unk270)) / (f32)p->unk278;
+    uv2 = (q * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
+    q = ((f32)(arg1 - p->unk272)) / (f32)p->unk27A;
+    uv1 = ((D_807F5DF0.unk1C - D_807F5DF0.unk4) * q) + D_807F5DF0.unk4;
+    q = ((f32)(arg3 - p->unk272)) / (f32)p->unk27A;
+    uv0 = ((D_807F5DF0.unk1C - D_807F5DF0.unk4) * q) + D_807F5DF0.unk4;
     m[0][0] = uv2; m[0][1] = uv0; m[0][2] = D_807F5DF0.unk8;
     m[1][0] = a; m[1][1] = uv0; m[1][2] = D_807F5DF0.unk14;
     m[2][0] = uv2; m[2][1] = uv1; m[2][2] = D_807F5DF0.unk20;
@@ -1735,67 +1725,55 @@ s32 mapTriangleBoundsContainPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
     return 1;
 }
 
-#ifdef NON_MATCHING
 s32 mapTriangleContainsPoint(void *arg0, f32 arg1, f32 arg2) {
-    f64 lead0;
     f64 cz;
-    f64 cx;
-    f64 c;
-    f64 dz;
-    f64 oz;
-    f64 ox;
-    f64 dx;
     f64 mx;
+    f64 cx;
     f64 mz;
+    f64 dx;
+    f64 dz;
+    f64 ox;
+    f64 oz;
+    f64 c;
+    f64 lead0; // FAKE: unused pad local, keeps the 0xC8 frame and the dx/dz/ox/oz home slots
     u16 flag;
     s32 i;
 
+    flag = 0;
     mx = (((MapCollisionNode *)arg0)->unk4 + ((MapCollisionNode *)arg0)->unk2) * 0.5;
     mz = (((MapCollisionNode *)arg0)->unk10 + ((MapCollisionNode *)arg0)->unkE) * 0.5;
     cx = (((MapCollisionNode *)arg0)->unk0 + mx) * 0.5;
     cz = (((MapCollisionNode *)arg0)->unkC + mz) * 0.5;
-    flag = 0;
-    i = 0;
-    if (cz == 0.0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
-    do {
+    for (i = 0; i < 3; i++) {
         switch (i) {
         case 0:
-            ox = ((MapCollisionNode *)arg0)->unk0;
             dx = ((MapCollisionNode *)arg0)->unk2 - ((MapCollisionNode *)arg0)->unk0;
             dz = ((MapCollisionNode *)arg0)->unkE - ((MapCollisionNode *)arg0)->unkC;
+            ox = ((MapCollisionNode *)arg0)->unk0;
             oz = ((MapCollisionNode *)arg0)->unkC;
-            if (dz > 0.0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
             break;
         case 1:
-            oz = ((MapCollisionNode *)arg0)->unkC;
-            ox = ((MapCollisionNode *)arg0)->unk0;
             dx = ((MapCollisionNode *)arg0)->unk4 - ((MapCollisionNode *)arg0)->unk0;
             dz = ((MapCollisionNode *)arg0)->unk10 - ((MapCollisionNode *)arg0)->unkC;
-            if (arg1 * 2.0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
+            ox = ((MapCollisionNode *)arg0)->unk0;
+            oz = ((MapCollisionNode *)arg0)->unkC;
             break;
         case 2:
             dx = ((MapCollisionNode *)arg0)->unk4 - ((MapCollisionNode *)arg0)->unk2;
-            ox = ((MapCollisionNode *)arg0)->unk2;
             dz = ((MapCollisionNode *)arg0)->unk10 - ((MapCollisionNode *)arg0)->unkE;
+            ox = ((MapCollisionNode *)arg0)->unk2;
             oz = ((MapCollisionNode *)arg0)->unkE;
-            if (i) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
             break;
         }
+        mx = (arg1 - ox) * dz; // mx/mz reused as the two cross products
+        mz = (arg2 - oz) * dx;
         c = (cx - ox) * dz - (cz - oz) * dx;
-        if (!i) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
-        i++;
-        if (oz == 0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
-        if (((arg2 - oz) * dx <= (arg1 - ox) * dz ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
+        if ((mz <= mx ? 1 : -1) != (c >= 0.0 ? 1 : -1)) {
             flag = 1;
         }
-    } while (i != 3);
-    if (arg1 > 0.0) {} // FAKE: steers f64 coloring / int temp order (hill-climb)
+    }
     return (flag == 0) & 0xFF;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapTriangleContainsPoint.s")
-#endif
 
 s32 mapBspBoxInFrustum(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 

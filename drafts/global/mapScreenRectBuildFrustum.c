@@ -1,4 +1,4 @@
-// mapScreenRectBuildFrustum (src/global/55B20.c): stage 4 (MapA, parked NON_MATCHING in 55B20.c): frame 0xA8, callee set equal, 56 text lines (scheduling/regalloc). uopt -l5: FP candidate pool is 6 regs (f0,f2,f12,f14,f16,f18 = idx 24..29) and mine colors 6 candidates (D.0,D.4,cvt(unk278),D.C-D.0,t,cvt(unk27A)); target colors only D.0=f2,D.4=f12,cvt278=f14,DCD0=f16,cvt27A=f18 and SPILLS t (swc1 80(sp)/lwc1) and leaves f0 as div temp, i.e. target has one more higher-priority FP candidate than mine or t loses coloring. Tried: return type f32/f64/s32/u8 (no effect), t inline (frame/regs worse, >100), t as array/twice, all 120 statement orders of a/uv3/uv2/t/uv1/uv0, deadsweep (-3 with 'if (arg1 && arg1) {}' only), 900 hill-climb variants.
+// mapScreenRectBuildFrustum (src/global/55B20.c): stage 5 (W2Map, parked NON_MATCHING in 55B20.c): 2-line diff only, t's spill slot is 72(sp) (swc1/lwc1) vs target 80(sp); frame 0xA8, regs and order identical. Found: named quotient local q reused for the 4 divisions (quotients take f0, t then spills), t as inline CSE (D.1C-D.4) not a named local, uv3 kept as unused pad, p = (u8*)D_807FC924 + arg7*0x2F0. Target has an unseen 3rd temp slot at 0x48. Tried: decl-order perms of m/i/p (504), uv/m-row statement orders (576), FP sum operand orders (256), extra unused locals, named t after m, deadsweep + 3 hill-climbs.
 typedef struct FrustumCorners {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -16,8 +16,8 @@ typedef struct FrustumCorners {
 
 extern FrustumCorners D_807F5DF0;
 void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, void *arg8, void *arg9, void *arg10) {
-    f32 uv3;
-    f32 t;
+    f32 uv3; // FAKE: unused pad slot, keeps the frame / home slots of q..uv0
+    f32 q; // FAKE: named quotient (steers FP colouring: quotients take f0)
     f32 a;
     f32 uv2;
     f32 uv1;
@@ -26,13 +26,15 @@ void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4,
     s32 i;
     MapPlayer *p;
 
-    p = &D_807FC924[arg7];
-    a = ((((f32)(arg0 - p->unk270)) / (f32)p->unk278) * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
-    uv3 = a;
-    uv2 = ((((f32)(arg2 - p->unk270)) / (f32)p->unk278) * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
-    t = D_807F5DF0.unk1C - D_807F5DF0.unk4;
-    uv1 = (t * (((f32)(arg1 - p->unk272)) / (f32)p->unk27A)) + D_807F5DF0.unk4;
-    uv0 = (t * (((f32)(arg3 - p->unk272)) / (f32)p->unk27A)) + D_807F5DF0.unk4;
+    p = (MapPlayer *)((u8 *)D_807FC924 + arg7 * 0x2F0);
+    q = ((f32)(arg0 - p->unk270)) / (f32)p->unk278;
+    a = (q * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
+    q = ((f32)(arg2 - p->unk270)) / (f32)p->unk278;
+    uv2 = (q * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
+    q = ((f32)(arg1 - p->unk272)) / (f32)p->unk27A;
+    uv1 = ((D_807F5DF0.unk1C - D_807F5DF0.unk4) * q) + D_807F5DF0.unk4;
+    q = ((f32)(arg3 - p->unk272)) / (f32)p->unk27A;
+    uv0 = ((D_807F5DF0.unk1C - D_807F5DF0.unk4) * q) + D_807F5DF0.unk4;
     m[0][0] = uv2; m[0][1] = uv0; m[0][2] = D_807F5DF0.unk8;
     m[1][0] = a; m[1][1] = uv0; m[1][2] = D_807F5DF0.unk14;
     m[2][0] = uv2; m[2][1] = uv1; m[2][2] = D_807F5DF0.unk20;
