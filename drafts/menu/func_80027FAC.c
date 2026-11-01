@@ -1,4 +1,4 @@
-// func_80027FAC (src/menu/3E10.c): func_80027FAC (src/menu/3E10.c): stage 5, parked NON_MATCHING (R2Lru3 re-diffed, no new gain). Frame 0x60, no saved regs; raw diff 500 lines but only register NAMES + a few schedule slots. Root cause now identified (uopt web COLOURING, not ring): target t-webs = t0 &D_80033F3C(lda), t1 const -1, t2 &D_80033F52, t3 &D_800336A0, a3 &D_80033F54, t0(2nd) &D_800336A4, locals var_a0_2/var_a1 in a0/a1 (spilled across randomLcgNext, home sh 60/64(sp)); ours colours -1 first (adjsave 7.0) -> t0, then locals 106/138 take t1/t3 and push the lda webs, and cur lands in a2 with 'move a1,a2' (a1 held by var_a1 web). Tried this round: 720 declaration-order permutations of var_a0/var_a1/var_v0/temp_t2/var_a0_2/cur (best 482 vs 500 raw: no), true callee prototypes (u8 camIsCutsceneActive, s32 actorFindActiveByType, u8/u16 params: no effect; camStartPath proto is fixed by a later declaration at 3449), camStartPath arg/*var_a0 vs cur spelling grid c1..c9 (no gain). Untried: make var_a0_2/var_a1 non-promotable (address-taken-free but volatile-like memory forms) so only the lda/-1 webs compete for t0-t3.
+// func_80027FAC (src/menu/3E10.c): func_80027FAC (src/menu/3E10.c): stage 5, parked NON_MATCHING; R5 Menu: full diff 201 -> 132 (shape 30; deadsweep score, 575 target insns vs 581) with a hill-climb over declaration order (var_ft4/var_a1/temp_t2/cur order) + 4 guarded dead global tests (if (D_80033F56 && D_80033F56) after 'case -3:', if (D_80033F56 != 0) after D_80033F56 = 0, if (gCamActor == 0) in the var_a0_2==0xB block, if (D_800337F0 && D_800337F0) in the -1 skip loop); literal respellings (.0f/0.00f/10.00f) tried: no effect. Remaining: lda web colouring order (target a3=&F54 / t0=&336A4 / t1=-1, ours v1/a3/t0), cur in a1 vs a2 (move a1,a2), index load v1 vs v0, switch-arm store order; permuter output garbage.
 typedef struct {
     s32 unk0;
     s32 unk4;
@@ -51,12 +51,12 @@ void func_80027FAC(void *arg0, s32 arg1) {
     s32 sp50;
     s8 sp4F;
     s16 *var_a0;
-    s16 var_a1;
     s32 var_v0;
-    s16 temp_t2;
-    s16 var_a0_2;
-    int cur;
     f32 var_ft4;
+    s16 var_a1;
+    s16 var_a0_2;
+    s16 temp_t2;
+    int cur;
 
     var_a3 = *(MenuL1b_S174 **)((u8 *)arg0 + 0x174);
     sp54 = D_800337FC;
@@ -131,6 +131,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
             D_80033F52 = var_a0[1];
             break;
         case -3:
+            if (D_80033F56 && D_80033F56) {}  // FAKE: deadsweep: steers uopt colouring of the address/const webs
             D_80033F54 += 2;
             sp4F = -1;
             D_80033F52 = var_a0[1];
@@ -144,6 +145,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
             D_80033F54 += 2;
             D_80033F52 = var_a0[1];
             D_80033F56 = 0;
+            if (D_80033F56 != 0) {}  // FAKE: deadsweep: steers uopt colouring of the address/const webs
             break;
         default:
         if (cur < -5) {
@@ -173,6 +175,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
                     var_a0_2 += 1;
                     if (var_a0_2 == 0xB) {
                         var_a0_2 = 0;
+                    if (gCamActor == 0) {}  // FAKE: deadsweep: steers uopt colouring of the address/const webs
                     }
                     var_v0 = 1 << var_a0_2;
                     if (var_a0_2 == temp_t2) {
@@ -185,6 +188,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
                 do {
                     if (D_800336A4[D_80033F54] != -1) {
                         do {
+                            if (D_800337F0 && D_800337F0) {}  // FAKE: deadsweep: steers uopt colouring of the address/const webs
                             D_80033F54 += 1;
                         } while (D_800336A4[D_80033F54] != -1);
                     }

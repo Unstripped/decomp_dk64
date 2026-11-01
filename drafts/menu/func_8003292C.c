@@ -1,4 +1,4 @@
-// func_8003292C (src/menu/E550.c): R2Frm1 (wave 2): stage 4, unchanged C (NON_MATCHING park; frame 232 = target, saved s0-s8). Re-diffed: 416 target insns vs 418, diff = register naming + schedule. Target colours yy=a1,yyo=a2 (the y+0x29 / yo+0x29 CSE temps, spilled 80/72 and reloaded as next y/yo) BEFORE yo=t0 and xo=t4 (ours yo=a1,yy=a2,yyo=a3,xo=t1), so the ugen t-ring starts one t-reg later in ours (t3 vs t2 for sll/andi); ours also emits 'andi v1,t0,0xffff' for the u16 x loop var (target plain 'move v1,t0; bne t0,at'). New this round: 570 s 4-worker hill-climb over declaration order + local types (s32/s16/u16/u32/u8) + unused pad locals scored by full objdump diff (base 248 -> 246): no layout/colour change, confirming wave 1.
+// func_8003292C (src/menu/E550.c): func_8003292C (src/menu/E550.c): stage 4 park; R5 Menu: full diff 161 -> 137 (shape 111; 416 target insns vs 417) via declaration reorder + 2 guarded dead tests (if (x && x) after x = 0 in the inner-loop head, if (spC0) after the loop). Untouched root cause: uopt colours yo (adjsave 15.5: 2 uses in bb9 + def in bb8) before yy/yyo (adjsave 10) so ours yo=a1,yy=a2,yyo=a3 vs target yy=a1,yyo=a2,yo=t0,xo=t4; ours 0.5f (adjsave 3.75 over bb8-18) beats 204.0f (3.33) for f0 (target 204.0=f0, 0.5=f2); u16 x emits andi v1,t0,0xffff (target plain move; s32 x moves x to t0 and y to v1: worse); ours 0.5f args are mfc1 a3 (shared web), target lui a3,0x3f00 (literal spelled .5f for the two args gives the lui). Tried: 2^10 literal-spelling grid (0.5f/82.0f/204.0f sites), yy/yyo inline/s32/explicit y=yy copy, nx temp for the loop compare, 4x 9-minute hill-climbs (decl order, types, dead tests, spellings; best 122-133 only with 8+ fakes or unsafe type narrowing), permuter 560s (garbage).
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 extern s16 D_80744490;
@@ -12,19 +12,19 @@ Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 
 Gfx *func_8003292C(Gfx *dl, void *arg1) {
+    u32 tex;
+    s32 alpha;
     s32 off;
-    u16 x;
     s32 y;
     s32 xo;
-    s32 yo;
-    u32 tex;
+    u16 x;
     char *spCC;
     char *spC8;
     char *spC4;
     s32 spC0;
-    s32 alpha;
-    s16 yy;
+    s32 yo;
     s16 yyo;
+    s16 yy;
 
     spCC = textTableGetString(0xD, 0, 1);
     spC8 = textTableGetString(0xD, 1, 1);
@@ -50,6 +50,7 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
         yy = y + 0x29;
         yyo = yo + 0x29;
         x = 0;
+        if (x && x) {}  // FAKE: deadsweep: steers uopt candidate priority
         do {
             gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 82, x, y, x + 0x66, yy, 0,
                                   G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
@@ -60,6 +61,7 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
         y += 0x29;
         yo += 0x29;
     } while (y != 0x52);
+    if (spC0) {}  // FAKE: deadsweep: steers uopt candidate priority
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
     x = (s32)((f32)(D_80744490 - textGetStringWidth(1, spCC)) * 0.5f);

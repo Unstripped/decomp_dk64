@@ -164,12 +164,12 @@ void func_80027FAC(void *arg0, s32 arg1) {
     s32 sp50;
     s8 sp4F;
     s16 *var_a0;
-    s16 var_a1;
     s32 var_v0;
-    s16 temp_t2;
-    s16 var_a0_2;
-    int cur;
     f32 var_ft4;
+    s16 var_a1;
+    s16 var_a0_2;
+    s16 temp_t2;
+    int cur;
 
     var_a3 = *(MenuL1b_S174 **)((u8 *)arg0 + 0x174);
     sp54 = D_800337FC;
@@ -244,6 +244,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
             D_80033F52 = var_a0[1];
             break;
         case -3:
+            if (D_80033F56 && D_80033F56) {}  // FAKE: deadsweep: steers uopt colouring of the address/const webs
             D_80033F54 += 2;
             sp4F = -1;
             D_80033F52 = var_a0[1];
@@ -257,6 +258,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
             D_80033F54 += 2;
             D_80033F52 = var_a0[1];
             D_80033F56 = 0;
+            if (D_80033F56 != 0) {}  // FAKE: deadsweep: steers uopt colouring of the address/const webs
             break;
         default:
         if (cur < -5) {
@@ -286,6 +288,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
                     var_a0_2 += 1;
                     if (var_a0_2 == 0xB) {
                         var_a0_2 = 0;
+                    if (gCamActor == 0) {}  // FAKE: deadsweep: steers uopt colouring of the address/const webs
                     }
                     var_v0 = 1 << var_a0_2;
                     if (var_a0_2 == temp_t2) {
@@ -298,6 +301,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
                 do {
                     if (D_800336A4[D_80033F54] != -1) {
                         do {
+                            if (D_800337F0 && D_800337F0) {}  // FAKE: deadsweep: steers uopt colouring of the address/const webs
                             D_80033F54 += 1;
                         } while (D_800336A4[D_80033F54] != -1);
                     }
@@ -577,7 +581,6 @@ void menuHandleConfirmationInput(MenuScreenActor *arg0, s32 arg1) {
     menuUpdateItemTransition(arg0, temp_s0, 1);
 }
 
-#ifdef NON_MATCHING
 extern s8 D_80033804;
 extern s32 D_8003380C;
 extern s32 D_80033810;
@@ -600,15 +603,16 @@ s32 menuDrawFileSummary(void *arg0, Gfx *arg1) {
     f32 four;
     f32 spD0;
     f32 spCC;
-    char spA4[0x20];
+    s32 ang;
     f32 fv1;
+    char spA4[0x20];
 
     do {
         func_800317E8(temp_s4, x, 85.0f, &spD0, &spCC, 4, 0, 1.5f);
         if (*p != 0) {
-            arg1 = (Gfx *)menuSetElementCoordinates((s32)arg1, i, spD0, spCC, sc * 0.85);
+            arg1 = menuSetElementCoordinates(arg1, i, spD0, spCC, sc * 0.85);
         } else {
-            arg1 = (Gfx *)menuSetElementCoordinates((s32)arg1, i | 0x80, spD0, spCC, sc);
+            arg1 = menuSetElementCoordinates(arg1, i | 0x80, spD0, spCC, sc);
         }
         i++;
         p++;
@@ -618,31 +622,36 @@ s32 menuDrawFileSummary(void *arg0, Gfx *arg1) {
     func_800317E8(temp_s4, 160.0f, 180.0f, &spD0, &spCC, 5, 1, 2.0f);
     four = 4.0f;
     D_80033F4C = spCC * four;
-    y = D_80033F4C;
-    y -= 0x140;
+    py = D_80033F4C;
+    py -= 0x140;
     _sprintf(spA4, "%d%%", D_80033F51);
-    arg1 = (Gfx *)textDrawStringVtx((s32)arg1, 1, 0x280, y, spA4, 0x81);
-    y += 0x8C;
+    arg1 = textDrawStringVtx(arg1, 1, 0x280, py, spA4, 0x81);
+    py += 0x8C;
     _sprintf(spA4, "%03d", D_8003380C);
-    arg1 = (Gfx *)textDrawStringVtx((s32)arg1, 1, 0x280, y, spA4, 0x81);
-    y += 0x8C;
+    arg1 = textDrawStringVtx(arg1, 1, 0x280, py, spA4, 0x81);
+    py += 0x8C;
     _sprintf(spA4, "%03d:%02d", D_80033810, D_80033814);
-    arg1 = (Gfx *)textDrawStringVtx((s32)arg1, 1, 0x280, y, spA4, 0x81);
-    fv1 = func_80612794((s16)((gFrameCounter * 0x78) & 0xFFF)) * 0.1f + 0.5f;
-    y = (s32)((f32)y + 40.0f);
-    sc = y;
-    x = 0.5f * four;
-    spCC = (sc * 0.25f + 32.0f * fv1) * four;
+    arg1 = textDrawStringVtx(arg1, 1, 0x280, py, spA4, 0x81);
+    x = 0.5f; // FAKE: puts the 0.5f const load above the func_80612794 call (callee-saved f28)
+    ang = (gFrameCounter * 0x78) & 0xFFF;
+    fv1 = func_80612794(ang) * 0.1f + 0.5f;
+    py = (s32)((f32)py + 40.0f);
+    sc = py;
+    spCC = sc * 0.25f + 32.0f * fv1;
     spD0 = 85 * four;
+    x *= four;
+    spCC *= four;
     arg1 = renderRotatedSprite(arg1, 0xA1, 3, 0, 0x40, 0x40, (s32)spD0, (s32)spCC, x, -(fv1 * four), 0, 0.0f);
     gDPPipeSync(arg1++);
     spCC = sc;
     x = x * 0.75f;
     sc = -x;
     spD0 = 340.0f;
-    arg1 = renderRotatedSprite(arg1, 0xA0, 3, 0, 0x20, 0x20, (s32)spD0, (s32)spCC, x, sc * 0.5f, gFrameCounter % 360U, 0.0f);
+    i = gFrameCounter % 360U;
+    arg1 = renderRotatedSprite(arg1, 0xA0, 3, 0, 0x20, 0x20, (s32)spD0, (s32)spCC, x, sc * 0.5f, i, 0.0f);
     gDPPipeSync(arg1++);
-    arg1 = renderRotatedSprite(arg1, 0xA0, 3, 0, 0x20, 0x20, (s32)spD0, (s32)spCC, x, sc, (gFrameCounter * 0xC) % 360U, 0.0f);
+    i = (gFrameCounter * 0xC) % 360U;
+    arg1 = renderRotatedSprite(arg1, 0xA0, 3, 0, 0x20, 0x20, (s32)spD0, (s32)spCC, x, sc, i, 0.0f);
     gDPPipeSync(arg1++);
     gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
     func_800317E8(temp_s4, 160.0f, 15.0f, &spD0, &spCC, 5, 1, 0.3f);
@@ -651,10 +660,6 @@ s32 menuDrawFileSummary(void *arg0, Gfx *arg1) {
     _sprintf(spA4, "%s %d", (char *)D_80033F28[7], D_80033F48 + 1);
     return (s32)hudDrawScaledText(arg1, y, py, 0.6f, spA4);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/menuDrawFileSummary.s")
-#endif
 
 s32 func_800297A8(s32 arg0) {
     return arg0 + 0x1EFF0;

@@ -144,19 +144,19 @@ Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 
 Gfx *func_8003292C(Gfx *dl, void *arg1) {
+    u32 tex;
+    s32 alpha;
     s32 off;
-    u16 x;
     s32 y;
     s32 xo;
-    s32 yo;
-    u32 tex;
+    u16 x;
     char *spCC;
     char *spC8;
     char *spC4;
     s32 spC0;
-    s32 alpha;
-    s16 yy;
+    s32 yo;
     s16 yyo;
+    s16 yy;
 
     spCC = textTableGetString(0xD, 0, 1);
     spC8 = textTableGetString(0xD, 1, 1);
@@ -182,6 +182,7 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
         yy = y + 0x29;
         yyo = yo + 0x29;
         x = 0;
+        if (x && x) {}  // FAKE: deadsweep: steers uopt candidate priority
         do {
             gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 82, x, y, x + 0x66, yy, 0,
                                   G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
@@ -192,6 +193,7 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
         y += 0x29;
         yo += 0x29;
     } while (y != 0x52);
+    if (spC0) {}  // FAKE: deadsweep: steers uopt candidate priority
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
     x = (s32)((f32)(D_80744490 - textGetStringWidth(1, spCC)) * 0.5f);
