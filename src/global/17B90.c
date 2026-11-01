@@ -261,7 +261,6 @@ typedef struct {
     u8 unk20;
 } CtrlB_Asset;
 
-#ifdef NON_MATCHING
 s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
     CtrlB_Asset *resource;
     s32 i;
@@ -280,7 +279,7 @@ s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
         arg0->unk4->unk8 = (AnimSlotInit *)((u8 *)alloc + 0x100);
         arg0->unk4->unkC = (AnimSlotInit *)((u8 *)alloc + 0x138);
         arg0->unk4->unk14 = (Mtx *)((u8 *)alloc + 0x170);
-        arg0->unk4->unk18 = (Mtx *)((resource->unk20 << 6) + (u8 *)arg0->unk4->unk14);
+        arg0->unk4->unk18 = (Mtx *)((u8 *)arg0->unk4->unk14 + (resource->unk20 << 6));
 
         for (i = 0; i < resource->unk20; i++) {
             guMtxIdent((Mtx *)((u8 *)arg0->unk4->unk14 + (i << 6)));
@@ -330,10 +329,6 @@ s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
     }
     return 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimInit.s")
-#endif
 
 void func_806136B4(ControllerAnimView *arg0) {
     void *temp_a1;
