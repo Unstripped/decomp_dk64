@@ -1,4 +1,4 @@
-// func_806BC1E0 (src/global/C0EE0.c): Stage 5 (frame 0x88 ok; 98-line normalized diff vs ~300 at start; ~200 diff lines of 1078). Matched this round: loop-1 (pointer-compare do-while + extern s8 D_807FC8D0, D_807FC8C0[j]==1 direct, no v local), loop-2 (no ady local, ternary in compare, no v local), case3 init store order, 0.0 double stores, func_80613C48(..,0.0f,0.0f), acc=0.0f dead store, 5 FAKE dummies (random search + deadsweep). Remaining: (1) loop-2 head: andi i&3 hoisted before beqzl (target lb unk36/andi/sra/subu/lb unk37 in block; tried dy-first, augmented assign, %, orderings), move v1,zero order; ugen ring t5/t8 follows; (2) case4 sh unk34 before addiu t2; (3) FP candidate regs: target unk4 f2/old f12/a f12/acc f2/old f0, 1.0d in f12; mine f0/f12/f0/f14/f12, 1.0d f16 (mul operand order t*diff, a+prod). Random search (rs.py dummies+decl moves+type toggles+store swaps, ~6000 compiles) plateaus at 98.
+// func_806BC1E0 (src/global/C0EE0.c): Stage 5 (frame 0x88 ok; 98-line diff, shape 13 vs 17 at start). Matched for-loop init order (finding 100) and cand[n++] store order. Remaining: (1) andi hoisted before beql in loop 2; (2) case4 sh unk34 vs addiu t2; (3) FP candidate regs (unk4 f2 vs f0, 1.0d f12 vs f16)
 typedef struct LgBObj {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -83,6 +83,7 @@ void controllerApplyMotionWindow(void *, void *, f32);
 void actorUpdateModelMatrix(void *, s32);
 
 extern s8 D_807FC8D0;
+
 void func_806BC1E0(void) {
     f32 b;
     f32 acc;
@@ -232,8 +233,7 @@ void func_806BC1E0(void) {
                 D_80750650 = 0;
                 best = 4;
                 n = 0;
-                i = 0;
-                do {
+                for (i = 0; i < 16; i++) {
                     if (D_807FC8C0[i] == 0 || D_807FC8C0[i] == -1) {
                         dx = (i & 3) - st->unk36;
                         dy = (i >> 2) - st->unk37;
@@ -255,13 +255,11 @@ void func_806BC1E0(void) {
                                 n = 1;
                                 best = adx;
                             } else if (adx == best) {
-                                cand[n] = i;
-                                n++;
+                                cand[n++] = i;
                             }
                         }
                     }
-                    i++;
-                } while (i < 16);
+                }
                 if (n > 0) {
                     a = randomFloat();
                     v = cand[(s32)(a * (f32)(n - 1))];

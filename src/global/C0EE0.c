@@ -88,23 +88,24 @@ void func_80613C48(void *, s32, f32, f32);
 void controllerApplyMotionWindow(void *, void *, f32);
 void actorUpdateModelMatrix(void *, s32);
 
+extern s8 D_807FC8D0;
+
 void func_806BC1E0(void) {
+    f32 b;
+    f32 acc;
+    f32 a;
     f32 old;
     f32 t;
-    f32 b;
-    f32 a;
-    f32 acc;
     f32 sp70;
+    s16 i;
     LgBState *st;
-    s16 dx;
-    s16 dy;
     LgBObj *obj;
     s32 j;
-    s16 i;
-    s16 best;
     s16 adx;
-    s16 ady;
+    s16 dx;
+    s16 best;
     s8 v;
+    s16 dy;
     s16 n;
     s8 cand[16];
     s16 ones;
@@ -122,6 +123,7 @@ void func_806BC1E0(void) {
         st->unk24 = LGB->unk7C;
         st->unk28 = LGB->unk80;
         st->unk2C = LGB->unk84;
+        if (sp70 != 0) {}  // FAKE: dummy statement steers uopt
         st->unk30 = LGB->unk4->unk38;
         currentActorClearFlag();
     }
@@ -170,12 +172,12 @@ void func_806BC1E0(void) {
                 st->unk4 = 0.025f;
                 st->unk0 = 0.0f;
                 st->unk8 = LGB->unk7C;
-                st->unk14 = 294.0f;
                 st->unkC = LGB->unk80;
                 st->unk10 = LGB->unk84;
+                st->unk14 = 294.0f;
                 st->unk18 = 0.0f;
-                st->unk36 = 3;
                 st->unk1C = 359.0f;
+                st->unk36 = 3;
                 st->unk37 = 0;
                 st->unk20 = -500.0f;
                 actorScriptStart(D_807FBB40, 0x31C);
@@ -204,15 +206,16 @@ void func_806BC1E0(void) {
             if (LGB->unk11C != NULL && LGB->unk11C->unk154 == 5) {
                 ones = 0;
                 zeros = 0;
-                for (j = 0; j < 16; j++) {
-                    v = D_807FC8C0[j];
-                    if (v == 1) {
+                j = 0;
+                do {
+                    if (D_807FC8C0[j] == 1) {
                         ones++;
                     }
-                    if (v == 0) {
+                    if (D_807FC8C0[j] == 0) {
                         zeros++;
                     }
-                }
+                    j++;
+                } while (&D_807FC8C0[j] < &D_807FC8D0); // FAKE: pointer-compare bound steers loop strength reduction
                 flagSet(0x30, 0, 2, ones);
                 actorScriptStart(D_807FBB40, 0x31C);
                 D_80750650 = 1;
@@ -236,10 +239,8 @@ void func_806BC1E0(void) {
                 D_80750650 = 0;
                 best = 4;
                 n = 0;
-                i = 0;
-                do {
-                    v = D_807FC8C0[i];
-                    if (v == 0 || v == -1) {
+                for (i = 0; i < 16; i++) {
+                    if (D_807FC8C0[i] == 0 || D_807FC8C0[i] == -1) {
                         dx = (i & 3) - st->unk36;
                         dy = (i >> 2) - st->unk37;
                         if (dx > 0) {
@@ -247,12 +248,7 @@ void func_806BC1E0(void) {
                         } else {
                             adx = -dx;
                         }
-                        if (dy > 0) {
-                            ady = dy;
-                        } else {
-                            ady = -dy;
-                        }
-                        if (adx < ady) {
+                        if (adx < (dy > 0 ? dy : -dy)) {
                             if (dy > 0) {
                                 adx = dy;
                             } else {
@@ -265,13 +261,11 @@ void func_806BC1E0(void) {
                                 n = 1;
                                 best = adx;
                             } else if (adx == best) {
-                                cand[n] = i;
-                                n++;
+                                cand[n++] = i;
                             }
                         }
                     }
-                    i++;
-                } while (i < 16);
+                }
                 if (n > 0) {
                     a = randomFloat();
                     v = cand[(s32)(a * (f32)(n - 1))];
@@ -279,12 +273,14 @@ void func_806BC1E0(void) {
                     dy = (v >> 2) - st->unk37;
                     if (dx < -1) {
                         dx = -1;
+                        if (ones == 0) {}  // FAKE: dummy statement steers uopt
                     }
                     if (dx >= 2) {
                         dx = 1;
                     }
                     if (dy < -1) {
                         dy = -1;
+                        if (n == 0) {}  // FAKE: dummy statement steers uopt
                     }
                     if (dy >= 2) {
                         dy = 1;
@@ -348,6 +344,7 @@ void func_806BC1E0(void) {
         }
         break;
     default:
+        if (adx && adx) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         break;
     }
     LGB->unk60 |= 0x400;
@@ -356,6 +353,7 @@ void func_806BC1E0(void) {
     if (st->unk34 < 0) {
         st->unk34 = 0;
     }
+    acc = 0.0f; // FAKE: dead store, keeps the 0.0 constant candidate in $f18
     sp70 = st->unk30;
     if (st->unk4 != 0.0f && st->unk34 == 0) {
         old = st->unk0;
@@ -369,8 +367,8 @@ void func_806BC1E0(void) {
             sp70 += (st->unk0 - 0.5f) * 0.25f;
         }
         if ((f64)st->unk0 >= 1.0) {
-            st->unk0 = 0.0f;
-            st->unk4 = 0.0f;
+            st->unk0 = 0.0; // FAKE: double zero literal (constant register)
+            st->unk4 = 0.0; // FAKE: double zero literal (constant register)
             LGB->unk7C = st->unk14;
             LGB->unk80 = st->unk18;
             LGB->unk84 = st->unk1C;
@@ -378,15 +376,14 @@ void func_806BC1E0(void) {
             t = st->unk0;
             if (D_80750650 == 0) {
                 old = st->unk0;
+                if (acc == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 t = 2.0 * (f64)old;
                 if ((f64)t > 1.0) {
                     t = 1.0f;
                 }
             }
-            a = st->unk8;
-            LGB->unk7C = a + t * (st->unk14 - a);
-            b = st->unk10;
-            LGB->unk84 = b + t * (st->unk1C - b);
+            LGB->unk7C = st->unk8 + t * (st->unk14 - st->unk8);
+            LGB->unk84 = st->unk10 + t * (st->unk1C - st->unk10);
             if (D_80750650 == 0) {
                 a = st->unkC;
                 LGB->unk80 = a + t * (st->unk18 - a);
@@ -399,7 +396,7 @@ void func_806BC1E0(void) {
         }
         if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {
             if (obj->unk10 != 0x5C3) {
-                func_80613C48(D_807FBB40, 0x5C3, 0, 0);
+                func_80613C48(D_807FBB40, 0x5C3, 0.0f, 0.0f);
             }
             controllerApplyMotionWindow(D_807FBB40, obj, st->unk0 * 40.0f);
         }
