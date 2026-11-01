@@ -363,5 +363,7 @@ segments:
       - { start: 0x165D50, type: bss, vram: 0x807FBFF0, name: 165D50_807FBFF0 }
       - { start: 0x165D50, type: .bss, vram: 0x807FC7D0, name: A7710 } # D_807FC7D0 (u64, hudCountdownTimerSaveElapsed stores it with one lui only when the TU defines it), D_807FC7D8 (0x807FC7D0-0x807FC7E0)
       - { start: 0x165D50, type: bss, vram: 0x807FC7E0, name: 165D50_807FC7E0 }
+      - { start: 0x165D50, type: .bss, vram: 0x807FDCD0, name: 135D30 } # D_807FDCD0[0x18] (8-byte flag table entries), D_807FDD90[14] (flag bank 2: func_80731030's peeled stores share one lui only when the TU defines it); 2-byte tail to 0x807FDDA0
+      - { start: 0x165D50, type: bss, vram: 0x807FDDA0, name: 165D50_807FDDA0 }
 
   - [0x165D50]

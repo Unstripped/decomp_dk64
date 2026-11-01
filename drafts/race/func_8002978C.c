@@ -1,4 +1,4 @@
-// func_8002978C (src/race/52B0.c): stage 5 (not matched), frame 0x80/s0, stack slots match, 51 diff lines (deadsweep score) = FP ring only (f6<->f8 shift after thr in f16 vs f12; target sp4C in f8 ring reload and thr in f16; deadsweep search on region tested)
+// func_8002978C (src/race/52B0.c): stage 5, 511 insns, frame 0x80/s0, deadsweep score 51 (614/614 lines, reloc=0): single FP-register swap (sp4C in f8 ring reload vs f16, thr in f16 vs f12; cascades f6<->f8 across rest of function); tried inlining, local reuse, declaration order, deadsweep
 #include "common.h"
 
 extern void *D_807FBB40;

@@ -1,4 +1,4 @@
-// jetpacGridAddTiledSprite (src/jetpac/1460.c): stage 6: 1 pair diff (4 lines): target 'addiu t8,v0,1; sw t8,0(s7); lw t9,80(sp)' vs ours 'lw t9,80(sp); addiu; sll t4; sw'. as1probe confirms: in t.G, removing rec 104 (.noalias $23,$sp) yields full=0 text=0 reloc=0 exact match. Rec 104 is emitted by ugen because if (D_80045BD0 >= 0x100) return; ends with .alias, prompting ugen to re-assert .noalias before D_80045BD0++, letting as1 hoist lw across sw.
+// jetpacGridAddTiledSprite (src/jetpac/1460.c): stage 6: 129 insns, 1 pair diff (4 lines): target 'addiu t8,v0,1; sw t8,0(s7); lw t9,80(sp)' vs ours 'lw t9,80(sp); addiu; sll t4; sw'. as1probe confirms removing rec 104 (.noalias $23,$sp) gives full=0 text=0 exact match
 typedef struct {
     s32 unk0;
     u8 pad4[6];

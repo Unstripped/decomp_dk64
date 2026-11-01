@@ -1,4 +1,4 @@
-// controllerAnimSetState (src/global/17B90.c): stage 5: score 205 (improved from 1600+); temp_f > (f32)0 generated missing mtc1 zero , double literals 0.0 on slot8->unk18 and anim->unk80 matched  regalloc, delay slot and tail store scheduling matched; remaining diff is regalloc swap
+// controllerAnimSetState (src/global/17B90.c): stage 5, 194 insns, score 205 (deadsweep 157): pure temp-ring cascade starting at e84 (t0 in exp vs t1 in cur); tried deadsweep, hc, prototype/narrowing, self-store, permuter (110 on illegal mutation)
 #include "common.h"
 
 typedef struct {

@@ -1,4 +1,4 @@
-// func_80649E34 (src/global/478F0.c): func_80649E34 (src/global/478F0.c): stage 5 (frame 0x30, all 76 insns match except 2-insn delay slot swap: target move a2,0; jal; sw v1,0x1c(sp) vs built sw v1,0x1c(sp); jal; move a2,0). Diagnosed via as1probe: as1 refuses to put sw into jal slot when move a2,0 is on the same .loc line as the call; inserting .loc record between move and sw produces full=0 text=0 reloc=0 (exact byte match).
+// func_80649E34 (src/global/478F0.c): stage 5 (frame 0x30, all 76 insns match except 2-insn delay slot swap: target move a2,0; jal; sw v1,0x1c(sp) vs built sw v1,0x1c(sp); jal; move a2,0). Diagnosed via as1probe: as1 refuses to put sw into jal slot when move a2,0 is on the same .loc line as the call; inserting .loc record between move and sw produces full=0 text=0 reloc=0 (exact byte match).
 extern s16 gCsModelIds[];
 extern s16 D_807481F4[];
 extern s16 D_807481F6[];
@@ -42,11 +42,11 @@ void func_80649E34(CsState *cs, s16 csId, s16 b, s16 c)
       }
     }
     while (found == 0);
-    new_var2 = p[1];
     if (((u32) p) < (new_var = (u32) D_80748212))
     {
       if (1)
       {
+        new_var2 = p[1];
         csModelStateTrySetByte(new_var2, 0xA, 0);
         func_8064199C(((CsModelSlotView *) D_807F6000)[hashTableLookup(gCsModelIds[p[1]])].unk7C, 0, 0);
       }

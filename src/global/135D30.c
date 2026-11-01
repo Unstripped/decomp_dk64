@@ -21,7 +21,8 @@ typedef struct FlagTableEntry4 {
     /* 0x3 */ u8 pad3;
 } FlagTableEntry4;
 
-extern u8 D_807FDD90[14];
+FlagTableEntry D_807FDCD0[0x18];
+u8 D_807FDD90[14];
 extern FlagTableEntry D_80755A20[];
 extern FlagTableByte8 D_80755DAE[];
 extern FlagTableEntry D_80755EA0[];
@@ -35,7 +36,6 @@ s32 func_80731784(s16, s16, s32 *);
 s32 flagCountRange(s32, s32, u8);
 u8 *func_8060E25C(u8);
 
-#ifdef NON_MATCHING
 void func_80731030(void) {
     s32 i;
 
@@ -43,10 +43,6 @@ void func_80731030(void) {
         D_807FDD90[i] = 0;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/135D30/func_80731030.s")
-#endif
 
 void flagsClearAllBank0(void) {
     s32 i;
