@@ -86,7 +86,7 @@ void func_8002AED8(void) {
         t->unk0 = LB5->unk7C + 10.0;
         t->unk4 = LB5->unk84 + 8.0;
         LB5->unk80 = LB5->unk80 + 50.0;
-        switch (D_8076A0A8) {
+        switch (gCurrentMap) {
         case 0x66:
             t->unk2A = 4;
             break;
@@ -164,8 +164,8 @@ void func_8002AED8(void) {
         f32 fv0;
         f32 fv1;
 
-        fs1 = func_80612794(D_807FC924[D_807FC929].unk2C8);
-        fv0 = func_80612790(D_807FC924[D_807FC929].unk2C8);
+        fs1 = func_80612794(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+        fv0 = func_80612790(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
         fs0 = D_807ECDEC->unk2 * 0.04f;
         fv1 = D_807ECDEC->unk3 * 0.04f;
 
@@ -208,7 +208,7 @@ void func_8002AED8(void) {
         if (LB5->unk11C->unk154 == 5) {
             LB5->unk154 = 6;
         }
-        if (LB5->unk154 == 0 && (*D_807FC924[D_807FC929].unk298 & 0xE000)) {
+        if (LB5->unk154 == 0 && (*gPlayerSlots[gCurrentPlayerIndex].unk298 & 0xE000)) {
             sfxPlayOnFreeSlot(0x25, 0x7FFF, 63.0f, 0.51f, 0, 0);
             func_80613C48(D_807FBB40, 0x5FD, 0.0f, 1.0f);
             LB5->unk154 = 1;

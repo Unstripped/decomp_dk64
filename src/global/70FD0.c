@@ -53,7 +53,7 @@ typedef struct CollisionBox {
     /* 0x52 */ u8 pad52[0x58 - 0x52];
 } CollisionBox; // size = 0x58
 
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern BufferCacheEntry *D_807FB534;
 extern s32 D_807FB538;
 extern s32 D_807FB540;
@@ -231,7 +231,7 @@ void collisionBuildSlotBoxes(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f
         buf->unk1C = NULL;
     }
     buf->unk15 |= 1;
-    buf->unk10 = D_8076A064;
+    buf->unk10 = gFrameCounter;
 }
 
 void modelSlotBuildTransformMatrix(s16 arg0, s8 arg1, f32 (*arg2)[4]) {
@@ -318,7 +318,7 @@ typedef struct CollisionStaticCellEntry {
     /* 0x14 */ s32 unk14;
 } CollisionStaticCellEntry;
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern s32 D_807FB530;
 
 void *assetLoad(s32, s32, s32, s32);
@@ -344,7 +344,7 @@ void collisionInitStaticCache(CollisionStaticHeader *arg0) {
     void *sp30;
 
     var_s1 = 4;
-    var_s0 = assetLoad(2, D_8076A0A8, 1, 0);
+    var_s0 = assetLoad(2, gCurrentMap, 1, 0);
     D_807FB549 = 0;
     if (arg0->unk9 & 1) {
         sp60 = var_s0;
@@ -358,7 +358,7 @@ void collisionInitStaticCache(CollisionStaticHeader *arg0) {
         assetFreeBuffer(sp60, 0x14C, 0xA);
         D_807FB549 = 1;
     }
-    sp38 = assetGetSize(2, D_8076A0A8);
+    sp38 = assetGetSize(2, gCurrentMap);
     D_807FB530 = *(s32 *)var_s0;
     D_807FB534 = heapAlloc(0x1518);
     var_a2 = (s32 *)(var_s0 + 4);
@@ -425,7 +425,7 @@ void collisionLoadStaticCell(s32 arg0) {
             }
         }
     }
-    COLLISION_STATIC_CELLS[arg0].unk8 = D_8076A064;
+    COLLISION_STATIC_CELLS[arg0].unk8 = gFrameCounter;
 }
 
 extern s32 D_80747D70;
@@ -443,11 +443,11 @@ void modelSlotExpireNextBuffers(void) {
             D_80748E40 = 0;
         }
         a0 = &D_807F6000[D_80748E40].unk28;
-        if ((a0->unk15 & 1) && ((u32)(D_8076A064 - a0->unk10) >= 0x1F)) {
+        if ((a0->unk15 & 1) && ((u32)(gFrameCounter - a0->unk10) >= 0x1F)) {
             dynamicBufferFree(a0);
         }
         a1 = &D_807F6000[D_80748E40].unk48;
-        if ((a1->unk24 & 1) && ((u32)(D_8076A064 - a1->unk8) >= 0x1F)) {
+        if ((a1->unk24 & 1) && ((u32)(gFrameCounter - a1->unk8) >= 0x1F)) {
             modelSlotTriBufferRelease(a1);
         }
     }
@@ -462,7 +462,7 @@ void collisionPurgeExpiredBuffers(void) {
     s32 i;
 
     for (i = 0; i < D_807FB538; i++) {
-        if (D_807FB534[i].unk0 != NULL && (u32)(D_8076A064 - D_807FB534[i].unk8) >= 0x15) {
+        if (D_807FB534[i].unk0 != NULL && (u32)(gFrameCounter - D_807FB534[i].unk8) >= 0x15) {
             if (D_807FB549 == 0) {
                 heapFree(D_807FB534[i].unk4);
                 D_807FB534[i].unk4 = NULL;
@@ -1482,7 +1482,7 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
 
     neg1 = -1;
     if (arg0->unkA0 != NULL) {
-        if (D_8076A064 == arg0->unk88) {
+        if (gFrameCounter == arg0->unk88) {
             var_v1 = D_807444FC;
         } else {
             var_v1 = (D_807444FC ^ 1);
@@ -1583,7 +1583,7 @@ void actorSub140TransformTriangles(ActorSub140 *arg0) {
 
     first = arg0->unk98;
     if (first != NULL) {
-        if (D_8076A064 == arg0->unk88) {
+        if (gFrameCounter == arg0->unk88) {
             var_v1 = D_807444FC;
         } else {
             var_v1 = (D_807444FC ^ 1);
@@ -1678,7 +1678,7 @@ typedef struct {
     u8 unk2C0;
     u8 pad2[0x2F0 - 0x2C1];
 } KongPlayerData;
-extern KongPlayerData *D_807FC924;
+extern KongPlayerData *gPlayerSlots;
 extern u8 D_807FB547;
 extern u8 D_807FB602;
 extern u8 D_807FB605;
@@ -1802,7 +1802,7 @@ u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
                 if (!(buf->unk15 & 1)) {
                     collisionTransformNode(i, (s32)(*SLOT).unk24, ((f32 *)&(*SLOT))[0], ((f32 *)&(*SLOT))[1], ((f32 *)&(*SLOT))[2], ((f32 *)&(*SLOT))[4], ((f32 *)&(*SLOT))[5], ((f32 *)&(*SLOT))[6], ((f32 *)&(*SLOT))[3]);
                 } else {
-                    buf->unk10 = D_8076A064;
+                    buf->unk10 = gFrameCounter;
                 }
                 if (!(arg0->unk5C & 1) || func_806D0964(*(s32 *)(*SLOT).unk24, arg0->unk174->unk1A4) == 0) {
                     actorUpdateCollisionSpheres(arg0, 0);
@@ -2008,7 +2008,7 @@ s32 actorGetCollisionThreshold(CollisionActor *arg0) {
     switch (arg0->unk58) {
     case 5: {
         ActorSub174State *sub = arg0->unk174;
-        if (D_807FC924[sub->unk1A4].unk2C0 == 1) {
+        if (gPlayerSlots[sub->unk1A4].unk2C0 == 1) {
             return 0x32;
         }
         return 0x14;
@@ -2450,7 +2450,7 @@ typedef struct ActorPlaneContactView {
 
 extern s16 D_80753D50[];
 extern s16 D_80753D60[];
-extern u8 D_807FC929;
+extern u8 gCurrentPlayerIndex;
 extern s16 D_807FD584;
 
 void actorCalcPlaneContactPoint(ActorPlaneContactView *arg0, s16 arg1, ActorHitPlane *arg2) {
@@ -2473,7 +2473,7 @@ void actorCalcPlaneContactPoint(ActorPlaneContactView *arg0, s16 arg1, ActorHitP
     f32 scale;
 
     sub = arg0->unk174;
-    if (D_807FC924[D_807FC929].unk2C0 == 1) {
+    if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
         sp54 = D_80753D50[D_807FD584];
     } else {
         sp54 = D_80753D60[D_807FD584];
@@ -2664,7 +2664,7 @@ typedef struct ActorFacingWork {
     ActorFacingSub174 *unk174;
 } ActorFacingWork;
 
-extern PlayerContext *D_807FD580;
+extern PlayerContext *gActivePlayerState;
 extern s32 D_807FB5DC;
 extern s16 D_807FB5F6;
 
@@ -2689,8 +2689,8 @@ void actorUpdateFacingAndOffset(ActorFacingWork *arg0, s32 arg1, s32 arg2, s32 a
     sp36 = mathAngleDistance(arg0->unk48, D_807FB544);
     temp = mathAngleDistance((s16)((arg0->unk48 + 0x800) & 0xFFF), D_807FB544);
     if ((sp36 < 0x321) || (temp < 0x321)) {
-        mathAngleDistance(arg0->unk48, D_807FD580->unkEA);
-        mathAngleDistance((s16)((arg0->unk48 + 0x800) & 0xFFF), D_807FD580->unkEA);
+        mathAngleDistance(arg0->unk48, gActivePlayerState->unkEA);
+        mathAngleDistance((s16)((arg0->unk48 + 0x800) & 0xFFF), gActivePlayerState->unkEA);
         sub = ((ActorFacingWork *)D_807FB540)->unk140;
         func_806744A8(arg0, sub->unk0, sub->unk4, sub->unk8, sub->unkC);
         sp28 = D_807FB5D0;
@@ -2713,7 +2713,7 @@ void actorUpdateCollisionExtents(ActorTargetWork *arg0) {
     f32 sp3C;
     f32 sp38;
 
-    if (D_807FC924[D_807FC929].unk2C0 == 1) {
+    if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
         sp44 = D_80753D50[D_807FD584];
     } else {
         sp44 = D_80753D60[D_807FD584];
@@ -2859,7 +2859,7 @@ s32 actorGetPlayerThreshold(ActorTargetWork *arg0) {
         goto ret_32_3;
     }
     sub = arg0->unk174;
-    if (D_807FC924[sub->unk1A4].unk2C0 != 1) {
+    if (gPlayerSlots[sub->unk1A4].unk2C0 != 1) {
         return 0x14;
     }
     return 0x32;
@@ -2928,7 +2928,7 @@ u8 arg1;
         if (arg0->unk64 & 0x800) {
             scale = arg0->unk120;
         }
-        if (D_8076A064 == sub->unk88) {
+        if (gFrameCounter == sub->unk88) {
             idx = D_807444FC;
         } else {
             idx = D_807444FC ^ 1;
@@ -2981,8 +2981,8 @@ void actorUpdateNodePositions(ActorSub140PointView *arg0, u8 arg1) {
     f32 mtx[4][4];
     s32 mtx_base;
 
-    if (arg1 || (D_8076A064 != arg0->unk84)) {
-        if (D_8076A064 == arg0->unk88) {
+    if (arg1 || (gFrameCounter != arg0->unk84)) {
+        if (gFrameCounter == arg0->unk88) {
             var_v0 = D_807444FC;
         } else {
             var_v0 = D_807444FC ^ 1;
@@ -3004,7 +3004,7 @@ void actorUpdateNodePositions(ActorSub140PointView *arg0, u8 arg1) {
                 node = node->next;
             } while (node != NULL);
         }
-        arg0->unk84 = D_8076A064;
+        arg0->unk84 = gFrameCounter;
     }
 }
 
@@ -3057,7 +3057,7 @@ s32 actorStepSubNodeList(ActorTargetWork *arg0, s32 arg1) {
     s32 base;
     ActorTargetNode *node;
 
-    if (D_8076A064 == sub->unk88) {
+    if (gFrameCounter == sub->unk88) {
         val = D_807444FC;
     } else {
         val = D_807444FC ^ 1;
@@ -3497,7 +3497,7 @@ s16 arg1;
 void actorTouchSub140Timestamp(ActorMotionWork *arg0) {
     ActorMotionSub140 *temp_v0 = arg0->unk140;
     if (temp_v0 != NULL) {
-        temp_v0->unk88 = D_8076A064;
+        temp_v0->unk88 = gFrameCounter;
     }
 }
 
@@ -3583,12 +3583,12 @@ s32 actorCheckCameraBoundaryCondition(s8 arg0) {
         }
         goto ret_0;
     case 2:
-        if (D_807FB53C != 5 || D_807FC924->unk2C0 == 1) {
+        if (D_807FB53C != 5 || gPlayerSlots->unk2C0 == 1) {
             return 1;
         }
         goto ret_0;
     case 3:
-        if (D_807FB53C == 5 && D_807FC924->unk2C0 != 1) {
+        if (D_807FB53C == 5 && gPlayerSlots->unk2C0 != 1) {
             return 1;
         }
         goto ret_0;
@@ -3608,7 +3608,7 @@ s32 actorCheckCameraBoundaryCondition(s8 arg0) {
         goto ret_0;
     case 7:
         temp_v0 = D_807FBB4C->unk174;
-        if (D_807FB53C == 6 && (D_807FC924->unk2C0 != 1 || temp_v0->unk1CC != temp_v0->unk1C0)) {
+        if (D_807FB53C == 6 && (gPlayerSlots->unk2C0 != 1 || temp_v0->unk1CC != temp_v0->unk1C0)) {
             return 1;
         }
         goto ret_0;

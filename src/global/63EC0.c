@@ -94,27 +94,27 @@ typedef struct EffectBufferEntry {
 
 void *assetLoad(s32, s32, s32, s32);
 void effectNodeApproachTargetPos(EffectNode *);
-void screenShakeStep(void);
+void waterRippleStep(void);
 Gfx *effectWaterSetScissor(Gfx *, EffectNode *);
 void effectWaterBuildMeshGdl(void *, void *, EffectNode *);
 Gfx *effectBuildMipmapGdl(Gfx *, s32, u8);
 
-extern EffectNode *D_807F93C0;
+extern EffectNode *gEffectNodeList;
 extern EffectTableEntry D_80748A90[];
 extern TextureCacheEntry D_80748A9C[];
 extern EffectTableFlags D_80748AA5[];
-extern EffectBufferEntry *D_807F6C18;
+extern EffectBufferEntry *gMapChunks;
 extern s32 D_807FBB60;
 extern u8 D_807444FC;
-extern u8 D_807F93C4;
-extern f32 D_807F93C8[2];
-extern f32 D_807F93D0;
-extern f32 D_807F93D4;
-extern f32 D_807F93D8;
-extern f32 D_807F93DC;
-extern f32 D_807F93E0;
-extern f32 D_807F93E4;
-extern f32 D_807F93E8;
+extern u8 gWaterRippleActive;
+extern f32 gWaterRippleCenter[2];
+extern f32 gWaterRippleMaxAmplitude;
+extern f32 gWaterRippleAmplitude;
+extern f32 gWaterRippleAmplitudeRate;
+extern f32 gWaterRippleRadius;
+extern f32 gWaterRippleRadiusRate;
+extern f32 gWaterRippleMaxRadius;
+extern f32 gWaterRippleFalloffStart;
 
 typedef struct WaterTargetData {
     u8 pad0[0xC];
@@ -170,13 +170,13 @@ typedef struct WaterTypeEntry {
     u8 pad15[3];
 } WaterTypeEntry;
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 
 void *heapAlloc(s32);
 void effectWaterSetMeshPositionsUV(Vtx *, EffectNode *);
 void effectWaterSetMeshHeightsAlpha(Vtx *, EffectNode *);
 
-void func_8065F1C0(u8 *arg0) {
+void effectWaterInitNodes(u8 *arg0) {
     u8 pad[0x1C];
     s32 i;
     WaterTargetData *base;
@@ -187,11 +187,11 @@ void func_8065F1C0(u8 *arg0) {
         ((WaterTypeEntry *)D_80748A90)[i].unk14 = 0;
     }
 
-    var_fp = (WaterNodeData **)&D_807F93C0;
-    if (D_8076A0A8 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    D_807F93C0 = NULL;
+    var_fp = (WaterNodeData **)&gEffectNodeList;
+    if (gCurrentMap == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    gEffectNodeList = NULL;
     count = *(u8 *)(arg0 + *(s32 *)(arg0 + 0x4C) + 3);
-    D_807F93C4 = 0;
+    gWaterRippleActive = 0;
 
     if (count == (count * 0)) {  // FAKE: extra use of count steers the v0/v1 pick
         return;
@@ -224,7 +224,7 @@ void func_8065F1C0(u8 *arg0) {
         node->unk4D = 0;
         var_fp = &node->next;
 
-        if (((D_8076A0A8 == 0x53) || (D_8076A0A8 == 0xC5)) && (i == 0)) {
+        if (((gCurrentMap == 0x53) || (gCurrentMap == 0xC5)) && (i == 0)) {
             node->unk4D = 1;
         }
 
@@ -256,7 +256,7 @@ void func_8065F1C0(u8 *arg0) {
 }
 
 void effectNodeSetTargetPosition(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
-    EffectNode *node = D_807F93C0;
+    EffectNode *node = gEffectNodeList;
 
     if (node != NULL && arg0 != 0) {
         do {
@@ -305,7 +305,7 @@ u8 effectGetTableFlag(EffectNode *arg0) {
 }
 
 void effectUpdateNodes(void) {
-    EffectNode *node = D_807F93C0;
+    EffectNode *node = gEffectNodeList;
 
     if (node != NULL) {
         do {
@@ -315,7 +315,7 @@ void effectUpdateNodes(void) {
         } while (node != NULL);
     }
     if (!(D_807FBB60 & 2)) {
-        screenShakeStep();
+        waterRippleStep();
     }
 }
 
@@ -343,9 +343,9 @@ void effectNodeComputeBounds(EffectNode *, f32, f32, f32, u8, void *, void *);
 s32 mapBspBoxInFrustum(s16, s16, s16, s16, s32, s16, f32, f32, f32, f32, void *);
 s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
 extern f32 D_807F5FAC;
-extern void *D_807FC924;
+extern void *gPlayerSlots;
 
-void func_8065F678(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
+void effectWaterUpdateMeshes(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     EffectNode *node;
     u8 *var_s1;
     s32 var_s5;
@@ -357,7 +357,7 @@ void func_8065F678(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     f32 spD8[4][4];
     f32 sp98[4][4];
 
-    node = D_807F93C0;
+    node = gEffectNodeList;
     var_s5 = 0;
 
     if (node != NULL) {
@@ -366,10 +366,10 @@ void func_8065F678(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
                 temp_fs0 = (f32)((WaterTargetUpdateView *)node->target)->unk4E + node->unk4;
                 temp_fs1 = ((WaterTargetUpdateView *)node->target)->unk10 + ((WaterTargetUpdateView *)node->target)->unkC;
                 if (((WaterTargetUpdateView *)node->target)->unk67 == 1) {
-                    var_s1 = (u8 *)&D_807F6C18[((WaterTargetUpdateView *)node->target)->unk50[0]] + 0x88;
+                    var_s1 = (u8 *)&gMapChunks[((WaterTargetUpdateView *)node->target)->unk50[0]] + 0x88;
                 } else {
                     if (var_s5 == 0) {
-                        guMtxL2F(spD8, (Mtx *)((u8 *)D_807FC924 + (arg3 * 0x2F0) + (D_807444FC << 6) + 8));
+                        guMtxL2F(spD8, (Mtx *)((u8 *)gPlayerSlots + (arg3 * 0x2F0) + (D_807444FC << 6) + 8));
                         var_s5 = 1;
                         matrix4Invert(sp98, spD8);
                     }
@@ -411,8 +411,8 @@ void effectNodeComputeBounds(EffectNode *arg0, f32 arg1, f32 arg2, f32 arg3, u8 
 
     for (i = 0; i < target->unk67; i++) {
         idx = target->unk50[i];
-        if (((u8 *)D_807F6C18 + idx * 0x1C8)[0] == 1) {
-            mapRectIntersect(s2, s3, s4, s5, *(s32 *)(((u8 *)&D_807F6C18[idx]) + 0x68), *(s32 *)(((u8 *)&D_807F6C18[idx]) + 0x6C), *(s32 *)(((u8 *)&D_807F6C18[idx]) + 0x70), *(s32 *)(((u8 *)&D_807F6C18[idx]) + 0x74), &spB4, &spB0, &spAC, &spA8);
+        if (((u8 *)gMapChunks + idx * 0x1C8)[0] == 1) {
+            mapRectIntersect(s2, s3, s4, s5, *(s32 *)(((u8 *)&gMapChunks[idx]) + 0x68), *(s32 *)(((u8 *)&gMapChunks[idx]) + 0x6C), *(s32 *)(((u8 *)&gMapChunks[idx]) + 0x70), *(s32 *)(((u8 *)&gMapChunks[idx]) + 0x74), &spB4, &spB0, &spAC, &spA8);
             s2 = spB4;
             s3 = spB0;
             s4 = spAC;
@@ -430,7 +430,7 @@ s32 effectCheckTargetActive(EffectSubNode *arg0) {
     s32 i;
 
     for (i = 0; i < arg0->unk67; i++) {
-        if (D_807F6C18[arg0->unk50[i]].unk0 == 1) {
+        if (gMapChunks[arg0->unk50[i]].unk0 == 1) {
             return 1;
         }
     }
@@ -491,7 +491,7 @@ extern f32 D_807F7EF4;
 s32 lightCollectVolumesInBounds(f32, f32, f32, s16, s32, s32, s32, s32, s32, s32, u8 *);
 void func_8065C990(s32, s32, s32, void *, s32, s32);
 
-void func_8065FB64(f32 arg0, f32 arg1, f32 arg2) {
+void effectWaterApplyLights(f32 arg0, f32 arg1, f32 arg2) {
     WaterNodeRenderView *node;
     WaterTargetRenderView *target;
     u8 sp8F;
@@ -500,7 +500,7 @@ void func_8065FB64(f32 arg0, f32 arg1, f32 arg2) {
     s32 temp_a0;
     u8 flags;
 
-    node = (WaterNodeRenderView *)D_807F93C0;
+    node = (WaterNodeRenderView *)gEffectNodeList;
     if (node != NULL) {
         do {
             flags = node->unk4C;
@@ -516,7 +516,7 @@ void func_8065FB64(f32 arg0, f32 arg1, f32 arg2) {
                     D_807F7EF4 = D_8076A0BC[s1];
                     if (D_807FBB60 & 0x10) {
                         temp_a0 = node->unk1C[D_807444FC];
-                        func_8065C990(temp_a0, temp_a0 + node->unk48 * 16, 1, &D_807F78C0, v0, ((EffectBufferEntryView *)D_807F6C18)[s1].unk3 == 1);
+                        func_8065C990(temp_a0, temp_a0 + node->unk48 * 16, 1, &D_807F78C0, v0, ((EffectBufferEntryView *)gMapChunks)[s1].unk3 == 1);
                     }
                     node->unk4C |= 2;
                 }
@@ -529,7 +529,7 @@ void func_8065FB64(f32 arg0, f32 arg1, f32 arg2) {
 Gfx *effectWaterRenderSurfaces(Gfx *gdl, u8 arg1, u8 arg2) {
     EffectNode *water;
 
-    water = D_807F93C0;
+    water = gEffectNodeList;
     while (water != NULL) {
         if ((water->unk4C & 1) && (arg2 == D_80748A90[water->unk0->unk66].unk16)) {
             gdl = effectWaterSetScissor(gdl, water);
@@ -552,7 +552,7 @@ typedef struct EffectBufferEntryRect {
     s32 unk74;
 } EffectBufferEntryRect;
 
-#define EFFECT_BUFFER_RECT(off) ((EffectBufferEntryRect *)((u32)D_807F6C18 + (off)))
+#define EFFECT_BUFFER_RECT(off) ((EffectBufferEntryRect *)((u32)gMapChunks + (off)))
 
 Gfx *effectWaterSetScissor(Gfx *gdl, EffectNode *water) {
     s32 index;
@@ -575,12 +575,12 @@ Gfx *effectWaterSetScissor(Gfx *gdl, EffectNode *water) {
 }
 #undef EFFECT_BUFFER_RECT
 
-typedef struct Eff63MeshBuilder {
+typedef struct EffectMeshBuilderEntry {
     Gfx *(*fn)(void *, EffectNode *, u8);
     u8 pad4[0x14];
-} Eff63MeshBuilder;
+} EffectMeshBuilderEntry;
 
-typedef struct Eff63MeshSub {
+typedef struct EffectMeshTarget {
     u8 pad0[0x46];
     s16 unk46;
     s16 unk48;
@@ -588,9 +588,9 @@ typedef struct Eff63MeshSub {
     s16 unk4C;
     u8 pad4E[0x66 - 0x4E];
     u8 unk66;
-} Eff63MeshSub;
+} EffectMeshTarget;
 
-extern Eff63MeshBuilder D_80748A94[];
+extern EffectMeshBuilderEntry D_80748A94[];
 extern s32 D_807F93EC;
 
 void effectWaterBuildMeshGdl(void *arg0, void *arg1, EffectNode *water) {
@@ -607,9 +607,9 @@ void effectWaterBuildMeshGdl(void *arg0, void *arg1, EffectNode *water) {
     s32 total;
 
     D_807F93EC = 0;
-    gdl = D_80748A94[((Eff63MeshSub *)water->unk0)->unk66].fn(arg0, water, ((Eff63MeshSub *)water->unk0)->unk66);
-    countX = ((((Eff63MeshSub *)water->unk0)->unk4A - ((Eff63MeshSub *)water->unk0)->unk46) / water->unk2C) + 1;
-    countZ = ((((Eff63MeshSub *)water->unk0)->unk4C - ((Eff63MeshSub *)water->unk0)->unk48) / water->unk2C) + 1;
+    gdl = D_80748A94[((EffectMeshTarget *)water->unk0)->unk66].fn(arg0, water, ((EffectMeshTarget *)water->unk0)->unk66);
+    countX = ((((EffectMeshTarget *)water->unk0)->unk4A - ((EffectMeshTarget *)water->unk0)->unk46) / water->unk2C) + 1;
+    countZ = ((((EffectMeshTarget *)water->unk0)->unk4C - ((EffectMeshTarget *)water->unk0)->unk48) / water->unk2C) + 1;
     total = (countX + 1) * (countZ + 1);
     vtxNext = countX + 1;
     vtxStart = 0;
@@ -657,7 +657,7 @@ typedef struct WaterHeightView {
     u8 unk66;
 } WaterHeightView;
 
-f32 func_806608FC(EffectNode *, s32, s32, u8);
+f32 effectWaterGetHeightAt(EffectNode *, s32, s32, u8);
 
 #define WATER_HEIGHT ((WaterHeightView *)water->unk0)
 void effectWaterSetMeshHeightsAlpha(Vtx *vtx, EffectNode *water) {
@@ -701,7 +701,7 @@ void effectWaterSetMeshHeightsAlpha(Vtx *vtx, EffectNode *water) {
             if (maxZ < z) {
                 z = maxZ;
             }
-            h = func_806608FC(water, x, z, flag);
+            h = effectWaterGetHeightAt(water, x, z, flag);
             vtx->v.ob[1] = h * 3.0f;
             vtx->v.cn[3] = (u32)(((h - baseHeight) / heightScale) * (f32)alphaMax + (f32)alphaBase);
             vtx++;
@@ -779,7 +779,7 @@ typedef struct WaterHeightView2 {
 
 f32 sqrtf(f32);
 
-f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
+f32 effectWaterGetHeightAt(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
     s32 temp1;
     s32 temp;
     f32 dx;
@@ -799,21 +799,21 @@ f32 func_806608FC(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
 
     case 1:
     case 2:
-        if (D_807F93C4 != 0) {
-            dz = (f32)arg2 - D_807F93C8[1];
-            dx = (f32)arg1 - D_807F93C8[0];
+        if (gWaterRippleActive != 0) {
+            dz = (f32)arg2 - gWaterRippleCenter[1];
+            dx = (f32)arg1 - gWaterRippleCenter[0];
             dist = sqrtf((dz * dz) + (dx * dx));
-            if (dist < D_807F93DC) {
-                diff = D_807F93DC - dist;
+            if (dist < gWaterRippleRadius) {
+                diff = gWaterRippleRadius - dist;
             } else {
-                diff = -(D_807F93DC - dist);
+                diff = -(gWaterRippleRadius - dist);
             }
-            if (D_807F93DC < D_807F93E8) {
-                h = D_807F93D4;
-            } else if (D_807F93E4 < D_807F93DC) {
+            if (gWaterRippleRadius < gWaterRippleFalloffStart) {
+                h = gWaterRippleAmplitude;
+            } else if (gWaterRippleMaxRadius < gWaterRippleRadius) {
                 h = 0.0f;
             } else {
-                h = (f32)((f64)D_807F93D4 + ((0.0 - (f64)D_807F93D4) * (f64)((D_807F93DC - D_807F93E8) / (D_807F93E4 - D_807F93E8))));
+                h = (f32)((f64)gWaterRippleAmplitude + ((0.0 - (f64)gWaterRippleAmplitude) * (f64)((gWaterRippleRadius - gWaterRippleFalloffStart) / (gWaterRippleMaxRadius - gWaterRippleFalloffStart))));
             }
             if ((f64)diff < 50.0) {
                 baseH = (f32)WATER_SUB->unk4E + water->unk4;
@@ -941,7 +941,7 @@ void effectUpdateAndDispatch(void) {
     u32 s2;
 
     s1 = sp60;
-    s0 = D_807F93C0;
+    s0 = gEffectNodeList;
     if ((u32)s1 & 7) {
         s1++;
     }
@@ -982,7 +982,7 @@ void effectUpdateAndDispatch(void) {
 }
 
 void effectNodeSetSubVal(s32 arg0, u8 arg1) {
-    EffectNode *node = D_807F93C0;
+    EffectNode *node = gEffectNodeList;
     while (node != NULL && arg0 != 0) {
         node = node->next;
         arg0--;
@@ -993,7 +993,7 @@ void effectNodeSetSubVal(s32 arg0, u8 arg1) {
 }
 
 void effectNodeSetUnk4A(s32 arg0, u8 arg1) {
-    EffectNode *node = D_807F93C0;
+    EffectNode *node = gEffectNodeList;
     while (node != NULL && arg0 != 0) {
         node = node->next;
         arg0--;
@@ -1004,7 +1004,7 @@ void effectNodeSetUnk4A(s32 arg0, u8 arg1) {
 }
 
 u8 effectNodeGetUnk4B(s32 arg0) {
-    EffectNode *node = D_807F93C0;
+    EffectNode *node = gEffectNodeList;
     while (node != NULL && arg0 != 0) {
         node = node->next;
         arg0--;
@@ -1016,7 +1016,7 @@ u8 effectNodeGetUnk4B(s32 arg0) {
 }
 
 void effectNodeSetUnk4B(s32 arg0, u8 arg1) {
-    EffectNode *node = D_807F93C0;
+    EffectNode *node = gEffectNodeList;
     while (node != NULL && arg0 != 0) {
         node = node->next;
         arg0--;
@@ -1027,7 +1027,7 @@ void effectNodeSetUnk4B(s32 arg0, u8 arg1) {
 }
 
 void effectNodeSetTargetAndStep(s32 arg0, f32 arg1, f32 arg2) {
-    EffectNode *node = D_807F93C0;
+    EffectNode *node = gEffectNodeList;
     while (node != NULL && arg0 != 0) {
         node = node->next;
         arg0--;
@@ -1039,7 +1039,7 @@ void effectNodeSetTargetAndStep(s32 arg0, f32 arg1, f32 arg2) {
 }
 
 void effectNodeAddTargetAndStep(s32 arg0, f32 arg1, f32 arg2) {
-    EffectNode *node = D_807F93C0;
+    EffectNode *node = gEffectNodeList;
     while (node != NULL && arg0 != 0) {
         node = node->next;
         arg0--;
@@ -1051,7 +1051,7 @@ void effectNodeAddTargetAndStep(s32 arg0, f32 arg1, f32 arg2) {
 }
 
 void effectNodeCopyValues(f32 *arg0) {
-    EffectNode *node = D_807F93C0;
+    EffectNode *node = gEffectNodeList;
     s32 i;
     for (i = 0; node != NULL && i < 32; i++) {
         arg0[i] = node->unk8;
@@ -1060,7 +1060,7 @@ void effectNodeCopyValues(f32 *arg0) {
 }
 
 void effectNodeSetValues(f32 *arg0) {
-    EffectNode *node = D_807F93C0;
+    EffectNode *node = gEffectNodeList;
     s32 i;
     for (i = 0; node != NULL && i < 32; i++) {
         node->unk8 = arg0[i];
@@ -1070,7 +1070,7 @@ void effectNodeSetValues(f32 *arg0) {
 }
 
 f32 effectNodeGetValue(s32 arg0) {
-    EffectNode *node = D_807F93C0;
+    EffectNode *node = gEffectNodeList;
     while (node != NULL && arg0 != 0) {
         node = node->next;
         arg0--;
@@ -1081,36 +1081,36 @@ f32 effectNodeGetValue(s32 arg0) {
     return 0.0f;
 }
 
-void screenShakeStart(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
-    if (D_807F93C4 == 0) {
-        D_807F93C8[0] = arg0;
-        D_807F93C8[1] = arg1;
-        D_807F93D4 = 0.0f;
-        D_807F93D0 = arg2;
-        D_807F93D8 = arg3;
-        D_807F93DC = 0.0f;
-        D_807F93E0 = arg4;
-        D_807F93E4 = arg5;
-        D_807F93E8 = (arg5 * 2) / 3.0f;
-        D_807F93C4 = 1;
+void waterRippleStart(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
+    if (gWaterRippleActive == 0) {
+        gWaterRippleCenter[0] = arg0;
+        gWaterRippleCenter[1] = arg1;
+        gWaterRippleAmplitude = 0.0f;
+        gWaterRippleMaxAmplitude = arg2;
+        gWaterRippleAmplitudeRate = arg3;
+        gWaterRippleRadius = 0.0f;
+        gWaterRippleRadiusRate = arg4;
+        gWaterRippleMaxRadius = arg5;
+        gWaterRippleFalloffStart = (arg5 * 2) / 3.0f;
+        gWaterRippleActive = 1;
     }
 }
 
-void screenShakeStep(void) {
-    if (D_807F93C4 != 0) {
-        D_807F93D4 += D_807F93D8;
-        if (D_807F93D0 < D_807F93D4) {
-            D_807F93D4 = D_807F93D0;
+void waterRippleStep(void) {
+    if (gWaterRippleActive != 0) {
+        gWaterRippleAmplitude += gWaterRippleAmplitudeRate;
+        if (gWaterRippleMaxAmplitude < gWaterRippleAmplitude) {
+            gWaterRippleAmplitude = gWaterRippleMaxAmplitude;
         }
-        D_807F93DC += D_807F93E0;
-        if (D_807F93E4 < D_807F93DC) {
-            D_807F93C4 = 0;
+        gWaterRippleRadius += gWaterRippleRadiusRate;
+        if (gWaterRippleMaxRadius < gWaterRippleRadius) {
+            gWaterRippleActive = 0;
         }
     }
 }
 
-void screenShakeStop(void) {
-    D_807F93C4 = 0;
+void waterRippleStop(void) {
+    gWaterRippleActive = 0;
 }
 
 void effectInitTextureTableRGBA32(u8 arg0) {

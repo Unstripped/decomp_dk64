@@ -38,7 +38,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
                     D_807FBB40->unk80 = (f32) ((f64) D_807FBB40->unk80 + ((f64) (f32) (u32) D_807FDC9C->unkB * 0.015625));
                 }
             }
-            B7490A->unkE8 = func_806CC190(B7490A->unkE8, 0, 5.0f);
+            B7490A->unkE8 = mathAngleEaseToward(B7490A->unkE8, 0, 5.0f);
             break;
         case 0x26:
             switch (D_807FBB40->unk155[0]) {

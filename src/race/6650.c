@@ -38,7 +38,7 @@ typedef struct {
     Struct_sp5C *unk174;
 } Struct_arg0;
 
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 extern Struct_sp54 *D_807FBB44;
 typedef struct {
     char pad[0x34];
@@ -164,7 +164,7 @@ extern Struct_FDCA0 *D_807FDCA0;
 s32 raceGetRoute(u8);
 f32 func_8002F784(s32, Struct_sp58 *, void *);
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
-s16 func_806CC10C(s16, s16);
+s16 mathAngleSignedDistance(s16, s16);
 f32 raceGetProgressPercent(s32, Struct_sp58 *, Struct_sp5C *);
 f32 func_8002E1C8(void *, f32, void *, void *);
 extern s32 D_807FBB64;
@@ -172,7 +172,7 @@ f32 func_80612794(s16);
 f32 func_80612790(s16);
 f32 func_80611BB4(f32, f32);
 s16 mathAngleFromVector2D(f32, f32);
-s16 func_806CC190(s16, s16, f32, s16);
+s16 mathAngleEaseToward(s16, s16, f32, s16);
 void actorStepPhysics(Actor_BB40 *, s16, s16);
 void actorApplyVelocity(Actor_BB40 *);
 void actorUpdateFloorContactAndTilt(Actor_BB40 *, f32);
@@ -193,7 +193,7 @@ typedef struct {
     char pad8[0x2F0 - 0x8];
 } Struct_Player;
 
-extern Struct_Player *D_807FC924;
+extern Struct_Player *gPlayerSlots;
 
 typedef struct {
     char pad[0x28];
@@ -229,14 +229,14 @@ void raceInitParticipants(Struct_arg0 *arg0) {
     s32 var_s0;
     s32 var_s5;
 
-    var_s5 = D_807FC928;
+    var_s5 = gPlayerCount;
     var_s1 = 0;
     sp5C = arg0->unk174;
     if (var_s5 == 1) {
         var_s5++;
     }
     func_8002BBD0(arg0, var_s5);
-    for (var_s0 = 0; var_s0 < D_807FC928; var_s0++) {
+    for (var_s0 = 0; var_s0 < gPlayerCount; var_s0++) {
         actorSpawn(0x142, 0x95);
         sp54 = D_807FBB44;
         sp58 = sp54->unk174;
@@ -246,7 +246,7 @@ void raceInitParticipants(Struct_arg0 *arg0) {
         sp58->unk28 = var_s0;
     }
     var_s0 = 0;
-    if (D_807FC928 == 1) {
+    if (gPlayerCount == 1) {
         sp54 = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         sp58 = sp54->unk178;
         sp58->unk27 = 1;
@@ -324,7 +324,7 @@ void raceUpdateRacerMotion(Struct_sp58 *arg0) {
     D_807FBB40->unkEE = (s16)(s32)(func_80611BB4(sp5C, sp58) * 651.8986f);
     if (sp53 != 0) {
         sp34 = 0x400 - D_807FBB40->unkDE;
-        sp36 = func_806CC10C(D_807FBB40->unkDC, D_807FBB40->unkE6);
+        sp36 = mathAngleSignedDistance(D_807FBB40->unkDC, D_807FBB40->unkE6);
         sp20 = (f32)sp34;
         sp4E = (s16)(s32)(func_80612790(sp36) * sp20);
         fv0 = func_80612794(sp36) * sp20;
@@ -339,7 +339,7 @@ void raceUpdateRacerMotion(Struct_sp58 *arg0) {
             a0 = a0 + 0x800;
             a0 = a0 & 0xFFF;
         }
-        sp32 = func_806CC10C(a0, D_807FBB40->unkE6);
+        sp32 = mathAngleSignedDistance(a0, D_807FBB40->unkE6);
         sp20 = (f32)v1;
         sp4E = (s16)(s32)(func_80612790(sp32) * sp20);
         a3 = (s32)(func_80612794(sp32) * sp20);
@@ -363,8 +363,8 @@ void raceUpdateRacerMotion(Struct_sp58 *arg0) {
             sp40 += 2.0f * (f32)v0 * fv1;
         }
     }
-    D_807FBB40->unkE8 = func_806CC190(D_807FBB40->unkE8, sp4E, 4.0f, a3);
-    D_807FBB40->unkE4 = func_806CC190(D_807FBB40->unkE4, (s32)a3, 4.0f, a3);
+    D_807FBB40->unkE8 = mathAngleEaseToward(D_807FBB40->unkE8, sp4E, 4.0f, a3);
+    D_807FBB40->unkE4 = mathAngleEaseToward(D_807FBB40->unkE4, (s32)a3, 4.0f, a3);
     D_807FBB40->unkB8 = D_807FBB40->unkB8 - sp44;
     fv1 = D_807FBB40->unkB8;
     if (fv1 < 0.0f) {
@@ -513,7 +513,7 @@ void func_8002B180(Struct_sp58 *arg0, Struct_8002B180_Arg1 *arg1) {
     }
     var_v1 = &D_807FDCA0->unk14[idx];
     sp_angle = mathAngleDiscrete((f32)var_v1->unk0, (f32)var_v1->unk4, D_807FBB40->unk7C, D_807FBB40->unk84, sp58);
-    temp_ft4 = func_806CC10C((s16)sp_angle, D_807FBB40->unkE6);
+    temp_ft4 = mathAngleSignedDistance((s16)sp_angle, D_807FBB40->unkE6);
 
     sp_angle = sp58;
     var_ft5 = temp_ft4;
@@ -568,7 +568,7 @@ void func_8002B518(Struct_sp58 *arg0) {
 void func_8002B610(Struct_sp58 *arg0, Struct_8002B610_Arg1 *arg1) {
     if (arg0->unk35 == 0) {
         Struct_8002B610_Sub *sub = arg1->unk4;
-        Struct_PlayerActor *actor = D_807FC924[sub->unk28].unk4;
+        Struct_PlayerActor *actor = gPlayerSlots[sub->unk28].unk4;
         Struct_174 *unk174 = actor->unk174;
         camSetTargetScaled(unk174->unk104, arg1->unk0, 4, 0x800, 0xBE, 0, 0x4A, 0xAE, 0x2D, 0, 0.2f);
         arg0->unk35++;

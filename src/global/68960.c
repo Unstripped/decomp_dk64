@@ -10,7 +10,7 @@ typedef struct MapFogEntry {
 } MapFogEntry;
 
 extern MapFogEntry D_80748B70[];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 s32 func_8061CC00(void);
 
 void mapUpdateFogDistance(f32 *arg0, s16 arg1) {
@@ -19,7 +19,7 @@ void mapUpdateFogDistance(f32 *arg0, s16 arg1) {
     f32 val;
     s16 i;
 
-    if (D_8076A0A8 == 0x57) {
+    if (gCurrentMap == 0x57) {
         if (func_8061CC00()) {
             target = 2200.0f;
         } else {
@@ -30,7 +30,7 @@ void mapUpdateFogDistance(f32 *arg0, s16 arg1) {
     }
 
     for (i = 0; i < limit; i++) {
-        if (D_8076A0A8 == D_80748B70[i].unk0 && (arg1 == D_80748B70[i].unk2 || D_80748B70[i].unk2 == -1)) {
+        if (gCurrentMap == D_80748B70[i].unk0 && (arg1 == D_80748B70[i].unk2 || D_80748B70[i].unk2 == -1)) {
             val = *arg0;
             *arg0 = (D_80748B70[i].unk4 - val) * 0.03 + val;
             return;

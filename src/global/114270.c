@@ -2,8 +2,8 @@
 #include "actor.h"
 
 extern Actor *D_807FBB40;
-extern void *D_807FC924;
-extern s32 D_8076A0A8;
+extern void *gPlayerSlots;
+extern s32 gCurrentMap;
 extern u8 D_80755314;
 extern u8 D_80755318;
 
@@ -13,7 +13,7 @@ extern u8 D_807FDA1C;
 extern u8 D_807FDA28;
 extern u8 D_807FDA30;
 
-void func_8070F570(void) {
+void effectSpritePoolReset(void) {
     s16 i;
 
     *D_807550E0 = 0;
@@ -38,11 +38,11 @@ typedef struct AngAPlayer {
     s16 unk2C8;
 } AngAPlayer;
 
-#define ANGA_PLAYER ((AngAPlayer *)D_807FC924)
+#define ANGA_PLAYER ((AngAPlayer *)gPlayerSlots)
 
 s32 randomNonNegative(void);
 
-typedef struct AngASpawnView {
+typedef struct EffectSpriteParticle {
     s16 unk0;
     u8 pad2[2];
     f32 unk4;
@@ -62,15 +62,15 @@ typedef struct AngASpawnView {
     u8 unkB2;
     u8 unkB3;
     u8 padB4[4];
-} AngASpawnView;
+} EffectSpriteParticle;
 
-typedef struct AngASpawnPool {
+typedef struct EffectSpritePoolHeader {
     u16 count;
     u8 pad2[2];
-    AngASpawnView *entries;
-} AngASpawnPool;
+    EffectSpriteParticle *entries;
+} EffectSpritePoolHeader;
 
-typedef struct AngATextureSetup {
+typedef struct EffectSpriteTextureSetup {
     u8 count;
     u8 type;
     u8 pad2[2];
@@ -80,7 +80,7 @@ typedef struct AngATextureSetup {
     u8 height;
     s32 unkC;
     s32 unk10;
-} AngATextureSetup;
+} EffectSpriteTextureSetup;
 
 extern u8 D_80755264;
 extern u32 D_807FD9F0[];
@@ -92,13 +92,13 @@ void *heapAlloc(s32);
 void heapClearBlock(void *);
 void *assetLoad(s32, s32, s32, s32);
 
-#define ANGA_SETUP ((AngATextureSetup *)(&D_80755264 + arg0 * 0x14))
+#define ANGA_SETUP ((EffectSpriteTextureSetup *)(&D_80755264 + arg0 * 0x14))
 #define ANGA_POP_SLOT(out) \
     out = (&D_807FDA30)[D_807FDA1A]; (&D_807FDA30)[D_807FDA1A] = 0xFF; D_807FDA1A--
-#define ANGA_POOL ((AngASpawnPool *)D_807550E0)
+#define ANGA_POOL ((EffectSpritePoolHeader *)D_807550E0)
 
-void func_8070F5CC(u8 arg0, s16 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5) {
-    AngASpawnView *entry;
+void effectSpritePoolSpawn(u8 arg0, s16 arg1, f32 arg2, s16 arg3, s32 arg4, s32 arg5) {
+    EffectSpriteParticle *entry;
     s16 i;
     s32 idx;
 
@@ -174,9 +174,9 @@ extern s16 D_807FDA1E;
 f32 sinApprox(f32);
 f32 func_80612794(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s16 func_806CC10C(s16, s16);
+s16 mathAngleSignedDistance(s16, s16);
 
-void func_8070FA58(struct M114aAngle *arg0_in) {
+void effectSpriteParticleTrackCamera(struct M114aAngle *arg0_in) {
 #define arg0 ((AngAAngle *)arg0_in)
     f32 diff;
     f32 dist1;
@@ -203,7 +203,7 @@ void func_8070FA58(struct M114aAngle *arg0_in) {
     dz = ANGA_PLAYER->unk218 - ANGA_PLAYER->unk224;
     dx = ANGA_PLAYER->unk210 - ANGA_PLAYER->unk21C;
     dist2 = sqrtf(dz * dz + dx * dx);
-    arg0->unk4 -= 2.0 * dist2 * func_80612794(func_806CC10C(ANGA_PLAYER->unk2C8, ang));
+    arg0->unk4 -= 2.0 * dist2 * func_80612794(mathAngleSignedDistance(ANGA_PLAYER->unk2C8, ang));
     arg0->unk14 = ANGA_PLAYER->unk2C4;
 }
 #undef arg0
@@ -225,7 +225,7 @@ typedef struct M114aAngle {
     u8 unkB1;
 } M114aAngle;
 
-void func_8070FC40(M114aAngle *arg0) {
+void effectSpriteParticleWrapX(M114aAngle *arg0) {
     if (315.0f < arg0->unk4) {
         arg0->unk4 = arg0->unk4 - 315.0f + 2.0f;
     }
@@ -284,8 +284,8 @@ s32 func_8070FCCC(AngAFcccView *arg0) {
     } else {
         bound = ANGA_DIST(ANGA_A8) < ANGA_DIST(D_807FBB4C->unkAC) ? ANGA_A8 : D_807FBB4C->unkAC;
     }
-    func_8070FA58((M114aAngle *)arg0);
-    func_8070FC40((M114aAngle *)arg0);
+    effectSpriteParticleTrackCamera((M114aAngle *)arg0);
+    effectSpriteParticleWrapX((M114aAngle *)arg0);
     var_v1 = arg0->unkB0 < 0x10;
     arg0->unkB0++;
     arg0->unk8 = arg0->unk4;
@@ -321,7 +321,7 @@ s32 func_8070FCCC(AngAFcccView *arg0) {
 #undef ANGA_A8
 #undef ANGA_DIST
 
-void func_8070FA58(M114aAngle *);
+void effectSpriteParticleTrackCamera(M114aAngle *);
 
 
 s32 func_8071006C(M114aAngle *arg0) {
@@ -330,8 +330,8 @@ s32 func_8071006C(M114aAngle *arg0) {
     s32 temp_v0;
     u8 temp_v0_2;
 
-    func_8070FA58(arg0);
-    func_8070FC40(arg0);
+    effectSpriteParticleTrackCamera(arg0);
+    effectSpriteParticleWrapX(arg0);
     temp_v0 = arg0->unkB0;
     var_v1 = (s32)temp_v0 < 0xF;
     arg0->unkB0 = (u8)(temp_v0 + 1);
@@ -362,10 +362,10 @@ s32 func_80710174(M114aAngle *arg0) {
     s32 temp_v0;
     u8 temp_v0_2;
 
-    func_8070FA58(arg0);
+    effectSpriteParticleTrackCamera(arg0);
     new_var2 = func_80612794(arg0->unk20);
     arg0->unk4 = (f32)(arg0->unk4 + (new_var2 * arg0->unk28));
-    func_8070FC40(arg0);
+    effectSpriteParticleWrapX(arg0);
     arg0->unk8 = (f32)arg0->unk4;
     new_var = (f32)((1.0 / ((f64)arg0->unk10 * 4.0)) * 8.0);
     temp_v0 = arg0->unkB0;
@@ -398,10 +398,10 @@ s32 func_807102AC(M114aAngle *arg0) {
     s32 temp_v0;
     u8 temp_v0_2;
 
-    func_8070FA58(arg0);
+    effectSpriteParticleTrackCamera(arg0);
     new_var2 = func_80612794(arg0->unk20);
     arg0->unk4 = (f32)(arg0->unk4 + (new_var2 * arg0->unk28));
-    func_8070FC40(arg0);
+    effectSpriteParticleWrapX(arg0);
     arg0->unk8 = (f32)arg0->unk4;
     new_var = (f32)((1.0 / ((f64)arg0->unk10 * 3.0)) * 8.0);
     temp_v0 = arg0->unkB0;
@@ -451,9 +451,9 @@ s32 func_807103E0(AngAView *arg0) {
     f32 var_fa0;
     s32 var_v1;
 
-    func_8070FA58((M114aAngle *)arg0);
+    effectSpriteParticleTrackCamera((M114aAngle *)arg0);
     arg0->unk4 += func_80612794((s16)(s32)(arg0->unk22 * 0.5)) * (f32)(arg0->unk28 * 0.05);
-    func_8070FC40((M114aAngle *)arg0);
+    effectSpriteParticleWrapX((M114aAngle *)arg0);
     arg0->unk8 = arg0->unk4;
     arg0->unkC += (1.0 + (f64)func_80612794(arg0->unk22)) * (f64)(f32)(1.0 + arg0->unk20 * 0.08);
     arg0->unk22 += 0x64;
@@ -489,7 +489,7 @@ typedef struct L105D4TextureDescriptor {
 
 #define L105D4_TEXTURE ((L105D4TextureDescriptor *)((u8 *)&D_80755264 + (D_807FDA1C * 0x14)))
 
-Gfx *func_807105D4(Gfx *arg0, u8 arg1) {
+Gfx *effectSpritePoolLoadTexture(Gfx *arg0, u8 arg1) {
     switch (L105D4_TEXTURE->type) {
     case 1:
         gDPLoadTextureBlock(arg0++, D_807FD9F0[arg1], L105D4_TEXTURE->format, G_IM_SIZ_8b, D_807FDA18, D_807FDA19, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
@@ -516,7 +516,7 @@ typedef struct L10CA0CamView { u8 pad0[0xB4]; f32 unkB4; } L10CA0CamView;
 typedef struct L10CA0PlayerView { u8 pad0[0x90]; f32 unk90; u8 pad94[0x66]; u8 unkFA; u8 padFB[0x119]; f32 unk214; } L10CA0PlayerView;
 typedef struct L10CA0TimerView { u8 pad0[0xBC]; s16 unkBC; } L10CA0TimerView;
 
-extern void *D_807FD580;
+extern void *gActivePlayerState;
 extern void *D_807FDAB0;
 extern s16 D_807FDAB4;
 extern u8 D_807444FC;
@@ -551,10 +551,10 @@ Gfx *effectSpriteRenderPool(Gfx *arg0, Actor *arg1) {
     } else {
         D_807FD9EC = 240.0f;
     }
-    if ((D_807FBB4C->unk154 == 0x42) && ((((L10CA0TimerView *)D_807FD580)->unkBC == 0x62) || (((L10CA0TimerView *)D_807FD580)->unkBC == 0x88))) {
+    if ((D_807FBB4C->unk154 == 0x42) && ((((L10CA0TimerView *)gActivePlayerState)->unkBC == 0x62) || (((L10CA0TimerView *)gActivePlayerState)->unkBC == 0x88))) {
         skipTimer = 1;
     }
-    if ((player->unkFA != 0) && (((L10CA0PlayerView *)D_807FC924)->unk214 < player->unk90 + 3.0f)) {
+    if ((player->unkFA != 0) && (((L10CA0PlayerView *)gPlayerSlots)->unk214 < player->unk90 + 3.0f)) {
         skipNearPlayer = 1;
     }
     gDPPipeSync(arg0++);
@@ -567,7 +567,7 @@ Gfx *effectSpriteRenderPool(Gfx *arg0, Actor *arg1) {
     gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     i = 0x80;
     if (L10CA0_TEX == 1) {
-        arg0 = func_807105D4(arg0, 0);
+        arg0 = effectSpritePoolLoadTexture(arg0, 0);
     }
     while (--i >= 0 && processed != count) {  // i = 0x80 above: pre-decrement while with i set before an unrelated if keeps the entry guard
         entry = &L10CA0_POOL->entries[i];
@@ -577,12 +577,12 @@ Gfx *effectSpriteRenderPool(Gfx *arg0, Actor *arg1) {
             gDPSetPrimColor(arg0++, 0, 0, D_807FDA1B, D_807FDA1B, D_807FDA1B, entry->unkB1);
             if (D_807FDA1C == 4) {
                 switch (entry->unk20) {
-                case 8: case 10: case 12: arg0 = func_807105D4(arg0, ((entry->unkB2++ >> 2) % 8) + 2); break;
-                case 15: case 18: case 22: arg0 = func_807105D4(arg0, 0); break;
-                default: arg0 = func_807105D4(arg0, 1); break;
+                case 8: case 10: case 12: arg0 = effectSpritePoolLoadTexture(arg0, ((entry->unkB2++ >> 2) % 8) + 2); break;
+                case 15: case 18: case 22: arg0 = effectSpritePoolLoadTexture(arg0, 0); break;
+                default: arg0 = effectSpritePoolLoadTexture(arg0, 1); break;
                 }
             } else if (L10CA0_TEX >= 2) {
-                arg0 = func_807105D4(arg0, entry->unkB2++ % L10CA0_TEX);
+                arg0 = effectSpritePoolLoadTexture(arg0, entry->unkB2++ % L10CA0_TEX);
             }
             scaleSize = (f64)entry->unk10 * 4.0;
             guScaleF(mtxScale, (f32)scaleSize, (f32)(scaleSize > 0.0 ? scaleSize : -scaleSize), 1.0f);
@@ -631,7 +631,7 @@ extern s32 D_807FBB60;
 extern u8 D_807FDA1B;
 extern f32 *D_8076A0B4;
 extern u8 D_8077058C[];
-void func_8070F5CC(u8, s16, f32, s16, s32, s32);
+void effectSpritePoolSpawn(u8, s16, f32, s16, s32, s32);
 Gfx *effectSpriteRenderPool(Gfx *, Actor *);
 void renderCallbacksRegister(void *, void *, s32);
 
@@ -647,7 +647,7 @@ void func_80711410(f32 arg0, s16 arg1, f32 arg2, s16 arg3, f32 arg4) {
     if (D_807FBB60 & 0x10) {
         temp_fv1 = (f64)arg0;
         temp_fv2 = (f64)arg2;
-        D_807FDA1E = (s16)(s32)(cosApprox(((AngBPlayerView *)D_807FC924)->unk2C4) * (f32)arg1);
+        D_807FDA1E = (s16)(s32)(cosApprox(((AngBPlayerView *)gPlayerSlots)->unk2C4) * (f32)arg1);
         temp_fa0 = (temp_fv1 * 255) / 3.9;
         if (temp_fa0 > 255.0) {
             var_fv0 = 255.0;
@@ -669,7 +669,7 @@ void func_80711410(f32 arg0, s16 arg1, f32 arg2, s16 arg3, f32 arg4) {
         var_s0 = 0;
         if (var_s5 > 0) do { // FAKE: if/do on one line steers as1 preheader scheduling
             temp_fs1 = (f32)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 320);
-            func_8070F5CC(0, arg3, (f32)(((f64)(f32)((f64)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 125) / 800.0) + 0.1) * 2.5 * (f64)arg4), (s16)(s32)temp_fs1, -10, (u32)(90.0f * arg4) & 0xFF);
+            effectSpritePoolSpawn(0, arg3, (f32)(((f64)(f32)((f64)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 125) / 800.0) + 0.1) * 2.5 * (f64)arg4), (s16)(s32)temp_fs1, -10, (u32)(90.0f * arg4) & 0xFF);
             var_s0 += 1;
         } while (var_s0 != var_s5);
         if (*D_807550E0 != 0) {
@@ -692,7 +692,7 @@ void func_80711950(f32 arg0, s16 arg1, s16 arg2) {
     f32 value;
 
     if (D_807FBB60 & 0x10) {
-        D_807FDA1E = (s16)(cosApprox(((R114cPlayerView *)D_807FC924)->unk2C4) * arg1);
+        D_807FDA1E = (s16)(cosApprox(((R114cPlayerView *)gPlayerSlots)->unk2C4) * arg1);
         if (arg0 < 1.0) {
             arg0 *= 100.0f;
             random = randomLcgNext() / 10000;
@@ -709,7 +709,7 @@ void func_80711950(f32 arg0, s16 arg1, s16 arg2) {
             random = randomLcgNext() / 10000;
             value = (f32)((f64)((u32)random % 125U) / 1000.0);
             random = randomLcgNext() / 10000;
-            func_8070F5CC(1, arg2, (f32)((f64)value + 0.075), (s16)(s32)((u32)random % 320U), -10, 200);
+            effectSpritePoolSpawn(1, arg2, (f32)((f64)value + 0.075), (s16)(s32)((u32)random % 320U), -10, 200);
         }
         if (*D_807550E0 != 0) {
             renderCallbacksRegister(&effectSpriteRenderPool, 0, 1);
@@ -741,7 +741,7 @@ void func_80711BD0(f32 arg0, s16 arg1, s16 arg2, u8 arg3) {
             temp_s0 = randomNonNegative();
             func_80714CC0((s32)&D_807212E0, (f32)(((f64)((s32)(temp_s0 >> 0xF) % 100) * 0.01) + 0.4), (f32)((s32)(randomNonNegative() >> 0xF) % 320), 0.0f, -5.0f);
         }
-        D_807FDA1E = (s16)(s32)(cosApprox(((R114cPlayerView *)D_807FC924)->unk2C4) * (f32)arg1);
+        D_807FDA1E = (s16)(s32)(cosApprox(((R114cPlayerView *)gPlayerSlots)->unk2C4) * (f32)arg1);
         if ((f64)arg0 < 1.0) {
             arg0 *= 100.0f;
             if ((f32)(s32)((u32)(randomLcgNext() / 10000U) % 100U) < arg0) {
@@ -766,7 +766,7 @@ void func_80711BD0(f32 arg0, s16 arg1, s16 arg2, u8 arg3) {
                 if ((D_807FDA1C == 4) && (((s32)(randomNonNegative() >> 0xF) % 100) >= 0x33)) {
                     var_fs0 *= -1.0f;
                 }
-                func_8070F5CC(arg3, arg2, var_fs0, (s16)(s32)((u32)(randomLcgNext() / 10000U) % 320U), -10, 0xC8);
+                effectSpritePoolSpawn(arg3, arg2, var_fs0, (s16)(s32)((u32)(randomLcgNext() / 10000U) % 320U), -10, 0xC8);
                 var_s0 += 1;
             } while (var_s0 != var_s1);
         }
@@ -782,7 +782,7 @@ void func_80711F90(f32 arg0, s16 arg1, s32 arg2, s16 arg3, f32 arg4) {
     s32 var_s0;
     s32 var_s4;
 
-    D_807FDA1E = (s16)(s32)(cosApprox(((R114cPlayerView *)D_807FC924)->unk2C4) * (f32)arg1);
+    D_807FDA1E = (s16)(s32)(cosApprox(((R114cPlayerView *)gPlayerSlots)->unk2C4) * (f32)arg1);
     if ((f64)arg0 < 1.0) {
         arg0 *= 100.0f;
         if ((f32)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 100) < arg0) {
@@ -798,7 +798,7 @@ void func_80711F90(f32 arg0, s16 arg1, s32 arg2, s16 arg3, f32 arg4) {
     if (var_s4 > 0) {
         do {
             temp_fs1 = (f32)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 320);
-            func_8070F5CC(2, arg3, (f32)(((f64)(f32)((f64)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 125) / 800.0) + 0.1) * 2.5 * (f64)arg4), (s16)(s32)temp_fs1, -10, 0xFF);
+            effectSpritePoolSpawn(2, arg3, (f32)(((f64)(f32)((f64)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 125) / 800.0) + 0.1) * 2.5 * (f64)arg4), (s16)(s32)temp_fs1, -10, 0xFF);
             var_s0 += 1;
         } while (var_s0 != var_s4);
     }
@@ -810,7 +810,7 @@ void func_80711F90(f32 arg0, s16 arg1, s32 arg2, s16 arg3, f32 arg4) {
 void assetFreeBuffer(void *, s32, s32);
 void heapFreeDeferred(void *);
 
-s32 func_807122B4(void) {
+s32 effectSpritePoolFadeOut(void) {
     s16 i;
     u16 *queue;
 

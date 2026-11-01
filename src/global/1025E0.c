@@ -5,11 +5,11 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
 extern Actor *D_807FBB4C;
-extern void *D_807FC924;
-extern u8 D_807FC928;
-extern u8 D_807FC929;
+extern void *gPlayerSlots;
+extern u8 gPlayerCount;
+extern u8 gCurrentPlayerIndex;
 extern u8 D_807FC950[][0x5E];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
 extern s16 D_80744490;
@@ -192,7 +192,7 @@ void gfxResourceSetString(s16 arg0, s32 arg1) {
     _strcpy((s32)gfxResourceFindById(arg0)->unk4, arg1);
 }
 
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleEaseToward(s16, s16, f32);
 
 void func_806FDF54(f32 *arg0, f32 *arg1) {
     if (*arg1 < 0.0f) {
@@ -205,7 +205,7 @@ void func_806FDF54(f32 *arg0, f32 *arg1) {
             *arg1 -= 6.2831855f;
         } while (*arg1 >= 6.2831855f);
     }
-    *arg0 = (f32)((f64)((f32)func_806CC190((s16)(s32)(((f64)*arg0 * 2048.0) / 3.1415927410125732), (s16)(s32)(((f64)*arg1 * 2048.0) / 3.1415927410125732), 5.0f) * 3.1415927410125732f) * 0.00048828125);
+    *arg0 = (f32)((f64)((f32)mathAngleEaseToward((s16)(s32)(((f64)*arg0 * 2048.0) / 3.1415927410125732), (s16)(s32)(((f64)*arg1 * 2048.0) / 3.1415927410125732), 5.0f) * 3.1415927410125732f) * 0.00048828125);
 }
 
 typedef struct GfxResourceNodeView {

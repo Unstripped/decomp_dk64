@@ -17,14 +17,14 @@ typedef struct {
 } Struct_80025D14;
 
 extern u8 D_807FC950[][0x5E];
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 
 s32 menuCheckBitgridOtherSlots(Struct_80025D14 *arg0, s32 arg1) {
     s32 found = 0;
     s32 i;
 
     for (i = 0; found == 0 && i != 5; i++) {
-        if (i != D_8074E77C) {
+        if (i != gPlayerCharacterId) {
             found |= D_807FC950[i][arg0->unkB] & (1 << (arg1 + 0x1F));
         }
     }
@@ -132,7 +132,7 @@ typedef struct {
     char pad8[0x2E2 - 8];
     u16 unk2E2;
 } MenuM1_C924;
-extern MenuM1_C924 *D_807FC924;
+extern MenuM1_C924 *gPlayerSlots;
 extern u8 D_800334DC[];
 u8 func_806F6E58(u8);
 void slotQueueAddValue(s32, s32, s16);
@@ -141,7 +141,7 @@ void eepromSavePlayerData(void);
 
 void menuApplyPurchase(Struct_80025D14 *arg0, u8 *arg1) {
     s16 sp1E = -1;
-    u8 sp1D = func_806F6E58(D_8074E77C);
+    u8 sp1D = func_806F6E58(gPlayerCharacterId);
 
     switch (arg0->unkB) {
     case 2:
@@ -149,7 +149,7 @@ void menuApplyPurchase(Struct_80025D14 *arg0, u8 *arg1) {
         if (arg0->unk11 >= 2) {
             menuUpdateAllBitgridSlots(arg0, 1);
         } else {
-            menuSetBitgridBit(arg0, D_8074E77C);
+            menuSetBitgridBit(arg0, gPlayerCharacterId);
         }
         break;
     case 1:
@@ -157,7 +157,7 @@ void menuApplyPurchase(Struct_80025D14 *arg0, u8 *arg1) {
         menuUpdateAllBitgridSlots(arg0, 0);
         break;
     default:
-        menuSetBitgridValue(arg0, D_8074E77C);
+        menuSetBitgridValue(arg0, gPlayerCharacterId);
         break;
     }
     if (arg0->unkB == 4) {
@@ -165,7 +165,7 @@ void menuApplyPurchase(Struct_80025D14 *arg0, u8 *arg1) {
         if (D_807FC950[8][0xC] < v) {
             D_807FC950[8][0xC] = v;
             healthRefill(0);
-            D_807FC924->unk2E2 |= 0x11;
+            gPlayerSlots->unk2E2 |= 0x11;
         }
     }
     switch (arg0->unkB) {
@@ -177,7 +177,7 @@ void menuApplyPurchase(Struct_80025D14 *arg0, u8 *arg1) {
         sp1E = 7;
         break;
     case 0:
-        if (sp1D == 0 && func_806F6E58(D_8074E77C) != 0) {
+        if (sp1D == 0 && func_806F6E58(gPlayerCharacterId) != 0) {
             sp1E = 5;
         }
         break;
@@ -231,7 +231,7 @@ void func_80025FB4(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
         tbl = D_80033408[0];
         break;
     }
-    tbl += D_8074E77C * 7;
+    tbl += gPlayerCharacterId * 7;
     for (i = 0; i < count && found == 0; i++) {
         if (tbl[i].unk0 >= 0) {
             switch (tbl[i].unk0) {
@@ -462,7 +462,7 @@ void menuDispatchSubmenuAction(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
 
 
 extern void *D_807FBB4C;
-void func_806F397C(void *, void *, s32, s32);
+void playerWaypointPathStartPacked(void *, void *, s32, s32);
 void camStartPath(void *, s32, s32);
 void func_80025FB4(Struct_80025D14 *, u8 *, s32);
 s32 playerStateQueueCallback(s32, void *, s32);
@@ -475,7 +475,7 @@ s32 menuExitSubmenu(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
     arg0->unkE = 0;
     if (flagGet(0x61, 2) == 0) {
         if (flag != 0) {
-            func_806F397C(D_807FBB4C, D_807FBB40, 0, 0x1B);
+            playerWaypointPathStartPacked(D_807FBB4C, D_807FBB40, 0, 0x1B);
             camStartPath(0, 0, 1);
         } else {
             camStartPath(0, 4, 1);
@@ -535,7 +535,7 @@ void func_80026874(Struct_80025D14 *arg0, u8 *arg1) {
             case 1:
                 playerStateQueueCallback(0x52, 0, 0);
                 D_807FBB60 &= ~0x10030;
-                D_807FC924->unk4->unk60 |= 0x40000000;
+                gPlayerSlots->unk4->unk60 |= 0x40000000;
                 break;
             case 4:
                 actorSpawn(0x144, 0);
@@ -544,10 +544,10 @@ void func_80026874(Struct_80025D14 *arg0, u8 *arg1) {
             case 2:
             case 3:
                 actorSpawn(0x144, 0);
-                func_80614E78(D_807FC924->unk4, 0x85);
+                func_80614E78(gPlayerSlots->unk4, 0x85);
                 break;
             }
-            camStartPath(D_807FC924->unk4, 2, 1);
+            camStartPath(gPlayerSlots->unk4, 2, 1);
             arg0->unkD = 2;
             arg0->unkE = 0;
         } else {
@@ -579,7 +579,7 @@ void func_80026874(Struct_80025D14 *arg0, u8 *arg1) {
         }
         slotQueueCancel(1, 0);
         slotQueueCancel(0xE, 0);
-        camStartPath(D_807FC924->unk4, 3, 1);
+        camStartPath(gPlayerSlots->unk4, 3, 1);
         arg0->unkD = 3;
         arg0->unkE = 0;
         func_8070D8C0(D_807FBB40, sp24, sp20);
@@ -601,7 +601,7 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
         if (currentActorTestClearFlag() != 0) {
             sp24 = -1;
             D_807FBB60 |= 0x10030;
-            D_807FC924->unk4->unk60 &= ~0x40000000;
+            gPlayerSlots->unk4->unk60 &= ~0x40000000;
             sp28 = 0;
             sp2C = -1;
             if (sp2C) { // FAKE: empty guard steers regalloc
@@ -609,7 +609,7 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
             currentActorClearFlag();
             switch (arg0->unkB) {
             case 0:
-                sp2C = D_80033A50[D_8074E77C][((u8 *)arg1)[arg0->unkB]];
+                sp2C = D_80033A50[gPlayerCharacterId][((u8 *)arg1)[arg0->unkB]];
             case 1:
                 if (sp2C == -1) {
                     sp2C = D_80033A78[((u8 *)arg1)[arg0->unkB]];
@@ -666,7 +666,7 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 }
 
 void func_805FF898(void);
-void func_806CFF9C(void *);
+void playerResumeLocomotion(void *);
 
 void func_80026DAC(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
     s32 x;
@@ -707,7 +707,7 @@ void func_80026DAC(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
             sp24 = -1;
             v = -1;
             currentActorClearFlag();
-            func_806CFF9C(D_807FBB4C);
+            playerResumeLocomotion(D_807FBB4C);
             switch (D_807FBB40->unk58) {
             case 0xBE:
                 sp2C = 7;
@@ -768,7 +768,7 @@ void menuDispatchCurrentMenuAction(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
     }
 }
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 void behaviourFrameBegin(void);
 void func_806BFBF4(void);
 void actorUpdateModelMatrix(void *, s32);
@@ -785,9 +785,9 @@ void func_800270E0(void) {
     s32 a3;
 
     behaviourFrameBegin();
-    if (D_8076A0A8 == 5) {
+    if (gCurrentMap == 5) {
         st = D_807FBB40->unk178;
-        p = D_807FC950[D_8074E77C];
+        p = D_807FC950[gPlayerCharacterId];
         if (!(D_807FBB40->unk60 & 0x10)) {
             if (flagGet(0x180, 0) != 0) {
                 D_807FBB40->unk155 = 0;
@@ -835,7 +835,7 @@ void func_800270E0(void) {
                         menuApplyPurchase(st, p);
                         flagSet(0x180, 1, 0);
                     }
-                    func_806F397C(D_807FBB4C, D_807FBB40, 0, 0x1B);
+                    playerWaypointPathStartPacked(D_807FBB4C, D_807FBB40, 0, 0x1B);
                     camStartPath(0, (s16)sp2C, 1);
                     currentActorClearFlag();
                     actorScriptStart(D_807FBB40, 0x26E);
@@ -850,7 +850,7 @@ void func_800270E0(void) {
                 break;
             case 1:
                 if (!(D_807FBB40->unk60 & 0x02000000)) {
-                    func_806CFF9C(D_807FBB4C);
+                    playerResumeLocomotion(D_807FBB4C);
                     currentActorClearFlag();
                     camStartPath(0, 1, 1);
                     func_805FF898();
@@ -879,10 +879,10 @@ void func_800270E0(void) {
                 if (currentActorTestClearFlag() != 0) {
                     playerStateQueueCallback(0x52, 0, 0);
                     D_807FBB60 &= 0xFFFEFFCF;
-                    D_807FC924->unk4->unk60 |= 0x40000000;
+                    gPlayerSlots->unk4->unk60 |= 0x40000000;
                     D_807FBB40->unk154 = 7;
                     currentActorClearFlag();
-                    camStartPath(D_807FC924->unk4, 2, 1);
+                    camStartPath(gPlayerSlots->unk4, 2, 1);
                 }
                 break;
             case 7:
@@ -920,9 +920,9 @@ void menuCheckControllerAntiPiracy(void) {
     s32 *dest;
 
     behaviourFrameBegin();
-    if (D_8076A0A8 == 0x19) {
+    if (gCurrentMap == 0x19) {
         temp = D_807FBB40->unk178;
-        ptr = D_807FC950[D_8074E77C];
+        ptr = D_807FC950[gPlayerCharacterId];
 
         if (!(D_807FBB40->unk60 & 0x10)) {
 
@@ -953,9 +953,9 @@ void menuCheckControllerAntiPiracy(void) {
 }
 void func_80027738(void) {
     behaviourFrameBegin();
-    if (D_8076A0A8 == 1) {
+    if (gCurrentMap == 1) {
         Struct_80025D14 *temp = D_807FBB40->unk178;
-        u8 *ptr = D_807FC950[D_8074E77C];
+        u8 *ptr = D_807FC950[gPlayerCharacterId];
 
         if (!(D_807FBB40->unk60 & 0x10)) {
             menuExitSubmenu(temp, ptr, 0x176);
@@ -1042,7 +1042,7 @@ void menuUpdateTransformedWidgets(void) {
             guMtxF2L(mA, &fp->unk10[1]);
             if (st->unkB == 0) {
                 for (i = 0; i < 2; i++) {
-                    sp34.a[i] = D_80033544[D_8074E77C][st->unk11][i];
+                    sp34.a[i] = D_80033544[gPlayerCharacterId][st->unk11][i];
                 }
             } else if (st->unkB == 1) {
                 for (i = 0; i < 2; i++) {
@@ -1053,7 +1053,7 @@ void menuUpdateTransformedWidgets(void) {
                 if (st->unk11 >= 2) {
                     sp34.a[0] = D_80033618[st->unk11];
                 } else {
-                    sp34.a[0] = D_80033604[D_8074E77C];
+                    sp34.a[0] = D_80033604[gPlayerCharacterId];
                 }
             } else if (st->unkB == 3) {
                 fp->unk90 = 0x82;
@@ -1061,7 +1061,7 @@ void menuUpdateTransformedWidgets(void) {
             } else if (st->unkB == 4) {
                 fp->unk90 = 0x82;
                 if (st->unk11 == 1) {
-                    sp34.a[0] = D_80033634[D_8074E77C];
+                    sp34.a[0] = D_80033634[gPlayerCharacterId];
                 } else if (st->unk12 == 0) {
                     sp34.a[0] = D_80033648[st->unk11];
                 } else {

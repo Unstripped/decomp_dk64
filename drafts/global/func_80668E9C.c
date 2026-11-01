@@ -141,7 +141,7 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
             MODEL_SLOT_ENTRIES[sp9A].unk10, MODEL_SLOT_ENTRIES[sp9A].unk14, MODEL_SLOT_ENTRIES[sp9A].unk18,
             MODEL_SLOT_ENTRIES[sp9A].unkC);
     } else {
-        sp90->timestamp = D_8076A064;
+        sp90->timestamp = gFrameCounter;
     }
 
     tri = sp90->tri_start;

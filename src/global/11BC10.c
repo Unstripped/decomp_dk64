@@ -2,8 +2,8 @@
 #include "actor.h"
 
 extern u8 D_807444FC;
-extern u32 D_8076A064;
-extern s32 D_8076A0A8;
+extern u32 gFrameCounter;
+extern s32 gCurrentMap;
 extern Actor *D_807FBB4C;
 
 void *heapAlloc(s32);
@@ -353,7 +353,7 @@ typedef struct {
     s16 unk4;
 } PlayerDistanceFadeState;
 
-extern void *D_807FC924;
+extern void *gPlayerSlots;
 
 void effectPlayerDistanceFadeUpdate(arg0, arg1)
 TimedEffectActorView *arg0;
@@ -383,9 +383,9 @@ s8 *arg1;
     } else {
         var_v1->unk0 = temp_v0 + 1;
     }
-    dz = ((PlayerDistanceView *) D_807FC924)->unk218 - arg0->unk348;
-    dx = ((PlayerDistanceView *) D_807FC924)->unk210 - arg0->unk340;
-    dy = ((PlayerDistanceView *) D_807FC924)->unk214 - arg0->unk344;
+    dz = ((PlayerDistanceView *) gPlayerSlots)->unk218 - arg0->unk348;
+    dx = ((PlayerDistanceView *) gPlayerSlots)->unk210 - arg0->unk340;
+    dy = ((PlayerDistanceView *) gPlayerSlots)->unk214 - arg0->unk344;
     dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
     if (dist < scale) {
         arg0->unk36D = var_v1->unk4;
@@ -803,7 +803,7 @@ void effectWobbleRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         if (collisionGetFloorHeight((s32 *)((u8 *)arg0->unk384 + 0x18)) == 0) {
             WOBBLE_STATE->unk18 = 0.0f;
         }
-        WOBBLE_STATE->unk1C = (f32)D_8076A064;
+        WOBBLE_STATE->unk1C = (f32)gFrameCounter;
     }
     sp3C = sinApprox(WOBBLE_STATE->unk10 * (f32)WOBBLE_STATE->unk0);
     temp_fv0 = sinApprox(WOBBLE_STATE->unk14 * (f32)WOBBLE_STATE->unk0) * 6.0f;
@@ -836,7 +836,7 @@ void effectWobbleRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     temp_fv0 = sinApprox((f32)((f64)WOBBLE_STATE->unk0 * 0.2267));
     arg0->unk360 = (f32)((f64)arg0->unk360 + ((f64)sp3C * 0.03));
     arg0->unk364 = (f32)((f64)arg0->unk364 + ((f64)temp_fv0 * 0.03));
-    if ((WOBBLE_STATE->unk1C + 100.0f) < (f32)D_8076A064) *arg1 = 1;
+    if ((WOBBLE_STATE->unk1C + 100.0f) < (f32)gFrameCounter) *arg1 = 1;
     if (WOBBLE_STATE->unk18 <= arg0->unk344) {
         *arg1 = 1;
         func_80718124(0.3f, arg0->unk340, arg0->unk344, arg0->unk348);
@@ -1022,7 +1022,7 @@ void effectDecelerateDriftUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         temp_v0 = heapAlloc(8);
         arg0->unk384 = temp_v0;
         temp_v0->unk0 = ((f64) arg0->unk360 / 0.36) * 2.5;
-        temp_v0->unk4 = (f32) (u32) ((D_8076A064 * 40) + (arg0->unk35C << 9));
+        temp_v0->unk4 = (f32) (u32) ((gFrameCounter * 40) + (arg0->unk35C << 9));
         var_v1 = (RotationState *) arg0->unk384;
     }
     var_v1->unk0 = (f32) ((f64) var_v1->unk0 - 0.2);
@@ -1247,7 +1247,7 @@ typedef struct {
     s32 unk88;
 } LightOwnerView;
 
-extern LightOwnerView *D_807FD580;
+extern LightOwnerView *gActivePlayerState;
 extern void *D_80028C30;
 
 void func_8071A440(TimedLightActorView *arg0, s8 *arg1) {
@@ -1257,7 +1257,7 @@ void func_8071A440(TimedLightActorView *arg0, s8 *arg1) {
     if ((f64)var_fv0 > 0.7) {
         var_fv0 = 1.0f;
     }
-    if ((D_807FD580->unk88 == arg0->unk35C) && ((void *)arg0 == D_80028C30)) {
+    if ((gActivePlayerState->unk88 == arg0->unk35C) && ((void *)arg0 == D_80028C30)) {
         lightSetFlags(1, arg0);
         lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f,
                  (f32)((f64)var_fv0 * 50.0), 0, 0xFF,
@@ -1856,7 +1856,7 @@ void timedLightPulse(PulseFadeActorView *arg0, s8 *arg1) {
     f32 temp_fv1;
     f32 frac;
 
-    if (D_8076A0A8 == 0xAA) {
+    if (gCurrentMap == 0xAA) {
         sp44[0] = 0xFF; sp44[1] = 0x46;
         sp44[2] = 0;
     } else {
@@ -1903,7 +1903,7 @@ void effectFallingSparkUpdate(TimedEffectActorView *arg0, u8 *arg1) {
         arg0->unk384 = temp_v0;
         *temp_v0 = 6.0f;
     }
-    if (D_8076A0A8 == 0xAA) {
+    if (gCurrentMap == 0xAA) {
         sp48[0] = 0xFF; sp48[1] = 0x46;
         sp48[2] = 0;
     } else {
@@ -2045,7 +2045,7 @@ typedef struct {
 } FxInt1C9State;
 
 extern s16 D_80755650[];
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleEaseToward(s16, s16, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 extern s32 D_8071FB08;
 
@@ -2076,11 +2076,11 @@ void effectWispWanderUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         state->target_y = 0x64;
     }
     sp58 = mathAngleBetweenPoints2D((f32)state->x, (f32)state->target_y, arg0->unk340, arg0->unk348);
-    state->angle = func_806CC190(state->angle, sp58, (f32)(((randomNonNegative() >> 0xF) % 10) + 5));
+    state->angle = mathAngleEaseToward(state->angle, sp58, (f32)(((randomNonNegative() >> 0xF) % 10) + 5));
     state->y = (s16)((f64)(state->z - state->y) * 0.1 + (f64)state->y);
     arg0->unk340 += state->speed * func_80612794(state->angle);
     arg0->unk348 += state->speed * func_80612790(state->angle);
-    arg0->unk344 = (f32)((((f64)func_80612794((state->speed + 0x32) * D_8076A064)) * 40.0) + (state->y + 0x28));
+    arg0->unk344 = (f32)((((f64)func_80612794((state->speed + 0x32) * gFrameCounter)) * 40.0) + (state->y + 0x28));
     if (((randomNonNegative() >> 0xF) % 1000) >= 991) {
         sp5B = ((randomNonNegative() >> 0xF) % 1000) % 6;
         state->x = D_80755650[sp5B * 3];
@@ -2089,7 +2089,7 @@ void effectWispWanderUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     }
     lightSetFlags(1);
     lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, 150.0f, 0, 0x96, 0x96, 0xFF);
-    if (!(D_8076A064 & 3)) {
+    if (!(gFrameCounter & 3)) {
         func_807149B8(1);
         func_8071498C(func_8071C818);
         func_80714CC0((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);
@@ -2136,16 +2136,16 @@ void effectWispHomeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     }
     state = arg0->unk384;
     actor = (WispHomeTargetActor *)(u32)arg0->unk35C;
-    state->angle = func_806CC190(state->angle,
+    state->angle = mathAngleEaseToward(state->angle,
             mathAngleBetweenPoints2D(actor->x, actor->z, arg0->unk340, arg0->unk348),
             (f32)(((randomNonNegative() >> 0xF) % 10) + 5));
     state->y = (s16)((((f64)((actor->y + ((f32)((u32)actor->height))) - ((f32)state->y))) * 0.1) + ((f64)state->y));
     arg0->unk340 += state->speed * func_80612794(state->angle);
     arg0->unk348 += state->speed * func_80612790(state->angle);
-    arg0->unk344 = (f32)((((f64)func_80612794((state->speed + 0x32) * D_8076A064)) * 40.0) + (state->y + 0x28));
+    arg0->unk344 = (f32)((((f64)func_80612794((state->speed + 0x32) * gFrameCounter)) * 40.0) + (state->y + 0x28));
     lightSetFlags(1);
     lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, 150.0f, 0, 0x96, 0x96, 0xFF);
-    if (!(D_8076A064 & 3)) {
+    if (!(gFrameCounter & 3)) {
         func_807149B8(1);
         func_8071498C(func_8071C818);
         func_80714CC0((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);
@@ -2190,7 +2190,7 @@ void effectConvergeOnNodeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->unk348 = (D_807FBB4C->unk84 - motion->unkC) * factor + motion->unkC;
     motion->unk0 -= 1.0f;
     if (motion->unk0 == 0.0f) {
-        *(s32 *)((u8 *)D_807FD580 + 0x1F0) |= 0x20000;
+        *(s32 *)((u8 *)gActivePlayerState + 0x1F0) |= 0x20000;
         D_807FC930[func_805FF030(D_8076A0AB, 0)]++;
         *arg1 = 1;
     }
@@ -2286,7 +2286,7 @@ void effectOrbitSourceUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     if (45.0f < var_v1->unk18) {
         *arg1 = 1;
     }
-    if ((D_8076A064 % arg0->unk35C) == 0) {
+    if ((gFrameCounter % arg0->unk35C) == 0) {
         func_807149B8(1);
         func_807149FC(-1);
         func_80714950(0x2A);
@@ -2754,9 +2754,9 @@ void effectProximityFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         *(f32 *)arg0->unk384 = (f32)arg0->unk36D;
     }
     state = (f32 *)arg0->unk384;
-    dz = *(f32 *)((u8 *)D_807FC924 + 0x224) - arg0->unk348;
-    dx = *(f32 *)((u8 *)D_807FC924 + 0x21C) - arg0->unk340;
-    dy = *(f32 *)((u8 *)D_807FC924 + 0x220) - arg0->unk344;
+    dz = *(f32 *)((u8 *)gPlayerSlots + 0x224) - arg0->unk348;
+    dx = *(f32 *)((u8 *)gPlayerSlots + 0x21C) - arg0->unk340;
+    dy = *(f32 *)((u8 *)gPlayerSlots + 0x220) - arg0->unk344;
     dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
     if (dist < limit) {
         arg0->unk36D = (u32)*state;
@@ -2978,7 +2978,7 @@ void effectSwayRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     TimedMotionState *var_s0;
 
     if (arg0->unk384 == NULL) {
-        if (D_8076A064 & 1) {
+        if (gFrameCounter & 1) {
             arg0->unk360 = arg0->unk360 * -1.0f;
         }
         arg0->unk384 = heapAlloc(8);
@@ -3048,8 +3048,8 @@ void effectPulseSpinUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     var_v1 = (TimedMotionState *)arg0->unk384;
     var_v1->unk0 = (f32)(((f64)(var_v1->unk4 - var_v1->unk0) * 0.1) + (f64)var_v1->unk0);
     var_v1->unk8 += 5.0f;
-    arg0->unk360 = (f32)(((f64)func_80612794((s16)(D_8076A064 * 50)) * 0.1) + (f64)var_v1->unk0);
-    arg0->unk364 = (f32)(((f64)func_80612790((s16)(D_8076A064 * 25)) * 0.1) + (f64)var_v1->unk0);
+    arg0->unk360 = (f32)(((f64)func_80612794((s16)(gFrameCounter * 50)) * 0.1) + (f64)var_v1->unk0);
+    arg0->unk364 = (f32)(((f64)func_80612790((s16)(gFrameCounter * 25)) * 0.1) + (f64)var_v1->unk0);
     guScaleF(sp6C, arg0->unk360, arg0->unk364, 0.0f);
     matrixMakeRotationZ(sp2C, var_v1->unk8);
     guMtxCatF(sp6C, sp2C, sp6C);
@@ -3088,7 +3088,7 @@ void effectLerpPathUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         arg0->unk340 = (state->unk14 * state->unk20) + state->unk8;
         arg0->unk344 = (state->unk18 * state->unk20) + state->unkC;
         arg0->unk348 = (state->unk1C * state->unk20) + state->unk10;
-        if (!(D_8076A064 & 3)) {
+        if (!(gFrameCounter & 3)) {
             func_807149B8(1);
             func_8071498C(func_8071C818);
             func_80714CC0((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);

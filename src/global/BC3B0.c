@@ -76,12 +76,12 @@ Gfx *actorCursorDrawBurst(Gfx *dl, Actor *actor) {
 
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileAimAndSpawn(s16, s32, f32, f32, f32, f32, f32, void *);
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 
 void actorCursorFireProjectile(void *arg0) {
     s32 id;
 
-    if ((D_8076A0A8 != 0x5A) && (D_8076A0A8 != 0x64)) {
+    if ((gCurrentMap != 0x5A) && (gCurrentMap != 0x64)) {
         id = 0x1E;
     } else {
         id = 0x63;
@@ -272,7 +272,7 @@ typedef struct BC3B0View9C {
 #define BC3B0S98 ((BC3B0View98 *)D_807FDC98)
 #define BC3B0S9C ((BC3B0View9C *)D_807FDC9C)
 
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 extern u8 D_807201D4[];
 extern void func_80717D4C(void);
 
@@ -307,7 +307,7 @@ void actorUpdatePeriodicParticleEmitter(void) {
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x182, 0xFF, 0x7F, 0x1E);
     }
     BC3B0S90->unk30 = BC3B0S90->unk30 - 1.0;
-    if (BC3B0S90->unk2C != 0 && D_8076A064 % 5 == 0) {
+    if (BC3B0S90->unk2C != 0 && gFrameCounter % 5 == 0) {
         func_807149FC(3);
         func_807149B8(1);
         func_80714950(-0x1C2);
@@ -334,7 +334,7 @@ void actorUpdateAimedProjectileEmitter(void) {
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x182, 0xFF, 0x7F, 0x1E);
     }
     BC3B0S90->unk2E--;
-    if (BC3B0S90->unk2C != 0 && D_8076A064 % 5 == 0) {
+    if (BC3B0S90->unk2C != 0 && gFrameCounter % 5 == 0) {
         projectileSetTargetCoords(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
         projectileAimAndSpawn(0x51, 1, 0.3f, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, 80.0f, D_807FBB40);
     }

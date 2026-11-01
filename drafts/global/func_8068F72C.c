@@ -1,4 +1,4 @@
-// func_8068F72C (src/global/936B0.c): func_8068F72C (src/global/936B0.c): stage 5 parked NON_MATCHING (R3c): score 177->159 by naming the first unkB8 reload in the fv0 chain with the dead local sp40 (FP webs now match: sp50 f12, 0.0 const f14, first web f2, second f0). Left: t-ring phase from the arg3 block (target fl loads t2,t3 vs mine t0,t1), sp48 narrowing chain (target mfc1 t9/andi t8/sll t0/sra v0 pure ring temps; mine mfc1 v0 because uopt splits sp48 (cand 17) into v0 pieces for each chain node), and sp58==2 -> sp48 -0x1E/-0x28 wants if/else shape (bne;li -40;b;li -30) but if/else/ternary/other-local variants all score worse (+3 insns). Tried: callee return widths (s16/s32 for func_806CC10C/190: same), later sp48 var swapped to sp34/temp_v0/sp4A, mask/cast injection sweep on every assignment, dead-use sweeps (sp48/sp4A/sp58/args).
+// func_8068F72C (src/global/936B0.c): func_8068F72C (src/global/936B0.c): stage 5 parked NON_MATCHING (R3c): score 177->159 by naming the first unkB8 reload in the fv0 chain with the dead local sp40 (FP webs now match: sp50 f12, 0.0 const f14, first web f2, second f0). Left: t-ring phase from the arg3 block (target fl loads t2,t3 vs mine t0,t1), sp48 narrowing chain (target mfc1 t9/andi t8/sll t0/sra v0 pure ring temps; mine mfc1 v0 because uopt splits sp48 (cand 17) into v0 pieces for each chain node), and sp58==2 -> sp48 -0x1E/-0x28 wants if/else shape (bne;li -40;b;li -30) but if/else/ternary/other-local variants all score worse (+3 insns). Tried: callee return widths (s16/s32 for mathAngleSignedDistance/190: same), later sp48 var swapped to sp34/temp_v0/sp4A, mask/cast injection sweep on every assignment, dead-use sweeps (sp48/sp4A/sp58/args).
 typedef struct ActorMoveState {
     s16 unk0;
     s16 unk2;
@@ -65,11 +65,11 @@ typedef struct ActorMoveView {
 
 extern s16 D_8075033C;
 extern u32 D_807FBB64;
-extern struct PlayerTrackEntry *D_807FC924;
+extern struct PlayerTrackEntry *gPlayerSlots;
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-s32 func_806CC10C(s16, s16);
-s16 func_806CC190(s16, s16, f32);
+s32 mathAngleSignedDistance(s16, s16);
+s16 mathAngleEaseToward(s16, s16, f32);
 void actorStepPhysics(Actor *, s16, s16);
 void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
@@ -97,7 +97,7 @@ u8 arg3;
     s16 sp34;
     ActorMoveView *pl;
 
-    pl = (ActorMoveView *)((PlayerActorRef *)D_807FC924)[S->unk28].actor;
+    pl = (ActorMoveView *)((PlayerActorRef *)gPlayerSlots)[S->unk28].actor;
     sp58 = pl->unk58;
     sp4A = 0;
     sp48 = 0;
@@ -151,13 +151,13 @@ u8 arg3;
     ACTOR_MOVE_VIEW->unkEE = (s16)(s32)(func_80611BB4(sp40, sp3C) * 4096.0 / 6.2831854820251465);
     if (fl[2] != 0) {
         sp34 = 0x400 - ACTOR_MOVE_VIEW->unkDE;
-        temp_v0 = func_806CC10C(ACTOR_MOVE_VIEW->unkDC, S->unk0);
+        temp_v0 = mathAngleSignedDistance(ACTOR_MOVE_VIEW->unkDC, S->unk0);
         fv0 = (f32)sp34;
         sp4A = (s16)(s32)(func_80612790(temp_v0) * fv0);
         sp48 = (s16)(s32)(func_80612794(temp_v0) * fv0);
     } else if (!arg3) {
-        ACTOR_MOVE_VIEW->unkE8 = func_806CC190(ACTOR_MOVE_VIEW->unkE8, 0, 4.0f);
-        ACTOR_MOVE_VIEW->unkE4 = func_806CC190(ACTOR_MOVE_VIEW->unkE4, 0, 5.0f);
+        ACTOR_MOVE_VIEW->unkE8 = mathAngleEaseToward(ACTOR_MOVE_VIEW->unkE8, 0, 4.0f);
+        ACTOR_MOVE_VIEW->unkE4 = mathAngleEaseToward(ACTOR_MOVE_VIEW->unkE4, 0, 5.0f);
     }
     sp50 = S->unk10 * S->unkC;
     if (arg3) {
@@ -170,8 +170,8 @@ u8 arg3;
             if (ACTOR_MOVE_VIEW->unkE8) {} // FAKE: hoists the unkE8 load to the arm start
             sp4A = ACTOR_MOVE_VIEW->unkE8;
         }
-        ACTOR_MOVE_VIEW->unkE8 = func_806CC190(ACTOR_MOVE_VIEW->unkE8, sp4A, 4.0f);
-        ACTOR_MOVE_VIEW->unkE4 = func_806CC190(ACTOR_MOVE_VIEW->unkE4, sp48, 5.0f);
+        ACTOR_MOVE_VIEW->unkE8 = mathAngleEaseToward(ACTOR_MOVE_VIEW->unkE8, sp4A, 4.0f);
+        ACTOR_MOVE_VIEW->unkE4 = mathAngleEaseToward(ACTOR_MOVE_VIEW->unkE4, sp48, 5.0f);
     }
     ACTOR_MOVE_VIEW->unkB8 = ACTOR_MOVE_VIEW->unkB8 - sp54;
     sp40 = ACTOR_MOVE_VIEW->unkB8;

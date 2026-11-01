@@ -61,7 +61,7 @@ typedef struct LB3bTbl {
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB48;
 extern Actor *D_807FBB4C;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern s16 D_8076AEF2;
 extern u16 D_80744508;
 extern s16 D_80750AC4;
@@ -80,7 +80,7 @@ void csModelStateSetByte(s16, s32, s32);
 void csModelStateSetFirstByte(s32, s32);
 void func_806C8E58(s32);
 void func_80614E78(void *, s32);
-void func_806D03BC(void);
+void playerInitMoveParams(void);
 char *textTableGetString(s32, s32, s32);
 s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
 void func_806FDAB8(u8, f32);
@@ -153,7 +153,7 @@ tail:
             D_807FBB48->unk155[0] = 0;
             func_80614E78(D_807FBB48, 9);
             D_807FBB48->unkB8 = 0.0f;
-            func_806D03BC();
+            playerInitMoveParams();
             goto tail;
         case 1:
         case 10:
@@ -283,7 +283,7 @@ tail:
             func_80724A20();
             goto render;
         case 5:
-            if (D_8076A0A8 == 0x85 && s->unk4 == 1) {
+            if (gCurrentMap == 0x85 && s->unk4 == 1) {
                 if (D_807FBB40->unk155[0] == 0) {
                     D_807FBB40->unk155[0] += 1;
                     func_80641874(0, 0);
@@ -328,7 +328,7 @@ render:
         if (!(D_807FBB40->unk60 & 0x02000000)) {
             camResumePath(D_807FBB40);
             actorSetStateTwo((void *)D_807FBB40->unk11C);
-            switch (D_8076A0A8) {
+            switch (gCurrentMap) {
             case 3:
             case 0x23:
             case 0x32:
@@ -429,7 +429,7 @@ Gfx *func_80024D3C(Gfx *gdl, u8 arg1) {
 
 
 s32 bonusGetSoundForMap(void) {
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
     case 0x35:
         return 0x261;
     case 0x49:
@@ -463,14 +463,14 @@ void func_806C9974(s32, s32);
 void n_alSndpPostEvent(void *, s32, s16);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 extern s32 D_8076D1F8;
-extern void *D_807FD580;
+extern void *gActivePlayerState;
 
 typedef struct LB3bInput {
     u8 pad0[0x1F0];
     u32 unk1F0;
 } LB3bInput;
 
-#define LD ((LB3bInput *)D_807FD580)
+#define LD ((LB3bInput *)gActivePlayerState)
 
 void func_80024E38(void) {
     LB3bSnd *snd;

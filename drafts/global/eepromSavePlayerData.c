@@ -1,5 +1,5 @@
 // eepromSavePlayerData (src/global/104F0.c): stage 4: frame 0x48 and callee-saved set (s0-s7, fp, ra) match; deadsweep reduced diff to 13 text lines
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 extern u8 D_807FC950[];
 extern u8 D_807467C8;
 
@@ -19,7 +19,7 @@ void eepromSavePlayerData(void) {
     s32 j;
     u8 *field;
 
-    if (D_807FC928 == 1) {
+    if (gPlayerCount == 1) {
         if (func_80714394() != 0 || func_8071432C() != 0) {
             base = D_807FC950;
             entry = base;

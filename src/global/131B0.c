@@ -14,38 +14,38 @@ extern s32 __osMotorAccess(OSPfs *, s32);
 extern u64 __ull_div(u64, u64);
 
 extern SchedConfig D_80746838;
-extern s32 D_80746810;
-extern u8 D_80746818;
+extern s32 gRumblePaused;
+extern u8 gRumbleResetPending;
 extern s32 D_80746820;
 extern s32 D_80746824;
 extern u8 D_80746828;
 extern u8 D_807444EC;
 extern u8 D_8076A0B1;
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 extern u8 D_807ECD09;
 extern OSMesgQueue D_807ECCF0;
 extern u8 D_807F0474[];
 extern u32 D_807FBB60;
-extern PlayerStruct *D_807FC924;
+extern PlayerStruct *gPlayerSlots;
 
 void rumbleInfoClear(RumbleInfo *);
 void rumbleMotorStart(u8);
 void rumbleMotorStop(u8);
-void func_8060E6E8(s32);
-s32 func_8060E79C(u8);
-void func_8060E7EC(u8, u8, s32);
-void func_8060E8CC(RumbleInfo *);
-void func_8060E8EC(u8);
-void func_8060E930(void);
-void func_8060E958(void);
-int func_8060E980(void);
-void func_8060EA28(void);
-void func_8060EC54(s32);
+void rumbleResetAll(s32);
+s32 rumbleGetPakState(u8);
+void rumbleRequest(u8, u8, s32);
+void rumbleInfoCancel(RumbleInfo *);
+void rumbleCancel(u8);
+void rumbleShutdown(void);
+void rumbleInit(void);
+int rumbleShouldPause(void);
+void rumbleUpdate(void);
+void rumbleSetPaused(s32);
 void schedCreate(SchedStruct *, void *, s32, u8, u8);
 void schedAddClient(SchedStruct *, TaskNode *, s32, s32, s32);
 void schedRemoveClient(SchedStruct *, TaskNode *);
 void schedMain(void *);
-void func_8060F1D0(SchedStruct *, TaskNode *);
+void schedHandleNewTask(SchedStruct *, TaskNode *);
 void schedStartAudioOrYield(SchedStruct *);
 void schedHandleRetrace(SchedStruct *);
 void schedHandleRSP(SchedStruct *);
@@ -71,8 +71,8 @@ typedef struct {
 } ContPadButtons;
 
 // .bss 0x807F02D0-0x807F0570
-OSPfs D_807F02D0[4];
-RumbleInfo D_807F0470[4];
+OSPfs gRumblePfs[4];
+RumbleInfo gRumbleInfo[4];
 u64 D_807F04C0;
 u64 D_807F04C8;
 u64 D_807F04D0;
@@ -101,8 +101,8 @@ void rumbleInfoClear(RumbleInfo *arg0) {
 void rumbleMotorStart(u8 arg0) {
     RumbleInfo *sp18;
 
-    if (__osMotorAccess(&D_807F02D0[arg0], 1) == 4) {
-        sp18 = &D_807F0470[arg0];
+    if (__osMotorAccess(&gRumblePfs[arg0], 1) == 4) {
+        sp18 = &gRumbleInfo[arg0];
         rumbleInfoClear(sp18);
         sp18->unk00 = 3;
     } else {
@@ -111,39 +111,39 @@ void rumbleMotorStart(u8 arg0) {
 }
 
 void rumbleMotorInit(u8 arg0) {
-    s32 ret = osMotorInit(&D_807ECCF0, &D_807F02D0[arg0], arg0);
+    s32 ret = osMotorInit(&D_807ECCF0, &gRumblePfs[arg0], arg0);
 
     switch (ret) {
     case 0:
-        D_807F0470[arg0].unk00 = 1;
+        gRumbleInfo[arg0].unk00 = 1;
         break;
     case 1:
-        D_807F0470[arg0].unk00 = 0;
+        gRumbleInfo[arg0].unk00 = 0;
         break;
     case 11:
-        D_807F0470[arg0].unk00 = 2;
+        gRumbleInfo[arg0].unk00 = 2;
         break;
     case 4:
-        D_807F0470[arg0].unk00 = 3;
+        gRumbleInfo[arg0].unk00 = 3;
         break;
     }
 }
 
 void rumbleMotorStop(u8 arg0) {
     rumbleMotorInit(arg0);
-    __osMotorAccess(&D_807F02D0[arg0], 0);
-    __osMotorAccess(&D_807F02D0[arg0], 0);
-    __osMotorAccess(&D_807F02D0[arg0], 0);
+    __osMotorAccess(&gRumblePfs[arg0], 0);
+    __osMotorAccess(&gRumblePfs[arg0], 0);
+    __osMotorAccess(&gRumblePfs[arg0], 0);
     D_807F0474[arg0 * 0x14] = 0;
 }
 
-void func_8060E6E8(s32 arg0) {
+void rumbleResetAll(s32 arg0) {
     s32 i;
     s32 j;
 
     for (i = 0; i < 4; i++) {
-        rumbleInfoClear(&D_807F0470[i]);
-        D_807F0470[i].unk00 = 0;
+        rumbleInfoClear(&gRumbleInfo[i]);
+        gRumbleInfo[i].unk00 = 0;
         if (D_807ECD09 & (1 << i)) {
             for (j = 0; j < 2; j++) {
                 rumbleMotorStop(i);
@@ -152,18 +152,18 @@ void func_8060E6E8(s32 arg0) {
     }
 }
 
-s32 func_8060E79C(u8 arg0) {
+s32 rumbleGetPakState(u8 arg0) {
     if (arg0 >= 4) {
         return 0;
     }
-    return D_807F0470[controllerGetPort(arg0)].unk00;
+    return gRumbleInfo[controllerGetPort(arg0)].unk00;
 }
 
-void func_8060E7EC(u8 arg0, u8 arg1, s32 arg2) {
+void rumbleRequest(u8 arg0, u8 arg1, s32 arg2) {
     RumbleInfo *info;
 
-    info = &D_807F0470[controllerGetPort(arg0)];
-    if (D_80746810 != 1 && info->unk00 == 1 && D_807FC924[arg0].unk2EB == 0) {
+    info = &gRumbleInfo[controllerGetPort(arg0)];
+    if (gRumblePaused != 1 && info->unk00 == 1 && gPlayerSlots[arg0].unk2EB == 0) {
         if (func_8071432C() != 0 || func_8071441C() != 0) {
             if (info->unk12 != 0) {
                 if (info->unk10 >= 0x1F) {
@@ -178,28 +178,28 @@ void func_8060E7EC(u8 arg0, u8 arg1, s32 arg2) {
     }
 }
 
-void func_8060E8CC(RumbleInfo *arg0) {
+void rumbleInfoCancel(RumbleInfo *arg0) {
     if (arg0->unk00 == 1) {
         arg0->unk05 = 0;
         arg0->unk0C = 0;
     }
 }
 
-void func_8060E8EC(u8 arg0) {
-    func_8060E8CC(&D_807F0470[controllerGetPort(arg0)]);
+void rumbleCancel(u8 arg0) {
+    rumbleInfoCancel(&gRumbleInfo[controllerGetPort(arg0)]);
 }
 
-void func_8060E930(void) {
-    func_8060E6E8(1);
-    func_8060EC54(1);
+void rumbleShutdown(void) {
+    rumbleResetAll(1);
+    rumbleSetPaused(1);
 }
 
-void func_8060E958(void) {
-    func_8060E6E8(0);
-    func_8060EC54(1);
+void rumbleInit(void) {
+    rumbleResetAll(0);
+    rumbleSetPaused(1);
 }
 
-int func_8060E980(void) {
+int rumbleShouldPause(void) {
     return ((D_807FBB60 & 0x4002) != 0) ||
            ((D_8076A0B1 & 1) != 0) ||
            (screenWipeGetState() != 0) ||
@@ -207,33 +207,33 @@ int func_8060E980(void) {
            (func_8071432C() == 0 && func_8071441C() == 0 && func_807143E8() == 0);
 }
 
-void func_8060EA28(void) {
+void rumbleUpdate(void) {
     RumbleInfo *info;
     s32 i;
     s32 pad_w;
     u8 pad;
 
-    info = D_807F0470;
-    if (D_80746810 == 1) {
-        if (func_8060E980() == 0) {
-            func_8060EC54(0);
+    info = gRumbleInfo;
+    if (gRumblePaused == 1) {
+        if (rumbleShouldPause() == 0) {
+            rumbleSetPaused(0);
         }
     } else {
-        if (func_8060E980() != 0) {
-            func_8060EC54(1);
+        if (rumbleShouldPause() != 0) {
+            rumbleSetPaused(1);
         }
     }
 
-    if (D_80746818 != 0) {
-        func_8060E6E8(0);
+    if (gRumbleResetPending != 0) {
+        rumbleResetAll(0);
     }
-    D_80746818 = 0;
+    gRumbleResetPending = 0;
 
-    if (D_80746810 != 1) {
+    if (gRumblePaused != 1) {
         pad = controllerGetActiveMask();
         for (i = 0; i < 4; i++, info++) {
             if (info->unk00 != 1) {
-                if ((D_807ECD09 & (1 << i)) && (pad & (1 << i)) && (D_8076A064 % 15 == 0)) {
+                if ((D_807ECD09 & (1 << i)) && (pad & (1 << i)) && (gFrameCounter % 15 == 0)) {
                     rumbleMotorStop(i);
                 }
             } else {
@@ -255,7 +255,7 @@ void func_8060EA28(void) {
                         info->unk10++;
                     }
                     if (info->unk0C == 0 || info->unk12 != 0) {
-                        func_8060E8CC(info);
+                        rumbleInfoCancel(info);
                     } else {
                         if (info->unk08 >= 0x100) {
                             if (info->unk04 == 0) {
@@ -276,10 +276,10 @@ void func_8060EA28(void) {
     }
 }
 
-void func_8060EC54(s32 arg0) {
-    if (arg0 != D_80746810) {
-        D_80746810 = arg0;
-        D_80746818 = 1;
+void rumbleSetPaused(s32 arg0) {
+    if (arg0 != gRumblePaused) {
+        gRumblePaused = arg0;
+        gRumbleResetPending = 1;
     }
 }
 
@@ -330,7 +330,7 @@ void schedRemoveClient(SchedStruct *arg0, TaskNode *arg1) {
     osGetIntMask(sp14);
 }
 
-s32 func_8060EE58(SchedStruct *arg0) {
+s32 schedGetCmdQueue(SchedStruct *arg0) {
     return (s32)arg0 + 0x58;
 }
 
@@ -427,7 +427,7 @@ void schedMain(void *arg0) {
         case 0x3F2:
             break;
         default:
-            func_8060F1D0(arg0, (TaskNode *)msg);
+            schedHandleNewTask(arg0, (TaskNode *)msg);
             break;
         }
     }
@@ -437,7 +437,7 @@ void schedMain(void *arg0) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/131B0/schedMain.s")
 #endif
 
-void func_8060F1D0(SchedStruct *arg0, TaskNode *arg1) {
+void schedHandleNewTask(SchedStruct *arg0, TaskNode *arg1) {
     schedAppendTask(arg0, arg1);
     if (arg0->curRSPTask == 0) {
         schedStartTask(arg0, 1);

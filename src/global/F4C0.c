@@ -14,10 +14,10 @@ typedef struct { u8 unk0[0x2C0]; u8 unk2C0; } PlayerRaceContext;
 
 extern MapActionEntry D_80746340[];
 extern s16 D_80745BDE[];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern PlayerStateContext *D_807FBB40;
-extern s32 D_807FC924;
-extern GlobalContextView *D_807FD580;
+extern s32 gPlayerSlots;
+extern GlobalContextView *gActivePlayerState;
 
 s16 func_8060A7C0(s16 arg0, void *arg1, u8 arg2) {
     s16 temp_v1;
@@ -35,7 +35,7 @@ s16 func_8060A7C0(s16 arg0, void *arg1, u8 arg2) {
         }
     } while ((var_v0 < 0xE) && (var_v1 == 0));
     if (var_v1 != 0) {
-        if ((D_807FBB40->unk5C & 1) && (((PlayerRaceContext *)(D_807FC924 + D_807FD580->unk1A4 * 0x2F0))->unk2C0 == 2)) {
+        if ((D_807FBB40->unk5C & 1) && (((PlayerRaceContext *)(gPlayerSlots + gActivePlayerState->unk1A4 * 0x2F0))->unk2C0 == 2)) {
             return 0x97;
         }
         if (*((u16 *)((u8 *)arg1 + 0x6A)) & 4) {
@@ -43,7 +43,7 @@ s16 func_8060A7C0(s16 arg0, void *arg1, u8 arg2) {
         }
         temp_v1 = D_80746340[var_v0].unk4;
         if (temp_v1 == 0) {
-            return *(s16 *)((u8 *)D_80745BDE + D_8076A0A8 * 4);
+            return *(s16 *)((u8 *)D_80745BDE + gCurrentMap * 4);
         }
         return temp_v1;
     }

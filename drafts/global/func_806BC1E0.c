@@ -65,7 +65,7 @@ void camStartPath();
 s32 currentActorTestClearFlag(void);
 void renderCallbacksRegister(void *, void *, s32);
 void camResumePath(void);
-void func_806CFF9C(void *);
+void playerResumeLocomotion(void *);
 s32 camIsCutsceneActive(void);
 void actorScriptStart(void *, s32);
 void hudSpawnCountdownTimer(s32, s32, s32);
@@ -144,14 +144,14 @@ void func_806BC1E0(void) {
                 st->unk39 = 1;
                 D_807FBB4C->unk154 = 0xC;
                 D_807FBB4C->unk155[0] = 0;
-                func_806CFF9C(D_807FBB4C);
+                playerResumeLocomotion(D_807FBB4C);
             }
             if ((D_807ECD58 & 0x4000) && !(D_807ECD60 & 0x4000)) {
                 camResumePath();
                 st->unk39 = 2;
                 D_807FBB4C->unk154 = 0xC;
                 D_807FBB4C->unk155[0] = 0;
-                func_806CFF9C(D_807FBB4C);
+                playerResumeLocomotion(D_807FBB4C);
             }
             break;
         case 1:

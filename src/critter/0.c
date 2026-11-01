@@ -365,7 +365,7 @@ Gfx *func_80024C88(Gfx *gdl, CritterObj *obj) {
     return gdl;
 }
 
-s16 func_806CC10C(s16, s16);
+s16 mathAngleSignedDistance(s16, s16);
 void func_807149B8(s32);
 void func_80714950(s32);
 void func_807149FC(s32);
@@ -391,7 +391,7 @@ void func_80024F28(CritterObj *obj) {
         } else {
             sp40 = temp;
         }
-        sp3E = func_806CC10C(obj->yaw, obj->prevYaw);
+        sp3E = mathAngleSignedDistance(obj->yaw, obj->prevYaw);
         if (sp4E <= 0) {
             func_807149B8(1);
             func_80714950(1);
@@ -495,8 +495,8 @@ Gfx *func_800255C4(Gfx *gdl, CritterObj *obj) {
 }
 
 extern Gfx D_1000118;
-extern u8 D_807FC929;
-extern CritterViewer *D_807FC924;
+extern u8 gCurrentPlayerIndex;
+extern CritterViewer *gPlayerSlots;
 extern Mtx D_2000200;
 extern u8 D_807444FC;
 extern Mtx D_2000180;
@@ -506,7 +506,7 @@ Gfx *critterRenderSetup(Gfx *gdl) {
     gDPPipeSync(gdl++);
     gDPSetCycleType(gdl++, G_CYC_1CYCLE);
     gSPLoadGeometryMode(gdl++, 0);
-    gSPMatrix(gdl++, &D_807FC924[D_807FC929].projection[D_807444FC], G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gdl++, &gPlayerSlots[gCurrentPlayerIndex].projection[D_807444FC], G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(gdl++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(gdl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     return gdl;
@@ -565,7 +565,7 @@ extern Gfx D_80029B18;
 extern Gfx D_80029B30;
 extern Gfx D_80029B78;
 extern Gfx D_80029B88;
-extern s32 D_807F6C28;
+extern s32 gMapChunkCount;
 Gfx *func_800247F4(Gfx *, CritterObj *);
 Gfx *func_80024C88(Gfx *, CritterObj *);
 Gfx *func_8002516C(Gfx *, CritterObj *);
@@ -603,7 +603,7 @@ Gfx *critterRenderGroup(Gfx *gdl, CritterGroup *grp) {
     i = 0;
     if (grp->count > 0) {
         do {
-            if (D_807F6C28 != 0) {
+            if (gMapChunkCount != 0) {
                 lightSampleColorAtPosition(obj->x, obj->y, obj->z, 0, &r, &g, &b, obj->homeZone->unk28);
             } else {
                 r = 0xFF;
@@ -728,7 +728,7 @@ void critterUpdateZoneProximity(CritterObj *obj) {
         }
         obj->homeZone->near = f;
         obj->homeZone->frame = D_807444FC;
-        m = &D_807FC924[D_807FC929];
+        m = &gPlayerSlots[gCurrentPlayerIndex];
         dz = (f32)obj->homeZone->z - m->z;
         dx = (f32)obj->homeZone->x - m->x;
         ddy = (f32)obj->homeZone->y - m->y;
@@ -840,7 +840,7 @@ s32 func_80026530(CritterObj *obj, CritterGroup *grp) {
 extern f32 sqrtf(f32);
 f32 func_80611BB4(f32, f32);
 f32 func_80612800(s16);
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleEaseToward(s16, s16, f32);
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 
 void critterSteerToTarget(CritterObj *obj, CritterGroup *grp, void (*arg2)(CritterObj *, CritterGroup *), s32 (*arg3)(CritterObj *, CritterGroup *)) {
@@ -898,11 +898,11 @@ void critterSteerToTarget(CritterObj *obj, CritterGroup *grp, void (*arg2)(Critt
     }
     dist = sqrtf(dx * dx + dz * dz);
     if ((u8)use_y) {
-        obj->pitch = func_806CC190(obj->pitch, (s16)(((f64)func_80611BB4(dy, dist) * 2048.0) / 3.1415927410125732), obj->turnRate);
+        obj->pitch = mathAngleEaseToward(obj->pitch, (s16)(((f64)func_80611BB4(dy, dist) * 2048.0) / 3.1415927410125732), obj->turnRate);
     }
     ang = mathAngleDiscrete(tx, tz, obj->x, obj->z, dist);
     obj->prevYaw = obj->yaw;
-    obj->yaw = func_806CC190(obj->yaw, ang, obj->turnRate);
+    obj->yaw = mathAngleEaseToward(obj->yaw, ang, obj->turnRate);
     spd = obj->speed;
     obj->x += spd * func_80612794(obj->yaw);
     obj->z += spd * func_80612790(obj->yaw);
@@ -1035,7 +1035,7 @@ void critterDispatchAll(CritterGroup *grp) {
     }
 }
 
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 typedef struct CritterZoneRow {
     CritterZoneShape shape;
     s16 unk14;
@@ -1049,7 +1049,7 @@ void critterUpdateGroups(CritterGroups *groups) {
     CritterZoneRow *tbl;
     CritterZoneRow *e;
     s16 idx;
-    u8 sel = D_8074E77C;
+    u8 sel = gPlayerCharacterId;
 
     if (groups != NULL) {
         p = groups->groups;
@@ -1107,7 +1107,7 @@ void critterLoadData(u8 *arg0) {
                         ent++;
                     }
                     memcpy(ent, src, 0x20);
-                    if (D_807F6C28 != 0) {
+                    if (gMapChunkCount != 0) {
                         ent->unk28 = mapChunkFindByPosition((f32)ent->x, (f32)ent->y, (f32)ent->z, 0);
                         ent->frame = 0xFF;
                     }

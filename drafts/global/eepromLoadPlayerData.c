@@ -6,9 +6,9 @@ extern void eepromClearSlotData(s32, s32);
 extern void func_806C9AE0(void);
 extern void healthRefill(s32);
 extern void eepromHalveRecords(void);
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 extern u8 D_80750AC0;
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 extern u8 D_807FC950[];
 extern u8 D_807467C8;
 extern s32 D_80750AB0;
@@ -35,14 +35,14 @@ void eepromLoadPlayerData(s32 arg0, s32 arg1) {
     if (D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
     D_807467C8 = selector;
-    D_8074E77C = 0;
+    gPlayerCharacterId = 0;
     if (func_8060C6B8(0xD, 0, 0, selector) == 0) {
         eepromClearSlotData(selector, 0);
     }
     if (arg1 != 0) {
         eepromCopySlot();
     }
-    D_807FC928 = 0;
+    gPlayerCount = 0;
     base[0x2FC] = func_8060C6B8(0xC, 0, 0, selector);
     healthRefill(0);
     collectibleCountsClear();
@@ -82,5 +82,5 @@ void eepromLoadPlayerData(s32 arg0, s32 arg1) {
     if (arg1 != 0) {
         eepromHalveRecords();
     }
-    D_8074E77C = 0;
+    gPlayerCharacterId = 0;
 }

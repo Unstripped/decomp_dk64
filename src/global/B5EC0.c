@@ -98,7 +98,7 @@ void func_806B1348(void) {
 }
 
 extern ActorGlobalState D_807FBB70;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 
 void behaviourFrameBegin(void);
 void behaviourSetAnimIds(s32, s32, s32);
@@ -109,7 +109,7 @@ void actorSetDefaultState();
 void actorScriptStart(void *, s32);
 s32 camIsCutsceneActive(void);
 void actorSpawnGroundEffectAtNode(u8);
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleEaseToward(s16, s16, f32);
 void func_80724E48();
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(Actor *, s32);
@@ -130,7 +130,7 @@ void func_806B13B4(u8 arg0) {
 
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
-        if (D_8076A0A8 == 0x43) {
+        if (gCurrentMap == 0x43) {
             ((B5EC0View9C *)D_807FDC9C)->unkD = 0x82;
             D_807FDC98->unk46 |= 0x40;
         }
@@ -176,7 +176,7 @@ void func_806B13B4(u8 arg0) {
         actorMoveWithinZone(0, 0.0f, 0.0f, 0x4300, 0.0f);
         break;
     case 0x32:
-        ((B5EC0Actor *)D_807FBB40)->unkE6 = func_806CC190(((B5EC0Actor *)D_807FBB40)->unkE6, ((B5EC0Actor *)D_807FBB40)->unkEE, 7.0f);
+        ((B5EC0Actor *)D_807FBB40)->unkE6 = mathAngleEaseToward(((B5EC0Actor *)D_807FBB40)->unkE6, ((B5EC0Actor *)D_807FBB40)->unkEE, 7.0f);
         switch (((B5EC0Actor *)D_807FBB40)->unk155) {
         case 0:
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x4300, 0.0f);
@@ -291,7 +291,7 @@ void func_806B13B4(u8 arg0) {
         actorMoveWithinZone(D_807FBB40->unk154, ((B5EC0View90 *)D_807FDC90)->unkA, ((B5EC0View90 *)D_807FDC90)->unkE, 0, 0.0f);
         break;
     case 0x37:
-        ((B5EC0Actor *)D_807FBB40)->unkE6 = func_806CC190(((B5EC0Actor *)D_807FBB40)->unkE6, ((B5EC0Actor *)D_807FBB40)->unkEE, 7.0f);
+        ((B5EC0Actor *)D_807FBB40)->unkE6 = mathAngleEaseToward(((B5EC0Actor *)D_807FBB40)->unkE6, ((B5EC0Actor *)D_807FBB40)->unkEE, 7.0f);
         switch (((B5EC0Actor *)D_807FBB40)->unk155) {
         case 0:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);

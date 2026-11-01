@@ -12,7 +12,7 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern s32 D_807FBB64;
 extern u32 D_807FBB68;
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 extern SfxTableEntry D_80750400[];
 
 extern u8 D_807204BC[];
@@ -54,7 +54,7 @@ void sfxSpawnTableNodes(Actor *arg0) {
     i = 0;
     found = 0;
     offset = 0;
-    if (D_807FC928 >= 2) {
+    if (gPlayerCount >= 2) {
         return;
     }
     if (D_807FBB64 & 0x4000) {
@@ -631,7 +631,7 @@ typedef struct EffectCounter {
     u16 unk8;
 } EffectCounter;
 
-void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_80686CF8(Actor *);
 
 void actorUpdateSfxAndGround(void) {
@@ -655,7 +655,7 @@ void actorUpdateSfxAndGround(void) {
         D_807FBB40->unk80 = D_807FBB40->unkAC;
         ((ActorPhysics *)D_807FBB40)->unkC0 = ((ActorPhysics *)D_807FBB40)->unkC4;
     }
-    func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x96, 0x78, 0, 1.0f);
+    billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x96, 0x78, 0, 1.0f);
 }
 
 void effectSpawnRingBursts(Actor *, f32, f32, s32);
@@ -669,7 +669,7 @@ void actorSpawnRingBurstAndUpdate(void) {
     }
     actorBounceFadeInSpinUpdate(0);
     if (D_807FBB40->unkA4 != 99999.0f) {
-        func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x19, 0x19, 1, 0x96, 0x78, 0, 1.0f);
+        billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0x19, 0x19, 1, 0x96, 0x78, 0, 1.0f);
     }
 }
 
@@ -846,10 +846,10 @@ typedef struct SfxTable {
     s32 unk0[7];
 } SfxTable;
 
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 extern u8 D_807FBD70;
 extern u8 D_807FC954[];
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 extern u8 D_80721170;
 extern SfxTable D_807504A4;
 s32 randomNonNegative(void);
@@ -860,7 +860,7 @@ void effectActorSparkleTick(void) {
     s32 idx;
     SfxTable table;
 
-    flag = D_807FC954[D_8074E77C * 94] & 1;
+    flag = D_807FC954[gPlayerCharacterId * 94] & 1;
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorAppendModelSubNode(D_807FBB40, 0.0f, 10.0f, 0.0f, -1);
         actorSetCollisionRadius(D_807FBB40, 175.0f);
@@ -871,7 +871,7 @@ void effectActorSparkleTick(void) {
     func_8067ACB4(D_807FBB40);
     if (flag != 0) {
         if (D_807FBD70 == 4) {
-            if (D_8076A064 % 5 == 0) {
+            if (gFrameCounter % 5 == 0) {
                 idx = (randomNonNegative() >> 15) % 0xFF % 7;
                 table = D_807504A4;
                 func_8071498C(&effectOrbitSourceUpdate);
@@ -885,7 +885,7 @@ void effectActorSparkleTick(void) {
             }
         }
     }
-    if (!(D_8076A064 & 0xF)) {
+    if (!(gFrameCounter & 0xF)) {
         func_807149B8(1);
         func_8071498C(&effectProximityFadeUpdate);
         func_80714950(0x226);
@@ -894,7 +894,7 @@ void effectActorSparkleTick(void) {
         func_80714C08(&D_80721170, 0.4f, D_807FBB40, 1, 2);
     }
     if (D_807FBB40->unkA4 != 99999.0f) {
-        func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x96, 0x78, 0, 1.0f);
+        billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x96, 0x78, 0, 1.0f);
     }
 }
 

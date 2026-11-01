@@ -5,11 +5,11 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
 extern Actor *D_807FBB4C;
-extern void *D_807FC924;
-extern u8 D_807FC928;
-extern u8 D_807FC929;
+extern void *gPlayerSlots;
+extern u8 gPlayerCount;
+extern u8 gCurrentPlayerIndex;
 extern u8 D_807FC950[][0x5E];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
 extern s16 D_80744490;
@@ -40,7 +40,7 @@ void func_806F8004(f32 arg0, f32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
     f32 sp38;
     f32 sp34;
 
-    sp34 = ((PlayerViewDist *)D_807FC924)[D_807FC929].unk284;
+    sp34 = ((PlayerViewDist *)gPlayerSlots)[gCurrentPlayerIndex].unk284;
     guRotateF(sp88, arg0, 1.0f, 0.0f, 0.0f);
     guMtxXFMF(sp88, 0.0f, 0.0f, -sp34, &sp3C, &sp40, &sp44);
     guRotateF(sp48, arg1, 0.0f, 1.0f, 0.0f);
@@ -165,15 +165,15 @@ void slotQueueInit(s32 arg0) {
 
     sp96 = D_80744544;
     sp8F = func_805FF030(D_8076A0AB, 1);
-    if (D_807FC928 >= 2) {
+    if (gPlayerCount >= 2) {
         sp96 = 0;
     }
     if (arg0 != 0) {
-        gSlotQueue = heapAlloc(D_807FC928 * 0x2D0);
+        gSlotQueue = heapAlloc(gPlayerCount * 0x2D0);
         heapClearBlock(gSlotQueue);
         gSlotQueueMaskList = 0;
     }
-    if (D_807FC928 > 0) {
+    if (gPlayerCount > 0) {
         fp = (u8 *)D_807FC950;
         i = 0;
         do {
@@ -311,9 +311,9 @@ void slotQueueInit(s32 arg0) {
             func_806F8278(player);
             i++;
             fp += 0x306;
-        } while (i < D_807FC928);
+        } while (i < gPlayerCount);
     }
-    if (D_8076A0A8 == 0x11 || D_8076A0A8 == 0x52) {
+    if (gCurrentMap == 0x11 || gCurrentMap == 0x52) {
         slotQueueSetDisplayMode(5, 0, 1);
     }
 }
@@ -367,10 +367,10 @@ u16 slotQueueGetValue(u8 arg0, u8 arg1) {
 void slotQueueUpdate(s32 arg0, u8 arg1, s32 arg2) {
     SlotQueueSlot *temp_v0;
 
-    if ((D_807FC928 < 2) && (func_807142D8() == 0)) {
+    if ((gPlayerCount < 2) && (func_807142D8() == 0)) {
         if (arg0 == 8) {
             slotQueueUpdate(9, arg1, arg2 + 0xA);
-            if (D_8076A0A8 == 0xF) {
+            if (gCurrentMap == 0xF) {
                 return;
             }
         }
@@ -494,7 +494,7 @@ s32 slotQueueGetMaxValue(s32 arg0, s32 arg1) {
         var_a0 = ((1 << D_807FC953[(arg1 * 0x306) + (temp_v0 * 0x5E)]) * 0x32) & 0xFFFF;
         break;
     case 3:
-        if (D_807FC928 >= 2) {
+        if (gPlayerCount >= 2) {
             var_a0 = 0xA;
         } else {
             var_a0 = ((1 << D_807FC953[(arg1 * 0x306) + (temp_v0 * 0x5E)]) * 0x32) & 0xFFFF;
@@ -504,7 +504,7 @@ s32 slotQueueGetMaxValue(s32 arg0, s32 arg1) {
         var_a0 = ((D_807FC953[(arg1 * 0x306) + (temp_v0 * 0x5E)] * 5) + 0x14) & 0xFFFF;
         break;
     case 5:
-        if (D_807FC928 >= 2) {
+        if (gPlayerCount >= 2) {
             var_a0 = 0xBB8;
         } else if (func_806F6EDC() != 0) {
             var_a0 = ((func_806F8EB4() * 0x96) + 0xBB8) & 0xFFFF;
@@ -513,7 +513,7 @@ s32 slotQueueGetMaxValue(s32 arg0, s32 arg1) {
         }
         break;
     case 7:
-        if (D_807FC928 >= 2) {
+        if (gPlayerCount >= 2) {
             var_a0 = 0x14;
         } else {
             temp_a0 = D_807FC954[(arg1 * 0x306) + (temp_v0 * 0x5E)];
@@ -555,7 +555,7 @@ typedef struct SlotQueueStatSlot {
     u8 pad2E[2];
 } SlotQueueStatSlot;
 
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 extern s32 func_805FEF10(s16 *);
 extern void func_80687C48(void);
 extern void flagSet(s16, s32, s32);
@@ -605,7 +605,7 @@ s16 arg2;
                     temp_v0_2 = func_805FF030(D_8076A0AB, 1);
                     temp_a3 = *(u16 *)(sp48 + (temp_v0_2 * 2) + 0x26) + *(u16 *)(sp48 + (temp_v0_2 * 2) + 0xA);
                     if ((temp_a3 >= 0x4B) && ((temp_a3 - arg2) < 0x4B)) {
-                        flagSet(flagGridIndex(0x225, temp_v0_2, (&D_8074E77C)[arg1], temp_a3), 1, 0);
+                        flagSet(flagGridIndex(0x225, temp_v0_2, (&gPlayerCharacterId)[arg1], temp_a3), 1, 0);
                         func_80687C48();
                     }
                     if ((temp_a3 == 0x64) && ((temp_a3 - arg2) < 0x64)) {
@@ -834,7 +834,7 @@ void effectSpawnSprite(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     slotQueueNormalizeSpriteScale(temp_s0->unk8, arg1);
 }
 
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 
 typedef struct SlotQueueSpawnSlot {
     u8 pad0[8];
@@ -864,7 +864,7 @@ void slotQueueSpawnNodes(s32 arg0) {
     effectSpawnSprite(*(void **)var_s0, arg0, (f32)((SlotQueueSpawnSlot *)((u8 *)gSlotQueue + sp30))->unk8, (f32)((SlotQueueSpawnSlot *)((u8 *)gSlotQueue + sp30))->unkC, 0);
     *sp44 = 0xFF;
     *(s16 *)(*(u8 **)var_s0 + 0x10) = 0;
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
     case 0x2A:
         if (arg0 == 0xD) {
             var_s1 = 0x10;
@@ -882,7 +882,7 @@ void slotQueueSpawnNodes(s32 arg0) {
         if ((var_s1 == -1) && (arg0 == 0xE)) {
             var_s1 = 0x12;
         } else if (arg0 == 1) {
-            var_s1 = D_8074E77C + 0x14;
+            var_s1 = gPlayerCharacterId + 0x14;
         }
         break;
     }
@@ -1360,7 +1360,7 @@ s32 slotQueueStateMoveToTarget(s32, s32);
 Gfx *slotQueueBuildDisplayList(Gfx *arg0) {
     s32 i;
 
-    if (D_807FC928 >= 2) {
+    if (gPlayerCount >= 2) {
         return arg0;
     }
     gDPPipeSync(arg0++);

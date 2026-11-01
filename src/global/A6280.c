@@ -33,7 +33,7 @@ typedef struct PlayerState {
 } PlayerState;
 
 extern Actor *D_807FBB4C;
-extern PlayerState *D_807FC924;
+extern PlayerState *gPlayerSlots;
 extern u8 D_807506C0[];
 extern u8 D_807FBD70;
 
@@ -80,7 +80,7 @@ void actorSeekTargetUpdate(void) {
             dz = D_807FBB40->unk84 - D_807FBB4C->unk84;
             if (dx * dx + dz * dz > 900.0f) {
                 sp2C = mathAngleBetweenPointsDeg((s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk84, (s32)D_807FBB4C->unk7C, (s32)D_807FBB4C->unk84);
-                sp30->unkEC = (s16)(sp2C - mathAngleBetweenPointsDeg((s32)D_807FC924->unk228, (s32)D_807FC924->unk230, (s32)D_807FC924->unk210, (s32)D_807FC924->unk218));
+                sp30->unkEC = (s16)(sp2C - mathAngleBetweenPointsDeg((s32)gPlayerSlots->unk228, (s32)gPlayerSlots->unk230, (s32)gPlayerSlots->unk210, (s32)gPlayerSlots->unk218));
             }
             if (animIsPlaying(D_807FBB40, 0) == 0) {
                 animSetSpeed(D_807FBB40, 0, 1.0f);
@@ -127,7 +127,7 @@ void actorCopyPoseAndScale(Actor *, void *, f32);
 void actorUpdatePulseIntensity(s32);
 void actorScriptStart(Actor *, s32);
 void scriptSetActorRampTarget(void *, f32, f32);
-void func_8065D254(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
 void actorUpdateRampTarget(void) {
     ActorSub178 *sp44;
@@ -159,14 +159,14 @@ void actorUpdateRampTarget(void) {
             actorScriptStart(D_807FBB40, 0x234);
         }
     }
-    func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0xA, 0xA, 1, 0x12C, 0xC8, 0, 1.0f);
+    billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0xA, 0xA, 1, 0x12C, 0xC8, 0, 1.0f);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806A1ABC(void) {
 }
 
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern s32 D_8071FFA0;
 extern ActorGlobalState D_807FBB70;
 
@@ -236,7 +236,7 @@ void func_806A1AC4(void) {
     case 2:
         switch (D_807FBB40->unk155[0]) {
         case 0:
-            if (!(D_8076A064 & 7)) {
+            if (!(gFrameCounter & 7)) {
                 for (i = 0; i < 0xC; i++) {
                     speed = (((randomNonNegative() >> 15) % 32767) % 171 + 0x96) * 0.01;
                     func_8071498C((void *)effectDecelDriftFadeUpdate);
@@ -465,7 +465,7 @@ void actorMidpointOrbitUpdate(void) {
         actorDespawn(D_807FBB40);
     }
     billboardSetFlags(1);
-    func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x12C, 0xB4, 0, 1.0f);
+    billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x12C, 0xB4, 0, 1.0f);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
@@ -477,13 +477,13 @@ void actorPlaceModelAtCamera(void) {
     f32 mtx1[4][4];
     f32 mtx2[4][4];
 
-    mathAngleBetweenPoints3D(&spBE, &spBC, D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218, D_807FC924->unk228, D_807FC924->unk22C, D_807FC924->unk230);
+    mathAngleBetweenPoints3D(&spBE, &spBC, gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218, gPlayerSlots->unk228, gPlayerSlots->unk22C, gPlayerSlots->unk230);
     D_807FBB40->unkE6 = spBC;
     D_807FBB40->unkE8 = spBE;
     guRotateF(mtx1, spBE / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
     guRotateF(mtx2, spBC / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx1, mtx2, mtx1);
-    guTranslateF(mtx2, D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218);
+    guTranslateF(mtx2, gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218);
     guMtxCatF(mtx1, mtx2, mtx1);
     guMtxXFMF(mtx1, 0.0f, 0.0f, -11.0f, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
     guTranslateF((f32 (*)[4])((u8 *)D_807FBB40 + 0xC), 0.0f, -20.0f, 0.0f);

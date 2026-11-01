@@ -44,7 +44,7 @@ typedef struct BossD_DC90 {
 
 extern BossD_Actor *D_807FBB40;
 extern BossD_Actor *D_807FBB4C;
-extern BossD_D580 *D_807FD580;
+extern BossD_D580 *gActivePlayerState;
 extern BossD_DC90 *D_807FDC90;
 extern void *gCamActor;
 
@@ -56,7 +56,7 @@ void actorScriptStart(void *, s32);
 s32 camIsCutsceneActive(void);
 void camEndPath(void *);
 void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_806CFF9C(void *);
+void playerResumeLocomotion(void *);
 void camReturnToFollow(void *, void *);
 void csModelStateSetFirstByte(s32, s16);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -66,7 +66,7 @@ f32 func_80612794(s16);
 void func_80030920(s32 arg0) {
     s16 temp_t7;
 
-    D_807FD580->unk1FE = 1;
+    gActivePlayerState->unk1FE = 1;
     func_800290D4(1);
     D_807FBB40->unk144 = 0x24;
     playerStateQueueCallback(0x19, D_807FBB40, 0);
@@ -87,12 +87,12 @@ void func_80030920(s32 arg0) {
 }
 void func_80030AE0(BossD_Sub178 *arg0) {
     func_800290D4(0);
-    D_807FD580->unk1F4 = 0;
+    gActivePlayerState->unk1F4 = 0;
     if (D_807FBB4C->unk154 != 0x36) {
-        func_806CFF9C(D_807FBB4C);
+        playerResumeLocomotion(D_807FBB4C);
     }
     camReturnToFollow(gCamActor, D_807FBB4C);
-    D_807FD580->unk1D8 = 0.01f;
+    gActivePlayerState->unk1D8 = 0.01f;
     csModelStateSetFirstByte(0xB, (arg0->unk14 <= 0) ? 0 : 4);
     csModelStateSetFirstByte(0xC, (arg0->unk14 < 2) ? 0 : 4);
     csModelStateSetFirstByte(0xD, (arg0->unk14 < 3) ? 0 : 4);
@@ -204,7 +204,7 @@ extern u8 D_80035ACF[];
 extern f32 D_80035AD4[];
 extern f32 D_80035AE4[];
 extern u8 D_807FBD70;
-extern BossGlobalC924 *D_807FC924;
+extern BossGlobalC924 *gPlayerSlots;
 extern BossLayoutData *D_807FDC98;
 extern BossConfig *D_807FDC9C;
 
@@ -212,31 +212,31 @@ void behaviourFrameBegin(void);
 void bossRoundFrame(u8 *);
 void camSetSecondTarget(void *, s32, s32);
 void func_80724CA4(s32, s32);
-void func_806D0430(f32);
+void playerSetLargeModeScale(f32);
 void flagSet(s32, s32, s32);
 void camStartPath(void *, s32, u8);
 void func_80641874(s32, s32);
 void actorSetTargetSpeed(void *, s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
-void func_806D0468(void *, s32);
+void playerSetSizeMode(void *, s32);
 s32 func_806C9974(s32, s32);
 void func_80614E78(void *, s32);
 void patrolGetNextWaypointPos(s16 *, s16 *, s16 *);
 void actorSetGroupState(u8, s32);
-s16 func_806CC10C(s16, s16);
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleSignedDistance(s16, s16);
+s16 mathAngleEaseToward(s16, s16, f32);
 s32 currentActorTestClearFlag(void);
 s32 bossScriptStep(u8 *, s32, f32);
 void billboardSetFlags(s32);
-void func_8065D254(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 func_8072881C(s32, void *);
 void actorUpdateModelMatrix(void *, s32);
 
 #define BOSS_ACTOR ((BossActor *)D_807FBB40)
 #define PLAYER_ACTOR ((BossActor *)D_807FBB4C)
 #define WORK_STATE ((BossWorkState *)D_807FDC90)
-#define PLAYER_DATA ((BossPlayerData *)D_807FD580)
+#define PLAYER_DATA ((BossPlayerData *)gActivePlayerState)
 
 void func_80030EC4(void) {
     BossScriptState *sp178;
@@ -256,7 +256,7 @@ void func_80030EC4(void) {
         func_80724CA4(2, 1);
         BOSS_ACTOR->unk110 = 0;
         BOSS_ACTOR->unk60 &= ~0x8000;
-        func_806D0430(0.45f);
+        playerSetLargeModeScale(0.45f);
         func_800290D4(0);
         flagSet(0x5F, 0, 2);
     }
@@ -278,7 +278,7 @@ void func_80030EC4(void) {
             BOSS_ACTOR->unk128 = 0xFF;
         }
     }
-    if (D_807FC924->unk2C0 != 1 && (BOSS_ACTOR->unk154 == 0x42 || BOSS_ACTOR->unk154 == 0x27)) {
+    if (gPlayerSlots->unk2C0 != 1 && (BOSS_ACTOR->unk154 == 0x42 || BOSS_ACTOR->unk154 == 0x27)) {
         BOSS_ACTOR->unk144 = 1;
         actorSetTargetSpeed(BOSS_ACTOR, 0);
         BOSS_ACTOR->unk154 = 0x29;
@@ -359,7 +359,7 @@ void func_80030EC4(void) {
         case 11:
         case 12:
             if (camIsCutsceneActive() == 0) {
-                func_806D0468(PLAYER_ACTOR, 1);
+                playerSetSizeMode(PLAYER_ACTOR, 1);
                 actorSetTargetSpeed(BOSS_ACTOR, D_807FDC9C->unkC);
                 if (BOSS_ACTOR->unk132 != 1) {
                     if (func_806C9974(0, -1) != 0) {
@@ -392,7 +392,7 @@ void func_80030EC4(void) {
             patrolGetNextWaypointPos(&sp50[2], &sp50[1], &sp50[0]);
             actorSetGroupState(D_80035ACF[D_807FDC98->unk20[WORK_STATE->unk25 & 0x7F][0]], 1);
             BOSS_ACTOR->unkEC = mathAngleBetweenPoints2D((f32)sp50[2], (f32)sp50[0], BOSS_ACTOR->unk7C, BOSS_ACTOR->unk84);
-            if (func_806CC10C(BOSS_ACTOR->unkE6, BOSS_ACTOR->unkEC) < 0) {
+            if (mathAngleSignedDistance(BOSS_ACTOR->unkE6, BOSS_ACTOR->unkEC) < 0) {
                 actorScriptStart(BOSS_ACTOR, 0x401);
             } else {
                 actorScriptStart(BOSS_ACTOR, 0x402);
@@ -401,7 +401,7 @@ void func_80030EC4(void) {
             BOSS_ACTOR->unk155++;
             break;
         case 1:
-            BOSS_ACTOR->unkE6 = func_806CC190(BOSS_ACTOR->unkE6, (s16)(BOSS_ACTOR->unkEC + 0x800), 10.0f);
+            BOSS_ACTOR->unkE6 = mathAngleEaseToward(BOSS_ACTOR->unkE6, (s16)(BOSS_ACTOR->unkEC + 0x800), 10.0f);
             actorMoveWithinZone(0, (f32)WORK_STATE->unkA, (f32)WORK_STATE->unkE, 0x309, 0.0f);
             break;
         case 2:
@@ -464,7 +464,7 @@ void func_80030EC4(void) {
     }
     if (BOSS_ACTOR->unk60 & 4) {
         billboardSetFlags(1);
-        func_8065D254(BOSS_ACTOR, 0x3C8, 0x40, 0x40, 0x3C, 0x3C, 1, 0x12C, 0xB4, 0, 1.0f);
+        billboardSubmit(BOSS_ACTOR, 0x3C8, 0x40, 0x40, 0x3C, 0x3C, 1, 0x12C, 0xB4, 0, 1.0f);
     }
     if (func_8072881C(0, D_807FDC90->unk28) != 0) {
         func_8072881C(0x81, D_807FDC90->unk28);

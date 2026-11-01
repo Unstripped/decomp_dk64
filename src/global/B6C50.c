@@ -39,7 +39,7 @@ extern B6C50Actor *D_807FBB40;
 extern B6C50Actor *D_807FBB44;
 extern ActorGlobalState D_807FBB70;
 extern s32 D_8072030C;
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 
 void actorClearNodeFlag(B6C50Actor *, s32);
 void actorDespawn(B6C50Actor *);
@@ -150,7 +150,7 @@ void func_806B1F50(void) {
                 D_807FBB40->unkE6 += 0x800;
                 D_807FBB40->unk84 += 5.0f;
             }
-            if (D_807FBB40->unk155 != 0 && actorTableContains(D_807FDC94) != 0 && D_8076A064 % 7 == 0) {
+            if (D_807FBB40->unk155 != 0 && actorTableContains(D_807FDC94) != 0 && gFrameCounter % 7 == 0) {
                 sp37 = -D_807FBB40->unk155 * 0x1E + 0xB4;
                 func_80714998(3);
                 func_807149C8(sp37, sp37, sp37 & 0xFF, D_807FBB40->unk129);
@@ -187,7 +187,7 @@ void func_806B24B8(void) {
         sfxPlayActorSound(D_807FBB40, 0x139, 0x78, 0, 1, 0x3C, 0.56f, 0);
         D_807FBB40->unk60 |= 0x400;
     }
-    if (D_8076A064 % 10 == 0) {
+    if (gFrameCounter % 10 == 0) {
         func_807149B8(1);
         func_80714C08(&D_80720340, D_807FBB40->unk4->unk38 * 6.66666667 * 0.9, D_807FBB40, 1, 2);
     }

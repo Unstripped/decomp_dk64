@@ -9,7 +9,7 @@ extern u8 D_807FBD70;
 extern f32 gCsPosX;
 extern f32 gCsPosY;
 extern f32 gCsPosZ;
-extern CsPlayer *D_807FC924;
+extern CsPlayer *gPlayerSlots;
 extern u8 D_8071FF18[];
 extern u8 D_8071FFA0[];
 s32 randomLcgNext(void);
@@ -26,7 +26,7 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 u8 collisionCheckGroundAtPoint(f32, f32, f32 *);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 typedef struct CsPoint3f {
     f32 x, y, z;
 } CsPoint3f;
@@ -147,7 +147,7 @@ void csCmdBouncePos(CsState *cs, s16 csId, s16 b, s16 c) {
 void csCmdPeriodicNodeEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 idx;
 
-    if (D_8076A064 % c == 0) {
+    if (gFrameCounter % c == 0) {
         idx = (u32)randomLcgNext() / 10000 % b + 1;
         func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
         func_80714950(-0x78);
@@ -162,7 +162,7 @@ void csPeriodicPointEffect(s32 a, s32 b, u32 c) {
     s32 idx;
     CsPoint3f *p;
 
-    if (D_8076A064 % c == 0) {
+    if (gFrameCounter % c == 0) {
         idx = (u32)randomLcgNext() / 10000 % b;
         func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
         func_80714950(-0x78);
@@ -310,7 +310,7 @@ void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 void csCmdPeriodicEffectPair(CsState *cs, s16 csId, s16 b, s16 c) {
-    if ((D_8076A064 % 5) == 0) {
+    if ((gFrameCounter % 5) == 0) {
         func_80714950(-0x78);
         func_8071498C(func_80717D4C);
         func_807149B8(1);
@@ -359,7 +359,7 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     lightAdd(gCsPosX, gCsPosY, gCsPosZ, 0.0f, 0.0f, 0.0f, 200.0f * f, 0, 0xFF,
              (u32)((-80.0f * f) + 255.0f), (u32)((-205.0f * f) + 255.0f));
-    if (t > 0.6 && (D_8076A064 % 6) == 0) {
+    if (t > 0.6 && (gFrameCounter % 6) == 0) {
         func_807149FC(2);
         func_807149B8(1);
         func_80714950(-0x190);
@@ -546,13 +546,13 @@ void func_806443E4(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
             n->unkC = 0.0f;
         }
         f = *(CsFlicker **)arg0;
-        dz = ((CsPlayerView *)D_807FC924)->unk218 - gCsPosZ;
-        dx = ((CsPlayerView *)D_807FC924)->unk210 - gCsPosX;
-        dy = ((CsPlayerView *)D_807FC924)->unk214 - gCsPosY;
+        dz = ((CsPlayerView *)gPlayerSlots)->unk218 - gCsPosZ;
+        dx = ((CsPlayerView *)gPlayerSlots)->unk210 - gCsPosX;
+        dy = ((CsPlayerView *)gPlayerSlots)->unk214 - gCsPosY;
         dist = sqrtf(dz * dz + (dx * dx + dy * dy));
-        if (((CsPlayerView *)D_807FC924)->unk290 == 0xE && D_807444EC != 1) {
+        if (((CsPlayerView *)gPlayerSlots)->unk290 == 0xE && D_807444EC != 1) {
             fade = 1.0f;
-        } else if (((CsPlayerView *)D_807FC924)->unk290 == 7) {
+        } else if (((CsPlayerView *)gPlayerSlots)->unk290 == 7) {
             fade = 0.0f;
         } else {
             ex = gCsPosX - 1714.0f;
@@ -568,7 +568,7 @@ void func_806443E4(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
                 fade = 1.0 - dist / 600.0f;
             }
         }
-        if (((CsPlayerView *)D_807FC924)->unk290 == 0xE || (((CsPlayerView *)D_807FC924)->unk290 == 0xB && dist < D_807480DC)) {
+        if (((CsPlayerView *)gPlayerSlots)->unk290 == 0xE || (((CsPlayerView *)gPlayerSlots)->unk290 == 0xB && dist < D_807480DC)) {
             func_80711410(2.9f, -0x1E, fade, 0xE, fade < 0.05 ? 0.05 : fade);
         } else {
             D_8077058C = 0;
@@ -860,7 +860,7 @@ void func_806458C8(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 s;
     f32 d;
 
-    if (D_8076A064 % (u32)b == 0) {
+    if (gFrameCounter % (u32)b == 0) {
         r1 = randomNonNegative() >> 15;
         angle = r1 % 2048 + (gCsRotY * 4096.0f / 360.0f - 1024.0f);
         r2 = randomNonNegative() >> 15;
@@ -955,10 +955,10 @@ void func_80645D14(s32 **slot, s16 csId, s16 b, s16 c) {
         **slot = 1;
     }
     p = *slot;
-    a = ((CsPlayerHeightView *)D_807FC924)->unk4->unk174;
+    a = ((CsPlayerHeightView *)gPlayerSlots)->unk4->unk174;
     b2 = a->unk104;
     o = b2->unk174;
-    if (o->unkFA != 0 && ((CsPlayerHeightView *)D_807FC924)->unk214 < o->unk90 + 3.0f) {
+    if (o->unkFA != 0 && ((CsPlayerHeightView *)gPlayerSlots)->unk214 < o->unk90 + 3.0f) {
         near = 1;
     }
     if (*p != 0 && near == 0) {
@@ -996,7 +996,7 @@ void func_80645F40(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x = 0.0f;
     s32 i;
 
-    if (!(D_8076A064 & 0xF)) {
+    if (!(gFrameCounter & 0xF)) {
         for (i = 1; i != 0xB; i++) {
             func_807149B8(1);
             func_80714998(2);
@@ -1117,7 +1117,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         do {
             if (D_80720BC4) {}
-            pl = (CsPlayerPosView *)D_807FC924;
+            pl = (CsPlayerPosView *)gPlayerSlots;
             v = D_807F5FD4[0] + p->idx;
             if (sqrtf((pl->z - v->z) * (pl->z - v->z) + ((pl->x - v->x) * (pl->x - v->x) + (pl->y - v->y) * (pl->y - v->y))) < D_807480F0) {
                 if (D_807480F4 && D_807480F4) {}
@@ -1282,7 +1282,7 @@ void func_80646770(s32 **slot, s16 csId, s16 b, s16 c) {
     }
     if (start != *p) {
         do {
-            pl = (CsPlayerXYZ *)D_807FC924;
+            pl = (CsPlayerXYZ *)gPlayerSlots;
             v = *p + D_807F5FD4[0];
             nv = pl->z - v->z;
             dx = pl->x - v->x;
@@ -1609,10 +1609,10 @@ void csCmdBlinkNodeFrames(CsState *cs, s16 csId, s16 b, s16 c) {
         n->state = 0;
     }
     p = *(CsBlink **)cs;
-    if (p->time + 50 < D_8076A064) {
+    if (p->time + 50 < gFrameCounter) {
         if ((randomNonNegative() >> 15) % 1000 >= 0x353) {
             p->state = 1;
-            p->time = D_8076A064;
+            p->time = gFrameCounter;
         }
     }
     if (p->state == 0) {
@@ -1924,7 +1924,7 @@ typedef struct CsPlayerStateView {
 } CsPlayerStateView;
 
 s32 func_80648C50(void) {
-    s16 state = ((CsPlayerStateView *)D_807FC924)->unk290;
+    s16 state = ((CsPlayerStateView *)gPlayerSlots)->unk290;
 
     if (state == 4 || state == 0xC) {
         return 1;
@@ -1950,8 +1950,8 @@ typedef struct CsCamModeView {
     /* 0xBC */ s16 unkBC;
 } CsCamModeView;
 
-extern CsCamModeView *D_807FD580;
-extern s32 D_8076A0A8;
+extern CsCamModeView *gActivePlayerState;
+extern s32 gCurrentMap;
 extern s16 D_807F7366;
 extern f32 D_807F6940;
 void sfxSetChannelPriority(u8, u8);
@@ -1970,7 +1970,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
         q->unk4 = 0.0f;
     }
     q = ((CsFadeView *)cs)->unk0;
-    if (D_8076A0A8 == 0x26) {
+    if (gCurrentMap == 0x26) {
         flag = 1;
     } else {
         flag = 0;
@@ -2017,7 +2017,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
             }
             break;
     }
-    if ((D_807FBB4C->unk154 == 0x42 && D_807FD580->unkBC == 0x62) || D_807FBB4C->unk154 == 0x67) {
+    if ((D_807FBB4C->unk154 == 0x42 && gActivePlayerState->unkBC == 0x62) || D_807FBB4C->unk154 == 0x67) {
         q->unk0 = 0;
         q->unk2 = 0x190;
         q->unk4 = 0.0f;
@@ -2210,7 +2210,7 @@ void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
         func_80714CC0(D_80720A7C, 0.5f, randomFloat() * 35.0 + gCsPosX - 15.0, randomFloat() * 35.0 + gCsPosY, randomFloat() * 35.0 + gCsPosZ - 15.0);
         return;
     }
-    p = (CsCamVecView *)D_807FC924->unk4->unk174;
+    p = (CsCamVecView *)gPlayerSlots->unk4->unk174;
     p->unk22C = gCsPosX;
     p->unk230 = gCsPosY + 15.0;
     p->unk234 = gCsPosZ;
@@ -2748,7 +2748,7 @@ s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
 
 #ifdef NON_MATCHING
 void csModelStateSetFirstByte(s16, s16);
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 typedef struct CsEntry {
     /* 0x0 */ u8 state;
     /* 0x1 */ u8 pad1;
@@ -2837,8 +2837,8 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
         p->unk4F = 0x14;
     }
     if (p->unk4F == 0) {
-        pl = D_807FC924->unk4;
-        if (pl->unk154 == 0x1C && pl->unk155[0] < 7 && D_8074E77C == 0 && pl->unk110 == 1) {
+        pl = gPlayerSlots->unk4;
+        if (pl->unk154 == 0x1C && pl->unk155[0] < 7 && gPlayerCharacterId == 0 && pl->unk110 == 1) {
             if (csId == pl->unk10C) {
                 bestD = 100000.0f;
                 best = -1;
@@ -2994,13 +2994,13 @@ void func_8064B574(CsState *cs, s16 csId, s16 b, s16 c) {
 extern f32 D_80748280[];
 extern f32 D_8074828C[];
 extern f32 D_807482A4;
-extern s32 D_807F6C28;
+extern s32 gMapChunkCount;
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 void csCmdStepLightColor(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 r, g, bl;
     s32 i;
     if (c != 0) {
-        for (i = 0; i < D_807F6C28; i++) {
+        for (i = 0; i < gMapChunkCount; i++) {
             lightSetColor(D_80748280[0], D_80748280[1], D_80748280[2], (s16)i);
         }
     } else {
@@ -3032,14 +3032,14 @@ void csCmdStepLightColor(CsState *cs, s16 csId, s16 b, s16 c) {
                 bl = D_80748280[2];
             }
         }
-        for (i = 0; i < D_807F6C28; i++) {
+        for (i = 0; i < gMapChunkCount; i++) {
             lightSetColor(r, g, bl, (s16)i);
         }
     }
 }
 
 void func_8064B798(CsState *cs, s16 csId, s16 b, s16 c) {
-    u8 *p = D_807FC924->unk4->unk174;
+    u8 *p = gPlayerSlots->unk4->unk174;
     p[0x1FC] = b;
 }
 
@@ -3153,14 +3153,14 @@ typedef struct CsPlayerSlot {
     /* 0x04 */ Actor *unk4;
     /* 0x08 */ u8 pad8[0x2E8];
 } CsPlayerSlot; /* 0x2F0 */
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 
 s32 csFindPlayerSlotByModel(s32 a, s32 b) {
     s32 i = 0;
     CsPlayerSlot *p;
     Actor *q;
-    if (D_807FC928 > 0) {
-        p = (CsPlayerSlot *)D_807FC924;
+    if (gPlayerCount > 0) {
+        p = (CsPlayerSlot *)gPlayerSlots;
         do {
             if (p->unk0 != 0) {
                 q = p->unk4;
@@ -3170,7 +3170,7 @@ s32 csFindPlayerSlotByModel(s32 a, s32 b) {
             }
             i++;
             p++;
-        } while (i < D_807FC928);
+        } while (i < gPlayerCount);
     }
     return -1;
 }
@@ -3195,7 +3195,7 @@ s32 func_8064BD2C(CsState *cs, s16 csId, s16 b, s16 c) {
         return 0;
     }
     modelSlotGetTransformVectors(id, &x, &y, &z, &u50, &u4C, &u48, &u44, &u40, 1);
-    func_8067ABC0(0, ((CsPlayerSlot *)D_807FC924 + idx)->unk4, 9, (s16)(s32)(u4C * 11.377778f), 0, x, y, z);
+    func_8067ABC0(0, ((CsPlayerSlot *)gPlayerSlots + idx)->unk4, 9, (s16)(s32)(u4C * 11.377778f), 0, x, y, z);
     return 0;
 }
 
@@ -3226,8 +3226,8 @@ s32 func_8064BE80(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 s32 csCondPlayerNearFixedPoint(CsState *cs, s16 csId, s16 b, s16 c) {
-    f64 dz = ((CsPlayerView *)D_807FC924)->unk218 - 1274.0;
-    f64 dx = ((CsPlayerView *)D_807FC924)->unk210 - 3081.0;
+    f64 dz = ((CsPlayerView *)gPlayerSlots)->unk218 - 1274.0;
+    f64 dx = ((CsPlayerView *)gPlayerSlots)->unk210 - 3081.0;
     if (dz * dz + dx * dx < 10000.0) {
         return 1;
     }
@@ -3306,7 +3306,7 @@ void csCmdCamShakeOnAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     CsShake *p;
     CsCamObjView *cam;
 
-    cam = D_807FC924->unk4->unk174;
+    cam = gPlayerSlots->unk4->unk174;
     if (*(CsShake **)cs == NULL) {
         p = heapAlloc(8);
         *(CsShake **)cs = p;
@@ -4182,7 +4182,7 @@ s32 func_8064EB3C(CsState *cs, s16 csId, s16 b, s16 c) {
     return 0;
 }
 
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 
 u8 func_8064EB9C(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 idx;
@@ -4193,7 +4193,7 @@ u8 func_8064EB9C(CsState *cs, s16 csId, s16 b, s16 c) {
         idx = 0;
     }
     v = D_807446F0[idx];
-    return D_8074E77C == v;
+    return gPlayerCharacterId == v;
 }
 
 s32 func_80600530(void);
@@ -4325,7 +4325,7 @@ void func_8064EE08(CsEffView *e, u8 *flag) {
             break;
     }
     if (s->unk0 != 3) {
-        e->unk344 = func_80612794((D_8076A064 * 0x3C) & 0xFFF) * 2.75f + s->unk4;
+        e->unk344 = func_80612794((gFrameCounter * 0x3C) & 0xFFF) * 2.75f + s->unk4;
     }
     e->unk364 = e->unk360;
 }
@@ -4346,7 +4346,7 @@ void func_8064F028(CsState *cs, s16 csId, s16 b, s16 c) {
     D_807FBB44->unk80 = gCsPosY;
     D_807FBB44->unk84 = gCsPosZ;
     D_807FBB44->unkE6 = gCsRotY * 4096.0f / 360.0f;
-    if (D_8076A0A8 == 0xB2 || (D_8076A0A8 == 0xAD && b == 4)) {
+    if (gCurrentMap == 0xB2 || (gCurrentMap == 0xAD && b == 4)) {
         D_807FBB44->unkE6 += 0x800;
     }
     camStartPath(D_807FBB44, 0x22, 5);
@@ -4400,7 +4400,7 @@ void func_8064F308(CsState *cs, s16 csId, s16 b, s16 c) {
     flagSet(flag, 1, 0);
 }
 
-extern u8 D_807FC929;
+extern u8 gCurrentPlayerIndex;
 
 typedef struct {
     u8 pad0[0xA];
@@ -4413,10 +4413,10 @@ typedef struct {
 } CsFlagTable;
 
 u8 func_8064F358(CsState *cs, s16 csId, s16 b, s16 c) {
-    CsFlagTable *p = (CsFlagTable *)D_807FC950 + D_807FC929;
+    CsFlagTable *p = (CsFlagTable *)D_807FC950 + gCurrentPlayerIndex;
     s32 idx = func_805FF030(D_8076A0AB, 0);
 
-    return p->e[(&D_8074E77C)[D_807FC929]].v[idx] > 0;
+    return p->e[(&gPlayerCharacterId)[gCurrentPlayerIndex]].v[idx] > 0;
 }
 
 s32 flagCountRange(s32, s32, s32);

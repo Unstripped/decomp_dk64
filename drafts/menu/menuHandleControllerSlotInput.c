@@ -32,7 +32,7 @@ extern s32 D_80033858;
 extern s32 D_8003385C[];
 extern s8 D_80744520;
 extern s8 D_80744534;
-extern s8 D_8074E77C[];
+extern s8 gPlayerCharacterId[];
 extern u8 D_80750ABC;
 extern u8 D_80750AC0;
 extern s32 D_807552E4[];
@@ -88,7 +88,7 @@ void menuHandleControllerSlotInput(void *arg0, s32 arg1) {
                 for (j = 0; j != 4; j++) {
                     bits = 1 << j;
                     if (!(D_8076A0E4[j] & 0x80)) {
-                        D_8074E77C[j] = D_8076A0E4[j];
+                        gPlayerCharacterId[j] = D_8076A0E4[j];
                         mask = (mask | bits) & 0xFF;
                         D_807552E4[4 + D_80750AC0] = D_8076A100[j];
                         D_80750AC0 += 1;

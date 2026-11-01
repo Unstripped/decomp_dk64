@@ -5,11 +5,11 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
 extern Actor *D_807FBB4C;
-extern void *D_807FC924;
-extern u8 D_807FC928;
-extern u8 D_807FC929;
+extern void *gPlayerSlots;
+extern u8 gPlayerCount;
+extern u8 gCurrentPlayerIndex;
 extern u8 D_807FC950[][0x5E];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
 extern s16 D_80744490;
@@ -30,11 +30,11 @@ typedef struct {
     u8 unk278[0x78];
 } PlayerViewport;
 
-#define PLAYER_VIEWPORT(i) ((PlayerViewport *)((u8 *)D_807FC924 + (i) * 0x2F0))
+#define PLAYER_VIEWPORT(i) ((PlayerViewport *)((u8 *)gPlayerSlots + (i) * 0x2F0))
 
 Gfx *playerViewGfxSetup(Gfx *arg0, u8 arg1) {
     gDPPipeSync(arg0++);
-    gSPViewport(arg0++, osVirtualToPhysical(((PlayerViewport *)D_807FC924)[arg1].unk250[D_807444FC]));
+    gSPViewport(arg0++, osVirtualToPhysical(((PlayerViewport *)gPlayerSlots)[arg1].unk250[D_807444FC]));
     {
         Gfx *_g = (Gfx *)(arg0++);
         _g->words.w0 = ((s32)((f32)PLAYER_VIEWPORT(arg1)->unk272 * 4.0f) & 0xFFF) | 0xED000000 |
@@ -111,7 +111,7 @@ typedef struct {
 Gfx *func_806FF358(Gfx *arg0, Actor *arg1) {
     ActorHudState *state;
 
-    state = (ActorHudState *)((Actor **)D_807FC924)[1]->unk174;
+    state = (ActorHudState *)((Actor **)gPlayerSlots)[1]->unk174;
     gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0xFF, 0xFF, 0xC8);
     arg0 = renderRotatedSprite(arg0, 0x39, 3, 1, 0x40, 0x40, 0x50, 0x50, 0.5f, 0.5f, 0, 0.0f);
     arg0 = renderRotatedSprite(arg0, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0x50, 0.5f, 0.5f, 0x5A, 0.0f);
@@ -134,7 +134,7 @@ Gfx *func_806FF358(Gfx *arg0, Actor *arg1) {
 Gfx *func_806FF628(Gfx *arg0, Actor *arg1) {
     ActorHudState *state;
 
-    state = (ActorHudState *)((Actor **)D_807FC924)[1]->unk174;
+    state = (ActorHudState *)((Actor **)gPlayerSlots)[1]->unk174;
     arg0 = playerViewGfxSetup(arg0, ((ActorPlayerState *)state)->unk1A4);
     if (state->unk1EC == 2) {
         gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0, 0, 0x64);
@@ -157,7 +157,7 @@ Gfx *func_806FF75C(Gfx *dl, Actor *arg1) {
 
     sp6C = 2;
     sp77 = ((ActorPlayerState *)arg1->unk174)->unk1A4;
-    if (D_807FC928 >= 2) {
+    if (gPlayerCount >= 2) {
         sp6C = 3;
     }
     dl = (Gfx *)playerViewGfxSetup((s32)dl, sp77);
@@ -310,7 +310,7 @@ extern f32 D_807FD848[2][3][3];
 void vec3fNormalize(f32 *, Vec3f);
 s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
-#define LENS_FLARE_CAM ((LensFlareCamView *)D_807FC924)
+#define LENS_FLARE_CAM ((LensFlareCamView *)gPlayerSlots)
 #define LENS_FLARE_DIST2 ((LENS_FLARE_CAM->unk224 - arg2) * (LENS_FLARE_CAM->unk224 - arg2)) + (((LENS_FLARE_CAM->unk21C - arg0) * (LENS_FLARE_CAM->unk21C - arg0)) + ((LENS_FLARE_CAM->unk220 - arg1) * (LENS_FLARE_CAM->unk220 - arg1)))
 
 void lensFlareAddSource(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, u8 arg8, u8 arg9) {
@@ -374,8 +374,8 @@ typedef struct {
 
 Gfx *func_8070068C(Gfx *arg0) {
     GFX_PKT(arg0++, 0xDA380007, &D_2000100);
-    GFX_PKT(arg0++, 0xDC080008, osVirtualToPhysical((u8 *)D_807FC924 + (D_807444FC * 0x10) + 0x250));
-    GFX_PKT(arg0++, ((s32)((f32)((ViewportBounds *)D_807FC924)->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)((ViewportBounds *)D_807FC924)->unk270 * 4.0f) & 0xFFF) << 12), ((s32)((f32)((ViewportBounds *)D_807FC924)->unk276 * 4.0f) & 0xFFF) | (((s32)((f32)((ViewportBounds *)D_807FC924)->unk274 * 4.0f) & 0xFFF) << 12));
+    GFX_PKT(arg0++, 0xDC080008, osVirtualToPhysical((u8 *)gPlayerSlots + (D_807444FC * 0x10) + 0x250));
+    GFX_PKT(arg0++, ((s32)((f32)((ViewportBounds *)gPlayerSlots)->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)((ViewportBounds *)gPlayerSlots)->unk270 * 4.0f) & 0xFFF) << 12), ((s32)((f32)((ViewportBounds *)gPlayerSlots)->unk276 * 4.0f) & 0xFFF) | (((s32)((f32)((ViewportBounds *)gPlayerSlots)->unk274 * 4.0f) & 0xFFF) << 12));
     return arg0;
 }
 
@@ -470,7 +470,7 @@ typedef struct {
 } ZbufferViewBounds;
 extern ZbufferDecodeTable D_80754BC4;
 extern s32 D_8076A060;
-#define ZBUFFER_VIEW ((ZbufferViewBounds *)D_807FC924)
+#define ZBUFFER_VIEW ((ZbufferViewBounds *)gPlayerSlots)
 
 s32 zbufferReadDepth(s16 arg0, s16 arg1) {
     ZbufferDecodeTable tileCopy;
@@ -505,7 +505,7 @@ typedef struct {
     f32 unk280;
 } ViewportRectInfo;
 
-#define VIEWPORT_INFO ((ViewportRectInfo *)D_807FC924)
+#define VIEWPORT_INFO ((ViewportRectInfo *)gPlayerSlots)
 
 extern s32 D_807FBB60;
 extern s16 D_807FD800;
@@ -529,7 +529,7 @@ typedef struct {
     u8 pad31[3];
 } PlayerSampleInfo;
 
-extern PlayerSampleInfo D_807FD610[];
+extern PlayerSampleInfo gPlayerPadState[];
 
 typedef struct {
     u8 pad0[0x10E];
@@ -597,10 +597,10 @@ void func_80700BF4(void) {
     D_807FD800 = flag;
     D_807FD802 = zbufferDepthToDistance(zbufferReadDepth(D_807FD804, D_807FD806));
     base = 0x28;
-    for (i = 0; i < D_807FC928; i++) {
-        if (((PlayerViewSlot *)D_807FC924)[i].unk0 != 0) {
-            st = ((ActorWithPlayerState *)((PlayerViewSlot *)D_807FC924)[i].unk4)->unk174;
-            p = &D_807FD610[i];
+    for (i = 0; i < gPlayerCount; i++) {
+        if (((PlayerViewSlot *)gPlayerSlots)[i].unk0 != 0) {
+            st = ((ActorWithPlayerState *)((PlayerViewSlot *)gPlayerSlots)[i].unk4)->unk174;
+            p = &gPlayerPadState[i];
             x = st->unk10E;
             y = st->unk110 - 0x14;
             x += p->unk2E;
@@ -666,8 +666,8 @@ s16 i;
 
     spF0 = (f32)((f64)arg2 / 5.0);
     vec3fSet(&sp160.x, pt.unk0, pt.unk4, pt.unk8);
-    vec3fSet(&sp178.x, ((CameraAxes *)D_807FC924)->unk21C.x, ((CameraAxes *)D_807FC924)->unk21C.y, ((CameraAxes *)D_807FC924)->unk21C.z);
-    vec3fSet(&sp16C.x, ((CameraAxes *)D_807FC924)->unk234.x, ((CameraAxes *)D_807FC924)->unk234.y, ((CameraAxes *)D_807FC924)->unk234.z);
+    vec3fSet(&sp178.x, ((CameraAxes *)gPlayerSlots)->unk21C.x, ((CameraAxes *)gPlayerSlots)->unk21C.y, ((CameraAxes *)gPlayerSlots)->unk21C.z);
+    vec3fSet(&sp16C.x, ((CameraAxes *)gPlayerSlots)->unk234.x, ((CameraAxes *)gPlayerSlots)->unk234.y, ((CameraAxes *)gPlayerSlots)->unk234.z);
     vec3fNormalize(&sp19C.x, vec3fSub(sp16C, sp178));
     sp1B4 = vec3fAdd(sp178, vec3fScale(sp19C, 5000.0f));
     vec3fNormalize(&sp190.x, vec3fSub(sp160, sp178));
@@ -758,7 +758,7 @@ typedef struct {
     u8 unkFA;
 } CameraActorState;
 
-#define PLAYER_VIEW_BLOCK(i) (&((PlayerViewBlock *)D_807FC924)[i])
+#define PLAYER_VIEW_BLOCK(i) (&((PlayerViewBlock *)gPlayerSlots)[i])
 #define OVERLAY_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
 Gfx *func_80701CA0(Gfx *dl) {
@@ -781,7 +781,7 @@ Gfx *func_80701CA0(Gfx *dl) {
     force = 0;
     /* dead address-taken: keeps the flag memory-resident (no promoted ucvt web) */
     pf = &force;
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
     case 0x2D:
         force = 1;
         break;
@@ -797,7 +797,7 @@ Gfx *func_80701CA0(Gfx *dl) {
     default:
         break;
     }
-    for (i = 0; i < D_807FC928; i++) {
+    for (i = 0; i < gPlayerCount; i++) {
         if (PLAYER_VIEW_BLOCK(i)->unk0 != 0) {
             a = (PlayerOverlayState *)PLAYER_VIEW_BLOCK(i)->unk4->unk174;
             /* dead check: makes a->unk104 a shared load candidate (temp register order) */
@@ -825,7 +825,7 @@ Gfx *func_80701CA0(Gfx *dl) {
                 gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
                 OVERLAY_GFX(dl++, 0xFCFFFFFF, 0xFFFDF6FB);
                 v = PLAYER_VIEW_BLOCK(i)->unk24C - PLAYER_VIEW_BLOCK(i)->unk220;
-                switch (D_8076A0A8) {
+                switch (gCurrentMap) {
                 case 0x1E:
                     v = (f32)((f64)v * 0.07);
                     break;

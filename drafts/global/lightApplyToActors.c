@@ -31,11 +31,11 @@ extern LightVolume D_807F7500[];
 
 extern s32 D_80748304;
 extern s32 D_80748308;
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 s32 lightCheckPlayerDistance(LightVolume *);
-void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void commandQueuePush(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
@@ -73,7 +73,7 @@ void lightApplyToActors(void) {
         spC8[i] = 0;
     }
     {
-        for (i = 0; i < D_80748300 && D_807FC928 < 3; i++) {
+        for (i = 0; i < D_80748300 && gPlayerCount < 3; i++) {
             light = &D_807F7500[i];
             if ((lightCheckPlayerDistance(light) != 0) && (lightCount < 12)) {
                 lightCount++;
@@ -149,7 +149,7 @@ void lightApplyToActors(void) {
                                             spC[1] = 0.15f;
                                         }
                                         alpha = actor->unk128 / 255.0;
-                                        func_8065D254(actor, 0x3C9, 0x40, 0x40,
+                                        billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                                             (s32)(spC[0] * (f32)actor->unk16E[0]),
                                             (s32)(spC[1] * (f32)actor->unk16E[1]),
                                             1, 0x64,
@@ -203,7 +203,7 @@ void lightApplyToActors(void) {
                                     0xFF, light->unk36, light->unk37, light->unk38, 0);
                                 if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
                                     alpha = actor->unk128 / 255.0;
-                                    func_8065D254(actor, 0x3C9, 0x40, 0x40,
+                                    billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                                         (s32)(spC[0] * (f32)actor->unk16E[0]),
                                         (s32)(spC[1] * (f32)actor->unk16E[1]),
                                         1, 0x64,
@@ -224,7 +224,7 @@ void lightApplyToActors(void) {
                                         0);
                                     if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
                                         alpha = actor->unk128 / 255.0;
-                                        func_8065D254(actor, 0x3C9, 0x40, 0x40,
+                                        billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                                             (s32)(spC[0] * (f32)actor->unk16E[0]),
                                             (s32)(spC[1] * (f32)actor->unk16E[1]),
                                             1, 0x64,
@@ -253,7 +253,7 @@ void lightApplyToActors(void) {
                         spC[1] = 0.15f;
                     }
                     alpha = actor->unk128 / 255.0;
-                    func_8065D254(actor, 0x3C9, 0x40, 0x40,
+                    billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                         (s32)(spC[0] * (f32)actor->unk16E[0]),
                         (s32)(spC[1] * (f32)actor->unk16E[1]),
                         1, 0x64,

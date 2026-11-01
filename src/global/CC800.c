@@ -6,9 +6,9 @@ extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
-extern u8 D_807FC928;
-extern u8 D_807FC929;
-extern Struct807FD580 *D_807FD580;
+extern u8 gPlayerCount;
+extern u8 gCurrentPlayerIndex;
+extern Struct807FD580 *gActivePlayerState;
 extern s16 D_807FD584;
 extern u16 D_807FD63C;
 
@@ -22,7 +22,7 @@ void collectibleCountsClear(void) {
     }
 }
 
-extern u8 D_8074E77C[];
+extern u8 gPlayerCharacterId[];
 
 typedef struct G00Row {
     /* 0x0 */ s32 unk0;
@@ -34,7 +34,7 @@ typedef struct G00Row {
 extern G00Row D_8075C410[];
 
 s32 func_806C7B34(void) {
-    return D_8075C410[D_8074E77C[0]].unk0;
+    return D_8075C410[gPlayerCharacterId[0]].unk0;
 }
 
 typedef struct G00SpawnSub {
@@ -121,15 +121,15 @@ typedef struct G00Block {
     /* 0x2EC */ u8 pad2EC[4];
 } G00Block; // size = 0x2F0
 
-extern G00Block *D_807FC924;
+extern G00Block *gPlayerSlots;
 
 void func_806C7C10(void) {
-    D_807FC928 = D_80750AC0;
-    D_807FC924 = 0;
-    if (D_807FC928 >= 2) {
+    gPlayerCount = D_80750AC0;
+    gPlayerSlots = 0;
+    if (gPlayerCount >= 2) {
         switch (D_80750AB8) {
         case 0:
-            D_80750AB4 = D_807FC928;
+            D_80750AB4 = gPlayerCount;
             break;
         case 1:
             D_80750AB4 = 1;
@@ -162,7 +162,7 @@ G00Entry *cameraFindViewportEntry(u8 arg0) {
     i = 0;
     found = 0;
     do {
-        if (D_807FC928 == D_80750948[i].unk0 && D_80750AB8 == D_80750948[i].unk1 && arg0 == D_80750948[i].unk3 &&
+        if (gPlayerCount == D_80750948[i].unk0 && D_80750AB8 == D_80750948[i].unk1 && arg0 == D_80750948[i].unk3 &&
             (D_80750948[i].unk2 & D_80750ABC)) {
             found = 1;
         } else {
@@ -202,13 +202,13 @@ void func_806C7D40(s32 arg0) {
     u8 sel;
     G00Entry *e;
 
-    D_807FC924 = heapAlloc(D_807FC928 * 0x2F0);
-    heapClearBlock(D_807FC924);
-    for (i = 0; i < D_807FC928; i++) {
-        blk = &D_807FC924[i];
+    gPlayerSlots = heapAlloc(gPlayerCount * 0x2F0);
+    heapClearBlock(gPlayerSlots);
+    for (i = 0; i < gPlayerCount; i++) {
+        blk = &gPlayerSlots[i];
         blk->unk0 = 1;
         sel = i;
-        D_807FC929 = i;
+        gCurrentPlayerIndex = i;
         func_806C850C(arg0++, sel);
         blk->unk4 = D_807FBB48;
         if (i == 0) {
@@ -265,10 +265,10 @@ void func_806C7D40(s32 arg0) {
         func_806C80E4();
         D_807FD570 = 0;
     }
-    if (D_807FC928 >= 2) {
+    if (gPlayerCount >= 2) {
         actorSpawn(0x13E, 0);
     }
-    D_80750AD0 = (D_80750AB8 == 0) && (D_807FC928 >= 2);
+    D_80750AD0 = (D_80750AB8 == 0) && (gPlayerCount >= 2);
 }
 
 
@@ -303,7 +303,7 @@ void func_806C80E4(void) {
 void cameraSetViewportYRange(s16 arg0, s16 arg1) {
     G00Block *p;
 
-    p = D_807FC924;
+    p = gPlayerSlots;
     p->unk27A = arg1 - arg0;
     p->unk272 = arg0;
     p->unk276 = arg1;
@@ -503,20 +503,20 @@ typedef struct G00Slot34 {
     /* 0x2A */ u8 pad2A[0xA];
 } G00Slot34;
 
-#define G00_P ((G00Player *)D_807FD580)
+#define G00_P ((G00Player *)gActivePlayerState)
 #define G00_A48 ((G00ActorView *)D_807FBB48)
 
 extern s32 controllerGetPort(s32);
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern f32 D_8075C4B0;
 extern Actor *gCamActor;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
-extern volatile G00Slot34 D_807FD610[];
+extern volatile G00Slot34 gPlayerPadState[];
 void func_806E2C74(Actor *);
 s32 flagGet(s32, s32);
 void func_806F09F0(Actor *, u16);
-void func_806CFF9C(Actor *);
+void playerResumeLocomotion(Actor *);
 void func_806C90C4(s32);
 void func_806C8984(void);
 void func_806C8D20(Actor *);
@@ -531,20 +531,20 @@ void func_806C850C(s32 arg0, u8 arg1) {
     s32 new_var;
 
     sel = arg1;
-    if (D_807FC928 >= 2) {
-        D_8074E77C[sel] = D_8074E77C[controllerGetPort(sel)];
+    if (gPlayerCount >= 2) {
+        gPlayerCharacterId[sel] = gPlayerCharacterId[controllerGetPort(sel)];
     }
-    if (sel == 0 && D_8076A0A8 == 0x50) {
-        D_8074E77C[0] = 0;
+    if (sel == 0 && gCurrentMap == 0x50) {
+        gPlayerCharacterId[0] = 0;
     }
-    row = &D_8075C410[D_8074E77C[sel]];
+    row = &D_8075C410[gPlayerCharacterId[sel]];
     actorSpawn(row->unk0, row->unk8);
     D_807FBB44->unk60 &= ~0x1000;
     D_807FBB44->unk60 |= row->unkC;
     D_807FBB44->unk16E[0] = 0x42;
     D_807FBB44->unk16E[1] = 0x42;
     D_807FBB44->unk60 |= 0x01000000;
-    if (D_807FC928 >= 2) {
+    if (gPlayerCount >= 2) {
         D_807FBB44->unk64 |= 0x200;
     }
     D_807FBB44->unk68 |= 0xC0;
@@ -556,7 +556,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     new_var = 1;
     *((G00Sub4 *)D_807FBB44->unk4)->unk24 = 0xFF;
     D_807FBB48 = D_807FBB44;
-    D_807FD580 = D_807FBB44->unk174;
+    gActivePlayerState = D_807FBB44->unk174;
     G00_P->unk247 = -new_var;
     G00_P->unk1A4 = sel;
     G00_P->unk11E = -new_var;
@@ -607,15 +607,15 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_A48->unkDE = 0x400;
     G00_P->unk1B0 = 0;
     G00_P->unk1AC = 0;
-    D_807FD610[sel].unk14 = D_807FD610[sel].unk4;
-    D_807FD610[sel].unk18 = D_807FD610[sel].unk4;
-    D_807FD610[sel].unk1C = D_807FD610[sel].unk4;
-    D_807FD610[sel].unk22 = D_807FD610[sel].unk28;
-    D_807FD610[sel].unk24 = D_807FD610[sel].unk28;
-    D_807FD610[sel].unk26 = D_807FD610[sel].unk28;
-    D_807FD610[sel].unk20 = D_807FD610[sel].unk28;
-    D_807FD610[sel].unk10 = D_807FD610[sel].unk4;
-    func_806CFF9C(D_807FBB48);
+    gPlayerPadState[sel].unk14 = gPlayerPadState[sel].unk4;
+    gPlayerPadState[sel].unk18 = gPlayerPadState[sel].unk4;
+    gPlayerPadState[sel].unk1C = gPlayerPadState[sel].unk4;
+    gPlayerPadState[sel].unk22 = gPlayerPadState[sel].unk28;
+    gPlayerPadState[sel].unk24 = gPlayerPadState[sel].unk28;
+    gPlayerPadState[sel].unk26 = gPlayerPadState[sel].unk28;
+    gPlayerPadState[sel].unk20 = gPlayerPadState[sel].unk28;
+    gPlayerPadState[sel].unk10 = gPlayerPadState[sel].unk4;
+    playerResumeLocomotion(D_807FBB48);
     func_806C90C4(arg0);
     func_806C8984();
 }
@@ -625,7 +625,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C850C.s")
 #endif
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern s16 D_80753354[];
 
 typedef struct L6C8984View {
@@ -635,12 +635,12 @@ typedef struct L6C8984View {
     /* 0x88 */ Actor *unk88;
 } L6C8984View;
 
-#define L6V ((L6C8984View *)D_807FD580)
+#define L6V ((L6C8984View *)gActivePlayerState)
 
 void actorScriptStart(Actor *, s32);
 void func_80614E78(Actor *, s32);
 void func_80613C48(Actor *, s32, f32, f32);
-void func_806CFE7C(void);
+void playerSetBaseGravity(void);
 void func_806F0D68(Actor *);
 void commandSetFlags(s32, s32);
 void commandSetColor(s32, s32, s32);
@@ -653,7 +653,7 @@ void func_806C8984(void) {
     f32 scale;
 
     scale = -1.0f;
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
     case 0x50:
         actorSpawn(0x146, 0);
         return;
@@ -689,7 +689,7 @@ void func_806C8984(void) {
     case 0x68:
     case 0x88:
     case 0x89:
-        func_806CFE7C();
+        playerSetBaseGravity();
         actorScriptStart(D_807FBB48, 0);
         func_80613C48(D_807FBB48, 0, 0.0f, 0.0f);
         D_807FBB48->unk154 = 0x7D;
@@ -799,9 +799,9 @@ s32 func_806C8DE0(s32 arg0) {
     Actor *p;
     G00View1EE *q;
 
-    var_v1 = D_8074E77C[arg0];
+    var_v1 = gPlayerCharacterId[arg0];
     if (var_v1 == 6 || var_v1 == 7) {
-        p = D_807FC924[arg0].unk4;
+        p = gPlayerSlots[arg0].unk4;
         q = ((G00View1EE **)&p->unk174)[arg0];
         var_v1 = func_806C8D2C(q->unk1EE);
     }
@@ -815,12 +815,12 @@ void func_806C8E58(s16 arg0) {
     u8 i;
 
     found = 0;
-    i = D_8074E77C[D_807FC929] = 0;
+    i = gPlayerCharacterId[gCurrentPlayerIndex] = 0;
     do {
         if (arg0 == D_8075C410[i].unk0) {
             found = 1;
         } else {
-            D_8074E77C[D_807FC929] = i + 1; i = D_8074E77C[D_807FC929];
+            gPlayerCharacterId[gCurrentPlayerIndex] = i + 1; i = gPlayerCharacterId[gCurrentPlayerIndex];
         }
     } while (found == 0);
     func_806C8F8C(&D_8075C410[i]);
@@ -835,11 +835,11 @@ void func_806C9C80();
 void timerQueueAdd(void *, s32, s32, s32, s32);
 
 void func_806C8EE8(void) {
-    D_8074E77C[D_807FC929]++;
-    D_8074E77C[D_807FC929] %= 8;
-    ((G00View8C *)D_807FD580)->unk8C = 0;
-    func_806C8F8C(&D_8075C410[D_8074E77C[D_807FC929]]);
-    timerQueueAdd(func_806C9C80, 0x14, D_807FC929, 0, 0);
+    gPlayerCharacterId[gCurrentPlayerIndex]++;
+    gPlayerCharacterId[gCurrentPlayerIndex] %= 8;
+    ((G00View8C *)gActivePlayerState)->unk8C = 0;
+    func_806C8F8C(&D_8075C410[gPlayerCharacterId[gCurrentPlayerIndex]]);
+    timerQueueAdd(func_806C9C80, 0x14, gCurrentPlayerIndex, 0, 0);
 }
 
 typedef struct G01Sub4 {
@@ -969,7 +969,7 @@ extern s8 D_80770DC9;
 G01Pos *func_806C96C4(s32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
 void func_8067ACB4(Actor *);
-void func_806F39E8(Actor *, void *, s32);
+void playerWaypointPathStartLineFromPoint(Actor *, void *, s32);
 
 void func_806C90C4(s32 arg0) {
     G01Ctl *sp24 = G01A->unk174;
@@ -996,7 +996,7 @@ void func_806C90C4(s32 arg0) {
         G01A->unkEE = G01A->unkE6;
         break;
     case 1:
-        func_806F39E8(D_807FBB48, p, 0x32);
+        playerWaypointPathStartLineFromPoint(D_807FBB48, p, 0x32);
         break;
     }
     G01A->unk6A &= 0xFDFF;
@@ -1041,13 +1041,13 @@ typedef struct G01Sub4f {
     /* 0x34 */ f32 unk34[3];
 } G01Sub4f;
 
-void func_806D0468(void *, s32, void *, void *);
+void playerSetSizeMode(void *, s32, void *, void *);
 
 void func_806C9304(Actor *arg0, G01Ctl *arg1) {
     s32 i;
 
-    if (((G01Player *)D_807FC924)[arg1->unk1A4].unk2C0 != 1) {
-        func_806D0468(D_807FBB48, 1, arg0, arg1);
+    if (((G01Player *)gPlayerSlots)[arg1->unk1A4].unk2C0 != 1) {
+        playerSetSizeMode(D_807FBB48, 1, arg0, arg1);
     }
     if (((G01Sub4f *)arg0->unk4)->unk34[0] != arg1->unk1C0[0]) {
         for (i = 0; i < 3; i++) {
@@ -1072,7 +1072,7 @@ s32 camIsCutsceneActive(void);
 void camResetAllPlayers(void);
 void camResetPlayer(Actor *, u8);
 void func_806C8D20(Actor *);
-void func_806CFF9C(Actor *);
+void playerResumeLocomotion(Actor *);
 void func_806C90C4(s32);
 
 void func_806C9434(s32 arg0) {
@@ -1098,19 +1098,19 @@ void func_806C9434(s32 arg0) {
     ctl->unk1F0 &= 0xF7FFFF5F;
     ctl->unk200 = 0;
     ctl->unk4 = 0.0f;
-    if (D_807FC928 >= 2) {
+    if (gPlayerCount >= 2) {
         func_800268DC(D_807FBB48, ctl, sp2C);
     }
     func_806C9304(D_807FBB48, ctl);
     if (camIsCutsceneActive() == 0) {
-        if (D_807FC928 >= 2 && D_80750AB8 == 1) {
+        if (gPlayerCount >= 2 && D_80750AB8 == 1) {
             camResetAllPlayers();
         } else {
             camResetPlayer(D_807FBB48, ctl->unk1A4);
         }
     }
     func_806C8D20(D_807FBB48);
-    func_806CFF9C(D_807FBB48);
+    playerResumeLocomotion(D_807FBB48);
     G01A->unkE8 = 0;
     G01A->unkE4 = 0;
 }
@@ -1186,8 +1186,8 @@ s8 func_806C9830(arg0, arg1)
     v = arg0;
     arg0 = 0;
 
-    if (D_807FC928 >= 2) {
-        c = ((G01Act *)arg1)->unk174; pl = c->unk1A4 + (G01Player *)D_807FC924;
+    if (gPlayerCount >= 2) {
+        c = ((G01Act *)arg1)->unk174; pl = c->unk1A4 + (G01Player *)gPlayerSlots;
         if (pl->unk2A0 != NULL) {
             q = pl->unk2A0;
             if (q->unk5C & 1) {
@@ -1238,7 +1238,7 @@ typedef struct G01PlayerFlags {
 
 extern s32 D_807552EC;
 void func_80026E20(u8, s8);
-void func_8060E7EC(u8, s32, s32, s8);
+void rumbleRequest(u8, s32, s32, s8);
 
 s32 func_806C9974(arg0, arg1)
 u8 arg0;
@@ -1246,13 +1246,13 @@ s8 arg1;
 {
     G01PlayerFlags *pl;
 
-    pl = (G01PlayerFlags *)&D_807FC924[arg0];
+    pl = (G01PlayerFlags *)&gPlayerSlots[arg0];
     pl->unk2E2 |= 0x11;
-    if (D_807FC928 >= 2 && arg1 < 0 && D_807552EC == 1) {
+    if (gPlayerCount >= 2 && arg1 < 0 && D_807552EC == 1) {
         func_80026E20(arg0, arg1);
     }
     if (arg1 < 0) {
-        func_8060E7EC(arg0, 0xFF, 5, arg1);
+        rumbleRequest(arg0, 0xFF, 5, arg1);
     }
     if (!(D_807FBB64 & 0x800)) {
         ((G01Slot *)D_807FC950)[arg0].unk2FD += arg1;
@@ -1326,7 +1326,7 @@ void func_806C9C80(s32 arg0, s32 arg1, s32 arg2) {
 }
 
 void func_806C9D20(u8 arg0) {
-    G01Player *p = (G01Player *)&D_807FC924[arg0];
+    G01Player *p = (G01Player *)&gPlayerSlots[arg0];
 
     p->unk21C = p->unk210;
     p->unk220 = p->unk214;
@@ -1343,7 +1343,7 @@ typedef struct G01Row {
 } G01Row;
 
 s32 func_806C9D7C(void) {
-    G01Row *row = (G01Row *)D_807FC950[D_8074E77C[0]];
+    G01Row *row = (G01Row *)D_807FC950[gPlayerCharacterId[0]];
     s32 i;
     s32 v;
 

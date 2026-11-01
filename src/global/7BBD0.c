@@ -107,7 +107,7 @@ typedef struct CollisionPadD610 {
     u8 pad8[0x20];
     s16 unk28;
 } CollisionPadD610;
-extern CollisionPadD610 D_807FD610;
+extern CollisionPadD610 gPlayerPadState;
 
 typedef struct ActorCollisionBoundsFull {
     s32 unk0;
@@ -254,7 +254,7 @@ u8 actorCollisionReflectAndPush(Actor *arg0, Actor *arg1) {
         break;
     case 1:
         func_8067A864(arg0, arg1, ((CollisionActorFull *)arg0)->unkE6, (s16)(s32)((CollisionActorFull *)arg0)->unkB8, &spC4[0], &sp7C[0][0], ((CollisionTarget *)D_807FB5D8)->unk4E, D_807FB5D0, actorGetCollisionThreshold(arg0));
-        if (actorIsTargetWithinAngle(D_807FD610.unk28, 400) && (f64)D_807FD610.unk4 > 30.0) {
+        if (actorIsTargetWithinAngle(gPlayerPadState.unk28, 400) && (f64)gPlayerPadState.unk4 > 30.0) {
             ((CollisionActorFull *)arg0)->unkE6 = temp_s6->unk66;
         }
         break;
@@ -275,12 +275,12 @@ typedef struct ActorMtxOwner {
 } ActorMtxOwner;
 
 extern u8 D_807444FC;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 void actorGetMatrix(ActorMtxOwner *arg0, ActorMtxF arg1, s8 arg2) {
     u8 var_v0;
     Mtx *mtx;
 
-    if (D_8076A064 == arg0->unk88) {
+    if (gFrameCounter == arg0->unk88) {
         var_v0 = D_807444FC;
     } else {
         var_v0 = D_807444FC ^ 1;
@@ -313,8 +313,8 @@ typedef struct ActorCollisionSub140 {
 extern u8 D_807FD614[];
 extern u8 D_807FB603;
 extern u8 D_807FB547;
-extern void *D_807FC924;
-extern u8 D_807FC929;
+extern void *gPlayerSlots;
+extern u8 gCurrentPlayerIndex;
 extern s16 D_80753D50[];
 extern s16 D_80753D60[];
 extern s16 D_807FD584;
@@ -408,7 +408,7 @@ void actorCollisionResolveSurfaceHit(Actor *arg0, Actor *arg1, f32 *arg2, f32 *a
             sp8C[1] = sp98[1] / norm;
             sp8C[2] = sp98[2] / norm;
             if (arg1->unk5C & 1) {
-                scale = (*(u8 *)(*(s32 *)&D_807FC924 + (D_807FC929 * 0x2F0) + 0x2C0) == 1 ? (f32)D_80753D50[D_807FD584] : (f32)D_80753D60[D_807FD584]) / 8;
+                scale = (*(u8 *)(*(s32 *)&gPlayerSlots + (gCurrentPlayerIndex * 0x2F0) + 0x2C0) == 1 ? (f32)D_80753D50[D_807FD584] : (f32)D_80753D60[D_807FD584]) / 8;
                 p174 = arg1->unk174;
                 sp70[0] = sp8C[0] * scale;
                 sp70[1] = sp8C[1] * scale;

@@ -4,7 +4,7 @@
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
-extern void *D_807FC924;
+extern void *gPlayerSlots;
 
 u8 func_8072E5B0(void) {
     Actor *a = D_807FBB4C;
@@ -189,7 +189,7 @@ typedef struct {
     /* 0x8 */ u8 pad8[0x2E8];
 } PlayerSlot; // size = 0x2F0
 
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 extern s16 D_8076A0AA;
 s32 flagTryTriggerOnce(s16, s16);
 
@@ -200,8 +200,8 @@ s32 volumeTriggerUpdate(VolumeTrigger *arg0) {
     PlayerSlot *players;
     u8 i;
 
-    for (i = 0; i < D_807FC928; i++) {
-        players = &((PlayerSlot *)D_807FC924)[i];
+    for (i = 0; i < gPlayerCount; i++) {
+        players = &((PlayerSlot *)gPlayerSlots)[i];
         if (players->active) {
             if (arg0->unk8 == -1 || ((f32)arg0->unk2 <= players->actor->unk80 && players->actor->unk80 < (f32)(arg0->unk2 + arg0->unk8))) {
                 y = ((f32)arg0->unk4 - players->actor->unk84) * ((f32)arg0->unk4 - players->actor->unk84) + ((f32)arg0->unk0 - players->actor->unk7C) * ((f32)arg0->unk0 - players->actor->unk7C);

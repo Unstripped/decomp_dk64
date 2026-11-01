@@ -34,7 +34,7 @@ typedef struct {
     /* 0x0C */ s16 unkC;
 } LightPosEntry;
 
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern Actor *D_807FBB40;
 extern u8 D_807FC621;
 extern u8 D_807FC622;
@@ -62,14 +62,14 @@ void lightUpdateFromActorLighting(u8 *arg0, u8 *arg1, u8 *arg2) {
             *arg2 = 0xFF;
             break;
         case 1:
-            if (!(D_8076A064 & 0xF)) {
+            if (!(gFrameCounter & 0xF)) {
                 goto set_color;
             }
             break;
         case 2:
-            if (!(D_8076A064 & 3)) {
+            if (!(gFrameCounter & 3)) {
 set_color:
-                idx = (u32)(func_80612790(D_8076A064 * 200) * 4.0f + 4.0f);
+                idx = (u32)(func_80612790(gFrameCounter * 200) * 4.0f + 4.0f);
                 *arg0 = D_807501C0[idx][0];
                 *arg1 = D_807501C0[idx][1];
                 *arg2 = D_807501C0[idx][2];
@@ -83,8 +83,8 @@ set_color:
             sp3C = (f32)D_80750194[D_807FC621 - 1].unkA;
             sp38 = (f32)D_80750194[D_807FC621 - 1].unkC;
             if (D_807FC622 != 0) {
-                sp40 += 80.0f * func_80612794(D_8076A064 * 400);
-                sp38 += 80.0f * func_80612790(D_8076A064 * 200);
+                sp40 += 80.0f * func_80612794(gFrameCounter * 400);
+                sp38 += 80.0f * func_80612790(gFrameCounter * 200);
             }
             lightSetFovAngles((f32)(u32)D_80750194[D_807FC621 - 1].unk0, (f32)(u32)D_80750194[D_807FC621 - 1].unk1);
             lightAdd((f32)D_80750194[D_807FC621 - 1].unk2, (f32)D_80750194[D_807FC621 - 1].unk4, (f32)D_80750194[D_807FC621 - 1].unk6, sp40, sp3C, sp38, 0.0f, 1, *arg0, *arg1, *arg2);
@@ -98,7 +98,7 @@ void func_805FF378();
 void func_80712524(s32, s32);
 extern s8 D_8074452C;
 extern u16 D_80744734[];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 
 s32 cutsceneTriggerCheck(s16 arg0) {
     s16 sp36;
@@ -112,7 +112,7 @@ s32 cutsceneTriggerCheck(s16 arg0) {
     i = 0;
     found = 0;
     while (!found && i < 8) {
-        if (D_8076A0A8 == D_80744734[i]) {
+        if (gCurrentMap == D_80744734[i]) {
             found = 1;
         } else {
             i++;
@@ -214,7 +214,7 @@ void lightSetOverrideColor(f32, f32, f32);
 void func_8070B308(s32);
 void func_805FF158(s32);
 s32 cutsceneTriggerCheck(s16);
-void func_806F3BEC(void *, s16, s16, s32);
+void playerWaypointPathStartLineFromActor(void *, s16, s16, s32);
 void func_805FF4D8(s16, s16);
 void func_805FF9AC(s16, s16, s16, s32);
 void func_805FF628(s16, s16);
@@ -224,7 +224,7 @@ void func_805FF8F8(void);
 void func_805FF660(u8);
 s32 func_805FF030(u8, s32);
 void func_80600044(s32);
-void func_806F397C(void *, s32, s16, s32);
+void playerWaypointPathStartPacked(void *, s32, s16, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s16, s32, s32, s32);
 void sfxAllocateChannel(s16, f32);
 void sfxStopChannel(s16, s32);
@@ -240,7 +240,7 @@ s32 randomNonNegative(void);
 void lightSetColor(f32, f32, f32, s16);
 void sfxPlayWithRandomPan(s32, s32, s32, s32, s32);
 void func_80711410(f32, s16, f32, s16, f32);
-s32 func_807122B4(void);
+s32 effectSpritePoolFadeOut(void);
 void actorUpdateEntryEmitters(void);
 void particleSpawnPathTrail(void);
 
@@ -251,8 +251,8 @@ extern s16 D_807FDCBC;
 extern s16 D_807FDCB8;
 extern s32 D_807FBB60;
 extern void *D_807FBB4C;
-extern CutscenePlayerContext *D_807FD580;
-extern struct ActorPlayerPos *D_807FC924;
+extern CutscenePlayerContext *gActivePlayerState;
+extern struct ActorPlayerPos *gPlayerSlots;
 extern u16 D_80744700[];
 extern u8 D_8076A0AB;
 extern s32 D_8076A0AC;
@@ -303,7 +303,7 @@ void actorCutsceneDispatchEvents(void) {
             temp_s1->unk1E = temp_s1->unk1C;
             break;
         case 0x1:
-            if ((D_8076A0A8 != 0x30) || !(D_807FD580->unk1F0 & 0x200000)) {
+            if ((gCurrentMap != 0x30) || !(gActivePlayerState->unk1F0 & 0x200000)) {
                 temp_s1->unk0 = temp_s0[0];
                 temp_s1->unk1A = temp_s0[1];
                 temp_s1->unk4 = (f64)(f32)temp_s0[2] / 100.0;
@@ -311,7 +311,7 @@ void actorCutsceneDispatchEvents(void) {
             }
             break;
         case 0x2:
-            if ((D_8076A0A8 != 0x30) || !(D_807FD580->unk1F0 & 0x200000)) {
+            if ((gCurrentMap != 0x30) || !(gActivePlayerState->unk1F0 & 0x200000)) {
                 temp_s1->unk0 = 0xFF;
             }
             break;
@@ -329,7 +329,7 @@ void actorCutsceneDispatchEvents(void) {
                 } else {
                     func_805FF378(temp_a0, temp_s0[1]);
                 }
-                func_806F3BEC(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x15:
@@ -347,29 +347,29 @@ void actorCutsceneDispatchEvents(void) {
                     func_805FF158(0);
                 }
                 func_805FF9AC(temp_s0[0], temp_s0[1], 0, 0);
-                func_806F3BEC(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x5:
             if (!(D_807FBB60 & 0x400)) {
                 func_805FF628(temp_s0[0], temp_s0[1]);
-                func_806F3BEC(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x6:
-            D_807FD580->unk100 = 1;
+            gActivePlayerState->unk100 = 1;
             func_806C92C4(temp_s0[0]);
             break;
         case 0x7:
             if (!(D_807FBB60 & 0x400)) {
                 func_805FF9AC(temp_s0[0], temp_s0[1], temp_s0[2], 2);
-                func_806F3BEC(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x8:
             if (!(D_807FBB60 & 0x400)) {
                 func_805FF898();
-                func_806F3BEC(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x19:
@@ -379,11 +379,11 @@ void actorCutsceneDispatchEvents(void) {
             func_805FF660(((u8 *)temp_s0)[1]);
             break;
         case 0xA:
-            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)D_807FC924)->unk4->unk174)->unk1F0 |= 0x40000800;
+            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->unk174)->unk1F0 |= 0x40000800;
             break;
         case 0xB:
             func_805FF378(D_80744700[func_805FF030(D_8076A0AB, 0)], D_8076A0AC);
-            func_806F3BEC(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
+            playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             break;
         case 0xC:
             if (temp_s0[1] != 0) {
@@ -391,7 +391,7 @@ void actorCutsceneDispatchEvents(void) {
             } else {
                 var_v0 = 0x8000;
             }
-            func_806F397C(D_807FBB4C, 0, temp_s0[0] + var_v0, 0);
+            playerWaypointPathStartPacked(D_807FBB4C, 0, temp_s0[0] + var_v0, 0);
             break;
         case 0xD:
             if (((Actor *)D_807FBB4C)->unkB8 > 250.0f) {
@@ -429,7 +429,7 @@ void actorCutsceneDispatchEvents(void) {
             D_8076A0A6 = D_807ECD48;
             break;
         case 0x1A:
-            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)D_807FC924)->unk4->unk174)->unk1F0 |= 0x80000000;
+            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->unk174)->unk1F0 |= 0x80000000;
             break;
         case 0x1B:
             mapChunkSetFlagBit3(temp_s0[1]);
@@ -480,11 +480,11 @@ void actorCutsceneDispatchEvents(void) {
                 lightSetColor(1.0f, 1.0f, 1.0f, temp_s1->unk1A);
                 if ((D_80750190 == 0) && (temp_s1->unk21 == 0)) {
                     var_s0 = 0x46;
-                    if (D_8076A0A8 == 0x57) {
+                    if (gCurrentMap == 0x57) {
                         var_s0 = 0x2D;
                     }
                     sfxPlayWithRandomPan(0x9C, (u8)var_s0, 0x7F, 0x1E, (randomNonNegative() >> 15) % 3);
-                    if (D_8076A0A8 == 0x6F) {
+                    if (gCurrentMap == 0x6F) {
                         temp_s1->unk21 = 0x50;
                     } else {
                         temp_s1->unk21 = 0x32;
@@ -498,7 +498,7 @@ void actorCutsceneDispatchEvents(void) {
         func_80711410(temp_s1->unk4, temp_s1->unk8, 1.0f, temp_s1->unk1A, 1.0f);
         break;
     case 0xFF:
-        if (func_807122B4() != 0) {
+        if (effectSpritePoolFadeOut() != 0) {
             temp_s1->unk0 = 0;
         }
         break;
@@ -622,7 +622,7 @@ typedef struct ActorPlayerPos {
     f32 unk230;
 } ActorPlayerPos;
 
-extern ActorPlayerPos *D_807FC924;
+extern ActorPlayerPos *gPlayerSlots;
 void camStartPath(s32, s32, u8);
 void func_8072167C(s16, s16, s16, s16);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
@@ -661,7 +661,7 @@ void func_8068BA2C(void) {
         s1->unk1F0 &= ~0x04000000;
     }
     if (sp58->unkAC & 1) {
-        lightAdd(D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218, D_807FC924->unk228, D_807FC924->unk22C, D_807FC924->unk230, 0.0f, 1, 0xFF, 0xFF, 0xFF);
+        lightAdd(gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218, gPlayerSlots->unk228, gPlayerSlots->unk22C, gPlayerSlots->unk230, 0.0f, 1, 0xFF, 0xFF, 0xFF);
     }
 }
 
@@ -712,7 +712,7 @@ void playerCameraUpdateFromTarget(void) {
     sp3A = 0x1E;
     sp40 = 0.08f;
     sp3C = 8.0f;
-    sp34 = (void *)((*(u8 *)((u8 *)sp54 + 0xFB) * 0x2F0) + (u8 *)D_807FC924);
+    sp34 = (void *)((*(u8 *)((u8 *)sp54 + 0xFB) * 0x2F0) + (u8 *)gPlayerSlots);
     *(s16 *)((u8 *)sp34 + 0x2CC) = ((AimActorAngles *)D_807FBB40)->unkEC;
     ((AimActorAngles *)D_807FBB40)->unkEC = ((AimActorAngles *)D_807FBB40)->unkE4;
     *(s16 *)((u8 *)sp34 + 0x2CA) = (s16)(s32)*(f32 *)((u8 *)sp34 + 0x214);
@@ -736,10 +736,10 @@ void playerCameraUpdateFromTarget(void) {
     if (D_807FBB4C != *(Actor **)sp54) {
         return;
     }
-    if ((D_8076A0A8 == 0x1F) || (D_8076A0A8 == 0x33)) {
+    if ((gCurrentMap == 0x1F) || (gCurrentMap == 0x33)) {
         if (D_807FC624 && D_807FC624) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         ((AimActorAngles *)D_807FBB40)->unkE4 = (s16)(s32)(func_80612794(D_807FC624) * 100.0f);
-        if (D_8076A0A8 == 0x1F) {
+        if (gCurrentMap == 0x1F) {
             if (D_807FC624 < 0x1E) {
                 sfxPlayOnFreeSlot(0x15, 0x7FFF, 64.0f, 1.0f, 10, 128);
             }

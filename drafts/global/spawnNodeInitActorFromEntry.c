@@ -130,16 +130,16 @@ extern f32 D_807502E8;
 extern s16 D_807502E0;
 extern s16 D_8075570C[];
 extern s32 D_807FBB68;
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 extern u8 D_80755698[];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 void actorScriptStart(void *, s32);
 s16 controllerLookupStateByHash(void *, s32);
 void actorUpdateFloorContactAndTilt(void *, s32);
 void behaviourSetAnimIds(s16, s16, s16, s16);
 void actorSetTargetSpeed(void *, u8);
 s32 randomNonNegative(void);
-#define A4P4 ((A4Player *)D_807FC924)
+#define A4P4 ((A4Player *)gPlayerSlots)
 
 void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     A4St174 *st;
@@ -234,7 +234,7 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     act->unk16A = 0xFF;
     act->unk16B = 0xFF;
     act->unk16C = 0xFF;
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
         case 0x4E:
         case 0x4F:
         case 0x83:
@@ -298,8 +298,8 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
             act->unk60 &= 0xFEFFFFFF;
             break;
     }
-    if (D_807FC928 >= 2) {
-        st->unk4 = A4P4[(randomNonNegative() >> 0xF) % D_807FC928].unk4;
+    if (gPlayerCount >= 2) {
+        st->unk4 = A4P4[(randomNonNegative() >> 0xF) % gPlayerCount].unk4;
     } else {
         st->unk4 = (void *)D_807FBB4C;
     }

@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_807F7360;
 extern u8 D_807F7361;
 extern u8 D_807F7362;
@@ -12,7 +12,7 @@ extern s16 D_807F7368;
 
 void fogSetParams(u8 arg0) {
     D_807F7360 = arg0;
-    if (D_8076A0A8 == 0x26) {
+    if (gCurrentMap == 0x26) {
         D_807F7361 = 0x8A;
         D_807F7362 = 0x52;
         D_807F7363 = 0x16;

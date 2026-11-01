@@ -52,7 +52,7 @@ void actorUpdateModelMatrix(Actor *, s32);
 
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -123,7 +123,7 @@ void actorUpdateNearestSpotlight(void) {
             lightSetFovAngles(20.0f, 40.0f);
             break;
     }
-    p->unk0 = func_80612794(D_8076A064 * 130) * 35.0 + 220.0;
+    p->unk0 = func_80612794(gFrameCounter * 130) * 35.0 + 220.0;
     lightAdd(A[0], A[1], A[2], B[0], B[1], B[2], 0.0f, 1, ((u8 *)p)[1], ((u8 *)p)[1], ((u8 *)p)[1]);
 }
 
@@ -157,7 +157,7 @@ void func_806C6884(s16 arg0, s16 arg1, u16 arg2) {
     }
     actorSetTargetSpeed(D_807FBB40, (s32)((u32)dist * 2.0));
     func_8072A920(0x23, arg0, D_807FDC94->unk7C, D_807FDC94->unk80 + arg0 * 3.0, D_807FDC94->unk84, 0x1E, 3.3f, 100.0f, arg2 | 0x2000);
-    D_807FBB40->unk80 += 0.5 * func_80612794(D_8076A064 * 40);
+    D_807FBB40->unk80 += 0.5 * func_80612794(gFrameCounter * 40);
     actorUpdateNearestSpotlight();
     actorUpdateModelMatrix(D_807FBB40, 0);
 }

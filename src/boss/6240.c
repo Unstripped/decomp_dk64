@@ -152,7 +152,7 @@ typedef struct BossC_6240_DCA0 {
 } BossC_6240_DCA0;
 
 extern BossC_6240_Actor40 *D_807FBB40;
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 
 s32 randomNonNegative(void);
 f32 func_80612790(s16);
@@ -172,7 +172,7 @@ void func_8002A240(void) {
     } else if (((randomNonNegative() >> 15) % 1000) >= 941) {
         s0->unk4 = 10;
     }
-    D_807FBB40->unk80 += 8.0 * (f64)func_80612794((s16)((f64)D_8076A064 * 200.0));
+    D_807FBB40->unk80 += 8.0 * (f64)func_80612794((s16)((f64)gFrameCounter * 200.0));
 }
 void *actorFindByType(s32);
 void func_8067AB20(void *, void *, s32, s32, void *, s32);
@@ -218,7 +218,7 @@ void func_807149C8(s32, s32, s32, s32);
 void func_80714C08(void *, f32, void *, s32, s32);
 
 void func_8002A55C(u8 arg0, f32 arg1) {
-    if (!(arg0 & D_8076A064)) {
+    if (!(arg0 & gFrameCounter)) {
         func_807149B8(1);
         func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
         func_80714C08(D_80720120, arg1, D_807FBB40, 1, 0);
@@ -286,13 +286,13 @@ extern u8 D_800362F0[];
 extern u8 D_8071FB34[];
 extern f32 D_807502E8;
 extern f32 D_807502FC;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern s32 D_8076D1F8;
 extern s32 gCamActor;
 extern void *D_807FBB44;
 extern BossC_6240_BB70 D_807FBB70;
-extern BossC_6240_C924 *D_807FC924;
-extern BossC_6240_D580 *D_807FD580;
+extern BossC_6240_C924 *gPlayerSlots;
+extern BossC_6240_D580 *gActivePlayerState;
 extern BossC_6240_DC90 *D_807FDC90;
 extern BossC_6240_DC94 *D_807FDC94;
 extern BossC_6240_DC98 *D_807FDC98;
@@ -320,7 +320,7 @@ void currentActorClearFlag(void);
 void actorUpdateModelMatrix(void *, s32);
 void csModelStateSetFirstByte(s16, s32);
 f32 effectNodeGetValue(s32);
-void screenShakeStop(void);
+void waterRippleStop(void);
 void actorApplyVelocityCustom(void *, f32, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
@@ -333,8 +333,8 @@ void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 void projectileClampAngleAndSpawn(s16, s32, s32, s32, f32, f32, f32, f32, f32, void *);
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 void loadModelAssetTable(void);
-void func_806D0430(f32);
-void func_806D0468(void *, s32);
+void playerSetLargeModeScale(f32);
+void playerSetSizeMode(void *, s32);
 void slotQueueSetDisplayMode(s32, s32, s32);
 void effectFreeAll(void);
 void func_8072881C(s32, void *);
@@ -368,7 +368,7 @@ void func_8002A92C(void) {
 
     state = D_807FBB40->unk178;
     sp88 = D_807FBB40->unk17C;
-    sp84 = D_80035A20[(D_8076A0A8 == 0xC5) ? 0 : 1][state->unk14];
+    sp84 = D_80035A20[(gCurrentMap == 0xC5) ? 0 : 1][state->unk14];
     sp80 = D_807FBB40->unk80;
     sp7E = sp7F = 1;
     behaviourFrameBegin();
@@ -376,7 +376,7 @@ void func_8002A92C(void) {
         camSetSecondTarget(gCamActor, 0, 0);
         slotQueueSetDisplayMode(5, 0, 1);
         currentActorClearFlag();
-        func_806D0430(1.2f);
+        playerSetLargeModeScale(1.2f);
         loadModelAssetTable();
         D_807FBB40->unkCC = 2;
         func_80027840(&D_800362F0);
@@ -388,8 +388,8 @@ void func_8002A92C(void) {
         D_807FBB40->unk154 = sp84[state->unk15++];
         D_807FBB40->unk155 = 0;
     }
-    D_807FD580->unkD4 = (D_807FD580->unkD4 < 50) ? D_807FD580->unkD4 : 50;
-    D_807FBB40->unk16A = (u8) (((f64) func_80612794((s16) (D_8076A064 * 0x64)) * 50.0) + 200.0);
+    gActivePlayerState->unkD4 = (gActivePlayerState->unkD4 < 50) ? gActivePlayerState->unkD4 : 50;
+    D_807FBB40->unk16A = (u8) (((f64) func_80612794((s16) (gFrameCounter * 0x64)) * 50.0) + 200.0);
     D_807FBB40->unk16B = D_807FBB40->unk16A;
     D_807FBB40->unk16C = D_807FBB40->unk16A;
     if (D_807FBB40->unk154 == 0x55) {
@@ -408,7 +408,7 @@ void func_8002A92C(void) {
             D_807FDC90->unk2C = 0x12C;
         } else {
             effectFreeAll();
-            screenShakeStop();
+            waterRippleStop();
             D_807FBB40->unk154 = 0x4D;
             D_807FBB40->unk155 = 0;
             D_807FBB40->unkC4 = (f32) D_807502FC;
@@ -417,13 +417,13 @@ void func_8002A92C(void) {
             state->unk15 = 0;
             state->unk14++;
             sp84 = D_80035A34[state->unk14];
-            if ((state->unk14 == 3) && (D_8076A0A8 == 0xC5)) {
+            if ((state->unk14 == 3) && (gCurrentMap == 0xC5)) {
                 camStartPath(D_807FBB40, 8, 1);
             } else {
                 camStartPath(D_807FBB40, 2, 1);
             }
         }
-    } else if ((D_807FBB70.unk200 == 5) && (D_807FC924->unk2C0 != 1)) {
+    } else if ((D_807FBB70.unk200 == 5) && (gPlayerSlots->unk2C0 != 1)) {
         sp6C = 0x14B;
         actorScriptStart(D_807FBB40, 0x2D2);
         actorGetNodePos(D_807FBB40, 2, &sp78, &sp74, &sp70);
@@ -445,7 +445,7 @@ void func_8002A92C(void) {
         }
         n_alSndpPlay(D_8076D1F8, sp6C, 0x7FFF, 0x3F, 1.0f, 0, &state->unk1C);
     } else if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (actorTableContains(D_807FBB70.unk1FC) != 0) && (D_807FBB70.unk1FC->unk5C == 1)) {
-        func_806D0468(D_807FBB4C, 2);
+        playerSetSizeMode(D_807FBB4C, 2);
         func_8002A41C(1);
         csModelStateSetFirstByte(0, 0xA);
         camSetFollowMode(gCamActor);
@@ -455,15 +455,15 @@ void func_8002A92C(void) {
         D_807FBB40->unk60 &= ~4;
     }
     if (!(state->unk12 & 1) && (effectNodeGetValue(1) > 640.0f) && (D_807FBB4C->unk154 != 0x42)) {
-        if (D_807FC924->unk2C0 != 1) {
-            func_806D0468(D_807FBB4C, 1);
-            D_807FD580->unk1D8 = 0.1f;
+        if (gPlayerSlots->unk2C0 != 1) {
+            playerSetSizeMode(D_807FBB4C, 1);
+            gActivePlayerState->unk1D8 = 0.1f;
         }
         camStartPath(D_807FBB40, 0xA, 1);
         state->unk12 |= 1;
         state->unk14 = 4;
         state->unk15 = 0;
-        sp84 = D_80035A20[(D_8076A0A8 == 0xC5) ? 0 : 1][state->unk14];
+        sp84 = D_80035A20[(gCurrentMap == 0xC5) ? 0 : 1][state->unk14];
         D_807FBB40->unk154 = sp84[state->unk15];
         state->unk15 += 1;
         D_807FBB40->unk155 = 0;
@@ -492,12 +492,12 @@ void func_8002A92C(void) {
                     D_807FBB40->unk60 |= 0x20000000;
                 }
                 if (D_807FDC90->unk2C == 20) {
-                    if (D_807FC924->unk2C0 != 1) {
-                        D_807FD580->unkD4 = 0x64;
+                    if (gPlayerSlots->unk2C0 != 1) {
+                        gActivePlayerState->unkD4 = 0x64;
                     }
                     camReturnToFollow(gCamActor, D_807FBB4C);
-                    func_806D0468(D_807FBB4C, 1);
-                    D_807FD580->unk1D8 = 0.04f;
+                    playerSetSizeMode(D_807FBB4C, 1);
+                    gActivePlayerState->unk1D8 = 0.04f;
                 }
                 D_807FDC90->unk2C--;
             } else {
@@ -524,8 +524,8 @@ void func_8002A92C(void) {
         sp7E = 0;
         switch (D_807FBB40->unk155) {
         case 0:
-            if ((D_8076A0A8 == 0xC5) || (flagGet(0x69, 2) != 0)) {
-                if (D_8076A0A8 == 0xC5) {
+            if ((gCurrentMap == 0xC5) || (flagGet(0x69, 2) != 0)) {
+                if (gCurrentMap == 0xC5) {
                     D_807FBB40->unk60 &= ~4;
                 } else {
                     actorScriptStart(D_807FBB40, 0x2C6);
@@ -751,14 +751,14 @@ void func_8002A92C(void) {
                 D_807FBB40->unk155 = 3;
                 sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0xC, 0xFF, 0x50, 0, 0, 0, 0);
             }
-            if ((D_8076A0A8 == 0xC5) && (state->unk14 == 3) && (currentActorTestClearFlag() != 0)) {
+            if ((gCurrentMap == 0xC5) && (state->unk14 == 3) && (currentActorTestClearFlag() != 0)) {
                 bossSpawnParticleRing(0x4A, D_807FDCA0->unk14->unkA0, D_807FDCA0->unk14->unkA2 + 0x14, D_807FDCA0->unk14->unkA4, 0x5DC, 4);
             }
             break;
         case 3:
             sp7F = 0;
             if (currentActorTestClearFlag() != 0) {
-                if ((D_8076A0A8 == 0xC5) && (state->unk14 == 3)) {
+                if ((gCurrentMap == 0xC5) && (state->unk14 == 3)) {
                     D_807FBB40->unk154 = 0x37;
                     D_807FBB40->unk155 = 1;
                 } else {

@@ -278,7 +278,7 @@ void raceAdvanceCheckpoint(RacePathState *arg0, RaceParticipant *arg1, s32 arg2)
 f32 func_80612790(s16);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 f32 func_80611BB4(f32, f32);
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleEaseToward(s16, s16, f32);
 void func_80714950(void *);
 void func_8071498C(void *);
 void timedLightOrbitUpdate();
@@ -301,7 +301,7 @@ void func_80026098(f32 *arg0, f32 *arg1) {
     D_807FBB40->unk80 = D_807FBB40->unk80 + (arg0[1] - D_807FBB40->unk80) * 0.8;
 }
 
-s16 func_806CC10C();
+s16 mathAngleSignedDistance();
 
 void func_800261E0(RacePathState *arg0) {
     s16 pad;
@@ -312,7 +312,7 @@ void func_800261E0(RacePathState *arg0) {
     f32 temp_fv0;
 
     temp_s0 = arg0->unk18 + arg0->unkC;
-    sp24 = func_806CC10C(0, (s16)arg0->unk1C, arg0);
+    sp24 = mathAngleSignedDistance(0, (s16)arg0->unk1C, arg0);
     temp_s0 &= 0xFFF;
     sp20 = func_80612790(temp_s0);
     temp_fv0 = func_80612794(temp_s0);
@@ -399,9 +399,9 @@ void racePathFollowStep(RacePathState *arg0, RaceParticipant *arg1, u8 arg2) {
     pos[2] = func_80612790(D_807FBB40->unkEE) * D_807FBB40->unkB8 + D_807FBB40->unk84;
     pos[1] = D_807FBB40->unk80;
     dist = sqrtf((cur->x - nxt->x) * (cur->x - nxt->x) + (cur->z - nxt->z) * (cur->z - nxt->z));
-    arg0->unk1C = func_806CC190(arg0->unk1C, func_80611BB4(cur->y - nxt->y, dist) * 2048.0 / 3.1415927f, 3.0f);
+    arg0->unk1C = mathAngleEaseToward(arg0->unk1C, func_80611BB4(cur->y - nxt->y, dist) * 2048.0 / 3.1415927f, 3.0f);
     if (D_807FBB40->unkB8 > 0.001) {
-        D_807FBB40->unkEE = func_806CC190(D_807FBB40->unkEE, ang, 50.0f / D_807FBB40->unkB8);
+        D_807FBB40->unkEE = mathAngleEaseToward(D_807FBB40->unkEE, ang, 50.0f / D_807FBB40->unkB8);
     }
     if (mathPickCloserTargetPoint3D(pos[0], pos[1], pos[2], cur, nxt, nxt, nxt2, &tgt[0], &tgt[1], &tgt[2]) != 0) {
         raceAdvanceCheckpoint(arg0, arg1, count);
@@ -416,7 +416,7 @@ void racePathFollowStep(RacePathState *arg0, RaceParticipant *arg1, u8 arg2) {
         arg0->unk4--;
     }
     func_80026098(tgt, pos);
-    sp54 = func_806CC10C(D_807FBB40->unkEE, (s16)oldAng);
+    sp54 = mathAngleSignedDistance(D_807FBB40->unkEE, (s16)oldAng);
     arg0->unk28 += -0.04f * D_807FBB40->unkB8 * sp54 * func_80612790(arg0->unk18);
     arg0->unk28 -= 10.0f * D_807FBB40->unkB8 * func_80612794(arg0->unk18);
     arg0->unk28 = arg0->unk28 * 0.7f;
@@ -515,7 +515,7 @@ void actorUpdateModelMatrix(void *, s32);
 s32 func_807142D8(void);
 s32 flagGet(s32, s32);
 void playerStateQueueCallback(s32, void *, u8);
-void func_806F397C(void *, void *, s32, s32);
+void playerWaypointPathStartPacked(void *, void *, s32, s32);
 void actorClearNodeFlag(void *, s32);
 void func_8072DB68(s32);
 void slotQueueUpdate(s32, s32, s32);
@@ -552,7 +552,7 @@ void func_80026F04(void) {
         if (func_807142D8() != 0 || flagGet(0x12, 2) != 0) {
             playerStateQueueCallback(0x4B, D_807FBB40, s1->unk28);
         } else {
-            func_806F397C(D_807FBB4C, D_807FBB40, 0, 0x4B);
+            playerWaypointPathStartPacked(D_807FBB4C, D_807FBB40, 0, 0x4B);
         }
         actorClearNodeFlag(D_807FBB40, 2);
         func_80026CA8();

@@ -65,21 +65,21 @@ s32 chunk;
                         cidx += 1;
                     }
                 } while (cfound == 0);
-                if (D_807F6C18) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (gMapChunks) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 if (found == 0) {
                     ((MapChunkCellRefs *)buf)[n].unk0 = key;
                     ((s32 *)((u8 *)buf + *count * 0x24))[1] = -1;
                     *(s32 *)((u8 *)buf + *count * 0x24 + 8) = -1;
                     ((MapChunkCellRefs *)buf)[*count].unk4[2] = -1;
-                    if (D_807F6C18) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                    if (gMapChunks) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     *(s32 *)((u8 *)buf + (*count << 5) + *count * 4 + 16) = -1;
                     ((MapChunkCellRefs *)buf)[*count].unk4[kind] = list + 8;
-                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 20) = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + D_807F6C18[chunk].unk58;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 20) = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + gMapChunks[chunk].unk58;
                     if (D_807F70B0 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     *count += 1;
                 } else {
                     ((MapChunkCellRefs *)buf)[idx].unk4[kind] = list + 8;
-                    ((MapChunkCellRefs *)buf)[idx].unk14[kind] = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + D_807F6C18[chunk].unk58;
+                    ((MapChunkCellRefs *)buf)[idx].unk14[kind] = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + gMapChunks[chunk].unk58;
                 }
             }
             list += 8;

@@ -249,7 +249,7 @@ typedef struct Struct807FDC9C {
     /* 0x14 */ u8 unk14;
 } Struct807FDC9C;
 
-// D_807FD580: typedef only; other files still declare D_807FD580 with their own types.
+// gActivePlayerState: typedef only; other files still declare gActivePlayerState with their own types.
 typedef struct Struct807FD580 {
     /* 0x000 */ u8 pad0[0x1F0];
     /* 0x1F0 */ s32 unk1F0;

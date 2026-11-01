@@ -4,13 +4,13 @@
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
-extern void *D_807FC924;
-extern u8 D_807FC928;
-extern u8 D_807FC929;
-extern Struct807FD580 *D_807FD580;
+extern void *gPlayerSlots;
+extern u8 gPlayerCount;
+extern u8 gCurrentPlayerIndex;
+extern Struct807FD580 *gActivePlayerState;
 extern s16 D_807FD584;
-extern s32 D_8076A0A8;
-extern u8 D_8074E77C[];
+extern s32 gCurrentMap;
+extern u8 gPlayerCharacterId[];
 
 void gridFreeAllNodeLists(void);
 void gridBuildNodeLists(void);
@@ -135,8 +135,8 @@ void gridBuildNodeLists(void) {
     } else {
         D_80754240 = NULL;
     }
-    baseCount = modelTypeCountBeforeMap(D_8076A0A8);
-    asset = assetLoad(9, D_8076A0A8, 1, 1);
+    baseCount = modelTypeCountBeforeMap(gCurrentMap);
+    asset = assetLoad(9, gCurrentMap, 1, 1);
     if (asset != NULL) {
         modelAssetGetSubtables(asset, &sub, &unusedOut);
         entryCount = *(s32 *) sub;
@@ -146,7 +146,7 @@ void gridBuildNodeLists(void) {
     D_807FD728 = 0;
     D_807FD730 = NULL;
     D_807FD72C = NULL;
-    for (i = 0; i < D_807FC928; i++) {
+    for (i = 0; i < gPlayerCount; i++) {
         D_807FD740[i].unk0 = 0.0f;
         D_807FD740[i].unk4 = 0.0f;
         D_807FD740[i].unk8 = 0.0f;
@@ -628,18 +628,18 @@ u8 arg2;
         D_80029FA0--;
         return;
     }
-    if (D_8076A0A8 != 0xF) {
+    if (gCurrentMap != 0xF) {
         temp_v0 = func_806F4E74(arg1);
         temp_v0 = func_806F544C(D_80753EF2[temp_v0 * 0x14], arg1, arg2);
         switch (arg1) {
         case 0xDD: case 0xDE: case 0xDF: case 0xE0: case 0xE1:
-            flagSet((s16) flagGridIndex(0x1D5, func_805FF030(D_8076A0AB, 1), D_8074E77C[(u8)arg0]), 1, 0);
+            flagSet((s16) flagGridIndex(0x1D5, func_805FF030(D_8076A0AB, 1), gPlayerCharacterId[(u8)arg0]), 1, 0);
         case 0x74: case 0x288:
             slotQueueAddValue(temp_v0, arg0, 1);
             shouldComplete = 1;
             break;
         case 0x91: case 0x15D: case 0x15E: case 0x15F: case 0x160:
-            if (D_807FC928 == 1) {
+            if (gPlayerCount == 1) {
                 sfxPlayOnFreeSlot(0x331, 0x7FFF, 63.0f, 1.0f, 5, 0);
             }
         case 0xA: case 0xD: case 0x16: case 0x1E: case 0x1F:
@@ -703,7 +703,7 @@ void func_806F58A0(u8 arg0, s16 arg1, F9N2At58 *arg2) {
     s32 var_s1;
     s16 var_s2;
 
-    if (D_807FC928 == 1) {
+    if (gPlayerCount == 1) {
         modelSlotGetTransformVectors(arg1, &sp7C, &sp78, &sp74, &sp70, &sp6C, &sp68, &sp64, &sp60, 1);
     }
     switch (arg2->unk58) {
@@ -720,7 +720,7 @@ void func_806F58A0(u8 arg0, s16 arg1, F9N2At58 *arg2) {
     var_s0 = 0;
     var_s1 = 0;
     do {
-        if (D_807FC928 == 1) {
+        if (gPlayerCount == 1) {
             gridAddModelNode(modelSlotAppend(var_s2, sp7C, sp78, sp74, 0.0f, 0), var_s2, var_s0, 1, 0, 1);
         } else {
             func_806F54E0(arg0, var_s2, 0);
@@ -743,7 +743,7 @@ void func_806F5A48(u8 arg0, s16 arg1, F9N2At58 *arg2, u16 arg3) {
     s32 var_s1;
     s16 var_s2;
 
-    if (D_807FC928 == 1) {
+    if (gPlayerCount == 1) {
         modelSlotGetTransformVectors(arg1, &sp90, &sp8C, &sp88, &sp84, &sp80, &sp7C, &sp78, &sp74, 1);
     }
     switch (arg2->unk58) {
@@ -757,7 +757,7 @@ void func_806F5A48(u8 arg0, s16 arg1, F9N2At58 *arg2, u16 arg3) {
     }
     var_s0 = 0;
     for (var_s1 = 0; var_s1 != 5; var_s1++) {
-        if (D_807FC928 == 1) {
+        if (gPlayerCount == 1) {
             gridAddModelNode(modelSlotAppend(var_s2, sp90, sp8C, sp88, 0.0f, 0), var_s2, var_s0, 1, (arg3 == 0x11) ? 1 : 0, 1);
         } else {
             func_806F54E0(arg0, var_s2, (arg3 == 0x11) ? 1 : 0);
@@ -925,7 +925,7 @@ void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
     F9A_LinkedNode *newNode;
     F9A_LinkedNode *tail;
 
-    player = ((F9N6_PlayerBlock *) D_807FC924)[arg1].unk4;
+    player = ((F9N6_PlayerBlock *) gPlayerSlots)[arg1].unk4;
     if (arg0 != NULL) {
         do {
             dist = camDistance3D(arg0->unk8, ((F9N6_TableEntry *) &D_80753EF0)[arg0->unk14].unk10 + arg0->unkA, arg0->unkC, (s32) arg2->unk0, (s32) *(f32 *) arg2->pad4, (s32) arg2->unk8);
@@ -939,7 +939,7 @@ void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
                 if (arg0->unk6 != -1) {
                     func_8060E430((u16) arg0->unk6, 1, func_805FF030(D_8076A0AB, 1));
                 }
-                if (D_807FC928 == 1) {
+                if (gPlayerCount == 1) {
                     if (D_807FD734 == NULL) {
                         tail = D_807FD730;
                         D_807FD734 = tail;
@@ -973,12 +973,12 @@ void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
                     func_806F5A48(arg1, arg0->unk0, player, (u16) arg0->unk2);
                     break;
                 default:
-                    if (D_807FC928 >= 2) {
+                    if (gPlayerCount >= 2) {
                         func_806F54E0(arg1, arg0->unk2, arg0->unk13);
                     }
                     break;
                 }
-                if (D_807FC928 >= 2) {
+                if (gPlayerCount >= 2) {
                     playerStateHandleSoundEffects(arg0->unk2, arg1);
                     modelSlotFreeByIndex(arg0->unk0, 1);
                 }
@@ -1056,7 +1056,7 @@ typedef struct F9N7_KongArr {
 extern F9N7_KongArr D_807FC952[];
 s32 hashTableLookup();
 
-#define F9N7_PLAYER ((F9N7_Player *)D_807FC924)
+#define F9N7_PLAYER ((F9N7_Player *)gPlayerSlots)
 
 s32 gridCheckNodeCondition(s16 arg0, u8 arg1, u16 arg2) {
     u8 flags;
@@ -1065,23 +1065,23 @@ s32 gridCheckNodeCondition(s16 arg0, u8 arg1, u16 arg2) {
 
     switch (arg2) {
     case 0x11:
-        if ((D_807FC952[D_807FC929].kong[D_8074E77C[D_807FC929]].unk0 & 3) != 3) {
+        if ((D_807FC952[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].unk0 & 3) != 3) {
             return 0;
         }
         break;
     case 0x8F:
-        if ((D_807FC952[D_807FC929].kong[D_8074E77C[D_807FC929]].unk0 & 1) == 0) {
+        if ((D_807FC952[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].unk0 & 1) == 0) {
             return 0;
         }
         break;
     case 0x98:
-        ctl = F9N7_PLAYER[D_807FC929].unk4->unk174;
+        ctl = F9N7_PLAYER[gCurrentPlayerIndex].unk4->unk174;
         if ((ctl->unk1F4 & 1) == 0) {
             return 0;
         }
         break;
     case 0x8E:
-        ctl = F9N7_PLAYER[D_807FC929].unk4->unk174;
+        ctl = F9N7_PLAYER[gCurrentPlayerIndex].unk4->unk174;
         if ((ctl->unk1F4 & 2) == 0) {
             return 0;
         }
@@ -1094,19 +1094,19 @@ s32 gridCheckNodeCondition(s16 arg0, u8 arg1, u16 arg2) {
         break;
     }
     flags = D_807F6000[hashTableLookup(arg0)].unk8C;
-    if ((flags & 8) && (F9N7_PLAYER[D_807FC929].unk4->unk58 != 2)) {
+    if ((flags & 8) && (F9N7_PLAYER[gCurrentPlayerIndex].unk4->unk58 != 2)) {
         return 0;
     }
-    if ((flags & 2) && (F9N7_PLAYER[D_807FC929].unk4->unk58 != 3)) {
+    if ((flags & 2) && (F9N7_PLAYER[gCurrentPlayerIndex].unk4->unk58 != 3)) {
         return 0;
     }
-    if ((flags & 4) && (F9N7_PLAYER[D_807FC929].unk4->unk58 != 5)) {
+    if ((flags & 4) && (F9N7_PLAYER[gCurrentPlayerIndex].unk4->unk58 != 5)) {
         return 0;
     }
-    if ((flags & 0x10) && (F9N7_PLAYER[D_807FC929].unk4->unk58 != 4)) {
+    if ((flags & 0x10) && (F9N7_PLAYER[gCurrentPlayerIndex].unk4->unk58 != 4)) {
         return 0;
     }
-    if ((flags & 1) && (F9N7_PLAYER[D_807FC929].unk4->unk58 != 6)) {
+    if ((flags & 1) && (F9N7_PLAYER[gCurrentPlayerIndex].unk4->unk58 != 6)) {
         return 0;
     }
     return 1;
@@ -1207,8 +1207,8 @@ void gridUpdatePlayerNodes(u8 arg0) {
             rect = rect->next;
         } while (rect != NULL);
     }
-    if ((D_807FD730 != NULL) && (D_807FC928 == 1)) {
-        mtx = &((F9N8_Player *)D_807FC924)[arg0].mtx[D_807444FC];
+    if ((D_807FD730 != NULL) && (gPlayerCount == 1)) {
+        mtx = &((F9N8_Player *)gPlayerSlots)[arg0].mtx[D_807444FC];
         guMtxL2F(mf, mtx);
         matrix4Invert(inv, mf);
         node = (F9N8_Node *)D_807FD730;
@@ -1336,14 +1336,14 @@ void gridTickPlayers(void) {
     if (flagGet(0x179, 0) != 0) {
         var_fp = 1;
     }
-    if (func_806F6E58(D_8074E77C[0]) != 0) {
+    if (func_806F6E58(gPlayerCharacterId[0]) != 0) {
         sp45 = 1;
     }
 
     i = 0;
-    if (D_807FC928 > 0) {
+    if (gPlayerCount > 0) {
         do {
-            temp_v0 = ((F94C_PlayerBlock *)D_807FC924)[i].unk4->unk174;
+            temp_v0 = ((F94C_PlayerBlock *)gPlayerSlots)[i].unk4->unk174;
             if (var_fp != 0) {
                 temp_v0->flags |= 1;
             } else {
@@ -1354,11 +1354,11 @@ void gridTickPlayers(void) {
             } else {
                 temp_v0->flags &= -3;
             }
-            if ((((F94C_PlayerBlock *)D_807FC924)[i].unk4->unk154 != 0x36) && (D_807FD738 == 0)) {
+            if ((((F94C_PlayerBlock *)gPlayerSlots)[i].unk4->unk154 != 0x36) && (D_807FD738 == 0)) {
                 gridUpdatePlayerNodes(i);
             }
             i++;
-        } while (i < D_807FC928);
+        } while (i < gPlayerCount);
     }
 }
 
@@ -1476,7 +1476,7 @@ typedef struct {
 extern u16 gActiveActorCount;
 extern F94D_ActiveEntry gActiveActors[];
 void actorDespawn(void *);
-void func_806CFF9C(void *);
+void playerResumeLocomotion(void *);
 void func_806F0D68(void *);
 void func_80731410(s16, s16, s16, u8);
 u8 func_8073198C(s16);
@@ -1498,7 +1498,7 @@ void gridCollectActorsInRange(u8 arg0) {
     s16 slot;
     s16 tblIdx;
 
-    player = ((F94D_Block *) D_807FC924)[arg0].unk4;
+    player = ((F94D_Block *) gPlayerSlots)[arg0].unk4;
     playerSub = player->unk174;
     if (D_807FCC4B[arg0 * 0x306] > 0) {
         for (k = 0; k < 0x2A; k++) {
@@ -1519,7 +1519,7 @@ void gridCollectActorsInRange(u8 arg0) {
                                 }
                                 sub = actor->unk174;
                                 if (sub->unk1 != 0) {
-                                    if (D_807FC928 >= 2) {
+                                    if (gPlayerCount >= 2) {
                                         switch ((u32) actor->unk58) {
                                         case 0x7A:
                                             playerStateHandleSoundEffects(0x1D2, arg0);
@@ -1545,7 +1545,7 @@ void gridCollectActorsInRange(u8 arg0) {
                                             playerStateHandleSoundEffects(0x8F, arg0);
                                             if ((func_80714608(0) != 0) && ((ps = player->unk174)->unk8C == 0)) {  // FAKE: named ps local puts the player->unk174 reload in v0
                                                 func_806F0D68(player);
-                                                func_806CFF9C(player);
+                                                playerResumeLocomotion(player);
                                             }
                                             break;
                                         case 0x34:
@@ -1594,7 +1594,7 @@ typedef struct {
     u8 unk1A4;
 } F9L2_PlayerState;
 
-#define F9L2_PS ((F9L2_PlayerState *)D_807FD580)
+#define F9L2_PS ((F9L2_PlayerState *)gActivePlayerState)
 
 extern Actor *D_807FBB4C;
 extern u8 D_80745838;
@@ -1684,7 +1684,7 @@ void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
     case 0x13C:
         sfxAllocateChannel(0x12, 1.0f);
         var_v0 = 0x41;
-        if (D_8076A0A8 == 0x11) {
+        if (gCurrentMap == 0x11) {
             var_v0 = 0x29;
         }
         playerStateQueueCallback((s16) var_v0, 0, F9L2_PS->unk1A4);

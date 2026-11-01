@@ -9,7 +9,7 @@ typedef struct {
     s32 unk58;
 } RvT1_ControllerStateView;
 
-extern Struct807FD580 *D_807FD580;
+extern Struct807FD580 *gActivePlayerState;
 extern u16 *D_807FBB58;
 struct ControllerStateView;
 void controllerAnimSetState(struct ControllerStateView *, s16, f32, f32);
@@ -23,11 +23,11 @@ void func_80613BA0(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg
     if (arg1 >= 0) {
         flag = arg1 & 0x4000;
         index = arg1 - flag;
-        ((RvT1_GlobalView *)D_807FD580)->unk4E = index;
+        ((RvT1_GlobalView *)gActivePlayerState)->unk4E = index;
         value = ((RvT1_ControllerStateView *)arg0)->unk58;
         arg1 = (table = D_807FBB58)[(u32)(((index * 7 + value) - 2) & 0xFFFF)] + flag;
     } else {
-        ((RvT1_GlobalView *)D_807FD580)->unk4E = arg1;
+        ((RvT1_GlobalView *)gActivePlayerState)->unk4E = arg1;
     }
     controllerAnimSetState(arg0, arg1, arg2, arg3);
 }

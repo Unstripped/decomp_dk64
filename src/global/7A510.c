@@ -481,9 +481,9 @@ void actorCollisionUpdateNodeFlags(Actor *arg0, u8 arg1) {
     }
 }
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 void func_8067618C(Actor *arg0, s8 *arg1) {
-    if ((D_8076A0A8 == 0x53) && (arg0->unk58 == 6) && (arg0->unk154 == 0x1E)) {
+    if ((gCurrentMap == 0x53) && (arg0->unk58 == 6) && (arg0->unk154 == 0x1E)) {
         *arg1 = 0x15;
     }
 }

@@ -52,7 +52,7 @@ typedef struct ActorListNode {
     /* 0x68 */ struct ActorListNode *next;
 } ActorListNode;
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern ActorListSub20 D_807500B4;
 extern ActorListSub20 D_807500D4;
 extern Actor *D_807FBB40;
@@ -84,7 +84,7 @@ void actorListClearForcedIds(void);
 extern s16 D_8076A0AA;
 extern u8 D_8076A0AB;
 extern s32 D_807F6010;
-extern s32 D_807F6C28;
+extern s32 gMapChunkCount;
 
 typedef struct {
     u8 pad0[0x18];
@@ -123,7 +123,7 @@ void actorMapModelsSetup(s32 arg0, u8 arg1, u8 arg2) {
 
     flag = 0;
     actorListBuildLookupTable();
-    sp54 = func_80600080(D_8076A0A8);
+    sp54 = func_80600080(gCurrentMap);
     if (sp54 == -1) {
         switch (arg1) {
         case 0:
@@ -152,7 +152,7 @@ void actorMapModelsSetup(s32 arg0, u8 arg1, u8 arg2) {
         if (D_8076A160[sp54].unk20 != NULL) {
             modelSlotsApplyRecords(D_8076A160[sp54].unk20, D_8076A160[sp54].unk1C);
         }
-        if (D_807F6C28 > 0) {
+        if (gMapChunkCount > 0) {
             flag = 0, arg0 = (s32)&D_8076A160[sp54]; do { lightSetColor( // FAKE: init + call on one line steers as1 order of the hoisted ldc1 vs addu
                 (f32)((f64)(u32)((u8 *)arg0)[0x24] / 255.0),
                 (f32)((f64)(u32)((u8 *)arg0)[0x25] / 255.0),
@@ -160,7 +160,7 @@ void actorMapModelsSetup(s32 arg0, u8 arg1, u8 arg2) {
                 flag);
                 flag++;
                 arg0 += 3;
-            } while (flag < D_807F6C28);
+            } while (flag < gMapChunkCount);
         }
     }
 }
@@ -224,7 +224,7 @@ void actorListBuildLookupTable(void) {
     ActorListRecord *item;
     s32 var_s2;
 
-    asset = assetLoad(9, D_8076A0A8, 1, 1);
+    asset = assetLoad(9, gCurrentMap, 1, 1);
     D_807FC5C8 = 0;
     if (asset != NULL) {
         modelAssetGetSubtables((s32)asset, (s32 *)&sp48, (s32 **)&container);
@@ -260,7 +260,7 @@ void actorListBuildLookupTable(void) {
             ret = actorListGetTypeIdCount(item->unk32 + 0x10);
             if (ret != 0) {
                 D_807FC5C4[D_807FC5C8].unk0 = item->unk34;
-                D_807FC5C4[D_807FC5C8].unk2 = ((u16 *)D_807FC408)[D_8076A0A8] + var_s2 + 0x26B;
+                D_807FC5C4[D_807FC5C8].unk2 = ((u16 *)D_807FC408)[gCurrentMap] + var_s2 + 0x26B;
                 var_s2 += ret;
                 D_807FC5C8++;
             }
@@ -887,16 +887,16 @@ typedef struct ActorListPlayerEntry {
     char pad21C[0x2F0 - 0x21C];
 } ActorListPlayerEntry;
 
-extern ActorListPlayerEntry *D_807FC924;
-extern u8 D_807FC928;
+extern ActorListPlayerEntry *gPlayerSlots;
+extern u8 gPlayerCount;
 
 f32 playerGetMinSquaredDist3D(f32 arg0, f32 arg1, f32 arg2) {
     f32 minDist = 100000000.0f;
     s32 i;
 
-    for (i = 0; i < D_807FC928; i++) {
-        if (D_807FC924[i].unk0 != 0) {
-            f32 dist = (arg0 - D_807FC924[i].unk210) * (arg0 - D_807FC924[i].unk210) + (arg1 - D_807FC924[i].unk214) * (arg1 - D_807FC924[i].unk214) + (arg2 - D_807FC924[i].unk218) * (arg2 - D_807FC924[i].unk218);
+    for (i = 0; i < gPlayerCount; i++) {
+        if (gPlayerSlots[i].unk0 != 0) {
+            f32 dist = (arg0 - gPlayerSlots[i].unk210) * (arg0 - gPlayerSlots[i].unk210) + (arg1 - gPlayerSlots[i].unk214) * (arg1 - gPlayerSlots[i].unk214) + (arg2 - gPlayerSlots[i].unk218) * (arg2 - gPlayerSlots[i].unk218);
             if (dist < minDist) {
                 minDist = dist;
             }
@@ -925,7 +925,7 @@ u8 func_80689EE4(ActorListNode *arg0) {
 }
 
 s32 mapIsBossArena(void) {
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
         case 0x2A:
         case 0xA9:
         case 0xAA:

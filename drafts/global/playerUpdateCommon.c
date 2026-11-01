@@ -85,8 +85,8 @@ typedef struct LCA5F8Fn {
     /* 0x4 */ s32 pad4;
 } LCA5F8Fn;
 
-#define LCA_P ((LCA5F8P *)D_807FD580)
-#define LCA_SLOT(i) (((LCA5F8Slot *)D_807FC924)[i])
+#define LCA_P ((LCA5F8P *)gActivePlayerState)
+#define LCA_SLOT(i) (((LCA5F8Slot *)gPlayerSlots)[i])
 
 extern LCA5F8Fn D_80750B50[];
 extern s32 D_8076A068;
@@ -95,7 +95,7 @@ extern s32 D_8076A094;
 extern s32 D_8076A098;
 extern s32 D_807552E4;
 extern s32 D_807FBB60;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_80770561;
 extern u8 D_807463B8;
 extern u8 D_807FBB8C;
@@ -108,7 +108,7 @@ extern s32 D_80720020;
 void func_806CB53C();
 void func_806CBE44(void);
 void func_806CF580(void);
-void func_806CF9CC(void);
+void playerCheckLedgeGrab(void);
 void sfxStopChannel(s32, s32);
 void func_806F4D70(u8, f32, f32, f32, f32);
 void proxPathUpdateAllPlayers(void);
@@ -154,14 +154,14 @@ void playerUpdateCommon(s32 arg0) {
     if (D_807FBB40 && D_807FBB40) {}  // FAKE: steers uopt candidate colouring (D_807FBB48 pointer v1)
 
     sp64 = D_807FBB40;
-    D_807FD580 = D_807FBB40->unk174;
+    gActivePlayerState = D_807FBB40->unk174;
     if (D_807463B8 == 0) {
         D_807FBB40->unk60 |= 0x400000;
     } else {
         D_807FBB40->unk60 &= 0xFFBFFFFF;
     }
     D_807FBB40->unk60 &= 0xF7FFFFFF;
-    LCA_SLOT(D_807FC929).unk28C = LCA_SLOT(D_807FC929).unk27C;
+    LCA_SLOT(gCurrentPlayerIndex).unk28C = LCA_SLOT(gCurrentPlayerIndex).unk27C;
     if (D_807FBB40->unk64 & 0x100) {
         LCA_P->unk120 = D_8076A068;
     }
@@ -216,8 +216,8 @@ void playerUpdateCommon(s32 arg0) {
     if (D_807FBB40->unk68 & 0x20) {
         proxPathUpdateAllPlayers();
     }
-    func_806F4D70(D_807FC929, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, D_807FBB40->unk4->unk38 / 0.15 * 20.0);
-    if (D_807FC928 == 1) {
+    func_806F4D70(gCurrentPlayerIndex, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, D_807FBB40->unk4->unk38 / 0.15 * 20.0);
+    if (gPlayerCount == 1) {
         if (D_807FBB40->unk64 & 0x1000) {
             D_807FBB40->unk64 |= 0x200;
         }
@@ -225,26 +225,26 @@ void playerUpdateCommon(s32 arg0) {
     D_807FBB40->unk64 &= ~0x1000;
     D_80750B50[D_807FBB40->unk154].fn();
     LCA_P->unk8D = collisionGetHitStatus();
-    if (D_807FC928 == 1) {
+    if (gPlayerCount == 1) {
         D_807FBB40->unk64 &= ~0x200;
     }
-    if ((D_807FD580->unk1F0 & 0x01000000) && D_807FBB8C != 0 && D_807FBB40->unk154 != 0x47) {
-        playerStateQueueCallback(3, NULL, D_807FC929);
+    if ((gActivePlayerState->unk1F0 & 0x01000000) && D_807FBB8C != 0 && D_807FBB40->unk154 != 0x47) {
+        playerStateQueueCallback(3, NULL, gCurrentPlayerIndex);
     }
     sp6B = func_80666AA0();
     sp6A = func_80666A94();
     sp69 = func_80666AAC();
     sp68 = func_80666AB8();
     if (D_807FBB40->unk68 & 0x10) {
-        func_806CF9CC();
+        playerCheckLedgeGrab();
     }
     LCA_P->unkE8 = 0;
-    D_807FD580->unk1F0 &= 0xBFFFFFFF;
+    gActivePlayerState->unk1F0 &= 0xBFFFFFFF;
     func_806CF580();
-    if (!D_8076A0A8 && !D_8076A0A8) { // FAKE: steers uopt candidate colouring
+    if (!gCurrentMap && !gCurrentMap) { // FAKE: steers uopt candidate colouring
     }
     LCA_P->unk0 = D_807FBB48->unk154;
-    if (D_807FC928 >= 2) {
+    if (gPlayerCount >= 2) {
         if (D_807FBB40->unk6A & 1) {
             if (LCA_P->unk24A != 0) {
                 LCA_P->unk24A = LCA_P->unk24A - 1;
@@ -253,7 +253,7 @@ void playerUpdateCommon(s32 arg0) {
                 LCA_P->unk249 = 0;
             }
         }
-        func_806CA26C();
+        playerClearStaleHitSource();
         {
             s8 v = LCA_P->unk248;
             if (v >= 0 && (u32)v != LCA_P->unk1A4) {
@@ -277,7 +277,7 @@ void playerUpdateCommon(s32 arg0) {
                     func_807149C8(0xFF, 0xFF, 0xFF, 0x78);
                     func_8071495C();
                     LCA_P->unk254 = (LCA5F8Fx *)func_80714CC0(&D_80720020, 0.7f, D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84);
-                    if (D_807FC924 && D_807FC924) { // FAKE: steers uopt candidate colouring (D_807FC924 pointer v1)
+                    if (gPlayerSlots && gPlayerSlots) { // FAKE: steers uopt candidate colouring (gPlayerSlots pointer v1)
                     }
                     fx = LCA_P->unk254;
                 }
@@ -311,7 +311,7 @@ void playerUpdateCommon(s32 arg0) {
         LCA_P->unkD4 = LCA_P->unkD4 - 1;
     }
     if (sp6A != 0) {
-        playerStateQueueCallback(0x3F, sp64, D_807FC929);
+        playerStateQueueCallback(0x3F, sp64, gCurrentPlayerIndex);
     }
     if (sp6B == 1) {
         goto case1;
@@ -326,10 +326,10 @@ case1:
         LCA_P->unkD6 = 0;
     } else {
         LCA_P->unkD6 = LCA_P->unkD6 + 1;
-        playerStateQueueCallback(0x2E, sp64, D_807FC929);
+        playerStateQueueCallback(0x2E, sp64, gCurrentPlayerIndex);
         if (D_807FBB40->unk154 != 0x36 && D_807FBB40->unk154 != 0x3B && LCA_P->unkD4 == 0) {
             s32 snd = 0x2C0;
-            if (D_8076A0A8 == 0x30) {
+            if (gCurrentMap == 0x30) {
                 snd = 0x3B0;
             }
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, snd, 0xFF, 0x7F, 0);
@@ -342,45 +342,45 @@ case2:
         if (D_807FBB40->unk154 != 0x36 && D_807FBB40->unk154 != 0x3B && LCA_P->unkD4 == 0) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2C0, 0xFF, 0x7F, 0);
         }
-        if (D_8076A0A8 == 0x53 || D_8076A0A8 == 0xC5) {
-        playerStateQueueCallback(0x40, sp64, D_807FC929);
+        if (gCurrentMap == 0x53 || gCurrentMap == 0xC5) {
+        playerStateQueueCallback(0x40, sp64, gCurrentPlayerIndex);
     } else {
-        playerStateQueueCallback(0x30, sp64, D_807FC929);
+        playerStateQueueCallback(0x30, sp64, gCurrentPlayerIndex);
         }
     }
 done:
     if (sp69 != 0) {
-        playerStateQueueCallback(0, sp64, D_807FC929);
+        playerStateQueueCallback(0, sp64, gCurrentPlayerIndex);
         if (LCA_P->unkD4 == 0) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2C0, 0xFF, 0x7F, 0);
         }
     }
-    actorGetNodePos(D_807FBB48, 6, &LCA_SLOT(D_807FC929).unk2B4, &LCA_SLOT(D_807FC929).unk2B8, &LCA_SLOT(D_807FC929).unk2BC);
-    camProjectToScreen(D_807FBB48->unk7C, LCA_SLOT(D_807FC929).unk2B8, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
+    actorGetNodePos(D_807FBB48, 6, &LCA_SLOT(gCurrentPlayerIndex).unk2B4, &LCA_SLOT(gCurrentPlayerIndex).unk2B8, &LCA_SLOT(gCurrentPlayerIndex).unk2BC);
+    camProjectToScreen(D_807FBB48->unk7C, LCA_SLOT(gCurrentPlayerIndex).unk2B8, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, gCurrentPlayerIndex);
     LCA_P->unk10E = sp70;
     LCA_P->unk110 = sp6C;
-    camProjectToScreen(D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, D_807FC929);
+    camProjectToScreen(D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84, &sp70, &sp6C, NULL, 1.0f, gCurrentPlayerIndex);
     LCA_P->unk112 = sp6C;
     LCA_P->unk1F8 = LCA_P->unk1F0;
     if (LCA_P->unk268 != 0) {
         LCA_P->unk268 = LCA_P->unk268 - 1;
     }
-    if ((D_807FBB40->unk7C < (f32)D_807F5FE4 || D_807FBB40->unk84 < (f32)D_807F5FE6 || (f32)D_807F5FE8 < D_807FBB40->unk7C || (f32)D_807F5FEA < D_807FBB40->unk84 || sp68 != 0) && LCA_P->unk244 == 0 && (u32)D_8076A064 >= 0x65 && !(D_807FBB64 & 0x4000) && D_8076A0A8 != 0xE) {
-        if (D_807FC928 == 1) {
+    if ((D_807FBB40->unk7C < (f32)D_807F5FE4 || D_807FBB40->unk84 < (f32)D_807F5FE6 || (f32)D_807F5FE8 < D_807FBB40->unk7C || (f32)D_807F5FEA < D_807FBB40->unk84 || sp68 != 0) && LCA_P->unk244 == 0 && (u32)gFrameCounter >= 0x65 && !(D_807FBB64 & 0x4000) && gCurrentMap != 0xE) {
+        if (gPlayerCount == 1) {
             if (flagGet(0x186, 0) == 0) {
                 func_805FF188(0xB0, 1);
             }
-            if (!D_807FC929 && !D_807FC929) { // FAKE: steers uopt candidate colouring
+            if (!gCurrentPlayerIndex && !gCurrentPlayerIndex) { // FAKE: steers uopt candidate colouring
             }
-            healthRefill(D_807FC929);
-            func_805FF1B0(D_807FC929);
+            healthRefill(gCurrentPlayerIndex);
+            func_805FF1B0(gCurrentPlayerIndex);
             LCA_P->unk244 = 1;
         } else {
-            func_80026D40(D_807FBB40, D_807FC929);
+            func_80026D40(D_807FBB40, gCurrentPlayerIndex);
         }
     }
-    if (D_807FC929 == 0) {
-        switch (D_8076A0A8) {
+    if (gCurrentPlayerIndex == 0) {
+        switch (gCurrentMap) {
             case 0x7:
             case 0x1A:
             case 0x1E:
@@ -397,7 +397,7 @@ done:
                     func_805FF2F4();
                     LCA_P->unk244 = 1;
                 }
-                if ((D_807FBB40->unk7C != D_807FBB40->unk88 || D_807FBB40->unk80 != D_807FBB40->unk8C || D_807FBB40->unk84 != D_807FBB40->unk90 || D_807FD610[D_807FC929].unk2A != 0 || D_807FD610[D_807FC929].unk2E != 0 || D_807FD610[D_807FC929].unk2F != 0) && !(D_807FBB60 & 2)) {
+                if ((D_807FBB40->unk7C != D_807FBB40->unk88 || D_807FBB40->unk80 != D_807FBB40->unk8C || D_807FBB40->unk84 != D_807FBB40->unk90 || gPlayerPadState[gCurrentPlayerIndex].unk2A != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2E != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2F != 0) && !(D_807FBB60 & 2)) {
                     if (++D_8076A090 == 0x69780) {
                         func_805FF2F4();
                         LCA_P->unk244 = 1;

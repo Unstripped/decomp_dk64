@@ -47,9 +47,9 @@ void projectileSetTargetCoords(f32, f32, f32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 
 s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleEaseToward(s16, s16, f32);
 f32 func_80611BB4(f32, f32);
-void func_8060E7EC(s32, s32, s32);
+void rumbleRequest(s32, s32, s32);
 void bonusResetAmmo(void *);
 extern u16 D_807FD63C;
 struct Struct_71B4;
@@ -182,8 +182,8 @@ extern u8 D_2000180[];
 Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
 Gfx *hudDrawRollingCounter(Gfx *, s32, s32, void *, s32, void *);
 extern u8 D_20000C0[];
-extern u32 D_8076A064;
-extern u8 D_807FC929;
+extern u32 gFrameCounter;
+extern u8 gCurrentPlayerIndex;
 Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, s32, s32, s16, s16, f32, f32, s32, f32);
 extern s16 D_8002D8CA;
 extern s16 D_8002D8D4[];
@@ -208,7 +208,7 @@ void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxPlayFromActorDirect(void *, s32, s32, f32, s32, s32);
 void sfxStopSlotSound();
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 func_806CC10C(s16, s16);
+s32 mathAngleSignedDistance(s16, s16);
 s32 randomLcgNext(void);
 f32 randomFloat(void);
 void effectSpriteMatrixUpdate();
@@ -239,10 +239,10 @@ Gfx *bonusRenderCrosshair(Gfx *gdl, Actor *arg1) {
     gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
     gSPDisplayList(gdl++, D_1000118);
     gSPMatrix(gdl++, D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-    gdl = renderRotatedSprite(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A - 0x34, sp68 - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
-    gdl = renderRotatedSprite(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A + 0x34, sp68 - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
-    gdl = renderRotatedSprite(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A + 0x34, sp68 + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
-    gdl = renderRotatedSprite(gdl, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A - 0x34, sp68 + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
+    gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A - 0x34, sp68 - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
+    gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A + 0x34, sp68 - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
+    gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A + 0x34, sp68 + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
+    gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A - 0x34, sp68 + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
     return gdl;
 }
 
@@ -473,9 +473,9 @@ u8 bonusAimAndFire(f32 arg0, f32 arg1, f32 arg2) {
     camProjectToScreen(arg0, arg1, arg2, &sp50, &sp4C, 0, 4.0f, 0);
     temp_s0->unk1E = sp50;
     temp_s0->unk20 = sp4C;
-    D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, mathAngleBetweenPoints2D(arg0, arg2, D_807FBB40->unk7C, D_807FBB40->unk84), 10.0f);
+    D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, mathAngleBetweenPoints2D(arg0, arg2, D_807FBB40->unk7C, D_807FBB40->unk84), 10.0f);
     temp_fv0 = sqrtf((D_807FBB40->unk7C - arg0) * (D_807FBB40->unk7C - arg0) + (D_807FBB40->unk84 - arg2) * (D_807FBB40->unk84 - arg2));
-    D_807FBB40->unkE8 = func_806CC190(D_807FBB40->unkE8, (s32)(func_80611BB4(D_807FBB40->unk80 - arg1, temp_fv0) * 2048.0 / 3.1415927f + 150.0), 5.0f);
+    D_807FBB40->unkE8 = mathAngleEaseToward(D_807FBB40->unkE8, (s32)(func_80611BB4(D_807FBB40->unk80 - arg1, temp_fv0) * 2048.0 / 3.1415927f + 150.0), 5.0f);
     if ((D_807FD63C & 0xE000) != 0) {
         if (D_807FBB40->unk154 == 0) {
             sp40[0] = 1;
@@ -484,7 +484,7 @@ u8 bonusAimAndFire(f32 arg0, f32 arg1, f32 arg2) {
                     bonusFireProjectile(arg0, arg1, arg2);
                     temp_s0->unk23--;
                     effectFreeAndUnlink(temp_s0->unk4[temp_s0->unk23]);
-                    func_8060E7EC(0, 0xFF, 3);
+                    rumbleRequest(0, 0xFF, 3);
                     temp_s0->unk4[temp_s0->unk23] = 0;
                     for (var_v0 = 0; var_v0 < temp_s0->unk23; var_v0++) {
                         temp_s0->unk18[var_v0] = 10;
@@ -513,22 +513,22 @@ typedef struct {
     u8 unk31;
 } BonusB_Ctrl;
 
-extern s32 D_8076A0A8;
-extern void *D_807FD580;
+extern s32 gCurrentMap;
+extern void *gActivePlayerState;
 typedef struct {
     char pad0[0x104];
     void *unk104;
 } BonusB_Cam104;
-#define BB_CAMCTX ((BonusB_Cam104 *)D_807FD580)
+#define BB_CAMCTX ((BonusB_Cam104 *)gActivePlayerState)
 
 typedef struct {
     char pad0[0x104];
     void *unk104;
 } BonusB_Cam;
 
-#define BCAM ((BonusB_Cam *)D_807FD580)
+#define BCAM ((BonusB_Cam *)gActivePlayerState)
 
-extern BonusB_Ctrl D_807FD610;
+extern BonusB_Ctrl gPlayerPadState;
 extern u8 D_807444EC;
 s32 playerStateQueueCallback(s32, s32, s32);
 void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
@@ -562,7 +562,7 @@ void bonusTargetGameUpdate(void) {
         camSetTarget(BCAM->unk104, D_807FBB40, 4, 0x800, -7, 0, 0x16, 0x2C, 4, 0, 0.05f);
         camStartPath(0, 0, 1);
         D_807FBB40->unkE8 = 0x310;
-        switch (D_8076A0A8) {
+        switch (gCurrentMap) {
         case 0xA:
             t0->unk27 = 0x55;
             t0->unk28 = 0x46;
@@ -599,8 +599,8 @@ void bonusTargetGameUpdate(void) {
     }
     if (t3c->unk0 > 0) {
         t3c->unk22 = 0;
-        if (D_807FBB40->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
-            ang = func_80611BB4(D_807FD610.unk2F, D_807FD610.unk2E) / 6.2831855f * 8.0 + 5.5;
+        if (D_807FBB40->unk154 == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
+            ang = func_80611BB4(gPlayerPadState.unk2F, gPlayerPadState.unk2E) / 6.2831855f * 8.0 + 5.5;
             if (9.0f < ang) {
                 ang -= 8.0f;
             }
@@ -694,7 +694,7 @@ void bonusPopupGameUpdate(void) {
         camSetTarget(BCAM->unk104, D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
         D_807FBB40->unkE8 = 0x9A;
-        switch (D_8076A0A8) {
+        switch (gCurrentMap) {
         case 0x12:
             s38->unk20 = 0.5f;
             s38->unk1A = 0x2D;
@@ -729,18 +729,18 @@ void bonusPopupGameUpdate(void) {
     }
     if (t0->unk0 > 0) {
         t0->unk22 = 0;
-        if (D_807FBB40->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
-            if (D_807FD610.unk2F > 0) {
-                if (D_807FD610.unk2E < -0x28) {
+        if (D_807FBB40->unk154 == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
+            if (gPlayerPadState.unk2F > 0) {
+                if (gPlayerPadState.unk2E < -0x28) {
                     t0->unk22 = 1;
-                } else if (D_807FD610.unk2E >= 0x29) {
+                } else if (gPlayerPadState.unk2E >= 0x29) {
                     t0->unk22 = 3;
                 } else {
                     t0->unk22 = 2;
                 }
-            } else if (D_807FD610.unk2E < -0x28) {
+            } else if (gPlayerPadState.unk2E < -0x28) {
                 t0->unk22 = 4;
-            } else if (D_807FD610.unk2E >= 0x29) {
+            } else if (gPlayerPadState.unk2E >= 0x29) {
                 t0->unk22 = 5;
             } else {
                 t0->unk22 = 6;
@@ -1215,7 +1215,7 @@ void func_8002A398(void) {
         t3c->unk23 = 5;
         t3c->unk0 = -2;
         D_8002D904 = 0;
-        switch (D_8076A0A8) {
+        switch (gCurrentMap) {
         case 0x90:
             t0->unkA = 6;
             D_8002D900 = 0x15;
@@ -1285,18 +1285,18 @@ void func_8002A398(void) {
             ((s8 *)&D_8002D900)[4] = (u16)(1 - n);
         }
         t3c->unk22 = 0;
-        if (D_807FBB40->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
-            if (D_807FD610.unk2F > 0) {
-                if (D_807FD610.unk2E < -0x28) {
+        if (D_807FBB40->unk154 == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
+            if (gPlayerPadState.unk2F > 0) {
+                if (gPlayerPadState.unk2E < -0x28) {
                     t3c->unk22 = 1;
-                } else if (D_807FD610.unk2E >= 0x29) {
+                } else if (gPlayerPadState.unk2E >= 0x29) {
                     t3c->unk22 = 3;
                 } else {
                     t3c->unk22 = 2;
                 }
-            } else if (D_807FD610.unk2E < -0x28) {
+            } else if (gPlayerPadState.unk2E < -0x28) {
                 t3c->unk22 = 4;
-            } else if (D_807FD610.unk2E >= 0x29) {
+            } else if (gPlayerPadState.unk2E >= 0x29) {
                 t3c->unk22 = 5;
             } else {
                 t3c->unk22 = 6;
@@ -1516,7 +1516,7 @@ void func_8002B920(void) {
             } else {
                 sp40 = 3.0f;
             }
-            D_807FBB40->unkE6 -= func_806CC10C(mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, temp_s1->unk4, temp_s1->unk8) + 0x800, D_807FBB40->unkE6) >> 3;
+            D_807FBB40->unkE6 -= mathAngleSignedDistance(mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, temp_s1->unk4, temp_s1->unk8) + 0x800, D_807FBB40->unkE6) >> 3;
             D_807FBB40->unk7C += func_80612794(D_807FBB40->unkE6) * sp40;
             D_807FBB40->unk84 += func_80612790(D_807FBB40->unkE6) * sp40;
             temp_s1->unkE--;
@@ -1680,7 +1680,7 @@ typedef struct {
 } LargeB4Ctrl;
 
 extern Actor *D_807FBB4C;
-extern LargeB4Player *D_807FC924;
+extern LargeB4Player *gPlayerSlots;
 extern LargeB4Ctrl *D_807ECDEC;
 void lightSetColor(f32, f32, f32, s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
@@ -1707,7 +1707,7 @@ void func_8002BF98(void) {
         temp_s5->unk0 = 1.0f;
         temp_s5->unk4 = D_807FBB40->unk7C;
         temp_s5->unk8 = D_807FBB40->unk84;
-        switch (D_8076A0A8) {
+        switch (gCurrentMap) {
             case 0x67:
                 temp_s5->unk28 = 4;
                 D_8002D90C = 1.0f;
@@ -1779,8 +1779,8 @@ void func_8002BF98(void) {
     lightSetColor(temp_s5->unk0, temp_s5->unk0, temp_s5->unk0, -1);
     switch (D_807FBB40->unk154) {
         case 0: {
-            sp84 = func_80612794(D_807FC924[D_807FC929].unk2C8);
-            fv0 = func_80612790(D_807FC924[D_807FC929].unk2C8);
+            sp84 = func_80612794(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+            fv0 = func_80612790(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
             fv1 = temp_s5->unk14;
             sp7C = temp_s5->unk18;
             sp74 = D_807ECDEC->unk2 * 0.06f;
@@ -1799,11 +1799,11 @@ void func_8002BF98(void) {
             if (temp_s5->unk1E > 0) {
                 temp_s5->unk1E = temp_s5->unk1E - 1;
             }
-            if (temp_s5->unk1E <= 0 && (*D_807FC924[D_807FC929].unk298 & 0xE000)) {
+            if (temp_s5->unk1E <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].unk298 & 0xE000)) {
                 sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0, 0x1E, 0);
-                sp7C = func_80612794(D_807FC924->unk2C8) * 30.0f + D_807FC924->unk210;
-                sp78 = D_807FC924->unk214 - 25.0f;
-                sp74 = func_80612790(D_807FC924->unk2C8) * 30.0f + D_807FC924->unk218;
+                sp7C = func_80612794(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->unk210;
+                sp78 = gPlayerSlots->unk214 - 25.0f;
+                sp74 = func_80612790(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->unk218;
                 projectileSetTargetCoords(sp7C, sp78, sp74);
                 projectileAimAndSpawn(0x23, 1, 0.8f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 625.0f, D_807FBB40);
                 temp_s5->unk1E = 0x1E;
@@ -1896,7 +1896,7 @@ void func_8002C8EC(void) {
         temp_s0_2 = temp_s2->unk4 * 0xC8 - 0x578;
         sp30 = func_80612794(temp_s0_2) * temp_s2->unk8 + temp_s3->unk4;
         sp34 = func_80612790(temp_s0_2) * temp_s2->unk8 + temp_s3->unk8;
-        D_807FBB40->unkE6 -= func_806CC10C(mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, sp30, sp34) + 0x800, D_807FBB40->unkE6) >> 5;
+        D_807FBB40->unkE6 -= mathAngleSignedDistance(mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, sp30, sp34) + 0x800, D_807FBB40->unkE6) >> 5;
         D_807FBB40->unk7C += func_80612794(D_807FBB40->unkE6) * sp40;
         D_807FBB40->unk84 += func_80612790(D_807FBB40->unkE6) * sp40;
         temp_s2->unkC--;
@@ -1941,7 +1941,7 @@ Gfx *func_8002CC08(Gfx *arg0, Actor *arg1) {
     s16 sp74;
 
     sp84 = (Struct_CC08_174 *)arg1->unk174;
-    camProjectToScreen(arg1->unk7C, arg1->unk80, arg1->unk84, &sp80, &sp7C, 0, 1.0f, D_807FC929);
+    camProjectToScreen(arg1->unk7C, arg1->unk80, arg1->unk84, &sp80, &sp7C, 0, 1.0f, gCurrentPlayerIndex);
     sp76 = (f32)(sp80 * 4.0);
     sp74 = (f32)(sp7C * 4.0);
     gDPPipeSync(arg0++);
@@ -1951,10 +1951,10 @@ Gfx *func_8002CC08(Gfx *arg0, Actor *arg1) {
     gSPMatrix(arg0++, D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     temp_v0 = arg1->unk154;
     if (temp_v0 == 0 || temp_v0 == 1) {
-        arg0 = renderRotatedSprite(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 - 0x34, sp74 - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
-        arg0 = renderRotatedSprite(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 + 0x34, sp74 - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
-        arg0 = renderRotatedSprite(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 + 0x34, sp74 + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
-        arg0 = renderRotatedSprite(arg0, (D_8076A064 >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 - 0x34, sp74 + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
+        arg0 = renderRotatedSprite(arg0, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 - 0x34, sp74 - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
+        arg0 = renderRotatedSprite(arg0, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 + 0x34, sp74 - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
+        arg0 = renderRotatedSprite(arg0, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 + 0x34, sp74 + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
+        arg0 = renderRotatedSprite(arg0, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 - 0x34, sp74 + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
     }
     gSPMatrix(arg0++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     switch (arg1->unk154) {

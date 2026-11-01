@@ -211,8 +211,8 @@ typedef struct BB300View9C {
     /* 0x13 */ u8 unk13;
 } BB300View9C;
 
-extern s32 D_8076A064;
-extern s32 D_8076A0A8;
+extern s32 gFrameCounter;
+extern s32 gCurrentMap;
 
 s32 randomNonNegative(void);
 void actorUpdatePulseIntensity(u8);
@@ -252,7 +252,7 @@ void func_806B6DB0(s32 arg0) {
         tgt = D_807FBB70.unk1FC;
         ((BB300ActorAlt *)D_807FBB40)->unkC0 = 200.0f;
         func_8072D714(tgt, 0x236);
-        if ((tgt != 0 && ((Actor *)tgt)->unk58 == 0x29) || (D_8076A0A8 == 0x10 && ((BB300View9C *)D_807FDC9C)->unk13 < 0x11)) {
+        if ((tgt != 0 && ((Actor *)tgt)->unk58 == 0x29) || (gCurrentMap == 0x10 && ((BB300View9C *)D_807FDC9C)->unk13 < 0x11)) {
             BB300S90->unk1A |= 1;
         }
     }
@@ -279,7 +279,7 @@ void func_806B6DB0(s32 arg0) {
                 D_807FBB40->unkE6 += p->unk2;
                 p->unk2 += -p->unk2 * 0.01;
                 BB300S90->unk2C -= 1;
-                if (!(D_8076A064 & 3)) {
+                if (!(gFrameCounter & 3)) {
                     func_8072DAA4();
                 }
             } else {

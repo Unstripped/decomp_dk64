@@ -743,7 +743,7 @@ extern s32 func_806F6EDC(void);
 extern s32 slotQueueGetMaxValue(s32, s32);
 extern u8 D_807FC950[];
 extern u8 D_807FC952;
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 
 #ifdef NON_MATCHING
 void eepromHalveRecords(void) {
@@ -766,11 +766,11 @@ void eepromHalveRecords(void) {
         s32 v = slotQueueGetMaxValue(2, 0);
         *(s16 *)(D_807FC950 + 0x2F0) = (s16)(u32)((f64)(u32)v * 0.5);
     }
-    if (D_8074E77C && D_8074E77C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (gPlayerCharacterId && gPlayerCharacterId) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     entry = D_807FC950;
     i = 0;
     do {
-        D_8074E77C = i;
+        gPlayerCharacterId = i;
         if (entry[4] != 0) {
             s32 v = slotQueueGetMaxValue(7, 0);
             *(s16 *)(entry + 8) = (s16)(u32)((f64)(u32)v * 0.5);
@@ -778,7 +778,7 @@ void eepromHalveRecords(void) {
         i++;
         entry += 0x5E;
     } while (i != 5);
-    D_8074E77C = 0;
+    gPlayerCharacterId = 0;
 }
 #else
 
@@ -792,7 +792,7 @@ extern void healthRefill(s32);
 extern u8 D_80750AC0;
 extern s32 D_80750AB0;
 extern u16 D_807FC930[];
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 
 #ifdef NON_MATCHING
 void eepromLoadPlayerData(s32 arg0, s32 arg1) {
@@ -815,14 +815,14 @@ void eepromLoadPlayerData(s32 arg0, s32 arg1) {
     if (D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
     D_807467C8 = selector;
-    D_8074E77C = 0;
+    gPlayerCharacterId = 0;
     if (func_8060C6B8(0xD, 0, 0, selector) == 0) {
         eepromClearSlotData(selector, 0);
     }
     if (arg1 != 0) {
         eepromCopySlot();
     }
-    D_807FC928 = 0;
+    gPlayerCount = 0;
     base[0x2FC] = func_8060C6B8(0xC, 0, 0, selector);
     healthRefill(0);
     collectibleCountsClear();
@@ -862,7 +862,7 @@ void eepromLoadPlayerData(s32 arg0, s32 arg1) {
     if (arg1 != 0) {
         eepromHalveRecords();
     }
-    D_8074E77C = 0;
+    gPlayerCharacterId = 0;
 }
 #else
 
@@ -887,7 +887,7 @@ void eepromSavePlayerData(void) {
     s32 j;
     u8 *field;
 
-    if (D_807FC928 == 1) {
+    if (gPlayerCount == 1) {
         if (func_80714394() != 0 || func_8071432C() != 0) {
             base = D_807FC950;
             entry = base;
@@ -977,7 +977,7 @@ u8 *func_8060E25C(s32 arg0) {
     result = NULL;
     switch (selector) {
     case 0:
-        if ((func_807142D8() != 0) || (D_807FC928 >= 2)) {
+        if ((func_807142D8() != 0) || (gPlayerCount >= 2)) {
             func_80731030();
             if (arg0) {
             }

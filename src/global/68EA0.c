@@ -118,8 +118,8 @@ typedef struct PlayerPositionView {
     f32 z;
 } PlayerPositionView;
 
-extern PlayerPositionView *D_807FC924;
-extern u8 D_807FC928;
+extern PlayerPositionView *gPlayerSlots;
+extern u8 gPlayerCount;
 
 s32 func_8063C2A8(s16);
 void actorEntryEmitJitterParticle(s16);
@@ -132,11 +132,11 @@ void actorUpdateEntryEmitters(void) {
     f32 dy;
     f32 sum;
 
-    if (D_807FC928 < 2) {
+    if (gPlayerCount < 2) {
         for (i = 0; i < D_807F9434; i++) {
-            dz = D_807FC924->z - D_807F9430[i].unk6;
-            dx = D_807FC924->x - D_807F9430[i].unk2;
-            dy = D_807FC924->y - D_807F9430[i].unk4;
+            dz = gPlayerSlots->z - D_807F9430[i].unk6;
+            dx = gPlayerSlots->x - D_807F9430[i].unk2;
+            dy = gPlayerSlots->y - D_807F9430[i].unk4;
             sum = (dz * dz) + ((dx * dx) + (dy * dy));
             dx = D_807F9430[i].unkA;  // FAKE: dead float store steers uopt (sum gets $f14)
             if ((f64)sum < 90000.0) {

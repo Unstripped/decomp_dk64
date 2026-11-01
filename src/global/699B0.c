@@ -52,9 +52,9 @@ typedef struct {
     f32 unk224;
 } ParticlePlayerPosition;
 
-extern ParticlePlayerPosition *D_807FC924;
-extern u8 D_807FC928;
-extern u32 D_8076A064;
+extern ParticlePlayerPosition *gPlayerSlots;
+extern u8 gPlayerCount;
+extern u32 gFrameCounter;
 extern s32 D_8072140C;
 extern s32 D_8071FF18;
 
@@ -83,16 +83,16 @@ void particleSpawnPathTrail(void) {
     f32 t;
     f32 factor;
 
-    if (D_807FC928 < 2) {
+    if (gPlayerCount < 2) {
         for (i = 0; i < D_807F9448; i++) {
             idx = D_807F9440[i];
-            player = D_807FC924;
+            player = gPlayerSlots;
             node = (ParticlePathNode *)((u8 *)D_80748BA0 + (idx << 5));
                 dz = player->unk224 - (f32)node->unk6;
                 dx = player->unk21C - (f32)node->unk2;
                 dy = player->unk220 - (f32)node->unk4;
                 if (sqrtf((dz * dz) + ((dx * dx) + (dy * dy))) < (f32)node->unk14) {
-                    if ((D_8076A064 % 18) == 0) {
+                    if ((gFrameCounter % 18) == 0) {
                         for (t = 0.0f; (f64)t <= 1.0; t += node->unk10) {
                             func_807149B8(1);
                             func_80714998(3);
@@ -108,7 +108,7 @@ void particleSpawnPathTrail(void) {
                                           (f32)(node->unkC - node->unk6) * t + (f32)node->unk6);
                         }
                     }
-                    if ((D_8076A064 % 10) == 0) {
+                    if ((gFrameCounter % 10) == 0) {
                         func_807149B8(1);
                         func_80714998(3);
                         func_807149C8(0xFF, 0xFF, 0xFF, 0x96);

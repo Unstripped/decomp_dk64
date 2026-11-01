@@ -489,8 +489,8 @@ void effectBuildGridVertices(EffectNode *effect) {
 }
 
 #define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
-extern u32 D_8076A064;
-extern s32 D_807FC924;
+extern u32 gFrameCounter;
+extern s32 gPlayerSlots;
 void assetFreeBuffer(s32, s32, s32);
 s16 mapChunkFindByPosition(f32, f32, f32, s32);
 s32 renderEntryAddOrUpdate(s32, u8, void *, f32, f32, f32, s32, s32, s32, s32, s32);
@@ -512,7 +512,7 @@ void effectUpdateAll(u8 arg0) {
             UA1_D08_FIELD(u8, effect, 0x32C) = 0;
             UA1_D08_FIELD(u8, effect, 0x32D) = 0;
             UA1_D08_FIELD(u8, effect, 0x21) = 0;
-            UA1_D08_FIELD(s32, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x18) = D_8076A064;
+            UA1_D08_FIELD(s32, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x18) = gFrameCounter;
             effect->flags &= 0xFFEF;
             switch (UA1_D08_FIELD(u8, effect, 0x334)) {
             case 1:
@@ -540,7 +540,7 @@ void effectUpdateAll(u8 arg0) {
                     i = 0;
                     offset = 0;
                     do {
-                        if (((u8 *)D_807FC924)[offset] != 0) {
+                        if (((u8 *)gPlayerSlots)[offset] != 0) {
                             memcpy((u8 *)effect + i * 0x80 + D_807444FC * 0x40 + 0x128,
                                    (u8 *)effect + i * 0x80 + (D_807444FC ^ 1) * 0x40 + 0x128, 0x40);
                         }
@@ -569,7 +569,7 @@ void effectUpdateAll(u8 arg0) {
                     i = 1;
                     offset = 0x2F0;
                     do {
-                        if (((u8 *)D_807FC924)[offset] != 0) {
+                        if (((u8 *)gPlayerSlots)[offset] != 0) {
                             memcpy((u8 *)effect + i * 0x80 + D_807444FC * 0x40 + 0x128,
                                    (u8 *)effect + D_807444FC * 0x40 + 0x128, 0x40);
                         }
@@ -582,14 +582,14 @@ void effectUpdateAll(u8 arg0) {
                         i = 0;
                         offset = 0;
                         do {
-                            if (((u8 *)D_807FC924)[offset] != 0) {
+                            if (((u8 *)gPlayerSlots)[offset] != 0) {
                                 effectComputeTransformMatrix((Mtx *)((u8 *)effect + i * 0x80 + D_807444FC * 0x40 + 0x128),
                                               UA1_D08_FIELD(u8, effect, 0x32C),
                                               UA1_D08_FIELD(f32, effect, 0x360),
                                               UA1_D08_FIELD(f32, effect, 0x364),
-                                              UA1_D08_FIELD(f32, (u8 *)D_807FC924 + offset, 0x21C),
-                                              UA1_D08_FIELD(f32, (u8 *)D_807FC924 + offset, 0x220),
-                                              UA1_D08_FIELD(f32, (u8 *)D_807FC924 + offset, 0x224),
+                                              UA1_D08_FIELD(f32, (u8 *)gPlayerSlots + offset, 0x21C),
+                                              UA1_D08_FIELD(f32, (u8 *)gPlayerSlots + offset, 0x220),
+                                              UA1_D08_FIELD(f32, (u8 *)gPlayerSlots + offset, 0x224),
                                               UA1_D08_FIELD(f32, effect, 0x340),
                                               UA1_D08_FIELD(f32, effect, 0x344),
                                               UA1_D08_FIELD(f32, effect, 0x348), effect->mode);
@@ -642,7 +642,7 @@ void effectUpdateAll(u8 arg0) {
         }
     }
     for (node2 = D_807FDB00; node2 != NULL; node2 = node2->unk24) {
-        if (D_8076A064 - node2->unk18 >= 0xB) {
+        if (gFrameCounter - node2->unk18 >= 0xB) {
             continue;
         }
         if (node2->unk18 == -1) {
@@ -654,7 +654,7 @@ void effectUpdateAll(u8 arg0) {
             do {
                 if (node2 && node2) {} // FAKE: raises node2 priority above offset2 (node2 -> s1, offset2 -> s2)
                 if (((s32 *)((u8 *)node2->unk1C + offset2))[1] != -1) {
-                    if (D_8076A064 - node2->unk18 == 0xA) {
+                    if (gFrameCounter - node2->unk18 == 0xA) {
                         assetFreeBuffer(((s32 *)((u8 *)node2->unk1C + offset2))[0], 0x319, 0x1F);
                         ((s32 *)((u8 *)node2->unk1C + offset2))[1] = -1;
                     }
@@ -912,7 +912,7 @@ extern Actor *D_807FBB4C;
 extern s32 D_807FBB60;
 extern u8 D_807F6009;
 extern s32 D_807F600C;
-extern u8 D_807FC929;
+extern u8 gCurrentPlayerIndex;
 extern s16 D_80744490;
 extern s16 D_80744494;
 extern Mtx D_2000000;
@@ -984,7 +984,7 @@ Gfx *effectGridBuildDisplayList(EffectDrawView *arg0, Gfx *arg1, s16 arg2) {
             EFFECT_WRITE_GFX(glist++, 0xED000000 | (((s32)((f32)arg0->unk38E * 4.0f) & 0xFFF) << 12) | ((s32)((f32)arg0->unk390 * 4.0f) & 0xFFF), (((s32)((f32)arg0->unk392 * 4.0f) & 0xFFF) << 12) | ((s32)((f32)arg0->unk394 * 4.0f) & 0xFFF));
         }
     }
-    EFFECT_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical((u8 *)arg0 + (D_807FC929 << 7) + (D_807444FC << 6) + 0x128));
+    EFFECT_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical((u8 *)arg0 + (gCurrentPlayerIndex << 7) + (D_807444FC << 6) + 0x128));
 
     for (i = 0; i < arg0->unk380; i++) {
         if (D_807F6009 != 5 || D_807F600C != (s32)arg0->unk370[i]) {

@@ -88,11 +88,11 @@ void menuUpdateFallingActor(MenuStruct_80024000 *arg0) {
 }
 
 extern void *D_807FBB4C;
-void func_806CFF9C(void *);
+void playerResumeLocomotion(void *);
 void func_805FF898(void);
 
 void menuResetAudioState(void) {
-    func_806CFF9C(D_807FBB4C);
+    playerResumeLocomotion(D_807FBB4C);
     func_805FF898();
     camStartPath(0, 7, 1);
 }
@@ -287,11 +287,11 @@ typedef struct {
 
 #define MenuM0_X18(p) (((s8 *)(p))[0x18])
 
-extern MenuControllerPad D_807FD610[];
+extern MenuControllerPad gPlayerPadState[];
 extern MenuStickAxis *D_807ECDEC;
-extern u8 D_807FC929;
+extern u8 gCurrentPlayerIndex;
 extern u8 D_807FC950[][0x5E];
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 extern u8 D_800330C0[];
 extern u8 D_80032F50;
 extern s16 D_800330D8;
@@ -322,10 +322,10 @@ void menuUpdateOptionsState(MenuStruct_80024000 *arg0) {
         break;
     case 0:
         if (listContainsS16(4, &D_800330D8) != 0) {
-            sp3C = D_807FC950[D_8074E77C];
+            sp3C = D_807FC950[gPlayerCharacterId];
             for (i = 0; i < 8; i++) {
-                if (flagGet((s16)flagGridIndex(0x1D5, i, D_8074E77C), 0) != 0) {
-                    temp = flagGridIndex(0x1FD, i, D_8074E77C);
+                if (flagGet((s16)flagGridIndex(0x1D5, i, gPlayerCharacterId), 0) != 0) {
+                    temp = flagGridIndex(0x1FD, i, gPlayerCharacterId);
                     if (flagGet((s16)temp, 0) == 0) {
                         flagSet((s16)temp, 1, 0);
                         ((u16 *)(sp3C + i * 2))[0x21]++;
@@ -344,7 +344,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *arg0) {
         }
         break;
     case 1:
-        if (D_807FD610[D_807FC929].unk2C & 0x8000) {
+        if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
             D_807FBB40->unk15F = 0;
             arg0->unk1 = 3;
         } else {
@@ -369,22 +369,22 @@ void menuUpdateOptionsState(MenuStruct_80024000 *arg0) {
                 D_807FBB40->unk15F = a3 + inc;
             }
             renderCallbacksRegister(menuDrawOptionsOverlay, D_807FBB40, 3);
-            if (D_807FD610[D_807FC929].unk2C & 0x4000) {
+            if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x4000) {
                 menuResetAudioState();
                 arg0->unk1 = 2;
-            } else if (arg0->unk19 != 0 && (D_807FD610[D_807FC929].unk2C & 8)) {
+            } else if (arg0->unk19 != 0 && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 8)) {
                 arg0->unk1 = 4;
             }
         }
         break;
     case 3:
         D_800330D8 = 1;
-        if (D_807FD610[D_807FC929].unk2C & 0xC000) {
+        if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0xC000) {
             arg0->unk1 = 1;
         }
         break;
     default:
-        if (D_807FD610[D_807FC929].unk2C & 0x4000) {
+        if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x4000) {
             arg0->unk1 = 1;
         } else {
             s8 v1 = D_807ECDEC->unk3;
@@ -399,7 +399,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *arg0) {
             }
             arg0->unk1 = ((arg0->unk1 - 4) & 7) + 4;
         }
-        if (D_807FD610[D_807FC929].unk2C & 0x8000) {
+        if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
             func_80712774(D_800330C0[arg0->unk1]);
             D_80032F50 = 1;
             arg0->unk1 = 0x37;
@@ -433,7 +433,7 @@ void menuProcessOptionInput(MenuStruct_80024000 *arg0) {
 
 extern s16 D_8076AEF2;
 
-void func_806F397C(void *, s32, s32, s32);
+void playerWaypointPathStartPacked(void *, s32, s32, s32);
 u8 flagCountRange(s32, s32, s32);
 u8 flagGridSumRows(s32, s32, s32, u8);
 void menuUpdateOptionsState(MenuStruct_80024000 *);
@@ -455,14 +455,14 @@ void menuDispatchAction(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         sp20 = 1;
         temp_s0->unk2 = flagCountRange(0x1FD, 0x28, 0);
-        temp_s0->unk1A = flagGridSumRows(0x1D5, 0, 7, D_8074E77C);
-        temp_s0->unk1A -= flagGridSumRows(0x1FD, 0, 7, D_8074E77C);
+        temp_s0->unk1A = flagGridSumRows(0x1D5, 0, 7, gPlayerCharacterId);
+        temp_s0->unk1A -= flagGridSumRows(0x1FD, 0, 7, gPlayerCharacterId);
         if (D_8076AEF2 != 0x1C) {
             if (flagGet(0x174, 0) == 0) {
                 temp_s0->unk0 = 0;
                 temp_s0->unk1 = 0;
                 sp20 = 0;
-                func_806F397C(D_807FBB4C, 0, 0, 0);
+                playerWaypointPathStartPacked(D_807FBB4C, 0, 0, 0);
                 flagSet(0x174, 1, 0);
             } else {
                 if (temp_s0->unk2 == 0x28) {
@@ -622,7 +622,7 @@ void menuUpdateProgressGrid(void) {
 }
 
 extern u8 D_807444FC;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 s32 texCacheFindOrLoad(s32);
 
 Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *arg1) {
@@ -687,7 +687,7 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *arg1) {
     gSP2Triangles(g++, 8, 9, 10, 0, 8, 10, 11, 0);
     gSP2Triangles(g++, 12, 13, 14, 0, 12, 14, 15, 0);
     gDPPipeSync(g++);
-    if (sp12B != 0 && (D_8076A064 & 0x1F) < 0x14U) {
+    if (sp12B != 0 && (gFrameCounter & 0x1F) < 0x14U) {
         tex = texCacheFindOrLoad(0x44);
         gDPSetPrimColor(g++, 0, 0, 0, 0xFF, 0, 0xFF);
         gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x504240);

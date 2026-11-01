@@ -52,7 +52,7 @@ void eepromSavePlayerData();
 void func_80712EDC();
 void func_807127B4();
 s32 func_806C8DE0();
-s32 func_806CC10C(s16, s16);
+s32 mathAngleSignedDistance(s16, s16);
 void func_80600044();
 void flagSet(s32, s32, s32);
 void hudPauseMenuRefreshTotals();
@@ -77,7 +77,7 @@ void hudPauseMenuUpdate(void) {
     s16 half; // FAKE: s16 (not s32) keeps the sum in a ring temp
 
     hud = D_807FBB40->unk174;
-    i = D_8076A0A8;
+    i = gCurrentMap;
     switch (i) {
         case 0x6:
         case 0xE:
@@ -90,7 +90,7 @@ void hudPauseMenuUpdate(void) {
             HUD_PAUSE_MODE = 1;
             break;
         default:
-            if (func_805FF000(D_8076A0A8 & 0xFF) == 9 || (D_807FBB64 & 0x10000000)) {
+            if (func_805FF000(gCurrentMap & 0xFF) == 9 || (D_807FBB64 & 0x10000000)) {
                 HUD_PAUSE_MODE = 2;
             } else {
                 HUD_PAUSE_MODE = 0;
@@ -107,7 +107,7 @@ void hudPauseMenuUpdate(void) {
             D_807FC7E8[i] = textTableGetString(0x23, i, 0);
         }
         D_8076A098++;
-        D_807FC7FC = ((HudPauseCamera *)D_807FC924)->unk214;
+        D_807FC7FC = ((HudPauseCamera *)gPlayerSlots)->unk214;
         D_807505D4 = 0;
         D_807FC8B8 = 0;
         D_80750580 = 1;
@@ -150,7 +150,7 @@ void hudPauseMenuUpdate(void) {
     }
     if (hud->unk0 == 0.0f && D_807FC8B8 == 0) {
         moved = hud->unk8[hud->unk15] != hud->unk8[1 - hud->unk15];
-        buttons = *D_807FC924->unk298;
+        buttons = *gPlayerSlots->unk298;
         if (moved == 0 && hud->unk4 == 0.0f && D_807FC80C == D_807FC80D) {
             if (buttons & 0x5000) {
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -218,7 +218,7 @@ void hudPauseMenuUpdate(void) {
                             hud->unk17 = 3;
                         } else if (hud->unk17 == 1) {
                             if (HUD_PAUSE_MODE != 0) {
-                                func_805FF378(D_8076A0A8, 0);
+                                func_805FF378(gCurrentMap, 0);
                             } else if (hud->unk18 == 0) {
                                 eepromSavePlayerData();
                                 hud->unk18 = 1;
@@ -241,12 +241,12 @@ void hudPauseMenuUpdate(void) {
                     if (HUD_PAUSE_MODE == 0 && a2 != 7 && a2 != 0xD && a2 != 9 && i == 0) {
                         if (a2 == 0xA) {
                             func_80712EDC();
-                        } else if (func_805FEF74(D_8076A0A8) == 0) {
+                        } else if (func_805FEF74(gCurrentMap) == 0) {
                             x = D_807FBB64 & 1;
                             if (x != 0 && a2 == 8) {
                                 flagSet(0x5C, 1, 2);
                                 func_805FF378(0x22, 0xC);
-                            } else if (x != 0 && D_8076A0A8 != 0x3C) {
+                            } else if (x != 0 && gCurrentMap != 0x3C) {
                                 func_805FF378(0x2A, 2);
                             } else {
                                 func_80600044(a2);
@@ -320,7 +320,7 @@ void hudPauseMenuUpdate(void) {
                 hudPauseMenuSlidePage(hud, moved, buttons);
                 break;
             case 3:
-                diff = i = -func_806CC10C(D_807FC80D * D_807FC83A, hud->unk10);
+                diff = i = -mathAngleSignedDistance(D_807FC80D * D_807FC83A, hud->unk10);
                 flag = D_807FC83A / 10;
                 if (diff > 0) {
                     if (flag < diff) {
@@ -405,7 +405,7 @@ void hudPauseMenuUpdate(void) {
     if (D_8075052C != 0) {
         D_8075052C -= 1;
         hud->unk0 = D_80750584[D_8075052C];
-        ((HudPauseCamera *)D_807FC924)->unk214 = D_807FC7FC + hud->unk0 * 100.0;
+        ((HudPauseCamera *)gPlayerSlots)->unk214 = D_807FC7FC + hud->unk0 * 100.0;
     }
     renderCallbacksRegister(hudDrawDimOverlay, D_807FBB40, 1);
     renderCallbacksRegister(hudPauseMenuRender, D_807FBB40, 5);

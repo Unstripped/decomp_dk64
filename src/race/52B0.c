@@ -89,7 +89,7 @@ typedef struct {
 
 #define RC_A ((RaceC_Actor *)D_807FBB40)
 
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 extern void *D_807FBB40;
 extern RaceC_Actor *D_807FBB44;
 void func_8002BBD0(void *, s32);
@@ -111,14 +111,14 @@ void func_800292D0(RaceC_Actor *arg0) {
     s32 var_s0;
     s32 var_s5;
 
-    var_s5 = D_807FC928;
+    var_s5 = gPlayerCount;
     var_s1 = 0;
     sp5C = arg0->unk174;
     if (var_s5 == 1) {
         var_s5++;
     }
     func_8002BBD0(arg0, var_s5);
-    for (var_s0 = 0; var_s0 < D_807FC928; var_s0++) {
+    for (var_s0 = 0; var_s0 < gPlayerCount; var_s0++) {
         actorSpawn(0x133, 0x9F);
         sp54 = D_807FBB44;
         sp58 = sp54->unk174;
@@ -128,7 +128,7 @@ void func_800292D0(RaceC_Actor *arg0) {
         sp58->unk28 = var_s0;
     }
     var_s0 = 0;
-    if (D_807FC928 == 1) {
+    if (gPlayerCount == 1) {
         sp54 = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         sp58 = sp54->unk178;
         sp58->unk27 = 1;
@@ -156,7 +156,7 @@ void func_80029488(void) {
     func_8002D0B0();
 }
 
-extern RaceC_Player *D_807FC924;
+extern RaceC_Player *gPlayerSlots;
 void actorInitAnimations(void *, void *);
 void actorOrNodeFlags(void *, s32, s32);
 void func_80690190(void *, void *);
@@ -184,10 +184,10 @@ void func_800294A8(void) {
 
     s4 = RC_A->unk174;
     sp68 = RC_A->unk178;
-    s1 = D_807FC924[s4->unk28].unk4->unk174;
+    s1 = gPlayerSlots[s4->unk28].unk4->unk174;
     sp52 = RC_A->unk6A & 1;
     if (!(RC_A->unk60 & 0x10)) {
-        actorInitAnimations(RC_A, D_807FC924[s4->unk28].unk4);
+        actorInitAnimations(RC_A, gPlayerSlots[s4->unk28].unk4);
         RC_A->unk144 |= 0x10;
         RC_A->unk60 &= 0xFFFDFFFF;
         s4->unk44 = 5;

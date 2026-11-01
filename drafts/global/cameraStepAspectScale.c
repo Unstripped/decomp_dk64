@@ -2,7 +2,7 @@
 extern u8 D_807444F0;
 extern u8 D_807444EC;
 extern s8 D_807444C0;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern f32 D_80747CD0;
 
 f32 cameraStepAspectScale(void) {
@@ -19,7 +19,7 @@ f32 cameraStepAspectScale(void) {
     }
     flag = D_807444EC == 1;
     if (flag) {
-        flag = D_8076A0A8 != 0x50;
+        flag = gCurrentMap != 0x50;
     }
     if (D_807444C0 != 0 && !flag) {
         target = target * 1.2;

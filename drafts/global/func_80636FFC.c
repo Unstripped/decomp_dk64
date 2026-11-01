@@ -52,13 +52,13 @@ typedef struct {
 void texAnimUpdateNodes(ModelSegmentData *);
 void func_8063E6B4(void *);
 void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
-void func_8065EB10(u8, s16, f32, f32, f32, s32, f32, s32);
+void lightQueueKeyframed(u8, s16, f32, f32, f32, s32, f32, s32);
 s32 func_806D0964(s32, u8, s32);
 void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
 f32 renderScaleDistanceByFov(f32);
 Gfx *renderSetSegment6AndFog(Gfx *, s16, u8);
 
-#define OlB6_PLAYER(i) (((OlB6Player *)D_807FC924)[i])
+#define OlB6_PLAYER(i) (((OlB6Player *)gPlayerSlots)[i])
 
 Gfx *func_80636FFC(OlB6Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, s16 arg6, s32 arg7) {
     f32 spF8[4][4];
@@ -84,9 +84,9 @@ Gfx *func_80636FFC(OlB6Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 ar
         func_8063E6B4((void *)&arg5);
     }
     if (arg5 != 0) {
-        dx = OlB6_PLAYER(D_807FC929).unk21C - arg0->unk0;
-        dy = OlB6_PLAYER(D_807FC929).unk220 - arg0->unk4;
-        dz = OlB6_PLAYER(D_807FC929).unk224 - arg0->unk8;
+        dx = OlB6_PLAYER(gCurrentPlayerIndex).unk21C - arg0->unk0;
+        dy = OlB6_PLAYER(gCurrentPlayerIndex).unk220 - arg0->unk4;
+        dz = OlB6_PLAYER(gCurrentPlayerIndex).unk224 - arg0->unk8;
         dx *= dx;
         dy *= dy;
         dz *= dz;
@@ -100,7 +100,7 @@ Gfx *func_80636FFC(OlB6Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 ar
         }
     }
     if (arg0->unkC3 != 0) {
-        func_8065EB10(arg0->unkC3, arg0->unkB6, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC0, sp88 / sp84, arg6);
+        lightQueueKeyframed(arg0->unkC3, arg0->unkB6, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC0, sp88 / sp84, arg6);
     }
     if (arg0->unkB4 == 0 || arg0->unkB4 == 0x241) {
         return arg1;
@@ -131,7 +131,7 @@ Gfx *func_80636FFC(OlB6Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 ar
         sp90 = hashTableLookup(arg0->unkB6);
         modelSlotResolveAssetTextures(&D_807F6000[sp90], 0, 1);
         sel78 = D_807F6000[sp90].unk78;
-        if (func_806D0964(*(s32 *)D_807F6000[sp90].unk24, D_807FC929, (s32)sel78) != 0) {
+        if (func_806D0964(*(s32 *)D_807F6000[sp90].unk24, gCurrentPlayerIndex, (s32)sel78) != 0) {
             return arg1;
         }
     }
@@ -198,19 +198,19 @@ Gfx *func_80636FFC(OlB6Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 ar
         if (arg0->unkB6 != -1) {
             s32 fl = D_807F6000[sp90].unk8C;
             if (fl != 0) {
-                if ((fl & 0x8) && OlB6_PLAYER(D_807FC929).unk4->unk58 != 2) {
+                if ((fl & 0x8) && OlB6_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 2) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x2) && OlB6_PLAYER(D_807FC929).unk4->unk58 != 3) {
+                if ((D_807F6000[sp90].unk8C & 0x2) && OlB6_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 3) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x4) && OlB6_PLAYER(D_807FC929).unk4->unk58 != 5) {
+                if ((D_807F6000[sp90].unk8C & 0x4) && OlB6_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 5) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x1) && OlB6_PLAYER(D_807FC929).unk4->unk58 != 6) {
+                if ((D_807F6000[sp90].unk8C & 0x1) && OlB6_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 6) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x10) && OlB6_PLAYER(D_807FC929).unk4->unk58 != 4) {
+                if ((D_807F6000[sp90].unk8C & 0x10) && OlB6_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 4) {
                     sp92 = 0x64;
                 }
             }

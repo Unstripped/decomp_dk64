@@ -7,10 +7,10 @@ typedef struct PlayerData {
     u8 pad2[0x2F0 - 0x2C1];
 } PlayerData;
 
-extern PlayerData *D_807FC924;
+extern PlayerData *gPlayerSlots;
 extern Actor *D_807FBB4C;
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-s32 func_806EB400(Actor*);
+s32 playerCanTakeHit(Actor*);
 
 void actorTriggerPlayerKnockbackSound(Actor* arg0, Actor* arg1, s32 arg2, s32 arg3) {
     u8 kong;
@@ -22,8 +22,8 @@ void actorTriggerPlayerKnockbackSound(Actor* arg0, Actor* arg1, s32 arg2, s32 ar
         *(s32*)(beh + 0x1F0) |= 0x80000;
         if (*(s16*)(beh + 0xD4) == (beh[0x1A4] * 0)) { // FAKE: keeps kong live across check
             if (D_807FBB4C->unk154 != 0x36) {
-                if (func_806EB400(D_807FBB4C)) {
-                    if (D_807FBB4C->unk58 == 6 && D_807FC924[kong].unk2C0 == 2) {
+                if (playerCanTakeHit(D_807FBB4C)) {
+                    if (D_807FBB4C->unk58 == 6 && gPlayerSlots[kong].unk2C0 == 2) {
                         if (D_807FBB4C->unk154 != 0x31) {
                             if (arg0->unk5C & 0x80) {
                                 sfxPlayAtPositionPooled(arg1->unk7C, arg1->unk80, arg1->unk84, 0x1E0, 0xFF, 0x64, 0x1E, 0, 0.3f, 0);

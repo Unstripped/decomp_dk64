@@ -584,7 +584,7 @@ extern s32 D_80033810;
 extern u32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 Gfx *menuSetElementCoordinates(Gfx *, s32, f32, f32, f32);
 Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, s32, s32, s16, s32, f32, f32, s32, f32);
 f32 func_80612794(s16);
@@ -628,7 +628,7 @@ s32 menuDrawFileSummary(void *arg0, Gfx *arg1) {
     y += 0x8C;
     _sprintf(spA4, "%03d:%02d", D_80033810, D_80033814);
     arg1 = (Gfx *)textDrawStringVtx((s32)arg1, 1, 0x280, y, spA4, 0x81);
-    fv1 = func_80612794((s16)((D_8076A064 * 0x78) & 0xFFF)) * 0.1f + 0.5f;
+    fv1 = func_80612794((s16)((gFrameCounter * 0x78) & 0xFFF)) * 0.1f + 0.5f;
     y = (s32)((f32)y + 40.0f);
     sc = y;
     x = 0.5f * four;
@@ -640,9 +640,9 @@ s32 menuDrawFileSummary(void *arg0, Gfx *arg1) {
     x = x * 0.75f;
     sc = -x;
     spD0 = 340.0f;
-    arg1 = renderRotatedSprite(arg1, 0xA0, 3, 0, 0x20, 0x20, (s32)spD0, (s32)spCC, x, sc * 0.5f, D_8076A064 % 360U, 0.0f);
+    arg1 = renderRotatedSprite(arg1, 0xA0, 3, 0, 0x20, 0x20, (s32)spD0, (s32)spCC, x, sc * 0.5f, gFrameCounter % 360U, 0.0f);
     gDPPipeSync(arg1++);
-    arg1 = renderRotatedSprite(arg1, 0xA0, 3, 0, 0x20, 0x20, (s32)spD0, (s32)spCC, x, sc, (D_8076A064 * 0xC) % 360U, 0.0f);
+    arg1 = renderRotatedSprite(arg1, 0xA0, 3, 0, 0x20, 0x20, (s32)spD0, (s32)spCC, x, sc, (gFrameCounter * 0xC) % 360U, 0.0f);
     gDPPipeSync(arg1++);
     gDPSetPrimColor(arg1++, 0, 0, 255, 255, 255, 255);
     func_800317E8(temp_s4, 160.0f, 15.0f, &spD0, &spCC, 5, 1, 0.3f);
@@ -2214,7 +2214,7 @@ extern s8 D_80033F60;
 extern s8 D_800339A8;
 extern s8 D_80033F61;
 extern s8 D_800339C0;
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 extern MenuM8_PosPair D_800339B8[];
 
 void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
@@ -2253,7 +2253,7 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
                 v0 = arg1;
                 if (v1 >= 0x10) {
                     D_800339C0 = 0xF;
-                    if (!(D_8076A064 & 1)) {
+                    if (!(gFrameCounter & 1)) {
                         v0 = 0;
                     }
                 }
@@ -2320,7 +2320,7 @@ extern s8 D_80033F60;
 extern s8 D_80033F61;
 extern s16 D_80744518;
 extern char *D_800339AC[];
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 
 Gfx *menuDrawHighScoreTable(void *arg0, Gfx *arg1) {
     void *temp_s0;
@@ -2367,7 +2367,7 @@ Gfx *menuDrawHighScoreTable(void *arg0, Gfx *arg1) {
         arg1 = textDrawStringVtx(arg1, 0x81, (s16)(ft4 + 0x118), var_s3, sp68, 1);
         _sprintf(sp68, "%d", e->unk0);
         arg1 = textDrawStringVtx(arg1, 0x81, (s16)(0x3E8 - ft4), var_s3, sp68, 1);
-        if (i == D_80033F60 && (D_8076A064 & 0x1F) < 0x14) {
+        if (i == D_80033F60 && (gFrameCounter & 0x1F) < 0x14) {
             arg1 = textDrawStringVtx(arg1, 0x81, (s16)(ft4 + 0x118), var_s3 + 0x34, D_800339AC[D_80033F61], 1);
         }
         var_s3 += 0x6C;
@@ -2441,15 +2441,15 @@ typedef struct Menu3B_Struct_C924 {
     u16 *unk298;
 } Menu3B_Struct_C924;
 
-extern Menu3B_Struct_C924 *D_807FC924;
+extern Menu3B_Struct_C924 *gPlayerSlots;
 
 void menuUpdateCameraPositions(void) {
-    D_807FC924->unk210 = D_807FBB4C->unk7C;
-    D_807FC924->unk214 = D_807FBB4C->unk80 + 13.1f;
-    D_807FC924->unk218 = D_807FBB4C->unk84 - 50.0f;
-    D_807FC924->unk228 = D_807FBB4C->unk7C;
-    D_807FC924->unk22C = D_807FC924->unk214;
-    D_807FC924->unk230 = D_807FBB4C->unk84 - 100.0f;
+    gPlayerSlots->unk210 = D_807FBB4C->unk7C;
+    gPlayerSlots->unk214 = D_807FBB4C->unk80 + 13.1f;
+    gPlayerSlots->unk218 = D_807FBB4C->unk84 - 50.0f;
+    gPlayerSlots->unk228 = D_807FBB4C->unk7C;
+    gPlayerSlots->unk22C = gPlayerSlots->unk214;
+    gPlayerSlots->unk230 = D_807FBB4C->unk84 - 100.0f;
 }
 
 extern char D_800339C4[];
@@ -2735,19 +2735,19 @@ Gfx *menuUpdateStateDispatch(MenuScreenActor *arg0, s32 arg1, Gfx *arg2, s32 arg
     MenuScreenState *temp_t0 = arg0->unk174;
     s32 sp18 = 0;
 
-    if (*D_807FC924->unk298 & 0x8000) {
+    if (*gPlayerSlots->unk298 & 0x8000) {
         sp18 = 1;
     }
-    if (*D_807FC924->unk298 & 0x4000) {
+    if (*gPlayerSlots->unk298 & 0x4000) {
         sp18 |= 2;
     }
-    if (*D_807FC924->unk298 & 8) {
+    if (*gPlayerSlots->unk298 & 8) {
         sp18 |= 0x40;
     }
-    if (*D_807FC924->unk298 & 4) {
+    if (*gPlayerSlots->unk298 & 4) {
         sp18 |= 0x80;
     }
-    if (*D_807FC924->unk298 & 0x2000) {
+    if (*gPlayerSlots->unk298 & 0x2000) {
         sp18 |= 0x100;
     }
     if (D_807ECDEC->unk2 < -0x28) {
@@ -3137,7 +3137,7 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
             arg0->unk360 = c->unk10 * sp64 * 4.0f;
             arg0->unk364 = arg0->unk360;
             if (type == 7) {
-                t = (D_8076A064 * 0x78) & 0xFFF;
+                t = (gFrameCounter * 0x78) & 0xFFF;
                 arg0->unk344 += func_80612794(t) * 10.0f;
             }
             if (type == 0x12) {
@@ -3145,8 +3145,8 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 arg0->unk36B = sp4A;
                 arg0->unk36C = sp4A;
                 arg0->unk36D = sp48;
-                arg0->unk38E = D_807FC924->unk270;
-                arg0->unk392 = D_807FC924->unk274;
+                arg0->unk38E = gPlayerSlots->unk270;
+                arg0->unk392 = gPlayerSlots->unk274;
                 if (arg0->unk344 < 360.0) {
                     if ((f64)arg0->unk340 < 640) {
                         arg0->unk392 = 0x78;
@@ -3253,7 +3253,7 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 }
             }
             if (type == 0xE) {
-                t = (D_8076A064 * 0x78) & 0xFFF;
+                t = (gFrameCounter * 0x78) & 0xFFF;
                 arg0->unk344 += func_80612794(t) * 10.0f;
             }
             if (type == 0x13 && (D_80033FAD == 4 || D_80033FAD == 1 || D_8076A104 == 1)) {
@@ -3512,7 +3512,7 @@ void func_80031B08(void) {
         }
         break;
     case 3:
-        if (*D_807FC924->unk298 & 0x8000) {
+        if (*gPlayerSlots->unk298 & 0x8000) {
             if (D_800337F0 == 1) {
                 actorScriptStart(D_807FBB40, 0x348);
                 D_807FBB40->unk155 = 4;
@@ -3564,12 +3564,12 @@ void func_80031B08(void) {
     }
     D_80033738 = 0x14;
     D_807FBB40->unk80 = -D_8003369C;
-    D_807FC924->unk210 = D_807FBB40->unk7C;
-    D_807FC924->unk214 = (D_80033678[D_80033F50] * 50.0) + (D_807FBB40->unk80 + 13.1f + D_8003369C) - 0.1;
-    D_807FC924->unk218 = D_807FBB40->unk84 - 50.0f;
-    D_807FC924->unk228 = D_807FBB40->unk7C;
-    D_807FC924->unk22C = D_807FC924->unk214;
-    D_807FC924->unk230 = 10020.0f;
+    gPlayerSlots->unk210 = D_807FBB40->unk7C;
+    gPlayerSlots->unk214 = (D_80033678[D_80033F50] * 50.0) + (D_807FBB40->unk80 + 13.1f + D_8003369C) - 0.1;
+    gPlayerSlots->unk218 = D_807FBB40->unk84 - 50.0f;
+    gPlayerSlots->unk228 = D_807FBB40->unk7C;
+    gPlayerSlots->unk22C = gPlayerSlots->unk214;
+    gPlayerSlots->unk230 = 10020.0f;
     D_80754CE0 = D_80033678[D_80033F50] * 400.0f;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }

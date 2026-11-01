@@ -84,7 +84,7 @@ struct MpActor {
     MpKongState *unk174;
 };
 
-// D_807FC924: player array, stride 0x2F0.
+// gPlayerSlots: player array, stride 0x2F0.
 typedef struct MpPlayer {
     u8 unk0;
     char pad1[3];
@@ -138,7 +138,7 @@ extern s32 D_807552E8;
 extern MpScore D_807FC950[];
 s32 slotQueueGetValue(s32, u8);
 extern s32 D_807552EC;
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 extern s32 D_807FBB60;
 extern s8 D_8076A105;
 void func_80714638(void);
@@ -159,13 +159,13 @@ typedef struct MpMapEntry {
     char pad1C[4];
 } MpMapEntry;
 extern MpMapEntry D_80026FA4[];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u64 __ll_mul(u64, u64);
 extern u64 __ull_div(u64, u64);
 extern MpControllerActor *D_807FBB40;
 void renderCallbacksRegister(void *, void *, s32);
 extern MpSettings D_807552E4;
-extern MpPlayer *D_807FC924;
+extern MpPlayer *gPlayerSlots;
 
 Gfx *mpDrawTimer(Gfx *glistp, MpControllerActor *arg1) {
     MpControllerState *sp44;
@@ -244,7 +244,7 @@ void mpDetermineWinner(MpControllerState *arg0) {
     var_s2 = 0;
     var_s1 = -99999;
     var_s0 = 0;
-    if (D_807FC928 > 0) {
+    if (gPlayerCount > 0) {
         do {
             temp_v0 = mpGetPlayerScore(var_s0);
             if (var_s1 < temp_v0) {
@@ -254,7 +254,7 @@ void mpDetermineWinner(MpControllerState *arg0) {
                 var_s2 = -1;
             }
             var_s0 += 1;
-        } while (var_s0 < D_807FC928);
+        } while (var_s0 < gPlayerCount);
     }
     D_807FBB60 |= 0x40001;
     func_80714638();
@@ -283,7 +283,7 @@ void mpCheckScoreLimit(void) {
     s32 var_s0;
 
     var_s0 = 0;
-    if (D_807FC928 > 0) {
+    if (gPlayerCount > 0) {
         do {
             temp_v0 = mpGetPlayerScore(var_s0);
             if ((temp_v0 >= D_807552E4.unkC) || (temp_v0 < -0x3E7)) {
@@ -291,7 +291,7 @@ void mpCheckScoreLimit(void) {
                 return;
             }
             var_s0++;
-        } while (var_s0 < D_807FC928);
+        } while (var_s0 < gPlayerCount);
     }
 }
 
@@ -301,13 +301,13 @@ void mpCheckLastPlayerStanding(void) {
 
     var_s1 = 0;
     var_s0 = 0;
-    if (D_807FC928 > 0) {
+    if (gPlayerCount > 0) {
         do {
             if (mpGetPlayerScore(var_s0) != 0) {
                 var_s1++;
             }
             var_s0++;
-        } while (var_s0 < D_807FC928);
+        } while (var_s0 < gPlayerCount);
     }
     if (var_s1 < 2) {
         mpDetermineWinner(D_807FBB40->unk174);
@@ -343,13 +343,13 @@ Gfx *func_800246EC(Gfx *glistp, MpControllerState *arg1, f32 arg2) {
     gDPSetTextureFilter(glistp++, G_TF_POINT);
     gDPSetTexturePersp(glistp++, G_TP_NONE);
     i = 0;
-    if ((s32) D_807FC928 > 0) {
+    if ((s32) gPlayerCount > 0) {
         p = arg1;
         off = 0;
         do {
             sub = p->unk20[0];
             alpha = 0xFF;
-            plr = (MpPlayer *)((u8 *)D_807FC924 + off);
+            plr = (MpPlayer *)((u8 *)gPlayerSlots + off);
             if (plr->unk2EA != 0) {
                 alpha = plr->unk4->unk128 & 0xFF;
                 if (plr->unk4->unk128 >= 0x100) {
@@ -387,13 +387,13 @@ Gfx *func_800246EC(Gfx *glistp, MpControllerState *arg1, f32 arg2) {
                 if (alpha != 0) {
                     glistp = mpDrawGlyph(glistp, &spAE, y, arg1->unk48, alpha);
                 }
-                if (D_807FC928 == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
+                if (gPlayerCount == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
             }
             i = nxt;
             p = (MpControllerState *)((u8 *)p + 4);
             off += 0x2F0;
-        } while (nxt < (s32) D_807FC928);
-        if (D_807FC928 == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
+        } while (nxt < (s32) gPlayerCount);
+        if (gPlayerCount == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
     }
     return glistp;
 }
@@ -413,7 +413,7 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, MpControllerActor *arg1) {
 
     temp_s0 = arg1->unk174;
     temp = temp_s0->unk20[0];
-    temp_fs2 = (f32) D_80744490 / (f32) (D_807FC928 + 1);
+    temp_fs2 = (f32) D_80744490 / (f32) (gPlayerCount + 1);
     temp_fs0 = (f32) (((MpViewport *)temp)->unk6 + 8);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, D_80744490, D_80744494);
     glistp = func_800246EC(glistp, temp_s0, temp_fs2);
@@ -427,13 +427,13 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, MpControllerActor *arg1) {
         gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, 180);
         temp_fs0 += 8.0f;
         var_s2 = 0;
-        if (D_807FC928 > 0) {
+        if (gPlayerCount > 0) {
             do {
                 _sprintf(sp98, "%d", mpGetPlayerScore(var_s2));
                 temp = textDrawStringVtx(glistp, 1, (s16) ((((f32) (var_s2 + 1) * temp_fs2) - (f32) ((f32) textGetStringWidth(1, sp98) * 0.25)) * 8.0f), (s16) (temp_fs0 * 8.0f), sp98, 4);
                 var_s2 = var_s2 + 1;
                 glistp = temp;
-            } while (var_s2 < D_807FC928);
+            } while (var_s2 < gPlayerCount);
         }
     }
     return glistp;
@@ -466,12 +466,12 @@ Gfx *mpDrawPlayerViewportHud(Gfx *arg0, MpControllerActor *arg1) {
     gSPMatrix(var_s0++, sp104->unk30, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPPipeSync(var_s0++);
     gDPSetCombineMode(var_s0++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-    for (var_s7 = 0; var_s7 < D_807FC928; var_s7++) {
+    for (var_s7 = 0; var_s7 < gPlayerCount; var_s7++) {
             rect = sp104->unk20[var_s7];
-            if (D_807FC924[var_s7].unk4->unk154 == 0x84) {
+            if (gPlayerSlots[var_s7].unk4->unk154 == 0x84) {
                 fx = (f32) ((f64) rect->unk4 + ((f64) (rect->unk8 - rect->unk4) * 0.5));
                 fy = (f32) ((f64) rect->unk6 + ((f64) (rect->unkA - rect->unk6) * 0.5));
-                var_s1 = (u8) D_807FC924[var_s7].unk4->unk128;
+                var_s1 = (u8) gPlayerSlots[var_s7].unk4->unk128;
                 gDPSetPrimColor(var_s0++, 0, 0, 255, 255, 255, (0xFF - var_s1));
                 _sprintf(spCC, "BAD LUCK");
                 fx = (f32) ((f64) fx - ((f64) textGetStringWidth(1, spCC) * 0.25));
@@ -542,7 +542,7 @@ MpMapEntry *mpFindCurrentMapEntry(void) {
     MpMapEntry *ret = NULL;
 
     for (i = 0; (i < 4U) && (ret == NULL); i++) {
-        if (D_8076A0A8 == D_80026FA4[i].unk0) {
+        if (gCurrentMap == D_80026FA4[i].unk0) {
             ret = &D_80026FA4[i];
         }
     }
@@ -553,7 +553,7 @@ s32 mpRandomSpawnDelay(void) {
     return (((randomNonNegative() >> 15) % 0x7FFF) % 211) + 0x5A;
 }
 
-extern u8 D_8074E77C[];
+extern u8 gPlayerCharacterId[];
 extern u8 D_8071F3C0;
 extern u8 D_807207BC;
 void effectFreeAndUnlink(s32);
@@ -574,15 +574,15 @@ s32 mpUpdateScoreEffects(void) {
     void *p;
 
     i = 0;
-    if (D_807FC928 > 0) {
+    if (gPlayerCount > 0) {
         do {
-            ac = D_807FC924[i].unk4->unk174;
+            ac = gPlayerSlots[i].unk4->unk174;
             sc = &D_807FC950[i];
             if (slotQueueGetValue(1, i) != 0) {
                 temp_s3 = sc->unk2FD + sc->unk2FB;
                 if (ac->unk260 == 0) {
                     p = (void *)(s32)&D_8071F3C0;
-                    switch (D_8074E77C[i]) {
+                    switch (gPlayerCharacterId[i]) {
                     case 0:
                     case 3:
                         var_s6 = 0xF;
@@ -599,7 +599,7 @@ s32 mpUpdateScoreEffects(void) {
                     func_80714998(2);
                     func_807149C8(0xFF, 0xFF, 0xFF, 0x7F);
                     func_8071498C(p);
-                    ac->unk260 = func_80714C08(&D_807207BC, 0.5f, D_807FC924[i].unk4, var_s6, 2);
+                    ac->unk260 = func_80714C08(&D_807207BC, 0.5f, gPlayerSlots[i].unk4, var_s6, 2);
                     sc->unk2FA = temp_s3;
                 }
                 if (sc->unk2FA < temp_s3) {
@@ -615,7 +615,7 @@ s32 mpUpdateScoreEffects(void) {
                 }
             }
             i++;
-        } while (i < D_807FC928);
+        } while (i < gPlayerCount);
     }
     return ret;
 }
@@ -795,7 +795,7 @@ void mpUpdateRandomSpawner(MpControllerState *arg0) {
     }
 }
 
-void func_806D0468(void *, s32);
+void playerSetSizeMode(void *, s32);
 void func_806F54E0(u8, s16, u8);
 void func_806C9974(u8, s32);
 void actorSpawnEffectChild(f32, f32, f32, f32, f32, void *, u8);
@@ -808,25 +808,25 @@ void mpApplyPendingEffect(s32 arg0) {
     MpKongState *ost;
     s32 i;
 
-    act = D_807FC924[arg0].unk4;
+    act = gPlayerSlots[arg0].unk4;
     st = act->unk174;
     switch (st->unk264) {
     case 0:
-        func_806D0468(act, 2);
+        playerSetSizeMode(act, 2);
         func_806F54E0(arg0, 0x8E, 0);
         break;
     case 1:
         i = 0;
-        if (D_807FC928 > 0) {
+        if (gPlayerCount > 0) {
             do {
-                oact = D_807FC924[i].unk4;
+                oact = gPlayerSlots[i].unk4;
                 ost = oact->unk174;
                 if (i != arg0 && ost->unkD4 == 0 && oact->unk154 != 0x84) {
                     playerStateQueueCallback(0x27, act, i);
                     ost->unk200 = 0x96;
                 }
                 i++;
-            } while (i < D_807FC928);
+            } while (i < gPlayerCount);
         }
         break;
     case 2:
@@ -840,7 +840,7 @@ void mpApplyPendingEffect(s32 arg0) {
     case 4:
         switch ((u32) (randomNonNegative() >> 15) % 5U) {
         case 0:
-            func_806D0468(act, 0);
+            playerSetSizeMode(act, 0);
             func_806F54E0(arg0, 0x8E, 0);
             break;
         case 1:
@@ -884,7 +884,7 @@ void mpFreeHudIcons(MpControllerState *arg0) {
     s32 i;
 
     if (arg0->unk70 != 0) {
-        for (i = 0; i < D_807FC928 * 2; i++) {
+        for (i = 0; i < gPlayerCount * 2; i++) {
             if (arg0->unk50[i] != 0) {
                 effectFreeAndUnlink(arg0->unk50[i]);
             }
@@ -937,7 +937,7 @@ void mpUpdate(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         flag = 0;
         func_806C9AE0();
-        for (i = 0; i < D_807FC928; i++) {
+        for (i = 0; i < gPlayerCount; i++) {
             s7->unk20[i] = cameraFindViewportEntry(i);
         }
         D_807552E4.unk8 = 1;
@@ -959,13 +959,13 @@ void mpUpdate(void) {
             }
             break;
         case 4:
-            for (i = 0; i < D_807FC928; i++) {
+            for (i = 0; i < gPlayerCount; i++) {
                 slotQueueAddValue(7, i, ((s16 *)&D_807552E4.unkC)[1]);
             }
             slotQueueInit(0);
             break;
         }
-        if (D_807552E4.unk0 == 0 && D_8076A0A8 == 0x6B) {
+        if (D_807552E4.unk0 == 0 && gCurrentMap == 0x6B) {
             func_806F5FA0(0x24E, 0xD4, 0x205);
             func_806F5FA0(0x24E, 0xD4, 0x285);
             func_806F5FA0(0x212, 0xD4, 0x24E);
@@ -1007,18 +1007,18 @@ void mpUpdate(void) {
         break;
     }
     if (D_807552E4.unk0 == 0) {
-        for (i = 0; i < D_807FC928; i++) {
+        for (i = 0; i < gPlayerCount; i++) {
             mpApplyPendingEffect(i);
         }
-        if (D_807FC928 == 2) {
+        if (gPlayerCount == 2) {
             mpUpdateRandomSpawner(s7);
         }
     } else if ((D_807FBB60 & 2) || ((s16)((f32)s7->unk10 * 0.033333335f) & 1)) {
         mpFreeHudIcons(s7);
     } else if (s7->unk70 == 0) {
         for (j = 0; j != 2; j++) {
-            for (k = 0; k < D_807FC928; k++) {
-                if (D_807FC924[k].unk0 == 0) {
+            for (k = 0; k < gPlayerCount; k++) {
+                if (gPlayerSlots[k].unk0 == 0) {
                     continue;
                 }
                 vp = s7->unk20[k];
@@ -1032,7 +1032,7 @@ void mpUpdate(void) {
                     x = (f32)(vp->unk8 - 0xB);
                 }
                 y = (f32)(vp->unkA - 0xB);
-                s7->unk50[j * D_807FC928 + k] = func_80714CC0(D_80027024[j].unk0, D_80027024[j].unk4, x, y, -10.0f);
+                s7->unk50[j * gPlayerCount + k] = func_80714CC0(D_80027024[j].unk0, D_80027024[j].unk4, x, y, -10.0f);
             }
         }
         s7->unk70 = 1;
@@ -1100,7 +1100,7 @@ void mpSetFlags(u8 arg0) {
 
 extern void func_806F0C18(void *);
 extern s32 func_80714608(s32);
-extern MpFlagState *D_807FD580;
+extern MpFlagState *gActivePlayerState;
 
 void func_800268DC(MpActor *arg0, MpKongState *arg1, MpScore *arg2) {
     arg2->unk2F6 = 0;
@@ -1113,7 +1113,7 @@ void func_800268DC(MpActor *arg0, MpKongState *arg1, MpScore *arg2) {
     arg1->unk247 = -1;
     arg1->unk246 = 0;
     if (func_80714608(0) != 0) {
-        D_807FD580->unk21E = 0;
+        gActivePlayerState->unk21E = 0;
     }
     if (D_807552E8 == 3 || D_807552E8 == 5) {
         slotQueueAddValue(1, arg1->unk1A4, -10);
@@ -1135,7 +1135,7 @@ void mpDropItemsOnHit(u8 arg0, s8 arg1) {
     MpActor *s0;
     MpScore *s1;
 
-    s0 = D_807FC924[arg0].unk4;
+    s0 = gPlayerSlots[arg0].unk4;
     s1 = &D_807FC950[arg0];
     sp34 = s1->unk2FB + s1->unk2FD + arg1;
     sp30 = s1->unk2FA - sp34;
@@ -1153,7 +1153,7 @@ void mpDropItemsOnHit(u8 arg0, s8 arg1) {
 
 void mpApplyDeathPenalty(s32 arg0) {
     MpActor *target;
-    target = D_807FC924[arg0].unk4;
+    target = gPlayerSlots[arg0].unk4;
     target->unk144 = 12;
     switch (D_807552E8) {
     case 2:
@@ -1198,9 +1198,9 @@ s32 mpFindFurthestSpawn(s32 arg0) {
     for (i = 0; i < 4; i++) {
         min_dist = 9999999.0f;
         coord = func_806C96C4(i);
-        for (j = 0; j < D_807FC928; j++) {
-            target = D_807FC924[j].unk4;
-            if (D_807FC924[j].unk0 != 0 && target->unk154 != 0x84) {
+        for (j = 0; j < gPlayerCount; j++) {
+            target = gPlayerSlots[j].unk4;
+            if (gPlayerSlots[j].unk0 != 0 && target->unk154 != 0x84) {
                 dx = coord->x - target->unk7C;
                 dy = coord->y - target->unk80;
                 dz = coord->z - target->unk84;
@@ -1219,7 +1219,7 @@ s32 mpFindFurthestSpawn(s32 arg0) {
 }
 
 void func_806C9434(s32);
-void func_806CFF9C(void *);
+void playerResumeLocomotion(void *);
 
 void mpRespawnPlayer(MpActor *arg0, s32 arg1) {
     if (D_807552E8 == 4 && mpGetPlayerScore(arg1) == 0) {
@@ -1230,11 +1230,11 @@ void mpRespawnPlayer(MpActor *arg0, s32 arg1) {
         return;
     }
     func_806C9434(mpFindFurthestSpawn(arg1));
-    D_807FC924[arg1].unk2E2 |= 1;
-    func_806CFF9C(arg0);
+    gPlayerSlots[arg1].unk2E2 |= 1;
+    playerResumeLocomotion(arg0);
 }
 
-MpActor *func_806C9FD8(void *, s8, u8);
+MpActor *actorResolveKillCreditOwner(void *, s8, u8);
 
 void mpCreditKill(u8 arg0, s8 arg1) {
     void *sp18;
@@ -1246,10 +1246,10 @@ void mpCreditKill(u8 arg0, s8 arg1) {
     MpKongState *temp_a0;
 
     temp_v1 = &D_807FC950[arg0];
-    temp_player = &D_807FC924[arg0];
+    temp_player = &gPlayerSlots[arg0];
     if (temp_v1->unk2FB + temp_v1->unk2FD > 0) {
         if (temp_player->unk2A0 != NULL) {
-            temp_v0 = func_806C9FD8(temp_player->unk2A0, arg1, arg0);
+            temp_v0 = actorResolveKillCreditOwner(temp_player->unk2A0, arg1, arg0);
             if (temp_v0 != NULL && temp_v0->unk5C == 1) {
                 temp_a0 = temp_v0->unk174;
                 if (temp_v1->unk2FB + temp_v1->unk2FD + arg1 <= 0) {

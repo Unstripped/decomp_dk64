@@ -233,8 +233,8 @@ typedef struct ScreenBounds {
     /* 0x278 */ u8 pad278[0x2F0 - 0x278];
 } ScreenBounds;
 
-extern ScreenBounds *D_807FC924;
-extern u8 D_807FC929;
+extern ScreenBounds *gPlayerSlots;
+extern u8 gCurrentPlayerIndex;
 extern u8 D_807444FC;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
@@ -318,8 +318,8 @@ Gfx *textBoxRender(Gfx *arg0, Actor *arg1) {
     guMtxCatF(spE0, spA0, spE0);
     guMtxF2L(spE0, (Mtx *) (state->unk34 + (D_807444FC << 6)));
     WRITE_GFX(dl++, 0xE7000000, 0);
-    WRITE_GFX(dl++, ((s32) ((f32) D_807FC924->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32) ((f32) D_807FC924->unk270 * 4.0f) & 0xFFF) << 12),
-              ((s32) ((f32) D_807FC924->unk276 * 4.0f) & 0xFFF) | (((s32) ((f32) D_807FC924->unk274 * 4.0f) & 0xFFF) << 12));
+    WRITE_GFX(dl++, ((s32) ((f32) gPlayerSlots->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32) ((f32) gPlayerSlots->unk270 * 4.0f) & 0xFFF) << 12),
+              ((s32) ((f32) gPlayerSlots->unk276 * 4.0f) & 0xFFF) | (((s32) ((f32) gPlayerSlots->unk274 * 4.0f) & 0xFFF) << 12));
     dl = (Gfx *) textBoxRenderTail((s32) dl, (SpriteAnim *) state, half);
     alpha = (state->unk20 * 150.0f * 2 > 150.0f) ? 150.0f : state->unk20 * 150.0f * 2;
     dl = renderTextureSprite(dl, (s32) (state->unk34 + (D_807444FC << 6)), (u8) alpha, half);
@@ -340,8 +340,8 @@ Gfx *textBoxRender(Gfx *arg0, Actor *arg1) {
     }
     WRITE_GFX(dl++, 0xE7000000, 0);
     if (state->unk1D != 0) {
-        WRITE_GFX(dl++, 0xED000000 | (((s32) ((f32) D_807FC924[D_807FC929].unk270 * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) D_807FC924[D_807FC929].unk272 * 4.0f) & 0xFFF),
-                  (((s32) ((f32) D_807FC924[D_807FC929].unk274 * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) D_807FC924[D_807FC929].unk276 * 4.0f) & 0xFFF));
+        WRITE_GFX(dl++, 0xED000000 | (((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].unk270 * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].unk272 * 4.0f) & 0xFFF),
+                  (((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].unk274 * 4.0f) & 0xFFF) << 12) | ((s32) ((f32) gPlayerSlots[gCurrentPlayerIndex].unk276 * 4.0f) & 0xFFF));
     }
     state->unk1C = state->unk1C + 1;
     state->unk1C = state->unk1C % 16;
@@ -587,10 +587,10 @@ void textBoxUpdateRows(Actor *arg0) {
     state->unk48 = arg0->unk80 - (f64) (state->unk20 * 79.799995f) * 0.5;
     state->unk4C = arg0->unk7C + (f64) (state->unk20 * 136.8f) * 0.5;
     state->unk50 = arg0->unk80 + (f64) (state->unk20 * 79.799995f) * 0.5;
-    state->unk44 = ((f32) D_807FC924->unk270 < state->unk44) ? state->unk44 : (f32) D_807FC924->unk270;
-    state->unk48 = ((f32) D_807FC924->unk272 < state->unk48) ? state->unk48 : (f32) D_807FC924->unk272;
-    state->unk4C = (state->unk4C < (f32) D_807FC924->unk274) ? state->unk4C : (f32) D_807FC924->unk274;
-    state->unk50 = (state->unk50 < (f32) D_807FC924->unk276) ? state->unk50 : (f32) D_807FC924->unk276;
+    state->unk44 = ((f32) gPlayerSlots->unk270 < state->unk44) ? state->unk44 : (f32) gPlayerSlots->unk270;
+    state->unk48 = ((f32) gPlayerSlots->unk272 < state->unk48) ? state->unk48 : (f32) gPlayerSlots->unk272;
+    state->unk4C = (state->unk4C < (f32) gPlayerSlots->unk274) ? state->unk4C : (f32) gPlayerSlots->unk274;
+    state->unk50 = (state->unk50 < (f32) gPlayerSlots->unk276) ? state->unk50 : (f32) gPlayerSlots->unk276;
     acc = state->unk14;
     i = 0;
     while (((s32) state->unk10 >= i) && (node != NULL) && (stop == 0)) {
@@ -679,8 +679,8 @@ typedef struct MapBounds {
     /* 0x276 */ s16 unk276;
 } MapBounds;
 
-extern struct ScreenBounds *D_807FC924;
-extern u8 D_807FC929;
+extern struct ScreenBounds *gPlayerSlots;
+extern u8 gCurrentPlayerIndex;
 extern s16 D_80744490;
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
@@ -688,7 +688,7 @@ s32 controllerLookupStateByHash(void *);
 s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
 #define SPRITE_SUB ((SpriteSub *) arg1)
-#define SPRITE_BOUNDS ((MapBounds *) ((u8 *) D_807FC924 + (D_807FC929 * 0x2F0)))
+#define SPRITE_BOUNDS ((MapBounds *) ((u8 *) gPlayerSlots + (gCurrentPlayerIndex * 0x2F0)))
 #define CLAMP_TO_BOUNDS(x, l, h) ((x) < (l) ? (l) : ((h) < (x) ? (h) : (x)))
 
 struct SpriteBehaviour;
@@ -779,7 +779,7 @@ void textBoxUpdatePosition(Actor *arg0, struct SpriteBehaviour *arg1, f32 arg2) 
         } else {
             actorGetNodePos(SPRITE_SUB->unk4, sp74, &sp68, &sp64, &sp60);
         }
-        if (camProjectToScreen(sp68, sp64, sp60, &sp7C, &sp78, 0, 1.0f, D_807FC929) != 0) {
+        if (camProjectToScreen(sp68, sp64, sp60, &sp7C, &sp78, 0, 1.0f, gCurrentPlayerIndex) != 0) {
             sp7C = SPRITE_SUB->unk24;
             sp78 = SPRITE_SUB->unk28;
         }

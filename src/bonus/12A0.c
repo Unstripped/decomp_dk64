@@ -117,7 +117,7 @@ void bonusInitActors(LB3Obj *obj, u8 arg1) {
 
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/D_8002DCA8.s")
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern Actor *D_807FBB48;
 extern u8 D_807444EC;
 extern s32 D_807457E4[];
@@ -169,7 +169,7 @@ void bonusReelGameUpdate(void) {
         playerStateQueueCallback(0x49, 0, 0);
         camSetTargetScaled(sp4C->unk104, D_807FBB4C, 6, 0, 0xAA, 0, 0, 0, 0, 0, 1.0f);
         camStartPath(0, 1, 1);
-        switch (D_8076A0A8) {
+        switch (gCurrentMap) {
         case 0x20:
             obj->unk1C = 0x2D;
             obj->unk1E = 0x20;

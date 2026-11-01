@@ -28,7 +28,7 @@ extern u16 D_80029FA4;
 extern s8 D_80029FA8;
 extern u8 D_807444EC;
 extern u8 D_807655F0[];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_807ECE00[];
 extern Struct_807FBB40 *D_807FBB40;
 extern u16 D_807FCC44;
@@ -73,7 +73,7 @@ void func_80029118(void) {
         D_80029FA4 = tmp;
         D_807FCC44 = 0;
         slotQueueSetShownValue(4, 0, 0);
-        switch (D_8076A0A8) {
+        switch (gCurrentMap) {
         case 0xB1:
             temp_s0->unk4 = 0x3C;
             D_80029FA0 = 1;
@@ -97,7 +97,7 @@ void func_80029118(void) {
     switch (D_807FBB40->unk154) {
     case 0x0:
         if ((D_807444EC == 1) && (camIsPathPaused() != 0)) {
-            switch (D_8076A0A8) {
+            switch (gCurrentMap) {
             case 0xB1:
                 sp74 = 0;
                 break;
@@ -145,7 +145,7 @@ void func_80029118(void) {
         ((void (*)(void *, s32))critterBitwiseNot(~(s32)osInvalDCache))(var_s0, 0x10);
         var_s0[0] += var_s0[1];
         if (var_s0[0] != 0x0A78F00E) {
-            flagSet((D_8076A0A8 == 0xB6) ? 0x184 : 0x183, 0, 0);
+            flagSet((gCurrentMap == 0xB6) ? 0x184 : 0x183, 0, 0);
         }
         break;
     case 0x3:
@@ -161,10 +161,10 @@ void func_80029118(void) {
             temp_s0->unk0--;
             if (temp_s0->unk0 == 0) {
                 if (D_80029FA8 != 0) {
-                    if (D_8076A0A8 == 0xB4) {
+                    if (gCurrentMap == 0xB4) {
                         D_80029FA4 = 0x14;
                     }
-                    switch (D_8076A0A8) {
+                    switch (gCurrentMap) {
                     case 0xB1:
                         sp70 = 0x182;
                         break;

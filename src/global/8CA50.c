@@ -31,8 +31,8 @@ typedef struct AnimInitData {
     s16 *unk10;
 } AnimInitData;
 
-extern s32 D_8076A0A8;
-extern u8 D_807FC928;
+extern s32 gCurrentMap;
+extern u8 gPlayerCount;
 
 void *heapAlloc(s32);
 void *assetLoad(s32, s32, u8, s32);
@@ -56,7 +56,7 @@ void animListInit(AnimActor *arg0, AnimInitData *arg1) {
     u8 unk;
 
     if (arg0->unk158 != NULL) {
-        if (D_8076A0A8 == 0x50 || D_807FC928 >= 2) {
+        if (gCurrentMap == 0x50 || gPlayerCount >= 2) {
             animListFree(&arg0->unk158);
         } else {
             return;

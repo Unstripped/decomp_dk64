@@ -16,10 +16,10 @@ typedef struct QueuedLightEntry {
     u8 pad19[3];
 } QueuedLightEntry;
 
-extern s16 D_80748A84;
-extern QueuedLightEntry D_807F9070[];
+extern s16 gLightQueueCount;
+extern QueuedLightEntry gLightQueue[];
 
-typedef struct Mix61KeyFrame {
+typedef struct LightKeyframe {
     f32 unk0;
     u8 r;
     u8 g;
@@ -27,16 +27,16 @@ typedef struct Mix61KeyFrame {
     u8 pad7;
     s16 unk8;
     s16 unkA;
-} Mix61KeyFrame;
+} LightKeyframe;
 
-typedef struct Mix61KeyFrameSet {
-    Mix61KeyFrame sub[5];
-} Mix61KeyFrameSet;
+typedef struct LightKeyframeSet {
+    LightKeyframe sub[5];
+} LightKeyframeSet;
 
-extern Mix61KeyFrameSet D_80748430[];
-extern s32 D_8076A064;
+extern LightKeyframeSet gLightKeyframeTable[];
+extern s32 gFrameCounter;
 
-void func_8065EB10(u8 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5, f32 arg6, s16 arg7) {
+void lightQueueKeyframed(u8 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5, f32 arg6, s16 arg7) {
     u8 count;
     s32 i;
     s32 total;
@@ -49,31 +49,31 @@ void func_8065EB10(u8 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5, f3
     f64 d6;
 
     arg0 = arg0 - 1;
-    if (D_80748A84 != 0x1E) {
-        for (i = 0; i < D_80748A84; i++) {
-            if (arg1 == D_807F9070[i].unk0) {
+    if (gLightQueueCount != 0x1E) {
+        for (i = 0; i < gLightQueueCount; i++) {
+            if (arg1 == gLightQueue[i].unk0) {
                 return;
             }
         }
 
         total = 0;
         count = 0;
-        for (i = 0; D_80748430[arg0].sub[i].unkA != 0; count++, i++) {
-            total += D_80748430[arg0].sub[i].unkA;
+        for (i = 0; gLightKeyframeTable[arg0].sub[i].unkA != 0; count++, i++) {
+            total += gLightKeyframeTable[arg0].sub[i].unkA;
         }
 
-        temp_hi = (arg1 + D_8076A064) % total;
-        accum = D_80748430[arg0].sub[0].unkA;
+        temp_hi = (arg1 + gFrameCounter) % total;
+        accum = gLightKeyframeTable[arg0].sub[0].unkA;
         i = 1;
         while (temp_hi >= accum) {
-            accum += D_80748430[arg0].sub[i].unkA;
+            accum += gLightKeyframeTable[arg0].sub[i].unkA;
             i++;
         }
 
         i--;
-        accum -= D_80748430[arg0].sub[i].unkA;
+        accum -= gLightKeyframeTable[arg0].sub[i].unkA;
         temp_hi -= accum;
-        t = (f32)temp_hi / (f32)D_80748430[arg0].sub[i].unkA;
+        t = (f32)temp_hi / (f32)gLightKeyframeTable[arg0].sub[i].unkA;
         next = i + 1;
         if (next == count) {
             next = 0;
@@ -87,19 +87,19 @@ void func_8065EB10(u8 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5, f3
             factor = 1.0 - ((d6 - 0.8) / 0.19999999999999996);
         }
 
-        base = D_80748430[arg0].sub[i].unk0 + (D_80748430[arg0].sub[next].unk0 - D_80748430[arg0].sub[i].unk0) * t;
+        base = gLightKeyframeTable[arg0].sub[i].unk0 + (gLightKeyframeTable[arg0].sub[next].unk0 - gLightKeyframeTable[arg0].sub[i].unk0) * t;
         base = base * factor;
 
-        D_807F9070[D_80748A84].unk16 = (u32)(((f32)(u32)D_80748430[arg0].sub[i].r + (f32)(D_80748430[arg0].sub[next].r - D_80748430[arg0].sub[i].r) * t) * base);
-        D_807F9070[D_80748A84].unk17 = (u32)(((f32)(u32)D_80748430[arg0].sub[i].g + (f32)(D_80748430[arg0].sub[next].g - D_80748430[arg0].sub[i].g) * t) * base);
-        D_807F9070[D_80748A84].unk18 = (u32)(((f32)(u32)D_80748430[arg0].sub[i].b + (f32)(D_80748430[arg0].sub[next].b - D_80748430[arg0].sub[i].b) * t) * base);
-        D_807F9070[D_80748A84].unk10 = (s32)((f32)D_80748430[arg0].sub[i].unk8 + (f32)(D_80748430[arg0].sub[next].unk8 - D_80748430[arg0].sub[i].unk8) * t);
-        D_807F9070[D_80748A84].unk4 = arg2;
-        D_807F9070[D_80748A84].unk8 = arg3;
-        D_807F9070[D_80748A84].unkC = arg4;
-        D_807F9070[D_80748A84].unk12 = arg7;
-        D_807F9070[D_80748A84].unk14 = arg5;
-        D_807F9070[D_80748A84++].unk0 = arg1;
+        gLightQueue[gLightQueueCount].unk16 = (u32)(((f32)(u32)gLightKeyframeTable[arg0].sub[i].r + (f32)(gLightKeyframeTable[arg0].sub[next].r - gLightKeyframeTable[arg0].sub[i].r) * t) * base);
+        gLightQueue[gLightQueueCount].unk17 = (u32)(((f32)(u32)gLightKeyframeTable[arg0].sub[i].g + (f32)(gLightKeyframeTable[arg0].sub[next].g - gLightKeyframeTable[arg0].sub[i].g) * t) * base);
+        gLightQueue[gLightQueueCount].unk18 = (u32)(((f32)(u32)gLightKeyframeTable[arg0].sub[i].b + (f32)(gLightKeyframeTable[arg0].sub[next].b - gLightKeyframeTable[arg0].sub[i].b) * t) * base);
+        gLightQueue[gLightQueueCount].unk10 = (s32)((f32)gLightKeyframeTable[arg0].sub[i].unk8 + (f32)(gLightKeyframeTable[arg0].sub[next].unk8 - gLightKeyframeTable[arg0].sub[i].unk8) * t);
+        gLightQueue[gLightQueueCount].unk4 = arg2;
+        gLightQueue[gLightQueueCount].unk8 = arg3;
+        gLightQueue[gLightQueueCount].unkC = arg4;
+        gLightQueue[gLightQueueCount].unk12 = arg7;
+        gLightQueue[gLightQueueCount].unk14 = arg5;
+        gLightQueue[gLightQueueCount++].unk0 = arg1;
     }
 }
 
@@ -107,7 +107,7 @@ void func_8065EB10(u8 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5, f3
 
 
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern Actor *D_807FBB4C;
 extern s32 D_807FBB60;
 extern s32 D_807FBB68;
@@ -120,22 +120,22 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 void lightFlushQueued(void) {
     s32 i;
 
-    if (D_8076A0A8 == 0x30 && !(((Struct807FD580 *)D_807FBB4C->unk174)->unk1F0 & 0x100000)) {
-        D_80748A84 = 0;
+    if (gCurrentMap == 0x30 && !(((Struct807FD580 *)D_807FBB4C->unk174)->unk1F0 & 0x100000)) {
+        gLightQueueCount = 0;
         return;
     }
 
     if (!(D_807FBB60 & 2)) {
-        for (i = 0; i < D_80748A84; i++) {
+        for (i = 0; i < gLightQueueCount; i++) {
             if (!(D_807FBB68 & 4)) {
                 lightSetFlags(2);
             }
-            lightSetTargetId(D_807F9070[i].unk12);
-            lightSetRadius(D_807F9070[i].unk14);
-            lightAdd(D_807F9070[i].unk4, D_807F9070[i].unk8, D_807F9070[i].unkC, 0.0f, 0.0f, 0.0f, D_807F9070[i].unk10, 0, D_807F9070[i].unk16, D_807F9070[i].unk17, D_807F9070[i].unk18);
+            lightSetTargetId(gLightQueue[i].unk12);
+            lightSetRadius(gLightQueue[i].unk14);
+            lightAdd(gLightQueue[i].unk4, gLightQueue[i].unk8, gLightQueue[i].unkC, 0.0f, 0.0f, 0.0f, gLightQueue[i].unk10, 0, gLightQueue[i].unk16, gLightQueue[i].unk17, gLightQueue[i].unk18);
         }
     }
-    D_80748A84 = 0;
+    gLightQueueCount = 0;
 }
 
 typedef struct ActorSlotEntry {

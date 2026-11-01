@@ -2,7 +2,7 @@
 extern s32 flagGet(s32, s32);
 extern s32 func_806F6EDC(void);
 extern s32 slotQueueGetMaxValue(s32, s32);
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 extern u8 D_807FC950[];
 extern u8 D_807FC952;
 
@@ -26,11 +26,11 @@ void eepromHalveRecords(void) {
         s32 v = slotQueueGetMaxValue(2, 0);
         *(s16 *)(D_807FC950 + 0x2F0) = (s16)(u32)((f64)(u32)v * 0.5);
     }
-    if (D_8074E77C && D_8074E77C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (gPlayerCharacterId && gPlayerCharacterId) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     entry = D_807FC950;
     i = 0;
     do {
-        D_8074E77C = i;
+        gPlayerCharacterId = i;
         if (entry[4] != 0) {
             s32 v = slotQueueGetMaxValue(7, 0);
             *(s16 *)(entry + 8) = (s16)(u32)((f64)(u32)v * 0.5);
@@ -38,5 +38,5 @@ void eepromHalveRecords(void) {
         i++;
         entry += 0x5E;
     } while (i != 5);
-    D_8074E77C = 0;
+    gPlayerCharacterId = 0;
 }

@@ -61,7 +61,7 @@ extern u8 D_807444FC;
 extern Gfx *D_8076A050[];
 extern s32 D_8076A088;
 extern s32 D_8076A08C;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern u8 *D_8076A048;
 extern u8 D_80767CE8;
 extern u8 D_8076A0B1;
@@ -78,7 +78,7 @@ void arcadeRunFrame(void) {
     controllerStartRead();
     schedSubmitGfxTask(D_8076A050[D_807444FC], D_8076A088, 3, 1, 0x4D2, 1);
     D_807444FC ^= 1;
-    D_8076A064++;
+    gFrameCounter++;
     D_8076A048 = (u8 *)&D_80767CE8 + D_807444FC * 0x11B0;
     controllerUpdate();
     if ((D_8076A0B1 & 1) && gScreenFadeProgress == 31.0f) {

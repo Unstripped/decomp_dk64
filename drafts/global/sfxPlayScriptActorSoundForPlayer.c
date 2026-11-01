@@ -14,7 +14,7 @@ typedef struct RvH_PlayerState7770 {
 } RvH_PlayerState7770;
 
 extern s16 *D_807FBB5C;
-extern u8 *D_807FC924;
+extern u8 *gPlayerSlots;
 void n_alSndpStop(s32);
 void sfxPlayAtPositionForPlayer(f32, f32, f32, s16, s32, s32, s32, s32, f32);
 
@@ -26,11 +26,11 @@ void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
     arg1 = D_807FBB5C[(arg1 * 7 + arg0->unk58 - 2) & 0xFFFF];
     var_v1 = 0xFF;
     if (arg1 == 0) {
-        if (((ScriptSoundState *)D_807FD580)->unkC4 != 0) {
-            n_alSndpStop(((ScriptSoundState *)D_807FD580)->unkC4);
+        if (((ScriptSoundState *)gActivePlayerState)->unkC4 != 0) {
+            n_alSndpStop(((ScriptSoundState *)gActivePlayerState)->unkC4);
         }
     }
-    temp_v0 = ((RvH_PlayerState7770 *)(D_807FC924 + ((ScriptSoundState *)D_807FD580)->unk1A4 * 0x2F0))->unk2C0;
+    temp_v0 = ((RvH_PlayerState7770 *)(gPlayerSlots + ((ScriptSoundState *)gActivePlayerState)->unk1A4 * 0x2F0))->unk2C0;
     if (temp_v0 == 2) {
         pitch = 0x7F;
         temp_v0 = 10;

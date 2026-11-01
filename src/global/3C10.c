@@ -56,7 +56,7 @@ extern u8 D_80744820;
 extern u8 D_80744824;
 extern u8 D_80744828;
 extern Struct807447A0 D_8074482C[];
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 const u8 D_807565E0[80] = {
     0x01, 0x0F, 0x05, 0x19, 0x07, 0x1A, 0x1E, 0x30, 0x48, 0x57, 0x2A, 0x11, 0x26, 0x0A, 0x73, 0x74,
     0x75, 0x12, 0x76, 0x77, 0x78, 0x20, 0x79, 0x7A, 0x7B, 0x42, 0x44, 0x45, 0x7C, 0x43, 0x4A, 0x4B,
@@ -72,7 +72,7 @@ const u8 D_80756630[80] = {
     0x1D, 0x1D, 0x1D, 0x1D, 0x1E, 0x1F, 0x20, 0x21, 0x27, 0x23, 0x24, 0x25, 0x22, 0x26, 0x00, 0x00,
 };
 extern s32 D_80767CC4;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
 extern s8 D_8076A0B2;
@@ -273,13 +273,13 @@ void func_805FF1B0(s32 arg0) {
         a3 = D_8076AEF4;
         t1 = D_8076AEF6;
     } else {
-        if (func_805FEF74(D_8076A0A8) != 0) {
-            a3 = ((u16 *)&D_8076A0A8)[1];
+        if (func_805FEF74(gCurrentMap) != 0) {
+            a3 = ((u16 *)&gCurrentMap)[1];
         } else {
-            arg0 = func_805FF030(((u8 *)&D_8076A0A8)[3], 0);
+            arg0 = func_805FF030(((u8 *)&gCurrentMap)[3], 0);
             a3 = D_80744748[arg0];
             for (; !found && (i < limit); i++) {
-                if (D_8076A0A8 == D_8074475C[i].unk0) {
+                if (gCurrentMap == D_8074475C[i].unk0) {
                     a3 = D_8074475C[i].unk2;
                     t1 = D_8074475C[i].unk4;
                     found = 1;
@@ -298,12 +298,12 @@ void func_805FF2F4(void) {
     s32 sp1C;
     s32 sp18;
 
-    if (D_8076A0A8 != 0x22) {
+    if (gCurrentMap != 0x22) {
         func_805FFFC8();
         sp1C = D_80744734[func_805FF030(D_8076A0AB, 0)];
         sp18 = 1;
     } else {
-        sp1C = D_8076A0A8;
+        sp1C = gCurrentMap;
         sp18 = 0;
     }
     flagSet(0x6E, 1, 2, sp1C);
@@ -315,17 +315,17 @@ void func_805FF378(s32 arg0, s32 arg1) {
     if ((D_807444EC == 6) || (func_80712798() == 0)) {
         func_80712F10(&arg0, &arg1);
         if (arg0 != -1) {
-            if ((s32) D_8074E77C >= 6) {
-                D_8074E77C = func_806C8DE0(0);
+            if ((s32) gPlayerCharacterId >= 6) {
+                gPlayerCharacterId = func_806C8DE0(0);
             }
             D_8076A0B1 |= 1;
-            D_8076AEF2 = (s16) D_8076A0A8;
+            D_8076AEF2 = (s16) gCurrentMap;
             D_807444E4 = arg0;
             D_807444E8 = arg1;
             D_8076A0B2 = 3;
             func_805FF168();
             gScreenFadeRate = 1.0f;
-            if ((D_807444F8 != 1) && (D_8076AEE0 == 1) && !(D_807FBB68 & 2) && (D_8076A0A8 != 0x4C)) {
+            if ((D_807444F8 != 1) && (D_8076AEE0 == 1) && !(D_807FBB68 & 2) && (gCurrentMap != 0x4C)) {
                 sfxAllocateChannel(0x2C, 1.0f);
             }
             func_807313BC();
@@ -342,7 +342,7 @@ void func_805FF4D8(s32 arg0, s32 arg1) {
     D_807FBB60 |= 0x100;
     D_807444E4 = arg0;
     D_807444E8 = arg1;
-    D_8076AEF2 = D_8076A0A8;
+    D_8076AEF2 = gCurrentMap;
     func_807313BC();
     func_805FF5A0(arg0);
 }
@@ -351,7 +351,7 @@ void func_805FF544(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        if (D_8076A0A8 == D_807447A0[i].unk0) {
+        if (gCurrentMap == D_807447A0[i].unk0) {
             func_805FF378(D_807447A0[i].unk4, D_807447A0[i].unk8);
             return;
         }
@@ -373,7 +373,7 @@ void func_805FF5A0(void) {
 }
 
 void func_805FF628(s32 arg0, s32 arg1) {
-    func_805FFEF8(D_8076A0A8);
+    func_805FFEF8(gCurrentMap);
     func_805FF378(arg0, arg1);
 }
 
@@ -441,7 +441,7 @@ void func_805FF898(void) {
     s32 sp18;
 
     if (func_805FF800(&sp1C, &sp18) != 0) {
-        func_805FFEF8(D_8076A0A8);
+        func_805FFEF8(gCurrentMap);
         func_805FF378(sp1C, sp18);
     } else if (func_807143E8() != 0) {
         func_805FF378(0xF, 0);
@@ -487,7 +487,7 @@ typedef struct {
 } ActorPlayerHolder;
 
 extern s8 D_80750ACC;
-extern s32 D_807F6C28;
+extern s32 gMapChunkCount;
 extern s32 D_807FD56C;
 extern s16 D_807FD570;
 void func_806F5378();
@@ -512,14 +512,14 @@ void func_805FF9AC(s32 arg0, s32 arg1, s32 arg2, s16 arg3) {
     found = 0;
     i = 0;
     while (i < 18 && !found) {
-        if (D_8076A160[i].unk0 != 0 && D_8076A0A8 == D_8076A160[i].unk12) {
+        if (D_8076A160[i].unk0 != 0 && gCurrentMap == D_8076A160[i].unk12) {
             found = 1;
         } else {
             i++;
         }
     }
     if (found) {
-        func_805FFEF8(D_8076A0A8);
+        func_805FFEF8(gCurrentMap);
     } else {
         found = 0;
         i = 0;
@@ -549,11 +549,11 @@ void func_805FF9AC(s32 arg0, s32 arg1, s32 arg2, s16 arg3) {
         D_8076A160[i].unkC = cam->unk84;
         D_8076A160[i].unk10 = cam->unkE6;
     }
-    D_8076A160[i].unk12 = D_8076A0A8;
+    D_8076A160[i].unk12 = gCurrentMap;
     if (arg3 & 2) {
         D_8076A160[i].unk14 = arg2;
     }
-    for (k = 0; k < D_807F6C28; k++) {
+    for (k = 0; k < gMapChunkCount; k++) {
         lightGetColor(&r, &g, &b, k);
         ((SlotLightColors *)&D_8076A160[i])->rgb[k][0] = (u32)(r * 255.0);
         ((SlotLightColors *)&D_8076A160[i])->rgb[k][1] = (u32)(g * 255.0);

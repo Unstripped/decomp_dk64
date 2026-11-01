@@ -1,4 +1,4 @@
-// func_806C850C (src/global/CC800.c): Stage 6 (text diff 64 lines): (1) sel=s3/&D_807FBB48=s2 swap: coloring order is by adjsave, &D (2.25) before sel (1.14), sel needs higher priority; (2) -1 stores: unk247 must be s8 (u8 folds to 255) then 'G00_P->unk247 = -1' gives shared li -1 const web but a1 not v1 and shifts li -100; (3) uncached loads: volatile D_807FD610 keeps 8 separate loads but as1 then does not group loads before stores as target does; non-volatile CSEs unk4/unk28 (1 load each) through every spelling tried (cast base, slot ptr, f32*/s16* element ptrs, u8* base, loop). deadsweep 1 round: 'if (D_8075C410) {}' -5 lines only.
+// func_806C850C (src/global/CC800.c): Stage 6 (text diff 64 lines): (1) sel=s3/&D_807FBB48=s2 swap: coloring order is by adjsave, &D (2.25) before sel (1.14), sel needs higher priority; (2) -1 stores: unk247 must be s8 (u8 folds to 255) then 'G00_P->unk247 = -1' gives shared li -1 const web but a1 not v1 and shifts li -100; (3) uncached loads: volatile gPlayerPadState keeps 8 separate loads but as1 then does not group loads before stores as target does; non-volatile CSEs unk4/unk28 (1 load each) through every spelling tried (cast base, slot ptr, f32*/s16* element ptrs, u8* base, loop). deadsweep 1 round: 'if (D_8075C410) {}' -5 lines only.
 typedef struct G00Sub4 {
     /* 0x00 */ u8 pad0[0x1C];
     /* 0x1C */ u8 *unk1C;
@@ -89,20 +89,20 @@ typedef struct G00Slot34 {
     /* 0x2A */ u8 pad2A[0xA];
 } G00Slot34;
 
-#define G00_P ((G00Player *)D_807FD580)
+#define G00_P ((G00Player *)gActivePlayerState)
 #define G00_A48 ((G00ActorView *)D_807FBB48)
 
 extern s32 controllerGetPort(s32);
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern f32 D_8075C4B0;
 extern Actor *gCamActor;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
-extern volatile G00Slot34 D_807FD610[];
+extern volatile G00Slot34 gPlayerPadState[];
 void func_806E2C74(Actor *);
 s32 flagGet(s32, s32);
 void func_806F09F0(Actor *, u16);
-void func_806CFF9C(Actor *);
+void playerResumeLocomotion(Actor *);
 void func_806C90C4(s32);
 void func_806C8984(void);
 void func_806C8D20(Actor *);
@@ -115,20 +115,20 @@ void func_806C850C(s32 arg0, u8 arg1) {
     s32 new_var;
 
     sel = arg1;
-    if (D_807FC928 >= 2) {
-        D_8074E77C[sel] = D_8074E77C[controllerGetPort(sel)];
+    if (gPlayerCount >= 2) {
+        gPlayerCharacterId[sel] = gPlayerCharacterId[controllerGetPort(sel)];
     }
-    if (sel == 0 && D_8076A0A8 == 0x50) {
-        D_8074E77C[0] = 0;
+    if (sel == 0 && gCurrentMap == 0x50) {
+        gPlayerCharacterId[0] = 0;
     }
-    row = &D_8075C410[D_8074E77C[sel]];
+    row = &D_8075C410[gPlayerCharacterId[sel]];
     actorSpawn(row->unk0, row->unk8);
     D_807FBB44->unk60 &= ~0x1000;
     D_807FBB44->unk60 |= row->unkC;
     D_807FBB44->unk16E[0] = 0x42;
     D_807FBB44->unk16E[1] = 0x42;
     D_807FBB44->unk60 |= 0x01000000;
-    if (D_807FC928 >= 2) {
+    if (gPlayerCount >= 2) {
         D_807FBB44->unk64 |= 0x200;
     }
     D_807FBB44->unk68 |= 0xC0;
@@ -140,7 +140,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     new_var = 1;
     *((G00Sub4 *)D_807FBB44->unk4)->unk24 = 0xFF;
     D_807FBB48 = D_807FBB44;
-    D_807FD580 = D_807FBB44->unk174;
+    gActivePlayerState = D_807FBB44->unk174;
     G00_P->unk247 = -new_var;
     G00_P->unk1A4 = sel;
     G00_P->unk11E = -new_var;
@@ -191,7 +191,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_A48->unkDE = 0x400;
     G00_P->unk1B0 = 0;
     G00_P->unk1AC = 0;
-    slot = &D_807FD610[sel];
+    slot = &gPlayerPadState[sel];
     slot->unk14 = slot->unk4;
     slot->unk18 = slot->unk4;
     slot->unk1C = slot->unk4;
@@ -200,7 +200,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     slot->unk26 = slot->unk28;
     slot->unk20 = slot->unk28;
     slot->unk10 = slot->unk4;
-    func_806CFF9C(D_807FBB48);
+    playerResumeLocomotion(D_807FBB48);
     func_806C90C4(arg0);
     func_806C8984();
 }

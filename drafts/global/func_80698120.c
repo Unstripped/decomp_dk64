@@ -63,7 +63,7 @@ typedef struct OlK_Sub4 {
 
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
-extern void *D_807FC924;
+extern void *gPlayerSlots;
 extern s32 D_807FBB64;
 extern u32 D_80744478;
 extern s16 D_8075037C;
@@ -98,7 +98,7 @@ u8 arg0;
     data = D_807FBB40->unk174;
     if (D_807FBB40 == 0) {} // FAKE: keeps D_807FBB40 above data in uopt priority
     if (D_807FBB40 == 0) {} // FAKE: keeps D_807FBB40 above data in uopt priority
-    player = ((OlK_Main *)D_807FC924)->unk4->unk174;
+    player = ((OlK_Main *)gPlayerSlots)->unk4->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         data->unk0 = 0.0f;
         data->unk10 = 0.0f;

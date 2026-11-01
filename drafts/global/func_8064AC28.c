@@ -1,6 +1,6 @@
 // func_8064AC28 (src/global/478F0.c): OlW stage 4 (unchanged, 19-28 diff lines by fv metric). Re-read target: p lives in stack home 0xA4 (sw v0,0xA4 after heapAlloc, lw v1/a0,0xA4 reload in each branch of flagGet) and each branch ends with a MIRRORED pair (flag branch: lw v1; or a0,v1; else: lw a0; or v1,a0) so a0 and v1 are two separate webs both holding p at the join (a0 = part[0] stores, v1 = loop-2 base + unk4F); both loops compute addiu s0,v1,6 separately (no PRE). Hill-climb 5400 iters of statement swaps/joins/decl swaps: no change. Needs two distinct p-valued variables whose copies are not propagated.
 void csModelStateSetFirstByte(s16, s16);
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 typedef struct CsEntry {
     /* 0x0 */ u8 state;
     /* 0x1 */ u8 pad1;
@@ -89,8 +89,8 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
         p->unk4F = 0x14;
     }
     if (p->unk4F == 0) {
-        pl = D_807FC924->unk4;
-        if (pl->unk154 == 0x1C && pl->unk155[0] < 7 && D_8074E77C == 0 && pl->unk110 == 1) {
+        pl = gPlayerSlots->unk4;
+        if (pl->unk154 == 0x1C && pl->unk155[0] < 7 && gPlayerCharacterId == 0 && pl->unk110 == 1) {
             if (csId == pl->unk10C) {
                 bestD = 100000.0f;
                 best = -1;

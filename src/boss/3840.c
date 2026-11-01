@@ -507,7 +507,7 @@ typedef struct {
     s16 unk276;
 } Boss2C_Struct_807FC924;
 
-extern Boss2C_Struct_807FC924 *D_807FC924;
+extern Boss2C_Struct_807FC924 *gPlayerSlots;
 extern u8 D_80750AD4;
 extern Gfx D_1000118;
 
@@ -524,7 +524,7 @@ void bossDrawRoundText(Gfx *arg0, s32 arg1) {
     sp4C = heapAlloc(sizeof(Mtx));
     heapFreeDeferred(sp4C);
     guScaleF(sp90, 0.6f, 0.6f, 1.0f);
-    guTranslateF(sp50, 100.0f, (f32)(D_807FC924->unk276 * 4 - 0x3C), 0.0f);
+    guTranslateF(sp50, 100.0f, (f32)(gPlayerSlots->unk276 * 4 - 0x3C), 0.0f);
     guMtxCatF(sp90, sp50, sp90);
     guMtxF2L(sp90, sp4C);
     Boss2C_WRITE_GFX(arg0++, 0xDA380003, (u32)sp4C);
@@ -566,7 +566,7 @@ extern s16 D_800359C4[];
 extern u8 D_8071FE08[];
 extern s32 D_8076D1F8;
 extern u32 D_80767CC0;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 
 void slotQueueSetDisplayMode(s32, s32, s32);
 void healthRefill(u8);
@@ -591,7 +591,7 @@ void bossRoundFrame(u8 *arg0) {
     BossSoundState *s0;
 
     sp44 = BA40->unk178;
-    sp43 = D_8076A0A8 - 0xCB;
+    sp43 = gCurrentMap - 0xCB;
     s0 = (BossSoundState *)BA40->unk17C;
     if (D_807FBB4C->unk80 < 30.0f) {
         D_807FBB4C->unk7C = 780.0f;
@@ -793,7 +793,7 @@ s32 flagGet(s16, s32);
 
 void bossUpdateStageState(s16 *arg0) {
     s16 i = 0;
-    while (D_800359D0[i].unk0 != 0 && D_8076A0A8 != D_800359D0[i].unk0) {
+    while (D_800359D0[i].unk0 != 0 && gCurrentMap != D_800359D0[i].unk0) {
         i++;
     }
     if (D_800359D0[i].unk0 != 0 && D_800359D0[i].unk4 == *arg0) {
@@ -805,7 +805,7 @@ void bossUpdateStageState(s16 *arg0) {
 
 void bossPlayStageMusic(void) {
     s16 i = 0;
-    while (D_800359D0[i].unk0 != 0 && D_8076A0A8 != D_800359D0[i].unk0) {
+    while (D_800359D0[i].unk0 != 0 && gCurrentMap != D_800359D0[i].unk0) {
         i++;
     }
     if (D_800359D0[i].unk0 != 0) {

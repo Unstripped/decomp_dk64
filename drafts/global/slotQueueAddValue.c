@@ -7,7 +7,7 @@ typedef struct SlotQueueStatSlot {
     u8 pad2E[2];
 } SlotQueueStatSlot;
 
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 extern s32 func_805FEF10(s16 *);
 extern void func_80687C48(void);
 extern void flagSet(s16, s32, s32);
@@ -56,7 +56,7 @@ s16 arg2;
                     temp_v0_2 = func_805FF030(D_8076A0AB, 1);
                     temp_a3 = *(u16 *)(sp48 + (temp_v0_2 * 2) + 0x26) + *(u16 *)(sp48 + (temp_v0_2 * 2) + 0xA);
                     if ((temp_a3 >= 0x4B) && ((temp_a3 - arg2) < 0x4B)) {
-                        flagSet(flagGridIndex(0x225, temp_v0_2, (&D_8074E77C)[arg1], temp_a3), 1, 0);
+                        flagSet(flagGridIndex(0x225, temp_v0_2, (&gPlayerCharacterId)[arg1], temp_a3), 1, 0);
                         func_80687C48();
                     }
                     if ((temp_a3 == 0x64) && ((temp_a3 - arg2) < 0x64)) {

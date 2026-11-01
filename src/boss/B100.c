@@ -48,7 +48,7 @@ typedef struct BossE_B100_Actor {
 extern BossE_B100_Actor *D_807FBB40;
 extern BossE_B100_Actor *D_807FBB44;
 extern u8 D_807FBD70;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 
 void animSetLoopLimit(s32, s32, s32);
 void animSetFinished(s32, s32, s32);
@@ -160,7 +160,7 @@ typedef struct BossConfig {
 } BossConfig;
 
 extern u8 *D_80035A90[];
-extern BossGlobalC924 *D_807FC924;
+extern BossGlobalC924 *gPlayerSlots;
 extern BossConfig *D_807FDC9C;
 extern void *gCamActor;
 
@@ -175,13 +175,13 @@ void hudCountdownTimerSaveElapsed(void *);
 void func_805FF158(s32);
 void func_805FF378(s32, s32);
 f32 func_80612790(s16);
-void func_806F3BEC(void *, s16, s16, s32);
+void playerWaypointPathStartLineFromActor(void *, s16, s16, s32);
 void func_80641874(s32, s32);
-void func_806D0468(void *, s32);
+void playerSetSizeMode(void *, s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(void *, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleEaseToward(s16, s16, f32);
 s32 projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s32, f32, f32);
@@ -234,7 +234,7 @@ void func_8002F100(void) {
     bossRoundFrame(sp48);
     switch (MAIN_ACTOR->unk154) {
     case 0x28:
-        if (D_807FBD70 == 5 && D_807FC924->unk2C0 != 1) {
+        if (D_807FBD70 == 5 && gPlayerSlots->unk2C0 != 1) {
             MAIN_ACTOR->unk144 = 1;
             PLAYER_ACTOR->unk144 = 1;
             camStartPath(0, 2, 1);
@@ -246,7 +246,7 @@ void func_8002F100(void) {
             PLAYER_ACTOR->unk7C = func_80612794(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk7C;
             PLAYER_ACTOR->unk84 = func_80612790(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk84;
             sp3C = func_80612794(MAIN_ACTOR->unkE6 + 0x384);
-            func_806F3BEC(PLAYER_ACTOR, (s32)(sp3C * 15.0f + MAIN_ACTOR->unk7C), (s32)(func_80612790(MAIN_ACTOR->unkE6 + 0x384) * 15.0f + MAIN_ACTOR->unk84), 0x50);
+            playerWaypointPathStartLineFromActor(PLAYER_ACTOR, (s32)(sp3C * 15.0f + MAIN_ACTOR->unk7C), (s32)(func_80612790(MAIN_ACTOR->unkE6 + 0x384) * 15.0f + MAIN_ACTOR->unk84), 0x50);
         } else {
             switch (MAIN_ACTOR->unk155) {
             case 0:
@@ -268,8 +268,8 @@ void func_8002F100(void) {
                 }
                 break;
             case 3:
-                if (D_807FC924->unk2C0 != 1) {
-                    func_806D0468(PLAYER_ACTOR, 1);
+                if (gPlayerSlots->unk2C0 != 1) {
+                    playerSetSizeMode(PLAYER_ACTOR, 1);
                 }
                 func_80641874(0, 0xFF);
                 actorScriptStart(MAIN_ACTOR, 0x3E4);
@@ -295,11 +295,11 @@ void func_8002F100(void) {
             MAIN_ACTOR->unk155++;
             break;
         case 2:
-            MAIN_ACTOR->unkE6 = func_806CC190(MAIN_ACTOR->unkE6, mathAngleBetweenPoints2D((f32)((BossWaypointList *)D_807FDCA0)->unk14->unk0, (f32)((BossWaypointList *)D_807FDCA0)->unk14->unk4, MAIN_ACTOR->unk7C, MAIN_ACTOR->unk84), 10.0f);
+            MAIN_ACTOR->unkE6 = mathAngleEaseToward(MAIN_ACTOR->unkE6, mathAngleBetweenPoints2D((f32)((BossWaypointList *)D_807FDCA0)->unk14->unk0, (f32)((BossWaypointList *)D_807FDCA0)->unk14->unk4, MAIN_ACTOR->unk7C, MAIN_ACTOR->unk84), 10.0f);
             break;
         case 3:
             t = TIMER_STATE->unk2C;
-            if (t != 0 && (u32)D_8076A064 % 5 == 0) {
+            if (t != 0 && (u32)gFrameCounter % 5 == 0) {
                 projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 150, 3, (f32)((f64)(u32)sp4C->unk14 * 0.01 + 1.04), 0.0f, 0.0f, 0.0f);
                 t = TIMER_STATE->unk2C;
                 TIMER_STATE->unk2C = t - 1;
@@ -353,8 +353,8 @@ void func_8002F100(void) {
     case 0x31:
         switch (MAIN_ACTOR->unk155) {
         case 0:
-            func_806D0468(PLAYER_ACTOR, 0);
-            func_806D0468(PLAYER_ACTOR, 1);
+            playerSetSizeMode(PLAYER_ACTOR, 0);
+            playerSetSizeMode(PLAYER_ACTOR, 1);
             camStartPath(MAIN_ACTOR, 1, 1);
             actorScriptStart(MAIN_ACTOR, 0x3FB);
             MAIN_ACTOR->unk155++;
@@ -408,7 +408,7 @@ u8 arg0;
     sub->unk0 = 2;
     sub->unk1 = 4;
     sub->unk4 = 1.0f;
-    sin_val = func_80612794((s16)(D_8076A064 << 7));
+    sin_val = func_80612794((s16)(gFrameCounter << 7));
     sub->unk4 += (f64)arg0 * (0.04 + 0.04 * (f64)sin_val);
     sub->unk8 = sub->unk4;
     sub->unkC = 1.0f;
@@ -531,7 +531,7 @@ typedef struct {
 
 #define BOSS_ACTOR ((BossActor *)D_807FBB40)
 
-extern BossPlayerData *D_807FD580;
+extern BossPlayerData *gActivePlayerState;
 extern u8 *D_80035AA4[];
 
 void flagSet(s16, s32, s32);
@@ -594,7 +594,7 @@ void func_8002FF74(void) {
         s16 *p = D_807FDCA0->unk14;
         camClosestPointOnSegment(D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, p[0], p[1], p[2], p[5], p[6], p[7], &D_807FBB4C->unk7C, &sp60, &D_807FBB4C->unk84);
         D_807FBB4C->unkE6 = 0xFD2;
-        D_807FD580->unk38 = 150.0f;
+        gActivePlayerState->unk38 = 150.0f;
     }
     func_8002FDF8((s32)BOSS_ACTOR, st->unk14);
     bossActorGroupCommand(D_807FBB40, (1 << st->unk12) & 0xFF, 1, 0);

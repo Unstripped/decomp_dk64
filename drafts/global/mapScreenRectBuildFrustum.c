@@ -26,7 +26,7 @@ void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4,
     s32 i;
     MapPlayer *p;
 
-    p = (MapPlayer *)((u8 *)D_807FC924 + arg7 * 0x2F0);
+    p = (MapPlayer *)((u8 *)gPlayerSlots + arg7 * 0x2F0);
     q = ((f32)(arg0 - p->unk270)) / (f32)p->unk278;
     a = (q * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
     q = ((f32)(arg2 - p->unk270)) / (f32)p->unk278;

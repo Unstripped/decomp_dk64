@@ -49,7 +49,7 @@ typedef struct {
 } MapGridVectors;
 
 extern MapGridVectors *D_807F6C14;
-extern MapGridPoint *D_807F6C24;
+extern MapGridPoint *gMapGridTrianglePlanes;
 extern struct MapCell *D_807F70B0;
 extern struct MapBox *D_807F70B4;
 
@@ -73,7 +73,7 @@ void mapChunksInitFromMapData(MapData *arg0) {
     D_807F70AC = 0;
     D_807F713A = 0;
     D_807F70AB = 0;
-    if (D_807F6C28 != 0) {
+    if (gMapChunkCount != 0) {
         D_807F7138 = arg0->unkC;
         D_807F7074 = heapAlloc(0x40);
         guScale(D_807F7074, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
@@ -103,52 +103,52 @@ void mapChunksInitFromMapData(MapData *arg0) {
                 ((MapRelocEntry *)D_807F6C0C)[i].unkC += (s32)((u8 *)arg0 + base);
             }
         }
-        D_807F6C18 = heapAlloc(D_807F6C28 * 0x1C8);
+        gMapChunks = heapAlloc(gMapChunkCount * 0x1C8);
         p = (u8 *)arg0 + j;
         i = 0;
-        if (D_807F6C28 > 0) {
+        if (gMapChunkCount > 0) {
             colOff = 0;
             do {
                 count = 0;
-                D_807F6C18[i].unk0 = 0;
-                D_807F6C18[i].unk1 = 0;
-                D_807F6C18[i].unk14 = 0;
-                D_807F6C18[i].unk1C = 0;
-                D_807F6C18[i].unk24 = 0;
-                D_807F6C18[i].unk7 = 4;
-                D_807F6C18[i].unk54 = *(s32 *)(p + 0x2C) + D_807F5DE8;
+                gMapChunks[i].unk0 = 0;
+                gMapChunks[i].unk1 = 0;
+                gMapChunks[i].unk14 = 0;
+                gMapChunks[i].unk1C = 0;
+                gMapChunks[i].unk24 = 0;
+                gMapChunks[i].unk7 = 4;
+                gMapChunks[i].unk54 = *(s32 *)(p + 0x2C) + D_807F5DE8;
                 if (D_807F70B0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                D_807F6C18[i].unk58 = D_807F6C18[i].unk54;
+                gMapChunks[i].unk58 = gMapChunks[i].unk54;
                 lightSetTargetColor(p[0] / 255.0, p[1] / 255.0, p[2] / 255.0, (s16)i);
                 if (!D_807F6C0C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 if (D_807F6C14 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 lightCopyTargetColors((s16)i);
-                D_807F6C18[i].unk6 = p[3];
+                gMapChunks[i].unk6 = p[3];
                 p += 0xC;
-                D_807F6C18[i].unk5 = p[-8];
-                D_807F6C18[i].unk3 = *(s32 *)(p - 4);
+                gMapChunks[i].unk5 = p[-8];
+                gMapChunks[i].unk3 = *(s32 *)(p - 4);
                 j = *(s32 *)p;
                 if (j != -1) {
                     j = *(s32 *)p = j + (s32)((u8 *)arg0 + base);
                 }
                 p += 8;
-                D_807F6C18[i].unk2C = j;
-                D_807F6C18[i].unk3C = *(s32 *)(p - 4);
-                total = D_807F6C18[i].unk3C;
-                if (D_807F6C18[i].unk5 == 2) {
+                gMapChunks[i].unk2C = j;
+                gMapChunks[i].unk3C = *(s32 *)(p - 4);
+                total = gMapChunks[i].unk3C;
+                if (gMapChunks[i].unk5 == 2) {
                     D_807F713A = 1;
-                    mapChunkBuildCellTable(D_807F6C18[i].unk2C, D_807F6C18[i].unk3C, buf, &count, 0, i);
+                    mapChunkBuildCellTable(gMapChunks[i].unk2C, gMapChunks[i].unk3C, buf, &count, 0, i);
                 }
                 j = *(s32 *)p;
                 if (j != -1) {
                     j = *(s32 *)p = j + (s32)((u8 *)arg0 + base);
                 }
                 p += 8;
-                D_807F6C18[i].unk30 = j;
-                D_807F6C18[i].unk40 = *(s32 *)(p - 4);
-                total += D_807F6C18[i].unk40;
-                if (D_807F6C18[i].unk5 == 2) {
-                    mapChunkBuildCellTable(D_807F6C18[i].unk30, D_807F6C18[i].unk40, buf, &count, 1, i);
+                gMapChunks[i].unk30 = j;
+                gMapChunks[i].unk40 = *(s32 *)(p - 4);
+                total += gMapChunks[i].unk40;
+                if (gMapChunks[i].unk5 == 2) {
+                    mapChunkBuildCellTable(gMapChunks[i].unk30, gMapChunks[i].unk40, buf, &count, 1, i);
                 }
                 j = *(s32 *)p;
                 if (D_807F6C0C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -156,11 +156,11 @@ void mapChunksInitFromMapData(MapData *arg0) {
                     j = *(s32 *)p = j + (s32)((u8 *)arg0 + base);
                 }
                 p += 8;
-                D_807F6C18[i].unk34 = j;
-                D_807F6C18[i].unk44 = *(s32 *)(p - 4);
-                total += D_807F6C18[i].unk44;
-                if (D_807F6C18[i].unk5 == 2) {
-                    mapChunkBuildCellTable(D_807F6C18[i].unk34, D_807F6C18[i].unk44, buf, &count, 2, i);
+                gMapChunks[i].unk34 = j;
+                gMapChunks[i].unk44 = *(s32 *)(p - 4);
+                total += gMapChunks[i].unk44;
+                if (gMapChunks[i].unk5 == 2) {
+                    mapChunkBuildCellTable(gMapChunks[i].unk34, gMapChunks[i].unk44, buf, &count, 2, i);
                 }
                 if (D_807F70AC != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 j = *(s32 *)p;
@@ -169,42 +169,42 @@ void mapChunksInitFromMapData(MapData *arg0) {
                     j = *(s32 *)p = j + (s32)((u8 *)arg0 + base);
                 }
                 p += 8;
-                D_807F6C18[i].unk38 = j;
-                D_807F6C18[i].unk48 = *(s32 *)(p - 4);
-                total += D_807F6C18[i].unk48;
-                D_807F6C18[i].unk8 = D_807F6C18[i].unk2C + ((total >> 3) << 3);
-                D_807F6C18[i].unkC = D_807F6C18[i].unk2C;
-                D_807F6C18[i].unk10 = D_807F6C18[i].unk8;
-                if (D_807F6C18[i].unk5 == 2) {
-                    mapChunkBuildCellTable(D_807F6C18[i].unk38, D_807F6C18[i].unk48, buf, &count, 3, i);
+                gMapChunks[i].unk38 = j;
+                gMapChunks[i].unk48 = *(s32 *)(p - 4);
+                total += gMapChunks[i].unk48;
+                gMapChunks[i].unk8 = gMapChunks[i].unk2C + ((total >> 3) << 3);
+                gMapChunks[i].unkC = gMapChunks[i].unk2C;
+                gMapChunks[i].unk10 = gMapChunks[i].unk8;
+                if (gMapChunks[i].unk5 == 2) {
+                    mapChunkBuildCellTable(gMapChunks[i].unk38, gMapChunks[i].unk48, buf, &count, 3, i);
                 }
-                D_807F6C18[i].unk5C = *(s32 *)(p + 4);
+                gMapChunks[i].unk5C = *(s32 *)(p + 4);
                 p += 8;
-                D_807F6C18[i].unk60 = 0;
-                D_807F6C18[i].unk64 = 0;
-                D_807F6C18[i].unk78 = *(s32 *)((u8 *)arg0 + off + 4 + colOff) + ((s32)arg0 + off);
+                gMapChunks[i].unk60 = 0;
+                gMapChunks[i].unk64 = 0;
+                gMapChunks[i].unk78 = *(s32 *)((u8 *)arg0 + off + 4 + colOff) + ((s32)arg0 + off);
                 if (!D_807F6C2C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                D_807F6C18[i].unk7C = *(s32 *)((u8 *)arg0 + off + 4 + colOff + 0xC) + ((s32)arg0 + off);
-                D_807F6C18[i].unk80 = *(s16 *)((u8 *)arg0 + off + 4 + colOff + 4);
-                D_807F6C18[i].unk82 = *(s16 *)((u8 *)arg0 + off + 4 + colOff + 6);
-                D_807F6C18[i].unk84 = *(s16 *)((u8 *)arg0 + off + 4 + colOff + 8);
-                D_807F6C18[i].unk86 = *(s16 *)((u8 *)arg0 + off + 4 + colOff + 0xA);
-                D_807F6C18[i].unk28 = -1;
+                gMapChunks[i].unk7C = *(s32 *)((u8 *)arg0 + off + 4 + colOff + 0xC) + ((s32)arg0 + off);
+                gMapChunks[i].unk80 = *(s16 *)((u8 *)arg0 + off + 4 + colOff + 4);
+                gMapChunks[i].unk82 = *(s16 *)((u8 *)arg0 + off + 4 + colOff + 6);
+                gMapChunks[i].unk84 = *(s16 *)((u8 *)arg0 + off + 4 + colOff + 8);
+                gMapChunks[i].unk86 = *(s16 *)((u8 *)arg0 + off + 4 + colOff + 0xA);
+                gMapChunks[i].unk28 = -1;
                 if (count != 0) {
-                    D_807F6C18[i].unk4C = heapAlloc(count * 0x24);
-                    memcpy(D_807F6C18[i].unk4C, buf, count * 0x24);
+                    gMapChunks[i].unk4C = heapAlloc(count * 0x24);
+                    memcpy(gMapChunks[i].unk4C, buf, count * 0x24);
                     for (j = 0; j < count; j++) {
-                        ((u8 *)D_807F6C18[i].unk4C)[j * 0x24 + 2] = 0xFF;
+                        ((u8 *)gMapChunks[i].unk4C)[j * 0x24 + 2] = 0xFF;
                     }
                 }
-                D_807F6C18[i].unk50 = count;
+                gMapChunks[i].unk50 = count;
                 colOff += 0xC;
                 i++;
-            } while (i < D_807F6C28);
+            } while (i < gMapChunkCount);
         }
-        D_807F6C24 = heapAlloc(D_807F6C20 / 2 * 0x30);
+        gMapGridTrianglePlanes = heapAlloc(D_807F6C20 / 2 * 0x30);
         for (i = 0; i < D_807F6C20 / 2; i++) {
-            mapGridTriangleBuildPlane(i, (u8 *)D_807F6C24 + i * 0x30);
+            mapGridTriangleBuildPlane(i, (u8 *)gMapGridTrianglePlanes + i * 0x30);
             if (D_807F70AA) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
         D_807F7079 = 1;
@@ -219,6 +219,6 @@ void mapChunksInitFromMapData(MapData *arg0) {
         } while (p != &D_807F70AA);
         D_807F70AA = 0;
     } else {
-        D_807F6C18 = NULL;
+        gMapChunks = NULL;
     }
 }

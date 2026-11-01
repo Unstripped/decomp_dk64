@@ -50,8 +50,8 @@ typedef struct MapChunk {
 } MapChunk;
 
 extern u8 D_807F7078[];
-extern s32 D_807F6C28;
-extern MapChunk *D_807F6C18;
+extern s32 gMapChunkCount;
+extern MapChunk *gMapChunks;
 extern u8 *D_807F6C1C;
 extern s32 D_807F6C20;
 extern u8 *D_807F6C2C;
@@ -74,7 +74,7 @@ void mapChunkAllocLists(MapHeader *arg0) {
     s32 count;
     s32 size;
 
-    temp = D_807F6C28 = *(s32 *)(arg0->unk64 + (u8 *)arg0);
+    temp = gMapChunkCount = *(s32 *)(arg0->unk64 + (u8 *)arg0);
     if (temp >= 2) {
         count = temp & 0xFF;
     } else {
@@ -139,7 +139,7 @@ typedef struct {
 } MapGridVectors;
 
 extern MapGridVectors *D_807F6C14;
-extern MapGridPoint *D_807F6C24;
+extern MapGridPoint *gMapGridTrianglePlanes;
 extern struct MapCell *D_807F70B0;
 extern struct MapBox *D_807F70B4;
 
@@ -167,7 +167,7 @@ void mapChunksInitFromMapData(MapData *arg0) {
     D_807F70AC = 0;
     D_807F713A = 0;
     D_807F70AB = 0;
-    if (D_807F6C28 != 0) {
+    if (gMapChunkCount != 0) {
         D_807F7138 = arg0->unkC;
         D_807F7074 = heapAlloc(0x40);
         guScale(D_807F7074, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
@@ -196,39 +196,39 @@ void mapChunksInitFromMapData(MapData *arg0) {
                 ((MapRelocEntry *)D_807F6C0C)[i].unkC += (s32)arg0 + base;
             }
         }
-        D_807F6C18 = heapAlloc(D_807F6C28 * 0x1C8);
+        gMapChunks = heapAlloc(gMapChunkCount * 0x1C8);
         w4 = w + 4;
         i = 0;
-        if (D_807F6C28 > 0) {
+        if (gMapChunkCount > 0) {
             colOff = 0;
             do {
                 count = 0;
-                D_807F6C18[i].unk0 = 0;
-                D_807F6C18[i].unk1 = 0;
-                D_807F6C18[i].unk14 = 0;
-                D_807F6C18[i].unk1C = 0;
-                D_807F6C18[i].unk24 = 0;
-                D_807F6C18[i].unk7 = 4;
-                D_807F6C18[i].unk54 = *(s32 *)(p + 0x2C) + D_807F5DE8;
-                D_807F6C18[i].unk58 = D_807F6C18[i].unk54;
+                gMapChunks[i].unk0 = 0;
+                gMapChunks[i].unk1 = 0;
+                gMapChunks[i].unk14 = 0;
+                gMapChunks[i].unk1C = 0;
+                gMapChunks[i].unk24 = 0;
+                gMapChunks[i].unk7 = 4;
+                gMapChunks[i].unk54 = *(s32 *)(p + 0x2C) + D_807F5DE8;
+                gMapChunks[i].unk58 = gMapChunks[i].unk54;
                 lightSetTargetColor(p[0] / 255.0, p[1] / 255.0, p[2] / 255.0, (s16)i);
                 lightCopyTargetColors((s16)i);
-                D_807F6C18[i].unk6 = p[3];
+                gMapChunks[i].unk6 = p[3];
                 p += 0xC;
-                D_807F6C18[i].unk5 = p[-8];
-                D_807F6C18[i].unk3 = *(s32 *)(p - 4);
+                gMapChunks[i].unk5 = p[-8];
+                gMapChunks[i].unk3 = *(s32 *)(p - 4);
                 val = *(s32 *)p;
                 if (val != -1) {
                     val += (s32)arg0 + base;
                     *(s32 *)p = val;
                 }
                 p += 8;
-                D_807F6C18[i].unk2C = val;
-                D_807F6C18[i].unk3C = *(s32 *)(p - 4);
-                total = D_807F6C18[i].unk3C;
-                if (D_807F6C18[i].unk5 == 2) {
+                gMapChunks[i].unk2C = val;
+                gMapChunks[i].unk3C = *(s32 *)(p - 4);
+                total = gMapChunks[i].unk3C;
+                if (gMapChunks[i].unk5 == 2) {
                     D_807F713A = 1;
-                    mapChunkBuildCellTable(D_807F6C18[i].unk2C, D_807F6C18[i].unk3C, buf, &count, 0, i);
+                    mapChunkBuildCellTable(gMapChunks[i].unk2C, gMapChunks[i].unk3C, buf, &count, 0, i);
                 }
                 val = *(s32 *)p;
                 if (val != -1) {
@@ -236,11 +236,11 @@ void mapChunksInitFromMapData(MapData *arg0) {
                     *(s32 *)p = val;
                 }
                 p += 8;
-                D_807F6C18[i].unk30 = val;
-                D_807F6C18[i].unk40 = *(s32 *)(p - 4);
-                total += D_807F6C18[i].unk40;
-                if (D_807F6C18[i].unk5 == 2) {
-                    mapChunkBuildCellTable(D_807F6C18[i].unk30, D_807F6C18[i].unk40, buf, &count, 1, i);
+                gMapChunks[i].unk30 = val;
+                gMapChunks[i].unk40 = *(s32 *)(p - 4);
+                total += gMapChunks[i].unk40;
+                if (gMapChunks[i].unk5 == 2) {
+                    mapChunkBuildCellTable(gMapChunks[i].unk30, gMapChunks[i].unk40, buf, &count, 1, i);
                 }
                 val = *(s32 *)p;
                 if (val != -1) {
@@ -248,11 +248,11 @@ void mapChunksInitFromMapData(MapData *arg0) {
                     *(s32 *)p = val;
                 }
                 p += 8;
-                D_807F6C18[i].unk34 = val;
-                D_807F6C18[i].unk44 = *(s32 *)(p - 4);
-                total += D_807F6C18[i].unk44;
-                if (D_807F6C18[i].unk5 == 2) {
-                    mapChunkBuildCellTable(D_807F6C18[i].unk34, D_807F6C18[i].unk44, buf, &count, 2, i);
+                gMapChunks[i].unk34 = val;
+                gMapChunks[i].unk44 = *(s32 *)(p - 4);
+                total += gMapChunks[i].unk44;
+                if (gMapChunks[i].unk5 == 2) {
+                    mapChunkBuildCellTable(gMapChunks[i].unk34, gMapChunks[i].unk44, buf, &count, 2, i);
                 }
                 val = *(s32 *)p;
                 if (val != -1) {
@@ -260,42 +260,42 @@ void mapChunksInitFromMapData(MapData *arg0) {
                     *(s32 *)p = val;
                 }
                 p += 8;
-                D_807F6C18[i].unk38 = val;
-                D_807F6C18[i].unk48 = *(s32 *)(p - 4);
-                total += D_807F6C18[i].unk48;
-                D_807F6C18[i].unk8 = D_807F6C18[i].unk2C + ((total >> 3) << 3);
-                D_807F6C18[i].unkC = D_807F6C18[i].unk2C;
-                D_807F6C18[i].unk10 = D_807F6C18[i].unk8;
-                if (D_807F6C18[i].unk5 == 2) {
-                    mapChunkBuildCellTable(D_807F6C18[i].unk38, D_807F6C18[i].unk48, buf, &count, 3, i);
+                gMapChunks[i].unk38 = val;
+                gMapChunks[i].unk48 = *(s32 *)(p - 4);
+                total += gMapChunks[i].unk48;
+                gMapChunks[i].unk8 = gMapChunks[i].unk2C + ((total >> 3) << 3);
+                gMapChunks[i].unkC = gMapChunks[i].unk2C;
+                gMapChunks[i].unk10 = gMapChunks[i].unk8;
+                if (gMapChunks[i].unk5 == 2) {
+                    mapChunkBuildCellTable(gMapChunks[i].unk38, gMapChunks[i].unk48, buf, &count, 3, i);
                 }
-                D_807F6C18[i].unk5C = *(s32 *)(p + 4);
+                gMapChunks[i].unk5C = *(s32 *)(p + 4);
                 p += 8;
-                D_807F6C18[i].unk60 = 0;
-                D_807F6C18[i].unk64 = 0;
-                D_807F6C18[i].unk78 = *(s32 *)(w4 + colOff) + (s32)w;
-                D_807F6C18[i].unk7C = *(s32 *)(w4 + colOff + 0xC) + (s32)w;
-                D_807F6C18[i].unk80 = *(s16 *)(w4 + colOff + 4);
-                D_807F6C18[i].unk82 = *(s16 *)(w4 + colOff + 6);
-                D_807F6C18[i].unk84 = *(s16 *)(w4 + colOff + 8);
-                D_807F6C18[i].unk86 = *(s16 *)(w4 + colOff + 0xA);
-                D_807F6C18[i].unk28 = -1;
+                gMapChunks[i].unk60 = 0;
+                gMapChunks[i].unk64 = 0;
+                gMapChunks[i].unk78 = *(s32 *)(w4 + colOff) + (s32)w;
+                gMapChunks[i].unk7C = *(s32 *)(w4 + colOff + 0xC) + (s32)w;
+                gMapChunks[i].unk80 = *(s16 *)(w4 + colOff + 4);
+                gMapChunks[i].unk82 = *(s16 *)(w4 + colOff + 6);
+                gMapChunks[i].unk84 = *(s16 *)(w4 + colOff + 8);
+                gMapChunks[i].unk86 = *(s16 *)(w4 + colOff + 0xA);
+                gMapChunks[i].unk28 = -1;
                 if (count != 0) {
-                    D_807F6C18[i].unk4C = heapAlloc(count * 0x24);
-                    memcpy(D_807F6C18[i].unk4C, buf, count * 0x24);
+                    gMapChunks[i].unk4C = heapAlloc(count * 0x24);
+                    memcpy(gMapChunks[i].unk4C, buf, count * 0x24);
                     j = 0;
                     for (j = 0; j < count; j++) {
-                        ((u8 *)D_807F6C18[i].unk4C)[j * 0x24 + 2] = 0xFF;
+                        ((u8 *)gMapChunks[i].unk4C)[j * 0x24 + 2] = 0xFF;
                     }
                 }
-                D_807F6C18[i].unk50 = count;
+                gMapChunks[i].unk50 = count;
                 colOff += 0xC;
                 i++;
-            } while (i < D_807F6C28);
+            } while (i < gMapChunkCount);
         }
-        D_807F6C24 = heapAlloc(D_807F6C20 / 2 * 0x30);
+        gMapGridTrianglePlanes = heapAlloc(D_807F6C20 / 2 * 0x30);
         for (i = 0; i < D_807F6C20 / 2; i++) {
-            mapGridTriangleBuildPlane(i, (u8 *)D_807F6C24 + i * 0x30);
+            mapGridTriangleBuildPlane(i, (u8 *)gMapGridTrianglePlanes + i * 0x30);
         }
         D_807F7079 = 1;
         D_807F7078[0] = 1;
@@ -308,7 +308,7 @@ void mapChunksInitFromMapData(MapData *arg0) {
         } while (q != &D_807F70AA);
         D_807F70AA = 0;
     } else {
-        D_807F6C18 = NULL;
+        gMapChunks = NULL;
     }
 }
 #else
@@ -460,11 +460,11 @@ s32 chunk;
                     *(s32 *)((u8 *)buf + *count * 0x24 + 0xC) = -1;
                     *(s32 *)((u8 *)buf + *count * 0x24 + 0x10) = -1;
                     *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 4) = list + 8;
-                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 0x14) = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + D_807F6C18[chunk].unk58;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 0x14) = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + gMapChunks[chunk].unk58;
                     *count += 1;
                 } else {
                     *(s32 *)((u8 *)buf + idx * 0x24 + kind * 4 + 4) = list + 8;
-                    *(s32 *)((u8 *)buf + idx * 0x24 + kind * 4 + 0x14) = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + D_807F6C18[chunk].unk58;
+                    *(s32 *)((u8 *)buf + idx * 0x24 + kind * 4 + 0x14) = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + gMapChunks[chunk].unk58;
                 }
             }
             list += 8;
@@ -482,7 +482,7 @@ s32 mapChunkIsInUse(s16 arg0) {
 
     var_v1 = (arg0 + 1) != 0;
     if (var_v1 != 0) {
-        if (D_807F6C18[arg0].unk3 != 0) {
+        if (gMapChunks[arg0].unk3 != 0) {
             var_v0 = 1;
         } else {
             var_v0 = 0;
@@ -545,10 +545,10 @@ void mapChunkResetFlags(void) {
     s32 i;
     s32 j;
 
-    for (i = 0; i < D_807F6C28; i++) {
-        D_807F6C18[i].unk1 = 0;
-        D_807F6C18[i].unk2 = 1;
-        D_807F6C18[i].unk4 = 0;
+    for (i = 0; i < gMapChunkCount; i++) {
+        gMapChunks[i].unk1 = 0;
+        gMapChunks[i].unk2 = 1;
+        gMapChunks[i].unk4 = 0;
     }
     for (j = 0; j < D_807F70AC; j++) {
         ((u8 *)D_807F70B0)[j * 0x1C + 0x19] = 0;
@@ -558,12 +558,12 @@ void mapChunkResetFlags(void) {
 void mapChunkClearBounds(void) {
     s32 i;
 
-    for (i = 0; i < D_807F6C28; i++) {
-        D_807F6C18[i].unk0 = 0;
-        D_807F6C18[i].unk68 = 0;
-        D_807F6C18[i].unk6C = 0;
-        D_807F6C18[i].unk70 = 0;
-        D_807F6C18[i].unk74 = 0;
+    for (i = 0; i < gMapChunkCount; i++) {
+        gMapChunks[i].unk0 = 0;
+        gMapChunks[i].unk68 = 0;
+        gMapChunks[i].unk6C = 0;
+        gMapChunks[i].unk70 = 0;
+        gMapChunks[i].unk74 = 0;
     }
     for (i = 0; i < D_807F6C20; i++) {
         D_807F6C1C[i * 0xA + 8] = 0;
@@ -574,7 +574,7 @@ void mapChunkClearBounds(void) {
 s32 mapChunkContainsPoint(s16 arg0, s16 arg1, s16 arg2) {
     MapChunk *entry;
 
-    entry = (MapChunk *)((s32)D_807F6C18 + arg2 * 0x1C8);
+    entry = (MapChunk *)((s32)gMapChunks + arg2 * 0x1C8);
     if (entry->unk1 == 0) {
         return 0;
     }
@@ -615,10 +615,10 @@ void mapChunkUpdateEntryNode(MapActorEntry *arg0) {
     level = &arg0->unk20;
     switch (temp_v1) {
     case 0:
-        sp40 = (s32 *)((u8 *)D_807F6C18 + *level * 0x1C8 + 0x14);
+        sp40 = (s32 *)((u8 *)gMapChunks + *level * 0x1C8 + 0x14);
         break;
     case 1:
-        sp40 = (s32 *)((u8 *)D_807F6C18 + *level * 0x1C8 + 0x1C);
+        sp40 = (s32 *)((u8 *)gMapChunks + *level * 0x1C8 + 0x1C);
         break;
     }
     *sp40 = renderEntryAddOrUpdate(*sp40, arg0->unk24, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC, arg0->unk1C, arg0->unk1E, arg0->unk22, *level, 0);
@@ -631,10 +631,10 @@ void mapChunkMarkRenderEntry(s32 arg0, u8 arg1) {
     s32 i;
 
     flag = 0;
-    for (i = 0; i < D_807F6C28 && !flag; i++) {
-        func_806307CC(D_807F6C18[i].unk14, arg0, 0, arg1, &flag);
+    for (i = 0; i < gMapChunkCount && !flag; i++) {
+        func_806307CC(gMapChunks[i].unk14, arg0, 0, arg1, &flag);
         if (!flag) {
-            func_806307CC(D_807F6C18[i].unk1C, arg0, 0, arg1, &flag);
+            func_806307CC(gMapChunks[i].unk1C, arg0, 0, arg1, &flag);
         }
     }
 }
@@ -646,13 +646,13 @@ u8 mapChunkPurgeNodeList(s32 arg0, s16 *arg1, u8 arg2) {
     s32 i;
 
     flag = 0;
-    for (i = 0; i < D_807F6C28 && (!flag || arg2); i++) {
-        D_807F6C18[i].unk14 = renderEntryRemove(D_807F6C18[i].unk14, arg0, 0, &flag);
+    for (i = 0; i < gMapChunkCount && (!flag || arg2); i++) {
+        gMapChunks[i].unk14 = renderEntryRemove(gMapChunks[i].unk14, arg0, 0, &flag);
         if (flag) {
             *arg1 = i;
         }
         if (!flag || arg2) {
-            D_807F6C18[i].unk1C = renderEntryRemove(D_807F6C18[i].unk1C, arg0, 0, &flag);
+            gMapChunks[i].unk1C = renderEntryRemove(gMapChunks[i].unk1C, arg0, 0, &flag);
             if (flag) {
                 *arg1 = i;
             }
@@ -684,14 +684,14 @@ void mapChunkClearNodeFlags(u8 arg0) {
     s32 i;
 
     i = 0;
-    if (D_807F6C28 > 0) {
+    if (gMapChunkCount > 0) {
         do {
-            if ((D_807F6C18[i].unk0 == 1) || arg0) {
-                renderEntryListClearTouched(D_807F6C18[i].unk14);
-                renderEntryListClearTouched(D_807F6C18[i].unk1C);
+            if ((gMapChunks[i].unk0 == 1) || arg0) {
+                renderEntryListClearTouched(gMapChunks[i].unk14);
+                renderEntryListClearTouched(gMapChunks[i].unk1C);
             }
             i += 1;
-        } while (i < D_807F6C28);
+        } while (i < gMapChunkCount);
     }
 }
 
@@ -699,14 +699,14 @@ void mapChunkFreeNodeLists(u8 arg0) {
     s32 i;
 
     i = 0;
-    if (D_807F6C28 > 0) {
+    if (gMapChunkCount > 0) {
         do {
-            if ((D_807F6C18[i].unk0 == 1) || arg0) {
-                D_807F6C18[i].unk14 = renderEntryListPurgeUntouched(D_807F6C18[i].unk14);
-                D_807F6C18[i].unk1C = renderEntryListPurgeUntouched(D_807F6C18[i].unk1C);
+            if ((gMapChunks[i].unk0 == 1) || arg0) {
+                gMapChunks[i].unk14 = renderEntryListPurgeUntouched(gMapChunks[i].unk14);
+                gMapChunks[i].unk1C = renderEntryListPurgeUntouched(gMapChunks[i].unk1C);
             }
             i += 1;
-        } while (i < D_807F6C28);
+        } while (i < gMapChunkCount);
     }
 }
 
@@ -715,16 +715,16 @@ void mapChunkRebuildNodeLists(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     s32 var_s1;
 
     var_s3 = 0;
-    if (D_807F6C28 > 0) {
+    if (gMapChunkCount > 0) {
         var_s1 = 0;
         do {
-            if (D_807F6C18[var_s1].unk0 == 1 || arg3) {
-                D_807F6C18[var_s1].unk14 = renderEntryListSortByDistance(D_807F6C18[var_s1].unk14, arg0, arg1, arg2, (void *)((u8 *)&D_807F6C18[var_s1] + 0x18));
-                D_807F6C18[var_s1].unk1C = renderEntryListSortByDistance(D_807F6C18[var_s1].unk1C, arg0, arg1, arg2, (void *)((u8 *)&D_807F6C18[var_s1] + 0x20));
+            if (gMapChunks[var_s1].unk0 == 1 || arg3) {
+                gMapChunks[var_s1].unk14 = renderEntryListSortByDistance(gMapChunks[var_s1].unk14, arg0, arg1, arg2, (void *)((u8 *)&gMapChunks[var_s1] + 0x18));
+                gMapChunks[var_s1].unk1C = renderEntryListSortByDistance(gMapChunks[var_s1].unk1C, arg0, arg1, arg2, (void *)((u8 *)&gMapChunks[var_s1] + 0x20));
             }
             var_s3 += 1;
             var_s1 += 1;
-        } while (var_s3 < D_807F6C28);
+        } while (var_s3 < gMapChunkCount);
     }
 }
 
@@ -732,12 +732,12 @@ void mapChunkResolveNodeAssets(void) {
     s32 i;
 
     i = 0;
-    if (D_807F6C28 > 0) {
+    if (gMapChunkCount > 0) {
         do {
-            modelNodeListSyncFlags(D_807F6C18[i].unk14);
-            modelNodeListSyncFlags(D_807F6C18[i].unk1C);
+            modelNodeListSyncFlags(gMapChunks[i].unk14);
+            modelNodeListSyncFlags(gMapChunks[i].unk1C);
             i += 1;
-        } while (i < D_807F6C28);
+        } while (i < gMapChunkCount);
     }
 }
 
@@ -745,17 +745,17 @@ void mapChunkBuildSpriteChains(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
     s32 i;
 
     i = 0;
-    if (D_807F6C28 > 0) {
+    if (gMapChunkCount > 0) {
         do {
-            if (D_807F6C18[i].unk0 == 1 || arg3) {
-                if (D_807F6C18[i].unk6 != 0) {
-                    D_807F6C18[i].unk24 = 0;
+            if (gMapChunks[i].unk0 == 1 || arg3) {
+                if (gMapChunks[i].unk6 != 0) {
+                    gMapChunks[i].unk24 = 0;
                 } else {
-                    D_807F6C18[i].unk24 = spriteListBuildDisplayChain(D_807F6C18[i].unk14, D_807F6C18[i].unk1C, arg0, arg1, arg2);
+                    gMapChunks[i].unk24 = spriteListBuildDisplayChain(gMapChunks[i].unk14, gMapChunks[i].unk1C, arg0, arg1, arg2);
                 }
             }
             i += 1;
-        } while (i < D_807F6C28);
+        } while (i < gMapChunkCount);
     }
 }
 
@@ -779,14 +779,14 @@ void mapChunkUpdateModelNodes(void) {
 
     D_807F7140 = 0;
     i = 0;
-    if (D_807F6C28 > 0) {
+    if (gMapChunkCount > 0) {
         do {
-            if (D_807F6C18[i].unk1 != 0) {
+            if (gMapChunks[i].unk1 != 0) {
                 flag = 1;
             } else {
                 flag = 0;
             }
-            node = (void *)D_807F6C18[i].unk14;
+            node = (void *)gMapChunks[i].unk14;
             if (node != NULL) {
                 do {
                     next = ((MapNode *)node)->unk14;
@@ -795,11 +795,11 @@ void mapChunkUpdateModelNodes(void) {
                 } while (next != NULL);
             }
             i += 1;
-        } while (i < D_807F6C28);
+        } while (i < gMapChunkCount);
     }
 }
 
-#define MAP_CHUNK_AT(o) ((MapChunk *)((u8 *)D_807F6C18 + (o)))
+#define MAP_CHUNK_AT(o) ((MapChunk *)((u8 *)gMapChunks + (o)))
 
 extern s32 func_80668E9C(s32, s16, f32, f32, f32, s32);
 
@@ -815,7 +815,7 @@ s32 mapChunkCheckActorCollision(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4
     result = 0;
     mode = func_80630324(1, 0);
     i = 0;
-    if (D_807F6C28 > 0) {
+    if (gMapChunkCount > 0) {
         x = (s16)(s32)(arg1 * 6.0f);
         do {
             if ((x >= MAP_CHUNK_AT(i * 0x1C8)->unk80 - 0x32) &&
@@ -841,7 +841,7 @@ s32 mapChunkCheckActorCollision(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4
                 }
             }
             i++;
-        } while (i < D_807F6C28);
+        } while (i < gMapChunkCount);
     }
     return result;
 }
@@ -852,7 +852,7 @@ s32 mapPointIsInRenderedChunk(f32 arg0, f32 arg1, f32 arg2) {
     s16 chunk;
 
     i = 0;
-    if (D_807F6C28 == 0) {
+    if (gMapChunkCount == 0) {
         return 0xFF;
     }
     chunk = mapChunkFindByPosition(arg0, arg1, arg2, 0);
@@ -871,10 +871,10 @@ s32 mapPointIsInRenderedChunk(f32 arg0, f32 arg1, f32 arg2) {
 s32 mapChunkIsVisible(s16 arg0) {
     s32 var_v1;
 
-    if (D_807F6C28 == 0) {
+    if (gMapChunkCount == 0) {
         return 0xFF;
     }
-    if (D_807F6C18[arg0].unk1 != 0) {
+    if (gMapChunks[arg0].unk1 != 0) {
         var_v1 = 1;
     } else {
         var_v1 = 0;
@@ -885,10 +885,10 @@ s32 mapChunkIsVisible(s16 arg0) {
 s32 mapChunkIsActive(s16 arg0) {
     s32 var_v1;
 
-    if (D_807F6C28 == 0) {
+    if (gMapChunkCount == 0) {
         return 0xFF;
     }
-    if (D_807F6C18[arg0].unk0 == 1) {
+    if (gMapChunks[arg0].unk0 == 1) {
         var_v1 = 1;
     } else {
         var_v1 = 0;
@@ -899,10 +899,10 @@ s32 mapChunkIsActive(s16 arg0) {
 s32 mapChunkIsVisibleForPlayer(s16 arg0, s16 arg1) {
     s32 var_v1;
 
-    if (D_807F6C28 == 0) {
+    if (gMapChunkCount == 0) {
         return 1;
     }
-    if (D_807F6C18[arg1].unk1 & (1 << arg0)) {
+    if (gMapChunks[arg1].unk1 & (1 << arg0)) {
         var_v1 = 1;
     } else {
         var_v1 = 0;
@@ -977,7 +977,7 @@ s16 mapChunkFindByPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     s32 found;
 
     count = 0;
-    if (D_807F6C28 == 0) {
+    if (gMapChunkCount == 0) {
         return -1;
     }
     arg0 *= 6.0f;
@@ -993,7 +993,7 @@ s16 mapChunkFindByPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     }
     found = 0;
     i = 0;
-    if (D_807F6C28 > 0) {
+    if (gMapChunkCount > 0) {
         do {
             if (arg3 != i) {
                 if (mapChunkFindNodeAtPoint(arg0, arg1, arg2, i, &flag, &dist) != 0) {
@@ -1011,7 +1011,7 @@ s16 mapChunkFindByPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
             } else {
                 i++;
             }
-        } while (found == 0 && i < D_807F6C28);
+        } while (found == 0 && i < gMapChunkCount);
     }
     if (found != 0) {
         return i;
@@ -1094,7 +1094,7 @@ s32 mapChunkFindNodeAtPoint(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, f3
     MapCollisionNode *temp_s1;
     MapChunk *temp_v0;
 
-    temp_v0 = (MapChunk *)((u8 *)D_807F6C18 + arg3 * 0x1C8);
+    temp_v0 = (MapChunk *)((u8 *)gMapChunks + arg3 * 0x1C8);
     if (arg0 < (f32)temp_v0->unk80) {
         return 0;
     }
@@ -1261,16 +1261,16 @@ typedef struct {
     /* 0x292 */ u8 pad292[0x2F0 - 0x292];
 } MapPlayer;
 
-extern MapPlayer *D_807FC924;
-extern u8 D_807FC929;
+extern MapPlayer *gPlayerSlots;
+extern u8 gCurrentPlayerIndex;
 
 void mapChunkActivate(s16 arg0) {
-    D_807F6C18[arg0].unk0 = 1;
-    D_807F6C18[arg0].unk1 |= 1 << D_807FC929;
-    D_807F6C18[arg0].unk68 = D_807FC924[D_807FC929].unk270;
-    D_807F6C18[arg0].unk6C = D_807FC924[D_807FC929].unk272;
-    D_807F6C18[arg0].unk70 = D_807FC924[D_807FC929].unk274;
-    D_807F6C18[arg0].unk74 = D_807FC924[D_807FC929].unk276;
+    gMapChunks[arg0].unk0 = 1;
+    gMapChunks[arg0].unk1 |= 1 << gCurrentPlayerIndex;
+    gMapChunks[arg0].unk68 = gPlayerSlots[gCurrentPlayerIndex].unk270;
+    gMapChunks[arg0].unk6C = gPlayerSlots[gCurrentPlayerIndex].unk272;
+    gMapChunks[arg0].unk70 = gPlayerSlots[gCurrentPlayerIndex].unk274;
+    gMapChunks[arg0].unk74 = gPlayerSlots[gCurrentPlayerIndex].unk276;
 }
 
 
@@ -1288,7 +1288,7 @@ void mapTriggerCollectZonesAtPoint(f32, f32, f32);
 void mapChunkRenderNodes(f32, f32, f32);
 void mapTriggerApplyZones(f32, f32, f32);
 void mapChunkTraversePortals(s16, s32, s32, s32, s32, s32, f32, f32, f32);
-void func_8065F678(f32, f32, f32, u8);
+void effectWaterUpdateMeshes(f32, f32, f32, u8);
 void actorCalculateTargetDistancesAndAngles(f32, f32, f32);
 void mapChunksApplyLights(f32, f32, f32);
 extern u8 D_807F5E20[];
@@ -1299,23 +1299,23 @@ extern f32 D_807F5FB0;
 extern u8 D_807F6C08;
 
 void mapChunkFrameUpdate(f32 arg0, f32 arg1, f32 arg2) {
-    D_807FC924[D_807FC929].unk290 = mapChunkFindByPosition(arg0, arg1, arg2, D_807FC924[D_807FC929].unk290);
+    gPlayerSlots[gCurrentPlayerIndex].unk290 = mapChunkFindByPosition(arg0, arg1, arg2, gPlayerSlots[gCurrentPlayerIndex].unk290);
     if (D_807F70AB != 0) {
-        D_807FC924[D_807FC929].unk290 = *(s16 *)((u8 *)D_807FC924[D_807FC929].unk4 + 0x12C);
+        gPlayerSlots[gCurrentPlayerIndex].unk290 = *(s16 *)((u8 *)gPlayerSlots[gCurrentPlayerIndex].unk4 + 0x12C);
     }
-    mapUpdateFogDistance(&D_807FC924[D_807FC929].unk288, D_807FC924[D_807FC929].unk290);
-    D_807F7138 = (s16)(s32)D_807FC924[D_807FC929].unk288;
+    mapUpdateFogDistance(&gPlayerSlots[gCurrentPlayerIndex].unk288, gPlayerSlots[gCurrentPlayerIndex].unk290);
+    D_807F7138 = (s16)(s32)gPlayerSlots[gCurrentPlayerIndex].unk288;
     func_8062A944(D_807F5FB4, D_807F5FB0, (f32)D_807F7138);
-    frustumCornersTransformByInverse((Mtx *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + (D_807444FC << 6) + 8));
+    frustumCornersTransformByInverse((Mtx *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + (D_807444FC << 6) + 8));
     frustumOrientPolyNormals(arg0, arg1, arg2, &D_807F5E68, &D_807F5E20);
     mapChunkClearBounds();
-    mapChunkActivate(D_807FC924[D_807FC929].unk290);
+    mapChunkActivate(gPlayerSlots[gCurrentPlayerIndex].unk290);
     mapTriggerCollectZonesAtPoint(arg0, arg1, arg2);
     D_807F6C80 = 0;
     D_807F6C08 = 0;
-    mapChunkTraversePortals(D_807FC924[D_807FC929].unk290, 0, D_807FC924[D_807FC929].unk270, D_807FC924[D_807FC929].unk272, D_807FC924[D_807FC929].unk274, D_807FC924[D_807FC929].unk276, arg0, arg1, arg2);
+    mapChunkTraversePortals(gPlayerSlots[gCurrentPlayerIndex].unk290, 0, gPlayerSlots[gCurrentPlayerIndex].unk270, gPlayerSlots[gCurrentPlayerIndex].unk272, gPlayerSlots[gCurrentPlayerIndex].unk274, gPlayerSlots[gCurrentPlayerIndex].unk276, arg0, arg1, arg2);
     mapChunkRenderNodes(arg0, arg1, arg2);
-    func_8065F678(arg0, arg1, arg2, D_807FC929);
+    effectWaterUpdateMeshes(arg0, arg1, arg2, gCurrentPlayerIndex);
     actorCalculateTargetDistancesAndAngles(arg0, arg1, arg2);
     mapChunksApplyLights(arg0, arg1, arg2);
 }
@@ -1373,11 +1373,11 @@ assetFreeBuffer((void *)*(u32 *)(arg0 + 4), 0x542, 0x22); *(u32 *)(arg0 + 4) = s
 }
 
 void mapChunkSetFlagBit3(s16 arg0) {
-    D_807F6C18[arg0].unk7 |= 8;
+    gMapChunks[arg0].unk7 |= 8;
 }
 
 extern u32 D_807FBB68;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 s16 mapObjectCollectIdsByType();
 
 void mapChunkUpdateAssetStreaming(void) {
@@ -1389,32 +1389,32 @@ void mapChunkUpdateAssetStreaming(void) {
     s16 n;
 
     if (!(D_807FBB68 & 0x100)) {
-        for (i = 0; i < D_807F6C28; i++) {
+        for (i = 0; i < gMapChunkCount; i++) {
             flags[i] = 0;
         }
-        for (i = 0; i < D_807F6C28; i++) {
-            if (D_807F6C18[i].unk1 != 0) {
+        for (i = 0; i < gMapChunkCount; i++) {
+            if (gMapChunks[i].unk1 != 0) {
                 flags[i] = 1;
-                D_807F6C18[i].unk28 = D_8076A064;
-                if (!(D_807F6C18[i].unk7 & 4)) {
-                    D_807F6C18[i].unk8 = (s32)mapChunkLoadAssetRefs((u8 *)D_807F6C18[i].unk8, (u8 *)D_807F6C18[i].unk10, 0x270F);
-                    D_807F6C18[i].unk7 |= 4;
-                    D_807F6C18[i].unk7 &= 0xFFFC;
+                gMapChunks[i].unk28 = gFrameCounter;
+                if (!(gMapChunks[i].unk7 & 4)) {
+                    gMapChunks[i].unk8 = (s32)mapChunkLoadAssetRefs((u8 *)gMapChunks[i].unk8, (u8 *)gMapChunks[i].unk10, 0x270F);
+                    gMapChunks[i].unk7 |= 4;
+                    gMapChunks[i].unk7 &= 0xFFFC;
                 }
                 n = mapObjectCollectIdsByType((s8)i, buf, 0x10);
                 for (j = 0; j < n; j++) {
                     idx = buf[j];
                     if (flags[idx] == 0) {
-                        if (D_807F6C18[idx].unk1 == 0) {
-                            if (!(D_807F6C18[idx].unk7 & 4)) {
-                                D_807F6C18[idx].unk8 = (s32)mapChunkLoadAssetRefs((u8 *)D_807F6C18[idx].unk8, (u8 *)D_807F6C18[idx].unk10, 5);
-                                if (D_807F6C18[idx].unk8 == D_807F6C18[idx].unk10) {
-                                    D_807F6C18[idx].unk7 &= 0xFFFD;
-                                    D_807F6C18[idx].unk7 |= 4;
+                        if (gMapChunks[idx].unk1 == 0) {
+                            if (!(gMapChunks[idx].unk7 & 4)) {
+                                gMapChunks[idx].unk8 = (s32)mapChunkLoadAssetRefs((u8 *)gMapChunks[idx].unk8, (u8 *)gMapChunks[idx].unk10, 5);
+                                if (gMapChunks[idx].unk8 == gMapChunks[idx].unk10) {
+                                    gMapChunks[idx].unk7 &= 0xFFFD;
+                                    gMapChunks[idx].unk7 |= 4;
                                 } else {
-                                    D_807F6C18[idx].unk7 |= 2;
+                                    gMapChunks[idx].unk7 |= 2;
                                 }
-                                D_807F6C18[idx].unk7 &= 0xFFFE;
+                                gMapChunks[idx].unk7 &= 0xFFFE;
                             }
                             flags[idx] = 1;
                         }
@@ -1422,27 +1422,27 @@ void mapChunkUpdateAssetStreaming(void) {
                 }
             }
         }
-        for (i = 0; i < D_807F6C28; i++) {
+        for (i = 0; i < gMapChunkCount; i++) {
             if (flags[i] == 0) {
-                if (D_807F6C18[i].unk7 & 8) {
-                    if (!(D_807F6C18[i].unk7 & 4)) {
-                        D_807F6C18[i].unk8 = (s32)mapChunkLoadAssetRefs((u8 *)D_807F6C18[i].unk8, (u8 *)D_807F6C18[i].unk10, 5);
-                        if (D_807F6C18[i].unk8 == D_807F6C18[i].unk10) {
-                            D_807F6C18[i].unk7 &= 0xFFFD;
-                            D_807F6C18[i].unk7 |= 4;
+                if (gMapChunks[i].unk7 & 8) {
+                    if (!(gMapChunks[i].unk7 & 4)) {
+                        gMapChunks[i].unk8 = (s32)mapChunkLoadAssetRefs((u8 *)gMapChunks[i].unk8, (u8 *)gMapChunks[i].unk10, 5);
+                        if (gMapChunks[i].unk8 == gMapChunks[i].unk10) {
+                            gMapChunks[i].unk7 &= 0xFFFD;
+                            gMapChunks[i].unk7 |= 4;
                         } else {
-                            D_807F6C18[i].unk7 |= 2;
+                            gMapChunks[i].unk7 |= 2;
                         }
-                        D_807F6C18[i].unk7 &= 0xFFFE;
+                        gMapChunks[i].unk7 &= 0xFFFE;
                     }
-                } else if (!(D_807F6C18[i].unk7 & 1) && (u32)(D_8076A064 - D_807F6C18[i].unk28) >= 3U) {
-                    mapChunkReleaseAssets((u8 *)D_807F6C18[i].unkC, (u8 *)D_807F6C18[i].unk8);
-                    D_807F6C18[i].unk8 = D_807F6C18[i].unkC;
-                    D_807F6C18[i].unk7 |= 1;
-                    D_807F6C18[i].unk7 &= ~6;
+                } else if (!(gMapChunks[i].unk7 & 1) && (u32)(gFrameCounter - gMapChunks[i].unk28) >= 3U) {
+                    mapChunkReleaseAssets((u8 *)gMapChunks[i].unkC, (u8 *)gMapChunks[i].unk8);
+                    gMapChunks[i].unk8 = gMapChunks[i].unkC;
+                    gMapChunks[i].unk7 |= 1;
+                    gMapChunks[i].unk7 &= ~6;
                 }
             }
-            D_807F6C18[i].unk7 &= ~8;
+            gMapChunks[i].unk7 &= ~8;
         }
     }
 }
@@ -1479,14 +1479,14 @@ void mapChunkBuildClipFrusta(f32 arg0, f32 arg1, f32 arg2) {
     u8 sp84[0x30];
 
     func_8062A944(D_807F5FB4, D_807F5FB0, D_807F5FAC);
-    guMtxL2F(spF8, (Mtx *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0 + (D_807444FC << 6) + 8));
+    guMtxL2F(spF8, (Mtx *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + (D_807444FC << 6) + 8));
     matrix4Invert(spB8, spF8);
-    for (i = 0; i < D_807F6C28; i++) {
-        if (D_807F6C18[i].unk0 == 1) {
-            mapScreenRectBuildFrustum(D_807F6C18[i].unk68, D_807F6C18[i].unk6C, D_807F6C18[i].unk70, D_807F6C18[i].unk74,
-                          arg0, arg1, arg2, D_807FC929, spB8, &D_807F6C18[i].pad88, sp84);
+    for (i = 0; i < gMapChunkCount; i++) {
+        if (gMapChunks[i].unk0 == 1) {
+            mapScreenRectBuildFrustum(gMapChunks[i].unk68, gMapChunks[i].unk6C, gMapChunks[i].unk70, gMapChunks[i].unk74,
+                          arg0, arg1, arg2, gCurrentPlayerIndex, spB8, &gMapChunks[i].pad88, sp84);
             if (i == D_807482F4) {
-                memcpy(D_807F7148, &D_807F6C18[i].pad88, 0x140);
+                memcpy(D_807F7148, &gMapChunks[i].pad88, 0x140);
             }
         }
     }
@@ -1520,7 +1520,7 @@ void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4,
     s32 i;
     MapPlayer *p;
 
-    p = (MapPlayer *)((u8 *)D_807FC924 + arg7 * 0x2F0);
+    p = (MapPlayer *)((u8 *)gPlayerSlots + arg7 * 0x2F0);
     q = ((f32)(arg0 - p->unk270)) / (f32)p->unk278;
     a = (q * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
     q = ((f32)(arg2 - p->unk270)) / (f32)p->unk278;
@@ -1786,12 +1786,12 @@ void mapCellUpdateVisibility(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
     if (D_807F70AC > 0) {
         off = 0; do { // FAKE: scheduling (joins the loop preheader store)
             if (arg3 == ((MapCell *)((u8 *)D_807F70B0 + off))->unk4) {
-                if (D_807F6C18[((MapCell *)((u8 *)D_807F70B0 + off))->unk0].unk0 == 1) {
+                if (gMapChunks[((MapCell *)((u8 *)D_807F70B0 + off))->unk0].unk0 == 1) {
                     idx = ((MapCell *)((u8 *)D_807F70B0 + off))->unk2;
                     if (mapBspBoxInFrustum(D_807F70B4[idx].unk0, D_807F70B4[idx].unk2, D_807F70B4[idx].unk4,
                                       D_807F70B4[idx].unk6, D_807F70B4[idx].unk8, D_807F70B4[idx].unkA,
                                       arg0, arg1, arg2, D_807F5FAC,
-                                      (u8 *)&D_807F6C18[((MapCell *)((u8 *)D_807F70B0 + off))->unk0] + 0x88) != 0) {
+                                      (u8 *)&gMapChunks[((MapCell *)((u8 *)D_807F70B0 + off))->unk0] + 0x88) != 0) {
                         ((MapCell *)((u8 *)D_807F70B0 + off))->unk18 = 1;
                         ((MapCell *)((u8 *)D_807F70B0 + off))->unk19 = 1;
                     }
@@ -1851,14 +1851,14 @@ s32 lightCollectVolumesInBounds(f32, f32, f32, s16, s16, s16, s16, s16, s16, s32
 void *matrixCacheLookup(s32, s32, s16, u8);
 void *matrixCacheInsert(s32, s32, s16, u8, s32, u8);
 void func_8065C990(void *, void *, s32, void *, s32, s32);
-void func_8065FB64(f32, f32, f32);
+void effectWaterApplyLights(f32, f32, f32);
 extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
 extern s32 D_807FBB60;
 extern u8 D_807F78C0;
 
-#define MAP_CHUNK_LIGHT ((MapChunkLightView *)D_807F6C18)
+#define MAP_CHUNK_LIGHT ((MapChunkLightView *)gMapChunks)
 #define MAP_CELL_VIEW ((MapCellView *)D_807F70B0)
 void mapChunksApplyLights(f32 arg0, f32 arg1, f32 arg2) {
     s32 i;
@@ -1880,7 +1880,7 @@ void mapChunksApplyLights(f32 arg0, f32 arg1, f32 arg2) {
     flag = 0;
     matrixCacheResetStats();
     lightClearActiveCount();
-    for (i = 0; i < D_807F6C28; i++) {
+    for (i = 0; i < gMapChunkCount; i++) {
         if ((MAP_CHUNK_LIGHT[i].unk3 != 0) && (MAP_CHUNK_LIGHT[i].unk0 == 1) && (MAP_CHUNK_LIGHT[i].unk4 == 0)) {
             MAP_CHUNK_LIGHT[i].unk4 = 1;
             if (MAP_CHUNK_LIGHT[i].unk5 == 2) {
@@ -1939,7 +1939,7 @@ void mapChunksApplyLights(f32 arg0, f32 arg1, f32 arg2) {
             MAP_CHUNK_LIGHT[i].unk58 = MAP_CHUNK_LIGHT[i].unk60[D_807444FC];
         }
     }
-    func_8065FB64(arg0, arg1, arg2);
+    effectWaterApplyLights(arg0, arg1, arg2);
 }
 #undef MAP_CHUNK_LIGHT
 #undef MAP_CELL_VIEW
@@ -1976,12 +1976,12 @@ void mapChunkFreeIdleBuffers(void) {
     }
     i = 0;
     off = 0;
-    while (i < D_807F6C28) {
-        eff = (MapChunkDraw *)((u8 *)D_807F6C18 + off);
+    while (i < gMapChunkCount) {
+        eff = (MapChunkDraw *)((u8 *)gMapChunks + off);
         if (eff->unk3 != 0 && eff->unk5 != 2 && eff->unk4 == 0) {
-            if (((MapChunkDraw *)D_807F6C18)[i].unk60[D_807444FC] != NULL) {
-                heapFree(((MapChunkDraw *)D_807F6C18)[i].unk60[D_807444FC]);
-                ((MapChunkDraw *)D_807F6C18)[i].unk60[D_807444FC] = NULL;
+            if (((MapChunkDraw *)gMapChunks)[i].unk60[D_807444FC] != NULL) {
+                heapFree(((MapChunkDraw *)gMapChunks)[i].unk60[D_807444FC]);
+                ((MapChunkDraw *)gMapChunks)[i].unk60[D_807444FC] = NULL;
             }
         }
         i++;
@@ -1994,7 +1994,7 @@ void mapChunkReleaseAndAdvance(void) {
     MapNode *node;
 
     if (!mapChunkIsVisible(D_807F70AA)) {
-        eff = &((MapChunkDraw *)D_807F6C18)[D_807F70AA];
+        eff = &((MapChunkDraw *)gMapChunks)[D_807F70AA];
         node = eff->unk14;
         if (node) {
             do {
@@ -2002,7 +2002,7 @@ void mapChunkReleaseAndAdvance(void) {
                 modelSlotFreeAssetTextures(node->unk0, node->unk24);
                 node = node->unk14;
             } while (node);
-            eff = &((MapChunkDraw *)D_807F6C18)[D_807F70AA];
+            eff = &((MapChunkDraw *)gMapChunks)[D_807F70AA];
         }
         node = eff->unk1C;
         if (node) {
@@ -2014,7 +2014,7 @@ void mapChunkReleaseAndAdvance(void) {
         }
     }
     D_807F70AA++;
-    if (D_807F6C28 == D_807F70AA) {
+    if (gMapChunkCount == D_807F70AA) {
         D_807F70AA = 0;
     }
 }
@@ -2085,7 +2085,7 @@ typedef struct {
     /* 0x280 */ u8 pad280[0x2F0 - 0x280];
 } MapPlayerFog;
 
-#define MAP_CHUNK_TILE_AT(i) (((MapChunkTile *)D_807F6C18)[(i)])
+#define MAP_CHUNK_TILE_AT(i) (((MapChunkTile *)gMapChunks)[(i)])
 
 extern u8 D_807F5FEC;
 extern void *D_807F5DEC;
@@ -2101,7 +2101,7 @@ Gfx *mapChunkEmitSegmentCommands(Gfx *, u8);
 void mapChunkAnimateTextures(u8);
 s32 mapChunkEmitLayerDisplayLists();
 Gfx *spriteListRender(Gfx *, s32);
-Gfx *func_8065D994(Gfx *, s16);
+Gfx *billboardRenderQueued(Gfx *, s16);
 Gfx *renderEntryListBuildDisplayList(Gfx *, s32, s32, s32, f32, s32, s16, s32);
 Gfx *func_80027034(Gfx *);
 Gfx *effectWaterRenderSurfaces();
@@ -2116,7 +2116,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
     u8 flag;
 
     idx = 0;
-    flag = (D_807F5FEC != 0) && (((MapPlayerFog *)D_807FC924)[D_807FC929].unk27C == 45.0);
+    flag = (D_807F5FEC != 0) && (((MapPlayerFog *)gPlayerSlots)[gCurrentPlayerIndex].unk27C == 45.0);
     gDPPipeSync(gfx++);
     if (arg5 & 0x10) {
         gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -2171,7 +2171,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
             }
             gDPPipeSync(gfx++);
             if (!(D_807FBB64 & 0x01000000)) {
-                gfx = func_8065D994(gfx, idx);
+                gfx = billboardRenderQueued(gfx, idx);
             }
             gfx = spriteListRender(gfx, MAP_CHUNK_TILE_AT(idx).unk24);
             D_807F6009 = 0xFF;
@@ -2234,7 +2234,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
             }
             gfx = renderEntryListBuildDisplayList(gfx, dl, arg2, arg3, arg4, arg5, idx, flag);
             if (D_807FBB64 & 0x01000000) {
-                gfx = func_8065D994(gfx, idx);
+                gfx = billboardRenderQueued(gfx, idx);
             }
         }
     }
@@ -2247,11 +2247,11 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
         gDPPipeSync(gfx++);
     }
     gDPPipeSync(gfx++);
-    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, D_807FC924[D_807FC929].unk270, D_807FC924[D_807FC929].unk272, D_807FC924[D_807FC929].unk274, D_807FC924[D_807FC929].unk276);
-    mapSetClipBounds(D_807FC924[D_807FC929].unk270, D_807FC924[D_807FC929].unk272, D_807FC924[D_807FC929].unk274, D_807FC924[D_807FC929].unk276);
+    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, gPlayerSlots[gCurrentPlayerIndex].unk270, gPlayerSlots[gCurrentPlayerIndex].unk272, gPlayerSlots[gCurrentPlayerIndex].unk274, gPlayerSlots[gCurrentPlayerIndex].unk276);
+    mapSetClipBounds(gPlayerSlots[gCurrentPlayerIndex].unk270, gPlayerSlots[gCurrentPlayerIndex].unk272, gPlayerSlots[gCurrentPlayerIndex].unk274, gPlayerSlots[gCurrentPlayerIndex].unk276);
     D_807F600C = 0;
     gfx = renderEntryListBuildDisplayList(gfx, D_807F5FFC, arg2, arg3, arg4, arg5, -1, 0);
-    func_8065D994(gfx, -1);
+    billboardRenderQueued(gfx, -1);
 }
 
 typedef struct {
@@ -2292,30 +2292,30 @@ u8 arg2;
     gfx = (Gfx *)arg0;
     if (arg1 == 0.0f) {} // FAKE: rs
     WRITE_GFX(gfx++, 0xE7000000, 0);
-    if (((MapChunkEffect *)D_807F6C18)[arg1].unk5 != 2) {
+    if (((MapChunkEffect *)gMapChunks)[arg1].unk5 != 2) {
         switch (arg2) {
         case 0:
-            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)D_807F6C18)[arg1].unk2C));
+            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)gMapChunks)[arg1].unk2C));
             break;
         case 1:
-            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)D_807F6C18)[arg1].unk30));
+            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)gMapChunks)[arg1].unk30));
             break;
         case 2:
-            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)D_807F6C18)[arg1].unk34));
+            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)gMapChunks)[arg1].unk34));
             break;
         case 3:
-            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)D_807F6C18)[arg1].unk38));
+            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)gMapChunks)[arg1].unk38));
             break;
         }
     } else {
-        for (i = 0; i < ((MapChunkEffect *)D_807F6C18)[arg1].unk50; i++) {
-            if (((MapChunkEffectEntry *)((MapChunkEffect *)D_807F6C18)[arg1].unk4C)[i].unk4[arg2] == -1) {
+        for (i = 0; i < ((MapChunkEffect *)gMapChunks)[arg1].unk50; i++) {
+            if (((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk4[arg2] == -1) {
                 continue;
             }
             found = 0;
             node = D_807F70B0;
             do {
-                if (node->unk2 == ((MapChunkEffectEntry *)((MapChunkEffect *)D_807F6C18)[arg1].unk4C)[i].unk0) {
+                if (node->unk2 == ((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk0) {
                     found = 1;
                 } else {
                     node++;
@@ -2325,12 +2325,12 @@ u8 arg2;
             if (node->unk18 == 0) {
                 continue;
             }
-            if ((((MapChunkEffectEntry *)((MapChunkEffect *)D_807F6C18)[arg1].unk4C)[i].unk2 & (1 << arg2)) == 0) {
+            if ((((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk2 & (1 << arg2)) == 0) {
                 continue;
             }
-            WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)D_807F6C18)[arg1].unk4C)[i].unk14[arg2]));
+            WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk14[arg2]));
             { Gfx *_g = gfx; _g->words.w0 = (0xE7000000); _g->words.w1 = (u32)(0); gfx++; }
-            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)D_807F6C18)[arg1].unk4C)[i].unk4[arg2]));
+            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk4[arg2]));
             { Gfx *_g = gfx; _g->words.w0 = (0xE7000000); gfx++; _g->words.w1 = (u32)(0); }
         }
     }
@@ -2343,7 +2343,7 @@ u8 arg2;
 
 void mapChunkEffectSetFlag(s16 arg0, s16 arg1, u8 arg2, u8 arg3) {
     s32 i = 0;
-    MapChunkEffect *slot = (MapChunkEffect *)D_807F6C18 + arg0;
+    MapChunkEffect *slot = (MapChunkEffect *)gMapChunks + arg0;
 
     for (; i < slot->unk50; i++) {
         if (arg1 == ((MapChunkEffectEntry *)slot->unk4C)[i].unk0) {
@@ -2463,14 +2463,14 @@ void mapChunkTraversePortals(s16 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s
                             D_807F6C2C[i] = 1;
                             s1 = ((MapATpSlot *)((u8 *)D_807F6C1C + i * 0xA))->unk4;
                             if (D_807F7078[s1] != 0) {
-                                D_807F6C18[s1].unk0 = 1;
-                                D_807F6C18[s1].unk1 |= 1 << D_807FC929;
-                                mapRectIntersect(spB8, spB4, spB0, spAC, D_807F6C18[s1].unk68, D_807F6C18[s1].unk6C, D_807F6C18[s1].unk70, D_807F6C18[s1].unk74, &spA8, &spA4, &spA0, &sp9C);
-                                if (D_807F6C18 && D_807F6C18) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                                D_807F6C18[s1].unk68 = spA8;
-                                D_807F6C18[s1].unk6C = spA4;
-                                D_807F6C18[s1].unk70 = spA0;
-                                D_807F6C18[s1].unk74 = sp9C;
+                                gMapChunks[s1].unk0 = 1;
+                                gMapChunks[s1].unk1 |= 1 << gCurrentPlayerIndex;
+                                mapRectIntersect(spB8, spB4, spB0, spAC, gMapChunks[s1].unk68, gMapChunks[s1].unk6C, gMapChunks[s1].unk70, gMapChunks[s1].unk74, &spA8, &spA4, &spA0, &sp9C);
+                                if (gMapChunks && gMapChunks) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                                gMapChunks[s1].unk68 = spA8;
+                                gMapChunks[s1].unk6C = spA4;
+                                gMapChunks[s1].unk70 = spA0;
+                                gMapChunks[s1].unk74 = sp9C;
                                 D_807F6C30[arg1 * 2] = arg0;
                                 mapChunkTraversePortals(s1, arg1 + 1, spB8, spB4, spB0, spAC, arg6, arg7, arg8);
                             }
@@ -2559,11 +2559,11 @@ s32 mapGridPointEmit(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     f32 sp44;
     f32 sp40;
 
-    sp40 = (f32)D_807F6C24[arg0].unk10;
-    sp44 = (f32)D_807F6C24[arg0].unk8;
-    sp48 = (f32)D_807F6C24[arg0].unk0;
-    h = (f32)D_807F6C24[arg0].unk18;
-    x = (h + (sp48 * arg1 + sp44 * arg2 + sp40 * arg3)) / D_807F6C24[arg0].unk20;
+    sp40 = (f32)gMapGridTrianglePlanes[arg0].unk10;
+    sp44 = (f32)gMapGridTrianglePlanes[arg0].unk8;
+    sp48 = (f32)gMapGridTrianglePlanes[arg0].unk0;
+    h = (f32)gMapGridTrianglePlanes[arg0].unk18;
+    x = (h + (sp48 * arg1 + sp44 * arg2 + sp40 * arg3)) / gMapGridTrianglePlanes[arg0].unk20;
     if (x < 0.0) {
         x = 0.0 - x;
     }
@@ -2656,7 +2656,7 @@ s32 mapGridQuadContainsPoint(u8 *arg0) {
 void mapGridPointBuildVectors(s32 arg0, f32 arg1, f32 arg2, f32 arg3, MapGridQuad *arg4) {
     s32 k;
 
-    switch (D_807F6C24[arg0].unk28) {
+    switch (gMapGridTrianglePlanes[arg0].unk28) {
     case 0:
         arg4->unk20 = arg1;
         arg4->unk24 = arg2;
@@ -2690,14 +2690,14 @@ void mapGridPlaneProjectPoint(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4,
     f32 n0;
     f32 n8;
     f32 a;
-    a = (f32)(-D_807F6C24[arg0].unk18);
-    n8 = (f32)D_807F6C24[arg0].unk8;
-    n0 = (f32)D_807F6C24[arg0].unk0;
-    n10 = (f32)D_807F6C24[arg0].unk10;
-    t = (a - (n10 * arg3 + (n0 * arg1 + n8 * arg2))) / D_807F6C24[arg0].unk24;
-    *arg4 = (f32)D_807F6C24[arg0].unk0 * t + arg1;
-    *arg5 = (f32)D_807F6C24[arg0].unk8 * t + arg2;
-    *arg6 = (f32)D_807F6C24[arg0].unk10 * t + arg3;
+    a = (f32)(-gMapGridTrianglePlanes[arg0].unk18);
+    n8 = (f32)gMapGridTrianglePlanes[arg0].unk8;
+    n0 = (f32)gMapGridTrianglePlanes[arg0].unk0;
+    n10 = (f32)gMapGridTrianglePlanes[arg0].unk10;
+    t = (a - (n10 * arg3 + (n0 * arg1 + n8 * arg2))) / gMapGridTrianglePlanes[arg0].unk24;
+    *arg4 = (f32)gMapGridTrianglePlanes[arg0].unk0 * t + arg1;
+    *arg5 = (f32)gMapGridTrianglePlanes[arg0].unk8 * t + arg2;
+    *arg6 = (f32)gMapGridTrianglePlanes[arg0].unk10 * t + arg3;
 }
 
 void mapRectIntersect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7, s32 *arg8, s32 *arg9, s32 *arg10, s32 *arg11) {
@@ -2744,7 +2744,7 @@ s32 mapRectOverlapTest(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg
 s32 mapGridPointPlaneDistanceWithin(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4) {
     f32 v;
 
-    v = ((f32)D_807F6C24[arg0].unk18 + ((f32)D_807F6C24[arg0].unk0 * arg1 + (f32)D_807F6C24[arg0].unk8 * arg2 + (f32)D_807F6C24[arg0].unk10 * arg3)) / D_807F6C24[arg0].unk20;
+    v = ((f32)gMapGridTrianglePlanes[arg0].unk18 + ((f32)gMapGridTrianglePlanes[arg0].unk0 * arg1 + (f32)gMapGridTrianglePlanes[arg0].unk8 * arg2 + (f32)gMapGridTrianglePlanes[arg0].unk10 * arg3)) / gMapGridTrianglePlanes[arg0].unk20;
     if (v < 0.0) {
         v = 0.0 - v;
     }
@@ -2879,24 +2879,24 @@ void mapPolyProjectToScreenRect(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *
     s32 i;
     u8 flag;
 
-    *arg1 = D_807FC924[D_807FC929].unk274;
-    *arg2 = D_807FC924[D_807FC929].unk276;
-    *arg3 = D_807FC924[D_807FC929].unk270;
-    *arg4 = D_807FC924[D_807FC929].unk272;
+    *arg1 = gPlayerSlots[gCurrentPlayerIndex].unk274;
+    *arg2 = gPlayerSlots[gCurrentPlayerIndex].unk276;
+    *arg3 = gPlayerSlots[gCurrentPlayerIndex].unk270;
+    *arg4 = gPlayerSlots[gCurrentPlayerIndex].unk272;
     flag = 0;
     for (i = 0; i < arg0; i++) {
-        flag |= camProjectToScreen(((MapPolyVertex *)D_807F6D78)[i].unk0, ((MapPolyVertex *)D_807F6D78)[i].unk4, ((MapPolyVertex *)D_807F6D78)[i].unk8, &sp7C, &sp78, 0, 1.0f, D_807FC929); x = (s16)sp7C; y = (s16)sp78; // FAKE: same-line statements steer sra scheduling
-        if (x < D_807FC924[D_807FC929].unk270) {
-            x = D_807FC924[D_807FC929].unk270;
+        flag |= camProjectToScreen(((MapPolyVertex *)D_807F6D78)[i].unk0, ((MapPolyVertex *)D_807F6D78)[i].unk4, ((MapPolyVertex *)D_807F6D78)[i].unk8, &sp7C, &sp78, 0, 1.0f, gCurrentPlayerIndex); x = (s16)sp7C; y = (s16)sp78; // FAKE: same-line statements steer sra scheduling
+        if (x < gPlayerSlots[gCurrentPlayerIndex].unk270) {
+            x = gPlayerSlots[gCurrentPlayerIndex].unk270;
         }
-        if (y < D_807FC924[D_807FC929].unk272) {
-            y = D_807FC924[D_807FC929].unk272;
+        if (y < gPlayerSlots[gCurrentPlayerIndex].unk272) {
+            y = gPlayerSlots[gCurrentPlayerIndex].unk272;
         }
-        if (D_807FC924[D_807FC929].unk274 < x) {
-            x = D_807FC924[D_807FC929].unk274;
+        if (gPlayerSlots[gCurrentPlayerIndex].unk274 < x) {
+            x = gPlayerSlots[gCurrentPlayerIndex].unk274;
         }
-        if (D_807FC924[D_807FC929].unk276 < y) {
-            y = D_807FC924[D_807FC929].unk276;
+        if (gPlayerSlots[gCurrentPlayerIndex].unk276 < y) {
+            y = gPlayerSlots[gCurrentPlayerIndex].unk276;
         }
         if (x < *arg1) {
             *arg1 = x;
@@ -3058,7 +3058,7 @@ void mapSearchTableReset(void) {
 }
 
 extern s32 D_807F7290;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 
 void mapSearchTableAddProbe();
 
@@ -3084,7 +3084,7 @@ s16 arg3;
     if (found) {
         p = &((MapSearchEntry *)&D_807F7290)[i];
         p->unk10 = 1;
-        p->unkC = D_8076A064;
+        p->unkC = gFrameCounter;
         p->unk0 = arg0;
         p->unk4 = arg1;
         p->unk6 = arg2;
@@ -3101,7 +3101,7 @@ void mapSearchTableUpdateVisibility(void) {
 
     for (i = 0; i < 10; i++) {
         if (((MapSearchEntry *)&D_807F7290)[i].unk10 != 0) {
-            if (D_8076A064 == ((MapSearchEntry *)&D_807F7290)[i].unkC) {
+            if (gFrameCounter == ((MapSearchEntry *)&D_807F7290)[i].unkC) {
                 if ((f32)zbufferDepthToDistance((s16)zbufferReadDepth(((MapSearchEntry *)&D_807F7290)[i].unk4, ((MapSearchEntry *)&D_807F7290)[i].unk6)) <= (f32)((MapSearchEntry *)&D_807F7290)[i].unk8) {
                     ((MapSearchEntry *)&D_807F7290)[i].unk11 = 1;
                 } else {
@@ -3109,7 +3109,7 @@ void mapSearchTableUpdateVisibility(void) {
                 }
             }
         }
-        if ((u32)(D_8076A064 - ((MapSearchEntry *)&D_807F7290)[i].unkC) >= 3) {
+        if ((u32)(gFrameCounter - ((MapSearchEntry *)&D_807F7290)[i].unkC) >= 3) {
             ((MapSearchEntry *)&D_807F7290)[i].unk10 = 0;
         }
     }
@@ -3163,12 +3163,12 @@ s32 mapPointOutsideClipBounds(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4) {
     f32 d;
     f32 t;
 
-    camProjectToScreen(arg0, arg1, arg2, &sp44, &sp40, 0, 1.0f, D_807FC929);
+    camProjectToScreen(arg0, arg1, arg2, &sp44, &sp40, 0, 1.0f, gCurrentPlayerIndex);
     x = (s16)sp44;
     z = (s16)sp40;
-    d = sqrtf((((f32)arg2 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk224) * (arg2 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk224))
-            + (((arg0 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk21C) * (arg0 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk21C))
-            + ((arg1 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk220) * (arg1 - ((MapPlayerPosition *)&D_807FC924[D_807FC929])->unk220))));  // FAKE: (f32)arg2 cast shifts the t5-t7 temp rotation
+    d = sqrtf((((f32)arg2 - ((MapPlayerPosition *)&gPlayerSlots[gCurrentPlayerIndex])->unk224) * (arg2 - ((MapPlayerPosition *)&gPlayerSlots[gCurrentPlayerIndex])->unk224))
+            + (((arg0 - ((MapPlayerPosition *)&gPlayerSlots[gCurrentPlayerIndex])->unk21C) * (arg0 - ((MapPlayerPosition *)&gPlayerSlots[gCurrentPlayerIndex])->unk21C))
+            + ((arg1 - ((MapPlayerPosition *)&gPlayerSlots[gCurrentPlayerIndex])->unk220) * (arg1 - ((MapPlayerPosition *)&gPlayerSlots[gCurrentPlayerIndex])->unk220))));  // FAKE: (f32)arg2 cast shifts the t5-t7 temp rotation
     if (d < 90.0f) {
         return 0;
     }

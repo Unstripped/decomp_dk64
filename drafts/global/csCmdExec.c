@@ -44,7 +44,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         D_807F693C = 0x80;
         break;
     case 0x92:
-        ((CsCamState *)D_807FC924->unk4->unk174)->unk1F0 |= 0x40000800;
+        ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F0 |= 0x40000800;
         break;
     case 0x91:
         D_807FBB4C->unkB8 = cmd->a;
@@ -123,7 +123,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x78:
         modelSlotGetNodePos(csId, 1, cmd->a, &px, &py, &pz);
-        cam = D_807FC924->unk4->unk174;
+        cam = gPlayerSlots->unk4->unk174;
         cam->unk22C = px;
         cam->unk230 = py;
         cam->unk234 = pz;
@@ -186,16 +186,16 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         actorSetTargetSlotByte(csId, CMDB(cmd)->a);
         break;
     case 0x5F:
-        ((CsCamState *)D_807FC924->unk4->unk174)->unk1F0 |= (cmd->a << 16) + cmd->b;
+        ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F0 |= (cmd->a << 16) + cmd->b;
         break;
     case 0x3B:
-        ((CsCamState *)D_807FC924->unk4->unk174)->unk1F0 &= ~((cmd->a << 16) + cmd->b);
+        ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F0 &= ~((cmd->a << 16) + cmd->b);
         break;
     case 0x8C:
-        ((CsCamState *)D_807FC924->unk4->unk174)->unk1F4 |= (cmd->a << 16) + cmd->b;
+        ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F4 |= (cmd->a << 16) + cmd->b;
         break;
     case 0x8B:
-        ((CsCamState *)D_807FC924->unk4->unk174)->unk1F4 &= ~((cmd->a << 16) + cmd->b);
+        ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F4 &= ~((cmd->a << 16) + cmd->b);
         break;
     case 0x5D:
         func_805FF158(CMDB(cmd)->a);
@@ -324,7 +324,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         func_805FF378(cmd->a, 0);
         break;
     case 0x86:
-        func_806CF398(D_807FBB48);
+        playerThrowHeldActor(D_807FBB48);
         func_805FF9AC(0x2A, 0, cmd->a, 2);
         break;
     case 0x87:
@@ -332,9 +332,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x8D:
         D_80744824 = 2;
-        func_806CF398(D_807FBB48);
-        slot = func_805FF030(D_8076A0A8, 0);
-        if (func_805FEF74(D_8076A0A8) != 0) {
+        playerThrowHeldActor(D_807FBB48);
+        slot = func_805FF030(gCurrentMap, 0);
+        if (func_805FEF74(gCurrentMap) != 0) {
             map = D_8074809C[slot];
             exit = D_807480AC[slot];
             if (map && map) {}
@@ -561,14 +561,14 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         gCsCmdTable[cmd->a](cs, csId, cmd->b, cmd->c);
         break;
     case 0x37:
-        actorAppendCallback(D_807FC924->unk4, 0, 0x400000, CMDB(cmd)->a, 0, 0);
+        actorAppendCallback(gPlayerSlots->unk4, 0, 0x400000, CMDB(cmd)->a, 0, 0);
         break;
     case 0x19:
         playerStateQueueCallback(cmd->a, 0, 0);
         break;
     case 0x2C:
         modelSlotGetNodePos(csId, 1, cmd->a, &cx, &cy, &cz);
-        func_8067A9F0(0, D_807FC924->unk4, cx, cy, cz);
+        func_8067A9F0(0, gPlayerSlots->unk4, cx, cy, cz);
         break;
     case 0x2B:
         func_80636014(csId, 1, CMDB(cmd)->a);
@@ -628,7 +628,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         modelSlotSetNodeScrollSpeed(csId, cmd->a, cmd->b, cmd->c);
         break;
     case 0x29:
-        cam = D_807FC924->unk4->unk174;
+        cam = gPlayerSlots->unk4->unk174;
         camStartShakeFromPoint(cam->unk104, CMDB(cmd)->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, D_807F6906, D_807F6908);
         break;
     case 0x44:
@@ -670,7 +670,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x49:
-        func_8067ABC0(0, D_807FC924->unk4, CMDB(cmd)->a, cmd->b, cmd->c, gCsPosX, gCsPosY, gCsPosZ);
+        func_8067ABC0(0, gPlayerSlots->unk4, CMDB(cmd)->a, cmd->b, cmd->c, gCsPosX, gCsPosY, gCsPosZ);
         break;
     case 0x4D:
         idx = modelSlotAppend(cmd->a, D_807F690C, D_807F6910, D_807F6914, D_807F6910 - D_807F6218, 0);

@@ -207,9 +207,9 @@ typedef struct {
 
 extern ActorTiltTableEntry D_80748D40[];
 extern ActorTiltTableEntry D_80748DA4;
-extern CameraStateView *D_807FD580;
+extern CameraStateView *gActivePlayerState;
 extern Actor *D_807FBB40;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 
 
 
@@ -217,7 +217,7 @@ extern s32 D_8076A0A8;
 
 void collisionQueryActorFloor(Actor *, u8 *, f32 *, u8 *, void *, s32);
 void func_806D09E8(Actor *);
-s32 func_806CC10C(s16, s16);
+s32 mathAngleSignedDistance(s16, s16);
 void actorUpdateFloorContactAndTilt(ActorFloorContactView *arg0, f32 arg1) {
     f32 sp5C;
     u8 sp5B;
@@ -241,7 +241,7 @@ void actorUpdateFloorContactAndTilt(ActorFloorContactView *arg0, f32 arg1) {
     arg0->unk6A &= ~1;
     arg0->unkB4 = temp_fv0 - arg1;
     if ((temp_fv0 <= arg1) || ((arg0->unk6C & 1) && (arg0->unkC0 < 0.0f))) {
-        if ((D_807FBB40->unk6A & 0x200) || ((u32)D_8076A0A8 == 0x27) || ((u32)D_8076A0A8 == 0x6F) || ((u32)D_8076A0A8 == 0xB9)) {
+        if ((D_807FBB40->unk6A & 0x200) || ((u32)gCurrentMap == 0x27) || ((u32)gCurrentMap == 0x6F) || ((u32)gCurrentMap == 0xB9)) {
             if ((f64)arg0->unkB4 < 0.5) {
                 if (arg0->unk4 != NULL) {
                     var_fv1 = arg0->unk4->unk38;
@@ -275,9 +275,9 @@ void actorUpdateFloorContactAndTilt(ActorFloorContactView *arg0, f32 arg1) {
     var_t0 = (arg0->unk6A & 1) ? arg0->unkDA : 0x400;
     var_a1 = arg0->unkD8;
     var_t1 = &D_80748D40[arg0->unkD1];
-    switch ((u32)D_8076A0A8) {
+    switch ((u32)gCurrentMap) {
     case 0x52:
-        D_807FD580->unk26 = 0x14;
+        gActivePlayerState->unk26 = 0x14;
         /* fallthrough */
     case 0xE:
         if (arg0->unk6A & 0x200) {
@@ -295,13 +295,13 @@ void actorUpdateFloorContactAndTilt(ActorFloorContactView *arg0, f32 arg1) {
     if (var_a2 < var_t0) {
         var_a2 = var_t0;
     }
-    diff = tmpd = func_806CC10C(arg0->unkDC, var_a1);
+    diff = tmpd = mathAngleSignedDistance(arg0->unkDC, var_a1);
     if (((tmpd > 0) ? tmpd : -tmpd) >= 0x6AB) {
         if (arg0->unkDE >= 0x3C8) {
             arg0->unkDE = 0x400;
             arg0->unkDC = var_a1;
         } else {
-            diff = (f32)func_806CC10C(arg0->unkDE, 0x400) * var_fv0;  // FAKE: s16 diff as the float-to-s16 temp (steers t-register order)
+            diff = (f32)mathAngleSignedDistance(arg0->unkDE, 0x400) * var_fv0;  // FAKE: s16 diff as the float-to-s16 temp (steers t-register order)
             arg0->unkDE += diff;
             arg0->unkDE &= 0xFFF;
         }
@@ -309,7 +309,7 @@ void actorUpdateFloorContactAndTilt(ActorFloorContactView *arg0, f32 arg1) {
         diff = (f32)diff * var_fv0;  // FAKE: s16 diff as the float-to-s16 temp (steers t-register order)
         arg0->unkDC += diff;
         arg0->unkDC &= 0xFFF;
-        diff = (f32)func_806CC10C(arg0->unkDE, var_a2) * var_fv0;  // FAKE: s16 diff as the float-to-s16 temp (steers t-register order)
+        diff = (f32)mathAngleSignedDistance(arg0->unkDE, var_a2) * var_fv0;  // FAKE: s16 diff as the float-to-s16 temp (steers t-register order)
         arg0->unkDE += diff;
         arg0->unkDE &= 0xFFF;
     }
@@ -459,7 +459,7 @@ void actorSub140CreateFromModel(ActorTransformWork *arg0) {
 
 void renderEntryAddOrUpdate(s32, s32, Actor *, f32, f32, f32, s32, s32, s32, s32, s32);
 void actorSub140SetVectors(Actor *, f32, f32, f32, f32);
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 
 void actorUpdatePositionAndSub140(Actor *arg0) {
     f32 x;
@@ -480,6 +480,6 @@ void actorUpdatePositionAndSub140(Actor *arg0) {
             scale = 0.15f;
         }
         actorSub140SetVectors(arg0, x, y, z, scale);
-        arg0->unk140->unk80 = D_8076A064;
+        arg0->unk140->unk80 = gFrameCounter;
     }
 }

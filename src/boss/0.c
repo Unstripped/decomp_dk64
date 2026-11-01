@@ -99,7 +99,7 @@ typedef struct BossA_Struct_807FBB40 {
     s16 unk146;
 } BossA_Struct_807FBB40;
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern BossA_Struct_807FBB40 *D_807FBB40;
 extern u8 D_800358D8[5];
 extern BossA_Struct_8002413C_Template D_800358E0[][5];
@@ -120,7 +120,7 @@ void func_8002413C(void) {
     BossA_Struct_8002413C_3 *a1;
     BossA_Struct_8002413C_Template *t;
 
-    if (D_8076A0A8 == 8) {
+    if (gCurrentMap == 8) {
         mode = 0;
     } else {
         mode = 1;
@@ -442,7 +442,7 @@ extern BossA_Struct_80024EAC_DC90 *D_807FDC90;
 extern BossA_Struct_80024EAC_DC94 *D_807FDC94;
 
 void scriptSetActorRampTarget(void *, f32, f32);
-s32 func_806CC10C(s16, s16);
+s32 mathAngleSignedDistance(s16, s16);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 
 void func_80024EAC(void) {
@@ -450,9 +450,9 @@ void func_80024EAC(void) {
     u16 sp2A;
 
     sp2A = D_807FBB40->sub->unk64;
-    func_806CC10C(D_807FDC90->unk8, D_807FBB40->unkE6);
+    mathAngleSignedDistance(D_807FDC90->unk8, D_807FBB40->unkE6);
     actorMoveWithinZone(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x16, 0.0f);
-    res = func_806CC10C(D_807FDC90->unk8, D_807FBB40->unkE6);
+    res = mathAngleSignedDistance(D_807FDC90->unk8, D_807FBB40->unkE6);
     if (res > 0) {
         if (sp2A != 0x260) {
             actorScriptStart(D_807FBB40, 0x260);
@@ -711,7 +711,7 @@ extern u8 D_807444EC;
 extern s8 D_80750190;
 extern s16 D_807502D8;
 extern f32 D_807502F4;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern s16 D_80770628[];
 extern s16 D_80770710[];
 extern s32 gCamActor;
@@ -733,7 +733,7 @@ void camSetSecondTarget();
 s32 currentActorTestClearFlag();
 void currentActorClearFlag();
 void actorUpdateModelMatrix();
-void screenShakeStart(f32, f32, f32, f32, f32, f32);
+void waterRippleStart(f32, f32, f32, f32, f32, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void effectSpawnBoneDebris();
 void effectSpawnBoneWhite(void *, s16, f32, f32, f32, f32, s32);
@@ -770,7 +770,7 @@ void func_800254D0(void) {
 
     temp_s1 = D_807FBB40->unk178;
     sp78 = D_807FBB40->unk17C;
-    sp74 = D_800358B0[(D_8076A0A8 == 8) ? 0 : 1][temp_s1->unk14];
+    sp74 = D_800358B0[(gCurrentMap == 8) ? 0 : 1][temp_s1->unk14];
     sp6F = (temp_s1->unk12 & 1) ? 1 : 2;
     sp6E = 0;
     behaviourFrameBegin();
@@ -825,7 +825,7 @@ void func_800254D0(void) {
         actorScriptStart(D_807FBB40, 0x262);
         temp_s1->unk15 = 0;
         temp_s1->unk14++;
-        sp74 = D_800358B0[(D_8076A0A8 == 8) ? 0 : 1][temp_s1->unk14];
+        sp74 = D_800358B0[(gCurrentMap == 8) ? 0 : 1][temp_s1->unk14];
         camStartPath(D_807FBB40, 4, 1);
     }
     switch (D_807FBB40->unk154) {                     /* switch 1 */
@@ -848,7 +848,7 @@ void func_800254D0(void) {
             effectSpawnJointBeam(0xD, 0x11, 0x12, 0x16);
             break;
         case 2:                                     /* switch 2 */
-            if (!(D_8076A064 & 3)) {
+            if (!(gFrameCounter & 3)) {
                 func_8067E2E4(D_807FBB40, (((randomNonNegative() >> 15) % 32767 % 10) + 0xD) & 0xFF, 1.0f);
             }
             if (currentActorTestClearFlag() != 0) {
@@ -952,7 +952,7 @@ void func_800254D0(void) {
             D_807FBB40->unk155 = 1;
             /* fallthrough */
         case 1:                                     /* switch 4 */
-            if (!(D_8076A064 & 7)) {
+            if (!(gFrameCounter & 7)) {
                 effectSpawnJointBeam(0xD, 0x16, 0x17, 0x1C);
             }
             if (currentActorTestClearFlag() != 0) {
@@ -1021,7 +1021,7 @@ void func_800254D0(void) {
             break;
         case 2:                                     /* switch 5 */
             actorMoveWithinZone(0x45, 510.0f, 480.0f, 0x292, 0.0f);
-            if (D_8076A064 & 8) {
+            if (gFrameCounter & 8) {
                 func_800253AC();
                 sp6E = 1;
                 D_807FBB40->unkC0 = 100.0f;
@@ -1114,7 +1114,7 @@ void func_800254D0(void) {
             break;
         case 3:                                     /* switch 8 */
             if (D_807FBB40->unk154 == 0x11) {
-                screenShakeStart(D_807FBB40->unk7C, D_807FBB40->unk84, 20.0f, 2.0f, 8.0f, 400.0f);
+                waterRippleStart(D_807FBB40->unk7C, D_807FBB40->unk84, 20.0f, 2.0f, 8.0f, 400.0f);
             }
             camStartShake(gCamActor, 5, 0x14);
             break;
@@ -1127,7 +1127,7 @@ void func_800254D0(void) {
         break;
     case 0x30:                                      /* switch 1 */
         actorMoveWithinZone(0x45, 510.0f, 480.0f, 0x292, 0.0f);
-        if (D_8076A064 & 8) {
+        if (gFrameCounter & 8) {
             func_800253AC();
             sp6E = 1;
             D_807FBB40->unkC0 = 100.0f;
@@ -1291,7 +1291,7 @@ void func_800254D0(void) {
             /* fallthrough */
         case 1:                                     /* switch 13 */
             actorMoveWithinZone(0x42, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, 0x290, 0.0f);
-            if (D_8076A064 & 8) {
+            if (gFrameCounter & 8) {
                 func_800253AC();
                 sp6E = 1;
                 D_807FBB40->unkC0 = 100.0f;
@@ -1315,7 +1315,7 @@ void func_800254D0(void) {
             break;
         case 2:                                     /* switch 14 */
             if (D_807FBB40->unk154 == 0x44) {
-                screenShakeStart(D_807FBB40->unk7C, D_807FBB40->unk84, 20.0f, 2.0f, 8.0f, 400.0f);
+                waterRippleStart(D_807FBB40->unk7C, D_807FBB40->unk84, 20.0f, 2.0f, 8.0f, 400.0f);
                 sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x36, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             }
             D_807FBB40->unk154 = sp74[temp_s1->unk15++];
@@ -1388,8 +1388,8 @@ void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 void func_80027770(void) {
     u8 val;
 
-    if (!(D_8076A064 & 3)) {
-        if (!(D_8076A064 & 0xF)) {
+    if (!(gFrameCounter & 3)) {
+        if (!(gFrameCounter & 0xF)) {
             val = 0xC;
         } else {
             val = ((randomNonNegative() >> 15) % 0x7FFF) % 7 + 0x1D;

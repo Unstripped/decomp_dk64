@@ -139,7 +139,7 @@ void func_805FF544(void);
 void csModelStateSetFirstByte(s16, s16);
 f32 sqrtf(f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
-void func_8065D254(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 func_806CCC10(void);
 void hudSpawnTextScreen(s32);
 s32 mathAngleStepToward(s16 *, s16, s32);
@@ -172,7 +172,7 @@ void func_80024690(void) {
     sp50 = L4_D->unk17C;
     sp4C = sp54->unk30;
     sp48 = NULL;
-    if (D_8076A0A8 == 0x52) {
+    if (gCurrentMap == 0x52) {
         sp44 = (LargeR4_Row *)D_8002FB10;
     } else {
         sp44 = (LargeR4_Row *)D_8002FB70;
@@ -197,7 +197,7 @@ void func_80024690(void) {
         L4_S->unk2C = 0;
         L4_S->unk24 = 0;
         L4_D->unk68 &= 0xFFBF;
-        if (D_8076A0A8 == 0x52) {
+        if (gCurrentMap == 0x52) {
             sp50->unk1C = D_80750AC8 = 0x32;
             sp50->unk18.w = 0x103;
         } else {
@@ -247,7 +247,7 @@ void func_80024690(void) {
         break;
     case 1:
         if (sp54->unk34 == 2) {
-            if (D_8076A0A8 == 0x52) {
+            if (gCurrentMap == 0x52) {
                 actorSetTargetSpeed(D_807FBB40, 0x10E);
             } else {
                 actorSetTargetSpeed(D_807FBB40, 0xAA);
@@ -355,7 +355,7 @@ void func_80024690(void) {
         func_80024000();
         break;
     case 7:
-        if (D_8076A0A8 == 0xE) {
+        if (gCurrentMap == 0xE) {
             actorSetTargetSpeed(D_807FBB40, 0xB4);
         }
         func_80024000();
@@ -492,7 +492,7 @@ void func_80024690(void) {
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
-                if (D_8076A0A8 == 0xE) {
+                if (gCurrentMap == 0xE) {
                     csModelStateSetFirstByte(0x48, 0xA);
                 } else {
                     csModelStateSetFirstByte(1, 0xA);
@@ -523,7 +523,7 @@ void func_80024690(void) {
     actorStepPhysics(D_807FBB40, L4_D->unkEE, L4_D->unkEE);
     actorApplyVelocity(D_807FBB40);
     actorUpdateFloorContactAndTilt(D_807FBB40, 0);
-    func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x96, 0x78, 0, 1.0f);
+    billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x96, 0x78, 0, 1.0f);
     if (sp54->unk34 == 2) {
         func_8002F490(sp54);
     }

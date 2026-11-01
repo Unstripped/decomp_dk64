@@ -3,7 +3,7 @@
 
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB48;
-extern void *D_807FC924;
+extern void *gPlayerSlots;
 
 typedef struct ProxPathSegment {
     /* 0x00 */ u8 unk0;
@@ -173,7 +173,7 @@ typedef struct PlayerSlot {
     /* 0x008 */ u8 pad8[0x2E8];
 } PlayerSlot; // size = 0x2F0
 
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 extern u32 D_807FBB64;
 s32 flagGet(s32, s32);
 s32 func_807142D8(void);
@@ -182,9 +182,9 @@ void proxPathAttachNearestToPlayer(Actor *, u8, u8);
 void proxPathUpdateAllPlayers(void) {
     u8 i;
 
-    for (i = 0; i < D_807FC928; i++) {
-        if (((PlayerSlot *)D_807FC924)[i].unk0 != 0) {
-            proxPathAttachNearestToPlayer(((PlayerSlot *)D_807FC924)[i].unk4, i, flagGet(0x183, 0) || (D_807FBB64 & 0x10000000) || D_807FC928 >= 2 || func_807142D8());
+    for (i = 0; i < gPlayerCount; i++) {
+        if (((PlayerSlot *)gPlayerSlots)[i].unk0 != 0) {
+            proxPathAttachNearestToPlayer(((PlayerSlot *)gPlayerSlots)[i].unk4, i, flagGet(0x183, 0) || (D_807FBB64 & 0x10000000) || gPlayerCount >= 2 || func_807142D8());
         }
     }
 }
@@ -245,7 +245,7 @@ void proxPathAttachNearestToPlayer(Actor *arg0, u8 arg1, u8 arg2) {
     bestDist = 9999.0f;
     best = NULL;
     if (isPlayer) {
-        isPlayer = ((H1PlayerBlock *)D_807FC924)[state->unk1A4].unk2C0 == 2;
+        isPlayer = ((H1PlayerBlock *)gPlayerSlots)[state->unk1A4].unk2C0 == 2;
     }
     while (node != NULL) {
         got = proxPathGetActorPosition(node->unk0, node->unk4, &x, &y, &z);
@@ -534,9 +534,9 @@ typedef struct H1ActorView {
 
 #define H1BB48 ((H1ActorView *)D_807FBB48)
 
-extern H1CamState *D_807FD580;
+extern H1CamState *gActivePlayerState;
 extern u32 D_80744478;
-void func_806CFF9C(Actor *);
+void playerResumeLocomotion(Actor *);
 
 void proxPathAdvance(f32 arg0) {
     f32 step;
@@ -546,7 +546,7 @@ void proxPathAdvance(f32 arg0) {
     node = D_807FDCC0;
     found = 0;
     while (node != NULL && !found) {
-        if (node->unk0 == D_807FD580->unk130 && node->unk5 == D_807FD580->unk134) {
+        if (node->unk0 == gActivePlayerState->unk130 && node->unk5 == gActivePlayerState->unk134) {
             found = 1;
         } else {
             node = node->next;
@@ -556,27 +556,27 @@ void proxPathAdvance(f32 arg0) {
         H1BB48->unk6A &= ~0x40;
         return;
     }
-    D_807FD580->unk124 = node->unk28;
-    D_807FD580->unk128 = node->unk2C;
-    D_807FD580->unk12C = node->unk30;
+    gActivePlayerState->unk124 = node->unk28;
+    gActivePlayerState->unk128 = node->unk2C;
+    gActivePlayerState->unk12C = node->unk30;
     step = D_80744478 * 0.5;
-    D_807FD580->unk138 = D_807FD580->unk138 + node->unk14 * step * arg0;
+    gActivePlayerState->unk138 = gActivePlayerState->unk138 + node->unk14 * step * arg0;
     H1BB48->unk6A &= ~0x80;
-    if (node->unkC < D_807FD580->unk138) {
+    if (node->unkC < gActivePlayerState->unk138) {
         if (node->unk18 == 1 || node->unk18 == 3) {
             H1BB48->unkEE = H1BB48->unkE6;
-            playerStateQueueCallback(0xD, NULL, D_807FD580->unk1A4);
+            playerStateQueueCallback(0xD, NULL, gActivePlayerState->unk1A4);
         }
-        D_807FD580->unk138 = node->unkC;
+        gActivePlayerState->unk138 = node->unkC;
     }
-    if (D_807FD580->unk138 < node->unk8) {
+    if (gActivePlayerState->unk138 < node->unk8) {
         if (node->unk18 == 2 || node->unk18 == 3) {
             H1BB48->unkEE = H1BB48->unkE6;
-            func_806CFF9C(D_807FBB48);
+            playerResumeLocomotion(D_807FBB48);
         }
-        D_807FD580->unk138 = node->unk8;
+        gActivePlayerState->unk138 = node->unk8;
     }
-    if (node->unkC <= D_807FD580->unk138 || D_807FD580->unk138 <= node->unk8) {
+    if (node->unkC <= gActivePlayerState->unk138 || gActivePlayerState->unk138 <= node->unk8) {
         H1BB48->unk6A |= 0x80;
     }
 }

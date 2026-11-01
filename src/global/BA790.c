@@ -49,7 +49,7 @@ typedef struct BA790View9C {
 
 extern u8 D_807FBB85;
 extern u8 D_807444EC;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern s16 D_80770628[];
 extern s16 D_80770710[];
 extern s32 gCamActor;
@@ -68,7 +68,7 @@ void actorUpdateFloorContactAndTilt(Actor *, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void actorScriptStart(void *, s32);
 void func_8067E278(s32, s32);
-void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void func_8072B7CC(s32);
 void actorSetNodeFlag(Actor *, s32);
@@ -125,7 +125,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
         }
     }
     if (diff >= 0x1F5 && diff < 0xE0C) {
-        func_80685210(0.5f, 0x32, (D_8076A064 & 1) + 2);
+        func_80685210(0.5f, 0x32, (gFrameCounter & 1) + 2);
         BA790A->unkB8 = BA790A->unkB8 / 2;
         if (BA790A->unk6E == -1) {
             sfxPlayActorSound(D_807FBB40, 0x122, 0, 0, 0, 0xFF, 1.0f, 0);
@@ -204,7 +204,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
             q = r;
             t = (u32)((1.0 - (f64)x * 0.03125) * 230.0) & 0xFF;
             if (t != 0) {
-                func_8065D254(D_807FBB40, 0x3C3, 0x40, 0x40, q, q, 1, 0x96, t, 0, 1.0f);
+                billboardSubmit(D_807FBB40, 0x3C3, 0x40, 0x40, q, q, 1, 0x96, t, 0, 1.0f);
             } else {
                 func_8072D99C();
             }
@@ -279,7 +279,7 @@ void func_806B63E0(void) {
 }
 
 extern u8 D_807444EC;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 
 void actorClearNodeFlag(Actor *, s32);
 void actorScriptStart(void *, s32);
@@ -318,7 +318,7 @@ void func_806B640C(void) {
             }
         }
     }
-    if (D_8076A0A8 == 6) {
+    if (gCurrentMap == 6) {
         a = 0x9C40;
     } else {
         a = 0x2710;

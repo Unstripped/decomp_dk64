@@ -77,7 +77,7 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
             arg0->unk360 = c->unk10 * sp64 * 4.0f;
             arg0->unk364 = arg0->unk360;
             if (type == 7) {
-                t = (D_8076A064 * 0x78) & 0xFFF;
+                t = (gFrameCounter * 0x78) & 0xFFF;
                 arg0->unk344 += func_80612794(t) * 10.0f;
             }
             if (type == 0x12) {
@@ -85,8 +85,8 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 arg0->unk36B = sp4A;
                 arg0->unk36C = sp4A;
                 arg0->unk36D = sp48;
-                arg0->unk38E = D_807FC924->unk270;
-                arg0->unk392 = D_807FC924->unk274;
+                arg0->unk38E = gPlayerSlots->unk270;
+                arg0->unk392 = gPlayerSlots->unk274;
                 if (arg0->unk344 < 360.0) {
                     if ((f64)arg0->unk340 < 640) {
                         arg0->unk392 = 0x78;
@@ -193,7 +193,7 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 }
             }
             if (type == 0xE) {
-                t = (D_8076A064 * 0x78) & 0xFFF;
+                t = (gFrameCounter * 0x78) & 0xFFF;
                 arg0->unk344 += func_80612794(t) * 10.0f;
             }
             if (type == 0x13 && (D_80033FAD == 4 || D_80033FAD == 1 || D_8076A104 == 1)) {

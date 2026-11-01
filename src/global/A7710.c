@@ -3,7 +3,7 @@
 
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
-extern void *D_807FD580;
+extern void *gActivePlayerState;
 s32 actorSpawn(s32, s32);
 
 u64 D_807FC7D0;
@@ -19,7 +19,7 @@ void hudSpawnCountdownTimer(s16 arg0, s16 arg1, u8 arg2) {
     }
     arg0 &= 0x7FFF;
     D_807FBB40->unk11C = (s32)D_807FBB44;
-    *(s32 *)((u8 *)D_807FD580 + 0x1A8) = (s32)D_807FBB44;
+    *(s32 *)((u8 *)gActivePlayerState + 0x1A8) = (s32)D_807FBB44;
     *(s32 *)((u8 *)D_807FBB44->unk174 + 0xC) = arg2;
     D_807FBB44->unk7C = (f32)arg0;
     D_807FBB44->unk80 = (f32)arg1;
@@ -69,7 +69,7 @@ typedef struct RenderState {
 extern Gfx D_1000118;
 extern Mtx D_2000180;
 extern Gfx D_8071FC58;
-extern RenderState *D_807FC924;
+extern RenderState *gPlayerSlots;
 s32 func_805FCA64(void);
 Gfx *func_8070068C(Gfx *);
 GfxResource *gfxResourceFindById(u8);
@@ -101,7 +101,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
         if (unk15F == 0xB) {
             gfx = func_8070068C(gfx);
             gfx = textDrawStringVtx(gfx, 0x86, (s16)(s32)(actor->unk7C * 4.0f),
-                                (s16)((D_807FC924->unk276 * 4) - 0x3C),
+                                (s16)((gPlayerSlots->unk276 * 4) - 0x3C),
                                 gfxResourceFindById(sub->unk10)->unk4, 1);
         } else {
             angle = (f32)(6.28318548202514648 - 2.0 * actor->unk160);
@@ -134,7 +134,7 @@ typedef struct CountdownTimerState {
 
 extern u64 D_807445B0;
 extern u64 gCamPathTimeDelta;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 u64 __ll_mul(u64, u64);
 u64 __ull_div(u64, u64);
 u64 __ull_rem(u64, u64);
@@ -244,7 +244,7 @@ void hudCountdownTimerUpdate(void) {
         }
         break;
     case 5:
-        switch (D_8076A0A8) {
+        switch (gCurrentMap) {
         case 0x35:
         case 0x49:
         case 0x9B:

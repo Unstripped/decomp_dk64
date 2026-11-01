@@ -207,9 +207,9 @@ typedef struct ActorF64View160 {
 } ActorF64View160;
 
 extern u8 D_80750AB8;
-extern s32 D_8076A0A8;
-extern u8 D_807FC928;
-extern PlayerSlotView *D_807FC924;
+extern s32 gCurrentMap;
+extern u8 gPlayerCount;
+extern PlayerSlotView *gPlayerSlots;
 
 void animSetLoopLimit(void *, s32, s32);
 void animSetSpeed(void *, s32, f32);
@@ -257,7 +257,7 @@ void func_8069E774(void) {
         sp78 = D_807FBB4C;
     }
     sp80 = (ActorState174 *)sp78->unk174;
-    if (D_807FC928 >= 2 && D_80750AB8 == 1) {
+    if (gPlayerCount >= 2 && D_80750AB8 == 1) {
         temp_v0 = (Actor *)D_807FBB4C->unk174;
         sp74 = &((ActorState174 *)temp_v0)->unk1F0;
     } else {
@@ -339,7 +339,7 @@ void func_8069E774(void) {
     lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0.0f,
              0.0f, 0.0f, D_807FBB40->unk4->unk34 * (f32)sp8E * node->unk0, 0,
              node->unk10, node->unk11, node->unk12);
-    if (D_8076A0A8 != 0x4C) {
+    if (gCurrentMap != 0x4C) {
         if (sp7F[3] == 0 || D_807FBB40->unk15F != 0) {
             sp60 = 0x2E;
             if (func_80714608(0) != 0) {
@@ -347,15 +347,15 @@ void func_8069E774(void) {
             }
             sp88 = D_807FBB40->unk4->unk34 * (f32)sp8E;
             sp88 = sp88 * sp88;
-            for (i = 0; i < D_807FC928; i++) {
-                target = D_807FC924[i].actor;
+            for (i = 0; i < gPlayerCount; i++) {
+                target = gPlayerSlots[i].actor;
                 if (sp7F[3] == 0 ||
                     (i != sp80->unk1A4 && target->unk154 != 0x84)) {
                     if (actorIsTargetInRange(target, (f32)target->unk15E, sp88) !=
                         0) {
                         playerStateQueueCallback((s16)sp60, D_807FBB40, i & 0xFF);
                     }
-                    if (D_807FC928 && D_807FC928) {}  // FAKE: steers uopt to PRE-reload the loop count
+                    if (gPlayerCount && gPlayerCount) {}  // FAKE: steers uopt to PRE-reload the loop count
                 }
             }
             if (D_807FBB40->unk15F != 0) {
@@ -936,7 +936,7 @@ typedef struct {
 } NodePosition;
 
 void billboardSetFlags(s32);
-void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void func_8071496C(s16);
@@ -972,7 +972,7 @@ void actorFallAndBurstUpdate(void) {
     ATTACHED_ACTOR->unkC0 += D_80750398;
     if (ATTACHED_ACTOR->unkA4 != 99999.0f) {
         billboardSetFlags(1);
-        func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x18, 0x18, 1, 0x96, 0xB4, 0, 1.0f);
+        billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0x18, 0x18, 1, 0x96, 0xB4, 0, 1.0f);
     } else {
         actorDespawn(D_807FBB40);
     }

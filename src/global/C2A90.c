@@ -4,7 +4,7 @@
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
-extern Struct807FD580 *D_807FD580;
+extern Struct807FD580 *gActivePlayerState;
 
 typedef struct R1C2CB_Actor {
     /* 0x000 */ u8 pad0[4];
@@ -125,10 +125,10 @@ typedef struct R1C2CB_ActorEE {
 #define R1C2CBS ((R1C2CB_S90 *)D_807FDC90)
 #define R1C2CBE ((R1C2CB_ActorEE *)D_807FBB4C)
 
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 
 extern u8 D_8076A0AB;
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 extern u16 D_807446C0[];
 extern u16 D_807FC930[];
 extern u8 D_807FC950[][0x5E];
@@ -196,8 +196,8 @@ void func_806BE09C(void) {
                 }
             }
             if (R1C2CBS->unk2C != 0) {
-                if (!(D_8076A064 & 3)) {
-                    row = D_807FC950[D_8074E77C];
+                if (!(gFrameCounter & 3)) {
+                    row = D_807FC950[gPlayerCharacterId];
                     R1C2CBS->unk2C--;
                     slotQueueAddValue(0, 0, -1, D_807FC950);
                     ((u16 *)(row + 0x26))[idx] += 1;
@@ -370,7 +370,7 @@ typedef struct LgBE8S9C {
 
 #define LgBA ((LgBE8A *)D_807FBB40)
 #define LgBB ((LgBE8A *)D_807FBB4C)
-#define LgBG ((LgBE8G *)D_807FD580)
+#define LgBG ((LgBE8G *)gActivePlayerState)
 #define LgBS ((LgBE8S90 *)D_807FDC90)
 #define LgB9C ((LgBE8S9C *)D_807FDC9C)
 
@@ -418,7 +418,7 @@ void func_806BE8BC(void) {
 
     sp37 = flagGet(0xF8, 0);
     behaviourFrameBegin();
-    if (D_807FD580->unk1F0 & 0x100000) {
+    if (gActivePlayerState->unk1F0 & 0x100000) {
         LgBA->unk154 = 0x40;
         return;
     }
@@ -574,7 +574,7 @@ void func_806BE8BC(void) {
                 renderCallbacksRegister(actorDrawAnimatedEffect, D_807FBB40, 3);
             }
             if (((randomNonNegative() >> 0xF) % 1000) >= 0x3DF && LgBA->unk4->unk64 == 0x302) {
-                if (D_8076A064 & 1) {
+                if (gFrameCounter & 1) {
                     sel = 0x303;
                 } else {
                     sel = 0x304;

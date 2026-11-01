@@ -4,13 +4,13 @@
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
-extern void *D_807FC924;
-extern u8 D_807FC928;
-extern u8 D_807FC929;
-extern Struct807FD580 *D_807FD580;
+extern void *gPlayerSlots;
+extern u8 gPlayerCount;
+extern u8 gCurrentPlayerIndex;
+extern Struct807FD580 *gActivePlayerState;
 extern s16 D_807FD584;
-extern s32 D_8076A0A8;
-extern u8 D_8074E77C[];
+extern s32 gCurrentMap;
+extern u8 gPlayerCharacterId[];
 
 void func_8068A764(Actor *, u8);
 void func_8068A784(Actor *, u8);
@@ -52,7 +52,7 @@ void func_806F09F0(Actor *arg0, u16 arg1) {
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 
 void func_806F0B34(Actor *arg0) {
-    switch (D_8074E77C[D_807FC929]) {
+    switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
     case 0:
         sfxPlayFromActorWithAltitudeCheck(arg0, 0x17C, 0xFF, 0x7F, 0x19);
         break;
@@ -175,7 +175,7 @@ void func_806F0D68(Actor *arg0) {
     if (arg0->unk5C & 1) {
         extra = arg0->unk174;
         if (extra->unk8C == 0) {
-            switch (D_8074E77C[D_807FC929]) {
+            switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
             case 0:
                 sfxPlayFromActorWithAltitudeCheck(arg0, 0x186, 0xFF, 0x64, 0x19);
                 sfxPlayFromActorWithAltitudeCheck(arg0, 0x17C, 0xFF, 0x64, 0x19);
@@ -318,10 +318,10 @@ void func_806F12FC(Actor *arg0) {
     extra->flags &= ~0x40;
 }
 
-void func_806E225C();
+void playerFireWeapon();
 
 void func_806F1350(s32 arg0) {
-    func_806E225C(0, 1);
+    playerFireWeapon(0, 1);
 }
 
 void func_806F1378(s32 arg0) {}
@@ -345,17 +345,17 @@ typedef struct F5APlayerState {
     s16 unk4C;
 } F5APlayerState;
 
-#define F5A_PS ((F5APlayerState *)D_807FD580)
+#define F5A_PS ((F5APlayerState *)gActivePlayerState)
 
 void scriptReadU8(u8 *);
-s32 func_806CD9A0(Actor *, f32, f32, s16, s16);
+s32 playerSelectMoveTier(Actor *, f32, f32, s16, s16);
 
 void func_806F13C8(Actor *arg0) {
     u8 temp;
 
     scriptReadU8(&temp);
     ((F5AActorSub4 *)arg0->unk4)->unk88 =
-        func_806CD9A0(arg0, arg0->unkB8, arg0->unkB8, F5A_PS->unk4C, D_807FD584) - temp;
+        playerSelectMoveTier(arg0, arg0->unkB8, arg0->unkB8, F5A_PS->unk4C, D_807FD584) - temp;
 }
 
 typedef struct F5APlayerCoefficient {
@@ -364,15 +364,15 @@ typedef struct F5APlayerCoefficient {
 } F5APlayerCoefficient;
 
 extern F5APlayerCoefficient D_807FD618[];
-void func_806CFF9C(void);
+void playerResumeLocomotion(void);
 
 void func_806F142C(void) {
     f32 value;
 
-    func_806CFF9C();
+    playerResumeLocomotion();
     value = D_807FBB40->unkB8;
     D_807FBB40->unkB8 =
-        D_807FD618[D_807FC929].value * (value - (value / 2)) + (value / 2);
+        D_807FD618[gCurrentPlayerIndex].value * (value - (value / 2)) + (value / 2);
 }
 
 void func_806D0150(Actor *);
@@ -494,7 +494,7 @@ typedef struct F5N3TableEntry1768 {
     s16 unk6;
 } F5N3TableEntry1768;
 
-#define F5N3_PLAYER_1768 ((F5N3PlayerState1768 *) D_807FD580)
+#define F5N3_PLAYER_1768 ((F5N3PlayerState1768 *) gActivePlayerState)
 
 extern u16 D_80752F20[];
 
@@ -562,7 +562,7 @@ typedef struct {
     f32 unkC;
 } F5BAccel;
 
-#define F5B_PLAYER_STATE ((F5BPlayerState *)D_807FD580)
+#define F5B_PLAYER_STATE ((F5BPlayerState *)gActivePlayerState)
 
 extern u16 D_80752F38[];
 extern u16 D_80752F40[];
@@ -650,7 +650,7 @@ s32 func_806F1B58(F5BActor *arg0, F5N1Predicate *arg1, s32 arg2) {
     } // FAKE: no final return keeps ret in $v0 (same idiom as func_80026250)
 }
 
-f32 func_806F1B90(f32 *arg0, f32 arg1) {
+f32 mathAngleRadDeltaTurns(f32 *arg0, f32 arg1) {
     f32 diff;
 
     diff = arg1 - *arg0;
@@ -736,7 +736,7 @@ void func_806F1C04(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
             state->unk14 -= 1;
         }
     } else {
-        ret = func_806F1B90(&state->unk0, angle);
+        ret = mathAngleRadDeltaTurns(&state->unk0, angle);
         state->unk10 = state->unk10 + ((-128.0f - state->unk10) * 0.3);
         value = (s8) (s32) state->unk10;
         accel1 = 0.4f * ret;
@@ -813,7 +813,7 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
         }
         state->unk10 = state->unk10 + ((newvel - state->unk10) * 0.3);
         value = (s8) (s32) state->unk10;
-        ret = func_806F1B90(&state->unk0, angle);
+        ret = mathAngleRadDeltaTurns(&state->unk0, angle);
         spE0 = func_806F1AE0((F5BActor *) arg0, (F5BAccel *) state, 0.02f);
     } slot = arg1; slot += index; k = 0; do { accel1 = 0.0f; accel0 = 0.0f; spC8 = 0.0f; spC4 = 0.0f; pair = cur->unk1C; if (active != 0) { y = pos[k][1]; newvel = y - cur->unk4; delta = newvel - cur->unk8; // FAKE: one source line lets as1 schedule the loop preheader
             cur->unk4 = y;
@@ -994,7 +994,7 @@ typedef struct F5N5CameraEntry {
 } F5N5CameraEntry;
 
 extern f32 func_80611BB4(f32, f32);
-#define F5N5_PATH_SAMPLE ((F5N5PathSample *)D_807FC924 + D_807FC929)
+#define F5N5_PATH_SAMPLE ((F5N5PathSample *)gPlayerSlots + gCurrentPlayerIndex)
 
 void func_806F2754(F5N5CameraActor *arg0, F5N5CameraEntry *arg1, s32 *arg2) {
     f32 x;
@@ -1047,7 +1047,7 @@ typedef struct F5COutput {
     f32 unk8;
     f32 unkC;
 } F5COutput;
-#define F5C_PS ((F5CPlayerState *)D_807FD580)
+#define F5C_PS ((F5CPlayerState *)gActivePlayerState)
 void func_806F2A40(F5CPlayerActor *arg0, F5COutput *arg1, s32 *arg2) {
     f32 temp_fv0;
     f32 var_fa0;
@@ -1056,7 +1056,7 @@ void func_806F2A40(F5CPlayerActor *arg0, F5COutput *arg1, s32 *arg2) {
     s32 adj;
     s32 inc;
     s32 sel;
-    if (D_807FD580 && D_807FD580) {}  // FAKE: dead global test steers uopt (ps in v0, u16 in v1)
+    if (gActivePlayerState && gActivePlayerState) {}  // FAKE: dead global test steers uopt (ps in v0, u16 in v1)
     temp_v1 = F5C_PS->unk21E;
     temp_fv0 = (f32)temp_v1 * 0.03333333507f;
     if ((f64)temp_fv0 < 1e-05) temp_fv0 = 0.000009999999747f;
@@ -1097,8 +1097,8 @@ void func_806F2A40(F5CPlayerActor *arg0, F5COutput *arg1, s32 *arg2) {
 typedef struct F5CState16 { u8 pad0[0x16]; s16 unk16; } F5CState16;
 typedef struct F5CTurnActor { u8 pad0[0x6A]; u16 unk6A; u8 pad6C[0xDC - 0x6C]; s16 unkDC; s16 unkDE; u8 padE0[6]; s16 unkE6; } F5CTurnActor;
 typedef struct F5CTurnEntry { s8 unk0; u8 unk1; s16 unk2; s16 unk4; s16 unk6; } F5CTurnEntry;
-#define F5C_S16 ((F5CState16 *)D_807FD580)
-s16 func_806CC10C(s16, s16);
+#define F5C_S16 ((F5CState16 *)gActivePlayerState)
+s16 mathAngleSignedDistance(s16, s16);
 extern f32 func_80612794(s16);
 void func_806F2C48(F5CTurnActor *arg0, F5CTurnEntry *arg1, s32 *arg2) {
     s32 entry_index;
@@ -1121,7 +1121,7 @@ void func_806F2C48(F5CTurnActor *arg0, F5CTurnEntry *arg1, s32 *arg2) {
         scaled = (0x400 - arg0->unkDE) & 0xFFF;
         if (scaled >= 0x156) scaled = 0x155;
         scaled = scaled * 0x10;
-        angle = func_806CC10C(arg0->unkE6, yaw);
+        angle = mathAngleSignedDistance(arg0->unkE6, yaw);
         amplitude = func_80612790(angle) * (f32)scaled;
         cosine = func_80612794(angle);
         v = (s8)((F5C_S16->unk16 * 6) / 10);
@@ -1246,7 +1246,7 @@ typedef struct {
     void *unk4;
 } F5DListEntry;
 
-extern u8 D_807FD716;
+extern u8 gWaypointFlags;
 
 typedef struct {
     u8 pad0[4];
@@ -1340,7 +1340,7 @@ void func_806F3190(Actor *arg0, u16 arg1) {
                         v = t - 6.0f;
                     }
                     sp58 = (f64)v / 17.0 > 1.0 ? 1.0 : (f64)v / 17.0;
-                    func_806F2EDC((s32)arg0, sp60, &sp6C, 0xA, 0xB, sp58, (f32)(D_8076A0A8 == 0xCD ? 17.0 : 2.5));
+                    func_806F2EDC((s32)arg0, sp60, &sp6C, 0xA, 0xB, sp58, (f32)(gCurrentMap == 0xCD ? 17.0 : 2.5));
                 }
                 break;
             case 0x27: {
@@ -1351,7 +1351,7 @@ void func_806F3190(Actor *arg0, u16 arg1) {
                     v = t - 6.0f;
                 }
                 sp58 = (f64)v / 17.0 > 1.0 ? 1.0 : (f64)v / 17.0;
-                func_806F2EDC((s32)arg0, sp60, &sp6C, 5, 6, sp58, (f32)(D_8076A0A8 == 0xCD ? 17.0 : 2.5));
+                func_806F2EDC((s32)arg0, sp60, &sp6C, 5, 6, sp58, (f32)(gCurrentMap == 0xCD ? 17.0 : 2.5));
                 break;
             }
             case 0x28: {
@@ -1411,15 +1411,15 @@ void func_806F3190(Actor *arg0, u16 arg1) {
 }
 
 
-void func_806F4528(void *);
+void playerWaypointPathsParse(void *);
 
-void func_806F3760(s16 arg0) {
+void playerWaypointPathsLoad(s16 arg0) {
     s32 sp1C;
     s32 temp_v0;
 
     temp_v0 = assetLoad(0x15, arg0, 1, 0);
     sp1C = temp_v0;
-    func_806F4528((void *)temp_v0);
+    playerWaypointPathsParse((void *)temp_v0);
     if (sp1C != 0) {
         assetFreeBuffer(sp1C, 0x4C, 0x56);
     }
@@ -1475,31 +1475,31 @@ typedef struct {
 } F5N4ActorExtra;
 
 extern u8 D_807463B8;
-extern F5N4List *D_80753E90;
+extern F5N4List *gWaypointPaths;
 extern u8 D_8076A0B1;
-extern F5N4ListEntry *D_807FD708;
-extern F5N4Coord *D_807FD70C;
-extern s32 D_807FD710;
-extern s16 D_807FD714;
-extern s16 D_807FD718;
-extern s32 D_807FD71C;
+extern F5N4ListEntry *gWaypointPathEntry;
+extern F5N4Coord *gWaypointCursor;
+extern s32 gWaypointActor;
+extern s16 gWaypointIndex;
+extern s16 gWaypointCallbackId;
+extern s32 gWaypointCallbackParam;
 
-void func_806F386C(u8 arg0, s32 arg1, s32 arg2, s16 arg3, s32 arg4) {
+void playerWaypointPathStart(u8 arg0, s32 arg1, s32 arg2, s16 arg3, s32 arg4) {
     F5N4ActorExtra *temp_v0;
 
     temp_v0 = (F5N4ActorExtra *)((Actor *)arg1)->unk174;
-    if (D_80753E90->unk0 >= arg0) {
+    if (gWaypointPaths->unk0 >= arg0) {
         D_807463B8 = 3;
         D_8076A0B1 |= 0x10;
-        D_807FD710 = arg1;
+        gWaypointActor = arg1;
         temp_v0->unk1F0 &= ~1;
-        D_807FD714 = 0;
-        D_807FD708 = D_80753E90->unk4 + arg0;
-        D_807FD70C = D_807FD708->unk4;
-        D_807FD718 = arg3;
-        D_807FD71C = arg2;
+        gWaypointIndex = 0;
+        gWaypointPathEntry = gWaypointPaths->unk4 + arg0;
+        gWaypointCursor = gWaypointPathEntry->unk4;
+        gWaypointCallbackId = arg3;
+        gWaypointCallbackParam = arg2;
         if (*(u8 *)((u8 *)&arg4 + 3) == 0) { // FAKE: narrow lbu of the s32 stack arg
-            actorSetPositionAndFacingAngle((Actor *)arg1, D_807FD70C);
+            actorSetPositionAndFacingAngle((Actor *)arg1, gWaypointCursor);
         }
     }
 }
@@ -1519,9 +1519,9 @@ void deferredEntryFree(F5DDeferredEntry *arg0) {
 }
 
 
-void func_806F386C(u8, s32, s32, s16, s32);
+void playerWaypointPathStart(u8, s32, s32, s16, s32);
 
-void func_806F397C(s32 arg0, s32 arg1, s16 arg2, s16 arg3) {
+void playerWaypointPathStartPacked(s32 arg0, s32 arg1, s16 arg2, s16 arg3) {
     s32 var_v0;
 
     if (arg2 & 0x8000) {
@@ -1530,8 +1530,8 @@ void func_806F397C(s32 arg0, s32 arg1, s16 arg2, s16 arg3) {
         var_v0 = 0;
     }
     arg2 &= 0x7FFF;
-    func_806F386C((u8) arg2, arg0, arg1, arg3, var_v0);
-    D_807FD716 = 0;
+    playerWaypointPathStart((u8) arg2, arg0, arg1, arg3, var_v0);
+    gWaypointFlags = 0;
 }
 
 typedef struct {
@@ -1561,7 +1561,7 @@ typedef struct {
     u8 unk6;
 } F5N6Input;
 
-void func_806F39E8(arg0, arg1, arg2)
+void playerWaypointPathStartLineFromPoint(arg0, arg1, arg2)
 Actor *arg0;
 F5N6Input *arg1;
 u8 arg2;
@@ -1570,7 +1570,7 @@ u8 arg2;
     F5N6Point *q;
     F56CEnt *entry;
 
-    entry = (F56CEnt *)&D_80753E90->unk4[D_80753E90->unk0];
+    entry = (F56CEnt *)&gWaypointPaths->unk4[gWaypointPaths->unk0];
     entry->unk0 = 2;
     entry->unk4 = heapAlloc(0x24);
     heapClearBlock(entry->unk4);
@@ -1584,13 +1584,13 @@ u8 arg2;
     q->y = arg1->y;
     q->z = func_80612790((s16)((arg1->unk6 / 255.0) * 4095.0)) * arg2 + arg1->z;
     q->unk9 = 0x32;
-    func_806F386C(*((u8 *)D_80753E90 + 1), (s32)arg0, 0, 0, 0);
-    D_807FD716 = 0;
+    playerWaypointPathStart(*((u8 *)gWaypointPaths + 1), (s32)arg0, 0, 0, 0);
+    gWaypointFlags = 0;
     D_807FBB60 |= 0x400;
 }
 
 
-void func_806F3BEC(arg0, arg1, arg2, arg3)
+void playerWaypointPathStartLineFromActor(arg0, arg1, arg2, arg3)
 Actor *arg0;
 s16 arg1;
 s16 arg2;
@@ -1602,7 +1602,7 @@ u8 arg3;
     F56CEnt *entry;
 
     angle = mathAngleBetweenPoints2D((f32)arg1, (f32)arg2, arg0->unk7C, arg0->unk84);
-    entry = (F56CEnt *)&D_80753E90->unk4[D_80753E90->unk0];
+    entry = (F56CEnt *)&gWaypointPaths->unk4[gWaypointPaths->unk0];
     if (arg0->unk154 != 0x44) {
         entry->unk0 = 2;
         entry->unk4 = heapAlloc(0x24);
@@ -1617,15 +1617,15 @@ u8 arg3;
         q->y = arg0->unk80;
         q->z = func_80612790(angle) * arg3 + arg0->unk84;
         q->unk9 = 0x28;
-        func_806F386C(*((u8 *)D_80753E90 + 1), (s32)arg0, 0, 0, 0);
-        D_807FD716 = 0;
+        playerWaypointPathStart(*((u8 *)gWaypointPaths + 1), (s32)arg0, 0, 0, 0);
+        gWaypointFlags = 0;
         D_807FBB60 |= 0x400;
     }
 }
 
 
-void func_806F3DB0(void) {
-    D_807FD716 |= 2;
+void playerWaypointSnapInput(void) {
+    gWaypointFlags |= 2;
 }
 
 void timerDecrementOrSetFlag(u16 *arg0, s16 *arg1, u8 *arg2, u16 arg3) {
@@ -1681,21 +1681,21 @@ typedef struct F5L1CamBlock {
     f32 targetZ;
 } F5L1CamBlock;
 
-#define F5L1Cam ((F5L1CamBlock *)D_807FC924)
+#define F5L1Cam ((F5L1CamBlock *)gPlayerSlots)
 #define F5L1_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define F5L1_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define F5L1_CLAMP(x) F5L1_MIN(F5L1_MAX(x, -128.0f), 127.0f)
 
-void func_806D03BC(void);
+void playerInitMoveParams(void);
 s32 playerStateQueueCallback();
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 extern u8 D_807444EC;
 extern u8 D_8076A0B3;
 #define F5L1_B8 (*(s8 *)&D_807463B8)
-#define F5L1_YAWP (*(s16 **)&D_807FD708)
-#define F5L1_WP (*(F5L1Waypoint **)&D_807FD70C)
-#define F5L1_TGTA (*(Actor **)&D_807FD710)
+#define F5L1_YAWP (*(s16 **)&gWaypointPathEntry)
+#define F5L1_WP (*(F5L1Waypoint **)&gWaypointCursor)
+#define F5L1_TGTA (*(Actor **)&gWaypointActor)
 
 void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
     F5L1Target *tgt;
@@ -1723,19 +1723,19 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
     dz = F5L1_TGTA->unk84 - next->z;
     close = dx * dx + dz * dz < 100.0f;
     if (close) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    flags = D_807FD716;
+    flags = gWaypointFlags;
     if (cur->speed) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if ((flags == 0) & 1) {
-        D_807FD716 |= 1;
+        gWaypointFlags |= 1;
         arg0->yaw = 0;
-        if (D_807FD70C != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (gWaypointCursor != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         arg0->pitch = 0;
-        if (D_807FD708 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (gWaypointPathEntry == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
-    if (D_807FD716 || D_807FD71C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (gWaypointFlags || gWaypointCallbackParam) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (close) {
         yawT = *F5L1_YAWP; // FAKE: s16 temp steers uopt candidate priorities
-        eq = yawT == D_807FD714 + 2; // FAKE: bool temp steers uopt candidate priorities
+        eq = yawT == gWaypointIndex + 2; // FAKE: bool temp steers uopt candidate priorities
         if (eq) {
             F5L1_B8 = 0;
             if (D_807444EC == 0) {
@@ -1743,21 +1743,21 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
                 D_8076A0B3 = 0xFF;
                 if ((flags == 0) & 1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
-            if (D_807FD718 != 0) {
-                if (D_807FD716 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                playerStateQueueCallback(D_807FD718, D_807FD71C, 0, &F5L1_WP); // FAKE: 4th arg keeps &F5L1_WP hoisted in $a3
+            if (gWaypointCallbackId != 0) {
+                if (gWaypointFlags != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                playerStateQueueCallback(gWaypointCallbackId, gWaypointCallbackParam, 0, &F5L1_WP); // FAKE: 4th arg keeps &F5L1_WP hoisted in $a3
             }
             tgt->flags |= 1;
             D_807FBB60 &= ~0x400;
-            func_806D03BC();
+            playerInitMoveParams();
         } else {
-            D_807FD714 += 1;
+            gWaypointIndex += 1;
             F5L1_WP++;
             cur = F5L1_WP;
             next = cur + 1;
-            if (D_807FD714 || D_807FD716) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if (gWaypointIndex || gWaypointFlags) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
-        if (D_807FD714 + 1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (gWaypointIndex + 1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
     arg0->flags = 0;
     timerDecrementOrSetFlag(&arg0->flags, &cur->timer3, &cur->timer0, 0x8000);
@@ -1768,9 +1768,9 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
         cur->delay = cur->delay - 1;
         yawT = 0;
     } else {
-        if (D_807FD716 & 2) {
+        if (gWaypointFlags & 2) {
             blend = 1.0f;
-            D_807FD716 &= 0xFFFD;
+            gWaypointFlags &= 0xFFFD;
         }
         if (F5L1_TGTA->unk154 == 0x4F) {
             ang = mathAngleBetweenPointsDeg(next->x, next->z, (s32)F5L1_TGTA->unk7C, (s32)F5L1_TGTA->unk84) * 0.017453292f - (F5L1_TGTA->unkE6 * 3.1415927f) * 0.00048828125;
@@ -1784,7 +1784,7 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
             yawT = F5L1_CLAMP(sinApprox(ang) * speed);
             pitchT = F5L1_CLAMP(cosApprox(ang) * speed);
         }
-        if (D_807FD71C && D_807FD71C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (gWaypointCallbackParam && gWaypointCallbackParam) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
     arg0->yaw = arg0->yaw + (yawT - arg0->yaw) * blend;
     arg0->pitch = arg0->pitch + (pitchT - arg0->pitch) * blend;
@@ -1798,7 +1798,7 @@ typedef struct {
     s16 halves[9];
 } F5N4RawEntry;
 
-void func_806F4528(void *arg0) {
+void playerWaypointPathsParse(void *arg0) {
     u8 *next;
     u8 *destination;
     u8 *source;
@@ -1807,11 +1807,11 @@ void func_806F4528(void *arg0) {
     s16 inner;
 
     if (arg0 != NULL) {
-        D_80753E90->unk0 = *(s16 *)arg0;
+        gWaypointPaths->unk0 = *(s16 *)arg0;
         source = (u8 *)arg0 + 2;
-        D_80753E90->unk4 = heapAlloc((D_80753E90->unk0 * 8) + 8);
-        entry = D_80753E90->unk4;
-        for (outer = 0; outer < D_80753E90->unk0; outer++) {
+        gWaypointPaths->unk4 = heapAlloc((gWaypointPaths->unk0 * 8) + 8);
+        entry = gWaypointPaths->unk4;
+        for (outer = 0; outer < gWaypointPaths->unk0; outer++) {
             entry->unk0 = *(s16 *)source;
             next = source + 2;
             for (inner = 0; inner < entry->unk0; inner++) {
@@ -1828,7 +1828,7 @@ void func_806F4528(void *arg0) {
             entry++;
         }
     } else {
-        D_80753E90->unk0 = 0;
+        gWaypointPaths->unk0 = 0;
     }
 }
 

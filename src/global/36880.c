@@ -22,10 +22,10 @@ typedef struct ModelSlot {
 
 extern ModelSlot *D_807F6000;
 
-extern void *D_807FC924;
-extern u8 D_807FC929;
-extern s32 D_8076A064;
-extern s32 D_8076A0A8;
+extern void *gPlayerSlots;
+extern u8 gCurrentPlayerIndex;
+extern s32 gFrameCounter;
+extern s32 gCurrentMap;
 extern u8 D_807444FC;
 
 s32 hashTableLookup(s32);
@@ -257,7 +257,7 @@ extern s16 gCsModelIds[];
 extern s32 D_807F6004;
 void hashTableInit(void);
 void csModelIdTableReset(void);
-void func_8065051C(void);
+void mtxCopyQueueReset(void);
 u8 eepromReadChecksumBit(u16, u8);
 s32 modelSkipListContains(s16);
 s32 func_807315D4(s16, s16);
@@ -300,7 +300,7 @@ void modelSlotsLoadMap(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
     D_807F6004 = 0;
     hashTableInit();
     csModelIdTableReset();
-    func_8065051C();
+    mtxCopyQueueReset();
     if (arg0 != NULL) {
         if (sp90 > 0) {
             do {
@@ -311,7 +311,7 @@ void modelSlotsLoadMap(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
                     used = 1;
                 }
                 if (found == 0 && modelSkipListContains(entry->unk28) == 0 &&
-                    func_807315D4(*(s16 *)((u8 *)&D_8076A0A8 + 2), entry->unk2A) == 0 &&
+                    func_807315D4(*(s16 *)((u8 *)&gCurrentMap + 2), entry->unk2A) == 0 &&
                     func_8063253C(entry->unk28, arg1) != 0) {
                     ((ModelSlotInitView *)D_807F6000)[outCount].unk0 = entry->unk0;
                     ((ModelSlotInitView *)D_807F6000)[outCount].unk4 = entry->unk4;
@@ -325,7 +325,7 @@ void modelSlotsLoadMap(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
                     result = modelSlotInit(outCount, entry->unk28, entry->unk0, entry->unk4, entry->unk8,
                                            entry->unk18, entry->unk1C, entry->unk20, entry->unkC, entry->unk24,
                                            entry->unk2F, entry->unk2E, &sp94);
-                    modelFlagsApplyState(*(s16 *)((u8 *)&D_8076A0A8 + 2), ((ModelSlotInitView *)D_807F6000)[outCount].unk8A,
+                    modelFlagsApplyState(*(s16 *)((u8 *)&gCurrentMap + 2), ((ModelSlotInitView *)D_807F6000)[outCount].unk8A,
                                   (u8 *)(outCount * 0x90 + (s32)D_807F6000 + 0x8C));
                     gCsModelIds[entry->unk2A] = result;
                     D_80747D70++;
@@ -341,7 +341,7 @@ void modelSlotsLoadMap(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
         mapDistributeEntries(sp94);
         renderEntryListFree(sp94);
         func_8062D1A8();
-        csScriptLoad(assetLoad(0xA, D_8076A0A8, 1, 0));
+        csScriptLoad(assetLoad(0xA, gCurrentMap, 1, 0));
         n = *(s32 *)entry;
         rec = (u8 *)entry + 4;
         while (n--) {
@@ -585,7 +585,7 @@ struct ModelQuadOwner;
 void modelQuadBuildOutput(struct ModelQuadOwner *, f32, f32, f32, f32, f32, f32, f32, f32);
 void modelSlotLinkTexAnimTextures(u8 *, ModelSlot *);
 void modelSlotInitTexAnimNodes(u8 *, ModelSlot *, s32);
-void func_8064F450(void *, void *);
+void modelSlotAllocAnimBuffers(void *, void *);
 void collisionBuildSlotBoxes(s32, void *, f32, f32, f32, f32, f32, f32, f32);
 struct ModelAssetData;
 void modelSlotBuildTriangleBuffer(s32, struct ModelAssetData *, f32, f32, f32, f32, f32, f32, f32);
@@ -634,7 +634,7 @@ s16 modelSlotInit(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f3
     } else if (D_807FBB64 & 0x400000) {
         s0->unk1E = 0x1F4;
     }
-    func_8064F450(MODEL_SLOT_PTR->unk78, s0);
+    modelSlotAllocAnimBuffers(MODEL_SLOT_PTR->unk78, s0);
     MODEL_SLOT_BY_INDEX->unk3C = 0;
     MODEL_SLOT_BY_INDEX->unk3D = 0;
     collisionBuildSlotBoxes(arg0, s0, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
@@ -728,7 +728,7 @@ void modelFlagsApplyMapPairs(s16 arg0, u8 *arg1) {
     i = 0;
     n = 8;
     for (; i < n; i++) {
-        if (D_8076A0A8 == D_80747D50[i].map && arg0 == D_80747D50[i].id) {
+        if (gCurrentMap == D_80747D50[i].map && arg0 == D_80747D50[i].id) {
             *arg1 |= 1;
             return;
         }
@@ -771,7 +771,7 @@ void modelApplyMapOverrideValue(s32 arg0, u8 *arg1) {
 
     n = 5;
     for (i = 0; i < n; i++) {
-        if (D_8076A0A8 == D_80747D30[i].map && arg0 == D_80747D30[i].id) {
+        if (gCurrentMap == D_80747D30[i].map && arg0 == D_80747D30[i].id) {
             *(u16 *)(arg1 + 0x1E) = D_80747D30[i].val;
             return;
         }
@@ -1198,7 +1198,7 @@ void modelSlotBuildTriangleBuffer(s32 arg0, ModelAssetData *arg1, f32 arg2, f32 
         buf->unk0 = NULL;
         buf->unk4 = NULL;
         buf->unk24 |= 1;
-        buf->unk8 = D_8076A064;
+        buf->unk8 = gFrameCounter;
         return;
     }
     if (!(buf->unk24 & 1)) {
@@ -1238,7 +1238,7 @@ void modelSlotBuildTriangleBuffer(s32 arg0, ModelAssetData *arg1, f32 arg2, f32 
     }
     buf->unk4 = out;
     buf->unk24 |= 1;
-    buf->unk8 = D_8076A064;
+    buf->unk8 = gFrameCounter;
 }
 
 
@@ -2181,7 +2181,7 @@ void displayListFreeQueueAdd(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
     rec->unk4 = arg1;
     rec->unk8 = arg2;
     rec->unkC = arg3;
-    rec->unk14 = D_8076A064 + 2;
+    rec->unk14 = gFrameCounter + 2;
     rec->unk10 = arg4;
 }
 
@@ -2202,7 +2202,7 @@ void displayListFreeQueueProcess(void) {
     if (cur != NULL) {
         do {
             next = cur->unk18;
-            if (D_8076A064 == cur->unk14) {
+            if (gFrameCounter == cur->unk14) {
                 ((DisplayListFreeCounter *)cur->unk10)->unk3C -= 1;
                 dlFreeUnusedTextures(cur->unk0, cur->unk4, 0, 0, ((DisplayListFreeCounter *)cur->unk10)->unk3C == 0);
                 dlFreeUnusedTextures(cur->unk8, cur->unkC, 0, 1, ((DisplayListFreeCounter *)cur->unk10)->unk3C == 0);
@@ -2561,7 +2561,7 @@ void modelSlotsStepSegmentCommands(void) {
         slot = (ModelSlot *)((u8 *)D_807F6000 + D_80747D74 * 0x90);
         obj = (ModelSlotObjHeader *)slot->unk24;
         if (obj->unk0 & 0x10) {
-            if ((slot->unk8C & 0x20) && D_8076A064 != obj->unk8) {
+            if ((slot->unk8C & 0x20) && gFrameCounter != obj->unk8) {
                 slot->unk8C &= ~0x20;
                 obj->unk3C -= 1;
                 if (obj->unk3C != 0) {
@@ -2667,7 +2667,7 @@ extern s32 D_807F600C;
 extern s32 D_807F5FD8;
 
 f32 renderScaleDistanceByFov(f32);
-void func_8065EB10(u8, s16, f32, f32, f32, s32, f32, s32);
+void lightQueueKeyframed(u8, s16, f32, f32, f32, s32, f32, s32);
 s32 mapPointOutsideClipBounds(f32, f32, f32, s32, s32);
 void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 void mapSearchTableAddProbe(void *, s16, s16, s16);
@@ -2727,7 +2727,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *arg0, Gfx *arg1, f32 arg2, f32 arg3,
         }
     }
     if (arg0->unk5B != 0) {
-        func_8065EB10(arg0->unk5B, arg0->unk4C, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unk58, sp1D0 / (f32)limit, arg6);
+        lightQueueKeyframed(arg0->unk5B, arg0->unk4C, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unk58, sp1D0 / (f32)limit, arg6);
     }
     if (arg5 != 0) {
         if (mapPointOutsideClipBounds(arg0->unk0, arg0->unk4, arg0->unk8, 0, 0) != 0) {
@@ -2741,7 +2741,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *arg0, Gfx *arg1, f32 arg2, f32 arg3,
         return arg1;
     }
     if (arg0->unk4E & 8) {
-        camProjectToScreen(arg0->unk0, arg0->unk4, arg0->unk8, &sp1D8, &sp1D4, 0, 1.0f, D_807FC929);
+        camProjectToScreen(arg0->unk0, arg0->unk4, arg0->unk8, &sp1D8, &sp1D4, 0, 1.0f, gCurrentPlayerIndex);
         mapSearchTableAddProbe(arg0, sp1D8, sp1D4, sp1D0);
         if (mapSearchTableGetValue(arg0) != 0) {
             return arg1;
@@ -2769,10 +2769,10 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *arg0, Gfx *arg1, f32 arg2, f32 arg3,
     guMtxCatF(sp238, sp1F8, sp238);
     switch (D_807444FC) {
     case 0:
-        mtx = arg0->unk14 + D_807FC929;
+        mtx = arg0->unk14 + gCurrentPlayerIndex;
         break;
     case 1:
-        mtx = arg0->unk18 + D_807FC929;
+        mtx = arg0->unk18 + gCurrentPlayerIndex;
         break;
     }
     guMtxF2L(sp238, mtx);
@@ -2916,7 +2916,7 @@ typedef struct PlayerSlotEntry {
     /* 0x008 */ u8 pad8[0x2E8];
 } PlayerSlotEntry; /* 0x2F0 */
 
-extern u8 D_8074E77C[];
+extern u8 gPlayerCharacterId[];
 typedef struct PlayerKongRecord {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 pad1[0x5D];
@@ -2929,7 +2929,7 @@ typedef struct PlayerKongArray {
 
 extern PlayerKongArray D_807FC952[];
 
-#define PLAYER_CURRENT_OBJ ((PlayerSlotEntry *)D_807FC924)[D_807FC929].unk4
+#define PLAYER_CURRENT_OBJ ((PlayerSlotEntry *)gPlayerSlots)[gCurrentPlayerIndex].unk4
 
 void modelKongVisibilityCheck(s16 arg0, u8 *arg1, s16 *arg2) {
     s32 hit = 0;
@@ -3012,12 +3012,12 @@ void modelKongVisibilityCheck(s16 arg0, u8 *arg1, s16 *arg2) {
         }
         break;
     case 0x11:
-        if ((D_807FC952[D_807FC929].kong[D_8074E77C[D_807FC929]].unk0 & 3) != 3) {
+        if ((D_807FC952[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].unk0 & 3) != 3) {
             hit = 1;
         }
         break;
     case 0x8F:
-        if (!(D_807FC952[D_807FC929].kong[D_8074E77C[D_807FC929]].unk0 & 1)) {
+        if (!(D_807FC952[gCurrentPlayerIndex].kong[gPlayerCharacterId[gCurrentPlayerIndex]].unk0 & 1)) {
             hit = 1;
         }
         break;
@@ -3089,7 +3089,7 @@ void texAnimUpdateNodes(ModelSegmentData *arg0) {
                     *dst = (node->unk34 << 12) | 0xF2000000 | node->unk36;
                 }
             }
-            if (D_8076A064 != node->unk30) {
+            if (gFrameCounter != node->unk30) {
                 node->unk34 += node->unk38;
                 if (node->unk34 >= 0x1000) {
                     node->unk34 = 0;
@@ -3119,7 +3119,7 @@ void texAnimUpdateNodes(ModelSegmentData *arg0) {
                     *node->unk18[D_807444FC].unk8 = sp58 + 0xFA000000;
                 }
             }
-            node->unk30 = D_8076A064;
+            node->unk30 = gFrameCounter;
             node = node->unkD4;
         } while (node != NULL);
     }
@@ -3147,7 +3147,7 @@ void texAnimFindNodeFrame(ModelSegmentOwner *arg0, s32 arg1, s32 *arg2, s32 *arg
         }
         if (found != 0) {
             texAnimNodeUpdateBuffers(node, arg2, arg3, arg4, arg5);
-            node->unk30 = D_8076A064;
+            node->unk30 = gFrameCounter;
             return;
         }
         *arg4 = 0;
@@ -3168,7 +3168,7 @@ void texAnimNodeUpdateBuffers(ModelSegmentNode *arg0, s32 *arg1, s32 *arg2, u8 *
     s32 temp_a3;
     s32 temp_a0;
 
-    if (D_8076A064 == arg0->unk30) {
+    if (gFrameCounter == arg0->unk30) {
         var_v1 = 0;
     } else {
         var_v1 = (u8)texAnimNodeAdvance(arg0, &sp30, &sp2C);

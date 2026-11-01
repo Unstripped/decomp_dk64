@@ -97,8 +97,8 @@ typedef struct RacePlayerPos {
 extern RaceRouteTable *D_8002FCF0;
 extern RaceActor *D_807FBB40;
 extern RaceActor *D_807FBB44;
-extern RacePlayerPos *D_807FC924;
-extern u8 D_807FC928;
+extern RacePlayerPos *gPlayerSlots;
+extern u8 gPlayerCount;
 
 RaceRoute *raceGetRoute(u8 idx) {
     RaceRoute *e = &D_8002FCF0->items[idx];
@@ -408,10 +408,10 @@ void func_8002F490(RaceTracker *arg0) {
             if (((f32)node->x - D_807FBB40->x) * ((f32)node->x - D_807FBB40->x) + ((f32)node->z - D_807FBB40->z) * ((f32)node->z - D_807FBB40->z) > 900.0f) {
                 sp38 = mathAngleBetweenPointsDeg(node->x, node->z, (s32)D_807FBB40->x, (s32)D_807FBB40->z);
                 D_807FBB40->unkEC = (s32)(sp38 - mathAngleBetweenPointsDeg(
-                    (s32)D_807FC924[arg0->playerIdx].f228,
-                    (s32)D_807FC924[arg0->playerIdx].f230,
-                    (s32)D_807FC924[arg0->playerIdx].pos[arg0->playerIdx],
-                    (s32)D_807FC924->pos[2]));
+                    (s32)gPlayerSlots[arg0->playerIdx].f228,
+                    (s32)gPlayerSlots[arg0->playerIdx].f230,
+                    (s32)gPlayerSlots[arg0->playerIdx].pos[arg0->playerIdx],
+                    (s32)gPlayerSlots->pos[2]));
             }
             if (arg0->unk38 != 0) {
                 arg0->unk38 = raceIsFacingWaypoint(node);
@@ -514,8 +514,8 @@ void raceUpdateWaypointActivation(RaceActorState *arg0) {
             node = raceGetWaypoint(list->items[i]);
             if (node->kind != 0) {
                 near = 0;
-                for (j = 0; j < D_807FC928; j++) {
-                    f32 *p = D_807FC924[j].pos;
+                for (j = 0; j < gPlayerCount; j++) {
+                    f32 *p = gPlayerSlots[j].pos;
                     f32 dz = p[2] - node->z;
                     f32 dx = p[0] - node->x;
                     f32 dy = p[1] - node->y;

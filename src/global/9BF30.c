@@ -21,7 +21,7 @@ extern Mtx D_2000000;
 extern Mtx D_2000200;
 extern Gfx D_80750280;
 extern u8 D_807444FC;
-extern u8 *D_807FC924;
+extern u8 *gPlayerSlots;
 
 void actorFreeModelNodeList(Actor *);
 void actorSetCollisionRadius(Actor *, f32);
@@ -104,7 +104,7 @@ Gfx *projectileRenderSpriteRing(Gfx *arg0, Actor *arg1) {
             gDPSetTile(arg0++, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0, 0, G_TX_LOADTILE, 0, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD); gDPLoadSync(arg0++); gDPLoadBlock(arg0++, G_TX_LOADTILE, 0, 0, 0x3FF, 0x80); gDPPipeSync(arg0++); _g = (Gfx *)(arg0++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; gDPSetTileSize(arg0++, G_TX_RENDERTILE, 0, 0, 0x7C, 0x7C); // FAKE: shared Gfx pointer; one source line steers scheduling
 
             guScaleF(mtx2, vscale, vscale, vscale);
-            matrixMakeRotationY(mtx1, (f32)(((*((s16 *)(D_807FC924 + 0x2C8))) * 0x168) / 4096));
+            matrixMakeRotationY(mtx1, (f32)(((*((s16 *)(gPlayerSlots + 0x2C8))) * 0x168) / 4096));
             guMtxCatF(mtx2, mtx1, mtx2);
             guTranslateF(mtx1, arg1->unk7C + vx, arg1->unk80, arg1->unk84 + vy);
             guMtxCatF(mtx2, mtx1, mtx2);
@@ -291,7 +291,7 @@ void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void func_8067ACB4(Actor *);
 void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
-void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void func_80714C08(void *, f32, Actor *, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
@@ -338,7 +338,7 @@ void projectileActorUpdate(void) {
     func_8067ACB4(D_807FBB40);
     actorApplyVelocity(D_807FBB40);
     actorUpdateFloorContactAndTilt(D_807FBB40, 4.0f);
-    func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x96, 0x78, 0, 1.0f);
+    billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x96, 0x78, 0, 1.0f);
     if ((G_ACTOR->unk6A & 1) || (G_ACTOR->unkFC != 0) || (D_807FBB85 != 0)) {
         if (sub->unk13 == 3) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0x14);

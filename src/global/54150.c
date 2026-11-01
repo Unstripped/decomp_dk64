@@ -24,7 +24,7 @@ typedef struct ModelData {
 void *heapAlloc(s32);
 void *memcpy(void *, const void *, unsigned int);
 
-void func_8064F450(ModelData **arg0, u8 *arg1) {
+void modelSlotAllocAnimBuffers(ModelData **arg0, u8 *arg1) {
     u8 *p2;
     u32 n;
     u8 *p1;
@@ -188,18 +188,18 @@ s16 arg0;
 }
 
 void modelAnimEntryAdvance();
-void func_8064F97C(ModelAnimEntryRaw *);
+void modelAnimEntryBuildNodeMatrices(ModelAnimEntryRaw *);
 
 void modelAnimEntryStep(void *arg0) {
     modelAnimEntryAdvance(arg0);
-    func_8064F97C(arg0);
+    modelAnimEntryBuildNodeMatrices(arg0);
 }
 
 void modelAnimEntryBuildKeyMatrix();
 void mtxCopyQueuePush();
 void mtxCopyQueueCancelDest();
 
-void func_8064F97C(ModelAnimEntryRaw *arg0) {
+void modelAnimEntryBuildNodeMatrices(ModelAnimEntryRaw *arg0) {
     u8 *node;
     s16 stride;
     s32 i;
@@ -229,7 +229,7 @@ void func_8064F97C(ModelAnimEntryRaw *arg0) {
     }
 }
 
-void func_8064FA7C(u32 *arg0, u32 *arg1) {
+void modelAnimEntryQueueMatrixCopies(u32 *arg0, u32 *arg1) {
     u8 *node;
     s16 stride;
     s32 i;
@@ -537,9 +537,9 @@ typedef struct ModelAnimGroup {
 
 extern MtxCopyRequest D_807F6960[];
 void faultSetMessage(s32, s32, s32, s32);
-void func_8064FA7C();
+void modelAnimEntryQueueMatrixCopies();
 
-void func_8065051C(void) {
+void mtxCopyQueueReset(void) {
     s32 i;
 
     for (i = 0; i < 0x28; i++) {
@@ -643,7 +643,7 @@ void modelAnimEntryStop(s16 arg0, s16 arg1) {
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unkE = 0;
-        func_8064FA7C(group, entry);
+        modelAnimEntryQueueMatrixCopies(group, entry);
     }
 }
 

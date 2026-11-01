@@ -47,7 +47,7 @@ void modelPendingQueueInsert(R36880fSrc *arg0, u8 arg1) {
             case 6:
                 best = 1e8f;
                 for (i = 0; i < D_80750AB4;) {
-                    p = (u8 *)D_807FC924 + i * 0x2F0;
+                    p = (u8 *)gPlayerSlots + i * 0x2F0;
                     i++;
                     if (*p != 0) {
                         if (obj[0x54] == 6) {

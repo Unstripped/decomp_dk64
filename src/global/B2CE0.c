@@ -103,7 +103,7 @@ void actorApplyGravity(void);
 void func_8067ACB4(B2CE0Actor *);
 void actorApplyVelocity(B2CE0Actor *);
 void actorUpdateFloorContactAndTilt(B2CE0Actor *, f32);
-void func_8065D254(B2CE0Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(B2CE0Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void actorDespawn(B2CE0Actor *);
@@ -122,7 +122,7 @@ void patrolPathStep(u32, s32);
 void func_8072B7CC();
 void behaviourFrameBegin(void);
 s32 func_8072DE10(u16);
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleEaseToward(s16, s16, f32);
 void func_8072C918(s32, s32, s32);
 void func_8072D714(s32, s32);
 void func_8072DC7C(s32);
@@ -160,7 +160,7 @@ void func_806ADFE0(void) {
     func_8067ACB4(D_807FBB40);
     actorApplyVelocity(D_807FBB40);
     actorUpdateFloorContactAndTilt(D_807FBB40, 0);
-    func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 10, 10, 1, 200, 0x80, 0, 1.0f);
+    billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 10, 10, 1, 200, 0x80, 0, 1.0f);
     if (D_807FBB40->unk15F != 0) {
         actorUpdateModelMatrix(D_807FBB40, 0);
     } else {
@@ -243,7 +243,7 @@ typedef struct B2CE0ActorView134 {
     /* 0x134 */ s16 unk134;
 } B2CE0ActorView134;
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 void actorClearNodeFlag(B2CE0Actor *, s32);
 void csModelStateSetFirstByte(s32, s32);
 
@@ -256,7 +256,7 @@ void func_806AE588(void) {
         behaviourSetAnimIds(0x1FD, 0x1FB, 0x1FC);
         func_80724CA4(3, 1);
         actorClearNodeFlag(D_807FBB40, 3);
-        if (D_8076A0A8 == 0xA5) {
+        if (gCurrentMap == 0xA5) {
             D_807FBB40->unk132 = 1;
         }
     }
@@ -290,7 +290,7 @@ void func_806AE588(void) {
         actorMoveWithinZone(0, 0.0f, 0.0f, 0x4300, 0.0f);
         break;
     case 0x32:
-        D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, D_807FBB40->unkEE, 7.0f);
+        D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, D_807FBB40->unkEE, 7.0f);
         switch (D_807FBB40->unk155) {
         case 0:
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x4300, 0.0f);
@@ -370,13 +370,13 @@ void func_806AE588(void) {
         actorMoveWithinZone(D_807FBB40->unk154, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0, 0.0f);
         break;
     case 0x37:
-        D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, D_807FBB40->unkEE, 7.0f);
+        D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, D_807FBB40->unkEE, 7.0f);
         switch (D_807FBB40->unk155) {
         case 0:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
             break;
         case 1:
-            if ((D_8076A0A8 == 0xA5) && (D_807FBB40->unk15F != 0)) {
+            if ((gCurrentMap == 0xA5) && (D_807FBB40->unk15F != 0)) {
                 csModelStateSetFirstByte(0, 0xA);
             }
             sfxSpawnTableNodes(D_807FBB40);
@@ -774,7 +774,7 @@ void func_806AFB58(void) {
         actorMoveWithinZone(D_807FBB40->unk154, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0, 0.0f);
         break;
     case 0x37:
-        D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, D_807FBB40->unkEE, 7.0f);
+        D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, D_807FBB40->unkEE, 7.0f);
         switch (D_807FBB40->unk155) {
         case 0:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x202, 0.0f);
@@ -948,7 +948,7 @@ typedef struct B2CE0View90Ptr {
 
 s32 func_806B0770();
 void func_8072DEA8(s32, s32, s32);
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern s32 D_807FBB4C;
 
 void func_806B0848(void) {
@@ -980,7 +980,7 @@ void func_806B0848(void) {
     }
     switch (sel) {
         case 0x37:
-            D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, D_807FBB40->unkEE, 7.0f);
+            D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, D_807FBB40->unkEE, 7.0f);
             switch (D_807FBB40->unk155) {
                 case 0:
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x202, 0.0f);
@@ -1007,7 +1007,7 @@ void func_806B0848(void) {
             switch (D_807FBB40->unk155) {
                 case 0:
                     actorSetTargetSpeed(D_807FBB40, 0);
-                    actorScriptStart(D_807FBB40, (D_8076A064 & 1) ? 0x362 : 0x361);
+                    actorScriptStart(D_807FBB40, (gFrameCounter & 1) ? 0x362 : 0x361);
                     D_807FBB40->unk155 = 1;
                     break;
                 case 2:

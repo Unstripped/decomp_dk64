@@ -106,7 +106,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         do {
             if (D_80720BC4) {}
-            pl = (CsPlayerPosView *)D_807FC924;
+            pl = (CsPlayerPosView *)gPlayerSlots;
             v = D_807F5FD4[0] + p->idx;
             if (sqrtf((pl->z - v->z) * (pl->z - v->z) + ((pl->x - v->x) * (pl->x - v->x) + (pl->y - v->y) * (pl->y - v->y))) < D_807480F0) {
                 if (D_807480F4 && D_807480F4) {}

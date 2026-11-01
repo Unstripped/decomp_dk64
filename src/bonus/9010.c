@@ -6,7 +6,7 @@ extern Gfx D_1000118;
 extern Mtx D_2000180;
 extern s8 D_8002D92C;
 extern s8 D_8002DEF0[];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern Actor *D_807FBB40;
 s32 _sprintf(char *, const char *, ...);
 Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
@@ -45,7 +45,7 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *arg1) {
     if (hud->unk6 > 0) {
         hud->unk6 -= 2;
     }
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
     case 0xBF:
         if (arg1->unk154 == 2) {
             y = 0x1E0 - (D_8002D92C * 3 << 4);
@@ -114,7 +114,7 @@ void bonusScoreHudUpdate(void) {
     case 0:
         if (D_807444EC == 1) {
             if (camIsPathPaused()) {
-                switch (D_8076A0A8) {
+                switch (gCurrentMap) {
                 case 0xBF:
                     sp28 = 0x1F;
                     break;
@@ -146,7 +146,7 @@ void bonusScoreHudUpdate(void) {
             D_807FBB40->unk154 = 3;
             hud->unk0 = 0x78;
         }
-        switch (D_8076A0A8) {
+        switch (gCurrentMap) {
         case 0xBF:
             D_8002D930 -= 1;
             if (D_8002D930 <= 0) {

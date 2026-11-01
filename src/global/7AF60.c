@@ -8,10 +8,10 @@ typedef struct PlayerData {
 } PlayerData;
 
 extern u8 D_807F6902;
-extern u8 D_807FC928;
-extern PlayerData *D_807FC924;
+extern u8 gPlayerCount;
+extern PlayerData *gPlayerSlots;
 
-void func_806D0DE4(s32, s32);
+void playerIsSmallerThanAttacker(s32, s32);
 s32 func_806D10D0(s32);
 s32 func_806767E0();
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
@@ -23,7 +23,7 @@ s32 actorCheckPlayerProximityVertical();
 s32 actorListContainsId();
 u8 func_80714608();
 void func_80676260(s32 arg0, s32 arg1, s32 arg2) {
-    func_806D0DE4(arg0, arg1);
+    playerIsSmallerThanAttacker(arg0, arg1);
 }
 
 u8 func_80676280(s32 arg0, s32 arg1, s32 arg2) {
@@ -238,7 +238,7 @@ s32 arg2;
 u8 func_806769A8(s32 arg0, Actor* arg1, s32 arg2) {
     if (arg1->unk58 == 6) {
         u8 kong = ((u8*)arg1->unk174)[0x1A4];
-        if (D_807FC924[kong].unk2C0 != 1) {
+        if (gPlayerSlots[kong].unk2C0 != 1) {
             return 1;
         }
     }
@@ -248,7 +248,7 @@ u8 func_806769A8(s32 arg0, Actor* arg1, s32 arg2) {
 u8 func_80676A0C(s32 arg0, Actor* arg1, s32 arg2) {
     if (arg1->unk58 == 5) {
         u8 kong = ((u8*)arg1->unk174)[0x1A4];
-        if (D_807FC924[kong].unk2C0 != 1) {
+        if (gPlayerSlots[kong].unk2C0 != 1) {
             return 1;
         }
     }
@@ -270,8 +270,8 @@ u8 func_80676AB8(Actor* arg0, Actor* arg1, s32 arg2) {
     u8 var_v1 = 0;
 
     if (arg1->unk5C & 2) {
-        var_v1 = D_807FC924[kong].unk2C0 == 2;
-        if (var_v1 && D_807FC928 == 1) {
+        var_v1 = gPlayerSlots[kong].unk2C0 == 2;
+        if (var_v1 && gPlayerCount == 1) {
             var_v1 = arg0->unk58 == 6;
         }
     }
@@ -302,7 +302,7 @@ u8 func_80676B70(Actor* arg0, Actor* arg1, s32 arg2) {
 }
 u8 func_80676BCC(s32 arg0, Actor* arg1, s32 arg2) {
     u8 kong = ((u8*)arg1->unk174)[0x1A4];
-    return D_807FC924[kong].unk2C0 == 2;
+    return gPlayerSlots[kong].unk2C0 == 2;
 }
 
 u8 func_80676C10(s32 arg0, Actor* arg1, s32 arg2) {

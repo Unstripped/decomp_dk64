@@ -1,7 +1,7 @@
 #include "common.h"
 
 extern u16 D_80744734[];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern s32 D_80767CC4;
 
 // .bss 0x8076AF00-0x8076AF20
@@ -20,7 +20,7 @@ s32 func_80600530(void) {
     i = 0;
     found = 0;
     while (!found && i < 8) {
-        if (D_8076A0A8 == D_80744734[i]) {
+        if (gCurrentMap == D_80744734[i]) {
             found = 1;
         } else {
             i++;
@@ -62,7 +62,7 @@ void frameTimingReset(s32 arg0) {
 
 extern u32 D_80744478;
 extern u8 D_80745290;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern u8 gScheduler[];
 #define SCHED284 (*(volatile s32 *)(gScheduler + 0x284))
 
@@ -119,7 +119,7 @@ void frameTimingUpdate(void) {
         if (flag != 0) {
             D_80744478 = sample;
         }
-        if ((u32)D_8076A064 >= 0xB) {
+        if ((u32)gFrameCounter >= 0xB) {
             p = &D_80767CC4;
             limit = D_8076AF10 + D_80744478;
             if (SCHED284 < limit) {

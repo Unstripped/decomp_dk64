@@ -1,4 +1,4 @@
-// func_806CF138 (src/global/CEAE0.c): W3Six: stage 6, 6 diff lines (unchanged best): sp44/sp40 f2/f14/f0 swap only (target sp4C var=f2, sp48 piece=f14). Earlier W2FP analysis stands (dz expr cand 21 must stay unmerged from sp44). W3Six tried without gain: sp58 sum operand order (11 forms) x sp3C/sp38/sp34 operand swaps (all 88), dz1/dx1 via named temps sp50/sp34, sp44 spellings (+-,-(a-b),+0.0f,*1.0f), s32 return toggles of actorGetNodePos/func_806CF2EC, array/ptr-aliased pos locals (worse: 42-63), 1500-sample random grid of 'test after sp44' + 0-3 arg0-expr dead tests (best 28), 420s hill-climb from empty tests (best 7.0).
+// func_806CF138 (src/global/CEAE0.c): W3Six: stage 6, 6 diff lines (unchanged best): sp44/sp40 f2/f14/f0 swap only (target sp4C var=f2, sp48 piece=f14). Earlier W2FP analysis stands (dz expr cand 21 must stay unmerged from sp44). W3Six tried without gain: sp58 sum operand order (11 forms) x sp3C/sp38/sp34 operand swaps (all 88), dz1/dx1 via named temps sp50/sp34, sp44 spellings (+-,-(a-b),+0.0f,*1.0f), s32 return toggles of actorGetNodePos/playerGetHoldNodeIndices, array/ptr-aliased pos locals (worse: 42-63), 1500-sample random grid of 'test after sp44' + 0-3 arg0-expr dead tests (best 28), 420s hill-climb from empty tests (best 7.0).
 typedef struct G05CbArg2 {
     /* 0x0 */ Actor *unk0;
     /* 0x4 */ Actor *unk4;
@@ -29,7 +29,7 @@ void func_806CF138(G05CbArg2 *arg0) {
     s32 sp30;
     s32 sp2C;
 
-    func_806CF2EC(&sp30, &sp2C);
+    playerGetHoldNodeIndices(&sp30, &sp2C);
     actorGetNodePos(arg0->unk0, sp30, &sp70, &sp68, &sp60);
     if (sp68) {} // FAKE: dead test steers uopt coloring
     actorGetNodePos(arg0->unk0, sp2C, &sp74, &sp6C, &sp64);

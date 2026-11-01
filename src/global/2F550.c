@@ -7,7 +7,7 @@ extern u8 D_807444FC;
 extern u8 D_807444F0;
 extern u8 D_807444EC;
 extern s8 D_807444C0;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern f32 D_80747CD0;
 
 f32 cameraStepAspectScale(void) {
@@ -24,7 +24,7 @@ f32 cameraStepAspectScale(void) {
     }
     flag = D_807444EC == 1;
     if (flag) {
-        flag = D_8076A0A8 != 0x50;
+        flag = gCurrentMap != 0x50;
     }
     if (D_807444C0 != 0 && !flag) {
         target = target * 1.2;
@@ -342,7 +342,7 @@ void mapOffsetSlotSetEnabled(s16 arg0, u8 arg1) {
     D_807F5FB8[arg0].unk8C = arg1;
 }
 
-extern s32 D_807F6C28;
+extern s32 gMapChunkCount;
 
 void mapOffsetSlotsUpdate(void) {
     s32 i;
@@ -350,7 +350,7 @@ void mapOffsetSlotsUpdate(void) {
     D_807F5FC0 = 0;
     for (i = 0; i < D_807F5FBC; i++) {
         if (D_807F5FB8[i].unk80 != 0.0) {
-            guTranslate(&D_807F5FB8[i].mtx[D_807444FC], 0.0f, D_807F6C28 != 0 ? D_807F5FB8[i].unk80 * 3.0f : D_807F5FB8[i].unk80, 0.0f);
+            guTranslate(&D_807F5FB8[i].mtx[D_807444FC], 0.0f, gMapChunkCount != 0 ? D_807F5FB8[i].unk80 * 3.0f : D_807F5FB8[i].unk80, 0.0f);
         }
         if (D_807F5FB8[i].unk80 != D_807F5FB8[i].unk84) {
             D_807F5FC0 = 1;
@@ -607,14 +607,14 @@ typedef struct PlayerViewState {
     u8 pad2EB[5];
 } PlayerViewState;
 
-#define PLAYER_VIEW(i) (((PlayerViewState *)D_807FC924)[i])
+#define PLAYER_VIEW(i) (((PlayerViewState *)gPlayerSlots)[i])
 
 extern Gfx D_1000118;
 extern u8 D_80750AB4;
 extern u8 D_807F5FEC;
 extern u8 D_807F5FED;
-extern u8 D_807FC929;
-extern void *D_807FC924;
+extern u8 gCurrentPlayerIndex;
+extern void *gPlayerSlots;
 
 void mapFrameBegin(s32);
 void mapFrameEnd(void);
@@ -636,7 +636,7 @@ Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
     }
     for (i = 0; i < D_80750AB4; i++) {
         if (PLAYER_VIEW(i).unk0 != 0) {
-            D_807FC929 = i;
+            gCurrentPlayerIndex = i;
             gfx = func_8062C29C(gfx, PLAYER_VIEW(i).unk21C, PLAYER_VIEW(i).unk220, PLAYER_VIEW(i).unk224,
                                 PLAYER_VIEW(i).unk234, PLAYER_VIEW(i).unk238, PLAYER_VIEW(i).unk23C,
                                 PLAYER_VIEW(i).unk28C, PLAYER_VIEW(i).unk280 * cameraStepAspectScale(),
@@ -673,7 +673,7 @@ void mapFrameBegin(s32 arg0) {
     lightFlushQueued();
     mapDistributeEntries(D_807F5FF4);
     func_8063039C();
-    if (D_807F6C28 == 0) {
+    if (gMapChunkCount == 0) {
         mapChunkAnimateTextures(0xFF);
     }
     mapChunkResetFlags();
@@ -693,7 +693,7 @@ void modelSlotsStepSegmentCommands(void);
 void displayListFreeQueueProcess(void);
 
 void mapFrameEnd(void) {
-    if (D_807F6C28 != 0) {
+    if (gMapChunkCount != 0) {
         mapChunkReleaseAndAdvance();
         mapChunkFreeHiddenBuffers();
         mapChunkFreeIdleBuffers();
@@ -753,7 +753,7 @@ Gfx *fogRender(Gfx *);
 struct RawGfxCmd;
 struct RawGfxCmd *mapChunkEmitSegmentCommands();
 Gfx *spriteListRender(Gfx *, s32);
-Gfx *func_8065D994(Gfx *, s16);
+Gfx *billboardRenderQueued(Gfx *, s16);
 
 #define MAP_LEAF(o) ((MapLeafLists *)(o))
 
@@ -796,7 +796,7 @@ Gfx *mapTreeRender(Gfx *gfx, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 a
                 gfx = mapViewDrawPass(gfx, (struct MapViewEntries *)arg1, 2);
             }
             gfx = spriteListRender(gfx, arg2->unk8);
-            gfx = func_8065D994(gfx, -1);
+            gfx = billboardRenderQueued(gfx, -1);
             D_807F6009 = 0xFF;
             gfx = renderEntryListBuildDisplayList(gfx, (s32)arg2->unk4, arg3, arg4, arg5, arg6, -1, 0);
             if (arg6 & 0x10) {
@@ -1552,7 +1552,7 @@ void mapSurfaceEffectsReset(void);
 void mapChunksInitFromMapData(void *);
 void collisionInitStaticCache(void *);
 void collisionBuildCellTable(void *);
-void func_8065F1C0(void *);
+void effectWaterInitNodes(void *);
 void actorTargetTableLoad(void *);
 void triggerZoneInit(void *);
 void func_8062F318(void);
@@ -1616,7 +1616,7 @@ void mapHeaderLoad(s32 arg0) {
     mapChunksInitFromMapData((void *)arg0);
     collisionInitStaticCache((void *)arg0);
     collisionBuildCellTable((void *)arg0);
-    func_8065F1C0((void *)arg0);
+    effectWaterInitNodes((void *)arg0);
     actorTargetTableLoad((void *)arg0);
     triggerZoneInit((void *)arg0);
     func_8062F318();

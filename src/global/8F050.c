@@ -116,8 +116,8 @@ typedef struct ProximityActorEntry {
 
 extern u16 gActiveActorCount;
 extern ProximityActorEntry gActiveActors[];
-extern ProximityPlayerPos *D_807FC924;
-extern u8 D_807FC928;
+extern ProximityPlayerPos *gPlayerSlots;
+extern u8 gPlayerCount;
 extern s32 D_807552F4[];
 
 void controllerAnimFreeSub(void *, u32);
@@ -136,14 +136,14 @@ void actorProximityUpdate(void) {
     for (i = 0; i < (s32)gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
         if (!(actor->unk60 & 0x2000) && (actor->unk60 & 0x100)) {
-            dist_sq = ((actor->unk84 - D_807FC924->unk218) * (actor->unk84 - D_807FC924->unk218)) +
-                      (((actor->unk7C - D_807FC924->unk210) * (actor->unk7C - D_807FC924->unk210)) +
-                       ((actor->unk80 - D_807FC924->unk214) * (actor->unk80 - D_807FC924->unk214)));
+            dist_sq = ((actor->unk84 - gPlayerSlots->unk218) * (actor->unk84 - gPlayerSlots->unk218)) +
+                      (((actor->unk7C - gPlayerSlots->unk210) * (actor->unk7C - gPlayerSlots->unk210)) +
+                       ((actor->unk80 - gPlayerSlots->unk214) * (actor->unk80 - gPlayerSlots->unk214)));
             if (actorConfigLookup(actor->unk58, &sp80) != 0) {
                 r = renderScaleDistanceByFov(D_80750100[sp80].unk4);
                 switch (D_80750100[sp80].unk8) {
                 case 0:
-                    if (D_807FC928 >= 2) {
+                    if (gPlayerCount >= 2) {
                         sub = actor->unk174;
                         a2 = D_807552F4[sub->unk1A4];
                         if (a2 >= 0) {

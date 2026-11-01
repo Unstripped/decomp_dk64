@@ -21,7 +21,7 @@ volatile u8 arg2;
     seg = ((ModelSlotSegOwner *)arg0)->unk20;
     obj = (ModelSlotObjHeader *)arg0->unk24;
     seg2 = seg;
-    obj->unk8 = D_8076A064;
+    obj->unk8 = gFrameCounter;
     flags = arg0->unk8C;
     if (!(flags & 0x20)) {
         if (!(obj->unk0 & 0x10) || arg2 != 0) {

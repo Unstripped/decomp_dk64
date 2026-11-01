@@ -14,7 +14,7 @@ extern u8 D_807F5D70[];
 extern s16 D_807F5D7C;
 extern void *D_807FBB48;
 extern s32 D_807FBB68;
-extern void *D_807FC924;
+extern void *gPlayerSlots;
 extern f32 gScreenFadeRate;
 
 void actorClearMovementFlags(void *);
@@ -51,9 +51,9 @@ void func_8067AB20(s32, s32, s32, s32, s16 *, s32);
 void func_8067B238(void *, void *, s32);
 void func_80687C48(void);
 void func_806C8E58(s16);
-void func_806CFF9C(void *);
+void playerResumeLocomotion(void *);
 void func_806F0C18(void *);
-void func_806F397C(void *, s32, s16, s32);
+void playerWaypointPathStartPacked(void *, s32, s16, s32);
 void func_8070B308(s32);
 void func_8070D8C0(void *, u16, u8);
 void func_8070E8DC(s32);
@@ -183,7 +183,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             M3_OFF(actorFromSpawnNodeOrDefault(a), u8, 0x15E) = sv[3];
             return;
         case 0x25:
-            func_806F397C(D_807FBB4C, 0, a, 0);
+            playerWaypointPathStartPacked(D_807FBB4C, 0, a, 0);
             return;
         case 0x26:
             func_80641874(a, (s16)sv[3]);
@@ -270,9 +270,9 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
                     func_8067B238(D_807FBB4C, sp98, M3_OFF(M3_OFF(sp98, void *, 4), s32, 0x38));
                 } else {
                     func_8067B238(D_807FBB4C, sp98, 0x3E19999A);
-                    M3_OFF(D_807FC924, u8, 0x2C0) = 1;
+                    M3_OFF(gPlayerSlots, u8, 0x2C0) = 1;
                 }
-                func_806CFF9C(D_807FBB4C);
+                playerResumeLocomotion(D_807FBB4C);
                 M3_OFF(D_807FBB4C, s32, 0x60) |= 4;
                 M3_OFF(sp98, u8, 0x154) = 0x40;
                 return;
@@ -401,7 +401,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             M3_OFF(actorFromSpawnNodeOrDefault(a), s16, 0x146) = sv[3];
             return;
         case 0x1C:
-            M3_OFF(actorFromSpawnNodeOrDefault(a), s16, 0xE6) = M3_OFF(D_807FC924, s16, 0x2C8) & 0xFFF;
+            M3_OFF(actorFromSpawnNodeOrDefault(a), s16, 0xE6) = M3_OFF(gPlayerSlots, s16, 0x2C8) & 0xFFF;
             return;
         case 0x30:
             p = actorFromSpawnNodeOrDefault(a);

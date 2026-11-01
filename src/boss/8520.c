@@ -229,7 +229,7 @@ s32 currentActorTestClearFlag(void);
 void actorSetTargetSpeed(void *, s32);
 void camSetSecondTarget(void *, s32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s16 func_806CC190(s16, s16, s32);
+s16 mathAngleEaseToward(s16, s16, s32);
 s32 spawnNodeHasActor(s32);
 s32 camIsCutsceneActive(void);
 void func_8072D9D4(void);
@@ -344,7 +344,7 @@ void func_8002C964(void) {
         }
         break;
     case 0x27:
-        A40->unkE6 = func_806CC190(A40->unkE6, mathAngleBetweenPoints2D(DC94->unk7C, DC94->unk84, A40->unk7C, A40->unk84), 0x41000000);
+        A40->unkE6 = mathAngleEaseToward(A40->unkE6, mathAngleBetweenPoints2D(DC94->unk7C, DC94->unk84, A40->unk7C, A40->unk84), 0x41000000);
         switch (A40->unk155) {
         case 0:
             func_8002C5F4();

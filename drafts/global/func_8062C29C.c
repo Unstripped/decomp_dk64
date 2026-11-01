@@ -19,7 +19,7 @@ typedef struct L8062C29CPlayer {
     u8 pad278[0x78];
 } L8062C29CPlayer;
 
-#define L8062C29CP (((L8062C29CPlayer *)D_807FC924)[D_807FC929])
+#define L8062C29CP (((L8062C29CPlayer *)gPlayerSlots)[gCurrentPlayerIndex])
 #define L8062C29CF(x) (*(f32 *)&(x))
 
 extern s32 D_807F5E64;
@@ -68,7 +68,7 @@ Gfx *func_8062C29C(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f
     mapTreeFrameUpdate(D_807F5DE4, D_807F5E60, D_807F5FF0, L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), 0, !D_807F5FEC, D_80750AB4 >= 2);
     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-    gfx = actorBuildLightDisplayList(gfx, L8062C29CP.unk4, D_807FC929);
+    gfx = actorBuildLightDisplayList(gfx, L8062C29CP.unk4, gCurrentPlayerIndex);
     gSPSegment(gfx++, 5, osVirtualToPhysical(dl));
     gDPSetTileSize(dl++, 0, (L8062C29CP.unk1D0[D_807444FC][0] & 0xFFFFFFFFFFFFFFFFu), L8062C29CP.unk1D0[D_807444FC][1], // FAKE: u64 mask no-op steers load order
                    (L8062C29CP.unk1D0[D_807444FC][0] + 0x7C) & 0xFFFFFFFFFFFFFFFFu, L8062C29CP.unk1D0[D_807444FC][1] + 0x7C); // FAKE: u64 mask no-op steers load order
@@ -80,7 +80,7 @@ Gfx *func_8062C29C(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f
     gSPLookAtX(gfx++, osVirtualToPhysical(&L8062C29CP.unk190[D_807444FC]));
     gSPLookAtY(gfx++, osVirtualToPhysical(&L8062C29CP.unk190[D_807444FC]) + 0x10);
     mapSetClipBounds(L8062C29CP.unk270, L8062C29CP.unk272, L8062C29CP.unk274, L8062C29CP.unk276);
-    gfx = gfxDrawPlayerViewBackground(fogApply(gfx), D_807FC929);
+    gfx = gfxDrawPlayerViewBackground(fogApply(gfx), gCurrentPlayerIndex);
     gSPMatrix(gfx++, osVirtualToPhysical(&L8062C29CP.unk88[D_807444FC]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(gfx++, osVirtualToPhysical(&L8062C29CP.unk8[D_807444FC]), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(gfx++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);

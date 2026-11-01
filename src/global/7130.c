@@ -54,8 +54,8 @@ typedef struct AudioPlayer {
 extern s8 D_80745650;
 extern u8 D_80770DC9;
 extern u8 D_80770DD8[];
-extern AudioPlayer *D_807FC924;
-extern s32 D_8076A0A8;
+extern AudioPlayer *gPlayerSlots;
+extern s32 gCurrentMap;
 extern AmbientSfxEntry D_807459FC[];
 
 s16 mapChunkFindByPosition(f32, f32, f32, s32);
@@ -75,10 +75,10 @@ void sfxStartAreaAmbient(void) {
 
     count = 29;
     if (count) {}  // FAKE: dead use of count steers uopt register priority (t0 instead of a0)
-    v0 = mapChunkFindByPosition(D_807FC924->unk210, D_807FC924->unk214, D_807FC924->unk218, 0);
+    v0 = mapChunkFindByPosition(gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218, 0);
 
     i = 0; do {
-        if (D_8076A0A8 == D_807459FC[i].unk0 && v0 == D_807459FC[i].unk2) {
+        if (gCurrentMap == D_807459FC[i].unk0 && v0 == D_807459FC[i].unk2) {
             D_80770DC9 = D_807459FC[i].unk8;
             sfxAllocateChannel(D_807459FC[i].unk4, 1.0f);
             if (D_807459FC[i].unk6 != 0) {
@@ -347,9 +347,9 @@ f32 sfxCalcDistanceVolumePan(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, f32
     f64 diff;
 
     sp18 = 0.0f;
-    sp2C = D_807FC924->unk210 - arg0;
-    dy = D_807FC924->unk214 - arg1;
-    sp24 = D_807FC924->unk218 - arg2;
+    sp2C = gPlayerSlots->unk210 - arg0;
+    dy = gPlayerSlots->unk214 - arg1;
+    sp24 = gPlayerSlots->unk218 - arg2;
 
     diff = ((f64)arg5 > 0.8) ? ((f64)arg5 - 0.8) : -((f64)arg5 - 0.8);
 
@@ -360,13 +360,13 @@ f32 sfxCalcDistanceVolumePan(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, f32
     D_80770DE4 = sqrtf((sp2C * sp2C) + (dy * dy) + (sp24 * sp24));
 
     if ((f64)arg5 >= 0.8) {
-        f32 l_dz = D_807FC924->unk230 - D_807FC924->unk218;
-        f32 l_dx = D_807FC924->unk228 - D_807FC924->unk210;
-        sp18 = mathAngleBetweenPointsRad(D_807FC924->unk214, 0.0f, D_807FC924->unk22C, sqrtf((l_dz * l_dz) + (l_dx * l_dx)));
+        f32 l_dz = gPlayerSlots->unk230 - gPlayerSlots->unk218;
+        f32 l_dx = gPlayerSlots->unk228 - gPlayerSlots->unk210;
+        sp18 = mathAngleBetweenPointsRad(gPlayerSlots->unk214, 0.0f, gPlayerSlots->unk22C, sqrtf((l_dz * l_dz) + (l_dx * l_dx)));
 
-        l_dz = arg2 - D_807FC924->unk218;
-        l_dx = arg0 - D_807FC924->unk210;
-        D_80770DDC = mathAngleBetweenPointsRad(D_807FC924->unk214, 0.0f, arg1, sqrtf((l_dz * l_dz) + (l_dx * l_dx))) - sp18;
+        l_dz = arg2 - gPlayerSlots->unk218;
+        l_dx = arg0 - gPlayerSlots->unk210;
+        D_80770DDC = mathAngleBetweenPointsRad(gPlayerSlots->unk214, 0.0f, arg1, sqrtf((l_dz * l_dz) + (l_dx * l_dx))) - sp18;
 
         if (D_80770DDC < 0.0f) {
             D_80770DDC += 6.2831855f;
@@ -377,7 +377,7 @@ f32 sfxCalcDistanceVolumePan(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, f32
         }
     }
 
-    D_80770DDC = mathAngleBetweenPointsRad(D_807FC924->unk210, D_807FC924->unk218, arg0, arg2) - D_807FC924->unk2C4;
+    D_80770DDC = mathAngleBetweenPointsRad(gPlayerSlots->unk210, gPlayerSlots->unk218, arg0, arg2) - gPlayerSlots->unk2C4;
     if (D_80770DDC < 0.0f) {
         D_80770DDC += 6.2831855f;
     }
@@ -516,7 +516,7 @@ f32 D_80770E78[16];
 f32 D_80770EB8[16];
 f32 D_80770EF8[16];
 extern u32 D_807FBB60;
-extern SoundContextD580 *D_807FD580;
+extern SoundContextD580 *gActivePlayerState;
 
 s32 func_8062F388(LevelSoundEmitter **);
 void actorTargetEntriesUpdateSfx(s32, s32, s32, f32);
@@ -547,7 +547,7 @@ void sfxUpdateLevelAmbient(void) {
     spE7 = -1;
     spE5 = 0;
 
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
     case 7:
         if (D_8077058C[0] == 0) {}  // FAKE: dead statement steers uopt colouring
         var_s1 = 7;
@@ -592,7 +592,7 @@ void sfxUpdateLevelAmbient(void) {
     case 0x30:
         spC0 = D_80746170;
         var_s1 = 8;
-        if (D_807FD580->unk1F0 & 0x100000) {
+        if (gActivePlayerState->unk1F0 & 0x100000) {
             sfxStopChannel(0x44, 0);
             if (sfxGetChannelVolume(0x44) < 0.1) {
                 sfxAllocateChannel(0x46, 1.0f);
@@ -617,8 +617,8 @@ void sfxUpdateLevelAmbient(void) {
         if (var_s1 > 0) {
             do {
                 AmbientEmitter *entry = (AmbientEmitter *)((s32)spC0 + s0 * 14);
-                f32 dx = D_807FC924->unk210 - (f32)entry->unk0;
-                f32 dz = D_807FC924->unk218 - (f32)entry->unk4;
+                f32 dx = gPlayerSlots->unk210 - (f32)entry->unk0;
+                f32 dz = gPlayerSlots->unk218 - (f32)entry->unk4;
                 if (entry->unk6 == -1) {
                     D_80770DE4 = sqrtf(dx * dx + dz * dz);
                     if (D_80770DE4 < (f32)(entry->unk8 - 20)) {
@@ -627,7 +627,7 @@ void sfxUpdateLevelAmbient(void) {
                         sfxStopChannel(entry->unkB, 0);
                     }
                 } else {
-                    f32 dy = D_807FC924->unk214 - (f32)entry->unk2;
+                    f32 dy = gPlayerSlots->unk214 - (f32)entry->unk2;
                     D_80770DE4 = sqrtf(dx * dx + dy * dy + dz * dz);
                     if (s0 == 0 || D_80770DE4 < D_80770DD4) {
                         spE7 = s0;
@@ -715,10 +715,10 @@ void sfxUpdateLevelAmbient(void) {
         if (var_fs1 < 0.0f) {
             var_fs1 = 0.0f;
         }
-        var_fs1 = (f32)((f64)(u32)D_80745BDC[D_8076A0A8][1] + (((255.0 - (f64)(u32)D_80745BDC[D_8076A0A8][1]) * ((f64)(u32)D_80770DC8 / 127.0) * (f64)var_fs1) / 255.0));
+        var_fs1 = (f32)((f64)(u32)D_80745BDC[gCurrentMap][1] + (((255.0 - (f64)(u32)D_80745BDC[gCurrentMap][1]) * ((f64)(u32)D_80770DC8 / 127.0) * (f64)var_fs1) / 255.0));
         D_8077058E = (u8)(u32)var_fs1;
     } else {
-        D_8077058E = D_80745BDC[D_8076A0A8][1];
+        D_8077058E = D_80745BDC[gCurrentMap][1];
     }
     if (D_80770DE8 && D_80770DE8) {}  // FAKE: dead statement steers uopt colouring
 
@@ -730,7 +730,7 @@ void sfxUpdateLevelAmbient(void) {
         var_fs0 = (f32)(((f64)(u32)D_8077058E * 0.3) / 255.0);
         var_fs1 = (f32)((((f64)(u32)D_8077058E * 0.35) / 255.0) + 1.0);
         spC8 = D_8077058E;  // FAKE: u32 copy of the byte steers its typed-constant web (spC8 is reassigned below)
-        if (D_8076A0A8 == 0xE) {
+        if (gCurrentMap == 0xE) {
             if (spC8 != 0) {
                 s0 = 4;  // FAKE: dead store stops uopt hoisting the loop-init s0 = 0 above the seqSetVolumeInstant calls
                 seqSetVolumeInstant(0, 1.0f);
@@ -879,7 +879,7 @@ void sfxUpdateLevelAmbient(void) {
             n_alSndpPostEvent(D_807457DC, 8, (s32)(((f64)(u32)D_8077058C[0] * 10767.0) / 255.0));
             spCC = (f32)(1.0 - (((f64)(u32)D_8077058E * 0.5) / 255));
             if (D_80770DC9 & (D_80770DD4 < 1000.0f)) {
-                var_fs0 = mathAngleBetweenPointsRad(D_807FC924->unk210, D_807FC924->unk218, (f32)spC0[spE7].unk0, (f32)spC0[spE7].unk4) - D_807FC924->unk2C4;
+                var_fs0 = mathAngleBetweenPointsRad(gPlayerSlots->unk210, gPlayerSlots->unk218, (f32)spC0[spE7].unk0, (f32)spC0[spE7].unk4) - gPlayerSlots->unk2C4;
                 if (var_fs0 < 0.0f) {
                     var_fs0 += 6.2831855f;
                 }
@@ -914,7 +914,7 @@ void seqUpdateUnderwaterAudio(s32 arg0) {
             sfxSetChannelParam(0x38, 0x3C00, 1);
         }
         if (D_80770560[arg0] == 0x60) {
-            if (D_8076A0A8 == 0xB8) {
+            if (gCurrentMap == 0xB8) {
                 sfxSetChannelParam(0x60, 0xE, 1);
             } else {
                 sfxSetChannelParam(0x60, 8, 1);
@@ -931,7 +931,7 @@ void seqUpdateUnderwaterAudio(s32 arg0) {
             sfxSetChannelParam(0x38, 0x3C00, 0);
         }
         if (D_80770560[arg0] == 0x60) {
-            if (D_8076A0A8 == 0xB8) {
+            if (gCurrentMap == 0xB8) {
                 sfxSetChannelParam(0x60, 0x1E, 1);
                 return;
             }
@@ -1304,7 +1304,7 @@ typedef struct AudioPlayerActor {
 extern f32 D_80770590;
 extern f32 D_80770594;
 extern f32 D_80770688[];
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void modelSlotGetNodePos(s16, s32, s32, f32 *, f32 *, f32 *);
@@ -1343,8 +1343,8 @@ void sfxUpdateSourceGroups(void) {
     s32 unused;
 
     actor = NULL;
-    // Emits no code, but keeps &D_807FD580 out of a register so the store/reload after the loop stays split.
-    if (D_807FD580 != NULL) {}
+    // Emits no code, but keeps &gActivePlayerState out of a register so the store/reload after the loop stays split.
+    if (gActivePlayerState != NULL) {}
     for (i = 0; i < 22; i++) {
         if (D_80770710[i] == 0x88) {
             D_80770DE8 = 0.0f;
@@ -1820,7 +1820,7 @@ void sfxUpdateSourceGroups(void) {
                         break;
                     }
                     if (D_80770710[i] == 0x10D) {
-                        if (D_8076A0A8 == 0xE || D_8076A0A8 == 0x52) {
+                        if (gCurrentMap == 0xE || gCurrentMap == 0x52) {
                             D_80770590 = actor->unkB8 / 600.0;
                             D_80770590 = (D_80770590 > 0.8) ? 0.8 : D_80770590;
                             volume *= D_80770590;
@@ -1912,15 +1912,15 @@ void sfxUpdateSourceGroups(void) {
         }
     }
 
-    D_807FD580 = D_807FC924->unk4->unk174;
-    ctx104 = D_807FD580->unk104;
+    gActivePlayerState = gPlayerSlots->unk4->unk174;
+    ctx104 = gActivePlayerState->unk104;
     water = ctx104->unk174;
-    if (water->unkFA != 0 && D_807FC924->unk214 < (water->unk90 + 3.0f) && D_80745838 == 0 && D_807FC928 < 2) {
+    if (water->unkFA != 0 && gPlayerSlots->unk214 < (water->unk90 + 3.0f) && D_80745838 == 0 && gPlayerCount < 2) {
         D_80745838 = 1;
         seqUpdateUnderwaterAudio(0);
         seqUpdateUnderwaterAudio(1);
     }
-    if ((water->unkFA == 0 || (water->unk90 + 3.0f) < D_807FC924->unk214) && D_80745838 == 1) {
+    if ((water->unkFA == 0 || (water->unk90 + 3.0f) < gPlayerSlots->unk214) && D_80745838 == 1) {
         D_80745838 = 0;
         seqUpdateUnderwaterAudio(0);
         seqUpdateUnderwaterAudio(1);
@@ -1950,7 +1950,7 @@ void sfxPlayFromActorDirect(Actor *arg0, s16 arg1, u8 arg2, f32 arg3, u8 arg4, u
     sfxPlayAtPosition(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, arg2, arg3, arg4, arg5);
 }
 
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 
 void camGetPathStartPose(s16 *, s16 *, s16 *, s16 *);
 s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
@@ -1972,11 +1972,11 @@ s16 sfxPlayAtPositionPooled(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, s16
 
     D_80770DE4 = -1.0f;
     closest_idx = 0;
-    for (i = 0; i < D_807FC928; i++) {
-        if (D_807FC924[i].unk0 != 0) {
-            s32 dx = D_807FC924[i].unk210 - arg0;
-            s32 dy = D_807FC924[i].unk214 - arg1;
-            s32 dz = D_807FC924[i].unk218 - arg2;
+    for (i = 0; i < gPlayerCount; i++) {
+        if (gPlayerSlots[i].unk0 != 0) {
+            s32 dx = gPlayerSlots[i].unk210 - arg0;
+            s32 dy = gPlayerSlots[i].unk214 - arg1;
+            s32 dz = gPlayerSlots[i].unk218 - arg2;
             dist = dx * dx + dy * dy + dz * dz;
             if (D_80770DE4 == -1.0f || (f32)dist < D_80770DE4) {
                 closest_idx = i;
@@ -1989,10 +1989,10 @@ s16 sfxPlayAtPositionPooled(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, s16
         return -1;
     }
 
-    pos[0] = D_807FC924[closest_idx].unk210;
-    pos[1] = D_807FC924[closest_idx].unk214;
-    pos[2] = D_807FC924[closest_idx].unk218;
-    pos[3] = (D_807FC924[closest_idx].unk2C4 * 4096.0) / 6.2831854820251465;
+    pos[0] = gPlayerSlots[closest_idx].unk210;
+    pos[1] = gPlayerSlots[closest_idx].unk214;
+    pos[2] = gPlayerSlots[closest_idx].unk218;
+    pos[3] = (gPlayerSlots[closest_idx].unk2C4 * 4096.0) / 6.2831854820251465;
     camGetPathStartPose(&pos[0], &pos[1], &pos[2], &pos[3]);
 
     if (D_80770DE4 < 500.0f) {
@@ -2011,9 +2011,9 @@ s16 sfxPlayAtPositionPooled(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, s16
         var_a1 = ((f64)(u32)arg4 * 32767.0) / 255.0;
     } else {
         D_80770DE4 = sqrtf(D_80770DE4);
-        if (D_807FC928 == 1 && (f64)arg8 >= 0.8) {
+        if (gPlayerCount == 1 && (f64)arg8 >= 0.8) {
             arg0 = mathAngleBetweenPointsRad(pos[1], 0.0f, arg1, sqrtf(((arg0 - pos[0]) * (arg0 - pos[0])) + ((arg2 - pos[2]) * (arg2 - pos[2]))));
-            angle2 = mathAngleBetweenPointsRad(pos[1], 0.0f, D_807FC924->unk22C, sqrtf(((D_807FC924->unk228 - pos[0]) * (D_807FC924->unk228 - pos[0])) + ((D_807FC924->unk230 - pos[2]) * (D_807FC924->unk230 - pos[2]))));
+            angle2 = mathAngleBetweenPointsRad(pos[1], 0.0f, gPlayerSlots->unk22C, sqrtf(((gPlayerSlots->unk228 - pos[0]) * (gPlayerSlots->unk228 - pos[0])) + ((gPlayerSlots->unk230 - pos[2]) * (gPlayerSlots->unk230 - pos[2]))));
             diff = arg0 - angle2;
             if (arg0 < angle2) {
                 diff += 6.2831855f;
@@ -2151,9 +2151,9 @@ void sfxPlayAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, f32 arg5
     f64 pad;
 
     reverb = 0;
-    dx = D_807FC924->unk210 - arg0;
-    dy = D_807FC924->unk214 - arg1;
-    dz = D_807FC924->unk218 - arg2;
+    dx = gPlayerSlots->unk210 - arg0;
+    dy = gPlayerSlots->unk214 - arg1;
+    dz = gPlayerSlots->unk218 - arg2;
     D_80770DE4 = sqrtf((f32)(dx * dx + dy * dy + dz * dz));
     if (D_80770DE4 < 1.0f) {
         D_80770DE4 = 1.0f;
@@ -2174,7 +2174,7 @@ void sfxPlayAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, f32 arg5
         vol = (s32)((1.0 - (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)arg6 / 155.0))) * (f64)vol);
         arg5 = ((f64)arg5 - ((f64)(u32)arg6 / 255.0)) + (((f64)(u32)randomLcgNext() / 4294967295.0) * ((f64)(u32)arg6 / 100.0));
     }
-    pan = mathAngleBetweenPointsRad(D_807FC924->unk210, D_807FC924->unk218, arg0, arg2) - D_807FC924->unk2C4;
+    pan = mathAngleBetweenPointsRad(gPlayerSlots->unk210, gPlayerSlots->unk218, arg0, arg2) - gPlayerSlots->unk2C4;
     if (pan < 0.0f) {
         pan += 6.2831855f;
     }
@@ -2201,7 +2201,7 @@ void sfxPlayAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, f32 arg5
 
 #pragma intrinsic(sqrtf)
 
-extern u8 D_807FC929;
+extern u8 gCurrentPlayerIndex;
 
 typedef struct {
     char pad[0xC4];
@@ -2223,11 +2223,11 @@ void sfxPlayAtPositionForPlayer(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4,
     sp47 = 0;
     sp46 = 0;
 
-    if (((SoundContextD580Voice *)D_807FD580)->unkC4 != 0) {
-        n_alSndpStop(((SoundContextD580Voice *)D_807FD580)->unkC4);
+    if (((SoundContextD580Voice *)gActivePlayerState)->unkC4 != 0) {
+        n_alSndpStop(((SoundContextD580Voice *)gActivePlayerState)->unkC4);
     }
 
-    angle = mathAngleBetweenPointsRad(D_807FC924[D_807FC929].unk210, D_807FC924[D_807FC929].unk218, arg0, arg2) - D_807FC924[D_807FC929].unk2C4;
+    angle = mathAngleBetweenPointsRad(gPlayerSlots[gCurrentPlayerIndex].unk210, gPlayerSlots[gCurrentPlayerIndex].unk218, arg0, arg2) - gPlayerSlots[gCurrentPlayerIndex].unk2C4;
     if (angle < 0.0f) {
         angle += 6.2831855f;
     }
@@ -2242,9 +2242,9 @@ void sfxPlayAtPositionForPlayer(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4,
             angle = 0.0f;
         }
     } else {
-        dx = D_807FC924[D_807FC929].unk210 - arg0;
-        dy = D_807FC924[D_807FC929].unk214 - arg1;
-        dz = D_807FC924[D_807FC929].unk218 - arg2;
+        dx = gPlayerSlots[gCurrentPlayerIndex].unk210 - arg0;
+        dy = gPlayerSlots[gCurrentPlayerIndex].unk214 - arg1;
+        dz = gPlayerSlots[gCurrentPlayerIndex].unk218 - arg2;
         D_80770DE4 = sqrtf((f32)(dx * dx + dy * dy + dz * dz));
 
         if (D_80770DE4 < 23.0f) {
@@ -2287,7 +2287,7 @@ void sfxPlayAtPositionForPlayer(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4,
             sp46 |= 0x80;
         }
 
-        n_alSndpPlay(D_8076D1F8, arg3, (u16)vol, (u8)angle, pitch, sp46, &((SoundContextD580Voice *)D_807FD580)->unkC4);
+        n_alSndpPlay(D_8076D1F8, arg3, (u16)vol, (u8)angle, pitch, sp46, &((SoundContextD580Voice *)gActivePlayerState)->unkC4);
     }
 }
 

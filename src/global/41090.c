@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 
 typedef struct {
     void (*unk0)();
@@ -169,7 +169,7 @@ Gfx *func_8063CB40(Gfx *g) {
         gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
     }
     gDPSetCombine(g++, 0xFFFE41, 0xFFFFFFD3);
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
         case 1:
             gDPSetPrimColor(g++, 0, 0, 255, 255, 255, 0xB4);
             break;
@@ -357,7 +357,7 @@ Gfx *func_8063D638(Gfx *g) {
     gSPTexture(g++, 0xFFFF, 0xFFFF, 0, 0, 1);
     gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x0C184A50);
     gDPSetCombine(g++, 0x121803, 0xFF0FFFFF);
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
         case 0x22:
         case 0xBB:
             alpha = 0xFF;
@@ -381,7 +381,7 @@ Gfx *func_8063D638(Gfx *g) {
 }
 
 void func_8063D854(void) {
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
         case 0xBB:
             D_807F61A0 -= 2.0;
             break;

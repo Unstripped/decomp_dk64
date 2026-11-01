@@ -244,7 +244,7 @@ extern u64 D_80760590[];
 
 void audioDmaFrameUpdate(void);
 s32 n_alAudioFrame(void *, s32 *, u32, s16);
-OSMesgQueue *func_8060EE58(void *);
+OSMesgQueue *schedGetCmdQueue(void *);
 
 s32 audioBuildTask(AudioTask *task, AudioAiBuffer *aiBuf) {
     u32 physSampleBuf;
@@ -303,7 +303,7 @@ s32 audioBuildTask(AudioTask *task, AudioAiBuffer *aiBuf) {
     task->task.t.yield_data_size = 0x400;
 
     osWritebackDCacheAll();
-    osSendMesg(func_8060EE58(&gScheduler), &task->next, OS_MESG_NOBLOCK);
+    osSendMesg(schedGetCmdQueue(&gScheduler), &task->next, OS_MESG_NOBLOCK);
     D_807452C8 ^= 1;
     return 1;
 }

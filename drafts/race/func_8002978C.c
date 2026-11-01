@@ -1,4 +1,4 @@
-// func_8002978C (src/race/52B0.c): OlU FE4c: stage 5 (not matched), frame 0x80/s0, temp slot 0x2C and ang slot 0x36 match, 51 raw diff lines (deadsweep score) = FP ring only: ours colours named thr (f32 candidate, adjsave 1.5, 'thr = unk7*1.2') f12 and reloads sp4C in f16; target thr=f16, sp4C reload f8, and (sp4C-lo)/(thr-lo) temps in f12/f14, so every later FP temp is one ring slot off (mtc1 a0/f6 vs f8 etc.). Found this round: raceGetRoute (not func_8002E960) callee; unnest ang = func_806CC10C(mathAngleDiscrete(..)) into 2 statements (drops the -78 narrow temp); extra named f32 'fr' + 'f32 lo,thr,fr,ang' decl order puts ang at 0x36 with temp slot 0x2C; deadsweep 'if (D_8002FC20) {}' after thr and 'if (sp4C && sp4C) {}' in the if (133->68); 'ang = mathAngleBetweenPoints2D(..)-unk0; ang = ang & 0xFFF;' split (68->51, permuter). Tried no effect: thr/lo inline or (thr = ..) in the if, named fa/fb (dx/dz reuse), w=G2_WP pointer, void->s32 on callees, 10k-variant deadsweep, 20 min permuter.
+// func_8002978C (src/race/52B0.c): OlU FE4c: stage 5 (not matched), frame 0x80/s0, temp slot 0x2C and ang slot 0x36 match, 51 raw diff lines (deadsweep score) = FP ring only: ours colours named thr (f32 candidate, adjsave 1.5, 'thr = unk7*1.2') f12 and reloads sp4C in f16; target thr=f16, sp4C reload f8, and (sp4C-lo)/(thr-lo) temps in f12/f14, so every later FP temp is one ring slot off (mtc1 a0/f6 vs f8 etc.). Found this round: raceGetRoute (not func_8002E960) callee; unnest ang = mathAngleSignedDistance(mathAngleDiscrete(..)) into 2 statements (drops the -78 narrow temp); extra named f32 'fr' + 'f32 lo,thr,fr,ang' decl order puts ang at 0x36 with temp slot 0x2C; deadsweep 'if (D_8002FC20) {}' after thr and 'if (sp4C && sp4C) {}' in the if (133->68); 'ang = mathAngleBetweenPoints2D(..)-unk0; ang = ang & 0xFFF;' split (68->51, permuter). Tried no effect: thr/lo inline or (thr = ..) in the if, named fa/fb (dx/dz reuse), w=G2_WP pointer, void->s32 on callees, 10k-variant deadsweep, 20 min permuter.
 #include "common.h"
 
 extern void *D_807FBB40;
@@ -132,8 +132,8 @@ void *raceGetRoute(u8);
 f32 func_8002F784(void *, void *, void *);
 f32 raceGetProgressPercent(void *, void *, void *);
 s32 randomLcgNext(void);
-s16 func_806CC10C(s16, s16);
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleSignedDistance(s16, s16);
+s16 mathAngleEaseToward(s16, s16, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 extern f32 sqrtf(f32);
@@ -227,7 +227,7 @@ f32 func_8002978C(void) {
         }
     }
     ang = mathAngleDiscrete((f32)G2_WP->x, (f32)G2_WP->z, RC_A->unk7C, RC_A->unk84, sp4C);
-    ang = func_806CC10C(ang, s0->unk0);
+    ang = mathAngleSignedDistance(ang, s0->unk0);
     thr = G2_WP->unk7 * 1.2;
     if (D_8002FC20) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (sp4C < thr) {
@@ -291,7 +291,7 @@ f32 func_8002978C(void) {
                     s0->unk2 = 0;
                     break;
             }
-            s0->unk2 = func_806CC190(s0->unk2, ang, 5.0f);
+            s0->unk2 = mathAngleEaseToward(s0->unk2, ang, 5.0f);
             break;
     }
     if (sp58 == 0.0f) {

@@ -91,7 +91,7 @@ void schedMain(void *arg0) {
         case 0x3F2:
             break;
         default:
-            func_8060F1D0(arg0, (TaskNode *)msg);
+            schedHandleNewTask(arg0, (TaskNode *)msg);
             break;
         }
     }

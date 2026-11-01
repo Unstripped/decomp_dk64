@@ -2,15 +2,15 @@
 #include "common.h"
 
 extern u8 D_807463B8;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern u8 D_8076A0B1;
-void func_80611730(void);
+void heapTickDeferredFrees(void);
 void func_80611844(void);
 s32 func_8071432C(void);
 void func_80712944(OSContPad *);
 void func_8060B4D4(OSContPad *);
 void playerStateWaypointAimUpdate(OSContPad *, OSContPad *);
-void func_8060EA28(void);
+void rumbleUpdate(void);
 void controllerLatchPad(OSContPad *pad);
 
 #define CtrlAHeld ((u16 *)D_807ECD40)
@@ -43,7 +43,7 @@ void controllerUpdate(void) {
             D_80746834 = 3;
             osRecvMesg(&D_807ECCF0, NULL, OS_MESG_BLOCK);
             D_80746834 = 0;
-            func_8060EA28();
+            rumbleUpdate();
         }
         switch (D_807463B8) {
         case 0:
@@ -76,7 +76,7 @@ void controllerUpdate(void) {
     }
     D_807ECD66 = (D_807ECD58.button ^ D_807ECD60.button) & D_807ECD58.button;
     sum = 0;
-    p = (u32 *)func_80611730;
+    p = (u32 *)heapTickDeferredFrees;
     while (p < (u32 *)func_80611844) {
         sum += *p;
         p++;
@@ -84,7 +84,7 @@ void controllerUpdate(void) {
     padIdx = 0;
     k = 0; // FAKE: gives k a long live range so uopt colours timer/k/pad like the target (needs the dead read below)
     if (sum != 0x624C9A6C) {
-        D_8076A064 = 0;
+        gFrameCounter = 0;
     }
     for (i = 0; i < 4; i++) {
         if (compact != 0) {

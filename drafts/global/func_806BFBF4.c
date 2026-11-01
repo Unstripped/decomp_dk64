@@ -133,7 +133,7 @@ typedef struct LgBFDCA0 {
 #define LgBS9C ((LgBFS9C *)D_807FDC9C)
 
 extern u8 D_807444EC;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern f32 D_807502E8;
 extern u16 D_80747750[];
 extern u16 D_80747904[];
@@ -202,17 +202,17 @@ void func_806BFBF4(void) {
         func_806F09F0(D_807FBB40, (u16)D_807FBB40->unk58);
         actorSetTargetSpeed(D_807FBB40, 0);
         LgBV->unk60 &= 0xFFFDFFFF;
-        if (D_8076A0A8 == 0x4C) {
+        if (gCurrentMap == 0x4C) {
             LgBV->unk60 &= 0xFEFFFFFF;
             LgBV->unk60 |= 0x400;
         }
         LgBV->unkC4 = D_807502E8;
     }
-    if (D_807444EC != 1 && D_8076A0A8 != 0x4C && D_807FBB40->unk58 != 0xFEU) { // FAKE: unsigned literal keeps the early 254 const out of the loop-spanning 254 live range
+    if (D_807444EC != 1 && gCurrentMap != 0x4C && D_807FBB40->unk58 != 0xFEU) { // FAKE: unsigned literal keeps the early 254 const out of the loop-spanning 254 live range
         LgBV->unk60 &= 0xEFFFFFFF;
         return;
     }
-    if (D_8076A0A8 == 0x4C) {
+    if (gCurrentMap == 0x4C) {
         lightUpdateFromActorLighting(&LgBV->unk16A, &LgBV->unk16B, &LgBV->unk16C);
     }
     for (i = 0; i < D_807FBDC4; i++) {

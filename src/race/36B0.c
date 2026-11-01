@@ -360,7 +360,7 @@ void func_80027CE8(void) {
     sp40->unk14 = sp3C;
 }
 
-void func_8060E7EC(s32, u8, s32, u8 *);
+void rumbleRequest(s32, u8, s32, u8 *);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 
 void func_800280E8(RaceCursor *arg0) {
@@ -382,7 +382,7 @@ void func_800280E8(RaceCursor *arg0) {
         y *= 1.5;
         y = (y > 10.0) ? 10.0 : y;
         *flag = 3;
-        func_8060E7EC(0, 255.0f * y * 0.1f, *flag, flag);
+        rumbleRequest(0, 255.0f * y * 0.1f, *flag, flag);
         sfxPlayOnFreeSlot(0x18A, 0x7FFF, 64.0f, 1.0f, 0xA, 0);
         if (sp28->unk14 < 0.0f) {
             v1->unkB8 -= y;
@@ -645,7 +645,7 @@ typedef struct {
     RaceActor *unk4;
     char pad8[0x2F0 - 8];
 } RaceBStructPlayer;
-extern RaceBStructPlayer *D_807FC924;
+extern RaceBStructPlayer *gPlayerSlots;
 void camSetFixedView(void *, f32, f32, f32, f32, f32, f32, s32);
 
 void func_80028AD0(void) {
@@ -674,7 +674,7 @@ void func_80028AD0(void) {
     sp50 = temp_s0->unk30;
     sp4C = sp50->view.b.unk174;
     sp48 = sp50->view.b.unk178;
-    temp_a1 = D_807FC924[sp4C->unk28].unk4;
+    temp_a1 = gPlayerSlots[sp4C->unk28].unk4;
     sp40 = temp_a1->view.b.unk174;
     sp38 = D_807F5FD4[temp_s0->unk0 + 1] - D_807F5FD4[temp_s0->unk0];
     sp30 = 1.0f;

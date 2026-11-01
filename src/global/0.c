@@ -19,7 +19,7 @@ typedef struct {
 void mainThreadHalt(OSMesgQueue *, s32);
 void mainThreadLoop(s32);
 void audioThreadStop(s32);
-void func_8060E930(void);
+void rumbleShutdown(void);
 
 extern u8 boot_VRAM[];
 extern u8 boot_VRAM_END[];
@@ -146,7 +146,7 @@ void mainThreadHalt(OSMesgQueue *arg0, s32 arg1) {
     osViBlack(1);
     __osSpSetStatus(0xAAAA82);
     osDpSetStatus(0x1D6);
-    func_8060E930();
+    rumbleShutdown();
     while (1) {
     }
 }

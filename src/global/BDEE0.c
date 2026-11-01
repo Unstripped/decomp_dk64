@@ -398,7 +398,7 @@ typedef struct BDEE0DC924 {
     u8 unk2C0;
 } BDEE0DC924;
 
-extern BDEE0DC924 *D_807FC924;
+extern BDEE0DC924 *gPlayerSlots;
 s32 func_806BA240(u8, s16);
 
 typedef struct BDEE0DCA0Tgt {
@@ -457,7 +457,7 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
         }
         if (tgt->unk155[0] != 0) {
             if (tgt->unk155[0] == 1 && D_807FBD70 == 2 && func_8072DCF4(tgt, D_807FBB4C, 0x1F40) != 0) {
-                if (D_807FC924->unk2C0 == 1) {
+                if (gPlayerSlots->unk2C0 == 1) {
                     playerStateQueueCallback(0x32, D_807FBB40, 0);
                 } else {
                     if (((randomNonNegative() >> 15) % 1000) >= 0x1F5) {
@@ -612,7 +612,7 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void matrixMakeRotationZ(f32 (*)[4], f32);
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleEaseToward(s16, s16, f32);
 
 void func_806BA93C(arg0, arg1, arg2)
 u8 arg0;
@@ -692,7 +692,7 @@ u8 arg2;
         if (D_807FBB40->unk154 == 0x37) {
             switch (BDEE0A->unk155) {
             case 1:
-                D_807FDC90->unk2C = func_806CC190((D_807FDC90->unk2C << 12) / 0x168, 0, 3.0f) * 0x168 / 4096;
+                D_807FDC90->unk2C = mathAngleEaseToward((D_807FDC90->unk2C << 12) / 0x168, 0, 3.0f) * 0x168 / 4096;
                 s1->unk0 = s1->unk0 + (-s1->unk0) * 0.3;
                 guTranslateF(sp64, 0.0f, 0.0f, (f32)-arg2);
                 guMtxCatF(spA4, sp64, spA4);
@@ -746,14 +746,14 @@ void func_806BB32C(void) {
     }
 }
 
-void func_806D0430(f32);
+void playerSetLargeModeScale(f32);
 void actorSetUniformScale(Actor *, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void func_806BB400(void) {
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
-        func_806D0430(0.525f);
+        playerSetLargeModeScale(0.525f);
         D_807FBB4C->unk60 |= 0x400;
         D_807FBB4C->unk12A = 0x7D0;
         D_807FBB40->unk60 &= ~4;
@@ -788,7 +788,7 @@ void func_806BB400(void) {
             }
             break;
         case 0x37:
-            func_806D0430(0.3f);
+            playerSetLargeModeScale(0.3f);
             D_807FBB40->unk154 = 0x40;
             break;
     }
@@ -863,7 +863,7 @@ typedef struct BDEE0DD580 {
     f32 unk1D8;
 } BDEE0DD580;
 
-extern BDEE0DD580 *D_807FD580;
+extern BDEE0DD580 *gActivePlayerState;
 extern s32 D_807FBB68;
 extern s32 gCamActor;
 extern BDEE0Tbl D_80750638;
@@ -878,7 +878,7 @@ void camSetTarget(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void camSetTargetFocusActor(s32, void *);
 void camReturnToFollow(s32, void *);
 void func_80726EE0(s32);
-void func_806D0468(void *, s32);
+void playerSetSizeMode(void *, s32);
 void csModelStateSetFirstByte(s32, s32);
 void effectSpawnChildAtNode(s32, s16, s16);
 void sfxStopChannel();
@@ -1009,9 +1009,9 @@ void func_806BB874(void) {
             camReturnToFollow(gCamActor, D_807FBB4C);
             func_80726EE0(0);
             D_807FBB68 &= ~1;
-            if (D_807FC924->unk2C0 != 1) {
-                func_806D0468(D_807FBB4C, 1);
-                D_807FD580->unk1D8 = 0.05f;
+            if (gPlayerSlots->unk2C0 != 1) {
+                playerSetSizeMode(D_807FBB4C, 1);
+                gActivePlayerState->unk1D8 = 0.05f;
             }
             D_807FBB40->unk154++;
             sfxStopChannel(0x68, 0);

@@ -39,7 +39,7 @@ extern s32 D_807F5A60;
 void dmaReadAssetDecompress(s32, void *, void *, s32, s32, s32, s32);
 void heapSortSurvivors(void);
 void heapMoveWords(u32 *src, u32 *dst, u32 size);
-void func_80610B84(s32 oldBase, s32 newBase, u32 size);
+void heapRebaseHandles(s32 oldBase, s32 newBase, u32 size);
 s32 heapInitGeneralPool(s32, s32, s32);
 s32 heapInitBlockPool(void *, u8 *, u32, u16);
 void *heapAlloc(u32);
@@ -178,7 +178,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
                 HL(i) = dst + 0x10;
                 total = 0x10 + src->size;
                 heapMoveWords(src, dst, total);
-                func_80610B84((s32)src, (s32)dst, total);
+                heapRebaseHandles((s32)src, (s32)dst, total);
             }
         }
         total = 0;
@@ -195,7 +195,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
                 } while (i < D_807F5A68);
             }
             heapMoveWords(first, dst, total);
-            func_80610B84((s32)first, (s32)dst, total);
+            heapRebaseHandles((s32)first, (s32)dst, total);
         }
         p = (u32 *)(HL(0) - 0x10);
         saved[0] = ((u64 *)p)[0];

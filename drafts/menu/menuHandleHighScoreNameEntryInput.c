@@ -1,4 +1,4 @@
-// menuHandleHighScoreNameEntryInput (src/menu/3E10.c): stage 4 (frame 0x30 + ra, text structure matches), harness diff 121 -> 77 lines. NEW this round: (1) 'new_var = 0xF;' assigned in a local before 'v0 = 0;' and stored as 'D_800339C0 = new_var' (permuter hint) stops IDO CSEing &D_800339C0 into v1 (stores become lui at;sb lo(at) like the target); (2) real temp 'tmp = D_8076A064; if (!(tmp & 1))' (NOT 'v0 = D_8076A064', which changes semantics) cuts another 30 lines. Remaining: value var v1 gets $v0 and v0 var $a0 (target v1 / v0), table a3 (target a2), F60 value a1 (target a0); target hoists 'li at,1' before the 'bgez a0' while mine hoists lui at,hi(D_800339C0). Tried: &0xFF masks, one=1 local at 3 positions, held=arg1&0xC hoist, decl-order perms, store-in-both-arms layouts (f1/f2/goto), volatile, 20min permuter x3.
+// menuHandleHighScoreNameEntryInput (src/menu/3E10.c): stage 4 (frame 0x30 + ra, text structure matches), harness diff 121 -> 77 lines. NEW this round: (1) 'new_var = 0xF;' assigned in a local before 'v0 = 0;' and stored as 'D_800339C0 = new_var' (permuter hint) stops IDO CSEing &D_800339C0 into v1 (stores become lui at;sb lo(at) like the target); (2) real temp 'tmp = gFrameCounter; if (!(tmp & 1))' (NOT 'v0 = gFrameCounter', which changes semantics) cuts another 30 lines. Remaining: value var v1 gets $v0 and v0 var $a0 (target v1 / v0), table a3 (target a2), F60 value a1 (target a0); target hoists 'li at,1' before the 'bgez a0' while mine hoists lui at,hi(D_800339C0). Tried: &0xFF masks, one=1 local at 3 positions, held=arg1&0xC hoist, decl-order perms, store-in-both-arms layouts (f1/f2/goto), volatile, 20min permuter x3.
 typedef struct MenuM8_PosPair {
     s16 unk0;
     s16 unk2;
@@ -8,7 +8,7 @@ extern s8 D_80033F60;
 extern s8 D_800339A8;
 extern s8 D_80033F61;
 extern s8 D_800339C0;
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 extern MenuM8_PosPair D_800339B8[];
 
 void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
@@ -50,7 +50,7 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
                 v0 = arg1;
                 if (v1 >= 0x10) {
                     D_800339C0 = new_var;
-                    tmp = D_8076A064;
+                    tmp = gFrameCounter;
                     if (!(tmp & 1)) {
                         v0 = 0;
                     }

@@ -60,7 +60,7 @@ extern Boss2F_9230_Actor *D_807FBB40;
 extern void *D_807FBB44;
 extern Boss2F_9230_BB4C *D_807FBB4C;
 extern u8 D_807FBD70;
-extern Boss2F_9230_D580 *D_807FD580;
+extern Boss2F_9230_D580 *gActivePlayerState;
 extern Boss2F_9230_DC90 *D_807FDC90;
 extern Boss2F_9230_DC9C *D_807FDC9C;
 
@@ -135,7 +135,7 @@ void func_8002D230(void) {
     case 0x2A:
         func_8072E1A4(0xA, D_807FBB4C);
         if (D_807FBD70 == 4) {
-            func_80641874(D_807FD580->unkBE, 1);
+            func_80641874(gActivePlayerState->unkBE, 1);
             if (sp44->unk14 == 3) {
                 D_807FBB40->unk154 = 0x37;
                 D_807FBB40->unk155 = 0;

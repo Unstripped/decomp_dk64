@@ -58,7 +58,7 @@ typedef struct Struct_Player {
     struct RaceUnknownActor *unk4;
     char pad8[0x2F0 - 8];
 } Struct_Player;
-extern Struct_Player *D_807FC924;
+extern Struct_Player *gPlayerSlots;
 
 typedef struct RaceStruct3 {
     char pad0[0x14];
@@ -510,7 +510,7 @@ Gfx *func_8002CAC8(Gfx *arg0, RaceUnknownActor *arg1, RaceUnknown174 *arg2) {
     if (arg2 == NULL || func_807142D8() != 0) {
         return arg0;
     }
-    temp_v1 = D_807FC924[arg2->unk28].unk4;
+    temp_v1 = gPlayerSlots[arg2->unk28].unk4;
     if (temp_v1 == NULL) {
         return arg0;
     }
@@ -799,14 +799,14 @@ void racePlayResultSfx(void) {
     sfxAllocateChannel(id, 1.0f);
 }
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 
 void func_8002D4A0(void) {
     s32 soundId;
     f32 vol;
 
     vol = 1.0f;
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
     case 0xE:
         soundId = 0x13;
         vol = 0.6f;
@@ -959,7 +959,7 @@ void func_8002D778(void) {
         raceUpdateStandings();
         break;
     case 3:
-        if (D_8076A0A8 == 0xE || D_8076A0A8 == 0x52) {
+        if (gCurrentMap == 0xE || gCurrentMap == 0x52) {
             func_8002D224(4);
             t->unk1C = 0x32;
         } else {
@@ -982,11 +982,11 @@ void func_8002D778(void) {
             for (i = 0; i < t->unk1E; i++) {
                 s = list[i].unk4;
                 if (s->unk27 == 0) {
-                    pa = (RaceFActorView *)D_807FC924[s->unk28].unk4;
+                    pa = (RaceFActorView *)gPlayerSlots[s->unk28].unk4;
                     scale = 1.0f;
                     pa->unk128 = 0xFF;
                     pa->unk60 |= 0x8000;
-                    if (D_8076A0A8 == 0xB9) {
+                    if (gCurrentMap == 0xB9) {
                         scale = 0.3f;
                     }
                     for (k = 0; k < 3; k++) {
@@ -1281,7 +1281,7 @@ f32 func_8002E1C8(RaceUnknownActor *arg0, f32 arg1, RaceCurvePoint *arg2, RaceVe
     return ret;
 }
 
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 RaceUnknownActor *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
 void func_8002BC2C(RaceUnknownActor *, s32, RaceUnknownActor *, RaceUnknown174 *);
 
@@ -1293,14 +1293,14 @@ void func_8002E2C8(RaceUnknownActor *arg0) {
     s32 var_s0;
     s32 var_s4;
 
-    var_s4 = D_807FC928;
+    var_s4 = gPlayerCount;
     var_s1 = 0;
     sp5C = arg0->unk174;
     if (var_s4 == 1) {
         var_s4++;
     }
     func_8002BBD0(arg0, var_s4);
-    if (D_807FC928 == 1) {
+    if (gPlayerCount == 1) {
         sp54 = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         sp58 = sp54->unk178;
         sp58->unk27 = 1;
@@ -1311,7 +1311,7 @@ void func_8002E2C8(RaceUnknownActor *arg0) {
     } else {
         sp5C->unk25 = 0;
     }
-    for (var_s0 = 0; var_s0 < D_807FC928; var_s0++) {
+    for (var_s0 = 0; var_s0 < gPlayerCount; var_s0++) {
         actorSpawn(0x13B, 0);
         sp54 = D_807FBB44;
         sp58 = sp54->unk174;
@@ -1350,7 +1350,7 @@ void func_8002E484(void) {
 
     temp_a1 = D_807FBB40;
     temp_s0 = (RaceStruct3 *)temp_a1->unk174;
-    var_a3 = D_807FC924[temp_s0->unk28].unk4;
+    var_a3 = gPlayerSlots[temp_s0->unk28].unk4;
     if (!(temp_a1->unk60 & 0x10)) {
         playerStateQueueCallback(0x4E, temp_a1, temp_s0->unk28, var_a3);
         D_807FBB40->unk154 = 0;

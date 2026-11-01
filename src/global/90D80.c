@@ -252,11 +252,11 @@ typedef struct PlayerRect {
     u8 pad[0x270];
     s16 rect[4];
 } PlayerRect;
-extern PlayerRect *D_807FC924;
+extern PlayerRect *gPlayerSlots;
 extern u32 D_80744478;
 extern f32 D_8075022C, D_80750228;
 extern u32 D_80750230;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
 
@@ -271,7 +271,7 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *arg1) {
     assetFreeBuffer(sp84, 0x1B2, 0x46);
 
     gDPPipeSync(glist++);
-    gDPSetScissor(glist++, G_SC_NON_INTERLACE, D_807FC924->rect[0], D_807FC924->rect[1], D_807FC924->rect[2], D_807FC924->rect[3]);
+    gDPSetScissor(glist++, G_SC_NON_INTERLACE, gPlayerSlots->rect[0], gPlayerSlots->rect[1], gPlayerSlots->rect[2], gPlayerSlots->rect[3]);
     WRITE_GFX(glist++, 0xE3000A01, 0);
     WRITE_GFX(glist++, 0xE3000F00, 0x10000);
     WRITE_GFX(glist++, 0xD9000000, 0);
@@ -280,7 +280,7 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *arg1) {
     WRITE_GFX(glist++, 0xE200001C, 0x00504340);
     WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
 
-    if (D_8076A0A8 == 0x26) {
+    if (gCurrentMap == 0x26) {
         gDPSetPrimColor(glist++, 0, 0, 0x8A, 0x52, 0x16, 200.0f * sp80);
     } else {
         gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 35.0f * sp80);
@@ -298,7 +298,7 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *arg1) {
     WRITE_GFX(glist++, 0x06000204, 0x00000406);
     gDPPipeSync(glist++);
 
-    if (D_8076A0A8 == 0x26) {
+    if (gCurrentMap == 0x26) {
         f64 temp = sp7C;
         D_80750228 -= 2.0 * temp;
         D_8075022C -= 14.0 * temp;
@@ -319,7 +319,7 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *arg1) {
 }
 
 extern Gfx D_1000118;
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 
 Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
 
@@ -329,7 +329,7 @@ Gfx *renderBonusTargetMarker(Gfx *arg0, s32 arg1) {
     WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
     WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
     WRITE_GFX(arg0++, 0xDA380007, (u32)&D_2000080);
-    return renderRotatedSprite(arg0, (u16)((((D_8076A064 >> 1) & 0xF) + 0x8F)), 0, 2, 0x20, 0x20, 0x118, 0xD2, 1.0f, 1.0f, 0, 0.0f);
+    return renderRotatedSprite(arg0, (u16)((((gFrameCounter >> 1) & 0xF) + 0x8F)), 0, 2, 0x20, 0x20, 0x118, 0xD2, 1.0f, 1.0f, 0, 0.0f);
 }
 
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
@@ -465,7 +465,7 @@ Gfx *hudDrawRollingCounter(Gfx *arg0, s16 arg1, s16 arg2, s16 *arg3, s16 arg4, u
     }
 
     gDPPipeSync(arg0++);
-    gDPSetScissor(arg0++, G_SC_NON_INTERLACE, D_807FC924->rect[0], D_807FC924->rect[1], D_807FC924->rect[2], D_807FC924->rect[3]);
+    gDPSetScissor(arg0++, G_SC_NON_INTERLACE, gPlayerSlots->rect[0], gPlayerSlots->rect[1], gPlayerSlots->rect[2], gPlayerSlots->rect[3]);
     return arg0;
 }
 
@@ -487,7 +487,7 @@ typedef struct ActorEffect {
     u8 padEE[0x174 - 0xEE];
     ActorEffect174 *unk174;
 } ActorEffect;
-#define ANIM_TEX ((u16)(((D_8076A064 >> 1) % 12) + 0x83))
+#define ANIM_TEX ((u16)(((gFrameCounter >> 1) % 12) + 0x83))
 
 Gfx *actorDrawAnimatedEffect(Gfx *arg0, ActorEffect *arg1) {
     s16 unkEC = arg1->unkEC + 0x5A;

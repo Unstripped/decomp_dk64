@@ -5,11 +5,11 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
 extern Actor *D_807FBB4C;
-extern void *D_807FC924;
-extern u8 D_807FC928;
-extern u8 D_807FC929;
+extern void *gPlayerSlots;
+extern u8 gPlayerCount;
+extern u8 gCurrentPlayerIndex;
 extern u8 D_807FC950[][0x5E];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
 extern s16 D_80744490;
@@ -42,7 +42,7 @@ Gfx *func_80704960(Gfx *dl) {
     gDPSetCycleType(dl++, G_CYC_FILL);
     gDPSetFillColor(dl++, 0x10001);
     for (; D_80750840[i].unk0 != -1; i++) {
-        if (((D_80750840[i].unk0 == 2) && ((s32)D_807FC928 >= 2) && (D_80750840[i].unk2 & D_80750ABC)) || ((D_807FC928 == D_80750840[i].unk0) && (D_80750AB8 == D_80750840[i].unk1) && (D_80750840[i].unk2 & D_80750ABC))) {
+        if (((D_80750840[i].unk0 == 2) && ((s32)gPlayerCount >= 2) && (D_80750840[i].unk2 & D_80750ABC)) || ((gPlayerCount == D_80750840[i].unk0) && (D_80750AB8 == D_80750840[i].unk1) && (D_80750840[i].unk2 & D_80750ABC))) {
             Gfx *_g = (Gfx *)(dl++);
             _g->words.w0 = 0xF6000000 | (((((D_80750840[i].unk8 + 1) * D_8074450C) - 1) & 0x3FF) << 14) | (((((D_80750840[i].unkA + 1) * D_8074450C) - 1) & 0x3FF) << 2);
             _g->words.w1 = ((((D_80750840[i].unk4 * D_8074450C) & 0x3FF)) << 14) | ((((D_80750840[i].unk6 * D_8074450C) & 0x3FF)) << 2);
@@ -101,7 +101,7 @@ void lightGetColor(f32 *, f32 *, f32 *, s16);
     ((u32)((mul) * ((f32)D_80754EF8[arg4 * 12 + (off)] + ((f32)(D_80754EF8[arg5 * 12 + (off)] - D_80754EF8[arg4 * 12 + (off)]) * alpha))))
 #define BG_BLEND_C(off, mul) \
     ((u32)((mul) * ((f32)D_80754EF8[arg4 * 12 + (off)] + (alpha * (f32)(D_80754EF8[arg5 * 12 + (off)] - D_80754EF8[arg4 * 12 + (off)])))))
-#define BG_PLAYER_VIEW ((BackgroundPlayerView *)D_807FC924)
+#define BG_PLAYER_VIEW ((BackgroundPlayerView *)gPlayerSlots)
 
 Gfx *gfxDrawBackgroundQuad(Gfx *gdl, void *arg1, f32 angle, void *mtx, u8 arg4, u8 arg5, u8 arg6, s8 arg7, f32 alpha) {
     f32 y;
@@ -239,7 +239,7 @@ void lensFlareAddFromAngle(s16 arg0, s16 arg1, u8 arg2) {
 
     sp42 = (s16)(s32)((f64)func_80612794(arg0) * 32767.0);
     sp3E = (s16)(s32)((f64)func_80612790(arg0) * 32767.0);
-    sp40 = (s16)(s32)((f64)arg1 - (8.0 * (f64)((PlayerViewCamRoll *)D_807FC924)->unk2CA));
+    sp40 = (s16)(s32)((f64)arg1 - (8.0 * (f64)((PlayerViewCamRoll *)gPlayerSlots)->unk2CA));
     if (arg2 != 0) {
         if (arg2 == 1) {
             lightGetColor(&sp4C, &sp48, &sp44, *(s16 *)D_807FBB4C->unk12C);
@@ -286,7 +286,7 @@ Gfx *gfxDrawSkySprite(Gfx *dl, s16 arg1, s16 arg2, u8 mode) {
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
     sp76 = (s16)(s32)((f64)func_80612794(arg1) * 32767.0);
     c = (s16)(s32)((f64)func_80612790(arg1) * 32767.0);
-    b = (s16)(s32)((f64)arg2 - (8.0 * (f64)((PlayerViewCamRoll *)D_807FC924)->unk2CA));
+    b = (s16)(s32)((f64)arg2 - (8.0 * (f64)((PlayerViewCamRoll *)gPlayerSlots)->unk2CA));
     camProjectToScreen((f32)sp76, (f32)b, (f32)c, &sp6C, &sp68, 0, 4.0f, 0);
     if ((sp6C > -320.0f) && (sp6C < 1600.0f) && (sp68 > -240.0f) && (sp68 < 1200.0f)) {
         g = playerViewGfxSetup(dl, 0);
@@ -353,7 +353,7 @@ void gfxGetBackgroundTint(s16 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     TintKeyframe *p;
     f32 t;
 
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
         case 0xE:
             idx = 0;
             if (arg0 < D_80754F58[1].pos) {
@@ -437,7 +437,7 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3, f32 
     f32 scale;
 
     scale = 5.6f / D_80754CE4;
-    cam = ((PlayerCamEntry *)D_807FC924)->unk4;
+    cam = ((PlayerCamEntry *)gPlayerSlots)->unk4;
     cam2 = cam->unk174;
     guScaleF(mtxA, scale, scale, scale);
     guTranslateF(mtxB, -2560.0f, -1920.0f, 0.0f);
@@ -590,8 +590,8 @@ Gfx *gfxClearScreenSetViewportScissor(Gfx *glist) {
     gDPPipeSync(glist++);
     {
         Gfx *_g = (Gfx *)(glist++);
-        _g->words.w0 = ((s32)((f32)((PlayerViewScissor *)D_807FC924)->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)((PlayerViewScissor *)D_807FC924)->unk270 * 4.0f) & 0xFFF) << 12);
-        _g->words.w1 = ((s32)((f32)((PlayerViewScissor *)D_807FC924)->unk276 * 4.0f) & 0xFFF) | (((s32)((f32)((PlayerViewScissor *)D_807FC924)->unk274 * 4.0f) & 0xFFF) << 12);
+        _g->words.w0 = ((s32)((f32)((PlayerViewScissor *)gPlayerSlots)->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)((PlayerViewScissor *)gPlayerSlots)->unk270 * 4.0f) & 0xFFF) << 12);
+        _g->words.w1 = ((s32)((f32)((PlayerViewScissor *)gPlayerSlots)->unk276 * 4.0f) & 0xFFF) | (((s32)((f32)((PlayerViewScissor *)gPlayerSlots)->unk274 * 4.0f) & 0xFFF) << 12);
     }
     gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0);
     return glist;
@@ -619,7 +619,7 @@ typedef struct {
     u16 unk290;
 } PlayerViewBackdrop;
 
-#define PLAYER_VIEW_MODE (*(s16 *)&((PlayerViewBackdrop *)D_807FC924)->unk290)
+#define PLAYER_VIEW_MODE (*(s16 *)&((PlayerViewBackdrop *)gPlayerSlots)->unk290)
 
 Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4) {
     f32 x;
@@ -629,7 +629,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4)
     if ((gScreenFadeRate != 0.0f) && (D_8076AEE0 == 3)) {
         dl = gfxClearScreenSetViewportScissor(dl);
     }
-    switch (D_8076A0A8) {
+    switch (gCurrentMap) {
     case 0x53:
     case 0x9A:
     case 0xC5:
@@ -655,7 +655,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4)
         dl = gfxDrawRotatedTiledBackground(dl, *(f32 *)&arg1, *(f32 *)&arg2, 0x2E, 320.0f, 240.0f);
         break;
     case 0x26:
-        switch (((PlayerViewBackdrop *)D_807FC924)->unk290) {
+        switch (((PlayerViewBackdrop *)gPlayerSlots)->unk290) {
         case 0:
         case 1:
         case 3:
@@ -686,7 +686,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4)
         dl = gfxClearScreenSetViewportScissor(dl);
         break;
     case 0x7:
-        switch ((s16)((PlayerViewBackdrop *)D_807FC924)->unk290) {
+        switch ((s16)((PlayerViewBackdrop *)gPlayerSlots)->unk290) {
         case 8:
         case 9:
         case 12:
@@ -720,8 +720,8 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4)
         break;
     case 0x22:
         if (camIsCutsceneActive() != 0) {
-            x = ((PlayerViewBackdrop *)D_807FC924)->unk210;
-            z = ((PlayerViewBackdrop *)D_807FC924)->unk218;
+            x = ((PlayerViewBackdrop *)gPlayerSlots)->unk210;
+            z = ((PlayerViewBackdrop *)gPlayerSlots)->unk218;
         } else {
             x = D_807FBB4C->unk7C;
             z = D_807FBB4C->unk84;
@@ -769,8 +769,8 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4)
         gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0);
         gDPSetCycleType(dl++, G_CYC_FILL);
         {
-            Gfx *_g = (Gfx *)(dl++); _g->words.w0 = (((((PlayerViewBackdrop *)((u8 *)D_807FC924 + (s16)arg4 * 0x2F0))->unk276 - 1) & 0x3FF) << 2) | 0xF6000000 | (((((PlayerViewBackdrop *)((u8 *)D_807FC924 + (s16)arg4 * 0x2F0))->unk274 - 1) & 0x3FF) << 14);
-            _g->words.w1 = (((((PlayerViewBackdrop *)((u8 *)D_807FC924 + (s16)arg4 * 0x2F0))->unk272) & 0x3FF) << 2) | (((((PlayerViewBackdrop *)((u8 *)D_807FC924 + (s16)arg4 * 0x2F0))->unk270) & 0x3FF) << 14);
+            Gfx *_g = (Gfx *)(dl++); _g->words.w0 = (((((PlayerViewBackdrop *)((u8 *)gPlayerSlots + (s16)arg4 * 0x2F0))->unk276 - 1) & 0x3FF) << 2) | 0xF6000000 | (((((PlayerViewBackdrop *)((u8 *)gPlayerSlots + (s16)arg4 * 0x2F0))->unk274 - 1) & 0x3FF) << 14);
+            _g->words.w1 = (((((PlayerViewBackdrop *)((u8 *)gPlayerSlots + (s16)arg4 * 0x2F0))->unk272) & 0x3FF) << 2) | (((((PlayerViewBackdrop *)((u8 *)gPlayerSlots + (s16)arg4 * 0x2F0))->unk270) & 0x3FF) << 14);
         }
         gDPPipeSync(dl++);
         gDPSetCycleType(dl++, G_CYC_1CYCLE);
@@ -802,15 +802,15 @@ extern s32 D_807552EC;
 Gfx *gfxDrawPlayerViewBackground(Gfx *glist, s16 player) {
     s32 draw_black;
 
-    if ((D_807FC928 >= 2) || !(D_807FBB60 & 0x10)) {
-        if (D_8076A0A8 == 0x50) {
+    if ((gPlayerCount >= 2) || !(D_807FBB60 & 0x10)) {
+        if (gCurrentMap == 0x50) {
             glist = gfxBuildScrollingBackground(glist);
         } else {
             draw_black = !(D_807FBB60 & 2);
-            if (D_807FC928 >= 2) {
+            if (gPlayerCount >= 2) {
                 s32 tmp;
                 if (D_807444FC == 0) {}
-                if (D_8076A0A8 == 0xBE) {
+                if (gCurrentMap == 0xBE) {
                     tmp = 0;
                 } else {
                     tmp = 1;
@@ -825,13 +825,13 @@ Gfx *gfxDrawPlayerViewBackground(Gfx *glist, s16 player) {
             gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0);
             gDPSetFillColor(glist++, 0x00010001);
             gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0x300000);
-            { Gfx *_g = (Gfx *)(glist++); _g->words.w0 = 0xF6000000 | ((((PlayerViewWithBg *)D_807FC924 + player)->unk276 - 1) & 0x3FF) * 4 | ((((PlayerViewWithBg *)D_807FC924 + player)->unk274 - 1) & 0x3FF) << 14; _g->words.w1 = ((((PlayerViewWithBg *)D_807FC924 + player)->unk272 & 0x3FF) * 4) | ((((PlayerViewWithBg *)D_807FC924 + player)->unk270 & 0x3FF) << 14); }
+            { Gfx *_g = (Gfx *)(glist++); _g->words.w0 = 0xF6000000 | ((((PlayerViewWithBg *)gPlayerSlots + player)->unk276 - 1) & 0x3FF) * 4 | ((((PlayerViewWithBg *)gPlayerSlots + player)->unk274 - 1) & 0x3FF) << 14; _g->words.w1 = ((((PlayerViewWithBg *)gPlayerSlots + player)->unk272 & 0x3FF) * 4) | ((((PlayerViewWithBg *)gPlayerSlots + player)->unk270 & 0x3FF) << 14); }
             gDPPipeSync(glist++);
             gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0);
         }
     } else {
-        glist = gfxDrawMapBackground(glist, ((PlayerViewWithBg *)D_807FC924 + player)->unk2D4, ((PlayerViewWithBg *)D_807FC924 + player)->unk2D8,
-            (u8 *)((PlayerViewWithBg *)D_807FC924 + player) + (D_807444FC << 6) + 0x108, player);
+        glist = gfxDrawMapBackground(glist, ((PlayerViewWithBg *)gPlayerSlots + player)->unk2D4, ((PlayerViewWithBg *)gPlayerSlots + player)->unk2D8,
+            (u8 *)((PlayerViewWithBg *)gPlayerSlots + player) + (D_807444FC << 6) + 0x108, player);
     }
     return glist;
 }

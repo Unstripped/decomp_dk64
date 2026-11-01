@@ -27,16 +27,16 @@ void lightGetColor(f32 *arg0, f32 *arg1, f32 *arg2, s16 arg3) {
     *arg2 = D_8076A0BC[arg3];
 }
 
-extern s32 D_807F6C28;
+extern s32 gMapChunkCount;
 
 void lightSetColor(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     u8 count;
     s32 i;
 
-    if (D_807F6C28 <= 0) {
+    if (gMapChunkCount <= 0) {
         count = 1;
     } else {
-        count = D_807F6C28;
+        count = gMapChunkCount;
     }
     if (arg3 != -1) {
         if (arg3 < count) {
@@ -61,10 +61,10 @@ void lightCopyTargetColors(s16 arg0) {
     u8 count;
     s32 i;
 
-    if (D_807F6C28 <= 0) {
+    if (gMapChunkCount <= 0) {
         count = 1;
     } else {
-        count = D_807F6C28;
+        count = gMapChunkCount;
     }
 
     if (arg0 != -1) {
@@ -86,10 +86,10 @@ void lightSetTargetColor(f32 arg0, f32 arg1, f32 arg2, s16 arg3) {
     u8 count;
     u8 i;
 
-    if (D_807F6C28 <= 0) {
+    if (gMapChunkCount <= 0) {
         count = 1;
     } else {
-        count = D_807F6C28;
+        count = gMapChunkCount;
     }
 
     if (arg3 != -1) {
@@ -133,10 +133,10 @@ void lightLerpColors(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4) {
     u8 count;
     s32 i;
 
-    if (D_807F6C28 <= 0) {
+    if (gMapChunkCount <= 0) {
         count = 1;
     } else {
-        count = D_807F6C28;
+        count = gMapChunkCount;
     }
 
     if (arg4 != -1) {
@@ -266,11 +266,11 @@ void lightAdd(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 ar
 
 extern s32 D_80748304;
 extern s32 D_80748308;
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 s32 lightCheckPlayerDistance(LightVolume *);
-void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void commandQueuePush(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
@@ -304,7 +304,7 @@ void lightApplyToActors(void) {
         spC8[i] = 0;
     }
     {
-        for (i = 0; i < D_80748300 && D_807FC928 < 3; i++) {
+        for (i = 0; i < D_80748300 && gPlayerCount < 3; i++) {
             light = &D_807F7500[i];
             if ((lightCheckPlayerDistance(light) != 0) && (lightCount < 12)) {
                 lightCount++;
@@ -379,7 +379,7 @@ void lightApplyToActors(void) {
                                             spC[1] = 0.15f;
                                         }
                                         alpha = actor->unk128 / 255.0;
-                                        func_8065D254(actor, 0x3C9, 0x40, 0x40,
+                                        billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                                             (s32)(spC[0] * (f32)actor->unk16E[0]),
                                             (s32)(spC[1] * (f32)actor->unk16E[1]),
                                             1, 0x64,
@@ -433,7 +433,7 @@ void lightApplyToActors(void) {
                                     0xFF, light->unk36, light->unk37, light->unk38, 0);
                                 if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
                                     alpha = actor->unk128 / 255.0;
-                                    func_8065D254(actor, 0x3C9, 0x40, 0x40,
+                                    billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                                         (s32)(spC[0] * (f32)actor->unk16E[0]),
                                         (s32)(spC[1] * (f32)actor->unk16E[1]),
                                         1, 0x64,
@@ -454,7 +454,7 @@ void lightApplyToActors(void) {
                                         0);
                                     if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
                                         alpha = actor->unk128 / 255.0;
-                                        func_8065D254(actor, 0x3C9, 0x40, 0x40,
+                                        billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                                             (s32)(spC[0] * (f32)actor->unk16E[0]),
                                             (s32)(spC[1] * (f32)actor->unk16E[1]),
                                             1, 0x64,
@@ -483,7 +483,7 @@ void lightApplyToActors(void) {
                         spC[1] = 0.15f;
                     }
                     alpha = actor->unk128 / 255.0;
-                    func_8065D254(actor, 0x3C9, 0x40, 0x40,
+                    billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                         (s32)(spC[0] * (f32)actor->unk16E[0]),
                         (s32)(spC[1] * (f32)actor->unk16E[1]),
                         1, 0x64,
@@ -679,7 +679,7 @@ typedef struct LightPlayer {
 } LightPlayer;
 
 
-extern LightPlayer *D_807FC924;
+extern LightPlayer *gPlayerSlots;
 extern u8 D_80750AB4;
 #define SQ(x) ((x) * (x))
 
@@ -688,7 +688,7 @@ s32 lightCheckPlayerDistance(LightVolume *arg0) {
     LightPlayer *player;
 
     for (i = 0; i < D_80750AB4; i++) {
-        player = (LightPlayer *)((u8 *)D_807FC924 + (i * sizeof(LightPlayer)));
+        player = (LightPlayer *)((u8 *)gPlayerSlots + (i * sizeof(LightPlayer)));
         if (player->unk0 != 0) {
             if (sqrtf(SQ(arg0->z - player->z) + (SQ(arg0->x - player->x) + SQ(arg0->y - player->y))) < (f32)arg0->unk32) {
                 return 1;

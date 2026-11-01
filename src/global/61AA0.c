@@ -38,9 +38,9 @@ typedef struct {
     f32 unk27C;
     u8 pad280[0x2F0 - 0x280];
 } PlayerCameraData;
-extern PlayerCameraData *D_807FC924;
-extern u8 D_807FC929;
-extern s32 D_8076A0A8;
+extern PlayerCameraData *gPlayerSlots;
+extern u8 gCurrentPlayerIndex;
+extern s32 gCurrentMap;
 f32 renderAdjustActorDistance(s16, f32);
 f32 renderScaleDistanceByFov(f32);
 #define R2A_SQ(x) ((x) * (x))
@@ -50,8 +50,8 @@ void renderCalcPlayerDistanceAlpha(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 a
     f32 dist;
     f32 fv1;
 
-    dist = sqrtf(R2A_SQ(arg0 - D_807FC924[D_807FC929].x) + R2A_SQ(arg1 - D_807FC924[D_807FC929].y) + R2A_SQ(arg2 - D_807FC924[D_807FC929].z));
-    if (D_8076A0A8 == 0x26) {
+    dist = sqrtf(R2A_SQ(arg0 - gPlayerSlots[gCurrentPlayerIndex].x) + R2A_SQ(arg1 - gPlayerSlots[gCurrentPlayerIndex].y) + R2A_SQ(arg2 - gPlayerSlots[gCurrentPlayerIndex].z));
+    if (gCurrentMap == 0x26) {
         arg3 = renderAdjustActorDistance(arg4, arg3);
         if (arg3 < dist) {
             *arg5 = 0;
@@ -101,7 +101,7 @@ extern f32 D_807F5FDC;
 extern f32 D_807F5FE0;
 
 f32 renderScaleDistanceByFov(f32 arg0) {
-    if ((f64)D_807FC924[D_807FC929].unk27C == 45.0) {
+    if ((f64)gPlayerSlots[gCurrentPlayerIndex].unk27C == 45.0) {
         return arg0;
     }
     return (arg0 / D_807F5FDC) * D_807F5FE0;
@@ -113,35 +113,35 @@ typedef struct {
     s16 unk6;
     void *unk8;
 } BillboardCacheEntry;
-extern BillboardCacheEntry D_807F8E90[4];
-extern s16 D_807F8E8A;
+extern BillboardCacheEntry gBillboardCache[4];
+extern s16 gBillboardFlags;
 
 void billboardCacheInit(void) {
     s32 i;
     for (i = 0; i < 4; i++) {
-        D_807F8E90[i].unk0 = -1;
+        gBillboardCache[i].unk0 = -1;
     }
-    D_807F8E8A = 0;
+    gBillboardFlags = 0;
 }
 
-extern u8 D_807F8E88;
-extern s32 D_8076A064;
+extern u8 gBillboardQueueCount;
+extern s32 gFrameCounter;
 void assetFreeBuffer(void *, s32, s32);
 
 void billboardCacheEvictStale(void) {
     s32 i;
 
-    D_807F8E88 = 0;
+    gBillboardQueueCount = 0;
     for (i = 0; i < 4; i++) {
-        if (D_807F8E90[i].unk0 != -1 && (u32)(D_8076A064 - D_807F8E90[i].unk0) >= 21) {
-            assetFreeBuffer(D_807F8E90[i].unk8, 0x65, 0x4D);
-            D_807F8E90[i].unk0 = -1;
+        if (gBillboardCache[i].unk0 != -1 && (u32)(gFrameCounter - gBillboardCache[i].unk0) >= 21) {
+            assetFreeBuffer(gBillboardCache[i].unk8, 0x65, 0x4D);
+            gBillboardCache[i].unk0 = -1;
         }
     }
 }
 
 void billboardSetFlags(s16 arg0) {
-    D_807F8E8A = arg0;
+    gBillboardFlags = arg0;
 }
 
 typedef struct {
@@ -155,7 +155,7 @@ typedef struct {
     u8 unk106;
     s8 unk107;
 } BillboardData;
-extern BillboardData D_807F7F10[16];
+extern BillboardData gBillboardQueue[16];
 extern u8 D_807444FC;
 
 void billboardSetVertex(s16 *, s16, s16, s16, s16);
@@ -163,7 +163,7 @@ void *assetLoad(s32, s32, s32, s32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 #define ACTOR_FIELD(T, off) (*(T *)((u8 *)actor + (off)))
 
-void func_8065D254(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, u8 arg6, s16 arg7, u8 arg8, s16 arg9, f32 arg10) {
+void billboardSubmit(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, u8 arg6, s16 arg7, u8 arg8, s16 arg9, f32 arg10) {
     s32 found;
     s32 i;
     f32 scale;
@@ -176,17 +176,17 @@ void func_8065D254(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
 
     found = FALSE;
     i = 0;
-    if (D_807F8E88 == 15) {
-        D_807F8E8A = 0;
+    if (gBillboardQueueCount == 15) {
+        gBillboardFlags = 0;
         return;
     }
     if ((actor->unkA4 > 32767.0f) || (actor->unkA4 < -32768.0f)) {
-        D_807F8E8A = 0;
+        gBillboardFlags = 0;
         return;
     }
 
     do {
-        if ((D_807F8E90[i].unk0 != -1) && (arg1 == D_807F8E90[i].unk4)) {
+        if ((gBillboardCache[i].unk0 != -1) && (arg1 == gBillboardCache[i].unk4)) {
             found = TRUE;
         } else {
             i++;
@@ -197,9 +197,9 @@ void func_8065D254(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
         goto block_21;
     }
     i = 0; found = FALSE;
-    if ((u32)D_807F8E90[i].unk0 == 0xFFFFFFFF) {} // FAKE: dead read of the typed -1 pushes its constant load ahead of the loop-2 induction setup
+    if ((u32)gBillboardCache[i].unk0 == 0xFFFFFFFF) {} // FAKE: dead read of the typed -1 pushes its constant load ahead of the loop-2 induction setup
     while ((i < 4) && !found) {
-        if ((u32)D_807F8E90[i].unk0 == 0xFFFFFFFF) {
+        if ((u32)gBillboardCache[i].unk0 == 0xFFFFFFFF) {
             found = TRUE;
         } else {
             i++;
@@ -209,26 +209,26 @@ void func_8065D254(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
     if (!found) {
         return;
     }
-    D_807F8E90[i].unk8 = assetLoad(7, arg1, 0, 0);
-    D_807F8E90[i].unk4 = arg1;
+    gBillboardCache[i].unk8 = assetLoad(7, arg1, 0, 0);
+    gBillboardCache[i].unk4 = arg1;
 
 block_21:
-    D_807F8E90[i * 1].unk0 = D_8076A064; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
-    D_807F7F10[D_807F8E88].unk102 = i;
-    D_807F7F10[D_807F8E88].unk106 = arg8;
+    gBillboardCache[i * 1].unk0 = gFrameCounter; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
+    gBillboardQueue[gBillboardQueueCount].unk102 = i;
+    gBillboardQueue[gBillboardQueueCount].unk106 = arg8;
     if (actor->unk64 & 0x40) {
-        *(u16 *)&D_807F8E8A |= 1;
+        *(u16 *)&gBillboardFlags |= 1;
     }
-    D_807F7F10[D_807F8E88].unk100 = *(u16 *)&D_807F8E8A;
-    D_807F7F10[D_807F8E88].unk107 = ACTOR_FIELD(s16, 0x12C);
+    gBillboardQueue[gBillboardQueueCount].unk100 = *(u16 *)&gBillboardFlags;
+    gBillboardQueue[gBillboardQueueCount].unk107 = ACTOR_FIELD(s16, 0x12C);
 
-    billboardSetVertex((s16 *)&D_807F7F10[D_807F8E88].verts[D_807444FC][0], (s16)-((f32)arg4 * arg10), -arg5, 0, 0);
-    billboardSetVertex((s16 *)&D_807F7F10[D_807F8E88].verts[D_807444FC][1], arg4, -arg5, arg2 - 1, 0);
-    billboardSetVertex((s16 *)&D_807F7F10[D_807F8E88].verts[D_807444FC][2], (s16)-((f32)arg4 * arg10), arg5, 0, arg3 - 1);
-    billboardSetVertex((s16 *)&D_807F7F10[D_807F8E88].verts[D_807444FC][3], arg4, arg5, arg2 - 1, arg3 - 1);
+    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][0], (s16)-((f32)arg4 * arg10), -arg5, 0, 0);
+    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][1], arg4, -arg5, arg2 - 1, 0);
+    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][2], (s16)-((f32)arg4 * arg10), arg5, 0, arg3 - 1);
+    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][3], arg4, arg5, arg2 - 1, arg3 - 1);
 
     sp48 = actor->unkA4;
-    if ((*(u16 *)&D_807F8E8A & 2) && (actor->unk6A & 2) && (actor->unkAC <= actor->unk80)) {
+    if ((*(u16 *)&gBillboardFlags & 2) && (actor->unk6A & 2) && (actor->unkAC <= actor->unk80)) {
         f32 diff1 = (actor->unk80 > actor->unkAC) ? (actor->unk80 - actor->unkAC) : -(actor->unk80 - actor->unkAC);
         f32 diff2 = (actor->unk80 > actor->unkA4) ? (actor->unk80 - actor->unkA4) : -(actor->unk80 - actor->unkA4);
         if (diff1 < diff2) {
@@ -264,13 +264,13 @@ block_21:
     }
     guMtxCatF(sp8C, sp4C, sp8C);
 
-    guMtxF2L(sp8C, &D_807F7F10[D_807F8E88].matrices[D_807444FC]);
+    guMtxF2L(sp8C, &gBillboardQueue[gBillboardQueueCount].matrices[D_807444FC]);
 
-    D_807F7F10[D_807F8E88].unk103 = arg2;
-    D_807F7F10[D_807F8E88].unk104 = arg3;
-    D_807F7F10[D_807F8E88].unk105 = arg6;
-    D_807F8E88++;
-    D_807F8E8A = 0;
+    gBillboardQueue[gBillboardQueueCount].unk103 = arg2;
+    gBillboardQueue[gBillboardQueueCount].unk104 = arg3;
+    gBillboardQueue[gBillboardQueueCount].unk105 = arg6;
+    gBillboardQueueCount++;
+    gBillboardFlags = 0;
 }
 
 void billboardSetVertex(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
@@ -281,7 +281,7 @@ void billboardSetVertex(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     arg0[5] = arg4 << 5;
 }
 
-Gfx *func_8065D994(Gfx *gdl, s16 arg1) {
+Gfx *billboardRenderQueued(Gfx *gdl, s16 arg1) {
     s32 i;
     s32 var_t2;
     s32 var_s6;
@@ -292,8 +292,8 @@ Gfx *func_8065D994(Gfx *gdl, s16 arg1) {
     var_t2 = 0;
     var_s6 = 1;
     found = 0;
-    while (i < D_807F8E88 && found == 0) {
-        if (arg1 == D_807F7F10[i].unk107) {
+    while (i < gBillboardQueueCount && found == 0) {
+        if (arg1 == gBillboardQueue[i].unk107) {
             found = 1;
         }
         i++;
@@ -311,37 +311,37 @@ Gfx *func_8065D994(Gfx *gdl, s16 arg1) {
     gDPSetCombine(gdl++, 0x119623, 0xFF2FFFFF);
 
     i = 0;
-    if (D_807F8E88 > 0) {
+    if (gBillboardQueueCount > 0) {
         do {
-            if (arg1 == D_807F7F10[i].unk107) {
+            if (arg1 == gBillboardQueue[i].unk107) {
                 BillboardData *temp_s5;
 
                 gDPPipeSync(gdl++);
-                temp_s5 = &D_807F7F10[i * 1]; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
+                temp_s5 = &gBillboardQueue[i * 1]; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
                 if (var_s6 != 0) {
-                    if (D_807F7F10[i].unk100 & 1) {
+                    if (gBillboardQueue[i].unk100 & 1) {
                         gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
                         var_s6 = 0;
                     }
                 }
                 if (var_s6 == 0) {
-                    if (!(D_807F7F10[i].unk100 & 1)) {
+                    if (!(gBillboardQueue[i].unk100 & 1)) {
                         gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504DD8);
                         var_s6 = 1;
                     }
                 }
-                gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, D_807F7F10[i].unk106);
-                temp_a1 = (s32)D_807F8E90[D_807F7F10[i].unk102].unk8;
+                gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, gBillboardQueue[i].unk106);
+                temp_a1 = (s32)gBillboardCache[gBillboardQueue[i].unk102].unk8;
                 if (temp_a1 != var_t2) {
                     var_t2 = temp_a1;
-                    switch (D_807F7F10[i].unk105) {
+                    switch (gBillboardQueue[i].unk105) {
                     case 0:
                         gDPLoadTextureBlock_4b(
                             gdl++,
                             (u8 *)temp_a1 + 0x80000000,
                             G_IM_FMT_IA,
-                            D_807F7F10[i].unk103,
-                            D_807F7F10[i].unk104,
+                            gBillboardQueue[i].unk103,
+                            gBillboardQueue[i].unk104,
                             0,
                             G_TX_CLAMP,
                             G_TX_CLAMP,
@@ -354,11 +354,11 @@ Gfx *func_8065D994(Gfx *gdl, s16 arg1) {
                     case 1:
                         gDPLoadTextureBlock(
                             gdl++,
-                            (u8 *)D_807F8E90[D_807F7F10[i].unk102].unk8 + 0x80000000,
+                            (u8 *)gBillboardCache[gBillboardQueue[i].unk102].unk8 + 0x80000000,
                             G_IM_FMT_IA,
                             G_IM_SIZ_8b,
-                            D_807F7F10[i].unk103,
-                            D_807F7F10[i].unk104,
+                            gBillboardQueue[i].unk103,
+                            gBillboardQueue[i].unk104,
                             0,
                             G_TX_CLAMP,
                             G_TX_CLAMP,
@@ -376,7 +376,7 @@ Gfx *func_8065D994(Gfx *gdl, s16 arg1) {
                 gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
             }
             i++;
-        } while (i < D_807F8E88);
+        } while (i < gBillboardQueueCount);
     }
     gDPPipeSync(gdl++);
     return gdl;
@@ -449,7 +449,7 @@ void matrixCacheInit(s32 arg0) {
 
 
 s32 mapIsBonusOrSpecial(void) {
-    if ((D_8076A0A8 == 6) || (D_8076A0A8 == 8) || (D_8076A0A8 == 0x37) || (D_8076A0A8 == 0x53) || (D_8076A0A8 == 0x6A) || (D_8076A0A8 == 0xC4) || (D_8076A0A8 == 0xC5)) {
+    if ((gCurrentMap == 6) || (gCurrentMap == 8) || (gCurrentMap == 0x37) || (gCurrentMap == 0x53) || (gCurrentMap == 0x6A) || (gCurrentMap == 0xC4) || (gCurrentMap == 0xC5)) {
         return 0;
     }
     return 1;
@@ -517,7 +517,7 @@ void *matrixCacheLookup(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
                     }
                     if (!mismatch) {
                         MatrixCacheSub *sub = node->sub;
-                        node->unkC = D_8076A064;
+                        node->unkC = gFrameCounter;
                         D_807F905A++;
                         if (node->list_prev != NULL) {
                             if (node->list_next == NULL) {
@@ -571,7 +571,7 @@ void *matrixCacheInsert(s32 arg0, s32 arg1, s16 arg2, u8 arg3, s32 arg4, u8 arg5
     sp30->unk29 = arg0;
     sp30->unk28 = arg3;
     memcpy(sp18, &D_807F78C0, arg0 << 6);
-    sp30->unkC = D_8076A064;
+    sp30->unkC = gFrameCounter;
     sp30->unk26 = arg4;
     D_807F905C += sp1C;
     D_807F9060++;
@@ -631,7 +631,7 @@ s32 matrixCacheEvict(u8 arg0, s16 arg1) {
             break;
         }
         next = node->list_prev;
-        if ((cond == 0 && (u32)D_807F9064 < (u32)D_807F905C) || (u32)arg1 < (u32)(D_8076A064 - node->unkC)) {
+        if ((cond == 0 && (u32)D_807F9064 < (u32)D_807F905C) || (u32)arg1 < (u32)(gFrameCounter - node->unkC)) {
             if (node == D_807F9054) {
                 D_807F9054 = node->list_prev;
             }
@@ -660,7 +660,7 @@ s32 matrixCacheEvict(u8 arg0, s16 arg1) {
                     node->hash_prev->hash_next = node->hash_next;
                 }
             }
-            if ((u32)(D_8076A064 - node->unkC) >= 2) {
+            if ((u32)(gFrameCounter - node->unkC) >= 2) {
                 heapFree(node);
                 sp43 = 1;
             } else {

@@ -1,6 +1,6 @@
 // scriptOpPlaySoundAndShake (src/global/19A00.c): stage 4: 0x50 frame matches, s0/ra saved, stack slots (0x4E, 0x4D, 0x4A, 0x49, 0x48) match; remaining diff is FP conversion schedule
 struct PlayerSoundStruct;
-extern struct PlayerSoundStruct *D_807FC924;
+extern struct PlayerSoundStruct *gPlayerSlots;
 
 typedef struct PlayerSoundView {
     u8 pad0[0x2C0];
@@ -41,14 +41,14 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
     scriptReadU8(&sp4D);
     scriptReadU16((u8 *)&sp4A);
     scriptReadU8(&sp49);
-    if (((PlayerSoundView *)D_807FC924)[((GlobalSoundState *)D_807FD580)->unk1A4].unk2C0 == 2) {
+    if (((PlayerSoundView *)gPlayerSlots)[((GlobalSoundState *)gActivePlayerState)->unk1A4].unk2C0 == 2) {
         if (sp4E == 1) {
             sp4D = (u32)((f64)(u32)sp4D * 0.5);
         }
         sp48 = 0xA;
-        camStartShakeFromPoint(((GlobalSoundState *)D_807FD580)->unk104, 0xA, 8, ((ActorSoundPosView *)arg0)->unk7C, ((ActorSoundPosView *)arg0)->unk80, ((ActorSoundPosView *)arg0)->unk84, 100.0f, 800.0f);
+        camStartShakeFromPoint(((GlobalSoundState *)gActivePlayerState)->unk104, 0xA, 8, ((ActorSoundPosView *)arg0)->unk7C, ((ActorSoundPosView *)arg0)->unk80, ((ActorSoundPosView *)arg0)->unk84, 100.0f, 800.0f);
         var_v1 = 0xA;
-    } else if (((PlayerSoundView *)D_807FC924)[((GlobalSoundState *)D_807FD580)->unk1A4].unk2C0 == 0) {
+    } else if (((PlayerSoundView *)gPlayerSlots)[((GlobalSoundState *)gActivePlayerState)->unk1A4].unk2C0 == 0) {
         var_v1 = 0xFF;
         sp4D = (u32)((f64)(u32)sp4D * 0.5);
     } else {

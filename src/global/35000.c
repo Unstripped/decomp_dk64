@@ -505,9 +505,9 @@ typedef struct PlayerView {
 } PlayerView;
 
 extern u8 D_807444FC;
-extern PlayerView *D_807FC924;
-extern u8 D_807FC928;
-extern u8 D_807FC929;
+extern PlayerView *gPlayerSlots;
+extern u8 gPlayerCount;
+extern u8 gCurrentPlayerIndex;
 
 void func_80614A64(void *);
 void *renderActorDisplayList(void *, void *);
@@ -520,7 +520,7 @@ f32 renderScaleDistanceByFov(f32);
 void *renderSetSegment6AndFog(void *, s16, u8);
 
 #define RENDER_ACT ((RenderActor *)arg1)
-#define CUR_PLAYER_VIEW ((PlayerView *)((u8 *)D_807FC924 + D_807FC929 * 0x2F0))
+#define CUR_PLAYER_VIEW ((PlayerView *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0))
 
 void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
     ActorCtl *ctl;
@@ -539,7 +539,7 @@ void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
     spB8 = 1.0f;
     if (!(RENDER_ACT->unk60 & 4)) {
         flag = 0;
-        if (D_807FC928 >= 2 && (RENDER_ACT->unk5C & 1) && (ctl = RENDER_ACT->unk174, D_807FC929 != ctl->unk1A4)) {
+        if (gPlayerCount >= 2 && (RENDER_ACT->unk5C & 1) && (ctl = RENDER_ACT->unk174, gCurrentPlayerIndex != ctl->unk1A4)) {
             flag = 1;
         }
         if (flag == 0) {
@@ -572,7 +572,7 @@ void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
     }
     WRITE_GFX_WORDS(arg2++, 0xDB06003C, osVirtualToPhysical(RENDER_ACT->unk148[D_807444FC]));
     if (RENDER_ACT->unk60 & 0x1000) {
-        arg2 = actorBuildLightDisplayList(arg2, arg1, D_807FC929);
+        arg2 = actorBuildLightDisplayList(arg2, arg1, gCurrentPlayerIndex);
         WRITE_GFX_WORDS(arg2++, 0xD9FFFFFF, 0x20000);
         WRITE_GFX_WORDS(arg2++, 0xFA0000FF, 0xFFFFFFFF);
     } else {

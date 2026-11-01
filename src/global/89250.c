@@ -20,7 +20,7 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Struct_5390 D_8074E88C;
 extern void *D_8074E880[];
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 extern u8 D_80750AD0;
 extern s32 D_8071FC0C;
 extern s32 D_8071FE08;
@@ -100,7 +100,7 @@ void effectSpawnRandomBoneDebris(u8 arg0, u8 arg1) {
     f32 sp2C;
     u8 sp2B;
 
-    if (!(D_8076A064 & 3)) {
+    if (!(gFrameCounter & 3)) {
         sp2C = (f32)(D_807FBB40->unk4->unk38 / 0.15);
         sp2B = ((randomNonNegative() >> 15) % 0x7FFF) % ((arg1 - arg0) + 1) + arg0;
         func_80714998(3);
@@ -160,7 +160,7 @@ extern s32 D_8071FF58;
 void effectWobbleScaleUpdate(void);
 
 void effectSpawnSmoke(u8 arg0) {
-    if (!(D_8076A064 & 0x1F)) {
+    if (!(gFrameCounter & 0x1F)) {
         func_80714998(2);
         func_807149B8(1);
         func_807149FC(0x3C);
@@ -256,7 +256,7 @@ void effectSpawnAuraBurst(u8 arg0) {
 }
 
 void effectSpawnSparks(u8 arg0, u8 arg1) {
-    if (!(arg0 & D_8076A064)) {
+    if (!(arg0 & gFrameCounter)) {
         func_8071498C(effectWobbleRiseUpdate);
         func_807149B8(1);
         func_807149FC(-1);
@@ -288,7 +288,7 @@ void effectSpawnRing(void) {
 }
 
 void func_80685210(f32 arg0, s16 arg1, s16 arg2) {
-    if (((D_8076A064 % 3) == 0) && ((f32)arg1 < D_807FBB40->unkB8)) {
+    if (((gFrameCounter % 3) == 0) && ((f32)arg1 < D_807FBB40->unkB8)) {
         func_80714998(2);
         func_807149B8(1);
         func_8071498C(func_80717D4C);
@@ -500,8 +500,8 @@ typedef struct ActorFloorContact {
     s16 unk10;
 } ActorFloorContact;
 
-extern EffectPlayerData *D_807FC924;
-extern u8 D_807FC929;
+extern EffectPlayerData *gPlayerSlots;
+extern u8 gCurrentPlayerIndex;
 extern s16 D_80753A08[];
 extern s16 D_80753A18[];
 
@@ -511,7 +511,7 @@ void effectActorCheckGroundScaleSpawn(Actor *arg0) {
     var_v1 = 0;
     if (*(void **)arg0->unk00 != NULL && arg0->unk4 != NULL) {
         if (arg0->unk5C == 1) {
-            if (D_807FC924[D_807FC929].unk2C0 == 1) {
+            if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
                 var_fv0 = D_80753A08[arg0->unk58];
             } else {
                 var_fv0 = D_80753A18[arg0->unk58];
@@ -520,7 +520,7 @@ void effectActorCheckGroundScaleSpawn(Actor *arg0) {
             var_fv0 = (f32)(u32)arg0->unk15E;
         }
         if ((arg0->unkAC - var_fv0) <= arg0->unk80) {
-            if (!(D_8076A064 & 3)) {
+            if (!(gFrameCounter & 3)) {
                 var_v1 = (f64)arg0->unkB8 != 0.0;
                 if (*(ActorFloorContact **)arg0->unk118 != NULL && (*(ActorFloorContact **)arg0->unk118)->unk10 != 0) {
                     var_v1 = 1;
@@ -528,7 +528,7 @@ void effectActorCheckGroundScaleSpawn(Actor *arg0) {
             }
             if (var_v1) {
                 func_80714950(1);
-            } else if (((f64)arg0->unkB8 == 0.0) && (((u32)D_8076A064 % 24 == 0) || ((f64)arg0->unkBC != 0.0))) {
+            } else if (((f64)arg0->unkB8 == 0.0) && (((u32)gFrameCounter % 24 == 0) || ((f64)arg0->unkBC != 0.0))) {
                 var_v1 = 1;
             }
             if (var_v1) {
@@ -734,7 +734,7 @@ void effectSpawnActorBoneEffects(u8 arg0) {
     s32 var_v0;
     s32 var_s0;  // FAKE: separate post-dispatch web (chain var stays in v0, var_s0 takes s0)
 
-    var_s2 = (((D_8076A064 & 3) * 4) + 3) & 0xFF;
+    var_s2 = (((gFrameCounter & 3) * 4) + 3) & 0xFF;
     for (var_s4 = 0; var_s4 < 4; var_s4++) {
         var_v0 = var_s2;
         if ((var_s2 | 0) == 0x10) {  // FAKE: |0 keeps the constant-first operand order (bne s6,s2)

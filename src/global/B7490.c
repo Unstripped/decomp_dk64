@@ -39,10 +39,10 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
-extern Struct807FD580 *D_807FD580;
+extern Struct807FD580 *gActivePlayerState;
 extern s32 D_807FDCA0;
-extern u32 D_8076A064;
-extern s32 D_8076A0A8;
+extern u32 gFrameCounter;
+extern s32 gCurrentMap;
 extern u8 D_8072073C[];
 extern s16 D_80750340;
 
@@ -64,7 +64,7 @@ void func_8072AA80(void);
 void func_8072C918(s32, s32, s32);
 s32 randomNonNegative(void);
 f32 func_80612794(s16);
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleEaseToward(s16, s16, f32);
 void actorClearNodeFlag(Actor *, s32);
 void scriptSetActorRampTarget(void *, f32, f32);
 void func_8072E1A4(s32, void *);
@@ -165,7 +165,7 @@ void func_806B2790(void) {
         case 0x37:
             switch (D_807FBB40->unk155[0]) {
                 case 0:
-                    B7490A->unkE4 = func_806CC190(B7490A->unkE4, 0, 7.0f);
+                    B7490A->unkE4 = mathAngleEaseToward(B7490A->unkE4, 0, 7.0f);
                     break;
                 case 1:
                     func_8072DC7C(0x14);
@@ -294,7 +294,7 @@ void func_806B2D64(void) {
         case 0x37:
             switch (D_807FBB40->unk155[0]) {
                 case 0:
-                    B7490A->unkE4 = func_806CC190(B7490A->unkE4, 0, 7.0f);
+                    B7490A->unkE4 = mathAngleEaseToward(B7490A->unkE4, 0, 7.0f);
                     break;
                 case 1:
                     func_8072DC7C(0x14);
@@ -398,7 +398,7 @@ void actorSwellBurstUpdate(void) {
 
     var = D_807FBB40->unk4->unk38 * 800.0f;
     sp54 = 1.1f;
-    if (D_8076A0A8 == 0xC7) {
+    if (gCurrentMap == 0xC7) {
         if (!(D_807FBB4C->unk6A & 4)) {
             var = 0.0f;
             sp54 = 0.4f;
@@ -524,7 +524,7 @@ void func_806B3DA4(void) {
 void func_806B3E08(void) {
     if (D_807FDC90->unk2C != 0) {
         D_807FDC90->unk2C--;
-        if (D_8076A064 & 1) {
+        if (gFrameCounter & 1) {
             projectileAimAtTargetFromActor();
         }
     } else if (func_8072E0A8(0x96, 0x96)) {
@@ -565,7 +565,7 @@ s32 actorFlyTowardPosition(B7490Pos *arg0, u8 arg1) {
     B7490A->unkC0 = 0.0f;
     dy = (B7490A->unk80 < arg0->y) ? 0.0f : B7490A->unk80 - arg0->y;
     B7490A->unkC4 = -(dy / t);
-    B7490A->unkE8 = func_806CC190(B7490A->unkE8, (s32)((mathCalculatePitchAngle(arg0->x, arg0->y, arg0->z, B7490A->unk7C, B7490A->unk80, B7490A->unk84, 0x46) * 2048.0) / 3.1415927410125732), 3.3f);
+    B7490A->unkE8 = mathAngleEaseToward(B7490A->unkE8, (s32)((mathCalculatePitchAngle(arg0->x, arg0->y, arg0->z, B7490A->unk7C, B7490A->unk80, B7490A->unk84, 0x46) * 2048.0) / 3.1415927410125732), 3.3f);
     return actorMoveWithinZone(arg1, arg0->x, arg0->z, 0x2E0, 0.0f);
 }
 
@@ -597,7 +597,7 @@ void actorSpawnPeriodicBoneEffect(void) {
         default:
             var_v0 = 0;
     }
-    if ((var_v0 != 0) && ((D_8076A064 % var_v0) == 0)) {
+    if ((var_v0 != 0) && ((gFrameCounter % var_v0) == 0)) {
         func_80714998(3);
         func_807149C8(col, col, col, *(u8 *) ((u8 *) D_807FBB40 + 0x129));
         effectSpawnBoneDefault(D_807FBB40, 1, f, 0.0f, 0.0f, 0.0f, -0x50);
@@ -653,7 +653,7 @@ void func_806B42A8(void (*arg0)(), u16 arg1, u16 arg2, s16 arg3) {
                 }
             }
             actorMoveWithinZone(D_807FBB40->unk154, (f32) var_t0, (f32) var_t1, 0x2C1, 0.0f);
-            B7490A->unkE8 = func_806CC190(B7490A->unkE8, 0, 5.0f);
+            B7490A->unkE8 = mathAngleEaseToward(B7490A->unkE8, 0, 5.0f);
             break;
         case 0x26:
             switch (D_807FBB40->unk155[0]) {
@@ -788,7 +788,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
                     D_807FBB40->unk80 = (f32) ((f64) D_807FBB40->unk80 + ((f64) (f32) (u32) D_807FDC9C->unkB * 0.015625));
                 }
             }
-            B7490A->unkE8 = func_806CC190(B7490A->unkE8, 0, 5.0f);
+            B7490A->unkE8 = mathAngleEaseToward(B7490A->unkE8, 0, 5.0f);
             break;
         case 0x26:
             switch (D_807FBB40->unk155[0]) {
@@ -871,7 +871,7 @@ void func_806B4DCC(void) {
     temp_v1 = D_807FDC90->unk2C;
     if (temp_v1 != 0) {
         D_807FDC90->unk2C = temp_v1 - 1;
-        if (D_8076A064 & 4) {
+        if (gFrameCounter & 4) {
             D_807FBB40->unk60 = D_807FBB40->unk60 | 0x800000;
         } else {
             D_807FBB40->unk60 = D_807FBB40->unk60 & 0xFF7FFFFF;
@@ -912,8 +912,8 @@ void func_806B513C(void) {
         behaviourSetAnimIds(0x30C, 0x30B, 0x30D);
         D_807FBB40->unk60 = D_807FBB40->unk60 & 0xFFFF7FFF;
     }
-    if (D_8076A0A8 == 0xA6) {
-        temp_t3 = D_807FD580->unk1F0 & 0x40;
+    if (gCurrentMap == 0xA6) {
+        temp_t3 = gActivePlayerState->unk1F0 & 0x40;
         if ((temp_t3 != 0) && (D_807FBB40->unk128 == 0)) {
             D_807FDC90->unk2C = 0xA;
             D_807FBB40->unk144 = 0x24;
@@ -933,7 +933,7 @@ void func_806B513C(void) {
             }
         }
     }
-    func_806B42A8((D_8076A064 & 1) ? func_806B3E7C : func_806B3F3C, 0x30E, 0x30B, 0);
+    func_806B42A8((gFrameCounter & 1) ? func_806B3E7C : func_806B3F3C, 0x30E, 0x30B, 0);
 }
 
 void func_806B52DC(void) {
@@ -986,7 +986,7 @@ extern u16 D_80744508;
 s32 randomLcgNext(void);
 f32 randomFloat(void);
 f32 func_80612790(s16);
-s32 func_806CC10C(s16, s16);
+s32 mathAngleSignedDistance(s16, s16);
 void zoneEntryGetPosition(s32, s32, f32 *, f32 *, f32 *);
 s32 flagGet(s32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -1036,7 +1036,7 @@ void func_806B54BC(void) {
             temp_s1->unk8 = D_807FBB4C->unk84;
             temp_s1->unk12 = (randomLcgNext() & 0xFF) + 0x78;
         case 0x23:
-            D_807FBB40->unkE6 = D_807FBB40->unkE6 - (func_806CC10C(mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, temp_s1->unk0, temp_s1->unk8) + 0x800, D_807FBB40->unkE6) >> 4);
+            D_807FBB40->unkE6 = D_807FBB40->unkE6 - (mathAngleSignedDistance(mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, temp_s1->unk0, temp_s1->unk8) + 0x800, D_807FBB40->unkE6) >> 4);
             temp_s1->unk10 = temp_s1->unk10 - 1;
             if (temp_s1->unk10 <= 0) {
                 zoneEntryGetPosition(1, 0, &sp68, &sp64, &sp60);
@@ -1076,7 +1076,7 @@ void func_806B54BC(void) {
                 D_807FBB40->unk154 = 0x40;
                 D_807FBB40->unk155[0] = 0;
                 D_807FBB40->unk144 = 1;
-                if (D_8076A0A8 == 0xA7) {
+                if (gCurrentMap == 0xA7) {
                     D_80744508 = D_80744508 + 1;
                     if ((D_80744508 == 5) && (flagGet(0x15F, 0) == 0)) {
                         csModelStateSetFirstByte(4, 0xA);

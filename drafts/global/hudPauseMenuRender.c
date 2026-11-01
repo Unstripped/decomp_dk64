@@ -21,7 +21,7 @@ Gfx *hudDrawItemLabel(Gfx *, HudEntry *, s32);
 extern s16 D_807FC992[];
 extern u8 D_807FCC4C;
 extern s8 D_807FCC4B;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern u8 D_8076A0AB;
 extern s8 D_80750538;
 extern s16 D_8075056C[];
@@ -102,7 +102,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     f32 fe;
                     f32 fh;
                     s16 y;
-                    off = (j << 10) + D_8076A064 * 200;
+                    off = (j << 10) + gFrameCounter * 200;
                     ang = off;
                     fa = func_80612794(ang) * 0.3f + 3.0f;
                     if (!D_807FC992) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -141,7 +141,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     }
                     j++;
                 } while (j < ((u8 *)tab)[0x2FC]);
-                if (D_8076A064 || D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (gFrameCounter || D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             gDPPipeSync(dl++);
             if (D_807FCC4B || D_8076A0AB) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)

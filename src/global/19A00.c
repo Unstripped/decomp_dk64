@@ -2,7 +2,7 @@
 #include "actor.h"
 
 extern u8 *D_807F5AF0;
-extern Struct807FD580 *D_807FD580;
+extern Struct807FD580 *gActivePlayerState;
 extern Actor *D_807FBB44;
 
 typedef struct ActorRampState {
@@ -1071,7 +1071,7 @@ s32 func_80616594(Actor *arg0) {
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
     ((ScriptCountdownState *)arg0->unk4)->unk88 =
-        ((GlobalCountdownView *)D_807FD580)->unk4E - sp1E;
+        ((GlobalCountdownView *)gActivePlayerState)->unk4E - sp1E;
     return 1;
 }
 
@@ -1363,7 +1363,7 @@ s32 func_80616DB4(Actor *arg0) {
 }
 
 struct PlayerSoundStruct;
-extern struct PlayerSoundStruct *D_807FC924;
+extern struct PlayerSoundStruct *gPlayerSlots;
 
 typedef struct PlayerSoundView {
     u8 pad0[0x2C0];
@@ -1405,14 +1405,14 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
     scriptReadU8(&sp4D);
     scriptReadU16((u8 *)&sp4A);
     scriptReadU8(&sp49);
-    if (((PlayerSoundView *)D_807FC924)[((GlobalSoundState *)D_807FD580)->unk1A4].unk2C0 == 2) {
+    if (((PlayerSoundView *)gPlayerSlots)[((GlobalSoundState *)gActivePlayerState)->unk1A4].unk2C0 == 2) {
         if (sp4E == 1) {
             sp4D = (u32)((f64)(u32)sp4D * 0.5);
         }
         sp48 = 0xA;
-        camStartShakeFromPoint(((GlobalSoundState *)D_807FD580)->unk104, 0xA, 8, ((ActorSoundPosView *)arg0)->unk7C, ((ActorSoundPosView *)arg0)->unk80, ((ActorSoundPosView *)arg0)->unk84, 100.0f, 800.0f);
+        camStartShakeFromPoint(((GlobalSoundState *)gActivePlayerState)->unk104, 0xA, 8, ((ActorSoundPosView *)arg0)->unk7C, ((ActorSoundPosView *)arg0)->unk80, ((ActorSoundPosView *)arg0)->unk84, 100.0f, 800.0f);
         var_v1 = 0xA;
-    } else if (((PlayerSoundView *)D_807FC924)[((GlobalSoundState *)D_807FD580)->unk1A4].unk2C0 == 0) {
+    } else if (((PlayerSoundView *)gPlayerSlots)[((GlobalSoundState *)gActivePlayerState)->unk1A4].unk2C0 == 0) {
         var_v1 = 0xFF;
         sp4D = (u32)((f64)(u32)sp4D * 0.5);
     } else {
@@ -1486,7 +1486,7 @@ typedef struct PlayerSoundStruct {
     u8 unk2C0;
     u8 pad2C1[0x2F0 - 0x2C1];
 } PlayerSoundStruct;
-extern PlayerSoundStruct *D_807FC924;
+extern PlayerSoundStruct *gPlayerSlots;
 
 typedef struct GlobalStateView7238 {
     u8 pad0[0x1A4];
@@ -1504,9 +1504,9 @@ s32 scriptOpPlayPositionalSoundPlayerStateVolume(Actor *arg0) {
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp3E);
     scriptReadU8(&sp3D);
-    if (D_807FC924[((GlobalStateView7238 *)D_807FD580)->unk1A4].unk2C0 == 2) {
+    if (gPlayerSlots[((GlobalStateView7238 *)gActivePlayerState)->unk1A4].unk2C0 == 2) {
         var_v0 = 0xA;
-    } else if (D_807FC924[((GlobalStateView7238 *)D_807FD580)->unk1A4].unk2C0 == 0) {
+    } else if (gPlayerSlots[((GlobalStateView7238 *)gActivePlayerState)->unk1A4].unk2C0 == 0) {
         var_v0 = 0xFF;
         sp3B = (u8)(u32)((f64)(var_v0 ^ 0) * 0.5); // FAKE: blocks constant folding of the conversion
     } else {
@@ -1635,11 +1635,11 @@ void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
     arg1 = D_807FBB5C[(arg1 * 7 + arg0->unk58 - 2) & 0xFFFF];
     var_v1 = 0xFF;
     if (arg1 == 0) {
-        if (((ScriptSoundState *)D_807FD580)->unkC4 != 0) {
-            n_alSndpStop(((ScriptSoundState *)D_807FD580)->unkC4);
+        if (((ScriptSoundState *)gActivePlayerState)->unkC4 != 0) {
+            n_alSndpStop(((ScriptSoundState *)gActivePlayerState)->unkC4);
         }
     }
-    temp_v0 = D_807FC924[((ScriptSoundState *)D_807FD580)->unk1A4].unk2C0;
+    temp_v0 = gPlayerSlots[((ScriptSoundState *)gActivePlayerState)->unk1A4].unk2C0;
     pitch = 0x7F;
     if (temp_v0 == 2) {
         temp_v0 = 10;
@@ -1963,7 +1963,7 @@ typedef struct { u8 pad0[2]; u8 unk2; } ProjectileDataView;
 extern f32 D_80753E48[];
 extern s16 D_80753E64[];
 extern Actor *D_807FBB48;
-extern u8 D_807FC929;
+extern u8 gCurrentPlayerIndex;
 extern ProjectileDataView *D_807FD568;
 extern s16 D_807FD584;
 void slotQueueUpdate(s32, s32, s32);
@@ -2004,7 +2004,7 @@ void projectileTrySpawnFromSlot(Actor *arg0) {
         }
         if (collisionTestSphere(arg0->unk7C, (f32)((f64)arg0->unk80 + 30.0), arg0->unk84, var_fv0, &sp40, &sp3E, 1, 0) != 0) {
             if (arg0->unk154 == 2) {
-                temp_v0 = &((ProjectilePlayerView *)D_807FC924)[D_807FC929];
+                temp_v0 = &((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex];
                 var_a2 = mathAngleBetweenPoints2D(temp_v0->unk228, temp_v0->unk230, temp_v0->unk210, temp_v0->unk218);
             } else {
                 var_a2 = arg0->unkE6;
@@ -2013,10 +2013,10 @@ void projectileTrySpawnFromSlot(Actor *arg0) {
         }
         if (arg0->unk154 == 2) {
             projectileGetTargetCoords(D_807FBB48, 6);
-            temp_fv0 = ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk230 - ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk218;
-            temp_fv1 = ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk228 - ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk210;
+            temp_fv0 = ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk230 - ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk218;
+            temp_fv1 = ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk228 - ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk210;
             sqrtf((temp_fv0 * temp_fv0) + (temp_fv1 * temp_fv1));
-            projectileSpawnNodeEntry(0x29, D_807FD568->unk2, sp50, mathAngleBetweenPoints2D(((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk228, ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk230, ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk210, ((ProjectilePlayerView *)D_807FC924)[D_807FC929].unk218), D_80753E48[D_807FD584], 0.0f, arg0);
+            projectileSpawnNodeEntry(0x29, D_807FD568->unk2, sp50, mathAngleBetweenPoints2D(((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk228, ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk230, ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk210, ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk218), D_80753E48[D_807FD584], 0.0f, arg0);
             return;
         }
         projectileGetTargetCoords(arg0, 7);
@@ -2092,7 +2092,7 @@ void func_80618430(Actor *arg0) {
 }
 
 void func_8061849C(Actor *arg0) {
-    ((GlobalFlagsView *)D_807FD580)->unk1F0 |= 0x40000;
+    ((GlobalFlagsView *)gActivePlayerState)->unk1F0 |= 0x40000;
 }
 
 void func_806184BC(Actor *arg0) {
@@ -2215,8 +2215,8 @@ void func_80618880(Actor *arg0) {
     ActorScriptView *actor;
 
     actor = (ActorScriptView *)arg0;
-    if (((GlobalToggleView *)D_807FD580)->unk64 != 0) {
-        ((GlobalToggleView *)D_807FD580)->unk64 = 0;
+    if (((GlobalToggleView *)gActivePlayerState)->unk64 != 0) {
+        ((GlobalToggleView *)gActivePlayerState)->unk64 = 0;
         actor->unk4->unk88 = 0;
         return;
     }
@@ -2281,7 +2281,7 @@ void scriptCmdActorCamShake(Actor *arg0) {
     temp_v0 = arg0->unk58;
     if ((temp_v0 == 0xCC) || ((arg0->unk6A & 1) && ((arg0->unk60 & 4) || (temp_v0 == 0xE4)) && (D_807444EC != 1))) {
         var_v1 = (sp3F >= 21) ? 20 : sp3F;
-        camStartShakeFromPoint(((GlobalSpawnView *)D_807FD580)->unk104, sp3E, var_v1, sp4C, sp48, sp44, (f32)sp42, (f32)sp40);
+        camStartShakeFromPoint(((GlobalSpawnView *)gActivePlayerState)->unk104, sp3E, var_v1, sp4C, sp48, sp44, (f32)sp42, (f32)sp40);
     }
 }
 void func_80618B6C(Actor *arg0) {
@@ -2298,7 +2298,7 @@ void func_80618B6C(Actor *arg0) {
     scriptReadU8(&sp2F);
     scriptReadU16((u8 *)&sp32);
     scriptReadU16((u8 *)&sp30);
-    camStartShakeFromPoint(((GlobalSpawnView *)D_807FD580)->unk104, sp2E, sp2F, sp3C, sp38, sp34, (f32)sp32, (f32)sp30);
+    camStartShakeFromPoint(((GlobalSpawnView *)gActivePlayerState)->unk104, sp2E, sp2F, sp3C, sp38, sp34, (f32)sp32, (f32)sp30);
 }
 
 void actorSpawnEffectChild(f32, f32, f32, f32, f32, Actor *, u8);
@@ -2333,7 +2333,7 @@ void func_80618C8C(Actor *arg0) {
         node = 8;
     }
     func_80618C00(arg0, node);
-    ((GlobalTimerView *)D_807FD580)->unkCA = 0x28;
+    ((GlobalTimerView *)gActivePlayerState)->unkCA = 0x28;
 }
 
 void func_80618CD8(Actor *arg0) {
@@ -2414,12 +2414,12 @@ void func_80618F74(Actor *arg0) {
     if (sp1F != 0) {
         actorSpawn(0x136, 0xA8);
         actorCopyPoseAndScale(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
-        ((GlobalSpawnView *)D_807FD580)->unk88 = D_807FBB44;
+        ((GlobalSpawnView *)gActivePlayerState)->unk88 = D_807FBB44;
     } else {
-        actor = (ActorEffectView *)((GlobalSpawnView *)D_807FD580)->unk88;
+        actor = (ActorEffectView *)((GlobalSpawnView *)gActivePlayerState)->unk88;
         if ((actor != NULL) && (actor->unk58 == 0x136)) {
             actorDespawn(actor);
-            ((GlobalSpawnView *)D_807FD580)->unk88 = NULL;
+            ((GlobalSpawnView *)gActivePlayerState)->unk88 = NULL;
         }
     }
 }

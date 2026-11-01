@@ -52,8 +52,8 @@ typedef struct B1F60Global924 {
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern ActorGlobalState D_807FBB70;
-extern s32 D_8076A0A8;
-extern B1F60Global924 *D_807FC924;
+extern s32 gCurrentMap;
+extern B1F60Global924 *gPlayerSlots;
 
 void actorSpawn(s32, s32);
 Actor *actorFindByType(s32);
@@ -162,7 +162,7 @@ void func_806AD54C(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80724CA4(2, 1);
         behaviourSetAnimIds(0x1F8, 0x1F8, 0x1F9);
-        if (D_8076A0A8 == 0x68 || D_8076A0A8 == 0x88 || D_8076A0A8 == 0x89) {
+        if (gCurrentMap == 0x68 || gCurrentMap == 0x88 || gCurrentMap == 0x89) {
             D_807FBB40->unk132 = 2;
         }
     }
@@ -232,7 +232,7 @@ void actorFollowLinkedNodeFadeUpdate(void) {
             }
             break;
     }
-    D_807FBB40->unkE6 = D_807FC924->unk2C8 & 0xFFF;
+    D_807FBB40->unkE6 = gPlayerSlots->unk2C8 & 0xFFF;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 

@@ -110,9 +110,9 @@ typedef struct MinecartCart {
     u8 unk42;
 } MinecartCart;
 
-extern Struct_807FC924 *D_807FC924;
+extern Struct_807FC924 *gPlayerSlots;
 extern s16 D_80750AC4;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 
 void slotQueueUpdate(s32, s32, s32);
 void actorUpdateModelMatrix(void *, s32);
@@ -223,17 +223,17 @@ void minecartPlayerCartUpdate(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
     f32 sp58[3];
 
     s1 = D_807FBB40->unk174;
-    sp90 = D_807FC924->unk4->unk174;
+    sp90 = gPlayerSlots->unk4->unk174;
     temp_v1 = D_807FBB40->unk60;
     if (!(temp_v1 & 0x10)) {
         D_807FBB40->unk60 = temp_v1 | 0x1400;
-        if (D_8076A0A8 == 6 || D_8076A0A8 == 0x37 || D_8076A0A8 == 0x6A) {
+        if (gCurrentMap == 6 || gCurrentMap == 0x37 || gCurrentMap == 0x6A) {
             slotQueueUpdate(0xB, 1, 0);
             D_80750AC4 = 0;
         }
     }
     if (s1->unk4 == NULL) {
-        s1->unk4 = D_807FC924->unk4;
+        s1->unk4 = gPlayerSlots->unk4;
         s1->unk8 = 0;
     }
     switch (D_807FBB40->unk154) {
@@ -259,7 +259,7 @@ void minecartPlayerCartUpdate(u8 arg0, s32 arg1, s16 arg2, u8 arg3) {
     case 2:
         actorGetNodePos(D_807FBB40, 9, &s1->unk4->unk7C, &s1->unk4->unk80, &s1->unk4->unk84);
         D_807FBB40->unk154++;
-        if (D_807FBB40->unk168 == 0 && D_8076A0A8 != 6) {
+        if (D_807FBB40->unk168 == 0 && gCurrentMap != 6) {
             D_807FBB40->unk168 = 2;
         }
         /* fallthrough */
@@ -297,14 +297,14 @@ typedef struct Struct_807FD580 {
     char pad1F4[0x1FC - 0x1F4];
     u8 unk1FC;
 } Struct_807FD580;
-extern Struct_807FD580 *D_807FD580;
+extern Struct_807FD580 *gActivePlayerState;
 
 
 void minecartUpdateHeadlight(void) {
     f32 sp44[3];
     f32 sp38[3];
 
-    if (D_807FD580->unk1F0 & 0x10000002) {
+    if (gActivePlayerState->unk1F0 & 0x10000002) {
         actorGetNodePos(D_807FBB40, 2, &sp38[0], &sp38[1], &sp38[2]);
         actorGetNodePos(D_807FBB40, 1, &sp44[0], &sp44[1], &sp44[2]);
     } else {
@@ -326,7 +326,7 @@ void func_80024890(void) {
         temp_v1->unk24 = 0.1f;
         temp_v1->unk28 = 5.0f;
     }
-    minecartPlayerCartUpdate(1, (s32)((D_8076A0A8 == 6) ? &D_80028C34 : &D_80028C3C), 0x7FFF, 0x23);
+    minecartPlayerCartUpdate(1, (s32)((gCurrentMap == 6) ? &D_80028C34 : &D_80028C3C), 0x7FFF, 0x23);
     minecartUpdateHeadlight();
 }
 
@@ -508,7 +508,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
         actorScriptStart(D_807FBB40, 0);
     }
     if (D_807FBB40->unk154 != 5 && D_807FBB40->unk154 != 6) {
-        diff = (D_807FC924->unk214 - D_807FBB40->unk80) - 100.0f;
+        diff = (gPlayerSlots->unk214 - D_807FBB40->unk80) - 100.0f;
         sp28 = (f32)(((f64)diff / 650.0 * 0.15) + .15);
         actorSetUniformScale(D_807FBB40, sp28);
         actorSetUniformScale(D_807FBB4C, sp28);
@@ -550,7 +550,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
         break;
     case 10:
         sfxAllocateChannel(0x5A, 1.0f);
-        hudSpawnCountdownTimer(0x78, 0x78, (D_8076A0A8 == 0x4D) ? 0x1E : (D_8076A0A8 == 0x81) ? 0x2D : 0x3C);
+        hudSpawnCountdownTimer(0x78, 0x78, (gCurrentMap == 0x4D) ? 0x1E : (gCurrentMap == 0x81) ? 0x2D : 0x3C);
         actorSetStateTwo(D_807FBB40->unk11C);
         sp40->unk1F0 &= ~8;
         D_807FBB40->unk154 = 3;
@@ -571,11 +571,11 @@ void minecartRampTiltRate(MinecartCart *arg0) {
 extern s32 D_807457E4[];
 extern s16 D_80770628[];
 extern f32 D_80770B68[];
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 mathPickCloserTargetPoint3D(f32, f32, f32, MinecartTrackPoint *, MinecartTrackPoint *, MinecartTrackPoint *, MinecartTrackPoint *, f32 *, f32 *, f32 *);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleEaseToward(s16, s16, f32);
 f32 func_80611BB4(f32, f32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -643,7 +643,7 @@ void minecartFollowTrack(MinecartCart *arg0, s16 arg1, u8 arg2) {
     actorGetNodePos(D_807FBB40, 3, &spF4[0], &spF4[1], &spF4[2]);
     actorGetNodePos(D_807FBB40, 4, &sp100[0], &sp100[1], &sp100[2]);
     spD4 = (f64)(D_807FBB40->unk4->unk38 * D_807FBB40->unkB8) * 0.16666666675;
-    if (D_8076A0A8 == 0x4D || D_8076A0A8 == 0x81 || D_8076A0A8 == 0x82) {
+    if (gCurrentMap == 0x4D || gCurrentMap == 0x81 || gCurrentMap == 0x82) {
         spD4 = (f64)spD4 * 1.8;
     } else {
         if ((2.0 * (f64)func_80612794(D_807FBB40->unkE8)) + 1.0 < 0.6) {
@@ -667,7 +667,7 @@ void minecartFollowTrack(MinecartCart *arg0, s16 arg1, u8 arg2) {
         mathPickCloserTargetPoint3D(spF4[0], spF4[1], spF4[2], sp128 - 1, sp128, sp128, sp128 + 1, &sp10C[0], &sp10C[1], &sp10C[2]);
         mathPickCloserTargetPoint3D(sp100[0], sp100[1], sp100[2], sp124, sp124 + 1, sp128 - 1, sp128, &sp118[0], &sp118[1], &sp118[2]);
     }
-    D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, (s16)(f32)mathAngleBetweenPoints2D(sp10C[0], sp10C[2], sp118[0], sp118[2]), 1.7f);
+    D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, (s16)(f32)mathAngleBetweenPoints2D(sp10C[0], sp10C[2], sp118[0], sp118[2]), 1.7f);
     diff = sqrtf((sp10C[0] - sp118[0]) * (sp10C[0] - sp118[0]) + (sp10C[2] - sp118[2]) * (sp10C[2] - sp118[2]));
     prev = D_807FBB40->unkE8;
     D_807FBB40->unkE8 = (s16)(s32)(((f64)func_80611BB4(sp118[1] - sp10C[1], diff) * 2048.0) / 3.1415927410125732);
@@ -707,10 +707,10 @@ void minecartFollowTrack(MinecartCart *arg0, s16 arg1, u8 arg2) {
         if (*arg0->unk34 == 0xFF) {
             D_807FBB40->unk154++;
         }
-        if (D_807FD580->unk1FC != 0 && arg0->unk4 == (void *)D_807FBB4C) {
-            arg0->unk3F = D_807FD580->unk1FC;
-            D_807FD580->unk1FC = 0;
-        } else if (D_8076A0A8 == 0x6A) {
+        if (gActivePlayerState->unk1FC != 0 && arg0->unk4 == (void *)D_807FBB4C) {
+            arg0->unk3F = gActivePlayerState->unk1FC;
+            gActivePlayerState->unk1FC = 0;
+        } else if (gCurrentMap == 0x6A) {
             D_807FBB40->unkF0 = 0x1E;
             arg0->unk2C = 0.0f;
             if (*arg0->unk34 & 0x80) {
@@ -776,7 +776,7 @@ void minecartFollowTrack(MinecartCart *arg0, s16 arg1, u8 arg2) {
         sp83 = -0x20;
         minecartSpawnWheelEffect(arg0, 0, 0xE6);
     } else {
-        minecartSpawnWheelEffect(arg0, D_8076A064 & 1, 0xFA);
+        minecartSpawnWheelEffect(arg0, gFrameCounter & 1, 0xFA);
         actorUpdateModelMatrix(D_807FBB40, 0);
     }
     if (sp83 != 0) {

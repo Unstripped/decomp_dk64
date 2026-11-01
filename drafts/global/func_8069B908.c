@@ -55,7 +55,7 @@ void actorCallbackMaskEnable(Actor *, s32);
 void actorCallbackMaskDisable(Actor *, s32);
 void actorCollisionEventsCancel(void *, s32);
 void func_8068A2FC(Actor *);
-void func_806CF4B8(Actor *);
+void actorReleaseFromPlayerHold(Actor *);
 void sfxSetVolumeAndPan(u8, f32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 s32 actorAngleInArc(Actor *, s16);
@@ -117,12 +117,12 @@ void func_8069B908(void) {
             }
             break;
         case 0x3D:
-            if (D_8076A0A8 == 0xC3) {
+            if (gCurrentMap == 0xC3) {
                 if (flagGet(0x267, 0) != 0) {
                     func_8068A2FC(D_807FBB40);
                 }
             }
-            if (D_8076A0A8 == 0x26) {
+            if (gCurrentMap == 0x26) {
                 D_807FBB40->unk64 |= 0x400;
             }
             break;
@@ -145,11 +145,11 @@ void func_8069B908(void) {
         sp13C->unk1C = 0x1E;
         D_807FBB40->unk144 = 0x3C;
         actorCallbackMaskEnable(D_807FBB40, 0x8000);
-        if (D_8076A0A8 == 7 && actorListFindIdByActor(D_807FBB40) == 0x17) {
+        if (gCurrentMap == 7 && actorListFindIdByActor(D_807FBB40) == 0x17) {
             actorListSetPosByActor(D_807FBB40, D_807FBB40->unk7C, D_807FBB40->unkA4, D_807FBB40->unk84);
         }
     }
-    if (D_8076A0A8 == 0x22 && D_807FBB40->unk58 == 0x3D &&
+    if (gCurrentMap == 0x22 && D_807FBB40->unk58 == 0x3D &&
         (D_807FBB40->unk154 == 0 || D_807FBB40->unk154 == 2)) {
         if (D_807FBB40->unk7C >= 3242.0 && D_807FBB40->unk84 >= 252.0 &&
             D_807FBB40->unk7C <= 3842.0 && D_807FBB40->unk84 <= 852.0) {
@@ -158,7 +158,7 @@ void func_8069B908(void) {
     }
     if (D_807FBB85 != 0 || D_807FBD70 == 9) {
         D_807FBB40->unk154 = 4;
-        func_806CF4B8(D_807FBB40);
+        actorReleaseFromPlayerHold(D_807FBB40);
     }
     if (D_807FBB9C != 0) {
         D_807FBB40->unk154 = 3;
@@ -169,7 +169,7 @@ void func_8069B908(void) {
         *(f32 *)((u8 *)D_807FBB40 + 0xC0) = *(f32 *)((u8 *)&D_807FBB70 + 0x30);
         D_807FBB40->unkB8 = (f32)*(s16 *)((u8 *)&D_807FBB70 + 0x34);
         actorCollisionEventsCancel(sp13C->unk14, 1);
-        if (D_807FBB40->unk58 == 0x43 && D_8076A0A8 == 0x1E) {
+        if (D_807FBB40->unk58 == 0x43 && gCurrentMap == 0x1E) {
             D_807FBB40->unk60 |= 0x200000;
             sp13C->unk0 = D_8076A068;
         }
@@ -241,7 +241,7 @@ void func_8069B908(void) {
         }
         var_v0 = 0;
         sp13C->unk24 = sp13C->unk24 - 10.0f;
-        if (D_807FBB40->unk58 == 0x43 && D_8076A0A8 == 0x1E &&
+        if (D_807FBB40->unk58 == 0x43 && gCurrentMap == 0x1E &&
             (u32)(D_8076A068 - sp13C->unk0) >= 0x5B) {
             var_v0 = 1;
         }
@@ -374,7 +374,7 @@ void func_8069B908(void) {
         D_807FBB40->unk110 = 0;
         D_807FBB40->unk6A &= 0xFBF7;
     }
-    if (D_8076A0A8 == 0x26 || D_8076A0A8 == 0x71 || D_8076A0A8 == 0xC2) {
+    if (gCurrentMap == 0x26 || gCurrentMap == 0x71 || gCurrentMap == 0xC2) {
         if (D_807FBB40->unk58 == 0x3D) {
             if (D_807FBB40->unk110 == 1) {
                 D_807FBB40->unk60 |= 0x200000;
@@ -384,7 +384,7 @@ void func_8069B908(void) {
         }
     }
     if (D_807FBB40->unk154 != 0x63) {
-        func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x64, 0x78, 0, 1.0f);
+        billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x64, 0x78, 0, 1.0f);
     }
     guScaleF(mtxA, D_807FBB40->unk4->unk34, D_807FBB40->unk4->unk38, D_807FBB40->unk4->unk3C);
     guRotateF(mtxB, sp13C->unk24, 0.0, 1.0f, 0.0);

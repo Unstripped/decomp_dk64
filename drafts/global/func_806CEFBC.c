@@ -23,7 +23,7 @@ void func_806CEFBC(G05CbArg *arg0) {
     s32 sp34;
     s32 sp30;
 
-    func_806CF2EC(&sp34, &sp30);
+    playerGetHoldNodeIndices(&sp34, &sp30);
     if (arg0->unk8->unk7C) {} // FAKE: dead test steers uopt coloring
     actorGetNodePos(arg0->unk4, sp34, &sp60, &sp58, &sp50);
     if (arg0->unk8->unk80) {} // FAKE: dead test steers uopt coloring

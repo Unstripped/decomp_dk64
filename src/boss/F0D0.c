@@ -151,7 +151,7 @@ void func_8003340C(u8 *arg0) {
 
 f32 func_80612794(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s16 func_806CC190(s16, s16, f32);
+s16 mathAngleEaseToward(s16, s16, f32);
 
 void bossInterpolateWaypoints(u8 *arg0, f32 arg1) {
     f64 val;
@@ -164,7 +164,7 @@ void bossInterpolateWaypoints(u8 *arg0, f32 arg1) {
     D_807FBB40->unk7C = (f32)D_807FDCA0->unk14[arg0[1]].unk0 + (f32)(D_807FDCA0->unk14[arg0[0]].unk0 - D_807FDCA0->unk14[arg0[1]].unk0) * temp_f;
     D_807FBB40->unk84 = (f32)D_807FDCA0->unk14[arg0[1]].unk4 + (f32)(D_807FDCA0->unk14[arg0[0]].unk4 - D_807FDCA0->unk14[arg0[1]].unk4) * temp_f;
 
-    D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, mathAngleBetweenPoints2D(D_807FDCA0->unk14[arg0[1]].unk0, D_807FDCA0->unk14[arg0[1]].unk4, D_807FDCA0->unk14[arg0[0]].unk0, D_807FDCA0->unk14[arg0[0]].unk4), 10.0f);
+    D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, mathAngleBetweenPoints2D(D_807FDCA0->unk14[arg0[1]].unk0, D_807FDCA0->unk14[arg0[1]].unk4, D_807FDCA0->unk14[arg0[0]].unk0, D_807FDCA0->unk14[arg0[0]].unk4), 10.0f);
 }
 
 void func_800336C0(void) {
@@ -357,7 +357,7 @@ extern f32 D_80036C40[];
 extern void *D_807FDC90;
 extern u8 D_807FBB85;
 extern u8 D_807FBDC4;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern s16 D_807502DC;
 extern f32 D_807502F0;
 extern u8 D_8071EDEC[];
@@ -515,7 +515,7 @@ void func_80033AF0(void) {
                 D_80036DD0[i] -= 0x19;
             }
         }
-        if (!(D_8076A064 & 7)) {
+        if (!(gFrameCounter & 7)) {
             BX->unk2C++;
         }
         if (D_807FBDC4 != 0) {
@@ -524,7 +524,7 @@ void func_80033AF0(void) {
         }
         break;
     case 0x1F:
-        i = (u8)(u32)(func_80612794((s16)(D_8076A064 * 0x7D)) * 100.0f + 155.0f);
+        i = (u8)(u32)(func_80612794((s16)(gFrameCounter * 0x7D)) * 100.0f + 155.0f);
         lightSetRadius(0x1388);
         lightAdd(BPTS->unk14[5].unk0, BPTS->unk14[5].unk2 - 0x28A, BPTS->unk14[5].unk4, 0.0f, 0.0f, 0.0f, 240.0f, 0, i, i, i);
         if (currentActorTestClearFlag() != 0) {

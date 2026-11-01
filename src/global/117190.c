@@ -2,8 +2,8 @@
 #include "actor.h"
 
 extern Actor *D_807FBB40;
-extern void *D_807FC924;
-extern s32 D_8076A0A8;
+extern void *gPlayerSlots;
+extern s32 gCurrentMap;
 extern u32 D_807FBB68;
 extern u8 D_80755314;
 extern u8 D_80755318;
@@ -103,12 +103,12 @@ void func_8071268C(void) {
 }
 
 extern u8 D_807FC950[][0x5E];
-extern s8 D_8074E77C;
+extern s8 gPlayerCharacterId;
 
 void func_807126B0(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4, s8 arg5, s8 arg6) {
     s32 i;
 
-    D_8074E77C = arg2;
+    gPlayerCharacterId = arg2;
     D_807FC950[8][0xC] = arg6;
     D_807FC950[8][0xB] = arg6 * 4;
     for (i = 0; i < 5; i++) {
@@ -154,7 +154,7 @@ typedef struct R117d2MenuObject {
 } R117d2MenuObject;
 
 extern s32 D_807FBB64;
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 void healthRefill(u8);
 s32 func_805FF800(s32 *, s32 *);
 void func_80026D40(void *);
@@ -176,7 +176,7 @@ void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
             var_a0 = 0x22;
             var_a1 = 0xC;
         } else {
-            if (D_8076A0A8 == 0x3C) {
+            if (gCurrentMap == 0x3C) {
                 var_a0 = 0x3E;
                 var_a1 = 1;
             } else {
@@ -193,7 +193,7 @@ void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
         func_805FF378(sp20, sp1C);
         return;
     }
-    if (D_807FC928 >= 2) {
+    if (gPlayerCount >= 2) {
         func_80026D40(arg0);
         return;
     }
@@ -263,7 +263,7 @@ s32 func_8060B7C4(void);
 void func_80712B80(void) {
     if (D_80755318 == 3) {
         func_8060B750(D_8075E5C0[D_80755328 * 4]);
-        D_8074E77C = func_8060B7C4();
+        gPlayerCharacterId = func_8060B7C4();
     }
 }
 
@@ -299,7 +299,7 @@ void func_80712BD4(void) {
     }
     if (func_805FF030(D_8076A0AB, 1) == 8) {
         if ((D_807FBB68 & 2) == 0) {
-            if (D_8076A0A8 != 0xD6) {
+            if (gCurrentMap != 0xD6) {
                 if (func_80712628() == 0) {
                     if (blocked == 0) {
                         func_80712574();
@@ -330,7 +330,7 @@ void func_80712BD4(void) {
         break;
     case 3:
         D_8075532C++;
-        D_8075531C = func_8060B49C(((R117iPlayerView *)D_807FC924)->unk4, D_8075E5C0[D_80755328 * 4]);
+        D_8075531C = func_8060B49C(((R117iPlayerView *)gPlayerSlots)->unk4, D_8075E5C0[D_80755328 * 4]);
         if (D_8075531C < *(u16 *) ((u8 *) D_8075E5C2 + D_80755328 * 4)) {
             D_8075531C = D_8075531C;
         } else {
@@ -379,14 +379,14 @@ void func_80712EDC(void) {
 
 void func_80712F10(s32 *arg0, s32 *arg1) {
     if (D_80755314 == 0xC) {
-        if (((D_807FBB68 & 2) == 0) || (D_8076A0A8 == 0xCF) || (*arg0 == 0x22)) {
+        if (((D_807FBB68 & 2) == 0) || (gCurrentMap == 0xCF) || (*arg0 == 0x22)) {
             *arg0 = 0x50;
             *arg1 = 0;
             D_80755318 = 5;
             return;
         }
     }
-    if ((D_80755314 == 0xD) && (D_8076A0A8 != *arg0)) {
+    if ((D_80755314 == 0xD) && (gCurrentMap != *arg0)) {
         *arg0 = 0xF;
         *arg1 = 0;
         D_80755318 = 6;
@@ -563,7 +563,7 @@ typedef struct {
 
 extern u8 D_8074450C;
 extern R117fPair D_80755370;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern u8 D_807ECD09;
 u8 textGetFontHeight(s16);
 s32 func_807142D8();
@@ -576,13 +576,13 @@ Gfx *func_807135B4(Gfx *arg0) {
     f32 sp34;
     f32 sp30;
 
-    temp_v0 = D_8076A064 - 0x5A;
+    temp_v0 = gFrameCounter - 0x5A;
     if ((temp_v0 >= 0) && !(temp_v0 & 0x10)) {
         sp38 = D_80755370;
         var_v1 = 0;
         sp34 = (f32) D_80744490;
         sp30 = (f32) (0xBD - textGetFontHeight(6));
-        if ((D_807ECD09 != 0) && ((func_807142D8() == 0) || (var_v1 = 1, (D_8076A0A8 == 0x4C)))) {
+        if ((D_807ECD09 != 0) && ((func_807142D8() == 0) || (var_v1 = 1, (gCurrentMap == 0x4C)))) {
             return arg0;
         }
         if (&D_80755370 && &D_80755370 && &D_80755370) {}  // FAKE: dead address test, steers as1 delay-slot fill (bne+nop instead of bnel)
@@ -798,7 +798,7 @@ void camStartPath(s32, s16, s32);
 Gfx *screenStateTickAndDraw(Gfx *arg0) {
     char buffer[40];
 
-    if ((D_80755338 != 0) && (D_8076A064 == 1)) {
+    if ((D_80755338 != 0) && (gFrameCounter == 1)) {
         D_80755338 = 0;
         if (D_8075533C >= 0) {
             camStartPath(0, (s16)D_8075533C, 1);
@@ -967,7 +967,7 @@ void func_807144B8(u8 arg0) {
     func_806C9AE0();
     func_80731030();
     eepromLoadPlayerData(arg0, 1);
-    D_8074E77C = 0;
+    gPlayerCharacterId = 0;
     if ((func_8060C6B8(0xD, 0, 0, D_807467C8) != 0) || (D_8074452C != 0)) {
         if (flagGet(0x186, 0) != 0) {
             var_a0 = 0x22;
@@ -1010,7 +1010,7 @@ void func_807145F8(void) {
 s32 func_80714608(s32 arg0) {
     s32 var_v0;
 
-    var_v0 = (s32) D_807FC928 >= 2;
+    var_v0 = (s32) gPlayerCount >= 2;
     if (var_v0 != 0) {
         return arg0 == D_807552E4;
     }

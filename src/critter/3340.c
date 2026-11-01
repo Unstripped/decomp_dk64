@@ -34,8 +34,8 @@ typedef struct Actor_3340 {
 
 extern Actor_3340 *D_807FBB40;
 extern Actor_3340 *D_807FBB4C;
-extern Actor_3340 *D_807FD580;
-extern s32 D_8076A064;
+extern Actor_3340 *gActivePlayerState;
+extern s32 gFrameCounter;
 
 void behaviourFrameBegin(void);
 void sfxPlayActorSound(Actor_3340 *, s32, s32, s32, s32, s32, f32, s32);
@@ -75,9 +75,9 @@ void critterSetDigitFrames(s32 arg0) {
 }
 
 
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
-extern u8 D_8074E77C;
+extern u8 gPlayerCharacterId;
 extern u16 D_807446C0[];
 extern s16 D_807446D0[];
 extern s8 D_807446E0[];
@@ -128,14 +128,14 @@ void func_80027448(void) {
     if (sp6C >= 8) {
         sp6C = 7;
     }
-    if (D_8076A0A8 == 0x2A) {
+    if (gCurrentMap == 0x2A) {
         sp64 = D_807446C0[sp6C];
     } else {
         sp64 = D_807446D0[sp6C];
     }
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk64 |= 0x20;
-        if (D_8076A0A8 == 0x2A) {
+        if (gCurrentMap == 0x2A) {
             actorScriptStart(D_807FBB40, 0x39F);
             D_807FBB40->unk155 = 4;
             if (D_807FC930[sp6C] < sp64) {
@@ -156,7 +156,7 @@ void func_80027448(void) {
     } else if (D_80029F84 != 0) {
         s8 *pair = &D_807446E0[sp6C + sp6C];
 
-        if (D_8074E77C == pair[1]) {
+        if (gPlayerCharacterId == pair[1]) {
             if (func_806FB418() < sp64 && sp6C != 7) {
                 sp64 = pair[0];
                 sp47 = 1;
@@ -172,7 +172,7 @@ void func_80027448(void) {
         }
     }
     D_807FBB40->unk15E = 0x23;
-    if (D_8076A0A8 != 0x2A) {
+    if (gCurrentMap != 0x2A) {
         sp5C = D_807FBB4C->unk7C - D_807FBB40->unk7C;
         sp58 = (f32)(2.0 * (f64)(D_807FBB4C->unk80 - D_807FBB40->unk80));
         sp54 = D_807FBB4C->unk84 - D_807FBB40->unk84;
@@ -206,7 +206,7 @@ void func_80027448(void) {
             }
             break;
         case 0:
-            if (D_8076A0A8 == 0xAA && D_8074E77C != 4) {
+            if (gCurrentMap == 0xAA && gPlayerCharacterId != 4) {
                 D_8002A1B0 = 0.0f;
             }
             if ((f64)sp50 < 70.0 && (f64)D_8002A1B0 >= 70.0) {
@@ -333,7 +333,7 @@ void func_80027DC0(void) {
             D_807FBB40->unk155++;
             if (D_807FBB40->unk155 < 0x4B) {
                 D_807FBB40 = D_807FBB4C;
-                if (!(D_8076A064 & 3)) {
+                if (!(gFrameCounter & 3)) {
                     effectSpawnBurst(0);
                 }
                 D_807FBB40 = sp34;
@@ -351,7 +351,7 @@ void func_80027DC0(void) {
             D_807FBB40->unk155 = 1;
             sfxPlayActorSound(D_807FBB4C, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
             slotQueueUpdate(6, 0, 0);
-            slotQueueAddValue(6, D_807FD580->unk1A4, 0x3E7);
+            slotQueueAddValue(6, gActivePlayerState->unk1A4, 0x3E7);
         }
         break;
     case 3:
@@ -416,8 +416,8 @@ extern u8 D_807FBD70;
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 func_806CC10C(s16, s16);
-void func_8065D254(Actor_3340 *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+s32 mathAngleSignedDistance(s16, s16);
+void billboardSubmit(Actor_3340 *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void actorUpdateFloorContactAndTilt(Actor_3340 *, f32);
 u8 func_8072881C(u8, u32 *);
 
@@ -462,7 +462,7 @@ void func_80028120(void) {
     dx = FLUTTER_ACTOR->unk7C - ((FlutterActorView *)D_807FBB4C)->unk7C;
     dz = FLUTTER_ACTOR->unk84 - ((FlutterActorView *)D_807FBB4C)->unk84;
     if (FLUTTER_ACTOR->unk154 != 1) {
-        FLUTTER_ACTOR->unkE6 = FLUTTER_ACTOR->unkE6 - (func_806CC10C(mathAngleBetweenPoints2D(((FlutterActorView *)D_807FBB4C)->unk7C, ((FlutterActorView *)D_807FBB4C)->unk84, FLUTTER_ACTOR->unk7C, FLUTTER_ACTOR->unk84), FLUTTER_ACTOR->unkE6) >> 3);
+        FLUTTER_ACTOR->unkE6 = FLUTTER_ACTOR->unkE6 - (mathAngleSignedDistance(mathAngleBetweenPoints2D(((FlutterActorView *)D_807FBB4C)->unk7C, ((FlutterActorView *)D_807FBB4C)->unk84, FLUTTER_ACTOR->unk7C, FLUTTER_ACTOR->unk84), FLUTTER_ACTOR->unkE6) >> 3);
     }
     FLUTTER_ACTOR->unk15E = 0xF;
     switch (FLUTTER_ACTOR->unk154) {
@@ -549,7 +549,7 @@ void func_80028120(void) {
     } else {
         FLUTTER_ACTOR->unk60 = FLUTTER_ACTOR->unk60 | 4;
         actorUpdateFloorContactAndTilt(D_807FBB40, 0);
-        func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, 0x23, 0xF, 1, 0x4B, 0x78, FLUTTER_ACTOR->unkE6, 1.0f);
+        billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0x23, 0xF, 1, 0x4B, 0x78, FLUTTER_ACTOR->unkE6, 1.0f);
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }

@@ -38,7 +38,7 @@ void func_80029364(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         t1->unk23 = 5;
         t1->unk0 = -2;
-        switch (D_8076A0A8) {
+        switch (gCurrentMap) {
         case 0x65:
             t0->unk16 = 0xA;
             D_8002D8F4 = 0x30;
@@ -145,18 +145,18 @@ void func_80029364(void) {
             }
         }
         t1->unk22 = 0;
-        if (D_807FBB40->unk154 == 0 && (D_807FD610.unk30 >= 0x1F || D_807FD610.unk31 >= 0x1F)) {
-            if (D_807FD610.unk2F > 0) {
-                if (D_807FD610.unk2E < -0x28) {
+        if (D_807FBB40->unk154 == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
+            if (gPlayerPadState.unk2F > 0) {
+                if (gPlayerPadState.unk2E < -0x28) {
                     t1->unk22 = 1;
-                } else if (D_807FD610.unk2E >= 0x29) {
+                } else if (gPlayerPadState.unk2E >= 0x29) {
                     t1->unk22 = 3;
                 } else {
                     t1->unk22 = 2;
                 }
-            } else if (D_807FD610.unk2E < -0x28) {
+            } else if (gPlayerPadState.unk2E < -0x28) {
                 t1->unk22 = 4;
-            } else if (D_807FD610.unk2E >= 0x29) {
+            } else if (gPlayerPadState.unk2E >= 0x29) {
                 t1->unk22 = 5;
             } else {
                 t1->unk22 = 6;

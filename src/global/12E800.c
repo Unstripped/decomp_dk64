@@ -4,7 +4,7 @@
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
-extern void *D_807FC924;
+extern void *gPlayerSlots;
 
 typedef struct D1S10 {
     /* 0x00 */ u8 pad0[0x10];
@@ -52,7 +52,7 @@ typedef struct D1ActorViewE {
 
 extern void *D_807FDCA0;
 extern u8 D_807444EC;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_807FBB85;
 void actorScriptStart(Actor *, s32);
 void actorGlobalStateClearEvents(void);
@@ -103,7 +103,7 @@ void behaviourFrameBegin(void) {
                 D_807FBB70.unk15 = 1;
             }
         }
-        if (D_8076A0A8 == 0x30) {
+        if (gCurrentMap == 0x30) {
             if (D_807FDC94->unk5C & 1) {
                 if ((((D1S174 *)D_807FDC94->unk174)->unk1F0 ^ ((D1S174 *)D_807FDC94->unk174)->unk1F8) & 0x100000) {
                     sfxStopSlotSound(D_807FBB40, 0);
@@ -187,8 +187,8 @@ typedef struct D1ActorViewJ {
 
 s32 randomNonNegative(void);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 func_806CC10C(s16, s16);
-s16 func_806CC190(s16, s16, f32);
+s32 mathAngleSignedDistance(s16, s16);
+s16 mathAngleEaseToward(s16, s16, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 
 void actorTurnTowardTarget(u8 mode, f32 arg1, f32 arg2, u16 flags) {
@@ -242,7 +242,7 @@ void actorTurnTowardTarget(u8 mode, f32 arg1, f32 arg2, u16 flags) {
             *tgt = *cur;
             break;
     }
-    dist = func_806CC10C(*tgt, *cur);
+    dist = mathAngleSignedDistance(*tgt, *cur);
     if (!(flags & 0x100) && mode != 0x37) {
         if (flags & 4) {
             spd = (u32)D1DC90J->unk1E;
@@ -254,9 +254,9 @@ void actorTurnTowardTarget(u8 mode, f32 arg1, f32 arg2, u16 flags) {
                         ? (0.1 < D1AJ->unkB8 / 30.0 ? D1AJ->unkB8 / 30.0 : 0.1)
                         : 2.0));
         }
-        *cur = func_806CC190(*cur, *tgt, spd);
+        *cur = mathAngleEaseToward(*cur, *tgt, spd);
         if ((D1AJ->unk6A & 1) || (flags & 0x80) || (D1AJ->unk5C & 0x40)) {
-            *cur2 = func_806CC190(*cur2, *cur, (u32)D1DC90J->unk1F);
+            *cur2 = mathAngleEaseToward(*cur2, *cur, (u32)D1DC90J->unk1F);
         }
     }
     if (flags & 0x40) {
@@ -291,7 +291,7 @@ typedef struct D1Dc98ViewC {
 #define D1DC98C ((D1Dc98ViewC *)D_807FDC98)
 
 extern D1Tbl8075EB80 D_8075EB80[];
-void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
 void func_8072A450(void) {
     u8 a;
@@ -307,7 +307,7 @@ void func_8072A450(void) {
             e = &D_8075EB80[D1DC98C->unk44];
             b = (u32)(sub->unk34 * (u32)e->unk14 * D1DC98C->unk30);
             c = (u32)(sub->unk3C * (u32)e->unk15 * D1DC98C->unk30);
-            func_8065D254(D_807FBB40, 0x3C8, 0x40, 0x40, b, c, 1, 0x12C, a, D_807FBB40->unkE6, 1.0f);
+            billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, b, c, 1, 0x12C, a, D_807FBB40->unkE6, 1.0f);
         }
     }
 }
@@ -419,8 +419,8 @@ typedef struct D1ActorView4 {
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 
 void func_8072A920(s16 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, f32 arg6, f32 arg7, u16 arg8) {
-    D1A4->unkE8 = func_806CC190(D1A4->unkE8, (s16)(s32)(mathCalculatePitchAngle(arg2, arg3, arg4, D1A4->unk7C, D1A4->unk80, D1A4->unk84, arg5) * 2048.0 / 3.14159274101257324), arg6);
-    D1A4->unkF0 = func_806CC190(D1A4->unkF0, (s16)(s32)(mathCalculatePitchAngle(arg2, (f32)arg1 + arg3, arg4, D1A4->unk7C, D1A4->unk80, D1A4->unk84, arg5) * 2048.0 / 3.14159274101257324), arg6);
+    D1A4->unkE8 = mathAngleEaseToward(D1A4->unkE8, (s16)(s32)(mathCalculatePitchAngle(arg2, arg3, arg4, D1A4->unk7C, D1A4->unk80, D1A4->unk84, arg5) * 2048.0 / 3.14159274101257324), arg6);
+    D1A4->unkF0 = mathAngleEaseToward(D1A4->unkF0, (s16)(s32)(mathCalculatePitchAngle(arg2, (f32)arg1 + arg3, arg4, D1A4->unk7C, D1A4->unk80, D1A4->unk84, arg5) * 2048.0 / 3.14159274101257324), arg6);
     func_8072A86C(arg0, arg2, arg4, arg7, arg8);
 }
 
@@ -702,7 +702,7 @@ typedef struct D1Dc90ViewB {
 
 #define D1DC90B ((D1Dc90ViewB *)D_807FDC90)
 
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 void func_8072DAA4();
 
 void actorApproachTargetSpeed(u16 arg0) {
@@ -711,7 +711,7 @@ void actorApproachTargetSpeed(u16 arg0) {
 
     spd = D1DC90B->unk26;
     if (D1AB->unkB8 < -60.0f) {
-        if ((D1AB->unk6A & 1) && (D_8076A064 % 5) == 0) {
+        if ((D1AB->unk6A & 1) && (gFrameCounter % 5) == 0) {
             func_8072DAA4();
         }
     }
@@ -742,9 +742,9 @@ void actorAddPulsingLight(void) {
     f32 x;
     f32 base;
 
-    func_80612794((s16)(((D_8076A064 % 0xFFF) * 4) % 0xFFF));
-    func_80612790((s16)(((D_8076A064 % 0xFFF) * 4) % 0xFFF));
-    phase = (D_8076A064 * 4) % 150;
+    func_80612794((s16)(((gFrameCounter % 0xFFF) * 4) % 0xFFF));
+    func_80612790((s16)(((gFrameCounter % 0xFFF) * 4) % 0xFFF));
+    phase = (gFrameCounter * 4) % 150;
     base = 100.0f;
     if (phase > 75) {
         x = (f32)(phase - 75) + base;
@@ -1025,7 +1025,7 @@ void func_8072B7CC(s32 arg0) {
                 F1A->unk155 = F1A->unk155 + 1;
             } else {
                 F1A->unkE6 += 0x64;
-                if (D_8076A064 & 1) {
+                if (gFrameCounter & 1) {
                     F1A->unk80 += 1.0f;
                 }
                 if (D_807FBB4C->unk154 != 0x67) {
@@ -1114,7 +1114,7 @@ typedef struct D1PlayerView {
 
 #define D1DC90H ((D1Dc90ViewH *)D_807FDC90)
 
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 extern u32 D_807FBB64;
 
 u8 func_8072C670(u8 arg0, u8 *arg1) {
@@ -1125,7 +1125,7 @@ u8 func_8072C670(u8 arg0, u8 *arg1) {
     *arg1 = 1;
     if (D_807FBB40->unk5C & 2) {
         if (D_807FBB40->unk154 != 0x15 &&
-            ((D_807FDC94->unk58 == 6 && ((D1PlayerView *)D_807FC924)->unk2C0 == 2 && D_807FC928 == 1) ||
+            ((D_807FDC94->unk58 == 6 && ((D1PlayerView *)gPlayerSlots)->unk2C0 == 2 && gPlayerCount == 1) ||
              ((D_807FDC94->unk5C & 1) && (st->unk1F0 & 0x10)))) {
             ret = 7;
         } else if (D1DC90H->unk37 == 7 && arg0 != 0 && !(D1DC90H->unk1A & 0x200) && D1DC90H->unk20 == 0) {
@@ -1712,7 +1712,7 @@ void func_8072D714(D1ActorViewI *arg0, s32 arg1) {
         func_8072D9D4();
     }
     D_80744508++;
-    if (D_8076A0A8 == 0xBF) {
+    if (gCurrentMap == 0xBF) {
         func_8002D7E8(*(s16 *)((u8 *)D_807FBB40 + 0x5A));
     }
 }
@@ -1774,7 +1774,7 @@ void func_8072DAA4(void) {
     func_80714CC0(&D_8071FF18, (f32)(((randomNonNegative() >> 15) % 1000) / 2000.0 + 0.5), D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
 }
 
-extern u8 D_807FC929;
+extern u8 gCurrentPlayerIndex;
 s32 slotQueueGetValue(s32, u8);
 void slotQueueAddValue(s32, u8, s16);
 void slotQueueUpdate(s32, s32, s32);
@@ -1785,12 +1785,12 @@ void func_8072DB68(s32 arg0) {
     u8 cnt;
     s16 i;
 
-    if (slotQueueGetValue(0xB, D_807FC929) >= 4) {
+    if (slotQueueGetValue(0xB, gCurrentPlayerIndex) >= 4) {
         cnt = 3;
     } else {
-        cnt = slotQueueGetValue(0xB, D_807FC929);
+        cnt = slotQueueGetValue(0xB, gCurrentPlayerIndex);
     }
-    slotQueueAddValue(0xB, D_807FC929, -cnt);
+    slotQueueAddValue(0xB, gCurrentPlayerIndex, -cnt);
     slotQueueUpdate(0xB, 0, 0);
     sfxAllocateChannel(0x41, 1.0f);
     for (i = 0; i < cnt; i++) {
@@ -1883,7 +1883,7 @@ void func_8072DEA8(void *arg0, u8 arg1, Actor *arg2) {
 
 
 void func_8072E02C(void) {
-    E2A->unkE8 = func_806CC190(E2A->unkE8, 0, 5.0f);
+    E2A->unkE8 = mathAngleEaseToward(E2A->unkE8, 0, 5.0f);
     E2A->unkE4 = E2A->unkE4 + (-E2A->unkE4) * 0.1;
 }
 
@@ -1906,7 +1906,7 @@ u8 func_8072E0A8(s32 arg0, s16 arg1) {
 }
 
 void func_8072E1A4(u8 arg0, Actor *arg1) {
-    D_807FBB40->unkE6 = func_806CC190(D_807FBB40->unkE6, mathAngleBetweenPoints2D(arg1->unk7C, arg1->unk84, D_807FBB40->unk7C, D_807FBB40->unk84), (u32)arg0);
+    D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, mathAngleBetweenPoints2D(arg1->unk7C, arg1->unk84, D_807FBB40->unk7C, D_807FBB40->unk84), (u32)arg0);
 }
 
 u8 actorIsTargetWithinDistance(u16 arg0) {
@@ -1937,10 +1937,10 @@ void func_8072E320(f32 arg0) {
     f32 v;
 
     E2A->unkEE = E2A->unkE6;
-    E2A->unkE6 = func_806CC190(E2A->unkE6, mathAngleBetweenPoints2D(E2A->unk7C, E2A->unk84, E2A->unk88, E2A->unk90), 3.3f);
-    v = E2_MIN(E2_MAX(func_806CC10C(E2A->unkE6, E2A->unkEE) * arg0, -900.0f), 900.0f);
+    E2A->unkE6 = mathAngleEaseToward(E2A->unkE6, mathAngleBetweenPoints2D(E2A->unk7C, E2A->unk84, E2A->unk88, E2A->unk90), 3.3f);
+    v = E2_MIN(E2_MAX(mathAngleSignedDistance(E2A->unkE6, E2A->unkEE) * arg0, -900.0f), 900.0f);
     E2A->unkE4 = (v - E2A->unkE4) * 0.1 + E2A->unkE4;
-    E2A->unkE8 = func_806CC190(E2A->unkE8, mathCalculatePitchAngle(E2A->unk7C, E2A->unk80, E2A->unk84, E2A->unk88, E2A->unk8C, E2A->unk90, 0x1E) * 2048.0 / 3.1415927f, 3.3f);
+    E2A->unkE8 = mathAngleEaseToward(E2A->unkE8, mathCalculatePitchAngle(E2A->unk7C, E2A->unk80, E2A->unk84, E2A->unk88, E2A->unk8C, E2A->unk90, 0x1E) * 2048.0 / 3.1415927f, 3.3f);
 }
 
 u8 func_8072E54C(void) {

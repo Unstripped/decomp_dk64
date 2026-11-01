@@ -3,7 +3,7 @@
 
 extern s16 D_807FBB30;
 extern s16 D_807FBB32;
-extern Struct807FD580 *D_807FD580;
+extern Struct807FD580 *gActivePlayerState;
 
 typedef struct {
     u8 unk0[0x50];

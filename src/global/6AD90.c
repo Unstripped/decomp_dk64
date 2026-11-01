@@ -24,7 +24,7 @@ struct CollisionBufferEntry;
 extern struct CollisionBufferEntry *D_807F9514;
 extern s32 D_807F9518;
 extern u8 D_807F951C;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_807F94B4;
 void *heapAlloc(s32);
 void *assetLoad(s32, u32, u8, u8);
@@ -49,7 +49,7 @@ void collisionBuildCellTable(CollisionMeshHeader *arg0) {
 
     D_807F9514 = (struct CollisionBufferEntry *)heapAlloc(0x11A8);
     D_807F9518 = (u32)(arg0->unk18 * arg0->unk1A);
-    var_s1 = (u8 *)assetLoad(3, D_8076A0A8, 1, 0);
+    var_s1 = (u8 *)assetLoad(3, gCurrentMap, 1, 0);
     D_807F951C = 0;
     if (arg0->unk9 & 2) {
         sp58 = var_s1;
@@ -63,7 +63,7 @@ void collisionBuildCellTable(CollisionMeshHeader *arg0) {
         assetFreeBuffer(sp58, 0x9D, 0x3A);
         D_807F951C = 1;
     }
-    base = assetGetSize(3, D_8076A0A8);
+    base = assetGetSize(3, gCurrentMap);
     a3 = var_s1 + 4;
     for (i = 0; i < D_807F9518; i++) {
         ((CollisionMeshCellEntry *)D_807F9514)[i].unk8 = 0;
@@ -522,8 +522,8 @@ typedef struct {
 } CollisionPlayerPosition;
 
 
-extern CollisionPlayerPosition *D_807FC924;
-extern u8 D_807FC929;
+extern CollisionPlayerPosition *gPlayerSlots;
+extern u8 gCurrentPlayerIndex;
 extern s16 D_807FD584;
 extern f32 D_80752F7C[];
 extern f32 D_80752F98[];
@@ -549,7 +549,7 @@ void func_80666D88(f32 arg0, f32 arg1, u8 arg2, Actor *arg3, u8 arg4) {
     flag = 1;
     if (arg0 < arg1) {
         if ((arg3 != NULL) && (arg3->unk5C & 1)) {
-            temp_v0 = D_807FC924[D_807FC929].unk2C0;
+            temp_v0 = gPlayerSlots[gCurrentPlayerIndex].unk2C0;
             if (temp_v0 != 0) {
                 if (temp_v0 != 2) {
                     var_v0 = D_80752F98; var_v1 = D_80752F7C; // FAKE: same-line join steers as1 scheduling (addiu order)
@@ -762,9 +762,9 @@ typedef struct GridMeshNode {
     /* 0x50 */ struct GridMeshNode *next;
 } GridMeshNode;
 
-extern GridMeshNode *D_807F93C0;
+extern GridMeshNode *gEffectNodeList;
 u8 effectGetTableFlag(GridMeshNode *);
-f32 func_806608FC(GridMeshNode *, s32, s32, u8);
+f32 effectWaterGetHeightAt(GridMeshNode *, s32, s32, u8);
 s32 collisionPointInTriangleXZS16(s16 *, f32, f32);
 f32 collisionTriangleHeightAtXZ(s16 *, f32, f32);
 
@@ -786,7 +786,7 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
 
     sp9F = 0;
     var_fs5 = 999999.0f;
-    var_s3 = D_807F93C0;
+    var_s3 = gEffectNodeList;
     sp8C = (f32)((f64)*arg2 + 4.0);
     if (var_s3 != NULL) {
         do {
@@ -799,18 +799,18 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
 
                 x[0] = var_s3->unk2C * cell_x + var_s3->unk0->unk46;
                 z[0] = var_s3->unk2C * cell_z + var_s3->unk0->unk48;
-                y[0] = func_806608FC(var_s3, x[0], z[0], temp_s0);
+                y[0] = effectWaterGetHeightAt(var_s3, x[0], z[0], temp_s0);
 
                 x[1] = (cell_x + 1) * var_s3->unk2C + var_s3->unk0->unk46;
                 z[1] = z[0];
-                y[1] = func_806608FC(var_s3, x[1], z[1], temp_s0);
+                y[1] = effectWaterGetHeightAt(var_s3, x[1], z[1], temp_s0);
                 x[2] = x[0];
                 z[2] = (cell_z + 1) * var_s3->unk2C + var_s3->unk0->unk48;
-                y[2] = func_806608FC(var_s3, x[2], z[2], temp_s0);
+                y[2] = effectWaterGetHeightAt(var_s3, x[2], z[2], temp_s0);
 
                 x[3] = x[1];
                 z[3] = z[2];
-                y[3] = func_806608FC(var_s3, x[3], z[3], temp_s0);
+                y[3] = effectWaterGetHeightAt(var_s3, x[3], z[3], temp_s0);
 
                 spA0[0] = x[0] * 6.0f;
                 spA0[3] = y[0] * 6.0f;
@@ -921,7 +921,7 @@ struct CollisionBufferEntry;
 struct CollisionTriS;
 extern struct CollisionBufferEntry *D_807F9514;
 extern s32 D_807F9518;
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u16 D_807F9450;
 extern u16 D_807F9452;
 extern u16 D_807F9454;
@@ -973,13 +973,13 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
         return 0;
     }
     if (D_807F9454 <= arg0 / D_807F9450 || arg0 < 0.0) {
-        if (D_8076A0A8 == 0x57 && arg3 != NULL) {
+        if (gCurrentMap == 0x57 && arg3 != NULL) {
             return collisionTestHardcodedFloorPlane(&spS.cc, spC4, cur, arg2);
         }
         return 0;
     }
     if (D_807F9456 <= arg1 / D_807F9452 || arg1 < 0.0) {
-        if (D_8076A0A8 == 0x57 && arg3 != NULL) {
+        if (gCurrentMap == 0x57 && arg3 != NULL) {
             return collisionTestHardcodedFloorPlane(&spS.cc, spC4, cur, arg2);
         }
         return 0;
@@ -1131,7 +1131,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
             arg3->unk64 |= 0x40;
         }
     }
-    if (D_8076A0A8 == 0x57 && arg3 != NULL) {
+    if (gCurrentMap == 0x57 && arg3 != NULL) {
         spS.cb |= collisionTestHardcodedFloorPlane(&spS.cc, spC4, cur, arg2);
     }
     if (arg3 != NULL) {
@@ -1206,7 +1206,7 @@ typedef struct CollisionBufferEntry {
 } CollisionBufferEntry;
 
 extern CollisionBufferEntry *D_807F9514;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern u8 D_807F951C;
 void actorClearBufferReferences(s32);
 void heapFree(void *);
@@ -1224,7 +1224,7 @@ void dynamicBufferAllocateEntry(s32 arg0) {
             dmaReadAssetDecompress(D_807F9514[arg0].unkC, (void *)D_807F9514[arg0].unk0, &sp34, 0, 0, 0, 0);
         }
     }
-    D_807F9514[arg0].unk8 = D_8076A064;
+    D_807F9514[arg0].unk8 = gFrameCounter;
 }
 
 void dynamicBufferPurgeExpired(void) {
@@ -1232,7 +1232,7 @@ void dynamicBufferPurgeExpired(void) {
 
     if (!D_807F951C) {
         for (i = 0; i < D_807F9518; i++) {
-            if (D_807F9514[i].unk0 != 0 && (u32)(D_8076A064 - D_807F9514[i].unk8) >= 21) {
+            if (D_807F9514[i].unk0 != 0 && (u32)(gFrameCounter - D_807F9514[i].unk8) >= 21) {
                 actorClearBufferReferences(i);
                 heapFree((void *)D_807F9514[i].unk0);
                 D_807F9514[i].unk0 = 0;
@@ -1563,7 +1563,7 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
             MODEL_SLOT_ENTRIES[sp9A].unk10, MODEL_SLOT_ENTRIES[sp9A].unk14, MODEL_SLOT_ENTRIES[sp9A].unk18,
             MODEL_SLOT_ENTRIES[sp9A].unkC);
     } else {
-        sp90->timestamp = D_8076A064;
+        sp90->timestamp = gFrameCounter;
     }
 
     tri = sp90->tri_start;
@@ -2188,7 +2188,7 @@ void collisionTransformPointToActorLocal(s32 arg0, Actor *arg1, CollisionVertexB
 
     D_807F9470 = arg1;
     sub = arg1->unk140;
-    if (D_8076A064 == sub->unk88) {
+    if (gFrameCounter == sub->unk88) {
         idx = D_807444FC;
     } else {
         idx = (D_807444FC ^ 1) & 0xFF;
@@ -2220,7 +2220,7 @@ void collisionTransformPointByActorMtx(Actor *actor, u32 arg1, f32 *arg2, f32 ar
         sp78 = *arg2;
         sp74 = *arg4;
         sub = actor->unk140;
-        if (D_8076A064 == sub->unk88) {
+        if (gFrameCounter == sub->unk88) {
             idx = D_807444FC;
         } else {
             idx = D_807444FC ^ 1;
@@ -2734,7 +2734,7 @@ void collisionBstLookupOrAssert(CollisionBstNode *arg0, u32 arg1, s32 *arg2, s32
         sp2C = 0;
         sp28 = 0;
         collisionQueueSearch(arg1, &sp2F, &sp2C, &sp28);
-        faultSetMessage(7, sp2F, sp2C, D_8076A064 - sp28);
+        faultSetMessage(7, sp2F, sp2C, gFrameCounter - sp28);
     }
     if (arg1 == arg0->unk0) {
         *arg2 = arg0->unk4;
@@ -2819,7 +2819,7 @@ u16 arg2;
     u8 idx = D_807FB221;
     CollisionQueueEntry *item = &D_807FB228[idx];
 
-    item->unk0 = D_8076A064;
+    item->unk0 = gFrameCounter;
     item->unk4 = arg0;
     item->unkA = arg1;
     item->unk8 = arg2;

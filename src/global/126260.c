@@ -237,11 +237,11 @@ typedef struct {
 
 extern Actor *D_807FBB4C;
 extern s32 D_807FBB60;
-extern u32 D_8076A064;
+extern u32 gFrameCounter;
 extern f32 *D_8076A0B4;
 extern f32 *D_8076A0B8;
 extern f32 *D_8076A0BC;
-extern void *D_807FC924;
+extern void *gPlayerSlots;
 extern f32 D_807444CC;
 extern f32 D_807444D0;
 extern f32 D_807444D4;
@@ -341,10 +341,10 @@ Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
     secondary->l.colc[1] = secondary->l.col[1];
     secondary->l.colc[2] = secondary->l.col[2];
 
-    angle = mathAngleBetweenPoints2D(x, z, *(f32 *)((u8 *)D_807FC924 + (arg2 * 0x2F0) + 0x21C), *(f32 *)((u8 *)D_807FC924 + (arg2 * 0x2F0) + 0x224)) + D_807FDB76;
-    dx = (*(f32 *)((u8 *)D_807FC924 + (arg2 * 0x2F0) + 0x21C) - (func_80612794(angle) * (f32)D_807FDB78)) - x;
+    angle = mathAngleBetweenPoints2D(x, z, *(f32 *)((u8 *)gPlayerSlots + (arg2 * 0x2F0) + 0x21C), *(f32 *)((u8 *)gPlayerSlots + (arg2 * 0x2F0) + 0x224)) + D_807FDB76;
+    dx = (*(f32 *)((u8 *)gPlayerSlots + (arg2 * 0x2F0) + 0x21C) - (func_80612794(angle) * (f32)D_807FDB78)) - x;
     dy = (f32)(camera_rotation + D_807FDB7A);
-    dz = (*(f32 *)((u8 *)D_807FC924 + (arg2 * 0x2F0) + 0x224) - (func_80612790(angle) * (f32)D_807FDB78)) - z;
+    dz = (*(f32 *)((u8 *)gPlayerSlots + (arg2 * 0x2F0) + 0x224) - (func_80612790(angle) * (f32)D_807FDB78)) - z;
     inv_distance = 127.0f / sqrtf((dx * dx) + (dy * dy) + (dz * dz));
     secondary->l.dir[0] = (s8)(s32)(dx * inv_distance);
     secondary->l.dir[1] = (s8)(s32)(dy * inv_distance);
@@ -371,7 +371,7 @@ Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
 
     if (!(D_807FBB60 & 2) && (actor->unk5C & 1)) {
         actor = (LightActorView *)actor->unk174; // FAKE: reuses the dead actor local as the named pointer (v0 web)
-        if ((*(s16 *)((u8 *)actor + 0xD4) != 0) && (D_8076A064 & 2)) {
+        if ((*(s16 *)((u8 *)actor + 0xD4) != 0) && (gFrameCounter & 2)) {
             secondary->l.col[0] = 0;
             secondary->l.col[1] = 0;
             secondary->l.col[2] = 0;

@@ -5,11 +5,11 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
 extern Actor *D_807FBB4C;
-extern void *D_807FC924;
-extern u8 D_807FC928;
-extern u8 D_807FC929;
+extern void *gPlayerSlots;
+extern u8 gPlayerCount;
+extern u8 gCurrentPlayerIndex;
 extern u8 D_807FC950[][0x5E];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
 extern s16 D_80744490;
@@ -442,7 +442,7 @@ typedef struct TransitionBuffers {
 
 extern u8 *D_8076A048;
 extern Gfx *D_8076A050[];
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern s32 D_8076A088;
 extern s32 D_8076A08C;
 extern u8 D_8076A0A4;
@@ -470,7 +470,7 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
 
     schedSubmitGfxTask(D_8076A050[D_807444FC], D_8076A088, 3, 1, 0x4D2, 1);
     D_807444FC ^= 1;
-    D_8076A064 += 1;
+    gFrameCounter += 1;
     D_8076A048 = (D_807444FC * 0x11B0) + (u8 *)&D_80767CE8;
     sp30 = (Gfx *)(D_8076A048 + 0xDB0);
     switch (*(u8 *)&D_807FD9BC) {

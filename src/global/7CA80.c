@@ -751,7 +751,7 @@ void func_80678E14(Actor *actor) {
 u8 actorClearTargetAngle();
 extern u8 D_807FBC55;
 void playerStateQueueCallback(s32, s32, u8);
-extern u8 D_807FC929;
+extern u8 gCurrentPlayerIndex;
 
 void func_80678E6C(Actor *actor) {
     u8 sp27;
@@ -767,7 +767,7 @@ void func_80678E6C(Actor *actor) {
             if (!(actor->unk6A & 0x10)) {
                 actor->unk6A |= 0x10;
                 if (actor == D_807FBB48) {
-                    playerStateQueueCallback(4, 0, D_807FC929);
+                    playerStateQueueCallback(4, 0, gCurrentPlayerIndex);
                 }
             }
         }
@@ -966,8 +966,8 @@ typedef struct ActorPlayerStateView {
     f32 unk74;
 } ActorPlayerStateView;
 struct DamageReactionContext;
-extern struct DamageReactionContext *D_807FD580;
-#define PLAYER_STATE_VIEW ((ActorPlayerStateView *)D_807FD580)
+extern struct DamageReactionContext *gActivePlayerState;
+#define PLAYER_STATE_VIEW ((ActorPlayerStateView *)gActivePlayerState)
 
 extern s32 D_807FBC08;
 extern s32 D_807FBC14;
@@ -1123,40 +1123,40 @@ void actorDispatchCallbacks(Actor *arg0) {
                     case 0:
                         GSTATE.unk16 = 1;
                         if (arg0 == D_807FBB48) {
-                            playerStateQueueCallback(0x10, NULL, D_807FC929);
+                            playerStateQueueCallback(0x10, NULL, gCurrentPlayerIndex);
                         }
                         break;
                     case 1:
                         GSTATE.unk17 = 1;
                         if (arg0 == D_807FBB48) {
-                            playerStateQueueCallback(0xE, var_s2->unk8, D_807FC929);
+                            playerStateQueueCallback(0xE, var_s2->unk8, gCurrentPlayerIndex);
                         }
                         break;
                     case 2:
                         GSTATE.unk18 = 1;
                         if (arg0 == D_807FBB48) {
-                            playerStateQueueCallback(0x12, NULL, D_807FC929);
+                            playerStateQueueCallback(0x12, NULL, gCurrentPlayerIndex);
                         }
                         break;
                     case 3:
                         GSTATE.unk19 = 1;
                         if (arg0 == D_807FBB48) {
-                            playerStateQueueCallback(0x13, NULL, D_807FC929);
+                            playerStateQueueCallback(0x13, NULL, gCurrentPlayerIndex);
                         }
                         break;
                     case 6:
                         GSTATE.unk1B = 1;
                         if (arg0 == D_807FBB48) {
-                            playerStateQueueCallback(0x36, var_s2->unk8, D_807FC929);
+                            playerStateQueueCallback(0x36, var_s2->unk8, gCurrentPlayerIndex);
                         }
                         break;
                     case 4:
                     case 5:
                         if (arg0 == D_807FBB48) {
                             if (var_s2->unk4 == 4) {
-                                playerStateQueueCallback(0x2B, var_s2->unk8, D_807FC929);
+                                playerStateQueueCallback(0x2B, var_s2->unk8, gCurrentPlayerIndex);
                             } else {
-                                playerStateQueueCallback(0x32, var_s2->unk8, D_807FC929);
+                                playerStateQueueCallback(0x32, var_s2->unk8, gCurrentPlayerIndex);
                             }
                             temp_v1 = (Actor *)var_s2->unk8;
                             if ((temp_v1 != NULL) && (temp_v1->unk5C & 2)) {
@@ -1184,7 +1184,7 @@ void actorDispatchCallbacks(Actor *arg0) {
                     PLAYER_STATE_VIEW->unk6C = (f32)temp_v0_4->unk8;
                     GSTATE.unk1A = 1;
                     if (arg0 == D_807FBB48) {
-                        playerStateQueueCallback(0x17, var_s2->unk8, D_807FC929);
+                        playerStateQueueCallback(0x17, var_s2->unk8, gCurrentPlayerIndex);
                     }
                     break;
                 case 0x10:
@@ -1240,7 +1240,7 @@ void actorDispatchCallbacks(Actor *arg0) {
                 case 0x80:
                     arg0->unk60 = (s32)(arg0->unk60 | 8);
                     if (arg0 == D_807FBB48) {
-                        playerStateQueueCallback(0x16, var_s2->unk8, D_807FC929);
+                        playerStateQueueCallback(0x16, var_s2->unk8, gCurrentPlayerIndex);
                     }
                     break;
                 case 0x40:
@@ -1349,7 +1349,7 @@ void actorDispatchCallbacks(Actor *arg0) {
 
 
 struct PlayerTableEntry;
-extern struct PlayerTableEntry *D_807FC924;
+extern struct PlayerTableEntry *gPlayerSlots;
 
 typedef struct DamageReactionPlayerEntry {
     u8 pad0[0x2C0];
@@ -1365,13 +1365,13 @@ typedef struct DamageReactionContext {
     u8 pad1F4[0x200 - 0x1F4];
     u16 unk200;
 } DamageReactionContext;
-extern DamageReactionContext *D_807FD580;
+extern DamageReactionContext *gActivePlayerState;
 
 extern u8 D_807FBB85;
 extern s32 D_80720E2C;
 void func_80686CF8(Actor *);
 s32 func_80714608(s32);
-u8 func_806D0DE4(Actor *, Actor *);
+u8 playerIsSmallerThanAttacker(Actor *, Actor *);
 void func_807149FC(s32);
 void func_807149B8(s32);
 void func_8071498C(void *);
@@ -1386,7 +1386,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
 
     D_807FBB85 = 1;
     if (arg0 == D_807FBB48) {
-        if (!(((DamageReactionPlayerEntry *)D_807FC924)[D_807FD580->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2))) {
+        if (!(((DamageReactionPlayerEntry *)gPlayerSlots)[gActivePlayerState->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2))) {
             sp3C = 0x2E;
             var_a2 = 1;
             if (arg2 != 0) {
@@ -1397,7 +1397,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
                 switch (arg1->unk155[0]) {
                 case 1:
                     var_a2 = 0;
-                    D_807FD580->unk1F0 ^= 0x80;
+                    gActivePlayerState->unk1F0 ^= 0x80;
                     break;
                 case 2:
                     sp3C = 0x27;
@@ -1417,13 +1417,13 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
                     func_8071498C(sp24);
                     func_80714C08(&D_80720E2C, 0x3E99999A, arg0, 6, 2);
                     var_a2 = 0;
-                    D_807FD580->unk1F0 |= 0x08000000;
+                    gActivePlayerState->unk1F0 |= 0x08000000;
                     break;
                 }
-                D_807FD580->unk200 = 0xF0;
+                gActivePlayerState->unk200 = 0xF0;
             } else if (arg1 != NULL && ((arg1->unk5C & 1) || (arg1->unk5C & 4) || (arg1->unk5C & 2))) {
                 if (func_80714608(0) != 0) {
-                    if (func_806D0DE4(arg0, arg1) != 0) {
+                    if (playerIsSmallerThanAttacker(arg0, arg1) != 0) {
                         sp3C = 0x31;
                     } else {
                         var_v0 = 1;
@@ -1439,7 +1439,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
                 }
             }
             if (var_a2 != 0) {
-                playerStateQueueCallback((s16)sp3C, (s32)arg1, D_807FC929);
+                playerStateQueueCallback((s16)sp3C, (s32)arg1, gCurrentPlayerIndex);
             }
         }
     }
@@ -1543,7 +1543,7 @@ typedef struct ActorCollisionState {
 s32 actorCollisionGetNodeHitPoint(Actor *, s32, f32 *, f32 *);
 void collisionTransformPointByActorMtx(Actor *, u32, f32 *, f32, f32 *);
 void actorCollisionResolveSurfaceHit(Actor *, s32, void *, void *, s32, s32, s32, s32);
-void func_806CF42C(Actor *);
+void playerDropHeldActor(Actor *);
 
 void actorDispatchCollisionResults(Actor *arg0) {
     s32 i;
@@ -1593,7 +1593,7 @@ void actorDispatchCollisionResults(Actor *arg0) {
             }
             func_8067A70C((s32)arg0, (Actor *)D_807FBB70.unk204[i], arg0->unk7C, arg0->unk80, arg0->unk84, 2, 1);
             actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x80, 0, 0, 0);
-            func_806CF42C(arg0);
+            playerDropHeldActor(arg0);
             break;
         case 5:
             actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 8, 0, 0, 0);
@@ -1817,8 +1817,8 @@ typedef struct PlayerTableEntry {
     s32 unk4;
     char pad8[0x2F0 - 8];
 } PlayerTableEntry;
-extern PlayerTableEntry *D_807FC924;
-extern u8 D_807FC928;
+extern PlayerTableEntry *gPlayerSlots;
+extern u8 gPlayerCount;
 
 void actorTableSort(void);
 
@@ -1956,7 +1956,7 @@ typedef struct PlayerContext5C414 {
     u8 pad4[12];
 } PlayerContext5C414;
 
-extern u8 D_8074E77C[];
+extern u8 gPlayerCharacterId[];
 extern PlayerContextArray950 D_807FC950[];
 extern void *D_807FD568;
 extern s32 D_807ECDEC;
@@ -1968,12 +1968,12 @@ void playerSetActiveGlobals(Actor *arg0) {
     u8 temp_v0;
     PlayerContextEntry *player;
 
-    D_807FD580 = arg0->unk174;
-    D_807FC929 = ((PlayerContextSub174 *)D_807FD580)->unk1A4;
-    temp_v0 = D_8074E77C[D_807FC929];
-    player = (PlayerContextEntry *)D_807FC924 + D_807FC929;
+    gActivePlayerState = arg0->unk174;
+    gCurrentPlayerIndex = ((PlayerContextSub174 *)gActivePlayerState)->unk1A4;
+    temp_v0 = gPlayerCharacterId[gCurrentPlayerIndex];
+    player = (PlayerContextEntry *)gPlayerSlots + gCurrentPlayerIndex;
     D_807FBB48 = player->actor;
-    D_807FD568 = &D_807FC950[D_807FC929].sub[temp_v0];
+    D_807FD568 = &D_807FC950[gCurrentPlayerIndex].sub[temp_v0];
     D_807ECDEC = player->unk294;
     D_807ECDF0 = *player->unk298;
     D_807FD584 = D_8075C414[temp_v0].unk0;
@@ -1982,8 +1982,8 @@ void playerSetActiveGlobals(Actor *arg0) {
 
 u8 playerFindIndexByActor(s32 arg0) {
     s32 i;
-    for (i = 0; i < D_807FC928; i++) {
-        if (D_807FC924[i].unk0 != 0 && arg0 == D_807FC924[i].unk4) {
+    for (i = 0; i < gPlayerCount; i++) {
+        if (gPlayerSlots[i].unk0 != 0 && arg0 == gPlayerSlots[i].unk4) {
             return (u8)i;
         }
     }

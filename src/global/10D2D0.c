@@ -5,11 +5,11 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB48;
 extern Actor *D_807FBB4C;
-extern void *D_807FC924;
-extern u8 D_807FC928;
-extern u8 D_807FC929;
+extern void *gPlayerSlots;
+extern u8 gPlayerCount;
+extern u8 gCurrentPlayerIndex;
 extern u8 D_807FC950[][0x5E];
-extern s32 D_8076A0A8;
+extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
 extern s16 D_80744490;
@@ -38,7 +38,7 @@ Gfx *healthHudDraw();
 
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern s32 D_807FBB60;
 f32 func_80612794(s16);
 s32 func_80714464();
@@ -76,7 +76,7 @@ Gfx *healthHudDraw(Gfx *arg0, HealthStats *arg1, void *arg2, HealthHudState *arg
         sp94[3] = (f32)amp;
         sp94[0] = (f32)(s16)(s32)((f64)fs0 * 200.0);
         do {
-            raw = (i << 10) + (D_8076A064 * 0xC8);
+            raw = (i << 10) + (gFrameCounter * 0xC8);
             phase = raw;
             sp94[21] = (f32)(((f64)func_80612794(phase) * 0.3) + 3.0);
             fs2 = (f32)(((f64)func_80612794((s16)(raw + 0x800)) * 0.3) + 3.0);
@@ -176,7 +176,7 @@ void healthApplyPendingDelta(s32 arg0, HealthPlayerState *arg1, HealthPlayerStat
             if (arg2->unk2FB <= 0) {
                 arg2->unk2FB = 0;
                 arg1->unk2E6 = 0xC;
-                if ((s32)D_807FC928 >= 2) {
+                if ((s32)gPlayerCount >= 2) {
                     func_80026B0C(arg0);
                 }
             } else {
@@ -215,7 +215,7 @@ HealthHudState *arg2;
     elem = (u8 *)((s32)hud + idx * 0x5E);
     mode = arg2->unk2E4;
     bits = arg2->unk2E3;
-    single = D_807FC928 == 1;
+    single = gPlayerCount == 1;
     if (single == 0) {
         mode = 0;
     }
@@ -303,20 +303,20 @@ s32 healthHudDrawAll(s32 arg0) {
 
     arg0 = arg0;
     var_s0 = 0;
-    if ((s32)D_807FC928 > 0) {
+    if ((s32)gPlayerCount > 0) {
         do {
             temp_lo = var_s0 * 0x2F0;
-            temp_v0 = (s32)D_807FC924 + temp_lo;
+            temp_v0 = (s32)gPlayerSlots + temp_lo;
             if (((HealthHudPlayerView *)temp_v0)->unk0 != 0) {
                 temp_v1 = ((HealthHudPlayerView *)temp_v0)->unk2E2;
                 if (!(temp_v1 & 0x20) && (((((HealthHudPlayerView *)temp_v0)->unk2E4 != 0 || temp_v1 != 0) &&
                                            D_80744504 == 0) ||
                                           temp_v1 & 0x10)) {
-                    arg0 = healthHudUpdateDraw(arg0, (s16)(var_s0 + 0), (temp_lo ^ 0) + (s32)D_807FC924, (s32)D_807FC924);
+                    arg0 = healthHudUpdateDraw(arg0, (s16)(var_s0 + 0), (temp_lo ^ 0) + (s32)gPlayerSlots, (s32)gPlayerSlots);
                 }
             }
             var_s0 += 1;
-        } while (var_s0 < (s32)D_807FC928);
+        } while (var_s0 < (s32)gPlayerCount);
     }
     return arg0;
 }
@@ -326,7 +326,7 @@ s32 healthGetPerMelon(void) {
     s32 ret;
 
     ret = 4;
-    return ((s32) D_807FC928 >= 2) ? 0xA : ret;
+    return ((s32) gPlayerCount >= 2) ? 0xA : ret;
 }
 
 

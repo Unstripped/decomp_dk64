@@ -127,9 +127,9 @@ typedef struct Boss3F_52B0_DC98 {
 } Boss3F_52B0_DC98;
 
 extern u8 *D_80035A00[];
-extern s32 D_8076A064;
+extern s32 gFrameCounter;
 extern Boss3F_52B0_BB4C *D_807FBB4C;
-extern Boss3F_52B0_D580 *D_807FD580;
+extern Boss3F_52B0_D580 *gActivePlayerState;
 extern Boss3F_52B0_DC90 *D_807FDC90;
 extern Boss3F_52B0_DC94 *D_807FDC94;
 extern Boss3F_52B0_DC98 *D_807FDC98;
@@ -151,7 +151,7 @@ void projectileGetTargetCoords(void *, s32);
 void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 void actorAppendActiveCallback8(void);
-s32 func_806CC10C(s16, s16);
+s32 mathAngleSignedDistance(s16, s16);
 s32 mathAngleDistance(s16, s16);
 s32 func_80724A20(void);
 void behaviourFrameBegin(void);
@@ -218,21 +218,21 @@ void func_80029468(void) {
         case 0:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB4C, 0x3B1);
-                actorScriptStart(D_807FD580->unk88, 0x3B7);
+                actorScriptStart(gActivePlayerState->unk88, 0x3B7);
                 ACTOR->unk155++;
             }
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB4C, 0x3B2);
-                actorScriptStart(D_807FD580->unk88, 0x3B8);
+                actorScriptStart(gActivePlayerState->unk88, 0x3B8);
                 ACTOR->unk155++;
             }
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB4C, 0x3B3);
-                actorScriptStart(D_807FD580->unk88, 0x3B9);
+                actorScriptStart(gActivePlayerState->unk88, 0x3B9);
                 ACTOR->unk155++;
             }
             break;
@@ -245,7 +245,7 @@ void func_80029468(void) {
         case 4:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB4C, 0x3B4);
-                actorScriptStart(D_807FD580->unk88, 0x3BA);
+                actorScriptStart(gActivePlayerState->unk88, 0x3BA);
                 ACTOR->unk155++;
             }
             break;
@@ -294,7 +294,7 @@ void func_80029468(void) {
                 effectSpawnJointBeam(0xB, 0xE, 0xF, 0x12);
                 break;
             case 3:
-                if (!(D_8076A064 & 3)) {
+                if (!(gFrameCounter & 3)) {
                     func_800293C0();
                 }
                 break;
@@ -319,7 +319,7 @@ void func_80029468(void) {
         goto block_28;
     case 0x46:
         ACTOR->unkE6 += D_807FDC90->unk2E;
-        if (func_806CC10C(ACTOR->unkE6, sp42) > 0) {
+        if (mathAngleSignedDistance(ACTOR->unkE6, sp42) > 0) {
             pad48 = D_807FDC90->unk2E + 2;
             if (pad48 < 0x32) {
                 D_807FDC90->unk2E = pad48;

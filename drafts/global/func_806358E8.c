@@ -1,4 +1,4 @@
-// func_806358E8 (src/global/36880.c): stage 4 (NM36A2): s0-s4 + frame 0x80 match; 43056 vs 43024 bytes, 72-line diff. Parked NON_MATCHING in OlB copy. Needs file proto s32 mapPurgeNodeList(s32,s16*,u8). Recipe: off=arg0*0x90 var set before the arg9 block (OLB_SL=D_807F6000+off); blocks 2-4 via v1 and p=v1->unk20; player loop index as shift chain macro PLY(i) (i*0x2F0 gives multu+li 752 hoist); bbox arg (u8*)(off+(s32)D_807F6000+0x54); deadsweep: 'if (i==0){}' after the XZ call in the case-1 loop (7->5 s-regs) + 'if (D_807FC924==0){}'. Remaining: D_807F6000 value reload lives in a2 (target t0), loop i copied via v1 (target s0 direct). s32 toggles of collisionTransformNode/actorUpdateEntryCoordinates, more deadsweep rounds (incl arg10/11/13/sp76): no gain.
+// func_806358E8 (src/global/36880.c): stage 4 (NM36A2): s0-s4 + frame 0x80 match; 43056 vs 43024 bytes, 72-line diff. Parked NON_MATCHING in OlB copy. Needs file proto s32 mapPurgeNodeList(s32,s16*,u8). Recipe: off=arg0*0x90 var set before the arg9 block (OLB_SL=D_807F6000+off); blocks 2-4 via v1 and p=v1->unk20; player loop index as shift chain macro PLY(i) (i*0x2F0 gives multu+li 752 hoist); bbox arg (u8*)(off+(s32)D_807F6000+0x54); deadsweep: 'if (i==0){}' after the XZ call in the case-1 loop (7->5 s-regs) + 'if (gPlayerSlots==0){}'. Remaining: D_807F6000 value reload lives in a2 (target t0), loop i copied via v1 (target s0 direct). s32 toggles of collisionTransformNode/actorUpdateEntryCoordinates, more deadsweep rounds (incl arg10/11/13/sp76): no gain.
 // context: file-level ModelSlot *D_807F6000, ModelSlotVectors, ModelVertTable decls come from 36880.c
 typedef struct OlB_Tgt {
     /* 0x00 */ u8 pad0[0x7C];
@@ -47,7 +47,7 @@ typedef struct OlB_SlotG {
     /* 0x8C */ u8 pad8C[4];
 } OlB_SlotG;
 
-extern u8 D_807FC928;
+extern u8 gPlayerCount;
 s32 activeActorBoxOverlapTest(f32, f32, f32, s16, s16, s16, u16);
 s32 collisionCheckBoundingBoxXZ(void *, f32, f32);
 s32 collisionCheckBoundingBoxY(void *, f32);
@@ -55,7 +55,7 @@ void collisionTransformNode(s32, void *, f32, f32, f32, f32, f32, f32, f32);
 void modelSlotBuildTriangleBufferThunk(s32, void *, f32, f32, f32, f32, f32, f32, f32);
 void actorUpdateEntryCoordinates(s16, f32, f32, f32, f32, f32);
 
-#define PLY(i) ((OlB_Player *)((u8 *)D_807FC924 + ((((((i) << 2) - (i)) << 4) - (i)) << 4)))
+#define PLY(i) ((OlB_Player *)((u8 *)gPlayerSlots + ((((((i) << 2) - (i)) << 4) - (i)) << 4)))
 #define OLB_SL0 ((OlB_SlotG *)((u8 *)D_807F6000 + arg0 * 0x90))
 #define OLB_SL ((OlB_SlotG *)((u8 *)D_807F6000 + off))
 
@@ -147,9 +147,9 @@ void func_806358E8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f
                 flag = 1;
                 break;
             case 2:
-                if (D_807FC924 != 0) {
+                if (gPlayerSlots != 0) {
                     i = 0;
-                    if (D_807FC928 > 0) {
+                    if (gPlayerCount > 0) {
                         do {
                             if (PLY(i)->unk0 != 0) {
                                 s32 hit = collisionCheckBoundingBoxY((u8 *)(off + (s32)D_807F6000 + 0x54), PLY(i)->unk4->unk80) != 0;
@@ -159,30 +159,30 @@ void func_806358E8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f
                                 flag |= hit;
                             }
                             i++;
-                        } while (i < D_807FC928);
+                        } while (i < gPlayerCount);
                         v1 = OLB_SL;
                     }
                 }
                 break;
             case 1:
-                if (D_807FC924 != 0) {
+                if (gPlayerSlots != 0) {
                     i = 0;
-                    if (D_807FC928 > 0) {
+                    if (gPlayerCount > 0) {
                         do {
                             if (PLY(i)->unk0 != 0) {
                                 flag |= collisionCheckBoundingBoxXZ((u8 *)(off + (s32)D_807F6000 + 0x54), PLY(i)->unk4->unk7C, PLY(i)->unk4->unk84);
                                 if (i == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                             }
-                            if (D_807FC924 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                            if (gPlayerSlots == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                             i++;
-                        } while (i < D_807FC928);
+                        } while (i < gPlayerCount);
                         v1 = OLB_SL;
                     }
                 }
                 break;
             case 3:
             case 4:
-                if (D_807FC924 != 0) {
+                if (gPlayerSlots != 0) {
                     flag = activeActorBoxOverlapTest(v1->unk0, v1->unk4, v1->unk8, v1->unk7C->unk68, v1->unk7C->unk6A, v1->unk7C->unk6C, v1->unk7C->unk67 == 3 ? 0xEF : 1);
                     v1 = OLB_SL;
                 }

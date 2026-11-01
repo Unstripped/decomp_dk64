@@ -20,7 +20,7 @@ s32 matrixCacheDecayLimit(void);
 void heapQueueDeferredFree(void *ptr);
 void heapFreeToPool(HeapBlock *block);
 HeapBlock *heapBestFitAlloc(s32 pool, u32 size);
-void func_80611730(void);
+void heapTickDeferredFrees(void);
 
 #ifdef NON_MATCHING
 typedef struct {
@@ -49,7 +49,7 @@ extern s32 D_807F5A60;
 void dmaReadAssetDecompress(s32, void *, void *, s32, s32, s32, s32);
 void heapSortSurvivors(void);
 void heapMoveWords(u32 *src, u32 *dst, u32 size);
-void func_80610B84(s32 oldBase, s32 newBase, u32 size);
+void heapRebaseHandles(s32 oldBase, s32 newBase, u32 size);
 s32 heapInitGeneralPool(s32, s32, s32);
 s32 heapInitBlockPool(void *, u8 *, u32, u16);
 void *heapAlloc(u32);
@@ -188,7 +188,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
                 HL(i) = dst + 0x10;
                 total = src->size + 0x10;
                 heapMoveWords(src, dst, total);
-                func_80610B84((s32)src, (s32)dst, total);
+                heapRebaseHandles((s32)src, (s32)dst, total);
             }
         }
         total = 0;
@@ -206,7 +206,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
                 } while (i < D_807F5A68);
             }
             heapMoveWords(first, dst, total);
-            func_80610B84((s32)first, (s32)dst, total);
+            heapRebaseHandles((s32)first, (s32)dst, total);
         }
         p = (u32 *)(HL(0) - 0x10);
         saved[0] = ((u64 *)p)[0];
@@ -319,7 +319,7 @@ void heapMoveWords(u32 *src, u32 *dst, u32 size) {
     }
 }
 
-void func_80610B84(s32 oldBase, s32 newBase, u32 size) {
+void heapRebaseHandles(s32 oldBase, s32 newBase, u32 size) {
     s32 i;
     for (i = 0; i < D_807F5A68; i++) {
         s32 offset = (s32)D_807F5A70[i] - oldBase;
@@ -477,7 +477,7 @@ s32 heapReleasePool(s32 idx) {
     return 0;
 }
 
-s32 func_8061116C(void);
+s32 heapReclaimMatrixCache(void);
 extern s32 D_80746A34;
 
 void *heapAlloc(u32 size) { while (1) { // LAYOUT: loop header on the function line; a later .loc line makes as1 schedule the prologue differently
@@ -513,7 +513,7 @@ void *heapAlloc(u32 size) { while (1) { // LAYOUT: loop header on the function l
             D_80746A30 = 1;
             return res;
         }
-        if (D_80746A30 != 0 && func_8061116C() != 0) {
+        if (D_80746A30 != 0 && heapReclaimMatrixCache() != 0) {
             D_80746A34 = 1;
             continue;
         }
@@ -530,7 +530,7 @@ void func_80611160(void) {
     D_80746A30 = 0;
 }
 
-s32 func_8061116C(void) {
+s32 heapReclaimMatrixCache(void) {
     return matrixCacheDecayLimit();
 }
 
@@ -631,7 +631,7 @@ void heapQueueDeferredFree(void *ptr) {
     s32 count = D_807F5A58;
 
     while (count >= 0xA00) {
-        func_80611730();
+        heapTickDeferredFrees();
         count = D_807F5A58;
     }
     entry = &D_807F0A58[count];
@@ -780,7 +780,7 @@ void func_80611724(s32 arg0, s32 arg1) {
     &arg1;
 }
 
-void func_80611730(void) {
+void heapTickDeferredFrees(void) {
     s32 i = 0;
     s32 flag = 0;
     s32 a = 0x3791DFFF;

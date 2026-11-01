@@ -43,7 +43,7 @@ typedef struct {
     s32 unk8;
 } SchedConfig;
 
-// Rumble-pak state struct (0x14 bytes each), array at D_807F0470
+// Rumble-pak state struct (0x14 bytes each), array at gRumbleInfo
 typedef struct {
     /* 0x00 */ s32 unk00;
     /* 0x04 */ u8 unk04;
@@ -56,7 +56,7 @@ typedef struct {
     /* 0x13 */ u8 pad13;
 } RumbleInfo;
 
-// Player struct array (stride 0x2F0) pointed to by D_807FC924
+// Player struct array (stride 0x2F0) pointed to by gPlayerSlots
 typedef struct {
     u8 pad0[0x210];
     s32 unk210;
