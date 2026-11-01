@@ -1512,137 +1512,189 @@ typedef struct PatrolActorView {
 #define PATROL_ACTOR ((PatrolActorView *)D_807FBB40)
 #define PATROL_WAYPOINT(off) ((PatrolWaypoint *)(PATROL_PATH_DATA->unk14 + (off)))
 
-u8 patrolPathStep(u8 arg0, u8 arg1) {
-    u8 p1;
-    u8 p2;
-    u8 p3;
-    u8 type;
-    s16 x;
-    s16 y;
-    s16 z;
-    u8 moved;
-    u8 q1;
-    u8 new_var;
-    u8 q2;
-    u8 key;
-    s32 v;
-    s32 idx;
-    s32 dir;
-    s32 off;
+u8 patrolPathStep(u8 arg0, u8 arg1)
+{
+  u8 p1;
+  u8 p2;
+  u8 p3;
+  u8 type;
+  s16 x;
+  s16 y;
+  s16 z;
+  u8 moved;
+  u8 q1;
+  u8 q2;
+  u8 new_var;
+  u8 key;
+  s32 v;
+  s32 idx;
+  s32 dir;
+  s32 off;
+  idx = (dir = ((PatrolState *) D_807FDC90)->unk25);
+  dir = dir & 0x80;
+  idx = idx & 0x7F;
+  key = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].a;
+  type = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].b;
+  off = key * 10;
+  x = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->x;
+  y = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->y;
+  z = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->z;
+  moved = (((((PatrolActorView *) D_807FBB40)->unk7C - x) * (((PatrolActorView *) D_807FBB40)->unk7C - x)) + ((((PatrolActorView *) D_807FBB40)->unk84 - z) * (((PatrolActorView *) D_807FBB40)->unk84 - z))) < ((f32) (((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->r * ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->r));
+  if (((arg1 & 1) && (((PatrolActorView *) D_807FBB40)->unk88 == ((PatrolActorView *) D_807FBB40)->unk7C)) && (((PatrolActorView *) D_807FBB40)->unk90 == ((PatrolActorView *) D_807FBB40)->unk84))
+  {
+    ((PatrolState *) D_807FDC90)->unk20++;
+    if ((((PatrolState *) D_807FDC90)->unk20++) > 0x10)
+    {
+      moved = 1;
+      ((PatrolState *) D_807FDC90)->unk20 = 0;
+    }
+  }
+  else
+  {
+    ((PatrolState *) D_807FDC90)->unk20 = 0;
+  }
+  switch (arg0)
+  {
+    case 0x49:
+      v = idx + 1;
+      key = (v < ((D1Dc9cViewG *) D_807FDC9C)->unk11) ? (v) : (0);
+      v = mathAngleBetweenPoints2D(((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[key].a * 10)))->x, ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[key].a * 10)))->z, x, z);
+      ((PatrolActorView *) D_807FBB40)->unkEE = v;
+      ((PatrolActorView *) D_807FBB40)->unkE6 = v;
 
-    idx = (dir = PATROL_STATE->unk25);
-    dir = dir & 0x80;
-    idx = idx & 0x7F;
-    key = ((D1Pair *)D1DC98G->unk20)[idx].a;
-    type = ((D1Pair *)D1DC98G->unk20)[idx].b;
-    off = key * 10;
-    x = PATROL_WAYPOINT(off)->x;
-    y = PATROL_WAYPOINT(off)->y;
-    z = PATROL_WAYPOINT(off)->z;
-    moved = ((PATROL_ACTOR->unk7C - x) * (PATROL_ACTOR->unk7C - x) + (PATROL_ACTOR->unk84 - z) * (PATROL_ACTOR->unk84 - z)) < (f32)(PATROL_WAYPOINT(off)->r * PATROL_WAYPOINT(off)->r);
-    if ((arg1 & 1) && PATROL_ACTOR->unk88 == PATROL_ACTOR->unk7C && PATROL_ACTOR->unk90 == PATROL_ACTOR->unk84) {
-        PATROL_STATE->unk20++;
-        if (PATROL_STATE->unk20++ > 0x10) {
-            moved = 1;
-            PATROL_STATE->unk20 = 0;
+    case 0x42:
+
+    case 0x5B:
+      ((PatrolState *) D_807FDC90)->unkA = x;
+      ((PatrolState *) D_807FDC90)->unkC = y;
+      ((PatrolState *) D_807FDC90)->unkE = z;
+      break;
+
+    case 2:
+
+    case 0x26:
+
+    case 0x60:
+      if (!moved)
+    {
+      x += 0;
+      ((PatrolState *) D_807FDC90)->unkA = x;
+      ((PatrolState *) D_807FDC90)->unkC = y;
+      ((PatrolState *) D_807FDC90)->unkE = z;
+    }
+    else
+      if (type == 6)
+    {
+      ((PatrolState *) D_807FDC90)->unk25 = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->unk8;
+    }
+    else
+      if ((idx + 1) < ((D1Dc9cViewG *) D_807FDC9C)->unk11)
+    {
+      ((PatrolState *) D_807FDC90)->unk25 = idx + 1;
+    }
+    else
+    {
+      ((PatrolState *) D_807FDC90)->unk25 = 0;
+    }
+      break;
+
+    case 3:
+      if (moved)
+    {
+      if (dir != 0)
+      {
+        if (idx > 0)
+        {
+          idx = (u8) (idx - 1);
         }
-    } else {
-        PATROL_STATE->unk20 = 0;
-    }
-    switch (arg0) {
-        case 0x49:
-            v = idx + 1;
-            key = (v < D1DC9CG->unk11) ? v : 0;
-            PATROL_ACTOR->unkEE = PATROL_ACTOR->unkE6 = mathAngleBetweenPoints2D(PATROL_WAYPOINT(((D1Pair *)D1DC98G->unk20)[key].a * 10)->x, PATROL_WAYPOINT(((D1Pair *)D1DC98G->unk20)[key].a * 10)->z, x, z);
-        case 0x42:
-        case 0x5B:
-            PATROL_STATE->unkA = x;
-            PATROL_STATE->unkC = y;
-            PATROL_STATE->unkE = z;
-            break;
-        case 2:
-        case 0x26:
-        case 0x60:
-            if (!moved) {
-                PATROL_STATE->unkA = x;
-                PATROL_STATE->unkC = y;
-                PATROL_STATE->unkE = z;
-            } else if (type == 6) {
-                PATROL_STATE->unk25 = PATROL_WAYPOINT(off)->unk8;
-            } else if (idx + 1 < D1DC9CG->unk11) {
-                PATROL_STATE->unk25 = idx + 1;
-            } else {
-                PATROL_STATE->unk25 = 0;
-            }
-            break;
-        case 3:
-            if (moved) {
-                if (dir != 0) {
-                    if (idx > 0) {
-                        idx = (u8)(idx - 1);
-                    } else {
-                        idx = (u8)(idx + 1);
-                        dir = 0;
-                    }
-                } else if (idx < D1DC9CG->unk11 - 1) {
-                    idx = (u8)(idx + 1);
-                } else {
-                    idx = (u8)(idx - 1);
-                    dir = 0x80;
-                }
-                PATROL_STATE->unk25 = dir | idx;
-            } else {
-                PATROL_STATE->unkA = x;
-                PATROL_STATE->unkC = y;
-                PATROL_STATE->unkE = z;
-            }
-            break;
-    }
-    idx = PATROL_STATE->unk25 & 0x7F;
-    if (moved) {
-        PATROL_STATE->unk1A |= 4;
-        switch (type) {
-            case 1:
-                new_var = ((D1Pair *)D1DC98G->unk20)[idx].a;
-                key = new_var;
-                PATROL_ACTOR->unkEE = PATROL_ACTOR->unkE6 = func_8072D08C();
-                PATROL_ACTOR->unk7C = PATROL_WAYPOINT(key * 10)->x;
-                PATROL_ACTOR->unk80 = PATROL_WAYPOINT(key * 10)->y;
-                PATROL_ACTOR->unk84 = PATROL_WAYPOINT(key * 10)->z;
-                break;
-            case 2:
-                PATROL_ACTOR->unk154 = 0x26;
-                PATROL_ACTOR->unk155 = 0;
-                break;
-            case 4:
-                PATROL_ACTOR->unk154 = 0x19;
-                PATROL_ACTOR->unk155 = 0;
-                PATROL_STATE->unk2C = PATROL_WAYPOINT(off)->unk8;
-                break;
-            case 5:
-                actorSetTargetSpeed(D_807FBB40, PATROL_WAYPOINT(off)->unk8);
-                return moved;
-            case 7:
-                PATROL_ACTOR->unk154 = 0x3B;
-                moved = 0;
-                break;
-            case 8:
-                PATROL_ACTOR->unk154 = 0x13;
-                PATROL_ACTOR->unk155 = 0;
-                break;
-            case 3:
-                if (PATROL_ACTOR->unk58 == 0xAF) {
-                    PATROL_ACTOR->unk154 = 0x37;
-                    PATROL_ACTOR->unk155 = 0;
-                }
-                D_80744508++;
-                PATROL_ACTOR->unk154 = 0x40;
-                break;
+        else
+        {
+          idx = (u8) (idx + 1);
+          dir = 0;
         }
-    } else {
-        PATROL_STATE->unk1A &= 0xFFFB;
+      }
+      else
+        if (idx < (((D1Dc9cViewG *) D_807FDC9C)->unk11 - 1))
+      {
+        idx = (u8) (idx + 1);
+      }
+      else
+      {
+        idx = (u8) (idx - 1);
+        dir = 0x80;
+      }
+      ((PatrolState *) D_807FDC90)->unk25 = dir | (idx & 0xFFFFFFFFFFFFFFFF);
     }
-    return moved;
+    else
+    {
+      ((PatrolState *) D_807FDC90)->unkA = x;
+      ((PatrolState *) D_807FDC90)->unkC = y;
+      ((PatrolState *) D_807FDC90)->unkE = z;
+    }
+      break;
+
+  }
+
+  idx = ((PatrolState *) D_807FDC90)->unk25 & 0x7F;
+  if (moved)
+  {
+    ((PatrolState *) D_807FDC90)->unk1A |= 4;
+    switch (type)
+    {
+      case 1:
+        new_var = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].a;
+        key = new_var;
+        v = func_8072D08C();
+        ((PatrolActorView *) D_807FBB40)->unkEE = v;
+        ((PatrolActorView *) D_807FBB40)->unkE6 = v;
+        ((PatrolActorView *) D_807FBB40)->unk7C = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (key * 10)))->x;
+        ((PatrolActorView *) D_807FBB40)->unk80 = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (key * 10)))->y;
+        ((PatrolActorView *) D_807FBB40)->unk84 = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (key * 10)))->z;
+        break;
+
+      case 2:
+        ((PatrolActorView *) D_807FBB40)->unk154 = 0x26;
+        ((PatrolActorView *) D_807FBB40)->unk155 = 0;
+        break;
+
+      case 4:
+        ((PatrolActorView *) D_807FBB40)->unk154 = 0x19;
+        ((PatrolActorView *) D_807FBB40)->unk155 = 0;
+        ((PatrolState *) D_807FDC90)->unk2C = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->unk8;
+        break;
+
+      case 5:
+        actorSetTargetSpeed(D_807FBB40, ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->unk8);
+        return moved;
+
+      case 7:
+        ((PatrolActorView *) D_807FBB40)->unk154 = 0x3B;
+        moved = 0;
+        break;
+
+      case 8:
+        ((PatrolActorView *) D_807FBB40)->unk154 = 0x13;
+        ((PatrolActorView *) D_807FBB40)->unk155 = 0;
+        break;
+
+      case 3:
+        if (((PatrolActorView *) D_807FBB40)->unk58 == 0xAF)
+      {
+        ((PatrolActorView *) D_807FBB40)->unk154 = 0x37;
+        ((PatrolActorView *) D_807FBB40)->unk155 = 0;
+      }
+        D_80744508++;
+        ((PatrolActorView *) D_807FBB40)->unk154 = 0x40;
+        break;
+
+    }
+
+  }
+  else
+  {
+    ((PatrolState *) D_807FDC90)->unk1A &= 0xFFFB;
+  }
+  return moved;
 }
 #else
 
