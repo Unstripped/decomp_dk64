@@ -781,7 +781,7 @@ extern s32 D_80750AB0;
 extern u16 D_807FC930[];
 extern u8 gPlayerCount;
 
-void eepromLoadPlayerData(u8 arg0, s32 arg1) { u8 *base; s32 i; u8 *entry; s32 j; s32 k; base = (u8 *)((u32)D_807FC950 | 0); if (base) {} // LAYOUT:
+void eepromLoadPlayerData(u8 arg0, s32 arg1) { u8 *base; s32 i; u8 *entry; s32 j; s32 k; base = (u8 *)((u32)D_807FC950 | 0); if (base) {} // LAYOUT: entry stmts on { line schedule addiu after lui; FAKE: `| 0` blocks address copy-propagation, dead if (base)
     entry = base;
     D_80750AC0 = 1;
     func_806C9AE0();
@@ -841,7 +841,7 @@ void eepromSavePlayerData(void) {
 
     if (gPlayerCount == 1) {
         if (func_80714394() != 0 || func_8071432C() != 0) {
-            base = (u8 *)((u32)D_807FC950 | 0);
+            base = (u8 *)((u32)D_807FC950 | 0); // FAKE: `| 0` keeps the base in a saved reg (blocks copy-propagation into @sym+off)
             entry = base;
             total = func_805FC98C();
             value = func_8060C724(D_807467C8);
