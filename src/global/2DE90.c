@@ -357,10 +357,10 @@ void screenBlurApply(void) {
                 r[idx] = vr;
                 vg = (pix >> 6) & 0x1F;
                 sumG -= g[idx];
+                g[idx] = vg;
                 sumG += vg;
                 vb = (pix >> 1) & 0x1F;
                 sumB -= b[idx];
-                g[idx] = vg;
                 b[idx] = vb;
                 idx++;
                 sumB += vb;
