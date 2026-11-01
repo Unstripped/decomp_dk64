@@ -487,10 +487,68 @@ void controllerAnimScaleInterpolate(AnimScaleController *arg0, s8 arg1) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613AF8.s")
+#ifdef NON_MATCHING
+typedef struct {
+    u8 pad0[0x4E];
+    s16 unk4E;
+} W3RingA_GlobalView;
 
+typedef struct {
+    u8 pad0[0x58];
+    s32 unk58;
+} W3RingA_ControllerStateView;
+
+extern u16 *D_807FBB58;
+struct ControllerStateView;
+void func_80613C48(struct ControllerStateView *, s16, f32, f32);
+
+void func_80613AF8(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+    s16 flag;
+    s16 index;
+    s32 value;
+
+    if (arg1 >= 0) {
+        flag = arg1 & 0x4000;
+        index = arg1 - flag;
+        if (gActivePlayerState && gActivePlayerState) {} // FAKE: dead test steers uopt
+        ((W3RingA_GlobalView *)gActivePlayerState)->unk4E = index;
+        value = ((W3RingA_ControllerStateView *)arg0)->unk58;
+        arg1 = D_807FBB58[(u32)(((index * 7 + value) - 2) & 0xFFFF)] + flag;
+    } else {
+        ((W3RingA_GlobalView *)gActivePlayerState)->unk4E = arg1;
+    }
+    func_80613C48(arg0, arg1, arg2, arg3);
+}
+#else
+
+#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613AF8.s")
+#endif
+
+
+#ifdef NON_MATCHING
+void controllerAnimSetState(struct ControllerStateView *, s16, f32, f32);
+
+void func_80613BA0(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+    s16 flag;
+    s16 index;
+    s32 value;
+
+    if (arg1 >= 0) {
+        flag = arg1 & 0x4000;
+        index = arg1 - flag;
+        if (gActivePlayerState && gActivePlayerState) {} // FAKE: dead test steers uopt
+        ((W3RingA_GlobalView *)gActivePlayerState)->unk4E = index;
+        value = ((W3RingA_ControllerStateView *)arg0)->unk58;
+        arg1 = D_807FBB58[(u32)(((index * 7 + value) - 2) & 0xFFFF)] + flag;
+    } else {
+        ((W3RingA_GlobalView *)gActivePlayerState)->unk4E = arg1;
+    }
+    controllerAnimSetState(arg0, arg1, arg2, arg3);
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613BA0.s")
+#endif
 
 typedef struct {
     void *unk0;

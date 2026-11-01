@@ -79,7 +79,6 @@ void func_806BD170(void) {
     }
 }
 
-#ifdef NON_MATCHING
 extern s16 D_8076A0A6;
 extern s8 D_807506B4;
 extern s8 D_807506A8[];
@@ -98,22 +97,22 @@ s32 sfxAllocateChannel(s32, f32);
 s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 void flagSet(s16, s32, s32);
 
-typedef struct NmBD3E4Ptr178 {
+typedef struct W3RingA_Ptr178 {
     /* 0x00 */ Actor *unk0;
-} NmBD3E4Ptr178;
+} W3RingA_Ptr178;
 
-typedef struct NmBD3E4Sub4 {
+typedef struct W3RingA_Sub4 {
     /* 0x00 */ u8 pad0[0x64];
     /* 0x64 */ u16 unk64;
-} NmBD3E4Sub4;
+} W3RingA_Sub4;
 
-typedef struct NmBD3E4Act178 {
+typedef struct W3RingA_Act178 {
     /* 0x000 */ u8 pad0[0x178];
-    /* 0x178 */ NmBD3E4Ptr178 *unk178;
-} NmBD3E4Act178;
+    /* 0x178 */ W3RingA_Ptr178 *unk178;
+} W3RingA_Act178;
 
 void func_806BD3E4(void) {
-    NmBD3E4Ptr178 *sp34 = ((NmBD3E4Act178 *)D_807FBB40)->unk178;
+    W3RingA_Ptr178 *sp34 = ((W3RingA_Act178 *)D_807FBB40)->unk178;
     f32 dx;
     f32 dz;
     u8 sp2B;
@@ -181,7 +180,7 @@ void func_806BD3E4(void) {
             break;
     }
     if (camIsCutsceneActive() == 0) {
-        if (((NmBD3E4Sub4 *)D_807FBB40->unk4)->unk64 != 0x2F0) {
+        if (((W3RingA_Sub4 *)D_807FBB40->unk4)->unk64 != 0x2F0) {
             actorScriptStart(D_807FBB40, 0x2F0);
         }
     }
@@ -197,6 +196,7 @@ void func_806BD3E4(void) {
                 sfxPlayOnFreeSlot(0x1DA, 0x7FFF, 63.0f, 1.0f, 5, 0);
                 flagSet(0x28, 1, 1);
                 flagSet(0x26, 1, 1);
+                if (D_807506B4 == -1) {} // FAKE: dead test triggers constant web for -1 in v0
                 D_807506B4 = -1;
             }
         } else {
@@ -206,21 +206,7 @@ void func_806BD3E4(void) {
     D_8076A0A6 = 0;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/C1E70/func_806BD3E4.s")
-#endif
-
-extern f32 D_807FC8D4;
-
-s32 func_806BDD2C(void);
-s32 actorScriptStart(void *, s32);
-void actorUpdateModelMatrix(void *, s32);
-s32 camStartPath(void *, s32, s32);
-s32 camIsCutsceneActive(void);
-s32 sfxAllocateChannel(s32, f32);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void flagSet(s16, s32, s32);
 
 typedef struct R1C0C1Ptr178 {
     /* 0x00 */ Actor *unk0;
