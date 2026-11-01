@@ -3055,37 +3055,37 @@ void func_80030A90(Menu10_Spinner *arg0, s32 arg1) {
 }
 
 #ifdef NON_MATCHING
-typedef struct MenuRgba {
+typedef struct MenuW2L_Rgba {
     u8 r;
     u8 g;
     u8 b;
     u8 a;
-} MenuRgba;
+} MenuW2L_Rgba;
 
-typedef struct MenuL5_Cfg {
+typedef struct MenuW2L_Cfg {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     s16 unkC[5];
     char padC[1];
     s8 unk17;
-} MenuL5_Cfg;
+} MenuW2L_Cfg;
 
-typedef struct MenuL5_Tgt {
+typedef struct MenuW2L_Tgt {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     f32 unkC;
     f32 unk10;
     f32 unk14;
-} MenuL5_Tgt;
+} MenuW2L_Tgt;
 
-typedef struct MenuL5_Actor {
+typedef struct MenuW2L_Actor {
     char pad0[0x340];
     f32 unk340;
     f32 unk344;
     char pad348[0x14];
-    MenuL5_Cfg *unk35C;
+    MenuW2L_Cfg *unk35C;
     f32 unk360;
     f32 unk364;
     char pad368[2];
@@ -3094,19 +3094,19 @@ typedef struct MenuL5_Actor {
     u8 unk36C;
     u8 unk36D;
     char pad36E[0x16];
-    MenuL5_Tgt *unk384;
+    MenuW2L_Tgt *unk384;
     char pad388[6];
     s16 unk38E;
     char pad390[2];
     s16 unk392;
-} MenuL5_Actor;
+} MenuW2L_Actor;
 
-extern MenuRgba D_800337DC[];
+extern MenuW2L_Rgba D_800337DC[];
 s32 func_8003155C(void *, s32, f32 *, f32 *, f32 *, s16 *, s16 *);
 
-void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
-    MenuL5_Cfg *p = arg0->unk35C;
-    MenuL5_Tgt *c;
+void func_80030C14(MenuW2L_Actor *arg0, u8 *arg1) {
+    MenuW2L_Cfg *p = arg0->unk35C;
+    MenuW2L_Tgt *c;
     f32 f;
     f32 sp68;
     f32 sp64;
@@ -3273,6 +3273,7 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 sp68 = 65.0f;
                 break;
             case 3:
+                if (arg0 && arg0 && arg0) {} // FAKE: lowers idx colouring priority below the case-15 address temps
                 sp4C = 3;
                 sp64 = 1365.0f;
                 sp68 = 55.0f;
@@ -3283,7 +3284,9 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
                 sp68 = 50.0f;
                 break;
             }
-            idx = idx * (s32)sp64 - p->unk17 * (s32)sp64 - (s32)(p->unk4 * sp64);
+            idx *= (s32)sp64;
+            idx -= p->unk17 * (s32)sp64;
+            idx -= (s32)(p->unk4 * sp64);
             t = (s16)idx;
             arg0->unk340 = 160.0f - func_80612794(t) * sp68;
             arg0->unk344 = 120.0f - func_80612790(t) * sp68;
@@ -3299,13 +3302,14 @@ void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
             arg0->unk364 = arg0->unk360;
             break;
         }
-        case 15: {
+                case 15: {
             idx = (s32)c->unk8;
             arg0->unk340 = D_80033F68[idx];
             arg0->unk344 = D_80033F80[idx];
             arg0->unk360 = D_80033F98[idx];
-            arg0->unk364 = D_80033F98[idx];
             D_80033F68[idx] = -200.0f;
+            if (arg0) {} // FAKE: lowers the two later case-15 address temps below idx
+            arg0->unk364 = D_80033F98[idx];
             D_80033F80[idx] = -200.0f;
             if (*(&D_80033804 + idx) == 0) {
                 arg0->unk36A = *((u8 *)D_800337DC + (idx << 2));

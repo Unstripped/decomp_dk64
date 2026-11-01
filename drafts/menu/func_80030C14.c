@@ -1,35 +1,35 @@
-// func_80030C14 (src/menu/3E10.c): stage 6 (parked NON_MATCHING): harness diff 33 -> 2 lines (one store order). Text/frame/regs identical; only 'swc1 f0,0(v1)' (D_80033F68[idx]=-200) is emitted before the 2nd D_80033F98[idx] load instead of after the unk364 store. Cause: the regalloc fix needs E (F68 store) BEFORE the dead 'if (arg0) {}' and D (unk364=F98[idx]) AFTER it so the F80/F98 address temps (298/301) drop to adjsave 1.5 while F68's (295) stays 3.0 (colour order 295, idx(2.4), 298, 301 -> v1,a1,a0,a2 = target); in target source order (D before E) as1 keeps E after D. Recipe: (1) idx *= (s32)sp64; idx -= ...; idx -= ... sequential (no temp for the first product); (2) FAKE 'if (arg0 && arg0 && arg0) {}' in inner case 3 lowers idx priority 3.0->2.4; (3) case 15 order A B C E [FAKE if (arg0) {}] D F. Not tried: any source form that keeps D before E but still gives adj(298)=adj(301)<adj(idx)<adj(295). No other dead stmts left.
-typedef struct MenuRgba {
+// func_80030C14 (src/menu/3E10.c): func_80030C14 (src/menu/3E10.c): stage 6 (parked NON_MATCHING): full=2 text=2 reloc=0 shape=2 (expected 640 lines, got 640). One store order difference: swc1 f0,0(v1) (D_80033F68[idx]=-200.0f) is emitted at 96c0 before lwc1 f8,0(a2) instead of at 96d0 after swc1 f8,868(s0). Text/frame/regs 100% identical (v1, a0, a1, a2); moving record 1044 past 1052 in t.G gives full=0 text=0. Natural source order A B C D E F puts store order at 96d0 correctly but flips a1<->a2 (full=13) because F98 (305) has adjsave 3.0 vs idx (239) adjsave 2.4.
+typedef struct MenuW2L_Rgba {
     u8 r;
     u8 g;
     u8 b;
     u8 a;
-} MenuRgba;
+} MenuW2L_Rgba;
 
-typedef struct MenuL5_Cfg {
+typedef struct MenuW2L_Cfg {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     s16 unkC[5];
     char padC[1];
     s8 unk17;
-} MenuL5_Cfg;
+} MenuW2L_Cfg;
 
-typedef struct MenuL5_Tgt {
+typedef struct MenuW2L_Tgt {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     f32 unkC;
     f32 unk10;
     f32 unk14;
-} MenuL5_Tgt;
+} MenuW2L_Tgt;
 
-typedef struct MenuL5_Actor {
+typedef struct MenuW2L_Actor {
     char pad0[0x340];
     f32 unk340;
     f32 unk344;
     char pad348[0x14];
-    MenuL5_Cfg *unk35C;
+    MenuW2L_Cfg *unk35C;
     f32 unk360;
     f32 unk364;
     char pad368[2];
@@ -38,19 +38,19 @@ typedef struct MenuL5_Actor {
     u8 unk36C;
     u8 unk36D;
     char pad36E[0x16];
-    MenuL5_Tgt *unk384;
+    MenuW2L_Tgt *unk384;
     char pad388[6];
     s16 unk38E;
     char pad390[2];
     s16 unk392;
-} MenuL5_Actor;
+} MenuW2L_Actor;
 
-extern MenuRgba D_800337DC[];
+extern MenuW2L_Rgba D_800337DC[];
 s32 func_8003155C(void *, s32, f32 *, f32 *, f32 *, s16 *, s16 *);
 
-void func_80030C14(MenuL5_Actor *arg0, u8 *arg1) {
-    MenuL5_Cfg *p = arg0->unk35C;
-    MenuL5_Tgt *c;
+void func_80030C14(MenuW2L_Actor *arg0, u8 *arg1) {
+    MenuW2L_Cfg *p = arg0->unk35C;
+    MenuW2L_Tgt *c;
     f32 f;
     f32 sp68;
     f32 sp64;
