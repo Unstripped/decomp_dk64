@@ -2339,7 +2339,9 @@ void func_806CEFBC(G05CbArg *arg0) {
     s32 sp30;
 
     func_806CF2EC(&sp34, &sp30);
+    if (arg0->unk8->unk7C) {} // FAKE: dead test steers uopt coloring
     actorGetNodePos(arg0->unk4, sp34, &sp60, &sp58, &sp50);
+    if (arg0->unk8->unk80) {} // FAKE: dead test steers uopt coloring
     actorGetNodePos(arg0->unk4, sp30, &sp64, &sp5C, &sp54);
     sp4C = (sp64 + sp60) / 2;
     if (sp4C == 0.0f) {} // FAKE: dead test steers uopt coloring
@@ -2349,6 +2351,7 @@ void func_806CEFBC(G05CbArg *arg0) {
     sp3C = (sp48 - arg0->unk8->unk80) * arg0->unk0 + arg0->unk8->unk80;
     sp38 = (sp44 - arg0->unk8->unk84) * arg0->unk0 + arg0->unk8->unk84;
     func_8067A70C(arg0->unk4, arg0->unk8, sp40, sp3C, sp38, 2, 1);
+    if (sp48) {} // FAKE: dead test steers uopt coloring
     if (sp44) {} // FAKE: dead test steers uopt coloring
 }
 #else
@@ -2420,11 +2423,14 @@ void func_806CF138(G05CbArg2 *arg0) {
     sp54 = asinApprox(sp5C / sp58) * 57.29577637f;
     sp48 = func_80612794(arg0->unk0->unkE6) * 50.0f;
     sp4C = func_80612790(arg0->unk0->unkE6) * 50.0f;
+    if (sp6C) {} // FAKE: dead test steers uopt coloring
     sp40 = sp74 - sp70;
+    if (sp68) {} // FAKE: dead test steers uopt coloring
     sp44 = sp64 - sp60;
     sp3C = sp44 * sp4C + sp48 * sp40;
-    sp38 = sqrtf(sp4C * sp4C + sp48 * sp48);
+    sp38 = sqrtf(sp48 * sp48 + sp4C * sp4C);
     sp34 = sqrtf(sp44 * sp44 + sp40 * sp40);
+    if (sp4C) {} // FAKE: dead test steers uopt coloring
     if (sp4C) {} // FAKE: dead test steers uopt coloring
     func_8067AA58(arg0->unk0, arg0->unk4, sp54, 90.0 - acosApprox(sp3C / (sp38 * sp34)) * 57.29577637f);
 }
