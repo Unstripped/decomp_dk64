@@ -1,4 +1,4 @@
-// renderEntryListSortByDistance (src/global/35000.c): stage 5 (OlR2e revisit): park body unchanged, text diff = 5 insns, last block (if inserted==0) temps t6,t7,t8 vs expected t7,t8,t9 = ONE invisible ugen ring alloc missing after the arm's t5. Single-step dead-if sweeps (140 forms x all positions), no-op wrapper sweep (0,X)/+0/?:, statement respellings, loop while/for/do variants (identical code), 420s permuter: all stay 5. Only 'cur->unk18 = cur->unk18;' (or node->unk18 = cur->unk18; node->unk18 = node->unk18;) before 'node->unk18 = cur->unk18' shifts the ring to t7..t9 but emits an extra sw (diff 1); no code-free ring shifter found.
+// renderEntryListSortByDistance (src/global/35000.c): stage 5: 5 insns diff (t6,t7,t8 vs t7,t8,t9 in if (inserted==0)). Ring trace confirms all 9 preceding t-allocs (t6,t7,t8,t9,t1,t2,t3,t4,t5) match exactly. Only t6 was skipped between line 187 and line 206 without being emitted; cur->unk18 = cur->unk18; reaches diff 1 by shifting ring to t7..t9 but emits an extra sw.
 typedef struct RenderEntry RenderEntry;
 struct RenderEntry {
     /* 0x00 */ s32 unk0;

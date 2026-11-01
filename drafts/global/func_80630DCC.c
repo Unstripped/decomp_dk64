@@ -1,4 +1,4 @@
-// func_80630DCC (src/global/35000.c): stage 5, parked NON_MATCHING: frame 0xE0, stack offsets and callee-saved set exact. Remaining diff: size block computation sinking before dy<0.01 branch
+// func_80630DCC (src/global/35000.c): stage 5, parked NON_MATCHING: frame 0xE0, stack offsets and callee-saved set exact. Remaining diff: size block computation sinking before dy<0.01 branch and FP regalloc shifts throughout
 typedef struct ModelInfo {
     /* 0x00 */ u8 pad0[0x38];
     /* 0x38 */ f32 unk38;
