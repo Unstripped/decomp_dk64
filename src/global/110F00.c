@@ -382,7 +382,6 @@ void mtxLookDirL(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4) {
     guMtxF2L(sp20.m, arg1);
 }
 
-#ifdef NON_MATCHING
 void func_8070D07C(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
     f32 padtop[3]; // FAKE: pad words steer the frame size
     f32 t;
@@ -426,6 +425,7 @@ void func_8070D07C(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 a
         m20 = -arg2;
         m22 = -arg4;
     }
+    m00 = m00;  // FAKE: extra .loc record shifts ugen's homed arg7 reload by one store
     arg0->m[0][0] = m00;
     arg0->m[1][0] = m10;
     arg0->m[2][0] = m20;
@@ -435,7 +435,6 @@ void func_8070D07C(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 a
     arg0->m[2][1] = m21;
     arg0->m[0][2] = m02;
     arg0->m[3][1] = -arg6;
-    arg1->m[2][3] = 0.0f;
     arg0->m[1][2] = m12;
     arg0->m[2][2] = m22;
     arg0->m[0][3] = 0.0f;
@@ -458,11 +457,8 @@ void func_8070D07C(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 a
     arg1->m[1][3] = 0.0f;
     arg1->m[3][2] = (arg5 * m20) + (arg6 * m21) + (arg7 * m22);
     arg1->m[3][3] = 1.0f;
+    arg1->m[2][3] = 0.0f;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070D07C.s")
-#endif
 
 void mtxLookDirPosL(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
     Mat4F sp68;
