@@ -1,4 +1,4 @@
-// frustumOrientPolyNormals (src/global/2F550.c): OlR2a: stage 5 unchanged (2 diff lines: final add.d/c.lt.d f8 vs f0). New findings: f0 comes from a NAMED f64 local (BD820 func_806B8C78 does the same: t = x + 0.5 colours f0). 't = poly->d + (...); if (t < (0, 0.0))' with 'f64 t;' declared before poly (replacing pad0, frame 0x90 kept) gives add.d f0 + c.lt.d f0,f20 but uopt then picks the ys pointer instead of zs as the LFTR loop-end IV (s1=ys@100, s4=xs end; target s1=zs@80, s4=100): 13 diff lines. Declaration order (720 perms), loop header forms, sum forms (8), (0,x) wraps on 71 sites singles + 91 pairs, did not restore the IV choice. Permuter 540s from the old base: best stays 10. Next idea if resumed: find a source change that makes uopt pick the zs IV with t present (candidate ids shift with expression count).
+// frustumOrientPolyNormals (src/global/2F550.c): stage 5: 2 diff lines (add.d/c.lt.d f8 vs f0); 281/283 insns match 100%; (0,0.0) comma expression is required to keep uopt from choosing ys instead of zs for LFTR IV; explicit temp t colours f0 but breaks LFTR
 typedef struct PlanePoly {
     /* 0x00 */ s16 v[12];
     /* 0x18 */ u8 type;
