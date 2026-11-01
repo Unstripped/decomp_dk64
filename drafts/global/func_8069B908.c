@@ -1,10 +1,12 @@
-// func_8069B908 (src/global/9DD70.c): stage 4: .text size 20896 = target, frame 0x140, saved s0/s1/f20 match, stack offsets match (s=1). Remaining ~51 diff lines: uopt hoists sp13C load (t0) and const 1 (t1) from 0x3F-loop preheader through the switch (target reloads lw 0x13c(sp), li at,1/addiu a3,1); case 10 lwc1 order; rodata 352 vs 320 not yet checked after changes. Key tricks: spB0 *=30; spB0 +=30 as 2 statements gives f20; guRotateF zero args as 0.0 (double) so 0.0f is not a candidate and 4095.0 gets f20; loop without if-guard; named f32 dx/dy/dz replace padB[3]; lightAdd int 0 4th arg; callee names randomNonNegative/actorSpawnNodeEntryScaled/camStartShake
+// func_8069B908 (src/global/9DD70.c): SagWave2: stage 4, frame 0x140 / s0,s1,f20 match; deadsweep score 685 (was 835 on the same park). Win: loop test 'D_807FBB70.unk258[i] - 1 == 0' (const 1 no longer a hoisted t1 candidate; ring realigned; was ~ -150 lines). ROOT CAUSE of rest (uopt -l5/-l6, parse6): the 0x3F loop's single sp13C->unk2A store makes lr 603 (sp13C, t0, adjsave 1.29, forbidden v0-a3) a piece loop->dispatch->cases 1,2,3,5,10 (one 'lw t0,316(sp)' before the loop and one at the join); target has NO such piece (loop reloads lw t5,0x13c(sp) in the delay slot, each case loads sp13C at its own first use, only case 10 uses t0 (lw t0 at case start), case 5 v1). Removing the loop's sp13C use removes the piece (563, ring then differs only by the 3 loop temps) so the loop use weight/cost is the lever. Also early sp13C reloads are lw v0 in target vs a2 here, and switch selector lbu a0/move v1 (target) vs lbu v1/move v0. Tried w/o effect: statement order, casts, ==1/-1==0/!(x-1)/^1, for/while/do, *(u16*), struct/union/array sp13C, selector casts/local, void<->s32 on all 31 callees, ~100 deadsweep/hill-climb dead tests (best single: 'if (D_807FBB40 && D_807FBB40) {}' after 'spAC *= 30.0f;' = 580; 100 fakes reach 437, rejected), natural-spelling hill-climb 15k.
+#include "common.h"
+#include "actor.h"
+
 extern Actor *D_807FBB40;
 extern ActorGlobalState D_807FBB70;
 extern s32 D_8076A068;
-s32 flagGet(s32, s32);
 
-typedef struct L3b_Sub174 {
+typedef struct ActorSub174View {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -18,66 +20,54 @@ typedef struct L3b_Sub174 {
     /* 0x28 */ u8 unk28;
     /* 0x29 */ u8 pad29[1];
     /* 0x2A */ u16 unk2A;
-} L3b_Sub174;
+} ActorSub174View;
 
-typedef struct L3b_Sub124 {
+typedef struct ActorSub124View {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ s32 unk4;
-} L3b_Sub124;
+} ActorSub124View;
 
-typedef struct L3b_NameTable {
+typedef struct ActorNamePair {
     /* 0x0 */ s32 unk0;
     /* 0x4 */ s32 unk4;
-} L3b_NameTable;
+} ActorNamePair;
 
-extern s32 D_8076A0A8;
-extern Actor *D_807FBB4C;
 extern Actor *D_807FBB98;
 extern u8 D_807FBB85;
 extern u8 D_807FBB94;
 extern u8 D_807FBB95;
 extern u8 D_807FBB9C;
-extern u8 D_807FBD70;
 extern u8 D_807FBDC4;
 extern f32 D_807FBC60;
 extern f32 D_807FBC64;
 extern s16 D_807502D0;
 extern f32 D_807502E4;
 extern u8 D_80720340;
-extern L3b_NameTable D_807503A4;
+extern ActorNamePair D_807503A4;
 
 s32 actorHasActiveMovementFlags(Actor *);
 s32 actorListFindIdByActor(Actor *);
 void actorListSetPosByActor(Actor *, f32, f32, f32);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, s32);
 void actorApplyVelocity(Actor *);
-void actorDespawn(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
-void func_806791DC(Actor *, s32);
-void func_806791EC(Actor *, s32);
-void func_8067A170(void *, s32);
-void func_8067ACB4(Actor *);
+void actorCallbackMaskEnable(Actor *, s32);
+void actorCallbackMaskDisable(Actor *, s32);
+void actorCollisionEventsCancel(void *, s32);
 void func_8068A2FC(Actor *);
 void func_806CF4B8(Actor *);
-void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxSetVolumeAndPan(u8, f32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 s32 actorAngleInArc(Actor *, s16);
 f32 randomFloat(void);
-void func_80714950(s32);
 void func_8071496C(s16);
-void func_8071498C(void *);
 void func_80714998(s32);
-void func_807149FC(s32);
-s32 func_80714CC0(void *, f32, f32, f32, f32);
 void camStartShake(s32, s32, s32);
-void func_8065D254(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_8071A8B0(void);
-void func_80717D4C(void);
 void effectTumbleBounceUpdate(void);
 
 void func_8069B908(void) {
-    L3b_Sub174 *sp13C;
+    ActorSub174View *sp13C;
     f32 mtxA[4][4];
     f32 mtxB[4][4];
     f32 dx;
@@ -86,7 +76,7 @@ void func_8069B908(void) {
     f32 spAC;
     f32 spB0;
     f32 spA4;
-    L3b_NameTable sp9C;
+    ActorNamePair sp9C;
     s32 i;
     s32 var_v0;
     s16 ang;
@@ -108,14 +98,14 @@ void func_8069B908(void) {
             *(u8 *)((u8 *)D_807FBB40 + 0x155) = 1;
             sp13C->unk1C = 0x1E;
         }
-        sp13C->unk28 = ((L3b_Sub124 *)D_807FBB40->unk124)->unk0;
+        sp13C->unk28 = ((ActorSub124View *)D_807FBB40->unk124)->unk0;
         if (sp13C->unk28 != 0) {
             sp13C->unk4 = D_807FBB40->unk7C;
             sp13C->unk8 = D_807FBB40->unk80;
             sp13C->unkC = D_807FBB40->unk84;
             sp13C->unk10 = D_807FBB40->unk4->unk34 / 0.15;
         }
-        if (((L3b_Sub124 *)D_807FBB40->unk124)->unk4 == 1) {
+        if (((ActorSub124View *)D_807FBB40->unk124)->unk4 == 1) {
             D_807FBB40->unk132 = 2;
         } else {
             D_807FBB40->unk132 = 1;
@@ -145,8 +135,8 @@ void func_8069B908(void) {
     if (D_807FBB94 != 0) {
         sp13C->unk14 = D_807FBB98;
         D_807FBB40->unk154 = 1;
-        func_806791EC(D_807FBB40, 0x8000);
-        func_8067A170(sp13C->unk14, 1);
+        actorCallbackMaskDisable(D_807FBB40, 0x8000);
+        actorCollisionEventsCancel(sp13C->unk14, 1);
         D_807FBB40->unk144 = 0x2C;
     }
     if (D_807FBB95 != 0) {
@@ -154,7 +144,7 @@ void func_8069B908(void) {
         *(u8 *)((u8 *)D_807FBB40 + 0x155) = 0;
         sp13C->unk1C = 0x1E;
         D_807FBB40->unk144 = 0x3C;
-        func_806791DC(D_807FBB40, 0x8000);
+        actorCallbackMaskEnable(D_807FBB40, 0x8000);
         if (D_8076A0A8 == 7 && actorListFindIdByActor(D_807FBB40) == 0x17) {
             actorListSetPosByActor(D_807FBB40, D_807FBB40->unk7C, D_807FBB40->unkA4, D_807FBB40->unk84);
         }
@@ -173,12 +163,12 @@ void func_8069B908(void) {
     if (D_807FBB9C != 0) {
         D_807FBB40->unk154 = 3;
         D_807FBB40->unk144 = 0x3C;
-        func_806791DC(D_807FBB40, 0x8000);
+        actorCallbackMaskEnable(D_807FBB40, 0x8000);
         D_807FBB40->unkE6 = *(s16 *)((u8 *)&D_807FBB70 + 0x36);
         *(s16 *)((u8 *)D_807FBB40 + 0xEE) = *(s16 *)((u8 *)&D_807FBB70 + 0x36);
         *(f32 *)((u8 *)D_807FBB40 + 0xC0) = *(f32 *)((u8 *)&D_807FBB70 + 0x30);
         D_807FBB40->unkB8 = (f32)*(s16 *)((u8 *)&D_807FBB70 + 0x34);
-        func_8067A170(sp13C->unk14, 1);
+        actorCollisionEventsCancel(sp13C->unk14, 1);
         if (D_807FBB40->unk58 == 0x43 && D_8076A0A8 == 0x1E) {
             D_807FBB40->unk60 |= 0x200000;
             sp13C->unk0 = D_8076A068;
@@ -195,7 +185,7 @@ void func_8069B908(void) {
     if (D_807FBB40->unk58 == 0x3F || D_807FBB40->unk58 == 0x40 ||
         D_807FBB40->unk58 == 0x41 || D_807FBB40->unk58 == 0x42) {
         for (i = 0; i < D_807FBDC4; i++) {
-            if (D_807FBB70.unk258[i] == 1) {
+            if (D_807FBB70.unk258[i] - 1 == 0) {  // FAKE: `- 1 == 0` keeps const 1 from becoming a hoisted typed-constant candidate (target: li at,1 inside the loop)
                 sp13C->unk2A = 0;
                 D_807FBB40->unk154 = 5;
             }

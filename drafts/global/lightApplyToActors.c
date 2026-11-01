@@ -1,4 +1,4 @@
-// lightApplyToActors (src/global/5E2F0.c): stage 4 (frame 0x158, callee-saved s0-s8/f20-f30 identical, prologue identical); regs/scheduling only: target keeps dx/dy/dz (0x134..) and aX/aY/aZ (0x124..) memory-resident (store after use, reload after call, forwarded inside block 1) while dirX/Y/Z take fs3-5; mine colours dx..dz instead of dirXYZ and spills dirXYZ. ~1230 insns vs 1240. Structure now matches: i/j loops, continue forms, alpha f32 var, dist<0.0 double, spC as f32[2] (aliasing reload of actor->unk4).
+// lightApplyToActors (src/global/5E2F0.c): lightApplyToActors (src/global/5E2F0.c): stage 4 (frame 0x158, prologue, stack layout dx/dy/dz 0x134, aX.. 0x124, scale 0x10C, angle 0x10A, spC8 0xC8 all identical; f20-f30 colouring dist/dot/scale/dirXYZ identical; 1241 insns vs 1240). Levers found: (1) angleRatio and scale are ONE variable (scale = y/dist2d; fix sign; scale = unk15E*0.4/scale); (2) decl order i,actorIdx,lightCount,light,actor,dot,dz,dy,dx,dist,aZ,aY,aX,dirZ,dirY,dirX,dist2d,maxDist,scale,angle,spC8,spC,innerDist,range,distFromInner,factor,alpha (arrays BEFORE the trailing unreferenced scalars so those get no slot); (3) dx/dy/dz must have LOW uopt priority (tail dead reads 'if (dx) {}' at function end = huge live range gives target colouring f0/f2/f14 split + memory home; natural cause unknown, original probably has a use-before-def path). Remaining diff: dy/dz colour order (mine dx f0, dz f2, dy f14; target dx f0 dy f2 dz f14 -> add refs to dy/dz priority ties), zero-const web (target keeps 0.0 in f22 across both dist==0.0f compares; mine rematerialises mtc1), as1 scheduling of the first sub/lwc1 group; later hunks (inner dist2d block, else branch) untouched. Fakes: tail dx/dy/dz reads + if (dist) {} in dot<0 block.
 #include "common.h"
 #include "actor.h"
 
@@ -46,22 +46,27 @@ void lightApplyToActors(void) {
     LightVolume *light;
     Actor *actor;
     f32 dot;
+    f32 dz;
+    f32 dy;
+    f32 dx;
+    f32 dist;
+    f32 aZ;
+    f32 aY;
+    f32 aX;
+    f32 dirZ;
+    f32 dirY;
+    f32 dirX;
+    f32 dist2d;
+    f32 maxDist;
     f32 scale;
     s16 angle;
-    f32 dist2d;
-    f32 angleRatio;
-    f32 dx, dy, dz;
-    f32 dirX, dirY, dirZ;
-    f32 aX, aY, aZ;
-    f32 dist;
-    f32 maxDist;
+    u8 spC8[64];
+    f32 spC[2];
     f32 innerDist;
     f32 range;
     f32 distFromInner;
     f32 factor;
     f32 alpha;
-    u8 spC8[64];
-    f32 spC[2];
 
     lightCount = 0;
     for (i = 0; i < gActiveActorCount; i++) {
@@ -108,6 +113,7 @@ void lightApplyToActors(void) {
                                 dot = (aZ * dirZ) + ((aX * dirX) + (aY * dirY));
                                 if (dot < 0.0f) {
                                     dot = 0.0f;
+                                    if (dist) {}  // FAKE: dist priority/colour order
                                 }
                                 if (dot >= light->unkC) {
                                     if (dot >= light->unk4) {
@@ -126,14 +132,14 @@ void lightApplyToActors(void) {
                                         dx = light->x - actor->unk7C;
                                         dist = sqrtf((dz * dz) + (dx * dx));
                                         dist2d = (dist != 0.0f) ? dist : 0.001f;
-                                        angleRatio = (light->y - actor->unk80) / dist2d;
-                                        if (!(angleRatio > 0.0f)) {
-                                            angleRatio = -angleRatio;
+                                        scale = (light->y - actor->unk80) / dist2d;
+                                        if (!(scale > 0.0f)) {
+                                            scale = -scale;
                                         }
-                                        if (angleRatio == 0.0f) {
-                                            angleRatio = 0.1f;
+                                        if (scale == 0.0f) {
+                                            scale = 0.1f;
                                         }
-                                        scale = ((f32)actor->unk15E * 0.4f) / angleRatio;
+                                        scale = ((f32)actor->unk15E * 0.4f) / scale;
                                         angle = mathAngleBetweenPoints2D(light->x, light->z, actor->unk7C, actor->unk84);
                                         if (actor->unk4 != NULL) {
                                             spC[0] = actor->unk4->unk34;
@@ -170,14 +176,14 @@ void lightApplyToActors(void) {
                                 if (dist2d == 0.0f) {
                                     dist2d = 1.0f;
                                 }
-                                angleRatio = (light->y - actor->unk80) / dist2d;
-                                if (!(angleRatio > 0.0f)) {
-                                    angleRatio = -angleRatio;
+                                scale = (light->y - actor->unk80) / dist2d;
+                                if (!(scale > 0.0f)) {
+                                    scale = -scale;
                                 }
-                                if (angleRatio == 0.0f) {
-                                    angleRatio = 0.1f;
+                                if (scale == 0.0f) {
+                                    scale = 0.1f;
                                 }
-                                scale = ((f32)actor->unk15E * 0.4f) / angleRatio;
+                                scale = ((f32)actor->unk15E * 0.4f) / scale;
                                 angle = mathAngleBetweenPoints2D(light->x, light->z, actor->unk7C, actor->unk84);
                                 if (scale > 10.0f) {
                                     scale = 10.0f;
@@ -258,4 +264,7 @@ void lightApplyToActors(void) {
             }
         }
     }
+    if (dx) {}  // FAKE: extends live range (priority of dx/dy/dz below dirXYZ)
+    if (dy) {}  // FAKE: extends live range (priority of dx/dy/dz below dirXYZ)
+    if (dz) {}  // FAKE: extends live range (priority of dx/dy/dz below dirXYZ)
 }
