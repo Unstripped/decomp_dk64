@@ -1,4 +1,27 @@
-// func_8002AED8 (src/bonus/2690.c): stage 6 (R3d wave 3), 12 diff lines unchanged (needs controllerApplyMotionWindow f32 proto, BonusDBE44Anim.unk4 f32, LargeB4Player/Ctrl/D_807FBB4C/lightSetColor/lightAdd decls hoisted above). Only diff: const 80.0f cand gets f12 (target f2) and k=80.0f/d udiv cand 315 gets f2 (target f16). Colouring order: 315 (adj 3.0, ties 168/176/186 in index order) before const 367 (adj 0.5) so 315 takes f2. FP ring is only {f4,f6,f8,f10} (f2/f12/f14/f16/f18 are webs), so target k=f16 is a COLOURED web whose forbidden set holds f2,f12,f14 (like sp6C cand 174, f16, forb [f0 f2 f12 f14 f20 f22] from neighbours 168/176/186) - i.e. k probably shares sp6C's candidate or neighbours three f2/f12/f14 webs, but sp6C=80.0f/d is forwarded into an expression cand (trace identical). Tried this pass (no change): reuse d / sp6C / named lim; k f64; function-level k,d at every decl position; swapped stores; k twice; if/else; (0,x); goto/do{}while/if(0)/switch(0) block splits (cfe drops them); dead ifs on every global/local at every statement in the tail (621 combos); dead int if on loop var changes unrelated webs (198 lines).
+// func_8002AED8 (src/bonus/2690.c): func_8002AED8 (src/bonus/2690.c): stage 6, 5 text diff lines (deadsweep score full=5 text=5 shape=0; was ~12): ONLY regs differ: const 80.0f web gets f12 (target f2) and k=80.0f/d expr cand 315 gets f2 (target f16). Needs in the copy: proto controllerApplyMotionWindow(void *, void *, f32) (src/bonus/2690.c:203, was s32; func_8002BE44 still scores 0 with it) + BonusDBE44Anim.unk4 f32, and the LargeB4Player/LargeB4Ctrl/D_807FBB4C/gPlayerSlots/D_807ECDEC/lightSetColor/lightAdd block HOISTED above func_8002AED8 (moved from above func_8002BF98); callees bonusEndLose(0,1)/bonusEndWin(0,0) (not func_800265C0/800264E0). Trace: colour idx 25=f2 26=f12 27=f14 28=f16; 315 (adj 3.0) coloured before const 367 (adj 0.5) and takes 25; target needs 315 forbidden {25,26,27} like sp6C cand 174 (f16, its forb comes from bb38 webs 168/176/186 = fv1/t->unk10/t->unk14 loads) - i.e. k must interfere with them or 367 colour first AND f12/f14 be taken. Tried this unit (no gain): fp-field dead tests (> 0.0f, < 80.0f, == 80.0f on t->unk*/fs0/fs1/sp6C/sp68->unk4/LB5->unk*; deadsweep 11040 variants), sp6C reuse for k / d (5, same), 384 spellings of the tail (fs0/fs1 order, sum order, 80<d, k decl split, mul/div operand order, store order), function-level k (in padz slot) with dead tests after the later calls (k gets f2 + spill, 6-13), k at function scope extra slot (+8 frame).
+typedef struct {
+    char pad0[0x210];
+    f32 unk210;
+    f32 unk214;
+    f32 unk218;
+    char pad21C[0x7C];
+    u16 *unk298;
+    char pad29C[0x2C];
+    s16 unk2C8;
+    char pad2CA[0x26];
+} LargeB4Player;
+
+typedef struct {
+    char pad0[2];
+    s8 unk2;
+    s8 unk3;
+} LargeB4Ctrl;
+
+extern Actor *D_807FBB4C;
+extern LargeB4Player *gPlayerSlots;
+extern LargeB4Ctrl *D_807ECDEC;
+void lightSetColor(f32, f32, f32, s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 typedef struct {
     char pad0[4];
     f32 unk4;
@@ -245,9 +268,9 @@ void func_8002AED8(void) {
     case 5:
     case 6:
         if (LB5->unk154 == 6) {
-            func_800265C0(0, 1);
+            bonusEndLose(0, 1);
         } else {
-            func_800264E0(0, 0);
+            bonusEndWin(0, 0);
         }
         camStartPath(0, 1, 0x11);
         LB5->unk154 = 7;
