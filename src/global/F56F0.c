@@ -1710,7 +1710,7 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
     s32 eq;
     f32 dx;
     f32 dz;
-    s32 close;
+    u8 close;
     u8 flags;
     s16 pitchT;
 
@@ -1719,19 +1719,20 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
     blend = 0.2f;
     next = F5L1_WP + 1;
     speed = (u32)cur->speed * 0.7;
-    close = 0;
     dx = F5L1_TGTA->unk7C - next->x;
     dz = F5L1_TGTA->unk84 - next->z;
-    if (dx * dx + dz * dz < 100.0f) {
-        close = 1;
-    }
-    close &= 0xFF; // FAKE: andi + move of the close flag
+    close = dx * dx + dz * dz < 100.0f;
+    if (close) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     flags = D_807FD716;
+    if (cur->speed) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if ((flags == 0) & 1) {
         D_807FD716 |= 1;
         arg0->yaw = 0;
+        if (D_807FD70C != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         arg0->pitch = 0;
+        if (D_807FD708 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
+    if (D_807FD716 || D_807FD71C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (close) {
         yawT = *F5L1_YAWP; // FAKE: s16 temp steers uopt candidate priorities
         eq = yawT == D_807FD714 + 2; // FAKE: bool temp steers uopt candidate priorities
@@ -1740,10 +1741,11 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
             if (D_807444EC == 0) {
                 D_8076A0B1 &= 0xFFEF;
                 D_8076A0B3 = 0xFF;
+                if ((flags == 0) & 1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             if (D_807FD718 != 0) {
+                if (D_807FD716 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 playerStateQueueCallback(D_807FD718, D_807FD71C, 0, &F5L1_WP); // FAKE: 4th arg keeps &F5L1_WP hoisted in $a3
-                if (D_807FD714 && D_807FD714) {} // FAKE: deadsweep, raises &D_807FD714 priority
             }
             tgt->flags |= 1;
             D_807FBB60 &= ~0x400;
@@ -1753,7 +1755,9 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
             F5L1_WP++;
             cur = F5L1_WP;
             next = cur + 1;
+            if (D_807FD714 || D_807FD716) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
+        if (D_807FD714 + 1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
     arg0->flags = 0;
     timerDecrementOrSetFlag(&arg0->flags, &cur->timer3, &cur->timer0, 0x8000);
@@ -1780,6 +1784,7 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
             yawT = F5L1_CLAMP(sinApprox(ang) * speed);
             pitchT = F5L1_CLAMP(cosApprox(ang) * speed);
         }
+        if (D_807FD71C && D_807FD71C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
     arg0->yaw = arg0->yaw + (yawT - arg0->yaw) * blend;
     arg0->pitch = arg0->pitch + (pitchT - arg0->pitch) * blend;

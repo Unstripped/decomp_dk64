@@ -1920,27 +1920,29 @@ void func_806E3E40(void) {
     f32 a;
     f32 arg;
     s16 t;
+    u8 c;
 
     if (slotQueueGetValue(5, D_807FC929) && G24_M->unk1A3) {
         if (G24_PAD(D_807FD63C, u16) & 0x2000) {
             D_807FD6E0 = 0;
-            if (D_807FBB40 == 0) {} // FAKE: dead test steers uopt coloring
             D_807FD6E1 = 0;
         }
         ang = G24_A->unkEE - G24_A->unkE6;
-        if (D_807FD6E0 && D_807FD6E0) {} // FAKE: dead test steers uopt coloring
         if (ang < 0.0f) {
             ang += 4096.0f;
         }
         t = (s32)ang;
         ground = func_80612794(t) * G24_A->unkB8;
+        if (!ground) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (ground > 0.0f) {
             a = ground;
         } else {
             a = -ground;
+            if (!D_807FD6E1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
-        if (D_807FBB40 != 0) {} // FAKE: dead test steers uopt coloring
+        if (D_807FD6E0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (a > 10.0f) {
+            if (D_807FD6E1 && D_807FD6E1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (ang > 2048.0f) {
                 arg = 1024.0f;
             } else {
@@ -1948,28 +1950,23 @@ void func_806E3E40(void) {
             }
             arg += G24_A->unkE6;
             if (arg >= 4096.0f) {
-                if (1) {} // FAKE: dead test steers uopt coloring
                 arg -= 4096.0f;
             }
-            if (arg != 0) {} // FAKE: dead test steers uopt coloring
             G24_M->unk2C = 8.0f;
             func_806CD424((s32)arg, 0.0f, G24_M->unk38);
         }
+        if (G24_A->unkC0 > 0.0f) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         ang = func_80612790(t) * G24_A->unkB8;
         ground = G24_A->unkC0;
-        if (D_807FD6E1 + 1.0f) {} // FAKE: dead test steers uopt coloring
         if (ground > 0.0f) {
-            if (D_807FD6E1) {} // FAKE: dead test steers uopt coloring
             ground = 0.0f;
-            if (ang) {} // FAKE: dead test steers uopt coloring
+            if (ground) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
         if (ang > 0.0f) {
             a = ang;
         } else {
             a = -ang;
-            if (1) {} // FAKE: dead test steers uopt coloring
         }
-        if (1) {} // FAKE: dead test steers uopt coloring
         if (a > 10.0f) {
             if (ground > 0.0f) {
                 a = ground;
@@ -1987,26 +1984,27 @@ void func_806E3E40(void) {
             a = -ang;
         }
         if (((a > 10.0f) || (G24_A->unkC0 < 0.0f)) && (D_807FD6E1 == 0)) {
-            if (!D_807FD6E1) {} // FAKE: dead test steers uopt coloring
             D_807FD6E0 = 4;
+            if (D_807FD6E1 + D_807FC929) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
-        if (D_807FD6E0 != 0) {
-            D_807FD6E0 -= 1;
-            if (D_807FD6E0 == 0) {
-                if (a) {} // FAKE: dead test steers uopt coloring
+        c = D_807FD6E0;
+        if (ang == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (c != 0) {
+            c -= 1;
+            D_807FD6E0 = c;
+            if (c == 0) {
                 D_807FD6E1 = 8;
             }
             func_806E384C();
         } else {
             sfxStopSlotSound(D_807FBB40, 0);
-            if (!D_807FBB40) {} // FAKE: dead test steers uopt coloring
         }
         if (D_807FD6E1 != 0) {
-            if (D_807FBB40 && D_807FBB40) {} // FAKE: dead test steers uopt coloring
             D_807FD6E1 -= 1;
         }
-        if (D_807FD6E1 == 0) {} // FAKE: dead test steers uopt coloring
+        if (D_807FD6E1 && D_807FD6E1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
+    if (!D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
 }
 #else
 
