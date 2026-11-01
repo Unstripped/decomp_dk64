@@ -1,130 +1,10 @@
-// func_8002978C (src/race/52B0.c): OlU FE4c: stage 5 (not matched), frame 0x80/s0, temp slot 0x2C and ang slot 0x36 match, 51 raw diff lines (deadsweep score) = FP ring only: ours colours named thr (f32 candidate, adjsave 1.5, 'thr = unk7*1.2') f12 and reloads sp4C in f16; target thr=f16, sp4C reload f8, and (sp4C-lo)/(thr-lo) temps in f12/f14, so every later FP temp is one ring slot off (mtc1 a0/f6 vs f8 etc.). Found this round: raceGetRoute (not func_8002E960) callee; unnest ang = mathAngleSignedDistance(mathAngleDiscrete(..)) into 2 statements (drops the -78 narrow temp); extra named f32 'fr' + 'f32 lo,thr,fr,ang' decl order puts ang at 0x36 with temp slot 0x2C; deadsweep 'if (D_8002FC20) {}' after thr and 'if (sp4C && sp4C) {}' in the if (133->68); 'ang = mathAngleBetweenPoints2D(..)-unk0; ang = ang & 0xFFF;' split (68->51, permuter). Tried no effect: thr/lo inline or (thr = ..) in the if, named fa/fb (dx/dz reuse), w=G2_WP pointer, void->s32 on callees, 10k-variant deadsweep, 20 min permuter.
+// func_8002978C (src/race/52B0.c): stage 5 (not matched), frame 0x80/s0, stack slots match, 51 diff lines (deadsweep score) = FP ring only (f6<->f8 shift after thr in f16 vs f12; target sp4C in f8 ring reload and thr in f16; deadsweep search on region tested)
 #include "common.h"
 
 extern void *D_807FBB40;
-typedef struct {
-    u8 pad0[0x4];
-    f32 unk4;
-    u8 pad8[0x10 - 0x8];
-    f32 unk10;
-    u8 pad14[0x1C - 0x14];
-    u16 unk1C;
-    u8 pad1E[0x25 - 0x1E];
-    u8 unk25;
-    u8 unk26;
-    u8 unk27;
-    u8 unk28;
-    u8 pad29[0x30 - 0x29];
-    void *unk30;
-    u8 unk34;
-    u8 unk35;
-    u8 unk36;
-    u8 pad37[0x44 - 0x37];
-    u8 unk44;
-    u8 pad45[0x104 - 0x45];
-    s32 unk104;
-} RaceC_State;
-
-typedef struct RaceC_Actor RaceC_Actor;
-
-typedef struct {
-    RaceC_Actor *unk0;
-    s32 unk4;
-    u8 unk8;
-    u8 pad9;
-    u16 unkA;
-} RaceC_Target;
-
-typedef struct {
-    u8 pad0[0x10];
-    s16 unk10;
-    u8 pad12[0xB8 - 0x12];
-    f32 unkB8;
-} RaceC_Obj;
-
-typedef struct {
-    RaceC_Obj *unk0;
-    u8 pad4[0x64 - 0x4];
-    u16 unk64;
-} RaceC_Sub;
-
-struct RaceC_Actor {
-    u8 pad0[0x4];
-    RaceC_Sub *unk4;
-    u8 pad8[0x60 - 0x8];
-    u32 unk60;
-    u8 pad64[0x6A - 0x64];
-    u16 unk6A;
-    u8 pad6C[0x6E - 0x6C];
-    s16 unk6E[2];
-    u8 pad72[0x7C - 0x72];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0xB8 - 0x88];
-    f32 unkB8;
-    u8 padBC[0xE4 - 0xBC];
-    s16 unkE4;
-    u8 padE6[0xE8 - 0xE6];
-    s16 unkE8;
-    u8 padEA[0x12A - 0xEA];
-    s16 unk12A;
-    u8 pad12C[0x144 - 0x12C];
-    u8 unk144;
-    u8 pad145[0x174 - 0x145];
-    RaceC_State *unk174;
-    RaceC_State *unk178;
-    void *unk17C;
-    RaceC_Target *unk180;
-};
-
-typedef struct {
-    u8 pad0[4];
-    RaceC_Actor *unk4;
-    u8 pad8[0x2F0 - 8];
-} RaceC_Player;
-
-#define RC_A ((RaceC_Actor *)D_807FBB40)
-
-typedef struct {
-    u8 pad0[0x25];
-    u8 unk25;
-    u8 pad26[2];
-    u8 unk28;
-} RaceC_DC90;
-
-typedef struct {
-    u8 pad0[0x20];
-    u8 *unk20;
-} RaceC_DC98;
-
-typedef struct {
-    u8 pad0[0x11];
-    u8 unk11;
-} RaceC_DC9C;
-
-typedef struct {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    u8 pad6[4];
-} RaceC_Waypoint;
-
-typedef struct {
-    u8 pad0[0x14];
-    RaceC_Waypoint *unk14;
-} RaceC_DCA0;
-
-extern RaceC_DC90 *D_807FDC90;
-extern RaceC_DC98 *D_807FDC98;
-extern RaceC_DC9C *D_807FDC9C;
-extern RaceC_DCA0 *D_807FDCA0;
-extern s16 D_80750AC8;
-extern u8 D_8002FC20[];
-extern u8 D_8002FC50[];
-extern f32 D_8002FC30;
 void actorScriptStart(void *, s32);
 void func_8002DE78(void *, s32, void *, void *);
+
 extern f32 D_8002FC28;
 extern f32 D_8002FC58;
 f32 func_8002DF38(void *, f32, void *, void *);
@@ -148,7 +28,7 @@ typedef struct {
     void *unk30;
     u8 unk34;
     u8 unk35;
-} RaceG2_Racer;
+} RaceL_Racer;
 
 typedef struct {
     RaceC_Actor *unk0;
@@ -156,7 +36,7 @@ typedef struct {
     u8 pad8[7];
     u8 unkF;
     u8 unk10;
-} RaceG2_Tgt;
+} RaceL_Tgt;
 
 typedef struct {
     s16 x;
@@ -166,15 +46,15 @@ typedef struct {
     u8 unk7;
     u8 unk8;
     u8 pad9;
-} RaceG2_Wp;
+} RaceL_Wp;
 
-#define G2_WP ((RaceG2_Wp *)((u8 *)D_807FDCA0->unk14 + idx * 10))
+#define G2_WP ((RaceL_Wp *)((u8 *)D_807FDCA0->unk14 + idx * 10))
 #define G2_F(o) (*(f32 *)((u8 *)D_807FBB40 + (o)))
 
 f32 func_8002978C(void) {
     s32 idx;
-    RaceG2_Racer *s0;
-    RaceG2_Tgt *sp74;
+    RaceL_Racer *s0;
+    RaceL_Tgt *sp74;
     RaceC_Actor *tmp;
     RaceC_State *sp6C;
     void *sp68;
@@ -194,8 +74,8 @@ f32 func_8002978C(void) {
     f32 fr;
     s16 ang;
 
-    s0 = (RaceG2_Racer *)RC_A->unk178;
-    sp74 = (RaceG2_Tgt *)RC_A->unk180;
+    s0 = (RaceL_Racer *)RC_A->unk178;
+    sp74 = (RaceL_Tgt *)RC_A->unk180;
     tmp = s0->unk30;
     sp6C = tmp->unk174;
     sp68 = raceGetRoute(sp6C->unk26);
