@@ -29,6 +29,12 @@
                                    --prune first deletes the drafts of those no longer GLOBAL_ASM
                                    (matched). Scope for merge_gate.sh --commit: other drafts stay
                                    untouched
+  protos [--seg SEG] <src.c>...    file-scope function declarations whose return/param register class
+                                   (u8/s8/u16/s16/32-bit/f32/f64/void) or arity differs from the C
+                                   definition in src/ (same segment, else global/boot; SEG defaults to
+                                   the path's src/<seg>/, else global: pass it for a private copy of an
+                                   overlay file): callee-prototype levers for a caller's near-miss
+                                   (informational, exit 0)
 """
 import argparse
 import glob
@@ -212,6 +218,111 @@ def cmd_drafts(a):
     print("\n".join(sorted(paths)))
 
 
+SCALAR = {"void": "void", "u8": "u8", "s8": "s8", "char": "s8", "unsigned char": "u8", "u16": "u16", "s16": "s16",
+          "short": "s16", "unsigned short": "u16", "u32": "w", "s32": "w", "int": "w", "long": "w", "unsigned": "w",
+          "unsigned int": "w", "f32": "f32", "float": "f32", "f64": "f64", "double": "f64", "u64": "d", "s64": "d"}
+PROTO_HEAD = re.compile(r"^(extern\s+)?([A-Za-z_][\w\t ]*?[\t \*]+)(\w+)\s*\((.*)\)\s*([;{].*)?$")
+NOT_FUNC = {"if", "while", "for", "switch", "return", "sizeof"}
+
+
+def proto_lines(text):
+    """(line_no, kind, ret, name, args, knr) for column-0 one-line function headers; kind 'decl' or 'def'."""
+    lines = text.split("\n")
+    for i, line in enumerate(lines):
+        if not line[:1].isalpha() or line.startswith(("static ", "typedef ")):
+            continue
+        m = PROTO_HEAD.match(line)
+        if not m or m.group(3) in NOT_FUNC:
+            continue
+        ext, ret, name, args, tail = m.groups()
+        tail = (tail or "").strip()
+        if tail.startswith(";"):
+            yield i + 1, "decl", ret, name, args, False
+        elif tail.startswith("{") and not ext:
+            yield i + 1, "def", ret, name, args, False
+        elif not tail and not ext:
+            j, knr = i + 1, False
+            while j < len(lines) and lines[j].strip().endswith(";") and "(" not in lines[j]:
+                j, knr = j + 1, True
+            if j < len(lines) and lines[j].strip().startswith("{"):
+                yield i + 1, "def", ret, name, args, knr
+
+
+def tclass(t):
+    """register class of a C type: void / u8 / s8 / u16 / s16 / w (32-bit int or pointer) / f32 / f64 / d; None if unknown."""
+    if "*" in t or "[" in t or "(" in t:
+        return "w"
+    words = [w for w in t.split() if w not in ("const", "volatile", "extern", "static", "register", "signed")]
+    for n in (2, 1):
+        for i in range(len(words) - n + 1):
+            k = " ".join(words[i:i + n])
+            if k in SCALAR:
+                return SCALAR[k]
+    return None
+
+
+def proto_params(args):
+    """None = unprototyped `()`, [] = `(void)`, else [(class, is_bare_identifier)]."""
+    args = args.strip()
+    if not args:
+        return None
+    if args == "void":
+        return []
+    parts, depth, cur = [], 0, ""
+    for ch in args:
+        depth += ch == "("
+        depth -= ch == ")"
+        if ch == "," and depth == 0:
+            parts.append(cur); cur = ""
+        else:
+            cur += ch
+    parts.append(cur)
+    return [(tclass(p), re.fullmatch(r"\s*\w+\s*", p) is not None and tclass(p) is None) for p in parts]
+
+
+def proto_defs():
+    defs = {}
+    for path in glob.glob(os.path.join(ROOT, "src", "**", "*.c"), recursive=True):
+        for line, kind, ret, name, args, knr in proto_lines(open(path).read()):
+            if kind == "def":
+                defs.setdefault(name, []).append((os.path.relpath(path, ROOT), line, tclass(ret), proto_params(args), knr))
+    return defs
+
+
+def cmd_protos(a):
+    defs, bad = proto_defs(), False
+    for src in a.srcs:
+        m = re.search(r"(?:^|/)src/(\w+)/", os.path.abspath(src))
+        seg = a.seg or (m.group(1) if m else "global")
+        text = open(src).read()
+        for line, kind, ret, name, args, _ in proto_lines(text):
+            if kind != "decl":
+                continue
+            cands = defs.get(name, [])
+            same = [d for d in cands if d[0].split(os.sep)[1] == seg]
+            shared = [d for d in cands if d[0].split(os.sep)[1] in ("global", "boot")]
+            pick = same or shared
+            if len(pick) != 1:
+                continue
+            path, dline, dret, dparams, knr = pick[0]
+            params, why = proto_params(args), []
+            r = tclass(ret)
+            if r and dret and r != dret:
+                why.append(f"return {r} vs {dret}")
+            if params is not None and dparams is not None:
+                if len(params) != len(dparams):
+                    why.append(f"{len(params)} params vs {len(dparams)}")
+                elif not knr:
+                    for i, ((pc, _), (dc, _)) in enumerate(zip(params, dparams)):
+                        if pc and dc and pc != dc:
+                            why.append(f"param {i + 1} {pc} vs {dc}")
+            if why:
+                bad = True
+                print(f"{src}:{line} {name}: {'; '.join(why)} (definition {path}:{dline}{', K&R' if knr else ''})")
+    print("protos OK" if not bad else "protos: declarations above differ from their definitions (lever list for callers' "
+          "near-misses: narrow/void/phantom params change caller codegen; matched callers may rely on the old one)")
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     s = p.add_subparsers(dest="cmd", required=True)
@@ -224,6 +335,7 @@ def main():
     c = s.add_parser("vanished"); c.add_argument("rev", nargs="?", default="HEAD"); c.set_defaults(fn=cmd_vanished)
     c = s.add_parser("pragma-tail"); c.add_argument("srcs", nargs="+"); c.set_defaults(fn=cmd_tail)
     c = s.add_parser("drafts"); c.add_argument("--prune", action="store_true"); c.add_argument("srcs", nargs="+"); c.set_defaults(fn=cmd_drafts)
+    c = s.add_parser("protos"); c.add_argument("--seg"); c.add_argument("srcs", nargs="+"); c.set_defaults(fn=cmd_protos)
     a = p.parse_args()
     a.fn(a)
 
