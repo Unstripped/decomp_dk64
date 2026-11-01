@@ -1,4 +1,4 @@
-// func_8002CB18 (src/menu/3E10.c): stage 5 (parked NON_MATCHING): harness diff 22 lines, shape(register-masked)=0: frame 0x68 + all slots match, ONLY ugen t-reg ring differs. Wins this round: drop dead 's32 a2' local + dead stmts (a2 compare/assign replaced by D_8076A100[Menu6B_A->unk154] twice) and use block-scope 's16 *q = Menu6B_N->unk17C; *q = *sp38;' (gives target's lw a0,380(t6); sh t8,0(a0)). Remaining: target caches Menu6B_N->unk174 in a1 (lw a1,372(t3); sw t4,0(a1)) so the following li gets t5 and the ring after is 1 lower; a 13th local (sub ptr) pushes frame to 112; removing sel/row/m8 to make room breaks slots (t_sel: sub ring right but sp5C slot 88 not 92, 75 diff). deadsweep (idx sel sp5C temp_s1 q), &0xFF/&0xFFFF/+0 masks, decl-order perms: no gain.
+// func_8002CB18 (src/menu/3E10.c): stage 5: frame 0x68 + all slots match (sp5C 0x5C, sp54 0x54, sp50 0x50, sp4F 0x4F, idx 0x4C, sp38 0x38), shape=0, full=72 text=72 reloc=0. Dropped dead a2, packed m8 into word with sp4F+idx, cached sub into a1 via block scope. Remaining diff is 1-register ugen t-ring shift at 4e28 (lui t8 vs target lui t9 for D_80033878).
 typedef struct MenuModelScale {
     char pad0[0x34];
     f32 unk34;
@@ -40,7 +40,7 @@ void actorDespawn(void *);
 void actorUpdateModelMatrix(void *, s32);
 void func_806BF920(void);
 void func_806F0C18(void *);
-void func_8068A4C8(void *, s32, s32);
+void actorConfigApplyAnimFrameByType(void *, s32, s32);
 
 void func_8002CB18(void) {
     s32 temp_s1_2;
@@ -50,10 +50,10 @@ void func_8002CB18(void) {
     f32 sp54;
     f32 sp50;
     s8 sp4F;
+    s8 m8;
     s16 idx;
     s16 *sp38;
     Menu6B_Sub174 *temp_s1;
-    s8 m8;
 
     temp_s1 = Menu6B_A->unk174;
     sp5C = temp_s1->unk0->unk174;
@@ -68,12 +68,12 @@ void func_8002CB18(void) {
         func_806F0C18(Menu6B_A);
         Menu6B_A->unk60 |= 0x1000;
         temp_s1->unk4 = D_8076A100[Menu6B_A->unk154 & 0xF];
-        func_8068A4C8(Menu6B_A, Menu6B_A->unk155 + 2, D_8076A100[Menu6B_A->unk154 & 0xF]);
+        actorConfigApplyAnimFrameByType(Menu6B_A, Menu6B_A->unk155 + 2, D_8076A100[Menu6B_A->unk154 & 0xF]);
     }
     sel = Menu6B_A->unk154;
     if (!(Menu6B_A->unk154 & 0x80)) {
         if (temp_s1->unk4 != D_8076A100[Menu6B_A->unk154]) {
-            func_8068A4C8(Menu6B_A, Menu6B_A->unk155 + 2, D_8076A100[Menu6B_A->unk154]);
+            actorConfigApplyAnimFrameByType(Menu6B_A, Menu6B_A->unk155 + 2, D_8076A100[Menu6B_A->unk154]);
             temp_s1->unk4 = D_8076A100[Menu6B_A->unk154];
         }
         idx = D_8076A0E4[Menu6B_A->unk154] & 0x7F;
@@ -86,7 +86,10 @@ void func_8002CB18(void) {
             }
             Menu6B_N->unk154 = Menu6B_A->unk154;
             Menu6B_N->unk155 = idx;
-            *(Menu6B_Actor **)Menu6B_N->unk174 = temp_s1->unk0;
+            {
+                Menu6_Sub174 *sub = Menu6B_N->unk174;
+                sub->unk0 = temp_s1->unk0;
+            }
             sp4F = 1;
         }
         row = &D_80033894[Menu6B_A->unk154];

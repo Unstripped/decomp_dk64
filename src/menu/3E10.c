@@ -1462,11 +1462,10 @@ void func_8002CB18(void) {
     f32 sp54;
     f32 sp50;
     s8 sp4F;
+    s8 m8;
     s16 idx;
-    s32 a2;
     s16 *sp38;
     Menu6B_Sub174 *temp_s1;
-    s8 m8;
 
     temp_s1 = Menu6B_A->unk174;
     sp5C = temp_s1->unk0->unk174;
@@ -1485,19 +1484,24 @@ void func_8002CB18(void) {
     }
     sel = Menu6B_A->unk154;
     if (!(Menu6B_A->unk154 & 0x80)) {
-        if (temp_s1->unk4 != a2) {
-            actorConfigApplyAnimFrameByType(Menu6B_A, Menu6B_A->unk155 + 2, a2);
+        if (temp_s1->unk4 != D_8076A100[Menu6B_A->unk154]) {
+            actorConfigApplyAnimFrameByType(Menu6B_A, Menu6B_A->unk155 + 2, D_8076A100[Menu6B_A->unk154]);
             temp_s1->unk4 = D_8076A100[Menu6B_A->unk154];
-        a2 = D_8076A100[Menu6B_A->unk154];
         }
         idx = D_8076A0E4[Menu6B_A->unk154] & 0x7F;
         if (idx != Menu6B_A->unk155) {
             sp38 = &D_8003386C[idx];
             actorSpawn(0x151, *sp38);
-            *Menu6B_N->unk17C = *sp38;
+            {
+                s16 *q = Menu6B_N->unk17C;
+                *q = *sp38;
+            }
             Menu6B_N->unk154 = Menu6B_A->unk154;
             Menu6B_N->unk155 = idx;
-            *(Menu6B_Actor **)Menu6B_N->unk174 = temp_s1->unk0;
+            {
+                Menu6_Sub174 *sub = Menu6B_N->unk174;
+                sub->unk0 = temp_s1->unk0;
+            }
             sp4F = 1;
         }
         row = &D_80033894[Menu6B_A->unk154];
