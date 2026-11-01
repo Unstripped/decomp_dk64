@@ -428,36 +428,36 @@ void func_8070D07C(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 a
     }
     arg0->m[0][0] = m00;
     arg0->m[1][0] = m10;
-    arg0->m[3][0] = -arg5;
-    arg0->m[3][1] = -arg6;
     arg0->m[2][0] = m20;
-    arg0->m[2][2] = m22;
+    arg0->m[3][0] = -arg5;
     arg0->m[0][1] = 0.0f;
     arg0->m[1][1] = m11;
     arg0->m[2][1] = m21;
     arg0->m[0][2] = m02;
+    arg0->m[3][1] = -arg6;
+    arg1->m[2][3] = 0.0f;
     arg0->m[1][2] = m12;
+    arg0->m[2][2] = m22;
     arg0->m[0][3] = 0.0f;
-    arg0->m[1][3] = 0.0f;
-    arg0->m[3][3] = 1.0f;
-    arg0->m[2][3] = 0.0f;
     arg0->m[3][2] = -arg7;
-    arg1->m[3][1] = (arg5 * m10) + (arg6 * m11) + (arg7 * m12);
+    arg0->m[3][3] = 1.0f;
+    arg0->m[1][3] = 0.0f;
+    arg0->m[2][3] = 0.0f;
     arg1->m[0][0] = m00;
+    arg1->m[3][0] = (arg5 * m00) + (arg7 * m02);
     arg1->m[1][0] = 0.0f;
     arg1->m[2][0] = m02;
     arg1->m[0][1] = m10;
-    arg1->m[3][0] = (arg5 * m00) + (arg7 * m02);
-    arg1->m[3][3] = 1.0f;
     arg1->m[1][1] = m11;
     arg1->m[2][1] = m12;
+    arg1->m[3][1] = (arg5 * m10) + (arg6 * m11) + (arg7 * m12);
     arg1->m[0][2] = m20;
     arg1->m[1][2] = m21;
     arg1->m[2][2] = m22;
     arg1->m[0][3] = 0.0f;
     arg1->m[1][3] = 0.0f;
     arg1->m[3][2] = (arg5 * m20) + (arg6 * m21) + (arg7 * m22);
-    arg1->m[2][3] = 0.0f;
+    arg1->m[3][3] = 1.0f;
 }
 #else
 
