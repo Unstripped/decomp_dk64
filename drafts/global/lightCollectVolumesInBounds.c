@@ -1,4 +1,4 @@
-// lightCollectVolumesInBounds (src/global/5E2F0.c): W2FP: stage 5, 21 text lines (unchanged best, shape 0, park 23). Analysis of case 0 colours: ours unk14 f12, fa0(var,pri 40) f0, ft4(var 96, 30) f2, fa1 f14, ft5(expr) f16, 1.0 f18; target unk14 f0, fa0 f12, fa1 f14, ft4 f16, ft5 f18, 1.0 f22 = f2 skipped in all case-0 webs (something coloured f2 live through case 0, not x/y/z/dist by bbs) and unk14 coloured before fa0 (needs priority >= fa0's 40 or fa0 not a var; inlining fa0/fa1/ft4/ft5/f1 in all 32 combos gives identical code). Tried this round: 32 inline/var combos, 628 head-test combos of temp_* on plain base, decl-order shuffles (300), dead tests of x/y/z/unk14 at 4 positions x 3 forms (all worse), hc 24k compiles accepting ties (no gain). Case 1 ring shift (lwc1 f4 vs f10 at unk4) is a second independent diff.
+// lightCollectVolumesInBounds (src/global/5E2F0.c): Light(r5): stage 5, text 6 (was 21; park replaced). Case 0 spelled via dist=unk14*3 + e1=dist copy, temp_fa1/e2 copy, e1=((unk14*1.3)/three)*3 + memory copy diff[1]=e1 used in last sub; case-1 stores: unk14 before unk4. Remaining: fa0/dist colour f2 vs target f12 (+ f14/f12 swap) and one extra swc1 f18,148(sp) from diff[1] copy. Tried: 5040 case-1 store orders, alias/inline/copy hill-climb, dead/self-assign hill-climb (no gain).
 #include "common.h"
 
 extern s16 D_80748300;
@@ -63,6 +63,7 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
     f32 temp_f1;
     f32 temp_ft4, temp_ft5;
     f32 three;
+    f32 e1, e2;
     s16 a3 = arg3;
     s16 a4 = arg4;
     s16 a5 = arg5;
@@ -86,7 +87,6 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
                 D_807F78C0[D_807F7BC0].unk34 = (f64)(u32)D_807F7500[i].unk38 / 255.0;
                 D_807F78C0[D_807F7BC0].unk3E = D_807F7500[i].unk39;
                 switch ((u32)D_807F7500[i].unk39) {
-                    if (i == 0) {}  // FAKE: steers FP temp colours (random search)
                     if (!temp_ft4) {}  // FAKE: steers FP temp colours (random search)
                 case 1:
                     diff[0] = D_807F7500[i].unk24 - D_807F7500[i].x;
@@ -98,8 +98,8 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
                     }
                     D_807F78C0[D_807F7BC0].unkC = diff[0] / dist;
                     D_807F78C0[D_807F7BC0].unk10 = diff[1] / dist;
-                    D_807F78C0[D_807F7BC0].unk4 = D_807F7500[i].unk4;
                     D_807F78C0[D_807F7BC0].unk14 = diff[2] / dist;
+                    D_807F78C0[D_807F7BC0].unk4 = D_807F7500[i].unk4;
                     D_807F78C0[D_807F7BC0].unk18 = 0x127690;
                     D_807F78C0[D_807F7BC0].unk0 = D_807F7500[i].unkC;
                     D_807F78C0[D_807F7BC0].unk8 = D_807F7500[i].unk10;
@@ -108,16 +108,17 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
                     if (D_807F7500[i].unk14 == 0.0f) {
                         D_807F7500[i].unk14 = 0.1f;
                     }
-                    temp_fa0 = D_807F7500[i].unk14 * 3.0f;
-                    D_807F78C0[D_807F7BC0].unk18 = (s32)(temp_fa0 * temp_fa0);
+                    dist = D_807F7500[i].unk14 * 3.0f;
+                    e1 = dist;  // FAKE: split web of dist/fa0 (FP colour steer)
+                    D_807F78C0[D_807F7BC0].unk18 = (s32)(dist * e1);
                     temp_fa1 = (D_807F7500[i].unk14 / three) * 3.0f;
-                    D_807F78C0[D_807F7BC0].unk1C = 1.0f / (temp_fa0 - temp_fa1);
+                    e2 = temp_fa1;  // FAKE: copy steers FP colouring
+                    D_807F78C0[D_807F7BC0].unk1C = 1.0f / (dist - temp_fa1);
                     D_807F78C0[D_807F7BC0].unk20 = temp_fa1;
-                    temp_ft4 = D_807F7500[i].unk14 * 1.3f;
-                    temp_f1 = temp_ft4 / three;
-                    temp_ft5 = temp_f1 * 3.0f;
-                    D_807F78C0[D_807F7BC0].unk28 = temp_ft5;
-                    D_807F78C0[D_807F7BC0].unk24 = 1.0f / ((temp_ft4 * 3.0f) - temp_ft5);
+                    e1 = ((D_807F7500[i].unk14 * 1.3f) / three) * 3.0f;
+                    diff[1] = e1;  // FAKE: memory-resident copy steers FP colouring
+                    D_807F78C0[D_807F7BC0].unk28 = e1;
+                    D_807F78C0[D_807F7BC0].unk24 = 1.0f / (((D_807F7500[i].unk14 * 1.3f) * 3.0f) - diff[1]);
                     break;
                 }
                 lightAddDedupEntry(D_807F7BC0);

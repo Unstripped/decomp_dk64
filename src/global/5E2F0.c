@@ -536,6 +536,7 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
     f32 temp_f1;
     f32 temp_ft4, temp_ft5;
     f32 three;
+    f32 e1, e2;
     s16 a3 = arg3;
     s16 a4 = arg4;
     s16 a5 = arg5;
@@ -559,7 +560,6 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
                 D_807F78C0[D_807F7BC0].unk34 = (f64)(u32)D_807F7500[i].unk38 / 255.0;
                 D_807F78C0[D_807F7BC0].unk3E = D_807F7500[i].unk39;
                 switch ((u32)D_807F7500[i].unk39) {
-                    if (i == 0) {}  // FAKE: steers FP temp colours (random search)
                     if (!temp_ft4) {}  // FAKE: steers FP temp colours (random search)
                 case 1:
                     diff[0] = D_807F7500[i].unk24 - D_807F7500[i].x;
@@ -571,8 +571,8 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
                     }
                     D_807F78C0[D_807F7BC0].unkC = diff[0] / dist;
                     D_807F78C0[D_807F7BC0].unk10 = diff[1] / dist;
-                    D_807F78C0[D_807F7BC0].unk4 = D_807F7500[i].unk4;
                     D_807F78C0[D_807F7BC0].unk14 = diff[2] / dist;
+                    D_807F78C0[D_807F7BC0].unk4 = D_807F7500[i].unk4;
                     D_807F78C0[D_807F7BC0].unk18 = 0x127690;
                     D_807F78C0[D_807F7BC0].unk0 = D_807F7500[i].unkC;
                     D_807F78C0[D_807F7BC0].unk8 = D_807F7500[i].unk10;
@@ -581,16 +581,17 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
                     if (D_807F7500[i].unk14 == 0.0f) {
                         D_807F7500[i].unk14 = 0.1f;
                     }
-                    temp_fa0 = D_807F7500[i].unk14 * 3.0f;
-                    D_807F78C0[D_807F7BC0].unk18 = (s32)(temp_fa0 * temp_fa0);
+                    dist = D_807F7500[i].unk14 * 3.0f;
+                    e1 = dist;  // FAKE: split web of dist/fa0 (FP colour steer)
+                    D_807F78C0[D_807F7BC0].unk18 = (s32)(dist * e1);
                     temp_fa1 = (D_807F7500[i].unk14 / three) * 3.0f;
-                    D_807F78C0[D_807F7BC0].unk1C = 1.0f / (temp_fa0 - temp_fa1);
+                    e2 = temp_fa1;  // FAKE: copy steers FP colouring
+                    D_807F78C0[D_807F7BC0].unk1C = 1.0f / (dist - temp_fa1);
                     D_807F78C0[D_807F7BC0].unk20 = temp_fa1;
-                    temp_ft4 = D_807F7500[i].unk14 * 1.3f;
-                    temp_f1 = temp_ft4 / three;
-                    temp_ft5 = temp_f1 * 3.0f;
-                    D_807F78C0[D_807F7BC0].unk28 = temp_ft5;
-                    D_807F78C0[D_807F7BC0].unk24 = 1.0f / ((temp_ft4 * 3.0f) - temp_ft5);
+                    e1 = ((D_807F7500[i].unk14 * 1.3f) / three) * 3.0f;
+                    diff[1] = e1;  // FAKE: memory-resident copy steers FP colouring
+                    D_807F78C0[D_807F7BC0].unk28 = e1;
+                    D_807F78C0[D_807F7BC0].unk24 = 1.0f / (((D_807F7500[i].unk14 * 1.3f) * 3.0f) - diff[1]);
                     break;
                 }
                 lightAddDedupEntry(D_807F7BC0);
