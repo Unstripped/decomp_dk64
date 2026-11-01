@@ -4461,6 +4461,7 @@ void camInitZones(void) {
     s16 k;
     s16 key;
     s16 idx;
+    s16 val;
 
     camGetZoneBounds(&gCamZoneMinX, &gCamZoneMaxX, &gCamZoneMinZ);
     gCamZoneMaxX = gCamZoneMaxX / 400 * 400 + 400;
@@ -4470,26 +4471,27 @@ void camInitZones(void) {
     if (gCamZoneSorted != NULL) {
         heapFree(gCamZoneSorted);
     }
-    gCamZoneSorted = heapAlloc(CAM_ZONE_ENTRIES_PATH->unkC0 * 4 + 4);
+    gCamZoneSorted = heapAlloc((CAM_ZONE_ENTRIES_PATH->unkC0 * 4) + 4);
     for (i = 0; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
-        CAM_ZONE_SORT[i].unk0 = i;
-        CAM_ZONE_SORT[i].unk2 = camGetZoneCell(i);
+        gCamZoneSorted[i * 2] = i;
+        gCamZoneSorted[i * 2 + 1] = camGetZoneCell(i);
     }
     for (i = 1; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
-        key = CAM_ZONE_SORT[i].unk2;
-        idx = CAM_ZONE_SORT[i].unk0;
+        key = gCamZoneSorted[i * 2 + 1];
+        val = gCamZoneSorted[i * 2 + 1];
+        idx = gCamZoneSorted[i * 2];
         j = i;
         while (j > 0 &&
-               (key < CAM_ZONE_SORT[j - 1].unk2 ||
-                (key == CAM_ZONE_SORT[j - 1].unk2 &&
-                 CAM_ZONE_ENTRIES_PATH->unkC4[CAM_ZONE_SORT[j - 1].unk0].unk18 < CAM_ZONE_ENTRIES_PATH->unkC4[CAM_ZONE_SORT[j].unk0].unk18))) {
-            CAM_ZONE_SORT[j].unk0 = CAM_ZONE_SORT[j - 1].unk0;
-            CAM_ZONE_SORT[j].unk2 = CAM_ZONE_SORT[j - 1].unk2;
+               (key < gCamZoneSorted[(j - 1) * 2 + 1] ||
+                (key == gCamZoneSorted[(j - 1) * 2 + 1] &&
+                 CAM_ZONE_ENTRIES_PATH->unkC4[gCamZoneSorted[(j - 1) * 2]].unk18 < CAM_ZONE_ENTRIES_PATH->unkC4[gCamZoneSorted[j * 2]].unk18))) {
+            gCamZoneSorted[j * 2] = gCamZoneSorted[(j - 1) * 2];
+            gCamZoneSorted[j * 2 + 1] = gCamZoneSorted[(j - 1) * 2 + 1];
             j--;
         }
         if (j != i) {
-            CAM_ZONE_SORT[j].unk0 = idx;
-            CAM_ZONE_SORT[j].unk2 = key;
+            gCamZoneSorted[j * 2] = idx;
+            gCamZoneSorted[j * 2 + 1] = val;
         }
     }
     gCamZoneGroupCount = 1;
