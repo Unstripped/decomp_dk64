@@ -1,10 +1,10 @@
-// textDrawStringVtx (src/global/100180.c): Stage 6: parked NON_MATCHING; full=197 shape=77 (493 vs 490 lines). vtxSetQuadGradientColors has 3 params (definition in 103AB0.c, target passes a0-a2 only): the old 4th arg yoff was a phantom that pinned yoff to a3; replaced by trailing dead 'if (yoff && yoff) {}' after the line loop (FAKE, same score 197/77). Target spills around textLoadFontSheetGfx: yoff 131(sp) h4 126 w 122 h 120 (a3,t0,t1,t2) + t3 at 88, flags at 92, fi in a reg; mine spills fi (108) and 64/72/84. Callee void<->s32 toggles (heapFreeDeferred, vtxSet) no effect. deadsweep rounds incl. 25 locals: no improvement.
+// textDrawStringVtx (src/global/100180.c): Text R5: stage 6, parked NON_MATCHING; deadsweep score full=183 shape=66 (was 198/78), 493 vs 490 lines; first 126 lines of the objdump now identical (flags spill 92(sp) fixed). Lever: gfx-pointer local sites remapped (hill-climb over which of g1..g12 each TEXT_GFX_* macro site uses, cfe-level homes per declared local shift the uopt spill slots): 'g8,g8,g3,g12,g2,g6,g3,g8,g7,g10,g11,g1,g1'; merge of g5->g2 alone gives 186. Left: fi (t3) spilled at 112 in prologue where target keeps it in t3 until 88; ring numbering t5/t6/t7 vs target t6/t7/t8 after func_805FD030; target spills yoff/h4/w/h at 131/126/122/120. Dead-test hill-climb (38k iters, guards on locals/params), self-store ring steps, FAKE-free decl merges: no further gain.
 extern Mtx D_20000C0;
 extern Gfx D_2000180;
 Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
 void heapFreeDeferred(void *);
 Gfx *func_805FD030(Gfx *);
-void vtxSetQuadGradientColors(void *, u8, u8);
+void vtxSetQuadGradientColors(void *, u8, u8, s8);
 
 #define TEXT_GFX_CMD(g, a, b) \
     { (g) = (Gfx *)(dl++); (g)->words.w0 = (a); (g)->words.w1 = (b); }
@@ -13,7 +13,6 @@ void vtxSetQuadGradientColors(void *, u8, u8);
 #define TEXT_GFX_VTX(g, v, n, v0) \
     TEXT_GFX_CMD(g, _SHIFTL(G_VTX, 24, 8) | _SHIFTL((n), 12, 8) | _SHIFTL((v0) + (n), 1, 7), (unsigned int)(v))
 
-// deadsweep round 1: full=197 text=197 inserted `if (yoff && yoff) {}` at line 182
 Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     u8 line;
     u8 idx;
@@ -27,13 +26,12 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     s8 pad;
     u8 center;
     u8 started;
-    Gfx *g4;
-    Gfx *g5;
     Gfx *g6;
     Gfx *g8;
-    Gfx *g9;
     Gfx *g10;
     Gfx *g11;
+    Gfx *g7;
+    Gfx *g12;
     s8 yoff;
     s16 gx;
     s16 h4;
@@ -70,16 +68,16 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
         font ^= 0x80;
         center = 1;
     }
-    TEXT_GFX_CMD(g1, 0xE3001201, 0x2000);
+    TEXT_GFX_CMD(g8, 0xE3001201, 0x2000);
     if (!(flags & 4)) {
-        TEXT_GFX_CMD(g2, 0xDA380007, (u32)&D_20000C0);
+        TEXT_GFX_CMD(g8, 0xDA380007, (u32)&D_20000C0);
     }
     if (flags & 0x12) {
         TEXT_GFX_CMD(g3, 0xE7000000, 0);
-        TEXT_GFX_CMD(g4, 0xFC121824, 0xFF33FFFF);
+        TEXT_GFX_CMD(g12, 0xFC121824, 0xFF33FFFF);
     }
     if (flags & 0x20) {
-        TEXT_GFX_CMD(g5, 0xE7000000, 0);
+        TEXT_GFX_CMD(g2, 0xE7000000, 0);
         TEXT_GFX_CMD(g6, 0xFC121803, 0xFF0FFFFF);
     }
     if (flags & 1) {
@@ -149,11 +147,11 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                             vp++;
                             vp++;
                             if (flags & 0x32) {
-                                vtxSetQuadGradientColors(vp - 4, idx, flags);
+                                vtxSetQuadGradientColors(vp - 4, idx, flags, yoff);
                             }
                             count += 4;
                             if (count >= 0x20) {
-                                TEXT_GFX_VTX(g9, osVirtualToPhysical(batch), 0x20, 0);
+                                TEXT_GFX_VTX(g7, osVirtualToPhysical(batch), 0x20, 0);
                                 i = count / 4;
                                 while (i-- > 0) {
                                     TEXT_GFX_QUAD(g10, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
@@ -195,7 +193,6 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
             str = strStart;
             line++;
         } while (line < fi[1] + 1);
-        if (yoff && yoff) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
     TEXT_GFX_CMD(g1, 0xE7000000, 0);
     return dl;

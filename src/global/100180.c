@@ -415,13 +415,12 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     s8 pad;
     u8 center;
     u8 started;
-    Gfx *g4;
-    Gfx *g5;
     Gfx *g6;
     Gfx *g8;
-    Gfx *g9;
     Gfx *g10;
     Gfx *g11;
+    Gfx *g7;
+    Gfx *g12;
     s8 yoff;
     s16 gx;
     s16 h4;
@@ -458,16 +457,16 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
         font ^= 0x80;
         center = 1;
     }
-    TEXT_GFX_CMD(g1, 0xE3001201, 0x2000);
+    TEXT_GFX_CMD(g8, 0xE3001201, 0x2000);
     if (!(flags & 4)) {
-        TEXT_GFX_CMD(g2, 0xDA380007, (u32)&D_20000C0);
+        TEXT_GFX_CMD(g8, 0xDA380007, (u32)&D_20000C0);
     }
     if (flags & 0x12) {
         TEXT_GFX_CMD(g3, 0xE7000000, 0);
-        TEXT_GFX_CMD(g4, 0xFC121824, 0xFF33FFFF);
+        TEXT_GFX_CMD(g12, 0xFC121824, 0xFF33FFFF);
     }
     if (flags & 0x20) {
-        TEXT_GFX_CMD(g5, 0xE7000000, 0);
+        TEXT_GFX_CMD(g2, 0xE7000000, 0);
         TEXT_GFX_CMD(g6, 0xFC121803, 0xFF0FFFFF);
     }
     if (flags & 1) {
@@ -541,7 +540,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                             }
                             count += 4;
                             if (count >= 0x20) {
-                                TEXT_GFX_VTX(g9, osVirtualToPhysical(batch), 0x20, 0);
+                                TEXT_GFX_VTX(g7, osVirtualToPhysical(batch), 0x20, 0);
                                 i = count / 4;
                                 while (i-- > 0) {
                                     TEXT_GFX_QUAD(g10, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
