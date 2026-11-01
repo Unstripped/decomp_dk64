@@ -1,34 +1,33 @@
-// mapTriangleHeightAtPoint (src/global/55B20.c): W2Frame: stage 4 (deadsweep full=56 text=56 vs 99 before; 120/120 lines, frame 0x40, saves f24/f22/f20, q spilled at 32(sp), tail after the branch (t f12, abs f2, ret f12 + mov.s f0,f12, N2 f0, 0.0 f14, 2000.0 f24) identical). Remaining: front block colouring/schedule: target d68 f12,d02 f2,dC10 f24,dCE f22,d6A f16,d04 f14,N1 f18,N3 f22 and f20 never used (only saved, early ldc1 f20,8(sp) restore); ours uses f20 for a d value and loads fields uE/uC/u4/u0 first (target u8,u6,u2,u0,uC,u10,uE,uA,u4). Found by hill-climb (mixed named s32/f64/inline d values, inline N3 expression, ret var, abs via u=t copy) with deadsweep score, floor 112 over 4 x 280s runs; deadsweep globals none.
+// mapTriangleHeightAtPoint (src/global/55B20.c): leftovers5 MapA: stage 5 (deadsweep full=17 text=17 shape=0 vs 56): all 6 diffs f64 named locals, N1/N2 f64 named, N3 inline, tail identical, colours/frame/schedule all match; remaining only commutative operand order + ring temps in q block: target mul.d f8,f18,f6 (N1*u2, ours f6,f18), mul.d f6,f8,f22 ok, add.d f4,f6,f10 (prod3+sum12; ours f10,f6), then mul.d f10,f0,f24 / ldc1 f6 (ours f6/f10) and cascade through t. Operand order not source-controlled (exhaustive q-term swaps/assoc 12x8x4, u2/u8/uE named s32/f64 temps 125x, N inline/named x d forms x decl orders, 2x270s hill-climb with dead tests: floor 17).
 f32 mapTriangleHeightAtPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
-    f64 dCE;
-    f64 n2;
-    f32 ret;
-    f64 q;
-    f64 u;
-    f64 dC10;
-    f64 n1;
-    f64 d6A;
-    f64 d04;
-    s32 d02;
     f64 t;
+    f64 dCE;
+    f64 d02;
+    f64 q;
+    f64 d04;
+    f64 d6A;
+    f64 N1;
+    f64 N2;
+    f64 dC10;
+    f32 ret;
+    f64 d68;
 
-    d04 = (f64)(arg0->unk0 - arg0->unk4);
+    d02 = (f64)(arg0->unk0 - arg0->unk2);
+    d68 = (f64)(arg0->unk6 - arg0->unk8);
     dCE = (f64)(arg0->unkC - arg0->unkE);
-    dC10 = (f64)(arg0->unkC - arg0->unk10);
-    if (dC10 == 0) {} // FAKE: x
-    d02 = arg0->unk0 - arg0->unk2;
+    d04 = (f64)(arg0->unk0 - arg0->unk4);
     d6A = (f64)(arg0->unk6 - arg0->unkA);
-    n2 = (dCE * d04 - (f64)d02 * dC10);
-    n1 = ((f64)(arg0->unk6 - arg0->unk8) * dC10 - dCE * d6A);
-    if (d02 != 0) {} // FAKE: x
-    q = -((n1 * (f64)arg0->unk2 + n2 * (f64)arg0->unk8) + ((f64)d02 * d6A - (f64)(arg0->unk6 - arg0->unk8) * d04) * (f64)arg0->unkE);
-    if (n2 * 2000.0 > 0.01 || n2 * 2000.0 < -0.01) {
-        t = (((arg1 * n1 + n2 * -1000.0) + ((f64)d02 * d6A - (f64)(arg0->unk6 - arg0->unk8) * d04) * arg2) + q) / (n2 * 2000.0);
-        u = t;
+    dC10 = (f64)(arg0->unkC - arg0->unk10);
+    N1 = d68 * dC10 - dCE * d6A;
+    N2 = dCE * d04 - d02 * dC10;
+    q = -((f64)arg0->unk2 * N1 + N2 * (f64)arg0->unk8 + (f64)arg0->unkE * (d02 * d6A - d68 * d04));
+    if (N2 * 2000.0 > 0.01 || N2 * 2000.0 < -0.01) {
+        t = N1 * arg1 + N2 * -1000.0 + arg2 * (d02 * d6A - d68 * d04) + q;
+        t = t / (N2 * 2000.0);
         if (t < 0.0) {
-            u = 0.0 - t;
+            t = 0.0 - t;
         }
-        ret = (f32)(2000.0 * u - 1000.0);
+        ret = (f32)(2000.0 * t - 1000.0);
     } else {
         ret = -32768.0f;
     }

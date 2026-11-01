@@ -428,6 +428,7 @@ s32 chunk;
     s32 cidx;
 
     if (size != 0) {
+        if (size != 0) {}  // FAKE: dead statement (steers uopt colouring)
         do {
             idx = 0;
             found = 0;
@@ -435,6 +436,7 @@ s32 chunk;
             if ((((MapDlCommand *)list)->unk0 >> 24) == 0) {
                 n = *count;
                 key = ((MapDlCommand *)list)->unk4;
+                if (chunk > size) {}  // FAKE: dead statement (steers uopt colouring)
                 cidx = 0;
                 cfound = 0;
                 if (n > 0) {
@@ -445,26 +447,32 @@ s32 chunk;
                             idx += 1;
                         }
                     } while (idx < n && found == 0);
+                    if (D_807F70B0 != 0) {}  // FAKE: dead statement (steers uopt colouring)
                 }
                 do {
                     if (key == ((MapCellOffsets *)D_807F70B0)[cidx].unk2) {
                         cfound = 1;
                     } else {
+                        if (size && size) {}  // FAKE: dead statement (steers uopt colouring)
+                        if (!buf) {}  // FAKE: dead statement (steers uopt colouring)
                         cidx += 1;
                     }
                 } while (cfound == 0);
+                if (gMapChunks) {}  // FAKE: dead statement (steers uopt colouring)
                 if (found == 0) {
                     ((MapChunkCellRefs *)buf)[n].unk0 = key;
-                    *(s32 *)((u8 *)buf + *count * 0x24 + 4) = -1;
+                    ((s32 *)((u8 *)buf + *count * 0x24))[1] = -1;
                     *(s32 *)((u8 *)buf + *count * 0x24 + 8) = -1;
-                    *(s32 *)((u8 *)buf + *count * 0x24 + 0xC) = -1;
-                    *(s32 *)((u8 *)buf + *count * 0x24 + 0x10) = -1;
-                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 4) = list + 8;
-                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 0x14) = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + gMapChunks[chunk].unk58;
+                    ((MapChunkCellRefs *)buf)[*count].unk4[2] = -1;
+                    if (gMapChunks) {}  // FAKE: dead statement (steers uopt colouring)
+                    *(s32 *)((u8 *)buf + (*count << 5) + *count * 4 + 16) = -1;
+                    ((MapChunkCellRefs *)buf)[*count].unk4[kind] = list + 8;
+                    *(s32 *)((u8 *)buf + *count * 0x24 + kind * 4 + 20) = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + gMapChunks[chunk].unk58;
+                    if (D_807F70B0 == 0) {}  // FAKE: dead statement (steers uopt colouring)
                     *count += 1;
                 } else {
-                    *(s32 *)((u8 *)buf + idx * 0x24 + kind * 4 + 4) = list + 8;
-                    *(s32 *)((u8 *)buf + idx * 0x24 + kind * 4 + 0x14) = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + gMapChunks[chunk].unk58;
+                    ((MapChunkCellRefs *)buf)[idx].unk4[kind] = list + 8;
+                    ((MapChunkCellRefs *)buf)[idx].unk14[kind] = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + gMapChunks[chunk].unk58;
                 }
             }
             list += 8;
@@ -1703,7 +1711,45 @@ void mapCellSetFlag(s32 arg0, u8 arg1) {
     }
 }
 
+#ifdef NON_MATCHING
+f32 mapTriangleHeightAtPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
+    f64 t;
+    f64 dCE;
+    f64 d02;
+    f64 q;
+    f64 d04;
+    f64 d6A;
+    f64 N1;
+    f64 N2;
+    f64 dC10;
+    f32 ret;
+    f64 d68;
+
+    d02 = (f64)(arg0->unk0 - arg0->unk2);
+    d68 = (f64)(arg0->unk6 - arg0->unk8);
+    dCE = (f64)(arg0->unkC - arg0->unkE);
+    d04 = (f64)(arg0->unk0 - arg0->unk4);
+    d6A = (f64)(arg0->unk6 - arg0->unkA);
+    dC10 = (f64)(arg0->unkC - arg0->unk10);
+    N1 = d68 * dC10 - dCE * d6A;
+    N2 = dCE * d04 - d02 * dC10;
+    q = -((f64)arg0->unk2 * N1 + N2 * (f64)arg0->unk8 + (f64)arg0->unkE * (d02 * d6A - d68 * d04));
+    if (N2 * 2000.0 > 0.01 || N2 * 2000.0 < -0.01) {
+        t = N1 * arg1 + N2 * -1000.0 + arg2 * (d02 * d6A - d68 * d04) + q;
+        t = t / (N2 * 2000.0);
+        if (t < 0.0) {
+            t = 0.0 - t;
+        }
+        ret = (f32)(2000.0 * t - 1000.0);
+    } else {
+        ret = -32768.0f;
+    }
+    return ret;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapTriangleHeightAtPoint.s")
+#endif
 
 s32 mapTriangleBoundsContainPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
     f32 minX;
@@ -2290,25 +2336,26 @@ u8 arg2;
     s32 found;
 
     gfx = (Gfx *)arg0;
-    if (arg1 == 0.0f) {} // FAKE: rs
-    WRITE_GFX(gfx++, 0xE7000000, 0);
+    if (arg0 == 0) {} // FAKE: rs
+    gDPPipeSync(gfx++);
     if (((MapChunkEffect *)gMapChunks)[arg1].unk5 != 2) {
         switch (arg2) {
         case 0:
-            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)gMapChunks)[arg1].unk2C));
+            gSPDisplayList(gfx++, osVirtualToPhysical((void *)((MapChunkEffect *)gMapChunks)[arg1].unk2C));
             break;
         case 1:
-            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)gMapChunks)[arg1].unk30));
+            gSPDisplayList(gfx++, osVirtualToPhysical((void *)((MapChunkEffect *)gMapChunks)[arg1].unk30));
             break;
         case 2:
-            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)gMapChunks)[arg1].unk34));
+            gSPDisplayList(gfx++, osVirtualToPhysical((void *)((MapChunkEffect *)gMapChunks)[arg1].unk34));
             break;
         case 3:
-            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffect *)gMapChunks)[arg1].unk38));
+            gSPDisplayList(gfx++, osVirtualToPhysical((void *)((MapChunkEffect *)gMapChunks)[arg1].unk38));
             break;
         }
     } else {
         for (i = 0; i < ((MapChunkEffect *)gMapChunks)[arg1].unk50; i++) {
+            gfx = (Gfx *)((u32)gfx | 0); // FAKE: extra gfx reference (raises its colouring priority above the packet pointers)
             if (((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk4[arg2] == -1) {
                 continue;
             }
@@ -2328,10 +2375,10 @@ u8 arg2;
             if ((((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk2 & (1 << arg2)) == 0) {
                 continue;
             }
-            WRITE_GFX(gfx++, 0xDB060018, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk14[arg2]));
-            { Gfx *_g = gfx; _g->words.w0 = (0xE7000000); _g->words.w1 = (u32)(0); gfx++; }
-            WRITE_GFX(gfx++, 0xDE000000, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk4[arg2]));
-            { Gfx *_g = gfx; _g->words.w0 = (0xE7000000); gfx++; _g->words.w1 = (u32)(0); }
+            gSPSegment(gfx++, 6, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk14[arg2]));
+            gDPPipeSync(gfx++);
+            gSPDisplayList(gfx++, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk4[arg2]));
+            gDPPipeSync(gfx++);
         }
     }
     return (s32)gfx;
