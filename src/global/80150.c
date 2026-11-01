@@ -2906,7 +2906,6 @@ typedef struct TagBarrelOrbitKong {
 } TagBarrelOrbitKong;
 
 
-#ifdef NON_MATCHING
 void func_80682AB4(void *arg0) {
     TagBarrelOrbitKong *arg = (TagBarrelOrbitKong *)arg0;
     f32 sp70 = D_807FBB40->unk7C;
@@ -2918,6 +2917,7 @@ void func_80682AB4(void *arg0) {
     f32 var_fv1;
     s16 temp_s5;
     s16 temp_t0;
+    u8 u;
     u8 *var_s3;
     Actor *temp_s2;
 
@@ -2925,7 +2925,10 @@ void func_80682AB4(void *arg0) {
     temp_s5 = D_807FBB40->unkE6;
     temp_s5 = (s16)(s32)(temp_s5 + (819.2 * arg->unk6)) & 0xFFF;
     temp_s5 = (s16)(s32)(temp_s5 - (819.2 * temp_fs1) * arg->unk20) & 0xFFF;
-    temp_s5 = (s16)(s32)temp_s5 & 0xFFFF; // FAKE: redundant narrowing burns ugen ring temps (loop-start register ring)
+    u = ((u8)(s32)(temp_s5 & 0x7FFF) & 0xFFF); // FAKE: dead narrowing chain burns ugen ring temps (loop-start register ring)
+    u = ((u8)((s16)(u & 0xFFF) & 0xFFFF) & 0x7FFF); // FAKE: ring temps
+    u = (s32)(((u8)(u & 0xFFFF) & 0xFF) & 0x7FFF); // FAKE: ring temps
+    u = (u32)u; // FAKE: ring temps
     var_s1 = 0;
     var_s3 = (u8 *)arg0;
     do {
@@ -2958,10 +2961,6 @@ void func_80682AB4(void *arg0) {
         temp_s2->unk15F = (u32)((12.0f * var_fv0) + 3.0f);
     } while (var_s1 != 5);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/80150/func_80682AB4.s")
-#endif
 
 void func_80682DF4(void *arg0, u16 *arg1, s32 arg2) {
     arg2 = arg2 * 7;

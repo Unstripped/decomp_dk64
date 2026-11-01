@@ -69,7 +69,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     s32 pad[2];
     u64 saved[2];
     s32 fb1;
-    u8 *h;
+    u32 h;
     u8 **hp;
     HeapBlock *first;
     s32 total;
@@ -82,19 +82,19 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     s32 cur;
     HeapBlock *src;
 
-    D_807F0A28 = 0;
-    D_807F0A50 = 0;
     lo = D_8074450C * 0x25800 * D_8074450C;
+    D_807F0A28 = 0;
+    size = 0;
+    D_807F0A50 = 0;
     D_807F0A30[0] = 0;
+    romStart = 0;
+    bssSize = 0;
     D_807F0A40[0] = 0;
+    bssStart = NULL;
     D_807F5A60 = 0;
     D_807F5A58 = 0;
     D_807F5A5C = 2;
-    size = 0;
-    romStart = 0;
     vram = NULL;
-    bssStart = NULL;
-    bssSize = 0;
     id = -1;
     switch (arg1) {
         default:
@@ -141,24 +141,24 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
             break;
     }
     i = 4;
+    if (D_8074450C != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (id != -1) {
-        bssStart = (u8 *)gSegmentTable[id].bssStart;
-        bssSize = gSegmentTable[id].bssEnd - gSegmentTable[id].bssStart;
         vram = (u8 *)gSegmentTable[id].vramStart;
-        size = gSegmentTable[id].bssStart - (s32)vram;
         romStart = gSegmentTable[id].romStart;
-        if (bssSize) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        size = gSegmentTable[id].bssStart - gSegmentTable[id].vramStart;
+        bssSize = gSegmentTable[id].bssEnd - gSegmentTable[id].bssStart;
+        bssStart = (u8 *)gSegmentTable[id].bssStart;
     }
-    D_80744470 = (size + bssSize + 0x8002403F) & ~0x3F;
+    D_80744470 = (size + (bssSize + 0x8002403F)) & ~0x3F;
     fb1 = D_80744470 + lo;
     D_80744474 = fb1;
-    cur = 0x805FAE00 - cur;
-    D_8076A060 = (u8 *)cur;
+    D_8076A060 = (u8 *)(0x805FAE00 - cur);
+    h = 0x805FAE00 - cur;
     i = 4;
     for (; i >= 0;) {
         switch (i) {
             case 0:
-                sz = cur - (fb1 + lo);
+                sz = h - (fb1 + lo);
                 break;
             case 1:
                 sz = 0x3810;
@@ -174,8 +174,8 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
                 break;
         }
         i--;
-        cur -= sz;
-        addr[i + 1] = cur;
+        h -= sz;
+        addr[i + 1] = h;
         sizes[i + 1] = sz;
     }
 #define HL(k) (*(u8 **)D_807F5A70[k])
@@ -184,9 +184,9 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         for (i = 1; i < D_807F5A68; i++) {
             {
                 dst = HL(i - 1) + ((HeapBlock *)HL(i - 1) - 1)->size;
-                src = (HeapBlock *)HL(i) - 1;
+                src = (HeapBlock *)(HL(i) - 0x10);
                 HL(i) = dst + 0x10;
-                total = src->size + 0x10;
+                total = 0x10 + src->size;
                 heapMoveWords(src, dst, total);
                 heapRebaseHandles((s32)src, (s32)dst, total);
             }
@@ -194,14 +194,13 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         total = 0;
         i = 0;
         {
-            first = (HeapBlock *)HL(0) - 1;
+            first = (HeapBlock *)(HL(0)) - 1;
             dst = (u8 *)addr[0];
             if (D_807F5A68 > 0) {
                 do {
                     hp = (u8 **)D_807F5A70[i];
                     i++;
-                    total += ((HeapBlock *)*hp - 1)->size;
-                    total += 0x10;
+                    total += ((HeapBlock *)*hp - 1)->size + 0x10;
                     *hp = *hp + (s32)dst - (s32)first;
                 } while (i < D_807F5A68);
             }
@@ -222,11 +221,11 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     D_807F0980 = heapInitBlockPool(&D_807F0980, addr[4], sizes[4], 0x1000);
     if (D_807F5A68 != 0) {
         last = NULL;
-        if (total) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         i = 0;
         if (D_807F5A68 > 0) {
             do {
                 blk = (HeapBlock *)HL(i);
+                if (D_807F0988[0].start == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 i++;
                 blk[-1].physPrev = last;
                 blk = blk - 1;
@@ -236,25 +235,25 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         ((u64 *)D_807F0988[0].start)[0] = saved[0];
         ((u64 *)D_807F0988[0].start)[1] = saved[1];
         ((HeapBlock *)D_807F0988[0].start)->physPrev = NULL;
-        D_807F0988[0].freeList = (HeapBlock *)((u8 *)blk + blk->size + 0x10);
-        D_807F0988[0].freeList->physPrev = blk;
-        D_807F0988[0].freeList->size = (D_807F0988[0].size - 0x20 - (s32)D_807F0988[0].freeList) + (s32)D_807F0988[0].start;
+        total = D_807F0988[0].size - 0x20;  // FAKE: pre-loads pool size before the free-list stores
+        dst = D_807F0988[0].start;  // FAKE: pre-loads pool start before the free-list stores
+        src = (HeapBlock *)((u8 *)blk + blk->size + 0x10);
+        D_807F0988[0].freeList = src;
+        src->physPrev = blk;
+        D_807F0988[0].freeList->size = (u32)(total - (s32)src) + (u32)dst;
         D_807F0988[0].freeList->next = NULL;
         D_807F0988[0].freeList->prev = NULL;
-        ((HeapBlock **)(D_807F0988[0].size + D_807F0988[0].start - 0x10))[0] = D_807F0988[0].freeList;
+        blk = (HeapBlock *)(D_807F0988[0].start + D_807F0988[0].size) - 1;
+        blk->physPrev = D_807F0988[0].freeList;
     }
     D_807F5A64 = heapAlloc(0x10);
     heapLockBlock(D_807F5A64);
-    if (arg2 == 0) {
-        D_807F0984 = 0x28000;
-    } else {
-        if (bssStart) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        D_807F0984 = arg2;
-    }
+    D_807F0984 = (arg2 == 0) ? 0x28000 : arg2;
     D_807F05A4 = heapAlloc(D_807F0984 + 0x80);
     heapLockBlock(D_807F05A4);
+    if (bssSize == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (size != 0) {
-        if (bssStart != NULL) {
+        if (bssStart) {
             bzero(bssStart, bssSize);
         }
         dmaReadAssetDecompress(romStart, vram, &size, 1, 1, 1, 0);
