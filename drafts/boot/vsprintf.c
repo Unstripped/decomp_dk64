@@ -1,4 +1,4 @@
-// vsprintf (src/boot/3D20.c): stage 4 (frame 440, same callee-saved set, 1168 vs 1189 insns, 951 exact). Remaining: conv (u8) not colored (target s4 shared with prec>0 temp; mine s2/uncolored -> lbu conv from 410(sp) before _itoa), fneg in ra instead of a1, e/f arm FP temps f12 vs f0, delay-slot sched. Tried: decl-order hill climb, loop forms, c types, scale/tmp/fscale doubles. Parked in copy under NON_MATCHING
+// vsprintf (src/boot/3D20.c): stage 3 (insn count differs: 1168 vs 1189; frame 440 and callee-saved set match, 951 exact). Remaining: base takes s3 (target: a3 spilled across _itoa, lowest priority of 10 saturating s-candidates) shifting exp/conv; conv (u8) not colored (target s4 shared with prec>0 temp); fneg in ra instead of a1; e/f arm FP temps f12 vs f0, delay-slot sched. Tried: decl-order hill climb, loop forms, c types, scale/tmp/fscale doubles, unifying conv into c, replacing fneg with lg. Not parked (insn count)
 unsigned int strlen(unsigned char *s);
 
 int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
