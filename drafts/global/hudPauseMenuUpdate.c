@@ -1,5 +1,5 @@
-// hudPauseMenuUpdate (src/global/ACDC0.c): stage 6 (regalloc only, shape-identical modulo 3 lines): same blocks/frame 0x58. Remaining 21 text lines: D_807505D4 decrement block keeps v0 var candidate (target lb t7 temp, no candidate; the dead D_807505D4 read at fn start/unk0>1.3f block is what removes the addiu address hoist), beql/bne operand order at D_807FC80C!=D_807FC80D and -1==x, t-reg ring cascade after it; D_807505CC raw lui at 0x8075 reloc only. Found: x local removal, (s16) cast on float->int add, D_807FC802/D_807FC800 stmt order, diff = flag - diff, diff = i = -f(), flag=1 after clamp, swapped operand compares, dead D_807FC8B8 && D_807FC8B8 after seq steers xori reg.
-typedef struct L10Hud {
+// hudPauseMenuUpdate (src/global/ACDC0.c): stage 6 (same blocks/frame 0x58): 2 text lines + 2 reloc lines left: end-block D_807505D4 decrement loads into v0 (lui/lb v0, addiu t8,v0) vs target t7 (ring temp); with any named local the load takes the local's colour v0, without it (only_dec) it is t7 but then no sll/sra forwarded compare. Found: s16 half (not s32) keeps the sum in t8 and removes the whole t-reg cascade, D_807FC80D != D_807FC80C, hud->unk13 inline (no x), dead D_807505D4 read needed (anywhere after decls). Exhausted: deadsweep 35k variants x2 bodies, 12k permuter iters, grids of half type/spelling/cast/dead tests, callee void<->s32 toggles; reloc: raw lui at,0x8075 for the D_807505CC else-store (reloc only).
+typedef struct HudPauseState {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ s16 unk8[2];
@@ -12,20 +12,20 @@ typedef struct L10Hud {
     /* 0x16 */ s8 unk16;
     /* 0x17 */ s8 unk17;
     /* 0x18 */ u8 unk18;
-} L10Hud;
+} HudPauseState;
 
-typedef struct L10Axis {
+typedef struct HudPauseAxis {
     u8 pad0[2];
     s8 unk2;
     s8 unk3;
-} L10Axis;
+} HudPauseAxis;
 
-typedef struct L10Player {
+typedef struct HudPauseCamera {
     u8 pad0[0x214];
     f32 unk214;
-} L10Player;
+} HudPauseCamera;
 
-extern L10Axis *D_807ECDEC;
+extern HudPauseAxis *D_807ECDEC;
 extern u8 D_807467E4;
 extern s32 D_8076A098;
 extern u8 D_8076A0AB;
@@ -61,11 +61,11 @@ Gfx *hudDrawDimOverlay(Gfx *, Actor *);
 Gfx *hudPauseMenuRender(Gfx *, Actor *);
 void hudFreeBuffers(void);
 
-#define L10_CC (*(s8 *)D_807505CC)
-#define L10_LIST ((s8 *)&D_80750530)
+#define HUD_PAUSE_MODE (*(s8 *)D_807505CC)
+#define HUD_PAUSE_LIST ((s8 *)&D_80750530)
 
 void hudPauseMenuUpdate(void) {
-    L10Hud *hud;
+    HudPauseState *hud;
     s32 i;
     s32 diff;
     s32 flag;
@@ -74,7 +74,7 @@ void hudPauseMenuUpdate(void) {
     s32 x;
     s32 a2;
     s32 lim;
-    s32 half;
+    s16 half; // FAKE: s16 (not s32) keeps the sum in a ring temp
 
     hud = D_807FBB40->unk174;
     i = D_8076A0A8;
@@ -87,13 +87,13 @@ void hudPauseMenuUpdate(void) {
         case 0x52:
         case 0x6A:
         case 0xB9:
-            L10_CC = 1;
+            HUD_PAUSE_MODE = 1;
             break;
         default:
             if (func_805FF000(D_8076A0A8 & 0xFF) == 9 || (D_807FBB64 & 0x10000000)) {
-                L10_CC = 2;
+                HUD_PAUSE_MODE = 2;
             } else {
-                L10_CC = 0;
+                HUD_PAUSE_MODE = 0;
             }
             break;
     }
@@ -107,7 +107,7 @@ void hudPauseMenuUpdate(void) {
             D_807FC7E8[i] = textTableGetString(0x23, i, 0);
         }
         D_8076A098++;
-        D_807FC7FC = ((L10Player *)D_807FC924)->unk214;
+        D_807FC7FC = ((HudPauseCamera *)D_807FC924)->unk214;
         D_807505D4 = 0;
         D_807FC8B8 = 0;
         D_80750580 = 1;
@@ -217,7 +217,7 @@ void hudPauseMenuUpdate(void) {
                         if (hud->unk17 == 2) {
                             hud->unk17 = 3;
                         } else if (hud->unk17 == 1) {
-                            if (L10_CC != 0) {
+                            if (HUD_PAUSE_MODE != 0) {
                                 func_805FF378(D_8076A0A8, 0);
                             } else if (hud->unk18 == 0) {
                                 eepromSavePlayerData();
@@ -238,7 +238,7 @@ void hudPauseMenuUpdate(void) {
                         i = func_80712628() != 0;
                     }
                     D_807FC8B8 = 1;
-                    if (L10_CC == 0 && a2 != 7 && a2 != 0xD && a2 != 9 && i == 0) {
+                    if (HUD_PAUSE_MODE == 0 && a2 != 7 && a2 != 0xD && a2 != 9 && i == 0) {
                         if (a2 == 0xA) {
                             func_80712EDC();
                         } else if (func_805FEF74(D_8076A0A8) == 0) {
@@ -252,8 +252,8 @@ void hudPauseMenuUpdate(void) {
                                 func_80600044(a2);
                             }
                         }
-                    } else if (L10_CC != 0) {
-                        if (L10_CC == 2) {
+                    } else if (HUD_PAUSE_MODE != 0) {
+                        if (HUD_PAUSE_MODE == 2) {
                             func_805FF898();
                         } else {
                             func_805FF544();
@@ -277,7 +277,7 @@ void hudPauseMenuUpdate(void) {
                                 if (D_807FC800 >= 5) {
                                     D_807FC800 = 0;
                                 }
-                            } while (L10_LIST[D_807FC800] == 0);
+                            } while (HUD_PAUSE_LIST[D_807FC800] == 0);
                         } else if (x >= 0x29) {
                             do {
                                 D_807FC802 += 0x333;
@@ -285,7 +285,7 @@ void hudPauseMenuUpdate(void) {
                                 if (D_807FC800 < 0) {
                                     D_807FC800 = 4;
                                 }
-                            } while (L10_LIST[D_807FC800] == 0);
+                            } while (HUD_PAUSE_LIST[D_807FC800] == 0);
                         }
                         if (D_807FC800 != hud->unk14) {
                             D_807FC804 = 2.0f;
@@ -366,7 +366,7 @@ void hudPauseMenuUpdate(void) {
                 }
                 diff = flag - diff;
                 hud->unk4 = (f32)diff / (f32)((f64)(f32)flag * 0.9);
-                if (hud->unk4 > 1.0f && D_807FC80C != D_807FC80D) {
+                if (hud->unk4 > 1.0f && D_807FC80D != D_807FC80C) {
                     D_807FC80C = D_807FC80D;
                 }
                 break;
@@ -376,12 +376,11 @@ void hudPauseMenuUpdate(void) {
         hud->unk0 = hud->unk0 + 0.13f;
         if (hud->unk0 > 1.3f) {
             if (D_807505D4) {} // FAKE: steers D_807505D4 address hoist
-            x = hud->unk13;
             hud->unk0 = 1.0f;
-            if (-1 == x) {
+            if (hud->unk13 == -1) {
                 hudFreeBuffers();
             } else {
-                hud->unk12 = x;
+                hud->unk12 = hud->unk13;
                 hud->unk16 = -1;
                 hudPauseMenuBuildPage(hud, 0);
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
@@ -406,11 +405,11 @@ void hudPauseMenuUpdate(void) {
     if (D_8075052C != 0) {
         D_8075052C -= 1;
         hud->unk0 = D_80750584[D_8075052C];
-        ((L10Player *)D_807FC924)->unk214 = D_807FC7FC + hud->unk0 * 100.0;
+        ((HudPauseCamera *)D_807FC924)->unk214 = D_807FC7FC + hud->unk0 * 100.0;
     }
     renderCallbacksRegister(hudDrawDimOverlay, D_807FBB40, 1);
     renderCallbacksRegister(hudPauseMenuRender, D_807FBB40, 5);
 }
 
-#undef L10_CC
-#undef L10_LIST
+#undef HUD_PAUSE_MODE
+#undef HUD_PAUSE_LIST

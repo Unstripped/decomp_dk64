@@ -229,7 +229,7 @@ void hudPauseMenuUpdate(void) {
     s32 x;
     s32 a2;
     s32 lim;
-    s32 half;
+    s16 half; // FAKE: s16 (not s32) keeps the sum in a ring temp
 
     hud = D_807FBB40->unk174;
     i = D_8076A0A8;
@@ -521,7 +521,7 @@ void hudPauseMenuUpdate(void) {
                 }
                 diff = flag - diff;
                 hud->unk4 = (f32)diff / (f32)((f64)(f32)flag * 0.9);
-                if (hud->unk4 > 1.0f && D_807FC80C != D_807FC80D) {
+                if (hud->unk4 > 1.0f && D_807FC80D != D_807FC80C) {
                     D_807FC80C = D_807FC80D;
                 }
                 break;
@@ -531,12 +531,11 @@ void hudPauseMenuUpdate(void) {
         hud->unk0 = hud->unk0 + 0.13f;
         if (hud->unk0 > 1.3f) {
             if (D_807505D4) {} // FAKE: steers D_807505D4 address hoist
-            x = hud->unk13;
             hud->unk0 = 1.0f;
-            if (-1 == x) {
+            if (hud->unk13 == -1) {
                 hudFreeBuffers();
             } else {
-                hud->unk12 = x;
+                hud->unk12 = hud->unk13;
                 hud->unk16 = -1;
                 hudPauseMenuBuildPage(hud, 0);
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.25f, 0, 0);
