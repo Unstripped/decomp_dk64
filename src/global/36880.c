@@ -1833,7 +1833,7 @@ void actorClearEntrySlot(s16);
 void hashTableRemove(s32);
 void proxPathRemoveActor(s16);
 void sfxSlotFreeSource(s16);
-void mapPurgeNodeList(s32, s16 *, u8);
+s32 mapPurgeNodeList();
 void renderEntryRemove(s32, s32, s32, u8 *);
 void csStateFree(void *);
 void modelSlotFree(u8 **);
@@ -1908,7 +1908,210 @@ void modelSlotGetTransformVectors(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32
     *arg8 = MODEL_SLOT_VEC(arg0)->unk1C;
 }
 
+#ifdef NON_MATCHING
+typedef struct ModelA_OlB_Tgt {
+    /* 0x00 */ u8 pad0[0x7C];
+    /* 0x7C */ f32 unk7C;
+    /* 0x80 */ f32 unk80;
+    /* 0x84 */ f32 unk84;
+} ModelA_OlB_Tgt;
+
+typedef struct ModelA_OlB_Player {
+    /* 0x00 */ u8 unk0;
+    /* 0x01 */ u8 pad1[3];
+    /* 0x04 */ ModelA_OlB_Tgt *unk4;
+    /* 0x08 */ u8 pad8[0x2E8];
+} ModelA_OlB_Player;
+
+typedef struct ModelA_OlB_Kind {
+    /* 0x00 */ u8 pad0[0x67];
+    /* 0x67 */ u8 unk67;
+    /* 0x68 */ s16 unk68;
+    /* 0x6A */ s16 unk6A;
+    /* 0x6C */ s16 unk6C;
+} ModelA_OlB_Kind;
+
+typedef struct ModelA_OlB_Meta {
+    /* 0x00 */ u8 pad0[0x1E];
+    /* 0x1E */ s16 unk1E;
+} ModelA_OlB_Meta;
+
+typedef struct ModelA_OlB_SlotG {
+    /* 0x00 */ f32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ f32 unk10;
+    /* 0x14 */ f32 unk14;
+    /* 0x18 */ f32 unk18;
+    /* 0x1C */ f32 unk1C;
+    /* 0x20 */ ModelSlotVectors *unk20;
+    /* 0x24 */ ModelA_OlB_Meta *unk24;
+    /* 0x28 */ u8 pad28[0x54];
+    /* 0x7C */ ModelA_OlB_Kind *unk7C;
+    /* 0x80 */ u8 pad80[6];
+    /* 0x86 */ s16 unk86;
+    /* 0x88 */ s16 unk88;
+    /* 0x8A */ s16 unk8A;
+    /* 0x8C */ u8 pad8C[4];
+} ModelA_OlB_SlotG;
+
+extern u8 gPlayerCount;
+s32 activeActorBoxOverlapTest(f32, f32, f32, s16, s16, s16, u16);
+s32 collisionCheckBoundingBoxXZ(void *, f32, f32);
+s32 collisionCheckBoundingBoxY(void *, f32);
+void collisionTransformNode(s32, void *, f32, f32, f32, f32, f32, f32, f32);
+void modelSlotBuildTriangleBufferThunk(s32, void *, f32, f32, f32, f32, f32, f32, f32);
+void actorUpdateEntryCoordinates(s16, f32, f32, f32, f32, f32);
+
+#define MODELA_PLY(i) ((ModelA_OlB_Player *)((u8 *)gPlayerSlots + ((((((i) << 2) - (i)) << 4) - (i)) << 4)))
+#define MODELA_MODELA_OLB_SL0 ((ModelA_OlB_SlotG *)((u8 *)D_807F6000 + arg0 * 0x90))
+#define MODELA_OLB_SL ((ModelA_OlB_SlotG *)((u8 *)D_807F6000 + off))
+
+void func_806358E8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, u8 arg9, u8 arg10, u8 arg11, u8 arg12, u8 arg13) {
+    ModelA_OlB_SlotG *v1;
+    ModelSlotVectors *p;
+    s16 sp76;
+    u8 flag;
+    u8 i;
+    s32 off;
+
+    flag = 0;
+    if (arg13 == 1) {
+        arg0 = hashTableLookup(arg0);
+    }
+    if (arg12) {
+        MODELA_MODELA_OLB_SL0->unk1C = arg8;
+        v1 = MODELA_MODELA_OLB_SL0;
+        switch (v1->unk86) {
+            case 2:
+                p = v1->unk20;
+                p->unk10 = arg8;
+                break;
+            case 1:
+                p = v1->unk20;
+                p->unk1C = arg8;
+                break;
+        }
+    }
+    off = arg0 * 0x90;
+    if (arg9) {
+        MODELA_OLB_SL->unk0 = arg1;
+        MODELA_OLB_SL->unk4 = arg2;
+        MODELA_OLB_SL->unk8 = arg3;
+        v1 = MODELA_OLB_SL;
+        switch (v1->unk86) {
+            case 2:
+                p = v1->unk20;
+                p->unk0 = arg1;
+                p->unk4 = arg2;
+                p->unk8 = arg3;
+                break;
+            case 1:
+                p = v1->unk20;
+                p->unk0 = arg1;
+                p->unk4 = arg2;
+                p->unk8 = arg3;
+                break;
+        }
+    }
+    if (arg10) {
+        MODELA_OLB_SL->unk10 = arg4;
+        MODELA_OLB_SL->unk14 = arg5;
+        MODELA_OLB_SL->unk18 = arg6;
+        v1 = MODELA_OLB_SL;
+        if (v1->unk86 == 1) {
+            p = v1->unk20;
+            p->unk10 = arg4;
+            p->unk14 = arg5;
+            p->unk18 = arg6;
+        }
+    }
+    if (arg11) {
+        MODELA_OLB_SL->unkC = arg7;
+        v1 = MODELA_OLB_SL;
+        switch (v1->unk86) {
+            case 2:
+                p = v1->unk20;
+                p->unkC = arg7;
+                break;
+            case 1:
+                p = v1->unk20;
+                p->unkC = arg7;
+                break;
+        }
+    }
+    if ((arg9 || arg12) && mapPurgeNodeList((s32)MODELA_OLB_SL->unk20, &sp76, 0)) {
+        v1 = MODELA_OLB_SL;
+        renderEntryAddOrUpdate(0, ((u8 *)v1)[0x87], v1->unk20, v1->unk0, v1->unk4, v1->unk8, v1->unk24->unk1E, v1->unk88, 0, sp76, 2);
+    }
+    v1 = MODELA_OLB_SL;
+    if (arg9 || arg12 || arg10) {
+        actorUpdateEntryCoordinates(v1->unk88, v1->unk0, v1->unk4, v1->unk8, v1->unkC, v1->unk14);
+        v1 = MODELA_OLB_SL;
+    }
+    if (v1->unk7C != NULL) {
+        switch (v1->unk7C->unk67) {
+            case 0:
+                flag = 1;
+                break;
+            case 2:
+                if (gPlayerSlots != 0) {
+                    i = 0;
+                    if (gPlayerCount > 0) {
+                        do {
+                            if (MODELA_PLY(i)->unk0 != 0) {
+                                s32 hit = collisionCheckBoundingBoxY((u8 *)(off + (s32)D_807F6000 + 0x54), MODELA_PLY(i)->unk4->unk80) != 0;
+                                if (hit != 0) {
+                                    hit = collisionCheckBoundingBoxXZ((u8 *)(off + (s32)D_807F6000 + 0x54), MODELA_PLY(i)->unk4->unk7C, MODELA_PLY(i)->unk4->unk84) != 0;
+                                }
+                                flag |= hit;
+                            }
+                            i++;
+                        } while (i < gPlayerCount);
+                        v1 = MODELA_OLB_SL;
+                    }
+                }
+                break;
+            case 1:
+                if (gPlayerSlots != 0) {
+                    i = 0;
+                    if (gPlayerCount > 0) {
+                        do {
+                            if (MODELA_PLY(i)->unk0 != 0) {
+                                flag |= collisionCheckBoundingBoxXZ((u8 *)(off + (s32)D_807F6000 + 0x54), MODELA_PLY(i)->unk4->unk7C, MODELA_PLY(i)->unk4->unk84);
+                                if (i == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                            }
+                            if (gPlayerSlots == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                            i++;
+                        } while (i < gPlayerCount);
+                        v1 = MODELA_OLB_SL;
+                    }
+                }
+                break;
+            case 3:
+            case 4:
+                if (gPlayerSlots != 0) {
+                    flag = activeActorBoxOverlapTest(v1->unk0, v1->unk4, v1->unk8, v1->unk7C->unk68, v1->unk7C->unk6A, v1->unk7C->unk6C, v1->unk7C->unk67 == 3 ? 0xEF : 1);
+                    v1 = MODELA_OLB_SL;
+                }
+                break;
+        }
+    }
+    if (flag != 0) {
+        collisionTransformNode(arg0, v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC);
+        v1 = MODELA_OLB_SL;
+        modelSlotBuildTriangleBufferThunk(arg0, v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC);
+        v1 = MODELA_OLB_SL;
+    }
+    modelSlotBuildVertPosList(arg0, (ModelVertTable *)v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC, 1);
+    v1 = MODELA_OLB_SL;
+    modelSlotBuildNodePosList(arg0, (ModelVertTable *)v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC, 1);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806358E8.s")
+#endif
 
 typedef struct ActorBoundsView {
     /* 0x00 */ u8 pad0[0x5C];
@@ -3704,7 +3907,110 @@ extern s16 D_807F60B0[];
 void csStateTickTimers(s32);
 void csStateUpdate(s32, s16);
 
+#ifdef NON_MATCHING
+typedef struct ModelA_PendingSrc {
+    /* 0x00 */ u8 pad0[4];
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ u8 pad10[0xE];
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ u8 pad20[4];
+    /* 0x24 */ u8 unk24;
+} ModelA_PendingSrc;
+
+extern u8 D_807F7140;
+
+void modelPendingQueueInsert(ModelA_PendingSrc *arg0, u8 arg1) {
+    u8 *obj;
+    u8 allow;
+    s32 pad1;
+    s32 pad2;
+    s16 idx;
+    s32 pad3;
+    s32 pad4;
+    s32 pad5;
+    u8 *tbl;
+    u8 *newv;
+    u8 i;
+    ModelPendingQueueEntry *e;
+    int nv;
+    u8 *p;
+    u8 flag;
+    f32 *px;
+    f32 *py;
+    f32 *pz;
+    f32 best;
+
+    if (0) { csStateTickTimers((s32)&idx); csStateTickTimers((s32)&tbl); } allow = 1; if (arg0->unk24 == 1) { idx = hashTableLookup(arg0->unk1E); tbl = (u8 *)D_807F6000; obj = ((ModelSlot *)tbl)[idx].unk7C; if (obj != NULL) {
+            switch (obj[0x54]) {
+            case 2:
+                allow = 0;
+                break;
+            case 0:
+                allow = arg1;
+                break;
+            case 4:
+                if (newv == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                allow = arg1;
+            case 3:
+            case 6:
+                best = 1e8f;
+                for (i = 0; i < D_80750AB4;) {
+                    p = (u8 *)gPlayerSlots + i * 0x2F0;
+                    i++;
+                    if (*p != 0) {
+                        if (obj[0x54] == 6) {
+                            px = (f32 *)(*(u8 **)(p + 4) + 0x7C);
+                            py = (f32 *)(*(u8 **)(p + 4) + 0x80);
+                            newv = *(u8 **)(p + 4) + 0x84;
+                            pz = (f32 *)newv;
+                        } else {
+                            px = (f32 *)(p + 0x21C);
+                            if (!arg0) {
+                            }
+                            py = (f32 *)(p + 0x220);
+                            pz = (f32 *)(p + 0x224);
+                        }
+                        if ((*pz - arg0->unkC) * (*pz - arg0->unkC) + ((*px - arg0->unk4) * (*px - arg0->unk4) + (*py - arg0->unk8) * (*py - arg0->unk8)) < (0, best)) {
+                            if (arg0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                            best = (*pz - arg0->unkC) * (*pz - arg0->unkC) + ((*px - arg0->unk4) * (*px - arg0->unk4) + (*py - arg0->unk8) * (*py - arg0->unk8));
+                        }
+                        if (tbl && tbl) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                    }
+                    if (p) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                }
+                flag = 0;
+                if (best < (f32)*(s32 *)(obj + 0x58)) {
+                    flag = 1;
+                }
+                allow = allow & flag;
+                break;
+            case 5:
+                if (D_807F6028 == 0x14) return;
+                allow = 0;
+                D_807F6030[D_807F6028].id = arg0->unk1E;
+                D_807F6030[D_807F6028].key = *(s32 *)(obj + 0x58);
+                D_807F6030[D_807F6028].done = 0;
+                D_807F6028++;
+                break;
+            }
+            if (allow != 0) {
+                D_807F7140++;
+                if (D_807F60A8 != 0x46) {
+                    D_807F60B0[D_807F60A8] = *(s16 *)(tbl + idx * 0x90 + 0x8A);
+                    D_807F60A8++;
+                    csStateTickTimers((s32)obj);
+                    csStateUpdate((s32)obj, arg0->unk1E);
+                }
+            }
+        }
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/36880/modelPendingQueueInsert.s")
+#endif
 
 void modelPendingEntriesProcess(void) {
     u8 found;

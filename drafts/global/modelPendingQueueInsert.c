@@ -1,5 +1,5 @@
-// modelPendingQueueInsert (src/global/36880.c): stage 5 (parked NON_MATCHING in src copy; was stage 4): 18 hunks, frame/callee-saved/ra-allow match, idx via sll/addu/sll matches. Permuter hints applied: (0, best) in compare, newv temp for pz (+0x84), 'if (!arg0) {}' in else of obj[0x54]==6, e->key store before e->done, joined prologue statements ('if (0) {..} allow = 1; if (arg0->unk24 == 1) { idx=..; tbl=..; obj=..; nv = 0; if (obj != NULL) {' on ONE line) with 'int nv' = 0 used for case 2, i = i + 1 form. Remaining: loop prologue i narrowing (target addiu t0; andi t6; slt uses t6; move t0,t6 at bottom vs mine andi t9; move t0,t9 and v0 copy of i), px/py/pz regs (target v1/a0/a1, mine a1/a2/a3), addu base/offset order at first slot access (addu t9,t8,t7 vs t7,t8), flag/allow temp t6 vs t9 (v0).
-typedef struct R36880fSrc {
+// modelPendingQueueInsert (src/global/36880.c): stage 5: 33 diff lines (down from 48). Frame 0x58, callee-saved, relocations match 100%. Remaining: loop index narrowing (v0 vs t0), else base address (a2 vs v0), case 5 sb/sh store order
+typedef struct ModelA_PendingSrc {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -8,11 +8,11 @@ typedef struct R36880fSrc {
     /* 0x1E */ s16 unk1E;
     /* 0x20 */ u8 pad20[4];
     /* 0x24 */ u8 unk24;
-} R36880fSrc;
+} ModelA_PendingSrc;
 
 extern u8 D_807F7140;
 
-void modelPendingQueueInsert(R36880fSrc *arg0, u8 arg1) {
+void modelPendingQueueInsert(ModelA_PendingSrc *arg0, u8 arg1) {
     u8 *obj;
     u8 allow;
     s32 pad1;
@@ -33,15 +33,16 @@ void modelPendingQueueInsert(R36880fSrc *arg0, u8 arg1) {
     f32 *pz;
     f32 best;
 
-    if (0) { func_8063E078((s32)&idx); func_8063E078((s32)&tbl); } allow = 1; if (arg0->unk24 == 1) { idx = hashTableLookup(arg0->unk1E); tbl = (u8 *)D_807F6000; obj = ((ModelSlot *)(tbl + idx * 0x90))->unk7C; nv = 0; if (obj != NULL) {
+    if (0) { csStateTickTimers((s32)&idx); csStateTickTimers((s32)&tbl); } allow = 1; if (arg0->unk24 == 1) { idx = hashTableLookup(arg0->unk1E); tbl = (u8 *)D_807F6000; obj = ((ModelSlot *)tbl)[idx].unk7C; if (obj != NULL) {
             switch (obj[0x54]) {
             case 2:
-                allow = nv;
+                allow = 0;
                 break;
             case 0:
                 allow = arg1;
                 break;
             case 4:
+                if (newv == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 allow = arg1;
             case 3:
             case 6:
@@ -63,9 +64,12 @@ void modelPendingQueueInsert(R36880fSrc *arg0, u8 arg1) {
                             pz = (f32 *)(p + 0x224);
                         }
                         if ((*pz - arg0->unkC) * (*pz - arg0->unkC) + ((*px - arg0->unk4) * (*px - arg0->unk4) + (*py - arg0->unk8) * (*py - arg0->unk8)) < (0, best)) {
+                            if (arg0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                             best = (*pz - arg0->unkC) * (*pz - arg0->unkC) + ((*px - arg0->unk4) * (*px - arg0->unk4) + (*py - arg0->unk8) * (*py - arg0->unk8));
                         }
+                        if (tbl && tbl) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     }
+                    if (p) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 }
                 flag = 0;
                 if (best < (f32)*(s32 *)(obj + 0x58)) {
@@ -74,15 +78,12 @@ void modelPendingQueueInsert(R36880fSrc *arg0, u8 arg1) {
                 allow = allow & flag;
                 break;
             case 5:
-                if (D_807F6028 == 0x14) {
-                    return;
-                }
+                if (D_807F6028 == 0x14) return;
                 allow = 0;
-                e = &D_807F6030[D_807F6028];
-                e->id = arg0->unk1E;
+                D_807F6030[D_807F6028].id = arg0->unk1E;
+                D_807F6030[D_807F6028].key = *(s32 *)(obj + 0x58);
+                D_807F6030[D_807F6028].done = 0;
                 D_807F6028++;
-                e->key = *(s32 *)(obj + 0x58);
-                e->done = 0;
                 break;
             }
             if (allow != 0) {
@@ -90,8 +91,8 @@ void modelPendingQueueInsert(R36880fSrc *arg0, u8 arg1) {
                 if (D_807F60A8 != 0x46) {
                     D_807F60B0[D_807F60A8] = *(s16 *)(tbl + idx * 0x90 + 0x8A);
                     D_807F60A8++;
-                    func_8063E078((s32)obj);
-                    func_8063E0D4((s32)obj, arg0->unk1E);
+                    csStateTickTimers((s32)obj);
+                    csStateUpdate((s32)obj, arg0->unk1E);
                 }
             }
         }
