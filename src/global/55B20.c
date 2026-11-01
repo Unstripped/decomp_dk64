@@ -1388,25 +1388,22 @@ void mapChunkSetFlagBit3(s16 arg0) {
     D_807F6C18[arg0].unk7 |= 8;
 }
 
-#ifdef NON_MATCHING
 extern u32 D_807FBB68;
 extern s32 D_8076A064;
-extern s32 mapObjectCollectIdsByType();
+s16 mapObjectCollectIdsByType();
 
 void mapChunkUpdateAssetStreaming(void) {
     s32 i;
-    s8 *q;
+    s32 j;
     s8 buf[0x10];
     u8 flags[0x34];
-    s8 *qend;
-    s32 idx;
+    s8 idx;
+    s16 n;
 
     if (!(D_807FBB68 & 0x100)) {
         for (i = 0; i < D_807F6C28; i++) {
-            if (D_8076A064 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             flags[i] = 0;
         }
-        if (D_8076A064 && D_8076A064) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         for (i = 0; i < D_807F6C28; i++) {
             if (D_807F6C18[i].unk1 != 0) {
                 flags[i] = 1;
@@ -1416,12 +1413,9 @@ void mapChunkUpdateAssetStreaming(void) {
                     D_807F6C18[i].unk7 |= 4;
                     D_807F6C18[i].unk7 &= 0xFFFC;
                 }
-                q = buf;
-                qend = q + (s16)mapObjectCollectIdsByType((s8)i, buf, 0x10);
-                if (buf == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                if (qend > q) {
-                  do {
-                    idx = *q;
+                n = mapObjectCollectIdsByType((s8)i, buf, 0x10);
+                for (j = 0; j < n; j++) {
+                    idx = buf[j];
                     if (flags[idx] == 0) {
                         if (D_807F6C18[idx].unk1 == 0) {
                             if (!(D_807F6C18[idx].unk7 & 4)) {
@@ -1431,15 +1425,12 @@ void mapChunkUpdateAssetStreaming(void) {
                                     D_807F6C18[idx].unk7 |= 4;
                                 } else {
                                     D_807F6C18[idx].unk7 |= 2;
-                                    if (buf) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                                 }
                                 D_807F6C18[idx].unk7 &= 0xFFFE;
                             }
                             flags[idx] = 1;
                         }
                     }
-                    q++;
-                  } while (q < qend);
                 }
             }
         }
@@ -1467,10 +1458,6 @@ void mapChunkUpdateAssetStreaming(void) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapChunkUpdateAssetStreaming.s")
-#endif
 
 extern void mapChunkBuildClipFrusta(f32, f32, f32);
 extern void mapCellUpdateVisibility(f32, f32, f32, s32);
@@ -1841,7 +1828,6 @@ void mapCellUpdateVisibility(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct MapChunkCellMatrices {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ u8 pad2[0x12];
@@ -1969,7 +1955,7 @@ void mapChunksApplyLights(f32 arg0, f32 arg1, f32 arg2) {
                 D_807F7EF0 = ((f32 *)D_8076A0B8)[i];
                 D_807F7EF4 = ((f32 *)D_8076A0BC)[i];
                 if (D_807FBB60 & 0x10) {
-                    func_8065C990(MAP_CHUNK_LIGHT[i].unk60[D_807444FC], (u8 *)MAP_CHUNK_LIGHT[i].unk60[D_807444FC] + MAP_CHUNK_LIGHT[i].unk5C, 1, &D_807F78C0, obj, MAP_CHUNK_LIGHT[i].unk3 == 1);
+                    func_8065C990((s32)MAP_CHUNK_LIGHT[i].unk60[D_807444FC], (s32)MAP_CHUNK_LIGHT[i].unk60[D_807444FC] + MAP_CHUNK_LIGHT[i].unk5C, 1, &D_807F78C0, obj, MAP_CHUNK_LIGHT[i].unk3 == 1);  // FAKE: s32 args steer the arg0 register (callee takes void * here)
                 }
             }
             MAP_CHUNK_LIGHT[i].unk58 = MAP_CHUNK_LIGHT[i].unk60[D_807444FC];
@@ -1979,10 +1965,6 @@ void mapChunksApplyLights(f32 arg0, f32 arg1, f32 arg2) {
 }
 #undef MAP_CHUNK_LIGHT
 #undef MAP_CELL_VIEW
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapChunksApplyLights.s")
-#endif
 
 typedef struct {
     /* 0x000 */ u8 unk0;
@@ -3048,9 +3030,8 @@ extern s16 D_807F735A;
 extern s16 D_807F735C;
 extern s16 D_807F735E;
 
-s32 mapObjectCollectIdsByType();
 
-s32 mapObjectCollectIdsByType(arg0, arg1, arg2)
+s16 mapObjectCollectIdsByType(arg0, arg1, arg2)
 s8 arg0;
 u8 *arg1;
 s16 arg2;
