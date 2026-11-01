@@ -563,7 +563,7 @@ extern f32 D_80036DC4;
 s32 actorSpawn(s32, s32);
 void *actorListFindActorById(s16);
 void actorDespawn(void *);
-void func_805FF378(s32, s32);
+s32 func_805FF378(s32, s32);
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 void func_8068A764(void *, u8);
 void func_806C8E58(s16);
@@ -575,7 +575,7 @@ void camResumePath(void);
 void func_80724994(s32, s32, s32, s32, s32);
 s32 randomLcgNext(void);
 f32 randomFloat(void);
-void sfxAllocateChannel();
+s32 sfxAllocateChannel();
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void lightSetColor(f32, f32, f32, s32);
@@ -701,12 +701,13 @@ void func_80031AA0(void) {
     }
     sp69 = 0;
     s->unk4 += s->unk8;
-    if (s->unk4 > 1.0f) {
-        s->unk4 = 1.0f;
+    dx = 1.0f;
+    if (s->unk4 > dx) {
+        s->unk4 = dx;
         sp69 = 1;
     }
-    if (s->unk4 < 0.0f) {
-        s->unk4 = 0.0f;
+    if (s->unk4 < (f32)0) {
+        s->unk4 = (f32)0;
         sp69 = -1;
     }
     if (sp69 != 0 && camIsCutsceneActive() == 0) {
@@ -847,8 +848,8 @@ void func_80031AA0(void) {
             sp67 = 1;
             if (D_80035B70 < s->unk10) {
                 sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
-                s->unk10 = 0;
                 j = D_80035B70 + 1;
+                s->unk10 = 0;
                 if (j >= 0x10) {
                     j += 1;
                 }
@@ -910,18 +911,19 @@ void func_80031AA0(void) {
             s->unk14 -= 4;
         }
     }
-    D_80035B68++;
+    i = D_80035B68 + 1; // FAKE: i as temp lets the increment forward across the sp67 branch (D_80035B68++ reloads)
+    D_80035B68 = i;
     if (sp67 != 0) {
-        k = s->unk14;
-        sp5C = (D_80035B68 & 0x1F) - 0x10;
+        sp5C = (i & 0x1F) - 0x10;
         i = sp5C;
+        k = s->unk14;
         if (sp5C < 0) {
             i = -sp5C;
         }
         if (i >= 0x10) {
             i = 0xF;
         }
-        sp5C = (i * 0x10) & 0xFF;
+        sp5C = (i << 4) & 0xFF;
         lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)SPAWNER_ACTOR->unk7C);
         lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)SPAWNER_ACTOR->unk84);
         lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);

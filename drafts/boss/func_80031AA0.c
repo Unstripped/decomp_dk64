@@ -1,4 +1,4 @@
-// func_80031AA0 (src/boss/C920.c): stage 4 (OlT revisit): frame 128, s0/s1/ra same, 1053 insns vs 1051 (was 1054), ~12 hunks, all scheduling/regalloc. New: i = D_80035B68 + 1; D_80035B68 = i; (i as the increment temp) forwards the value across the sp67 branch and removes the hoisted D_80035B68 address (-3 insns, struct diff 39->36); target uses ugen t5/t6 there not i's t0. func_805FF378 (or sfxAllocateChannel) void->s32 toggle cuts full diff 1094->1074 (reg only). Remaining root: uopt spill/home slot for the D_807FBB40 candidate is at 72(sp) in target vs 68(sp) here (v0 spill 68 vs 64) = target has one extra 4-byte slot below, and v1 is free (li v1,5; lh v1,0(v1)) where this build uses t4/t5/a1; extra move after andi sp5C (v0/v1 swap for sp5C). Unused s32/s16/s8 pad locals at all 17 positions emit no slot (no change).
+// func_80031AA0 (src/boss/C920.c): stage 4 (W2BossL revisit): 1051 vs 1050 insns (1 insn diff: move v0,t3 after andi sp5C). (f32)0 spelling merged float zero webs into f2 matching 1710-1770; j=D_80035B70+1 before s->unk10=0 aligned 1ce4-1cf0; k=s->unk14 before if(sp5C<0) put lb in delay slot matching 1fe0-1ffc; s32 return on func_805FF378 cut deadsweep score 540->415.
 typedef struct BossModelInfo {
     u8 pad0[0x34];
     f32 unk34;
@@ -89,7 +89,7 @@ extern f32 D_80036DC4;
 s32 actorSpawn(s32, s32);
 void *actorListFindActorById(s16);
 void actorDespawn(void *);
-s32 func_805FF378(s32, s32); // FAKE: void->s32 return toggle steers regalloc
+s32 func_805FF378(s32, s32);
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 void func_8068A764(void *, u8);
 void func_806C8E58(s16);
@@ -101,7 +101,7 @@ void camResumePath(void);
 void func_80724994(s32, s32, s32, s32, s32);
 s32 randomLcgNext(void);
 f32 randomFloat(void);
-void sfxAllocateChannel();
+s32 sfxAllocateChannel();
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void lightSetColor(f32, f32, f32, s32);
@@ -227,12 +227,13 @@ void func_80031AA0(void) {
     }
     sp69 = 0;
     s->unk4 += s->unk8;
-    if (s->unk4 > 1.0f) {
-        s->unk4 = 1.0f;
+    dx = 1.0f;
+    if (s->unk4 > dx) {
+        s->unk4 = dx;
         sp69 = 1;
     }
-    if (s->unk4 < 0.0f) {
-        s->unk4 = 0.0f;
+    if (s->unk4 < (f32)0) {
+        s->unk4 = (f32)0;
         sp69 = -1;
     }
     if (sp69 != 0 && camIsCutsceneActive() == 0) {
@@ -373,8 +374,8 @@ void func_80031AA0(void) {
             sp67 = 1;
             if (D_80035B70 < s->unk10) {
                 sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
-                s->unk10 = 0;
                 j = D_80035B70 + 1;
+                s->unk10 = 0;
                 if (j >= 0x10) {
                     j += 1;
                 }
@@ -439,16 +440,16 @@ void func_80031AA0(void) {
     i = D_80035B68 + 1; // FAKE: i as temp lets the increment forward across the sp67 branch (D_80035B68++ reloads)
     D_80035B68 = i;
     if (sp67 != 0) {
-        k = s->unk14;
         sp5C = (i & 0x1F) - 0x10;
         i = sp5C;
+        k = s->unk14;
         if (sp5C < 0) {
             i = -sp5C;
         }
         if (i >= 0x10) {
             i = 0xF;
         }
-        sp5C = (i * 0x10) & 0xFF;
+        sp5C = (i << 4) & 0xFF;
         lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)SPAWNER_ACTOR->unk7C);
         lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)SPAWNER_ACTOR->unk84);
         lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);
