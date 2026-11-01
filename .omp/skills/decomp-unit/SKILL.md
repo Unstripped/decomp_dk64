@@ -63,7 +63,8 @@ Split at every TU boundary BEFORE round 1, seed the stubs' shared externs, keep 
 ## 3. Matching rounds ([dispatch.md](dispatch.md), [merge.md](merge.md))
 
 1. Per file: `python3 tools/merge_drafts.py snapshot src/<seg>/<file>.c`.
-2. Fill the WHOLE [brief.md](brief.md) into `local://brief.md`; start `local://findings.md`.
+2. Fill the WHOLE [brief.md](brief.md) into `local://brief.md`; start `local://findings.md`
+   from the previous session's `local/findings.md` (dispatch.md step 3).
 3. Partition (dispatch.md) and verify each file with
    `python3 tools/unit_check.py coverage src/<seg>/<file>.c <Agent>=<funcs>...`.
 4. Dispatch up to 6 agents, each in PRIVATE COPY mode from a named base commit.

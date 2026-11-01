@@ -10,8 +10,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 2. Fill the WHOLE [brief.md](brief.md) template into `local://brief.md`. It contains fenced
    code blocks: never cut it at the first ```` ``` ````. For a `-g` unit add a section saying
    uopt/regalloc advice does not apply and temp differences come from expression-tree shape.
-3. Start `local://findings.md`: the unit's IDO tricks and unified struct/prototype
-   declarations. Append each report's new quirks and declarations right after merging it,
+3. Start `local://findings.md` from the previous unit's (`local://` is per session: copy
+   `local/findings.md` and `brief.md` from the last session dir; revisit 4 matched 21 with
+   them). Append each report's new quirks and declarations right after merging it,
    with Python file I/O on the local path (not `str()` of a `tool.read` result).
 4. Every task's `context`: "Read `local://brief.md` FIRST and follow it exactly, then read
    `local://findings.md`" plus file facts. Put each agent's assignment (base commit, copy
@@ -122,8 +123,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 - The `wait` status line lags: before reassigning an agent's "untouched" functions, ask it
   (`write agent://<id>`); EffB had already worked them.
 - Check the stage of everything parked: agents park stage-2/3 C despite the brief. Only
-  stage 4+ (same blocks, saved registers and frame) stays parked; turn the rest back into
-  the bare pragma with the draft kept.
+  stage 4+ (same blocks, saved registers, frame AND instruction count) stays parked; a report
+  saying `N vs M insns` is stage 3: keep the stored park when `git show HEAD:drafts/...` had the
+  count right (6 such regressions in revisit 4), else turn it back into the bare pragma.
   A stage-6 park is not proof of equivalence (201B0: a parked clamp was a min, the asm a
   max); a fresh-eyes pass on a sibling's park checks branch sense first. Reject dead tests
   that add an uninitialised read on some path (`if (step == 0) {}` before `step`'s first

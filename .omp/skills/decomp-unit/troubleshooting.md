@@ -86,3 +86,5 @@ then tell running agents not to re-copy from `src`.
   --task`) needs the session's real local dir (the path `write('local://x')` returns).
 - `make NON_MATCHING=1` ending in `global.gz ... exceed segment size` is expected (parks
   change code size); only its compile and link errors matter.
+- `deadsweep.py score --body` on a park whose declarations sit inside its `#ifdef` block fails
+  (`undefined`/`redeclaration`): score a whole-file copy with the edit instead (no `--body`).

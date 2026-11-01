@@ -145,10 +145,10 @@ swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a
 Your budget is finite: near-misses first, then never-attempted functions smallest to largest;
 after a serious effort on one, move on and come back if budget remains. Before writing C,
 read the matched C that `tools/dk python3 tools/similar.py -s <segment> <FUNC>` lists, then
-take starter C from `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`. First check every
-callee's return type and WIDTH, parameter widths and arity against its CURRENT definition in
-`src/` (`void` vs `s32`, `u8`/`s16` declared `s32`, phantom params: each flips the caller's
-v0/v1, ring or `andi`s; an unused-result `s32` callee takes one ring temp). Fdiff each once.
+take starter C from `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`. First run `python3
+tools/unit_check.py protos [--seg <overlay>] <your copy>`: callee return/param widths and arity
+that differ from the CURRENT definition (`void` vs `s32`, `u8`/`s16` declared `s32`, phantom
+params) each flip the caller's v0/v1, ring or `andi`s; an unused `s32` result takes a ring temp.
 When the permuter (or anything else) reaches score 0, put the readable C into your copy in place
 of the function's `GLOBAL_ASM` line and confirm with fdiff: a draft-only match is not merged.
 Stop on outcome, not time: report as soon as every assigned function is matched, or is back
@@ -156,8 +156,8 @@ on its exact `GLOBAL_ASM` line with a saved draft whose note names the stage and
 remaining diff, and you have no untried idea left (a few attempts in a row that no longer
 shrink the diff). Never idle to fill time. Save the draft after every improving attempt.
 Keep context small: diff one function's objdump at a time, pipe long output through `head`.
-A function reported at stage 1-3 with untried next steps is unfinished work; a frame-size
-mismatch is stage 3 at most. A function's own rodata constants (`dlabel D_8075xxxx` in its
+A function reported at stage 1-3 with untried next steps is unfinished work; a frame-size or
+instruction-count mismatch is stage 3 at most (never parked). A function's own rodata (`dlabel D_8075xxxx` in its
 `.s`) are C literals of the right type (`0.35f`, `1.07`), one per rodata entry in source
 order, never `extern f64 D_8075...` (identical code, but `.rodata` fails).
 Report every assigned function, matched or not. One that won't match gets its exact original
