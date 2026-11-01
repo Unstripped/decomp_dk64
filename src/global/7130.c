@@ -96,7 +96,6 @@ void sfxPlayCurrent(u8 arg0, u8 arg1, u8 arg2) {
     sfxStartAreaAmbient();
 }
 
-#ifdef NON_MATCHING
 extern s16 D_807458DC[];
 extern f32 D_807458F4[];
 extern s16 D_80745924[];
@@ -116,8 +115,8 @@ typedef struct {
 extern SfxSignedBytes4 D_80745B20;
 extern SfxUnsignedBytes4 D_80745B24;
 
-void func_8060131C(s32, s32, s32);
-void func_806013E8(s32, s32, s32);
+void func_8060131C(u8, s32, s32);
+void func_806013E8(u8, s32, s32);
 void sfxStopChannel();
 void seqSetTargetVolume(s32, f32);
 void seqLoadAndPlayWithReverb(s32, u8, f32);
@@ -132,7 +131,7 @@ void sfxUpdateChannels(void) {
     SfxUnsignedBytes4 sp64;
     s32 s5;
     s32 vol;
-    u8 sel;
+    s32 sel;
 
     sp68 = D_80745B20;
     sp64 = D_80745B24;
@@ -191,9 +190,8 @@ void sfxUpdateChannels(void) {
             }
         } while (++i < 12);
 
-        i = 0;
         if (1) {}  // FAKE: steers uopt register order (s7/s8)
-        do {
+        i = 0; do { // LAYOUT:
             s8 idx = sp68.b[i];
             if (sp64.b[i] != 0) {
                 if (sp64.b[i] == 1) {
@@ -224,10 +222,6 @@ void sfxUpdateChannels(void) {
         } while (++i < 4);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/sfxUpdateChannels.s")
-#endif
 
 extern s16 D_807458DC[];
 extern f32 D_807458F4[];
@@ -1176,13 +1170,8 @@ void sfxStopSlotSound(Actor *arg0, u8 arg1) {
 
 void faultSetMessage(s32, s32, s32, s32);
 
-#ifdef NON_MATCHING
-void sfxSlotFreeSource(arg0)
-s16 arg0;
-{
-    D_80770740[D_80770628[arg0]]--;
-
-    if (D_80770740[D_80770628[arg0]] != 0) {
+void sfxSlotFreeSource(s16 arg0) {
+    D_80770740[D_80770628[arg0]]--; if (D_80770740[D_80770628[arg0]] != 0) { // LAYOUT:
         D_80770658[D_807707A0[D_80770628[arg0]][D_80770740[D_80770628[arg0]]]] = D_80770658[D_807707A0[D_80770628[arg0]][D_80770658[arg0]]];
         D_807707A0[D_80770628[arg0]][D_80770658[arg0]] = D_807707A0[D_80770628[arg0]][D_80770740[D_80770628[arg0]]];
     } else {
@@ -1200,10 +1189,6 @@ s16 arg0;
     D_80770628[arg0] = -1;
     D_80770658[arg0] = -1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/sfxSlotFreeSource.s")
-#endif
 
 s32 func_8070B318(void);
 void n_alSndpStopAll(void);
