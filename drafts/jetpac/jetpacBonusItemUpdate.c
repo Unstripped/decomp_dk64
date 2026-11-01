@@ -1,4 +1,4 @@
-// jetpacBonusItemUpdate (src/jetpac/3480.c): stage 5 park: li t5,2 placement and sw via a0 vs s0 at unk34+1 early return (+4 bytes / 1 insn), v0/v1 swap in switch cases 1/3/4
+// jetpacBonusItemUpdate (src/jetpac/3480.c): stage 5 park: 36 text diff: li t5,2 placement and sw via a0 vs s0 at unk34+1 early return (+4 bytes / 1 insn), v0/v1 swap in switch cases 1/3/4. Tested flagSet narrow prototype (s16, u8, u8), item copy to local, and dead tests with constant 2.
 typedef struct {
     u8 pad0[8];
     f32 unk8;

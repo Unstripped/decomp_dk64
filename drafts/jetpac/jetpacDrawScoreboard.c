@@ -1,4 +1,4 @@
-// jetpacDrawScoreboard (src/jetpac/0.c): stage 6: 2 insns swapped (text 2): only diff is preheader order 'lui s1,lui s3,addiu s1,addiu s3' (target FIFO) vs ours 'addiu s3 then s1' (LIFO). ugen input is la s1; addu s5; li s4; la s3. OlR2d tried (no change): deadsweep extras (861), 14k random dead-if/join mutants, permuter 500s, local char *fmt / JetpacPlayer *pl assigned before/inside loop in 5 orders, 7x7x3x5 spellings of the two D_8002EC4C[i].lives uses/format/loop header, extern char D_8002E9D4[] for the string (same order, so not string specific), dead early uses of array/format/buf
+// jetpacDrawScoreboard (src/jetpac/0.c): stage 6: 2 insns swapped (text 2): preheader order 'lui s1, lui s3, addiu s1, addiu s3' (target FIFO) vs ours 'addiu s3 then s1' (LIFO). ugen input is la s1; addu s5; li s4; la s3. Tested all 120 permutations of preheader records in t.G, while/do-while/for loop headers, and replacing D_8002EC4C with jetpacGame.players (diff 3 with base %hi).
 typedef struct {
     u8 pad0[0x1C];
     u8 pad1C[0x8];
