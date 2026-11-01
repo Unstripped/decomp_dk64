@@ -92,7 +92,6 @@ extern BossWaypointListS16 *D_807FDCA0;
 s32 flagGet(s16, u8);
 void bossScriptStep(u8 *, s32, f32);
 
-#ifdef NON_MATCHING
 typedef struct BossPhaseState {
     u8 pad0[0x14];
     u8 unk14;
@@ -182,7 +181,7 @@ void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(void *, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32);
-s32 projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
+void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s32, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
@@ -198,8 +197,7 @@ s32 func_8072881C(s32, void *);
 void func_8002F100(void) {
     BossPhaseState *sp4C;
     u8 *sp48;
-    s16 t;
-    s32 pad[1];
+    s32 pad[2];
     f32 sp3C;
 
     sp4C = MAIN_ACTOR->unk178;
@@ -259,9 +257,8 @@ void func_8002F100(void) {
                 MAIN_ACTOR->unk155++;
                 break;
             case 1:
-                t = TIMER_STATE->unk2C;
-                if (t != 0) {
-                    TIMER_STATE->unk2C = t - 1;
+                if (TIMER_STATE->unk2C != 0) {
+                    TIMER_STATE->unk2C--;
                 } else {
                     actorScriptStart(MAIN_ACTOR, 0x400);
                     MAIN_ACTOR->unk155++;
@@ -298,27 +295,23 @@ void func_8002F100(void) {
             MAIN_ACTOR->unkE6 = mathAngleEaseToward(MAIN_ACTOR->unkE6, mathAngleBetweenPoints2D((f32)((BossWaypointList *)D_807FDCA0)->unk14->unk0, (f32)((BossWaypointList *)D_807FDCA0)->unk14->unk4, MAIN_ACTOR->unk7C, MAIN_ACTOR->unk84), 10.0f);
             break;
         case 3:
-            t = TIMER_STATE->unk2C;
-            if (t != 0 && (u32)gFrameCounter % 5 == 0) {
+            if (TIMER_STATE->unk2C != 0 && (u32)gFrameCounter % 5 == 0) {
                 projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 150, 3, (f32)((f64)(u32)sp4C->unk14 * 0.01 + 1.04), 0.0f, 0.0f, 0.0f);
-                t = TIMER_STATE->unk2C;
-                TIMER_STATE->unk2C = t - 1;
-                if (t < 4) {
+                if (TIMER_STATE->unk2C-- < 4) {
                     SECOND_ACTOR->unk168 = 0;
                 } else {
                     sfxPlayAtPositionPooled(MAIN_ACTOR->unk7C, MAIN_ACTOR->unk80, MAIN_ACTOR->unk84, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
                 }
                 func_80613C48(SECOND_ACTOR, 0x4F9, 0.0f, 0.0f);
                 scriptSetActorRampTarget(SECOND_ACTOR, 0.5f, 0.0f);
-            } else if (t == 0) {
+            } else if (TIMER_STATE->unk2C == 0) {
                 TIMER_STATE->unk2C = sp4C->unk18;
                 MAIN_ACTOR->unk155++;
             }
             break;
         case 4:
-            t = TIMER_STATE->unk2C;
-            if (t != 0) {
-                TIMER_STATE->unk2C = t - 1;
+            if (TIMER_STATE->unk2C != 0) {
+                TIMER_STATE->unk2C--;
             } else {
                 actorSetTargetSpeed(MAIN_ACTOR, D_807FDC9C->unkC);
                 actorScriptStart(MAIN_ACTOR, 0x3E4);
@@ -393,10 +386,7 @@ void func_8002F100(void) {
     }
     actorUpdateModelMatrix(MAIN_ACTOR, 0);
 }
-#else
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/B100/func_8002F100.s")
-#endif
 
 void func_8002FB7C(arg0)
 u8 arg0;
