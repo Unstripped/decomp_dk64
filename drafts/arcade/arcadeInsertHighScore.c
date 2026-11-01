@@ -1,4 +1,4 @@
-// arcadeInsertHighScore (src/arcade/0.c): stage 3 (frame 0 vs 0x18). Target: CSE'd D_8004A794 lbu hoisted to ENTRY, sb 0xC(sp) in beqz delay slot, lbu a0,0xC(sp) before the fill loop (web split, entry..loop2 uncoloured). Swept (ArcNM1b/d): ~500 variants of local type/position/read form/dead uses/address-taken/struct locals, exhaustive dead-statement insertion, and dummy webs live across loops 1-2 (2..10 extra locals): all colour the web in a register or move things to s-regs; never the spill. Not pressure-induced. Untried: restructure so D_8004A794 is read in a branch-likely position / K&R with u8 param shape.
+// arcadeInsertHighScore (src/arcade/0.c): arcadeInsertHighScore (src/arcade/0.c): stage 3 (frame 0 vs 0x18). Target spills D_8004A794 to 0xC(sp) across loop 1 (lbu hoisted to entry, sb in beqz slot, lbu before fill loop). Tried K&R u8/narrow parameter shapes, stack layout/local arrays, branch-likely loops, and initial web splitting; uopt allocates all 7 caller-saved regs in loop 1 but colours web into register or s0 rather than spilling.
 extern u8 D_8004A794;
 void arcadeInsertHighScore(s32 arg0) {
     u8 initial;

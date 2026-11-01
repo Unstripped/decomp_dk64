@@ -1,4 +1,4 @@
-// func_80731784 (src/global/135D30.c): stage 6: 30 insns, frame matches. Regalloc diff on a0..a3 (arg0/arg1/table pointer register assignment).
+// func_80731784 (src/global/135D30.c): stage 6: 30 insns, frame matches. Regalloc diff on a0..a3 (target: arg0 in a0, e in a1, arg1 in a3, i+1 in t3; ours: arg0 in a3, e in a0, arg1 in a1, i+1 in a0)
 typedef struct E2Ent {
     /* 0x0 */ u8 unk0;
     /* 0x1 */ u8 pad1;

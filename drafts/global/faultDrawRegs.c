@@ -1,4 +1,4 @@
-// faultDrawRegs (src/global/136820.c): stage 6: identical except temp numbering: target t6,t7,t8,[t9 burned],t0..t5 contiguous; ours t6,t7,t8,t9(first lw D_807563B8),[t0,t1 burned after the guard],t2..
+// faultDrawRegs (src/global/136820.c): stage 6: 113 insns, frame matches. Temp numbering diff: target t6,t7,t8,[t9 burned],t0..t5 contiguous; ours t6,t7,t8,t9(first lw D_807563B8),[t0,t1 burned after the guard],t2..t6
 typedef struct {
     s32 unk0;
     s32 unk4;
