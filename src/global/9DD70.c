@@ -205,7 +205,6 @@ void func_80699914(void) {
     actorSagWaveUpdate(0x1C, 1);
 }
 
-#ifdef NON_MATCHING
 typedef struct WaveNode {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 unk1;
@@ -289,10 +288,9 @@ void actorSagWaveUpdate(u8 arg0, u8 arg1) {
         }
         state->unk0 = -1;
         state->unk94 = 0;
-        state->unkB8[1] = 0;
-        state->unkB8[2] = 0;
-        state->unkB8[3] = 0;
-        state->unkB8[0] = 0;
+        for (i = 0; i < 4; i++) {
+            state->unkB8[i] = 0;
+        }
     }
     if ((func_8069A750() != 0) && (state->unk0 == -1)) {
         state->unk0 = 10;
@@ -438,47 +436,39 @@ void actorSagWaveUpdate(u8 arg0, u8 arg1) {
             }
         }
     }
-    i = 0;
-    if (arg0 > 0) {
-        do {
-            if (state->unk4[i] < sp128[i]) {
-                switch (arg1) {
-                case 0:
-                    state->unk4[i] = (f32)((f64)state->unk4[i] + ((f64)(sp128[i] - state->unk4[i]) * 0.25));
-                    break;
-                case 1:
-                    state->unk4[i] = (f32)((f64)state->unk4[i] + ((f64)(sp128[i] - state->unk4[i]) / 15.0));
-                    break;
-                }
-                if (sp128[i] < state->unk4[i]) {
-                    state->unk4[i] = sp128[i];
-                }
+    for (i = 0; i < arg0; i++) {
+        if (state->unk4[i] < sp128[i]) {
+            switch (arg1) {
+            case 0:
+                state->unk4[i] = (f32)(((f64)(sp128[i] - state->unk4[i]) * 0.25) + (f64)state->unk4[i]);
+                break;
+            case 1:
+                state->unk4[i] = (f32)(((f64)(sp128[i] - state->unk4[i]) / 15.0) + (f64)state->unk4[i]);
+                break;
             }
             if (sp128[i] < state->unk4[i]) {
-                switch (arg1) {
-                case 0:
-                    state->unk4[i] = (f32)((f64)state->unk4[i] - ((f64)(state->unk4[i] - sp128[i]) * 0.5f));
-                    break;
-                case 1:
-                    state->unk4[i] = (f32)((f64)state->unk4[i] - ((f64)(state->unk4[i] - sp128[i]) * 0.125));
-                    break;
-                }
-                if (state->unk4[i] < sp128[i]) {
-                    state->unk4[i] = sp128[i];
-                }
+                state->unk4[i] = sp128[i];
             }
-            ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk8 = spC0[i] + state->unk4[i];
-            i++;
-        } while (i < arg0);
+        }
+        if (sp128[i] < state->unk4[i]) {
+            switch (arg1) {
+            case 0:
+                state->unk4[i] = (f32)((f64)state->unk4[i] - ((f64)(state->unk4[i] - sp128[i]) * 0.5f));
+                break;
+            case 1:
+                state->unk4[i] = (f32)((f64)state->unk4[i] - ((f64)(state->unk4[i] - sp128[i]) * 0.125));
+                break;
+            }
+            if (state->unk4[i] < sp128[i]) {
+                state->unk4[i] = sp128[i];
+            }
+        }
+        ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk8 = state->unk4[i] + spC0[i];
     }
     ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[0].unk8 = 0.0f;
     *(f32 *)((u8 *)((NodeListHead *)D_807FBB40->unk4)->unk24 + (arg0 << 4) - 8) = 0.0f;  // FAKE: byte-offset form stops the CSE of arg0 * 16 across the calls
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/actorSagWaveUpdate.s")
-#endif
 
 typedef struct {
     u8 pad0[0x98];
