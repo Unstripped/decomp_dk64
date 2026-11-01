@@ -527,11 +527,11 @@ void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
 void n_alSndpStop(s32);
 void seqSetVolumeInstant(s32, f32);
 
-#ifdef NON_MATCHING
 void sfxUpdateLevelAmbient(void) {
     s8 spE7;
     s8 spE6;
     u8 spE5;
+    u8 tD;
     s32 n;
     s32 var_s1;
     s16 s2;
@@ -539,7 +539,7 @@ void sfxUpdateLevelAmbient(void) {
     f32 var_fs1;
     f32 var_fs0;
     f32 spCC;
-    s32 spC8;
+    u32 spC8;
     s16 spC4;
     AmbientEmitter *spC0;
     LevelSoundEmitter *spBC;
@@ -549,6 +549,7 @@ void sfxUpdateLevelAmbient(void) {
 
     switch (D_8076A0A8) {
     case 7:
+        if (D_8077058C[0] == 0) {}  // FAKE: dead statement steers uopt colouring
         var_s1 = 7;
         spC0 = D_80745F74;
         break;
@@ -703,8 +704,8 @@ void sfxUpdateLevelAmbient(void) {
         }
         D_80770DCA = D_80770DC9;
         if (var_fs1 != 0.0f) {
-            if (spC0[spE7].unkD != 0) {
-                sfxAllocateChannel(spC0[spE7].unkD, 1.0f);
+            if ((tD = spC0[spE7].unkD)) {  // FAKE: u8 copy steers the lbu/move a0 pair
+                sfxAllocateChannel(tD, 1.0f);
             }
         }
         if (D_80770560[2] == 0x26) {
@@ -719,6 +720,7 @@ void sfxUpdateLevelAmbient(void) {
     } else {
         D_8077058E = D_80745BDC[D_8076A0A8][1];
     }
+    if (D_80770DE8 && D_80770DE8) {}  // FAKE: dead statement steers uopt colouring
 
     if (D_80745838 != 0) {
         D_8077058E = 0xFF;
@@ -727,9 +729,10 @@ void sfxUpdateLevelAmbient(void) {
     if (D_8077058E != D_8077058D) {
         var_fs0 = (f32)(((f64)(u32)D_8077058E * 0.3) / 255.0);
         var_fs1 = (f32)((((f64)(u32)D_8077058E * 0.35) / 255.0) + 1.0);
-        if (D_8077058E) {} // FAKE: deadsweep
+        spC8 = D_8077058E;  // FAKE: u32 copy of the byte steers its typed-constant web (spC8 is reassigned below)
         if (D_8076A0A8 == 0xE) {
-            if (D_8077058E != 0) {
+            if (spC8 != 0) {
+                s0 = 4;  // FAKE: dead store stops uopt hoisting the loop-init s0 = 0 above the seqSetVolumeInstant calls
                 seqSetVolumeInstant(0, 1.0f);
             } else {
                 seqSetVolumeInstant(0, 0.6f);
@@ -844,6 +847,7 @@ void sfxUpdateLevelAmbient(void) {
             if (var_fs0 != D_80770EF8[s2]) {
                 if (D_80770EF8[s2] != 255.0f) {
                     if (D_80770EF8[s2] < var_fs0) {
+                        if (D_8077058D && D_8077058D) {}  // FAKE: dead statement steers uopt colouring
                         if (D_80770EF8[s2] + 8.0f < var_fs0) {
                             var_fs0 = D_80770EF8[s2] + 8.0f;
                         }
@@ -864,6 +868,7 @@ void sfxUpdateLevelAmbient(void) {
     }
 
     if ((D_807FBB60 & 2) || !(D_807FBB60 & 0x10)) {
+        if (D_80770DC8) {}  // FAKE: dead statement steers uopt colouring
         D_8077058C[0] = 0;
     }
     if (D_8077058C[0] != 0) {
@@ -894,13 +899,7 @@ void sfxUpdateLevelAmbient(void) {
     } else if (D_807457DC != 0) {
         n_alSndpStop(D_807457DC);
     }
-    if (D_80770DC8) {} // FAKE: keeps address un-hoisted
-    if (D_8077058D) {} // FAKE: keeps address un-hoisted
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/7130/sfxUpdateLevelAmbient.s")
-#endif
 
 extern ALCSPlayer *D_8076BF24;
 
