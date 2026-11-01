@@ -229,8 +229,8 @@ void hudPauseMenuUpdate(void) {
     s32 x;
     s32 a2;
     s32 lim;
-    s16 half; // FAKE: s16 (not s32) keeps the sum in a ring temp
-
+    s16 half; // FAKE: unused pad; its mere declaration keeps the end-block ring temps
+    if (D_807505D4) {} // FAKE: dead read, splits the D_807505D4 address web
     hud = D_807FBB40->unk174;
     i = gCurrentMap;
     switch (i) {
@@ -530,7 +530,6 @@ void hudPauseMenuUpdate(void) {
     if (hud->unk16 == 1) {
         hud->unk0 = hud->unk0 + 0.13f;
         if (hud->unk0 > 1.3f) {
-            if (D_807505D4) {} // FAKE: steers D_807505D4 address hoist
             hud->unk0 = 1.0f;
             if (hud->unk13 == -1) {
                 hudFreeBuffers();
@@ -549,9 +548,8 @@ void hudPauseMenuUpdate(void) {
             sfxPlayOnFreeSlot(0x3C, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
     }
-    half = D_807505D4 - 1;
-    D_807505D4 = half;
-    if ((s8)half < 0) {
+    D_807505D4--;
+    if (D_807505D4 < 0) {
         D_807505D4 = 0;
     }
     if (D_807467E4 == 0x1C) {
