@@ -691,10 +691,8 @@ extern u8 D_8002F060[];
 
 #ifdef NON_MATCHING
 void jetpacDrawLedges(void) {
-    u8 *color_fp = (u8 *)(s32)D_8002EF90;
-    u8 *color = color_fp;
-    void *de80 = &D_8002DE80;
-    u8 *base = (u8 *)&jetpacGame; JetpacLedge *ledge = jetpacLedges; do {
+    u8 *color_fp; u8 *color; void *de80; u8 *base; JetpacLedge *ledge;
+    color_fp = (u8 *)(s32)D_8002EF90; color = color_fp; de80 = &D_8002DE80; base = (u8 *)&jetpacGame; ledge = jetpacLedges; do {
         s32 x = (s32)*(f32 *)(base + 0x350);
         s32 y = (s32)*(f32 *)(base + 0x354);
         JetpacLedge *cur = ledge;

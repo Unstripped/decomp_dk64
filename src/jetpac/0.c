@@ -482,7 +482,6 @@ void jetpacStartStage(void) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     u16 unk0;
     s8 unk2;
@@ -497,7 +496,6 @@ void jetpacStateGameplay(s32);
 void jetpacUpdateStateAndInput(s32 arg0) {
     u8 flag;
     s32 zero;
-    volatile s32 *p;
 
     zero = 0;
     if (D_8002BA70 != 0) {
@@ -514,13 +512,12 @@ void jetpacUpdateStateAndInput(s32 arg0) {
             jetpacGame.unk799 = 0;
         }
     }
-    p = &D_8002BA6C;
-    *p = (s64)jetpacGame.unk790;
-    *p = jetpacGame.unk790 % 60;
-    *p = jetpacGame.unk790 % 60 / 30;
+    D_8002BA6C = jetpacGame.unk790;
+    D_8002BA6C %= 60;
+    D_8002BA6C /= 30;
     jetpacGame.unk4 = jetpacGame.unk0;
     jetpacGame.unk0 = D_807ECDE8->unk0;
-    if (0) {
+    if (0) { // FAKE: regalloc
     }
     if ((zero = D_807ECDE8->unk2) >= 0x1F) {
         jetpacGame.unk0 |= 0x100;
@@ -561,11 +558,6 @@ void jetpacUpdateStateAndInput(s32 arg0) {
     }
     jetpacGame.unk790 = jetpacGame.unk790 + 1;
 }
-
-#else
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/0/jetpacUpdateStateAndInput.s")
-#endif
 
 void jetpacNextPlayerOrGameOver(JetpacPlayer *arg0) {
     s32 other_idx = jetpacGame.active_player ^ 1;
