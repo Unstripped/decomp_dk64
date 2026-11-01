@@ -153,7 +153,6 @@ s32 hudFindItemIndex(s8 arg0) {
     return 0;
 }
 
-#ifdef NON_MATCHING
 typedef struct HudPauseState {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -231,6 +230,7 @@ void hudPauseMenuUpdate(void) {
     s32 lim;
     s16 half; // FAKE: unused pad; its mere declaration keeps the end-block ring temps
     if (D_807505D4) {} // FAKE: dead read, splits the D_807505D4 address web
+
     hud = D_807FBB40->unk174;
     i = gCurrentMap;
     switch (i) {
@@ -566,10 +566,6 @@ void hudPauseMenuUpdate(void) {
 
 #undef HUD_PAUSE_MODE
 #undef HUD_PAUSE_LIST
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/hudPauseMenuUpdate.s")
-#endif
 
 void hudFreeBuffers(void) {
     s32 i;
