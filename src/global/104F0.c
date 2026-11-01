@@ -113,7 +113,37 @@ void eepromCopySlot(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromCopySlot.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060BB18.s")
+void func_8060BB18(arg0, arg1, arg2)
+u32 arg0;
+unsigned short arg1;
+unsigned char arg2;
+{
+    u32 mask;
+    u32 val;
+    u8 bit;
+    u32 *ptr;
+
+    mask = -1;
+    val = 0;
+    bit = arg1 & 0x1F;
+    ptr = (u32 *)D_807ECEA8 + (arg1 >> 5);
+    if (arg2) {
+        do {
+            mask ^= 1 << bit;
+            val |= (arg0 & 1) << bit;
+            arg0 >>= 1;
+            bit++;
+            arg2--;
+            if ((bit >= 0x20) || !arg2) {
+                *ptr = (*ptr & mask) | val;
+                ptr++;
+                bit = 0;
+                val = 0;
+                mask = -1;
+            }
+        } while (arg2);
+    }
+}
 
 s32 eepromReadBitfield(arg0, arg1)
 unsigned short arg0;
@@ -953,8 +983,8 @@ u8 *func_8060E25C(s32 arg0) {
 #ifdef NON_MATCHING
 u8 eepromReadChecksumBit(u16 arg0, u8 arg1) {
     u8 result;
-    u16 value;
     u8 output;
+    u16 value;
 
     result = 0;
     if (func_8071432C() != 0) {

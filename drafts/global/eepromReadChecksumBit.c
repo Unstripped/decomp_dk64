@@ -1,4 +1,4 @@
-// eepromReadChecksumBit (src/global/104F0.c): stage 6: 100% bit-identical when func_8060B9D0 declared as u16; with s32 return, frame is 0x30 vs target 0x28 (or with result,output,value declarations, 0x28 frame has single diff: output at sp+0x26 vs target sp+0x23)
+// eepromReadChecksumBit (src/global/104F0.c): stage 6: 31/32 insns match, frame 0x28 exact, single diff addiu a1,sp,0x26 vs 0x23 (or bit-identical 32/32 if func_8060B9D0 u16)
 extern u8 D_807467C8;
 extern s32 func_8060B9D0();
 extern s32 eepromReadBitfield(s32, s32);
@@ -7,8 +7,8 @@ extern s32 func_8071432C(void);
 
 u8 eepromReadChecksumBit(u16 arg0, u8 arg1) {
     u8 result;
-    u16 value;
     u8 output;
+    u16 value;
 
     result = 0;
     if (func_8071432C() != 0) {
