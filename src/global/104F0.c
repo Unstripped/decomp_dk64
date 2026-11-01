@@ -115,7 +115,6 @@ void eepromCopySlot(void) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/func_8060BB18.s")
 
-#ifdef NON_MATCHING
 s32 eepromReadBitfield(arg0, arg1)
 unsigned short arg0;
 unsigned char arg1;
@@ -126,36 +125,32 @@ unsigned char arg1;
     u8 start;
     u8 bit;
     u8 shift;
-    u8 rem;
+    u8 orig;
 
     result = 0;
     start = arg0 & 0x1F;
     shift = 0;
     bit = arg0 & 0x1F;
     data = 0;
-    rem = arg1;
+    orig = arg1;
     ptr = (u32 *)D_807ECEA8 + (arg0 >> 5);
-    if (rem) {
+    if (arg1) {
         do {
             data |= 1 << bit;
             bit++;
-            rem--;
-            if ((bit >= 0x20) || !rem) {
+            arg1--;
+            if ((bit >= 0x20) || !arg1) {
                 result |= ((*ptr & data) >> start) << shift;
                 bit = 0;
                 ptr++;
                 data = 0;
                 start = 0;
-                shift = -(rem - arg1);
+                shift = -(arg1 - orig);
             }
-        } while (rem);
+        } while (arg1);
     }
     return result;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromReadBitfield.s")
-#endif
 
 void func_8060BCA0(s32 arg0, u8 arg1, u8 arg2, u16 *arg3, u8 *arg4) {
     *arg3 = D_807ECEA0[0] + *arg3 + (arg1 * 0xA1) + 0x320;
@@ -610,7 +605,6 @@ void func_8060D0A8(void) {
     D_807467C8 = (u8) sp28;
 }
 
-#ifdef NON_MATCHING
 extern OSMesgQueue D_807ECCF0;
 extern s32 D_807EDEAC;
 extern s32 _strcasecmp(char *, char *);
@@ -632,17 +626,14 @@ void eepromReadAllSectors(void) {
         return;
     }
     D_807467C4 = 1;
-    var_s0 = 0;
-    do {
+    for (var_s0 = 0; (var_s0 < 0x100) && (var_s2 == 0); var_s0++, var_s1 += 8) {
         var_s2 |= osEepromRead(&D_807ECCF0, (u8)var_s0, var_s1);
         sleepMilliseconds(15.0f);
-        var_s0 += 1;
         if (D_80744460 != 0) {
             D_807467C4 = 0;
             return;
         }
-        var_s1 += 8;
-    } while ((var_s0 < 0x100) && (var_s2 == 0));
+    }
     D_807467C4 = 0;
     D_807467CC = 1;
     if (var_s2 == 0) {
@@ -653,10 +644,6 @@ void eepromReadAllSectors(void) {
     }
     func_8060CB9C();
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromReadAllSectors.s")
-#endif
 
 #ifdef NON_MATCHING
 extern s32 _sprintf();
