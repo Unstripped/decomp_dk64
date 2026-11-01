@@ -882,9 +882,10 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
     unk8 = core->unk8;
     pos = win0->unk4;
     unkC = core->unkC;
-    rate = 1.0f;
     if (core->unk30 & 1) {
         rate = (f32) ((f64) (u32) D_80744478 * 0.5);
+    } else {
+        rate = 1.0f;
     }
     core->unk30 &= ~1;
     if (D_80746B60 == 0) {
@@ -964,6 +965,7 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
 void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *arg1_raw, f32 arg2) {
     MotionOwner *arg0 = (MotionOwner *)arg0_raw;
     MotionWindow *arg1 = (MotionWindow *)arg1_raw;
+    s8 new_var;
     f32 temp_fa0;
     f32 temp_fa0_2;
     f32 temp_ft4;
@@ -972,7 +974,6 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
     s16 temp_v0_2;
     s32 temp_a0;
     s32 temp_t2;
-    s8 mask;
     void *var_a0;
     s32 var_a2;
     s32 var_a3;
@@ -1006,13 +1007,13 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
             return;
         }
         arg2 += (f32) ((arg1->unk20 - arg1->unk1E) - (s32) temp_fa0);
-        mask = 0xFFF7;
-        arg1->unk1C = (u16) ((s16) arg1->unk1C & mask);
+        new_var = 0xFFF7;
+        arg1->unk1C = (u16) ((s16) arg1->unk1C & new_var);
         if (arg1 == var_a0) {
             temp_v0->unk78 &= ~0x20;
         }
     }
-    mask = ~8;
+    new_var = ~8;
     if (temp_v1 & 4) {
         if (temp_fv1 < arg2) {
             var_a3 = 1;
@@ -1024,7 +1025,7 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
         }
         if (var_a3 != 0) {
             arg1->unk24 = 0.0f - arg1->unk24;
-            if (arg1->unk34 != 0.0f) {
+            if (arg1->unk34 != 0) {
                 arg1->unk2C = 0.0f - arg1->unk2C;
                 arg1->unk28 = 0.0f - arg1->unk28;
             }
@@ -1064,22 +1065,22 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
                 temp_v0->unk78 = temp_t2;
                 if (temp_a0 != 0) {
                     temp_v0->unk7C = temp_a0 - 1;
+                    if (temp_a0 && temp_a0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     var_v1 = temp_t2;
                 } else {
-                    var_v1 = temp_v0->unk78 & ~2;
-                    temp_v0->unk78 = var_v1;
+                    var_v1 = (temp_v0->unk78 &= ~2);
                 }
             }
             if (var_v1 & 8) {
                 temp_fa0_2 = temp_v0->unk80;
                 temp_ft4 = arg1->unk4;
                 if (arg2 == temp_fa0_2) {
-                    if (temp_ft4 != temp_fa0_2) temp_v0->unk78 = var_v1 & mask;
+                    if (temp_ft4 != temp_fa0_2) temp_v0->unk78 = var_v1 & new_var;
                 } else if (temp_fa0_2 < arg2) {
-                    if ((temp_ft4 < temp_fa0_2) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & mask;
-                    else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & mask;
-                } else if ((temp_fa0_2 < temp_ft4) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & mask;
-                else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & mask;
+                    if ((temp_ft4 < temp_fa0_2) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & new_var;
+                    else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & new_var;
+                } else if ((temp_fa0_2 < temp_ft4) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & new_var;
+                else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & new_var;
             }
         }
     }
@@ -1095,11 +1096,13 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
         }
         arg1->unkE = temp_v0_2;
     }
+    if (var_a3) {}  // FAKE: keeps a3 live
 }
 #else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerApplyMotionWindow.s")
 #endif
+
 
 typedef struct {
     u8 pad0[4];

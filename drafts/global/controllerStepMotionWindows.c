@@ -1,4 +1,4 @@
-// controllerStepMotionWindows (src/global/17B90.c): stage 4; frame 0x40 and save set s0/ra match; spill slots (0x3C,0x38,0x2C,0x28,0x20) and byte size 7792 match; local declaration order core,win0,win4,unk8,unkC,pos,rate,step and integer-0 ternary (step > 0); remaining diff is spill scheduling and regalloc
+// controllerStepMotionWindows (src/global/17B90.c): stage 4; frame 0x40 and save set s0/ra; byte size 7792; score down to 149; rate ternary changed to if-else; remaining diff is spill scheduling and regalloc
 extern u32 D_80744478;
 extern u8 D_80746B60;
 void func_80613944();
@@ -76,9 +76,10 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
     unk8 = core->unk8;
     pos = win0->unk4;
     unkC = core->unkC;
-    rate = 1.0f;
     if (core->unk30 & 1) {
         rate = (f32) ((f64) (u32) D_80744478 * 0.5);
+    } else {
+        rate = 1.0f;
     }
     core->unk30 &= ~1;
     if (D_80746B60 == 0) {

@@ -1,4 +1,4 @@
-// controllerApplyMotionWindow (src/global/17B90.c): stage 4; leaf function frame 0; permuter score 845 (down from 1525); initial float registers resolved by load order; new_var = 0xFFF7 narrow formal idiom hoisted -9 constant into t2 and CSEd across 5 branches; remaining diff is t1 vs t2 regalloc and zero-sub scheduling
+// controllerApplyMotionWindow (src/global/17B90.c): stage 4; leaf frame 0; score down to 245; zero-sub resolved via if (arg1->unk34 != 0) separate int zero web; remaining diff is t1 vs t2 regalloc between -9 and var_v1 & ~1
 typedef struct {
     void *unk0;
     f32 unk4;
@@ -104,6 +104,7 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
             temp_v0->unk78 &= ~0x20;
         }
     }
+    new_var = ~8;
     if (temp_v1 & 4) {
         if (temp_fv1 < arg2) {
             var_a3 = 1;
@@ -115,7 +116,7 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
         }
         if (var_a3 != 0) {
             arg1->unk24 = 0.0f - arg1->unk24;
-            if (arg1->unk34 != 0.0f) {
+            if (arg1->unk34 != 0) {
                 arg1->unk2C = 0.0f - arg1->unk2C;
                 arg1->unk28 = 0.0f - arg1->unk28;
             }
@@ -157,20 +158,19 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
                     temp_v0->unk7C = temp_a0 - 1;
                     var_v1 = temp_t2;
                 } else {
-                    var_v1 = temp_v0->unk78 & ~2;
-                    temp_v0->unk78 = var_v1;
+                    var_v1 = (temp_v0->unk78 &= ~2);
                 }
             }
             if (var_v1 & 8) {
                 temp_fa0_2 = temp_v0->unk80;
                 temp_ft4 = arg1->unk4;
                 if (arg2 == temp_fa0_2) {
-                    if (temp_ft4 != temp_fa0_2) temp_v0->unk78 = (~8) & var_v1;
+                    if (temp_ft4 != temp_fa0_2) temp_v0->unk78 = var_v1 & new_var;
                 } else if (temp_fa0_2 < arg2) {
-                    if ((temp_ft4 < temp_fa0_2) && (var_a2 == 0)) temp_v0->unk78 = (~8) & var_v1;
-                    else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = (~8) & var_v1;
-                } else if ((temp_fa0_2 < temp_ft4) && (var_a2 == 0)) temp_v0->unk78 = (~8) & var_v1;
-                else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = (~8) & var_v1;
+                    if ((temp_ft4 < temp_fa0_2) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & new_var;
+                    else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & new_var;
+                } else if ((temp_fa0_2 < temp_ft4) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & new_var;
+                else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & new_var;
             }
         }
     }
@@ -186,4 +186,5 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
         }
         arg1->unkE = temp_v0_2;
     }
+    if (var_a3) {}
 }
