@@ -1,4 +1,4 @@
-// lightSampleColorAtPosition (src/global/5E2F0.c): L65C334 stage 5: frame 0x88 + FP callee-saved set (f20..f30) + text size match; for-loop over D_807F7BC8[i] (move a0,zero in blez delay slot), factor arms: unk4<=dot -> 1.0f else (dot-unk0)*unk8 (old draft had them swapped), raw diff f32 d[3] at 96.. needs pad[7]+4 uopt temp slots (fake nx read late in case 1). Remaining ~80 text diff lines (deadsweep/random fakes): case1 raw dx/dy/dz should be caller-saved coloured f2/f14/f16 spilled around sqrtf (target: nz/nx/ny stores 92/84/88, f20=ny) but ours keeps them as temps/array; arg6 pointer should be coloured v1 (lw v1,160(sp)); case0 (diff_val-range) f2 vs f14.
+// lightSampleColorAtPosition (src/global/5E2F0.c): stage 5: text 80/shape 61 (park was 192/91): pad[10] gives frame 0x88; legit 'if (arg0 > 0.0f) {}' in the early-return block (FAKE: FP zero-constant web, no uninit read; the old draft's uninit 'if (b>0.0f)' had the same effect) hoists mtc1 zero f28/ldc1 f30 like target. Remaining: target d[] at 96 + nx/ny/nz homes 84/88/92 (stores retained: nx,ny coloured f18/f20 with kept stores, nz store+reload), ours d at 84 and no nx/ny/nz stores (need pad[7]+4 referenced slots below d: unused later-declared locals/arrays get no slot); dx/dy/dz temps f2/f14/f16 spilled around sqrtf; arg6 pointer v1 (lw v1,160(sp)); case0 f2 vs f14. Tried: scalar dx/dy/dz (hoisting lost), nx/ny/nz function-scope all perms/places, inline n*/dist, pad2/q locals, hill-climb 4x280s.
 #include <ultra64.h>
 
 typedef struct LightTrigger {
@@ -31,7 +31,7 @@ extern f32 *D_8076A0BC;
 s32 mapChunkIsInUse(s16);
 
 void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
-    f32 pad[7];
+    f32 pad[10];
     f32 d[3];
     LightTrigger *entry;
     f32 r;
@@ -41,7 +41,7 @@ void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4
     s32 i;
 
     if (mapChunkIsInUse(arg7) == 0) {
-        if (b > 0.0f) {} // FAKE: regalloc steer (random search)
+        if (arg0 > 0.0f) {}  // FAKE: steers FP zero-constant web
         *arg6 = 0xFF;
         *arg5 = 0xFF;
         *arg4 = 0xFF;

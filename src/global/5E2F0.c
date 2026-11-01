@@ -528,13 +528,13 @@ extern s16 D_807F7BC0;
 void lightAddDedupEntry(s16);
 s32 lightCheckVolumeBounds(LightVolume *, f32, f32, f32, s16, s16, s16, s16, s16, s16, s32);
 #ifdef NON_MATCHING
-s16 lightCollectVolumesInBounds(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, s8 *arg10) {
+s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, s8 *arg10) {
     f32 diff[6];
     s32 i;
     f32 dist;
     f32 temp_fa0, temp_fa1;
     f32 temp_f1;
-    f32 temp_ft4, temp_ft5, temp_ft2;
+    f32 temp_ft4, temp_ft5;
     f32 three;
     s16 a3 = arg3;
     s16 a4 = arg4;
@@ -565,7 +565,7 @@ s16 lightCollectVolumesInBounds(volatile f32 arg0, volatile f32 arg1, volatile f
                     diff[0] = D_807F7500[i].unk24 - D_807F7500[i].x;
                     diff[1] = D_807F7500[i].unk28 - D_807F7500[i].y;
                     diff[2] = D_807F7500[i].unk2C - D_807F7500[i].z;
-                    dist = sqrtf((diff[2] * diff[2]) + ((diff[1] * diff[1]) + (diff[0] * diff[0])));
+                    dist = sqrtf((diff[0] * diff[0] + diff[1] * diff[1]) + diff[2] * diff[2]);
                     if (dist == 0.0f) {
                         dist = 0.1f;
                     }
@@ -581,18 +581,16 @@ s16 lightCollectVolumesInBounds(volatile f32 arg0, volatile f32 arg1, volatile f
                     if (D_807F7500[i].unk14 == 0.0f) {
                         D_807F7500[i].unk14 = 0.1f;
                     }
-                    temp_f1 = D_807F7500[i].unk14 / three;
-                    temp_fa1 = temp_f1 * 3.0f;
                     temp_fa0 = D_807F7500[i].unk14 * 3.0f;
                     D_807F78C0[D_807F7BC0].unk18 = (s32)(temp_fa0 * temp_fa0);
-                    D_807F78C0[D_807F7BC0].unk20 = temp_fa1;
+                    temp_fa1 = (D_807F7500[i].unk14 / three) * 3.0f;
                     D_807F78C0[D_807F7BC0].unk1C = 1.0f / (temp_fa0 - temp_fa1);
+                    D_807F78C0[D_807F7BC0].unk20 = temp_fa1;
                     temp_ft4 = D_807F7500[i].unk14 * 1.3f;
                     temp_f1 = temp_ft4 / three;
                     temp_ft5 = temp_f1 * 3.0f;
-                    temp_ft2 = temp_ft4 * 3.0f;
-                    D_807F78C0[D_807F7BC0].unk24 = 1.0f / (temp_ft2 - temp_ft5);
                     D_807F78C0[D_807F7BC0].unk28 = temp_ft5;
+                    D_807F78C0[D_807F7BC0].unk24 = 1.0f / ((temp_ft4 * 3.0f) - temp_ft5);
                     break;
                 }
                 lightAddDedupEntry(D_807F7BC0);
@@ -704,7 +702,7 @@ s32 mapChunkIsInUse(s16);
 
 #ifdef NON_MATCHING
 void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
-    f32 pad[7];
+    f32 pad[10];
     f32 d[3];
     LightTrigger *entry;
     f32 r;
@@ -714,6 +712,7 @@ void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4
     s32 i;
 
     if (mapChunkIsInUse(arg7) == 0) {
+        if (arg0 > 0.0f) {}  // FAKE: steers FP zero-constant web
         *arg6 = 0xFF;
         *arg5 = 0xFF;
         *arg4 = 0xFF;

@@ -1,4 +1,4 @@
-// lightCollectVolumesInBounds (src/global/5E2F0.c): stage 5: frame/saved regs/prologue/call args/case-1 body match; 23-line diff left (reg-masked shape=2): move a0,s0 after lw a3 (target before lw a1); add.s f12 operand order (f10,f4 vs f4,f10; the (x2+y2)+z2 sum form fixes it but then case-0 FP colours worsen); case-0 FP colours (unk14 f12 vs f0, temp_f1 coloured f18 vs ring temp f6). Needed: deadsweep if(arg10&&arg10){} (arg10->s4), store-order + dead-stmt annealing; tried: 5040 case-1 store perms, case-0 inline/order variants (1440), permuter 15+20min, cast mutations.
+// lightCollectVolumesInBounds (src/global/5E2F0.c): stage 5: 21 text lines left (shape 0; park 23): non-volatile args, sum form (x2+y2)+z2 fixes add.s operand order; remaining: case-0 FP colours (unk14 coloured f12 vs f0, ft4/ft5 temps f18/f2 vs ring) + 'move a0,s0' placement after lw a3 (target before lw a1). Tried: 400+3000+ random orderings of 12 case-0 stmts with inline/named temps (g1 harness), phantom FP local+dead compares, dead-compare grid, store perms 5040 (case 1), hill-climb 1500 gens, deadsweep 2166 variants (0 gains), call-arg spellings (cast/ptr/local), dist==0 spellings.
 #include "common.h"
 
 extern s16 D_80748300;
@@ -55,13 +55,13 @@ extern LightTrigger D_807F7BC8[];
 extern s16 D_807F7BC0;
 void lightAddDedupEntry(s16);
 s32 lightCheckVolumeBounds(LightVolume *, f32, f32, f32, s16, s16, s16, s16, s16, s16, s32);
-s16 lightCollectVolumesInBounds(volatile f32 arg0, volatile f32 arg1, volatile f32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, s8 *arg10) {
+s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, s8 *arg10) {
     f32 diff[6];
     s32 i;
     f32 dist;
     f32 temp_fa0, temp_fa1;
     f32 temp_f1;
-    f32 temp_ft4, temp_ft5, temp_ft2;
+    f32 temp_ft4, temp_ft5;
     f32 three;
     s16 a3 = arg3;
     s16 a4 = arg4;
@@ -92,7 +92,7 @@ s16 lightCollectVolumesInBounds(volatile f32 arg0, volatile f32 arg1, volatile f
                     diff[0] = D_807F7500[i].unk24 - D_807F7500[i].x;
                     diff[1] = D_807F7500[i].unk28 - D_807F7500[i].y;
                     diff[2] = D_807F7500[i].unk2C - D_807F7500[i].z;
-                    dist = sqrtf((diff[2] * diff[2]) + ((diff[1] * diff[1]) + (diff[0] * diff[0])));
+                    dist = sqrtf((diff[0] * diff[0] + diff[1] * diff[1]) + diff[2] * diff[2]);
                     if (dist == 0.0f) {
                         dist = 0.1f;
                     }
@@ -108,18 +108,16 @@ s16 lightCollectVolumesInBounds(volatile f32 arg0, volatile f32 arg1, volatile f
                     if (D_807F7500[i].unk14 == 0.0f) {
                         D_807F7500[i].unk14 = 0.1f;
                     }
-                    temp_f1 = D_807F7500[i].unk14 / three;
-                    temp_fa1 = temp_f1 * 3.0f;
                     temp_fa0 = D_807F7500[i].unk14 * 3.0f;
                     D_807F78C0[D_807F7BC0].unk18 = (s32)(temp_fa0 * temp_fa0);
-                    D_807F78C0[D_807F7BC0].unk20 = temp_fa1;
+                    temp_fa1 = (D_807F7500[i].unk14 / three) * 3.0f;
                     D_807F78C0[D_807F7BC0].unk1C = 1.0f / (temp_fa0 - temp_fa1);
+                    D_807F78C0[D_807F7BC0].unk20 = temp_fa1;
                     temp_ft4 = D_807F7500[i].unk14 * 1.3f;
                     temp_f1 = temp_ft4 / three;
                     temp_ft5 = temp_f1 * 3.0f;
-                    temp_ft2 = temp_ft4 * 3.0f;
-                    D_807F78C0[D_807F7BC0].unk24 = 1.0f / (temp_ft2 - temp_ft5);
                     D_807F78C0[D_807F7BC0].unk28 = temp_ft5;
+                    D_807F78C0[D_807F7BC0].unk24 = 1.0f / ((temp_ft4 * 3.0f) - temp_ft5);
                     break;
                 }
                 lightAddDedupEntry(D_807F7BC0);
