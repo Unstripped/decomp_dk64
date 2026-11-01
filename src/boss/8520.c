@@ -234,7 +234,7 @@ s32 spawnNodeHasActor(s32);
 s32 camIsCutsceneActive(void);
 void func_8072D9D4(void);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
-void func_806AD260(s32, s32, s32);
+void actorPatrolFollowerUpdate(s32, s32, s32);
 void bossAnimFrameBounceStep(void);
 void actorUpdateModelMatrix(void *, s32);
 
@@ -393,7 +393,7 @@ void func_8002C964(void) {
         actorMoveWithinZone(0x23, DC94->unk7C, DC94->unk84, 0, 0.0f);
         break;
     case 0x37:
-        func_806AD260(0x2F7, 1, 0);
+        actorPatrolFollowerUpdate(0x2F7, 1, 0);
         break;
     }
     if (sp3C->unk2 > 0) {

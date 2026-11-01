@@ -11,22 +11,22 @@ typedef struct {
 } ControllerView;
 
 
-void *func_80612E90(void *, s32, s32);
+void *controllerAnimStateLoadAsset(void *, s32, s32);
 void controllerAnimFreeSub();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80612E90.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimStateLoadAsset.s")
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_806130A4.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/gfxSwapGeometryModeCullBits.s")
 
 void func_80613194(ControllerView *arg0, s16 arg1) {
     if (arg0->unk50 == NULL) {
-        arg0->unk50 = func_80612E90(arg0, arg1, 0);
+        arg0->unk50 = controllerAnimStateLoadAsset(arg0, arg1, 0);
     }
 }
 
 void func_806131D4(ControllerView *arg0, s16 arg1) {
     if (arg0->unk50 == NULL) {
-        arg0->unk50 = func_80612E90(arg0, arg1, 1);
+        arg0->unk50 = controllerAnimStateLoadAsset(arg0, arg1, 1);
     }
 }
 
@@ -259,14 +259,14 @@ typedef struct {
 typedef struct {
     u8 pad[0x20];
     u8 unk20;
-} CtrlB_Asset;
+} AnimAssetEntry;
 
 s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
-    CtrlB_Asset *resource;
+    AnimAssetEntry *resource;
     s32 i;
     void *alloc;
     AnimStateInit *anim;
-    resource = func_80612E90(arg0, arg1, 0);
+    resource = controllerAnimStateLoadAsset(arg0, arg1, 0);
     if (resource != NULL) {
         arg0->unk0 = resource;
         arg0->unk4C = 0;
@@ -339,10 +339,10 @@ void func_806136B4(ControllerAnimView *arg0) {
     controllerAnimFreeSub((ControllerView *)arg0, 1);
     controllerAnimFreeSub((ControllerView *)arg0, 2);
     animListFree((u8 *)arg0 + 0x158);
-    func_80613944(arg0, arg0->unk4->unk0);
-    func_80613944(arg0, arg0->unk4->unk4);
-    func_80613944(arg0, arg0->unk4->unk8);
-    func_80613944(arg0, arg0->unk4->unkC);
+    controllerAnimCacheFree(arg0, arg0->unk4->unk0);
+    controllerAnimCacheFree(arg0, arg0->unk4->unk4);
+    controllerAnimCacheFree(arg0, arg0->unk4->unk8);
+    controllerAnimCacheFree(arg0, arg0->unk4->unkC);
     temp_a1 = arg0->unk4->unk1C;
     if (temp_a1 != NULL) {
         heapFreeDeferred(temp_a1);
@@ -391,7 +391,7 @@ typedef struct {
     u16 unk2;
     u32 unk4;
     u8 unk8;
-} CtrlB_StateEntry;
+} AnimStateSlot;
 
 #ifdef NON_MATCHING
 void controllerAnimFreeSub(arg0, arg1)
@@ -399,10 +399,10 @@ ControllerViewB *arg0;
 u8 arg1;
 {
     ControllerSubB *sub;
-    CtrlB_StateEntry *entry;
+    AnimStateSlot *entry;
     ControllerCmdB *cmd;
     ControllerCmdListB *cmdList;
-    CtrlB_StateEntry *last;
+    AnimStateSlot *last;
     u32 val;
     switch (arg1) {
     case 0:
@@ -420,14 +420,14 @@ u8 arg1;
     }
 
     if (sub != NULL) {
-        entry = (CtrlB_StateEntry *)D_807FB630;
+        entry = (AnimStateSlot *)D_807FB630;
         do {
             if (entry->unk4 == (u32)sub) {
                 break;
             }
-        } while (++entry != (CtrlB_StateEntry *)&D_807FB630[32]);
+        } while (++entry != (AnimStateSlot *)&D_807FB630[32]);
 
-        if (entry == (CtrlB_StateEntry *)D_807FB7B0) {
+        if (entry == (AnimStateSlot *)D_807FB7B0) {
             return;
         }
 
@@ -447,7 +447,7 @@ u8 arg1;
             }
 
             val = (u16)D_807FBB30 - 1;
-            last = (CtrlB_StateEntry *)&D_807FB630[(u16)val];
+            last = (AnimStateSlot *)&D_807FB630[(u16)val];
             D_807FBB30 = val;
 
             entry->unk0 = last->unk0;
@@ -469,7 +469,7 @@ u8 arg1;
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimFreeSub.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613944.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimCacheFree.s")
 
 typedef struct { u8 pad[0x14]; f32 a; f32 b; } AnimScaleState;
 typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } AnimScaleSpan;
@@ -491,12 +491,12 @@ void controllerAnimScaleInterpolate(AnimScaleController *arg0, s8 arg1) {
 typedef struct {
     u8 pad0[0x4E];
     s16 unk4E;
-} W3RingA_GlobalView;
+} GlobalPlayerAnimView;
 
 typedef struct {
     u8 pad0[0x58];
     s32 unk58;
-} W3RingA_ControllerStateView;
+} ControllerStateParamView;
 
 extern u16 *D_807FBB58;
 struct ControllerStateView;
@@ -511,11 +511,11 @@ void func_80613AF8(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg
         flag = arg1 & 0x4000;
         index = arg1 - flag;
         if (gActivePlayerState && gActivePlayerState) {} // FAKE: dead test steers uopt
-        ((W3RingA_GlobalView *)gActivePlayerState)->unk4E = index;
-        value = ((W3RingA_ControllerStateView *)arg0)->unk58;
+        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = index;
+        value = ((ControllerStateParamView *)arg0)->unk58;
         arg1 = D_807FBB58[(u32)(((index * 7 + value) - 2) & 0xFFFF)] + flag;
     } else {
-        ((W3RingA_GlobalView *)gActivePlayerState)->unk4E = arg1;
+        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = arg1;
     }
     func_80613C48(arg0, arg1, arg2, arg3);
 }
@@ -537,11 +537,11 @@ void func_80613BA0(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg
         flag = arg1 & 0x4000;
         index = arg1 - flag;
         if (gActivePlayerState && gActivePlayerState) {} // FAKE: dead test steers uopt
-        ((W3RingA_GlobalView *)gActivePlayerState)->unk4E = index;
-        value = ((W3RingA_ControllerStateView *)arg0)->unk58;
+        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = index;
+        value = ((ControllerStateParamView *)arg0)->unk58;
         arg1 = D_807FBB58[(u32)(((index * 7 + value) - 2) & 0xFFFF)] + flag;
     } else {
-        ((W3RingA_GlobalView *)gActivePlayerState)->unk4E = arg1;
+        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = arg1;
     }
     controllerAnimSetState(arg0, arg1, arg2, arg3);
 }
@@ -647,10 +647,10 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
     slotC = anim->unkC;
 
     if (slot8->unk0 != NULL) {
-        func_80613944(arg0, slot8);
+        controllerAnimCacheFree(arg0, slot8);
     }
     if (slotC->unk0 != NULL) {
-        func_80613944(arg0, slotC);
+        controllerAnimCacheFree(arg0, slotC);
     }
 
     if ((arg1 & 0x4000) == 0x4000) {
@@ -691,10 +691,10 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
         anim->unk10 = (anim->unk44 - anim->unk40) / anim->unk44;
     } else {
         if (slot0->unk0 != NULL) {
-            func_80613944(arg0, slot0);
+            controllerAnimCacheFree(arg0, slot0);
         }
         if (slot4->unk0 != NULL) {
-            func_80613944(arg0, slot4);
+            controllerAnimCacheFree(arg0, slot4);
         }
     }
 
@@ -788,7 +788,7 @@ void func_80614014(AnimControllerRef *arg0, u16 arg1, f32 arg2, u8 arg3) {
 
     slot = arg0->unk4->unk4;
     if (slot->unk0 != NULL) {
-        func_80613944(arg0, slot);
+        controllerAnimCacheFree(arg0, slot);
     }
     resource = controllerAnimCacheGetOrLoad(arg1);
     if (resource != NULL) {
@@ -977,8 +977,8 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
         if (core->unk40 < core->unk44) {
             core->unk10 = (core->unk44 - core->unk40) / core->unk44;
         } else {
-            func_80613944(arg0, unk8);
-            func_80613944(arg0, unkC);
+            controllerAnimCacheFree(arg0, unk8);
+            controllerAnimCacheFree(arg0, unkC);
             core->unk78 &= ~0x10;
         }
         pos += ((step * win0->unk24) / 2.0f) * (1.0f - core->unk10);
@@ -1003,7 +1003,7 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
         if ((win4->unk24 == 0.0f) && (win4->unk1C & 0x10)) {
             core->unk2C = 0;
             if (core->unk28 == 0) {
-                func_80613944(arg0, win4);
+                controllerAnimCacheFree(arg0, win4);
             }
         }
     }

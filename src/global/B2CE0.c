@@ -129,7 +129,7 @@ void func_8072DC7C(s32);
 void func_8072DEA8();
 void func_8072E1A4(s32, void *);
 void sfxSpawnTableNodes(void *);
-void func_806AD260();
+void actorPatrolFollowerUpdate();
 void effectSpawnOctagonRing(f32, f32, f32, f32);
 s32 zoneCanReachPoint(B2CE0Actor *, s16, s16, s16, s32);
 void projectileGetTargetCoords(B2CE0Actor *, s32);
@@ -817,7 +817,7 @@ void func_806B02EC(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         behaviourSetAnimIds(0, 0x31E, 0x31F);
     }
-    func_806AD260(0x320, 0, 0);
+    actorPatrolFollowerUpdate(0x320, 0, 0);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 

@@ -2373,7 +2373,7 @@ typedef struct CsPairState {
     /* 0x4 */ s32 unk4;
 } CsPairState;
 
-void func_80649E34(CsState *cs, s16 csId, s16 b, s16 c)
+void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c)
 {
   CsPairState *st;
   s32 found;
@@ -2423,7 +2423,7 @@ void func_80649E34(CsState *cs, s16 csId, s16 b, s16 c)
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80649E34.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/csCmdModelStepAnimation.s")
 #endif
 
 void func_80649F64(CsState *cs, s16 csId, s16 b, s16 c) {

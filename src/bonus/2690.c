@@ -906,28 +906,28 @@ typedef struct {
     u16 unk2;
     s16 unk4;
     s16 unk6;
-} W2B_D2Ent;
+} BonusVtxEntry;
 
 typedef struct {
     char pad0[0x1C];
-    W2B_D2Ent *unk1C;
-} W2B_D2Model;
+    BonusVtxEntry *unk1C;
+} BonusVtxModel;
 
 typedef struct {
     char pad0[0x20];
     f32 unk20;
-} W2B_D2Info;
+} BonusVtxInfo;
 
 typedef struct {
     char pad0[4];
     u8 unk4;
     u8 unk5;
-} W2B_D2Sub;
+} BonusVtxSub;
 
-typedef struct W2B_D2Actor W2B_D2Actor;
-struct W2B_D2Actor {
+typedef struct BonusVtxActor BonusVtxActor;
+struct BonusVtxActor {
     char pad0[4];
-    W2B_D2Model *unk4;
+    BonusVtxModel *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x82];
@@ -939,12 +939,12 @@ struct W2B_D2Actor {
     u8 unk155;
     char pad156[0x1E];
     void *unk174;
-    W2B_D2Info *unk178;
+    BonusVtxInfo *unk178;
 };
 
 typedef struct {
-    W2B_D2Actor *unk0;
-    W2B_D2Actor *unk4;
+    BonusVtxActor *unk0;
+    BonusVtxActor *unk4;
     f32 unk8;
     f32 unkC;
     s8 unk10;
@@ -953,34 +953,34 @@ typedef struct {
     f32 unk14;
     f32 unk18;
     u8 unk1C;
-} W2B_D2Link;
-#define W2B_BD2 ((W2B_D2Actor *)D_807FBB40)
+} BonusVtxLink;
+#define BONUS_VTX_ACTOR ((BonusVtxActor *)D_807FBB40)
 
 extern u8 D_807FBD70;
 void *heapAlloc(s32);
 void heapClearBlock(void *);
 
-void func_8002881C(void) {
-    W2B_D2Link *link = W2B_BD2->unk174;
+void bonusActorUpdateVertexPositions(void) {
+    BonusVtxLink *link = BONUS_VTX_ACTOR->unk174;
     s16 *sp50 = link->unk0->unk174;
-    W2B_D2Info *sp4C = link->unk0->unk178;
-    W2B_D2Sub *sub;
-    W2B_D2Ent *chk;
+    BonusVtxInfo *sp4C = link->unk0->unk178;
+    BonusVtxSub *sub;
+    BonusVtxEntry *chk;
     s32 vb[2];
     f32 sp38;
-    W2B_D2Ent *p;
+    BonusVtxEntry *p;
     f32 fx;
     f32 fy;
     f32 sp28;
     s32 i;
 
-    if (!(W2B_BD2->unk60 & 0x10)) {
-        W2B_BD2->unk144 = 0x24;
+    if (!(BONUS_VTX_ACTOR->unk60 & 0x10)) {
+        BONUS_VTX_ACTOR->unk144 = 0x24;
         link->unkC = 275.0f;
         link->unk8 = 275.0f;
         link->unk10 = link->unk11;
-        W2B_BD2->unk4->unk1C = heapAlloc(0x38);
-        heapClearBlock(W2B_BD2->unk4->unk1C);
+        BONUS_VTX_ACTOR->unk4->unk1C = heapAlloc(0x38);
+        heapClearBlock(BONUS_VTX_ACTOR->unk4->unk1C);
     }
     sub = link->unk4->unk174;
     if (D_807FBD70 == 4 && sub->unk4 == 0 && link->unk10 == -1) {
@@ -1014,7 +1014,7 @@ void func_8002881C(void) {
             actorScriptStart(D_807FBB40, 0x1F6);
         }
     }
-    chk = W2B_BD2->unk4->unk1C;
+    chk = BONUS_VTX_ACTOR->unk4->unk1C;
     if (chk != 0) {
         vb[1] = 0;
         vb[0] = (s32)chk;
@@ -1029,7 +1029,7 @@ void func_8002881C(void) {
         if (fy < 0.0f) {
             fy = 65535.0f + fy;
         }
-        p = (W2B_D2Ent *)(vb[1] * 8 + vb[0]);
+        p = (BonusVtxEntry *)(vb[1] * 8 + vb[0]);
         do {
             p->unk1 = i;
             i++;
@@ -1049,7 +1049,7 @@ void func_8002881C(void) {
             }
             p++;
         } while (i < 7);
-        switch (W2B_BD2->unk155) {
+        switch (BONUS_VTX_ACTOR->unk155) {
         case 0:
             link->unk18 = link->unk18 + (sp38 - link->unk18) * 0.1;
             break;
@@ -1080,7 +1080,7 @@ void func_8002881C(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_8002881C.s")
+#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/bonusActorUpdateVertexPositions.s")
 #endif
 
 typedef struct {

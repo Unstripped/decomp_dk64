@@ -91,7 +91,7 @@ f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 void func_8072881C();
 void actorSpawnPeriodicBoneEffect(void);
 void func_806B42A8(void (*)(), u16, u16, s16);
-void func_806B49B0(u8, s16, s16);
+void actorAirPatrolStep(u8, s16, s16);
 void actorSpawnNodeEntryAtActor(s32, s32);
 void actorAttachChildCallbacks(void);
 void sfxAllocateChannel(s32, f32);
@@ -752,7 +752,7 @@ extern f32 D_807502EC;
 void func_80724CA4(s32, s32);
 
 #ifdef NON_MATCHING
-void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
+void actorAirPatrolStep(u8 arg0, s16 arg1, s16 arg2) {
     s16 *temp_v0;
     s32 *dead1;
     s32 *dead2;
@@ -835,7 +835,7 @@ void func_806B49B0(u8 arg0, s16 arg1, s16 arg2) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B7490/func_806B49B0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/B7490/actorAirPatrolStep.s")
 #endif
 
 void func_806B4DCC(void) {
@@ -898,14 +898,14 @@ void func_806B4DCC(void) {
             }
         }
     }
-    func_806B49B0(D_807FBB40->unk154, 0x247, 0x246);
+    actorAirPatrolStep(D_807FBB40->unk154, 0x247, 0x246);
     func_8072881C(0, D_807FDC90->unk28);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
 void func_806B50F4(void) {
     behaviourFrameBegin();
-    func_806B49B0(D_807FBB40->unk154, 0x23D, 0x23E);
+    actorAirPatrolStep(D_807FBB40->unk154, 0x23D, 0x23E);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 

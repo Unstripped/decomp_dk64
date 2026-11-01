@@ -78,10 +78,10 @@ void func_8072DC7C(s32);
 void actorSetDefaultState(s32);
 void func_8072DEA8(s32, s32, s32);
 s32 actorIsTargetWithinDistance(s32);
-void func_806AD260();
+void actorPatrolFollowerUpdate();
 
 #ifdef NON_MATCHING
-void func_806AD260(arg0, arg1, arg2)
+void actorPatrolFollowerUpdate(arg0, arg1, arg2)
 s16 arg0;
 u8 arg1;
 u16 arg2;
@@ -154,7 +154,7 @@ u16 arg2;
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B1F60/func_806AD260.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/B1F60/actorPatrolFollowerUpdate.s")
 #endif
 
 void func_806AD54C(void) {
@@ -192,7 +192,7 @@ void func_806AD54C(void) {
             }
         }
     }
-    func_806AD260(0x1FA, 0, 0);
+    actorPatrolFollowerUpdate(0x1FA, 0, 0);
     func_80724E48((D_807FBB40->unk154 == 0x23) ? 0 : 2);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -203,7 +203,7 @@ void func_806AD7AC(void) {
         func_80724CA4(2, 1);
         behaviourSetAnimIds(0x1F8, 0x1F8, 0x1F9);
     }
-    func_806AD260(0x1FA, 0, 0);
+    actorPatrolFollowerUpdate(0x1FA, 0, 0);
     func_80724E48((D_807FBB40->unk154 == 0x23) ? 0 : 2);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -313,7 +313,7 @@ void func_806AD9F4(void) {
                 }
             }
         default:
-            func_806AD260(0, 1, 0);
+            actorPatrolFollowerUpdate(0, 1, 0);
             break;
     }
     func_8072881C(0, D_807FDC90->unk28);

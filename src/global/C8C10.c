@@ -81,7 +81,7 @@ void camSetTarget(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void camSetTargetCutsceneUnscaled(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void camStartPath(void *, s32, s32);
 void camSetFollowMode(s32);
-void func_806B49B0(u8, s16, s16);
+void actorAirPatrolStep(u8, s16, s16);
 void func_8070D8C0(Actor *, s32, u8);
 void playerStateQueueCallback();
 
@@ -130,7 +130,7 @@ void func_806C3F10(u8 arg0, u8 arg1, u8 arg2) {
                 }
             }
         case 0x28:
-            func_806B49B0(2, 0x23D, 0x23E);
+            actorAirPatrolStep(2, 0x23D, 0x23E);
             break;
         case 0x26:
         case 0x29:
@@ -157,7 +157,7 @@ void func_806C3F10(u8 arg0, u8 arg1, u8 arg2) {
                     D_807FBB4C->unk110 = 0;
                 }
             }
-            func_806B49B0((D_807FBB40->unk154 == 0x26) ? 0x26 : 2, 0x23D, 0x23E);
+            actorAirPatrolStep((D_807FBB40->unk154 == 0x26) ? 0x26 : 2, 0x23D, 0x23E);
             break;
         case 0:
             break;
@@ -372,7 +372,7 @@ u8 func_806C4AC4(u16 arg0, u16 arg1) {
             R1C8aD->unk1F4 |= 0x40;
             ang = mathAngleBetweenPointsDeg((s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk84, (s32)D_807FBB4C->unk7C, (s32)D_807FBB4C->unk84);
             R1C8aA->unkEC = (s16)(ang - mathAngleBetweenPointsDeg((s32)gPlayerSlots->unk228, (s32)gPlayerSlots->unk230, (s32)gPlayerSlots->unk210, (s32)gPlayerSlots->unk218));
-            func_806B49B0(D_807FBB40->unk154, R1C8aV98->unk28, R1C8aV98->unk2A);
+            actorAirPatrolStep(D_807FBB40->unk154, R1C8aV98->unk28, R1C8aV98->unk2A);
             D_807FBB40->unk15F = arg1 - D_807FDC90->unk2C + 1;
             if (D_807FBB70.unk0 != 0) {
                 if (D_807FBB40->unk15F != D_807FBB70.unk1[0]) {
@@ -528,7 +528,7 @@ void func_806C4F5C(void) {
             break;
         case 39:
             LgG->unk1F4 |= 0x40;
-            func_806B49B0(2, 0x244, 0x246);
+            actorAirPatrolStep(2, 0x244, 0x246);
             if ((LgS->unk1A & 4) && ((LgS->unk25 & 0x7F) == 3)) {
                 LgA->unk154 = 0x28;
                 LgA->unk155 = 0;
@@ -919,7 +919,7 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 f32 sqrtf(f32);
 s32 func_8072DE10(u16);
 s32 spawnNodeIdForActor(Actor *);
-s32 func_80731784(s16, s16, s32 *);
+s32 spawnFlagLookup(s16, s16, s32 *);
 void flagSet(s16, s32, s32);
 void eepromSavePlayerData();
 void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
@@ -970,7 +970,7 @@ void func_806C5C20(void) {
     }
     if ((gActivePlayerState->unk1F0 & 0x8000) && R1D580->unk1EC == 1) {
         if (D_807FBB40->unk154 != 0x40) {
-            flagSet(func_80731784(D_8076A0AA, spawnNodeIdForActor(D_807FBB40), sp44), 1, 0);
+            flagSet(spawnFlagLookup(D_8076A0AA, spawnNodeIdForActor(D_807FBB40), sp44), 1, 0);
             eepromSavePlayerData();
         }
         D_807FBB40->unk154 = 0x40;

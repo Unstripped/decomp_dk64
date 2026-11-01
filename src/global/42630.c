@@ -472,7 +472,7 @@ s32 csCondEval(CsCmd *, CsState *, s16);
 void csCmdExec(CsCmd *, CsState *, s16);
 s32 modelSlotStepAnimations(s16);
 void modelSlotUpdateGroundCoords(s16, u8);
-void func_806358E8(s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8, u8);
+void modelSlotTransformBoundsAndNodes(s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8, u8);
 
 void csStateUpdate(CsStateFull *cs, s16 csId) {
     CsNode *node;
@@ -520,7 +520,7 @@ void csStateUpdate(CsStateFull *cs, s16 csId) {
             rotated = D_807F6208 != gCsRotX || D_807F620C != gCsRotY || D_807F6210 != gCsRotZ;
             scaleXZ = D_807F6214 != gCsScale;
             scaleY = D_807F6218 != gCsGroundOffset;
-            func_806358E8(csId, gCsPosX, gCsPosY, gCsPosZ, gCsRotX, gCsRotY, gCsRotZ, gCsScale,
+            modelSlotTransformBoundsAndNodes(csId, gCsPosX, gCsPosY, gCsPosZ, gCsRotX, gCsRotY, gCsRotZ, gCsScale,
                           gCsGroundOffset, moved, rotated, scaleXZ, scaleY, 1);
             cs->unk4E = 1;
         }

@@ -623,7 +623,7 @@ void lightAddDedupEntry(s16 arg0) {
     }
 }
 
-void func_8062A944(f32, f32, f32);
+void frustumCalculateCornerRays(f32, f32, f32);
 void frustumCornersTransformByInverse(Mtx *);
 void frustumOrientPolyNormals(f32, f32, f32, void *, void *);
 void planeFromTwoPoints(f32, f32, f32, f32, f32, f32);
@@ -658,7 +658,7 @@ s32 lightCheckVolumeBounds(LightVolume *arg0, f32 arg1, f32 arg2, f32 arg3, s16 
             return 1;
         case 1:
             guLookAt(&sp60, arg0->x, arg0->y, arg0->z, (arg0->x == arg0->unk24) ? (arg0->unk24 + 0.2f) : arg0->unk24, arg0->unk28, arg0->unk2C, 0.0f, 1.0f, 0.0f);
-            func_8062A944(arg0->unk8 * 2, 1.0f, (f32)arg0->unk34);
+            frustumCalculateCornerRays(arg0->unk8 * 2, 1.0f, (f32)arg0->unk34);
             frustumCornersTransformByInverse(&sp60);
             frustumOrientPolyNormals(arg0->x, arg0->y, arg0->z, &D_807F5E68, &D_807F5E20);
             planeFromTwoPoints(arg0->x, arg0->y, arg0->z, arg0->unk24, arg0->unk28, arg0->unk2C);

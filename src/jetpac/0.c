@@ -9,7 +9,7 @@ void jetpacInitRdp(s32);
 void jetpacDrawLedges(void);
 void func_800289EC(void);
 void jetpacGridDraw(s32);
-void func_8060C648(s32, s32, s32, s32, s32);
+void eepromSetField(s32, s32, s32, s32, s32);
 void func_8060DEA8(void);
 extern s32 D_8002EC48;
 void n_alSndpStop(s32);
@@ -313,13 +313,13 @@ void jetpacStateGameplay(s32 arg0) {
 }
 
 void jetpacSaveHighScore(void) {
-    func_8060C648(0x11, 0, 0, 0, D_8002EC48);
+    eepromSetField(0x11, 0, 0, 0, D_8002EC48);
     func_8060DEA8();
 }
 
 s32 flagGet(s32, s32);
 void func_805FF378(s32, s32);
-s32 func_8060C6B8(s32, s32, s32, s32);
+s32 eepromGetField(s32, s32, s32, s32);
 void eepromInitConfigs(s32);
 void jetpacNextPlayerOrGameOver(JetpacPlayer *);
 
@@ -342,7 +342,7 @@ void jetpacStatePause(s32 arg0) {
         case 2:
             if (jetpacGame.high_score != 0) {
                 eepromInitConfigs(1);
-                jetpacGame.high_score = func_8060C6B8(0x11, 0, 0, 0);
+                jetpacGame.high_score = eepromGetField(0x11, 0, 0, 0);
                 jetpacSaveHighScore();
             }
             break;
@@ -505,7 +505,7 @@ void jetpacUpdateStateAndInput(s32 arg0) {
         jetpacGame.num_players = 1;
         jetpacGame.unk34C = 0;
         D_8002BA70 = zero;
-        jetpacGame.high_score = func_8060C6B8(0x11, zero, zero, zero);
+        jetpacGame.high_score = eepromGetField(0x11, zero, zero, zero);
         flag = flagGet(0x61, 2);
         jetpacGame.unk798 = flag;
         if (flag != zero) {

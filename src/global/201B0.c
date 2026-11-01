@@ -4569,10 +4569,10 @@ void camClearSecondTarget(CamActor *arg0) {
     st->unkAC &= ~0x10004;
 }
 
-void func_806264DC(void *, CamPathData *, u8);
+void camLoadPathData(void *, CamPathData *, u8);
 
 void camLoadPathTable(void *arg0, CamPathData *arg1, u8 arg2) {
-    func_806264DC(arg0, arg1, arg2);
+    camLoadPathData(arg0, arg1, arg2);
     arg1->unkD8[48].unk1 = 0xE;
     arg1->unkD8[49].unk1 = 0xB;
     arg1->unkD8[50].unk1 = 6;
@@ -4705,7 +4705,7 @@ void camCopyVec3s(s16 *, s16 *);
 #define CAM_LOAD_SRC ((s16 *)arg0)
 #define CAM_LOAD_PATH ((CamPathLoad *)arg1)
 
-void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 arg2; {
+void camLoadPathData(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 arg2; {
     s16 i;
     s16 j;
     s16 cnt;
@@ -4845,7 +4845,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/func_806264DC.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/camLoadPathData.s")
 #endif
 
 s32 camDistance3D(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {

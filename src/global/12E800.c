@@ -859,7 +859,7 @@ typedef struct F1Act {
 #define F1S98 ((F1Dc98 *)D_807FDC98)
 #define F1S9C ((F1Dc9c *)D_807FDC9C)
 
-s32 func_80725ED4(s32, Actor *, void *, s16 *, s16 *, s16 *);
+s32 zoneFindBestReachablePoint(s32, Actor *, void *, s16 *, s16 *, s16 *);
 s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
 void func_80723284(s32, u8);
 void func_807232B8(s32, s32);
@@ -915,7 +915,7 @@ void func_8072B7CC(s32 arg0) {
         case 0x1C:
             switch (F1A->unk155) {
                 case 0:
-                    if (func_80725ED4(2, D_807FBB40, D_807FDCA0, &F1S90->unkA, &F1S90->unkC, &F1S90->unkE) == 0) {
+                    if (zoneFindBestReachablePoint(2, D_807FBB40, D_807FDCA0, &F1S90->unkA, &F1S90->unkC, &F1S90->unkE) == 0) {
                         F1A->unk154 = F1S9C->unk10;
                         F1A->unk155 = 0;
                         break;
@@ -1130,7 +1130,7 @@ u8 func_8072C670(u8 arg0, u8 *arg1) {
             ret = 7;
         } else if (D1DC90H->unk37 == 7 && arg0 != 0 && !(D1DC90H->unk1A & 0x200) && D1DC90H->unk20 == 0) {
             D1DC90H->unk20 = 0x10;
-            if (func_80725ED4(0x81, D_807FBB40, D_807FDCA0, &D1DC90H->unkA, &D1DC90H->unkC, &D1DC90H->unkE) == 0) {
+            if (zoneFindBestReachablePoint(0x81, D_807FBB40, D_807FDCA0, &D1DC90H->unkA, &D1DC90H->unkC, &D1DC90H->unkE) == 0) {
                 ret = 0x10;
             } else {
                 ret = 7;
@@ -1191,7 +1191,7 @@ typedef struct D1Dc98ViewG {
 
 void func_8072C870(u8 arg0, u8 arg1, s32 arg2) {
     if (arg0 == 7) {
-        if (func_80725ED4(1, D_807FBB40, D_807FDCA0, &D1DC90G->unkA, &D1DC90G->unkC, &D1DC90G->unkE) == 0) {
+        if (zoneFindBestReachablePoint(1, D_807FBB40, D_807FDCA0, &D1DC90G->unkA, &D1DC90G->unkC, &D1DC90G->unkE) == 0) {
             arg0 = 0x10;
             actorSetTargetSpeed(D_807FBB40, D1DC9CG->unkD);
         }

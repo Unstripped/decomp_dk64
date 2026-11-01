@@ -32,11 +32,11 @@ extern FlagTableEntry4 D_80755F50[];
 u8 flagGet(s16, u8);
 void flagSet(s16, u8, u8);
 void flagUpdateRangeCompletion(s16);
-s32 func_80731784(s16, s16, s32 *);
+s32 spawnFlagLookup(s16, s16, s32 *);
 s32 flagCountRange(s32, s32, u8);
 u8 *func_8060E25C(u8);
 
-void func_80731030(void) {
+void flagsClearAllBank2(void) {
     s32 i;
 
     for (i = 0; i < 14; i++) {
@@ -219,7 +219,7 @@ u8 func_80731654(s16 arg0, s16 arg1) {
 #ifdef NON_MATCHING
 extern FlagTableEntry D_80755DA8[];
 
-s32 func_80731784(s16 arg0, s16 arg1, s32 *arg2) {
+s32 spawnFlagLookup(s16 arg0, s16 arg1, s32 *arg2) {
     FlagTableEntry *e; s32 n = 0x1F; s32 i = 0; s16 val = arg0;
     *arg2 = 0; for (; i < n; ) {
         e = D_80755DA8 + i;
@@ -233,14 +233,14 @@ s32 func_80731784(s16 arg0, s16 arg1, s32 *arg2) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/135D30/func_80731784.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/135D30/spawnFlagLookup.s")
 #endif
 s32 spawnFlagConditionMet(s16 arg0, s16 arg1) {
     s32 r;
     s32 idx;
     u8 flag;
 
-    r = func_80731784(arg0, arg1, &idx);
+    r = spawnFlagLookup(arg0, arg1, &idx);
     if (r >= 0) {
         flag = flagGet(r, 0);
         if (flag != 0 && D_80755DAE[idx].unk0 != 0) {

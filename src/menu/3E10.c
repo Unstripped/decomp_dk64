@@ -395,7 +395,7 @@ extern u8 D_80721170;
 extern u8 D_807211D0;
 extern u8 D_80721444;
 void func_80030894(MenuScreenState *, void *, s32, s32, f32, s32, s32);
-s32 func_8060C6B8(s32, s32, u8, s32);
+s32 eepromGetField(s32, s32, u8, s32);
 s32 flagGet(s16, u8);
 
 void func_80028834(MenuScreenActor *arg0, s32 arg1) {
@@ -405,7 +405,7 @@ void func_80028834(MenuScreenActor *arg0, s32 arg1) {
     D_800337F4 = 0;
     D_807FBB4C->unk154 = 0x85;
     D_807FBB4C->unk155 = 0;
-    D_80745844 = func_8060C6B8(0x1E, 0, 0, 0);
+    D_80745844 = eepromGetField(0x1E, 0, 0, 0);
     menuSetAudioMode();
     temp_s0->unk17 = D_8076A0D1[0];
     func_80030894(temp_s0, &D_80720C34, 0xA0, 0xD2, 0.75f, 2, 0);
@@ -855,7 +855,7 @@ void menuMysteryHandleInput(MenuScreenActor *arg0, s32 arg1) {
 }
 
 
-Gfx *func_8002A088(void *arg0, Gfx *arg1) {
+Gfx *menuMysteryDrawFileSlotLabel(void *arg0, Gfx *arg1) {
     void *temp_a0 = *(void **)((u8 *)arg0 + 0x174);
     s32 pad;
     f32 sp11C;
@@ -1541,7 +1541,7 @@ extern s8 D_8074583C;
 extern s8 D_80745840;
 void n_alSndpSetGroupVol(u8, u16);
 void seqUpdateVolume(s32);
-s32 func_8060C648(s32, s32, u8, s32, s32);
+s32 eepromSetField(s32, s32, u8, s32, s32);
 void func_8060DEA8(void);
 
 void menuHandleSoundOptionsInput(MenuScreenActor *arg0, s32 arg1) {
@@ -1621,8 +1621,8 @@ void menuHandleSoundOptionsInput(MenuScreenActor *arg0, s32 arg1) {
                 break;
             }
             if (arg1 & 2) {
-                if (func_8060C6B8(0x1E, 0, 0, 0) != D_80745844) {
-                    func_8060C648(0x1E, 0, 0, 0, D_80745844);
+                if (eepromGetField(0x1E, 0, 0, 0) != D_80745844) {
+                    eepromSetField(0x1E, 0, 0, 0, D_80745844);
                     func_8060DEA8();
                 }
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -1766,8 +1766,8 @@ void func_8002D8AC(MenuScreenActor *arg0, s32 arg1) {
             }
             if (arg1 & 2) {
 
-                func_8060C648(0x1F, 0, 0, 0, D_807550C8);
-                func_8060C648(0x20, 0, 0, 0, D_80744530);
+                eepromSetField(0x1F, 0, 0, 0, D_807550C8);
+                eepromSetField(0x20, 0, 0, 0, D_80744530);
                 func_8060DEA8();
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 temp_s1->unk16 = 0;
@@ -2167,15 +2167,15 @@ void menuLoadHighScores(void) {
     s32 i;
 
     for (i = 0; i < 5; i++) {
-        D_80744548[i].unk0 = func_8060C6B8(0x19, 0, i, 0);
-        D_80744548[i].unk2 = func_8060C6B8(0x16, 0, i, 0);
-        D_80744548[i].unk3 = func_8060C6B8(0x17, 0, i, 0);
-        D_80744548[i].unk4 = func_8060C6B8(0x18, 0, i, 0);
+        D_80744548[i].unk0 = eepromGetField(0x19, 0, i, 0);
+        D_80744548[i].unk2 = eepromGetField(0x16, 0, i, 0);
+        D_80744548[i].unk3 = eepromGetField(0x17, 0, i, 0);
+        D_80744548[i].unk4 = eepromGetField(0x18, 0, i, 0);
         D_80744548[i].unk5 = 0;
-        D_80744568[i].unk0 = func_8060C6B8(0x1D, 0, i, 0);
-        D_80744568[i].unk2 = func_8060C6B8(0x1A, 0, i, 0);
-        D_80744568[i].unk3 = func_8060C6B8(0x1B, 0, i, 0);
-        D_80744568[i].unk4 = func_8060C6B8(0x1C, 0, i, 0);
+        D_80744568[i].unk0 = eepromGetField(0x1D, 0, i, 0);
+        D_80744568[i].unk2 = eepromGetField(0x1A, 0, i, 0);
+        D_80744568[i].unk3 = eepromGetField(0x1B, 0, i, 0);
+        D_80744568[i].unk4 = eepromGetField(0x1C, 0, i, 0);
         D_80744568[i].unk5 = 0;
     }
 }
@@ -2184,14 +2184,14 @@ void menuSaveHighScores(void) {
     s32 i;
 
     for (i = 0; i < 5; i++) {
-        func_8060C648(0x19, 0, i, 0, D_80744548[i].unk0);
-        func_8060C648(0x16, 0, i, 0, D_80744548[i].unk2);
-        func_8060C648(0x17, 0, i, 0, D_80744548[i].unk3);
-        func_8060C648(0x18, 0, i, 0, D_80744548[i].unk4);
-        func_8060C648(0x1D, 0, i, 0, D_80744568[i].unk0);
-        func_8060C648(0x1A, 0, i, 0, D_80744568[i].unk2);
-        func_8060C648(0x1B, 0, i, 0, D_80744568[i].unk3);
-        func_8060C648(0x1C, 0, i, 0, D_80744568[i].unk4);
+        eepromSetField(0x19, 0, i, 0, D_80744548[i].unk0);
+        eepromSetField(0x16, 0, i, 0, D_80744548[i].unk2);
+        eepromSetField(0x17, 0, i, 0, D_80744548[i].unk3);
+        eepromSetField(0x18, 0, i, 0, D_80744548[i].unk4);
+        eepromSetField(0x1D, 0, i, 0, D_80744568[i].unk0);
+        eepromSetField(0x1A, 0, i, 0, D_80744568[i].unk2);
+        eepromSetField(0x1B, 0, i, 0, D_80744568[i].unk3);
+        eepromSetField(0x1C, 0, i, 0, D_80744568[i].unk4);
     }
     func_8060DEA8();
 }
@@ -2711,7 +2711,7 @@ s32 menuDrawFileSummary();
 void menuInitFileSummary();
 Gfx *menuDrawFileSlotLabel();
 void menuInitFileSelect();
-Gfx *func_8002A088();
+Gfx *menuMysteryDrawFileSlotLabel();
 Gfx *menuDrawSubmenuRing();
 void menuInitControllerSlots();
 void menuHandleControllerSlotInput();
@@ -2827,7 +2827,7 @@ Gfx *menuUpdateStateDispatch(MenuScreenActor *arg0, s32 arg1, Gfx *arg2, s32 arg
         break;
     case 5:
         if (arg1 == 1) {
-            return func_8002A088(arg0, arg2);
+            return menuMysteryDrawFileSlotLabel(arg0, arg2);
         }
         if (arg1 == 2) {
             menuMysteryHandleInput(arg0, sp18);
@@ -2942,7 +2942,7 @@ void func_8071498C(void *);
 void func_80714998(u8);
 void func_807149FC(s32);
 void func_80714A28(s32);
-void func_80030C14();
+void menuUpdateElementTargetAndColor();
 f32 sqrtf(f32);
 
 void func_80030894(MenuScreenState *arg0, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg5, s32 arg6) {
@@ -2957,7 +2957,7 @@ void func_80030894(MenuScreenState *arg0, void *arg1, s32 arg2, s32 arg3, f32 ar
     func_8071495C();
     func_807149FC(-1);
     func_80714950(arg0);
-    func_8071498C(func_80030C14);
+    func_8071498C(menuUpdateElementTargetAndColor);
     func_80714A28(1);
     sp3C = func_80714CC0(arg1, arg4, arg2, arg3, -10.0f);
     sp38 = heapAlloc(0x28);
@@ -3055,37 +3055,37 @@ void func_80030A90(Menu10_Spinner *arg0, s32 arg1) {
 }
 
 #ifdef NON_MATCHING
-typedef struct MenuW2L_Rgba {
+typedef struct MenuUiRgba {
     u8 r;
     u8 g;
     u8 b;
     u8 a;
-} MenuW2L_Rgba;
+} MenuUiRgba;
 
-typedef struct MenuW2L_Cfg {
+typedef struct MenuUiElemCfg {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     s16 unkC[5];
     char padC[1];
     s8 unk17;
-} MenuW2L_Cfg;
+} MenuUiElemCfg;
 
-typedef struct MenuW2L_Tgt {
+typedef struct MenuUiElemTarget {
     f32 unk0;
     f32 unk4;
     f32 unk8;
     f32 unkC;
     f32 unk10;
     f32 unk14;
-} MenuW2L_Tgt;
+} MenuUiElemTarget;
 
-typedef struct MenuW2L_Actor {
+typedef struct MenuUiElemActor {
     char pad0[0x340];
     f32 unk340;
     f32 unk344;
     char pad348[0x14];
-    MenuW2L_Cfg *unk35C;
+    MenuUiElemCfg *unk35C;
     f32 unk360;
     f32 unk364;
     char pad368[2];
@@ -3094,19 +3094,19 @@ typedef struct MenuW2L_Actor {
     u8 unk36C;
     u8 unk36D;
     char pad36E[0x16];
-    MenuW2L_Tgt *unk384;
+    MenuUiElemTarget *unk384;
     char pad388[6];
     s16 unk38E;
     char pad390[2];
     s16 unk392;
-} MenuW2L_Actor;
+} MenuUiElemActor;
 
-extern MenuW2L_Rgba D_800337DC[];
+extern MenuUiRgba D_800337DC[];
 s32 func_8003155C(void *, s32, f32 *, f32 *, f32 *, s16 *, s16 *);
 
-void func_80030C14(MenuW2L_Actor *arg0, u8 *arg1) {
-    MenuW2L_Cfg *p = arg0->unk35C;
-    MenuW2L_Tgt *c;
+void menuUpdateElementTargetAndColor(MenuUiElemActor *arg0, u8 *arg1) {
+    MenuUiElemCfg *p = arg0->unk35C;
+    MenuUiElemTarget *c;
     f32 f;
     f32 sp68;
     f32 sp64;
@@ -3326,7 +3326,7 @@ void func_80030C14(MenuW2L_Actor *arg0, u8 *arg1) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80030C14.s")
+#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/menuUpdateElementTargetAndColor.s")
 #endif
 
 #ifdef NON_MATCHING
@@ -3641,7 +3641,7 @@ void func_80032024(void) {
 s32 menuCheckSaveFile(arg0)
     u8 arg0;
 {
-    return func_8060C6B8(0xD, 0, 0, arg0) == 0;
+    return eepromGetField(0xD, 0, 0, arg0) == 0;
 }
 
 typedef struct Menu3R3_StructC828 {

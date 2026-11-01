@@ -14,6 +14,7 @@ raceGetProgressPercent = 0x8002F90C; // type:func
 racePathFollowStep = 0x80026354; // type:func
 raceGetCompletionFraction = 0x80027BD0; // type:func
 raceFindNearestWaypoint = 0x80028E20; // type:func
+raceRacerSteerTowardWaypoint = 0x8002978C; // type:func
 raceFindNearestParticipant = 0x8002D360; // type:func
 racePlayResultSfx = 0x8002D40C; // type:func
 raceUpdateStandings = 0x8002D524; // type:func

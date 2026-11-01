@@ -302,7 +302,7 @@ typedef struct {
     void *unk30;
     u8 unk34;
     u8 unk35;
-} RaceL_Racer;
+} RaceRacerState;
 
 typedef struct {
     RaceC_Actor *unk0;
@@ -310,7 +310,7 @@ typedef struct {
     u8 pad8[7];
     u8 unkF;
     u8 unk10;
-} RaceL_Tgt;
+} RaceTargetView;
 
 typedef struct {
     s16 x;
@@ -320,15 +320,15 @@ typedef struct {
     u8 unk7;
     u8 unk8;
     u8 pad9;
-} RaceL_Wp;
+} RaceWaypoint;
 
-#define G2_WP ((RaceL_Wp *)((u8 *)D_807FDCA0->unk14 + idx * 10))
+#define G2_WP ((RaceWaypoint *)((u8 *)D_807FDCA0->unk14 + idx * 10))
 #define G2_F(o) (*(f32 *)((u8 *)D_807FBB40 + (o)))
 
-f32 func_8002978C(void) {
+f32 raceRacerSteerTowardWaypoint(void) {
     s32 idx;
-    RaceL_Racer *s0;
-    RaceL_Tgt *sp74;
+    RaceRacerState *s0;
+    RaceTargetView *sp74;
     RaceC_Actor *tmp;
     RaceC_State *sp6C;
     void *sp68;
@@ -348,8 +348,8 @@ f32 func_8002978C(void) {
     f32 fr;
     s16 ang;
 
-    s0 = (RaceL_Racer *)RC_A->unk178;
-    sp74 = (RaceL_Tgt *)RC_A->unk180;
+    s0 = (RaceRacerState *)RC_A->unk178;
+    sp74 = (RaceTargetView *)RC_A->unk180;
     tmp = s0->unk30;
     sp6C = tmp->unk174;
     sp68 = raceGetRoute(sp6C->unk26);
@@ -476,7 +476,7 @@ f32 func_8002978C(void) {
 
 #else
 
-#pragma GLOBAL_ASM("asm/race/nonmatchings/52B0/func_8002978C.s")
+#pragma GLOBAL_ASM("asm/race/nonmatchings/52B0/raceRacerSteerTowardWaypoint.s")
 #endif
 
 
@@ -532,7 +532,7 @@ void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
 s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
-f32 func_8002978C(void);
+f32 raceRacerSteerTowardWaypoint(void);
 void func_8002E644(void *);
 void func_805FF544(void);
 void csModelStateSetFirstByte(s32, s32);
@@ -584,7 +584,7 @@ void func_8002A0AC(void) {
         sp4C->unkA -= 1;
     }
     if (s0->unk34 < 5) {
-        sp48 = func_8002978C();
+        sp48 = raceRacerSteerTowardWaypoint();
         if (s0->unk34 == 2) {
             func_8002E644(sp4C);
         } else if (s0->unk34 == 4 && sp4C->unk8 == 0) {

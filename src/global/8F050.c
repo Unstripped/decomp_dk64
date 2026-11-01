@@ -23,7 +23,7 @@ typedef struct Actor146 {
     s16 unk146;
 } Actor146;
 
-s32 func_80612E90(void *, s32, s32);
+s32 controllerAnimStateLoadAsset(void *, s32, s32);
 void animSetLoopLimit(s32, s32, s32);
 void animSetFinished(s32, s32, s32);
 void animSetFrameAndSubframe(s32, s32, s16, f32);
@@ -62,7 +62,7 @@ void actorConfigApplyAnimFrame(Actor4C *arg0, s32 arg1, s32 arg2) {
     s32 temp;
 
     if (arg0->unk4C == 0) {
-        arg0->unk4C = func_80612E90(arg0, *(s16 *)((u8 *)D_80750102 + arg1 * 20), 0);
+        arg0->unk4C = controllerAnimStateLoadAsset(arg0, *(s16 *)((u8 *)D_80750102 + arg1 * 20), 0);
     }
     for (i = 0; i < 8; i += 4) {
         temp = *(s32 *)((u8 *)&D_80750100[arg1] + i + 0xC);
@@ -154,7 +154,7 @@ void actorProximityUpdate(void) {
                 case 1:
                     if (r * r < dist_sq) {
                         if (actor->unk4C == 0) {
-                            actor->unk4C = func_80612E90(actor, D_80750100[sp80].unk2, 0);
+                            actor->unk4C = controllerAnimStateLoadAsset(actor, D_80750100[sp80].unk2, 0);
                         }
                     } else if (actor->unk4C != 0) {
                         controllerAnimFreeSub(actor, 1);
@@ -163,7 +163,7 @@ void actorProximityUpdate(void) {
                 case 2:
                     if (dist_sq < r * r) {
                         if (actor->unk4C == 0) {
-                            actor->unk4C = func_80612E90(actor, D_80750100[sp80].unk2, 0);
+                            actor->unk4C = controllerAnimStateLoadAsset(actor, D_80750100[sp80].unk2, 0);
                         }
                     } else if (actor->unk4C != 0) {
                         controllerAnimFreeSub(actor, 1);

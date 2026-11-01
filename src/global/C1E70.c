@@ -97,22 +97,22 @@ s32 sfxAllocateChannel(s32, f32);
 s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 void flagSet(s16, s32, s32);
 
-typedef struct W3RingA_Ptr178 {
+typedef struct RingNodePtr178 {
     /* 0x00 */ Actor *unk0;
-} W3RingA_Ptr178;
+} RingNodePtr178;
 
-typedef struct W3RingA_Sub4 {
+typedef struct RingNodeSub4 {
     /* 0x00 */ u8 pad0[0x64];
     /* 0x64 */ u16 unk64;
-} W3RingA_Sub4;
+} RingNodeSub4;
 
-typedef struct W3RingA_Act178 {
+typedef struct RingNodeActor178 {
     /* 0x000 */ u8 pad0[0x178];
-    /* 0x178 */ W3RingA_Ptr178 *unk178;
-} W3RingA_Act178;
+    /* 0x178 */ RingNodePtr178 *unk178;
+} RingNodeActor178;
 
-void func_806BD3E4(void) {
-    W3RingA_Ptr178 *sp34 = ((W3RingA_Act178 *)D_807FBB40)->unk178;
+void actorNodeRingUpdate(void) {
+    RingNodePtr178 *sp34 = ((RingNodeActor178 *)D_807FBB40)->unk178;
     f32 dx;
     f32 dz;
     u8 sp2B;
@@ -180,7 +180,7 @@ void func_806BD3E4(void) {
             break;
     }
     if (camIsCutsceneActive() == 0) {
-        if (((W3RingA_Sub4 *)D_807FBB40->unk4)->unk64 != 0x2F0) {
+        if (((RingNodeSub4 *)D_807FBB40->unk4)->unk64 != 0x2F0) {
             actorScriptStart(D_807FBB40, 0x2F0);
         }
     }

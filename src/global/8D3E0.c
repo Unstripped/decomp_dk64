@@ -560,7 +560,7 @@ typedef struct ActorListSpawnInfo {
 void actorDeregisterActive(Actor *);
 void actorRegisterActive(Actor *);
 s32 actorSpawnFromInfo(ActorListSpawnInfo *);
-s32 func_80612E90();
+s32 controllerAnimStateLoadAsset();
 void controllerAnimFreeSub(Actor *, u8);
 extern Actor *D_807FBB44;
 
@@ -629,7 +629,7 @@ void actorListUpdateSpawns(void) {
                     }
                 } else if (node->unk48 == 0) {
                     if (node->unk58 != 0) {
-                        *(s32 *)node->unk44 = func_80612E90(actor, node->unk58, 0);
+                        *(s32 *)node->unk44 = controllerAnimStateLoadAsset(actor, node->unk58, 0);
                         actor = node->unk44;
                     }
                     actorRegisterActive(actor);

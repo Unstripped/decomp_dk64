@@ -388,7 +388,7 @@ extern s32 D_807FBB60;
 extern u8 D_2000180[];
 
 void *func_80630DCC(s32, void *, GfxWords *, u8);
-void *func_80636FFC(void *, void *, f32, f32, f32, s32, s32, s32);
+void *renderModelAnimatedSlot(void *, void *, f32, f32, f32, s32, s32, s32);
 void *renderModelQuadGfx(void *, void *, f32, f32, f32, s32, s32, s32);
 void *effectGridBuildDisplayList(void *, void *, s16);
 
@@ -427,7 +427,7 @@ GfxWords *renderEntryListBuildDisplayList(GfxWords *arg0, RenderEntry *arg1, f32
                     D_807F6009 = 0;
                     break;
                 case 1:
-                    arg0 = func_80636FFC(model, arg0, arg1->unk4, arg1->unk8, arg1->unkC, 1, arg6, arg7);
+                    arg0 = renderModelAnimatedSlot(model, arg0, arg1->unk4, arg1->unk8, arg1->unkC, 1, arg6, arg7);
                     D_807F6009 = 1;
                     break;
                 case 2:

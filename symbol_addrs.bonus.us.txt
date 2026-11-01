@@ -27,6 +27,7 @@ bonusTargetGameUpdate = 0x800277F8; // type:func
 bonusPopupGameUpdate = 0x80027F14; // type:func
 bonusTargetUpdate = 0x800284C0; // type:func
 bonusPopupSpawnActors = 0x80028648; // type:func
+bonusActorUpdateVertexPositions = 0x8002881C; // type:func
 bonusRenderScoreHud = 0x8002D010; // type:func
 bonusScoreHudUpdate = 0x8002D2F0; // type:func
 bonusQueueScore = 0x8002D6F8; // type:func

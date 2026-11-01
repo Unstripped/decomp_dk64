@@ -1389,7 +1389,7 @@ typedef struct ActorSoundPosView {
 
 void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 void camStartShakeFromPoint(s32, u8, u16, s32, f32, f32, f32, f32);
-s16 func_8060A7C0(s16, Actor *, u8);
+s16 mapActionLookupEntry(s16, Actor *, u8);
 
 #ifdef NON_MATCHING
 s32 scriptOpPlaySoundAndShake(Actor *arg0) {
@@ -1432,7 +1432,7 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
             break;
         }
     }
-    sp4E = func_8060A7C0(sp4E, arg0, ((ActorSoundPosView *)arg0)->unk78);
+    sp4E = mapActionLookupEntry(sp4E, arg0, ((ActorSoundPosView *)arg0)->unk78);
     if ((sp4E == 2) || (sp4E == 8)) {
         sp49 = 0xA;
     }
@@ -1470,7 +1470,7 @@ s32 func_80617140(Actor *arg0) {
         n_alSndpStop(D_807457C8);
         D_807457C8 = 0;
     }
-    temp_v0 = func_8060A7C0(sp2E, arg0, ((ActorSoundView *)arg0)->unk78);
+    temp_v0 = mapActionLookupEntry(sp2E, arg0, ((ActorSoundView *)arg0)->unk78);
     if (temp_v0 == 8) {
         sp29 = 4;
     }

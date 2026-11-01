@@ -1036,12 +1036,12 @@ void func_806BB874(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-void func_806AD260();
+void actorPatrolFollowerUpdate();
 
 void func_806BC080(void) {
     func_806BB32C();
     if (D_807FDC9C->unkA == 0 || func_806BA240(0, 0x446) == 0) {
-        func_806AD260(0x2ED, 1, 0);
+        actorPatrolFollowerUpdate(0x2ED, 1, 0);
         actorUpdateModelMatrix(D_807FBB40, 0);
     }
 }
@@ -1049,7 +1049,7 @@ void func_806BC080(void) {
 void func_806BC0E4(void) {
     func_806BB32C();
     if (D_807FDC9C->unkA == 0 || func_806BA240(0x32, 0x44E) == 0) {
-        func_806AD260(0x2EC, 1, 0);
+        actorPatrolFollowerUpdate(0x2EC, 1, 0);
         actorUpdateModelMatrix(D_807FBB40, 0);
     }
 }
@@ -1057,7 +1057,7 @@ void func_806BC0E4(void) {
 void func_806BC148(void) {
     func_806BB32C();
     if (D_807FDC9C->unkA == 0 || func_806BA240(0x14, 0x44A) == 0) {
-        func_806AD260(0x2EE, 1, 0);
+        actorPatrolFollowerUpdate(0x2EE, 1, 0);
         actorUpdateModelMatrix(D_807FBB40, 0);
     }
 }

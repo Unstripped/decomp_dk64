@@ -1280,7 +1280,7 @@ void mapChunkSetIndexOverride(s8 arg0) {
 
 void frustumOrientPolyNormals(f32, f32, f32, void *, void *);
 void frustumCornersTransformByInverse(Mtx *);
-void func_8062A944(f32, f32, f32);
+void frustumCalculateCornerRays(f32, f32, f32);
 void mapUpdateFogDistance(f32 *, s16);
 void mapChunkClearBounds();
 void mapChunkActivate(s16);
@@ -1305,7 +1305,7 @@ void mapChunkFrameUpdate(f32 arg0, f32 arg1, f32 arg2) {
     }
     mapUpdateFogDistance(&gPlayerSlots[gCurrentPlayerIndex].unk288, gPlayerSlots[gCurrentPlayerIndex].unk290);
     D_807F7138 = (s16)(s32)gPlayerSlots[gCurrentPlayerIndex].unk288;
-    func_8062A944(D_807F5FB4, D_807F5FB0, (f32)D_807F7138);
+    frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, (f32)D_807F7138);
     frustumCornersTransformByInverse((Mtx *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + (D_807444FC << 6) + 8));
     frustumOrientPolyNormals(arg0, arg1, arg2, &D_807F5E68, &D_807F5E20);
     mapChunkClearBounds();
@@ -1478,7 +1478,7 @@ void mapChunkBuildClipFrusta(f32 arg0, f32 arg1, f32 arg2) {
     s32 i;
     u8 sp84[0x30];
 
-    func_8062A944(D_807F5FB4, D_807F5FB0, D_807F5FAC);
+    frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, D_807F5FAC);
     guMtxL2F(spF8, (Mtx *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + (D_807444FC << 6) + 8));
     matrix4Invert(spB8, spF8);
     for (i = 0; i < gMapChunkCount; i++) {

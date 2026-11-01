@@ -488,7 +488,7 @@ void proxPathGetDistanceAt(ProxPath *arg0, u8 arg1, f32 arg2, f32 *arg3) {
     *arg3 = *arg3 + arg0->unk34[arg1].unk4 * arg2;
 }
 
-void func_8072FDD4(ProxPath *arg0, f32 arg1, u8 *arg2, f32 *arg3) {
+void proxPathFindDistanceSegment(ProxPath *arg0, f32 arg1, u8 *arg2, f32 *arg3) {
     f32 rem;
     u8 i;
 
@@ -597,7 +597,7 @@ typedef struct H1ActorB {
     /* 0x174 */ H1ActorState *unk174;
 } H1ActorB;
 
-void func_8072FDD4(ProxPath *, f32, u8 *, f32 *);
+void proxPathFindDistanceSegment(ProxPath *, f32, u8 *, f32 *);
 void proxPathGetSegmentMatrices(Actor *, u8, u8, u8, void **, void **);
 void mtxLerpL(Mtx *, Mtx *, f32, Mtx *);
 void proxPathActorFollowSpline(H1ActorB *, H1ActorState *, ProxPath *, u8, f32);
@@ -642,7 +642,7 @@ void proxPathFollowerStep(H1ActorB **arg0) {
         actor->unk6A &= ~0x40;
         return;
     }
-    func_8072FDD4(node, state->unk138, &idx, &t);
+    proxPathFindDistanceSegment(node, state->unk138, &idx, &t);
     idA = node->unk34[idx].unk0;
     idB = node->unk34[idx].unk1;
     switch (node->unk6) {

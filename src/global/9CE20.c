@@ -4,15 +4,15 @@
 void func_80698120();
 
 #ifdef NON_MATCHING
-typedef struct Big9CE_Node {
+typedef struct BoneChainNode {
     s8 unk0;
     u8 unk1;
     s16 unk2;
     s16 unk4;
     s16 unk6;
-} Big9CE_Node;
+} BoneChainNode;
 
-typedef struct Big9CE_Data {
+typedef struct BoneChainData {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -27,9 +27,9 @@ typedef struct Big9CE_Data {
     /* 0x20 */ f32 unk20;
     /* 0x24 */ f32 unk24;
     /* 0x28 */ u8 unk28;
-} Big9CE_Data;
+} BoneChainData;
 
-typedef struct Big9CE_PlayerState {
+typedef struct BoneChainPlayerState {
     /* 0x130 */ u8 pad0[0x130];
     /* 0x130 */ void *unk130;
     /* 0x134 */ u8 pad134[4];
@@ -40,31 +40,31 @@ typedef struct Big9CE_PlayerState {
     /* 0x154 */ s16 unk154;
     /* 0x156 */ u8 pad156[0x9A];
     /* 0x1F0 */ u32 unk1F0;
-} Big9CE_PlayerState;
+} BoneChainPlayerState;
 
-typedef struct Big9CE_PlayerRoot {
+typedef struct BoneChainPlayerRoot {
     /* 0x000 */ u8 pad0[0x174];
-    /* 0x174 */ Big9CE_PlayerState *unk174;
-} Big9CE_PlayerRoot;
+    /* 0x174 */ BoneChainPlayerState *unk174;
+} BoneChainPlayerRoot;
 
-typedef struct Big9CE_Main {
+typedef struct BoneChainMain {
     /* 0x0 */ u8 pad0[4];
-    /* 0x4 */ Big9CE_PlayerRoot *unk4;
-} Big9CE_Main;
+    /* 0x4 */ BoneChainPlayerRoot *unk4;
+} BoneChainMain;
 
-typedef struct Big9CE_Actor2 {
+typedef struct BoneChainActor2 {
     /* 0x06A */ u8 pad0[0x6A];
     /* 0x06A */ u16 unk6A;
     /* 0x06C */ u8 pad6C[0x7A];
     /* 0x0E6 */ s16 unkE6;
     /* 0x0E8 */ u8 padE8[0x6C];
     /* 0x154 */ u8 unk154;
-} Big9CE_Actor2;
+} BoneChainActor2;
 
-typedef struct Big9CE_Sub4 {
+typedef struct BoneChainSub4 {
     /* 0x1C */ u8 pad0[0x1C];
-    /* 0x1C */ Big9CE_Node *unk1C;
-} Big9CE_Sub4;
+    /* 0x1C */ BoneChainNode *unk1C;
+} BoneChainSub4;
 
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
@@ -89,12 +89,12 @@ void proxPathSetSegment(Actor *, u8, u8, u8, u8, f32, f32, f32, u8, s16, s16, s1
 void func_80698120(arg0)
 u8 arg0;
 {
-    Big9CE_Data *data;
-    Big9CE_Node *node;
+    BoneChainData *data;
+    BoneChainNode *node;
     s16 i;
     s16 padS16;
     f32 padA;
-    Big9CE_PlayerState *player;
+    BoneChainPlayerState *player;
     f32 padC;
     f32 padE;
     u8 dir;
@@ -103,7 +103,7 @@ u8 arg0;
     data = D_807FBB40->unk174;
     if (D_807FBB40 == 0) {} // FAKE: keeps D_807FBB40 above data in uopt priority
     if (D_807FBB40 == 0) {} // FAKE: keeps D_807FBB40 above data in uopt priority
-    player = ((Big9CE_Main *)gPlayerSlots)->unk4->unk174;
+    player = ((BoneChainMain *)gPlayerSlots)->unk4->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         data->unk0 = 0.0f;
         data->unk4 = 0.10471976f;
@@ -114,7 +114,7 @@ u8 arg0;
         data->unk20 = 0.000f;
         data->unk24 = (f32)((f64)(s32)((randomNonNegative() >> 15) % 100) / 1000.0 + 0.1);
         data->unk18 = 0.0f;
-        ((Big9CE_Sub4 *)D_807FBB40->unk4)->unk1C = heapAlloc(0x80);
+        ((BoneChainSub4 *)D_807FBB40->unk4)->unk1C = heapAlloc(0x80);
         proxPathAdd(D_807FBB40, 0, 0, 0, arg0, 0.0f, (f32)((f64)arg0 * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
         for (i = 1; i <= arg0; i++) {
             proxPathSetSegment(D_807FBB40, 0, i - 1, i, i + 1, 0.333333f, 0.0f, 0.0f, 0, 0, 0, 0, 0);
@@ -142,7 +142,7 @@ u8 arg0;
         data->unk16--;
         data->unk1C -= 1.0;
     }
-    node = ((Big9CE_Sub4 *)D_807FBB40->unk4)->unk1C;
+    node = ((BoneChainSub4 *)D_807FBB40->unk4)->unk1C;
     if (data->unk0 > 2.0f) {
         if (data->unkC < 3.926991f && data->unkC + data->unk4 >= 3.926991f) {
             if (D_807FBB40->unk58 == 0x74) {

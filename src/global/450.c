@@ -165,7 +165,7 @@ void pathFreeAsset(s32);
 void func_80724C78(s32);
 void volumeTriggerTableInit(s32);
 void proxPathListClear(void);
-void func_80731030(void);
+void flagsClearAllBank2(void);
 s32 flagGet(s32, s32);
 void faultSetMessage(s32, s32, s32, s32);
 void faultThreadInit(void);
@@ -535,7 +535,7 @@ void func_805FBE04(void) {
     D_8076A0B1 |= 4;
     modelSkipListClear();
     func_806C9AE0();
-    func_80731030();
+    flagsClearAllBank2();
     func_805FF118();
     csTimerQueueClear();
     sp28 = cameraStepAspectScale();

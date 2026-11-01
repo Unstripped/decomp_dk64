@@ -953,9 +953,9 @@ s32 func_80714464(void) {
 extern s8 D_8074452C;
 extern u8 D_807467C8;
 void func_806C9AE0(void);
-void func_80731030(void);
+void flagsClearAllBank2(void);
 void eepromLoadPlayerData(u8, s32);
-s32 func_8060C6B8(s32, s32, s32, u8);
+s32 eepromGetField(s32, s32, s32, u8);
 void func_805FF4D8(s32, s32);
 
 void func_807144B8(u8 arg0) {
@@ -965,10 +965,10 @@ void func_807144B8(u8 arg0) {
     D_807445B8 = osGetTime();
     D_80755350 = 0;
     func_806C9AE0();
-    func_80731030();
+    flagsClearAllBank2();
     eepromLoadPlayerData(arg0, 1);
     gPlayerCharacterId = 0;
-    if ((func_8060C6B8(0xD, 0, 0, D_807467C8) != 0) || (D_8074452C != 0)) {
+    if ((eepromGetField(0xD, 0, 0, D_807467C8) != 0) || (D_8074452C != 0)) {
         if (flagGet(0x186, 0) != 0) {
             var_a0 = 0x22;
             var_a1 = 0;

@@ -194,7 +194,7 @@ s32 func_8072881C(s32, void *);
 #define SECOND_ACTOR ((BossMainActor *)D_807FBB44)
 #define TIMER_STATE ((BossTimerState *)D_807FDC90)
 
-void func_8002F100(void) {
+void bossDogadonStep(void) {
     BossPhaseState *sp4C;
     u8 *sp48;
     s32 pad[2];

@@ -584,7 +584,7 @@ void func_8068B80C(void);
 #define SPAWNER_ACTOR ((BossSpawnerActor *)D_807FBB40)
 #define SPAWNER_PLAYER ((BossSpawnerActor *)D_807FBB4C)
 
-void func_80031AA0(void) {
+void bossSpawnerUpdate(void) {
     f32 dx;
     f32 dz;
     s32 k;
@@ -948,22 +948,22 @@ void func_80031AA0(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/C920/func_80031AA0.s")
+#pragma GLOBAL_ASM("asm/boss/nonmatchings/C920/bossSpawnerUpdate.s")
 #endif
 
 #ifdef NON_MATCHING
-typedef struct W2Boss_BossAnimState {
+typedef struct BossAnimState {
     char pad0[4];
     f32 unk4;
     char pad8[8];
     s16 unk10;
-} W2Boss_BossAnimState;
+} BossAnimState;
 
-typedef struct W2Boss_BossModelRef {
-    W2Boss_BossAnimState *unk0;
-} W2Boss_BossModelRef;
+typedef struct BossModelRef {
+    BossAnimState *unk0;
+} BossModelRef;
 
-typedef struct W2Boss_BossParentState {
+typedef struct BossParentState {
     char pad0[4];
     f32 unk4;
     char pad8[0xA];
@@ -972,9 +972,9 @@ typedef struct W2Boss_BossParentState {
     s8 unk14;
     char pad15[2];
     s8 unk17;
-} W2Boss_BossParentState;
+} BossParentState;
 
-typedef struct W2Boss_BossParentActor {
+typedef struct BossParentActor {
     char pad0[0x7C];
     f32 unk7C;
     char pad80[4];
@@ -982,18 +982,18 @@ typedef struct W2Boss_BossParentActor {
     char pad88[0xCC];
     u8 unk154;
     char pad155[0x1F];
-    W2Boss_BossParentState *unk174;
-} W2Boss_BossParentActor;
+    BossParentState *unk174;
+} BossParentActor;
 
-typedef struct W2Boss_BossFollowerLink {
-    W2Boss_BossParentActor *unk0;
+typedef struct BossFollowerLink {
+    BossParentActor *unk0;
     s8 unk4;
     s8 unk5;
-} W2Boss_BossFollowerLink;
+} BossFollowerLink;
 
-typedef struct W2Boss_BossFollowerActor {
+typedef struct BossFollowerActor {
     char pad0[4];
-    W2Boss_BossModelRef *unk4;
+    BossModelRef *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x18];
@@ -1013,8 +1013,8 @@ typedef struct W2Boss_BossFollowerActor {
     u8 unk16B;
     u8 unk16C;
     char pad16D[7];
-    W2Boss_BossFollowerLink *unk174;
-} W2Boss_BossFollowerActor;
+    BossFollowerLink *unk174;
+} BossFollowerActor;
 
 void func_80613C48(void *, s16, f32, f32);
 void sfxPlayOnFreeSlot();
@@ -1035,12 +1035,12 @@ extern s16 D_80035B70;
 extern s8 D_80035B6C;
 extern f32 D_80036DC4;
 
-#define ACTOR ((W2Boss_BossFollowerActor *)D_807FBB40)
+#define ACTOR ((BossFollowerActor *)D_807FBB40)
 
-void func_80032B08(void) {
-    W2Boss_BossFollowerLink *sub174 = ACTOR->unk174;
-    W2Boss_BossParentState *sp30 = sub174->unk0->unk174;
-    W2Boss_BossAnimState *sub4_0 = ACTOR->unk4->unk0;
+void bossFollowerActorUpdate(void) {
+    BossFollowerLink *sub174 = ACTOR->unk174;
+    BossParentState *sp30 = sub174->unk0->unk174;
+    BossAnimState *sub4_0 = ACTOR->unk4->unk0;
 
     if (sub174->unk5 == 0) {
         f32 dx = D_807FBB4C->unk7C - ACTOR->unk7C;
@@ -1142,7 +1142,7 @@ void func_80032B08(void) {
 #undef ACTOR
 #else
 
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/C920/func_80032B08.s")
+#pragma GLOBAL_ASM("asm/boss/nonmatchings/C920/bossFollowerActorUpdate.s")
 #endif
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/C920/D_80036A90.s")

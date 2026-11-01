@@ -113,8 +113,8 @@ void arcadeBuildDisplayList(u8 *arg0, Gfx **arg1) {
     arcadeDispatchState(&glist);
     *arg1 = glist;
 }
-void func_8060C648(s32, s32, u8, s32, s32);
-s32 func_8060C6B8(s32, s32, u8, s32);
+void eepromSetField(s32, s32, u8, s32, s32);
+s32 eepromGetField(s32, s32, u8, s32);
 void func_8060DEA8(void);
 extern s32 D_8004A74C[5];
 extern u8 D_8004A778[5][3];
@@ -126,10 +126,10 @@ void arcadeSaveHighScores(void) {
 
     for (i = 0; i < 5; i++) {
         temp = i;
-        func_8060C648(0x15, 0, temp, 0, D_8004A74C[i]);
-        func_8060C648(0x12, 0, temp, 0, D_8004A778[i][0]);
-        func_8060C648(0x13, 0, temp, 0, D_8004A778[i][1]);
-        func_8060C648(0x14, 0, temp, 0, D_8004A778[i][2]);
+        eepromSetField(0x15, 0, temp, 0, D_8004A74C[i]);
+        eepromSetField(0x12, 0, temp, 0, D_8004A778[i][0]);
+        eepromSetField(0x13, 0, temp, 0, D_8004A778[i][1]);
+        eepromSetField(0x14, 0, temp, 0, D_8004A778[i][2]);
     }
     D_8004A760 = D_8004A74C[0];
     func_8060DEA8();
@@ -141,10 +141,10 @@ void arcadeLoadHighScores(void) {
 
     for (i = 0; i < 5; i++) {
         temp = i;
-        D_8004A74C[i] = func_8060C6B8(0x15, 0, temp, 0);
-        D_8004A778[i][0] = func_8060C6B8(0x12, 0, temp, 0);
-        D_8004A778[i][1] = func_8060C6B8(0x13, 0, temp, 0);
-        D_8004A778[i][2] = func_8060C6B8(0x14, 0, temp, 0);
+        D_8004A74C[i] = eepromGetField(0x15, 0, temp, 0);
+        D_8004A778[i][0] = eepromGetField(0x12, 0, temp, 0);
+        D_8004A778[i][1] = eepromGetField(0x13, 0, temp, 0);
+        D_8004A778[i][2] = eepromGetField(0x14, 0, temp, 0);
     }
     D_8004A760 = D_8004A74C[0];
 }
@@ -2656,7 +2656,7 @@ void arcadeUpdateEntitySprite(s32 arg0) {
 #ifdef NON_MATCHING
 extern s32 D_8004C6FC;
 extern s32 D_8004C704;
-void func_8002CD64(s32 arg0) {
+void arcadeUpdateBarrelEntity(s32 arg0) {
     s32 sp3C;
     s32 v;
 
@@ -2784,7 +2784,7 @@ void func_8002CD64(s32 arg0) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_8002CD64.s")
+#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/arcadeUpdateBarrelEntity.s")
 #endif
 
 extern s8 D_8004A768;
@@ -2821,7 +2821,7 @@ extern u8 D_80036810[];
 extern u8 D_80036A58[];
 extern u8 D_80036CA0[];
 extern u8 D_80036EE8[];
-void func_8002D6FC(s32 arg0) {
+void arcadeUpdateBouncingBarrel(s32 arg0) {
     s32 sp2C;
     s32 a0;
     s32 sp20;
@@ -2936,7 +2936,7 @@ void func_8002D6FC(s32 arg0) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/func_8002D6FC.s")
+#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/arcadeUpdateBouncingBarrel.s")
 #endif
 
 extern u8 D_80037788[];
@@ -3818,8 +3818,8 @@ void func_80030FB0(u8 arg0) {
 }
 
 /* ArcS2 declarations */
-void func_8002CD64(s32);
-void func_8002D6FC(s32);
+void arcadeUpdateBarrelEntity(s32);
+void arcadeUpdateBouncingBarrel(s32);
 void func_8002E158(s32);
 void func_8002E3D4(s32);
 void arcadeUpdatePlayerEntity(s32);
@@ -3850,10 +3850,10 @@ void arcadeDispatchEntities(void) {
     do {
         switch (D_8004BCD0[i].unk18) {
         case 1:
-            func_8002CD64(i);
+            arcadeUpdateBarrelEntity(i);
             break;
         case 2:
-            func_8002D6FC(i);
+            arcadeUpdateBouncingBarrel(i);
             break;
         case 3:
             func_8002E158(i);

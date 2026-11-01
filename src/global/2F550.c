@@ -64,7 +64,7 @@ extern f32 D_807F5E14;
 extern f32 D_807F5E18;
 extern f32 D_807F5E1C;
 
-void func_8062A944(f32 arg0, f32 arg1, f32 arg2) {
+void frustumCalculateCornerRays(f32 arg0, f32 arg1, f32 arg2) {
     f32 negZ;
     f32 scale;
     f32 spB0[4][4];
@@ -111,7 +111,7 @@ void func_8062A944(f32 arg0, f32 arg1, f32 arg2) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/func_8062A944.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/frustumCalculateCornerRays.s")
 #endif
 
 extern f32 D_807F5E20[];

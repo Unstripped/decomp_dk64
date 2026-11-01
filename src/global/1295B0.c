@@ -146,10 +146,10 @@ void func_80724C2C(s16 arg0) {
 }
 
 extern struct SpawnNodeList *D_80755694;
-void func_80728300();
+void spawnNodeListInitFromMap();
 
 void func_80724C78(void *arg0) {
-    func_80728300(arg0, D_80755690, D_80755694);
+    spawnNodeListInitFromMap(arg0, D_80755690, D_80755694);
 }
 
 typedef struct A1Sub4 {
@@ -593,7 +593,7 @@ typedef struct F1Tbl {
 s32 segmentIntersectsCircle2D(s16, s16, s16, s16, s16, s16, s16);
 s32 zoneCanReachPoint(Actor *, s16, s16, s16, F1Tbl *);
 s32 randomNonNegative(void);
-s32 func_80725ED4(arg0, arg1, arg2, arg3, arg4, arg5)
+s32 zoneFindBestReachablePoint(arg0, arg1, arg2, arg3, arg4, arg5)
 u8 arg0;
 Actor *arg1;
 F1Tbl *arg2;
@@ -1391,8 +1391,8 @@ void actorDeregisterActive(void *);
 s16 mapChunkFindByPosition(f32, f32, f32, s32);
 u8 spawnNodeInRangeAndVisible(SpawnNode *, s32);
 u8 spawnNodeActorInRangeAndVisible(SpawnNode *, s32);
-u8 func_807280C8(SpawnNode *, s32);
-u8 func_8072818C(SpawnNode *, s32);
+u8 spawnNodeActorOutOfRangeOrHidden(SpawnNode *, s32);
+u8 spawnNodeActorOutOfRangeScaled(SpawnNode *, s32);
 void sfxStopChannel(s32, s32);
 void sfxStopSlotSound(void *, s32);
 
@@ -1489,7 +1489,7 @@ void spawnNodesUpdate(void) {
                 }
             }
             if (node->unk42 == 6) {
-                if (func_8072818C(node, dist) != 0) {
+                if (spawnNodeActorOutOfRangeScaled(node, dist) != 0) {
                     actorDespawn(node->unk18);
                     node->unk42 = node->unk12;
                 } else if (spawnNodeActorInRangeAndVisible(node, dist) != 0) {
@@ -1497,7 +1497,7 @@ void spawnNodesUpdate(void) {
                     node->unk42 = 5;
                     node->unk46 |= 0x8000;
                 }
-            } else if ((node->unk42 == 5) && (func_807280C8(node, dist) != 0)) {
+            } else if ((node->unk42 == 5) && (spawnNodeActorOutOfRangeOrHidden(node, dist) != 0)) {
                 if ((node->unk18->unk154 != 0x16) && (node->unk18->unk154 != 0x37)) {
                     if (node->unk18->unk58 == 0xF8) {
                         sfxStopChannel(0x42, 0);
@@ -1566,7 +1566,7 @@ u8 spawnNodeActorInRangeAndVisible(SpawnNode *arg0, s32 arg1) {
 }
 
 #ifdef NON_MATCHING
-u8 func_807280C8(SpawnNode *arg0, s32 arg1) {
+u8 spawnNodeActorOutOfRangeOrHidden(SpawnNode *arg0, s32 arg1) {
     f32 dx;
     f32 dy;
     f32 dz;
@@ -1597,11 +1597,11 @@ u8 func_807280C8(SpawnNode *arg0, s32 arg1) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807280C8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/spawnNodeActorOutOfRangeOrHidden.s")
 #endif
 
 #ifdef NON_MATCHING
-u8 func_8072818C(SpawnNode *arg0, s32 arg1) {
+u8 spawnNodeActorOutOfRangeScaled(SpawnNode *arg0, s32 arg1) {
     f32 dz;
     f32 dx;
     f32 r;
@@ -1631,7 +1631,7 @@ u8 func_8072818C(SpawnNode *arg0, s32 arg1) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_8072818C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/spawnNodeActorOutOfRangeScaled.s")
 #endif
 
 typedef struct C1Entry24 {
@@ -1682,7 +1682,7 @@ void zoneAssignToBehaviour(C1Holder *arg0) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80728300.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/spawnNodeListInitFromMap.s")
 
 void animSetLoopLimit(void *, s32, s32);
 void animSetFinished(void *, s32, s32);

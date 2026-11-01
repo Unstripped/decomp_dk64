@@ -1909,34 +1909,34 @@ void modelSlotGetTransformVectors(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32
 }
 
 #ifdef NON_MATCHING
-typedef struct ModelA_OlB_Tgt {
+typedef struct ModelTransformPlayerTarget {
     /* 0x00 */ u8 pad0[0x7C];
     /* 0x7C */ f32 unk7C;
     /* 0x80 */ f32 unk80;
     /* 0x84 */ f32 unk84;
-} ModelA_OlB_Tgt;
+} ModelTransformPlayerTarget;
 
-typedef struct ModelA_OlB_Player {
+typedef struct ModelTransformPlayer {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 pad1[3];
-    /* 0x04 */ ModelA_OlB_Tgt *unk4;
+    /* 0x04 */ ModelTransformPlayerTarget *unk4;
     /* 0x08 */ u8 pad8[0x2E8];
-} ModelA_OlB_Player;
+} ModelTransformPlayer;
 
-typedef struct ModelA_OlB_Kind {
+typedef struct ModelTransformKind {
     /* 0x00 */ u8 pad0[0x67];
     /* 0x67 */ u8 unk67;
     /* 0x68 */ s16 unk68;
     /* 0x6A */ s16 unk6A;
     /* 0x6C */ s16 unk6C;
-} ModelA_OlB_Kind;
+} ModelTransformKind;
 
-typedef struct ModelA_OlB_Meta {
+typedef struct ModelTransformMeta {
     /* 0x00 */ u8 pad0[0x1E];
     /* 0x1E */ s16 unk1E;
-} ModelA_OlB_Meta;
+} ModelTransformMeta;
 
-typedef struct ModelA_OlB_SlotG {
+typedef struct ModelTransformSlot {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -1946,15 +1946,15 @@ typedef struct ModelA_OlB_SlotG {
     /* 0x18 */ f32 unk18;
     /* 0x1C */ f32 unk1C;
     /* 0x20 */ ModelSlotVectors *unk20;
-    /* 0x24 */ ModelA_OlB_Meta *unk24;
+    /* 0x24 */ ModelTransformMeta *unk24;
     /* 0x28 */ u8 pad28[0x54];
-    /* 0x7C */ ModelA_OlB_Kind *unk7C;
+    /* 0x7C */ ModelTransformKind *unk7C;
     /* 0x80 */ u8 pad80[6];
     /* 0x86 */ s16 unk86;
     /* 0x88 */ s16 unk88;
     /* 0x8A */ s16 unk8A;
     /* 0x8C */ u8 pad8C[4];
-} ModelA_OlB_SlotG;
+} ModelTransformSlot;
 
 extern u8 gPlayerCount;
 s32 activeActorBoxOverlapTest(f32, f32, f32, s16, s16, s16, u16);
@@ -1964,12 +1964,12 @@ void collisionTransformNode(s32, void *, f32, f32, f32, f32, f32, f32, f32);
 void modelSlotBuildTriangleBufferThunk(s32, void *, f32, f32, f32, f32, f32, f32, f32);
 void actorUpdateEntryCoordinates(s16, f32, f32, f32, f32, f32);
 
-#define MODELA_PLY(i) ((ModelA_OlB_Player *)((u8 *)gPlayerSlots + ((((((i) << 2) - (i)) << 4) - (i)) << 4)))
-#define MODELA_MODELA_OLB_SL0 ((ModelA_OlB_SlotG *)((u8 *)D_807F6000 + arg0 * 0x90))
-#define MODELA_OLB_SL ((ModelA_OlB_SlotG *)((u8 *)D_807F6000 + off))
+#define MODEL_TRANSFORM_PLAYER(i) ((ModelTransformPlayer *)((u8 *)gPlayerSlots + ((((((i) << 2) - (i)) << 4) - (i)) << 4)))
+#define MODEL_TRANSFORM_SLOT0 ((ModelTransformSlot *)((u8 *)D_807F6000 + arg0 * 0x90))
+#define MODEL_TRANSFORM_SLOT ((ModelTransformSlot *)((u8 *)D_807F6000 + off))
 
-void func_806358E8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, u8 arg9, u8 arg10, u8 arg11, u8 arg12, u8 arg13) {
-    ModelA_OlB_SlotG *v1;
+void modelSlotTransformBoundsAndNodes(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, u8 arg9, u8 arg10, u8 arg11, u8 arg12, u8 arg13) {
+    ModelTransformSlot *v1;
     ModelSlotVectors *p;
     s16 sp76;
     u8 flag;
@@ -2110,7 +2110,7 @@ void func_806358E8(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_806358E8.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/modelSlotTransformBoundsAndNodes.s")
 #endif
 
 typedef struct ActorBoundsView {
@@ -2889,22 +2889,22 @@ typedef struct {
     /* 0x64 */ s16 unk64;
     /* 0x66 */ u8 pad66[0x32];
     /* 0x98 */ s16 unk98;
-} ModelL_Model;
+} ModelRenderSlot;
 
 typedef struct {
     /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ struct ModelL_Ctl *unk4;
+    /* 0x04 */ struct ModelRenderPlayerCtl *unk4;
     /* 0x08 */ u8 pad8[0x214];
     /* 0x21C */ f32 unk21C;
     /* 0x220 */ f32 unk220;
     /* 0x224 */ f32 unk224;
     /* 0x228 */ u8 pad228[0xC8];
-} ModelL_Player; /* 0x2F0 */
+} ModelRenderPlayer; /* 0x2F0 */
 
-typedef struct ModelL_Ctl {
+typedef struct ModelRenderPlayerCtl {
     /* 0x00 */ u8 pad0[0x58];
     /* 0x58 */ s32 unk58;
-} ModelL_Ctl;
+} ModelRenderPlayerCtl;
 
 typedef struct {
     /* 0x00 */ f32 unk0;
@@ -2928,7 +2928,7 @@ typedef struct {
     /* 0xC3 */ u8 unkC3;
     /* 0xC4 */ u8 unkC4;
     /* 0xC5 */ u8 unkC5;
-} ModelL_Obj;
+} ModelRenderAnimObj;
 
 void texAnimUpdateNodes(ModelSegmentData *);
 void func_8063E6B4(void *);
@@ -2939,9 +2939,9 @@ void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
 f32 renderScaleDistanceByFov(f32);
 Gfx *renderSetSegment6AndFog(Gfx *, s16, u8);
 
-#define ModelL_PLAYER(i) (((ModelL_Player *)gPlayerSlots)[i])
+#define MODEL_RENDER_PLAYER(i) (((ModelRenderPlayer *)gPlayerSlots)[i])
 
-Gfx *func_80636FFC(ModelL_Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, s16 arg6, s32 arg7) {
+Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, s16 arg6, s32 arg7) {
     f32 spF8[4][4];
     f32 spB8[4][4];
     f32 dx;
@@ -2950,7 +2950,7 @@ Gfx *func_80636FFC(ModelL_Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8
     u8 sel;
     u8 *sel78;
     f32 scale;
-    ModelL_Model *model;
+    ModelRenderSlot *model;
     s32 pad;
     u8 sp97;
     u8 sp96;
@@ -2965,9 +2965,9 @@ Gfx *func_80636FFC(ModelL_Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8
         func_8063E6B4((void *)&arg5);
     }
     if (arg5 != 0) {
-        dx = ModelL_PLAYER(gCurrentPlayerIndex).unk21C - arg0->unk0;
-        dy = ModelL_PLAYER(gCurrentPlayerIndex).unk220 - arg0->unk4;
-        dz = ModelL_PLAYER(gCurrentPlayerIndex).unk224 - arg0->unk8;
+        dx = MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk21C - arg0->unk0;
+        dy = MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk220 - arg0->unk4;
+        dz = MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk224 - arg0->unk8;
         dx *= dx;
         dy *= dy;
         dz *= dz;
@@ -3050,7 +3050,7 @@ gSPClearGeometryMode(arg1++, G_FOG | G_CULL_BOTH);
     if (arg5 != 0) {
         if (arg0->unkB6 != -1 && (model = D_807F6000[sp90].unk7C) != NULL && model->unk60 == 1) {
             func_8063E6B4(model);
-            sp92 = ((ModelL_Model *)D_807F6000[sp90].unk7C)->unk64;
+            sp92 = ((ModelRenderSlot *)D_807F6000[sp90].unk7C)->unk64;
         } else {
             renderCalcPlayerDistanceAlpha(arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC0, arg0->unkB4, &sp92);
             if (arg0->unkB6 != -1) {
@@ -3079,19 +3079,19 @@ gSPClearGeometryMode(arg1++, G_FOG | G_CULL_BOTH);
         if (arg0->unkB6 != -1) {
             s32 fl = D_807F6000[sp90].unk8C;
             if (fl != 0) {
-                if ((fl & 0x8) && ModelL_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 2) {
+                if ((fl & 0x8) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 2) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x2) && ModelL_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 3) {
+                if ((D_807F6000[sp90].unk8C & 0x2) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 3) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x4) && ModelL_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 5) {
+                if ((D_807F6000[sp90].unk8C & 0x4) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 5) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x1) && ModelL_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 6) {
+                if ((D_807F6000[sp90].unk8C & 0x1) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 6) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x10) && ModelL_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 4) {
+                if ((D_807F6000[sp90].unk8C & 0x10) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 4) {
                     sp92 = 0x64;
                 }
             }
@@ -3110,7 +3110,7 @@ gSPClearGeometryMode(arg1++, G_FOG | G_CULL_BOTH);
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/func_80636FFC.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/renderModelAnimatedSlot.s")
 #endif
 
 typedef struct RenderQuadModelObj {
@@ -4188,7 +4188,7 @@ void csStateTickTimers(s32);
 void csStateUpdate(s32, s16);
 
 #ifdef NON_MATCHING
-typedef struct ModelA_PendingSrc {
+typedef struct ModelPendingEntry {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -4197,11 +4197,11 @@ typedef struct ModelA_PendingSrc {
     /* 0x1E */ s16 unk1E;
     /* 0x20 */ u8 pad20[4];
     /* 0x24 */ u8 unk24;
-} ModelA_PendingSrc;
+} ModelPendingEntry;
 
 extern u8 D_807F7140;
 
-void modelPendingQueueInsert(ModelA_PendingSrc *arg0, u8 arg1) {
+void modelPendingQueueInsert(ModelPendingEntry *arg0, u8 arg1) {
     u8 *obj;
     u8 allow;
     s32 pad1;

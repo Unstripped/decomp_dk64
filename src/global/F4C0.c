@@ -19,7 +19,7 @@ extern PlayerStateContext *D_807FBB40;
 extern GlobalContextView *gActivePlayerState;
 extern PlayerRaceContext *gPlayerSlots;
 
-s16 func_8060A7C0(s16 arg0, void *arg1, u8 arg2) {
+s16 mapActionLookupEntry(s16 arg0, void *arg1, u8 arg2) {
     s16 temp_v1;
     s32 var_v0;
     s32 var_v1;

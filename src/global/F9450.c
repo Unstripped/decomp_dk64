@@ -1147,7 +1147,7 @@ extern u8 D_807444FC;
 extern s16 D_8076A0AA;
 void gridCollectActorsInRange(u8);
 void effectSpawnRandomSpread(f32, f32, f32, f32, f32, s32);
-void func_806358E8(s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8, u8);
+void modelSlotTransformBoundsAndNodes(s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8, u8);
 void func_806398E4(s32, u8, u8);
 void slotQueueGetPosition(s32, f32 *, f32 *, f32 *);
 void slotQueueUpdate(s32, s32, s32);
@@ -1267,7 +1267,7 @@ void gridUpdatePlayerNodes(u8 arg0) {
                         }
                         heapFree(node);
                     } else {
-                        func_806358E8(node->unk0, outX, outY, outZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1, 0, 0, 0, 1);
+                        modelSlotTransformBoundsAndNodes(node->unk0, outX, outY, outZ, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1, 0, 0, 0, 1);
                         prev = node;
                     }
                     node = next;
