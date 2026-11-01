@@ -1930,57 +1930,47 @@ s32 collisionCheckTriangleBoundingBoxXZ(CollisionTriF *arg0, f32 arg1, f32 arg2)
     return 1;
 }
 
-#ifdef NON_MATCHING
 u8 func_80669E04(CollisionTriF *arg0, f32 arg1, f32 arg2) {
-    f64 dx;
-    f64 dz;
-    f64 ox;
-    f64 oz;
-    f32 x0;
-    f32 x1;
-    f32 x2;
-    f32 z0;
-    f32 z1;
-    f32 z2;
     f64 cx;
     f64 cz;
     f64 a;
     f64 b;
+    f64 dx;
+    f64 dz;
+    f64 ox;
+    f64 oz;
     f64 c;
-    s32 i;
-    u32 outside;
     s32 sideP;
+    u32 outside;
     s32 sideC;
+    s32 i;
+    s32 w1; // pad: frame size (D = 96)
 
-    x1 = arg0->x[1];
-    x2 = arg0->x[2];
-    z2 = arg0->z[2];
-    z1 = arg0->z[1];
     outside = 0;
-    x0 = arg0->x[0];
-    z0 = arg0->z[0];
-    cx = (x0 + (f64)(x2 + x1) * 0.5) * 0.5;
-    cz = (z0 + (f64)(z2 + z1) * 0.5) * 0.5;
-    i = 0;
-    do {
+    a = (f64)(arg0->x[1] + arg0->x[2]) * 0.5;
+    b = (f64)(arg0->z[1] + arg0->z[2]) * 0.5;
+    cx = (arg0->x[0] + a) * 0.5;
+    cz = (arg0->z[0] + b) * 0.5;
+    i = 0; do { // LAYOUT: i = 0 joined to the loop head (move v0,zero lands after the hoisted ldc1s)
+        if (i && sideC) {}  // FAKE: dead test steers uopt (i != 0 guards: sideC is set by the previous iteration)
         switch (i) {
         case 0:
-            dx = x1 - x0;
-            dz = z1 - z0;
-            ox = x0;
-            oz = z0;
+            dx = arg0->x[1] - arg0->x[0];
+            dz = arg0->z[1] - arg0->z[0];
+            ox = arg0->x[0];
+            oz = arg0->z[0];
             break;
         case 1:
-            dx = x2 - x0;
-            dz = z2 - z0;
-            ox = x0;
-            oz = z0;
+            dx = arg0->x[2] - arg0->x[0];
+            dz = arg0->z[2] - arg0->z[0];
+            ox = arg0->x[0];
+            oz = arg0->z[0];
             break;
         case 2:
-            dx = x2 - x1;
-            dz = z2 - z1;
-            ox = x1;
-            oz = z1;
+            dx = arg0->x[2] - arg0->x[1];
+            dz = arg0->z[2] - arg0->z[1];
+            ox = arg0->x[1];
+            oz = arg0->z[1];
             break;
         }
         a = (arg1 - ox) * dz;
@@ -2001,12 +1991,9 @@ u8 func_80669E04(CollisionTriF *arg0, f32 arg1, f32 arg2) {
             outside = 1;
         }
     } while (i != 3);
+    if (sideC && sideC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     return outside == 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80669E04.s")
-#endif
 
 void gunzip(void *, void *, void *);
 void heapFreeDeferred(void *);
@@ -2064,8 +2051,8 @@ extern s8 D_807F94AD;
 s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     f32 pad;
     CollisionBoxTriView *hit_tri;
-    f64 nx, ny, nz;
     f64 d;
+    f64 nx, ny, nz;
     f64 dx01, dy01, dz01, dx02, dy02, dz02;
     f32 y;
     s32 hit;
@@ -2097,16 +2084,16 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
                             if ((collisionCheckBoxTriangleBoundsXZ((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
                                 (func_8066A988((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
                                 (tri->unk56 != 0)) {
-                                dx01 = (f64)(tri->unk24 - tri->unk28);
+                                dz01 = tri->unk3C - tri->unk40;
                                 dy01 = (f64)(tri->unk30 - tri->unk34);
-                                dz01 = (f64)(tri->unk3C - tri->unk40);
-                                dx02 = (f64)(tri->unk24 - tri->unk2C);
-                                dy02 = (f64)(tri->unk30 - tri->unk38);
-                                dz02 = (f64)(tri->unk3C - tri->unk44);
-                                nx = (dy01 * dz02) - (dz01 * dy02);
+                                dx01 = (f64)(tri->unk24 - tri->unk28);
+                                dx02 = tri->unk24 - tri->unk2C;
+                                dy02 = tri->unk30 - tri->unk38;
+                                dz02 = tri->unk3C - tri->unk44;
+                                nx = (dz02 * dy01) - (dy02 * dz01);
                                 ny = (dz01 * dx02) - (dx01 * dz02);
                                 nz = (dx01 * dy02) - (dy01 * dx02);
-                                d = -((nx * (f64)tri->unk28) + (ny * (f64)tri->unk34) + (nz * (f64)tri->unk40));
+                                d = -(nx * (f64)tri->unk28 + ny * (f64)tri->unk34 + nz * (f64)tri->unk40);
                                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
                                     if (arg0 != NULL) {
                                         if (D_807F94BC == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -2276,57 +2263,47 @@ s32 collisionCheckBoxTriangleBoundsXZ(CollisionBoxTriangle *arg0, f32 arg1, f32 
     return 1;
 }
 
-#ifdef NON_MATCHING
 u8 func_8066A988(CollisionBoxTriangle *arg0, f32 arg1, f32 arg2) {
-    f64 dx;
-    f64 dz;
-    f64 ox;
-    f64 oz;
-    f32 x0;
-    f32 x1;
-    f32 x2;
-    f32 z0;
-    f32 z1;
-    f32 z2;
     f64 cx;
     f64 cz;
     f64 a;
     f64 b;
+    f64 dx;
+    f64 dz;
+    f64 ox;
+    f64 oz;
     f64 c;
-    s32 i;
-    u32 outside;
     s32 sideP;
+    u32 outside;
     s32 sideC;
+    s32 i;
+    s32 w1; // pad: frame size (D = 96)
 
-    x1 = arg0->tri.x[1];
-    x2 = arg0->tri.x[2];
-    z2 = arg0->tri.z[2];
-    z1 = arg0->tri.z[1];
     outside = 0;
-    x0 = arg0->tri.x[0];
-    z0 = arg0->tri.z[0];
-    cx = (x0 + (f64)(x2 + x1) * 0.5) * 0.5;
-    cz = (z0 + (f64)(z2 + z1) * 0.5) * 0.5;
-    i = 0;
-    do {
+    a = (f64)(arg0->tri.x[1] + arg0->tri.x[2]) * 0.5;
+    b = (f64)(arg0->tri.z[1] + arg0->tri.z[2]) * 0.5;
+    cx = (arg0->tri.x[0] + a) * 0.5;
+    cz = (arg0->tri.z[0] + b) * 0.5;
+    i = 0; do { // LAYOUT: i = 0 joined to the loop head (move v0,zero lands after the hoisted ldc1s)
+        if (i && sideC) {}  // FAKE: dead test steers uopt (i != 0 guards: sideC is set by the previous iteration)
         switch (i) {
         case 0:
-            dx = x1 - x0;
-            dz = z1 - z0;
-            ox = x0;
-            oz = z0;
+            dx = arg0->tri.x[1] - arg0->tri.x[0];
+            dz = arg0->tri.z[1] - arg0->tri.z[0];
+            ox = arg0->tri.x[0];
+            oz = arg0->tri.z[0];
             break;
         case 1:
-            dx = x2 - x0;
-            dz = z2 - z0;
-            ox = x0;
-            oz = z0;
+            dx = arg0->tri.x[2] - arg0->tri.x[0];
+            dz = arg0->tri.z[2] - arg0->tri.z[0];
+            ox = arg0->tri.x[0];
+            oz = arg0->tri.z[0];
             break;
         case 2:
-            dx = x2 - x1;
-            dz = z2 - z1;
-            ox = x1;
-            oz = z1;
+            dx = arg0->tri.x[2] - arg0->tri.x[1];
+            dz = arg0->tri.z[2] - arg0->tri.z[1];
+            ox = arg0->tri.x[1];
+            oz = arg0->tri.z[1];
             break;
         }
         a = (arg1 - ox) * dz;
@@ -2347,12 +2324,9 @@ u8 func_8066A988(CollisionBoxTriangle *arg0, f32 arg1, f32 arg2) {
             outside = 1;
         }
     } while (i != 3);
+    if (sideC && sideC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     return outside == 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066A988.s")
-#endif
 
 typedef struct CollisionBoxTriangleWork {
     u8 pad0[0x24];

@@ -1,4 +1,4 @@
-// func_8066A08C (src/global/6AD90.c): R2Fp2 stage 5 (unchanged C, 319 target vs 329 ours insns, whole-file diff 143 rows): ours has 4 extra ldc1+lui (2000.0 reloaded at each use; target keeps it in callee-saved f26 from the first ny*2000.0 compare to the end), +1 lw +1 lwc1, bc1fl vs bc1f; d in f18 (target f0), first FP ring temp f6 (999999.0f) vs target f4 (one extra hidden FP touch in ours / f16,f18 used as webs). Tried this round: inline nz (all 8 masks), 4300 decl-order moves, greedy single dead-statement sweeps (27 syms x all positions), new dead-local sweeps (f32/f64/s32): none improves. Target nz=f22, nx f30, ny f20, dx02/dy02 temps f24/f26 reused later, arg2 reloaded lwc1 f28.
+// func_8066A08C (src/global/6AD90.c): SixadA: stage 5 park, deadsweep score 179 -> 149 (text 117, reloc 8). Hill-climb of statement order (dz01,dy01,dx01 first; nx,ny,nz order) + commutation spellings of nx/ny/nz/dxx/d (no re-association, no 0.0-x). Remaining: target keeps 2000.0 in callee-saved f26 across the call sites (one web), ours reloads ldc1+lui per site; first FP ring temp f4 vs f6; deltas in different f-regs. Tried: local k=2000.0 (worse 141 text), x=x .loc sweep (1127 variants, no gain), 0.01/-0.01 compare spellings, dead-test sweep, decl order mutation.
 typedef struct {
     u8 pad0[0x24];
     f32 unk24;
@@ -25,8 +25,8 @@ extern s8 D_807F94AD;
 s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     f32 pad;
     CollisionBoxTriView *hit_tri;
-    f64 nx, ny, nz;
     f64 d;
+    f64 nx, ny, nz;
     f64 dx01, dy01, dz01, dx02, dy02, dz02;
     f32 y;
     s32 hit;
@@ -58,16 +58,16 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
                             if ((collisionCheckBoxTriangleBoundsXZ((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
                                 (func_8066A988((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
                                 (tri->unk56 != 0)) {
-                                dx01 = (f64)(tri->unk24 - tri->unk28);
+                                dz01 = tri->unk3C - tri->unk40;
                                 dy01 = (f64)(tri->unk30 - tri->unk34);
-                                dz01 = (f64)(tri->unk3C - tri->unk40);
-                                dx02 = (f64)(tri->unk24 - tri->unk2C);
-                                dy02 = (f64)(tri->unk30 - tri->unk38);
-                                dz02 = (f64)(tri->unk3C - tri->unk44);
-                                nx = (dy01 * dz02) - (dz01 * dy02);
+                                dx01 = (f64)(tri->unk24 - tri->unk28);
+                                dx02 = tri->unk24 - tri->unk2C;
+                                dy02 = tri->unk30 - tri->unk38;
+                                dz02 = tri->unk3C - tri->unk44;
+                                nx = (dz02 * dy01) - (dy02 * dz01);
                                 ny = (dz01 * dx02) - (dx01 * dz02);
                                 nz = (dx01 * dy02) - (dy01 * dx02);
-                                d = -((nx * (f64)tri->unk28) + (ny * (f64)tri->unk34) + (nz * (f64)tri->unk40));
+                                d = -(nx * (f64)tri->unk28 + ny * (f64)tri->unk34 + nz * (f64)tri->unk40);
                                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
                                     if (arg0 != NULL) {
                                         if (D_807F94BC == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
