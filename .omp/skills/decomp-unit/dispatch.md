@@ -42,7 +42,7 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 - Revisit of old parks: wave 1 per-file tasks (1-5 functions, large ones alone), then waves of
   2-5 agents regrouped by diff KIND (ring, FP, frame/slot, as1 layout) whose task names the
   findings that fit; keep going while a wave matches ~1+ per agent (actor revisit 2: 25 of 40
-  in 18 tasks, then 4/5, 4/5, 4/3, 4/2; leftovers 3: 21 of 50 in 23, 4/6, 1/3 agents, stop).
+  in 18 tasks, then 4/5, 4/5, 4/3, 4/2; leftovers 3: 19 of 50 in 23, 4/6, 1/3 agents, stop).
 - Each `tasks[]` item lists its functions with the last diff note and stage; agents start
   from the stored draft (`tools/drafts.py show <seg> <FUNC>`), not m2c.
 - The agent's budget is its context window and request cap, not wall-clock time: the brief
