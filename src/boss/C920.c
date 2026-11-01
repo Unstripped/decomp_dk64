@@ -950,18 +950,18 @@ void func_80031AA0(void) {
 #endif
 
 #ifdef NON_MATCHING
-typedef struct BossAnimState {
+typedef struct W2Boss_BossAnimState {
     char pad0[4];
     f32 unk4;
     char pad8[8];
     s16 unk10;
-} BossAnimState;
+} W2Boss_BossAnimState;
 
-typedef struct BossModelRef {
-    BossAnimState *unk0;
-} BossModelRef;
+typedef struct W2Boss_BossModelRef {
+    W2Boss_BossAnimState *unk0;
+} W2Boss_BossModelRef;
 
-typedef struct BossParentState {
+typedef struct W2Boss_BossParentState {
     char pad0[4];
     f32 unk4;
     char pad8[0xA];
@@ -970,9 +970,9 @@ typedef struct BossParentState {
     s8 unk14;
     char pad15[2];
     s8 unk17;
-} BossParentState;
+} W2Boss_BossParentState;
 
-typedef struct BossParentActor {
+typedef struct W2Boss_BossParentActor {
     char pad0[0x7C];
     f32 unk7C;
     char pad80[4];
@@ -980,18 +980,18 @@ typedef struct BossParentActor {
     char pad88[0xCC];
     u8 unk154;
     char pad155[0x1F];
-    BossParentState *unk174;
-} BossParentActor;
+    W2Boss_BossParentState *unk174;
+} W2Boss_BossParentActor;
 
-typedef struct BossFollowerLink {
-    BossParentActor *unk0;
+typedef struct W2Boss_BossFollowerLink {
+    W2Boss_BossParentActor *unk0;
     s8 unk4;
     s8 unk5;
-} BossFollowerLink;
+} W2Boss_BossFollowerLink;
 
-typedef struct BossFollowerActor {
+typedef struct W2Boss_BossFollowerActor {
     char pad0[4];
-    BossModelRef *unk4;
+    W2Boss_BossModelRef *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x18];
@@ -1011,8 +1011,8 @@ typedef struct BossFollowerActor {
     u8 unk16B;
     u8 unk16C;
     char pad16D[7];
-    BossFollowerLink *unk174;
-} BossFollowerActor;
+    W2Boss_BossFollowerLink *unk174;
+} W2Boss_BossFollowerActor;
 
 void func_80613C48(void *, s16, f32, f32);
 void sfxPlayOnFreeSlot();
@@ -1029,14 +1029,16 @@ extern s8 D_80035B28;
 extern s16 D_80035B2C;
 extern f32 D_80035B3C;
 extern s16 D_80035B74;
+extern s16 D_80035B70;
+extern s8 D_80035B6C;
 extern f32 D_80036DC4;
 
-#define ACTOR ((BossFollowerActor *)D_807FBB40)
+#define ACTOR ((W2Boss_BossFollowerActor *)D_807FBB40)
 
 void func_80032B08(void) {
-    BossFollowerLink *sub174 = ACTOR->unk174;
-    BossParentState *sp30 = sub174->unk0->unk174;
-    BossAnimState *sub4_0 = ACTOR->unk4->unk0;
+    W2Boss_BossFollowerLink *sub174 = ACTOR->unk174;
+    W2Boss_BossParentState *sp30 = sub174->unk0->unk174;
+    W2Boss_BossAnimState *sub4_0 = ACTOR->unk4->unk0;
 
     if (sub174->unk5 == 0) {
         f32 dx = D_807FBB4C->unk7C - ACTOR->unk7C;
@@ -1061,7 +1063,7 @@ void func_80032B08(void) {
             s32 v0 = sub174->unk4 + 0x66B;
             if (v0 != sub4_0->unk10) {
                 func_80613C48(ACTOR, v0, 0.0f, 0.0f);
-                sfxPlayOnFreeSlot(0x38D, 0x7D00, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x38D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
             } else {
                 controllerApplyMotionWindow(ACTOR, sub4_0, sub4_0->unk4 + 0.75f);
             }
@@ -1081,7 +1083,7 @@ void func_80032B08(void) {
                 }
             }
             if ((f64)ACTOR->unk80 < 0.0) {
-                sfxPlayOnFreeSlot(0x384, 0x7D00, 63.0f, 1.0f, 0, 0);
+                sfxPlayOnFreeSlot(0x384, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 actorDespawn(ACTOR);
             }
         }
@@ -1094,13 +1096,14 @@ void func_80032B08(void) {
                 if (sub174->unk0->unk154 == 0) {
                     D_80035B74 = 0x28;
                 }
+                if (D_80035B74 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 temp_v1 = D_80035B74 - 1;
-                D_80035B74 = temp_v1;
+                (&D_80035B70)[2] = temp_v1;
                 if (temp_v1 < 0) {
-                    f32 z = ACTOR->unk84 + D_80035B20[sp30->unk14];
-                    f32 y = ACTOR->unk80 + 270.0f;
                     f32 x = ACTOR->unk7C + D_80035B18[sp30->unk14];
-                    D_80035B74 = 0xA;
+                    f32 y = ACTOR->unk80 + 270.0f;
+                    f32 z = ACTOR->unk84 + D_80035B20[sp30->unk14];
+                    ((s16 *)&D_80035B6C)[4] = 0xA;
                     projectileSetTargetCoords(x, y, z);
                     projectileAimAndSpawn(0x2C, 1, 0.25f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, 2400.0f, ACTOR);
                 }
@@ -1119,6 +1122,7 @@ void func_80032B08(void) {
             var_v0 -= 4;
         }
         ACTOR->unk7C = D_80035B00[var_v0] + sub174->unk0->unk7C;
+        if (D_80035B18) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         ACTOR->unk84 = D_80035B08[var_v0] + sub174->unk0->unk84;
         ACTOR->unkE6 = D_80035B10[var_v0];
         ACTOR->unk60 |= 0x800000;
