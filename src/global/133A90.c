@@ -488,26 +488,20 @@ void proxPathGetDistanceAt(ProxPath *arg0, u8 arg1, f32 arg2, f32 *arg3) {
     *arg3 = *arg3 + arg0->unk34[arg1].unk4 * arg2;
 }
 
-#ifdef NON_MATCHING
 void func_8072FDD4(ProxPath *arg0, f32 arg1, u8 *arg2, f32 *arg3) {
-    u8 i;
     f32 rem;
-    f32 prev;
+    u8 i;
 
-    rem = arg1;
     i = 0;
+    rem = arg1;
     do {
-        prev = rem;
+        arg1 = rem;
         rem -= arg0->unk34[i++].unk4;
-    } while (rem > 0.0 && i < arg0->unk7);
+    } while (0.0 < rem && i < arg0->unk7);
     i--;
     *arg2 = i;
-    *arg3 = prev / arg0->unk34[i].unk4;
+    *arg3 = arg1 / arg0->unk34[i].unk4;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/func_8072FDD4.s")
-#endif
 
 typedef struct H1CamState {
     /* 0x000 */ u8 pad0[0x124];
@@ -608,7 +602,6 @@ void proxPathGetSegmentMatrices(Actor *, u8, u8, u8, void **, void **);
 void mtxLerpL(Mtx *, Mtx *, f32, Mtx *);
 void proxPathActorFollowSpline(H1ActorB *, H1ActorState *, ProxPath *, u8, f32);
 
-#ifdef NON_MATCHING
 void proxPathFollowerStep(H1ActorB **arg0) {
     H1ActorB *actor;
     H1ActorState *state;
@@ -621,6 +614,7 @@ void proxPathFollowerStep(H1ActorB **arg0) {
     Mtx mtx;
     f32 mA[4][4];
     f32 m6[4][4];
+    s16 rot;
     u8 idA;
     u8 idB;
     s32 nodeId;
@@ -655,7 +649,8 @@ void proxPathFollowerStep(H1ActorB **arg0) {
     case 0:
         proxPathGetSegmentMatrices(node->unk0, node->unk4, idA, idB, &p128, &p124);
         mtxLerpL(p128, p124, 1.0 - t, &mtx);
-        guRotateF(m6, (s16)(0, (actor->unkE6 - state->unk130->unkE6) & 0xFFF) / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
+        rot = (actor->unkE6 - state->unk130->unkE6) & 0xFFF;
+        guRotateF(m6, rot / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
         guTranslateF(mA, 0.0f, state->unk138 + -80.0, 0.0f);
         guMtxCatF(m6, mA, mA);
         guMtxL2F(actor->unkC, &mtx);
@@ -664,10 +659,14 @@ void proxPathFollowerStep(H1ActorB **arg0) {
         state->unk19C = 0;
         state->unk19E = 0xFFF;
         if (D_807FBB40->unk6A & 0x40) {
-            if (actor->unk58 != 2 && actor->unk58 != 5) {
-                nodeId = 0xD;
-            } else {
+            switch (actor->unk58) {
+            case 2:
+            case 5:
                 nodeId = 0xF;
+                break;
+            default:
+                nodeId = 0xD;
+                break;
             }
             actorGetNodePos(actor, nodeId, &x, &y, &z);
             dy = y - actor->unk80;
@@ -686,10 +685,6 @@ void proxPathFollowerStep(H1ActorB **arg0) {
         break;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/proxPathFollowerStep.s")
-#endif
 
 void splineSetBasisTension(f32);
 void func_80611A70(f32, f32, f32 *, f32 *);
@@ -723,8 +718,8 @@ void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg
     Mtx mC;
     if (D_807F6000 && D_807F6000) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     splineSetBasisTension(0.5f);
-    a = arg4 - 0.1;
     idx = (s8)arg3;
+    a = arg4 - 0.1;
     if (a < 0.0) {
         a = a + 1.0;
         idx = (s8)(arg3 - 1);

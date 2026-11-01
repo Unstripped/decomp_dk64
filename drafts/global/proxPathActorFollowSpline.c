@@ -35,8 +35,8 @@ void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg
     f32 a;
     f32 b;
     s16 slot;
-    s8 idx2;
-    s32 w2;
+        s8 idx2;
+        s32 w2;
     f32 m1[4][4];
     f32 m2[4][4];
     s32 gapw;
@@ -53,8 +53,8 @@ void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg
     Mtx mC;
     if (D_807F6000 && D_807F6000) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     splineSetBasisTension(0.5f);
-    a = arg4 - 0.1;
     idx = (s8)arg3;
+    a = arg4 - 0.1;
     if (a < 0.0) {
         a = a + 1.0;
         idx = (s8)(arg3 - 1);
