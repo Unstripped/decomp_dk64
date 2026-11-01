@@ -1,4 +1,4 @@
-// zoneCheckActorInside (src/global/1295B0.c): Stage 5: regalloc only (142/142 insns, frame 0x68 exact). Target s3=5,s4=1(store),s5=found,s6=0xA,s7=1(cmp),s8=&D_807FDC9C; built s3=1,s4=found,s5=0xA,s6=1,s7=5,s8=&D_807FDC9C. Deadsweep if (D_807FDC9C == 0) {} reduces to full=9 text=9 shape=2 (only s3 and s8 swapped).
+// zoneCheckActorInside (src/global/1295B0.c): Stage 5: regalloc only (142/142 insns, frame 0x68 exact, s0-s8 and f20-f26 exact match). FAKE if (i == 5) {} resolves s3/s8 swap; remaining diff is t0/a1, a1/a0, v0/t9 temp reg numbering.
 #include "common.h"
 #include "actor.h"
 
@@ -13,7 +13,7 @@ typedef struct F1Ent {
     /* 0x8 */ u8 height;
     /* 0x9 */ u8 pad9;
     /* 0xA */ s16 unkA;
-} F1Ent; // size = 0xC? (stride 0xA)
+} F1Ent;
 
 typedef struct F1Tbl {
     /* 0x00 */ u8 pad0[8];
@@ -49,8 +49,7 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
             if (((e->flags & 0x7F) == 0) || ((e->flags & 0x7F) == 1) ||
                 (((e->flags & 0x7F) == 5) && ((f64)arg0->unkB8 < (f64)(u32)((u8 *)D_807FDC9C)[0xD] * 1.4))) {
                 if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
-                    if (e->flags) {
-                    }
+                    if (i == 5) {} // FAKE: steer s3 and s8 constant coloring
                     if (((x - (f32)e->x) * (x - (f32)e->x)) + ((z - (f32)e->z) * (z - (f32)e->z)) < (f32)(e->radius * e->radius)) {
                         func_806755A8((s32)x, (s32)z, e->x, e->z, &arg0->unkF4, &arg0->unkF6);
                         found = 1;

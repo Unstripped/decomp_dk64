@@ -589,7 +589,54 @@ typedef struct F1Tbl {
 
 
 s32 segmentIntersectsCircle2D(s16, s16, s16, s16, s16, s16, s16);
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_80725ED4.s")
+s32 zoneCanReachPoint(Actor *, s16, s16, s16, F1Tbl *);
+s32 randomNonNegative(void);
+s32 func_80725ED4(arg0, arg1, arg2, arg3, arg4, arg5)
+u8 arg0;
+Actor *arg1;
+F1Tbl *arg2;
+s16 *arg3;
+s16 *arg4;
+s16 *arg5;
+{
+    s16 i;
+    u8 stop;
+    u8 found;
+    s32 best;
+    F1Ent *e;
+    s32 d;
+
+    stop = 0;
+    found = 0;
+    if (arg0 & 1) {
+        best = 0;
+    } else {
+        best = 0xF423F;
+    }
+    for (i = 0; i < arg2->count10 && !stop; i++) {
+        e = F1ENT(arg2, i);
+        if (!(e->flags & 0x80) && ((e->flags & 0x7F) == 3)) {
+            if (segmentIntersectsCircle2D((s32)arg1->unk7C, (s32)arg1->unk84, e->x, e->z, (s32)D_807FDC94->unk7C, (s32)D_807FDC94->unk84, 0x14) == 0) {
+                if (zoneCanReachPoint(arg1, e->x, e->y, e->z, arg2) != 0) {
+                    if (((arg0 & 1) && (d = (s32)(((D_807FDC94->unk7C - e->x) * (D_807FDC94->unk7C - e->x)) + ((D_807FDC94->unk84 - e->z) * (D_807FDC94->unk84 - e->z))), best < d)) ||
+                        ((arg0 & 2) && (d = (s32)(((arg1->unk7C - e->x) * (arg1->unk7C - e->x)) + ((arg1->unk84 - e->z) * (arg1->unk84 - e->z))), d < best))) {
+                        best = d;
+                        *arg3 = e->x;
+                        *arg4 = e->y;
+                        *arg5 = e->z;
+                        found = 1;
+                        if (arg0 & 0x80) {
+                            if (((randomNonNegative() >> 0xF) % 100) >= 0x33) {
+                                stop = 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return found;
+}
 
 typedef struct F1Pt6 {
     /* 0x0 */ s16 x;
@@ -672,8 +719,7 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
             if (((e->flags & 0x7F) == 0) || ((e->flags & 0x7F) == 1) ||
                 (((e->flags & 0x7F) == 5) && ((f64)arg0->unkB8 < (f64)(u32)((u8 *)D_807FDC9C)[0xD] * 1.4))) {
                 if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
-                    if (e->flags) {
-                    }
+                    if (i == 5) {} // FAKE: steer s3 and s8 constant coloring
                     if (((x - (f32)e->x) * (x - (f32)e->x)) + ((z - (f32)e->z) * (z - (f32)e->z)) < (f32)(e->radius * e->radius)) {
                         func_806755A8((s32)x, (s32)z, e->x, e->z, &arg0->unkF4, &arg0->unkF6);
                         found = 1;
@@ -1206,7 +1252,6 @@ typedef struct C1TblA0 {
 
 extern C1TblA0 *D_807FDCA0;
 f32 mathAngleBetweenPointsDeg(s32, s32, s16, s16);
-s32 randomNonNegative(void);
 
 #define C1PTS ((C1Pt *)D_807FDCA0->unk14)
 #define C1PT(i) ((C1Pt *)(D_807FDCA0->unk14 + (i)))
@@ -1521,9 +1566,74 @@ u8 spawnNodeActorInRangeAndVisible(SpawnNode *arg0, s32 arg1) {
     return ret;
 }
 
+#ifdef NON_MATCHING
+u8 func_807280C8(SpawnNode *arg0, s32 arg1) {
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    f32 dxy;
+    s32 ret;
+
+    dz = C1PLAYERS[0].unk218 - arg0->unk18->unk84;
+    dx = C1PLAYERS[0].unk210;
+    dx -= arg0->unk18->unk7C;
+    dy = C1PLAYERS[0].unk214 - arg0->unk18->unk80;
+    if (C1PLAYERS[0].unk210 && C1PLAYERS[0].unk210) {} // FAKE: steer cvt.s.w schedule
+    ret = 0;
+    dxy = (dx * dx) + (dy * dy);
+    dz = (dz * dz) + dxy;
+    if (arg1 < dz) {
+        ret = 1;
+    }
+    if (ret == 0) {
+        ret = (arg0->unk18->unk5C & 0x40) == 0;
+        if (ret != 0) {
+            ret = (arg0->unk46 & 0x20) == 0;
+            if (ret != 0) {
+                ret = mapChunkIsVisibleForPlayer(0, arg0->unk40) == 0;
+            }
+        }
+    }
+    return ret;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_807280C8.s")
+#endif
+
+#ifdef NON_MATCHING
+u8 func_8072818C(SpawnNode *arg0, s32 arg1) {
+    f32 dz;
+    f32 dx;
+    f32 r;
+    s32 t;
+    s32 ret;
+
+    r = sqrtf(arg1);
+    ret = (arg0->unk18->unk5C & 2) != 0;
+    if (ret) {
+        ret = (arg0->unk46 & 0x20) == 0;
+        if (ret) {
+            ret = arg0->unk12 == 2;
+            if (ret) {
+                t = (s32)(r * 1.5);
+                dz = C1PLAYERS[0].unk210 - arg0->unk18->unk7C;
+                dx = dz;
+                dz = C1PLAYERS[0].unk218 - arg0->unk18->unk84;
+                r = C1PLAYERS[0].unk214 - arg0->unk18->unk80;
+                ret = 0;
+                if ((f32)(t * t) < ((dz * dz) + ((dx * dx) + (r * r)))) {
+                    ret = 1;
+                }
+            }
+        }
+    }
+    return ret;
+}
+#else
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/func_8072818C.s")
+#endif
 
 typedef struct C1Entry24 {
     /* 0x00 */ u8 pad0[0x18];
