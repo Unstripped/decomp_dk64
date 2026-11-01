@@ -1276,7 +1276,7 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
     u8 type;
     u8 sp4D;
     s16 ang;
-    u8 ret;
+    u32 ret;
     s32 near;
     C1Act *me;
 

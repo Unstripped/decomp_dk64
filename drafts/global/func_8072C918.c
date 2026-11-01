@@ -1,4 +1,4 @@
-// func_8072C918 (src/global/12E800.c): stage 6, ONE diff instruction left: case 0x23 'beq t5,v0' (target) vs 'beq v0,t5' (mine) operand order. Same size 19120, frame 0x58, every slot equal.
+// func_8072C918 (src/global/12E800.c): stage 6, ONE diff instruction left: case 0x23 beq t5,v0 (target) vs beq v0,t5 (mine) operand order. Restored u32 ret (fixes frame 0x50->0x58 regression); verified uopt swaps operands of EQU across switch boundary.
 typedef struct C1Sub4 {
     /* 0x00 */ u8 pad0[0x64];
     /* 0x64 */ u16 unk64;
@@ -74,7 +74,7 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
     u8 type;
     u8 sp4D;
     s16 ang;
-    u8 ret;
+    u32 ret;
     s32 near;
     C1Act *me;
 
