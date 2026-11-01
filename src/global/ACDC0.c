@@ -738,8 +738,8 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     fd = func_80612794((off >> 1) + 0x200) * 10.0f;
                     fa = fa * 0.75f;
                     fd = fd * 0.75f;
-                    fc = fc * 0.75f;
                     fe = (func_80612794(ang) * 0.5f + 0.5f) * 30.0f * 0.75f;
+                    fc = fc * 0.75f;
                     gDPPipeSync(dl++);
                     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0x50);
                     y = (s32)((f32)(j * 0x69 + 0x280) + fd - fb);
@@ -875,14 +875,13 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 if (off < 0x3B6 && off >= -0x3B5) {
                     dl = hudDrawItemLabel(dl, (HudEntry *)hud, i);
                 }
-                y = hud->unk8[i];
                 t0 = 0;
                 j = 0;
                 do {
-                    t0 += D_807FC950[j].unk42[D_80750560[y]];
+                    t0 += D_807FC950[j].unk42[D_80750560[hud->unk8[i]]];
                     j++;
                 } while (j < 5);
-                if (y != 8) {
+                if (hud->unk8[i] != 8) {
                     f32 fa;
                     f32 fb;
                     fa = hud->unk4;

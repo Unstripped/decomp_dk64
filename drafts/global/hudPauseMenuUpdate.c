@@ -1,4 +1,4 @@
-// hudPauseMenuUpdate (src/global/ACDC0.c): stage 6 (same blocks/frame 0x58): 2 text lines + 2 reloc lines left: end-block D_807505D4 decrement loads into v0 (lui/lb v0, addiu t8,v0) vs target t7 (ring temp); with any named local the load takes the local's colour v0, without it (only_dec) it is t7 but then no sll/sra forwarded compare. Found: s16 half (not s32) keeps the sum in t8 and removes the whole t-reg cascade, D_807FC80D != D_807FC80C, hud->unk13 inline (no x), dead D_807505D4 read needed (anywhere after decls). Exhausted: deadsweep 35k variants x2 bodies, 12k permuter iters, grids of half type/spelling/cast/dead tests, callee void<->s32 toggles; reloc: raw lui at,0x8075 for the D_807505CC else-store (reloc only).
+// hudPauseMenuUpdate (src/global/ACDC0.c): hudPauseMenuUpdate (src/global/ACDC0.c): TEXT-IDENTICAL, RELOC ONLY (leftovers 5 HudU, deadsweep score 6 -> 3: 1 text line + 2 reloc lines, all from the hoisted lui at,0x8075/sb zero,0x5CC(at) of the D_807505CC else-store being a raw address in expected; rodata addends otherwise). Fix: natural end block 'D_807505D4--; if (D_807505D4 < 0) D_807505D4 = 0;' (no named half temp) + an unused 's16 half;' declaration (needed: without it 7) + one dead 'if (D_807505D4) {}' right after decls (any point 11-15; the old mid-function dead read is unnecessary). Orchestrator: check against ROM hash.
 typedef struct HudPauseState {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -74,7 +74,8 @@ void hudPauseMenuUpdate(void) {
     s32 x;
     s32 a2;
     s32 lim;
-    s16 half; // FAKE: s16 (not s32) keeps the sum in a ring temp
+    s16 half; // FAKE: unused pad; its mere declaration keeps the end-block ring temps
+    if (D_807505D4) {} // FAKE: dead read, splits the D_807505D4 address web
 
     hud = D_807FBB40->unk174;
     i = gCurrentMap;
@@ -375,7 +376,6 @@ void hudPauseMenuUpdate(void) {
     if (hud->unk16 == 1) {
         hud->unk0 = hud->unk0 + 0.13f;
         if (hud->unk0 > 1.3f) {
-            if (D_807505D4) {} // FAKE: steers D_807505D4 address hoist
             hud->unk0 = 1.0f;
             if (hud->unk13 == -1) {
                 hudFreeBuffers();
@@ -394,9 +394,8 @@ void hudPauseMenuUpdate(void) {
             sfxPlayOnFreeSlot(0x3C, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
     }
-    half = D_807505D4 - 1;
-    D_807505D4 = half;
-    if ((s8)half < 0) {
+    D_807505D4--;
+    if (D_807505D4 < 0) {
         D_807505D4 = 0;
     }
     if (D_807467E4 == 0x1C) {
