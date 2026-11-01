@@ -40,10 +40,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   the context (F4C0 revisit: third passes on 104F0/17B90 parks matched 0 of 20; a first
   pass on old `-g` parks with the compiler's rule in the task matched 2 of 2).
 - Revisit of old parks: wave 1 per-file tasks (1-5 functions, large ones alone), then waves of
-  2-5 agents regrouped by diff KIND (ring, spill slot, web/priority, loop shape) whose task
-  text lists the newest levers from the merged reports; keep going while a wave matches ~1+
-  per agent (actor revisit 2: 25 of 40 in 18 tasks + 4 re-prompts, then 4/5, 4/5, 4/3, 4/2
-  agents; oldest-leftovers-2: 21 of 64 in 30, 15 in 10, 3 in 6).
+  2-5 agents regrouped by diff KIND (ring, FP, frame/slot, as1 layout) whose task names the
+  findings that fit; keep going while a wave matches ~1+ per agent (actor revisit 2: 25 of 40
+  in 18 tasks, then 4/5, 4/5, 4/3, 4/2; leftovers 3: 21 of 50 in 23, 4/6, 1/3 agents, stop).
 - Each `tasks[]` item lists its functions with the last diff note and stage; agents start
   from the stored draft (`tools/drafts.py show <seg> <FUNC>`), not m2c.
 - The agent's budget is its context window and request cap, not wall-clock time: the brief
@@ -88,7 +87,8 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   random search over store order matched two scheduling-only parks), declaration order,
   void→s32 toggles over ALL callees, named vs inline temps, adjsave from `uopt_trace -l 5`.
   With the unit's whole `local://findings.md` (≈40 merged reports) such passes matched 13 of
-  19 parks in the slot-queue/text unit (2–4 parks per agent).
+  19 parks in the slot-queue/text unit (2–4 parks per agent). A schedule-only diff (registers
+  right): `tools/as1probe.py` first shows which ugen stream as1 needs, then search C for it.
 - A matched callee's narrow (u8/s16) prototyped param forces every caller to narrow `a0`:
   callers stuck on that are one prototype puzzle across callee + callers for ONE agent
   allowed to re-spell the matched callee (6AD90 unit: 3 callers matched, a FAKE removed).
