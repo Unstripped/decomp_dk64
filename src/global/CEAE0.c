@@ -329,7 +329,6 @@ typedef struct PadInputState {
 } PadInputState;
 
 extern PadInputState gPlayerPadState[];
-#ifdef NON_MATCHING
 typedef struct PlayerEffectObj {
     /* 0x000 */ u8 pad0[0x340];
     /* 0x340 */ f32 unk340;
@@ -572,8 +571,6 @@ void playerUpdateCommon(s32 arg0) {
     PLAYER_STATE->unkE8 = 0;
     gActivePlayerState->unk1F0 &= 0xBFFFFFFF;
     func_806CF580();
-    if (!gCurrentMap && !gCurrentMap) { // FAKE: steers uopt candidate colouring
-    }
     PLAYER_STATE->unk0 = D_807FBB48->unk154;
     if (gPlayerCount >= 2) {
         if (D_807FBB40->unk6A & 1) {
@@ -601,28 +598,24 @@ void playerUpdateCommon(s32 arg0) {
                 if (PLAYER_STATE->unk250 != 0) {
                     PLAYER_STATE->unk250 = PLAYER_STATE->unk250 - 1;
                 }
-                fx = PLAYER_STATE->unk254;
-                if (fx == NULL) {
+                if (PLAYER_STATE->unk254 == NULL) {
                     func_807149FC(-1);
                     func_80714998(0);
                     func_807149C8(0xFF, 0xFF, 0xFF, 0x78);
                     func_8071495C();
                     PLAYER_STATE->unk254 = (PlayerEffectObj *)func_80714CC0(&D_80720020, 0.7f, D_807FBB48->unk7C, D_807FBB48->unk80, D_807FBB48->unk84);
-                    if (gPlayerSlots && gPlayerSlots) { // FAKE: steers uopt candidate colouring (gPlayerSlots pointer v1)
-                    }
-                    fx = PLAYER_STATE->unk254;
                 }
             } else {
                 if (PLAYER_STATE->unk250 < 0x78) {
                     PLAYER_STATE->unk250 = PLAYER_STATE->unk250 + 1;
                 }
-                fx = PLAYER_STATE->unk254;
-                if (fx != NULL) {
+                if (PLAYER_STATE->unk254 != NULL) {
+                    fx = PLAYER_STATE->unk254;
                     PLAYER_STATE->unk254 = NULL;
                     effectFreeAndUnlink(fx);
-                    fx = PLAYER_STATE->unk254;
                 }
             }
+            fx = PLAYER_STATE->unk254;
             if (fx != NULL) {
                 actorGetNodePos(D_807FBB48, 1, &sp5C, &sp58, &sp54);
                 camProjectToScreen(sp5C, sp58, sp54, &sp4C, &sp48, NULL, 1.0f, 0);
@@ -738,10 +731,6 @@ done:
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/playerUpdateCommon.s")
-#endif
 
 typedef struct LCEAE0bPlayer {
     /* 0x000 */ u8 pad0[0x2C];
