@@ -531,7 +531,30 @@ void actorAddNodeForceSlot(f32 arg0, u8 arg1) {
 
 extern ActorGlobalState D_807FBB70;
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069A750.s")
+extern u8 D_807FBBA9;
+
+typedef struct {
+    u8 pad0[0x7C];
+    Actor *unk7C[4];
+} TextActorList;
+
+s32 func_8069A750(void) {
+    s32 i;
+    s32 v;
+
+    for (i = 0; i < D_807FBBA9; i++) {
+        v = ((TextActorList *)&D_807FBB70)->unk7C[i]->unk58;
+        if (v != 2 && v != 3) { // FAKE: keeps both state tests as beq-to-latch (dead carrier v)
+            v = 0;
+        }
+        if (v == 5) {} // FAKE: dead test of the carrier
+        if (i == 5) {} // FAKE: consumes a ring temp (t0)
+    }
+    if (D_807FBB40->unk58 == 0x1F) {
+        return 0;
+    }
+    return 0;
+}
 
 Mtx *heapAlloc(s32);
 
@@ -1543,7 +1566,6 @@ void *renderAppendScaledMatrix(void *arg0, ActorPositionView *arg1, s16 arg2, f3
 
 extern Gfx D_1000118;
 
-#ifdef NON_MATCHING
 #define TEXT_MARKER_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern s32 D_8074E880[];
@@ -1552,7 +1574,7 @@ void func_8071495C(void);
 void vtxGradientSetPosition(s16);
 extern Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, char *, u8);
 
-void textMarkerRenderString(Gfx *gfx, Actor *actor) {
+Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
     char **sub;
     s16 x;
     s16 y;
@@ -1622,13 +1644,9 @@ void textMarkerRenderString(Gfx *gfx, Actor *actor) {
             break;
     }
 
-    TEXT_MARKER_GFX(gfx++, 0xFA000000, (actor->unk16A << 24) | (actor->unk16B << 16) | (actor->unk16C << 8) | actor->unk15F);
-    textDrawStringVtx(gfx, (s16)mode, x, y, *sub, state);
+    gDPSetPrimColor(gfx++, 0, 0, actor->unk16A, actor->unk16B, actor->unk16C, actor->unk15F);
+    return textDrawStringVtx(gfx, (s16)mode, x, y, *sub, state);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/textMarkerRenderString.s")
-#endif
 
 #define WRITE_GFX_U32(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
@@ -1653,7 +1671,7 @@ Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
 
 void renderCallbacksRegister(void *, void *, s32);
 void heapFree(void *);
-void textMarkerRenderString(Gfx *, Actor *);
+Gfx *textMarkerRenderString(Gfx *, Actor *);
 
 void textMarkerUpdate(void) {
     u8 *model;
