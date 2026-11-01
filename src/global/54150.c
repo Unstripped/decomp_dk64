@@ -187,7 +187,7 @@ s16 arg0;
     return D_807F6BEC;
 }
 
-void modelAnimEntryAdvance(void *);
+void modelAnimEntryAdvance();
 void func_8064F97C(ModelAnimEntryRaw *);
 
 void modelAnimEntryStep(void *arg0) {
@@ -256,7 +256,6 @@ void func_8064FA7C(u32 *arg0, u32 *arg1) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/54150/modelAnimEntryBuildKeyMatrix.s")
 
-#ifdef NON_MATCHING
 typedef struct ModelAnimEntryView {
     u8 *unk0;
     f32 unk4;
@@ -273,25 +272,20 @@ typedef struct ModelAnimEntryView {
 
 extern u32 D_80744478;
 
-void modelAnimEntryAdvance(void *arg0raw) {
-    ModelAnimEntryView *arg0;
+void modelAnimEntryAdvance(ModelAnimEntryView *arg0) {
     u8 *node;
     u8 *p;
     u32 limit;
-    u8 a;
-    f32 frac;
+    f32 qq;
     f32 out;
     s32 i;
     s32 q;
 
-    arg0 = arg0raw;
     node = arg0->unk0;
     if (arg0->unk11) {} // FAKE: raises the arg0->unk11 candidate priority (v1 vs a1 swap)
     p = (u8 *)((u32)node + arg0->unk11); // FAKE: u32 cast flips the addu operand order (node, idx)
-    a = p[1];
-    frac = (f32)a;
-    frac += (f32)(p[2] - a) * arg0->unk4;
-    out = (f32)arg0->unkC * (f32)(frac / 300.0);
+    qq = (f32)((f64)((f32)(p[2] - p[1]) * arg0->unk4 + (f32)(u32)p[1]) / 300.0);
+    out = (f32)arg0->unkC * qq;
     if (D_80744478 < 4) {
         limit = D_80744478;
     } else {
@@ -371,10 +365,6 @@ void modelAnimEntryAdvance(void *arg0raw) {
         break;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/modelAnimEntryAdvance.s")
-#endif
 
 
 typedef struct MtxCopyRequest {
