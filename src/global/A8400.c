@@ -52,9 +52,8 @@ void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     f32 sp5C;
     Gfx *dl;
     SpriteModel *mdl;
-    f32 sp38;
+    f32 res;
     f32 sp4C;
-    f32 tmp;
 
     dl = (Gfx *) *arg0;
     spE8.h = D_8075A740;
@@ -74,20 +73,18 @@ void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
             }
         }
         if ((mdl->unk0 & 4) != 0) {
-            tmp = mdl->unk88;
-            if (tmp <= 6.2831855f) {
-                tmp = (0.25f * (sinApprox(tmp - 1.5707964f) + 1.0f)) + 1.0f;
+            fa = mdl->unk88;
+            if (fa <= 6.2831855f) {
+                res = (0.25f * (sinApprox(fa - 1.5707964f) + 1.0f)) + 1.0f;
             } else {
-                tmp = 1.0f;
+                res = 1.0f;
             }
-            guScaleF(sp68, tmp, tmp, 1.0f);
+            guScaleF(sp68, res, res, 1.0f);
             guMtxCatF(spA8, sp68, spA8);
         }
         if ((mdl->unk0 & 2) != 0) {
-            sp38 = sinApprox(mdl->unk88);
-            sp4C = ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f) * (4.0f * sp38);
-            sp38 = sinApprox(mdl->unk88);
-            guTranslateF(sp68, sp4C, ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f) * (4.0f * sp38), 0.0f);
+            sp4C = (4.0f * sinApprox(mdl->unk88)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f);
+            guTranslateF(sp68, sp4C, (4.0f * sinApprox(mdl->unk88)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f), 0.0f);
             guMtxCatF(spA8, sp68, spA8);
         }
         guTranslateF(sp68, sp60, sp5C, 0.0f);

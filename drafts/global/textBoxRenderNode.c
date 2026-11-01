@@ -1,4 +1,7 @@
-// textBoxRenderNode (src/global/A8400.c): stage 6: 319 insns, frame 0xF0, s0-s3 + ring temps + all GBI/offsets match; remaining text diff = 11 lines: (1) FP regs in the (unk0&4) branch: expected loaded tmp $f0 / result $f2 (ours swapped, 6 lines); (2) sinApprox spill slot sp38 at 0x50, expected 0x38 (needs 4 more used scalar slots between sp4C and sp38 without growing frame; pads/unused locals grow frame by 4 each, hidden 6 words never absorbed). Levers that matched: mdl assigned before guMtxIdentF, mdl field unk88, arg3->unk2 test, guScaleF(sp68,1.0,1.0,1.0) double literals, buffer as local union{u16 h;u8 b;u8 pad[8]} (sp-relative sb/sh), gSPMatrix/gDPPipeSync/gDPSetPrimColor, separate fa for the unk0&8 temp. Reloc D_8075A740 vs .rodata only (own rodata).
+// textBoxRenderNode (src/global/A8400.c): W2Frame: stage 6, 283 insns text, frame 0xF0 match; remaining 6 diff blocks: (1) FP ring in unk0&4 branch: expected mtc1 0.25->f16, add.s f18; ours 0.25->f18 add f16 (mul operands swapped); (2) sinApprox spill temp at sp+0x38 expected, ours 0x3C (hidden-temp order: spill is 5th of 7 hidden words in target, 4th in ours; any extra named/pad word grows frame 0xF0->0xF8). Levers applied this round: split unk0&4 var into fa (load) + res (result) (fixes f0/f2 colouring and frame), dropped named sp38 (sin inline: temp), decl order fa,sp60,sp5C,dl,mdl,res,sp4C. Tried: 8x8 E1/E2 expression spellings, 7! decl perms, pads 1-6 (frame grows), operand order of 0.25 expr (no effect).
+#include "common.h"
+#include "actor.h"
+
 typedef struct SpriteModel {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ u8 unk2;
@@ -46,9 +49,8 @@ void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     f32 sp5C;
     Gfx *dl;
     SpriteModel *mdl;
-    f32 sp38;
+    f32 res;
     f32 sp4C;
-    f32 tmp;
 
     dl = (Gfx *) *arg0;
     spE8.h = D_8075A740;
@@ -68,20 +70,18 @@ void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
             }
         }
         if ((mdl->unk0 & 4) != 0) {
-            tmp = mdl->unk88;
-            if (tmp <= 6.2831855f) {
-                tmp = (0.25f * (sinApprox(tmp - 1.5707964f) + 1.0f)) + 1.0f;
+            fa = mdl->unk88;
+            if (fa <= 6.2831855f) {
+                res = (0.25f * (sinApprox(fa - 1.5707964f) + 1.0f)) + 1.0f;
             } else {
-                tmp = 1.0f;
+                res = 1.0f;
             }
-            guScaleF(sp68, tmp, tmp, 1.0f);
+            guScaleF(sp68, res, res, 1.0f);
             guMtxCatF(spA8, sp68, spA8);
         }
         if ((mdl->unk0 & 2) != 0) {
-            sp38 = sinApprox(mdl->unk88);
-            sp4C = ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f) * (4.0f * sp38);
-            sp38 = sinApprox(mdl->unk88);
-            guTranslateF(sp68, sp4C, ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f) * (4.0f * sp38), 0.0f);
+            sp4C = (4.0f * sinApprox(mdl->unk88)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f);
+            guTranslateF(sp68, sp4C, (4.0f * sinApprox(mdl->unk88)) * ((20.0f - (f32) ((randomNonNegative() >> 15) % 40)) / 20.0f), 0.0f);
             guMtxCatF(spA8, sp68, spA8);
         }
         guTranslateF(sp68, sp60, sp5C, 0.0f);
