@@ -1659,7 +1659,183 @@ void zoneAssignToBehaviour(C1Holder *arg0) {
 
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/spawnNodeListInitFromMap.s")
+typedef struct MidAS2 {
+    u8 v[2];
+} MidAS2;
+
+typedef struct MidAS6 {
+    s16 v[3];
+} MidAS6;
+
+typedef struct MidAS10 {
+    s16 v[5];
+} MidAS10;
+
+typedef struct MidAS22 {
+    s16 v[11];
+} MidAS22;
+
+typedef struct MidARec24 {
+    /* 0x00 */ s16 unk0;
+    /* 0x02 */ s16 unk2;
+    /* 0x04 */ s16 unk4;
+    /* 0x06 */ s16 unk6;
+    /* 0x08 */ s16 unk8;
+    /* 0x0A */ u8 padA[2];
+    /* 0x0C */ MidAS6 *unkC;
+    /* 0x10 */ s16 unk10;
+    /* 0x12 */ u8 pad12[2];
+    /* 0x14 */ MidAS10 *unk14;
+    /* 0x18 */ s8 unk18;
+    /* 0x19 */ s8 unk19;
+    /* 0x1A */ u8 pad1A[0xA];
+} MidARec24; // size = 0x24
+
+typedef struct MidARec24List {
+    /* 0x0 */ s16 unk0;
+    /* 0x2 */ u8 pad2[2];
+    /* 0x4 */ MidARec24 *unk4;
+} MidARec24List;
+
+void spawnNodeListInitFromMap(s16 *arg0, MidARec24List *arg1, SpawnNodeList *arg2) {
+    s32 t;
+    s16 *src;
+    s16 cnt;
+    s16 *p;
+    s16 *q;
+    s16 j;
+    void *mem;
+    s32 same;
+    SpawnNode *node;
+    s16 i;
+    s16 prev;
+    MidARec24 *rec;
+    s16 *r;
+
+    src = arg0;
+    if (src != NULL) {
+        t = *src++;
+        cnt = t;
+        arg1->unk0 = t;
+    } else {
+        arg1->unk0 = 0;
+        cnt = arg1->unk0;
+    }
+    rec = heapAlloc(cnt * 0x24);
+    arg1->unk4 = rec;
+    for (i = 0; i < arg1->unk0; i++) {
+        same = 1;
+        j = 0;
+        if (i != 0) {
+            rec++;
+        }
+        rec->unk0 = 0x7FFF;
+        rec->unk2 = rec->unk0;
+        rec->unk4 = -0x8000;
+        rec->unk6 = rec->unk4;
+        if (src != NULL) {
+            t = *src++;
+            cnt = t;
+            rec->unk8 = t;
+        } else {
+            rec->unk8 = 0;
+            cnt = rec->unk8;
+        }
+        p = src;
+        if (cnt != 0) {
+            rec->unkC = heapAlloc(cnt * 6U);
+        }
+        if (cnt > 0) {
+            do {
+                rec->unkC[j] = *(MidAS6 *)p;
+                p += 3;
+                rec->unk0 = (rec->unk0 < rec->unkC[j].v[0]) ? rec->unk0 : rec->unkC[j].v[0];
+                rec->unk2 = (rec->unk2 < rec->unkC[j].v[2]) ? rec->unk2 : rec->unkC[j].v[2];
+                rec->unk4 = (rec->unkC[j].v[0] < rec->unk4) ? rec->unk4 : rec->unkC[j].v[0];
+                rec->unk6 = (rec->unkC[j].v[2] < rec->unk6) ? rec->unk6 : rec->unkC[j].v[2];
+                if (j == 0) {
+                    prev = rec->unkC[j].v[1];
+                } else {
+                    if (prev != rec->unkC[j].v[1]) {
+                        same = 0;
+                    }
+                    prev = rec->unkC[j].v[1];
+                }
+                j++;
+            } while (j < cnt);
+            j = 0;
+        }
+        src = p;
+        if (src != NULL) {
+            t = *src++;
+            cnt = t;
+            rec->unk10 = t;
+        } else {
+            rec->unk10 = 0;
+            cnt = rec->unk10;
+        }
+        q = src;
+        if (cnt != 0) {
+            rec->unk14 = heapAlloc(cnt * 10U);
+        }
+        if (cnt > 0) {
+            do {
+                rec->unk14[j] = *(MidAS10 *)q;
+                j++;
+                q += 5;
+            } while (j < cnt);
+        }
+        src = q;
+        if (src != NULL) {
+            rec->unk18 = *src++;
+            rec->unk19 = *src++;
+            if (same != 0) {
+                rec->unk19 = 1;
+            }
+        }
+    }
+    i = 0;
+    if (src != NULL) {
+        t = *src++;
+        arg2->count = t;
+        cnt = t;
+    } else {
+        arg2->count = 0;
+        cnt = 0;
+    }
+    mem = heapAlloc(cnt * 0x48);
+    arg2->nodes = mem;
+    heapClearBlock(mem);
+    r = src;
+    node = arg2->nodes;
+    for (; i < arg2->count; i++) {
+        j = 0;
+        if (i != 0) {
+            node++;
+        }
+        *(MidAS22 *)node = *(MidAS22 *)r;
+        r += 11;
+        node->unk42 = node->unk12;
+        node->unk44 = node->unk0;
+        node->unk18 = 0;
+        node->unk46 = 0;
+        node->unk24 = 0;
+        node->unk43 = 0;
+        node->unk3C = 0.0f;
+        node->unk40 = mapChunkFindByPosition((f32)node->unk4, (f32)node->unk6, (f32)node->unk8, 0);
+        node->unk20 = heapAlloc(node->unk11 * 2);
+        q = r;
+        if (node->unk11 > 0) {
+            do {
+                ((MidAS2 *)node->unk20)[j] = *(MidAS2 *)q;
+                j++;
+                q += 1;
+            } while (j < node->unk11);
+        }
+        r = q;
+        zoneAssignToBehaviour((C1Holder *)node);
+    }
+}
 
 void animSetLoopLimit(void *, s32, s32);
 void animSetFinished(void *, s32, s32);

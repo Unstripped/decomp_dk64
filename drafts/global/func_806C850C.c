@@ -1,4 +1,4 @@
-// func_806C850C (src/global/CC800.c): UNPARKED 2026-11-02: park was 287 insns vs target 286 (count-inexact parks stay drafts); Stage 6, park full=20 text=16 shape=6 (was full=68 text=64): needs G00Slot34.unk4/unk28 volatile (FAKE, in struct) + non-volatile extern, G00Player.unk247 s8 with literal -1 stores, no new_var; arg1 self-narrowing chain (6 stmts: += 0, & 0xFFFF, & 0xFF x3, += 0 FAKE) makes sel colour s2 (andi s2,a1,0xff still shows as andi t5/move s2,t5) + dead if (flt == 0.0f)/if (sel == 0) tests. Remaining: that andi/move pair + sw a1 order, and pad-copy tail ring rotated one step (f8,f10,f16,f18 vs f10,f16,f18,f8).
+// func_806C850C (src/global/CC800.c): COUNT-EXACT (330/330 lines) stage 4+, park full=41 text=37 shape=6: only remaining diff = sel coloured s3 / &D_807FBB48 const s2 (target: sel s2, const s3). uopt -l5: sel cand adjsave 1.14 (8 uses, 1 def) coloured after const cand 174 (adjsave 2.0, 11 uses, coloured s2); tie rule would favour sel. Body = natural C (sel = arg1) + 2 deadsweep dead tests. Tried: arg1 self-narrowing chain (count 331: andi t5/move s2), sel&0xFF/*=1 (+2 insns; |=0,+=0,|0 fold to nothing, no effect), sel types u8 (frame +16)/s32/u16, arg1 used directly (lbu from home, frame 56), K&R def, nested/else dead tests on all syms (sweep 5.6k variants, 0 gain), 25k-eval dead-test hill-climb (0 gain), callee protos controllerGetPort u8 / flagGet(s16,u8) (no effect).
 typedef struct G00Sub4 {
     /* 0x00 */ u8 pad0[0x1C];
     /* 0x1C */ u8 *unk1C;
@@ -107,19 +107,11 @@ void func_806C90C4(s32);
 void func_806C8984(void);
 void func_806C8D20(Actor *);
 
-/* Parked (stage 6, schedule only): remaining diff = `andi t5; move s2,t5` vs target `andi s2,a1,0xff` (+ sw a1 order) and the
- * pad-copy tail's load/store ring rotated by one step. The arg1 self-narrowing chain and the two dead tests steer uopt colouring. */
 void func_806C850C(s32 arg0, u8 arg1) {
     G00Row *row;
     f32 flt;
     u32 sel;
 
-    arg1 += 0;  // FAKE: steers sel/arg1 colouring
-    arg1 = arg1 & 0xFFFF;  // FAKE: steers sel/arg1 colouring
-    arg1 = arg1 & 0xFF;  // FAKE: steers sel/arg1 colouring
-    arg1 = arg1 & 0xFF;  // FAKE: steers sel/arg1 colouring
-    arg1 += 0;  // FAKE: steers sel/arg1 colouring
-    arg1 = arg1 & 0xFF;  // FAKE: steers sel/arg1 colouring
     sel = arg1;
     if (gPlayerCount >= 2) {
         gPlayerCharacterId[sel] = gPlayerCharacterId[controllerGetPort(sel)];
@@ -162,7 +154,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     D_807FBB44->unk60 |= 0x100000;
     func_806C8D20(D_807FBB48);
     flt = D_8075C4B0;
-    if (flt == 0.0f) {}  // FAKE: steers sel/arg1 colouring
+    if (D_8075C410) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     G00_P->unk26 = 0x64;
     G00_A48->unkC4 = D_80753578[D_807FD584];
     G00_A48->unkC8 = D_807535E8[D_807FD584];
@@ -205,7 +197,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     gPlayerPadState[sel].unk26 = gPlayerPadState[sel].unk28;
     gPlayerPadState[sel].unk20 = gPlayerPadState[sel].unk28;
     gPlayerPadState[sel].unk10 = gPlayerPadState[sel].unk4;
-    if (sel == 0) {}  // FAKE: steers sel/arg1 colouring
+    if (D_80753578) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     playerResumeLocomotion(D_807FBB48);
     func_806C90C4(arg0);
     func_806C8984();
