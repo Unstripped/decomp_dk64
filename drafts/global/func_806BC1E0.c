@@ -1,4 +1,4 @@
-// func_806BC1E0 (src/global/C0EE0.c): Stage 5 (frame 0x88 ok; 56-line diff, shape 5; was 98). Levers: store reorder, named f32 local for (f32)(...) sub-expression (coloured f14), role-sharing of f32 locals. Remaining: (1) loop2 head: as1 hoists andi above beqzl (ring t7 vs t9); (2) FP: old/a swapped f0/f12, 1.0d const f16 vs f12
+// func_806BC1E0 (src/global/C0EE0.c): W2FpB (leftovers6): stage 5 park, score 56 -> 44 (shape 5, frame ok, 1078 insns exact). FP webs fixed by role-renaming annealing (old/a/b/t/acc names per web: .scratch/W2FpB/hc2.py); only 2 FP lines left (a + t*(unk18-a) operand order of mul/add). Remaining ~40 lines: loop2 head: ring phase off by 2 temps twice (target ring: andi t9/lb t3, then dy sra t8: two hidden consecutive ring allocations before 'and' and between dx chain and dy; ours none) so as1 hoists andi above beqzl; post-loop n-1 is coloured cand in v1 (ours) vs ring t3 (target). Tried: spelling grids of cond/dx/dy, casts, dead tests (11k), no-code defs, self-stores (real burn2 gives andi t9 but count +4), v-local in cond, loop forms, FP role annealing, decl-order climbs.
 typedef struct LgBObj {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -85,11 +85,11 @@ void actorUpdateModelMatrix(void *, s32);
 extern s8 D_807FC8D0;
 
 void func_806BC1E0(void) {
+    f32 old;
     f32 b;
+    f32 t;
     f32 acc;
     f32 a;
-    f32 old;
-    f32 t;
     f32 sp70;
     s16 i;
     LgBState *st;
@@ -347,12 +347,12 @@ void func_806BC1E0(void) {
     if (st->unk34 < 0) {
         st->unk34 = 0;
     }
-    t = 0.0f; // FAKE: dead store, keeps the 0.0 constant candidate in $f18
+    acc = 0.0f; // FAKE: dead store, keeps the 0.0 constant candidate in $f18
     sp70 = st->unk30;
     if (st->unk4 != 0.0f && st->unk34 == 0) {
-        a = st->unk4;
+        b = st->unk4;
         old = st->unk0;
-        st->unk0 = old + a;
+        st->unk0 = old + b;
         if (D_80750650 == 0) {
             if (old < 0.63f && st->unk0 >= 0.63f) {
                 csModelStateSetByte(st->unk36 + st->unk37 * 4, 1, 1);
@@ -370,9 +370,9 @@ void func_806BC1E0(void) {
         } else {
             t = st->unk0;
             if (D_80750650 == 0) {
-                old = st->unk0;
+                t = st->unk0;
                 if (t == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                t = 2.0 * (f64)old;
+                t = 2.0 * (f64)t;
                 if ((f64)t > 1.0) {
                     t = 1.0f;
                 }
@@ -385,9 +385,9 @@ void func_806BC1E0(void) {
             } else {
                 t = st->unk20;
                 a = st->unkC;
-                old = st->unk0;
-                b = (f32)((f64)(st->unk18 - a) - (f64)t * 0.5);
-                LGB->unk80 = (f64)a + ((f64)(b * old) + (f64)(old * old * t) * 0.5);
+                b = st->unk0;
+                acc = (f32)((f64)(st->unk18 - a) - (f64)t * 0.5);
+                LGB->unk80 = (f64)a + ((f64)(acc * b) + (f64)(b * b * t) * 0.5);
             }
         }
         if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {

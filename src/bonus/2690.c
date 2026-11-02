@@ -1882,7 +1882,6 @@ extern LargeB4Player *gPlayerSlots;
 extern LargeB4Ctrl *D_807ECDEC;
 void lightSetColor(f32, f32, f32, s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-#ifdef NON_MATCHING
 typedef struct {
     char pad0[4];
     f32 unk4;
@@ -2053,8 +2052,7 @@ void func_8002AED8(void) {
         fs0 = D_807ECDEC->unk2 * 0.04f;
         fv1 = D_807ECDEC->unk3 * 0.04f;
 
-        sp6C = t->unk10;
-        sp6C = (fs0 * fv0 - fv1 * fs1) - sp6C;
+        sp6C = (fs0 * fv0 - fv1 * fs1) - t->unk10;
         t->unk10 += sp6C * 0.125f;
         t->unk14 += ((fs0 * fs1 + fv1 * fv0) - t->unk14) * 0.25f;
         t->unk8 += t->unk10;
@@ -2145,10 +2143,10 @@ void func_8002AED8(void) {
         d = sqrtf(fs0 * fs0 + fs1 * fs1);
 
         if (d > 80.0f) {
-            f32 k = 80.0f / d;
-
-            t->unk8 = (fs0 * k) / 0.85;
-            t->unkC = (fs1 * k) + 40.0;
+            sp6C = 80.0f / d;
+            d = 0.0f;  // FAKE: kills uopt store-forwarding of the 80/d value so it stays the sp6C web
+            t->unk8 = (fs0 * sp6C) / 0.85;
+            t->unkC = (fs1 * sp6C) + 40.0;
         }
     }
     LB5->unk7C = func_80612794(t->unk18) * 5.0 + (t->unk0 + t->unk8 * 0.8);
@@ -2159,10 +2157,6 @@ void func_8002AED8(void) {
     renderCallbacksRegister(func_80029B9C, D_807FBB40, 3);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_8002AED8.s")
-#endif
 
 typedef struct {
     char pad0[0x34];
