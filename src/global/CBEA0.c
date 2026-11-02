@@ -118,6 +118,7 @@ void func_806C7270(void) {
     Actor *actor;
     s32 i;
     s32 t;
+    s32 k;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FC8F0 = assetLoad(0x13, 7, 1, 1);
@@ -168,7 +169,9 @@ void func_806C7270(void) {
         t = D_807506D0[D_80750754].unk0 - D_807FC8E2;
         if ((t >> 1) < 0x16) {
             e = &D_8075075C[t >> 1];
-            frac = (f64)(f32)(t & 1) * 0.5;
+            k = t & 1;
+            k = k & 0xFF; // FAKE: no-code def, adds uopt references to k (moves lui/la ring temps)
+            frac = (f64)(f32)k * 0.5;
             D_807FC8E8 = e[0].unk0 + (e[1].unk0 - e[0].unk0) * (x0 = frac);
             D_807FC8EC = e[0].unk4 + (e[1].unk4 - e[0].unk4) * x0;
         } else {

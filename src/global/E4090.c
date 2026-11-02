@@ -1933,12 +1933,10 @@ void func_806E3E40(void) {
         }
         t = (s32)ang;
         ground = func_80612794(t) * G24_A->unkB8;
-        if (!ground) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (ground > 0.0f) {
             a = ground;
         } else {
             a = -ground;
-            if (!D_807FD6E1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
         if (D_807FD6E0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (a > 10.0f) {
@@ -1955,12 +1953,10 @@ void func_806E3E40(void) {
             G24_M->unk2C = 8.0f;
             playerApproachVelocity((s32)arg, 0.0f, G24_M->unk38);
         }
-        if (G24_A->unkC0 > 0.0f) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         ang = func_80612790(t) * G24_A->unkB8;
         ground = G24_A->unkC0;
         if (ground > 0.0f) {
             ground = 0.0f;
-            if (ground) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
         if (ang > 0.0f) {
             a = ang;
@@ -1988,7 +1984,6 @@ void func_806E3E40(void) {
             if (D_807FD6E1 + gCurrentPlayerIndex) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
         c = D_807FD6E0;
-        if (ang == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (c != 0) {
             c -= 1;
             D_807FD6E0 = c;

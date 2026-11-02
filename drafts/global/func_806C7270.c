@@ -1,4 +1,4 @@
-// func_806C7270 (src/global/CBEA0.c): R3a: stage 6 unchanged, 11 lines (2 .rodata reloc + sra/andi swap t9/a0, la t4 vs t2, mul.s f8 operand order). Analysis: target t9=sra ring temp (t>>1 NOT promoted) and a0=andi => the only free int reg in the else region (a0) was taken by a t&1 candidate with higher adjsave than t>>1 (1.5); t&1 must have >=2 occurrences pre-CSE. Ring: target skips t1/t3? no -- LRU picks t2,t4 after sra t9; ours picks t1,t2 after andi t9 (consequence of swap). Tried new: named frac/x0 forms (plain 'frac' fixes mul.s order but moves sll/la before andi: 13), frac-first then e, e[0]+frac*(...) orders, inline frac twice, j=t>>1/k=t&1 locals (F1-F6), dead if(t&1) before/after (70+). None beat 11.
+// func_806C7270 (src/global/CBEA0.c): W4IntA: stage 6, 6 diff lines (was 9). New lever: named k = t & 1 + no-code 'k = k & 0xFF;' FAKE (adds uopt references) fixed lui t4/addiu la ring temps (9 -> 6). Left: sra a0 (t>>1 candidate coloured a0) vs target ring t9 + andi a0 (k not a candidate: ours andi t1), mul.s f8 operand order (x0*diff vs diff*x0; swapping the source operand fixes it but reverts the integer part to 11). Tried: k type x nocode defs (1-2) x position (4.9k), frac/x0 spelling x statement order grid (1.3k), no-code defs on t/e/frac/x0/k at every point (700), deadsweep 3.9k dead tests.
 typedef struct R1C2CB_Entry {
     s16 unk0;
     s16 unk2;
@@ -37,6 +37,7 @@ void func_806C7270(void) {
     Actor *actor;
     s32 i;
     s32 t;
+    s32 k;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FC8F0 = assetLoad(0x13, 7, 1, 1);
@@ -87,7 +88,9 @@ void func_806C7270(void) {
         t = D_807506D0[D_80750754].unk0 - D_807FC8E2;
         if ((t >> 1) < 0x16) {
             e = &D_8075075C[t >> 1];
-            frac = (f64)(f32)(t & 1) * 0.5;
+            k = t & 1;
+            k = k & 0xFF; // FAKE: no-code def, adds uopt references to k (moves lui/la ring temps)
+            frac = (f64)(f32)k * 0.5;
             D_807FC8E8 = e[0].unk0 + (e[1].unk0 - e[0].unk0) * (x0 = frac);
             D_807FC8EC = e[0].unk4 + (e[1].unk4 - e[0].unk4) * x0;
         } else {
