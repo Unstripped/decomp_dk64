@@ -1,4 +1,4 @@
-// jetpacBonusItemUpdate (src/jetpac/3480.c): stage 5 park: 36 text diff: li t5,2 placement and sw via a0 vs s0 at unk34+1 early return (+4 bytes / 1 insn), v0/v1 swap in switch cases 1/3/4. Tested flagSet narrow prototype (s16, u8, u8), item copy to local, and dead tests with constant 2.
+// jetpacBonusItemUpdate (src/jetpac/3480.c): stage 5 park: 36 text diff: li t5,2 placement and sw via a0 vs s0 at unk34+1 early return (+4 bytes / 1 insn), v0/v1 swap in switch cases 1/3/4 (target v0=inner->unk144 expression, v1=v; idx reuses v1). Tested flagSet narrow prototype (s16, u8, u8), item copy to local, dead tests with constant 2. Jet (leftovers5 w2): 30 spellings of the early-return unk34 increment and unk1C=2 test (no change), idx removed/merged into v, declaration orders, u8/u16/s16 idx and v types (idx u8/u16 -> 30 but 2 insns longer), 17k-compile dead-test/self-assign hill-climb (best 33 only via an extra dead load: not kept).
 typedef struct {
     u8 pad0[8];
     f32 unk8;

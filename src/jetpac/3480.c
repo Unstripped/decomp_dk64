@@ -687,35 +687,25 @@ extern void *D_8002DE68;
 extern void *D_8002DE80;
 extern void *D_8002DE98;
 extern u8 D_8002EF90[];
-extern u8 D_8002F060[];
 
-#ifdef NON_MATCHING
 void jetpacDrawLedges(void) {
-    u8 *color_fp; u8 *color; void *de80; u8 *base; JetpacLedge *ledge;
-    color_fp = (u8 *)(s32)D_8002EF90; color = color_fp; de80 = &D_8002DE80; base = (u8 *)&jetpacGame; ledge = jetpacLedges; do {
-        s32 x = (s32)*(f32 *)(base + 0x350);
-        s32 y = (s32)*(f32 *)(base + 0x354);
-        JetpacLedge *cur = ledge;
-        s32 j;
+    s32 i;
+    s32 j;
+    s32 x;
+    s32 y;
+    JetpacLedge *l;
 
-        jetpacGridAddTiledSprite(&D_8002DE68, x, y, color_fp, 0);
-        j = 0;
+    for (i = 0; i < 4; i++) {
+        x = (s32)jetpacGame.ledges[i].unk0;
+        y = (s32)jetpacGame.ledges[i].unk4;
+        l = &jetpacLedges[i];
+        jetpacGridAddTiledSprite(&D_8002DE68, x, y, &D_8002EF90[i * 0x34], 0);
         x += 8;
-        if (cur->unk30 > 0) {
-            do {
-                jetpacGridAddTiledSprite(de80, x, y, color, 0);
-                j++;
-                x += 8;
-            } while (j < cur->unk30);
+        for (j = 0; j < l->unk30; j++) {
+            jetpacGridAddTiledSprite(&D_8002DE80, x, y, D_8002EF90 + i * 0x34, 0);
+            x += 8;
         }
-        jetpacGridAddTiledSprite(&D_8002DE98, x, y, color, 0);
-        base += 0x34;
-        ledge++;
-        color_fp += 0x34;
-    } while ((color += 0x34) != D_8002F060);
+        jetpacGridAddTiledSprite(&D_8002DE98, x, y, D_8002EF90 + i * 0x34, 0);
+    }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/jetpacDrawLedges.s")
-#endif
 
