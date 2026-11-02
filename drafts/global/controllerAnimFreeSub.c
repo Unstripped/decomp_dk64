@@ -1,4 +1,4 @@
-// controllerAnimFreeSub (src/global/17B90.c): controllerAnimFreeSub (src/global/17B90.c): stage 5; frame 0x40 + s0-s6 match; score ~7 (down from 35, scored with the func_806138B0 tail joined): `val = cmd->unk0; if ((val >> 24) == 0xFD)` reuse of val (v0), `cmd = sub->commands->start` before cmdList, `++cmd != cmdList` latch, s16 idx + dead idx test; remaining: preheader addiu order (needs reloc D_807FB7B0 vs &D_807FB630[32]), lhu temp s0 vs t3
+// controllerAnimFreeSub (src/global/17B90.c): controllerAnimFreeSub (src/global/17B90.c): stage 5; frame 0x40 + s0-s6 match; score 3 (down from 7, scored with func_806138B0 tail joined): index loop for (i = 0; i < 32; i++) over D_807FB630[i].unk4 + if (i == 32) return + entry = &D_807FB630[i] reproduces the D_807FB7B0 bound and its separate compare; remaining: lui s1 HI16 reloc names D_807FB7B0 not D_807FB630 (reloc only), lhu temp s0 vs t3 (idx not a candidate in target: without the dead idx test idx is v1 and the global addr a3; with local-free (u16)G-1 form regs match but sh t4 store/li a1 schedule 4 lines worse)
 #include "common.h"
 
 typedef struct {
@@ -51,6 +51,7 @@ u8 arg1;
     AnimStateSlot *last;
     u32 val;
     s16 idx;
+    s32 i;
     switch (arg1) {
     case 0:
         sub = arg0->unk0;
@@ -67,17 +68,15 @@ u8 arg1;
     }
 
     if (sub != NULL) {
-        entry = (AnimStateSlot *)D_807FB630;
-        do {
-            if (entry->unk4 == (u32)sub) {
+        for (i = 0; i < 32; i++) {
+            if (D_807FB630[i].unk4 == (u32)sub) {
                 break;
             }
-        } while (++entry != (AnimStateSlot *)&D_807FB630[32]);
-
-        if (entry == (AnimStateSlot *)D_807FB7B0) {
+        }
+        if (i == 32) {
             return;
         }
-
+        entry = (AnimStateSlot *)&D_807FB630[i];
         if (--entry->unk2 == 0) {
             cmd = sub->commands->start;
             cmdList = sub->commands;

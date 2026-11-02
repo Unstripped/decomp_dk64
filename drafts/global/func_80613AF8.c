@@ -1,4 +1,4 @@
-// func_80613AF8 (src/global/17B90.c): func_80613AF8 (src/global/17B90.c): stage 6; frame 0x18 matches; all 49 lines 1:1; score 7 (down from 17): s16 flag/index + s32 sum two-step (`sum = index*7 + field; sum -= 2;`) with no value local; FAKEs `arg1 = arg1 & -1` + dead `flag == 0`; remaining: sum in v0 vs a0 and ring t7/t8 (target andi before lui); u16 sum without mask reaches 13 only
+// func_80613AF8 (src/global/17B90.c): func_80613AF8 (src/global/17B90.c): stage 6; frame 0x18 matches; all 49 lines 1:1 shape; score 3 (down from 7): two-statement index mask (sum = sum & 0xFFFF; arg1 = D_807FBB58[sum] + flag;) fixes the t7/t8 ring (index evaluated before the table base); remaining 3 lines: sum in v0 vs a0 (addu/addiu/andi). Tried: u16/u32 sum, flag/index type grid, s32 flag (index gets t0), noindex (flag->a0), tmp locals, dead-test/no-code-def hill-climbs (hc, ~20k evals), phantom v0 locals
 typedef struct {
     u8 pad0[0x4E];
     s16 unk4E;
@@ -25,7 +25,8 @@ void func_80613AF8(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg
         if (flag == 0) {} // FAKE: dead test, steers flag into v1
         sum = index * 7 + ((ControllerStateParamView *)arg0)->unk58;
         sum -= 2;
-        arg1 = D_807FBB58[(u32)(sum & 0xFFFF)] + flag;
+        sum = sum & 0xFFFF;
+        arg1 = D_807FBB58[sum] + flag;
     } else {
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = arg1;
     }

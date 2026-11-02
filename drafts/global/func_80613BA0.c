@@ -1,4 +1,4 @@
-// func_80613BA0 (src/global/17B90.c): func_80613BA0 (src/global/17B90.c): stage 6; clone of func_80613AF8 (callee controllerAnimSetState), score 7 (down from 17), same remaining diff (sum v0 vs a0, ring t7/t8)
+// func_80613BA0 (src/global/17B90.c): func_80613BA0 (src/global/17B90.c): clone of func_80613AF8 (callee controllerAnimSetState), score 3 (down from 7), same remaining diff (sum v0 vs a0)
 typedef struct {
     u8 pad0[0x4E];
     s16 unk4E;
@@ -11,8 +11,6 @@ typedef struct {
 
 extern u16 *D_807FBB58;
 struct ControllerStateView;
-void func_80613C48(struct ControllerStateView *, s16, f32, f32);
-
 void controllerAnimSetState(struct ControllerStateView *, s16, f32, f32);
 
 void func_80613BA0(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
@@ -27,7 +25,8 @@ void func_80613BA0(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg
         if (flag == 0) {} // FAKE: dead test, steers flag into v1
         sum = index * 7 + ((ControllerStateParamView *)arg0)->unk58;
         sum -= 2;
-        arg1 = D_807FBB58[(u32)(sum & 0xFFFF)] + flag;
+        sum = sum & 0xFFFF;
+        arg1 = D_807FBB58[sum] + flag;
     } else {
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = arg1;
     }

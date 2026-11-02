@@ -191,7 +191,6 @@ typedef struct ControllerSubNode {
 
 void *heapAlloc(s32);
 
-#ifdef NON_MATCHING
 void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg1, ControllerSubNode **arg2) {
     ControllerSubCmd *curr;
     ControllerSubCmd *search;
@@ -208,13 +207,14 @@ void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg
             cmd0 = curr->unk0;
             op = cmd0 >> 24;
             sub = (cmd0 >> 16) & 0xFF;
+            if (op) {} // FAKE: dead statement (op stays a coloured web)
+            if (sub) {} // FAKE: dead statement (sub computed before the branch)
             if ((op == 0xDE) && (sub == 1)) {
                 id = (curr->unk4 << 4) >> 28;
                 if (op && op) {} // FAKE: dead statement (steers uopt colouring)
                 search = arg0;
                 found = 0;
                 if (arg0 != arg1) {
-                    if (sub != 0) {} // FAKE: dead statement (steers uopt colouring)
                     do {
                         search_cmd = search->unk0;
                         if (((search_cmd >> 24) == 0) && (id == search->unk4)) {
@@ -236,10 +236,6 @@ void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg
     }
     *arg2 = NULL;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerBuildSubcommandList.s")
-#endif
 
 typedef struct {
     u32 unk0;
@@ -547,6 +543,7 @@ u8 arg1;
     AnimStateSlot *last;
     u32 val;
     s16 idx;
+    s32 i;
     switch (arg1) {
     case 0:
         sub = arg0->unk0;
@@ -563,17 +560,15 @@ u8 arg1;
     }
 
     if (sub != NULL) {
-        entry = (AnimStateSlot *)D_807FB630;
-        do {
-            if (entry->unk4 == (u32)sub) {
+        for (i = 0; i < 32; i++) {
+            if (D_807FB630[i].unk4 == (u32)sub) {
                 break;
             }
-        } while (++entry != (AnimStateSlot *)&D_807FB630[32]);
-
-        if (entry == (AnimStateSlot *)D_807FB7B0) {
+        }
+        if (i == 32) {
             return;
         }
-
+        entry = (AnimStateSlot *)&D_807FB630[i];
         if (--entry->unk2 == 0) {
             cmd = sub->commands->start;
             cmdList = sub->commands;
@@ -720,7 +715,8 @@ void func_80613AF8(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg
         if (flag == 0) {} // FAKE: dead test, steers flag into v1
         sum = index * 7 + ((ControllerStateParamView *)arg0)->unk58;
         sum -= 2;
-        arg1 = D_807FBB58[(u32)(sum & 0xFFFF)] + flag;
+        sum = sum & 0xFFFF;
+        arg1 = D_807FBB58[sum] + flag;
     } else {
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = arg1;
     }
@@ -747,7 +743,8 @@ void func_80613BA0(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg
         if (flag == 0) {} // FAKE: dead test, steers flag into v1
         sum = index * 7 + ((ControllerStateParamView *)arg0)->unk58;
         sum -= 2;
-        arg1 = D_807FBB58[(u32)(sum & 0xFFFF)] + flag;
+        sum = sum & 0xFFFF;
+        arg1 = D_807FBB58[sum] + flag;
     } else {
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = arg1;
     }
@@ -943,7 +940,20 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613FB0.s")
+typedef struct {
+    u8 pad0[0x58];
+    s32 unk58;
+} W3IntA_Controller;
+extern u16 *D_807FBB58;
+struct AnimControllerRef;
+void func_80614014(struct AnimControllerRef *, u16, f32, u8);
+
+void func_80613FB0(W3IntA_Controller *arg0, u16 arg1, f32 arg2, u8 arg3) {
+    u16 x = arg1;
+    u16 idx = (u16)(7 * x + arg0->unk58 - 2);
+    if (x) {} // FAKE: dead test makes the copy of arg1 a ring temp (move t6,a1) and the sum v0
+    func_80614014((struct AnimControllerRef *)arg0, D_807FBB58[idx], arg2, arg3);
+}
 
 typedef struct {
     f32 unk0;
@@ -977,7 +987,7 @@ typedef struct {
     s16 unk2E;
 } AnimDataRef;
 
-typedef struct {
+typedef struct AnimControllerRef {
     void *unk0;
     AnimDataRef *unk4;
 } AnimControllerRef;
