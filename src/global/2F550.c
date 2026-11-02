@@ -15,6 +15,7 @@ f32 cameraStepAspectScale(void) {
     f32 step;
     f32 cur;
     s32 flag;
+    f32 *p;
 
     target = 1.0f;
     if (D_807444F0 != 1 && D_807444EC == 1) {
@@ -29,7 +30,8 @@ f32 cameraStepAspectScale(void) {
     if (D_807444C0 != 0 && !flag) {
         target = target * 1.2;
     }
-    cur = D_80747CD0;
+    p = &D_80747CD0;  // FAKE: pointer spelling keeps separate lui at per access (no lda hoist)
+    cur = *p;
     if (cur < target) {
         cur += step;
         if (target < cur) {
@@ -41,7 +43,7 @@ f32 cameraStepAspectScale(void) {
             cur = target;
         }
     }
-    D_80747CD0 = cur;
+    *p = cur;
     return cur;
 }
 #else
@@ -1274,7 +1276,78 @@ typedef struct ClipPlane {
     /* 0x38 */ f64 unk38;
 } ClipPlane;
 
+#ifdef NON_MATCHING
+f32 boxMinCornerDistance(s16, s16, s16, s16, s16, s16, f32, f32, f32);
+s32 clipPolyToBox(s32, s16, s16, s16, s16, s16, s16, void *);
+
+s32 mapBspBoxInFrustum(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, void *arg10) {
+    f32 sp8C;
+    f32 sp80;
+    f32 sp70;
+    s32 in1;
+    s32 in2;
+    s32 behind;
+    s32 i;
+    s32 pd0;
+    s32 pd1;
+    s32 pd2;
+    s32 pd3;
+    s32 pd4;
+    s32 pd5;
+
+    pd0 = 0;  // FAKE: dead pad, grows frame by a word
+    pd1 = 0;  // FAKE: dead pad, grows frame by a word
+    pd2 = 0;  // FAKE: dead pad, grows frame by a word
+    pd3 = 0;  // FAKE: dead pad, grows frame by a word
+    pd4 = 0;  // FAKE: dead pad, grows frame by a word
+    pd5 = 0;  // FAKE: dead pad, grows frame by a word
+    sp8C = arg0;
+    sp80 = arg1;
+    sp70 = arg2;
+    if ((((f32)arg0 * D_807F5E50[0] + (f32)arg1 * D_807F5E50[1]) + (f32)arg2 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        (((f32)arg0 * D_807F5E50[0] + (f32)arg1 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        (((f32)arg0 * D_807F5E50[0] + arg4 * D_807F5E50[1]) + (f32)arg2 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        (((f32)arg0 * D_807F5E50[0] + arg4 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        ((arg3 * D_807F5E50[0] + (f32)arg1 * D_807F5E50[1]) + (f32)arg2 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        ((arg3 * D_807F5E50[0] + (f32)arg1 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        ((arg3 * D_807F5E50[0] + arg4 * D_807F5E50[1]) + (f32)arg2 * D_807F5E50[2]) + D_807F5E50[3] < 0.0 &&
+        ((arg3 * D_807F5E50[0] + arg4 * D_807F5E50[1]) + arg5 * D_807F5E50[2]) + D_807F5E50[3] < 0.0) {
+        return 0;
+    }
+    in1 = 0;
+    in2 = 0;
+    behind = 0;
+    if (sp8C <= arg6 && arg6 <= (f32)arg3 && sp80 <= arg7 && arg7 <= (f32)arg4 && sp70 <= arg8 && arg8 <= (f32)arg5) {
+        return 1;
+    }
+    for (i = 0; i < 5 && behind == 0; i++) {
+        if (((ClipPlane *)arg10)[i].unk38 + ((((ClipPlane *)arg10)[i].unk20 * arg0 + ((ClipPlane *)arg10)[i].unk28 * arg1) + ((ClipPlane *)arg10)[i].unk30 * arg2) < 0.0) {
+            in1 = 1;
+            if (in1 == 0.0f) {}  // FAKE: dead test steering FP/int candidate order
+        }
+        if (((ClipPlane *)arg10)[i].unk38 + ((((ClipPlane *)arg10)[i].unk20 * arg0 + ((ClipPlane *)arg10)[i].unk28 * arg4) + ((ClipPlane *)arg10)[i].unk30 * arg2) < 0.0) {
+            in2 = 1;
+            if (arg9 > 0.0f) {}  // FAKE: dead test steering FP candidate order
+        }
+        if (in1 != 0 && in2 != 0) {
+            behind = 1;
+            if (arg4 > 0.0f) {}  // FAKE: dead test steering FP candidate order
+        }
+    }
+    if (behind == 0 && boxMinCornerDistance(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8) < arg9) {
+        return 1;
+    }
+    for (i = 0; i < 5; i++) {
+        if (clipPolyToBox(i, arg0, arg1, arg2, arg3, arg4, arg5, arg10) != 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/mapBspBoxInFrustum.s")
+#endif
 
 f32 boxMinCornerDistance(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, f32 arg6, f32 arg7, f32 arg8) {
     f32 new_var;
@@ -1477,25 +1550,26 @@ u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 eb[3];
     f32 c[3];
     f32 n[3];
-    f32 p[3];
-    f32 s1;
     f32 len;
+    f32 p[3];
+    f64 s1;
     f32 nx;
     f32 ny;
     f32 nz;
     f32 d;
 
     *arg1 = mapBspPlaneDistanceCheck(arg0, arg2, arg3, arg4);
-    d = arg0->unk58;
-    nz = arg0->unk54;
+    if (arg0->unk54) {}  // FAKE: steers FP temp ring / candidate order
     ny = arg0->unk50;
     nx = arg0->unk4C;
+    nz = arg0->unk54;
+    d = arg0->unk58;
     ea[0] = arg0->unk5C[2] - arg0->unk5C[0];
     ea[1] = arg0->unk62[2] - arg0->unk62[0];
     ea[2] = arg0->unk68[2] - arg0->unk68[0];
     eb[0] = arg0->unk5C[1] - arg0->unk5C[0];
-    eb[1] = arg0->unk62[1] - arg0->unk62[0];
     eb[2] = arg0->unk68[1] - arg0->unk68[0];
+    eb[1] = arg0->unk62[1] - arg0->unk62[0];
     c[0] = ea[1] * eb[2] - eb[1] * ea[2];
     c[1] = ea[2] * eb[0] - eb[2] * ea[0];
     c[2] = ea[0] * eb[1] - eb[0] * ea[1];
@@ -1509,10 +1583,11 @@ u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     p[0] = n[0] + arg0->unk5C[0];
     p[1] = n[1] + arg0->unk62[0];
     p[2] = n[2] + arg0->unk68[0];
+    if (nx == 0.0f) {}  // FAKE: block split before s1
     s1 = nx * arg2 + ny * arg3 + nz * arg4 + d;
     if (s1 > 0.0) {
+        if (len && len) {}  // FAKE: block split steering uopt candidate order
         if (nx * p[0] + ny * p[1] + nz * p[2] + d > 0.0) {
-            if (s1 && s1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             return 0;
         }
     }
@@ -1542,9 +1617,9 @@ s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     f64 nx;
     f64 ny;
     f64 nz;
-    f32 dx;
-    f32 dy;
-    f32 dz;
+    f64 dx;
+    f64 dy;
+    f64 dz;
 
     i = 0;
     dot = arg0->unk4C * arg1 + arg0->unk50 * arg2 + arg0->unk54 * arg3 + arg0->unk58;
@@ -1562,9 +1637,11 @@ s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     ny = arg0->unk50;
     nz = arg0->unk54;
     do {
-        if (absd == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        if (absd && absd) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        d = nx * (f64)(D_807F5E20[i * 3] - arg1) + ny * (f64)(D_807F5E20[i * 3 + 1] - arg2) + nz * (f64)(D_807F5E20[i * 3 + 2] - arg3);
+        dx = D_807F5E20[i * 3] - arg1;
+        dy = D_807F5E20[i * 3 + 1] - arg2;
+        dz = D_807F5E20[i * 3 + 2] - arg3;
+        if (dx) {}  // FAKE: lowers dx priority (extra block in its range)
+        d = nx * dx + ny * dy + nz * dz;
         if (d > 0.01 || d < -0.01) {
             t = dot / d;
             if (t <= 0.0 && 0.0 - t <= 1.0) {

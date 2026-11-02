@@ -1,4 +1,4 @@
-// cameraStepAspectScale (src/global/2F550.c): stage 5, 12 diff lines. Target loads/stores D_80747CD0 with separate lui at (no la); ours hoists lui v0/addiu v0 because uopt CSEs lda across blocks. Per findings note 18, D_80747CD0 is currently extern in 14C450.data.s; when carved into 2F550.c by data split, lui at sharing will change.
+// cameraStepAspectScale (src/global/2F550.c): stage 5, diff 8: pointer spelling (p = &D_80747CD0; cur = *p; *p = cur) gives separate lui at (no lda hoist, lui at hoist matches). Remaining: ucode order of return mov.s f0,f12 vs store: target has mov.s BEFORE s.s (join: mov; jr; swc1 delay, bc1fl copies mov); ours store then mov (jr delay = mov, bc1f+nop). as1probe: swapping the two ugen records gives 0. Tried ret local (copy-propagated), f64 ret (cvt), chain assigns, x=x, one-line, return *p. Open: C order that puts the return move before the store.
 extern u8 D_807444F0;
 extern u8 D_807444EC;
 extern s8 D_807444C0;
@@ -10,6 +10,7 @@ f32 cameraStepAspectScale(void) {
     f32 step;
     f32 cur;
     s32 flag;
+    f32 *p;
 
     target = 1.0f;
     if (D_807444F0 != 1 && D_807444EC == 1) {
@@ -24,7 +25,8 @@ f32 cameraStepAspectScale(void) {
     if (D_807444C0 != 0 && !flag) {
         target = target * 1.2;
     }
-    cur = D_80747CD0;
+    p = &D_80747CD0;
+    cur = *p;
     if (cur < target) {
         cur += step;
         if (target < cur) {
@@ -36,6 +38,6 @@ f32 cameraStepAspectScale(void) {
             cur = target;
         }
     }
-    D_80747CD0 = cur;
+    *p = cur;
     return cur;
 }

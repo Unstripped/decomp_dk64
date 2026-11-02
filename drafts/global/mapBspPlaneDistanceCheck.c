@@ -1,4 +1,4 @@
-// mapBspPlaneDistanceCheck (src/global/2F550.c): Stage 5, 124 insns (135 lines objdump matches 135 lines), frame 0x88 matches, reloc=0, diff 21 (12 insns loop-body scheduling and regalloc t8/t9, f8/f4)
+// mapBspPlaneDistanceCheck (src/global/2F550.c): stage 5, diff 4 (was 21): named f64 locals dx/dy/dz (f64 = f32 diff) + d = nx*dx+ny*dy+nz*dz, pad[14], dead 'if (dx) {}' after dz def; dropped two absd dead tests. Remaining: ring t8/t9 in preheader i*3*4: target sll t7,t7,2 in place + lui t8; ours sll t8 + lui t9 (i*3 temp held), and FP f0/f2 vs ... (4 lines). Tried i/idx spellings, cond casts, no-code x=x defs, dead-test grid.
 typedef struct Bsp_Plane {
     /* 0x00 */ u8 pad0[0x4C];
     /* 0x4C */ f32 unk4C;
@@ -22,9 +22,9 @@ s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     f64 nx;
     f64 ny;
     f64 nz;
-    f32 dx;
-    f32 dy;
-    f32 dz;
+    f64 dx;
+    f64 dy;
+    f64 dz;
 
     i = 0;
     dot = arg0->unk4C * arg1 + arg0->unk50 * arg2 + arg0->unk54 * arg3 + arg0->unk58;
@@ -42,9 +42,11 @@ s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     ny = arg0->unk50;
     nz = arg0->unk54;
     do {
-        if (absd == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        if (absd && absd) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        d = nx * (f64)(D_807F5E20[i * 3] - arg1) + ny * (f64)(D_807F5E20[i * 3 + 1] - arg2) + nz * (f64)(D_807F5E20[i * 3 + 2] - arg3);
+        dx = D_807F5E20[i * 3] - arg1;
+        dy = D_807F5E20[i * 3 + 1] - arg2;
+        dz = D_807F5E20[i * 3 + 2] - arg3;
+        if (dx) {}  // FAKE: lowers dx priority (extra block in its range)
+        d = nx * dx + ny * dy + nz * dz;
         if (d > 0.01 || d < -0.01) {
             t = dot / d;
             if (t <= 0.0 && 0.0 - t <= 1.0) {
