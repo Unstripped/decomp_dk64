@@ -1,4 +1,4 @@
-// func_8064AC28 (src/global/478F0.c): stage 4, 19 diff lines: mirrored pair a0/v1 across flagGet branches (p split into two live ranges: v1 on flagGet!=0 where v1 free, a0 on else where v1 holds constant 2). Root cause of 19-line diff is uopt PRE on v1+6 into a0 which clobbers a0 on path 2. Deadsweep (1044 variants) found no improving statement.
+// func_8064AC28 (src/global/478F0.c): func_8064AC28 (src/global/478F0.c): stage 4, 19 diff lines (unchanged). Diff = target keeps a SECOND copy of p in a0 across the join (then-branch: move a0,v1; addiu s0,v1,6; else-branch: lw a0,164(sp) coloured a0, move v1,a0) and does NOT PRE p+6; ours PREs p+6 into a0 (then: addiu a0,v1,6; move s0,a0; else: inserted addiu a0,t0,6). Tried leftovers-5: extra copy local q=p (copy-propagated away, only grows frame: 45), join-init p+6 spellings (all fold), then/join loop index/pointer/do-while/for forms (instruction count changes 338-341, none <19), alloc/store-order variants (>=19), deadsweep 3828 variants incl. --extra p e j i allDone n best pl: no improvement.
 void csModelStateSetFirstByte(s16, s16);
 extern u8 gPlayerCharacterId;
 typedef struct CsEntry {

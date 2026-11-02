@@ -2361,7 +2361,6 @@ void func_80649E00(CsState *cs, s16 csId, s16 b, s16 c) {
     cs->unk14[0] = *((u8 *)cs + 0x49);
 }
 
-#ifdef NON_MATCHING
 extern s16 gCsModelIds[];
 extern s16 D_807481F4[];
 extern s16 D_807481F6[];
@@ -2377,10 +2376,7 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c)
 {
   CsPairState *st;
   s32 found;
-  s16 new_var2;
-  long new_var;
-  s16 *p;
-  s32 d;
+  s32 i;
   if ((*((CsPairState **) cs)) == 0)
   {
     st = heapAlloc(8);
@@ -2392,39 +2388,32 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c)
   found = 0;
   if ((*(((u8 *) cs) + 0x49)) != (*st).unk4)
   {
-    p = D_807481F4;
+    if (D_807481F4) {} // FAKE: early read of the table address (raises its candidate priority)
+    i = 0;
     do
     {
-      if ((*p) == (*(((u8 *) cs) + 0x49)))
+      if (D_807481F4[i] == (*(((u8 *) cs) + 0x49)))
       {
         found = 1;
       }
       else
       {
-        p++;
+        i++;
       }
     }
     while (found == 0);
-    new_var2 = p[1];
-    if (((u32) p) < (new_var = (u32) D_80748212))
+    if (&D_807481F4[i] < (s16 *)D_80748212)
     {
-      if (1)
-      {
-        csModelStateTrySetByte(new_var2, 0xA, 0);
-        func_8064199C(((CsModelSlotView *) D_807F6000)[hashTableLookup(gCsModelIds[p[1]])].unk7C, 0, 0);
-      }
+      csModelStateTrySetByte(D_807481F4[i + 1], 0xA, 0);
+      func_8064199C(((CsModelSlotView *) D_807F6000)[hashTableLookup(gCsModelIds[D_807481F4[i + 1]])].unk7C, 0, 0);
     }
-    if (((u32) p) >= ((u32) D_807481F6))
+    if (&D_807481F4[i] >= D_807481F6)
     {
-      csModelStateTrySetByte(p[-1], 0x14, 0);
+      csModelStateTrySetByte(D_807481F4[i - 1], 0x14, 0);
     }
     st->unk4 = *(((u8 *) cs) + 0x49);
   }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/csCmdModelStepAnimation.s")
-#endif
 
 void func_80649F64(CsState *cs, s16 csId, s16 b, s16 c) {
     csModelStateTrySetByte(0x5F, ((CsModelSlotView *)D_807F6000)[hashTableLookup(csId)].unk8A, 1);
