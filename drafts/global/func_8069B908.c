@@ -1,4 +1,4 @@
-// func_8069B908 (src/global/9DD70.c): SagWave2: stage 4, frame 0x140 / s0,s1,f20 match; deadsweep score 685 (was 835 on the same park). Win: loop test 'D_807FBB70.unk258[i] - 1 == 0' (const 1 no longer a hoisted t1 candidate; ring realigned; was ~ -150 lines). ROOT CAUSE of rest (uopt -l5/-l6, parse6): the 0x3F loop's single sp13C->unk2A store makes lr 603 (sp13C, t0, adjsave 1.29, forbidden v0-a3) a piece loop->dispatch->cases 1,2,3,5,10 (one 'lw t0,316(sp)' before the loop and one at the join); target has NO such piece (loop reloads lw t5,0x13c(sp) in the delay slot, each case loads sp13C at its own first use, only case 10 uses t0 (lw t0 at case start), case 5 v1). Removing the loop's sp13C use removes the piece (563, ring then differs only by the 3 loop temps) so the loop use weight/cost is the lever. Also early sp13C reloads are lw v0 in target vs a2 here, and switch selector lbu a0/move v1 (target) vs lbu v1/move v0. Tried w/o effect: statement order, casts, ==1/-1==0/!(x-1)/^1, for/while/do, *(u16*), struct/union/array sp13C, selector casts/local, void<->s32 on all 31 callees, ~100 deadsweep/hill-climb dead tests (best single: 'if (D_807FBB40 && D_807FBB40) {}' after 'spAC *= 30.0f;' = 580; 100 fakes reach 437, rejected), natural-spelling hill-climb 15k.
+// func_8069B908 (src/global/9DD70.c): L9DD: stage 4, frame 0x140 match; deadsweep score 30 (was 685 draft / 835 park). KEY: loop reads ((ActorSub174View *)D_807FBB40->unk174)->unk2A instead of sp13C (target: lw t5,0x13c(sp) delay-slot reload): sp13C loop use made uopt carve one coloured piece (t0, adj 1.29) loop->dispatch->cases 1,2,3,5,10 that the target lacks; dropping it 685->481; hill-climb dead tests (4 FAKE, PEN 3) -> 30. Remaining: early sp13C piece a2 (target v0, 13 lines); loop reload form (3 lines); switch temp v0 vs v1; spill slot 100 vs 108; gCurrentMap tail hoist lw s0 (6).
 #include "common.h"
 #include "actor.h"
 
@@ -186,7 +186,7 @@ void func_8069B908(void) {
         D_807FBB40->unk58 == 0x41 || D_807FBB40->unk58 == 0x42) {
         for (i = 0; i < D_807FBDC4; i++) {
             if (D_807FBB70.unk258[i] - 1 == 0) {  // FAKE: `- 1 == 0` keeps const 1 from becoming a hoisted typed-constant candidate (target: li at,1 inside the loop)
-                sp13C->unk2A = 0;
+                ((ActorSub174View *)D_807FBB40->unk174)->unk2A = 0;  // FAKE: target reloads stack slot sp13C here; reading unk174 stops uopt carving a coloured loop+dispatch+cases sp13C piece
                 D_807FBB40->unk154 = 5;
             }
         }
@@ -276,10 +276,12 @@ void func_8069B908(void) {
         }
         if (D_807FBB70.unk0 == 0) {
             sp9C = D_807503A4;
+            if (D_807FBC60 + 1.0f) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             for (sp70 = 0; sp70 != 0x10; sp70 += 2) {
                 spAC = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
                 spB0 = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
                 spA4 = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
+                if (gCurrentMap && gCurrentMap) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 func_8071496C(sp70);
                 func_807149B8(1);
                 if (sp70 == 0) {
@@ -305,6 +307,7 @@ void func_8069B908(void) {
                     func_80714998(2);
                     func_80714950(2);
                     sp78 = randomNonNegative();
+                    if (D_807FBB40->unk64 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     func_80714CC0((void *)((s32 *)&sp9C)[(sp78 >> 15) % 2],
                                   (f32)(((f64)randomFloat() * 0.5) + 0.2),
                                   D_807FBB40->unk7C + spAC, D_807FBB40->unk80 + spB0,
@@ -358,6 +361,7 @@ void func_8069B908(void) {
     case 0x63:
         break;
     }
+    if (D_807FBB40->unk58 && D_807FBB40->unk58) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 3) {
         *(s16 *)((u8 *)D_807FBB40 + 0xEE) = D_807FBB40->unkE6;
         actorApplyVelocity(D_807FBB40);
@@ -374,6 +378,7 @@ void func_8069B908(void) {
         D_807FBB40->unk110 = 0;
         D_807FBB40->unk6A &= 0xFBF7;
     }
+    if (D_807FBB40->unk7C > 0.0f) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (gCurrentMap == 0x26 || gCurrentMap == 0x71 || gCurrentMap == 0xC2) {
         if (D_807FBB40->unk58 == 0x3D) {
             if (D_807FBB40->unk110 == 1) {
