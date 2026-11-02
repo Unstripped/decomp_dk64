@@ -1224,9 +1224,6 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
 }
 
 // Cutscene script command interpreter (csCmdExec): one 8-byte command per call.
-// Parked NON_MATCHING: all 1847 insns match except the first &D_807F61F0 piece in case 0x68
-// (target lui/addiu v0, mine a3): the draft that reached it used FAKE reads of uninitialised
-// locals (b, i) to extend their live ranges into that case, which is not equivalent code.
 
 // Object hanging off the player actor's unk174.
 typedef struct CsCamState {
@@ -1378,7 +1375,6 @@ void sfxSetVolumeAndPan(u8, f32, f32);
 u8 sfxSlotAllocateSource(s16, s16, s32, s32, u8, f32, s8);
 void sfxStopChannel(s32, s32);
 
-#ifdef NON_MATCHING
 void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     void *dm = &csId; // unused: address-taken csId, keeps found at sp+0xC3
     u8 found;
@@ -1555,6 +1551,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x68:
         if (D_807F61F0.unk8 != 0) {
             actorDespawn(D_807F61F0.unk0);
+            b = (s32)D_807F61F0.unk4; if (b) {} // FAKE: live range of b (a3) splits the &D_807F61F0 piece (v0)
             actorDespawn(D_807F61F4);
             D_807F61F0.unk8 = 0;
         }
@@ -2089,10 +2086,6 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/42630/csCmdExec.s")
-#endif
 
 typedef struct CsCamView {
     /* 0x000 */ u8 pad0[0x245];
