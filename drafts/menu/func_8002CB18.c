@@ -1,10 +1,4 @@
-// func_8002CB18 (src/menu/3E10.c): stage 5: frame 0x68 + all slots match (sp5C 0x5C, sp54 0x54, sp50 0x50, sp4F 0x4F, idx 0x4C, sp38 0x38), shape=0, full=72 text=72 reloc=0. Dropped dead a2, packed m8 into word with sp4F+idx, cached sub into a1 via block scope. Remaining diff is 1-register ugen t-ring shift at 4e28 (lui t8 vs target lui t9 for D_80033878).
-typedef struct MenuModelScale {
-    char pad0[0x34];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-} MenuModelScale;
+// func_8002CB18 (src/menu/3E10.c): stage 5 (frame 0x68, all slots match), harness diff 72 -> 4: FAKE 'sp5C = (f32 *)((u32)sp5C | 0)' after 'sp4F = 1' in the spawn block burns a ugen t-ring temp so the later D_80033878/D_80033894 lui regs match. Remaining: the FAKE leaves an lw/sw pair of sp5C (92(sp)) and 'lw t6,0(s0); sb t5,79(sp)' order. 'sp4F = sp4F * 1' variant leaves lb/sb of 79(sp) instead (also 4). 5 hill-climb runs over ~25 dead-test/no-code forms.
 typedef struct Menu6B_Actor {
     char pad0[4];
     MenuModelScale *unk4;
@@ -91,6 +85,7 @@ void func_8002CB18(void) {
                 sub->unk0 = temp_s1->unk0;
             }
             sp4F = 1;
+            sp5C = (f32 *)((u32)sp5C | 0); // FAKE: no-op self-store; burns one ugen t-ring temp so the later D_80033878/D_80033894 luis get the target regs
         }
         row = &D_80033894[Menu6B_A->unk154];
         func_800317E8(sp5C, row->a, row->b, &sp54, &sp50, 2, 0, 1.8f);

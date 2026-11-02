@@ -1,4 +1,4 @@
-// menuHandleHighScoreNameEntryInput (src/menu/3E10.c): stage 4 (frame 0x30): diff 77 lines; new_var=0xF prevents &D_800339C0 CSE; remaining diff is table in a3 vs a2, F60 in a1 vs a0, v0/v1 swap
+// menuHandleHighScoreNameEntryInput (src/menu/3E10.c): stage 6 (frame 0x30, shape 0 = registers only), harness diff 77 -> 19: v1 local assigned in the >=16 arm, 'v1 == 1 || (D_800339C0 = v1, v1 >= 0x10)' comma store (matches the duplicated A/B stores and slti pair), dead tests on D_80033F61 (pointerize F61, drop the F60 store reload). Remaining: var v0 gets a0 (target v0) because the F61 value becomes a candidate on v0 (target t2 ring temp), F60 value a3 vs a0. 5 hill-climbs (~120k compiles) over ~40 dead/no-code forms, decl order/types, FAKE substitutions: no gain.
 typedef struct MenuM8_PosPair {
     s16 unk0;
     s16 unk2;
@@ -16,7 +16,6 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
     MenuHighScoreEntry *table;
     s8 v1;
     s32 v0;
-    s32 new_var; // FAKE: constant held in a local, stops IDO CSEing &D_800339C0
     s32 tmp;
     u8 *p;
 
@@ -43,19 +42,22 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
             } else {
                 v1 = 0;
             }
-            new_var = 0xF; // FAKE: see new_var
             v0 = 0;
-            D_800339C0 = v1;
-            if (v1 == 1 || v1 >= 0x10) {
+            if (v1 == 1 || (D_800339C0 = v1, v1 >= 0x10)) {
+                if (D_80033F61) {}  // FAKE: dead test, steers register colouring / store sinking
+                D_800339C0 = v1;
                 v0 = arg1;
                 if (v1 >= 0x10) {
-                    D_800339C0 = new_var;
-                    tmp = gFrameCounter;
-                    if (!(tmp & 1)) {
+                    v1 = 0xF;
+                    if (&D_80033F61) {}  // FAKE: dead test, steers register colouring / store sinking
+                    D_800339C0 = v1;
+                    if (!(gFrameCounter & 1)) {
                         v0 = 0;
                     }
+                    v1 = v1;  // FAKE: dead test, steers register colouring / store sinking
                 }
             }
+            if (D_80033F61) {}  // FAKE: dead test, steers register colouring / store sinking
             p = (u8 *)table + D_80033F60 * 6 + D_80033F61 + 2;
             if (v0 & 4) {
                 switch (*p) {

@@ -734,6 +734,7 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
     D_80033814 = D_80750AB0 / 60;
     D_80033810 = (s32)D_80033814 / 60;
     D_80033814 = D_80033814 - D_80033810 * 60;
+    if (i) {} // FAKE: extends i's live range to the end, giving loop 2 the target's s0/s1 (p2/i) colouring
     D_80033F51 = menuCalculateGamePercentage();
 }
 #else
@@ -1508,6 +1509,7 @@ void func_8002CB18(void) {
                 sub->unk0 = temp_s1->unk0;
             }
             sp4F = 1;
+            sp5C = (f32 *)((u32)sp5C | 0); // FAKE: no-op self-store; burns one ugen t-ring temp so the later D_80033878/D_80033894 luis get the target's regs (72 -> 4 insn diff; leaves an lw/sw pair)
         }
         row = &D_80033894[Menu6B_A->unk154];
         func_800317E8(sp5C, row->a, row->b, &sp54, &sp50, 2, 0, 1.8f);
@@ -2219,7 +2221,6 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
     MenuHighScoreEntry *table;
     s8 v1;
     s32 v0;
-    s32 new_var; // FAKE: constant held in a local, stops IDO CSEing &D_800339C0
     s32 tmp;
     u8 *p;
 
@@ -2246,19 +2247,22 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
             } else {
                 v1 = 0;
             }
-            new_var = 0xF; // FAKE: see new_var
             v0 = 0;
-            D_800339C0 = v1;
-            if (v1 == 1 || v1 >= 0x10) {
+            if (v1 == 1 || (D_800339C0 = v1, v1 >= 0x10)) {
+                if (D_80033F61) {}  // FAKE: dead test, steers register colouring / store sinking
+                D_800339C0 = v1;
                 v0 = arg1;
                 if (v1 >= 0x10) {
-                    D_800339C0 = new_var;
-                    tmp = gFrameCounter;
-                    if (!(tmp & 1)) {
+                    v1 = 0xF;
+                    if (&D_80033F61) {}  // FAKE: dead test, steers register colouring / store sinking
+                    D_800339C0 = v1;
+                    if (!(gFrameCounter & 1)) {
                         v0 = 0;
                     }
+                    v1 = v1;  // FAKE: dead test, steers register colouring / store sinking
                 }
             }
+            if (D_80033F61) {}  // FAKE: dead test, steers register colouring / store sinking
             p = (u8 *)table + D_80033F60 * 6 + D_80033F61 + 2;
             if (v0 & 4) {
                 switch (*p) {
@@ -3351,17 +3355,18 @@ f32 menuEvaluateSpline(f32 *, f32, f32 *);
 s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *arg5, s16 *arg6) {
     f32 v;
     volatile s32 ret;
+    if ((arg1 * 4) << 2) {} // FAKE: extra reference of the shared (arg1 * 4) << 2 expression; steers its CSE temp
     arg1 += ((MenuNM2_Sel *)arg0)->unk17;
     if (arg1 >= 5) {
         arg1 -= 5;
     }
     ret = arg1;
-    D_8003378C[(4 * arg1) + 2] = D_8003373C[(arg1 * 2 * 2)]; // FAKE: mixed spellings of arg1 * 4 in the 4 stores steer uopt CSE temps
+    (&D_8003378C[arg1 * 4])[2] = D_8003373C[arg1 * 2 * 2];
     D_8003373C[(arg1 * 2 * 2) + 2] = -D_8003378C[arg1 * 4];
-    D_8003378C[arg1 * 4 + 3] = D_8003373C[(arg1 * 2 * 2) + 1];
-    D_8003373C[(arg1 * 2 * 2) + 3] = -D_8003378C[(4 * arg1) + 1];
+    D_8003378C[(4 * arg1) + 3] = D_8003373C[(arg1 * 2 * 2) + 1];
+    (&D_8003373C[arg1 * 2 * 2])[3] = -D_8003378C[(arg1 * 4) + 1];
     *arg2 = menuEvaluateSpline((f32 *)((u8 *)D_8003373C + ((arg1 * 4) << 2)), ((MenuNM2_Sel *)arg0)->unk4, NULL);
-    *arg3 = menuEvaluateSpline((f32 *)((u8 *)D_8003378C + ((arg1 * 4) << 2)), ((MenuNM2_Sel *)arg0)->unk4, NULL);
+    *arg3 = menuEvaluateSpline((f32 *)((u8 *)D_8003378C + ((4 * arg1) << 2)), ((MenuNM2_Sel *)arg0)->unk4, NULL);
     if (*arg3 < -40.0f) {
         v = -*arg3 - 40.0f;
         if (v > 20.0f) {
@@ -3374,7 +3379,7 @@ s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *ar
         *arg5 = 0x80;
     }
     *arg6 = 0xFF;
-    if (D_8003373C == &D_8003373C[(arg1 * 2 * 2)]) {
+    if (D_8003373C == &D_8003373C[4 * arg1]) {
         *arg3 *= 1.0f - D_80033F3C;
         *arg4 += D_80033F3C * 3.5f;
         if (D_80033F3C != 0.0f) {

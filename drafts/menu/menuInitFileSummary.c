@@ -1,4 +1,4 @@
-// menuInitFileSummary (src/menu/3E10.c): stage 4+ (frame 0x80): p2 = &D_80033805 - 1 drops s3 pointerization; remaining diff is loop 1 q/end regalloc (s1/s2 swap) and beq t6, v0 (open issue)
+// menuInitFileSummary (src/menu/3E10.c): stage 4+ (frame 0x80), harness diff 19 -> 8 (4 reloc lines are the same regalloc): dead 'if (i) {}' after the percent math gives loop 2 the target s0/s1. Remaining: loop 1 q/end regalloc (target s2=q s1=end, ours s1=q s2=end: lui/addiu order) and beq t6,v0 operand order. Tried: end as arg0/arg1/local permutations, index loop forms (no LFTR), dead-test hill-climb (3 runs).
 extern u8 D_80720CF0;
 extern u8 D_80720D14;
 extern u8 D_8072052C;
@@ -83,5 +83,6 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
     D_80033814 = D_80750AB0 / 60;
     D_80033810 = (s32)D_80033814 / 60;
     D_80033814 = D_80033814 - D_80033810 * 60;
+    if (i) {}  // FAKE: dead test, steers register colouring
     D_80033F51 = menuCalculateGamePercentage();
 }
