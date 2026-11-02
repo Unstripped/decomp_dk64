@@ -1,4 +1,4 @@
-// eepromValidateSaveSlots (src/global/104F0.c): UNPARKED 2026-11-02: park was 319 insns vs target 315 (count-inexact parks stay drafts); eepromValidateSaveSlots (src/global/104F0.c): stage 4: 64 insns diff (was 364): frame 0x98 exact; remaining: loop2 multu t9,s2 vs s2,t9, beq v0,s1 vs s1,v0, move a0,s3 vs andi a0,s3,0xff at clearSlot calls, loop4 flag regs s7/s5 vs s5/s2, D_807EDEA8..AB store grouping; 5 dead tests
+// eepromValidateSaveSlots (src/global/104F0.c): Eep 2026-11-02: stage 4 (count-inexact: 319 insns vs target 315, frame 0x98 exact): deadsweep score 61 (full; text 51, reloc 10 = EDEA9/AA/AB names) vs stored 64. Changes: D_807EDEA9/AA/AB/A8 stores as 'for (j = 0; j < 4; j++) D_807EDEA8[j] = sectorOrder[j];' (text 55->51), 3 redundant FAKEs dropped. Count gap is the 4 sb stores: target shares ONE lui at for all four (only reproduced when D_807EDEA8[4] is DEFINED in the TU: score 47, 316 insns; needs a .bss carve, yaml not editable), ours emits lui+sb each; plus slti/bnezl vs li at,4/bnel on loop3 and nop after func_8060CB74 delay slot. Remaining: multu s2,t9 vs t9,s2 (i+1 left), beq s1,v0 vs v0,s1 crc compare, andi a0,s3,0xff vs move a0,s3 at clearSlot calls, loop4 flag regs s7/s5 vs s5/s2. Tried: copy local n=i+1 (171), slot u8/(slot & 0xFF) (88-97), mult operand spellings (no change), 4 loop-bound spellings x4 loops, stored index spellings, array/pointer/discrete store spellings, random dead-test hill climb 35k evals (no gain)
 void eepromValidateSaveSlots(void) {
     s32 j;
     u32 slot;
@@ -21,9 +21,7 @@ void eepromValidateSaveSlots(void) {
     ok = 0;
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
     for (i = 0; i < 4; i++) {
-        if (i && stored) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (i && stored) {}  // FAKE
-        if (ok) {}  // FAKE
         D_807EDEA8[i] = i;
         sectorOrder[i] = 0xFF;
     }
@@ -68,7 +66,6 @@ void eepromValidateSaveSlots(void) {
         }
     }
     for (i = 0; i < 4; i++) {
-        if (i && version) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         found = 0;
         for (j = 0; j < 4 && found == 0; j++) if (sectorOrder[j] == i) found = 1;
         if (found == 0) for (j = 0; j < 4 && found == 0; j++) if (sectorOrder[j] == 0xFF) {
@@ -78,10 +75,9 @@ void eepromValidateSaveSlots(void) {
         }
     }
     if (failed == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    D_807EDEA9 = sectorOrder[1];
-    D_807EDEAA = sectorOrder[2];
-    D_807EDEAB = sectorOrder[3];
-    D_807EDEA8[0] = sectorOrder[0];
+    for (j = 0; j < 4; j++) {
+        D_807EDEA8[j] = sectorOrder[j];
+    }
     height = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
     ok = 1;
     stored = ((u32 *)((u32)D_807ED6A8 | 0))[(u16)(((height + 0x40) / 4) - 1)];
