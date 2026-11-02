@@ -2866,30 +2866,25 @@ void effectScatterFallUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
 
 
-extern s8 D_8075567C;
-
 #ifdef NON_MATCHING
 void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
+    static s8 sd = 1;  // text-identical only as a function-local static (not aliased by the field stores); data carve D_8075567C needed
     TimedMotionState *var_v1;
     TimedMotionState *temp;
-    s32 dir;
 
     if (arg0->unk384 == NULL) {
         temp = heapAlloc(0xC);
-        dir = D_8075567C;
         arg0->unk384 = temp;
         temp->unk0 = arg0->unk340;
         temp->unk4 = arg0->unk348;
-        temp->unk8 = (f32)dir;
-        if (arg0->unk384 && arg0->unk384 && arg0->unk384) {}  // FAKE: dead uses steer dir/var_v1 colouring
-        D_8075567C = -(dir & 0xFF);
+        temp->unk8 = (f32)sd;
+        sd = -sd;
     }
     var_v1 = (TimedMotionState *)arg0->unk384;
     arg0->unk340 = (func_80612794(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk0;
     arg0->unk348 = (func_80612790(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk4;
     arg0->unk344 = arg0->unk344 + 0.5f;
     if (arg0->unk36D >= 5) {
-        if (D_8075567C) {}  // FAKE: dead read steers dir into $a0
         arg0->unk36D = arg0->unk36D - 4;
     } else {
         *arg1 = 1;
