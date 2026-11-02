@@ -1,4 +1,4 @@
-// func_806C850C (src/global/CC800.c): Stage 6 (text diff 64 lines): (1) sel=s3/&D_807FBB48=s2 swap: coloring order is by adjsave, &D (2.25) before sel (1.14), sel needs higher priority; (2) -1 stores: unk247 must be s8 (u8 folds to 255) then 'G00_P->unk247 = -1' gives shared li -1 const web but a1 not v1 and shifts li -100; (3) uncached loads: volatile gPlayerPadState keeps 8 separate loads but as1 then does not group loads before stores as target does; non-volatile CSEs unk4/unk28 (1 load each) through every spelling tried (cast base, slot ptr, f32*/s16* element ptrs, u8* base, loop). deadsweep 1 round: 'if (D_8075C410) {}' -5 lines only.
+// func_806C850C (src/global/CC800.c): Stage 6, park full=20 text=16 shape=6 (was full=68 text=64): needs G00Slot34.unk4/unk28 volatile (FAKE, in struct) + non-volatile extern, G00Player.unk247 s8 with literal -1 stores, no new_var; arg1 self-narrowing chain (6 stmts: += 0, & 0xFFFF, & 0xFF x3, += 0 FAKE) makes sel colour s2 (andi s2,a1,0xff still shows as andi t5/move s2,t5) + dead if (flt == 0.0f)/if (sel == 0) tests. Remaining: that andi/move pair + sw a1 order, and pad-copy tail ring rotated one step (f8,f10,f16,f18 vs f10,f16,f18,f8).
 typedef struct G00Sub4 {
     /* 0x00 */ u8 pad0[0x1C];
     /* 0x1C */ u8 *unk1C;
@@ -63,7 +63,7 @@ typedef struct G00Player {
     /* 0x244 */ u8 unk244;
     /* 0x245 */ u8 unk245;
     /* 0x246 */ u8 pad246;
-    /* 0x247 */ u8 unk247;
+    /* 0x247 */ s8 unk247;
     /* 0x248 */ u8 pad248[8];
     /* 0x250 */ s32 unk250;
     /* 0x254 */ u8 pad254[4];
@@ -75,7 +75,7 @@ typedef struct G00Player {
 
 typedef struct G00Slot34 {
     /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
+    /* 0x04 */ volatile f32 unk4; // FAKE: volatile steers the pad-copy load order
     /* 0x08 */ u8 pad8[8];
     /* 0x10 */ f32 unk10;
     /* 0x14 */ f32 unk14;
@@ -85,7 +85,7 @@ typedef struct G00Slot34 {
     /* 0x22 */ s16 unk22;
     /* 0x24 */ s16 unk24;
     /* 0x26 */ s16 unk26;
-    /* 0x28 */ s16 unk28;
+    /* 0x28 */ volatile s16 unk28; // FAKE: volatile steers the pad-copy load order
     /* 0x2A */ u8 pad2A[0xA];
 } G00Slot34;
 
@@ -98,7 +98,7 @@ extern f32 D_8075C4B0;
 extern Actor *gCamActor;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
-extern volatile G00Slot34 gPlayerPadState[];
+extern G00Slot34 gPlayerPadState[];
 void func_806E2C74(Actor *);
 s32 flagGet(s32, s32);
 void func_806F09F0(Actor *, u16);
@@ -107,13 +107,19 @@ void func_806C90C4(s32);
 void func_806C8984(void);
 void func_806C8D20(Actor *);
 
+/* Parked (stage 6, schedule only): remaining diff = `andi t5; move s2,t5` vs target `andi s2,a1,0xff` (+ sw a1 order) and the
+ * pad-copy tail's load/store ring rotated by one step. The arg1 self-narrowing chain and the two dead tests steer uopt colouring. */
 void func_806C850C(s32 arg0, u8 arg1) {
     G00Row *row;
     f32 flt;
-    volatile G00Slot34 *slot;
     u32 sel;
-    s32 new_var;
 
+    arg1 += 0;  // FAKE: steers sel/arg1 colouring
+    arg1 = arg1 & 0xFFFF;  // FAKE: steers sel/arg1 colouring
+    arg1 = arg1 & 0xFF;  // FAKE: steers sel/arg1 colouring
+    arg1 = arg1 & 0xFF;  // FAKE: steers sel/arg1 colouring
+    arg1 += 0;  // FAKE: steers sel/arg1 colouring
+    arg1 = arg1 & 0xFF;  // FAKE: steers sel/arg1 colouring
     sel = arg1;
     if (gPlayerCount >= 2) {
         gPlayerCharacterId[sel] = gPlayerCharacterId[controllerGetPort(sel)];
@@ -137,13 +143,12 @@ void func_806C850C(s32 arg0, u8 arg1) {
     ((G00Sub4 *)D_807FBB44->unk4)->unk20 = heapAlloc(0x200);
     *((G00Sub4 *)D_807FBB44->unk4)->unk20 = 0xFF;
     ((G00Sub4 *)D_807FBB44->unk4)->unk24 = heapAlloc(0x200);
-    new_var = 1;
     *((G00Sub4 *)D_807FBB44->unk4)->unk24 = 0xFF;
     D_807FBB48 = D_807FBB44;
-    gActivePlayerState = D_807FBB44->unk174;
-    G00_P->unk247 = -new_var;
+    gActivePlayerState = D_807FBB48->unk174;
+    G00_P->unk247 = -1;
     G00_P->unk1A4 = sel;
-    G00_P->unk11E = -new_var;
+    G00_P->unk11E = -1;
     G00_P->unk244 = 0;
     G00_P->unk120 = -0x64;
     D_807FD584 = row->unk4;
@@ -157,6 +162,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     D_807FBB44->unk60 |= 0x100000;
     func_806C8D20(D_807FBB48);
     flt = D_8075C4B0;
+    if (flt == 0.0f) {}  // FAKE: steers sel/arg1 colouring
     G00_P->unk26 = 0x64;
     G00_A48->unkC4 = D_80753578[D_807FD584];
     G00_A48->unkC8 = D_807535E8[D_807FD584];
@@ -179,7 +185,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_P->unkC8 = -1;
     G00_P->unkCA = 0;
     G00_P->unkC8 = -1;
-    G00_P->unk264 = -new_var;
+    G00_P->unk264 = -1;
     G00_P->unk258 = 1.0f;
     G00_P->unk25C = 1.0f;
     if (flagGet(0xCE, 0) != 0) {
@@ -191,15 +197,15 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_A48->unkDE = 0x400;
     G00_P->unk1B0 = 0;
     G00_P->unk1AC = 0;
-    slot = &gPlayerPadState[sel];
-    slot->unk14 = slot->unk4;
-    slot->unk18 = slot->unk4;
-    slot->unk1C = slot->unk4;
-    slot->unk22 = slot->unk28;
-    slot->unk24 = slot->unk28;
-    slot->unk26 = slot->unk28;
-    slot->unk20 = slot->unk28;
-    slot->unk10 = slot->unk4;
+    gPlayerPadState[sel].unk14 = gPlayerPadState[sel].unk4;
+    gPlayerPadState[sel].unk18 = gPlayerPadState[sel].unk4;
+    gPlayerPadState[sel].unk1C = gPlayerPadState[sel].unk4;
+    gPlayerPadState[sel].unk22 = gPlayerPadState[sel].unk28;
+    gPlayerPadState[sel].unk24 = gPlayerPadState[sel].unk28;
+    gPlayerPadState[sel].unk26 = gPlayerPadState[sel].unk28;
+    gPlayerPadState[sel].unk20 = gPlayerPadState[sel].unk28;
+    gPlayerPadState[sel].unk10 = gPlayerPadState[sel].unk4;
+    if (sel == 0) {}  // FAKE: steers sel/arg1 colouring
     playerResumeLocomotion(D_807FBB48);
     func_806C90C4(arg0);
     func_806C8984();

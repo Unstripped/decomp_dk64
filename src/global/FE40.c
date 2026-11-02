@@ -15,12 +15,11 @@ void dmaReadAssetDecompress(u32 arg0, void *arg1, s32 *arg2, u8 arg3, u8 arg4, u
     s32 size;
     void *sp5C;
     void *sp58;
-    u32 chunks;
+    s32 rem;
     void *sp50;
     void *ptr;
 
     sp58 = arg1;
-    count = 0;
     if ((arg3 != 0) || (arg4 != 0)) {
         if (arg3 & 0x80) {
             sp5C = arg6;
@@ -35,10 +34,10 @@ void dmaReadAssetDecompress(u32 arg0, void *arg1, s32 *arg2, u8 arg3, u8 arg4, u
         sp5C = arg1;
     }
     osInvalDCache(sp5C, *arg2);
-    size = *arg2;
     ptr = sp5C;
-    chunks = (u32)size >> 14;
-    while (count < chunks) {
+    count = 0;
+    size = *arg2;
+    while (count < ((u32)size >> 14)) {
         osPiStartDma(&D_807ECE00, 0, 0, arg0, ptr, 0x4000, &D_807655F0);
         D_80746834 = 4;
         osRecvMesg(&D_807655F0, NULL, 1);
@@ -47,11 +46,10 @@ void dmaReadAssetDecompress(u32 arg0, void *arg1, s32 *arg2, u8 arg3, u8 arg4, u
         size = *arg2;
         arg0 += 0x4000;
         ptr = (u8 *)ptr + 0x4000;
-        chunks = (u32)size >> 14;
     }
-    size -= chunks << 14;
-    if (size != 0) {
-        osPiStartDma(&D_807ECE00, 0, 0, arg0, ptr, size, &D_807655F0);
+    rem = size & 0x3FFF;
+    if (rem != 0) {
+        osPiStartDma(&D_807ECE00, 0, 0, arg0, ptr, rem, &D_807655F0);
         D_80746834 = 5;
         osRecvMesg(&D_807655F0, NULL, 1);
         D_80746834 = 0;
@@ -60,20 +58,23 @@ void dmaReadAssetDecompress(u32 arg0, void *arg1, s32 *arg2, u8 arg3, u8 arg4, u
     if ((arg6 == NULL) && ((arg5 == 1) || (arg5 == 2))) {
         D_807ECE18 = heapAlloc(0x4000);
     }
-    if (arg5 == 1) {
+    switch (arg5) {
+    case 1:
         if (arg3) {
             gunzip(&sp5C, &arg1, D_807ECE18);
         }
         if (arg4) {
             gunzip(&sp5C, &arg1, D_807ECE18);
         }
-    } else if (arg5 == 2) {
+        break;
+    case 2:
         if (arg3) {
             func_80002790(&sp5C, &arg1, D_807ECE18, arg3);
         }
         if (arg4) {
             func_80002790(&sp5C, &arg1, D_807ECE18, arg4);
         }
+        break;
     }
     if ((arg6 == NULL) && ((arg5 == 1) || (arg5 == 2))) {
         heapFree(D_807ECE18);

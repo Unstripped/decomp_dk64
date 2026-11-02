@@ -477,7 +477,7 @@ typedef struct G00Player {
     /* 0x244 */ u8 unk244;
     /* 0x245 */ u8 unk245;
     /* 0x246 */ u8 pad246;
-    /* 0x247 */ u8 unk247;
+    /* 0x247 */ s8 unk247;
     /* 0x248 */ u8 pad248[8];
     /* 0x250 */ s32 unk250;
     /* 0x254 */ u8 pad254[4];
@@ -489,7 +489,7 @@ typedef struct G00Player {
 
 typedef struct G00Slot34 {
     /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
+    /* 0x04 */ volatile f32 unk4; // FAKE: volatile steers the pad-copy load order
     /* 0x08 */ u8 pad8[8];
     /* 0x10 */ f32 unk10;
     /* 0x14 */ f32 unk14;
@@ -499,7 +499,7 @@ typedef struct G00Slot34 {
     /* 0x22 */ s16 unk22;
     /* 0x24 */ s16 unk24;
     /* 0x26 */ s16 unk26;
-    /* 0x28 */ s16 unk28;
+    /* 0x28 */ volatile s16 unk28; // FAKE: volatile steers the pad-copy load order
     /* 0x2A */ u8 pad2A[0xA];
 } G00Slot34;
 
@@ -512,7 +512,7 @@ extern f32 D_8075C4B0;
 extern Actor *gCamActor;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
-extern volatile G00Slot34 gPlayerPadState[];
+extern G00Slot34 gPlayerPadState[];
 void func_806E2C74(Actor *);
 s32 flagGet(s32, s32);
 void func_806F09F0(Actor *, u16);
@@ -521,15 +521,19 @@ void func_806C90C4(s32);
 void func_806C8984(void);
 void func_806C8D20(Actor *);
 
-/* Parked (stage 6, regalloc only): `u32 sel = arg1` gives the single `andi sel,a1,0xff` register, but uopt colors the
- * &D_807FBB48 constant (adjsave 2.25) before sel (1.14), so ours has sel=s3/D=s2 where the target has sel=s2/D=s3.
- * Volatile slot reads stand in for the target's uncached loads; `-new_var` keeps the -1 stores from folding to 255. */
+/* Parked (stage 6, schedule only): remaining diff = `andi t5; move s2,t5` vs target `andi s2,a1,0xff` (+ sw a1 order) and the
+ * pad-copy tail's load/store ring rotated by one step. The arg1 self-narrowing chain and the two dead tests steer uopt colouring. */
 void func_806C850C(s32 arg0, u8 arg1) {
     G00Row *row;
     f32 flt;
     u32 sel;
-    s32 new_var;
 
+    arg1 += 0;  // FAKE: steers sel/arg1 colouring
+    arg1 = arg1 & 0xFFFF;  // FAKE: steers sel/arg1 colouring
+    arg1 = arg1 & 0xFF;  // FAKE: steers sel/arg1 colouring
+    arg1 = arg1 & 0xFF;  // FAKE: steers sel/arg1 colouring
+    arg1 += 0;  // FAKE: steers sel/arg1 colouring
+    arg1 = arg1 & 0xFF;  // FAKE: steers sel/arg1 colouring
     sel = arg1;
     if (gPlayerCount >= 2) {
         gPlayerCharacterId[sel] = gPlayerCharacterId[controllerGetPort(sel)];
@@ -553,13 +557,12 @@ void func_806C850C(s32 arg0, u8 arg1) {
     ((G00Sub4 *)D_807FBB44->unk4)->unk20 = heapAlloc(0x200);
     *((G00Sub4 *)D_807FBB44->unk4)->unk20 = 0xFF;
     ((G00Sub4 *)D_807FBB44->unk4)->unk24 = heapAlloc(0x200);
-    new_var = 1;
     *((G00Sub4 *)D_807FBB44->unk4)->unk24 = 0xFF;
     D_807FBB48 = D_807FBB44;
-    gActivePlayerState = D_807FBB44->unk174;
-    G00_P->unk247 = -new_var;
+    gActivePlayerState = D_807FBB48->unk174;
+    G00_P->unk247 = -1;
     G00_P->unk1A4 = sel;
-    G00_P->unk11E = -new_var;
+    G00_P->unk11E = -1;
     G00_P->unk244 = 0;
     G00_P->unk120 = -0x64;
     D_807FD584 = row->unk4;
@@ -573,6 +576,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     D_807FBB44->unk60 |= 0x100000;
     func_806C8D20(D_807FBB48);
     flt = D_8075C4B0;
+    if (flt == 0.0f) {}  // FAKE: steers sel/arg1 colouring
     G00_P->unk26 = 0x64;
     G00_A48->unkC4 = D_80753578[D_807FD584];
     G00_A48->unkC8 = D_807535E8[D_807FD584];
@@ -595,7 +599,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_P->unkC8 = -1;
     G00_P->unkCA = 0;
     G00_P->unkC8 = -1;
-    G00_P->unk264 = -new_var;
+    G00_P->unk264 = -1;
     G00_P->unk258 = 1.0f;
     G00_P->unk25C = 1.0f;
     if (flagGet(0xCE, 0) != 0) {
@@ -615,6 +619,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     gPlayerPadState[sel].unk26 = gPlayerPadState[sel].unk28;
     gPlayerPadState[sel].unk20 = gPlayerPadState[sel].unk28;
     gPlayerPadState[sel].unk10 = gPlayerPadState[sel].unk4;
+    if (sel == 0) {}  // FAKE: steers sel/arg1 colouring
     playerResumeLocomotion(D_807FBB48);
     func_806C90C4(arg0);
     func_806C8984();

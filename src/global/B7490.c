@@ -52,7 +52,7 @@ void behaviourFrameBegin(void);
 void func_8067ACB4(Actor *);
 void actorUpdateModelMatrix(void *, s32);
 void effectSpawnSparks(s32, s32);
-s32 actorMoveWithinZone(s32, f32, f32, s32, f32);
+s32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void func_8072A920(s16, s32, f32, f32, f32, s32, f32, f32, s32);
 void func_8072A86C(s16, f32, f32, f32, s32);
 void func_8072B7CC(s32);
@@ -751,16 +751,13 @@ void func_806B4958(void) {
 extern f32 D_807502EC;
 void func_80724CA4(s32, s32);
 
-#ifdef NON_MATCHING
 void actorAirPatrolStep(u8 arg0, s16 arg1, s16 arg2) {
     s16 *temp_v0;
-    s32 *dead1;
-    s32 *dead2;
+    s32 pad1;
+    s32 pad2;
     s16 sp32;
 
     temp_v0 = B7490A->unk178;
-    if (temp_v0 && temp_v0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    dead1 = (s32 *) temp_v0;
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80724CA4(1, 1);
         D_807FDC90->unk30 = D_807FBB40->unk4->unk38;
@@ -768,8 +765,7 @@ void actorAirPatrolStep(u8 arg0, s16 arg1, s16 arg2) {
         *temp_v0 = D_807FDC9C->unkA;
         B7490A->unkC4 = D_807502EC;
     }
-    if (D_807FDC9C && D_807FDC9C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    sp32 = D_807FDC9C->unk6 + *temp_v0;
+    sp32 = D_807FDC9C->unk6 - (0 - *temp_v0);  // FAKE: negated subtrahend flips the commutative + operand order
     if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (arg0 != 0x37)) {
         D_807FBB40->unk154 = 0x37;
         D_807FBB40->unk155[0] = 0;
@@ -782,7 +778,6 @@ void actorAirPatrolStep(u8 arg0, s16 arg1, s16 arg2) {
                 D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
             }
             actorMoveWithinZone(arg0, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, 0xE1, 0.0f);
-            if (temp_v0 && temp_v0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (D_807FBB40->unk80 < (f32) sp32) {
                 if (D_807FBB40->unk155[0] == 2) {
                     D_807FBB40->unk80 = (f32) ((f64) D_807FBB40->unk80 + ((f64) (f32) (u32) D_807FDC9C->unkB * 0.03125));
@@ -798,7 +793,6 @@ void actorAirPatrolStep(u8 arg0, s16 arg1, s16 arg2) {
                 case 1:
                 case 2:
                     actorScriptStart(D_807FBB40, arg2);
-                    if (temp_v0 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     D_807FBB40->unk155[0] = 3;
                 case 3:
                     actorFlyTowardPosition((void *) D_807FDC90, 0x26);
@@ -807,7 +801,6 @@ void actorAirPatrolStep(u8 arg0, s16 arg1, s16 arg2) {
             break;
         case 0x37:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x22, 0.0f);
-            if (temp_v0 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (D_807FBB40->unk6A & 1) {
                 D_807FBB40->unk154 = 0x40;
             }
@@ -818,7 +811,6 @@ void actorAirPatrolStep(u8 arg0, s16 arg1, s16 arg2) {
             func_8072B7CC(arg1);
             break;
     }
-    if (temp_v0 && temp_v0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     switch (arg0) {
         case 2:
         case 3:
@@ -826,17 +818,12 @@ void actorAirPatrolStep(u8 arg0, s16 arg1, s16 arg2) {
             break;
         case 0x26:
             if (patrolPathStep(arg0, 1) != 0) {
-                if (D_807FDC9C && D_807FDC9C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 D_807FBB40->unk154 = D_807FDC9C->unk10;
                 D_807FBB40->unk155[0] = 0;
             }
             break;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/B7490/actorAirPatrolStep.s")
-#endif
 
 void func_806B4DCC(void) {
     f64 temp_f64;
