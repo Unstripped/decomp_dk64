@@ -1,4 +1,4 @@
-// func_80029364 (src/bonus/2690.c): func_80029364 (src/bonus/2690.c): stage 5, deadsweep full=16 text=12 shape=6 (635/635 insns) on the stored draft. R5 W4Mid (no gain): only remaining diff is the else-arm -100 / 1 constants as ring temps t2/t3 (target li v0,-100 / li v1,1 uopt webs in the randomFloat block) -> join lh/lb t4/t5 vs t2/t3 and lw t0,80(sp) after vs before sh t4; plus reloc-only D_8002D8F4 vs D_8002D8F8/FC alias names. Not re-searched this unit: earlier passes (carriers, dead compares, ternary, alias stores, hill-climbs) exhausted the dead-test space.
+// func_80029364 (src/bonus/2690.c): stage 5 PARKED (NON_MATCHING in BonusMenu copy 2690.c), 635/635 insns, deadsweep full=16 text=12 reloc=4 shape=4 (was shape=6 with 2 FAKEs; now FAKE-free: (randomLcgNext() & 3) + 2 inline, no ra local). Remaining diff only: else-arm constants -100/1 are ring temps t2/t3 (target uopt webs v0/v1, li after c.lt.s) + andi v1 vs t3 + lh t2 vs t4 ring chain; reloc-only D_8002D8F4 vs D_8002D8F8/FC. R6 BonusMenu tried: dead compares of -0x64 colour the -100 web (li v0, but li placed before c.lt.s, shifts everything) while the join 1 stays in the big 1-web (47..84) for every dead-compare position/field tried; ring burners x8 (ring never yields v0/v1), sfx proto s16/void/narrow no effect, store spellings off D_8002D8F4, local-k constants, rf local, permuter 600s, deadsweep 2 rounds x 22 syms: no gain.
 typedef struct {
     s16 unk0;
     char pad2[2];
@@ -11,7 +11,7 @@ typedef struct {
     char pad13;
     s16 unk14;
     s16 unk16;
-} QBonSub178;
+} BonusMenu_QSub178;
 
 extern s8 D_8002D8F4;
 extern s16 D_8002D8F8;
@@ -23,7 +23,7 @@ Gfx *func_80029B9C(Gfx *, Actor *);
 
 void func_80029364(void) {
     Struct_7548 *t1 = D_807FBB40->unk174;
-    QBonSub178 *t0 = ((BonusActorExt *)D_807FBB40)->unk178;
+    BonusMenu_QSub178 *t0 = ((BonusActorExt *)D_807FBB40)->unk178;
     Point3f *p;
     f32 y;
     f32 z;
@@ -33,7 +33,6 @@ void func_80029364(void) {
     s32 r;
     u8 c;
     s16 d;
-    s32 ra;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         t1->unk23 = 5;
@@ -101,9 +100,7 @@ void func_80029364(void) {
             ((s16 *)&D_8002D8F4)[2] = j;
             if (j <= 0) {
                 sfxPlayOnFreeSlot(0x1A1, 0x7FFF, 63.0f, 1.0f, 0x50, 0);
-                ra = randomLcgNext() & 3;
-                D_8002D8F8 = (ra + 2) & 0xFFFF /* FAKE: touches one t-temp without code (s16 store drops the mask) */;
-                if (ra == 0) {} // FAKE: promotes the rand()&3 temp (second use) into v1
+                D_8002D8F8 = (randomLcgNext() & 3) + 2;
             }
             d = D_8002D8FC + 1;
             ((s16 *)&D_8002D8F4)[4] = d;

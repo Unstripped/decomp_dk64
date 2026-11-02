@@ -112,7 +112,227 @@ void menuResetCameraAndFlags(MenuScreenActor *arg0, s32 arg1) {
 }
 
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_80027FAC.s")
+typedef struct {
+    s32 unk0;
+    s32 unk4;
+} BonusMenu_Pair;
+
+typedef struct {
+    f32 unk0;
+    f32 unk4;
+    char pad8[0xB];
+    s8 unk13;
+    char pad14[2];
+    s8 unk16;
+    s8 unk17;
+} BonusMenu_S174;
+
+extern s16 D_800336A0;
+extern s16 D_800336A4[];
+extern s16 D_80033724[];
+extern s8 D_800337F0;
+extern s8 D_800337F4;
+extern BonusMenu_Pair D_800337FC;
+extern f32 D_80033F3C;
+extern f32 D_80033F40;
+extern s16 D_80033F52;
+extern s8 D_80033F54;
+extern s8 D_80033F55;
+extern s8 D_80033F56;
+extern f32 D_80033F58;
+extern f32 D_80033F5C;
+extern s8 D_8076A0D2;
+
+void actorFindActiveByType(s32, s32 *);
+void actorScriptStart(void *, s32);
+s32 camIsCutsceneActive();
+void camStartPath(void *, s32, s32);
+s32 flagGet(s16, u8);
+s32 randomLcgNext();
+f32 randomFloat();
+void func_8067AB20(s32, s32, s32, s32, void *, s32);
+void gfxSetBackgroundBlend(f32);
+void lightSetColor(f32, f32, f32, s32);
+void menuHandleScrollInput();
+void menuUpdateItemTransition(void *, MenuScreenState *, s32);
+void menuUpdateScrollAnimation();
+void spawnNodesSetActorStateByFlag(s32, s32);
+
+void func_80027FAC(void *arg0, s32 arg1) {
+    BonusMenu_S174 *var_a3;
+    BonusMenu_Pair sp54;
+    s32 sp50;
+    s8 sp4F;
+    f32 var_ft4;
+    s32 var_v0;
+    s16 sel;
+    s16 var_a1;
+    s16 temp_t2;
+    s16 var_a0_2;
+
+    var_a3 = *(BonusMenu_S174 **)((u8 *)arg0 + 0x174);
+    sp54 = D_800337FC;
+    sp4F = 0;
+    if (D_800337F4 > 0) {
+        D_800337F4 -= 1;
+    } else {
+        D_800337F4 = 0;
+    }
+    D_800337F0 = 0;
+    if (var_a3->unk0 == 0.0f && D_80033F3C == 0.0f && D_800337F4 == 0) {
+        if (var_a3->unk4 == 0.0f) {
+            D_800337F0 = 1;
+            switch (var_a3->unk17) {
+            case 2:
+                if (flagGet(0x1C, 1) == 0) {
+                    D_800337F0 = -1;
+                }
+                break;
+            case 3:
+                if (flagGet(0, 1) == 0) {
+                    D_800337F0 = -1;
+                }
+                break;
+            }
+            menuHandleScrollInput(var_a3, 5, arg1);
+        }
+        menuUpdateScrollAnimation(var_a3, 5);
+    }
+    D_8076A0D2 = 0;
+    if (D_80033F40 != 0.0f) {
+        D_80033F3C += D_80033F40;
+        if (D_80033F3C > 1.0f) {
+            D_80033F3C = 1.0f;
+            var_a3->unk16 = 0;
+            switch (var_a3->unk17) {
+            default:
+                var_a3->unk13 = 2;
+                break;
+            case 1:
+                var_a3->unk13 = 8;
+                break;
+            case 2:
+                var_a3->unk13 = 6;
+                break;
+            case 3:
+                var_a3->unk13 = 0xA;
+                break;
+            case 4:
+                var_a3->unk13 = 9;
+                break;
+            }
+            if (camIsCutsceneActive() != 0) {
+                camEndPath(gCamActor);
+            }
+            spawnNodesSetActorStateByFlag(0x40, 0x3C);
+            if (D_80033F55 != 0) {
+                sp4F = -1;
+            }
+            D_80033F56 = 0;
+        }
+    }
+    menuUpdateItemTransition(arg0, var_a3, 0);
+    D_80033F52 -= 1;
+    if (D_80033F52 <= 0) {
+        switch (D_800336A4[D_80033F54]) {
+        case -2:
+            D_80033F52 = D_800336A4[D_80033F54 + 1];
+            D_80033F54 += 2;
+            sp4F = 1;
+            break;
+        case -3:
+            D_80033F52 = D_800336A4[D_80033F54 + 1];
+            D_80033F54 += 2;
+            sp4F = -1;
+            break;
+        case -4:
+            D_80033F52 = D_800336A4[D_80033F54 + 1];
+            D_80033F54 += 2;
+            D_80033F56 = 1;
+            break;
+        case -5:
+            D_80033F52 = D_800336A4[D_80033F54 + 1];
+            D_80033F54 += 2;
+            D_80033F56 = 0;
+            break;
+        default:
+        if (D_800336A4[D_80033F54] < -5) {
+            sel = -6 - D_800336A4[D_80033F54];
+            if (D_800337F4 == 0) {
+                actorScriptStart(D_807FBB4C, D_80033724[(s16)sel]);
+            }
+            D_80033F52 = D_800336A4[D_80033F54 + 1];
+            D_80033F54 += 2;
+        } else if (D_800336A4[D_80033F54] >= 0) {
+            camStartPath(0, D_800336A4[D_80033F54], 1);
+            D_80033F52 = D_800336A4[D_80033F54 + 1];
+            D_80033F54 += 2;
+        } else {
+            var_a1 = 0;
+            var_a0_2 = (s32)(randomFloat() * 10.0f);
+            D_80033F52 = (randomLcgNext() & 0x7F) + 0x12C;
+            D_80033F54 = 0;
+            if (var_a0_2 >= 0xB) {
+                var_a0_2 = 0;
+            }
+            temp_t2 = var_a0_2;
+            if (D_800336A0 & (1 << var_a0_2)) {
+                do {
+                    if (D_800336A0 && D_800336A0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                    var_a0_2 += 1;
+                    if (var_a0_2 == 0xB) {
+                        var_a0_2 = 0;
+                    }
+                    if (var_a0_2 == temp_t2) {
+                        D_800336A0 = 0;
+                    }
+                } while (D_800336A0 & (1 << var_a0_2));
+            }
+            D_800336A0 |= 1 << var_a0_2;
+            if (var_a0_2 != 0) {
+                do {
+                    if (D_800336A4[D_80033F54] != -1) {
+                        do {
+                            if (D_800337F0 && D_800337F0) {}  // FAKE: deadsweep: steers uopt colouring of the address/const webs
+                            D_80033F54 += 1;
+                        } while (D_800336A4[D_80033F54] != -1);
+                    }
+                    D_80033F54 += 1;
+                    var_a1 += 1;
+                } while (var_a1 != var_a0_2);
+            }
+        }
+        }
+    }
+    if (sp4F != 0) {
+        actorFindActiveByType(0xC, &sp50);
+        if (sp4F < 0) {
+            D_80033F55 = 0;
+            var_v0 = 2;
+        } else {
+            D_80033F55 = 1;
+            var_v0 = 1;
+        }
+        func_8067AB20(gCamActor, sp50, 0x01000000, var_v0 & 0xFF, &sp54, 0);
+    }
+    if (D_80033F56 != 0) {
+        var_ft4 = 0.0f;
+        D_80033F5C += 0.005;
+        if (D_80033F5C > 1.0) {
+            D_80033F5C = 1;
+        }
+    } else {
+        var_ft4 = 1;
+        if (D_80033F5C > 0.0) {
+            D_80033F5C -= 0.005;
+        } else if (D_80033F55 != 0) {
+            var_ft4 = 0.45f;
+        }
+    }
+    D_80033F58 += (var_ft4 - D_80033F58) * 0.01;
+    lightSetColor(D_80033F58 * 0.83 + 0.17, D_80033F58 * 0.8 + 0.2, D_80033F58 * 0.6 + 0.4, -1);
+    gfxSetBackgroundBlend(D_80033F5C);
+}
 
 extern char **D_80033F28;
 s32 func_800317E8(MenuScreenState *, f32, f32, f32 *, f32 *, s32, s8, f32);
@@ -147,17 +367,9 @@ Gfx *func_800286C8(MenuScreenActor *arg0, Gfx *arg1) {
     return textDrawStringVtx(arg1, 1, 0, 0, D_80033F28[spD0], 0x80);
 }
 
-extern s8 D_800337F4;
 extern s8 D_800337F8;
 extern s8 D_8076A0D1[];
 extern s8 D_80033F38;
-extern s8 D_80033F54;
-extern s8 D_80033F55;
-extern s8 D_80033F56;
-extern s16 D_80033F52;
-extern s16 D_800336A4[];
-extern f32 D_80033F58;
-extern f32 D_80033F5C;
 extern u8 D_8072052C;
 extern u8 D_80720C34;
 extern u8 D_80720CF0;
@@ -168,7 +380,6 @@ extern u8 D_807211D0;
 extern u8 D_80721444;
 void func_80030894(MenuScreenState *, void *, s32, s32, f32, s32, s32);
 s32 eepromGetField(s32, s32, u8, s32);
-s32 flagGet(s16, u8);
 
 void func_80028834(MenuScreenActor *arg0, s32 arg1) {
     MenuScreenState *temp_s0 = arg0->unk174;
@@ -216,9 +427,6 @@ void func_80028834(MenuScreenActor *arg0, s32 arg1) {
 void func_80028C18(void) {
 }
 
-void menuHandleScrollInput();
-void menuUpdateScrollAnimation();
-void menuUpdateItemTransition(void *, MenuScreenState *, s32);
 extern s8 D_80033F48;
 
 void menuHandleSelectionInput(MenuScreenActor *arg0, s32 arg1) {
@@ -283,7 +491,6 @@ Gfx *func_80028D3C(MenuScreenActor *arg0, Gfx *arg1) {
     return hudDrawScaledText(arg1, spFC * 4.0f, spF8 * 4.0f, 0.6f, sp2C);
 }
 
-extern s8 D_8076A0D2;
 extern u8 D_80720D14;
 extern u8 D_807204BC;
 
@@ -2411,7 +2618,6 @@ void menuUpdateItemTransition(void *arg0, MenuScreenState *arg1, s32 arg2) {
     }
 }
 
-extern s8 D_800337F0;
 
 
 void menuHandleScrollInput(MenuScreenState *arg0, s32 arg1, s32 arg2) {
@@ -2463,10 +2669,8 @@ typedef struct Menu10_Sub174 {
 extern u8 D_8076A0D0[];
 extern s8 D_80033738;
 extern f32 D_8003369C;
-extern f32 D_80033F3C;
 extern void *D_80033F34;
 extern s8 D_80033F30;
-void actorScriptStart(void *, s32);
 void func_8061B650(s32);
 void func_8060CB9C(void);
 void menuInsertHighScore(void);
@@ -2578,7 +2782,6 @@ void menuInitGfxState(Gfx *glistp, s32 arg1) {
     menuUpdateStateDispatch(arg1, 1, glistp, 0);
 }
 
-extern f32 D_80033F40;
 typedef struct MenuStickAxis {
     char pad0[2];
     s8 unk2;
@@ -2609,7 +2812,6 @@ void func_8002DFA8();
 Gfx *func_8002E420();
 void func_8002E8B8();
 void menuHandleHighScoreNameEntryInput();
-void lightSetColor(f32, f32, f32, s32);
 
 Gfx *menuUpdateStateDispatch(MenuScreenActor *arg0, s32 arg1, Gfx *arg2, s32 arg3) {
     MenuScreenState *temp_t0 = arg0->unk174;
@@ -2910,7 +3112,6 @@ typedef struct Menu10_Spinner {
 } Menu10_Spinner;
 
 extern u8 D_807444FC;
-f32 randomFloat();
 
 void func_80030A90(Menu10_Spinner *arg0, s32 arg1) {
     Menu10_Spin *p;
@@ -3269,7 +3470,6 @@ f32 menuEvaluateSpline(f32 *arg0, f32 arg1, f32 *arg2) {
 }
 
 extern s8 D_80033734;
-void camStartPath(void *, s32, s32);
 
 void menuActorStateDispatch(void) {
     MenuActor *actor = D_807FBB40;
