@@ -2411,6 +2411,7 @@ void func_806F03C4(void) {
         ev = 9;
         camera = &EfECam[gCurrentPlayerIndex];
         break;
+    case 7:  // FAKE: second as1-visible ref to the default label (jump-table hole) keeps its lui out of the entry stall; widens the table to 6 entries (sltiu 6 vs 5)
     default:
         camera = &EfECam[gCurrentPlayerIndex];
         break;
