@@ -1,5 +1,5 @@
-// func_806AD260 (src/global/B1F60.c): func_806AD260 (src/global/B1F60.c): stage 5, 31 insns diff, frame 0x20 matches. Per-arm structure matches target except arm tails load unk154 into a3 instead of a0 + move v0, a0 because P-load candidate 689|0 is colored v0.
-void func_806AD260(arg0, arg1, arg2)
+// actorPatrolFollowerUpdate (src/global/B1F60.c): stage 5, 25 insns diff (was 31): needs file prototype 'void patrolPathStep(u8, u8);' (was s32,s32: u8 first param removes the cvt candidate that stole a3/a1). Remaining: hidden switch temp (cvt cand 23) coloured a1 not v0 (interferes with D_807FBB40 value cand 14 = v0, created by the F1 dead tests), and 0x37 arm tails: mine lui v1/lw v0 pointerised vs target ring t1; t-ring +1 at nested-switch case 0 (ori t0 vs t9)
+void actorPatrolFollowerUpdate(arg0, arg1, arg2)
 s16 arg0;
 u8 arg1;
 u16 arg2;

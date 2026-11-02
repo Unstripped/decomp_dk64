@@ -72,7 +72,7 @@ void actorSetTargetSpeed(Actor *, s32);
 void behaviourSetAnimIds(s32, s32, s32);
 void func_8072B7CC(s32);
 void func_8072C918(s32, s32, s32);
-void patrolPathStep(s32, s32);
+void patrolPathStep(u8, u8);
 void func_8072D714();
 void func_8072DC7C(s32);
 void actorSetDefaultState(s32);

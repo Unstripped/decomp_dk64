@@ -1200,7 +1200,6 @@ void func_8072C870(u8 arg0, u8 arg1, s32 arg2) {
     actorSetBehaviourState(arg0, arg1, arg2);
 }
 
-#ifdef NON_MATCHING
 typedef struct C1Sub4 {
     /* 0x00 */ u8 pad0[0x64];
     /* 0x64 */ u16 unk64;
@@ -1339,7 +1338,7 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
                 return;
             }
         case 0x23:
-            if (C1D90->unk36 == ret) {
+            if ((ret ^ 0) == C1D90->unk36) { // FAKE: flips beq operand order (field left)
             } else if ((sp4D == 0) || ((s32)ret >= 7)) {
                 func_8072C870(type, C1D9C->unkD, arg2);
                 return;
@@ -1402,10 +1401,6 @@ void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
             break;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/func_8072C918.s")
-#endif
 
 typedef struct D1Pair {
     /* 0x00 */ u8 a;
@@ -1514,20 +1509,20 @@ typedef struct PatrolActorView {
 
 u8 patrolPathStep(u8 arg0, u8 arg1)
 {
-  u8 p1;
+  u8 q1;
   u8 p2;
-  u8 p3;
+  u8 key;
   u8 type;
   s16 x;
-  s16 y;
   s16 z;
+  s16 y;
   u8 moved;
-  u8 q1;
   u8 q2;
+  u8 p3;
   u8 new_var;
-  u8 key;
-  s32 v;
+  u8 p1;
   s32 idx;
+  s32 v;
   s32 dir;
   s32 off;
   idx = (dir = ((PatrolState *) D_807FDC90)->unk25);
@@ -1557,6 +1552,7 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
   {
     case 0x49:
       v = idx + 1;
+      if (D_807FDCA0 == 0) {}  // FAKE: steers uopt colouring
       key = (v < ((D1Dc9cViewG *) D_807FDC9C)->unk11) ? (v) : (0);
       v = mathAngleBetweenPoints2D(((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[key].a * 10)))->x, ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[key].a * 10)))->z, x, z);
       ((PatrolActorView *) D_807FBB40)->unkEE = v;
@@ -1568,6 +1564,7 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
       ((PatrolState *) D_807FDC90)->unkA = x;
       ((PatrolState *) D_807FDC90)->unkC = y;
       ((PatrolState *) D_807FDC90)->unkE = z;
+      type = type ^ 0;  // FAKE: steers uopt colouring
       break;
 
     case 2:

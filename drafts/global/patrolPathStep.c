@@ -1,4 +1,4 @@
-// patrolPathStep (src/global/12E800.c): stage 5: 374 insns (exact size 0x5D8, 413 lines, frame 0x38, reloc=0); fixed key stack slot 42(sp), fixed unkEE/unkE6 store order; remaining diffs 168/374 regalloc only (dir in t3 vs ra, idx in t2 vs t3, key in t1 vs t2, table in a3 vs t0, off in ra vs t9)
+// patrolPathStep (src/global/12E800.c): stage 5, deadsweep full 180 -> 168 (text 175 -> 164, +2 reloc lines from FAKE dead test); regalloc only: dir t3 vs ra, idx t2 vs t3, key t1 vs t2, table(uixa cand 18) a3 vs t0, off ra vs t9. Trace: dir (cand 0, adjsave 1.33) is coloured BEFORE the &D_807FDC90/&D_807FBB40 consts (target colours it last -> ra); table cand 18 gets a3 where target forbids a3. Tried: x/dir/idx statement spellings (+100 worse), 60k-compile hill-climb of decl swaps / x=x / dead tests (180->168).
 typedef struct PatrolState {
     /* 0x00 */ u8 pad0[0xA];
     /* 0x0A */ s16 unkA;
@@ -55,20 +55,20 @@ typedef struct PatrolActorView {
 
 u8 patrolPathStep(u8 arg0, u8 arg1)
 {
-  u8 p1;
+  u8 q1;
   u8 p2;
-  u8 p3;
+  u8 key;
   u8 type;
   s16 x;
-  s16 y;
   s16 z;
+  s16 y;
   u8 moved;
-  u8 q1;
   u8 q2;
+  u8 p3;
   u8 new_var;
-  u8 key;
-  s32 v;
+  u8 p1;
   s32 idx;
+  s32 v;
   s32 dir;
   s32 off;
   idx = (dir = ((PatrolState *) D_807FDC90)->unk25);
@@ -98,6 +98,7 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
   {
     case 0x49:
       v = idx + 1;
+      if (D_807FDCA0 == 0) {}  // FAKE: steers uopt colouring
       key = (v < ((D1Dc9cViewG *) D_807FDC9C)->unk11) ? (v) : (0);
       v = mathAngleBetweenPoints2D(((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[key].a * 10)))->x, ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[key].a * 10)))->z, x, z);
       ((PatrolActorView *) D_807FBB40)->unkEE = v;
@@ -109,6 +110,7 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
       ((PatrolState *) D_807FDC90)->unkA = x;
       ((PatrolState *) D_807FDC90)->unkC = y;
       ((PatrolState *) D_807FDC90)->unkE = z;
+      type = type ^ 0;  // FAKE: steers uopt colouring
       break;
 
     case 2:
