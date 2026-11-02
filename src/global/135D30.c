@@ -216,25 +216,22 @@ u8 func_80731654(s16 arg0, s16 arg1) {
     return 0;
 }
 
-#ifdef NON_MATCHING
 extern FlagTableEntry D_80755DA8[];
 
 s32 spawnFlagLookup(s16 arg0, s16 arg1, s32 *arg2) {
-    FlagTableEntry *e; s32 n = 0x1F; s32 i; s16 val = arg0;
-    *arg2 = 0; for (i = 0; i < n; ) {
+    FlagTableEntry *e; s32 n = 0x1F; s32 i; s16 val = arg0; // LAYOUT: one line (as1 prologue order)
+    *arg2 = 0; for (i = 0; i < n; ) { // LAYOUT: joined with the loop header
         e = D_80755DA8 + i;
         if (val == e->unk0 && arg1 == e->unk2) {
             return e->unk4;
         }
         *arg2 = i + 1;
-        i++;
+        i |= 0; // FAKE: no-code def kills the i + 1 CSE so the store keeps a ring temp
+        i = *arg2;
     }
     return -1;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/135D30/spawnFlagLookup.s")
-#endif
 s32 spawnFlagConditionMet(s16 arg0, s16 arg1) {
     s32 r;
     s32 idx;

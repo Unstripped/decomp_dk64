@@ -1,4 +1,4 @@
-// zoneCheckActorInside (src/global/1295B0.c): Stage 5 park, score 4 (was 26): regalloc only, 142/142 insns, frame 0x68, s/f regs exact. Remaining: 'andi v0,a1,0x7f' selector expr is coloured v0 by uopt, target t9 (ring temp; 3 uses cross blocks). 3 FAKEs: if (e->flags) {}, if (i == 5) {}, if (arg3) {} (hill-climb, all 3 needed; any removal -> 16+). Tried: switch (selector v0, selector-left beq, wrong const order), locals/types for flags, i as u8/u16/s32, no-e F1ENT inline, raw reads, x=x at every boundary, 5k-step dead-test hill-climb.
+// zoneCheckActorInside (src/global/1295B0.c): Stage 5 park, score 4: regalloc only, 142/142 insns, frame 0x68. Remaining: 'andi v0,a1,0x7f' selector coloured v0 by uopt, target t9 ring temp shared by 3 compare blocks (as1 puts that andi in the bnez delay slot of the 0x80 test). 3 FAKEs (e->flags, i == 5, arg3). W3IntB tried: switch with fallthrough case 5 (13, selector-left beq), goto/flag switch forms (23-24), 25k-step hill-climb incl. dead stores (x=0), x|0, x&MASK forms: none below 4.
 #include "common.h"
 #include "actor.h"
 

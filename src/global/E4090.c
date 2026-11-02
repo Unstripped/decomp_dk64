@@ -341,8 +341,8 @@ u16 inputRemapButtons(u16 arg0, u16 *arg1) {
             var_v1 |= var_v0;
             if (&arg0) {} // FAKE: pins arg0 in memory
             arg1++;
-            if (var_v0 & arg0) {} // FAKE: makes the and-result a uopt candidate
-            if (var_v0 & arg0) {
+            if ((u32)var_v0 & arg0) {} // FAKE: makes the and-result a uopt candidate
+            if ((u32)var_v0 & arg0) {
                 var_a2 |= arg1[0];
             }
             var_v0 = arg1[1];

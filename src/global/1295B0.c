@@ -1564,7 +1564,6 @@ u8 spawnNodeActorInRangeAndVisible(SpawnNode *arg0, s32 arg1) {
     return ret;
 }
 
-#ifdef NON_MATCHING
 u8 spawnNodeActorOutOfRangeOrHidden(SpawnNode *arg0, s32 arg1) {
     f32 dx;
     f32 dy;
@@ -1574,8 +1573,8 @@ u8 spawnNodeActorOutOfRangeOrHidden(SpawnNode *arg0, s32 arg1) {
     dz = C1PLAYERS[0].unk218 - arg0->unk18->unk84;
     dx = C1PLAYERS[0].unk210 - arg0->unk18->unk7C;
     dy = C1PLAYERS[0].unk214 - arg0->unk18->unk80;
-    if (arg0) {} // FAKE: steers ret candidate / schedule
     ret = arg1 < (dz * dz) + ((dx * dx) + (dy * dy));
+    dx = 0.0f; // FAKE: dead store kills the store-forwarding of the compare into the ret test (ret stays v1, bnezl)
     if (ret == 0) {
         ret = (arg0->unk18->unk5C & 0x40) == 0;
         if (ret != 0) {
@@ -1587,10 +1586,6 @@ u8 spawnNodeActorOutOfRangeOrHidden(SpawnNode *arg0, s32 arg1) {
     }
     return ret;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/spawnNodeActorOutOfRangeOrHidden.s")
-#endif
 
 u8 spawnNodeActorOutOfRangeScaled(SpawnNode *arg0, s32 arg1) {
     f32 dz;
