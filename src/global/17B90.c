@@ -609,7 +609,67 @@ u8 arg1;
 #endif
 
 
+#ifdef NON_MATCHING
+typedef struct {
+    void *unk0;
+    void *unk4;
+    void *unk8;
+    void *unkC;
+} SmallAControllerAnimDataView;
+
+typedef struct {
+    void *unk0;
+    SmallAControllerAnimDataView *unk4;
+} SmallAControllerAnimRefView;
+
+typedef struct {
+    u8 pad0[0x84];
+    s32 unk84;
+} SmallAControllerAnimDataBlock;
+
+
+int controllerAnimCacheFree(void *arg0, void *arg1) {
+    void *temp_a2;
+    s32 i;
+    s32 count;
+    struct AnimCacheEntry *entry;
+    struct AnimCacheEntry *last;
+
+    temp_a2 = *(void **)arg1;
+    if (temp_a2 != NULL) {
+        count = *(u16 *)&D_807FBB32;
+        entry = D_807FB7B0;
+        i = 0;
+        if (count && count) {} // FAKE: steers loop-latch slt (blocks LFTR i != count)
+        if (count > 0) {
+            do {
+                if (temp_a2 == entry->asset) {
+                    if (--entry->refCount == 0) {
+                        assetFreeBuffer(entry->asset, 0x298, 0x15);
+                        *(u16 *)&D_807FBB32 -= 1;
+                        last = &D_807FB7B0[*(u16 *)&D_807FBB32];
+                        entry->id = last->id;
+                        entry->asset = last->asset;
+                        entry->refCount = last->refCount;
+                        last->id = 0xFFFF;
+                        last->asset = NULL;
+                        last->refCount = 0;
+                    }
+                    break;
+                }
+                entry++;
+            } while (++i < count);
+        }
+        *(void **)arg1 = NULL;
+    }
+    if ((void *)arg1 == ((SmallAControllerAnimRefView *)arg0)->unk4->unk4) {
+        ((SmallAControllerAnimDataBlock *)((SmallAControllerAnimRefView *)arg0)->unk4)->unk84 = 0;
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimCacheFree.s")
+#endif
 
 typedef struct { u8 pad[0x14]; f32 a; f32 b; } AnimScaleState;
 typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } AnimScaleSpan;

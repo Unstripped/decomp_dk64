@@ -1,4 +1,4 @@
-// func_8064AC28 (src/global/478F0.c): UNPARKED 2026-11-02: park was 317 insns vs target 316 (count-inexact parks stay drafts); func_8064AC28 (src/global/478F0.c): stage 4, 19 diff lines (unchanged). Diff = target keeps a SECOND copy of p in a0 across the join (then-branch: move a0,v1; addiu s0,v1,6; else-branch: lw a0,164(sp) coloured a0, move v1,a0) and does NOT PRE p+6; ours PREs p+6 into a0 (then: addiu a0,v1,6; move s0,a0; else: inserted addiu a0,t0,6). Tried leftovers-5: extra copy local q=p (copy-propagated away, only grows frame: 45), join-init p+6 spellings (all fold), then/join loop index/pointer/do-while/for forms (instruction count changes 338-341, none <19), alloc/store-order variants (>=19), deadsweep 3828 variants incl. --extra p e j i allDone n best pl: no improvement.
+// func_8064AC28 (src/global/478F0.c): Cs 2026-11-02: stage 3-4 (blocks/frame same, count 338 lines vs target 340 = 2 insns short, deadsweep full 19 -> 9, shape 4). KEY lever: first-loop init e = (CsEntryView *)((u32)p | 0) (FAKE) blocks copy-propagation of e = p, so uopt no longer PREs p + 6 into both arms (old diff: a0 = p+6 temp + 'addiu a0,t0,6' in the else); p then lives in a0 in both arms. Remaining diff: target keeps TWO webs of p at the join (then: lw v1,164(sp); sb 24(v1); move a0,v1; addiu s0,v1,6. else: lw a0,164(sp) ... move v1,a0; join part[0] stores via a0, p+6/unk4F via v1), ours one web (a0) + li s6,9 placement. Tried: join stores/loop-2 init/unk4F/unk4E/else stores/then init each as p vs (u32)p|0 copy (256 combos, none gives the dual web: |0 is a reload, not a copy), q = p copies at pre/then/else/ends/join (copy-propagated, frame 4 lower), loop 1/2 pointer vs index vs do-while forms, loop 2 started from i=0 (e=p; peeled by uopt), e2/f/g extra pointer vars, chained/split heapAlloc stores, 2 annealers (~11k evals), permuter (useless score 870+). Count-exact (340) variants exist only with moved stores (diff 15).
 void csModelStateSetFirstByte(s16, s16);
 extern u8 gPlayerCharacterId;
 typedef struct CsEntry {
@@ -43,7 +43,7 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
         p = *(CsEntrySet **)cs = heapAlloc(0x50);
         p->unk4E = 0;
         if (flagGet(0x146, 0) != 0) {
-            e = (CsEntryView *)p;
+            e = (CsEntryView *)((u32)p | 0); // FAKE: blocks copy-propagation of e = p (stops uopt PRE'ing p + 6 into both arms)
             for (i = 0; i < 9; i++) { e->state = 3; e = (CsEntryView *)((u8 *)e + 6); }
         } else {
             p->part[2].state = 2;

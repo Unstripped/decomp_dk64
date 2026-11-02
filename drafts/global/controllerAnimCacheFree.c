@@ -1,44 +1,42 @@
-// controllerAnimCacheFree (src/global/17B90.c): UNPARKED 2026-11-02: park was 68 insns vs target 67 (count-inexact parks stay drafts); controllerAnimCacheFree (src/global/17B90.c): stage 5; frame 0x28 matches; score 25 (down from 26): count/last_idx via `*(u16 *)&D_807FBB32` + void* params to avoid prototype warnings; remaining: &D_807FBB32 colour t1 vs a3, count a3 vs a0 (extra count spill from the `count && count` dead test), spill slot 28 vs 24
+// controllerAnimCacheFree (src/global/17B90.c): SmallA W6: stage 5, count EXACT (67 insns), frame 0x28 + spill slot 24 match, score 2 (was 25 with count 68): *(u16*)&D_807FBB32 -= 1; last = &tbl[*(u16*)&D_807FBB32] (no last_idx local => ring temps t1/t2 and &D_807FBB32 in a3), locals temp_a2 i count entry last (temp_a2 declared first), 1 FAKE 'if (count && count) {}' before the guard (blocks the i<count -> bne LFTR, keeps slt at). Remaining: 'sh t2,0(a3)' scheduled 3 slots early (target after li t9,0xffff); in ours ugen emits sh right after addiu; target needs the sh later in ucode order (store after last->id load) but E-1 is not CSE'd across the s32 field stores (late store reloads E: 77-78 insns); named last_idx/i/count reuse, idx local, 'D -= 1' at every statement position, (u16)D var forms all worse
 typedef struct {
     void *unk0;
     void *unk4;
     void *unk8;
     void *unkC;
-} ControllerAnimDataView;
+} SmallAControllerAnimDataView;
 
 typedef struct {
     void *unk0;
-    ControllerAnimDataView *unk4;
-} ControllerAnimRefView;
+    SmallAControllerAnimDataView *unk4;
+} SmallAControllerAnimRefView;
 
 typedef struct {
     u8 pad0[0x84];
     s32 unk84;
-} ControllerAnimDataBlock;
+} SmallAControllerAnimDataBlock;
+
 
 int controllerAnimCacheFree(void *arg0, void *arg1) {
-    void *temp_a2 = *(void **)arg1;
+    void *temp_a2;
     s32 i;
-    struct AnimCacheEntry *entry;
     s32 count;
-    s32 last_idx;
+    struct AnimCacheEntry *entry;
     struct AnimCacheEntry *last;
 
-    if (D_807FBB32 && D_807FBB32) {} // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    temp_a2 = *(void **)arg1;
     if (temp_a2 != NULL) {
         count = *(u16 *)&D_807FBB32;
         entry = D_807FB7B0;
         i = 0;
-        if (D_807FBB32 && D_807FBB32) {} // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (count && count) {} // FAKE: steers loop-latch slt (blocks LFTR i != count)
         if (count > 0) {
             do {
                 if (temp_a2 == entry->asset) {
                     if (--entry->refCount == 0) {
                         assetFreeBuffer(entry->asset, 0x298, 0x15);
-                        if (count && count) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                        last_idx = *(u16 *)&D_807FBB32 - 1;
-                        last = &D_807FB7B0[(u16)last_idx];
-                        D_807FBB32 = last_idx;
+                        *(u16 *)&D_807FBB32 -= 1;
+                        last = &D_807FB7B0[*(u16 *)&D_807FBB32];
                         entry->id = last->id;
                         entry->asset = last->asset;
                         entry->refCount = last->refCount;
@@ -53,7 +51,7 @@ int controllerAnimCacheFree(void *arg0, void *arg1) {
         }
         *(void **)arg1 = NULL;
     }
-    if ((void *)arg1 == ((ControllerAnimRefView *)arg0)->unk4->unk4) {
-        ((ControllerAnimDataBlock *)((ControllerAnimRefView *)arg0)->unk4)->unk84 = 0;
+    if ((void *)arg1 == ((SmallAControllerAnimRefView *)arg0)->unk4->unk4) {
+        ((SmallAControllerAnimDataBlock *)((SmallAControllerAnimRefView *)arg0)->unk4)->unk84 = 0;
     }
 }

@@ -1,4 +1,4 @@
-// mapChunksInitFromMapData (src/global/55B20.c): UNPARKED 2026-11-02: park was 523 insns vs target 527 (count-inexact parks stay drafts); L650ECC stage 4, unchanged best (387 full / shape 75, deadsweep score; park in src was 454). MapB revisit-5 findings: (1) expected keeps arg0 in s7, -1 in s8; in the 2nd (chunk) loop the 4x val+(arg0+base) sum is NOT hoisted (recomputed lw 3788(sp); addu each arm) while mine hoists it into s6 (saved-reg pressure: expected s0 = &gMapChunks[i] CSE candidate, s1 IV, s2 p, s3 &gMapChunks, s4 shared by off64 then total, s5 255, s6 i). (2) w=arg0+off, w4=w+4, colOff are spilled locals (84/88/92 sp) set in the preheader; loop reads *(s32*)(w4+colOff)+(s32)w; restoring w/w4 locals and sharing off/total made it 417-426 (arg0 slips to s8 without the fakes). (3) setup temps are v1/a0/a1 (single-use offset vars) with sum in v0; D_807F6C20/D_807F6C1C are NOT lui/addiu-pointerized in expected (mine pointerizes because of the FAKE dead tests; without FAKEs arg0 spills: 105 prefix diff). (4) heapAlloc(D_807F6C20) is a reload (lw a0,lo(a0)) after the stores in expected, forwarded value in mine. Tried: clean (no-FAKE) body 511, park form 454, off/o1..o5/x,y,z offset-var maps (all prefix 105 without fakes), (arg0+base) commutative spellings x6 (uopt canonicalises, no change).
+// mapChunksInitFromMapData (src/global/55B20.c): Map r6: stage 3->4-: COUNT EXACT 527/527 insns, 43/43 blocks, same callee-saved set; frame 3808 vs 3800 (+8: count@124 vs 116, buf@128 vs 120) and regalloc diff; deadsweep full 393 / shape 107 (prev draft 387/75 had 523 insns; 417/96 plain w/w4/colOff locals 521 insns). Levers: volatile w/w4/colOff locals (target spills them to 84/88/92 sp: mine otherwise IV-pointerises them into an s-reg, -4 insns), q = w4 + colOff base pointer, w/w4/colOff=0 assigned inside the gMapChunkCount>0 block (not before heapAlloc). Remaining: ours hoists &buf into s8 (target s8=-1, &buf rebuilt addiu a2,sp,120 per call), pointerises D_807F6C20/6C1C/6C0C (target lui at; sw per store), j spilled (112) vs s1.
 void mapChunksInitFromMapData(MapData *arg0) {
     s32 i;
     s32 off;
@@ -8,7 +8,10 @@ void mapChunksInitFromMapData(MapData *arg0) {
     u8 *p;
     u32 total;
     s32 j;
-    s32 colOff;
+    volatile s32 colOff;  // FAKE: volatile home reproduces the target's spilled 84/88/92(sp) slots
+    volatile s32 w;  // FAKE: volatile home reproduces the target's spilled 84/88/92(sp) slots
+    volatile s32 w4;  // FAKE: volatile home reproduces the target's spilled 84/88/92(sp) slots
+    s32 q;
 
     D_807F70AC = 0;
     D_807F713A = 0;
@@ -33,12 +36,10 @@ void mapChunksInitFromMapData(MapData *arg0) {
         p = (u8 *)arg0 + arg0->unk70;
         D_807F6C10 = *(s32 *)p;
         D_807F6C0C = p + 4;
-        if (D_807F5DE8 && D_807F5DE8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         for (i = 0; i < D_807F6C10; i++) {
             if (((MapRelocEntry *)D_807F6C0C)[i].unk8 != -1) {
                 ((MapRelocEntry *)D_807F6C0C)[i].unk8 += (s32)((u8 *)arg0 + base);
             }
-            if (!D_807F6C1C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (((MapRelocEntry *)D_807F6C0C)[i].unkC != -1) {
                 ((MapRelocEntry *)D_807F6C0C)[i].unkC += (s32)((u8 *)arg0 + base);
             }
@@ -47,6 +48,8 @@ void mapChunksInitFromMapData(MapData *arg0) {
         p = (u8 *)arg0 + j;
         i = 0;
         if (gMapChunkCount > 0) {
+            w4 = (s32)arg0 + off + 4;
+            w = (s32)arg0 + off;
             colOff = 0;
             do {
                 count = 0;
@@ -57,11 +60,8 @@ void mapChunksInitFromMapData(MapData *arg0) {
                 gMapChunks[i].unk24 = 0;
                 gMapChunks[i].unk7 = 4;
                 gMapChunks[i].unk54 = *(s32 *)(p + 0x2C) + D_807F5DE8;
-                if (D_807F70B0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 gMapChunks[i].unk58 = gMapChunks[i].unk54;
                 lightSetTargetColor(p[0] / 255.0, p[1] / 255.0, p[2] / 255.0, (s16)i);
-                if (!D_807F6C0C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                if (D_807F6C14 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 lightCopyTargetColors((s16)i);
                 gMapChunks[i].unk6 = p[3];
                 p += 0xC;
@@ -91,8 +91,8 @@ void mapChunksInitFromMapData(MapData *arg0) {
                     mapChunkBuildCellTable(gMapChunks[i].unk30, gMapChunks[i].unk40, buf, &count, 1, i);
                 }
                 j = *(s32 *)p;
-                if (D_807F6C0C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 if (j != -1) {
+                    if (D_807F70AC && D_807F70AC) {}  // FAKE: dead statement (steers uopt colouring)
                     j = *(s32 *)p = j + (s32)((u8 *)arg0 + base);
                 }
                 p += 8;
@@ -102,12 +102,11 @@ void mapChunksInitFromMapData(MapData *arg0) {
                 if (gMapChunks[i].unk5 == 2) {
                     mapChunkBuildCellTable(gMapChunks[i].unk34, gMapChunks[i].unk44, buf, &count, 2, i);
                 }
-                if (D_807F70AC != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 j = *(s32 *)p;
                 if (j != -1) {
-                    if (!D_807F70B4) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     j = *(s32 *)p = j + (s32)((u8 *)arg0 + base);
                 }
+                if (base != 0) {}  // FAKE: dead statement (steers uopt colouring)
                 p += 8;
                 gMapChunks[i].unk38 = j;
                 gMapChunks[i].unk48 = *(s32 *)(p - 4);
@@ -122,13 +121,13 @@ void mapChunksInitFromMapData(MapData *arg0) {
                 p += 8;
                 gMapChunks[i].unk60 = 0;
                 gMapChunks[i].unk64 = 0;
-                gMapChunks[i].unk78 = *(s32 *)((u8 *)arg0 + off + 4 + colOff) + ((s32)arg0 + off);
-                if (!D_807F6C2C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                gMapChunks[i].unk7C = *(s32 *)((u8 *)arg0 + off + 4 + colOff + 0xC) + ((s32)arg0 + off);
-                gMapChunks[i].unk80 = *(s16 *)((u8 *)arg0 + off + 4 + colOff + 4);
-                gMapChunks[i].unk82 = *(s16 *)((u8 *)arg0 + off + 4 + colOff + 6);
-                gMapChunks[i].unk84 = *(s16 *)((u8 *)arg0 + off + 4 + colOff + 8);
-                gMapChunks[i].unk86 = *(s16 *)((u8 *)arg0 + off + 4 + colOff + 0xA);
+                q = w4 + colOff;
+                gMapChunks[i].unk78 = *(s32 *)q + w;
+                gMapChunks[i].unk7C = *(s32 *)(q + 0xC) + w;
+                gMapChunks[i].unk80 = *(s16 *)(q + 4);
+                gMapChunks[i].unk82 = *(s16 *)(q + 6);
+                gMapChunks[i].unk84 = *(s16 *)(q + 8);
+                gMapChunks[i].unk86 = *(s16 *)(q + 0xA);
                 gMapChunks[i].unk28 = -1;
                 if (count != 0) {
                     gMapChunks[i].unk4C = heapAlloc(count * 0x24);
@@ -143,19 +142,23 @@ void mapChunksInitFromMapData(MapData *arg0) {
             } while (i < gMapChunkCount);
         }
         gMapGridTrianglePlanes = heapAlloc(D_807F6C20 / 2 * 0x30);
+        if (i && i) {}  // FAKE: dead statement (steers uopt colouring)
         for (i = 0; i < D_807F6C20 / 2; i++) {
+            if (D_807F6C14) {}  // FAKE: dead statement (steers uopt colouring)
+            if (D_807F7079) {}  // FAKE: dead statement (steers uopt colouring)
             mapGridTriangleBuildPlane(i, (u8 *)gMapGridTrianglePlanes + i * 0x30);
-            if (D_807F70AA) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
         D_807F7079 = 1;
+        if (D_807F70AA && D_807F70AA) {}  // FAKE: dead statement (steers uopt colouring)
+        if (D_807F707A) {}  // FAKE: dead statement (steers uopt colouring)
         D_807F7078[0] = 1;
         p = D_807F707A;
         do {
             *p++ = 1;
             *p++ = 1;
+            if (gMapChunks && gMapChunks) {}  // FAKE: dead statement (steers uopt colouring)
             *p++ = 1;
             *p++ = 1;
-            if (D_807F707A) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         } while (p != &D_807F70AA);
         D_807F70AA = 0;
     } else {

@@ -1,4 +1,4 @@
-// textDrawStringVtx (src/global/100180.c): UNPARKED 2026-11-02: park was 473 insns vs target 470 (count-inexact parks stay drafts); Text R5: stage 6, parked NON_MATCHING; deadsweep score full=183 shape=66 (was 198/78), 493 vs 490 lines; first 126 lines of the objdump now identical (flags spill 92(sp) fixed). Lever: gfx-pointer local sites remapped (hill-climb over which of g1..g12 each TEXT_GFX_* macro site uses, cfe-level homes per declared local shift the uopt spill slots): 'g8,g8,g3,g12,g2,g6,g3,g8,g7,g10,g11,g1,g1'; merge of g5->g2 alone gives 186. Left: fi (t3) spilled at 112 in prologue where target keeps it in t3 until 88; ring numbering t5/t6/t7 vs target t6/t7/t8 after func_805FD030; target spills yoff/h4/w/h at 131/126/122/120. Dead-test hill-climb (38k iters, guards on locals/params), self-store ring steps, FAKE-free decl merges: no further gain.
+// textDrawStringVtx (src/global/100180.c): Text U6: stage 5 NON_MATCHING park in copy: count EXACT now (490 insns, same frame 0xC8/callee-saved), deadsweep full=196 shape=79 (prev park 183/66 was 493 insns). Found by decl-order/type hill-climb (locked line/idx/ch/startX/center/started/pad/yoff types): s16 count, u32 i, u8 w/h, reordered decls. Still left (stack offsets/regs only): fi (t3) prologue spill sw t3,124(sp) in ours (target keeps t3), line (u8 @199 in target) loaded into s6 by target but a3 in ours, yoff must live in a3 (target sll/sra a3 in place, sb a3,131 spill only around the font-sheet call) - ours stores yoff at def. vtxSetQuadGradientColors 3-param (definition) prototype raises count to 492-495: keep the 4-param phantom (void *, u8, u8, s8).
 extern Mtx D_20000C0;
 extern Gfx D_2000180;
 Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
@@ -14,38 +14,38 @@ void vtxSetQuadGradientColors(void *, u8, u8, s8);
     TEXT_GFX_CMD(g, _SHIFTL(G_VTX, 24, 8) | _SHIFTL((n), 12, 8) | _SHIFTL((v0) + (n), 1, 7), (unsigned int)(v))
 
 Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
-    u8 line;
-    u8 idx;
+    s16 h4;
     u8 ch;
+    u8 idx;
     s16 startX;
     u8 *strStart;
     Gfx *g1;
-    Gfx *g2;
-    Gfx *g3;
+    Gfx *g12;
+    Gfx *g6;
     Vtx *batch;
     s8 pad;
     u8 center;
     u8 started;
-    Gfx *g6;
-    Gfx *g8;
     Gfx *g10;
-    Gfx *g11;
-    Gfx *g7;
-    Gfx *g12;
-    s8 yoff;
-    s16 gx;
-    s16 h4;
     s16 w4;
-    s16 w;
-    s16 h;
-    s32 count;
-    s32 i;
+    u8 h;
+    s8 yoff;
+    u32 i;
+    Vtx *vp;
+    Gfx *g8;
     s32 len;
     s32 tmp;
+    Gfx *g7;
+    Gfx *g3;
+    u8 w;
+    s16 gx;
     u8 *fi;
     u8 *glyph;
-    Vtx *vp;
+    u8 line;
+    Gfx *g2;
     s16 *v;
+    s16 count;
+    Gfx *g11;
 
     idx = 0;
     startX = x;
@@ -101,14 +101,14 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                         w = w4;
                         h = h4;
                         w4 = w4 * 4;
-                        if (count && count) {}
-                        if (count && count) {}
+                        if (count && count) {} // FAKE: count web
+                        if (count && count) {} // FAKE: count web
                         h4 = h4 * 4;
                         gx = *(s16 *)glyph;
                         if (center) {
                             tmp = (fi[5] * 4 - w4) / 2;
                             if (tmp < 0) {
-                                if (yoff == 0) {}
+                                if (yoff == 0) {} // FAKE: yoff web
                                 pad = 0;
                             } else {
                                 pad = tmp;
@@ -140,7 +140,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                             v[24] = x;
                             v[26] = -5;
                             v[28] = gx << 6;
-                            if (count && count) {}
+                            if (count && count) {} // FAKE: count web
                             v[29] = 0;
                             vp++;
                             vp++;
@@ -187,7 +187,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                 while (i-- > 0) {
                     TEXT_GFX_QUAD(g1, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
                 }
-                if (count) {}
+                if (count) {} // FAKE: count web
                 count = 0;
             }
             str = strStart;

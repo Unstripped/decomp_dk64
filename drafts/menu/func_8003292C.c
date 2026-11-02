@@ -1,4 +1,4 @@
-// func_8003292C (src/menu/E550.c): func_8003292C (src/menu/E550.c): stage 4 park; R5 Menu: full diff 161 -> 137 (shape 111; 416 target insns vs 417) via declaration reorder + 2 guarded dead tests (if (x && x) after x = 0 in the inner-loop head, if (spC0) after the loop). Untouched root cause: uopt colours yo (adjsave 15.5: 2 uses in bb9 + def in bb8) before yy/yyo (adjsave 10) so ours yo=a1,yy=a2,yyo=a3 vs target yy=a1,yyo=a2,yo=t0,xo=t4; ours 0.5f (adjsave 3.75 over bb8-18) beats 204.0f (3.33) for f0 (target 204.0=f0, 0.5=f2); u16 x emits andi v1,t0,0xffff (target plain move; s32 x moves x to t0 and y to v1: worse); ours 0.5f args are mfc1 a3 (shared web), target lui a3,0x3f00 (literal spelled .5f for the two args gives the lui). Tried: 2^10 literal-spelling grid (0.5f/82.0f/204.0f sites), yy/yyo inline/s32/explicit y=yy copy, nx temp for the loop compare, 4x 9-minute hill-climbs (decl order, types, dead tests, spellings; best 122-133 only with 8+ fakes or unsafe type narrowing), permuter 560s (garbage).
+// func_8003292C (src/menu/E550.c): MenuA 2026-11-02: stage 4, COUNT-EXACT (416 insns, frame 232, s0-s8), harness diff 135 (shape 109), parked in copy. Count fix: a separate 's16 xx;' local for the tail value 'xx = (s32)((f32)D_80744490 * 0.5f) * 4;' passed as 'xx' (not '(s16)x' of the u16 x) to both hudDrawScaledText calls: removes the double narrowing (417 -> 416; the target's tail keeps one s16 local in s0). 's32 xx' stays 417. Remaining (R5 notes still hold): uopt colours yo (adjsave 15.5) before yy/yyo so ours yo=a1,yy=a2,yyo=a3 vs target yy=a1,yyo=a2,yo=t0,xo=t4; 0.5f beats 204.0f for f0; loop tail ours 'andi v1,t0,0xffff' (u16 x) vs target 'move v1,t0'; spills 84/80/76(sp) vs target 96/80/72. Tried this unit: 14.7k-eval anneal over local types x declaration order (never count-exact without xx), 13.4k dead-test climb (23 forms), 12-site RHS wrapper anneal (14.8k): no gain.
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 extern s16 D_80744490;
@@ -18,6 +18,7 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
     s32 y;
     s32 xo;
     u16 x;
+    s16 xx;
     char *spCC;
     char *spC8;
     char *spC4;
@@ -69,7 +70,7 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
     gDPSetCombine(dl++, 0xFF97FF, 0xFF2CFE7F);
     dl = textDrawStringVtx(dl, 1, (s16)(x * 4), (s16)((s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0) * 4), spCC, 0);
-    x = (s32)((f32)D_80744490 * 0.5f) * 4;
+    xx = (s32)((f32)D_80744490 * 0.5f) * 4;
     off = D_8074450C * 0xC8;
-    return hudDrawScaledText(hudDrawScaledText(dl, (s16)x, (s16)(off * 4), 0.5f, spC8), (s16)x, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), 0.5f, spC4);
+    return hudDrawScaledText(hudDrawScaledText(dl, xx, (s16)(off * 4), 0.5f, spC8), xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), 0.5f, spC4);
 }

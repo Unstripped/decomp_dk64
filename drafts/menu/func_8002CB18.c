@@ -1,4 +1,4 @@
-// func_8002CB18 (src/menu/3E10.c): UNPARKED 2026-11-02: park was 293 insns vs target 291 (count-inexact parks stay drafts); func_8002CB18 (src/menu/3E10.c): stage 5 (frame 0x68, all slots match), harness diff 72 -> 4: FAKE 'sp5C = (f32 *)((u32)sp5C | 0)' after 'sp4F = 1' in the spawn block burns a ugen t-ring temp so the later D_80033878/D_80033894 lui regs match. Remaining: the FAKE leaves an lw/sw pair of sp5C (92(sp)) and 'lw t6,0(s0); sb t5,79(sp)' order. 'sp4F = sp4F * 1' variant leaves lb/sb of 79(sp) instead (also 4). 5 hill-climb runs over ~25 dead-test/no-code forms. || W3IntC 2026-11-02 (still 4: FAKE leaves lw/sw of 92(sp) + t6/t8 for the A load). Without the FAKE the then-branch matches and the first diff is the else-branch 'lui t9 D_80033878' (ours t8), 72 total: one ugen ring step missing in/after the then-branch. Annealed (2 runs ~40k evals, 55 no-code forms on locals/pointers/globals/fields, sp4F/sp5C/sp54 variants, dead FP tests): no no-code form reproduces the step; every candidate that burns it is a stack/field self-assign that emits lw/sw (sp5C, sp4F) or nothing.
+// func_8002CB18 (src/menu/3E10.c): MenuA 2026-11-02: stage 5, COUNT-EXACT (335 insns, frame 0x68), harness diff 12 (shape 0), parked in copy. 'Menu6B_N->unk155 = (u16)idx; // FAKE' (RHS narrowing cast burns one ugen t-ring temp; also '& 0xFF'/'& 0xFFFF' same) replaces the old sp5C|0 FAKE whose lw/sw pair made it 337 (diff 4). Remaining: then-branch ring after the cast: target 'lh v0,76(sp)' (idx coloured v0) ours 'lh t2,76(sp)', then li t5/t6 and every later t-reg +1 (join block regs match). Cast on N->unk154 RHS ('& 0xFF', 14) keeps lh v0 but swaps t1/t2 earlier. Tried: 1338-cell fake grid (7 locals x 6 no-code forms x all points: idx|0 = count-exact 27), dead self-stores, 341 RHS-wrapper cells + 23-site wrapper anneal (7.7k evals), idx type x wrapper, LHS byte-index spellings, deadsweep sweep (6.8k variants), permuter (base 60, never lower).
 typedef struct MenuModelScale {
     char pad0[0x34];
     f32 unk34;
@@ -85,16 +85,15 @@ void func_8002CB18(void) {
                 *q = *sp38;
             }
             Menu6B_N->unk154 = Menu6B_A->unk154;
-            Menu6B_N->unk155 = idx;
+            Menu6B_N->unk155 = (u16)idx; // FAKE: no-op narrowing cast; burns one ugen t-ring temp so the join block luis get the target regs (72 -> 12)
             {
                 Menu6_Sub174 *sub = Menu6B_N->unk174;
                 sub->unk0 = temp_s1->unk0;
             }
             sp4F = 1;
-            sp5C = (f32 *)((u32)sp5C | 0); // FAKE: no-op self-store; burns one ugen t-ring temp so the later D_80033878/D_80033894 luis get the target's regs (72 -> 4 insn diff; leaves an lw/sw pair)
-        }
+                    }
         row = &D_80033894[Menu6B_A->unk154];
-        func_800317E8(sp5C, row->a, row->b, &sp54, &sp50, 2, 0, 1.8f);
+        func_800317E8((MenuScreenState *)sp5C, row->a, row->b, &sp54, &sp50, 2, 0, 1.8f);
         Menu6B_A->unk7C = D_807FBB4C->unk7C + (sp54 - 160.0f);
         Menu6B_A->unk80 = (D_807FBB4C->unk80 - (sp50 - 120.0f)) - 20.0f;
         Menu6B_A->unk84 = D_807FBB4C->unk84 - 300.0f;
@@ -106,7 +105,7 @@ void func_8002CB18(void) {
     } else {
         idx = D_80033F24[sel & 0xF];
         temp_s1_2 = 0x140 / D_80033878;
-        func_800317E8(sp5C, 160.0f, 150.0f, &sp54, &sp50, 2, 0, 1.8f);
+        func_800317E8((MenuScreenState *)sp5C, 160.0f, 150.0f, &sp54, &sp50, 2, 0, 1.8f);
         sp54 = (idx * temp_s1_2 + (temp_s1_2 >> 1)) - 0xA0;
         sp54 = sp54 * 0.78;
         Menu6B_A->unk7C = D_807FBB4C->unk7C + sp54;
