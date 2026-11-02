@@ -1,5 +1,4 @@
-// func_80613944 (src/global/17B90.c): stage 5; frame 0x28 matches target; score 26 (down from 29 after deadsweep); struct member copy order matches (id, asset, refCount)
-// deadsweep round 1: full=26 text=26 inserted `if (count && count) {}` at line 37
+// controllerAnimCacheFree (src/global/17B90.c): controllerAnimCacheFree (src/global/17B90.c): stage 5; frame 0x28 matches; score 25 (down from 26): count/last_idx via `*(u16 *)&D_807FBB32` + void* params to avoid prototype warnings; remaining: &D_807FBB32 colour t1 vs a3, count a3 vs a0 (extra count spill from the `count && count` dead test), spill slot 28 vs 24
 typedef struct {
     void *unk0;
     void *unk4;
@@ -17,8 +16,8 @@ typedef struct {
     s32 unk84;
 } CtrlA_AnimData;
 
-int func_80613944(CtrlA_ControllerAnimView *arg0, void **arg1) {
-    void *temp_a2 = *arg1;
+int controllerAnimCacheFree(void *arg0, void *arg1) {
+    void *temp_a2 = *(void **)arg1;
     s32 i;
     struct AnimCacheEntry *entry;
     s32 count;
@@ -27,7 +26,7 @@ int func_80613944(CtrlA_ControllerAnimView *arg0, void **arg1) {
 
     if (D_807FBB32 && D_807FBB32) {} // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (temp_a2 != NULL) {
-        count = (u16)D_807FBB32;
+        count = *(u16 *)&D_807FBB32;
         entry = D_807FB7B0;
         i = 0;
         if (D_807FBB32 && D_807FBB32) {} // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -37,7 +36,7 @@ int func_80613944(CtrlA_ControllerAnimView *arg0, void **arg1) {
                     if (--entry->refCount == 0) {
                         assetFreeBuffer(entry->asset, 0x298, 0x15);
                         if (count && count) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                        last_idx = D_807FBB32 - 1;
+                        last_idx = *(u16 *)&D_807FBB32 - 1;
                         last = &D_807FB7B0[(u16)last_idx];
                         D_807FBB32 = last_idx;
                         entry->id = last->id;
@@ -52,9 +51,9 @@ int func_80613944(CtrlA_ControllerAnimView *arg0, void **arg1) {
                 entry++;
             } while (++i < count);
         }
-        *arg1 = NULL;
+        *(void **)arg1 = NULL;
     }
-    if ((void *)arg1 == arg0->unk4->unk4) {
-        ((CtrlA_AnimData *)arg0->unk4)->unk84 = 0;
+    if ((void *)arg1 == ((CtrlA_ControllerAnimView *)arg0)->unk4->unk4) {
+        ((CtrlA_AnimData *)((CtrlA_ControllerAnimView *)arg0)->unk4)->unk84 = 0;
     }
 }

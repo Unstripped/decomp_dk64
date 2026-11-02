@@ -16,7 +16,58 @@ void controllerAnimFreeSub();
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimStateLoadAsset.s")
 
+#ifdef NON_MATCHING
+typedef struct RvR2_Cmd {
+    u32 unk0;
+    u32 unk4;
+} RvR2_Cmd;
+void gfxSwapGeometryModeCullBits(RvR2_Cmd *arg0, RvR2_Cmd *arg1) {
+    u32 w0;
+    u32 w1;
+    s32 x1;
+    s32 x2;
+    w1 = 0; // FAKE: pre-loop def, extends w1 web over the loop (regalloc)
+    w0 = 0; // FAKE: pre-loop def (regalloc)
+    x2 = 0; // FAKE: pre-loop def (regalloc)
+    if (arg0 != arg1) {
+        do {
+            w0 = arg0->unk0;
+            w1 = arg0->unk4;
+            if ((w0 >> 24) == 0xD9) {
+                if (arg0->unk4 == 0) {
+                    w0 = ~w0 & 0xFFFFFF;
+                    if ((w0 & 0x600) == 0x200) {
+                        x1 = w0 | 0x400;
+                        x1 &= ~0x200;
+                        arg0->unk0 = ~x1 | 0xD9000000;
+                    } else if ((w0 & 0x600) == 0x400) {
+                        x2 = w0 | 0x200;
+                        x2 &= ~0x400;
+                        arg0->unk0 = ~x2 | 0xD9000000;
+                    }
+                } else {
+                    if ((w1 & 0x600) == 0x200) {
+                        arg0->unk4 |= 0x400;
+                        arg0->unk4 &= ~0x200;
+                    } else if ((w1 & 0x600) == 0x400) {
+                        arg0->unk4 |= 0x200;
+                        if (x2 && x2) {} // FAKE: dead test, steers uopt colouring
+                        arg0->unk4 &= ~0x400;
+                    }
+                    if (w0 && w0) {} // FAKE: dead test, steers uopt colouring
+                }
+            }
+            arg0++;
+            if (arg0 == arg1) {
+                break;
+            }
+        } while (1);
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/gfxSwapGeometryModeCullBits.s")
+#endif
 
 void func_80613194(ControllerView *arg0, s16 arg1) {
     if (arg0->unk50 == NULL) {
@@ -55,23 +106,26 @@ void *heapAlloc(s32);
 void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg1, ControllerSubNode **arg2) {
     ControllerSubCmd *curr;
     ControllerSubCmd *search;
-    ControllerSubNode **tail;
     ControllerSubNode *node;
     u32 cmd0;
     u32 id;
     s32 found;
+    u32 op;
+    u32 sub;
     u32 search_cmd;
-
-    tail = arg2;
     curr = arg0;
     if (arg0 != arg1) {
         do {
             cmd0 = curr->unk0;
-            if (((cmd0 >> 24) == 0xDE) && (((cmd0 >> 16) & 0xFF) == 1)) {
+            op = cmd0 >> 24;
+            sub = (cmd0 >> 16) & 0xFF;
+            if ((op == 0xDE) && (sub == 1)) {
                 id = (curr->unk4 << 4) >> 28;
+                if (op && op) {} // FAKE: dead statement (steers uopt colouring)
                 search = arg0;
                 found = 0;
                 if (arg0 != arg1) {
+                    if (sub != 0) {} // FAKE: dead statement (steers uopt colouring)
                     do {
                         search_cmd = search->unk0;
                         if (((search_cmd >> 24) == 0) && (id == search->unk4)) {
@@ -82,8 +136,8 @@ void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg
                     } while (!found && (search != arg1));
                 }
                 node = heapAlloc(sizeof(ControllerSubNode));
-                *tail = node;
-                tail = &node->next;
+                *arg2 = node;
+                arg2 = &node->next;
                 node->unk8 = id;
                 node->unk0 = curr + 1;
                 node->unk4 = search;
@@ -91,7 +145,7 @@ void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg
             curr++;
         } while (curr != arg1);
     }
-    *tail = NULL;
+    *arg2 = NULL;
 }
 #else
 
@@ -404,6 +458,7 @@ u8 arg1;
     ControllerCmdListB *cmdList;
     AnimStateSlot *last;
     u32 val;
+    s16 idx;
     switch (arg1) {
     case 0:
         sub = arg0->unk0;
@@ -432,23 +487,23 @@ u8 arg1;
         }
 
         if (--entry->unk2 == 0) {
+            cmd = sub->commands->start;
             cmdList = sub->commands;
-            cmd = cmdList->start;
             if (cmd != (ControllerCmdB *)cmdList) {
                 do {
-                    if ((cmd->unk0 >> 24) == (0, 0xFD)) {
+                    val = cmd->unk0;
+                    if ((val >> 24) == (0, 0xFD)) {
                         val = cmd->unk4;
                         if ((val >= 0x80000000) && (val < 0xA0000000)) {
                             assetFreeBuffer((void *)(val ^ 0), 0x270, 0x15);
                         }
                     }
-                    cmd++;
-                } while (cmd != (ControllerCmdB *)cmdList);
+                } while (++cmd != (ControllerCmdB *)cmdList);
             }
 
-            val = (u16)D_807FBB30 - 1;
-            last = (AnimStateSlot *)&D_807FB630[(u16)val];
-            D_807FBB30 = val;
+            idx = (u16)D_807FBB30 - 1;
+            last = (AnimStateSlot *)&D_807FB630[(u16)idx];
+            D_807FBB30 = idx;
 
             entry->unk0 = last->unk0;
             entry->unk4 = last->unk4;
@@ -461,6 +516,7 @@ u8 arg1;
             last->unk2 = 0;
 
             assetFreeBuffer((void *)sub, 0x281, 0x15);
+            if (idx != 0) {} // FAKE: dead test, keeps idx referenced (colours the lhu temp)
         }
     }
 }
@@ -469,7 +525,69 @@ u8 arg1;
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimFreeSub.s")
 #endif
 
+#ifdef NON_MATCHING
+typedef struct {
+    void *unk0;
+    void *unk4;
+    void *unk8;
+    void *unkC;
+} CtrlA_ControllerAnimData;
+
+typedef struct {
+    void *unk0;
+    CtrlA_ControllerAnimData *unk4;
+} CtrlA_ControllerAnimView;
+
+typedef struct {
+    u8 pad0[0x84];
+    s32 unk84;
+} CtrlA_AnimData;
+
+int controllerAnimCacheFree(void *arg0, void *arg1) {
+    void *temp_a2 = *(void **)arg1;
+    s32 i;
+    struct AnimCacheEntry *entry;
+    s32 count;
+    s32 last_idx;
+    struct AnimCacheEntry *last;
+
+    if (D_807FBB32 && D_807FBB32) {} // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (temp_a2 != NULL) {
+        count = *(u16 *)&D_807FBB32;
+        entry = D_807FB7B0;
+        i = 0;
+        if (D_807FBB32 && D_807FBB32) {} // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (count > 0) {
+            do {
+                if (temp_a2 == entry->asset) {
+                    if (--entry->refCount == 0) {
+                        assetFreeBuffer(entry->asset, 0x298, 0x15);
+                        if (count && count) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                        last_idx = *(u16 *)&D_807FBB32 - 1;
+                        last = &D_807FB7B0[(u16)last_idx];
+                        D_807FBB32 = last_idx;
+                        entry->id = last->id;
+                        entry->asset = last->asset;
+                        entry->refCount = last->refCount;
+                        last->id = 0xFFFF;
+                        last->asset = NULL;
+                        last->refCount = 0;
+                    }
+                    break;
+                }
+                entry++;
+            } while (++i < count);
+        }
+        *(void **)arg1 = NULL;
+    }
+    if ((void *)arg1 == ((CtrlA_ControllerAnimView *)arg0)->unk4->unk4) {
+        ((CtrlA_AnimData *)((CtrlA_ControllerAnimView *)arg0)->unk4)->unk84 = 0;
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimCacheFree.s")
+#endif
 
 typedef struct { u8 pad[0x14]; f32 a; f32 b; } AnimScaleState;
 typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } AnimScaleSpan;
@@ -505,15 +623,16 @@ void func_80613C48(struct ControllerStateView *, s16, f32, f32);
 void func_80613AF8(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     s16 flag;
     s16 index;
-    s32 value;
-
+    s32 sum;
     if (arg1 >= 0) {
         flag = arg1 & 0x4000;
         index = arg1 - flag;
-        if (gActivePlayerState && gActivePlayerState) {} // FAKE: dead test steers uopt
+        arg1 = arg1 & -1; // FAKE: no-code def, advances ugen ring / raises arg1 refs
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = index;
-        value = ((ControllerStateParamView *)arg0)->unk58;
-        arg1 = D_807FBB58[(u32)(((index * 7 + value) - 2) & 0xFFFF)] + flag;
+        if (flag == 0) {} // FAKE: dead test, steers flag into v1
+        sum = index * 7 + ((ControllerStateParamView *)arg0)->unk58;
+        sum -= 2;
+        arg1 = D_807FBB58[(u32)(sum & 0xFFFF)] + flag;
     } else {
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = arg1;
     }
@@ -531,15 +650,16 @@ void controllerAnimSetState(struct ControllerStateView *, s16, f32, f32);
 void func_80613BA0(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     s16 flag;
     s16 index;
-    s32 value;
-
+    s32 sum;
     if (arg1 >= 0) {
         flag = arg1 & 0x4000;
         index = arg1 - flag;
-        if (gActivePlayerState && gActivePlayerState) {} // FAKE: dead test steers uopt
+        arg1 = arg1 & -1; // FAKE: no-code def, advances ugen ring / raises arg1 refs
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = index;
-        value = ((ControllerStateParamView *)arg0)->unk58;
-        arg1 = D_807FBB58[(u32)(((index * 7 + value) - 2) & 0xFFFF)] + flag;
+        if (flag == 0) {} // FAKE: dead test, steers flag into v1
+        sum = index * 7 + ((ControllerStateParamView *)arg0)->unk58;
+        sum -= 2;
+        arg1 = D_807FBB58[(u32)(sum & 0xFFFF)] + flag;
     } else {
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = arg1;
     }

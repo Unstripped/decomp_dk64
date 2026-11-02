@@ -1,4 +1,4 @@
-// controllerAnimFreeSub (src/global/17B90.c): stage 5: frame 0x40 and 7 saved regs match; u8 unk8 matched lbu/sb, (u16)D_807FBB30-1 matched lhu, &D_807FB630[32] matched 99c-9d0; remaining diff is D_807FB7B0 preheader order
+// controllerAnimFreeSub (src/global/17B90.c): controllerAnimFreeSub (src/global/17B90.c): stage 5; frame 0x40 + s0-s6 match; score ~7 (down from 35, scored with the func_806138B0 tail joined): `val = cmd->unk0; if ((val >> 24) == 0xFD)` reuse of val (v0), `cmd = sub->commands->start` before cmdList, `++cmd != cmdList` latch, s16 idx + dead idx test; remaining: preheader addiu order (needs reloc D_807FB7B0 vs &D_807FB630[32]), lhu temp s0 vs t3
 #include "common.h"
 
 typedef struct {
@@ -35,9 +35,9 @@ typedef struct {
     u16 unk2;
     u32 unk4;
     u8 unk8;
-} CtrlB_StateEntry;
+} AnimStateSlot;
 
-extern CtrlB_StateEntry D_807FB630[];
+extern AnimStateSlot D_807FB630[];
 extern s16 D_807FBB30;
 
 void controllerAnimFreeSub(arg0, arg1)
@@ -45,12 +45,12 @@ ControllerViewB *arg0;
 u8 arg1;
 {
     ControllerSubB *sub;
-    CtrlB_StateEntry *entry;
+    AnimStateSlot *entry;
     ControllerCmdB *cmd;
     ControllerCmdListB *cmdList;
-    CtrlB_StateEntry *last;
+    AnimStateSlot *last;
     u32 val;
-
+    s16 idx;
     switch (arg1) {
     case 0:
         sub = arg0->unk0;
@@ -67,35 +67,35 @@ u8 arg1;
     }
 
     if (sub != NULL) {
-        entry = (CtrlB_StateEntry *)D_807FB630;
+        entry = (AnimStateSlot *)D_807FB630;
         do {
             if (entry->unk4 == (u32)sub) {
                 break;
             }
-        } while (++entry != (CtrlB_StateEntry *)&D_807FB630[32]);
+        } while (++entry != (AnimStateSlot *)&D_807FB630[32]);
 
-        if (entry == (CtrlB_StateEntry *)D_807FB7B0) {
+        if (entry == (AnimStateSlot *)D_807FB7B0) {
             return;
         }
 
         if (--entry->unk2 == 0) {
+            cmd = sub->commands->start;
             cmdList = sub->commands;
-            cmd = cmdList->start;
             if (cmd != (ControllerCmdB *)cmdList) {
                 do {
-                    if ((cmd->unk0 >> 24) == (0, 0xFD)) {
+                    val = cmd->unk0;
+                    if ((val >> 24) == (0, 0xFD)) {
                         val = cmd->unk4;
                         if ((val >= 0x80000000) && (val < 0xA0000000)) {
                             assetFreeBuffer((void *)(val ^ 0), 0x270, 0x15);
                         }
                     }
-                    cmd++;
-                } while (cmd != (ControllerCmdB *)cmdList);
+                } while (++cmd != (ControllerCmdB *)cmdList);
             }
 
-            val = (u16)D_807FBB30 - 1;
-            last = (CtrlB_StateEntry *)&D_807FB630[(u16)val];
-            D_807FBB30 = val;
+            idx = (u16)D_807FBB30 - 1;
+            last = (AnimStateSlot *)&D_807FB630[(u16)idx];
+            D_807FBB30 = idx;
 
             entry->unk0 = last->unk0;
             entry->unk4 = last->unk4;
@@ -108,6 +108,7 @@ u8 arg1;
             last->unk2 = 0;
 
             assetFreeBuffer((void *)sub, 0x281, 0x15);
+            if (idx != 0) {} // FAKE: dead test, keeps idx referenced (colours the lhu temp)
         }
     }
 }

@@ -1,4 +1,4 @@
-// controllerBuildSubcommandList (src/global/17B90.c): stage 4+: matches frame 0x38, callee-saved set s0-s7,ra, stack layout; score 17 (plain C without (0,X) fakes; ~10 lines regalloc diff in entry save scheduling and inner loop)
+// controllerBuildSubcommandList (src/global/17B90.c): controllerBuildSubcommandList (src/global/17B90.c): stage 4+; frame/regs/layout match; score 2 (down from 17): tail pointer is arg2 itself (no `tail` copy: fixes entry `move s5,a2`), op/sub locals (`op = cmd0 >> 24; sub = (cmd0 >> 16) & 0xFF;`) + dead tests `op && op`, `sub != 0` give v1/v0/a0 loop values; remaining 2 lines: bne operand order (const left in ours) and `srl a0` in bne delay slot (target hoists it above bne)
 typedef struct ControllerSubCmd {
     u32 unk0;
     u32 unk4;
@@ -16,23 +16,26 @@ void *heapAlloc(s32);
 void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg1, ControllerSubNode **arg2) {
     ControllerSubCmd *curr;
     ControllerSubCmd *search;
-    ControllerSubNode **tail;
     ControllerSubNode *node;
     u32 cmd0;
     u32 id;
     s32 found;
+    u32 op;
+    u32 sub;
     u32 search_cmd;
-
-    tail = arg2;
     curr = arg0;
     if (arg0 != arg1) {
         do {
             cmd0 = curr->unk0;
-            if (((cmd0 >> 24) == 0xDE) && (((cmd0 >> 16) & 0xFF) == 1)) {
+            op = cmd0 >> 24;
+            sub = (cmd0 >> 16) & 0xFF;
+            if ((op == 0xDE) && (sub == 1)) {
                 id = (curr->unk4 << 4) >> 28;
+                if (op && op) {} // FAKE: dead statement (steers uopt colouring)
                 search = arg0;
                 found = 0;
                 if (arg0 != arg1) {
+                    if (sub != 0) {} // FAKE: dead statement (steers uopt colouring)
                     do {
                         search_cmd = search->unk0;
                         if (((search_cmd >> 24) == 0) && (id == search->unk4)) {
@@ -43,8 +46,8 @@ void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg
                     } while (!found && (search != arg1));
                 }
                 node = heapAlloc(sizeof(ControllerSubNode));
-                *tail = node;
-                tail = &node->next;
+                *arg2 = node;
+                arg2 = &node->next;
                 node->unk8 = id;
                 node->unk0 = curr + 1;
                 node->unk4 = search;
@@ -52,5 +55,5 @@ void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg
             curr++;
         } while (curr != arg1);
     }
-    *tail = NULL;
+    *arg2 = NULL;
 }
