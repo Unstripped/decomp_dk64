@@ -1908,7 +1908,6 @@ void modelSlotGetTransformVectors(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32
     *arg8 = MODEL_SLOT_VEC(arg0)->unk1C;
 }
 
-#ifdef NON_MATCHING
 typedef struct ModelTransformPlayerTarget {
     /* 0x00 */ u8 pad0[0x7C];
     /* 0x7C */ f32 unk7C;
@@ -1964,7 +1963,7 @@ void collisionTransformNode(s32, void *, f32, f32, f32, f32, f32, f32, f32);
 void modelSlotBuildTriangleBufferThunk(s32, void *, f32, f32, f32, f32, f32, f32, f32);
 void actorUpdateEntryCoordinates(s16, f32, f32, f32, f32, f32);
 
-#define MODEL_TRANSFORM_PLAYER(i) ((ModelTransformPlayer *)((u8 *)gPlayerSlots + ((((((i) << 2) - (i)) << 4) - (i)) << 4)))
+#define MODEL_TRANSFORM_PLAYER(i) ((ModelTransformPlayer *)((u8 *)gPlayerSlots + (i) * 0x2F0U))
 #define MODEL_TRANSFORM_SLOT0 ((ModelTransformSlot *)((u8 *)D_807F6000 + arg0 * 0x90))
 #define MODEL_TRANSFORM_SLOT ((ModelTransformSlot *)((u8 *)D_807F6000 + off))
 
@@ -1973,11 +1972,13 @@ void modelSlotTransformBoundsAndNodes(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f3
     ModelSlotVectors *p;
     s16 sp76;
     u8 flag;
-    u8 i;
+    u8 sel;
+    s32 i;
     s32 off;
 
     flag = 0;
     if (arg13 == 1) {
+        if (arg0) {}  // FAKE: dead test raises arg0 candidate priority (steers uopt colouring)
         arg0 = hashTableLookup(arg0);
     }
     if (arg12) {
@@ -1999,6 +2000,7 @@ void modelSlotTransformBoundsAndNodes(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f3
         MODEL_TRANSFORM_SLOT->unk0 = arg1;
         MODEL_TRANSFORM_SLOT->unk4 = arg2;
         MODEL_TRANSFORM_SLOT->unk8 = arg3;
+        if (flag) {}  // FAKE: dead test raises flag candidate priority (steers uopt colouring)
         v1 = MODEL_TRANSFORM_SLOT;
         switch (v1->unk86) {
             case 2:
@@ -2051,7 +2053,8 @@ void modelSlotTransformBoundsAndNodes(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f3
         v1 = MODEL_TRANSFORM_SLOT;
     }
     if (v1->unk7C != NULL) {
-        switch (v1->unk7C->unk67) {
+        sel = v1->unk7C->unk67;
+        switch (sel) {
             case 0:
                 flag = 1;
                 break;
@@ -2061,13 +2064,9 @@ void modelSlotTransformBoundsAndNodes(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f3
                     if (gPlayerCount > 0) {
                         do {
                             if (MODEL_TRANSFORM_PLAYER(i)->unk0 != 0) {
-                                s32 hit = collisionCheckBoundingBoxY((u8 *)(off + (s32)D_807F6000 + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk80) != 0;
-                                if (hit != 0) {
-                                    hit = collisionCheckBoundingBoxXZ((u8 *)(off + (s32)D_807F6000 + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84) != 0;
-                                }
-                                flag |= hit;
+                                flag |= collisionCheckBoundingBoxY(((u8 *)off + (s32)D_807F6000 + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk80) != 0 && collisionCheckBoundingBoxXZ(((u8 *)off + (s32)D_807F6000 + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84) != 0;
                             }
-                            i++;
+                            i = (u8)(i + 1);
                         } while (i < gPlayerCount);
                         v1 = MODEL_TRANSFORM_SLOT;
                     }
@@ -2079,11 +2078,9 @@ void modelSlotTransformBoundsAndNodes(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f3
                     if (gPlayerCount > 0) {
                         do {
                             if (MODEL_TRANSFORM_PLAYER(i)->unk0 != 0) {
-                                flag |= collisionCheckBoundingBoxXZ((u8 *)(off + (s32)D_807F6000 + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84);
-                                if (i == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                                flag |= collisionCheckBoundingBoxXZ(((u8 *)off + (s32)D_807F6000 + 0x54), MODEL_TRANSFORM_PLAYER(i)->unk4->unk7C, MODEL_TRANSFORM_PLAYER(i)->unk4->unk84);
                             }
-                            if (gPlayerSlots == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                            i++;
+                            i = (u8)(i + 1);
                         } while (i < gPlayerCount);
                         v1 = MODEL_TRANSFORM_SLOT;
                     }
@@ -2092,7 +2089,7 @@ void modelSlotTransformBoundsAndNodes(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f3
             case 3:
             case 4:
                 if (gPlayerSlots != 0) {
-                    flag = activeActorBoxOverlapTest(v1->unk0, v1->unk4, v1->unk8, v1->unk7C->unk68, v1->unk7C->unk6A, v1->unk7C->unk6C, v1->unk7C->unk67 == 3 ? 0xEF : 1);
+                    flag = activeActorBoxOverlapTest(v1->unk0, v1->unk4, v1->unk8, v1->unk7C->unk68, v1->unk7C->unk6A, v1->unk7C->unk6C, sel == 3 ? 0xEF : 1);
                     v1 = MODEL_TRANSFORM_SLOT;
                 }
                 break;
@@ -2108,10 +2105,6 @@ void modelSlotTransformBoundsAndNodes(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f3
     v1 = MODEL_TRANSFORM_SLOT;
     modelSlotBuildNodePosList(arg0, (ModelVertTable *)v1->unk24, v1->unk0, v1->unk4, v1->unk8, v1->unk10, v1->unk14, v1->unk18, v1->unkC, 1);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/modelSlotTransformBoundsAndNodes.s")
-#endif
 
 typedef struct ActorBoundsView {
     /* 0x00 */ u8 pad0[0x5C];
