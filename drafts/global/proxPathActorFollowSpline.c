@@ -1,4 +1,4 @@
-// proxPathActorFollowSpline (src/global/133A90.c): Stage 5: 441/441 insns, frame 0x288 exact, all 28 stack slots exact match (target f64 temp@64, idx@72, savedScale@208 matched via pad2[4], int idx before savedScale, and deadsweep if (D_807F6000 && D_807F6000) {}); remaining diff pure regalloc (idx v1 vs v0 and temporary registers)
+// proxPathActorFollowSpline (src/global/133A90.c): Stage 5 (revisit5 Prox): deadsweep score 162 -> 11 (frame 0x288, 487 vs 486 insns). Fixes: second index is idx2=arg3+1 (s8 var, wrap case passes arg3+1, compare idx2==unk7); guMtxXFMF length via named f32 (yaw reuse: coloured f2 candidate, fixed FP ring 162->47); lerp operand order unk10 + (unk12-unk10)*arg4 (fixed 2 add.s). Two no-code defs 'idx = idx & 0xFF;' before call 1 and 'arg3 = arg3 & 0xFF;' in the b>1 branch (found by pair search) gave idx v0. Remaining: extra 'sb s0,663(sp)' (param-home store from the arg3 def; without that def 19 lines, idx2 v1/ring), t7/t8 ring + v0/v1 temp at idx=(s8)(arg3-1), a2 reload order. Tried: s8/int/u8 idx(2) types, casts, copy locals, dead tests on idx/arg3 (u8) conversions, 44k pair/ single no-code and dead-test sweeps.
 typedef struct H1ActorB {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ ActorSub4 *unk4;
@@ -63,13 +63,16 @@ void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg
             idx = 0;
         }
     }
+    idx = idx & 0xFF; // FAKE: no-code def, idx coloured v0
     proxPathInterpolatePosition(idx, a, arg2, &p0[0], &p0[1], &p0[2]);
     one = 1.0f;
     b = arg4 + 0.1;
     idx2 = arg3;
     if (b > 1.0) {
         b = b - 1.0;
-        if ((s8)(arg3 + 1) == arg2->unk7) {
+        idx2 = arg3 + 1;
+        arg3 = arg3 & 0xFF; // FAKE: no-code def (extra arg3 reference steers idx2 colouring; costs 1 sb)
+        if (idx2 == arg2->unk7) {
             idx2 = arg2->unk7 - 1;
             b = 1.0f;
         }
@@ -93,7 +96,8 @@ void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg
     guAlignF(m2, yaw, p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]);
     guMtxCatF(m1, m2, m1);
     guRotateF(m3, arg0->unkE6 / 4095.0 * 360.0, 0.0f, one, 0.0f);
-    guMtxXFMF(m3, 0.0f, 0.0f, -((arg2->unk34[arg3].unk8 + (arg2->unk34[arg3].unkC - arg2->unk34[arg3].unk8) * arg4)) * arg1->unk148, &ox, &oy, &oz);
+    yaw = arg2->unk34[arg3].unk8 + (arg2->unk34[arg3].unkC - arg2->unk34[arg3].unk8) * arg4;
+    guMtxXFMF(m3, 0.0f, 0.0f, -yaw * arg1->unk148, &ox, &oy, &oz);
     guTranslateF(m2, ox, oy, oz);
     guMtxCatF(m1, m2, m1);
     guMtxCatF(m1, m2, m1);
@@ -110,8 +114,8 @@ void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg
     if (arg1->unk148 > 1.0) {
         arg1->unk148 = one;
     }
-    arg1->unk19C = (s16)((arg2->unk34[arg3].unk12 - arg2->unk34[arg3].unk10) * arg4 + arg2->unk34[arg3].unk10);
-    arg1->unk19E = (s16)((arg2->unk34[arg3].unk16 - arg2->unk34[arg3].unk14) * arg4 + arg2->unk34[arg3].unk14);
+    arg1->unk19C = (s16)(arg2->unk34[arg3].unk10 + (arg2->unk34[arg3].unk12 - arg2->unk34[arg3].unk10) * arg4);
+    arg1->unk19E = (s16)(arg2->unk34[arg3].unk14 + (arg2->unk34[arg3].unk16 - arg2->unk34[arg3].unk14) * arg4);
     switch (arg2->unk4) {
     case 1:
     case 2:

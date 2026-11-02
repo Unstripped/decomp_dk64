@@ -728,13 +728,16 @@ void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg
             idx = 0;
         }
     }
+    idx = idx & 0xFF; // FAKE: no-code def, idx coloured v0 (forbidden-v0 call-arg use moves)
     proxPathInterpolatePosition(idx, a, arg2, &p0[0], &p0[1], &p0[2]);
     one = 1.0f;
     b = arg4 + 0.1;
     idx2 = arg3;
     if (b > 1.0) {
         b = b - 1.0;
-        if ((s8)(arg3 + 1) == arg2->unk7) {
+        idx2 = arg3 + 1;
+        arg3 = arg3 & 0xFF; // FAKE: no-code def (extra arg3 reference steers idx2 colouring; costs 1 sb)
+        if (idx2 == arg2->unk7) {
             idx2 = arg2->unk7 - 1;
             b = 1.0f;
         }
@@ -758,7 +761,8 @@ void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg
     guAlignF(m2, yaw, p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]);
     guMtxCatF(m1, m2, m1);
     guRotateF(m3, arg0->unkE6 / 4095.0 * 360.0, 0.0f, one, 0.0f);
-    guMtxXFMF(m3, 0.0f, 0.0f, -((arg2->unk34[arg3].unk8 + (arg2->unk34[arg3].unkC - arg2->unk34[arg3].unk8) * arg4)) * arg1->unk148, &ox, &oy, &oz);
+    yaw = arg2->unk34[arg3].unk8 + (arg2->unk34[arg3].unkC - arg2->unk34[arg3].unk8) * arg4;
+    guMtxXFMF(m3, 0.0f, 0.0f, -yaw * arg1->unk148, &ox, &oy, &oz);
     guTranslateF(m2, ox, oy, oz);
     guMtxCatF(m1, m2, m1);
     guMtxCatF(m1, m2, m1);
@@ -775,8 +779,8 @@ void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg
     if (arg1->unk148 > 1.0) {
         arg1->unk148 = one;
     }
-    arg1->unk19C = (s16)((arg2->unk34[arg3].unk12 - arg2->unk34[arg3].unk10) * arg4 + arg2->unk34[arg3].unk10);
-    arg1->unk19E = (s16)((arg2->unk34[arg3].unk16 - arg2->unk34[arg3].unk14) * arg4 + arg2->unk34[arg3].unk14);
+    arg1->unk19C = (s16)(arg2->unk34[arg3].unk10 + (arg2->unk34[arg3].unk12 - arg2->unk34[arg3].unk10) * arg4);
+    arg1->unk19E = (s16)(arg2->unk34[arg3].unk14 + (arg2->unk34[arg3].unk16 - arg2->unk34[arg3].unk14) * arg4);
     switch (arg2->unk4) {
     case 1:
     case 2:

@@ -899,7 +899,6 @@ void bonusPopupSpawnActors(BonusB_Sub178 *arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     s8 unk0;
     u8 unk1;
@@ -1022,17 +1021,16 @@ void bonusActorUpdateVertexPositions(void) {
         fx = func_80612794(link->unk4->unkE6) * (5000.0f * sp38 + 150.0f);
         fy = func_80612790(link->unk4->unkE6) * (5000.0f * sp38 + 150.0f);
         sp28 = link->unk14 * 128.0f + -128.0f;
-        i = 4;
         if (fx < 0.0f) {
             fx = 65535.0f + fx;
         }
         if (fy < 0.0f) {
             fy = 65535.0f + fy;
         }
+        i = 4;
         p = (BonusVtxEntry *)(vb[1] * 8 + vb[0]);
-        do {
+        for (; i < 7; i++) {
             p->unk1 = i;
-            i++;
             p->unk0 = (s32)sp28;
             p->unk2 = (u32)fx;
             p->unk4 = 0;
@@ -1048,7 +1046,7 @@ void bonusActorUpdateVertexPositions(void) {
                 fy = fy * 0.5;
             }
             p++;
-        } while (i < 7);
+        }
         switch (BONUS_VTX_ACTOR->unk155) {
         case 0:
             link->unk18 = link->unk18 + (sp38 - link->unk18) * 0.1;
@@ -1078,10 +1076,6 @@ void bonusActorUpdateVertexPositions(void) {
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/bonusActorUpdateVertexPositions.s")
-#endif
 
 typedef struct {
     char pad0[0xC];
