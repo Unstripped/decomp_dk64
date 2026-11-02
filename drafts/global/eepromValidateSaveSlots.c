@@ -1,4 +1,4 @@
-// eepromValidateSaveSlots (src/global/104F0.c): stage 4: frame 0x98, callee-saved s0-s7/fp/ra, array offset 0x78; D_807EDEA9 byte stores + D_807550C8 arg5 + tail checksum check matched; remaining diff is loop 1-4 regalloc/pointer scheduling
+// eepromValidateSaveSlots (src/global/104F0.c): eepromValidateSaveSlots (src/global/104F0.c): stage 4: 64 insns diff (was 364): frame 0x98 exact; remaining: loop2 multu t9,s2 vs s2,t9, beq v0,s1 vs s1,v0, move a0,s3 vs andi a0,s3,0xff at clearSlot calls, loop4 flag regs s7/s5 vs s5/s2, D_807EDEA8..AB store grouping; 5 dead tests
 #include <ultra64.h>
 
 extern u32 eepromCalculateCrc32(u8 *arg0, u16 arg1);
@@ -17,85 +17,107 @@ extern u8 D_807EDEAB;
 extern u8 D_807550C8;
 extern u8 D_80744530;
 
+extern s32 eepromGetField(s32, u8, u8, u8);
+extern void eepromSetField(s32, u8, u8, u8, s32);
+
 void eepromValidateSaveSlots(void) {
-    s32 i;
     s32 j;
-    s32 version;
-    s32 found;
-    s32 height;
-    s32 checksumIndex;
+    u32 slot;
+    u16 len;
+    u8 found;
+    u8 slot2;
+    u16 idx;
+    s32 i;
+    u8 version;
     u8 valid[4];
     u8 sectorOrder[4];
-    u32 pad[4];
+    u8 *data;
+    s32 height;
+    u32 stored;
+    u32 ok;
+    u32 padarr[1];
+    u16 off;
     u8 failed;
-
     failed = 0;
+    ok = 0;
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
-    i = 0;
-    do {
+    for (i = 0; i < 4; i++) {
+        if (i && stored) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (i && stored) {}  // FAKE
+        if (ok) {}  // FAKE
         D_807EDEA8[i] = i;
         sectorOrder[i] = 0xFF;
-        i++;
-    } while (i < 4);
-
-    for (i = 0; i < 4; i++) {
-        height = (((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7;
-        height /= 8;
-        checksumIndex = (((i + 1) * height) / 4) - 1;
-        valid[i] = 1;
-        if (((u32 *)D_807ED6A8)[checksumIndex] != eepromCalculateCrc32(D_807ED6A8 + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF)) {
-            valid[i] = 0;
-            eepromClearSlotData(i & 0xFF, 0);
-            func_8060C648(0xF, 0, 0, i & 0xFF, 0xFF);
-        }
-        failed |= (valid[i] == 0);
     }
-
     for (i = 0; i < 4; i++) {
-        if (valid[i] == 0 || func_8060C6B8(0xD, 0, 0, i & 0xFF) == 0) continue;
-        version = func_8060C6B8(0xF, 0, 0, i & 0xFF);
-        found = version;
-        for (j = 0; j < 4 && found == version; j++) {
-            if (j != i && valid[j] != 0 && func_8060C6B8(0xD, 0, 0, j & 0xFF) != 0 && func_8060C6B8(0xF, 0, 0, j & 0xFF) == version && (u32)func_8060C6B8(0x10, 0, 0, j & 0xFF) >= (u32)func_8060C6B8(0x10, 0, 0, i & 0xFF)) {
-                found = 0xFF;
-                eepromClearSlotData(i & 0xFF, 0);
-                func_8060C648(0xF, 0, 0, i & 0xFF, 0xFF);
-                failed |= 1;
+        ok = 1;
+        off = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * i;
+        data = off + D_807ED6A8;
+        idx = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * (i + 1)) / 4) - 1;
+        stored = ((u32 *)D_807ED6A8)[idx];
+        len = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) - 4;
+        if (stored != eepromCalculateCrc32(data, len)) {
+            ok = 0;
+            slot = i;
+            eepromClearSlotData((u8)slot, 0);
+            eepromSetField(0xF, 0, 0, slot, 0xFF);
+        }
+        failed |= (ok == 0);
+        valid[i] = ok;
+    }
+    ok = 0;
+    version = 0;
+    for (i = 0; i < 4; i++) {
+        if (version != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (valid[i] != 0) {
+            slot = i;
+            if (eepromGetField(0xD, 0, 0, slot) != 0) {
+            version = eepromGetField(0xF, 0, 0, slot);
+            found = version;
+            for (j = 0; j < 4 && found == version; j++) {
+                if (j != i && valid[j] != 0) {
+                    slot2 = j;
+                    if (eepromGetField(0xD, 0, 0, slot2) != 0 && eepromGetField(0xF, 0, 0, slot2) == version && (u32)eepromGetField(0x10, 0, 0, slot) <= (u32)eepromGetField(0x10, 0, 0, slot2)) {
+                        found = 0xFF;
+                        eepromClearSlotData((u8)slot, 0);
+                        eepromSetField(0xF, 0, 0, slot, 0xFF);
+                        failed |= 1;
+                    }
+                }
+            }
+            sectorOrder[i] = found;
             }
         }
-        sectorOrder[i] = found;
     }
-
     for (i = 0; i < 4; i++) {
+        if (i && version) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         found = 0;
-        for (j = 0; j < 4; j++) if (sectorOrder[j] == i) found = 1;
+        for (j = 0; j < 4 && found == 0; j++) if (sectorOrder[j] == i) found = 1;
         if (found == 0) for (j = 0; j < 4 && found == 0; j++) if (sectorOrder[j] == 0xFF) {
             sectorOrder[j] = i;
             found = 1;
-            func_8060C648(0xF, 0, 0, j & 0xFF, i);
+            eepromSetField(0xF, 0, 0, j, i);
         }
     }
-
+    if (failed == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     D_807EDEA9 = sectorOrder[1];
     D_807EDEAA = sectorOrder[2];
     D_807EDEAB = sectorOrder[3];
     D_807EDEA8[0] = sectorOrder[0];
-
-    height = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
-    height /= 8;
-    checksumIndex = ((height + 0x40) / 4) - 1;
-    found = 1;
-    if (((u32 *)D_807ED6A8)[checksumIndex] != eepromCalculateCrc32(D_807ED6A8 + (height & 0xFFFF), 0x3C)) {
+    height = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
+    ok = 1;
+    stored = ((u32 *)((u32)D_807ED6A8 | 0))[(u16)(((height + 0x40) / 4) - 1)];
+    if (stored != eepromCalculateCrc32((u8 *)&D_807ED6A8[0] + (height & 0xFFFF), 0x3C)) {
         func_8060CB74();
-        found = 0;
+        ok = 0;
     }
-    failed |= (found == 0);
-
-    D_807550C8 = func_8060C6B8(0x1F, 0, 0, 0);
-    D_80744530 = func_8060C6B8(0x20, 0, 0, 0);
+    if (i && found) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    failed |= (ok == 0);
+    if (version != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    D_807550C8 = eepromGetField(0x1F, 0, 0, 0);
+    D_80744530 = eepromGetField(0x20, 0, 0, 0);
     if (D_807550C8 > 0) {
         D_807550C8 = 0;
-        func_8060C648(0x1F, 0, 0, 0, D_807550C8);
+        eepromSetField(0x1F, 0, 0, 0, D_807550C8);
     }
     if (failed != 0) eepromDispatchCommand(1);
 }

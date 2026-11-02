@@ -67,22 +67,15 @@ u32 eepromCalculateCrc32(u8 *arg0, u16 arg1) {
 
 extern u8 D_807EDEA8[];
 
-s32 func_8060B9D0(s32 arg0) {
-    s32 temp_t8;
-    s32 var_v1;
+u8 func_8060B9D0(s32 arg0) {
+    u8 i;
 
-    if (D_807EDEA8) {
+    for (i = 0; i < 4; i++) {
+        if (arg0 == D_807EDEA8[i]) {
+            return i;
+        }
     }
-    var_v1 = 0;
-loop_1:
-    if (arg0 == D_807EDEA8[var_v1]) {
-        return var_v1;
-    }
-    temp_t8 = (var_v1 = (var_v1 + 1) & 0xFF);
-    if (temp_t8 >= 4) {
-        return 0;
-    }
-    goto loop_1;
+    return 0;
 }
 
 extern u8 D_807ECEA8[];
@@ -94,12 +87,12 @@ extern s32 func_80714394(void);
 void eepromCopySlot(void) {
     u8 original;
     u8 replacement;
-    s32 size;
     s16 unk0;
+    s32 size;
 
     original = func_8060B9D0(D_807467C8);
     replacement = func_8060B9D0(3);
-    if (((func_8071432C() != 0) || (func_80714394() != 0)) && (replacement != original)) {
+    if (((func_8071432C() != 0) || (func_80714394() != 0)) && (original != replacement)) {
         unk0 = D_807ECEA0[0];
         size = ((((unk0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
         memcpy(D_807ECEA8 + (size * replacement), D_807ECEA8 + (size * original), size);
@@ -302,7 +295,6 @@ void eepromCalculateTotalModelCount(s32 arg0, s32 arg1, u8 arg2, u16 *arg3, s8 *
     *arg4 = 1;
 }
 
-#ifdef NON_MATCHING
 void eepromGetSectorOffset(arg0, arg1, arg2, arg3, arg4, arg5)
 u16 *arg0;
 u8 *arg1;
@@ -311,7 +303,10 @@ unsigned char arg3;
 unsigned char arg4;
 unsigned char arg5;
 {
-    *arg0 = arg5 * ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7);
+    u16 m;
+    m = arg5;
+    m *= ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7);
+    *arg0 = m;
     if (arg2 >= 0x11) {
         func_8060BF84(arg2, arg4, arg0, arg1);
         return;
@@ -326,10 +321,6 @@ unsigned char arg5;
     }
     eepromCalculateTotalModelCount(arg2, arg3, arg4, arg0, (s8 *)arg1);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromGetSectorOffset.s")
-#endif
 
 extern s32 _strchr(u8 *);
 extern u8 *D_80746800;
@@ -376,7 +367,7 @@ s32 func_8060C430(s32 arg0, u32 arg1, s32 arg2) {
     return arg1;
 }
 
-extern s32 func_8060B9D0();
+extern u8 func_8060B9D0();
 extern void eepromWriteBitfield();
 extern void eepromGetSectorOffset();
 
@@ -534,72 +525,98 @@ extern u8 D_807EDEAB;
 
 #ifdef NON_MATCHING
 void eepromValidateSaveSlots(void) {
-    s32 i;
     s32 j;
-    s32 version;
-    s32 found;
-    s32 height;
-    s32 checksumIndex;
+    u32 slot;
+    u16 len;
+    u8 found;
+    u8 slot2;
+    u16 idx;
+    s32 i;
+    u8 version;
     u8 valid[4];
     u8 sectorOrder[4];
-    u32 pad[4];
+    u8 *data;
+    s32 height;
+    u32 stored;
+    u32 ok;
+    u32 padarr[1];
+    u16 off;
     u8 failed;
     failed = 0;
+    ok = 0;
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
-    i = 0;
-    do {
+    for (i = 0; i < 4; i++) {
+        if (i && stored) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (i && stored) {}  // FAKE
+        if (ok) {}  // FAKE
         D_807EDEA8[i] = i;
         sectorOrder[i] = 0xFF;
-        i++;
-    } while (i < 4);
-    height = (((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7;
-    height /= 8;
-    for (i = 0; i < 4; i++) {
-        checksumIndex = (((i + 1) * height) / 4) - 1;
-        valid[i] = 1;
-        if (((u32 *)D_807ED6A8)[checksumIndex] != eepromCalculateCrc32(D_807ED6A8 + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF)) {
-            valid[i] = 0;
-            eepromClearSlotData(i & 0xFF, 0);
-            eepromSetField(0xF, 0, 0, i & 0xFF, 0xFF);
-        }
-        failed |= (valid[i] == 0);
     }
     for (i = 0; i < 4; i++) {
-        if (valid[i] == 0 || eepromGetField(0xD, 0, 0, i & 0xFF) == 0) continue;
-        version = eepromGetField(0xF, 0, 0, i & 0xFF);
-        found = version;
-        for (j = 0; j < 4 && found == version; j++) {
-            if (j != i && valid[j] != 0 && eepromGetField(0xD, 0, 0, j & 0xFF) != 0 && eepromGetField(0xF, 0, 0, j & 0xFF) == version && (u32)eepromGetField(0x10, 0, 0, j & 0xFF) >= (u32)eepromGetField(0x10, 0, 0, i & 0xFF)) {
-                found = 0xFF;
-                eepromClearSlotData(i & 0xFF, 0);
-                eepromSetField(0xF, 0, 0, i & 0xFF, 0xFF);
-                failed |= 1;
+        ok = 1;
+        off = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * i;
+        data = off + D_807ED6A8;
+        idx = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * (i + 1)) / 4) - 1;
+        stored = ((u32 *)D_807ED6A8)[idx];
+        len = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) - 4;
+        if (stored != eepromCalculateCrc32(data, len)) {
+            ok = 0;
+            slot = i;
+            eepromClearSlotData((u8)slot, 0);
+            eepromSetField(0xF, 0, 0, slot, 0xFF);
+        }
+        failed |= (ok == 0);
+        valid[i] = ok;
+    }
+    ok = 0;
+    version = 0;
+    for (i = 0; i < 4; i++) {
+        if (version != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (valid[i] != 0) {
+            slot = i;
+            if (eepromGetField(0xD, 0, 0, slot) != 0) {
+            version = eepromGetField(0xF, 0, 0, slot);
+            found = version;
+            for (j = 0; j < 4 && found == version; j++) {
+                if (j != i && valid[j] != 0) {
+                    slot2 = j;
+                    if (eepromGetField(0xD, 0, 0, slot2) != 0 && eepromGetField(0xF, 0, 0, slot2) == version && (u32)eepromGetField(0x10, 0, 0, slot) <= (u32)eepromGetField(0x10, 0, 0, slot2)) {
+                        found = 0xFF;
+                        eepromClearSlotData((u8)slot, 0);
+                        eepromSetField(0xF, 0, 0, slot, 0xFF);
+                        failed |= 1;
+                    }
+                }
+            }
+            sectorOrder[i] = found;
             }
         }
-        sectorOrder[i] = found;
     }
     for (i = 0; i < 4; i++) {
+        if (i && version) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         found = 0;
-        for (j = 0; j < 4; j++) if (sectorOrder[j] == i) found = 1;
+        for (j = 0; j < 4 && found == 0; j++) if (sectorOrder[j] == i) found = 1;
         if (found == 0) for (j = 0; j < 4 && found == 0; j++) if (sectorOrder[j] == 0xFF) {
             sectorOrder[j] = i;
             found = 1;
-            eepromSetField(0xF, 0, 0, j & 0xFF, i);
+            eepromSetField(0xF, 0, 0, j, i);
         }
     }
+    if (failed == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     D_807EDEA9 = sectorOrder[1];
     D_807EDEAA = sectorOrder[2];
     D_807EDEAB = sectorOrder[3];
     D_807EDEA8[0] = sectorOrder[0];
-    height = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
-    height /= 8;
-    checksumIndex = ((height + 0x40) / 4) - 1;
-    found = 1;
-    if (((u32 *)D_807ED6A8)[checksumIndex] != eepromCalculateCrc32(D_807ED6A8 + (height & 0xFFFF), 0x3C)) {
+    height = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
+    ok = 1;
+    stored = ((u32 *)((u32)D_807ED6A8 | 0))[(u16)(((height + 0x40) / 4) - 1)];
+    if (stored != eepromCalculateCrc32((u8 *)&D_807ED6A8[0] + (height & 0xFFFF), 0x3C)) {
         func_8060CB74();
-        found = 0;
+        ok = 0;
     }
-    failed |= (found == 0);
+    if (i && found) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    failed |= (ok == 0);
+    if (version != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     D_807550C8 = eepromGetField(0x1F, 0, 0, 0);
     D_80744530 = eepromGetField(0x20, 0, 0, 0);
     if (D_807550C8 > 0) {
@@ -693,65 +710,79 @@ extern u8 D_807ED6A8[];
 
 #ifdef NON_MATCHING
 void eepromSaveRecords(s32 arg0) {
-    s32 i;
-    s32 textOffset;
-    s32 offset;
+    s32 j;
     s32 sector;
-    s32 dataLength;
+    s32 offset;
     s32 height;
-    u8 savedData[0x800];
+    u16 idx;
+    u16 a;
+    u16 b;
+    u8 i;
     u8 workingData[0x800];
-    u8 *sp5C;
-    s32 after_1;
-    s32 after_2;
-    if (D_807EDEAC != 2) return;
-    textOffset = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
-    textOffset = (textOffset + 0x207) & ~7;
-    textOffset /= 8;
-    _sprintf((char *)D_807ECEA8 + textOffset, D_807467C0);
-    memcpy(workingData, D_807ECEA8, 0x800);
-    memcpy(savedData, D_807ED6A8, 0x800);
-    if (arg0 == 0) {
-        eepromCopySlot();
-        for (i = 0; i < 4; i++) {
-            height = (((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7;
-            height /= 8;
-            ((u32 *)workingData)[(((i + 1) * height) / 4) - 1] = eepromCalculateCrc32(workingData + ((i * height) & 0xFFFF), (height - 4) & 0xFFFF);
+    u8 savedData[0x800];
+    u8 *p;
+    p = D_807ECD08;
+    if (D_807EDEAC == 2) {
+        _sprintf((char *)D_807ECEA8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
+        memcpy(workingData, D_807ECEA8, 0x800);
+        memcpy(savedData, D_807ED6A8, 0x800);
+        if (arg0 == 0) {
+            eepromCopySlot();
+            for (i = 0; i < 4; i++) {
+                height = ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7);
+                height /= 8;
+                
+                a = i * height;
+                if (a) {}  // FAKE: live range / colouring of the narrowed index temp
+                b = (((i + 1) * height) / 4) - 1;
+                ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, height - 4);
+            }
+            sector = 0;
+            offset = D_807ECEA0[0];
+            offset += 0x6B7;
+            offset = (s32)((u16)offset & ~0x3F) + 0x27;
+            offset = ((s32)(offset & ~7U) * 4) + 0x3F;
+            offset = (s32)(offset & ~0x3FU);
+            offset /= 8;
+        } else {
+            offset = (((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F);
+            offset /= 8;
+            sector = (offset / 8) & 0xFFFF;
         }
-        sector = 0;
-        offset = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
-        offset /= 8;
-    } else {
-        offset = (((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F;
-        offset /= 8;
-        sector = offset & 0xFFFF;
-    }
-    ((u32 *)workingData)[((offset + 0x40) / 4) - 1] = eepromCalculateCrc32(workingData + (offset & 0xFFFF), 0x3C);
-    strlen(D_807467C0);
-    bzero(workingData + strlen(D_807467C0) + offset + 0x40, 0x800 - offset - strlen(D_807467C0) - 0x40);
-    osWritebackDCacheAll();
-    memcpy(D_807ED6A8 + sector * 8, workingData + sector * 8, 0x800 - sector * 8);
-    if (D_807ECD08[0] != 0) do sleepMilliseconds(1.0f); while (*sp5C != 0);
-    if (D_80744460 == 0) {
-        D_807467C4 = 1;
-        for (sector &= 0xFFFF; sector < 0x100; sector += 2) {
-            D_807467E4 = 0x1E;
-            D_807467E8 = (f32)sector * 0.00390625f;
-            if (((u32 *)(savedData + sector * 8))[0] != ((u32 *)(workingData + sector * 8))[0] ||
-                ((u32 *)(savedData + sector * 8))[1] != ((u32 *)(workingData + sector * 8))[1] ||
-                ((u32 *)(savedData + sector * 8))[2] != ((u32 *)(workingData + sector * 8))[2] ||
-                ((u32 *)(savedData + sector * 8))[3] != ((u32 *)(workingData + sector * 8))[3]) {
-                for (i = 0; i < 2; i++) {
-                    if (D_80744460 != 0) {
-                        D_807467C4 = 0;
-                        return;
+        a = offset;
+        if (a) {}  // FAKE: live range / colouring of the narrowed index temp
+        b = ((offset + 0x40) / 4) - 1;
+        if (b) {}  // FAKE: live range / colouring of the narrowed index temp
+        ((u32 *)workingData)[b] = eepromCalculateCrc32(workingData + a, 0x3C);
+        bzero(strlen(D_807467C0) - (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) + workingData + 0x840, (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) - strlen(D_807467C0) - 0x40);
+        if (D_807ECEA0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        osWritebackDCacheAll();
+        if (D_807ED6A8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        memcpy(D_807ED6A8 + sector * 8, workingData + sector * 8, 0x800 - (sector << 3));
+        if (D_807ECD08[0] != 0) do sleepMilliseconds(1.0f); while (*p != 0);
+        if (D_80744460 != 0) {
+            D_807467C4 = 0;
+        } else {
+            D_807467C4 = 1;
+            if (b == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            for (idx = sector; idx < 0x100; idx += 2) {
+                if (b == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                D_807467E4 = 0x1E;
+                D_807467E8 = (f32)(u32)idx * 0.00390625f;
+                if (((u64 *)savedData)[idx] != ((u64 *)workingData)[idx] ||
+                    ((u64 *)savedData)[idx + 1] != ((u64 *)workingData)[idx + 1]) {
+                    for (j = 0; j < 2; j++) {
+                        if (D_80744460 != 0) {
+                            D_807467C4 = 0;
+                            return;
+                        }
+                        osEepromWrite(&D_807ECCF0, idx + j, workingData + idx * 8 + j * 8);
+                        sleepMilliseconds(15.0f);
                     }
-                    osEepromWrite(&D_807ECCF0, (sector + i) & 0xFF, workingData + (sector + i) * 8);
-                    sleepMilliseconds(15.0f);
                 }
             }
+            D_807467C4 = 0;
         }
-        D_807467C4 = 0;
     }
 }
 #else
@@ -776,10 +807,8 @@ extern u8 D_807FC950[];
 extern u8 D_807FC952;
 extern u8 gPlayerCharacterId;
 
-#ifdef NON_MATCHING
 void eepromHalveRecords(void) {
     s32 i;
-    u8 *entry;
 
     if (func_806F6EDC() != 0) {
         s32 v = slotQueueGetMaxValue(5, 0);
@@ -797,23 +826,15 @@ void eepromHalveRecords(void) {
         s32 v = slotQueueGetMaxValue(2, 0);
         *(s16 *)(D_807FC950 + 0x2F0) = (s16)(u32)((f64)(u32)v * 0.5);
     }
-    entry = D_807FC950;
-    if (gPlayerCharacterId && gPlayerCharacterId) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    i = 0; do { // LAYOUT:
+    for (i = 0; i != 5; i++) {
         gPlayerCharacterId = i;
-        if (entry[4] != 0) {
+        if (D_807FC950[i * 0x5E + 4] != 0) {
             s32 v = slotQueueGetMaxValue(7, 0);
-            *(s16 *)(entry + 8) = (s16)(u32)((f64)(u32)v * 0.5);
+            *(s16 *)(&D_807FC950[i * 0x5E + 8]) = (s16)(u32)((f64)(u32)v * 0.5);
         }
-        i++;
-        entry += 0x5E;
-    } while (i != 5);
+    }
     gPlayerCharacterId = 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromHalveRecords.s")
-#endif
 
 extern void collectibleCountsClear(void);
 extern void eepromCopySlot(void);
@@ -950,7 +971,7 @@ void eepromInit(void) {
     eepromDispatchCommand(0);
 }
 
-extern s32 func_8060B9D0();
+extern u8 func_8060B9D0();
 extern s32 func_807142D8(void);
 extern void flagsClearAllBank2(void);
 extern u8 D_807EDEB0[];
@@ -980,11 +1001,10 @@ u8 *func_8060E25C(s32 arg0) {
     return result;
 }
 
-#ifdef NON_MATCHING
 u8 eepromReadChecksumBit(u16 arg0, u8 arg1) {
     u8 result;
-    u8 output;
     u16 value;
+    u8 output;
 
     result = 0;
     if (func_8071432C() != 0) {
@@ -993,12 +1013,8 @@ u8 eepromReadChecksumBit(u16 arg0, u8 arg1) {
     }
     return result;
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromReadChecksumBit.s")
-#endif
-
-extern s32 func_8060B9D0();
+extern u8 func_8060B9D0();
 extern void eepromWriteBitfield();
 extern void eepromGetSectorOffset();
 
