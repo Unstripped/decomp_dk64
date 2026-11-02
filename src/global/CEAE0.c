@@ -2327,21 +2327,22 @@ void func_806CEFBC(G05CbArg *arg0) {
     s32 sp34;
     s32 sp30;
 
+    if (arg0->unk8->unk7C > 0.5f) {} // FAKE: dead test steers uopt coloring
     playerGetHoldNodeIndices(&sp34, &sp30);
-    if (arg0->unk8->unk7C) {} // FAKE: dead test steers uopt coloring
+    if (!arg0->unk8->unk80) {} // FAKE: dead test steers uopt coloring
     actorGetNodePos(arg0->unk4, sp34, &sp60, &sp58, &sp50);
-    if (arg0->unk8->unk80) {} // FAKE: dead test steers uopt coloring
+    if (arg0->unk8->unk84) {} // FAKE: dead test steers uopt coloring
     actorGetNodePos(arg0->unk4, sp30, &sp64, &sp5C, &sp54);
     sp4C = (sp64 + sp60) / 2;
-    if (sp4C == 0.0f) {} // FAKE: dead test steers uopt coloring
     sp48 = (sp5C + sp58) / 2;
+    if (!sp4C) {} // FAKE: dead test steers uopt coloring
     sp44 = (sp54 + sp50) / 2;
     sp40 = (sp4C - arg0->unk8->unk7C) * arg0->unk0 + arg0->unk8->unk7C;
-    sp3C = (sp48 - arg0->unk8->unk80) * arg0->unk0 + arg0->unk8->unk80;
-    sp38 = (sp44 - arg0->unk8->unk84) * arg0->unk0 + arg0->unk8->unk84;
+    sp3C = arg0->unk8->unk80 + (sp48 - arg0->unk8->unk80) * arg0->unk0;
+    sp38 = arg0->unk0 * (sp44 - arg0->unk8->unk84) + arg0->unk8->unk84;
     func_8067A70C(arg0->unk4, arg0->unk8, sp40, sp3C, sp38, 2, 1);
-    if (sp48) {} // FAKE: dead test steers uopt coloring
-    if (sp44) {} // FAKE: dead test steers uopt coloring
+    if (sp48 == 0.0f) { if (sp48) {} } // FAKE: dead test steers uopt coloring
+    if (!sp44) {} // FAKE: dead test steers uopt coloring
 }
 #else
 

@@ -1,4 +1,4 @@
-// func_806CEFBC (src/global/CEAE0.c): Player 2026-11-01: stage 5, 18 diff lines (was 19; parked in src copy). Nested dead test 'if (sp48 == 0.0f) { if (sp48) {} }' at end + 'if (!sp44) {}' + sp4C test after sp48 def. Result: sp48 f18 right, mid3 f14/unk84 f16 (target unk84 f14, mids f16/f18), sp4C spilled f0->76(sp). Cause: uopt colours FP cands by adjsave then index: unk84 (idx 57, 3.0) must precede mids (idx 21/31/40, 3.0): need mids adj<3 or unk84>3 without block split. 11k random test-position/form combos (incl nested/else forms) + 29k hill-climb: floor 18.
+// func_806CEFBC (src/global/CEAE0.c): W4FpB: stage 5, 15 diff lines (was 18/19; parked in copy). Annealing over dead-test slots/forms + mid/lerp spelling (m0 m1 m2 l0 l1 l2 order; sp3C = u + (m-u)*t, sp38 = t*(m-u)+u; 3 early dead tests on unk7C(>0.5f)/unk80(!)/unk84, !sp4C, nested sp48, !sp44). Remaining: mid0 f0 (target f16), mid1 f14 (target f18), sp4C spilled; 17280-order x form grid + 3 hill-climb seeds floor 15-16. Cause unchanged: unk84 (idx57) outranks mids (adjsave 3 tie).
 typedef struct G05CbArg {
     /* 0x0 */ f32 unk0;
     /* 0x4 */ Actor *unk4;
@@ -23,19 +23,20 @@ void func_806CEFBC(G05CbArg *arg0) {
     s32 sp34;
     s32 sp30;
 
+    if (arg0->unk8->unk7C > 0.5f) {} // FAKE: dead test steers uopt coloring
     playerGetHoldNodeIndices(&sp34, &sp30);
-    if (arg0->unk8->unk7C) {} // FAKE: dead test steers uopt coloring
+    if (!arg0->unk8->unk80) {} // FAKE: dead test steers uopt coloring
     actorGetNodePos(arg0->unk4, sp34, &sp60, &sp58, &sp50);
-    if (arg0->unk8->unk80) {} // FAKE: dead test steers uopt coloring
+    if (arg0->unk8->unk84) {} // FAKE: dead test steers uopt coloring
     actorGetNodePos(arg0->unk4, sp30, &sp64, &sp5C, &sp54);
     sp4C = (sp64 + sp60) / 2;
     sp48 = (sp5C + sp58) / 2;
-    if (sp4C == 0.0f) {} // FAKE: dead test steers uopt coloring
+    if (!sp4C) {} // FAKE: dead test steers uopt coloring
     sp44 = (sp54 + sp50) / 2;
     sp40 = (sp4C - arg0->unk8->unk7C) * arg0->unk0 + arg0->unk8->unk7C;
-    sp3C = (sp48 - arg0->unk8->unk80) * arg0->unk0 + arg0->unk8->unk80;
-    sp38 = (sp44 - arg0->unk8->unk84) * arg0->unk0 + arg0->unk8->unk84;
+    sp3C = arg0->unk8->unk80 + (sp48 - arg0->unk8->unk80) * arg0->unk0;
+    sp38 = arg0->unk0 * (sp44 - arg0->unk8->unk84) + arg0->unk8->unk84;
     func_8067A70C(arg0->unk4, arg0->unk8, sp40, sp3C, sp38, 2, 1);
-    if (sp48 == 0.0f) { if (sp48) {} } // FAKE: nested dead test steers uopt coloring (lower priority)
+    if (sp48 == 0.0f) { if (sp48) {} } // FAKE: dead test steers uopt coloring
     if (!sp44) {} // FAKE: dead test steers uopt coloring
 }

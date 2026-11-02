@@ -618,8 +618,6 @@ s8 collisionTriangleSlopeClass(s16 *a) {
     return 0;
 }
 
-#ifdef NON_MATCHING
-
 s16 func_8066D4DC(arg0, arg1)
 s16 *arg0;
 u8 *arg1;
@@ -696,26 +694,20 @@ u8 *arg1;
     sp78[0] *= 20.0f;
     sp78[1] *= 20.0f;
     sp78[2] *= 20.0f;
-
     sp68[0] = arg0[0] + sp78[0];
     sp68[1] = arg0[1] + sp78[1];
     sp68[2] = arg0[2] + sp78[2];
-
     sp9C[0] = arg0[0] - arg0[3];
     sp9C[1] = arg0[1] - arg0[4];
     sp9C[2] = arg0[2] - arg0[5];
-
     sp90[0] = arg0[0] - arg0[6];
     sp90[1] = arg0[1] - arg0[7];
     sp90[2] = arg0[2] - arg0[8];
-
     temp_ft5 = sp9C[1] * sp90[2] - sp9C[2] * sp90[1];
-    sp34 = sp90[1] * sp9C[0] - sp9C[1] * sp90[0];
-    sp38 = sp90[0] * sp9C[2] - sp90[2] * sp9C[0];
-
-    sp54 = -((temp_ft5 * arg0[3]) + (sp38 * (f32)arg0[4]) + ((f32)arg0[5] * sp34));
-
-    dist = (temp_ft5 * sp68[0]) + (sp38 * sp68[1]) + (sp68[2] * sp34) + sp54;
+    sp38 = sp9C[2] * sp90[0] - sp9C[0] * sp90[2];
+    sp34 = sp9C[0] * sp90[1] - sp9C[1] * sp90[0];
+    sp54 = -((sp34 * (f32)arg0[5]) + ((sp38 * (f32)arg0[4]) + (temp_ft5 * arg0[3])));
+    dist = (temp_ft5 * sp68[0]) + (sp38 * sp68[1]) + (sp34 * sp68[2]) + sp54;
 
     if ((!(0.0 < (f64)dist) || !(0.0 < (f64)sp54)) && (!((f64)dist < 0.0) || !((f64)sp54 < 0.0))) {
         var_v1 -= 0x800;
@@ -729,10 +721,6 @@ u8 *arg1;
 
     return var_v1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066D4DC.s")
-#endif
 
 
 typedef struct CollisionStaticTriIn {
