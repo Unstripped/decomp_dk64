@@ -13,7 +13,8 @@ ingests the agent's report, including attempts that improved nothing.
 
 record: functions come from the `- \\`FUNC\\`` lines of a task file (`-` = stdin, e.g.
   `cat local://tasks/A.md | ... --task -`) plus explicit FUNC arguments. Every function must
-  be a function of SEG (a C definition in src/<seg>/ or a `glabel` of a GLOBAL_ASM file
+  be a function of SEG, or of the segment its task line names (`segment \\`X\\``, so one task
+  may span segments) (a C definition in src/<seg>/ or a `glabel` of a GLOBAL_ASM file
   there; names resolve through the symbol file, the `.s`, then the link map), else nothing
   is written: a typo, a data symbol or the wrong segment is never logged as `matched`.
   Run it AFTER the
@@ -56,7 +57,8 @@ PRAGMA = re.compile(r'#pragma GLOBAL_ASM\("asm/(?:(\w+)/)?nonmatchings/[^"]*/(\w
 PARKED = re.compile(r"#ifdef NON_MATCHING.*?GLOBAL_ASM\(\"[^\"]*/(\w+)\.s\"\).*?#endif", re.S)
 INSN = re.compile(r"^\s*/\* [0-9A-F]+ ([0-9A-F]{8}) [0-9A-F]{8} \*/")
 STAGE = re.compile(r"stage\s*([0-9](?:\s*[-–]\s*[0-9])?)", re.I)
-TASKFN = re.compile(r"^- `(\w+)`", re.M)
+TASKFN = re.compile(r"^- `(\w+)`(.*)$", re.M)
+TASKSEG = re.compile(r"segment `(\w+)`")
 OUTCOMES = ("matched", "parked", "attempted", "blocked", "skipped")
 
 
@@ -223,15 +225,18 @@ def append(events):
 
 
 def cmd_record(a):
-    funcs = []
+    funcs = []  # (name, outcome, segment)
     if a.task:
         text = sys.stdin.read() if a.task == "-" else open(a.task).read()
-        funcs += [(f, None) for f in TASKFN.findall(text)]
+        for f, rest in TASKFN.findall(text):  # a task line naming `segment `X`` overrides --seg
+            m = TASKSEG.search(rest)
+            funcs.append((f, None, m.group(1) if m else a.seg))
     for arg in a.funcs:
         f, _, o = arg.partition("=")
         if o and o not in OUTCOMES:
             sys.exit(f"bad outcome {o!r}: one of {', '.join(OUTCOMES)}")
-        funcs = [x for x in funcs if x[0] != f] + [(f, o or None)]
+        seg = next((x[2] for x in funcs if x[0] == f), a.seg)
+        funcs = [x for x in funcs if x[0] != f] + [(f, o or None, seg)]
     if not funcs:
         sys.exit("no functions: give --task or FUNC arguments")
     live = unmatched()
@@ -241,15 +246,17 @@ def cmd_record(a):
         a.unit = None
     elif not any(e["type"] == "unit" and e["unit"] == a.unit for e in load()):
         events.append(dict(type="unit", unit=a.unit, ts=ts, approx=False))
-    known = inventory(a.seg)
-    for f, o in funcs:
-        v = vram_of(a.seg, f)
-        if v is None or v not in known:
-            sys.exit(f"{a.seg} {f}: not a function of segment {a.seg} (no C definition or GLOBAL_ASM function in src/{a.seg}/); nothing recorded")
-        cur = live.get((a.seg, v))
+    known = {}
+    for f, o, seg in funcs:
+        if seg not in known:
+            known[seg] = inventory(seg)
+        v = vram_of(seg, f)
+        if v is None or v not in known[seg]:
+            sys.exit(f"{seg} {f}: not a function of segment {seg} (no C definition or GLOBAL_ASM function in src/{seg}/); nothing recorded")
+        cur = live.get((seg, v))
         if o is None:
             o = "matched" if cur is None else "parked" if cur["parked"] else "attempted"
-        events.append(dict(type="attempt", seg=a.seg, vram=f"0x{v:08X}", name=name_of(a.seg, v), unit=a.unit,
+        events.append(dict(type="attempt", seg=seg, vram=f"0x{v:08X}", name=name_of(seg, v), unit=a.unit,
                            agent=a.agent, ts=ts, outcome=o, stage=None if cur is None else cur["stage"],
                            note=a.note or "", approx=False))
     append(events)

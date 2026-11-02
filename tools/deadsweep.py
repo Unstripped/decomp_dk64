@@ -364,8 +364,8 @@ def main():
             p.add_argument("--diff", action="store_true")
         else:
             p.add_argument("--rounds", type=int, default=8)
-            p.add_argument("--forms", nargs="+")
-            p.add_argument("--extra", nargs="+")
+            p.add_argument("--forms", nargs="+", action="extend")
+            p.add_argument("--extra", nargs="+", action="extend")
             p.add_argument("--shape-w", type=float, default=0.25)
             p.add_argument("-j", "--jobs", type=int, default=2)
             p.add_argument("--out")

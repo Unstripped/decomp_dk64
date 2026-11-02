@@ -76,8 +76,8 @@ swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a
   addend differences like `0(at)` vs `532(at)`). A function whose size differs shifts
   everything after it: get the size right first.
   A whole-file FAILED in functions you never touched is normal for a copy older than the
-  orchestrator's latest merges: a function still GLOBAL_ASM in your copy but C in the
-  expected object differs in REL addends. Judge your own function's diff and say so.
+  orchestrator's latest merges; a FAILED in YOUR function is real even when deadsweep scores
+  0 (its reduced TU hides a missing prototype of a callee declared only inside a park).
 - NEVER edit shared headers in `include/` (another agent may own them this round); use a
   local struct/cast prefixed with your agent name. Headers are live, not copied: if the
   orchestrator messages you about a header change, drop your conflicting local externs.
@@ -114,13 +114,13 @@ swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a
   permuter search-hint rule, NON_MATCHING parking) with these exceptions: no ROM build (your
   gates are `fdiff.sh` OK/TEXT OK and `--non-matching`), `uopt_trace.sh` before guessing at
   any register question; every `tools/dk` call under ~10 min (permuter `-j 2 --seconds 600`,
-  deadsweep `--rounds 1` per call, rerun on the improved body: a 40-min sweep starved the gate).
-  At stage 4+ run `tools/dk python3 tools/deadsweep.py sweep <copy> <src> FUNC --extra <each
-  local>` first. When it and the permuter stall, write your own harness (it matched most parks
-  of the 2026-10-31 unit): a grid over 1-5 statements' spellings (casts, chained/split
-  assignments, order) or a random hill-climb accepting ties, scored per region with branch
-  targets blanked, the `.o` deleted before each probe and one scratch file per parallel job.
-  Reject any dead use (also from permuter) of a local unassigned on that path.
+  deadsweep `--rounds 1` per call; a 30-min job starved the gate); never bypass its lock.
+  Order: callee prototypes vs definitions (`unit_check.py protos`, also arity), cfe hidden
+  temps (nested calls), structural spelling grids, then `deadsweep.py sweep --extra <locals>`,
+  then simulated annealing (dead tests + which local each use reads + declaration order, cost
+  full + 6*|insn delta| + 0.3*fakes; `.scratch/*/anneal.py` from past units) over tie-only
+  climbs; finally greedy-delete FAKEs that no longer change the score. Never keep a dead read of
+  a local unassigned on some path: guard it (`if (i && x)`) or add a real pre-definition.
 - Any construct you keep only to steer codegen (deadsweep statements, `volatile`, `x ^ 0`,
   `do {} while (0)`) ends in a trailing `// FAKE: <what it steers>` comment (AGENTS.md
   Conventions); keep deadsweep's own tag. Shared globals use the type most of `src/` gives

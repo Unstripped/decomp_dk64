@@ -40,10 +40,10 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   worth one dedicated agent; a second dedicated pass is worth it only with new findings in
   the context (F4C0 revisit: third passes on 104F0/17B90 parks matched 0 of 20; a first
   pass on old `-g` parks with the compiler's rule in the task matched 2 of 2).
-- Revisit of old parks: wave 1 per-file tasks (1-5 functions, large ones alone), then waves of
-  2-5 agents regrouped by diff KIND (ring, FP, frame/slot, as1 layout) whose task names the
-  findings that fit; keep going while a wave matches ~1+ per agent (actor revisit 2: 25 of 40
-  in 18 tasks, then 4/5, 4/5, 4/3, 4/2; leftovers 3: 19 of 50 in 23, 4/6, 1/3 agents, stop).
+- Revisit of old parks: wave 1 per-file tasks (1-5 functions, large ones alone), wave 2 the
+  rest of the ranking with every lever found so far, then waves of 3-8 agents regrouped by diff
+  KIND (schedule/as1, FP, int regalloc, frame/spill) with that kind's levers in each task; keep
+  going while a wave matches ~1+ per agent (revisit 5: 0.4, 0.9, 1.4 per agent, 44 matched).
 - Each `tasks[]` item lists its functions with the last diff note and stage; agents start
   from the stored draft (`tools/drafts.py show <seg> <FUNC>`), not m2c.
 - The agent's budget is its context window and request cap, not wall-clock time: the brief
@@ -57,8 +57,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 
 ## Rolling dispatch
 
-- Rounds are per agent, not per file. Merge EACH agent as soon as it reports
-  ([merge.md](merge.md)), commit, and refill the slot from the new HEAD.
+- Rounds are per agent, not per file. Merge each agent with a MATCH as soon as it reports
+  ([merge.md](merge.md)); batch parks-only copies and gate them together later (every gate
+  holds the exclusive lock for 2-9 min while all agents wait); refill the slot from HEAD.
 - Continuation is your job: for functions left, send a fresh list with each draft's diff
   note and the exact next step (frame size to reach, expression to flip, one named trick).
   Re-prompts without a concrete next step yield nothing; "continue" re-prompts yielded no
