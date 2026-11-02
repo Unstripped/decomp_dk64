@@ -11,10 +11,99 @@ typedef struct {
 } ControllerView;
 
 
-void *controllerAnimStateLoadAsset(void *, s32, s32);
+void *controllerAnimStateLoadAsset();
 void controllerAnimFreeSub();
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimStateLoadAsset.s")
+typedef struct CtrlM_StateEntry {
+    u16 unk0;
+    u16 unk2;
+    void *unk4;
+    u8 unk8;
+} CtrlM_StateEntry;
+
+typedef struct CtrlM_Asset {
+    void *unk0;
+    void **unk4;
+    void *unk8;
+    void *unkC;
+    void *unk10;
+    void *unk14;
+    u8 pad18[8];
+    u8 unk20;
+    u8 unk21;
+} CtrlM_Asset;
+
+// D_807FB630 is declared with its full type (ControllerStateEntry) further down; this function needs a u8 unk8 view, so it goes through a cast.
+struct ControllerStateEntry;
+extern struct ControllerStateEntry D_807FB630[];
+#define CtrlM_Entry(i) (((CtrlM_StateEntry *)D_807FB630)[i])
+extern void *D_807FB634;
+void *assetLoad(s32, s32, s32, s32);
+extern u8 D_80746B64[];
+
+void animListInit(void *, void *);
+void controllerBuildSubcommandList();
+void renderReplaceSegment6Commands();
+void controllerCommandRelocateAssets();
+void gfxSwapGeometryModeCullBits();
+
+void *controllerAnimStateLoadAsset(arg0, arg1, arg2)
+void *arg0;
+s32 arg1;
+unsigned char arg2;
+{
+    s32 i;
+    CtrlM_Asset *asset;
+    s32 delta;
+
+    for (i = 0; i < (u16)D_807FBB30; i++) {
+        if (arg1 == CtrlM_Entry(i).unk0 && CtrlM_Entry(i).unk8 == arg2) {
+            CtrlM_Entry(i).unk2++;
+            animListInit(arg0, CtrlM_Entry(i).unk4);
+            return CtrlM_Entry(i).unk4;
+        }
+    }
+
+    if ((u16)D_807FBB32 >= 0x20) {
+        return D_807FB634;
+    }
+
+    asset = (CtrlM_Asset *)assetLoad(5, arg1 - 1, 1, 1);
+    CtrlM_Entry(i).unk0 = arg1;
+    D_807FBB30 = (u16)D_807FBB30 + 1;
+    CtrlM_Entry(i).unk8 = arg2;
+    CtrlM_Entry(i).unk2 = 1;
+    CtrlM_Entry(i).unk4 = asset;
+
+    delta = ((u8 *)asset - (u8 *)asset->unk0) + 0x28;
+    asset->unk0 = (u8 *)asset->unk0 + delta;
+    asset->unk4 = (void **)((u8 *)asset->unk4 + delta);
+
+    for (i = 0; i < asset->unk21; i++) {
+        asset->unk4[i] = (u8 *)asset->unk4[i] + delta;
+    }
+
+    if (asset->unk8 != NULL) {
+        asset->unk8 = (u8 *)asset->unk8 + delta;
+    } else {
+        asset->unk8 = D_80746B64;
+        asset->unk20 = 1;
+    }
+
+    asset->unkC = (u8 *)asset->unkC + delta;
+    asset->unk10 = (u8 *)asset->unk10 + delta;
+
+    controllerBuildSubcommandList(*asset->unk4, asset->unk4, &asset->unk14);
+    renderReplaceSegment6Commands(*asset->unk4, asset->unk4);
+    controllerCommandRelocateAssets(*asset->unk4, asset->unk4);
+    animListInit(arg0, asset);
+
+    if (arg2 & 1) {
+        gfxSwapGeometryModeCullBits(*asset->unk4, asset->unk4);
+    }
+
+    return asset;
+}
 
 #ifdef NON_MATCHING
 typedef struct RvR2_Cmd {
@@ -188,7 +277,6 @@ command_lookup:
         }
     }
 }
-void *assetLoad(s32, s32, s32, s32);
 
 void controllerCommandRelocateAssets(ControllerCommand *arg0, ControllerCommand *arg1) {
     u32 temp_v0;
@@ -747,9 +835,8 @@ typedef struct {
 } AnimDataState;
 void *controllerAnimCacheGetOrLoad(s32 id);
 
-#ifdef NON_MATCHING
 void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
-    void *pad;
+    void *pad; // FAKE: frame pad (removing it changes the frame)
     AnimDataState *anim;
     AnimSlotState *slot0;
     AnimSlotState *slot4;
@@ -757,7 +844,6 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
     AnimSlotState *slotC;
     AnimResourceState *resource;
     f32 temp_f;
-    s16 temp_s;
     u8 temp_u;
 
     anim = (AnimDataState *)arg0->unk4;
@@ -848,18 +934,13 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
     anim->unk80 = 0.0;
     anim->unk8 = slot0;
     temp_u = ((u8 *)&anim->unk28)[1];
-    temp_s = anim->unk2A;
     anim->unkC = slot4;
     anim->unk0 = slot8;
     anim->unk4 = slotC;
+    anim->unk28 = anim->unk2A;
     anim->unk2A = temp_u;
-    anim->unk28 = temp_s;
     controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)slot8, arg2);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimSetState.s")
-#endif
 
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/func_80613FB0.s")
@@ -1038,14 +1119,13 @@ typedef struct {
     MotionCore *unk4;
 } MotionOwner;
 
-#ifdef NON_MATCHING
 void controllerStepMotionWindows(MotionOwner *arg0) {
     MotionCore *core;
     MotionWindow *win0;
     MotionWindow *win4;
     void *unk8;
     void *unkC;
-    f32 pos;
+    f32 pos[1]; // FAKE: one-element array keeps pos memory-resident (not coloured)
     f32 rate;
     f32 step;
 
@@ -1053,8 +1133,8 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
     win0 = core->unk0;
     win4 = core->unk4;
     unk8 = core->unk8;
-    pos = win0->unk4;
     unkC = core->unkC;
+    pos[0] = win0->unk4;
     if (core->unk30 & 1) {
         rate = (f32) ((f64) (u32) D_80744478 * 0.5);
     } else {
@@ -1062,7 +1142,7 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
     }
     core->unk30 &= ~1;
     if (D_80746B60 == 0) {
-        core->unk30 |= (win0->unk1C & 1);
+        core->unk30 |= (*(s16 *)&core->unk0->unk1C & 1);
     }
     if (core->unk58 > 0.0f) {
         core->unk54 += rate;
@@ -1101,11 +1181,11 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
             controllerAnimCacheFree(arg0, unkC);
             core->unk78 &= ~0x10;
         }
-        pos += ((step * win0->unk24) / 2.0f) * (1.0f - core->unk10);
+        pos[0] += ((step * win0->unk24) / 2) * (1.0f - core->unk10);
     } else {
-        pos += step * win0->unk24;
+        pos[0] += step * win0->unk24;
     }
-    controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win0, pos);
+    controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win0, pos[0]);
     if (win4->unk0 != NULL) {
         if (core->unk28 < core->unk2C) {
             core->unk28 += core->unk2E;
@@ -1118,9 +1198,9 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
                 core->unk28 = core->unk2C;
             }
         }
-        pos = win4->unk4 + win4->unk24;
-        controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win4, pos);
-        if ((win4->unk24 == 0.0f) && (win4->unk1C & 0x10)) {
+        pos[0] = win4->unk4 + win4->unk24;
+        controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win4, pos[0]);
+        if ((win4->unk24 == 0) && (*(s16 *)&win4->unk1C & 0x10)) {
             core->unk2C = 0;
             if (core->unk28 == 0) {
                 controllerAnimCacheFree(arg0, win4);
@@ -1129,12 +1209,7 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
     }
     actorScriptExecute(arg0);
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerStepMotionWindows.s")
-#endif
-
-#ifdef NON_MATCHING
 void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *arg1_raw, f32 arg2) {
     MotionOwner *arg0 = (MotionOwner *)arg0_raw;
     MotionWindow *arg1 = (MotionWindow *)arg1_raw;
@@ -1180,13 +1255,12 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
             return;
         }
         arg2 += (f32) ((arg1->unk20 - arg1->unk1E) - (s32) temp_fa0);
-        new_var = 0xFFF7;
+        new_var = ~8;
         arg1->unk1C = (u16) ((s16) arg1->unk1C & new_var);
         if (arg1 == var_a0) {
             temp_v0->unk78 &= ~0x20;
         }
     }
-    new_var = ~8;
     if (temp_v1 & 4) {
         if (temp_fv1 < arg2) {
             var_a3 = 1;
@@ -1234,12 +1308,10 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
         if (var_v1 & 0x3F) {
             if (var_a2 != 0) {
                 temp_a0 = temp_v0->unk7C;
-                temp_t2 = var_v1 & ~1;
-                temp_v0->unk78 = temp_t2;
+                temp_v0->unk78 = var_v1 & ~1;
                 if (temp_a0 != 0) {
                     temp_v0->unk7C = temp_a0 - 1;
-                    if (temp_a0 && temp_a0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                    var_v1 = temp_t2;
+                    var_v1 = temp_v0->unk78;
                 } else {
                     var_v1 = (temp_v0->unk78 &= ~2);
                 }
@@ -1248,12 +1320,12 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
                 temp_fa0_2 = temp_v0->unk80;
                 temp_ft4 = arg1->unk4;
                 if (arg2 == temp_fa0_2) {
-                    if (temp_ft4 != temp_fa0_2) temp_v0->unk78 = var_v1 & new_var;
+                    if (temp_ft4 != temp_fa0_2) temp_v0->unk78 = var_v1 & ~8;
                 } else if (temp_fa0_2 < arg2) {
-                    if ((temp_ft4 < temp_fa0_2) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & new_var;
-                    else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & new_var;
-                } else if ((temp_fa0_2 < temp_ft4) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & new_var;
-                else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & new_var;
+                    if ((temp_ft4 < temp_fa0_2) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & ~8;
+                    else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & ~8;
+                } else if ((temp_fa0_2 < temp_ft4) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & ~8;
+                else if ((temp_ft4 < temp_fa0_2) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & ~8;
             }
         }
     }
@@ -1269,12 +1341,7 @@ void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *
         }
         arg1->unkE = temp_v0_2;
     }
-    if (var_a3) {}  // FAKE: keeps a3 live
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerApplyMotionWindow.s")
-#endif
 
 
 typedef struct {
