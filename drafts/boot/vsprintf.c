@@ -1,4 +1,4 @@
-// vsprintf (src/boot/3D20.c): UNPARKED 2026-11-02: park was 1218 insns vs target 1221 (count-inexact parks stay drafts); vsprintf (src/boot/3D20.c): stage 4 PARKED (insn count 1218=1218, frame 440, callee-saved set match; diff 277 -> 161, deadsweep score full=161 shape=29). KEY structure (revisit 5): per-case 'c = *f; break;' tails (as1 clones a tail block ending in 'b test' into every break; one shared post-switch 'c = *f' never clones), c is int, loop 'while (*f != 0) { c = *f; ...', *f (not c) in 'if (*f != %)', 'while (*f != % && *f != 0)', '*buf++ = *f', 'conv = *f'; 'for (; len-- > 0;)' gives sltiu+xori; sign/dot inlined in elen (sign first, then dot); count/store order swaps; drop fill2-4/fill1 pads so base spills at 404 (fillx[12] keeps frame 440). Remaining: FP temps f0/f2 vs f12/f14 (scale*10 expr coloured before tmp/rnd), sign/fneg webs (5 dead tests keep fneg in a1), delay-slot sched in x-prefix/zero-pad loops, conv web (target s4 piece to xori). hill-climb with 6 fakes + 'd = d | 0' (read before def) reached 141.
+// vsprintf (src/boot/3D20.c): stage 4 PARKED, count EXACT (1218 insns + 3 trailing pad nops; nm -S 1221 is the TU-end padding artefact: objdump line counts equal 1289/1289), frame 440, callee-saved set match; deadsweep full 161 -> 80 (shape 29 -> 18). Levers: separate locals per arm (q1 = va_arg ptr of the 'n' and 'p' arms, etmp/ernd e-arm vs tmp/rnd f-arm, i2 = f-arm counter AND nd, base reused as the e-arm rnd-loop counter), fillx pad 12 -> 5 (int i kept unreferenced: removing it changes the frame), 'p' arm store order base,conv,alt,uv,neg,end, count=0 before f=fmt, c=*++f before count++/*buf++='%' with (c ^ 0)==% FAKE, (nil) loop as while{count++; *buf++=*s; s++}, one count++/*buf++ order flip, e-arm FAKEs reduced to 3 dead tests (pad/space/conv). f-arm now exact except fneg a3 vs a1. Remaining: uopt hoists the const def d='0' (li v0,48) to the e-arm entry so v0 is blocked: fneg a1->ra, (fneg!=0) v0->a2, exp>=100 a2->a3, loop temps v0/v1/a0 shift (~60 of 80 lines); numout p web a0/a1 swap (7); zero-pad loop const 48 coloured v0 vs ring t7 + ring t7/t9 for &nbuf[0x7F] (9); 'p' arm ra/b order (2). Tried without effect: typed constants (48U/(uchar)), while vs if+do-while, do{}while(0)/if(1) wrappers, dead stores before d/i2/nd, d/elen/fneg splits, fneg->neg, d typed int/char/loop counter, deadsweep sweep (3162 variants), 8.5k-eval dead-test hill-climbs x3, decl-order moves of every local, count++/*buf++ pair flips, all int/u8 rename-in-region pairs, FAKE variable substitution.
 unsigned int strlen(unsigned char *s);
 
 int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
@@ -37,12 +37,16 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     double rnd;
     int c;
     int i;
-    int fillx[12]; // FAKE: frame pad (original locals unknown; keeps frame 440 and the base spill at 404)
+    int i2;
+    int *q1;
+    int fillx[5]; // FAKE: frame pad (original locals unknown; keeps frame 440 and the base spill at 404)
     double tmp;
+    double etmp;
+    double ernd;
     int nd;
 
-    f = fmt;
     count = 0;
+    f = fmt;
     while (*f != 0) {
         c = *f;
         if (*f != '%') {
@@ -54,10 +58,10 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
             }
         } else {
             c = *++f;
-            if (c == '%') {
+            if ((c ^ 0) == '%') { // FAKE: operand order of the compare
+                c = *++f; // LAYOUT: as1 increment order of f/count/buf
                 count++;
                 *buf++ = '%';
-                c = *++f;
             } else {
                 alt = 0;
                 minus = 0;
@@ -297,18 +301,18 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     if (value.d >= 1.0) {
                         exp = 0;
                         scale = 1.0;
-                        tmp = 10.0;
-                        while (tmp <= value.d) {
-                            scale = tmp;
-                            tmp *= 10.0;
+                        etmp = 10.0;
+                        while (etmp <= value.d) {
+                            scale = etmp;
+                            etmp *= 10.0;
                             exp++;
                         }
                     }
-                    rnd = scale * 0.5;
-                    for (i = prec; i > 0; i--) {
-                        rnd /= 10.0;
+                    ernd = scale * 0.5;
+                    for (base = prec; base > 0; base--) {
+                        ernd /= 10.0;
                     }
-                    value.d = value.d + rnd;
+                    value.d = value.d + ernd;
                     if (scale * 10.0 <= value.d) {
                         scale *= 10.0;
                         exp++;
@@ -316,7 +320,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     elen = (fneg || plus || space) + (prec > 0 || alt) + prec + (exp >= 100) + 5;
                     if (!minus && pad == ' ') {
                         for (; elen < width--;) {
-                            if (fneg == 0) {}  // FAKE: keeps fneg in a1 (not ra)
+                            if (pad == 0) {}  // FAKE: steers e-arm colouring
                             count++;
                             *buf++ = pad;
                         }
@@ -340,7 +344,6 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     d = '0';
                     if (scale <= value.d) {
                         do {
-                            if (fneg && fneg) {}  // FAKE: keeps fneg in a1 (not ra)
                             d++;
                             value.d -= scale;
                         } while (scale <= value.d);
@@ -379,8 +382,8 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     count++;
                     if (conv) {}  // FAKE: steers e-arm colouring
                     if (exp >= 100) {
-                        *buf++ = exp / 100 + '0';
                         count++;
+                        *buf++ = exp / 100 + '0';
                     }
                     *buf++ = exp / 10 % 10 + '0';
                     count += 2;
@@ -404,28 +407,27 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     if (prec < 0) {
                         prec = 6;
                     }
-                    for (i = 0; i < prec; i++) {
+                    for (i2 = 0; i2 < prec; i2++) {
                         rnd /= 10.0;
                     }
                     if (sh) {
                         fv = va_arg(ap, float);
                     } else {
                         fv = va_arg(ap, double);
-                        if (sh != 0) {}  // FAKE: steers f-arm colouring
                     }
                     if (fv < 0.0) {
                         fneg = 1;
                         fv = -fv;
                     }
                     fv += rnd * 0.5;
-                    nd = 1;
+                    i2 = 1;
                     fscale = 1.0;
                     while (tmp <= fv) {
                         fscale = tmp;
                         tmp *= 10.0;
-                        nd++;
+                        i2++;
                     }
-                    elen = (fneg || plus || space) + (prec > 0 || alt) + nd + prec;
+                    elen = (fneg || plus || space) + (prec > 0 || alt) + i2 + prec;
                     if (!minus && pad == ' ') {
                         for (; elen < width--;) {
                             count++;
@@ -541,12 +543,12 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     c = *f;
                     break;
                 case 'p':
-                    p = va_arg(ap, unsigned char *);
-                    if (p) {
-                        conv = 'x';
-                        uv = (unsigned int)p;
+                    q1 = va_arg(ap, int *);
+                    if (q1) {
                         base = 16;
+                        conv = 'x';
                         alt = 1;
+                        uv = (unsigned int)q1;
                         neg = 0;
                         end = &nbuf[0x7F];
                         goto numout;
@@ -559,9 +561,11 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                                 *buf++ = ' ';
                             }
                         }
-                        for (s = (unsigned char *)"(nil)"; *s != 0; s++) {
-                            *buf++ = *s;
+                        s = (unsigned char *)"(nil)";
+                        while (*s != 0) {
                             count++;
+                            *buf++ = *s;
+                            s++;
                         }
                         if (minus) {
                             for (; width-- > 0;) {
@@ -574,13 +578,17 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     break;
                 case 'n':
                     if (ll) {
-                        *va_arg(ap, long long *) = count;
+                        q1 = va_arg(ap, int *);
+                        *(long long *)q1 = count;
                     } else if (lg) {
-                        *va_arg(ap, int *) = count;
+                        q1 = va_arg(ap, int *);
+                        *q1 = count;
                     } else if (!sh) {
-                        *va_arg(ap, int *) = count;
+                        q1 = va_arg(ap, int *);
+                        *q1 = count;
                     } else {
-                        *va_arg(ap, short *) = count;
+                        q1 = va_arg(ap, int *);
+                        *(short *)q1 = count;
                     }
                     c = *f;
                     break;

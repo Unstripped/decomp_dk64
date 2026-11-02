@@ -134,7 +134,6 @@ void jetpacInitRocketParts(JetpacPlayer *arg0) {
 
 
 
-#ifdef NON_MATCHING
 s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
 s32 jetpacIsOverRocket(f32);
 extern s32 D_8002F064;
@@ -146,19 +145,22 @@ extern s32 D_8002F06C;
 extern s32 D_8002F070;
 extern s32 D_8002F074;
 extern s32 D_8002F078;
-void flagSet(s32, s32, s32);
 void jetpacPlaySound(s32);
-void jetpacSpawnBonusItem(JetpacPlayer *);
 void jetpacSpawnFuelPod();
+#ifdef NON_MATCHING
+void flagSet(s32, s32, s32);
+void jetpacSpawnBonusItem(JetpacPlayer *);
 #endif
 
-#ifdef NON_MATCHING
+typedef struct JetW2FpABox {
+    /* 0x0 */ s32 unk0;
+} JetW2FpABox;
+
 void jetpacRocketItemUpdate(JetpacItem *arg0) {
     JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
     f32 *new_var;
     f32 *new_var2;
-    s32 *new_var3;
-    s32 new_var4;
+    JetW2FpABox *new_var3;
 
     if (arg0->unk1C == 0) {
         return;
@@ -175,7 +177,7 @@ void jetpacRocketItemUpdate(JetpacItem *arg0) {
     }
     new_var = &jetpacPlayer;
     new_var2 = &D_8002F054;
-    new_var3 = &D_8002F06C;
+    new_var3 = (JetW2FpABox *)&D_8002F06C;
     if (arg0->unk38 == 0) {
         if (arg0->unk14 > 0.0f && D_8002F064 != 4) {
             f32 x = arg0->unk8;
@@ -203,8 +205,7 @@ void jetpacRocketItemUpdate(JetpacItem *arg0) {
             arg0->unk38 = 0;
             arg0->unk14 = 0.8f;
         } else {
-            new_var4 = *new_var3;
-            arg0->unk8 = (jetpacPlayer - (f32)2 * D_8002F058 + (f32)new_var4) + (D_8002F074 - D_8002F06C - arg0->unk2C + arg0->unk24) * 0.5;
+            arg0->unk8 = (jetpacPlayer - (f32)2 * D_8002F058 + (f32)new_var3->unk0) + (D_8002F074 - D_8002F06C - arg0->unk2C + arg0->unk24) * 0.5;
             arg0->unkC = D_8002F054 - D_8002F05C + (f32)D_8002F078 - (f32)arg0->unk30;
             if (jetpacIsOverRocket(arg0->unk8)) {
                 arg0->unk8 = 168.0f;
@@ -238,10 +239,6 @@ void jetpacRocketItemUpdate(JetpacItem *arg0) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/jetpacRocketItemUpdate.s")
-#endif
 
 
 typedef struct {
