@@ -1712,19 +1712,20 @@ void mapCellSetFlag(s32 arg0, u8 arg1) {
     }
 }
 
-#ifdef NON_MATCHING
 f32 mapTriangleHeightAtPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
-    f64 t;
-    f64 dCE;
+    f32 ret;
+    f64 d68;
     f64 d02;
     f64 q;
     f64 d04;
     f64 d6A;
+    f64 t;
+    f64 dCE;
     f64 N1;
     f64 N2;
+    f64 N3;
     f64 dC10;
-    f32 ret;
-    f64 d68;
+    f64 N3b;
 
     d02 = (f64)(arg0->unk0 - arg0->unk2);
     d68 = (f64)(arg0->unk6 - arg0->unk8);
@@ -1734,9 +1735,11 @@ f32 mapTriangleHeightAtPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
     dC10 = (f64)(arg0->unkC - arg0->unk10);
     N1 = d68 * dC10 - dCE * d6A;
     N2 = dCE * d04 - d02 * dC10;
-    q = -((f64)arg0->unk2 * N1 + N2 * (f64)arg0->unk8 + (f64)arg0->unkE * (d02 * d6A - d68 * d04));
+    N3b = d02 * d6A - d68 * d04;  // FAKE: separate named web for the q term (N3 below recomputes it for t)
+    q = -((f64)arg0->unkE * N3b + (N1 * (f64)arg0->unk2 + N2 * (f64)arg0->unk8));
     if (N2 * 2000.0 > 0.01 || N2 * 2000.0 < -0.01) {
-        t = N1 * arg1 + N2 * -1000.0 + arg2 * (d02 * d6A - d68 * d04) + q;
+        N3 = d02 * d6A - d68 * d04;  // FAKE: second web of the same product
+        t = N1 * arg1 + N2 * -1000.0 + N3 * arg2 + q;
         t = t / (N2 * 2000.0);
         if (t < 0.0) {
             t = 0.0 - t;
@@ -1747,10 +1750,6 @@ f32 mapTriangleHeightAtPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
     }
     return ret;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapTriangleHeightAtPoint.s")
-#endif
 
 s32 mapTriangleBoundsContainPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
     f32 minX;

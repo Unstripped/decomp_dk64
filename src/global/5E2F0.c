@@ -535,16 +535,15 @@ extern LightTrigger D_807F7BC8[];
 extern s16 D_807F7BC0;
 void lightAddDedupEntry(s16);
 s32 lightCheckVolumeBounds(LightVolume *, f32, f32, f32, s16, s16, s16, s16, s16, s16, s32);
-#ifdef NON_MATCHING
 s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, s8 *arg10) {
     f32 diff[6];
-    s32 i;
+    f32 temp_fa0;
     f32 dist;
-    f32 temp_fa0, temp_fa1;
-    f32 temp_f1;
-    f32 temp_ft4, temp_ft5;
+    f32 temp_ft4;
+    f32 temp_ft5;
+    f32 temp_fa1;
+    s32 i;
     f32 three;
-    f32 e1, e2;
     s16 a3 = arg3;
     s16 a4 = arg4;
     s16 a5 = arg5;
@@ -568,7 +567,6 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
                 D_807F78C0[D_807F7BC0].unk34 = (f64)(u32)D_807F7500[i].unk38 / 255.0;
                 D_807F78C0[D_807F7BC0].unk3E = D_807F7500[i].unk39;
                 switch ((u32)D_807F7500[i].unk39) {
-                    if (!temp_ft4) {}  // FAKE: steers FP temp colours (random search)
                 case 1:
                     diff[0] = D_807F7500[i].unk24 - D_807F7500[i].x;
                     diff[1] = D_807F7500[i].unk28 - D_807F7500[i].y;
@@ -589,17 +587,16 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
                     if (D_807F7500[i].unk14 == 0.0f) {
                         D_807F7500[i].unk14 = 0.1f;
                     }
+                    temp_fa0 = D_807F7500[i].unk14 * 3.0f;  // FAKE: separate local for dist*dist (own FP web, steers colours)
+                    D_807F78C0[D_807F7BC0].unk18 = (s32)(temp_fa0 * temp_fa0);
                     dist = D_807F7500[i].unk14 * 3.0f;
-                    e1 = dist;  // FAKE: split web of dist/fa0 (FP colour steer)
-                    D_807F78C0[D_807F7BC0].unk18 = (s32)(dist * e1);
                     temp_fa1 = (D_807F7500[i].unk14 / three) * 3.0f;
-                    e2 = temp_fa1;  // FAKE: copy steers FP colouring
                     D_807F78C0[D_807F7BC0].unk1C = 1.0f / (dist - temp_fa1);
                     D_807F78C0[D_807F7BC0].unk20 = temp_fa1;
-                    e1 = ((D_807F7500[i].unk14 * 1.3f) / three) * 3.0f;
-                    diff[1] = e1;  // FAKE: memory-resident copy steers FP colouring
-                    D_807F78C0[D_807F7BC0].unk28 = e1;
-                    D_807F78C0[D_807F7BC0].unk24 = 1.0f / (((D_807F7500[i].unk14 * 1.3f) * 3.0f) - diff[1]);
+                    D_807F78C0[D_807F7BC0].unk28 = ((D_807F7500[i].unk14 * 1.3f) / three) * 3.0f;
+                    temp_ft4 = D_807F7500[i].unk14 * 1.3f;  // FAKE: named copies of the repeated 1.3 products (own FP webs, steer colours)
+                    temp_ft5 = ((D_807F7500[i].unk14 * 1.3f) / three) * 3.0f;
+                    D_807F78C0[D_807F7BC0].unk24 = 1.0f / ((temp_ft4) * 3.0f - temp_ft5);
                     break;
                 }
                 lightAddDedupEntry(D_807F7BC0);
@@ -611,10 +608,6 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
     if (arg10 && arg10) {}  // FAKE: deadsweep: arg10 priority above a3..a6 (s4)
     return D_807F7BC0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/5E2F0/lightCollectVolumesInBounds.s")
-#endif
 void *memcpy(void *, const void *, unsigned int);
 
 void lightAddDedupEntry(s16 arg0) {
