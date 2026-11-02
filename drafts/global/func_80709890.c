@@ -1,4 +1,4 @@
-// func_80709890 (src/global/10E1D0.c): R3a: stage 6, 6 diff lines (colours only). p = arg0->unk18 AFTER the store keeps V18 a separate web from walker p (target addiu v0,a3,4); V8=a0 now ok; remaining: VC lands v1 (target a1) and V18 a1 (target a3), count a2 ok. Cause: V18 adjsave 4.0 > V8/VC 3.0 so V18 is coloured first; no way found to raise V8/VC or lower V18 (3 x 10k dead-if hill-climbs, loop-form/expression-form variants, split statements). Dead-if FAKEs on arg0/p/arg2 removable.
+// func_80709890 (src/global/10E1D0.c): func_80709890 (src/global/10E1D0.c): W3IntC 2026-11-02: stage 6, 3 lines (was 6): V8 (uadd arg0,0x2C) takes v1, target a0; VC=a1, V18=a3, count=a2 and p=v0 exact. Found by simulated annealing over dead tests (22k evals) then statement-order grid: 'count = 1;' hoisted to FIRST statement of the head + 'if (arg0->unk20) {}' after 'p = arg0->unk18;' (replaces the unkC FAKE) + the same dead test as first stmt of the walker loop body. -l5: cand 19 (V8) forbidden [v0,a0,a2] now (was [v0,v1,a2] => a0): a0 forbidden by something in ucode order of bb10. Tried (no gain, 40k evals): annealing from here (40 dead forms, 2 seeds), spelling grid of the 4 head statements (casts/operand order), named locals v8/vC/v18 (frame +, 59-73), removal of the old FAKEs (67 -> anneal 21).
 typedef struct MeshEntry {
     u32 unk0;
     u8 pad[0x18];
@@ -43,13 +43,14 @@ s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **ar
     arg0->unk10 = heapAlloc(arg0->unk0 * 0x10);
     arg0->unk14 = heapAlloc(arg0->unk0 * 0x10);
     if (arg0 && arg0) {} // FAKE: block split after the 3rd heapAlloc frees $v0 for walker p
+    count = 1;
     arg0->unk8 = (u8 *)arg0 + 0x2C;
     arg0->unkC = arg0->unk8 + arg0->unk0 * 0xC;
-    count = 1;
     arg0->unk18 = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C);
     p = arg0->unk18;
-    if (arg0->unkC) {}  // FAKE: dead use steers VC colouring
+    if (arg0->unk20) {}  // FAKE: dead use steers V8/VC/V18 colouring order
     while (*p++ != 0) {
+        if (arg0->unk20) {}  // FAKE: dead use in walker loop steers V8/VC colouring
         count++;
     }
     arg0->unk20 = (s32 *)arg0->unk18 + count;

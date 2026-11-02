@@ -154,13 +154,14 @@ s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **ar
     arg0->unk10 = heapAlloc(arg0->unk0 * 0x10);
     arg0->unk14 = heapAlloc(arg0->unk0 * 0x10);
     if (arg0 && arg0) {} // FAKE: block split after the 3rd heapAlloc frees $v0 for walker p
+    count = 1;
     arg0->unk8 = (u8 *)arg0 + 0x2C;
     arg0->unkC = arg0->unk8 + arg0->unk0 * 0xC;
-    count = 1;
     arg0->unk18 = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C);
     p = arg0->unk18;
-    if (arg0->unkC) {}  // FAKE: dead use steers VC colouring
+    if (arg0->unk20) {}  // FAKE: dead use steers V8/VC/V18 colouring order
     while (*p++ != 0) {
+        if (arg0->unk20) {}  // FAKE: dead use in walker loop steers V8/VC colouring
         count++;
     }
     arg0->unk20 = (s32 *)arg0->unk18 + count;
