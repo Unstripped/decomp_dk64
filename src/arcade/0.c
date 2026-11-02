@@ -2812,7 +2812,6 @@ extern ArcadeEntity D_8004A5F8;
 extern s32 D_8004A318[];
 extern u8 D_8004BCE9[];
 
-#ifdef NON_MATCHING
 extern u8 D_80035EF0[];
 extern u8 D_80036138[];
 extern u8 D_80036380[];
@@ -2934,10 +2933,6 @@ void arcadeUpdateBouncingBarrel(s32 arg0) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/arcadeUpdateBouncingBarrel.s")
-#endif
 
 extern u8 D_80037788[];
 extern u8 D_80037990[];
