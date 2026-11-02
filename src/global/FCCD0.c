@@ -546,7 +546,6 @@ s32 slotQueueGetMaxValue(s32 arg0, s32 arg1) {
     return var_a0;
 }
 
-#ifdef NON_MATCHING
 typedef struct SlotQueueStatSlot {
     u16 *unk0;
     u8 pad4[0x28];
@@ -558,8 +557,8 @@ typedef struct SlotQueueStatSlot {
 extern u8 gPlayerCharacterId;
 extern s32 func_805FEF10(s32 *);
 extern void func_80687C48(void);
-extern void flagSet(s16, s32, s32);
-extern s16 flagGridIndex(s32, s32, u8, s32);
+extern void flagSet(s16, u8, u8);
+extern s32 flagGridIndex(s32, s32, s32);
 extern void sfxAllocateChannel(s32, f32);
 
 void slotQueueAddValue(arg0, arg1, arg2)
@@ -569,7 +568,7 @@ s16 arg2;
 {
     u8 *pa;
     u8 *sp48;
-    s16 *pb;  // FAKE: unused local, keeps a 4-byte home slot (shifts sp48/sp3C/temp_a3/sp28 offsets)
+    s16 *pb;  // FAKE: unused local, keeps a 4-byte home slot (shifts the sp offsets of the homes below it)
     s32 temp_v0;
     s32 sp3C;
     s32 temp_a3;
@@ -583,11 +582,12 @@ s16 arg2;
     temp_v0_2 = func_806C8DE0(arg1);
     sp48 = (u8 *)D_807FC950 + (arg1 * 0x306 + temp_v0_2 * 0x5E);
     temp_v0 = slotQueueGetAddress(arg1);
-    if (D_8076A0AB && D_8076A0AB) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     temp_a0 = (SlotQueueStatSlot *)temp_v0 + arg0;
     if (((temp_a0->unk2D == 0) || (arg2 >= 0)) && (temp_a0->unk2C == 0)) {
         if ((arg0 != 0xA) && (arg0 != 0xC)) {
             temp_v1 = temp_a0->unk0;
+            if (temp_a0 && temp_a0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
+            if (temp_v0 > 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
             if ((*temp_v1 + arg2) < 0) {
                 *temp_v1 = 0;
             } else {
@@ -595,6 +595,7 @@ s16 arg2;
                 *temp_v1 += arg2;
                 temp_v0_2 = slotQueueGetMaxValue(arg0, sp28);
                 temp_v1 = ((SlotQueueStatSlot *)temp_v0)[arg0].unk0;
+                if (D_8076A0AB && D_8076A0AB) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
                 if (temp_v0_2 < *temp_v1) {
                     *temp_v1 = temp_v0_2;
                 }
@@ -604,26 +605,25 @@ s16 arg2;
                 if ((arg2 > 0) && ((arg0 * 0x30) == 0)) {
                     temp_v0_2 = func_805FF030(D_8076A0AB, 1);
                     temp_a3 = *(u16 *)(sp48 + 0xA + (temp_v0_2 * 2)) + *(u16 *)(sp48 + 0x26 + (temp_v0_2 * 2));
+                    if (D_8076A0AB == 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
                     if ((temp_a3 >= 0x4B) && ((temp_a3 - arg2) < 0x4B)) {
-                        flagSet(flagGridIndex(0x225, temp_v0_2, (&gPlayerCharacterId)[arg1], temp_a3), 1, 0);
+                        temp_v0 = flagGridIndex(0x225, temp_v0_2, (&gPlayerCharacterId)[arg1]);
+                        flagSet(temp_v0, 1, 0);
                         func_80687C48();
                     }
+                    if (temp_a3 == 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
                     if ((temp_a3 == 0x64) && ((temp_a3 - arg2) < 0x64)) {
                         sfxAllocateChannel(0xAC, 1.0f);
                     }
                 }
             }
-            if (D_8076A0AB && D_8076A0AB) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if (sp28) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
         }
         if ((arg0 * 0x30) == 0x180) {
             func_806F8278(arg1);
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/FCCD0/slotQueueAddValue.s")
-#endif
 
 
 

@@ -1,4 +1,4 @@
-// mapChunkEmitLayerDisplayLists (src/global/55B20.c): leftovers5 MapA: stage 6 (parked NON_MATCHING), full=5 text=3 shape=2 (was 10): KEY = write the packets with the real GBI macros (gDPPipeSync(gfx++), gSPSegment(gfx++,6,x), gSPDisplayList(gfx++,x)) instead of WRITE_GFX words: the E7 'move v1,s0 / sw zero,4(v1) / sw s6,0(v1)' shape and the whole loop then match; gfx colouring fixed by deadsweep '{gfx = (Gfx *)((u32)gfx | 0);}' at the loop top (+1 gfx ref) and 'if (arg0 == 0) {}' (natural form of the old arg1==0.0f). Remaining: D_807F70B0 hi: target 'lui v0 ... lh a0,0(a3); lw v0,lo(v0)' (lui reg = node reg, lw after the hoisted lh) vs ours 'lui a2; lw v0,0(a2); lh a0' (87 = uilod D_807F70B0 CSE'd with the post-loop dead test gets a2; removing/moving/reforming the test, key-local orders, while/for/swap loop spellings, 231 dead-statement forms all >= 5).
+// mapChunkEmitLayerDisplayLists (src/global/55B20.c): leftovers5 W3Frame: stage 6 (parked NON_MATCHING), full=4 text=4 shape=2 (was full=5 text=3). KEY: spell the real node load off the neighbour symbol 'node = (struct MapCell *)(&D_807F70AC)[1];' (FAKE) so its lui is not shared with the dead test's hi constant: 'lui v0' now matches. Remaining 4 lines: ours entry ptr 'addu a2,a1,t9 / lh a0,0(a2) / lbu t4,2(a2)' vs target a3, and lw v0,lo(v0) before lh a0 vs target after it. Tried: 2 x 16k-eval annealing over dead tests/assignments (+entry-local forms), entry pointer local before do/found, operand swaps, dead test positions/pairs (all >=4). D_807F70AC must be declared (line 114, extern s32). Untried: something that keeps a2 occupied through the loop.
 s32 mapChunkEmitLayerDisplayLists(arg0, arg1, arg2)
 u32 *arg0;
 s32 arg1;
@@ -35,7 +35,7 @@ u8 arg2;
                 continue;
             }
             found = 0;
-            node = D_807F70B0;
+            node = (struct MapCell *)(&D_807F70AC)[1]; // FAKE: neighbour-symbol spelling keeps this load's lui separate from the dead test's hi constant
             do {
                 if (node->unk2 == ((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk0) {
                     found = 1;

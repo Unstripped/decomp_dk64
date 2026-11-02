@@ -2361,7 +2361,7 @@ u8 arg2;
                 continue;
             }
             found = 0;
-            node = D_807F70B0;
+            node = (struct MapCell *)(&D_807F70AC)[1]; // FAKE: neighbour-symbol spelling of D_807F70B0 keeps this load's lui separate from the dead test's hi constant
             do {
                 if (node->unk2 == ((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk0) {
                     found = 1;
