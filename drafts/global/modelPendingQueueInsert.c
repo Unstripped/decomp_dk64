@@ -1,5 +1,5 @@
-// modelPendingQueueInsert (src/global/36880.c): stage 5: 33 diff lines (down from 48). Frame 0x58, callee-saved, relocations match 100%. Remaining: loop index narrowing (v0 vs t0), else base address (a2 vs v0), case 5 sb/sh store order
-typedef struct ModelA_PendingSrc {
+// modelPendingQueueInsert (src/global/36880.c): stage 5, 26 diff lines (was 33; parked in 36880.c copy). levers: s32 i with i=(u8)(i+1) update kills ucvt copy (multu t0), else px/py/pz as i*0x2F0+(u8*)gPlayerSlots+off, D[idx++].done store order. Remaining: uopt CSEs else base+off into p (target keeps separate 'addu v0,a2,t1', offset cand a2, p a3, mflo a2); 'andi t6; slt at,t6' vs ours move t0,t6 first; flag block const regs t9 vs v0. Spelling grid (ptr/int/u32/off-first) all identical 26.
+typedef struct ModelPendingEntry {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -8,11 +8,11 @@ typedef struct ModelA_PendingSrc {
     /* 0x1E */ s16 unk1E;
     /* 0x20 */ u8 pad20[4];
     /* 0x24 */ u8 unk24;
-} ModelA_PendingSrc;
+} ModelPendingEntry;
 
 extern u8 D_807F7140;
 
-void modelPendingQueueInsert(ModelA_PendingSrc *arg0, u8 arg1) {
+void modelPendingQueueInsert(ModelPendingEntry *arg0, u8 arg1) {
     u8 *obj;
     u8 allow;
     s32 pad1;
@@ -23,7 +23,7 @@ void modelPendingQueueInsert(ModelA_PendingSrc *arg0, u8 arg1) {
     s32 pad5;
     u8 *tbl;
     u8 *newv;
-    u8 i;
+    s32 i;
     ModelPendingQueueEntry *e;
     int nv;
     u8 *p;
@@ -47,9 +47,8 @@ void modelPendingQueueInsert(ModelA_PendingSrc *arg0, u8 arg1) {
             case 3:
             case 6:
                 best = 1e8f;
-                for (i = 0; i < D_80750AB4;) {
+                for (i = 0; i < D_80750AB4; i = (u8)(i + 1)) {
                     p = (u8 *)gPlayerSlots + i * 0x2F0;
-                    i++;
                     if (*p != 0) {
                         if (obj[0x54] == 6) {
                             px = (f32 *)(*(u8 **)(p + 4) + 0x7C);
@@ -57,11 +56,11 @@ void modelPendingQueueInsert(ModelA_PendingSrc *arg0, u8 arg1) {
                             newv = *(u8 **)(p + 4) + 0x84;
                             pz = (f32 *)newv;
                         } else {
-                            px = (f32 *)(p + 0x21C);
+                            px = (f32 *)(i * 0x2F0 + (u8 *)gPlayerSlots + 0x21C);
                             if (!arg0) {
                             }
-                            py = (f32 *)(p + 0x220);
-                            pz = (f32 *)(p + 0x224);
+                            py = (f32 *)(i * 0x2F0 + (u8 *)gPlayerSlots + 0x220);
+                            pz = (f32 *)(i * 0x2F0 + (u8 *)gPlayerSlots + 0x224);
                         }
                         if ((*pz - arg0->unkC) * (*pz - arg0->unkC) + ((*px - arg0->unk4) * (*px - arg0->unk4) + (*py - arg0->unk8) * (*py - arg0->unk8)) < (0, best)) {
                             if (arg0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -82,8 +81,7 @@ void modelPendingQueueInsert(ModelA_PendingSrc *arg0, u8 arg1) {
                 allow = 0;
                 D_807F6030[D_807F6028].id = arg0->unk1E;
                 D_807F6030[D_807F6028].key = *(s32 *)(obj + 0x58);
-                D_807F6030[D_807F6028].done = 0;
-                D_807F6028++;
+                D_807F6030[D_807F6028++].done = 0;
                 break;
             }
             if (allow != 0) {

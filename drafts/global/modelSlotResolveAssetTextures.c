@@ -1,4 +1,4 @@
-// modelSlotResolveAssetTextures (src/global/36880.c): stage 3 (118 vs 113 insns; frame 0x48 + s0/s1/ra match; not parked). Target loads obj into v0 then move s1,v0 after first store; flags in a3 (ours v1); stack slot order permuted. The volatile formal/seg2 here are probes, not final C
+// modelSlotResolveAssetTextures (src/global/36880.c): stage 3: 63 diff lines (was 66), still 118+ vs 113 insns. Natural K&R body (no volatile) colours node/tail8 into s2/s3 (frame 0x40, 4 s-regs) while target keeps only s0=seg,s1=obj and caller-saved v1/a2/t0 with save-around-calls: more blocks/fewer refs needed (firstUseCost). dead tests incl. res read before def (illegal) found 101->71, volatile draft still best
 s32 dlResolveNodeTextures(DisplayListCmd *, DisplayListCmd *, ModelSegmentNode *, u8);
 
 s32 modelSlotResolveAssetTextures(arg0, arg1, arg2)
@@ -37,6 +37,7 @@ volatile u8 arg2;
                 if (node != 0) {
                     res |= dlResolveNodeTextures((DisplayListCmd *)seg->unkA4, (DisplayListCmd *)(seg->unkA4 + sp24), node, arg2);
                     res |= dlResolveNodeTextures((DisplayListCmd *)seg->unkAC, (DisplayListCmd *)(seg->unkAC + sp20), node, arg2);
+                    res = res | 0;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 }
                 if (res != 0) {
                     obj->unk0 &= ~0x10;
