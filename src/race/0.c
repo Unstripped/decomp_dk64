@@ -178,7 +178,6 @@ int func_80024634(RaceC_Arg0 *arg0, RaceC_Arg1 *arg1) {
     return arg0->unk36 != 0 && flagGet(arg1->unk1A, 0) == 0 && D_80750AC4 >= arg1->unk1C;
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     u8 pad0[0x1C];
     u16 unk1C;
@@ -345,8 +344,9 @@ void func_80024690(void) {
     f32 fv1;
     s32 sel;
     u32 x;
-    u8 y;
+    s32 y;
     f32 dist;
+    u16 angU; // FAKE: u16 raw copy of the angle (ring temp, no sll/sra); steers t-register allocation
 
     sp54 = L4_D->unk178;
     sp50 = L4_D->unk17C;
@@ -369,7 +369,6 @@ void func_80024690(void) {
         L4_D->unk155 = 0;
         L4_D->unkB8 = 0.0f;
         L4_D->unkC4 = -20.0f;
-        flag = 0x65;
         L4_D->unkC8 = -900.0f;
         L4_D->unk12A = 0x7D0;
         L4_S->unk35 = 0;
@@ -380,10 +379,11 @@ void func_80024690(void) {
         if (gCurrentMap == 0x52) {
             sp50->unk1C = D_80750AC8 = 0x32;
             sp50->unk18.w = 0x103;
+            flag = 0x65;
         } else {
             sp50->unk1C = D_80750AC8 = 0x32;
-            flag = 0x66;
             sp50->unk18.w = 0x4B;
+            flag = 0x66;
         }
         if (flagGet(flag, 2) == 0 && flagGet(sp50->unk18.h.lo, 0) == 0) {
             camStartPath(D_807FBB40, 0, 1);
@@ -463,11 +463,11 @@ void func_80024690(void) {
                 }
             }
         }
-        ang16 = (s32)((f64)func_80611BB4(-sp6C, -sp68) * 4096.0 / 6.2831854820251465);
-        mathAngleStepToward(&L4_D->unkE6, (ang16 + ang16 - L4_D->unkEE) & 0xFFF, 0x32);
+        ang16 = angU = (s32)((f64)func_80611BB4(-sp6C, -sp68) * 4096.0 / 6.2831854820251465);
+        mathAngleStepToward(&L4_D->unkE6, (angU + angU - L4_D->unkEE) & 0xFFF, 0x32);
         mathAngleStepToward(&L4_D->unkEE, ang16, 0xF);
         if (L4_S == 0) {} // FAKE: dead pointer test, steers t-register allocation
-        if (L4_S->unk25 == (sp44 + L4_S->unk24)->unk0 && (sp44 + L4_S->unk24)->unk8 == 2 && sp54->unk34 == 3) {
+        if (L4_S->unk25 == sp44[L4_S->unk24].unk0 && sp44[L4_S->unk24].unk8 == 2 && sp54->unk34 == 3) {
             if (sp54->unk36 == 1) {
                 L4_D->unk154 = 0xA;
             } else {
@@ -577,8 +577,10 @@ void func_80024690(void) {
     }
     switch (sp54->unk34) {
     case 0:
+        y = sp54->unk35;
+        if (y) {} // FAKE: dead test, steers y/sel copy order
         sel = sp54->unk35;
-        y = sel;
+        if (sel) {} // FAKE: dead test, steers y/sel copy order
         switch (sel) {
         case 0:
             if (L4_D->unk60 & 0x02000000) {
@@ -709,7 +711,3 @@ void func_80024690(void) {
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/race/nonmatchings/0/func_80024690.s")
-#endif
