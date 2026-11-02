@@ -1,4 +1,4 @@
-// func_80646058 (src/global/478F0.c): stage 4, 13 diff lines: start (cand 43) not colored (-ve save) in current vs target coloring pre-loop into a1, sinking sw a1,0x84(sp) into beql slot at loop entry. Deadsweep ran 8094 variants with 0 improvements; operand swap p->idx==start and branch variations tested.
+// func_80646058 (src/global/478F0.c): stage 4, 4 diff lines (was 13): pre-loop start/idx block now exact (start in a1, sw a1,0x84(sp) after beql) via copy local pad0 (start = pad0 after the compare return) + dead reads if (start && start) {} after p->idx store, if (hit) {} in the idx==0x36 arm, if (pad0 && pad0) {} in the mid branch. Left: li a0,1/li t8,1 order in the hit arm and uopt spill slot 60 vs 68(sp) (target has no hp-like home at 68; 3 more reserved spill slots). Tried: spelling grids of idx/start/compare/loop cond (field vs raw), no-code defs, volatile hit/arrays, pad/decl grids, call-in-condition temps.
 typedef struct CsPointHitState {
     /* 0x00 */ s32 idx;
     /* 0x04 */ s32 timer;
@@ -96,14 +96,18 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
         if (p->active != 0 && p->flag14 == 0) {
             return;
         }
-        start = p->idx;
-        p->idx = start + 1;
+        start = 0; // FAKE: legalises the dead read of start below
+        pad0 = p->idx; // FAKE: copy local splits start into a register piece (a1) and the spilled var
+        p->idx = pad0 + 1;
+        if (start && start) {} // FAKE: extra reference to start, raises the pre-loop piece's priority
         if (p->idx == 0x36) {
             p->idx = 0;
+            if (hit) {} // FAKE: steers start's register piece
         }
-        if (start == p->idx) {
+        if (pad0 == p->idx) {
             return;
         }
+        start = pad0; // FAKE: copy of the register piece into the loop-carried var
         do {
             if (D_80720BC4) {}
             pl = (CsPlayerPosView *)gPlayerSlots;
@@ -173,6 +177,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
             return;
         }
         s = CS_ACTOR->unk12C;
+        if (pad0 && pad0) {} // FAKE: steers start's register piece
         if (s == 0 || s == 7 || s == 2 || s == 3) {
             sfxStopChannel(0x54, 0);
             p->timer = D_807480F4;

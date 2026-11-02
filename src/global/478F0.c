@@ -1107,14 +1107,18 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
         if (p->active != 0 && p->flag14 == 0) {
             return;
         }
-        start = p->idx;
-        p->idx = start + 1;
+        start = 0; // FAKE: legalises the dead read of start below
+        pad0 = p->idx; // FAKE: copy local splits start into a register piece (a1) and the spilled var
+        p->idx = pad0 + 1;
+        if (start && start) {} // FAKE: extra reference to start, raises the pre-loop piece's priority
         if (p->idx == 0x36) {
             p->idx = 0;
+            if (hit) {} // FAKE: steers start's register piece
         }
-        if (start == p->idx) {
+        if (pad0 == p->idx) {
             return;
         }
+        start = pad0; // FAKE: copy of the register piece into the loop-carried var
         do {
             if (D_80720BC4) {}
             pl = (CsPlayerPosView *)gPlayerSlots;
@@ -1184,6 +1188,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
             return;
         }
         s = CS_ACTOR->unk12C;
+        if (pad0 && pad0) {} // FAKE: steers start's register piece
         if (s == 0 || s == 7 || s == 2 || s == 3) {
             sfxStopChannel(0x54, 0);
             p->timer = D_807480F4;
