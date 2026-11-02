@@ -1,4 +1,4 @@
-// func_807024E0 (src/global/103AB0.c): L103 (leftovers5): stage 5, 128 full/107 masked lines (was 138 with ILLEGAL unassigned reads), all FAKEs now legal (y = arg1 + u = 0 pre-loop defs). Frame 0x1d8 ok. Remaining: temp slot area sits 16 bytes low vs target (arg13 home 0xcc vs 0xdc; target has 5 unreferenced slot words at 0x94-0xa4), so ~60 lines are offset-only; lbu s7(arg15) not hoisted to y-loop preheader; u0/guard-delay sw 456 placement; (f32)tw f24 cvt order in y-body entry. Tried: hill-climb legal dead tests (~200k compiles), u reset at y-loop end instead of top (natural, 160), inlining ylo/yhi/siz/xmax/ymax (identical code), pad counts (slot area invariant), y=ys early (fixes move v0,s1 only). Prototype at 103AB0.c:877 must become (Gfx **, s32, s32, u32, s32, u32, u32, f32 x6, u8, u8, u8, void (*)()) and the later duplicate VtxColorView typedef must go.
+// func_807024E0 (src/global/103AB0.c): L933 (leftovers6): stage 5, COUNT EXACT (933 insns = target, frame 0x1d8, same s-reg set), 98 full / 90 shape (stored 128 was 932 insns). Parked NON_MATCHING in the L933 copy. Remaining: (1) y-body entry order: target emits (f32)tw f24 cvt (bgez block) BEFORE xmax/vb/ymax and (f32)th after; ours th first; ypos1 conv last in target; (2) lbu s7 (arg15) hoisted to y-preheader in target, in x-preheader in ours; (3) u store in the x-guard beqz delay slot vs move a0,a1; (4) ~45 lines are spill-slot order/holes (first 9 slots match; target middle holes 5 after siz). KEY: the original has 4 fewer vregs than a 1:1 draft (here u0/yhi/xmax/ymax inlined as expressions: top spill slot 0xdc then matches) plus codeless spill candidates (dead tests). Found by SA over commuting statement order + dead tests scored on full+shape+slot-sequence(with holes)+count (.scratch/L933/anneal.py). Tried: arg15 hoist via u=arg15*0 (count breaks), named f32/s16 coordinate locals (shape 73 but regs cascade), loop shapes, callee ret types for arg16, statement permutations of y-body header (exhaustive).
 typedef struct {
     s16 unk0;
     s16 unk2;
@@ -37,31 +37,27 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
     s32 pad1;
     u32 ye;
     u8 flag;
-    u32 yhi;
-    u32 xmax;
     f32 fsc;
-    s32 u0;
     u32 vstep;
     u32 th;
-    u32 ymax;
     s32 siz;
     s32 ylo;
     u32 tw;
 
-    vstep = arg13 * arg6;
-    fsc = arg13;
-    dl = *arg0;
-    xs = (u32)(arg7 * 32.0f);
-    ys = (u32)(arg8 * 32.0f);
-    flag = 1;
-    xe = (u32)(arg9 * 32.0f);
-    th = arg6 << 5;
-    ye = (u32)(arg10 * 32.0f);
-    tw = arg5 << 5;
-    y = arg1;  // FAKE: defines y so the early dead read below is legal
-    u0 = (s32)(fsc * arg11);
     ustep = arg13 * arg5;
-    if (y) {}  // FAKE: y live range from entry
+    vstep = arg13 * arg6;
+    dl = *arg0;
+    flag = 1;
+    xs = (u32)(arg7 * 32.0f);
+    xe = (u32)(arg9 * 32.0f);
+    y = arg1;  // FAKE: defines y so the early dead read below is legal
+    ys = (u32)(arg8 * 32.0f);
+    ye = (u32)(arg10 * 32.0f);
+    if (arg15) {}  // FAKE: dead test, steers spill-slot order / holes
+    fsc = arg13;
+    if ((ye >> 5)) {}  // FAKE: dead test, steers spill-slot order / holes
+    th = arg6 << 5;
+    tw = arg5 << 5;
     if (arg3 > 0x200) {
         gSPTexture(dl++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
         flag = 0;
@@ -70,22 +66,21 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
     }
     vtx = (VtxColorView *)heapAlloc(((((xe - xs) / tw) + 1) * (((ye - ys) / th) + 1)) << 6);
     heapFreeDeferred(vtx);
+    if (th) {}  // FAKE: dead test, steers spill-slot order / holes
     gDPPipeSync(dl++);
     v = (s32)(fsc * arg12);
     u = 0;  // FAKE: defines u before the loop
     for (y = ys; y < ye; y += th, v += vstep) {
-        if (arg1 && u) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        u = u0;
-        ylo = (y >> 5) - 1;
-        yhi = (y >> 5) + arg6;
         siz = arg14;
-        xmax = (xe >> 5) - 1;
-        ymax = (ye >> 5) - 1;
+        if (arg1 && u) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        ylo = (y >> 5) - 1;
+        u = ((s32)(fsc * arg11));
         for (x = xs; x < xe; x += tw) {
             uls = (x >> 5) - 1 > 0 ? (x >> 5) - 1 : 0;
-            lrs = (x >> 5) + arg5 < xmax ? (x >> 5) + arg5 : xmax;
+            lrs = (x >> 5) + arg5 < ((xe >> 5) - 1) ? (x >> 5) + arg5 : ((xe >> 5) - 1);
             ult = ylo > 0 ? ylo : 0;
-            lrt = yhi < ymax ? yhi : ymax;
+            lrt = ((y >> 5) + arg6) < ((ye >> 5) - 1) ? ((y >> 5) + arg6) : ((ye >> 5) - 1);
+            xf = (f32)x - 16.0;
             if (siz == 8) {
                 gDPLoadTextureTile(dl++, arg1, arg2, G_IM_SIZ_8b, arg3, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             } else if (siz == 0x10) {
@@ -97,39 +92,29 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
             }
             if (arg15 != 0) {
                 if (x == xs && arg15 == 1) {
+                    if (arg4 && arg4) {}  // FAKE: dead test, steers spill-slot order / holes
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
-                    if (x == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
-                if (arg15 && xs) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
-            if (xe == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (arg16 != NULL) {
-                arg11 = arg11;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                if (ye == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 arg16(u, v, vtx);
             }
-            xf = (f32)x - 16.0;
-            xe = xe;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            if (tw == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             vtxSetPosTex((s16 *)vtx++, u, v, xf, (s16)(f32)((f32)y - 16.0), flag);
+            vb = (s16)(v + vstep);
             if (arg15 != 0) {
-                if (ymax && th) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 if (x + tw >= xe && arg15 == 2) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
+                    if (vb != 0) {}  // FAKE: dead test, steers spill-slot order / holes
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
                 }
             }
-            vb = (s16)(v + vstep);
-            vc = vb;
-            vtx = vtx;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (arg16 != NULL) {
                 arg16((s16)(u + ustep), v, vtx);
             }
             ua = (s16)(u + ustep);
-            if (arg14 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             xa = xf + (f32)tw;
             vtxSetPosTex((s16 *)vtx++, ua, v, xa, (s16)(f32)((f32)y - 16.0), flag);
             if (arg15 != 0) {
@@ -137,15 +122,14 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
                 } else {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-                    if (!flag) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 }
             }
-            if (v != vstep) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if ((y >> 5)) {}  // FAKE: dead test, steers spill-slot order / holes
             if (arg16 != NULL) {
                 arg16(ua, vb, vtx);
             }
+            vc = vb;
             vtxSetPosTex((s16 *)vtx++, ua, vc, xa, (s16)((f32)(f32)((f32)y - 16.0) + (f32)th), flag);
-            if (ylo != u) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (arg15 != 0) {
                 if (x == xs && arg15 == 1) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -161,10 +145,7 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
             gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(dl++);
             u += ustep;
-            if (vtx && vtx) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }
-    arg12 = arg12;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     *arg0 = dl;
-    if (xs != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
 }

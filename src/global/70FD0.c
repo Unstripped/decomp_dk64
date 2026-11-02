@@ -2014,7 +2014,6 @@ s32 actorGetCollisionThreshold(CollisionActor *arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct ModelSlotHitRecord {
     u8 pad0[0x50];
     u8 unk50;
@@ -2038,7 +2037,7 @@ void func_8066FE08(s32 arg0) {
     s32 var_a3;
     s32 temp_v0;
     ModelSlotHitRecord *sub;
-    s32 var_a0; // FAKE: s32 so `var_a0 = temp_a0` needs no re-extension; the (s16) casts below re-narrow
+    s32 var_a0; // FAKE: s32 (explicit (s16) narrowing at each def) keeps the s16 sign-test chain shared with var_a0's store
     f32 sp160;
     f32 sp15C;
     f32 sp158;
@@ -2065,7 +2064,6 @@ void func_8066FE08(s32 arg0) {
     f32 sp50;
     s16 temp_a2;
     s16 temp_v0b;
-    s16 temp_a0;
     s16 padW; // FAKE: unused filler word, keeps the frame layout
     f32 sp44;
 
@@ -2085,16 +2083,16 @@ void func_8066FE08(s32 arg0) {
                 var_v1 += 0x1000;
             }
             temp_a1 = D_807FBB40->unkE6;
-            temp_a0 = var_v1 - temp_a1;
-            var_a0 = temp_a0;
-            if (temp_a0 < 0) {
-                var_a0 = (s16)-temp_a0;
+            var_a0 = (s16)(var_v1 - temp_a1);
+            var_v1 = (1 | var_a3) ? var_v1 : var_v1 + 1; // FAKE: redefines var_v1 (always-true condition folds) so uopt does not forward var_a0's store into the sign test
+            if (var_a0 < 0) {
+                var_a0 = (s16)-var_a0;
             }
             if (var_a0 >= 0x801) {
                 var_a0 = (s16)(0xFFF - var_a0);
             }
             temp_a2 = sub->unk8A;
-            if (var_a0 && var_a0 && var_a0) {} // FAKE: dead uses raise var_a0 adjsave so it is coloured before temp_a1/temp_a2
+            if (var_a0) {} // FAKE: dead use raises var_a0 adjsave so it is coloured before temp_a1/temp_a2
             temp_v0b = sub->unk88;
             if (temp_a2 >= temp_v0b) {
                 if (temp_a1 >= temp_v0b && temp_a2 >= temp_a1) {
@@ -2105,6 +2103,7 @@ void func_8066FE08(s32 arg0) {
             }
             if (var_a0 < 0x258 && var_a3 != 0) {
                 sp44 = (f32)(((f64)var_v1 / 4095.0) * 6.2831854820251465);
+                var_v1 = 0; // FAKE: dead store to sp44's operand kills store-forwarding so sp44 stays a variable (spilled to its own home 0x44)
                 sub->unk8C = sinApprox(sp44);
                 sub->unk90 = cosApprox(sp44);
                 sub->unk52 = 1;
@@ -2121,16 +2120,16 @@ void func_8066FE08(s32 arg0) {
                 var_v1 += 0x1000;
             }
             temp_a1 = D_807FBB40->unkE6;
-            temp_a0 = var_v1 - temp_a1;
-            var_a0 = temp_a0;
-            if (temp_a0 < 0) {
-                var_a0 = (s16)-temp_a0;
+            var_a0 = (s16)(var_v1 - temp_a1);
+            var_v1 = 0; // FAKE: dead store (var_v1 unused below) so uopt does not forward var_a0's store into the sign test
+            if (var_a0 < 0) {
+                var_a0 = (s16)-var_a0;
             }
             if (var_a0 >= 0x801) {
                 var_a0 = (s16)(0xFFF - var_a0);
             }
             temp_a2 = sub->unk8A;
-            if (var_a0 && var_a0 && var_a0) {} // FAKE: dead uses raise var_a0 adjsave so it is coloured before temp_a1/temp_a2
+            if (var_a0) {} // FAKE: dead use raises var_a0 adjsave so it is coloured before temp_a1/temp_a2
             temp_v0b = sub->unk88;
             if (temp_a2 >= temp_v0b) {
                 if (temp_a1 >= temp_v0b && temp_a2 >= temp_a1) {
@@ -2186,10 +2185,6 @@ void func_8066FE08(s32 arg0) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/70FD0/func_8066FE08.s")
-#endif
 
 typedef struct ActorSphereNodeQuery {
     /* 0x00 */ u8 pad0[0x10];

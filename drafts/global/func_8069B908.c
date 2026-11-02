@@ -1,5 +1,4 @@
-// func_8069B908 (src/global/9DD70.c): UNPARKED 2026-11-02: park was 1316 insns vs target 1317 (count-inexact parks stay drafts); L9DD: stage 4, frame 0x140 match; deadsweep score 30 (was 685 draft / 835 park). KEY: loop reads ((ActorSub174View *)D_807FBB40->unk174)->unk2A instead of sp13C (target: lw t5,0x13c(sp) delay-slot reload): sp13C loop use made uopt carve one coloured piece (t0, adj 1.29) loop->dispatch->cases 1,2,3,5,10 that the target lacks; dropping it 685->481; hill-climb dead tests (4 FAKE, PEN 3) -> 30. Remaining: early sp13C piece a2 (target v0, 13 lines); loop reload form (3 lines); switch temp v0 vs v1; spill slot 100 vs 108; gCurrentMap tail hoist lw s0 (6).
-
+// func_8069B908 (src/global/9DD70.c): L1317: STAGE 4 NON_MATCHING park in .scratch/L1317/9DD70.c: 1317/1317 insns, frame 0x140, s0/s1/f20 set match, deadsweep score 42 (shape 5) [was draft 30 at 1316 insns/count-inexact; also kept variant 28 at 1318: replace 'p174 = D_807FBB40->unk174; ... p174->unk2A = 0;' by ((ActorSub174View *)D_807FBB40->unk174)->unk2A = 0; (bnel+slt copy, +1 insn)]. KEY: gCurrentMap tail is switch (gCurrentMap){case 0x26: case 0x71: case 0xC2:} (compare chain beql/b END); lightAdd zero args spelled 0.0f/.0f (distinct f32 webs) replaces dead FP tests; loop head loads p174 = unk174 so as1 fills the bne delay slot (target: sp13C stack reload; a real sp13C use in the loop makes uopt colour a t0 piece loop+dispatch+cases 5,10 adj 1.16). Remaining 42: early sp13C piece a2 vs v0 and shared switch temp v0 vs v1 (cand 48 vs early piece priority), loop p174 coloured a1/const a2 (target ring t5 / a1) + t-ring shift case 0-2, lw s0 in loop latch vs after loop, spill slot 100 vs 108 (cfe temps i/var_v0 homes), sp78 t0 vs v1. 6 FAKEs: -1==0, unk58&&unk58, !D_807FBC64, D_807FBB4C&&D_807FBB4C, gCurrentMap, .0f spelling, p174 head load.
 typedef struct ActorSub174View {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ f32 unk4;
@@ -77,7 +76,7 @@ void func_8069B908(void) {
     s32 pad84[3];
     s32 sp7C[2];
     s32 sp78;
-    s32 pad74;
+    ActorSub174View *p174;
     s32 sp70;
 
     sp13C = D_807FBB40->unk174;
@@ -179,8 +178,9 @@ void func_8069B908(void) {
     if (D_807FBB40->unk58 == 0x3F || D_807FBB40->unk58 == 0x40 ||
         D_807FBB40->unk58 == 0x41 || D_807FBB40->unk58 == 0x42) {
         for (i = 0; i < D_807FBDC4; i++) {
+            p174 = D_807FBB40->unk174;  // FAKE: loads unk174 in the loop head so as1 fills the bne delay slot (target: sp13C stack reload hoisted from the then block)
             if (D_807FBB70.unk258[i] - 1 == 0) {  // FAKE: `- 1 == 0` keeps const 1 from becoming a hoisted typed-constant candidate (target: li at,1 inside the loop)
-                ((ActorSub174View *)D_807FBB40->unk174)->unk2A = 0;  // FAKE: target reloads stack slot sp13C here; reading unk174 stops uopt carving a coloured loop+dispatch+cases sp13C piece
+                p174->unk2A = 0;
                 D_807FBB40->unk154 = 5;
             }
         }
@@ -191,6 +191,7 @@ void func_8069B908(void) {
         D_807FBB40->unk64 |= 8;
         D_807FBB40->unk60 |= 0x80000000;
         D_807FBB40->unk68 |= 1;
+        if (D_807FBB40->unk58 && D_807FBB40->unk58) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (actorHasCallbackTargetThisFrame() != 0) {
             D_807FBB40->unk154 = 4;
         }
@@ -265,17 +266,16 @@ void func_8069B908(void) {
             }
         }
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x162, 0xFF, 0x7F, 0x1E);
+        if (!D_807FBC64) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (sp13C->unk28 == 0) {
             actorDespawn(D_807FBB40);
         }
         if (D_807FBB70.unk0 == 0) {
             sp9C = D_807503A4;
-            if (D_807FBC60 + 1.0f) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             for (sp70 = 0; sp70 != 0x10; sp70 += 2) {
                 spAC = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
                 spB0 = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
                 spA4 = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
-                if (gCurrentMap && gCurrentMap) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 func_8071496C(sp70);
                 func_807149B8(1);
                 if (sp70 == 0) {
@@ -301,7 +301,7 @@ void func_8069B908(void) {
                     func_80714998(2);
                     func_80714950(2);
                     sp78 = randomNonNegative();
-                    if (D_807FBB40->unk64 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                    if (D_807FBB4C && D_807FBB4C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     func_80714CC0((void *)((s32 *)&sp9C)[(sp78 >> 15) % 2],
                                   (f32)(((f64)randomFloat() * 0.5) + 0.2),
                                   D_807FBB40->unk7C + spAC, D_807FBB40->unk80 + spB0,
@@ -332,7 +332,7 @@ void func_8069B908(void) {
                                (f32)(((f64)(u32)sp13C->unk2A / 400.0) + 0.5), 2.0f);
         }
         lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80 + 30.0f, D_807FBB40->unk84,
-                 0, 0.0f, 0.0f, (f32)(((f64)(u32)sp13C->unk2A / 250.0) * 100.0), 0, 0xFF, 0xFF, 0);
+                 0, 0.0f, .0f, (f32)(((f64)(u32)sp13C->unk2A / 250.0) * 100.0), 0, 0xFF, 0xFF, 0);  // FAKE: .0f spelling = separate zero web (target: two distinct lightAdd zero webs)
         D_807FBB40->unkE6 = D_807FBB40->unkE6 + sp13C->unk2A;
         D_807FBB40->unk80 = D_807FBB40->unkA4;
         break;
@@ -355,7 +355,6 @@ void func_8069B908(void) {
     case 0x63:
         break;
     }
-    if (D_807FBB40->unk58 && D_807FBB40->unk58) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 3) {
         *(s16 *)((u8 *)D_807FBB40 + 0xEE) = D_807FBB40->unkE6;
         actorApplyVelocity(D_807FBB40);
@@ -372,15 +371,19 @@ void func_8069B908(void) {
         D_807FBB40->unk110 = 0;
         D_807FBB40->unk6A &= 0xFBF7;
     }
-    if (D_807FBB40->unk7C > 0.0f) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    if (gCurrentMap == 0x26 || gCurrentMap == 0x71 || gCurrentMap == 0xC2) {
+    switch (gCurrentMap) {
+    case 0x26:
+    case 0x71:
+    case 0xC2:
         if (D_807FBB40->unk58 == 0x3D) {
             if (D_807FBB40->unk110 == 1) {
+                if (gCurrentMap) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 D_807FBB40->unk60 |= 0x200000;
             } else {
                 D_807FBB40->unk60 &= ~0x200000;
             }
         }
+        break;
     }
     if (D_807FBB40->unk154 != 0x63) {
         billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x64, 0x78, 0, 1.0f);
