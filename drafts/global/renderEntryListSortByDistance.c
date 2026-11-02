@@ -1,4 +1,4 @@
-// renderEntryListSortByDistance (src/global/35000.c): stage 5: 5 insns diff (t6,t7,t8 vs t7,t8,t9 in if (inserted==0)). Ring trace confirms all 9 preceding t-allocs (t6,t7,t8,t9,t1,t2,t3,t4,t5) match exactly. Only t6 was skipped between line 187 and line 206 without being emitted; cur->unk18 = cur->unk18; reaches diff 1 by shifting ring to t7..t9 but emits an extra sw.
+// renderEntryListSortByDistance (src/global/35000.c): renderEntryListSortByDistance (src/global/35000.c): stage 5, 5 -> 1 insn diff. 'cur->unk18 = cur->unk18;' (FAKE) inside 'if (node != NULL) {' before 'node->unk18 = cur->unk18;' advances the ugen t-ring one step: final inserted==0 block now t7,t8,t9 exact; the self-store emits one extra 'sw t5,24(a1)'. Tried (no gain): x=x / x=x&MASK / |0 / *1 / shift chains / pointer casts on every local and field at every statement boundary, junk locals (s32/u8/s16/u16), inserted type+mask variants, while/for loop forms, tmp copies of cur->unk18, field-spelling (raw *(T*)(base+off)) grid, permuter 12k iterations (best stays 30), deadsweep sweeps. Self-stores elsewhere (before overwritten store) are dead-store-eliminated with no ring effect.
 typedef struct RenderEntry RenderEntry;
 struct RenderEntry {
     /* 0x00 */ s32 unk0;
@@ -78,6 +78,7 @@ RenderEntry *renderEntryListSortByDistance(RenderEntry *arg0, f32 arg1, f32 arg2
                                 cur->unk18->unk14 = cur->unk14;
                                 node = cur->unk14;
                                 if (node != NULL) {
+                                    cur->unk18 = cur->unk18; // FAKE: advances the ugen t-ring one step (extra sw left)
                                     node->unk18 = cur->unk18;
                                 }
                                 node = ins->unk14;

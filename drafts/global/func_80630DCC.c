@@ -1,4 +1,4 @@
-// func_80630DCC (src/global/35000.c): stage 5, parked NON_MATCHING: frame 0xE0, stack offsets and callee-saved set exact. Remaining diff: size block computation sinking before dy<0.01 branch and FP regalloc shifts throughout
+// func_80630DCC (src/global/35000.c): func_80630DCC (src/global/35000.c): stage 5, 156 -> 2 insns (deadsweep score). Levers: s32 flag=(s32)(size*size+dx*dx) computed BEFORE the dz=unk4->unk38 load + dead 'if (flag && flag) {}' (FAKE) (hoists trunc/mfc1 above the dy<0.01 branch, fixes unk4 lw t3 ring temp); GBI macros gDPPipeSync/gSPSetGeometryMode/gSPClearGeometryMode/gDPSetPrimColor(.., 0, 0xFF, ..)/gSPSegment((Gfx *)arg2++); final 'if (unk128*spB8 != 0.0f)' inline (no dx local, fixes c.eq.s operand order). Remaining 2: second size-block diff (dx = unk7C - view.unk21C) coloured f0, target f12 (mul.s f6,f12,f12). Tried: role/name grid for size/dx/dz, decl order, inline diffs, extra local, dead FP tests sweep, raw field reads.
 typedef struct ModelInfo {
     /* 0x00 */ u8 pad0[0x38];
     /* 0x38 */ f32 unk38;
@@ -115,17 +115,17 @@ void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
     if (!(RENDER_ACT->unk60 & 0x200)) {
         func_80614A64(arg1);
     }
-    WRITE_GFX_WORDS(arg2++, 0xE7000000, 0);
-    WRITE_GFX_WORDS(arg2++, 0xD9FFFFFF, 0x200001);
-    WRITE_GFX_WORDS(arg2++, 0xD9FEF9FF, 0);
+    gDPPipeSync((Gfx *)arg2++);
+    gSPSetGeometryMode((Gfx *)arg2++, G_ZBUFFER | G_SHADING_SMOOTH);
+    gSPClearGeometryMode((Gfx *)arg2++, G_FOG | G_CULL_BOTH);
     if (RENDER_ACT->unk58 == 0x135) {
-        WRITE_GFX_WORDS(arg2++, 0xD9FFFFFE, 0);
+        gSPClearGeometryMode((Gfx *)arg2++, G_ZBUFFER);
     }
-    WRITE_GFX_WORDS(arg2++, 0xDB06003C, osVirtualToPhysical(RENDER_ACT->unk148[D_807444FC]));
+    gSPSegment((Gfx *)arg2++, 15, osVirtualToPhysical(RENDER_ACT->unk148[D_807444FC]));
     if (RENDER_ACT->unk60 & 0x1000) {
         arg2 = actorBuildLightDisplayList(arg2, arg1, gCurrentPlayerIndex);
-        WRITE_GFX_WORDS(arg2++, 0xD9FFFFFF, 0x20000);
-        WRITE_GFX_WORDS(arg2++, 0xFA0000FF, 0xFFFFFFFF);
+        gSPSetGeometryMode((Gfx *)arg2++, G_LIGHTING);
+        gDPSetPrimColor((Gfx *)arg2++, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
     } else {
         u8 node;
         s32 padE[1];
@@ -133,7 +133,7 @@ void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
         f32 sp84;
         f32 sp80;
         s32 padF[1];
-        WRITE_GFX_WORDS(arg2++, 0xD9FDFFFF, 0);
+        gSPClearGeometryMode((Gfx *)arg2++, G_LIGHTING);
         if (RENDER_ACT->unk60 & 0x800000) {
             spCB = RENDER_ACT->unk16A;
             spCA = RENDER_ACT->unk16B;
@@ -155,7 +155,7 @@ void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
                 spC9 = spC9 * dx;
             }
         }
-        WRITE_GFX_WORDS(arg2++, 0xFA0000FF, (spCB << 24) | (spCA << 16) | (spC9 << 8) | 0xFF);
+        gDPSetPrimColor((Gfx *)arg2++, 0, 0xFF, spCB, spCA, spC9, 0xFF);
     }
     if (RENDER_ACT->unk60 & 0x8000) {
         renderCalcPlayerDistanceAlpha(RENDER_ACT->unk7C, RENDER_ACT->unk80, RENDER_ACT->unk84, RENDER_ACT->unk12A, -1, &RENDER_ACT->unk128);
@@ -163,20 +163,21 @@ void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
     if (RENDER_ACT->unk5C != 0x80 && RENDER_ACT->unk5C != 0x40 && RENDER_ACT->unk5C != 8) {
         if ((RENDER_ACT->unk80 - 5.0f < CUR_PLAYER_VIEW->unk220 && CUR_PLAYER_VIEW->unk220 < RENDER_ACT->unk80 + 2.0 * RENDER_ACT->unk15E) || (RENDER_ACT->unk6A & 0x2000)) {
             size = RENDER_ACT->unk84 - CUR_PLAYER_VIEW->unk224;
-            dz = RENDER_ACT->unk7C - CUR_PLAYER_VIEW->unk21C;
-            dy = RENDER_ACT->unk4->unk38;
-            if (dy < 0.01) {
-                dy = 0.01f;
+            dx = RENDER_ACT->unk7C - CUR_PLAYER_VIEW->unk21C;
+            flag = (s32)(size * size + dx * dx);
+            if (flag && flag) {} // FAKE: keep flag a candidate
+            dz = RENDER_ACT->unk4->unk38;
+            if (dz < 0.01) {
+                dz = 0.01f;
             }
-            spB8 = ((((f64)(s32)(size * size + dz * dz) / (dy / 0.15) / 400.0) > 0.3 ? ((f64)(s32)(size * size + dz * dz) / (dy / 0.15) / 400.0) - 0.3 : 0.0) < 1.0) ? (((f64)(s32)(size * size + dz * dz) / (dy / 0.15) / 400.0) > 0.3 ? ((f64)(s32)(size * size + dz * dz) / (dy / 0.15) / 400.0) - 0.3 : 0.0) : 1.0;
+            spB8 = ((((f64)flag / (dz / 0.15) / 400.0) > 0.3 ? ((f64)flag / (dz / 0.15) / 400.0) - 0.3 : 0.0) < 1.0) ? (((f64)flag / (dz / 0.15) / 400.0) > 0.3 ? ((f64)flag / (dz / 0.15) / 400.0) - 0.3 : 0.0) : 1.0;
         }
     }
-    dx = RENDER_ACT->unk128 * spB8;
-    if (dx != 0.0f) {
-        arg2 = renderActorDisplayList(renderSetSegment6AndFog(arg2, dx, 1), arg1);
+    if (RENDER_ACT->unk128 * spB8 != 0.0f) {
+        arg2 = renderActorDisplayList(renderSetSegment6AndFog(arg2, RENDER_ACT->unk128 * spB8, 1), arg1);
     }
-    WRITE_GFX_WORDS(arg2++, 0xE7000000, 0);
-    WRITE_GFX_WORDS(arg2++, 0xE3001001, 0);
-    WRITE_GFX_WORDS(arg2++, 0xE7000000, 0);
+    gDPPipeSync((Gfx *)arg2++);
+    gDPSetTextureLUT((Gfx *)arg2++, G_TT_NONE);
+    gDPPipeSync((Gfx *)arg2++);
     return arg2;
 }
