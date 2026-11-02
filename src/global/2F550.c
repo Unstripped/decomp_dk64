@@ -145,7 +145,6 @@ typedef struct PlanePoly {
     /* 0x38 */ f64 d;
 } PlanePoly; /* 0x40 */
 
-#ifdef NON_MATCHING
 void polyFlipWinding(PlanePoly *);
 void planePolyCalcEquation(PlanePoly *);
 
@@ -155,7 +154,6 @@ void frustumOrientPolyNormals(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32
     f32 ys[5];
     f32 zs[5];
     PlanePoly *poly;
-    s32 pad0;
 
     poly = arg3;
     for (i = 0; i < 4; i++) {
@@ -220,16 +218,13 @@ void frustumOrientPolyNormals(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32
     poly = arg3;
     for (i = 0; i < 5; poly++, i++) {
         planePolyCalcEquation(poly);
+        if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < (0, 0.0)) {}  // FAKE: second use of the sum makes it a coloured candidate (f0) and keeps its tree order for LFTR
         if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < (0, 0.0)) {
             polyFlipWinding(poly);
             planePolyCalcEquation(poly);
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/frustumOrientPolyNormals.s")
-#endif
 
 void polyFlipWinding(PlanePoly *arg0) {
     s16 a0;
@@ -1531,7 +1526,6 @@ void clipEdgeIntersectAxis(s16 *arg0, s16 *arg1, u8 arg2, f64 arg3, s16 *arg4) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct Bsp_Plane {
     /* 0x00 */ u8 pad0[0x4C];
     /* 0x4C */ f32 unk4C;
@@ -1545,6 +1539,7 @@ typedef struct Bsp_Plane {
 
 s32 mapBspPlaneDistanceCheck(Bsp_Plane *, f32, f32, f32);
 
+#ifdef NON_MATCHING
 #define arg0 ((Bsp_Plane *)arg0v)
 u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 ea[3];
@@ -1605,7 +1600,6 @@ u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/mapBspPlaneSideTest.s")
 #endif
 
-#ifdef NON_MATCHING
 s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     s32 pad[14];
     s32 i;
@@ -1638,9 +1632,9 @@ s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     ny = arg0->unk50;
     nz = arg0->unk54;
     do {
-        dx = D_807F5E20[i * 3] - arg1;
-        dy = D_807F5E20[i * 3 + 1] - arg2;
-        dz = D_807F5E20[i * 3 + 2] - arg3;
+        dx = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 0) - arg1;
+        dy = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 4) - arg2;
+        dz = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 8) - arg3;
         if (dx) {}  // FAKE: lowers dx priority (extra block in its range)
         d = nx * dx + ny * dy + nz * dz;
         if (d > 0.01 || d < -0.01) {
@@ -1650,13 +1644,9 @@ s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
             }
         }
         i++;
-    } while (&D_807F5E20[i * 3] < D_807F5E50);
+    } while ((f32 *)((u8 *)D_807F5E20 + i * 12) < D_807F5E50);
     return 1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/mapBspPlaneDistanceCheck.s")
-#endif
 
 
 typedef struct MapChunkRecord {

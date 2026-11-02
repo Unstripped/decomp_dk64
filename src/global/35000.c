@@ -448,7 +448,6 @@ GfxWords *renderEntryListBuildDisplayList(GfxWords *arg0, RenderEntry *arg1, f32
     return arg0;
 }
 
-#ifdef NON_MATCHING
 typedef struct ModelInfo {
     /* 0x00 */ u8 pad0[0x38];
     /* 0x38 */ f32 unk38;
@@ -525,15 +524,15 @@ void *renderSetSegment6AndFog(void *, s16, u8);
 
 void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
     ActorCtl *ctl;
+    f32 dz;
+    f32 dy;
     s32 flag;
     f32 dx;
-    f32 dy;
-    f32 dz;
     u8 spCB;
     u8 spCA;
     u8 spC9;
     f64 x;
-    f32 size;
+    f32 dxb;
     f32 spB8;
     f64 d;
 
@@ -612,14 +611,16 @@ void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
     }
     if (RENDER_ACT->unk5C != 0x80 && RENDER_ACT->unk5C != 0x40 && RENDER_ACT->unk5C != 8) {
         if ((RENDER_ACT->unk80 - 5.0f < CUR_PLAYER_VIEW->unk220 && CUR_PLAYER_VIEW->unk220 < RENDER_ACT->unk80 + 2.0 * RENDER_ACT->unk15E) || (RENDER_ACT->unk6A & 0x2000)) {
-            size = RENDER_ACT->unk84 - CUR_PLAYER_VIEW->unk224;
-            dx = RENDER_ACT->unk7C - CUR_PLAYER_VIEW->unk21C;
-            flag = (s32)(size * size + dx * dx);
+            dy = RENDER_ACT->unk84 - CUR_PLAYER_VIEW->unk224;
+            if (dy) {} // FAKE: second use keeps dy a coloured web (FP colour order)
+            dxb = RENDER_ACT->unk7C - CUR_PLAYER_VIEW->unk21C;
+            flag = (s32)(dy * dy + dxb * dxb);
             if (flag && flag) {} // FAKE: keep flag a candidate
             dz = RENDER_ACT->unk4->unk38;
             if (dz < 0.01) {
                 dz = 0.01f;
             }
+            if (dxb > 0.5f) {} // FAKE: dead FP compare extends dxb's range (f12 colour)
             spB8 = ((((f64)flag / (dz / 0.15) / 400.0) > 0.3 ? ((f64)flag / (dz / 0.15) / 400.0) - 0.3 : 0.0) < 1.0) ? (((f64)flag / (dz / 0.15) / 400.0) > 0.3 ? ((f64)flag / (dz / 0.15) / 400.0) - 0.3 : 0.0) : 1.0;
         }
     }
@@ -631,10 +632,6 @@ void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
     gDPPipeSync((Gfx *)arg2++);
     return arg2;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/35000/func_80630DCC.s")
-#endif
 
 typedef struct ModelScale {
     /* 0x00 */ u8 pad0[0x34];
