@@ -1,60 +1,54 @@
-// vsprintf (src/boot/3D20.c): stage 3 (insn count differs: 1168 vs 1189; frame 440 and callee-saved set match, 951 exact). Remaining: base takes s3 (target: a3 spilled across _itoa, lowest priority of 10 saturating s-candidates) shifting exp/conv; conv (u8) not colored (target s4 shared with prec>0 temp); fneg in ra instead of a1; e/f arm FP temps f12 vs f0, delay-slot sched. Tried: decl-order hill climb, loop forms, c types, scale/tmp/fscale doubles, unifying conv into c, replacing fneg with lg. Not parked (insn count)
+// vsprintf (src/boot/3D20.c): vsprintf (src/boot/3D20.c): stage 4 PARKED (insn count 1218=1218, frame 440, callee-saved set match; diff 277 -> 161, deadsweep score full=161 shape=29). KEY structure (revisit 5): per-case 'c = *f; break;' tails (as1 clones a tail block ending in 'b test' into every break; one shared post-switch 'c = *f' never clones), c is int, loop 'while (*f != 0) { c = *f; ...', *f (not c) in 'if (*f != %)', 'while (*f != % && *f != 0)', '*buf++ = *f', 'conv = *f'; 'for (; len-- > 0;)' gives sltiu+xori; sign/dot inlined in elen (sign first, then dot); count/store order swaps; drop fill2-4/fill1 pads so base spills at 404 (fillx[12] keeps frame 440). Remaining: FP temps f0/f2 vs f12/f14 (scale*10 expr coloured before tmp/rnd), sign/fneg webs (5 dead tests keep fneg in a1), delay-slot sched in x-prefix/zero-pad loops, conv web (target s4 piece to xori). hill-climb with 6 fakes + 'd = d | 0' (read before def) reached 141.
 unsigned int strlen(unsigned char *s);
 
 int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     const unsigned char *f;
-    unsigned short c;
+    int elen;
     int count;
-    unsigned char minus;
+    unsigned char neg;
+    unsigned char ll;
     unsigned char plus;
+    unsigned char sh;
     unsigned char space;
     unsigned char alt;
-    unsigned char ll;
-    unsigned char lg;
-    unsigned char sh;
+    unsigned char fneg;
     unsigned char pad;
     int width;
     int prec;
-    unsigned char fneg;
+    unsigned char minus;
     unsigned char conv;
-    unsigned char neg;
-    unsigned char fill1;
-    unsigned char fill2;
-    unsigned char fill3;
-    unsigned char fill4;
     int base;
+    unsigned int d;
     unsigned long long uv;
     long long sv;
     unsigned char *p;
     unsigned char nbuf[0x80];
     unsigned char *end;
     double fv;
-    double rnd;
+    unsigned short lg;
     double scale;
-    double tmp;
+    double fscale;
     union {
         double d;
         char b;
     } value;
     unsigned int len;
     int exp;
-    double fscale;
-    int nd;
-    int d;
+    double rnd;
+    int c;
     int i;
-    int elen;
-    int sign;
-    int dot;
-    int fillx[10];
+    int fillx[12]; // FAKE: frame pad (original locals unknown; keeps frame 440 and the base spill at 404)
+    double tmp;
+    int nd;
 
     f = fmt;
     count = 0;
-    c = *f;
-    while ((unsigned char)c != 0) { // FAKE: no-op narrowing shifts the ugen temp ring by one
-        if (c != '%') {
-            while (c != '%' && c != 0) {
+    while (*f != 0) {
+        c = *f;
+        if (*f != '%') {
+            while (*f != '%' && *f != 0) {
                 count++;
-                *buf++ = c;
+                *buf++ = *f;
                 f++;
                 c = *f;
             }
@@ -153,7 +147,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     }
                     c = *f;
                 }
-                conv = c;
+                conv = *f;
                 f++;
                 switch (conv) {
                 case 'd':
@@ -253,8 +247,8 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     }
                     if (alt && base == 16) {
                         *buf++ = '0';
-                        *buf++ = conv;
                         count += 2;
+                        *buf++ = conv;
                     }
                     if (!minus && pad == '0') {
                         for (; width-- > 0;) {
@@ -272,6 +266,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             *buf++ = ' ';
                         }
                     }
+                    c = *f;
                     break;
                 case 'e':
                 case 'E':
@@ -318,11 +313,10 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         scale *= 10.0;
                         exp++;
                     }
-                    sign = fneg || plus || space;
-                    dot = prec > 0 || alt;
-                    elen = dot + sign + prec + (exp >= 100) + 5;
+                    elen = (fneg || plus || space) + (prec > 0 || alt) + prec + (exp >= 100) + 5;
                     if (!minus && pad == ' ') {
                         for (; elen < width--;) {
+                            if (fneg == 0) {}  // FAKE: keeps fneg in a1 (not ra)
                             count++;
                             *buf++ = pad;
                         }
@@ -346,6 +340,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     d = '0';
                     if (scale <= value.d) {
                         do {
+                            if (fneg && fneg) {}  // FAKE: keeps fneg in a1 (not ra)
                             d++;
                             value.d -= scale;
                         } while (scale <= value.d);
@@ -378,25 +373,29 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         exp = -exp;
                         *buf++ = '-';
                     } else {
+                        if (space && space) {}  // FAKE: steers e-arm colouring
                         *buf++ = '+';
                     }
                     count++;
+                    if (conv) {}  // FAKE: steers e-arm colouring
                     if (exp >= 100) {
-                        count++;
                         *buf++ = exp / 100 + '0';
+                        count++;
                     }
                     *buf++ = exp / 10 % 10 + '0';
-                    *buf++ = exp % 10 + '0';
                     count += 2;
+                    *buf++ = exp % 10 + '0';
                     if (minus) {
                         for (; elen < width--;) {
                             count++;
                             *buf++ = ' ';
                         }
                     }
+                    c = *f;
                     break;
                 case 'g':
                 case 'G':
+                    c = *f;
                     break;
                 case 'f':
                     rnd = 1.0;
@@ -412,6 +411,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         fv = va_arg(ap, float);
                     } else {
                         fv = va_arg(ap, double);
+                        if (sh != 0) {}  // FAKE: steers f-arm colouring
                     }
                     if (fv < 0.0) {
                         fneg = 1;
@@ -425,9 +425,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         tmp *= 10.0;
                         nd++;
                     }
-                    sign = fneg || plus || space;
-                    dot = prec > 0 || alt;
-                    elen = dot + sign + nd + prec;
+                    elen = (fneg || plus || space) + (prec > 0 || alt) + nd + prec;
                     if (!minus && pad == ' ') {
                         for (; elen < width--;) {
                             count++;
@@ -487,6 +485,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             *buf++ = ' ';
                         }
                     }
+                    c = *f;
                     break;
                 case 'c':
                     uv = va_arg(ap, int);
@@ -504,6 +503,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             *buf++ = ' ';
                         }
                     }
+                    c = *f;
                     break;
                 case 's':
                     p = va_arg(ap, unsigned char *);
@@ -528,7 +528,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             *buf++ = ' ';
                         }
                     }
-                    for (; len-- != 0;) {
+                    for (; len-- > 0;) {
                         count++;
                         *buf++ = *p++;
                     }
@@ -538,6 +538,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             *buf++ = ' ';
                         }
                     }
+                    c = *f;
                     break;
                 case 'p':
                     p = va_arg(ap, unsigned char *);
@@ -559,8 +560,8 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             }
                         }
                         for (s = (unsigned char *)"(nil)"; *s != 0; s++) {
-                            count++;
                             *buf++ = *s;
+                            count++;
                         }
                         if (minus) {
                             for (; width-- > 0;) {
@@ -569,6 +570,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                             }
                         }
                     }
+                    c = *f;
                     break;
                 case 'n':
                     if (ll) {
@@ -580,9 +582,12 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     } else {
                         *va_arg(ap, short *) = count;
                     }
+                    c = *f;
+                    break;
+                default:
+                    c = *f;
                     break;
                 }
-                c = *f;
             }
         }
     }
