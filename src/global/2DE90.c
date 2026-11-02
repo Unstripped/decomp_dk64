@@ -293,7 +293,6 @@ extern s32 D_80747B34;
 extern s32 D_80747B3C;
 void heapFree(void *);
 
-#ifdef NON_MATCHING
 void screenBlurApply(void) {
     u16 *src;
     s32 row;
@@ -364,7 +363,7 @@ void screenBlurApply(void) {
                 b[idx] = vb;
                 idx++;
                 sumB += vb;
-                *dst = (lut[sumR] << 11) | 1 | (lut[sumB] << 1) | ((u32)lut[sumG] << 6);
+                *dst = 1 | (lut[sumB] << 1) | (lut[sumG] << 6) | (lut[sumR] << 11);
                 dst++;
             }
             for (i = D_80747B30 - D_80747B28 / 2; i < D_80747B30; i++) {
@@ -378,17 +377,13 @@ void screenBlurApply(void) {
                 g[idx] = 0;
                 b[idx] = 0;
                 idx++;
-                *dst = (lut[sumR] << 11) | 1 | (lut[sumB] << 1) | ((u32)lut[sumG] << 6);
+                *dst = 1 | (lut[sumB] << 1) | (lut[sumG] << 6) | (lut[sumR] << 11);
                 dst++;
             }
         }
         D_80747B38++;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2DE90/screenBlurApply.s")
-#endif
 
 extern u8 D_80747B40;
 extern u8 *D_807F5DD8;
