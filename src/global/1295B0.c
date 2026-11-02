@@ -754,7 +754,6 @@ void actorSetPositionFromPoint(Actor *arg0, F1Pt *arg1) {
     arg0->unkE6 = arg1->unk2;
 }
 
-#ifdef NON_MATCHING
 typedef struct A4Act {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ void *unk4;
@@ -897,6 +896,7 @@ void actorSetTargetSpeed(void *, u8);
 s32 randomNonNegative(void);
 #define A4P4 ((A4Player *)gPlayerSlots)
 
+#define A4ENTRY ((A4Entry *)&D_8075EB80[idx])
 void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     A4St174 *st;
     A4Node *node;
@@ -904,24 +904,25 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     s16 ang;
     A4Act *act;
     u8 type;
+    u8 idx;
     A4Entry *entry;
     s32 v;
 
     act = arg0;
     node = arg1;
     st = act->unk174;
-    type = D_80755698[node->unk44];
+    idx = node->unk44;
+    type = D_80755698[idx];
     node->unk42 = 5;
     node->unk18 = act;
     node->unk30 = 1.0f;
-    entry = (A4Entry *)&D_8075EB80[node->unk44];
     node->unk2C = 0.01f;
-    if (entry->unk17 != 0) {
-        node->unk38 = 1.0 / entry->unk17;
+    if (A4ENTRY->unk17 != 0) {
+        node->unk38 = 1.0 / A4ENTRY->unk17;
     } else {
         node->unk38 = 0.0f;
     }
-    ang = entry->unk4;
+    ang = A4ENTRY->unk4;
     if (ang != 0) {
         actorScriptStart(act, ang);
     }
@@ -935,7 +936,7 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     act->unkC4 = D_807502E8;
     act->unkC8 = D_807502E0;
     act->unk12C = node->unk40;
-    if (entry->unkE == 0) {
+    if (A4ENTRY->unkE == 0) {
         act->unk12A = 0x7D0;
     }
     actorSetTargetSpeed(act, node->unkC);
@@ -951,20 +952,20 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     act->unk144 = 0x24;
     act->unk60 &= 0xFFFEFFFF;
     act->unk60 |= 0x20000;
-    act->unk60 |= entry->unk8;
+    act->unk60 |= A4ENTRY->unk8;
     if (act->unk4 != 0) {
         act->unk68 |= 0xC0;
     }
-    act->unk16E = entry->unk14;
-    act->unk16F = entry->unk15;
-    v = entry->unkF;
+    act->unk16E = A4ENTRY->unk14;
+    act->unk16F = A4ENTRY->unk15;
+    v = A4ENTRY->unkF;
     st->unk22 = v;
     st->unk23 = v;
-    st->unk1E = entry->unk10;
-    st->unk1F = entry->unk11;
-    st->unk21 = entry->unk12;
-    st->unk35 = entry->unk13;
-    st->unk37 = entry->unk16;
+    st->unk1E = A4ENTRY->unk10;
+    st->unk1F = A4ENTRY->unk11;
+    st->unk21 = A4ENTRY->unk12;
+    st->unk35 = A4ENTRY->unk13;
+    st->unk37 = A4ENTRY->unk16;
     act->unk154 = node->unk10;
     act->unk155 = 0;
     switch (type) {
@@ -1077,10 +1078,7 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
         ((A4Act *)D_807FBB40)->unk6C |= 4;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/spawnNodeInitActorFromEntry.s")
-#endif
+#undef A4ENTRY
 
 u8 spawnNodeHasState(u8, u8);
 

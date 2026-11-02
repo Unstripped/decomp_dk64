@@ -1,4 +1,4 @@
-// func_80666428 (src/global/6AD90.c): SixadB leftovers5: stage 5, 10 lines (was 80), insn count 552/552, frame/regs exact except the t-ring of the switch-selector sum (E1,E2 land t7,t3.. vs t4,t6; sum order (E1+F)+E2 vs (F+E1)+E2). KEY: no sp34/sp3C/sp38 vars: selector and return are the raw expression (CSE temps spill uncoloured, like target); arg0->s0 needs sp5E/val2 adjsave above arg0's 2.44: FAKE no-code defs (sp5E = sp5E & 0x1FF; val2 = val2 & 0xFF ...) + dead tests of the E1/E2 trees (if (((sp5E*2)&0xFF)) {}) before the switch; init sp5E=0,val2=0 in the else arm. Each fake def advances the ugen t-ring by 2 so counts are parity-locked; hill-climb plateau 10.5.
+// func_80666428 (src/global/6AD90.c): W4IntB: stage 5, 6 lines (was 10), 552/552, frame/regs exact. Remaining: t-ring of switch-selector sum: ours E2 sll t0/andi t1, addu v0,t5,t8 (E1+F operand order + v0 temp) vs target t6/t7, addu t0,t8,t5; one sw t7,56(sp) order. Fix = FAKE no-code defs + dead tests on sums (annealed hc_f3, 40k evals); sum spelling (E1+F)+E2 required (all 12 orders/assoc and a-(0-b) tried: no change).
 typedef struct CollisionQueryPlayerState {
     u8 pad0[0x1F0];
     u32 unk1F0;
@@ -123,19 +123,24 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         sp5E = 0;
         val2 = 0;
     }
-    if (sp5E == 0) {}  // FAKE: dead test
+    val2 = val2 * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    sp5E = sp5E & 0x1FF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if ((((sp5E * 2) & 0xFF) + ((val2 * 4) & 0xFF))) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if ((((val2 * 4) & 0xFF) + sp5F)) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
     sp5E = sp5E * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    sp5E = sp5E & 0x1FF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    if (((sp5E * 2) & 0xFF)) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    if (((val2 * 4) & 0xFF) == 0) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    if (((val2 * 4) & 0xFF) == 0) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    sp5E = sp5E & 0x1FF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if ((((sp5E * 2) & 0xFF) + sp5F)) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
     sp5E = sp5E + 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    switch ((((sp5E * 2) & 0xFF) + sp5F + ((val2 * 4) & 0xFF)) & 0xFF) {
+    sp5E = sp5E ^ 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    sp5E = sp5E & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if (sp5E) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    sp5E = sp5E * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if ((((sp5E * 2) & 0xFF) + sp5F)) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 ^ 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 | 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 ^ 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    switch (((((sp5E * 2) & 0xFF) + sp5F) + ((val2 * 4) & 0xFF)) & 0xFF) {
     case 0:
         sp4D = 0;
         break;

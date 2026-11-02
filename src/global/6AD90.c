@@ -279,19 +279,24 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         sp5E = 0;
         val2 = 0;
     }
-    if (sp5E == 0) {}  // FAKE: dead test
+    val2 = val2 * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    sp5E = sp5E & 0x1FF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if ((((sp5E * 2) & 0xFF) + ((val2 * 4) & 0xFF))) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if ((((val2 * 4) & 0xFF) + sp5F)) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
     sp5E = sp5E * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    sp5E = sp5E & 0x1FF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    if (((sp5E * 2) & 0xFF)) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    if (((val2 * 4) & 0xFF) == 0) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    if (((val2 * 4) & 0xFF) == 0) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    sp5E = sp5E & 0x1FF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if ((((sp5E * 2) & 0xFF) + sp5F)) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
     sp5E = sp5E + 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    switch ((((sp5E * 2) & 0xFF) + sp5F + ((val2 * 4) & 0xFF)) & 0xFF) {
+    sp5E = sp5E ^ 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    sp5E = sp5E & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if (sp5E) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    sp5E = sp5E * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    if ((((sp5E * 2) & 0xFF) + sp5F)) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 ^ 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 | 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    val2 = val2 ^ 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
+    switch (((((sp5E * 2) & 0xFF) + sp5F) + ((val2 * 4) & 0xFF)) & 0xFF) {
     case 0:
         sp4D = 0;
         break;
