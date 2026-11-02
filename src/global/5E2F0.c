@@ -282,30 +282,39 @@ void lightApplyToActors(void) {
     LightVolume *light;
     Actor *actor;
     f32 dot;
+    f32 dz;
+    f32 dy;
+    f32 dx;
+    f32 dist;
+    f32 aZ;
+    f32 aY;
+    f32 aX;
+    f32 dirZ;
+    f32 dirY;
+    f32 dirX;
+    f32 dist2d;
+    f32 maxDist;
     f32 scale;
     s16 angle;
-    f32 dist2d;
-    f32 angleRatio;
-    f32 dx, dy, dz;
-    f32 dirX, dirY, dirZ;
-    f32 aX, aY, aZ;
-    f32 dist;
-    f32 maxDist;
+    u8 spC8[64];
+    f32 spC[2];
     f32 innerDist;
     f32 range;
     f32 distFromInner;
     f32 factor;
     f32 alpha;
-    u8 spC8[64];
-    f32 spC[2];
 
     lightCount = 0;
+    dx = 0.0f;  // FAKE: define dx for tail dead reads
+    dy = 0.0f;  // FAKE: define dy for tail dead reads
+    dz = 0.0f;  // FAKE: define dz for tail dead reads
     for (i = 0; i < gActiveActorCount; i++) {
         spC8[i] = 0;
     }
     {
         for (i = 0; i < D_80748300 && gPlayerCount < 3; i++) {
             light = &D_807F7500[i];
+            if (light->x > 0.0f) {}  // FAKE: dead test
             if ((lightCheckPlayerDistance(light) != 0) && (lightCount < 12)) {
                 lightCount++;
                 for (actorIdx = 0; actorIdx < gActiveActorCount; actorIdx++) {
@@ -325,6 +334,7 @@ void lightApplyToActors(void) {
                                 dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
                                 if (dist == 0.0f) {
                                     dist = 0.1f;
+                                if (dx) {}  // FAKE: dead test
                                 }
                                 dirX = dx / dist;
                                 dirY = dy / dist;
@@ -358,22 +368,21 @@ void lightApplyToActors(void) {
                                         (u32)((f32)light->unk38 * dot),
                                         0);
                                     if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
-                                        dz = light->z - actor->unk84;
-                                        dx = light->x - actor->unk7C;
-                                        dist = sqrtf((dz * dz) + (dx * dx));
+                                        dist = sqrtf(((light->z - actor->unk84) * (light->z - actor->unk84)) + ((light->x - actor->unk7C) * (light->x - actor->unk7C)));
                                         dist2d = (dist != 0.0f) ? dist : 0.001f;
-                                        angleRatio = (light->y - actor->unk80) / dist2d;
-                                        if (!(angleRatio > 0.0f)) {
-                                            angleRatio = -angleRatio;
+                                        scale = (light->y - actor->unk80) / dist2d;
+                                        if (!(scale > 0.0f)) {
+                                            scale = -scale;
                                         }
-                                        if (angleRatio == 0.0f) {
-                                            angleRatio = 0.1f;
+                                        if (scale == 0.0f) {
+                                            scale = 0.1f;
                                         }
-                                        scale = ((f32)actor->unk15E * 0.4f) / angleRatio;
+                                        scale = ((f32)actor->unk15E * 0.4f) / scale;
                                         angle = mathAngleBetweenPoints2D(light->x, light->z, actor->unk7C, actor->unk84);
                                         if (actor->unk4 != NULL) {
                                             spC[0] = actor->unk4->unk34;
                                             spC[1] = actor->unk4->unk3C;
+                                        if (dx) {}  // FAKE: x
                                         } else {
                                             spC[0] = 0.15f;
                                             spC[1] = 0.15f;
@@ -391,29 +400,24 @@ void lightApplyToActors(void) {
                                 }
                             }
                         } else {
-                            dz = light->z - actor->unk84;
-                            dx = light->x - actor->unk7C;
-                            dy = light->y - actor->unk80;
-                            dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy))) - (f32)*(s16 *)((u8 *)actor + 0xCE);
+                            dist = sqrtf(((light->z - actor->unk84) * (light->z - actor->unk84)) + (((light->x - actor->unk7C) * (light->x - actor->unk7C)) + ((light->y - actor->unk80) * (light->y - actor->unk80)))) - (f32)*(s16 *)((u8 *)actor + 0xCE);
                             if (dist < 0.0) {
                                 dist = 0.1f;
                             }
                             maxDist = light->unk14 * 1.3f;
                             if ((actor->unk60 & 0x01000000) && (dist < maxDist) && (actor->unk60 & 4)) {
-                                dz = light->z - actor->unk84;
-                                dx = light->x - actor->unk7C;
-                                dist2d = sqrtf((dz * dz) + (dx * dx));
+                                dist2d = sqrtf(((light->z - actor->unk84) * (light->z - actor->unk84)) + ((light->x - actor->unk7C) * (light->x - actor->unk7C)));
                                 if (dist2d == 0.0f) {
                                     dist2d = 1.0f;
                                 }
-                                angleRatio = (light->y - actor->unk80) / dist2d;
-                                if (!(angleRatio > 0.0f)) {
-                                    angleRatio = -angleRatio;
+                                scale = (light->y - actor->unk80) / dist2d;
+                                if (!(scale > 0.0f)) {
+                                    scale = -scale;
                                 }
-                                if (angleRatio == 0.0f) {
-                                    angleRatio = 0.1f;
+                                if (scale == 0.0f) {
+                                    scale = 0.1f;
                                 }
-                                scale = ((f32)actor->unk15E * 0.4f) / angleRatio;
+                                scale = ((f32)actor->unk15E * 0.4f) / scale;
                                 angle = mathAngleBetweenPoints2D(light->x, light->z, actor->unk7C, actor->unk84);
                                 if (scale > 10.0f) {
                                     scale = 10.0f;
@@ -475,6 +479,7 @@ void lightApplyToActors(void) {
             if (spC8[i] == 0) {
                 actor = gActiveActors[i].actor;
                 if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
+                    if (dx && dy && dz) {}  // FAKE: dead test
                     if (actor->unk4 != NULL) {
                         spC[0] = actor->unk4->unk34;
                         spC[1] = actor->unk4->unk3C;
@@ -494,6 +499,9 @@ void lightApplyToActors(void) {
             }
         }
     }
+    if (dx) {}  // FAKE: x
+    if (dy) {}  // FAKE: x
+    if (dz) {}  // FAKE: x
 }
 #else
 
