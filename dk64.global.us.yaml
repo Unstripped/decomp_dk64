@@ -56,6 +56,7 @@ segments:
       - [0x10130, c, 10130]
       - [0x104F0, c, 104F0]
       - [0x131B0, c, 131B0]
+      - [0x13980, c, 13980] # hidden TU: schedCreate (0x8060EC80) on; rumble* above
       - [0x14CF0, c, 14CF0]
       - [0x15010, asm]
       - [0x15050, c, 15050]
@@ -229,7 +230,7 @@ segments:
       - [0x15B390, .rodata, 5230]
       - [0x15B4B0, .rodata, 7130]
       - [0x15BD20, .rodata, 104F0]
-      - [0x15BE40, .rodata, 131B0]
+      - [0x15BE40, .rodata, 13980]
       - [0x15BF90, .rodata, 15050]
       - [0x15BFD0, .rodata, 16550]
       - [0x15BFF0, .rodata, 166A0]
@@ -351,7 +352,8 @@ segments:
       - { start: 0x165D50, type: bss, vram: 0x80770F40, name: 165D50_80770F40 }
       - { start: 0x165D50, type: .bss, vram: 0x807ECCD0, name: F600 } # D_807ECCD0..D_807ECDFC (0x807ECCD0-0x807ECE00)
       - { start: 0x165D50, type: bss, vram: 0x807ECE00, name: 165D50_807ECE00 }
-      - { start: 0x165D50, type: .bss, vram: 0x807F02D0, name: 131B0 } # D_807F02D0..D_807F0568 (0x807F02D0-0x807F0570)
+      - { start: 0x165D50, type: .bss, vram: 0x807F02D0, name: 131B0 } # gRumblePfs, gRumbleInfo (0x807F02D0-0x807F04C0)
+      - { start: 0x165D50, type: .bss, vram: 0x807F04C0, name: 13980 } # D_807F04C0..D_807F0568 (0x807F04C0-0x807F0570)
       - { start: 0x165D50, type: bss, vram: 0x807F0570, name: 165D50_807F0570 }
       - { start: 0x165D50, type: .bss, vram: 0x807F5B10, name: 201B0 }
       - { start: 0x165D50, type: bss, vram: 0x807F5D30, name: 165D50_807F5D30 }
