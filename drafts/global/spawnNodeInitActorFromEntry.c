@@ -1,4 +1,4 @@
-// spawnNodeInitActorFromEntry (src/global/1295B0.c): Stage 5: 398/398 insns, frame 0x40 exact; fixed extra li a1,255 and reg swap by setting controllerLookupStateByHash to 1 arg, fixed move a1,zero to li a1,0 with f32 proto on actorUpdateFloorContactAndTilt; remaining diff is stack slot of entry/case6 v1 (0x20/0x28 vs 0x24)
+// spawnNodeInitActorFromEntry (src/global/1295B0.c): spawnNodeInitActorFromEntry (src/global/1295B0.c): stage 5, 398/398 insns, frame 0x40, diff 12 (text 10 + 2 rodata reloc; was 14): declaring 'A4Entry *entry;' before 's32 v;' moves entry home slot 0x24 -> 0x28. Left: target keeps main-part entry (v1) spilled at 0x20 (shared with the a2 type piece) and only the case-6 reassigned pointer in 0x28 (= home of its own variable); any new named local grows frame to 0x48, expression-only macro form recomputes (486 lines), v-as-pointer 210
 typedef struct A4Act {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ void *unk4;
@@ -148,8 +148,8 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     s16 ang;
     A4Act *act;
     u8 type;
-    s32 v;
     A4Entry *entry;
+    s32 v;
 act = arg0;
     node = arg1;
     st = act->unk174;

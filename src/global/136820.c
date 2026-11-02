@@ -165,6 +165,7 @@ void faultDrawRegs(OSThread *a0) {
         faultPrintf("DK 64\n");
         faultPrintf("%X\n", (s32)ctx->pc);
         faultPrintf("%X\n", (s32)ctx->ra);
+        if (D_807563B8 && D_807563B8) {}  // FAKE: steers uopt/ugen temp ring of the guard load (deadsweep)
         if (D_807563B8 >= 4) {
             for (j = 0; j < D_807FF018; j++) {
                 faultPrintf("%X\n", D_807FEF88[j].unk0);

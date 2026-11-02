@@ -1,6 +1,4 @@
-// func_80728300 (src/global/1295B0.c): Stage 3/4 (full=183, text=185, shape=46): deadsweep steer on same. Remaining: target s0-s7 (frame 0x60; src t0 and p a3 both caller-saved with spills) vs built s0-s8 (frame 0x58; p gets s2, i gets s8, src v1).
-#include "common.h"
-
+// spawnNodeListInitFromMap (src/global/1295B0.c): spawnNodeListInitFromMap (src/global/1295B0.c): stage 5, frame 0x60, s0-s7 same as target, full=47/335 (was 183, stage 3). Levers: split the shared copy local p into p/q/r (one per loop), cnt*6U/cnt*10U (shift form), s16 decl order from hill-climb, same = 1 at entry + dead tests (same && same, same == 0). Left: loop-3 pointer r gets t0 (target s2: copy-prop of r = src; 'src = NULL' after r = src fixes it but flips src/p t0/a3 in loops 1-2: 59), loop-1 ring t1/t2 swap, loop-2 'move t0,v1; addiu t0,t0,4' vs addiu t0,v1,4
 typedef struct C1S6 {
     s16 v[3];
 } C1S6;
@@ -35,20 +33,22 @@ typedef struct C1Rec24List {
     /* 0x4 */ C1Rec24 *unk4;
 } C1Rec24List;
 
-void func_80728300(s16 *arg0, C1Rec24List *arg1, SpawnNodeList *arg2) {
+void spawnNodeListInitFromMap(s16 *arg0, C1Rec24List *arg1, SpawnNodeList *arg2) {
+    s32 t;
     s16 *src;
+    s16 cnt;
     s16 *p;
-    C1Rec24 *rec;
+    s16 *q;
+    s16 j;
+    void *mem;
+    s32 same;
     SpawnNode *node;
     s16 i;
-    s16 j;
-    s16 cnt;
     s16 prev;
-    s32 same;
-    void *mem;
-    s32 t;
+    C1Rec24 *rec;
+    s16 *r;
 
-    if (same && same) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    same = 1;  // FAKE: defines same at entry (steers uopt live range / s-reg order)
     src = arg0;
     if (src != NULL) {
         t = *src++;
@@ -80,7 +80,7 @@ void func_80728300(s16 *arg0, C1Rec24List *arg1, SpawnNodeList *arg2) {
         }
         p = src;
         if (cnt != 0) {
-            rec->unkC = heapAlloc((cnt << 1) * 3);
+            rec->unkC = heapAlloc(cnt * 6U);
         }
         if (cnt > 0) {
             do {
@@ -112,18 +112,18 @@ void func_80728300(s16 *arg0, C1Rec24List *arg1, SpawnNodeList *arg2) {
             rec->unk10 = 0;
             cnt = rec->unk10;
         }
-        p = src;
+        q = src;
         if (cnt != 0) {
-            rec->unk14 = heapAlloc((cnt << 1) * 5);
+            rec->unk14 = heapAlloc(cnt * 10U);
         }
         if (cnt > 0) {
             do {
-                rec->unk14[j] = *(C1S10 *)p;
+                rec->unk14[j] = *(C1S10 *)q;
                 j++;
-                p += 5;
+                q += 5;
             } while (j < cnt);
         }
-        src = p;
+        src = q;
         if (src != NULL) {
             rec->unk18 = *src;
             src += 2;
@@ -145,15 +145,16 @@ void func_80728300(s16 *arg0, C1Rec24List *arg1, SpawnNodeList *arg2) {
     mem = heapAlloc(cnt * 0x48);
     arg2->nodes = mem;
     heapClearBlock(mem);
-    p = src;
+    r = src;
     node = arg2->nodes;
     for (; i < arg2->count; i++) {
         j = 0;
         if (i != 0) {
             node++;
         }
-        *(C1S22 *)node = *(C1S22 *)p;
-        p += 11;
+        *(C1S22 *)node = *(C1S22 *)r;
+        if (same == 0) {}  // FAKE: dead test steers uopt candidate priorities (hill-climb)
+        r += 11;
         node->unk42 = node->unk12;
         node->unk44 = node->unk0;
         node->unk18 = 0;
@@ -163,7 +164,7 @@ void func_80728300(s16 *arg0, C1Rec24List *arg1, SpawnNodeList *arg2) {
         node->unk3C = 0.0f;
         node->unk40 = mapChunkFindByPosition((f32)node->unk4, (f32)node->unk6, (f32)node->unk8, 0);
         node->unk20 = heapAlloc(node->unk11 * 2);
-        src = p;
+        src = r;
         if (node->unk11 > 0) {
             do {
                 node->unk20[j][0] = ((u8 *)src)[0];
@@ -172,7 +173,7 @@ void func_80728300(s16 *arg0, C1Rec24List *arg1, SpawnNodeList *arg2) {
                 src += 1;
             } while (j < node->unk11);
         }
-        p = src;
+        r = src;
         zoneAssignToBehaviour((C1Holder *)node);
     }
 }

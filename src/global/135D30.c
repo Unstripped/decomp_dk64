@@ -220,8 +220,8 @@ u8 func_80731654(s16 arg0, s16 arg1) {
 extern FlagTableEntry D_80755DA8[];
 
 s32 spawnFlagLookup(s16 arg0, s16 arg1, s32 *arg2) {
-    FlagTableEntry *e; s32 n = 0x1F; s32 i = 0; s16 val = arg0;
-    *arg2 = 0; for (; i < n; ) {
+    FlagTableEntry *e; s32 n = 0x1F; s32 i; s16 val = arg0;
+    *arg2 = 0; for (i = 0; i < n; ) {
         e = D_80755DA8 + i;
         if (val == e->unk0 && arg1 == e->unk2) {
             return e->unk4;
