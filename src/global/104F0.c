@@ -67,7 +67,7 @@ u32 eepromCalculateCrc32(u8 *arg0, u16 arg1) {
 
 extern u8 D_807EDEA8[];
 
-u8 func_8060B9D0(s32 arg0) {
+u8 eepromGetSectorForSlot(s32 arg0) {
     u8 i;
 
     for (i = 0; i < 4; i++) {
@@ -90,8 +90,8 @@ void eepromCopySlot(void) {
     s16 unk0;
     s32 size;
 
-    original = func_8060B9D0(D_807467C8);
-    replacement = func_8060B9D0(3);
+    original = eepromGetSectorForSlot(D_807467C8);
+    replacement = eepromGetSectorForSlot(3);
     if (((func_8071432C() != 0) || (func_80714394() != 0)) && (original != replacement)) {
         unk0 = D_807ECEA0[0];
         size = ((((unk0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
@@ -367,7 +367,7 @@ s32 func_8060C430(s32 arg0, u32 arg1, s32 arg2) {
     return arg1;
 }
 
-extern u8 func_8060B9D0();
+extern u8 eepromGetSectorForSlot();
 extern void eepromWriteBitfield();
 extern void eepromGetSectorOffset();
 
@@ -375,7 +375,7 @@ void eepromSetField(s32 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4) {
     u16 sp26;
     u8 sp25;
 
-    eepromGetSectorOffset(&sp26, &sp25, arg0, arg1, (s32)arg2, func_8060B9D0(arg3));
+    eepromGetSectorOffset(&sp26, &sp25, arg0, arg1, (s32)arg2, eepromGetSectorForSlot(arg3));
     eepromWriteBitfield(func_8060C430(arg0, arg4, 1), sp26, sp25);
 }
 
@@ -386,7 +386,7 @@ s32 eepromGetField(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
     u16 sp22;
     u8 sp21;
 
-    new_var = func_8060B9D0(arg3);
+    new_var = eepromGetSectorForSlot(arg3);
     eepromGetSectorOffset(&sp22, &sp21, arg0, arg1, arg2, new_var);
     new_var = eepromReadBitfield(sp22, sp21);
     func_8060C430(arg0, new_var, 0);
@@ -413,7 +413,7 @@ int arg1;
 
     do {
         s0 = arg0;
-        offset = func_8060B9D0(s0);
+        offset = eepromGetSectorForSlot(s0);
         size = ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
         new_var = D_807ECEA8 + (offset * size);
     } while (0); // FAKE: schedules addiu t0 before lui at
@@ -971,7 +971,7 @@ void eepromInit(void) {
     eepromDispatchCommand(0);
 }
 
-extern u8 func_8060B9D0();
+extern u8 eepromGetSectorForSlot();
 extern s32 func_807142D8(void);
 extern void flagsClearAllBank2(void);
 extern u8 D_807EDEB0[];
@@ -991,7 +991,7 @@ u8 *func_8060E25C(s32 arg0) {
             bzero(D_807EDEB0, ((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8);
             result = D_807EDEB0;
         } else {
-            result = D_807ECEA8 + ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * func_8060B9D0(D_807467C8));
+            result = D_807ECEA8 + ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8) * eepromGetSectorForSlot(D_807467C8));
         }
         break;
     case 1:
@@ -1008,13 +1008,13 @@ u8 eepromReadChecksumBit(u16 arg0, u8 arg1) {
 
     result = 0;
     if (func_8071432C() != 0) {
-        eepromGetSectorOffset(&value, &output, 0, 0, arg1, func_8060B9D0(D_807467C8));
+        eepromGetSectorOffset(&value, &output, 0, 0, arg1, eepromGetSectorForSlot(D_807467C8));
         result = eepromReadBitfield((value + arg0) & 0xFFFF, 1);
     }
     return result;
 }
 
-extern u8 func_8060B9D0();
+extern u8 eepromGetSectorForSlot();
 extern void eepromWriteBitfield();
 extern void eepromGetSectorOffset();
 
@@ -1023,7 +1023,7 @@ void func_8060E430(u16 arg0, u8 arg1, u8 arg2) {
     u8 unk;
 
     if (func_8071432C() != 0) {
-        eepromGetSectorOffset(&value, &unk, 0, 0, arg2, func_8060B9D0(D_807467C8));
+        eepromGetSectorOffset(&value, &unk, 0, 0, arg2, eepromGetSectorForSlot(D_807467C8));
         eepromWriteBitfield(arg1, (value + arg0) & 0xFFFF, 1);
     }
 }

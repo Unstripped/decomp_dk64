@@ -2906,7 +2906,7 @@ typedef struct TagBarrelOrbitKong {
 } TagBarrelOrbitKong;
 
 
-void func_80682AB4(void *arg0) {
+void tagBarrelOrbitKongs(void *arg0) {
     TagBarrelOrbitKong *arg = (TagBarrelOrbitKong *)arg0;
     f32 sp70 = D_807FBB40->unk7C;
     f32 sp6C = D_807FBB40->unk80 - 10.0f;
@@ -2984,7 +2984,7 @@ typedef struct KongActionEntry {
 } KongActionEntry;
 
 void func_806F09F0(Actor *, u16);
-void func_80682AB4(void *);
+void tagBarrelOrbitKongs(void *);
 
 void tagBarrelSpawnKongs(TagBarrelSpawnArgs *arg0) {
     s32 i;
@@ -3022,7 +3022,7 @@ void tagBarrelSpawnKongs(TagBarrelSpawnArgs *arg0) {
             *temp = i;
         }
     }
-    func_80682AB4(arg0);
+    tagBarrelOrbitKongs(arg0);
 }
 
 void tagBarrelUpdateSelectedKong(void) {
@@ -3355,7 +3355,7 @@ void tagBarrelUpdateSelection(struct TagBarrelData *arg0_in) {
     sp4A = var_s0;
     if (var_s0 != 0) {
         arg0->unk4 = var_s0 - 1;
-        func_80682AB4(arg0);
+        tagBarrelOrbitKongs(arg0);
         var_s0 = arg0->unk4;
     }
     arg0->unk3C++;

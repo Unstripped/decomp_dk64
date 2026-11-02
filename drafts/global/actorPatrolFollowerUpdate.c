@@ -64,7 +64,7 @@ u16 arg2;
         case 3:
             patrolPathStep(D_807FBB40->unk154, 1);
         default:
-            func_8072C918(0x4C90, ((B1F60View98 *)D_807FDC98)->unk28, ((B1F60View98 *)D_807FDC98)->unk2A);
+            enemyAggroStateUpdate(0x4C90, ((B1F60View98 *)D_807FDC98)->unk28, ((B1F60View98 *)D_807FDC98)->unk2A);
         case 0x37:
         case 0x40:
             break;

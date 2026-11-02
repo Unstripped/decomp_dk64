@@ -617,7 +617,7 @@ extern void *gPlayerSlots;
 void mapFrameBegin(s32);
 void mapFrameEnd(void);
 f32 cameraStepAspectScale(void);
-Gfx *func_8062C29C(Gfx *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+Gfx *mapRenderPlayerView(Gfx *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
 ViewportRect *cameraFindViewportEntry(u8);
 
 Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
@@ -635,7 +635,7 @@ Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
     for (i = 0; i < D_80750AB4; i++) {
         if (PLAYER_VIEW(i).unk0 != 0) {
             gCurrentPlayerIndex = i;
-            gfx = func_8062C29C(gfx, PLAYER_VIEW(i).unk21C, PLAYER_VIEW(i).unk220, PLAYER_VIEW(i).unk224,
+            gfx = mapRenderPlayerView(gfx, PLAYER_VIEW(i).unk21C, PLAYER_VIEW(i).unk220, PLAYER_VIEW(i).unk224,
                                 PLAYER_VIEW(i).unk234, PLAYER_VIEW(i).unk238, PLAYER_VIEW(i).unk23C,
                                 PLAYER_VIEW(i).unk28C, PLAYER_VIEW(i).unk280 * cameraStepAspectScale(),
                                 PLAYER_VIEW(i).unk288);
@@ -753,7 +753,7 @@ void mapSetClipBounds();
 Gfx *mapTreeRender(Gfx *, MapBspNode *, MapVisNode *, f32, f32, f32, s32);
 void viewportSetFromRect(s16 *, s32, s32, s32, s32);
 
-Gfx *func_8062C29C(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9) {
+Gfx *mapRenderPlayerView(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9) {
     Gfx *dl;
     s32 pad2[1];
     s32 pad[24];

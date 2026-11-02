@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-void func_80698120();
+void actorBoneChainSwingUpdate();
 
 typedef struct BoneChainNode {
     s8 unk0;
@@ -85,7 +85,7 @@ s32 flagGet(s32, s32);
 void proxPathAdd(Actor *, u8, u8, u8, u8, f32, f32, f32, f32, f32, f32, u8, f32, f32, u8);
 void proxPathSetSegment(Actor *, u8, u8, u8, u8, f32, f32, f32, u8, s16, s16, s16, s16);
 
-void func_80698120(arg0)
+void actorBoneChainSwingUpdate(arg0)
 u8 arg0;
 {
     BoneChainData *data;
@@ -255,17 +255,17 @@ u8 arg0;
 }
 
 void projectileBehaviourEntryA(void) {
-    func_80698120(0xE);
+    actorBoneChainSwingUpdate(0xE);
 }
 
 void projectileBehaviourEntryB(void) {
-    func_80698120(0xB);
+    actorBoneChainSwingUpdate(0xB);
 }
 
 void projectileBehaviourEntryC(void) {
-    func_80698120(0xB);
+    actorBoneChainSwingUpdate(0xB);
 }
 
 void projectileBehaviourEntryD(void) {
-    func_80698120(0xE);
+    actorBoneChainSwingUpdate(0xE);
 }

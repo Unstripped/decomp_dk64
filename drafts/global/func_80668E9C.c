@@ -67,7 +67,7 @@ s32 collisionCheckBoundingBoxXZ(struct CollisionBoundingBox *, f32, f32);
 s32 func_806D0964(s32, u8);
 void modelSlotBuildTriangleBufferThunk(s32, void *, f32, f32, f32, f32, f32, f32, f32);
 s32 collisionCheckTriangleBoundingBoxXZ(struct CollisionTriF *, f32, f32);
-u8 func_80669E04(struct CollisionTriF *, f32, f32);
+u8 collisionCheckTriangleContainsPointXZ(struct CollisionTriF *, f32, f32);
 s32 collisionCheckSurfaceFilter(u8, u8 *);
 void collisionRecordTriangleF(struct CollisionTriF *, f32);
 s32 collisionCheckTriangleWindingF32(struct CollisionTriF *);
@@ -149,7 +149,7 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
     if (tri != tri_end) {
         do {
             if (collisionCheckTriangleBoundingBoxXZ((struct CollisionTriF *)tri, arg2, arg3) != 0 &&
-                func_80669E04((struct CollisionTriF *)tri, arg2, arg3) != 0 &&
+                collisionCheckTriangleContainsPointXZ((struct CollisionTriF *)tri, arg2, arg3) != 0 &&
                 collisionCheckSurfaceFilter(tri->unk27, sp90->unk25) != 0) {
                 dx01 = (f64)(tri->x[0] - tri->x[1]);
                 dy01 = (f64)(tri->y[0] - tri->y[1]);

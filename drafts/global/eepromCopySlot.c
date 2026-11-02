@@ -1,11 +1,11 @@
-// eepromCopySlot (src/global/104F0.c): eepromCopySlot (src/global/104F0.c): stage 5: 12 insns diff (was 13), shape=0: frame 0x20 exact; only regs differ: unk0 chain in a2 (target v0 with move v0,t7), v1/a3 swapped for original/replacement, target evaluates src (a1) multu before dest (a0), size in t8 temp + move a2,t8 (ours colours size a2). Tried compare swap (-1), s32 chain locals, src/dest locals, size inline x3, ~110 spellings
+// eepromCopySlot (src/global/104F0.c): W4IntA: stage 5, 12 diff lines (unchanged). Diff = chain colour (ours a2 via root-dest targeting of coloured n cand 28; target v0) + dest-first vs src-first multu order. s32 in-place chain (size = lh; size += ..; size &= ..) puts the chain in v0 exactly but then n (cand 28) is coloured a2 directly (sra a2,v0,3, no t8 + move a2,t8, mults on a2): 25. Source order of dst/src (locals, dead uses), n var vs inline x3, mul operand order, memcpy prototype variants (7), casts: all identical output. 10k-eval hill-climb with no-code defs/dead tests on original/replacement/size/n/unk0: no gain.
 extern s32 func_8071432C(void);
 extern s32 func_80714394(void);
 extern u8 D_807ECEA8[];
 extern s16 D_807ECEA0[];
 extern u8 D_807467C8;
 extern u8 D_807EDEA8[];
-u8 func_8060B9D0(s32);
+u8 eepromGetSectorForSlot(s32);
 void *memcpy(void *, const void *, size_t);
 
 void eepromCopySlot(void) {
@@ -14,8 +14,8 @@ void eepromCopySlot(void) {
     s16 unk0;
     s32 size;
 
-    original = func_8060B9D0(D_807467C8);
-    replacement = func_8060B9D0(3);
+    original = eepromGetSectorForSlot(D_807467C8);
+    replacement = eepromGetSectorForSlot(3);
     if (((func_8071432C() != 0) || (func_80714394() != 0)) && (original != replacement)) {
         unk0 = D_807ECEA0[0];
         size = ((((unk0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;

@@ -120,7 +120,7 @@ void actorClearNodeFlag(Actor *, s32);
 void func_8072DC7C(s32);
 s32 func_8072E54C();
 void patrolPathStep(s32, s32);
-void func_8072C918(s32, s32, s32);
+void enemyAggroStateUpdate(s32, s32, s32);
 void actorUpdateModelMatrix(Actor *, s32);
 void func_8072B7CC();
 
@@ -326,7 +326,7 @@ void func_806B13B4(u8 arg0) {
     case 3:
         patrolPathStep(D_807FBB40->unk154, 1);
     default:
-        func_8072C918(0x6400, 0x203, 0x204);
+        enemyAggroStateUpdate(0x6400, 0x203, 0x204);
         break;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);

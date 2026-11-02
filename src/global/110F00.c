@@ -7,7 +7,7 @@ typedef struct Mat4F {
 
 void mtxIdentityF();
 void mtxLookDirF(Mat4F *, Mat4F *, f32, f32, f32);
-void func_8070D07C(Mat4F *, Mat4F *, f32, f32, f32, f32, f32, f32);
+void mtxLookDirPosF(Mat4F *, Mat4F *, f32, f32, f32, f32, f32, f32);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070C200.s")
 
@@ -382,7 +382,7 @@ void mtxLookDirL(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4) {
     guMtxF2L(sp20.m, arg1);
 }
 
-void func_8070D07C(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+void mtxLookDirPosF(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
     f32 padtop[3]; // FAKE: pad words steer the frame size
     f32 t;
     f32 m00;
@@ -464,7 +464,7 @@ void mtxLookDirPosL(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5
     Mat4F sp68;
     Mat4F sp28;
 
-    func_8070D07C(&sp68, &sp28, arg2, arg3, arg4, arg5, arg6, arg7);
+    mtxLookDirPosF(&sp68, &sp28, arg2, arg3, arg4, arg5, arg6, arg7);
     guMtxF2L(sp68.m, arg0);
     guMtxF2L(sp28.m, arg1);
 }

@@ -1,4 +1,4 @@
-// scriptOpPlaySoundAndShake (src/global/19A00.c): stage 4: 0x50 frame, s0/ra saved, slots 0x4E,0x4D,0x4A,0x49,0x48 match, FP conversion 100% matched, diff 16 lines (as1 branch delay scheduling)
+// scriptOpPlaySoundAndShake (src/global/19A00.c): stage 4, still 16 diff lines (as1 only; regs match): target has bne v1,2; nop; lh t2 (no hoist of lh t2/li at,1/li a1,10/li a2,8 into the entry stall/delay slot) and bnezl v1 + copied lw t8,88(s0) at the else-if with lbu t6 kept in the block (so mtc1 zero,f8 hoists into the lbu gap); ours hoists all of them. as1probe: dup of the first bne record + swapping the lbu v1,72(sp)/b records gives 7; deleting the first load of the ==0 arm gives bnezl; no C spelling found. Tried (all unchanged 16): x = x/| 0/& MASK/dead tests on every local at every boundary up to depth 3, all single/pair LINE-JOINs, wrapper blocks (do-while/if(1)/for/switch) per arm, switch(selector) (111), mode local (u8/s32/u32, pad as mode), statement order permutations per arm, FP spellings, var_v1 types, cond spellings (|| && ! cast), arm-1 if forms, permuter (junk baseline).
 struct PlayerSoundStruct;
 extern struct PlayerSoundStruct *gPlayerSlots;
 
@@ -26,8 +26,9 @@ typedef struct ActorSoundPosView {
 
 void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 void camStartShakeFromPoint(s32, u8, u16, s32, f32, f32, f32, f32);
-s16 func_8060A7C0(s16, Actor *, u8);
+s16 mapActionLookupEntry(s16, Actor *, u8);
 
+#ifdef NON_MATCHING
 s32 scriptOpPlaySoundAndShake(Actor *arg0) {
     s16 sp4E;
     u8 sp4D;
@@ -68,7 +69,7 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
             break;
         }
     }
-    sp4E = func_8060A7C0(sp4E, arg0, ((ActorSoundPosView *)arg0)->unk78);
+    sp4E = mapActionLookupEntry(sp4E, arg0, ((ActorSoundPosView *)arg0)->unk78);
     if ((sp4E == 2) || (sp4E == 8)) {
         sp49 = 0xA;
     }

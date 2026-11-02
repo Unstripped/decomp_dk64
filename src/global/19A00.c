@@ -570,7 +570,7 @@ void func_80613C48(s32, s16, f32, f32);
 void func_80613AF8(s32, s16, f32, f32);
 void func_80613BA0(s32, s16, f32, f32);
 void controllerAnimScaleInterpolate(s32, s8);
-void func_80613FB0(s32, u16, f32, u8);
+void controllerAnimSetFromTable(s32, u16, f32, u8);
 
 
 s32 func_8061594C(s32 arg0) {
@@ -656,7 +656,7 @@ s32 func_80615BDC(s32 arg0) {
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
     scriptReadU8(&sp1D);
-    func_80613FB0(arg0, sp1E, 0.0f, sp1D);
+    controllerAnimSetFromTable(arg0, sp1E, 0.0f, sp1D);
     return 1;
 }
 

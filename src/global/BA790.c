@@ -63,7 +63,7 @@ void func_80685210(f32, s16, s16);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 u32 actorMoveWithinZone(u32, f32, f32, u16, f32);
-void func_8072C918(s32, s32, s32);
+void enemyAggroStateUpdate(s32, s32, s32);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void actorScriptStart(void *, s32);
@@ -148,7 +148,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
         }
         actorMoveWithinZone(0x33, D_807FDC94->unk7C, D_807FDC94->unk84, x, 6.0f);
         if (D_807FBB40->unk58 == 0xB6) {
-            func_8072C918(arg0, 0x24E, 0x24D);
+            enemyAggroStateUpdate(arg0, 0x24E, 0x24D);
         }
         break;
     case 0:
@@ -164,7 +164,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
             } else {
                 x = 0x24C;
             }
-            func_8072C918(arg0, 0x24E, x);
+            enemyAggroStateUpdate(arg0, 0x24E, x);
         }
         if (D_807FBB40->unk154 == 0x33) {
             ret = 1;

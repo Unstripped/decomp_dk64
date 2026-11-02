@@ -770,7 +770,7 @@ void menuDispatchCurrentMenuAction(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
 
 extern s32 gCurrentMap;
 void behaviourFrameBegin(void);
-void func_806BFBF4(void);
+void actorScriptedCommandUpdate(void);
 void actorUpdateModelMatrix(void *, s32);
 void actorScriptStart(void *, s32);
 
@@ -898,7 +898,7 @@ void func_800270E0(void) {
     }
     if (D_807FBB40->unk60 & 0x10000000) {
         behaviourFrameBegin();
-        func_806BFBF4();
+        actorScriptedCommandUpdate();
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -947,7 +947,7 @@ void menuCheckControllerAntiPiracy(void) {
     }
     if (D_807FBB40->unk60 & 0x10000000) {
         behaviourFrameBegin();
-        func_806BFBF4();
+        actorScriptedCommandUpdate();
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -964,7 +964,7 @@ void func_80027738(void) {
     }
     if (D_807FBB40->unk60 & 0x10000000) {
         behaviourFrameBegin();
-        func_806BFBF4();
+        actorScriptedCommandUpdate();
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }

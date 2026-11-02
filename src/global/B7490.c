@@ -61,7 +61,7 @@ void func_8072D714(s32, s32);
 void actorSetDefaultState();
 void func_8072DC7C();
 void func_8072AA80(void);
-void func_8072C918(s32, s32, s32);
+void enemyAggroStateUpdate(s32, s32, s32);
 s32 randomNonNegative(void);
 f32 func_80612794(s16);
 s16 mathAngleEaseToward(s16, s16, f32);
@@ -189,7 +189,7 @@ void func_806B2790(void) {
         case 3:
             patrolPathStep(D_807FBB40->unk154, 1);
         default:
-            func_8072C918(0x6400, 0x2DE, 0x2DE);
+            enemyAggroStateUpdate(0x6400, 0x2DE, 0x2DE);
             break;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -319,7 +319,7 @@ void func_806B2D64(void) {
             patrolPathStep(D_807FBB40->unk154, 1);
             break;
         default:
-            func_8072C918(0x6400, 0x2E2, 0x2E2);
+            enemyAggroStateUpdate(0x6400, 0x2E2, 0x2E2);
             break;
     }
     func_8072881C(0, (u8 *)D_807FDC90 + 0x28);

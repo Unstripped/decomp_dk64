@@ -323,7 +323,7 @@ typedef struct AnimTable {
 
 void mtxMulAffineF(f32 *, f32 *, f32 *);
 void mtxRotateZDegF(f32 *, f32);
-void func_8070D07C(f32 *, f32 *, f32, f32, f32, f32, f32, f32);
+void mtxLookDirPosF(f32 *, f32 *, f32, f32, f32, f32, f32, f32);
 
 #define ANIM_MODEL ((AnimModel *)arg0)
 #define ANIM_TABLE ((AnimTable *)arg1)
@@ -377,7 +377,7 @@ void meshApplyAnimation(void *arg0, s32 arg1, s32 frame) {
                     dz = dst->z - src->z;
                     angle = (f32)(ANIM_TABLE->entries[idx].start - end) * ANIM_TABLE->entries[idx].scale;
                 }
-                func_8070D07C(&m1B8[0][0], &m138[0][0],
+                mtxLookDirPosF(&m1B8[0][0], &m138[0][0],
                     -dx, -dy, -dz,
                     -src->x, -src->y, -src->z);
                 mtxRotateZDegF(&m178[0][0], angle);

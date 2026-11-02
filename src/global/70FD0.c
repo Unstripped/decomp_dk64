@@ -73,7 +73,7 @@ void collisionBufferCacheUpdate(void);
 void collisionPurgeExpiredBuffers(void);
 s32 collisionIsTriangleDegenerate(CollisionTri *);
 s8 collisionTriangleSlopeClass(s16 *);
-s16 func_8066D4DC();
+s16 collisionTriangleNormalYaw();
 s32 collisionBuildPlane(CollisionBox *);
 void actorSub140Free(ActorSub140 *);
 void actorSetNodeValue(Actor *, s32, u16);
@@ -548,7 +548,7 @@ s32 collisionTransformTriangle(u8 *arg0, u8 *arg1, f32 (*arg2)[4]) {
     COLLISION_TRI_OUT->unk3C = (s32)(sp3C * 8.0f);
     COLLISION_TRI_OUT->unk40 = (s32)(sp38 * 8.0f);
     COLLISION_TRI_OUT->unk44 = (s32)(sp34 * 8.0f);
-    sp58[9] = func_8066D4DC(sp58, sp6C);
+    sp58[9] = collisionTriangleNormalYaw(sp58, sp6C);
     COLLISION_TRI_OUT->unk4B = collisionTriangleSlopeClass(sp58);
     COLLISION_TRI_OUT->unk48 = sp58[9];
     COLLISION_TRI_OUT->unk4C = sp6C[0];
@@ -618,7 +618,7 @@ s8 collisionTriangleSlopeClass(s16 *a) {
     return 0;
 }
 
-s16 func_8066D4DC(arg0, arg1)
+s16 collisionTriangleNormalYaw(arg0, arg1)
 s16 *arg0;
 u8 *arg1;
 {
@@ -1547,7 +1547,7 @@ s32 collisionBuildBoxFromMatrix(f32 *arg0, CollisionBox *arg1) {
     arg1->unk40 = (s32)(arg0[5] * 8.0f);
     arg1->unk44 = (s32)(arg0[8] * 8.0f);
 
-    sp32 = func_8066D4DC(sp20, sp34, arg0);
+    sp32 = collisionTriangleNormalYaw(sp20, sp34, arg0);
     arg1->unk4B = collisionTriangleSlopeClass(sp20);
     arg1->unk4D = 0;
     arg1->unk4F = 0;

@@ -14,14 +14,14 @@ typedef struct {
 void *controllerAnimStateLoadAsset();
 void controllerAnimFreeSub();
 
-typedef struct CtrlM_StateEntry {
+typedef struct ControllerStateEntryView {
     u16 unk0;
     u16 unk2;
     void *unk4;
     u8 unk8;
-} CtrlM_StateEntry;
+} ControllerStateEntryView;
 
-typedef struct CtrlM_Asset {
+typedef struct ControllerAnimAssetView {
     void *unk0;
     void **unk4;
     void *unk8;
@@ -31,12 +31,12 @@ typedef struct CtrlM_Asset {
     u8 pad18[8];
     u8 unk20;
     u8 unk21;
-} CtrlM_Asset;
+} ControllerAnimAssetView;
 
 // D_807FB630 is declared with its full type (ControllerStateEntry) further down; this function needs a u8 unk8 view, so it goes through a cast.
 struct ControllerStateEntry;
 extern struct ControllerStateEntry D_807FB630[];
-#define CtrlM_Entry(i) (((CtrlM_StateEntry *)D_807FB630)[i])
+#define CONTROLLER_STATE_ENTRY(i) (((ControllerStateEntryView *)D_807FB630)[i])
 extern void *D_807FB634;
 void *assetLoad(s32, s32, s32, s32);
 extern u8 D_80746B64[];
@@ -53,14 +53,14 @@ s32 arg1;
 unsigned char arg2;
 {
     s32 i;
-    CtrlM_Asset *asset;
+    ControllerAnimAssetView *asset;
     s32 delta;
 
     for (i = 0; i < (u16)D_807FBB30; i++) {
-        if (arg1 == CtrlM_Entry(i).unk0 && CtrlM_Entry(i).unk8 == arg2) {
-            CtrlM_Entry(i).unk2++;
-            animListInit(arg0, CtrlM_Entry(i).unk4);
-            return CtrlM_Entry(i).unk4;
+        if (arg1 == CONTROLLER_STATE_ENTRY(i).unk0 && CONTROLLER_STATE_ENTRY(i).unk8 == arg2) {
+            CONTROLLER_STATE_ENTRY(i).unk2++;
+            animListInit(arg0, CONTROLLER_STATE_ENTRY(i).unk4);
+            return CONTROLLER_STATE_ENTRY(i).unk4;
         }
     }
 
@@ -68,12 +68,12 @@ unsigned char arg2;
         return D_807FB634;
     }
 
-    asset = (CtrlM_Asset *)assetLoad(5, arg1 - 1, 1, 1);
-    CtrlM_Entry(i).unk0 = arg1;
+    asset = (ControllerAnimAssetView *)assetLoad(5, arg1 - 1, 1, 1);
+    CONTROLLER_STATE_ENTRY(i).unk0 = arg1;
     D_807FBB30 = (u16)D_807FBB30 + 1;
-    CtrlM_Entry(i).unk8 = arg2;
-    CtrlM_Entry(i).unk2 = 1;
-    CtrlM_Entry(i).unk4 = asset;
+    CONTROLLER_STATE_ENTRY(i).unk8 = arg2;
+    CONTROLLER_STATE_ENTRY(i).unk2 = 1;
+    CONTROLLER_STATE_ENTRY(i).unk4 = asset;
 
     delta = ((u8 *)asset - (u8 *)asset->unk0) + 0x28;
     asset->unk0 = (u8 *)asset->unk0 + delta;
@@ -106,11 +106,11 @@ unsigned char arg2;
 }
 
 #ifdef NON_MATCHING
-typedef struct RvR2_Cmd {
+typedef struct GfxCmdWords {
     u32 unk0;
     u32 unk4;
-} RvR2_Cmd;
-void gfxSwapGeometryModeCullBits(RvR2_Cmd *arg0, RvR2_Cmd *arg1) {
+} GfxCmdWords;
+void gfxSwapGeometryModeCullBits(GfxCmdWords *arg0, GfxCmdWords *arg1) {
     u32 w0;
     u32 w1;
     s32 x1;
@@ -614,17 +614,17 @@ typedef struct {
     void *unk4;
     void *unk8;
     void *unkC;
-} CtrlA_ControllerAnimData;
+} ControllerAnimDataView;
 
 typedef struct {
     void *unk0;
-    CtrlA_ControllerAnimData *unk4;
-} CtrlA_ControllerAnimView;
+    ControllerAnimDataView *unk4;
+} ControllerAnimRefView;
 
 typedef struct {
     u8 pad0[0x84];
     s32 unk84;
-} CtrlA_AnimData;
+} ControllerAnimDataBlock;
 
 int controllerAnimCacheFree(void *arg0, void *arg1) {
     void *temp_a2 = *(void **)arg1;
@@ -663,8 +663,8 @@ int controllerAnimCacheFree(void *arg0, void *arg1) {
         }
         *(void **)arg1 = NULL;
     }
-    if ((void *)arg1 == ((CtrlA_ControllerAnimView *)arg0)->unk4->unk4) {
-        ((CtrlA_AnimData *)((CtrlA_ControllerAnimView *)arg0)->unk4)->unk84 = 0;
+    if ((void *)arg1 == ((ControllerAnimRefView *)arg0)->unk4->unk4) {
+        ((ControllerAnimDataBlock *)((ControllerAnimRefView *)arg0)->unk4)->unk84 = 0;
     }
 }
 #else
@@ -943,12 +943,12 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
 typedef struct {
     u8 pad0[0x58];
     s32 unk58;
-} W3IntA_Controller;
+} ControllerActorTypeView;
 extern u16 *D_807FBB58;
 struct AnimControllerRef;
 void func_80614014(struct AnimControllerRef *, u16, f32, u8);
 
-void func_80613FB0(W3IntA_Controller *arg0, u16 arg1, f32 arg2, u8 arg3) {
+void controllerAnimSetFromTable(ControllerActorTypeView *arg0, u16 arg1, f32 arg2, u8 arg3) {
     u16 x = arg1;
     u16 idx = (u16)(7 * x + arg0->unk58 - 2);
     if (x) {} // FAKE: dead test makes the copy of arg1 a ring temp (move t6,a1) and the sum v0

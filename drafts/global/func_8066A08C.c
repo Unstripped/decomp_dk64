@@ -16,7 +16,7 @@ typedef struct {
 
 struct CollisionBoxTriangle;
 s32 collisionCheckBoxTriangleBoundsXZ(struct CollisionBoxTriangle *, f32, f32);
-u8 func_8066A988(struct CollisionBoxTriangle *, f32, f32);
+u8 collisionCheckBoxTriangleContainsPointXZ(struct CollisionBoxTriangle *, f32, f32);
 void collisionTransformPointToActorLocal(s32, Actor *, CollisionVertexBoneRefs *, f32, f32, f32);
 void collisionRecordBoxTriangle(void *, f32);
 
@@ -56,7 +56,7 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
                     if (actor->unk140->unk94 > 0) {
                         do {
                             if ((collisionCheckBoxTriangleBoundsXZ((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
-                                (func_8066A988((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
+                                (collisionCheckBoxTriangleContainsPointXZ((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
                                 (tri->unk56 != 0)) {
                                 dz01 = tri->unk3C - tri->unk40;
                                 dy01 = (f64)(tri->unk30 - tri->unk34);

@@ -1268,7 +1268,7 @@ typedef struct C1Dc9c {
 s32 zoneCanReachPoint(Actor *, s16, s16, s16, void *);
 s32 func_8072DE10(u16);
 
-void func_8072C918(s32 arg0, s32 arg1, s32 arg2) {
+void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
     D1S174 *st;
     s32 dist;
     u8 pad0;

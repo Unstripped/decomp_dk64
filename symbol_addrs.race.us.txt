@@ -23,3 +23,4 @@ raceGetWaypoint = 0x8002E9AC; // type:func
 raceLoadRouteData = 0x8002E9F8; // type:func
 raceLineIntersectParam = 0x8002F04C; // type:func
 raceUpdateWaypointActivation = 0x8002F950; // type:func
+raceOpponentBehaviourUpdate = 0x80024690; // type:func

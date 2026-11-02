@@ -481,7 +481,7 @@ typedef struct LgC4F5CS90 {
 #define LgS ((LgC4F5CS90 *)D_807FDC90)
 
 void behaviourSetAnimIds(s32, s32, s32);
-void func_806BFBF4(void);
+void actorScriptedCommandUpdate(void);
 s32 currentActorTestClearFlag(void);
 void csModelStateSetFirstByte(s32, s32);
 void actorScriptStart(Actor *, s32);
@@ -515,7 +515,7 @@ void func_806C4F5C(void) {
         case 14:
         case 15:
         case 30:
-            func_806BFBF4();
+            actorScriptedCommandUpdate();
             if (currentActorTestClearFlag() != 0) {
                 csModelStateSetFirstByte(0x2D, 0x14);
                 LgA->unk12A = 0x3E8;

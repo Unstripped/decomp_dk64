@@ -438,7 +438,7 @@ u8 flagCountRange(s32, s32, s32);
 u8 flagGridSumRows(s32, s32, s32, u8);
 void menuUpdateOptionsState(MenuStruct_80024000 *);
 void behaviourFrameBegin(void);
-void func_806BFBF4(void);
+void actorScriptedCommandUpdate(void);
 void actorUpdateModelMatrix(void *, s32);
 
 void menuDispatchAction(void) {
@@ -515,7 +515,7 @@ void menuDispatchAction(void) {
         break;
     }
     behaviourFrameBegin();
-    func_806BFBF4();
+    actorScriptedCommandUpdate();
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 typedef struct {

@@ -388,7 +388,7 @@ extern u8 D_807F6009;
 extern s32 D_807FBB60;
 extern u8 D_2000180[];
 
-void *func_80630DCC(s32, void *, GfxWords *, u8);
+void *renderActorEntryBuildDisplayList(s32, void *, GfxWords *, u8);
 void *renderModelAnimatedSlot(void *, void *, f32, f32, f32, s32, s32, s32);
 void *renderModelQuadGfx(void *, void *, f32, f32, f32, s32, s32, s32);
 void *effectGridBuildDisplayList(void *, void *, s16);
@@ -421,7 +421,7 @@ GfxWords *renderEntryListBuildDisplayList(GfxWords *arg0, RenderEntry *arg1, f32
             if (ok != 0) {
                 switch (type) {
                 case 0:
-                    tmp = func_80630DCC(D_8076A048, model, arg0, arg7);
+                    tmp = renderActorEntryBuildDisplayList(D_8076A048, model, arg0, arg7);
                     tmp->w0 = 0xDA380003;
                     tmp->w1 = (u32)D_2000180;
                     arg0 = tmp + 1;
@@ -522,7 +522,7 @@ void *renderSetSegment6AndFog(void *, s16, u8);
 #define RENDER_ACT ((RenderActor *)arg1)
 #define CUR_PLAYER_VIEW ((PlayerView *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0))
 
-void *func_80630DCC(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
+void *renderActorEntryBuildDisplayList(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
     ActorCtl *ctl;
     f32 dz;
     f32 dy;

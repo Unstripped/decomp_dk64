@@ -1,10 +1,5 @@
-// func_8002978C (src/race/52B0.c): stage 5, 511 insns, frame 0x80/s0, deadsweep score 51 (614/614 lines, reloc=0): single FP-register swap (sp4C in f8 ring reload vs f16, thr in f16 vs f12; cascades f6<->f8 across rest of function); tried inlining, local reuse, declaration order, deadsweep
+// raceRacerSteerTowardWaypoint (src/race/52B0.c): func_8002978C (src/race/52B0.c): stage 5, 511 insns, frame 0x80/s0, deadsweep score 51 (614/614 lines, reloc=0): single FP-register swap (sp4C in f8 ring reload vs f16, thr in f16 vs f12; cascades f6<->f8). Leftovers-5 Boss: target has n=(sp4C-lo) f12, d=(thr-lo) f14 as coloured-looking temps, thr f16, sp4C reload f8 ring. Tried with no gain: x=x no-code defs (free, no effect), FP no-code defs (x*1.0f etc), named n/d locals on the pad slots (fold away unless dead-tested; dead FP tests change frame/colouring: 150-270), copies of sp4C/thr/lo (1500+10k combos), dropping dx/dz/lo/thr/fr, inline thr, FP literal spellings (0.0f/0.00f/.0f, 1.0f/1.00f), statement-order permutations of the head, thr placement, exhaustive dead-test pairs (150 singles x pairs) and Metropolis dead-test hill-climb (100k evals), removing each FAKE (F2 needed, F1 +1 only).
 #include "common.h"
-
-extern void *D_807FBB40;
-void actorScriptStart(void *, s32);
-void func_8002DE78(void *, s32, void *, void *);
-
 extern f32 D_8002FC28;
 extern f32 D_8002FC58;
 f32 func_8002DF38(void *, f32, void *, void *);
@@ -28,7 +23,7 @@ typedef struct {
     void *unk30;
     u8 unk34;
     u8 unk35;
-} RaceL_Racer;
+} RaceRacerState;
 
 typedef struct {
     RaceC_Actor *unk0;
@@ -36,7 +31,7 @@ typedef struct {
     u8 pad8[7];
     u8 unkF;
     u8 unk10;
-} RaceL_Tgt;
+} RaceTargetView;
 
 typedef struct {
     s16 x;
@@ -46,15 +41,15 @@ typedef struct {
     u8 unk7;
     u8 unk8;
     u8 pad9;
-} RaceL_Wp;
+} RaceWaypoint;
 
-#define G2_WP ((RaceL_Wp *)((u8 *)D_807FDCA0->unk14 + idx * 10))
+#define G2_WP ((RaceWaypoint *)((u8 *)D_807FDCA0->unk14 + idx * 10))
 #define G2_F(o) (*(f32 *)((u8 *)D_807FBB40 + (o)))
 
-f32 func_8002978C(void) {
+f32 raceRacerSteerTowardWaypoint(void) {
     s32 idx;
-    RaceL_Racer *s0;
-    RaceL_Tgt *sp74;
+    RaceRacerState *s0;
+    RaceTargetView *sp74;
     RaceC_Actor *tmp;
     RaceC_State *sp6C;
     void *sp68;
@@ -74,8 +69,8 @@ f32 func_8002978C(void) {
     f32 fr;
     s16 ang;
 
-    s0 = (RaceL_Racer *)RC_A->unk178;
-    sp74 = (RaceL_Tgt *)RC_A->unk180;
+    s0 = (RaceRacerState *)RC_A->unk178;
+    sp74 = (RaceTargetView *)RC_A->unk180;
     tmp = s0->unk30;
     sp6C = tmp->unk174;
     sp68 = raceGetRoute(sp6C->unk26);

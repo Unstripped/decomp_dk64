@@ -328,7 +328,7 @@ s32 sfxStopSlotSound(void *, s32);
 void slotQueueCancel(s32, s32);
 void slotQueueUpdate(s32, s32, s32);
 
-void func_80024690(void) {
+void raceOpponentBehaviourUpdate(void) {
     f32 sp6C;
     f32 sp68;
     s16 ang16;

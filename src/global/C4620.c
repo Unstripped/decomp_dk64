@@ -351,7 +351,7 @@ void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
 s32 patrolPathStep(u8, s32);
 
-void func_806BFBF4(void) {
+void actorScriptedCommandUpdate(void) {
     s16 j;
     s16 t;
     s16 i;
@@ -833,7 +833,7 @@ void func_806C15E8(void) {
 
 void behaviourFrameBegin(void);
 extern s32 gCurrentMap;
-void func_806BFBF4(void);
+void actorScriptedCommandUpdate(void);
 
 void func_806C1640(void) {
     behaviourFrameBegin();
@@ -847,7 +847,7 @@ void func_806C1640(void) {
     }
     func_806BF920();
     if (R1V->unk60 & 0x10000000) {
-        func_806BFBF4();
+        actorScriptedCommandUpdate();
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -881,7 +881,7 @@ void func_806C1734(void) {
     func_806BF920();
     if (R1V->unk60 & 0x10000000) {
         sp2A = R1V->unk4->unk0->unk4;
-        func_806BFBF4();
+        actorScriptedCommandUpdate();
         sub = R1V->unk4;
         if (*sub->unk8 == 0) {
             inner = sub->unk0;
@@ -943,7 +943,7 @@ void func_806C19F4(void) {
         func_806F09F0(D_807FBB40, R1V->unk5A);
     }
     if (R1V->unk60 & 0x10000000) {
-        func_806BFBF4();
+        actorScriptedCommandUpdate();
         if (R1V->unk4->unk0->unk10 == 0x1A4) {
             func_807149B8(1);
             func_807149C8(0x96, 0xFF, 0xFF, 0xFF);
@@ -971,7 +971,7 @@ void func_806C1B50(void) {
     }
     func_806BF920();
     if (R1V->unk60 & 0x10000000) {
-        func_806BFBF4();
+        actorScriptedCommandUpdate();
         if ((R1V->unk60 & 4) && R1V->unk155 != 0) {
             switch (R1V->unk4->unk0->unk10) {
                 case 0x23E:
@@ -1019,7 +1019,7 @@ void func_806C1CCC(void) {
         func_806F09F0(D_807FBB40, R1V->unk5A);
     }
     if (R1V->unk60 & 0x10000000) {
-        func_806BFBF4();
+        actorScriptedCommandUpdate();
         if (R1V->unk60 & 4) {
             if (R1V->unk4->unk0->unk10 == 0x2C4 && 25.0f < R1V->unk4->unk0->unk4) {
                 renderCallbacksRegister(gfxBuildScanlineNoise, 0, 3);
@@ -1606,7 +1606,7 @@ void func_806C2DF4(void) {
     }
     actorGetNodePosOrPosition(D_807FBB40, &sp60, &sp5C, &sp58);
     func_806BF920();
-    func_806BFBF4();
+    actorScriptedCommandUpdate();
     LgV->unk6A = 0;
     LgV->unk6C = 0;
     if (D_807FDC94 != D_807FBB4C) {
@@ -1780,7 +1780,7 @@ void func_806C3A8C(void) {
             D_807FBB40->unk155[0] = 0;
         }
     }
-    func_806BFBF4();
+    actorScriptedCommandUpdate();
     switch (D_807FBB40->unk154) {
         case 0x1E:
             switch (D_807FBB40->unk155[0]) {

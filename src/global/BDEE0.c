@@ -96,7 +96,7 @@ s32 func_8072DE10(u16);
 void func_8072DC7C(s32);
 void func_8072B7CC();
 void behaviourFrameBegin(void);
-void func_8072C918(s32, s32, s32);
+void enemyAggroStateUpdate(s32, s32, s32);
 void patrolPathStep(u32, s32);
 void actorUpdateModelMatrix(Actor *, s32);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
@@ -290,7 +290,7 @@ void func_806B91E0(void) {
     case 3:
         patrolPathStep(D_807FBB40->unk154, 1);
     default:
-        func_8072C918(0x57E4, 0x322, 0x323);
+        enemyAggroStateUpdate(0x57E4, 0x322, 0x323);
         break;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -580,7 +580,7 @@ void func_806BA8C8(void) {
         case 3:
             patrolPathStep(arg, 0);
         default:
-            func_8072C918(0x2710, 0, 0);
+            enemyAggroStateUpdate(0x2710, 0, 0);
     }
 }
 

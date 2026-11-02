@@ -123,7 +123,7 @@ void func_8072B7CC();
 void behaviourFrameBegin(void);
 s32 func_8072DE10(u16);
 s16 mathAngleEaseToward(s16, s16, f32);
-void func_8072C918(s32, s32, s32);
+void enemyAggroStateUpdate(s32, s32, s32);
 void func_8072D714(s32, s32);
 void func_8072DC7C(s32);
 void func_8072DEA8();
@@ -406,7 +406,7 @@ void func_806AE588(void) {
     case 3:
         patrolPathStep(D_807FBB40->unk154, 1);
     default:
-        func_8072C918(0x6400, 0x1FB, 0x1FC);
+        enemyAggroStateUpdate(0x6400, 0x1FB, 0x1FC);
         break;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -564,7 +564,7 @@ void func_806AEE84(void) {
         case 3:
             patrolPathStep(D_807FBB40->unk154, 1);
         default:
-            func_8072C918(0x6400, 0x2AB, 0x2AC);
+            enemyAggroStateUpdate(0x6400, 0x2AB, 0x2AC);
             break;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -806,7 +806,7 @@ void func_806AFB58(void) {
     case 3:
         patrolPathStep(D_807FBB40->unk154, 1);
     default:
-        func_8072C918(0x6400, 0x2D7, 0x2D8);
+        enemyAggroStateUpdate(0x6400, 0x2D7, 0x2D8);
         break;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -1095,7 +1095,7 @@ void func_806B0848(void) {
         case 3:
             patrolPathStep(D_807FBB40->unk154, 1);
         default:
-            func_8072C918(0x6400, 0x35F, 0x360);
+            enemyAggroStateUpdate(0x6400, 0x35F, 0x360);
             break;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
