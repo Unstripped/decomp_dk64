@@ -1,4 +1,4 @@
-// menuHandleControllerSlotInput (src/menu/3E10.c): stage 3 (s2 allocated in prologue/epilogue/head/else with 714 lines; frame 0x90 vs 0x88 due to tail loop induction temp; without loop frame 0x88 but s2 not allocated)
+// menuHandleControllerSlotInput (src/menu/3E10.c): stage 6 PARKED NON_MATCHING full=10 (was stage 3, no park). Frame 0x88, same blocks/callee-saved set. Left: region-2 (cur==-0xF0) lim=5/4 in v0 vs expected v1 and D_80744520 load v1 vs v0 (8 insns, reg-only); tail unrolled loop D_8076A0E4+n vs scalar names (reloc-normalised). Levers: m merged into loop counter i (frame), t local dropped (sp84->unkE += 0xF0), unused pad after sp64, and-result stmt BEFORE cur=sp84->unkC (join ring order 104->68), sel local dropped (D_8074451C = sp84->unk17; D_80033834[D_8074451C]) 68->23, hill-climb dead tests 23->10.
 typedef struct MenuScreenActor {
     char pad0[0x174];
     void *unk174;
@@ -19,7 +19,6 @@ typedef struct MenuScreenState {
     s8 unk17;
 } MenuScreenState;
 
-extern s8 D_80033F50;
 extern s8 D_80033FAD;
 extern s8 D_80744520;
 extern s8 D_80744534;
@@ -27,9 +26,10 @@ extern s8 D_8076A0E5;
 extern s8 D_8076A0E6;
 extern s8 D_8076A0E7;
 extern s8 D_80033FAE;
+extern s8 D_80033F50;
+extern u8 D_80744514;
 extern s8 D_80033FAF;
 extern s8 D_8074451C;
-extern u8 D_80744514;
 extern s32 D_8003382C[];
 extern s32 D_80033834[];
 extern u8 D_8003384C[];
@@ -41,36 +41,19 @@ extern u8 D_80750AC0;
 extern s32 D_807552E4[];
 extern u8 D_807ECD09;
 extern OSContPad D_807ECD10[];
-extern s8 D_8076A0E4[];
-extern s8 D_8076A100[];
-extern s8 D_8076A104;
-extern s8 D_80744538;
-extern u16 D_807ECD48;
-extern s32 D_807FBB60;
-
 void func_8071458C(void);
-s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void controllerSetActiveMask(s32);
-void menuAssignPlayerControllerSlot(s32, s32);
-s32 menuNextFreeControllerSlot(s32);
-s32 menuPrevFreeControllerSlot(s32);
-void menuReleasePlayerControllerSlot(s32);
-void menuHandleScrollInput(MenuScreenState *, s32, s32);
-void menuUpdateScrollAnimation(MenuScreenState *, s32);
-void menuUpdateItemTransition(void *, MenuScreenState *, s32);
-void menuUpdateCameraPositions(void);
 
 void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
     MenuScreenState *sp84 = arg0->unk174;
     s32 step;
     s32 rest;
-    s32 m;
     s32 i;
     s32 j;
     s32 edge;
     s32 bits;
-    s32 sp64;
     s32 idx;
+    s32 sp64;
+    s32 padX;
     s32 lim;
     s32 mask;
     s16 cur;
@@ -94,6 +77,7 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
     }
     if (sp84->unk0 == 0.0f && rest == 0) {
         sp64 = 5;
+        if (D_8003385C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (D_8076A104 == 0) {
             sp64 = 6;
         }
@@ -120,7 +104,6 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                 D_80744514 = 2;
                 func_8071458C();
             } else {
-                if (D_80033FAD) {}
                 if (arg1 & 2) {
                     sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                     sp84->unk16 = 0;
@@ -138,22 +121,20 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                         sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                     }
                 } else if (arg1 & 0x80) {
-                    s32 t = sp84->unkE + 0xF0;
-                    sp84->unkE = t;
-                    if (t > 0) {
+                    sp84->unkE += 0xF0;
+                    if (sp84->unkE > 0) {
                         sp84->unkE = 0;
                     } else {
                         sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0, 0, 0);
                     }
                 }
             }
-            cur = sp84->unkC;
             lim = (arg1 ^ D_80033858) & arg1;
-            m = lim; // FAKE: temp copy keeps the and in its own candidate
+            cur = sp84->unkC;
+            i = lim; // FAKE: temp copy keeps the and in its own candidate
             if (cur == 0 && D_80033FAE == 0) {
                 i = 0;
                 do {
-                    if (D_8003382C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     bits = 0;
                     if (D_807ECD09 & (1 << i)) {
                         if (D_807ECD10[i].stick_x < -0x28) {
@@ -165,6 +146,7 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                             bits |= 0x20;
                         } else if (D_807ECD10[i].stick_y >= 0x29) {
                             bits |= 0x10;
+                            if (D_80033858 && D_80033858) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                         }
                         edge = (D_8003385C[i] ^ bits) & bits;
                         D_8003385C[i] = bits;
@@ -192,6 +174,7 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                                 sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 idx = D_8076A0E4[i] - 1;
                                 if (idx < 0) {
+                                    if (D_80033FAF == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                                     idx = 5;
                                 }
                                 while (!(D_80033FAF & (1 << idx))) {
@@ -219,7 +202,7 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                     i += 1;
                 } while (i != 4);
             } else if (cur == -0xF0) {
-                if (m & 0x10) {
+                if (i & 0x10) {
                     lim = 5;
                     if (D_80033834[D_8074451C] == 5) {
                         lim = 4;
@@ -228,19 +211,20 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                         D_80744520 += 1;
                         sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     }
-                } else if ((m & 0x20) && D_80744520 >= 2) {
+                } else if ((i & 0x20) && D_80744520 >= 2) {
+                    if (!D_8074451C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     D_80744520 -= 1;
                     sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
-                menuHandleScrollInput(sp84, sp64, m);
+                menuHandleScrollInput(sp84, sp64, i);
             } else if (cur == -0x1E0) {
-                if (m & 0x10) {
+                if (i & 0x10) {
                     D_80744534 += 1;
                     if (D_80744534 >= 3) {
                         D_80744534 = 0;
                     }
                     sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                } else if (m & 0x20) {
+                } else if (i & 0x20) {
                     D_80744534 -= 1;
                     if (D_80744534 < 0) {
                         D_80744534 = 2;
@@ -249,13 +233,13 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                 }
             }
         }
+        if (D_80033FAD + sp84) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         menuUpdateScrollAnimation(sp84, sp64);
     }
     D_80033858 = arg1;
     {
-        s8 sel = sp84->unk17;
-        D_8074451C = sel;
-        if (D_80033834[sel] == 5 && D_80744520 >= 5) {
+        D_8074451C = sp84->unk17;
+        if (D_80033834[D_8074451C] == 5 && D_80744520 >= 5) {
             D_80744520 = 4;
         }
     }
