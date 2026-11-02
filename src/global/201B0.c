@@ -4727,7 +4727,7 @@ void camLoadPathData(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u
     s16 k;
     s32 padg1;
     s32 padg2;
-    s32 padg3;
+    s16 *zp;
     s32 skip;
 
     hdr = CAM_LOAD_SRC;
@@ -4750,15 +4750,15 @@ void camLoadPathData(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u
     hdr = (s16 *)data;
     cnt = CAM_LOAD_PATH->unkC0 = hdr != NULL ? *hdr++ : 0;
     if (arg2 != 0) {
-        CAM_LOAD_PATH->unkC8 = heapAlloc(cnt);
+        CAM_LOAD_PATH->unkC8 = heapAlloc((u32)cnt);
         CAM_LOAD_PATH->unkC4 = heapAlloc(cnt * 0x1CU);
-        s = hdr;
+        zp = hdr;
         for (i = 0; i < cnt; i++) {
-            CAM_LOAD_PATH->unkC8[i] = mapChunkFindByPosition(s[8], s[9], s[10], 0);
-            s += 0xE;
-            CAM_LOAD_PATH->unkC4[i] = *(CamPathZoneRaw *)(s - 0xE);
+            CAM_LOAD_PATH->unkC8[i] = mapChunkFindByPosition(zp[8], zp[9], zp[10], 0);
+            zp += 0xE;
+            CAM_LOAD_PATH->unkC4[i] = *(CamPathZoneRaw *)(zp - 0xE);
         }
-        hdr = s;
+        hdr = zp;
     }
     i = 0;
     cnt = CAM_LOAD_PATH->unkCC = hdr != NULL ? *hdr++ : 0;
@@ -4768,6 +4768,7 @@ void camLoadPathData(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u
         k = m;
 
         CAM_LOAD_PATH->unkD0[i].unk0 = m;
+        k = k;  // FAKE: steers uopt register order
         CAM_LOAD_PATH->unkD0[i].unk4 = heapAlloc(m * 2);
         CAM_LOAD_PATH->unkD0[i].unk8 = heapAlloc(m * 2);
         for (j = 0; j < k; j++) {
@@ -4783,11 +4784,9 @@ void camLoadPathData(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u
     if (cnt != 0) {
         do {
             skip = 0;
-            pt = &CAM_LOAD_PATH->unkD8[i];
-            pt->unk1 = rd[1];
+            u = (CamPathPointSpline *)&CAM_LOAD_PATH->unkD8[i].u;
+            CAM_LOAD_PATH->unkD8[i].unk1 = rd[1];
             CAM_LOAD_PATH->unkD8[i].unk0 = rd[0];
-            pt = (CamPathPoint *)&pt->u.spline;
-            u = (CamPathPointSpline *)pt;
             switch (CAM_LOAD_PATH->unkD8[i].unk1) {
                 case 13:
                     rd = camCopyPathPayload(rd, u, 0xC);

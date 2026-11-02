@@ -1,4 +1,4 @@
-// func_806264DC (src/global/201B0.c): stage 5: 441 vs 443 insns; frame 0xB8 + saved set match; parts 1 and 4 match 90-100%, parts 2-3 differ by s0/s1 regalloc swap and E=(s16)cnt temp being a1 vs v1
+// camLoadPathData (src/global/201B0.c): func_806264DC/camLoadPathData (src/global/201B0.c): stage 5: 466 vs 466 insns, frame+saved set match, deadsweep score 64 -> 2 (text 2): only addiu s2,s2,2 vs move s3,t1 order in the unkD0 loop (m=*hdr++;k=m). Levers: heapAlloc((u32)cnt) (callee defined u32), separate zone-loop pointer zp replacing a pad local (splits s from case-4/5 pointer, fixes s0/s1 swap), u=&unkD8[i].u first without pt local, one k=k FAKE
 typedef struct CamPathSeg {
     /* 0x00 */ s16 a[3];
     /* 0x06 */ s16 b[3];
@@ -47,12 +47,11 @@ typedef struct CamPathLoad {
 void *heapAlloc(s32);
 void heapClearBlock(void *);
 void camCopyVec3s(s16 *, s16 *);
-void *camCopyPathPayload(u8 *, void *, u16);
 
 #define CAM_LOAD_SRC ((s16 *)arg0)
 #define CAM_LOAD_PATH ((CamPathLoad *)arg1)
 
-void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 arg2; {
+void camLoadPathData(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 arg2; {
     s16 i;
     s16 j;
     s16 cnt;
@@ -74,7 +73,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
     s16 k;
     s32 padg1;
     s32 padg2;
-    s32 padg3;
+    s16 *zp;
     s32 skip;
 
     hdr = CAM_LOAD_SRC;
@@ -97,15 +96,15 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
     hdr = (s16 *)data;
     cnt = CAM_LOAD_PATH->unkC0 = hdr != NULL ? *hdr++ : 0;
     if (arg2 != 0) {
-        CAM_LOAD_PATH->unkC8 = heapAlloc(cnt);
+        CAM_LOAD_PATH->unkC8 = heapAlloc((u32)cnt);
         CAM_LOAD_PATH->unkC4 = heapAlloc(cnt * 0x1CU);
-        s = hdr;
+        zp = hdr;
         for (i = 0; i < cnt; i++) {
-            CAM_LOAD_PATH->unkC8[i] = mapChunkFindByPosition(s[8], s[9], s[10], 0);
-            s += 0xE;
-            CAM_LOAD_PATH->unkC4[i] = *(CamPathZoneRaw *)(s - 0xE);
+            CAM_LOAD_PATH->unkC8[i] = mapChunkFindByPosition(zp[8], zp[9], zp[10], 0);
+            zp += 0xE;
+            CAM_LOAD_PATH->unkC4[i] = *(CamPathZoneRaw *)(zp - 0xE);
         }
-        hdr = s;
+        hdr = zp;
     }
     i = 0;
     cnt = CAM_LOAD_PATH->unkCC = hdr != NULL ? *hdr++ : 0;
@@ -115,6 +114,7 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
         k = m;
 
         CAM_LOAD_PATH->unkD0[i].unk0 = m;
+        k = k;  // FAKE: steers uopt register order
         CAM_LOAD_PATH->unkD0[i].unk4 = heapAlloc(m * 2);
         CAM_LOAD_PATH->unkD0[i].unk8 = heapAlloc(m * 2);
         for (j = 0; j < k; j++) {
@@ -130,11 +130,9 @@ void func_806264DC(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u8 
     if (cnt != 0) {
         do {
             skip = 0;
-            pt = &CAM_LOAD_PATH->unkD8[i];
-            pt->unk1 = rd[1];
+            u = (CamPathPointSpline *)&CAM_LOAD_PATH->unkD8[i].u;
+            CAM_LOAD_PATH->unkD8[i].unk1 = rd[1];
             CAM_LOAD_PATH->unkD8[i].unk0 = rd[0];
-            pt = (CamPathPoint *)&pt->u.spline;
-            u = (CamPathPointSpline *)pt;
             switch (CAM_LOAD_PATH->unkD8[i].unk1) {
                 case 13:
                     rd = camCopyPathPayload(rd, u, 0xC);
