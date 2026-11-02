@@ -8,14 +8,12 @@ extern u8 D_807444F0;
 extern u8 D_807444EC;
 extern s8 D_807444C0;
 extern s32 gCurrentMap;
-extern f32 D_80747CD0;
 
 f32 cameraStepAspectScale(void) {
+    static f32 sc = 1.0f; // D_80747CD0 (only user: this function; needs a .data carve)
     f32 target;
     f32 step;
-    f32 cur;
     s32 flag;
-    f32 *p;
 
     target = 1.0f;
     if (D_807444F0 != 1 && D_807444EC == 1) {
@@ -30,21 +28,18 @@ f32 cameraStepAspectScale(void) {
     if (D_807444C0 != 0 && !flag) {
         target = target * 1.2;
     }
-    p = &D_80747CD0;  // FAKE: pointer spelling keeps separate lui at per access (no lda hoist)
-    cur = *p;
-    if (cur < target) {
-        cur += step;
-        if (target < cur) {
-            cur = target;
+    if (sc < target) {
+        sc += step;
+        if (target < sc) {
+            sc = target;
         }
     } else {
-        cur -= step;
-        if (cur < target) {
-            cur = target;
+        sc -= step;
+        if (sc < target) {
+            sc = target;
         }
     }
-    *p = cur;
-    return cur;
+    return sc;
 }
 #else
 

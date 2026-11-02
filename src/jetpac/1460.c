@@ -131,7 +131,6 @@ void jetpacInitRdp(Gfx **arg0) {
     *arg0 = g;
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     s32 unk0;
     u8 pad4[6];
@@ -186,7 +185,8 @@ void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, 
                         if (D_80045BD0 >= 0x100) {
                             return;
                         }
-                        dst = &D_80042BD0[D_807444FC][D_80045BD0++];
+                        dst = &D_80042BD0[D_807444FC][D_80045BD0];
+                        *(s32 *)(u32)&D_80045BD0 = D_80045BD0 + 1; // FAKE: indirect store (a direct str gets a .noalias re-emit that lets as1 hoist the sp reload above the sw)
                         *dst = *(J1aSprite *)arg0;
                         xEnd += 8;
                         xEnd &= 0xFFF8;
@@ -226,10 +226,6 @@ void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, 
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/1460/jetpacGridAddTiledSprite.s")
-#endif
 
 
 void jetpacGridDraw(Gfx **arg0) {
