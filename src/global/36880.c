@@ -4313,7 +4313,6 @@ void modelPendingEntriesProcess(void) {
     } while (any == 1);
 }
 
-#ifdef NON_MATCHING
 typedef struct ModelSlotSerializedOut {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -4371,8 +4370,17 @@ void modelSlotSerializeAll(u8 **arg0, s32 *arg1) {
     if (D_807F6010 != NULL) {
         heapFree(D_807F6010);
     }
-    size = D_80747D70 * 0x30 + 8;
-    p = gCsVarsDirty; do { if (*p) { size += 0x24; count++; } p++; } while (p < &D_807F6902); size += actorListGetSerializedSize();
+    size = D_80747D70 * 0x30;
+    size += 4;
+    size += 4; // FAKE: split +8 keeps the product written into size's reg (as1 would fold `move; addiu` otherwise)
+    p = gCsVarsDirty; do { // LAYOUT: statement on the do line keeps the lui/addiu hoist order
+        if (*p) {
+            size += 0x24;
+            count++;
+        }
+        p++;
+    } while (p < &D_807F6902);
+    size += actorListGetSerializedSize();
     D_807F6010 = heapAlloc(size);
     *(s32 *)D_807F6010 = D_80747D70;
     out = (ModelSlotSerializedOut *)(D_807F6010 + 4);
@@ -4416,10 +4424,6 @@ void modelSlotSerializeAll(u8 **arg0, s32 *arg1) {
 }
 
 #undef MODEL_SLOT_SERIALIZE_ENTRY
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/modelSlotSerializeAll.s")
-#endif
 
 typedef struct ModelSlotPackView {
     /* 0x00 */ u8 pad0[0x24];

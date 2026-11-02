@@ -4652,7 +4652,6 @@ void *camCopyPathPayload(u8 *arg0, void *arg1, u16 arg2) {
     return arg0 + 4 + arg2;
 }
 
-#ifdef NON_MATCHING
 typedef struct CamPathSeg {
     /* 0x00 */ s16 a[3];
     /* 0x06 */ s16 b[3];
@@ -4764,11 +4763,12 @@ void camLoadPathData(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u
     cnt = CAM_LOAD_PATH->unkCC = hdr != NULL ? *hdr++ : 0;
     CAM_LOAD_PATH->unkD0 = heapAlloc(cnt * 0xCU);
     for (i = 0; i < cnt; i++) {
-        m = *hdr++;
+        m = *hdr;
         k = m;
 
         CAM_LOAD_PATH->unkD0[i].unk0 = m;
         k = k;  // FAKE: steers uopt register order
+        hdr++; // LAYOUT: increment after the field stores puts addiu s2 after move s3 (as1 order)
         CAM_LOAD_PATH->unkD0[i].unk4 = heapAlloc(m * 2);
         CAM_LOAD_PATH->unkD0[i].unk8 = heapAlloc(m * 2);
         for (j = 0; j < k; j++) {
@@ -4842,10 +4842,6 @@ void camLoadPathData(arg0, arg1, arg2) void *arg0; CamPathData *arg1; volatile u
         } while (cnt != 0);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/camLoadPathData.s")
-#endif
 
 s32 camDistance3D(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     s64 unused0;

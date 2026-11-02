@@ -173,7 +173,6 @@ void func_806BFBB4(void) {
     func_80614A64(D_807FBB40);
 }
 
-#ifdef NON_MATCHING
 typedef struct LgBFInner {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -585,10 +584,11 @@ void func_806BFBF4(void) {
     }
     if (state->unk30 != 0xFF) {
         for (j = 0; j < state->unk31 && state->unk30 != 0xFF; j++) {
-            if (j == 0xFE) {} // FAKE: extra 254 reference gives the 254 const a higher priority than &sp70 (s4)
+            if (j == 0xFE) {} // FAKE: extra 254 reference gives the 254 const a higher colouring priority (s4); dropping it costs 75 lines
             sp74 = (((randomNonNegative() >> 15) % 32767) % 51 + 0x4B) * 0.01;
             if (state->unk30 == 0xFE) {
-                actorGetNodePos(D_807FBB40, 4, &sp70, &sp6C, &sp68); } else if (func_80723C98(state->unk30, 4, &sp70, &sp6C) != 0) { // LAYOUT: else-if joined onto the call line (as1 arg-setup hoist)
+                actorGetNodePos(D_807FBB40, 4, &sp70, &sp6C, &sp68);
+            } else if (func_80723C98(state->unk30) != 0) {
                 pathPlaybackAdvance(state->unk30);
                 pathPlaybackGetPosition(state->unk30, &sp70, &sp6C, &sp68);
                 sp6C += 10.0f;
@@ -672,11 +672,6 @@ void func_806BFBF4(void) {
         func_8072881C(0x81, LgBS90->unk28);
     }
 }
-
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/C4620/func_806BFBF4.s")
-#endif
 
 typedef struct R1C46aS90 {
     /* 0x00 */ u8 pad0[0xA];
