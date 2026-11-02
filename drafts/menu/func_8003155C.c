@@ -1,4 +1,4 @@
-// func_8003155C (src/menu/3E10.c): stage 4 (frame 0x38 + s0-s3), harness diff 13 -> 9: dead 'if ((arg1 * 4) << 2) {}' first statement (extra reference of the shared expression) fixed the 40/44(sp) spill-slot swap and the lui t3/t9 reg. Remaining: E1=arg1*4 in v1 / E2 in t7 (target E1 t7, E2 v1) and 'sll t2,s0,4' for the 373C pointer (arg1*2*2 folds). Spellings per occurrence (4 kinds x 4 forms) hill-climbed 4 times; pointer p/q locals worse (frame 64).
+// func_8003155C (src/menu/3E10.c): stage 4 (frame 0x38 + s0-s3), harness diff 13 -> 9 (unchanged by W4Menu): dead 'if ((arg1 * 4) << 2) {}' first statement fixed the 40/44(sp) spill-slot swap and the lui t3/t9 reg. Remaining: E1=arg1*4 in v1 / E2 in t7 (target E1 t7, E2 v1) and 'sll t2,s0,4' for the 373C pointer (arg1*2*2 folds). W4Menu: 4 more annealing runs (~150k compiles): index spellings x4 forms for every access/call/compare site, p/q pointer locals (never < 42: the stored best is the only 9), named idx / off locals (>=21), 10 dead-test forms at 12 positions: no gain. Pointer p/q locals worse (frame 64).
 typedef struct MenuNM2_Sel {
     f32 unk0;
     f32 unk4;

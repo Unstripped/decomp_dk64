@@ -1,4 +1,4 @@
-// menuInitFileSummary (src/menu/3E10.c): stage 4+ (frame 0x80), harness diff 19 -> 8 (4 reloc lines are the same regalloc): dead 'if (i) {}' after the percent math gives loop 2 the target s0/s1. Remaining: loop 1 q/end regalloc (target s2=q s1=end, ours s1=q s2=end: lui/addiu order) and beq t6,v0 operand order. Tried: end as arg0/arg1/local permutations, index loop forms (no LFTR), dead-test hill-climb (3 runs).
+// menuInitFileSummary (src/menu/3E10.c): stage 4+ (frame 0x80), harness diff 19 -> 7 (W4Menu: '(call ^ 0) != sp64' fixed the beq t6,v0 order; the 4 reloc lines are the same regalloc): left: loop 1 q/end regalloc (target s2=q s1=end, ours s1=q s2=end). Tried (SA 2x420s over 11 sites): end as arg0/local, dead tests and no-code | 0 + 0 ^ 0 & -1 * 1 defs on end/q/p at 4 positions, sp64 copy local, 12 loop forms (for, do-while, index, p<end spellings, store order), decl order: no gain.
 extern u8 D_80720CF0;
 extern u8 D_80720D14;
 extern u8 D_8072052C;
@@ -70,7 +70,7 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
         p2++;
     }
     osPiReadIo(func_800297A8(0xAFFE1464), &sp64);
-    if (sp64 != func_800297A8(0x0107183B)) {
+    if ((func_800297A8(0x0107183B) ^ 0) != sp64) { // FAKE: ^ 0 flips the commutative bne/beq operand order
         *(u32 *)(s32)&actorUpdateCollisionSpheres = 0x03E00008;
     }
     D_8003380C = 0;
@@ -83,6 +83,6 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
     D_80033814 = D_80750AB0 / 60;
     D_80033810 = (s32)D_80033814 / 60;
     D_80033814 = D_80033814 - D_80033810 * 60;
-    if (i) {}  // FAKE: dead test, steers register colouring
+    if (i) {} // FAKE: extends i's live range to the end, giving loop 2 the target's s0/s1 (p2/i) colouring
     D_80033F51 = menuCalculateGamePercentage();
 }

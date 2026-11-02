@@ -1,4 +1,4 @@
-// menuHandleControllerSlotInput (src/menu/3E10.c): stage 6 PARKED NON_MATCHING full=10 (was stage 3, no park). Frame 0x88, same blocks/callee-saved set. Left: region-2 (cur==-0xF0) lim=5/4 in v0 vs expected v1 and D_80744520 load v1 vs v0 (8 insns, reg-only); tail unrolled loop D_8076A0E4+n vs scalar names (reloc-normalised). Levers: m merged into loop counter i (frame), t local dropped (sp84->unkE += 0xF0), unused pad after sp64, and-result stmt BEFORE cur=sp84->unkC (join ring order 104->68), sel local dropped (D_8074451C = sp84->unk17; D_80033834[D_8074451C]) 68->23, hill-climb dead tests 23->10.
+// menuHandleControllerSlotInput (src/menu/3E10.c): stage 6 PARKED NON_MATCHING full=6 (was 10; W4Menu). Frame 0x88, same blocks. Left: region-2 first arm (i & 0x10): lim=5/4 in v0 vs expected v1 and the D_80744520 copy in v1 vs v0 (3 insn pairs, reg-only). Fixed: 'edge = D_80744520; if (edge < lim) D_80744520 = edge + 1;' (copy local; edge/padX/cur equal) fixed the -1 arm. Tried: lim into every other local (i gives lim s0, temp v0 but clobbers i: illegal), cap local at each declaration position (worse), dead tests/no-code defs on temp and lim at 4 positions (no change), 8 lim spellings x 4 compare forms x 3 write forms (min 6), inline ternary forms (>=11). Earlier levers: m merged into i, t dropped, pad after sp64, and-stmt before cur=, sel dropped, dead tests.
 typedef struct MenuScreenActor {
     char pad0[0x174];
     void *unk174;
@@ -77,7 +77,6 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
     }
     if (sp84->unk0 == 0.0f && rest == 0) {
         sp64 = 5;
-        if (D_8003385C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (D_8076A104 == 0) {
             sp64 = 6;
         }
@@ -146,7 +145,6 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                             bits |= 0x20;
                         } else if (D_807ECD10[i].stick_y >= 0x29) {
                             bits |= 0x10;
-                            if (D_80033858 && D_80033858) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                         }
                         edge = (D_8003385C[i] ^ bits) & bits;
                         D_8003385C[i] = bits;
@@ -174,7 +172,6 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                                 sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                                 idx = D_8076A0E4[i] - 1;
                                 if (idx < 0) {
-                                    if (D_80033FAF == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                                     idx = 5;
                                 }
                                 while (!(D_80033FAF & (1 << idx))) {
@@ -207,8 +204,9 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                     if (D_80033834[D_8074451C] == 5) {
                         lim = 4;
                     }
-                    if (D_80744520 < lim) {
-                        D_80744520 += 1;
+                    edge = D_80744520; // FAKE: copy of D_80744520 keeps its load in the first candidate colour (v0)
+                    if (edge < lim) {
+                        D_80744520 = edge + 1;
                         sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     }
                 } else if ((i & 0x20) && D_80744520 >= 2) {
@@ -233,7 +231,6 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                 }
             }
         }
-        if (D_80033FAD + sp84) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         menuUpdateScrollAnimation(sp84, sp64);
     }
     D_80033858 = arg1;

@@ -721,7 +721,7 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
         p2++;
     }
     osPiReadIo(func_800297A8(0xAFFE1464), &sp64);
-    if (sp64 != func_800297A8(0x0107183B)) {
+    if ((func_800297A8(0x0107183B) ^ 0) != sp64) { // FAKE: ^ 0 flips the commutative bne/beq operand order
         *(u32 *)(s32)&actorUpdateCollisionSpheres = 0x03E00008;
     }
     D_8003380C = 0;
@@ -1296,8 +1296,9 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                     if (D_80033834[D_8074451C] == 5) {
                         lim = 4;
                     }
-                    if (D_80744520 < lim) {
-                        D_80744520 += 1;
+                    edge = D_80744520; // FAKE: copy of D_80744520 keeps its load in the first candidate colour (v0)
+                    if (edge < lim) {
+                        D_80744520 = edge + 1;
                         sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     }
                 } else if ((i & 0x20) && D_80744520 >= 2) {
@@ -2453,18 +2454,16 @@ extern MenuM8_PosPair D_800339B8[];
 
 void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
     MenuScreenState *sp2C = *(MenuScreenState **)((u8 *)arg0 + 0x174);
-    MenuHighScoreEntry *table;
     s8 v1;
-    s32 v0;
+    MenuHighScoreEntry *table;
+    u32 v0;
     s32 tmp;
     u8 *p;
-
     if (D_800339A8 == 0) {
         table = D_80744548;
     } else {
         table = D_80744568;
     }
-
     if (sp2C->unk0 == 0.0f) {
         if (D_80033F60 < 0) {
             if (arg1 & 1) {
@@ -2484,20 +2483,18 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
             }
             v0 = 0;
             if (v1 == 1 || (D_800339C0 = v1, v1 >= 0x10)) {
-                if (D_80033F61) {}  // FAKE: dead test, steers register colouring / store sinking
+                if (D_80033F61 && D_80033F61) {} // FAKE: dead test steers register colouring (frame counter / D_80033F61 candidates)
                 D_800339C0 = v1;
                 v0 = arg1;
                 if (v1 >= 0x10) {
                     v1 = 0xF;
-                    if (&D_80033F61) {}  // FAKE: dead test, steers register colouring / store sinking
+                    if (gFrameCounter == 0) {} // FAKE: dead test steers register colouring (frame counter / D_80033F61 candidates)
                     D_800339C0 = v1;
                     if (!(gFrameCounter & 1)) {
                         v0 = 0;
                     }
-                    v1 = v1;  // FAKE: dead test, steers register colouring / store sinking
                 }
             }
-            if (D_80033F61) {}  // FAKE: dead test, steers register colouring / store sinking
             p = (u8 *)table + D_80033F60 * 6 + D_80033F61 + 2;
             if (v0 & 4) {
                 switch (*p) {
