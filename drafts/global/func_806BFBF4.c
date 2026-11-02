@@ -1,4 +1,4 @@
-// func_806BFBF4 (src/global/C4620.c): R3e (wave 3): unchanged C (stage 5-6, size 1542 vs 1535 insns, deadsweep full=385 shape=33). Remaining: (1) entry: target [lw t6; li t8,255; li t1,100; andi; bnez; lw s2 in delay], mine [lw t6; li t1,100; lw s2; andi; bnez; nop; li t8,255] (as1 hoists only the third li; permuting the 5 entry stores only changes which const is hoisted); (2) latch: first continue edge delay slot addiu a2 vs target lh a2,146(sp); (3) case 23: target 'lh t9,4(s0)' ring temp for cmd->unk4 (CSE'd, arg andi a1,t9,0xff), mine s16 t is a coloured web (cand adjsave 30, reg v0) -> t-ring cascade to the end; tried: no local (second load reloaded after the u8 sb), u8/u16/s32 t, reuse j/node, local decl-order hill-climb (2500 its), 1332x... dead-if sweeps at entry/loop head/latch (no gain), const-bearing dead compares at entry, callee return-type toggles (actorGetNodePos s32, mathAngleLerp s16, patrolPathStep u8, actorMoveWithinZone u32, func_80723C98 u8): all 32 combos identical.
+// func_806BFBF4 (src/global/C4620.c): C46L: full 385 -> 3 (text 3). Left: j-loop first iteration arg setup: target hoists li a1,4/addiu a2,a3,t7 once above the bne (shared by both arms), mine re-emits li a1,4; addiu a2,sp,112 in the actorGetNodePos arm and addiu a3,sp,108 in the func_80723C98 delay slot. Tried dead tests on &sp70/&sp6C/&sp68/j==4, line joins (pairs), dead sweep with locals.
 typedef struct LgBFInner {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -186,7 +186,7 @@ void func_806BFBF4(void) {
     f32 ratio;
     f32 ratio2;
     u8 *col;
-    u8 node;
+    s32 node;
     f32 sp74;
     f32 sp70;
     f32 sp6C;
@@ -216,9 +216,7 @@ void func_806BFBF4(void) {
         lightUpdateFromActorLighting(&LgBV->unk16A, &LgBV->unk16B, &LgBV->unk16C);
     }
     for (i = 0; i < D_807FBDC4; i++) {
-        if (D_807FBB70.unk258[i] != 3) {
-            continue;
-        }
+        if (D_807FBB70.unk258[i] == 3) {
         cmd = (LgBFCmd *)D_807FBB70.unk278[i];
         switch (cmd->unk2) {
             case 25:
@@ -234,10 +232,9 @@ void func_806BFBF4(void) {
                 func_8072334C(state->unk30, 1);
                 break;
             case 23:
-                t = cmd->unk4;
-                state->unk2D = t;
+                state->unk2D = cmd->unk4;
                 state->unk2E = cmd->unk6;
-                state->unk2F = pathPlaybackStart(D_807FBB40, t & 0xFF, 0, 0.0f, 0.0f, 0.0f, 0);
+                state->unk2F = pathPlaybackStart(D_807FBB40, state->unk2D, 0, 0.0f, 0.0f, 0.0f, 0);
                 func_80723284(state->unk2F, state->unk2E);
                 func_80723320(state->unk2F, 1);
                 func_8072334C(state->unk2F, 1);
@@ -248,7 +245,6 @@ void func_806BFBF4(void) {
                 LgBV->unkC0 = cmd->unk4;
                 break;
             case 7:
-                if (D_807FDCA0) {} // FAKE: deadsweep
                 LgBV->unkB8 = cmd->unk4;
                 LgBV->unkEE = (cmd->unk6 << 12) / 360;
                 break;
@@ -263,17 +259,17 @@ void func_806BFBF4(void) {
                 if (LgBV->unk4->unk64 != 0) {
                     actorScriptStart(D_807FBB40, 0);
                 }
-                controllerAnimSetState(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 0.0f);
+                controllerAnimSetState(D_807FBB40, cmd->unk6 - (0 - D_80747904[cmd->unk4]), 0.0f, 0.0f); // FAKE: cmd6 evaluated before the table lookup (ring order)
                 scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
-                func_806BFA8C(cmd->unk6 + D_80747904[cmd->unk4]);
+                func_806BFA8C(cmd->unk6 - (0 - D_80747904[cmd->unk4])); // FAKE: cmd6 evaluated before the table lookup (ring order)
                 break;
             case 13:
                 if (LgBV->unk4->unk64 != 0) {
                     actorScriptStart(D_807FBB40, 0);
                 }
-                controllerAnimSetState(D_807FBB40, cmd->unk6 + D_80747904[cmd->unk4], 0.0f, 8.0f);
+                controllerAnimSetState(D_807FBB40, cmd->unk6 - (0 - D_80747904[cmd->unk4]), 0.0f, 8.0f); // FAKE: cmd6 evaluated before the table lookup (ring order)
                 scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
-                func_806BFA8C(cmd->unk6 + D_80747904[cmd->unk4]);
+                func_806BFA8C(cmd->unk6 - (0 - D_80747904[cmd->unk4])); // FAKE: cmd6 evaluated before the table lookup (ring order)
                 break;
             case 4:
                 scriptSetActorRampTarget(D_807FBB40, cmd->unk4 / 100.0, cmd->unk6);
@@ -393,6 +389,7 @@ void func_806BFBF4(void) {
                 LgBV->unk155 = 0;
                 break;
         }
+        }
     }
     if (state->unk28 != 0) {
         ratio = (f32)(u32)state->unk28-- / (f32)(u32)state->unk27;
@@ -407,17 +404,16 @@ void func_806BFBF4(void) {
         LgBV->unkE6 = mathAngleLerp(state->unk4, state->unk2, ratio);
         LgBV->unkEE = LgBV->unkE6;
     }
-    if (D_807FDC94) {} // FAKE: deadsweep
     if (state->unk2A != 0) {
         ratio2 = (f32)(u32)state->unk2A-- / (f32)(u32)state->unk29;
         actorSetUniformScale(D_807FBB40, LgBS90->unk30 + (state->unk14 - LgBS90->unk30) * ratio2);
     }
     if (state->unk30 != 0xFF) {
         for (j = 0; j < state->unk31 && state->unk30 != 0xFF; j++) {
+            if (j == 0xFE) {} // FAKE: extra 254 reference gives the 254 const a higher priority than &sp70 (s4)
             sp74 = (((randomNonNegative() >> 15) % 32767) % 51 + 0x4B) * 0.01;
             if (state->unk30 == 0xFE) {
-                actorGetNodePos(D_807FBB40, 4, &sp70, &sp6C, &sp68);
-            } else if (func_80723C98(state->unk30, 4, &sp70, &sp6C) != 0) {
+                actorGetNodePos(D_807FBB40, 4, &sp70, &sp6C, &sp68); } else if (func_80723C98(state->unk30, 4, &sp70, &sp6C) != 0) { // LAYOUT: else-if joined onto the call line (as1 arg-setup hoist)
                 pathPlaybackAdvance(state->unk30);
                 pathPlaybackGetPosition(state->unk30, &sp70, &sp6C, &sp68);
                 sp6C += 10.0f;
@@ -438,8 +434,8 @@ void func_806BFBF4(void) {
     }
     switch (D_807FBB40->unk154) {
         case 0xD:
-            node = LgBV->unk15F;
-            if (node != 0) {
+            if (LgBV->unk15F != 0) {
+                node = LgBV->unk15F;
                 actorGetNodePos(LgBS90->unk4, node, &LgBV->unk7C, &LgBV->unk80, &LgBV->unk84);
             } else {
                 LgBV->unk7C = D_807FDC94->unk7C;
