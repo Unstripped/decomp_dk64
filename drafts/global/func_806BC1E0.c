@@ -1,4 +1,4 @@
-// func_806BC1E0 (src/global/C0EE0.c): Stage 5 (frame 0x88 ok; 98-line diff, shape 13 vs 17 at start). Matched for-loop init order (finding 100) and cand[n++] store order. Remaining: (1) andi hoisted before beql in loop 2; (2) case4 sh unk34 vs addiu t2; (3) FP candidate regs (unk4 f2 vs f0, 1.0d f12 vs f16)
+// func_806BC1E0 (src/global/C0EE0.c): Stage 5 (frame 0x88 ok; 56-line diff, shape 5; was 98). Levers: store reorder, named f32 local for (f32)(...) sub-expression (coloured f14), role-sharing of f32 locals. Remaining: (1) loop2 head: as1 hoists andi above beqzl (ring t7 vs t9); (2) FP: old/a swapped f0/f12, 1.0d const f16 vs f12
 typedef struct LgBObj {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -223,11 +223,11 @@ void func_806BC1E0(void) {
                 st->unk8 = LGB->unk7C;
                 st->unkC = 0.0f;
                 st->unk10 = LGB->unk84;
-                st->unk34 = 0x1E;
                 st->unk14 = st->unk24;
                 st->unk18 = st->unk28;
                 st->unk1C = st->unk2C;
                 st->unk20 = -500.0f;
+                st->unk34 = 0x1E;
             } else {
                 actorScriptStart(D_807FBB40, 0);
                 D_80750650 = 0;
@@ -261,8 +261,8 @@ void func_806BC1E0(void) {
                     }
                 }
                 if (n > 0) {
-                    a = randomFloat();
-                    v = cand[(s32)(a * (f32)(n - 1))];
+                    acc = randomFloat();
+                    v = cand[(s32)(acc * (f32)(n - 1))];
                     dx = (v & 3) - st->unk36;
                     dy = (v >> 2) - st->unk37;
                     if (dx < -1) {
@@ -282,12 +282,12 @@ void func_806BC1E0(void) {
                     st->unk36 += dx;
                     st->unk37 += dy;
                 }
-                st->unk0 = 0.0f;
                 st->unk4 = 0.01369863f;
+                st->unk0 = 0.0f;
                 st->unk8 = st->unk14;
-                fx = st->unk36;
                 st->unkC = 0.0f;
                 st->unk10 = st->unk1C;
+                fx = st->unk36;
                 st->unk14 = fx * -11.666666666666666 + 329.0 + (f64)st->unk37 * -28.666666666666668;
                 st->unk18 = 0.0f;
                 st->unk1C = fx * 28.333333333333332 + 274.0 + (f64)st->unk37 * -11.333333333333334;
@@ -347,11 +347,12 @@ void func_806BC1E0(void) {
     if (st->unk34 < 0) {
         st->unk34 = 0;
     }
-    acc = 0.0f; // FAKE: dead store, keeps the 0.0 constant candidate in $f18
+    t = 0.0f; // FAKE: dead store, keeps the 0.0 constant candidate in $f18
     sp70 = st->unk30;
     if (st->unk4 != 0.0f && st->unk34 == 0) {
+        a = st->unk4;
         old = st->unk0;
-        st->unk0 = old + st->unk4;
+        st->unk0 = old + a;
         if (D_80750650 == 0) {
             if (old < 0.63f && st->unk0 >= 0.63f) {
                 csModelStateSetByte(st->unk36 + st->unk37 * 4, 1, 1);
@@ -370,7 +371,7 @@ void func_806BC1E0(void) {
             t = st->unk0;
             if (D_80750650 == 0) {
                 old = st->unk0;
-                if (acc == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (t == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 t = 2.0 * (f64)old;
                 if ((f64)t > 1.0) {
                     t = 1.0f;
@@ -382,10 +383,11 @@ void func_806BC1E0(void) {
                 a = st->unkC;
                 LGB->unk80 = a + t * (st->unk18 - a);
             } else {
-                acc = st->unk20;
+                t = st->unk20;
                 a = st->unkC;
                 old = st->unk0;
-                LGB->unk80 = (f64)a + ((f64)((f32)((f64)(st->unk18 - a) - (f64)acc * 0.5) * old) + (f64)(old * old * acc) * 0.5);
+                b = (f32)((f64)(st->unk18 - a) - (f64)t * 0.5);
+                LGB->unk80 = (f64)a + ((f64)(b * old) + (f64)(old * old * t) * 0.5);
             }
         }
         if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {
