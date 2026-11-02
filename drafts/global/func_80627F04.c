@@ -1,4 +1,4 @@
-// func_80627F04 (src/global/2C910.c): Stage 4 (R2Frm2 layout round): s0 + frame 0xA8 match, 1172 vs 1169 insns, q slot 0x90 now right (sp90 local dropped, case-0x28 var = q declared before p, extra unused 'r' keeps f32s at 0x84/0x80/0x7C). Remaining LAYOUT: target b,c,d,e (sv[3],sv[1],sv[0],sv[4]) are uopt SPILL slots (0x44/0x3C/0x38/0x48) below the cfe frame, with a 9-word cfe gap above them (f64 ternary temps, a) and only 2 declared words above sp72@0x72. Named s32 scalars (not an array) reproduce exactly those bottom slots: grid in .scratch/R2Frm2 (2 function-level + 2 block-scope scalars, plus hoisting the n_alSndpPlay f64 ternary into a local so only ONE f64 temp is live) gives frame 168, f32 0x7C/0x84, sp72 0x72, slots 0x38..0x48; but scalar d (sv[0]) is promoted to t1 with sw/lw around calls and code grows to 1187 insns (shape 112 vs 50 hunks, masked). The array form keeps shape (50 hunks, 1172 insns) but its 5 words sit at 0x60 above the cfe gap. Not found: array-like memory behaviour AND bottom spill slots. s16 scalars (2 per word) give frame/sp72 but are forwarded (arg reloads, 1291 insns). Decl-order hill-climb (6.7k variants), dead sv0 uses: no gain.
+// func_80627F04 (src/global/2C910.c): L2C9: Stage 4 park (NON_MATCHING in copy), frame 0xA8 + s0 match, 1370 vs 1365 insns, deadsweep full 232 (was 542 on current names/protos). Wins: callee prototypes set to definitions (unit_check: u8/s16/f32 params, f32 fields/0.15f, void* returns), cam*/csModel*/gCamActor renames, entry order b,a,c,d with split stores, 'sp72 = 1; p = spawnNodeActivate(sp72++, 0)', raw (uncast) args to narrow params, (u8) for K&R textSpawnSubtitle. Remaining (structural 26 lines): sv[5] array sits at 0x60 instead of uopt spill slots d,c,hole,b,e @0x38..0x48 (scalars e,b,c,d + no 'r' pad give frame 168 and slot order d,c,hole,b shifted +8 but need dead d/c/b uses at the end and still spill e lowest + a (s16 a) CSE spill sw/lw in case 0x27); arg1/arg2 coloured a0/a1 in entry (target t8/t5 uncoloured) shifts ring; actorClearMovementFlags extra move s0,a0 (case 0x13); case 0x2F extra lh.
 #define M3_OFF(p, T, o) (*(T *)((u8 *)(p) + (o)))
 
 extern u8 D_807457E4[];
@@ -8,7 +8,7 @@ extern s8 D_8076AEE0;
 extern s16 D_8076AEF2;
 extern s32 D_8076D1F8;
 extern s32 D_8076D1FC;
-extern s32 D_807F5D10;
+extern s32 gCamActor;
 extern u8 D_807F5D6C[];
 extern u8 D_807F5D70[];
 extern s16 D_807F5D7C;
@@ -18,72 +18,71 @@ extern void *gPlayerSlots;
 extern f32 gScreenFadeRate;
 
 void actorClearMovementFlags(void *);
-s32 actorFindActiveByType(s32, void *);
+s32 actorFindActiveByType(s16, void *);
 void actorScriptStart(void *, s32);
-void actorSpawn(s32, s32);
-void commandSetFlags(s32, s32);
-void commandSetParameters(s32, s32, s32, s32, s32, s32);
+s32 actorSpawn(s32, s32);
+void commandSetFlags(s8, s8);
+void commandSetParameters(s16, s16, s16, u8, u8, u8);
 void effectNodeSetTargetPosition(s32, f32, f32, f32);
 void func_80028EE8(s32, s32, s32, s32, s32, s32, s32, s32);
 void func_805FF378(s32, s32);
 void func_805FF8F8(void);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void controllerAnimSetState(void *, s16, f32, f32);
 void controllerStepMotionWindows(void *);
 void func_80614A64(void *);
 void scriptSetActorRampTarget(void *, f32, f32);
-s32 func_8061B4B0();
-void func_8061C2C4(s32, s32);
-void func_8061CAD8(void);
-void func_8061CF80(s16);
-void func_8061CF90(void *, s16);
-void func_8061D934(s32);
-void func_8061D968(s32, u8);
-void func_8061DAAC(s16, s16, u16);
-void func_8061F0B0(s32, u8, s32);
-void textSpawnSubtitle();
+u8 camCueTimerIsRunning(void);
+s32 camSetFlags(s32, s32);
+void camPausePath(void);
+void camSetPathLookAhead(s16);
+void camSetPathLookActor(void *, s16);
+void camSetPath(u8);
+void camLoopPathStep(u8, u8);
+void camSetRollBlend(s16, s16, u16);
+void camStartShake(s32, u8, u16);
 void screenWipeStart();
-void actorUpdateModelMatrix(void *, s32);
-void func_8063DA40(s16, s16);
+void actorUpdateModelMatrix(void *, u8);
+void csModelStateSetFirstByte(s16, s16);
 void func_80641874(s16, s16);
-void func_8067A69C(s32, void *, s32, s32, s32, s32);
-void func_8067AB20(s32, s32, s32, s32, s16 *, s32);
-void func_8067B238(void *, void *, s32);
+void func_8067A69C(s32, void *, f32, f32, u8, u8);
+void func_8067AB20(s32, void *, s32, u8, void *, u8);
+void actorCopyPoseAndScale(void *, void *, f32);
 void func_80687C48(void);
 void func_806C8E58(s16);
 void playerResumeLocomotion(void *);
 void func_806F0C18(void *);
-void playerWaypointPathStartPacked(void *, s32, s16, s32);
-void func_8070B308(s32);
-void func_8070D8C0(void *, u16, u8);
-void func_8070E8DC(s32);
+void playerWaypointPathStartPacked(s32, s32, s16, s16);
+void func_8070B308(u8);
+void func_8070D8C0(void *, s32, u8);
+void func_8070E8DC(s8);
 void func_80712524(s32, s32);
 void func_8071268C(void);
 void func_807127F4(s32);
 void func_80712830(void *, s32);
 void func_80713EB0(s32, s32, s32);
-void func_80724994(s32, s16, s16, s16, s32);
+void func_80724994(u8, s16, s16, s16, s16);
 void zoneEntrySpawnEffect(s16, s16, s16, s16);
-void func_80729AA4(s32);
-void mapChunkEffectSetFlag(s16, s16, s32, u8);
-s16 mathAngleBetweenPoints2D(f32, f32, s32, s32);
-void n_alSndpPlay(s32, s16, s32, s32, f32, s32, void *);
+void func_80729AA4(u8);
+void mapChunkEffectSetFlag(s16, s16, u8, u8);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+void *n_alSndpPlay(void *, s16, u16, u8, f32, u8, void *);
 void n_alSndpStop(s32);
-void playerStateQueueCallback(s32, s32, s32);
+s32 playerStateQueueCallback(s16, void *, u8);
 void sfxAllocateChannel(s32, f32);
-void sfxPlayActorSound(void *, s16, s32, s32, s32, s32, f32, s32);
+void sfxPlayActorSound(void *, s16, u8, u8, u8, u8, f32, s8);
 void sfxSetMode(s32);
 void sfxStopChannel(s32, s32);
-void sfxStopSlotSound(void *, s32);
-void spawnNodeSpawnById(s16, s32, s32, s32, s32, s32, s32);
-void spawnNodesSetActorStateByFlag(s32, s32);
+void sfxStopSlotSound(void *, u8);
+void *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
+void spawnNodesSetActorStateByFlag(u16, u8);
 void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
 
 void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
     s16 spA0[4];
     void *sp9C;
     void *sp98;
-    s32 sp94;
+    void *sp94;
     void *q;
     void *p;
     void *r;
@@ -96,10 +95,13 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
 
     sp9C = M3_OFF(D_807FBB4C, void *, 0x174);
     actorFindActiveByType(0xC, &sp94);
+    sv[3] = (s16)arg1;
+    spA0[1] = sv[3];
     spA0[0] = a = (s16)(arg1 >> 16);
-    spA0[1] = sv[3] = (s16)arg1;
-    spA0[2] = sv[1] = (s16)(arg2 >> 16);
-    spA0[3] = sv[0] = (s16)arg2;
+    sv[1] = (s16)(arg2 >> 16);
+    spA0[2] = sv[1];
+    sv[0] = (s16)arg2;
+    spA0[3] = sv[0];
     switch (arg0 & 0xFF) {
         case 0x45:
             spawnNodesSetActorStateByFlag(2, 0x40);
@@ -157,7 +159,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             return;
         case 0x4:
             if (a != 0) {
-                func_80724994(3, a, (s16)sv[3], (s16)sv[1], sv[0]);
+                func_80724994(3, a, sv[3], (s16)sv[1], sv[0]);
                 return;
             }
             if (sv[3] == 2) {
@@ -171,41 +173,41 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
         default:
             return;
         case 0x6:
-            func_8061CF90(spawnNodeActivate(a, 0), (s16)sv[3]);
+            camSetPathLookActor(spawnNodeActivate(a, 0), sv[3]);
             return;
         case 0x7:
-            func_8061D968(a & 0xFF, (u8)sv[3]);
+            camLoopPathStep(a, (u8)sv[3]);
             return;
         case 0x2D:
-            func_8061CF80(a);
+            camSetPathLookAhead(a);
             return;
         case 0x2E:
             M3_OFF(actorFromSpawnNodeOrDefault(a), u8, 0x15E) = sv[3];
             return;
         case 0x25:
-            playerWaypointPathStartPacked(D_807FBB4C, 0, a, 0);
+            playerWaypointPathStartPacked((s32)D_807FBB4C, 0, a, 0);
             return;
         case 0x26:
-            func_80641874(a, (s16)sv[3]);
+            func_80641874(a, sv[3]);
             return;
         case 0x27:
             sv[4] = (u8)sv[1];
             mapChunkEffectSetFlag(a, (s16)sv[3], 0, (u8)sv[1]);
-            mapChunkEffectSetFlag(a, (s16)sv[3], 1, (u8)sv[4]);
-            mapChunkEffectSetFlag(a, (s16)sv[3], 2, (u8)sv[4]);
-            mapChunkEffectSetFlag(a, (s16)sv[3], 3, (u8)sv[4]);
+            mapChunkEffectSetFlag(a, (s16)sv[3], 1, sv[4]);
+            mapChunkEffectSetFlag(a, sv[3], 2, sv[4]);
+            mapChunkEffectSetFlag(a, (s16)sv[3], 3, sv[4]);
             return;
         case 0x8:
-            func_8061D934(a & 0xFF);
+            camSetPath(a);
             return;
         case 0x2B:
-            func_8070B308(a & 0xFF);
+            func_8070B308(a);
             return;
         case 0x9:
-            func_8061DAAC(a, sv[3], sv[1]);
+            camSetRollBlend(a, sv[3], sv[1]);
             return;
         case 0x10:
-            func_8061F0B0(D_807F5D10, (u8)sv[3], a & 0xFFFF);
+            camStartShake(gCamActor, sv[3], a);
             return;
         case 0xA:
             if (a != 0) {
@@ -217,8 +219,8 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
                 M3_OFF(p, s32, 0x60) &= ~4;
                 return;
             }
-            p = spawnNodeActivate(1, 0);
-            sp72 = 2;
+            sp72 = 1;
+            p = spawnNodeActivate(sp72++, 0);
             if (p != NULL) {
                 do {
                     if (sv[3] != 0) {
@@ -232,21 +234,21 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             }
             break;
         case 0xB:
-            zoneEntrySpawnEffect(a, (s16)sv[3], (s16)sv[1], (s16)sv[0]);
+            zoneEntrySpawnEffect(a, sv[3], sv[1], (s16)sv[0]);
             return;
         case 0x11:
             screenWipeStart(a & 0xFF);
             return;
         case 0xC:
-            func_8067AB20(D_807F5D10, sp94, 0x01000000, 1, spA0, 0);
+            func_8067AB20(gCamActor, sp94, 0x01000000, 1, spA0, 0);
             return;
         case 0xD:
-            func_8067AB20(D_807F5D10, sp94, 0x01000000, 0x10, spA0, 0);
+            func_8067AB20(gCamActor, sp94, 0x01000000, 0x10, spA0, 0);
             spA0[3] = -1;
-            func_8067AB20(D_807F5D10, sp94, 0x01000000, 0xE, spA0, 0);
+            func_8067AB20(gCamActor, sp94, 0x01000000, 0xE, spA0, 0);
             return;
         case 0x12:
-            func_8067AB20(D_807F5D10, sp94, 0x01000000, 0x14, spA0, 0);
+            func_8067AB20(gCamActor, sp94, 0x01000000, 0x14, spA0, 0);
             return;
         case 0x31:
             if (sv[0] != 0) {
@@ -254,7 +256,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
                 commandSetFlags(1, 1);
                 return;
             }
-            commandSetParameters(0x320, 0x82, 0, a & 0xFF, sv[3], sv[1]);
+            commandSetParameters(0x320, 0x82, 0, a, sv[3], sv[1]);
             commandSetFlags(1, 0);
             return;
         case 0x32:
@@ -267,9 +269,9 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             sp98 = spawnNodeActivate(a, 0);
             if (sp98 != NULL) {
                 if (D_807FBB68 & 2) {
-                    func_8067B238(D_807FBB4C, sp98, M3_OFF(M3_OFF(sp98, void *, 4), s32, 0x38));
+                    actorCopyPoseAndScale(D_807FBB4C, sp98, M3_OFF(M3_OFF(sp98, void *, 4), f32, 0x38));
                 } else {
-                    func_8067B238(D_807FBB4C, sp98, 0x3E19999A);
+                    actorCopyPoseAndScale(D_807FBB4C, sp98, 0.15f);
                     M3_OFF(gPlayerSlots, u8, 0x2C0) = 1;
                 }
                 playerResumeLocomotion(D_807FBB4C);
@@ -281,20 +283,20 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
         case 0x20:
             p = spawnNodeActivate(a, 0);
             if (p != NULL) {
-                func_8067B238(p, D_807FBB4C, M3_OFF(M3_OFF(D_807FBB4C, void *, 4), s32, 0x38));
+                actorCopyPoseAndScale(p, D_807FBB4C, M3_OFF(M3_OFF(D_807FBB4C, void *, 4), f32, 0x38));
                 M3_OFF(D_807FBB4C, u8, 0x154) = 0x77;
                 M3_OFF(D_807FBB4C, u8, 0x155) = 0;
                 return;
             }
             break;
         case 0x29:
-            if (func_8061B4B0() == 0) {
+            if (camCueTimerIsRunning() == 0) {
                 func_80712524(a, sv[3]);
                 return;
             }
             break;
         case 0x43:
-            if (func_8061B4B0() == 0) {
+            if (camCueTimerIsRunning() == 0) {
                 D_8075536C = sv[1];
                 func_80712524(a, sv[3]);
                 return;
@@ -315,7 +317,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             if (sp98 != NULL) {
                 q = spawnNodeActivate((s16)sv[3], 0);
                 if (q != NULL) {
-                                        func_8067B238(sp98, q, M3_OFF(M3_OFF(q, void *, 4), s32, 0x38));
+                                        actorCopyPoseAndScale(sp98, q, M3_OFF(M3_OFF(q, void *, 4), f32, 0x38));
                     controllerAnimSetState(sp98, M3_OFF(M3_OFF(M3_OFF(q, void *, 4), void *, 0), s16, 0x10), M3_OFF(M3_OFF(M3_OFF(q, void *, 4), void *, 0), f32, 4), 0.0f);
                     controllerStepMotionWindows(sp98);
                     M3_OFF(sp98, s32, 0x60) |= 4;
@@ -331,8 +333,8 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
                 sp98 = D_807FBB4C;
                 actorClearMovementFlags(D_807FBB4C);
             }
-            zoneEntryGetPosition((u8)sv[3], (u8)sv[1], &M3_OFF(sp98, f32, 0x7C), &M3_OFF(sp98, f32, 0x80), &M3_OFF(sp98, f32, 0x84));
-            func_8067A69C(0, sp98, M3_OFF(sp98, s32, 0x7C), M3_OFF(sp98, s32, 0x84), 2, 1);
+            zoneEntryGetPosition(sv[3], sv[1], &M3_OFF(sp98, f32, 0x7C), &M3_OFF(sp98, f32, 0x80), &M3_OFF(sp98, f32, 0x84));
+            func_8067A69C(0, sp98, M3_OFF(sp98, f32, 0x7C), M3_OFF(sp98, f32, 0x84), 2, 1);
             {
                 s32 t = (sv[0] << 12) / 360;
                 M3_OFF(sp98, s16, 0xEE) = t;
@@ -349,14 +351,14 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
                 } else {
                     sp98 = D_807FBB4C;
                 }
-                D_807F5D7C = sfxPlayAtPositionPooled(M3_OFF(sp98, f32, 0x7C), M3_OFF(sp98, f32, 0x80), M3_OFF(sp98, f32, 0x84), (s16)sv[3], (u32)(sv[1] != 0 ? (f64)sv[1] : 127.5), sv[0] != 0 ? sv[0] : 0x7F, 0, 0, 0.0f, 0);
+                D_807F5D7C = sfxPlayAtPositionPooled(M3_OFF(sp98, f32, 0x7C), M3_OFF(sp98, f32, 0x80), M3_OFF(sp98, f32, 0x84), sv[3], (u32)(sv[1] != 0 ? (f64)sv[1] : 127.5), sv[0] != 0 ? sv[0] : 0x7F, 0, 0, 0.0f, 0);
                 return;
             }
             if (sv[3] < 0x800) {
-                n_alSndpPlay(D_8076D1F8, (s16)sv[3], (u32)(sv[1] != 0 ? ((f64)sv[1] / 255.0) * 32767.0 : 16383.5) & 0xFFFF, 0x3F, sv[0] != 0 ? (f64)sv[0] / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
+                n_alSndpPlay((void *)D_8076D1F8, sv[3], (u32)(sv[1] != 0 ? ((f64)sv[1] / 255.0) * 32767.0 : 16383.5), 0x3F, sv[0] != 0 ? (f64)sv[0] / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
                 return;
             }
-            n_alSndpPlay(D_8076D1FC, (s16)(sv[3] - 0x7FF), (u32)(sv[1] != 0 ? ((f64)sv[1] / 255.0) * 32767.0 : 16383.5) & 0xFFFF, 0x3F, sv[0] != 0 ? (f64)sv[0] / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
+            n_alSndpPlay((void *)D_8076D1FC, (s16)(sv[3] - 0x7FF), (u32)(sv[1] != 0 ? ((f64)sv[1] / 255.0) * 32767.0 : 16383.5), 0x3F, sv[0] != 0 ? (f64)sv[0] / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
             return;
         case 0x19:
             q = (void *)(a > 0 ? a : -a);
@@ -416,21 +418,21 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             return;
         case 0x2C:
             sp98 = actorFromSpawnNodeOrDefault(a);
-            zoneEntryGetPosition((u8)sv[3], (u8)sv[1], &sp84, &sp80, &sp7C);
-            M3_OFF(sp98, s16, 0xE6) = mathAngleBetweenPoints2D(sp84, sp7C, M3_OFF(sp98, s32, 0x7C), M3_OFF(sp98, s32, 0x84));
+            zoneEntryGetPosition(sv[3], (u8)sv[1], &sp84, &sp80, &sp7C);
+            M3_OFF(sp98, s16, 0xE6) = mathAngleBetweenPoints2D(sp84, sp7C, M3_OFF(sp98, f32, 0x7C), M3_OFF(sp98, f32, 0x84));
             return;
         case 0x2F:
-            func_8063DA40(a, (s16)sv[0]);
+            csModelStateSetFirstByte(a, (s16)sv[0]);
             if (sv[3] != 0) {
-                func_8063DA40((s16)sv[3], (s16)sv[0]);
+                csModelStateSetFirstByte(sv[3], sv[0]);
             }
             if (sv[1] != 0) {
-                func_8063DA40((s16)sv[1], (s16)sv[0]);
+                csModelStateSetFirstByte((s16)sv[1], (s16)sv[0]);
                 return;
             }
             break;
         case 0x15:
-            func_8063DA40(a, (s16)sv[3]);
+            csModelStateSetFirstByte(a, sv[3]);
             return;
         case 0x17:
             sfxAllocateChannel(a, sv[3] != 0 ? (f64)sv[3] / 255.0 : 1.0);
@@ -439,7 +441,7 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             func_8070E8DC(1);
             /* fallthrough */
         case 0x39:
-            func_8070D8C0(actorFromSpawnNodeOrDefault(a), sv[3], (u8)sv[1]);
+            func_8070D8C0(actorFromSpawnNodeOrDefault(a), (u16)sv[3], (u8)sv[1]);
             return;
         case 0x1E:
             actorSpawn(0x108, 0x1D);
@@ -447,10 +449,10 @@ void func_80627F04(u32 arg0, u32 arg1, u32 arg2) {
             func_8070D8C0(D_807FBB44, a & 0xFFFF, (u8)sv[3]);
             return;
         case 0x1D:
-            func_8061CAD8();
+            camPausePath();
             return;
         case 0x21:
-            func_8061C2C4(D_807F5D10, 0x8000);
+            camSetFlags(gCamActor, 0x8000);
             return;
         case 0x22:
             if (a != 0) {
