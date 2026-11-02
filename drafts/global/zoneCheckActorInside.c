@@ -1,4 +1,4 @@
-// zoneCheckActorInside (src/global/1295B0.c): Stage 5: regalloc only (142/142 insns, frame 0x68 exact, s0-s8 and f20-f26 exact match). FAKE if (i == 5) {} resolves s3/s8 swap; remaining diff is t0/a1, a1/a0, v0/t9 temp reg numbering.
+// zoneCheckActorInside (src/global/1295B0.c): Stage 5 park, score 4 (was 26): regalloc only, 142/142 insns, frame 0x68, s/f regs exact. Remaining: 'andi v0,a1,0x7f' selector expr is coloured v0 by uopt, target t9 (ring temp; 3 uses cross blocks). 3 FAKEs: if (e->flags) {}, if (i == 5) {}, if (arg3) {} (hill-climb, all 3 needed; any removal -> 16+). Tried: switch (selector v0, selector-left beq, wrong const order), locals/types for flags, i as u8/u16/s32, no-e F1ENT inline, raw reads, x=x at every boundary, 5k-step dead-test hill-climb.
 #include "common.h"
 #include "actor.h"
 
@@ -49,11 +49,13 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
             if (((e->flags & 0x7F) == 0) || ((e->flags & 0x7F) == 1) ||
                 (((e->flags & 0x7F) == 5) && ((f64)arg0->unkB8 < (f64)(u32)((u8 *)D_807FDC9C)[0xD] * 1.4))) {
                 if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
+                    if (e->flags) {} // FAKE: live range steers flags/count10 colouring (a1/t0)
                     if (i == 5) {} // FAKE: steer s3 and s8 constant coloring
                     if (((x - (f32)e->x) * (x - (f32)e->x)) + ((z - (f32)e->z) * (z - (f32)e->z)) < (f32)(e->radius * e->radius)) {
                         func_806755A8((s32)x, (s32)z, e->x, e->z, &arg0->unkF4, &arg0->unkF6);
                         found = 1;
                         arg0->unkFC = 1;
+                        if (arg3) {} // FAKE: steers ret temps
                         arg0->unkFD = 1;
                     }
                 }

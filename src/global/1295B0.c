@@ -350,7 +350,6 @@ void func_80724E48(u8 arg0) {
     }
 }
 
-#ifdef NON_MATCHING
 s32 lineSegmentIntersect2D(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, f32 *arg8, f32 *arg9) {
     f32 a1;
     f32 b1;
@@ -367,6 +366,7 @@ s32 lineSegmentIntersect2D(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16
     f32 y;
     f32 two;
     s16 ix;
+    s16 iy;
 
     a1 = arg3 - arg1;
     b1 = arg0 - arg2;
@@ -408,15 +408,12 @@ s32 lineSegmentIntersect2D(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16
     y = two / det;
     *arg9 = y;
     ix = (s32)*arg8;
-    if ((ix == arg0 && (s16)(s32)y == arg1) || (ix == arg2 && (s16)(s32)y == arg3) || (ix == arg4 && (s16)(s32)y == arg5) || (ix == arg6 && (s16)(s32)y == arg7)) {
+    iy = (s32)y;
+    if ((ix == arg0 && iy == arg1) || (ix == arg2 && iy == arg3) || (ix == arg4 && iy == arg5) || (ix == arg6 && iy == arg7)) {
         return 3;
     }
     return 1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/lineSegmentIntersect2D.s")
-#endif
 
 u8 rectContainsPoint2D(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5) {
     s32 ret;
@@ -721,11 +718,13 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
             if (((e->flags & 0x7F) == 0) || ((e->flags & 0x7F) == 1) ||
                 (((e->flags & 0x7F) == 5) && ((f64)arg0->unkB8 < (f64)(u32)((u8 *)D_807FDC9C)[0xD] * 1.4))) {
                 if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
+                    if (e->flags) {} // FAKE: live range steers flags/count10 colouring (a1/t0)
                     if (i == 5) {} // FAKE: steer s3 and s8 constant coloring
                     if (((x - (f32)e->x) * (x - (f32)e->x)) + ((z - (f32)e->z) * (z - (f32)e->z)) < (f32)(e->radius * e->radius)) {
                         func_806755A8((s32)x, (s32)z, e->x, e->z, &arg0->unkF4, &arg0->unkF6);
                         found = 1;
                         arg0->unkFC = 1;
+                        if (arg3) {} // FAKE: steers ret temps
                         arg0->unkFD = 1;
                     }
                 }
@@ -1570,20 +1569,13 @@ u8 spawnNodeActorOutOfRangeOrHidden(SpawnNode *arg0, s32 arg1) {
     f32 dx;
     f32 dy;
     f32 dz;
-    f32 dxy;
     s32 ret;
 
     dz = C1PLAYERS[0].unk218 - arg0->unk18->unk84;
-    dx = C1PLAYERS[0].unk210;
-    dx -= arg0->unk18->unk7C;
+    dx = C1PLAYERS[0].unk210 - arg0->unk18->unk7C;
     dy = C1PLAYERS[0].unk214 - arg0->unk18->unk80;
-    if (C1PLAYERS[0].unk210 && C1PLAYERS[0].unk210) {} // FAKE: steer cvt.s.w schedule
-    ret = 0;
-    dxy = (dx * dx) + (dy * dy);
-    dz = (dz * dz) + dxy;
-    if (arg1 < dz) {
-        ret = 1;
-    }
+    if (arg0) {} // FAKE: steers ret candidate / schedule
+    ret = arg1 < (dz * dz) + ((dx * dx) + (dy * dy));
     if (ret == 0) {
         ret = (arg0->unk18->unk5C & 0x40) == 0;
         if (ret != 0) {
@@ -1600,7 +1592,6 @@ u8 spawnNodeActorOutOfRangeOrHidden(SpawnNode *arg0, s32 arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/spawnNodeActorOutOfRangeOrHidden.s")
 #endif
 
-#ifdef NON_MATCHING
 u8 spawnNodeActorOutOfRangeScaled(SpawnNode *arg0, s32 arg1) {
     f32 dz;
     f32 dx;
@@ -1616,23 +1607,15 @@ u8 spawnNodeActorOutOfRangeScaled(SpawnNode *arg0, s32 arg1) {
             ret = arg0->unk12 == 2;
             if (ret) {
                 t = (s32)(r * 1.5);
-                dz = C1PLAYERS[0].unk210 - arg0->unk18->unk7C;
-                dx = dz;
                 dz = C1PLAYERS[0].unk218 - arg0->unk18->unk84;
+                dx = C1PLAYERS[0].unk210 - arg0->unk18->unk7C;
                 r = C1PLAYERS[0].unk214 - arg0->unk18->unk80;
-                ret = 0;
-                if ((f32)(t * t) < ((dz * dz) + ((dx * dx) + (r * r)))) {
-                    ret = 1;
-                }
+                ret = (f32)(t * t) < ((dz * dz) + ((dx * dx) + (r * r)));
             }
         }
     }
     return ret;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/spawnNodeActorOutOfRangeScaled.s")
-#endif
 
 typedef struct C1Entry24 {
     /* 0x00 */ u8 pad0[0x18];
