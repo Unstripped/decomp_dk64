@@ -1,16 +1,17 @@
-// func_80032B08 (src/boss/C920.c): stage 5 (W2Boss revisit): frame -56, s0/s1. deadsweep round 1 & 2 improved score full=109->102 text=100->93. Fixed v0/v1 swap in var_v0 block via deadread D_80035B18 and v0->v1 for lh D_80035B74 via deadread D_80035B74. Remaining ~8 opcode diffs: uopt hoists D_80035B74 lui above unk17==1 bne; projectileSetTargetCoords y add delay slot vs inline.
-typedef struct W2Boss_BossAnimState {
+// bossFollowerActorUpdate (src/boss/C920.c): func_80032B08 (src/boss/C920.c): stage 5, frame 0x38 s0/s1 ok, 419/419 lines; deadsweep score full=78 text=72 reloc=6 shape=21 (was 102/93/9/22). Needs hacks (&D_80035B70)[2] / ((s16*)&D_80035B6C)[4] to avoid B74 pointerization (reloc only). Leftovers-5 Boss: x,z,y named f32 locals in that order + store after them, plus 2 hill-climbed dead tests (sub4_0->unk4==0 in the >26.0f arm, ACTOR->unk80 in the despawn if). Remaining: t-ring phase shift from the unkE4 block on (lui t9 vs t7; permutation of t regs), lui v1 of the B74 lh hoisted above the unk17==1 bne, y add.s not in jal delay slot. Tried: x=x/no-code defs (no effect), field-vs-local reads, FP const spelling, protos, dead tests grid + 3 hill-climbs (Metropolis, 100k evals) no better than 78.
+#include "common.h"
+typedef struct BossAnimState {
     char pad0[4];
     f32 unk4;
     char pad8[8];
     s16 unk10;
-} W2Boss_BossAnimState;
+} BossAnimState;
 
-typedef struct W2Boss_BossModelRef {
-    W2Boss_BossAnimState *unk0;
-} W2Boss_BossModelRef;
+typedef struct BossModelRef {
+    BossAnimState *unk0;
+} BossModelRef;
 
-typedef struct W2Boss_BossParentState {
+typedef struct BossParentState {
     char pad0[4];
     f32 unk4;
     char pad8[0xA];
@@ -19,9 +20,9 @@ typedef struct W2Boss_BossParentState {
     s8 unk14;
     char pad15[2];
     s8 unk17;
-} W2Boss_BossParentState;
+} BossParentState;
 
-typedef struct W2Boss_BossParentActor {
+typedef struct BossParentActor {
     char pad0[0x7C];
     f32 unk7C;
     char pad80[4];
@@ -29,18 +30,18 @@ typedef struct W2Boss_BossParentActor {
     char pad88[0xCC];
     u8 unk154;
     char pad155[0x1F];
-    W2Boss_BossParentState *unk174;
-} W2Boss_BossParentActor;
+    BossParentState *unk174;
+} BossParentActor;
 
-typedef struct W2Boss_BossFollowerLink {
-    W2Boss_BossParentActor *unk0;
+typedef struct BossFollowerLink {
+    BossParentActor *unk0;
     s8 unk4;
     s8 unk5;
-} W2Boss_BossFollowerLink;
+} BossFollowerLink;
 
-typedef struct W2Boss_BossFollowerActor {
+typedef struct BossFollowerActor {
     char pad0[4];
-    W2Boss_BossModelRef *unk4;
+    BossModelRef *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x18];
@@ -60,8 +61,8 @@ typedef struct W2Boss_BossFollowerActor {
     u8 unk16B;
     u8 unk16C;
     char pad16D[7];
-    W2Boss_BossFollowerLink *unk174;
-} W2Boss_BossFollowerActor;
+    BossFollowerLink *unk174;
+} BossFollowerActor;
 
 void func_80613C48(void *, s16, f32, f32);
 void sfxPlayOnFreeSlot();
@@ -82,12 +83,12 @@ extern s16 D_80035B70;
 extern s8 D_80035B6C;
 extern f32 D_80036DC4;
 
-#define ACTOR ((W2Boss_BossFollowerActor *)D_807FBB40)
+#define ACTOR ((BossFollowerActor *)D_807FBB40)
 
-void func_80032B08(void) {
-    W2Boss_BossFollowerLink *sub174 = ACTOR->unk174;
-    W2Boss_BossParentState *sp30 = sub174->unk0->unk174;
-    W2Boss_BossAnimState *sub4_0 = ACTOR->unk4->unk0;
+void bossFollowerActorUpdate(void) {
+    BossFollowerLink *sub174 = ACTOR->unk174;
+    BossParentState *sp30 = sub174->unk0->unk174;
+    BossAnimState *sub4_0 = ACTOR->unk4->unk0;
 
     if (sub174->unk5 == 0) {
         f32 dx = D_807FBB4C->unk7C - ACTOR->unk7C;
@@ -129,9 +130,11 @@ void func_80032B08(void) {
                 }
                 if (sub4_0->unk4 > 26.0f) {
                     ACTOR->unk80 -= 10.0f;
+                    if (sub4_0->unk4 == 0) {}  // FAKE: dead test steers uopt colouring
                 }
             }
             if ((f64)ACTOR->unk80 < 0.0) {
+                if (ACTOR->unk80) {}  // FAKE: dead test steers uopt colouring
                 sfxPlayOnFreeSlot(0x384, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 actorDespawn(ACTOR);
             }
@@ -150,8 +153,8 @@ void func_80032B08(void) {
                 (&D_80035B70)[2] = temp_v1;
                 if (temp_v1 < 0) {
                     f32 x = ACTOR->unk7C + D_80035B18[sp30->unk14];
-                    f32 y = ACTOR->unk80 + 270.0f;
                     f32 z = ACTOR->unk84 + D_80035B20[sp30->unk14];
+                    f32 y = ACTOR->unk80 + 270.0f;
                     ((s16 *)&D_80035B6C)[4] = 0xA;
                     projectileSetTargetCoords(x, y, z);
                     projectileAimAndSpawn(0x2C, 1, 0.25f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, 2400.0f, ACTOR);

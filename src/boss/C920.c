@@ -1082,9 +1082,11 @@ void bossFollowerActorUpdate(void) {
                 }
                 if (sub4_0->unk4 > 26.0f) {
                     ACTOR->unk80 -= 10.0f;
+                    if (sub4_0->unk4 == 0) {}  // FAKE: dead test steers uopt colouring
                 }
             }
             if ((f64)ACTOR->unk80 < 0.0) {
+                if (ACTOR->unk80) {}  // FAKE: dead test steers uopt colouring
                 sfxPlayOnFreeSlot(0x384, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 actorDespawn(ACTOR);
             }
@@ -1103,8 +1105,8 @@ void bossFollowerActorUpdate(void) {
                 (&D_80035B70)[2] = temp_v1;
                 if (temp_v1 < 0) {
                     f32 x = ACTOR->unk7C + D_80035B18[sp30->unk14];
-                    f32 y = ACTOR->unk80 + 270.0f;
                     f32 z = ACTOR->unk84 + D_80035B20[sp30->unk14];
+                    f32 y = ACTOR->unk80 + 270.0f;
                     ((s16 *)&D_80035B6C)[4] = 0xA;
                     projectileSetTargetCoords(x, y, z);
                     projectileAimAndSpawn(0x2C, 1, 0.25f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, 2400.0f, ACTOR);
