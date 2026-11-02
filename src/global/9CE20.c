@@ -3,7 +3,6 @@
 
 void func_80698120();
 
-#ifdef NON_MATCHING
 typedef struct BoneChainNode {
     s8 unk0;
     u8 unk1;
@@ -92,17 +91,14 @@ u8 arg0;
     BoneChainData *data;
     BoneChainNode *node;
     s16 i;
-    s16 padS16;
     f32 padA;
     BoneChainPlayerState *player;
     f32 padC;
-    f32 padE;
+    s16 *p;
     u8 dir;
     f32 limit = 15.0f;
 
     data = D_807FBB40->unk174;
-    if (D_807FBB40 == 0) {} // FAKE: keeps D_807FBB40 above data in uopt priority
-    if (D_807FBB40 == 0) {} // FAKE: keeps D_807FBB40 above data in uopt priority
     player = ((BoneChainMain *)gPlayerSlots)->unk4->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         data->unk0 = 0.0f;
@@ -116,6 +112,7 @@ u8 arg0;
         data->unk18 = 0.0f;
         ((BoneChainSub4 *)D_807FBB40->unk4)->unk1C = heapAlloc(0x80);
         proxPathAdd(D_807FBB40, 0, 0, 0, arg0, 0.0f, (f32)((f64)arg0 * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
+        if (D_80744478 == 0x50) {}  // FAKE: deadsweep; keeps the 0x50 store constant out of a register (a0 stays unk254, p takes v0)
         for (i = 1; i <= arg0; i++) {
             proxPathSetSegment(D_807FBB40, 0, i - 1, i, i + 1, 0.333333f, 0.0f, 0.0f, 0, 0, 0, 0, 0);
         }
@@ -133,7 +130,8 @@ u8 arg0;
     }
     if (D_807FBB70.unk254 == 0) {}
     for (i = 0; i < D_807FBB70.unk254; i++) {
-        if (!*D_807FBB70.unk278[i]) {
+        p = D_807FBB70.unk278[i];
+        if (!*p) {
             data->unk16 = 0x50;
         }
     }
@@ -242,7 +240,7 @@ u8 arg0;
             player->unk150 = 200.0f;
         }
         player->unk154 = D_807FBB40->unkE6 & 0xFFF;
-        if ((f64)data->unkC < 1.5707964f || data->unkC > 4.712389) {
+        if ((f64)data->unkC < 1.5707964f || data->unkC > 4.71238911151886) {
             player->unk154 = (player->unk154 + 0x800) & 0xFFF;
         }
     }
@@ -255,10 +253,6 @@ u8 arg0;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9CE20/func_80698120.s")
-#endif
 
 void projectileBehaviourEntryA(void) {
     func_80698120(0xE);
