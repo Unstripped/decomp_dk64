@@ -1,44 +1,4 @@
-// lightApplyToActors (src/global/5E2F0.c): lightApplyToActors stage 4 (frame/prologue/stack identical), deadsweep score 698 full (was 1610 park, 882 old draft); 1249 vs 1240 insns. KEY structure: unk39==0 branch and both dist2d/2D blocks are INLINE expressions (no dx/dy/dz variables: (lz-az)*(lz-az)+... gives CSE usub temps coloured f0/f2/f14 exactly as target dz,dx,dy); dx/dy/dz only in the unk39==1 block (two vectors). Remaining: dx/dy/dz web pieces (target: P1 coloured f0/f2/f14, post-call P3 and 2nd defs P1' uncoloured/memory, P3' coloured), a-vec coloured f12/f16/f18 with store-at-def (target ring pool then f4-f10 only), zero web f22 shared by the two dist==0 compares, final-loop consts (255.0/0.15f/1.0f) hoisted into f20/f22/f24. Fakes: tail dx/dy/dz reads, dx tests in first block, light->x>0.0f test (greedy hill-climb); a-vec as f32 av[3] or &aX==&aY gives the store-at-def.
-#include "common.h"
-#include "actor.h"
-
-extern s16 D_80748300;
-typedef struct LightVolume {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 x;
-    /* 0x1C */ f32 y;
-    /* 0x20 */ f32 z;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ f32 unk28;
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ s16 unk30;
-    /* 0x32 */ s16 unk32;
-    /* 0x34 */ s16 unk34;
-    /* 0x36 */ u8 unk36;
-    /* 0x37 */ u8 unk37;
-    /* 0x38 */ u8 unk38;
-    /* 0x39 */ u8 unk39;
-    /* 0x3A */ u8 unk3A;
-    /* 0x3B */ u8 pad3B;
-} LightVolume;
-
-extern LightVolume D_807F7500[];
-
-extern s32 D_80748304;
-extern s32 D_80748308;
-extern u8 gPlayerCount;
-extern ActorEntry gActiveActors[];
-extern u16 gActiveActorCount;
-s32 lightCheckPlayerDistance(LightVolume *);
-void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void commandQueuePush(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-
+// lightApplyToActors (src/global/5E2F0.c): Light(u6): count-exact (1159=1159), frame 344, saved set identical; blocks 136 vs 135 (one extra real compare block from a dx dead test); deadsweep full 366 text 348 shape 146 (was 698/717). KEY: callee prototypes fixed to definition widths FIRST (billboardSubmit(Actor*,s16,s16,s16,s16,s16,u8,s16,u8,s16,f32), commandQueuePush(Actor*,s16,s16,s16,u8,u8,u8,u8,u8), s32 mathAngleBetweenPoints2D): 698->469 with no other change (unit_check protos). Then annealed guarded dead tests (count weight 8, block weight 30). Needs the three prototypes in the file head (they sit just above the function). Remaining: dx/dy/dz and a-vec colouring, final-loop consts (255.0/0.15f/1.0f) not hoisted into f20-f24, zero web f22.
 void lightApplyToActors(void) {
     s32 i;
     s32 actorIdx;
@@ -93,11 +53,14 @@ void lightApplyToActors(void) {
                             }
                             {
                                 dx = light->unk24 - light->x;
+                if (dx > 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 dy = light->unk28 - light->y;
                                 dz = light->unk2C - light->z;
                                 dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
+                                if (gActiveActorCount && gActiveActorCount) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 if (dist == 0.0f) {
                                     dist = 0.1f;
+                                    if (actor && actor) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 if (dx) {}  // FAKE: dead test
                                 }
                                 dirX = dx / dist;
@@ -113,17 +76,24 @@ void lightApplyToActors(void) {
                                 }
                                 aX = dx / dist;
                                 aY = dy / dist;
+                                if (actor == 0) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 aZ = dz / dist;
+                                if (gPlayerCount) {}  // FAKE: regalloc/count steer (annealed dead test)
+                                if (aZ > 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
 
                                 dot = (aZ * dirZ) + ((aX * dirX) + (aY * dirY));
                                 if (dot < 0.0f) {
                                     dot = 0.0f;
+                                    if (aY > 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 }
                                 if (dot >= light->unkC) {
                                     if (dot >= light->unk4) {
                                         dot = 1.0f;
                                     } else {
                                         dot = (dot - light->unkC) * light->unk10;
+                                        if (dot < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
+                                        if (actor == 0) {}  // FAKE: regalloc/count steer (annealed dead test)
+                                        if (D_80748300 == 0) {}  // FAKE: regalloc/count steer (annealed dead test)
                                     }
                                     commandQueuePush(actor, (s16)(s32)light->x, (s16)(s32)light->y, (s16)(s32)light->z,
                                         0xFF,
@@ -131,27 +101,40 @@ void lightApplyToActors(void) {
                                         (u32)((f32)light->unk37 * dot),
                                         (u32)((f32)light->unk38 * dot),
                                         0);
+                                        if (dirX > 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                     if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
                                         dist = sqrtf(((light->z - actor->unk84) * (light->z - actor->unk84)) + ((light->x - actor->unk7C) * (light->x - actor->unk7C)));
+                                if (gActiveActorCount && gActiveActorCount) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         dist2d = (dist != 0.0f) ? dist : 0.001f;
+                            if (dy > 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
+                                            if (dz) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         scale = (light->y - actor->unk80) / dist2d;
                                         if (!(scale > 0.0f)) {
                                             scale = -scale;
+                                if (dist == 0) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         }
                                         if (scale == 0.0f) {
                                             scale = 0.1f;
+                                        if (dy < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         }
                                         scale = ((f32)actor->unk15E * 0.4f) / scale;
+                                    if (aY) {}  // FAKE: regalloc/count steer (annealed dead test)
+                        if (dz < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
+                                if (dirY < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         angle = mathAngleBetweenPoints2D(light->x, light->z, actor->unk7C, actor->unk84);
                                         if (actor->unk4 != NULL) {
                                             spC[0] = actor->unk4->unk34;
+                                            if (actorIdx) {}  // FAKE: regalloc/count steer (annealed dead test)
+                if (dx > 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                             spC[1] = actor->unk4->unk3C;
+                                if (scale) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         if (dx) {}  // FAKE: x
                                         } else {
                                             spC[0] = 0.15f;
                                             spC[1] = 0.15f;
                                         }
                                         alpha = actor->unk128 / 255.0;
+                                if (maxDist < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                                             (s32)(spC[0] * (f32)actor->unk16E[0]),
                                             (s32)(spC[1] * (f32)actor->unk16E[1]),
@@ -159,6 +142,7 @@ void lightApplyToActors(void) {
                                             (u32)((f32)D_80748304 * dot * alpha),
                                             angle + 0xC00,
                                             scale * dot);
+                                            if (actor) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         spC8[actorIdx] = 1;
                                     }
                                 }
@@ -175,27 +159,40 @@ void lightApplyToActors(void) {
                                     dist2d = 1.0f;
                                 }
                                 scale = (light->y - actor->unk80) / dist2d;
+                                if (dy > 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
+                                if (maxDist) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 if (!(scale > 0.0f)) {
                                     scale = -scale;
+                                    if (dy == 0) {}  // FAKE: regalloc/count steer (annealed dead test)
+                                if (D_80748300 && D_80748300) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 }
                                 if (scale == 0.0f) {
                                     scale = 0.1f;
                                 }
                                 scale = ((f32)actor->unk15E * 0.4f) / scale;
+                                if (dist) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 angle = mathAngleBetweenPoints2D(light->x, light->z, actor->unk7C, actor->unk84);
                                 if (scale > 10.0f) {
                                     scale = 10.0f;
+                        if (dx) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 }
                                 if (actor->unk4 != NULL) {
                                     spC[0] = actor->unk4->unk34;
                                     spC[1] = actor->unk4->unk3C;
                                 } else {
                                     spC[0] = 0.15f;
+                                    if (dz > 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
+                                if (dz < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                     spC[1] = 0.15f;
+                                if (light) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 }
                                 spC8[actorIdx] = 1;
+                                if (lightCount != 0) {}  // FAKE: regalloc/count steer (annealed dead test)
+                                        if (dz > 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                             }
                             innerDist = maxDist / 3.0f;
+                            if (lightCount != 0) {}  // FAKE: regalloc/count steer (annealed dead test)
+                                    if (dist < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                             if (dist < innerDist) {
                                 commandQueuePush(actor, (s16)(s32)light->x, (s16)(s32)light->y, (s16)(s32)light->z,
                                     0xFF, light->unk36, light->unk37, light->unk38, 0);
@@ -211,7 +208,10 @@ void lightApplyToActors(void) {
                                 }
                             } else {
                                 range = maxDist - innerDist;
+                                if (dx < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
+                                if (light && light) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 distFromInner = dist - innerDist;
+                            if (dy < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 if (distFromInner < range) {
                                     factor = 1.0f - (distFromInner / range);
                                     commandQueuePush(actor, (s16)(s32)light->x, (s16)(s32)light->y, (s16)(s32)light->z,
@@ -249,7 +249,10 @@ void lightApplyToActors(void) {
                         spC[1] = actor->unk4->unk3C;
                     } else {
                         spC[0] = 0.15f;
+                        if (lightCount == 0) {}  // FAKE: regalloc/count steer (annealed dead test)
+                        if (dx < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                         spC[1] = 0.15f;
+                                if (D_80748304) {}  // FAKE: regalloc/count steer (annealed dead test)
                     }
                     alpha = actor->unk128 / 255.0;
                     billboardSubmit(actor, 0x3C9, 0x40, 0x40,
@@ -259,11 +262,13 @@ void lightApplyToActors(void) {
                         (u32)((f32)D_80748308 * alpha),
                         0,
                         1.0f);
+                        if (gActiveActorCount == 0) {}  // FAKE: regalloc/count steer (annealed dead test)
+                        if (gPlayerCount && gPlayerCount) {}  // FAKE: regalloc/count steer (annealed dead test)
+                        if (D_80748304 != 0) {}  // FAKE: regalloc/count steer (annealed dead test)
+                        if (D_80748300 && D_80748300) {}  // FAKE: regalloc/count steer (annealed dead test)
+                        if (gActiveActorCount != 0) {}  // FAKE: regalloc/count steer (annealed dead test)
                 }
             }
         }
     }
-    if (dx) {}  // FAKE: x
-    if (dy) {}  // FAKE: x
-    if (dz) {}  // FAKE: x
 }
