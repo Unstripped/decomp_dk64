@@ -1,20 +1,20 @@
-// controllerAnimCacheFree (src/global/17B90.c): controllerAnimCacheFree (src/global/17B90.c): stage 5; frame 0x28 matches; score 25 (down from 26): count/last_idx via `*(u16 *)&D_807FBB32` + void* params to avoid prototype warnings; remaining: &D_807FBB32 colour t1 vs a3, count a3 vs a0 (extra count spill from the `count && count` dead test), spill slot 28 vs 24
+// controllerAnimCacheFree (src/global/17B90.c): UNPARKED 2026-11-02: park was 68 insns vs target 67 (count-inexact parks stay drafts); controllerAnimCacheFree (src/global/17B90.c): stage 5; frame 0x28 matches; score 25 (down from 26): count/last_idx via `*(u16 *)&D_807FBB32` + void* params to avoid prototype warnings; remaining: &D_807FBB32 colour t1 vs a3, count a3 vs a0 (extra count spill from the `count && count` dead test), spill slot 28 vs 24
 typedef struct {
     void *unk0;
     void *unk4;
     void *unk8;
     void *unkC;
-} CtrlA_ControllerAnimData;
+} ControllerAnimDataView;
 
 typedef struct {
     void *unk0;
-    CtrlA_ControllerAnimData *unk4;
-} CtrlA_ControllerAnimView;
+    ControllerAnimDataView *unk4;
+} ControllerAnimRefView;
 
 typedef struct {
     u8 pad0[0x84];
     s32 unk84;
-} CtrlA_AnimData;
+} ControllerAnimDataBlock;
 
 int controllerAnimCacheFree(void *arg0, void *arg1) {
     void *temp_a2 = *(void **)arg1;
@@ -53,7 +53,7 @@ int controllerAnimCacheFree(void *arg0, void *arg1) {
         }
         *(void **)arg1 = NULL;
     }
-    if ((void *)arg1 == ((CtrlA_ControllerAnimView *)arg0)->unk4->unk4) {
-        ((CtrlA_AnimData *)((CtrlA_ControllerAnimView *)arg0)->unk4)->unk84 = 0;
+    if ((void *)arg1 == ((ControllerAnimRefView *)arg0)->unk4->unk4) {
+        ((ControllerAnimDataBlock *)((ControllerAnimRefView *)arg0)->unk4)->unk84 = 0;
     }
 }

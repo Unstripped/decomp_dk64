@@ -1,17 +1,4 @@
-// mapBspPlaneSideTest (src/global/2F550.c): Stage 4, diff 65 (was 111): locals decl order ea eb c n len p f64 s1 nx ny nz d reproduces the target stack layout exactly (p at 64, hole at 76, d at 40, no s1 temp spill); remaining FP ring phase (target d f8, first mtc1 f10) + load order; hill-climb of stmt swaps/dead tests 111->65.
-typedef struct Bsp_Plane {
-    /* 0x00 */ u8 pad0[0x4C];
-    /* 0x4C */ f32 unk4C;
-    /* 0x50 */ f32 unk50;
-    /* 0x54 */ f32 unk54;
-    /* 0x58 */ f32 unk58;
-    /* 0x5C */ s16 unk5C[3];
-    /* 0x62 */ s16 unk62[3];
-    /* 0x68 */ s16 unk68[3];
-} Bsp_Plane;
-
-s32 mapBspPlaneDistanceCheck(Bsp_Plane *, f32, f32, f32);
-
+// mapBspPlaneSideTest (src/global/2F550.c): UNPARKED 2026-11-02: park was 199 insns vs target 200 (count-inexact parks stay drafts); Stage 4, diff 65 (was 111): locals decl order ea eb c n len p f64 s1 nx ny nz d reproduces the target stack layout exactly (p at 64, hole at 76, d at 40, no s1 temp spill); remaining FP ring phase (target d f8, first mtc1 f10) + load order; hill-climb of stmt swaps/dead tests 111->65.
 #define arg0 ((Bsp_Plane *)arg0v)
 u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 ea[3];
@@ -66,5 +53,4 @@ u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     }
     return 1;
 }
-
 #undef arg0

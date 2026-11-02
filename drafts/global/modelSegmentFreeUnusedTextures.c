@@ -1,4 +1,4 @@
-// modelSegmentFreeUnusedTextures (src/global/36880.c): stage 4, 33 diff lines (was 87; parked in copy). direct seg->unkA0/A8 reads (no mid/start locals), flag form 's3==NULL&&bit ? 0:1', hill-climb no-code defs head|0 tail*1 flag*1 gave head/tail coloured v1/t0 with save-around-calls. Remaining: flag u8 coloured t1 (saved 51(sp)) vs target uncoloured memory flag (sb zero,51(sp); lbu at use) shifting spill slots by 4; head/tail slots 60/56 vs 56/52
+// modelSegmentFreeUnusedTextures (src/global/36880.c): UNPARKED 2026-11-02: park was 112 insns vs target 109 (count-inexact parks stay drafts); stage 4, 33 diff lines (was 87; parked in copy). direct seg->unkA0/A8 reads (no mid/start locals), flag form 's3==NULL&&bit ? 0:1', hill-climb no-code defs head|0 tail*1 flag*1 gave head/tail coloured v1/t0 with save-around-calls. Remaining: flag u8 coloured t1 (saved 51(sp)) vs target uncoloured memory flag (sb zero,51(sp); lbu at use) shifting spill slots by 4; head/tail slots 60/56 vs 56/52
 void modelSegmentFreeUnusedTextures(ModelSlot *arg0, void *arg1, ModelChainOwner *arg2) {
     u32 head, tail;
     DisplayListTextureNode *s3;

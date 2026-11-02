@@ -14,6 +14,7 @@ the per-session work area; anything worth continuing in a later session goes her
     python3 tools/drafts.py collect                           # import newer .scratch/*/<FUNC>_best.c
     python3 tools/drafts.py prune                             # delete drafts of matched functions
     python3 tools/drafts.py paste SEG FUNC                    # put a draft into its src file
+    python3 tools/drafts.py unpark SEG FUNC [--note TEXT]     # park -> draft, src back to the bare pragma
 
 SEG is the asm directory name: boot, global, or an overlay (boss, jetpac, ...).
 `collect` takes the segment of a `.scratch/<Agent>/<FUNC>_best.c` from the private copy of
@@ -27,6 +28,9 @@ refuse one that defines another function the src file already defines (a saved p
 in its src file with the draft minus its header, for "text-identical, reloc only" reports;
 then `tools/merge_gate.sh - - <src file>` prunes duplicated declarations and lets the ROM
 hash decide.
+`unpark` is the reverse for a `NON_MATCHING` park that must not stay parked (instruction count
+differs from the target, or not equivalent): the parked C becomes the draft (header: TEXT, then
+the old draft's note) and the block becomes the bare `#pragma GLOBAL_ASM` line again.
 """
 import argparse
 import glob
@@ -132,6 +136,10 @@ def main() -> None:
     pa = sub.add_parser("paste")
     pa.add_argument("seg")
     pa.add_argument("func")
+    up = sub.add_parser("unpark")
+    up.add_argument("seg")
+    up.add_argument("func")
+    up.add_argument("--note", default="unparked")
     args = ap.parse_args()
 
     if args.cmd == "save":
@@ -197,6 +205,28 @@ def main() -> None:
         with open(src, "w") as f:
             f.write(text[:start] + body + text[end:])
         print(f"pasted {os.path.relpath(path, ROOT)} into {os.path.relpath(src, ROOT)}")
+    elif args.cmd == "unpark":
+        key = (args.seg, args.func)
+        src = unmatched().get(key)
+        if not src:
+            sys.exit(f"{args.seg} {args.func}: not GLOBAL_ASM in src/")
+        text = open(os.path.join(ROOT, src)).read()
+        line = next(m for m in PRAGMA.finditer(text) if (m.group(1) or "boot", m.group(2)) == key)
+        start, end = line.start(), text.index("\n", line.end()) + 1
+        park = text.rfind("#ifdef NON_MATCHING\n", 0, start)
+        mid = text.rfind("#else\n", 0, start)
+        if park == -1 or mid < park or "#endif" in text[park:start] or not text.startswith("#endif\n", end):
+            sys.exit(f"{args.seg} {args.func}: not parked under #ifdef NON_MATCHING in {src}")
+        body = text[park + len("#ifdef NON_MATCHING\n"):mid]
+        old = stored().get(key)
+        prev = open(old).readline().split(": ", 1)[1].strip() if old else ""
+        dest = draft_path(*key)
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with open(dest, "w") as f:
+            f.write(f"// {args.func} ({src}): {args.note}" + (f"; {prev}" if prev else "") + f"\n{body.rstrip()}\n")
+        with open(os.path.join(ROOT, src), "w") as f:
+            f.write(text[:park] + text[mid + len("#else\n"):end] + text[end + len("#endif\n"):])
+        print(f"unparked {args.func} in {src}; draft {os.path.relpath(dest, ROOT)}")
 
 
 if __name__ == "__main__":

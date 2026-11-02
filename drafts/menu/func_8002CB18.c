@@ -1,4 +1,10 @@
-// func_8002CB18 (src/menu/3E10.c): func_8002CB18 (src/menu/3E10.c): stage 5 (frame 0x68, all slots match), harness diff 72 -> 4: FAKE 'sp5C = (f32 *)((u32)sp5C | 0)' after 'sp4F = 1' in the spawn block burns a ugen t-ring temp so the later D_80033878/D_80033894 lui regs match. Remaining: the FAKE leaves an lw/sw pair of sp5C (92(sp)) and 'lw t6,0(s0); sb t5,79(sp)' order. 'sp4F = sp4F * 1' variant leaves lb/sb of 79(sp) instead (also 4). 5 hill-climb runs over ~25 dead-test/no-code forms. || W3IntC 2026-11-02 (still 4: FAKE leaves lw/sw of 92(sp) + t6/t8 for the A load). Without the FAKE the then-branch matches and the first diff is the else-branch 'lui t9 D_80033878' (ours t8), 72 total: one ugen ring step missing in/after the then-branch. Annealed (2 runs ~40k evals, 55 no-code forms on locals/pointers/globals/fields, sp4F/sp5C/sp54 variants, dead FP tests): no no-code form reproduces the step; every candidate that burns it is a stack/field self-assign that emits lw/sw (sp5C, sp4F) or nothing.
+// func_8002CB18 (src/menu/3E10.c): UNPARKED 2026-11-02: park was 293 insns vs target 291 (count-inexact parks stay drafts); func_8002CB18 (src/menu/3E10.c): stage 5 (frame 0x68, all slots match), harness diff 72 -> 4: FAKE 'sp5C = (f32 *)((u32)sp5C | 0)' after 'sp4F = 1' in the spawn block burns a ugen t-ring temp so the later D_80033878/D_80033894 lui regs match. Remaining: the FAKE leaves an lw/sw pair of sp5C (92(sp)) and 'lw t6,0(s0); sb t5,79(sp)' order. 'sp4F = sp4F * 1' variant leaves lb/sb of 79(sp) instead (also 4). 5 hill-climb runs over ~25 dead-test/no-code forms. || W3IntC 2026-11-02 (still 4: FAKE leaves lw/sw of 92(sp) + t6/t8 for the A load). Without the FAKE the then-branch matches and the first diff is the else-branch 'lui t9 D_80033878' (ours t8), 72 total: one ugen ring step missing in/after the then-branch. Annealed (2 runs ~40k evals, 55 no-code forms on locals/pointers/globals/fields, sp4F/sp5C/sp54 variants, dead FP tests): no no-code form reproduces the step; every candidate that burns it is a stack/field self-assign that emits lw/sw (sp5C, sp4F) or nothing.
+typedef struct MenuModelScale {
+    char pad0[0x34];
+    f32 unk34;
+    f32 unk38;
+    f32 unk3C;
+} MenuModelScale;
 typedef struct Menu6B_Actor {
     char pad0[4];
     MenuModelScale *unk4;
@@ -85,7 +91,7 @@ void func_8002CB18(void) {
                 sub->unk0 = temp_s1->unk0;
             }
             sp4F = 1;
-            sp5C = (f32 *)((u32)sp5C | 0); // FAKE: no-op self-store; burns one ugen t-ring temp so the later D_80033878/D_80033894 luis get the target regs
+            sp5C = (f32 *)((u32)sp5C | 0); // FAKE: no-op self-store; burns one ugen t-ring temp so the later D_80033878/D_80033894 luis get the target's regs (72 -> 4 insn diff; leaves an lw/sw pair)
         }
         row = &D_80033894[Menu6B_A->unk154];
         func_800317E8(sp5C, row->a, row->b, &sp54, &sp50, 2, 0, 1.8f);

@@ -1,4 +1,4 @@
-// func_806CEFBC (src/global/CEAE0.c): W4FpB: stage 5, 15 diff lines (was 18/19; parked in copy). Annealing over dead-test slots/forms + mid/lerp spelling (m0 m1 m2 l0 l1 l2 order; sp3C = u + (m-u)*t, sp38 = t*(m-u)+u; 3 early dead tests on unk7C(>0.5f)/unk80(!)/unk84, !sp4C, nested sp48, !sp44). Remaining: mid0 f0 (target f16), mid1 f14 (target f18), sp4C spilled; 17280-order x form grid + 3 hill-climb seeds floor 15-16. Cause unchanged: unk84 (idx57) outranks mids (adjsave 3 tie).
+// func_806CEFBC (src/global/CEAE0.c): UNPARKED 2026-11-02: park was 72 insns vs target 69 (count-inexact parks stay drafts); W4FpB: stage 5, 15 diff lines (was 18/19; parked in copy). Annealing over dead-test slots/forms + mid/lerp spelling (m0 m1 m2 l0 l1 l2 order; sp3C = u + (m-u)*t, sp38 = t*(m-u)+u; 3 early dead tests on unk7C(>0.5f)/unk80(!)/unk84, !sp4C, nested sp48, !sp44). Remaining: mid0 f0 (target f16), mid1 f14 (target f18), sp4C spilled; 17280-order x form grid + 3 hill-climb seeds floor 15-16. Cause unchanged: unk84 (idx57) outranks mids (adjsave 3 tie).
 typedef struct G05CbArg {
     /* 0x0 */ f32 unk0;
     /* 0x4 */ Actor *unk4;

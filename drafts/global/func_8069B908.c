@@ -1,10 +1,4 @@
-// func_8069B908 (src/global/9DD70.c): L9DD: stage 4, frame 0x140 match; deadsweep score 30 (was 685 draft / 835 park). KEY: loop reads ((ActorSub174View *)D_807FBB40->unk174)->unk2A instead of sp13C (target: lw t5,0x13c(sp) delay-slot reload): sp13C loop use made uopt carve one coloured piece (t0, adj 1.29) loop->dispatch->cases 1,2,3,5,10 that the target lacks; dropping it 685->481; hill-climb dead tests (4 FAKE, PEN 3) -> 30. Remaining: early sp13C piece a2 (target v0, 13 lines); loop reload form (3 lines); switch temp v0 vs v1; spill slot 100 vs 108; gCurrentMap tail hoist lw s0 (6).
-#include "common.h"
-#include "actor.h"
-
-extern Actor *D_807FBB40;
-extern ActorGlobalState D_807FBB70;
-extern s32 D_8076A068;
+// func_8069B908 (src/global/9DD70.c): UNPARKED 2026-11-02: park was 1316 insns vs target 1317 (count-inexact parks stay drafts); L9DD: stage 4, frame 0x140 match; deadsweep score 30 (was 685 draft / 835 park). KEY: loop reads ((ActorSub174View *)D_807FBB40->unk174)->unk2A instead of sp13C (target: lw t5,0x13c(sp) delay-slot reload): sp13C loop use made uopt carve one coloured piece (t0, adj 1.29) loop->dispatch->cases 1,2,3,5,10 that the target lacks; dropping it 685->481; hill-climb dead tests (4 FAKE, PEN 3) -> 30. Remaining: early sp13C piece a2 (target v0, 13 lines); loop reload form (3 lines); switch temp v0 vs v1; spill slot 100 vs 108; gCurrentMap tail hoist lw s0 (6).
 
 typedef struct ActorSub174View {
     /* 0x00 */ s32 unk0;

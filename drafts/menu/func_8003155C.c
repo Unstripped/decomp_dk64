@@ -1,12 +1,12 @@
-// func_8003155C (src/menu/3E10.c): stage 4 (frame 0x38 + s0-s3), harness diff 13 -> 9 (unchanged by W4Menu): dead 'if ((arg1 * 4) << 2) {}' first statement fixed the 40/44(sp) spill-slot swap and the lui t3/t9 reg. Remaining: E1=arg1*4 in v1 / E2 in t7 (target E1 t7, E2 v1) and 'sll t2,s0,4' for the 373C pointer (arg1*2*2 folds). W4Menu: 4 more annealing runs (~150k compiles): index spellings x4 forms for every access/call/compare site, p/q pointer locals (never < 42: the stored best is the only 9), named idx / off locals (>=21), 10 dead-test forms at 12 positions: no gain. Pointer p/q locals worse (frame 64).
-typedef struct MenuNM2_Sel {
+// func_8003155C (src/menu/3E10.c): UNPARKED 2026-11-02: park was 164 insns vs target 163 (count-inexact parks stay drafts); stage 4 (frame 0x38 + s0-s3), harness diff 13 -> 9 (unchanged by W4Menu): dead 'if ((arg1 * 4) << 2) {}' first statement fixed the 40/44(sp) spill-slot swap and the lui t3/t9 reg. Remaining: E1=arg1*4 in v1 / E2 in t7 (target E1 t7, E2 v1) and 'sll t2,s0,4' for the 373C pointer (arg1*2*2 folds). W4Menu: 4 more annealing runs (~150k compiles): index spellings x4 forms for every access/call/compare site, p/q pointer locals (never < 42: the stored best is the only 9), named idx / off locals (>=21), 10 dead-test forms at 12 positions: no gain. Pointer p/q locals worse (frame 64).
+typedef struct MenuSelectorView {
     f32 unk0;
     f32 unk4;
     char pad8[4];
     s16 unkC;
     char padE[9];
     s8 unk17;
-} MenuNM2_Sel;
+} MenuSelectorView;
 
 extern f32 D_8003373C[];
 extern f32 D_8003378C[];
@@ -16,7 +16,7 @@ s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *ar
     f32 v;
     volatile s32 ret;
     if ((arg1 * 4) << 2) {} // FAKE: extra reference of the shared (arg1 * 4) << 2 expression; steers its CSE temp
-    arg1 += ((MenuNM2_Sel *)arg0)->unk17;
+    arg1 += ((MenuSelectorView *)arg0)->unk17;
     if (arg1 >= 5) {
         arg1 -= 5;
     }
@@ -25,8 +25,8 @@ s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *ar
     D_8003373C[(arg1 * 2 * 2) + 2] = -D_8003378C[arg1 * 4];
     D_8003378C[(4 * arg1) + 3] = D_8003373C[(arg1 * 2 * 2) + 1];
     (&D_8003373C[arg1 * 2 * 2])[3] = -D_8003378C[(arg1 * 4) + 1];
-    *arg2 = menuEvaluateSpline((f32 *)((u8 *)D_8003373C + ((arg1 * 4) << 2)), ((MenuNM2_Sel *)arg0)->unk4, NULL);
-    *arg3 = menuEvaluateSpline((f32 *)((u8 *)D_8003378C + ((4 * arg1) << 2)), ((MenuNM2_Sel *)arg0)->unk4, NULL);
+    *arg2 = menuEvaluateSpline((f32 *)((u8 *)D_8003373C + ((arg1 * 4) << 2)), ((MenuSelectorView *)arg0)->unk4, NULL);
+    *arg3 = menuEvaluateSpline((f32 *)((u8 *)D_8003378C + ((4 * arg1) << 2)), ((MenuSelectorView *)arg0)->unk4, NULL);
     if (*arg3 < -40.0f) {
         v = -*arg3 - 40.0f;
         if (v > 20.0f) {
@@ -43,14 +43,14 @@ s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *ar
         *arg3 *= 1.0f - D_80033F3C;
         *arg4 += D_80033F3C * 3.5f;
         if (D_80033F3C != 0.0f) {
-            *arg6 = 0xFF - (s32)(((MenuNM2_Sel *)arg0)->unk0 * 255.0f);
+            *arg6 = 0xFF - (s32)(((MenuSelectorView *)arg0)->unk0 * 255.0f);
             if (*arg6 < 0) {
                 *arg6 = 0;
             }
         }
     }
-    *arg2 *= 4.0f + (((MenuNM2_Sel *)arg0)->unk0 * 4.0f);
-    *arg3 *= 4.0f + (((MenuNM2_Sel *)arg0)->unk0 * 4.0f);
+    *arg2 *= 4.0f + (((MenuSelectorView *)arg0)->unk0 * 4.0f);
+    *arg3 *= 4.0f + (((MenuSelectorView *)arg0)->unk0 * 4.0f);
     *arg2 += 640.0f;
     *arg3 += 480.0f;
     return ret;

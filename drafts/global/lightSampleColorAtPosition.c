@@ -1,35 +1,4 @@
-// lightSampleColorAtPosition (src/global/5E2F0.c): Light(r5): stage 5 unchanged (text 80/shape 61, park kept). Target facts: zero web f28 hoisted and USED by dist==0, dot<0, dot=0, factor=0 (ours hoists f28 but loop uses rematerialise mtc1 zero: const web 379 uses not substituted), nx f18/ny f20 stored to 84/88 (dead stores, never reloaded) while nz stored 92 and reloaded at once, d[] at 96..104. Tried r5: function-scope nx/ny/nz in all 6 orders (no change), dead tests/inits of n* around the loop (worse 170+), nz as 1-elem array (188), 0 vs 0.0f vs (f32)0 spellings (worse), 100-gen random self-assign/dead-test hill-climb (no gain).
-#include <ultra64.h>
-
-typedef struct LightTrigger {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ s32 unk18;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ f32 unk24;
-    /* 0x28 */ f32 unk28;
-    /* 0x2C */ f32 unk2C;
-    /* 0x30 */ f32 unk30;
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ s16 unk38;
-    /* 0x3A */ s16 unk3A;
-    /* 0x3C */ s16 unk3C;
-    /* 0x3E */ u8 unk3E;
-    /* 0x3F */ u8 unk3F;
-} LightTrigger;
-
-extern LightTrigger D_807F7BC8[];
-extern s16 D_807F7EC8;
-extern f32 *D_8076A0B4;
-extern f32 *D_8076A0B8;
-extern f32 *D_8076A0BC;
-s32 mapChunkIsInUse(s16);
-
+// lightSampleColorAtPosition (src/global/5E2F0.c): UNPARKED 2026-11-02: park was 406 insns vs target 407 (count-inexact parks stay drafts); Light(r5): stage 5 unchanged (text 80/shape 61, park kept). Target facts: zero web f28 hoisted and USED by dist==0, dot<0, dot=0, factor=0 (ours hoists f28 but loop uses rematerialise mtc1 zero: const web 379 uses not substituted), nx f18/ny f20 stored to 84/88 (dead stores, never reloaded) while nz stored 92 and reloaded at once, d[] at 96..104. Tried r5: function-scope nx/ny/nz in all 6 orders (no change), dead tests/inits of n* around the loop (worse 170+), nz as 1-elem array (188), 0 vs 0.0f vs (f32)0 spellings (worse), 100-gen random self-assign/dead-test hill-climb (no gain).
 void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
     f32 pad[10];
     f32 d[3];

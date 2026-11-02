@@ -1,4 +1,4 @@
-// actorPatrolFollowerUpdate (src/global/B1F60.c): stage 5, 25 insns diff (was 31): needs file prototype 'void patrolPathStep(u8, u8);' (was s32,s32: u8 first param removes the cvt candidate that stole a3/a1). Remaining: hidden switch temp (cvt cand 23) coloured a1 not v0 (interferes with D_807FBB40 value cand 14 = v0, created by the F1 dead tests), and 0x37 arm tails: mine lui v1/lw v0 pointerised vs target ring t1; t-ring +1 at nested-switch case 0 (ori t0 vs t9)
+// actorPatrolFollowerUpdate (src/global/B1F60.c): UNPARKED 2026-11-02: park was 189 insns vs target 187 (count-inexact parks stay drafts); stage 5, 25 insns diff (was 31): needs file prototype 'void patrolPathStep(u8, u8);' (was s32,s32: u8 first param removes the cvt candidate that stole a3/a1). Remaining: hidden switch temp (cvt cand 23) coloured a1 not v0 (interferes with D_807FBB40 value cand 14 = v0, created by the F1 dead tests), and 0x37 arm tails: mine lui v1/lw v0 pointerised vs target ring t1; t-ring +1 at nested-switch case 0 (ori t0 vs t9)
 void actorPatrolFollowerUpdate(arg0, arg1, arg2)
 s16 arg0;
 u8 arg1;

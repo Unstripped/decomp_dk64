@@ -1,4 +1,4 @@
-// csSplineLightStep (src/global/478F0.c): W4FpB: stage 5, 27 diff lines (unchanged, copy parked unchanged). frac (cand 17) adjsave 0.5 coloured f16, target uncoloured. Tried: dead ifs 1-4 after frac (adjsave 0.5->0.33 but still coloured), frac spelling (*1.0f,+0.0f,neg,casts,f64), i types, copy locals (fa/fb) and 2 hill-climbs (400s x2, annealing over dead tests/copies/decl order) no improvement below 27; frac def moved before px = 145.
+// csSplineLightStep (src/global/478F0.c): UNPARKED 2026-11-02: park was 168 insns vs target 170 (count-inexact parks stay drafts); W4FpB: stage 5, 27 diff lines (unchanged, copy parked unchanged). frac (cand 17) adjsave 0.5 coloured f16, target uncoloured. Tried: dead ifs 1-4 after frac (adjsave 0.5->0.33 but still coloured), frac spelling (*1.0f,+0.0f,neg,casts,f64), i types, copy locals (fa/fb) and 2 hill-climbs (400s x2, annealing over dead tests/copies/decl order) no improvement below 27; frac def moved before px = 145.
 f32 splineEvalCubic(f64, f32, f32, f32, f32);
 
 void csSplineLightStep(f32 *arg0, s16 arg1, s16 arg2, f32 arg3) {

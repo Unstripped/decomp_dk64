@@ -1,20 +1,4 @@
-// eepromSaveRecords (src/global/104F0.c): eepromSaveRecords (src/global/104F0.c): stage 4: 57 insns diff (was 261): frame/callee-saved exact; remaining: then-branch masks (-64/-8 li at vs s3/s4 webs), crc loop addu a0,v1,s5 operand order, 0x800 held in s2 in target (ours rematerialised), sector copy move s4,s1/andi s2 delay slot, write-loop ring temps shifted by 2; needs 6 dead tests
-extern s32 _sprintf();
-extern s32 eepromCalculateCrc32();
-extern void eepromCopySlot(void);
-extern void sleepMilliseconds(f32);
-extern char *D_807467C0;
-extern s8 D_807467C4;
-extern s8 D_807467E4;
-extern f32 D_807467E8;
-extern s8 D_80744460;
-extern u8 D_807ECD08[];
-extern s32 D_807EDEAC;
-extern OSMesgQueue D_807ECCF0;
-extern s16 D_807ECEA0[];
-extern u8 D_807ECEA8[];
-extern u8 D_807ED6A8[];
-
+// eepromSaveRecords (src/global/104F0.c): UNPARKED 2026-11-02: park was 297 insns vs target 296 (count-inexact parks stay drafts); eepromSaveRecords (src/global/104F0.c): stage 4: 57 insns diff (was 261): frame/callee-saved exact; remaining: then-branch masks (-64/-8 li at vs s3/s4 webs), crc loop addu a0,v1,s5 operand order, 0x800 held in s2 in target (ours rematerialised), sector copy move s4,s1/andi s2 delay slot, write-loop ring temps shifted by 2; needs 6 dead tests
 void eepromSaveRecords(s32 arg0) {
     s32 j;
     s32 sector;
@@ -39,7 +23,7 @@ void eepromSaveRecords(s32 arg0) {
                 height /= 8;
                 
                 a = i * height;
-                if (a) {}
+                if (a) {}  // FAKE: live range / colouring of the narrowed index temp
                 b = (((i + 1) * height) / 4) - 1;
                 ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, height - 4);
             }
@@ -56,9 +40,9 @@ void eepromSaveRecords(s32 arg0) {
             sector = (offset / 8) & 0xFFFF;
         }
         a = offset;
-        if (a) {}
+        if (a) {}  // FAKE: live range / colouring of the narrowed index temp
         b = ((offset + 0x40) / 4) - 1;
-        if (b) {}
+        if (b) {}  // FAKE: live range / colouring of the narrowed index temp
         ((u32 *)workingData)[b] = eepromCalculateCrc32(workingData + a, 0x3C);
         bzero(strlen(D_807467C0) - (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) + workingData + 0x840, (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) - strlen(D_807467C0) - 0x40);
         if (D_807ECEA0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)

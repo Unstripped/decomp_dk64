@@ -1,31 +1,4 @@
-// proxPathActorFollowSpline (src/global/133A90.c): Stage 5 (revisit5 Prox): deadsweep score 162 -> 11 (frame 0x288, 487 vs 486 insns). Fixes: second index is idx2=arg3+1 (s8 var, wrap case passes arg3+1, compare idx2==unk7); guMtxXFMF length via named f32 (yaw reuse: coloured f2 candidate, fixed FP ring 162->47); lerp operand order unk10 + (unk12-unk10)*arg4 (fixed 2 add.s). Two no-code defs 'idx = idx & 0xFF;' before call 1 and 'arg3 = arg3 & 0xFF;' in the b>1 branch (found by pair search) gave idx v0. Remaining: extra 'sb s0,663(sp)' (param-home store from the arg3 def; without that def 19 lines, idx2 v1/ring), t7/t8 ring + v0/v1 temp at idx=(s8)(arg3-1), a2 reload order. Tried: s8/int/u8 idx(2) types, casts, copy locals, dead tests on idx/arg3 (u8) conversions, 44k pair/ single no-code and dead-test sweeps.
-typedef struct H1ActorB {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ ActorSub4 *unk4;
-    /* 0x008 */ u8 pad8[4];
-    /* 0x00C */ f32 unkC[4][4];
-    /* 0x04C */ u8 pad4C[0xC];
-    /* 0x058 */ s32 unk58;
-    /* 0x05C */ u8 pad5C[8];
-    /* 0x064 */ u32 unk64;
-    /* 0x068 */ u8 pad68[2];
-    /* 0x06A */ u16 unk6A;
-    /* 0x06C */ u8 pad6C[0x10];
-    /* 0x07C */ f32 unk7C;
-    /* 0x080 */ f32 unk80;
-    /* 0x084 */ f32 unk84;
-    /* 0x088 */ u8 pad88[0x5E];
-    /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ s16 unkE8;
-    /* 0x0EA */ u8 padEA[0x8A];
-    /* 0x174 */ H1ActorState *unk174;
-} H1ActorB;
-
-void splineSetBasisTension(f32);
-void func_80611A70(f32, f32, f32 *, f32 *);
-void proxPathInterpolatePosition(u8, f32, ProxPath *, f32 *, f32 *, f32 *);
-void mtxLerpL(Mtx *, Mtx *, f32, Mtx *);
-
+// proxPathActorFollowSpline (src/global/133A90.c): UNPARKED 2026-11-02: park was 442 insns vs target 441 (count-inexact parks stay drafts); Stage 5 (revisit5 Prox): deadsweep score 162 -> 11 (frame 0x288, 487 vs 486 insns). Fixes: second index is idx2=arg3+1 (s8 var, wrap case passes arg3+1, compare idx2==unk7); guMtxXFMF length via named f32 (yaw reuse: coloured f2 candidate, fixed FP ring 162->47); lerp operand order unk10 + (unk12-unk10)*arg4 (fixed 2 add.s). Two no-code defs 'idx = idx & 0xFF;' before call 1 and 'arg3 = arg3 & 0xFF;' in the b>1 branch (found by pair search) gave idx v0. Remaining: extra 'sb s0,663(sp)' (param-home store from the arg3 def; without that def 19 lines, idx2 v1/ring), t7/t8 ring + v0/v1 temp at idx=(s8)(arg3-1), a2 reload order. Tried: s8/int/u8 idx(2) types, casts, copy locals, dead tests on idx/arg3 (u8) conversions, 44k pair/ single no-code and dead-test sweeps.
 void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg2, u8 arg3, f32 arg4) {
     f32 one;
     f32 pad1[20];
@@ -63,7 +36,7 @@ void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg
             idx = 0;
         }
     }
-    idx = idx & 0xFF; // FAKE: no-code def, idx coloured v0
+    idx = idx & 0xFF; // FAKE: no-code def, idx coloured v0 (forbidden-v0 call-arg use moves)
     proxPathInterpolatePosition(idx, a, arg2, &p0[0], &p0[1], &p0[2]);
     one = 1.0f;
     b = arg4 + 0.1;

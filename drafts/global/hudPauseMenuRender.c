@@ -1,4 +1,4 @@
-// hudPauseMenuRender (src/global/ACDC0.c): hudPauseMenuRender (src/global/ACDC0.c): stage 4 (HudR, base 2256268): frame 0x1a0 + callee-saved set match; deadsweep full diff 473->451 (992 vs 993 insns, reg-blind shape 165) with 23 FAKE global dead tests (hill-climb from the 473 draft, 3 fakes less than before + minimised) plus real changes: case 1/2 read hud->unk8[i] directly (no y/j local copy: -8) and in the case-0 loop the fe statement placed before the fc*0.75 statement (mv0 order search). Readable park in ACDC0.c is now 654 (was 673). Findings: (1) target ring temps are only t3-t9: t0 (case2 accum), t1 (&D_807FC950 hoist / hud->unk8[i]), t2 are uopt webs; first loop target colours off s0,y s1,it s2,j s3,ptr(D_807FC7F8+i) s4 (ours ptr s0,off s2,it s4): ptr must have LOWEST priority, off highest; (2) case0 loop: target does the 4th func_80612794(ang) call BEFORE the three *0.75 muls (f0 survives them); every spelling that moves the call earlier (fe split into call temp + rest, whole-fe reorder) shifts the f-reg colouring (0.75 const f30/fe f26 vs target f28/f30) and loses more than it gains; (3) case 1/2 loop: y copy removal gave -8 (target loads unk8[i] once into t1 then uses for compare and index); remaining case2 diff = ours keeps hud ptr in a0/t5 and reloads lw t8,348(sp) vs target lw t3. Tried and null: textDrawStringVtx/renderRotatedSprite narrow prototypes, local type of y/j/off in case 2, field-expression statement splits (H1-H6), self-assign FAKEs, random hill-climb to 447 (52 fakes: not worth).
+// hudPauseMenuRender (src/global/ACDC0.c): UNPARKED 2026-11-02: park was 877 insns vs target 890 (count-inexact parks stay drafts); hudPauseMenuRender (src/global/ACDC0.c): stage 4 (HudR, base 2256268): frame 0x1a0 + callee-saved set match; deadsweep full diff 473->451 (992 vs 993 insns, reg-blind shape 165) with 23 FAKE global dead tests (hill-climb from the 473 draft, 3 fakes less than before + minimised) plus real changes: case 1/2 read hud->unk8[i] directly (no y/j local copy: -8) and in the case-0 loop the fe statement placed before the fc*0.75 statement (mv0 order search). Readable park in ACDC0.c is now 654 (was 673). Findings: (1) target ring temps are only t3-t9: t0 (case2 accum), t1 (&D_807FC950 hoist / hud->unk8[i]), t2 are uopt webs; first loop target colours off s0,y s1,it s2,j s3,ptr(D_807FC7F8+i) s4 (ours ptr s0,off s2,it s4): ptr must have LOWEST priority, off highest; (2) case0 loop: target does the 4th func_80612794(ang) call BEFORE the three *0.75 muls (f0 survives them); every spelling that moves the call earlier (fe split into call temp + rest, whole-fe reorder) shifts the f-reg colouring (0.75 const f30/fe f26 vs target f28/f30) and loses more than it gains; (3) case 1/2 loop: y copy removal gave -8 (target loads unk8[i] once into t1 then uses for compare and index); remaining case2 diff = ours keeps hud ptr in a0/t5 and reloads lw t8,348(sp) vs target lw t3. Tried and null: textDrawStringVtx/renderRotatedSprite narrow prototypes, local type of y/j/off in case 2, field-expression statement splits (H1-H6), self-assign FAKEs, random hill-climb to 447 (52 fakes: not worth).
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -58,7 +58,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     sp138 = func_805FF030(D_8076A0AB, 1);
     list = heapAlloc(0x1F40);
     heapFreeDeferred(list);
-    if (D_80750538 + D_807FC992) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     gSPDisplayList(dl++, list);
     ret = dl;
     dl = hudSetupTextState(list);
@@ -77,13 +76,11 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 off = off + it[j].unkC * 4;
                 y = y + it[j].unkE * 4 + hud->unkC[i] * 4;
                 dl = textDrawStringVtx(dl, 1, (s16)off, (s16)y, it[j].unk11, 1);
-                if (ret) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
         }
     }
     switch (hud->unk12) {
         case 0:
-            if (dl && dl) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             s2 = D_807FCC4B;
             y0 = 0x140; /* narrow var: keeps (f32)0x140 unfolded */
             y0 = 0xA0 - (s32)((f32)y0 * hud->unk0);
@@ -106,7 +103,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     fc = func_80612794(off + 0x800) * 0.3f + 3.0f;
                     fd = func_80612794((off >> 1) + 0x200) * 10.0f;
                     fa = fa * 0.75f;
-                    if (!dl) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     fd = fd * 0.75f;
                     fe = (func_80612794(ang) * 0.5f + 0.5f) * 30.0f * 0.75f;
                     fc = fc * 0.75f;
@@ -115,11 +111,9 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     y = (s32)((f32)(j * 0x69 + 0x280) + fd - fb);
                     fh = -fc;
                     dl = renderRotatedSprite(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)(s32)fe, fa, fh, 0, 0.0f);
-                    if (D_807FCC4C != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     gDPPipeSync(dl++);
                     dl->words.w1 = 0xFFFFFFFF;
                     dl->words.w0 = 0xFA000000;
-                    if (!D_807FC828) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     dl++;
                     if (s2 > 0) {
                         off = s2 - 1;
@@ -136,9 +130,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         s2 = s2 - 4;
                     }
                     j++;
-                    if (D_807FC7F0 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 } while (j < ((u8 *)tab)[0x2FC]);
-                if (gFrameCounter || D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             gDPPipeSync(dl++);
             y = 0x198;
@@ -160,24 +152,17 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     }
                     if (j == 2 && (sp138 == 7 || (sp138 == 8 && func_80712628() != 0 && *(s8 *)D_807505CC == 0))) {
                         j++;
-                        if (list && list) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     }
                     i = j;
-                    if (D_807FC828) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                    if (!D_807FC868) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     if (j == 1 && *(s8 *)D_807505CC != 0) {
                         i = 4;
                     }
-                    if (!dl) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                    if (D_807FCC4B && D_807FCC4B) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     if (i == 2 && *(s8 *)D_807505CC != 0) {
                         i = 5;
                     }
-                    if (D_8076A0AB && D_8076A0AB) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     dl = hudDrawScaledText(dl, 0x280, y, 0.7f, D_807FC7E0[i]);
                     j++;
                     y += 0x44;
-                    if (D_80750538 == D_807FCC4B) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 } while (j < 3);
             } else {
                 gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, ang);
@@ -232,9 +217,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     f32 fc;
                     f32 fd;
                     fa = hud->unk4;
-                    if (!list) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     fb = hud->unk0;
-                    if (D_807FCC4B) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     fc = 780.0f;
                     if (fa < fb) {
                         fd = fb;
@@ -243,9 +226,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     }
                     if (off == 0) {
                         fc = fc + fd * 400.0;
-                        if (!D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     }
-                    if (D_807FC992 && D_807FC992) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     dl = hudDrawCountPair(0x2A8, (s32)((f32)off + fc), *(s16 *)((u8 *)D_807FC992 + hud->unk14 * 0x5E + D_80750560[j] * 2), 5, dl, 0, 0.8f);
                 }
             }
@@ -270,7 +251,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     f32 fa;
                     f32 fb;
                     fa = hud->unk4;
-                    if (D_807505CC || D_807FCC4C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     fb = hud->unk0;
                     fc = 780.0f;
                     if (fa < fb) {
@@ -283,13 +263,11 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     }
                     dl = hudDrawCountPair(0x2B0, (s32)((f32)off + fc), t0, 0x19, dl, 0, 0.8f);
                 }
-                if (ret == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             break;
         case 3:
             dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, 0x74, 0.5f, D_807FC7E0[D_807FC818[D_807FC80C] + 18]), 0x280, 0x3C, 0.65, D_807FC7E0[6]);
             fa = hud->unk4;
-            if (!D_807FCC4C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             fb = hud->unk0;
             if (fa < fb) {
                 fd = fb;
@@ -305,6 +283,5 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     }
     dl->words.w0 = 0xDF000000;
     dl->words.w1 = 0;
-    if (list) {}
     return ret;
 }

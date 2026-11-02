@@ -1,25 +1,4 @@
-// eepromValidateSaveSlots (src/global/104F0.c): eepromValidateSaveSlots (src/global/104F0.c): stage 4: 64 insns diff (was 364): frame 0x98 exact; remaining: loop2 multu t9,s2 vs s2,t9, beq v0,s1 vs s1,v0, move a0,s3 vs andi a0,s3,0xff at clearSlot calls, loop4 flag regs s7/s5 vs s5/s2, D_807EDEA8..AB store grouping; 5 dead tests
-#include <ultra64.h>
-
-extern u32 eepromCalculateCrc32(u8 *arg0, u16 arg1);
-extern void eepromClearSlotData();
-extern s32 func_8060C6B8(s32, u8, u8, u8);
-extern void func_8060C648(s32, s32, s32, u8, s32);
-extern void func_8060CB74(void);
-extern void eepromDispatchCommand(s32);
-extern s16 D_807ECEA0[];
-extern u8 D_807ECEA8[];
-extern u8 D_807ED6A8[];
-extern u8 D_807EDEA8[];
-extern u8 D_807EDEA9;
-extern u8 D_807EDEAA;
-extern u8 D_807EDEAB;
-extern u8 D_807550C8;
-extern u8 D_80744530;
-
-extern s32 eepromGetField(s32, u8, u8, u8);
-extern void eepromSetField(s32, u8, u8, u8, s32);
-
+// eepromValidateSaveSlots (src/global/104F0.c): UNPARKED 2026-11-02: park was 319 insns vs target 315 (count-inexact parks stay drafts); eepromValidateSaveSlots (src/global/104F0.c): stage 4: 64 insns diff (was 364): frame 0x98 exact; remaining: loop2 multu t9,s2 vs s2,t9, beq v0,s1 vs s1,v0, move a0,s3 vs andi a0,s3,0xff at clearSlot calls, loop4 flag regs s7/s5 vs s5/s2, D_807EDEA8..AB store grouping; 5 dead tests
 void eepromValidateSaveSlots(void) {
     s32 j;
     u32 slot;
