@@ -125,8 +125,8 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   (`write agent://<id>`); EffB had already worked them.
 - Check the stage of everything parked: agents park stage-2/3 C despite the brief. Only
   stage 4+ (same blocks, saved registers, frame AND instruction count) stays parked; a report
-  saying `N vs M insns` is stage 3: keep the stored park when `git show HEAD:drafts/...` had the
-  count right (6 such regressions in revisit 4), else turn it back into the bare pragma.
+  saying `N vs M insns` is stage 3: keep the stored park if its count was right, else `drafts.py unpark`
+  (revisit 5: 42 parks off by 1-22, found via `nm -S` of `build_nonmatching/` vs `expected/` objects).
   A stage-6 park is not proof of equivalence (201B0: a parked clamp was a min, the asm a
   max); a fresh-eyes pass on a sibling's park checks branch sense first. Reject dead tests
   that add an uninitialised read on some path (`if (step == 0) {}` before `step`'s first
