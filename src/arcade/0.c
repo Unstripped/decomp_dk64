@@ -322,7 +322,29 @@ void arcadeDispatchState(Gfx **arg0) {
     D_8004A78C[1]++;
 }
 
+#ifdef NON_MATCHING
+extern u8 D_8004A794;
+void arcadeInsertHighScore(s32 arg0) {
+    s32 i;
+    s32 j;
+    u8 S[1];
+
+    S[0] = D_8004A794;
+    for (i = 4; i > arg0; i--) {
+        D_8004A74C[i] = D_8004A74C[i - 1];
+        for (j = 0; j < 3; j++) {
+            D_8004A778[i][j] = D_8004A778[i - 1][j];
+        }
+    }
+    D_8004A74C[arg0] = D_8004A748;
+    for (i = 0; i < 3; i++) {
+        D_8004A778[arg0][i] = S[i % 1];  // FAKE: variable-indexed access (always element 0) keeps S in memory: target spills the byte to 0xC(sp), frame 0x18
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/arcadeInsertHighScore.s")
+#endif
 
 extern ArcadeEntity D_8004A698;
 extern u8 D_8004A774[3];

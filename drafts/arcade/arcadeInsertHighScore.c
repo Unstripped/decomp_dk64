@@ -1,9 +1,9 @@
-// arcadeInsertHighScore (src/arcade/0.c): NOT PARKED (orchestrator, revisit 5): `if (S[arg0] && S[arg0]) {}` reads S[1]/S[2] uninitialised and out of the defined element; find a defined variable-indexed access (or another memory-resident form) first. Stage 5 (frame 0x18, sb 0xC(sp)/lbu 0xC(sp) match), text diff 8: u8 S[3] array local + FAKE variable-indexed dead test keeps S in memory (spill-shaped; plain u8 local/promoted array always coloured v0); loop 2 as do{}while. Remaining: loop-2 value should be a coloured a0 piece (ours ring t4 + ptr a2), ring order sll t2/sll t1 swapped, loop-2 sb/addiu delay slot. Real source shape still unknown (struct/union/array promotion, volatile, address-of all tried).
+// arcadeInsertHighScore (src/arcade/0.c): arcadeInsertHighScore (src/arcade/0.c): stage 5, PARKED NON_MATCHING in W4Frame copy; text diff 4 (was 8). Frame 0x18, sb t6,0xC(sp) in the beqz delay slot, loop-1 regs, ring order (sll t2/t1, subu) all match. Lever: 'u8 S[1]; S[0] = D_8004A794; ... = S[i % 1];' (defined variable-indexed access, always element 0, no uninitialised read) keeps the byte memory-resident. Remaining 4 lines: loop 2 target hoists 'lbu a0,0xC(sp)' before the loop (coloured a0 piece of a plain spilled scalar: v1 = A778 ptr, move v0,zero after it) while ours takes 'addiu a0,sp,0xC' + 'lbu t4,0(a0)' in the loop (array = address-based). Real shape is a plain u8 local whose first piece loses colouring over loop 1 (needs one more invisible candidate live over loop 1; extra locals k = arg0/gl748/etc. defined before loop 1 tried: no). 4 grids tried: S[n] n=1..16 x index forms (i%1, i&0, i*0, arg0%1, arg0/5 ...) x value/test forms x loop forms (for / do-while) x decl order; local copy v = S[idx] before loop 2: worse (15+).
 extern u8 D_8004A794;
 void arcadeInsertHighScore(s32 arg0) {
     s32 i;
     s32 j;
-    u8 S[3];  // FAKE: array local keeps the initial in memory (target spills it to 0xC(sp), frame 0x18)
+    u8 S[1];
 
     S[0] = D_8004A794;
     for (i = 4; i > arg0; i--) {
@@ -13,11 +13,7 @@ void arcadeInsertHighScore(s32 arg0) {
         }
     }
     D_8004A74C[arg0] = D_8004A748;
-    if (D_8004A778[arg0]) {}  // FAKE: steers loop-2 pointer candidate
-    i = 0;
-    do {
-        if (S[arg0] && S[arg0]) {}  // FAKE: variable-indexed S access keeps S in memory
-        D_8004A778[arg0][i] = S[0];
-        i++;
-    } while (i < 3);
+    for (i = 0; i < 3; i++) {
+        D_8004A778[arg0][i] = S[i % 1];  // FAKE: variable-indexed access (always element 0) keeps S in memory: target spills the byte to 0xC(sp), frame 0x18
+    }
 }

@@ -1,5 +1,4 @@
-// renderModelAnimatedSlot (src/global/36880.c): func_80636FFC/renderModelAnimatedSlot stage 4 (NMBig, leftovers5 ModelL): 23 deadsweep lines, same s0,s1 + frame 0x138. Remaining: (1) uopt spill slots 56/60 vs target 60/64 (target has ONE FEWER vreg word above the spills; any pad removal drops frame to 0x130; pad/pad2/pad4/5/6 + fl scoped/top-level, all 138 positions of each scoped pad tried), (2) guRotateF x3: as1 hoists addiu a0,sp,184 into the cvt.d.s->c.eq.d stall (512 line-join subsets, 648 f32 literal spellings, x = x records: no change), (3) fl: target has lbu a0 + move v0,a0 (two webs), ours single v0 (64 fl/expression use-site subsets tried). hill-climb (2x15k dead tests/x=x) only 23->22 with 22 fakes: not kept.
-// func_80636FFC (src/global/36880.c): Stage 4 (NMBig): same s0,s1, frame 0x138, 43024 bytes, 19 diff lines. Needs file proto 's32 modelSlotResolveAssetTextures();' (K&R; modelSlotInit still matches). Remaining: (1) spill slots 0x38/0x3C vs 0x3C/0x40; (2) guRotateF x3 entry stall hoists; (3) flags fl adjsave priority order.
+// renderModelAnimatedSlot (src/global/36880.c): renderModelAnimatedSlot (src/global/36880.c): stage 4, 14 deadsweep lines (was 23), same s0,s1 + frame 0x138, spill slots 0x3C/0x40 and fl webs now match. W4Frame levers: (a) drop ONE pad word (pad5) and add a dead 'if (arg0->unkC2 && arg0->unkC2) {}' at the head of the 'if (arg0->unkB6 != -1)' block before 'fl' (adds a never-coded spilled candidate = hole below the spill slots; target has one fewer vreg word above the spills and three hole words below), (b) 'u8 fl' read once for 'fl != 0' and every later test spelled D_807F6000[sp90].unk8C (two webs, lbu a0 + move v0,a0). Remaining: guRotateF x3 only: as1 hoists 'addiu a0,sp,184' (and li a2/a3, lui) above cvt.d.s/c.eq.d (ugen records: lda a0 is the FIRST record after the .loc; as1probe permutations of the arg records reach 13; record deletion/moves that matter are label-ref-count hacks, not C). 16 spellings of arg0 (spB8, &spB8[0], casts) give identical code.
 typedef struct {
     /* 0x00 */ u8 pad0[0x60];
     /* 0x60 */ u8 unk60;
@@ -8,22 +7,22 @@ typedef struct {
     /* 0x64 */ s16 unk64;
     /* 0x66 */ u8 pad66[0x32];
     /* 0x98 */ s16 unk98;
-} ModelL_Model;
+} ModelRenderSlot;
 
 typedef struct {
     /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ struct ModelL_Ctl *unk4;
+    /* 0x04 */ struct ModelRenderPlayerCtl *unk4;
     /* 0x08 */ u8 pad8[0x214];
     /* 0x21C */ f32 unk21C;
     /* 0x220 */ f32 unk220;
     /* 0x224 */ f32 unk224;
     /* 0x228 */ u8 pad228[0xC8];
-} ModelL_Player; /* 0x2F0 */
+} ModelRenderPlayer; /* 0x2F0 */
 
-typedef struct ModelL_Ctl {
+typedef struct ModelRenderPlayerCtl {
     /* 0x00 */ u8 pad0[0x58];
     /* 0x58 */ s32 unk58;
-} ModelL_Ctl;
+} ModelRenderPlayerCtl;
 
 typedef struct {
     /* 0x00 */ f32 unk0;
@@ -47,7 +46,7 @@ typedef struct {
     /* 0xC3 */ u8 unkC3;
     /* 0xC4 */ u8 unkC4;
     /* 0xC5 */ u8 unkC5;
-} ModelL_Obj;
+} ModelRenderAnimObj;
 
 void texAnimUpdateNodes(ModelSegmentData *);
 void func_8063E6B4(void *);
@@ -58,9 +57,9 @@ void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
 f32 renderScaleDistanceByFov(f32);
 Gfx *renderSetSegment6AndFog(Gfx *, s16, u8);
 
-#define ModelL_PLAYER(i) (((ModelL_Player *)gPlayerSlots)[i])
+#define MODEL_RENDER_PLAYER(i) (((ModelRenderPlayer *)gPlayerSlots)[i])
 
-Gfx *func_80636FFC(ModelL_Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, s16 arg6, s32 arg7) {
+Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, s16 arg6, s32 arg7) {
     f32 spF8[4][4];
     f32 spB8[4][4];
     f32 dx;
@@ -69,7 +68,7 @@ Gfx *func_80636FFC(ModelL_Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8
     u8 sel;
     u8 *sel78;
     f32 scale;
-    ModelL_Model *model;
+    ModelRenderSlot *model;
     s32 pad;
     u8 sp97;
     u8 sp96;
@@ -84,9 +83,9 @@ Gfx *func_80636FFC(ModelL_Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8
         func_8063E6B4((void *)&arg5);
     }
     if (arg5 != 0) {
-        dx = ModelL_PLAYER(gCurrentPlayerIndex).unk21C - arg0->unk0;
-        dy = ModelL_PLAYER(gCurrentPlayerIndex).unk220 - arg0->unk4;
-        dz = ModelL_PLAYER(gCurrentPlayerIndex).unk224 - arg0->unk8;
+        dx = MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk21C - arg0->unk0;
+        dy = MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk220 - arg0->unk4;
+        dz = MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk224 - arg0->unk8;
         dx *= dx;
         dy *= dy;
         dz *= dz;
@@ -146,8 +145,8 @@ Gfx *func_80636FFC(ModelL_Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8
         sel = 0;
     }
     gSPSegment(arg1++, 10, osVirtualToPhysical((void *)arg0->unkA0[sel]));
-    { s32 pad4; }
-    gSPClearGeometryMode(arg1++, G_FOG | G_CULL_BOTH);
+{ s32 pad4; }
+gSPClearGeometryMode(arg1++, G_FOG | G_CULL_BOTH);
     if (arg5 != 0 && arg0->unkC2 == 0) {
         model = D_807F6000[sp90].unk7C;
         if (model != NULL) {
@@ -169,7 +168,7 @@ Gfx *func_80636FFC(ModelL_Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8
     if (arg5 != 0) {
         if (arg0->unkB6 != -1 && (model = D_807F6000[sp90].unk7C) != NULL && model->unk60 == 1) {
             func_8063E6B4(model);
-            sp92 = ((ModelL_Model *)D_807F6000[sp90].unk7C)->unk64;
+            sp92 = ((ModelRenderSlot *)D_807F6000[sp90].unk7C)->unk64;
         } else {
             renderCalcPlayerDistanceAlpha(arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC0, arg0->unkB4, &sp92);
             if (arg0->unkB6 != -1) {
@@ -196,21 +195,22 @@ Gfx *func_80636FFC(ModelL_Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8
     }
     if (sp92 != 0) {
         if (arg0->unkB6 != -1) {
-            s32 fl = D_807F6000[sp90].unk8C;
+            u8 fl = D_807F6000[sp90].unk8C;
+            if (arg0->unkC2 && arg0->unkC2) {}  // FAKE: extra spilled-candidate slot (holes below the spill slots, frame 0x138)
             if (fl != 0) {
-                if ((fl & 0x8) && ModelL_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 2) {
+                if ((D_807F6000[sp90].unk8C & 0x8) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 2) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x2) && ModelL_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 3) {
+                if ((D_807F6000[sp90].unk8C & 0x2) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 3) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x4) && ModelL_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 5) {
+                if ((D_807F6000[sp90].unk8C & 0x4) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 5) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x1) && ModelL_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 6) {
+                if ((D_807F6000[sp90].unk8C & 0x1) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 6) {
                     sp92 = 0x64;
                 }
-                if ((D_807F6000[sp90].unk8C & 0x10) && ModelL_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 4) {
+                if ((D_807F6000[sp90].unk8C & 0x10) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 4) {
                     sp92 = 0x64;
                 }
             }
@@ -218,7 +218,6 @@ Gfx *func_80636FFC(ModelL_Obj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8
         arg1 = renderSetSegment6AndFog(arg1, sp92, 0);
         gDPPipeSync(arg1++);
         gSPDisplayList(arg1++, osVirtualToPhysical((void *)arg0->unkA0[sel]));
-        { s32 pad5; }
         gDPPipeSync(arg1++);
         gSPDisplayList(arg1++, osVirtualToPhysical((void *)arg0->unkA8[sel]));
     }
