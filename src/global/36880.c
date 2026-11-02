@@ -4190,6 +4190,7 @@ typedef struct ModelPendingEntry {
 
 extern u8 D_807F7140;
 
+typedef struct ModelPendingPlayerView { u8 u0; u8 pad1[3]; u8 *u4; u8 pad8[0x21C-8]; f32 x; f32 y; f32 z; u8 padE[0x2F0-0x228]; } ModelPendingPlayerView;
 void modelPendingQueueInsert(ModelPendingEntry *arg0, u8 arg1) {
     u8 *obj;
     u8 allow;
@@ -4220,39 +4221,48 @@ void modelPendingQueueInsert(ModelPendingEntry *arg0, u8 arg1) {
                 allow = arg1;
                 break;
             case 4:
+                newv = (u8 *)gPlayerSlots;  // FAKE: defines newv so the dead tests below read an assigned local
+                if (newv && newv) {}  // FAKE: fk
                 if (newv == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (newv != 0) {}  // FAKE: fk
                 allow = arg1;
             case 3:
             case 6:
                 best = 1e8f;
                 for (i = 0; i < D_80750AB4; i = (u8)(i + 1)) {
-                    p = (u8 *)gPlayerSlots + i * 0x2F0;
-                    if (*p != 0) {
+                    
+                    if (tbl && tbl) {}  // FAKE: fk
+                    if (((ModelPendingPlayerView *)gPlayerSlots)[i].u0 != 0) {
+                        if (obj == 0) {}  // FAKE: fk
+                        if (arg0 && arg0) {}  // FAKE: fk
+                        if (arg0 != 0) {}  // FAKE: fk
                         if (obj[0x54] == 6) {
-                            px = (f32 *)(*(u8 **)(p + 4) + 0x7C);
-                            py = (f32 *)(*(u8 **)(p + 4) + 0x80);
-                            newv = *(u8 **)(p + 4) + 0x84;
+                            px = (f32 *)(((ModelPendingPlayerView *)gPlayerSlots)[i].u4 + 0x7C);
+                            py = (f32 *)(((ModelPendingPlayerView *)gPlayerSlots)[i].u4 + 0x80);
+                            newv = ((ModelPendingPlayerView *)gPlayerSlots)[i].u4 + 0x84;
                             pz = (f32 *)newv;
                         } else {
                             px = (f32 *)(i * 0x2F0 + (u8 *)gPlayerSlots + 0x21C);
                             if (!arg0) {
                             }
+                            if (tbl && tbl) {}  // FAKE: fk
+                            if (i && i) {}  // FAKE: fk
                             py = (f32 *)(i * 0x2F0 + (u8 *)gPlayerSlots + 0x220);
                             pz = (f32 *)(i * 0x2F0 + (u8 *)gPlayerSlots + 0x224);
                         }
+        if (px) {} // FAKE: x
+                        if (gPlayerSlots != 0) {}  // FAKE: fk
                         if ((*pz - arg0->unkC) * (*pz - arg0->unkC) + ((*px - arg0->unk4) * (*px - arg0->unk4) + (*py - arg0->unk8) * (*py - arg0->unk8)) < (0, best)) {
-                            if (arg0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                            if (((ModelPendingPlayerView *)gPlayerSlots)[i].u4 != 0) {}  // FAKE: fk
+                            if (px && px) {}  // FAKE: fk
                             best = (*pz - arg0->unkC) * (*pz - arg0->unkC) + ((*px - arg0->unk4) * (*px - arg0->unk4) + (*py - arg0->unk8) * (*py - arg0->unk8));
                         }
+                        if (py && py) {}  // FAKE: fk
                         if (tbl && tbl) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     }
-                    if (p) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                    
                 }
-                flag = 0;
-                if (best < (f32)*(s32 *)(obj + 0x58)) {
-                    flag = 1;
-                }
-                allow = allow & flag;
+                allow &= best < (f32)*(s32 *)(obj + 0x58);
                 break;
             case 5:
                 if (D_807F6028 == 0x14) return;
@@ -4265,7 +4275,7 @@ void modelPendingQueueInsert(ModelPendingEntry *arg0, u8 arg1) {
             if (allow != 0) {
                 D_807F7140++;
                 if (D_807F60A8 != 0x46) {
-                    D_807F60B0[D_807F60A8] = *(s16 *)(tbl + idx * 0x90 + 0x8A);
+                    D_807F60B0[D_807F60A8] = *(s16 *)(tbl + 0x8A + idx * 0x90);
                     D_807F60A8++;
                     csStateTickTimers((s32)obj);
                     csStateUpdate((s32)obj, arg0->unk1E);
