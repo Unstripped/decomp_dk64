@@ -154,7 +154,6 @@ u8 collisionGetStateByte(void) {
     return D_807F951D;
 }
 
-#ifdef NON_MATCHING
 typedef struct CollisionQueryPlayerState {
     u8 pad0[0x1F0];
     u32 unk1F0;
@@ -279,24 +278,20 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         sp5E = 0;
         val2 = 0;
     }
-    val2 = val2 * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    sp5E = sp5E & 0x1FF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    if ((((sp5E * 2) & 0xFF) + ((val2 * 4) & 0xFF))) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    if ((((val2 * 4) & 0xFF) + sp5F)) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    sp5E = sp5E * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    if ((((sp5E * 2) & 0xFF) + sp5F)) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    sp5E = sp5E + 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    sp5E = sp5E ^ 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    sp5E = sp5E & 0xFF;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    if (sp5E) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    sp5E = sp5E * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 * 1;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    if ((((sp5E * 2) & 0xFF) + sp5F)) {}  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 ^ 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 | 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    val2 = val2 ^ 0;  // FAKE: raises sp5E/val2 adjsave so arg0 takes s0 (no code)
-    switch (((((sp5E * 2) & 0xFF) + sp5F) + ((val2 * 4) & 0xFF)) & 0xFF) {
+    val2 = val2 + 0;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    sp5E = sp5E + 0;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    sp5E = sp5E & 0xFF;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    if (((sp5E * 2) & 0xFF) == 0) {}  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    if ((((val2 * 4) & 0xFF) | sp5F)) {}  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    sp5E = sp5E ^ 0;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    val2 = val2 & 0xFF;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    sp5E = sp5E * 1;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    sp5E = sp5E & 0xFF;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    val2 = val2 + 0;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    if (val2 == 0) {}  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    val2 = val2 ^ 0;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    if ((((sp5E * 2) & 0xFF) - ((val2 * 4) & 0xFF))) {}  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
+    switch (((sp5F + ((sp5E * 2) & 0xFF)) + ((val2 * 4) & 0xFF)) & 0xFF) {
     case 0:
         sp4D = 0;
         break;
@@ -405,10 +400,6 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
     D_807F94B4 = 0;
     return (sp5F | ((sp5E * 2) & 0xFF) | ((val2 * 4) & 0xFF)) & 0xFF;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_80666428.s")
-#endif
 
 extern u8 D_807F946E;
 extern u8 D_807F94B1;
