@@ -4454,7 +4454,6 @@ void heapFree(void *);
 
 #define CAM_ZONE_ENTRIES_PATH ((CamPathZoneEntries *)gCamActivePaths)
 
-#ifdef NON_MATCHING
 void camInitZones(void) {
     s16 i;
     s16 j;
@@ -4471,7 +4470,7 @@ void camInitZones(void) {
     if (gCamZoneSorted != NULL) {
         heapFree(gCamZoneSorted);
     }
-    gCamZoneSorted = heapAlloc((((u16)CAM_ZONE_ENTRIES_PATH->unkC0 & 0xFFFF) * 4) + 4);  // FAKE: binary and-tree puts the lhu leaf in a ring temp (t6) instead of a0 (the original is lh)
+    gCamZoneSorted = heapAlloc((s32)((s16 *)4 + CAM_ZONE_ENTRIES_PATH->unkC0 * 2));  // FAKE: ixa(const, mul) tree keeps ugen from putting the lh leaf in a0 (target: lh t6 ring temp); equals unkC0 * 4 + 4
     for (i = 0; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
         gCamZoneSorted[i * 2] = i;
         gCamZoneSorted[i * 2 + 1] = camGetZoneCell(i);
@@ -4517,10 +4516,6 @@ void camInitZones(void) {
     CAM_ZONE_GROUP[k].unk0 = -1;
     CAM_ZONE_GROUP[k].unk2 = CAM_ZONE_ENTRIES_PATH->unkC0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/201B0/camInitZones.s")
-#endif
 
 typedef struct CamSecondNode {
     /* 0x00 */ u8 pad0[0x7C];
