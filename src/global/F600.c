@@ -148,6 +148,7 @@ void controllerUpdate(void) {
     u8 mask;
     u32 bit;
     u8 i;
+    u32 *end;
 
     compact = func_8071432C();
     D_807ECD60.button = D_807ECD58.button;
@@ -196,7 +197,8 @@ void controllerUpdate(void) {
     sum = 0;
     D_807ECD66 = (D_807ECD58.button ^ D_807ECD60.button) & D_807ECD58.button;
     p = (u32 *)heapTickDeferredFrees;
-    while (p < (u32 *)func_80611844) {
+    end = (u32 *)func_80611844;
+    while (p < end) {
         sum += *p;
         p += 1;
     }

@@ -1,4 +1,4 @@
-// camInitZones (src/global/201B0.c): W2IntD: stage 5/6 exact count 338, score 195 -> 25 (shape 0): remaining = first heapAlloc leaf (lh a0 vs ring t6 + P t6 vs t5), group-count candidate v1 vs a0, loop-4 pointer v0 vs t0 + ring phase. Levers: dead read 'if (CAM_ZONE_SORT[0].unk2 && ..) {}' after heapFree burns ONE ring temp (195->63), insertion-sort stmt order key/idx/val (43->39), loop-3 compare spelled gCamZoneSorted[i*2+1] != [(i-1)*2+1] (39->36), if (gCamZoneGroupCount) {} FAKE (36->25). ring leaf a0 at first alloc: ugen puts the first arg-tree leaf in a0 whenever free; target uses ring t6/t7 (no spelling found: sz local, casts, k local, tree shapes all tried).
+// camInitZones (src/global/201B0.c): camInitZones (src/global/201B0.c): revisit 7 MiscA: stage 6, deadsweep score 25 -> 1 (text 1: only 'lhu t6' vs target 'lh t6' in the first heapAlloc arg; no dead-test FAKE left). Levers: (1) (((u16)P->unkC0 & 0xFFFF) * 4) + 4 -- the and-mask tree makes the lhu leaf a ring temp (t6) instead of ugen's a0 'first leaf of a unary parm chain' (as1 deletes the redundant andi after lhu); fixed the whole ring phase so all 3 old FAKEs became unnecessary. (2) group-build loop compare/stores through flat gCamZoneSorted[i*2+1] plus a hidden local assigned in the condition: if ((val = S[i*2+1]) != S[(i-1)*2+1]) G[k].unk0 = val; (key/idx/val/j all equal) fixed the v0/v1/a0 colouring. Not found: a spelling keeping signed lh with a ring leaf (tried casts, new locals of every type, in-expression assigns, callee proto widths u32/s32, raw/struct spellings, dead tests, 10 binary-op no-ops).
 typedef unsigned char u8;
 typedef short s16;
 typedef int s32;
@@ -56,9 +56,8 @@ void camInitZones(void) {
     gCamZoneMinZ = gCamZoneMinZ / 400 * 400;
     if (gCamZoneSorted != NULL) {
         heapFree(gCamZoneSorted);
-        if (CAM_ZONE_SORT[0].unk2 && CAM_ZONE_SORT[0].unk2) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
-    gCamZoneSorted = heapAlloc((CAM_ZONE_ENTRIES_PATH->unkC0 * 4) + 4);
+    gCamZoneSorted = heapAlloc((((u16)CAM_ZONE_ENTRIES_PATH->unkC0 & 0xFFFF) * 4) + 4);  // FAKE: binary and-tree puts the lhu leaf in a ring temp (t6) instead of a0 (the original is lh)
     for (i = 0; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
         gCamZoneSorted[i * 2] = i;
         gCamZoneSorted[i * 2 + 1] = camGetZoneCell(i);
@@ -88,18 +87,15 @@ void camInitZones(void) {
         }
     }
     if (gCamZoneGroups != NULL) {
-        if (CAM_ZONE_SORT[0].unk2 && CAM_ZONE_SORT[0].unk2) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         heapFree(gCamZoneGroups);
     }
-    if (gCamZoneGroupCount) {}  // FAKE: dead read, makes the count a coloured candidate (v1) before the group alloc
     gCamZoneGroups = heapAlloc(gCamZoneGroupCount * 4 + 4);
     CAM_ZONE_GROUP[0].unk0 = CAM_ZONE_SORT[0].unk2;
     CAM_ZONE_GROUP[0].unk2 = 0;
     k = 1;
     for (i = 1; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
-        if (CAM_ZONE_SORT[i].unk2 != CAM_ZONE_SORT[i - 1].unk2) {
-            CAM_ZONE_GROUP[k].unk0 = CAM_ZONE_SORT[i].unk2;
-            if (CAM_ZONE_ENTRIES_PATH->unkC0 && CAM_ZONE_ENTRIES_PATH->unkC0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if ((val = gCamZoneSorted[i * 2 + 1]) != gCamZoneSorted[(i - 1) * 2 + 1]) {
+            CAM_ZONE_GROUP[k].unk0 = val;
             CAM_ZONE_GROUP[k].unk2 = i;
             k++;
         }
