@@ -1039,7 +1039,7 @@ void func_8069B908(void) {
     s32 pad84[3];
     s32 sp7C[2];
     s32 sp78;
-    ActorSub174View *p174;
+    s32 pad74;  // pad: keeps sp70 at 0x70
     s32 sp70;
 
     sp13C = D_807FBB40->unk174;
@@ -1083,9 +1083,13 @@ void func_8069B908(void) {
             }
             break;
         }
-        if (D_807FBB40->unk58 == 0x3F || D_807FBB40->unk58 == 0x40 ||
-            D_807FBB40->unk58 == 0x41 || D_807FBB40->unk58 == 0x42) {
+        switch (D_807FBB40->unk58) {
+        case 0x3F:
+        case 0x40:
+        case 0x41:
+        case 0x42:
             D_807FBB40->unk64 |= 0x420;
+            break;
         }
     }
     if (D_807FBB94 != 0) {
@@ -1138,15 +1142,18 @@ void func_8069B908(void) {
         }
     }
     func_8067ACB4(D_807FBB40);
-    if (D_807FBB40->unk58 == 0x3F || D_807FBB40->unk58 == 0x40 ||
-        D_807FBB40->unk58 == 0x41 || D_807FBB40->unk58 == 0x42) {
+    switch (D_807FBB40->unk58) {
+    case 0x3F:
+    case 0x40:
+    case 0x41:
+    case 0x42:
         for (i = 0; i < D_807FBDC4; i++) {
-            p174 = D_807FBB40->unk174;  // FAKE: loads unk174 in the loop head so as1 fills the bne delay slot (target: sp13C stack reload hoisted from the then block)
             if (D_807FBB70.unk258[i] - 1 == 0) {  // FAKE: `- 1 == 0` keeps const 1 from becoming a hoisted typed-constant candidate (target: li at,1 inside the loop)
-                p174->unk2A = 0;
+                sp13C->unk2A = 0;
                 D_807FBB40->unk154 = 5;
             }
         }
+        break;
     }
     switch (D_807FBB40->unk154) {
     case 0:
@@ -1154,7 +1161,6 @@ void func_8069B908(void) {
         D_807FBB40->unk64 |= 8;
         D_807FBB40->unk60 |= 0x80000000;
         D_807FBB40->unk68 |= 1;
-        if (D_807FBB40->unk58 && D_807FBB40->unk58) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (actorHasCallbackTargetThisFrame() != 0) {
             D_807FBB40->unk154 = 4;
         }
@@ -1240,12 +1246,13 @@ void func_8069B908(void) {
                 spB0 = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
                 spA4 = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
                 func_8071496C(sp70);
+                if (D_807FBB94 && D_807FBB94) {}  // FAKE: ghost candidate: two reads in the sp70 loop make D_807FBB94 a high-priority v0 web (with the two tests below) that forces the shared switch temp to v1 / early sp13C piece to v0
                 func_807149B8(1);
                 if (sp70 == 0) {
                     func_80714950(0x100FA);
-                    func_8071498C((void *)func_8071A8B0);
+                    func_8071498C(func_8071A8B0);
                 } else {
-                    func_8071498C((void *)func_80717D4C);
+                    func_8071498C(func_80717D4C);
                     func_80714950(-0x96 - ((randomNonNegative() >> 15) % 50));
                 }
                 func_80714CC0(&D_80720340, 1.6f, D_807FBB40->unk7C + spAC,
@@ -1260,11 +1267,11 @@ void func_8069B908(void) {
                     spB0 += 30.0f;
                     func_807149B8(1);
                     func_807149FC(0x3C);
-                    func_8071498C((void *)effectTumbleBounceUpdate);
+                    func_8071498C(effectTumbleBounceUpdate);
                     func_80714998(2);
                     func_80714950(2);
                     sp78 = randomNonNegative();
-                    if (D_807FBB4C && D_807FBB4C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                    if (sp78) {}  // FAKE: block split between the sp78 def and the call (steers ugen ring / uopt colouring)
                     func_80714CC0((void *)((s32 *)&sp9C)[(sp78 >> 15) % 2],
                                   (f32)(((f64)randomFloat() * 0.5) + 0.2),
                                   D_807FBB40->unk7C + spAC, D_807FBB40->unk80 + spB0,
@@ -1334,13 +1341,14 @@ void func_8069B908(void) {
         D_807FBB40->unk110 = 0;
         D_807FBB40->unk6A &= 0xFBF7;
     }
+    if (D_807FBB94) {}  // FAKE: ghost candidate, extends the D_807FBB94 web over the gCurrentMap switch temp
     switch (gCurrentMap) {
     case 0x26:
     case 0x71:
     case 0xC2:
         if (D_807FBB40->unk58 == 0x3D) {
             if (D_807FBB40->unk110 == 1) {
-                if (gCurrentMap) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (D_807FBB94) {}  // FAKE: ghost candidate (see the sp70 loop), keeps the D_807FBB94 web live across the gCurrentMap switch
                 D_807FBB40->unk60 |= 0x200000;
             } else {
                 D_807FBB40->unk60 &= ~0x200000;
