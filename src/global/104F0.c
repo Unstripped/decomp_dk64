@@ -82,37 +82,35 @@ u8 eepromGetSectorForSlot(s32 arg0) {
 }
 
 
-#ifdef NON_MATCHING
 extern s32 func_8071432C(void);
 extern s32 func_80714394(void);
 
 void eepromCopySlot(void) {
     u8 original;
     u8 replacement;
-    s16 unk0;
-    s32 size;
     u8 *src;
     u8 *dst;
+    s32 size;
+    s32 unk0;
 
     original = eepromGetSectorForSlot(D_807467C8);
     replacement = eepromGetSectorForSlot(3);
     if (((func_8071432C() != 0) || (func_80714394() != 0)) && (original != replacement)) {
         unk0 = D_807ECEA0[0];
-        size = ((((unk0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
+        unk0 += 0x6B7;
+        unk0 = (unk0 & ~0x3F) + 0x27;
+        unk0 = unk0 & ~7;
+        unk0 = unk0 / 8;
+        size = unk0;
         src = D_807ECEA8 + (size * original);
-        if (replacement == 0) {} // FAKE: pins the src/dst order and colours replacement v1
         dst = D_807ECEA8 + (size * replacement);
-        unk0 = unk0 | 0; // FAKE: no-code def extends unk0's live range past dst
+        unk0 = unk0 | 0; // FAKE: no-code def extends unk0's live range past dst (keeps the quotient in v0, original in a3)
         memcpy(dst, src, size);
         D_807EDEA8[replacement] ^= D_807EDEA8[original];
         D_807EDEA8[original] ^= D_807EDEA8[replacement];
         D_807EDEA8[replacement] ^= D_807EDEA8[original];
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromCopySlot.s")
-#endif
 
 void eepromWriteBitfield(arg0, arg1, arg2)
 u32 arg0;
@@ -551,7 +549,6 @@ void eepromValidateSaveSlots(void) {
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
     for (i = 0; i < 4; i++) {
         ok = ok | 0;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        if (i && stored) {}  // FAKE
         D_807EDEA8[i] = i;
         sectorOrder[i] = 0xFF;
     }
@@ -562,7 +559,7 @@ void eepromValidateSaveSlots(void) {
         idx = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * (i + 1)) / 4) - 1;
         stored = ((u32 *)D_807ED6A8)[idx];
         len = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) - 4;
-        if (stored != eepromCalculateCrc32(data, len)) {
+        if (stored != (eepromCalculateCrc32(data, len) ^ 0)) {  // FAKE: keeps stored on the left of beq
             ok = 0;
             slot = i;
             eepromClearSlotData((u8)slot, 0);
@@ -612,7 +609,7 @@ void eepromValidateSaveSlots(void) {
     if (j != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     ok = 1;
     stored = ((u32 *)((u32)D_807ED6A8 | 0))[(u16)(((height + 0x40) / 4) - 1)];
-    if (stored != eepromCalculateCrc32((u8 *)&D_807ED6A8[0] + (height & 0xFFFF), 0x3C)) {
+    if (stored != (eepromCalculateCrc32((u8 *)&D_807ED6A8[0] + (height & 0xFFFF), 0x3C) ^ 0)) {  // FAKE: keeps stored on the left of beql
         ok = 0;
         func_8060CB74();
     }

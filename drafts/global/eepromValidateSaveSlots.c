@@ -1,4 +1,4 @@
-// eepromValidateSaveSlots (src/global/104F0.c): Carve 2026-11-02: stage 5, COUNT-EXACT 315 (frame 0x98 exact) with the 104F0 .bss carve (D_807EDEA8[4] defined; commit 2c2ee6f in .scratch/wtCarve; without it 316+): deadsweep full 46 text 41 reloc 6 (EDEA9/AA/AB reloc names) vs stored 61/51. Wins: 'ok = 0; func_8060CB74();' (call delay slot; saved the nop), ok = ok | 0 / dead tests give ok s0. Remaining: multu t9,s2 vs s2,t9 and beq v0,s1 vs s1,v0 (operand order), andi a0,s3,0xff vs move (u8 slot + slot&0xFF fixes it but frame +4), loop-3 found s5 vs s2 / 255 const s6 vs s5, final block failed copy move s3,s8.
+// eepromValidateSaveSlots (src/global/104F0.c): Eep 2026-11-03 (revisit 7): stage 5, count-exact 315, frame 0x98 exact, deadsweep full 44 (text 39, reloc 6 = EDEA9/AA/AB names) vs stored 46/41. New: '(crc(...) ^ 0)' on both 'stored != crc' compares (Patrol lever) fixed both beq/beql operand orders (-2); dropped dead 'if (i && stored) {}' (read of unassigned stored, no effect); 5 FAKEs left (ok|0, version x2, j, i&&found). Remaining: (1) multu s2,t9 vs t9,s2 in '(i+1)*H' (statement order, operand swap, named next var, casts: no effect); (2) andi a0,s3,0xff vs move a0,s3 x2: target passes slot to eepromClearSlotData as a prototyped u8 param - 'extern void eepromClearSlotData(u8, s32);' gives 42 but cfe errors against the later 'extern void eepromClearSlotData();' (line ~633) and would change callers using '& 0xFF'; orchestrator could try changing that declaration; (3) loop-3 found s5/255 s6 vs s2/s5 (version FAKE keeps s2 busy); (4) final block: target hi lui s1 + addu s1,s1,t6; lw lo(s1) and separate lui t7/addiu t7 arg base, a2 coloured for the idx chain; ours one pointerized t9 + li s1,4 (j FAKE). Tried: u8 slot (frame +4), slot & 0xFF, idx expression spellings, dead tests on the idx expression, hill-climb over dead tests/moves 16k evals: no gain.
 void eepromValidateSaveSlots(void) {
     s32 j;
     u32 slot;
@@ -22,7 +22,6 @@ void eepromValidateSaveSlots(void) {
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
     for (i = 0; i < 4; i++) {
         ok = ok | 0;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        if (i && stored) {}  // FAKE
         D_807EDEA8[i] = i;
         sectorOrder[i] = 0xFF;
     }
@@ -33,7 +32,7 @@ void eepromValidateSaveSlots(void) {
         idx = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * (i + 1)) / 4) - 1;
         stored = ((u32 *)D_807ED6A8)[idx];
         len = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) - 4;
-        if (stored != eepromCalculateCrc32(data, len)) {
+        if (stored != (eepromCalculateCrc32(data, len) ^ 0)) {  // FAKE: keeps stored on the left of beq
             ok = 0;
             slot = i;
             eepromClearSlotData((u8)slot, 0);
@@ -83,7 +82,7 @@ void eepromValidateSaveSlots(void) {
     if (j != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     ok = 1;
     stored = ((u32 *)((u32)D_807ED6A8 | 0))[(u16)(((height + 0x40) / 4) - 1)];
-    if (stored != eepromCalculateCrc32((u8 *)&D_807ED6A8[0] + (height & 0xFFFF), 0x3C)) {
+    if (stored != (eepromCalculateCrc32((u8 *)&D_807ED6A8[0] + (height & 0xFFFF), 0x3C) ^ 0)) {  // FAKE: keeps stored on the left of beql
         ok = 0;
         func_8060CB74();
     }
