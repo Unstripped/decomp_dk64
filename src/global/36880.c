@@ -2844,14 +2844,11 @@ u8 arg2;
     u8 res;
     s32 sp24;
     s32 sp20;
-    if (0) {
-        &node; // FAKE: node must be stack resident
-    }
-    seg = ((ModelSlotSegOwner *)arg0)->unk20;
     p = (ModelSlotObjHeader *)arg0->unk24;
+    seg = ((ModelSlotSegOwner *)arg0)->unk20;
     seg2 = seg;
-    p->unk8 = gFrameCounter;
     obj = (ModelSlotObjHeader *)((u32)p | 0); // FAKE: blocks copy propagation
+    p->unk8 = gFrameCounter;
     if (arg0->unk20 && arg0->unk20) {} // FAKE: dead test steers uopt colouring
     if (!(arg0->unk8C & 0x20)) {
         if (!(obj->unk0 & 0x10) || arg2 != 0) {

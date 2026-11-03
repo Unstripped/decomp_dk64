@@ -1,4 +1,4 @@
-// modelSlotResolveAssetTextures (src/global/36880.c): W2Frame 2026-11-03 (revisit 7 wave 2): stage 4 park, count-exact 121, frame 72, s0/s1 right, deadsweep full 39 (was 41), shape 10. NEW vs stored: dropped 'volatile arg2' FAKE (K&R 'u8 arg2' plain) and the flags local (reads arg0->unk8C directly; compound |= 0x20), split obj in two webs: 'p = arg0->unk24; p->unk8 = gFrameCounter; obj = (T*)((u32)p | 0)' (declared in flags' home slot so homes stay at the target slots): reproduces the target's 'lw E; sw 8(E); move s1,E' piece split (count 120 -> 121). Remaining: p coloured v1/flags v0 (target E v0, flags a3), arg2 coloured a3 with 'andi a3,a2,0xff / sb a3,83(sp)' (target keeps arg2 memory-resident: lbu 0x53(sp) at every use, needs flags=a3 so a3 is not free for arg2: v0/v1/a2 would need ghost webs), then the t-ring is shifted by one after the first block. Tried: ANSI header (needs the decl at ~583 changed; same 39), K&R s32 arg2+(u8) casts, 128 x 3 x 2 grids of which obj-use sites read p vs obj, ghost locals (pad/sp20/sp24/sp30 = X; if (X) {}) at every position, dead-test anneal (15k evals, no gain), E=arg0->unk24 expression spellings (A/B/C store forms: E is killed by the sw in every spelling, target keeps it).
+// modelSlotResolveAssetTextures (src/global/36880.c): Model36 2026-11-03 (revisit 8): stage 4 park, count-exact 121, frame 72, deadsweep full 36 (was 39), shape 10. NEW: statement order p=arg0->unk24; seg=...unk20; seg2=seg; obj=(T*)((u32)p|0); p->unk8=gFrameCounter (p BEFORE seg, store AFTER obj) gives p=v0 (was v1; found by random search over entry-statement order x declaration order x flags-local forms, 3000 evals); dropped dead 'if (0) { &node; }' (no effect). Remaining: flags coloured v1 (target a3) and arg2's first piece coloured a3 ('andi a3,a2,0xff; sb a3,83(sp)') where target keeps arg2 memory-resident (lbu t5,83(sp) at the test, lbu a3,83(sp) at calls) and fills the load-use stall with 'move s1,v0'. uopt -l5: arg2 piece cand 25 has adjsave 0.25 and gets a3 only because a3 is the last free reg (forbidden v0 v1 a0 a1 a2): target flags=a3 means something holds v1 over flags' range (dead-test/ghost-local sweeps incl. 14k ghost vars, 3680 singles on 2 bases, 780 pairs: none produced lbu a3,140 or removed the piece without count loss). Tried and no effect: ANSI vs K&R header (u8/u8), call-arg/test spellings of arg2 (u8)/&0xFF/!=0U, sibling-style head/mid/count vars (worse: 100), natural no-FAKE body (100), &arg2 in if(0).
 s32 dlResolveNodeTextures(DisplayListCmd *, DisplayListCmd *, ModelSegmentNode *, u8);
 
 s32 modelSlotResolveAssetTextures(arg0, arg1, arg2)
@@ -9,21 +9,18 @@ u8 arg2;
     ModelSegmentData *seg;
     ModelSlotObjHeader *obj;
     ModelSegmentData *volatile seg2; // FAKE: keeps a memory copy of seg (target reloads it from 0x3C(sp) in the else branch)
-    ModelSlotObjHeader *p; // FAKE-adjacent: pointer copy used for the first store/test (steers uopt pieces)
+    ModelSlotObjHeader *p;
     s32 pad;
     u32 sp30;
     ModelSegmentNode *node;
     u8 res;
     s32 sp24;
     s32 sp20;
-    if (0) {
-        &node; // FAKE: node must be stack resident
-    }
-    seg = ((ModelSlotSegOwner *)arg0)->unk20;
     p = (ModelSlotObjHeader *)arg0->unk24;
+    seg = ((ModelSlotSegOwner *)arg0)->unk20;
     seg2 = seg;
-    p->unk8 = gFrameCounter;
     obj = (ModelSlotObjHeader *)((u32)p | 0); // FAKE: blocks copy propagation
+    p->unk8 = gFrameCounter;
     if (arg0->unk20 && arg0->unk20) {} // FAKE: dead test steers uopt colouring
     if (!(arg0->unk8C & 0x20)) {
         if (!(obj->unk0 & 0x10) || arg2 != 0) {
