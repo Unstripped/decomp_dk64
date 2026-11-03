@@ -48,7 +48,6 @@ void *D_807F5DEC;
 f32 D_807F5DF0[12];
 
 
-#ifdef NON_MATCHING
 void frustumCalculateCornerRays(f32 arg0, f32 arg1, f32 arg2) {
     f32 scale;
     f32 sp54;
@@ -61,9 +60,9 @@ void frustumCalculateCornerRays(f32 arg0, f32 arg1, f32 arg2) {
     s32 i;
 
     sp58 = arg0 * 0.5;
+    sp54 = sp58 * arg1;
     guRotateF(spB0, sp58, 1.0f, 0.0f, 0.0f);
     guMtxXFMF(spB0, 0.0f, 0.0f, (-arg2), &sp64, &sp68, &sp6C);
-    sp54 = sp58 * arg1;
     guRotateF(sp70, sp54, 0.0f, 1.0f, 0.0f);
     guMtxXFMF(sp70, sp64, sp68, sp6C, &D_807F5DF0[0], &D_807F5DF0[1], &D_807F5DF0[2]);
     guRotateF(sp70, -sp54, 0.0f, 1.0f, 0.0f);
@@ -81,10 +80,6 @@ void frustumCalculateCornerRays(f32 arg0, f32 arg1, f32 arg2) {
         D_807F5DF0[i * 3 + 2] = (-arg2);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/frustumCalculateCornerRays.s")
-#endif
 
 extern f32 D_807F5E20[];
 extern f32 D_807F5E24[];
@@ -1502,8 +1497,8 @@ u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 d;
 
     *arg1 = mapBspPlaneDistanceCheck(arg0, arg2, arg3, arg4);
-    ny = arg0->unk50;
     nz = arg0->unk54;
+    ny = arg0->unk50;
     nx = arg0->unk4C;
     d = arg0->unk58;
     ea[0] = arg0->unk5C[2] - arg0->unk5C[0];
@@ -1517,25 +1512,25 @@ u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     c[2] = ea[0] * eb[1] - ea[1] * eb[0];
     len = sqrtf(c[0] * c[0] + c[1] * c[1] + c[2] * c[2]);
     n[0] = c[0] / len;
-    if (len == 0.0f) {}  // FAKE
     n[2] = c[2] / len;
     n[1] = c[1] / len;
-    n[0] = 20.0f * n[0];
-    n[2] = 20.0f * n[2];
-    n[1] = 20.00f * n[1];
+    n[1] = 20.0f * n[1];
+    n[0] = 20.00f * n[0];
+    n[2] = n[2] * 20.00f;
     p[0] = n[0] + arg0->unk5C[0];
-    p[2] = n[2] + arg0->unk68[0];
     p[1] = n[1] + arg0->unk62[0];
-    if (nx == 0.0f) {}  // FAKE: block split before s1
+    p[2] = n[2] + arg0->unk68[0];
     s1 = nx * arg2 + ny * arg3 + nz * arg4 + d;
+    if (nx && nx) {}  // FAKE: nx coloured first (f14)
     if (s1 > 0.0) {
-        if (len && len) {}  // FAKE: block split steering uopt candidate order
-        if (nx * p[0] + ny * p[1] + p[2] * nz + d > 0.0) {
+        if (ny > 0.0f) {}  // FAKE: colours nx/ny/nz f14/f16/f18
+        if (nx * p[0] + ny * p[1] + nz * p[2] + d > 0.0) {
+            if (len == 0.0f) {}  // FAKE: block split steering uopt candidate order
             return 0;
         }
     }
     if (s1 < 0.0) {
-        if (nx * p[0] + ny * p[1] + nz * p[2] + d < 0.0) {
+        if (nx * p[0] + ny * p[1] + p[2] * nz + d < 0.0) {
             return 0;
         }
     }
