@@ -47,14 +47,20 @@ PROBES (records `try --insert` / `scan` can add):
          deletes these first, so diagnosis only.
   label  an unreferenced local label (a block boundary). ugen deletes unreferenced labels: from C only as the
          target of a real branch (a loop head, an `if` join).
+  live   `.livereg` with every register live (`live=0xMASK` for one gp mask, bit 31-r = $r): as1 then keeps
+         those registers intact across that point. ugen emits `.livereg` only before calls and returns, so a
+         hit points at a liveness route (narrow the register with `try --insert POS:live=0xMASK`, then look
+         for C that keeps it live there), not at this record.
   A deleted `.loc` = statements joined on one source line; a swap = statement/operand order. Deleting or
   swapping instructions can lower the score by changing the instruction count (n): compare n with the
-  target's count before trusting such a hit.
+  target's count before trusting such a hit. A scan covers single edits from this vocabulary only: no hit,
+  or only hits C cannot emit, does not show that no C exists (several coordinated stream changes can).
 
 What it found so far: as1 hoists a branch target's first instruction into the branching block's load-use
-stall only when the target label has ONE predecessor: any as1-visible record between the previous block's
-jump and the label (instruction, `.alias`/`.noalias`, `.bgnb`/`.endb`, `.frame`, data directive, a
-jump-to-next it later deletes) is a fall-through predecessor and stops the hoist; `.loc`, `.livereg`,
+stall only when the target label has ONE predecessor and the moved register is dead on the other path:
+any as1-visible record between the previous block's jump and the label (instruction, `.alias`/`.noalias`,
+`.bgnb`/`.endb`, `.frame`, data directive, a jump-to-next it later deletes) is a fall-through predecessor
+and stops the hoist, and so does a `.livereg` marking the moved register live before the branch; `.loc`,
 `.set`, labels and `.rdata` tables do not; jump-table entries count as references. ugen's labelopt deletes
 everything between an unconditional jump and the next label except `unal`/`bgnb`/`endb`/`comm`/`def`/
 `lex`/`optn`/`sdef`, so at -O2 -g0 the only C-reachable record there is uopt's `.alias` reset. Store-count
@@ -247,6 +253,9 @@ def probe_record(stream, kind, pos):
     if kind == "label":
         used = [-fields(r)["sym"] for r in stream.recs if fields(r)["sym"] < 0]
         return struct.pack(">iIIi", -(max(used, default=0) + 1000), IT["label"] << 16, 0, 0)
+    if kind == "live" or kind.startswith("live="):
+        gp, fp = (int(kind[5:], 16), 0) if "=" in kind else (0xFFFFFFFE, 0xFFFFFFFF)
+        return struct.pack(">iIII", 0, IT["livereg"] << 16, gp, fp)
     raise SystemExit("unknown probe %r" % kind)
 
 
@@ -394,6 +403,7 @@ REACH = {
     "loc": "C: start a new source line here",
     "bnext": "diagnosis only (ugen labelopt deletes jump-to-next)",
     "label": "C: only as a real branch target (ugen deletes unreferenced labels)",
+    "live": "liveness route: narrow with try --insert POS:live=0xMASK, then find C keeping that register live",
     "delete-loc": "C: join this statement onto the previous line",
     "delete": "C: remove the statement/operation that emits it",
     "swap": "C: statement or operand order",
@@ -535,7 +545,7 @@ def main():
     p.add_argument("--swap", action="append"), p.add_argument("--diff", action="store_true")
     p = sub.add_parser("scan")
     p.add_argument("dir"), p.add_argument("--range"), p.add_argument("--ops", default="insert,delete,swap")
-    p.add_argument("--probes", default="noop,alias,loc,bnext,label"), p.add_argument("-j", "--jobs", type=int, default=4)
+    p.add_argument("--probes", default="noop,alias,loc,bnext,label,live"), p.add_argument("-j", "--jobs", type=int, default=4)
     p.add_argument("--top", type=int, default=20), p.add_argument("--rounds", type=int, default=1)
     p = sub.add_parser("as1")
     p.add_argument("dir"), p.add_argument("records"), p.add_argument("--keep-obj", action="store_true")
