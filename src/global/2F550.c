@@ -46,6 +46,8 @@ f32 cameraStepAspectScale(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/cameraStepAspectScale.s")
 #endif
 
+f32 D_80747CD0 = 1.0f; // cameraStepAspectScale's scale (function-local static once matched)
+
 u8 *D_807F5DE0;
 struct MapBspNode *D_807F5DE4;
 s32 D_807F5DE8;
