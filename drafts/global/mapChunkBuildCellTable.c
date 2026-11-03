@@ -1,6 +1,4 @@
-// mapChunkBuildCellTable (src/global/55B20.c): Map55 r7: stage 4, 152/152 insns, frame ok, full 130 / shape 2 (pure colouring). uopt source (n64decomp/ido uoptreg2.c): in a leaf isconstrained = numintf >= 22 (constrained coloured first by adjsave, first-fit cheap regs v0..t5; unconstrained coloured last in bit order); ours: found/n/key/cfound have 21 neighbours (unconstrained -> s3..s6), idx/cidx/kind*4/kind*2/chunk*456/consts have 22-23. Target = the 12 cheap regs go to {-1 v0, kind v1, args a0-a3, &D t0, &gM t1, chunk t2, 36 t3, key t4, idx t5} then found s0, n s1, p s2, cidx s3, cfound s4, kind*4 s5, kind*2 s6, chunk*456 s7: so cidx/kind4/kind2/choff must be unconstrained (<=21 nbrs, i.e. 2 fewer than ours) and key constrained. Ours also has a coloured *count candidate (bit 22, adj 120, v0) where the target reloads into ring temps t8/t7/t6 (no free cheap reg in the target's not-found arm: -1 sits in v0). Tried (new): classdist (register-class mismatch of aligned lines, base 77/214) hill-climbs over dead tests + ghosts (82k evals, no change), init/statement-order grid for n/key/idx/found/cidx/cfound (240 variants, 134), natural buf[*count] / *count*9*4 (cfe refolds to *36: hoisted-36 multu, 152 lines) / s32*-index / shift-in-index spellings of the four -1 stores (122-159, wrong count), neighbour-symbol spellings of D_807F70B0/gMapChunks (32 combos, best 132, mostly +10 insns).
-// deadsweep round 2: full=130 text=130 inserted `if (buf == 0) {}` at line 45
-// deadsweep round 1: full=142 text=142 inserted `if (D_807F70B0 && D_807F70B0) {}` at line 46
+// mapChunkBuildCellTable (src/global/55B20.c): Map55 r8: stage 4, 152/152 insns, frame ok, full 127 (was 130) / shape 2 (pure colouring). New lever: three pre-defs before the do loop (key = 0; cidx = 0; cfound = 0; FAKE) change uopt candidate numbering: 130 -> 127; any 3-subset containing cidx+cfound ('key'|'n'|'found' + cidx + cfound) gives 127, cidx+cfound alone 143. Target colouring needs idx/key/cidx/kind*4/kind*2/chunk*456 unconstrained (<=21 neighbours; ours 22-23) and -1 coloured v0 first; ours has *count expr candidate (bit 22, v0) + found-arm addr cand. Tried (new): 4-store spellings (s32-index, u8 mul forms, unk4[k] natural: count 152/163 wrong), for/do-while unrolled -1 loop (126 but count 157), operand order of unk14 sum, swap found/else arm, volatile reload of *count, local copies of idx/cidx/unk8, init/pre-statement order grid (80 variants, all 130).
 typedef struct MapDlCommand {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
@@ -36,6 +34,9 @@ s32 chunk;
     s32 cfound;
     s32 cidx;
 
+    key = 0;  // FAKE: pre-defs fix uopt candidate numbering (key, cidx, cfound colour order)
+    cidx = 0;  // FAKE: pre-defs fix uopt candidate numbering (key, cidx, cfound colour order)
+    cfound = 0;  // FAKE: pre-defs fix uopt candidate numbering (key, cidx, cfound colour order)
     if (size != 0) {
         do {
             idx = 0;

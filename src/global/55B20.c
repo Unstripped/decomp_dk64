@@ -263,6 +263,9 @@ s32 chunk;
     s32 cfound;
     s32 cidx;
 
+    key = 0;  // FAKE: pre-defs fix uopt candidate numbering (key, cidx, cfound colour order)
+    cidx = 0;  // FAKE: pre-defs fix uopt candidate numbering (key, cidx, cfound colour order)
+    cfound = 0;  // FAKE: pre-defs fix uopt candidate numbering (key, cidx, cfound colour order)
     if (size != 0) {
         do {
             idx = 0;
