@@ -8,6 +8,7 @@
 /asm/
 /assets/
 *.ld
+*.o
 undefined_*_auto.*.txt
 __pycache__/
 .splat/
