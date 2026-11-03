@@ -1909,10 +1909,10 @@ void playerStepPitchAngleToward(f32 arg0) {
     m->unk1A0 = (u32)f;
 }
 
+u8 D_807FD6E0;
+u8 D_807FD6E1;
 
 #ifdef NON_MATCHING
-extern u8 D_807FD6E0;
-extern u8 D_807FD6E1;
 
 void func_806E3E40(void) {
     f32 ang;
