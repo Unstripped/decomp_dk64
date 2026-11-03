@@ -16,6 +16,20 @@ extern SchedConfig D_80746838;
 extern s32 D_80746820;
 extern s32 D_80746824;
 extern u8 D_80746828;
+
+// 13980's .data (0x80746820-0x80746A30), declaration order = address order
+s32 D_80746820 = 2;
+s32 D_80746824 = 1;
+u8 D_80746828 = 1;
+s16 D_8074682C = 0x3E8;
+s8 D_80746830 = 1;
+s8 D_80746834 = 0;
+SchedConfig D_80746838 = { 0xF, 0, 0x1C };
+s8 D_80746844 = 1;
+s8 D_80746848 = 0;
+u32 D_8074684C[3] = { 0xF, 2, 0x1E };
+s16 D_80746858 = 0;
+
 extern u8 D_807444EC;
 extern u8 D_8076A0B1;
 
@@ -477,15 +491,45 @@ typedef struct {
     u8 warn;
 } DlOpInfo;
 
-extern DlOpInfo D_8074685C[];
-extern s8 D_80746A2C;
-extern s16 D_80746A1C;
-extern u32 D_80746A18;
-extern u32 D_80746A20;
-extern s32 D_80746A24;
-extern s32 D_80746A28;
-extern s32 D_80746A14;
-extern char *D_80746A0C[];
+DlOpInfo D_8074685C[27] = {
+    { 0xFF, "SETCIMG", 8, 0 },
+    { 0xFE, "SETZIMG", 8, 0 },
+    { 0xFD, "SETTIMG", 8, 0 },
+    { 0xFC, "SETCMBMODE", 8, 0 },
+    { 0xFB, "SETENVCOL", 8, 0 },
+    { 0xFA, "SETPRIMCOL", 8, 0 },
+    { 0xF9, "SETBLENDCOL", 8, 0 },
+    { 0xF8, "SETFOGCOL", 8, 0 },
+    { 0xF7, "SETFILLCOL", 8, 0 },
+    { 0xF6, "FILLRECT", 8, 1 },
+    { 0xF5, "SETTILE ", 8, 0 },
+    { 0xF4, "LOADTILE", 8, 1 },
+    { 0xF3, "LOADBLK ", 8, 1 },
+    { 0xF2, "SETTILESZ", 8, 0 },
+    { 0xF0, "LOADTLUT", 8, 0 },
+    { 0xEF, "SETOTHRMODE", 8, 0 },
+    { 0xEE, "SETPRMDP", 8, 0 },
+    { 0xED, "SETSCSR", 8, 0 },
+    { 0xEC, "SETCONV", 8, 0 },
+    { 0xEB, "SETKEYR", 8, 0 },
+    { 0xEA, "SETKEYGB", 8, 0 },
+    { 0xE9, "FULLSYNC", 8, 0 },
+    { 0xE8, "TILESYNC", 8, 0 },
+    { 0xE7, "PIPESYNC", 8, 0 },
+    { 0xE6, "LOADSYNC", 8, 0 },
+    { 0xE5, "RECTFLIP", 16, 1 },
+    { 0xE4, "TEXRECT", 16, 1 },
+};
+extern char D_80757184[];
+extern char D_80757188[];
+char *D_80746A0C[2] = { D_80757184, D_80757188 };
+s32 D_80746A14 = 0;
+u32 D_80746A18 = 0;
+s16 D_80746A1C = 0;
+u32 D_80746A20 = 0;
+s32 D_80746A24 = 0;
+s32 D_80746A28 = 0;
+s8 D_80746A2C = 4;
 extern u32 D_807F05A4;
 extern u32 D_807F0984;
 extern u32 D_80744478;

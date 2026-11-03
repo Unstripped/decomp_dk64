@@ -221,6 +221,7 @@ segments:
       - [0x149FC0, .data, 6710]
       - [0x14A1F0, data]
       - [0x14B510, data, 131B0]
+      - [0x14B520, .data, 13980] # D_80746820..D_80746A2C (0x80746820-0x80746A30); 131B0's own data is gRumblePaused/gRumbleResetPending (0x80746810-0x80746820)
       - [0x14B730, data, 15050]
       - [0x14B740, data]
       - [0x14C3A0, .data, 201B0]
