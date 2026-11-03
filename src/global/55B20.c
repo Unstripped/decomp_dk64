@@ -1331,7 +1331,6 @@ void mapChunkBuildClipFrusta(f32 arg0, f32 arg1, f32 arg2) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct FrustumCorners {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -1348,25 +1347,23 @@ typedef struct FrustumCorners {
 } FrustumCorners;
 
 extern FrustumCorners D_807F5DF0;
+#define FrustPlayer ((MapPlayer *)((u8 *)gPlayerSlots + arg7 * 0x2F0))
 void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, void *arg8, void *arg9, void *arg10) {
-    f32 uv3; // FAKE: unused pad slot, keeps the frame / home slots of q..uv0
+    s32 i;
     f32 q; // FAKE: named quotient (steers FP colouring: quotients take f0)
     f32 a;
     f32 uv2;
     f32 uv1;
     f32 uv0;
     f32 m[4][3];
-    s32 i;
-    MapPlayer *p;
 
-    p = (MapPlayer *)((u8 *)gPlayerSlots + arg7 * 0x2F0);
-    q = ((f32)(arg0 - p->unk270)) / (f32)p->unk278;
+    q = ((f32)(arg0 - FrustPlayer->unk270)) / (f32)FrustPlayer->unk278;
     a = (q * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
-    q = ((f32)(arg2 - p->unk270)) / (f32)p->unk278;
+    q = ((f32)(arg2 - FrustPlayer->unk270)) / (f32)FrustPlayer->unk278;
     uv2 = (q * (D_807F5DF0.unkC - D_807F5DF0.unk0)) + D_807F5DF0.unk0;
-    q = ((f32)(arg1 - p->unk272)) / (f32)p->unk27A;
+    q = ((f32)(arg1 - FrustPlayer->unk272)) / (f32)FrustPlayer->unk27A;
     uv1 = ((D_807F5DF0.unk1C - D_807F5DF0.unk4) * q) + D_807F5DF0.unk4;
-    q = ((f32)(arg3 - p->unk272)) / (f32)p->unk27A;
+    q = ((f32)(arg3 - FrustPlayer->unk272)) / (f32)FrustPlayer->unk27A;
     uv0 = ((D_807F5DF0.unk1C - D_807F5DF0.unk4) * q) + D_807F5DF0.unk4;
     m[0][0] = uv2; m[0][1] = uv0; m[0][2] = D_807F5DF0.unk8;
     m[1][0] = a; m[1][1] = uv0; m[1][2] = D_807F5DF0.unk14;
@@ -1377,10 +1374,7 @@ void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4,
     }
     frustumOrientPolyNormals(arg4, arg5, arg6, arg9, arg10);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapScreenRectBuildFrustum.s")
-#endif
+#undef FrustPlayer
 
 typedef struct MapTriangle {
     /* 0x00 */ s16 unk0;
@@ -2820,8 +2814,7 @@ typedef struct MapNodeData {
     /* 0x68 */ s8 unk68;
 } MapNodeData;
 
-#ifdef NON_MATCHING
-#define MapNodeSlot(i) (*(MapNodeData **)((s32)D_807F70B8 + (i) * 4))
+#define MapNodeSlot (*(MapNodeData **)slot)
 void mapNodeAssetParse(u8 *arg0) {
     s32 *w;
     s32 *end;
@@ -2830,8 +2823,9 @@ void mapNodeAssetParse(u8 *arg0) {
     s16 idx;
     u8 *p;
     s32 slot;
+    void *t;
 
-    w = (s32 *)D_807F70B8; end = (s32 *)&D_807F7138; // FAKE: same-line statements steer lui/addiu scheduling
+    w = (s32 *)(&D_807F70B4 + 1); end = (s32 *)&D_807F7138; // FAKE: same-line statements steer lui/addiu scheduling; the neighbour-symbol spelling keeps this address a separate web from the loop's table base
     do {
         *w++ = 0;
     } while (w < end);
@@ -2843,35 +2837,32 @@ void mapNodeAssetParse(u8 *arg0) {
     for (i = 0; i < n; i++) {
         idx = *(s16 *)p;
         p += 2;
-        MapNodeSlot(idx) = heapAlloc(0x6C);
-        MapNodeSlot(idx)->unk10 = 0x7FFF;
-        MapNodeSlot(idx)->unk12 = -0x8000;
-        MapNodeSlot(idx)->unk8 = 0;
-        MapNodeSlot(idx)->unk4 = *(s16 *)p;
+        t = heapAlloc(0x6C);
+        slot = (s32)&((MapNodeData **)D_807F70B8)[idx];
+        MapNodeSlot = t;
+        MapNodeSlot->unk10 = 0x7FFF;
+        MapNodeSlot->unk12 = -0x8000;
+        MapNodeSlot->unk8 = 0;
+        MapNodeSlot->unk4 = *(s16 *)p;
         p += 2;
-        slot = (s32)D_807F70B8 + idx * 4;
-        (*(MapNodeData **)slot)->unk0 = heapAlloc((u32)(*(MapNodeData **)slot)->unk4 * 6);
-        memcpy((*(MapNodeData **)slot)->unk0, p, (u32)(*(MapNodeData **)slot)->unk4 * 6);
-        p += ((u32)(*(MapNodeData **)slot)->unk4 * 6 / 2) * 2;
-        (*(MapNodeData **)slot)->unkE = *(s16 *)p;
-        (*(MapNodeData **)slot)->unk34 = (s8)*(s16 *)(p + 2);
+        MapNodeSlot->unk0 = heapAlloc((u32)MapNodeSlot->unk4 * 6);
+        memcpy(MapNodeSlot->unk0, p, (u32)MapNodeSlot->unk4 * 6);
+        p += ((u32)MapNodeSlot->unk4 * 6 / 2) * 2;
+        MapNodeSlot->unkE = *(s16 *)p;
+        MapNodeSlot->unk34 = (s8)*(s16 *)(p + 2);
         p += 4;
-        memcpy((*(MapNodeData **)slot)->unk14, p, 0x20);
-        (*(MapNodeData **)slot)->unk56 = (s8)*(s16 *)(p + 0x20);
+        memcpy(MapNodeSlot->unk14, p, 0x20);
+        MapNodeSlot->unk56 = (s8)*(s16 *)(p + 0x20);
         p += 0x22;
-        memcpy((*(MapNodeData **)slot)->unk36, p, 0x20);
-        (*(MapNodeData **)slot)->unk68 = (s8)*(s16 *)(p + 0x20);
+        memcpy(MapNodeSlot->unk36, p, 0x20);
+        MapNodeSlot->unk68 = (s8)*(s16 *)(p + 0x20);
         p += 0x22;
-        memcpy((*(MapNodeData **)slot)->unk58, p, 0x10);
+        memcpy(MapNodeSlot->unk58, p, 0x10);
         p += 0x10;
         mapFaceBuildTriangleFan(idx);
     }
 }
 #undef MapNodeSlot
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapNodeAssetParse.s")
-#endif
 
 extern s16 D_807F7358;
 extern s16 D_807F735A;
