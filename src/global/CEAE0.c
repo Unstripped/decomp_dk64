@@ -2303,7 +2303,6 @@ void playerComputePickupHoldPitch(void) {
 }
 
 
-#ifdef NON_MATCHING
 typedef struct HeldActorFollowArg {
     /* 0x0 */ f32 unk0;
     /* 0x4 */ Actor *unk4;
@@ -2313,40 +2312,29 @@ typedef struct HeldActorFollowArg {
 void func_8067A70C(s32, Actor *, f32, f32, f32, u8, u8);
 
 void playerHeldActorFollowStep(HeldActorFollowArg *arg0) {
-    f32 sp64;
-    f32 sp60;
-    f32 sp5C;
-    f32 sp58;
-    f32 sp54;
-    f32 sp50;
-    f32 sp4C;
-    f32 sp48;
-    f32 sp44;
-    f32 sp40;
-    f32 sp3C;
-    f32 sp38;
-    s32 sp34;
-    s32 sp30;
+    f32 nodeX[2];
+    f32 nodeY[2];
+    f32 nodeZ[2];
+    f32 midX;
+    f32 midY;
+    f32 midZ;
+    f32 outX;
+    f32 outY;
+    f32 outZ;
+    s32 idxA;
+    s32 idxB;
 
-    playerGetHoldNodeIndices(&sp34, &sp30);
-    actorGetNodePos(arg0->unk4, sp34, &sp60, &sp58, &sp50);
-    sp4C = arg0->unk0; // FAKE: legalises the dead test below
-    if (!sp4C) {} // FAKE
-    actorGetNodePos(arg0->unk4, sp30, &sp64, &sp5C, &sp54);
-    sp4C = (sp64 + sp60) / 2;
-    sp48 = (sp5C + sp58) / 2;
-    sp3C = 0.0f; // FAKE: legalises the dead test below
-    if (sp3C == 0.0f) {} // FAKE
-    sp44 = (sp54 + sp50) / 2;
-    sp40 = (sp4C - arg0->unk8->unk7C) * arg0->unk0 + arg0->unk8->unk7C;
-    sp3C = (sp48 - arg0->unk8->unk80) * arg0->unk0 + arg0->unk8->unk80;
-    sp38 = (sp44 - arg0->unk8->unk84) * arg0->unk0 + arg0->unk8->unk84;
-    func_8067A70C((s32)arg0->unk4, arg0->unk8, sp40, sp3C, sp38, 2, 1);
+    playerGetHoldNodeIndices(&idxA, &idxB);
+    actorGetNodePos(arg0->unk4, idxA, &nodeX[0], &nodeY[0], &nodeZ[0]);
+    actorGetNodePos(arg0->unk4, idxB, &nodeX[1], &nodeY[1], &nodeZ[1]);
+    midX = (nodeX[0] + nodeX[1]) / 2;
+    midY = (nodeY[0] + nodeY[1]) / 2;
+    midZ = (nodeZ[0] + nodeZ[1]) / 2;
+    outX = (midX - arg0->unk8->unk7C) * arg0->unk0 + arg0->unk8->unk7C;
+    outY = (midY - arg0->unk8->unk80) * arg0->unk0 + arg0->unk8->unk80;
+    outZ = (midZ - arg0->unk8->unk84) * arg0->unk0 + arg0->unk8->unk84;
+    func_8067A70C((s32)arg0->unk4, arg0->unk8, outX, outY, outZ, 2, 1);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/playerHeldActorFollowStep.s")
-#endif
 
 typedef struct G05Node2 {
     /* 0x00 */ void *unk0;
