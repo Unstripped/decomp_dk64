@@ -352,6 +352,8 @@ segments:
       - { start: 0x165D50, type: bss, vram: 0x80770F40, name: 165D50_80770F40 }
       - { start: 0x165D50, type: .bss, vram: 0x807ECCD0, name: F600 } # D_807ECCD0..D_807ECDFC (0x807ECCD0-0x807ECE00)
       - { start: 0x165D50, type: bss, vram: 0x807ECE00, name: 165D50_807ECE00 }
+      - { start: 0x165D50, type: .bss, vram: 0x807ECEA0, name: 104F0 } # D_807ECEA0 (10130's bss ends at D_807ECE98+8), D_807ECEA8[0x800], D_807ED6A8[0x800], D_807EDEA8[4] (eepromValidateSaveSlots's four byte stores share one lui only when the TU defines it), D_807EDEAC (0x807ECEA0-0x807EDEB0)
+      - { start: 0x165D50, type: bss, vram: 0x807EDEB0, name: 165D50_807EDEB0 }
       - { start: 0x165D50, type: .bss, vram: 0x807F02D0, name: 131B0 } # gRumblePfs, gRumbleInfo (0x807F02D0-0x807F04C0)
       - { start: 0x165D50, type: .bss, vram: 0x807F04C0, name: 13980 } # D_807F04C0..D_807F0568 (0x807F04C0-0x807F0570)
       - { start: 0x165D50, type: bss, vram: 0x807F0570, name: 165D50_807F0570 }

@@ -1,7 +1,11 @@
 #include "common.h"
 #include "actor.h"
 
-extern s16 D_807ECEA0[];
+s16 D_807ECEA0[4];
+u8 D_807ECEA8[0x800];
+u8 D_807ED6A8[0x800];
+u8 D_807EDEA8[4];
+s32 D_807EDEAC;
 extern u8 D_807467C8;
 
 extern s32 modelTypeCountGet(s32);
@@ -65,7 +69,6 @@ u32 eepromCalculateCrc32(u8 *arg0, u16 arg1) {
     return crc ^ -1;
 }
 
-extern u8 D_807EDEA8[];
 
 u8 eepromGetSectorForSlot(s32 arg0) {
     u8 i;
@@ -78,7 +81,6 @@ u8 eepromGetSectorForSlot(s32 arg0) {
     return 0;
 }
 
-extern u8 D_807ECEA8[];
 
 #ifdef NON_MATCHING
 extern s32 func_8071432C(void);
@@ -403,7 +405,6 @@ s32 func_8060C724(u8 arg0) {
     return eepromGetField(0x10, 0, 0, arg0) + 1;
 }
 
-extern u8 D_807ECEA8[];
 void eepromClearSlotData();
 
 void eepromClearSlotData(arg0, arg1)
@@ -521,12 +522,8 @@ void func_8060CB9C(void) {
 extern void eepromClearSlotData();
 extern s32 eepromGetField(s32, u8, u8, u8);
 extern void func_8060CB74(void);
-extern u8 D_807ED6A8[];
 extern u8 D_807550C8;
 extern u8 D_80744530;
-extern u8 D_807EDEA9;
-extern u8 D_807EDEAA;
-extern u8 D_807EDEAB;
 
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromValidateSaveSlots.s")
@@ -559,12 +556,10 @@ void func_8060D0A8(void) {
 }
 
 extern OSMesgQueue D_807ECCF0;
-extern s32 D_807EDEAC;
 extern s32 _strcasecmp(char *, char *);
 extern char *D_807467C0;
 extern s8 D_807467C4;
 extern s8 D_807467CC;
-extern u8 D_807ED6A8[];
 
 void eepromReadAllSectors(void) {
     s32 var_s2;
@@ -605,9 +600,7 @@ extern s8 D_807467C4;
 extern s8 D_807467E4;
 extern f32 D_807467E8;
 extern u8 D_807ECD08[];
-extern s32 D_807EDEAC;
 extern OSMesgQueue D_807ECCF0;
-extern u8 D_807ED6A8[];
 
 
 #ifdef NON_MATCHING
@@ -854,7 +847,6 @@ void eepromThreadMain(void *arg0) {
 }
 
 extern OSMesgQueue D_807ECCF0;
-extern s32 D_807EDEAC;
 extern OSMesg D_807EE0B0[];
 extern OSThread D_807EE0E8;
 extern u64 D_807F0298[];
