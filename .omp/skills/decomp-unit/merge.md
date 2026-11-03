@@ -9,16 +9,17 @@ python3 tools/drafts.py collect && git diff drafts/      # restore any draft col
 tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>]... .scratch/<A> <its base commit> src/<seg>/<f>.c ...
 ```
 
-- It runs `merge_drafts.py merge --base` per file, touches them, runs `tools/dk make`,
-  compiles each file's `NON_MATCHING` side, and only after `GATE_OK` deletes the drafts of
-  the files' newly matched functions and commits exactly the given src files, the drafts of
-  their functions (`unit_check.py drafts`) and each `--stage` path (never other drafts or
-  staged changes). The whole gate holds one exclusive `tools/dk --hold` lease (other agents'
-  `tools/dk` calls wait meanwhile). Read the output for `GATE_OK` / `COMMITTED`.
+- It runs `merge_drafts.py merge --base` per file in this checkout, then builds in its own
+  gate worktree (`.scratch/gate`, own dkd container): HEAD + exactly the given src files +
+  `--stage` paths, `tools/dk make`, each file's `NON_MATCHING` side; only after `GATE_OK` it
+  deletes the drafts of the files' newly matched functions and commits exactly the given src
+  files, the drafts of their functions (`unit_check.py drafts`) and each `--stage` path (never
+  other drafts or staged changes). Agents never wait for it, nor it for them; gates serialise
+  on the gate tree's lease. This checkout's `build/` is not refreshed: `tools/dk make` at unit
+  end. Read the output for `GATE_OK` / `COMMITTED`.
 - `--stage` every file outside the given `src` files the merged build depends on (a header a
-  unify agent extended, a symbol file); otherwise the gate passes on the working tree but the
-  commit does not build. When unsure, gate without `--commit`, `git status`, commit the
-  unit's files yourself after `GATE_OK`.
+  unify agent extended, a symbol file, a splat config): the gate tree has only HEAD plus what
+  you pass, so a missing one fails the gate instead of the later commit.
 - The copy argument is a DIRECTORY holding `<f>.c`. An agent's HEAD-based file
   (`<f>_head.c`, built against current `src`) goes to `.scratch/<A>H/<f>.c` with its base,
   or, when `src` is unchanged since, `cp` it over `src` and gate `- - src/<seg>/<f>.c`.

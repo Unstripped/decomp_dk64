@@ -58,8 +58,8 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 ## Rolling dispatch
 
 - Rounds are per agent, not per file. Merge each agent with a MATCH as soon as it reports
-  ([merge.md](merge.md)); batch parks-only copies and gate them together later (every gate
-  holds the exclusive lock for 2-9 min while all agents wait); refill the slot from HEAD.
+  ([merge.md](merge.md)); gate parks-only copies too as they arrive (the gate builds in its
+  own worktree in ~15 s-2 min and blocks no agent); refill the slot from HEAD.
 - Continuation is your job: for functions left, send a fresh list with each draft's diff
   note and the exact next step (frame size to reach, expression to flip, one named trick).
   Re-prompts without a concrete next step yield nothing; "continue" re-prompts yielded no
@@ -94,8 +94,8 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 - A matched callee's narrow (u8/s16) prototyped param forces every caller to narrow `a0`:
   callers stuck on that are one prototype puzzle across callee + callers for ONE agent
   allowed to re-spell the matched callee (6AD90 unit: 3 callers matched, a FAKE removed).
-- Agents' long sweep/beam jobs hold shared `tools/dk` locks: a gate then waits 5–15 min.
-  The brief's "batch variants inside one `tools/dk` call" keeps it bounded; do not kill them.
+- Agents' long sweep/beam jobs hold shared `tools/dk` locks in this checkout: only your own
+  `make split`/`make expected` here waits for them (gates do not). Run those between waves.
 - Only a TU re-split of a file waits for every agent on that file.
 - Dispatching more tasks than slots queues the rest; a queued task's copy is made when it
   starts. After a shared declaration change, rewrite queued tasks' base commit to the new
