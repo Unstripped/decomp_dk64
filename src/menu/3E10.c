@@ -2413,7 +2413,6 @@ void menuSaveHighScores(void) {
     func_8060DEA8();
 }
 
-#ifdef NON_MATCHING
 typedef struct MenuM8_PosPair {
     s16 unk0;
     s16 unk2;
@@ -2462,8 +2461,9 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
                 v0 = arg1;
                 if (v1 >= 0x10) {
                     v1 = 0xF;
-                    if (gFrameCounter == 0) {} // FAKE: dead test steers register colouring (frame counter / D_80033F61 candidates)
+                    if (D_80033F60 == 0xF) {} // FAKE: constant 15 becomes a coloured web (v1), leaving gFrameCounter a ring temp
                     D_800339C0 = v1;
+                    if (D_80033F60 == 0xF) {} // FAKE: second reference to the 15 web
                     if (!(gFrameCounter & 1)) {
                         v0 = 0;
                     }
@@ -2516,10 +2516,6 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
     }
     menuUpdateItemTransition(arg0, sp2C, 1);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/menuHandleHighScoreNameEntryInput.s")
-#endif
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/D_80033BE0.s")
 

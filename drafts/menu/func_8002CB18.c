@@ -1,4 +1,4 @@
-// func_8002CB18 (src/menu/3E10.c): MenuA 2026-11-02: stage 5, COUNT-EXACT (335 insns, frame 0x68), harness diff 12 (shape 0), parked in copy. 'Menu6B_N->unk155 = (u16)idx; // FAKE' (RHS narrowing cast burns one ugen t-ring temp; also '& 0xFF'/'& 0xFFFF' same) replaces the old sp5C|0 FAKE whose lw/sw pair made it 337 (diff 4). Remaining: then-branch ring after the cast: target 'lh v0,76(sp)' (idx coloured v0) ours 'lh t2,76(sp)', then li t5/t6 and every later t-reg +1 (join block regs match). Cast on N->unk154 RHS ('& 0xFF', 14) keeps lh v0 but swaps t1/t2 earlier. Tried: 1338-cell fake grid (7 locals x 6 no-code forms x all points: idx|0 = count-exact 27), dead self-stores, 341 RHS-wrapper cells + 23-site wrapper anneal (7.7k evals), idx type x wrapper, LHS byte-index spellings, deadsweep sweep (6.8k variants), permuter (base 60, never lower).
+// func_8002CB18 (src/menu/3E10.c): W3Sched 2026-11-02: stage 5, COUNT-EXACT (335 insns, frame 0x68), full=5 shape=4 (was 12; parked in copy). Found by hill-climb from the cast-free body (then-block is EXACT without any cast: lh v0 coloured; the old '(u16)idx' FAKE only fixed the join ring by burning a temp in the wrong place): remaining diff = join-block ring one step behind (target 'lui t7' first ring temp after the then-block; no-cast gives t9) and A->unk154 candidate v1<->t0 swap with the sel copy. 'row=&D_80033894[A->unk154 & 0xFF]' gives full=2 but +1 insn (andi; ring burn at the right place but real code). Single dead test 'if (temp_s1) {}' after 'sp4F = 1;' alone fixes the join ring (full 19, count-exact) but then A->unk154 candidate loses t0. Current best keeps (u8) cast on N->unk154 RHS, (s16)idx RHS, dead tests on A->unk154/temp_s1->unk4 and sp4F|0 no-code defs; left: li t5,1 hoist position / sb-lbu order (alias barrier from sp4F coloured v1).
 typedef struct MenuModelScale {
     char pad0[0x34];
     f32 unk34;
@@ -35,7 +35,6 @@ typedef struct Menu6B_Pair {
 #define Menu6B_N ((Menu6B_Actor *)D_807FBB44)
 extern s32 D_800338B4[];
 extern Menu6B_Pair D_80033894[];
-void actorScriptStart(void *, s32);
 void actorDespawn(void *);
 void actorUpdateModelMatrix(void *, s32);
 void func_806BF920(void);
@@ -84,13 +83,16 @@ void func_8002CB18(void) {
                 s16 *q = Menu6B_N->unk17C;
                 *q = *sp38;
             }
-            Menu6B_N->unk154 = Menu6B_A->unk154;
-            Menu6B_N->unk155 = (u16)idx; // FAKE: no-op narrowing cast; burns one ugen t-ring temp so the join block luis get the target regs (72 -> 12)
+            Menu6B_N->unk154 = (u8)Menu6B_A->unk154; // FAKE: no-op narrowing cast, burns one ugen t-ring temp
+            Menu6B_N->unk155 = (s16)idx; // FAKE: no-op narrowing cast, burns one ugen t-ring temp
             {
                 Menu6_Sub174 *sub = Menu6B_N->unk174;
                 sub->unk0 = temp_s1->unk0;
             }
-            sp4F = 1;
+            if (Menu6B_A->unk154 != 0) {} // FAKE: extra reference of the unk154 value; recolours the shared A->unk154 candidate (t0) and the PRE reload position
+            sp4F = 1 | 0; // FAKE: no-code spelling of the constant (steers the sp4F store colour)
+            if (temp_s1->unk4 != 0) {} // FAKE: dead test; one ugen ring step before the join block (t7 lui)
+            sp4F = sp4F | 0; // FAKE: no-code def of sp4F (ring/colour steer)
                     }
         row = &D_80033894[Menu6B_A->unk154];
         func_800317E8((MenuScreenState *)sp5C, row->a, row->b, &sp54, &sp50, 2, 0, 1.8f);

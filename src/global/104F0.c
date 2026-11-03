@@ -100,8 +100,9 @@ void eepromCopySlot(void) {
         unk0 = D_807ECEA0[0];
         size = ((((unk0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
         src = D_807ECEA8 + (size * original);
-        if (src) {} // FAKE: pins src before dst (evaluation order and colouring of the mask temps)
+        if (replacement == 0) {} // FAKE: pins the src/dst order and colours replacement v1
         dst = D_807ECEA8 + (size * replacement);
+        unk0 = unk0 | 0; // FAKE: no-code def extends unk0's live range past dst
         memcpy(dst, src, size);
         D_807EDEA8[replacement] ^= D_807EDEA8[original];
         D_807EDEA8[original] ^= D_807EDEA8[replacement];
