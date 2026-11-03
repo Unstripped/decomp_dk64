@@ -1,11 +1,11 @@
-// schedDlDebugDump (src/global/13980.c): MiscC leftovers7: STAGE 4-5, NEW BASE with function-local statics. D_80746A14/18/1C/20/24/28/2C are referenced ONLY by this function (asm + src grep), so they are `static` locals here (static u32 D_80746A14; ... static s8 D_80746A2C = 4;): the natural body (0 FAKEs) goes text 177 -> 140 and shows the target's lui a1/a0 hoists; 6 dead tests -> deadsweep text 81, then two LAYOUT joins in the Triangle block (size += 0x10; *q = 'Z'; and *q = 0; faultPrintf(...)) -> text 75 / full 121 (full includes ~46 reloc lines because the statics are .bss/.data-relative, not D_ names; count 415/415 exact, frame 0xB8). Old 81-FAKE non-static body (text 77) is in git history of this file. Needs when merged: drop the file-scope externs of those 7 symbols + carve .data/.bss (A2C=4 is .data, rest .bss) from 131B0.data.s; D_80746A0C/D_8074685C tables are also used only here (not yet tried as statics). Remaining diff: s-reg naming (op/idx s0<->s1, cur s5 lui), buttons narrowing: target is ori t8,v0,0x400; sll t9,t8,16 hoisted above beqz then sra v1,t9,16 (ring temps), ours ori v1 (20 spellings of the narrowing, local decl order/type climbs 50k evals, 1-2 statement line-joins 30k combos did not change it).
+// schedDlDebugDump (src/global/13980.c): Carve7 leftovers7: STAGE 4 (count exact 415/415, frame 0xB8): function-local statics D_80746A14..A2C (single-user; needs the 13980 .data carve, worktree commit c2536b5; statics need `= 0`/`= 4` initialisers because the carve puts them in .data). CORRECTED SEMANTICS: the previous draft had `i = 0x1B; found = 1; op = i;` which sets op = 0x1B; the asm does op = i (andi s1,s0,0xff) BEFORE i = 0x1B. Text 73 (was 75 with the wrong semantics, 85 right after fixing it): hill-climb with count penalty (dead tests i && i, i, size + LAYOUT joins; Triangle tail reordered: size >>= 2; *q = 0; faultPrintf(...) so the sra is before the jal). Remaining shape hunks: (1) as1 does not hoist ori/sll of buttons = raw | 0x400 above the beqz (our first chain node takes the dest reg v1; target uses ring t8/t9 then sra v1); (2) q = buf + n / q++ copies (target addiu t0,sp,100 CSE only for q, call arg addiu a2,sp,100 in the jal delay slot); (3) size*4 PRE: target computes sll s0,s4,2 in each arm delay slot and keeps it across faultFontSetColorMode(0); ours uses s2. Tried: buttons spellings (16 forms, copy locals, casts, s32 buttons), q/size*4 spellings (exhaustive 100), Triangle block exhaustive (10368 combos of init order/q form/Z form/tail order/joins), 1-2 statement LAYOUT join search (78 sites), declhc 7 min, hc 3x9 min, deadsweep 8k variants.
 s32 schedDlDebugDump(s32 arg0, s32 arg1) {
-    static u32 D_80746A14;
-    static u32 D_80746A18;
-    static s16 D_80746A1C;
-    static u32 D_80746A20;
-    static s32 D_80746A24;
-    static s32 D_80746A28;
+    static s32 D_80746A14 = 0;
+    static u32 D_80746A18 = 0;
+    static s16 D_80746A1C = 0;
+    static u32 D_80746A20 = 0;
+    static s32 D_80746A24 = 0;
+    static s32 D_80746A28 = 0;
     static s8 D_80746A2C = 4;
     s32 cur;
     u32 n;
@@ -106,8 +106,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     size += 0x10; *q = 'Z';  // LAYOUT: joined statements change as1 scheduling (text 81 -> 75 with the next one)
                     q++;
                 }
-                *q = 0; faultPrintf("  %05x.:Triangle:.(%s)....\n", off, buf);  // LAYOUT: joined statements change as1 scheduling
                 size >>= 2;
+                *q = 0; faultPrintf("  %05x.:Triangle:.(%s)....\n", off, buf);  // LAYOUT
                 line++;
                 if (line == 1) {
                     if (D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -143,10 +143,10 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 }
                 for (i = 0; i < 0x1B; i++) {
                     if (op == D_8074685C[i].op) {
-                        if (i && i) {}  // FAKE: hc
-                        i = 0x1B;
-                        found = 1;
                         op = i;
+                        if (i && i) {}  // FAKE: hc
+                        found = 1;
+                        i = 0x1B;
                     }
                 }
                 e = &D_8074685C[op];
@@ -177,7 +177,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 }
             }
             faultFontSetColorMode(0);
-            if (size == 0) {}  // FAKE: hc
+            if (size) {}  // FAKE: hc
             cur += size * 4;
         }
         p++;

@@ -1,14 +1,12 @@
-// func_806E3E40 (src/global/E4090.c): MiscC leftovers7: stage 4 park full 6 (was 12; 274 vs 275 lines: li v1,4 fills the nop delay), shape 2. Lever: dead tests with the stored CONSTANTS on another global (if (D_807FD63C == 4U) {} before the D_807FD6E0 = 4 block, == 8U before D_807FD6E1 = 8, if (D_807FBB40 != 0) {}) colour const 4/8 webs; remaining: const 4 coloured v1/E1 load v0 vs target v0/v1 (+ nop). D_807FD6E0/D_807FD6E1 are used ONLY here: function-local statics (static u8 D_807FD6E0, D_807FD6E1; natural C, no FAKEs) are count-exact 275/275 with shape 0 / text 16 (regs only: E1 var uncoloured adjsave 0, E0 coloured v1 instead of v0), needs .bss carve.
-extern u8 D_807FD6E0;
-extern u8 D_807FD6E1;
-
+// func_806E3E40 (src/global/E4090.c): Carve7 leftovers7: STAGE 4 (count exact 275/275, frame exact, only 3 register-naming lines differ): function-local statics D_807FD6E0/D_807FD6E1 (needs the E4090 .bss carve, worktree commit 684ee11) + direct E0 spelling (no c local: if (E0 != 0) { E0 -= 1; if (E0 == 0) E1 = 8; ...}) + 2 dead tests (gCurrentPlayerIndex && gCurrentPlayerIndex at the top of the E0 block, E1 && E1 inside the E1 block). Closer park: deadsweep text 6 -> 3 (276->275 lines). Remaining: E0 reload cvt coloured v1, target v0 (lbu v1/beqz v1/addiu v0,v1,-1 vs lbu v0/beqz v0/addiu v0,v0,-1). Tried: c-local forms (c = E0 with a dead c test at function end gives text 1 but costs an extra sb spill of c), compare spellings, declaration order, 40k dead-test slot samples, hill-climb, permuter: all plateau at 3. Target colouring is E0/E1 vars uncoloured (memory), const 4 = v0, const 8 = v1, cvt E0 = v0, cvt E1 = v1; ours has E0 and E1 vars coloured.
 void func_806E3E40(void) {
+    static u8 D_807FD6E0; // function-local static (only user): uopt treats it as non-aliased; needs the E4090 .bss carve
+    static u8 D_807FD6E1;
     f32 ang;
     f32 ground;
     f32 a;
     f32 arg;
     s16 t;
-    u8 c;
 
     if (slotQueueGetValue(5, gCurrentPlayerIndex) && G24_M->unk1A3) {
         if (G24_PAD(D_807FD63C, u16) & 0x2000) {
@@ -26,9 +24,7 @@ void func_806E3E40(void) {
         } else {
             a = -ground;
         }
-        if (D_807FD6E0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (a > 10.0f) {
-            if (D_807FD6E1 && D_807FD6E1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (ang > 2048.0f) {
                 arg = 1024.0f;
             } else {
@@ -67,28 +63,22 @@ void func_806E3E40(void) {
         } else {
             a = -ang;
         }
-        if (D_807FD63C == 4U) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (((a > 10.0f) || (G24_A->unkC0 < 0.0f)) && (D_807FD6E1 == 0)) {
             D_807FD6E0 = 4;
-            if (D_807FD6E1 + gCurrentPlayerIndex) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
-        c = D_807FD6E0;
-        if (c != 0) {
-            c -= 1;
-            D_807FD6E0 = c;
-            if (c == 0) {
-                if (D_807FD63C == 8U) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (D_807FD6E0 != 0) {
+            if (gCurrentPlayerIndex && gCurrentPlayerIndex) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            D_807FD6E0 -= 1;
+            if (D_807FD6E0 == 0) {
                 D_807FD6E1 = 8;
-                if (D_807FBB40 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             func_806E384C();
         } else {
             sfxStopSlotSound(D_807FBB40, 0);
         }
         if (D_807FD6E1 != 0) {
+            if (D_807FD6E1 && D_807FD6E1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             D_807FD6E1 -= 1;
         }
-        if (D_807FD6E1 && D_807FD6E1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
-    if (!D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
 }
