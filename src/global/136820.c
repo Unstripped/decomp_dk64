@@ -144,7 +144,6 @@ extern u8 D_807FF01C;
 extern s32 D_807FF020;
 extern s32 D_807FF024;
 extern s32 D_807FF028;
-#ifdef NON_MATCHING
 extern char *D_80756360[];
 void faultUnwindStack(OSThread *a0);
 
@@ -159,13 +158,11 @@ void faultDrawRegs(OSThread *a0) {
     D_807FEF86 = 1;
     ctx = &a0->context;
     for (y = 0, x = 0; y != 24; y += 6, x += 18) {
-        D_807FEF7C = x;
-        D_807FEF70 = x;
+        D_807FEF70 = D_807FEF7C = x;
         D_807FEF74 = y;
         faultPrintf("DK 64\n");
         faultPrintf("%X\n", (s32)ctx->pc);
-        faultPrintf("%X\n", (s32)ctx->ra);
-        if (D_807563B8 && D_807563B8) {}  // FAKE: steers uopt/ugen temp ring of the guard load (deadsweep)
+        faultPrintf("%X\n", ((s32 *)&ctx->ra)[1]);
         if (D_807563B8 >= 4) {
             for (j = 0; j < D_807FF018; j++) {
                 faultPrintf("%X\n", D_807FEF88[j].unk0);
@@ -182,10 +179,6 @@ void faultDrawRegs(OSThread *a0) {
         faultUnwindStack(a0);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/136820/faultDrawRegs.s")
-#endif
 
 s32 unwindDecodeLoadRa(s32 a0, s32 *a1, s32 *a2) {
     if ((a0 & 0xFFFF0000) == 0x8FBF0000) {

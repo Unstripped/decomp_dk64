@@ -695,7 +695,6 @@ s32 zoneCanReachPoint(Actor *arg0, s16 arg1, s16 arg2, s16 arg3, F1Tbl *arg4) {
     return res;
 }
 
-#ifdef NON_MATCHING
 void func_806755A8(s32, s32, s32, s32, void *, void *);
 
 s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
@@ -705,6 +704,7 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
     s16 i;
     s32 found;
     F1Ent *e;
+    u8 sel;
 
     arg0->unkF4 = 0;
     arg0->unkF6 = 0xFFF;
@@ -714,11 +714,12 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
     z = arg0->unk84;
     for (i = 0; i < arg3->count10; i++) {
         e = F1ENT(arg3, i);
-        if (!((e->flags & 0xFFFF) & 0x80)) {
-            if (((e->flags & 0x7F) == 0) || ((e->flags & 0x7F) == 1) ||
-                (((e->flags & 0x7F) == 5) && ((f64)arg0->unkB8 < (f64)(u32)((u8 *)D_807FDC9C)[0xD] * 1.4))) {
+        sel = e->flags & 0x7F;
+        if (!(e->flags & 0x80)) {
+            if ((sel == 0) || (sel == 1) ||
+                ((sel == 5) && ((f64)arg0->unkB8 < (f64)(u32)((u8 *)D_807FDC9C)[0xD] * 1.4))) {
                 if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
-                    if (e->flags) {} // FAKE: live range steers flags/count10 colouring (a1/t0)
+                    if (e->flags != 0) {} // FAKE: live range steers flags/count10 colouring (a1/t0)
                     if (i == 5) {} // FAKE: steer s3 and s8 constant coloring
                     if (((x - (f32)e->x) * (x - (f32)e->x)) + ((z - (f32)e->z) * (z - (f32)e->z)) < (f32)(e->radius * e->radius)) {
                         func_806755A8((s32)x, (s32)z, e->x, e->z, &arg0->unkF4, &arg0->unkF6);
@@ -733,10 +734,6 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
     }
     return found;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/zoneCheckActorInside.s")
-#endif
 
 typedef struct F1Pt {
     /* 0x0 */ u8 pad0[2];
