@@ -328,9 +328,9 @@ extern u8 D_8004A794;
 void arcadeInsertHighScore(s32 arg0) {
     s32 i;
     s32 j;
-    u8 S[4];  // FAKE: array local with a variable-indexed access keeps the initial byte in memory (target spills it to 0xC(sp), frame 0x18)
+    u16 S[2];  // FAKE: u16 array read/written through (u8 *) casts: mismatched access sizes keep the byte in memory (sb 12(sp) at entry) and make the loop-2 read a hoistable ilod (lbu in the preheader)
 
-    S[0] = D_8004A794;
+    *(u8 *)S = D_8004A794;
     for (i = 4; i > arg0; i--) {
         D_8004A74C[i] = D_8004A74C[i - 1];
         for (j = 0; j < 3; j++) {
@@ -338,10 +338,12 @@ void arcadeInsertHighScore(s32 arg0) {
         }
     }
     D_8004A74C[arg0] = D_8004A748;
-    for (i = 0; i < 3; i++) {
-        if (S[i % 1]) {}  // FAKE: variable-indexed S access (always element 0) keeps S in memory
-        D_8004A778[arg0][i] = S[0];
-    }
+    if (S[0]) {}  // FAKE: dead S access (spill-slot candidates for the target frame 0x18)
+    if (S[i % 1] == 0) {}  // FAKE: dead variable-indexed S access (spill-slot candidates for the target frame 0x18)
+    i = 0; do {  // LAYOUT: init joined on the do line
+        D_8004A778[arg0][i] = *(u8 *)S;
+        i++;
+    } while (i < 3);
 }
 #else
 
@@ -2678,7 +2680,135 @@ void arcadeUpdateEntitySprite(s32 arg0) {
 }
 
 
+#ifdef NON_MATCHING
+void arcadeUpdateBarrelEntity(s32 arg0) {
+    s32 sp3C;
+    ArcadeEntity *e;
+
+    if (D_8004C71D == 0) {
+        if (D_8004BCD0[arg0].unk19 == 0 || D_8004BCD0[arg0].unk19 == 1) {
+            arcadeUpdateEntitySprite(arg0);
+            return;
+        }
+        D_8004BCD0[arg0].unk0 += D_8004BCD0[arg0].unk8;
+        sp3C = arcadeCheckPlayerCollision((s32)D_8004BCD0[arg0].unk0, (s32)D_8004BCD0[arg0].unk4);
+        arcadeCheckStageLadders((s32)D_8004BCD0[arg0].unk0, (s32)D_8004BCD0[arg0].unk4);
+        e = &D_8004BCD0[arg0];
+        switch (D_8004BCD0[arg0].unk19) {
+        case 2:
+            D_8004BCD0[arg0].unk10 = (f32)((f64)e->unk10 + 0.2);
+            e->unk8 = (f32)(1 - D_8004BCD0[arg0].unk1A * 2);
+            if (e->unk4 < (f32)D_8004C6E8 &&
+                (D_8004C6F8 + 1 < D_8004C6FC ||
+                 (D_8004C6FC == D_8004C6F8 + 1 && (D_8004C704 >= 0x12 || D_8004BCD0[D_8004C71F].unk19 != 5)))) {
+                if (e->unk1C & 0x80) {
+                    break;
+                }
+                D_8004BCD0[arg0].unk1C = e->unk1C & 0xF;
+                if (e->unk1C > 0) {
+                    D_8004BCD0[arg0].unk1C = D_8004BCD0[arg0].unk1C - 1;
+                    D_8004BCD0[arg0].unk19 = 5;
+                    D_8004BCD0[arg0].unk8 = 0.0f;
+                    D_8004BCD0[arg0].unk4 = e->unk4 + 1.0f;
+                    D_8004BCD0[arg0].unkC = 1.0f;
+                    D_8004BCD0[arg0].unk0 = (f32)D_8004C6E0;
+                    break;
+                }
+                e->unk1C = D_8004BCD0[arg0].unk1C | 0x80;
+            } else if (!(e->unk1C & 0x47)) {
+                e->unk1C = (4096.0f + arcadeMinFloat((f32)(u32)D_8004A76C, 5.0f) * 1512.0f > (f32)arcadeRand()) | 0x40;
+            }
+            if ((f32)sp3C - e->unk4 < 3.0f) {
+                D_8004BCD0[arg0].unk4 = (f32)sp3C;
+            } else {
+                D_8004BCD0[arg0].unk19 = 3;
+                D_8004BCD0[arg0].unkC = 0.0f;
+                D_8004BCD0[arg0].unk8 = D_8004BCD0[arg0].unk8 / 2;
+            }
+            break;
+        case 3:
+            e->unk10 = (f32)((f64)D_8004BCD0[arg0].unk10 + 0.2);
+            e->unk4 = D_8004BCD0[arg0].unk4 + e->unkC;
+            e->unkC = (f32)((f64)e->unkC + 0.06);
+            if ((f32)sp3C < e->unk4 && e->unk4 - (f32)sp3C < 3.0f) {
+                D_8004BCD0[arg0].unk4 = (f32)sp3C;
+                D_8004BCD0[arg0].unkC = -D_8004BCD0[arg0].unkC / 3.0f;
+                if ((f64)e->unkC > -0.2) {
+                    D_8004BCD0[arg0].unk19 = 2;
+                }
+            }
+            break;
+        case 5:
+            D_8004BCD0[arg0].unk10 = (f32)((f64)D_8004BCD0[arg0].unk10 + 0.3);
+            e->unk4 = D_8004BCD0[arg0].unk4 + e->unkC;
+            if ((f32)(D_8004C6E8 - 1) < e->unk4) {
+                e->unk1A = 1 - e->unk1A;
+                e->unk19 = 2;
+                e->unk4 = (f32)sp3C;
+                e->unk8 = (f32)(1 - D_8004BCD0[arg0].unk1A * 2);
+            }
+            break;
+        case 7:
+            e->unk10 = (f32)((f64)D_8004BCD0[arg0].unk10 + 0.3);
+            e->unk4 = D_8004BCD0[arg0].unk4 + e->unkC;
+            D_8004BCD0[arg0].unkC = (f32)((f64)e->unkC + 0.06);
+            sp3C = arcadeCheckPlayerCollision((s32)e->unk0, (s32)e->unk4);
+            if ((f32)sp3C < D_8004BCD0[arg0].unk4 && e->unk4 - (f32)sp3C < 8.0f && D_8004BCD0[arg0].unk1C < D_8004C6F8) {
+                D_8004BCD0[arg0].unk1C = D_8004C6F8;
+                e->unk4 = (f32)sp3C;
+                D_8004BCD0[arg0].unkC = 0.0f;
+                if (D_8004BCD0[arg0].unk1D != 2) {
+                    e->unk8 = (f32)((((f64)arcadeRand() - 16384.0) * arcadeMinFloat(3.0f, (f32)(u32)D_8004A76C)) / 40000.0 + (f64)(-e->unk8) * 0.2);
+                }
+                if (D_8004BCD0[arg0].unk4 > 230.0f) {
+                    D_8004BCD0[arg0].unk19 = 3;
+                    e->unk1A = 1;
+                    e->unk8 = -1.0f;
+                    D_8004BCD0[arg0].unkC = -0.7f;
+                }
+            }
+            break;
+        }
+        if (D_8004BCD0[D_8004C71F].unk1C >= D_8004C6F8 || D_8004BCD0[arg0].unk1D != 0) {
+            if (270.0f < e->unk0) {
+                D_8004BCD0[arg0].unk1A = 1;
+                D_8004BCD0[arg0].unk8 = (f32)(1 - D_8004BCD0[arg0].unk1A * 2);
+            } else if (D_8004BCD0[arg0].unk0 < 50.0f) {
+                D_8004BCD0[arg0].unk1A = 0;
+                D_8004BCD0[arg0].unk8 = (f32)(1 - e->unk1A * 2);
+            }
+        }
+        if (278.0f < D_8004BCD0[arg0].unk0 || D_8004BCD0[arg0].unk0 < 2.0f) {
+            D_8004BCD0[arg0].unk18 = 0;
+        }
+        if ((e->unk4 > 242.0f) & (D_8004BCD0[arg0].unk0 < 74.0f)) {
+            if (e->unk1D != 0) {
+                n_alSndpPlay(D_8076D1F8, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
+                sp3C = arcadeFindEntityByType(0x13);
+                if (sp3C < 0) {
+                    sp3C = arcadeFindFreeEntity();
+                    D_8004BCD0[sp3C] = D_8004A3F8;
+                }
+                if (D_8004C71F == 0) {}  // FAKE: dead test (steers uopt)
+                if (D_8004BCD0[D_8004C71F].unk1C && D_8004BCD0[D_8004C71F].unk1C) {}  // FAKE: dead test (steers uopt)
+                D_8004BCE9[sp3C << 5] = 3;
+                e->unk18 = 0;
+            } else {
+                D_8004BCD0[arg0].unk18 = 0;
+            }
+        }
+        if (D_8004BCD0[arg0].unk0 - D_8004BCD0[D_8004C71F].unk0 < 8.0f && D_8004BCD0[D_8004C71F].unk0 - D_8004BCD0[arg0].unk0 < 8.0f) {
+            if (e->unk4 - D_8004BCD0[D_8004C71F].unk4 < 3.0f && D_8004BCD0[D_8004C71F].unk4 - D_8004BCD0[arg0].unk4 < 8.0f) {
+                arcadeKillPlayer();
+            }
+        }
+        arcadeUpdateEntitySprite(arg0);
+    }
+}
+#else
+
 #pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/arcadeUpdateBarrelEntity.s")
+#endif
 
 extern s8 D_8004A768;
 extern u8 D_80037B98[];
