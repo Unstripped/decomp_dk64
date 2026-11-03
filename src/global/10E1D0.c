@@ -109,7 +109,6 @@ void fbBuildTileTable(s32 arg0, s32 arg1) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct MeshEntry {
     u32 unk0;
     u8 pad[0x18];
@@ -156,12 +155,10 @@ s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **ar
     if (arg0 && arg0) {} // FAKE: block split after the 3rd heapAlloc frees $v0 for walker p
     count = 1;
     arg0->unk8 = (u8 *)arg0 + 0x2C;
-    arg0->unkC = arg0->unk8 + arg0->unk0 * 0xC;
-    arg0->unk18 = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C);
+    arg0->unkC = arg0->unk8 + arg0->unk0 * 0xC + ((s32)arg0->unk8 * 0); // FAKE: no-code extra reference of the arg0+0x2C value (colours it a0 before the others)
+    arg0->unk18 = (u32 *)(arg0->unkC + arg0->unk4 * 0x1C + ((s32)arg0->unkC * 0)); // FAKE: no-code extra reference of the unkC value (colours it a1)
     p = arg0->unk18;
-    if (arg0->unk20) {}  // FAKE: dead use steers V8/VC/V18 colouring order
     while (*p++ != 0) {
-        if (arg0->unk20) {}  // FAKE: dead use in walker loop steers V8/VC colouring
         count++;
     }
     arg0->unk20 = (s32 *)arg0->unk18 + count;
@@ -203,10 +200,6 @@ s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **ar
     }
     return 1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/10E1D0/func_80709890.s")
-#endif
 
 typedef struct MeshRangeView { s32 unk0, unk4, unk8; u8 *unkC; s32 unk10, unk14; s32 *unk18, *unk1C, *unk20; } MeshRangeView;
 typedef struct MeshTriEntry { s32 unk0, unk4, unk8; u8 padC[0x10]; } MeshTriEntry;
