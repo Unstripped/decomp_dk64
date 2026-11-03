@@ -89,13 +89,18 @@ void eepromCopySlot(void) {
     u8 replacement;
     s16 unk0;
     s32 size;
+    u8 *src;
+    u8 *dst;
 
     original = eepromGetSectorForSlot(D_807467C8);
     replacement = eepromGetSectorForSlot(3);
     if (((func_8071432C() != 0) || (func_80714394() != 0)) && (original != replacement)) {
         unk0 = D_807ECEA0[0];
         size = ((((unk0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
-        memcpy(D_807ECEA8 + (size * replacement), D_807ECEA8 + (size * original), size);
+        src = D_807ECEA8 + (size * original);
+        if (src) {} // FAKE: pins src before dst (evaluation order and colouring of the mask temps)
+        dst = D_807ECEA8 + (size * replacement);
+        memcpy(dst, src, size);
         D_807EDEA8[replacement] ^= D_807EDEA8[original];
         D_807EDEA8[original] ^= D_807EDEA8[replacement];
         D_807EDEA8[replacement] ^= D_807EDEA8[original];

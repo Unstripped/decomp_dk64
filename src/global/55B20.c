@@ -2190,15 +2190,14 @@ u8 arg2;
                 continue;
             }
             found = 0;
-            node = (struct MapCell *)(&D_807F70AC)[1]; // FAKE: neighbour-symbol spelling of D_807F70B0 keeps this load's lui separate from the dead test's hi constant
-            do {
+            node = (struct MapCell *)D_807F70B0; do { // LAYOUT: joined onto the do line (keeps lh a0 before lw v0)
                 if (node->unk2 == ((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk0) {
                     found = 1;
                 } else {
                     node++;
                 }
             } while (found == 0);
-            if (D_807F70B0 == 0) {} // FAKE: rs
+            if (D_807F70B0 == 0) {} // FAKE: shares the node load's hi constant; that candidate takes a2 ahead of the entry pointer (target a3)
             if (node->unk18 == 0) {
                 continue;
             }

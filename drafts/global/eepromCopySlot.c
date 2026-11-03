@@ -1,27 +1,24 @@
-// eepromCopySlot (src/global/104F0.c): W4IntA: stage 5, 12 diff lines (unchanged). Diff = chain colour (ours a2 via root-dest targeting of coloured n cand 28; target v0) + dest-first vs src-first multu order. s32 in-place chain (size = lh; size += ..; size &= ..) puts the chain in v0 exactly but then n (cand 28) is coloured a2 directly (sra a2,v0,3, no t8 + move a2,t8, mults on a2): 25. Source order of dst/src (locals, dead uses), n var vs inline x3, mul operand order, memcpy prototype variants (7), casts: all identical output. 10k-eval hill-climb with no-code defs/dead tests on original/replacement/size/n/unk0: no gain.
+// eepromCopySlot (src/global/104F0.c): W2IntA: stage 5, score 9 (was 12), count 78 exact. src/dst locals (src assigned FIRST + dead test 'if (src) {}' pins evaluation) give src-first multu order and the size chain in v0 exactly. Remaining 6 lines = colour rotation: replacement a3 (target v1), original a0 (target a3), unk0 v1 (target v0, shares v0 with chain; ours interferes with cand 28 udiv coloured v0 first). Variants reaching 6: (a) dead read of unk0 BEFORE its def (illegal), (b) K&R phantom formal 'void eepromCopySlot(unk0) s32 unk0;' + 'if (unk0) {}' at entry (needs the two extern decls unprototyped; not adopted). Tried: 4320-variant type/decl-order/dt grid (floor 9), guarded anneals (floor 9), n var/inline/size-chain forms c1-c7 x u1-u9, legal pre-def unk0=0 + dead test (9, no gain).
 extern s32 func_8071432C(void);
 extern s32 func_80714394(void);
-extern u8 D_807ECEA8[];
-extern s16 D_807ECEA0[];
-extern u8 D_807467C8;
-extern u8 D_807EDEA8[];
-u8 eepromGetSectorForSlot(s32);
-void *memcpy(void *, const void *, size_t);
 
 void eepromCopySlot(void) {
     u8 original;
     u8 replacement;
     s16 unk0;
     s32 size;
+    u8 *src;
+    u8 *dst;
 
     original = eepromGetSectorForSlot(D_807467C8);
     replacement = eepromGetSectorForSlot(3);
     if (((func_8071432C() != 0) || (func_80714394() != 0)) && (original != replacement)) {
         unk0 = D_807ECEA0[0];
         size = ((((unk0 + 0x6B7) & ~0x3F) + 0x27) & ~7) / 8;
-
-        memcpy(D_807ECEA8 + (size * replacement), D_807ECEA8 + (size * original), size);
-
+        src = D_807ECEA8 + (size * original);
+        if (src) {} // FAKE: pins src before dst (evaluation order and colouring of the mask temps)
+        dst = D_807ECEA8 + (size * replacement);
+        memcpy(dst, src, size);
         D_807EDEA8[replacement] ^= D_807EDEA8[original];
         D_807EDEA8[original] ^= D_807EDEA8[replacement];
         D_807EDEA8[replacement] ^= D_807EDEA8[original];

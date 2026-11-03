@@ -119,6 +119,7 @@ void gfxSwapGeometryModeCullBits(GfxCmdWords *arg0, GfxCmdWords *arg1) {
     w0 = 0; // FAKE: pre-loop def (regalloc)
     x2 = 0; // FAKE: pre-loop def (regalloc)
     if (arg0 != arg1) {
+        if ((w1 & 0x600) == 0x200) {} // FAKE: dead test, extends w1's web before the loop (regalloc)
         do {
             w0 = arg0->unk0;
             w1 = arg0->unk4;
@@ -126,6 +127,7 @@ void gfxSwapGeometryModeCullBits(GfxCmdWords *arg0, GfxCmdWords *arg1) {
                 if (arg0->unk4 == 0) {
                     w0 = ~w0 & 0xFFFFFF;
                     if ((w0 & 0x600) == 0x200) {
+                        if (w1 == 0) {} // FAKE: dead test, steers uopt colouring
                         x1 = w0 | 0x400;
                         x1 &= ~0x200;
                         arg0->unk0 = ~x1 | 0xD9000000;

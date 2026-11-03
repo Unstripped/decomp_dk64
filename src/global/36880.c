@@ -4174,7 +4174,6 @@ extern s16 D_807F60B0[];
 void csStateTickTimers(s32);
 void csStateUpdate(s32, s16);
 
-#ifdef NON_MATCHING
 typedef struct ModelPendingEntry {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ f32 unk4;
@@ -4219,21 +4218,16 @@ void modelPendingQueueInsert(ModelPendingEntry *arg0, u8 arg1) {
                 allow = arg1;
                 break;
             case 4:
-                newv = (u8 *)gPlayerSlots;  // FAKE: defines newv so the dead tests below read an assigned local
-                if (newv && newv) {}  // FAKE: fk
-                if (newv == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                if (newv != 0) {}  // FAKE: fk
+                newv = (u8 *)gPlayerSlots;  // FAKE: defines newv so the dead test below reads an assigned local
+                if (newv != 0) {}  // FAKE: dead test steers register colouring
                 allow = arg1;
             case 3:
             case 6:
                 best = 1e8f;
                 for (i = 0; i < D_80750AB4; i = (u8)(i + 1)) {
                     
-                    if (tbl && tbl) {}  // FAKE: fk
                     if (((ModelPendingPlayerView *)gPlayerSlots)[i].u0 != 0) {
-                        if (obj == 0) {}  // FAKE: fk
-                        if (arg0 && arg0) {}  // FAKE: fk
-                        if (arg0 != 0) {}  // FAKE: fk
+                        if (arg0 && arg0) {}  // FAKE: dead test steers register colouring
                         if (obj[0x54] == 6) {
                             px = (f32 *)(((ModelPendingPlayerView *)gPlayerSlots)[i].u4 + 0x7C);
                             py = (f32 *)(((ModelPendingPlayerView *)gPlayerSlots)[i].u4 + 0x80);
@@ -4241,22 +4235,14 @@ void modelPendingQueueInsert(ModelPendingEntry *arg0, u8 arg1) {
                             pz = (f32 *)newv;
                         } else {
                             px = (f32 *)(i * 0x2F0 + (u8 *)gPlayerSlots + 0x21C);
-                            if (!arg0) {
-                            }
-                            if (tbl && tbl) {}  // FAKE: fk
-                            if (i && i) {}  // FAKE: fk
                             py = (f32 *)(i * 0x2F0 + (u8 *)gPlayerSlots + 0x220);
                             pz = (f32 *)(i * 0x2F0 + (u8 *)gPlayerSlots + 0x224);
                         }
-        if (px) {} // FAKE: x
-                        if (gPlayerSlots != 0) {}  // FAKE: fk
+        if (px) {}  // FAKE: dead test steers register colouring
                         if ((*pz - arg0->unkC) * (*pz - arg0->unkC) + ((*px - arg0->unk4) * (*px - arg0->unk4) + (*py - arg0->unk8) * (*py - arg0->unk8)) < (0, best)) {
-                            if (((ModelPendingPlayerView *)gPlayerSlots)[i].u4 != 0) {}  // FAKE: fk
-                            if (px && px) {}  // FAKE: fk
                             best = (*pz - arg0->unkC) * (*pz - arg0->unkC) + ((*px - arg0->unk4) * (*px - arg0->unk4) + (*py - arg0->unk8) * (*py - arg0->unk8));
                         }
-                        if (py && py) {}  // FAKE: fk
-                        if (tbl && tbl) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                        if (tbl && tbl) {}  // FAKE: dead test steers register colouring
                     }
                     
                 }
@@ -4282,10 +4268,6 @@ void modelPendingQueueInsert(ModelPendingEntry *arg0, u8 arg1) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/modelPendingQueueInsert.s")
-#endif
 
 void modelPendingEntriesProcess(void) {
     u8 found;

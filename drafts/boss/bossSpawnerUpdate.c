@@ -1,4 +1,4 @@
-// bossSpawnerUpdate (src/boss/C920.c): bossSpawnerUpdate (src/boss/C920.c): stage 4 (leftovers revisit 5 BossL): 1248/1248 insns, deadsweep full=109 text=102 (was 413/405 and 1 extra insn). Remaining: 0.1f lwc1 f0 should sit in the actorSpawn block before the beqz (expected .rodata has only 2 literals 0.1f, ours 3 -> original had 2 textual 0.1f occurrences); case 6: D_80035B70 loads/j web should be v1 (ours a1; first compare load is ring t4 not candidate; (j&3) andi ring t6 not v1) and the ring cascade after it; case 1 FP dx/dz regs. Levers that worked: dx = randomFloat() named temp (hidden cfe temp gone, spill slots 0x44/0x48 match), no-code sp5C = sp5C & 0xFF (extra move gone), dead tests (const-5 web now v1: SPAWNER_ACTOR->unk154 == 5 plus D_80035B38 && D_80035B38), j tests in randomLcgNext arm, D_807FBB40 (case7), D_807FBDC4 x2 (hill-climb), dz renamed lz in case 1. Tried without effect: raw field reads of s->unkNN, dx/dz/lx/lz renames elsewhere, chained/two-literal 0.1f stores, typed const 5 locals, j split into two s16 locals, case 6 condition/j spellings.
+// bossSpawnerUpdate (src/boss/C920.c): W2Boss (revisit 6): TEXT-IDENTICAL (deadsweep full=10 text=0 reloc=10, 1248/1248, nm size 0x1068); reloc-only because D_80035B70 is a FUNCTION-LOCAL 'static s16 D_80035B70 = 0;' (needs .data carve). Levers: static D_80035B70 (var web v1, no const-5/j fakes); lightAdd prototype u8,u8,u8,u8 (real definition) closed the last 7 lines; 3x '= 0.1' double literals; D_80035B68++ direct; rand arm 'D_80035B70 = (randomLcgNext() & 3) + 4;' first then unk13/unk15; 'k = s->unk14; if (k >= 4) s->unk14 = k - 4;'; 2 dead tests remain (D_80035B68==0 in case 1; sp5C && sp5C pin). Orchestrator: paste park, carve .data for the static, check ROM hash.
 typedef struct BossModelInfo {
     u8 pad0[0x34];
     f32 unk34;
@@ -103,7 +103,7 @@ s32 randomLcgNext(void);
 f32 randomFloat(void);
 s32 sfxAllocateChannel();
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 void lightSetColor(f32, f32, f32, s32);
 void func_8068B80C(void);
 
@@ -126,6 +126,8 @@ void bossSpawnerUpdate(void) {
     f32 lx;
     f32 lz;
     s16 j;
+    s16 u;
+    static s16 D_80035B70 = 0; // needs .data carve: function-local static (var candidate, v1 web)
 
     s = SPAWNER_ACTOR->unk174;
     sp67 = 0;
@@ -142,8 +144,6 @@ void bossSpawnerUpdate(void) {
         D_80035B6C = 0;
         s->unk12 = 0;
         D_80035B70 = 5;
-        if (D_80035B38 && D_80035B38) {} // FAKE: const 5 web gets v1 (with the next test)
-        if (SPAWNER_ACTOR->unk154 == 5) {} // FAKE: const 5 web (typed constant candidate, no ring temp)
         for (i = 0; i != 8; i++) {
             if (actorSpawn(0xA6, D_80035B60[i >> 1]) != 0) {
                 st = D_807FBB44->unk174;
@@ -151,9 +151,9 @@ void bossSpawnerUpdate(void) {
                 st->unk4 = i >> 1;
                 st->unk5 = i & 1;
                 D_807FBB44->unk80 = SPAWNER_ACTOR->unk80 + 50.0f;
-                D_807FBB44->unk4->unk34 = 0.1f;
-                D_807FBB44->unk4->unk38 = 0.1f;
-                D_807FBB44->unk4->unk3C = 0.1f;
+                D_807FBB44->unk4->unk34 = 0.1;
+                D_807FBB44->unk4->unk38 = 0.1;
+                D_807FBB44->unk4->unk3C = 0.1;
                 D_807FBB44->unk60 |= 0x400;
             }
         }
@@ -305,6 +305,7 @@ void bossSpawnerUpdate(void) {
                     sfxPlayOnFreeSlot(0x385, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                     s->unk16 = 0;
                     camPausePath();
+                    if (D_80035B68 == 0) {} // FAKE: dead test steers uopt colouring/ring (case 1 arm)
                     s->unk13 = 4;
                 } else {
                     sfxPlayOnFreeSlot(0x38E, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
@@ -376,19 +377,15 @@ void bossSpawnerUpdate(void) {
             sp67 = 1;
             if (D_80035B70 < s->unk10) {
                 sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
-                j = D_80035B70 + 1;
+                D_80035B70 = D_80035B70 + 1;
                 s->unk10 = 0;
-                if (j >= 0x10) {
-                    j += 1;
+                if (D_80035B70 >= 0x10) {
+                    D_80035B70 += 1;
                 }
-                D_80035B70 = j;
-                if (j >= 0x1A) {
-                    j = randomLcgNext();
-                    if (j && j) {} // FAKE: keeps j a coloured web in the randomLcgNext arm
+                if (D_80035B70 >= 0x1A) {
+                    D_80035B70 = (randomLcgNext() & 3) + 4;
                     s->unk13 = 1;
                     s->unk15++;
-                    D_80035B70 = (j & 3) + 4;
-                    if (j != 0) {} // FAKE: keeps j a coloured web in the randomLcgNext arm
                     sfxPlayOnFreeSlot(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                     sfxPlayOnFreeSlot(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
@@ -397,6 +394,7 @@ void bossSpawnerUpdate(void) {
             D_80035B68 = 0x1E;
         }
         break;
+
     case 7:
         s->unk10++;
         s->unk8 = -0.1f;
@@ -405,7 +403,6 @@ void bossSpawnerUpdate(void) {
                 actorDespawn(actorListFindActorById(j));
             }
             SPAWNER_ACTOR->unk60 &= ~0x8000;
-            if (D_807FBB40) {} // FAKE: actor-pointer web split (case 7)
             SPAWNER_ACTOR->unk128 = 0;
             camStartPath(0, 4, 1);
             s->unk13 = 8;
@@ -414,7 +411,6 @@ void bossSpawnerUpdate(void) {
     case 8:
         s->unk8 = -0.1f;
         if (D_807FBDC4 != 0) {
-            if (D_807FBDC4 != 0) {} // FAKE: D_807FBDC4 web split (case 8)
             sfxAllocateChannel(0x35, 0x3F800000);
             bossSpawnParticleRing(0x13D, SPAWNER_ACTOR->unk7C, SPAWNER_ACTOR->unk80 + 200.0f, SPAWNER_ACTOR->unk84 + 40.0f, 0x800, 1);
             s->unk13 = 9;
@@ -440,14 +436,14 @@ void bossSpawnerUpdate(void) {
             dx = randomFloat();
             s->unk14 += (s32)(dx * 2.99f) + 1;
         }
-        if (s->unk14 >= 4) {
-            s->unk14 -= 4;
+        k = s->unk14;
+        if (k >= 4) {
+            s->unk14 = k - 4;
         }
     }
-    i = D_80035B68 + 1; // FAKE: i as temp lets the increment forward across the sp67 branch (D_80035B68++ reloads)
-    D_80035B68 = i;
+    D_80035B68++;
     if (sp67 != 0) {
-        sp5C = (i & 0x1F) - 0x10;
+        sp5C = (D_80035B68 & 0x1F) - 0x10;
         i = sp5C;
         k = s->unk14;
         if (sp5C < 0) {
@@ -457,9 +453,8 @@ void bossSpawnerUpdate(void) {
             i = 0xF;
         }
         sp5C = (i << 4) & 0xFF;
-        sp5C = sp5C & 0xFF; // FAKE: no-code def steers sp5C narrowing chain
+        if (sp5C && sp5C) {} // FAKE: pins the sp5C def before the lx/lz loads
         lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)SPAWNER_ACTOR->unk7C);
-        if (D_807FBDC4 != 0) {} // FAKE: D_807FBDC4 web split (lights)
         lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)SPAWNER_ACTOR->unk84);
         lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);
         if (s->unk12 == 1) {
