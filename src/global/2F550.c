@@ -46,7 +46,11 @@ f32 cameraStepAspectScale(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/cameraStepAspectScale.s")
 #endif
 
-extern f32 D_807F5DF0;
+u8 *D_807F5DE0;
+struct MapBspNode *D_807F5DE4;
+s32 D_807F5DE8;
+void *D_807F5DEC;
+f32 D_807F5DF0[12];
 
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/frustumCalculateCornerRays.s")
@@ -65,7 +69,7 @@ void frustumCornersTransformByInverse(Mtx *arg0) {
     guMtxL2F(sp98, arg0);
     matrix4Invert(sp58, sp98);
     for (i = 0; i < 4; i++) {
-        guMtxXFMF(sp58, (&D_807F5DF0)[i * 3], (&D_807F5DF0)[i * 3 + 1], (&D_807F5DF0)[i * 3 + 2], &D_807F5E20[i * 3], &D_807F5E24[i * 3], &D_807F5E28[i * 3]);
+        guMtxXFMF(sp58, D_807F5DF0[i * 3], D_807F5DF0[i * 3 + 1], D_807F5DF0[i * 3 + 2], &D_807F5E20[i * 3], &D_807F5E24[i * 3], &D_807F5E28[i * 3]);
     }
 }
 
@@ -390,7 +394,6 @@ typedef struct MapVisNode {
 
 void func_8062BB2C(MapBspNode *, MapVisNode *, u8);
 
-extern MapBspNode *D_807F5DE4;
 extern MapVisNode *D_807F5E60;
 
 void modelPendingCountsReset(void);
@@ -670,8 +673,6 @@ extern f32 D_807F5FE0;
 extern f32 D_807F5FDC;
 extern u8 D_807F5E68[];
 extern struct MapDistributeEntry *D_807F5FF0;
-extern s32 D_807F5DE8;
-extern void *D_807F5DEC;
 extern s32 D_807FBB60;
 extern Mtx D_2000180;
 
@@ -1721,7 +1722,6 @@ typedef struct MapFileHeader {
 
 #define MAP_HDR ((MapFileHeader *)arg0)
 
-extern u8 *D_807F5DE0;
 extern f32 D_807444C4;
 extern s32 D_807FB5E0;
 extern s32 D_807FB5E4;
