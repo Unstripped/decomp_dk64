@@ -1915,12 +1915,13 @@ u8 D_807FD6E1;
 #ifdef NON_MATCHING
 
 void func_806E3E40(void) {
+    static u8 D_807FD6E0; // function-local static (only user): uopt treats it as non-aliased; needs the E4090 .bss carve
+    static u8 D_807FD6E1;
     f32 ang;
     f32 ground;
     f32 a;
     f32 arg;
     s16 t;
-    u8 c;
 
     if (slotQueueGetValue(5, gCurrentPlayerIndex) && G24_M->unk1A3) {
         if (G24_PAD(D_807FD63C, u16) & 0x2000) {
@@ -1938,9 +1939,7 @@ void func_806E3E40(void) {
         } else {
             a = -ground;
         }
-        if (D_807FD6E0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (a > 10.0f) {
-            if (D_807FD6E1 && D_807FD6E1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (ang > 2048.0f) {
                 arg = 1024.0f;
             } else {
@@ -1979,30 +1978,24 @@ void func_806E3E40(void) {
         } else {
             a = -ang;
         }
-        if (D_807FD63C == 4U) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (((a > 10.0f) || (G24_A->unkC0 < 0.0f)) && (D_807FD6E1 == 0)) {
             D_807FD6E0 = 4;
-            if (D_807FD6E1 + gCurrentPlayerIndex) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
-        c = D_807FD6E0;
-        if (c != 0) {
-            c -= 1;
-            D_807FD6E0 = c;
-            if (c == 0) {
-                if (D_807FD63C == 8U) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (D_807FD6E0 != 0) {
+            if (gCurrentPlayerIndex && gCurrentPlayerIndex) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            D_807FD6E0 -= 1;
+            if (D_807FD6E0 == 0) {
                 D_807FD6E1 = 8;
-                if (D_807FBB40 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             func_806E384C();
         } else {
             sfxStopSlotSound(D_807FBB40, 0);
         }
         if (D_807FD6E1 != 0) {
+            if (D_807FD6E1 && D_807FD6E1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             D_807FD6E1 -= 1;
         }
-        if (D_807FD6E1 && D_807FD6E1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
-    if (!D_807FBB40) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
 }
 #else
 
