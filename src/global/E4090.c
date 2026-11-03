@@ -327,21 +327,25 @@ s32 playerInputUpdate(s32 arg0) {
     return D_807FBB48->unk154 - old;
 }
 
-#ifdef NON_MATCHING
 u16 inputRemapButtons(u16 arg0, u16 *arg1) {
     u32 var_v0;
     u16 var_v1;
     u16 var_a2;
+    u32 ghost0;
+    u32 ghost1;
 
     var_v0 = *arg1;
     var_v1 = 0;
     var_a2 = 0;
     if (var_v0 != 0) {
+        ghost0 = var_v0; // FAKE: pre-loop def, holds a0 across the loop so arg0 spills and the mask load takes t0
         do {
+            ghost1 = var_v1; // FAKE: loop-head def, holds a3 against the mask load (steers its colour to t0)
             var_v1 |= var_v0;
-            if (&arg0) {} // FAKE: pins arg0 in memory
+            if (ghost1) {} // FAKE: dead test keeping ghost1 a coloured web
             arg1++;
             if ((u32)var_v0 & arg0) {} // FAKE: makes the and-result a uopt candidate
+            if (ghost0) {} // FAKE: dead test keeping ghost0 a coloured web
             if ((u32)var_v0 & arg0) {
                 var_a2 |= arg1[0];
             }
@@ -351,10 +355,6 @@ u16 inputRemapButtons(u16 arg0, u16 *arg1) {
     }
     return var_a2 | (arg0 & ~var_v1);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/inputRemapButtons.s")
-#endif
 
 f32 func_80612790(s16);
 
