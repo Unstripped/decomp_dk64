@@ -1527,8 +1527,8 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
   s32 dir;
   s32 off;
   dir = (idx = ((MiscBPatrolState *) D_807FDC90)->unk25);
-  dir = dir & 0x80;
   idx = idx & 0x7F;
+  dir = dir & 0x80;
   key = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].a;
   type = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].b;
   off = key * 10;
@@ -1541,14 +1541,12 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
     ((MiscBPatrolState *) D_807FDC90)->unk20++;
     if ((((MiscBPatrolState *) D_807FDC90)->unk20++) > 0x10)
     {
-        if (D_807FDC90) {}  // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
       moved = 1;
       ((MiscBPatrolState *) D_807FDC90)->unk20 = 0;
     }
   }
   else
   {
-    off = off ^ 0; // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
     ((MiscBPatrolState *) D_807FDC90)->unk20 = 0;
   }
   switch (arg0)
@@ -1563,22 +1561,20 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
     case 0x42:
 
     case 0x5B:
-        if (D_807FDC90 == 0) {}  // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
       ((MiscBPatrolState *) D_807FDC90)->unkA = x;
       ((MiscBPatrolState *) D_807FDC90)->unkC = y;
-      if (D_807FDC90) {}  // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
       ((MiscBPatrolState *) D_807FDC90)->unkE = z;
       break;
 
     case 2:
-    moved = moved * 1; // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
     case 0x26:
+  if (D_807FDC9C && D_807FDC9C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     case 0x60:
-    type = type ^ 0; // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
       if (moved)
       {
         if (type == 6)
         {
+  if (D_807FDCA0 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
           ((MiscBPatrolState *) D_807FDC90)->unk25 = ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + off))->unk8;
         }
         else if ((idx + 1) < ((D1Dc9cViewG *) D_807FDC9C)->unk11)
@@ -1616,12 +1612,9 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
       else
         if (idx < (((D1Dc9cViewG *) D_807FDC9C)->unk11 - 1))
       {
-    key = key ^ 0; // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
         idx = (u8) (idx + 1);
       }
-    if (dir) {} // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
       else
-    if (D_807FDCA0 && D_807FDCA0) {} // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
       {
         idx = (u8) (idx - 1);
         dir = 0x80;
@@ -1629,7 +1622,6 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
       ((MiscBPatrolState *) D_807FDC90)->unk25 = dir | (idx & 0xFFFFFFFFFFFFFFFF);
     }
     else
-    if (dir && dir) {} // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
     {
       ((MiscBPatrolState *) D_807FDC90)->unkA = x;
       ((MiscBPatrolState *) D_807FDC90)->unkC = y;

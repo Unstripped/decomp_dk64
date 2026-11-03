@@ -1,4 +1,4 @@
-// patrolPathStep (src/global/12E800.c): MiscB 2026-11-03: stage 5, COUNT-EXACT 374 insns (413 lines), frame ok, deadsweep full 117 (was 150, count 375), shape ~46. New: 'dir = (idx = unk25)' (idx takes the lbu destination; dir the copy) is what makes the count exact (was 'idx = (dir = ..)' = +1 insn); anneal over dead tests + no-code defs (v = v ^ 0, v * 1, v + (v * 0)) from that base: 10 FAKEs. Remaining: dir not in ra (target: dir=ra copy of t3, idx=t3 direct, off spilled sw t9,24(sp)); ring phase: D_807FDC98 lui/lw lands before sw ra in ours (target after lbu t3) and every later t-reg is rotated; case-2 beqz delay slot (target: lbu type; ours: lh x) -> extra nop.
+// patrolPathStep (src/global/12E800.c): Patrol 2026-11-03 (revisit 8): stage 5, COUNT-EXACT 413 insns, frame 56 ok, deadsweep full=168 shape=33, 2 FAKEs. SEMANTICS FIX: the previous park (full=117) was semantically wrong: FAKE dead tests inserted between '}' and 'else' in case 3 turned 'else { idx--; dir = 0x80; }' into an unconditional block; this body is the correct 4-way (dir!=0: idx>0 ? idx-- : (idx++, dir=0); else idx<N-1 ? idx++ : (idx--, dir=0x80); unk25 = dir|idx). New lever: 'dir = (idx = unk25); idx &= 0x7F; dir &= 0x80;' (idx masked BEFORE dir) gives the target's 'move ra,idx' copy and lbu/lui order (no-fake score 372 -> 222). Remaining diff = colouring only: target colours [?->t1, key t2, idx t3, &D_807FDC90 t4, &D_807FBB40 t5, dir ra]; ours [key t1, idx t2, &DC90 t3, dir t4, BB40 t5] i.e. the target has ONE MORE t-reg candidate coloured before key (a ghost, no visible code: a ghost copy of idx/key/type/moved/arg dead-tested up to 5x did not create it) and dir coloured last (lowest adjsave, adjsave(dir)=1.17 vs BB40 addr). Consequences: dir t4 not ra, off ring temp lands in ra (target t9), key t1 not t2. Tried: 2x480s hill-climbs dead tests/decl swaps/ghost locals, s32/u8/u32 dir/idx/off/key type grid, 21 prologue spellings, inline key*10, new_var/key split in case 1.
 typedef struct MiscBPatrolState {
     /* 0x00 */ u8 pad0[0xA];
     /* 0x0A */ s16 unkA;
@@ -72,8 +72,8 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
   s32 dir;
   s32 off;
   dir = (idx = ((MiscBPatrolState *) D_807FDC90)->unk25);
-  dir = dir & 0x80;
   idx = idx & 0x7F;
+  dir = dir & 0x80;
   key = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].a;
   type = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].b;
   off = key * 10;
@@ -86,14 +86,12 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
     ((MiscBPatrolState *) D_807FDC90)->unk20++;
     if ((((MiscBPatrolState *) D_807FDC90)->unk20++) > 0x10)
     {
-        if (D_807FDC90) {}  // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
       moved = 1;
       ((MiscBPatrolState *) D_807FDC90)->unk20 = 0;
     }
   }
   else
   {
-    off = off ^ 0; // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
     ((MiscBPatrolState *) D_807FDC90)->unk20 = 0;
   }
   switch (arg0)
@@ -108,22 +106,20 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
     case 0x42:
 
     case 0x5B:
-        if (D_807FDC90 == 0) {}  // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
       ((MiscBPatrolState *) D_807FDC90)->unkA = x;
       ((MiscBPatrolState *) D_807FDC90)->unkC = y;
-      if (D_807FDC90) {}  // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
       ((MiscBPatrolState *) D_807FDC90)->unkE = z;
       break;
 
     case 2:
-    moved = moved * 1; // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
     case 0x26:
+  if (D_807FDC9C && D_807FDC9C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     case 0x60:
-    type = type ^ 0; // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
       if (moved)
       {
         if (type == 6)
         {
+  if (D_807FDCA0 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
           ((MiscBPatrolState *) D_807FDC90)->unk25 = ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + off))->unk8;
         }
         else if ((idx + 1) < ((D1Dc9cViewG *) D_807FDC9C)->unk11)
@@ -161,12 +157,9 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
       else
         if (idx < (((D1Dc9cViewG *) D_807FDC9C)->unk11 - 1))
       {
-    key = key ^ 0; // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
         idx = (u8) (idx + 1);
       }
-    if (dir) {} // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
       else
-    if (D_807FDCA0 && D_807FDCA0) {} // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
       {
         idx = (u8) (idx - 1);
         dir = 0x80;
@@ -174,7 +167,6 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
       ((MiscBPatrolState *) D_807FDC90)->unk25 = dir | (idx & 0xFFFFFFFFFFFFFFFF);
     }
     else
-    if (dir && dir) {} // FAKE: dead/no-code statement steering uopt colouring and the ring (annealed)
     {
       ((MiscBPatrolState *) D_807FDC90)->unkA = x;
       ((MiscBPatrolState *) D_807FDC90)->unkC = y;

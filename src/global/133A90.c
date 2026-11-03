@@ -691,14 +691,13 @@ void func_80611A70(f32, f32, f32 *, f32 *);
 void proxPathInterpolatePosition(u8, f32, ProxPath *, f32 *, f32 *, f32 *);
 
 
-#ifdef NON_MATCHING
 void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg2, u8 arg3, f32 arg4) {
     f32 one;
     f32 pad1[20];
     f32 p2[3];
     f32 p1[3];
     f32 p0[3];
-    int idx2;
+    s8 idx2;
     f32 a;
     f32 b;
     s16 slot;
@@ -712,32 +711,30 @@ void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg
     f32 yaw;
     f32 pad2[4];
     Mtx mA;
-    int idx;
+    s8 idx;
     f32 savedScale;
     Mtx mB;
     Mtx mC;
     splineSetBasisTension(0.5f);
-    idx = (s8)arg3;
+    idx = arg3;
     a = arg4 - 0.1;
     if (a < 0.0) {
         a = a + 1.0;
-        idx = (s8)(arg3 - 1);
+        idx--;
         if (idx < 0) {
             a = 0.0f;
             idx = 0;
         }
     }
-    idx = idx & 0xFF; // FAKE: no-code def, idx coloured v0 (forbidden-v0 call-arg use moves)
     proxPathInterpolatePosition(idx, a, arg2, &p0[0], &p0[1], &p0[2]);
     one = 1.0f;
     b = arg4 + 0.1;
-    idx2 = (s8)(arg3 & 0xFF); // FAKE: no-code mask keeps (s8)arg3 from CSE with idx's chain
+    idx2 = arg3;
     if (b > 1.0) {
         b = b - 1.0;
-        idx2 = (s8)(arg3 + 1);
-        if (arg2->unk7 && arg2->unk7) {} // FAKE: dead field test steers idx2 sum colouring
+        idx2++;
         if (idx2 == arg2->unk7) {
-            idx2 = arg2->unk7 - 1; idx2 = (s8)idx2; // LAYOUT: two-step narrow
+            idx2 = arg2->unk7 - 1;
             b = 1.0f;
         }
     }
@@ -793,10 +790,6 @@ void proxPathActorFollowSpline(H1ActorB *arg0, H1ActorState *arg1, ProxPath *arg
         break;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/133A90/proxPathActorFollowSpline.s")
-#endif
 
 f32 splineEvalCubic(f64, f32, f32, f32, f32);
 
