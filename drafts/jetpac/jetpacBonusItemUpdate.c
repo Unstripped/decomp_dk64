@@ -1,35 +1,25 @@
-// jetpacBonusItemUpdate (src/jetpac/3480.c): JetBoss (leftovers6): stage 5/6, count EXACT 314/314, deadsweep full=7 text=7 shape=2 (was 36, count 315). KEY1 per-case s32 locals (v case6, v1 case1+idx, v34 case3/4). KEY2 dead test 'if (inner->unk144 == 2) {}' right before the early compare creates the as1 block boundary => beqz/addiu delay + sw via s0 + li hoisted into stall slot. KEY3 '== 2U' on the later unk78C compare splits the later const-2 web. Hill-climb (dead tests anywhere) found 4 fakes (2 inner->unk4 tests, 1 case3/4 'arg0->unk34 && arg0->unk34'). Remaining 7 lines: B1 colours ours v0=unk144 cand, a0=unk34 cand, a1=const2; target v0=unk34, t2=unk144 (ring), t5=li 2, t3=addiu (v1=jetpacGame base is already right).
-s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
-extern s32 D_8002F064;
-extern f32 jetpacPlayer;
-extern f32 D_8002F054;
-extern s32 D_8002F06C;
-extern s32 D_8002F070;
-extern s32 D_8002F074;
-extern s32 D_8002F078;
-void flagSet(s32, s32, s32);
-void jetpacPlaySound(s32);
+// jetpacBonusItemUpdate (src/jetpac/3480.c): W3Mid: t1 form (s32 t = arg0->unk34 var, 'arg0->unk34 = t + 1', NO dead tests) gives full=5 text=5 but count 315 vs 314 (as1 hoists addiu into stall slot, beqzl+copy instead of beqz/addiu + li hoist): t/unk144 colours match target (v0 / ring t2). Any boundary dead test on unk144 makes unk144 a v0 cand (full 104+); 140 dead-test singles, 3 hill-climbs, d/t/td/dt local variants tried. Count-exact park stays full=7 in src.
 void jetpacBonusItemUpdate(JetpacItem *arg0) {
     JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
     s32 v;
     s32 v1;
     s32 v34;
     f32 *new_var;
+    s32 t;
+    s32 d;
     f32 *new_var2;
 
     if (inner->unkC == 0) {
         return;
     }
-    if (inner->unk144 == 2) {} // FAKE
-    if (arg0->unk34 < inner->unk144) {
-        arg0->unk34 = arg0->unk34 + 1;
+    t = arg0->unk34;
+    if (t < inner->unk144) {
+        arg0->unk34 = t + 1;
         return;
     }
-    if (inner->unk4 && inner->unk4) {} // FAKE
     if (arg0->unk1C == 1) {
         arg0->unk1C = 2;
     }
-    if (inner->unk4) {} // FAKE
     new_var = &jetpacPlayer;
     new_var2 = &D_8002F054;
     if (arg0->unk38 == 0) {
@@ -117,7 +107,6 @@ void jetpacBonusItemUpdate(JetpacItem *arg0) {
     case 3:
     case 4:
         arg0->unk34++;
-    if (arg0->unk34 && arg0->unk34) {} // FAKE
         v34 = arg0->unk34 - inner->unk144;
         if (v34 >= 0x18) {
             v34 -= 0x18;
