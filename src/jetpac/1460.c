@@ -109,7 +109,7 @@ void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 a
     }
 }
 
-extern s32 D_80045BD0;
+extern s32 jetpacTiledSpriteCount;
 
 void jetpacInitRdp(Gfx **arg0) {
     Gfx *g = *arg0;
@@ -126,7 +126,7 @@ void jetpacInitRdp(Gfx **arg0) {
     WRITE_GFX(g++, 0xE3000A01, 0);
     WRITE_GFX(g++, 0xFB000000, 0);
 
-    D_80045BD0 = 0;
+    jetpacTiledSpriteCount = 0;
     jetpacInitGrid();
     *arg0 = g;
 }
@@ -160,7 +160,7 @@ void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, 
     w = ((J1aSprite *)arg0)->unkA - 1;
     h = ((J1aSprite *)arg0)->unkC - 1;
 
-    if (D_80045BD0 < 0x100) {
+    if (jetpacTiledSpriteCount < 0x100) {
         if (arg1 < 0) {
             arg1 += 0x100;
         }
@@ -182,11 +182,11 @@ void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, 
                 }
                 if (w > 0) {
                     do {
-                        if (D_80045BD0 >= 0x100) {
+                        if (jetpacTiledSpriteCount >= 0x100) {
                             return;
                         }
-                        dst = &D_80042BD0[D_807444FC][D_80045BD0];
-                        *(s32 *)(u32)&D_80045BD0 = D_80045BD0 + 1; // FAKE: indirect store (a direct str gets a .noalias re-emit that lets as1 hoist the sp reload above the sw)
+                        dst = &D_80042BD0[D_807444FC][jetpacTiledSpriteCount];
+                        *(s32 *)(u32)&jetpacTiledSpriteCount = jetpacTiledSpriteCount + 1; // FAKE: indirect store (a direct str gets a .noalias re-emit that lets as1 hoist the sp reload above the sw)
                         *dst = *(J1aSprite *)arg0;
                         xEnd += 8;
                         xEnd &= 0xFFF8;

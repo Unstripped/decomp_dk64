@@ -2869,7 +2869,7 @@ void effectScatterFallUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
 
 
-void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
+void effectCircleRiseFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     static s8 sd = 1; // D_8075567C: a function-local static so uopt treats it as non-aliased
     TimedMotionState *var_v1;
     TimedMotionState *temp;

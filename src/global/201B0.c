@@ -1515,7 +1515,7 @@ s16 mathAngleEaseToward(s16, s16, f32);
 s32 func_807142D8(void);
 void sfxAllocateChannel(u16, f32);
 void sfxStartAreaAmbient(void);
-void func_80627F04(s32, s32, s32);
+void camPathCommandDispatch(s32, s32, s32);
 void camPolarFromPoints(f32 *, f32 *, f32, f32, f32, f32, f32, f32);
 void camUpdateFollow(struct CamEyeActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
 void camUpdateFocusPos(struct CamEyeActor *, f32, f32 *, f32 *, f32 *);
@@ -1714,9 +1714,9 @@ void camUpdate(struct CamResetCam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
                                 break;
                             case 13:
                                 if (t0 != 0) {
-                                    timerQueueAdd(func_80627F04, t0 + 0x80000000, w[0], w[1], w[2]);
+                                    timerQueueAdd(camPathCommandDispatch, t0 + 0x80000000, w[0], w[1], w[2]);
                                 } else {
-                                    func_80627F04(w[0], w[1], w[2]);
+                                    camPathCommandDispatch(w[0], w[1], w[2]);
                                 }
                                 camLoadPathPoint();
                                 gCamPathFramesLeft = 0;

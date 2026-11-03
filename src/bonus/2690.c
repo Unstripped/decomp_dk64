@@ -1183,7 +1183,7 @@ typedef struct {
     char pad13;
     s16 unk14;
     s16 unk16;
-} BonusMenu_QSub178;
+} BonusLightFlashState;
 
 extern s8 D_8002D8F4;
 extern s16 D_8002D8F8;
@@ -1193,9 +1193,9 @@ void lightSetColor(f32, f32, f32, s32);
 void func_80029E54(void *);
 Gfx *func_80029B9C(Gfx *, Actor *);
 
-void func_80029364(void) {
+void bonusLightFlashGameUpdate(void) {
     Struct_7548 *t1 = D_807FBB40->unk174;
-    BonusMenu_QSub178 *t0 = ((BonusActorExt *)D_807FBB40)->unk178;
+    BonusLightFlashState *t0 = ((BonusActorExt *)D_807FBB40)->unk178;
     Point3f *p;
     f32 y;
     f32 z;
@@ -1390,7 +1390,7 @@ void func_80029364(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/func_80029364.s")
+#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/bonusLightFlashGameUpdate.s")
 #endif
 
 typedef struct {

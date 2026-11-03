@@ -1,4 +1,4 @@
-// func_80029364 (src/bonus/2690.c): W3Fp: unchanged park, stage 5 (635/635 insns), deadsweep full 16 text 12 reloc 4 shape 4. Remaining: else-arm constants -100/1 and the andi of (randomLcgNext() & 3) + 2 are v0/v1 webs in the target (li v0,-100; li v1,1 in the c.lt.s stall; andi v1,v0,3; addiu t4,v1,2) but ring temps t2/t3/t3 in ours, which also shifts the later lh t2 vs t4 ring. Tried W3Fp: named local (j/r/i/c/d) for the &3 value and for the sfx index (18/16, c/d worse), function-local statics for D_8002D8F4/F8/FC in all 8 subsets (text stays 12-16, reloc worse), annealing 2 x 5000 evals with dead compares of -0x64 / 1 / 1U / -100 on t0/t1/actor fields and globals (best stays 16).
+// bonusLightFlashGameUpdate (src/bonus/2690.c): W3Fp: unchanged park, stage 5 (635/635 insns), deadsweep full 16 text 12 reloc 4 shape 4. Remaining: else-arm constants -100/1 and the andi of (randomLcgNext() & 3) + 2 are v0/v1 webs in the target (li v0,-100; li v1,1 in the c.lt.s stall; andi v1,v0,3; addiu t4,v1,2) but ring temps t2/t3/t3 in ours, which also shifts the later lh t2 vs t4 ring. Tried W3Fp: named local (j/r/i/c/d) for the &3 value and for the sfx index (18/16, c/d worse), function-local statics for D_8002D8F4/F8/FC in all 8 subsets (text stays 12-16, reloc worse), annealing 2 x 5000 evals with dead compares of -0x64 / 1 / 1U / -100 on t0/t1/actor fields and globals (best stays 16).
 typedef struct {
     s16 unk0;
     char pad2[2];
@@ -11,7 +11,7 @@ typedef struct {
     char pad13;
     s16 unk14;
     s16 unk16;
-} BonusMenu_QSub178;
+} BonusLightFlashState;
 
 extern s8 D_8002D8F4;
 extern s16 D_8002D8F8;
@@ -21,9 +21,9 @@ void lightSetColor(f32, f32, f32, s32);
 void func_80029E54(void *);
 Gfx *func_80029B9C(Gfx *, Actor *);
 
-void func_80029364(void) {
+void bonusLightFlashGameUpdate(void) {
     Struct_7548 *t1 = D_807FBB40->unk174;
-    BonusMenu_QSub178 *t0 = ((BonusActorExt *)D_807FBB40)->unk178;
+    BonusLightFlashState *t0 = ((BonusActorExt *)D_807FBB40)->unk178;
     Point3f *p;
     f32 y;
     f32 z;

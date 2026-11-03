@@ -117,16 +117,6 @@ typedef struct {
     s32 unk4;
 } BonusMenu_Pair;
 
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    char pad8[0xB];
-    s8 unk13;
-    char pad14[2];
-    s8 unk16;
-    s8 unk17;
-} BonusMenu_S174;
-
 extern s16 D_800336A0;
 extern s16 D_800336A4[];
 extern s16 D_80033724[];
@@ -158,8 +148,8 @@ void menuUpdateItemTransition(void *, MenuScreenState *, s32);
 void menuUpdateScrollAnimation();
 void spawnNodesSetActorStateByFlag(s32, s32);
 
-void func_80027FAC(void *arg0, s32 arg1) {
-    BonusMenu_S174 *var_a3;
+void menuUpdateMainScreen(void *arg0, s32 arg1) {
+    MenuScreenState *var_a3;
     BonusMenu_Pair sp54;
     s32 sp50;
     s8 sp4F;
@@ -170,7 +160,7 @@ void func_80027FAC(void *arg0, s32 arg1) {
     s16 temp_t2;
     s16 var_a0_2;
 
-    var_a3 = *(BonusMenu_S174 **)((u8 *)arg0 + 0x174);
+    var_a3 = *(MenuScreenState **)((u8 *)arg0 + 0x174);
     sp54 = D_800337FC;
     sp4F = 0;
     if (D_800337F4 > 0) {
@@ -2912,7 +2902,7 @@ typedef struct MenuStickAxis {
 } MenuStickAxis;
 
 extern MenuStickAxis *D_807ECDEC;
-void func_80027FAC();
+void menuUpdateMainScreen();
 Gfx *func_800286C8();
 void func_80028834();
 Gfx *func_80028D3C();
@@ -2999,7 +2989,7 @@ Gfx *menuUpdateStateDispatch(MenuScreenActor *arg0, s32 arg1, Gfx *arg2, s32 arg
             return func_800286C8(arg0, arg2);
         }
         if (arg1 == 2) {
-            func_80027FAC(arg0, sp18);
+            menuUpdateMainScreen(arg0, sp18);
         } else {
             func_80028834(arg0, arg3);
         }

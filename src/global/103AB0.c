@@ -874,14 +874,14 @@ Gfx *func_80701CA0(Gfx *dl) {
     return dl;
 }
 
-void func_807024E0(Gfx **, s32, s32, u32, s32, u32, u32, f32, f32, f32, f32, f32, f32, u8, u8, u8, void (*)());
+void gfxDrawTexturedTileGrid(Gfx **, s32, s32, u32, s32, u32, u32, f32, f32, f32, f32, f32, f32, u8, u8, u8, void (*)());
 
 void func_807023E8(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12) {
-    func_807024E0(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, 1, 0x10, 0, 0);
+    gfxDrawTexturedTileGrid(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, 1, 0x10, 0, 0);
 }
 
 void func_80702464(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, u8 arg13, u8 arg14) {
-    func_807024E0(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, 0, 0);
+    gfxDrawTexturedTileGrid(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, 0, 0);
 }
 
 typedef struct {
@@ -901,7 +901,7 @@ typedef struct {
 #ifdef NON_MATCHING
 void vtxSetColor(VtxColorView *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5);
 void vtxSetPosTex(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, u8 arg5);
-void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5, u32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, u8 arg13, u8 arg14, u8 arg15, void (*arg16)()) {
+void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5, u32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, u8 arg13, u8 arg14, u8 arg15, void (*arg16)()) {
     Gfx *dl;
     s32 y;
     VtxColorView *vtx;
@@ -1038,7 +1038,7 @@ void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5,
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/func_807024E0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/103AB0/gfxDrawTexturedTileGrid.s")
 #endif
 
 extern s16 D_80744498;

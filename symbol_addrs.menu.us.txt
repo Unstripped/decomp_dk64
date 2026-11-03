@@ -28,6 +28,7 @@ menuDrawTransformedWidgets = 0x80027808; // type:func
 menuUpdateTransformedWidgets = 0x80027988; // type:func
 menuSetAudioMode = 0x80027E10; // type:func
 menuResetCameraAndFlags = 0x80027F40; // type:func
+menuUpdateMainScreen = 0x80027FAC; // type:func
 menuHandleSelectionInput = 0x80028C20; // type:func
 menuCheckCheatCodeSequence = 0x8002907C; // type:func
 menuHandleConfirmationInput = 0x80029114; // type:func

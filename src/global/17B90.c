@@ -617,17 +617,17 @@ typedef struct {
     void *unk4;
     void *unk8;
     void *unkC;
-} SmallAControllerAnimDataView;
+} ControllerAnimDataView;
 
 typedef struct {
     void *unk0;
-    SmallAControllerAnimDataView *unk4;
-} SmallAControllerAnimRefView;
+    ControllerAnimDataView *unk4;
+} ControllerAnimRefView;
 
 typedef struct {
     u8 pad0[0x84];
     s32 unk84;
-} SmallAControllerAnimDataBlock;
+} ControllerAnimDataBlock;
 
 
 int controllerAnimCacheFree(void *arg0, void *arg1) {
@@ -664,8 +664,8 @@ int controllerAnimCacheFree(void *arg0, void *arg1) {
         }
         *(void **)arg1 = NULL;
     }
-    if ((void *)arg1 == ((SmallAControllerAnimRefView *)arg0)->unk4->unk4) {
-        ((SmallAControllerAnimDataBlock *)((SmallAControllerAnimRefView *)arg0)->unk4)->unk84 = 0;
+    if ((void *)arg1 == ((ControllerAnimRefView *)arg0)->unk4->unk4) {
+        ((ControllerAnimDataBlock *)((ControllerAnimRefView *)arg0)->unk4)->unk84 = 0;
     }
 }
 #else

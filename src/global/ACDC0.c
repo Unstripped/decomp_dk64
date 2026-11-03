@@ -639,7 +639,7 @@ typedef struct {
     s8 unk14;
     u8 pad15[2];
     s8 unk17;
-} L890HudPauseState;
+} HudPauseMenuState;
 
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -662,7 +662,7 @@ extern f32 D_807FC890[];
 
 Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     char buf[0x40];
-    L890HudPauseState *hud;
+    HudPauseMenuState *hud;
     s16 j;
     s16 i;
     s16 y;

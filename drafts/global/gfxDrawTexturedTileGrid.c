@@ -1,4 +1,4 @@
-// func_807024E0 (src/global/103AB0.c): L933 (leftovers6): stage 5, COUNT EXACT (933 insns = target, frame 0x1d8, same s-reg set), 98 full / 90 shape (stored 128 was 932 insns). Parked NON_MATCHING in the L933 copy. Remaining: (1) y-body entry order: target emits (f32)tw f24 cvt (bgez block) BEFORE xmax/vb/ymax and (f32)th after; ours th first; ypos1 conv last in target; (2) lbu s7 (arg15) hoisted to y-preheader in target, in x-preheader in ours; (3) u store in the x-guard beqz delay slot vs move a0,a1; (4) ~45 lines are spill-slot order/holes (first 9 slots match; target middle holes 5 after siz). KEY: the original has 4 fewer vregs than a 1:1 draft (here u0/yhi/xmax/ymax inlined as expressions: top spill slot 0xdc then matches) plus codeless spill candidates (dead tests). Found by SA over commuting statement order + dead tests scored on full+shape+slot-sequence(with holes)+count (.scratch/L933/anneal.py). Tried: arg15 hoist via u=arg15*0 (count breaks), named f32/s16 coordinate locals (shape 73 but regs cascade), loop shapes, callee ret types for arg16, statement permutations of y-body header (exhaustive).
+// gfxDrawTexturedTileGrid (src/global/103AB0.c): L933 (leftovers6): stage 5, COUNT EXACT (933 insns = target, frame 0x1d8, same s-reg set), 98 full / 90 shape (stored 128 was 932 insns). Parked NON_MATCHING in the L933 copy. Remaining: (1) y-body entry order: target emits (f32)tw f24 cvt (bgez block) BEFORE xmax/vb/ymax and (f32)th after; ours th first; ypos1 conv last in target; (2) lbu s7 (arg15) hoisted to y-preheader in target, in x-preheader in ours; (3) u store in the x-guard beqz delay slot vs move a0,a1; (4) ~45 lines are spill-slot order/holes (first 9 slots match; target middle holes 5 after siz). KEY: the original has 4 fewer vregs than a 1:1 draft (here u0/yhi/xmax/ymax inlined as expressions: top spill slot 0xdc then matches) plus codeless spill candidates (dead tests). Found by SA over commuting statement order + dead tests scored on full+shape+slot-sequence(with holes)+count (.scratch/L933/anneal.py). Tried: arg15 hoist via u=arg15*0 (count breaks), named f32/s16 coordinate locals (shape 73 but regs cascade), loop shapes, callee ret types for arg16, statement permutations of y-body header (exhaustive).
 typedef struct {
     s16 unk0;
     s16 unk2;
@@ -14,7 +14,7 @@ typedef struct {
 
 void vtxSetColor(VtxColorView *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5);
 void vtxSetPosTex(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, u8 arg5);
-void func_807024E0(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5, u32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, u8 arg13, u8 arg14, u8 arg15, void (*arg16)()) {
+void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5, u32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, u8 arg13, u8 arg14, u8 arg15, void (*arg16)()) {
     Gfx *dl;
     s32 y;
     VtxColorView *vtx;

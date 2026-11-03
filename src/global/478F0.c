@@ -1584,7 +1584,7 @@ void func_80647834(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern u8 D_8071FC8C[];
-void func_8071F1D0(void);
+void effectCircleRiseFadeUpdate(void);
 
 void func_80647A14(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -1595,7 +1595,7 @@ void func_80647A14(CsState *cs, s16 csId, s16 b, s16 c) {
         func_8071496C(i << 1);
         func_807149B8(1);
         func_807149FC(7);
-        func_8071498C(func_8071F1D0);
+        func_8071498C(effectCircleRiseFadeUpdate);
         func_80714998(1);
         func_80714950(y);
         func_80714CC0(D_8071FC8C, 0.5f, gCsPosX, gCsPosY, gCsPosZ);

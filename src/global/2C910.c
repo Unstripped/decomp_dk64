@@ -89,7 +89,7 @@ Actor *actorFromSpawnNodeOrDefault(s16 arg0) {
 }
 
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2C910/func_80627F04.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/2C910/camPathCommandDispatch.s")
 
 extern Actor *D_807FBB40;
 

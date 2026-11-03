@@ -92,6 +92,7 @@ jetpacPlayer = 0x8002F050;
 jetpacLasers = 0x8002F09C;
 jetpacActors = 0x8002F1DC;
 jetpacGrid = 0x8002F3D0;
+jetpacTiledSpriteCount = 0x80045BD0;
 jetpacDrawLedges = 0x80028E88; // type:func
 jetpacGridAddTiledSprite = 0x80025700; // type:func
 jetpacUpdateStateAndInput = 0x80025168; // type:func

@@ -1,4 +1,4 @@
-// func_8066A08C (src/global/6AD90.c): MidA r6: stage 5 (parked in .scratch/MidA/6AD90.c), count EXACT 318, frame 0x130, shape 0, deadsweep full=32 (was 149): only FP ring/colour diffs (hit_y init f0 vs f4, x1 ring f10 vs f6 cascading ring renames, d f2 vs f0). Levers: natural statement order dx01,dy01,dz01,dx02,dy02,dz02; nx=(dy01*dz02)-(dz01*dy02); d declared after nx,ny,nz (home 264); f64 val = 0.0 - (num/(ny*2000.0)) per arm (mul.d 2000.0*val order; frame word -> pad108[1]); one dead test if (hit_y) {} after actor_count (colours the 999999 const, FAKE). Count-weighted hill-climb (full+10*|insns-318|+30*frame) of dead tests got 149->~75, then natural order closed the count. Without the hit_y test: shape 0 but ring +1 (text 98).
+// collisionTestActorBoxFloor (src/global/6AD90.c): MidA r6: stage 5 (parked in .scratch/MidA/6AD90.c), count EXACT 318, frame 0x130, shape 0, deadsweep full=32 (was 149): only FP ring/colour diffs (hit_y init f0 vs f4, x1 ring f10 vs f6 cascading ring renames, d f2 vs f0). Levers: natural statement order dx01,dy01,dz01,dx02,dy02,dz02; nx=(dy01*dz02)-(dz01*dy02); d declared after nx,ny,nz (home 264); f64 val = 0.0 - (num/(ny*2000.0)) per arm (mul.d 2000.0*val order; frame word -> pad108[1]); one dead test if (hit_y) {} after actor_count (colours the 999999 const, FAKE). Count-weighted hill-climb (full+10*|insns-318|+30*frame) of dead tests got 149->~75, then natural order closed the count. Without the hit_y test: shape 0 but ring +1 (text 98).
 typedef struct {
     u8 pad0[0x24];
     f32 unk24;
@@ -12,7 +12,7 @@ typedef struct {
     f32 unk44;
     u8 pad48[0x56 - 0x48];
     u8 unk56;
-} CollisionBoxTriView;
+} CollisionBoxTriangleView;
 
 struct CollisionBoxTriangle;
 s32 collisionCheckBoxTriangleBoundsXZ(struct CollisionBoxTriangle *, f32, f32);
@@ -21,9 +21,9 @@ void collisionTransformPointToActorLocal(s32, Actor *, CollisionVertexBoneRefs *
 void collisionRecordBoxTriangle(void *, f32);
 
 
-s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
+s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     f32 pad;
-    CollisionBoxTriView *hit_tri;
+    CollisionBoxTriangleView *hit_tri;
     f64 nx, ny, nz;
     f64 d;
     f64 val;
@@ -33,7 +33,7 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     s32 i;
     s32 j;
     Actor *actor;
-    CollisionBoxTriView *tri;
+    CollisionBoxTriangleView *tri;
     u16 actor_count;
     f32 pad108[1];
     f32 hit_y;

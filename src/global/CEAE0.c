@@ -2261,7 +2261,7 @@ typedef struct G05Node {
     /* 0x10 */ Actor *unk10;
 } G05Node;
 
-void func_806CEFBC();
+void playerHeldActorFollowStep();
 void *heapAlloc(s32);
 void actorRegisterGlobalCallback(void *);
 
@@ -2270,7 +2270,7 @@ void playerRegisterHeldActorFollow(f32 arg0) {
 
     if (G05_P->unk1AC != NULL) {
         node = heapAlloc(0x14);
-        node->unk0 = func_806CEFBC;
+        node->unk0 = playerHeldActorFollowStep;
         node->unk8 = arg0;
         node->unkC = D_807FBB40;
         node->unk10 = G05_P->unk1AC;
@@ -2304,15 +2304,15 @@ void playerComputePickupHoldPitch(void) {
 
 
 #ifdef NON_MATCHING
-typedef struct W3CBCbArg {
+typedef struct HeldActorFollowArg {
     /* 0x0 */ f32 unk0;
     /* 0x4 */ Actor *unk4;
     /* 0x8 */ Actor *unk8;
-} W3CBCbArg;
+} HeldActorFollowArg;
 
 void func_8067A70C(s32, Actor *, f32, f32, f32, u8, u8);
 
-void func_806CEFBC(W3CBCbArg *arg0) {
+void playerHeldActorFollowStep(HeldActorFollowArg *arg0) {
     f32 sp64;
     f32 sp60;
     f32 sp5C;
@@ -2345,7 +2345,7 @@ void func_806CEFBC(W3CBCbArg *arg0) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806CEFBC.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/playerHeldActorFollowStep.s")
 #endif
 
 typedef struct G05Node2 {

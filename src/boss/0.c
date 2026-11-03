@@ -704,7 +704,7 @@ extern u8 D_80035984;
 extern u8 D_80035988;
 extern u8 D_80035CB8;
 extern u8 D_80035CC0[];
-extern s32 D_80627F04;
+extern s32 camPathCommandDispatch;
 void effectUpdateAndDispatch(void);
 void effectNodeSetSubVal(s32, u8);
 extern u8 D_807444EC;
@@ -801,7 +801,7 @@ void func_800254D0(void) {
                 var_v0 += 4;
             }
             if (checksum != 0x3D6E227F) {
-                *(s32 *)((u32)&D_80627F04) = 0x27BDFF38;
+                *(s32 *)((u32)&camPathCommandDispatch) = 0x27BDFF38;
             }
         }
     }

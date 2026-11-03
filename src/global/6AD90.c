@@ -97,7 +97,7 @@ u8 arg0;
     D_807F94B4 = arg0;
 }
 
-s32 func_80666428(Actor *, f32, f32, f32, u8 *, f32 *, u8 *, f32 *, u8);
+s32 collisionFindFloorAtPoint(Actor *, f32, f32, f32, u8 *, f32 *, u8 *, f32 *, u8);
 extern u8 D_807F94B3;
 extern u8 D_807F94BC;
 extern f32 D_807F948C;
@@ -118,7 +118,7 @@ void collisionQueryActorFloor(Actor *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg
         sp38 = arg0->unk8C;
         sp34 = arg0->unk84;
     }
-    func_80666428(arg0, sp3C, sp38, sp34, arg1, arg2, arg3, arg4, arg5);
+    collisionFindFloorAtPoint(arg0, sp3C, sp38, sp34, arg1, arg2, arg3, arg4, arg5);
 }
 
 void collisionCheckActorFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
@@ -133,7 +133,7 @@ void collisionCheckActorFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *ar
         D_807F94B3 = 0;
     }
     D_807F94BC = 1;
-    func_80666428(NULL, arg1, arg2, arg3, &sp3F, &sp38, &sp3E, &sp34, 0);
+    collisionFindFloorAtPoint(NULL, arg1, arg2, arg3, &sp3F, &sp38, &sp3E, &sp34, 0);
     *arg4 = D_807F948C;
 }
 
@@ -186,7 +186,7 @@ typedef struct CollisionQueryActor {
 
 u8 func_8062BCC8(void *, f32, f32, f32, s32);
 u8 collisionTestSubmeshBoundary(f32, f32, f32 *, s32);
-s32 func_8066A08C(Actor *, f32, f32, f32, f32 *);
+s32 collisionTestActorBoxFloor(Actor *, f32, f32, f32, f32 *);
 void func_8067A7EC(Actor *, s32, s32, s32, f32, s32, u8);
 s32 mathCheckCloserFloatThreshold(f32, f32, f32, u8);
 extern f32 D_807F9460;
@@ -221,7 +221,7 @@ extern u8 D_807F94B6;
 extern CollisionQueryPlayerState *D_807F94B8;
 extern u8 D_807F9510;
 
-s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5, u8 *arg6, f32 *arg7, u8 arg8) {
+s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5, u8 *arg6, f32 *arg7, u8 arg8) {
     u8 sp5F;
     u8 sp5E;
     f32 sp58;
@@ -273,7 +273,7 @@ s32 func_80666428(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg4, f32 *arg5
         sp54 = 99999.0f;
         sp5E = func_8062BCC8(arg0, arg1, arg3, arg2, (s32)&sp54);
         sp50 = 99999.0f;
-        val2 = func_8066A08C(arg0, arg1, arg3, arg2, &sp50);
+        val2 = collisionTestActorBoxFloor(arg0, arg1, arg3, arg2, &sp50);
     } else {
         sp5E = 0;
         val2 = 0;
@@ -2034,7 +2034,7 @@ typedef struct {
     f32 unk44;
     u8 pad48[0x56 - 0x48];
     u8 unk56;
-} MidABoxTriView;
+} CollisionBoxTriangleView;
 
 struct CollisionBoxTriangle;
 s32 collisionCheckBoxTriangleBoundsXZ(struct CollisionBoxTriangle *, f32, f32);
@@ -2043,9 +2043,9 @@ void collisionTransformPointToActorLocal(s32, Actor *, CollisionVertexBoneRefs *
 void collisionRecordBoxTriangle(void *, f32);
 
 
-s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
+s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     f32 pad;
-    MidABoxTriView *hit_tri;
+    CollisionBoxTriangleView *hit_tri;
     f64 nx, ny, nz;
     f64 d;
     f64 val;
@@ -2055,7 +2055,7 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     s32 i;
     s32 j;
     Actor *actor;
-    MidABoxTriView *tri;
+    CollisionBoxTriangleView *tri;
     u16 actor_count;
     f32 pad108[1];
     f32 hit_y;
@@ -2135,7 +2135,7 @@ s32 func_8066A08C(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/func_8066A08C.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/collisionTestActorBoxFloor.s")
 #endif
 
 void collisionRecordBoxTriangle(void *arg0, f32 arg1) {

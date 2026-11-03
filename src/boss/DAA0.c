@@ -511,18 +511,18 @@ s16 D_80035B74 = 0x78;
 
 
 #ifdef NON_MATCHING
-typedef struct JetBossAnimState {
+typedef struct BossAnimState {
     char pad0[4];
     f32 unk4;
     char pad8[8];
     s16 unk10;
-} JetBossAnimState;
+} BossAnimState;
 
-typedef struct JetBossModelRef {
-    JetBossAnimState *unk0;
-} JetBossModelRef;
+typedef struct BossModelRef {
+    BossAnimState *unk0;
+} BossModelRef;
 
-typedef struct JetBossParentState {
+typedef struct BossParentState {
     char pad0[4];
     f32 unk4;
     char pad8[0xA];
@@ -531,9 +531,9 @@ typedef struct JetBossParentState {
     s8 unk14;
     char pad15[2];
     s8 unk17;
-} JetBossParentState;
+} BossParentState;
 
-typedef struct JetBossParentActor {
+typedef struct BossParentActor {
     char pad0[0x7C];
     f32 unk7C;
     char pad80[4];
@@ -541,18 +541,18 @@ typedef struct JetBossParentActor {
     char pad88[0xCC];
     u8 unk154;
     char pad155[0x1F];
-    JetBossParentState *unk174;
-} JetBossParentActor;
+    BossParentState *unk174;
+} BossParentActor;
 
-typedef struct JetBossFollowerLink {
-    JetBossParentActor *unk0;
+typedef struct BossFollowerLink {
+    BossParentActor *unk0;
     s8 unk4;
     s8 unk5;
-} JetBossFollowerLink;
+} BossFollowerLink;
 
-typedef struct JetBossFollowerActor {
+typedef struct BossFollowerActor {
     char pad0[4];
-    JetBossModelRef *unk4;
+    BossModelRef *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x18];
@@ -572,20 +572,20 @@ typedef struct JetBossFollowerActor {
     u8 unk16B;
     u8 unk16C;
     char pad16D[7];
-    JetBossFollowerLink *unk174;
-} JetBossFollowerActor;
+    BossFollowerLink *unk174;
+} BossFollowerActor;
 
 void func_80613C48(void *, s16, f32, f32);
 void controllerApplyMotionWindow(void *, void *, f32);
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 
-#define ACTOR ((JetBossFollowerActor *)D_807FBB40)
+#define ACTOR ((BossFollowerActor *)D_807FBB40)
 
 void bossFollowerActorUpdate(void) {
-    JetBossFollowerLink *sub174 = ACTOR->unk174;
-    JetBossParentState *sp30 = sub174->unk0->unk174;
-    JetBossAnimState *sub4_0 = ACTOR->unk4->unk0;
+    BossFollowerLink *sub174 = ACTOR->unk174;
+    BossParentState *sp30 = sub174->unk0->unk174;
+    BossAnimState *sub4_0 = ACTOR->unk4->unk0;
 
     if (sub174->unk5 == 0) {
         f32 dx = D_807FBB4C->unk7C - ACTOR->unk7C;
