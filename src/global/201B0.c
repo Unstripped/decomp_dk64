@@ -4470,6 +4470,7 @@ void camInitZones(void) {
     gCamZoneMinZ = gCamZoneMinZ / 400 * 400;
     if (gCamZoneSorted != NULL) {
         heapFree(gCamZoneSorted);
+        if (CAM_ZONE_SORT[0].unk2 && CAM_ZONE_SORT[0].unk2) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
     gCamZoneSorted = heapAlloc((CAM_ZONE_ENTRIES_PATH->unkC0 * 4) + 4);
     for (i = 0; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
@@ -4478,8 +4479,8 @@ void camInitZones(void) {
     }
     for (i = 1; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
         key = gCamZoneSorted[i * 2 + 1];
-        val = gCamZoneSorted[i * 2 + 1];
         idx = gCamZoneSorted[i * 2];
+        val = gCamZoneSorted[i * 2 + 1];
         j = i;
         while (j > 0 &&
                (key < gCamZoneSorted[(j - 1) * 2 + 1] ||
@@ -4496,13 +4497,15 @@ void camInitZones(void) {
     }
     gCamZoneGroupCount = 1;
     for (i = CAM_ZONE_ENTRIES_PATH->unkC0 - 1; i > 0; i--) {
-        if (CAM_ZONE_SORT[i].unk2 != CAM_ZONE_SORT[i - 1].unk2) {
+        if (gCamZoneSorted[i * 2 + 1] != gCamZoneSorted[(i - 1) * 2 + 1]) {
             gCamZoneGroupCount++;
         }
     }
     if (gCamZoneGroups != NULL) {
+        if (CAM_ZONE_SORT[0].unk2 && CAM_ZONE_SORT[0].unk2) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         heapFree(gCamZoneGroups);
     }
+    if (gCamZoneGroupCount) {}  // FAKE: dead read, makes the count a coloured candidate (v1) before the group alloc
     gCamZoneGroups = heapAlloc(gCamZoneGroupCount * 4 + 4);
     CAM_ZONE_GROUP[0].unk0 = CAM_ZONE_SORT[0].unk2;
     CAM_ZONE_GROUP[0].unk2 = 0;
@@ -4510,6 +4513,7 @@ void camInitZones(void) {
     for (i = 1; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
         if (CAM_ZONE_SORT[i].unk2 != CAM_ZONE_SORT[i - 1].unk2) {
             CAM_ZONE_GROUP[k].unk0 = CAM_ZONE_SORT[i].unk2;
+            if (CAM_ZONE_ENTRIES_PATH->unkC0 && CAM_ZONE_ENTRIES_PATH->unkC0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             CAM_ZONE_GROUP[k].unk2 = i;
             k++;
         }
