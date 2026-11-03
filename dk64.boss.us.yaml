@@ -53,9 +53,11 @@ segments:
       - [0xA7A0, c, A7A0]
       - [0xB100, c, B100]
       - [0xC920, c, C920]
+      - [0xDAA0, c, DAA0] # hidden TU boundary: bossSpawnerUpdate, bossFollowerActorUpdate (own .data/.rodata, rodata 8-aligned at 0x12B80)
       - [0xF0D0, c, F0D0]
       - [0x118B0, data, 0]
-      - [0x11AC0, .data, C920] # D_80035AC0..D_80035B74 (16-aligned; the TU's data ends with 8 bytes of padding up to F0D0's data at 0x80035B80)
+      - [0x11AC0, .data, C920] # D_80035AC0..D_80035AE4 (16-aligned start; TU ends at 0x80035AF4, 12 bytes of section padding)
+      - [0x11B00, .data, DAA0] # D_80035B00..D_80035B74 (16-aligned; 8 bytes of padding to F0D0's data at 0x80035B80)
       - [0x11B80, data, F0D0]
       - [0x11C00, .rodata, 0]
       - [0x11F90, .rodata, 3840]
@@ -67,6 +69,7 @@ segments:
       - [0x12840, .rodata, A7A0]
       - [0x128C0, .rodata, B100]
       - [0x12A90, .rodata, C920]
+      - [0x12B80, .rodata, DAA0]
       - [0x12C10, .rodata, F0D0]
       - { start: 0x12DC0, type: bss, vram: 0x80036DC0 }
 
