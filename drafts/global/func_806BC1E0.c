@@ -1,4 +1,4 @@
-// func_806BC1E0 (src/global/C0EE0.c): L878 (leftovers7): stage 5 park, deadsweep score 44 -> 42 (shape 5, frame ok, 1078 insns exact). FP tail now EXACT: reading st->unkC inline at the unk80 sites (isop CSE candidate, not the a-local) fixed the a + t*(unk18-a) mul/add operand order; role annealing with inline-field read sites (L878 hc7). Remaining 42 lines: loop2 head and post-loop dx/dy ring phase only: ours andi t7/lb t8 (as1 hoists andi above beqzl, lb 0x37 early) vs target andi t9/lb t3, dy sra t8 (target ring skips 2 temps before dx and again before dy); post-loop n-1 coloured v1 (ours, FAKE-dependent) vs ring t3. Tried this unit (all no gain): callee prototypes vs definitions (no effect), no-code defs and cast-chain grids on dx/dy/i-use/cond (20k), loop forms (while/do/continue/goto/switch), i type/latch forms, cond spellings (a non-CSE'd 2nd D[i] load emits +2 real insns), ghost locals, count-loop spellings, whole-function dead-test single/pair/annealing (60k evals: single tests move andi to t6/t8 never t9), permuter 580s (no useful hint). Peer note: ugen temps are LRU-first.
+// func_806BC1E0 (src/global/C0EE0.c): L878 (revisit 8): stage 5 park, deadsweep 42 -> 9 (count 1078 exact, frame ok). KEY: operand narrowing casts burn 2 ring temps (as1 deletes sll/sra, renames survivor to last chain reg): loop dx=(s16)(i&3)-.., dy=(s16)(i>>2)-.., post-loop (s16)(v&3), (u16)(v>>2). Loop region now exact. Remaining 9: post-loop n-1 is coloured v1 (ours, because FAKE if(n==0){}) vs ring t3; without that FAKE n-1 ring t3 right but unk36/unk37 cands take v1/t0 instead of t0/t1 (94). Needs a ghost occupying v1 without making n-1 a candidate (single dead tests of locals/globals, ghost defs, named px/py locals (13, frame +8) all tried).
 typedef struct LgBObj {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -235,8 +235,8 @@ void func_806BC1E0(void) {
                 n = 0;
                 for (i = 0; i < 16; i++) {
                     if (D_807FC8C0[i] == 0 || D_807FC8C0[i] == -1) {
-                        dx = (i & 3) - st->unk36;
-                        dy = (i >> 2) - st->unk37;
+                        dx = (s16)(i & 3) - st->unk36;  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
+                        dy = (s16)(i >> 2) - st->unk37;  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
                         if (dx > 0) {
                             adx = dx;
                         } else {
@@ -263,8 +263,8 @@ void func_806BC1E0(void) {
                 if (n > 0) {
                     acc = randomFloat();
                     v = cand[(s32)(acc * (f32)(n - 1))];
-                    dx = (v & 3) - st->unk36;
-                    dy = (v >> 2) - st->unk37;
+                    dx = (s16)(v & 3) - st->unk36;  // FAKE: redundant operand narrowing
+                    dy = (u16)(v >> 2) - st->unk37;  // FAKE: redundant operand narrowing
                     if (dx < -1) {
                         dx = -1;
                         if (ones == 0) {}  // FAKE: dummy statement steers uopt
@@ -347,7 +347,6 @@ void func_806BC1E0(void) {
     if (st->unk34 < 0) {
         st->unk34 = 0;
     }
-    acc = 0.0f; // FAKE: dead store, keeps the 0.0 constant candidate in $f18
     sp70 = st->unk30;
     if (st->unk4 != 0.0f && st->unk34 == 0) {
         a = st->unk4;

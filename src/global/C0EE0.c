@@ -241,8 +241,8 @@ void func_806BC1E0(void) {
                 n = 0;
                 for (i = 0; i < 16; i++) {
                     if (D_807FC8C0[i] == 0 || D_807FC8C0[i] == -1) {
-                        dx = (i & 3) - st->unk36;
-                        dy = (i >> 2) - st->unk37;
+                        dx = (s16)(i & 3) - st->unk36;  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
+                        dy = (s16)(i >> 2) - st->unk37;  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
                         if (dx > 0) {
                             adx = dx;
                         } else {
@@ -269,8 +269,8 @@ void func_806BC1E0(void) {
                 if (n > 0) {
                     acc = randomFloat();
                     v = cand[(s32)(acc * (f32)(n - 1))];
-                    dx = (v & 3) - st->unk36;
-                    dy = (v >> 2) - st->unk37;
+                    dx = (s16)(v & 3) - st->unk36;  // FAKE: redundant operand narrowing
+                    dy = (u16)(v >> 2) - st->unk37;  // FAKE: redundant operand narrowing
                     if (dx < -1) {
                         dx = -1;
                         if (ones == 0) {}  // FAKE: dummy statement steers uopt
@@ -353,7 +353,6 @@ void func_806BC1E0(void) {
     if (st->unk34 < 0) {
         st->unk34 = 0;
     }
-    acc = 0.0f; // FAKE: dead store, keeps the 0.0 constant candidate in $f18
     sp70 = st->unk30;
     if (st->unk4 != 0.0f && st->unk34 == 0) {
         a = st->unk4;
