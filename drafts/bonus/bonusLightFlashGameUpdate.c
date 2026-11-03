@@ -1,4 +1,4 @@
-// bonusLightFlashGameUpdate (src/bonus/2690.c): Ovl (leftovers7): unchanged park, stage 5 (635/635), deadsweep full 16 text 12 reloc 4 shape 4. Remaining: andi v1,v0,3 / addiu t4,v1,2 and li v0,-100 / li v1,1 / the later lh t2 vs t4 are ours t3/(t2,t3)/t4. At the andi the per-register last-use tables of target and ours are identical (checked with a last-use script), yet the target takes v1 (last use 254) over t3 (183): v1 is chosen by a rule the LRU t-ring model does not explain (maybe a uopt-coloured isop candidate). Tried this unit (all >= 16): no-code narrowing wrapper chains {s16,u16,s32,u32}^0..3 at 12 narrow-store sites singly (241) and in pairs (3234), 145 fresh-local forms for (randomLcgNext() & 3) + 2 (6 types x 6 dead tests x block/function scope x casts), 25 constant-local forms for -100/1, 59 split locals (j0/d0), a 10k-eval hill-climb mixing wrapper sites + dead tests with a count-exact penalty (best 13.0 = start).
+// bonusLightFlashGameUpdate (src/bonus/2690.c): from .scratch/W2Ring/bonusLightFlashGameUpdate_best.c
 typedef struct {
     s16 unk0;
     char pad2[2];
@@ -100,7 +100,7 @@ void bonusLightFlashGameUpdate(void) {
             ((s16 *)&D_8002D8F4)[2] = j;
             if (j <= 0) {
                 sfxPlayOnFreeSlot(0x1A1, 0x7FFF, 63.0f, 1.0f, 0x50, 0);
-                D_8002D8F8 = (randomLcgNext() & 3) + 2;
+                j = randomLcgNext() & 3; if (D_807FBB40->unk154 && D_807FBB40->unk154) {} if (j == 9) {} D_8002D8F8 = j + 2; // FAKE/LAYOUT: dead tests make j a coloured candidate (andi v1) and burn one ring temp (addiu t4); one line keeps the lw t0 reload below the sh
             }
             d = D_8002D8FC + 1;
             ((s16 *)&D_8002D8F4)[4] = d;

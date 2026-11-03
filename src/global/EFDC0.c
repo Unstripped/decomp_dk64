@@ -554,7 +554,7 @@ s32 hashTableLookup(s32);
 void camStartPath(Actor *, s32, s32);
 void func_80613C48(Actor *, s32, f32, f32);
 void actorCopyPoseAndScale(Actor *, Actor *, f32);
-void func_80613AF8(Actor *, s32, f32, f32);
+void controllerAnimSetStateRemap(Actor *, s32, f32, f32);
 
 void func_806EC044(void) {
     f32 speed;
@@ -621,7 +621,7 @@ void func_806EC3BC(void) {
         D_807FBB40->unkC0 = 0.0f;
     }
     func_80614E78(D_807FBB40, 0x36);
-    func_80613AF8(D_807FBB40, 0x31, 0.0f, 8.0f);
+    controllerAnimSetStateRemap(D_807FBB40, 0x31, 0.0f, 8.0f);
     scriptSetActorRampTarget(D_807FBB40, 0.5f, 0.0f);
 }
 
@@ -837,7 +837,7 @@ void func_806EC8C4(void) {
 void func_806EC994(void) {
     func_80614E78(D_807FBB48, 8);
     scriptSetActorRampTarget(D_807FBB48, 1.0f, 0.0f);
-    func_80613AF8(D_807FBB48, 0x2E, 0.0f, 6.0f);
+    controllerAnimSetStateRemap(D_807FBB48, 0x2E, 0.0f, 6.0f);
     EFN3_A48->unk154 = 0x46;
     EFN3_A48->unk155 = 0;
     EFN3_P->unk38 = D_807534E4[D_807FD584];
@@ -1442,7 +1442,7 @@ void func_806ED6B0(void) {
             EfL1A40->unkC0 = 0.0f;
         }
         func_80614E78(D_807FBB40, 0x36);
-        func_80613AF8(D_807FBB40, 0x31, 0.0f, 8.0f);
+        controllerAnimSetStateRemap(D_807FBB40, 0x31, 0.0f, 8.0f);
         scriptSetActorRampTarget(D_807FBB40, 0.5f, 0.0f);
     }
 }

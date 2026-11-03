@@ -1,6 +1,4 @@
-// controllerUpdate (src/global/F600.c): controllerUpdate (src/global/F600.c): revisit 7 MiscA: stage 5, score full 23 -> 21 (text 21 -> 19, 2 reloc-only D_807ECD62/63 because D_807ECD60 is the C-defined OSContPad). New lever: a HIDDEN LOCAL for the sum-loop end pointer (u32 *end = (u32 *)func_80611844; while (p < end)) fixed 'lui a3 / addiu a0,a3' (the const web in a3 copied to the var in a0); do/for-forms and decl position equal. Remaining: ring lbu t6 vs v0 for D_807463B8 in the i==0 && ==2 test (the FAKE dead test on D_807463B8 makes it a v0 candidate but is needed for s2/s3 = &D_807ECDE8/const 2), pad ptr/button a0,a1 vs target a1,a2 (+ k=0 move hoist). Tried without gain: callee prototype void<->s32 on every callee, typed constants (U suffix), local type widths + decl-order hill-climb (hc4, 16k+40k evals, T 0 and 1.2), pointer locals for Held/Pressed/Repeat/D_807ECD68 walker, buttons/pressed/held spelling grid (277), dead tests on pad/buttons/k/i in the pad block, deadsweep with == 2 forms (10.9k variants).
-#include "common.h"
-
+// controllerUpdate (src/global/F600.c): from .scratch/W2Ring/controllerUpdate_best.c
 extern u8 D_807463B8;
 extern s32 gFrameCounter;
 extern u8 D_8076A0B1;

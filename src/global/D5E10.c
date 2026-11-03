@@ -3054,7 +3054,7 @@ extern s16 D_807538B8[];
 extern s16 D_807539DC[];
 extern s16 D_807539EC[];
 s32 func_806E770C();
-void func_80613AF8(Actor *, s32, f32, f32);
+void controllerAnimSetStateRemap(Actor *, s32, f32, f32);
 
 s32 func_806D850C(void) {
     f32 sp2C;
@@ -3077,7 +3077,7 @@ s32 func_806D850C(void) {
             G15_A->unkC0 = 0.0f;
         }
         func_80614E78(D_807FBB40, 0x36);
-        func_80613AF8(D_807FBB40, 0x31, 0, 8.0f);
+        controllerAnimSetStateRemap(D_807FBB40, 0x31, 0, 8.0f);
         scriptSetActorRampTarget(D_807FBB40, 0.5f, 0);
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x10, 0xFF, 0x7F, 1);
     }

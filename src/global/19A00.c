@@ -567,8 +567,8 @@ s32 func_806158E8(Actor *arg0) {
 
 
 void func_80613C48(s32, s16, f32, f32);
-void func_80613AF8(s32, s16, f32, f32);
-void func_80613BA0(s32, s16, f32, f32);
+void controllerAnimSetStateRemap(s32, s16, f32, f32);
+void controllerAnimSetStateRemapDirect(s32, s16, f32, f32);
 void controllerAnimScaleInterpolate(s32, s8);
 void controllerAnimSetFromTable(s32, u16, f32, u8);
 
@@ -585,7 +585,7 @@ s32 func_8061599C(s32 arg0) {
     s16 sp1E;
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
-    func_80613BA0(arg0, sp1E, 0.0f, 1.0f);
+    controllerAnimSetStateRemapDirect(arg0, sp1E, 0.0f, 1.0f);
     return 1;
 }
 
@@ -635,7 +635,7 @@ s32 func_80615B34(s32 arg0) {
     s16 sp1E;
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
-    func_80613AF8(arg0, sp1E, 0.0f, 1.0f);
+    controllerAnimSetStateRemap(arg0, sp1E, 0.0f, 1.0f);
     return 1;
 }
 
@@ -646,7 +646,7 @@ s32 func_80615B84(s32 arg0) {
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
     scriptReadU32((u8 *)&sp18);
-    func_80613AF8(arg0, sp1E, 0.0f, sp18);
+    controllerAnimSetStateRemap(arg0, sp1E, 0.0f, sp18);
     return 1;
 }
 

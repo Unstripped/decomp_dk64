@@ -703,7 +703,7 @@ extern u16 *D_807FBB58;
 struct ControllerStateView;
 void func_80613C48(struct ControllerStateView *, s16, f32, f32);
 
-void func_80613AF8(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+void controllerAnimSetStateRemap(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     s16 flag;
     s32 sum;
     if (arg1 >= 0) {
@@ -720,7 +720,7 @@ void func_80613AF8(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg
 
 void controllerAnimSetState(struct ControllerStateView *, s16, f32, f32);
 
-void func_80613BA0(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+void controllerAnimSetStateRemapDirect(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
     s16 flag;
     s32 sum;
     if (arg1 >= 0) {

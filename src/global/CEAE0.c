@@ -1756,7 +1756,7 @@ void func_80613C48(void *, s16, f32, f32);
 void controllerAnimScaleInterpolate(Actor *, s32);
 
 extern u8 gPlayerCharacterId[];
-void func_80613AF8(void *, s32, f32, f32);
+void controllerAnimSetStateRemap(void *, s32, f32, f32);
 void playerInitMoveParams(void);
 
 s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
@@ -1804,7 +1804,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                     actorScriptStart(arg0, 0x76);
                     func_80613C48(arg0, 0x2AC, 0.0f, 6.0f);
                 } else {
-                    func_80613AF8(arg0, 2, 0.0f, 6.0f);
+                    controllerAnimSetStateRemap(arg0, 2, 0.0f, 6.0f);
                     func_80614E78(arg0, 1);
                 }
                 if (sp2E == 4 || sp2E == 5) {
@@ -1814,7 +1814,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 break;
             case 4:
                 func_80614E78(arg0, 2);
-                func_80613AF8(arg0, 3, 0.0f, 6.0f);
+                controllerAnimSetStateRemap(arg0, 3, 0.0f, 6.0f);
                 if (sp2E == 3) {
                     switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
                         case 0:
@@ -1832,7 +1832,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 break;
             case 5:
                 func_80614E78(arg0, 3);
-                func_80613AF8(arg0, 4, 0.0f, 6.0f);
+                controllerAnimSetStateRemap(arg0, 4, 0.0f, 6.0f);
                 if (sp2E == 3 || sp2E == 4) {
                     controllerAnimScaleInterpolate(arg0, 4);
                 }
@@ -1901,7 +1901,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 break;
             case 3:
                 func_80614E78(arg0, 0x57);
-                func_80613AF8(arg0, 0x5C, 0.0f, 6.0f);
+                controllerAnimSetStateRemap(arg0, 0x5C, 0.0f, 6.0f);
                 if (sp2E == 4 || sp2E == 5) {
                     controllerAnimScaleInterpolate(arg0, 2);
                 }
@@ -1909,7 +1909,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 break;
             case 4:
                 func_80614E78(arg0, 0x56);
-                func_80613AF8(arg0, 0x58, 0.0f, 6.0f);
+                controllerAnimSetStateRemap(arg0, 0x58, 0.0f, 6.0f);
                 if (sp2E == 3) {
                     switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
                         case 0:
@@ -1927,7 +1927,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 break;
             case 5:
                 func_80614E78(arg0, 0x55);
-                func_80613AF8(arg0, 0x60, 0.0f, 6.0f);
+                controllerAnimSetStateRemap(arg0, 0x60, 0.0f, 6.0f);
                 switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
                     case 4:
                     case 5:

@@ -2737,14 +2737,14 @@ int func_806E5C74(void) {
            (gPlayerCharacterId[gCurrentPlayerIndex] != 6) && (D_807FD568[1] != 0);
 }
 
-void func_80613AF8(void *, s32, f32, f32);
+void controllerAnimSetStateRemap(void *, s32, f32, f32);
 
 void func_806E5D60(void) {
     if (func_806E5C74() != 0) {
         switch (D_807FD568[1]) {
             case 2:
                 func_80614E78(D_807FBB40, 0x17);
-                func_80613AF8(D_807FBB40, 0x18, 0.0f, 3.0f);
+                controllerAnimSetStateRemap(D_807FBB40, 0x18, 0.0f, 3.0f);
                 scriptSetActorRampTarget(D_807FBB40, 1.35f, 0.0f);
                 break;
             case 3:
@@ -2752,7 +2752,7 @@ void func_806E5D60(void) {
                 break;
             default:
                 func_80614E78(D_807FBB40, 0x16);
-                func_80613AF8(D_807FBB40, 0x17, 0.0f, 3.0f);
+                controllerAnimSetStateRemap(D_807FBB40, 0x17, 0.0f, 3.0f);
                 scriptSetActorRampTarget(D_807FBB40, 1.35f, 0.0f);
                 break;
         }
