@@ -323,12 +323,11 @@ void arcadeDispatchState(Gfx **arg0) {
 }
 
 
-#ifdef NON_MATCHING
 extern u8 D_8004A794;
 void arcadeInsertHighScore(s32 arg0) {
     s32 i;
     s32 j;
-    u16 S[2];  // FAKE: u16 array read/written through (u8 *) casts: mismatched access sizes keep the byte in memory (sb 12(sp) at entry) and make the loop-2 read a hoistable ilod (lbu in the preheader)
+    u16 S[2];  // FAKE: u16 array read/written through (u8 *) casts: mismatched access sizes keep the byte in memory (sb 12(sp) at entry); the variable-indexed dead reads make the loop-2 read a hoistable ilod
 
     *(u8 *)S = D_8004A794;
     for (i = 4; i > arg0; i--) {
@@ -338,17 +337,15 @@ void arcadeInsertHighScore(s32 arg0) {
         }
     }
     D_8004A74C[arg0] = D_8004A748;
-    if (S[0]) {}  // FAKE: dead S access (spill-slot candidates for the target frame 0x18)
-    if (S[i % 1] == 0) {}  // FAKE: dead variable-indexed S access (spill-slot candidates for the target frame 0x18)
+    if (S[0]) {}  // FAKE: dead S access (residency / spill-slot candidate for frame 0x18); S is address-taken memory, value unused
+    if (S[i % 1] == 0) {}  // FAKE: dead variable-indexed S access (memory residency)
+    if (D_8004A778[arg0] && D_8004A778[arg0]) {}  // FAKE: row address becomes a CSE candidate computed here, so arg0 no longer appears in the loop-2 preheader bb and the hoisted lbu can take a0
+    if (S[i % 1]) {}  // FAKE: second variable-indexed dead S read (candidate order for the colouring)
     i = 0; do {  // LAYOUT: init joined on the do line
         D_8004A778[arg0][i] = *(u8 *)S;
         i++;
     } while (i < 3);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/arcadeInsertHighScore.s")
-#endif
 
 extern ArcadeEntity D_8004A698;
 extern u8 D_8004A774[3];
@@ -2680,7 +2677,6 @@ void arcadeUpdateEntitySprite(s32 arg0) {
 }
 
 
-#ifdef NON_MATCHING
 void arcadeUpdateBarrelEntity(s32 arg0) {
     s32 sp3C;
     ArcadeEntity *e;
@@ -2742,10 +2738,10 @@ void arcadeUpdateBarrelEntity(s32 arg0) {
             D_8004BCD0[arg0].unk10 = (f32)((f64)D_8004BCD0[arg0].unk10 + 0.3);
             e->unk4 = D_8004BCD0[arg0].unk4 + e->unkC;
             if ((f32)(D_8004C6E8 - 1) < e->unk4) {
-                e->unk1A = 1 - e->unk1A;
-                e->unk19 = 2;
                 e->unk4 = (f32)sp3C;
+                e->unk1A = 1 - e->unk1A;
                 e->unk8 = (f32)(1 - D_8004BCD0[arg0].unk1A * 2);
+                e->unk19 = 2;
             }
             break;
         case 7:
@@ -2789,8 +2785,6 @@ void arcadeUpdateBarrelEntity(s32 arg0) {
                     sp3C = arcadeFindFreeEntity();
                     D_8004BCD0[sp3C] = D_8004A3F8;
                 }
-                if (D_8004C71F == 0) {}  // FAKE: dead test (steers uopt)
-                if (D_8004BCD0[D_8004C71F].unk1C && D_8004BCD0[D_8004C71F].unk1C) {}  // FAKE: dead test (steers uopt)
                 D_8004BCE9[sp3C << 5] = 3;
                 e->unk18 = 0;
             } else {
@@ -2805,10 +2799,6 @@ void arcadeUpdateBarrelEntity(s32 arg0) {
         arcadeUpdateEntitySprite(arg0);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/arcade/nonmatchings/0/arcadeUpdateBarrelEntity.s")
-#endif
 
 extern s8 D_8004A768;
 extern u8 D_80037B98[];
