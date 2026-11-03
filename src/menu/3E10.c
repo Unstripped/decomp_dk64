@@ -1713,13 +1713,16 @@ void func_8002CB18(void) {
                 s16 *q = Menu6B_N->unk17C;
                 *q = *sp38;
             }
-            Menu6B_N->unk154 = Menu6B_A->unk154;
-            Menu6B_N->unk155 = (u16)idx; // FAKE: no-op narrowing cast; burns one ugen t-ring temp so the join block luis get the target regs (72 -> 12)
+            Menu6B_N->unk154 = (u8)Menu6B_A->unk154; // FAKE: no-op narrowing cast, burns one ugen t-ring temp
+            Menu6B_N->unk155 = (s16)idx; // FAKE: no-op narrowing cast, burns one ugen t-ring temp
             {
                 Menu6_Sub174 *sub = Menu6B_N->unk174;
                 sub->unk0 = temp_s1->unk0;
             }
-            sp4F = 1;
+            if (Menu6B_A->unk154 != 0) {} // FAKE: extra reference of the unk154 value; recolours the shared A->unk154 candidate (t0) and the PRE reload position
+            sp4F = 1 | 0; // FAKE: no-code spelling of the constant (steers the sp4F store colour)
+            if (temp_s1->unk4 != 0) {} // FAKE: dead test; one ugen ring step before the join block (t7 lui)
+            sp4F = sp4F | 0; // FAKE: no-code def of sp4F (ring/colour steer)
                     }
         row = &D_80033894[Menu6B_A->unk154];
         func_800317E8((MenuScreenState *)sp5C, row->a, row->b, &sp54, &sp50, 2, 0, 1.8f);
@@ -3548,19 +3551,15 @@ f32 menuEvaluateSpline(f32 *, f32, f32 *);
 
 s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *arg5, s16 *arg6) {
     f32 v;
-    volatile s32 ret;
-    if ((arg1 * 4) << 2) {} // FAKE: extra reference of the shared (arg1 * 4) << 2 expression; steers its CSE candidate priority
-    if ((arg1 * 4) << 2) {} // FAKE: second reference, same purpose (count-exact 177 insns; first one alone leaves 42)
     arg1 += ((MenuA_SelectorView *)arg0)->unk17;
     if (arg1 >= 5) {
         arg1 -= 5;
     }
-    ret = arg1;
     (&D_8003378C[arg1 * 4])[2] = D_8003373C[arg1 * 4];
     D_8003373C[(arg1 * 4) + 2] = -D_8003378C[arg1 * 4];
     D_8003378C[(4 * arg1) + 3] = D_8003373C[(arg1 * 4) + 1];
-    (&D_8003373C[arg1 * 4])[3] = -D_8003378C[(arg1 * 4) + 1];
-    *arg2 = menuEvaluateSpline((f32 *)((u8 *)D_8003373C + ((arg1 * 4) << 2)), ((MenuA_SelectorView *)arg0)->unk4, NULL);
+    (&D_8003373C[4 * arg1])[3] = -D_8003378C[(4 * arg1) + 1];
+    *arg2 = menuEvaluateSpline((f32 *)((u8 *)D_8003373C + ((arg1 << 2) << 2)), ((MenuA_SelectorView *)arg0)->unk4, NULL);
     *arg3 = menuEvaluateSpline((f32 *)((u8 *)D_8003378C + ((4 * arg1) << 2)), ((MenuA_SelectorView *)arg0)->unk4, NULL);
     if (*arg3 < -40.0f) {
         v = -*arg3 - 40.0f;
@@ -3588,7 +3587,7 @@ s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *ar
     *arg3 *= 4.0f + (((MenuA_SelectorView *)arg0)->unk0 * 4.0f);
     *arg2 += 640.0f;
     *arg3 += 480.0f;
-    return ret;
+    return arg1;
 }
 #else
 
