@@ -1,4 +1,4 @@
-// eepromValidateSaveSlots (src/global/104F0.c): Eep 2026-11-03 (revisit 7): stage 5, count-exact 315, frame 0x98 exact, deadsweep full 44 (text 39, reloc 6 = EDEA9/AA/AB names) vs stored 46/41. New: '(crc(...) ^ 0)' on both 'stored != crc' compares (Patrol lever) fixed both beq/beql operand orders (-2); dropped dead 'if (i && stored) {}' (read of unassigned stored, no effect); 5 FAKEs left (ok|0, version x2, j, i&&found). Remaining: (1) multu s2,t9 vs t9,s2 in '(i+1)*H' (statement order, operand swap, named next var, casts: no effect); (2) andi a0,s3,0xff vs move a0,s3 x2: target passes slot to eepromClearSlotData as a prototyped u8 param - 'extern void eepromClearSlotData(u8, s32);' gives 42 but cfe errors against the later 'extern void eepromClearSlotData();' (line ~633) and would change callers using '& 0xFF'; orchestrator could try changing that declaration; (3) loop-3 found s5/255 s6 vs s2/s5 (version FAKE keeps s2 busy); (4) final block: target hi lui s1 + addu s1,s1,t6; lw lo(s1) and separate lui t7/addiu t7 arg base, a2 coloured for the idx chain; ours one pointerized t9 + li s1,4 (j FAKE). Tried: u8 slot (frame +4), slot & 0xFF, idx expression spellings, dead tests on the idx expression, hill-climb over dead tests/moves 16k evals: no gain.
+// eepromValidateSaveSlots (src/global/104F0.c): W2Frame 2026-11-03 (revisit 7 wave 2): park 44 -> 42 (text 39 -> 37, reloc 6 = EDEA9/AA/AB names, shape 11). NEW: 'eepromClearSlotData((u8)slot & 0xFF, 0)' (both calls) emits the target's 'andi a0,s3,0xff' with the existing unprototyped decl (plain '(u8)slot' / 'slot & 0xFF' / (u8)(u32) give 'move a0,s3' or worse): no prototype change needed. Dropped the dead '| 0' on the stored load ('((u32 *)D_807ED6A8)[idx]', same score). Remaining: (1) multu s2,t9 vs t9,s2 (i+1 forms, dead tests on i+1 expressions: no effect), (2) loop-3 found s5/255 s6 vs s2/s5, (3) final block: target hi 'lui s1; addu s1,s1,t6; lw lo(s1)' + separate 'lui t7/addiu t7' crc base + a2 chain, ours one pointerized t9 + li s1,4; 6 spellings of the stored load x 6 of the crc base are all identical (42), anneal2 (dead tests, 2x10k evals) only reaches count-padding (+2 insn 'failed|0') with no real gain; ours is 2 lines shorter than the target in that block (real structure, not regalloc).
 void eepromValidateSaveSlots(void) {
     s32 j;
     u32 slot;
@@ -35,7 +35,7 @@ void eepromValidateSaveSlots(void) {
         if (stored != (eepromCalculateCrc32(data, len) ^ 0)) {  // FAKE: keeps stored on the left of beq
             ok = 0;
             slot = i;
-            eepromClearSlotData((u8)slot, 0);
+            eepromClearSlotData((u8)slot & 0xFF, 0);
             eepromSetField(0xF, 0, 0, slot, 0xFF);
         }
         failed |= (ok == 0);
@@ -55,7 +55,7 @@ void eepromValidateSaveSlots(void) {
                     slot2 = j;
                     if (eepromGetField(0xD, 0, 0, slot2) != 0 && eepromGetField(0xF, 0, 0, slot2) == version && (u32)eepromGetField(0x10, 0, 0, slot) <= (u32)eepromGetField(0x10, 0, 0, slot2)) {
                         found = 0xFF;
-                        eepromClearSlotData((u8)slot, 0);
+                        eepromClearSlotData((u8)slot & 0xFF, 0);
                         eepromSetField(0xF, 0, 0, slot, 0xFF);
                         failed |= 1;
                     }
@@ -81,7 +81,7 @@ void eepromValidateSaveSlots(void) {
     if (version != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (j != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     ok = 1;
-    stored = ((u32 *)((u32)D_807ED6A8 | 0))[(u16)(((height + 0x40) / 4) - 1)];
+    stored = ((u32 *)D_807ED6A8)[(u16)(((height + 0x40) / 4) - 1)];
     if (stored != (eepromCalculateCrc32((u8 *)&D_807ED6A8[0] + (height & 0xFFFF), 0x3C) ^ 0)) {  // FAKE: keeps stored on the left of beql
         ok = 0;
         func_8060CB74();

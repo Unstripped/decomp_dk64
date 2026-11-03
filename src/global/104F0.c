@@ -562,7 +562,7 @@ void eepromValidateSaveSlots(void) {
         if (stored != (eepromCalculateCrc32(data, len) ^ 0)) {  // FAKE: keeps stored on the left of beq
             ok = 0;
             slot = i;
-            eepromClearSlotData((u8)slot, 0);
+            eepromClearSlotData((u8)slot & 0xFF, 0);
             eepromSetField(0xF, 0, 0, slot, 0xFF);
         }
         failed |= (ok == 0);
@@ -582,7 +582,7 @@ void eepromValidateSaveSlots(void) {
                     slot2 = j;
                     if (eepromGetField(0xD, 0, 0, slot2) != 0 && eepromGetField(0xF, 0, 0, slot2) == version && (u32)eepromGetField(0x10, 0, 0, slot) <= (u32)eepromGetField(0x10, 0, 0, slot2)) {
                         found = 0xFF;
-                        eepromClearSlotData((u8)slot, 0);
+                        eepromClearSlotData((u8)slot & 0xFF, 0);
                         eepromSetField(0xF, 0, 0, slot, 0xFF);
                         failed |= 1;
                     }
@@ -608,7 +608,7 @@ void eepromValidateSaveSlots(void) {
     if (version != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (j != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     ok = 1;
-    stored = ((u32 *)((u32)D_807ED6A8 | 0))[(u16)(((height + 0x40) / 4) - 1)];
+    stored = ((u32 *)D_807ED6A8)[(u16)(((height + 0x40) / 4) - 1)];
     if (stored != (eepromCalculateCrc32((u8 *)&D_807ED6A8[0] + (height & 0xFFFF), 0x3C) ^ 0)) {  // FAKE: keeps stored on the left of beql
         ok = 0;
         func_8060CB74();

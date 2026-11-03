@@ -1,15 +1,15 @@
-// modelSlotResolveAssetTextures (src/global/36880.c): Model 2026-11-03 (leftovers7): stage 4 park, count-exact 121/121, frame 72, s0/s1 right, deadsweep full 41 (was 54), shape 7, ALL sp offsets equal the target. KEY: declaration order [seg,obj,seg2(volatile),flags,pad,sp30,node,res,sp24,sp20] puts every home at the target slot (seg2 0x3C, count 0x30, node 0x2C, res 0x28, sp24 0x24, sp20 0x20); the old order was 8 bytes off (54 -> 43). Then separate pointer-copy locals: pad (calls 1,3,4) instead of flags/seg->unkA0 (-> 41; flags no longer doubles as the pointer copy, now s32; call-1 'lw a0,160(s0)' direct as in target). Remaining 41: obj 'lw v0,36(a0)...move s1,v0' (target) vs 'lw s1' (no spelling: obj store via expression first, expression in condition, statement orders all tried; E=arg0->unk24 is killed by the obj->unk8 store in our build, target keeps it); flags a3 vs v0; ring numbering; commutative addu a1,a0,t1 vs t1,a0 in call 2; target sb t8,43(sp) vs sb v1. Non-volatile arg2 gives 'andi a3,a2,0xff; sb a3,83(sp)' (51): arg2 stays memory-resident in the target only if a3 is unavailable to it (flags would have to be a3), then the lbu t5,83(sp) hoist above beqzl also appears; volatile blocks that hoist. Tried: sibling-style head/mid/start/len/count locals (3 s-regs: node coloured s0; one extra block anywhere makes node uncoloured and frame 72), asset-copy var for the else arm, 100k-eval annealing of dead tests / ordering / operand-order toggles / pointer-copy variable choices.
+// modelSlotResolveAssetTextures (src/global/36880.c): W2Frame 2026-11-03 (revisit 7 wave 2): stage 4 park, count-exact 121, frame 72, s0/s1 right, deadsweep full 39 (was 41), shape 10. NEW vs stored: dropped 'volatile arg2' FAKE (K&R 'u8 arg2' plain) and the flags local (reads arg0->unk8C directly; compound |= 0x20), split obj in two webs: 'p = arg0->unk24; p->unk8 = gFrameCounter; obj = (T*)((u32)p | 0)' (declared in flags' home slot so homes stay at the target slots): reproduces the target's 'lw E; sw 8(E); move s1,E' piece split (count 120 -> 121). Remaining: p coloured v1/flags v0 (target E v0, flags a3), arg2 coloured a3 with 'andi a3,a2,0xff / sb a3,83(sp)' (target keeps arg2 memory-resident: lbu 0x53(sp) at every use, needs flags=a3 so a3 is not free for arg2: v0/v1/a2 would need ghost webs), then the t-ring is shifted by one after the first block. Tried: ANSI header (needs the decl at ~583 changed; same 39), K&R s32 arg2+(u8) casts, 128 x 3 x 2 grids of which obj-use sites read p vs obj, ghost locals (pad/sp20/sp24/sp30 = X; if (X) {}) at every position, dead-test anneal (15k evals, no gain), E=arg0->unk24 expression spellings (A/B/C store forms: E is killed by the sw in every spelling, target keeps it).
 s32 dlResolveNodeTextures(DisplayListCmd *, DisplayListCmd *, ModelSegmentNode *, u8);
 
 s32 modelSlotResolveAssetTextures(arg0, arg1, arg2)
 ModelSlot *arg0;
 u8 arg1;
-volatile u8 arg2; // FAKE: keeps arg2 memory-resident (target reloads it with lbu 0x53(sp) at every use)
+u8 arg2;
 {
     ModelSegmentData *seg;
     ModelSlotObjHeader *obj;
     ModelSegmentData *volatile seg2; // FAKE: keeps a memory copy of seg (target reloads it from 0x3C(sp) in the else branch)
-    s32 flags;
+    ModelSlotObjHeader *p; // FAKE-adjacent: pointer copy used for the first store/test (steers uopt pieces)
     s32 pad;
     u32 sp30;
     ModelSegmentNode *node;
@@ -20,14 +20,14 @@ volatile u8 arg2; // FAKE: keeps arg2 memory-resident (target reloads it with lb
         &node; // FAKE: node must be stack resident
     }
     seg = ((ModelSlotSegOwner *)arg0)->unk20;
-    obj = (ModelSlotObjHeader *)arg0->unk24;
+    p = (ModelSlotObjHeader *)arg0->unk24;
     seg2 = seg;
-    obj->unk8 = gFrameCounter;
-    flags = arg0->unk8C;
+    p->unk8 = gFrameCounter;
+    obj = (ModelSlotObjHeader *)((u32)p | 0); // FAKE: blocks copy propagation
     if (arg0->unk20 && arg0->unk20) {} // FAKE: dead test steers uopt colouring
-    if (!(flags & 0x20)) {
+    if (!(arg0->unk8C & 0x20)) {
         if (!(obj->unk0 & 0x10) || arg2 != 0) {
-            arg0->unk8C = flags | 0x20;
+            arg0->unk8C |= 0x20;
             obj->unk3C += 1;
             if (obj->unk1C == 1) {
                 node = (ModelSegmentNode *)((ModelSlotSegOwner *)arg0)->unk20->unkB8;

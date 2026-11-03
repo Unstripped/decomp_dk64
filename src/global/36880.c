@@ -2832,12 +2832,12 @@ s32 dlResolveNodeTextures(DisplayListCmd *, DisplayListCmd *, ModelSegmentNode *
 s32 modelSlotResolveAssetTextures(arg0, arg1, arg2)
 ModelSlot *arg0;
 u8 arg1;
-volatile u8 arg2; // FAKE: keeps arg2 memory-resident (target reloads it with lbu 0x53(sp) at every use)
+u8 arg2;
 {
     ModelSegmentData *seg;
     ModelSlotObjHeader *obj;
     ModelSegmentData *volatile seg2; // FAKE: keeps a memory copy of seg (target reloads it from 0x3C(sp) in the else branch)
-    s32 flags;
+    ModelSlotObjHeader *p;
     s32 pad;
     u32 sp30;
     ModelSegmentNode *node;
@@ -2848,14 +2848,14 @@ volatile u8 arg2; // FAKE: keeps arg2 memory-resident (target reloads it with lb
         &node; // FAKE: node must be stack resident
     }
     seg = ((ModelSlotSegOwner *)arg0)->unk20;
-    obj = (ModelSlotObjHeader *)arg0->unk24;
+    p = (ModelSlotObjHeader *)arg0->unk24;
     seg2 = seg;
-    obj->unk8 = gFrameCounter;
-    flags = arg0->unk8C;
+    p->unk8 = gFrameCounter;
+    obj = (ModelSlotObjHeader *)((u32)p | 0); // FAKE: blocks copy propagation
     if (arg0->unk20 && arg0->unk20) {} // FAKE: dead test steers uopt colouring
-    if (!(flags & 0x20)) {
+    if (!(arg0->unk8C & 0x20)) {
         if (!(obj->unk0 & 0x10) || arg2 != 0) {
-            arg0->unk8C = flags | 0x20;
+            arg0->unk8C |= 0x20;
             obj->unk3C += 1;
             if (obj->unk1C == 1) {
                 node = (ModelSegmentNode *)((ModelSlotSegOwner *)arg0)->unk20->unkB8;
