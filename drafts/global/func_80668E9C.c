@@ -1,4 +1,4 @@
-// func_80668E9C (src/global/6AD90.c): W3Static (leftovers6 w3): stage 5 score 38 unchanged (count 508, frame 0x130). Annealing (dead-test insert/move/delete + per-site nz var/inline E choice + dead E-expression tests, count/frame penalties, 4 runs x ~10k evals from base and from all-inline) never beat 38. Model from -l5/-l6: all-inline nz (496 insns) lets E_nz (adj 20, sole carrier) outrank the y/arg3 pieces for f22 (ordinal 31; shares it with cand 118 whose live range ends before the d-line), so it never spills; target needs adj(y) > adj(E_nz) while E_nz keeps all 4 uses (d, y1, y2, y3: target sdc1 f0,112 before each call). Operand-order spellings of E (4 variants x 4 sites) are canonicalised to one candidate (all 210/496). Separate locals ya/yb for y at site1/site3: 65-70. No single-user globals (D_807F94B1/B3/BC/AC/946D all referenced by other functions).
+// func_80668E9C (src/global/6AD90.c): Coll leftovers7: stage 5 park, deadsweep full 38 -> 17 (text 17, reloc 0; count exact 508 lines/443 insns, frame 0x130; ALL registers and FP colours now match, only 17 stack-offset lines remain). NEW LEVERS: (1) dead store `dy01 = 0.0; // FAKE` right after the nz statement (dy02 same; dx01/dx02/dz01/dz02 break count) kills same-block store forwarding of nz's expression into d, so nz stays a var and gets f0 / d f2 exactly like the target (38 -> 20); (2) f64 val temp per arm (`val = X; y = (f32)((2000.0 * val) - 1000.0)`, FAKE) fixes the three mul.d 2000.0*val operand orders (+8 frame bytes: pad row padB[8] -> padB[6], val declared after d). Remaining diff: spill-slot layout. Target: sp8C-value temp at 140, x1/y1/z1 spill temps 136/132/128, nz EXPRESSION temp (sdc1 f0,112(sp), 8 bytes), x1' at 104, nothing at 264; ours: temps 128/124/120/116 (3 never-coded high-index temp candidates occupy 132-140), nz is a VAR spilled to its home 264. Target nz is thus an expression candidate carrying all 4 uses (d,y1,y2,y3) = inline E in source, but inline E makes the y expression have >=10 leaf vars (uoptcopy.c countvars(...) >= 10 blocks forwarding), y stays a var with adj 16.7 < E adj 20, E takes f22 and never spills (count 496). Tried: all 16 per-site var/inline-E combos x kill x padB x val, block-scoped nz (worse, 55/65), dropping sp8C/padLo/pad* declarations (temps stay at 128: the 3 top holes are candidates, not decls), 6656 declaration-layout combos, 14k-iteration dead-test hill-climb with field-pair dead tests (no gain).
 typedef struct {
     f32 x[3];
     f32 y[3];
@@ -84,10 +84,11 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
     CollisionActorTri *tri;
     f64 nx, ny, nz;
     f64 d;
+    f64 val;
     f64 dx01, dy01, dz01, dx02, dy02, dz02;
     f32 y;
     ModelSlotHitFlagsView *sub7C;
-    f32 padB[8];
+    f32 padB[6];
     f32 hit_y;
     u8 hit;
     s32 pad9C;
@@ -160,10 +161,12 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
                 nx = (dy01 * dz02) - (dz01 * dy02);
                 ny = (dz01 * dx02) - (dx01 * dz02);
                 nz = (dx01 * dy02) - (dy01 * dx02);
+                dy01 = 0.0;  // FAKE: kills nz store forwarding into d
                 d = -((nx * (f64)tri->x[1]) + (ny * (f64)tri->y[1]) + (nz * (f64)tri->z[1]));
                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
                 if (arg0 != NULL) {
-                    y = (f32)((2000.0 * (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)))) - 1000.0);
+                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                    y = (f32)((2000.0 * val) - 1000.0);
                     func_80666D88(arg4, y, 0, (Actor *)arg0, 0);
                     if (func_80666F04(arg4, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
                         collisionAttachActorToObjectNode((struct CollisionActorWork *)arg0, sp9A, -1, 0, arg2, y, arg3);
@@ -171,10 +174,12 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
                     }
                 }
                 if (D_807F94BC != 0) {
-                    collisionRecordTriangleF((struct CollisionTriF *)tri, (f32)((2000.0 * (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)))) - 1000.0));
+                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                    collisionRecordTriangleF((struct CollisionTriF *)tri, (f32)((2000.0 * val) - 1000.0));
                 }
                 if (collisionCheckTriangleWindingF32((struct CollisionTriF *)tri) != 0) {
-                    y = (f32)((2000.0 * (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)))) - 1000.0);
+                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                    y = (f32)((2000.0 * val) - 1000.0);
                     if (mathCheckCloserFloatThreshold(hit_y, y, (f32)((f64)arg4 + 4.0), 0) != 0) {
                         hit_tri = tri;
                         hit = 1;

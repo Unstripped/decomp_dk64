@@ -1501,10 +1501,11 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
     CollisionActorTri *tri;
     f64 nx, ny, nz;
     f64 d;
+    f64 val;
     f64 dx01, dy01, dz01, dx02, dy02, dz02;
     f32 y;
     ModelSlotHitFlagsView *sub7C;
-    f32 padB[8];
+    f32 padB[6];
     f32 hit_y;
     u8 hit;
     s32 pad9C;
@@ -1577,10 +1578,12 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
                 nx = (dy01 * dz02) - (dz01 * dy02);
                 ny = (dz01 * dx02) - (dx01 * dz02);
                 nz = (dx01 * dy02) - (dy01 * dx02);
+                dy01 = 0.0;  // FAKE: kills nz store forwarding into d
                 d = -((nx * (f64)tri->x[1]) + (ny * (f64)tri->y[1]) + (nz * (f64)tri->z[1]));
                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
                 if (arg0 != NULL) {
-                    y = (f32)((2000.0 * (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)))) - 1000.0);
+                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                    y = (f32)((2000.0 * val) - 1000.0);
                     func_80666D88(arg4, y, 0, (Actor *)arg0, 0);
                     if (func_80666F04(arg4, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
                         collisionAttachActorToObjectNode((struct CollisionActorWork *)arg0, sp9A, -1, 0, arg2, y, arg3);
@@ -1588,10 +1591,12 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
                     }
                 }
                 if (D_807F94BC != 0) {
-                    collisionRecordTriangleF((struct CollisionTriF *)tri, (f32)((2000.0 * (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)))) - 1000.0));
+                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                    collisionRecordTriangleF((struct CollisionTriF *)tri, (f32)((2000.0 * val) - 1000.0));
                 }
                 if (collisionCheckTriangleWindingF32((struct CollisionTriF *)tri) != 0) {
-                    y = (f32)((2000.0 * (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)))) - 1000.0);
+                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + (nz * (f64)arg3) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                    y = (f32)((2000.0 * val) - 1000.0);
                     if (mathCheckCloserFloatThreshold(hit_y, y, (f32)((f64)arg4 + 4.0), 0) != 0) {
                         hit_tri = tri;
                         hit = 1;
@@ -2089,6 +2094,7 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
                                 nx = (dy01 * dz02) - (dz01 * dy02);
                                 ny = (dz01 * dx02) - (dx01 * dz02);
                                 nz = (dx01 * dy02) - (dy01 * dx02);
+                                dy01 = 0.0;  // FAKE: kills nz store forwarding into d
                                 d = -(nx * (f64)tri->unk28 + ny * (f64)tri->unk34 + nz * (f64)tri->unk40);
                                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
                                     if (arg0 != NULL) {
