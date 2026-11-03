@@ -91,11 +91,11 @@ void actorUpdateModelMatrix(void *, s32);
 extern s8 D_807FC8D0;
 
 void func_806BC1E0(void) {
-    f32 old;
-    f32 b;
-    f32 t;
     f32 acc;
+    f32 old;
     f32 a;
+    f32 t;
+    f32 b;
     f32 sp70;
     s16 i;
     LgBState *st;
@@ -356,9 +356,9 @@ void func_806BC1E0(void) {
     acc = 0.0f; // FAKE: dead store, keeps the 0.0 constant candidate in $f18
     sp70 = st->unk30;
     if (st->unk4 != 0.0f && st->unk34 == 0) {
-        b = st->unk4;
+        a = st->unk4;
         old = st->unk0;
-        st->unk0 = old + b;
+        st->unk0 = old + a;
         if (D_80750650 == 0) {
             if (old < 0.63f && st->unk0 >= 0.63f) {
                 csModelStateSetByte(st->unk36 + st->unk37 * 4, 1, 1);
@@ -386,14 +386,14 @@ void func_806BC1E0(void) {
             LGB->unk7C = st->unk8 + t * (st->unk14 - st->unk8);
             LGB->unk84 = st->unk10 + t * (st->unk1C - st->unk10);
             if (D_80750650 == 0) {
-                a = st->unkC;
-                LGB->unk80 = a + t * (st->unk18 - a);
+                old = st->unkC;
+                LGB->unk80 = st->unkC + t * (st->unk18 - st->unkC);
             } else {
                 t = st->unk20;
-                a = st->unkC;
-                b = st->unk0;
-                acc = (f32)((f64)(st->unk18 - a) - (f64)t * 0.5);
-                LGB->unk80 = (f64)a + ((f64)(acc * b) + (f64)(b * b * t) * 0.5);
+                old = st->unkC;
+                a = st->unk0;
+                b = (f32)((f64)(st->unk18 - st->unkC) - (f64)t * 0.5);
+                LGB->unk80 = (f64)old + ((f64)(b * a) + (f64)(a * a * t) * 0.5);
             }
         }
         if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {

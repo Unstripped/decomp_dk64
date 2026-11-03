@@ -1,4 +1,4 @@
-// func_806BC1E0 (src/global/C0EE0.c): W2FpB (leftovers6): stage 5 park, score 56 -> 44 (shape 5, frame ok, 1078 insns exact). FP webs fixed by role-renaming annealing (old/a/b/t/acc names per web: .scratch/W2FpB/hc2.py); only 2 FP lines left (a + t*(unk18-a) operand order of mul/add). Remaining ~40 lines: loop2 head: ring phase off by 2 temps twice (target ring: andi t9/lb t3, then dy sra t8: two hidden consecutive ring allocations before 'and' and between dx chain and dy; ours none) so as1 hoists andi above beqzl; post-loop n-1 is coloured cand in v1 (ours) vs ring t3 (target). Tried: spelling grids of cond/dx/dy, casts, dead tests (11k), no-code defs, self-stores (real burn2 gives andi t9 but count +4), v-local in cond, loop forms, FP role annealing, decl-order climbs.
+// func_806BC1E0 (src/global/C0EE0.c): L878 (leftovers7): stage 5 park, deadsweep score 44 -> 42 (shape 5, frame ok, 1078 insns exact). FP tail now EXACT: reading st->unkC inline at the unk80 sites (isop CSE candidate, not the a-local) fixed the a + t*(unk18-a) mul/add operand order; role annealing with inline-field read sites (L878 hc7). Remaining 42 lines: loop2 head and post-loop dx/dy ring phase only: ours andi t7/lb t8 (as1 hoists andi above beqzl, lb 0x37 early) vs target andi t9/lb t3, dy sra t8 (target ring skips 2 temps before dx and again before dy); post-loop n-1 coloured v1 (ours, FAKE-dependent) vs ring t3. Tried this unit (all no gain): callee prototypes vs definitions (no effect), no-code defs and cast-chain grids on dx/dy/i-use/cond (20k), loop forms (while/do/continue/goto/switch), i type/latch forms, cond spellings (a non-CSE'd 2nd D[i] load emits +2 real insns), ghost locals, count-loop spellings, whole-function dead-test single/pair/annealing (60k evals: single tests move andi to t6/t8 never t9), permuter 580s (no useful hint). Peer note: ugen temps are LRU-first.
 typedef struct LgBObj {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -85,11 +85,11 @@ void actorUpdateModelMatrix(void *, s32);
 extern s8 D_807FC8D0;
 
 void func_806BC1E0(void) {
-    f32 old;
-    f32 b;
-    f32 t;
     f32 acc;
+    f32 old;
     f32 a;
+    f32 t;
+    f32 b;
     f32 sp70;
     s16 i;
     LgBState *st;
@@ -350,9 +350,9 @@ void func_806BC1E0(void) {
     acc = 0.0f; // FAKE: dead store, keeps the 0.0 constant candidate in $f18
     sp70 = st->unk30;
     if (st->unk4 != 0.0f && st->unk34 == 0) {
-        b = st->unk4;
+        a = st->unk4;
         old = st->unk0;
-        st->unk0 = old + b;
+        st->unk0 = old + a;
         if (D_80750650 == 0) {
             if (old < 0.63f && st->unk0 >= 0.63f) {
                 csModelStateSetByte(st->unk36 + st->unk37 * 4, 1, 1);
@@ -380,14 +380,14 @@ void func_806BC1E0(void) {
             LGB->unk7C = st->unk8 + t * (st->unk14 - st->unk8);
             LGB->unk84 = st->unk10 + t * (st->unk1C - st->unk10);
             if (D_80750650 == 0) {
-                a = st->unkC;
-                LGB->unk80 = a + t * (st->unk18 - a);
+                old = st->unkC;
+                LGB->unk80 = st->unkC + t * (st->unk18 - st->unkC);
             } else {
                 t = st->unk20;
-                a = st->unkC;
-                b = st->unk0;
-                acc = (f32)((f64)(st->unk18 - a) - (f64)t * 0.5);
-                LGB->unk80 = (f64)a + ((f64)(acc * b) + (f64)(b * b * t) * 0.5);
+                old = st->unkC;
+                a = st->unk0;
+                b = (f32)((f64)(st->unk18 - st->unkC) - (f64)t * 0.5);
+                LGB->unk80 = (f64)old + ((f64)(b * a) + (f64)(a * a * t) * 0.5);
             }
         }
         if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {
