@@ -1,25 +1,27 @@
-// jetpacBonusItemUpdate (src/jetpac/3480.c): Ovl (leftovers7): t1 form unchanged (full=5 text=5, count 315 vs 314; the direct-field form 'arg0->unk34 < inner->unk144' scores the same). as1 diagnosis via as1probe/t.G edits (.scratch/Ovl/e10.py): the target text comes out EXACTLY (full 0, 314) when the ugen stream has the 'li t5,2' record in the compare block right after the lw 0x144 (before the bge) AND an extra label record between that li and the bge (arm becomes a separate block: addiu then fills the beqz delay slot, sw keeps s0 instead of a0); a label alone (no li) gives full 2/314 (li not hoisted), li alone gives addiu hoisted + beqzl. So the target stream = ring-numbered li (t5, after lw 0x1c's t4) emitted in the entry block + a block boundary before the bge; no C spelling found. Tried this unit (all stay full>=5 or n!=314/315): 306 single dead tests x 4 slots (incl. unk1C/unk40/arg0/globals), 261 dead tests inside the return arm, 2556 dead-test pairs, all 1024 line-join layouts of the 11 head lines, 24 structural forms (wrap in if (unkC != 0), if/else with the rest in else, >= swap, inner->unk144 > t, !unkC), named d local with dead test between loads (dt/td 82+), li moved by hand to every record position. Count-exact park (full 7) stays in src; the t1 form is not count exact.
+// jetpacBonusItemUpdate (src/jetpac/3480.c): OvlA (revisit 8): unchanged park full 7 (text 7, 314=314), stage 5. Re-derived: natural no-FAKE body (t = arg0->unk34 local, t < inner->unk144) is full 5 / 315 with ALL registers right; as1probe: only diffs = label record before the bge + the li t5,2 record in the compare block (both edited into t.G = exact 314). FAKE inner->unk144==2 gives both but uopt then colours hoisted li a1 / unk144 v0 / unk34 a0 (target v0, t2 ring, li t5 ring). 1300 dead const-2 tests never colour the li above t0; also tried: compare/arm forms x casts (1500), 6 local-temp forms x FAKE subsets, raw-offset unk144 reads, phantom 2nd param (+1 insn), #define inner (347), flagSet(s16,u8,u8) proto, 2 random dead-test hill-climbs from FAKE and natural bases (no gain). No C spelling found.
+void flagSet(s32, s32, s32);
+void jetpacSpawnBonusItem(JetpacPlayer *);
 void jetpacBonusItemUpdate(JetpacItem *arg0) {
     JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
     s32 v;
     s32 v1;
     s32 v34;
     f32 *new_var;
-    s32 t;
-    s32 d;
     f32 *new_var2;
 
     if (inner->unkC == 0) {
         return;
     }
-    t = arg0->unk34;
-    if (t < inner->unk144) {
-        arg0->unk34 = t + 1;
+    if (inner->unk144 == 2) {} // FAKE: empty block boundary + const-2 web in the compare block (as1 delay slot / li hoist)
+    if (arg0->unk34 < inner->unk144) {
+        arg0->unk34 = arg0->unk34 + 1;
         return;
     }
+    if (inner->unk4 && inner->unk4) {} // FAKE: steers uopt candidate priority
     if (arg0->unk1C == 1) {
         arg0->unk1C = 2;
     }
+    if (inner->unk4) {} // FAKE: steers uopt candidate priority
     new_var = &jetpacPlayer;
     new_var2 = &D_8002F054;
     if (arg0->unk38 == 0) {
@@ -107,6 +109,7 @@ void jetpacBonusItemUpdate(JetpacItem *arg0) {
     case 3:
     case 4:
         arg0->unk34++;
+        if (arg0->unk34 && arg0->unk34) {} // FAKE: raises the unk34 candidate priority (base address -> v1)
         v34 = arg0->unk34 - inner->unk144;
         if (v34 >= 0x18) {
             v34 -= 0x18;
