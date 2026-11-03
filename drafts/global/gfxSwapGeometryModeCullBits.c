@@ -1,4 +1,4 @@
-// gfxSwapGeometryModeCullBits (src/global/17B90.c): from .scratch/W2Ring/gfxSwapGeometryModeCullBits_best.c
+// gfxSwapGeometryModeCullBits (src/global/17B90.c): Ctrl17 2026-11-03: stage 4 park, score 15 unchanged (count/frame/callee-saved exact). Diff is colouring only: target srl is a COLOURED var candidate (v0, 'bne v0,t1' var left of const), w0=v1, ghost=a2, w1=a3, (w1&0x600)=v0, x1/x2 coloured v0; ours srl ring t6, w1=v0, E=a3, x1/x2 ring. -l 6: leaf, all candidates 'unconstrained' => first-fit in candidate-index (first-appearance) order; target needs srl cand coloured before w0/w1 and E before w1. Tried (all 15 or worse): op=w0>>24 var (+dead tests: forwarded, or coloured a3), switch(w0>>24), phantom 3rd/4th params, loop forms (for/while/do/user pointer p), pre-def order permutations of {op,w1,w0,x2,x1} (19k combos), single x var, u32* index forms, x/w0 in-place, p-local, dead tests on (w0>>24) via deadsweep, 3 annealer runs, permuter 540 s.
 typedef struct GfxCmdWords {
     u32 unk0;
     u32 unk4;

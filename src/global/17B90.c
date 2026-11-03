@@ -533,18 +533,15 @@ typedef struct {
     u8 unk8;
 } AnimStateSlot;
 
-#ifdef NON_MATCHING
+#define FREESUB_SLOT(i) (((AnimStateSlot *)D_807FB630)[i])
 void controllerAnimFreeSub(arg0, arg1)
 ControllerViewB *arg0;
 u8 arg1;
 {
     ControllerSubB *sub;
-    AnimStateSlot *entry;
     ControllerCmdB *cmd;
     ControllerCmdListB *cmdList;
-    AnimStateSlot *last;
     u32 val;
-    s16 idx;
     s32 i;
     switch (arg1) {
     case 0:
@@ -570,8 +567,7 @@ u8 arg1;
         if (i == 32) {
             return;
         }
-        entry = (AnimStateSlot *)&D_807FB630[i];
-        if (--entry->unk2 == 0) {
+        if (--FREESUB_SLOT(i).unk2 == 0) {
             cmd = sub->commands->start;
             cmdList = sub->commands;
             if (cmd != (ControllerCmdB *)cmdList) {
@@ -586,32 +582,23 @@ u8 arg1;
                 } while (++cmd != (ControllerCmdB *)cmdList);
             }
 
-            idx = (u16)D_807FBB30 - 1;
-            last = (AnimStateSlot *)&D_807FB630[(u16)idx];
-            D_807FBB30 = idx;
+            D_807FBB30 = (u16)D_807FBB30 - 1;
+            FREESUB_SLOT(i).unk0 = FREESUB_SLOT((u16)D_807FBB30).unk0;
+            FREESUB_SLOT(i).unk4 = FREESUB_SLOT((u16)D_807FBB30).unk4;
+            FREESUB_SLOT(i).unk8 = FREESUB_SLOT((u16)D_807FBB30).unk8;
+            FREESUB_SLOT(i).unk2 = FREESUB_SLOT((u16)D_807FBB30).unk2;
 
-            entry->unk0 = last->unk0;
-            entry->unk4 = last->unk4;
-            entry->unk8 = last->unk8;
-            entry->unk2 = last->unk2;
-
-            last->unk0 = 0;
-            last->unk4 = 0;
-            last->unk8 = 0;
-            last->unk2 = 0;
+            FREESUB_SLOT((u16)D_807FBB30).unk0 = 0;
+            FREESUB_SLOT((u16)D_807FBB30).unk4 = 0;
+            FREESUB_SLOT((u16)D_807FBB30).unk8 = 0;
+            FREESUB_SLOT((u16)D_807FBB30).unk2 = 0;
 
             assetFreeBuffer((void *)sub, 0x281, 0x15);
-            if (idx != 0) {} // FAKE: dead test, keeps idx referenced (colours the lhu temp)
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimFreeSub.s")
-#endif
 
 
-#ifdef NON_MATCHING
 typedef struct {
     void *unk0;
     void *unk4;
@@ -634,33 +621,24 @@ int controllerAnimCacheFree(void *arg0, void *arg1) {
     void *temp_a2;
     s32 i;
     s32 count;
-    struct AnimCacheEntry *entry;
-    struct AnimCacheEntry *last;
 
     temp_a2 = *(void **)arg1;
     if (temp_a2 != NULL) {
         count = *(u16 *)&D_807FBB32;
-        entry = D_807FB7B0;
-        i = 0;
-        if (count && count) {} // FAKE: steers loop-latch slt (blocks LFTR i != count)
-        if (count > 0) {
-            do {
-                if (temp_a2 == entry->asset) {
-                    if (--entry->refCount == 0) {
-                        assetFreeBuffer(entry->asset, 0x298, 0x15);
-                        *(u16 *)&D_807FBB32 -= 1;
-                        last = &D_807FB7B0[*(u16 *)&D_807FBB32];
-                        entry->id = last->id;
-                        entry->asset = last->asset;
-                        entry->refCount = last->refCount;
-                        last->id = 0xFFFF;
-                        last->asset = NULL;
-                        last->refCount = 0;
-                    }
-                    break;
+        for (i = 0; i + 1 <= count; i++) { // LAYOUT: plain `i < count` is rewritten to a bne latch by uopt's LFTR
+            if (temp_a2 == D_807FB7B0[i].asset) {
+                if (--D_807FB7B0[i].refCount == 0) {
+                    assetFreeBuffer(D_807FB7B0[i].asset, 0x298, 0x15);
+                    *(u16 *)&D_807FBB32 -= 1;
+                    D_807FB7B0[i].id = D_807FB7B0[*(u16 *)&D_807FBB32].id;
+                    D_807FB7B0[i].asset = D_807FB7B0[*(u16 *)&D_807FBB32].asset;
+                    D_807FB7B0[i].refCount = D_807FB7B0[*(u16 *)&D_807FBB32].refCount;
+                    D_807FB7B0[*(u16 *)&D_807FBB32].id = 0xFFFF;
+                    D_807FB7B0[*(u16 *)&D_807FBB32].asset = NULL;
+                    D_807FB7B0[*(u16 *)&D_807FBB32].refCount = 0;
                 }
-                entry++;
-            } while (++i < count);
+                break;
+            }
         }
         *(void **)arg1 = NULL;
     }
@@ -668,10 +646,6 @@ int controllerAnimCacheFree(void *arg0, void *arg1) {
         ((ControllerAnimDataBlock *)((ControllerAnimRefView *)arg0)->unk4)->unk84 = 0;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/controllerAnimCacheFree.s")
-#endif
 
 typedef struct { u8 pad[0x14]; f32 a; f32 b; } AnimScaleState;
 typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } AnimScaleSpan;
