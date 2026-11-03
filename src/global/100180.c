@@ -40,13 +40,13 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
     s32 ret;
     s32 odd;
     src = (u8 *)arg2;
-    srcRow = (u8 *)arg2 + (arg3 >> 1);
-    dstRow = (u8 *)(arg6 * 16 + arg1 + arg6 * arg4);
+    srcRow = (u8 *)(arg2 + (arg3 >> 1));
     phase = (*(u8 *)arg5 & 1) != 0;
-    *(u8 *)arg5 += arg0;
-    w2 = (u32)arg0 >> 1;
+    w2 = arg0 >> 1;
+    dstRow = (u8 *)arg1 + arg6 * 16 + arg6 * arg4;
+    odd = arg0 & 1;
     dst = dstRow;
-    odd = (u8)(arg0 & 1) != 0; // FAKE: narrow-local idiom for odd
+    *(u8 *)arg5 = *(u8 *)arg5 + arg0;
     arg0 = w2;
     row = 0;
     do {
@@ -405,9 +405,9 @@ void vtxSetQuadGradientColors(void *, u8, u8, s8);
     TEXT_GFX_CMD(g, _SHIFTL(G_VTX, 24, 8) | _SHIFTL((n), 12, 8) | _SHIFTL((v0) + (n), 1, 7), (unsigned int)(v))
 
 Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
-    s16 h4;
-    u8 ch;
+    u8 line;
     u8 idx;
+    u8 ch;
     s16 startX;
     u8 *strStart;
     Gfx *g1;
@@ -429,10 +429,10 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     Gfx *g7;
     Gfx *g3;
     u8 w;
+    s16 h4;
     s16 gx;
     u8 *fi;
     u8 *glyph;
-    u8 line;
     Gfx *g2;
     s16 *v;
     s16 count;

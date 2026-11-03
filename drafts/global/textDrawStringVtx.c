@@ -1,4 +1,4 @@
-// textDrawStringVtx (src/global/100180.c): Text U6: stage 5 NON_MATCHING park in copy: count EXACT now (490 insns, same frame 0xC8/callee-saved), deadsweep full=196 shape=79 (prev park 183/66 was 493 insns). Found by decl-order/type hill-climb (locked line/idx/ch/startX/center/started/pad/yoff types): s16 count, u32 i, u8 w/h, reordered decls. Still left (stack offsets/regs only): fi (t3) prologue spill sw t3,124(sp) in ours (target keeps t3), line (u8 @199 in target) loaded into s6 by target but a3 in ours, yoff must live in a3 (target sll/sra a3 in place, sb a3,131 spill only around the font-sheet call) - ours stores yoff at def. vtxSetQuadGradientColors 3-param (definition) prototype raises count to 492-495: keep the 4-param phantom (void *, u8, u8, s8).
+// textDrawStringVtx (src/global/100180.c): Text R7: stage 5 NON_MATCHING park, count EXACT (490 insns, frame 0xC8, same callee-saved set), deadsweep full=192 shape=72 (was 196/79): decl order now line,idx,ch first (target homes: line 199, idx 198, ch 197, startX 194, strStart 188, vp/batch 172, pad/center/started 171/170/169), h4 moved after w; no single decl move or single dead test (line/idx/center/started x 139 points x 4 forms) improves. Left (regs/stack only): target keeps line memory-resident (home 199, reloaded each use) with an s6 cache lbu s6,199(sp) before the textMapCharToGlyph call, constant 0x07000000 then in s4; ours colours line a3 (spill sw/lw 68(sp) around call, store at 119 = home of a late-declared slot) and 0x700 in s6; fi (t3) spilled at def sw t3,124(sp) in ours vs target keeps t3 and spills only around calls (88); yoff a3 in place in target. Tried: GBI _g block-local macro (count 490 but frame 216, full 299), direct dl->words stores (476 insns), merged g vars (355), w/h s16/u16/s32 (>=208), volatile/addr-taken line (211/222), 2k decl-order SA moves (no gain).
 extern Mtx D_20000C0;
 extern Gfx D_2000180;
 Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
@@ -14,9 +14,9 @@ void vtxSetQuadGradientColors(void *, u8, u8, s8);
     TEXT_GFX_CMD(g, _SHIFTL(G_VTX, 24, 8) | _SHIFTL((n), 12, 8) | _SHIFTL((v0) + (n), 1, 7), (unsigned int)(v))
 
 Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
-    s16 h4;
-    u8 ch;
+    u8 line;
     u8 idx;
+    u8 ch;
     s16 startX;
     u8 *strStart;
     Gfx *g1;
@@ -38,10 +38,10 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     Gfx *g7;
     Gfx *g3;
     u8 w;
+    s16 h4;
     s16 gx;
     u8 *fi;
     u8 *glyph;
-    u8 line;
     Gfx *g2;
     s16 *v;
     s16 count;
