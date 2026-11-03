@@ -507,10 +507,7 @@ void bossSpawnerUpdate(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-s16 D_80035B74 = 0x78;
 
-
-#ifdef NON_MATCHING
 typedef struct BossAnimState {
     char pad0[4];
     f32 unk4;
@@ -578,7 +575,7 @@ typedef struct BossFollowerActor {
 void func_80613C48(void *, s16, f32, f32);
 void controllerApplyMotionWindow(void *, void *, f32);
 void projectileSetTargetCoords(f32, f32, f32);
-void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
+void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, void *);
 
 #define ACTOR ((BossFollowerActor *)D_807FBB40)
 
@@ -628,10 +625,10 @@ void bossFollowerActorUpdate(void) {
                 }
                 if (sub4_0->unk4 > 26.0f) {
                     ACTOR->unk80 -= 10.0f;
+                    if (sub4_0->unk10 == 1) {} // FAKE: steers uopt colouring (const 35 -> a1)
                 }
             }
             if ((f64)ACTOR->unk80 < 0.0) {
-                if (ACTOR->unk80) {}  // FAKE: dead test steers uopt colouring
                 sfxPlayOnFreeSlot(0x384, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 actorDespawn(ACTOR);
             }
@@ -646,11 +643,10 @@ void bossFollowerActorUpdate(void) {
                 }
                 D_80035B74 -= 1;
                 if (D_80035B74 < 0) {
-                    f32 z = ACTOR->unk84 + D_80035B20[sp30->unk14];
-                    f32 x = ACTOR->unk7C + D_80035B18[sp30->unk14];
-                    f32 y = ACTOR->unk80 + 270.0f;
+                    f32 zo = D_80035B20[sp30->unk14];
+                    f32 xo = D_80035B18[sp30->unk14];
                     D_80035B74 = 0xA;
-                    projectileSetTargetCoords(x, y, z);
+                    projectileSetTargetCoords(ACTOR->unk7C + xo, ACTOR->unk80 + 270.0f, ACTOR->unk84 + zo);
                     projectileAimAndSpawn(0x2C, 1, 0.25f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, 2400.0f, ACTOR);
                 }
             } else {
@@ -673,6 +669,7 @@ void bossFollowerActorUpdate(void) {
         ACTOR->unkE6 = D_80035B10[var_v0];
         ACTOR->unk60 |= 0x800000;
         ACTOR->unk16A = 0x23;
+        if (sub174->unk5 && sub174->unk5) {} // FAKE: steers uopt colouring (const 35 -> a1)
         ACTOR->unk16B = 0x23;
         ACTOR->unk16C = 0x46;
         if (sp30->unk12 != 1) {
@@ -684,7 +681,3 @@ void bossFollowerActorUpdate(void) {
     actorUpdateModelMatrix(ACTOR, 0);
 }
 #undef ACTOR
-#else
-
-#pragma GLOBAL_ASM("asm/boss/nonmatchings/DAA0/bossFollowerActorUpdate.s")
-#endif
