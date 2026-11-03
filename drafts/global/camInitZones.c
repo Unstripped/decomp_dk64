@@ -1,4 +1,4 @@
-// camInitZones (src/global/201B0.c): stage 5: exact 312 vs 312 insns (reloc=0 shape=0), gCamZoneSorted s16 array indexing in loops 1-2 matches loop index copies, separate val/key variables match double sign-extension, remaining diff only regalloc
+// camInitZones (src/global/201B0.c): W2IntD: stage 5/6 exact count 338, score 195 -> 25 (shape 0): remaining = first heapAlloc leaf (lh a0 vs ring t6 + P t6 vs t5), group-count candidate v1 vs a0, loop-4 pointer v0 vs t0 + ring phase. Levers: dead read 'if (CAM_ZONE_SORT[0].unk2 && ..) {}' after heapFree burns ONE ring temp (195->63), insertion-sort stmt order key/idx/val (43->39), loop-3 compare spelled gCamZoneSorted[i*2+1] != [(i-1)*2+1] (39->36), if (gCamZoneGroupCount) {} FAKE (36->25). ring leaf a0 at first alloc: ugen puts the first arg-tree leaf in a0 whenever free; target uses ring t6/t7 (no spelling found: sz local, casts, k local, tree shapes all tried).
 typedef unsigned char u8;
 typedef short s16;
 typedef int s32;
@@ -56,6 +56,7 @@ void camInitZones(void) {
     gCamZoneMinZ = gCamZoneMinZ / 400 * 400;
     if (gCamZoneSorted != NULL) {
         heapFree(gCamZoneSorted);
+        if (CAM_ZONE_SORT[0].unk2 && CAM_ZONE_SORT[0].unk2) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
     gCamZoneSorted = heapAlloc((CAM_ZONE_ENTRIES_PATH->unkC0 * 4) + 4);
     for (i = 0; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
@@ -64,8 +65,8 @@ void camInitZones(void) {
     }
     for (i = 1; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
         key = gCamZoneSorted[i * 2 + 1];
-        val = gCamZoneSorted[i * 2 + 1];
         idx = gCamZoneSorted[i * 2];
+        val = gCamZoneSorted[i * 2 + 1];
         j = i;
         while (j > 0 &&
                (key < gCamZoneSorted[(j - 1) * 2 + 1] ||
@@ -82,13 +83,15 @@ void camInitZones(void) {
     }
     gCamZoneGroupCount = 1;
     for (i = CAM_ZONE_ENTRIES_PATH->unkC0 - 1; i > 0; i--) {
-        if (CAM_ZONE_SORT[i].unk2 != CAM_ZONE_SORT[i - 1].unk2) {
+        if (gCamZoneSorted[i * 2 + 1] != gCamZoneSorted[(i - 1) * 2 + 1]) {
             gCamZoneGroupCount++;
         }
     }
     if (gCamZoneGroups != NULL) {
+        if (CAM_ZONE_SORT[0].unk2 && CAM_ZONE_SORT[0].unk2) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         heapFree(gCamZoneGroups);
     }
+    if (gCamZoneGroupCount) {}  // FAKE: dead read, makes the count a coloured candidate (v1) before the group alloc
     gCamZoneGroups = heapAlloc(gCamZoneGroupCount * 4 + 4);
     CAM_ZONE_GROUP[0].unk0 = CAM_ZONE_SORT[0].unk2;
     CAM_ZONE_GROUP[0].unk2 = 0;
@@ -96,6 +99,7 @@ void camInitZones(void) {
     for (i = 1; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
         if (CAM_ZONE_SORT[i].unk2 != CAM_ZONE_SORT[i - 1].unk2) {
             CAM_ZONE_GROUP[k].unk0 = CAM_ZONE_SORT[i].unk2;
+            if (CAM_ZONE_ENTRIES_PATH->unkC0 && CAM_ZONE_ENTRIES_PATH->unkC0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             CAM_ZONE_GROUP[k].unk2 = i;
             k++;
         }

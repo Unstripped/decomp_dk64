@@ -1,4 +1,4 @@
-// patrolPathStep (src/global/12E800.c): UNPARKED 2026-11-02: park was 376 insns vs target 374 (count-inexact parks stay drafts); stage 5, deadsweep full 180 -> 168 (text 175 -> 164, +2 reloc lines from FAKE dead test); regalloc only: dir t3 vs ra, idx t2 vs t3, key t1 vs t2, table(uixa cand 18) a3 vs t0, off ra vs t9. Trace: dir (cand 0, adjsave 1.33) is coloured BEFORE the &D_807FDC90/&D_807FBB40 consts (target colours it last -> ra); table cand 18 gets a3 where target forbids a3. Tried: x/dir/idx statement spellings (+100 worse), 60k-compile hill-climb of decl swaps / x=x / dead tests (180->168).
+// patrolPathStep (src/global/12E800.c): UNPARKED 2026-11-02 count-inexact; leftovers revisit 6 (Patrol): stage 5, deadsweep full 165 (was 180/168 park), 375 insns vs target 374 (was 376): case 2/0x26/0x60 rewritten as if (moved) {type==6 ... else-if idx+1 ...} else {x,y,z stores} (drops 1 nop+store-order diff: shape 30 / full 215 w/o FAKEs; 3 FAKEs hill-climb -> 165). Remaining extra insn: as1 fills beqz moved delay slot with the else-arm 'lh x,50(sp)' instead of fall-through 'lbu type,52(sp)', so bne type,6 gets lui+nop. Regalloc: dir t3 vs ra (dir must colour last; target idx t3 key t2 a3 unused, cand18 uixa t0 not a3), end epilogue lw ra/lbu v0 order follows dir=ra. Tried: 18 prologue spellings of idx/dir (P1 idx=(dir=U) best), decl perms of idx/v/dir/off + types, split v/idx locals (v2/idx2), .a local in case 0x49, line-join grid (1-2 joins), 3 hill-climbs ~100k compiles with count penalty, deadsweep sweep (155 but 419 insns)
 typedef struct PatrolState {
     /* 0x00 */ u8 pad0[0xA];
     /* 0x0A */ s16 unkA;
@@ -60,8 +60,8 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
   u8 key;
   u8 type;
   s16 x;
-  s16 z;
   s16 y;
+  s16 z;
   u8 moved;
   u8 q2;
   u8 p3;
@@ -76,11 +76,13 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
   idx = idx & 0x7F;
   key = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].a;
   type = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].b;
+  key = key ^ 0;  // FAKE
   off = key * 10;
   x = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->x;
   y = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->y;
   z = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->z;
   moved = (((((PatrolActorView *) D_807FBB40)->unk7C - x) * (((PatrolActorView *) D_807FBB40)->unk7C - x)) + ((((PatrolActorView *) D_807FBB40)->unk84 - z) * (((PatrolActorView *) D_807FBB40)->unk84 - z))) < ((f32) (((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->r * ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->r));
+  if (D_807FDC90) {}  // FAKE
   if (((arg1 & 1) && (((PatrolActorView *) D_807FBB40)->unk88 == ((PatrolActorView *) D_807FBB40)->unk7C)) && (((PatrolActorView *) D_807FBB40)->unk90 == ((PatrolActorView *) D_807FBB40)->unk84))
   {
     ((PatrolState *) D_807FDC90)->unk20++;
@@ -98,8 +100,8 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
   {
     case 0x49:
       v = idx + 1;
-      if (D_807FDCA0 == 0) {}  // FAKE: steers uopt colouring
       key = (v < ((D1Dc9cViewG *) D_807FDC9C)->unk11) ? (v) : (0);
+      if (D_807FDC90 == 0) {}  // FAKE
       v = mathAngleBetweenPoints2D(((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[key].a * 10)))->x, ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[key].a * 10)))->z, x, z);
       ((PatrolActorView *) D_807FBB40)->unkEE = v;
       ((PatrolActorView *) D_807FBB40)->unkE6 = v;
@@ -110,35 +112,32 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
       ((PatrolState *) D_807FDC90)->unkA = x;
       ((PatrolState *) D_807FDC90)->unkC = y;
       ((PatrolState *) D_807FDC90)->unkE = z;
-      type = type ^ 0;  // FAKE: steers uopt colouring
       break;
 
     case 2:
-
     case 0x26:
-
     case 0x60:
-      if (!moved)
-    {
-      x += 0;
-      ((PatrolState *) D_807FDC90)->unkA = x;
-      ((PatrolState *) D_807FDC90)->unkC = y;
-      ((PatrolState *) D_807FDC90)->unkE = z;
-    }
-    else
-      if (type == 6)
-    {
-      ((PatrolState *) D_807FDC90)->unk25 = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->unk8;
-    }
-    else
-      if ((idx + 1) < ((D1Dc9cViewG *) D_807FDC9C)->unk11)
-    {
-      ((PatrolState *) D_807FDC90)->unk25 = idx + 1;
-    }
-    else
-    {
-      ((PatrolState *) D_807FDC90)->unk25 = 0;
-    }
+      if (moved)
+      {
+        if (type == 6)
+        {
+          ((PatrolState *) D_807FDC90)->unk25 = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->unk8;
+        }
+        else if ((idx + 1) < ((D1Dc9cViewG *) D_807FDC9C)->unk11)
+        {
+          ((PatrolState *) D_807FDC90)->unk25 = idx + 1;
+        }
+        else
+        {
+          ((PatrolState *) D_807FDC90)->unk25 = 0;
+        }
+      }
+      else
+      {
+        ((PatrolState *) D_807FDC90)->unkA = x;
+        ((PatrolState *) D_807FDC90)->unkC = y;
+        ((PatrolState *) D_807FDC90)->unkE = z;
+      }
       break;
 
     case 3:

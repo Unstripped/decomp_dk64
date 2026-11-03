@@ -1,13 +1,13 @@
-// func_806CEFBC (src/global/CEAE0.c): UNPARKED 2026-11-02: park was 72 insns vs target 69 (count-inexact parks stay drafts); W4FpB: stage 5, 15 diff lines (was 18/19; parked in copy). Annealing over dead-test slots/forms + mid/lerp spelling (m0 m1 m2 l0 l1 l2 order; sp3C = u + (m-u)*t, sp38 = t*(m-u)+u; 3 early dead tests on unk7C(>0.5f)/unk80(!)/unk84, !sp4C, nested sp48, !sp44). Remaining: mid0 f0 (target f16), mid1 f14 (target f18), sp4C spilled; 17280-order x form grid + 3 hill-climb seeds floor 15-16. Cause unchanged: unk84 (idx57) outranks mids (adjsave 3 tie).
-typedef struct G05CbArg {
+// func_806CEFBC (src/global/CEAE0.c): SmallA W6: stage 3 (count 76 vs target 73; stage 5 only by 15 diff lines). Kept the W4FpB body (draft score 15). Traced: target colours the 4 field loads f0/f2/f12/f14 first, then mid0 f16, mid1 f18, mid2 spilled (stored 0x44 but used from ring f4), u/v/w stored at def. Our 3 extra insns = 'swc1 f0,76; lwc1 f4,76' (mid0 var spilled) + 'swc1 f18,72' (mid1 stored) + 'lw a3,60(sp)' for mfc1, all from the two LATE dead tests after the call (sp48 / sp44 live across jal => forbidden all caller-saved => spilled var traffic); without them n=74 but full 29. Natural lerp forms (m-x)*t+x for all three (target uses that form on all 3; W4FpB's x+(m-x)*t / t*(m-x)+x were colouring hacks) cost only +2 (17). New: single-use mid vars are forward-substituted (mids interleave with lerps) unless a dead test sits between a mid def and the lerps; tests on mids AFTER the call keep them live across jal (bad); field dead tests before the calls give the loads lower candidate numbers so they colour first on adjsave ties. Tried: natural base + exhaustive 0-4 dead tests on sp4C/sp48/sp44 at 6 slots (576), tests on all 6 vars (5040 combos), expression-vs-var lerp uses (64), early field-init assignments, anneals (4 x 270 s, pen_n 6-8, floor 33). No variant reached n=73.
+typedef struct SmallACbArg {
     /* 0x0 */ f32 unk0;
     /* 0x4 */ Actor *unk4;
     /* 0x8 */ Actor *unk8;
-} G05CbArg;
+} SmallACbArg;
 
-void func_8067A70C(Actor *, Actor *, f32, f32, f32, s32, s32);
+void func_8067A70C(s32, Actor *, f32, f32, f32, u8, u8);
 
-void func_806CEFBC(G05CbArg *arg0) {
+void func_806CEFBC(SmallACbArg *arg0) {
     f32 sp64;
     f32 sp60;
     f32 sp5C;
@@ -36,7 +36,7 @@ void func_806CEFBC(G05CbArg *arg0) {
     sp40 = (sp4C - arg0->unk8->unk7C) * arg0->unk0 + arg0->unk8->unk7C;
     sp3C = arg0->unk8->unk80 + (sp48 - arg0->unk8->unk80) * arg0->unk0;
     sp38 = arg0->unk0 * (sp44 - arg0->unk8->unk84) + arg0->unk8->unk84;
-    func_8067A70C(arg0->unk4, arg0->unk8, sp40, sp3C, sp38, 2, 1);
+    func_8067A70C((s32)arg0->unk4, arg0->unk8, sp40, sp3C, sp38, 2, 1);
     if (sp48 == 0.0f) { if (sp48) {} } // FAKE: dead test steers uopt coloring
     if (!sp44) {} // FAKE: dead test steers uopt coloring
 }
