@@ -1,4 +1,4 @@
-// eepromSaveRecords (src/global/104F0.c): from .scratch/W2Ring/eepromSaveRecords_best.c
+// eepromSaveRecords (src/global/104F0.c): Eep rev8 (no improvement, 26/342 insns): diff = B_post chain consts (target li at,-64/-8/-64 uncoloured per use, ours s3 + extra andi from (u16) cast), tail b candidate s0 vs s2 (candidate 90 ucvtl of b, first-fit s0), missing move s4,s1 copy feeding slti at,s4,256 + memcpy delay slot, D_807ECD08 lui/addiu in ring temp. Tried rev8: all mask suffix/cast grids (U/L/UL/s16/u8) x 3 chain stmts, dead tests between stmts, tail a/b split locals, kill stores on offset, start/guard locals, loop shapes (while/for, sector=idx), spelled-out E in loop (flips multu order: target loop uses a NAMED height var), 3x520s hc2 (decl perm + dead tests + structs) no gain.
 void eepromSaveRecords(s32 arg0) {
     s32 j;
     s32 sector;

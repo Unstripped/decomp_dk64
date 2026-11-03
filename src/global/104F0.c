@@ -527,23 +527,23 @@ extern u8 D_80744530;
 
 #ifdef NON_MATCHING
 void eepromValidateSaveSlots(void) {
-    s32 j;
-    u32 slot;
-    u16 len;
+    s32 height;  // FAKE: unused pad: shifts uopt variable numbering / colouring order
     u8 found;
-    u8 slot2;
-    u16 idx;
+    u16 off;
     s32 i;
-    u8 version;
+    u32 slot;
+    u8 slot2;
+    u16 len;
+    u32 hit;
     u8 valid[4];
     u8 sectorOrder[4];
-    u8 *data;
-    s32 height;
-    u32 stored;
+    s32 j;
+    u16 idx;
     u32 ok;
-    u32 padarr[1];
-    u16 off;
+    u32 stored;
+    u8 *data;
     u8 failed;
+    u8 version;
     failed = 0;
     ok = 0;
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
@@ -573,10 +573,9 @@ void eepromValidateSaveSlots(void) {
     for (i = 0; i < 4; i++) {
         if (valid[i] != 0) {
             slot = i;
-            if (version != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (eepromGetField(0xD, 0, 0, slot) != 0) {
-            version = eepromGetField(0xF, 0, 0, slot);
-            found = version;
+            found = version = eepromGetField(0xF, 0, 0, slot);
+            if (D_80744530) {}  // FAKE: steers uopt colouring order of found/version
             for (j = 0; j < 4 && found == version; j++) {
                 if (j != i && valid[j] != 0) {
                     slot2 = j;
@@ -593,29 +592,28 @@ void eepromValidateSaveSlots(void) {
         }
     }
     for (i = 0; i < 4; i++) {
-        found = 0;
-        for (j = 0; j < 4 && found == 0; j++) if (sectorOrder[j] == i) found = 1;
-        if (found == 0) for (j = 0; j < 4 && found == 0; j++) if (sectorOrder[j] == 0xFF) {
+        hit = 0;
+        for (j = 0; j < 4 && hit == 0; j++) if (sectorOrder[j] == i) hit = 1;
+        if (hit == 0) for (j = 0; j < 4 && hit == 0; j++) if (sectorOrder[j] == 0xFF) {
             sectorOrder[j] = i;
-            found = 1;
+            hit = 1;
             eepromSetField(0xF, 0, 0, j, i);
         }
     }
     for (j = 0; j < 4; j++) {
         D_807EDEA8[j] = sectorOrder[j];
     }
-    height = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
-    if (version != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    if (j != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     ok = 1;
-    stored = ((u32 *)D_807ED6A8)[(u16)(((height + 0x40) / 4) - 1)];
-    if (stored != (eepromCalculateCrc32((u8 *)&D_807ED6A8[0] + (height & 0xFFFF), 0x3C) ^ 0)) {  // FAKE: keeps stored on the left of beql
+    off = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
+    idx = (((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8) + 0x40) / 4 - 1;
+    stored = ((u32 *)(D_807ECEA8 + 0x800))[idx];
+    if (stored != (eepromCalculateCrc32(D_807ED6A8 + off, 0x3C) ^ 0)) {  // FAKE: keeps stored on the left of beql
         ok = 0;
         func_8060CB74();
     }
-    if (i && found) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     failed |= (ok == 0);
     D_807550C8 = eepromGetField(0x1F, 0, 0, 0);
+    if (i && i) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     D_80744530 = eepromGetField(0x20, 0, 0, 0);
     if (D_807550C8 > 0) {
         D_807550C8 = 0;
