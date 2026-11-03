@@ -1,4 +1,4 @@
-// eepromValidateSaveSlots (src/global/104F0.c): Eep 2026-11-02: stage 4 (count-inexact: 319 insns vs target 315, frame 0x98 exact): deadsweep score 61 (full; text 51, reloc 10 = EDEA9/AA/AB names) vs stored 64. Changes: D_807EDEA9/AA/AB/A8 stores as 'for (j = 0; j < 4; j++) D_807EDEA8[j] = sectorOrder[j];' (text 55->51), 3 redundant FAKEs dropped. Count gap is the 4 sb stores: target shares ONE lui at for all four (only reproduced when D_807EDEA8[4] is DEFINED in the TU: score 47, 316 insns; needs a .bss carve, yaml not editable), ours emits lui+sb each; plus slti/bnezl vs li at,4/bnel on loop3 and nop after func_8060CB74 delay slot. Remaining: multu s2,t9 vs t9,s2 (i+1 left), beq s1,v0 vs v0,s1 crc compare, andi a0,s3,0xff vs move a0,s3 at clearSlot calls, loop4 flag regs s7/s5 vs s5/s2. Tried: copy local n=i+1 (171), slot u8/(slot & 0xFF) (88-97), mult operand spellings (no change), 4 loop-bound spellings x4 loops, stored index spellings, array/pointer/discrete store spellings, random dead-test hill climb 35k evals (no gain)
+// eepromValidateSaveSlots (src/global/104F0.c): Carve 2026-11-02: stage 5, COUNT-EXACT 315 (frame 0x98 exact) with the 104F0 .bss carve (D_807EDEA8[4] defined; commit 2c2ee6f in .scratch/wtCarve; without it 316+): deadsweep full 46 text 41 reloc 6 (EDEA9/AA/AB reloc names) vs stored 61/51. Wins: 'ok = 0; func_8060CB74();' (call delay slot; saved the nop), ok = ok | 0 / dead tests give ok s0. Remaining: multu t9,s2 vs s2,t9 and beq v0,s1 vs s1,v0 (operand order), andi a0,s3,0xff vs move (u8 slot + slot&0xFF fixes it but frame +4), loop-3 found s5 vs s2 / 255 const s6 vs s5, final block failed copy move s3,s8.
 void eepromValidateSaveSlots(void) {
     s32 j;
     u32 slot;
@@ -21,6 +21,7 @@ void eepromValidateSaveSlots(void) {
     ok = 0;
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
     for (i = 0; i < 4; i++) {
+        ok = ok | 0;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (i && stored) {}  // FAKE
         D_807EDEA8[i] = i;
         sectorOrder[i] = 0xFF;
@@ -44,9 +45,9 @@ void eepromValidateSaveSlots(void) {
     ok = 0;
     version = 0;
     for (i = 0; i < 4; i++) {
-        if (version != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (valid[i] != 0) {
             slot = i;
+            if (version != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             if (eepromGetField(0xD, 0, 0, slot) != 0) {
             version = eepromGetField(0xF, 0, 0, slot);
             found = version;
@@ -74,20 +75,20 @@ void eepromValidateSaveSlots(void) {
             eepromSetField(0xF, 0, 0, j, i);
         }
     }
-    if (failed == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     for (j = 0; j < 4; j++) {
         D_807EDEA8[j] = sectorOrder[j];
     }
     height = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
+    if (version != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (j != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     ok = 1;
     stored = ((u32 *)((u32)D_807ED6A8 | 0))[(u16)(((height + 0x40) / 4) - 1)];
     if (stored != eepromCalculateCrc32((u8 *)&D_807ED6A8[0] + (height & 0xFFFF), 0x3C)) {
-        func_8060CB74();
         ok = 0;
+        func_8060CB74();
     }
     if (i && found) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     failed |= (ok == 0);
-    if (version != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     D_807550C8 = eepromGetField(0x1F, 0, 0, 0);
     D_80744530 = eepromGetField(0x20, 0, 0, 0);
     if (D_807550C8 > 0) {
