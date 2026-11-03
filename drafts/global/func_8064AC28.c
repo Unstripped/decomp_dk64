@@ -1,4 +1,4 @@
-// func_8064AC28 (src/global/478F0.c): Cs 2026-11-02: stage 3-4 (blocks/frame same, count 338 lines vs target 340 = 2 insns short, deadsweep full 19 -> 9, shape 4). KEY lever: first-loop init e = (CsEntryView *)((u32)p | 0) (FAKE) blocks copy-propagation of e = p, so uopt no longer PREs p + 6 into both arms (old diff: a0 = p+6 temp + 'addiu a0,t0,6' in the else); p then lives in a0 in both arms. Remaining diff: target keeps TWO webs of p at the join (then: lw v1,164(sp); sb 24(v1); move a0,v1; addiu s0,v1,6. else: lw a0,164(sp) ... move v1,a0; join part[0] stores via a0, p+6/unk4F via v1), ours one web (a0) + li s6,9 placement. Tried: join stores/loop-2 init/unk4F/unk4E/else stores/then init each as p vs (u32)p|0 copy (256 combos, none gives the dual web: |0 is a reload, not a copy), q = p copies at pre/then/else/ends/join (copy-propagated, frame 4 lower), loop 1/2 pointer vs index vs do-while forms, loop 2 started from i=0 (e=p; peeled by uopt), e2/f/g extra pointer vars, chained/split heapAlloc stores, 2 annealers (~11k evals), permuter (useless score 870+). Count-exact (340) variants exist only with moved stores (diff 15).
+// func_8064AC28 (src/global/478F0.c): W3CountB 2026-11-02: PARKED stage 4, count-exact 340/340 (was 338), frame same, deadsweep full 13 (shape 7). Lever: extra pointer local q declared LAST (keeps every home offset) with 'q = p;' copies and q reads in the else arm / loop-2 init / unk4F (legal: q assigned on all paths before use; a q declared after p shifts the byte homes by 4). Remaining diff: q is callee-saved (move s2,v0) instead of the target's v1/a0 pair of p webs (lw v1; move a0,v1 / lw a0; move v1,a0).
 void csModelStateSetFirstByte(s16, s16);
 extern u8 gPlayerCharacterId;
 typedef struct CsEntry {
@@ -38,23 +38,27 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 z;
     f32 d;
     f32 bestD;
+    CsEntrySet *q;
 
     if (*(CsEntrySet **)cs == NULL) {
         p = *(CsEntrySet **)cs = heapAlloc(0x50);
-        p->unk4E = 0;
+        q = p; // FAKE: second web of p (copy kept, steers uopt colouring and count)
+        q->unk4E = 0; // FAKE: reads the q copy of p
         if (flagGet(0x146, 0) != 0) {
             e = (CsEntryView *)((u32)p | 0); // FAKE: blocks copy-propagation of e = p (stops uopt PRE'ing p + 6 into both arms)
             for (i = 0; i < 9; i++) { e->state = 3; e = (CsEntryView *)((u8 *)e + 6); }
         } else {
             p->part[2].state = 2;
-            p->part[5].state = 2;
+        q = p; // FAKE: second web of p (copy kept, steers uopt colouring and count)
+            q->part[5].state = 2; // FAKE: reads the q copy of p
             p->part[7].state = 2;
-            p->part[0].state = 0;
-            p->part[1].state = 3;
+            q->part[0].state = 0; // FAKE: reads the q copy of p
+            q->part[1].state = 3; // FAKE: reads the q copy of p
             p->part[3].state = 0;
             p->part[4].state = 1;
-            p->part[6].state = 3;
-            p->part[8].state = 1;
+            q->part[6].state = 3; // FAKE: reads the q copy of p
+        q = p; // FAKE: second web of p (copy kept, steers uopt colouring and count)
+            q->part[8].state = 1; // FAKE: reads the q copy of p
         }
         p->part[0].timer = 10;
         p->part[0].active = 1;
@@ -62,7 +66,7 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
             e->active = 1;
             e->timer = 10;
         }
-        p->unk4F = 0;
+        q->unk4F = 0; // FAKE: reads the q copy of p
     }
     p = *(CsEntrySet **)cs;
     for (i = 0, e = (CsEntryView *)p; i < 9; i++, e = (CsEntryView *)((u8 *)e + 6)) {
