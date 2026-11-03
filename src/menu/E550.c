@@ -184,6 +184,7 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
         yy = y + 0x29;
         yyo = yo + 0x29;
         x = 0;
+        if (spC4 == 0) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
         if (x && x) {}  // FAKE: deadsweep: steers uopt candidate priority
         do {
             gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 82, x, y, x + 0x66, yy, 0,
@@ -194,17 +195,21 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
         } while (x != 0xCC);
         y += 0x29;
         yo += 0x29;
+        if (spC0 != 41) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
     } while (y != 0x52);
-    if (spC0) {}  // FAKE: deadsweep: steers uopt candidate priority
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
     x = (s32)((f32)(D_80744490 - textGetStringWidth(1, spCC)) * 0.5f);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
+    if (D_800339D0 && D_800339D0) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
     gDPSetCombine(dl++, 0xFF97FF, 0xFF2CFE7F);
+    if (D_80744494 && D_80744494) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
+    if (spC8) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
     dl = textDrawStringVtx(dl, 1, (s16)(x * 4), (s16)((s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0) * 4), spCC, 0);
     xx = (s32)((f32)D_80744490 * 0.5f) * 4;
     off = D_8074450C * 0xC8;
+    xx = xx | 0;  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
     return hudDrawScaledText(hudDrawScaledText(dl, xx, (s16)(off * 4), .5f, spC8), xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), .5f, spC4);  // FAKE: .5f spells a constant web separate from the 0.5f multiplies (args via lui a3, no mfc1)
 }
 #else
