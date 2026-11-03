@@ -278,7 +278,6 @@ extern f32 D_8002FC30;
 void actorScriptStart(void *, s32);
 void func_8002DE78(void *, s32, void *, void *);
 
-#ifdef NON_MATCHING
 extern f32 D_8002FC28;
 extern f32 D_8002FC58;
 f32 func_8002DF38(void *, f32, void *, void *);
@@ -383,12 +382,11 @@ f32 raceRacerSteerTowardWaypoint(void) {
     ang = mathAngleDiscrete((f32)G2_WP->x, (f32)G2_WP->z, RC_A->unk7C, RC_A->unk84, sp4C);
     ang = mathAngleSignedDistance(ang, s0->unk0);
     thr = G2_WP->unk7 * 1.2;
-    if (D_8002FC20) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (sp4C < thr) {
-        lo = G2_WP->unk7;
-        fr = (sp4C - lo) / (thr - lo);
+        lo = sp4C - (f32)G2_WP->unk7;
+        dz = thr - (f32)G2_WP->unk7;
+        fr = lo / dz;
         ang = ang * (1.0 + (1.0f - fr) * 1.5 * (2.0f * s0->unk4));
-        if (sp4C && sp4C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     }
     s0->unkC = s0->unkC + (ang * 0.0033333334f - s0->unkC) * 0.5f;
     if (s0->unk34 < 2 || s0->unk34 >= 5) {
@@ -474,10 +472,6 @@ f32 raceRacerSteerTowardWaypoint(void) {
 }
 
 
-#else
-
-#pragma GLOBAL_ASM("asm/race/nonmatchings/52B0/raceRacerSteerTowardWaypoint.s")
-#endif
 
 
 typedef struct {
