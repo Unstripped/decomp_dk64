@@ -1,4 +1,4 @@
-// bossFollowerActorUpdate (src/boss/C920.c): JetBoss (leftovers6): stage 5, count IS exact (objdump 369 insns + trailing alignment nop each; the nm -S 0x5c4 vs 0x5c8 gap is only the 4-byte pad that the expected object's asm-processor size includes; text sections equal) - the 'count-inexact' audit flag was an artefact. deadsweep full=78 text=72 reloc=6 shape=21 (reloc = the (&D_80035B70)[2]/((s16*)&D_80035B6C)[4] hacks vs target's plain D_80035B74). Remaining text diff = as1/ring register naming from the unkE8 FP block on (mfc1 t9 vs t5, lui t7 vs t9), const 40/10 'li v1' (target) vs ring t2/t7 so target 'lui v1' B74 stays after the sh (ours hoisted above bne unk17==1), const 35 coloured a1 (ours v0), final x/z/y FP add schedule. Tried this unit: deadsweep sweep (8745 variants, no gain), var_v0 late dead tests (breaks frame: 288), rest of earlier hill-climbs. Parked in JetBoss copy under NON_MATCHING (no stored park to compare).
+// bossFollowerActorUpdate (src/boss/DAA0.c): Ovl (leftovers7): stage 5, count exact (419 lines = expected), deadsweep full 46 text 36 reloc 10 shape 32 (was full 83 text 77 reloc 6 shape 26). Levers found: (1) function-local 'static s16 D_80035B74 = 0x78;' (only user; needs .data carve, reloc 10 = '.data' vs absolute symbol) replaces the (&D_80035B6C)[4] hack and gives the exact lui/sh/lui/lh B74 pattern; (2) ugen t-ring is LRU-by-last-use: target mfc1 t9/addiu t8/lh t7/lw t1 = oldest regs = 2 ring temps burned inside the unkE8 statement: 'ACTOR->unkE8 = (s16)(s32)((f64)sp30->unk4 * 1024.0) - 0x400;' (no-code (s16) before the subtract; wrapper grid {s16,u16,s32,u32}^0..3 inner/outer) fixed the ring phase of ~100 lines (text 156 -> 42); (3) f32 z declared before x in the projectile block (text 40 -> 36, fixes the ACTOR->unk80 FP lines 185-192). Remaining diff: li 40 / li 10 and the lh/addiu chain use a1 (target v1: ours has temp_v1 coloured v1 live at the li; target keeps the unnarrowed sum in v1 and the narrowed value in ring t4/t5), final projectileSetTargetCoords x/y/z FP block (target colours the two cvt.s.w in f0/f2 and loads lw a0 after the first mtc1; ours ring f4/f10), 4 dead FAKEs still needed (deleting any costs 6-80). Tried: deadsweep 3 rounds, 4 random hill-climbs (dead tests + (T*)(x|0) ring burners, count-exact), replace-one-FAKE exhaustive, local temp type/spelling grids (s16/s32/u8 tv, chained store), FP dead tests on cvt operands (all worse). Parked in Ovl copy under NON_MATCHING.
 typedef struct BossAnimState {
     char pad0[4];
     f32 unk4;
@@ -88,6 +88,7 @@ void bossFollowerActorUpdate(void) {
     BossFollowerLink *sub174 = ACTOR->unk174;
     BossParentState *sp30 = sub174->unk0->unk174;
     BossAnimState *sub4_0 = ACTOR->unk4->unk0;
+    static s16 D_80035B74 = 0x78; // FAKE: function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
 
     if (sub174->unk5 == 0) {
         f32 dx = D_807FBB4C->unk7C - ACTOR->unk7C;
@@ -99,7 +100,7 @@ void bossFollowerActorUpdate(void) {
         ACTOR->unk12A = 0xFA0;
     }
     if (D_80035B28 & (1 << sub174->unk4)) {
-        ACTOR->unkE8 = (s16)((s32)((f64)sp30->unk4 * 1024.0) - 0x400);
+        ACTOR->unkE8 = (s16)(s32)((f64)sp30->unk4 * 1024.0) - 0x400;  // FAKE: no-code (s16) narrowing of the truncated value burns ugen ring temps
         ACTOR->unkE4 = D_80035B2C;
         if (sub4_0 != NULL) {
             if (D_80035B3C != sub4_0->unk4) {
@@ -147,14 +148,14 @@ void bossFollowerActorUpdate(void) {
                 if (sub174->unk0->unk154 == 0) {
                     D_80035B74 = 0x28;
                 }
-                if (D_80035B74 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (D_80035B74 == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
                 temp_v1 = D_80035B74 - 1;
-                (&D_80035B70)[2] = temp_v1;
+                D_80035B74 = temp_v1;
                 if (temp_v1 < 0) {
-                    f32 x = ACTOR->unk7C + D_80035B18[sp30->unk14];
                     f32 z = ACTOR->unk84 + D_80035B20[sp30->unk14];
+                    f32 x = ACTOR->unk7C + D_80035B18[sp30->unk14];
                     f32 y = ACTOR->unk80 + 270.0f;
-                    ((s16 *)&D_80035B6C)[4] = 0xA;
+                    D_80035B74 = 0xA;
                     projectileSetTargetCoords(x, y, z);
                     projectileAimAndSpawn(0x2C, 1, 0.25f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, 2400.0f, ACTOR);
                 }
@@ -173,7 +174,7 @@ void bossFollowerActorUpdate(void) {
             var_v0 -= 4;
         }
         ACTOR->unk7C = D_80035B00[var_v0] + sub174->unk0->unk7C;
-        if (D_80035B18) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (D_80035B18) {}  // FAKE: deadsweep dead statement (steers uopt)
         ACTOR->unk84 = D_80035B08[var_v0] + sub174->unk0->unk84;
         ACTOR->unkE6 = D_80035B10[var_v0];
         ACTOR->unk60 |= 0x800000;
