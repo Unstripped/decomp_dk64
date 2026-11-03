@@ -546,25 +546,24 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     static s32 D_80746A24 = 0;
     static s32 D_80746A28 = 0;
     static s8 D_80746A2C = 4;
-    s32 cur;
-    u32 n;
-    u32 *w;
-    s16 found;
-    s32 i;
-    s32 off;
-    s32 line;
+    u32 *p;
+    s32 size;
+    char *q;
+    u16 colorIdx;
     u8 op;
-    DlOpInfo *e;
-    s32 raw;
+    s16 buttons;
+    s32 off;
+    u32 n;
+    s16 found;
+    s32 line;
+    s32 cur;
     s32 mode;
     u32 done;
     char buf[36];
-    s16 buttons;
-    u16 colorIdx;
-    s32 size;
+    DlOpInfo *e;
+    s32 i;
     u32 ret;
-    char *q;
-    u32 *p;
+    s32 raw;
 
     done = 0;
     ret = 0;
@@ -573,7 +572,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
         raw = D_807F0568.button;
         buttons = raw;
         if (arg1 != 0 && D_80746A2C != 0) {
-            buttons = raw | 0x400;
+            buttons |= 0x400;
         }
         if (buttons & 0x1000) {
             if (!(D_80746A1C & 0x1000)) {
@@ -592,7 +591,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
         }
         if (buttons & 0x800) {
             if (!(D_80746A1C & 0x800)) {
-                if (D_807F05A4 && D_807F05A4) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (D_807F05A4 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 D_80746A24 = 0;
                 D_80746A20 = D_807F05A4;
             }
@@ -623,12 +622,12 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
             }
             op = *(u32 *)cur >> 24;
             if (D_807F05A4 + D_807F0984 < cur) {
+                if (done == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 done = 1;
             }
             if ((op & 0xF0) == 0xC0) {
                 n = 0;
                 size = 0x20;
-                if (done && done) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 mode = 2;
                 if (op & 4) {
                     buf[0] = 'S';
@@ -637,6 +636,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 }
                 if (op & 2) {
                     buf[n] = 'T';
+                    if (done && done) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     n++;
                     size += 0x40;
                 }
@@ -645,18 +645,16 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     size += 0x10; *q = 'Z';  // LAYOUT: joined statements change as1 scheduling (text 81 -> 75 with the next one)
                     q++;
                 }
-                size >>= 2;
-                *q = 0; faultPrintf("  %05x.:Triangle:.(%s)....\n", off, buf);  // LAYOUT
+                size = size >> 2;
+                q[0] = 0;
+                faultPrintf("  %05x.:Triangle:.(%s)....\n", off, buf);
                 line++;
                 if (line == 1) {
-                    if (D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                    w = (u32 *)cur;
-                    for (i = 0; i < size * 4; i += 16) {
-                        faultPrintf("  %08x.%08x.%08x.%08x\n", w[0], w[1], w[2], w[3]);
-                        w += 4;
+                    for (i = 0; i < size; i += 4) {
+                        faultPrintf("  %08x.%08x.%08x.%08x\n", ((u32 *)cur)[i], ((u32 *)cur)[i + 1], ((u32 *)cur)[i + 2], ((u32 *)cur)[i + 3]);
                         line++;
                     }
-                    D_80746A18 = size * 4 + cur;
+                    D_80746A18 = cur + size * 4;
                 } else {
                     D_80746A18 = cur;
                 }
@@ -666,7 +664,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 }
                 line = 0x1E;
             } else {
-                if (D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (D_80746A20) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 colorIdx = 0;
                 found = 0;
                 if (op == 0xE7) {
@@ -683,7 +681,6 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 for (i = 0; i < 0x1B; i++) {
                     if (op == D_8074685C[i].op) {
                         op = i;
-                        if (i && i) {}  // FAKE: hc
                         found = 1;
                         i = 0x1B;
                     }
@@ -702,7 +699,6 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     } else {
                         faultPrintf("  %08x.%08x.%08x.%08x...\n", ((u32 *)cur)[0], ((u32 *)cur)[1], ((u32 *)cur)[2], ((u32 *)cur)[3]);
                         line += 2;
-                        if (i) {}  // FAKE: hc
                     }
                 } else {
                     size = 2;
@@ -712,12 +708,11 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                         faultPrintf("  %05x Undef.............\n", off);
                     }
                     line++;
-                    if (D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 }
+                done = done;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             faultFontSetColorMode(0);
-            if (size) {}  // FAKE: hc
-            cur += size * 4;
+            cur += size * 4U;
         }
         p++;
     } while (p != &D_80744478);

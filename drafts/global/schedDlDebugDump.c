@@ -1,4 +1,4 @@
-// schedDlDebugDump (src/global/13980.c): Carve7 leftovers7: STAGE 4 (count exact 415/415, frame 0xB8): function-local statics D_80746A14..A2C (single-user; needs the 13980 .data carve, worktree commit c2536b5; statics need `= 0`/`= 4` initialisers because the carve puts them in .data). CORRECTED SEMANTICS: the previous draft had `i = 0x1B; found = 1; op = i;` which sets op = 0x1B; the asm does op = i (andi s1,s0,0xff) BEFORE i = 0x1B. Text 73 (was 75 with the wrong semantics, 85 right after fixing it): hill-climb with count penalty (dead tests i && i, i, size + LAYOUT joins; Triangle tail reordered: size >>= 2; *q = 0; faultPrintf(...) so the sra is before the jal). Remaining shape hunks: (1) as1 does not hoist ori/sll of buttons = raw | 0x400 above the beqz (our first chain node takes the dest reg v1; target uses ring t8/t9 then sra v1); (2) q = buf + n / q++ copies (target addiu t0,sp,100 CSE only for q, call arg addiu a2,sp,100 in the jal delay slot); (3) size*4 PRE: target computes sll s0,s4,2 in each arm delay slot and keeps it across faultFontSetColorMode(0); ours uses s2. Tried: buttons spellings (16 forms, copy locals, casts, s32 buttons), q/size*4 spellings (exhaustive 100), Triangle block exhaustive (10368 combos of init order/q form/Z form/tail order/joins), 1-2 statement LAYOUT join search (78 sites), declhc 7 min, hc 3x9 min, deadsweep 8k variants.
+// schedDlDebugDump (src/global/13980.c): CtrlSched revisit8: STAGE 4 (count exact 415, frame 184, callee-saved set same), deadsweep score full 119->69 (text 73->23, reloc 46 = uncarved statics), shape 63->60. KEY structure changes vs the old park: (1) Triangle word dump loop is the LFTR source form 'for (i = 0; i < size; i += 4) faultPrintf(..., ((u32 *)cur)[i], [i+1], [i+2], [i+3]); line++;' (no w pointer, no size*4 bound, no w += 4): uopt then derives the byte IV + size*4 bound after the 'blez s4' guard exactly like the target (target's guard tests size, bound sll s2 computed after it); (2) 'buttons |= 0x400;' (compound on the s16 local) reproduces the target's ori t8,v0 / sll t9 / beqz / sra v1 chain hoisted over the lb stall (buttons = raw | 0x400 gave ori v1 dest-reuse and no hoist); (3) declaration order + all old dead tests re-tuned by a count/frame-guarded SA (5 FAKEs left: all needed, deleting any costs 3-6). Remaining diff (23 text lines): p loop pointer spills to 180(sp) vs target 80(sp) (5 lines; target p looks like a uopt temp slot at the bottom = original probably indexed D_80744470[k] with an LFTR'd pointer IV, but a k-index loop gave frame 192), q pointer split (move a3,v1 ... addiu a3,v1,1 vs target in-place addiu v1,v1,1; 4 lines), addiu s3,s3,1 slot after jal (2), b/sll s0,s4,2 delay slot (target copies post-loop sll s0,s4,2 into the bne delay slot and the b delay slot; 4).
 s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     static s32 D_80746A14 = 0;
     static u32 D_80746A18 = 0;
@@ -7,25 +7,24 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     static s32 D_80746A24 = 0;
     static s32 D_80746A28 = 0;
     static s8 D_80746A2C = 4;
-    s32 cur;
-    u32 n;
-    u32 *w;
-    s16 found;
-    s32 i;
-    s32 off;
-    s32 line;
+    u32 *p;
+    s32 size;
+    char *q;
+    u16 colorIdx;
     u8 op;
-    DlOpInfo *e;
-    s32 raw;
+    s16 buttons;
+    s32 off;
+    u32 n;
+    s16 found;
+    s32 line;
+    s32 cur;
     s32 mode;
     u32 done;
     char buf[36];
-    s16 buttons;
-    u16 colorIdx;
-    s32 size;
+    DlOpInfo *e;
+    s32 i;
     u32 ret;
-    char *q;
-    u32 *p;
+    s32 raw;
 
     done = 0;
     ret = 0;
@@ -34,7 +33,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
         raw = D_807F0568.button;
         buttons = raw;
         if (arg1 != 0 && D_80746A2C != 0) {
-            buttons = raw | 0x400;
+            buttons |= 0x400;
         }
         if (buttons & 0x1000) {
             if (!(D_80746A1C & 0x1000)) {
@@ -53,7 +52,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
         }
         if (buttons & 0x800) {
             if (!(D_80746A1C & 0x800)) {
-                if (D_807F05A4 && D_807F05A4) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (D_807F05A4 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 D_80746A24 = 0;
                 D_80746A20 = D_807F05A4;
             }
@@ -84,12 +83,12 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
             }
             op = *(u32 *)cur >> 24;
             if (D_807F05A4 + D_807F0984 < cur) {
+                if (done == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 done = 1;
             }
             if ((op & 0xF0) == 0xC0) {
                 n = 0;
                 size = 0x20;
-                if (done && done) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 mode = 2;
                 if (op & 4) {
                     buf[0] = 'S';
@@ -98,6 +97,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 }
                 if (op & 2) {
                     buf[n] = 'T';
+                    if (done && done) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     n++;
                     size += 0x40;
                 }
@@ -106,18 +106,16 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     size += 0x10; *q = 'Z';  // LAYOUT: joined statements change as1 scheduling (text 81 -> 75 with the next one)
                     q++;
                 }
-                size >>= 2;
-                *q = 0; faultPrintf("  %05x.:Triangle:.(%s)....\n", off, buf);  // LAYOUT
+                size = size >> 2;
+                q[0] = 0;
+                faultPrintf("  %05x.:Triangle:.(%s)....\n", off, buf);
                 line++;
                 if (line == 1) {
-                    if (D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                    w = (u32 *)cur;
-                    for (i = 0; i < size * 4; i += 16) {
-                        faultPrintf("  %08x.%08x.%08x.%08x\n", w[0], w[1], w[2], w[3]);
-                        w += 4;
+                    for (i = 0; i < size; i += 4) {
+                        faultPrintf("  %08x.%08x.%08x.%08x\n", ((u32 *)cur)[i], ((u32 *)cur)[i + 1], ((u32 *)cur)[i + 2], ((u32 *)cur)[i + 3]);
                         line++;
                     }
-                    D_80746A18 = size * 4 + cur;
+                    D_80746A18 = cur + size * 4;
                 } else {
                     D_80746A18 = cur;
                 }
@@ -127,7 +125,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 }
                 line = 0x1E;
             } else {
-                if (D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (D_80746A20) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 colorIdx = 0;
                 found = 0;
                 if (op == 0xE7) {
@@ -144,7 +142,6 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 for (i = 0; i < 0x1B; i++) {
                     if (op == D_8074685C[i].op) {
                         op = i;
-                        if (i && i) {}  // FAKE: hc
                         found = 1;
                         i = 0x1B;
                     }
@@ -163,7 +160,6 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     } else {
                         faultPrintf("  %08x.%08x.%08x.%08x...\n", ((u32 *)cur)[0], ((u32 *)cur)[1], ((u32 *)cur)[2], ((u32 *)cur)[3]);
                         line += 2;
-                        if (i) {}  // FAKE: hc
                     }
                 } else {
                     size = 2;
@@ -173,12 +169,11 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                         faultPrintf("  %05x Undef.............\n", off);
                     }
                     line++;
-                    if (D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 }
+                done = done;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             faultFontSetColorMode(0);
-            if (size) {}  // FAKE: hc
-            cur += size * 4;
+            cur += size * 4U;
         }
         p++;
     } while (p != &D_80744478);
