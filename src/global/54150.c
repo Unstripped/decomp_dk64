@@ -295,17 +295,21 @@ u8 arg4;
     f32 c2;
     f32 fa;
     f32 fb;
+    s32 q0;  // pad words: frame/home layout
+    s32 q1;
+    s32 q2;
+    s32 q3;
+    s32 q4;
     float work[4][4];
     float mtx[4][4];
-    s32 padB[4];
 
     off = D_807F6BE0;
     fa = ((ModelBKey *)arg3)[arg0 + 1].unkC;
     fb = ((ModelBKey *)arg3)[arg0].unkC;
     x = fa - fb;
-    if (x < -180.0) {
+    if (-180.0 > x) {
         x += 360.0;
-    } else if (x > 180.0) {
+    } else if (180.0 < x) {
         x -= 360.0;
     }
     x *= (*(f32 *)&arg1);
@@ -315,53 +319,47 @@ u8 arg4;
     y = fa - fb;
     if (y < -180.0) {
         y += 360.0;
-    } else if (180.0 < y) {
+    } else if (y > 180.0) {
         y -= 360.0;
     }
-    if (off == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     y *= (*(f32 *)&arg1);
     y += fb;
-    z = ((ModelBKey *)arg3)[arg0 + 1].unk14 - ((ModelBKey *)arg3)[arg0].unk14;
-    if (-180.0 > z) {
+    if (y != 0) {}  // FAKE: steers FP colouring (annealed)
+    if (arg4) {}  // FAKE: steers FP colouring (annealed)
+    fa = ((ModelBKey *)arg3)[arg0 + 1].unk14;
+    fb = ((ModelBKey *)arg3)[arg0].unk14;
+    z = fa - fb;
+    if (z < -180.0) {
         z += 360.0;
     } else if (180.0 < z) {
         z -= 360.0;
     }
     z *= (*(f32 *)&arg1);
-    z += ((ModelBKey *)arg3)[arg0].unk14;
+    z += fb;
     c6 = ((ModelBKey *)arg3)[1 + arg0].unk18 - ((ModelBKey *)arg3)[arg0].unk18;
     c6 *= (*(f32 *)&arg1);
     c6 += ((ModelBKey *)arg3)[arg0].unk18;
-    if (arg0 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    c7 = ((ModelBKey *)arg3)[1 + arg0].unk1C - ((ModelBKey *)arg3)[arg0].unk1C;
-    c7 *= (*(f32 *)&arg1);
-    c7 += ((ModelBKey *)arg3)[arg0].unk1C;
-    c8 = ((ModelBKey *)arg3)[1 + arg0].unk20 - ((ModelBKey *)arg3)[arg0].unk20;
-    c8 *= (*(f32 *)&arg1);
-    c8 += ((ModelBKey *)arg3)[arg0].unk20;
-    c0 = (((ModelBKey *)arg3)[arg0 + 1].unk0 - ((ModelBKey *)arg3)[arg0].unk0) * *(f32 *)&arg1 + ((ModelBKey *)arg3)[arg0].unk0;
-    c1 = *(f32 *)&arg1 * (((ModelBKey *)arg3)[1 + arg0].unk4 - ((ModelBKey *)arg3)[arg0].unk4) + ((ModelBKey *)arg3)[arg0].unk4;
-    if (work && work) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    if (arg4 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    c2 = ((ModelBKey *)arg3)[arg0].unk8 + *(f32 *)&arg1 * (((ModelBKey *)arg3)[arg0 + 1].unk8 - ((ModelBKey *)arg3)[arg0].unk8);
-    if (x && x) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    c7 = (*(f32 *)&arg1) * (((ModelBKey *)arg3)[1 + arg0].unk1C - ((ModelBKey *)arg3)[arg0].unk1C) + ((ModelBKey *)arg3)[arg0].unk1C;
+    if (c1 == 0) {}  // FAKE: steers FP colouring (annealed)
+    c8 = (((ModelBKey *)arg3)[arg0 + 1].unk20 - ((ModelBKey *)arg3)[arg0].unk20) * (*(f32 *)&arg1) + ((ModelBKey *)arg3)[arg0].unk20;
+    if (z != 0) {}  // FAKE: steers FP colouring (annealed)
+    c0 = ((ModelBKey *)arg3)[arg0].unk0 + (*(f32 *)&arg1) * (((ModelBKey *)arg3)[arg0 + 1].unk0 - ((ModelBKey *)arg3)[arg0].unk0);
+    if (c8 == 0) {}  // FAKE: steers FP colouring (annealed)
+    c1 = (*(f32 *)&arg1) * (((ModelBKey *)arg3)[1 + arg0].unk4 - ((ModelBKey *)arg3)[arg0].unk4) + ((ModelBKey *)arg3)[arg0].unk4;
+    c2 = ((ModelBKey *)arg3)[arg0].unk8 + (*(f32 *)&arg1) * (((ModelBKey *)arg3)[arg0 + 1].unk8 - ((ModelBKey *)arg3)[arg0].unk8);
     switch (arg4 & 0xF) {
     case 0:
         break;
     case 1:
         c6 *= (f32)(0.125 * (arg4 >> 4 & 0xF));
         break;
-        if (off) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     case 2:
         c7 *= (f32)(0.125 * (arg4 >> 4 & 0xF));
-        if (work == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         break;
     case 3:
         c8 *= (f32)(0.125 * (arg4 >> 4 & 0xF));
         break;
     case 4:
-        if (c7) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        if (work && work) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         x *= (f32)((arg4 >> 4 & 0xF) * 0.125);
         break;
     case 5:
@@ -371,7 +369,6 @@ u8 arg4;
         z *= (f32)(((arg4 >> 4) & 0xF) * 0.125);
         break;
     case 7:
-        if (c6 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         c0 *= (f32)((arg4 >> 4 & 0xF) * 0.125);
         break;
     case 8:
@@ -393,10 +390,8 @@ u8 arg4;
     guTranslateF(mtx, c6, c7, c8);
     guMtxCatF(work, mtx, work);
     memcpy(mtx, arg2->unk4 + 0x40 + off, 0x40);
-    if (c1) {}  // FAKE: steers FP colouring (annealed)
     guMtxCatF(work, mtx, work);
     guMtxF2L(work, (Mtx *)(off + arg2->unk0));
-    if (c2 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
 }
 #else
 
