@@ -1,4 +1,4 @@
-// func_8003292C (src/menu/E550.c): MenuA 2026-11-02: stage 4, COUNT-EXACT (416 insns, frame 232, s0-s8), harness diff 135 (shape 109), parked in copy. Count fix: a separate 's16 xx;' local for the tail value 'xx = (s32)((f32)D_80744490 * 0.5f) * 4;' passed as 'xx' (not '(s16)x' of the u16 x) to both hudDrawScaledText calls: removes the double narrowing (417 -> 416; the target's tail keeps one s16 local in s0). 's32 xx' stays 417. Remaining (R5 notes still hold): uopt colours yo (adjsave 15.5) before yy/yyo so ours yo=a1,yy=a2,yyo=a3 vs target yy=a1,yyo=a2,yo=t0,xo=t4; 0.5f beats 204.0f for f0; loop tail ours 'andi v1,t0,0xffff' (u16 x) vs target 'move v1,t0'; spills 84/80/76(sp) vs target 96/80/72. Tried this unit: 14.7k-eval anneal over local types x declaration order (never count-exact without xx), 13.4k dead-test climb (23 forms), 12-site RHS wrapper anneal (14.8k): no gain.
+// func_8003292C (src/menu/E550.c): MenuB 2026-11-03: stage 4, count-exact 416, frame 232, full 131 (was 135), shape 95 (was 109), parked in copy. NEW levers: (1) '.5f' (distinct literal spelling) for the two hudDrawScaledText f32 args splits the 0.5f web from the f2 multiplies: args become 'lui a3,0x3f00' (target) instead of 'mfc1 a3,$f2' -> removes 2 mfc1+1 mtc1, count 416 -> 414 until the s32 yy/yyo (not s16) restore count 416 with better shape (109 -> 95). (2) callee protos (textGetFontHeight u8(s16), texCacheFindOrLoad(u16), textDrawStringVtx s16/u8) do not change codegen. Remaining: (a) target 'off' is UNCOLOURED (move t0,a2; sw t0,212(sp); lw t0,212(sp) after hud call #1) while ours colours it s1; memory-resident 'off' (s32 off[1] or volatile) adds the sw/lw but then count 418 with u16 x (andi vs target move v1,t0) and s32 x needs frame 240 (x,xx stop packing); (b) post-loop s-reg roles: target s1=&D_80744490 ptr, s2=spC0, s3=spCC vs ours s3/s2/s1, and spC0 reload 'lw s2,192(sp)' placed late in target; (c) uopt colours yo=a1 (ours) vs target yy=a1,yyo=a2,yo=t0,xo=t4; hoisted invariant order y<<2,yy<<2,xo,yyo<<2,yo<<2,y<<5 in target vs ours ...,yo<<2,y<<5,yyo<<2 (ours yyo<<2 coloured last); spill slots alpha/yy/yyo 80/76/72 vs target 96/80/72 (4 hole candidates). Tried: 8.3k-eval random hill-climb over x/xx/yy/yyo/off/y/yo/xo/tex/alpha types x inline-vs-named x 5 literal spellings x decl order x update form x dead tests: no gain over this state; callee-proto toggles; mem-resident off grid.
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 extern s16 D_80744490;
@@ -24,8 +24,8 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
     char *spC4;
     s32 spC0;
     s32 yo;
-    s16 yyo;
-    s16 yy;
+    s32 yyo;
+    s32 yy;
 
     spCC = textTableGetString(0xD, 0, 1);
     spC8 = textTableGetString(0xD, 1, 1);
@@ -72,5 +72,5 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
     dl = textDrawStringVtx(dl, 1, (s16)(x * 4), (s16)((s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0) * 4), spCC, 0);
     xx = (s32)((f32)D_80744490 * 0.5f) * 4;
     off = D_8074450C * 0xC8;
-    return hudDrawScaledText(hudDrawScaledText(dl, xx, (s16)(off * 4), 0.5f, spC8), xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), 0.5f, spC4);
+    return hudDrawScaledText(hudDrawScaledText(dl, xx, (s16)(off * 4), .5f, spC8), xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), .5f, spC4);  // FAKE: .5f spells a constant web separate from the 0.5f multiplies (args via lui a3, no mfc1)
 }

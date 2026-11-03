@@ -157,8 +157,8 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
     char *spC4;
     s32 spC0;
     s32 yo;
-    s16 yyo;
-    s16 yy;
+    s32 yyo;
+    s32 yy;
 
     spCC = textTableGetString(0xD, 0, 1);
     spC8 = textTableGetString(0xD, 1, 1);
@@ -205,7 +205,7 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
     dl = textDrawStringVtx(dl, 1, (s16)(x * 4), (s16)((s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0) * 4), spCC, 0);
     xx = (s32)((f32)D_80744490 * 0.5f) * 4;
     off = D_8074450C * 0xC8;
-    return hudDrawScaledText(hudDrawScaledText(dl, xx, (s16)(off * 4), 0.5f, spC8), xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), 0.5f, spC4);
+    return hudDrawScaledText(hudDrawScaledText(dl, xx, (s16)(off * 4), .5f, spC8), xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), .5f, spC4);  // FAKE: .5f spells a constant web separate from the 0.5f multiplies (args via lui a3, no mfc1)
 }
 #else
 

@@ -1075,13 +1075,9 @@ s32 menuPrevFreeControllerSlot(s32 arg0) {
     return idx;
 }
 
-#ifdef NON_MATCHING
 extern s8 D_80033FAD;
 extern s8 D_80744520;
 extern s8 D_80744534;
-extern s8 D_8076A0E5;
-extern s8 D_8076A0E6;
-extern s8 D_8076A0E7;
 extern s8 D_80033FAE;
 extern s8 D_80033F50;
 extern u8 D_80744514;
@@ -1110,7 +1106,7 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
     s32 bits;
     s32 idx;
     s32 sp64;
-    s32 padX;
+    s32 cap;
     s32 lim;
     s32 mask;
     s16 cur;
@@ -1185,9 +1181,8 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                     }
                 }
             }
-            lim = (arg1 ^ D_80033858) & arg1;
+            i = (arg1 ^ D_80033858) & arg1; // tests below re-spell the mask: uopt CSEs it into v0, i stays the s0 copy
             cur = sp84->unkC;
-            i = lim; // FAKE: temp copy keeps the and in its own candidate
             if (cur == 0 && D_80033FAE == 0) {
                 i = 0;
                 do {
@@ -1256,30 +1251,28 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
                     i += 1;
                 } while (i != 4);
             } else if (cur == -0xF0) {
-                if (i & 0x10) {
-                    lim = 5;
+                if (((arg1 ^ D_80033858) & arg1) & 0x10) {
+                    cap = 5;
                     if (D_80033834[D_8074451C] == 5) {
-                        lim = 4;
+                        cap = 4;
                     }
-                    edge = D_80744520; // FAKE: copy of D_80744520 keeps its load in the first candidate colour (v0)
-                    if (edge < lim) {
-                        D_80744520 = edge + 1;
+                    if (D_80744520 < cap) {
+                        D_80744520 += 1;
                         sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     }
-                } else if ((i & 0x20) && D_80744520 >= 2) {
-                    if (!D_8074451C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                } else if ((((arg1 ^ D_80033858) & arg1) & 0x20) && D_80744520 >= 2) {
                     D_80744520 -= 1;
                     sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 }
                 menuHandleScrollInput(sp84, sp64, i);
             } else if (cur == -0x1E0) {
-                if (i & 0x10) {
+                if (((arg1 ^ D_80033858) & arg1) & 0x10) {
                     D_80744534 += 1;
                     if (D_80744534 >= 3) {
                         D_80744534 = 0;
                     }
                     sfxPlayOnFreeSlot(0x74, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                } else if (i & 0x20) {
+                } else if (((arg1 ^ D_80033858) & arg1) & 0x20) {
                     D_80744534 -= 1;
                     if (D_80744534 < 0) {
                         D_80744534 = 2;
@@ -1307,10 +1300,6 @@ void menuHandleControllerSlotInput(MenuScreenActor *arg0, s32 arg1) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/menuHandleControllerSlotInput.s")
-#endif
 
 
 extern f32 D_80033F44;
