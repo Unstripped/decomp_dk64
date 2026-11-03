@@ -1,4 +1,4 @@
-// func_806C7270 (src/global/CBEA0.c): W2IntD: stage 6, 6 diff lines (unchanged): sra a0 (t>>1 CSE candidate coloured a0) vs target ring t9 + k=andi a0, mul.s operand order. Tried new: idx var (s32/u32/s16/u16/s8/u8) x compare/index inline x position (144), assignment-in-condition, pre-computed e, cond forms (t<0x2C, t/2, (u32)), 6.9k expression-level dead tests ((t>>1),(t&1),e[i].f, table fields), 5.3k globals/field dead tests. Probe: mini TU gives the same sra a0 candidate; only (t&~1)*4 index or (u32)t>>1 un-shares it (needs 2 sra).
+// func_806C7270 (src/global/CBEA0.c): W2Int 2026-11-03 (revisit 7 wave 2): stage 6, 6 diff lines, score unchanged (full=6 shape=0). NEW: `k = (u8)(t & 1);` replaces the `k = k & 0xFF` FAKE at the same score 6 (FAKE-free). Re-derived: target sra t9/slti/andi a0/sll t2 = `t>>1` is a ugen RING temp (no uopt candidate) and `andi a0`; ours has candidate ushr{269} (adjsave 1.5, forbidden v0/v1) coloured a0, so andi falls to t1. mul.s operand order is fixed by using `frac` directly (no `(x0 = frac)` assignment-in-expression: target mul.s f6,f0) but then the `lui t4` hoist moves; adding `if (frac == 0) {}` restores the hoist and forces a `swc1 f0,44(sp)` into the nop slot (full 6, shape 1: 5 sra-block lines + 1). Tried new: cast/wrapper chains {s32,u32,u8,s16,u16,s8,&0xFF,&0x7FFF,+0,|0} at compare x index sites (121), t/k declared types 6x6 x 4 k spellings, k/frac/e statement order x 4 frac spellings x 4 use forms (240), 420 s dead-test annealer on the frac-direct form. Untested: any spelling that leaves t>>1 un-shared yet emits one sra (known: (t&~1)*4 and (u32)t>>1 give two sra).
 typedef struct R1C2CB_Entry {
     s16 unk0;
     s16 unk2;
@@ -88,8 +88,7 @@ void func_806C7270(void) {
         t = D_807506D0[D_80750754].unk0 - D_807FC8E2;
         if ((t >> 1) < 0x16) {
             e = &D_8075075C[t >> 1];
-            k = t & 1;
-            k = k & 0xFF; // FAKE: no-code def, adds uopt references to k (moves lui/la ring temps)
+            k = (u8)(t & 1);
             frac = (f64)(f32)k * 0.5;
             D_807FC8E8 = e[0].unk0 + (e[1].unk0 - e[0].unk0) * (x0 = frac);
             D_807FC8EC = e[0].unk4 + (e[1].unk4 - e[0].unk4) * x0;

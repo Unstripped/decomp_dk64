@@ -1,4 +1,7 @@
-// lightApplyToActors (src/global/5E2F0.c): Light(u6): count-exact (1159=1159), frame 344, saved set identical; blocks 136 vs 135 (one extra real compare block from a dx dead test); deadsweep full 366 text 348 shape 146 (was 698/717). KEY: callee prototypes fixed to definition widths FIRST (billboardSubmit(Actor*,s16,s16,s16,s16,s16,u8,s16,u8,s16,f32), commandQueuePush(Actor*,s16,s16,s16,u8,u8,u8,u8,u8), s32 mathAngleBetweenPoints2D): 698->469 with no other change (unit_check protos). Then annealed guarded dead tests (count weight 8, block weight 30). Needs the three prototypes in the file head (they sit just above the function). Remaining: dx/dy/dz and a-vec colouring, final-loop consts (255.0/0.15f/1.0f) not hoisted into f20-f24, zero web f22.
+// lightApplyToActors (src/global/5E2F0.c): Light(u7, L1159) stage 3: insn count exact (1159), frame 344, callee-saved set identical; deadsweep full 301 text 289 reloc 10 shape 123 (stored draft was 366/348/12/146); blocks 119 vs 118 (code-emitting FP dead tests on dx/dy/dz, FAKE) and 79 vs 81 reloc lines. NEW LEVERS (not in old note): (1) float literal SPELLING splits const webs: 0.10f/.0010f/0.150f/255.00/1.00f per site (annealed; 7 sites survived pruning) took 360 -> 296; int literals (dist == 0, dot = 0, dot = 1, scale > 0, factor = 1 - .., maxDist / 3, last billboardSubmit arg 1) are likely the real source; (2) split dist per arm (pd in the point arm, no distFromInner) 366 -> 360; (3) the dir-arm vectors are f32 arrays: a[3] stores (0x124..0x12C, never reloaded) and d[3] (0x134..) reproduce home stores/loads with NO dead tests (d[0..2] loads/stores 3/2 exactly when set 1 is computed through three short-lived scalars then d[]=); see .scratch/L1159/lightApplyToActors_s3_natural.c (12 FAKEs, 118 branches, frame 344, but 1158 insns, full 355) as the honest base. Remaining: set 1/2 dx colouring pieces (f0/f2/f14 pre-call vs reload), final-loop consts 255.0/0.15f/1.0f not hoisted into f20/f22/f24, zero web f22 shared by the two dist==0 compares.
+void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
+void commandQueuePush(Actor *, s16, s16, s16, u8, u8, u8, u8, u8);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void lightApplyToActors(void) {
     s32 i;
     s32 actorIdx;
@@ -24,7 +27,7 @@ void lightApplyToActors(void) {
     f32 spC[2];
     f32 innerDist;
     f32 range;
-    f32 distFromInner;
+    f32 pd;
     f32 factor;
     f32 alpha;
 
@@ -59,7 +62,7 @@ void lightApplyToActors(void) {
                                 dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
                                 if (gActiveActorCount && gActiveActorCount) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 if (dist == 0.0f) {
-                                    dist = 0.1f;
+                                    dist = .1f;
                                     if (actor && actor) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 if (dx) {}  // FAKE: dead test
                                 }
@@ -72,7 +75,7 @@ void lightApplyToActors(void) {
                                 dz = actor->unk84 - light->z;
                                 dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
                                 if (dist == 0.0f) {
-                                    dist = 0.1f;
+                                    dist = .10f;
                                 }
                                 aX = dx / dist;
                                 aY = dy / dist;
@@ -88,7 +91,7 @@ void lightApplyToActors(void) {
                                 }
                                 if (dot >= light->unkC) {
                                     if (dot >= light->unk4) {
-                                        dot = 1.0f;
+                                        dot = 1.f;
                                     } else {
                                         dot = (dot - light->unkC) * light->unk10;
                                         if (dot < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
@@ -105,19 +108,19 @@ void lightApplyToActors(void) {
                                     if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
                                         dist = sqrtf(((light->z - actor->unk84) * (light->z - actor->unk84)) + ((light->x - actor->unk7C) * (light->x - actor->unk7C)));
                                 if (gActiveActorCount && gActiveActorCount) {}  // FAKE: regalloc/count steer (annealed dead test)
-                                        dist2d = (dist != 0.0f) ? dist : 0.001f;
+                                        dist2d = (dist != 0.0f) ? dist : 0.00100f;
                             if (dy > 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                             if (dz) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         scale = (light->y - actor->unk80) / dist2d;
-                                        if (!(scale > 0.0f)) {
+                                        if (!(scale > 0)) {
                                             scale = -scale;
                                 if (dist == 0) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         }
                                         if (scale == 0.0f) {
-                                            scale = 0.1f;
+                                            scale = .1f;
                                         if (dy < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         }
-                                        scale = ((f32)actor->unk15E * 0.4f) / scale;
+                                        scale = ((f32)actor->unk15E * .40f) / scale;
                                     if (aY) {}  // FAKE: regalloc/count steer (annealed dead test)
                         if (dz < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 if (dirY < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
@@ -133,7 +136,7 @@ void lightApplyToActors(void) {
                                             spC[0] = 0.15f;
                                             spC[1] = 0.15f;
                                         }
-                                        alpha = actor->unk128 / 255.0;
+                                        alpha = actor->unk128 / 255.;
                                 if (maxDist < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                                             (s32)(spC[0] * (f32)actor->unk16E[0]),
@@ -142,21 +145,24 @@ void lightApplyToActors(void) {
                                             (u32)((f32)D_80748304 * dot * alpha),
                                             angle + 0xC00,
                                             scale * dot);
+                                        if (dot < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                             if (actor) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         spC8[actorIdx] = 1;
                                     }
                                 }
                             }
                         } else {
-                            dist = sqrtf(((light->z - actor->unk84) * (light->z - actor->unk84)) + (((light->x - actor->unk7C) * (light->x - actor->unk7C)) + ((light->y - actor->unk80) * (light->y - actor->unk80)))) - (f32)*(s16 *)((u8 *)actor + 0xCE);
-                            if (dist < 0.0) {
-                                dist = 0.1f;
+                            pd = sqrtf(((light->z - actor->unk84) * (light->z - actor->unk84)) + (((light->x - actor->unk7C) * (light->x - actor->unk7C)) + ((light->y - actor->unk80) * (light->y - actor->unk80)))) - (f32)*(s16 *)((u8 *)actor + 0xCE);
+                            if (gPlayerCount != 0) {}  // FAKE: regalloc/count steer (annealed dead test)
+                            if (pd < 0.0) {
+                                pd = .1f;
                             }
-                            maxDist = light->unk14 * 1.3f;
-                            if ((actor->unk60 & 0x01000000) && (dist < maxDist) && (actor->unk60 & 4)) {
+                            maxDist = light->unk14 * 1.300f;
+                            if ((actor->unk60 & 0x01000000) && (pd < maxDist) && (actor->unk60 & 4)) {
+                                if (actor != 0) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 dist2d = sqrtf(((light->z - actor->unk84) * (light->z - actor->unk84)) + ((light->x - actor->unk7C) * (light->x - actor->unk7C)));
-                                if (dist2d == 0.0f) {
-                                    dist2d = 1.0f;
+                                if (dist2d == 0) {
+                                    dist2d = 1.f;
                                 }
                                 scale = (light->y - actor->unk80) / dist2d;
                                 if (dy > 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
@@ -167,13 +173,14 @@ void lightApplyToActors(void) {
                                 if (D_80748300 && D_80748300) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 }
                                 if (scale == 0.0f) {
-                                    scale = 0.1f;
+                                    scale = .1f;
+            if (D_80748308 == 0) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 }
-                                scale = ((f32)actor->unk15E * 0.4f) / scale;
-                                if (dist) {}  // FAKE: regalloc/count steer (annealed dead test)
+                                scale = ((f32)actor->unk15E * .40f) / scale;
+                                if (pd) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 angle = mathAngleBetweenPoints2D(light->x, light->z, actor->unk7C, actor->unk84);
-                                if (scale > 10.0f) {
-                                    scale = 10.0f;
+                                if (scale > 10) {
+                                    scale = 10;
                         if (dx) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 }
                                 if (actor->unk4 != NULL) {
@@ -190,14 +197,15 @@ void lightApplyToActors(void) {
                                 if (lightCount != 0) {}  // FAKE: regalloc/count steer (annealed dead test)
                                         if (dz > 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                             }
-                            innerDist = maxDist / 3.0f;
+                            innerDist = maxDist / 3;
                             if (lightCount != 0) {}  // FAKE: regalloc/count steer (annealed dead test)
-                                    if (dist < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
-                            if (dist < innerDist) {
+                                    if (pd < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
+                            if (pd < innerDist) {
                                 commandQueuePush(actor, (s16)(s32)light->x, (s16)(s32)light->y, (s16)(s32)light->z,
                                     0xFF, light->unk36, light->unk37, light->unk38, 0);
+                                    if (actor == 0) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
-                                    alpha = actor->unk128 / 255.0;
+                                    alpha = actor->unk128 / 255.;
                                     billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                                         (s32)(spC[0] * (f32)actor->unk16E[0]),
                                         (s32)(spC[1] * (f32)actor->unk16E[1]),
@@ -210,10 +218,10 @@ void lightApplyToActors(void) {
                                 range = maxDist - innerDist;
                                 if (dx < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
                                 if (light && light) {}  // FAKE: regalloc/count steer (annealed dead test)
-                                distFromInner = dist - innerDist;
+                                pd = pd - innerDist;
                             if (dy < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
-                                if (distFromInner < range) {
-                                    factor = 1.0f - (distFromInner / range);
+                                if (pd < range) {
+                                    factor = 1.f - (pd / range);
                                     commandQueuePush(actor, (s16)(s32)light->x, (s16)(s32)light->y, (s16)(s32)light->z,
                                         0xFF,
                                         (u32)((f32)light->unk36 * factor),
@@ -221,7 +229,7 @@ void lightApplyToActors(void) {
                                         (u32)((f32)light->unk38 * factor),
                                         0);
                                     if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
-                                        alpha = actor->unk128 / 255.0;
+                                        alpha = actor->unk128 / 255.;
                                         billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                                             (s32)(spC[0] * (f32)actor->unk16E[0]),
                                             (s32)(spC[1] * (f32)actor->unk16E[1]),
@@ -248,10 +256,10 @@ void lightApplyToActors(void) {
                         spC[0] = actor->unk4->unk34;
                         spC[1] = actor->unk4->unk3C;
                     } else {
-                        spC[0] = 0.15f;
+                        spC[0] = .150f;
                         if (lightCount == 0) {}  // FAKE: regalloc/count steer (annealed dead test)
                         if (dx < 0.0f) {}  // FAKE: regalloc/count steer (annealed dead test)
-                        spC[1] = 0.15f;
+                        spC[1] = .150f;
                                 if (D_80748304) {}  // FAKE: regalloc/count steer (annealed dead test)
                     }
                     alpha = actor->unk128 / 255.0;
@@ -261,7 +269,7 @@ void lightApplyToActors(void) {
                         1, 0x64,
                         (u32)((f32)D_80748308 * alpha),
                         0,
-                        1.0f);
+                        1);
                         if (gActiveActorCount == 0) {}  // FAKE: regalloc/count steer (annealed dead test)
                         if (gPlayerCount && gPlayerCount) {}  // FAKE: regalloc/count steer (annealed dead test)
                         if (D_80748304 != 0) {}  // FAKE: regalloc/count steer (annealed dead test)
