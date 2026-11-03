@@ -1272,7 +1272,7 @@ void bonusLightFlashGameUpdate(void) {
             ((s16 *)&D_8002D8F4)[2] = j;
             if (j <= 0) {
                 sfxPlayOnFreeSlot(0x1A1, 0x7FFF, 63.0f, 1.0f, 0x50, 0);
-                D_8002D8F8 = (randomLcgNext() & 3) + 2;
+                j = randomLcgNext() & 3; if (D_807FBB40->unk154 && D_807FBB40->unk154) {} if (j == 9) {} D_8002D8F8 = j + 2; // FAKE/LAYOUT: dead tests make j a coloured candidate (andi v1) and burn one ring temp (addiu t4); one line keeps the lw t0 reload below the sh
             }
             d = D_8002D8FC + 1;
             ((s16 *)&D_8002D8F4)[4] = d;
