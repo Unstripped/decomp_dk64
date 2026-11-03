@@ -199,10 +199,35 @@ typedef struct BossConfig {
     u8 unkC;
 } BossConfig;
 
-extern u8 *D_80035AC0[];
-extern u8 D_80035ACF[];
-extern f32 D_80035AD4[];
-extern f32 D_80035AE4[];
+extern u8 D_80036A90[];
+extern u8 D_80036AA8[];
+
+// C920's .data (0x80035AC0-0x80035B80), in address order; every object is 4-aligned, the tail is TU padding to 16.
+u8 *D_80035AC0[4] = { D_80036A90, D_80036AA8, D_80036AA8, D_80036AA8 };
+u8 D_80035AD0[4] = { 3, 0, 2, 1 };
+f32 D_80035AD4[4] = { 0.015f, 0.025f, 0.03f, 0.01f };
+f32 D_80035AE4[7] = { 1.0f, 1.3f, 1.8f, 0.7f };
+s16 D_80035B00[4] = { 0, 0x26C, 0, -0x26C };
+s16 D_80035B08[4] = { 0x26C, 0, -0x26C, 0 };
+s16 D_80035B10[4] = { 0x800, 0xC00, 0, 0x400 };
+s16 D_80035B18[4] = { 0, -0x4B, 0, 0x4B };
+s16 D_80035B20[4] = { -0x4B, 0, 0x4B, 0 };
+s8 D_80035B28 = -1;
+s16 D_80035B2C = 0;
+s8 D_80035B30[4] = { 7, 3, 1, 0 };
+s8 D_80035B34 = 0;
+u8 D_80035B38 = 0xFF;
+f32 D_80035B3C = 0.0f;
+s8 D_80035B40 = 0;
+s8 D_80035B44[4] = { 2, 3, 4, 0 };
+s8 D_80035B48 = 1;
+s16 D_80035B4C[5] = { 2, 3, 4, 5, 6 };
+u8 D_80035B58[5] = { 2, 1, 3, 4, 0 };
+s16 D_80035B60[4] = { 0xDC, 0xDD, 0xDE, 0xDF };
+s8 D_80035B68 = 0;
+s8 D_80035B6C = 0;
+s16 D_80035B70 = 0;
+s16 D_80035B74 = 0x78;
 extern u8 D_807FBD70;
 extern BossGlobalC924 *gPlayerSlots;
 extern BossLayoutData *D_807FDC98;
@@ -390,7 +415,7 @@ void func_80030EC4(void) {
         switch (BOSS_ACTOR->unk155) {
         case 0:
             patrolGetNextWaypointPos(&sp50[2], &sp50[1], &sp50[0]);
-            actorSetGroupState(D_80035ACF[D_807FDC98->unk20[WORK_STATE->unk25 & 0x7F][0]], 1);
+            actorSetGroupState((D_80035AD0 - 1)[D_807FDC98->unk20[WORK_STATE->unk25 & 0x7F][0]], 1);
             BOSS_ACTOR->unkEC = mathAngleBetweenPoints2D((f32)sp50[2], (f32)sp50[0], BOSS_ACTOR->unk7C, BOSS_ACTOR->unk84);
             if (mathAngleSignedDistance(BOSS_ACTOR->unkE6, BOSS_ACTOR->unkEC) < 0) {
                 actorScriptStart(BOSS_ACTOR, 0x401);
@@ -541,22 +566,6 @@ typedef struct BossSpawnedActor {
 
 extern BossSpawnedActor *D_807FBB44;
 extern u8 D_807FBDC4;
-extern s16 D_80035B00[];
-extern s16 D_80035B08[];
-extern s8 D_80035B28;
-extern s16 D_80035B2C;
-extern s8 D_80035B30[];
-extern s8 D_80035B34;
-extern u8 D_80035B38;
-extern f32 D_80035B3C;
-extern s8 D_80035B40;
-extern s8 D_80035B44[];
-extern s16 D_80035B4C[];
-extern u8 D_80035B58[];
-extern s16 D_80035B60[];
-extern s8 D_80035B68;
-extern s8 D_80035B6C;
-extern s16 D_80035B70;
 extern s8 D_80036DC0;
 extern f32 D_80036DC4;
 
@@ -1025,10 +1034,6 @@ void func_80613C48(void *, s16, f32, f32);
 void controllerApplyMotionWindow(void *, void *, f32);
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
-extern s16 D_80035B10[];
-extern s16 D_80035B18[];
-extern s16 D_80035B20[];
-extern s16 D_80035B74;
 
 #define ACTOR ((JetBossFollowerActor *)D_807FBB40)
 
