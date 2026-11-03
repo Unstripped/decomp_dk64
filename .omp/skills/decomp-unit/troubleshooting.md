@@ -88,3 +88,10 @@ then tell running agents not to re-copy from `src`.
   change code size); only its compile and link errors matter.
 - `deadsweep.py score --body` on a park whose declarations sit inside its `#ifdef` block fails
   (`undefined`/`redeclaration`): score a whole-file copy with the edit instead (no `--body`).
+
+## Repo directory vanished mid-unit
+
+The checkout lives on a USB APFS volume (`/Users/mquinlan/Workspace/purse`); it dropped out for
+~10 min once (2026-11-03: `games/` missing, volume root mtime unchanged). Message every running
+agent to stop all commands at once (the eval kernel cannot start: its cwd is gone; use `write
+agent://<id>`), ask the user, and resume the same agents once `git log` shows the expected HEAD.
