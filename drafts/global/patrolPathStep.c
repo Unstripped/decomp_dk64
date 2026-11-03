@@ -1,4 +1,4 @@
-// patrolPathStep (src/global/12E800.c): UNPARKED 2026-11-02 count-inexact; leftovers revisit 6 (Patrol): stage 5, deadsweep full 165 (was 180/168 park), 375 insns vs target 374 (was 376): case 2/0x26/0x60 rewritten as if (moved) {type==6 ... else-if idx+1 ...} else {x,y,z stores} (drops 1 nop+store-order diff: shape 30 / full 215 w/o FAKEs; 3 FAKEs hill-climb -> 165). Remaining extra insn: as1 fills beqz moved delay slot with the else-arm 'lh x,50(sp)' instead of fall-through 'lbu type,52(sp)', so bne type,6 gets lui+nop. Regalloc: dir t3 vs ra (dir must colour last; target idx t3 key t2 a3 unused, cand18 uixa t0 not a3), end epilogue lw ra/lbu v0 order follows dir=ra. Tried: 18 prologue spellings of idx/dir (P1 idx=(dir=U) best), decl perms of idx/v/dir/off + types, split v/idx locals (v2/idx2), .a local in case 0x49, line-join grid (1-2 joins), 3 hill-climbs ~100k compiles with count penalty, deadsweep sweep (155 but 419 insns)
+// patrolPathStep (src/global/12E800.c): W3Count: stage 5, 375 insns vs target 374 (count-inexact), deadsweep full 150 (was 165), shape 32; 3 FAKEs only (if (D_807FDC90) {} x2, ==0 x1) from anneal on the no-FAKE base (no 'key ^ 0'). Remaining: dir t3 vs ra / off coloured ra in ours while target spills off (sw t9,24(sp)) and gives ra to dir; as1 hoists else-arm 'lh x,50(sp)' into the case-2 beqz slot (target puts 'lbu type,52(sp)' there and lui in bne slot -> ours has the extra nop). Tried this round: off vs (key*10) per use site (2^8 grid, folded), FAKE deletions (no-FAKE base = 215 / 375 insns), 18k-eval anneal.
 typedef struct PatrolState {
     /* 0x00 */ u8 pad0[0xA];
     /* 0x0A */ s16 unkA;
@@ -76,18 +76,17 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
   idx = idx & 0x7F;
   key = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].a;
   type = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].b;
-  key = key ^ 0;  // FAKE
   off = key * 10;
   x = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->x;
   y = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->y;
   z = ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->z;
   moved = (((((PatrolActorView *) D_807FBB40)->unk7C - x) * (((PatrolActorView *) D_807FBB40)->unk7C - x)) + ((((PatrolActorView *) D_807FBB40)->unk84 - z) * (((PatrolActorView *) D_807FBB40)->unk84 - z))) < ((f32) (((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->r * ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + off))->r));
-  if (D_807FDC90) {}  // FAKE
   if (((arg1 & 1) && (((PatrolActorView *) D_807FBB40)->unk88 == ((PatrolActorView *) D_807FBB40)->unk7C)) && (((PatrolActorView *) D_807FBB40)->unk90 == ((PatrolActorView *) D_807FBB40)->unk84))
   {
     ((PatrolState *) D_807FDC90)->unk20++;
     if ((((PatrolState *) D_807FDC90)->unk20++) > 0x10)
     {
+        if (D_807FDC90) {}  // FAKE: anneal
       moved = 1;
       ((PatrolState *) D_807FDC90)->unk20 = 0;
     }
@@ -101,7 +100,6 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
     case 0x49:
       v = idx + 1;
       key = (v < ((D1Dc9cViewG *) D_807FDC9C)->unk11) ? (v) : (0);
-      if (D_807FDC90 == 0) {}  // FAKE
       v = mathAngleBetweenPoints2D(((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[key].a * 10)))->x, ((PatrolWaypoint *) (((PatrolPathData *) D_807FDCA0)->unk14 + (((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[key].a * 10)))->z, x, z);
       ((PatrolActorView *) D_807FBB40)->unkEE = v;
       ((PatrolActorView *) D_807FBB40)->unkE6 = v;
@@ -109,8 +107,10 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
     case 0x42:
 
     case 0x5B:
+        if (D_807FDC90 == 0) {}  // FAKE: anneal
       ((PatrolState *) D_807FDC90)->unkA = x;
       ((PatrolState *) D_807FDC90)->unkC = y;
+      if (D_807FDC90) {}  // FAKE: anneal
       ((PatrolState *) D_807FDC90)->unkE = z;
       break;
 

@@ -1,4 +1,4 @@
-// func_80613BA0 (src/global/17B90.c): W2IntA: clone of func_80613AF8 (callee controllerAnimSetState), stage 6, score 3 unchanged, same remaining diff (sum v0 vs a0). See func_80613AF8 note: sum coloured first (adjsave >= 2.0 > index/flag 1.5), no spelling tried moves the chain off v0.
+// func_80613BA0 (src/global/17B90.c): W3IntA wave3 (2026-11-02): clone of func_80613AF8 (callee controllerAnimSetState), stage 6, park score 3 unchanged; same remaining diff and same levers: see func_80613AF8 draft (a0 basin: single-statement sum + dead test if (arg1 & 0x4000) {} after sum, score 4 with index ring temp t0 vs t2).
 typedef struct {
     u8 pad0[0x4E];
     s16 unk4E;
