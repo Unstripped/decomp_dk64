@@ -586,6 +586,7 @@ void bossFollowerActorUpdate(void) {
     BossFollowerLink *sub174 = ACTOR->unk174;
     BossParentState *sp30 = sub174->unk0->unk174;
     BossAnimState *sub4_0 = ACTOR->unk4->unk0;
+    static s16 D_80035B74 = 0x78; // FAKE: function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
 
     if (sub174->unk5 == 0) {
         f32 dx = D_807FBB4C->unk7C - ACTOR->unk7C;
@@ -597,7 +598,7 @@ void bossFollowerActorUpdate(void) {
         ACTOR->unk12A = 0xFA0;
     }
     if (D_80035B28 & (1 << sub174->unk4)) {
-        ACTOR->unkE8 = (s16)((s32)((f64)sp30->unk4 * 1024.0) - 0x400);
+        ACTOR->unkE8 = (s16)(s32)((f64)sp30->unk4 * 1024.0) - 0x400;  // FAKE: no-code (s16) narrowing of the truncated value burns ugen ring temps
         ACTOR->unkE4 = D_80035B2C;
         if (sub4_0 != NULL) {
             if (D_80035B3C != sub4_0->unk4) {
@@ -627,7 +628,6 @@ void bossFollowerActorUpdate(void) {
                 }
                 if (sub4_0->unk4 > 26.0f) {
                     ACTOR->unk80 -= 10.0f;
-                    if (sub4_0->unk4 == 0) {}  // FAKE: dead test steers uopt colouring
                 }
             }
             if ((f64)ACTOR->unk80 < 0.0) {
@@ -641,18 +641,15 @@ void bossFollowerActorUpdate(void) {
         ACTOR->unk144 = 0xC;
         if (sub174->unk4 == 0) {
             if (sp30->unk17 == 1) {
-                s16 temp_v1;
                 if (sub174->unk0->unk154 == 0) {
                     D_80035B74 = 0x28;
                 }
-                if (D_80035B74 == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
-                temp_v1 = D_80035B74 - 1;
-                ((s16 *)&D_80035B6C)[4] = temp_v1; // FAKE: second base symbol for the D_80035B74 store (was (&D_80035B70)[2])
-                if (temp_v1 < 0) {
-                    f32 x = ACTOR->unk7C + D_80035B18[sp30->unk14];
+                D_80035B74 -= 1;
+                if (D_80035B74 < 0) {
                     f32 z = ACTOR->unk84 + D_80035B20[sp30->unk14];
+                    f32 x = ACTOR->unk7C + D_80035B18[sp30->unk14];
                     f32 y = ACTOR->unk80 + 270.0f;
-                    ((s16 *)&D_80035B6C)[4] = 0xA;
+                    D_80035B74 = 0xA;
                     projectileSetTargetCoords(x, y, z);
                     projectileAimAndSpawn(0x2C, 1, 0.25f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, 2400.0f, ACTOR);
                 }

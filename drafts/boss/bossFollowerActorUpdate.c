@@ -1,4 +1,4 @@
-// bossFollowerActorUpdate (src/boss/DAA0.c): Ovl (leftovers7): stage 5, count exact (419 lines = expected), deadsweep full 46 text 36 reloc 10 shape 32 (was full 83 text 77 reloc 6 shape 26). Levers found: (1) function-local 'static s16 D_80035B74 = 0x78;' (only user; needs .data carve, reloc 10 = '.data' vs absolute symbol) replaces the (&D_80035B6C)[4] hack and gives the exact lui/sh/lui/lh B74 pattern; (2) ugen t-ring is LRU-by-last-use: target mfc1 t9/addiu t8/lh t7/lw t1 = oldest regs = 2 ring temps burned inside the unkE8 statement: 'ACTOR->unkE8 = (s16)(s32)((f64)sp30->unk4 * 1024.0) - 0x400;' (no-code (s16) before the subtract; wrapper grid {s16,u16,s32,u32}^0..3 inner/outer) fixed the ring phase of ~100 lines (text 156 -> 42); (3) f32 z declared before x in the projectile block (text 40 -> 36, fixes the ACTOR->unk80 FP lines 185-192). Remaining diff: li 40 / li 10 and the lh/addiu chain use a1 (target v1: ours has temp_v1 coloured v1 live at the li; target keeps the unnarrowed sum in v1 and the narrowed value in ring t4/t5), final projectileSetTargetCoords x/y/z FP block (target colours the two cvt.s.w in f0/f2 and loads lw a0 after the first mtc1; ours ring f4/f10), 4 dead FAKEs still needed (deleting any costs 6-80). Tried: deadsweep 3 rounds, 4 random hill-climbs (dead tests + (T*)(x|0) ring burners, count-exact), replace-one-FAKE exhaustive, local temp type/spelling grids (s16/s32/u8 tv, chained store), FP dead tests on cvt operands (all worse). Parked in Ovl copy under NON_MATCHING.
+// bossFollowerActorUpdate (src/boss/DAA0.c): Ovl (leftovers7): stage 5, count exact (419 lines = expected, same frame/saves), deadsweep full 37 text 27 reloc 10 shape 32 (was full 83 text 77 reloc 6 shape 26). Levers found: (1) function-local 'static s16 D_80035B74 = 0x78;' (only user; needs .data carve; reloc 10 = '.data' vs absolute symbol) replaces the (&D_80035B6C)[4] hack, giving the exact lui/sh/lui/lh B74 pattern; then plain 'D_80035B74 -= 1; if (D_80035B74 < 0)' (no temp_v1) makes the whole decrement chain exact incl. v1; (2) ugen t-ring is LRU-by-last-use: target mfc1 t9/addiu t8/lh t7/lw t1 = oldest regs = 2 ring temps burned inside the unkE8 statement: 'ACTOR->unkE8 = (s16)(s32)((f64)sp30->unk4 * 1024.0) - 0x400;' (no-code (s16) before the subtract; grid of {s16,u16,s32,u32}^0..3 wrapper chains at inner/outer positions) fixed the ring phase of ~100 lines (text 156 -> 42); (3) f32 z declared before x in the projectile block. FAKEs left: the static, the (s16) wrapper, 'if (ACTOR->unk80) {}' (needed for the late FP block), 'if (D_80035B18) {}' (needed, deleting costs 6). Remaining text diff 27: early FP lines 185-192 (ours colours ACTOR->unk80 f0 because of the dead test, target ring f4; zero pair f6 vs f8), li 35 coloured v0 (target a1), final projectileSetTargetCoords FP block (target colours the two cvt.s.w in f0/f2 and loads 'lw a0' after the first mtc1; ours ring f10/f4). Tried: deadsweep 3 rounds x3 bases (no gain), 5 random hill-climbs (dead tests + (T*)(x|0) ring burners, count-exact), exhaustive replace-one-FAKE, FP dead tests on cvt operands (worse), named f32 conversion locals (66), local temp type grids. Parked in Ovl copy under NON_MATCHING.
 typedef struct BossAnimState {
     char pad0[4];
     f32 unk4;
@@ -130,7 +130,6 @@ void bossFollowerActorUpdate(void) {
                 }
                 if (sub4_0->unk4 > 26.0f) {
                     ACTOR->unk80 -= 10.0f;
-                    if (sub4_0->unk4 == 0) {}  // FAKE: dead test steers uopt colouring
                 }
             }
             if ((f64)ACTOR->unk80 < 0.0) {
@@ -144,14 +143,11 @@ void bossFollowerActorUpdate(void) {
         ACTOR->unk144 = 0xC;
         if (sub174->unk4 == 0) {
             if (sp30->unk17 == 1) {
-                s16 temp_v1;
                 if (sub174->unk0->unk154 == 0) {
                     D_80035B74 = 0x28;
                 }
-                if (D_80035B74 == 0) {}  // FAKE: deadsweep dead statement (steers uopt)
-                temp_v1 = D_80035B74 - 1;
-                D_80035B74 = temp_v1;
-                if (temp_v1 < 0) {
+                D_80035B74 -= 1;
+                if (D_80035B74 < 0) {
                     f32 z = ACTOR->unk84 + D_80035B20[sp30->unk14];
                     f32 x = ACTOR->unk7C + D_80035B18[sp30->unk14];
                     f32 y = ACTOR->unk80 + 270.0f;
