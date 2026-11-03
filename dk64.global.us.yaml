@@ -227,6 +227,8 @@ segments:
       - [0x14C450, data]
       - [0x14C9D0, .data, 2F550] # D_80747CD0 (cameraStepAspectScale's static f32, 0x80747CD0-0x80747CE0 incl. 12-byte TU pad); 16-aligned, no other 2F550 data
       - [0x14C9E0, data]
+      - [0x15A350, .data, 11BC10] # D_80755650[18], D_80755674, D_80755678, D_8075567C (func_8071F1D0's static s8 + 3-byte pad): the TU's data tail, 16-aligned at the end of the D_80755390 handler table; 126260's data starts at 0x80755680
+      - [0x15A380, data]
       - [0x15B290, .rodata, 450] # playerViewsBuildMatrices's doubles, func_805FD088's +-20000.0f, 255.0, 0.5493331552f, 4-byte TU pad
       - [0x15B2E0, .rodata, 3C10] # D_807565E0/D_80756630 byte tables, then func_805FF9AC's double 255.0, 8-byte TU pad
       - [0x15B390, .rodata, 5230]

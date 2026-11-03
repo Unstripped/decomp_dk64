@@ -2044,7 +2044,10 @@ typedef struct {
     s16 rotation;
 } FxInt1C9State;
 
-extern s16 D_80755650[];
+s16 D_80755650[18] = {
+    0x01D4, 0x0078, 0x026D, 0x01EE, 0x0082, 0x02F6, 0x02E5, 0x008C, 0x0254,
+    0x02C3, 0x0078, 0x02FA, 0x025A, 0x006E, 0x0312, 0x025E, 0x0096, 0x026A,
+};
 s16 mathAngleEaseToward(s16, s16, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 extern s32 D_8071FB08;
@@ -2334,8 +2337,9 @@ void effectShockwaveRingUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     ((u8 *) arg0)[0x32C] = 3;
 }
 
-extern f32 D_80755674;
-extern f32 D_80755678;
+f32 D_80755674 = -0.1f;
+f32 D_80755678 = 2.0f;
+s8 D_8075567C = 1; // func_8071F1D0's static (function-local once matched)
 
 void effectBallisticUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp90[4][4];
