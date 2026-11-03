@@ -1979,6 +1979,7 @@ void func_806E3E40(void) {
         } else {
             a = -ang;
         }
+        if (D_807FD63C == 4U) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (((a > 10.0f) || (G24_A->unkC0 < 0.0f)) && (D_807FD6E1 == 0)) {
             D_807FD6E0 = 4;
             if (D_807FD6E1 + gCurrentPlayerIndex) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -1988,7 +1989,9 @@ void func_806E3E40(void) {
             c -= 1;
             D_807FD6E0 = c;
             if (c == 0) {
+                if (D_807FD63C == 8U) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 D_807FD6E1 = 8;
+                if (D_807FBB40 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             func_806E384C();
         } else {

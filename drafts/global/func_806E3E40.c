@@ -1,4 +1,4 @@
-// func_806E3E40 (src/global/E4090.c): W2IntD: stage 6, 12 diff lines (unchanged). Target has uopt-coloured webs in v0/v1 for D_807FD6E1 value (lbu v1), const 4 (li v0), D_807FD6E0 value (lbu v0), const 8 (li v1); ours has cvt(ilod D_807FD6E1) cand 49/91 in v1/v0 and consts as ring t5/t7. Re-swept deadsweep with field-expression symbols (G24_A->unkC0/B8/E6/EE, G24_M->unk1A3/2C/38, D_807FBB40->unk60, 14 syms x4 forms, 3.7k): nothing.
+// func_806E3E40 (src/global/E4090.c): MiscC leftovers7: stage 4 park full 6 (was 12; 274 vs 275 lines: li v1,4 fills the nop delay), shape 2. Lever: dead tests with the stored CONSTANTS on another global (if (D_807FD63C == 4U) {} before the D_807FD6E0 = 4 block, == 8U before D_807FD6E1 = 8, if (D_807FBB40 != 0) {}) colour const 4/8 webs; remaining: const 4 coloured v1/E1 load v0 vs target v0/v1 (+ nop). D_807FD6E0/D_807FD6E1 are used ONLY here: function-local statics (static u8 D_807FD6E0, D_807FD6E1; natural C, no FAKEs) are count-exact 275/275 with shape 0 / text 16 (regs only: E1 var uncoloured adjsave 0, E0 coloured v1 instead of v0), needs .bss carve.
 extern u8 D_807FD6E0;
 extern u8 D_807FD6E1;
 
@@ -67,6 +67,7 @@ void func_806E3E40(void) {
         } else {
             a = -ang;
         }
+        if (D_807FD63C == 4U) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (((a > 10.0f) || (G24_A->unkC0 < 0.0f)) && (D_807FD6E1 == 0)) {
             D_807FD6E0 = 4;
             if (D_807FD6E1 + gCurrentPlayerIndex) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -76,7 +77,9 @@ void func_806E3E40(void) {
             c -= 1;
             D_807FD6E0 = c;
             if (c == 0) {
+                if (D_807FD63C == 8U) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 D_807FD6E1 = 8;
+                if (D_807FBB40 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             func_806E384C();
         } else {

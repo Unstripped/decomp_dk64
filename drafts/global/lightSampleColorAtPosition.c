@@ -1,4 +1,4 @@
-// lightSampleColorAtPosition (src/global/5E2F0.c): W3Fp: park 109 -> 102 (deadsweep full 102 text 91 reloc 8 shape 43, count 443/443, frame 136): case-1 f32 locals declared dz,dy,nz,nx,ny,dx (other orders tie at 109 or give frame/home changes). Remaining diff as before: target keeps n-values at homes 84/88/92 (nz stored+reloaded, nx/ny coloured f20/f18 with stores) and d-values at 96/100/104; ours d's at 84..92 with no n stores; zero const f22 vs f30 for r, 300.0 hoist (ldc1 f30). Tried W3Fp: pad words (4-7) before the case-1 locals (frame grows, worse), arrays d[3]/n[3] for case 1 (all 72 index permutations: count 438, frame 184, full 211), decl-order permutations of the six locals (several tie at 102).
+// lightSampleColorAtPosition (src/global/5E2F0.c): MiscC leftovers7: park 102 -> 96 (deadsweep full 96 text 87 reloc 6 shape 39; count 443/443, frame 136): joining the three entry loads on ONE line (r = D_8076A0B4[arg7]; g = ...; b = ...;  // LAYOUT) changed as1 scheduling (LAYOUT join search: all 1-2 joins of 119 lines, 3-joins in lines 12-50: nothing else; deadsweep 1 round on top: nothing; declaration-order climb 13k evals: nothing). W3Fp (earlier): park 109 -> 102 (case-1 f32 locals declared dz,dy,nz,nx,ny,dx). Remaining diff as before: target keeps n-values at homes 84/88/92 (nz stored+reloaded, nx/ny coloured f20/f18 with stores) and d-values at 96/100/104; ours d's at 84..92 with no n stores; zero const f22 vs f30 for r, 300.0 hoist (ldc1 f30). Tried W3Fp: pad words (4-7) before the case-1 locals (frame grows, worse), arrays d[3]/n[3] for case 1 (all 72 index permutations: count 438, frame 184, full 211).
 void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
     f32 pad[1];
     LightTrigger *entry;
@@ -21,9 +21,7 @@ void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4
         *arg6 = (s32)(D_8076A0BC[arg7] * 255.0f);
         return;
     }
-    r = D_8076A0B4[arg7];
-    g = D_8076A0B8[arg7];
-    b = D_8076A0BC[arg7];
+    r = D_8076A0B4[arg7]; g = D_8076A0B8[arg7]; b = D_8076A0BC[arg7];  // LAYOUT: one line changes as1 scheduling of the three loads
     three = 3;
     for (i = 0; i < D_807F7EC8; i++) {
         {

@@ -492,9 +492,7 @@ void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4
         *arg6 = (s32)(D_8076A0BC[arg7] * 255.0f);
         return;
     }
-    r = D_8076A0B4[arg7];
-    g = D_8076A0B8[arg7];
-    b = D_8076A0BC[arg7];
+    r = D_8076A0B4[arg7]; g = D_8076A0B8[arg7]; b = D_8076A0BC[arg7];  // LAYOUT: one line changes as1 scheduling of the three loads
     three = 3;
     for (i = 0; i < D_807F7EC8; i++) {
         {
