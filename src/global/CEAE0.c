@@ -2360,7 +2360,6 @@ void playerRegisterHeldActorAlign(void) {
     }
 }
 
-#ifdef NON_MATCHING
 typedef struct G05CbArg2 {
     /* 0x0 */ Actor *unk0;
     /* 0x4 */ Actor *unk4;
@@ -2381,10 +2380,8 @@ void func_806CF138(G05CbArg2 *arg0) {
     f32 sp58;
     f32 sp54;
     f32 sp50;
-    f32 sp4C;
-    f32 sp48;
-    f32 sp44;
-    f32 sp40;
+    f32 dir[2];
+    f32 delta[2];
     f32 sp3C;
     f32 sp38;
     f32 sp34;
@@ -2393,28 +2390,19 @@ void func_806CF138(G05CbArg2 *arg0) {
 
     playerGetHoldNodeIndices(&sp30, &sp2C);
     actorGetNodePos(arg0->unk0, sp30, &sp70, &sp68, &sp60);
-    if (sp68) {} // FAKE: dead test steers uopt coloring
     actorGetNodePos(arg0->unk0, sp2C, &sp74, &sp6C, &sp64);
     sp5C = sp6C - sp68;
     sp58 = sqrtf((sp64 - sp60) * (sp64 - sp60) + ((sp74 - sp70) * (sp74 - sp70) + sp5C * sp5C));
     sp54 = asinApprox(sp5C / sp58) * 57.29577637f;
-    sp48 = func_80612794(arg0->unk0->unkE6) * 50.0f;
-    sp4C = func_80612790(arg0->unk0->unkE6) * 50.0f;
-    if (sp6C) {} // FAKE: dead test steers uopt coloring
-    sp40 = sp74 - sp70;
-    if (sp68) {} // FAKE: dead test steers uopt coloring
-    sp44 = sp64 - sp60;
-    sp3C = sp44 * sp4C + sp48 * sp40;
-    sp38 = sqrtf(sp48 * sp48 + sp4C * sp4C);
-    sp34 = sqrtf(sp44 * sp44 + sp40 * sp40);
-    if (sp4C) {} // FAKE: dead test steers uopt coloring
-    if (sp4C) {} // FAKE: dead test steers uopt coloring
+    dir[0] = func_80612794(arg0->unk0->unkE6) * 50.0f;
+    dir[1] = func_80612790(arg0->unk0->unkE6) * 50.0f;
+    delta[0] = sp74 - sp70;
+    delta[1] = sp64 - sp60;
+    sp3C = dir[0] * delta[0] + dir[1] * delta[1];
+    sp38 = sqrtf(dir[0] * dir[0] + dir[1] * dir[1]);
+    sp34 = sqrtf(delta[0] * delta[0] + delta[1] * delta[1]);
     func_8067AA58(arg0->unk0, arg0->unk4, sp54, 90.0 - acosApprox(sp3C / (sp38 * sp34)) * 57.29577637f);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CEAE0/func_806CF138.s")
-#endif
 
 s32 playerGetHoldNodeIndices(s32 *arg0, s32 *arg1) {
     s32 ret = 0;
