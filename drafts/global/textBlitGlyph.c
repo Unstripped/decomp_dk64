@@ -1,4 +1,4 @@
-// textBlitGlyph (src/global/100180.c): from .scratch/W2Ring/textBlitGlyph_best.c
+// textBlitGlyph (src/global/100180.c): stage 5: count 161 + frame 80 exact, entire diff regalloc/entry-schedule (deadsweep full=79 shape=23 vs stored 81/25). Lever: for (row = 0; row < 0x10; row++) header (not do-while) fixes tail order slti,subu,move,bnez. Open: expected keeps ucvt(arg0)=t3 + *arg5 load t5 as block-local cands and ring t2/t4 for the andi of odd/phase (sltu v0/v1 direct); ours colours cands t2/t4/t5 so the ring falls to v0 (andi v0; sltu t7; move v0,t7) and keeps entry narrowing andi t6,a0,0xff; move a0,t6. Tried: arg0 >>= 1 in place (srl+andi shape right but loses the two sw s1/s2 spill-temp stores and frame), old-value local, w2 types, K&R, formal types, 9-word decl order/type climbs, order/alt annealing (best 78 only with frame 88)
 s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 arg6) {
     u8 *srcRow;
     u8 *dst;
@@ -20,8 +20,7 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
     dst = dstRow;
     *(u8 *)arg5 = *(u8 *)arg5 + arg0;
     arg0 = w2;
-    row = 0;
-    do {
+    for (row = 0; row < 0x10; row++) {
         j = 0;
         if (w2 > 0) {
             lead = arg3 & 1;
@@ -55,11 +54,10 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
                 *dst |= *src;
             }
         }
-        row++;
         dstRow -= arg6;
         src = srcRow;
         dst = dstRow;
-    } while (row < 0x10);
+    }
     ret = phase;
     if (phase != 0) {
         ret = odd;

@@ -1,18 +1,4 @@
-// textDrawStringVtx (src/global/100180.c): Text R7: stage 5 NON_MATCHING park, count EXACT (490 insns, frame 0xC8, same callee-saved set), deadsweep full=192 shape=72 (was 196/79): decl order now line,idx,ch first (target homes: line 199, idx 198, ch 197, startX 194, strStart 188, vp/batch 172, pad/center/started 171/170/169), h4 moved after w; no single decl move or single dead test (line/idx/center/started x 139 points x 4 forms) improves. Left (regs/stack only): target keeps line memory-resident (home 199, reloaded each use) with an s6 cache lbu s6,199(sp) before the textMapCharToGlyph call, constant 0x07000000 then in s4; ours colours line a3 (spill sw/lw 68(sp) around call, store at 119 = home of a late-declared slot) and 0x700 in s6; fi (t3) spilled at def sw t3,124(sp) in ours vs target keeps t3 and spills only around calls (88); yoff a3 in place in target. Tried: GBI _g block-local macro (count 490 but frame 216, full 299), direct dl->words stores (476 insns), merged g vars (355), w/h s16/u16/s32 (>=208), volatile/addr-taken line (211/222), 2k decl-order SA moves (no gain).
-extern Mtx D_20000C0;
-extern Gfx D_2000180;
-Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
-void heapFreeDeferred(void *);
-Gfx *func_805FD030(Gfx *);
-void vtxSetQuadGradientColors(void *, u8, u8, s8);
-
-#define TEXT_GFX_CMD(g, a, b) \
-    { (g) = (Gfx *)(dl++); (g)->words.w0 = (a); (g)->words.w1 = (b); }
-#define TEXT_GFX_QUAD(g, v0, v1, v2, v3) \
-    TEXT_GFX_CMD(g, (_SHIFTL(G_QUAD, 24, 8) | __gsSP1Quadrangle_w1f(v0, v1, v2, v3, 0)), __gsSP1Quadrangle_w2f(v0, v1, v2, v3, 0))
-#define TEXT_GFX_VTX(g, v, n, v0) \
-    TEXT_GFX_CMD(g, _SHIFTL(G_VTX, 24, 8) | _SHIFTL((n), 12, 8) | _SHIFTL((v0) + (n), 1, 7), (unsigned int)(v))
-
+// textDrawStringVtx (src/global/100180.c): stage 6 park 192/490 (count+frame exact). Re-derived: remaining diff = (1) fi (u8*) local gets a 120(sp) home store + extra lw; expected keeps it only as expression spilled at 88(sp) around calls; (2) yoff memory-resident (sb 160(sp)) where expected keeps it in a3 via move a3,v0; sll 26; sra 24; (3) line copy: expected lbu s6,199(sp) (callee-saved) before textMapCharToGlyph, 0x7000000 in s4; ours const in s6 and line copy a3 spilled; (4) vtxSetQuadGradientColors real def has 3 params: expected passes no a3 (park passes yoff as phantom 4th arg). Tried revisit8: i as s32 (184 but count 488), macro FI instead of fi local (+pads), per-local type grid, yoff via gi temp, line/center/tmp/len types, loop-form spellings, 3 anneals of dead tests/decl order/alt spellings: none beat 192 at count 490
 Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     u8 line;
     u8 idx;

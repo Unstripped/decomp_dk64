@@ -48,8 +48,7 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
     dst = dstRow;
     *(u8 *)arg5 = *(u8 *)arg5 + arg0;
     arg0 = w2;
-    row = 0;
-    do {
+    for (row = 0; row < 0x10; row++) {
         j = 0;
         if (w2 > 0) {
             lead = arg3 & 1;
@@ -83,11 +82,10 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
                 *dst |= *src;
             }
         }
-        row++;
         dstRow -= arg6;
         src = srcRow;
         dst = dstRow;
-    } while (row < 0x10);
+    }
     ret = phase;
     if (phase != 0) {
         ret = odd;
