@@ -1,4 +1,4 @@
-// lightSampleColorAtPosition (src/global/5E2F0.c): Light(u6): stage 4 (count 404=404, frame 136, 48/48 blocks, f20-f30 saved set identical), deadsweep score full 109 text 98 shape 50 (reloc 8). Structure: case1 locals nx,ny,nz,dx,dy,dz scalars declared n-first; 4x 'if (D_807F7EC8 == 0) {}' at loop head raise static block count so uopt's d-values flip from callee-saved f20-f24 to caller-saved with spills around sqrtf (matches target stores before jal). Remaining: spill slots 84/88/92 vs target 96/100/104, n-value stores at 84/88/92 missing, dead hoisted zero in f22 (r lands f30), 300.0 not hoisted, first D_807F7EC8==0 branch reg order (lw t7 vs v1).
+// lightSampleColorAtPosition (src/global/5E2F0.c): W3Fp: park 109 -> 102 (deadsweep full 102 text 91 reloc 8 shape 43, count 443/443, frame 136): case-1 f32 locals declared dz,dy,nz,nx,ny,dx (other orders tie at 109 or give frame/home changes). Remaining diff as before: target keeps n-values at homes 84/88/92 (nz stored+reloaded, nx/ny coloured f20/f18 with stores) and d-values at 96/100/104; ours d's at 84..92 with no n stores; zero const f22 vs f30 for r, 300.0 hoist (ldc1 f30). Tried W3Fp: pad words (4-7) before the case-1 locals (frame grows, worse), arrays d[3]/n[3] for case 1 (all 72 index permutations: count 438, frame 184, full 211), decl-order permutations of the six locals (several tie at 102).
 void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
     f32 pad[1];
     LightTrigger *entry;
@@ -33,12 +33,12 @@ void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4
             default:
                 break;
             case 1: {
+                f32 dz;
+                f32 dy;
+                f32 nz;
                 f32 nx;
                 f32 ny;
-                f32 nz;
                 f32 dx;
-                f32 dy;
-                f32 dz;
                 f32 dist;
                 f32 dot;
                 f32 factor;

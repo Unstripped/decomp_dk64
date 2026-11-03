@@ -504,12 +504,12 @@ void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4
             default:
                 break;
             case 1: {
+                f32 dz;
+                f32 dy;
+                f32 nz;
                 f32 nx;
                 f32 ny;
-                f32 nz;
                 f32 dx;
-                f32 dy;
-                f32 dz;
                 f32 dist;
                 f32 dot;
                 f32 factor;

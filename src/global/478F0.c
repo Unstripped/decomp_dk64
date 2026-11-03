@@ -610,42 +610,44 @@ void csCmdSpawnEffectAtNode(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
 
 void csSplineLightStep(f32 *, s16, s16, f32);
 
-#ifdef NON_MATCHING
 f32 splineEvalCubic(f64, f32, f32, f32, f32);
 
 void csSplineLightStep(f32 *arg0, s16 arg1, s16 arg2, f32 arg3) {
-    f32 frac[1]; // FAKE: memory-resident frac (swc1 at def, lwc1 at the first call)
-    s32 d1; // FAKE: frame pad
+    f32 frac;
+    s32 i;
     u8 idx[4];
     f32 px;
     f32 py;
-    s32 i;
-    s32 d0; // FAKE: frame pad
-    f64 fd; // FAKE: names the CSE'd (f64)frac that the target keeps in a save-around-call temp
-    f32 tm;
+    f32 p0;
+    f32 p1;
+    f32 p2;
+    f32 p3;
     *arg0 -= arg3;
     if (*arg0 < 0.0f) {
         *arg0 = arg2;
     }
     i = *arg0;
-    frac[0] = *arg0 - i;
+    frac = *arg0 - i;
     idx[0] = i - 1 < 0 ? 0 : i - 1;
     idx[1] = i;
     idx[2] = i + 1 >= arg2 ? arg2 - 1 : i + 1;
     idx[3] = i + 2 >= arg2 ? arg2 - 1 : i + 2;
-    fd = frac[0];
-    px = splineEvalCubic(fd, D_807F5FD4[arg1][idx[0]].x, (tm = D_807F5FD4[arg1][idx[1]].x), D_807F5FD4[arg1][idx[2]].x, D_807F5FD4[arg1][idx[3]].x); // FAKE: tm assignment steers the 3rd arg through a coloured FP candidate (f2)
-    py = splineEvalCubic(fd, D_807F5FD4[arg1][idx[0]].y, (tm = D_807F5FD4[arg1][idx[1]].y), D_807F5FD4[arg1][idx[2]].y, D_807F5FD4[arg1][idx[3]].y); // FAKE: tm assignment (as above)
-    if (py == 0) {} // FAKE: deadsweep, FP candidate piece colouring
-    lightAdd(px, py, splineEvalCubic(fd, D_807F5FD4[arg1][idx[0]].z, (tm = D_807F5FD4[arg1][idx[1]].z), D_807F5FD4[arg1][idx[2]].z, D_807F5FD4[arg1][idx[3]].z), 0.0f, 0.0f, 0.0f, 250.0f, 0, 0xFF, 0xFF, 0xFF); // FAKE: tm assignment (as above)
-    if (px && px) {} // FAKE: deadsweep, FP candidate piece colouring
-    if (px && px) {} // FAKE: deadsweep, FP candidate piece colouring
-    if (idx[1]) {} // FAKE: deadsweep, FP candidate piece colouring
+    p0 = D_807F5FD4[arg1][idx[0]].x;
+    p1 = D_807F5FD4[arg1][idx[1]].x;
+    p2 = D_807F5FD4[arg1][idx[2]].x;
+    p3 = D_807F5FD4[arg1][idx[3]].x;
+    px = splineEvalCubic(frac, p0, p1, p2, p3);
+    p0 = D_807F5FD4[arg1][idx[0]].y;
+    p1 = D_807F5FD4[arg1][idx[1]].y;
+    p2 = D_807F5FD4[arg1][idx[2]].y;
+    p3 = D_807F5FD4[arg1][idx[3]].y;
+    py = splineEvalCubic(frac, p0, p1, p2, p3);
+    p0 = D_807F5FD4[arg1][idx[0]].z;
+    p1 = D_807F5FD4[arg1][idx[1]].z;
+    p2 = D_807F5FD4[arg1][idx[2]].z;
+    p3 = D_807F5FD4[arg1][idx[3]].z;
+    lightAdd(px, py, splineEvalCubic(frac, p0, p1, p2, p3), 0.0f, 0.0f, 0.0f, 250.0f, 0, 0xFF, 0xFF, 0xFF);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/csSplineLightStep.s")
-#endif
 
 void csCmdSplineLights(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     f32 *p;
