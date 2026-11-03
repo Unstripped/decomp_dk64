@@ -1909,11 +1909,6 @@ void playerStepPitchAngleToward(f32 arg0) {
     m->unk1A0 = (u32)f;
 }
 
-u8 D_807FD6E0;
-u8 D_807FD6E1;
-
-#ifdef NON_MATCHING
-
 void func_806E3E40(void) {
     static u8 D_807FD6E0; // function-local static (only user): uopt treats it as non-aliased; needs the E4090 .bss carve
     static u8 D_807FD6E1;
@@ -1981,8 +1976,7 @@ void func_806E3E40(void) {
         if (((a > 10.0f) || (G24_A->unkC0 < 0.0f)) && (D_807FD6E1 == 0)) {
             D_807FD6E0 = 4;
         }
-        if (D_807FD6E0 != 0) {
-            if (gCurrentPlayerIndex && gCurrentPlayerIndex) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (D_807FD6E0) {
             D_807FD6E0 -= 1;
             if (D_807FD6E0 == 0) {
                 D_807FD6E1 = 8;
@@ -1991,16 +1985,11 @@ void func_806E3E40(void) {
         } else {
             sfxStopSlotSound(D_807FBB40, 0);
         }
-        if (D_807FD6E1 != 0) {
-            if (D_807FD6E1 && D_807FD6E1) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (D_807FD6E1) {
             D_807FD6E1 -= 1;
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/E4090/func_806E3E40.s")
-#endif
 
 
 void func_806E41B4(void) {
