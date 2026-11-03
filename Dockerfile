@@ -65,4 +65,13 @@ RUN curl -fsSL "https://ftp.gnu.org/gnu/gzip/gzip-1.2.4.tar.gz" -o /tmp/gzip-1.2
     && cp gzip /usr/local/bin/gzip-1.2.4 \
     && rm -rf /tmp/gzip-1.2.4*
 
+# udis (Synray/ido-ucode-utils): disassembles cfe/uopt ucode, the t.B/t.O files `tools/as1probe.py keep`
+# keeps (`as1probe.py ucode`), pinned to commit 1fa98311e78061e6a8a2733a6ccb536b78f1ef1b.
+RUN git clone https://github.com/Synray/ido-ucode-utils /tmp/ido-ucode-utils \
+    && cd /tmp/ido-ucode-utils \
+    && git checkout 1fa98311e78061e6a8a2733a6ccb536b78f1ef1b \
+    && make OPTIMIZATION=-O2 \
+    && cp build/udis /usr/local/bin/udis \
+    && rm -rf /tmp/ido-ucode-utils
+
 WORKDIR /dk64
