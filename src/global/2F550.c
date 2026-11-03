@@ -3,14 +3,13 @@
 
 extern u8 D_807444FC;
 
-#ifdef NON_MATCHING
 extern u8 D_807444F0;
 extern u8 D_807444EC;
 extern s8 D_807444C0;
 extern s32 gCurrentMap;
 
 f32 cameraStepAspectScale(void) {
-    static f32 sc = 1.0f; // D_80747CD0 (only user: this function; needs a .data carve)
+    static f32 sc = 1.0f; // D_80747CD0: a function-local static so uopt treats it as non-aliased
     f32 target;
     f32 step;
     s32 flag;
@@ -41,12 +40,6 @@ f32 cameraStepAspectScale(void) {
     }
     return sc;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/cameraStepAspectScale.s")
-#endif
-
-f32 D_80747CD0 = 1.0f; // cameraStepAspectScale's scale (function-local static once matched)
 
 u8 *D_807F5DE0;
 struct MapBspNode *D_807F5DE4;
