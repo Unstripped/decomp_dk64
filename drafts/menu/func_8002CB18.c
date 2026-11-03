@@ -1,4 +1,4 @@
-// func_8002CB18 (src/menu/3E10.c): W2Int 2026-11-03: stage 5 park unchanged full=5 shape=4, count-exact 335. Re-ran 560 s dead-test annealer from the park (insert/delete/move/retarget over 21 symbols incl. all locals/globals, 4 forms, <=9 fakes): no state below 5. Remaining diff unchanged: `li t5,1; sb t5,79(sp)` hoisted before `lbu t0,340(t6)` (ours li t8, sb after the reload). Untried: nothing new; the earlier note's untried item (recolour A->unk154 candidate t0 without a reference before the sp4F store) still open.
+// func_8002CB18 (src/menu/3E10.c): MenuA 2026-11-03 (revisit 8): park unchanged full=5 shape=4 count-exact 335, but its first FAKE cast 'Menu6B_N->unk154 = (u8)A->unk154' is redundant (removed, still 5). KEY new base: drop FAKEs 'if (A->unk154 != 0) {}', 'if (temp_s1->unk4 != 0) {}', 'sp4F = sp4F | 0' and write plain 'sp4F = 1;' -> the whole arm (li t5 hoisted into the lw/sh stall, sb t5 between lw t6 and lbu t0) matches by itself; only the t-ring is one step off at the else arm (lui t9 vs t8, cascade 72 lines). Changing the remaining FAKE cast to 'Menu6B_N->unk155 = (u16)idx;' (not (s16)) on that base gives full=12 shape=0 count-exact (any (s16)/(u16)/(u8) chain ending in (u16) or (u8) ties): only left diff = idx's post-call reload is a ring temp (lh t2,76(sp)) instead of v0 (target lh v0,76(sp)); (s16)idx keeps v0 but loses the ring step. Both bases: exhaustive single dead test (114 forms x 62 positions), single/pair RHS cast wrappers on all 23 sites, 17 dead-test forms on idx/(u16)idx, idx type grid (s16 only works), 24k-eval hill-climbs: nothing < 12 on the u16 base / < 5 on the stored one. Self-store 'temp_s1->unk0 = temp_s1->unk0;' burns the ring step exactly (full 6-8) but emits lw/sw (+2 insns).
 typedef struct MenuModelScale {
     char pad0[0x34];
     f32 unk34;
@@ -83,7 +83,7 @@ void func_8002CB18(void) {
                 s16 *q = Menu6B_N->unk17C;
                 *q = *sp38;
             }
-            Menu6B_N->unk154 = (u8)Menu6B_A->unk154; // FAKE: no-op narrowing cast, burns one ugen t-ring temp
+            Menu6B_N->unk154 = Menu6B_A->unk154;
             Menu6B_N->unk155 = (s16)idx; // FAKE: no-op narrowing cast, burns one ugen t-ring temp
             {
                 Menu6_Sub174 *sub = Menu6B_N->unk174;

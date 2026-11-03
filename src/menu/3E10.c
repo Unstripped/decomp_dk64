@@ -1692,7 +1692,7 @@ void func_8002CB18(void) {
                 s16 *q = Menu6B_N->unk17C;
                 *q = *sp38;
             }
-            Menu6B_N->unk154 = (u8)Menu6B_A->unk154; // FAKE: no-op narrowing cast, burns one ugen t-ring temp
+            Menu6B_N->unk154 = Menu6B_A->unk154;
             Menu6B_N->unk155 = (s16)idx; // FAKE: no-op narrowing cast, burns one ugen t-ring temp
             {
                 Menu6_Sub174 *sub = Menu6B_N->unk174;
@@ -3530,15 +3530,18 @@ f32 menuEvaluateSpline(f32 *, f32, f32 *);
 
 s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *arg5, s16 *arg6) {
     f32 v;
+    s32 ret; // FAKE: unused local still takes an isvar id (19 -> 15)
+    if ((arg1 * 4) << 2 && (arg1 * 4) << 2) {}  // FAKE: steers uopt candidate numbering / ring phase of arg1 * 4
     arg1 += ((MenuA_SelectorView *)arg0)->unk17;
     if (arg1 >= 5) {
         arg1 -= 5;
     }
-    (&D_8003378C[arg1 * 4])[2] = D_8003373C[arg1 * 4];
-    D_8003373C[(arg1 * 4) + 2] = -D_8003378C[arg1 * 4];
-    D_8003378C[(4 * arg1) + 3] = D_8003373C[(arg1 * 4) + 1];
-    (&D_8003373C[4 * arg1])[3] = -D_8003378C[(4 * arg1) + 1];
-    *arg2 = menuEvaluateSpline((f32 *)((u8 *)D_8003373C + ((arg1 << 2) << 2)), ((MenuA_SelectorView *)arg0)->unk4, NULL);
+    if (arg1 == 0) {} // FAKE: extra reference of arg1
+    (&D_8003378C[4 * arg1])[2] = D_8003373C[arg1 * 4];
+    D_8003373C[(4 * arg1) + 2] = -D_8003378C[4 * arg1];
+    D_8003378C[(4 * arg1) + 3] = D_8003373C[1 + (4 * arg1)];
+    (&D_8003373C[4 * arg1])[3] = -D_8003378C[1 + (arg1 * 4)];
+    *arg2 = menuEvaluateSpline((f32 *)((u8 *)D_8003373C + (arg1 << 4)), ((MenuA_SelectorView *)arg0)->unk4, NULL);
     *arg3 = menuEvaluateSpline((f32 *)((u8 *)D_8003378C + ((4 * arg1) << 2)), ((MenuA_SelectorView *)arg0)->unk4, NULL);
     if (*arg3 < -40.0f) {
         v = -*arg3 - 40.0f;
