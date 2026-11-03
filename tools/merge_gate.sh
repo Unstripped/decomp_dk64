@@ -76,7 +76,6 @@ done
 
 # Gate tree = HEAD + the given files + --stage paths.
 head=$(git rev-parse HEAD) || exit 1
-prev=$(git -C "$gate" rev-parse HEAD) || exit 1
 git -C "$gate" checkout -q -f --detach "$head" || { echo "GATE_FAIL: gate checkout failed"; exit 1; }
 git -C "$gate" clean -fdq -- src include drafts || exit 1
 for p in "$@" $extra; do
@@ -97,8 +96,13 @@ if [ ! -d "$gate/asm" ] || [ "$(cat "$gate/.scratch/split.stamp" 2>/dev/null)" !
   (cd "$gate" && tools/dk make split > .scratch/split.log 2>&1) || { tail -5 "$gate/.scratch/split.log"; echo "GATE_FAIL: gate split failed"; exit 1; }
   echo "$want" > "$gate/.scratch/split.stamp"
   find "$gate/src" -name '*.c' -exec touch {} +
-elif ! git -C "$gate" diff --quiet "$prev" HEAD -- include || [ -n "$(git -C "$gate" status --porcelain -- include)" ]; then
+fi
+# make has no header deps: rebuild every C file whenever the headers differ from the ones the
+# gate tree's objects were last compiled with (also after a failed gate with a --stage header).
+inc=$(cd "$gate" && find include -type f | LC_ALL=C sort | xargs shasum | shasum | cut -c1-40)
+if [ "$(cat "$gate/.scratch/include.stamp" 2>/dev/null)" != "$inc" ]; then
   find "$gate/src" -name '*.c' -exec touch {} +
+  echo "$inc" > "$gate/.scratch/include.stamp"
 fi
 (cd "$gate" && touch "$@" && tools/dk make > "$glog" 2>&1)
 grep -E 'FAILED|Error|error:|exceeds' "$glog" | head -5
