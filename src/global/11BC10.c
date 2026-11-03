@@ -2339,7 +2339,6 @@ void effectShockwaveRingUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
 f32 D_80755674 = -0.1f;
 f32 D_80755678 = 2.0f;
-s8 D_8075567C = 1; // func_8071F1D0's static (function-local once matched)
 
 void effectBallisticUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp90[4][4];
@@ -2870,9 +2869,8 @@ void effectScatterFallUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
 
 
-#ifdef NON_MATCHING
 void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
-    static s8 sd = 1;  // text-identical only as a function-local static (not aliased by the field stores); data carve D_8075567C needed
+    static s8 sd = 1; // D_8075567C: a function-local static so uopt treats it as non-aliased
     TimedMotionState *var_v1;
     TimedMotionState *temp;
 
@@ -2895,10 +2893,6 @@ void func_8071F1D0(TimedEffectActorView *arg0, s8 *arg1) {
     }
     arg0->unk35C = arg0->unk35C + (s32)((f64)var_v1->unk8 * 200.0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/11BC10/func_8071F1D0.s")
-#endif
 
 
 
