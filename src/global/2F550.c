@@ -1481,7 +1481,6 @@ typedef struct Bsp_Plane {
 s32 mapBspPlaneDistanceCheck(Bsp_Plane *, f32, f32, f32);
 
 
-#ifdef NON_MATCHING
 #define arg0 ((Bsp_Plane *)arg0v)
 u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 ea[3];
@@ -1495,7 +1494,6 @@ u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 ny;
     f32 nz;
     f32 d;
-
     *arg1 = mapBspPlaneDistanceCheck(arg0, arg2, arg3, arg4);
     nz = arg0->unk54;
     ny = arg0->unk50;
@@ -1512,20 +1510,19 @@ u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     c[2] = ea[0] * eb[1] - ea[1] * eb[0];
     len = sqrtf(c[0] * c[0] + c[1] * c[1] + c[2] * c[2]);
     n[0] = c[0] / len;
-    n[2] = c[2] / len;
     n[1] = c[1] / len;
+    n[2] = c[2] / len;
+    n[0] = n[0] * 20.000f;  // FAKE: separate (uncoloured) 20.0f literal web
     n[1] = 20.0f * n[1];
-    n[0] = 20.00f * n[0];
-    n[2] = n[2] * 20.00f;
-    p[0] = n[0] + arg0->unk5C[0];
-    p[1] = n[1] + arg0->unk62[0];
-    p[2] = n[2] + arg0->unk68[0];
+    n[2] = n[2] * 20.00f;  // FAKE: separate (uncoloured) 20.0f literal web
+    p[0] = arg0->unk5C[0] + n[0];
+    p[1] = arg0->unk62[0] + n[1];
+    p[2] = arg0->unk68[0] + n[2];
     s1 = nx * arg2 + ny * arg3 + nz * arg4 + d;
-    if (nx && nx) {}  // FAKE: nx coloured first (f14)
     if (s1 > 0.0) {
         if (ny > 0.0f) {}  // FAKE: colours nx/ny/nz f14/f16/f18
         if (nx * p[0] + ny * p[1] + nz * p[2] + d > 0.0) {
-            if (len == 0.0f) {}  // FAKE: block split steering uopt candidate order
+            if (nx && nx) {}  // FAKE: nx coloured before nz
             return 0;
         }
     }
@@ -1537,10 +1534,6 @@ u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     return 1;
 }
 #undef arg0
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2F550/mapBspPlaneSideTest.s")
-#endif
 
 s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     s32 pad[14];
