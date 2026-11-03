@@ -81,7 +81,7 @@ Split at every TU boundary BEFORE round 1, seed the stubs' shared externs, keep 
    `cat local://tasks/<A>.md | python3 tools/ledger.py record --unit "<YYYY-MM-DD: unit>" --agent <A> --seg <seg> --task -`
    (outcome and stage come from the tree after the merge; add `FUNC=skipped` for functions
    the report says it never reached). Your own probes: `--agent orchestrator FUNC`; a
-   split/data blocker: `--unit - FUNC=blocked --note "..."`.
+   split/data blocker or a proven no-C-path (`as1probe.py scan`): `--unit - FUNC=blocked --note "..."`.
 6. Stop rule (dispatch.md): a round matching fewer than ~1 function per agent, or only
    near-misses and 500+-instruction functions left. List what is left with
    `python3 tools/unit_check.py left src/<seg>/<file>.c ...` before stopping.

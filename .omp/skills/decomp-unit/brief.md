@@ -110,11 +110,11 @@ swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a
 - Skip formatters and linters. NEVER edit `tools/`, `Makefile` or the splat configs.
 
 # Large functions and near-misses
-- Follow AGENTS.md "Decompiling a function" step 4 (stage order, `tools/uopt_trace.sh`,
-  permuter search-hint rule, NON_MATCHING parking) with these exceptions: no ROM build (your
-  gates are `fdiff.sh` OK/TEXT OK and `--non-matching`), `uopt_trace.sh` before guessing at
-  any register question; every `tools/dk` call under ~10 min (permuter `-j 2 --seconds 600`,
-  deadsweep `--rounds 1` per call: long calls stall the orchestrator's split/expected); never bypass its lock.
+- Follow AGENTS.md "Decompiling a function" step 4 (stage order, permuter search-hint rule,
+  NON_MATCHING parking) except: no ROM build (gates: `fdiff.sh` OK/TEXT OK, `--non-matching`);
+  `uopt_trace.sh` before any register guess and `as1probe.py keep`+`scan` before any schedule-only
+  spelling search (a fix C cannot emit: report the function blocked); every `tools/dk` call under ~10 min
+  (permuter `-j 2 --seconds 600`, deadsweep `--rounds 1` per call: long calls stall the orchestrator); never bypass its lock.
   Order: callee prototypes vs definitions (`unit_check.py protos`, also arity), cfe hidden
   temps (nested calls), structural spelling grids, then `deadsweep.py sweep --extra <locals>`,
   then simulated annealing (dead tests + which local each use reads + declaration order, cost

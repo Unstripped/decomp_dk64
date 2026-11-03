@@ -89,8 +89,8 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   random search over store order matched two scheduling-only parks), declaration order,
   void→s32 toggles over ALL callees, named vs inline temps, adjsave from `uopt_trace -l 5`.
   With the unit's whole `local://findings.md` (≈40 merged reports) such passes matched 13 of
-  19 parks in the slot-queue/text unit (2–4 parks per agent). A schedule-only diff (registers
-  right): `tools/as1probe.py` first shows which ugen stream as1 needs, then search C for it.
+  19 parks in the slot-queue/text unit (2–4 parks per agent). A schedule-only diff (registers right):
+  `as1probe.py scan` first; a fix only diagnosis probes reach = `blocked`, not another park pass.
 - A matched callee's narrow (u8/s16) prototyped param forces every caller to narrow `a0`:
   callers stuck on that are one prototype puzzle across callee + callers for ONE agent
   allowed to re-spell the matched callee (6AD90 unit: 3 callers matched, a FAKE removed).
