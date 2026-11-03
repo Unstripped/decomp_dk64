@@ -43,7 +43,7 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 - Revisit of old parks: wave 1 per-file tasks (1-5 functions, large ones alone), wave 2 the
   rest of the ranking with every lever found so far, then waves of 3-8 agents regrouped by diff
   KIND (schedule/as1, FP, int regalloc, frame/spill) with that kind's levers in each task; keep
-  going while a wave matches ~1+ per agent (revisit 5: 0.4, 0.9, 1.4 per agent, 44 matched).
+  going while a wave matches ~1+ per agent (revisit 5: 0.4, 0.9, 1.4; revisit 6: 0.35 per-file, 1.0 and 0.75 by kind).
 - Each `tasks[]` item lists its functions with the last diff note and stage; agents start
   from the stored draft (`tools/drafts.py show <seg> <FUNC>`), not m2c.
 - The agent's budget is its context window and request cap, not wall-clock time: the brief
@@ -125,8 +125,8 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   (`write agent://<id>`); EffB had already worked them.
 - Check the stage of everything parked: agents park stage-2/3 C despite the brief. Only
   stage 4+ (same blocks, saved registers, frame AND instruction count) stays parked; a report
-  saying `N vs M insns` is stage 3: keep the stored park if its count was right, else `drafts.py unpark`
-  (revisit 5: 42 parks off by 1-22, found via `nm -S` of `build_nonmatching/` vs `expected/` objects).
+  saying `N vs M insns` is stage 3: keep the stored park if its count was right, else `drafts.py unpark`.
+  Count objdump instructions, not `nm -S` (a TU's last function includes .text padding nops; 3 of revisit 5's unparks).
   A stage-6 park is not proof of equivalence (201B0: a parked clamp was a min, the asm a
   max); a fresh-eyes pass on a sibling's park checks branch sense first. Reject dead tests
   that add an uninitialised read on some path (`if (step == 0) {}` before `step`'s first

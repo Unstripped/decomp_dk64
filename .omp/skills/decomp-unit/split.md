@@ -64,6 +64,12 @@ Hidden TUs found only after round 1 cost a re-split while agents run; settle the
   function in that range matches.
 - Unreferenced strings ending exactly where a file's first rodata label starts belong to
   that file's TU.
+- Hidden TUs found only by matching (revisit 6: 131B0 → 13980 at `schedCreate`, boss C920 → DAA0):
+  a function ending in an endless loop whose count is off by tail nops (IDO's `.align 5` is
+  relative to the .o start), or a text-identical match whose `.rodata` refs all sit 4 bytes off.
+  The idle agent that found it splits text, `.rodata` and `.bss` in a worktree (precedent `8853f16`), landed like a carve.
+- A single-user `.data` global that matches only as a function-local `static` needs a `.data`
+  carve of its TU's range (revisit 6: 3 functions). Queue these with the bss carves for one worktree agent.
 - Own `.data`/`.bss`/`.rodata`: a single-`lui` u64 store, one `lui at` shared by stores to
   `sym`/`sym+2`, an extern f64 that must be a hoisted literal, or an old note "needs TU
   BSS/data" means the TU defines that object. Users per label: scan every `D_`/named symbol in
