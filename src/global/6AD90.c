@@ -2025,7 +2025,6 @@ typedef struct {
 } CollisionVertexBoneRefs;
 
 
-#ifdef NON_MATCHING
 typedef struct {
     u8 pad0[0x24];
     f32 unk24;
@@ -2071,7 +2070,6 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
     hit = 0;
     hit_y = 999999.0f;
     actor_count = gActiveActorCount;
-    if (hit_y) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     i = 0;
     if ((s32)actor_count > 0) {
         do {
@@ -2094,8 +2092,8 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
                                 nx = (dy01 * dz02) - (dz01 * dy02);
                                 ny = (dz01 * dx02) - (dx01 * dz02);
                                 nz = (dx01 * dy02) - (dy01 * dx02);
-                                dy01 = 0.0;  // FAKE: kills nz store forwarding into d
-                                d = -(nx * (f64)tri->unk28 + ny * (f64)tri->unk34 + nz * (f64)tri->unk40);
+                                dy02 = 0.0;  // FAKE: kills nz store forwarding into d
+                                d = -(nz * (f64)tri->unk40 + (nx * (f64)tri->unk28 + ny * (f64)tri->unk34));
                                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
                                     if (arg0 != NULL) {
                                         val = (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
@@ -2139,10 +2137,6 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
     }
     return hit;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/6AD90/collisionTestActorBoxFloor.s")
-#endif
 
 void collisionRecordBoxTriangle(void *arg0, f32 arg1) {
     if (D_807F9510 != 0xA) {
