@@ -2748,7 +2748,7 @@ s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 
-#ifdef NON_MATCHING
+
 void csModelStateSetFirstByte(s16, s16);
 extern u8 gPlayerCharacterId;
 typedef struct CsEntry {
@@ -2792,31 +2792,30 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
 
     if (*(CsEntrySet **)cs == NULL) {
         p = *(CsEntrySet **)cs = heapAlloc(0x50);
-        q = p; // FAKE: second web of p (copy kept, steers uopt colouring and count)
-        q->unk4E = 0; // FAKE: reads the q copy of p
+        p->unk4E = 0;
         if (flagGet(0x146, 0) != 0) {
-            e = (CsEntryView *)((u32)p | 0); // FAKE: blocks copy-propagation of e = p (stops uopt PRE'ing p + 6 into both arms)
-            for (i = 0; i < 9; i++) { e->state = 3; e = (CsEntryView *)((u8 *)e + 6); }
+            p->part[0].state = 3;
+            q = p; // FAKE: second web of p (a copy def kept alive by the differing def in the else arm)
+            for (i = 1, e = (CsEntryView *)((u8 *)p + 6); i < 9; i++, e = (CsEntryView *)((u8 *)e + 6)) { e->state = 3; } // LAYOUT: body on the for line
         } else {
+            q = (CsEntrySet *)((u32)p | 0); // FAKE: not a plain copy: stops copy-propagating q into the part[0] stores
             p->part[2].state = 2;
-        q = p; // FAKE: second web of p (copy kept, steers uopt colouring and count)
-            q->part[5].state = 2; // FAKE: reads the q copy of p
+            p->part[5].state = 2;
             p->part[7].state = 2;
-            q->part[0].state = 0; // FAKE: reads the q copy of p
-            q->part[1].state = 3; // FAKE: reads the q copy of p
+            p->part[0].state = 0;
+            p->part[1].state = 3;
             p->part[3].state = 0;
             p->part[4].state = 1;
-            q->part[6].state = 3; // FAKE: reads the q copy of p
-        q = p; // FAKE: second web of p (copy kept, steers uopt colouring and count)
-            q->part[8].state = 1; // FAKE: reads the q copy of p
+            p->part[6].state = 3;
+            p->part[8].state = 1;
         }
-        p->part[0].timer = 10;
-        p->part[0].active = 1;
-        for (i = 1, e = (CsEntryView *)((u8 *)p + 6); i < 9; i++, e = (CsEntryView *)((u8 *)e + 6)) {
+        q->part[0].timer = 10;
+        q->part[0].active = 1;
+        for (i = 1, e = (CsEntryView *)((u8 *)(CsEntrySet *)((u32)p | 0) + 6); i < 9; i++, e = (CsEntryView *)((u8 *)e + 6)) { // FAKE: p | 0 blocks PRE of p + 6 shared with the first loop
             e->active = 1;
             e->timer = 10;
         }
-        q->unk4F = 0; // FAKE: reads the q copy of p
+        p->unk4F = 0;
     }
     p = *(CsEntrySet **)cs;
     for (i = 0, e = (CsEntryView *)p; i < 9; i++, e = (CsEntryView *)((u8 *)e + 6)) {
@@ -2881,10 +2880,7 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
         *(void **)cs = NULL;
     }
 }
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_8064AC28.s")
-#endif
 
 void func_8002D6F8(s16);
 void func_8064B118(CsState *cs, s16 csId, s16 b, s16 c) {
