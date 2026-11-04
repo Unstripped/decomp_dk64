@@ -1,4 +1,4 @@
-// controllerUpdate (src/global/F600.c): CtrlSched revisit8: STAGE 5 unchanged (21/383, count+frame exact; text 19 + 2 reloc D_807ECD60 vs splat D_807ECD62/63 = struct vs splat symbol names, reload-only). Re-derived diff: only the outer pad block differs: target pad ptr=a1 and pad->button load=a2 (timer a1, k a2 as ours), ours pad ptr=a0 (ugen temp: first free reg) and button=a1; plus ring t7/t6/t8 vs t9/v0/t6 for the sll/lbu/ori and sh a2,0(t0) before bnez with move a3,a2 in the slot. uopt -l5/-l6: IV pointer cand 169 (a0) is not live in the pad block in ours, so ugen picks a0 for the pad pointer; target must have a coloured candidate holding a0 live in the pad block. Tried (all >= 21): dead tests on pad/pad->button/D_807ECD10[padIdx] before/after the k loop (shape stays 8, shifts s-regs: 46-86), declaring pad at every position, removing the pad local via a macro (identical), pad = &D_807ECD10[padIdx] (111), explicit s16 *row / s16 *q IV pointer locals at 4 placements and q++ steps (29-83), ghost locals bit/pressed/timer/k at top+end, 20k-eval SA over ghost choice x pad/buttons/pressed/held spellings x if0 order x dead tests (no improvement), deadsweep sweep --extra buttons pressed mask padIdx k i (10800 variants, none better). Separate D_807ECD60/62/63 globals: wrong (expected asm shares one lui at, splat names only).
+// controllerUpdate (src/global/F600.c): controllerUpdate (src/global/F600.c): CtrlUpdate revisit9: STAGE 5 park (21/383, count+frame exact; text 19 + 2 reloc D_807ECD60 vs splat D_807ECD62/63 struct vs splat symbol names). Removed FAKE if(D_807ECDF8!=0){}. Re-derived uopt -l5 trace: outer pad block cand 127 (pad) adjsave 30 has forbidden [1 2 5] and gets a0; target needs 3 (a0) forbidden to assign a1, cascading to pad->button a2 (delays k=0 schedule). Cand 169 (a0) adjsave 177.5 does not interfere with cand 127 (live bb 43..46 vs 50..51). Tested new levers 1-7 (interference, cross-loop reuse grids, unconverted call-args, spill offsets, cfe operand order, small loop unrolling, as1 schedule probe). Saved best draft.
 extern u8 D_807463B8;
 extern s32 gFrameCounter;
 extern u8 D_8076A0B1;
@@ -68,7 +68,6 @@ void controllerUpdate(void) {
             controllerLatchPad(D_807ECDF4);
             playerStateWaypointAimUpdate(D_807ECDE8, D_807ECDF4);
             break;
-            if (D_807ECDF8 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }
     if (compact != 0) {

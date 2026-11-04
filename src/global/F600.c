@@ -188,7 +188,6 @@ void controllerUpdate(void) {
             controllerLatchPad(D_807ECDF4);
             playerStateWaypointAimUpdate(D_807ECDE8, D_807ECDF4);
             break;
-            if (D_807ECDF8 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }
     if (compact != 0) {
