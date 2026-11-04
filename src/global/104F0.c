@@ -525,7 +525,6 @@ extern u8 D_807550C8;
 extern u8 D_80744530;
 
 
-#ifdef NON_MATCHING
 void eepromValidateSaveSlots(void) {
     s32 height;  // FAKE: unused pad: shifts uopt variable numbering / colouring order
     u8 found;
@@ -556,7 +555,7 @@ void eepromValidateSaveSlots(void) {
         ok = 1;
         off = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * i;
         data = off + D_807ED6A8;
-        idx = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * (i + 1)) / 4) - 1;
+        idx = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * (j = i + 1)) / 4) - 1;
         stored = ((u32 *)D_807ED6A8)[idx];
         len = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) - 4;
         if (stored != (eepromCalculateCrc32(data, len) ^ 0)) {  // FAKE: keeps stored on the left of beq
@@ -606,7 +605,7 @@ void eepromValidateSaveSlots(void) {
     ok = 1;
     off = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
     idx = (((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8) + 0x40) / 4 - 1;
-    stored = ((u32 *)(D_807ECEA8 + 0x800))[idx];
+    stored = ((u32 *)D_807ED6A8)[idx];
     if (stored != (eepromCalculateCrc32(D_807ED6A8 + off, 0x3C) ^ 0)) {  // FAKE: keeps stored on the left of beql
         ok = 0;
         func_8060CB74();
@@ -621,10 +620,6 @@ void eepromValidateSaveSlots(void) {
     }
     if (failed != 0) eepromDispatchCommand(1);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromValidateSaveSlots.s")
-#endif
 
 extern void eepromClearSlotData();
 extern void func_8060CB74(void);
