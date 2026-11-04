@@ -44,8 +44,8 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   rest of the ranking with every lever found so far, then waves of 3-8 agents regrouped by diff
   KIND (schedule/as1, FP, int regalloc, frame/spill) with that kind's levers in each task; keep
   going while a wave matches ~1+ per agent (revisit 5: 0.4, 0.9, 1.4; revisit 6: 0.35 per-file, 1.0 and 0.75 by kind).
-- Each `tasks[]` item lists its functions with the last diff note and stage; agents start
-  from the stored draft (`tools/drafts.py show <seg> <FUNC>`), not m2c.
+- Each `tasks[]` item lists its functions with the last diff note and stage; start from the stored draft (`tools/drafts.py show <seg> <FUNC>`), not m2c.
+- Re-check stored “regalloc-only” notes against whole-file diffs before dispatch; reconsider repeated-store loop structure and extern-float constant-pool ownership before more spelling variants (CC800 focused match).
 - The agent's budget is its context window and request cap, not wall-clock time: the brief
   gates on outcome (every function matched, or back on its `GLOBAL_ASM` line with a staged
   draft and no untried idea). No `date`/minute gates: they only make finished agents idle.
