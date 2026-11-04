@@ -2006,3 +2006,5 @@
 {"agent": "orchestrator", "approx": false, "name": "func_806C850C", "note": "", "outcome": "matched", "seg": "global", "stage": null, "ts": "2026-11-04T16:38:41Z", "type": "attempt", "unit": "2026-11-04: func_806C850C focused match", "vram": "0x806C850C"}
 {"approx": false, "ts": "2026-11-04T17:35:20Z", "type": "unit", "unit": "2026-11-04: focused loadOverlay diagnostics"}
 {"agent": "Astra", "approx": false, "name": "loadOverlay", "note": "", "outcome": "parked", "seg": "global", "stage": "4", "ts": "2026-11-04T17:35:20Z", "type": "attempt", "unit": "2026-11-04: focused loadOverlay diagnostics", "vram": "0x80610350"}
+{"approx": false, "ts": "2026-11-04T19:35:39Z", "type": "unit", "unit": "2026-11-04: loadOverlay regalloc study"}
+{"agent": "orchestrator", "approx": false, "name": "loadOverlay", "note": "", "outcome": "parked", "seg": "global", "stage": "6", "ts": "2026-11-04T19:35:39Z", "type": "attempt", "unit": "2026-11-04: loadOverlay regalloc study", "vram": "0x80610350"}
