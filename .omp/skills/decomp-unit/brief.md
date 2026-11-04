@@ -119,10 +119,12 @@ swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a
   temps (nested calls), structural spelling grids, then `deadsweep.py sweep --extra <locals>`,
   then simulated annealing (`.scratch/*/anneal.py` from past units: dead tests + which local
   each use reads + declaration order, cost full + 6*|insn delta| + 0.3*fakes), then greedy-delete
-  FAKEs that no longer change the score. A wrong register at stage 6 is "lowest register not
-  forbidden": read the variable's `forbidden:` line (`uopt_trace.sh -l 5`) and find which earlier
-  candidate live in one of its blocks (a call's argument registers, a local shared with another
-  loop, a spilled call-argument expression) must supply each register the target forbids; ok-fine
+  FAKEs that no longer change the score. A wrong register at stage 6: uopt takes the cheapest
+  legal register (`cupcosts`: call-adjacent ranges pay per caller-saved register, callee-saved
+  ones pay a first-use cost) and the lowest number only on ties, so for call-free ranges read the
+  variable's `forbidden:` line (`uopt_trace.sh -l 5`) and find which earlier candidate live in one
+  of its blocks (a call's argument registers, a local shared with another loop, a spilled
+  call-argument expression) supplies each register the target forbids; ok-fine
   `notes/ido-load-overlay-diagnostics` first. Never keep a dead read of a local unassigned on
   some path: guard it (`if (i && x)`) or add a real pre-definition.
 - Any construct you keep only to steer codegen (deadsweep statements, `volatile`, `x ^ 0`,
