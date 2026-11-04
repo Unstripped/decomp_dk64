@@ -130,18 +130,9 @@ swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a
   Conventions); keep deadsweep's own tag. Shared globals use the type most of `src/` gives
   them (`extern Actor *D_807FBB40;`), never `void *` plus a local view.
 - Park only stage 4+ (same callee-saved set AND frame size, remaining diff only regalloc/
-  scheduling/stack layout) in your copy as below; stage 2–3 stays on its GLOBAL_ASM line:
-
-```c
-#ifdef NON_MATCHING
-<C>
-#else
-
-#pragma GLOBAL_ASM("asm/...")
-#endif
-```
-
-  Notice the required blank line before `#pragma GLOBAL_ASM`. Check the parked C compiles with
+  scheduling/stack layout) in your copy as `#ifdef NON_MATCHING` / `<C>` / `#else` / blank line /
+  `#pragma GLOBAL_ASM("asm/...")` / `#endif` (the blank line before the pragma is required);
+  stage 2–3 stays on its GLOBAL_ASM line. Check the parked C compiles with
   `tools/fdiff.sh --non-matching <copy> <src> [FUNC]` and the plain `tools/fdiff.sh` still gives
   OK/TEXT OK. Parks count as unmatched; not genuinely equivalent: keep the draft in `drafts/`.
 
