@@ -1,3 +1,8 @@
+// loadOverlay (src/global/15050.c): Astra 2026-11-04: stage 4, full 87 / text 85 / reloc 2 / shape 23; 423 instructions, 507 normalized lines including relocations. Only body change from the previous draft: free-list size pre-load uses sz instead of total. Matching src park remains unchanged (88/86).
+// Alternate structural seed (full 118 / text 116 / shape 14, also 423 instructions): from the PREVIOUS body below, declare vram as u32 and bssStart as s32; initialize size, romStart, vram, bssStart, bssSize in that order at the existing five initialization sites. In the id!=-1 block assign vram=(u32)table.vramStart, romStart=table.romStart, bssStart=(s32)table.bssStart, bssSize=table.bssEnd-table.bssStart, size=(s32)table.bssStart-(s32)vram, where table=gSegmentTable[id]. No pointer barriers or new FAKEs. This reproduces the target table-load/subtraction block and vram=t3/bssSize=stack, but NOT the subsequent alignment arithmetic or heap-loop allocation. Do not assume solving that allocation pair solves the whole function. Restore total in the two free-list lines when reconstructing this seed.
+// Other probes: 120 initialization orders; alignment-expression/shared-expression variants; aggregate/volatile storage, field/local type grids, and operand kills. On the alternate seed, 17,760 one-statement dead-use candidates (globals plus the five initialized locals) gave no improvement from 118. Diagnostic -Wo,-varref,N sweep: N=9..80 exactly identical to the default 20 for BOTH the original and alternate seeds; smaller values regress. Production flags unchanged.
+// Compiler evidence: n64decomp/ido d068e439, src/uopt/uoptinput.c readnxtinst refuses to forward a single-use assigned expression containing an indirect load; getop can split blocks at varreflimit (default 20). A minimal repeated-field vs saved-local probe produced different isop/isvar candidates despite equivalent arithmetic. This refines existing revisit-7 knowledge, not a new universal barrier. See ok-fine notes/ido-load-overlay-diagnostics for reproducible findings.
+// Counting caution: deadsweep's objdump omits two zero words here (421 displayed instructions + 86 relocations = 507 lines). objdump -z and the 0x69C symbol size confirm 423 actual instructions in target, closest draft, and alternate. With -z, closest full stays 87; alternate full is 117 rather than 118 because SequenceMatcher alignment changes.
 // loadOverlay (src/global/15050.c): Ovl 2026-11-03 (revisit 8): stage 4 park unchanged (full 88, text 86, count-exact 507). Re-derived: only region-1 colouring differs (target: vram coloured t3 with the use 'subu s0,v1,t3' reading the VAR, bssSize uncoloured (uopt adjsave: bssSize 0.4 > vram 0.0/0.2, both coloured t3/t4 without the bssSize FAKE); ours forwards vram's table load into 'size' so vram has no use there). NO effect (all 88 or worse): 120 orders x 4 size/bssSize var-vs-table spellings x 6 FAKE forms (2610 variants), local type grid (s32/u32/u8*/void*), SegmentTableEntry *seg local (118+), pointer-copy dead-store kills (134+), id kills (267+), 64 callee void/s32 return combos, 435 more statement orders, callee protos vs definitions (dmaReadAssetDecompress u8 params, no change), two 11k-eval hill-climbs (whole-function and region-limited score), permuter 570 s (score scale unusable: baseline 2051), 28860 deadsweep single insertions with every local, 1-insertion no-code defs (x = x | 0 / ^ 0 / * 1 on bssSize/vram/romStart/size/bssStart: best 87 with FAKE removed + bssSize ^ 0). Later regions (heap-rebase loops a3/v1, final 'lui a0/a1' pool base) are register cascades of the same colouring.
 #include "common.h"
 #include "heap.h"
@@ -225,12 +230,12 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         ((u64 *)D_807F0988[0].start)[0] = saved[0];
         ((u64 *)D_807F0988[0].start)[1] = saved[1];
         ((HeapBlock *)D_807F0988[0].start)->physPrev = NULL;
-        total = D_807F0988[0].size - 0x20;  // FAKE: pre-loads pool size before the free-list stores
+        sz = D_807F0988[0].size - 0x20;  // FAKE: pre-loads pool size before the free-list stores
         dst = D_807F0988[0].start;  // FAKE: pre-loads pool start before the free-list stores
         src = (HeapBlock *)((u8 *)blk + blk->size + 0x10);
         D_807F0988[0].freeList = src;
         src->physPrev = blk;
-        D_807F0988[0].freeList->size = (u32)(total - (s32)src) + (u32)dst;
+        D_807F0988[0].freeList->size = (u32)(sz - (s32)src) + (u32)dst;
         D_807F0988[0].freeList->next = NULL;
         D_807F0988[0].freeList->prev = NULL;
         blk = (HeapBlock *)(D_807F0988[0].start + D_807F0988[0].size) - 1;

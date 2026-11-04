@@ -88,6 +88,10 @@ then tell running agents not to re-copy from `src`.
   change code size); only its compile and link errors matter.
 - `deadsweep.py score --body` on a park whose declarations sit inside its `#ifdef` block fails
   (`undefined`/`redeclaration`): score a whole-file copy with the edit instead (no `--body`).
+- A lower whole-function score can hide a wrong allocation mechanism: keep a reproducible
+  alternate seed when it fixes a target block, record both regional and whole-function
+  evidence, and do not claim the remaining diffs are consequences of that block without
+  compiling the alternate. `loadOverlay`'s table allocation matched while later diffs remained.
 
 ## Repo directory vanished mid-unit
 
