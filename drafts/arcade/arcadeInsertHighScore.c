@@ -1,4 +1,4 @@
-// arcadeInsertHighScore (src/arcade/0.c): stage 6, text-identical but REJECTED: dead tests read u16 S[0]/S[i%1] whose byte 1 is never written (uninitialised dead read); needs a fully initialised form (Arcade, revisit 8)
+// arcadeInsertHighScore (src/arcade/0.c): stage 6 (text-identical full=0 with u16 S[2]; uninitialized read of byte 1); parked stage 5 clean C (full=7 text=7 reloc=0, count 45/45 frame 0x18 exact, fully initialized u8 S[4], diff lbu t4 vs a0 and loop delay slot)
 extern u8 D_8004A794;
 void arcadeInsertHighScore(s32 arg0) {
     s32 i;
