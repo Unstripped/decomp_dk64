@@ -112,15 +112,19 @@ swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a
 # Large functions and near-misses
 - Follow AGENTS.md "Decompiling a function" step 4 (stage order, permuter search-hint rule,
   NON_MATCHING parking) except: no ROM build (gates: `fdiff.sh` OK/TEXT OK, `--non-matching`);
-  `uopt_trace.sh` before any register guess and `as1probe.py keep`+`scan` before any schedule-only
-  spelling search (aim at the routes it lists; report hits C cannot emit with the edit); every `tools/dk` call under ~10 min
-  (permuter `-j 2 --seconds 600`, deadsweep `--rounds 1` per call: long calls stall the orchestrator); never bypass its lock.
+  `uopt_trace.sh` before any register guess, `as1probe.py keep`+`scan` before any schedule-only
+  spelling search (aim at its routes; report hits C cannot emit with the edit); every `tools/dk`
+  call under ~10 min (permuter `-j 2 --seconds 600`, deadsweep `--rounds 1`); never bypass its lock.
   Order: callee prototypes vs definitions (`unit_check.py protos`, also arity), cfe hidden
   temps (nested calls), structural spelling grids, then `deadsweep.py sweep --extra <locals>`,
-  then simulated annealing (dead tests + which local each use reads + declaration order, cost
-  full + 6*|insn delta| + 0.3*fakes; `.scratch/*/anneal.py` from past units) over tie-only
-  climbs; finally greedy-delete FAKEs that no longer change the score. Never keep a dead read of
-  a local unassigned on some path: guard it (`if (i && x)`) or add a real pre-definition.
+  then simulated annealing (`.scratch/*/anneal.py` from past units: dead tests + which local
+  each use reads + declaration order, cost full + 6*|insn delta| + 0.3*fakes), then greedy-delete
+  FAKEs that no longer change the score. A wrong register at stage 6 is "lowest register not
+  forbidden": read the variable's `forbidden:` line (`uopt_trace.sh -l 5`) and find which earlier
+  candidate live in one of its blocks (a call's argument registers, a local shared with another
+  loop, a spilled call-argument expression) must supply each register the target forbids; ok-fine
+  `notes/ido-load-overlay-diagnostics` first. Never keep a dead read of a local unassigned on
+  some path: guard it (`if (i && x)`) or add a real pre-definition.
 - Any construct you keep only to steer codegen (deadsweep statements, `volatile`, `x ^ 0`,
   `do {} while (0)`) ends in a trailing `// FAKE: <what it steers>` comment (AGENTS.md
   Conventions); keep deadsweep's own tag. Shared globals use the type most of `src/` gives
