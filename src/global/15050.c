@@ -22,7 +22,6 @@ void heapFreeToPool(HeapBlock *block);
 HeapBlock *heapBestFitAlloc(s32 pool, u32 size);
 void heapTickDeferredFrees(void);
 
-#ifdef NON_MATCHING
 typedef struct {
     u32 romStart;
     u32 romEnd;
@@ -54,6 +53,7 @@ s32 heapInitGeneralPool(s32, s32, s32);
 s32 heapInitBlockPool(void *, u8 *, u32, u16);
 void *heapAlloc(u32);
 void heapLockBlock(u8 *ptr);
+
 
 void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     s32 sz;
@@ -192,8 +192,10 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         total = 0;
         first = (HeapBlock *)(HL(0) - 0x10);
         for (i = 0; i < D_807F5A68; i++) {
-            total += ((HeapBlock *)HL(i) - 1)->size + 0x10;
-            HL(i) = HL(i) + (s32)dst - (s32)first;
+            hp = (u8 **)D_807F5A70[i];
+            p = (u32 *)*hp;
+            total += ((HeapBlock *)(u8 *)p - 1)->size + 0x10;
+            *hp = (u8 *)p + (s32)dst - (s32)first;
         }
         heapMoveWords((u32)first, (u32)dst, total);
         heapRebaseHandles((u32)first, (u32)dst, total);
@@ -210,16 +212,16 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     D_807F097C = heapInitBlockPool(&D_807F097C, addr[3], sizes[3], 0x30);
     D_807F0980 = heapInitBlockPool(&D_807F0980, addr[4], sizes[4], 0x1000);
     if (D_807F5A68 != 0) {
-        last = NULL;
+        q = NULL;
         i = 0;
         if (D_807F5A68 > 0) {
             do {
                 blk = (HeapBlock *)HL(i);
                 if (D_807F0988[0].start == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 i++;
-                blk[-1].physPrev = last;
+                blk[-1].physPrev = (HeapBlock *)q;
                 blk = blk - 1;
-                last = blk;
+                q = (u8 *)blk;
             } while (i < D_807F5A68);
         }
         ((u64 *)D_807F0988[0].start)[0] = saved[0];
@@ -250,20 +252,17 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     }
     for (id = 0; id < 2; id++) {
         q = (u8 *)(&D_80744470)[id];
-        blk = (HeapBlock *)(q + (D_8074450C * 0x12C00 * D_8074450C) / 2 * 4);
-        if (q < (u8 *)blk) {
+        p = (u32 *)(q + (D_8074450C * 0x12C00 * D_8074450C) / 2 * 4);
+        if (q < (u8 *)p) {
             do {
                 *(u32 *)q = 0x10001;
                 q += 4;
-            } while (q < (u8 *)blk);
+            } while (q < (u8 *)p);
         }
     }
 }
-#undef HL
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/15050/loadOverlay.s")
-#endif
+#undef HL
 
 void heapSortSurvivors(void) {
     s32 i;
