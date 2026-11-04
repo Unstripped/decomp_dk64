@@ -127,6 +127,8 @@ swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a
   call-argument expression) supplies each register the target forbids; ok-fine
   `notes/ido-load-overlay-diagnostics` first. If single-local reuse stalls, test coordinated
   lifetime partitions across loops rather than rejecting each reuse in isolation.
+  Once allocation matches, combine independent `.loc`-removal hits before abandoning a
+  schedule near-miss: each may fix only part of one multi-initializer scheduling group.
   Never keep a dead read of a local unassigned on some path: guard it or add a real pre-definition.
 - Any construct you keep only to steer codegen (deadsweep statements, `volatile`, `x ^ 0`,
   `do {} while (0)`) ends in a trailing `// FAKE: <what it steers>` comment (AGENTS.md
