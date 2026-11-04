@@ -264,6 +264,9 @@ D_807476D4 = 0x807476D4;
 D_807F5BD4 = 0x807F5BD4;
 D_807F5CE4 = 0x807F5CE4;
 
+/* CC800 table-end label; the following 0.15f literal is emitted by C. */
+D_8075C4B0 = 0x8075C4B0;
+
 /* 0, 3C10, 131B0 data/bss interior labels (inside objects defined in C) */
 D_80744474 = 0x80744474;
 D_8074458B = 0x8074458B;

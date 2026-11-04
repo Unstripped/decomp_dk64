@@ -413,7 +413,6 @@ void func_806C8220(s32 arg0, void *arg1, s32 arg2) {
 }
 
 
-#ifdef NON_MATCHING
 typedef struct G00Sub4 {
     /* 0x00 */ u8 pad0[0x1C];
     /* 0x1C */ u8 *unk1C;
@@ -490,17 +489,11 @@ typedef struct G00Player {
 
 typedef struct G00Slot34 {
     /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ volatile f32 unk4; // FAKE: volatile steers the pad-copy load order
+    /* 0x04 */ f32 unk4;
     /* 0x08 */ u8 pad8[8];
-    /* 0x10 */ f32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
-    /* 0x1C */ f32 unk1C;
-    /* 0x20 */ s16 unk20;
-    /* 0x22 */ s16 unk22;
-    /* 0x24 */ s16 unk24;
-    /* 0x26 */ s16 unk26;
-    /* 0x28 */ volatile s16 unk28; // FAKE: volatile steers the pad-copy load order
+    /* 0x10 */ f32 unk10[4];
+    /* 0x20 */ s16 unk20[4];
+    /* 0x28 */ s16 unk28;
     /* 0x2A */ u8 pad2A[0xA];
 } G00Slot34;
 
@@ -509,7 +502,6 @@ typedef struct G00Slot34 {
 
 extern s32 controllerGetPort(s32);
 extern s32 gCurrentMap;
-extern f32 D_8075C4B0;
 extern Actor *gCamActor;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
@@ -524,8 +516,8 @@ void func_806C8D20(Actor *);
 
 void func_806C850C(s32 arg0, u8 arg1) {
     G00Row *row;
-    f32 flt;
     u32 sel;
+    s32 i;
 
     sel = arg1;
     if (gPlayerCount >= 2) {
@@ -568,8 +560,6 @@ void func_806C850C(s32 arg0, u8 arg1) {
     }
     D_807FBB44->unk60 |= 0x100000;
     func_806C8D20(D_807FBB48);
-    flt = D_8075C4B0;
-    if (D_8075C410) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     G00_P->unk26 = 0x64;
     G00_A48->unkC4 = D_80753578[D_807FD584];
     G00_A48->unkC8 = D_807535E8[D_807FD584];
@@ -581,12 +571,12 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_P->unk16 = 0;
     G00_P->unk10C = 0;
     G00_P->unk1A0 = 0;
-    G00_P->unk1C0 = flt;
-    G00_P->unk1C4 = flt;
-    G00_P->unk1C8 = flt;
-    G00_P->unk1CC = flt;
-    G00_P->unk1D0 = flt;
-    G00_P->unk1D4 = flt;
+    G00_P->unk1C0 = 0.15f;
+    G00_P->unk1C4 = 0.15f;
+    G00_P->unk1C8 = 0.15f;
+    G00_P->unk1CC = 0.15f;
+    G00_P->unk1D0 = 0.15f;
+    G00_P->unk1D4 = 0.15f;
     G00_P->unk245 = 0;
     G00_P->unk21E = 0x1E;
     G00_P->unkC8 = -1;
@@ -604,23 +594,14 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_A48->unkDE = 0x400;
     G00_P->unk1B0 = 0;
     G00_P->unk1AC = 0;
-    gPlayerPadState[sel].unk14 = gPlayerPadState[sel].unk4;
-    gPlayerPadState[sel].unk18 = gPlayerPadState[sel].unk4;
-    gPlayerPadState[sel].unk1C = gPlayerPadState[sel].unk4;
-    gPlayerPadState[sel].unk22 = gPlayerPadState[sel].unk28;
-    gPlayerPadState[sel].unk24 = gPlayerPadState[sel].unk28;
-    gPlayerPadState[sel].unk26 = gPlayerPadState[sel].unk28;
-    gPlayerPadState[sel].unk20 = gPlayerPadState[sel].unk28;
-    gPlayerPadState[sel].unk10 = gPlayerPadState[sel].unk4;
-    if (D_80753578) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    for (i = 0; i < 4; i++) {
+        gPlayerPadState[sel].unk20[i] = gPlayerPadState[sel].unk28;
+        gPlayerPadState[sel].unk10[i] = gPlayerPadState[sel].unk4;
+    }
     playerResumeLocomotion(D_807FBB48);
     func_806C90C4(arg0);
     func_806C8984();
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/func_806C850C.s")
-#endif
 
 extern s32 gCurrentMap;
 extern s16 D_80753354[];
@@ -1358,5 +1339,3 @@ s32 func_806C9D7C(void) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/D_8075C420.s")
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/D_8075C430.s")
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CC800/D_8075C4B0.s")
