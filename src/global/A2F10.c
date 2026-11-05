@@ -68,6 +68,8 @@ void actorTriggerRampWithSfx(void) {
     Actor *actor;
     Actor **p;
     s16 i;
+    s16 *event;
+    u32 flags;
 
     actor = D_807FBB40;
     p = &D_807FBB40;
@@ -78,10 +80,10 @@ void actorTriggerRampWithSfx(void) {
         actor = D_807FBB40;
     }
     for (i = 0; i < D_807FBB70.unk254; i++) {
-        if (D_807FBB70.unk278[i]) {}  // FAKE: makes the unk278[i] load a candidate (v0)
-        if (*D_807FBB70.unk278[i] == 0) {
-            if (actor->unk60) {}  // FAKE: extends the unk60 load candidate into the loop (v0)
-            actor->unk60 |= 4;
+        event = D_807FBB70.unk278[i];
+        if (*event == 0) {
+            flags = actor->unk60;
+            actor->unk60 = flags | 4;
             controllerAnimSetState(D_807FBB40, 0x407, 0.0f, 0.0f);
             scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
             switch (actorListFindIdByActor(D_807FBB40)) {
