@@ -3,28 +3,28 @@
 
 extern s8 D_807F7F00;
 
-void renderSetSegment6Override(s8 arg0) {
-    D_807F7F00 = arg0;
+void renderSetSegment6Override(s8 segment) {
+    D_807F7F00 = segment;
 }
 
 extern Gfx D_80748310[6][2];
 
-void renderReplaceSegment6Commands(Gfx *arg0, Gfx *arg1) {
-    while (arg0 != arg1) {
+void renderReplaceSegment6Commands(Gfx *start, Gfx *end) {
+    while (start != end) {
         int found = 0;
         int i = 0;
 
         for (; i < 6 && !found; ) {
-            if (arg0->words.w0 == D_80748310[i][0].words.w0 && arg0->words.w1 == D_80748310[i][0].words.w1) {
+            if (start->words.w0 == D_80748310[i][0].words.w0 && start->words.w1 == D_80748310[i][0].words.w1) {
                 found = 1;
             } else {
                 i++;
             }
         }
         if (found) {
-            gSPDisplayList(arg0++, 0x06000000 + i * 0x10);
+            gSPDisplayList(start++, 0x06000000 + i * 0x10);
         } else {
-            arg0++;
+            start++;
         }
     }
 }
@@ -45,53 +45,53 @@ f32 renderAdjustActorDistance(s16, f32);
 f32 renderScaleDistanceByFov(f32);
 #define R2A_SQ(x) ((x) * (x))
 
-void renderCalcPlayerDistanceAlpha(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, s16 *arg5) {
+void renderCalcPlayerDistanceAlpha(f32 x, f32 y, f32 z, f32 maxDist, s16 actorType, s16 *outAlpha) {
     s32 pad;
     f32 dist;
     f32 fv1;
 
-    dist = sqrtf(R2A_SQ(arg0 - gPlayerSlots[gCurrentPlayerIndex].x) + R2A_SQ(arg1 - gPlayerSlots[gCurrentPlayerIndex].y) + R2A_SQ(arg2 - gPlayerSlots[gCurrentPlayerIndex].z));
+    dist = sqrtf(R2A_SQ(x - gPlayerSlots[gCurrentPlayerIndex].x) + R2A_SQ(y - gPlayerSlots[gCurrentPlayerIndex].y) + R2A_SQ(z - gPlayerSlots[gCurrentPlayerIndex].z));
     if (gCurrentMap == 0x26) {
-        arg3 = renderAdjustActorDistance(arg4, arg3);
-        if (arg3 < dist) {
-            *arg5 = 0;
+        maxDist = renderAdjustActorDistance(actorType, maxDist);
+        if (maxDist < dist) {
+            *outAlpha = 0;
             return;
         }
     }
-    arg0 = renderScaleDistanceByFov(arg3);
-    fv1 = (arg0 * 3.0f) / (f32)4;
+    x = renderScaleDistanceByFov(maxDist);
+    fv1 = (x * 3.0f) / (f32)4;
     if (dist < fv1) {
-        *arg5 = 0xFF;
+        *outAlpha = 0xFF;
         return;
     }
-    *arg5 = (s32)(((dist - fv1) / (arg0 - fv1)) * 255.0f);
-    if (*arg5 >= 0x100) {
-        *arg5 = 0xFF;
+    *outAlpha = (s32)(((dist - fv1) / (x - fv1)) * 255.0f);
+    if (*outAlpha >= 0x100) {
+        *outAlpha = 0xFF;
     }
-    *arg5 = 0xFF - *arg5;
+    *outAlpha = 0xFF - *outAlpha;
 }
 
 extern f32 D_807F6940;
 
-f32 renderAdjustActorDistance(s16 arg0, f32 arg1) {
-    if ((arg0 == 0xB2) || (arg0 == 0x253)) {
-        arg1 = (f64)arg1 + (600.0 - (f64)arg1) * (f64)D_807F6940;
+f32 renderAdjustActorDistance(s16 actorType, f32 dist) {
+    if ((actorType == 0xB2) || (actorType == 0x253)) {
+        dist = (f64)dist + (600.0 - (f64)dist) * (f64)D_807F6940;
     }
-    return arg1;
+    return dist;
 }
 
 extern Gfx D_80748370[6][2];
 extern Gfx D_807483D0[6][2];
 
-Gfx *renderSetSegment6AndFog(Gfx *gdl, s16 arg1, u8 arg2) {
-    if (arg1 == 0xFF) {
-        if ((u8)D_807F7F00 != 0 || arg2) {
+Gfx *renderSetSegment6AndFog(Gfx *gdl, s16 fogAlpha, u8 override) {
+    if (fogAlpha == 0xFF) {
+        if ((u8)D_807F7F00 != 0 || override) {
             gSPSegment(gdl++, 6, osVirtualToPhysical(&D_80748310));
         } else {
             gSPSegment(gdl++, 6, osVirtualToPhysical(&D_80748370));
         }
     } else {
-        gDPSetFogColor(gdl++, 0, 0, 0, arg1);
+        gDPSetFogColor(gdl++, 0, 0, 0, fogAlpha);
         gSPSegment(gdl++, 6, osVirtualToPhysical(&D_807483D0));
     }
     return gdl;
@@ -100,11 +100,11 @@ Gfx *renderSetSegment6AndFog(Gfx *gdl, s16 arg1, u8 arg2) {
 extern f32 D_807F5FDC;
 extern f32 D_807F5FE0;
 
-f32 renderScaleDistanceByFov(f32 arg0) {
+f32 renderScaleDistanceByFov(f32 dist) {
     if ((f64)gPlayerSlots[gCurrentPlayerIndex].unk27C == 45.0) {
-        return arg0;
+        return dist;
     }
-    return (arg0 / D_807F5FDC) * D_807F5FE0;
+    return (dist / D_807F5FDC) * D_807F5FE0;
 }
 
 typedef struct {
@@ -140,8 +140,8 @@ void billboardCacheEvictStale(void) {
     }
 }
 
-void billboardSetFlags(s16 arg0) {
-    gBillboardFlags = arg0;
+void billboardSetFlags(s16 flags) {
+    gBillboardFlags = flags;
 }
 
 typedef struct {
@@ -163,16 +163,16 @@ void *assetLoad(s32, s32, s32, s32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 #define ACTOR_FIELD(T, off) (*(T *)((u8 *)actor + (off)))
 
-void billboardSubmit(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, u8 arg6, s16 arg7, u8 arg8, s16 arg9, f32 arg10) {
+void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16 halfWidth, s16 halfHeight, u8 arg6, s16 fadeDistance, u8 flags, s16 rotY, f32 xRatio) {
     s32 found;
     s32 i;
     f32 scale;
-    f32 sp8C[4][4];
-    f32 sp4C[4][4];
-    f32 sp48;
-    f32 sp44;
-    f32 sp40;
-    f32 sp3C;
+    f32 mtx1[4][4];
+    f32 mtx2[4][4];
+    f32 groundY;
+    f32 shadowY;
+    f32 shadowX;
+    f32 shadowZ;
 
     found = FALSE;
     i = 0;
@@ -186,7 +186,7 @@ void billboardSubmit(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 a
     }
 
     do {
-        if ((gBillboardCache[i].unk0 != -1) && (arg1 == gBillboardCache[i].unk4)) {
+        if ((gBillboardCache[i].unk0 != -1) && (assetId == gBillboardCache[i].unk4)) {
             found = TRUE;
         } else {
             i++;
@@ -209,91 +209,91 @@ void billboardSubmit(Actor *actor, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 a
     if (!found) {
         return;
     }
-    gBillboardCache[i].unk8 = assetLoad(7, arg1, 0, 0);
-    gBillboardCache[i].unk4 = arg1;
+    gBillboardCache[i].unk8 = assetLoad(7, assetId, 0, 0);
+    gBillboardCache[i].unk4 = assetId;
 
 block_21:
     gBillboardCache[i * 1].unk0 = gFrameCounter; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
     gBillboardQueue[gBillboardQueueCount].unk102 = i;
-    gBillboardQueue[gBillboardQueueCount].unk106 = arg8;
+    gBillboardQueue[gBillboardQueueCount].unk106 = flags;
     if (actor->unk64 & 0x40) {
         *(u16 *)&gBillboardFlags |= 1;
     }
     gBillboardQueue[gBillboardQueueCount].unk100 = *(u16 *)&gBillboardFlags;
     gBillboardQueue[gBillboardQueueCount].unk107 = ACTOR_FIELD(s16, 0x12C);
 
-    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][0], (s16)-((f32)arg4 * arg10), -arg5, 0, 0);
-    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][1], arg4, -arg5, arg2 - 1, 0);
-    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][2], (s16)-((f32)arg4 * arg10), arg5, 0, arg3 - 1);
-    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][3], arg4, arg5, arg2 - 1, arg3 - 1);
+    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][0], (s16)-((f32)halfWidth * xRatio), -halfHeight, 0, 0);
+    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][1], halfWidth, -halfHeight, texWidth - 1, 0);
+    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][2], (s16)-((f32)halfWidth * xRatio), halfHeight, 0, texHeight - 1);
+    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][3], halfWidth, halfHeight, texWidth - 1, texHeight - 1);
 
-    sp48 = actor->unkA4;
+    groundY = actor->unkA4;
     if ((*(u16 *)&gBillboardFlags & 2) && (actor->unk6A & 2) && (actor->unkAC <= actor->unk80)) {
         f32 diff1 = (actor->unk80 > actor->unkAC) ? (actor->unk80 - actor->unkAC) : -(actor->unk80 - actor->unkAC);
         f32 diff2 = (actor->unk80 > actor->unkA4) ? (actor->unk80 - actor->unkA4) : -(actor->unk80 - actor->unkA4);
         if (diff1 < diff2) {
-            sp48 = actor->unkAC;
+            groundY = actor->unkAC;
         }
     }
-    scale = 1.0 - (f64)((actor->unk80 - sp48) / (f32)arg7);
+    scale = 1.0 - (f64)((actor->unk80 - groundY) / (f32)fadeDistance);
     if (scale < 0.0) {
         scale = 0.0f;
     }
-    guScaleF(sp8C, scale, scale, scale);
+    guScaleF(mtx1, scale, scale, scale);
 
-    guRotateF(sp4C, (f32)((arg9 * 360) / 4095), 0.0f, 1.0f, 0.0f);
-    guMtxCatF(sp8C, sp4C, sp8C);
+    guRotateF(mtx2, (f32)((rotY * 360) / 4095), 0.0f, 1.0f, 0.0f);
+    guMtxCatF(mtx1, mtx2, mtx1);
     if (actor->unk60 & 2) {
         if (ACTOR_FIELD(s16, 0xDA) < 1000) {
-            guRotateF(sp4C, -((f64)ACTOR_FIELD(s16, 0xD8) / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
-            guMtxCatF(sp8C, sp4C, sp8C);
+            guRotateF(mtx2, -((f64)ACTOR_FIELD(s16, 0xD8) / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
+            guMtxCatF(mtx1, mtx2, mtx1);
         }
-        guRotateF(sp4C, 90.0 - (f64)ACTOR_FIELD(s16, 0xDA) / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
-        guMtxCatF(sp8C, sp4C, sp8C);
+        guRotateF(mtx2, 90.0 - (f64)ACTOR_FIELD(s16, 0xDA) / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
+        guMtxCatF(mtx1, mtx2, mtx1);
         if (ACTOR_FIELD(s16, 0xDA) < 1000) {
-            guRotateF(sp4C, (f64)ACTOR_FIELD(s16, 0xD8) / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
-            guMtxCatF(sp8C, sp4C, sp8C);
+            guRotateF(mtx2, (f64)ACTOR_FIELD(s16, 0xD8) / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
+            guMtxCatF(mtx1, mtx2, mtx1);
         }
     }
 
     if (ACTOR_FIELD(u8, 0xCC)) {
-        actorGetNodePos(actor, ACTOR_FIELD(u8, 0xCC), &sp44, &sp40, &sp3C);
-        guTranslateF(sp4C, sp44, actor->unkA4, sp3C);
+        actorGetNodePos(actor, ACTOR_FIELD(u8, 0xCC), &shadowY, &shadowX, &shadowZ);
+        guTranslateF(mtx2, shadowY, actor->unkA4, shadowZ);
     } else {
-        guTranslateF(sp4C, actor->unk7C, sp48, actor->unk84);
+        guTranslateF(mtx2, actor->unk7C, groundY, actor->unk84);
     }
-    guMtxCatF(sp8C, sp4C, sp8C);
+    guMtxCatF(mtx1, mtx2, mtx1);
 
-    guMtxF2L(sp8C, &gBillboardQueue[gBillboardQueueCount].matrices[D_807444FC]);
+    guMtxF2L(mtx1, &gBillboardQueue[gBillboardQueueCount].matrices[D_807444FC]);
 
-    gBillboardQueue[gBillboardQueueCount].unk103 = arg2;
-    gBillboardQueue[gBillboardQueueCount].unk104 = arg3;
+    gBillboardQueue[gBillboardQueueCount].unk103 = texWidth;
+    gBillboardQueue[gBillboardQueueCount].unk104 = texHeight;
     gBillboardQueue[gBillboardQueueCount].unk105 = arg6;
     gBillboardQueueCount++;
     gBillboardFlags = 0;
 }
 
-void billboardSetVertex(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
-    arg0[0] = arg1;
-    arg0[1] = 0;
-    arg0[2] = arg2;
-    arg0[4] = arg3 << 5;
-    arg0[5] = arg4 << 5;
+void billboardSetVertex(s16 *vtx, s16 x, s16 y, s16 s, s16 t) {
+    vtx[0] = x;
+    vtx[1] = 0;
+    vtx[2] = y;
+    vtx[4] = s << 5;
+    vtx[5] = t << 5;
 }
 
-Gfx *billboardRenderQueued(Gfx *gdl, s16 arg1) {
+Gfx *billboardRenderQueued(Gfx *gdl, s16 layer) {
     s32 i;
-    s32 var_t2;
-    s32 var_s6;
+    s32 prevTex;
+    s32 blendMode;
     s32 found;
-    s32 temp_a1;
+    s32 curTex;
 
     i = 0;
-    var_t2 = 0;
-    var_s6 = 1;
+    prevTex = 0;
+    blendMode = 1;
     found = 0;
     while (i < gBillboardQueueCount && found == 0) {
-        if (arg1 == gBillboardQueue[i].unk107) {
+        if (layer == gBillboardQueue[i].unk107) {
             found = 1;
         }
         i++;
@@ -313,32 +313,32 @@ Gfx *billboardRenderQueued(Gfx *gdl, s16 arg1) {
     i = 0;
     if (gBillboardQueueCount > 0) {
         do {
-            if (arg1 == gBillboardQueue[i].unk107) {
-                BillboardData *temp_s5;
+            if (layer == gBillboardQueue[i].unk107) {
+                BillboardData *bb;
 
                 gDPPipeSync(gdl++);
-                temp_s5 = &gBillboardQueue[i * 1]; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
-                if (var_s6 != 0) {
+                bb = &gBillboardQueue[i * 1]; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
+                if (blendMode != 0) {
                     if (gBillboardQueue[i].unk100 & 1) {
                         gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
-                        var_s6 = 0;
+                        blendMode = 0;
                     }
                 }
-                if (var_s6 == 0) {
+                if (blendMode == 0) {
                     if (!(gBillboardQueue[i].unk100 & 1)) {
                         gSPSetOtherMode(gdl++, G_SETOTHERMODE_L, 3, 29, 0x504DD8);
-                        var_s6 = 1;
+                        blendMode = 1;
                     }
                 }
                 gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, gBillboardQueue[i].unk106);
-                temp_a1 = (s32)gBillboardCache[gBillboardQueue[i].unk102].unk8;
-                if (temp_a1 != var_t2) {
-                    var_t2 = temp_a1;
+                curTex = (s32)gBillboardCache[gBillboardQueue[i].unk102].unk8;
+                if (curTex != prevTex) {
+                    prevTex = curTex;
                     switch (gBillboardQueue[i].unk105) {
                     case 0:
                         gDPLoadTextureBlock_4b(
                             gdl++,
-                            (u8 *)temp_a1 + 0x80000000,
+                            (u8 *)curTex + 0x80000000,
                             G_IM_FMT_IA,
                             gBillboardQueue[i].unk103,
                             gBillboardQueue[i].unk104,
@@ -370,8 +370,8 @@ Gfx *billboardRenderQueued(Gfx *gdl, s16 arg1) {
                         break;
                     }
                 }
-                gSPMatrix(gdl++, osVirtualToPhysical(&temp_s5->matrices[D_807444FC]), G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
-                gSPVertex(gdl++, osVirtualToPhysical(&temp_s5->verts[D_807444FC][0]), 4, 0);
+                gSPMatrix(gdl++, osVirtualToPhysical(&bb->matrices[D_807444FC]), G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+                gSPVertex(gdl++, osVirtualToPhysical(&bb->verts[D_807444FC][0]), 4, 0);
                 gSP2Triangles(gdl++, 0, 3, 1, 0, 0, 2, 3, 0);
                 gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
             }
@@ -431,7 +431,7 @@ extern u16 D_807F9060;
 extern s32 D_807F9064;
 s32 mapIsBonusOrSpecial(void);
 
-void matrixCacheInit(s32 arg0) {
+void matrixCacheInit(s32 limit) {
     s32 i;
     for (i = 0; i < 100; i++) {
         D_807F8EC0[i] = NULL;
@@ -441,9 +441,9 @@ void matrixCacheInit(s32 arg0) {
     D_807F905C = 0;
     D_807F9060 = 0;
     if (mapIsBonusOrSpecial()) {
-        D_807F9064 = arg0 + 0x70000;
+        D_807F9064 = limit + 0x70000;
     } else {
-        D_807F9064 = arg0;
+        D_807F9064 = limit;
     }
 }
 
@@ -474,7 +474,7 @@ void heapFreeDeferred(void *);
 
 #define DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 
-void *matrixCacheLookup(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
+void *matrixCacheLookup(s32 count, s32 camIndex, s16 modelId, u8 subType) {
     MatrixCacheNode *node;
     s32 i;
     s32 j;
@@ -483,16 +483,16 @@ void *matrixCacheLookup(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
     MatrixCacheSub *b;
 
     D_807F9058++;
-    node = D_807F8EC0[matrixCacheHash(arg0, arg2, arg3)];
+    node = D_807F8EC0[matrixCacheHash(count, modelId, subType)];
     while (node != NULL) {
-        if (arg0 == node->unk29 && arg2 == node->unk24 && node->unk28 == arg3) {
-            if (node->unk0 == D_8076A0B4[arg1] && node->unk4 == D_8076A0B8[arg1]) {
-                if (node->unk8 == D_8076A0BC[arg1]) {
+        if (count == node->unk29 && modelId == node->unk24 && node->unk28 == subType) {
+            if (node->unk0 == D_8076A0B4[camIndex] && node->unk4 == D_8076A0B8[camIndex]) {
+                if (node->unk8 == D_8076A0BC[camIndex]) {
                     i = 0;
                     mismatch = 0;
-                    for (; !mismatch && i < arg0; i++) {
+                    for (; !mismatch && i < count; i++) {
                         mismatch = 1;
-                        for (j = 0; mismatch && j < arg0; j++) {
+                        for (j = 0; mismatch && j < count; j++) {
                             b = &D_807F78C0[j];
                             a = &node->sub[i];
                             if (b->unk3E == 1) {
@@ -533,7 +533,7 @@ void *matrixCacheLookup(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
                             D_807F9050 = node;
                         }
                         node = NULL; // FAKE: redefining node stops uopt forwarding node->sub into the return, keeping it in a0
-                        return &sub[arg0];
+                        return &sub[count];
                     }
                 }
             }
@@ -543,82 +543,82 @@ void *matrixCacheLookup(s32 arg0, s32 arg1, s16 arg2, u8 arg3) {
     return 0;
 }
 
-void *matrixCacheInsert(s32 arg0, s32 arg1, s16 arg2, u8 arg3, s32 arg4, u8 arg5) {
-    void *sp18;
-    u32 sp1C;
+void *matrixCacheInsert(s32 count, s32 camIndex, s16 modelId, u8 subType, s32 matrixCount, u8 insertAtTail) {
+    void *dest;
+    u32 allocSize;
     s32 dummy;
-    MatrixCacheNode *sp30;
+    MatrixCacheNode *node;
     MatrixCacheNode **bucket;
     MatrixCacheNode *head;
 
-    sp1C = (arg0 << 6) + (arg4 * 0x10) + 0x30;
-    sp30 = heapAlloc(sp1C);
+    allocSize = (count << 6) + (matrixCount * 0x10) + 0x30;
+    node = heapAlloc(allocSize);
 
-    bucket = &D_807F8EC0[matrixCacheHash(arg0, arg2, arg3)];
+    bucket = &D_807F8EC0[matrixCacheHash(count, modelId, subType)];
     head = *bucket;
-    *bucket = sp30;
-    sp30->hash_next = head;
+    *bucket = node;
+    node->hash_next = head;
     if (head != NULL) {
-        head->hash_prev = sp30;
+        head->hash_prev = node;
     }
-    sp30->hash_prev = NULL;
+    node->hash_prev = NULL;
 
-    sp18 = (u8 *)sp30 + 0x30;
-    sp30->unk0 = D_8076A0B4[arg1];
-    sp30->unk4 = D_8076A0B8[arg1];
-    sp30->unk8 = D_8076A0BC[arg1];
-    sp30->unk24 = arg2;
-    sp30->unk29 = arg0;
-    sp30->unk28 = arg3;
-    memcpy(sp18, &D_807F78C0, arg0 << 6);
-    sp30->unkC = gFrameCounter;
-    sp30->unk26 = arg4;
-    D_807F905C += sp1C;
+    dest = (u8 *)node + 0x30;
+    node->unk0 = D_8076A0B4[camIndex];
+    node->unk4 = D_8076A0B8[camIndex];
+    node->unk8 = D_8076A0BC[camIndex];
+    node->unk24 = modelId;
+    node->unk29 = count;
+    node->unk28 = subType;
+    memcpy(dest, &D_807F78C0, count << 6);
+    node->unkC = gFrameCounter;
+    node->unk26 = matrixCount;
+    D_807F905C += allocSize;
     D_807F9060++;
-    sp30->unk10 = sp1C;
+    node->unk10 = allocSize;
 
-    if (arg5 == 0) {
-        sp30->list_next = D_807F9050;
+    if (insertAtTail == 0) {
+        node->list_next = D_807F9050;
         if (D_807F9050 != NULL) {
-            D_807F9050->list_prev = sp30;
+            D_807F9050->list_prev = node;
         }
-        sp30->list_prev = NULL;
-        D_807F9050 = sp30;
+        node->list_prev = NULL;
+        D_807F9050 = node;
         if (D_807F9054 == NULL) {
-            D_807F9054 = sp30;
+            D_807F9054 = node;
         }
     } else {
-        sp30->list_prev = D_807F9054;
+        node->list_prev = D_807F9054;
         if (D_807F9054 != NULL) {
-            D_807F9054->list_next = sp30;
+            D_807F9054->list_next = node;
         }
-        sp30->list_next = NULL;
-        D_807F9054 = sp30;
+        node->list_next = NULL;
+        D_807F9054 = node;
         if (D_807F9050 == NULL) {
-            D_807F9050 = sp30;
+            D_807F9050 = node;
         }
     }
 
-    return arg0 * 0x40 + (u8 *)sp18;
+    return count * 0x40 + (u8 *)dest;
 }
 
-s32 matrixCacheEvict(u8 arg0, s16 arg1) {
+s32 matrixCacheEvict(u8 checkLimit, s16 minAge) {
     s32 pad0;
     s32 pad1;
     s32 pad2;
     s32 pad3;
     s32 pad4;
-    u8 sp43;
+    u8 evictedAny;
     MatrixCacheNode *node;
     MatrixCacheNode *next;
     MatrixCacheNode **bucket;
     u32 cond;
 
-    cond = arg0;
+    cond = checkLimit;
     node = D_807F9054;
-    sp43 = 0;
+    evictedAny = 0;
     if (cond != 0) {
-        arg1 = 1;
+        minAge = 1;
     }
 
     while (1) {
@@ -631,7 +631,7 @@ s32 matrixCacheEvict(u8 arg0, s16 arg1) {
             break;
         }
         next = node->list_prev;
-        if ((cond == 0 && (u32)D_807F9064 < (u32)D_807F905C) || (u32)arg1 < (u32)(gFrameCounter - node->unkC)) {
+        if ((cond == 0 && (u32)D_807F9064 < (u32)D_807F905C) || (u32)minAge < (u32)(gFrameCounter - node->unkC)) {
             if (node == D_807F9054) {
                 D_807F9054 = node->list_prev;
             }
@@ -662,14 +662,14 @@ s32 matrixCacheEvict(u8 arg0, s16 arg1) {
             }
             if ((u32)(gFrameCounter - node->unkC) >= 2) {
                 heapFree(node);
-                sp43 = 1;
+                evictedAny = 1;
             } else {
                 heapFreeDeferred(node);
             }
         }
         node = next;
     }
-    return sp43;
+    return evictedAny;
 }
 
 
@@ -681,8 +681,8 @@ s32 matrixCacheDecayLimit(void) {
     return matrixCacheEvict(1, 0);
 }
 
-s32 matrixCacheHash(s32 arg0, s16 arg1, u8 arg2) {
-    return (arg1 * 16 + arg0 * 4 + arg2) % 100;
+s32 matrixCacheHash(s32 count, s16 modelId, u8 subType) {
+    return (modelId * 16 + count * 4 + subType) % 100;
 }
 
 extern s32 D_807F9068;
