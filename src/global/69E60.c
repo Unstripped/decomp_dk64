@@ -217,7 +217,7 @@ extern s32 gCurrentMap;
 
 void collisionQueryActorFloor(Actor *, u8 *, f32 *, u8 *, void *, s32);
 void func_806D09E8(Actor *);
-s32 mathAngleSignedDistance(s16, s16);
+s16 mathAngleSignedDistance(s16, s16);
 void actorUpdateFloorContactAndTilt(ActorFloorContactView *arg0, f32 arg1) {
     f32 sp5C;
     u8 sp5B;
@@ -301,15 +301,17 @@ void actorUpdateFloorContactAndTilt(ActorFloorContactView *arg0, f32 arg1) {
             arg0->unkDE = 0x400;
             arg0->unkDC = var_a1;
         } else {
-            diff = (f32)mathAngleSignedDistance(arg0->unkDE, 0x400) * var_fv0;  // FAKE: s16 diff as the float-to-s16 temp (steers t-register order)
+            diff = mathAngleSignedDistance(arg0->unkDE, 0x400);
+            diff *= var_fv0;
             arg0->unkDE += diff;
             arg0->unkDE &= 0xFFF;
         }
     } else {
-        diff = (f32)diff * var_fv0;  // FAKE: s16 diff as the float-to-s16 temp (steers t-register order)
+        diff *= var_fv0;
         arg0->unkDC += diff;
         arg0->unkDC &= 0xFFF;
-        diff = (f32)mathAngleSignedDistance(arg0->unkDE, var_a2) * var_fv0;  // FAKE: s16 diff as the float-to-s16 temp (steers t-register order)
+        diff = mathAngleSignedDistance(arg0->unkDE, var_a2);
+        diff *= var_fv0;
         arg0->unkDE += diff;
         arg0->unkDE &= 0xFFF;
     }
