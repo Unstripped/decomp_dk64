@@ -67,15 +67,15 @@ extern void *D_8002E830;
 extern void *D_8002E8A8;
 extern s32 D_8002BA6C;
 extern void *D_8002E878;
-void func_80029F7C(JetpacActor *);
-void jetpacActorUpdateHop(JetpacActor *);
-void func_8002A67C(JetpacActor *);
+void func_80029F7C(JetpacActor *actor);
+void jetpacActorUpdateHop(JetpacActor *actor);
+void func_8002A67C(JetpacActor *actor);
 void jetpacActorUpdateBounce(JetpacActor *actor);
-f32 jetpacActorAccelClamp(f32 arg0, f32 arg1);
+f32 jetpacActorAccelClamp(f32 targetDelta, f32 curVel);
 f32 jetpacRandFloat(void);
-void func_80029B90(JetpacActor *);
-void jetpacActorUpdateWander(JetpacActor *);
-void jetpacActorInitHoming(JetpacActor *arg0);
+void func_80029B90(JetpacActor *actor);
+void jetpacActorUpdateWander(JetpacActor *actor);
+void jetpacActorInitHoming(JetpacActor *actor);
 void jetpacActorUpdateHoming(JetpacActor *actor);
 f32 jetpacGetEntityCenterY(JetpacActor *);
 extern f32 D_8002F054;
@@ -91,9 +91,9 @@ JetpacActor *jetpacAllocActor(void);
 extern s32 D_8002E8F0;
 void jetpacSpawnActor(void);
 s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
-s32 jetpacCheckPlayerHit(JetpacActor *);
-void jetpacBounceOffLedge(JetpacActor *, s32);
-void jetpacPlaySound(s32 arg0);
+s32 jetpacCheckPlayerHit(JetpacActor *actor);
+void jetpacBounceOffLedge(JetpacActor *actor, s32 ledgeIndex);
+void jetpacPlaySound(s32 soundId);
 void jetpacGridAddTiledSprite(void *, s32, s32, void *, s32);
 void jetpacUpdateExplosion(void *);
 Gfx *textDrawString(Gfx *, s32, s16, s16, s32);
@@ -118,10 +118,10 @@ JetpacActor *jetpacFindFreeActor(void) {
 extern s32 D_8002F064;
 extern s32 D_8002F07C;
 extern JetpacActor jetpacPlayer;
-void jetpacSnapActorToGrid(JetpacActor *);
-void jetpacActorExplode(JetpacActor *);
+void jetpacSnapActorToGrid(JetpacActor *actor);
+void jetpacActorExplode(JetpacActor *actor);
 
-s32 jetpacCheckPlayerHit(JetpacActor *arg0) {
+s32 jetpacCheckPlayerHit(JetpacActor *actor) {
     s32 pad[7];
     f32 loc[2];
     s32 ret;
@@ -134,17 +134,17 @@ s32 jetpacCheckPlayerHit(JetpacActor *arg0) {
     f32 py;
 
     p = &jetpacGame.player;
-    ax = arg0->unk0;
-    ay = arg0->unk4;
+    ax = actor->unk0;
+    ay = actor->unk4;
     px = p->unk0;
     py = p->unk4;
-    x2 = (f32)arg0->unk24 + ax;
-    y2 = (f32)arg0->unk28 + ay;
+    x2 = (f32)actor->unk24 + ax;
+    y2 = (f32)actor->unk28 + ay;
     loc[1] = (f32)p->unk24 + px - 2.0f;
     loc[0] = (f32)p->unk28 + py;
     ret = 0;
-    ax += (f32)arg0->unk1C;
-    ay += (f32)arg0->unk20;
+    ax += (f32)actor->unk1C;
+    ay += (f32)actor->unk20;
     px += (f32)(p->unk1C + 2);
     py += (f32)(p->unk20 + 4);
     if (p->unk14 == 3) {
@@ -154,31 +154,31 @@ s32 jetpacCheckPlayerHit(JetpacActor *arg0) {
         D_8002F064 = 4;
         D_8002F07C = 0;
         jetpacSnapActorToGrid(&jetpacPlayer);
-        jetpacActorExplode(arg0);
+        jetpacActorExplode(actor);
     }
     return ret;
 }
 
-void jetpacActorExplode(JetpacActor *arg0) {
-    arg0->unk14 = 4;
-    arg0->unk2C = 0;
-    arg0->unk38 = 0;
-    arg0->unk30 = (s32)arg0->unk0 & 0xFFF8;
-    arg0->unk34 = (s32)arg0->unk4 & 0xFFF8;
+void jetpacActorExplode(JetpacActor *actor) {
+    actor->unk14 = 4;
+    actor->unk2C = 0;
+    actor->unk38 = 0;
+    actor->unk30 = (s32)actor->unk0 & 0xFFF8;
+    actor->unk34 = (s32)actor->unk4 & 0xFFF8;
     jetpacPlaySound(5);
 }
 
-void jetpacDrawActor(JetpacActor *arg0) {
-    s32 temp_v0 = arg0->unk14;
+void jetpacDrawActor(JetpacActor *actor) {
+    s32 status = actor->unk14;
 
-    if (temp_v0 == 3) {
-        jetpacGridAddTiledSprite(arg0->unk4C, (s32)arg0->unk0, (s32)arg0->unk4, &arg0->unk10, arg0->unk18);
+    if (status == 3) {
+        jetpacGridAddTiledSprite(actor->unk4C, (s32)actor->unk0, (s32)actor->unk4, &actor->unk10, actor->unk18);
         return;
     }
-    if (temp_v0 == 4) {
-        jetpacUpdateExplosion(&arg0->unk30);
-        if (arg0->unk38 < 7) {
-            jetpacGridAddTiledSprite(arg0->unk4C, (s32)arg0->unk0, (s32)arg0->unk4, &arg0->unk10, arg0->unk18);
+    if (status == 4) {
+        jetpacUpdateExplosion(&actor->unk30);
+        if (actor->unk38 < 7) {
+            jetpacGridAddTiledSprite(actor->unk4C, (s32)actor->unk0, (s32)actor->unk4, &actor->unk10, actor->unk18);
         }
     }
 }
@@ -186,14 +186,14 @@ void jetpacDrawActor(JetpacActor *arg0) {
 JetpacActor *jetpacAllocActor(void) {
     s32 pad;
     JetpacActor *actor;
-    JetpacActor sp20;
+    JetpacActor templateActor;
 
     actor = jetpacFindFreeActor();
-    sp20 = D_8002E914;
+    templateActor = D_8002E914;
     if (actor == NULL) {
         return NULL;
     }
-    *actor = sp20;
+    *actor = templateActor;
     actor->unk0 = 0.0f;
     actor->unk4 = (f32)((((s32)(jetpacRandFloat() * 15.0f) % 15) * 8) + 32);
     switch ((s32)(jetpacRandFloat() * 4.0f) % 4) {
@@ -234,7 +234,7 @@ void jetpacSpawnActor(void) {
     }
 }
 
-void jetpacBounceOffLedge(JetpacActor *arg0, s32 arg1) {
+void jetpacBounceOffLedge(JetpacActor *actor, s32 ledgeIndex) {
     J4Ledge *l;
     f32 ax1;
     f32 ax2;
@@ -245,20 +245,20 @@ void jetpacBounceOffLedge(JetpacActor *arg0, s32 arg1) {
     f32 ly1;
     f32 ly2;
 
-    l = &jetpacGame.ledges[arg1];
-    ax1 = arg0->unk0 + (f32)arg0->unk1C;
-    ax2 = arg0->unk0 + (f32)arg0->unk24;
+    l = &jetpacGame.ledges[ledgeIndex];
+    ax1 = actor->unk0 + (f32)actor->unk1C;
+    ax2 = actor->unk0 + (f32)actor->unk24;
     lx1 = l->unk1C;
     lx2 = l->unk24;
-    ay1 = arg0->unk4 + (f32)arg0->unk20;
-    ay2 = arg0->unk4 + (f32)arg0->unk28;
+    ay1 = actor->unk4 + (f32)actor->unk20;
+    ay2 = actor->unk4 + (f32)actor->unk28;
     ly1 = l->unk20;
     ly2 = l->unk28;
     if ((lx2 <= ax1 && lx2 <= ax2) || (ax2 <= lx1 && ax1 <= lx1)) {
-        arg0->unk8 = -arg0->unk8;
+        actor->unk8 = -actor->unk8;
     }
     if ((ly2 <= ay1 && ly2 <= ay2) || (ay2 <= ly1 && ay1 <= ly1)) {
-        arg0->unkC = -arg0->unkC;
+        actor->unkC = -actor->unkC;
     }
 }
 
@@ -301,23 +301,23 @@ void func_80029640(JetpacActor *actor, f32 a1, f32 a2) {
     }
 }
 
-void jetpacActorUpdateStraight(JetpacActor *arg0) {
-    switch (arg0->unk14) {
+void jetpacActorUpdateStraight(JetpacActor *actor) {
+    switch (actor->unk14) {
     case 3:
-        if (jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
-                          (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
-                          (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
-                          (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1) >= 0) {
-            jetpacActorExplode(arg0);
-        } else if (jetpacCheckPlayerHit(arg0) == 0) {
-            arg0->unk0 += arg0->unk8;
-            arg0->unk4 += arg0->unkC;
+        if (jetpacCheckLedgeCollision((f32)actor->unk1C + actor->unk0 + actor->unk8,
+                          (f32)actor->unk20 + actor->unk4 + actor->unkC,
+                          (f32)actor->unk24 + actor->unk0 + actor->unk8,
+                          (f32)actor->unk28 + actor->unk4 + actor->unkC, 1) >= 0) {
+            jetpacActorExplode(actor);
+        } else if (jetpacCheckPlayerHit(actor) == 0) {
+            actor->unk0 += actor->unk8;
+            actor->unk4 += actor->unkC;
         }
         break;
     case 4:
-        arg0->unk2C++;
-        if (arg0->unk2C >= 15) {
-            arg0->unk14 = 0;
+        actor->unk2C++;
+        if (actor->unk2C >= 15) {
+            actor->unk14 = 0;
         }
         break;
     }
@@ -334,231 +334,231 @@ void func_800298C8(JetpacActor *actor) {
     actor->unk4C = &D_8002E800[(s32)actor->unk0 % 2];
 }
 
-void func_8002992C(JetpacActor *arg0) {
-    arg0->unk48 = jetpacActorUpdateBounce;
-    arg0->unk44 = 0x50;
-    if (arg0->unk4 < 88.0f) {
-        arg0->unk8 = -1.2f;
+void func_8002992C(JetpacActor *actor) {
+    actor->unk48 = jetpacActorUpdateBounce;
+    actor->unk44 = 0x50;
+    if (actor->unk4 < 88.0f) {
+        actor->unk8 = -1.2f;
     } else {
-        arg0->unk8 = 1.2f;
+        actor->unk8 = 1.2f;
     }
-    arg0->unkC = -0.8f;
-    arg0->unk4C = &D_8002E830;
+    actor->unkC = -0.8f;
+    actor->unk4C = &D_8002E830;
 }
 
-void jetpacActorUpdateBounce(JetpacActor *arg0) {
+void jetpacActorUpdateBounce(JetpacActor *actor) {
     s32 res;
 
-    switch (arg0->unk14) {
+    switch (actor->unk14) {
     case 3:
-        res = jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
-                            (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
-                            (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
-                            (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1);
+        res = jetpacCheckLedgeCollision((f32)actor->unk1C + actor->unk0 + actor->unk8,
+                            (f32)actor->unk20 + actor->unk4 + actor->unkC,
+                            (f32)actor->unk24 + actor->unk0 + actor->unk8,
+                            (f32)actor->unk28 + actor->unk4 + actor->unkC, 1);
         if (res >= 0) {
-            jetpacBounceOffLedge(arg0, res);
+            jetpacBounceOffLedge(actor, res);
         }
-        if (jetpacCheckPlayerHit(arg0) == 0) {
-            if ((arg0->unk4 + arg0->unkC) < 24.0f) {
-                arg0->unkC = -arg0->unkC;
+        if (jetpacCheckPlayerHit(actor) == 0) {
+            if ((actor->unk4 + actor->unkC) < 24.0f) {
+                actor->unkC = -actor->unkC;
             }
-            arg0->unk4 += arg0->unkC;
-            arg0->unk0 += arg0->unk8;
-            if ((s32)arg0->unk0 & 2) {
-                arg0->unk18 ^= 1;
+            actor->unk4 += actor->unkC;
+            actor->unk0 += actor->unk8;
+            if ((s32)actor->unk0 & 2) {
+                actor->unk18 ^= 1;
             }
         }
         break;
     case 4:
-        arg0->unk2C++;
-        if (arg0->unk2C >= 15) {
-            arg0->unk14 = 0;
+        actor->unk2C++;
+        if (actor->unk2C >= 15) {
+            actor->unk14 = 0;
         }
         break;
     }
 }
 
-void func_80029AF8(JetpacActor *arg0) {
-    arg0->unk48 = jetpacActorUpdateWander;
-    arg0->unk44 = 0x28;
-    if (arg0->unk4 < 88.0f) {
-        arg0->unk8 = -1.2f;
+void func_80029AF8(JetpacActor *actor) {
+    actor->unk48 = jetpacActorUpdateWander;
+    actor->unk44 = 0x28;
+    if (actor->unk4 < 88.0f) {
+        actor->unk8 = -1.2f;
     } else {
-        arg0->unk8 = 1.2f;
+        actor->unk8 = 1.2f;
     }
-    func_80029B90(arg0);
-    arg0->unk2C = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
+    func_80029B90(actor);
+    actor->unk2C = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
 }
 
-void func_80029B90(JetpacActor *arg0) {
-    if ((f64)arg0->unkC == 0.0) {
+void func_80029B90(JetpacActor *actor) {
+    if ((f64)actor->unkC == 0.0) {
         if ((f64)jetpacRandFloat() < 0.5) {
-            arg0->unkC = -0.6f;
+            actor->unkC = -0.6f;
             return;
         }
-        arg0->unkC = 0.6f;
+        actor->unkC = 0.6f;
         return;
     }
-    arg0->unkC = 0.0f;
+    actor->unkC = 0.0f;
 }
 
-void jetpacActorUpdateWander(JetpacActor *arg0) {
+void jetpacActorUpdateWander(JetpacActor *actor) {
     s32 res;
 
-    switch (arg0->unk14) {
+    switch (actor->unk14) {
     case 3:
-        if (--arg0->unk2C == 0) {
-            func_80029B90(arg0);
-            arg0->unk2C = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
+        if (--actor->unk2C == 0) {
+            func_80029B90(actor);
+            actor->unk2C = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
         }
-        res = jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
-                            (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
-                            (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
-                            (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1);
+        res = jetpacCheckLedgeCollision((f32)actor->unk1C + actor->unk0 + actor->unk8,
+                            (f32)actor->unk20 + actor->unk4 + actor->unkC,
+                            (f32)actor->unk24 + actor->unk0 + actor->unk8,
+                            (f32)actor->unk28 + actor->unk4 + actor->unkC, 1);
         if (res >= 0) {
-            jetpacBounceOffLedge(arg0, res);
-            if (arg0->unk2C < 10) {
-                arg0->unk2C = 10;
+            jetpacBounceOffLedge(actor, res);
+            if (actor->unk2C < 10) {
+                actor->unk2C = 10;
             }
         }
-        if (jetpacCheckPlayerHit(arg0) == 0) {
-            if ((arg0->unk4 + arg0->unkC) < 24.0f) {
-                arg0->unkC = -arg0->unkC;
+        if (jetpacCheckPlayerHit(actor) == 0) {
+            if ((actor->unk4 + actor->unkC) < 24.0f) {
+                actor->unkC = -actor->unkC;
             }
-            arg0->unk4 += arg0->unkC;
-            arg0->unk0 += arg0->unk8;
-            arg0->unk4C = &D_8002E848[(s32)(arg0->unk0 / 4) % 2];
+            actor->unk4 += actor->unkC;
+            actor->unk0 += actor->unk8;
+            actor->unk4C = &D_8002E848[(s32)(actor->unk0 / 4) % 2];
         }
         break;
     case 4:
-        arg0->unk2C++;
-        if (arg0->unk2C >= 15) {
-            arg0->unk14 = 0;
+        actor->unk2C++;
+        if (actor->unk2C >= 15) {
+            actor->unk14 = 0;
         }
         break;
     }
 }
 
-void func_80029E0C(JetpacActor *arg0) {
-    arg0->unk48 = func_80029F7C;
-    arg0->unk44 = 0x37;
-    arg0->unk2C = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
-    arg0->unk40 = (u32)((jetpacRandFloat() * 180.0f) + 10.0f);
-    arg0->unk28 = 8;
-    if (arg0->unk4 < 88.0f) {
-        arg0->unk18 = 0;
+void func_80029E0C(JetpacActor *actor) {
+    actor->unk48 = func_80029F7C;
+    actor->unk44 = 0x37;
+    actor->unk2C = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
+    actor->unk40 = (u32)((jetpacRandFloat() * 180.0f) + 10.0f);
+    actor->unk28 = 8;
+    if (actor->unk4 < 88.0f) {
+        actor->unk18 = 0;
     } else {
-        arg0->unk18 = 1;
+        actor->unk18 = 1;
     }
-    arg0->unk8 = 0.0f;
+    actor->unk8 = 0.0f;
     if (D_8002BA6C != 0) {
-        arg0->unkC = -0.8f;
+        actor->unkC = -0.8f;
     } else {
-        arg0->unkC = 0.8f;
+        actor->unkC = 0.8f;
     }
-    arg0->unk4C = &D_8002E878;
+    actor->unk4C = &D_8002E878;
 }
 
-void func_80029F7C(JetpacActor *arg0) {
-    switch (arg0->unk14) {
+void func_80029F7C(JetpacActor *actor) {
+    switch (actor->unk14) {
     case 3:
-        if (arg0->unk2C == 0) {
-            if (jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
-                              (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
-                              (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
-                              (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1) >= 0) {
-                jetpacActorExplode(arg0);
+        if (actor->unk2C == 0) {
+            if (jetpacCheckLedgeCollision((f32)actor->unk1C + actor->unk0 + actor->unk8,
+                              (f32)actor->unk20 + actor->unk4 + actor->unkC,
+                              (f32)actor->unk24 + actor->unk0 + actor->unk8,
+                              (f32)actor->unk28 + actor->unk4 + actor->unkC, 1) >= 0) {
+                jetpacActorExplode(actor);
             } else {
-                arg0->unk40--;
+                actor->unk40--;
             }
-            if (arg0->unk40 == 0) {
-                jetpacActorExplode(arg0);
+            if (actor->unk40 == 0) {
+                jetpacActorExplode(actor);
             }
-        } else if (D_8002BA6C != 0 && arg0->unk4 < 32.0f) {
-            jetpacActorExplode(arg0);
+        } else if (D_8002BA6C != 0 && actor->unk4 < 32.0f) {
+            jetpacActorExplode(actor);
         }
 
-        if (arg0->unk14 == 3) {
-            jetpacCheckPlayerHit(arg0);
+        if (actor->unk14 == 3) {
+            jetpacCheckPlayerHit(actor);
         }
-        if (arg0->unk14 == 4) {
+        if (actor->unk14 == 4) {
             JetpacPlayer *p = &jetpacGame.players[jetpacGame.currentPlayer];
-            p->score += arg0->unk44;
+            p->score += actor->unk44;
             return;
         }
 
-        if (arg0->unk2C != 0) {
-            arg0->unk2C--;
+        if (actor->unk2C != 0) {
+            actor->unk2C--;
             if (D_8002BA6C != 0) {
-                arg0->unkC = -0.8f;
+                actor->unkC = -0.8f;
             } else {
-                arg0->unkC = 0.8f;
+                actor->unkC = 0.8f;
             }
-            if (arg0->unk2C == 0) {
-                if (arg0->unk18 != 0) {
-                    arg0->unk8 = -1.6f;
+            if (actor->unk2C == 0) {
+                if (actor->unk18 != 0) {
+                    actor->unk8 = -1.6f;
                 } else {
-                    arg0->unk8 = 1.6f;
+                    actor->unk8 = 1.6f;
                 }
-                arg0->unk10 = 0xFF;
-                arg0->unk11 = 0xFF;
-                arg0->unk12 = 0xFF;
+                actor->unk10 = 0xFF;
+                actor->unk11 = 0xFF;
+                actor->unk12 = 0xFF;
             }
         }
 
-        if (arg0->unk2C == 0 && (jetpacGame.unk790 & 2)) {
-            if (jetpacGetEntityCenterY(arg0) < D_8002F054 + (f32)D_8002F078) {
-                arg0->unkC = 0.8f;
+        if (actor->unk2C == 0 && (jetpacGame.unk790 & 2)) {
+            if (jetpacGetEntityCenterY(actor) < D_8002F054 + (f32)D_8002F078) {
+                actor->unkC = 0.8f;
             } else {
-                arg0->unkC = -0.8f;
+                actor->unkC = -0.8f;
             }
         }
-        arg0->unk0 += arg0->unk8;
-        arg0->unk4 += arg0->unkC;
+        actor->unk0 += actor->unk8;
+        actor->unk4 += actor->unkC;
         return;
     case 4:
-        arg0->unk2C++;
-        if (arg0->unk2C >= 15) {
-            arg0->unk14 = 0;
+        actor->unk2C++;
+        if (actor->unk2C >= 15) {
+            actor->unk14 = 0;
         }
         return;
     }
 }
 
-void jetpacActorInitHoming(JetpacActor *arg0) {
-    arg0->unk48 = jetpacActorUpdateHoming;
-    arg0->unk44 = 0x32;
-    if (arg0->unk4 < 88.0f) {
-        arg0->unk18 = 0;
+void jetpacActorInitHoming(JetpacActor *actor) {
+    actor->unk48 = jetpacActorUpdateHoming;
+    actor->unk44 = 0x32;
+    if (actor->unk4 < 88.0f) {
+        actor->unk18 = 0;
     } else {
-        arg0->unk18 = 1;
+        actor->unk18 = 1;
     }
-    jetpacActorSteerToPlayer(arg0);
+    jetpacActorSteerToPlayer(actor);
 }
 
-void func_8002A2AC(JetpacActor *arg0) {
-    arg0->unk28 = 8;
-    arg0->unk4C = &D_8002E890;
-    jetpacActorInitHoming(arg0);
+void func_8002A2AC(JetpacActor *actor) {
+    actor->unk28 = 8;
+    actor->unk4C = &D_8002E890;
+    jetpacActorInitHoming(actor);
 }
 
-f32 jetpacActorAccelClamp(f32 arg0, f32 arg1) {
+f32 jetpacActorAccelClamp(f32 targetDelta, f32 curVel) {
     f64 d;
     f64 r;
 
-    if (arg0 < 0.0f) {
-        arg1 = arg1 - 0.08;
+    if (targetDelta < 0.0f) {
+        curVel = curVel - 0.08;
     } else {
-        arg1 = arg1 + 0.08;
+        curVel = curVel + 0.08;
     }
-    d = arg1;
+    d = curVel;
     r = d < -1.2 ? -1.2 : (d > 1.2 ? 1.2 : d);
     return r;
 }
 
 f32 jetpacGetEntityCenterX(JetpacActor *);
 
-void jetpacActorSteerToPlayer(JetpacActor *arg0) {
+void jetpacActorSteerToPlayer(JetpacActor *actor) {
     f32 cx2;
     f32 dx;
     f32 dxw;
@@ -568,7 +568,7 @@ void jetpacActorSteerToPlayer(JetpacActor *arg0) {
     f32 ry;
     f32 cx1;
 
-    cx1 = jetpacGetEntityCenterX(arg0);
+    cx1 = jetpacGetEntityCenterX(actor);
     cx2 = jetpacGetEntityCenterX(&jetpacPlayer);
     dx = cx2 - cx1;
     if (cx1 < cx2) {
@@ -576,7 +576,7 @@ void jetpacActorSteerToPlayer(JetpacActor *arg0) {
     } else {
         dxw = dx + 256.0f;
     }
-    dy = D_8002F054 + (f32)D_8002F078 - jetpacGetEntityCenterY(arg0);
+    dy = D_8002F054 + (f32)D_8002F078 - jetpacGetEntityCenterY(actor);
     if (0.0f < dy) {
         dyw = dy - 288.0;
     } else {
@@ -592,92 +592,92 @@ void jetpacActorSteerToPlayer(JetpacActor *arg0) {
     } else {
         ry = dyw;
     }
-    arg0->unk8 = jetpacActorAccelClamp(rx, arg0->unk8);
-    arg0->unkC = jetpacActorAccelClamp(ry, arg0->unkC);
+    actor->unk8 = jetpacActorAccelClamp(rx, actor->unk8);
+    actor->unkC = jetpacActorAccelClamp(ry, actor->unkC);
 }
 
-void jetpacActorUpdateHoming(JetpacActor *arg0) {
+void jetpacActorUpdateHoming(JetpacActor *actor) {
     s32 res;
 
-    switch (arg0->unk14) {
+    switch (actor->unk14) {
     case 3:
-        jetpacActorSteerToPlayer(arg0);
-        res = jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
-                            (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
-                            (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
-                            (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1);
+        jetpacActorSteerToPlayer(actor);
+        res = jetpacCheckLedgeCollision((f32)actor->unk1C + actor->unk0 + actor->unk8,
+                            (f32)actor->unk20 + actor->unk4 + actor->unkC,
+                            (f32)actor->unk24 + actor->unk0 + actor->unk8,
+                            (f32)actor->unk28 + actor->unk4 + actor->unkC, 1);
         if (res >= 0) {
-            jetpacBounceOffLedge(arg0, res);
+            jetpacBounceOffLedge(actor, res);
         }
-        if (jetpacCheckPlayerHit(arg0) == 0) {
-            if ((arg0->unk4 + arg0->unkC) < 24.0f) {
-                arg0->unkC = -arg0->unkC;
+        if (jetpacCheckPlayerHit(actor) == 0) {
+            if ((actor->unk4 + actor->unkC) < 24.0f) {
+                actor->unkC = -actor->unkC;
             }
-            arg0->unk4 += arg0->unkC;
-            arg0->unk0 += arg0->unk8;
+            actor->unk4 += actor->unkC;
+            actor->unk0 += actor->unk8;
         }
         break;
     case 4:
-        arg0->unk2C++;
-        if (arg0->unk2C >= 15) {
-            arg0->unk14 = 0;
+        actor->unk2C++;
+        if (actor->unk2C >= 15) {
+            actor->unk14 = 0;
         }
         break;
     }
 }
 
-void func_8002A67C(JetpacActor *arg0) {
-    s32 t = arg0->unk2C % 4 + 1;
+void func_8002A67C(JetpacActor *actor) {
+    s32 t = actor->unk2C % 4 + 1;
 
-    arg0->unkC = -1.2 / (f64)t;
-    arg0->unk2C = arg0->unk2C + 1;
+    actor->unkC = -1.2 / (f64)t;
+    actor->unk2C = actor->unk2C + 1;
 }
 
-void func_8002A6C0(JetpacActor *arg0) {
-    arg0->unk48 = jetpacActorUpdateHop;
-    arg0->unk44 = 0x3C;
-    arg0->unk2C = (s32)(jetpacRandFloat() * 16.0f);
-    if (arg0->unk4 < 88.0f) {
-        arg0->unk8 = -1.2f;
+void func_8002A6C0(JetpacActor *actor) {
+    actor->unk48 = jetpacActorUpdateHop;
+    actor->unk44 = 0x3C;
+    actor->unk2C = (s32)(jetpacRandFloat() * 16.0f);
+    if (actor->unk4 < 88.0f) {
+        actor->unk8 = -1.2f;
     } else {
-        arg0->unk8 = 1.2f;
+        actor->unk8 = 1.2f;
     }
-    func_8002A67C(arg0);
-    arg0->unk4C = &D_8002E8A8;
+    func_8002A67C(actor);
+    actor->unk4C = &D_8002E8A8;
 }
 
-void jetpacActorUpdateHop(JetpacActor *arg0) {
+void jetpacActorUpdateHop(JetpacActor *actor) {
     s32 res;
     f32 prev;
     f32 cur;
 
-    switch (arg0->unk14) {
+    switch (actor->unk14) {
     case 3:
-        arg0->unkC = arg0->unkC + 0.005;
-        prev = arg0->unkC;
-        res = jetpacCheckLedgeCollision((f32)arg0->unk1C + arg0->unk0 + arg0->unk8,
-                            (f32)arg0->unk20 + arg0->unk4 + arg0->unkC,
-                            (f32)arg0->unk24 + arg0->unk0 + arg0->unk8,
-                            (f32)arg0->unk28 + arg0->unk4 + arg0->unkC, 1);
+        actor->unkC = actor->unkC + 0.005;
+        prev = actor->unkC;
+        res = jetpacCheckLedgeCollision((f32)actor->unk1C + actor->unk0 + actor->unk8,
+                            (f32)actor->unk20 + actor->unk4 + actor->unkC,
+                            (f32)actor->unk24 + actor->unk0 + actor->unk8,
+                            (f32)actor->unk28 + actor->unk4 + actor->unkC, 1);
         if (res >= 0) {
-            jetpacBounceOffLedge(arg0, res);
-            cur = arg0->unkC;
+            jetpacBounceOffLedge(actor, res);
+            cur = actor->unkC;
             if (prev > 0.0f && cur < 0.0f) {
-                func_8002A67C(arg0);
+                func_8002A67C(actor);
             }
         }
-        if (jetpacCheckPlayerHit(arg0) == 0) {
-            if ((arg0->unk4 + arg0->unkC) < 24.0f) {
-                arg0->unkC = -arg0->unkC;
+        if (jetpacCheckPlayerHit(actor) == 0) {
+            if ((actor->unk4 + actor->unkC) < 24.0f) {
+                actor->unkC = -actor->unkC;
             }
-            arg0->unk4 += arg0->unkC;
-            arg0->unk0 += arg0->unk8;
+            actor->unk4 += actor->unkC;
+            actor->unk0 += actor->unk8;
         }
         break;
     case 4:
-        arg0->unk2C++;
-        if (arg0->unk2C >= 15) {
-            arg0->unk14 = 0;
+        actor->unk2C++;
+        if (actor->unk2C >= 15) {
+            actor->unk14 = 0;
         }
         break;
     }
@@ -690,10 +690,10 @@ void func_8002A8F0(JetpacActor *actor) {
     actor->unk48 = jetpacActorUpdateStraight;
 }
 
-void func_8002A944(JetpacActor *arg0) {
-    arg0->unk28 = 0xE;
-    arg0->unk4C = &D_8002E8D8;
-    jetpacActorInitHoming(arg0);
+void func_8002A944(JetpacActor *actor) {
+    actor->unk28 = 0xE;
+    actor->unk4C = &D_8002E8D8;
+    jetpacActorInitHoming(actor);
 }
 
 s32 jetpacKillActorInBox(f32 x1, f32 y1, f32 x2, f32 y2) {
@@ -720,14 +720,14 @@ s32 jetpacKillActorInBox(f32 x1, f32 y1, f32 x2, f32 y2) {
 
 void jetpacInitActors(void) {
     s32 i;
-    JetpacActor sp24;
+    JetpacActor defaultActor;
     JetpacActor *actor;
 
-    sp24 = D_8002E964;
+    defaultActor = D_8002E964;
     actor = jetpacActors;
     i = 0;
     do {
-        *actor++ = sp24;
+        *actor++ = defaultActor;
         i++;
     } while (i < 6);
 
@@ -788,40 +788,40 @@ void jetpacDrawActors(void) {
     }
 }
 
-void jetpacSetupTextRdp(Gfx **arg0) {
-    Gfx *g = *arg0;
+void jetpacSetupTextRdp(Gfx **pGlist) {
+    Gfx *g = *pGlist;
     WRITE_GFX(g++, 0xE7000000, 0);
     WRITE_GFX(g++, 0xE3000A01, 0);
     WRITE_GFX(g++, 0xD9000000, 0);
     WRITE_GFX(g++, 0xD9FFFFFF, 0x00200004);
     WRITE_GFX(g++, 0xFC30FE61, 0x55FEF379);
     WRITE_GFX(g++, 0xE200001C, 0x0F0A4000);
-    *arg0 = g;
+    *pGlist = g;
 }
 
-void jetpacSetTextColor(s8 arg0, s8 arg1, s8 arg2, s8 arg3) {
-    D_80045BE0 = arg0;
-    D_80045BE1 = arg1;
-    D_80045BE2 = arg2;
-    D_80045BE3 = arg3;
+void jetpacSetTextColor(s8 r, s8 g, s8 b, s8 a) {
+    D_80045BE0 = r;
+    D_80045BE1 = g;
+    D_80045BE2 = b;
+    D_80045BE3 = a;
 }
 
-void jetpacSetTextHighlightColor(s8 arg0, s8 arg1, s8 arg2, s8 arg3) {
-    D_8002E9C0 = arg0;
-    D_8002E9C4 = arg1;
-    D_8002E9C8 = arg2;
-    D_8002E9CC = arg3;
+void jetpacSetTextHighlightColor(s8 r, s8 g, s8 b, s8 a) {
+    D_8002E9C0 = r;
+    D_8002E9C4 = g;
+    D_8002E9C8 = b;
+    D_8002E9CC = a;
 }
 
-void jetpacDrawString(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    Gfx *g = *arg0;
+void jetpacDrawString(Gfx **pGlist, s32 str, s32 x, s32 y, s32 highlight) {
+    Gfx *g = *pGlist;
 
-    if (arg4 != 0) {
+    if (highlight != 0) {
         gDPSetPrimColor(g++, 0, 0, D_8002E9C0, D_8002E9C4, D_8002E9C8, D_8002E9CC);
         gDPSetEnvColor(g++, D_80045BE0, D_80045BE1, D_80045BE2, D_80045BE3);
     } else {
         gDPSetPrimColor(g++, 0, 0, D_80045BE0, D_80045BE1, D_80045BE2, D_80045BE3);
         gDPSetEnvColor(g++, D_8002E9C0, D_8002E9C4, D_8002E9C8, D_8002E9CC);
     }
-    *arg0 = textDrawString(g, 4, (s16)arg2, (s16)arg3, arg1);
+    *pGlist = textDrawString(g, 4, (s16)x, (s16)y, str);
 }
