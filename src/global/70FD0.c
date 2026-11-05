@@ -170,12 +170,10 @@ void collisionBuildSlotBoxes(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f
     s8 lastBone;
     s8 bone;
 
-    off = arg0 * 0x90;
+    off = arg0 * sizeof(ModelSlot);
     anim = ((ModelSlot *)((u8 *)D_807F6000 + off))->unk78;
-    buf = (CollisionSlotBuffer *)((0, off) + (s32)D_807F6000); // FAKE: comma operand steers addu operand order
-    if (D_807F6000 && D_807F6000) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     lastBone = -1;
-    buf = (CollisionSlotBuffer *)((u8 *)buf + 0x28);
+    buf = (CollisionSlotBuffer *)&D_807F6000[arg0].unk28;
     if (anim != NULL) {
         sp58 = anim[D_807444FC];
     } else {
@@ -335,7 +333,7 @@ void collisionInitStaticCache(CollisionStaticHeader *arg0) {
     s32 *var_a2;
     u8 *var_v1;
     u8 *temp_a0;
-    s32 temp_lo;
+    s32 relativeOffset;
     s32 var_a3;
     s32 var_s1;
     s32 elem_size;
@@ -373,7 +371,8 @@ void collisionInitStaticCache(CollisionStaticHeader *arg0) {
             ((CollisionStaticCellEntry *)D_807FB534)[var_a3].unk4 = NULL;
         }
         ((CollisionStaticCellEntry *)D_807FB534)[var_a3].unk0 = NULL;
-        ((CollisionStaticCellEntry *)D_807FB534)[var_a3].unkC = (0, sp38) + (temp_a0 - var_s0); // FAKE: comma steers addu operand order (sp38 first)
+        relativeOffset = temp_a0 - var_s0;
+        ((CollisionStaticCellEntry *)D_807FB534)[var_a3].unkC = sp38 + relativeOffset;
         ((CollisionStaticCellEntry *)D_807FB534)[var_a3].unk10 = (var_s0 + var_s1) - temp_a0;
         var_a2 = (s32 *)(var_s0 + var_s1);
         ((CollisionStaticCellEntry *)D_807FB534)[var_a3].unk8 = 0;
@@ -980,7 +979,8 @@ typedef struct ActorSub140Tri {
 } ActorSub140Tri; // size = 0x58
 
 typedef struct ActorSub140SrcTri {
-    /* 0x00 */ u8 pad0[0x28];
+    /* 0x00 */ f32 x[9];
+    /* 0x24 */ u32 boneOffset;
     /* 0x28 */ s16 unk28;
     /* 0x2A */ u8 unk2A;
     /* 0x2B */ u8 pad2B;
@@ -1482,13 +1482,13 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
         if (arg0->unk9C > 0) {
             do {
                 if (arg0 == 0) {} // FAKE
-                var_s0 = (f32 *)ent;
+                var_s0 = ent->x;
                 var_s2 = sp68;
                 var_s3 = sp74;
                 var_s1 = sp80;
                 do {
-                    unk24 = *(s32 *)((u8 *)ent + 0x24);
-                    if ((unk24 ^ 0) == neg1) { // FAKE: ^ 0 steers bne operand order
+                    unk24 = ent->boneOffset;
+                    if (neg1 == unk24) {
                         memcpy(spCC, (void *)arg0->unk70, 0x40);
                         guMtxXFMF(spCC, var_s0[0], var_s0[3], var_s0[6], var_s2, var_s3, var_s1);
                     } else {
@@ -1500,17 +1500,17 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
                     var_s3++;
                 } while (var_s1 != (f32 *)&box); // FAKE: sentinel = addiu fp,sp,0x8C (the frame slot after sp80), steers a lone hoisted constant
                 if (collisionBuildBoxFromMatrix(sp68, box) != 0) {
-                    if (*(u8 *)((u8 *)ent + 0x2A) == 0) {
+                    if (ent->unk2A == 0) {
                         box->unk4B = 0;
                     }
-                    if (*(u32 *)((u8 *)ent + 0x24) == neg1) {
+                    if (ent->boneOffset == neg1) {
                         box->unk4E = neg1;
                     } else {
-                        box->unk4E = (s8)(*(u32 *)((u8 *)ent + 0x24) >> 6);
+                        box->unk4E = (s8)(ent->boneOffset >> 6);
                     }
-                    box = (CollisionBox *)((u8 *)box + 0x58);
+                    box++;
                 }
-                ent = (ActorSub140SrcTri *)((u8 *)ent + 0x2C);
+                ent++;
                 i++;
             } while (i < arg0->unk9C);
         }
@@ -1766,7 +1766,6 @@ extern u8 D_807FB600;
 extern u8 D_807FB601;
 extern u8 D_807FB61C;
 
-#define SLOT0 ((ModelSlot *)((0, i * sizeof(ModelSlot)) + (s32)D_807F6000)) // FAKE: comma operand steers addu operand order
 #define SLOT ((ModelSlot *)((u8 *)D_807F6000 + i * sizeof(ModelSlot)))
 u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
     u8 sp77;
@@ -1784,7 +1783,7 @@ u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
     sub->unk6C = 0;
     D_807FB548 = 0;
     for (i = 0; i < D_80747D70; i++) {
-        buf = &SLOT0->unk28;
+        buf = &D_807F6000[i].unk28;
         if (buf->unk15 & 2) {
             if (func_80674ADC(sub->unk0, sub->unk4, sub->unk8, sub->unkC, ((s32 *)buf)[0], ((s32 *)buf)[1], ((s32 *)buf)[2], ((s32 *)buf)[3]) != 0) {
                 if (!(buf->unk15 & 1)) {
@@ -1838,7 +1837,6 @@ u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
     }
     return sp77;
 }
-#undef SLOT0
 #undef SLOT
 
 typedef struct ModelSlotHitInfo {
@@ -3109,7 +3107,7 @@ u8 collisionTestSphereSlots(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s
     s32 temp_ft3;
     u8 var_fp;
     s32 var_s6;
-    void *temp_s0;
+    ModelSlotBufferView *temp_s0;
     ModelSlotHitEnableView *temp_v0;
 
     var_fp = 0;
@@ -3117,9 +3115,9 @@ u8 collisionTestSphereSlots(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s
     var_s6 = 0;
     if (D_80747D70 > 0) {
         do {
-            temp_s0 = (void *)((0, var_s6 * 0x90) + (s32)D_807F6000); // FAKE: (0, off) + (s32)G steers addu operand order
-            if ((temp_s0 = (void *)((u8 *)temp_s0 + 0x28), *(s32 *)((u8 *)temp_s0 + 0x18)) != 0 &&
-                (D_807FB53C != 0xBC || (*(u8 *)((u8 *)D_807F6000 + var_s6 * 0x90 + 0x6C) & 2))) { // FAKE: comma advances temp_s0 before the branch without a val local
+            temp_s0 = (ModelSlotBufferView *)&D_807F6000[var_s6].unk28;
+            if (temp_s0->unk18 != 0 &&
+                (D_807FB53C != 0xBC || (D_807F6000[var_s6].unk48.unk24 & 2))) {
                 temp_ft0 = arg0;
                 temp_ft1 = arg1;
                 temp_ft2 = arg2;
