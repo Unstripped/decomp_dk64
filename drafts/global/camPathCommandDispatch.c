@@ -1,4 +1,10 @@
 // camPathCommandDispatch (src/global/2C910.c): L1169 (leftovers9 follow-up): stage 4 draft (best full 201, count-exact 1169, frame 0xA8, s0+ra). Tested 3 follow-up steps: (1) 0x27 & 0x2F fixes score 213 (count-exact); (2) replacing sv[5] with scalar locals/expressions gives frame 0xA8 with 1 pad word but score 540 (1383 lines) as cfe reloads; (3) FAKE-free entry gives clean pointerization but arg1/arg2 colour a0/a1 scoring 265 (u8 arg0, count-exact). Kept on GLOBAL_ASM as no variant beat 201 count-exact.
+// Astra focused revisit: no count-exact improvement. Baseline full/text=201, reloc=0, shape=129; 1365 scored rows include 196 relocations (1169 instructions).
+// Storage mismatch: sv[0]/sv[1]/sv[3]/sv[4] use sp+0x60/0x64/0x6C/0x70, target sp+0x38/0x3C/0x44/0x48; sp72 uses 0x7A instead of 0x72.
+// uopt -l 5 confirms baseline sv entries are non-vreg isvars (-72/-68/-60/-56), not evidence of the target's original declarations.
+// Tested scalar/address-taken/volatile/union homes, explicit FP temporaries, promoted array stores, pure subword expressions, signed formal casts, entry order/layout, FAKE subsets, disjoint pointer reuse.
+// Removing only the case-0xD FAKE gives full/text=193, shape=121, but adds one instruction (1170): not a better count-exact candidate.
+// Scalar d lifetime sweep: full 511 -> 398, still worse; signed formal casts are code-identical. Keep this body; no source park or claim of impossibility.
 #define M3_OFF(p, T, o) (*(T *)((u8 *)(p) + (o)))
 
 extern u8 D_807457E4[];
