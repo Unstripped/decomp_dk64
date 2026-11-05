@@ -30,17 +30,17 @@ void renderEntryListsReset(void) {
     D_807F5FFC = 0;
 }
 
-s32 func_80630324(u8 arg0, u8 *arg1) {
-    if (arg0 == 2) {
-        if (arg1[0x4E] & 2) {
+s32 func_80630324(u8 renderType, u8 *entryData) {
+    if (renderType == 2) {
+        if (entryData[0x4E] & 2) {
             return 0;
         }
-        if (arg1[0x4E] & 1) {
+        if (entryData[0x4E] & 1) {
             return 1;
         }
         return 0;
     }
-    switch (arg0) {
+    switch (renderType) {
     case 0:
     case 1:
         return 0;
@@ -51,7 +51,7 @@ s32 func_80630324(u8 arg0, u8 *arg1) {
     }
 }
 
-void renderEntryListFree(RenderEntry *);
+void renderEntryListFree(RenderEntry *list);
 
 void func_8063039C(void) {
     renderEntryListFree(D_807F5FF4);
@@ -60,7 +60,7 @@ void func_8063039C(void) {
 
 void *heapAlloc(s32);
 
-RenderEntry *renderEntryAddOrUpdate(RenderEntry *arg0, u8 arg1, s32 arg2, f32 arg3, f32 arg4, f32 arg5, s16 arg6, s16 arg7, u8 arg8, s16 arg9, u8 arg10) {
+RenderEntry *renderEntryAddOrUpdate(RenderEntry *list, u8 type, s32 targetId, f32 posX, f32 posY, f32 posZ, s16 maxDist, s16 priority, u8 autoPurge, s16 chunkIndex, u8 listIndex) {
     s32 found;
     RenderEntry *prev;
     RenderEntry *node;
@@ -68,48 +68,48 @@ RenderEntry *renderEntryAddOrUpdate(RenderEntry *arg0, u8 arg1, s32 arg2, f32 ar
 
     found = 0;
     prev = NULL;
-    if (arg10 == 1) {
-        arg0 = D_807F5FF0;
+    if (listIndex == 1) {
+        list = D_807F5FF0;
     }
-    if (arg10 == 2) {
-        arg0 = D_807F5FF4;
+    if (listIndex == 2) {
+        list = D_807F5FF4;
     }
-    if (arg10 == 3) {
-        arg0 = D_807F5FF8;
+    if (listIndex == 3) {
+        list = D_807F5FF8;
     }
-    if (arg10 == 4) {
-        arg0 = D_807F5FFC;
+    if (listIndex == 4) {
+        list = D_807F5FFC;
     }
-    head = arg0;
-    if (arg0 != NULL) {
+    head = list;
+    if (list != NULL) {
         do {
-            if (arg2 == arg0->unk0) {
+            if (targetId == list->unk0) {
                 found = 1;
             } else {
-                prev = arg0;
-                arg0 = arg0->unk14;
+                prev = list;
+                list = list->unk14;
             }
-        } while (arg0 != NULL && found == 0);
+        } while (list != NULL && found == 0);
     }
     if (found != 0) {
-        arg0->unk4 = arg3;
-        arg0->unk8 = arg4;
-        arg0->unkC = arg5;
-        arg0->unk1C = arg6;
-        if (arg9 != -1) {
-            arg0->unk20 = arg9;
+        list->unk4 = posX;
+        list->unk8 = posY;
+        list->unkC = posZ;
+        list->unk1C = maxDist;
+        if (chunkIndex != -1) {
+            list->unk20 = chunkIndex;
         }
-        arg0->unk23 = 1;
+        list->unk23 = 1;
     } else {
         node = heapAlloc(0x28);
-        node->unk24 = arg1;
-        node->unk0 = arg2;
-        node->unk4 = arg3;
-        node->unk8 = arg4;
-        node->unkC = arg5;
-        node->unk1C = arg6;
-        node->unk1E = arg7;
-        node->unk22 = arg8;
+        node->unk24 = type;
+        node->unk0 = targetId;
+        node->unk4 = posX;
+        node->unk8 = posY;
+        node->unkC = posZ;
+        node->unk1C = maxDist;
+        node->unk1E = priority;
+        node->unk22 = autoPurge;
         node->unk23 = 1;
         node->unk20 = 0;
         node->unk14 = NULL;
@@ -122,16 +122,16 @@ RenderEntry *renderEntryAddOrUpdate(RenderEntry *arg0, u8 arg1, s32 arg2, f32 ar
             node->unk18 = NULL;
         }
     }
-    if (arg10 == 1) {
+    if (listIndex == 1) {
         D_807F5FF0 = head;
     }
-    if (arg10 == 2) {
+    if (listIndex == 2) {
         D_807F5FF4 = head;
     }
-    if (arg10 == 3) {
+    if (listIndex == 3) {
         D_807F5FF8 = head;
     }
-    if (arg10 == 4) {
+    if (listIndex == 4) {
         D_807F5FFC = head;
     }
     return head;
@@ -139,144 +139,144 @@ RenderEntry *renderEntryAddOrUpdate(RenderEntry *arg0, u8 arg1, s32 arg2, f32 ar
 
 void heapFree(void *);
 
-RenderEntry *renderEntryRemove(RenderEntry *arg0, s32 arg1, u8 arg2, u8 *arg3) {
+RenderEntry *renderEntryRemove(RenderEntry *list, s32 targetId, u8 listIndex, u8 *outFound) {
     u8 found;
     RenderEntry *prev;
     RenderEntry *head;
 
     found = 0;
     prev = NULL;
-    if (arg2 == 1) {
-        arg0 = D_807F5FF0;
+    if (listIndex == 1) {
+        list = D_807F5FF0;
     }
-    if (arg2 == 2) {
-        arg0 = D_807F5FF4;
+    if (listIndex == 2) {
+        list = D_807F5FF4;
     }
-    if (arg2 == 3) {
-        arg0 = D_807F5FF8;
+    if (listIndex == 3) {
+        list = D_807F5FF8;
     }
-    if (arg2 == 4) {
-        arg0 = D_807F5FFC;
+    if (listIndex == 4) {
+        list = D_807F5FFC;
     }
-    head = arg0;
-    if (arg0 != NULL) {
+    head = list;
+    if (list != NULL) {
         do {
-            if (arg1 == arg0->unk0) {
+            if (targetId == list->unk0) {
                 found = 1;
             } else {
-                prev = arg0;
-                arg0 = arg0->unk14;
+                prev = list;
+                list = list->unk14;
             }
-        } while (arg0 != NULL && found == 0);
+        } while (list != NULL && found == 0);
     }
     if (found != 0) {
         if (prev != NULL) {
-            prev->unk14 = arg0->unk14;
+            prev->unk14 = list->unk14;
         } else {
-            head = arg0->unk14;
+            head = list->unk14;
         }
-        if (arg0->unk14 != NULL) {
-            arg0->unk14->unk18 = prev;
+        if (list->unk14 != NULL) {
+            list->unk14->unk18 = prev;
         }
-        heapFree(arg0);
+        heapFree(list);
     }
-    *arg3 = found;
-    if (arg2 == 1) {
+    *outFound = found;
+    if (listIndex == 1) {
         D_807F5FF0 = head;
     }
-    if (arg2 == 2) {
+    if (listIndex == 2) {
         D_807F5FF4 = head;
     }
-    if (arg2 == 3) {
+    if (listIndex == 3) {
         D_807F5FF8 = head;
     }
-    if (arg2 == 4) {
+    if (listIndex == 4) {
         D_807F5FFC = head;
     }
     return head;
 }
 
-void renderEntryListFree(RenderEntry *arg0) {
+void renderEntryListFree(RenderEntry *list) {
     RenderEntry *cur;
 
-    if (arg0 != NULL) {
+    if (list != NULL) {
         do {
-            cur = arg0;
-            arg0 = arg0->unk14;
+            cur = list;
+            list = list->unk14;
             heapFree(cur);
-        } while (arg0 != NULL);
+        } while (list != NULL);
     }
 }
 
-RenderEntry *renderEntryListPurgeUntouched(RenderEntry *arg0) {
+RenderEntry *renderEntryListPurgeUntouched(RenderEntry *list) {
     RenderEntry *head;
 
-    head = arg0;
-    if (arg0 != NULL) {
+    head = list;
+    if (list != NULL) {
         do {
-            if (arg0->unk22 == 1 && arg0->unk23 == 0) {
-                if (arg0->unk18 != NULL) {
-                    arg0->unk18->unk14 = arg0->unk14;
+            if (list->unk22 == 1 && list->unk23 == 0) {
+                if (list->unk18 != NULL) {
+                    list->unk18->unk14 = list->unk14;
                 } else {
-                    head = arg0->unk14;
+                    head = list->unk14;
                 }
-                if (arg0->unk14 != NULL) {
-                    arg0->unk14->unk18 = arg0->unk18;
+                if (list->unk14 != NULL) {
+                    list->unk14->unk18 = list->unk18;
                 }
-                heapFree(arg0);
+                heapFree(list);
             }
-            arg0 = arg0->unk14;
-        } while (arg0 != NULL);
+            list = list->unk14;
+        } while (list != NULL);
     }
     return head;
 }
 
-void renderEntryListClearTouched(RenderEntry *arg0) {
-    if (arg0 != NULL) {
+void renderEntryListClearTouched(RenderEntry *list) {
+    if (list != NULL) {
         do {
-            arg0->unk23 = 0;
-            arg0 = arg0->unk14;
-        } while (arg0 != NULL);
+            list->unk23 = 0;
+            list = list->unk14;
+        } while (list != NULL);
     }
 }
 
-void func_806307CC(RenderEntry *arg0, s32 arg1, u8 arg2, u8 arg3, s8 *arg4) {
+void func_806307CC(RenderEntry *list, s32 targetId, u8 listIndex, u8 forceInfiniteDist, s8 *outFound) {
     s8 found;
 
     found = 0;
-    if (arg2 == 1) {
-        arg0 = D_807F5FF0;
+    if (listIndex == 1) {
+        list = D_807F5FF0;
     }
-    if (arg2 == 2) {
-        arg0 = D_807F5FF4;
+    if (listIndex == 2) {
+        list = D_807F5FF4;
     }
-    if (arg2 == 3) {
-        arg0 = D_807F5FF8;
+    if (listIndex == 3) {
+        list = D_807F5FF8;
     }
-    if (arg2 == 4) {
-        arg0 = D_807F5FFC;
+    if (listIndex == 4) {
+        list = D_807F5FFC;
     }
-    if (arg0 != NULL) {
+    if (list != NULL) {
         do {
-            if (arg1 == arg0->unk0) {
+            if (targetId == list->unk0) {
                 found = 1;
             } else {
-                arg0 = arg0->unk14;
+                list = list->unk14;
             }
-        } while (arg0 != NULL && found == 0);
+        } while (list != NULL && found == 0);
     }
     if (found != 0) {
-        if (arg3) {
-            arg0->unk10 = -1.0f;
+        if (forceInfiniteDist) {
+            list->unk10 = -1.0f;
         } else {
-            arg0->unk1C = -2;
+            list->unk1C = -2;
         }
     }
-    *arg4 = found;
+    *outFound = found;
 }
 
 
-RenderEntry *renderEntryListSortByDistance(RenderEntry *arg0, f32 arg1, f32 arg2, f32 arg3, RenderEntry **arg4) {
+RenderEntry *renderEntryListSortByDistance(RenderEntry *list, f32 camX, f32 camY, f32 camZ, RenderEntry **outClosest) {
     RenderEntry *node;
     f32 dx;
     f32 dy;
@@ -290,15 +290,15 @@ RenderEntry *renderEntryListSortByDistance(RenderEntry *arg0, f32 arg1, f32 arg2
     f32 cmpB;
 
     dist = 0.0f;
-    node = arg0;
-    head = arg0;
-    *arg4 = NULL;
-    base = arg0;
+    node = list;
+    head = list;
+    *outClosest = NULL;
+    base = list;
     if (base != NULL) {
         do {
-            dx = node->unk4 - arg1;
-            dy = node->unk8 - arg2;
-            dz = node->unkC - arg3;
+            dx = node->unk4 - camX;
+            dy = node->unk8 - camY;
+            dz = node->unkC - camZ;
             if (node->unk10 != -1.0) {
                 node->unk10 = sqrtf(dx * dx + dy * dy + dz * dz);
             }
@@ -307,7 +307,7 @@ RenderEntry *renderEntryListSortByDistance(RenderEntry *arg0, f32 arg1, f32 arg2
     }
     if (base != NULL) {
         if (base->unk10 < base->unk1C || base->unk1C == -2) {
-            *arg4 = base;
+            *outClosest = base;
             if (base->unk1C == -2) {
                 dist = 9999.0f;
             } else {
@@ -319,7 +319,7 @@ RenderEntry *renderEntryListSortByDistance(RenderEntry *arg0, f32 arg1, f32 arg2
             do {
                 inserted = 0;
                 if ((dist < cur->unk10 && cur->unk10 < cur->unk1C) || cur->unk1C == -2) {
-                    *arg4 = cur;
+                    *outClosest = cur;
                     if (cur->unk1C == -2) {
                         dist = 9999.0f;
                     } else {
@@ -390,57 +390,57 @@ void *effectGridBuildDisplayList(void *, void *, s16);
 
 #define WRITE_GFX_WORDS(pkt, _w0, _w1) { GfxWords *_g = (GfxWords *)(pkt); _g->w0 = (_w0); _g->w1 = (u32)(_w1); }
 
-GfxWords *renderEntryListBuildDisplayList(GfxWords *arg0, RenderEntry *arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5, s16 arg6, u8 arg7) {
+GfxWords *renderEntryListBuildDisplayList(GfxWords *glist, RenderEntry *list, f32 camX, f32 camY, f32 camZ, s32 renderMask, s16 layer, u8 playerIndex) {
     s32 ok;
     u8 type;
     EntryModel *model;
     GfxWords *tmp;
 
     ok = 1;
-    arg0->w0 = 0xE7000000;
-    arg0->w1 = 0;
-    arg0++;
-    if (arg1 != NULL) {
+    glist->w0 = 0xE7000000;
+    glist->w1 = 0;
+    glist++;
+    if (list != NULL) {
         do {
-            type = arg1->unk24;
-            model = (EntryModel *)arg1->unk0;
-            if ((arg5 & 0x20) == 0 && type != 0 && type != 5) {
+            type = list->unk24;
+            model = (EntryModel *)list->unk0;
+            if ((renderMask & 0x20) == 0 && type != 0 && type != 5) {
                 ok = 0;
             }
-            if ((arg5 & 0x20000) == 0 && type == 5) {
+            if ((renderMask & 0x20000) == 0 && type == 5) {
                 ok = 0;
             }
-            if ((arg5 & 0x10000) == 0 && type == 0 && (!(model->unk60 & 0x40000000) || (D_807FBB60 & 2))) {
+            if ((renderMask & 0x10000) == 0 && type == 0 && (!(model->unk60 & 0x40000000) || (D_807FBB60 & 2))) {
                 ok = 0;
             }
             if (ok != 0) {
                 switch (type) {
                 case 0:
-                    tmp = renderActorEntryBuildDisplayList(D_8076A048, model, arg0, arg7);
+                    tmp = renderActorEntryBuildDisplayList(D_8076A048, model, glist, playerIndex);
                     tmp->w0 = 0xDA380003;
                     tmp->w1 = (u32)D_2000180;
-                    arg0 = tmp + 1;
+                    glist = tmp + 1;
                     D_807F6009 = 0;
                     break;
                 case 1:
-                    arg0 = renderModelAnimatedSlot(model, arg0, arg1->unk4, arg1->unk8, arg1->unkC, 1, arg6, arg7);
+                    glist = renderModelAnimatedSlot(model, glist, list->unk4, list->unk8, list->unkC, 1, layer, playerIndex);
                     D_807F6009 = 1;
                     break;
                 case 2:
-                    arg0 = renderModelQuadGfx(model, arg0, arg2, arg3, arg4, 1, arg6, arg7);
+                    glist = renderModelQuadGfx(model, glist, camX, camY, camZ, 1, layer, playerIndex);
                     break;
                 case 5:
-                    arg0 = effectGridBuildDisplayList(model, arg0, arg6);
+                    glist = effectGridBuildDisplayList(model, glist, layer);
                     break;
                 }
             } else {
                 ok = 1;
             }
-            arg1 = arg1->unk14;
-        } while (arg1 != NULL);
+            list = list->unk14;
+        } while (list != NULL);
     }
-    WRITE_GFX_WORDS(arg0++, 0xE7000000, 0);
-    return arg0;
+    WRITE_GFX_WORDS(glist++, 0xE7000000, 0);
+    return glist;
 }
 
 typedef struct ModelInfo {
@@ -514,31 +514,31 @@ void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
 f32 renderScaleDistanceByFov(f32);
 void *renderSetSegment6AndFog(void *, s16, u8);
 
-#define RENDER_ACT ((RenderActor *)arg1)
+#define RENDER_ACT ((RenderActor *)actor)
 #define CUR_PLAYER_VIEW ((PlayerView *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0))
 
-void *renderActorEntryBuildDisplayList(s32 arg0, void *arg1, GfxWords *arg2, u8 arg3) {
+void *renderActorEntryBuildDisplayList(s32 context, void *actor, GfxWords *glist, u8 playerIndex) {
     ActorCtl *ctl;
     f32 dz;
     f32 dy;
     s32 flag;
     f32 dx;
-    u8 spCB;
-    u8 spCA;
-    u8 spC9;
+    u8 primR;
+    u8 primG;
+    u8 primB;
     f64 x;
     f32 dxb;
-    f32 spB8;
+    f32 alphaMult;
     f64 d;
 
-    spB8 = 1.0f;
+    alphaMult = 1.0f;
     if (!(RENDER_ACT->unk60 & 4)) {
         flag = 0;
         if (gPlayerCount >= 2 && (RENDER_ACT->unk5C & 1) && (ctl = RENDER_ACT->unk174, gCurrentPlayerIndex != ctl->unk1A4)) {
             flag = 1;
         }
         if (flag == 0) {
-            return arg2;
+            return glist;
         }
     }
     if (RENDER_ACT->unk58 != 0x1F && RENDER_ACT->unk58 != 0x27 && RENDER_ACT->unk58 != 0xAE && !(RENDER_ACT->unk60 & 0x400)) {
@@ -549,57 +549,57 @@ void *renderActorEntryBuildDisplayList(s32 arg0, void *arg1, GfxWords *arg2, u8 
         dy = dy * dy;
         dz = dz * dz;
         if (sqrtf(dx + dy + dz) > renderScaleDistanceByFov(RENDER_ACT->unk12A)) {
-            return arg2;
+            return glist;
         }
         if (mapPointOutsideClipBounds(RENDER_ACT->unk7C, RENDER_ACT->unk80, RENDER_ACT->unk84, RENDER_ACT->unk130, RENDER_ACT->unk131)) {
-            return arg2;
+            return glist;
         }
     }
     RENDER_ACT->unk60 |= 0x100;
     if (!(RENDER_ACT->unk60 & 0x200)) {
-        func_80614A64(arg1);
+        func_80614A64(actor);
     }
-    gDPPipeSync((Gfx *)arg2++);
-    gSPSetGeometryMode((Gfx *)arg2++, G_ZBUFFER | G_SHADING_SMOOTH);
-    gSPClearGeometryMode((Gfx *)arg2++, G_FOG | G_CULL_BOTH);
+    gDPPipeSync((Gfx *)glist++);
+    gSPSetGeometryMode((Gfx *)glist++, G_ZBUFFER | G_SHADING_SMOOTH);
+    gSPClearGeometryMode((Gfx *)glist++, G_FOG | G_CULL_BOTH);
     if (RENDER_ACT->unk58 == 0x135) {
-        gSPClearGeometryMode((Gfx *)arg2++, G_ZBUFFER);
+        gSPClearGeometryMode((Gfx *)glist++, G_ZBUFFER);
     }
-    gSPSegment((Gfx *)arg2++, 15, osVirtualToPhysical(RENDER_ACT->unk148[D_807444FC]));
+    gSPSegment((Gfx *)glist++, 15, osVirtualToPhysical(RENDER_ACT->unk148[D_807444FC]));
     if (RENDER_ACT->unk60 & 0x1000) {
-        arg2 = actorBuildLightDisplayList(arg2, arg1, gCurrentPlayerIndex);
-        gSPSetGeometryMode((Gfx *)arg2++, G_LIGHTING);
-        gDPSetPrimColor((Gfx *)arg2++, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        glist = actorBuildLightDisplayList(glist, actor, gCurrentPlayerIndex);
+        gSPSetGeometryMode((Gfx *)glist++, G_LIGHTING);
+        gDPSetPrimColor((Gfx *)glist++, 0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
     } else {
         u8 node;
         s32 padE[1];
-        f32 sp88;
-        f32 sp84;
-        f32 sp80;
+        f32 lightX;
+        f32 lightY;
+        f32 lightZ;
         s32 padF[1];
-        gSPClearGeometryMode((Gfx *)arg2++, G_LIGHTING);
+        gSPClearGeometryMode((Gfx *)glist++, G_LIGHTING);
         if (RENDER_ACT->unk60 & 0x800000) {
-            spCB = RENDER_ACT->unk16A;
-            spCA = RENDER_ACT->unk16B;
-            spC9 = RENDER_ACT->unk16C;
+            primR = RENDER_ACT->unk16A;
+            primG = RENDER_ACT->unk16B;
+            primB = RENDER_ACT->unk16C;
         } else {
             node = RENDER_ACT->unkCD;
             if (node) {
-                actorGetNodePos(arg1, node, &sp88, &sp84, &sp80);
+                actorGetNodePos(actor, node, &lightX, &lightY, &lightZ);
             } else {
-                sp88 = RENDER_ACT->unk7C;
-                sp84 = RENDER_ACT->unk80;
-                sp80 = RENDER_ACT->unk84;
+                lightX = RENDER_ACT->unk7C;
+                lightY = RENDER_ACT->unk80;
+                lightZ = RENDER_ACT->unk84;
             }
-            lightSampleColorAtPosition(sp88, sp84, sp80, RENDER_ACT->unkCE, &spCB, &spCA, &spC9, RENDER_ACT->unk12C);
+            lightSampleColorAtPosition(lightX, lightY, lightZ, RENDER_ACT->unkCE, &primR, &primG, &primB, RENDER_ACT->unk12C);
             if (!(RENDER_ACT->unk64 & 1)) {
                 dx = RENDER_ACT->unk16D / 15.0f;
-                spCB = spCB * dx;
-                spCA = spCA * dx;
-                spC9 = spC9 * dx;
+                primR = primR * dx;
+                primG = primG * dx;
+                primB = primB * dx;
             }
         }
-        gDPSetPrimColor((Gfx *)arg2++, 0, 0xFF, spCB, spCA, spC9, 0xFF);
+        gDPSetPrimColor((Gfx *)glist++, 0, 0xFF, primR, primG, primB, 0xFF);
     }
     if (RENDER_ACT->unk60 & 0x8000) {
         renderCalcPlayerDistanceAlpha(RENDER_ACT->unk7C, RENDER_ACT->unk80, RENDER_ACT->unk84, RENDER_ACT->unk12A, -1, &RENDER_ACT->unk128);
@@ -616,16 +616,16 @@ void *renderActorEntryBuildDisplayList(s32 arg0, void *arg1, GfxWords *arg2, u8 
                 dz = 0.01f;
             }
             if (dxb > 0.5f) {} // FAKE: dead FP compare extends dxb's range (f12 colour)
-            spB8 = ((((f64)flag / (dz / 0.15) / 400.0) > 0.3 ? ((f64)flag / (dz / 0.15) / 400.0) - 0.3 : 0.0) < 1.0) ? (((f64)flag / (dz / 0.15) / 400.0) > 0.3 ? ((f64)flag / (dz / 0.15) / 400.0) - 0.3 : 0.0) : 1.0;
+            alphaMult = ((((f64)flag / (dz / 0.15) / 400.0) > 0.3 ? ((f64)flag / (dz / 0.15) / 400.0) - 0.3 : 0.0) < 1.0) ? (((f64)flag / (dz / 0.15) / 400.0) > 0.3 ? ((f64)flag / (dz / 0.15) / 400.0) - 0.3 : 0.0) : 1.0;
         }
     }
-    if (RENDER_ACT->unk128 * spB8 != 0.0f) {
-        arg2 = renderActorDisplayList(renderSetSegment6AndFog(arg2, RENDER_ACT->unk128 * spB8, 1), arg1);
+    if (RENDER_ACT->unk128 * alphaMult != 0.0f) {
+        glist = renderActorDisplayList(renderSetSegment6AndFog(glist, RENDER_ACT->unk128 * alphaMult, 1), actor);
     }
-    gDPPipeSync((Gfx *)arg2++);
-    gDPSetTextureLUT((Gfx *)arg2++, G_TT_NONE);
-    gDPPipeSync((Gfx *)arg2++);
-    return arg2;
+    gDPPipeSync((Gfx *)glist++);
+    gDPSetTextureLUT((Gfx *)glist++, G_TT_NONE);
+    gDPPipeSync((Gfx *)glist++);
+    return glist;
 }
 
 typedef struct ModelScale {
@@ -658,7 +658,7 @@ typedef struct MatrixActor {
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
-void actorBuildModelMatrix(MatrixActor *arg0, f32 *arg1) {
+void actorBuildModelMatrix(MatrixActor *actor, f32 *dst) {
     f32 sinA;
     f32 cosA;
     f32 sinB;
@@ -670,35 +670,35 @@ void actorBuildModelMatrix(MatrixActor *arg0, f32 *arg1) {
     f32 pad0;
     f32 t20;
 
-    sinA = func_80612790(arg0->unkE4);
-    cosA = func_80612794(arg0->unkE4);
-    sinB = func_80612790(arg0->unkE8);
-    cosB = func_80612794(arg0->unkE8);
-    sinC = func_80612790(arg0->unkE6);
-    cosC = func_80612794(arg0->unkE6);
-    u = arg0->unk4->unk34;
+    sinA = func_80612790(actor->unkE4);
+    cosA = func_80612794(actor->unkE4);
+    sinB = func_80612790(actor->unkE8);
+    cosB = func_80612794(actor->unkE8);
+    sinC = func_80612790(actor->unkE6);
+    cosC = func_80612794(actor->unkE6);
+    u = actor->unk4->unk34;
     us = u * sinA;
     u = u * cosA;
-    *arg1++ = us * sinC + u * (cosB * cosC);
-    *arg1++ = u * sinB;
-    *arg1++ = (f32)u * (cosB * sinC) - us * cosC;
-    *arg1++ = 0.0f;
-    u = arg0->unk4->unk38;
+    *dst++ = us * sinC + u * (cosB * cosC);
+    *dst++ = u * sinB;
+    *dst++ = (f32)u * (cosB * sinC) - us * cosC;
+    *dst++ = 0.0f;
+    u = actor->unk4->unk38;
     us = u * sinA;
     u = u * cosA;
-    *arg1++ = (f32)us * (cosB * cosC) - u * sinC;
-    *arg1++ = us * sinB;
-    *arg1++ = u * cosC + us * (cosB * sinC);
-    *arg1++ = 0.0f;
-    u = arg0->unk4->unk3C;
-    *arg1++ = u * sinB * cosC;
-    *arg1++ = -u * cosB;
-    *arg1++ = u * sinB * sinC;
-    *arg1++ = 0.0f;
-    *arg1++ = arg0->unk7C;
-    *arg1++ = arg0->unk80;
-    *arg1++ = arg0->unk84;
-    *arg1 = 1.0f;
+    *dst++ = (f32)us * (cosB * cosC) - u * sinC;
+    *dst++ = us * sinB;
+    *dst++ = u * cosC + us * (cosB * sinC);
+    *dst++ = 0.0f;
+    u = actor->unk4->unk3C;
+    *dst++ = u * sinB * cosC;
+    *dst++ = -u * cosB;
+    *dst++ = u * sinB * sinC;
+    *dst++ = 0.0f;
+    *dst++ = actor->unk7C;
+    *dst++ = actor->unk80;
+    *dst++ = actor->unk84;
+    *dst = 1.0f;
 }
 
 
@@ -713,7 +713,7 @@ void actorBuildModelMatrix(MatrixActor *arg0, f32 *arg1) {
 
 
 
-void actorBuildModelMatrixFromAngles(MatrixActor *arg0, f32 *arg1, f32 arg2, f32 arg3, f32 arg4) {
+void actorBuildModelMatrixFromAngles(MatrixActor *actor, f32 *dst, f32 angleA, f32 angleB, f32 angleC) {
     f32 sinA;
     f32 cosA;
     f32 sinB;
@@ -725,73 +725,73 @@ void actorBuildModelMatrixFromAngles(MatrixActor *arg0, f32 *arg1, f32 arg2, f32
     f32 pad0;
     f32 t20;
 
-    sinA = func_80612790((s16)(s32)arg2);
-    cosA = func_80612794((s16)(s32)arg2);
-    sinB = func_80612790((s16)(s32)arg3);
-    cosB = func_80612794((s16)(s32)arg3);
-    sinC = func_80612790((s16)(s32)arg4);
-    cosC = func_80612794((s16)(s32)arg4);
-    u = arg0->unk4->unk34;
+    sinA = func_80612790((s16)(s32)angleA);
+    cosA = func_80612794((s16)(s32)angleA);
+    sinB = func_80612790((s16)(s32)angleB);
+    cosB = func_80612794((s16)(s32)angleB);
+    sinC = func_80612790((s16)(s32)angleC);
+    cosC = func_80612794((s16)(s32)angleC);
+    u = actor->unk4->unk34;
     us = u * sinA;
     u = u * cosA;
-    *arg1++ = us * sinC + u * (cosB * cosC);
-    *arg1++ = u * sinB;
-    *arg1++ = (f32)u * (cosB * sinC) - us * cosC;
-    *arg1++ = 0.0f;
-    u = arg0->unk4->unk38;
+    *dst++ = us * sinC + u * (cosB * cosC);
+    *dst++ = u * sinB;
+    *dst++ = (f32)u * (cosB * sinC) - us * cosC;
+    *dst++ = 0.0f;
+    u = actor->unk4->unk38;
     us = u * sinA;
     u = u * cosA;
-    *arg1++ = (f32)us * (cosB * cosC) - u * sinC;
-    *arg1++ = us * sinB;
-    *arg1++ = u * cosC + us * (cosB * sinC);
-    *arg1++ = 0.0f;
-    u = arg0->unk4->unk3C;
-    *arg1++ = u * sinB * cosC;
-    *arg1++ = -u * cosB;
-    *arg1++ = u * sinB * sinC;
-    *arg1++ = 0.0f;
-    *arg1++ = arg0->unk7C;
-    *arg1++ = arg0->unk80;
-    *arg1++ = arg0->unk84;
-    *arg1 = 1.0f;
+    *dst++ = (f32)us * (cosB * cosC) - u * sinC;
+    *dst++ = us * sinB;
+    *dst++ = u * cosC + us * (cosB * sinC);
+    *dst++ = 0.0f;
+    u = actor->unk4->unk3C;
+    *dst++ = u * sinB * cosC;
+    *dst++ = -u * cosB;
+    *dst++ = u * sinB * sinC;
+    *dst++ = 0.0f;
+    *dst++ = actor->unk7C;
+    *dst++ = actor->unk80;
+    *dst++ = actor->unk84;
+    *dst = 1.0f;
 }
 
-void actorBuildModelMatrix(MatrixActor *, f32 *);
-void actorBuildModelMatrixFromAngles(MatrixActor *, f32 *, f32, f32, f32);
+void actorBuildModelMatrix(MatrixActor *actor, f32 *dst);
+void actorBuildModelMatrixFromAngles(MatrixActor *actor, f32 *dst, f32 angleA, f32 angleB, f32 angleC);
 
-void actorUpdateModelMatrix(MatrixActor *arg0, u8 arg1) {
-    f32 sp78[4][4];
-    f32 sp38[4][4];
+void actorUpdateModelMatrix(MatrixActor *actor, u8 concat) {
+    f32 tempMf[4][4];
+    f32 padMf[4][4];
     s16 angle;
-    s16 sp34;
-    s16 sp32;
-    s16 sp30;
+    s16 angDelta;
+    s16 calcAngleB;
+    s16 calcAngleC;
     s16 x;
     s16 y;
 
-    if (arg0->unk60 & 1) {
-        angle = (arg0->unkE6 - arg0->unkDC) & 0xFFF;
+    if (actor->unk60 & 1) {
+        angle = (actor->unkE6 - actor->unkDC) & 0xFFF;
         if (angle >= 0x801) {
             angle -= 0x1000;
         }
-        sp34 = (0x400 - arg0->unkDE) & 0xFFF;
-        sp32 = (s32)(func_80612790(angle) * (f32)sp34);
-        sp32 = (sp32 + arg0->unkE8) & 0xFFF;
-        x = (s32)(func_80612794(angle) * (f32)sp34);
-        x = (x + arg0->unkE4) & 0xFFF;
-        sp30 = arg0->unkE6;
-        if (arg1 != 0) {
-            actorBuildModelMatrixFromAngles(arg0, (f32 *)sp78, x, sp32, sp30);
-            guMtxCatF(arg0->unkC, sp78, arg0->unkC);
+        angDelta = (0x400 - actor->unkDE) & 0xFFF;
+        calcAngleB = (s32)(func_80612790(angle) * (f32)angDelta);
+        calcAngleB = (calcAngleB + actor->unkE8) & 0xFFF;
+        x = (s32)(func_80612794(angle) * (f32)angDelta);
+        x = (x + actor->unkE4) & 0xFFF;
+        calcAngleC = actor->unkE6;
+        if (concat != 0) {
+            actorBuildModelMatrixFromAngles(actor, (f32 *)tempMf, x, calcAngleB, calcAngleC);
+            guMtxCatF(actor->unkC, tempMf, actor->unkC);
             return;
         }
-        actorBuildModelMatrixFromAngles(arg0, (f32 *)arg0->unkC, x, sp32, sp30);
+        actorBuildModelMatrixFromAngles(actor, (f32 *)actor->unkC, x, calcAngleB, calcAngleC);
         return;
     }
-    if (arg1 != 0) {
-        actorBuildModelMatrix(arg0, (f32 *)sp78);
-        guMtxCatF(arg0->unkC, sp78, arg0->unkC);
+    if (concat != 0) {
+        actorBuildModelMatrix(actor, (f32 *)tempMf);
+        guMtxCatF(actor->unkC, tempMf, actor->unkC);
         return;
     }
-    actorBuildModelMatrix(arg0, (f32 *)arg0->unkC);
+    actorBuildModelMatrix(actor, (f32 *)actor->unkC);
 }
