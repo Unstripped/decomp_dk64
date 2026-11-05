@@ -1,4 +1,4 @@
-// modelSlotResolveAssetTextures (src/global/36880.c): stage 4 park, count-exact 121, frame-exact 72, deadsweep full 36, shape 10. Closest diff: flags coloured v1 (target a3) and arg2 coloured a3 (target keeps memory-resident at 83(sp)). Levers tried: volatile u8 arg2 eliminated andi/sb and matched target lbu t5,83(sp) and lbu a3,83(sp) directly (shape 6), but t-regs shifted in else branch (full 42); tested local flags in decl slot 2 (took v0); verified node reordering between sp24/sp30; early returns give identical branch topology.
+// modelSlotResolveAssetTextures (src/global/36880.c): SlotTex stage 4: full 33 shape 5 reloc 0 over 113 instructions (121 normalized rows), frame 72 and s0/s1 preserved; prior park full36 shape10. Coordinated address-taken arg2 + pad length-difference reuse + direct obj=p improves and removes obj|0 fake. Exact residual: initial obj load/store uses s1 rather than v0, flags v0 rather than a3, missing early move s1,v0 balanced by first-call move a0,v1, first two DL-call arithmetic registers/order/ring through third call; remainder exact. uopt5 on baseline and best; as1probe keep/scan1413 mutations (no full improvement), deadsweep301 none; structural/type/signature/reuse/arity grids; anneal9272 variants found33, extra deadtests pruned. Permuter -j2 --seconds600 completed50517 iterations,1206 errors; best474 invalid uninitialized p, seven safe hints failed to improve when reconciled with exact scorer. Three/four-arg unused loader/clear params and incoming a2/a3 forwarding (width/copy barriers) did not improve: can put flags in a3 but adds lbu a2 in type2 tail; no signature changes retained. Resolver callers modelSlotInit and renderModelAnimatedSlot explicitly set a1/a2, neither sets a3. All resolver/loader/clear declarations and C callers are in36880.c; no other file updates. Final copy .scratch/SlotTex/36880.c parked NON_MATCHING: plain fdiff prints OK; --non-matching compiles exit0. C remains unmatched.
 s32 dlResolveNodeTextures(DisplayListCmd *, DisplayListCmd *, ModelSegmentNode *, u8);
 
 s32 modelSlotResolveAssetTextures(arg0, arg1, arg2)
@@ -16,10 +16,11 @@ u8 arg2;
     u8 res;
     s32 sp24;
     s32 sp20;
+    if (&arg2) {} // FAKE: preserves the argument's memory home
     p = (ModelSlotObjHeader *)arg0->unk24;
     seg = ((ModelSlotSegOwner *)arg0)->unk20;
     seg2 = seg;
-    obj = (ModelSlotObjHeader *)((u32)p | 0); // FAKE: blocks copy propagation
+    obj = (ModelSlotObjHeader *)p;
     p->unk8 = gFrameCounter;
     if (arg0->unk20 && arg0->unk20) {} // FAKE: dead test steers uopt colouring
     if (!(arg0->unk8C & 0x20)) {
@@ -28,7 +29,8 @@ u8 arg2;
             obj->unk3C += 1;
             if (obj->unk1C == 1) {
                 node = (ModelSegmentNode *)((ModelSlotSegOwner *)arg0)->unk20->unkB8;
-                sp24 = ((seg->unkA8 - seg->unkA0) >> 3) * 8;
+                pad = seg->unkA8 - seg->unkA0; // FAKE: reuses pad for the length difference (steers uopt colouring)
+                sp24 = ((u32)pad >> 3) * 8;
                 sp30 = (seg->unkB0 - seg->unkA8) >> 3;
                 pad = seg->unkA0; // FAKE: reuses the pad word as the CSE'd pointer (steers uopt colouring)
                 res = dlResolveNodeTextures((DisplayListCmd *)pad, (DisplayListCmd *)(pad + sp24), node, arg2);
