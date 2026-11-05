@@ -6,30 +6,30 @@ typedef struct Mat4F {
 } Mat4F;
 
 void mtxIdentityF();
-void mtxLookDirF(Mat4F *, Mat4F *, f32, f32, f32);
-void mtxLookDirPosF(Mat4F *, Mat4F *, f32, f32, f32, f32, f32, f32);
+void mtxLookDirF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz);
+void mtxLookDirPosF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz, f32 px, f32 py, f32 pz);
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070C200.s")
 
-void mtxScaleTranslateF(Mat4F *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6) {
-    mtxIdentityF(arg0);
-    arg0->m[0][0] = arg1;
-    arg0->m[1][1] = arg2;
-    arg0->m[2][2] = arg3;
-    arg0->m[3][3] = 1.0f;
-    arg0->m[3][0] = arg4;
-    arg0->m[3][1] = arg5;
-    arg0->m[3][2] = arg6;
+void mtxScaleTranslateF(Mat4F *mf, f32 sx, f32 sy, f32 sz, f32 x, f32 y, f32 z) {
+    mtxIdentityF(mf);
+    mf->m[0][0] = sx;
+    mf->m[1][1] = sy;
+    mf->m[2][2] = sz;
+    mf->m[3][3] = 1.0f;
+    mf->m[3][0] = x;
+    mf->m[3][1] = y;
+    mf->m[3][2] = z;
 }
 
-void mtxScaleTranslateL(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6) {
-    Mat4F sp28;
+void mtxScaleTranslateL(Mtx *m, f32 sx, f32 sy, f32 sz, f32 x, f32 y, f32 z) {
+    Mat4F mf;
 
-    mtxScaleTranslateF(&sp28, arg1, arg2, arg3, arg4, arg5, arg6);
-    guMtxF2L(sp28.m, arg0);
+    mtxScaleTranslateF(&mf, sx, sy, sz, x, y, z);
+    guMtxF2L(mf.m, m);
 }
 
-void mtxMulAffineAliasSafeF(Mat4F *arg0, Mat4F *arg1, Mat4F *arg2) {
+void mtxMulAffineAliasSafeF(Mat4F *a, Mat4F *b, Mat4F *dst) {
     f32 t00;
     f32 t01;
     f32 t02;
@@ -42,212 +42,212 @@ void mtxMulAffineAliasSafeF(Mat4F *arg0, Mat4F *arg1, Mat4F *arg2) {
     f32 t30;
     f32 t31;
     f32 t32;
-    t00 = (arg0->m[0][0] * arg1->m[0][0]) + (arg0->m[0][1] * arg1->m[1][0]) + (arg0->m[0][2] * arg1->m[2][0]);
-    t01 = (arg0->m[0][0] * arg1->m[0][1]) + (arg0->m[0][1] * arg1->m[1][1]) + (arg0->m[0][2] * arg1->m[2][1]);
-    t02 = (arg0->m[0][0] * arg1->m[0][2]) + (arg0->m[0][1] * arg1->m[1][2]) + (arg0->m[0][2] * arg1->m[2][2]);
-    t10 = (arg0->m[1][0] * arg1->m[0][0]) + (arg0->m[1][1] * arg1->m[1][0]) + (arg0->m[1][2] * arg1->m[2][0]);
-    t11 = (arg0->m[1][0] * arg1->m[0][1]) + (arg0->m[1][1] * arg1->m[1][1]) + (arg0->m[1][2] * arg1->m[2][1]);
-    t12 = (arg0->m[1][0] * arg1->m[0][2]) + (arg0->m[1][1] * arg1->m[1][2]) + (arg0->m[1][2] * arg1->m[2][2]);
-    t20 = (arg0->m[2][0] * arg1->m[0][0]) + (arg0->m[2][1] * arg1->m[1][0]) + (arg0->m[2][2] * arg1->m[2][0]);
-    t21 = (arg0->m[2][0] * arg1->m[0][1]) + (arg0->m[2][1] * arg1->m[1][1]) + (arg0->m[2][2] * arg1->m[2][1]);
-    t22 = (arg0->m[2][0] * arg1->m[0][2]) + (arg0->m[2][1] * arg1->m[1][2]) + (arg0->m[2][2] * arg1->m[2][2]);
-    t30 = (arg0->m[3][0] * arg1->m[0][0]) + (arg0->m[3][1] * arg1->m[1][0]) + (arg0->m[3][2] * arg1->m[2][0]) + arg1->m[3][0];
-    t31 = (arg0->m[3][0] * arg1->m[0][1]) + (arg0->m[3][1] * arg1->m[1][1]) + (arg0->m[3][2] * arg1->m[2][1]) + arg1->m[3][1];
-    t32 = (arg0->m[3][0] * arg1->m[0][2]) + (arg0->m[3][1] * arg1->m[1][2]) + (arg0->m[3][2] * arg1->m[2][2]) + arg1->m[3][2];
-    arg2->m[0][0] = t00;
-    arg2->m[1][0] = t10;
-    arg2->m[2][0] = t20;
-    arg2->m[3][0] = t30;
-    arg2->m[0][1] = t01;
-    arg2->m[1][1] = t11;
-    arg2->m[2][1] = t21;
-    arg2->m[3][1] = t31;
-    arg2->m[0][2] = t02;
-    arg2->m[1][2] = t12;
-    arg2->m[2][2] = t22;
-    arg2->m[3][2] = t32;
-    arg2->m[0][3] = 0.0f;
-    arg2->m[1][3] = 0.0f;
-    arg2->m[2][3] = 0.0f;
-    arg2->m[3][3] = 1.0f;
+    t00 = (a->m[0][0] * b->m[0][0]) + (a->m[0][1] * b->m[1][0]) + (a->m[0][2] * b->m[2][0]);
+    t01 = (a->m[0][0] * b->m[0][1]) + (a->m[0][1] * b->m[1][1]) + (a->m[0][2] * b->m[2][1]);
+    t02 = (a->m[0][0] * b->m[0][2]) + (a->m[0][1] * b->m[1][2]) + (a->m[0][2] * b->m[2][2]);
+    t10 = (a->m[1][0] * b->m[0][0]) + (a->m[1][1] * b->m[1][0]) + (a->m[1][2] * b->m[2][0]);
+    t11 = (a->m[1][0] * b->m[0][1]) + (a->m[1][1] * b->m[1][1]) + (a->m[1][2] * b->m[2][1]);
+    t12 = (a->m[1][0] * b->m[0][2]) + (a->m[1][1] * b->m[1][2]) + (a->m[1][2] * b->m[2][2]);
+    t20 = (a->m[2][0] * b->m[0][0]) + (a->m[2][1] * b->m[1][0]) + (a->m[2][2] * b->m[2][0]);
+    t21 = (a->m[2][0] * b->m[0][1]) + (a->m[2][1] * b->m[1][1]) + (a->m[2][2] * b->m[2][1]);
+    t22 = (a->m[2][0] * b->m[0][2]) + (a->m[2][1] * b->m[1][2]) + (a->m[2][2] * b->m[2][2]);
+    t30 = (a->m[3][0] * b->m[0][0]) + (a->m[3][1] * b->m[1][0]) + (a->m[3][2] * b->m[2][0]) + b->m[3][0];
+    t31 = (a->m[3][0] * b->m[0][1]) + (a->m[3][1] * b->m[1][1]) + (a->m[3][2] * b->m[2][1]) + b->m[3][1];
+    t32 = (a->m[3][0] * b->m[0][2]) + (a->m[3][1] * b->m[1][2]) + (a->m[3][2] * b->m[2][2]) + b->m[3][2];
+    dst->m[0][0] = t00;
+    dst->m[1][0] = t10;
+    dst->m[2][0] = t20;
+    dst->m[3][0] = t30;
+    dst->m[0][1] = t01;
+    dst->m[1][1] = t11;
+    dst->m[2][1] = t21;
+    dst->m[3][1] = t31;
+    dst->m[0][2] = t02;
+    dst->m[1][2] = t12;
+    dst->m[2][2] = t22;
+    dst->m[3][2] = t32;
+    dst->m[0][3] = 0.0f;
+    dst->m[1][3] = 0.0f;
+    dst->m[2][3] = 0.0f;
+    dst->m[3][3] = 1.0f;
 }
 
-void mtxMulAffineF(Mat4F *arg0, Mat4F *arg1, Mat4F *arg2) {
-    arg2->m[0][0] = (arg0->m[0][0] * arg1->m[0][0]) + (arg0->m[0][1] * arg1->m[1][0]) + (arg0->m[0][2] * arg1->m[2][0]);
-    arg2->m[0][1] = (arg0->m[0][0] * arg1->m[0][1]) + (arg0->m[0][1] * arg1->m[1][1]) + (arg0->m[0][2] * arg1->m[2][1]);
-    arg2->m[0][2] = (arg0->m[0][0] * arg1->m[0][2]) + (arg0->m[0][1] * arg1->m[1][2]) + (arg0->m[0][2] * arg1->m[2][2]);
-    arg2->m[1][0] = (arg0->m[1][0] * arg1->m[0][0]) + (arg0->m[1][1] * arg1->m[1][0]) + (arg0->m[1][2] * arg1->m[2][0]);
-    arg2->m[1][1] = (arg0->m[1][0] * arg1->m[0][1]) + (arg0->m[1][1] * arg1->m[1][1]) + (arg0->m[1][2] * arg1->m[2][1]);
-    arg2->m[1][2] = (arg0->m[1][0] * arg1->m[0][2]) + (arg0->m[1][1] * arg1->m[1][2]) + (arg0->m[1][2] * arg1->m[2][2]);
-    arg2->m[2][0] = (arg0->m[2][0] * arg1->m[0][0]) + (arg0->m[2][1] * arg1->m[1][0]) + (arg0->m[2][2] * arg1->m[2][0]);
-    arg2->m[2][1] = (arg0->m[2][0] * arg1->m[0][1]) + (arg0->m[2][1] * arg1->m[1][1]) + (arg0->m[2][2] * arg1->m[2][1]);
-    arg2->m[2][2] = (arg0->m[2][0] * arg1->m[0][2]) + (arg0->m[2][1] * arg1->m[1][2]) + (arg0->m[2][2] * arg1->m[2][2]);
-    arg2->m[3][0] = (arg0->m[3][0] * arg1->m[0][0]) + (arg0->m[3][1] * arg1->m[1][0]) + (arg0->m[3][2] * arg1->m[2][0]) + arg1->m[3][0];
-    arg2->m[3][1] = (arg0->m[3][0] * arg1->m[0][1]) + (arg0->m[3][1] * arg1->m[1][1]) + (arg0->m[3][2] * arg1->m[2][1]) + arg1->m[3][1];
-    arg2->m[3][2] = (arg0->m[3][0] * arg1->m[0][2]) + (arg0->m[3][1] * arg1->m[1][2]) + (arg0->m[3][2] * arg1->m[2][2]) + arg1->m[3][2];
-    arg2->m[0][3] = 0.0f;
-    arg2->m[1][3] = 0.0f;
-    arg2->m[2][3] = 0.0f;
-    arg2->m[3][3] = 1.0f;
+void mtxMulAffineF(Mat4F *a, Mat4F *b, Mat4F *dst) {
+    dst->m[0][0] = (a->m[0][0] * b->m[0][0]) + (a->m[0][1] * b->m[1][0]) + (a->m[0][2] * b->m[2][0]);
+    dst->m[0][1] = (a->m[0][0] * b->m[0][1]) + (a->m[0][1] * b->m[1][1]) + (a->m[0][2] * b->m[2][1]);
+    dst->m[0][2] = (a->m[0][0] * b->m[0][2]) + (a->m[0][1] * b->m[1][2]) + (a->m[0][2] * b->m[2][2]);
+    dst->m[1][0] = (a->m[1][0] * b->m[0][0]) + (a->m[1][1] * b->m[1][0]) + (a->m[1][2] * b->m[2][0]);
+    dst->m[1][1] = (a->m[1][0] * b->m[0][1]) + (a->m[1][1] * b->m[1][1]) + (a->m[1][2] * b->m[2][1]);
+    dst->m[1][2] = (a->m[1][0] * b->m[0][2]) + (a->m[1][1] * b->m[1][2]) + (a->m[1][2] * b->m[2][2]);
+    dst->m[2][0] = (a->m[2][0] * b->m[0][0]) + (a->m[2][1] * b->m[1][0]) + (a->m[2][2] * b->m[2][0]);
+    dst->m[2][1] = (a->m[2][0] * b->m[0][1]) + (a->m[2][1] * b->m[1][1]) + (a->m[2][2] * b->m[2][1]);
+    dst->m[2][2] = (a->m[2][0] * b->m[0][2]) + (a->m[2][1] * b->m[1][2]) + (a->m[2][2] * b->m[2][2]);
+    dst->m[3][0] = (a->m[3][0] * b->m[0][0]) + (a->m[3][1] * b->m[1][0]) + (a->m[3][2] * b->m[2][0]) + b->m[3][0];
+    dst->m[3][1] = (a->m[3][0] * b->m[0][1]) + (a->m[3][1] * b->m[1][1]) + (a->m[3][2] * b->m[2][1]) + b->m[3][1];
+    dst->m[3][2] = (a->m[3][0] * b->m[0][2]) + (a->m[3][1] * b->m[1][2]) + (a->m[3][2] * b->m[2][2]) + b->m[3][2];
+    dst->m[0][3] = 0.0f;
+    dst->m[1][3] = 0.0f;
+    dst->m[2][3] = 0.0f;
+    dst->m[3][3] = 1.0f;
 }
 
-void mtxTransformPointF(Mat4F *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
-    f32 x = *arg1;
-    f32 y = *arg2;
-    f32 z = *arg3;
-    f32 ox = ((x * arg0->m[0][0] + y * arg0->m[1][0]) + z * arg0->m[2][0]) + arg0->m[3][0];
-    f32 oy = ((x * arg0->m[0][1] + y * arg0->m[1][1]) + z * arg0->m[2][1]) + arg0->m[3][1];
-    f32 oz = ((x * arg0->m[0][2] + y * arg0->m[1][2]) + z * arg0->m[2][2]) + arg0->m[3][2];
-    *arg1 = ox;
-    *arg2 = oy;
-    *arg3 = oz;
+void mtxTransformPointF(Mat4F *mf, f32 *px, f32 *py, f32 *pz) {
+    f32 x = *px;
+    f32 y = *py;
+    f32 z = *pz;
+    f32 ox = ((x * mf->m[0][0] + y * mf->m[1][0]) + z * mf->m[2][0]) + mf->m[3][0];
+    f32 oy = ((x * mf->m[0][1] + y * mf->m[1][1]) + z * mf->m[2][1]) + mf->m[3][1];
+    f32 oz = ((x * mf->m[0][2] + y * mf->m[1][2]) + z * mf->m[2][2]) + mf->m[3][2];
+    *px = ox;
+    *py = oy;
+    *pz = oz;
 }
 
-void mtxRotateXRatioF(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3) {
-    f32 temp_fv1;
-    f32 temp_fv0;
+void mtxRotateXRatioF(f32 mf[4][4], f32 y, f32 z, f32 dist) {
+    f32 sin;
+    f32 cos;
 
-    mtxIdentityF(arg0);
-    temp_fv0 = arg1 / arg3;
-    arg0[1][1] = temp_fv0;
-    temp_fv1 = arg2 / arg3;
-    if (temp_fv1) {
+    mtxIdentityF(mf);
+    cos = y / dist;
+    mf[1][1] = cos;
+    sin = z / dist;
+    if (sin) {
     }
-    arg0[2][2] = temp_fv0;
-    arg0[1][2] = temp_fv1;
-    arg0[2][1] = -temp_fv1;
+    mf[2][2] = cos;
+    mf[1][2] = sin;
+    mf[2][1] = -sin;
 }
 
-void mtxRotateYRatioF(Mat4F *arg0, f32 arg1, f32 arg2, f32 arg3) {
-    f32 var_fv0;
-    f32 var_fv1;
+void mtxRotateYRatioF(Mat4F *mf, f32 z, f32 x, f32 dist) {
+    f32 sin;
+    f32 cos;
 
-    var_fv0 = arg2 / arg3;
-    var_fv1 = arg1 / arg3;
-    if ((f64)arg2 == 0.0) {
-        var_fv0 = 0.0f;
+    sin = x / dist;
+    cos = z / dist;
+    if ((f64)x == 0.0) {
+        sin = 0.0f;
     }
-    if ((f64)arg1 == 0.0) {
-        var_fv1 = 0.0f;
+    if ((f64)z == 0.0) {
+        cos = 0.0f;
     }
-    mtxIdentityF(arg0);
-    arg0->m[2][0] = var_fv0;
-    arg0->m[0][2] = -var_fv0;
-    arg0->m[0][0] = var_fv1;
-    arg0->m[2][2] = var_fv1;
+    mtxIdentityF(mf);
+    mf->m[2][0] = sin;
+    mf->m[0][2] = -sin;
+    mf->m[0][0] = cos;
+    mf->m[2][2] = cos;
 }
 
 f32 sinApprox(f32);
 f32 cosApprox(f32);
-void mtxRotateXRatioF(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3);
+void mtxRotateXRatioF(f32 mf[4][4], f32 y, f32 z, f32 dist);
 
-void mtxIdentityF(f32 arg0[4][4]);
-void mtxRotateZRatioF(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3);
+void mtxIdentityF(f32 mf[4][4]);
+void mtxRotateZRatioF(f32 mf[4][4], f32 x, f32 y, f32 dist);
 
-void mtxRotateZRatioF(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3) {
-    f32 temp_fv0;
-    f32 temp_fv1;
+void mtxRotateZRatioF(f32 mf[4][4], f32 x, f32 y, f32 dist) {
+    f32 sin;
+    f32 cos;
 
-    mtxIdentityF(arg0);
-    temp_fv0 = arg1 / arg3;
-    temp_fv1 = temp_fv0;
-    arg0[0][0] = temp_fv1;
+    mtxIdentityF(mf);
+    sin = x / dist;
+    cos = sin;
+    mf[0][0] = cos;
     if (1) {
-        temp_fv0 = arg2 / arg3;
-        arg0[0][1] = temp_fv0;
-        arg0[1][0] = -temp_fv0;
+        sin = y / dist;
+        mf[0][1] = sin;
+        mf[1][0] = -sin;
     }
-    arg0[1][1] = temp_fv1;
+    mf[1][1] = cos;
 }
 
-void mtxRotateXRatioL(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3) {
-    f32 sp18[4][4];
+void mtxRotateXRatioL(Mtx *m, f32 y, f32 z, f32 dist) {
+    f32 mf[4][4];
 
-    mtxRotateXRatioF(sp18, arg1, arg2, arg3);
-    guMtxF2L(sp18, arg0);
+    mtxRotateXRatioF(mf, y, z, dist);
+    guMtxF2L(mf, m);
 }
 
-void mtxRotateYRatioL(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3) {
-    f32 sp18[4][4];
+void mtxRotateYRatioL(Mtx *m, f32 z, f32 x, f32 dist) {
+    f32 mf[4][4];
 
-    mtxRotateYRatioF((Mat4F *)sp18, arg1, arg2, arg3);
-    guMtxF2L(sp18, arg0);
+    mtxRotateYRatioF((Mat4F *)mf, z, x, dist);
+    guMtxF2L(mf, m);
 }
 
-void mtxRotateZRatioL(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3) {
-    f32 sp18[4][4];
+void mtxRotateZRatioL(Mtx *m, f32 x, f32 y, f32 dist) {
+    f32 mf[4][4];
 
-    mtxRotateZRatioF(sp18, arg1, arg2, arg3);
-    guMtxF2L(sp18, arg0);
+    mtxRotateZRatioF(mf, x, y, dist);
+    guMtxF2L(mf, m);
 }
 
-void mtxRotateXDegF(f32 arg0[4][4], f32 arg1) {
+void mtxRotateXDegF(f32 mf[4][4], f32 angle) {
     f32 temp;
     f32 sin;
     f32 cos;
 
-    temp = arg1 * 0.0174532925199432955;
+    temp = angle * 0.0174532925199432955;
     sin = sinApprox(temp);
     cos = cosApprox(temp);
-    mtxIdentityF(arg0);
-    arg0[1][2] = sin;
-    arg0[2][1] = -sin;
-    arg0[1][1] = cos;
-    arg0[2][2] = cos;
+    mtxIdentityF(mf);
+    mf[1][2] = sin;
+    mf[2][1] = -sin;
+    mf[1][1] = cos;
+    mf[2][2] = cos;
 }
 
-void mtxRotateYDegF(f32 arg0[4][4], f32 arg1) {
+void mtxRotateYDegF(f32 mf[4][4], f32 angle) {
     f32 temp;
     f32 sin;
     f32 cos;
 
-    temp = arg1 * 0.0174532925199432955;
+    temp = angle * 0.0174532925199432955;
     sin = sinApprox(temp);
     cos = cosApprox(temp);
-    mtxIdentityF(arg0);
-    arg0[2][0] = sin;
-    arg0[0][2] = -sin;
-    arg0[0][0] = cos;
-    arg0[2][2] = cos;
+    mtxIdentityF(mf);
+    mf[2][0] = sin;
+    mf[0][2] = -sin;
+    mf[0][0] = cos;
+    mf[2][2] = cos;
 }
 
-void mtxRotateZDegF(f32 arg0[4][4], f32 arg1) {
+void mtxRotateZDegF(f32 mf[4][4], f32 angle) {
     f32 temp;
     f32 sin;
     f32 cos;
 
-    temp = arg1 * 0.0174532925199432955;
+    temp = angle * 0.0174532925199432955;
     sin = sinApprox(temp);
     cos = cosApprox(temp);
-    mtxIdentityF(arg0);
-    arg0[0][1] = sin;
-    arg0[1][0] = -sin;
-    arg0[0][0] = cos;
-    arg0[1][1] = cos;
+    mtxIdentityF(mf);
+    mf[0][1] = sin;
+    mf[1][0] = -sin;
+    mf[0][0] = cos;
+    mf[1][1] = cos;
 }
 
-void mtxRotateXDegL(Mtx *arg0, f32 arg1) {
-    f32 sp18[4][4];
+void mtxRotateXDegL(Mtx *m, f32 angle) {
+    f32 mf[4][4];
 
-    mtxRotateXDegF(sp18, arg1);
-    guMtxF2L(sp18, arg0);
+    mtxRotateXDegF(mf, angle);
+    guMtxF2L(mf, m);
 }
 
-void mtxRotateYDegL(Mtx *arg0, f32 arg1) {
-    f32 sp18[4][4];
+void mtxRotateYDegL(Mtx *m, f32 angle) {
+    f32 mf[4][4];
 
-    mtxRotateYDegF(sp18, arg1);
-    guMtxF2L(sp18, arg0);
+    mtxRotateYDegF(mf, angle);
+    guMtxF2L(mf, m);
 }
 
-void mtxRotateZDegL(Mtx *arg0, f32 arg1) {
-    f32 sp18[4][4];
+void mtxRotateZDegL(Mtx *m, f32 angle) {
+    f32 mf[4][4];
 
-    mtxRotateZDegF(sp18, arg1);
-    guMtxF2L(sp18, arg0);
+    mtxRotateZDegF(mf, angle);
+    guMtxF2L(mf, m);
 }
 
-void mtxIdentityF(f32 arg0[4][4]) {
+void mtxIdentityF(f32 mf[4][4]) {
     f32 one;
     f32 zero;
     s32 index;
@@ -256,47 +256,47 @@ void mtxIdentityF(f32 arg0[4][4]) {
     zero = 0.0f;
     if (one) {
     }
-    arg0[1][0] = zero;
-    arg0[2][0] = zero;
-    arg0[3][0] = zero;
-    arg0[0][1] = zero;
-    arg0[2][1] = zero;
-    arg0[3][1] = zero;
-    arg0[0][2] = zero;
-    arg0[1][2] = zero;
-    arg0[3][2] = zero;
-    arg0[0][3] = zero;
-    arg0[1][3] = zero;
-    arg0[2][3] = zero;
+    mf[1][0] = zero;
+    mf[2][0] = zero;
+    mf[3][0] = zero;
+    mf[0][1] = zero;
+    mf[2][1] = zero;
+    mf[3][1] = zero;
+    mf[0][2] = zero;
+    mf[1][2] = zero;
+    mf[3][2] = zero;
+    mf[0][3] = zero;
+    mf[1][3] = zero;
+    mf[2][3] = zero;
     index = 2;
-    arg0[0][0] = one;
-    arg0[1][1] = one;
-    arg0[2][index] = one;
-    arg0[3][3] = one;
+    mf[0][0] = one;
+    mf[1][1] = one;
+    mf[2][index] = one;
+    mf[3][3] = one;
 }
 
-void mtxIdentityL(Mtx *arg0) {
-    f32 sp18[4][4];
+void mtxIdentityL(Mtx *m) {
+    f32 mf[4][4];
 
-    mtxIdentityF(sp18);
-    guMtxF2L(sp18, arg0);
+    mtxIdentityF(mf);
+    guMtxF2L(mf, m);
 }
 
-void mtxTranslateF(f32 arg0[4][4], f32 arg1, f32 arg2, f32 arg3) {
-    mtxIdentityF(arg0);
-    arg0[3][0] = arg1;
-    arg0[3][1] = arg2;
-    arg0[3][2] = arg3;
+void mtxTranslateF(f32 mf[4][4], f32 x, f32 y, f32 z) {
+    mtxIdentityF(mf);
+    mf[3][0] = x;
+    mf[3][1] = y;
+    mf[3][2] = z;
 }
 
-void mtxTranslateL(Mtx *arg0, f32 arg1, f32 arg2, f32 arg3) {
-    f32 sp18[4][4];
+void mtxTranslateL(Mtx *m, f32 x, f32 y, f32 z) {
+    f32 mf[4][4];
 
-    mtxTranslateF(sp18, arg1, arg2, arg3);
-    guMtxF2L(sp18, arg0);
+    mtxTranslateF(mf, x, y, z);
+    guMtxF2L(mf, m);
 }
 
-void mtxLookDirF(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4) {
+void mtxLookDirF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz) {
     f32 padtop[3]; // FAKE: pad words steer the frame size
     f32 t;
     f32 m00;
@@ -309,10 +309,10 @@ void mtxLookDirF(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 m12;
     f32 m22;
 
-    if ((arg2 == 0.0f) && (arg4 == 0.0f)) {
-        if (arg3 == 0.0f) {
-            mtxIdentityF(arg0->m);
-            mtxIdentityF(arg1->m);
+    if ((dx == 0.0f) && (dz == 0.0f)) {
+        if (dy == 0.0f) {
+            mtxIdentityF(view->m);
+            mtxIdentityF(cam->m);
             return;
         }
         m00 = 1.0f;
@@ -324,65 +324,65 @@ void mtxLookDirF(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4) {
         m12 = 1.0f;
         m22 = 0.0f;
     } else {
-        inv = 1.0 / sqrtf((arg2 * arg2) + (arg3 * arg3) + (arg4 * arg4));
-        arg2 = arg2 * inv;
-        arg3 = arg3 * inv;
-        arg4 = arg4 * inv;
-        m11 = sqrtf((arg2 * arg2) + (arg4 * arg4));
+        inv = 1.0 / sqrtf((dx * dx) + (dy * dy) + (dz * dz));
+        dx = dx * inv;
+        dy = dy * inv;
+        dz = dz * inv;
+        m11 = sqrtf((dx * dx) + (dz * dz));
         inv = 1.0 / m11;
-        t = -arg2 * inv;
-        m00 = -arg4 * inv;
-        m10 = arg3 * t;
-        m21 = -arg3;
+        t = -dx * inv;
+        m00 = -dz * inv;
+        m10 = dy * t;
+        m21 = -dy;
         m02 = -t;
-        m12 = arg3 * m00;
-        m20 = -arg2;
-        m22 = -arg4;
+        m12 = dy * m00;
+        m20 = -dx;
+        m22 = -dz;
     }
-    arg0->m[0][0] = m00;
-    arg0->m[1][0] = m10;
-    arg0->m[2][0] = m20;
-    arg0->m[3][0] = 0.0f;
-    arg0->m[0][1] = 0.0f;
-    arg0->m[1][1] = m11;
-    arg0->m[2][1] = m21;
-    arg0->m[3][1] = 0.0f;
-    arg0->m[0][2] = m02;
-    arg0->m[1][2] = m12;
-    arg0->m[2][2] = m22;
-    arg0->m[3][2] = 0.0f;
-    arg0->m[0][3] = 0.0f;
-    arg0->m[1][3] = 0.0f;
-    arg0->m[2][3] = 0.0f;
-    arg0->m[3][3] = 1.0f;
-    arg1->m[0][0] = m00;
-    arg1->m[1][0] = 0.0f;
-    arg1->m[2][0] = m02;
-    arg1->m[3][0] = 0.0f;
-    arg1->m[0][1] = m10;
-    arg1->m[1][1] = m11;
-    arg1->m[2][1] = m12;
-    arg1->m[3][1] = 0.0f;
-    arg1->m[0][2] = m20;
-    arg1->m[1][2] = m21;
-    arg1->m[2][2] = m22;
-    arg1->m[3][2] = 0.0f;
-    arg1->m[0][3] = 0.0f;
-    arg1->m[1][3] = 0.0f;
-    arg1->m[2][3] = 0.0f;
-    arg1->m[3][3] = 1.0f;
+    view->m[0][0] = m00;
+    view->m[1][0] = m10;
+    view->m[2][0] = m20;
+    view->m[3][0] = 0.0f;
+    view->m[0][1] = 0.0f;
+    view->m[1][1] = m11;
+    view->m[2][1] = m21;
+    view->m[3][1] = 0.0f;
+    view->m[0][2] = m02;
+    view->m[1][2] = m12;
+    view->m[2][2] = m22;
+    view->m[3][2] = 0.0f;
+    view->m[0][3] = 0.0f;
+    view->m[1][3] = 0.0f;
+    view->m[2][3] = 0.0f;
+    view->m[3][3] = 1.0f;
+    cam->m[0][0] = m00;
+    cam->m[1][0] = 0.0f;
+    cam->m[2][0] = m02;
+    cam->m[3][0] = 0.0f;
+    cam->m[0][1] = m10;
+    cam->m[1][1] = m11;
+    cam->m[2][1] = m12;
+    cam->m[3][1] = 0.0f;
+    cam->m[0][2] = m20;
+    cam->m[1][2] = m21;
+    cam->m[2][2] = m22;
+    cam->m[3][2] = 0.0f;
+    cam->m[0][3] = 0.0f;
+    cam->m[1][3] = 0.0f;
+    cam->m[2][3] = 0.0f;
+    cam->m[3][3] = 1.0f;
 }
 
-void mtxLookDirL(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4) {
-    Mat4F sp60;
-    Mat4F sp20;
+void mtxLookDirL(Mtx *view, Mtx *cam, f32 dx, f32 dy, f32 dz) {
+    Mat4F viewMf;
+    Mat4F camMf;
 
-    mtxLookDirF(&sp60, &sp20, arg2, arg3, arg4);
-    guMtxF2L(sp60.m, arg0);
-    guMtxF2L(sp20.m, arg1);
+    mtxLookDirF(&viewMf, &camMf, dx, dy, dz);
+    guMtxF2L(viewMf.m, view);
+    guMtxF2L(camMf.m, cam);
 }
 
-void mtxLookDirPosF(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+void mtxLookDirPosF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz, f32 px, f32 py, f32 pz) {
     f32 padtop[3]; // FAKE: pad words steer the frame size
     f32 t;
     f32 m00;
@@ -395,10 +395,10 @@ void mtxLookDirPosF(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 
     f32 m12;
     f32 m22;
 
-    if ((arg2 == 0.0f) && (arg4 == 0.0f)) {
-        if (arg3 == 0.0f) {
-            mtxIdentityF(arg0->m);
-            mtxIdentityF(arg1->m);
+    if ((dx == 0.0f) && (dz == 0.0f)) {
+        if (dy == 0.0f) {
+            mtxIdentityF(view->m);
+            mtxIdentityF(cam->m);
             return;
         }
         m00 = 1.0f;
@@ -410,61 +410,61 @@ void mtxLookDirPosF(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 
         m12 = 1.0f;
         m22 = 0.0f;
     } else {
-        inv = 1.0 / sqrtf((arg2 * arg2) + (arg3 * arg3) + (arg4 * arg4));
-        arg2 = arg2 * inv;
-        arg3 = arg3 * inv;
-        arg4 = arg4 * inv;
-        m11 = sqrtf((arg2 * arg2) + (arg4 * arg4));
+        inv = 1.0 / sqrtf((dx * dx) + (dy * dy) + (dz * dz));
+        dx = dx * inv;
+        dy = dy * inv;
+        dz = dz * inv;
+        m11 = sqrtf((dx * dx) + (dz * dz));
         inv = 1.0 / m11;
-        t = -arg2 * inv;
-        m00 = -arg4 * inv;
-        m10 = arg3 * t;
-        m21 = -arg3;
+        t = -dx * inv;
+        m00 = -dz * inv;
+        m10 = dy * t;
+        m21 = -dy;
         m02 = -t;
-        m12 = arg3 * m00;
-        m20 = -arg2;
-        m22 = -arg4;
+        m12 = dy * m00;
+        m20 = -dx;
+        m22 = -dz;
     }
-    arg0->m[0][0] = m00;
-    arg0->m[1][0] = m10;
-    arg0->m[2][0] = m20;
-    arg0->m[3][0] = -arg5;
-    arg0->m[0][1] = 0.0f;
-    arg0->m[1][1] = m11;
-    arg0->m[2][1] = m21;
-    arg0->m[0][2] = m02;
-    arg0->m[3][1] = -arg6;
-    arg0->m[1][2] = m12;
-    t = -arg7;
-    arg0->m[2][2] = m22;
-    arg0->m[0][3] = 0.0f;
-    arg0->m[3][2] = t;
-    arg0->m[3][3] = 1.0f;
-    arg0->m[1][3] = 0.0f;
-    arg0->m[2][3] = 0.0f;
-    arg1->m[0][0] = m00;
-    arg1->m[3][0] = (arg5 * m00) + (arg7 * m02);
-    arg1->m[1][0] = 0.0f;
-    arg1->m[2][0] = m02;
-    arg1->m[0][1] = m10;
-    arg1->m[1][1] = m11;
-    arg1->m[2][1] = m12;
-    arg1->m[3][1] = (arg5 * m10) + (arg6 * m11) + (arg7 * m12);
-    arg1->m[0][2] = m20;
-    arg1->m[1][2] = m21;
-    arg1->m[2][2] = m22;
-    arg1->m[0][3] = 0.0f;
-    arg1->m[1][3] = 0.0f;
-    arg1->m[3][2] = (arg5 * m20) + (arg6 * m21) + (arg7 * m22);
-    arg1->m[3][3] = 1.0f;
-    arg1->m[2][3] = 0.0f;
+    view->m[0][0] = m00;
+    view->m[1][0] = m10;
+    view->m[2][0] = m20;
+    view->m[3][0] = -px;
+    view->m[0][1] = 0.0f;
+    view->m[1][1] = m11;
+    view->m[2][1] = m21;
+    view->m[0][2] = m02;
+    view->m[3][1] = -py;
+    view->m[1][2] = m12;
+    t = -pz;
+    view->m[2][2] = m22;
+    view->m[0][3] = 0.0f;
+    view->m[3][2] = t;
+    view->m[3][3] = 1.0f;
+    view->m[1][3] = 0.0f;
+    view->m[2][3] = 0.0f;
+    cam->m[0][0] = m00;
+    cam->m[3][0] = (px * m00) + (pz * m02);
+    cam->m[1][0] = 0.0f;
+    cam->m[2][0] = m02;
+    cam->m[0][1] = m10;
+    cam->m[1][1] = m11;
+    cam->m[2][1] = m12;
+    cam->m[3][1] = (px * m10) + (py * m11) + (pz * m12);
+    cam->m[0][2] = m20;
+    cam->m[1][2] = m21;
+    cam->m[2][2] = m22;
+    cam->m[0][3] = 0.0f;
+    cam->m[1][3] = 0.0f;
+    cam->m[3][2] = (px * m20) + (py * m21) + (pz * m22);
+    cam->m[3][3] = 1.0f;
+    cam->m[2][3] = 0.0f;
 }
 
-void mtxLookDirPosL(Mtx *arg0, Mtx *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
-    Mat4F sp68;
-    Mat4F sp28;
+void mtxLookDirPosL(Mtx *view, Mtx *cam, f32 dx, f32 dy, f32 dz, f32 px, f32 py, f32 pz) {
+    Mat4F viewMf;
+    Mat4F camMf;
 
-    mtxLookDirPosF(&sp68, &sp28, arg2, arg3, arg4, arg5, arg6, arg7);
-    guMtxF2L(sp68.m, arg0);
-    guMtxF2L(sp28.m, arg1);
+    mtxLookDirPosF(&viewMf, &camMf, dx, dy, dz, px, py, pz);
+    guMtxF2L(viewMf.m, view);
+    guMtxF2L(camMf.m, cam);
 }
