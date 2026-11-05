@@ -147,9 +147,9 @@ Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     u32 tex;
     s32 alpha;
-    s32 off;
     s32 y;
     s32 xo;
+    s32 off;
     u16 x;
     s16 xx;
     char *spCC;
@@ -159,6 +159,7 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     s32 yo;
     s32 yyo;
     s32 yy;
+    Gfx *textDl;
 
     spCC = textTableGetString(0xD, 0, 1);
     spC8 = textTableGetString(0xD, 1, 1);
@@ -178,13 +179,11 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0);
     tex = texCacheFindOrLoad(0xB0);
     yo = (s32)(((f32)D_80744494 - 82.0f) * 0.5f);
-    y = 0;
-    do {
+    y = 0; do {  // FAKE: one source line removes a scheduling barrier before the loop.
         xo = (s32)(((f32)D_80744490 - 204.0f) * 0.5f);
         yy = y + 0x29;
         yyo = yo + 0x29;
         x = 0;
-        if (spC4 == 0) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
         if (x && x) {}  // FAKE: deadsweep: steers uopt candidate priority
         do {
             gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 82, x, y, x + 0x66, yy, 0,
@@ -195,22 +194,23 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
         } while (x != 0xCC);
         y += 0x29;
         yo += 0x29;
-        if (spC0 != 41) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
     } while (y != 0x52);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
     x = (s32)((f32)(D_80744490 - textGetStringWidth(1, spCC)) * 0.5f);
+    yo = (s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
+    if (D_800339D0 && D_800339D0) {}  // FAKE: duplicate reference steers the post-loop register allocation.
     if (D_800339D0 && D_800339D0) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
     gDPSetCombine(dl++, 0xFF97FF, 0xFF2CFE7F);
-    if (D_80744494 && D_80744494) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
-    if (spC8) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
-    dl = textDrawStringVtx(dl, 1, (s16)(x * 4), (s16)((s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0) * 4), spCC, 0);
+    dl = textDrawStringVtx(dl, 1, (s16)(x * 4), (s16)(yo * 4), spCC, 0);
     xx = (s32)((f32)D_80744490 * 0.5f) * 4;
+    arg1 = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
     off = D_8074450C * 0xC8;
     xx = xx | 0;  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
-    return hudDrawScaledText(hudDrawScaledText(dl, xx, (s16)(off * 4), .5f, spC8), xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), .5f, spC4);  // FAKE: .5f spells a constant web separate from the 0.5f multiplies (args via lui a3, no mfc1)
+    textDl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)arg1 * 4), .5f, spC8);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
+    return hudDrawScaledText(textDl, xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), .5f, spC4);
 }
 #else
 
