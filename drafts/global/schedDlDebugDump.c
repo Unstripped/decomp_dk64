@@ -1,4 +1,4 @@
-// schedDlDebugDump (src/global/13980.c): CtrlSched revisit8: STAGE 4 (count exact 415, frame 184, callee-saved set same), deadsweep score full 119->69 (text 73->23, reloc 46 = uncarved statics), shape 63->60. KEY structure changes vs the old park: (1) Triangle word dump loop is the LFTR source form 'for (i = 0; i < size; i += 4) faultPrintf(..., ((u32 *)cur)[i], [i+1], [i+2], [i+3]); line++;' (no w pointer, no size*4 bound, no w += 4): uopt then derives the byte IV + size*4 bound after the 'blez s4' guard exactly like the target (target's guard tests size, bound sll s2 computed after it); (2) 'buttons |= 0x400;' (compound on the s16 local) reproduces the target's ori t8,v0 / sll t9 / beqz / sra v1 chain hoisted over the lb stall (buttons = raw | 0x400 gave ori v1 dest-reuse and no hoist); (3) declaration order + all old dead tests re-tuned by a count/frame-guarded SA (5 FAKEs left: all needed, deleting any costs 3-6). Remaining diff (23 text lines): p loop pointer spills to 180(sp) vs target 80(sp) (5 lines; target p looks like a uopt temp slot at the bottom = original probably indexed D_80744470[k] with an LFTR'd pointer IV, but a k-index loop gave frame 192), q pointer split (move a3,v1 ... addiu a3,v1,1 vs target in-place addiu v1,v1,1; 4 lines), addiu s3,s3,1 slot after jal (2), b/sll s0,s4,2 delay slot (target copies post-loop sll s0,s4,2 into the bne delay slot and the b delay slot; 4).
+// schedDlDebugDump (src/global/13980.c): STAGE 4 (count exact 415, frame 184, callee-saved same), deadsweep full 69->63 (text 23->17, reloc 46 = uncarved statics), shape 60->55. Levers tried: deleted fake done=done at loop tail fixing branch delay slot sharing; simplified Triangle name buffer to buf[n++] eliminating q pointer and aligning v0/v1 roles with if (D_8074685C && D_8074685C); reordered mode/n/size in triangle branch placing sw in delay slot. Remaining 17 text lines: 10 lines of p spill slot (0x50 vs 0xb4), 4 lines of lui v0 vs s5 for D_80746A20, 3 lines of ring temps (t1/t8 vs t0/t7).
 s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     static s32 D_80746A14 = 0;
     static u32 D_80746A18 = 0;
@@ -73,8 +73,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     do {
         faultFontInit(*p, 0, 1);
         line = 0;
-        cur = D_80746A20;
         mode = D_80746A24;
+        cur = D_80746A20;
         while (done == 0 && line < 0xF) {
             off = cur - D_807F05A4;
             if (line < 0xE) {
@@ -87,8 +87,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 done = 1;
             }
             if ((op & 0xF0) == 0xC0) {
-                n = 0;
                 size = 0x20;
+                n = 0;
                 mode = 2;
                 if (op & 4) {
                     buf[0] = 'S';
@@ -101,13 +101,14 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     n++;
                     size += 0x40;
                 }
-                q = buf + n;
+                if (D_8074685C && D_8074685C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 if (op & 1) {
-                    size += 0x10; *q = 'Z';  // LAYOUT: joined statements change as1 scheduling (text 81 -> 75 with the next one)
-                    q++;
+                    buf[n] = 'Z';
+                    size += 0x10;
+                    n++;
                 }
-                size = size >> 2;
-                q[0] = 0;
+                size >>= 2;
+                buf[n] = 0;
                 faultPrintf("  %05x.:Triangle:.(%s)....\n", off, buf);
                 line++;
                 if (line == 1) {
@@ -155,8 +156,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     faultPrintf("  %05x.:.%s...%s.\n", off, e->name, D_80746A0C[colorIdx]);
                     line++;
                     if (size <= 2) {
-                        line++;
                         faultPrintf("  %08x..%08x............\n", ((u32 *)cur)[0], ((u32 *)cur)[1]);
+                        line++;
                     } else {
                         faultPrintf("  %08x.%08x.%08x.%08x...\n", ((u32 *)cur)[0], ((u32 *)cur)[1], ((u32 *)cur)[2], ((u32 *)cur)[3]);
                         line += 2;
@@ -170,7 +171,6 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     }
                     line++;
                 }
-                done = done;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             faultFontSetColorMode(0);
             cur += size * 4U;

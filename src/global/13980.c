@@ -612,8 +612,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     do {
         faultFontInit(*p, 0, 1);
         line = 0;
-        cur = D_80746A20;
         mode = D_80746A24;
+        cur = D_80746A20;
         while (done == 0 && line < 0xF) {
             off = cur - D_807F05A4;
             if (line < 0xE) {
@@ -626,8 +626,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 done = 1;
             }
             if ((op & 0xF0) == 0xC0) {
-                n = 0;
                 size = 0x20;
+                n = 0;
                 mode = 2;
                 if (op & 4) {
                     buf[0] = 'S';
@@ -640,13 +640,14 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     n++;
                     size += 0x40;
                 }
-                q = buf + n;
+                if (D_8074685C && D_8074685C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 if (op & 1) {
-                    size += 0x10; *q = 'Z';  // LAYOUT: joined statements change as1 scheduling (text 81 -> 75 with the next one)
-                    q++;
+                    buf[n] = 'Z';
+                    size += 0x10;
+                    n++;
                 }
-                size = size >> 2;
-                q[0] = 0;
+                size >>= 2;
+                buf[n] = 0;
                 faultPrintf("  %05x.:Triangle:.(%s)....\n", off, buf);
                 line++;
                 if (line == 1) {
@@ -694,8 +695,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     faultPrintf("  %05x.:.%s...%s.\n", off, e->name, D_80746A0C[colorIdx]);
                     line++;
                     if (size <= 2) {
-                        line++;
                         faultPrintf("  %08x..%08x............\n", ((u32 *)cur)[0], ((u32 *)cur)[1]);
+                        line++;
                     } else {
                         faultPrintf("  %08x.%08x.%08x.%08x...\n", ((u32 *)cur)[0], ((u32 *)cur)[1], ((u32 *)cur)[2], ((u32 *)cur)[3]);
                         line += 2;
@@ -709,7 +710,6 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     }
                     line++;
                 }
-                done = done;  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             faultFontSetColorMode(0);
             cur += size * 4U;
