@@ -1085,7 +1085,7 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
     MotionWindow *win4;
     void *unk8;
     void *unkC;
-    f32 pos[1]; // FAKE: one-element array keeps pos memory-resident (not coloured)
+    f32 pos;
     f32 rate;
     f32 step;
 
@@ -1094,7 +1094,7 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
     win4 = core->unk4;
     unk8 = core->unk8;
     unkC = core->unkC;
-    pos[0] = win0->unk4;
+    pos = win0->unk4;
     if (core->unk30 & 1) {
         rate = (f32) ((f64) (u32) D_80744478 * 0.5);
     } else {
@@ -1141,11 +1141,11 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
             controllerAnimCacheFree(arg0, unkC);
             core->unk78 &= ~0x10;
         }
-        pos[0] += ((step * win0->unk24) / 2) * (1.0f - core->unk10);
+        pos += ((step * win0->unk24) / 2) * (1.0f - core->unk10);
     } else {
-        pos[0] += step * win0->unk24;
+        pos += step * win0->unk24;
     }
-    controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win0, pos[0]);
+    controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win0, pos);
     if (win4->unk0 != NULL) {
         if (core->unk28 < core->unk2C) {
             core->unk28 += core->unk2E;
@@ -1158,8 +1158,8 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
                 core->unk28 = core->unk2C;
             }
         }
-        pos[0] = win4->unk4 + win4->unk24;
-        controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win4, pos[0]);
+        pos = win4->unk4 + win4->unk24;
+        controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win4, pos);
         if ((win4->unk24 == 0) && (*(s16 *)&win4->unk1C & 0x10)) {
             core->unk2C = 0;
             if (core->unk28 == 0) {
