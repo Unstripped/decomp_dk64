@@ -2061,3 +2061,5 @@
 {"agent": "B908", "approx": false, "name": "func_8069B908", "note": "", "outcome": "parked", "seg": "global", "stage": "4", "ts": "2026-11-05T01:13:15Z", "type": "attempt", "unit": "2026-11-04: leftovers revisit 9", "vram": "0x8069B908"}
 {"approx": false, "ts": "2026-11-05T02:10:18Z", "type": "unit", "unit": "2026-11-04: focused vsprintf match"}
 {"agent": "orchestrator", "approx": false, "name": "vsprintf", "note": "", "outcome": "matched", "seg": "boot", "stage": null, "ts": "2026-11-05T02:10:18Z", "type": "attempt", "unit": "2026-11-04: focused vsprintf match", "vram": "0x8000320C"}
+{"approx": false, "ts": "2026-11-05T02:12:26Z", "type": "unit", "unit": "2026-11-04: focused textMarkerUpdateMatrix match"}
+{"agent": "orchestrator", "approx": false, "name": "textMarkerUpdateMatrix", "note": "", "outcome": "matched", "seg": "global", "stage": null, "ts": "2026-11-05T02:12:26Z", "type": "attempt", "unit": "2026-11-04: focused textMarkerUpdateMatrix match", "vram": "0x8069B908"}
