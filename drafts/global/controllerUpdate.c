@@ -1,4 +1,4 @@
-// controllerUpdate (src/global/F600.c): ForbidSet revisit 9: stage 5 park, 293/293 insns, frame 0x38 ok, full=21 text=19 reloc=2 shape=8. Proved root cause: outer pad block cand 127 (pad) adjsave 30 takes free a0 (target a1). Target has a0 forbidden for pad, forcing pad to a1 and pad->button to a2 (delaying k=0 to 71c). Cand 169 (timers IV) in a0 does not interfere (bb 43..46 vs 50..51). Tested cross-loop reuse of p/end, dead pad tests, and declaration order.
+// controllerUpdate (src/global/F600.c): stage 5: full=17 text=15 reloc=2 shape=6, 293/293 insns, frame 0x38. Matcher3 base a090b09477a3c98d6222f0269f6cdfd4b4bf7e53. Improved 21->17: hoist padIdx*3 into padOffset before mask test (21->19); route the first button load through k then buttons (19->17), permitting removal of both old k long-live FAKE statements. Pad now a1 as target; remaining held-pointer a0 vs t0, loaded-button t0 vs a2, mode-override temps and store scheduling. Verified OSContPad u16 button/s8 sticks/6-byte stride; protos OK, concrete u8* replay and unused s32 waypoint arg corrections unchanged. Tried pointer/integer/narrow scalar types, overwritten-formal diagnostic (worse), earlier-call pad reuse, lexical scopes/unions, checksum lifetime bridges, zero-valued timer indices, button-candidate coalescing, typed deadsweeps (2100+2121 no improvement), permuter -j2 600s (55757 iterations), two-round as1 scans (final only invalid held-store deletion helps shape). No header edits. Four FAKEs remain instead of five.
 extern u8 D_807463B8;
 extern s32 gFrameCounter;
 extern u8 D_8076A0B1;
@@ -29,6 +29,7 @@ void controllerUpdate(void) {
     u32 bit;
     u8 i;
     u32 *end;
+    s32 padOffset;
 
     compact = func_8071432C();
     D_807ECD60.button = D_807ECD58.button;
@@ -82,7 +83,6 @@ void controllerUpdate(void) {
         p += 1;
     }
     padIdx = 0;
-    k = 0; // FAKE: gives k a long live range so uopt colours timer/k/pad like the target (needs the dead read below)
     if (sum != 0x624C9A6C) {
         gFrameCounter = 0;
     }
@@ -97,9 +97,11 @@ void controllerUpdate(void) {
             if (D_807463B8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             mask = mask | 1;
         }
+        padOffset = padIdx * 3;
         if (mask != 0) {
-            pad = (OSContPad *)((u16 *)D_807ECD10 + padIdx * 3);
-            buttons = *(u16 *)pad;
+            pad = (OSContPad *)((u16 *)D_807ECD10 + padOffset);
+            k = *(u16 *)pad; // FAKE: carry button read in the timer-index candidate
+            buttons = k;
             pressed = (CtrlAHeld[padIdx] ^ pad->button) & pad->button;
             CtrlAHeld[padIdx] = pad->button;
             if (D_807463B8 == 0) {
@@ -135,7 +137,6 @@ void controllerUpdate(void) {
             }
         }
     }
-    if (k != 0) {} // FAKE: long live range for k (see k = 0 above)
     D_807ECDEC = D_807ECD10;
     D_807ECDF0 = D_807ECD48[0];
 }

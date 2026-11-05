@@ -149,6 +149,7 @@ void controllerUpdate(void) {
     u32 bit;
     u8 i;
     u32 *end;
+    s32 padOffset;
 
     compact = func_8071432C();
     D_807ECD60.button = D_807ECD58.button;
@@ -202,7 +203,6 @@ void controllerUpdate(void) {
         p += 1;
     }
     padIdx = 0;
-    k = 0; // FAKE: gives k a long live range so uopt colours timer/k/pad like the target (needs the dead read below)
     if (sum != 0x624C9A6C) {
         gFrameCounter = 0;
     }
@@ -217,9 +217,11 @@ void controllerUpdate(void) {
             if (D_807463B8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             mask = mask | 1;
         }
+        padOffset = padIdx * 3;
         if (mask != 0) {
-            pad = (OSContPad *)((u16 *)D_807ECD10 + padIdx * 3);
-            buttons = *(u16 *)pad;
+            pad = (OSContPad *)((u16 *)D_807ECD10 + padOffset);
+            k = *(u16 *)pad; // FAKE: carry button read in the timer-index candidate
+            buttons = k;
             pressed = (CtrlAHeld[padIdx] ^ pad->button) & pad->button;
             CtrlAHeld[padIdx] = pad->button;
             if (D_807463B8 == 0) {
@@ -255,7 +257,6 @@ void controllerUpdate(void) {
             }
         }
     }
-    if (k != 0) {} // FAKE: long live range for k (see k = 0 above)
     D_807ECDEC = D_807ECD10;
     D_807ECDF0 = D_807ECD48[0];
 }
