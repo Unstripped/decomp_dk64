@@ -90,7 +90,7 @@ void animSetLoopLimit(Actor *, s32, s32);
 void animSetFinished(Actor *, s32, s32);
 s32 actorListFindIdByActor(Actor *);
 void func_8068A764(Actor *, u8);
-void func_8069B908(void);
+void textMarkerUpdateMatrix(void);
 void slotQueueCancel(s32, s32);
 s32 textTableGetString(s32, s32, s32);
 void func_80714950();
@@ -657,7 +657,7 @@ void func_8067C6BC(void) {
 }
 
 void func_8067C6DC(void) {
-    func_8069B908();
+    textMarkerUpdateMatrix();
 }
 
 void func_8067C6FC(void) {

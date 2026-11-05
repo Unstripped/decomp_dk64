@@ -61,7 +61,7 @@ void lightSetFovAngles(f32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void func_807145F8(void);
 void renderCallbacksRegister(void *, void *, s32);
-Gfx *func_8003292C(Gfx *, void *);
+Gfx *menuRenderOptionDescription(Gfx *, void *);
 
 void menuUpdateLightFadeActor(void) {
     s32 d;
@@ -124,7 +124,7 @@ void menuUpdateLightFadeActor(void) {
         break;
     }
     if (D_807FBB40->unk154 >= 3) {
-        renderCallbacksRegister(func_8003292C, D_807FBB40, 3);
+        renderCallbacksRegister(menuRenderOptionDescription, D_807FBB40, 3);
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -144,7 +144,7 @@ s32 textGetStringWidth(s32, char *);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 
-Gfx *func_8003292C(Gfx *dl, void *arg1) {
+Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     u32 tex;
     s32 alpha;
     s32 off;
@@ -214,5 +214,5 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/E550/func_8003292C.s")
+#pragma GLOBAL_ASM("asm/menu/nonmatchings/E550/menuRenderOptionDescription.s")
 #endif

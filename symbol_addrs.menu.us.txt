@@ -70,3 +70,6 @@ menuCheckSaveFile = 0x800322D0; // type:func
 menuCalculateGamePercentage = 0x80032304; // type:func
 menuLoadTextTable = 0x800324CC; // type:func
 menuUpdateLightFadeActor = 0x8003264C; // type:func
+menuCharacterSelectUpdateActor = 0x8002CB18; // type:func
+menuEvaluateSelectorSpline = 0x8003155C; // type:func
+menuRenderOptionDescription = 0x8003292C; // type:func

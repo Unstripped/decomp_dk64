@@ -1,4 +1,4 @@
-// func_8069B908 (src/global/9DD70.c): stage 4 park (1317/1317 insns, frame 0x140, deadsweep full=2/shape=2; diff sw t6,104(sp) vs 108(sp); Lever 4 eliminated 4B nested-call temp moving slot 100->104; Lever 1/4/7 tested)
+// textMarkerUpdateMatrix (src/global/9DD70.c): stage 4 park (1317/1317 insns, frame 0x140, deadsweep full=2/shape=2; diff sw t6,104(sp) vs 108(sp); Lever 4 eliminated 4B nested-call temp moving slot 100->104; Lever 1/4/7 tested)
 typedef struct ActorSub174View {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ f32 unk4;
@@ -59,7 +59,7 @@ void camStartShake(s32, s32, s32);
 void func_8071A8B0(void);
 void effectTumbleBounceUpdate(void);
 
-void func_8069B908(void) {
+void textMarkerUpdateMatrix(void) {
     ActorSub174View *sp13C;
     f32 mtxA[4][4];
     f32 mtxB[4][4];

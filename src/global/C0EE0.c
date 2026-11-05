@@ -90,7 +90,7 @@ void actorUpdateModelMatrix(void *, s32);
 
 extern s8 D_807FC8D0;
 
-void func_806BC1E0(void) {
+void enemyGridStateStep(void) {
     f32 acc;
     f32 old;
     f32 a;
@@ -407,7 +407,7 @@ void func_806BC1E0(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/C0EE0/func_806BC1E0.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/C0EE0/enemyGridStateStep.s")
 #endif
 
 extern u8 D_1000118[];

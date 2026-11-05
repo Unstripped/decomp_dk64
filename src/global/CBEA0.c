@@ -110,7 +110,7 @@ u8 *assetLoad(s32, s32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 Gfx *func_806C75A4(Gfx *, Actor *);
 
-void func_806C7270(void) {
+void spriteLinearInterpolateFrame(void) {
     f32 frac;
     f32 x0;
     f32 y0;
@@ -182,7 +182,7 @@ void func_806C7270(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CBEA0/func_806C7270.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/CBEA0/spriteLinearInterpolateFrame.s")
 #endif
 
 extern s8 D_80750754;

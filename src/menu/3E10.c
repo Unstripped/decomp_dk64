@@ -1642,7 +1642,7 @@ void func_806BF920(void);
 void func_806F0C18(void *);
 void actorConfigApplyAnimFrameByType(void *, s32, s32);
 
-void func_8002CB18(void) {
+void menuCharacterSelectUpdateActor(void) {
     s32 temp_s1_2;
     Menu6B_Pair *row;
     f32 *sp5C;
@@ -1725,7 +1725,7 @@ void func_8002CB18(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8002CB18.s")
+#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/menuCharacterSelectUpdateActor.s")
 #endif
 
 extern s8 D_8074583C;
@@ -3280,7 +3280,7 @@ typedef struct MenuUiElemActor {
 } MenuUiElemActor;
 
 extern MenuUiRgba D_800337DC[];
-s32 func_8003155C(void *, s32, f32 *, f32 *, f32 *, s16 *, s16 *);
+s32 menuEvaluateSelectorSpline(void *, s32, f32 *, f32 *, f32 *, s16 *, s16 *);
 
 void menuUpdateElementTargetAndColor(MenuUiElemActor *arg0, u8 *arg1) {
     MenuUiElemCfg *p = arg0->unk35C;
@@ -3307,7 +3307,7 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *arg0, u8 *arg1) {
         case 6:
         case 7:
         case 18: {
-            r = func_8003155C(p, (s32)c->unk8 >> 2, &arg0->unk340, &arg0->unk344, &sp64, &sp4A, &sp48);
+            r = menuEvaluateSelectorSpline(p, (s32)c->unk8 >> 2, &arg0->unk340, &arg0->unk344, &sp64, &sp4A, &sp48);
             arg0->unk360 = c->unk10 * sp64 * 4.0f;
             arg0->unk364 = arg0->unk360;
             if (type == 7) {
@@ -3520,7 +3520,7 @@ extern f32 D_8003373C[];
 extern f32 D_8003378C[];
 f32 menuEvaluateSpline(f32 *, f32, f32 *);
 
-s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *arg5, s16 *arg6) {
+s32 menuEvaluateSelectorSpline(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *arg5, s16 *arg6) {
     f32 v;
     s32 ret; // FAKE: unused local still takes an isvar id (19 -> 15)
     if ((arg1 * 4) << 2 && (arg1 * 4) << 2) {}  // FAKE: steers uopt candidate numbering / ring phase of arg1 * 4
@@ -3565,7 +3565,7 @@ s32 func_8003155C(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, s16 *ar
 }
 #else
 
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/func_8003155C.s")
+#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/menuEvaluateSelectorSpline.s")
 #endif
 
 s32 func_800317E8(MenuScreenState *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 *arg4, s32 arg5, s8 arg6, f32 arg7) {

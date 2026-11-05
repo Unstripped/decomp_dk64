@@ -1,4 +1,4 @@
-// func_8003292C (src/menu/E550.c): OvlB 2026-11-03 (revisit 8): stage 4, count-exact 416, frame 232. deadsweep score full 131->115 (shape 95->86) via hill-climb dead tests (5 new FAKEs: spC4==0 in outer loop head, spC0!=41 at outer latch, D_800339D0&&D_800339D0 after alpha prim colour, D_80744494&&D_80744494 + spC8 before textDrawStringVtx, xx=xx|0; old 'if (spC0) {}' before the width call removed: it made spC0's s2 piece start BEFORE the textGetStringWidth call, the target reloads 'lw s2,192(sp)' after it). Remaining: (a) target off = caller-saved t0 + sw/lw 212(sp) around hud call #1 (home = 5th declared vreg word, -20vreg) while ours colours it s1; (b) target &D_80744490 ptr s1 / spC0 s2 / spCC s3 (colour order pieces) vs ours spCC s1; (c) target spill temps alpha/yy/yyo at 96/80/72 = 4 FEWER vreg words than ours (lowest vreg -132 vs -148): inlining yy/yyo makes it WORSE (frame 248/252); (d) x u16 gives andi v1,t0,0xffff where target has move v1,t0 (s32 x -> frame +8; combined with inlining yy/yyo frame 252); (e) yo/yy/yyo colours a1/a2/a3 vs t0/a1/a2 (target colours yy,yyo before yo). Tried: all positions of off/xx/alpha/spC0/tex defs (grid), x type x xx type x inline yy/yyo grid, i/j counted loop (count 428), 57k+49k hill-climb evals.
+// menuRenderOptionDescription (src/menu/E550.c): stage 4, count 415/416, frame 232. deadsweep full 115->85 (shape 95->25). Levers: yo reused after loop for textDrawStringVtx Y coord drops shape to 25 and matches y=a0, yo=t0 in loop; off declared at -20vreg (home slot 212(sp)); 4 dead-test FAKEs deleted (spC4, spC0, D_80744494, spC8). Remaining: &D_80744490 s1 / spC0 s2 / spCC s3 rotation vs ours spCC s1 / &D_80744490 s2 / spC0 s3; off spills to 212(sp) vs ours s1.
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 extern s16 D_80744490;
@@ -11,12 +11,12 @@ s32 textGetStringWidth(s32, char *);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 
-Gfx *func_8003292C(Gfx *dl, void *arg1) {
+Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     u32 tex;
     s32 alpha;
-    s32 off;
     s32 y;
     s32 xo;
+    s32 off;
     u16 x;
     s16 xx;
     char *spCC;
@@ -51,7 +51,6 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
         yy = y + 0x29;
         yyo = yo + 0x29;
         x = 0;
-        if (spC4 == 0) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
         if (x && x) {}  // FAKE: deadsweep: steers uopt candidate priority
         do {
             gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 82, x, y, x + 0x66, yy, 0,
@@ -62,18 +61,16 @@ Gfx *func_8003292C(Gfx *dl, void *arg1) {
         } while (x != 0xCC);
         y += 0x29;
         yo += 0x29;
-        if (spC0 != 41) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
     } while (y != 0x52);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
     x = (s32)((f32)(D_80744490 - textGetStringWidth(1, spCC)) * 0.5f);
+    yo = (s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
-    if (D_800339D0 && D_800339D0) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
+    if (D_800339D0 && D_800339D0) {}
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
     gDPSetCombine(dl++, 0xFF97FF, 0xFF2CFE7F);
-    if (D_80744494 && D_80744494) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
-    if (spC8) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
-    dl = textDrawStringVtx(dl, 1, (s16)(x * 4), (s16)((s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0) * 4), spCC, 0);
+    dl = textDrawStringVtx(dl, 1, (s16)(x * 4), (s16)(yo * 4), spCC, 0);
     xx = (s32)((f32)D_80744490 * 0.5f) * 4;
     off = D_8074450C * 0xC8;
     xx = xx | 0;  // FAKE: deadsweep/hill-climb: steers uopt candidate priority

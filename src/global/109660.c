@@ -418,7 +418,7 @@ extern f32 D_80754CE4;
 s32 assetLoad(s32, s32, s32, s32);
 void func_807063B8(RectSpan *, u8 *, u8, f32);
 void gfxGetBackgroundTint(s16, u8 *, u8 *, u8 *);
-void func_80702464(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
+void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
 
 Gfx *gfxDrawRotatedTiledBackground(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3, f32 arg4, f32 arg5) {
     f32 lo;
@@ -485,7 +485,7 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3, f32 
     func_807063B8((RectSpan *)rect, &count, 0, arg4);
     func_807063B8((RectSpan *)rect, &count, 1, arg5);
     for (i = 0; i < count; i++) {
-        func_80702464(&arg0, D_807FD8A0, 0, (u32)arg4, (u32)arg5, 0x20, 0x20, rect[i * 6], rect[i * 6 + 1], rect[i * 6 + 2], rect[i * 6 + 3], rect[i * 6 + 4], rect[i * 6 + 5], 0x10, 0x10);
+        gfxDrawTexturedTileGridSimple(&arg0, D_807FD8A0, 0, (u32)arg4, (u32)arg5, 0x20, 0x20, rect[i * 6], rect[i * 6 + 1], rect[i * 6 + 2], rect[i * 6 + 3], rect[i * 6 + 4], rect[i * 6 + 5], 0x10, 0x10);
     }
     return arg0;
 }

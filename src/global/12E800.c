@@ -1439,7 +1439,7 @@ void patrolGetNextWaypointPos(s16 *arg0, s16 *arg1, s16 *arg2) {
 
 void patrolGetNextWaypointPos(s16 *, s16 *, s16 *);
 
-s32 func_8072D08C(void) {
+s32 patrolGetTargetAngle(void) {
     u8 idx;
     u8 key;
     s16 x;
@@ -1640,7 +1640,7 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
       case 1:
         new_var = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].a;
         key = new_var;
-        v = func_8072D08C();
+        v = patrolGetTargetAngle();
         ((MiscBPatrolActorView *) D_807FBB40)->unkEE = v;
         ((MiscBPatrolActorView *) D_807FBB40)->unkE6 = v;
         ((MiscBPatrolActorView *) D_807FBB40)->unk7C = ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + (key * 10)))->x;

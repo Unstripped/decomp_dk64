@@ -1076,7 +1076,7 @@ Actor *spawnNodeActivate(s16, u16);
 
 #define CS_ACTOR ((CsActorView *)D_807FBB4C)
 
-void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 start;
     u8 hit;
     CsPointHitState *p;
@@ -1251,7 +1251,7 @@ void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/func_80646058.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/478F0/csCmdPointHitEffectSpawn.s")
 #endif
 
 typedef struct CsPlayerXYZ {

@@ -148,7 +148,7 @@ Gfx *renderRotatedQuad(Gfx *glist, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
 extern u16 D_807FC79E;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
-void func_80702464(Gfx **, s32, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32);
+void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32);
 void vtxSetPosTex(Vtx *, s16, s16, s16, s16, s32);
 
 Gfx *renderRotatedSprite(Gfx *glist, u16 arg1, s32 arg2, s32 arg3, u8 arg4, u8 arg5, s16 arg6, s16 arg7, f32 arg8, f32 arg9, s32 arg10, f32 arg11) {
@@ -191,7 +191,7 @@ Gfx *renderRotatedSprite(Gfx *glist, u16 arg1, s32 arg2, s32 arg3, u8 arg4, u8 a
         WRITE_GFX(glist++, 0xDA380007, (u32)&D_2000080);
         gDPPipeSync(glist++);
         var_v0 = ((s32)var_s0 < 0x20) ? 0x20 : 0x1E;
-        func_80702464(&glist, tex, arg2, (u8)arg4, (u8)arg5, var_v0, var_v0, 0.0f, 0.0f,
+        gfxDrawTexturedTileGridSimple(&glist, tex, arg2, (u8)arg4, (u8)arg5, var_v0, var_v0, 0.0f, 0.0f,
                       (f32)(u32)(u8)arg4, (f32)(u32)(u8)arg5,
                       (f32)((s16)arg6 - ((u8)arg4 >> 1)), (f32)((s16)arg7 - ((u8)arg5 >> 1)),
                       1, (s32)var_s0);

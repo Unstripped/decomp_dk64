@@ -1,4 +1,4 @@
-// func_806BC1E0 (src/global/C0EE0.c): stage 5 park, deadsweep 9 -> 4 (text 4 reloc 0 shape 0). Lever 1 (uopt -l 5 trace): replacing FAKE if(n==0){} with if(v & 3){} uncolours n-1, returning it from v1 to expected t3 and matching addiu/mtc1/mfc1/addu (9->4). Remaining 4: t-ring phase on sll t9 vs t4 and sra t5 vs t3 between dx sign-extension and dy calculation. Tried levers 1-7, deadsweep sweep, permuter (20 baseline), declaration permutations.
+// enemyGridStateStep (src/global/C0EE0.c): stage 5 park, full=4 text=4 reloc=0 shape=0; ugen record edit (694 r1=12, 700 r1=11, del 701, 702 r2=11) gives full=0; target t-ring wrapped t4->t3 across dx sign-ext; tried cast-form grid (s8/u8/s16/u16/s32) on (v&3)/(v>>2), split temps, order, reloads
 typedef struct BC1E0_Obj {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -84,7 +84,7 @@ void actorUpdateModelMatrix(void *, s32);
 
 extern s8 D_807FC8D0;
 
-void func_806BC1E0(void) {
+void enemyGridStateStep(void) {
     f32 acc;
     f32 old;
     f32 a;

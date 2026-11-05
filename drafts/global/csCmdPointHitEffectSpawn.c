@@ -1,4 +1,4 @@
-// func_80646058 (src/global/478F0.c): Ovl 2026-11-03 (revisit 8): stage 4 park unchanged full=4 (li t8/li a0 order + fn-ptr spill slot 60 vs 68). Derived: target frame 136 = homes down to vec@72, fn-ptr temp FIRST at 68, hole(s) below; ours has hp@68 and the D_807480F4 dead-test CSE candidate (lower bit than the fn-ptr const) takes the first temp slot (hole at 64, fnptr 60). A frame-136/slot-68 layout is reachable without hp: 'if (&hit) {}' (memory hit) + 'if (D_807480F4) {}' + a hole candidate AFTER the const: 'pad1 = (s32)(*(s32 *)D_807F5FD4); if (pad1) {}' at the start of the loop prep (full 5: lui/lw/lw a1 vs t4 ring) or 'if (gPlayerSlots == 0) {}' (full 7: E=a1 vs v0, pl var vanishes holding v0); also volatile hit (136,68, full 12). The li order is not C-reachable so far: as1probe proves moving the call-arg 'li ,1' record before hit's 'li 4,1' (ugen order [la sw li4 li24 sb jal]) gives the target order (full 5->... li fixed), but hit=1/call spellings (A: f(hit = 1), *hp, s/n/pad locals as arg, joins, statement order) all keep li24 first. No FP ghost (t/u) creates the hole. 12k-eval hill-climb over dead tests (frame/slot/count-aware) and 2821-site const-compare sweep found nothing under 7.
+// csCmdPointHitEffectSpawn (src/global/478F0.c): stage 4 park, full=4 text=4 reloc=0 shape=2 n=535: diff is (1) hoisted pair order li a0,1 / li t8,1 (target) vs li t8,1 / li a0,1 (ours) above bc1fl (swapping t.G records 148 and 151 gives full=2 text=2); (2) temploc 68 vs 60 (target temploc 0x44 immediately follows vec[3] at 0x48; our hp local takes 0x44 pushing temploc to 0x3C; removing hp drops frame to 128 unless 24+ bytes of temps from late f64 expressions are coloured).
 typedef struct CsPointHitState {
     /* 0x00 */ s32 idx;
     /* 0x04 */ s32 timer;
@@ -58,7 +58,7 @@ Actor *spawnNodeActivate(s16, u16);
 
 #define CS_ACTOR ((CsActorView *)D_807FBB4C)
 
-void func_80646058(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 start;
     u8 hit;
     CsPointHitState *p;

@@ -90,7 +90,7 @@ void screenBlurApply(void);
 void screenWipeAlphaRadialSweep(s32, s32, s32);
 void screenWipeAlphaFromCorner(s32, s32, s32);
 void screenWipeAlphaFromCentre(s32, s32, s32);
-void func_807023E8(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+void gfxDrawTexturedTileGridDefault(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32);
 void gfxDrawTexturedTileGrid(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32, s32, void *);
 
 Gfx *screenWipeDraw(Gfx *arg0) {
@@ -124,7 +124,7 @@ Gfx *screenWipeDraw(Gfx *arg0) {
                 screenBlurApply();
                 WIPE_GFX(0xFC119623, 0xFF2FFFFF);
                 WIPE_GFX(0xFA000000, -1);
-                func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
+                gfxDrawTexturedTileGridDefault(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
                 if (D_807FBB60 & 0x40) {
                     D_807F5D84 = -2;
                 }
@@ -132,7 +132,7 @@ Gfx *screenWipeDraw(Gfx *arg0) {
             case 1:
                 WIPE_GFX(0xFC119623, 0xFF2FFFFF);
                 WIPE_GFX(0xFA000000, (D_807F5D86 & 0xFF) | ~0xFF);
-                func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
+                gfxDrawTexturedTileGridDefault(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
                 D_807F5D86 -= sp54 * 5;
                 if (D_807F5D86 < 0) {
                     D_807F5D84 = -2;
@@ -141,7 +141,7 @@ Gfx *screenWipeDraw(Gfx *arg0) {
             case 2:
                 WIPE_GFX(0xFC119623, 0xFF2FFFFF);
                 WIPE_GFX(0xFA000000, -1);
-                func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, (f32)D_807F5D86, 0.0f, 319.0f, 239.0f, (f32)D_807F5D86, 0.0f);
+                gfxDrawTexturedTileGridDefault(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, (f32)D_807F5D86, 0.0f, 319.0f, 239.0f, (f32)D_807F5D86, 0.0f);
                 WIPE_GFX(0xE7000000, 0);
                 WIPE_GFX(0xFC121824, 0xFF33FFFF);
                 if (D_807F5D86 >= 0x11) {
@@ -155,7 +155,7 @@ Gfx *screenWipeDraw(Gfx *arg0) {
             case 0:
                 WIPE_GFX(0xFC119623, 0xFF2FFFFF);
                 WIPE_GFX(0xFA000000, -1);
-                func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0xA, 0x50, 0.0f, 0.0f, D_807F5D86, 239.0f, 0.0f, 0.0f);
+                gfxDrawTexturedTileGridDefault(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0xA, 0x50, 0.0f, 0.0f, D_807F5D86, 239.0f, 0.0f, 0.0f);
                 WIPE_GFX(0xFC121824, 0xFF33FFFF);
                 if (D_807F5D86 < 0x131) {
                     gfxDrawTexturedTileGrid(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x10, 0x20, (f32)D_807F5D86, 0.0f, (f32)(D_807F5D86 + 0x10), 239.0f, (f32)D_807F5D86, 0.0f, 1, 0x10, 2, NULL);
@@ -168,8 +168,8 @@ Gfx *screenWipeDraw(Gfx *arg0) {
             case 3:
                 WIPE_GFX(0xFC119623, 0xFF2FFFFF);
                 WIPE_GFX(0xFA000000, -1);
-                func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, (f32)D_807F5D86, 0.0f, 319.0f, 239.0f, (f32)D_807F5D86, 0.0f);
-                func_807023E8(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0xA, 0x50, 0.0f, 0.0f, D_807F5D88, 239.0f, 0.0f, 0.0f);
+                gfxDrawTexturedTileGridDefault(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, (f32)D_807F5D86, 0.0f, 319.0f, 239.0f, (f32)D_807F5D86, 0.0f);
+                gfxDrawTexturedTileGridDefault(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0xA, 0x50, 0.0f, 0.0f, D_807F5D88, 239.0f, 0.0f, 0.0f);
                 WIPE_GFX(0xFC121824, 0xFF33FFFF);
                 if (D_807F5D86 >= 0x11) {
                     gfxDrawTexturedTileGrid(&arg0, D_807F5D80, 0, 0x140, 0xF0, 0x10, 0x50, (f32)(D_807F5D86 - 0x10), 0.0f, (f32)D_807F5D86, 239.0f, (f32)(D_807F5D86 - 0x10), 0.0f, 1, 0x10, 1, NULL);

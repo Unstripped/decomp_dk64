@@ -934,7 +934,7 @@ void func_8069B3FC(void) {
 
 extern s16 D_80744490;
 s32 actorTableContains();
-void func_8069B908(void);
+void textMarkerUpdateMatrix(void);
 void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s16, f32, s32);
 s32 flagGet(s32, s32);
 
@@ -1022,7 +1022,7 @@ void camStartShake(s32, s32, s32);
 void func_8071A8B0(void);
 void effectTumbleBounceUpdate(void);
 
-void func_8069B908(void) {
+void textMarkerUpdateMatrix(void) {
     ActorSub174View *sp13C;
     f32 mtxA[4][4];
     f32 mtxB[4][4];
@@ -1391,7 +1391,7 @@ void func_8069B908(void) {
 }
 #else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/func_8069B908.s")
+#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/textMarkerUpdateMatrix.s")
 #endif
 
 
@@ -1434,7 +1434,7 @@ void actorUpdateTimerBarAndRange(void) {
     } else {
         D_807FBB40->unk60 &= ~0x400;
     }
-    func_8069B908();
+    textMarkerUpdateMatrix();
 }
 
 void actorSpawnEffectAndTick(void) {
@@ -1444,7 +1444,7 @@ void actorSpawnEffectAndTick(void) {
         actorListSpawnNodeEntryDefault(0x83, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84,
                       0, 1.0f, (s32)D_807FBB40);
     }
-    func_8069B908();
+    textMarkerUpdateMatrix();
     if (!(D_807FBB40->unk60 & 0x10)) {
         if (*(s32 *)((u8 *)D_807FBB40->unk124 + 0x8) == 1) {
             if (flagGet(0xFD, 0) != 0) {
@@ -1460,7 +1460,7 @@ void func_8069D018(void) {
     if (!(actor->unk60 & 0x10)) {
         actor->unk12A = 0x2BC;
     }
-    func_8069B908();
+    textMarkerUpdateMatrix();
 }
 
 void func_8069D058(void) {
@@ -1480,7 +1480,7 @@ void func_8069D0B8(void) {
 }
 
 void func_8069D0D8(void) {
-    func_8069B908();
+    textMarkerUpdateMatrix();
 }
 
 typedef struct TextMarkerState {

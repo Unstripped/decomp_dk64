@@ -1,4 +1,4 @@
-// func_806C7270 (src/global/CBEA0.c): Stage 6 park (full=6 text=6 shape=0); 0 FAKEs (k=(u8)(t&1) replaces k=k&0xFF); remaining diff: sra t9/andi a0/sll t2 vs sra a0/andi t1/sll t2 (t>>1 coloured in a0 by uopt vs uncoloured ugen ring temp t9 in target) + mul.s operand order from x0=frac; direct frac fixes mul.s but drops lui t4 PRE hoist.
+// spriteLinearInterpolateFrame (src/global/CBEA0.c): stage 6 park, full=6 text=6 reloc=0 shape=0; ugen record edit (292/293 r1=25, 300/302 r1=4, del 301, 310 r2=25, 318 r2=38/r3=32) gives full=0; target kept t>>1 in ring temp t9 because k (t&1) took a0; direct frac matches mul.s but drops as1 lui t4 hoist
 typedef struct R1C2CB_Entry {
     s16 unk0;
     s16 unk2;
@@ -29,7 +29,7 @@ u8 *assetLoad(s32, s32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 Gfx *func_806C75A4(Gfx *, Actor *);
 
-void func_806C7270(void) {
+void spriteLinearInterpolateFrame(void) {
     f32 frac;
     f32 x0;
     f32 y0;
