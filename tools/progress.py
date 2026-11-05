@@ -3,6 +3,9 @@
 
 Reports matched vs total code bytes and function counts per segment
 (boot, global, and nine overlays in Makefile order) and overall total.
+Matched includes compiled C and the handwritten files in handwritten_asm.json;
+both categories are reported separately. Only ELF function bytes are counted,
+not alignment padding or data embedded in assembly.
 
 Usage:
   tools/dk python3 tools/progress.py [--json] [segment]
@@ -188,10 +191,15 @@ def read_elf_symbols(elf_path: Path):
 
 
 def iter_segment_functions(elf_path: Path, map_path: Path, repo_root: Path):
-    """Yield every function of a linked segment: the ELF symbol dict plus obj, c_file, matched."""
+    """Yield ELF functions with obj, c_file, c_matched, handwritten, and matched."""
     obj_secs = sorted(parse_map_text_sections(map_path))
     starts = [a for a, _, _ in obj_secs]
     c_unmatched_cache = {}
+    handwritten_objects = {
+        f"build/{Path(path).with_suffix('.o').as_posix()}"
+        for path in json.loads((repo_root / "handwritten_asm.json").read_text(encoding="utf-8"))
+        if path.startswith("asm/")
+    }
 
     for s in read_elf_symbols(elf_path):
         # STT_FUNC = 2, size > 0, shndx < 0xFF00 (not ABS / COMMON / UNDEF)
@@ -207,35 +215,51 @@ def iter_segment_functions(elf_path: Path, map_path: Path, repo_root: Path):
         if val >= sec_addr + sec_size:
             continue
 
-        # Matched = compiled from C and not still a GLOBAL_ASM/INCLUDE_ASM include
+        # Unlisted assembly and GLOBAL_ASM/INCLUDE_ASM placeholders remain unmatched.
         c_file = None
-        matched = False
+        c_matched = False
+        handwritten = obj in handwritten_objects
         if obj.startswith("build/src/"):
             c_file = repo_root / "src" / Path(obj).relative_to("build/src").with_suffix(".c")
             if c_file not in c_unmatched_cache:
                 c_unmatched_cache[c_file] = get_unmatched_in_c(c_file)
-            matched = s["name"] not in c_unmatched_cache[c_file]
+            c_matched = s["name"] not in c_unmatched_cache[c_file]
 
-        yield {**s, "obj": obj, "c_file": c_file, "matched": matched}
+        yield {
+            **s, "obj": obj, "c_file": c_file,
+            "c_matched": c_matched, "handwritten": handwritten,
+            "matched": c_matched or handwritten,
+        }
 
 
 def compute_segment_progress(name: str, elf_path: Path, map_path: Path, repo_root: Path):
-    """Compute matched and total function bytes and counts for a segment."""
-    matched_bytes = 0
-    matched_funcs = 0
+    """Compute C, handwritten assembly, matched, and total function bytes/counts."""
+    c_matched_bytes = 0
+    c_matched_funcs = 0
+    handwritten_bytes = 0
+    handwritten_funcs = 0
     total_bytes = 0
     total_funcs = 0
 
     for f in iter_segment_functions(elf_path, map_path, repo_root):
         total_funcs += 1
         total_bytes += f["size"]
-        if f["matched"]:
-            matched_funcs += 1
-            matched_bytes += f["size"]
+        if f["c_matched"]:
+            c_matched_funcs += 1
+            c_matched_bytes += f["size"]
+        elif f["handwritten"]:
+            handwritten_funcs += 1
+            handwritten_bytes += f["size"]
 
+    matched_bytes = c_matched_bytes + handwritten_bytes
+    matched_funcs = c_matched_funcs + handwritten_funcs
     pct = (matched_bytes / total_bytes * 100.0) if total_bytes > 0 else 0.0
     return {
         "name": name,
+        "c_matched_bytes": c_matched_bytes,
+        "c_matched_funcs": c_matched_funcs,
+        "handwritten_bytes": handwritten_bytes,
+        "handwritten_funcs": handwritten_funcs,
         "matched_bytes": matched_bytes,
         "total_bytes": total_bytes,
         "percent": pct,
@@ -281,14 +305,15 @@ def render_markdown(results, total_row) -> str:
         "",
         progress_bar(total_row["percent"], 40),
         "",
-        "| Segment | Contents | Progress | Bytes | Functions |",
-        "|---|---|---|--:|--:|",
+        "| Segment | Contents | Progress | C bytes | Handwritten bytes | Matched / total bytes | Functions |",
+        "|---|---|---|--:|--:|--:|--:|",
     ]
     for r in results + [total_row]:
         name = "**Total**" if r is total_row else f"`{r['name']}`"
         notes = "" if r is total_row else SEGMENT_NOTES.get(r["name"], "")
         lines.append(
             f"| {name} | {notes} | {progress_bar(r['percent'])} {r['percent']:.1f}% "
+            f"| {r['c_matched_bytes']:,} | {r['handwritten_bytes']:,} "
             f"| {r['matched_bytes']:,} / {r['total_bytes']:,} "
             f"| {r['matched_funcs']:,} / {r['total_funcs']:,} |"
         )
@@ -363,6 +388,10 @@ def main():
     )
     total_row = {
         "name": "total",
+        "c_matched_bytes": sum(r["c_matched_bytes"] for r in results),
+        "c_matched_funcs": sum(r["c_matched_funcs"] for r in results),
+        "handwritten_bytes": sum(r["handwritten_bytes"] for r in results),
+        "handwritten_funcs": sum(r["handwritten_funcs"] for r in results),
         "matched_bytes": total_matched_bytes,
         "total_bytes": total_total_bytes,
         "percent": total_pct,
@@ -377,41 +406,28 @@ def main():
         return
 
     if args.json:
-        json_data = {}
-        for r in results:
-            json_data[r["name"]] = {
-                "matched_bytes": r["matched_bytes"],
-                "total_bytes": r["total_bytes"],
-                "percent": r["percent"],
-                "matched_funcs": r["matched_funcs"],
-                "total_funcs": r["total_funcs"],
-                "code": r["code"],
-                "code/total": r["code/total"],
-            }
-        json_data["total"] = {
-            "matched_bytes": total_row["matched_bytes"],
-            "total_bytes": total_row["total_bytes"],
-            "percent": total_row["percent"],
-            "matched_funcs": total_row["matched_funcs"],
-            "total_funcs": total_row["total_funcs"],
-            "code": total_row["code"],
-            "code/total": total_row["code/total"],
+        json_data = {
+            r["name"]: {key: value for key, value in r.items() if key != "name"}
+            for r in results + [total_row]
         }
         print(json.dumps(json_data, indent=2))
         return
 
-    # Text table output
-    print(f"{'Segment':<15s} {'Matched / Total Bytes':>23s}   {'Percent':>7s}   {'Matched / Total Funcs':>21s}")
-    for r in results:
+    # Text table output, with handwritten bytes separate from compiled C.
+    print(
+        f"{'Segment':<15s} {'C Bytes':>9s} {'Hand ASM':>9s} "
+        f"{'Matched / Total Bytes':>23s}   {'Percent':>7s}   {'Matched / Total Funcs':>21s}"
+    )
+    for r in results + [total_row]:
+        if r is total_row:
+            print("-" * 105)
+        name = "Total" if r is total_row else r["name"]
         bytes_str = f"{r['matched_bytes']:>7d} / {r['total_bytes']:>7d}"
         funcs_str = f"{r['matched_funcs']:>5d} / {r['total_funcs']:>5d}"
-        print(f"{r['name']:<15s} {bytes_str:>23s}   {r['percent']:>6.2f}%   {funcs_str:>21s}")
-
-    # Separator line and total row
-    print("-" * 75)
-    total_bytes_str = f"{total_row['matched_bytes']:>7d} / {total_row['total_bytes']:>7d}"
-    total_funcs_str = f"{total_row['matched_funcs']:>5d} / {total_row['total_funcs']:>5d}"
-    print(f"{'Total':<15s} {total_bytes_str:>23s}   {total_row['percent']:>6.2f}%   {total_funcs_str:>21s}")
+        print(
+            f"{name:<15s} {r['c_matched_bytes']:>9d} {r['handwritten_bytes']:>9d} "
+            f"{bytes_str:>23s}   {r['percent']:>6.2f}%   {funcs_str:>21s}"
+        )
 
 
 if __name__ == "__main__":

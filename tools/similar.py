@@ -80,7 +80,7 @@ def load_functions(repo_root: Path) -> list[Func]:
             if sec["type"] == 8:  # SHT_NOBITS
                 continue
             words = struct.unpack_from(f">{f['size'] // 4}I", data, sec["offset"] + f["value"] - sec["addr"])
-            funcs.append(Func(seg, f["name"], f["value"], encode(words), f["matched"], f["c_file"]))
+            funcs.append(Func(seg, f["name"], f["value"], encode(words), f["c_matched"], f["c_file"]))
     return funcs
 
 

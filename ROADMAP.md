@@ -54,6 +54,8 @@ Full per-segment details (stream offsets, sizes, hashes, gzip header fields): `b
 
 - [x] **11. Emulator tooling** — Docker sessions running ares-64 with GDB server (port 9123), Xvfb/x11vnc (port 5900, password `dk64`), session CLI (`tools/emu/emu.py`), save-state library (`tools/emu/states.py`), map warping and map sweeps via `func_805FF378` safe-point infcall (`tools/emu/warp.py`), dynamic breakpoint coverage (`tools/emu/coverage.py`), and function tracing and argument inspection (`tools/emu/study.py`). Symbol resolution and overlay detection in `tools/emu/symbols.py`. Session runtime output in `emu/` (gitignored). Skill at `.omp/skills/emulator/`.
 
+- [x] **Handwritten assembly accounting** — `handwritten_asm.json` records the reviewed generated-assembly files and why they are not C targets. Progress counts their ELF function bytes as matched, separately from compiled C: 37 boot functions (6,092 bytes) and 51 global functions (15,392 bytes), including RSP DMA helper `func_80742E9C`. Overall matching completion is 97.09%; boot is 100%, global 96.70%. Function-byte denominators are unchanged; embedded data and padding remain excluded. Unlisted assembly and `GLOBAL_ASM` C placeholders remain unmatched, and `tools/similar.py` still searches only compiled C.
+
 ## To do
 
 ### 9. Decompilation (ongoing)
