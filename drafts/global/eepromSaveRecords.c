@@ -1,28 +1,4 @@
-// eepromSaveRecords (src/global/104F0.c): stage 4 park (full=26 text=27 reloc=0 shape=6): remaining diff = B_post chain consts (target li at,-64/-8 uncoloured per use), tail b candidate s0 vs s2, missing move s4,s1 in memcpy delay slot. Tried: candidate 90 ucvtl analysis, u16 vs s32 idx, cross-loop b lifetime.
-#include <ultra64.h>
-
-extern s16 D_807ECEA0[];
-extern u8 D_807ECEA8[0x800];
-extern u8 D_807ED6A8[0x800];
-extern s32 D_807EDEAC;
-extern u8 *D_807ECD08;
-extern char D_807467C0[];
-extern s8 D_80744460;
-extern s8 D_807467C4;
-extern u8 D_807467E4;
-extern f32 D_807467E8;
-extern OSMesgQueue D_807ECCF0;
-
-extern void _sprintf(char *, const char *, ...);
-extern void memcpy(void *, const void *, size_t);
-extern void eepromCopySlot(void);
-extern u32 eepromCalculateCrc32(void *, u32);
-extern void bzero(void *, size_t);
-extern int strlen(const char *);
-extern void osWritebackDCacheAll(void);
-extern void sleepMilliseconds(f32);
-extern s32 osEepromWrite(OSMesgQueue *, u8, u8 *);
-
+// eepromSaveRecords (src/global/104F0.c): stage 4 park full=26 text=27 reloc=0 shape=7; 296 instructions and 0x1078 frame. Corrected old lossy (u16)offset alignment to offset-(offset&0x3F), matching target 32-bit behavior without changing full/text score. Remaining: B_post uses andi/subu instead of per-use li at,-64/and; tail b s0 vs s2; missing memcpy-delay move s4,s1 and poll/guard register differences. Tried signed/unsigned int/long/64-bit masks, compound chains, alignment shifts/divisions, parameter/local value routing, narrow sector variants, raw vs narrowed loop guard partitions, early index initialization, copy-retention and typed integer ghost reads. Removing poll ghost gets full=25 text=26 but 295 instructions (not parkable); all typed/lifetime combinations regress. Prior dead ends: candidate 90 ucvtl, u16 vs s32 idx, cross-loop b lifetime.
 void eepromSaveRecords(s32 arg0) {
     s32 j;
     s32 sector;
@@ -54,7 +30,7 @@ void eepromSaveRecords(s32 arg0) {
             sector = 0;
             offset = D_807ECEA0[0];
             offset += 0x6B7;
-            offset = ((u16)offset & ~0x3F) + 0x27;
+            offset = (offset - (offset & 0x3F)) + 0x27;
             offset = ((s32)(offset & ~7U) * 4) + 0x3F;
             offset = (s32)(offset & ~0x3FU);
             offset /= 8;
