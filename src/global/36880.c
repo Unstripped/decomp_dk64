@@ -2844,10 +2844,11 @@ u8 arg2;
     u8 res;
     s32 sp24;
     s32 sp20;
+    if (&arg2) {} // FAKE: preserves the argument's memory home
     p = (ModelSlotObjHeader *)arg0->unk24;
     seg = ((ModelSlotSegOwner *)arg0)->unk20;
     seg2 = seg;
-    obj = (ModelSlotObjHeader *)((u32)p | 0); // FAKE: blocks copy propagation
+    obj = (ModelSlotObjHeader *)p;
     p->unk8 = gFrameCounter;
     if (arg0->unk20 && arg0->unk20) {} // FAKE: dead test steers uopt colouring
     if (!(arg0->unk8C & 0x20)) {
@@ -2856,7 +2857,8 @@ u8 arg2;
             obj->unk3C += 1;
             if (obj->unk1C == 1) {
                 node = (ModelSegmentNode *)((ModelSlotSegOwner *)arg0)->unk20->unkB8;
-                sp24 = ((seg->unkA8 - seg->unkA0) >> 3) * 8;
+                pad = seg->unkA8 - seg->unkA0; // FAKE: reuses pad for the length difference (steers uopt colouring)
+                sp24 = ((u32)pad >> 3) * 8;
                 sp30 = (seg->unkB0 - seg->unkA8) >> 3;
                 pad = seg->unkA0; // FAKE: reuses the pad word as the CSE'd pointer (steers uopt colouring)
                 res = dlResolveNodeTextures((DisplayListCmd *)pad, (DisplayListCmd *)(pad + sp24), node, arg2);
