@@ -44,24 +44,24 @@ typedef struct {
 extern CommandState D_807FDB60;
 extern s32 D_807FDB70;
 
-void commandSetParameters(s16 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4, u8 arg5) {
-    D_807FDB76 = arg0;
-    D_807FDB78 = arg1;
-    D_807FDB7A = arg2;
-    D_807FDB7E = arg3;
-    D_807FDB7F = arg4;
-    D_807FDB80 = arg5;
+void commandSetParameters(s16 angleOffset, s16 distance, s16 heightOffset, u8 red, u8 green, u8 blue) {
+    D_807FDB76 = angleOffset;
+    D_807FDB78 = distance;
+    D_807FDB7A = heightOffset;
+    D_807FDB7E = red;
+    D_807FDB7F = green;
+    D_807FDB80 = blue;
 }
 
-void commandSetColor(s8 arg0, s8 arg1, s8 arg2) {
-    D_807FDB60.unkB = arg0;
-    D_807FDB60.unkC = arg1;
-    D_807FDB60.unkD = arg2;
+void commandSetColor(s8 red, s8 green, s8 blue) {
+    D_807FDB60.unkB = red;
+    D_807FDB60.unkC = green;
+    D_807FDB60.unkD = blue;
 }
 
-void commandSetFlags(s8 arg0, s8 arg1) {
-    D_807FDB7C = arg0;
-    D_807FDB7D = arg1;
+void commandSetFlags(s8 ambientFlag, s8 directionalFlag) {
+    D_807FDB7C = ambientFlag;
+    D_807FDB7D = directionalFlag;
 }
 
 void commandStateInit(void) {
@@ -82,38 +82,38 @@ extern f32 D_80755684;
 extern f32 D_80755688;
 extern f32 D_8075568C;
 
-void func_8072167C(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
-    D_80755680 = (s16) (s32) ((f64) D_80755680 + ((f64) (arg3 - D_80755680) * 0.1));
-    D_80755684 = (f32) ((f64) D_80755684 + ((f64) ((f32) arg0 - D_80755684) * 0.1));
-    D_80755688 = (f32) ((f64) D_80755688 + ((f64) ((f32) arg1 - D_80755688) * 0.1));
-    D_8075568C = (f32) ((f64) D_8075568C + ((f64) ((f32) arg2 - D_8075568C) * 0.1));
+void func_8072167C(s16 targetRed, s16 targetBlue, s16 targetGreen, s16 targetRot) {
+    D_80755680 = (s16) (s32) ((f64) D_80755680 + ((f64) (targetRot - D_80755680) * 0.1));
+    D_80755684 = (f32) ((f64) D_80755684 + ((f64) ((f32) targetRed - D_80755684) * 0.1));
+    D_80755688 = (f32) ((f64) D_80755688 + ((f64) ((f32) targetBlue - D_80755688) * 0.1));
+    D_8075568C = (f32) ((f64) D_8075568C + ((f64) ((f32) targetGreen - D_8075568C) * 0.1));
 }
 
-void commandQueuePush(s32 arg0, s16 arg1, s16 arg2, s16 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8) {
-    s32 var_v0;
-    s32 temp_t3;
-    Command *temp_v1;
+void commandQueuePush(s32 actor, s16 x, s16 y, s16 z, u8 radius, u8 red, u8 green, u8 blue, u8 type) {
+    s32 queueIndex;
+    s32 wrappedIndex;
+    Command *cmd;
 
-    var_v0 = D_807FDB74;
-    if (var_v0 >= 0x20) {
-        temp_t3 = var_v0 - 1;
-        D_807FDB74 = temp_t3 & 0xFFFF;
-        var_v0 = temp_t3 & 0xFF;
+    queueIndex = D_807FDB74;
+    if (queueIndex >= 0x20) {
+        wrappedIndex = queueIndex - 1;
+        D_807FDB74 = wrappedIndex & 0xFFFF;
+        queueIndex = wrappedIndex & 0xFF;
     }
-    temp_v1 = (Command *)(D_807FDB70 + var_v0 * 0x10);
-    D_807FDB74 = var_v0 + 1;
-    temp_v1->unk0 = arg0;
-    temp_v1->unk4 = arg1;
-    temp_v1->unk6 = arg2;
-    temp_v1->unk8 = arg3;
-    temp_v1->unkA = arg4;
-    temp_v1->unkB = arg5;
-    temp_v1->unkC = arg6;
-    temp_v1->unkD = arg7;
-    temp_v1->unkE = arg8;
+    cmd = (Command *)(D_807FDB70 + queueIndex * 0x10);
+    D_807FDB74 = queueIndex + 1;
+    cmd->unk0 = actor;
+    cmd->unk4 = x;
+    cmd->unk6 = y;
+    cmd->unk8 = z;
+    cmd->unkA = radius;
+    cmd->unkB = red;
+    cmd->unkC = green;
+    cmd->unkD = blue;
+    cmd->unkE = type;
 }
 
-s32 commandApplyToLight(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5) {
+s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32 actorZ, s16 playerSlotIndex) {
     f32 dist;
     f64 dist_d;
     Light *lights;
@@ -127,43 +127,43 @@ s32 commandApplyToLight(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s1
 
     lights = (Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x278);
     ambient = (Ambient *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x270);
-    slot_light = &((Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x278))[arg0];
+    slot_light = &((Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x278))[lightIndex];
 
     if (D_8076A048 == 0) {} // FAKE: makes the base load a uopt candidate (v1)
-    if (arg0 >= 7) {
+    if (lightIndex >= 7) {
         return 0;
     }
 
-    if (arg1->unkE == 5) {
-        dist_d = sqrtf((arg2 - (f32)arg1->unk4) * (arg2 - (f32)arg1->unk4) + (arg4 - (f32)arg1->unk8) * (arg4 - (f32)arg1->unk8));
+    if (cmd->unkE == 5) {
+        dist_d = sqrtf((actorX - (f32)cmd->unk4) * (actorX - (f32)cmd->unk4) + (actorZ - (f32)cmd->unk8) * (actorZ - (f32)cmd->unk8));
         if (dist_d == 0.5) {} // FAKE: dead use of the 0.5 constant starts its web early (splits the ambient piece into f14)
         dist = (dist_d > 0.001) ? dist_d : 0.001;
-        base = (dist - (f32)((s32)arg1->unkA / 2) < 1.0) ? 1.0 : dist - (f32)((s32)arg1->unkA / 2);
-        clamped = (f64)(f32)(u32)arg1->unkA / (0.5 * base * base);
+        base = (dist - (f32)((s32)cmd->unkA / 2) < 1.0) ? 1.0 : dist - (f32)((s32)cmd->unkA / 2);
+        clamped = (f64)(f32)(u32)cmd->unkA / (0.5 * base * base);
         if (base == base) {} // FAKE: dead use raises base priority above clamped (f2 / f12)
         if (base == base) {} // FAKE: dead use raises base priority above clamped (f2 / f12)
         intensity = (clamped > 1.0) ? 1.0 : clamped;
-        if ((f32)(arg1->unk6 + 50) < arg3) {
-            dy_d = ((arg3 - (f32)arg1->unk6) - 50.0f > 20.0) ? 20.0 : (arg3 - (f32)arg1->unk6) - 50.0f;
+        if ((f32)(cmd->unk6 + 50) < actorY) {
+            dy_d = ((actorY - (f32)cmd->unk6) - 50.0f > 20.0) ? 20.0 : (actorY - (f32)cmd->unk6) - 50.0f;
             intensity = (f64)intensity * (1.0 - (dy_d / 20.0));
         }
     } else {
-        dist_d = sqrtf((arg2 - (f32)arg1->unk4) * (arg2 - (f32)arg1->unk4) + (arg3 - (f32)arg1->unk6) * (arg3 - (f32)arg1->unk6) + (arg4 - (f32)arg1->unk8) * (arg4 - (f32)arg1->unk8));
+        dist_d = sqrtf((actorX - (f32)cmd->unk4) * (actorX - (f32)cmd->unk4) + (actorY - (f32)cmd->unk6) * (actorY - (f32)cmd->unk6) + (actorZ - (f32)cmd->unk8) * (actorZ - (f32)cmd->unk8));
         dist = (dist_d > 0.001) ? dist_d : 0.001;
         intensity = 1.0f;
     }
 
-    if (arg1->unkE == 5) {
+    if (cmd->unkE == 5) {
         if ((f64)intensity > 0.1) {
-            c = (u32)((f32)(u32)lights->l.col[0] + ((f32)(arg1->unkB - lights->l.col[0]) * intensity));
+            c = (u32)((f32)(u32)lights->l.col[0] + ((f32)(cmd->unkB - lights->l.col[0]) * intensity));
             lights->l.colc[0] = c;
             lights->l.col[0] = c;
 
-            c = (u32)((f32)(u32)lights->l.col[1] + ((f32)(arg1->unkC - lights->l.col[1]) * intensity));
+            c = (u32)((f32)(u32)lights->l.col[1] + ((f32)(cmd->unkC - lights->l.col[1]) * intensity));
             lights->l.colc[1] = c;
             lights->l.col[1] = c;
 
-            c = (u32)((f32)(u32)lights->l.col[2] + ((f32)(arg1->unkD - lights->l.col[2]) * intensity));
+            c = (u32)((f32)(u32)lights->l.col[2] + ((f32)(cmd->unkD - lights->l.col[2]) * intensity));
             lights->l.colc[2] = c;
             lights->l.col[2] = c;
 
@@ -183,21 +183,21 @@ s32 commandApplyToLight(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s1
     }
 
     if ((f64)intensity > 0.02) {
-        c = (u32)((f32)(u32)arg1->unkB * intensity);
+        c = (u32)((f32)(u32)cmd->unkB * intensity);
         slot_light->l.colc[0] = c;
         slot_light->l.col[0] = c;
 
-        c = (u32)((f32)(u32)arg1->unkC * intensity);
+        c = (u32)((f32)(u32)cmd->unkC * intensity);
         slot_light->l.colc[1] = c;
         slot_light->l.col[1] = c;
 
-        c = (u32)((f32)(u32)arg1->unkD * intensity);
+        c = (u32)((f32)(u32)cmd->unkD * intensity);
         slot_light->l.colc[2] = c;
         slot_light->l.col[2] = c;
 
-        slot_light->l.dir[0] = (s8)(s32)(((f32)arg1->unk4 - arg2) * (127.0f / dist));
-        slot_light->l.dir[1] = (s8)(s32)(((f32)arg1->unk6 - arg3) * (127.0f / dist));
-        slot_light->l.dir[2] = (s8)(s32)(((f32)arg1->unk8 - arg4) * (127.0f / dist));
+        slot_light->l.dir[0] = (s8)(s32)(((f32)cmd->unk4 - actorX) * (127.0f / dist));
+        slot_light->l.dir[1] = (s8)(s32)(((f32)cmd->unk6 - actorY) * (127.0f / dist));
+        slot_light->l.dir[2] = (s8)(s32)(((f32)cmd->unk8 - actorZ) * (127.0f / dist));
         return 1;
     }
 
@@ -255,7 +255,7 @@ typedef struct {
     s16 unkD4;
 } FakesLightHitState;
 
-Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
+Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIndex) {
     u8 is_player;
     u8 *color_base;
     Light *secondary;
@@ -279,8 +279,8 @@ Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
     f32 z;
     f32 color[3];
 
-    actor = (LightActorView *)arg1;
-    if (arg1 == D_807FBB4C) {
+    actor = (LightActorView *)targetActor;
+    if (targetActor == D_807FBB4C) {
         is_player = 1;
     } else {
         is_player = 0;
@@ -291,7 +291,7 @@ Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
     secondary = &((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].l[0];
 
     if (actor->unkCD != 0) {
-        actorGetNodePos(arg1, (void *)actor->unkCD, &x, &y, &z); // FAKE: pointer cast keeps the node id in v1 (move a1,v1)
+        actorGetNodePos(targetActor, (void *)actor->unkCD, &x, &y, &z); // FAKE: pointer cast keeps the node id in v1 (move a1,v1)
     } else {
         x = actor->x;
         y = actor->y;
@@ -342,10 +342,10 @@ Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
     secondary->l.colc[1] = secondary->l.col[1];
     secondary->l.colc[2] = secondary->l.col[2];
 
-    angle = mathAngleBetweenPoints2D(x, z, *(f32 *)((u8 *)gPlayerSlots + (arg2 * 0x2F0) + 0x21C), *(f32 *)((u8 *)gPlayerSlots + (arg2 * 0x2F0) + 0x224)) + D_807FDB76;
-    dx = (*(f32 *)((u8 *)gPlayerSlots + (arg2 * 0x2F0) + 0x21C) - (func_80612794(angle) * (f32)D_807FDB78)) - x;
+    angle = mathAngleBetweenPoints2D(x, z, *(f32 *)((u8 *)gPlayerSlots + (playerSlotIndex * 0x2F0) + 0x21C), *(f32 *)((u8 *)gPlayerSlots + (playerSlotIndex * 0x2F0) + 0x224)) + D_807FDB76;
+    dx = (*(f32 *)((u8 *)gPlayerSlots + (playerSlotIndex * 0x2F0) + 0x21C) - (func_80612794(angle) * (f32)D_807FDB78)) - x;
     dy = (f32)(camera_rotation + D_807FDB7A);
-    dz = (*(f32 *)((u8 *)gPlayerSlots + (arg2 * 0x2F0) + 0x224) - (func_80612790(angle) * (f32)D_807FDB78)) - z;
+    dz = (*(f32 *)((u8 *)gPlayerSlots + (playerSlotIndex * 0x2F0) + 0x224) - (func_80612790(angle) * (f32)D_807FDB78)) - z;
     inv_distance = 127.0f / sqrtf((dx * dx) + (dy * dy) + (dz * dz));
     secondary->l.dir[0] = (s8)(s32)(dx * inv_distance);
     secondary->l.dir[1] = (s8)(s32)(dy * inv_distance);
@@ -365,7 +365,7 @@ Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
     }
 
     for (i = 0; i < D_807FDB74; i++) {
-        if (((Command *)D_807FDB70)[i].unk0 == (s32)arg1 && commandApplyToLight(command, (Command *)(D_807FDB70 + (i << 4)), x, y, z, arg2) != 0) {
+        if (((Command *)D_807FDB70)[i].unk0 == (s32)targetActor && commandApplyToLight(command, (Command *)(D_807FDB70 + (i << 4)), x, y, z, playerSlotIndex) != 0) {
             command++;
         }
     }
@@ -389,20 +389,20 @@ Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
     }
 
     for (i = 0; i < command; i++) {
-        Gfx *dl = arg0++;
+        Gfx *dl = glist++;
         dl->words.w0 = (0xDC080000 | ((((i * 0x18 + 0x30) / 8) & 0xFF) << 8)) | 0xA;
         dl->words.w1 = (u32)&((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].l[i];
     }
     {
-        Gfx *gdl1 = arg0++;
+        Gfx *gdl1 = glist++;
         Gfx *gdl2;
         Gfx *gdl3;
         gdl1->words.w0 = (0xDC080000 | ((((command * 0x18 + 0x30) / 8) & 0xFF) << 8)) | 0xA;
-        gdl2 = arg0++;
+        gdl2 = glist++;
         gdl1->words.w1 = (u32)&((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].a;
         gdl2->words.w1 = command * 0x18;
         gdl2->words.w0 = 0xDB020000;
-        gdl3 = arg0++;
+        gdl3 = glist++;
         gdl3->words.w1 = 0;
         gdl3->words.w0 = 0xE7000000;
     }
@@ -411,7 +411,7 @@ Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
     if (D_807FDB75 >= 0x18) {
         D_807FDB75--;
     }
-    return arg0;
+    return glist;
 }
 
 
