@@ -23,9 +23,9 @@ typedef struct PathFollowState {
 
 typedef struct PathFollowOwner {
     u8 pad0[0x7C];
-    s32 unk7C;
-    s32 unk80;
-    s32 unk84;
+    f32 unk7C;
+    f32 unk80;
+    f32 unk84;
     u8 pad88[0x28];
     s8 unkB0;
     u8 padB1[0x67];
@@ -33,8 +33,8 @@ typedef struct PathFollowOwner {
 } PathFollowOwner;
 
 s32 pathExists(u8);
-void pathFindClosestPoint(s32, s32, s32, s32, s32 *, f32 *);
-void pathRefineClosestPoint(s32, s32, s32, s32, s32 *, f32 *);
+void pathFindClosestPoint(s32, f32, f32, f32, s32 *, f32 *);
+void pathRefineClosestPoint(s32, f32, f32, f32, s32 *, f32 *);
 void pathSplineSample(s32, s32, f32, f32 *, f32 *, f32 *);
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 s16 pathEntryCount(s32);
@@ -50,7 +50,7 @@ void pathFollowUpdateHeading(PathFollowOwner *arg0, u8 arg1) {
     f32 x1;
     f32 y1;
     f32 z1;
-    f32 ang;
+    s16 heading;
     s32 cnt;
     u8 sp47;
 
@@ -90,8 +90,10 @@ void pathFollowUpdateHeading(PathFollowOwner *arg0, u8 arg1) {
             frac = frac - 1.0;
         }
         pathSplineSample(s->unk12, idx, frac, &x1, &y1, &z1);
-        ang = mathAngleBetweenPointsDeg((s32)x0, (s32)z0, (s32)x1, (s32)z1);
-        s->unkE = (((s16)((s16)(0x1000 - (s16)(s32)(ang * 2048.0 / 3.14159274101257324)) + 0x800)) & 0xFFF);  // FAKE: nested s16 casts steer the subu temp name to $t0
+        heading = (s32)(mathAngleBetweenPointsDeg((s32)x0, (s32)z0, (s32)x1, (s32)z1) * 2048.0 / 3.14159274101257324);
+        heading = 0x1000 - heading;
+        heading += 0x800;
+        s->unkE = heading & 0xFFF;
         s->unk10 = 0x23;
         cnt = pathEntryCount(s->unk12) - 1;
         if (s->unk4 >= cnt) {
