@@ -33,14 +33,14 @@ void assetFreeBuffer(s32, s32, s32);
 s32 assetLoad(s32, s32, s32, s32);
 void pathTableLoad(s16 *);
 
-void pathFreeAsset(s32 arg0) {
-    s32 sp1C;
-    s32 temp_v0;
+void pathFreeAsset(s32 assetId) {
+    s32 loadedAsset;
+    s32 asset;
 
-    temp_v0 = assetLoad(0xF, arg0, 1, 1);
-    sp1C = temp_v0;
-    pathTableLoad((s16 *) temp_v0);
-    assetFreeBuffer(sp1C, 0x47, 0x27);
+    asset = assetLoad(0xF, assetId, 1, 1);
+    loadedAsset = asset;
+    pathTableLoad((s16 *) asset);
+    assetFreeBuffer(loadedAsset, 0x47, 0x27);
 }
 
 typedef struct PathPoint {
@@ -53,41 +53,41 @@ typedef struct PathPoint {
 
 extern PathPlayback *D_807FDBF8[];
 
-void pathTableLoad(s16 *arg0) {
-    s16 *var_s2;
-    PathPoint *var_a0;
-    s16 temp_s5;
-    s16 temp_s7;
-    s16 var_s0;
-    s16 var_s4;
+void pathTableLoad(s16 *src) {
+    s16 *srcPtr;
+    PathPoint *point;
+    s16 pathId;
+    s16 pathCount;
+    s16 j;
+    s16 i;
 
-    for (var_s4 = 0; var_s4 < 0x1A; var_s4++) {
-        D_807FDB90[var_s4] = NULL;
+    for (i = 0; i < 0x1A; i++) {
+        D_807FDB90[i] = NULL;
     }
-    temp_s7 = *arg0;
-    var_s2 = arg0 + 1;
-    for (var_s4 = 0; var_s4 < temp_s7; var_s4++) {
-        temp_s5 = *var_s2++;
-        D_807FDB90[temp_s5] = heapAlloc(8);
-        D_807FDB90[temp_s5]->unk4 = *var_s2++;
-        var_s2++;
-        D_807FDB90[temp_s5]->unk0 = heapAlloc((D_807FDB90[temp_s5]->unk4 + 1) * sizeof(PathPoint));
-        var_s0 = 0;
-        var_a0 = (PathPoint *)var_s2;
-        while (var_s0 < D_807FDB90[temp_s5]->unk4) {
-            ((PathPoint *)D_807FDB90[temp_s5]->unk0)[var_s0] = *var_a0;
-            var_s0 += 1;
-            var_a0 += 1;
+    pathCount = *src;
+    srcPtr = src + 1;
+    for (i = 0; i < pathCount; i++) {
+        pathId = *srcPtr++;
+        D_807FDB90[pathId] = heapAlloc(8);
+        D_807FDB90[pathId]->unk4 = *srcPtr++;
+        srcPtr++;
+        D_807FDB90[pathId]->unk0 = heapAlloc((D_807FDB90[pathId]->unk4 + 1) * sizeof(PathPoint));
+        j = 0;
+        point = (PathPoint *)srcPtr;
+        while (j < D_807FDB90[pathId]->unk4) {
+            ((PathPoint *)D_807FDB90[pathId]->unk0)[j] = *point;
+            j += 1;
+            point += 1;
         }
-        var_s2 = (s16 *)var_a0;
+        srcPtr = (s16 *)point;
     }
-    for (var_s4 = 0; var_s4 < 0x20; var_s4++) {
-        D_807FDBF8[var_s4] = NULL;
+    for (i = 0; i < 0x20; i++) {
+        D_807FDBF8[i] = NULL;
     }
 }
 
-s32 pathExists(u8 arg0) {
-    if (D_807FDB90[arg0] != NULL) {
+s32 pathExists(u8 pathId) {
+    if (D_807FDB90[pathId] != NULL) {
         return 1;
     }
     return 0;
@@ -95,12 +95,12 @@ s32 pathExists(u8 arg0) {
 
 void *memcpy(void *, const void *, unsigned int);
 
-s32 pathPlaybackStart(s32 arg0, s32 arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5, u8 arg6) {
+s32 pathPlaybackStart(s32 owner, s32 pathId, u8 prependStartPoint, f32 x, f32 y, f32 z, u8 pointFlag) {
     PathEntry *path;
     s32 i;
     s32 found;
     PathPlayback *pad; // FAKE: unused local steers stack layout (spill and sp54 slots)
-    PathPoint sp54;
+    PathPoint startPoint;
     s32 extra;
     s32 j;
     s32 dstOff;
@@ -109,7 +109,7 @@ s32 pathPlaybackStart(s32 arg0, s32 arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5,
     i = 0;
     found = 0;
     extra = 0;
-    if (D_807FDB90[arg1] == NULL) {
+    if (D_807FDB90[pathId] == NULL) {
         return -1;
     }
     while (i < 0x20 && !found) {
@@ -122,28 +122,28 @@ s32 pathPlaybackStart(s32 arg0, s32 arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5,
     if (!found) {
         return -1;
     }
-    if (D_807FDB90[arg1]->unk4 == 1 && !arg2) {
+    if (D_807FDB90[pathId]->unk4 == 1 && !prependStartPoint) {
         return -1;
     }
     D_807FDBF8[i] = heapAlloc(0x2C);
     path = (PathEntry *)&D_807FDBF8[i]->unk4;
-    path->unk4 = D_807FDB90[arg1]->unk4;
+    path->unk4 = D_807FDB90[pathId]->unk4;
     path->unk0 = heapAlloc(path->unk4 * 10 + 10);
-    if (arg2 != 0) {
+    if (prependStartPoint != 0) {
         path->unk4++;
-        ((u8 *)&sp54)[8] = arg6;
-        sp54.unk2 = arg3;
-        sp54.unk4 = arg4;
-        sp54.unk6 = arg5;
-        memcpy(path->unk0, &sp54, 10);
+        ((u8 *)&startPoint)[8] = pointFlag;
+        startPoint.unk2 = x;
+        startPoint.unk4 = y;
+        startPoint.unk6 = z;
+        memcpy(path->unk0, &startPoint, 10);
         extra = 1;
     }
-    for (j = 0, dstOff = extra * 10, srcOff = 0; j < D_807FDB90[arg1]->unk4; j++) {
-        memcpy(path->unk0 + dstOff, D_807FDB90[arg1]->unk0 + srcOff, 10);
+    for (j = 0, dstOff = extra * 10, srcOff = 0; j < D_807FDB90[pathId]->unk4; j++) {
+        memcpy(path->unk0 + dstOff, D_807FDB90[pathId]->unk0 + srcOff, 10);
         srcOff += 10;
         dstOff += 10;
     }
-    D_807FDBF8[i]->unk0 = arg0;
+    D_807FDBF8[i]->unk0 = owner;
     D_807FDBF8[i]->unkC = 0.0f;
     *(s32 *)((u8 *)D_807FDBF8[i] + 0x1C) = 0;
     *(s32 *)((u8 *)D_807FDBF8[i] + 0x10) = 0;
@@ -157,97 +157,97 @@ s32 pathPlaybackStart(s32 arg0, s32 arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5,
 }
 
 
-void func_80723284(s32 arg0, u8 arg1) {
-    PathPlayback *temp_v0;
+void func_80723284(s32 slot, u8 speed) {
+    PathPlayback *playback;
 
-    if (arg0 != -1) {
-        temp_v0 = D_807FDBF8[arg0];
-        if (temp_v0 != NULL) {
-            temp_v0->unk20 = arg1;
+    if (slot != -1) {
+        playback = D_807FDBF8[slot];
+        if (playback != NULL) {
+            playback->unk20 = speed;
         }
     }
 }
 
-void func_807232B8(s32 arg0, u8 arg1) {
-    PathPlayback *temp_v0;
+void func_807232B8(s32 slot, u8 isLooping) {
+    PathPlayback *playback;
 
-    if (arg0 != -1) {
-        temp_v0 = D_807FDBF8[arg0];
-        if (temp_v0 != NULL) {
-            temp_v0->unk16 = arg1;
+    if (slot != -1) {
+        playback = D_807FDBF8[slot];
+        if (playback != NULL) {
+            playback->unk16 = isLooping;
         }
     }
 }
 
-void func_807232EC(s32 arg0, u8 arg1) {
-    PathPlayback *temp_v0;
+void func_807232EC(s32 slot, u8 loopMode) {
+    PathPlayback *playback;
 
-    if (arg0 != -1) {
-        temp_v0 = D_807FDBF8[arg0];
-        if (temp_v0 != NULL) {
-            temp_v0->unk15 = arg1;
+    if (slot != -1) {
+        playback = D_807FDBF8[slot];
+        if (playback != NULL) {
+            playback->unk15 = loopMode;
         }
     }
 }
 
-void func_80723320(s32 arg0, s32 arg1) {
-    PathPlayback *temp_v0;
+void func_80723320(s32 slot, s32 loopLimit) {
+    PathPlayback *playback;
 
-    if (arg0 != -1) {
-        temp_v0 = D_807FDBF8[arg0];
-        if (temp_v0 != NULL) {
-            temp_v0->unk18 = arg1;
+    if (slot != -1) {
+        playback = D_807FDBF8[slot];
+        if (playback != NULL) {
+            playback->unk18 = loopLimit;
         }
     }
 }
 
-void func_8072334C(s32 arg0, u8 arg1) {
-    PathPlayback *temp_v0;
+void func_8072334C(s32 slot, u8 active) {
+    PathPlayback *playback;
 
-    if (arg0 != -1) {
-        temp_v0 = D_807FDBF8[arg0];
-        if (temp_v0 != NULL) {
-            temp_v0->unk21 = arg1;
+    if (slot != -1) {
+        playback = D_807FDBF8[slot];
+        if (playback != NULL) {
+            playback->unk21 = active;
         }
     }
 }
 
-void func_80723380(s32 arg0, u8 arg1) {
-    PathPlayback *temp_v0;
+void func_80723380(s32 slot, u8 direction) {
+    PathPlayback *playback;
 
-    if (arg0 != -1) {
-        temp_v0 = D_807FDBF8[arg0];
-        if (temp_v0 != NULL) {
-            temp_v0->unk14 = arg1;
+    if (slot != -1) {
+        playback = D_807FDBF8[slot];
+        if (playback != NULL) {
+            playback->unk14 = direction;
         }
     }
 }
 
 void pathPlaybackFree(s32);
 
-void pathPlaybackStopForActor(s32 arg0) {
-    PathPlayback **var_s1;
-    PathPlayback *temp_v0;
-    s32 var_s0;
+void pathPlaybackStopForActor(s32 actor) {
+    PathPlayback **playbacks;
+    PathPlayback *playback;
+    s32 i;
 
-    var_s1 = D_807FDBF8;
-    var_s0 = 0;
+    playbacks = D_807FDBF8;
+    i = 0;
     do {
-        temp_v0 = *var_s1;
-        if ((temp_v0 != NULL) && (arg0 == temp_v0->unk0)) {
-            pathPlaybackFree(var_s0);
+        playback = *playbacks;
+        if ((playback != NULL) && (actor == playback->unk0)) {
+            pathPlaybackFree(i);
         }
-        var_s0 += 1;
-        var_s1 += 1;
-    } while (var_s0 != 0x20);
+        i += 1;
+        playbacks += 1;
+    } while (i != 0x20);
 }
 
 void heapFree(void *);
 
-void pathPlaybackFree(s32 arg0) {
-    if ((arg0 == -1) || (D_807FDBF8[arg0] != NULL)) {
-        heapFree(D_807FDBF8[arg0]);
-        D_807FDBF8[arg0] = NULL;
+void pathPlaybackFree(s32 slot) {
+    if ((slot == -1) || (D_807FDBF8[slot] != NULL)) {
+        heapFree(D_807FDBF8[slot]);
+        D_807FDBF8[slot] = NULL;
     }
 }
 
@@ -266,7 +266,7 @@ typedef struct PathPlaybackView {
     u8 unk21;
 } PathPlaybackView;
 
-void pathPlaybackAdvance(s32 arg0) {
+void pathPlaybackAdvance(s32 slot) {
     PathPlaybackView *pb;
     PathEntry *path;
     f32 step;
@@ -279,8 +279,8 @@ void pathPlaybackAdvance(s32 arg0) {
     s32 whole;
     s32 pad;
 
-    if (arg0 != -1 && D_807FDBF8[arg0] != NULL && ((PathPlaybackView *)D_807FDBF8[arg0])->unk21 != 0) {
-        pb = (PathPlaybackView *)D_807FDBF8[arg0];
+    if (slot != -1 && D_807FDBF8[slot] != NULL && ((PathPlaybackView *)D_807FDBF8[slot])->unk21 != 0) {
+        pb = (PathPlaybackView *)D_807FDBF8[slot];
         pad = pb->unk1C;  // FAKE: extra web (keeps pb a constrained uopt candidate)
         if (pad) {}  // FAKE: extra web (keeps pb a constrained uopt candidate)
         path = &pb->path;
@@ -407,15 +407,15 @@ f32 splineEvalCubic(f64, f32, f32, f32, f32);
 void splineSetBasisTension(f32);
 f32 pathSplineDistance(s32, f32, f32, f32, s32, f32);
 
-void pathPlaybackGetPosition(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
+void pathPlaybackGetPosition(s32 slot, f32 *outX, f32 *outY, f32 *outZ) {
     u8 ids[4];
     SplinePlayback *p;
     PathEntry *e;
 
-    if (arg0 != -1) {
-        if (D_807FDBF8[arg0] != NULL) {
+    if (slot != -1) {
+        if (D_807FDBF8[slot] != NULL) {
             splineSetBasisTension(0.5f);
-            p = (SplinePlayback *)D_807FDBF8[arg0];
+            p = (SplinePlayback *)D_807FDBF8[slot];
             e = &p->path;
             if (p->unk16 == 0) {
                 if (p->unk10 - 1 < 0) {
@@ -451,53 +451,53 @@ void pathPlaybackGetPosition(s32 arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
                 }
             }
             ids[1] = p->unk10;
-            *arg1 = splineEvalCubic(p->unkC, SPLINE_PATH_PT(e)[ids[0]].unk2, SPLINE_PATH_PT(e)[ids[1]].unk2, SPLINE_PATH_PT(e)[ids[2]].unk2, SPLINE_PATH_PT(e)[ids[3]].unk2);
-            *arg2 = splineEvalCubic(p->unkC, SPLINE_PATH_PT(e)[ids[0]].unk4, SPLINE_PATH_PT(e)[ids[1]].unk4, SPLINE_PATH_PT(e)[ids[2]].unk4, SPLINE_PATH_PT(e)[ids[3]].unk4);
-            *arg3 = splineEvalCubic(p->unkC, SPLINE_PATH_PT(e)[ids[0]].unk6, SPLINE_PATH_PT(e)[ids[1]].unk6, SPLINE_PATH_PT(e)[ids[2]].unk6, SPLINE_PATH_PT(e)[ids[3]].unk6);
+            *outX = splineEvalCubic(p->unkC, SPLINE_PATH_PT(e)[ids[0]].unk2, SPLINE_PATH_PT(e)[ids[1]].unk2, SPLINE_PATH_PT(e)[ids[2]].unk2, SPLINE_PATH_PT(e)[ids[3]].unk2);
+            *outY = splineEvalCubic(p->unkC, SPLINE_PATH_PT(e)[ids[0]].unk4, SPLINE_PATH_PT(e)[ids[1]].unk4, SPLINE_PATH_PT(e)[ids[2]].unk4, SPLINE_PATH_PT(e)[ids[3]].unk4);
+            *outZ = splineEvalCubic(p->unkC, SPLINE_PATH_PT(e)[ids[0]].unk6, SPLINE_PATH_PT(e)[ids[1]].unk6, SPLINE_PATH_PT(e)[ids[2]].unk6, SPLINE_PATH_PT(e)[ids[3]].unk6);
         }
     }
 }
 
-u8 func_80723C98(s32 arg0) {
-    PathPlayback *temp_v1;
+u8 func_80723C98(s32 slot) {
+    PathPlayback *playback;
 
-    if ((arg0 == -1) || ((temp_v1 = D_807FDBF8[arg0]) == NULL)) {
+    if ((slot == -1) || ((playback = D_807FDBF8[slot]) == NULL)) {
         return 0;
     }
-    return temp_v1->unk21;
+    return playback->unk21;
 }
 
-void pathSplineSample(s32 arg0, s32 arg1, f32 arg2, f32 *arg3, f32 *arg4, f32 *arg5) {
+void pathSplineSample(s32 pathId, s32 pointIndex, f32 t, f32 *outX, f32 *outY, f32 *outZ) {
     u8 ids[4];
     PathEntry *e;
 
     splineSetBasisTension(0.5f);
-    e = D_807FDB90[arg0];
-    if (arg1 >= e->unk4) {
-        arg1 = e->unk4 - 1;
+    e = D_807FDB90[pathId];
+    if (pointIndex >= e->unk4) {
+        pointIndex = e->unk4 - 1;
     }
-    if (arg1 - 1 < 0) {
+    if (pointIndex - 1 < 0) {
         ids[0] = 0;
     } else {
-        ids[0] = arg1 - 1;
+        ids[0] = pointIndex - 1;
     }
-    ids[1] = arg1;
-    if (arg1 + 1 >= e->unk4) {
+    ids[1] = pointIndex;
+    if (pointIndex + 1 >= e->unk4) {
         ids[2] = e->unk4 - 1;
     } else {
-        ids[2] = arg1 + 1;
+        ids[2] = pointIndex + 1;
     }
-    if (arg1 + 2 >= e->unk4) {
+    if (pointIndex + 2 >= e->unk4) {
         ids[3] = e->unk4 - 1;
     } else {
-        ids[3] = arg1 + 2;
+        ids[3] = pointIndex + 2;
     }
-    *arg3 = splineEvalCubic(arg2, SPLINE_PATH_PT(e)[ids[0]].unk2, SPLINE_PATH_PT(e)[ids[1]].unk2, SPLINE_PATH_PT(e)[ids[2]].unk2, SPLINE_PATH_PT(e)[ids[3]].unk2);
-    *arg4 = splineEvalCubic(arg2, SPLINE_PATH_PT(e)[ids[0]].unk4, SPLINE_PATH_PT(e)[ids[1]].unk4, SPLINE_PATH_PT(e)[ids[2]].unk4, SPLINE_PATH_PT(e)[ids[3]].unk4);
-    *arg5 = splineEvalCubic(arg2, SPLINE_PATH_PT(e)[ids[0]].unk6, SPLINE_PATH_PT(e)[ids[1]].unk6, SPLINE_PATH_PT(e)[ids[2]].unk6, SPLINE_PATH_PT(e)[ids[3]].unk6);
+    *outX = splineEvalCubic(t, SPLINE_PATH_PT(e)[ids[0]].unk2, SPLINE_PATH_PT(e)[ids[1]].unk2, SPLINE_PATH_PT(e)[ids[2]].unk2, SPLINE_PATH_PT(e)[ids[3]].unk2);
+    *outY = splineEvalCubic(t, SPLINE_PATH_PT(e)[ids[0]].unk4, SPLINE_PATH_PT(e)[ids[1]].unk4, SPLINE_PATH_PT(e)[ids[2]].unk4, SPLINE_PATH_PT(e)[ids[3]].unk4);
+    *outZ = splineEvalCubic(t, SPLINE_PATH_PT(e)[ids[0]].unk6, SPLINE_PATH_PT(e)[ids[1]].unk6, SPLINE_PATH_PT(e)[ids[2]].unk6, SPLINE_PATH_PT(e)[ids[3]].unk6);
 }
 
-void pathFindClosestPoint(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 *arg4, f32 *arg5) {
+void pathFindClosestPoint(s32 pathId, f32 x, f32 y, f32 z, s32 *outPointIndex, f32 *outT) {
     f32 best;
     f32 frac;
     f32 d;
@@ -508,12 +508,12 @@ void pathFindClosestPoint(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 *arg4, f32
     best = 999999.0f;
     frac = 0.0f;
     splineSetBasisTension(0.5f);
-    for (i = 0; i < D_807FDB90[arg0]->unk4; i++) {
-        d = pathSplineDistance(arg0, arg1, arg2, arg3, i, 0.0f);
+    for (i = 0; i < D_807FDB90[pathId]->unk4; i++) {
+        d = pathSplineDistance(pathId, x, y, z, i, 0.0f);
         if (d < best) {
             bestIdx = i;
-            *arg4 = i;
-            *arg5 = 0.0f;
+            *outPointIndex = i;
+            *outT = 0.0f;
             best = d;
         }
     }
@@ -526,10 +526,10 @@ void pathFindClosestPoint(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 *arg4, f32
     end++;
     goto fake_label; fake_label: ; // FAKE: block boundary before refinement loop (register/scheduling steer)
     while (i <= end) {
-        d = pathSplineDistance(arg0, arg1, arg2, arg3, i, frac);
+        d = pathSplineDistance(pathId, x, y, z, i, frac);
         if (d < best) {
-            *arg4 = i;
-            *arg5 = frac;
+            *outPointIndex = i;
+            *outT = frac;
             best = d;
         }
         frac = frac + 0.005;
@@ -540,7 +540,7 @@ void pathFindClosestPoint(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 *arg4, f32
     }
 }
 
-void pathRefineClosestPoint(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 *arg4, f32 *arg5) {
+void pathRefineClosestPoint(s32 pathId, f32 x, f32 y, f32 z, s32 *outPointIndex, f32 *outT) {
     f32 best;
     f32 frac;
     f32 d;
@@ -548,8 +548,8 @@ void pathRefineClosestPoint(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 *arg4, f
     s32 i;
 
     best = 999999.0f;
-    idx = *arg4;
-    frac = *arg5 - 0.5;
+    idx = *outPointIndex;
+    frac = *outT - 0.5;
     i = 20;
     if (frac < 0.0) {
         if (idx > 0) {
@@ -560,14 +560,14 @@ void pathRefineClosestPoint(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 *arg4, f
         }
     }
     while (i--) {
-        d = pathSplineDistance(arg0, arg1, arg2, arg3, idx, frac);
+        d = pathSplineDistance(pathId, x, y, z, idx, frac);
         if (d < best) {
-            *arg4 = idx;
-            *arg5 = frac;
+            *outPointIndex = idx;
+            *outT = frac;
             best = d;
         }
         frac = frac + 0.05;
-        if (frac >= 1.0f && idx < D_807FDB90[arg0]->unk4) {
+        if (frac >= 1.0f && idx < D_807FDB90[pathId]->unk4) {
             idx += 1;
             frac -= 1.0f;
         } else if (frac >= 1.0f) {
@@ -576,39 +576,39 @@ void pathRefineClosestPoint(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 *arg4, f
     }
 }
 
-f32 pathSplineDistance(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4, f32 arg5) {
+f32 pathSplineDistance(s32 pathId, f32 x, f32 y, f32 z, s32 pointIndex, f32 t) {
     u8 ids[4];
     PathEntry *e;
     f32 sx;
     f32 sy;
     f32 sz;
 
-    e = D_807FDB90[arg0];
-    if (arg4 >= e->unk4) {
-        arg4 = e->unk4 - 1;
+    e = D_807FDB90[pathId];
+    if (pointIndex >= e->unk4) {
+        pointIndex = e->unk4 - 1;
     }
-    if (arg4 - 1 < 0) {
+    if (pointIndex - 1 < 0) {
         ids[0] = 0;
     } else {
-        ids[0] = arg4 - 1;
+        ids[0] = pointIndex - 1;
     }
-    ids[1] = arg4;
-    if (arg4 + 1 >= e->unk4) {
+    ids[1] = pointIndex;
+    if (pointIndex + 1 >= e->unk4) {
         ids[2] = e->unk4 - 1;
     } else {
-        ids[2] = arg4 + 1;
+        ids[2] = pointIndex + 1;
     }
-    if (arg4 + 2 >= e->unk4) {
+    if (pointIndex + 2 >= e->unk4) {
         ids[3] = e->unk4 - 1;
     } else {
-        ids[3] = arg4 + 2;
+        ids[3] = pointIndex + 2;
     }
-    sx = splineEvalCubic(arg5, SPLINE_PATH_PT(e)[ids[0]].unk2, SPLINE_PATH_PT(e)[ids[1]].unk2, SPLINE_PATH_PT(e)[ids[2]].unk2, SPLINE_PATH_PT(e)[ids[3]].unk2);
-    sy = splineEvalCubic(arg5, SPLINE_PATH_PT(e)[ids[0]].unk0, SPLINE_PATH_PT(e)[ids[1]].unk0, SPLINE_PATH_PT(e)[ids[2]].unk0, SPLINE_PATH_PT(e)[ids[3]].unk0);
-    sz = splineEvalCubic(arg5, SPLINE_PATH_PT(e)[ids[0]].unk6, SPLINE_PATH_PT(e)[ids[1]].unk6, SPLINE_PATH_PT(e)[ids[2]].unk6, SPLINE_PATH_PT(e)[ids[3]].unk6);
-    return sqrtf((arg1 - sx) * (arg1 - sx) + (arg2 - sy) * (arg2 - sy) + (arg3 - sz) * (arg3 - sz));
+    sx = splineEvalCubic(t, SPLINE_PATH_PT(e)[ids[0]].unk2, SPLINE_PATH_PT(e)[ids[1]].unk2, SPLINE_PATH_PT(e)[ids[2]].unk2, SPLINE_PATH_PT(e)[ids[3]].unk2);
+    sy = splineEvalCubic(t, SPLINE_PATH_PT(e)[ids[0]].unk0, SPLINE_PATH_PT(e)[ids[1]].unk0, SPLINE_PATH_PT(e)[ids[2]].unk0, SPLINE_PATH_PT(e)[ids[3]].unk0);
+    sz = splineEvalCubic(t, SPLINE_PATH_PT(e)[ids[0]].unk6, SPLINE_PATH_PT(e)[ids[1]].unk6, SPLINE_PATH_PT(e)[ids[2]].unk6, SPLINE_PATH_PT(e)[ids[3]].unk6);
+    return sqrtf((x - sx) * (x - sx) + (y - sy) * (y - sy) + (z - sz) * (z - sz));
 }
 
-s16 pathEntryCount(s32 arg0) {
-    return D_807FDB90[arg0]->unk4;
+s16 pathEntryCount(s32 pathId) {
+    return D_807FDB90[pathId]->unk4;
 }
