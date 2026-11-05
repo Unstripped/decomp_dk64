@@ -88,17 +88,11 @@ typedef struct R1C2CB_Entry {
 
 extern R1C2CB_Entry D_807506D0[];
 
-#ifdef NON_MATCHING
-typedef struct R1C2CB_Pair {
-    /* 0x0 */ f32 unk0;
-    /* 0x4 */ f32 unk4;
-} R1C2CB_Pair;
-
 extern Actor *D_807FBB40;
 extern s8 D_80750754;
 extern s16 D_80750758;
 extern s8 D_807506D5[];
-extern R1C2CB_Pair D_8075075C[];
+extern f32 D_8075075C[];
 extern s16 D_807FC8E0;
 extern s16 D_807FC8E2;
 extern s16 D_807FC8E4;
@@ -112,9 +106,9 @@ Gfx *func_806C75A4(Gfx *, Actor *);
 
 void spriteLinearInterpolateFrame(void) {
     f32 frac;
-    f32 x0;
-    f32 y0;
-    R1C2CB_Pair *e;
+    f32 pad0;
+    f32 pad1;
+    f32 *e;
     Actor *actor;
     s32 i;
     s32 t;
@@ -167,12 +161,13 @@ void spriteLinearInterpolateFrame(void) {
         D_807FC8EC = 1;
     } else {
         t = D_807506D0[D_80750754].unk0 - D_807FC8E2;
-        if ((t >> 1) < 0x16) {
-            e = &D_8075075C[t >> 1];
-            k = (u8)(t & 1);
+        k = t & 1;
+        t >>= 1;
+        if (t < 0x16) {
+            e = &D_8075075C[t * 2];
             frac = (f64)(f32)k * 0.5;
-            D_807FC8E8 = e[0].unk0 + (e[1].unk0 - e[0].unk0) * (x0 = frac);
-            D_807FC8EC = e[0].unk4 + (e[1].unk4 - e[0].unk4) * frac;
+            D_807FC8E8 = e[0] + (e[2] - e[0]) * frac;
+            D_807FC8EC = e[1] + (e[3] - e[1]) * frac;
         } else {
             D_807FC8E8 = 1.0f;
             D_807FC8EC = 1.0f;
@@ -180,16 +175,6 @@ void spriteLinearInterpolateFrame(void) {
     }
     renderCallbacksRegister(func_806C75A4, actor, 3);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/CBEA0/spriteLinearInterpolateFrame.s")
-#endif
-
-extern s8 D_80750754;
-extern s16 D_80750758;
-extern f32 D_807FC8E8;
-extern f32 D_807FC8EC;
-extern u8 *D_807FC8F0;
 
 #define R1C2CB_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 

@@ -23,8 +23,8 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
 - The copy argument is a DIRECTORY holding `<f>.c`. An agent's HEAD-based file
   (`<f>_head.c`, built against current `src`) goes to `.scratch/<A>H/<f>.c` with its base,
   or, when `src` is unchanged since, `cp` it over `src` and gate `- - src/<seg>/<f>.c`.
-- After a reduced-TU score reaches zero, run `fdiff.sh` without a FUNC filter before the
-  merge; whole-object comparison exposes duplicate literal ownership hidden by normalisation.
+- After a reduced-TU score reaches zero, run whole-object `fdiff.sh`; normalisation can hide literal ownership.
+- `vanished` counts both park branches: after unparking, compare old/new object text symbols before treating a count drop as deletion.
 - Never pipe a merge or gate into `tail`/`grep` and chain `&& git commit`: the pipe hides the
   exit status, and a conflict (src untouched) or a red build was committed that way twice.
   Without `--commit`, commit only after reading `GATE_OK`. A bare `merge_drafts.py merge`
