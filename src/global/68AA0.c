@@ -97,7 +97,6 @@ f32 sfxUpdateDistanceVolumeAndPan(f32, f32, f32, u8, u8, f32);
 void actorTargetEntriesUpdateSfx(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
     ActorTargetEntry *entry;
     s32 i;
-    PlayerAreaView **new_var;
     s32 stride;
     s32 j;
     s32 found;
@@ -110,8 +109,7 @@ void actorTargetEntriesUpdateSfx(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
         entry = (ActorTargetEntry *)((s32)D_807F9420 + i * stride);
         if (entry->unk6 == arg0) {
             do {
-                new_var = &gPlayerSlots;  // FAKE: pointer-to-pointer read steers regalloc
-                if (D_807F9420[i].u.unk7_arr[j] == (*new_var)->unk290) {
+                if (D_807F9420[i].u.unk7_arr[j] == gPlayerSlots[0].unk290) {
                     found = 1;
                 }
                 j++;
