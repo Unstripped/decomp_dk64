@@ -1089,11 +1089,12 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 s;
     f32 u;
     u32 pad0;
-    u32 pad1;
+    void *callback;
     f32 vec[3];
-    u8 *hp = &hit;
 
+    callback = (void *)effectLightGrowShrinkUpdate;
     hit = 0;
+    if (&hit) {} // FAKE: keeps hit memory-resident without an extra local
     if (*(CsPointHitState **)cs == NULL) {
         n = heapAlloc(0x1C);
         *(CsPointHitState **)cs = n;
@@ -1127,16 +1128,15 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         start = pad0; // FAKE: copy of the register piece into the loop-carried var
         do {
-            if (D_80720BC4) {}
             pl = (CsPlayerPosView *)gPlayerSlots;
             v = D_807F5FD4[0] + p->idx;
             if (sqrtf((pl->z - v->z) * (pl->z - v->z) + ((pl->x - v->x) * (pl->x - v->x) + (pl->y - v->y) * (pl->y - v->y))) < D_807480F0) {
-                if (D_807480F4 && D_807480F4) {}
+                if (D_807480F4 && D_807480F4) {} // FAKE: steers the loop's constant candidates
                 hit = 1;
                 func_807149B8(1);
                 func_80714998(3);
                 func_80714950(0);
-                func_8071498C(effectLightGrowShrinkUpdate);
+                func_8071498C(callback);
                 func_807149A8(0x320);
                 v = D_807F5FD4[0] + p->idx;
                 func_80714CC0(D_80720BC4, 2.5f, v->x, v->y, v->z);
@@ -1167,6 +1167,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
                 t = (randomNonNegative() >> 15) % D_8074810C - D_8074810C * 0.5;
                 u = (randomNonNegative() >> 15) % D_8074810C - D_8074810C * 0.5;
                 actorListSpawnNodeEntry(0x5C, CS_ACTOR->unk7C + t, CS_ACTOR->unk80 + (f32)D_80748100, CS_ACTOR->unk84 + u, 0, D_80748104, 0, vec);
+                if ((f64)t && (f64)t) {} // FAKE: reserves a colored temporary to retain the 0x88-byte frame
             }
             if (p->flag14) {
                 p->delay = D_80748114;
@@ -1194,6 +1195,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
         if (CS_ACTOR->unk154 == 0x63) {
             return;
         }
+        pad0 = p->idx; // FAKE: defines the later dead read on the b != 0 path
         s = CS_ACTOR->unk12C;
         if (pad0 && pad0) {} // FAKE: steers start's register piece
         if (s == 0 || s == 7 || s == 2 || s == 3) {

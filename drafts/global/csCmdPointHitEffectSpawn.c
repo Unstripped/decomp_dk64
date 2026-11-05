@@ -1,4 +1,4 @@
-// csCmdPointHitEffectSpawn (src/global/478F0.c): stage 4 park, full=4 text=4 reloc=0 shape=2 n=535: diff is (1) hoisted pair order li a0,1 / li t8,1 (target) vs li t8,1 / li a0,1 (ours) above bc1fl (swapping t.G records 148 and 151 gives full=2 text=2); (2) temploc 68 vs 60 (target temploc 0x44 immediately follows vec[3] at 0x48; our hp local takes 0x44 pushing temploc to 0x3C; removing hp drops frame to 128 unless 24+ bytes of temps from late f64 expressions are coloured).
+// csCmdPointHitEffectSpawn (src/global/478F0.c): stage 5 schedule-only park, full=2 text=2 reloc=0 shape=0 n=535 (454 insns), frame 0x88, s0/ra: remaining exact mismatch is li a0,1 / li t8,1 target vs reversed above bc1fl at 0x80646190. Callback spill now exactly 0x44: replace unused pad1 with void *callback assigned effectLightGrowShrinkUpdate before hit=0 (first expression occurrence controls temploc order); remove hp, use dead if(&hit) to keep memory byte; after the second actorListSpawnNodeEntry arm use if((f64)t && (f64)t) to retain frame size. Removed obsolete D_80720BC4 dead read. Defined pad0=p->idx before its late dead test to eliminate the inherited uninitialized read without changing output. as1-near: moving record 151 (li a0) before 148 (li t8), retaining sb after li t8, via --swap 150 --swap 149 --swap 148 gives full=0 text=0 reloc=0 shape=0 n=535; literal swapping 148/151 is NOT valid (li t8 deleted, n=534). Tried callback-home reuse, address-taking/array/struct/union forms, no-hp frame/FP-temp coloring, early/late callback expressions, exact/narrow callee prototypes, signed byte stores, legal ghost variants, argument/comma/callee-side assignments, statement moves, parameter reuse, joined source lines, wrappers, volatile and noop/layout variants: no final C schedule fix. Whole-function as1 scan 2 rounds and final focused scan 2 rounds only invalid instruction deletions; final deadsweep 8322 variants no improvement; all 63 dead-ghost deletion subsets worsen. Permuter -j2 --seconds600: 42188 iterations, no saved improvement over score26 baseline. Whole-object normalization confirms full/text2 reloc0 shape0; plain fdiff: FAILED: Section .text content mismatch (built: 51296 bytes, expected: 51296 bytes); FAILED: Relocations mismatch. Parked fdiff OK; --non-matching compiles. Base 815c644eb86396c4f9cea23c479cd1a301d40b12. Prior note: stage 4 park, full=4 text=4 reloc=0 shape=2 n=535: diff is (1) hoisted pair order li a0,1 / li t8,1 (target) vs li t8,1 / li a0,1 (ours) above bc1fl (swapping t.G records 148 and 151 gives full=2 text=2); (2) temploc 68 vs 60 (target temploc 0x44 immediately follows vec[3] at 0x48; our hp local takes 0x44 pushing temploc to 0x3C; removing hp drops frame to 128 unless 24+ bytes of temps from late f64 expressions are coloured).
 typedef struct CsPointHitState {
     /* 0x00 */ s32 idx;
     /* 0x04 */ s32 timer;
@@ -71,11 +71,12 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 s;
     f32 u;
     u32 pad0;
-    u32 pad1;
+    void *callback;
     f32 vec[3];
-    u8 *hp = &hit;
 
+    callback = (void *)effectLightGrowShrinkUpdate;
     hit = 0;
+    if (&hit) {} // FAKE: keeps hit memory-resident without an extra local
     if (*(CsPointHitState **)cs == NULL) {
         n = heapAlloc(0x1C);
         *(CsPointHitState **)cs = n;
@@ -109,16 +110,15 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         start = pad0; // FAKE: copy of the register piece into the loop-carried var
         do {
-            if (D_80720BC4) {}
             pl = (CsPlayerPosView *)gPlayerSlots;
             v = D_807F5FD4[0] + p->idx;
             if (sqrtf((pl->z - v->z) * (pl->z - v->z) + ((pl->x - v->x) * (pl->x - v->x) + (pl->y - v->y) * (pl->y - v->y))) < D_807480F0) {
-                if (D_807480F4 && D_807480F4) {}
+                if (D_807480F4 && D_807480F4) {} // FAKE: steers the loop's constant candidates
                 hit = 1;
                 func_807149B8(1);
                 func_80714998(3);
                 func_80714950(0);
-                func_8071498C(effectLightGrowShrinkUpdate);
+                func_8071498C(callback);
                 func_807149A8(0x320);
                 v = D_807F5FD4[0] + p->idx;
                 func_80714CC0(D_80720BC4, 2.5f, v->x, v->y, v->z);
@@ -149,6 +149,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
                 t = (randomNonNegative() >> 15) % D_8074810C - D_8074810C * 0.5;
                 u = (randomNonNegative() >> 15) % D_8074810C - D_8074810C * 0.5;
                 actorListSpawnNodeEntry(0x5C, CS_ACTOR->unk7C + t, CS_ACTOR->unk80 + (f32)D_80748100, CS_ACTOR->unk84 + u, 0, D_80748104, 0, vec);
+                if ((f64)t && (f64)t) {} // FAKE: reserves a colored temporary to retain the 0x88-byte frame
             }
             if (p->flag14) {
                 p->delay = D_80748114;
@@ -176,6 +177,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
         if (CS_ACTOR->unk154 == 0x63) {
             return;
         }
+        pad0 = p->idx; // FAKE: defines the later dead read on the b != 0 path
         s = CS_ACTOR->unk12C;
         if (pad0 && pad0) {} // FAKE: steers start's register piece
         if (s == 0 || s == 7 || s == 2 || s == 3) {
