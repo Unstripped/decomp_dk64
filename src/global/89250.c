@@ -63,8 +63,8 @@ void func_80714950();
 void func_8071495C(void);
 void func_8071496C(s32);
 void func_8071498C(void (*)(void));
-void func_80714998(s32);
-void func_807149B8(s32);
+void func_80714998(s8);
+void func_807149B8(s8);
 void func_807149C8(s32, s32, s32, s32);
 void func_807149FC(s32);
 void func_80714A28(s32);
@@ -729,20 +729,19 @@ void effectActorGrowthTick(void) {
 }
 
 void effectSpawnActorBoneEffects(u8 arg0) {
-    s32 var_s2;
+    u8 var_s2;
     s16 var_s4;
-    s32 var_v0;
-    s32 var_s0;  // FAKE: separate post-dispatch web (chain var stays in v0, var_s0 takes s0)
+    u8 var_v0;
 
-    var_s2 = (((gFrameCounter & 3) * 4) + 3) & 0xFF;
+    var_s2 = ((gFrameCounter & 3) * 4) + 3;
     for (var_s4 = 0; var_s4 < 4; var_s4++) {
         var_v0 = var_s2;
-        if ((var_s2 | 0) == 0x10) {  // FAKE: |0 keeps the constant-first operand order (bne s6,s2)
+        if (var_s2 == 0x10) {
             var_v0 = 0x14;
-        } else if ((var_v0 | 0) == 0x11) {  // FAKE: |0 blocks copy propagation so the compare reads the copy
+        } else if (var_v0 == 0x11) {
             var_v0 = 0x15;
         } else {
-            var_v0 = var_s2 & 0xFF;
+            var_v0 = var_s2;
         }
 
         switch (arg0 + 0U) {  // FAKE: +0U types the selector u32 (separate const-1 web) and keeps andi s3 hoisted
@@ -752,28 +751,25 @@ void effectSpawnActorBoneEffects(u8 arg0) {
             }
             /* fallthrough */
         case 1:
-            var_s0 = var_v0;
             func_80714998(1);
             func_807149C8(0xB4, 0xB4, 0xB4, 0xC8);
-            effectSpawnBoneDefault(D_807FBB40, (var_s0 | 0), 2.0f, 0.0f, 0.0f, 0.0f, -0x78);  // FAKE: |0 blocks copy propagation
+            effectSpawnBoneDefault(D_807FBB40, var_v0, 2.0f, 0.0f, 0.0f, 0.0f, -0x78);
             break;
 
         case 2:
-            if ((var_v0 * 1) < 10) {  // FAKE: *1 reorders the delay-slot copies in the dispatch block
+            if (var_v0 < 10) {
                 break;
             }
             /* fallthrough */
         case 0:
-            var_s0 = (var_v0 * 1);  // FAKE: *1 reorders the delay-slot copies in the dispatch block
             func_807149B8(1);
-            if (var_s0) {}  // FAKE: dead read steers uopt/as1 scheduling of the case-0 copy
             func_8071498C(func_80717D4C);
             func_80714950(-0x3E8);
             func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
-            func_80714C08(&D_80720120, (f32)(((f64)((randomNonNegative() >> 15) % 100) / 30.0) + 1.0), D_807FBB40, var_s0, 0);
+            func_80714C08(&D_80720120, (f32)(((f64)((randomNonNegative() >> 15) % 100) / 30.0) + 1.0), D_807FBB40, var_v0, 0);
             break;
         }
-        var_s2 = (var_s2 + 1) & 0xFF;
+        var_s2++;
     }
 }
 
