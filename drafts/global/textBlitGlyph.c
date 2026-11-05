@@ -1,5 +1,4 @@
-// textBlitGlyph (src/global/100180.c): stage 5 park: count 161 + frame 80 exact (deadsweep full=79 text=79 shape=23). Re-derived: loop bodies 100% structurally identical, diff entirely entry schedule and temp ring rotation {t6,t7,t8,t9}. Lever 4: 28(sp) vs 24(sp) spill slot governed by lowest vreg (-36 vs -40) from spurious 4-byte local declaration. Lever 1: target s-register set (s0=dstRow, s1=arg6, s2=dst, s3=row) needs unconstrained candidate index order dstRow < arg6.
-
+// textBlitGlyph (src/global/100180.c): SlotTex2 stage 5, unchanged best: full79 text79 reloc0 shape23, expected/got161 instructions, frame80 with s0-s3. Entry scheduling/Boolean-width lowering and temporary-ring rotations remain; generated shared spill24(sp) versus target28(sp). Plain-C fdiff: FAILED: Section .text content mismatch (built: 9312 bytes, expected: 9312 bytes). Began with as1probe keep and scan --rounds3: greedy instruction deletions reduce score but remove required work/count, rejected. Separate nondeleting scan --rounds3 only improves via a prologue label (insert16:label ->75/shape33/n161); no directly emit-able useful C scheduling route. Uopt5 inspected candidate ordering/live ranges. Tried Boolean raw/masked/normalized representations, return-expression variants, pointer/shift spellings, flag widths, coordinated mask carriers, and isolated explicit first-parameter narrowing; none improved exact-count baseline. No signature changes retained. Permuter -j2 --seconds600 was started, then cancelled at orchestrator wrap-up request; no validated result adopted. No new searches started after request. Private copy .scratch/SlotTex2/100180.c restored to original NON_MATCHING park and plain fdiff prints OK (assembly-backed, not C match). Previous spill/candidate-order findings remain valid.
 s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 arg6) {
     u8 *srcRow;
     u8 *dst;
@@ -16,8 +15,7 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
     srcRow = (u8 *)(arg2 + (arg3 >> 1));
     phase = (*(u8 *)arg5 & 1) != 0;
     w2 = arg0 >> 1;
-    dstRow = (u8 *)arg1;
-    dstRow += arg6 * 16 + arg6 * arg4;
+    dstRow = (u8 *)arg1 + arg6 * 16 + arg6 * arg4;
     odd = arg0 & 1;
     dst = dstRow;
     *(u8 *)arg5 = *(u8 *)arg5 + arg0;
