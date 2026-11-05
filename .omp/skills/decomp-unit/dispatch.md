@@ -29,11 +29,11 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 ## List sizes
 
 - Round 1: ~500–1,000 instructions, ≤10 functions per agent; split longer lists before dispatch (14–20-function lists left 7–9 untouched in the 2C700 unit).
-- FAKE-removal batches: report each site's outcome; accept natural replacements, never substitute hacks or tag-only deletions. Count only verified removals (concurrent unparking lowers live tag count without removing hacks).
-- Functions over ~400 instructions: held back from round 1, one agent each (2–3 per agent
-  once single ones finish quickly), smallest first, dispatched as soon as slots free. Queue
-  them all at once with task files saying "base = HEAD when you start, report it as `Base:`"
-  (revisit unit: 18 queued that way, 9 matched, every merge took the reported base).
+- FAKE-removal and local/parameter-naming batches can run alongside matching in private
+  copies, through the same `merge_gate.sh`. Require natural types/members/prototypes and
+  per-site outcomes; count verified removals, not tag-only deletions or concurrent unparks.
+- Functions over ~400 instructions: one agent each (2–3 once singles finish quickly),
+  smallest first; queue with "base = HEAD when you start, report it as `Base:`".
 - Later passes: ≤6 functions, near-misses first. A stage-6 near-miss of 1–8 instructions is
   worth one dedicated agent; a second dedicated pass is worth it only with new findings in
   the context (F4C0 revisit: third passes on 104F0/17B90 parks matched 0 of 20; a first
@@ -50,11 +50,10 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 - The agent's budget is its context window and request cap, not wall-clock time: the brief
   gates on outcome (every function matched, or back on its `GLOBAL_ASM` line with a staged
   draft and no untried idea). No `date`/minute gates: they only make finished agents idle.
-- Re-prompting a finished agent with its file's next chunk, large function or near-misses
-  (new copy from HEAD) was the best-yielding refill (2C700 unit: 4 large functions this way;
-  actor revisit 2: agents done in under ~20 min took 2-4 sibling parks each, BnelOps 4 of 6),
-  but only while it is under ~120 requests: a re-prompt shares the original request cap
-  (arcade/menu unit: an agent at ~140 finished 1 of a 6-function list). Above that, spawn fresh.
+- Re-prompt a finished agent from fresh HEAD while it is under ~120 requests; above that,
+  respawn (re-prompts share the original cap). Keep a fast-model merger/renamer running
+  alongside strong matchers: a provider usage-limit outage can stop all strong workers
+  together, while gates, naming and bookkeeping can still continue.
 
 ## Rolling dispatch
 

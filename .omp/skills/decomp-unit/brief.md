@@ -1,9 +1,7 @@
 # Matching-agent brief template
 
-Fill `<...>` and write it to `local://brief.md`; each `task` `context` is then "Read
-`local://brief.md` FIRST and follow it exactly" plus that file's facts. One `tasks[]` item
-per agent with its target file, mode, and function list (near-misses first, each with its
-last known diff note and stage reached).
+Fill `<...>` into `local://brief.md`; each task says "Read `local://brief.md` FIRST and
+follow it exactly", plus the file, mode and function list (near-misses first, with stage/diff).
 
 ````
 # Goal
@@ -37,9 +35,9 @@ swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a
   the asm of every function matched since your base). If a `.s` your copy references is
   missing, report it and work on other functions; never rebuild your copy from `src`. A
   `tools/dk` call pausing on `dk: waiting for ... lock` while the gate runs is normal: wait.
-- Never `pkill`/`kill` by pattern (`pkill -f "permute.py run"` killed every sibling's
-  permuter): stop only a PID you started.
-- Put every scratch/probe file (`cc -S` output, objdump/`.s` dumps) under `.scratch/<YourName>/`, never the repo root.
+- Never kill by pattern: stop only a PID you started. Never delete shared `.scratch`
+  directories (including `.scratch/permuter`); clean only your own task-specific files.
+- Put scratch/probe files under `.scratch/<YourName>/`, never the repo root.
 - PRIVATE COPY mode: create your copy ONCE from the exact base commit in your task
   (`git show <commit>:src/<seg>/<file>.c > .scratch/<YourName>/<file>.c`); never re-copy it or
   `cp` it over `src`; after any multi-line replace, `diff` it against the base (block replaces
@@ -67,9 +65,9 @@ swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a
   unrolled loop idioms), report it clearly or message siblings via `write agent://<id>`.
 - DIRECT mode (you are the only agent on the file): edit it in place, check with
   `tools/objdiff.sh src/<seg>/<file>.c [FUNC]`.
-- Both print `OK` (exit 0) or `TEXT OK` (exit 3) when code matches, else FAILED plus an
-  asm-differ diff of FUNC. Exact diff, in ONE call (each `tools/dk` call gets its own fresh
-  /tmp, which does not survive): `tools/dk sh -c 'mips-linux-gnu-objdump -d
+- Run fdiff and `--non-matching` serially for each copy: both overwrite the same object.
+  fdiff prints `OK` (exit 0), `TEXT OK` (3), or FAILED with a diff. Exact diff in ONE call
+  (each `tools/dk` call gets a fresh /tmp): `tools/dk sh -c 'mips-linux-gnu-objdump -d
   --no-show-raw-insn <your .o> > /tmp/b; mips-linux-gnu-objdump -d --no-show-raw-insn
   expected/build/src/<seg>/<file>.o > /tmp/e; diff /tmp/e /tmp/b'`
   (private objects: `build/.scratch/.scratch_<YourName>_<file>.c.o`; ignore pure `%lo`
