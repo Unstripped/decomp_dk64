@@ -57,10 +57,10 @@ extern f32 D_807FD968;
 extern f32 D_807FD96C;
 extern f32 D_807FD970;
 
-void lightSetOverrideColor(f32 arg0, f32 arg1, f32 arg2) {
-    D_807FD968 = arg0;
-    D_807FD96C = arg1;
-    D_807FD970 = arg2;
+void lightSetOverrideColor(f32 r, f32 g, f32 b) {
+    D_807FD968 = r;
+    D_807FD96C = g;
+    D_807FD970 = b;
 }
 
 typedef struct {
@@ -98,12 +98,12 @@ void matrixMakeRotationZ(f32 (*)[4], f32);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 
 #define BG_BLEND_B(off, mul) \
-    ((u32)((mul) * ((f32)D_80754EF8[arg4 * 12 + (off)] + ((f32)(D_80754EF8[arg5 * 12 + (off)] - D_80754EF8[arg4 * 12 + (off)]) * alpha))))
+    ((u32)((mul) * ((f32)D_80754EF8[skyTypeA * 12 + (off)] + ((f32)(D_80754EF8[skyTypeB * 12 + (off)] - D_80754EF8[skyTypeA * 12 + (off)]) * alpha))))
 #define BG_BLEND_C(off, mul) \
-    ((u32)((mul) * ((f32)D_80754EF8[arg4 * 12 + (off)] + (alpha * (f32)(D_80754EF8[arg5 * 12 + (off)] - D_80754EF8[arg4 * 12 + (off)])))))
+    ((u32)((mul) * ((f32)D_80754EF8[skyTypeA * 12 + (off)] + (alpha * (f32)(D_80754EF8[skyTypeB * 12 + (off)] - D_80754EF8[skyTypeA * 12 + (off)])))))
 #define BG_PLAYER_VIEW ((BackgroundPlayerView *)gPlayerSlots)
 
-Gfx *gfxDrawBackgroundQuad(Gfx *gdl, void *arg1, f32 angle, void *mtx, u8 arg4, u8 arg5, u8 arg6, s8 arg7, f32 alpha) {
+Gfx *gfxDrawBackgroundQuad(Gfx *gdl, void *arg1, f32 angle, void *mtx, u8 skyTypeA, u8 skyTypeB, u8 colorMode, s8 lightIndex, f32 alpha) {
     f32 y;
     u32 color0;
     u32 color1;
@@ -120,11 +120,11 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, void *arg1, f32 angle, void *mtx, u8 arg4, 
 
     y = -(256.0f - (cosApprox(angle) * 300.0f)) - 80.0f;
     light = gCamActor->unk174;
-    if ((u32)arg4 == 5) {
+    if ((u32)skyTypeA == 5) {
         y = (f32)((f64)y + (0.08 * (f64)BG_PLAYER_VIEW->unk2CA - 75.0));
     }
 
-    switch (arg6) {
+    switch (colorMode) {
     case 0:
         blue = 1.0f;
         green = 1.0f;
@@ -136,10 +136,10 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, void *arg1, f32 angle, void *mtx, u8 arg4, 
             green = D_807FD96C;
             blue = D_807FD970;
         } else {
-            if (arg7 == -1) {
-                arg7 = *((s8 *)D_807FBB4C + 0x12D);
+            if (lightIndex == -1) {
+                lightIndex = *((s8 *)D_807FBB4C + 0x12D);
             }
-            lightGetColor(&red, &green, &blue, arg7);
+            lightGetColor(&red, &green, &blue, lightIndex);
         }
         break;
     }
@@ -169,8 +169,8 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, void *arg1, f32 angle, void *mtx, u8 arg4, 
         _g->words.w1 = ((s32)((f32)BG_PLAYER_VIEW->unk276 * 4.0f) & 0xFFF) | (((s32)((f32)BG_PLAYER_VIEW->unk274 * 4.0f) & 0xFFF) << 12);
     }
 
-    offset = *(s16 *)((u8 *)D_80754ED8[arg4] + 0x22);
-    table = &D_80754ED8[arg4];
+    offset = *(s16 *)((u8 *)D_80754ED8[skyTypeA] + 0x22);
+    table = &D_80754ED8[skyTypeA];
     guTranslateF(mtxA, 0.0f, (f32)-offset, 0.0f);
     matrixMakeRotationZ(mtxB, (f32)((s32)(((0x1000 - BG_PLAYER_VIEW->unk2CC) & 0xFFF) * 0x168) / 0x1000));
     guMtxCatF(mtxA, mtxB, mtxA);
@@ -202,10 +202,10 @@ typedef struct {
     s8 unkE;
 } ColorBytesView;
 
-void func_80705B14(ColorBytesView *arg0, s8 arg1, s8 arg2, s8 arg3) {
-    arg0->unkC = arg1;
-    arg0->unkD = arg2;
-    arg0->unkE = arg3;
+void func_80705B14(ColorBytesView *colorView, s8 r, s8 g, s8 b) {
+    colorView->unkC = r;
+    colorView->unkD = g;
+    colorView->unkE = b;
 }
 
 extern s32 D_807FD8A0;
@@ -228,27 +228,27 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 void lensFlareAddSource(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
 
-void lensFlareAddFromAngle(s16 arg0, s16 arg1, u8 arg2) {
-    f32 sp4C;
-    f32 sp48;
-    f32 sp44;
-    s16 sp42;
-    s16 sp40;
-    s16 sp3E;
+void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
+    f32 lightR;
+    f32 lightG;
+    f32 lightB;
+    s16 cosAngle;
+    s16 adjPitch;
+    s16 sinAngle;
     s32 unused;
 
-    sp42 = (s16)(s32)((f64)func_80612794(arg0) * 32767.0);
-    sp3E = (s16)(s32)((f64)func_80612790(arg0) * 32767.0);
-    sp40 = (s16)(s32)((f64)arg1 - (8.0 * (f64)((PlayerViewCamRoll *)gPlayerSlots)->unk2CA));
-    if (arg2 != 0) {
-        if (arg2 == 1) {
-            lightGetColor(&sp4C, &sp48, &sp44, *(s16 *)D_807FBB4C->unk12C);
-            if ((f64)sp4C > 0.5) {
-                lensFlareAddSource((f32)sp42, (f32)sp40, (f32)sp3E, 0.0f, 0.0f, 0.0f, 0.0f, (u32)(sp4C * 255.0f), (u32)(sp48 * 255.0f), (u32)(sp44 * 255.0f));
+    cosAngle = (s16)(s32)((f64)func_80612794(azimuthAngle) * 32767.0);
+    sinAngle = (s16)(s32)((f64)func_80612790(azimuthAngle) * 32767.0);
+    adjPitch = (s16)(s32)((f64)elevationAngle - (8.0 * (f64)((PlayerViewCamRoll *)gPlayerSlots)->unk2CA));
+    if (colorMode != 0) {
+        if (colorMode == 1) {
+            lightGetColor(&lightR, &lightG, &lightB, *(s16 *)D_807FBB4C->unk12C);
+            if ((f64)lightR > 0.5) {
+                lensFlareAddSource((f32)cosAngle, (f32)adjPitch, (f32)sinAngle, 0.0f, 0.0f, 0.0f, 0.0f, (u32)(lightR * 255.0f), (u32)(lightG * 255.0f), (u32)(lightB * 255.0f));
             }
         }
     } else {
-        lensFlareAddSource((f32)sp42, (f32)sp40, (f32)sp3E, 0.0f, 0.0f, 0.0f, 0.0f, 0xFF, 0xFF, 0xFF);
+        lensFlareAddSource((f32)cosAngle, (f32)adjPitch, (f32)sinAngle, 0.0f, 0.0f, 0.0f, 0.0f, 0xFF, 0xFF, 0xFF);
     }
 }
 
@@ -258,40 +258,40 @@ Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32
 Gfx *playerViewGfxSetup(Gfx *, u8);
 extern u8 D_2000100[];
 
-Gfx *gfxDrawSkySprite(Gfx *dl, s16 arg1, s16 arg2, u8 mode) {
-    s16 sp76;
+Gfx *gfxDrawSkySprite(Gfx *dl, s16 azimuthAngle, s16 elevationAngle, u8 mode) {
+    s16 cosAngle;
     Gfx *g;
-    f32 sp6C, sp68;
+    f32 screenX, screenY;
     u8 alpha;
-    f32 sp60, sp5C, sp58;
+    f32 lightR, lightG, lightB;
     s16 b;
     s16 c;
 
     alpha = 0xFF;
     if (mode == 1) {
-        lightGetColor(&sp60, &sp5C, &sp58, *(s16 *)D_807FBB4C->unk12C);
-        sp60 = (f32)(1.0 < ((1.0 - (f64)sp5C) / 0.7) ? 1.0 : ((1.0 - (f64)sp5C) / 0.7));
-        alpha = (u32)((f64)sp60 * 255.0);
+        lightGetColor(&lightR, &lightG, &lightB, *(s16 *)D_807FBB4C->unk12C);
+        lightR = (f32)(1.0 < ((1.0 - (f64)lightG) / 0.7) ? 1.0 : ((1.0 - (f64)lightG) / 0.7));
+        alpha = (u32)((f64)lightR * 255.0);
     } else if (mode == 2) {
-        sp60 = (f32)((f64)gBackgroundBlend - 0.5);
-        if (sp60 < 0.0) {
-            sp60 = 0.0f;
+        lightR = (f32)((f64)gBackgroundBlend - 0.5);
+        if (lightR < 0.0) {
+            lightR = 0.0f;
         }
-        sp60 = (f32)((f64)sp60 * 512.0);
-        if (sp60 > 255.0) {
-            sp60 = 255.0f;
+        lightR = (f32)((f64)lightR * 512.0);
+        if (lightR > 255.0) {
+            lightR = 255.0f;
         }
-        alpha = (u32)sp60;
+        alpha = (u32)lightR;
     }
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
-    sp76 = (s16)(s32)((f64)func_80612794(arg1) * 32767.0);
-    c = (s16)(s32)((f64)func_80612790(arg1) * 32767.0);
-    b = (s16)(s32)((f64)arg2 - (8.0 * (f64)((PlayerViewCamRoll *)gPlayerSlots)->unk2CA));
-    camProjectToScreen((f32)sp76, (f32)b, (f32)c, &sp6C, &sp68, 0, 4.0f, 0);
-    if ((sp6C > -320.0f) && (sp6C < 1600.0f) && (sp68 > -240.0f) && (sp68 < 1200.0f)) {
+    cosAngle = (s16)(s32)((f64)func_80612794(azimuthAngle) * 32767.0);
+    c = (s16)(s32)((f64)func_80612790(azimuthAngle) * 32767.0);
+    b = (s16)(s32)((f64)elevationAngle - (8.0 * (f64)((PlayerViewCamRoll *)gPlayerSlots)->unk2CA));
+    camProjectToScreen((f32)cosAngle, (f32)b, (f32)c, &screenX, &screenY, 0, 4.0f, 0);
+    if ((screenX > -320.0f) && (screenX < 1600.0f) && (screenY > -240.0f) && (screenY < 1200.0f)) {
         g = playerViewGfxSetup(dl, 0);
         gSPSetOtherMode(g++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
-        g->words.w0 = 0xDA380007; g->words.w1 = (u32)&D_2000100; dl = renderRotatedSprite(g + 1, 0x35, 3, 1, 0x40, 0x40, (s32)sp6C, (s32)sp68, 4.0f, 4.0f, 0, 0.0f);
+        g->words.w0 = 0xDA380007; g->words.w1 = (u32)&D_2000100; dl = renderRotatedSprite(g + 1, 0x35, 3, 1, 0x40, 0x40, (s32)screenX, (s32)screenY, 4.0f, 4.0f, 0, 0.0f);
     }
     return dl;
 }
@@ -300,7 +300,7 @@ typedef struct {
     f32 v[3][2];
 } RectSpan;
 
-void func_807063B8(RectSpan *arg0, u8 *arg1, u8 arg2, f32 arg3) {
+void func_807063B8(RectSpan *spans, u8 *pCount, u8 axis, f32 maxCoord) {
     RectSpan temp[4];
     s32 i;
     u8 o;
@@ -308,34 +308,34 @@ void func_807063B8(RectSpan *arg0, u8 *arg1, u8 arg2, f32 arg3) {
     f32 g;
 
     o = 0;
-    for (i = 0; i < *arg1; i++) {
-        temp[i] = arg0[i];
+    for (i = 0; i < *pCount; i++) {
+        temp[i] = spans[i];
     }
-    for (i = 0; i < *arg1; i++) {
-        if ((temp[i].v[0][arg2] < 0.0f) || (arg3 < temp[i].v[1][arg2])) {
-            f = (temp[i].v[0][arg2] < 0.0f) ? temp[i].v[0][arg2] + arg3 : temp[i].v[0][arg2];
-            arg0[o].v[0][arg2] = f;
-            arg0[o].v[0][arg2 ^ 1] = temp[i].v[0][arg2 ^ 1];
-            arg0[o].v[1][arg2] = arg3;
-            arg0[o].v[1][arg2 ^ 1] = temp[i].v[1][arg2 ^ 1];
-            arg0[o].v[2][arg2] = temp[i].v[2][arg2];
-            arg0[o].v[2][arg2 ^ 1] = temp[i].v[2][arg2 ^ 1];
-            g = arg0[o].v[2][arg2] + (arg3 - f);
+    for (i = 0; i < *pCount; i++) {
+        if ((temp[i].v[0][axis] < 0.0f) || (maxCoord < temp[i].v[1][axis])) {
+            f = (temp[i].v[0][axis] < 0.0f) ? temp[i].v[0][axis] + maxCoord : temp[i].v[0][axis];
+            spans[o].v[0][axis] = f;
+            spans[o].v[0][axis ^ 1] = temp[i].v[0][axis ^ 1];
+            spans[o].v[1][axis] = maxCoord;
+            spans[o].v[1][axis ^ 1] = temp[i].v[1][axis ^ 1];
+            spans[o].v[2][axis] = temp[i].v[2][axis];
+            spans[o].v[2][axis ^ 1] = temp[i].v[2][axis ^ 1];
+            g = spans[o].v[2][axis] + (maxCoord - f);
             o++;
-            f = (temp[i].v[0][arg2] < 0.0f) ? temp[i].v[1][arg2] : temp[i].v[1][arg2] - arg3;
-            arg0[o].v[0][arg2] = 0.0f;
-            arg0[o].v[0][arg2 ^ 1] = temp[i].v[0][arg2 ^ 1];
-            arg0[o].v[1][arg2] = f;
-            arg0[o].v[1][arg2 ^ 1] = temp[i].v[1][arg2 ^ 1];
-            arg0[o].v[2][arg2] = g;
-            arg0[o].v[2][arg2 ^ 1] = temp[i].v[2][arg2 ^ 1];
+            f = (temp[i].v[0][axis] < 0.0f) ? temp[i].v[1][axis] : temp[i].v[1][axis] - maxCoord;
+            spans[o].v[0][axis] = 0.0f;
+            spans[o].v[0][axis ^ 1] = temp[i].v[0][axis ^ 1];
+            spans[o].v[1][axis] = f;
+            spans[o].v[1][axis ^ 1] = temp[i].v[1][axis ^ 1];
+            spans[o].v[2][axis] = g;
+            spans[o].v[2][axis ^ 1] = temp[i].v[2][axis ^ 1];
             o++;
         } else {
-            arg0[o] = temp[i];
+            spans[o] = temp[i];
             o++;
         }
     }
-    *arg1 = o;
+    *pCount = o;
 }
 
 typedef struct {
@@ -348,7 +348,7 @@ typedef struct {
 
 extern TintKeyframe D_80754F58[];
 
-void gfxGetBackgroundTint(s16 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
+void gfxGetBackgroundTint(s16 yPos, u8 *outR, u8 *outG, u8 *outB) {
     u8 idx;
     TintKeyframe *p;
     f32 t;
@@ -356,16 +356,16 @@ void gfxGetBackgroundTint(s16 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     switch (gCurrentMap) {
         case 0xE:
             idx = 0;
-            if (arg0 < D_80754F58[1].pos) {
+            if (yPos < D_80754F58[1].pos) {
                 do {
                     idx++;
-                } while (arg0 < D_80754F58[idx + 1].pos);
+                } while (yPos < D_80754F58[idx + 1].pos);
             }
             p = &D_80754F58[idx];
-            t = (f32)(arg0 - D_80754F58[idx + 1].pos) / (f32)(p->pos - D_80754F58[idx + 1].pos);
-            *arg1 = D_80754F58[idx + 1].r + (f32)(p->r - D_80754F58[idx + 1].r) * t;
-            *arg2 = D_80754F58[idx + 1].g + (f32)(p->g - D_80754F58[idx + 1].g) * t;
-            *arg3 = D_80754F58[idx + 1].b + (f32)(p->b - D_80754F58[idx + 1].b) * t;
+            t = (f32)(yPos - D_80754F58[idx + 1].pos) / (f32)(p->pos - D_80754F58[idx + 1].pos);
+            *outR = D_80754F58[idx + 1].r + (f32)(p->r - D_80754F58[idx + 1].r) * t;
+            *outG = D_80754F58[idx + 1].g + (f32)(p->g - D_80754F58[idx + 1].g) * t;
+            *outB = D_80754F58[idx + 1].b + (f32)(p->b - D_80754F58[idx + 1].b) * t;
             return;
         case 0x41:
         case 0x42:
@@ -379,14 +379,14 @@ void gfxGetBackgroundTint(s16 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
         case 0x7E:
         case 0x7F:
         case 0x80:
-            *arg1 = 0x3F;
-            *arg2 = 0x3F;
-            *arg3 = 0x3F;
+            *outR = 0x3F;
+            *outG = 0x3F;
+            *outB = 0x3F;
             return;
         default:
-            *arg1 = 0xFF;
-            *arg2 = 0xFF;
-            *arg3 = 0xFF;
+            *outR = 0xFF;
+            *outG = 0xFF;
+            *outB = 0xFF;
             return;
     }
 }
@@ -416,11 +416,11 @@ typedef struct {
 extern Mtx D_807FD8A8[];
 extern f32 D_80754CE4;
 s32 assetLoad(s32, s32, s32, s32);
-void func_807063B8(RectSpan *, u8 *, u8, f32);
-void gfxGetBackgroundTint(s16, u8 *, u8 *, u8 *);
+void func_807063B8(RectSpan *spans, u8 *pCount, u8 axis, f32 maxCoord);
+void gfxGetBackgroundTint(s16 yPos, u8 *outR, u8 *outG, u8 *outB);
 void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
 
-Gfx *gfxDrawRotatedTiledBackground(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3, f32 arg4, f32 arg5) {
+Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, f32 width, f32 height) {
     f32 lo;
     f32 hi;
     s32 i;
@@ -449,23 +449,23 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3, f32 
     guTranslateF(mtxB, 2560.0f, 1920.0f, 0.0f);
     guMtxCatF(mtxA, mtxB, mtxA);
     guMtxF2L(mtxA, &D_807FD8A8[D_807444FC]);
-    arg1 = 6.2831855f - arg1;
-    arg2 = (arg4 / arg5) * (6.2831855f - arg2);
+    rotX = 6.2831855f - rotX;
+    rotY = (width / height) * (6.2831855f - rotY);
     if (D_807FD8A0 == 0) {
-        D_807FD8A0 = assetLoad(0xE, arg3, 0, 0);
+        D_807FD8A0 = assetLoad(0xE, assetId, 0, 0);
     }
-    gSPMatrix(arg0++, &D_807FD8A8[D_807444FC], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPMatrix(arg0++, &D_807FD928, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gDPPipeSync(arg0++);
-    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, 3, 29, 0x404240);
-    { Gfx *_g = (Gfx *)(arg0++); _g->words.w0 = 0xFC11FE23; _g->words.w1 = 0xFFFFF7FB; }
-    gSPSetOtherMode(arg0++, G_SETOTHERMODE_H, 20, 2, 0);
+    gSPMatrix(glist++, &D_807FD8A8[D_807444FC], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(glist++, &D_807FD928, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gDPPipeSync(glist++);
+    gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0x404240);
+    { Gfx *_g = (Gfx *)(glist++); _g->words.w0 = 0xFC11FE23; _g->words.w1 = 0xFFFFF7FB; }
+    gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0);
     gfxGetBackgroundTint((s16)(s32)cam->unk80, &r, &g, &b);
-    gDPSetPrimColor(arg0++, 0, 0, r, g, b, 0xFF);
-    gSPClearGeometryMode(arg0++, 0xFFFFFF);
-    gSPSetGeometryMode(arg0++, 0x200004);
-    lo = arg1 * 0.15915494f * D_80754CE4;
-    hi = arg2 * 0.15915494f * D_80754CE4;
+    gDPSetPrimColor(glist++, 0, 0, r, g, b, 0xFF);
+    gSPClearGeometryMode(glist++, 0xFFFFFF);
+    gSPSetGeometryMode(glist++, 0x200004);
+    lo = rotX * 0.15915494f * D_80754CE4;
+    hi = rotY * 0.15915494f * D_80754CE4;
     inv = 1.0f / scale;
     while (lo > 1.0f) {
         lo -= 1.0f;
@@ -473,8 +473,8 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3, f32 
     while (hi > 1.0f) {
         hi -= 1.0f;
     }
-    lo = lo * arg4;
-    hi = hi * arg5;
+    lo = lo * width;
+    hi = hi * height;
     rect[0] = lo - 460.0f * inv * 0.5f;
     rect[2] = 460.0f * inv * 0.5f + lo;
     count = 1;
@@ -482,12 +482,12 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3, f32 
     rect[2] = 460.0f * inv * 0.5f + lo;
     rect[3] = 380.0f * inv * 0.5f + hi;
     rect[5] = rect[4] = -70.0f * inv;
-    func_807063B8((RectSpan *)rect, &count, 0, arg4);
-    func_807063B8((RectSpan *)rect, &count, 1, arg5);
+    func_807063B8((RectSpan *)rect, &count, 0, width);
+    func_807063B8((RectSpan *)rect, &count, 1, height);
     for (i = 0; i < count; i++) {
-        gfxDrawTexturedTileGridSimple(&arg0, D_807FD8A0, 0, (u32)arg4, (u32)arg5, 0x20, 0x20, rect[i * 6], rect[i * 6 + 1], rect[i * 6 + 2], rect[i * 6 + 3], rect[i * 6 + 4], rect[i * 6 + 5], 0x10, 0x10);
+        gfxDrawTexturedTileGridSimple(&glist, D_807FD8A0, 0, (u32)width, (u32)height, 0x20, 0x20, rect[i * 6], rect[i * 6 + 1], rect[i * 6 + 2], rect[i * 6 + 3], rect[i * 6 + 4], rect[i * 6 + 5], 0x10, 0x10);
     }
-    return arg0;
+    return glist;
 }
 
 extern s16 D_80754CE0;
@@ -621,7 +621,7 @@ typedef struct {
 
 #define PLAYER_VIEW_MODE (*(s16 *)&((PlayerViewBackdrop *)gPlayerSlots)->unk290)
 
-Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4) {
+Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 player) {
     f32 x;
     f32 r;
     f32 z;
@@ -769,8 +769,8 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 arg4)
         gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0);
         gDPSetCycleType(dl++, G_CYC_FILL);
         {
-            Gfx *_g = (Gfx *)(dl++); _g->words.w0 = (((((PlayerViewBackdrop *)((u8 *)gPlayerSlots + (s16)arg4 * 0x2F0))->unk276 - 1) & 0x3FF) << 2) | 0xF6000000 | (((((PlayerViewBackdrop *)((u8 *)gPlayerSlots + (s16)arg4 * 0x2F0))->unk274 - 1) & 0x3FF) << 14);
-            _g->words.w1 = (((((PlayerViewBackdrop *)((u8 *)gPlayerSlots + (s16)arg4 * 0x2F0))->unk272) & 0x3FF) << 2) | (((((PlayerViewBackdrop *)((u8 *)gPlayerSlots + (s16)arg4 * 0x2F0))->unk270) & 0x3FF) << 14);
+            Gfx *_g = (Gfx *)(dl++); _g->words.w0 = (((((PlayerViewBackdrop *)((u8 *)gPlayerSlots + (s16)player * 0x2F0))->unk276 - 1) & 0x3FF) << 2) | 0xF6000000 | (((((PlayerViewBackdrop *)((u8 *)gPlayerSlots + (s16)player * 0x2F0))->unk274 - 1) & 0x3FF) << 14);
+            _g->words.w1 = (((((PlayerViewBackdrop *)((u8 *)gPlayerSlots + (s16)player * 0x2F0))->unk272) & 0x3FF) << 2) | (((((PlayerViewBackdrop *)((u8 *)gPlayerSlots + (s16)player * 0x2F0))->unk270) & 0x3FF) << 14);
         }
         gDPPipeSync(dl++);
         gDPSetCycleType(dl++, G_CYC_1CYCLE);
@@ -837,16 +837,16 @@ Gfx *gfxDrawPlayerViewBackground(Gfx *glist, s16 player) {
 }
 
 
-void gfxSetBackgroundBlend(f32 arg0) {
-    f64 var_fv0;
+void gfxSetBackgroundBlend(f32 blend) {
+    f64 blendVal;
 
-    var_fv0 = (f64)arg0;
-    if (var_fv0 < 0.0) {
-        arg0 = 0.0f;
-        var_fv0 = (f64)arg0;
+    blendVal = (f64)blend;
+    if (blendVal < 0.0) {
+        blend = 0.0f;
+        blendVal = (f64)blend;
     }
-    if (var_fv0 > 1.0) {
-        arg0 = 1.0f;
+    if (blendVal > 1.0) {
+        blend = 1.0f;
     }
-    gBackgroundBlend = arg0;
+    gBackgroundBlend = blend;
 }
