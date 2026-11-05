@@ -47,19 +47,19 @@ void renderReplaceSegment6Commands();
 void controllerCommandRelocateAssets();
 void gfxSwapGeometryModeCullBits();
 
-void *controllerAnimStateLoadAsset(arg0, arg1, arg2)
-void *arg0;
-s32 arg1;
-unsigned char arg2;
+void *controllerAnimStateLoadAsset(controller, assetId, cullSwap)
+void *controller;
+s32 assetId;
+unsigned char cullSwap;
 {
     s32 i;
     ControllerAnimAssetView *asset;
     s32 delta;
 
     for (i = 0; i < (u16)D_807FBB30; i++) {
-        if (arg1 == CONTROLLER_STATE_ENTRY(i).unk0 && CONTROLLER_STATE_ENTRY(i).unk8 == arg2) {
+        if (assetId == CONTROLLER_STATE_ENTRY(i).unk0 && CONTROLLER_STATE_ENTRY(i).unk8 == cullSwap) {
             CONTROLLER_STATE_ENTRY(i).unk2++;
-            animListInit(arg0, CONTROLLER_STATE_ENTRY(i).unk4);
+            animListInit(controller, CONTROLLER_STATE_ENTRY(i).unk4);
             return CONTROLLER_STATE_ENTRY(i).unk4;
         }
     }
@@ -68,10 +68,10 @@ unsigned char arg2;
         return D_807FB634;
     }
 
-    asset = (ControllerAnimAssetView *)assetLoad(5, arg1 - 1, 1, 1);
-    CONTROLLER_STATE_ENTRY(i).unk0 = arg1;
+    asset = (ControllerAnimAssetView *)assetLoad(5, assetId - 1, 1, 1);
+    CONTROLLER_STATE_ENTRY(i).unk0 = assetId;
     D_807FBB30 = (u16)D_807FBB30 + 1;
-    CONTROLLER_STATE_ENTRY(i).unk8 = arg2;
+    CONTROLLER_STATE_ENTRY(i).unk8 = cullSwap;
     CONTROLLER_STATE_ENTRY(i).unk2 = 1;
     CONTROLLER_STATE_ENTRY(i).unk4 = asset;
 
@@ -96,9 +96,9 @@ unsigned char arg2;
     controllerBuildSubcommandList(*asset->unk4, asset->unk4, &asset->unk14);
     renderReplaceSegment6Commands(*asset->unk4, asset->unk4);
     controllerCommandRelocateAssets(*asset->unk4, asset->unk4);
-    animListInit(arg0, asset);
+    animListInit(controller, asset);
 
-    if (arg2 & 1) {
+    if (cullSwap & 1) {
         gfxSwapGeometryModeCullBits(*asset->unk4, asset->unk4);
     }
 
@@ -109,69 +109,69 @@ typedef struct GfxCmdWords {
     u32 unk0;
     u32 unk4;
 } GfxCmdWords;
-void gfxSwapGeometryModeCullBits(GfxCmdWords *arg0, GfxCmdWords *arg1) {
+void gfxSwapGeometryModeCullBits(GfxCmdWords *cmdStart, GfxCmdWords *cmdEnd) {
     u32 command;
     u32 op;
     u32 w0;
     u32 w1;
 
     op = 0; // FAKE: orders the mask candidate before the command-word candidate
-    if (arg0 != arg1) {
+    if (cmdStart != cmdEnd) {
         do {
-            w0 = arg0->unk0;
+            w0 = cmdStart->unk0;
             command = w0 >> 24;
             if ((w0 & 0x600) && (w0 & 0x600)) {} // FAKE: preserves the cull-mask expression's live range
-            w1 = arg0->unk4;
+            w1 = cmdStart->unk4;
             if (command == 0xD9) {
-                if (arg0->unk4 == 0) {
+                if (cmdStart->unk4 == 0) {
                     w0 = ~w0 & 0xFFFFFF;
                     if ((w0 & 0x600) == 0x200) {
                         op = w0 | 0x400;
                         w0 = 0; // FAKE: prevents forwarding the mask expression out of op
                         op = (s32)op & ~0x200;
-                        arg0->unk0 = ~op | 0xD9000000;
+                        cmdStart->unk0 = ~op | 0xD9000000;
                     } else if ((w0 & 0x600) == 0x400) {
                         op = w0 | 0x200;
                         w0 = 0; // FAKE: prevents forwarding the mask expression out of op
                         op = (s32)op & ~0x400;
-                        arg0->unk0 = ~op | 0xD9000000;
+                        cmdStart->unk0 = ~op | 0xD9000000;
                     }
                 } else {
                     op = w1 & 0x600;
                     if (op == 0x200) {
-                        arg0->unk4 |= 0x400;
-                        arg0->unk4 &= ~0x200;
+                        cmdStart->unk4 |= 0x400;
+                        cmdStart->unk4 &= ~0x200;
                     } else if ((op | 0) == 0x400) { // FAKE: preserves comparison operand order
-                        arg0->unk4 |= 0x200;
-                        arg0->unk4 &= ~0x400;
+                        cmdStart->unk4 |= 0x200;
+                        cmdStart->unk4 &= ~0x400;
                     }
                 }
             }
             if (command && command) {} // FAKE: retains the opcode variable rather than a forwarded shift
-            arg0++;
-            if (arg0 == arg1) {
+            cmdStart++;
+            if (cmdStart == cmdEnd) {
                 break;
             }
         } while (1);
     }
 }
 
-void func_80613194(ControllerView *arg0, s16 arg1) {
-    if (arg0->unk50 == NULL) {
-        arg0->unk50 = controllerAnimStateLoadAsset(arg0, arg1, 0);
+void func_80613194(ControllerView *controller, s16 assetId) {
+    if (controller->unk50 == NULL) {
+        controller->unk50 = controllerAnimStateLoadAsset(controller, assetId, 0);
     }
 }
 
-void func_806131D4(ControllerView *arg0, s16 arg1) {
-    if (arg0->unk50 == NULL) {
-        arg0->unk50 = controllerAnimStateLoadAsset(arg0, arg1, 1);
+void func_806131D4(ControllerView *controller, s16 assetId) {
+    if (controller->unk50 == NULL) {
+        controller->unk50 = controllerAnimStateLoadAsset(controller, assetId, 1);
     }
 }
 
-void func_80613214(ControllerView *arg0) {
-    if (arg0->unk50 != NULL) {
-        controllerAnimFreeSub(arg0, 2);
-        arg0->unk50 = NULL;
+void func_80613214(ControllerView *controller) {
+    if (controller->unk50 != NULL) {
+        controllerAnimFreeSub(controller, 2);
+        controller->unk50 = NULL;
     }
 }
 
@@ -189,7 +189,7 @@ typedef struct ControllerSubNode {
 
 void *heapAlloc(s32);
 
-void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg1, ControllerSubNode **arg2) {
+void controllerBuildSubcommandList(ControllerSubCmd *cmdStart, ControllerSubCmd *cmdEnd, ControllerSubNode **pNodeList) {
     ControllerSubCmd *curr;
     ControllerSubCmd *search;
     ControllerSubNode *node;
@@ -199,8 +199,8 @@ void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg
     u32 op;
     u32 sub;
     u32 search_cmd;
-    curr = arg0;
-    if (arg0 != arg1) {
+    curr = cmdStart;
+    if (cmdStart != cmdEnd) {
         do {
             cmd0 = curr->unk0;
             op = cmd0 >> 24;
@@ -210,9 +210,9 @@ void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg
             if ((op == 0xDE) && (sub == 1)) {
                 id = (curr->unk4 << 4) >> 28;
                 if (op && op) {} // FAKE: dead statement (steers uopt colouring)
-                search = arg0;
+                search = cmdStart;
                 found = 0;
-                if (arg0 != arg1) {
+                if (cmdStart != cmdEnd) {
                     do {
                         search_cmd = search->unk0;
                         if (((search_cmd >> 24) == 0) && (id == search->unk4)) {
@@ -220,19 +220,19 @@ void controllerBuildSubcommandList(ControllerSubCmd *arg0, ControllerSubCmd *arg
                         } else {
                             search++;
                         }
-                    } while (!found && (search != arg1));
+                    } while (!found && (search != cmdEnd));
                 }
                 node = heapAlloc(sizeof(ControllerSubNode));
-                *arg2 = node;
-                arg2 = &node->next;
+                *pNodeList = node;
+                pNodeList = &node->next;
                 node->unk8 = id;
                 node->unk0 = curr + 1;
                 node->unk4 = search;
             }
             curr++;
-        } while (curr != arg1);
+        } while (curr != cmdEnd);
     }
-    *arg2 = NULL;
+    *pNodeList = NULL;
 }
 
 typedef struct {
@@ -255,37 +255,37 @@ typedef struct {
     u32 unk60;
 } ControllerCommandOwner;
 
-void func_80613358(ControllerCommandOwner *arg0, s32 arg1, ControllerCommand *arg2) {
+void func_80613358(ControllerCommandOwner *owner, s32 commandIndex, ControllerCommand *command) {
     u32 *arg2_words;
     ControllerCommand *commands;
     ControllerCommand *destination;
 
-    arg2_words = &arg2->unk0;
-    if (!(arg0->unk60 & 0x10)) {
+    arg2_words = &command->unk0;
+    if (!(owner->unk60 & 0x10)) {
         goto command_lookup;
 command_lookup:
-        commands = arg0->unk0->unk4->unk0;
-        destination = commands + arg1;
-        if ((destination->unk0 != *arg2_words) || (arg2->unk4 != destination->unk4)) {
-            memcpy(destination, arg2, 8);
+        commands = owner->unk0->unk4->unk0;
+        destination = commands + commandIndex;
+        if ((destination->unk0 != *arg2_words) || (command->unk4 != destination->unk4)) {
+            memcpy(destination, command, 8);
         }
     }
 }
 
-void controllerCommandRelocateAssets(ControllerCommand *arg0, ControllerCommand *arg1) {
-    u32 temp_v0;
+void controllerCommandRelocateAssets(ControllerCommand *cmdStart, ControllerCommand *cmdEnd) {
+    u32 word;
 
-    if (arg0 != arg1) {
+    if (cmdStart != cmdEnd) {
         do {
-            temp_v0 = arg0->unk0;
-            if ((temp_v0 >> 0x18) == (0, 0xFD)) { // FAKE: keeps bnel operand order
-                temp_v0 = arg0->unk4;
-                if (((temp_v0 * 0x10) >> 0x1C) == 0) {
-                    arg0->unk4 = (u32)assetLoad(0x19, temp_v0 ^ 0, 0, 0); // FAKE: steers move a1, v0 into delay slot
+            word = cmdStart->unk0;
+            if ((word >> 0x18) == (0, 0xFD)) { // FAKE: keeps bnel operand order
+                word = cmdStart->unk4;
+                if (((word * 0x10) >> 0x1C) == 0) {
+                    cmdStart->unk4 = (u32)assetLoad(0x19, word ^ 0, 0, 0); // FAKE: steers move a1, v0 into delay slot
                 }
             }
-            arg0++;
-        } while (arg0 != arg1);
+            cmdStart++;
+        } while (cmdStart != cmdEnd);
     }
 }
 
@@ -298,8 +298,8 @@ typedef struct ControllerStateEntry {
 
 extern ControllerStateEntry D_807FB630[];
 
-u16 controllerLookupStateByHash(u32 *arg0) {
-    u32 val = *arg0;
+u16 controllerLookupStateByHash(u32 *pHash) {
+    u32 val = *pHash;
     s32 i;
     for (i = (u16)D_807FBB30; i >= 0; i--) {
         if (val == D_807FB630[i].unk4) {
@@ -397,33 +397,33 @@ typedef struct {
     u8 unk20;
 } AnimAssetEntry;
 
-s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
+s32 controllerAnimInit(AnimControllerInit *controller, u16 assetId) {
     AnimAssetEntry *resource;
     s32 i;
     void *alloc;
     AnimStateInit *anim;
-    resource = controllerAnimStateLoadAsset(arg0, arg1, 0);
+    resource = controllerAnimStateLoadAsset(controller, assetId, 0);
     if (resource != NULL) {
-        arg0->unk0 = resource;
-        arg0->unk4C = 0;
-        arg0->unk50 = 0;
+        controller->unk0 = resource;
+        controller->unk4C = 0;
+        controller->unk50 = 0;
 
         alloc = heapAlloc((resource->unk20 << 7) + 0x170);
-        arg0->unk4 = (AnimStateInit *)alloc;
-        arg0->unk4->unk0 = (AnimSlotInit *)((u8 *)alloc + 0x90);
-        arg0->unk4->unk4 = (AnimSlotInit *)((u8 *)alloc + 0xC8);
-        arg0->unk4->unk8 = (AnimSlotInit *)((u8 *)alloc + 0x100);
-        arg0->unk4->unkC = (AnimSlotInit *)((u8 *)alloc + 0x138);
-        arg0->unk4->unk14 = (Mtx *)((u8 *)alloc + 0x170);
-        arg0->unk4->unk18 = (Mtx *)((u8 *)arg0->unk4->unk14 + (resource->unk20 << 6));
+        controller->unk4 = (AnimStateInit *)alloc;
+        controller->unk4->unk0 = (AnimSlotInit *)((u8 *)alloc + 0x90);
+        controller->unk4->unk4 = (AnimSlotInit *)((u8 *)alloc + 0xC8);
+        controller->unk4->unk8 = (AnimSlotInit *)((u8 *)alloc + 0x100);
+        controller->unk4->unkC = (AnimSlotInit *)((u8 *)alloc + 0x138);
+        controller->unk4->unk14 = (Mtx *)((u8 *)alloc + 0x170);
+        controller->unk4->unk18 = (Mtx *)((u8 *)controller->unk4->unk14 + (resource->unk20 << 6));
 
         for (i = 0; i < resource->unk20; i++) {
-            guMtxIdent((Mtx *)((u8 *)arg0->unk4->unk14 + (i << 6)));
-            guMtxIdent((Mtx *)((u8 *)arg0->unk4->unk18 + (i << 6)));
+            guMtxIdent((Mtx *)((u8 *)controller->unk4->unk14 + (i << 6)));
+            guMtxIdent((Mtx *)((u8 *)controller->unk4->unk18 + (i << 6)));
         }
 
-        guMtxIdentF(arg0->unkC);
-        anim = arg0->unk4;
+        guMtxIdentF(controller->unkC);
+        anim = controller->unk4;
         anim->unk1C = NULL;
         anim->unk20 = NULL;
         anim->unk24 = NULL;
@@ -466,32 +466,32 @@ s32 controllerAnimInit(AnimControllerInit *arg0, u16 arg1) {
     return 0;
 }
 
-void func_806136B4(ControllerAnimView *arg0) {
-    void *temp_a1;
+void func_806136B4(ControllerAnimView *controller) {
+    void *buffer1;
     void *temp_a1_2;
     void *temp_a1_3;
 
-    controllerAnimFreeSub((ControllerView *)arg0, 0);
-    controllerAnimFreeSub((ControllerView *)arg0, 1);
-    controllerAnimFreeSub((ControllerView *)arg0, 2);
-    animListFree((u8 *)arg0 + 0x158);
-    controllerAnimCacheFree(arg0, arg0->unk4->unk0);
-    controllerAnimCacheFree(arg0, arg0->unk4->unk4);
-    controllerAnimCacheFree(arg0, arg0->unk4->unk8);
-    controllerAnimCacheFree(arg0, arg0->unk4->unkC);
-    temp_a1 = arg0->unk4->unk1C;
-    if (temp_a1 != NULL) {
-        heapFreeDeferred(temp_a1);
+    controllerAnimFreeSub((ControllerView *)controller, 0);
+    controllerAnimFreeSub((ControllerView *)controller, 1);
+    controllerAnimFreeSub((ControllerView *)controller, 2);
+    animListFree((u8 *)controller + 0x158);
+    controllerAnimCacheFree(controller, controller->unk4->unk0);
+    controllerAnimCacheFree(controller, controller->unk4->unk4);
+    controllerAnimCacheFree(controller, controller->unk4->unk8);
+    controllerAnimCacheFree(controller, controller->unk4->unkC);
+    buffer1 = controller->unk4->unk1C;
+    if (buffer1 != NULL) {
+        heapFreeDeferred(buffer1);
     }
-    temp_a1_2 = arg0->unk4->unk20;
+    temp_a1_2 = controller->unk4->unk20;
     if (temp_a1_2 != NULL) {
         heapFreeDeferred(temp_a1_2);
     }
-    temp_a1_3 = arg0->unk4->unk24;
+    temp_a1_3 = controller->unk4->unk24;
     if (temp_a1_3 != NULL) {
         heapFreeDeferred(temp_a1_3);
     }
-    heapFreeDeferred(arg0->unk4);
+    heapFreeDeferred(controller->unk4);
 }
 typedef struct {
     void *unk0;
@@ -530,27 +530,27 @@ typedef struct {
 } AnimStateSlot;
 
 #define FREESUB_SLOT(i) (((AnimStateSlot *)D_807FB630)[i])
-void controllerAnimFreeSub(arg0, arg1)
-ControllerViewB *arg0;
-u8 arg1;
+void controllerAnimFreeSub(controller, slotIndex)
+ControllerViewB *controller;
+u8 slotIndex;
 {
     ControllerSubB *sub;
     ControllerCmdB *cmd;
     ControllerCmdListB *cmdList;
     u32 val;
     s32 i;
-    switch (arg1) {
+    switch (slotIndex) {
     case 0:
-        sub = arg0->unk0;
-        arg0->unk0 = NULL;
+        sub = controller->unk0;
+        controller->unk0 = NULL;
         break;
     case 1:
-        sub = arg0->unk4C;
-        arg0->unk4C = NULL;
+        sub = controller->unk4C;
+        controller->unk4C = NULL;
         break;
     case 2:
-        sub = arg0->unk50;
-        arg0->unk50 = NULL;
+        sub = controller->unk50;
+        controller->unk50 = NULL;
         break;
     }
 
@@ -613,16 +613,16 @@ typedef struct {
 } ControllerAnimDataBlock;
 
 
-int controllerAnimCacheFree(void *arg0, void *arg1) {
-    void *temp_a2;
+int controllerAnimCacheFree(void *controller, void *pSlot) {
+    void *asset;
     s32 i;
     s32 count;
 
-    temp_a2 = *(void **)arg1;
-    if (temp_a2 != NULL) {
+    asset = *(void **)pSlot;
+    if (asset != NULL) {
         count = *(u16 *)&D_807FBB32;
         for (i = 0; i + 1 <= count; i++) { // LAYOUT: plain `i < count` is rewritten to a bne latch by uopt's LFTR
-            if (temp_a2 == D_807FB7B0[i].asset) {
+            if (asset == D_807FB7B0[i].asset) {
                 if (--D_807FB7B0[i].refCount == 0) {
                     assetFreeBuffer(D_807FB7B0[i].asset, 0x298, 0x15);
                     *(u16 *)&D_807FBB32 -= 1;
@@ -636,10 +636,10 @@ int controllerAnimCacheFree(void *arg0, void *arg1) {
                 break;
             }
         }
-        *(void **)arg1 = NULL;
+        *(void **)pSlot = NULL;
     }
-    if ((void *)arg1 == ((ControllerAnimRefView *)arg0)->unk4->unk4) {
-        ((ControllerAnimDataBlock *)((ControllerAnimRefView *)arg0)->unk4)->unk84 = 0;
+    if ((void *)pSlot == ((ControllerAnimRefView *)controller)->unk4->unk4) {
+        ((ControllerAnimDataBlock *)((ControllerAnimRefView *)controller)->unk4)->unk84 = 0;
     }
 }
 
@@ -647,15 +647,15 @@ typedef struct { u8 pad[0x14]; f32 a; f32 b; } AnimScaleState;
 typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } AnimScaleSpan;
 typedef struct { AnimScaleState *state; u8 pad[4]; AnimScaleSpan *scale; } AnimScaleHolder;
 typedef struct { u8 pad[4]; AnimScaleHolder *holder; } AnimScaleController;
-void controllerApplyMotionWindow(AnimScaleController *, AnimScaleState *, f32);
+void controllerApplyMotionWindow(AnimScaleController *controller, AnimScaleState *scaleState, f32 timePos);
 
-void controllerAnimScaleInterpolate(AnimScaleController *arg0, s8 arg1) {
+void controllerAnimScaleInterpolate(AnimScaleController *controller, s8 offset) {
     f32 temp;
-    s16 count = (s32)((arg0->holder->state->b - arg0->holder->state->a) + 1.0f);
-    s16 span = (s32)((arg0->holder->scale->b - arg0->holder->scale->a) + 1.0f);
-    temp = (arg0->holder->scale->scale * (f32)count) / (f32)span;
-    temp += (f32)arg1;
-    controllerApplyMotionWindow(arg0, arg0->holder->state, temp);
+    s16 count = (s32)((controller->holder->state->b - controller->holder->state->a) + 1.0f);
+    s16 span = (s32)((controller->holder->scale->b - controller->holder->scale->a) + 1.0f);
+    temp = (controller->holder->scale->scale * (f32)count) / (f32)span;
+    temp += (f32)offset;
+    controllerApplyMotionWindow(controller, controller->holder->state, temp);
 }
 
 
@@ -671,38 +671,38 @@ typedef struct {
 
 extern u16 *D_807FBB58;
 struct ControllerStateView;
-void func_80613C48(struct ControllerStateView *, s16, f32, f32);
+void func_80613C48(struct ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend);
 
-void controllerAnimSetStateRemap(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+void controllerAnimSetStateRemap(struct ControllerStateView *stateView, s16 animIndex, f32 animSpeed, f32 blend) {
     s16 flag;
     s32 sum;
-    if (arg1 >= 0) {
-        flag = arg1 & 0x4000;
-        arg1 -= flag;
-        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = arg1;
-        sum = (arg1 * 7 + ((ControllerStateParamView *)arg0)->unk58 - 2) & 0xFFFF;
-        arg1 = D_807FBB58[sum] + flag;
+    if (animIndex >= 0) {
+        flag = animIndex & 0x4000;
+        animIndex -= flag;
+        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
+        sum = (animIndex * 7 + ((ControllerStateParamView *)stateView)->unk58 - 2) & 0xFFFF;
+        animIndex = D_807FBB58[sum] + flag;
     } else {
-        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = arg1;
+        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
     }
-    func_80613C48(arg0, arg1, arg2, arg3);
+    func_80613C48(stateView, animIndex, animSpeed, blend);
 }
 
-void controllerAnimSetState(struct ControllerStateView *, s16, f32, f32);
+void controllerAnimSetState(struct ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend);
 
-void controllerAnimSetStateRemapDirect(struct ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+void controllerAnimSetStateRemapDirect(struct ControllerStateView *stateView, s16 animIndex, f32 animSpeed, f32 blend) {
     s16 flag;
     s32 sum;
-    if (arg1 >= 0) {
-        flag = arg1 & 0x4000;
-        arg1 -= flag;
-        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = arg1;
-        sum = (arg1 * 7 + ((ControllerStateParamView *)arg0)->unk58 - 2) & 0xFFFF;
-        arg1 = D_807FBB58[sum] + flag;
+    if (animIndex >= 0) {
+        flag = animIndex & 0x4000;
+        animIndex -= flag;
+        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
+        sum = (animIndex * 7 + ((ControllerStateParamView *)stateView)->unk58 - 2) & 0xFFFF;
+        animIndex = D_807FBB58[sum] + flag;
     } else {
-        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = arg1;
+        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
     }
-    controllerAnimSetState(arg0, arg1, arg2, arg3);
+    controllerAnimSetState(stateView, animIndex, animSpeed, blend);
 }
 
 typedef struct {
@@ -725,15 +725,15 @@ typedef struct ControllerStateView {
 
 void controllerAnimSetState(ControllerStateView *, s16, f32, f32);
 
-void func_80613C48(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+void func_80613C48(ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend) {
     ControllerState *state;
 
-    state = arg0->unk4->unk0;
-    if (arg1 == state->unk10) {
+    state = stateView->unk4->unk0;
+    if (animId == state->unk10) {
         state->unk24 = *(f32 *)state->unk0;
         return;
     }
-    controllerAnimSetState(arg0, arg1, arg2, arg3);
+    controllerAnimSetState(stateView, animId, animSpeed, blend);
 }
 
 typedef struct {
@@ -782,7 +782,7 @@ typedef struct {
 } AnimDataState;
 void *controllerAnimCacheGetOrLoad(s32 id);
 
-void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 arg3) {
+void controllerAnimSetState(ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend) {
     void *pad; // FAKE: frame pad (removing it changes the frame)
     AnimDataState *anim;
     AnimSlotState *slot0;
@@ -790,24 +790,24 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
     AnimSlotState *slot8;
     AnimSlotState *slotC;
     AnimResourceState *resource;
-    f32 temp_f;
-    u8 temp_u;
+    f32 animTimer;
+    u8 slotFlags;
 
-    anim = (AnimDataState *)arg0->unk4;
+    anim = (AnimDataState *)stateView->unk4;
     slot0 = anim->unk0;
     slot8 = anim->unk8;
     slot4 = anim->unk4;
     slotC = anim->unkC;
 
     if (slot8->unk0 != NULL) {
-        controllerAnimCacheFree(arg0, slot8);
+        controllerAnimCacheFree(stateView, slot8);
     }
     if (slotC->unk0 != NULL) {
-        controllerAnimCacheFree(arg0, slotC);
+        controllerAnimCacheFree(stateView, slotC);
     }
 
-    if ((arg1 & 0x4000) == 0x4000) {
-        arg1 -= 0x4000;
+    if ((animId & 0x4000) == 0x4000) {
+        animId -= 0x4000;
         if (slot4->unk0 != NULL) {
             slotC->unk0 = controllerAnimCacheGetOrLoad(slot4->unk10);
             slotC->unk4 = slot4->unk4;
@@ -829,32 +829,32 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
         }
     }
 
-    if (arg3 > 0.0f) {
-        temp_f = anim->unk48;
-        if (temp_f > (f32)0) {
-            anim->unk40 = temp_f;
+    if (blend > 0.0f) {
+        animTimer = anim->unk48;
+        if (animTimer > (f32)0) {
+            anim->unk40 = animTimer;
         } else {
-            anim->unk40 = -temp_f;
+            anim->unk40 = -animTimer;
         }
-        if (anim->unk40 < arg3) {
-            anim->unk44 = arg3;
+        if (anim->unk40 < blend) {
+            anim->unk44 = blend;
         } else {
             anim->unk44 = anim->unk40;
         }
         anim->unk10 = (anim->unk44 - anim->unk40) / anim->unk44;
     } else {
         if (slot0->unk0 != NULL) {
-            controllerAnimCacheFree(arg0, slot0);
+            controllerAnimCacheFree(stateView, slot0);
         }
         if (slot4->unk0 != NULL) {
-            controllerAnimCacheFree(arg0, slot4);
+            controllerAnimCacheFree(stateView, slot4);
         }
     }
 
-    resource = controllerAnimCacheGetOrLoad(arg1);
+    resource = controllerAnimCacheGetOrLoad(animId);
     if (resource != NULL) {
         slot8->unk0 = resource;
-        slot8->unk10 = arg1;
+        slot8->unk10 = animId;
         slot8->unk1C = resource->unk4;
         slot8->unk14 = 0.0f;
         slot8->unk18 = (f32)(resource->unk12 - 1);
@@ -880,13 +880,13 @@ void controllerAnimSetState(ControllerStateView *arg0, s16 arg1, f32 arg2, f32 a
     anim->unk7C = 0;
     anim->unk80 = 0.0;
     anim->unk8 = slot0;
-    temp_u = ((u8 *)&anim->unk28)[1];
+    slotFlags = ((u8 *)&anim->unk28)[1];
     anim->unkC = slot4;
     anim->unk0 = slot8;
     anim->unk4 = slotC;
     anim->unk28 = anim->unk2A;
-    anim->unk2A = temp_u;
-    controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)slot8, arg2);
+    anim->unk2A = slotFlags;
+    controllerApplyMotionWindow((AnimScaleController *)stateView, (AnimScaleState *)slot8, animSpeed);
 }
 
 
@@ -896,13 +896,13 @@ typedef struct {
 } ControllerActorTypeView;
 extern u16 *D_807FBB58;
 struct AnimControllerRef;
-void func_80614014(struct AnimControllerRef *, u16, f32, u8);
+void func_80614014(struct AnimControllerRef *controller, u16 animId, f32 animSpeed, u8 flags);
 
-void controllerAnimSetFromTable(ControllerActorTypeView *arg0, u16 arg1, f32 arg2, u8 arg3) {
-    u16 x = arg1;
-    u16 idx = (u16)(7 * x + arg0->unk58 - 2);
-    if (x) {} // FAKE: dead test makes the copy of arg1 a ring temp (move t6,a1) and the sum v0
-    func_80614014((struct AnimControllerRef *)arg0, D_807FBB58[idx], arg2, arg3);
+void controllerAnimSetFromTable(ControllerActorTypeView *actorView, u16 animIndex, f32 animSpeed, u8 flags) {
+    u16 x = animIndex;
+    u16 idx = (u16)(7 * x + actorView->unk58 - 2);
+    if (x) {} // FAKE: dead test makes the copy of animIndex a ring temp (move t6,a1) and the sum v0
+    func_80614014((struct AnimControllerRef *)actorView, D_807FBB58[idx], animSpeed, flags);
 }
 
 typedef struct {
@@ -943,18 +943,18 @@ typedef struct AnimControllerRef {
 } AnimControllerRef;
 
 
-void func_80614014(AnimControllerRef *arg0, u16 arg1, f32 arg2, u8 arg3) {
+void func_80614014(AnimControllerRef *controller, u16 animId, f32 animSpeed, u8 flags) {
     AnimSlotRef *slot;
     AnimResourceSlot *resource;
 
-    slot = arg0->unk4->unk4;
+    slot = controller->unk4->unk4;
     if (slot->unk0 != NULL) {
-        controllerAnimCacheFree(arg0, slot);
+        controllerAnimCacheFree(controller, slot);
     }
-    resource = controllerAnimCacheGetOrLoad(arg1);
+    resource = controllerAnimCacheGetOrLoad(animId);
     if (resource != NULL) {
         slot->unk0 = resource;
-        slot->unk10 = arg1;
+        slot->unk10 = animId;
         slot->unk1C = resource->unk4;
         slot->unk14 = 0.0f;
         slot->unk18 = (f32)(resource->unk12 - 1);
@@ -963,9 +963,9 @@ void func_80614014(AnimControllerRef *arg0, u16 arg1, f32 arg2, u8 arg3) {
         slot->unk2C = resource->unk0;
         slot->unk28 = resource->unk0;
         slot->unk30 = 0.0f;
-        arg0->unk4->unk28 = 0;
-        arg0->unk4->unk2C = 0xFF;
-        arg0->unk4->unk2E = arg3;
+        controller->unk4->unk28 = 0;
+        controller->unk4->unk2C = 0xFF;
+        controller->unk4->unk2E = flags;
     } else {
         slot->unk0 = NULL;
         slot->unk10 = -1;
@@ -978,7 +978,7 @@ void func_80614014(AnimControllerRef *arg0, u16 arg1, f32 arg2, u8 arg3) {
         slot->unk30 = 0.0f;
         slot->unk18 = 0;
     }
-    controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)slot, arg2);
+    controllerApplyMotionWindow((AnimScaleController *)controller, (AnimScaleState *)slot, animSpeed);
 }
 
 typedef struct AnimCacheEntry AnimCacheEntry;
@@ -1079,7 +1079,7 @@ typedef struct {
     MotionCore *unk4;
 } MotionOwner;
 
-void controllerStepMotionWindows(MotionOwner *arg0) {
+void controllerStepMotionWindows(MotionOwner *owner) {
     MotionCore *core;
     MotionWindow *win0;
     MotionWindow *win4;
@@ -1089,7 +1089,7 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
     f32 rate;
     f32 step;
 
-    core = arg0->unk4;
+    core = owner->unk4;
     win0 = core->unk0;
     win4 = core->unk4;
     unk8 = core->unk8;
@@ -1137,15 +1137,15 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
         if (core->unk40 < core->unk44) {
             core->unk10 = (core->unk44 - core->unk40) / core->unk44;
         } else {
-            controllerAnimCacheFree(arg0, unk8);
-            controllerAnimCacheFree(arg0, unkC);
+            controllerAnimCacheFree(owner, unk8);
+            controllerAnimCacheFree(owner, unkC);
             core->unk78 &= ~0x10;
         }
         pos += ((step * win0->unk24) / 2) * (1.0f - core->unk10);
     } else {
         pos += step * win0->unk24;
     }
-    controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win0, pos);
+    controllerApplyMotionWindow((AnimScaleController *)owner, (AnimScaleState *)win0, pos);
     if (win4->unk0 != NULL) {
         if (core->unk28 < core->unk2C) {
             core->unk28 += core->unk2E;
@@ -1159,147 +1159,147 @@ void controllerStepMotionWindows(MotionOwner *arg0) {
             }
         }
         pos = win4->unk4 + win4->unk24;
-        controllerApplyMotionWindow((AnimScaleController *)arg0, (AnimScaleState *)win4, pos);
+        controllerApplyMotionWindow((AnimScaleController *)owner, (AnimScaleState *)win4, pos);
         if ((win4->unk24 == 0) && (*(s16 *)&win4->unk1C & 0x10)) {
             core->unk2C = 0;
             if (core->unk28 == 0) {
-                controllerAnimCacheFree(arg0, win4);
+                controllerAnimCacheFree(owner, win4);
             }
         }
     }
-    actorScriptExecute(arg0);
+    actorScriptExecute(owner);
 }
 
-void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *arg1_raw, f32 arg2) {
-    MotionOwner *arg0 = (MotionOwner *)arg0_raw;
-    MotionWindow *arg1 = (MotionWindow *)arg1_raw;
+void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *arg1_raw, f32 timePos) {
+    MotionOwner *controller = (MotionOwner *)arg0_raw;
+    MotionWindow *scaleState = (MotionWindow *)arg1_raw;
     s8 new_var;
-    f32 temp_fa0;
+    f32 diff;
     f32 temp_fa0_2;
-    f32 temp_ft4;
-    f32 temp_fv0;
-    f32 temp_fv1;
+    f32 invSpan;
+    f32 basePos;
+    f32 lerpFactor;
     s16 temp_v0_2;
-    s32 temp_a0;
-    s32 temp_t2;
-    void *var_a0;
-    s32 var_a2;
-    s32 var_a3;
-    s32 var_v1;
-    u16 temp_v1;
-    MotionCore *temp_v0;
+    s32 animData;
+    s32 span;
+    void *targetIdx;
+    s32 prevIdx;
+    s32 nextIdx;
+    s32 rotOffset;
+    u16 clampedPos;
+    MotionCore *scaledPos;
 
 
-    temp_v0 = arg0->unk4;
-    temp_v1 = arg1->unk1C;
-    temp_fv0 = arg1->unk14;
-    temp_fv1 = arg1->unk18;
-    var_a2 = 0;
-    var_a3 = 0;
-    if (temp_v0->unk84 != 0) {
-        var_a0 = temp_v0->unk4;
+    scaledPos = controller->unk4;
+    clampedPos = scaleState->unk1C;
+    basePos = scaleState->unk14;
+    lerpFactor = scaleState->unk18;
+    prevIdx = 0;
+    nextIdx = 0;
+    if (scaledPos->unk84 != 0) {
+        targetIdx = scaledPos->unk4;
     } else {
-        var_a0 = temp_v0->unk0;
+        targetIdx = scaledPos->unk0;
     }
-    if (temp_v1 & 8) {
-        temp_fa0 = arg2 - (f32) arg1->unk1E;
-        if (temp_fa0 > 0) {
-            arg1->unk8 = temp_fa0;
+    if (clampedPos & 8) {
+        diff = timePos - (f32) scaleState->unk1E;
+        if (diff > 0) {
+            scaleState->unk8 = diff;
         } else {
-            arg1->unk8 = -temp_fa0;
+            scaleState->unk8 = -diff;
         }
-        if ((f64) arg1->unk8 < 1.0) {
-            arg1->unk4 = arg2;
-            arg1->unkC = arg1->unk1E;
-            arg1->unkE = arg1->unk20;
+        if ((f64) scaleState->unk8 < 1.0) {
+            scaleState->unk4 = timePos;
+            scaleState->unkC = scaleState->unk1E;
+            scaleState->unkE = scaleState->unk20;
             return;
         }
-        arg2 += (f32) ((arg1->unk20 - arg1->unk1E) - (s32) temp_fa0);
+        timePos += (f32) ((scaleState->unk20 - scaleState->unk1E) - (s32) diff);
         new_var = ~8;
-        arg1->unk1C = (u16) ((s16) arg1->unk1C & new_var);
-        if (arg1 == var_a0) {
-            temp_v0->unk78 &= ~0x20;
+        scaleState->unk1C = (u16) ((s16) scaleState->unk1C & new_var);
+        if (scaleState == targetIdx) {
+            scaledPos->unk78 &= ~0x20;
         }
     }
-    if (temp_v1 & 4) {
-        if (temp_fv1 < arg2) {
-            var_a3 = 1;
-            arg2 = (2 * temp_fv1) - arg2;
-        } else if (arg2 < temp_fv0) {
-            var_a3 = 1;
-            var_a2 = 1;
-            arg2 = (2 * temp_fv0) - arg2;
+    if (clampedPos & 4) {
+        if (lerpFactor < timePos) {
+            nextIdx = 1;
+            timePos = (2 * lerpFactor) - timePos;
+        } else if (timePos < basePos) {
+            nextIdx = 1;
+            prevIdx = 1;
+            timePos = (2 * basePos) - timePos;
         }
-        if (var_a3 != 0) {
-            arg1->unk24 = 0.0f - arg1->unk24;
-            if (arg1->unk34 != 0) {
-                arg1->unk2C = 0.0f - arg1->unk2C;
-                arg1->unk28 = 0.0f - arg1->unk28;
+        if (nextIdx != 0) {
+            scaleState->unk24 = 0.0f - scaleState->unk24;
+            if (scaleState->unk34 != 0) {
+                scaleState->unk2C = 0.0f - scaleState->unk2C;
+                scaleState->unk28 = 0.0f - scaleState->unk28;
             }
-            if (arg1 == var_a0) {
-                temp_v0->unk78 &= ~4;
+            if (scaleState == targetIdx) {
+                scaledPos->unk78 &= ~4;
             }
         }
-    } else if (temp_v1 & 2) {
-        if (((f64) temp_fv1 + 1.0) <= (f64) arg2) {
-            var_a2 = 1;
-            arg2 -= (1.0f + temp_fv1) - temp_fv0;
-        } else if (arg2 < temp_fv0) {
-            var_a2 = 1;
-            arg2 += (1.0f + temp_fv1) - temp_fv0;
+    } else if (clampedPos & 2) {
+        if (((f64) lerpFactor + 1.0) <= (f64) timePos) {
+            prevIdx = 1;
+            timePos -= (1.0f + lerpFactor) - basePos;
+        } else if (timePos < basePos) {
+            prevIdx = 1;
+            timePos += (1.0f + lerpFactor) - basePos;
         }
-    } else if (temp_fv1 <= arg2) {
-        arg2 = temp_fv1;
-        if (arg1->unk24 >= 0.0f) {
-            arg1->unk24 = 0.0f;
-            arg1->unk34 = 0.0f;
-            var_a2 = 1;
+    } else if (lerpFactor <= timePos) {
+        timePos = lerpFactor;
+        if (scaleState->unk24 >= 0.0f) {
+            scaleState->unk24 = 0.0f;
+            scaleState->unk34 = 0.0f;
+            prevIdx = 1;
         }
-    } else if (arg2 < temp_fv0) {
-        arg2 = temp_fv0;
-        var_a2 = 1;
-        if (arg1->unk24 <= 0.0f) {
-            arg1->unk24 = 0.0f;
-            arg1->unk34 = 0.0f;
+    } else if (timePos < basePos) {
+        timePos = basePos;
+        prevIdx = 1;
+        if (scaleState->unk24 <= 0.0f) {
+            scaleState->unk24 = 0.0f;
+            scaleState->unk34 = 0.0f;
         }
     }
-    if (arg1 == var_a0) {
-        var_v1 = temp_v0->unk78;
-        if (var_v1 & 0x3F) {
-            if (var_a2 != 0) {
-                temp_a0 = temp_v0->unk7C;
-                temp_v0->unk78 = var_v1 & ~1;
-                if (temp_a0 != 0) {
-                    temp_v0->unk7C = temp_a0 - 1;
-                    var_v1 = temp_v0->unk78;
+    if (scaleState == targetIdx) {
+        rotOffset = scaledPos->unk78;
+        if (rotOffset & 0x3F) {
+            if (prevIdx != 0) {
+                animData = scaledPos->unk7C;
+                scaledPos->unk78 = rotOffset & ~1;
+                if (animData != 0) {
+                    scaledPos->unk7C = animData - 1;
+                    rotOffset = scaledPos->unk78;
                 } else {
-                    var_v1 = (temp_v0->unk78 &= ~2);
+                    rotOffset = (scaledPos->unk78 &= ~2);
                 }
             }
-            if (var_v1 & 8) {
-                temp_fa0_2 = temp_v0->unk80;
-                temp_ft4 = arg1->unk4;
-                if (arg2 == temp_fa0_2) {
-                    if (temp_ft4 != temp_fa0_2) temp_v0->unk78 = var_v1 & ~8;
-                } else if (temp_fa0_2 < arg2) {
-                    if ((temp_ft4 < temp_fa0_2) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & ~8;
-                    else if ((temp_fa0_2 < temp_ft4) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & ~8;
-                } else if ((temp_fa0_2 < temp_ft4) && (var_a2 == 0)) temp_v0->unk78 = var_v1 & ~8;
-                else if ((temp_ft4 < temp_fa0_2) && (var_a2 != 0)) temp_v0->unk78 = var_v1 & ~8;
+            if (rotOffset & 8) {
+                temp_fa0_2 = scaledPos->unk80;
+                invSpan = scaleState->unk4;
+                if (timePos == temp_fa0_2) {
+                    if (invSpan != temp_fa0_2) scaledPos->unk78 = rotOffset & ~8;
+                } else if (temp_fa0_2 < timePos) {
+                    if ((invSpan < temp_fa0_2) && (prevIdx == 0)) scaledPos->unk78 = rotOffset & ~8;
+                    else if ((temp_fa0_2 < invSpan) && (prevIdx != 0)) scaledPos->unk78 = rotOffset & ~8;
+                } else if ((temp_fa0_2 < invSpan) && (prevIdx == 0)) scaledPos->unk78 = rotOffset & ~8;
+                else if ((invSpan < temp_fa0_2) && (prevIdx != 0)) scaledPos->unk78 = rotOffset & ~8;
             }
         }
     }
-    arg1->unk4 = arg2;
-    arg1->unkC = (s16) arg2;
-    temp_v0_2 = arg1->unkC;
-    arg1->unkE = temp_v0_2 + 1;
-    arg1->unk8 = arg2 - (f32) temp_v0_2;
-    if (temp_fv1 < (f32) arg1->unkE) {
-        if (temp_v1 & 2) {
-            arg1->unkE = (s16) temp_fv0;
+    scaleState->unk4 = timePos;
+    scaleState->unkC = (s16) timePos;
+    temp_v0_2 = scaleState->unkC;
+    scaleState->unkE = temp_v0_2 + 1;
+    scaleState->unk8 = timePos - (f32) temp_v0_2;
+    if (lerpFactor < (f32) scaleState->unkE) {
+        if (clampedPos & 2) {
+            scaleState->unkE = (s16) basePos;
             return;
         }
-        arg1->unkE = temp_v0_2;
+        scaleState->unkE = temp_v0_2;
     }
 }
 
@@ -1318,8 +1318,8 @@ typedef struct {
     ControllerSubState *unk4;
 } ControllerStateOwner;
 
-f32 func_80614A54(ControllerStateOwner *arg0) {
-    return arg0->unk4->unk0->unk4;
+f32 func_80614A54(ControllerStateOwner *actor) {
+    return actor->unk4->unk0->unk4;
 }
 
 typedef struct {
@@ -1337,17 +1337,17 @@ typedef struct {
 extern u8 D_807444FC;
 void func_806195D0(f32, f32);
 void actorTouchSub140Timestamp();
-void func_80614A64(ControllerActorView *arg0) {
-    f32 x = arg0->unk7C;
+void func_80614A64(ControllerActorView *actor) {
+    f32 x = actor->unk7C;
     if (x >= -8192.0f) {
-        f32 y = arg0->unk80;
+        f32 y = actor->unk80;
         if (y >= -8192.0f) {
-            f32 z = arg0->unk84;
+            f32 z = actor->unk84;
             if ((z >= -8192.0f) && (x <= 8192.0f) && (y <= 8192.0f) && (z <= 8192.0f)) {
-                arg0->unk8 = *(s32 *) ((u8 *) arg0->unk4 + (D_807444FC * 4) + 0x14);
+                actor->unk8 = *(s32 *) ((u8 *) actor->unk4 + (D_807444FC * 4) + 0x14);
                 func_806195D0(z, 8192.0f);
-                actorTouchSub140Timestamp(arg0);
-                arg0->unk60 |= 0x200;
+                actorTouchSub140Timestamp(actor);
+                actor->unk60 |= 0x200;
             }
         }
     }
@@ -1403,9 +1403,9 @@ Gfx *renderActorDisplayList(Gfx *gdl, RenderActorView *actor) {
     return gdl;
 }
 
-Gfx *renderEmitSegmentNodes(Gfx *gdl, RenderActorView *arg1, DisplayListGroup *arg2) {
-    u16 flags = arg1->unk146;
-    SegmentNode *node = arg2->unk14;
+Gfx *renderEmitSegmentNodes(Gfx *gdl, RenderActorView *actor, DisplayListGroup *group) {
+    u16 flags = actor->unk146;
+    SegmentNode *node = group->unk14;
     s32 shift;
 
     if (node != NULL) {
