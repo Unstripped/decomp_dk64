@@ -145,3 +145,5 @@ clashing declarations: replace the function with the agent copy's body instead (
 A text-identical draft needing declarations reconciled across the file goes to a short
 integration agent, not hand-pasting. Code matching but rodata padding differing = hidden TU
 ([split.md](split.md)).
+Before accepting dead-read codegen hints, prove every evaluated access is initialized in C
+(including short-circuit paths), then smoke the input boundaries; a ROM match alone does not prove this.
