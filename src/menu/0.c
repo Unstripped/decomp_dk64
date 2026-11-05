@@ -36,20 +36,20 @@ s32 func_805FF030(s32, s32);
 void csModelStateSetFirstByte(s16, s32);
 void camStartPath(s32, s32, s32);
 
-void menuPlaySoundFromTable(MenuStruct_80024000 *arg0) {
-    s32 temp_v1 = D_80032F48[func_805FF030(D_8076A0AB, 0)][arg0->unk1];
+void menuPlaySoundFromTable(MenuStruct_80024000 *menu) {
+    s32 soundId = D_80032F48[func_805FF030(D_8076A0AB, 0)][menu->unk1];
 
-    if (temp_v1 == 0) {
-        csModelStateSetFirstByte(D_800330A2[arg0->unk1A].unk0, 9);
-        arg0->unk0 = 4;
-        arg0->unk1 = 0;
+    if (soundId == 0) {
+        csModelStateSetFirstByte(D_800330A2[menu->unk1A].unk0, 9);
+        menu->unk0 = 4;
+        menu->unk1 = 0;
         return;
     }
-    if (temp_v1 == 4) {
-        arg0->unk6 = 1;
+    if (soundId == 4) {
+        menu->unk6 = 1;
     }
-    camStartPath(0, (s16)temp_v1, 1);
-    arg0->unk1++;
+    camStartPath(0, (s16)soundId, 1);
+    menu->unk1++;
 }
 
 
@@ -59,31 +59,31 @@ void func_807149B8(s32);
 void func_807149FC(s32);
 MenuActor_340 *func_80714CC0(void *, s32, s32, s32, f32);
 
-void menuSpawnPositionalActor(MenuStruct_80024000 *arg0) {
-    arg0->unk10 = 11.35f;
-    arg0->unkC = -6.55f;
-    arg0->unk14 = 6.6f;
-    arg0->unk6 = 0;
+void menuSpawnPositionalActor(MenuStruct_80024000 *menu) {
+    menu->unk10 = 11.35f;
+    menu->unkC = -6.55f;
+    menu->unk14 = 6.6f;
+    menu->unk6 = 0;
     func_80714998(0);
     func_807149B8(1);
     func_807149FC(-1);
     func_80714998(0);
-    arg0->unk8 = func_80714CC0(&D_80720268, 0x3E99999A, 0x43350000, 0x40400000, 82.0f);
+    menu->unk8 = func_80714CC0(&D_80720268, 0x3E99999A, 0x43350000, 0x40400000, 82.0f);
 }
 
 void effectFreeAndUnlink(MenuActor_340 *);
 
-void menuUpdateFallingActor(MenuStruct_80024000 *arg0) {
-    MenuActor_340 *temp_v0 = arg0->unk8;
-    temp_v0->x += arg0->unkC;
-    temp_v0->z += arg0->unk14;
-    arg0->unk10 += -1.0f;
-    temp_v0->y += arg0->unk10;
-    arg0->unk6++;
-    if (arg0->unk6 >= 0x16) {
-        arg0->unk6 = 0;
-        effectFreeAndUnlink(arg0->unk8);
-        arg0->unk8 = NULL;
+void menuUpdateFallingActor(MenuStruct_80024000 *menu) {
+    MenuActor_340 *actor = menu->unk8;
+    actor->x += menu->unkC;
+    actor->z += menu->unk14;
+    menu->unk10 += -1.0f;
+    actor->y += menu->unk10;
+    menu->unk6++;
+    if (menu->unk6 >= 0x16) {
+        menu->unk6 = 0;
+        effectFreeAndUnlink(menu->unk8);
+        menu->unk8 = NULL;
     }
 }
 
@@ -123,54 +123,54 @@ void func_8070D8C0(void *, s32, u8);
 void camResumePath(void);
 void currentActorClearFlag();
 
-void menuPlaySoundFromTable(MenuStruct_80024000 *);
-void menuUpdateFallingActor(MenuStruct_80024000 *);
+void menuPlaySoundFromTable(MenuStruct_80024000 *menu);
+void menuUpdateFallingActor(MenuStruct_80024000 *menu);
 
-void menuMainStateStep(MenuStruct_80024000 *arg0, s32 arg1) {
-    s32 var_v0;
+void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
+    s32 mode;
 
-    switch (arg0->unk1) {
+    switch (menu->unk1) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
-            if (arg1 != 0) {
+            if (playVoice != 0) {
                 currentActorClearFlag();
                 func_8070D8C0(D_807FBB40, 0xB, 0);
-                if ((var_v0 = arg0->unk1A) == 1) {
-                    var_v0 = 1;
-                } else if (var_v0 >= 2) {
-                    var_v0 = 2;
+                if ((mode = menu->unk1A) == 1) {
+                    mode = 1;
+                } else if (mode >= 2) {
+                    mode = 2;
                 } else {
-                    var_v0 = 3;
+                    mode = 3;
                 }
-                D_80750AC8 = arg0->unk1A;
-                func_8070D8C0(D_807FBB40, 0xB, var_v0);
+                D_80750AC8 = menu->unk1A;
+                func_8070D8C0(D_807FBB40, 0xB, mode);
             } else {
-                if (arg0->unk1A == 1) {
-                    var_v0 = 5;
+                if (menu->unk1A == 1) {
+                    mode = 5;
                 } else {
-                    var_v0 = 6;
+                    mode = 6;
                 }
-                D_80750AC8 = arg0->unk1A;
-                func_8070D8C0(D_807FBB40, 0xB, var_v0);
+                D_80750AC8 = menu->unk1A;
+                func_8070D8C0(D_807FBB40, 0xB, mode);
             }
-            arg0->unk1++;
+            menu->unk1++;
         }
         break;
     case 1:
         if (!(D_807FBB40->unk60 & 0x02000000)) {
             camResumePath();
-            arg0->unk1++;
+            menu->unk1++;
         }
         break;
     case 2:
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            if (arg0->unk1A != 0) {
+            if (menu->unk1A != 0) {
                 camStartPath(0, 5, 1);
-                arg0->unk1++;
+                menu->unk1++;
             } else {
-                arg0->unk0 = 4;
-                arg0->unk1 = 0;
+                menu->unk0 = 4;
+                menu->unk1 = 0;
             }
         }
         break;
@@ -180,46 +180,46 @@ void menuMainStateStep(MenuStruct_80024000 *arg0, s32 arg1) {
     case 6:
     case 7:
     case 8:
-        if (arg0->unk6 != 0) {
-            if (arg0->unk6 == 1) {
+        if (menu->unk6 != 0) {
+            if (menu->unk6 == 1) {
                 if (currentActorTestClearFlag() != 0) {
                     currentActorClearFlag();
-                    arg0->unk6 = 2;
+                    menu->unk6 = 2;
                 }
             } else {
-                menuUpdateFallingActor(arg0);
+                menuUpdateFallingActor(menu);
             }
         }
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            menuPlaySoundFromTable(arg0);
+            menuPlaySoundFromTable(menu);
         }
         break;
     }
 }
 
-void menuTransitionStep(arg0, arg1)
-MenuStruct_80024000 *arg0;
-u8 arg1;
+void menuTransitionStep(menu, targetState)
+MenuStruct_80024000 *menu;
+u8 targetState;
 {
-    switch (arg0->unk1) {
+    switch (menu->unk1) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
-            func_8070D8C0(D_807FBB40, 0xB, arg1);
-            arg0->unk1++;
+            func_8070D8C0(D_807FBB40, 0xB, targetState);
+            menu->unk1++;
         }
         break;
     case 1:
         if (!(D_807FBB40->unk60 & 0x02000000)) {
             camResumePath();
-            arg0->unk1++;
+            menu->unk1++;
         }
         break;
     case 2:
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            arg0->unk0 = 4;
-            arg0->unk1 = 0;
+            menu->unk0 = 4;
+            menu->unk1 = 0;
         }
         break;
     }
@@ -238,40 +238,40 @@ Gfx *hudDrawScaledText(Gfx *, s32, s16, f32, char *);
 Gfx *textDrawStringVtx(Gfx *, s32, s32, s32, char *, s32);
 char *textTableGetString(s32, s32, s32);
 
-Gfx *menuDrawOptionsOverlay(Gfx *arg0, MenuRenderActor *arg1) {
+Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
     s32 y;
-    MenuStruct_80024000 *temp_s7 = arg1->unk180;
-    char sp70[0x28];
+    MenuStruct_80024000 *menu = actor->unk180;
+    char textBuf[0x28];
 
-    WRITE_GFX(arg0++, 0xDE000000, D_1000118);
-    WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-    if (temp_s7->unk1 >= 4) {
+    WRITE_GFX(glist++, 0xDE000000, D_1000118);
+    WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
+    if (menu->unk1 >= 4) {
         s32 i;
-        WRITE_GFX(arg0++, 0xDA380003, D_2000180);
-        WRITE_GFX(arg0++, 0xDA380007, D_20000C0);
-        WRITE_GFX(arg0++, 0xE7000000, 0);
+        WRITE_GFX(glist++, 0xDA380003, D_2000180);
+        WRITE_GFX(glist++, 0xDA380007, D_20000C0);
+        WRITE_GFX(glist++, 0xE7000000, 0);
         y = 0xF0;
         for (i = 0; i < 8; i++) {
-            if (i + 4 == temp_s7->unk1) {
-                WRITE_GFX(arg0++, 0xFA000000, -1);
+            if (i + 4 == menu->unk1) {
+                WRITE_GFX(glist++, 0xFA000000, -1);
             } else {
-                WRITE_GFX(arg0++, 0xFA000000, -0x80);
+                WRITE_GFX(glist++, 0xFA000000, -0x80);
             }
-            arg0 = hudDrawScaledText(arg0, 0x280, y, 0.6f, textTableGetString(0x2A, i + 3, 1));
+            glist = hudDrawScaledText(glist, 0x280, y, 0.6f, textTableGetString(0x2A, i + 3, 1));
             y += 0x3C;
         }
     } else {
-        WRITE_GFX(arg0++, 0xFA000000, (arg1->unk15F & 0xFF) | ~0xFF);
-        _sprintf(sp70, "q %s", textTableGetString(0x2A, 0, 1));
-        arg0 = textDrawStringVtx(arg0, 1, 0x15E, 0x190, sp70, 1);
-        _sprintf(sp70, "b %s", textTableGetString(0x2A, 1, 1));
-        arg0 = textDrawStringVtx(arg0, 1, 0x15E, 0x1F4, sp70, 1);
-        if (temp_s7->unk19 != 0) {
-            _sprintf(sp70, "n %s", textTableGetString(0x2A, 2, 1));
-            arg0 = textDrawStringVtx(arg0, 1, 0x15E, 0x258, sp70, 1);
+        WRITE_GFX(glist++, 0xFA000000, (actor->unk15F & 0xFF) | ~0xFF);
+        _sprintf(textBuf, "q %s", textTableGetString(0x2A, 0, 1));
+        glist = textDrawStringVtx(glist, 1, 0x15E, 0x190, textBuf, 1);
+        _sprintf(textBuf, "b %s", textTableGetString(0x2A, 1, 1));
+        glist = textDrawStringVtx(glist, 1, 0x15E, 0x1F4, textBuf, 1);
+        if (menu->unk19 != 0) {
+            _sprintf(textBuf, "n %s", textTableGetString(0x2A, 2, 1));
+            glist = textDrawStringVtx(glist, 1, 0x15E, 0x258, textBuf, 1);
         }
     }
-    return arg0;
+    return glist;
 }
 
 typedef struct {
@@ -308,51 +308,51 @@ void func_80712774(u8);
 s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
-void menuUpdateOptionsState(MenuStruct_80024000 *arg0) {
+void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
     s32 i;
-    s32 sp40;
-    u8 *sp3C;
+    s32 changed;
+    u8 *playerSaveData;
     s32 temp;
 
-    sp40 = 0;
+    changed = 0;
     D_800330D8 = 0;
-    switch (arg0->unk1) {
+    switch (menu->unk1) {
     case 2:
     case 0x37:
         break;
     case 0:
         if (listContainsS16(4, &D_800330D8) != 0) {
-            sp3C = D_807FC950[gPlayerCharacterId];
+            playerSaveData = D_807FC950[gPlayerCharacterId];
             for (i = 0; i < 8; i++) {
                 if (flagGet((s16)flagGridIndex(0x1D5, i, gPlayerCharacterId), 0) != 0) {
                     temp = flagGridIndex(0x1FD, i, gPlayerCharacterId);
                     if (flagGet((s16)temp, 0) == 0) {
                         flagSet((s16)temp, 1, 0);
-                        ((u16 *)(sp3C + i * 2))[0x21]++;
-                        sp40 = 1;
+                        ((u16 *)(playerSaveData + i * 2))[0x21]++;
+                        changed = 1;
                     }
                 }
             }
             func_806F8278(0);
         }
-        if (sp40 != 0) {
+        if (changed != 0) {
             eepromSavePlayerData();
         }
         if (camIsCutsceneActive() == 0) {
-            arg0->unk1++;
+            menu->unk1++;
             playerStateQueueCallback(0x55, 0, 0);
         }
         break;
     case 1:
         if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
             D_807FBB40->unk15F = 0;
-            arg0->unk1 = 3;
+            menu->unk1 = 3;
         } else {
-            arg0->unk19 = 1;
+            menu->unk19 = 1;
             i = 0x1FD;
             do {
                 if (flagGet((s16)i, 0) == 0) {
-                    arg0->unk19 = 0;
+                    menu->unk19 = 0;
                     i = 0x224;
                 }
                 i++;
@@ -371,61 +371,61 @@ void menuUpdateOptionsState(MenuStruct_80024000 *arg0) {
             renderCallbacksRegister(menuDrawOptionsOverlay, D_807FBB40, 3);
             if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x4000) {
                 menuResetAudioState();
-                arg0->unk1 = 2;
-            } else if (arg0->unk19 != 0 && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 8)) {
-                arg0->unk1 = 4;
+                menu->unk1 = 2;
+            } else if (menu->unk19 != 0 && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 8)) {
+                menu->unk1 = 4;
             }
         }
         break;
     case 3:
         D_800330D8 = 1;
         if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0xC000) {
-            arg0->unk1 = 1;
+            menu->unk1 = 1;
         }
         break;
     default:
         if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x4000) {
-            arg0->unk1 = 1;
+            menu->unk1 = 1;
         } else {
             s8 v1 = D_807ECDEC->unk3;
-            if (v1 >= 0x29 && MenuM0_X18(arg0) < 0x29) {
-                arg0->unk1--;
+            if (v1 >= 0x29 && MenuM0_X18(menu) < 0x29) {
+                menu->unk1--;
                 sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
                 v1 = D_807ECDEC->unk3;
             }
-            if (v1 < -0x28 && MenuM0_X18(arg0) >= -0x28) {
-                arg0->unk1++;
+            if (v1 < -0x28 && MenuM0_X18(menu) >= -0x28) {
+                menu->unk1++;
                 sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 64.0f, 1.0f, 0, 0);
             }
-            arg0->unk1 = ((arg0->unk1 - 4) & 7) + 4;
+            menu->unk1 = ((menu->unk1 - 4) & 7) + 4;
         }
         if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
-            func_80712774(D_800330C0[arg0->unk1]);
+            func_80712774(D_800330C0[menu->unk1]);
             D_80032F50 = 1;
-            arg0->unk1 = 0x37;
+            menu->unk1 = 0x37;
         }
         renderCallbacksRegister(menuDrawOptionsOverlay, D_807FBB40, 3);
         break;
     }
-    MenuM0_X18(arg0) = D_807ECDEC->unk3;
+    MenuM0_X18(menu) = D_807ECDEC->unk3;
 }
 
 s16 func_80712548(MenuStruct_80024000 *);
 
-void menuProcessOptionInput(MenuStruct_80024000 *arg0) {
-    switch (arg0->unk1) {
+void menuProcessOptionInput(MenuStruct_80024000 *menu) {
+    switch (menu->unk1) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
-            currentActorClearFlag(arg0);
-            arg0->unk1++;
-            D_80750AC8 = func_80712548(arg0);
+            currentActorClearFlag(menu);
+            menu->unk1++;
+            D_80750AC8 = func_80712548(menu);
             func_8070D8C0(D_807FBB40, 0xB, 8);
         }
         break;
     case 1:
         if (!(D_807FBB40->unk60 & 0x02000000)) {
             camResumePath();
-            arg0->unk1++;
+            menu->unk1++;
         }
         break;
     }
@@ -436,82 +436,82 @@ extern s16 D_8076AEF2;
 void playerWaypointPathStartPacked(void *, s32, s32, s32);
 u8 flagCountRange(s32, s32, s32);
 u8 flagGridSumRows(s32, s32, s32, u8);
-void menuUpdateOptionsState(MenuStruct_80024000 *);
+void menuUpdateOptionsState(MenuStruct_80024000 *menu);
 void behaviourFrameBegin(void);
 void actorScriptedCommandUpdate(void);
 void actorUpdateModelMatrix(void *, s32);
 
 void menuDispatchAction(void) {
     s32 pad;
-    s32 var_a3;
+    s32 targetState;
     s32 pad2;
-    s32 sp20;
-    u8 var_v1;
-    MenuStruct_80024000 *temp_s0;
+    s32 camPathIndex;
+    u8 isSessionActive;
+    MenuStruct_80024000 *menu;
 
-    var_a3 = -1;
-    var_v1 = 0;
-    temp_s0 = D_807FBB40->unk180;
+    targetState = -1;
+    isSessionActive = 0;
+    menu = D_807FBB40->unk180;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        sp20 = 1;
-        temp_s0->unk2 = flagCountRange(0x1FD, 0x28, 0);
-        temp_s0->unk1A = flagGridSumRows(0x1D5, 0, 7, gPlayerCharacterId);
-        temp_s0->unk1A -= flagGridSumRows(0x1FD, 0, 7, gPlayerCharacterId);
+        camPathIndex = 1;
+        menu->unk2 = flagCountRange(0x1FD, 0x28, 0);
+        menu->unk1A = flagGridSumRows(0x1D5, 0, 7, gPlayerCharacterId);
+        menu->unk1A -= flagGridSumRows(0x1FD, 0, 7, gPlayerCharacterId);
         if (D_8076AEF2 != 0x1C) {
             if (flagGet(0x174, 0) == 0) {
-                temp_s0->unk0 = 0;
-                temp_s0->unk1 = 0;
-                sp20 = 0;
+                menu->unk0 = 0;
+                menu->unk1 = 0;
+                camPathIndex = 0;
                 playerWaypointPathStartPacked(D_807FBB4C, 0, 0, 0);
                 flagSet(0x174, 1, 0);
             } else {
-                if (temp_s0->unk2 == 0x28) {
-                    temp_s0->unk0 = 2;
-                    temp_s0->unk1 = 0;
+                if (menu->unk2 == 0x28) {
+                    menu->unk0 = 2;
+                    menu->unk1 = 0;
                 } else {
-                    if (temp_s0->unk1A == 0) {
-                        temp_s0->unk0 = 1;
-                        temp_s0->unk1 = 0;
+                    if (menu->unk1A == 0) {
+                        menu->unk0 = 1;
+                        menu->unk1 = 0;
                     } else {
-                        temp_s0->unk0 = 3;
-                        temp_s0->unk1 = 0;
+                        menu->unk0 = 3;
+                        menu->unk1 = 0;
                     }
                 }
             }
-            camStartPath(0, (s16)sp20, 1);
+            camStartPath(0, (s16)camPathIndex, 1);
         } else {
-            temp_s0->unk0 = 5;
-            temp_s0->unk1 = 0;
+            menu->unk0 = 5;
+            menu->unk1 = 0;
         }
         currentActorClearFlag();
-        menuSpawnPositionalActor(temp_s0);
-        var_v1 = D_80032F50;
+        menuSpawnPositionalActor(menu);
+        isSessionActive = D_80032F50;
         D_80032F50 = 0;
     }
-    switch (temp_s0->unk0) {
+    switch (menu->unk0) {
     case 0:
-        menuMainStateStep(temp_s0, 1);
+        menuMainStateStep(menu, 1);
         break;
     case 3:
-        menuMainStateStep(temp_s0, 0);
+        menuMainStateStep(menu, 0);
         break;
     case 1:
-        var_a3 = 4;
+        targetState = 4;
         /* fallthrough */
     case 2:
-        if (var_a3 < 0) {
-            var_a3 = 7;
+        if (targetState < 0) {
+            targetState = 7;
         }
-        if (var_v1 != 0) {
-            var_a3 = 0xB;
+        if (isSessionActive != 0) {
+            targetState = 0xB;
         }
-        menuTransitionStep(temp_s0, var_a3);
+        menuTransitionStep(menu, targetState);
         break;
     case 4:
-        menuUpdateOptionsState(temp_s0);
+        menuUpdateOptionsState(menu);
         break;
     case 5:
-        menuProcessOptionInput(temp_s0);
+        menuProcessOptionInput(menu);
         break;
     }
     behaviourFrameBegin();
@@ -540,11 +540,11 @@ extern s8 D_80033258;
 extern MenuProgressGridVtx *D_80033F10;
 
 void *heapAlloc(s32);
-Gfx *menuDrawProgressGrid(Gfx *, MenuRenderActor *);
+Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor);
 void *memcpy(void *, const void *, s32);
 
 void menuUpdateProgressGrid(void) {
-    s16 *var_s0;
+    s16 *pSlideY;
     s32 flag;
     s32 n;
     s32 r;
@@ -552,14 +552,14 @@ void menuUpdateProgressGrid(void) {
     s32 k;
     s32 idx;
 
-    var_s0 = D_807FBB40->unk174;
+    pSlideY = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        *var_s0 = 0xF0;
+        *pSlideY = 0xF0;
         D_807FBB40->unk154 = 0;
         D_800330D0 = (s32)heapAlloc(0x80);
         D_800330D4 = heapAlloc(0x140);
         memcpy(D_800330D4, D_800330E0, 0x140);
-        *var_s0 = -0x3E8;
+        *pSlideY = -0x3E8;
         D_80033F10 = heapAlloc(0x1400);
         flag = flagCountRange(0x1FD, 0x28, 0) == 0x28;
         n = 0;
@@ -599,24 +599,24 @@ void menuUpdateProgressGrid(void) {
         D_80033258 = flag;
     }
     if (D_800330D8 != 0) {
-        if (*var_s0 == -0x3E8) {
+        if (*pSlideY == -0x3E8) {
             sfxPlayOnFreeSlot(0x2A3, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
-        *var_s0 += 0x80;
-        if (*var_s0 > 0) {
-            *var_s0 = 0;
+        *pSlideY += 0x80;
+        if (*pSlideY > 0) {
+            *pSlideY = 0;
         }
     } else {
-        if (*var_s0 == 0) {
+        if (*pSlideY == 0) {
             sfxPlayOnFreeSlot(0x2A3, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
-        *var_s0 -= 0x80;
-        if (*var_s0 < -0x3E8) {
-            *var_s0 = -0x3E8;
+        *pSlideY -= 0x80;
+        if (*pSlideY < -0x3E8) {
+            *pSlideY = -0x3E8;
         }
     }
     D_800330D8 = 0;
-    if (*var_s0 >= -0x3E7) {
+    if (*pSlideY >= -0x3E7) {
         renderCallbacksRegister(menuDrawProgressGrid, D_807FBB40, 3);
     }
 }
@@ -625,18 +625,18 @@ extern u8 D_807444FC;
 extern s32 gFrameCounter;
 s32 texCacheFindOrLoad(s32);
 
-Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *arg1) {
+Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     s32 pad;
     s32 tex;
     s32 i;
     s32 j;
     s32 x;
     s32 y;
-    s16 *var_p = arg1->unk174;
+    s16 *pSlideY = actor->unk174;
     MenuProgressGridVtx *v;
     s32 k;
     f32 mf[4][4];
-    s8 sp12B;
+    s8 allCollected;
 
     gDPPipeSync(g++);
     gSPDisplayList(g++, D_1000118);
@@ -645,14 +645,14 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *arg1) {
     gDPSetPrimColor(g++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
     gDPSetCombine(g++, 0x121803, 0xFF0FFFFF);
     gSPMatrix(g++, D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    guTranslateF(mf, 8.0f, (f32) *var_p, 0.0f);
+    guTranslateF(mf, 8.0f, (f32) *pSlideY, 0.0f);
     guMtxF2L(mf, (Mtx *)((D_807444FC << 6) + D_800330D0));
     gSPMatrix(g++, (D_807444FC << 6) + D_800330D0, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 12, 2, 0);
     tex = texCacheFindOrLoad(0xA3);
     v = D_80033F10;
     i = 0;
-    sp12B = 1;
+    allCollected = 1;
     for (y = 0; y < 150; y += 30, i++) {
         j = 0;
         for (x = 0; x < 240; x += 30) {
@@ -660,7 +660,7 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *arg1) {
             if (flagGet((s16)flagGridIndex(0x1FD, j, i), 0) != 0) {
                 gDPSetPrimColor(g++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
             } else {
-                sp12B = 0;
+                allCollected = 0;
                 gDPSetPrimColor(g++, 0, 0, 0, 0, 0, 0);
             }
             gDPLoadTextureTile_4b(g++, tex, G_IM_FMT_I, 240, 150, x, y, x + 30, y + 30, 0,
@@ -687,7 +687,7 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *arg1) {
     gSP2Triangles(g++, 8, 9, 10, 0, 8, 10, 11, 0);
     gSP2Triangles(g++, 12, 13, 14, 0, 12, 14, 15, 0);
     gDPPipeSync(g++);
-    if (sp12B != 0 && (gFrameCounter & 0x1F) < 0x14U) {
+    if (allCollected != 0 && (gFrameCounter & 0x1F) < 0x14U) {
         tex = texCacheFindOrLoad(0x44);
         gDPSetPrimColor(g++, 0, 0, 0, 0xFF, 0, 0xFF);
         gSPSetOtherMode(g++, G_SETOTHERMODE_L, 3, 29, 0x504240);
