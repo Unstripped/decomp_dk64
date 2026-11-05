@@ -1,0 +1,194 @@
+import os
+import sys
+from pathlib import Path
+import pytest
+
+# Ensure repository root is on sys.path so tools.objdiff can be imported
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+import tools.objdiff as objdiff
+
+RODATA_VRAM = 0x80758000
+RODATA_SIZE = 0x1000
+DATA_VRAM = 0x80759000
+DATA_SIZE = 0x1000
+FAKE_OBJ_PATH = "fake_object.o"
+
+
+@pytest.fixture(autouse=True)
+def mock_sections(monkeypatch):
+    """Supply real section sizes and vrams for fake object paths without requiring ELF binaries."""
+    sec_sizes = {".rodata": RODATA_SIZE, ".data": DATA_SIZE}
+    vrams = {".rodata": RODATA_VRAM, ".data": DATA_VRAM}
+    monkeypatch.setattr(objdiff, "get_section_sizes", lambda obj_path: sec_sizes)
+    monkeypatch.setattr(objdiff, "object_section_vrams", lambda obj_path, absolute: vrams)
+    return {"sec_sizes": sec_sizes, "vrams": vrams}
+
+
+def test_paired_hi16_lo16_to_own_rodata():
+    """Case 1: Paired HI16/LO16 to an absolute symbol inside own .rodata.
+
+    The reloc target becomes '.rodata' and the immediates encode the section offset;
+    the same address expressed as '.rodata'+addend in the 'built' style normalises
+    to identical text+relocs.
+    """
+    offset = 0x0040
+    sym_name = "D_80758040"
+    absolute = {sym_name: RODATA_VRAM + offset}
+
+    # Expected style (asm): relocations target absolute symbol D_80758040 with 0 immediates:
+    # lui $at, 0x0000; lw $v0, 0x0000($at)
+    text_exp = (0x3C010000).to_bytes(4, "big") + (0x8C220000).to_bytes(4, "big")
+    relocs_exp = [
+        (0, "R_MIPS_HI16", sym_name),
+        (4, "R_MIPS_LO16", sym_name),
+    ]
+
+    # Built style (C / IDO output): relocations target .rodata directly,
+    # instructions already encode section offset 0x0040:
+    # lui $at, 0x0000; lw $v0, 0x0040($at)
+    text_built = (0x3C010000).to_bytes(4, "big") + (0x8C220040).to_bytes(4, "big")
+    relocs_built = [
+        (0, "R_MIPS_HI16", ".rodata"),
+        (4, "R_MIPS_LO16", ".rodata"),
+    ]
+
+    # Normalise expected style
+    norm_text_exp, norm_relocs_exp = objdiff.normalise_own_section_relocs(
+        FAKE_OBJ_PATH, text_exp, relocs_exp, absolute
+    )
+
+    # Reloc targets become .rodata
+    assert norm_relocs_exp == [(0, "R_MIPS_HI16", ".rodata"), (4, "R_MIPS_LO16", ".rodata")]
+    # Immediates encode the section offset (HI16: 0x0000, LO16: 0x0040)
+    assert norm_text_exp == text_built
+
+    # Normalise built style
+    norm_text_built, norm_relocs_built = objdiff.normalise_own_section_relocs(
+        FAKE_OBJ_PATH, text_built, relocs_built, absolute
+    )
+
+    # Both styles normalise to identical text bytes and relocs
+    assert norm_text_exp == norm_text_built
+    assert norm_relocs_exp == norm_relocs_built
+
+
+def test_differing_hi16_immediate():
+    """Case 2: Two inputs differing ONLY in the HI16 immediate (addend differs by 0x10000).
+
+    Normalised outputs must differ. (This tests the bug fixed in commit 0e86b1cc;
+    pre-fix code 7e40c10c ignored the HI16 immediate and collapsed both to identical output).
+    """
+    offset = 0x0040
+    sym_name = "D_80758040"
+    absolute = {sym_name: RODATA_VRAM + offset}
+
+    # Input A: HI16 immediate 0x0000, LO16 immediate 0x0000 (addend = 0x0)
+    # lui $at, 0x0000; lw $v0, 0x0000($at)
+    text_a = (0x3C010000).to_bytes(4, "big") + (0x8C220000).to_bytes(4, "big")
+    relocs_a = [
+        (0, "R_MIPS_HI16", sym_name),
+        (4, "R_MIPS_LO16", sym_name),
+    ]
+
+    # Input B: HI16 immediate 0x0001, LO16 immediate 0x0000 (addend = 0x10000)
+    # lui $at, 0x0001; lw $v0, 0x0000($at)
+    text_b = (0x3C010001).to_bytes(4, "big") + (0x8C220000).to_bytes(4, "big")
+    relocs_b = [
+        (0, "R_MIPS_HI16", sym_name),
+        (4, "R_MIPS_LO16", sym_name),
+    ]
+
+    norm_text_a, norm_relocs_a = objdiff.normalise_own_section_relocs(
+        FAKE_OBJ_PATH, text_a, relocs_a, absolute
+    )
+    norm_text_b, norm_relocs_b = objdiff.normalise_own_section_relocs(
+        FAKE_OBJ_PATH, text_b, relocs_b, absolute
+    )
+
+    # Reloc targets both become .rodata
+    assert norm_relocs_a == [(0, "R_MIPS_HI16", ".rodata"), (4, "R_MIPS_LO16", ".rodata")]
+    assert norm_relocs_b == [(0, "R_MIPS_HI16", ".rodata"), (4, "R_MIPS_LO16", ".rodata")]
+
+    # Normalised outputs must differ
+    assert norm_text_a != norm_text_b
+
+    # Verify exact returned text bytes:
+    # Input A value = offset + 0x0 = 0x0040 -> HI16 field = 0x0000, LO16 field = 0x0040
+    assert norm_text_a == (0x3C010000).to_bytes(4, "big") + (0x8C220040).to_bytes(4, "big")
+    # Input B value = offset + 0x10000 = 0x10040 -> HI16 field = 0x0001, LO16 field = 0x0040
+    assert norm_text_b == (0x3C010001).to_bytes(4, "big") + (0x8C220040).to_bytes(4, "big")
+
+
+def test_unpaired_hi16_preserves_immediate():
+    """Case 3: Unpaired HI16 (no matching LO16).
+
+    Its own immediate is preserved in the computed value (output differs when HI16
+    immediate differs).
+    """
+    offset = 0x0040
+    sym_name = "D_80758040"
+    absolute = {sym_name: RODATA_VRAM + offset}
+
+    # Input 1: HI16 immediate = 0x0000
+    text_1 = (0x3C010000).to_bytes(4, "big")
+    relocs_1 = [(0, "R_MIPS_HI16", sym_name)]
+
+    # Input 2: HI16 immediate = 0x0007
+    text_2 = (0x3C010007).to_bytes(4, "big")
+    relocs_2 = [(0, "R_MIPS_HI16", sym_name)]
+
+    norm_text_1, norm_relocs_1 = objdiff.normalise_own_section_relocs(
+        FAKE_OBJ_PATH, text_1, relocs_1, absolute
+    )
+    norm_text_2, norm_relocs_2 = objdiff.normalise_own_section_relocs(
+        FAKE_OBJ_PATH, text_2, relocs_2, absolute
+    )
+
+    # Relocs target .rodata
+    assert norm_relocs_1 == [(0, "R_MIPS_HI16", ".rodata")]
+    assert norm_relocs_2 == [(0, "R_MIPS_HI16", ".rodata")]
+
+    # Outputs differ because HI16 immediate is preserved
+    assert norm_text_1 != norm_text_2
+
+    # Verify exact returned text bytes:
+    # Input 1: value = offset + 0x0 = 0x0040 -> field = 0x0000
+    assert norm_text_1 == (0x3C010000).to_bytes(4, "big")
+    # Input 2: value = offset + (7 << 16) = 0x70040 -> field = ((0x70040 + 0x8000) >> 16) & 0xFFFF = 0x0007
+    assert norm_text_2 == (0x3C010007).to_bytes(4, "big")
+
+
+def test_extern_target_left_untouched():
+    """Case 4: A target outside own sections (an extern) is left untouched."""
+    # Target address outside .rodata and .data
+    extern_addr = 0x80001000
+    sym_name = "D_80001000"
+    absolute = {sym_name: extern_addr}
+
+    input_text = (0x3C010002).to_bytes(4, "big") + (0x8C220003).to_bytes(4, "big")
+    input_relocs = [
+        (0, "R_MIPS_HI16", sym_name),
+        (4, "R_MIPS_LO16", sym_name),
+    ]
+
+    norm_text, norm_relocs = objdiff.normalise_own_section_relocs(
+        FAKE_OBJ_PATH, input_text, input_relocs, absolute
+    )
+
+    # Returned text bytes and relocs are completely untouched
+    assert norm_text == input_text
+    assert norm_relocs == input_relocs
+
+    # Also verify with a named extern symbol not present in absolute map
+    named_extern_relocs = [
+        (0, "R_MIPS_HI16", "some_extern_symbol"),
+        (4, "R_MIPS_LO16", "some_extern_symbol"),
+    ]
+    norm_text_named, norm_relocs_named = objdiff.normalise_own_section_relocs(
+        FAKE_OBJ_PATH, input_text, named_extern_relocs, absolute
+    )
+    assert norm_text_named == input_text
+    assert norm_relocs_named == named_extern_relocs
