@@ -93,20 +93,20 @@ typedef struct CritterViewer {
     /* 0x21C */ u8 pad21C[0x2F0 - 0x21C];
 } CritterViewer;
 
-void critterSetTargetSpeed(CritterObj *obj, CritterGroup *grp, f32 arg2) {
+void critterSetTargetSpeed(CritterObj *obj, CritterGroup *grp, f32 baseSpeed) {
     switch (grp->type) {
     case 0:
     case 1:
-        obj->targetSpeed = (f32)((f64)arg2 * 3.0);
+        obj->targetSpeed = (f32)((f64)baseSpeed * 3.0);
         return;
     case 2:
-        obj->targetSpeed = (f32)((f64)arg2 * 0.5);
+        obj->targetSpeed = (f32)((f64)baseSpeed * 0.5);
         return;
     case 3:
-        obj->targetSpeed = (f32)((f64)arg2 * 1.1);
+        obj->targetSpeed = (f32)((f64)baseSpeed * 1.1);
         return;
     case 4:
-        obj->targetSpeed = (f32)((f64)arg2 + (f64)arg2);
+        obj->targetSpeed = (f32)((f64)baseSpeed + (f64)baseSpeed);
     default:
         return;
     }
@@ -130,24 +130,24 @@ void func_8002409C(CritterGroup *grp) {
 }
 
 void func_800240EC(CritterGroup *grp) {
-    s32 var_v1;
-    s32 var_a1;
+    s32 tex0;
+    s32 tex1;
     s32 i;
     CritterObj *obj;
 
     obj = grp->objs;
-    var_v1 = 0x7A;
-    var_a1 = 0x7B;
+    tex0 = 0x7A;
+    tex1 = 0x7B;
     if (grp->type == 1) {
-        var_v1 = 0x80;
-        var_a1 = 0x81;
+        tex0 = 0x80;
+        tex1 = 0x81;
     }
     i = 0;
     if (grp->count > 0) {
         do {
             obj->turnRate = 5.0f;
-            obj->texId[0] = var_v1;
-            obj->texId[1] = var_a1;
+            obj->texId[0] = tex0;
+            obj->texId[1] = tex1;
             i++;
             obj++;
         } while (i < grp->count);
@@ -251,17 +251,17 @@ extern u8 D_80770DC9;
 void func_800245B8(CritterObj *obj) {
     s16 r;
     f32 temp;
-    f32 sp3C;
+    f32 speedScaled;
 
     if (obj->state != 0 && (obj->flags & 1)) {
         r = randomLcgNext() % 255U;
-        sp3C = (f32)((f64)obj->speed * (1.0 / 3.0));
+        speedScaled = (f32)((f64)obj->speed * (1.0 / 3.0));
         if (r < 6) {
             sfxPlayAtPositionPooled(obj->x, obj->y, obj->z,
                           (s16)((randomLcgNext() & 3) + 0x1A9),
                           0xFF, 0x7F, 0x1E, 0x5A, 0.7f, 0);
         }
-        obj->anim = (s16)((f32)obj->anim + 1200.0f * sp3C);
+        obj->anim = (s16)((f32)obj->anim + 1200.0f * speedScaled);
         obj->anim &= 0xFFF;
         if (obj->prevAnim > 0x800) {
             if (obj->anim < 0x800) {
@@ -291,10 +291,10 @@ extern Gfx D_80029B40;
 extern s32 critterCurrentTexture;
 
 Gfx *func_800247F4(Gfx *gdl, CritterObj *obj) {
-    f32 sp90[4][4];
-    f32 sp8C;
+    f32 rotMtx[4][4];
+    f32 flapAngle;
 
-    sp8C = obj->flapA;
+    flapAngle = obj->flapA;
     gSPSetGeometryMode(gdl++, G_CULL_BACK);
     gDPLoadTextureBlock(gdl++, obj->tex[0], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 16, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 4, G_TX_NOLOD, G_TX_NOLOD);
     critterBuildMatrix(obj);
@@ -302,14 +302,14 @@ Gfx *func_800247F4(Gfx *gdl, CritterObj *obj) {
     gSPVertex(gdl++, &D_80029870, 6, 0);
     gSPDisplayList(gdl++, &D_80029B40);
     gDPLoadTextureBlock(gdl++, obj->tex[1], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 48, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 6, G_TX_NOLOD, G_TX_NOLOD);
-    matrixMakeRotationZ(sp90, -sp8C);
-    guMtxF2L(sp90, &obj->mtx[1][D_807444FC]);
+    matrixMakeRotationZ(rotMtx, -flapAngle);
+    guMtxF2L(rotMtx, &obj->mtx[1][D_807444FC]);
     gSPMatrix(gdl++, &obj->mtx[1][D_807444FC], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, &D_800298D0, 4, 6);
     gSP2Triangles(gdl++, 6, 7, 8, 0, 6, 8, 9, 0);
     gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
-    matrixMakeRotationZ(sp90, sp8C);
-    guMtxF2L(sp90, &obj->mtx[2][D_807444FC]);
+    matrixMakeRotationZ(rotMtx, flapAngle);
+    guMtxF2L(rotMtx, &obj->mtx[2][D_807444FC]);
     gSPMatrix(gdl++, &obj->mtx[2][D_807444FC], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, &D_800298E0, 6, 7);
     gSP2Triangles(gdl++, 10, 11, 7, 0, 10, 7, 12, 0);
@@ -321,16 +321,16 @@ Gfx *func_800247F4(Gfx *gdl, CritterObj *obj) {
 f32 func_80612794(s32);
 
 void func_80024B78(CritterObj *obj) {
-    f32 temp_fv0;
-    f32 temp_fv1;
+    f32 sinVal;
+    f32 speedScaled;
 
     if (obj->flags & 1) {
-        temp_fv1 = (f32)((f64)obj->speed * (1.0 / 1.1));
-        obj->anim = (s16)((f64)obj->anim + (90.0 * (0.5 + (f64)(10.0f * temp_fv1))));
+        speedScaled = (f32)((f64)obj->speed * (1.0 / 1.1));
+        obj->anim = (s16)((f64)obj->anim + (90.0 * (0.5 + (f64)(10.0f * speedScaled))));
         obj->anim &= 0xFFF;
-        temp_fv0 = func_80612794(obj->anim);
-        obj->flapA = (((-15.0f * temp_fv1) + 45.0f) * temp_fv0) + (temp_fv1 * 30.0f);
-        obj->yBob = (f32)((f64)(obj->speed * temp_fv0) * 0.4);
+        sinVal = func_80612794(obj->anim);
+        obj->flapA = (((-15.0f * speedScaled) + 45.0f) * sinVal) + (speedScaled * 30.0f);
+        obj->yBob = (f32)((f64)(obj->speed * sinVal) * 0.4);
     }
     critterUpdateAudio(obj);
 }
@@ -339,24 +339,24 @@ extern Vtx D_800297F0;
 extern Vtx D_80029830;
 
 Gfx *func_80024C88(Gfx *gdl, CritterObj *obj) {
-    f32 sp70[4][4];
-    f32 sp6C;
+    f32 rotMtx[4][4];
+    f32 flapAngle;
 
-    sp6C = obj->flapA;
+    flapAngle = obj->flapA;
     if (critterCurrentTexture != obj->tex[0]) {
         critterCurrentTexture = obj->tex[0];
         gDPLoadTextureBlock(gdl++, critterCurrentTexture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
     }
     critterBuildMatrix(obj);
     gSPMatrix(gdl++, &obj->mtx[0][D_807444FC], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    matrixMakeRotationZ(sp70, sp6C);
-    guMtxF2L(sp70, &obj->mtx[1][D_807444FC]);
+    matrixMakeRotationZ(rotMtx, flapAngle);
+    guMtxF2L(rotMtx, &obj->mtx[1][D_807444FC]);
     gSPMatrix(gdl++, &obj->mtx[1][D_807444FC], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, &D_800297F0, 4, 0);
     gSP2Triangles(gdl++, 0, 1, 2, 0, 0, 2, 3, 0);
     gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
-    matrixMakeRotationZ(sp70, -sp6C);
-    guMtxF2L(sp70, &obj->mtx[2][D_807444FC]);
+    matrixMakeRotationZ(rotMtx, -flapAngle);
+    guMtxF2L(rotMtx, &obj->mtx[2][D_807444FC]);
     gSPMatrix(gdl++, &obj->mtx[2][D_807444FC], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, &D_80029830, 4, 0);
     gSP2Triangles(gdl++, 0, 1, 2, 0, 0, 2, 3, 0);
@@ -375,44 +375,44 @@ extern u8 effectWobbleRiseUpdate;
 extern u8 D_8071FC40;
 
 void func_80024F28(CritterObj *obj) {
-    s16 sp4E;
+    s16 randVal;
     f32 temp;
-    f32 sp44;
-    f32 sp40;
-    s16 sp3E;
+    f32 finWave;
+    f32 accelVal;
+    s16 yawDelta;
     f32 temp2;
     s32 absv;
 
     if (obj->flags & 1) {
-        sp4E = randomLcgNext() % 400U;
+        randVal = randomLcgNext() % 400U;
         temp = obj->accel;
         if (temp < 0.0f) {
-            sp40 = 0.0f;
+            accelVal = 0.0f;
         } else {
-            sp40 = temp;
+            accelVal = temp;
         }
-        sp3E = mathAngleSignedDistance(obj->yaw, obj->prevYaw);
-        if (sp4E <= 0) {
+        yawDelta = mathAngleSignedDistance(obj->yaw, obj->prevYaw);
+        if (randVal <= 0) {
             func_807149B8(1);
             func_80714950(1);
             func_807149FC(-1);
             func_8071498C(&effectWobbleRiseUpdate);
             func_80714CC0(&D_8071FC40, 0, obj->x, obj->y, obj->z);
         }
-        if (sp3E > 0) {
-            absv = sp3E;
+        if (yawDelta > 0) {
+            absv = yawDelta;
         } else {
-            absv = -sp3E;
+            absv = -yawDelta;
         }
         if (absv >= 0x5B) {
             sfxPlayAtPositionPooled(obj->x, obj->y, obj->z, 0x16F, 0x46, 0xDC, 0x1E, 0x5A, 0.7f, 0);
         }
         obj->anim = (s16)((f64)obj->anim + 200.0 * (1.5 + (f64)(150.0f * obj->accel)));
         obj->anim &= 0xFFF;
-        temp2 = func_80612794(obj->anim) * (10.0f + 200.0f * sp40);
-        sp44 = temp2 * 1.0f + temp2 * ((f32)sp3E * 0.00024414062f);
+        temp2 = func_80612794(obj->anim) * (10.0f + 200.0f * accelVal);
+        finWave = temp2 * 1.0f + temp2 * ((f32)yawDelta * 0.00024414062f);
         obj->flapB = func_80612794((s16)(obj->anim + 0xC8)) * 2;
-        obj->flapA = (f32)((f64)sp44 + (f64)sp3E * 0.2);
+        obj->flapA = (f32)((f64)finWave + (f64)yawDelta * 0.2);
     }
     critterUpdateAudio(obj);
 }
@@ -425,8 +425,8 @@ extern Vtx D_80029980[];
 void matrixMakeRotationY(f32 (*)[4], f32);
 
 Gfx *func_8002516C(Gfx *gdl, CritterObj *obj) {
-    f32 spD0[4][4];
-    f32 sp90[4][4];
+    f32 tailMtx[4][4];
+    f32 finTransMtx[4][4];
 
     if (critterCurrentTexture != obj->tex[0]) {
         critterCurrentTexture = obj->tex[0];
@@ -435,14 +435,14 @@ Gfx *func_8002516C(Gfx *gdl, CritterObj *obj) {
     }
     critterBuildMatrix(obj);
     gSPMatrix(gdl++, &obj->mtx[0][D_807444FC], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    matrixMakeRotationY(spD0, obj->flapB);
-    guMtxF2L(spD0, &obj->mtx[2][D_807444FC]);
+    matrixMakeRotationY(tailMtx, obj->flapB);
+    guMtxF2L(tailMtx, &obj->mtx[2][D_807444FC]);
     gSPMatrix(gdl++, &obj->mtx[2][D_807444FC], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
     gSPClearGeometryMode(gdl++, G_CULL_BOTH);
-    guTranslateF(sp90, 0.0f, 0.0f, -27.0f);
-    matrixMakeRotationY(spD0, obj->flapA);
-    guMtxCatF(spD0, sp90, spD0);
-    guMtxF2L(spD0, &obj->mtx[1][D_807444FC]);
+    guTranslateF(finTransMtx, 0.0f, 0.0f, -27.0f);
+    matrixMakeRotationY(tailMtx, obj->flapA);
+    guMtxCatF(tailMtx, finTransMtx, tailMtx);
+    guMtxF2L(tailMtx, &obj->mtx[1][D_807444FC]);
     gSPMatrix(gdl++, &obj->mtx[1][D_807444FC], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, D_80029940, 4, 0);
     gSP2Triangles(gdl++, 0, 1, 2, 0, 2, 3, 0, 0);
@@ -512,53 +512,53 @@ Gfx *critterRenderSetup(Gfx *gdl) {
     return gdl;
 }
 
-void critterMakeMatrix(f32 (*m)[4], s16 arg1, s16 arg2, s16 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
-    f32 sp44;
-    f32 sp40;
-    f32 sp3C;
-    f32 sp38;
-    f32 sp34;
-    f32 temp_fa1;
-    f32 temp_fa1_2;
-    f32 temp_fs0;
-    f32 temp_fs1;
-    f32 temp_fv0;
+void critterMakeMatrix(f32 (*m)[4], s16 pitch, s16 yaw, s16 roll, f32 scale, f32 x, f32 y, f32 z) {
+    f32 pad;
+    f32 cosYaw;
+    f32 cosRoll;
+    f32 pad2;
+    f32 sinYaw;
+    f32 cosPitchCosYaw;
+    f32 sinPitchCosYaw;
+    f32 cosPitch;
+    f32 sinPitch;
+    f32 sinRoll;
 
-    temp_fs0 = func_80612794(arg1);
-    temp_fs1 = func_80612790(arg1);
-    sp40 = func_80612794(arg2);
-    sp34 = func_80612790(arg2);
-    sp3C = func_80612794(arg3);
-    temp_fv0 = func_80612790(arg3);
-    m[0][0] = sp34 * temp_fv0 * arg4;
-    m[0][1] = sp34 * sp3C * arg4;
-    m[0][2] = -sp40 * arg4;
+    cosPitch = func_80612794(pitch);
+    sinPitch = func_80612790(pitch);
+    cosYaw = func_80612794(yaw);
+    sinYaw = func_80612790(yaw);
+    cosRoll = func_80612794(roll);
+    sinRoll = func_80612790(roll);
+    m[0][0] = sinYaw * sinRoll * scale;
+    m[0][1] = sinYaw * cosRoll * scale;
+    m[0][2] = -cosYaw * scale;
     m[0][3] = 0.0f;
-    temp_fa1 = temp_fs0 * sp40;
-    m[1][0] = ((temp_fa1 * temp_fv0) - (temp_fs1 * sp3C)) * arg4;
+    cosPitchCosYaw = cosPitch * cosYaw;
+    m[1][0] = ((cosPitchCosYaw * sinRoll) - (sinPitch * cosRoll)) * scale;
     m[1][3] = 0.0f;
-    m[1][1] = ((temp_fa1 * sp3C) + (temp_fs1 * temp_fv0)) * arg4;
-    m[1][2] = temp_fs0 * sp34 * arg4;
-    temp_fa1_2 = temp_fs1 * sp40;
-    m[2][0] = ((temp_fa1_2 * temp_fv0) + (temp_fs0 * sp3C)) * arg4;
+    m[1][1] = ((cosPitchCosYaw * cosRoll) + (sinPitch * sinRoll)) * scale;
+    m[1][2] = cosPitch * sinYaw * scale;
+    sinPitchCosYaw = sinPitch * cosYaw;
+    m[2][0] = ((sinPitchCosYaw * sinRoll) + (cosPitch * cosRoll)) * scale;
     m[2][3] = 0.0f;
-    m[2][1] = ((temp_fa1_2 * sp3C) - (temp_fs0 * temp_fv0)) * arg4;
-    m[2][2] = temp_fs1 * sp34 * arg4;
-    m[3][0] = arg5;
-    m[3][1] = arg6;
-    m[3][2] = arg7;
+    m[2][1] = ((sinPitchCosYaw * cosRoll) - (cosPitch * sinRoll)) * scale;
+    m[2][2] = sinPitch * sinYaw * scale;
+    m[3][0] = x;
+    m[3][1] = y;
+    m[3][2] = z;
     m[3][3] = 1.0f;
 }
 
 void critterBuildMatrix(CritterObj *obj) {
-    f32 sp30[4][4];
+    f32 transMtx[4][4];
 
-    critterMakeMatrix(sp30, (s16)-obj->pitch, obj->yaw, 0,
+    critterMakeMatrix(transMtx, (s16)-obj->pitch, obj->yaw, 0,
                   obj->scale * 0.07f,
                   obj->x,
                   obj->y + obj->yBob,
                   obj->z);
-    guMtxF2L(sp30, &obj->mtx[0][D_807444FC]);
+    guMtxF2L(transMtx, &obj->mtx[0][D_807444FC]);
 }
 
 extern Gfx D_80029B18;
@@ -643,9 +643,9 @@ Gfx *critterRenderGroups(Gfx *gdl, CritterGroups *groups) {
 }
 
 
-void critterSetOffsetAtAngle(CritterZone *zone, CritterObj *obj, u8 arg2, s16 arg3, u8 arg4) {
-    f32 sp2C;
-    f32 sp28;
+void critterSetOffsetAtAngle(CritterZone *zone, CritterObj *obj, u8 angle, s16 radius, u8 heightOffset) {
+    f32 cosVal;
+    f32 sinVal;
     f32 base;
     f32 *px;
     f32 *py;
@@ -653,14 +653,14 @@ void critterSetOffsetAtAngle(CritterZone *zone, CritterObj *obj, u8 arg2, s16 ar
     f32 v;
 
     base = (f32)zone->shape.unk4;
-    if (arg2 == 0) {
-        sp2C = (f32)zone->shape.unkC;
+    if (angle == 0) {
+        cosVal = (f32)zone->shape.unkC;
         base += (f32)zone->shape.unk8;
     } else {
-        sp2C = (f32)zone->shape.unk0 * ((f32)(randomLcgNext() & 0xFFFU) * 0.000244140625f);
+        cosVal = (f32)zone->shape.unk0 * ((f32)(randomLcgNext() & 0xFFFU) * 0.000244140625f);
     }
     v = (f32)((f64)((f32)(randomLcgNext() & 0xFFFU) * 0.000244140625f * base) - 0.5 * (f64)base);
-    if (arg4 != 0) {
+    if (heightOffset != 0) {
         px = &obj->offX;
         py = &obj->offY;
         pz = &obj->offZ;
@@ -670,16 +670,16 @@ void critterSetOffsetAtAngle(CritterZone *zone, CritterObj *obj, u8 arg2, s16 ar
         pz = &obj->z;
     }
     *py = v;
-    *px = func_80612794(arg3) * sp2C;
-    *pz = func_80612790(arg3) * sp2C;
+    *px = func_80612794(radius) * cosVal;
+    *pz = func_80612790(radius) * cosVal;
 }
 
-void critterSetRandomOffset(CritterZone *zone, CritterObj *obj, u8 arg2, u8 arg3) {
-    critterSetOffsetAtAngle(zone, obj, arg2, (s16)(randomLcgNext() & 0xFFF), arg3);
+void critterSetRandomOffset(CritterZone *zone, CritterObj *obj, u8 radius, u8 heightOffset) {
+    critterSetOffsetAtAngle(zone, obj, radius, (s16)(randomLcgNext() & 0xFFF), heightOffset);
 }
 
-void critterPlaceInZone(CritterZone *zone, CritterObj *obj, u8 arg2) {
-    critterSetRandomOffset(zone, obj, arg2, 0);
+void critterPlaceInZone(CritterZone *zone, CritterObj *obj, u8 isRandom) {
+    critterSetRandomOffset(zone, obj, isRandom, 0);
     obj->x += (f32)zone->x;
     obj->y += (f32)zone->y;
     obj->z += (f32)zone->z;
@@ -830,7 +830,7 @@ f32 func_80612800(s16);
 s16 mathAngleEaseToward(s16, s16, f32);
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 
-void critterSteerToTarget(CritterObj *obj, CritterGroup *grp, void (*arg2)(CritterObj *, CritterGroup *), s32 (*arg3)(CritterObj *, CritterGroup *)) {
+void critterSteerToTarget(CritterObj *obj, CritterGroup *grp, void (*steerFunc)(CritterObj *, CritterGroup *), s32 (*targetPred)(CritterObj *, CritterGroup *)) {
     f32 tx;
     f32 ty;
     f32 tz;
@@ -851,8 +851,8 @@ void critterSteerToTarget(CritterObj *obj, CritterGroup *grp, void (*arg2)(Critt
 
     rate = 0.02f;
     use_y = (obj->flags & 2) == 0;
-    if (arg2 != NULL) {
-        arg2(obj, grp);
+    if (steerFunc != NULL) {
+        steerFunc(obj, grp);
     }
     off = obj->zone;
     tx = obj->offX + (f32)off->x;
@@ -871,8 +871,8 @@ void critterSteerToTarget(CritterObj *obj, CritterGroup *grp, void (*arg2)(Critt
         if (d2 < 2500.0f) {
             tgt = (f32)((f64)tgt * 0.3 + 0.7 * (f64)tgt * (f64)(d2 * 0.0004f));
             rate = 0.1f;
-            if (d2 < 25.0f && arg3 != NULL) {
-                ret = arg3(obj, grp);
+            if (d2 < 25.0f && targetPred != NULL) {
+                ret = targetPred(obj, grp);
                 if (ret != 0) {
                     return;
                 }
@@ -918,42 +918,42 @@ void critterUpdateIdle(CritterObj *obj, CritterGroup *grp) {
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void func_80026904(CritterObj *obj, CritterGroup *grp) {
-    s16 sp2E;
-    CritterZone *temp_a0;
+    s16 angleDiff;
+    CritterZone *targetZone;
 
     if (obj->role == 2) {
         critterFollowLeader(obj, grp->objs);
         return;
     }
     if (obj->role == 0) {
-        temp_a0 = obj->homeZone;
-        if (temp_a0->near != 0) {
+        targetZone = obj->homeZone;
+        if (targetZone->near != 0) {
             critterCalcDistToPlayer(obj);
             if (critterPlayerZone != obj->zone) {
                 critterTryActivate(obj, grp);
                 return;
             }
             if (obj->state == 2 && obj->distSq < (f32)critterPlayerZone->shape.unk2) {
-                sp2E = mathAngleBetweenPoints2D(obj->x, obj->z, D_807FBB48->x, D_807FBB48->z);
-                sp2E += (randomLcgNext() & 0x7FF) - 0x400;
+                angleDiff = mathAngleBetweenPoints2D(obj->x, obj->z, D_807FBB48->x, D_807FBB48->z);
+                angleDiff += (randomLcgNext() & 0x7FF) - 0x400;
                 obj->state = 1;
-                critterSetOffsetAtAngle(obj->zone, obj, 0, sp2E, 1);
+                critterSetOffsetAtAngle(obj->zone, obj, 0, angleDiff, 1);
             }
         } else if (critterPlayerZone == obj->zone) {
-            obj->zone = temp_a0;
-            critterSetRandomOffset(temp_a0, obj, 1, 1);
+            obj->zone = targetZone;
+            critterSetRandomOffset(targetZone, obj, 1, 1);
             obj->frame = 0xFF;
         }
     }
 }
 
 s32 func_80026A5C(CritterObj *obj, CritterGroup *grp) {
-    CritterZone *temp_v0;
+    CritterZone *zone;
 
     if (obj->role == 1) {
-        temp_v0 = obj->zone;
-        obj->homeZone = temp_v0;
-        if (temp_v0->flags & 1) {
+        zone = obj->zone;
+        obj->homeZone = zone;
+        if (zone->flags & 1) {
             obj->pitch = 0;
             obj->state = 0;
             obj->speed = 0.0f;
@@ -985,39 +985,39 @@ void critterUpdateZoneProximity(CritterObj *);
 
 void critterDispatchAll(CritterGroup *grp) {
     s32 (*cb)(CritterObj *, CritterGroup *);
-    void (*var_s3)(CritterObj *);
-    s32 var_s1;
-    CritterObj *var_s0;
-    var_s0 = grp->objs;
+    void (*obj)(CritterObj *);
+    s32 objIdx;
+    CritterObj *groupIdx;
+    groupIdx = grp->objs;
     switch (grp->type) {
     case 0:
     case 1:
-        var_s3 = func_800245B8;
+        obj = func_800245B8;
         break;
     case 2:
-        var_s3 = func_80024F28;
+        obj = func_80024F28;
         break;
     case 3:
-        var_s3 = func_80024B78;
+        obj = func_80024B78;
         break;
     case 4:
-        var_s3 = func_80025500;
+        obj = func_80025500;
         break;
     default:
-        var_s3 = NULL;
+        obj = NULL;
         break;
     }
     cb = func_80026A5C;
-    for (var_s1 = 0; var_s1 < grp->count; var_s1++, var_s0++) {
-        critterUpdateZoneProximity(var_s0);
-        if (var_s0->state == 0) {
-            critterUpdateIdle(var_s0, grp);
+    for (objIdx = 0; objIdx < grp->count; objIdx++, groupIdx++) {
+        critterUpdateZoneProximity(groupIdx);
+        if (groupIdx->state == 0) {
+            critterUpdateIdle(groupIdx, grp);
         } else {
-            critterSteerToTarget(var_s0, grp, func_80026904, cb);
+            critterSteerToTarget(groupIdx, grp, func_80026904, cb);
         }
-        var_s0->prevAnim = var_s0->anim;
-        if (var_s3 != NULL) {
-            var_s3(var_s0);
+        groupIdx->prevAnim = groupIdx->anim;
+        if (obj != NULL) {
+            obj(groupIdx);
         }
     }
 }
@@ -1063,16 +1063,16 @@ void heapClearBlock(void *);
 s16 mapChunkFindByPosition(f32, f32, f32, s32);
 void critterInitGroup(CritterGroup *);
 
-void critterLoadData(u8 *arg0) {
+void critterLoadData(u8 *data) {
     s32 g;
     CritterGroup *grp;
     CritterZone *ent;
     s32 j;
     u8 *src;
 
-    if (arg0 != NULL) {
-        memcpy(critterGroups, arg0, 1);
-        src = arg0 + 1;
+    if (data != NULL) {
+        memcpy(critterGroups, data, 1);
+        src = data + 1;
         for (g = 0; g < critterGroups->count; g++) {
             j = 0;
             if (g == 0) {
@@ -1107,11 +1107,11 @@ void critterLoadData(u8 *arg0) {
     }
 }
 
-void critterInit(void *arg0) {
+void critterInit(void *groups) {
     critterCurrentTexture = 0;
     critterGroups = heapAlloc(8);
     heapClearBlock(critterGroups);
-    critterLoadData(arg0);
+    critterLoadData(groups);
     critterPlayerZone = heapAlloc(0x2C);
     heapClearBlock(critterPlayerZone);
 }
@@ -1119,32 +1119,32 @@ void critterInit(void *arg0) {
 extern s32 D_807FBB60;
 void critterUpdateGroups(CritterGroups *);
 
-Gfx *critterRender(Gfx *arg0) {
+Gfx *critterRender(Gfx *glist) {
     if (D_807FBB60 & 0x10) {
         if (!(D_807FBB60 & 2)) {
             critterUpdateGroups(critterGroups);
         }
-        arg0 = critterRenderGroups(arg0, critterGroups);
+        glist = critterRenderGroups(glist, critterGroups);
     }
-    return arg0;
+    return glist;
 }
 
 void heapFreeDeferred(void *);
 
 void critterCleanup(CritterGroup *grp) {
-    u8 temp_s2;
-    CritterObj *var_s0;
-    s32 var_s1;
+    u8 objCount;
+    CritterObj *obj;
+    s32 i;
 
-    temp_s2 = grp->count;
-    var_s0 = grp->objs;
-    var_s1 = 0;
-    if (temp_s2 > 0 && var_s0 != NULL) {
+    objCount = grp->count;
+    obj = grp->objs;
+    i = 0;
+    if (objCount > 0 && obj != NULL) {
         do {
-            critterStopAudio(var_s0);
-            var_s1++;
-            var_s0++;
-        } while (var_s1 < temp_s2 && var_s0 != NULL);
+            critterStopAudio(obj);
+            i++;
+            obj++;
+        } while (i < objCount && obj != NULL);
     }
     if (grp->objs != NULL) {
         heapFreeDeferred(grp->objs);
