@@ -1,6 +1,7 @@
-// jetpacBonusItemUpdate (src/jetpac/3480.c): stage 5 park (stored park count-exact n=314 full=7, natural body full=5 all regs matching n=315). as1probe proof shows moving li t5,2 and label before bge in t.G gives full=0 text=0 n=314 exact match; as1 hoists addiu into inner->unk144 load delay, robbing delay slot and forcing bge to beqzl.
+// jetpacBonusItemUpdate (src/jetpac/3480.c): stage 3 best draft: full=4 text=4 reloc=0 shape=3 n=315 (one instruction long, cannot park); existing stage-5 count-exact source park retained full=7 n=314. Natural full=5 shrinks to 4 by if ((arg0 && arg0) && arg0) {} after early timer return, restoring s0 store base. Original as1 proof retained: moving li t5,2 and a label before bge in t.G matches full=0; label alone gives full=2 on natural body. Tried 62 control-flow/nested-if/goto/while-for-do forms, 85 zero-trip loop forms, 105 constant-2 variable and zero-dependency forms, 114 compound comparisons/boolean temporaries, 189 state-transition loops/switch/reversed-arm forms, 61 duplicate branch joins, 60 ternary operand merges, 42 one-iteration loop rotations, 428 typed-dead-read variants, 4708 const-2 ghost variants; none improve full=4. as1 scan --rounds2 and uopt level5 trace completed. Permuter -j2 --seconds600: 59269 iterations; best valid adds arg0 triple ghost. Count-exact permuter full=5 candidates are invalid (moved color store past break or early return into switch), rejected. No improved count-exact park; original park retained, do not merge private source.
 void flagSet(s32, s32, s32);
 void jetpacSpawnBonusItem(JetpacPlayer *);
+
 void jetpacBonusItemUpdate(JetpacItem *arg0) {
     JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
     s32 v;
@@ -19,6 +20,7 @@ void jetpacBonusItemUpdate(JetpacItem *arg0) {
             return;
         }
     }
+    if ((arg0 && arg0) && arg0) {} // FAKE: keeps the item pointer in s0 on the early-out path
     if (arg0->unk1C == 1) {
         arg0->unk1C = 2;
     }
