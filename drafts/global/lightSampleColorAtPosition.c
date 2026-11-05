@@ -1,4 +1,4 @@
-// lightSampleColorAtPosition (src/global/5E2F0.c): LightAnim (rev8): no improvement over 96 (text 87 reloc 6 shape 39, count 443 vs 441, frame 136 ok). Re-derived diff: arg6 should be a v1-coloured var (target lw v1,0xA0(sp) at 3 sites, arg4/arg5 ring); r/g/b colour f22/f24/f26 + zero f28 + 300.0 hoisted f30 (ours: second zero web steals f22, r pushed to f30, 300.0 unhoisted); target (f64)dist cvt.d.s is copied into both arms before the 300/1100 compares. Untried-by-search: chain store *arg4=*arg5=*arg6=0xFF, case-local decl order (dz,dy,dx,nz,ny,nx = target home order 0x68..0x54), template harness .scratch/LightAnim/lstpl.py lshc.py (reproduces 96 exactly) ready but not run. No-fake body is frame 80 vs 136 (fakes keep dx..nz memory-resident).
+// lightSampleColorAtPosition (src/global/5E2F0.c): LightSample (stage 4): full=94 text=85 reloc=6 shape=39 (count 443 vs 441, frame 136 ok). Re-derived diff and applied levers 1-7: chained store *arg4=*arg5=*arg6=0xFF matched block 1 exact (96 -> 94). Uopt analysis: const 0.0 double has adjsave 5.625 > r 3.555 due to block dilution from fakes, stealing f22 for zero and pushing r to f30; removing fakes causes dz/dy/dx to take callee-saved f20..f24 instead of spilling, dropping frame to 80/96.
 void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
     f32 pad[1];
     LightTrigger *entry;
@@ -9,9 +9,7 @@ void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4
     s32 i;
 
     if (mapChunkIsInUse(arg7) == 0) {
-        *arg6 = 0xFF;
-        *arg5 = 0xFF;
-        *arg4 = 0xFF;
+        *arg4 = *arg5 = *arg6 = 0xFF;
         return;
     }
     if (D_807F7EC8 == 0) {
