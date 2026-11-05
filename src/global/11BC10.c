@@ -9,7 +9,7 @@ extern Actor *D_807FBB4C;
 void *heapAlloc(s32);
 u32 randomLcgNext(void);
 f32 randomFloat(void);
-char randomNonNegative(void); // FAKE: byte-return home steers effectWispHomeUpdate's spill layout (real return is s32)
+s32 randomNonNegative(void);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 f32 cosApprox(f32);
@@ -345,6 +345,9 @@ typedef struct {
     f32 unk210;
     f32 unk214;
     f32 unk218;
+    f32 unk21C;
+    f32 unk220;
+    f32 unk224;
 } PlayerDistanceView;
 
 typedef struct {
@@ -1091,10 +1094,9 @@ void effectSpiralRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         var_v0->unk14 = 375.0f;
         var_v1 = (SpiralRiseState *)arg0->unk384;
     }
-    var_v0 = var_v1;
+    var_v0 = var_a2->unk384;
     var_a2->unk344 = (f32)((f64)var_a2->unk344 + 0.3);
-    temp_fv0 = var_v1->unk14;
-    var_v1 = (SpiralRiseState *) (var_a2 = arg0)->unk384; // FAKE: breaks copy web to preserve v0 register
+    temp_fv0 = var_v0->unk14;
     if (temp_fv0 < 15.0f) {
         var_fv1 = temp_fv0;
     } else {
@@ -1388,8 +1390,8 @@ void effectRadialSprayUpdate(RadialSprayActorView *arg0, s8 *arg1) {
                 arg0->unk384->unk8 = arg0->unk384->unk8 * 4.0f;
             }
         } else {
-            arg0->unk384->unk4 = arg0->unk384->unk4 * (1.0f + 1.0f); // FAKE: (1.0f + 1.0f) keeps mul.s (x * 2.0f becomes add.s)
-            arg0->unk384->unk8 = arg0->unk384->unk8 * (1.0f + 1.0f); // FAKE: (1.0f + 1.0f) keeps mul.s (x * 2.0f becomes add.s)
+            arg0->unk384->unk4 *= 2;
+            arg0->unk384->unk8 *= 2;
         }
         sp30 = arg0->unk344;
         if (collisionCheckGroundAtPoint(arg0->unk340, arg0->unk348, &sp30) != 0) {
@@ -2127,6 +2129,9 @@ void effectWispHomeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp58[4][4];
     WispHomeMotionState *state;
     WispHomeTargetActor *actor;
+    s16 currentAngle;
+    s16 targetAngle;
+    f32 turnRate;
 
     if (arg0->unk384 == NULL) {
         randomNonNegative();
@@ -2139,9 +2144,10 @@ void effectWispHomeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     }
     state = arg0->unk384;
     actor = (WispHomeTargetActor *)(u32)arg0->unk35C;
-    state->angle = mathAngleEaseToward(state->angle,
-            mathAngleBetweenPoints2D(actor->x, actor->z, arg0->unk340, arg0->unk348),
-            (f32)(((randomNonNegative() >> 0xF) % 10) + 5));
+    targetAngle = mathAngleBetweenPoints2D(actor->x, actor->z, arg0->unk340, arg0->unk348);
+    turnRate = ((randomNonNegative() >> 0xF) % 10) + 5;
+    currentAngle = state->angle;
+    state->angle = mathAngleEaseToward(currentAngle, targetAngle, turnRate);
     state->y = (s16)((((f64)((actor->y + ((f32)((u32)actor->height))) - ((f32)state->y))) * 0.1) + ((f64)state->y));
     arg0->unk340 += state->speed * func_80612794(state->angle);
     arg0->unk348 += state->speed * func_80612790(state->angle);
@@ -2376,7 +2382,7 @@ void effectFallStateInit(OrbitSourceActor *arg0, TimedEffectActorView *arg1, s8 
     FallInitState *sp24;
     FallInitState *temp_v0;
     f32 var_fv0;
-    u32 r;
+    s16 angleOffset;
 
     temp_v0 = heapAlloc(0x10);
     arg1->unk384 = temp_v0;
@@ -2388,8 +2394,8 @@ void effectFallStateInit(OrbitSourceActor *arg0, TimedEffectActorView *arg1, s8 
     var_fv0 = randomFloat();
     arg1->unk348 = arg1->unk348 + ((var_fv0 - 0.5f) * 2.0f);
     if (arg0 != NULL) {
-        r = randomLcgNext();
-        sp34 = ((arg0->unkE6 + (s16) (r & 0x1FF)) + 0x700) & 0xFFF; // FAKE: (s16) cast shifts the ugen temp ring
+        angleOffset = randomLcgNext() & 0x1FF;
+        sp34 = (arg0->unkE6 + angleOffset + 0x700) & 0xFFF;
         sp2C = arg0->unkB8 * 0.016666668f;
         if (!(sp2C < 1.0f)) {
             sp2C = 1.0f;
@@ -2575,15 +2581,14 @@ void effectArcAroundActorUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     }
     temp_v0 = arg0->unk384;
     temp_s2 = (ArcAroundTarget *)(u32)arg0->unk35C;
-    sp3C = 2.0f; // FAKE: dead store keeps the 2.0f scale in a register across the actorTableContains call
     if (actorTableContains(temp_s2) == 0) {
         *arg1 = 1;
         return;
     }
-    var_fv0 = temp_v0->unk10 * ((1.0f - (temp_v0->unk0 * sp3C)) * 2048.0f);
+    var_fv0 = temp_v0->unk10 * ((1.0f - (temp_v0->unk0 * 2)) * 2048.0f);
     var_fv0 = (f32)((((s32)var_fv0 & 0xFFFF) & 0xFFFF) & 0xFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
     sp2C = func_80612794((s16)(s32)var_fv0) * temp_v0->unk8;
-    temp_v0->unk14 = (f32)((f64)temp_v0->unk14 + (2.0 * (f64)((1.0f - (temp_v0->unk0 * sp3C)) * 4096.0f) * (f64)temp_v0->unkC));
+    temp_v0->unk14 = (f32)((f64)temp_v0->unk14 + (2.0 * (f64)((1.0f - (temp_v0->unk0 * 2)) * 4096.0f) * (f64)temp_v0->unkC));
     temp_v0->unk14 = (f32)((((s32)temp_v0->unk14 & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
     sp3C = func_80612794((s16)(s32)temp_v0->unk14) * sp2C;
     temp_fv0 = func_80612790((s16)(s32)temp_v0->unk14);
@@ -2743,7 +2748,7 @@ void effectBurstParticleUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
 void effectProximityFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 *state;
-    f32 pad; // FAKE: unused slot shifts the spill homes
+    PlayerDistanceView *player;
     f32 limit;
     f32 dist;
     f32 dx;
@@ -2757,9 +2762,10 @@ void effectProximityFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         *(f32 *)arg0->unk384 = (f32)arg0->unk36D;
     }
     state = (f32 *)arg0->unk384;
-    dz = *(f32 *)((u8 *)gPlayerSlots + 0x224) - arg0->unk348;
-    dx = *(f32 *)((u8 *)gPlayerSlots + 0x21C) - arg0->unk340;
-    dy = *(f32 *)((u8 *)gPlayerSlots + 0x220) - arg0->unk344;
+    player = gPlayerSlots;
+    dz = player->unk224 - arg0->unk348;
+    dx = player->unk21C - arg0->unk340;
+    dy = player->unk220 - arg0->unk344;
     dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
     if (dist < limit) {
         arg0->unk36D = (u32)*state;
