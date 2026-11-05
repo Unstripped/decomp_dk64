@@ -2,74 +2,74 @@
 s32 randomNonNegative(void);
 
 
-u32 jetpacCheckAabbOverlap(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
-    arg0 = (arg4 < arg0) ? arg0 : arg4;
-    arg1 = (arg5 < arg1) ? arg1 : arg5;
-    arg2 = (arg2 < arg6) ? arg2 : arg6;
-    arg3 = (arg3 < arg7) ? arg3 : arg7;
-    if (arg0 <= arg2 && arg1 <= arg3) {
+u32 jetpacCheckAabbOverlap(f32 minX1, f32 minY1, f32 maxX1, f32 maxY1, f32 minX2, f32 minY2, f32 maxX2, f32 maxY2) {
+    minX1 = (minX2 < minX1) ? minX1 : minX2;
+    minY1 = (minY2 < minY1) ? minY1 : minY2;
+    maxX1 = (maxX1 < maxX2) ? maxX1 : maxX2;
+    maxY1 = (maxY1 < maxY2) ? maxY1 : maxY2;
+    if (minX1 <= maxX1 && minY1 <= maxY1) {
         return 1;
     }
     return 0;
 }
 
-void jetpacWrapSpanX(f32 arg0, f32 arg1, f32 *arg2, f32 *arg3, f32 *arg4, f32 *arg5) {
-    f32 temp_fv0;
-    f32 temp_fv0_2;
-    f32 temp_fv1;
-    f32 temp_fv1_2;
+void jetpacWrapSpanX(f32 minX, f32 maxX, f32 *outSpan1Min, f32 *outSpan1Max, f32 *outSpan2Min, f32 *outSpan2Max) {
+    f32 wrappedMinX;
+    f32 wrappedMinX2;
+    f32 wrappedMaxX;
+    f32 wrappedMaxX2;
 
-    if (arg0 < 0.0f) {
-        if (arg1 <= 0.0f) {
-            temp_fv0 = arg0 + 256.0f;
-            temp_fv1 = arg1 + 256.0f;
-            *arg2 = temp_fv0;
-            *arg3 = temp_fv1;
-            *arg4 = temp_fv0;
-            *arg5 = temp_fv1;
+    if (minX < 0.0f) {
+        if (maxX <= 0.0f) {
+            wrappedMinX = minX + 256.0f;
+            wrappedMaxX = maxX + 256.0f;
+            *outSpan1Min = wrappedMinX;
+            *outSpan1Max = wrappedMaxX;
+            *outSpan2Min = wrappedMinX;
+            *outSpan2Max = wrappedMaxX;
             return;
         }
-        *arg2 = 0.0f;
-        *arg3 = arg1;
-        *arg4 = arg0 + 256.0f;
-        *arg5 = 256.0f;
+        *outSpan1Min = 0.0f;
+        *outSpan1Max = maxX;
+        *outSpan2Min = minX + 256.0f;
+        *outSpan2Max = 256.0f;
         return;
     }
-    if (arg0 >= 256.0f) {
-        temp_fv0_2 = arg0 - 256.0f;
-        temp_fv1_2 = arg1 - 256.0f;
-        *arg2 = temp_fv0_2;
-        *arg3 = temp_fv1_2;
-        *arg4 = temp_fv0_2;
-        *arg5 = temp_fv1_2;
+    if (minX >= 256.0f) {
+        wrappedMinX2 = minX - 256.0f;
+        wrappedMaxX2 = maxX - 256.0f;
+        *outSpan1Min = wrappedMinX2;
+        *outSpan1Max = wrappedMaxX2;
+        *outSpan2Min = wrappedMinX2;
+        *outSpan2Max = wrappedMaxX2;
         return;
     }
-    if (arg1 > 256.0f) {
-        *arg2 = 0.0f;
-        *arg3 = arg1 - 256.0f;
-        *arg4 = arg0;
-        *arg5 = 256.0f;
+    if (maxX > 256.0f) {
+        *outSpan1Min = 0.0f;
+        *outSpan1Max = maxX - 256.0f;
+        *outSpan2Min = minX;
+        *outSpan2Max = 256.0f;
         return;
     }
-    *arg2 = arg0;
-    *arg3 = arg1;
-    *arg4 = arg0;
-    *arg5 = arg1;
+    *outSpan1Min = minX;
+    *outSpan1Max = maxX;
+    *outSpan2Min = minX;
+    *outSpan2Max = maxX;
 }
 
 f32 jetpacRandFloat(void) {
     return (f32)((randomNonNegative() >> 15) % 60000) / 60000.0f;
 }
 
-volatile int jetpacCheckAabbOverlapWrapped(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) { // FAKE: volatile return type changes codegen
-    f32 sp44, sp40, sp3C, sp38, sp34, sp30, sp2C, sp28;
-    jetpacWrapSpanX(arg0, arg2, &sp44, &sp40, &sp3C, &sp38);
-    jetpacWrapSpanX(arg4, arg6, &sp34, &sp30, &sp2C, &sp28);
-    return jetpacCheckAabbOverlap(sp44, arg1, sp40, arg3, sp34, arg5, sp30, arg7) || jetpacCheckAabbOverlap(sp3C, arg1, sp38, arg3, sp2C, arg5, sp28, arg7);
+volatile int jetpacCheckAabbOverlapWrapped(f32 minX1, f32 minY1, f32 maxX1, f32 maxY1, f32 minX2, f32 minY2, f32 maxX2, f32 maxY2) { // FAKE: volatile return type changes codegen
+    f32 span1A_min, span1A_max, span1B_min, span1B_max, span2A_min, span2A_max, span2B_min, span2B_max;
+    jetpacWrapSpanX(minX1, maxX1, &span1A_min, &span1A_max, &span1B_min, &span1B_max);
+    jetpacWrapSpanX(minX2, maxX2, &span2A_min, &span2A_max, &span2B_min, &span2B_max);
+    return jetpacCheckAabbOverlap(span1A_min, minY1, span1A_max, maxY1, span2A_min, minY2, span2A_max, maxY2) || jetpacCheckAabbOverlap(span1B_min, minY1, span1B_max, maxY1, span2B_min, minY2, span2B_max, maxY2);
 }
 
-volatile int jetpacIsOverRocket(f32 arg0) { // FAKE: volatile return type changes codegen
-    return (165.0f <= arg0) && (arg0 <= 171.0f);
+volatile int jetpacIsOverRocket(f32 x) { // FAKE: volatile return type changes codegen
+    return (165.0f <= x) && (x <= 171.0f);
 }
 
 typedef struct {
@@ -82,17 +82,17 @@ typedef struct {
     s32 max_y;
 } JetpacEntity;
 
-f32 jetpacGetEntityCenterX(JetpacEntity *arg0) {
-    return (f32)((f64)(arg0->x + (f32)arg0->min_x) + (f64)(f32)(arg0->max_x - arg0->min_x) * 0.5);
+f32 jetpacGetEntityCenterX(JetpacEntity *entity) {
+    return (f32)((f64)(entity->x + (f32)entity->min_x) + (f64)(f32)(entity->max_x - entity->min_x) * 0.5);
 }
 
-f32 jetpacGetEntityCenterY(JetpacEntity *arg0) {
-    return (f32)((f64)(arg0->y + (f32)arg0->min_y) + (f64)(f32)(arg0->max_y - arg0->min_y) * 0.5);
+f32 jetpacGetEntityCenterY(JetpacEntity *entity) {
+    return (f32)((f64)(entity->y + (f32)entity->min_y) + (f64)(f32)(entity->max_y - entity->min_y) * 0.5);
 }
 
-f32 jetpacRoundFloat(f32 arg0) {
-    if (arg0 >= 0.0f) {
-        return (f32)(s32)(arg0 + 0.5f);
+f32 jetpacRoundFloat(f32 val) {
+    if (val >= 0.0f) {
+        return (f32)(s32)(val + 0.5f);
     }
-    return (f32)(s32)(arg0 - 0.5f);
+    return (f32)(s32)(val - 0.5f);
 }
