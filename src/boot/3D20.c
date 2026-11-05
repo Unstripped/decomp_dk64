@@ -8,6 +8,10 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap);
 unsigned char digitsLower[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 unsigned char digitsUpper[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+const unsigned char D_80010360[4] = "";
+const unsigned char D_80010364[8] = "(null)";
+const unsigned char D_8001036C[8] = "(nil)";
+
 unsigned char *_itoa(unsigned long long val, unsigned char *end, unsigned int base, int upper) {
     unsigned char *table;
     unsigned char *p;
@@ -34,7 +38,6 @@ int _sprintf(unsigned char *buf, const unsigned char *fmt, ...) {
 }
 
 
-#ifdef NON_MATCHING
 unsigned int strlen(unsigned char *s);
 
 int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
@@ -195,7 +198,6 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                 case 'd':
                 case 'i':
                     base = 10;
-                    end = &nbuf[0x7F];
                     if (ll) {
                         sv = va_arg(ap, long long);
                     } else if (lg) {
@@ -217,14 +219,12 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     plus = 0;
                     space = 0;
                     neg = 0;
-                    end = &nbuf[0x7F];
                     goto ufetch;
                 case 'o':
                     base = 8;
                     plus = 0;
                     space = 0;
                     neg = 0;
-                    end = &nbuf[0x7F];
                     goto ufetch;
                 case 'x':
                 case 'X':
@@ -232,7 +232,6 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     plus = 0;
                     space = 0;
                     neg = 0;
-                    end = &nbuf[0x7F];
                 ufetch:
                     if (ll) {
                         uv = va_arg(ap, unsigned long long);
@@ -244,6 +243,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         uv = (unsigned short)va_arg(ap, unsigned int);
                     }
                 numout:
+                    end = &nbuf[0x7F];
                     if (prec >= 0) {
                         pad = ' ';
                     }
@@ -544,10 +544,10 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     p = va_arg(ap, unsigned char *);
                     if (p == 0) {
                         if (prec == -1 || prec >= 6) {
-                            p = (unsigned char *)"(null)";
+                            p = (unsigned char *)D_80010364;
                             len = 6;
                         } else {
-                            p = (unsigned char *)"";
+                            p = (unsigned char *)D_80010360;
                             len = 0;
                         }
                     } else {
@@ -583,7 +583,6 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                         alt = 1;
                         uv = (unsigned int)q1;
                         neg = 0;
-                        end = &nbuf[0x7F];
                         goto numout;
                     } else {
                         unsigned char *s;
@@ -594,7 +593,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                                 *buf++ = ' ';
                             }
                         }
-                        s = (unsigned char *)"(nil)";
+                        s = (unsigned char *)D_8001036C;
                         while (*s != 0) {
                             count++;
                             *buf++ = *s;
@@ -635,13 +634,3 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     *buf = 0;
     return count;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3D20/vsprintf.s")
-#endif
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3D20/D_80010360.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3D20/D_80010364.s")
-
-#pragma GLOBAL_ASM("asm/nonmatchings/3D20/D_8001036C.s")
