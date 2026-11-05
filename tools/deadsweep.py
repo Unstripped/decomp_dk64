@@ -109,7 +109,8 @@ def strip_bodies(text):
 
 def find_def(text, func):
     """(start, end) of FUNC's definition incl. a return type on the previous line, or None."""
-    pat = re.compile(r"(?m)^((?:[A-Za-z_]\w*(?:[ \t]+|(?=\*))|\*+[ \t]*)*)%s\s*\([^;{}]*\)\s*\{" % re.escape(func))
+    # K&R definitions declare their parameters between ')' and '{'.
+    pat = re.compile(r"(?m)^((?:[A-Za-z_]\w*(?:[ \t]+|(?=\*))|\*+[ \t]*)*)%s\s*\([^;{}]*\)(?:\s*[^;{}()]+;)*\s*\{" % re.escape(func))
     for m in pat.finditer(text):
         if re.search(r"\b(return|else|if|while|for|do|case)\b", m.group(1)):
             continue
