@@ -93,11 +93,11 @@ typedef struct EffectBufferEntry {
 } EffectBufferEntry;
 
 void *assetLoad(s32, s32, s32, s32);
-void effectNodeApproachTargetPos(EffectNode *);
+void effectNodeApproachTargetPos(EffectNode *node);
 void waterRippleStep(void);
 Gfx *effectWaterSetScissor(Gfx *, EffectNode *);
 void effectWaterBuildMeshGdl(void *, void *, EffectNode *);
-Gfx *effectBuildMipmapGdl(Gfx *, s32, u8);
+Gfx *effectBuildMipmapGdl(Gfx *glist, s32 unusedParam, u8 tableIndex);
 
 extern EffectNode *gEffectNodeList;
 extern EffectTableEntry D_80748A90[];
@@ -176,37 +176,37 @@ void *heapAlloc(s32);
 void effectWaterSetMeshPositionsUV(Vtx *, EffectNode *);
 void effectWaterSetMeshHeightsAlpha(Vtx *, EffectNode *);
 
-void effectWaterInitNodes(u8 *arg0) {
+void effectWaterInitNodes(u8 *mapData) {
     u8 pad[0x1C];
     s32 i;
     WaterTargetData *base;
-    WaterNodeData **var_fp;
+    WaterNodeData **pNextNode;
     s32 count;
 
     for (i = 0; i < 9; i++) {
         ((WaterTypeEntry *)D_80748A90)[i].unk14 = 0;
     }
 
-    var_fp = (WaterNodeData **)&gEffectNodeList;
+    pNextNode = (WaterNodeData **)&gEffectNodeList;
     if (gCurrentMap == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     gEffectNodeList = NULL;
-    count = *(u8 *)(arg0 + *(s32 *)(arg0 + 0x4C) + 3);
+    count = *(u8 *)(mapData + *(s32 *)(mapData + 0x4C) + 3);
     gWaterRippleActive = 0;
 
     if (count == (count * 0)) {  // FAKE: extra use of count steers the v0/v1 pick
         return;
     }
 
-    base = (WaterTargetData *)(arg0 + *(s32 *)(arg0 + 0x4C) + 4);
+    base = (WaterTargetData *)(mapData + *(s32 *)(mapData + 0x4C) + 4);
     for (i = 0; i < count; i++) {
         WaterNodeData *node = heapAlloc(0x54);
-        s32 temp_s3;
-        s32 temp_s4;
-        s32 temp_s1;
-        u8 temp_a0;
+        s32 gridDimX;
+        s32 gridDimZ;
+        s32 totalVtxCount;
+        u8 waterType;
         WaterTypeEntry *entry2;
 
-        *var_fp = node;
+        *pNextNode = node;
         node->target = &base[i];
         node->unk2C = base[i].unk44;
         node->unk4 = 0.0f;
@@ -222,15 +222,15 @@ void effectWaterInitNodes(u8 *arg0) {
         node->y = base[i].unk10;
         node->z = 0.0f;
         node->unk4D = 0;
-        var_fp = &node->next;
+        pNextNode = &node->next;
 
         if (((gCurrentMap == 0x53) || (gCurrentMap == 0xC5)) && (i == 0)) {
             node->unk4D = 1;
         }
 
-        temp_s3 = ((s32)(base[i].unk4A - base[i].unk46) / base[i].unk44) + 1;
-        temp_s4 = ((s32)(base[i].unk4C - base[i].unk48) / base[i].unk44) + 1;
-        node->unk48 = (temp_s3 + 1) * (temp_s4 + 1);
+        gridDimX = ((s32)(base[i].unk4A - base[i].unk46) / base[i].unk44) + 1;
+        gridDimZ = ((s32)(base[i].unk4C - base[i].unk48) / base[i].unk44) + 1;
+        node->unk48 = (gridDimX + 1) * (gridDimZ + 1);
 
         node->dl[0] = heapAlloc(node->unk48 * 0x10);
         effectWaterSetMeshPositionsUV((Vtx *)node->dl[0], (EffectNode *)node);
@@ -240,68 +240,68 @@ void effectWaterInitNodes(u8 *arg0) {
         effectWaterSetMeshPositionsUV((Vtx *)node->dl[1], (EffectNode *)node);
         effectWaterSetMeshHeightsAlpha((Vtx *)node->dl[1], (EffectNode *)node);
 
-        temp_s1 = (temp_s3 * temp_s4) + (((temp_s3 / 16) + 1) * temp_s4 * 2);
-        temp_s1 += 0xC8;
-        node->vtx[0] = heapAlloc(temp_s1 << 3);
-        node->vtx[1] = heapAlloc(temp_s1 * 8);
+        totalVtxCount = (gridDimX * gridDimZ) + (((gridDimX / 16) + 1) * gridDimZ * 2);
+        totalVtxCount += 0xC8;
+        node->vtx[0] = heapAlloc(totalVtxCount << 3);
+        node->vtx[1] = heapAlloc(totalVtxCount * 8);
 
-        temp_a0 = base[i].unk66;
-        entry2 = (WaterTypeEntry *)D_80748A90 + temp_a0;
+        waterType = base[i].unk66;
+        entry2 = (WaterTypeEntry *)D_80748A90 + waterType;
         if (entry2->unk14 == 0) {
-            entry2->func(temp_a0);
+            entry2->func(waterType);
             entry2->unk14 = 1;
         }
         node->next = NULL;
     }
 }
 
-void effectNodeSetTargetPosition(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
+void effectNodeSetTargetPosition(s32 nodeIndex, f32 targetX, f32 targetY, f32 targetZ) {
     EffectNode *node = gEffectNodeList;
 
-    if (node != NULL && arg0 != 0) {
+    if (node != NULL && nodeIndex != 0) {
         do {
             node = node->next;
-            arg0--;
+            nodeIndex--;
             if (node == NULL) {
                 break;
             }
-        } while (arg0 != 0);
+        } while (nodeIndex != 0);
     }
     if (node != NULL) {
-        node->x = arg1;
-        node->y = arg2;
-        node->z = arg3;
+        node->x = targetX;
+        node->y = targetY;
+        node->z = targetZ;
     }
 }
 
-void effectNodeApproachTargetPos(EffectNode *arg0) {
-    if (arg0->target->unkC < arg0->x) {
-        arg0->target->unkC += arg0->z;
-        if (arg0->x < arg0->target->unkC) {
-            arg0->target->unkC = arg0->x;
+void effectNodeApproachTargetPos(EffectNode *node) {
+    if (node->target->unkC < node->x) {
+        node->target->unkC += node->z;
+        if (node->x < node->target->unkC) {
+            node->target->unkC = node->x;
         }
     } else {
-        arg0->target->unkC -= arg0->z;
-        if (arg0->target->unkC < arg0->x) {
-            arg0->target->unkC = arg0->x;
+        node->target->unkC -= node->z;
+        if (node->target->unkC < node->x) {
+            node->target->unkC = node->x;
         }
     }
 
-    if (arg0->target->unk10 < arg0->y) {
-        arg0->target->unk10 += arg0->z;
-        if (arg0->y < arg0->target->unk10) {
-            arg0->target->unk10 = arg0->y;
+    if (node->target->unk10 < node->y) {
+        node->target->unk10 += node->z;
+        if (node->y < node->target->unk10) {
+            node->target->unk10 = node->y;
         }
     } else {
-        arg0->target->unk10 -= arg0->z;
-        if (arg0->target->unk10 < arg0->y) {
-            arg0->target->unk10 = arg0->y;
+        node->target->unk10 -= node->z;
+        if (node->target->unk10 < node->y) {
+            node->target->unk10 = node->y;
         }
     }
 }
 
-u8 effectGetTableFlag(EffectNode *arg0) {
-    return D_80748AA5[arg0->target->unk66].unk0;
+u8 effectGetTableFlag(EffectNode *node) {
+    return D_80748AA5[node->target->unk66].unk0;
 }
 
 void effectUpdateNodes(void) {
@@ -337,47 +337,47 @@ typedef struct WaterTargetUpdateView {
     u8 unk67;
 } WaterTargetUpdateView;
 
-s32 effectCheckTargetActive(EffectSubNode *);
+s32 effectCheckTargetActive(EffectSubNode *subNode);
 void effectWaterSetMeshColors(Vtx *, EffectNode *);
-void effectNodeComputeBounds(EffectNode *, f32, f32, f32, u8, void *, void *);
+void effectNodeComputeBounds(EffectNode *node, f32 camX, f32 camY, f32 camZ, u8 playerIndex, void *invMtx, void *outBounds);
 s32 mapBspBoxInFrustum(s16, s16, s16, s16, s32, s16, f32, f32, f32, f32, void *);
 s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
 extern f32 D_807F5FAC;
 extern void *gPlayerSlots;
 
-void effectWaterUpdateMeshes(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
+void effectWaterUpdateMeshes(f32 camX, f32 camY, f32 camZ, u8 playerIndex) {
     EffectNode *node;
-    u8 *var_s1;
-    s32 var_s5;
-    f32 temp_fs1;
-    f32 temp_fs0;
+    u8 *bspBounds;
+    s32 hasInvertedMtx;
+    f32 maxWaveHeight;
+    f32 baseHeight;
     s32 pad1;
-    u8 sp120[0x138];
+    u8 frustumBounds[0x138];
     u32 pad[2];
-    f32 spD8[4][4];
-    f32 sp98[4][4];
+    f32 playerMtx[4][4];
+    f32 invPlayerMtx[4][4];
 
     node = gEffectNodeList;
-    var_s5 = 0;
+    hasInvertedMtx = 0;
 
     if (node != NULL) {
         do {
             if (effectCheckTargetActive(node->target) != 0 && !(node->unk4C & 1)) {
-                temp_fs0 = (f32)((WaterTargetUpdateView *)node->target)->unk4E + node->unk4;
-                temp_fs1 = ((WaterTargetUpdateView *)node->target)->unk10 + ((WaterTargetUpdateView *)node->target)->unkC;
+                baseHeight = (f32)((WaterTargetUpdateView *)node->target)->unk4E + node->unk4;
+                maxWaveHeight = ((WaterTargetUpdateView *)node->target)->unk10 + ((WaterTargetUpdateView *)node->target)->unkC;
                 if (((WaterTargetUpdateView *)node->target)->unk67 == 1) {
-                    var_s1 = (u8 *)&gMapChunks[((WaterTargetUpdateView *)node->target)->unk50[0]] + 0x88;
+                    bspBounds = (u8 *)&gMapChunks[((WaterTargetUpdateView *)node->target)->unk50[0]] + 0x88;
                 } else {
-                    if (var_s5 == 0) {
-                        guMtxL2F(spD8, (Mtx *)((u8 *)gPlayerSlots + (arg3 * 0x2F0) + (D_807444FC << 6) + 8));
-                        var_s5 = 1;
-                        matrix4Invert(sp98, spD8);
+                    if (hasInvertedMtx == 0) {
+                        guMtxL2F(playerMtx, (Mtx *)((u8 *)gPlayerSlots + (playerIndex * 0x2F0) + (D_807444FC << 6) + 8));
+                        hasInvertedMtx = 1;
+                        matrix4Invert(invPlayerMtx, playerMtx);
                     }
-                    var_s1 = sp120;
-                    effectNodeComputeBounds(node, arg0, arg1, arg2, arg3, sp98, sp120);
+                    bspBounds = frustumBounds;
+                    effectNodeComputeBounds(node, camX, camY, camZ, playerIndex, invPlayerMtx, frustumBounds);
                 }
-                if (mapBspBoxInFrustum(((WaterTargetUpdateView *)node->target)->unk46, (s16)(temp_fs0 - temp_fs1), ((WaterTargetUpdateView *)node->target)->unk48, ((WaterTargetUpdateView *)node->target)->unk4A,
-                                  (s32)(temp_fs0 + temp_fs1), ((WaterTargetUpdateView *)node->target)->unk4C, arg0, arg1, arg2, D_807F5FAC, var_s1) != 0 || node->pad4D[0] != 0) {
+                if (mapBspBoxInFrustum(((WaterTargetUpdateView *)node->target)->unk46, (s16)(baseHeight - maxWaveHeight), ((WaterTargetUpdateView *)node->target)->unk48, ((WaterTargetUpdateView *)node->target)->unk4A,
+                                  (s32)(baseHeight + maxWaveHeight), ((WaterTargetUpdateView *)node->target)->unk4C, camX, camY, camZ, D_807F5FAC, bspBounds) != 0 || node->pad4D[0] != 0) {
                     if ((f64)((WaterTargetUpdateView *)node->target)->unk24 != 0.0 || (f64)((WaterTargetUpdateView *)node->target)->unk28 != 0.0) {
                         effectWaterSetMeshPositionsUV(node->dl[D_807444FC], node);
                     }
@@ -395,42 +395,42 @@ void effectWaterUpdateMeshes(f32 arg0, f32 arg1, f32 arg2, u8 arg3) {
 
 void mapRectIntersect(s32, s32, s32, s32, s32, s32, s32, s32, s32 *, s32 *, s32 *, s32 *);
 void mapScreenRectBuildFrustum(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *);
-void effectNodeComputeBounds(EffectNode *arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, void *arg5, void *arg6) {
+void effectNodeComputeBounds(EffectNode *node, f32 camX, f32 camY, f32 camZ, u8 playerIndex, void *invMtx, void *outBounds) {
     s32 s2 = 0;
     s32 s3 = 0;
     s32 s4 = 0;
     s32 s5 = 0;
-    s32 spB4;
-    s32 spB0;
-    s32 spAC;
-    s32 spA8;
+    s32 outMinX;
+    s32 outMinY;
+    s32 outMaxX;
+    s32 outMaxY;
     s32 i;
     s32 idx;
-    u8 sp70[0x30];
-    EffectSubNode *target = arg0->target;
+    u8 frustumWork[0x30];
+    EffectSubNode *target = node->target;
 
     for (i = 0; i < target->unk67; i++) {
         idx = target->unk50[i];
         if (((u8 *)gMapChunks + idx * 0x1C8)[0] == 1) {
-            mapRectIntersect(s2, s3, s4, s5, *(s32 *)(((u8 *)&gMapChunks[idx]) + 0x68), *(s32 *)(((u8 *)&gMapChunks[idx]) + 0x6C), *(s32 *)(((u8 *)&gMapChunks[idx]) + 0x70), *(s32 *)(((u8 *)&gMapChunks[idx]) + 0x74), &spB4, &spB0, &spAC, &spA8);
-            s2 = spB4;
-            s3 = spB0;
-            s4 = spAC;
-            s5 = spA8;
+            mapRectIntersect(s2, s3, s4, s5, *(s32 *)(((u8 *)&gMapChunks[idx]) + 0x68), *(s32 *)(((u8 *)&gMapChunks[idx]) + 0x6C), *(s32 *)(((u8 *)&gMapChunks[idx]) + 0x70), *(s32 *)(((u8 *)&gMapChunks[idx]) + 0x74), &outMinX, &outMinY, &outMaxX, &outMaxY);
+            s2 = outMinX;
+            s3 = outMinY;
+            s4 = outMaxX;
+            s5 = outMaxY;
         }
     }
-    mapScreenRectBuildFrustum(s2, s3, s4, s5, arg1, arg2, arg3, arg4, arg5, arg6, sp70);
-    arg0->unk40 = s2;
-    arg0->unk42 = s3;
-    arg0->unk44 = s4;
-    arg0->unk46 = s5;
+    mapScreenRectBuildFrustum(s2, s3, s4, s5, camX, camY, camZ, playerIndex, invMtx, outBounds, frustumWork);
+    node->unk40 = s2;
+    node->unk42 = s3;
+    node->unk44 = s4;
+    node->unk46 = s5;
 }
 
-s32 effectCheckTargetActive(EffectSubNode *arg0) {
+s32 effectCheckTargetActive(EffectSubNode *subNode) {
     s32 i;
 
-    for (i = 0; i < arg0->unk67; i++) {
-        if (gMapChunks[arg0->unk50[i]].unk0 == 1) {
+    for (i = 0; i < subNode->unk67; i++) {
+        if (gMapChunks[subNode->unk50[i]].unk0 == 1) {
             return 1;
         }
     }
@@ -491,13 +491,13 @@ extern f32 D_807F7EF4;
 s32 lightCollectVolumesInBounds(f32, f32, f32, s16, s32, s32, s32, s32, s32, s32, u8 *);
 void func_8065C990(s32, s32, s32, void *, s32, s32);
 
-void effectWaterApplyLights(f32 arg0, f32 arg1, f32 arg2) {
+void effectWaterApplyLights(f32 camX, f32 camY, f32 camZ) {
     WaterNodeRenderView *node;
     WaterTargetRenderView *target;
-    u8 sp8F;
+    u8 lightCount;
     s16 s1;
     s32 v0;
-    s32 temp_a0;
+    s32 vtxBuffer;
     u8 flags;
 
     node = (WaterNodeRenderView *)gEffectNodeList;
@@ -508,15 +508,15 @@ void effectWaterApplyLights(f32 arg0, f32 arg1, f32 arg2) {
                 target = node->target;
                 s1 = target->unk50[0];
                 if (target->unk68 != 0) {
-                    v0 = lightCollectVolumesInBounds(arg0, arg1, arg2, target->unk46,
+                    v0 = lightCollectVolumesInBounds(camX, camY, camZ, target->unk46,
                                            (s32)(((f32)target->unk4E + node->unk4) - (target->unk10 + target->unkC)), target->unk48, target->unk4A,
-                                           (s32)(((f32)target->unk4E + node->unk4) + (target->unk10 + target->unkC)), target->unk4C, s1, &sp8F);
+                                           (s32)(((f32)target->unk4E + node->unk4) + (target->unk10 + target->unkC)), target->unk4C, s1, &lightCount);
                     D_807F7EEC = D_8076A0B4[s1];
                     D_807F7EF0 = D_8076A0B8[s1];
                     D_807F7EF4 = D_8076A0BC[s1];
                     if (D_807FBB60 & 0x10) {
-                        temp_a0 = node->unk1C[D_807444FC];
-                        func_8065C990(temp_a0, temp_a0 + node->unk48 * 16, 1, &D_807F78C0, v0, ((EffectBufferEntryView *)gMapChunks)[s1].unk3 == 1);
+                        vtxBuffer = node->unk1C[D_807444FC];
+                        func_8065C990(vtxBuffer, vtxBuffer + node->unk48 * 16, 1, &D_807F78C0, v0, ((EffectBufferEntryView *)gMapChunks)[s1].unk3 == 1);
                     }
                     node->unk4C |= 2;
                 }
@@ -526,12 +526,12 @@ void effectWaterApplyLights(f32 arg0, f32 arg1, f32 arg2) {
     }
 }
 
-Gfx *effectWaterRenderSurfaces(Gfx *gdl, u8 arg1, u8 arg2) {
+Gfx *effectWaterRenderSurfaces(Gfx *gdl, u8 viewMode, u8 waterType) {
     EffectNode *water;
 
     water = gEffectNodeList;
     while (water != NULL) {
-        if ((water->unk4C & 1) && (arg2 == D_80748A90[water->unk0->unk66].unk16)) {
+        if ((water->unk4C & 1) && (waterType == D_80748A90[water->unk0->unk66].unk16)) {
             gdl = effectWaterSetScissor(gdl, water);
             gSPDisplayList(gdl++, osVirtualToPhysical(water->vtx[D_807444FC]));
             if (!(water->unk4C & 4)) {
@@ -593,7 +593,7 @@ typedef struct EffectMeshTarget {
 extern EffectMeshBuilderEntry D_80748A94[];
 extern s32 D_807F93EC;
 
-void effectWaterBuildMeshGdl(void *arg0, void *arg1, EffectNode *water) {
+void effectWaterBuildMeshGdl(void *vtxBuf, void *rawVtx, EffectNode *water) {
     s32 vtxStart;
     s32 vtxNext;
     s32 countX;
@@ -607,7 +607,7 @@ void effectWaterBuildMeshGdl(void *arg0, void *arg1, EffectNode *water) {
     s32 total;
 
     D_807F93EC = 0;
-    gdl = D_80748A94[((EffectMeshTarget *)water->unk0)->unk66].fn(arg0, water, ((EffectMeshTarget *)water->unk0)->unk66);
+    gdl = D_80748A94[((EffectMeshTarget *)water->unk0)->unk66].fn(vtxBuf, water, ((EffectMeshTarget *)water->unk0)->unk66);
     countX = ((((EffectMeshTarget *)water->unk0)->unk4A - ((EffectMeshTarget *)water->unk0)->unk46) / water->unk2C) + 1;
     countZ = ((((EffectMeshTarget *)water->unk0)->unk4C - ((EffectMeshTarget *)water->unk0)->unk48) / water->unk2C) + 1;
     total = (countX + 1) * (countZ + 1);
@@ -617,8 +617,8 @@ void effectWaterBuildMeshGdl(void *arg0, void *arg1, EffectNode *water) {
     done = 0;
     do {
         segLen = (countX - x + 1) >= 17 ? 16 : (countX - x + 1);
-        gSPVertex(gdl++, osVirtualToPhysical(vtxStart * 16 + (u8 *)arg1), segLen, 0);
-        gSPVertex(gdl++, osVirtualToPhysical(vtxNext * 16 + (u8 *)arg1), segLen, 16);
+        gSPVertex(gdl++, osVirtualToPhysical(vtxStart * 16 + (u8 *)rawVtx), segLen, 0);
+        gSPVertex(gdl++, osVirtualToPhysical(vtxNext * 16 + (u8 *)rawVtx), segLen, 16);
         k = 0;
         for (i = 0; i < segLen - 1; i++) {
             gSP2Triangles(gdl++, k + 1, k, k + 16, 0, k + 16, k + 17, k + 1, 0);
@@ -657,7 +657,7 @@ typedef struct WaterHeightView {
     u8 unk66;
 } WaterHeightView;
 
-f32 effectWaterGetHeightAt(EffectNode *, s32, s32, u8);
+f32 effectWaterGetHeightAt(EffectNode *water, s32 worldX, s32 worldZ, u8 type);
 
 #define WATER_HEIGHT ((WaterHeightView *)water->unk0)
 void effectWaterSetMeshHeightsAlpha(Vtx *vtx, EffectNode *water) {
@@ -779,7 +779,7 @@ typedef struct WaterHeightView2 {
 
 f32 sqrtf(f32);
 
-f32 effectWaterGetHeightAt(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
+f32 effectWaterGetHeightAt(EffectNode *water, s32 worldX, s32 worldZ, u8 type) {
     s32 temp1;
     s32 temp;
     f32 dx;
@@ -793,15 +793,15 @@ f32 effectWaterGetHeightAt(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
 
     switch (type) {
     case 0:
-        temp1 = (s32)(WATER_SUB->unk4 * (f32)arg1);
-        temp = (s32)(WATER_SUB->unk8 * (f32)arg2);
+        temp1 = (s32)(WATER_SUB->unk4 * (f32)worldX);
+        temp = (s32)(WATER_SUB->unk8 * (f32)worldZ);
         return ((f32)WATER_SUB->unk4E + water->unk4 + (WATER_SUB->unkC * func_80612794((s16)((water->unk30 + temp1) % 4095)))) + (func_80612794((s16)((water->unk34 + temp) % 4095)) * WATER_SUB->unk10);
 
     case 1:
     case 2:
         if (gWaterRippleActive != 0) {
-            dz = (f32)arg2 - gWaterRippleCenter[1];
-            dx = (f32)arg1 - gWaterRippleCenter[0];
+            dz = (f32)worldZ - gWaterRippleCenter[1];
+            dx = (f32)worldX - gWaterRippleCenter[0];
             dist = sqrtf((dz * dz) + (dx * dx));
             if (dist < gWaterRippleRadius) {
                 diff = gWaterRippleRadius - dist;
@@ -831,15 +831,15 @@ f32 effectWaterGetHeightAt(EffectNode *water, s32 arg1, s32 arg2, u8 type) {
         }
 
         if (type == 2) {
-            edgeDist = (f32)WATER_ABS(arg1 - WATER_SUB->unk46);
+            edgeDist = (f32)WATER_ABS(worldX - WATER_SUB->unk46);
 
-            dz = (f32)WATER_ABS(arg1 - WATER_SUB->unk4A);
+            dz = (f32)WATER_ABS(worldX - WATER_SUB->unk4A);
             if (dz < edgeDist) edgeDist = dz;
 
-            dz = (f32)WATER_ABS(arg2 - WATER_SUB->unk4C);
+            dz = (f32)WATER_ABS(worldZ - WATER_SUB->unk4C);
             if (dz < edgeDist) edgeDist = dz;
 
-            dz = (f32)WATER_ABS(arg2 - WATER_SUB->unk48);
+            dz = (f32)WATER_ABS(worldZ - WATER_SUB->unk48);
             if (dz < edgeDist) edgeDist = dz;
 
             if ((f64)edgeDist < 100.0) {
@@ -924,8 +924,8 @@ void effectWaterSetMeshPositionsUV(Vtx *vtx, EffectNode *water) {
 }
 #undef WATER_WAVE
 
-s32 mathBitwiseNot(s32 arg0) {
-    return ~arg0;
+s32 mathBitwiseNot(s32 val) {
+    return ~val;
 }
 
 s32 randomLcgNext(void);
@@ -934,13 +934,13 @@ extern OSMesgQueue D_807655F0;
 extern OSIoMesg D_807ECE00;
 
 void effectUpdateAndDispatch(void) {
-    u32 sp60[6];
+    u32 dmaBuf[6];
     u32 pad[4];
     u32 *s1;
     EffectNode *s0;
     u32 s2;
 
-    s1 = sp60;
+    s1 = dmaBuf;
     s0 = gEffectNodeList;
     if ((u32)s1 & 7) {
         s1++;
@@ -981,33 +981,33 @@ void effectUpdateAndDispatch(void) {
     }
 }
 
-void effectNodeSetSubVal(s32 arg0, u8 arg1) {
+void effectNodeSetSubVal(s32 nodeIndex, u8 val) {
     EffectNode *node = gEffectNodeList;
-    while (node != NULL && arg0 != 0) {
+    while (node != NULL && nodeIndex != 0) {
         node = node->next;
-        arg0--;
+        nodeIndex--;
     }
     if (node != NULL) {
-        node->sub->val = arg1;
+        node->sub->val = val;
     }
 }
 
-void effectNodeSetUnk4A(s32 arg0, u8 arg1) {
+void effectNodeSetUnk4A(s32 nodeIndex, u8 val) {
     EffectNode *node = gEffectNodeList;
-    while (node != NULL && arg0 != 0) {
+    while (node != NULL && nodeIndex != 0) {
         node = node->next;
-        arg0--;
+        nodeIndex--;
     }
     if (node != NULL) {
-        node->unk4A = arg1;
+        node->unk4A = val;
     }
 }
 
-u8 effectNodeGetUnk4B(s32 arg0) {
+u8 effectNodeGetUnk4B(s32 nodeIndex) {
     EffectNode *node = gEffectNodeList;
-    while (node != NULL && arg0 != 0) {
+    while (node != NULL && nodeIndex != 0) {
         node = node->next;
-        arg0--;
+        nodeIndex--;
     }
     if (node != NULL) {
         return node->unk4B;
@@ -1015,65 +1015,65 @@ u8 effectNodeGetUnk4B(s32 arg0) {
     return 0;
 }
 
-void effectNodeSetUnk4B(s32 arg0, u8 arg1) {
+void effectNodeSetUnk4B(s32 nodeIndex, u8 val) {
     EffectNode *node = gEffectNodeList;
-    while (node != NULL && arg0 != 0) {
+    while (node != NULL && nodeIndex != 0) {
         node = node->next;
-        arg0--;
+        nodeIndex--;
     }
     if (node != NULL) {
-        node->unk4B = arg1;
+        node->unk4B = val;
     }
 }
 
-void effectNodeSetTargetAndStep(s32 arg0, f32 arg1, f32 arg2) {
+void effectNodeSetTargetAndStep(s32 nodeIndex, f32 target, f32 step) {
     EffectNode *node = gEffectNodeList;
-    while (node != NULL && arg0 != 0) {
+    while (node != NULL && nodeIndex != 0) {
         node = node->next;
-        arg0--;
+        nodeIndex--;
     }
     if (node != NULL) {
-        node->unk8 = arg1;
-        node->unkC = arg2;
+        node->unk8 = target;
+        node->unkC = step;
     }
 }
 
-void effectNodeAddTargetAndStep(s32 arg0, f32 arg1, f32 arg2) {
+void effectNodeAddTargetAndStep(s32 nodeIndex, f32 delta, f32 step) {
     EffectNode *node = gEffectNodeList;
-    while (node != NULL && arg0 != 0) {
+    while (node != NULL && nodeIndex != 0) {
         node = node->next;
-        arg0--;
+        nodeIndex--;
     }
     if (node != NULL) {
-        node->unk8 += arg1;
-        node->unkC = arg2;
+        node->unk8 += delta;
+        node->unkC = step;
     }
 }
 
-void effectNodeCopyValues(f32 *arg0) {
+void effectNodeCopyValues(f32 *dst) {
     EffectNode *node = gEffectNodeList;
     s32 i;
     for (i = 0; node != NULL && i < 32; i++) {
-        arg0[i] = node->unk8;
+        dst[i] = node->unk8;
         node = node->next;
     }
 }
 
-void effectNodeSetValues(f32 *arg0) {
+void effectNodeSetValues(f32 *src) {
     EffectNode *node = gEffectNodeList;
     s32 i;
     for (i = 0; node != NULL && i < 32; i++) {
-        node->unk8 = arg0[i];
+        node->unk8 = src[i];
         node->unk4 = node->unk8;
         node = node->next;
     }
 }
 
-f32 effectNodeGetValue(s32 arg0) {
+f32 effectNodeGetValue(s32 nodeIndex) {
     EffectNode *node = gEffectNodeList;
-    while (node != NULL && arg0 != 0) {
+    while (node != NULL && nodeIndex != 0) {
         node = node->next;
-        arg0--;
+        nodeIndex--;
     }
     if (node != NULL) {
         return node->unk4;
@@ -1081,17 +1081,17 @@ f32 effectNodeGetValue(s32 arg0) {
     return 0.0f;
 }
 
-void waterRippleStart(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
+void waterRippleStart(f32 centerX, f32 centerZ, f32 maxAmplitude, f32 amplitudeRate, f32 radiusRate, f32 maxRadius) {
     if (gWaterRippleActive == 0) {
-        gWaterRippleCenter[0] = arg0;
-        gWaterRippleCenter[1] = arg1;
+        gWaterRippleCenter[0] = centerX;
+        gWaterRippleCenter[1] = centerZ;
         gWaterRippleAmplitude = 0.0f;
-        gWaterRippleMaxAmplitude = arg2;
-        gWaterRippleAmplitudeRate = arg3;
+        gWaterRippleMaxAmplitude = maxAmplitude;
+        gWaterRippleAmplitudeRate = amplitudeRate;
         gWaterRippleRadius = 0.0f;
-        gWaterRippleRadiusRate = arg4;
-        gWaterRippleMaxRadius = arg5;
-        gWaterRippleFalloffStart = (arg5 * 2) / 3.0f;
+        gWaterRippleRadiusRate = radiusRate;
+        gWaterRippleMaxRadius = maxRadius;
+        gWaterRippleFalloffStart = (maxRadius * 2) / 3.0f;
         gWaterRippleActive = 1;
     }
 }
@@ -1113,13 +1113,13 @@ void waterRippleStop(void) {
     gWaterRippleActive = 0;
 }
 
-void effectInitTextureTableRGBA32(u8 arg0) {
-    D_80748A9C[arg0].unk0 = assetLoad(7, 0x3C5, 1, 0);
+void effectInitTextureTableRGBA32(u8 tableIndex) {
+    D_80748A9C[tableIndex].unk0 = assetLoad(7, 0x3C5, 1, 0);
 }
 
-Gfx *effectBuildGdlTexture32x32RGBA(Gfx *dlist, EffectNode *arg1, u8 arg2) {
+Gfx *effectBuildGdlTexture32x32RGBA(Gfx *dlist, EffectNode *node, u8 tableIndex) {
     gDPPipeSync(dlist++);
-    gDPLoadTextureBlock(dlist++, D_80748A9C[arg2].unk0, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
+    gDPLoadTextureBlock(dlist++, D_80748A9C[tableIndex].unk0, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
     WRITE_GFX(dlist++, 0xFC20FE04, 0xFF13F3FF);
     WRITE_GFX(dlist++, 0xE3000A01, 0x00100000);
     WRITE_GFX(dlist++, 0xD9000000, 0);
@@ -1127,53 +1127,53 @@ Gfx *effectBuildGdlTexture32x32RGBA(Gfx *dlist, EffectNode *arg1, u8 arg2) {
     WRITE_GFX(dlist++, 0xE3000F00, 0);
     WRITE_GFX(dlist++, 0xD7000902, 0xFFFFFFFF);
     WRITE_GFX(dlist++, 0xE200001C, 0x0C184A50);
-    WRITE_GFX(dlist++, 0xF2000000 | ((s32)arg1->sub->unk3C & 0xFFF), 0x0107C07C);
+    WRITE_GFX(dlist++, 0xF2000000 | ((s32)node->sub->unk3C & 0xFFF), 0x0107C07C);
     WRITE_GFX(dlist++, 0xF5181000, 0x0101785E);
-    WRITE_GFX(dlist++, (((s32)arg1->sub->unk40 & 0xFFF) | 0xF2000000) | (((s32)arg1->sub->unk40 & 0xFFF) << 12), 0x0207C07C);
+    WRITE_GFX(dlist++, (((s32)node->sub->unk40 & 0xFFF) | 0xF2000000) | (((s32)node->sub->unk40 & 0xFFF) << 12), 0x0207C07C);
     WRITE_GFX(dlist++, 0xF5181000, 0x0201745D);
     return dlist;
 }
 
-Gfx *effectBuildGdlTexture32x32RGBAWithPrim(Gfx *dlist, EffectNode *arg1, u8 arg2) {
+Gfx *effectBuildGdlTexture32x32RGBAWithPrim(Gfx *dlist, EffectNode *node, u8 tableIndex) {
     gDPPipeSync(dlist++);
-    gDPLoadTextureBlock(dlist++, D_80748A9C[arg2].unk0, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
+    gDPLoadTextureBlock(dlist++, D_80748A9C[tableIndex].unk0, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
     WRITE_GFX(dlist++, 0xFC20FE04, 0xFF0FF3FF);
-    gDPSetPrimColor(dlist++, 0, 0, 0, 0, 0, arg1->sub->val);
+    gDPSetPrimColor(dlist++, 0, 0, 0, 0, 0, node->sub->val);
     WRITE_GFX(dlist++, 0xE3000A01, 0x00100000);
     WRITE_GFX(dlist++, 0xD9000000, 0);
     WRITE_GFX(dlist++, 0xD9FFFFFF, 0x00210005);
     WRITE_GFX(dlist++, 0xE3000F00, 0);
     WRITE_GFX(dlist++, 0xD7000902, 0xFFFFFFFF);
     WRITE_GFX(dlist++, 0xE200001C, 0xC8104A50);
-    WRITE_GFX(dlist++, 0xF2000000 | ((s32)arg1->sub->unk3C & 0xFFF), 0x0107C07C);
+    WRITE_GFX(dlist++, 0xF2000000 | ((s32)node->sub->unk3C & 0xFFF), 0x0107C07C);
     WRITE_GFX(dlist++, 0xF5181000, 0x0101785E);
-    WRITE_GFX(dlist++, (((s32)arg1->sub->unk40 & 0xFFF) | 0xF2000000) | (((s32)arg1->sub->unk40 & 0xFFF) << 12), 0x0207C07C);
+    WRITE_GFX(dlist++, (((s32)node->sub->unk40 & 0xFFF) | 0xF2000000) | (((s32)node->sub->unk40 & 0xFFF) << 12), 0x0207C07C);
     WRITE_GFX(dlist++, 0xF5181000, 0x0201745D);
     return dlist;
 }
 
-void effectNodeStepUVAndPos(EffectNode *arg0) {
-    arg0->sub->unk3C -= arg0->sub->unk34;
-    if (arg0->sub->unk3C < 0.0) {
-        arg0->sub->unk3C = 255.0f;
+void effectNodeStepUVAndPos(EffectNode *node) {
+    node->sub->unk3C -= node->sub->unk34;
+    if (node->sub->unk3C < 0.0) {
+        node->sub->unk3C = 255.0f;
     }
-    arg0->sub->unk40 -= arg0->sub->unk38;
-    if (arg0->sub->unk40 < 0.0) {
-        arg0->sub->unk40 = 255.0f;
+    node->sub->unk40 -= node->sub->unk38;
+    if (node->sub->unk40 < 0.0) {
+        node->sub->unk40 = 255.0f;
     }
-    arg0->unk30 += arg0->sub->unk14;
-    arg0->unk34 += arg0->sub->unk18;
-    arg0->unk38 += arg0->sub->unk2C;
-    arg0->unk3C += arg0->sub->unk30;
+    node->unk30 += node->sub->unk14;
+    node->unk34 += node->sub->unk18;
+    node->unk38 += node->sub->unk2C;
+    node->unk3C += node->sub->unk30;
 }
 
-void effectInitTextureTableCI4(u8 arg0) {
-    D_80748A90[arg0].res0 = assetLoad(0x19, 0x2EE, 1, 0);
-    D_80748A90[arg0].res1 = assetLoad(0x19, 0x2EF, 1, 0);
+void effectInitTextureTableCI4(u8 tableIndex) {
+    D_80748A90[tableIndex].res0 = assetLoad(0x19, 0x2EE, 1, 0);
+    D_80748A90[tableIndex].res1 = assetLoad(0x19, 0x2EF, 1, 0);
 }
 
-Gfx *effectBuildGdlTexture64x64CI4(Gfx *dlist, EffectNode *arg1, u8 arg2) {
-    EffectTableEntry *entry = &D_80748A90[arg2];
+Gfx *effectBuildGdlTexture64x64CI4(Gfx *dlist, EffectNode *node, u8 tableIndex) {
+    EffectTableEntry *entry = &D_80748A90[tableIndex];
     gDPPipeSync(dlist++);
     gDPLoadTextureBlock_4b(dlist++, entry->res0, G_IM_FMT_CI, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, 0, 0);
     WRITE_GFX(dlist++, 0xFC121824, 0xFF33FFFF);
@@ -1183,31 +1183,31 @@ Gfx *effectBuildGdlTexture64x64CI4(Gfx *dlist, EffectNode *arg1, u8 arg2) {
     WRITE_GFX(dlist++, 0xE3000F00, 0x00010000);
     WRITE_GFX(dlist++, 0xD7000002, 0xFFFFFFFF);
     WRITE_GFX(dlist++, 0xE200001C, 0x00552230);
-    WRITE_GFX(dlist++, 0xF2000000 | ((s32)arg1->sub->unk3C & 0xFFF), 0x000FC0FC);
+    WRITE_GFX(dlist++, 0xF2000000 | ((s32)node->sub->unk3C & 0xFFF), 0x000FC0FC);
     WRITE_GFX(dlist++, 0xF5181000, 0x0101785E);
     gDPLoadTLUT_pal16(dlist++, 0, entry->res1);
     gDPSetTextureLUT(dlist++, G_TT_RGBA16);
     return dlist;
 }
 
-void effectNodeUpdateAlphaOffset(EffectNode *arg0) {
-    arg0->sub->unk3C -= arg0->sub->unk34;
-    if (arg0->sub->unk3C < 0.0) {
-        arg0->sub->unk3C = 255.0f;
+void effectNodeUpdateAlphaOffset(EffectNode *node) {
+    node->sub->unk3C -= node->sub->unk34;
+    if (node->sub->unk3C < 0.0) {
+        node->sub->unk3C = 255.0f;
     }
-    arg0->unk30 += arg0->sub->unk14;
-    arg0->unk34 += arg0->sub->unk18;
-    arg0->unk38 += arg0->sub->unk2C;
-    arg0->unk3C += arg0->sub->unk30;
+    node->unk30 += node->sub->unk14;
+    node->unk34 += node->sub->unk18;
+    node->unk38 += node->sub->unk2C;
+    node->unk3C += node->sub->unk30;
 }
 
-void effectInitTextureTable0(u8 arg0) {
-    D_80748A9C[arg0].unk0 = assetLoad(0x19, 0xF0, 1, 0);
+void effectInitTextureTable0(u8 tableIndex) {
+    D_80748A9C[tableIndex].unk0 = assetLoad(0x19, 0xF0, 1, 0);
 }
 
-Gfx *effectBuildMipmapGdl(Gfx *glist, s32 arg1, u8 arg2) {
+Gfx *effectBuildMipmapGdl(Gfx *glist, s32 unusedParam, u8 tableIndex) {
     WRITE_GFX(glist++, 0xE7000000, 0);
-    WRITE_GFX(glist++, 0xFD100000, D_80748A9C[arg2].unk0);
+    WRITE_GFX(glist++, 0xFD100000, D_80748A9C[tableIndex].unk0);
     WRITE_GFX(glist++, 0xF5100000, 0x07000000);
     WRITE_GFX(glist++, 0xE6000000, 0);
     WRITE_GFX(glist++, 0xF3000000, 0x0754F000);
@@ -1229,27 +1229,27 @@ Gfx *effectBuildMipmapGdl(Gfx *glist, s32 arg1, u8 arg2) {
     return glist;
 }
 
-void effectNoopCallback1(s32 arg0) {
+void effectNoopCallback1(s32 unused) {
 }
 
-void effectInitTextureTable1(u8 arg0) {
-    D_80748A9C[arg0].unk0 = assetLoad(0x19, 0xAF4, 1, 0);
+void effectInitTextureTable1(u8 tableIndex) {
+    D_80748A9C[tableIndex].unk0 = assetLoad(0x19, 0xAF4, 1, 0);
 }
 
-void effectBuildMipmapGdlWrapper(Gfx *arg0, s32 arg1, u8 arg2) {
-    effectBuildMipmapGdl(arg0, arg1, arg2);
+void effectBuildMipmapGdlWrapper(Gfx *glist, s32 unusedParam, u8 tableIndex) {
+    effectBuildMipmapGdl(glist, unusedParam, tableIndex);
 }
 
-void effectNoopCallback2(s32 arg0) {
+void effectNoopCallback2(s32 unused) {
 }
 
-void effectInitTextureTable2(u8 arg0) {
-    D_80748A9C[arg0].unk0 = assetLoad(0x19, 0x75C, 1, 0);
+void effectInitTextureTable2(u8 tableIndex) {
+    D_80748A9C[tableIndex].unk0 = assetLoad(0x19, 0x75C, 1, 0);
 }
 
-Gfx *effectBuildMipmapGdlDup(Gfx *glist, s32 arg1, u8 arg2) {
+Gfx *effectBuildMipmapGdlDup(Gfx *glist, s32 unusedParam, u8 tableIndex) {
     WRITE_GFX(glist++, 0xE7000000, 0);
-    WRITE_GFX(glist++, 0xFD100000, D_80748A9C[arg2].unk0);
+    WRITE_GFX(glist++, 0xFD100000, D_80748A9C[tableIndex].unk0);
     WRITE_GFX(glist++, 0xF5100000, 0x07000000);
     WRITE_GFX(glist++, 0xE6000000, 0);
     WRITE_GFX(glist++, 0xF3000000, 0x0754F000);
@@ -1271,16 +1271,16 @@ Gfx *effectBuildMipmapGdlDup(Gfx *glist, s32 arg1, u8 arg2) {
     return glist;
 }
 
-void effectNoopCallback3(s32 arg0) {
+void effectNoopCallback3(s32 unused) {
 }
 
-void effectInitTextureTable3(u8 arg0) {
-    D_80748A9C[arg0].unk0 = assetLoad(7, 0x3B9, 1, 0);
+void effectInitTextureTable3(u8 tableIndex) {
+    D_80748A9C[tableIndex].unk0 = assetLoad(7, 0x3B9, 1, 0);
 }
 
-Gfx *effectBuildSingleTextureGdl(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
+Gfx *effectBuildSingleTextureGdl(Gfx *glist, EffectSubNode **pSubNode, u8 tableIndex) {
     gDPPipeSync(glist++);
-    gDPLoadTextureBlock(glist++, D_80748A9C[arg2].unk0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 0, 0);
+    gDPLoadTextureBlock(glist++, D_80748A9C[tableIndex].unk0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 0, 0);
     WRITE_GFX(glist++, 0xFC121824, 0xFF33FFFF);
     WRITE_GFX(glist++, 0xE3000A01, 0);
     WRITE_GFX(glist++, 0xD9000000, 0);
@@ -1288,18 +1288,18 @@ Gfx *effectBuildSingleTextureGdl(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
     WRITE_GFX(glist++, 0xE3000F00, 0x00010000);
     WRITE_GFX(glist++, 0xD7000002, 0xFFFFFFFF);
     WRITE_GFX(glist++, 0xE200001C, 0x00552230);
-    WRITE_GFX(glist++, 0xF2000000 | ((s32)(*arg1)->unk3C & 0xFFF), 0x0007C07C);
+    WRITE_GFX(glist++, 0xF2000000 | ((s32)(*pSubNode)->unk3C & 0xFFF), 0x0007C07C);
     WRITE_GFX(glist++, 0xF5101000, 0x0101785E);
     return glist;
 }
 
-void effectInitTextureTable4(u8 arg0) {
-    D_80748A9C[arg0].unk0 = assetLoad(7, 0x3D2, 1, 0);
+void effectInitTextureTable4(u8 tableIndex) {
+    D_80748A9C[tableIndex].unk0 = assetLoad(7, 0x3D2, 1, 0);
 }
 
-Gfx *effectBuildSingleTextureGdlDup(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
+Gfx *effectBuildSingleTextureGdlDup(Gfx *glist, EffectSubNode **pSubNode, u8 tableIndex) {
     gDPPipeSync(glist++);
-    gDPLoadTextureBlock(glist++, D_80748A9C[arg2].unk0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 0, 0);
+    gDPLoadTextureBlock(glist++, D_80748A9C[tableIndex].unk0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 0, 0);
     WRITE_GFX(glist++, 0xFC121824, 0xFF33FFFF);
     WRITE_GFX(glist++, 0xE3000A01, 0);
     WRITE_GFX(glist++, 0xD9000000, 0);
@@ -1307,24 +1307,24 @@ Gfx *effectBuildSingleTextureGdlDup(Gfx *glist, EffectSubNode **arg1, u8 arg2) {
     WRITE_GFX(glist++, 0xE3000F00, 0x00010000);
     WRITE_GFX(glist++, 0xD7000002, 0xFFFFFFFF);
     WRITE_GFX(glist++, 0xE200001C, 0x00552230);
-    WRITE_GFX(glist++, 0xF2000000 | ((s32)(*arg1)->unk3C & 0xFFF), 0x0007C07C);
+    WRITE_GFX(glist++, 0xF2000000 | ((s32)(*pSubNode)->unk3C & 0xFFF), 0x0007C07C);
     WRITE_GFX(glist++, 0xF5101000, 0x0101785E);
     return glist;
 }
 
-void effectInitTextureTableDual(u8 arg0) {
-    D_80748A90[arg0].res0 = assetLoad(7, 0x3BA, 1, 0);
-    D_80748A90[arg0].res1 = assetLoad(7, 0x3DB, 1, 0);
+void effectInitTextureTableDual(u8 tableIndex) {
+    D_80748A90[tableIndex].res0 = assetLoad(7, 0x3BA, 1, 0);
+    D_80748A90[tableIndex].res1 = assetLoad(7, 0x3DB, 1, 0);
 }
 
 extern s32 D_80748B68;
 
-Gfx *effectBuildMultiBlockTextureGdl(Gfx *glist, EffectNode *arg1, u8 arg2) {
+Gfx *effectBuildMultiBlockTextureGdl(Gfx *glist, EffectNode *node, u8 tableIndex) {
     gDPPipeSync(glist++);
-    gDPLoadTextureBlock(glist++, D_80748A90[arg2].res0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
-    gDPLoadMultiBlock(glist++, D_80748A90[arg2].res1, 256, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, D_80748B68, D_80748B68);
+    gDPLoadTextureBlock(glist++, D_80748A90[tableIndex].res0, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, 14, 14);
+    gDPLoadMultiBlock(glist++, D_80748A90[tableIndex].res1, 256, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_WRAP, G_TX_WRAP, 5, 5, D_80748B68, D_80748B68);
 
-    gDPSetPrimColor(glist++, 0, arg1->unk4B, 255, 255, 255, 100);
+    gDPSetPrimColor(glist++, 0, node->unk4B, 255, 255, 255, 100);
     WRITE_GFX(glist++, 0xFC272C03, 0x1FFC93FB);
     WRITE_GFX(glist++, 0xE3000A01, 0x00100000);
     WRITE_GFX(glist++, 0xD9000000, 0);
@@ -1336,17 +1336,17 @@ Gfx *effectBuildMultiBlockTextureGdl(Gfx *glist, EffectNode *arg1, u8 arg2) {
     return glist;
 }
 
-void effectNodeUpdateDualAlphaOffset(EffectNode *arg0) {
-    arg0->sub->unk3C -= arg0->sub->unk34;
-    if (arg0->sub->unk3C < 0.0) {
-        arg0->sub->unk3C = 255.0f;
+void effectNodeUpdateDualAlphaOffset(EffectNode *node) {
+    node->sub->unk3C -= node->sub->unk34;
+    if (node->sub->unk3C < 0.0) {
+        node->sub->unk3C = 255.0f;
     }
-    arg0->sub->unk40 -= arg0->sub->unk38;
-    if (arg0->sub->unk40 < 0.0) {
-        arg0->sub->unk40 = 255.0f;
+    node->sub->unk40 -= node->sub->unk38;
+    if (node->sub->unk40 < 0.0) {
+        node->sub->unk40 = 255.0f;
     }
-    arg0->unk30 += arg0->sub->unk14;
-    arg0->unk34 += arg0->sub->unk18;
-    arg0->unk38 += arg0->sub->unk2C;
-    arg0->unk3C += arg0->sub->unk30;
+    node->unk30 += node->sub->unk14;
+    node->unk34 += node->sub->unk18;
+    node->unk38 += node->sub->unk2C;
+    node->unk3C += node->sub->unk30;
 }
