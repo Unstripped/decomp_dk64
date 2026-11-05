@@ -861,10 +861,10 @@ typedef struct F1Act {
 
 s32 zoneFindBestReachablePoint(s32, Actor *, void *, s16 *, s16 *, s16 *);
 s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
-void func_80723284(s32, u8);
-void func_807232B8(s32, s32);
-void func_80723320(s32, s32);
-void func_8072334C(s32, s32);
+void pathPlaybackSetSpeed(s32, u8);
+void pathPlaybackSetLooping(s32, s32);
+void pathPlaybackSetLoopLimit(s32, s32);
+void pathPlaybackSetActive(s32, s32);
 void pathPlaybackAdvance(s32);
 void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 void func_80724E48(u8);
@@ -894,10 +894,10 @@ void func_8072B7CC(s32 arg0) {
             switch (F1A->unk155) {
                 case 0:
                     F1A->unk15F = pathPlaybackStart(D_807FBB40, F1S9C->unk2, 0, 0.0f, 0.0f, 0.0f, 0);
-                    func_80723284(F1A->unk15F, (u32)((f64)(u32)F1S9C->unkC * 0.1));
-                    func_807232B8(F1A->unk15F, 1);
-                    func_80723320(F1A->unk15F, -1);
-                    func_8072334C(F1A->unk15F, 1);
+                    pathPlaybackSetSpeed(F1A->unk15F, (u32)((f64)(u32)F1S9C->unkC * 0.1));
+                    pathPlaybackSetLooping(F1A->unk15F, 1);
+                    pathPlaybackSetLoopLimit(F1A->unk15F, -1);
+                    pathPlaybackSetActive(F1A->unk15F, 1);
                     F1A->unk155++;
                 case 1:
                     pathPlaybackAdvance(F1A->unk15F);

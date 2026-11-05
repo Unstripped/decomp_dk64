@@ -157,7 +157,7 @@ s32 pathPlaybackStart(s32 owner, s32 pathId, u8 prependStartPoint, f32 x, f32 y,
 }
 
 
-void func_80723284(s32 slot, u8 speed) {
+void pathPlaybackSetSpeed(s32 slot, u8 speed) {
     PathPlayback *playback;
 
     if (slot != -1) {
@@ -168,7 +168,7 @@ void func_80723284(s32 slot, u8 speed) {
     }
 }
 
-void func_807232B8(s32 slot, u8 isLooping) {
+void pathPlaybackSetLooping(s32 slot, u8 isLooping) {
     PathPlayback *playback;
 
     if (slot != -1) {
@@ -179,7 +179,7 @@ void func_807232B8(s32 slot, u8 isLooping) {
     }
 }
 
-void func_807232EC(s32 slot, u8 loopMode) {
+void pathPlaybackSetLoopMode(s32 slot, u8 loopMode) {
     PathPlayback *playback;
 
     if (slot != -1) {
@@ -190,7 +190,7 @@ void func_807232EC(s32 slot, u8 loopMode) {
     }
 }
 
-void func_80723320(s32 slot, s32 loopLimit) {
+void pathPlaybackSetLoopLimit(s32 slot, s32 loopLimit) {
     PathPlayback *playback;
 
     if (slot != -1) {
@@ -201,7 +201,7 @@ void func_80723320(s32 slot, s32 loopLimit) {
     }
 }
 
-void func_8072334C(s32 slot, u8 active) {
+void pathPlaybackSetActive(s32 slot, u8 active) {
     PathPlayback *playback;
 
     if (slot != -1) {
@@ -212,7 +212,7 @@ void func_8072334C(s32 slot, u8 active) {
     }
 }
 
-void func_80723380(s32 slot, u8 direction) {
+void pathPlaybackSetDirection(s32 slot, u8 direction) {
     PathPlayback *playback;
 
     if (slot != -1) {
@@ -458,7 +458,7 @@ void pathPlaybackGetPosition(s32 slot, f32 *outX, f32 *outY, f32 *outZ) {
     }
 }
 
-u8 func_80723C98(s32 slot) {
+u8 pathPlaybackIsActive(s32 slot) {
     PathPlayback *playback;
 
     if ((slot == -1) || ((playback = D_807FDBF8[slot]) == NULL)) {

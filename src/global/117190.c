@@ -491,10 +491,10 @@ void func_80713270(void) {
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern Mtx D_2000180;
-Gfx *func_805FD030(void);
+Gfx *gfxInit2DDisplayList(void);
 
 void *func_807132DC() {
-    Gfx *gfx = func_805FD030();
+    Gfx *gfx = gfxInit2DDisplayList();
 
     R117D_WRITE_GFX(gfx++, 0xDE000000, &D_1000118);
     R117D_WRITE_GFX(gfx++, 0xDA380007, &D_20000C0);

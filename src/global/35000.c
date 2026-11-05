@@ -30,7 +30,7 @@ void renderEntryListsReset(void) {
     D_807F5FFC = 0;
 }
 
-s32 func_80630324(u8 renderType, u8 *entryData) {
+s32 renderEntryIsTranslucent(u8 renderType, u8 *entryData) {
     if (renderType == 2) {
         if (entryData[0x4E] & 2) {
             return 0;
@@ -53,7 +53,7 @@ s32 func_80630324(u8 renderType, u8 *entryData) {
 
 void renderEntryListFree(RenderEntry *list);
 
-void func_8063039C(void) {
+void renderEntryListFreeTranslucent(void) {
     renderEntryListFree(D_807F5FF4);
     D_807F5FF4 = 0;
 }
@@ -240,7 +240,7 @@ void renderEntryListClearTouched(RenderEntry *list) {
     }
 }
 
-void func_806307CC(RenderEntry *list, s32 targetId, u8 listIndex, u8 forceInfiniteDist, s8 *outFound) {
+void renderEntrySetDistanceOverride(RenderEntry *list, s32 targetId, u8 listIndex, u8 forceInfiniteDist, s8 *outFound) {
     s8 found;
 
     found = 0;

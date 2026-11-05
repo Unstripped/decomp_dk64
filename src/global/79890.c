@@ -55,7 +55,7 @@ typedef struct CollisionHitActor {
 extern u8 D_807FB606;
 s32 actorTableContains(void *);
 void actorUpdateCollisionSpheres(void *, s32);
-s32 func_80674ADC(s32, s32, s32, s32, s32, s32, s32, s32);
+s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 void collisionNodeLocalToWorldXZ();
 void func_806755A8();
 
@@ -102,7 +102,7 @@ u8 actorCollisionGetNodeHitPoint(CollisionHitActor *arg0, CollisionHitActor *arg
                     for (i = elem->unk14 - 1; i != 0; i--) {
                         node = node->next;
                     }
-                    if (func_80674ADC((s32)(posX_f * 8.0f), (s32)(posY_f * 8.0f), (s32)(posZ_f * 8.0f), (s32)(elemX_f * 8.0f),
+                    if (collisionSpheresOverlap((s32)(posX_f * 8.0f), (s32)(posY_f * 8.0f), (s32)(posZ_f * 8.0f), (s32)(elemX_f * 8.0f),
                                       node->unk10, node->unk14, node->unk18, node->unk1C)) {
                         matched = 1;
                         collisionNodeLocalToWorldXZ(arg0, elem, arg2, arg3);
@@ -177,7 +177,7 @@ extern struct CollisionHitRecordNode *D_807FB624;
 extern s32 D_807FB628;
 
 s32 actorRiderListContains(void *, void *);
-s32 func_80674ADC(s32, s32, s32, s32, s32, s32, s32, s32);
+s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 void actorUpdateCollisionSpheres(void *, s32);
 f32 collisionPointToSphereDistance(s32, s32, s32, s32, s32, s32, s32);
 void collisionWorldToNodeLocal(struct CollisionMtxOwner *, f32, f32, f32, struct CollisionMtxNode *, f32 *, f32 *, f32 *);
@@ -234,7 +234,7 @@ void actorCollisionCheckNodeSpheres(CollisionCheckActor *arg0) {
                 actor->unk144 != 1 &&
                 (actor->unk60 & 0x10) &&
                 s0 == 0 &&
-                func_80674ADC(sub_unk0, sub_unk4, sub_unk8, sub_unkC,
+                collisionSpheresOverlap(sub_unk0, sub_unk4, sub_unk8, sub_unkC,
                               actor_sub140->unk0, actor_sub140->unk4, actor_sub140->unk8, actor_sub140->unkC)) {
                 actorUpdateCollisionSpheres(arg0, 0);
                 var_s4 = 1;
@@ -244,7 +244,7 @@ void actorCollisionCheckNodeSpheres(CollisionCheckActor *arg0) {
                         var_s2 = 1;
                         for (node2 = actor_sub140->unk8C; node2 != NULL; node2 = node2->next, var_s2++) {
                             if (node2->unk26 != 0 && (node2->unk27 & 8) == 0) {
-                                if (func_80674ADC(node1->unk10, node1->unk14, node1->unk18, node1->unk1C,
+                                if (collisionSpheresOverlap(node1->unk10, node1->unk14, node1->unk18, node1->unk1C,
                                                   node2->unk10, node2->unk14, node2->unk18, node2->unk1C)) {
                                     mask1 = ~node1->unk24;
                                     mask2 = ~node2->unk24;

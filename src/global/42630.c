@@ -769,7 +769,7 @@ s32 spawnNodeIsInCooldown(u8);
 s32 listContainsS16(s16);
 f32 func_80614A54(void *);
 s32 func_806C8D2C(s16);
-s32 func_80723C98(s32);
+s32 pathPlaybackIsActive(s32);
 u8 csPosOnScreenOfNearPlayer(s16);
 s32 csPlayerNearPos(s16);
 s32 csPlayerSavedPosNearPos(s16);
@@ -1117,7 +1117,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = gCsCondTable[cmd->a](cs, csId, cmd->b, cmd->c);
         break;
     case 0xF:
-        ret = func_80723C98(CS_COND_STATE->unk38);
+        ret = pathPlaybackIsActive(CS_COND_STATE->unk38);
         break;
     case 0x10:
         if (CS_COND_STATE->unk5C != 0 && (cmd->b == -1 || CS_COND_STATE->unk5C == ((s16 *)cmd)[2]) &&
@@ -1339,11 +1339,11 @@ s32 func_807146A4(s16);
 void func_807149B8(s32);
 void func_80714B84(s32, f32, s16, s16, s32);
 s32 pathPlaybackStart(s32, s16, u8, f32, f32, f32, s32);
-void func_80723284(s32, u8);
-void func_807232EC(s32, u8);
-void func_80723320(s32, s16);
-void func_8072334C(s32, u8);
-void func_80723380(s32, u8);
+void pathPlaybackSetSpeed(s32, u8);
+void pathPlaybackSetLoopMode(s32, u8);
+void pathPlaybackSetLoopLimit(s32, s16);
+void pathPlaybackSetActive(s32, u8);
+void pathPlaybackSetDirection(s32, u8);
 void pathPlaybackFree(s32);
 void pathPlaybackAdvance(s32);
 void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
@@ -1352,7 +1352,7 @@ void zoneEntrySetDisabled(u8, u8, u8);
 void volumeTriggerSetEnabled(s16, u8);
 void volumeTriggerSetPosition(s16, s16, s16, s16);
 void proxPathSetEnabled(s16, u8, u8);
-void func_8072EE0C(s16, u8, u8);
+void proxPathSetEndBehavior(s16, u8, u8);
 void flagSet(s16, u8, s32);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s16);
@@ -1473,7 +1473,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             sel = 3;
             break;
         }
-        func_8072EE0C(csId, CMDB(cmd)->a, sel);
+        proxPathSetEndBehavior(csId, CMDB(cmd)->a, sel);
         break;
     case 0x7C:
         D_80748094 = cmd->a;
@@ -1970,19 +1970,19 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x2:
-        func_80723284(cs->unk38, CMDB(cmd)->a);
+        pathPlaybackSetSpeed(cs->unk38, CMDB(cmd)->a);
         break;
     case 0x1F:
-        func_807232EC(cs->unk38, CMDB(cmd)->a);
+        pathPlaybackSetLoopMode(cs->unk38, CMDB(cmd)->a);
         break;
     case 0x20:
-        func_80723380(cs->unk38, CMDB(cmd)->a);
+        pathPlaybackSetDirection(cs->unk38, CMDB(cmd)->a);
         break;
     case 0x21:
-        func_80723320(cs->unk38, cmd->a);
+        pathPlaybackSetLoopLimit(cs->unk38, cmd->a);
         break;
     case 0x24:
-        func_8072334C(cs->unk38, CMDB(cmd)->a);
+        pathPlaybackSetActive(cs->unk38, CMDB(cmd)->a);
         break;
     case 0x22:
         cs->unk38 = pathPlaybackStart(0, cmd->a, CMDB(cmd)->b, gCsPosX, gCsPosY, gCsPosZ, cmd->c);

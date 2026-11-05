@@ -868,7 +868,7 @@ void func_806F5FE8(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s32 arg4) {
 }
 
 extern void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
-extern void func_80686E40(f32, f32, f32, s32);
+extern void effectSpawnParticleRingAtPosition(f32, f32, f32, s32);
 extern s32 func_8071432C(void);
 extern s32 D_807FBB60;
 
@@ -881,7 +881,7 @@ void delayedSpawnQueueTick(void) {
                 if (D_80754240[i].unk10 != 0) {
                     D_80754240[i].unk10--;
                     if (D_80754240[i].unk10 == 5) {
-                        func_80686E40((f32) D_80754240[i].unk8, (f32) D_80754240[i].unkA, (f32) D_80754240[i].unkC, 7);
+                        effectSpawnParticleRingAtPosition((f32) D_80754240[i].unk8, (f32) D_80754240[i].unkA, (f32) D_80754240[i].unkC, 7);
                     }
                     if (D_80754240[i].unk10 == 0) {
                         if (D_80754240[i].unk0 != 0) {

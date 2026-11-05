@@ -36,7 +36,7 @@ s32 func_805FC98C(void);
 s32 func_805FCA64(void);
 void playerViewsBuildMatrices(void *);
 Gfx *func_805FCFD8(Gfx *);
-Gfx *func_805FD030(Gfx *);
+Gfx *gfxInit2DDisplayList(Gfx *);
 void func_805FD088(Struct_8076A048 *, Gfx **, Gfx **);
 Gfx *func_805FE398(Gfx *);
 Gfx *func_805FE4D4(Gfx *);
@@ -897,7 +897,7 @@ Gfx *func_805FCFD8(Gfx *glistp) {
 }
 
 
-Gfx *func_805FD030(Gfx *glistp) {
+Gfx *gfxInit2DDisplayList(Gfx *glistp) {
     if (D_8074450C == 2) {
         gSPDisplayList(glistp++, D_1000030);
     } else {
@@ -944,7 +944,7 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     gSPMatrix(glist2++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(glist2++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
 
-    glist2 = func_805FD030(glist2);
+    glist2 = gfxInit2DDisplayList(glist2);
 
     glist = func_805FE398(glist);
     gDPPipeSync(glist++);
@@ -1048,7 +1048,7 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
         gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0x0F0A4000);
     }
 
-    glist = (Gfx *)renderCallbacksExecute(renderCallbacksExecute(func_8062CA0C(renderCallbacksExecute((s32)func_805FD030(glist), 3), gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218), 5), 7);
+    glist = (Gfx *)renderCallbacksExecute(renderCallbacksExecute(func_8062CA0C(renderCallbacksExecute((s32)gfxInit2DDisplayList(glist), 3), gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218), 5), 7);
     if (D_807467E4 != 0) {
         D_807467E4 -= 1;
     }

@@ -624,7 +624,7 @@ Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
 
 void lightFlushQueued(void);
 void mapDistributeEntries(MapBspNode *);
-void func_8063039C(void);
+void renderEntryListFreeTranslucent(void);
 void mapChunkAnimateTextures(u8);
 void mapChunkResetFlags(void);
 void lightApplyToActors(void);
@@ -633,7 +633,7 @@ void effectUpdateNodes(void);
 void mapFrameBegin(s32 arg0) {
     lightFlushQueued();
     mapDistributeEntries(D_807F5FF4);
-    func_8063039C();
+    renderEntryListFreeTranslucent();
     if (gMapChunkCount == 0) {
         mapChunkAnimateTextures(0xFF);
     }
@@ -919,7 +919,7 @@ void func_8062D094(s32 arg0, u8 arg1) {
 }
 
 void mapChunkMarkRenderEntry(s32, u8);
-void func_806307CC(MapBspNode *, s32, s32, u8, u8 *);
+void renderEntrySetDistanceOverride(MapBspNode *, s32, s32, u8, u8 *);
 
 u8 func_8062D0CC(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, u8 arg3) {
     u8 unused;
@@ -934,7 +934,7 @@ u8 func_8062D0CC(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, u8 arg3) {
             mapChunkMarkRenderEntry(arg2, arg3);
             return 1;
         case 1:
-            func_806307CC(arg1->unk4, arg2, 0, arg3, &sp26);
+            renderEntrySetDistanceOverride(arg1->unk4, arg2, 0, arg3, &sp26);
             return sp26;
         case 0:
             if (func_8062D0CC(arg0->unk0, arg1->unkC, arg2, arg3) != 0) {

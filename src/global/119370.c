@@ -919,7 +919,7 @@ extern Mtx D_2000000;
 extern Mtx D_20000C0;
 extern Mtx D_2000180;
 extern Mtx D_2000200;
-Gfx *func_805FD030(Gfx *);
+Gfx *gfxInit2DDisplayList(Gfx *);
 void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
 s32 mapChunkContainsPoint(s16, s16, s16);
 s32 mapChunkIsInUse(s16);
@@ -979,7 +979,7 @@ Gfx *effectGridBuildDisplayList(EffectDrawView *arg0, Gfx *arg1, s16 arg2) {
     if (arg0->unk36F != 0) {
         EFFECT_WRITE_GFX(glist++, 0xDA380007, &D_20000C0);
         EFFECT_WRITE_GFX(glist++, 0xDA380003, &D_2000180);
-        glist = func_805FD030(glist);
+        glist = gfxInit2DDisplayList(glist);
         if (arg0->unk388 == -1) {
             EFFECT_WRITE_GFX(glist++, 0xED000000 | (((s32)((f32)arg0->unk38E * 4.0f) & 0xFFF) << 12) | ((s32)((f32)arg0->unk390 * 4.0f) & 0xFFF), (((s32)((f32)arg0->unk392 * 4.0f) & 0xFFF) << 12) | ((s32)((f32)arg0->unk394 * 4.0f) & 0xFFF));
         }

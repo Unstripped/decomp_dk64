@@ -263,7 +263,7 @@ extern Mtx D_20000C0;
 extern Mtx D_2000180;
 extern u8 D_807444FC;
 extern s16 D_80744490;
-Gfx *func_805FD030(Gfx *);
+Gfx *gfxInit2DDisplayList(Gfx *);
 s32 _sprintf(char *, const char *, ...);
 void *heapFreeDeferred(void *);
 void *textTableGetString(s32, s32, s32);
@@ -408,7 +408,7 @@ Gfx *func_8002C63C(Gfx *arg0, RaceUnknown174 *arg1) {
     WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
     WRITE_GFX(arg0++, 0xE3000A01, 0);
     WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-    arg0 = func_805FD030(arg0);
+    arg0 = gfxInit2DDisplayList(arg0);
     WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
     WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
     guScale((Mtx *)((u8 *)arg1 + (D_807444FC << 6) + 0x50), 0.5f, 0.5f, 1.0f);
@@ -570,7 +570,7 @@ Gfx *func_8002CBEC(Gfx *arg0, RaceUnknownActor *arg1) {
         WRITE_GFX(arg0++, 0xE7000000, 0);
         WRITE_GFX(arg0++, 0xD7000000, 0xFFFFFFFF);
         WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
-        arg0 = func_805FD030(arg0);
+        arg0 = gfxInit2DDisplayList(arg0);
         WRITE_GFX(arg0++, 0xFA000000, 0x3CA0);
         WRITE_GFX(arg0++, 0xE3000A01, 0);
         WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFDF6FB);

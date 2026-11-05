@@ -2574,7 +2574,7 @@ void func_806F1250(Actor *);
 void timerQueueAdd(void *, s32, s32, s32, s32);
 void func_8071496C(s16);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void func_80686CF8(Actor *);
+void effectSpawnBurstParticleCluster(Actor *);
 void func_806E5C2C(s32, s32, s32);
 
 s32 func_806E56EC() {
@@ -2647,7 +2647,7 @@ s32 func_806E56EC() {
                         func_8071496C(i);
                         func_80714CC0(D_8072014C, 0.8f, G26_AC->unk7C, G26_AC->unk80, G26_AC->unk84);
                     }
-                    func_80686CF8(D_807FBB4C);
+                    effectSpawnBurstParticleCluster(D_807FBB4C);
                     return 1;
                 }
                 break;

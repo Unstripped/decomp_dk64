@@ -607,7 +607,7 @@ typedef struct MapActorEntry {
 } MapActorEntry;
 
 s32 renderEntryAddOrUpdate(s32, s32, s32, f32, f32, f32, s32, s32, s32, s32, s32);
-s32 func_80630324(s32, s32);
+s32 renderEntryIsTranslucent(s32, s32);
 s16 mapChunkFindByPosition(f32, f32, f32, s16);
 
 void mapChunkUpdateEntryNode(MapActorEntry *arg0) {
@@ -616,7 +616,7 @@ void mapChunkUpdateEntryNode(MapActorEntry *arg0) {
     s16 *level;
 
     arg0->unk20 = mapChunkFindByPosition(arg0->unk4, arg0->unk8, arg0->unkC, arg0->unk20);
-    temp_v1 = func_80630324(arg0->unk24, arg0->unk0) & 0xFF;
+    temp_v1 = renderEntryIsTranslucent(arg0->unk24, arg0->unk0) & 0xFF;
     if (arg0->unk24 == 0) {
         *(s16 *)(arg0->unk0 + 0x12C) = arg0->unk20;
     }
@@ -632,7 +632,7 @@ void mapChunkUpdateEntryNode(MapActorEntry *arg0) {
     *sp40 = renderEntryAddOrUpdate(*sp40, arg0->unk24, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC, arg0->unk1C, arg0->unk1E, arg0->unk22, *level, 0);
 }
 
-void func_806307CC(s32, s32, s32, u8, u8 *);
+void renderEntrySetDistanceOverride(s32, s32, s32, u8, u8 *);
 
 void mapChunkMarkRenderEntry(s32 arg0, u8 arg1) {
     u8 flag;
@@ -640,9 +640,9 @@ void mapChunkMarkRenderEntry(s32 arg0, u8 arg1) {
 
     flag = 0;
     for (i = 0; i < gMapChunkCount && !flag; i++) {
-        func_806307CC(gMapChunks[i].unk14, arg0, 0, arg1, &flag);
+        renderEntrySetDistanceOverride(gMapChunks[i].unk14, arg0, 0, arg1, &flag);
         if (!flag) {
-            func_806307CC(gMapChunks[i].unk1C, arg0, 0, arg1, &flag);
+            renderEntrySetDistanceOverride(gMapChunks[i].unk1C, arg0, 0, arg1, &flag);
         }
     }
 }
@@ -821,7 +821,7 @@ s32 mapChunkCheckActorCollision(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4
     s16 y;
 
     result = 0;
-    mode = func_80630324(1, 0);
+    mode = renderEntryIsTranslucent(1, 0);
     i = 0;
     if (gMapChunkCount > 0) {
         x = (s16)(s32)(arg1 * 6.0f);

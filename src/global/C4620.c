@@ -321,12 +321,12 @@ void actorSetTargetSpeed(Actor *, s32);
 void actorScriptStart(void *, s32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
 s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
-void func_80723284(s32, u8);
-void func_80723320(s32, s32);
-void func_8072334C(s32, s32);
+void pathPlaybackSetSpeed(s32, u8);
+void pathPlaybackSetLoopLimit(s32, s32);
+void pathPlaybackSetActive(s32, s32);
 void pathPlaybackAdvance(s32);
 void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
-s32 func_80723C98();
+s32 pathPlaybackIsActive();
 void actorSetUniformScale(Actor *, f32);
 void *spawnNodeActivate(s32, s32);
 s32 func_8072881C(s32, void *);
@@ -401,17 +401,17 @@ void actorScriptedCommandUpdate(void) {
                 state->unk30 = pathPlaybackStart(D_807FBB40, state->unk2D, 0, 0.0f, 0.0f, 0.0f, 0);
                 state->unk31 = cmd->unk4;
                 state->unk32 = cmd->unk6;
-                func_80723284(state->unk30, state->unk2E / cmd->unk4);
-                func_80723320(state->unk30, 1);
-                func_8072334C(state->unk30, 1);
+                pathPlaybackSetSpeed(state->unk30, state->unk2E / cmd->unk4);
+                pathPlaybackSetLoopLimit(state->unk30, 1);
+                pathPlaybackSetActive(state->unk30, 1);
                 break;
             case 23:
                 state->unk2D = cmd->unk4;
                 state->unk2E = cmd->unk6;
                 state->unk2F = pathPlaybackStart(D_807FBB40, state->unk2D, 0, 0.0f, 0.0f, 0.0f, 0);
-                func_80723284(state->unk2F, state->unk2E);
-                func_80723320(state->unk2F, 1);
-                func_8072334C(state->unk2F, 1);
+                pathPlaybackSetSpeed(state->unk2F, state->unk2E);
+                pathPlaybackSetLoopLimit(state->unk2F, 1);
+                pathPlaybackSetActive(state->unk2F, 1);
                 LgBV->unk154 = 0xC;
                 LgBV->unk155 = 0;
                 break;
@@ -588,14 +588,14 @@ void actorScriptedCommandUpdate(void) {
             sp74 = (((randomNonNegative() >> 15) % 32767) % 51 + 0x4B) * 0.01;
             if (state->unk30 == 0xFE) {
                 actorGetNodePos(D_807FBB40, 4, &sp70, &sp6C, &sp68);
-            } else if (func_80723C98(state->unk30) != 0) {
+            } else if (pathPlaybackIsActive(state->unk30) != 0) {
                 pathPlaybackAdvance(state->unk30);
                 pathPlaybackGetPosition(state->unk30, &sp70, &sp6C, &sp68);
                 sp6C += 10.0f;
             } else {
                 state->unk30 = 0xFF;
             }
-            if (state->unk30 == 0xFE || (state->unk30 != 0xFF && func_80723C98(state->unk30) != 0)) {
+            if (state->unk30 == 0xFE || (state->unk30 != 0xFF && pathPlaybackIsActive(state->unk30) != 0)) {
                 func_807149A8(0x7D0);
                 func_807149B8(1);
                 func_80714998(2);

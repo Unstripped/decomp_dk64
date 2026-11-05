@@ -70,7 +70,7 @@ void proxPathSetEnabled(Actor *actor, u8 pathIndex, u8 enabled) {
     }
 }
 
-void func_8072EE0C(Actor *actor, u8 pathIndex, u8 endBehavior) {
+void proxPathSetEndBehavior(Actor *actor, u8 pathIndex, u8 endBehavior) {
     ProxPath *node;
     s32 found;
 
@@ -336,7 +336,7 @@ extern s16 D_807FD584;
 extern s16 D_80753B74[];
 s32 mathAngleDistance(s16, s16);
 f32 func_80611BB4(f32, f32);
-s32 func_8072F8D4(ProxPath *, s32, s16);
+s32 proxPathSegmentAngleCheck(ProxPath *, s32, s16);
 
 s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *outSegment) {
     s32 i;
@@ -386,7 +386,7 @@ s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *o
             if (*outDist < r2 && *outDist < best) {
                 ang = func_80611BB4(ox - actor->unk7C, oz - actor->unk84) * 4096.0 / 6.2831855f;
                 if (mathAngleDistance(ang, actor->unkE6) < 0x2BC) {
-                    if (func_8072F8D4(path, i, actor->unkE6)) {
+                    if (proxPathSegmentAngleCheck(path, i, actor->unkE6)) {
                         best = *outDist;
                         ret = 1;
                         *outSegment = i;
@@ -401,7 +401,7 @@ s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *o
 
 s32 mathAngleInArcWithMargin(s16, s16, s16, s32);
 
-s32 func_8072F8D4(ProxPath *path, s32 segmentIndex, s16 angle) {
+s32 proxPathSegmentAngleCheck(ProxPath *path, s32 segmentIndex, s16 angle) {
     s16 slot;
     s32 delta;
 

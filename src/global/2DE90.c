@@ -84,7 +84,7 @@ extern s32 D_80747B24;
 extern f32 D_807F5D90;
 extern Mtx D_807F5D98;
 extern s32 D_807FBB60;
-Gfx *func_805FD030(Gfx *);
+Gfx *gfxInit2DDisplayList(Gfx *);
 void heapFreeDeferred(void *);
 void screenBlurApply(void);
 void screenWipeAlphaRadialSweep(s32, s32, s32);
@@ -111,7 +111,7 @@ Gfx *screenWipeDraw(Gfx *arg0) {
         }
     } else if (D_807F5D84 > 0) {
         WIPE_GFX(0xDE000000, (u32)&D_1000118);
-        arg0 = func_805FD030(arg0);
+        arg0 = gfxInit2DDisplayList(arg0);
         WIPE_GFX(0xDA380007, (u32)&D_2000140);
         WIPE_GFX(0xDA380003, (u32)&D_807F5D98);
         WIPE_GFX(0xE7000000, 0);

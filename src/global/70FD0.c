@@ -1756,7 +1756,7 @@ struct ActorTargetWork;
 void actorUpdateSubActorOffsets(struct ActorTargetWork *, u8);
 void actorUpdateCollisionSpheres();
 void actorBuildCollisionHit();
-s32 func_80674ADC(s32, s32, s32, s32, s32, s32, s32, s32);
+s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 s32 func_80673708(s32, s32, s32, s32, s32, s32, s16 *, s16 *);
 s32 func_806D0964(s32, u8);
 extern u8 D_807FB548;
@@ -1785,7 +1785,7 @@ u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
     for (i = 0; i < D_80747D70; i++) {
         buf = &D_807F6000[i].unk28;
         if (buf->unk15 & 2) {
-            if (func_80674ADC(sub->unk0, sub->unk4, sub->unk8, sub->unkC, ((s32 *)buf)[0], ((s32 *)buf)[1], ((s32 *)buf)[2], ((s32 *)buf)[3]) != 0) {
+            if (collisionSpheresOverlap(sub->unk0, sub->unk4, sub->unk8, sub->unkC, ((s32 *)buf)[0], ((s32 *)buf)[1], ((s32 *)buf)[2], ((s32 *)buf)[3]) != 0) {
                 if (!(buf->unk15 & 1)) {
                     collisionTransformNode(i, (s32)(*SLOT).unk24, ((f32 *)&(*SLOT))[0], ((f32 *)&(*SLOT))[1], ((f32 *)&(*SLOT))[2], ((f32 *)&(*SLOT))[4], ((f32 *)&(*SLOT))[5], ((f32 *)&(*SLOT))[6], ((f32 *)&(*SLOT))[3]);
                 } else {
@@ -3122,7 +3122,7 @@ u8 collisionTestSphereSlots(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s
                 temp_ft1 = arg1;
                 temp_ft2 = arg2;
                 temp_ft3 = arg3;
-                if (func_80674ADC(temp_ft0, temp_ft1, temp_ft2, temp_ft3,
+                if (collisionSpheresOverlap(temp_ft0, temp_ft1, temp_ft2, temp_ft3,
                                   *(s32 *)((u8 *)temp_s0 + 0x0),
                                   *(s32 *)((u8 *)temp_s0 + 0x4),
                                   *(s32 *)((u8 *)temp_s0 + 0x8),

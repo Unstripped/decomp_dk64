@@ -375,7 +375,7 @@ Gfx *renderCountdownTimerHUD(Gfx *glist, CsCountdown *countdown) {
     return textDrawStringVtx(glist, 3, 0x370, 0x50, timeStr, 1);
 }
 
-Gfx *func_805FD030(Gfx *);
+Gfx *gfxInit2DDisplayList(Gfx *);
 f32 sinApprox(f32);
 
 Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal, u8 *timer) {
@@ -410,7 +410,7 @@ Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal,
             *timer = 0xC;
         }
     }
-    glist = func_805FD030(glist);
+    glist = gfxInit2DDisplayList(glist);
     gDPSetScissor(glist++, G_SC_NON_INTERLACE, x, y, x + 0x34, y + 0x1B);
 
     hundreds = 0;

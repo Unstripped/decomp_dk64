@@ -1369,7 +1369,7 @@ extern DamageReactionContext *gActivePlayerState;
 
 extern u8 D_807FBB85;
 extern s32 D_80720E2C;
-void func_80686CF8(Actor *);
+void effectSpawnBurstParticleCluster(Actor *);
 s32 func_80714608(s32);
 u8 playerIsSmallerThanAttacker(Actor *, Actor *);
 void func_807149FC(s32);
@@ -1393,7 +1393,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
                 sp3C = 0x30;
             }
             if (arg1 != NULL && arg1->unk58 == 0x116) {
-                func_80686CF8(arg0);
+                effectSpawnBurstParticleCluster(arg0);
                 switch (arg1->unk155[0]) {
                 case 1:
                     var_a2 = 0;

@@ -659,7 +659,7 @@ void effectSpawnRingBursts(Actor *actor, f32 radius, f32 arcHeight, s32 moveSpee
     }
 }
 
-void func_80686CF8(Actor *actor) {
+void effectSpawnBurstParticleCluster(Actor *actor) {
     s32 i;
 
     for (i = 0; i < 30; i++) {
@@ -671,7 +671,7 @@ void func_80686CF8(Actor *actor) {
     }
 }
 
-void func_80686E40(f32 posX, f32 posY, f32 posZ, void *param) {
+void effectSpawnParticleRingAtPosition(f32 posX, f32 posY, f32 posZ, void *param) {
     s32 i;
     s32 shift;
     s32 count;
@@ -832,7 +832,7 @@ void effectSpawnKongRing(void) {
     }
 }
 
-void func_806877C8(bone)
+void effectSpawnBoneSparkAttached(bone)
 u8 bone;
 {
     func_807149B8(1);
@@ -891,7 +891,7 @@ u8 maxBoneB;
         lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0.0f, 0.0f, 0.0f, 150.0f, 0, 150, 100, 255);
     }
     if ((D_807FBB40->unk58 == 0xB9) && (((randomNonNegative() >> 15) % 1000) >= 0x385)) {
-        func_806877C8((((randomNonNegative() >> 15) % 0x7FFF) % 10) + 13 & 0xFF);
+        effectSpawnBoneSparkAttached((((randomNonNegative() >> 15) % 0x7FFF) % 10) + 13 & 0xFF);
         sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, (((randomNonNegative() >> 15) % 1000) >= 501) ? 0x8A : 0xA1, 0xFF, 0x7F, 0x28, 0, 0.3f, 0);
     }
 }

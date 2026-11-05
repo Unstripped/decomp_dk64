@@ -391,7 +391,7 @@ extern Mtx D_20000C0;
 extern Gfx D_2000180;
 Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
 void heapFreeDeferred(void *);
-Gfx *func_805FD030(Gfx *);
+Gfx *gfxInit2DDisplayList(Gfx *);
 void vtxSetQuadGradientColors(void *, u8, u8, s8);
 
 #define TEXT_GFX_CMD(g, a, b) \
@@ -471,7 +471,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     if (flags & 1) {
         TEXT_GFX_CMD(g3, 0xDA380003, (u32)&D_2000180);
     }
-    dl = func_805FD030(dl);
+    dl = gfxInit2DDisplayList(dl);
     line = 1;
     if (D_80754A34[font * 6 + 1] + 1 >= 2) {
         do {

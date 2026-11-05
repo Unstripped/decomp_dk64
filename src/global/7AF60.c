@@ -22,11 +22,11 @@ s32 mathAngleDistance(s16, s16);
 s32 actorCheckPlayerProximityVertical();
 s32 actorListContainsId();
 u8 func_80714608();
-void func_80676260(s32 actor, s32 attacker, s32 arg2) {
+void actorCheckPlayerSmallerThanAttacker(s32 actor, s32 attacker, s32 arg2) {
     playerIsSmallerThanAttacker(actor, attacker);
 }
 
-u8 func_80676280(s32 arg0, s32 target, s32 arg2) {
+u8 actorTargetIsVulnerable(s32 arg0, s32 target, s32 arg2) {
     s32 ret;
 
     ret = func_806D10D0(target) != 0;
@@ -41,7 +41,7 @@ u8 func_806762C0(s32 actor, s32 target, s32 list) {
 
     ret = func_806767E0(actor, target, list) != 0;
     if (ret) {
-        ret = func_80676280(actor, target, list) != 0;
+        ret = actorTargetIsVulnerable(actor, target, list) != 0;
     }
     return ret;
 }
@@ -55,7 +55,7 @@ s32 actorIsDamageFatal(void* target, void* attacker, u8 arg2) {
     return 0;
 }
 
-u8 func_80676338(s32 actor, s32 target, s32 list) {
+u8 actorsFacingEachOther(s32 actor, s32 target, s32 list) {
     u8 ret;
 
     ret = mathAngleDistance(mathAngleBetweenPoints2D((s16)((Actor*)actor)->unk7C, (s16)((Actor*)actor)->unk84, (s16)((Actor*)target)->unk7C, (s16)((Actor*)target)->unk84), *(s16*)((u8*)actor + 0xE6)) < 0x200;
@@ -71,14 +71,14 @@ u8 actorIsFacingTarget(s32 arg0, s32 arg1, s32 arg2) {
     return mathAngleDistance(mathAngleBetweenPoints2D((s16)actor->unk7C, (s16)actor->unk84, (s16)target->unk7C, (s16)target->unk84), *(s16*)((u8*)target + 0xE6)) < 0x3A9;
 }
 
-u8 func_806764D8(Actor* actor, Actor* target, s32 arg2) {
+u8 actorIsTargetAbovePitchThreshold(Actor* actor, Actor* target, s32 arg2) {
     return (f64)mathCalculatePitchAngle(actor->unk7C, actor->unk80, actor->unk84, target->unk7C, target->unk80, target->unk84, 0) > 0.7;
 }
 
-u8 func_80676540(void* actor, void* target, s32 list) {
+u8 actorIsTargetFallingFromAbove(void* actor, void* target, s32 list) {
     s32 ret;
 
-    ret = func_806764D8(actor, target, list) != 0;
+    ret = actorIsTargetAbovePitchThreshold(actor, target, list) != 0;
     if (ret) {
         ret = *(f32*)((u8*)target + 0xC0) < -100.0f;
     }
@@ -86,7 +86,7 @@ u8 func_80676540(void* actor, void* target, s32 list) {
 }
 
 
-u8 func_80676590(Actor* actor, Actor* target, u8 arg2) {
+u8 actorIsBelowTargetStationary(Actor* actor, Actor* target, u8 arg2) {
     s32 ret;
 
     ret = *(f32*)((u8*)actor + 0xB4) < 10.0f;
@@ -96,7 +96,7 @@ u8 func_80676590(Actor* actor, Actor* target, u8 arg2) {
     return ret;
 }
 
-u8 func_806765E8(Actor* actor, Actor* target, s32 arg2) {
+u8 actorIsTargetBelowNode(Actor* actor, Actor* target, s32 arg2) {
     f32 x;
     f32 y;
     f32 z;
@@ -293,7 +293,7 @@ u8 func_80676B70(Actor* actor, Actor* target, s32 list) {
 
     ret = func_80676AB8(actor, target, list) != 0;
     if (ret) {
-        ret = func_80676540(target, actor, list) != 0;
+        ret = actorIsTargetFallingFromAbove(target, actor, list) != 0;
         if (!ret) {
             ret = func_80714608(0) != 0;
         }

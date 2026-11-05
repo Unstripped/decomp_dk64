@@ -131,7 +131,7 @@ extern s16 D_80744494;
 extern u8 D_1000118[];
 extern u8 D_20000C0[];
 
-Gfx *func_805FD030(Gfx *);
+Gfx *gfxInit2DDisplayList(Gfx *);
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 Gfx *renderTimerMinutesSecondsHUD(Gfx *, f32, f32, s32);
 extern s32 D_807552E8;
@@ -180,7 +180,7 @@ Gfx *mpDrawTimer(Gfx *glistp, MpControllerActor *arg1) {
         var_fv1 = (f32) (D_80744490 * 0.5);
         var_fa0 = (f32) (D_80744494 * 0.5);
     }
-    glistp = func_805FD030(glistp);
+    glistp = gfxInit2DDisplayList(glistp);
     gSPDisplayList(glistp++, &D_1000118);
     gSPMatrix(glistp++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gDPPipeSync(glistp++);
