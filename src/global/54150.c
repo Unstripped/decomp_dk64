@@ -414,19 +414,23 @@ typedef struct ModelAnimEntryView {
 
 extern u32 D_80744478;
 
+typedef struct ModelAnimNodeHeader {
+    u8 keyCount;
+    u8 times[0x38];
+    u8 matrixCount;
+    u8 pad3A[2];
+} ModelAnimNodeHeader;
+
 void modelAnimEntryAdvance(ModelAnimEntryView *arg0) {
-    u8 *node;
-    u8 *p;
+    ModelAnimNodeHeader *node;
     u32 limit;
     f32 qq;
     f32 out;
     s32 i;
     s32 q;
 
-    node = arg0->unk0;
-    if (arg0->unk11) {} // FAKE: raises the arg0->unk11 candidate priority (v1 vs a1 swap)
-    p = (u8 *)((u32)node + arg0->unk11); // FAKE: u32 cast flips the addu operand order (node, idx)
-    qq = (f32)((f64)((f32)(p[2] - p[1]) * arg0->unk4 + (f32)(u32)p[1]) / 300.0);
+    node = (ModelAnimNodeHeader *)arg0->unk0;
+    qq = (f32)((f64)((f32)(node->times[arg0->unk11 + 1] - node->times[arg0->unk11]) * arg0->unk4 + (f32)(u32)node->times[arg0->unk11]) / 300.0);
     out = (f32)arg0->unkC * qq;
     if (D_80744478 < 4) {
         limit = D_80744478;
@@ -442,13 +446,13 @@ void modelAnimEntryAdvance(ModelAnimEntryView *arg0) {
         i = arg0->unk4;
         arg0->unk11 += i;
         arg0->unk4 -= (f32)i;
-        if (arg0->unk11 < *(u8 *)node - 1) {
+        if (arg0->unk11 < node->keyCount - 1) {
             return;
         }
-        arg0->unk8 += arg0->unk11 / (*(u8 *)node - 1);
+        arg0->unk8 += arg0->unk11 / (node->keyCount - 1);
         if (arg0->unk8 >= arg0->unkA && arg0->unkA != -1) {
             arg0->unk4 = 1.0f;
-            arg0->unk11 = *(u8 *)node - 2;
+            arg0->unk11 = node->keyCount - 2;
             arg0->unkE = 0;
             if (arg0->unk10 == 1) {
                 arg0->unkF = 1;
@@ -456,13 +460,13 @@ void modelAnimEntryAdvance(ModelAnimEntryView *arg0) {
         } else {
             switch (arg0->unk10) {
             case 0:
-                arg0->unk11 = arg0->unk11 % (*(u8 *)node - 1);
+                arg0->unk11 = arg0->unk11 % (node->keyCount - 1);
                 break;
             case 1:
-                q = arg0->unk11 / (*(u8 *)node - 1);
+                q = arg0->unk11 / (node->keyCount - 1);
                 if (q != 0) {
                     arg0->unkF = 1;
-                    arg0->unk11 = *(u8 *)node - 2;
+                    arg0->unk11 = node->keyCount - 2;
                     arg0->unk4 = 1.0f;
                 }
                 break;
@@ -477,7 +481,7 @@ void modelAnimEntryAdvance(ModelAnimEntryView *arg0) {
             arg0->unk4 -= (f32)i;
         }
         if (arg0->unk11 < 0) {
-            arg0->unk8 += (-arg0->unk11) / *(u8 *)node + 1;
+            arg0->unk8 += (-arg0->unk11) / node->keyCount + 1;
             if (arg0->unk8 >= arg0->unkA && arg0->unkA != -1) {
                 if (arg0->unk10 == 1) {
                     arg0->unkF = 0;
@@ -488,13 +492,13 @@ void modelAnimEntryAdvance(ModelAnimEntryView *arg0) {
             } else {
                 switch (arg0->unk10) {
                 case 0:
-                    arg0->unk11 = (-arg0->unk11) % (*(u8 *)node - 1);
+                    arg0->unk11 = (-arg0->unk11) % (node->keyCount - 1);
                     if (arg0->unk11 != 0) {
-                        arg0->unk11 = *(u8 *)node - arg0->unk11 - 1;
+                        arg0->unk11 = node->keyCount - arg0->unk11 - 1;
                     }
                     break;
                 case 1:
-                    q = (-arg0->unk11) / *(u8 *)node + 1;
+                    q = (-arg0->unk11) / node->keyCount + 1;
                     if (q) {
                         arg0->unkF = 0;
                         arg0->unk11 = 0;
