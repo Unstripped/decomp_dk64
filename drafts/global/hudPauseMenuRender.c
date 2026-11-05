@@ -1,4 +1,4 @@
-// hudPauseMenuRender (src/global/ACDC0.c): stage 4 NON_MATCHING park, deadsweep full 341 text 325 reloc 12 shape 104 (as1probe 330 text 315 shape 95), count exact 993/993, 14 FAKEs. Levers 1-7: Lever 4 spill accounting proved target temploc 168(sp) requires eliminating off1; Lever 1 uopt -l5 trace derived s2/s3 swap between j (cand 43, adjsave 79) and s2 (cand 120, adjsave 12); loop 1 pre-multiplication off=it[j].unk8*4 matches mul.s operand order and mfc1 delay nop; Lever 7 as1probe confirmed swap 946 + 509 reaches 330.
+// hudPauseMenuRender (src/global/ACDC0.c): stage 4: full-TU full 339 text 323 reloc 12 shape 102; 890/890 insns, frame 0x1A0, saved-register set exact. Reusing consumed Actor* parameter as the case-1 integer offset removes off1's named stack home; ONLY changes versus previous draft are swc1/lwc1 f6/f18 164(sp) to target 168(sp). Tagged parameter-reuse FAKE; 15 FAKEs total. Plain fdiff: FAILED: Section .text content mismatch (built: 20896 bytes, expected: 20896 bytes); FAILED: Relocations mismatch. Tried sequential nested-call expansion (no effect); unscaled s32 cache t0/sp138 (386); premultiply y/xy (408/412); integer-typed ghost variants (no improvement); consumed it/tab/list offset and unscaled variants (349+); u32/s16/u16 offset types (no improvement); every single FAKE removal from actor-reuse (no improvement preserving count); first-loop s32 y accumulation, x premultiply, and explicit sprite y narrowing (no improvement). Prior Matcher9 scalar/roles/prune results reviewed, not repeated. Existing earlier diagnosis retained: loop-1 x premultiplication matches mul.s order/mfc1 nop locally but worsens total; uopt -l5 j/s2 priorities and as1 swaps 946+509 do not supply a C match.
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -52,7 +52,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     f32 fb;
     f32 fc;
     f32 fd;
-    s32 off1;
 
     hud = actor->unk174;
     tab = (HudCountEntry *)((u8 *)D_807FC7F8 + 0x158);
@@ -184,10 +183,10 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
         case 1:
             for (i = 0; i < 2; i++) {
                 s32 angv;
-                off1 = hud->unkC[i] * 4;
+                actor = (Actor *)(hud->unkC[i] * 4); // FAKE: reuse consumed parameter as integer offset to remove off1's stack home
                 angv = -hud->unk10;
                 fa = 1.0f - hud->unk0;
-                if (off1 < 0x3B6 && off1 >= -0x3B5) {
+                if ((s32)actor < 0x3B6 && (s32)actor >= -0x3B5) {
                     if (fa > 0.05f) {
                         f32 fc;
                         f32 fe;
@@ -210,7 +209,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                             yy += 0x20;
                             off = j + i * 5;
                             D_807FC840[off] = (f32)yy - fd;
-                            D_807FC868[off] = (f32)(s16)((s32)(fc - (f32)y0) + off1) - fe;
+                            D_807FC868[off] = (f32)(s16)((s32)(fc - (f32)y0) + (s32)actor) - fe;
                             D_807FC890[off] = ff;
                             if (((s8 *)&D_80750530)[j] != 0) {
                                 D_807FC890[off] = (f32)((f64)D_807FC890[off] * 0.75);
@@ -236,11 +235,11 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     } else {
                         fd = fa;
                     }
-                    if (off1 == 0) {
+                    if ((s32)actor == 0) {
                         fc = fc + fd * 400.0;
                     }
                     j = *(s16 *)((u8 *)D_807FC992 + hud->unk14 * 0x5E + D_80750560[hud->unk8[i]] * 2);
-                    dl = hudDrawCountPair(0x2A8, (s32)((f32)off1 + fc), j, 5, dl, 0, 0.8f);
+                    dl = hudDrawCountPair(0x2A8, (s32)((f32)(s32)actor + fc), j, 5, dl, 0, 0.8f);
                 }
             }
             D_80750538++;
