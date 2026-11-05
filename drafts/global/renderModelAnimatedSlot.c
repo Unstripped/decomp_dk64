@@ -1,4 +1,4 @@
-// renderModelAnimatedSlot (src/global/36880.c): stage 4 park. full=14 text=14 reloc=0 shape=14 (count exact 804). Diff is 3 guRotateF arms (addiu a0,sp,184 hoisted into stall before c.eq.d; arm 3 bc1t->bc1tl with li a2/a3 hoisted). Regalloc 100% exact (reloc=0), frame 0x138 exact. Levers 1-7 + deadsweep 11k variants + as1probe scan: full=0 via record 661 probe (known as1 cross-block predecessor anomaly per notes/ido-backend-record-pipeline; expected has identical code at 661 with 1 predecessor). Removed dead FAKE line 3129 with score unchanged.
+// renderModelAnimatedSlot (src/global/36880.c): stage 4 park. full=14 text=14 reloc=0 shape=14 (n=804). Exact registers/frame/rodata. Diff is 3 guRotateF arms (addiu a0,sp,184 hoisted into cvt.d.s/c.eq.d stalls). as1probe insert 661:alias/bnext/noop before label $62 (after early return b $87) yields exact full=0 across all 804 insns by breaking extended basic block trace. Tried if-else, goto, switch on unkB4, nested if, reverse condition.
 typedef struct {
     /* 0x00 */ u8 pad0[0x60];
     /* 0x60 */ u8 unk60;

@@ -1,4 +1,18 @@
-// textDrawStringVtx (src/global/100180.c): stage 6 park 192/490 (count+frame exact). Re-derived: remaining diff = (1) fi (u8*) local gets a 120(sp) home store + extra lw; expected keeps it only as expression spilled at 88(sp) around calls; (2) yoff memory-resident (sb 160(sp)) where expected keeps it in a3 via move a3,v0; sll 26; sra 24; (3) line copy: expected lbu s6,199(sp) (callee-saved) before textMapCharToGlyph, 0x7000000 in s4; ours const in s6 and line copy a3 spilled; (4) vtxSetQuadGradientColors real def has 3 params: expected passes no a3 (park passes yoff as phantom 4th arg). Tried revisit8: i as s32 (184 but count 488), macro FI instead of fi local (+pads), per-local type grid, yoff via gi temp, line/center/tmp/len types, loop-form spellings, 3 anneals of dead tests/decl order/alt spellings: none beat 192 at count 490
+// textDrawStringVtx (src/global/100180.c): stage 6 park: count 490 + frame 200 (0xC8) exact (deadsweep full=192 text=192 shape=72). Re-derived: expected has exactly 9 stack locals (packed 0xA9 started, 0xAA center, 0xAB pad, 0xAC batch; 0xBC strStart, 0xC2 startX, 0xC5 ch, 0xC6 idx, 0xC7 line). Lever 3/4: vtxSetQuadGradientColors has 3 params (arg 4 yoff is phantom); fi is TEXT_FONTS[font] CSE without home slot (spilled at 0x58(sp)); yoff is a3 expression spilled at 0x83(sp); 9 dummy Gfx* vars removed.
+extern Mtx D_20000C0;
+extern Gfx D_2000180;
+Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
+void heapFreeDeferred(void *);
+Gfx *func_805FD030(Gfx *);
+void vtxSetQuadGradientColors(void *, u8, u8, s8);
+
+#define TEXT_GFX_CMD(g, a, b) \
+    { (g) = (Gfx *)(dl++); (g)->words.w0 = (a); (g)->words.w1 = (b); }
+#define TEXT_GFX_QUAD(g, v0, v1, v2, v3) \
+    TEXT_GFX_CMD(g, (_SHIFTL(G_QUAD, 24, 8) | __gsSP1Quadrangle_w1f(v0, v1, v2, v3, 0)), __gsSP1Quadrangle_w2f(v0, v1, v2, v3, 0))
+#define TEXT_GFX_VTX(g, v, n, v0) \
+    TEXT_GFX_CMD(g, _SHIFTL(G_VTX, 24, 8) | _SHIFTL((n), 12, 8) | _SHIFTL((v0) + (n), 1, 7), (unsigned int)(v))
+
 Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     u8 line;
     u8 idx;

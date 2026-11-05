@@ -1,4 +1,5 @@
-// textBlitGlyph (src/global/100180.c): stage 5: count 161 + frame 80 exact, entire diff regalloc/entry-schedule (deadsweep full=79 shape=23 vs stored 81/25). Lever: for (row = 0; row < 0x10; row++) header (not do-while) fixes tail order slti,subu,move,bnez. Open: expected keeps ucvt(arg0)=t3 + *arg5 load t5 as block-local cands and ring t2/t4 for the andi of odd/phase (sltu v0/v1 direct); ours colours cands t2/t4/t5 so the ring falls to v0 (andi v0; sltu t7; move v0,t7) and keeps entry narrowing andi t6,a0,0xff; move a0,t6. Tried: arg0 >>= 1 in place (srl+andi shape right but loses the two sw s1/s2 spill-temp stores and frame), old-value local, w2 types, K&R, formal types, 9-word decl order/type climbs, order/alt annealing (best 78 only with frame 88)
+// textBlitGlyph (src/global/100180.c): stage 5 park: count 161 + frame 80 exact (deadsweep full=79 text=79 shape=23). Re-derived: loop bodies 100% structurally identical, diff entirely entry schedule and temp ring rotation {t6,t7,t8,t9}. Lever 4: 28(sp) vs 24(sp) spill slot governed by lowest vreg (-36 vs -40) from spurious 4-byte local declaration. Lever 1: target s-register set (s0=dstRow, s1=arg6, s2=dst, s3=row) needs unconstrained candidate index order dstRow < arg6.
+
 s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 arg6) {
     u8 *srcRow;
     u8 *dst;
@@ -15,7 +16,8 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
     srcRow = (u8 *)(arg2 + (arg3 >> 1));
     phase = (*(u8 *)arg5 & 1) != 0;
     w2 = arg0 >> 1;
-    dstRow = (u8 *)arg1 + arg6 * 16 + arg6 * arg4;
+    dstRow = (u8 *)arg1;
+    dstRow += arg6 * 16 + arg6 * arg4;
     odd = arg0 & 1;
     dst = dstRow;
     *(u8 *)arg5 = *(u8 *)arg5 + arg0;

@@ -1,4 +1,4 @@
-// jetpacBonusItemUpdate (src/jetpac/3480.c): OvlA (revisit 8): unchanged park full 7 (text 7, 314=314), stage 5. Re-derived: natural no-FAKE body (t = arg0->unk34 local, t < inner->unk144) is full 5 / 315 with ALL registers right; as1probe: only diffs = label record before the bge + the li t5,2 record in the compare block (both edited into t.G = exact 314). FAKE inner->unk144==2 gives both but uopt then colours hoisted li a1 / unk144 v0 / unk34 a0 (target v0, t2 ring, li t5 ring). 1300 dead const-2 tests never colour the li above t0; also tried: compare/arm forms x casts (1500), 6 local-temp forms x FAKE subsets, raw-offset unk144 reads, phantom 2nd param (+1 insn), #define inner (347), flagSet(s16,u8,u8) proto, 2 random dead-test hill-climbs from FAKE and natural bases (no gain). No C spelling found.
+// jetpacBonusItemUpdate (src/jetpac/3480.c): stage 5 park (stored park count-exact n=314 full=7, natural body full=5 all regs matching n=315). as1probe proof shows moving li t5,2 and label before bge in t.G gives full=0 text=0 n=314 exact match; as1 hoists addiu into inner->unk144 load delay, robbing delay slot and forcing bge to beqzl.
 void flagSet(s32, s32, s32);
 void jetpacSpawnBonusItem(JetpacPlayer *);
 void jetpacBonusItemUpdate(JetpacItem *arg0) {
@@ -12,16 +12,16 @@ void jetpacBonusItemUpdate(JetpacItem *arg0) {
     if (inner->unkC == 0) {
         return;
     }
-    if (inner->unk144 == 2) {} // FAKE: empty block boundary + const-2 web in the compare block (as1 delay slot / li hoist)
-    if (arg0->unk34 < inner->unk144) {
-        arg0->unk34 = arg0->unk34 + 1;
-        return;
+    {
+        s32 t = arg0->unk34;
+        if (t < inner->unk144) {
+            arg0->unk34 = t + 1;
+            return;
+        }
     }
-    if (inner->unk4 && inner->unk4) {} // FAKE: steers uopt candidate priority
     if (arg0->unk1C == 1) {
         arg0->unk1C = 2;
     }
-    if (inner->unk4) {} // FAKE: steers uopt candidate priority
     new_var = &jetpacPlayer;
     new_var2 = &D_8002F054;
     if (arg0->unk38 == 0) {
@@ -109,7 +109,6 @@ void jetpacBonusItemUpdate(JetpacItem *arg0) {
     case 3:
     case 4:
         arg0->unk34++;
-        if (arg0->unk34 && arg0->unk34) {} // FAKE: raises the unk34 candidate priority (base address -> v1)
         v34 = arg0->unk34 - inner->unk144;
         if (v34 >= 0x18) {
             v34 -= 0x18;

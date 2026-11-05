@@ -410,7 +410,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     }
                     count++;
                     *buf++ = conv;
-                    if (exp < 0) { exp = -exp; count++; *buf++ = '-'; } else { if (space && space) {} count++; *buf++ = '+'; } // LAYOUT:
+                    if (exp < 0) { exp = -exp; count++; *buf++ = '-'; } else { if (space && space) {} count++; *buf++ = '+'; } // LAYOUT: one-line if/else drops the else .loc; FAKE: dead space test steers the exp/10 hoist
                     if (exp >= 100) {
                         d = exp / 100 + '0';
                         *buf = d;

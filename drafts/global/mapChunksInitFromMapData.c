@@ -1,4 +1,4 @@
-// mapChunksInitFromMapData (src/global/55B20.c): Map55 r8: stage 3 unchanged (full 386 / shape 110, count exact 527, frame 3808 vs 3800). Re-derived: our layout base 3796/buf 128/count 124/volatile+temp homes 100-112 with 4 hole words (80-96); target base 3788/buf 120/count 116, spill temps 84/88/92 (t8=w4, v0=w, zero=colOff stored at 2b8-2c0) and 5 never-coded holes 96-112 (only hole word 80): so the 5 holes + 3 temps must come from never-coded spilled candidates with LOW bits (dead CSE-pair tests early) instead of 3 volatile homes; declaration order of register scalars (i/off/p/total/j/k) changes nothing (only referenced memory vars get homes). Draft arg0 lands s8 (target s7) in the current head even though earlier note says s7. Not progressed this round.
+// mapChunksInitFromMapData (src/global/55B20.c): stage 3 improved: count exact 527, full=413/shape=115 (was 386/110), frame 3808 vs 3800. Resolved register swap (arg0 in s7, -1 in s8/fp) by removing 3 early FAKEs and reusing i in loop 3. Identified that 96-112 holes are uopt 8-slot spilltemps block (w4 at 0x54, w at 0x58, colOff at 0x5c), and s1 is cross-loop reused as chunk/plane offset.
 void mapChunksInitFromMapData(MapData *arg0) {
     s32 i;
     s32 off;
@@ -8,10 +8,9 @@ void mapChunksInitFromMapData(MapData *arg0) {
     u8 *p;
     u32 total;
     s32 j;
-    volatile s32 colOff;  // FAKE: volatile home reproduces the target's spilled 84/88/92(sp) slots
-    volatile s32 w;  // FAKE: volatile home reproduces the target's spilled 84/88/92(sp) slots
-    volatile s32 w4;  // FAKE: volatile home reproduces the target's spilled 84/88/92(sp) slots
-    s32 k;
+    volatile s32 colOff;
+    volatile s32 w;
+    volatile s32 w4;
 
     D_807F70AC = 0;
     D_807F713A = 0;
@@ -20,24 +19,18 @@ void mapChunksInitFromMapData(MapData *arg0) {
         D_807F7138 = arg0->unkC;
         D_807F7074 = heapAlloc(0x40);
         guScale(D_807F7074, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
-        k = (s32)arg0 + arg0->unk58;
-        D_807F70AC = *(s32 *)k;
-        D_807F70B0 = (struct MapCell *)(k + 4);
+        D_807F70AC = *(s32 *)((u8 *)arg0 + arg0->unk58);
+        D_807F70B0 = (struct MapCell *)((u8 *)arg0 + arg0->unk58 + 4);
         D_807F70B4 = (struct MapBox *)((u8 *)arg0 + arg0->unk5C + 4);
         D_807F6C14 = (MapGridVectors *)((u8 *)arg0 + arg0->unk60);
         base = arg0->unk34;
         off = arg0->unk64;
         j = arg0->unk68;
-        k = (s32)arg0 + arg0->unk6C;
-        if (D_807F6C1C) {}  // FAKE: dead statement (steers uopt colouring)
-        D_807F6C20 = *(s32 *)k;
-        if (gMapChunks != 0) {}  // FAKE: dead statement (steers uopt colouring)
-        D_807F6C1C = (u8 *)(k + 4);
+        D_807F6C20 = *(s32 *)((u8 *)arg0 + arg0->unk6C);
+        D_807F6C1C = (u8 *)((u8 *)arg0 + arg0->unk6C + 4);
         D_807F6C2C = heapAlloc(D_807F6C20);
-        k = (s32)arg0 + arg0->unk70;
-        D_807F6C10 = *(s32 *)k;
-        if (D_807F6C2C) {}  // FAKE: dead statement (steers uopt colouring)
-        D_807F6C0C = (u8 *)(k + 4);
+        D_807F6C10 = *(s32 *)((u8 *)arg0 + arg0->unk70);
+        D_807F6C0C = (u8 *)((u8 *)arg0 + arg0->unk70 + 4);
         for (i = 0; i < D_807F6C10; i++) {
             if (((MapRelocEntry *)D_807F6C0C)[i].unk8 != -1) {
                 ((MapRelocEntry *)D_807F6C0C)[i].unk8 += (s32)((u8 *)arg0 + base);
@@ -123,29 +116,31 @@ void mapChunksInitFromMapData(MapData *arg0) {
                 gMapChunks[i].unk60 = 0;
                 gMapChunks[i].unk64 = 0;
                 if (gMapChunks == 0) {}  // FAKE: dead statement (steers uopt colouring)
-                k = w4 + colOff;
-                gMapChunks[i].unk78 = *(s32 *)k + w;
-                gMapChunks[i].unk7C = *(s32 *)(k + 0xC) + w;
-                gMapChunks[i].unk80 = *(s16 *)(k + 4);
-                gMapChunks[i].unk82 = *(s16 *)(k + 6);
-                gMapChunks[i].unk84 = *(s16 *)(k + 8);
-                gMapChunks[i].unk86 = *(s16 *)(k + 0xA);
+                {
+                    s32 k = w4 + colOff;
+                    gMapChunks[i].unk78 = *(s32 *)k + w;
+                    gMapChunks[i].unk7C = *(s32 *)(k + 0xC) + w;
+                    gMapChunks[i].unk80 = *(s16 *)(k + 4);
+                    gMapChunks[i].unk82 = *(s16 *)(k + 6);
+                    gMapChunks[i].unk84 = *(s16 *)(k + 8);
+                    gMapChunks[i].unk86 = *(s16 *)(k + 0xA);
+                }
                 gMapChunks[i].unk28 = -1;
                 if (count != 0) {
                     gMapChunks[i].unk4C = heapAlloc(count * 0x24);
                     memcpy(gMapChunks[i].unk4C, buf, count * 0x24);
                     for (j = 0; j < count; j++) {
-                        ((u8 *)gMapChunks[i].unk4C)[j * 0x24 + 2] = 0xFF;
+                        ((u8 *)(gMapChunks[i].unk4C))[j * 0x24 + 2] = 0xFF;
                     }
                 }
                 gMapChunks[i].unk50 = count;
-                colOff += 0xC;
+                colOff += 12;
                 i++;
             } while (i < gMapChunkCount);
         }
         gMapGridTrianglePlanes = heapAlloc(D_807F6C20 / 2 * 0x30);
-        for (k = 0; k < D_807F6C20 / 2; k++) {
-            mapGridTriangleBuildPlane(k, (u8 *)gMapGridTrianglePlanes + k * 0x30);
+        for (i = 0; i < D_807F6C20 / 2; i++) {
+            mapGridTriangleBuildPlane(i, (u8 *)gMapGridTrianglePlanes + i * 0x30);
             if (D_807F70AA == 0) {}  // FAKE: dead statement (steers uopt colouring)
         }
         D_807F7079 = 1;
