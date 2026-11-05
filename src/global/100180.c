@@ -415,25 +415,25 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     u8 center;
     u8 started;
     Gfx *g10;
-    s16 w4;
-    u8 h;
-    s8 yoff;
-    u32 i;
+    s32 i;
     Vtx *vp;
     Gfx *g8;
     s32 len;
     s32 tmp;
     Gfx *g7;
     Gfx *g3;
-    u8 w;
+    Gfx *g2;
+    s8 yoff;
+    s16 w4;
     s16 h4;
     s16 gx;
-    u8 *fi;
+    s16 w;
+    s16 h;
     u8 *glyph;
-    Gfx *g2;
     s16 *v;
-    s16 count;
+    s32 count;
     Gfx *g11;
+    s32 padFrame;
 
     idx = 0;
     startX = x;
@@ -472,9 +472,8 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
         TEXT_GFX_CMD(g3, 0xDA380003, (u32)&D_2000180);
     }
     dl = func_805FD030(dl);
-    fi = D_80754A34 + font * 6;
     line = 1;
-    if (fi[1] + 1 >= 2) {
+    if (D_80754A34[font * 6 + 1] + 1 >= 2) {
         do {
             TEXT_GFX_CMD(g8, 0xE7000000, 0);
             started = 0;
@@ -485,7 +484,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                         yoff = textMapCharToGlyph(font, &ch) * 4;
                         glyph = (u8 *)((u8 **)D_80754A18)[font] + ch * 4;
                         w4 = glyph[2];
-                        h4 = fi[2];
+                        h4 = D_80754A34[font * 6 + 2];
                         w = w4;
                         h = h4;
                         w4 = w4 * 4;
@@ -494,7 +493,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                         h4 = h4 * 4;
                         gx = *(s16 *)glyph;
                         if (center) {
-                            tmp = (fi[5] * 4 - w4) / 2;
+                            tmp = (D_80754A34[font * 6 + 5] * 4 - w4) / 2;
                             if (tmp < 0) {
                                 if (yoff == 0) {} // FAKE: yoff web
                                 pad = 0;
@@ -549,18 +548,18 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                             }
                         }
                         if (center) {
-                            tmp = fi[5] * 4;
+                            tmp = D_80754A34[font * 6 + 5] * 4;
                             x += (w4 < tmp) ? w4 : tmp;
                             if (w4 < tmp) {
                                 x = x + tmp - pad - w4;
                             }
                         } else {
-                            x += (((u8 **)D_80754A18)[font][ch * 4 + 2] + fi[4]) * 4;
+                            x += (((u8 **)D_80754A18)[font][ch * 4 + 2] + D_80754A34[font * 6 + 4]) * 4;
                         }
                     } else if (center) {
-                        x += fi[5] * 4;
+                        x += D_80754A34[font * 6 + 5] * 4;
                     } else {
-                        x += fi[3] * 4;
+                        x += D_80754A34[font * 6 + 3] * 4;
                     }
                     idx++;
                     ch = *str++;
@@ -580,7 +579,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
             }
             str = strStart;
             line++;
-        } while (line < fi[1] + 1);
+        } while (line < D_80754A34[font * 6 + 1] + 1);
     }
     TEXT_GFX_CMD(g1, 0xE7000000, 0);
     return dl;

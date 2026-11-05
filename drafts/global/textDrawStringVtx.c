@@ -1,4 +1,4 @@
-// textDrawStringVtx (src/global/100180.c): stage 6 park: count 490 + frame 200 (0xC8) exact (deadsweep full=192 text=192 shape=72). Re-derived: expected has exactly 9 stack locals (packed 0xA9 started, 0xAA center, 0xAB pad, 0xAC batch; 0xBC strStart, 0xC2 startX, 0xC5 ch, 0xC6 idx, 0xC7 line). Lever 3/4: vtxSetQuadGradientColors has 3 params (arg 4 yoff is phantom); fi is TEXT_FONTS[font] CSE without home slot (spilled at 0x58(sp)); yoff is a3 expression spilled at 0x83(sp); 9 dummy Gfx* vars removed.
+// textDrawStringVtx (src/global/100180.c): stage 6 park: 470 instructions / 1880 bytes, frame 0xC8 and saved-register set exact; normalized full=165 text=165 reloc=0 shape=55 (490 lines incl relocations), improved from full=192/shape=72. Plain fdiff CURRENT (5936); .text built/expected 9312 bytes. w/h s16; count/i s32; fi direct font-table expression removes home; reordered yoff/w/h homes plus padFrame. Five baseline FAKEs and four-arg gradient prototype retained: correcting phantom arity alone or in grids regresses. Tried scalar/type/arity combinations, all FAKE subsets, yoff reuse/narrowing, glyph inlining, width assignment forms, stack-home arrangements, bounded live-range probes, scaled-height lifetime/CSE forms. Permuter -j2 --seconds600 best7079 vs7919 baseline had invalid conditional height scaling; other leading hints corrupt h4 or strStart; safe height-motion adaptations worsen165->186+. No better equivalent candidate found. Input prior note incorrectly claimed changes absent from its stored C body.
 extern Mtx D_20000C0;
 extern Gfx D_2000180;
 Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
@@ -27,25 +27,25 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     u8 center;
     u8 started;
     Gfx *g10;
-    s16 w4;
-    u8 h;
-    s8 yoff;
-    u32 i;
+    s32 i;
     Vtx *vp;
     Gfx *g8;
     s32 len;
     s32 tmp;
     Gfx *g7;
     Gfx *g3;
-    u8 w;
+    Gfx *g2;
+    s8 yoff;
+    s16 w4;
     s16 h4;
     s16 gx;
-    u8 *fi;
+    s16 w;
+    s16 h;
     u8 *glyph;
-    Gfx *g2;
     s16 *v;
-    s16 count;
+    s32 count;
     Gfx *g11;
+    s32 padFrame;
 
     idx = 0;
     startX = x;
@@ -84,9 +84,8 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
         TEXT_GFX_CMD(g3, 0xDA380003, (u32)&D_2000180);
     }
     dl = func_805FD030(dl);
-    fi = D_80754A34 + font * 6;
     line = 1;
-    if (fi[1] + 1 >= 2) {
+    if (D_80754A34[font * 6 + 1] + 1 >= 2) {
         do {
             TEXT_GFX_CMD(g8, 0xE7000000, 0);
             started = 0;
@@ -97,7 +96,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                         yoff = textMapCharToGlyph(font, &ch) * 4;
                         glyph = (u8 *)((u8 **)D_80754A18)[font] + ch * 4;
                         w4 = glyph[2];
-                        h4 = fi[2];
+                        h4 = D_80754A34[font * 6 + 2];
                         w = w4;
                         h = h4;
                         w4 = w4 * 4;
@@ -106,7 +105,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                         h4 = h4 * 4;
                         gx = *(s16 *)glyph;
                         if (center) {
-                            tmp = (fi[5] * 4 - w4) / 2;
+                            tmp = (D_80754A34[font * 6 + 5] * 4 - w4) / 2;
                             if (tmp < 0) {
                                 if (yoff == 0) {} // FAKE: yoff web
                                 pad = 0;
@@ -161,18 +160,18 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
                             }
                         }
                         if (center) {
-                            tmp = fi[5] * 4;
+                            tmp = D_80754A34[font * 6 + 5] * 4;
                             x += (w4 < tmp) ? w4 : tmp;
                             if (w4 < tmp) {
                                 x = x + tmp - pad - w4;
                             }
                         } else {
-                            x += (((u8 **)D_80754A18)[font][ch * 4 + 2] + fi[4]) * 4;
+                            x += (((u8 **)D_80754A18)[font][ch * 4 + 2] + D_80754A34[font * 6 + 4]) * 4;
                         }
                     } else if (center) {
-                        x += fi[5] * 4;
+                        x += D_80754A34[font * 6 + 5] * 4;
                     } else {
-                        x += fi[3] * 4;
+                        x += D_80754A34[font * 6 + 3] * 4;
                     }
                     idx++;
                     ch = *str++;
@@ -192,7 +191,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
             }
             str = strStart;
             line++;
-        } while (line < fi[1] + 1);
+        } while (line < D_80754A34[font * 6 + 1] + 1);
     }
     TEXT_GFX_CMD(g1, 0xE7000000, 0);
     return dl;
