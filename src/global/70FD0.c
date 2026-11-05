@@ -1885,7 +1885,7 @@ extern s32 D_807FB5C8;
 extern s32 D_807FB5CC;
 extern s32 D_807FB5D0;
 extern CollisionBox *D_807FB5D8;
-s32 matrix4Invert(f32 (*)[4], f32 (*)[4]); // FAKE: non-void return flips the $v0/$v1 pick in actorBuildCollisionHit
+s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
 void modelSlotBuildTransformMatrix(s16, s8, f32 [4][4]);
 void func_8066FE08();
 struct ActorFacingWork;
