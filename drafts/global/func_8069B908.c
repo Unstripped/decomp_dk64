@@ -1,4 +1,4 @@
-// func_8069B908 (src/global/9DD70.c): L1317 r7: STAGE 4 NON_MATCHING park in .scratch/L1317/9DD70.c: 1317/1317 insns, frame 0x140, s0/s1/f20 match, deadsweep score 2 (shape 2) [was 42/shape 5]; only diff: uopt temp spill slot 100(sp) vs 108(sp) for the func_8071A8B0 address (2 lines; 8 bytes of spilltemps/vreg gap, no FAKE/pad/decl/respelling moves it). KEY: both unk58 0x3F-0x42 compare chains are switch(){case 0x3F..0x42} (so the unk58 loads become the shared cfe switch temp = v1 like target), loop uses sp13C->unk2A directly (no p174 FAKE), s32 pad74 before sp70, ghost global D_807FBB94: 'G && G' in the case-4 sp70 loop + 'if (G)' before and inside tail switch(gCurrentMap) = a v0 web overlapping the tail switch temp so the temp lands v1 and the early sp13C piece v0; old case-0 'unk58 && unk58' FAKE and D_807FBB4C FAKE removed. Tried for slot: all single dead tests (4 forms x 19 syms x all points), decl order/pad grids, named switch temps, FAKE deletions, loop access spellings, i/sp70 merge (count +2), function-address spellings.
+// func_8069B908 (src/global/9DD70.c): stage 4 park (1317/1317 insns, frame 0x140, deadsweep full=2/shape=2; diff sw t6,104(sp) vs 108(sp); Lever 4 eliminated 4B nested-call temp moving slot 100->104; Lever 1/4/7 tested)
 typedef struct ActorSub174View {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ f32 unk4;
@@ -309,8 +309,9 @@ void func_8069B908(void) {
                     func_80714950(2);
                     sp78 = randomNonNegative();
                     if (sp78) {}  // FAKE: block split between the sp78 def and the call (steers ugen ring / uopt colouring)
+                    dz = randomFloat();
                     func_80714CC0((void *)((s32 *)&sp9C)[(sp78 >> 15) % 2],
-                                  (f32)(((f64)randomFloat() * 0.5) + 0.2),
+                                  (f32)(((f64)dz * 0.5) + 0.2),
                                   D_807FBB40->unk7C + spAC, D_807FBB40->unk80 + spB0,
                                   D_807FBB40->unk84 + spA4);
                 }

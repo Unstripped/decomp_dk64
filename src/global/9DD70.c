@@ -1272,8 +1272,9 @@ void func_8069B908(void) {
                     func_80714950(2);
                     sp78 = randomNonNegative();
                     if (sp78) {}  // FAKE: block split between the sp78 def and the call (steers ugen ring / uopt colouring)
+                    dz = randomFloat();
                     func_80714CC0((void *)((s32 *)&sp9C)[(sp78 >> 15) % 2],
-                                  (f32)(((f64)randomFloat() * 0.5) + 0.2),
+                                  (f32)(((f64)dz * 0.5) + 0.2),
                                   D_807FBB40->unk7C + spAC, D_807FBB40->unk80 + spB0,
                                   D_807FBB40->unk84 + spA4);
                 }
