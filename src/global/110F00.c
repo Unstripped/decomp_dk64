@@ -425,7 +425,6 @@ void mtxLookDirPosF(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 
         m20 = -arg2;
         m22 = -arg4;
     }
-    m00 = m00;  // FAKE: extra .loc record shifts ugen's homed arg7 reload by one store
     arg0->m[0][0] = m00;
     arg0->m[1][0] = m10;
     arg0->m[2][0] = m20;
@@ -436,9 +435,10 @@ void mtxLookDirPosF(Mat4F *arg0, Mat4F *arg1, f32 arg2, f32 arg3, f32 arg4, f32 
     arg0->m[0][2] = m02;
     arg0->m[3][1] = -arg6;
     arg0->m[1][2] = m12;
+    t = -arg7;
     arg0->m[2][2] = m22;
     arg0->m[0][3] = 0.0f;
-    arg0->m[3][2] = -arg7;
+    arg0->m[3][2] = t;
     arg0->m[3][3] = 1.0f;
     arg0->m[1][3] = 0.0f;
     arg0->m[2][3] = 0.0f;

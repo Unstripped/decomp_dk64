@@ -305,8 +305,6 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
     f32 diff[6];
     f32 temp_fa0;
     f32 dist;
-    f32 temp_ft4;
-    f32 temp_ft5;
     f32 temp_fa1;
     s32 i;
     f32 three;
@@ -360,9 +358,7 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
                     D_807F78C0[D_807F7BC0].unk1C = 1.0f / (dist - temp_fa1);
                     D_807F78C0[D_807F7BC0].unk20 = temp_fa1;
                     D_807F78C0[D_807F7BC0].unk28 = ((D_807F7500[i].unk14 * 1.3f) / three) * 3.0f;
-                    temp_ft4 = D_807F7500[i].unk14 * 1.3f;  // FAKE: named copies of the repeated 1.3 products (own FP webs, steer colours)
-                    temp_ft5 = ((D_807F7500[i].unk14 * 1.3f) / three) * 3.0f;
-                    D_807F78C0[D_807F7BC0].unk24 = 1.0f / ((temp_ft4) * 3.0f - temp_ft5);
+                    D_807F78C0[D_807F7BC0].unk24 = 1.0f / ((D_807F7500[i].unk14 * 1.3f) * 3.0f - D_807F78C0[D_807F7BC0].unk28);
                     break;
                 }
                 lightAddDedupEntry(D_807F7BC0);

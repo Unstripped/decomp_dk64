@@ -870,10 +870,10 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
             var_s3 = var_s3->next;
         } while (var_s3 != NULL);
     }
-    if ((u32)sp9F) { // FAKE: (u32) cast keeps the test load separate from the (u8) return load (no CSE)
+    if (sp9F) {
         *arg2 = var_fs5;
     }
-    return (u8)sp9F;
+    return sp9F;
 }
 
 f32 collisionTriangleHeightAtXZ(s16 *arg0, f32 arg1, f32 arg2) {

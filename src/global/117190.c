@@ -606,7 +606,7 @@ Gfx *func_80713764(Gfx *arg0, u8 arg1, f32 arg2) {
     x = (f32) ((f64) D_80744490 * 0.5);
     y = (f32) (((f64) D_80744494 * 0.5) + -20.0 + (f64) arg2);
     R117D_WRITE_GFX(arg0++, 0xE200001C, 0x504240);
-    R117D_WRITE_GFX(arg0++, 0xFA000000, (s32) ((arg1 & 0xFF) | ~0xFF)); // FAKE: no-op mask advances the scratch-register ring
+    gDPSetPrimColor(arg0++, 0, 0, 255, 255, 255, arg1);
     R117D_WRITE_GFX(arg0++, 0xFCFF97FF, 0xFF2CFE7F);
     R117D_WRITE_GFX(arg0++, 0xE3001201, 0);
     return renderRotatedSprite(arg0, 0x2C, 0, 2, 0xE0, 0x80, (s32) x, (s32) y, 1.0f, 1.0f, 0, 0.0f);
@@ -658,7 +658,6 @@ Gfx *func_80713B40(Gfx *arg0) {
     s16 temp_t0;
     s16 temp_v0;
     s16 var_v1;
-    u32 new_var; // FAKE: extra temp for the alpha byte steers regalloc
 
     temp_t0 = D_8075531C - 0x8C;
     if (temp_t0 >= 0) {
@@ -678,10 +677,8 @@ Gfx *func_80713B40(Gfx *arg0) {
                 var_v1 = 0xFF;
             }
             arg0 = func_80713AA8(arg0);
-            new_var = var_v1 & 0xFF;
-            arg0->words.w0 = 0xFA000000;
-            arg0->words.w1 = (u32)(new_var | ~0xFF);
-            arg0 = hudDrawScaledText(arg0 + 1, 0x280, (s16)(s32)(480.0 - ((f64)(f32)((f64)(0x96 - temp_t0) / 40.0) * 32.0)), (f32)((f64)(0x96 - temp_t0) / 40.0), D_80755378);
+            gDPSetPrimColor(arg0++, 0, 0, 255, 255, 255, var_v1);
+            arg0 = hudDrawScaledText(arg0, 0x280, (s16)(s32)(480.0 - ((f64)(f32)((f64)(0x96 - temp_t0) / 40.0) * 32.0)), (f32)((f64)(0x96 - temp_t0) / 40.0), D_80755378);
         }
     }
     return arg0;

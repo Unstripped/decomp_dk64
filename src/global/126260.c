@@ -128,8 +128,6 @@ s32 commandApplyToLight(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s1
     lights = (Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x278);
     ambient = (Ambient *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x270);
     slot_light = (Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + ((u32)arg0 * 0x10) + 0x278); // FAKE: u32 cast splits the arg0 conversion candidate (no phantom t2)
-    if (ambient == 0) {} // FAKE: extra use of ambient raises its priority over slot_light
-    if (lights && lights) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
 
     if (D_8076A048 == 0) {} // FAKE: makes the base load a uopt candidate (v1)
     if (arg0 >= 7) {
@@ -142,7 +140,6 @@ s32 commandApplyToLight(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s1
         dist = (dist_d > 0.001) ? dist_d : 0.001;
         base = (dist - (f32)((s32)arg1->unkA / 2) < 1.0) ? 1.0 : dist - (f32)((s32)arg1->unkA / 2);
         clamped = (f64)(f32)(u32)arg1->unkA / (0.5 * base * base);
-        if (base == base) {} // FAKE: dead use raises base priority above clamped (f2 / f12)
         if (base == base) {} // FAKE: dead use raises base priority above clamped (f2 / f12)
         if (base == base) {} // FAKE: dead use raises base priority above clamped (f2 / f12)
         intensity = (clamped > 1.0) ? 1.0 : clamped;

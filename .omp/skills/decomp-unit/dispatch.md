@@ -29,9 +29,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 
 ## List sizes
 
-- Round 1: ~500–1,000 instructions per agent, ≤10 functions, contiguous by address. Agents
-  stop at a request budget (~150–200 tool calls): 14–20-function lists came back with 7–9
-  untouched (2C700 unit), so a long list is split, never re-prompted as is.
+- Round 1: ~500–1,000 instructions, ≤10 functions per agent; split longer lists before dispatch (14–20-function lists left 7–9 untouched in the 2C700 unit).
+- FAKE-removal batches report each site's outcome, including parked exclusions; accept only natural replacements, never substitute hacks or tag-only deletions.
+- Count only the batch's verified removals; concurrent unparking can lower the live tag count without removing a hack from matched C.
 - Functions over ~400 instructions: held back from round 1, one agent each (2–3 per agent
   once single ones finish quickly), smallest first, dispatched as soon as slots free. Queue
   them all at once with task files saying "base = HEAD when you start, report it as `Base:`"

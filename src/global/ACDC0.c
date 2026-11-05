@@ -1487,8 +1487,6 @@ s32 hudPauseMenuSlidePage(HudEntry *arg0, s32 arg1, s32 arg2) {
         if (dir != 0) {
             idx = arg0->unk15;
             v = arg0->unk8[idx] + dir;
-            if (dir) {
-            }
             if (v < 0) {
                 v = D_807505D0;
             }

@@ -632,7 +632,6 @@ void heapFreeToPool(HeapBlock *block) {
     s32 off;
     HeapPool *pool;
     HeapBlock *cur;
-    HeapBlock *nxt;
 
     i = 0;
     if (D_807F0A28 > 0) {
@@ -647,11 +646,8 @@ void heapFreeToPool(HeapBlock *block) {
     pool = &D_807F0988[i];
     cur = pool->freeList;
     if (cur != NULL) {
-        nxt = cur->next;
-        while (nxt != NULL && nxt < block) {
-            if (cur == NULL) {} // FAKE: steers regalloc priority of cur
-            cur = nxt;
-            nxt = nxt->next;
+        while (cur->next != NULL && cur->next < block) {
+            cur = cur->next;
         }
     }
     if (cur != NULL && cur < block) {
