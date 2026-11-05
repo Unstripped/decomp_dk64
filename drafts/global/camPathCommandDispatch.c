@@ -1,10 +1,5 @@
-// camPathCommandDispatch (src/global/2C910.c): L1169 (leftovers9 follow-up): stage 4 draft (best full 201, count-exact 1169, frame 0xA8, s0+ra). Tested 3 follow-up steps: (1) 0x27 & 0x2F fixes score 213 (count-exact); (2) replacing sv[5] with scalar locals/expressions gives frame 0xA8 with 1 pad word but score 540 (1383 lines) as cfe reloads; (3) FAKE-free entry gives clean pointerization but arg1/arg2 colour a0/a1 scoring 265 (u8 arg0, count-exact). Kept on GLOBAL_ASM as no variant beat 201 count-exact.
-// Astra focused revisit: no count-exact improvement. Baseline full/text=201, reloc=0, shape=129; 1365 scored rows include 196 relocations (1169 instructions).
-// Storage mismatch: sv[0]/sv[1]/sv[3]/sv[4] use sp+0x60/0x64/0x6C/0x70, target sp+0x38/0x3C/0x44/0x48; sp72 uses 0x7A instead of 0x72.
-// uopt -l 5 confirms baseline sv entries are non-vreg isvars (-72/-68/-60/-56), not evidence of the target's original declarations.
-// Tested scalar/address-taken/volatile/union homes, explicit FP temporaries, promoted array stores, pure subword expressions, signed formal casts, entry order/layout, FAKE subsets, disjoint pointer reuse.
-// Removing only the case-0xD FAKE gives full/text=193, shape=121, but adds one instruction (1170): not a better count-exact candidate.
-// Scalar d lifetime sweep: full 511 -> 398, still worse; signed formal casts are code-identical. Keep this body; no source park or claim of impossibility.
+// camPathCommandDispatch (src/global/2C910.c): L1169 (focused 2026-11-05): stage 4, count-exact 1169, frame 0xA8, s0+ra; full 262 (deadsweep score), masked diff (regs+sp offsets masked) 6 vs 39 for the previous 201 body (commit 35789027). Structural fixes: no D_807FBB48/4C dead tests; `a = ...; spA0[0] = a;` FIRST (gives the target's `sra t7; move s0,t7; sh t7` entry); case 0x11 `screenWipeStart((arg1 >> 16) & 0xFF)` (target `andi a0,a1,0xff` reads the cross-block `arg1 >> 16` candidate in a1); case 0x27 `s16 node = a` (an s16 local read from a register narrows per use and is never CSE'd across the calls: kills the (s16)a spill sw t8,64/lw s0,64); case 0x2F `t = sv[3]; if (t) f(t, (s16)sv[0])` with csModelStateSetFirstByte declared K&R (target passes the lw'd word unnarrowed: the test's load is reused in a0).
+// Remaining: (1) entry colouring: target loads arg1 into ring t8 (uncoloured, one load with two consumers) and arg2 into t5; every spelling tried colours them a0/a2 (bb1 piece adjsave 1.0 = 2 uses - 1 reload); `arg1 >>= 16` (R1 form, no FAKE, full 265) makes arg1 a whole-range isvar coloured a3 with `move a3,a1` at entry instead. (2) frame: sv[] lands at 0x58 (Mmt 104 + 2 temploc slots); target has b/c/d at 0x44/0x3C/0x38 and x at 0x48: under scalars b stays at its home only when its operand param is modified after the def (`arg1 >>= 16`), c/d become temploc isops; d then gets coloured t1 (target reloads it) and cvtl(b) gets call-saved in 0x27 (target `lh 0x46` x4). The if/else form of the f64 ?: temporaries (declared f64 vol/pan) removes the cfe f64 vregs from the Mmt.
 #define M3_OFF(p, T, o) (*(T *)((u8 *)(p) + (o)))
 
 extern u8 D_807457E4[];
@@ -49,7 +44,7 @@ void camSetRollBlend(s16, s16, u16);
 void camStartShake(s32, u8, u16);
 void screenWipeStart();
 void actorUpdateModelMatrix(void *, u8);
-void csModelStateSetFirstByte(s16, s16);
+void csModelStateSetFirstByte();
 void func_80641874(s16, s16);
 void func_8067A69C(s32, void *, f32, f32, u8, u8);
 void func_8067AB20(s32, void *, s32, u8, void *, u8);
@@ -97,16 +92,21 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
     f32 sp7C;
     s16 sp72;
     s32 a;
+    s16 node;
+    s32 t;
     s32 sv[5];
 
     sp9C = M3_OFF(D_807FBB4C, void *, 0x174);
     actorFindActiveByType(0xC, &sp94);
-    sv[3] = (s16)arg1;
-    spA0[1] = sv[3];
-    spA0[0] = a = (s16)(arg1 >> 16);
-    sv[1] = (s16)(arg2 >> 16);
-    spA0[2] = sv[1];
-    sv[0] = (s16)arg2;
+    a = (s16)(arg1 >> 16);
+    spA0[0] = a;
+    if (1) {  // FAKE: block barrier: keeps the arg2 halves in their own uopt block (prologue order; full 529 -> 262)
+        sv[3] = (s16)arg1;
+        spA0[1] = sv[3];
+        sv[1] = (s16)(arg2 >> 16);
+        spA0[2] = sv[1];
+        sv[0] = (s16)arg2;
+    }
     spA0[3] = sv[0];
     switch (arg0 & 0xFF) {
         case 0x45:
@@ -197,11 +197,12 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             func_80641874(a, sv[3]);
             return;
         case 0x27:
+            node = a;
             sv[4] = (u8)sv[1];
-            mapChunkEffectSetFlag(a, (s16)sv[3], 0, (u8)sv[1]);
-            mapChunkEffectSetFlag(a, (s16)sv[3], 1, sv[4]);
-            mapChunkEffectSetFlag(a, sv[3], 2, sv[4]);
-            mapChunkEffectSetFlag(a, (s16)sv[3], 3, sv[4]);
+            mapChunkEffectSetFlag(node, (s16)sv[3], 0, (u8)sv[1]);
+            mapChunkEffectSetFlag(node, (s16)sv[3], 1, sv[4]);
+            mapChunkEffectSetFlag(node, sv[3], 2, sv[4]);
+            mapChunkEffectSetFlag(node, (s16)sv[3], 3, sv[4]);
             return;
         case 0x8:
             camSetPath(a);
@@ -243,7 +244,7 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             zoneEntrySpawnEffect(a, sv[3], sv[1], (s16)sv[0]);
             return;
         case 0x11:
-            screenWipeStart(a & 0xFF);
+            screenWipeStart((arg1 >> 16) & 0xFF);
             return;
         case 0xC:
             func_8067AB20(gCamActor, sp94, 0x01000000, 1, spA0, 0);
@@ -251,7 +252,6 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
         case 0xD:
             func_8067AB20(gCamActor, sp94, 0x01000000, 0x10, spA0, 0);
             spA0[3] = -1;
-            if (D_807FBB48 != 0) {}  // FAKE: dead test steers uopt colouring / insn count
             func_8067AB20(gCamActor, sp94, 0x01000000, 0xE, spA0, 0);
             return;
         case 0x12:
@@ -339,7 +339,6 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             } else {
                 actorClearMovementFlags(sp98 = D_807FBB4C);
             }
-            if (D_807FBB4C) {}  // FAKE: dead test steers uopt colouring / insn count
             zoneEntryGetPosition(sv[3], sv[1], &M3_OFF(sp98, f32, 0x7C), &M3_OFF(sp98, f32, 0x80), &M3_OFF(sp98, f32, 0x84));
             func_8067A69C(0, sp98, M3_OFF(sp98, f32, 0x7C), M3_OFF(sp98, f32, 0x84), 2, 1);
             {
@@ -393,7 +392,6 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
                 sp98 = spawnNodeActivate(a, 0);
             } else {
                 sp98 = D_807FBB4C;
-                if (D_807FBB4C == 0) {}  // FAKE: dead test steers uopt colouring / insn count
             }
             sfxStopSlotSound(sp98, 0);
             return;
@@ -430,9 +428,10 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             M3_OFF(sp98, s16, 0xE6) = mathAngleBetweenPoints2D(sp84, sp7C, M3_OFF(sp98, f32, 0x7C), M3_OFF(sp98, f32, 0x84));
             return;
         case 0x2F:
-            csModelStateSetFirstByte(a, (s16)sv[0]);
-            if ((s16)sv[3] != 0) {
-                csModelStateSetFirstByte(sv[3], sv[0]);
+            csModelStateSetFirstByte((s16)a, (s16)sv[0]);
+            t = sv[3];
+            if (t != 0) {
+                csModelStateSetFirstByte(t, (s16)sv[0]);
             }
             if (sv[1] != 0) {
                 csModelStateSetFirstByte((s16)sv[1], (s16)sv[0]);
@@ -440,7 +439,7 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             }
             break;
         case 0x15:
-            csModelStateSetFirstByte(a, sv[3]);
+            csModelStateSetFirstByte((s16)a, (s16)sv[3]);
             return;
         case 0x17:
             sfxAllocateChannel(a, sv[3] != 0 ? (f64)sv[3] / 255.0 : 1.0);
