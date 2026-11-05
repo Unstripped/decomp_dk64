@@ -2082,3 +2082,5 @@
 {"agent": "CellTable", "approx": false, "name": "mapChunkEmitLayerDisplayLists", "note": "", "outcome": "matched", "seg": "global", "stage": null, "ts": "2026-11-05T18:57:54Z", "type": "attempt", "unit": "2026-11-05: director single-function", "vram": "0x80656B98"}
 {"agent": "SlotTex", "approx": false, "name": "modelSlotResolveAssetTextures", "note": "", "outcome": "attempted", "seg": "global", "stage": "4", "ts": "2026-11-05T18:57:54Z", "type": "attempt", "unit": "2026-11-05: director single-function", "vram": "0x80636D38"}
 {"agent": "SlotTex", "approx": false, "name": "textBlitGlyph", "note": "", "outcome": "attempted", "seg": "global", "stage": "5", "ts": "2026-11-05T19:02:22Z", "type": "attempt", "unit": "2026-11-05: director single-function", "vram": "0x806FB490"}
+{"approx": false, "ts": "2026-11-05T19:33:37Z", "type": "unit", "unit": "2026-11-05: all-remaining campaign"}
+{"agent": "Matcher2", "approx": false, "name": "func_806F03C4", "note": "", "outcome": "attempted", "seg": "global", "stage": "6", "ts": "2026-11-05T19:33:37Z", "type": "attempt", "unit": "2026-11-05: all-remaining campaign", "vram": "0x806F03C4"}
