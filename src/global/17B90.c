@@ -105,49 +105,49 @@ unsigned char arg2;
     return asset;
 }
 
-#ifdef NON_MATCHING
 typedef struct GfxCmdWords {
     u32 unk0;
     u32 unk4;
 } GfxCmdWords;
 void gfxSwapGeometryModeCullBits(GfxCmdWords *arg0, GfxCmdWords *arg1) {
+    u32 command;
+    u32 op;
     u32 w0;
     u32 w1;
-    s32 x1;
-    s32 x2;
-    w1 = 0; // FAKE: pre-loop def, extends w1 web over the loop (regalloc)
-    w0 = 0; // FAKE: pre-loop def (regalloc)
-    x2 = 0; // FAKE: pre-loop def (regalloc)
+
+    op = 0; // FAKE: orders the mask candidate before the command-word candidate
     if (arg0 != arg1) {
-        if ((w1 & 0x600) == 0x200) {} // FAKE: dead test, extends w1's web before the loop (regalloc)
         do {
             w0 = arg0->unk0;
+            command = w0 >> 24;
+            if ((w0 & 0x600) && (w0 & 0x600)) {} // FAKE: preserves the cull-mask expression's live range
             w1 = arg0->unk4;
-            if ((w0 >> 24) == 0xD9) {
+            if (command == 0xD9) {
                 if (arg0->unk4 == 0) {
                     w0 = ~w0 & 0xFFFFFF;
                     if ((w0 & 0x600) == 0x200) {
-                        if (w1 == 0) {} // FAKE: dead test, steers uopt colouring
-                        x1 = w0 | 0x400;
-                        x1 &= ~0x200;
-                        arg0->unk0 = ~x1 | 0xD9000000;
+                        op = w0 | 0x400;
+                        w0 = 0; // FAKE: prevents forwarding the mask expression out of op
+                        op = (s32)op & ~0x200;
+                        arg0->unk0 = ~op | 0xD9000000;
                     } else if ((w0 & 0x600) == 0x400) {
-                        x2 = w0 | 0x200;
-                        x2 &= ~0x400;
-                        arg0->unk0 = ~x2 | 0xD9000000;
+                        op = w0 | 0x200;
+                        w0 = 0; // FAKE: prevents forwarding the mask expression out of op
+                        op = (s32)op & ~0x400;
+                        arg0->unk0 = ~op | 0xD9000000;
                     }
                 } else {
-                    if ((w1 & 0x600) == 0x200) {
+                    op = w1 & 0x600;
+                    if (op == 0x200) {
                         arg0->unk4 |= 0x400;
                         arg0->unk4 &= ~0x200;
-                    } else if ((w1 & 0x600) == 0x400) {
+                    } else if ((op | 0) == 0x400) { // FAKE: preserves comparison operand order
                         arg0->unk4 |= 0x200;
-                        if (x2 && x2) {} // FAKE: dead test, steers uopt colouring
                         arg0->unk4 &= ~0x400;
                     }
-                    if (w0 && w0) {} // FAKE: dead test, steers uopt colouring
                 }
             }
+            if (command && command) {} // FAKE: retains the opcode variable rather than a forwarded shift
             arg0++;
             if (arg0 == arg1) {
                 break;
@@ -155,10 +155,6 @@ void gfxSwapGeometryModeCullBits(GfxCmdWords *arg0, GfxCmdWords *arg1) {
         } while (1);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/17B90/gfxSwapGeometryModeCullBits.s")
-#endif
 
 void func_80613194(ControllerView *arg0, s16 arg1) {
     if (arg0->unk50 == NULL) {
