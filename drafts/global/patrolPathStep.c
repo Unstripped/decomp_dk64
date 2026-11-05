@@ -1,4 +1,4 @@
-// patrolPathStep (src/global/12E800.c): ForbidSet revisit 9: stage 5 park, 374/374 insns, frame 0x38 ok, full=168 text=171 shape=33. Re-derived uopt -l 5/6 trace: cand 18 (unk20+idx*2) has forbidden [1 2 3 4 5] from cand 34 (v0), cand 2 (v1), arg0 (a0), arg1 (a1), cand 47 (a2). Unconstrained a3 gives reg 6 vs target t0 (reg 7), triggering the off-by-one caller-saved cascade. Target has a3 in forbidden set. Tested dir/idx masking orders, arg1 widths, and statement ordering.
+// patrolPathStep (src/global/12E800.c): Matcher7 revisit: stage 5 retained, whole-TU full=168 text=171 shape=33, 374/374 instructions, frame 0x38, no saved s/FPRs; fdiff CURRENT (3265). Base 405a7498e5b7a23c3a79d8de873b11f10abaf56c. No exact-count improvement. Caller asm from B7490/C2A90 supplies only a0/a1 (including immediately after actorMoveWithinZone); unused third/fourth formals add unwanted parameter-home stores. Reusing incoming arg0/arg1 for key/type/idx/dir/moved did not improve. register qualifiers, named object/global-address pointers, float coordinate/delta temporaries, named radius, byte-array pair addressing, return widths, split/reused angle/index temps, and corrected mathAngleBetweenPoints2D s32 return prototype did not improve exact-count candidate. s16 idx reaches full146/text142 but 376 instructions (stage3); clean u16 v reaches full163/text162 but 377 instructions (stage3), so neither replaces exact-count park. Two FAKEs still each affect score. Bounded 600s -j2 permuter best2700 only added an actor-pointer dead test; not ported. Main blocker remains a3 exclusion/caller-saved cascade. Final parked fdiff OK and NON_MATCHING compilation succeeds. Draft refreshes obsolete func_8072D08C call to current patrolGetTargetAngle name.
 typedef struct MiscBPatrolState {
     /* 0x00 */ u8 pad0[0xA];
     /* 0x0A */ s16 unkA;
@@ -185,7 +185,7 @@ u8 patrolPathStep(u8 arg0, u8 arg1)
       case 1:
         new_var = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].a;
         key = new_var;
-        v = func_8072D08C();
+        v = patrolGetTargetAngle();
         ((MiscBPatrolActorView *) D_807FBB40)->unkEE = v;
         ((MiscBPatrolActorView *) D_807FBB40)->unkE6 = v;
         ((MiscBPatrolActorView *) D_807FBB40)->unk7C = ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + (key * 10)))->x;
