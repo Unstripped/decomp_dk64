@@ -1,4 +1,4 @@
-// mapChunksInitFromMapData (src/global/55B20.c): stage 3 improved: count exact 527, full=413/shape=115 (was 386/110), frame 3808 vs 3800. Resolved register swap (arg0 in s7, -1 in s8/fp) by removing 3 early FAKEs and reusing i in loop 3. Identified that 96-112 holes are uopt 8-slot spilltemps block (w4 at 0x54, w at 0x58, colOff at 0x5c), and s1 is cross-loop reused as chunk/plane offset.
+// mapChunksInitFromMapData (src/global/55B20.c): stage 4: full=399 text=513 reloc=15 shape=81; real insns=527/527, frame=3800/3800, saved s0-s8+ra+f20 exact. Base 87a710b0fd190439287cafdcc06ce5e395d3fce4. Private copy parked NON_MATCHING; normal fdiff OK, --non-matching exits 0. Plain C fdiff FAILED: Section .text content mismatch (built: 33520 bytes, expected: 33520 bytes); relocations mismatch. Fixed 8-byte frame excess without changing buf[0xE54]: replaced w4 with w+4 and reused j for collision-header address instead of nested k. Reused i to cache header offsets unk58/unk6C, removing repeated alias-conservative loads and reaching exact count. Fresh inherited draft was full413 shape115, 532 actual instructions, frame3808 (older 527-count note stale). Tried buffer -8 (frame fixed but buf/count/w offsets still wrong, rejected unsupported capacity change), all volatile subsets/offset expression combinations, nested k elimination and j/off reuse, fresh cached-header locals (grew frame), existing i/p/total header caches, all 4-FAKE removal subsets, natural 50-byte flag loops (for/while/do/pointer), D70AA dead-read removal, coordinated header/loop local partitions, restoring w4 while eliminating j. Lower raw-distance alternative roles_flag_do_1_1_body.c full382 shape73 has 524 insns so is stage3, retained only in scratch. Natural do-loop flags plus removing D70AA FAKE restore three independent constant-one webs but do not fix other shapes. Remaining structural/register/stack-position differences; no matched result.
 void mapChunksInitFromMapData(MapData *arg0) {
     s32 i;
     s32 off;
@@ -8,9 +8,8 @@ void mapChunksInitFromMapData(MapData *arg0) {
     u8 *p;
     u32 total;
     s32 j;
-    volatile s32 colOff;
-    volatile s32 w;
-    volatile s32 w4;
+    volatile s32 colOff;  // FAKE: retains collision-header offset stack accesses
+    volatile s32 w;  // FAKE: retains collision-data base stack accesses
 
     D_807F70AC = 0;
     D_807F713A = 0;
@@ -19,15 +18,17 @@ void mapChunksInitFromMapData(MapData *arg0) {
         D_807F7138 = arg0->unkC;
         D_807F7074 = heapAlloc(0x40);
         guScale(D_807F7074, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
-        D_807F70AC = *(s32 *)((u8 *)arg0 + arg0->unk58);
-        D_807F70B0 = (struct MapCell *)((u8 *)arg0 + arg0->unk58 + 4);
+        i = arg0->unk58;
+        D_807F70AC = *(s32 *)((u8 *)arg0 + i);
+        D_807F70B0 = (struct MapCell *)((u8 *)arg0 + i + 4);
         D_807F70B4 = (struct MapBox *)((u8 *)arg0 + arg0->unk5C + 4);
         D_807F6C14 = (MapGridVectors *)((u8 *)arg0 + arg0->unk60);
         base = arg0->unk34;
         off = arg0->unk64;
         j = arg0->unk68;
-        D_807F6C20 = *(s32 *)((u8 *)arg0 + arg0->unk6C);
-        D_807F6C1C = (u8 *)((u8 *)arg0 + arg0->unk6C + 4);
+        i = arg0->unk6C;
+        D_807F6C20 = *(s32 *)((u8 *)arg0 + i);
+        D_807F6C1C = (u8 *)((u8 *)arg0 + i + 4);
         D_807F6C2C = heapAlloc(D_807F6C20);
         D_807F6C10 = *(s32 *)((u8 *)arg0 + arg0->unk70);
         D_807F6C0C = (u8 *)((u8 *)arg0 + arg0->unk70 + 4);
@@ -43,7 +44,6 @@ void mapChunksInitFromMapData(MapData *arg0) {
         p = (u8 *)arg0 + j;
         i = 0;
         if (gMapChunkCount > 0) {
-            w4 = (s32)arg0 + off + 4;
             w = (s32)arg0 + off;
             colOff = 0;
             do {
@@ -117,13 +117,13 @@ void mapChunksInitFromMapData(MapData *arg0) {
                 gMapChunks[i].unk64 = 0;
                 if (gMapChunks == 0) {}  // FAKE: dead statement (steers uopt colouring)
                 {
-                    s32 k = w4 + colOff;
-                    gMapChunks[i].unk78 = *(s32 *)k + w;
-                    gMapChunks[i].unk7C = *(s32 *)(k + 0xC) + w;
-                    gMapChunks[i].unk80 = *(s16 *)(k + 4);
-                    gMapChunks[i].unk82 = *(s16 *)(k + 6);
-                    gMapChunks[i].unk84 = *(s16 *)(k + 8);
-                    gMapChunks[i].unk86 = *(s16 *)(k + 0xA);
+                    j = (w + 4) + colOff;
+                    gMapChunks[i].unk78 = *(s32 *)j + w;
+                    gMapChunks[i].unk7C = *(s32 *)(j + 0xC) + w;
+                    gMapChunks[i].unk80 = *(s16 *)(j + 4);
+                    gMapChunks[i].unk82 = *(s16 *)(j + 6);
+                    gMapChunks[i].unk84 = *(s16 *)(j + 8);
+                    gMapChunks[i].unk86 = *(s16 *)(j + 0xA);
                 }
                 gMapChunks[i].unk28 = -1;
                 if (count != 0) {
