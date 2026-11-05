@@ -1,4 +1,4 @@
-// schedDlDebugDump (src/global/13980.c): stage 4: full=54 text=8 reloc=46 shape=46 n=415 (323 instructions), frame 184 and all callee-saved exact. Matcher6 on base 2b098035bc2bd79a4eb94174687b52ea14a12e4a improved text 17->8/full 63->54. Replaced named pointer p with u32 array index and D_80744470[p], reversed end-address comparison: uopt now forms a pointer induction spilltemp at target sp+0x50 rather than named home sp+0xb4. Inlined e field expressions and moved raw before ret to preserve all other stack offsets. Initialize n then size then mode; terminate buf before size >>= 2, fixing two scheduling differences. Remaining 8 text lines: D_80746A20 load base s5 instead of v0 (2), and six opcode/extent-ring instructions use t7/t9/t0 rather than t8/t0/t1. Tried index/formal/byte-offset variants, local-home removal, real opcode and extent value routing, pointer/static/aggregate types, typed dead lvalues, and wide/narrow opcode extraction: no further reduction. Local static declarations still shadow existing file-scope data, so 46 normalized relocation differences are not resolved; no data cutover attempted in this private park.
+// schedDlDebugDump (src/global/13980.c): stage 6: full=54 text=8 reloc=46 shape=46 n=415 (323 instructions), frame 184 and callee-saved exact. Matcher8 base 9be598a1b53e8f6b46eaf86544764c28fd319eba preserves Matcher6 text8 but fixes data ownership: file-scope D_80746A14..D_80746A2C definitions must be excluded from NON_MATCHING and removed for plain C, leaving sole function-local statics in original address order; .data now byte-identical 528 bytes vs previous 560. Replaced chained D_80746A20=D_80746A14=D_807F05A4 with separate D_80746A14 then D_80746A20 assignments, fixing an actual reversed store relocation hidden by deadsweep normalization. Removed done&&done and D_8074685C&&D_8074685C FAKEs together with unchanged text8. Remaining: D_80746A20 load base s5 instead of v0 (2) and six opcode/extent-ring registers. Tried unique local statics, all file statics/globals and prefixes, local static declaration placement, signedness combinations of five statics, address-pointer types, explicit address integer routes, moved static/cur dead-read lifetime partitions, conversion routing, and targeted static dead sweep (423 variants): no text improvement. Prior Matcher6 dead ends: index/formal/byte-offset, local-home removal, opcode/extent locals, pointer/static/aggregate types, typed dead lvalues, wide/narrow opcode extraction. Pure alias D_807F0564+4 equals D_807F0568; local .data relocations are non-normalized diagnostics, not 46 real address errors. Re-scored after 7e40c10c and expected refresh: still full54/text8/reloc46/shape46. Permuter -j2 --seconds600 observed no score below60, but the tool-fix agent confirmed deleting shared .scratch/permuter during the run (many late compile errors); no best candidate survived to inspect. No rerun: the structural/type/lifetime searches and 423-variant static sweep had already exhausted this attempt without a text improvement. Plain-C fdiff: FAILED: Section .text content mismatch (built: 4976 bytes, expected: 4976 bytes); FAILED: Relocations mismatch; CURRENT (60). Final parked copy fdiff OK; --non-matching compile passes.
 s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     static s32 D_80746A14 = 0;
     static u32 D_80746A18 = 0;
@@ -64,7 +64,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
         D_80746A1C = buttons;
     } else {
         D_80746A24 = 0;
-        D_80746A20 = D_80746A14 = D_807F05A4;
+        D_80746A14 = D_807F05A4;
+        D_80746A20 = D_807F05A4;
         D_80746A1C = 0;
         D_80746A18 = 0;
     }
@@ -96,11 +97,9 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 }
                 if (op & 2) {
                     buf[n] = 'T';
-                    if (done && done) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     n++;
                     size += 0x40;
                 }
-                if (D_8074685C && D_8074685C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 if (op & 1) {
                     buf[n] = 'Z';
                     size += 0x10;

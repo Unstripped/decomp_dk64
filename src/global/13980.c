@@ -523,6 +523,7 @@ DlOpInfo D_8074685C[27] = {
 extern char D_80757184[];
 extern char D_80757188[];
 char *D_80746A0C[2] = { D_80757184, D_80757188 };
+#ifndef NON_MATCHING
 s32 D_80746A14 = 0;
 u32 D_80746A18 = 0;
 s16 D_80746A1C = 0;
@@ -530,6 +531,7 @@ u32 D_80746A20 = 0;
 s32 D_80746A24 = 0;
 s32 D_80746A28 = 0;
 s8 D_80746A2C = 4;
+#endif
 extern u32 D_807F05A4;
 extern u32 D_807F0984;
 extern u32 D_80744478;
@@ -603,7 +605,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
         D_80746A1C = buttons;
     } else {
         D_80746A24 = 0;
-        D_80746A20 = D_80746A14 = D_807F05A4;
+        D_80746A14 = D_807F05A4;
+        D_80746A20 = D_807F05A4;
         D_80746A1C = 0;
         D_80746A18 = 0;
     }
@@ -635,11 +638,9 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 }
                 if (op & 2) {
                     buf[n] = 'T';
-                    if (done && done) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     n++;
                     size += 0x40;
                 }
-                if (D_8074685C && D_8074685C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 if (op & 1) {
                     buf[n] = 'Z';
                     size += 0x10;
