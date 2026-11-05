@@ -59,7 +59,7 @@ s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 void collisionNodeLocalToWorldXZ();
 void func_806755A8();
 
-u8 actorCollisionGetNodeHitPoint(CollisionHitActor *arg0, CollisionHitActor *arg1, f32 *arg2, f32 *arg3) {
+u8 actorCollisionGetNodeHitPoint(CollisionHitActor *self, CollisionHitActor *other, f32 *outX, f32 *outZ) {
     CollisionHitCallback *cb;
     f32 posX_f;
     f32 posY_f;
@@ -77,23 +77,23 @@ u8 actorCollisionGetNodeHitPoint(CollisionHitActor *arg0, CollisionHitActor *arg
     s8 foundCb;
     u8 matched;
 
-    cb = arg0->unk13C;
+    cb = self->unk13C;
     matched = 0;
     foundCb = 0;
     D_807FB606 = 0;
-    sub140 = arg0->unk140;
-    actorUpdateCollisionSpheres(arg0, 1);
-    if (!actorTableContains(arg1)) {
+    sub140 = self->unk140;
+    actorUpdateCollisionSpheres(self, 1);
+    if (!actorTableContains(other)) {
         return 0;
     }
 
-    posX_f = arg1->unk7C;
-    posY_f = arg1->unk80;
-    posZ_f = arg1->unk84;
+    posX_f = other->unk7C;
+    posY_f = other->unk80;
+    posZ_f = other->unk84;
 
     if (cb != NULL) {
         do {
-            if (cb->type == 0x8000 && cb->actor == arg1) {
+            if (cb->type == 0x8000 && cb->actor == other) {
                 elem = cb->elems;
                 foundCb = 1;
                 for (j = 0; j < cb->count; j++, elem++) {
@@ -105,11 +105,11 @@ u8 actorCollisionGetNodeHitPoint(CollisionHitActor *arg0, CollisionHitActor *arg
                     if (collisionSpheresOverlap((s32)(posX_f * 8.0f), (s32)(posY_f * 8.0f), (s32)(posZ_f * 8.0f), (s32)(elemX_f * 8.0f),
                                       node->unk10, node->unk14, node->unk18, node->unk1C)) {
                         matched = 1;
-                        collisionNodeLocalToWorldXZ(arg0, elem, arg2, arg3);
+                        collisionNodeLocalToWorldXZ(self, elem, outX, outZ);
                     }
-                    func_806755A8((s32)(posX_f * 8.0f), (s32)(posZ_f * 8.0f), node->unk10, node->unk18, (s32)&arg1->unkF4, (s32)&arg1->unkF6);
-                    arg1->unkFC = 1;
-                    arg1->unkFD = 1;
+                    func_806755A8((s32)(posX_f * 8.0f), (s32)(posZ_f * 8.0f), node->unk10, node->unk18, (s32)&other->unkF4, (s32)&other->unkF6);
+                    other->unkFC = 1;
+                    other->unkFD = 1;
                 }
             }
             cb = cb->next;
@@ -117,7 +117,7 @@ u8 actorCollisionGetNodeHitPoint(CollisionHitActor *arg0, CollisionHitActor *arg
     }
 
     if (D_807FB606 != 0) {
-        arg1->unk64 |= 0x100;
+        other->unk64 |= 0x100;
     }
     return matched;
 }
@@ -179,12 +179,12 @@ extern s32 D_807FB628;
 s32 actorRiderListContains(void *, void *);
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 void actorUpdateCollisionSpheres(void *, s32);
-f32 collisionPointToSphereDistance(s32, s32, s32, s32, s32, s32, s32);
-void collisionWorldToNodeLocal(struct CollisionMtxOwner *, f32, f32, f32, struct CollisionMtxNode *, f32 *, f32 *, f32 *);
-void collisionHitRecordAppend(s32, f32, f32, f32, f32, s32, s32);
-void collisionHitRecordsFlush(s32, void *);
+f32 collisionPointToSphereDistance(s32 ptX, s32 ptY, s32 ptZ, s32 sphereX, s32 sphereY, s32 sphereZ, s32 sphereRadius);
+void collisionWorldToNodeLocal(struct CollisionMtxOwner *owner, f32 worldX, f32 worldY, f32 worldZ, struct CollisionMtxNode *node, f32 *outX, f32 *outY, f32 *outZ);
+void collisionHitRecordAppend(s32 hitType, f32 dist, f32 localX, f32 localY, f32 localZ, s32 node1Idx, s32 node2Idx);
+void collisionHitRecordsFlush(s32 selfId, void *otherActor);
 
-void actorCollisionCheckNodeSpheres(CollisionCheckActor *arg0) {
+void actorCollisionCheckNodeSpheres(CollisionCheckActor *self) {
     s32 i;
     CollisionCheckActor *actor;
     CollisionSub140Full *actor_sub140;
@@ -194,19 +194,19 @@ void actorCollisionCheckNodeSpheres(CollisionCheckActor *arg0) {
     s32 sub_unkC;
     CollisionSphereNodeFull *node1;
     CollisionSphereNodeFull *node2;
-    s32 var_s4;
-    s32 var_s2;
+    s32 node1Idx;
+    s32 node2Idx;
     CollisionSub140Full *sub140;
     f32 dist;
-    f32 sp70;
-    f32 sp6C;
-    f32 sp68;
+    f32 hitLocalX;
+    f32 hitLocalY;
+    f32 hitLocalZ;
     s32 s0;
     u16 mask1;
     u16 mask2;
     CollisionActorEntry *entry;
 
-    sub140 = arg0->unk140;
+    sub140 = self->unk140;
     sub_unk0 = 0;
     if (sub_unk0) {} // FAKE: raises sub_unk0's colouring priority so it gets s7 while unk4 is loaded first
     sub_unk4 = sub140->unk4;
@@ -223,10 +223,10 @@ void actorCollisionCheckNodeSpheres(CollisionCheckActor *arg0) {
             actor = entry->actor;
             s0 = 0;
             actor_sub140 = actor->unk140;
-            if (actor->unk114 != NULL && (actor->unk60 & 0x40) && actorRiderListContains(actor, arg0)) {
+            if (actor->unk114 != NULL && (actor->unk60 & 0x40) && actorRiderListContains(actor, self)) {
                 s0 = 1;
             }
-            if ((arg0->unk60 & 0x80) && actorRiderListContains(arg0, actor)) {
+            if ((self->unk60 & 0x80) && actorRiderListContains(self, actor)) {
                 s0 = 1;
             }
             if ((actor->unk60 & 0x2000) == 0 &&
@@ -236,24 +236,24 @@ void actorCollisionCheckNodeSpheres(CollisionCheckActor *arg0) {
                 s0 == 0 &&
                 collisionSpheresOverlap(sub_unk0, sub_unk4, sub_unk8, sub_unkC,
                               actor_sub140->unk0, actor_sub140->unk4, actor_sub140->unk8, actor_sub140->unkC)) {
-                actorUpdateCollisionSpheres(arg0, 0);
-                var_s4 = 1;
+                actorUpdateCollisionSpheres(self, 0);
+                node1Idx = 1;
                 actorUpdateCollisionSpheres(actor, 0);
-                for (node1 = sub140->unk8C; node1 != NULL; node1 = node1->next, var_s4++) {
+                for (node1 = sub140->unk8C; node1 != NULL; node1 = node1->next, node1Idx++) {
                     if (node1->unk26 != 0 && (node1->unk27 & 8) == 0) {
-                        var_s2 = 1;
-                        for (node2 = actor_sub140->unk8C; node2 != NULL; node2 = node2->next, var_s2++) {
+                        node2Idx = 1;
+                        for (node2 = actor_sub140->unk8C; node2 != NULL; node2 = node2->next, node2Idx++) {
                             if (node2->unk26 != 0 && (node2->unk27 & 8) == 0) {
                                 if (collisionSpheresOverlap(node1->unk10, node1->unk14, node1->unk18, node1->unk1C,
                                                   node2->unk10, node2->unk14, node2->unk18, node2->unk1C)) {
                                     mask1 = ~node1->unk24;
                                     mask2 = ~node2->unk24;
-                                    if ((mask1 & actor->unk5C) && (mask2 & arg0->unk5C)) {
+                                    if ((mask1 & actor->unk5C) && (mask2 & self->unk5C)) {
                                         dist = collisionPointToSphereDistance(sub_unk0, sub_unk4, sub_unk8,
                                                              node2->unk10, node2->unk14, node2->unk18, node2->unk1C);
-                                        collisionWorldToNodeLocal((struct CollisionMtxOwner *)actor_sub140, arg0->unk7C, arg0->unk80, arg0->unk84, (struct CollisionMtxNode *)node2,
-                                                      &sp70, &sp6C, &sp68);
-                                        collisionHitRecordAppend(arg0->unk54, dist, sp70, sp6C, sp68, var_s4, var_s2);
+                                        collisionWorldToNodeLocal((struct CollisionMtxOwner *)actor_sub140, self->unk7C, self->unk80, self->unk84, (struct CollisionMtxNode *)node2,
+                                                      &hitLocalX, &hitLocalY, &hitLocalZ);
+                                        collisionHitRecordAppend(self->unk54, dist, hitLocalX, hitLocalY, hitLocalZ, node1Idx, node2Idx);
                                     }
                                 }
                             }
@@ -262,7 +262,7 @@ void actorCollisionCheckNodeSpheres(CollisionCheckActor *arg0) {
                 }
             }
             if (D_807FB620 != NULL) {
-                collisionHitRecordsFlush((s32)arg0, actor);
+                collisionHitRecordsFlush((s32)self, actor);
             }
             i++; entry++; // FAKE: one line keeps the entry/i spill-store order
         } while (i < gActiveActorCount);
@@ -283,39 +283,39 @@ typedef struct CollisionMtxNode {
 extern u8 D_807444FC;
 void matrix4Invert(float [4][4], float [4][4]);
 
-void collisionWorldToNodeLocal(CollisionMtxOwner *arg0, f32 arg1, f32 arg2, f32 arg3, CollisionMtxNode *arg4, f32 *arg5, f32 *arg6, f32 *arg7) {
-    float sp70[4][4];
-    float sp30[4][4];
-    u32 temp_v0;
+void collisionWorldToNodeLocal(CollisionMtxOwner *owner, f32 worldX, f32 worldY, f32 worldZ, CollisionMtxNode *node, f32 *outX, f32 *outY, f32 *outZ) {
+    float worldMtx[4][4];
+    float invMtx[4][4];
+    u32 mtxIndex;
     Mtx *mtx;
 
-    mtx = arg0->unk74[D_807444FC];
-    temp_v0 = arg4->unk20;
-    if (temp_v0 == -1) {
-        memcpy(sp70, arg0->unk70, sizeof(sp70));
+    mtx = owner->unk74[D_807444FC];
+    mtxIndex = node->unk20;
+    if (mtxIndex == -1) {
+        memcpy(worldMtx, owner->unk70, sizeof(worldMtx));
     } else {
-        guMtxL2F(sp70, (Mtx *)(((temp_v0 >> 6) << 6) + (u8 *)mtx));
+        guMtxL2F(worldMtx, (Mtx *)(((mtxIndex >> 6) << 6) + (u8 *)mtx));
     }
-    matrix4Invert(sp30, sp70);
-    guMtxXFMF(sp30, arg1, arg2, arg3, arg5, arg6, arg7);
+    matrix4Invert(invMtx, worldMtx);
+    guMtxXFMF(invMtx, worldX, worldY, worldZ, outX, outY, outZ);
 }
 
-f32 collisionPointToSphereDistance(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6) {
-    f32 temp_fa1;
-    f32 temp_fv0;
-    f32 temp_fv1;
-    f32 temp_fv1_2;
-    f32 var_fa0;
+f32 collisionPointToSphereDistance(s32 ptX, s32 ptY, s32 ptZ, s32 sphereX, s32 sphereY, s32 sphereZ, s32 sphereRadius) {
+    f32 dz;
+    f32 dx;
+    f32 dy;
+    f32 surfaceDist;
+    f32 clampedDist;
 
-    temp_fv0 = (f32) (arg0 - arg3);
-    temp_fv1 = (f32) (arg1 - arg4);
-    temp_fa1 = (f32) (arg2 - arg5);
-    temp_fv1_2 = sqrtf((temp_fv0 * temp_fv0) + (temp_fv1 * temp_fv1) + (temp_fa1 * temp_fa1)) - (f32) arg6;
-    var_fa0 = temp_fv1_2;
-    if ((f64) temp_fv1_2 < 0.0) {
-        var_fa0 = 0.0f;
+    dx = (f32) (ptX - sphereX);
+    dy = (f32) (ptY - sphereY);
+    dz = (f32) (ptZ - sphereZ);
+    surfaceDist = sqrtf((dx * dx) + (dy * dy) + (dz * dz)) - (f32) sphereRadius;
+    clampedDist = surfaceDist;
+    if ((f64) surfaceDist < 0.0) {
+        clampedDist = 0.0f;
     }
-    return var_fa0 / (f32)8;
+    return clampedDist / (f32)8;
 }
 
 typedef struct CollisionHitRecordNode {
@@ -334,24 +334,24 @@ extern CollisionHitRecordNode *D_807FB620;
 extern CollisionHitRecordNode *D_807FB624;
 extern s32 D_807FB628;
 
-void collisionHitRecordAppend(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5, s32 arg6) {
-    CollisionHitRecordNode *temp_v0;
+void collisionHitRecordAppend(s32 hitType, f32 dist, f32 localX, f32 localY, f32 localZ, s32 node1Idx, s32 node2Idx) {
+    CollisionHitRecordNode *recordNode;
 
-    temp_v0 = heapAlloc(sizeof(CollisionHitRecordNode));
-    temp_v0->unk0 = arg1;
-    temp_v0->unk4 = arg2;
-    temp_v0->unk8 = arg3;
-    temp_v0->unkC = arg4;
-    temp_v0->unk10 = arg5;
-    temp_v0->unk14 = arg6;
-    temp_v0->unk18 = arg0;
-    temp_v0->next = NULL;
+    recordNode = heapAlloc(sizeof(CollisionHitRecordNode));
+    recordNode->unk0 = dist;
+    recordNode->unk4 = localX;
+    recordNode->unk8 = localY;
+    recordNode->unkC = localZ;
+    recordNode->unk10 = node1Idx;
+    recordNode->unk14 = node2Idx;
+    recordNode->unk18 = hitType;
+    recordNode->next = NULL;
     if (D_807FB620 != NULL) {
-        D_807FB624->next = temp_v0;
+        D_807FB624->next = recordNode;
     } else {
-        D_807FB620 = temp_v0;
+        D_807FB620 = recordNode;
     }
-    D_807FB624 = temp_v0;
+    D_807FB624 = recordNode;
     D_807FB628 += 1;
 }
 
@@ -368,7 +368,7 @@ typedef struct CollisionHitRecord {
 void heapFree(void *);
 void actorAppendCallback(void *, s32, s32, u8, s32, void *);
 
-void collisionHitRecordsFlush(s32 arg0, void *arg1) {
+void collisionHitRecordsFlush(s32 selfId, void *otherActor) {
     CollisionHitRecord *arr;
     s32 i;
     CollisionHitRecordNode *node;
@@ -388,7 +388,7 @@ void collisionHitRecordsFlush(s32 arg0, void *arg1) {
         heapFree(node);
         node = next;
     }
-    actorAppendCallback(arg1, arg0, 0x8000, 0, D_807FB628, arr);
+    actorAppendCallback(otherActor, selfId, 0x8000, 0, D_807FB628, arr);
 }
 
 typedef struct CollisionNodeLink {
@@ -420,36 +420,36 @@ typedef struct CollisionHitRecordRef {
     s32 unk14;
 } CollisionHitRecordRef;
 
-void collisionNodeLocalToWorldXZ(CollisionLocalOwner *arg0, CollisionHitRecordRef *arg1, f32 *arg2, f32 *arg3) {
+void collisionNodeLocalToWorldXZ(CollisionLocalOwner *owner, CollisionHitRecordRef *recordRef, f32 *outWorldX, f32 *outWorldZ) {
     s32 i;
     CollisionNodeLink *node;
     Mtx *mtx;
-    float sp4C[4][4];
-    u32 temp_v1;
-    f32 sp44;
-    f32 sp40;
-    f32 sp3C;
+    float modelMtx[4][4];
+    u32 mtxIndex;
+    f32 worldX;
+    f32 worldY;
+    f32 worldZ;
 
-    node = arg0->unk140->unk8C;
-    for (i = arg1->unk14 - 1; i != 0; i--) {
+    node = owner->unk140->unk8C;
+    for (i = recordRef->unk14 - 1; i != 0; i--) {
         node = node->next;
     }
-    mtx = arg0->unk140->unk74[D_807444FC ^ 1];
-    temp_v1 = node->unk20;
-    if (temp_v1 == -1) {
-        memcpy(sp4C, arg0->unk140->unk70, sizeof(sp4C));
-        guMtxXFMF(sp4C, arg1->unk4, arg1->unk8, arg1->unkC, &sp44, &sp40, &sp3C);
+    mtx = owner->unk140->unk74[D_807444FC ^ 1];
+    mtxIndex = node->unk20;
+    if (mtxIndex == -1) {
+        memcpy(modelMtx, owner->unk140->unk70, sizeof(modelMtx));
+        guMtxXFMF(modelMtx, recordRef->unk4, recordRef->unk8, recordRef->unkC, &worldX, &worldY, &worldZ);
     } else {
-        guMtxXFML((Mtx *)(((temp_v1 >> 6) << 6) + (u8 *)mtx), arg1->unk4, arg1->unk8, arg1->unkC, &sp44, &sp40, &sp3C);
+        guMtxXFML((Mtx *)(((mtxIndex >> 6) << 6) + (u8 *)mtx), recordRef->unk4, recordRef->unk8, recordRef->unkC, &worldX, &worldY, &worldZ);
     }
-    *arg2 = sp44;
-    *arg3 = sp3C;
+    *outWorldX = worldX;
+    *outWorldZ = worldZ;
 }
 
 s32 func_80611E60(s32);
 void func_806742C0(s16, s16, s32, s32);
 
-void func_806755A8(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
+void func_806755A8(s32 x1, s32 y1, s32 x2, s32 y2, s32 outMinAngle, s32 outMaxAngle) {
     s32 pad1;
     s32 pad2;
     f32 dist;
@@ -458,14 +458,14 @@ void func_806755A8(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
     s32 dy;
     s32 abs_val;
 
-    dx = arg2 - arg0;
+    dx = x2 - x1;
     if (dx > 0) {
         abs_val = dx;
     } else {
         abs_val = -dx;
     }
     if (abs_val < 0x2711) {
-        dy = arg3 - arg1;
+        dy = y2 - y1;
         if (dy > 0) {
             abs_val = dy;
         } else {
@@ -478,15 +478,15 @@ void func_806755A8(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5) {
                     angle = (s16)(func_80611E60((s32)(((f64)dx * 65535.9) / (f64)dist)) >> 4);
                 }
                 if (dx >= 0 && dy < 0) {
-                    angle = (s16)((func_80611E60((s32)(((f64)(arg1 - arg3) * 65535.9) / (f64)dist)) >> 4) + 0x400);
+                    angle = (s16)((func_80611E60((s32)(((f64)(y1 - y2) * 65535.9) / (f64)dist)) >> 4) + 0x400);
                 }
                 if (dx < 0 && dy < 0) {
-                    angle = (s16)((func_80611E60((s32)(((f64)(arg0 - arg2) * 65535.9) / (f64)dist)) >> 4) + 0x800);
+                    angle = (s16)((func_80611E60((s32)(((f64)(x1 - x2) * 65535.9) / (f64)dist)) >> 4) + 0x800);
                 }
                 if (dx < 0 && dy >= 0) {
                     angle = (s16)((func_80611E60((s32)(((f64)dy * 65535.9) / (f64)dist)) >> 4) + 0xC00);
                 }
-                func_806742C0(angle + 0x400, angle - 0x400, arg4, arg5);
+                func_806742C0(angle + 0x400, angle - 0x400, outMinAngle, outMaxAngle);
             }
         }
     }
