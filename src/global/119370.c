@@ -80,12 +80,12 @@ void effectResetLists(void) {
     effectResetState();
 }
 
-s32 func_807146A4(s32 arg0) {
+s32 func_807146A4(s32 targetId) {
     EffectGridNode *node = D_807FDB00;
 
     if (node != NULL) {
         do {
-            if (arg0 == node->unk4) {
+            if (targetId == node->unk4) {
                 return (s32) node->unk0;
             }
             node = node->unk24;
@@ -94,28 +94,28 @@ s32 func_807146A4(s32 arg0) {
     return (s32) D_807FDB00->unk0;
 }
 
-void effectGridGetByteDimensions(EffectGridNode *arg0, u8 *arg1, u8 *arg2) {
-    *arg1 = ((u8 *) arg0)[4];
-    *arg2 = ((u8 *) arg0)[5];
+void effectGridGetByteDimensions(EffectGridNode *grid, u8 *outW, u8 *outH) {
+    *outW = ((u8 *) grid)[4];
+    *outH = ((u8 *) grid)[5];
 }
 
-void effectGridGetCellDimensions(EffectGridNode *arg0, s16 *arg1, s16 *arg2) {
-    *arg1 = arg0->unkE;
-    *arg2 = arg0->unk10;
+void effectGridGetCellDimensions(EffectGridNode *grid, s16 *outCellW, s16 *outCellH) {
+    *outCellW = grid->unkE;
+    *outCellH = grid->unk10;
 }
 
-void effectGridGetScaledDimensions(EffectGridNode *arg0, s16 *arg1, s16 *arg2) {
+void effectGridGetScaledDimensions(EffectGridNode *grid, s16 *outScaledW, s16 *outScaledH) {
     s16 pad0;
     s16 pad1;
-    u8 sp1B;
-    u8 sp1A;
-    effectGridGetByteDimensions(arg0, &sp1B, &sp1A);
-    effectGridGetCellDimensions(arg0, arg1, arg2);
-    *arg1 *= sp1B;
-    *arg2 *= sp1A;
+    u8 byteW;
+    u8 byteH;
+    effectGridGetByteDimensions(grid, &byteW, &byteH);
+    effectGridGetCellDimensions(grid, outScaledW, outScaledH);
+    *outScaledW *= byteW;
+    *outScaledH *= byteH;
 }
 
-void effectGridRegister(EffectGridNode *arg0) {
+void effectGridRegister(EffectGridNode *grid) {
     EffectGridNode *last;
     EffectGridNode *newNode;
     s32 byteOffset;
@@ -127,7 +127,7 @@ void effectGridRegister(EffectGridNode *arg0) {
     last = NULL;
     while (newNode != NULL) {
         last = newNode;
-        if (arg0 == newNode->unk0) {
+        if (grid == newNode->unk0) {
             return;
         }
         newNode = newNode->unk24;
@@ -135,19 +135,19 @@ void effectGridRegister(EffectGridNode *arg0) {
 
     newNode = heapAlloc(0x28);
     newNode->unk24 = NULL;
-    newNode->unk0 = arg0;
-    newNode->unk4 = (s32) arg0->unk0;
-    effectGridGetByteDimensions(arg0, &newNode->unk8, &newNode->unk9);
-    ((u8 *) newNode)[0xA] = ((u8 *) arg0)[0x6];
-    ((u8 *) newNode)[byteOffset] = ((u8 *) arg0)[0x7];
-    ((u8 *) newNode)[0x10] = ((u8 *) arg0)[0x8];
-    ((u8 *) newNode)[0x11] = ((u8 *) arg0)[0x9];
-    ((u8 *) newNode)[0x12] = ((u8 *) arg0)[0xA];
-    ((u8 *) newNode)[0x13] = ((u8 *) arg0)[0xB];
-    ((u8 *) newNode)[0x14] = ((u8 *) arg0)[0xC];
-    ((u8 *) newNode)[0x15] = ((u8 *) arg0)[0xD];
-    effectGridGetCellDimensions(arg0, &newNode->unkC, &newNode->unkE);
-    newNode->unk16 = arg0->unk12;
+    newNode->unk0 = grid;
+    newNode->unk4 = (s32) grid->unk0;
+    effectGridGetByteDimensions(grid, &newNode->unk8, &newNode->unk9);
+    ((u8 *) newNode)[0xA] = ((u8 *) grid)[0x6];
+    ((u8 *) newNode)[byteOffset] = ((u8 *) grid)[0x7];
+    ((u8 *) newNode)[0x10] = ((u8 *) grid)[0x8];
+    ((u8 *) newNode)[0x11] = ((u8 *) grid)[0x9];
+    ((u8 *) newNode)[0x12] = ((u8 *) grid)[0xA];
+    ((u8 *) newNode)[0x13] = ((u8 *) grid)[0xB];
+    ((u8 *) newNode)[0x14] = ((u8 *) grid)[0xC];
+    ((u8 *) newNode)[0x15] = ((u8 *) grid)[0xD];
+    effectGridGetCellDimensions(grid, &newNode->unkC, &newNode->unkE);
+    newNode->unk16 = grid->unk12;
     newNode->unk18 = -1;
 
     if (D_807FDB00 != NULL) {
@@ -161,81 +161,81 @@ void effectGridRegister(EffectGridNode *arg0) {
     for (i = 0; i < count; i++) {
         ((s32 *) ((u8 *) newNode->unk1C + (i * 8)))[1] = -1;
     }
-    newNode->unk20 = (u8 *) arg0 + 0x14;
+    newNode->unk20 = (u8 *) grid + 0x14;
 }
 
-void func_80714944(s32 arg0) {
-    D_807FDB30 = arg0;
+void func_80714944(s32 param) {
+    D_807FDB30 = param;
 }
 
-void func_80714950(s32 arg0) {
-    D_807FDB2C = arg0;
+void func_80714950(s32 initSpeed) {
+    D_807FDB2C = initSpeed;
 }
 
 void func_8071495C(void) {
     D_807FDB1D = 1;
 }
 
-void func_8071496C(s16 arg0) {
-    D_807FDB1A = arg0;
+void func_8071496C(s16 val) {
+    D_807FDB1A = val;
 }
 
-void func_8071497C(s16 arg0) {
-    D_807FDB34 = arg0;
+void func_8071497C(s16 val) {
+    D_807FDB34 = val;
 }
 
-void func_8071498C(s32 arg0) {
-    D_807FDB14 = arg0;
+void func_8071498C(s32 callback) {
+    D_807FDB14 = callback;
 }
 
-void func_80714998(s8 arg0) {
-    D_807FDB1C = arg0;
+void func_80714998(s8 mode) {
+    D_807FDB1C = mode;
 }
 
-void func_807149A8(s16 arg0) {
-    D_807FDB3A = arg0;
+void func_807149A8(s16 val) {
+    D_807FDB3A = val;
 }
 
-void func_807149B8(s8 arg0) {
-    D_807FDB18 = arg0;
+void func_807149B8(s8 val) {
+    D_807FDB18 = val;
 }
 
-void func_807149C8(s8 arg0, s8 arg1, s8 arg2, s8 arg3) {
-    D_807FDB0C = arg0;
-    D_807FDB0D = arg1;
-    D_807FDB0E = arg2;
-    D_807FDB0F = arg3;
+void func_807149C8(s8 r, s8 g, s8 b, s8 a) {
+    D_807FDB0C = r;
+    D_807FDB0D = g;
+    D_807FDB0E = b;
+    D_807FDB0F = a;
 }
 
-void func_807149FC(s32 arg0) {
-    D_807FDB10 = arg0;
+void func_807149FC(s32 duration) {
+    D_807FDB10 = duration;
 }
 
-void func_80714A08(f32 arg0, f32 arg1) {
-    D_807FDB20 = arg0;
-    D_807FDB24 = arg1;
+void func_80714A08(f32 scaleX, f32 scaleY) {
+    D_807FDB20 = scaleX;
+    D_807FDB24 = scaleY;
     D_807FDB28 = 1;
 }
 
-void func_80714A28(s16 arg0) {
-    D_807FDB36 = arg0;
+void func_80714A28(s16 flags) {
+    D_807FDB36 = flags;
 }
 
-void effectFlagsOr(u8 arg0) {
+void effectFlagsOr(u8 flagBits) {
     u16 *temp = &D_807FDB36;
 
-    *temp = *temp | arg0;
+    *temp = *temp | flagBits;
 }
 
-void func_80714A58(s16 arg0) {
-    D_807FDB38 = arg0;
+void func_80714A58(s16 val) {
+    D_807FDB38 = val;
 }
 
-void func_80714A68(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
-    D_807FDB3C = arg0;
-    D_807FDB3E = arg1;
-    D_807FDB40 = arg2;
-    D_807FDB42 = arg3;
+void func_80714A68(s16 minX, s16 minY, s16 maxX, s16 maxY) {
+    D_807FDB3C = minX;
+    D_807FDB3E = minY;
+    D_807FDB40 = maxX;
+    D_807FDB42 = maxY;
 }
 
 extern u8 D_8074450C;
@@ -266,53 +266,53 @@ void effectResetState(void) {
 }
 
 void modelSlotGetNodePos();
-EffectNode *effectCreate(s32, f32, f32, f32, f32, void *, s32, s32, u8);
+EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, void *owner, s32 boneIndex, s32 subIndex, u8 flags);
 
-void func_80714B84(s32 arg0, f32 arg1, s32 arg2, s32 arg3, u8 arg4) {
-    f32 sp3C;
-    f32 sp38;
-    f32 sp34;
+void func_80714B84(s32 asset, f32 scale, s32 modelSlot, s32 nodeIndex, u8 flags) {
+    f32 nodeX;
+    f32 nodeY;
+    f32 nodeZ;
 
-    modelSlotGetNodePos(arg2, 1, arg3, &sp3C, &sp38, &sp34);
-    effectCreate(arg0, arg1, sp3C, sp38, sp34, NULL, arg2, arg3, (s32) arg4);
+    modelSlotGetNodePos(modelSlot, 1, nodeIndex, &nodeX, &nodeY, &nodeZ);
+    effectCreate(asset, scale, nodeX, nodeY, nodeZ, NULL, modelSlot, nodeIndex, (s32) flags);
 }
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 
-void func_80714C08(s32 arg0, f32 arg1, void *arg2, s32 arg3, u8 arg4) {
-    f32 sp3C;
-    f32 sp38;
-    f32 sp34;
+void func_80714C08(s32 asset, f32 scale, void *actor, s32 boneIndex, u8 flags) {
+    f32 boneX;
+    f32 boneY;
+    f32 boneZ;
     u16 new_var;
 
-    actorGetNodePos(arg2, arg3, &sp3C, &sp38, &sp34);
-    new_var = ((Actor *) arg2)->unk60 & 0x200;
-    if ((!new_var && (((Actor *) arg2)->unk4 != NULL)) && (D_807FDB36 & 0x80)) {
+    actorGetNodePos(actor, boneIndex, &boneX, &boneY, &boneZ);
+    new_var = ((Actor *) actor)->unk60 & 0x200;
+    if ((!new_var && (((Actor *) actor)->unk4 != NULL)) && (D_807FDB36 & 0x80)) {
         effectFlagsOr(0x40);
     }
-    effectCreate(arg0, arg1, sp3C, sp38, sp34, arg2, 0, arg3, (s32) arg4);
+    effectCreate(asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, (s32) flags);
 }
 
-void func_80714CC0(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
-    effectCreate(arg0, arg1, arg2, arg3, arg4, NULL, 0, 0, 0);
+void func_80714CC0(s32 asset, f32 scale, f32 x, f32 y, f32 z) {
+    effectCreate(asset, scale, x, y, z, NULL, 0, 0, 0);
 }
 
 extern s32 D_807FBB64;
 void effectBuildGridVertices(EffectNode *);
 #define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 
-EffectNode *effectCreate(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void *arg5, s32 arg6, s32 arg7, u8 arg8) {
+EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, void *owner, s32 boneIndex, s32 subIndex, u8 flags) {
     EffectNode *effect;
     EffectGridNode *node;
     s32 found;
     s32 i;
 
-    effectGridRegister((EffectGridNode *)arg0);
+    effectGridRegister((EffectGridNode *)asset);
     node = D_807FDB00;
     found = 0;
     if (node != NULL) {
         do {
-            if (node->unk0 == (void *)arg0) {
+            if (node->unk0 == (void *)asset) {
                 found = 1;
             } else {
                 node = node->unk24;
@@ -333,22 +333,22 @@ EffectNode *effectCreate(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void 
     }
     D_807FDB08 = effect;
     if ((u8) D_807FDB1D != 0) {
-        arg2 *= 4.0f;
-        arg3 *= 4.0f;
-        arg4 *= 4.0f;
-        arg1 *= 4.0f;
+        posX *= 4.0f;
+        posY *= 4.0f;
+        posZ *= 4.0f;
+        scale *= 4.0f;
         D_807FDB20 *= 4.0f;
         D_807FDB24 *= 4.0f;
     }
-    UA1_D08_FIELD(f32, effect, 0x340) = arg2;
-    UA1_D08_FIELD(f32, effect, 0x344) = arg3;
-    UA1_D08_FIELD(f32, effect, 0x348) = arg4;
+    UA1_D08_FIELD(f32, effect, 0x340) = posX;
+    UA1_D08_FIELD(f32, effect, 0x344) = posY;
+    UA1_D08_FIELD(f32, effect, 0x348) = posZ;
     if ((u8) D_807FDB28 != 0) {
         UA1_D08_FIELD(f32, effect, 0x360) = D_807FDB20;
         UA1_D08_FIELD(f32, effect, 0x364) = D_807FDB24;
     } else {
-        UA1_D08_FIELD(f32, effect, 0x360) = arg1;
-        UA1_D08_FIELD(f32, effect, 0x364) = arg1;
+        UA1_D08_FIELD(f32, effect, 0x360) = scale;
+        UA1_D08_FIELD(f32, effect, 0x364) = scale;
     }
     if ((u8) D_807FDB0F != 0) {
         UA1_D08_FIELD(u8, effect, 0x36A) = *(u8 *)&D_807FDB0C;
@@ -365,10 +365,10 @@ EffectNode *effectCreate(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, void 
     effect->mode = *(u8 *)&D_807FDB1D;
     UA1_D08_FIELD(s16, effect, 0x368) = D_807FDB1A;
     UA1_D08_FIELD(s32, effect, 0x380) = *((u8 *)node + 9) * *((u8 *)node + 8);
-    UA1_D08_FIELD(u8, effect, 0x334) = arg8;
-    effect->resource = (s32)arg5;
-    UA1_D08_FIELD(s16, effect, 0x33C) = arg6;
-    UA1_D08_FIELD(s8, effect, 0x33E) = arg7;
+    UA1_D08_FIELD(u8, effect, 0x334) = flags;
+    effect->resource = (s32)owner;
+    UA1_D08_FIELD(s16, effect, 0x33C) = boneIndex;
+    UA1_D08_FIELD(s8, effect, 0x33E) = subIndex;
     UA1_D08_FIELD(s16, effect, 0x34E) = D_807FDB30;
     UA1_D08_FIELD(u8, effect, 0x350) = D_807FDB1C;
     UA1_D08_FIELD(u8, effect, 0x351) = 0;
@@ -498,9 +498,9 @@ void func_80715A3C(s16 *, u8, u8 *, s32, s32, s32 *);
 void effectFreeAndUnlink(EffectNode *);
 void effectComputeTransformMatrix(Mtx *, u8, f32, f32, f32, f32, f32, f32, f32, f32, u8);
 
-void effectUpdateAll(u8 arg0) {
+void effectUpdateAll(u8 pGlist) {
     EffectNode *effect;
-    u8 sp7B;
+    u8 chunkFound;
     EffectGridNode *node2;
     s32 i;
     s32 offset;
@@ -530,10 +530,10 @@ void effectUpdateAll(u8 arg0) {
                 break;
             }
             }
-            sp7B = 0;
-            if (!arg0 || (effect->flags & 1)) {
+            chunkFound = 0;
+            if (!pGlist || (effect->flags & 1)) {
                 if (UA1_D08_FIELD(void *, effect, 0x328) != NULL) {
-                    ((void (*)(void *, u8 *))UA1_D08_FIELD(void *, effect, 0x328))(effect, &sp7B);
+                    ((void (*)(void *, u8 *))UA1_D08_FIELD(void *, effect, 0x328))(effect, &chunkFound);
                 }
             } else if (UA1_D08_FIELD(void *, effect, 0x328) != NULL) {
                 if (D_80750AB4 > 0) {
@@ -559,7 +559,7 @@ void effectUpdateAll(u8 arg0) {
                     UA1_D08_FIELD(u8, effect, 0x32D) = 1;
                 }
             }
-            if (sp7B != 0) {
+            if (chunkFound != 0) {
                 UA1_D08_FIELD(u8, effect, 0x32D) = 1;
             }
             if (UA1_D08_FIELD(u8, effect, 0x32D) != 0) {
@@ -626,7 +626,7 @@ void effectUpdateAll(u8 arg0) {
                               (u8 *)UA1_D08_FIELD(void *, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x1C),
                               UA1_D08_FIELD(s32, effect, 0x380), UA1_D08_FIELD(s16, effect, 0x34E),
                               &UA1_D08_FIELD(s32, effect, 0x370));
-                if (!arg0 || (effect->flags & 1)) {
+                if (!pGlist || (effect->flags & 1)) {
                     UA1_D08_FIELD(u8, effect, 0x351) = UA1_D08_FIELD(u8, effect, 0x351) + 1;
                     if (UA1_D08_FIELD(u8, effect, 0x350) == UA1_D08_FIELD(u8, effect, 0x351)) {
                         UA1_D08_FIELD(s16, effect, 0x34E) = UA1_D08_FIELD(s16, effect, 0x34E) + 1;
@@ -636,7 +636,7 @@ void effectUpdateAll(u8 arg0) {
             }
             effect->flags |= 8;
         } else {
-            if (!arg0 || (effect->flags & 1)) {
+            if (!pGlist || (effect->flags & 1)) {
                 UA1_D08_FIELD(s16, effect, 0x368) = UA1_D08_FIELD(s16, effect, 0x368) - 1;
             }
         }
@@ -669,13 +669,13 @@ void effectUpdateAll(u8 arg0) {
 
 void effectFreeAndUnlink(EffectNode *);
 
-void effectFreeByResource(s32 arg0) {
+void effectFreeByResource(s32 resource) {
     EffectNode *effect;
 
     effect = D_807FDB04;
     if (effect != NULL) {
         do {
-            if (arg0 == effect->resource) {
+            if (resource == effect->resource) {
                 effectFreeAndUnlink(effect);
             }
             effect = effect->next;
@@ -702,8 +702,8 @@ void func_8062D26C(void *);
 void heapFreeDeferred(void *);
 
 void effectFreeAndUnlink(EffectNode *effect) {
-    u8 sp3F;
-    s32 temp_a0;
+    u8 layer;
+    s32 prevNode;
     s32 i;
     EffectNode *previous;
     EffectNode *next;
@@ -711,16 +711,16 @@ void effectFreeAndUnlink(EffectNode *effect) {
 
     if (effect->mode == 0) {
         if (effect->flags & 4) {
-            renderEntryRemove(0, (s32)effect, 4, &sp3F - 8);
+            renderEntryRemove(0, (s32)effect, 4, &layer - 8);
         } else {
             func_8062D26C(effect);
         }
     } else {
-        renderEntryRemove(0, (s32)effect, 3, &sp3F - 8);
+        renderEntryRemove(0, (s32)effect, 3, &layer - 8);
     }
-    temp_a0 = (s32)effect->allocation;
-    if (temp_a0 != 0) {
-        heapFreeDeferred((void *)temp_a0);
+    prevNode = (s32)effect->allocation;
+    if (prevNode != 0) {
+        heapFreeDeferred((void *)prevNode);
     }
     i = 0;
     buffer = effect;
@@ -755,7 +755,7 @@ typedef struct EffectRouteEntry {
 
 s32 assetLoad(s32, s16, s32, s32);
 
-void func_80715A3C(s16 *arg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5) {
+void func_80715A3C(s16 *effect, u8 inX, u8 *inY, s32 inZ, s32 screenX, s32 *screenY) {
     u8 category;
     s32 i;
     s32 index;
@@ -764,19 +764,19 @@ void func_80715A3C(s16 *arg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5) 
     EffectRouteEntry *entry;
 
     i = 0;
-    if (arg3 > 0) {
-        out = arg5;
-        index = arg3 * arg4;
-        entry = (EffectRouteEntry *)arg2;
+    if (inZ > 0) {
+        out = screenY;
+        index = inZ * screenX;
+        entry = (EffectRouteEntry *)inY;
         entry += index;
         do {
             if (entry->column == -1) {
-                if (arg1) {
+                if (inX) {
                     category = 0x19;
                 } else {
                     category = 7;
                 }
-                value = assetLoad(category, arg0[index + i], 0, 0);
+                value = assetLoad(category, effect[index + i], 0, 0);
                 *out = value;
                 entry->value = value;
             } else {
@@ -785,8 +785,8 @@ void func_80715A3C(s16 *arg0, u8 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5) 
             i += 1;
             out += 1;
             entry += 1;
-            (entry + (-1))->column = arg4;
-        } while (i != arg3);
+            (entry + (-1))->column = screenX;
+        } while (i != inZ);
     }
 }
 
@@ -795,7 +795,7 @@ void matrixMakeRotationZ(f32 (*)[4], f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 f32 distance3D(f32, f32, f32, f32, f32, f32);
 
-void effectComputeTransformMatrix(Mtx *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, u8 arg10) {
+void effectComputeTransformMatrix(Mtx *dst, u8 x, f32 y, f32 z, f32 scaleX, f32 scaleY, f32 pitch, f32 yaw, f32 roll, f32 mode, u8 depthScale) {
     f32 pad[2];
     f32 distance;
     f32 value;
@@ -806,13 +806,13 @@ void effectComputeTransformMatrix(Mtx *arg0, u8 arg1, f32 arg2, f32 arg3, f32 ar
     f32 transform[4][4];
     Mtx mtx;
 
-    if (arg10 == 0) {
-        distance = distance3D(arg4, arg5, arg6, arg7, arg8, arg9);
+    if (depthScale == 0) {
+        distance = distance3D(scaleX, scaleY, pitch, yaw, roll, mode);
         value = distance;
         if ((f64)distance < 0.1) {
             value = 1.0f;
         }
-        distance = (arg5 - arg8) / value;
+        distance = (scaleY - roll) / value;
         if (distance > 0.0f) {
             absValue = distance;
         } else {
@@ -823,45 +823,45 @@ void effectComputeTransformMatrix(Mtx *arg0, u8 arg1, f32 arg2, f32 arg3, f32 ar
         if (distance >= 0.0f) {
             angle = 0xFFF - temp;
         }
-        if (arg1 != 2) {
-            guScaleF(scale, arg2, arg3, 0.0f);
+        if (x != 2) {
+            guScaleF(scale, y, z, 0.0f);
         } else {
             guScaleF(scale, 1.0f, 1.0f, 1.0f);
         }
         guRotateF(transform, (f32)(((f64)angle / 4095.0) * 360.0), 1.0f, 0.0f, 0.0f);
         guMtxCatF(scale, transform, scale);
-        value = mathAngleBetweenPointsRad(arg4, arg6, arg7, arg9);
+        value = mathAngleBetweenPointsRad(scaleX, pitch, yaw, mode);
         guRotateF(transform, value * 57.295776f, 0.0f, 1.0f, 0.0f);
         guMtxCatF(scale, transform, scale);
-        guTranslateF(transform, arg7, arg8, arg9);
+        guTranslateF(transform, yaw, roll, mode);
         guMtxCatF(scale, transform, scale);
     } else {
-        if (arg1 != 2) {
-            guScaleF(scale, arg2, arg3, 0.0f);
+        if (x != 2) {
+            guScaleF(scale, y, z, 0.0f);
         } else {
             guScaleF(scale, 1.0f, 1.0f, 1.0f);
         }
         matrixMakeRotationZ(transform, (f32)D_807FDB34);
         guMtxCatF(scale, transform, scale);
-        guTranslateF(transform, arg7, arg8, arg9);
+        guTranslateF(transform, yaw, roll, mode);
         guMtxCatF(scale, transform, scale);
     }
-    if ((arg1 == 1) || (arg1 == 2)) {
+    if ((x == 1) || (x == 2)) {
         guMtxF2L(scale, &mtx);
-        guMtxCatL(arg0, &mtx, arg0);
+        guMtxCatL(dst, &mtx, dst);
     } else {
-        guMtxF2L(scale, arg0);
+        guMtxF2L(scale, dst);
     }
 }
 
-f32 distance3D(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
+f32 distance3D(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
     f32 x;
     f32 y;
     f32 z;
 
-    x = arg0 - arg3;
-    y = arg1 - arg4;
-    z = arg2 - arg5;
+    x = x1 - x2;
+    y = y1 - y2;
+    z = z1 - z2;
     return sqrtf((x * x) + (y * y) + (z * z));
 }
 
@@ -924,7 +924,7 @@ void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
 s32 mapChunkContainsPoint(s16, s16, s16);
 s32 mapChunkIsInUse(s16);
 
-Gfx *effectGridBuildDisplayList(EffectDrawView *arg0, Gfx *arg1, s16 arg2) {
+Gfx *effectGridBuildDisplayList(EffectDrawView *drawView, Gfx *inGlist, s16 alpha) {
     s32 i;
     u8 red;
     u8 green;
@@ -934,32 +934,32 @@ Gfx *effectGridBuildDisplayList(EffectDrawView *arg0, Gfx *arg1, s16 arg2) {
     f32 colorBlue = 1.0f;
     Gfx *glist;
 
-    if (arg0->unk38C & 0x50) {
-        return arg1;
+    if (drawView->unk38C & 0x50) {
+        return inGlist;
     }
-    if ((((D_807FBB4C->unk154 == 0x83) || (D_807FBB4C->unk154 == 0x67)) && !(arg0->unk38C & 0x20)) || (((D_807FBB60 & 0x100002) == 0x100002) && !(arg0->unk38C & 0x100))) {
-        return arg1;
+    if ((((D_807FBB4C->unk154 == 0x83) || (D_807FBB4C->unk154 == 0x67)) && !(drawView->unk38C & 0x20)) || (((D_807FBB60 & 0x100002) == 0x100002) && !(drawView->unk38C & 0x100))) {
+        return inGlist;
     }
-    if (arg2 == -1) {
-        arg2 = arg0->unk38A;
+    if (alpha == -1) {
+        alpha = drawView->unk38A;
     }
-    if (arg0->unk388 != -1) {
-        if (arg0->unk36F != 0) {
-            if (mapChunkContainsPoint((s16)((f64)arg0->unk340 * 0.25), (s16)((f64)arg0->unk344 * 0.25), arg0->unk388) == 0) {
-                return arg1;
+    if (drawView->unk388 != -1) {
+        if (drawView->unk36F != 0) {
+            if (mapChunkContainsPoint((s16)((f64)drawView->unk340 * 0.25), (s16)((f64)drawView->unk344 * 0.25), drawView->unk388) == 0) {
+                return inGlist;
             }
-        } else if (arg2 != arg0->unk388) {
-            return arg1;
+        } else if (alpha != drawView->unk388) {
+            return inGlist;
         }
     }
-    glist = ((Gfx *(*)[2])arg0)[arg0->unk21][D_807444FC];
-    arg0->unk21++;
-    EFFECT_WRITE_GFX(arg1++, 0xDE000000, osVirtualToPhysical(glist));
+    glist = ((Gfx *(*)[2])drawView)[drawView->unk21][D_807444FC];
+    drawView->unk21++;
+    EFFECT_WRITE_GFX(inGlist++, 0xDE000000, osVirtualToPhysical(glist));
     EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
     EFFECT_WRITE_GFX(glist++, 0xE3000A01, 0);
     EFFECT_WRITE_GFX(glist++, 0xD9000000, 0);
     EFFECT_WRITE_GFX(glist++, 0xE3001801, 0xC0);
-    if (arg0->unk36E != 0) {
+    if (drawView->unk36E != 0) {
         EFFECT_WRITE_GFX(glist++, 0xD9FFFFFF, 0x200005);
         EFFECT_WRITE_GFX(glist++, 0xE200001C, 0x504B50);
     } else {
@@ -969,57 +969,57 @@ Gfx *effectGridBuildDisplayList(EffectDrawView *arg0, Gfx *arg1, s16 arg2) {
     EFFECT_WRITE_GFX(glist++, 0xD7000002, 0xFFFFFFFF);
     EFFECT_WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
 
-    if (arg0->unk330->unk14 == 0 && mapChunkIsInUse(arg2)) {
-        lightSampleColorAtPosition(arg0->unk340, arg0->unk344, arg0->unk348, 0, &red, &green, &blue, arg2);
+    if (drawView->unk330->unk14 == 0 && mapChunkIsInUse(alpha)) {
+        lightSampleColorAtPosition(drawView->unk340, drawView->unk344, drawView->unk348, 0, &red, &green, &blue, alpha);
         colorRed = (f32)((f64)red / 255.0);
         colorGreen = (f32)((f64)green / 255.0);
         colorBlue = (f32)((f64)blue / 255.0);
     }
-    gDPSetPrimColor(glist++, 0, 0, (u32)((f32)arg0->unk36A * colorRed), (u32)((f32)arg0->unk36B * colorGreen), (u32)((f32)arg0->unk36C * colorBlue), arg0->unk36D);
-    if (arg0->unk36F != 0) {
+    gDPSetPrimColor(glist++, 0, 0, (u32)((f32)drawView->unk36A * colorRed), (u32)((f32)drawView->unk36B * colorGreen), (u32)((f32)drawView->unk36C * colorBlue), drawView->unk36D);
+    if (drawView->unk36F != 0) {
         EFFECT_WRITE_GFX(glist++, 0xDA380007, &D_20000C0);
         EFFECT_WRITE_GFX(glist++, 0xDA380003, &D_2000180);
         glist = gfxInit2DDisplayList(glist);
-        if (arg0->unk388 == -1) {
-            EFFECT_WRITE_GFX(glist++, 0xED000000 | (((s32)((f32)arg0->unk38E * 4.0f) & 0xFFF) << 12) | ((s32)((f32)arg0->unk390 * 4.0f) & 0xFFF), (((s32)((f32)arg0->unk392 * 4.0f) & 0xFFF) << 12) | ((s32)((f32)arg0->unk394 * 4.0f) & 0xFFF));
+        if (drawView->unk388 == -1) {
+            EFFECT_WRITE_GFX(glist++, 0xED000000 | (((s32)((f32)drawView->unk38E * 4.0f) & 0xFFF) << 12) | ((s32)((f32)drawView->unk390 * 4.0f) & 0xFFF), (((s32)((f32)drawView->unk392 * 4.0f) & 0xFFF) << 12) | ((s32)((f32)drawView->unk394 * 4.0f) & 0xFFF));
         }
     }
-    EFFECT_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical((u8 *)arg0 + (gCurrentPlayerIndex << 7) + (D_807444FC << 6) + 0x128));
+    EFFECT_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical((u8 *)drawView + (gCurrentPlayerIndex << 7) + (D_807444FC << 6) + 0x128));
 
-    for (i = 0; i < arg0->unk380; i++) {
-        if (D_807F6009 != 5 || D_807F600C != (s32)arg0->unk370[i]) {
+    for (i = 0; i < drawView->unk380; i++) {
+        if (D_807F6009 != 5 || D_807F600C != (s32)drawView->unk370[i]) {
             EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
-            switch (arg0->unk330->unkB) {
+            switch (drawView->unk330->unkB) {
                 case 0:
-                    gDPLoadTextureBlock_4b(glist++, arg0->unk370[i], arg0->unk330->unkA, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock_4b(glist++, drawView->unk370[i], drawView->unk330->unkA, drawView->unk330->unkC, drawView->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
                 case 1:
-                    gDPLoadTextureBlock(glist++, arg0->unk370[i], arg0->unk330->unkA, G_IM_SIZ_8b, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock(glist++, drawView->unk370[i], drawView->unk330->unkA, G_IM_SIZ_8b, drawView->unk330->unkC, drawView->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
                 case 2:
-                    gDPLoadTextureBlock(glist++, arg0->unk370[i], arg0->unk330->unkA, G_IM_SIZ_16b, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock(glist++, drawView->unk370[i], drawView->unk330->unkA, G_IM_SIZ_16b, drawView->unk330->unkC, drawView->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
                 case 3:
-                    gDPLoadTextureBlock(glist++, arg0->unk370[i], arg0->unk330->unkA, G_IM_SIZ_32b, arg0->unk330->unkC, arg0->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+                    gDPLoadTextureBlock(glist++, drawView->unk370[i], drawView->unk330->unkA, G_IM_SIZ_32b, drawView->unk330->unkC, drawView->unk330->unkE, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
                     break;
             }
-            D_807F600C = (s32)arg0->unk370[i];
+            D_807F600C = (s32)drawView->unk370[i];
         }
-        EFFECT_WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(arg0->unk28 + (i << 2)));
+        EFFECT_WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(drawView->unk28 + (i << 2)));
         EFFECT_WRITE_GFX(glist++, 0x06000206, 0x406);
     }
     EFFECT_WRITE_GFX(glist++, 0xD8380002, 0x40);
     EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
     EFFECT_WRITE_GFX(glist++, 0xE3001801, 0);
-    if (arg0->unk36F != 0) {
+    if (drawView->unk36F != 0) {
         EFFECT_WRITE_GFX(glist++, 0xDA380007, &D_2000000);
         EFFECT_WRITE_GFX(glist++, 0xDA380005, &D_2000200);
-        if (arg0->unk388 == -1) {
+        if (drawView->unk388 == -1) {
             EFFECT_WRITE_GFX(glist++, 0xED000000, ((((s32)((f32)D_80744490 * 4.0f) & 0xFFF) << 12) | ((s32)((f32)D_80744494 * 4.0f) & 0xFFF)));
         }
     }
     EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
     EFFECT_WRITE_GFX(glist++, 0xDF000000, 0);
     D_807F6009 = 5;
-    return arg1;
+    return inGlist;
 }
