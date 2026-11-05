@@ -46,20 +46,20 @@ f32 func_80612794(s16);
 void lightSetFovAngles(f32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
-void lightUpdateFromActorLighting(u8 *arg0, u8 *arg1, u8 *arg2) {
+void lightUpdateFromActorLighting(u8 *outR, u8 *outG, u8 *outB) {
     f32 pad;
-    f32 sp40;
-    f32 sp3C;
-    f32 sp38;
-    s32 temp_v1;
+    f32 dirX;
+    f32 dirY;
+    f32 dirZ;
+    s32 lightIndex;
     u8 idx;
 
     if (D_807FBB40->unk60 & 4) {
         switch (D_807FC622) {
         case 0:
-            *arg0 = 0xFF;
-            *arg1 = 0xFF;
-            *arg2 = 0xFF;
+            *outR = 0xFF;
+            *outG = 0xFF;
+            *outB = 0xFF;
             break;
         case 1:
             if (!(gFrameCounter & 0xF)) {
@@ -70,24 +70,24 @@ void lightUpdateFromActorLighting(u8 *arg0, u8 *arg1, u8 *arg2) {
             if (!(gFrameCounter & 3)) {
 set_color:
                 idx = (u32)(func_80612790(gFrameCounter * 200) * 4.0f + 4.0f);
-                *arg0 = D_807501C0[idx][0];
-                *arg1 = D_807501C0[idx][1];
-                *arg2 = D_807501C0[idx][2];
+                *outR = D_807501C0[idx][0];
+                *outG = D_807501C0[idx][1];
+                *outB = D_807501C0[idx][2];
             }
             break;
         }
 
-        if ((D_807FC621 & 0x80) && (temp_v1 = D_807FC621 & 0x7F)) {
-            D_807FC621 = temp_v1;
-            sp40 = (f32)D_80750194[D_807FC621 - 1].unk8;
-            sp3C = (f32)D_80750194[D_807FC621 - 1].unkA;
-            sp38 = (f32)D_80750194[D_807FC621 - 1].unkC;
+        if ((D_807FC621 & 0x80) && (lightIndex = D_807FC621 & 0x7F)) {
+            D_807FC621 = lightIndex;
+            dirX = (f32)D_80750194[D_807FC621 - 1].unk8;
+            dirY = (f32)D_80750194[D_807FC621 - 1].unkA;
+            dirZ = (f32)D_80750194[D_807FC621 - 1].unkC;
             if (D_807FC622 != 0) {
-                sp40 += 80.0f * func_80612794(gFrameCounter * 400);
-                sp38 += 80.0f * func_80612790(gFrameCounter * 200);
+                dirX += 80.0f * func_80612794(gFrameCounter * 400);
+                dirZ += 80.0f * func_80612790(gFrameCounter * 200);
             }
             lightSetFovAngles((f32)(u32)D_80750194[D_807FC621 - 1].unk0, (f32)(u32)D_80750194[D_807FC621 - 1].unk1);
-            lightAdd((f32)D_80750194[D_807FC621 - 1].unk2, (f32)D_80750194[D_807FC621 - 1].unk4, (f32)D_80750194[D_807FC621 - 1].unk6, sp40, sp3C, sp38, 0.0f, 1, *arg0, *arg1, *arg2);
+            lightAdd((f32)D_80750194[D_807FC621 - 1].unk2, (f32)D_80750194[D_807FC621 - 1].unk4, (f32)D_80750194[D_807FC621 - 1].unk6, dirX, dirY, dirZ, 0.0f, 1, *outR, *outG, *outB);
         }
     }
 }
@@ -100,15 +100,15 @@ extern s8 D_8074452C;
 extern u16 D_80744734[];
 extern s32 gCurrentMap;
 
-s32 cutsceneTriggerCheck(s16 arg0) {
-    s16 sp36;
+s32 cutsceneTriggerCheck(s16 cutsceneId) {
+    s16 entryCutscene;
     s32 found;
     s32 i;
-    s16 temp_a0;
+    s16 flagId;
     s32 sp24;
     s32 sp20;
 
-    sp36 = -1;
+    entryCutscene = -1;
     i = 0;
     found = 0;
     while (!found && i < 8) {
@@ -120,51 +120,51 @@ s32 cutsceneTriggerCheck(s16 arg0) {
     }
 
     if (found) {
-        temp_a0 = i + 0x1C5;
-        if (flagGet(temp_a0, 0) == 0) {
+        flagId = i + 0x1C5;
+        if (flagGet(flagId, 0) == 0) {
             sp20 = 0;
-            switch (arg0) {
+            switch (cutsceneId) {
             case 0x7:
                 sp24 = 0x1C;
-                sp36 = 0xF;
+                entryCutscene = 0xF;
                 break;
             case 0x26:
                 sp24 = 0x1C;
-                sp36 = 0x10;
+                entryCutscene = 0x10;
                 break;
             case 0x1A:
                 sp24 = 0x1C;
-                sp36 = 0x11;
+                entryCutscene = 0x11;
                 break;
             case 0x1E:
                 sp24 = 0x1C;
-                sp36 = 0x12;
+                entryCutscene = 0x12;
                 break;
             case 0x30:
                 sp24 = 0x1C;
-                sp36 = 0x13;
+                entryCutscene = 0x13;
                 break;
             case 0x48:
                 sp24 = 0x1C;
-                sp36 = 0x14;
+                entryCutscene = 0x14;
                 break;
             case 0x57:
                 sp24 = 0x1C;
-                sp36 = 0x15;
+                entryCutscene = 0x15;
                 sp20 = 0x15;
                 break;
             case 0x11:
                 sp24 = 0x1C;
-                sp36 = 0x16;
+                entryCutscene = 0x16;
                 break;
             }
-            if (sp36 != -1) {
-                flagSet(temp_a0, 1, 0);
+            if (entryCutscene != -1) {
+                flagSet(flagId, 1, 0);
                 if (D_8074452C != 0) {
-                    func_805FF378(arg0, sp20);
+                    func_805FF378(cutsceneId, sp20);
                     return 1;
                 }
-                func_80712524(sp24, sp36);
+                func_80712524(sp24, entryCutscene);
                 return 1;
             }
         }
@@ -265,104 +265,104 @@ extern u8 D_80750190;
 extern u8 D_807FC620;
 
 void actorCutsceneDispatchEvents(void) {
-    CutsceneActorState *temp_s1;
+    CutsceneActorState *csState;
     s32 i;
     f32 pad;
-    s16 *temp_s0;
-    s32 var_s0;
-    s32 var_v0;
-    s16 temp_a0;
-    s16 temp_v0_2;
+    s16 *eventData;
+    s32 sfxVolume;
+    s32 pathFlag;
+    s16 paramA;
+    s16 mode;
 
-    temp_s1 = (CutsceneActorState *)D_807FBB40->unk174;
+    csState = (CutsceneActorState *)D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        temp_s1->unk0 = 0;
-        temp_s1->unk1A = -1;
-        temp_s1->unk21 = 0;
-        lightGetColor(&temp_s1->unkC, &temp_s1->unk10, &temp_s1->unk14, 0);
+        csState->unk0 = 0;
+        csState->unk1A = -1;
+        csState->unk21 = 0;
+        lightGetColor(&csState->unkC, &csState->unk10, &csState->unk14, 0);
     }
 
     for (i = 0; i < D_807FBDC4; i++) {
-        temp_s0 = D_807FBB70.unk278[i];
+        eventData = D_807FBB70.unk278[i];
         switch (D_807FBB70.unk258[i]) {
         case 0xFF:
-            temp_s1->unk1E = 0;
-            temp_s1->unk0 = 0xFF;
+            csState->unk1E = 0;
+            csState->unk0 = 0xFF;
             break;
         case 0xF:
-            lightSetOverrideColor((f64)temp_s0[0] / 255.0, (f64)temp_s0[1] / 255.0, (f64)temp_s0[2] / 255.0);
+            lightSetOverrideColor((f64)eventData[0] / 255.0, (f64)eventData[1] / 255.0, (f64)eventData[2] / 255.0);
             break;
         case 0xE:
-            temp_s1->unkC = (f64)temp_s0[0] / 255.0;
-            temp_s1->unk10 = (f64)temp_s0[1] / 255.0;
-            temp_s1->unk14 = (f64)temp_s0[2] / 255.0;
-            temp_s1->unk1A = temp_s0[3];
+            csState->unkC = (f64)eventData[0] / 255.0;
+            csState->unk10 = (f64)eventData[1] / 255.0;
+            csState->unk14 = (f64)eventData[2] / 255.0;
+            csState->unk1A = eventData[3];
             break;
         case 0x10:
-            temp_s1->unk1C = temp_s0[3];
-            temp_s1->unk1E = temp_s1->unk1C;
+            csState->unk1C = eventData[3];
+            csState->unk1E = csState->unk1C;
             break;
         case 0x1:
             if ((gCurrentMap != 0x30) || !(gActivePlayerState->unk1F0 & 0x200000)) {
-                temp_s1->unk0 = temp_s0[0];
-                temp_s1->unk1A = temp_s0[1];
-                temp_s1->unk4 = (f64)(f32)temp_s0[2] / 100.0;
-                temp_s1->unk8 = temp_s0[3];
+                csState->unk0 = eventData[0];
+                csState->unk1A = eventData[1];
+                csState->unk4 = (f64)(f32)eventData[2] / 100.0;
+                csState->unk8 = eventData[3];
             }
             break;
         case 0x2:
             if ((gCurrentMap != 0x30) || !(gActivePlayerState->unk1F0 & 0x200000)) {
-                temp_s1->unk0 = 0xFF;
+                csState->unk0 = 0xFF;
             }
             break;
         case 0x3:
             if (!(D_807FBB60 & 0x400)) {
-                if (temp_s0[2] != 0) {
+                if (eventData[2] != 0) {
                     func_8070B308(2);
                     func_805FF158(0);
                 }
-                temp_a0 = temp_s0[0];
-                if (temp_a0 == 0x11) {
-                    if (cutsceneTriggerCheck(temp_a0) == 0) {
-                        func_805FF378(temp_s0[0], temp_s0[1]);
+                paramA = eventData[0];
+                if (paramA == 0x11) {
+                    if (cutsceneTriggerCheck(paramA) == 0) {
+                        func_805FF378(eventData[0], eventData[1]);
                     }
                 } else {
-                    func_805FF378(temp_a0, temp_s0[1]);
+                    func_805FF378(paramA, eventData[1]);
                 }
                 playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x15:
             if (!(D_807FBB60 & 0x400)) {
-                func_805FF4D8(temp_s0[0], temp_s0[1]);
+                func_805FF4D8(eventData[0], eventData[1]);
             }
             break;
         case 0x4:
             if (!(D_807FBB60 & 0x400)) {
-                temp_v0_2 = temp_s0[2];
-                if (temp_v0_2 != 0) {
-                    if (temp_v0_2 == 1) {
+                mode = eventData[2];
+                if (mode != 0) {
+                    if (mode == 1) {
                         func_8070B308(2);
                     }
                     func_805FF158(0);
                 }
-                func_805FF9AC(temp_s0[0], temp_s0[1], 0, 0);
+                func_805FF9AC(eventData[0], eventData[1], 0, 0);
                 playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x5:
             if (!(D_807FBB60 & 0x400)) {
-                func_805FF628(temp_s0[0], temp_s0[1]);
+                func_805FF628(eventData[0], eventData[1]);
                 playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x6:
             gActivePlayerState->unk100 = 1;
-            func_806C92C4(temp_s0[0]);
+            func_806C92C4(eventData[0]);
             break;
         case 0x7:
             if (!(D_807FBB60 & 0x400)) {
-                func_805FF9AC(temp_s0[0], temp_s0[1], temp_s0[2], 2);
+                func_805FF9AC(eventData[0], eventData[1], eventData[2], 2);
                 playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
@@ -376,7 +376,7 @@ void actorCutsceneDispatchEvents(void) {
             func_805FF8F8();
             break;
         case 0x9:
-            func_805FF660(((u8 *)temp_s0)[1]);
+            func_805FF660(((u8 *)eventData)[1]);
             break;
         case 0xA:
             ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->unk174)->unk1F0 |= 0x40000800;
@@ -386,26 +386,26 @@ void actorCutsceneDispatchEvents(void) {
             playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             break;
         case 0xC:
-            if (temp_s0[1] != 0) {
-                var_v0 = 0;
+            if (eventData[1] != 0) {
+                pathFlag = 0;
             } else {
-                var_v0 = 0x8000;
+                pathFlag = 0x8000;
             }
-            playerWaypointPathStartPacked(D_807FBB4C, 0, temp_s0[0] + var_v0, 0);
+            playerWaypointPathStartPacked(D_807FBB4C, 0, eventData[0] + pathFlag, 0);
             break;
         case 0xD:
             if (((Actor *)D_807FBB4C)->unkB8 > 250.0f) {
-                sfxPlayFromActorWithAltitudeCheck(D_807FBB4C, temp_s0[0], 0xFF, 0x7F, 0x1E);
+                sfxPlayFromActorWithAltitudeCheck(D_807FBB4C, eventData[0], 0xFF, 0x7F, 0x1E);
             }
             break;
         case 0x16:
-            sfxAllocateChannel(temp_s0[0], 1.0f);
+            sfxAllocateChannel(eventData[0], 1.0f);
             break;
         case 0x17:
-            sfxStopChannel(temp_s0[0], 0);
+            sfxStopChannel(eventData[0], 0);
             break;
         case 0x11:
-            ((PlayerActorC4 *)D_807FBB48)->unkC4 = (f64)temp_s0[0] / 10.0;
+            ((PlayerActorC4 *)D_807FBB48)->unkC4 = (f64)eventData[0] / 10.0;
             break;
         case 0x12:
             D_807FBB48->unk6A |= 0x200;
@@ -414,8 +414,8 @@ void actorCutsceneDispatchEvents(void) {
             D_807FBB48->unk6A &= ~0x200;
             break;
         case 0x14:
-            D_807FC621 = temp_s0[0];
-            D_807FC622 = temp_s0[1];
+            D_807FC621 = eventData[0];
+            D_807FC622 = eventData[1];
             if (D_807FC622 != 0) {
                 commandSetColor(0x35, 0x18, 0x28);
                 commandSetParameters(0x320, 0x82, 0, 0x64, 0x64, 0x64);
@@ -432,35 +432,35 @@ void actorCutsceneDispatchEvents(void) {
             ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->unk174)->unk1F0 |= 0x80000000;
             break;
         case 0x1B:
-            mapChunkSetFlagBit3(temp_s0[1]);
+            mapChunkSetFlagBit3(eventData[1]);
             break;
         }
     }
 
-    if (temp_s1->unk1E != 0) {
-        temp_s1->unk1E--;
-        pad = (f32)temp_s1->unk1E / (f32)temp_s1->unk1C;
-        lightLerpColors(temp_s1->unkC, temp_s1->unk10, temp_s1->unk14, pad, temp_s1->unk1A);
-        if (temp_s1->unk1E == 0) {
-            lightSetTargetColor(temp_s1->unkC, temp_s1->unk10, temp_s1->unk14, temp_s1->unk1A);
+    if (csState->unk1E != 0) {
+        csState->unk1E--;
+        pad = (f32)csState->unk1E / (f32)csState->unk1C;
+        lightLerpColors(csState->unkC, csState->unk10, csState->unk14, pad, csState->unk1A);
+        if (csState->unk1E == 0) {
+            lightSetTargetColor(csState->unkC, csState->unk10, csState->unk14, csState->unk1A);
         }
     }
 
-    switch (temp_s1->unk0) {
+    switch (csState->unk0) {
     case 0x6:
-        func_80711BD0(temp_s1->unk4, temp_s1->unk8, temp_s1->unk1A, 4);
+        func_80711BD0(csState->unk4, csState->unk8, csState->unk1A, 4);
         break;
     case 0x7:
-        func_80711BD0(temp_s1->unk4, temp_s1->unk8, temp_s1->unk1A, 5);
+        func_80711BD0(csState->unk4, csState->unk8, csState->unk1A, 5);
         break;
     case 0x5:
-        func_80711BD0(temp_s1->unk4, temp_s1->unk8, temp_s1->unk1A, 3);
+        func_80711BD0(csState->unk4, csState->unk8, csState->unk1A, 3);
         break;
     case 0x1:
-        func_80711950(temp_s1->unk4, temp_s1->unk8, temp_s1->unk1A);
+        func_80711950(csState->unk4, csState->unk8, csState->unk1A);
         break;
     case 0x4:
-        func_80711F90(temp_s1->unk4, temp_s1->unk8, 1.0f, temp_s1->unk1A, 4.0f);
+        func_80711F90(csState->unk4, csState->unk8, 1.0f, csState->unk1A, 4.0f);
         break;
     case 0x3:
         if (((randomNonNegative() >> 15) % 50) == 15) {
@@ -468,38 +468,38 @@ void actorCutsceneDispatchEvents(void) {
         }
         /* fallthrough */
     case 0x2:
-        if (temp_s1->unk21 != 0) {
-            temp_s1->unk21--;
+        if (csState->unk21 != 0) {
+            csState->unk21--;
         }
         if (D_807FC620 != 0) {
-            temp_s1->unk18 = 0x28;
+            csState->unk18 = 0x28;
             D_807FC620 = 0;
         }
-        if (temp_s1->unk18 != 0) {
-            if ((temp_s1->unk18 == 0x28) || (((randomNonNegative() >> 15) % 10) == 5)) {
-                lightSetColor(1.0f, 1.0f, 1.0f, temp_s1->unk1A);
-                if ((D_80750190 == 0) && (temp_s1->unk21 == 0)) {
-                    var_s0 = 0x46;
+        if (csState->unk18 != 0) {
+            if ((csState->unk18 == 0x28) || (((randomNonNegative() >> 15) % 10) == 5)) {
+                lightSetColor(1.0f, 1.0f, 1.0f, csState->unk1A);
+                if ((D_80750190 == 0) && (csState->unk21 == 0)) {
+                    sfxVolume = 0x46;
                     if (gCurrentMap == 0x57) {
-                        var_s0 = 0x2D;
+                        sfxVolume = 0x2D;
                     }
-                    sfxPlayWithRandomPan(0x9C, (u8)var_s0, 0x7F, 0x1E, (randomNonNegative() >> 15) % 3);
+                    sfxPlayWithRandomPan(0x9C, (u8)sfxVolume, 0x7F, 0x1E, (randomNonNegative() >> 15) % 3);
                     if (gCurrentMap == 0x6F) {
-                        temp_s1->unk21 = 0x50;
+                        csState->unk21 = 0x50;
                     } else {
-                        temp_s1->unk21 = 0x32;
+                        csState->unk21 = 0x32;
                     }
                 }
-                temp_s1->unk1E = (temp_s1->unk1E >= 5) ? temp_s1->unk1E : 4;
-                temp_s1->unk1C = temp_s1->unk1E;
+                csState->unk1E = (csState->unk1E >= 5) ? csState->unk1E : 4;
+                csState->unk1C = csState->unk1E;
             }
-            temp_s1->unk18--;
+            csState->unk18--;
         }
-        func_80711410(temp_s1->unk4, temp_s1->unk8, 1.0f, temp_s1->unk1A, 1.0f);
+        func_80711410(csState->unk4, csState->unk8, 1.0f, csState->unk1A, 1.0f);
         break;
     case 0xFF:
         if (effectSpritePoolFadeOut() != 0) {
-            temp_s1->unk0 = 0;
+            csState->unk0 = 0;
         }
         break;
     }
@@ -535,38 +535,38 @@ typedef struct {
 
 void actorFindActiveByType(s32, void *);
 
-void func_8068B830(s16 arg0, s16 arg1, s16 arg2) {
-    Actor *sp1C;
-    Actor174 *temp_v0;
+void func_8068B830(s16 stateVal, s16 pct, s16 timer) {
+    Actor *actor;
+    Actor174 *actorState;
 
-    actorFindActiveByType(0xC, &sp1C);
-    temp_v0 = (Actor174 *)sp1C->unk174;
-    temp_v0->unk0 = arg0;
-    temp_v0->unk4 = (f64)(f32)arg1 / 100.0;
-    temp_v0->unk8 = arg2;
+    actorFindActiveByType(0xC, &actor);
+    actorState = (Actor174 *)actor->unk174;
+    actorState->unk0 = stateVal;
+    actorState->unk4 = (f64)(f32)pct / 100.0;
+    actorState->unk8 = timer;
 }
 
-void func_8068B8A4(f32 arg0) {
-    Actor *sp1C;
-    Actor174 *temp_v0;
+void func_8068B8A4(f32 intensity) {
+    Actor *actor;
+    Actor174 *actorState;
 
-    actorFindActiveByType(0xC, &sp1C);
-    temp_v0 = (Actor174 *)sp1C->unk174;
-    temp_v0->unkC = arg0;
-    temp_v0->unk10 = arg0;
-    temp_v0->unk14 = arg0;
-    if (temp_v0->unk18 == 0) {
-        temp_v0->unk1C = 1;
-        temp_v0->unk1E = temp_v0->unk1C;
+    actorFindActiveByType(0xC, &actor);
+    actorState = (Actor174 *)actor->unk174;
+    actorState->unkC = intensity;
+    actorState->unk10 = intensity;
+    actorState->unk14 = intensity;
+    if (actorState->unk18 == 0) {
+        actorState->unk1C = 1;
+        actorState->unk1E = actorState->unk1C;
     }
 }
 
 void func_8068B8FC(void) {
-    Actor *sp1C;
+    Actor *actor;
     u8 *ptr;
 
-    actorFindActiveByType(0xC, &sp1C);
-    ptr = sp1C->unk174;
+    actorFindActiveByType(0xC, &actor);
+    ptr = actor->unk174;
     *ptr = 0xFF;
 }
 
@@ -629,38 +629,38 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
 void func_8068BA2C(void) {
     s32 pad;
-    ActorSub174 *sp58;
+    ActorSub174 *sub174;
     Actor174Player *s1;
-    s32 var_s3;
+    s32 hasEvent3;
     s16 i;
     s16 *ptr;
-    s32 var_v0;
+    s32 flags;
 
     s1 = D_807FBB48->unk174;
-    var_s3 = 0;
-    sp58 = ((Actor *)s1->unk104)->unk174;
+    hasEvent3 = 0;
+    sub174 = ((Actor *)s1->unk104)->unk174;
     for (i = 0; i < D_807FBB70.unk254; i++) {
         ptr = D_807FBB70.unk278[i];
         switch ((u32)D_807FBB70.unk258[i]) {
         case 1:
-            var_v0 = (ptr[1] != 0) ? 4 : 0;
-            camStartPath(0, ptr[0], var_v0 | 1);
+            flags = (ptr[1] != 0) ? 4 : 0;
+            camStartPath(0, ptr[0], flags | 1);
             break;
         case 2:
             func_8072167C(ptr[0], ptr[1], ptr[2], ptr[3]);
             break;
         case 3:
-            var_s3 = 1;
+            hasEvent3 = 1;
             if (!(s1->unk1F0 & 0x04000000)) {
                 s1->unk1F0 |= 0x04000000;
             }
             break;
         }
     }
-    if (var_s3 == 0) {
+    if (hasEvent3 == 0) {
         s1->unk1F0 &= ~0x04000000;
     }
-    if (sp58->unkAC & 1) {
+    if (sub174->unkAC & 1) {
         lightAdd(gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218, gPlayerSlots->unk228, gPlayerSlots->unk22C, gPlayerSlots->unk230, 0.0f, 1, 0xFF, 0xFF, 0xFF);
     }
 }
@@ -683,57 +683,57 @@ extern u8 D_807444EC;
 extern s16 D_807FC624;
 
 void playerCameraUpdateFromTarget(void) {
-    void *sp54;
-    s16 sp52;
+    void *targetState;
+    s16 angleA;
     s16 pad50[1];
-    s16 sp4E;
-    f32 sp48;
+    s16 angleDiff;
+    f32 angleRad;
     f32 pad44[1];
-    f32 sp40;
-    f32 sp3C;
-    s16 sp3A;
-    void *sp34;
+    f32 stepFactor;
+    f32 scaleFactor;
+    s16 maxDiff;
+    void *player;
     s32 pad30[1];
-    f32 temp_fa0;
-    f32 temp_fa1;
-    f32 temp_fv0;
-    f32 temp_fv1;
-    f32 var_fv1;
-    Actor *temp_a0_2;
-    s16 temp_v0;
-    s32 temp_v0_2;
-    s16 temp_v1_3;
-    s32 var_v1;
+    f32 pitchRad;
+    f32 dx;
+    f32 curAngle;
+    f32 dz;
+    f32 clampedPitch;
+    Actor *actor;
+    s16 angleB;
+    s32 minLimit;
+    s16 angleDiffRaw;
+    s32 stateVal;
     s32 dd;
     s16 tmpd;
     u8 temp_v1_2;
-    sp54 = D_807FBB40->unk174;
-    sp4E = 0;
-    sp3A = 0x1E;
-    sp40 = 0.08f;
-    sp3C = 8.0f;
-    sp34 = (void *)((*(u8 *)((u8 *)sp54 + 0xFB) * 0x2F0) + (u8 *)gPlayerSlots);
-    *(s16 *)((u8 *)sp34 + 0x2CC) = ((AimActorAngles *)D_807FBB40)->unkEC;
+    targetState = D_807FBB40->unk174;
+    angleDiff = 0;
+    maxDiff = 0x1E;
+    stepFactor = 0.08f;
+    scaleFactor = 8.0f;
+    player = (void *)((*(u8 *)((u8 *)targetState + 0xFB) * 0x2F0) + (u8 *)gPlayerSlots);
+    *(s16 *)((u8 *)player + 0x2CC) = ((AimActorAngles *)D_807FBB40)->unkEC;
     ((AimActorAngles *)D_807FBB40)->unkEC = ((AimActorAngles *)D_807FBB40)->unkE4;
-    *(s16 *)((u8 *)sp34 + 0x2CA) = (s16)(s32)*(f32 *)((u8 *)sp34 + 0x214);
-    sp48 = mathAngleBetweenPointsRad(*(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x230), *(f32 *)((u8 *)sp34 + 0x228));
-    temp_fv1 = *(f32 *)((u8 *)sp34 + 0x230) - *(f32 *)((u8 *)sp34 + 0x218);
-    temp_fa1 = *(f32 *)((u8 *)sp34 + 0x228) - *(f32 *)((u8 *)sp34 + 0x210);
-    temp_fa0 = mathAngleBetweenPointsRad(0.0f, *(f32 *)((u8 *)sp34 + 0x214), sqrtf((temp_fv1 * temp_fv1) + (temp_fa1 * temp_fa1)), *(f32 *)((u8 *)sp34 + 0x22C)) + 3.1415927f;
-    var_fv1 = temp_fa0;
-    if (temp_fa0 > 6.2831855f) {
-        var_fv1 = temp_fa0 - 6.2831855f;
+    *(s16 *)((u8 *)player + 0x2CA) = (s16)(s32)*(f32 *)((u8 *)player + 0x214);
+    angleRad = mathAngleBetweenPointsRad(*(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x230), *(f32 *)((u8 *)player + 0x228));
+    dz = *(f32 *)((u8 *)player + 0x230) - *(f32 *)((u8 *)player + 0x218);
+    dx = *(f32 *)((u8 *)player + 0x228) - *(f32 *)((u8 *)player + 0x210);
+    pitchRad = mathAngleBetweenPointsRad(0.0f, *(f32 *)((u8 *)player + 0x214), sqrtf((dz * dz) + (dx * dx)), *(f32 *)((u8 *)player + 0x22C)) + 3.1415927f;
+    clampedPitch = pitchRad;
+    if (pitchRad > 6.2831855f) {
+        clampedPitch = pitchRad - 6.2831855f;
     }
-    if (var_fv1 > 3.1415927f) {
-        var_fv1 = 3.1415927f - (var_fv1 - 3.1415927f);
+    if (clampedPitch > 3.1415927f) {
+        clampedPitch = 3.1415927f - (clampedPitch - 3.1415927f);
     }
-    *(f32 *)((u8 *)sp34 + 0x2D4) = 6.2831855f - sp48;
-    *(f32 *)((u8 *)sp34 + 0x2D8) = 6.2831855f - var_fv1;
-    func_806C9D20(*(u8 *)((u8 *)sp54 + 0xFB));
-    sp52 = mathAngleBetweenPoints2D(*(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x228), *(f32 *)((u8 *)sp34 + 0x230));
-    camUpdate(D_807FBB40, (u8 *)sp34 + 0x210, (u8 *)sp34 + 0x214, (u8 *)sp34 + 0x218, (u8 *)sp34 + 0x228, (u8 *)sp34 + 0x22C, (u8 *)sp34 + 0x230, (u8 *)sp34 + 0x240, (u8 *)sp34 + 0x244, (u8 *)sp34 + 0x248);
-    temp_v0 = mathAngleBetweenPoints2D(*(f32 *)((u8 *)sp34 + 0x210), *(f32 *)((u8 *)sp34 + 0x218), *(f32 *)((u8 *)sp34 + 0x228), *(f32 *)((u8 *)sp34 + 0x230));
-    if (D_807FBB4C != *(Actor **)sp54) {
+    *(f32 *)((u8 *)player + 0x2D4) = 6.2831855f - angleRad;
+    *(f32 *)((u8 *)player + 0x2D8) = 6.2831855f - clampedPitch;
+    func_806C9D20(*(u8 *)((u8 *)targetState + 0xFB));
+    angleA = mathAngleBetweenPoints2D(*(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x228), *(f32 *)((u8 *)player + 0x230));
+    camUpdate(D_807FBB40, (u8 *)player + 0x210, (u8 *)player + 0x214, (u8 *)player + 0x218, (u8 *)player + 0x228, (u8 *)player + 0x22C, (u8 *)player + 0x230, (u8 *)player + 0x240, (u8 *)player + 0x244, (u8 *)player + 0x248);
+    angleB = mathAngleBetweenPoints2D(*(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x228), *(f32 *)((u8 *)player + 0x230));
+    if (D_807FBB4C != *(Actor **)targetState) {
         return;
     }
     if ((gCurrentMap == 0x1F) || (gCurrentMap == 0x33)) {
@@ -754,12 +754,12 @@ void playerCameraUpdateFromTarget(void) {
         return;
     }
     if (D_807444EC != 1) {
-            dd = 0;  // FAKE: lengthens dd's live range so its priority drops below the B variable (temp_v0 gets a1)
-            var_v1 = (*(Actor **)sp54)->unk154;
-            switch (var_v1) {
+            dd = 0;  // FAKE: lengthens dd's live range so its priority drops below the B variable (angleB gets a1)
+            stateVal = (*(Actor **)targetState)->unk154;
+            switch (stateVal) {
             case 0x63:
-                sp40 = 0.02f;
-                sp3C = 15.0f;
+                stepFactor = 0.02f;
+                scaleFactor = 15.0f;
                 goto calc_angle;
             case 0x7:
             case 0x8:
@@ -772,30 +772,30 @@ void playerCameraUpdateFromTarget(void) {
             case 0x12:
             case 0x13:
             case 0x14:
-                sp3A = 0x64;
-                sp40 = 0.1f;
+                maxDiff = 0x64;
+                stepFactor = 0.1f;
             case 0x4F:
             case 0x69:
             case 0x6D:
 calc_angle:
-                dd = sp52 - temp_v0;
-                temp_v0 = dd;
-                temp_v1_3 = dd;
-                if (temp_v1_3 >= 0x801) {
-                    sp4E = temp_v1_3 - 0x1000;
+                dd = angleA - angleB;
+                angleB = dd;
+                angleDiffRaw = dd;
+                if (angleDiffRaw >= 0x801) {
+                    angleDiff = angleDiffRaw - 0x1000;
                 } else {
-                    sp4E = temp_v0;
-                    if (temp_v1_3 < -0x800) {
-                        sp4E = (u16)temp_v1_3 + 0x1000; // FAKE: redundant (u16) burns one ugen ring temp
+                    angleDiff = angleB;
+                    if (angleDiffRaw < -0x800) {
+                        angleDiff = (u16)angleDiffRaw + 0x1000; // FAKE: redundant (u16) burns one ugen ring temp
                     }
                 }
                 break;
             }
             if (dd) {}  // FAKE: dead read of dd after the switch (priority steer)
-            temp_v0_2 = -sp3A;
-            var_v1 = (temp_v0_2 < sp4E) ? sp4E : temp_v0_2;
-            var_v1 = (var_v1 < sp3A) ? ((temp_v0_2 < sp4E) ? sp4E : temp_v0_2) : sp3A;
-            temp_fv0 = (f32)((AimActorAngles *)D_807FBB40)->unkE4;
-            ((AimActorAngles *)D_807FBB40)->unkE4 = (s16)(s32)(((((f32)var_v1 * sp3C) - temp_fv0) * sp40) + temp_fv0);
+            minLimit = -maxDiff;
+            stateVal = (minLimit < angleDiff) ? angleDiff : minLimit;
+            stateVal = (stateVal < maxDiff) ? ((minLimit < angleDiff) ? angleDiff : minLimit) : maxDiff;
+            curAngle = (f32)((AimActorAngles *)D_807FBB40)->unkE4;
+            ((AimActorAngles *)D_807FBB40)->unkE4 = (s16)(s32)(((((f32)stateVal * scaleFactor) - curAngle) * stepFactor) + curAngle);
     }
 }
