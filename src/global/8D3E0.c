@@ -113,53 +113,53 @@ s32 func_805FF030(u8, s32);
 void actorListBuildLookupTable(void);
 s32 func_806C7B34(void);
 
-void actorMapModelsSetup(s32 arg0, u8 arg1, u8 arg2) {
-    s32 sp5C;
-    s32 *sp58;
-    s32 sp54;
+void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
+    s32 subtableCount;
+    s32 *records;
+    s32 mapIndex;
     s32 pad;
-    u16 sp4E;
+    u16 preMapModelCount;
     s32 flag;
 
     flag = 0;
     actorListBuildLookupTable();
-    sp54 = func_80600080(gCurrentMap);
-    if (sp54 == -1) {
-        switch (arg1) {
+    mapIndex = func_80600080(gCurrentMap);
+    if (mapIndex == -1) {
+        switch (loadMode) {
         case 0:
-            D_807F6010 = arg0;
-            sp4E = modelTypeCountBeforeMap(D_8076A0AB);
+            D_807F6010 = modelAsset;
+            preMapModelCount = modelTypeCountBeforeMap(D_8076A0AB);
             flag = 1;
             break;
         case 1:
-            arg0 = D_807F6010;
+            modelAsset = D_807F6010;
             break;
         }
     } else {
-        D_807F6010 = arg0;
-        arg0 = (s32)D_8076A178[sp54].ptr;
+        D_807F6010 = modelAsset;
+        modelAsset = (s32)D_8076A178[mapIndex].ptr;
     }
-    modelAssetGetSubtables(arg0, &sp5C, &sp58);
-    if (arg2 != 0) {
-        arg0 = 0;
+    modelAssetGetSubtables(modelAsset, &subtableCount, &records);
+    if (skipExtra != 0) {
+        modelAsset = 0;
     } else {
-        arg0 = func_806C7B34();
+        modelAsset = func_806C7B34();
     }
-    modelSlotsLoadMap(sp5C, arg0, (u8)flag, sp4E, func_805FF030(D_8076A0AB, 1));
+    modelSlotsLoadMap(subtableCount, modelAsset, (u8)flag, preMapModelCount, func_805FF030(D_8076A0AB, 1));
     csTimerQueueFire(D_8076A0AA);
-    actorListSpawnFromRecords(sp58);
-    if (sp54 != -1) {
-        if (D_8076A160[sp54].unk20 != NULL) {
-            modelSlotsApplyRecords(D_8076A160[sp54].unk20, D_8076A160[sp54].unk1C);
+    actorListSpawnFromRecords(records);
+    if (mapIndex != -1) {
+        if (D_8076A160[mapIndex].unk20 != NULL) {
+            modelSlotsApplyRecords(D_8076A160[mapIndex].unk20, D_8076A160[mapIndex].unk1C);
         }
         if (gMapChunkCount > 0) {
-            flag = 0, arg0 = (s32)&D_8076A160[sp54]; do { lightSetColor( // FAKE: init + call on one line steers as1 order of the hoisted ldc1 vs addu
-                (f32)((f64)(u32)((u8 *)arg0)[0x24] / 255.0),
-                (f32)((f64)(u32)((u8 *)arg0)[0x25] / 255.0),
-                (f32)((f64)(u32)((u8 *)arg0)[0x26] / 255.0),
+            flag = 0, modelAsset = (s32)&D_8076A160[mapIndex]; do { lightSetColor( // FAKE: init + call on one line steers as1 order of the hoisted ldc1 vs addu
+                (f32)((f64)(u32)((u8 *)modelAsset)[0x24] / 255.0),
+                (f32)((f64)(u32)((u8 *)modelAsset)[0x25] / 255.0),
+                (f32)((f64)(u32)((u8 *)modelAsset)[0x26] / 255.0),
                 flag);
                 flag++;
-                arg0 += 3;
+                modelAsset += 3;
             } while (flag < gMapChunkCount);
         }
     }
@@ -181,21 +181,21 @@ void actorListInitOffsets(void) {
     s32 j;
     s32 count;
     s32 total;
-    void *sp60;
+    void *subtableA;
     ActorListContainer *container;
     ActorListRecord *items;
     s32 i;
     s32 ret;
-    void *temp_v0;
+    void *asset;
 
     total = 0;
     if (D_807500B0 == 0) {
         D_807500B0 = 1;
         for (i = 0; i < 0xDD; i++) {
             D_807FC408[i] = total;
-            temp_v0 = assetLoad(9, i, 1, 1);
-            if (temp_v0 != NULL) {
-                modelAssetGetSubtables((s32)temp_v0, (s32 *)&sp60, (s32 **)&container);
+            asset = assetLoad(9, i, 1, 1);
+            if (asset != NULL) {
+                modelAssetGetSubtables((s32)asset, (s32 *)&subtableA, (s32 **)&container);
                 count = container->count;
                 items = container->items;
                 for (j = 0; j < count; j++) {
@@ -203,7 +203,7 @@ void actorListInitOffsets(void) {
                     total = (u16)(total + ret);
                 }
                 assetSetImmediateFree();
-                assetFreeBuffer(temp_v0, 0x168, 0x34);
+                assetFreeBuffer(asset, 0x168, 0x34);
             }
         }
     }
@@ -219,15 +219,15 @@ void actorListBuildLookupTable(void) {
     s32 sz;
     ActorListRecord *items;
     void *asset;
-    void *sp48;
+    void *subtableA;
     ActorListContainer *container;
     ActorListRecord *item;
-    s32 var_s2;
+    s32 offset;
 
     asset = assetLoad(9, gCurrentMap, 1, 1);
     D_807FC5C8 = 0;
     if (asset != NULL) {
-        modelAssetGetSubtables((s32)asset, (s32 *)&sp48, (s32 **)&container);
+        modelAssetGetSubtables((s32)asset, (s32 *)&subtableA, (s32 **)&container);
         count = container->count;
         items = container->items;
     } else {
@@ -253,15 +253,15 @@ void actorListBuildLookupTable(void) {
         return;
     }
     D_807FC5C8 = 0;
-    var_s2 = 0;
+    offset = 0;
     if (count > 0) {
         item = items;
         do {
             ret = actorListGetTypeIdCount(item->unk32 + 0x10);
             if (ret != 0) {
                 D_807FC5C4[D_807FC5C8].unk0 = item->unk34;
-                D_807FC5C4[D_807FC5C8].unk2 = ((u16 *)D_807FC408)[gCurrentMap] + var_s2 + 0x26B;
-                var_s2 += ret;
+                D_807FC5C4[D_807FC5C8].unk2 = ((u16 *)D_807FC408)[gCurrentMap] + offset + 0x26B;
+                offset += ret;
                 D_807FC5C8++;
             }
             i++;
@@ -272,19 +272,19 @@ void actorListBuildLookupTable(void) {
     assetFreeBuffer(asset, 0x1AA, 0x34);
 }
 
-s32 actorListLookupEntry(u16 arg0) {
+s32 actorListLookupEntry(u16 targetId) {
     s32 i;
 
     for (i = 0; i < D_807FC5C8; i++) {
-        if (arg0 == D_807FC5C4[i].unk0) {
+        if (targetId == D_807FC5C4[i].unk0) {
             return D_807FC5C4[i].unk2;
         }
     }
     return -1;
 }
 
-s32 actorListGetTypeIdCount(u16 arg0) {
-    switch (arg0) {
+s32 actorListGetTypeIdCount(u16 typeId) {
+    switch (typeId) {
     case 0x5B:
     case 0x6F:
     case 0x70:
@@ -297,37 +297,37 @@ s32 actorListGetTypeIdCount(u16 arg0) {
     }
 }
 
-void actorSetCustomFloat(Actor *actor, s16 arg1, f32 arg2) {
-    if (arg1 < 8) {
-        ((f32 *)actor->unk124)[arg1] = arg2;
+void actorSetCustomFloat(Actor *actor, s16 index, f32 val) {
+    if (index < 8) {
+        ((f32 *)actor->unk124)[index] = val;
     }
 }
 
-void actorSetCustomInt(Actor *actor, s16 arg1, s32 arg2) {
-    if (arg1 < 8) {
-        ((s32 *)actor->unk124)[arg1] = arg2;
+void actorSetCustomInt(Actor *actor, s16 index, s32 val) {
+    if (index < 8) {
+        ((s32 *)actor->unk124)[index] = val;
     }
 }
 
-void actorListSetCustomFloat(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
+void actorListSetCustomFloat(s16 mapIndex, s16 targetId, s16 index, f32 val) {
     s32 pad[2];
-    void *sp34;
-    void *sp30;
-    s32 temp_v0;
+    void *subtableA;
+    void *container;
+    s32 modelIndex;
     s32 count;
     u8 found;
     ActorListRecord *item;
 
     found = 0;
-    temp_v0 = func_80600080(arg0);
-    if (temp_v0 != -1) {
-        modelAssetGetSubtables((s32)D_8076A178[temp_v0].ptr, (s32 *)&sp34, (s32 **)&sp30);
-        count = *(s32 *)sp30;
-        item = sp30 = (ActorListRecord *)((s32 *)sp30 + 1);
+    modelIndex = func_80600080(mapIndex);
+    if (modelIndex != -1) {
+        modelAssetGetSubtables((s32)D_8076A178[modelIndex].ptr, (s32 *)&subtableA, (s32 **)&container);
+        count = *(s32 *)container;
+        item = container = (ActorListRecord *)((s32 *)container + 1);
         if (count != 0) {
             do {
-                if (item->unk34 == arg1) {
-                    ((f32 *)item->unk10)[arg2] = arg3;
+                if (item->unk34 == targetId) {
+                    ((f32 *)item->unk10)[index] = val;
                     found = 1;
                 }
                 count--;
@@ -362,90 +362,90 @@ s16 actorListAllocId(void) {
     return id;
 }
 
-s16 actorListFindIdByActor(Actor *arg0) {
+s16 actorListFindIdByActor(Actor *actor) {
     ActorListNode *node;
 
     for (node = D_807FC400; node != NULL; node = node->next) {
-        if (node->unk44 == arg0) {
+        if (node->unk44 == actor) {
             return node->unk5A;
         }
     }
     return 0;
 }
 
-Actor *actorListFindActorById(s16 arg0) {
+Actor *actorListFindActorById(s16 targetId) {
     ActorListNode *node;
 
     for (node = D_807FC400; node != NULL; node = node->next) {
-        if (node->unk5A == arg0) {
+        if (node->unk5A == targetId) {
             return node->unk44;
         }
     }
 }
 
-void actorListSetPosById(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
+void actorListSetPosById(s16 targetId, f32 posX, f32 posY, f32 posZ) {
     ActorListNode *node;
 
     for (node = D_807FC400; node != NULL; node = node->next) {
-        if (node->unk5A == arg0) {
-            node->unk04 = arg1;
-            node->unk08 = arg2;
-            node->unk0C = arg3;
-            node->unk10 = arg1;
-            node->unk14 = arg2;
-            node->unk18 = arg3;
-            node->unk4A = mapChunkFindByPosition(arg1, arg2, arg3, 0);
+        if (node->unk5A == targetId) {
+            node->unk04 = posX;
+            node->unk08 = posY;
+            node->unk0C = posZ;
+            node->unk10 = posX;
+            node->unk14 = posY;
+            node->unk18 = posZ;
+            node->unk4A = mapChunkFindByPosition(posX, posY, posZ, 0);
             return;
         }
     }
 }
 
-void actorListSetPosByActor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3) {
+void actorListSetPosByActor(Actor *actor, f32 posX, f32 posY, f32 posZ) {
     ActorListNode *node;
 
     for (node = D_807FC400; node != NULL; node = node->next) {
-        if (node->unk44 == arg0) {
-            node->unk04 = arg1;
-            node->unk08 = arg2;
-            node->unk0C = arg3;
+        if (node->unk44 == actor) {
+            node->unk04 = posX;
+            node->unk08 = posY;
+            node->unk0C = posZ;
             return;
         }
     }
 }
 
-void actorListSpawnFromRecords(s32 *arg0) {
+void actorListSpawnFromRecords(s32 *records) {
     ActorListRecord *item;
     s32 i;
-    void *var_s2;
+    void *recordExtData;
     s32 count;
 
     D_807FC400 = NULL;
-    if (arg0 != NULL) {
-        count = *arg0++;
-        item = (ActorListRecord *)arg0;
-        for (i = 0, var_s2 = (char *)item + 0x10; i < count; i++, item++, var_s2 = (char *)var_s2 + 0x38) {
-            actorListSpawnNodeInternal(item->unk32, item->unk00, item->unk04, item->unk08, item->unk30, item->unk0C, var_s2, 0, 0, item->unk34);
+    if (records != NULL) {
+        count = *records++;
+        item = (ActorListRecord *)records;
+        for (i = 0, recordExtData = (char *)item + 0x10; i < count; i++, item++, recordExtData = (char *)recordExtData + 0x38) {
+            actorListSpawnNodeInternal(item->unk32, item->unk00, item->unk04, item->unk08, item->unk30, item->unk0C, recordExtData, 0, 0, item->unk34);
         }
         actorListClearForcedIds();
     }
 }
 
-void actorListSpawnNodePersistent(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5) {
-    ActorListSub20 sp38;
+void actorListSpawnNodePersistent(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale) {
+    ActorListSub20 subData;
 
-    sp38 = D_807500B4;
-    actorListSpawnNodeInternal(arg0, arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 0, 0, actorListAllocId());
+    subData = D_807500B4;
+    actorListSpawnNodeInternal(actorType, posX, posY, posZ, (s32)yaw, scale, &subData, 0, 0, actorListAllocId());
 }
 
-void actorListSpawnNodeEntryDefault(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, s32 arg6) {
-    ActorListSub20 sp38;
+void actorListSpawnNodeEntryDefault(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, s32 extraParam) {
+    ActorListSub20 subData;
 
-    sp38 = D_807500D4;
-    actorListSpawnNodeInternal((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, &sp38, 1, arg6, actorListAllocId());
+    subData = D_807500D4;
+    actorListSpawnNodeInternal((s16)(actorType - 0x10), posX, posY, posZ, (s32)yaw, scale, &subData, 1, extraParam, actorListAllocId());
 }
 
-void actorListSpawnNodeEntry(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, s32 arg6, s32 arg7) {
-    actorListSpawnNodeInternal((s16)(arg0 - 0x10), arg1, arg2, arg3, (s32)arg4, arg5, (void *)arg7, 1, arg6, actorListAllocId());
+void actorListSpawnNodeEntry(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, s32 extraParam, s32 customData) {
+    actorListSpawnNodeInternal((s16)(actorType - 0x10), posX, posY, posZ, (s32)yaw, scale, (void *)customData, 1, extraParam, actorListAllocId());
 }
 
 typedef struct ActorListSpawnEntry {
@@ -460,7 +460,7 @@ typedef struct ActorListSpawnEntry {
 } ActorListSpawnEntry;
 extern ActorListSpawnEntry D_8074E8B0[];
 
-ActorListNode *actorListSpawnNodeInternal(s16 arg0, f32 arg1, f32 arg2, f32 arg3, s16 arg4, f32 arg5, void *arg6, u8 arg7, s32 arg8, s16 arg9) {
+ActorListNode *actorListSpawnNodeInternal(s16 actorType, f32 posX, f32 posY, f32 posZ, s16 yaw, f32 scale, void *customData, u8 spawnMode, s32 extraParam, s16 targetId) {
     ActorListNode *node;
     s32 i;
     s32 found;
@@ -470,7 +470,7 @@ ActorListNode *actorListSpawnNodeInternal(s16 arg0, f32 arg1, f32 arg2, f32 arg3
     n = 0x80; // FAKE: loop bound in a local keeps IDO's entry-search loop in registers (frame 0x30)
     i = 0;
     found = 0;
-    key = arg0 + 0x10;
+    key = actorType + 0x10;
     while (!found && i < n) {
         if (key == D_8074E8B0[i].unk0) {
             found = 1;
@@ -480,29 +480,29 @@ ActorListNode *actorListSpawnNodeInternal(s16 arg0, f32 arg1, f32 arg2, f32 arg3
     }
 
     node = heapAlloc(sizeof(ActorListNode));
-    node->unk00 = arg0;
-    node->unk5A = arg9;
-    node->unk0C = arg3;
-    node->unk18 = arg3;
-    node->unk04 = arg1;
-    node->unk10 = arg1;
-    node->unk08 = arg2;
-    node->unk14 = arg2;
-    node->unk1C = arg4;
-    node->unk20 = arg5;
+    node->unk00 = actorType;
+    node->unk5A = targetId;
+    node->unk0C = posZ;
+    node->unk18 = posZ;
+    node->unk04 = posX;
+    node->unk10 = posX;
+    node->unk08 = posY;
+    node->unk14 = posY;
+    node->unk1C = yaw;
+    node->unk20 = scale;
     node->unk44 = 0;
     node->prev = NULL;
     node->unk48 = 0;
     node->unk5C = D_8074E8B0[i].unkC;
     node->unk60 = D_8074E8B0[i].unk10;
     node->unk58 = D_8074E8B0[i].unk2;
-    node->unk4A = mapChunkFindByPosition(arg1, arg2, arg3, 0);
-    node->unk4C = arg7;
-    node->unk50 = arg8;
+    node->unk4A = mapChunkFindByPosition(posX, posY, posZ, 0);
+    node->unk4C = spawnMode;
+    node->unk50 = extraParam;
     node->unk54 = (f32)D_8074E8B0[i].unk8 * (f32)D_8074E8B0[i].unk8;
 
     for (i = 0; i < 8; i++) {
-        ((f32 *)node->unk24)[i] = ((f32 *)arg6)[i];
+        ((f32 *)node->unk24)[i] = ((f32 *)customData)[i];
     }
 
     node->next = D_807FC400;
@@ -642,17 +642,17 @@ void actorListUpdateSpawns(void) {
     actorListClearForcedIds();
 }
 
-void actorListRemoveAndDespawn(s32 arg0) {
-    actorListRemoveNodeInternal(arg0, 1);
+void actorListRemoveAndDespawn(s32 node) {
+    actorListRemoveNodeInternal(node, 1);
 }
 
-void actorListRemoveNode(s32 arg0) {
-    actorListRemoveNodeInternal(arg0, 0);
+void actorListRemoveNode(s32 node) {
+    actorListRemoveNodeInternal(node, 0);
 }
 
-void actorListRemoveNodeInternal(arg0, arg1)
-ActorListNode *arg0;
-u8 arg1;
+void actorListRemoveNodeInternal(targetNode, despawnActor)
+ActorListNode *targetNode;
+u8 despawnActor;
 {
     ActorListNode *node;
     ActorListNode *prev;
@@ -663,9 +663,9 @@ u8 arg1;
     prev = NULL;
     if (node != NULL) {
         do {
-            if (node == arg0) {
+            if (node == targetNode) {
                 found = 1;
-                if (arg1 != 0 && node->unk44 != NULL) {
+                if (despawnActor != 0 && node->unk44 != NULL) {
                     actorDespawn(node->unk44);
                 }
                 if (prev != NULL) {
@@ -685,7 +685,7 @@ u8 arg1;
     }
 }
 
-void actorListRemoveByActor(Actor *arg0) {
+void actorListRemoveByActor(Actor *actor) {
     ActorListNode *node;
     ActorListNode *prev;
     s32 found;
@@ -695,7 +695,7 @@ void actorListRemoveByActor(Actor *arg0) {
     prev = NULL;
     if (node != NULL) {
         do {
-            if (arg0 == node->unk44) {
+            if (actor == node->unk44) {
                 found = 1;
                 if (prev != NULL) {
                     prev->next = node->next;
@@ -746,7 +746,7 @@ s32 actorListGetSerializedSize(void) {
     return (count * 0x38) + 4;
 }
 
-void actorListSerialize(s32 *arg0) {
+void actorListSerialize(s32 *outBuf) {
     ActorListNode *node;
     u8 *dst;
     ActorListRecord item;
@@ -761,9 +761,9 @@ void actorListSerialize(s32 *arg0) {
             node = node->next;
         } while (node != NULL);
     }
-    *arg0 = count;
+    *outBuf = count;
     node = D_807FC400;
-    dst = (u8 *)(arg0 + 1);
+    dst = (u8 *)(outBuf + 1);
     if (node != NULL) {
         do {
             if (node->unk4C == 0 || (node->unk44 != NULL && (node->unk44->unk64 & 0x400))) {
@@ -783,13 +783,13 @@ void actorListSerialize(s32 *arg0) {
     }
 }
 
-void actorListDispatchEvent(s16 arg0, void *arg1) {
+void actorListDispatchEvent(s16 targetId, void *eventData) {
     ActorListNode *node = D_807FC400;
     s32 found = 0;
 
     if (node != NULL) {
         do {
-            if (arg0 == node->unk5A) {
+            if (targetId == node->unk5A) {
                 found = 1;
             } else {
                 node = node->next;
@@ -798,19 +798,19 @@ void actorListDispatchEvent(s16 arg0, void *arg1) {
     }
     if (found) {
         if (node->unk44 != NULL) {
-            func_8067AB20((s32)D_807FBB40, node->unk44, 0x1000000, 1, arg1, 0);
+            func_8067AB20((s32)D_807FBB40, node->unk44, 0x1000000, 1, eventData, 0);
         }
     }
 }
 
-s32 actorListGetOrSetState(s16 arg0, u8 arg1, u8 arg2) {
+s32 actorListGetOrSetState(s16 targetId, u8 newState, u8 setFlag) {
     ActorListNode *node;
     s32 found = 0;
 
     node = D_807FC400;
     if (node != NULL) {
         do {
-            if (arg0 == node->unk5A) {
+            if (targetId == node->unk5A) {
                 found = 1;
             } else {
                 node = node->next;
@@ -823,20 +823,20 @@ s32 actorListGetOrSetState(s16 arg0, u8 arg1, u8 arg2) {
     if (node->unk44 == NULL) {
         return 0;
     }
-    if (arg2 != 0) {
-        node->unk44->unk154 = arg1;
+    if (setFlag != 0) {
+        node->unk44->unk154 = newState;
     }
     return node->unk44->unk154;
 }
 
-s32 actorListIsIdActive(s16 arg0) {
+s32 actorListIsIdActive(s16 targetId) {
     ActorListNode *node;
     s32 found = 0;
 
     node = D_807FC400;
     if (node != NULL) {
         do {
-            if (arg0 == node->unk5A) {
+            if (targetId == node->unk5A) {
                 found = 1;
             } else {
                 node = node->next;
@@ -852,8 +852,8 @@ s32 actorListIsIdActive(s16 arg0) {
     return 0;
 }
 
-s32 actorListFindClosestTargetIndex(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5) {
-    s32 total = *arg0;
+s32 actorListFindClosestTargetIndex(s32 *recordList, s16 *typeList, u8 typeCount, f32 posX, f32 posY, f32 posZ) {
+    s32 total = *recordList;
     s32 bestIndex = -1;
     f32 minDistance = 9999999.0f;
     s32 i;
@@ -862,12 +862,12 @@ s32 actorListFindClosestTargetIndex(s32 *arg0, s16 *arg1, u8 arg2, f32 arg3, f32
     s32 *list;
     f32 dist;
 
-    list = arg0; // FAKE: second pointer to the list moves the item/j colours (permuter find)
+    list = recordList; // FAKE: second pointer to the list moves the item/j colours (permuter find)
     for (i = 0; i < total; i++) {
         item = &((ActorListRecord *)(list + 1))[i];
-        for (j = 0; j < arg2; j++) {
-            if (arg1[j] == (0, item->unk32 + 0x10U)) { // FAKE: 0x10U keeps IDO from rewriting the compare to x - 16 == y; the comma wrapper puts the arg1[j] operand first in bnel
-                dist = ((item->unk08 - arg5) * (item->unk08 - arg5)) + (((item->unk00 - arg3) * (item->unk00 - arg3)) + ((item->unk04 - arg4) * (item->unk04 - arg4)));
+        for (j = 0; j < typeCount; j++) {
+            if (typeList[j] == (0, item->unk32 + 0x10U)) { // FAKE: 0x10U keeps IDO from rewriting the compare to x - 16 == y; the comma wrapper puts the typeList[j] operand first in bnel
+                dist = ((item->unk08 - posZ) * (item->unk08 - posZ)) + (((item->unk00 - posX) * (item->unk00 - posX)) + ((item->unk04 - posY) * (item->unk04 - posY)));
                 if (dist < minDistance) {
                     minDistance = dist;
                     bestIndex = item->unk34;
@@ -890,13 +890,13 @@ typedef struct ActorListPlayerEntry {
 extern ActorListPlayerEntry *gPlayerSlots;
 extern u8 gPlayerCount;
 
-f32 playerGetMinSquaredDist3D(f32 arg0, f32 arg1, f32 arg2) {
+f32 playerGetMinSquaredDist3D(f32 posX, f32 posY, f32 posZ) {
     f32 minDist = 100000000.0f;
     s32 i;
 
     for (i = 0; i < gPlayerCount; i++) {
         if (gPlayerSlots[i].unk0 != 0) {
-            f32 dist = (arg0 - gPlayerSlots[i].unk210) * (arg0 - gPlayerSlots[i].unk210) + (arg1 - gPlayerSlots[i].unk214) * (arg1 - gPlayerSlots[i].unk214) + (arg2 - gPlayerSlots[i].unk218) * (arg2 - gPlayerSlots[i].unk218);
+            f32 dist = (posX - gPlayerSlots[i].unk210) * (posX - gPlayerSlots[i].unk210) + (posY - gPlayerSlots[i].unk214) * (posY - gPlayerSlots[i].unk214) + (posZ - gPlayerSlots[i].unk218) * (posZ - gPlayerSlots[i].unk218);
             if (dist < minDist) {
                 minDist = dist;
             }
@@ -905,23 +905,23 @@ f32 playerGetMinSquaredDist3D(f32 arg0, f32 arg1, f32 arg2) {
     return minDist;
 }
 
-s32 actorListSpawnAlways(s32 arg0) {
+s32 actorListSpawnAlways(s32 node) {
     return 1;
 }
 
-void func_80689EA4(ActorListNode *arg0) {
+void func_80689EA4(ActorListNode *node) {
     if (mapIsBossArena()) {
-        mapChunkIsVisible(arg0->unk4A, arg0);
+        mapChunkIsVisible(node->unk4A, node);
     } else {
-        actorListSpawnIfNear(arg0);
+        actorListSpawnIfNear(node);
     }
 }
 
-u8 func_80689EE4(ActorListNode *arg0) {
+u8 func_80689EE4(ActorListNode *node) {
     if (mapIsBossArena()) {
-        return mapChunkIsVisible(*(s16 *)&arg0->unk44->unk12C, arg0) == 0;
+        return mapChunkIsVisible(*(s16 *)&node->unk44->unk12C, node) == 0;
     }
-    return actorListDespawnIfFar(arg0);
+    return actorListDespawnIfFar(node);
 }
 
 s32 mapIsBossArena(void) {
@@ -942,42 +942,42 @@ s32 mapIsBossArena(void) {
     }
 }
 
-u8 actorListSpawnIfNear(ActorListNode *arg0) {
-    s32 var_a0 = mapChunkIsVisible(arg0->unk4A, arg0) != 0;
-    if (var_a0 != 0) {
-        f32 dist = playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18);
-        var_a0 = 0;
-        if (dist < arg0->unk54) {
-            var_a0 = 1;
+u8 actorListSpawnIfNear(ActorListNode *node) {
+    s32 shouldSpawn = mapChunkIsVisible(node->unk4A, node) != 0;
+    if (shouldSpawn != 0) {
+        f32 dist = playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18);
+        shouldSpawn = 0;
+        if (dist < node->unk54) {
+            shouldSpawn = 1;
         }
     }
-    return var_a0;
+    return shouldSpawn;
 }
 
-u8 actorListDespawnIfFar(ActorListNode *arg0) {
-    return (mapChunkIsVisible(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL);
+u8 actorListDespawnIfFar(ActorListNode *node) {
+    return (mapChunkIsVisible(*(s16 *)&node->unk44->unk12C, node) == 0 || !(playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18) < node->unk54)) && (node->unk44->unk114 == NULL);
 }
 
-u8 actorListDespawnIfFarAndIdle(ActorListNode *arg0) {
-    return (mapChunkIsVisible(*(s16 *)&arg0->unk44->unk12C, arg0) == 0 || !(playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18) < arg0->unk54)) && (arg0->unk44->unk114 == NULL) && (arg0->unk44->unk154 == 0);
+u8 actorListDespawnIfFarAndIdle(ActorListNode *node) {
+    return (mapChunkIsVisible(*(s16 *)&node->unk44->unk12C, node) == 0 || !(playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18) < node->unk54)) && (node->unk44->unk114 == NULL) && (node->unk44->unk154 == 0);
 }
 
-s32 actorListDespawnNever(s32 arg0) {
+s32 actorListDespawnNever(s32 node) {
     return 0;
 }
 
-u8 actorListIsPlayerInRadius(ActorListNode *arg0) {
-    s32 var_v1;
-    f32 dist = playerGetMinSquaredDist3D(arg0->unk10, arg0->unk14, arg0->unk18);
-    var_v1 = 0;
-    if (dist < arg0->unk54) {
-        var_v1 = 1;
+u8 actorListIsPlayerInRadius(ActorListNode *node) {
+    s32 isInRadius;
+    f32 dist = playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18);
+    isInRadius = 0;
+    if (dist < node->unk54) {
+        isInRadius = 1;
     }
-    return var_v1;
+    return isInRadius;
 }
 
-u8 actorListIsPlayerOutsideRadius(ActorListNode *arg0) {
-    return !(playerGetMinSquaredDist3D(arg0->unk44->unk7C, arg0->unk44->unk80, arg0->unk44->unk84) < arg0->unk54);
+u8 actorListIsPlayerOutsideRadius(ActorListNode *node) {
+    return !(playerGetMinSquaredDist3D(node->unk44->unk7C, node->unk44->unk80, node->unk44->unk84) < node->unk54);
 }
 
 void actorListClearForcedIds(void) {
@@ -985,43 +985,43 @@ void actorListClearForcedIds(void) {
     D_807FC611 = 0;
 }
 
-void actorListForceSpawnId(s16 arg0) {
+void actorListForceSpawnId(s16 targetId) {
     if (D_807FC610 != 0x10) {
-        D_807FC5D0[D_807FC610++] = arg0;
+        D_807FC5D0[D_807FC610++] = targetId;
     }
 }
 
-void actorListForceDespawnId(s16 arg0) {
+void actorListForceDespawnId(s16 targetId) {
     if (D_807FC611 != 0x10) {
-        D_807FC5F0[D_807FC611++] = arg0;
+        D_807FC5F0[D_807FC611++] = targetId;
     }
 }
 
-s32 actorListSpawnIfForced(ActorListNode *arg0) {
+s32 actorListSpawnIfForced(ActorListNode *node) {
     s32 i;
     for (i = 0; i < D_807FC610; i++) {
-        if (arg0->unk5A == D_807FC5D0[i] && arg0->unk48 == 0) {
+        if (node->unk5A == D_807FC5D0[i] && node->unk48 == 0) {
             return 1;
         }
     }
     return 0;
 }
 
-s32 actorListDespawnIfForced(ActorListNode *arg0) {
+s32 actorListDespawnIfForced(ActorListNode *node) {
     s32 i;
     for (i = 0; i < D_807FC611; i++) {
-        if (arg0->unk5A == D_807FC5F0[i] && arg0->unk48 != 0) {
+        if (node->unk5A == D_807FC5F0[i] && node->unk48 != 0) {
             return 1;
         }
     }
     return 0;
 }
 
-void func_8068A2FC(Actor *arg0) {
-    arg0->unk128 = 0;
-    arg0->unk60 &= ~0x8000;
-    arg0->unk144 = 1;
-    arg0->unk138 = 0;
-    arg0->unk154 = 0x63;
-    func_8066E6C8(arg0, 0, 0);
+void func_8068A2FC(Actor *actor) {
+    actor->unk128 = 0;
+    actor->unk60 &= ~0x8000;
+    actor->unk144 = 1;
+    actor->unk138 = 0;
+    actor->unk154 = 0x63;
+    func_8066E6C8(actor, 0, 0);
 }
