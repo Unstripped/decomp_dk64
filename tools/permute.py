@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # Container re-exec when running on host without /opt/decomp-permuter
 # (tools/dk honours DK64_IMAGE)
 # ---------------------------------------------------------------------------
-if not os.path.exists("/opt/decomp-permuter"):
+if __name__ == "__main__" and not os.path.exists("/opt/decomp-permuter"):
     sys.exit(subprocess.call([str(ROOT / "tools" / "dk"), "python3", "tools/permute.py"] + sys.argv[1:]))
 
 
@@ -159,41 +159,120 @@ def extract_func_definition(source: str, func_name: str) -> str:
 
 def strip_other_fns(source: str, keep_fn: str) -> str:
     """Turn all function bodies except keep_fn into forward declarations."""
-    result = ""
-    remain = source
     kr_decl_pat = r"\s*(?:[a-zA-Z0-9_* \t,()]+;\s*)*"
     fn_regex = re.compile(
-        r"^([a-zA-Z0-9_* \t]+?)\b(\w+)\s*\(([^;{}]*?)\)" + kr_decl_pat + r"\{",
-        re.M
+        r"(?:([a-zA-Z0-9_*][a-zA-Z0-9_* \t]*?)\b)?(\w+)\s*\(([^;{}]*?)\)" + kr_decl_pat + r"\{"
     )
     control_flow = {"if", "while", "for", "switch", "catch"}
-    while True:
-        m = fn_regex.search(remain)
-        if not m:
-            result += remain
-            break
-        fn_name = m.group(2)
-        if fn_name in control_flow or "#" in m.group(1):
-            result += remain[:m.end()]
-            remain = remain[m.end():]
+
+    result = []
+    n = len(source)
+    pos = 0
+    brace_depth = 0
+
+    while pos < n:
+        at_col0 = (pos == 0 or source[pos - 1] == "\n")
+
+        if brace_depth == 0 and at_col0 and source[pos] not in " \t\r\n#":
+            m = fn_regex.match(source, pos)
+            if m:
+                fn_name = m.group(2)
+                if fn_name not in control_flow:
+                    start_idx = m.end() - 1
+                    level = 1
+                    i = start_idx + 1
+                    while i < n and level > 0:
+                        c = source[i]
+                        if c == "/" and i + 1 < n:
+                            c2 = source[i + 1]
+                            if c2 == "/":
+                                i += 2
+                                while i < n and source[i] != "\n":
+                                    i += 1
+                                continue
+                            elif c2 == "*":
+                                i += 2
+                                while i + 1 < n and not (source[i] == "*" and source[i + 1] == "/"):
+                                    i += 1
+                                i += 2 if i + 1 < n else 1
+                                continue
+                        elif c == '"':
+                            i += 1
+                            while i < n and source[i] != '"':
+                                if source[i] == "\\" and i + 1 < n:
+                                    i += 1
+                                i += 1
+                            i += 1
+                            continue
+                        elif c == "'":
+                            i += 1
+                            while i < n and source[i] != "'":
+                                if source[i] == "\\" and i + 1 < n:
+                                    i += 1
+                                i += 1
+                            i += 1
+                            continue
+                        elif c == "{":
+                            level += 1
+                        elif c == "}":
+                            level -= 1
+                        i += 1
+
+                    if fn_name == keep_fn or fn_name.startswith("PERM"):
+                        result.append(source[pos:i])
+                    else:
+                        proto = source[pos : m.end(3) + 1].rstrip() + ";"
+                        result.append(proto + "\n")
+                    pos = i
+                    continue
+
+        c = source[pos]
+        if c == "/" and pos + 1 < n:
+            c2 = source[pos + 1]
+            if c2 == "/":
+                start_c = pos
+                pos += 2
+                while pos < n and source[pos] != "\n":
+                    pos += 1
+                result.append(source[start_c:pos])
+                continue
+            elif c2 == "*":
+                start_c = pos
+                pos += 2
+                while pos + 1 < n and not (source[pos] == "*" and source[pos + 1] == "/"):
+                    pos += 1
+                pos += 2 if pos + 1 < n else 1
+                result.append(source[start_c:pos])
+                continue
+        elif c == '"':
+            start_s = pos
+            pos += 1
+            while pos < n and source[pos] != '"':
+                if source[pos] == "\\" and pos + 1 < n:
+                    pos += 1
+                pos += 1
+            pos += 1
+            result.append(source[start_s:pos])
             continue
-        start_idx = m.end() - 1
-        level = 1
-        i = start_idx + 1
-        n = len(remain)
-        while i < n and level > 0:
-            if remain[i] == "{":
-                level += 1
-            elif remain[i] == "}":
-                level -= 1
-            i += 1
-        if fn_name == keep_fn or fn_name.startswith("PERM"):
-            result += remain[:i]
-        else:
-            proto = remain[:m.end(3) + 1].rstrip() + ";"
-            result += proto + "\n"
-        remain = remain[i:]
-    return result
+        elif c == "'":
+            start_ch = pos
+            pos += 1
+            while pos < n and source[pos] != "'":
+                if source[pos] == "\\" and pos + 1 < n:
+                    pos += 1
+                pos += 1
+            pos += 1
+            result.append(source[start_ch:pos])
+            continue
+        elif c == "{":
+            brace_depth += 1
+        elif c == "}":
+            brace_depth = max(0, brace_depth - 1)
+
+        result.append(c)
+        pos += 1
+
+    return "".join(result)
 
 
 def deduplicate_externs(source: str, func_name: str) -> str:
