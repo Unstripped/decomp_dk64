@@ -159,8 +159,9 @@ def normalise_own_section_relocs(obj_path, text, relocs, absolute, vrams=None):
     sec_sizes = get_section_sizes(obj_path)
     original = text
     text = bytearray(text)
+    addends = pair_addends(original, relocs)
     norm_relocs = []
-    for i, (off, rtype, target) in enumerate(relocs):
+    for off, rtype, target in relocs:
         addr = splat_address(target)
         if addr is None and target in absolute:
             addr = absolute[target]
@@ -178,14 +179,11 @@ def normalise_own_section_relocs(obj_path, text, relocs, absolute, vrams=None):
         if matched_sec is not None:
             word = int.from_bytes(original[off:off + 4], "big")
             if rtype == "R_MIPS_LO16":
-                lo = word & 0xFFFF
-                value = (offset + (lo - 0x10000 if lo & 0x8000 else lo)) & 0xFFFFFFFF
+                value = (offset + addends.get(off, 0)) & 0xFFFFFFFF
                 field = value & 0xFFFF
                 text[off:off + 4] = ((word & 0xFFFF0000) | field).to_bytes(4, "big")
             elif rtype == "R_MIPS_HI16":
-                pair = next((o for o, t, s in relocs[i + 1:] if t == "R_MIPS_LO16" and s == target), None)
-                lo = int.from_bytes(original[pair:pair + 4], "big") & 0xFFFF if pair is not None else 0
-                value = (offset + (lo - 0x10000 if lo & 0x8000 else lo)) & 0xFFFFFFFF
+                value = (offset + addends.get(off, 0)) & 0xFFFFFFFF
                 field = ((value + 0x8000) >> 16) & 0xFFFF
                 text[off:off + 4] = ((word & 0xFFFF0000) | field).to_bytes(4, "big")
             elif rtype == "R_MIPS_32":
@@ -275,10 +273,9 @@ def pair_addends(text, relocs):
             last_hi[tgt] = imm
             addends[off] = imm << 16
         elif rtype == "R_MIPS_LO16":
-            full = (last_hi.get(tgt, 0) << 16) + sext16(imm)
             for hi_off in pending.pop(tgt, []):
-                addends[hi_off] = full
-            addends[off] = full
+                addends[hi_off] = ((word_at(text, hi_off) & 0xFFFF) << 16) + sext16(imm)
+            addends[off] = (last_hi.get(tgt, 0) << 16) + sext16(imm)
     return addends
 
 def same_splat_address(b_tgt, e_tgt, b_addend, e_addend):
