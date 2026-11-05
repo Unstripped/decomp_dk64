@@ -324,8 +324,6 @@ u8 arg4;
     }
     y *= (*(f32 *)&arg1);
     y += fb;
-    if (y != 0) {}  // FAKE: steers FP colouring (annealed)
-    if (arg4) {}  // FAKE: steers FP colouring (annealed)
     fa = ((ModelBKey *)arg3)[arg0 + 1].unk14;
     fb = ((ModelBKey *)arg3)[arg0].unk14;
     z = fa - fb;
@@ -340,13 +338,19 @@ u8 arg4;
     c6 *= (*(f32 *)&arg1);
     c6 += ((ModelBKey *)arg3)[arg0].unk18;
     c7 = (*(f32 *)&arg1) * (((ModelBKey *)arg3)[1 + arg0].unk1C - ((ModelBKey *)arg3)[arg0].unk1C) + ((ModelBKey *)arg3)[arg0].unk1C;
-    if (c1 == 0) {}  // FAKE: steers FP colouring (annealed)
-    c8 = (((ModelBKey *)arg3)[arg0 + 1].unk20 - ((ModelBKey *)arg3)[arg0].unk20) * (*(f32 *)&arg1) + ((ModelBKey *)arg3)[arg0].unk20;
-    if (z != 0) {}  // FAKE: steers FP colouring (annealed)
-    c0 = ((ModelBKey *)arg3)[arg0].unk0 + (*(f32 *)&arg1) * (((ModelBKey *)arg3)[arg0 + 1].unk0 - ((ModelBKey *)arg3)[arg0].unk0);
-    if (c8 == 0) {}  // FAKE: steers FP colouring (annealed)
-    c1 = (*(f32 *)&arg1) * (((ModelBKey *)arg3)[1 + arg0].unk4 - ((ModelBKey *)arg3)[arg0].unk4) + ((ModelBKey *)arg3)[arg0].unk4;
-    c2 = ((ModelBKey *)arg3)[arg0].unk8 + (*(f32 *)&arg1) * (((ModelBKey *)arg3)[arg0 + 1].unk8 - ((ModelBKey *)arg3)[arg0].unk8);
+    c8 = ((ModelBKey *)arg3)[arg0 + 1].unk20 - ((ModelBKey *)arg3)[arg0].unk20;
+    c8 *= (*(f32 *)&arg1);
+    c8 += ((ModelBKey *)arg3)[arg0].unk20;
+    c0 = ((ModelBKey *)arg3)[arg0 + 1].unk0 - ((ModelBKey *)arg3)[arg0].unk0;
+    c0 *= (*(f32 *)&arg1);
+    c0 += ((ModelBKey *)arg3)[arg0].unk0;
+    c1 = ((ModelBKey *)arg3)[arg0 + 1].unk4 - ((ModelBKey *)arg3)[arg0].unk4;
+    c1 *= (*(f32 *)&arg1);
+    c1 += ((ModelBKey *)arg3)[arg0].unk4;
+    fa = (*(f32 *)&arg1);
+    c2 = ((ModelBKey *)arg3)[arg0 + 1].unk8 - ((ModelBKey *)arg3)[arg0].unk8;
+    c2 *= fa;
+    c2 += ((ModelBKey *)arg3)[arg0].unk8;
     switch (arg4 & 0xF) {
     case 0:
         break;

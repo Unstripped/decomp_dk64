@@ -1,10 +1,10 @@
-// modelAnimEntryBuildKeyMatrix (src/global/54150.c): stage 4 park (diff 98, count exact 351, frame 256 ok). Levers: deleted all 5 annealed FAKEs (count/diff identical without them), typed AnimKeyMtx_ structs; verified f18 web reuse (360.0 constant -> c6 -> c1). Remaining: c6/c7/c2 FP colours (target: c6 f18 spilled to home 0xEC, c7 ring temp, c1 f18, c2 f2) and arg1 split copy (lwc1 f4 + mov.s f14,f4 before c8) + lbu v0 vs a0 for arg4.
-typedef struct AnimKeyMtx_ModelBTrack {
+// modelAnimEntryBuildKeyMatrix (src/global/54150.c): stage 4: verified whole-TU normalized full/text 93, 351/351 instructions, frame 256, s0 only, zero FAKEs. Expand c8/c0/c1/c2 subtract/multiply/add and reuse fa for the weight before c2; fixes c6/c1=f18 and arg4=v0. Remaining c7 FP colour, c0/c2 spill lifetimes and arg1 split copy. Prior FAKE-free 98 note was not reproducible: actual cleaned old draft full310/frame272. Tried interpolation stage partitions, shared result/product/delta carriers, factor copies, shared key loads, singleton struct fields, ANSI f32 signature, and 600s two-worker permuter. Reviewed best permuter coefficient-reuse hint gave no normalized improvement without its dummy goto/no-op scaffolding. Final parked fdiff OK; NON_MATCHING compilation succeeds.
+typedef struct ModelBTrack {
     u8 *unk0;
     u8 *unk4;
-} AnimKeyMtx_ModelBTrack;
+} ModelBTrack;
 
-typedef struct AnimKeyMtx_ModelBKey {
+typedef struct ModelBKey {
     f32 unk0;
     f32 unk4;
     f32 unk8;
@@ -14,7 +14,7 @@ typedef struct AnimKeyMtx_ModelBKey {
     f32 unk18;
     f32 unk1C;
     f32 unk20;
-} AnimKeyMtx_ModelBKey; /* 0x24 */
+} ModelBKey; /* 0x24 */
 
 void matrixMakeRotationX(f32 (*)[4], f32);
 void matrixMakeRotationY(f32 (*)[4], f32);
@@ -23,7 +23,7 @@ void matrixMakeRotationZ(f32 (*)[4], f32);
 void modelAnimEntryBuildKeyMatrix(arg0, arg1, arg2, arg3, arg4)
 u8 arg0;
 u32 arg1;
-AnimKeyMtx_ModelBTrack *arg2;
+ModelBTrack *arg2;
 u8 *arg3;
 u8 arg4;
 {
@@ -48,8 +48,8 @@ u8 arg4;
     float mtx[4][4];
 
     off = D_807F6BE0;
-    fa = ((AnimKeyMtx_ModelBKey *)arg3)[arg0 + 1].unkC;
-    fb = ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unkC;
+    fa = ((ModelBKey *)arg3)[arg0 + 1].unkC;
+    fb = ((ModelBKey *)arg3)[arg0].unkC;
     x = fa - fb;
     if (-180.0 > x) {
         x += 360.0;
@@ -58,8 +58,8 @@ u8 arg4;
     }
     x *= (*(f32 *)&arg1);
     x += fb;
-    fa = ((AnimKeyMtx_ModelBKey *)arg3)[arg0 + 1].unk10;
-    fb = ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk10;
+    fa = ((ModelBKey *)arg3)[arg0 + 1].unk10;
+    fb = ((ModelBKey *)arg3)[arg0].unk10;
     y = fa - fb;
     if (y < -180.0) {
         y += 360.0;
@@ -68,8 +68,8 @@ u8 arg4;
     }
     y *= (*(f32 *)&arg1);
     y += fb;
-    fa = ((AnimKeyMtx_ModelBKey *)arg3)[arg0 + 1].unk14;
-    fb = ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk14;
+    fa = ((ModelBKey *)arg3)[arg0 + 1].unk14;
+    fb = ((ModelBKey *)arg3)[arg0].unk14;
     z = fa - fb;
     if (z < -180.0) {
         z += 360.0;
@@ -78,14 +78,23 @@ u8 arg4;
     }
     z *= (*(f32 *)&arg1);
     z += fb;
-    c6 = ((AnimKeyMtx_ModelBKey *)arg3)[1 + arg0].unk18 - ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk18;
+    c6 = ((ModelBKey *)arg3)[1 + arg0].unk18 - ((ModelBKey *)arg3)[arg0].unk18;
     c6 *= (*(f32 *)&arg1);
-    c6 += ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk18;
-    c7 = (*(f32 *)&arg1) * (((AnimKeyMtx_ModelBKey *)arg3)[1 + arg0].unk1C - ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk1C) + ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk1C;
-    c8 = (((AnimKeyMtx_ModelBKey *)arg3)[arg0 + 1].unk20 - ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk20) * (*(f32 *)&arg1) + ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk20;
-    c0 = ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk0 + (*(f32 *)&arg1) * (((AnimKeyMtx_ModelBKey *)arg3)[arg0 + 1].unk0 - ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk0);
-    c1 = (*(f32 *)&arg1) * (((AnimKeyMtx_ModelBKey *)arg3)[1 + arg0].unk4 - ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk4) + ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk4;
-    c2 = ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk8 + (*(f32 *)&arg1) * (((AnimKeyMtx_ModelBKey *)arg3)[arg0 + 1].unk8 - ((AnimKeyMtx_ModelBKey *)arg3)[arg0].unk8);
+    c6 += ((ModelBKey *)arg3)[arg0].unk18;
+    c7 = (*(f32 *)&arg1) * (((ModelBKey *)arg3)[1 + arg0].unk1C - ((ModelBKey *)arg3)[arg0].unk1C) + ((ModelBKey *)arg3)[arg0].unk1C;
+    c8 = ((ModelBKey *)arg3)[arg0 + 1].unk20 - ((ModelBKey *)arg3)[arg0].unk20;
+    c8 *= (*(f32 *)&arg1);
+    c8 += ((ModelBKey *)arg3)[arg0].unk20;
+    c0 = ((ModelBKey *)arg3)[arg0 + 1].unk0 - ((ModelBKey *)arg3)[arg0].unk0;
+    c0 *= (*(f32 *)&arg1);
+    c0 += ((ModelBKey *)arg3)[arg0].unk0;
+    c1 = ((ModelBKey *)arg3)[arg0 + 1].unk4 - ((ModelBKey *)arg3)[arg0].unk4;
+    c1 *= (*(f32 *)&arg1);
+    c1 += ((ModelBKey *)arg3)[arg0].unk4;
+    fa = (*(f32 *)&arg1);
+    c2 = ((ModelBKey *)arg3)[arg0 + 1].unk8 - ((ModelBKey *)arg3)[arg0].unk8;
+    c2 *= fa;
+    c2 += ((ModelBKey *)arg3)[arg0].unk8;
     switch (arg4 & 0xF) {
     case 0:
         break;
