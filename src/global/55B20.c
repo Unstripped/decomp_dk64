@@ -2150,7 +2150,6 @@ typedef struct {
 } MapChunkEffectEntry;
 
 
-#ifdef NON_MATCHING
 s32 mapChunkEmitLayerDisplayLists(arg0, arg1, arg2)
 u32 *arg0;
 s32 arg1;
@@ -2187,18 +2186,18 @@ u8 arg2;
                 continue;
             }
             found = 0;
-            node = (struct MapCell *)D_807F70B0; do { // LAYOUT: joined onto the do line (keeps lh a0 before lw v0)
-                if (node->unk2 == ((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk0) {
+            node = (struct MapCell *)D_807F70B0; arg0 = (u32 *)&((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i]; do { // LAYOUT: keeps lh a0 before lw v0 // FAKE: arg0 reuse preserves the entry pointer's parameter precolor
+                if (((MapChunkEffectEntry *)arg0)->unk0 == node->unk2) {
                     found = 1;
                 } else {
                     node++;
                 }
             } while (found == 0);
-            if (D_807F70B0 == 0) {} // FAKE: shares the node load's hi constant; that candidate takes a2 ahead of the entry pointer (target a3)
+            if (*(u32 *)&D_807F70B0 == 0) {} // FAKE: integer-typed ghost keeps the bound in t1 without coloring the node pointer load
             if (node->unk18 == 0) {
                 continue;
             }
-            if ((((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk2 & (1 << arg2)) == 0) {
+            if ((((MapChunkEffectEntry *)arg0)->unk2 & (1 << arg2)) == 0) {
                 continue;
             }
             gSPSegment(gfx++, 6, osVirtualToPhysical((void *)((MapChunkEffectEntry *)((MapChunkEffect *)gMapChunks)[arg1].unk4C)[i].unk14[arg2]));
@@ -2209,10 +2208,6 @@ u8 arg2;
     }
     return (s32)gfx;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapChunkEmitLayerDisplayLists.s")
-#endif
 
 void mapChunkEffectSetFlag(s16 arg0, s16 arg1, u8 arg2, u8 arg3) {
     s32 i = 0;

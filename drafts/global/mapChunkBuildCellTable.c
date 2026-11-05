@@ -1,4 +1,4 @@
-// mapChunkBuildCellTable (src/global/55B20.c): MapChunkPair revisit 9: stage 4 park, 152/152 insns, frame 0x28 ok, full=127 text=127 reloc=0 shape=2 (pure colouring). All 152 instructions in exact 1-to-1 opcode correspondence with target. Diagnosis: target allocates 8 callee-saved registers: found in s0, n in s1, cell ptr in s2 (shared across both loops), cidx in s3, cfound in s4, kind*4 in s5, kind*2 in s6, chunk*456 in s7; temporary/caller-saved registers: -1 in v0, kind in v1, &D_807F70B0 in t0, &gMapChunks in t1, chunk in t2, 36 in t3, key in t4, idx in t5. In our build, *count expression candidate (bit 22) takes v0 (adjsave 120.0), displacing -1 to t1 and cascading across s0..s7. Tested clean C without FAKEs (full 149), natural 4-store spellings, pointer iteration vs array indexing.
+// mapChunkBuildCellTable (src/global/55B20.c): CellTable, base 9b5df902: stage 6 register-allocation near miss, retained NON_MATCHING park (not matched). Final full-TU active-object comparison: 152 instructions, frame 0x28, saved s0-s7, normalized full=78 text=78 reloc=0 shape=0; exactly 78 positional instruction mismatches. Improved prior full127/text127/shape2. Current idx=v0,cidx=v1,found=s5,n=s6,cell pointers=s7,key=s3,cfound=s4,-1=t2; target idx=t5,cidx=s3,found=s0,n=s1,cell=s2,key=t4,-1=v0. New lever: buf[*count].unk4[(kind & 0)+i] retains nested uixa through uopt and removes high-priority repeated-count-load allocation; four ordinary constant indices instead select multu and lose four instructions. Assigning the command word to existing key before the opcode test preserves the target scratch-ring phase without a u64-address FAKE. Two dead D_807F70B0 tests preserve t0 global-address coloring. Exhausted count arithmetic/type/index grids, explicit/shared loop pointers and indexed bases, width/scope/lifetime/predef permutations, global-load casts, coordinated invariant locals, operand/store ordering, memory qualifiers, deadsweep, multiple annealing searches and exhaustive no-op deletion. Permuter ANSI probe -j2 --seconds600: 44316 iterations, best score580, hint generalized to natural key assignment; K&R setup mangled body and was rejected. No semantic-changing permutation retained. Full-TU active fdiff: FAILED: Section .text content mismatch (built: 33520 bytes, expected: 33520 bytes); normalized target relocations agree. Parked --non-matching compile succeeds (existing warnings); plain final copy fdiff exact output OK. Final copy .scratch/CellTable/55B20.c; full-object score .scratch/CellTable/final_object_score.json. No new names, externs, or prototype changes.
 typedef struct MapDlCommand {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
@@ -42,7 +42,8 @@ s32 chunk;
             idx = 0;
             found = 0;
             size -= 8;
-            if ((((MapDlCommand *)list)->unk0 >> 24) == 0) {
+            key = ((MapDlCommand *)list)->unk0;
+            if (((u32)key >> 24) == 0) {
                 n = *count;
                 key = ((MapDlCommand *)list)->unk4;
                 if (buf == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -68,10 +69,12 @@ s32 chunk;
                 if (found == 0) {
                     ((MapChunkCellRefs *)buf)[n].unk0 = key;
                     if (size && size) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                    *(s32 *)((u8 *)buf + (((*count << 3) + *count) << 2) + 4) = -1;
-                    *(s32 *)((u8 *)buf + (((*count << 3) + *count) << 2) + 8) = -1;
-                    *(s32 *)((u8 *)buf + (((*count << 3) + *count) << 2) + 12) = -1;
-                    *(s32 *)((u8 *)buf + (((*count << 3) + *count) << 2) + 16) = -1;
+                    ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 1 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
+                    if (D_807F70B0 != 0) {} // FAKE: keeps the global-address range ahead of constant webs
+                    ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 2 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
+                    if (D_807F70B0 == 0) {} // FAKE: keeps the global-address range ahead of constant webs
+                    ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 3 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
+                    ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 4 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
                     ((MapChunkCellRefs *)buf)[*count].unk4[kind] = list + 8;
                     ((MapChunkCellRefs *)buf)[*count].unk14[kind] = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + gMapChunks[chunk].unk58;
                     *count += 1;
