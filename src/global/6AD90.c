@@ -278,20 +278,10 @@ s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg
         sp5E = 0;
         val2 = 0;
     }
-    val2 = val2 + 0;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    sp5E = sp5E + 0;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    sp5E = sp5E & 0xFF;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    if (((sp5E * 2) & 0xFF) == 0) {}  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    if ((((val2 * 4) & 0xFF) | sp5F)) {}  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    sp5E = sp5E ^ 0;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    val2 = val2 & 0xFF;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    sp5E = sp5E * 1;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    sp5E = sp5E & 0xFF;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    val2 = val2 + 0;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    if (val2 == 0) {}  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    val2 = val2 ^ 0;  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    if ((((sp5E * 2) & 0xFF) - ((val2 * 4) & 0xFF))) {}  // FAKE: steers arg0 into s0 / t-ring order of the switch selector
-    switch (((sp5F + ((sp5E * 2) & 0xFF)) + ((val2 * 4) & 0xFF)) & 0xFF) {
+    sp40 = (f32)((f64)arg2 + 4.0);
+    sp5E *= 2;
+    val2 *= 4;
+    switch ((u8)(sp5F + sp5E + val2)) {
     case 0:
         sp4D = 0;
         break;
@@ -302,7 +292,7 @@ s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg
         sp4D = 2;
         break;
     case 3:
-        if (mathCheckCloserFloatThreshold(sp54, sp58, (f32)((f64)arg2 + 4.0), 0) != 0) {
+        if (mathCheckCloserFloatThreshold(sp54, sp58, sp40, 0) != 0) {
             sp4D = 1;
         } else {
             sp4D = 2;
@@ -312,21 +302,20 @@ s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg
         sp4D = 3;
         break;
     case 5:
-        if (mathCheckCloserFloatThreshold(sp50, sp58, (f32)((f64)arg2 + 4.0), 0) != 0) {
+        if (mathCheckCloserFloatThreshold(sp50, sp58, sp40, 0) != 0) {
             sp4D = 1;
         } else {
             sp4D = 3;
         }
         break;
     case 6:
-        if (mathCheckCloserFloatThreshold(sp50, sp54, (f32)((f64)arg2 + 4.0), 0) != 0) {
+        if (mathCheckCloserFloatThreshold(sp50, sp54, sp40, 0) != 0) {
             sp4D = 2;
         } else {
             sp4D = 3;
         }
         break;
     case 7:
-        sp40 = (f32)((f64)arg2 + 4.0);
         if (mathCheckCloserFloatThreshold(sp54, sp58, sp40, 0) != 0) {
             if (mathCheckCloserFloatThreshold(sp50, sp58, sp40, 0) != 0) {
                 sp4D = 1;
@@ -398,7 +387,7 @@ s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg
     *arg6 = D_807F946C;
     *arg7 = D_807F9468;
     D_807F94B4 = 0;
-    return (sp5F | ((sp5E * 2) & 0xFF) | ((val2 * 4) & 0xFF)) & 0xFF;
+    return (u8)(sp5F | sp5E | val2);
 }
 
 extern u8 D_807F946E;
@@ -1514,7 +1503,6 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
 
     hit = 0;
     hit_y = 999999.0f;
-    (void)2000.0; // FAKE: reserves the first 2000.0 rodata literal slot
 
     sp9A = hashTableLookup(arg1);
     if (sp9A == -1) {
