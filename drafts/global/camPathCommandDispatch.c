@@ -1,6 +1,5 @@
-// camPathCommandDispatch (src/global/2C910.c): L1169 (focused 2026-11-05): stage 4, count-exact 1169, frame 0xA8, s0+ra; full 262 (deadsweep score), masked diff (regs+sp offsets masked) 6 vs 39 for the previous 201 body (commit 35789027). Structural fixes: no D_807FBB48/4C dead tests; `a = ...; spA0[0] = a;` FIRST (gives the target's `sra t7; move s0,t7; sh t7` entry); case 0x11 `screenWipeStart((arg1 >> 16) & 0xFF)` (target `andi a0,a1,0xff` reads the cross-block `arg1 >> 16` candidate in a1); case 0x27 `s16 node = a` (an s16 local read from a register narrows per use and is never CSE'd across the calls: kills the (s16)a spill sw t8,64/lw s0,64); case 0x2F `t = sv[3]; if (t) f(t, (s16)sv[0])` with csModelStateSetFirstByte declared K&R (target passes the lw'd word unnarrowed: the test's load is reused in a0).
-// Remaining: (1) entry colouring: target loads arg1 into ring t8 (uncoloured, one load with two consumers) and arg2 into t5; every spelling tried colours them a0/a2 (bb1 piece adjsave 1.0 = 2 uses - 1 reload); `arg1 >>= 16` (R1 form, no FAKE, full 265) makes arg1 a whole-range isvar coloured a3 with `move a3,a1` at entry instead. (2) frame: sv[] lands at 0x58 (Mmt 104 + 2 temploc slots); target has b/c/d at 0x44/0x3C/0x38 and x at 0x48: under scalars b stays at its home only when its operand param is modified after the def (`arg1 >>= 16`), c/d become temploc isops; d then gets coloured t1 (target reloads it) and cvtl(b) gets call-saved in 0x27 (target `lh 0x46` x4). The if/else form of the f64 ?: temporaries (declared f64 vol/pan) removes the cfe f64 vregs from the Mmt.
-#define M3_OFF(p, T, o) (*(T *)((u8 *)(p) + (o)))
+// camPathCommandDispatch (src/global/2C910.c): L1169 Matcher14: stage 4, full/text 176, reloc 0, regs+sp-offset-masked diff 6; count-exact 1169, frame 0xA8, saved s0+ra. Base 5c2c28facf4108db3da08b9ca43af292bddcffd4. Reuse consumed arg2 for the case 0x19 absolute-value selector instead of q: removes that disjoint lifetime from q and shrinks full 262->176 without worsening masked 6. Signature now s32/s32/s32 agrees with the existing 201B0.c caller; explicit u32 casts retain logical high-half extraction. The absolute-value expression must stay unsigned: signed arg2=(u32)(a>0?a:-a) keeps 176/6, plain signed abs becomes 181/8; no pointer/int pun needed. Same remaining entry issue (arg1 reload a0 vs target t8, arg2 a2 vs target t5) and sv frame b/c/d=0x64/0x5C/0x58 vs target0x44/0x3C/0x38. No improving ideas after 28 formal-reuse probes, two 43 coordinated-lifetime rounds, 96 named-f64 expression/lifetime probes, 20 selector-type/last-use-consumption routes, 4 signature checks. Case0x28 q->arg1 alone was179/6; combining other formal lifetimes did not improve 176/6; an additional sp98 case0x37->arg1 got171 but masked12 (rejected). Named f64 ternary locals (shared/split volume/pitch/channel lifetimes, before sv, removing r/reusing t/node) did not improve. Final plain fdiff: FAILED: Section .text content mismatch (built: 5504 bytes, expected: 5504 bytes); FAILED: Relocations mismatch; CURRENT (3123); normalized reloc0. Park improved equivalent stage4. Retain previous 2026-11-05 levers: a-first move s0,t7; s16 node=a kills case27 cross-call narrowing CSE; t=sv[3] plus K&R csModelStateSetFirstByte kills extra case2F narrowing. Existing if(1) block barrier retained. Globals use Actor* D_807FBB48 and pointer-typed gCamActor with integer-argument casts. Prior focused draft notes remain in history. Previous focused record: camPathCommandDispatch (src/global/2C910.c): L1169 (focused 2026-11-05): stage 4, count-exact 1169, frame 0xA8, s0+ra; full 262 (deadsweep score), masked diff (regs+sp offsets masked) 6 vs 39 for the previous 201 body (commit 35789027). Structural fixes: no D_807FBB48/4C dead tests; `a = ...; spA0[0] = a;` FIRST (gives the target's `sra t7; move s0,t7; sh t7` entry); case 0x11 `screenWipeStart((arg1 >> 16) & 0xFF)` (target `andi a0,a1,0xff` reads the cross-block `arg1 >> 16` candidate in a1); case 0x27 `s16 node = a` (an s16 local read from a register narrows per use and is never CSE'd across the calls: kills the (s16)a spill sw t8,64/lw s0,64); case 0x2F `t = sv[3]; if (t) f(t, (s16)sv[0])` with csModelStateSetFirstByte declared K&R (target passes the lw'd word unnarrowed: the test's load is reused in a0). Remaining: (1) entry colouring: target loads arg1 into ring t8 (uncoloured, one load with two consumers) and arg2 into t5; every spelling tried colours them a0/a2 (bb1 piece adjsave 1.0 = 2 uses - 1 reload); `arg1 >>= 16` (R1 form, no FAKE, full 265) makes arg1 a whole-range isvar coloured a3 with `move a3,a1` at entry instead. (2) frame: sv[] lands at 0x58 (Mmt 104 + 2 temploc slots); target has b/c/d at 0x44/0x3C/0x38 and x at 0x48: under scalars b stays at its home only when its operand param is modified after the def (`arg1 >>= 16`), c/d become temploc isops; d then gets coloured t1 (target reloads it) and cvtl(b) gets call-saved in 0x27 (target `lh 0x46` x4). The if/else form of the f64 ?: temporaries (declared f64 vol/pan) removes the cfe f64 vregs from the Mmt.
+#define Matcher14_OFF(p, T, o) (*(T *)((u8 *)(p) + (o)))
 
 extern u8 D_807457E4[];
 extern u16 D_80747750[];
@@ -9,11 +8,11 @@ extern s8 D_8076AEE0;
 extern s16 D_8076AEF2;
 extern s32 D_8076D1F8;
 extern s32 D_8076D1FC;
-extern s32 gCamActor;
+extern void *gCamActor;
 extern u8 D_807F5D6C[];
 extern u8 D_807F5D70[];
 extern s16 D_807F5D7C;
-extern void *D_807FBB48;
+extern Actor *D_807FBB48;
 extern s32 D_807FBB68;
 extern void *gPlayerSlots;
 extern f32 gScreenFadeRate;
@@ -79,14 +78,14 @@ void *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 void spawnNodesSetActorStateByFlag(u16, u8);
 void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
 
-void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
+void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
     s16 spA0[4];
     void *sp9C;
     void *sp98;
     void *sp94;
     void *q;
     void *p;
-    void *r;
+    void *r; // FAKE: reserves the original local-frame slot.
     f32 sp84;
     f32 sp80;
     f32 sp7C;
@@ -96,14 +95,14 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
     s32 t;
     s32 sv[5];
 
-    sp9C = M3_OFF(D_807FBB4C, void *, 0x174);
+    sp9C = Matcher14_OFF(D_807FBB4C, void *, 0x174);
     actorFindActiveByType(0xC, &sp94);
-    a = (s16)(arg1 >> 16);
+    a = (s16)((u32)arg1 >> 16);
     spA0[0] = a;
     if (1) {  // FAKE: block barrier: keeps the arg2 halves in their own uopt block (prologue order; full 529 -> 262)
         sv[3] = (s16)arg1;
         spA0[1] = sv[3];
-        sv[1] = (s16)(arg2 >> 16);
+        sv[1] = (s16)((u32)arg2 >> 16);
         spA0[2] = sv[1];
         sv[0] = (s16)arg2;
     }
@@ -132,30 +131,30 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             func_806F0C18(D_807FBB4C);
             return;
         case 0x33:
-            p = M3_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C);
-            M3_OFF(p, u8, 0x30) = 0xFE;
-            M3_OFF(p, u8, 0x33) = sv[3];
-            M3_OFF(p, u8, 0x22) = sv[1];
-            M3_OFF(p, u8, 0x32) = sv[0];
-            M3_OFF(p, u8, 0x31) = 1;
+            p = Matcher14_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C);
+            Matcher14_OFF(p, u8, 0x30) = 0xFE;
+            Matcher14_OFF(p, u8, 0x33) = sv[3];
+            Matcher14_OFF(p, u8, 0x22) = sv[1];
+            Matcher14_OFF(p, u8, 0x32) = sv[0];
+            Matcher14_OFF(p, u8, 0x31) = 1;
             return;
         case 0x34:
-            M3_OFF(M3_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C), u8, 0x30) = 0xFF;
+            Matcher14_OFF(Matcher14_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C), u8, 0x30) = 0xFF;
             return;
         case 0x0:
-            M3_OFF(sp9C, s16, 0x70) = M3_OFF(D_807FBB4C, s16, 0xE6);
-            M3_OFF(sp9C, f32, 0x74) = sv[3];
-            M3_OFF(sp9C, f32, 0x6C) = a;
+            Matcher14_OFF(sp9C, s16, 0x70) = Matcher14_OFF(D_807FBB4C, s16, 0xE6);
+            Matcher14_OFF(sp9C, f32, 0x74) = sv[3];
+            Matcher14_OFF(sp9C, f32, 0x6C) = a;
             playerStateQueueCallback(0x17, 0, 0);
             return;
         case 0x1:
             func_80028EE8((sv[1] + 6) & 0xFF, 0, 0xC8, a & 0xFF, 0, sv[3] + 0x28, 0x64, 0xFF);
             return;
         case 0x2:
-            M3_OFF(sp9C, s32, 0x1F0) |= 8;
+            Matcher14_OFF(sp9C, s32, 0x1F0) |= 8;
             return;
         case 0x3:
-            M3_OFF(sp9C, s32, 0x1F0) &= ~8;
+            Matcher14_OFF(sp9C, s32, 0x1F0) &= ~8;
             return;
         case 0x24:
             func_80724994(1, a, (s16)sv[3], (s16)sv[1], sv[0]);
@@ -169,7 +168,7 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
                 return;
             }
             if (sv[3] == 2) {
-                M3_OFF(M3_OFF(M3_OFF(D_807FBB48, void *, 4), void *, 0), s16, 0x10) = -1;
+                Matcher14_OFF(Matcher14_OFF(Matcher14_OFF(D_807FBB48, void *, 4), void *, 0), s16, 0x10) = -1;
                 actorScriptStart(D_807FBB48, D_80747750[sv[1]]);
                 if (sv[0] != 0) {
                     scriptSetActorRampTarget(D_807FBB48, sv[0] / 100.0, 0);
@@ -188,7 +187,7 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             camSetPathLookAhead(a);
             return;
         case 0x2E:
-            M3_OFF(actorFromSpawnNodeOrDefault(a), u8, 0x15E) = sv[3];
+            Matcher14_OFF(actorFromSpawnNodeOrDefault(a), u8, 0x15E) = sv[3];
             return;
         case 0x25:
             playerWaypointPathStartPacked((s32)D_807FBB4C, 0, a, 0);
@@ -214,16 +213,16 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             camSetRollBlend(a, sv[3], sv[1]);
             return;
         case 0x10:
-            camStartShake(gCamActor, sv[3], a);
+            camStartShake((s32)gCamActor, sv[3], a);
             return;
         case 0xA:
             if (a != 0) {
                 p = spawnNodeActivate(a, 0);
                 if (sv[3] != 0) {
-                    M3_OFF(p, s32, 0x60) |= 4;
+                    Matcher14_OFF(p, s32, 0x60) |= 4;
                     return;
                 }
-                M3_OFF(p, s32, 0x60) &= ~4;
+                Matcher14_OFF(p, s32, 0x60) &= ~4;
                 return;
             }
             sp72 = 1;
@@ -231,9 +230,9 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             if (p != NULL) {
                 do {
                     if (sv[3] != 0) {
-                        M3_OFF(p, s32, 0x60) |= 4;
+                        Matcher14_OFF(p, s32, 0x60) |= 4;
                     } else {
-                        M3_OFF(p, s32, 0x60) &= ~4;
+                        Matcher14_OFF(p, s32, 0x60) &= ~4;
                     }
                     p = spawnNodeActivate(sp72++, 0);
                 } while (p != NULL);
@@ -244,18 +243,18 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             zoneEntrySpawnEffect(a, sv[3], sv[1], (s16)sv[0]);
             return;
         case 0x11:
-            screenWipeStart((arg1 >> 16) & 0xFF);
+            screenWipeStart(((u32)arg1 >> 16) & 0xFF);
             return;
         case 0xC:
-            func_8067AB20(gCamActor, sp94, 0x01000000, 1, spA0, 0);
+            func_8067AB20((s32)gCamActor, sp94, 0x01000000, 1, spA0, 0);
             return;
         case 0xD:
-            func_8067AB20(gCamActor, sp94, 0x01000000, 0x10, spA0, 0);
+            func_8067AB20((s32)gCamActor, sp94, 0x01000000, 0x10, spA0, 0);
             spA0[3] = -1;
-            func_8067AB20(gCamActor, sp94, 0x01000000, 0xE, spA0, 0);
+            func_8067AB20((s32)gCamActor, sp94, 0x01000000, 0xE, spA0, 0);
             return;
         case 0x12:
-            func_8067AB20(gCamActor, sp94, 0x01000000, 0x14, spA0, 0);
+            func_8067AB20((s32)gCamActor, sp94, 0x01000000, 0x14, spA0, 0);
             return;
         case 0x31:
             if (sv[0] != 0) {
@@ -276,23 +275,23 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             sp98 = spawnNodeActivate(a, 0);
             if (sp98 != NULL) {
                 if (D_807FBB68 & 2) {
-                    actorCopyPoseAndScale(D_807FBB4C, sp98, M3_OFF(M3_OFF(sp98, void *, 4), f32, 0x38));
+                    actorCopyPoseAndScale(D_807FBB4C, sp98, Matcher14_OFF(Matcher14_OFF(sp98, void *, 4), f32, 0x38));
                 } else {
                     actorCopyPoseAndScale(D_807FBB4C, sp98, 0.15f);
-                    M3_OFF(gPlayerSlots, u8, 0x2C0) = 1;
+                    Matcher14_OFF(gPlayerSlots, u8, 0x2C0) = 1;
                 }
                 playerResumeLocomotion(D_807FBB4C);
-                M3_OFF(D_807FBB4C, s32, 0x60) |= 4;
-                M3_OFF(sp98, u8, 0x154) = 0x40;
+                Matcher14_OFF(D_807FBB4C, s32, 0x60) |= 4;
+                Matcher14_OFF(sp98, u8, 0x154) = 0x40;
                 return;
             }
             break;
         case 0x20:
             p = spawnNodeActivate(a, 0);
             if (p != NULL) {
-                actorCopyPoseAndScale(p, D_807FBB4C, M3_OFF(M3_OFF(D_807FBB4C, void *, 4), f32, 0x38));
-                M3_OFF(D_807FBB4C, u8, 0x154) = 0x77;
-                M3_OFF(D_807FBB4C, u8, 0x155) = 0;
+                actorCopyPoseAndScale(p, D_807FBB4C, Matcher14_OFF(Matcher14_OFF(D_807FBB4C, void *, 4), f32, 0x38));
+                Matcher14_OFF(D_807FBB4C, u8, 0x154) = 0x77;
+                Matcher14_OFF(D_807FBB4C, u8, 0x155) = 0;
                 return;
             }
             break;
@@ -315,7 +314,7 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
         case 0x2A:
             p = spawnNodeActivate(a, 0);
             if (p != NULL) {
-                M3_OFF(p, u8, 0x154) = 0x3C;
+                Matcher14_OFF(p, u8, 0x154) = 0x3C;
                 return;
             }
             break;
@@ -324,11 +323,11 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             if (sp98 != NULL) {
                 q = spawnNodeActivate((s16)sv[3], 0);
                 if (q != NULL) {
-                                        actorCopyPoseAndScale(sp98, q, M3_OFF(M3_OFF(q, void *, 4), f32, 0x38));
-                    controllerAnimSetState(sp98, M3_OFF(M3_OFF(M3_OFF(q, void *, 4), void *, 0), s16, 0x10), M3_OFF(M3_OFF(M3_OFF(q, void *, 4), void *, 0), f32, 4), 0.0f);
+                                        actorCopyPoseAndScale(sp98, q, Matcher14_OFF(Matcher14_OFF(q, void *, 4), f32, 0x38));
+                    controllerAnimSetState(sp98, Matcher14_OFF(Matcher14_OFF(Matcher14_OFF(q, void *, 4), void *, 0), s16, 0x10), Matcher14_OFF(Matcher14_OFF(Matcher14_OFF(q, void *, 4), void *, 0), f32, 4), 0.0f);
                     controllerStepMotionWindows(sp98);
-                    M3_OFF(sp98, s32, 0x60) |= 4;
-                    M3_OFF(q, s32, 0x60) &= ~4;
+                    Matcher14_OFF(sp98, s32, 0x60) |= 4;
+                    Matcher14_OFF(q, s32, 0x60) &= ~4;
                     return;
                 }
             }
@@ -339,14 +338,14 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             } else {
                 actorClearMovementFlags(sp98 = D_807FBB4C);
             }
-            zoneEntryGetPosition(sv[3], sv[1], &M3_OFF(sp98, f32, 0x7C), &M3_OFF(sp98, f32, 0x80), &M3_OFF(sp98, f32, 0x84));
-            func_8067A69C(0, sp98, M3_OFF(sp98, f32, 0x7C), M3_OFF(sp98, f32, 0x84), 2, 1);
+            zoneEntryGetPosition(sv[3], sv[1], &Matcher14_OFF(sp98, f32, 0x7C), &Matcher14_OFF(sp98, f32, 0x80), &Matcher14_OFF(sp98, f32, 0x84));
+            func_8067A69C(0, sp98, Matcher14_OFF(sp98, f32, 0x7C), Matcher14_OFF(sp98, f32, 0x84), 2, 1);
             {
                 s32 t = (sv[0] << 12) / 360;
-                M3_OFF(sp98, s16, 0xEE) = t;
-                M3_OFF(sp98, s16, 0xE6) = t;
+                Matcher14_OFF(sp98, s16, 0xEE) = t;
+                Matcher14_OFF(sp98, s16, 0xE6) = t;
             }
-            M3_OFF(sp98, f32, 0x9C) = M3_OFF(sp98, f32, 0x80);
+            Matcher14_OFF(sp98, f32, 0x9C) = Matcher14_OFF(sp98, f32, 0x80);
             actorUpdateModelMatrix(sp98, 0);
             func_80614A64(sp98);
             return;
@@ -357,7 +356,7 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
                 } else {
                     sp98 = D_807FBB4C;
                 }
-                D_807F5D7C = sfxPlayAtPositionPooled(M3_OFF(sp98, f32, 0x7C), M3_OFF(sp98, f32, 0x80), M3_OFF(sp98, f32, 0x84), sv[3], (u32)(sv[1] != 0 ? (f64)sv[1] : 127.5), sv[0] != 0 ? sv[0] : 0x7F, 0, 0, 0.0f, 0);
+                D_807F5D7C = sfxPlayAtPositionPooled(Matcher14_OFF(sp98, f32, 0x7C), Matcher14_OFF(sp98, f32, 0x80), Matcher14_OFF(sp98, f32, 0x84), sv[3], (u32)(sv[1] != 0 ? (f64)sv[1] : 127.5), sv[0] != 0 ? sv[0] : 0x7F, 0, 0, 0.0f, 0);
                 return;
             }
             if (sv[3] < 0x800) {
@@ -367,12 +366,12 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             n_alSndpPlay((void *)D_8076D1FC, (s16)(sv[3] - 0x7FF), (u32)(sv[1] != 0 ? ((f64)sv[1] / 255.0) * 32767.0 : 16383.5), 0x3F, sv[0] != 0 ? (f64)sv[0] / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
             return;
         case 0x19:
-            q = (void *)(a > 0 ? a : -a);
-            if ((s32)q <= 0) {
+            arg2 = (u32)(a > 0 ? a : -a); // FAKE: unsigned expression keeps the absolute-value temporary's allocation.
+            if ((s32)arg2 <= 0) {
                 sp72 = 0;
             } else {
-                q = (void *)(a > 0 ? a : -a);
-                sp72 = (s32)q - 1;
+                arg2 = (u32)(a > 0 ? a : -a); // FAKE: unsigned expression keeps the absolute-value temporary's allocation.
+                sp72 = (s32)arg2 - 1;
             }
             n_alSndpStop(*(s32 *)(D_807F5D70 + sp72 * 4));
             return;
@@ -402,30 +401,30 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             sfxSetMode(a & 0xFF);
             return;
         case 0x3C:
-            p = M3_OFF(spawnNodeActivate(1, 0), void *, 0x17C);
-            M3_OFF(p, u8, 0xD) |= a;
+            p = Matcher14_OFF(spawnNodeActivate(1, 0), void *, 0x17C);
+            Matcher14_OFF(p, u8, 0xD) |= a;
             return;
         case 0x3B:
-            M3_OFF(actorFromSpawnNodeOrDefault(a), s16, 0x146) = sv[3];
+            Matcher14_OFF(actorFromSpawnNodeOrDefault(a), s16, 0x146) = sv[3];
             return;
         case 0x1C:
-            M3_OFF(actorFromSpawnNodeOrDefault(a), s16, 0xE6) = M3_OFF(gPlayerSlots, s16, 0x2C8) & 0xFFF;
+            Matcher14_OFF(actorFromSpawnNodeOrDefault(a), s16, 0xE6) = Matcher14_OFF(gPlayerSlots, s16, 0x2C8) & 0xFFF;
             return;
         case 0x30:
             p = actorFromSpawnNodeOrDefault(a);
             if (sv[3] >= 0) {
-                M3_OFF(p, u8, 0x16A) = sv[3];
-                M3_OFF(p, s32, 0x60) |= 0x800000;
-                M3_OFF(p, u8, 0x16B) = sv[1];
-                M3_OFF(p, u8, 0x16C) = sv[0];
+                Matcher14_OFF(p, u8, 0x16A) = sv[3];
+                Matcher14_OFF(p, s32, 0x60) |= 0x800000;
+                Matcher14_OFF(p, u8, 0x16B) = sv[1];
+                Matcher14_OFF(p, u8, 0x16C) = sv[0];
                 return;
             }
-            M3_OFF(p, s32, 0x60) &= 0xFF7FFFFF;
+            Matcher14_OFF(p, s32, 0x60) &= 0xFF7FFFFF;
             return;
         case 0x2C:
             sp98 = actorFromSpawnNodeOrDefault(a);
             zoneEntryGetPosition(sv[3], (u8)sv[1], &sp84, &sp80, &sp7C);
-            M3_OFF(sp98, s16, 0xE6) = mathAngleBetweenPoints2D(sp84, sp7C, M3_OFF(sp98, f32, 0x7C), M3_OFF(sp98, f32, 0x84));
+            Matcher14_OFF(sp98, s16, 0xE6) = mathAngleBetweenPoints2D(sp84, sp7C, Matcher14_OFF(sp98, f32, 0x7C), Matcher14_OFF(sp98, f32, 0x84));
             return;
         case 0x2F:
             csModelStateSetFirstByte((s16)a, (s16)sv[0]);
@@ -452,14 +451,14 @@ void camPathCommandDispatch(u32 arg0, u32 arg1, u32 arg2) {
             return;
         case 0x1E:
             actorSpawn(0x108, 0x1D);
-            M3_OFF(D_807FBB44, s16, 0xF0) = sv[1];
+            Matcher14_OFF(D_807FBB44, s16, 0xF0) = sv[1];
             func_8070D8C0(D_807FBB44, a & 0xFFFF, (u8)sv[3]);
             return;
         case 0x1D:
             camPausePath();
             return;
         case 0x21:
-            camSetFlags(gCamActor, 0x8000);
+            camSetFlags((s32)gCamActor, 0x8000);
             return;
         case 0x22:
             if (a != 0) {
