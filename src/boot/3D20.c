@@ -410,13 +410,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     }
                     count++;
                     *buf++ = conv;
-                    if (exp < 0) {
-                        exp = -exp;
-                        count++; *buf++ = '-';
-                    } else {
-                        if (space && space) {}  // FAKE: steers e-arm colouring
-                        count++; *buf++ = '+';
-                    }
+                    if (exp < 0) { exp = -exp; count++; *buf++ = '-'; } else { if (space && space) {} count++; *buf++ = '+'; } // LAYOUT:
                     if (exp >= 100) {
                         d = exp / 100 + '0';
                         *buf = d;
