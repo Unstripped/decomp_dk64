@@ -68,7 +68,7 @@ s32 func_805FF018(s32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 randomNonNegative(void);
 void actorScriptStart();
-u16 camStartPath();
+u16 camStartPath(void *, s16, u8);
 void actorUpdateModelMatrix(Actor *, s32);
 s32 actorUpdateFloorContactAndTilt(Actor *, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
@@ -210,7 +210,7 @@ void func_8067B4C8(void) {
         sub->unk14 = 0xA;
         D_807FBB40->unk144 = 1;
         sub->unk0->unkE6 = D_807FBB40->unkE6;
-        camStartPath(0, sub->unk15, 1u); // FAKE: 1u keeps the constant out of the const-1 web (li a2,1)
+        camStartPath(NULL, sub->unk15, 1);
     }
     switch (D_807FBB40->unk154) {
         case 1:
@@ -1451,7 +1451,8 @@ void transformBarrelUpdate(void) {
     s16 sp8C;
     s16 sp8A = 8;
     u8 sp89;
-    u8 pad[8];
+    Actor *player;
+    TransformBarrelPlayerState *activePlayerState;
     s32 var_v1_2;
     s32 var_a0c;
     TransformBarrelPlayerState *ps3;
@@ -1562,28 +1563,29 @@ void transformBarrelUpdate(void) {
         if (gPlayerCharacterId < 5) {
             var_a0 = D_807FC950[gPlayerCharacterId][0];
         }
-        if (((u32)((Actor *)D_807FBB4C)->unk58) == 5 && ((u32)D_807FBB40->unk58) == 0x28 && var_a0 > 0) {
+        player = D_807FBB4C;
+        if (((u32)player->unk58) == 5 && ((u32)D_807FBB40->unk58) == 0x28 && var_a0 > 0) {
             var_a1 = 1;
         }
-        if (((u32)((Actor *)D_807FBB4C)->unk58) == 6 && ((u32)D_807FBB40->unk58) == 0x19 && var_a0 > 0) {
+        if (((u32)player->unk58) == 6 && ((u32)D_807FBB40->unk58) == 0x19 && var_a0 > 0) {
             var_a1 = 1;
         }
-        if (((u32)((Actor *)D_807FBB4C)->unk58) == 6 && ((u32)D_807FBB40->unk58) == 0x60 && var_a0 > 0) {
+        if (((u32)player->unk58) == 6 && ((u32)D_807FBB40->unk58) == 0x60 && var_a0 > 0) {
             var_a1 = 1;
         }
-        if (((u32)((Actor *)D_807FBB4C)->unk58) == 4 && ((u32)D_807FBB40->unk58) == 0x38 && var_a0 >= 3) {
+        if (((u32)player->unk58) == 4 && ((u32)D_807FBB40->unk58) == 0x38 && var_a0 >= 3) {
             var_a1 = 1;
         }
-        if (((u32)((Actor *)D_807FBB4C)->unk58) == 2 && ((u32)D_807FBB40->unk58) == 0x39 && var_a0 >= 2) {
+        if (((u32)player->unk58) == 2 && ((u32)D_807FBB40->unk58) == 0x39 && var_a0 >= 2) {
             var_a1 = 1;
         }
-        if (((u32)((Actor *)D_807FBB4C)->unk58) == 4 && ((u32)D_807FBB40->unk58) == 0x81) {
+        if (((u32)player->unk58) == 4 && ((u32)D_807FBB40->unk58) == 0x81) {
             var_a1 = 1;
         }
         if (((u32)D_807FBB40->unk58) == 0x12) {
             var_a1 = 1;
         }
-        if (((u32)D_807FBB40->unk58) == 0x84 && ((u32)((Actor *)D_807FBB4C)->unk58) == 9 && (ret = (s32)((Actor *)D_807FBB4C)->unk174, ((TransformBarrelPlayerState *)ret)->unk88 == NULL)) { // FAKE: ret reused as the temp (takes v0, no ring slot)
+        if (((u32)D_807FBB40->unk58) == 0x84 && ((u32)player->unk58) == 9 && (activePlayerState = player->unk174)->unk88 == NULL) {
             var_a1 = 1;
         }
         if (var_a1 != 0) {
