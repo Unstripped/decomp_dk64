@@ -89,38 +89,38 @@ extern u16 D_807FC930[];
 extern f32 gScreenFadeRate;
 
 /* Function declarations */
-s32 func_805FEF74(s32 arg0);
-u8 func_805FF000(u8 arg0);
-s32 func_805FF018(u8 arg0, s32 arg1);
-u8 func_805FF030(u8 arg0, u8 arg1);
+s32 func_805FEF74(s32 map);
+u8 func_805FF000(u8 map);
+s32 func_805FF018(u8 unused, s32 index);
+u8 func_805FF030(u8 map, u8 checkBossMap);
 u8 func_805FF0C8(void);
 void func_805FF118(void);
-void func_805FF158(u8 arg0);
+void func_805FF158(u8 fadeType);
 void func_805FF168(void);
-void func_805FF188(s16 arg0, u8 arg1);
-void func_805FF1B0(s32 arg0);
+void func_805FF188(s16 map, u8 exitIndex);
+void func_805FF1B0(s32 unused);
 void func_805FF2F4(void);
-void func_805FF378(s32 arg0, s32 arg1);
-void func_805FF4D8(s32 arg0, s32 arg1);
+void func_805FF378(s32 map, s32 exitIndex);
+void func_805FF4D8(s32 map, s32 exitIndex);
 void func_805FF544(void);
 void func_805FF5A0();
-void func_805FF628(s32 arg0, s32 arg1);
-void func_805FF660(s8 arg0);
+void func_805FF628(s32 map, s32 exitIndex);
+void func_805FF660(s8 count);
 void func_805FF670(void);
-s32 func_805FF800(s32 *arg0, s32 *arg1);
+s32 func_805FF800(s32 *outMap, s32 *outExitIndex);
 void func_805FF898(void);
 void func_805FF8F8(void);
 s32 func_805FF938(s16 target);
-s32 func_805FFE50(s32 arg0, s16 arg1, s16 arg2);
-void func_805FFEF8(s32 arg0);
+s32 func_805FFE50(s32 map, s16 recordId, s16 value);
+void func_805FFEF8(s32 map);
 void func_805FFFC8(void);
 s32 func_80600080();
 s16 func_80600174(f32 *, f32 *, f32 *);
-s32 func_80600340(s32 arg0, u8 arg1, s32 *arg2);
+s32 func_80600340(s32 actorType, u8 flags, s32 *outMap);
 void modelAssetGetSubtables(s32, s32 *, s32 *);
-void func_806003EC(s16 arg0);
-s32 func_8060042C(s16 arg0);
-u8 func_80600454(s16 arg0, u8 *arg1);
+void func_806003EC(s16 index);
+s32 func_8060042C(s16 index);
+u8 func_80600454(s16 id, u8 *outVal);
 
 /* External functions */
 void func_8002920C(void);
@@ -171,7 +171,7 @@ typedef struct {
 
 extern KeyValuePair D_80744800[];
 
-s32 func_805FEF10(s32 *arg0) {
+s32 func_805FEF10(s32 *outValue) {
     u32 i;
     s32 found;
 
@@ -179,50 +179,50 @@ s32 func_805FEF10(s32 *arg0) {
     for (i = 0; (i ^ 0) < 4 && !found; i++) { // FAKE: blocks loop-test replacement so i keeps its own compare
         found = ((Unk58View *)D_807FBB4C)->unk58 == D_80744800[i].unk0;
         if (found) {
-            *arg0 = D_80744800[i].unk4;
+            *outValue = D_80744800[i].unk4;
         }
     }
     return found;
 }
 
-s32 func_805FEF74(s32 arg0) {
+s32 func_805FEF74(s32 map) {
     s32 i;
 
-    if (arg0 == D_80744734[0]) {
+    if (map == D_80744734[0]) {
         return 1;
     }
     for (i = 0; i < 8; i++) {
-        if (arg0 == D_80744736[i]) {
+        if (map == D_80744736[i]) {
             return 1;
         }
     }
     return 0;
 }
 
-u8 func_805FF000(u8 arg0) {
-    return D_807445E0[arg0];
+u8 func_805FF000(u8 map) {
+    return D_807445E0[map];
 }
 
-s32 func_805FF018(u8 arg0, s32 arg1) {
-    s32 ret = D_80744720[arg1];
+s32 func_805FF018(u8 unused, s32 index) {
+    s32 ret = D_80744720[index];
     return ret;
 }
 
-u8 func_805FF030(u8 arg0, u8 arg1) {
+u8 func_805FF030(u8 map, u8 checkBossMap) {
     u8 val;
-    s32 sp28;
-    s32 sp24;
+    s32 targetMap;
+    s32 exitIndex;
     s32 pad;
 
-    sp28 = arg0;
-    val = D_807445E0[sp28];
+    targetMap = map;
+    val = D_807445E0[targetMap];
     if (val == 0xD || val == 9) {
-        if (func_805FF800(&sp28, &sp24)) {
-            val = D_807445E0[sp28];
+        if (func_805FF800(&targetMap, &exitIndex)) {
+            val = D_807445E0[targetMap];
         }
     }
-    if (arg1 != 0) {
-        if (func_805FEF74(sp28)) {
+    if (checkBossMap != 0) {
+        if (func_805FEF74(targetMap)) {
             val = 7;
         }
     }
@@ -241,8 +241,8 @@ void func_805FF118(void) {
     }
 }
 
-void func_805FF158(u8 arg0) {
-    D_80744824 = arg0;
+void func_805FF158(u8 fadeType) {
+    D_80744824 = fadeType;
 }
 
 void func_805FF168(void) {
@@ -250,13 +250,13 @@ void func_805FF168(void) {
     D_80744824 = 1;
 }
 
-void func_805FF188(s16 arg0, u8 arg1) {
+void func_805FF188(s16 map, u8 exitIndex) {
     D_80744828 = 1;
-    D_8076AEF4 = arg0;
-    D_8076AEF6 = arg1;
+    D_8076AEF4 = map;
+    D_8076AEF6 = exitIndex;
 }
 
-void func_805FF1B0(s32 arg0) {
+void func_805FF1B0(s32 unused) {
     u16 pad;
     u16 a3;
     s32 limit;
@@ -276,8 +276,8 @@ void func_805FF1B0(s32 arg0) {
         if (func_805FEF74(gCurrentMap) != 0) {
             a3 = ((u16 *)&gCurrentMap)[1];
         } else {
-            arg0 = func_805FF030(((u8 *)&gCurrentMap)[3], 0);
-            a3 = D_80744748[arg0];
+            unused = func_805FF030(((u8 *)&gCurrentMap)[3], 0);
+            a3 = D_80744748[unused];
             for (; !found && (i < limit); i++) {
                 if (gCurrentMap == D_8074475C[i].unk0) {
                     a3 = D_8074475C[i].unk2;
@@ -295,33 +295,33 @@ void func_805FF1B0(s32 arg0) {
 }
 
 void func_805FF2F4(void) {
-    s32 sp1C;
-    s32 sp18;
+    s32 targetMap;
+    s32 exitIndex;
 
     if (gCurrentMap != 0x22) {
         func_805FFFC8();
-        sp1C = D_80744734[func_805FF030(D_8076A0AB, 0)];
-        sp18 = 1;
+        targetMap = D_80744734[func_805FF030(D_8076A0AB, 0)];
+        exitIndex = 1;
     } else {
-        sp1C = gCurrentMap;
-        sp18 = 0;
+        targetMap = gCurrentMap;
+        exitIndex = 0;
     }
-    flagSet(0x6E, 1, 2, sp1C);
-    func_805FF378(sp1C, sp18);
+    flagSet(0x6E, 1, 2, targetMap);
+    func_805FF378(targetMap, exitIndex);
 }
 
-void func_805FF378(s32 arg0, s32 arg1) {
+void func_805FF378(s32 map, s32 exitIndex) {
     func_806F5378();
     if ((D_807444EC == 6) || (func_80712798() == 0)) {
-        func_80712F10(&arg0, &arg1);
-        if (arg0 != -1) {
+        func_80712F10(&map, &exitIndex);
+        if (map != -1) {
             if ((s32) gPlayerCharacterId >= 6) {
                 gPlayerCharacterId = func_806C8DE0(0);
             }
             D_8076A0B1 |= 1;
             D_8076AEF2 = (s16) gCurrentMap;
-            D_807444E4 = arg0;
-            D_807444E8 = arg1;
+            D_807444E4 = map;
+            D_807444E8 = exitIndex;
             D_8076A0B2 = 3;
             func_805FF168();
             gScreenFadeRate = 1.0f;
@@ -329,7 +329,7 @@ void func_805FF378(s32 arg0, s32 arg1) {
                 sfxAllocateChannel(0x2C, 1.0f);
             }
             func_807313BC();
-            func_805FF5A0(arg0);
+            func_805FF5A0(map);
             if (D_807FBB64 & 1) {
                 func_8002920C();
             }
@@ -337,14 +337,14 @@ void func_805FF378(s32 arg0, s32 arg1) {
     }
 }
 
-void func_805FF4D8(s32 arg0, s32 arg1) {
+void func_805FF4D8(s32 map, s32 exitIndex) {
     func_806F5378();
     D_807FBB60 |= 0x100;
-    D_807444E4 = arg0;
-    D_807444E8 = arg1;
+    D_807444E4 = map;
+    D_807444E8 = exitIndex;
     D_8076AEF2 = gCurrentMap;
     func_807313BC();
-    func_805FF5A0(arg0);
+    func_805FF5A0(map);
 }
 
 void func_805FF544(void) {
@@ -372,52 +372,52 @@ void func_805FF5A0(void) {
     }
 }
 
-void func_805FF628(s32 arg0, s32 arg1) {
+void func_805FF628(s32 map, s32 exitIndex) {
     func_805FFEF8(gCurrentMap);
-    func_805FF378(arg0, arg1);
+    func_805FF378(map, exitIndex);
 }
 
-void func_805FF660(s8 arg0) {
-    D_80744820 = arg0;
+void func_805FF660(s8 count) {
+    D_80744820 = count;
 }
 
 void func_805FF670(void) {
-    f32 temp_fs0;
-    s16 temp_s2;
-    s16 var_s1;
+    f32 dist;
+    s16 spawnX;
+    s16 i;
     f32 offset;
     s32 step;
-    s16 temp_f0;
+    s16 spawnZ;
 
     if (D_80744820 != 0) {
         camStartPath(D_807FBB4C, 2, 5);
         slotQueueUpdate(1, 0, 0);
-        var_s1 = 0;
+        i = 0;
         if ((s32) D_80744820 > 0) {
             offset = 20.0f;
             step = 5;
             do {
-                temp_fs0 = (var_s1 * 2) + 30;
-                temp_s2 = D_807FBB4C->unk7C - func_80612794(D_807FBB4C->unkE6) * temp_fs0;
-                temp_f0 = D_807FBB4C->unk84 - func_80612790(D_807FBB4C->unkE6) * temp_fs0;
+                dist = (i * 2) + 30;
+                spawnX = D_807FBB4C->unk7C - func_80612794(D_807FBB4C->unkE6) * dist;
+                spawnZ = D_807FBB4C->unk84 - func_80612790(D_807FBB4C->unkE6) * dist;
                 actorSpawnNodeEntryScaled(
                     0x35,
-                    temp_s2,
-                    D_807FBB4C->unk80 + offset + (f32)(var_s1 * step),
-                    temp_f0,
+                    spawnX,
+                    D_807FBB4C->unk80 + offset + (f32)(i * step),
+                    spawnZ,
                     D_807FBB4C->unkE6,
                     1,
                     -1,
                     0
                 );
-                var_s1++;
-            } while (var_s1 < D_80744820);
+                i++;
+            } while (i < D_80744820);
         }
         D_80744820 = 0;
     }
 }
 
-s32 func_805FF800(s32 *arg0, s32 *arg1) {
+s32 func_805FF800(s32 *outMap, s32 *outExitIndex) {
     s32 found = 0;
     s32 i = 0;
 
@@ -430,19 +430,19 @@ s32 func_805FF800(s32 *arg0, s32 *arg1) {
     }
 
     if (found) {
-        *arg0 = D_8076A160[i].unk12;
-        *arg1 = D_8076A160[i].unk14;
+        *outMap = D_8076A160[i].unk12;
+        *outExitIndex = D_8076A160[i].unk14;
     }
     return found;
 }
 
 void func_805FF898(void) {
-    s32 sp1C;
-    s32 sp18;
+    s32 targetMap;
+    s32 exitIndex;
 
-    if (func_805FF800(&sp1C, &sp18) != 0) {
+    if (func_805FF800(&targetMap, &exitIndex) != 0) {
         func_805FFEF8(gCurrentMap);
-        func_805FF378(sp1C, sp18);
+        func_805FF378(targetMap, exitIndex);
     } else if (func_807143E8() != 0) {
         func_805FF378(0xF, 0);
     }
@@ -497,9 +497,9 @@ void modelSlotsPackRecords(u8 **, s32 *);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 void faultSetMessage(s32, s32, s32, s32);
 
-void func_805FF9AC(s32 arg0, s32 arg1, s32 arg2, s16 arg3) {
+void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     Struct807FBB4C *cam;
-    s32 sp50;
+    s32 serializedSize;
     s32 i;
     s32 found;
     s32 k;
@@ -535,14 +535,14 @@ void func_805FF9AC(s32 arg0, s32 arg1, s32 arg2, s16 arg3) {
         }
     }
     func_806F5378();
-    modelSlotSerializeAll((u8 **)&D_8076A160[i].unk18, &sp50);
+    modelSlotSerializeAll((u8 **)&D_8076A160[i].unk18, &serializedSize);
     heapRegisterSurvivor((u8 **)&D_8076A160[i].unk18);
     modelSlotsPackRecords((u8 **)&D_8076A160[i].unk20, (s32 *)&D_8076A160[i].unk1C);
     if (D_8076A160[i].unk20 != 0) {
         heapRegisterSurvivor((u8 **)&D_8076A160[i].unk20);
     }
-    D_8076A160[i].unk2 = arg3;
-    if (arg3 & 1) {
+    D_8076A160[i].unk2 = flags;
+    if (flags & 1) {
         cam = D_807FBB4C;
         D_8076A160[i].unk4 = cam->unk7C;
         D_8076A160[i].unk8 = cam->unk80;
@@ -550,8 +550,8 @@ void func_805FF9AC(s32 arg0, s32 arg1, s32 arg2, s16 arg3) {
         D_8076A160[i].unk10 = cam->unkE6;
     }
     D_8076A160[i].unk12 = gCurrentMap;
-    if (arg3 & 2) {
-        D_8076A160[i].unk14 = arg2;
+    if (flags & 2) {
+        D_8076A160[i].unk14 = returnExitIndex;
     }
     for (k = 0; k < gMapChunkCount; k++) {
         lightGetColor(&r, &g, &b, k);
@@ -569,16 +569,16 @@ void func_805FF9AC(s32 arg0, s32 arg1, s32 arg2, s16 arg3) {
         D_807FD570 = 0;
     }
     D_8076A160[i].unk0 = k;
-    func_805FF378(arg0, arg1);
+    func_805FF378(map, exitIndex);
 }
 
-s32 func_805FFE50(s32 arg0, s16 arg1, s16 arg2) {
+s32 func_805FFE50(s32 map, s16 recordId, s16 value) {
     s32 i = 0;
     s32 found = 0;
     Struct8076A160 *slot;
 
     while (!found && i < 18) {
-        if (D_8076A160[i].unk12 == arg0) {
+        if (D_8076A160[i].unk12 == map) {
             found = 1;
         } else {
             i++;
@@ -590,16 +590,16 @@ s32 func_805FFE50(s32 arg0, s16 arg1, s16 arg2) {
     }
 
     slot = &D_8076A160[i];
-    modelRecordFindAndSet(slot->unk20, slot->unk1C, arg1, arg2);
+    modelRecordFindAndSet(slot->unk20, slot->unk1C, recordId, value);
     return 1;
 }
 
-void func_805FFEF8(s32 arg0) {
+void func_805FFEF8(s32 map) {
     s32 found = 0;
     s32 i = 0;
 
     while (i < 18 && !found) {
-        if (D_8076A160[i].unk0 != 0 && D_8076A160[i].unk12 == arg0) {
+        if (D_8076A160[i].unk0 != 0 && D_8076A160[i].unk12 == map) {
             found = 1;
         } else {
             i++;
@@ -636,34 +636,34 @@ void func_805FFFC8(void) {
     } while (ptr != end);
 }
 
-void func_80600044(s32 arg0) {
+void func_80600044(s32 index) {
     func_805FFFC8();
-    func_805FF378(D_80744734[arg0], 1);
+    func_805FF378(D_80744734[index], 1);
 }
 
-s32 func_80600080(s32 arg0) {
+s32 func_80600080(s32 map) {
     Struct8076A160 *ptr;
     s32 i;
 
-    if (*(u8 *)D_8076A160 != 0 && arg0 == D_8076A172) {
+    if (*(u8 *)D_8076A160 != 0 && map == D_8076A172) {
         return 0;
     }
-    if (D_8076A220 != 0 && arg0 == D_8076A232) {
+    if (D_8076A220 != 0 && map == D_8076A232) {
         return 1;
     }
     i = 2;
     ptr = D_8076A2E0;
 loop:
-    if (ptr[0].unk0 != 0 && arg0 == ptr[0].unk12) {
+    if (ptr[0].unk0 != 0 && map == ptr[0].unk12) {
         return i;
     }
-    if (ptr[1].unk0 != 0 && arg0 == ptr[1].unk12) {
+    if (ptr[1].unk0 != 0 && map == ptr[1].unk12) {
         return i + 1;
     }
-    if (ptr[2].unk0 != 0 && arg0 == ptr[2].unk12) {
+    if (ptr[2].unk0 != 0 && map == ptr[2].unk12) {
         return i + 2;
     }
-    if (ptr[3].unk0 != 0 && arg0 == ptr[3].unk12) {
+    if (ptr[3].unk0 != 0 && map == ptr[3].unk12) {
         return i + 3;
     }
     i += 4;
@@ -674,47 +674,47 @@ loop:
     return -1;
 }
 
-s16 func_80600174(f32 *arg0, f32 *arg1, f32 *arg2) {
+s16 func_80600174(f32 *outX, f32 *outY, f32 *outZ) {
     s32 i;
 
     for (i = 0; i < 18; i++) {
         if (D_8076A160[i].unk0 != 0 && (D_8076A160[i].unk2 & 1)) {
-            *arg0 = D_8076A160[i].unk4;
-            *arg1 = D_8076A160[i].unk8;
-            *arg2 = D_8076A160[i].unkC;
+            *outX = D_8076A160[i].unk4;
+            *outY = D_8076A160[i].unk8;
+            *outZ = D_8076A160[i].unkC;
             return i;
         }
     }
     return -1;
 }
 
-s32 func_80600340(s32 arg0, u8 arg1, s32 *arg2) {
-    s32 sp3C;
-    s32 sp38;
-    f32 sp34;
-    f32 sp30;
-    f32 sp2C;
+s32 func_80600340(s32 actorType, u8 flags, s32 *outMap) {
+    s32 subtableA;
+    s32 subtableB;
+    f32 posX;
+    f32 posY;
+    f32 posZ;
     u8 idx;
 
-    idx = func_80600174(&sp34, &sp30, &sp2C);
+    idx = func_80600174(&posX, &posY, &posZ);
     if (idx == -1) {
         return -1;
     }
-    modelAssetGetSubtables(((Struct8076A160 *)&D_8076A160)[idx].unk18, &sp3C, &sp38);
-    *arg2 = ((Struct8076A160 *)&D_8076A160)[idx].unk12;
-    return actorListFindClosestTargetIndex(sp38, arg0, arg1, sp34, sp30, sp2C);
+    modelAssetGetSubtables(((Struct8076A160 *)&D_8076A160)[idx].unk18, &subtableA, &subtableB);
+    *outMap = ((Struct8076A160 *)&D_8076A160)[idx].unk12;
+    return actorListFindClosestTargetIndex(subtableB, actorType, flags, posX, posY, posZ);
 }
 
-void func_806003EC(s16 arg0) {
-    D_807FBB64 = D_8074482C[arg0].unk0;
-    D_807FBB68 = D_8074482C[arg0].unk4;
+void func_806003EC(s16 index) {
+    D_807FBB64 = D_8074482C[index].unk0;
+    D_807FBB68 = D_8074482C[index].unk4;
 }
 
-s32 func_8060042C(s16 arg0) {
-    return D_8074482C[arg0].unk8;
+s32 func_8060042C(s16 index) {
+    return D_8074482C[index].unk8;
 }
 
-u8 func_80600454(s16 arg0, u8 *arg1) {
+u8 func_80600454(s16 id, u8 *outVal) {
     u8 i;
     u8 ret;
     s16 temp;
@@ -723,12 +723,12 @@ u8 func_80600454(s16 arg0, u8 *arg1) {
     i = 0;
     ret = 0;
 
-    while (D_807565E0[i] != 0 && arg0 != D_807565E0[i]) {
+    while (D_807565E0[i] != 0 && id != D_807565E0[i]) {
         i++;
     }
 
     if (D_807565E0[i] != 0) {
-        *arg1 = D_80756630[i];
+        *outVal = D_80756630[i];
         if (i < 13) {
             temp = i + 0x307;
             ret = flagGet(temp, 0) == 0;
