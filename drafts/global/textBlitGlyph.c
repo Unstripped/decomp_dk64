@@ -1,8 +1,7 @@
-// textBlitGlyph (src/global/100180.c): SlotTex2 stage 5, unchanged best: full79 text79 reloc0 shape23, expected/got161 instructions, frame80 with s0-s3. Entry scheduling/Boolean-width lowering and temporary-ring rotations remain; generated shared spill24(sp) versus target28(sp). Plain-C fdiff: FAILED: Section .text content mismatch (built: 9312 bytes, expected: 9312 bytes). Began with as1probe keep and scan --rounds3: greedy instruction deletions reduce score but remove required work/count, rejected. Separate nondeleting scan --rounds3 only improves via a prologue label (insert16:label ->75/shape33/n161); no directly emit-able useful C scheduling route. Uopt5 inspected candidate ordering/live ranges. Tried Boolean raw/masked/normalized representations, return-expression variants, pointer/shift spellings, flag widths, coordinated mask carriers, and isolated explicit first-parameter narrowing; none improved exact-count baseline. No signature changes retained. Permuter -j2 --seconds600 was started, then cancelled at orchestrator wrap-up request; no validated result adopted. No new searches started after request. Private copy .scratch/SlotTex2/100180.c restored to original NON_MATCHING park and plain fdiff prints OK (assembly-backed, not C match). Previous spill/candidate-order findings remain valid.
+// textBlitGlyph (src/global/100180.c): Matcher8 stage 5: improved full79/text79/reloc0/shape23 to full62/text62/reloc0/shape22, expected/got161 instructions, frame80 with s0-s3. Base 5937b87d0f81c5da18c52ccd9f3c872eee7ca511. Private park .scratch/Matcher8-textBlitGlyph/100180.c; plain C .scratch/Matcher8-textBlitGlyph/plain-best62.c. Reuse consumed u8 arg4 as the per-row low-bit flag (removes lead local), fixing both shared spill homes 24(sp)->28(sp) and alone improving 79->78. Spell the first odd-width tail update as *dst = *dst | (*src << 4), not compound |=: this changes ugen temporary allocation across the following branches and gives text62 with no FAKEs or signature changes. Entry scheduling/Boolean-width lowering and scratch-register differences remain. Plain-C fdiff: FAILED: Section .text content mismatch (built: 9312 bytes, expected: 9312 bytes), CURRENT(2737). New dead ends: reusing arg2 as j/ret/srcRow; counter-return reuse; coordinated explicit u8/s8/s16 casts on Boolean/mask/width expressions; a single width local before and after arg0 narrowing; named/reused raw phase-byte loads; actual int/unsigned int/char locals; source/destination pointer signature variants; K&R signatures with/without prototype; narrow raw flags normalized at return. All failed to beat text78 before the explicit-store discovery. Completed permute.py -j2 --seconds600 (33k iterations), rescored all 84 outputs plus label-removal and arg4-reuse variants with deadsweep; weighted permuter best1787 is not best normalized target score. Artificial repeated masks and unused labels rejected (best54 needs eleven redundant &0xff masks plus a carrier). Natural full-assignment first tail branch yields62; exhaustive 16 tail-store forms and 128 inner-store expansion combinations found no better candidate. Prior SlotTex2: as1 deletion scans invalid; label-only schedule fix lacked a C route; uopt trace plus raw/masked/normalized flags, return forms, pointer/shift forms, flag types, coordinated carriers, isolated first-param narrowing, and entry statement order did not improve79. Keep these dead ends; do not repeat.
 s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 arg6) {
     u8 *srcRow;
     u8 *dst;
-    u8 lead;
     s16 j;
     s16 row;
     u8 *src;
@@ -23,16 +22,16 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
     for (row = 0; row < 0x10; row++) {
         j = 0;
         if (w2 > 0) {
-            lead = arg3 & 1;
+            arg4 = arg3 & 1;
             do {
-                if (lead && phase == 0) {
+                if (arg4 && phase == 0) {
                     *dst |= *src++ << 4;
                     *dst++ |= (*src & 0xF0) >> 4;
-                } else if (lead && phase != 0) {
+                } else if (arg4 && phase != 0) {
                     *dst |= *src++ & 0xF;
                     dst++;
                     *dst |= *src & 0xF0;
-                } else if (lead == 0 && phase != 0) {
+                } else if (arg4 == 0 && phase != 0) {
                     *dst++ |= (*src & 0xF0) >> 4;
                     *dst |= *src++ << 4;
                 } else {
@@ -43,12 +42,12 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
         }
         srcRow += 0x100;
         if (odd != 0) {
-            lead = arg3 & 1;
-            if (lead && phase == 0) {
+            arg4 = arg3 & 1;
+            if (arg4 && phase == 0) {
+                *dst = *dst | (*src << 4);
+            } else if (arg4 && phase != 0) {
                 *dst |= *src << 4;
-            } else if (lead && phase != 0) {
-                *dst |= *src << 4;
-            } else if (lead == 0 && phase != 0) {
+            } else if (arg4 == 0 && phase != 0) {
                 *dst |= (*src & 0xF0) >> 4;
             } else {
                 *dst |= *src;

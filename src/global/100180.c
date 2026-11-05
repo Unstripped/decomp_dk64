@@ -30,7 +30,6 @@ s32 textBlitGlyph(u8, s32, s32, s16, u8, s8 *, u8);
 s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 arg6) {
     u8 *srcRow;
     u8 *dst;
-    u8 lead;
     s16 j;
     s16 row;
     u8 *src;
@@ -51,16 +50,16 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
     for (row = 0; row < 0x10; row++) {
         j = 0;
         if (w2 > 0) {
-            lead = arg3 & 1;
+            arg4 = arg3 & 1;
             do {
-                if (lead && phase == 0) {
+                if (arg4 && phase == 0) {
                     *dst |= *src++ << 4;
                     *dst++ |= (*src & 0xF0) >> 4;
-                } else if (lead && phase != 0) {
+                } else if (arg4 && phase != 0) {
                     *dst |= *src++ & 0xF;
                     dst++;
                     *dst |= *src & 0xF0;
-                } else if (lead == 0 && phase != 0) {
+                } else if (arg4 == 0 && phase != 0) {
                     *dst++ |= (*src & 0xF0) >> 4;
                     *dst |= *src++ << 4;
                 } else {
@@ -71,12 +70,12 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
         }
         srcRow += 0x100;
         if (odd != 0) {
-            lead = arg3 & 1;
-            if (lead && phase == 0) {
+            arg4 = arg3 & 1;
+            if (arg4 && phase == 0) {
+                *dst = *dst | (*src << 4);
+            } else if (arg4 && phase != 0) {
                 *dst |= *src << 4;
-            } else if (lead && phase != 0) {
-                *dst |= *src << 4;
-            } else if (lead == 0 && phase != 0) {
+            } else if (arg4 == 0 && phase != 0) {
                 *dst |= (*src & 0xF0) >> 4;
             } else {
                 *dst |= *src;
