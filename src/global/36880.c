@@ -3126,7 +3126,6 @@ gSPClearGeometryMode(arg1++, G_FOG | G_CULL_BOTH);
     if (sp92 != 0) {
         if (arg0->unkB6 != -1) {
             u8 fl = D_807F6000[sp90].unk8C;
-            if (arg0->unkC2 && arg0->unkC2) {}  // FAKE: extra spilled-candidate slot (holes below the spill slots, frame 0x138)
             if (fl != 0) {
                 if ((D_807F6000[sp90].unk8C & 0x8) && MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk4->unk58 != 2) {
                     sp92 = 0x64;
