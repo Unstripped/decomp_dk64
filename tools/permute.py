@@ -135,12 +135,9 @@ def get_compile_flags(src_file: Path) -> tuple[str, str]:
 def extract_func_definition(source: str, func_name: str) -> str:
     """Extract a single function definition from C source text."""
     # Find start of function header
-    pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^;{{}}]*\)\s*\{{)", re.MULTILINE)
+    kr_decl_pat = r"\s*(?:[a-zA-Z0-9_* \t,()]+;\s*)*"
+    pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + kr_decl_pat + r"\{{)", re.DOTALL)
     m = pat.search(source)
-    if not m:
-        # Retry with multiline parameter list
-        pat2 = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^{{}}]*?\)\s*\{{)", re.DOTALL)
-        m = pat2.search(source)
     if not m:
         raise ValueError(f"function '{func_name}' definition not found in source")
 
@@ -164,13 +161,22 @@ def strip_other_fns(source: str, keep_fn: str) -> str:
     """Turn all function bodies except keep_fn into forward declarations."""
     result = ""
     remain = source
-    fn_regex = re.compile(r"^([a-zA-Z0-9_* \t\n]+?)\b(\w+)\s*\(([^;]*?)\)\s*\{", re.M)
+    kr_decl_pat = r"\s*(?:[a-zA-Z0-9_* \t,()]+;\s*)*"
+    fn_regex = re.compile(
+        r"^([a-zA-Z0-9_* \t]+?)\b(\w+)\s*\(([^;{}]*?)\)" + kr_decl_pat + r"\{",
+        re.M
+    )
+    control_flow = {"if", "while", "for", "switch", "catch"}
     while True:
         m = fn_regex.search(remain)
         if not m:
             result += remain
             break
         fn_name = m.group(2)
+        if fn_name in control_flow or "#" in m.group(1):
+            result += remain[:m.end()]
+            remain = remain[m.end():]
+            continue
         start_idx = m.end() - 1
         level = 1
         i = start_idx + 1
@@ -184,7 +190,7 @@ def strip_other_fns(source: str, keep_fn: str) -> str:
         if fn_name == keep_fn or fn_name.startswith("PERM"):
             result += remain[:i]
         else:
-            proto = remain[:start_idx].rstrip() + ";"
+            proto = remain[:m.end(3) + 1].rstrip() + ";"
             result += proto + "\n"
         remain = remain[i:]
     return result
@@ -197,7 +203,8 @@ def deduplicate_externs(source: str, func_name: str) -> str:
     kept function compiles against), or the first one when all follow it.
     """
     lines = source.splitlines()
-    func_pat = re.compile(rf"\b{re.escape(func_name)}\s*\([^;]*$|\b{re.escape(func_name)}\s*\([^;]*\)\s*\{{")
+    kr_decl_pat = r"\s*(?:[a-zA-Z0-9_* \t,()]+;\s*)*"
+    func_pat = re.compile(rf"\b{re.escape(func_name)}\s*\([^;]*$|\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + kr_decl_pat + r"\{{", re.DOTALL)
     func_line = next((i for i, l in enumerate(lines) if func_pat.search(l) and not l.lstrip().startswith("extern")), len(lines))
     decl_re = re.compile(r"extern\s+[a-zA-Z0-9_* \t]+\b([A-Za-z0-9_]+)\s*(?:\[[^\]]*\])*\s*;")
     keep = {}
@@ -219,7 +226,8 @@ def deduplicate_externs(source: str, func_name: str) -> str:
 
 def wrap_multi_statement_lines(source: str, func_name: str) -> str:
     """Wrap lines with multiple statements inside func_name in PERM_FORCE_SAMELINE."""
-    pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^;{{}}]*\)\s*\{{)", re.MULTILINE)
+    kr_decl_pat = r"\s*(?:[a-zA-Z0-9_* \t,()]+;\s*)*"
+    pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + kr_decl_pat + r"\{{)", re.DOTALL)
     m = pat.search(source)
     if not m:
         return source
@@ -383,14 +391,14 @@ compiler_type = "ido"
         from_text = from_path.read_text(encoding="utf-8", errors="ignore")
     else:
         # Check if func is parked inside #ifdef NON_MATCHING in src_text
-        pat_parked = rf"#if(?:def|\s+defined\s*\()\s*NON_MATCHING[\s\S]*?\b{re.escape(func)}\s*\([^;]*\)\s*\{{"
+        pat_parked = rf"#if(?:def|\s+defined\s*\()\s*NON_MATCHING[\s\S]*?\b{re.escape(func)}\s*\([^{{}}]*?\)\s*[^{{}}]*?\{{"
         if re.search(pat_parked, src_text):
             from_path = src_path
             from_text = src_text
         else:
             # A function already written as C in the given --src (e.g. a private copy) is
             # taken from there; otherwise fall back to the stored draft.
-            src_has_c = re.search(rf"^[^\n;#]*\b{re.escape(func)}\s*\([^;]*\)\s*\{{", src_text, re.M) and not re.search(
+            src_has_c = re.search(rf"^[^\n;#]*\b{re.escape(func)}\s*\([^{{}}]*?\)\s*[^{{}}]*?\{{", src_text, re.M) and not re.search(
                 rf"#pragma\s+GLOBAL_ASM\(\"[^\"]*/{re.escape(func)}\.s\"\)", src_text
             )
             if src_has_c:
@@ -415,7 +423,7 @@ compiler_type = "ido"
         if re.search(r"#pragma\s+GLOBAL_ASM", from_text):
             is_whole_file = True
         else:
-            top_fns = re.findall(r"^(?:[a-zA-Z0-9_*]+\s+)+(\w+)\s*\([^;]*\)\s*\{", from_text, re.MULTILINE)
+            top_fns = re.findall(r"^(?:[a-zA-Z0-9_*]+\s+)+(\w+)\s*\([^{}]*?\)\s*[^{}]*?\{", from_text, re.MULTILINE)
             top_fns = [f for f in top_fns if f not in ("if", "while", "for", "switch", "catch")]
             if len(top_fns) > 1:
                 is_whole_file = True

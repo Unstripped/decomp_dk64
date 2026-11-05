@@ -158,16 +158,41 @@ def dis(obj, func):
     """[(is_reloc, normalised text)] for FUNC up to the delay slot of its last `jr ra`.
     HI16/LO16 relocations: section symbols and symbols defined in rodata -> `.rodata`; address-named symbols
     (D_8004A308, jtbl_..., L...) plus the LO16 instruction's immediate -> `@ADDR`."""
-    syms = {t[-1]: t[-3] for t in (l.split() for l in objdump(obj, "-t")) if len(t) > 3 and re.match(r"[0-9a-f]{8}$", t[0])}
+    tdump = objdump(obj, "-t")
+    syms = {t[-1]: t[-3] for t in (l.split() for l in tdump) if len(t) > 3 and re.match(r"[0-9a-f]{8}$", t[0])}
+    func_symbols = set()
+    f_addr, f_size = 0, 0
+    for l in tdump:
+        if " F " in l:
+            t = l.split()
+            if len(t) > 3 and re.match(r"^[0-9a-f]{8}$", t[0]):
+                name = t[-1]
+                sz = int(t[-2], 16) if re.match(r"^[0-9a-f]{8}$", t[-2]) else 0
+                addr = int(t[0], 16)
+                if not re.match(r"^(?:D_|lbl_|jtbl_|jpt_)[0-9A-Fa-f]+$", name):
+                    func_symbols.add(name)
+                    if name == func:
+                        f_addr, f_size = addr, sz
+    f_end = (f_addr + f_size) if f_size > 0 else 0
+
     items, on = [], False
     for l in objdump(obj, "-dr", "--no-show-raw-insn"):
-        m = re.match(r"^[0-9a-f]+ <(.+)>:$", l)
+        m = re.match(r"^([0-9a-f]+) <(.+)>:$", l)
         if m:
-            on = m.group(1) == func
+            addr, name = int(m.group(1), 16), m.group(2).split("+")[0]
+            if name == func:
+                on = True
+            elif on:
+                if name in func_symbols or (f_end > 0 and addr >= f_end):
+                    on = False
         elif on and (m := re.match(r"^\s*[0-9a-f]+:\s+R_MIPS_(\w+)\s+([^+\s]+)(?:\+0x([0-9a-f]+))?", l)):
             items.append((True, m.group(1), m.group(2), int(m.group(3) or "0", 16)))
-        elif on and (m := re.match(r"^\s*[0-9a-f]+:\s+(.*)$", l)):
-            t = re.sub(r"\s+", " ", re.sub(r"[\s,][0-9a-f]+ <[^>]*>", " L", m.group(1)).strip())
+        elif on and (m := re.match(r"^\s*([0-9a-f]+):\s+(.*)$", l)):
+            addr = int(m.group(1), 16)
+            if f_end > 0 and addr >= f_end:
+                on = False
+                continue
+            t = re.sub(r"\s+", " ", re.sub(r"[\s,][0-9a-f]+ <[^>]*>", " L", m.group(2)).strip())
             items.append((False, re.sub(r"-?\d+\(at\)", "X(at)", t)))
     imm = re.compile(r"(-?\d+)(?=\(\w+\)$)|(?<=,)(-?\d+)$")
 

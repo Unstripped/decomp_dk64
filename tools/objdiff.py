@@ -108,15 +108,93 @@ def resolve_branches(obj_path, text, relocs):
         text[off:off + 4] = ((word & 0xFFFF0000) | field).to_bytes(4, "big")
     return bytes(text), remaining
 
-def text_section_index(obj_path):
+def section_name_map(obj_path):
+    """{ndx: sec_name} from section headers."""
     out = subprocess.check_output(["mips-linux-gnu-readelf", "-SW", obj_path],
                                   stderr=subprocess.DEVNULL).decode(errors="replace")
+    names = {}
     for line in out.splitlines():
         line = line.replace("[ ", "[")
         p = line.split()
-        if len(p) > 1 and p[1] == ".text":
-            return int(p[0].strip("[]"))
-    return -1
+        if len(p) > 2 and p[0].startswith("[") and p[0].endswith("]"):
+            ndx = p[0].strip("[]")
+            if ndx.isdigit():
+                names[int(ndx)] = p[1]
+    return names
+
+def text_section_index(obj_path):
+    return next((ndx for ndx, name in section_name_map(obj_path).items() if name == ".text"), -1)
+
+def object_section_vrams(obj_path, absolute):
+    """{sec_name: vram_base} for sections in obj_path, determined from defined symbols."""
+    out = subprocess.check_output(["mips-linux-gnu-readelf", "-sW", obj_path],
+                                  stderr=subprocess.DEVNULL).decode(errors="replace")
+    sec_ndx = section_name_map(obj_path)
+    vrams = {}
+    for line in out.splitlines():
+        p = line.split()
+        if len(p) >= 8 and p[0].endswith(":") and p[6].isdigit():
+            ndx = int(p[6])
+            sec = sec_ndx.get(ndx)
+            if sec in DATA_SECTIONS or sec == ".text":
+                off = int(p[1], 16)
+                name = p[7]
+                addr = splat_address(name)
+                if addr is None and name.startswith("func_"):
+                    try:
+                        addr = int(name[5:], 16)
+                    except ValueError:
+                        pass
+                if addr is None and name in absolute:
+                    addr = absolute[name]
+                if addr is not None:
+                    vrams.setdefault(sec, (addr - off) & 0xFFFFFFFF)
+    return vrams
+
+def normalise_own_section_relocs(obj_path, text, relocs, absolute, vrams=None):
+    """Normalise relocations against absolute symbols that lie inside the object's own
+    .rodata/.data section to section+offset, matching IDO's C output."""
+    if vrams is None:
+        vrams = object_section_vrams(obj_path, absolute)
+    sec_sizes = get_section_sizes(obj_path)
+    original = text
+    text = bytearray(text)
+    norm_relocs = []
+    for i, (off, rtype, target) in enumerate(relocs):
+        addr = splat_address(target)
+        if addr is None and target in absolute:
+            addr = absolute[target]
+        matched_sec = None
+        offset = 0
+        if addr is not None and rtype in ("R_MIPS_HI16", "R_MIPS_LO16", "R_MIPS_32"):
+            for sec in (".rodata", ".data"):
+                if sec in vrams:
+                    base = vrams[sec]
+                    size = sec_sizes.get(sec, 0)
+                    if base <= addr < base + size:
+                        matched_sec = sec
+                        offset = addr - base
+                        break
+        if matched_sec is not None:
+            word = int.from_bytes(original[off:off + 4], "big")
+            if rtype == "R_MIPS_LO16":
+                lo = word & 0xFFFF
+                value = (offset + (lo - 0x10000 if lo & 0x8000 else lo)) & 0xFFFFFFFF
+                field = value & 0xFFFF
+                text[off:off + 4] = ((word & 0xFFFF0000) | field).to_bytes(4, "big")
+            elif rtype == "R_MIPS_HI16":
+                pair = next((o for o, t, s in relocs[i + 1:] if t == "R_MIPS_LO16" and s == target), None)
+                lo = int.from_bytes(original[pair:pair + 4], "big") & 0xFFFF if pair is not None else 0
+                value = (offset + (lo - 0x10000 if lo & 0x8000 else lo)) & 0xFFFFFFFF
+                field = ((value + 0x8000) >> 16) & 0xFFFF
+                text[off:off + 4] = ((word & 0xFFFF0000) | field).to_bytes(4, "big")
+            elif rtype == "R_MIPS_32":
+                value = (offset + word) & 0xFFFFFFFF
+                text[off:off + 4] = value.to_bytes(4, "big")
+            norm_relocs.append((off, rtype, matched_sec))
+        else:
+            norm_relocs.append((off, rtype, target))
+    return bytes(text), norm_relocs
 
 def resolve_targets(text, relocs, syms):
     """Replace `.text`-section jal targets with the function name at the addend."""
@@ -216,11 +294,20 @@ def text_matches(built_o, expected_o):
     except relocations the built object points at its own data sections (static data the C now
     defines, which expected reaches through the shared data blob); those must not hit expected code."""
     absolute = absolute_symbols()
+    e_vrams = object_section_vrams(expected_o, absolute)
+    b_vrams = object_section_vrams(built_o, absolute)
+    for k, v in e_vrams.items():
+        b_vrams.setdefault(k, v)
+
     b_text = get_section_bytes(built_o, ".text")
     e_text = get_section_bytes(expected_o, ".text")
     e_syms = text_symbols(expected_o)
-    b_text, b_relocs = apply_absolute(b_text, get_text_relocs(built_o), absolute)
-    e_text, e_relocs = apply_absolute(e_text, get_text_relocs(expected_o), absolute)
+
+    b_text, b_relocs = normalise_own_section_relocs(built_o, b_text, get_text_relocs(built_o), absolute, b_vrams)
+    e_text, e_relocs = normalise_own_section_relocs(expected_o, e_text, get_text_relocs(expected_o), absolute, e_vrams)
+
+    b_text, b_relocs = apply_absolute(b_text, b_relocs, absolute)
+    e_text, e_relocs = apply_absolute(e_text, e_relocs, absolute)
     b_text, b_relocs = resolve_branches(built_o, b_text, b_relocs)
     e_text, e_relocs = resolve_branches(expected_o, e_text, e_relocs)
     b_relocs = resolve_targets(b_text, b_relocs, text_symbols(built_o))
@@ -236,6 +323,9 @@ def text_matches(built_o, expected_o):
         if b_tgt in DATA_SECTIONS:
             if e_tgt in e_code:
                 return False
+            if e_tgt in DATA_SECTIONS:
+                if b_tgt != e_tgt or b_addends.get(b_off, 0) != e_addends.get(e_off, 0):
+                    return False
         elif b_tgt != e_tgt:
             # Expected may reach named data through an unnamed splat label (e.g. an array end
             # bound `sym + size` becomes D_<addr>); accept only for non-code targets, and when
