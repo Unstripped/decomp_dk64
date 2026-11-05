@@ -123,9 +123,9 @@ RaceWaypoint *raceGetWaypoint(u8 idx) {
 void *memcpy(void *, const void *, unsigned int);
 void *heapAlloc(s32);
 void heapClearBlock(void *);
-void func_8002EDD4(RaceWaypoint *);
+void func_8002EDD4(RaceWaypoint *node);
 
-void raceLoadRouteData(u8 *arg0) {
+void raceLoadRouteData(u8 *data) {
     u8 *src;
     RaceRoute *ent;
     RaceWaypoint *node;
@@ -134,8 +134,8 @@ void raceLoadRouteData(u8 *arg0) {
     s32 m;
     s32 sz;
 
-    if (arg0 != 0) {
-        src = arg0;
+    if (data != 0) {
+        src = data;
         memcpy(D_8002FCF0, src, 1);
         src += 1;
         memcpy(&D_8002FCF0->count2, src, 2);
@@ -181,14 +181,14 @@ void func_8002D0FC(void);
 void func_8002D064(void);
 extern s16 D_80750AC4;
 
-void func_8002EC08(s32 arg0) {
-    u8 *sp1C;
+void func_8002EC08(s32 routeAssetId) {
+    u8 *assetData;
 
-    sp1C = assetLoad(0x18, arg0, 1, 1);
+    assetData = assetLoad(0x18, routeAssetId, 1, 1);
     D_8002FCF0 = heapAlloc(0x10);
     heapClearBlock(D_8002FCF0);
-    raceLoadRouteData(sp1C);
-    switch (arg0) {
+    raceLoadRouteData(assetData);
+    switch (routeAssetId) {
         case 0x1B:
             func_80025FDC();
             break;
@@ -206,21 +206,21 @@ void func_8002EC08(s32 arg0) {
     D_80750AC4 = 0;
 }
 
-void raceScaleVelocity(RaceActor *arg0, f32 arg1) {
-    arg0->unk4->unk34 *= arg1;
-    arg0->unk4->unk38 = arg0->unk4->unk34;
-    arg0->unk4->unk3C = arg0->unk4->unk38;
+void raceScaleVelocity(RaceActor *actor, f32 scaleFactor) {
+    actor->unk4->unk34 *= scaleFactor;
+    actor->unk4->unk38 = actor->unk4->unk34;
+    actor->unk4->unk3C = actor->unk4->unk38;
 }
 
 void actorSpawn(s32, s32);
 void actorScriptStart(void *, s32);
 
-void func_8002ED04(f32 arg0, s32 arg1, u8 arg2) {
-    RaceActorState *sp1C;
+void func_8002ED04(f32 scaleFactor, s32 kind, u8 mode) {
+    RaceActorState *actorState;
 
-    switch (arg1) {
+    switch (kind) {
         case 1:
-            if (arg2 != 0) {
+            if (mode != 0) {
                 actorSpawn(0x137, 0xB0);
                 actorScriptStart(D_807FBB44, 0x2A9);
             } else {
@@ -229,15 +229,15 @@ void func_8002ED04(f32 arg0, s32 arg1, u8 arg2) {
             }
             break;
         case 2:
-            actorSpawn(0x137, arg2 != 0 ? 0xD8 : 0xD9);
+            actorSpawn(0x137, mode != 0 ? 0xD8 : 0xD9);
             break;
     }
-    sp1C = D_807FBB44->state;
-    raceScaleVelocity(D_807FBB44, arg0);
-    sp1C->unk0 = arg1;
+    actorState = D_807FBB44->state;
+    raceScaleVelocity(D_807FBB44, scaleFactor);
+    actorState->unk0 = kind;
 }
 
-void func_8002EDD4(RaceWaypoint *arg0) {
+void func_8002EDD4(RaceWaypoint *node) {
     f32 mA[4][4];
     f32 mB[4][4];
     f32 pad[5];
@@ -245,142 +245,142 @@ void func_8002EDD4(RaceWaypoint *arg0) {
     f32 xoff;
     u8 i;
 
-    if (arg0->kind != 0) {
-        if (arg0->mode == 2) {
-            xoff = (f32)arg0->width * 0.5f;
+    if (node->kind != 0) {
+        if (node->mode == 2) {
+            xoff = (f32)node->width * 0.5f;
             for (i = 0; i < 2; i++) {
-                func_8002ED04(arg0->unk14, arg0->kind, i ^ 1);
+                func_8002ED04(node->unk14, node->kind, i ^ 1);
                 j = i;
-                arg0->actors[j] = D_807FBB44;
-                D_807FBB44->angle = (arg0->angle + 0x800) & 0xFFF;
+                node->actors[j] = D_807FBB44;
+                D_807FBB44->angle = (node->angle + 0x800) & 0xFFF;
                 if (j != 0) {
                     xoff *= -1.0f;
                 }
                 guRotateF(mA, D_807FBB44->angle * 0.087890625f, 0.0f, 1.0f, 0.0f);
-                guTranslateF(mB, arg0->x, arg0->y, arg0->z);
+                guTranslateF(mB, node->x, node->y, node->z);
                 guMtxCatF(mA, mB, mA);
                 guMtxXFMF(mA, xoff, 0.0f, 0.0f, &D_807FBB44->x, &D_807FBB44->y, &D_807FBB44->z);
             }
         } else {
-            func_8002ED04(arg0->unk14, arg0->kind, arg0->mode == 1);
-            arg0->actors[0] = D_807FBB44;
-            D_807FBB44->angle = (arg0->angle + 0x800) & 0xFFF;
-            D_807FBB44->x = arg0->x;
-            D_807FBB44->y = arg0->y;
-            D_807FBB44->z = arg0->z;
+            func_8002ED04(node->unk14, node->kind, node->mode == 1);
+            node->actors[0] = D_807FBB44;
+            D_807FBB44->angle = (node->angle + 0x800) & 0xFFF;
+            D_807FBB44->x = node->x;
+            D_807FBB44->y = node->y;
+            D_807FBB44->z = node->z;
         }
     }
 }
 
-f32 raceLineIntersectParam(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+f32 raceLineIntersectParam(f32 x1, f32 y1, f32 dx1, f32 dy1, f32 x2, f32 y2, f32 dx2, f32 dy2) {
     f32 r = 0.0f;
-    f32 a = arg7 * arg2;
-    f32 b = arg6 * arg3;
+    f32 a = dy2 * dx1;
+    f32 b = dx2 * dy1;
 
     if (a != b) {
-        r = (((arg4 - arg0) * arg3) + (arg2 * (arg1 - arg5))) / (a - b);
+        r = (((x2 - x1) * dy1) + (dx1 * (y1 - y2))) / (a - b);
     }
     return r;
 }
 
-u8 func_8002F0AC(RaceWaypoint *arg0) {
-    f32 sp44;
-    f32 sp40;
+u8 func_8002F0AC(RaceWaypoint *node) {
+    f32 gateDx;
+    f32 gateDz;
     f32 dx;
     f32 dz;
-    f32 sp34;
-    f32 sp30;
+    f32 gateX;
+    f32 gateZ;
     f32 res;
-    u8 sp2B;
+    u8 crossed;
     RaceActor *a;
     RaceActor *b;
 
-    sp2B = 0;
-    if (arg0->kind == 0) {
+    crossed = 0;
+    if (node->kind == 0) {
         return 1;
     }
-    switch (arg0->mode) {
+    switch (node->mode) {
         case 2:
-            a = arg0->actors[1];
-            b = arg0->actors[0];
-            sp44 = a->x - b->x;
-            sp40 = a->z - b->z;
-            sp34 = b->x;
-            sp30 = b->z;
+            a = node->actors[1];
+            b = node->actors[0];
+            gateDx = a->x - b->x;
+            gateDz = a->z - b->z;
+            gateX = b->x;
+            gateZ = b->z;
             break;
         case 0:
-            sp44 = -arg0->unkC;
-            sp40 = arg0->unk8;
-            sp34 = arg0->x;
-            sp30 = arg0->z;
+            gateDx = -node->unkC;
+            gateDz = node->unk8;
+            gateX = node->x;
+            gateZ = node->z;
             break;
         case 1:
-            sp44 = arg0->unkC;
-            sp40 = -arg0->unk8;
-            sp34 = arg0->x;
-            sp30 = arg0->z;
+            gateDx = node->unkC;
+            gateDz = -node->unk8;
+            gateX = node->x;
+            gateZ = node->z;
             break;
     }
     dx = D_807FBB40->prevX - D_807FBB40->x;
     dz = D_807FBB40->prevZ - D_807FBB40->z;
-    res = raceLineIntersectParam(D_807FBB40->x, D_807FBB40->z, dx, dz, sp34, sp30, sp44, sp40);
-    switch (arg0->mode) {
+    res = raceLineIntersectParam(D_807FBB40->x, D_807FBB40->z, dx, dz, gateX, gateZ, gateDx, gateDz);
+    switch (node->mode) {
         case 2:
             if (res > 0.0f && res < 1.0f) {
-                sp2B = 1;
+                crossed = 1;
             }
             break;
         case 0:
         case 1:
             if (res > 0.0f) {
-                sp2B = 1;
+                crossed = 1;
             }
             break;
     }
-    return sp2B;
+    return crossed;
 }
 
 f32 func_80611BB4(f32, f32);
 s32 mathAngleDistance(s16, s16);
 
-u8 raceIsFacingWaypoint(RaceWaypoint *arg0) {
-    f32 diff_x = D_807FBB40->x - (f32)arg0->x;
-    f32 diff_z = D_807FBB40->z - (f32)arg0->z;
+u8 raceIsFacingWaypoint(RaceWaypoint *node) {
+    f32 diff_x = D_807FBB40->x - (f32)node->x;
+    f32 diff_z = D_807FBB40->z - (f32)node->z;
     s16 angle = (s32)(func_80611BB4(diff_x, diff_z) * 651.8986206f) & 0xFFF;
 
-    return mathAngleDistance(angle, arg0->angle) < 0x400;
+    return mathAngleDistance(angle, node->angle) < 0x400;
 }
 
-f32 func_8002F304(RaceWaypoint *arg0, f32 arg1, f32 arg2) {
-    f32 temp_fv0 = arg0->unkC;
-    f32 temp_fv1 = arg0->unk8;
+f32 func_8002F304(RaceWaypoint *node, f32 x, f32 z) {
+    f32 normZ = node->unkC;
+    f32 normX = node->unk8;
 
-    return raceLineIntersectParam((f32)arg0->x, (f32)arg0->z, -temp_fv0, temp_fv1, arg1, arg2, temp_fv1, temp_fv0);
+    return raceLineIntersectParam((f32)node->x, (f32)node->z, -normZ, normX, x, z, normX, normZ);
 }
 
-void func_8002DCF0(RaceWaypoint *, s32);
+void func_8002DCF0(RaceWaypoint *node, s32 state);
 
-void func_8002F36C(RaceTracker *arg0, RaceRoute *arg1) {
+void func_8002F36C(RaceTracker *tracker, RaceRoute *route) {
     RaceWaypoint *node;
 
-    if (arg1->active != 0) {
+    if (route->active != 0) {
         do {
             u16 val;
-            arg0->unk3C += 1;
-            arg0->unk3C %= arg1->count;
-            val = arg1->items[arg0->unk3C];
+            tracker->unk3C += 1;
+            tracker->unk3C %= route->count;
+            val = route->items[tracker->unk3C];
             node = raceGetWaypoint(val);
         } while (node->kind == 0);
         func_8002DCF0(node, 1);
     }
 }
 
-void func_8002F420(RaceTracker *arg0, RaceRoute *arg1) {
-    if (arg1->active != 0) {
-        if (arg0->unk3C == arg0->unk3A) {
-            u16 val = arg1->items[arg0->unk3C];
+void func_8002F420(RaceTracker *tracker, RaceRoute *route) {
+    if (route->active != 0) {
+        if (tracker->unk3C == tracker->unk3A) {
+            u16 val = route->items[tracker->unk3C];
             func_8002DCF0(raceGetWaypoint(val), 0);
-            func_8002F36C(arg0, arg1);
+            func_8002F36C(tracker, route);
         }
     }
 }
@@ -389,63 +389,63 @@ f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
-void func_8002F490(RaceTracker *arg0) {
+void func_8002F490(RaceTracker *tracker) {
     RaceActor *actor;
     RaceActorState *state;
     RaceRoute *list;
     RaceWaypoint *node;
     s32 pad;
-    f32 sp38;
+    f32 headingAngle;
     u16 val;
 
-    actor = arg0->actor;
+    actor = tracker->actor;
     state = actor->state;
     list = raceGetRoute(state->route);
     if (list != NULL) {
-        val = list->items[arg0->unk3A];
+        val = list->items[tracker->unk3A];
         node = raceGetWaypoint(val);
         if (node != NULL) {
             if (((f32)node->x - D_807FBB40->x) * ((f32)node->x - D_807FBB40->x) + ((f32)node->z - D_807FBB40->z) * ((f32)node->z - D_807FBB40->z) > 900.0f) {
-                sp38 = mathAngleBetweenPointsDeg(node->x, node->z, (s32)D_807FBB40->x, (s32)D_807FBB40->z);
-                D_807FBB40->unkEC = (s32)(sp38 - mathAngleBetweenPointsDeg(
-                    (s32)gPlayerSlots[arg0->playerIdx].f228,
-                    (s32)gPlayerSlots[arg0->playerIdx].f230,
-                    (s32)gPlayerSlots[arg0->playerIdx].pos[arg0->playerIdx],
+                headingAngle = mathAngleBetweenPointsDeg(node->x, node->z, (s32)D_807FBB40->x, (s32)D_807FBB40->z);
+                D_807FBB40->unkEC = (s32)(headingAngle - mathAngleBetweenPointsDeg(
+                    (s32)gPlayerSlots[tracker->playerIdx].f228,
+                    (s32)gPlayerSlots[tracker->playerIdx].f230,
+                    (s32)gPlayerSlots[tracker->playerIdx].pos[tracker->playerIdx],
                     (s32)gPlayerSlots->pos[2]));
             }
-            if (arg0->unk38 != 0) {
-                arg0->unk38 = raceIsFacingWaypoint(node);
+            if (tracker->unk38 != 0) {
+                tracker->unk38 = raceIsFacingWaypoint(node);
             } else if (raceIsFacingWaypoint(node) != 0) {
-                if (arg0->unk27 == 0) {
+                if (tracker->unk27 == 0) {
                     if (node->kind != 0) {
                         if (func_8002F0AC(node) == 0) {
                             sfxPlayAtPositionPooled(node->x, node->y, node->z, 0x98, 0xFF, 0x7F, 0, 0, 0.3f, 0);
-                            if (arg0->unk44 != 0) {
-                                arg0->unk44--;
+                            if (tracker->unk44 != 0) {
+                                tracker->unk44--;
                             } else {
-                                arg0->unk45 = 1;
+                                tracker->unk45 = 1;
                             }
                         } else {
                             sfxAllocateChannel(0x43, 1.0f);
                         }
                     }
-                    func_8002F420(arg0, list);
+                    func_8002F420(tracker, list);
                 }
-                arg0->unk3A += 1;
-                arg0->unk3A %= list->count;
-                if (arg0->unk3A == 0) {
-                    arg0->lap++;
+                tracker->unk3A += 1;
+                tracker->unk3A %= list->count;
+                if (tracker->unk3A == 0) {
+                    tracker->lap++;
                 }
-                val = list->items[arg0->unk3A];
+                val = list->items[tracker->unk3A];
                 node = raceGetWaypoint(val);
-                arg0->unk38 = raceIsFacingWaypoint(node);
+                tracker->unk38 = raceIsFacingWaypoint(node);
             }
-            arg0->unk40 = func_8002F304(node, D_807FBB40->x, D_807FBB40->z);
+            tracker->unk40 = func_8002F304(node, D_807FBB40->x, D_807FBB40->z);
         }
     }
 }
 
-f32 func_8002F784(RaceRoute *arg0, RaceTracker *arg1, RaceTracker *arg2) {
+f32 func_8002F784(RaceRoute *route, RaceTracker *trackerA, RaceTracker *trackerB) {
     s32 diff;
     f32 acc;
     f32 prevX;
@@ -457,10 +457,10 @@ f32 func_8002F784(RaceRoute *arg0, RaceTracker *arg1, RaceTracker *arg2) {
     s32 idx;
     u16 val;
 
-    cur = arg1->lap * arg0->count + arg1->unk3A;
-    end = arg2->lap * arg0->count + arg2->unk3A;
+    cur = trackerA->lap * route->count + trackerA->unk3A;
+    end = trackerB->lap * route->count + trackerB->unk3A;
     diff = end - cur;
-    acc = arg1->unk40 - arg2->unk40;
+    acc = trackerA->unk40 - trackerB->unk40;
     if (diff < 0) {
         cur ^= end;
         end ^= cur;
@@ -471,8 +471,8 @@ f32 func_8002F784(RaceRoute *arg0, RaceTracker *arg1, RaceTracker *arg2) {
     if (cur != end) {
         if (cur <= end) {
             do {
-                idx = cur % arg0->count;
-                val = arg0->items[idx];
+                idx = cur % route->count;
+                val = route->items[idx];
                 node = raceGetWaypoint(val);
                 if (!first) {
                     acc += func_8002F304(node, prevX, prevZ);
@@ -488,10 +488,10 @@ f32 func_8002F784(RaceRoute *arg0, RaceTracker *arg1, RaceTracker *arg2) {
     return acc;
 }
 
-f32 raceGetProgressPercent(RaceRoute *arg0, RaceTracker *arg1, RaceActorState *arg2) {
-    u16 temp_v0 = arg0->count;
-    f32 num = (arg1->lap - 1) * temp_v0 + arg1->unk3A;
-    f32 den = arg2->unk24 * temp_v0;
+f32 raceGetProgressPercent(RaceRoute *route, RaceTracker *tracker, RaceActorState *actorState) {
+    u16 waypointCount = route->count;
+    f32 num = (tracker->lap - 1) * waypointCount + tracker->unk3A;
+    f32 den = actorState->unk24 * waypointCount;
 
     return num / den;
 }
@@ -499,7 +499,7 @@ f32 raceGetProgressPercent(RaceRoute *arg0, RaceTracker *arg1, RaceActorState *a
 void actorRegisterActive(void *);
 void actorDeregisterActive(void *);
 
-void raceUpdateWaypointActivation(RaceActorState *arg0) {
+void raceUpdateWaypointActivation(RaceActorState *actorState) {
     RaceRoute *list;
     RaceWaypoint *node;
     s32 i;
@@ -508,7 +508,7 @@ void raceUpdateWaypointActivation(RaceActorState *arg0) {
     s32 near;
     f32 dist;
 
-    list = raceGetRoute(arg0->route);
+    list = raceGetRoute(actorState->route);
     if (list != NULL) {
         for (i = 0; i < list->count; i++) {
             node = raceGetWaypoint(list->items[i]);
