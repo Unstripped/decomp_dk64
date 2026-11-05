@@ -69,10 +69,11 @@ then tell running agents not to re-copy from `src`.
 
 ## Tools
 
-- `tools/permute.py setup global FUNC --src .scratch/<A>/<f>.c` fails with a type
-  redeclaration when the stored draft repeats a typedef the copy has: pass `--from` a file
-  with only the function body, or drop the typedef from the draft. Without a draft and with
-  `--src src/...`, base.c is the asm (score 0 at once, nothing searched).
+- For a parked function, give `tools/permute.py setup --from` a whole-file private copy
+  with the new C body: a function-only snippet replaces the `#else` pragma while
+  `NON_MATCHING` still selects the old park. Check `base.c` contains the intended body.
+  For an unparked pragma, a function-only draft avoids duplicate typedefs; without a
+  draft, `--src src/...` can leave an asm-only base (score 0, nothing searched).
 - `drafts.py collect` can replace a noted draft with a note-less `_best.c`: `git diff drafts/`
   after it.
 - `drafts.py prune` prunes every segment (it deleted another session's global drafts):
