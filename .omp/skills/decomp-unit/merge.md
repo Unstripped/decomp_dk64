@@ -138,6 +138,8 @@ gate it was not reloc-only: `tools/dk make build/global.text.bin`, `cmp -l` agai
 good copy, objdump the function (found: a store two slots early, swapped delay-slot
 constants, a view struct 4 bytes short, a spill slot 4 bytes off, an `extern f64` that must
 be a literal, a segment that grew past its size). Fix or revert and correct the draft note.
+A draft saved with its own head (`#include`, externs typed differently from the file's) pastes
+clashing declarations: replace the function with the agent copy's body instead (104F0 revisit 9).
 A text-identical draft needing declarations reconciled across the file goes to a short
 integration agent, not hand-pasting. Code matching but rodata padding differing = hidden TU
 ([split.md](split.md)).

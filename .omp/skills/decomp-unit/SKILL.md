@@ -105,6 +105,10 @@ a parked `NON_MATCHING` function is stage 4+ and counts as unmatched.
    A failing gate after the namer: troubleshooting.md "Namer broke the build".
    Named parked/`GLOBAL_ASM` functions: splat writes a `.s` only for pragma paths it finds, so
    point those pragmas at the new names, split again, and `git mv` their drafts to the new names.
+   Gate the renamed files with `merge_gate.sh - -` (it needs a `snapshot` base for every caller
+   file; its `--commit` fails on `git mv`'d draft paths, so commit those by hand after `GATE_OK`).
+   Files another session left dirty: rename only in clean files; to commit your hunk of a dirty
+   file, stage HEAD + your edit as a blob (`git hash-object -w`, `git update-index --cacheinfo`).
 3. ROADMAP: one bullet per segment (files, data/rodata offsets, N of T matched per file,
    named groups, near-misses incl. parked ones, unattempted large functions; check every
    cited name exists in the symbol file). `tools/dk python3 tools/progress.py --readme`.

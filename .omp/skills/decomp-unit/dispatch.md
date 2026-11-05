@@ -40,10 +40,10 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   worth one dedicated agent; a second dedicated pass is worth it only with new findings in
   the context (F4C0 revisit: third passes on 104F0/17B90 parks matched 0 of 20; a first
   pass on old `-g` parks with the compiler's rule in the task matched 2 of 2).
-- Revisit of old parks: wave 1 per-file tasks (1-5 functions, large ones alone), wave 2 the
-  rest of the ranking with every lever found so far, then waves of 3-8 agents regrouped by diff
-  KIND (schedule/as1, FP, int regalloc, frame/spill) with that kind's levers in each task; keep
-  going while a wave matches ~1+ per agent (revisit 5: 0.4, 0.9, 1.4; revisit 6: 0.35 per-file, 1.0 and 0.75 by kind).
+- Revisit of old parks: wave 1 per-file tasks (1-5 functions, large ones alone), then waves of
+  3-8 agents by diff KIND (schedule/as1, FP, int regalloc, frame/spill) with that kind's levers;
+  keep going while a wave matches ~1+ per agent (revisit 5: 0.4, 0.9, 1.4; revisit 6: 0.35, 1.0).
+  Tail of 5+-attempt parks: agents yield ~0 (revisit 9: 1 of 34 tasks); prefer inline focused sessions.
 - Each `tasks[]` item lists its functions with the last diff note and stage; start from the stored draft (`tools/drafts.py show <seg> <FUNC>`), not m2c.
 - Re-check stored “regalloc-only” notes against whole-file diffs before dispatch; reconsider repeated-store loop structure and extern-float constant-pool ownership before more spelling variants (CC800 focused match).
 - The agent's budget is its context window and request cap, not wall-clock time: the brief
