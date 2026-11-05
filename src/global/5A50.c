@@ -157,30 +157,30 @@ void audioInit(void) {
 }
 
 void func_806010A0(void) {
-    s32 sp34;
-    s32 sp30;
-    s32 pad1;
-    s32 temp;
+    s32 size1;
+    s32 size2;
+    s32 pad;
+    s32 offset;
 
-    sp34 = 0x80;
-    dmaReadAssetDecompress(D_8000DDCC, &D_8076D200, &sp34, 0, 0, 0, 0);
-    temp = D_8076D200;
-    sp30 = 0x2C0;
-    dmaReadAssetDecompress(D_8000DDCC + temp, &D_8076D200, &sp30, 0, 0, 0, 0);
+    size1 = 0x80;
+    dmaReadAssetDecompress(D_8000DDCC, &D_8076D200, &size1, 0, 0, 0, 0);
+    offset = D_8076D200;
+    size2 = 0x2C0;
+    dmaReadAssetDecompress(D_8000DDCC + offset, &D_8076D200, &size2, 0, 0, 0, 0);
 }
 
-void seqPlayerPlay(u8 arg0) {
-    if (alCSPGetState(gSeqPlayers[arg0]) == 0) {
-        alCSPPlay(gSeqPlayers[arg0]);
+void seqPlayerPlay(u8 playerIndex) {
+    if (alCSPGetState(gSeqPlayers[playerIndex]) == 0) {
+        alCSPPlay(gSeqPlayers[playerIndex]);
     }
 }
 
-s32 seqPlayerGetState(u8 arg0) {
-    return alCSPGetState(gSeqPlayers[arg0]);
+s32 seqPlayerGetState(u8 playerIndex) {
+    return alCSPGetState(gSeqPlayers[playerIndex]);
 }
 
-void func_806011A0(u8 arg0, s32 arg1) {
-    func_80737E90(gSeqPlayers[arg0], arg1);
+void func_806011A0(u8 playerIndex, s32 arg1) {
+    func_80737E90(gSeqPlayers[playerIndex], arg1);
 }
 
 typedef struct {
@@ -190,127 +190,127 @@ typedef struct {
 void func_806011D4(Struct806011D4 arg0) {
 }
 
-void func_806011E4(u8 arg0, s32 arg1, u8 arg2) {
-    setCSPChannelStateValue(gSeqPlayers[arg0], arg1, arg2);
+void func_806011E4(u8 playerIndex, s32 channel, u8 value) {
+    setCSPChannelStateValue(gSeqPlayers[playerIndex], channel, value);
 }
 
-void func_80601224(u8 arg0, s32 arg1) {
-    func_80737FD8(gSeqPlayers[arg0], arg1);
+void func_80601224(u8 playerIndex, s32 channel) {
+    func_80737FD8(gSeqPlayers[playerIndex], channel);
 }
 
-void func_80601258(u8 arg0, s32 arg1) {
-    enableCSPChannel(gSeqPlayers[arg0], arg1);
+void func_80601258(u8 playerIndex, s32 channel) {
+    enableCSPChannel(gSeqPlayers[playerIndex], channel);
 }
 
-void func_8060128C(u8 arg0, u8 arg1, u8 arg2) {
-    func_80738080(gSeqPlayers[arg0], arg1, arg2);
+void func_8060128C(u8 playerIndex, u8 channel, u8 value) {
+    func_80738080(gSeqPlayers[playerIndex], channel, value);
 }
 
-void func_806012D4(u8 arg0, u8 arg1, u8 arg2) {
-    setCSPChannelPortamento(gSeqPlayers[arg0], arg1, arg2);
+void func_806012D4(u8 playerIndex, u8 channel, u8 portamento) {
+    setCSPChannelPortamento(gSeqPlayers[playerIndex], channel, portamento);
 }
-void func_8060131C(u8 arg0, s32 arg1, u8 arg2) {
+void func_8060131C(u8 playerIndex, s32 chanMask, u8 value) {
     s32 i;
 
     for (i = 0; i < 16; i++) {
-        if (arg1 & (1 << i)) {
-            func_8060128C(arg0, i, arg2);
+        if (chanMask & (1 << i)) {
+            func_8060128C(playerIndex, i, value);
         }
     }
 }
 
-void func_806013A0(u8 arg0, u8 arg1, u8 arg2) {
-    setCSPChannelStopControl(gSeqPlayers[arg0], arg1, arg2);
+void func_806013A0(u8 playerIndex, u8 channel, u8 control) {
+    setCSPChannelStopControl(gSeqPlayers[playerIndex], channel, control);
 }
 
-void func_806013E8(u8 arg0, s32 arg1, u8 arg2) {
+void func_806013E8(u8 playerIndex, s32 chanMask, u8 control) {
     s32 i;
 
     for (i = 0; i < 16; i++) {
-        if (arg1 & (1 << i)) {
-            setCSPChannelStopControl(gSeqPlayers[arg0], i, arg2);
+        if (chanMask & (1 << i)) {
+            setCSPChannelStopControl(gSeqPlayers[playerIndex], i, control);
         }
     }
 }
 
-void func_80601484(u8 arg0, s32 arg1, s32 arg2) {
+void func_80601484(u8 playerIndex, s32 chanMask, s32 enable) {
     s32 i;
 
     for (i = 0; i < 16; i++) {
-        if (arg1 & (1 << i)) {
-            if (arg2 != 0) {
-                func_80601258(arg0, i);
+        if (chanMask & (1 << i)) {
+            if (enable != 0) {
+                func_80601258(playerIndex, i);
             } else {
-                func_80601224(arg0, i);
+                func_80601224(playerIndex, i);
             }
         }
     }
 }
 
-void func_8060151C(u8 arg0, s32 arg1, s32 arg2) {
+void func_8060151C(u8 playerIndex, s32 chanMask, s32 enable) {
     s32 i;
 
     for (i = 0; i < 16; i++) {
-        if (arg1 & (1 << i)) {
-            if (arg2 != 0) {
-                gSeqPlayers[arg0]->chanMask |= arg1;
+        if (chanMask & (1 << i)) {
+            if (enable != 0) {
+                gSeqPlayers[playerIndex]->chanMask |= chanMask;
             } else {
-                gSeqPlayers[arg0]->chanMask &= arg1 ^ 0xFFFF;
+                gSeqPlayers[playerIndex]->chanMask &= chanMask ^ 0xFFFF;
             }
         }
     }
 }
 
-void func_806015E0(u8 arg0, s32 arg1, s32 arg2) {
+void func_806015E0(u8 playerIndex, s32 chanMask, s32 fxMix) {
     s32 i;
 
     for (i = 0; i < 16; i++) {
-        if (arg1 & (1 << i)) {
-            alCSPSetChlFX2Mix(gSeqPlayers[arg0], i, arg2);
+        if (chanMask & (1 << i)) {
+            alCSPSetChlFX2Mix(gSeqPlayers[playerIndex], i, fxMix);
         }
     }
 }
 
-void func_80601678(u8 arg0, u8 arg1, u8 arg2) {
-    alCSPSendMidi(gSeqPlayers[arg0], 0, (u8)(arg1 | 0xB0), 0x21, arg2);
+void func_80601678(u8 playerIndex, u8 channel, u8 val) {
+    alCSPSendMidi(gSeqPlayers[playerIndex], 0, (u8)(channel | 0xB0), 0x21, val);
 }
 
-void func_806016D0(u8 arg0, u8 arg1, u8 arg2) {
-    alCSPSendMidi(gSeqPlayers[arg0], 0, (u8)(arg1 | 0xB0), 0x22, arg2);
+void func_806016D0(u8 playerIndex, u8 channel, u8 val) {
+    alCSPSendMidi(gSeqPlayers[playerIndex], 0, (u8)(channel | 0xB0), 0x22, val);
 }
 
-void func_80601728(u8 arg0, u8 arg1, u8 arg2) {
-    alCSPSendMidi(gSeqPlayers[arg0], 0, (u8)(arg1 | 0xB0), 0x23, arg2);
+void func_80601728(u8 playerIndex, u8 channel, u8 val) {
+    alCSPSendMidi(gSeqPlayers[playerIndex], 0, (u8)(channel | 0xB0), 0x23, val);
 }
-void seqPlayerSetTempo(u8 arg0, s32 tempo) {
-    alCSPSetTempo(gSeqPlayers[arg0], tempo);
+void seqPlayerSetTempo(u8 playerIndex, s32 tempo) {
+    alCSPSetTempo(gSeqPlayers[playerIndex], tempo);
 }
-s32 seqPlayerGetTempo(u8 arg0) {
-    return alCSPGetTempo(gSeqPlayers[arg0]);
+s32 seqPlayerGetTempo(u8 playerIndex) {
+    return alCSPGetTempo(gSeqPlayers[playerIndex]);
 }
-void func_806017E8(u8 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4) {
-    postCSPChannelCommand(gSeqPlayers[arg0], arg1, arg2, arg3, arg4);
-}
-
-void func_80601848(u8 arg0, f32 arg1, f32 arg2) {
-    alCSPSetChlPanVolume(gSeqPlayers[arg0], arg1, arg2);
+void func_806017E8(u8 playerIndex, u8 b0, u8 b1, u8 b2, s32 w3) {
+    postCSPChannelCommand(gSeqPlayers[playerIndex], b0, b1, b2, w3);
 }
 
-void func_8060188C(u8 arg0, s32 arg1) {
-    gSeqPlayers[arg0]->nextDelta += arg1;
+void func_80601848(u8 playerIndex, f32 pan, f32 volume) {
+    alCSPSetChlPanVolume(gSeqPlayers[playerIndex], pan, volume);
 }
 
-s32 seqPlayerGetCurTime(u8 arg0) {
-    return gSeqPlayers[arg0]->curTime;
-}
-s32 func_806018D4(u8 arg0, u8 arg1, s32 arg2) {
-    return __n_alCSeqNextDelta(&D_8076BF48[arg0], &D_8076C328[arg0], arg1, arg2);
+void func_8060188C(u8 playerIndex, s32 delta) {
+    gSeqPlayers[playerIndex]->nextDelta += delta;
 }
 
-void func_8060193C(u8 arg0, u8 arg1) {
-    alCSeqSetLoc((ALCSeq *)&D_8076BF48[arg0], (ALCSeqMarker *)&D_8076C328[arg0].marker[arg1]);
+s32 seqPlayerGetCurTime(u8 playerIndex) {
+    return gSeqPlayers[playerIndex]->curTime;
+}
+s32 func_806018D4(u8 playerIndex, u8 byte, s32 delta) {
+    return __n_alCSeqNextDelta(&D_8076BF48[playerIndex], &D_8076C328[playerIndex], byte, delta);
 }
 
-void seqPlayerSendMidi(u8 arg0, s32 ticks, u8 status, u8 byte1, s32 byte2) {
-    alCSPSendMidi(gSeqPlayers[arg0], ticks, status, byte1, byte2);
+void func_8060193C(u8 playerIndex, u8 markerIndex) {
+    alCSeqSetLoc((ALCSeq *)&D_8076BF48[playerIndex], (ALCSeqMarker *)&D_8076C328[playerIndex].marker[markerIndex]);
+}
+
+void seqPlayerSendMidi(u8 playerIndex, s32 ticks, u8 status, u8 byte1, s32 byte2) {
+    alCSPSendMidi(gSeqPlayers[playerIndex], ticks, status, byte1, byte2);
 }
