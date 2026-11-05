@@ -961,7 +961,6 @@ s32 actorHasCallbackTargetThisFrame(void) {
 }
 
 
-#ifdef NON_MATCHING
 typedef struct ActorSub174View {
     /* 0x00 */ s32 unk0;
     /* 0x04 */ f32 unk4;
@@ -1041,6 +1040,7 @@ void textMarkerUpdateMatrix(void) {
     s32 sp78;
     s32 pad74;  // pad: keeps sp70 at 0x70
     s32 sp70;
+    void (*volatile callback)(void);  // FAKE: retain the callback's original stack home
 
     sp13C = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -1249,8 +1249,8 @@ void textMarkerUpdateMatrix(void) {
                 if (D_807FBB94 && D_807FBB94) {}  // FAKE: ghost candidate: two reads in the sp70 loop make D_807FBB94 a high-priority v0 web (with the two tests below) that forces the shared switch temp to v1 / early sp13C piece to v0
                 func_807149B8(1);
                 if (sp70 == 0) {
-                    func_80714950(0x100FA);
-                    func_8071498C(func_8071A8B0);
+                    callback = func_8071A8B0; func_80714950(0x100FA);  // LAYOUT: keep the callback store in the call's delay slot
+                    func_8071498C(callback);
                 } else {
                     func_8071498C(func_80717D4C);
                     func_80714950(-0x96 - ((randomNonNegative() >> 15) % 50));
@@ -1389,10 +1389,6 @@ void textMarkerUpdateMatrix(void) {
     guTranslateF(mtxB, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
     guMtxCatF(mtxA, mtxB, (f32 (*)[4])((u8 *)D_807FBB40 + 0xC));
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/9DD70/textMarkerUpdateMatrix.s")
-#endif
 
 
 typedef struct CameraPos {
