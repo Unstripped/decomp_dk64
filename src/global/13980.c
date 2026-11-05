@@ -546,7 +546,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     static s32 D_80746A24 = 0;
     static s32 D_80746A28 = 0;
     static s8 D_80746A2C = 4;
-    u32 *p;
+    u32 p;
     s32 size;
     char *q;
     u16 colorIdx;
@@ -560,10 +560,9 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     s32 mode;
     u32 done;
     char buf[36];
-    DlOpInfo *e;
     s32 i;
-    u32 ret;
     s32 raw;
+    u32 ret;
 
     done = 0;
     ret = 0;
@@ -608,9 +607,9 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
         D_80746A1C = 0;
         D_80746A18 = 0;
     }
-    p = D_80744470;
+    p = 0;
     do {
-        faultFontInit(*p, 0, 1);
+        faultFontInit(D_80744470[p], 0, 1);
         line = 0;
         mode = D_80746A24;
         cur = D_80746A20;
@@ -626,8 +625,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 done = 1;
             }
             if ((op & 0xF0) == 0xC0) {
-                size = 0x20;
                 n = 0;
+                size = 0x20;
                 mode = 2;
                 if (op & 4) {
                     buf[0] = 'S';
@@ -646,8 +645,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     size += 0x10;
                     n++;
                 }
-                size >>= 2;
                 buf[n] = 0;
+                size >>= 2;
                 faultPrintf("  %05x.:Triangle:.(%s)....\n", off, buf);
                 line++;
                 if (line == 1) {
@@ -686,13 +685,12 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                         i = 0x1B;
                     }
                 }
-                e = &D_8074685C[op];
-                if (e->warn != 0) {
+                if (D_8074685C[op].warn != 0) {
                     mode = 1;
                 }
                 if (found) {
-                    size = e->size >> 2;
-                    faultPrintf("  %05x.:.%s...%s.\n", off, e->name, D_80746A0C[colorIdx]);
+                    size = D_8074685C[op].size >> 2;
+                    faultPrintf("  %05x.:.%s...%s.\n", off, D_8074685C[op].name, D_80746A0C[colorIdx]);
                     line++;
                     if (size <= 2) {
                         faultPrintf("  %08x..%08x............\n", ((u32 *)cur)[0], ((u32 *)cur)[1]);
@@ -714,8 +712,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
             faultFontSetColorMode(0);
             cur += size * 4U;
         }
-        p++;
-    } while (p != &D_80744478);
+        p += 1;
+    } while (&D_80744478 != &D_80744470[p]);
     controllerStartRead();
     return ret;
 }

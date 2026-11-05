@@ -1,4 +1,4 @@
-// schedDlDebugDump (src/global/13980.c): STAGE 4 (count exact 415, frame 184, callee-saved same), deadsweep full 69->63 (text 23->17, reloc 46 = uncarved statics), shape 60->55. Levers tried: deleted fake done=done at loop tail fixing branch delay slot sharing; simplified Triangle name buffer to buf[n++] eliminating q pointer and aligning v0/v1 roles with if (D_8074685C && D_8074685C); reordered mode/n/size in triangle branch placing sw in delay slot. Remaining 17 text lines: 10 lines of p spill slot (0x50 vs 0xb4), 4 lines of lui v0 vs s5 for D_80746A20, 3 lines of ring temps (t1/t8 vs t0/t7).
+// schedDlDebugDump (src/global/13980.c): stage 4: full=54 text=8 reloc=46 shape=46 n=415 (323 instructions), frame 184 and all callee-saved exact. Matcher6 on base 2b098035bc2bd79a4eb94174687b52ea14a12e4a improved text 17->8/full 63->54. Replaced named pointer p with u32 array index and D_80744470[p], reversed end-address comparison: uopt now forms a pointer induction spilltemp at target sp+0x50 rather than named home sp+0xb4. Inlined e field expressions and moved raw before ret to preserve all other stack offsets. Initialize n then size then mode; terminate buf before size >>= 2, fixing two scheduling differences. Remaining 8 text lines: D_80746A20 load base s5 instead of v0 (2), and six opcode/extent-ring instructions use t7/t9/t0 rather than t8/t0/t1. Tried index/formal/byte-offset variants, local-home removal, real opcode and extent value routing, pointer/static/aggregate types, typed dead lvalues, and wide/narrow opcode extraction: no further reduction. Local static declarations still shadow existing file-scope data, so 46 normalized relocation differences are not resolved; no data cutover attempted in this private park.
 s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     static s32 D_80746A14 = 0;
     static u32 D_80746A18 = 0;
@@ -7,7 +7,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     static s32 D_80746A24 = 0;
     static s32 D_80746A28 = 0;
     static s8 D_80746A2C = 4;
-    u32 *p;
+    u32 p;
     s32 size;
     char *q;
     u16 colorIdx;
@@ -21,10 +21,9 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     s32 mode;
     u32 done;
     char buf[36];
-    DlOpInfo *e;
     s32 i;
-    u32 ret;
     s32 raw;
+    u32 ret;
 
     done = 0;
     ret = 0;
@@ -69,9 +68,9 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
         D_80746A1C = 0;
         D_80746A18 = 0;
     }
-    p = D_80744470;
+    p = 0;
     do {
-        faultFontInit(*p, 0, 1);
+        faultFontInit(D_80744470[p], 0, 1);
         line = 0;
         mode = D_80746A24;
         cur = D_80746A20;
@@ -87,8 +86,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 done = 1;
             }
             if ((op & 0xF0) == 0xC0) {
-                size = 0x20;
                 n = 0;
+                size = 0x20;
                 mode = 2;
                 if (op & 4) {
                     buf[0] = 'S';
@@ -107,8 +106,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                     size += 0x10;
                     n++;
                 }
-                size >>= 2;
                 buf[n] = 0;
+                size >>= 2;
                 faultPrintf("  %05x.:Triangle:.(%s)....\n", off, buf);
                 line++;
                 if (line == 1) {
@@ -147,13 +146,12 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                         i = 0x1B;
                     }
                 }
-                e = &D_8074685C[op];
-                if (e->warn != 0) {
+                if (D_8074685C[op].warn != 0) {
                     mode = 1;
                 }
                 if (found) {
-                    size = e->size >> 2;
-                    faultPrintf("  %05x.:.%s...%s.\n", off, e->name, D_80746A0C[colorIdx]);
+                    size = D_8074685C[op].size >> 2;
+                    faultPrintf("  %05x.:.%s...%s.\n", off, D_8074685C[op].name, D_80746A0C[colorIdx]);
                     line++;
                     if (size <= 2) {
                         faultPrintf("  %08x..%08x............\n", ((u32 *)cur)[0], ((u32 *)cur)[1]);
@@ -175,8 +173,8 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
             faultFontSetColorMode(0);
             cur += size * 4U;
         }
-        p++;
-    } while (p != &D_80744478);
+        p += 1;
+    } while (&D_80744478 != &D_80744470[p]);
     controllerStartRead();
     return ret;
 }
