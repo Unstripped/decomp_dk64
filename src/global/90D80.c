@@ -37,13 +37,13 @@ void texCacheUpdate(void) {
 
 s32 assetLoad(s32, s32, s32, s32);
 
-s32 texCacheFindOrLoad(u16 arg0) {
+s32 texCacheFindOrLoad(u16 texId) {
     s16 i;
     TexCacheEntry *entry;
 
     for (i = 0; i < 0x20; i++) {
         entry = &D_807FC690[i];
-        if (entry->unk4 == arg0 && entry->unk6 != 0) {
+        if (entry->unk4 == texId && entry->unk6 != 0) {
             entry->unk6 = 2;
             return entry->unk0;
         }
@@ -52,9 +52,9 @@ s32 texCacheFindOrLoad(u16 arg0) {
     for (i = 0; i < 0x20; i++) {
         entry = &D_807FC690[i];
         if (entry->unk6 == 0) {
-            entry->unk0 = assetLoad(0xE, arg0, 0, 0);
+            entry->unk0 = assetLoad(0xE, texId, 0, 0);
             entry->unk6 = 2;
-            entry->unk4 = arg0;
+            entry->unk4 = texId;
             return entry->unk0;
         }
     }
@@ -72,18 +72,18 @@ typedef struct RenderCallbackEntry {
 extern u8 D_807501E0;
 extern RenderCallbackEntry D_807FC630[];
 
-Gfx *renderCallbacksExecute(Gfx *glist, u8 arg1) {
+Gfx *renderCallbacksExecute(Gfx *glist, u8 layer) {
     u8 count = D_807501E0;
 
     if (count != 0) {
         do {
-            if (arg1 == D_807FC630[--count].layer) {
+            if (layer == D_807FC630[--count].layer) {
                 gDPPipeSync(glist++);
                 glist = D_807FC630[count].func(glist, D_807FC630[count].actor);
             }
         } while (count != 0);
     }
-    if (arg1 == 7) {
+    if (layer == 7) {
         D_807501E0 = 0;
     }
     return glist;
@@ -93,11 +93,11 @@ void renderCallbacksReset(void) {
     D_807501E0 = 0;
 }
 
-void renderCallbacksDisableForActor(Actor *arg0) {
+void renderCallbacksDisableForActor(Actor *actor) {
     u8 i;
 
     for (i = 0; i < D_807501E0; i++) {
-        if (arg0 == (Actor *)D_807FC630[i].actor) {
+        if (actor == (Actor *)D_807FC630[i].actor) {
             D_807FC630[i].layer = 8;
         }
     }
@@ -120,21 +120,21 @@ typedef f32 RenderMtxF[4][4];
 void matrixMakeRotationZ(RenderMtxF, f32);
 extern u32 D_807501E8;
 
-Gfx *renderRotatedQuad(Gfx *glist, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
-    RenderMtxF spA0;
-    RenderMtxF sp60;
+Gfx *renderRotatedQuad(Gfx *glist, s32 tex, s16 x, s16 y, s16 angle) {
+    RenderMtxF rotMtx;
+    RenderMtxF transMtx;
     Mtx *mtx;
     s32 pad;
     mtx = heapAlloc(sizeof(Mtx));
     heapFreeDeferred(mtx);
 
     gDPPipeSync(glist++);
-    gDPLoadTextureBlock(glist++, (u8 *)(arg1 + 0x80000000), G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+    gDPLoadTextureBlock(glist++, (u8 *)(tex + 0x80000000), G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
 
-    matrixMakeRotationZ(spA0, (f32)arg4);
-    guTranslateF(sp60, (f32)arg2, (f32)arg3, 0.0f);
-    guMtxCatF(spA0, sp60, spA0);
-    guMtxF2L(spA0, mtx);
+    matrixMakeRotationZ(rotMtx, (f32)angle);
+    guTranslateF(transMtx, (f32)x, (f32)y, 0.0f);
+    guMtxCatF(rotMtx, transMtx, rotMtx);
+    guMtxF2L(rotMtx, mtx);
 
     WRITE_GFX(glist++, 0xDA380000, (u32)mtx);
     WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(&D_807501E8));
@@ -151,96 +151,96 @@ extern Mtx D_2000180;
 void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32);
 void vtxSetPosTex(Vtx *, s16, s16, s16, s16, s32);
 
-Gfx *renderRotatedSprite(Gfx *glist, u16 arg1, s32 arg2, s32 arg3, u8 arg4, u8 arg5, s16 arg6, s16 arg7, f32 arg8, f32 arg9, s32 arg10, f32 arg11) {
+Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 height, s16 x, s16 y, f32 scaleX, f32 scaleY, s32 angle, f32 texScale) {
     volatile s32 tex;
-    s32 var_v0;
-    Vtx *var_s0;
+    s32 tileSize;
+    Vtx *vtx;
     s32 half_w;
     s32 half_h;
     f32 scaled_w;
     f32 scaled_h;
-    RenderMtxF sp14C;
-    RenderMtxF sp10C;
+    RenderMtxF scaleMtx;
+    RenderMtxF tempMtx;
     Mtx *mtx1;
 
-    arg3 &= ~0xC000;
-    if (!(u16)arg1) {
-        arg1 = D_807FC79E;
+    siz &= ~0xC000;
+    if (!(u16)texId) {
+        texId = D_807FC79E;
     }
 
-    switch (arg3) {
+    switch (siz) {
     case 0:
-        var_s0 = (Vtx *)4;
+        vtx = (Vtx *)4;
         break;
     case 1:
-        var_s0 = (Vtx *)8;
+        vtx = (Vtx *)8;
         break;
     case 3:
-        var_s0 = (Vtx *)32;
+        vtx = (Vtx *)32;
         break;
     default:
-        var_s0 = (Vtx *)16;
+        vtx = (Vtx *)16;
         break;
     }
 
-    tex = texCacheFindOrLoad(arg1);
+    tex = texCacheFindOrLoad(texId);
 
-    if (((((s32)var_s0 * (u8)arg4 * (u8)arg5) >> 3)) > 0x1000) {
+    if (((((s32)vtx * (u8)width * (u8)height) >> 3)) > 0x1000) {
         if (D_807FC79E && D_807FC79E) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         WRITE_GFX(glist++, 0xDA380003, (u32)&D_2000180);
         WRITE_GFX(glist++, 0xDA380007, (u32)&D_2000080);
         gDPPipeSync(glist++);
-        var_v0 = ((s32)var_s0 < 0x20) ? 0x20 : 0x1E;
-        gfxDrawTexturedTileGridSimple(&glist, tex, arg2, (u8)arg4, (u8)arg5, var_v0, var_v0, 0.0f, 0.0f,
-                      (f32)(u32)(u8)arg4, (f32)(u32)(u8)arg5,
-                      (f32)((s16)arg6 - ((u8)arg4 >> 1)), (f32)((s16)arg7 - ((u8)arg5 >> 1)),
-                      1, (s32)var_s0);
+        tileSize = ((s32)vtx < 0x20) ? 0x20 : 0x1E;
+        gfxDrawTexturedTileGridSimple(&glist, tex, fmt, (u8)width, (u8)height, tileSize, tileSize, 0.0f, 0.0f,
+                      (f32)(u32)(u8)width, (f32)(u32)(u8)height,
+                      (f32)((s16)x - ((u8)width >> 1)), (f32)((s16)y - ((u8)height >> 1)),
+                      1, (s32)vtx);
     } else {
         mtx1 = heapAlloc(sizeof(Mtx));
         heapFreeDeferred(mtx1);
-        var_s0 = heapAlloc(sizeof(Mtx));
-        heapFreeDeferred(var_s0);
+        vtx = heapAlloc(sizeof(Mtx));
+        heapFreeDeferred(vtx);
 
-        switch (arg3) {
+        switch (siz) {
         case 0:
-            gDPLoadTextureBlock_4b(glist++, (u8 *)(tex + 0x80000000), arg2, (u8)arg4, (u8)arg5, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+            gDPLoadTextureBlock_4b(glist++, (u8 *)(tex + 0x80000000), fmt, (u8)width, (u8)height, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             break;
         case 1:
-            gDPLoadTextureBlock(glist++, (u8 *)(tex + 0x80000000), arg2, G_IM_SIZ_8b, (u8)arg4, (u8)arg5, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+            gDPLoadTextureBlock(glist++, (u8 *)(tex + 0x80000000), fmt, G_IM_SIZ_8b, (u8)width, (u8)height, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             break;
         case 2:
-            gDPLoadTextureBlock(glist++, (u8 *)(tex + 0x80000000), arg2, G_IM_SIZ_16b, (u8)arg4, (u8)arg5, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+            gDPLoadTextureBlock(glist++, (u8 *)(tex + 0x80000000), fmt, G_IM_SIZ_16b, (u8)width, (u8)height, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             break;
         }
 
-        guScaleF(sp14C, (arg8 > 0.0f) ? arg8 : -arg8, (arg9 > 0.0f) ? arg9 : -arg9, 0.0f);
-        matrixMakeRotationZ(sp10C, (f32)(s16)arg10);
-        guMtxCatF(sp14C, sp10C, sp14C);
-        guTranslateF(sp10C, (f32)(s16)arg6, (f32)(s16)arg7, 0.0f);
-        guMtxCatF(sp14C, sp10C, sp14C);
-        guMtxF2L(sp14C, mtx1);
+        guScaleF(scaleMtx, (scaleX > 0.0f) ? scaleX : -scaleX, (scaleY > 0.0f) ? scaleY : -scaleY, 0.0f);
+        matrixMakeRotationZ(tempMtx, (f32)(s16)angle);
+        guMtxCatF(scaleMtx, tempMtx, scaleMtx);
+        guTranslateF(tempMtx, (f32)(s16)x, (f32)(s16)y, 0.0f);
+        guMtxCatF(scaleMtx, tempMtx, scaleMtx);
+        guMtxF2L(scaleMtx, mtx1);
 
         WRITE_GFX(glist++, 0xDA380003, (u32)mtx1);
 
-        scaled_w = (f32)(u32)(u8)arg4 * arg11;
-        scaled_h = (f32)(u32)(u8)arg5 * arg11;
+        scaled_w = (f32)(u32)(u8)width * texScale;
+        scaled_h = (f32)(u32)(u8)height * texScale;
 
-        if (arg9 > 0.0f) {
-            half_w = (u8)arg4 >> 1;
-            half_h = (u8)arg5 >> 1;
+        if (scaleY > 0.0f) {
+            half_w = (u8)width >> 1;
+            half_h = (u8)height >> 1;
 
-            vtxSetPosTex(var_s0++, -half_w, half_h, 0.0f - scaled_w, (f32)((u8)arg5 - 1) + scaled_h, 6);
-            vtxSetPosTex(var_s0++, half_w, half_h, (f32)((u8)arg4 - 1) + scaled_w, (f32)((u8)arg5 - 1) + scaled_h, 6);
-            vtxSetPosTex(var_s0++, half_w, -half_h, (f32)((u8)arg4 - 1) + scaled_w, 0.0f - scaled_h, 6);
-            vtxSetPosTex(var_s0++, -half_w, -half_h, 0.0f - scaled_w, 0.0f - scaled_h, 6);
+            vtxSetPosTex(vtx++, -half_w, half_h, 0.0f - scaled_w, (f32)((u8)height - 1) + scaled_h, 6);
+            vtxSetPosTex(vtx++, half_w, half_h, (f32)((u8)width - 1) + scaled_w, (f32)((u8)height - 1) + scaled_h, 6);
+            vtxSetPosTex(vtx++, half_w, -half_h, (f32)((u8)width - 1) + scaled_w, 0.0f - scaled_h, 6);
+            vtxSetPosTex(vtx++, -half_w, -half_h, 0.0f - scaled_w, 0.0f - scaled_h, 6);
         } else {
-            vtxSetPosTex(var_s0++, -((u8)arg4 >> 1), 0, 0.0f - scaled_w, (f32)((u8)arg5 - 1) + scaled_h, 6);
-            vtxSetPosTex(var_s0++, (u8)arg4 >> 1, 0, (f32)((u8)arg4 - 1) + scaled_w, (f32)((u8)arg5 - 1) + scaled_h, 6);
-            vtxSetPosTex(var_s0++, (u8)arg4 >> 1, -(u8)arg5, (f32)((u8)arg4 - 1) + scaled_w, 0.0f - scaled_h, 6);
-            vtxSetPosTex(var_s0++, -((u8)arg4 >> 1), -(u8)arg5, 0.0f - scaled_w, 0.0f - scaled_h, 6);
+            vtxSetPosTex(vtx++, -((u8)width >> 1), 0, 0.0f - scaled_w, (f32)((u8)height - 1) + scaled_h, 6);
+            vtxSetPosTex(vtx++, (u8)width >> 1, 0, (f32)((u8)width - 1) + scaled_w, (f32)((u8)height - 1) + scaled_h, 6);
+            vtxSetPosTex(vtx++, (u8)width >> 1, -(u8)height, (f32)((u8)width - 1) + scaled_w, 0.0f - scaled_h, 6);
+            vtxSetPosTex(vtx++, -((u8)width >> 1), -(u8)height, 0.0f - scaled_w, 0.0f - scaled_h, 6);
         }
 
-        WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(var_s0 - 4));
+        WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(vtx - 4));
         WRITE_GFX(glist++, 0x06000204, 0x00000406);
         WRITE_GFX(glist++, 0xE7000000, 0);
     }
@@ -260,15 +260,15 @@ extern s32 gCurrentMap;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
 
-Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *arg1) {
-    s32 sp84;
-    f32 sp80;
-    f32 sp7C;
+Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *alpha) {
+    s32 texBuf;
+    f32 alphaVal;
+    f32 scrollStep;
 
-    sp80 = *arg1;
-    sp7C = D_80744478 * 0.5;
-    sp84 = assetLoad(0x19, 0x173C, 1, 0);
-    assetFreeBuffer(sp84, 0x1B2, 0x46);
+    alphaVal = *alpha;
+    scrollStep = D_80744478 * 0.5;
+    texBuf = assetLoad(0x19, 0x173C, 1, 0);
+    assetFreeBuffer(texBuf, 0x1B2, 0x46);
 
     gDPPipeSync(glist++);
     gDPSetScissor(glist++, G_SC_NON_INTERLACE, gPlayerSlots->rect[0], gPlayerSlots->rect[1], gPlayerSlots->rect[2], gPlayerSlots->rect[3]);
@@ -281,12 +281,12 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *arg1) {
     WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
 
     if (gCurrentMap == 0x26) {
-        gDPSetPrimColor(glist++, 0, 0, 0x8A, 0x52, 0x16, 200.0f * sp80);
+        gDPSetPrimColor(glist++, 0, 0, 0x8A, 0x52, 0x16, 200.0f * alphaVal);
     } else {
-        gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 35.0f * sp80);
+        gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 35.0f * alphaVal);
     }
 
-    gDPLoadTextureBlock(glist++, (u8 *)(sp84 + 0x80000000), G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, 0, 0);
+    gDPLoadTextureBlock(glist++, (u8 *)(texBuf + 0x80000000), G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, 0, 0);
 
     gDPSetTileSize(glist++, 0, (s32)D_8075022C, (s32)D_80750228, 63 << 2, 63 << 2);
     gDPSetTile(glist++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 1, 0, G_TX_WRAP, 6, 0, G_TX_WRAP, 6, 0);
@@ -299,11 +299,11 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *arg1) {
     gDPPipeSync(glist++);
 
     if (gCurrentMap == 0x26) {
-        f64 temp = sp7C;
+        f64 temp = scrollStep;
         D_80750228 -= 2.0 * temp;
         D_8075022C -= 14.0 * temp;
     } else {
-        f64 temp = sp7C;
+        f64 temp = scrollStep;
         D_80750228 -= temp;
         D_8075022C -= 0.5 * temp;
     }
@@ -323,13 +323,13 @@ extern u32 gFrameCounter;
 
 Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
 
-Gfx *renderBonusTargetMarker(Gfx *arg0, s32 arg1) {
-    WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
-    WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFFA0);
-    WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-    WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
-    WRITE_GFX(arg0++, 0xDA380007, (u32)&D_2000080);
-    return renderRotatedSprite(arg0, (u16)((((gFrameCounter >> 1) & 0xF) + 0x8F)), 0, 2, 0x20, 0x20, 0x118, 0xD2, 1.0f, 1.0f, 0, 0.0f);
+Gfx *renderBonusTargetMarker(Gfx *glist, s32 pad) {
+    WRITE_GFX(glist++, 0xDE000000, (u32)&D_1000118);
+    WRITE_GFX(glist++, 0xFA000000, 0xFFFFFFA0);
+    WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
+    WRITE_GFX(glist++, 0xE200001C, 0x00504240);
+    WRITE_GFX(glist++, 0xDA380007, (u32)&D_2000080);
+    return renderRotatedSprite(glist, (u16)((((gFrameCounter >> 1) & 0xF) + 0x8F)), 0, 2, 0x20, 0x20, 0x118, 0xD2, 1.0f, 1.0f, 0, 0.0f);
 }
 
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
@@ -342,131 +342,131 @@ typedef struct CsCountdown {
     s64 fired;
 } CsCountdown;
 
-Gfx *renderHitCounterHUD(Gfx *arg0, CsCountdown *arg1) {
-    char sp3C[12];
-    char sp38[4];
+Gfx *renderHitCounterHUD(Gfx *glist, CsCountdown *countdown) {
+    char leftStr[12];
+    char firedStr[4];
 
-    WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
-    WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-    WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFF96);
-    _sprintf(sp3C, "%d", (s32)arg1->left);
-    arg0 = textDrawStringVtx(textDrawStringVtx(arg0, 3, 0x424, 0x50, sp3C, 1), 1, 0x50, 0x50, "HIT", 1);
-    _sprintf(sp38, "%d", (s32)arg1->fired);
-    return textDrawStringVtx(arg0, 3, 0x50, 0xB0, sp38, 1);
+    WRITE_GFX(glist++, 0xDE000000, (u32)&D_1000118);
+    WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
+    WRITE_GFX(glist++, 0xFA000000, 0xFFFFFF96);
+    _sprintf(leftStr, "%d", (s32)countdown->left);
+    glist = textDrawStringVtx(textDrawStringVtx(glist, 3, 0x424, 0x50, leftStr, 1), 1, 0x50, 0x50, "HIT", 1);
+    _sprintf(firedStr, "%d", (s32)countdown->fired);
+    return textDrawStringVtx(glist, 3, 0x50, 0xB0, firedStr, 1);
 }
 
-Gfx *renderRemainingShotsHUD(Gfx *arg0, u8 *arg1) {
-    char sp38[8];
+Gfx *renderRemainingShotsHUD(Gfx *glist, u8 *shots) {
+    char shotsStr[8];
 
-    WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
-    WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-    WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFF96);
-    _sprintf(sp38, "%d", *arg1);
-    return textDrawStringVtx(arg0, 3, 0x104, 0x50, sp38, 1);
+    WRITE_GFX(glist++, 0xDE000000, (u32)&D_1000118);
+    WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
+    WRITE_GFX(glist++, 0xFA000000, 0xFFFFFF96);
+    _sprintf(shotsStr, "%d", *shots);
+    return textDrawStringVtx(glist, 3, 0x104, 0x50, shotsStr, 1);
 }
 
-Gfx *renderCountdownTimerHUD(Gfx *arg0, CsCountdown *arg1) {
-    char sp34[12];
+Gfx *renderCountdownTimerHUD(Gfx *glist, CsCountdown *countdown) {
+    char timeStr[12];
 
-    WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
-    WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-    WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFF96);
-    _sprintf(sp34, "%d", (s32)arg1->left);
-    return textDrawStringVtx(arg0, 3, 0x370, 0x50, sp34, 1);
+    WRITE_GFX(glist++, 0xDE000000, (u32)&D_1000118);
+    WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
+    WRITE_GFX(glist++, 0xFA000000, 0xFFFFFF96);
+    _sprintf(timeStr, "%d", (s32)countdown->left);
+    return textDrawStringVtx(glist, 3, 0x370, 0x50, timeStr, 1);
 }
 
 Gfx *func_805FD030(Gfx *);
 f32 sinApprox(f32);
 
-Gfx *hudDrawRollingCounter(Gfx *arg0, s16 arg1, s16 arg2, s16 *arg3, s16 arg4, u8 *arg5) {
-    f32 sp74;
-    u8 sp70[2];
-    u8 sp6C[2];
-    u8 sp68[2];
-    u8 sp64[2];
-    char sp60[4];
-    s16 sp5E;
-    s16 var_s0;
-    s16 var_v1;
+Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal, u8 *timer) {
+    f32 rollOffset;
+    u8 currTensStr[2];
+    u8 currOnesStr[2];
+    u8 nextTensStr[2];
+    u8 nextOnesStr[2];
+    char hundredsStr[4];
+    s16 step;
+    s16 hundreds;
+    s16 val;
     s32 temp;
 
-    var_v1 = *arg3;
-    if (arg4 < var_v1) {
-        sp5E = -1;
+    val = *curVal;
+    if (targetVal < val) {
+        step = -1;
     } else {
-        sp5E = 1;
+        step = 1;
     }
 
-    if (arg4 != var_v1) {
-        if (*arg5 != 0) {
-            *arg5 -= 1;
-            if (*arg5 == 0) {
-                *arg3 += sp5E;
-                if (arg4 != *arg3) {
-                    *arg5 = 0xC;
+    if (targetVal != val) {
+        if (*timer != 0) {
+            *timer -= 1;
+            if (*timer == 0) {
+                *curVal += step;
+                if (targetVal != *curVal) {
+                    *timer = 0xC;
                 }
             }
         } else {
-            *arg5 = 0xC;
+            *timer = 0xC;
         }
     }
-    arg0 = func_805FD030(arg0);
-    gDPSetScissor(arg0++, G_SC_NON_INTERLACE, arg1, arg2, arg1 + 0x34, arg2 + 0x1B);
+    glist = func_805FD030(glist);
+    gDPSetScissor(glist++, G_SC_NON_INTERLACE, x, y, x + 0x34, y + 0x1B);
 
-    var_s0 = 0;
-    var_v1 = *arg3;
-    while (var_v1 >= 100) {
-        (var_v1 -= 100), var_s0++;
+    hundreds = 0;
+    val = *curVal;
+    while (val >= 100) {
+        (val -= 100), hundreds++;
     }
-    if (var_v1 == 99) {
-        var_s0++;
+    if (val == 99) {
+        hundreds++;
     }
 
-    sp70[0] = (var_v1 / 10) + '0';
-    sp70[1] = 0;
-    sp6C[0] = (var_v1 % 10) + '0';
-    sp6C[1] = 0;
-    sp68[0] = ((var_v1 + sp5E) / 10) + '0';
-    sp68[1] = 0;
-    sp64[0] = ((var_v1 + sp5E) % 10) + '0';
-    sp64[1] = 0;
+    currTensStr[0] = (val / 10) + '0';
+    currTensStr[1] = 0;
+    currOnesStr[0] = (val % 10) + '0';
+    currOnesStr[1] = 0;
+    nextTensStr[0] = ((val + step) / 10) + '0';
+    nextTensStr[1] = 0;
+    nextOnesStr[0] = ((val + step) % 10) + '0';
+    nextOnesStr[1] = 0;
 
-    sp74 = sinApprox((((f64)*arg5 / 12.0) * 1.57079637050628662) + 1.57079637050628662) * 96.0;
+    rollOffset = sinApprox((((f64)*timer / 12.0) * 1.57079637050628662) + 1.57079637050628662) * 96.0;
 
-    if (arg4 == *arg3) {
-        arg0 = textDrawStringVtx(arg0, 3, arg1 * 4, arg2 * 4, sp70, 1);
-        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, arg2 * 4, sp6C, 1);
-    } else if (sp70[0] != sp68[0]) {
-        arg0 = textDrawStringVtx(arg0, 3, arg1 * 4, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp68, 1);
-        arg0 = textDrawStringVtx(arg0, 3, arg1 * 4, (s16)((f32)(arg2 * 4 + 4) + sp74), sp70, 1);
-        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp64, 1);
-        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 + 4) + sp74), sp6C, 1);
+    if (targetVal == *curVal) {
+        glist = textDrawStringVtx(glist, 3, x * 4, y * 4, currTensStr, 1);
+        glist = textDrawStringVtx(glist, 3, (x * 4) + 0x50, y * 4, currOnesStr, 1);
+    } else if (currTensStr[0] != nextTensStr[0]) {
+        glist = textDrawStringVtx(glist, 3, x * 4, (s16)((f32)(y * 4 - 0x60) + rollOffset), nextTensStr, 1);
+        glist = textDrawStringVtx(glist, 3, x * 4, (s16)((f32)(y * 4 + 4) + rollOffset), currTensStr, 1);
+        glist = textDrawStringVtx(glist, 3, (x * 4) + 0x50, (s16)((f32)(y * 4 - 0x60) + rollOffset), nextOnesStr, 1);
+        glist = textDrawStringVtx(glist, 3, (x * 4) + 0x50, (s16)((f32)(y * 4 + 4) + rollOffset), currOnesStr, 1);
     } else {
-        arg0 = textDrawStringVtx(arg0, 3, arg1 * 4, arg2 * 4, sp70, 1);
-        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp64, 1);
-        arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) + 0x50, (s16)((f32)(arg2 * 4 + 4) + sp74), sp6C, 1);
+        glist = textDrawStringVtx(glist, 3, x * 4, y * 4, currTensStr, 1);
+        glist = textDrawStringVtx(glist, 3, (x * 4) + 0x50, (s16)((f32)(y * 4 - 0x60) + rollOffset), nextOnesStr, 1);
+        glist = textDrawStringVtx(glist, 3, (x * 4) + 0x50, (s16)((f32)(y * 4 + 4) + rollOffset), currOnesStr, 1);
     }
 
-    if ((*arg3 + sp5E) >= 100) {
-        temp = arg1 - 0x14;
+    if ((*curVal + step) >= 100) {
+        temp = x - 0x14;
         if (temp < 0) {
             temp = 0;
         }
-        gDPSetScissor(arg0++, G_SC_NON_INTERLACE, temp, arg2, arg1 + 0x34, arg2 + 0x1B);
-        _sprintf(sp60, "%d", var_s0);
-        if (*arg3 >= 100 && *arg3 != 0xC7) {
-            arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) - 0x50, arg2 * 4, sp60, 1);
-        } else if (*arg3 == 0x63 || *arg3 == 0xC7) {
-            arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) - 0x50, (s16)((f32)(arg2 * 4 - 0x60) + sp74), sp60, 1);
-            if (*arg3 == 0xC7) {
-                arg0 = textDrawStringVtx(arg0, 3, (arg1 * 4) - 0x50, (s16)((f32)(arg2 * 4 + 4) + sp74), "1", 1);
+        gDPSetScissor(glist++, G_SC_NON_INTERLACE, temp, y, x + 0x34, y + 0x1B);
+        _sprintf(hundredsStr, "%d", hundreds);
+        if (*curVal >= 100 && *curVal != 0xC7) {
+            glist = textDrawStringVtx(glist, 3, (x * 4) - 0x50, y * 4, hundredsStr, 1);
+        } else if (*curVal == 0x63 || *curVal == 0xC7) {
+            glist = textDrawStringVtx(glist, 3, (x * 4) - 0x50, (s16)((f32)(y * 4 - 0x60) + rollOffset), hundredsStr, 1);
+            if (*curVal == 0xC7) {
+                glist = textDrawStringVtx(glist, 3, (x * 4) - 0x50, (s16)((f32)(y * 4 + 4) + rollOffset), "1", 1);
             }
         }
     }
 
-    gDPPipeSync(arg0++);
-    gDPSetScissor(arg0++, G_SC_NON_INTERLACE, gPlayerSlots->rect[0], gPlayerSlots->rect[1], gPlayerSlots->rect[2], gPlayerSlots->rect[3]);
-    return arg0;
+    gDPPipeSync(glist++);
+    gDPSetScissor(glist++, G_SC_NON_INTERLACE, gPlayerSlots->rect[0], gPlayerSlots->rect[1], gPlayerSlots->rect[2], gPlayerSlots->rect[3]);
+    return glist;
 }
 
 
@@ -489,55 +489,55 @@ typedef struct ActorEffect {
 } ActorEffect;
 #define ANIM_TEX ((u16)(((gFrameCounter >> 1) % 12) + 0x83))
 
-Gfx *actorDrawAnimatedEffect(Gfx *arg0, ActorEffect *arg1) {
-    s16 unkEC = arg1->unkEC + 0x5A;
+Gfx *actorDrawAnimatedEffect(Gfx *glist, ActorEffect *effect) {
+    s16 unkEC = effect->unkEC + 0x5A;
 
-    WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
-    WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
-    WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
-    WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
+    WRITE_GFX(glist++, 0xDE000000, (u32)&D_1000118);
+    WRITE_GFX(glist++, 0xFCFFFFFF, 0xFFFCF279);
+    WRITE_GFX(glist++, 0xE200001C, 0x00504240);
+    WRITE_GFX(glist++, 0xDA380007, (u32)&D_20000C0);
 
     if (D_807FBB64 & 0x80000) {
-        s16 yaw = arg1->unkE6;
-        ActorEffect174 *unk174 = arg1->unk174;
+        s16 yaw = effect->unkE6;
+        ActorEffect174 *unk174 = effect->unk174;
         if (yaw < 0x200 || yaw >= 0xE01 || (yaw >= 0x601 && yaw < 0xA00)) {
             if (*unk174->unk34 != 0x10 && *unk174->unk34 != 0x13) {
-                arg0 = renderRotatedSprite(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0x78, 0x1E0, 4.0f, 4.0f, 0, 0.0f);
-                arg0 = renderRotatedSprite(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0x488, 0x1E0, 4.0f, 4.0f, 0xB4, 0.0f);
+                glist = renderRotatedSprite(glist, ANIM_TEX, 0, 2, 0x20, 0x10, 0x78, 0x1E0, 4.0f, 4.0f, 0, 0.0f);
+                glist = renderRotatedSprite(glist, ANIM_TEX, 0, 2, 0x20, 0x10, 0x488, 0x1E0, 4.0f, 4.0f, 0xB4, 0.0f);
             }
         } else {
-            arg0 = renderRotatedSprite(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0x280, 0x78, 4.0f, 4.0f, 0x5A, 0.0f);
-            arg0 = renderRotatedSprite(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0x280, 0x348, 4.0f, 4.0f, 0x10E, 0.0f);
+            glist = renderRotatedSprite(glist, ANIM_TEX, 0, 2, 0x20, 0x10, 0x280, 0x78, 4.0f, 4.0f, 0x5A, 0.0f);
+            glist = renderRotatedSprite(glist, ANIM_TEX, 0, 2, 0x20, 0x10, 0x280, 0x348, 4.0f, 4.0f, 0x10E, 0.0f);
         }
     } else {
-        arg0 = renderRotatedSprite(arg0, ANIM_TEX, 0, 2, 0x20, 0x10, 0xB4, 0xC8, 8.0f, 8.0f, unkEC, 0.0f);
+        glist = renderRotatedSprite(glist, ANIM_TEX, 0, 2, 0x20, 0x10, 0xB4, 0xC8, 8.0f, 8.0f, unkEC, 0.0f);
     }
 
-    return arg0;
+    return glist;
 }
 
 s32 textGetStringWidth(s32, char *);
 u32 textGetFontHeight(s32);
 
-Gfx *renderTimerMinutesSecondsHUD(Gfx *arg0, f32 arg1, f32 arg2, s32 arg3) {
-    f32 sp54;
-    f32 sp50;
-    f32 sp4C;
-    char sp3C[16];
-    s16 sp2E;
-    s32 sp30;
+Gfx *renderTimerMinutesSecondsHUD(Gfx *glist, f32 x, f32 y, s32 totalSeconds) {
+    f32 curX;
+    f32 baseY;
+    f32 colonHalfWidth;
+    char timeStr[16];
+    s16 vtxY;
+    s32 minutes;
 
-    sp50 = arg2 - ((f32)(u32)textGetFontHeight(0x86) * 0.5f);
-    _sprintf(sp3C, ":");
-    sp4C = (f32)textGetStringWidth(6, sp3C) * 0.5f;
-    sp30 = arg3 / 60;
-    sp54 = arg1 - sp4C;
-    sp2E = (s16)(s32)(sp50 * 4.0f);
-    arg0 = textDrawStringVtx(arg0, 6, (s16)(s32)(sp54 * 4.0f), sp2E, sp3C, 1);
-    sp30 = arg3 / 60;
-    _sprintf(sp3C, "%2d", sp30);
-    sp54 = sp54 - (f32)textGetStringWidth(0x86, sp3C);
-    arg0 = textDrawStringVtx(arg0, 0x86, (s16)(s32)(sp54 * 4.0f), sp2E, sp3C, 1);
-    _sprintf(sp3C, "%02d", arg3 - sp30 * 60);
-    return textDrawStringVtx(arg0, 0x86, (s16)(s32)((arg1 + sp4C) * 4.0f), sp2E, sp3C, 1);
+    baseY = y - ((f32)(u32)textGetFontHeight(0x86) * 0.5f);
+    _sprintf(timeStr, ":");
+    colonHalfWidth = (f32)textGetStringWidth(6, timeStr) * 0.5f;
+    minutes = totalSeconds / 60;
+    curX = x - colonHalfWidth;
+    vtxY = (s16)(s32)(baseY * 4.0f);
+    glist = textDrawStringVtx(glist, 6, (s16)(s32)(curX * 4.0f), vtxY, timeStr, 1);
+    minutes = totalSeconds / 60;
+    _sprintf(timeStr, "%2d", minutes);
+    curX = curX - (f32)textGetStringWidth(0x86, timeStr);
+    glist = textDrawStringVtx(glist, 0x86, (s16)(s32)(curX * 4.0f), vtxY, timeStr, 1);
+    _sprintf(timeStr, "%02d", totalSeconds - minutes * 60);
+    return textDrawStringVtx(glist, 0x86, (s16)(s32)((x + colonHalfWidth) * 4.0f), vtxY, timeStr, 1);
 }
