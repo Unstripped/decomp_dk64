@@ -122,12 +122,12 @@ s32 commandApplyToLight(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s1
     f32 intensity;
     f64 clamped;
     f64 dy_d;
-    u32 c;
+    u8 c;
     f32 base;
 
     lights = (Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x278);
     ambient = (Ambient *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x270);
-    slot_light = (Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + ((u32)arg0 * 0x10) + 0x278); // FAKE: u32 cast splits the arg0 conversion candidate (no phantom t2)
+    slot_light = &((Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x278))[arg0];
 
     if (D_8076A048 == 0) {} // FAKE: makes the base load a uopt candidate (v1)
     if (arg0 >= 7) {
@@ -156,44 +156,44 @@ s32 commandApplyToLight(u8 arg0, Command *arg1, f32 arg2, f32 arg3, f32 arg4, s1
     if (arg1->unkE == 5) {
         if ((f64)intensity > 0.1) {
             c = (u32)((f32)(u32)lights->l.col[0] + ((f32)(arg1->unkB - lights->l.col[0]) * intensity));
-            lights->l.colc[0] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
-            lights->l.col[0] = (u8)c;
+            lights->l.colc[0] = c;
+            lights->l.col[0] = c;
 
             c = (u32)((f32)(u32)lights->l.col[1] + ((f32)(arg1->unkC - lights->l.col[1]) * intensity));
-            lights->l.colc[1] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
-            lights->l.col[1] = (u8)c;
+            lights->l.colc[1] = c;
+            lights->l.col[1] = c;
 
             c = (u32)((f32)(u32)lights->l.col[2] + ((f32)(arg1->unkD - lights->l.col[2]) * intensity));
-            lights->l.colc[2] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
-            lights->l.col[2] = (u8)c;
+            lights->l.colc[2] = c;
+            lights->l.col[2] = c;
 
             c = (u32)((f64)(u32)ambient->l.col[0] + ((((f64)(u32)ambient->l.col[0] * 0.5) - (f64)(u32)ambient->l.col[0]) * (f64)intensity));
-            ambient->l.colc[0] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
-            ambient->l.col[0] = (u8)c;
+            ambient->l.colc[0] = c;
+            ambient->l.col[0] = c;
 
             c = (u32)((f64)(u32)ambient->l.col[1] + ((((f64)(u32)ambient->l.col[1] * 0.5) - (f64)(u32)ambient->l.col[1]) * (f64)intensity));
-            ambient->l.colc[1] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
-            ambient->l.col[1] = (u8)c;
+            ambient->l.colc[1] = c;
+            ambient->l.col[1] = c;
 
             c = (u32)((f64)(u32)ambient->l.col[2] + ((((f64)(u32)ambient->l.col[2] * 0.5) - (f64)(u32)ambient->l.col[2]) * (f64)intensity));
-            ambient->l.colc[2] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
-            ambient->l.col[2] = (u8)c;
+            ambient->l.colc[2] = c;
+            ambient->l.col[2] = c;
         }
         return 0;
     }
 
     if ((f64)intensity > 0.02) {
         c = (u32)((f32)(u32)arg1->unkB * intensity);
-        slot_light->l.colc[0] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
-        slot_light->l.col[0] = (u8)c;
+        slot_light->l.colc[0] = c;
+        slot_light->l.col[0] = c;
 
         c = (u32)((f32)(u32)arg1->unkC * intensity);
-        slot_light->l.colc[1] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
-        slot_light->l.col[1] = (u8)c;
+        slot_light->l.colc[1] = c;
+        slot_light->l.col[1] = c;
 
         c = (u32)((f32)(u32)arg1->unkD * intensity);
-        slot_light->l.colc[2] = (c & 0xFF); // FAKE: no-op mask touches one ring temp
-        slot_light->l.col[2] = (c & 0xFF) & 0xFF; // FAKE: second no-op mask keeps both stores on the t8 copy
+        slot_light->l.colc[2] = c;
+        slot_light->l.col[2] = c;
 
         slot_light->l.dir[0] = (s8)(s32)(((f32)arg1->unk4 - arg2) * (127.0f / dist));
         slot_light->l.dir[1] = (s8)(s32)(((f32)arg1->unk6 - arg3) * (127.0f / dist));
@@ -250,13 +250,18 @@ void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 commandApplyToLight(u8, Command *, f32, f32, f32, s16);
 
+typedef struct {
+    u8 pad0[0xD4];
+    s16 unkD4;
+} FakesLightHitState;
+
 Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
     u8 is_player;
     u8 *color_base;
     Light *secondary;
     Ambient *primary;
+    u8 command;
     LightActorView *actor;
-    s32 command;
     s16 camera_rotation;
     s16 angle;
     s16 sequence;
@@ -273,7 +278,6 @@ Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
     f32 y;
     f32 z;
     f32 color[3];
-    s32 cnt;
 
     actor = (LightActorView *)arg1;
     if (arg1 == D_807FBB4C) {
@@ -362,13 +366,13 @@ Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
 
     for (i = 0; i < D_807FDB74; i++) {
         if (((Command *)D_807FDB70)[i].unk0 == (s32)arg1 && commandApplyToLight(command, (Command *)(D_807FDB70 + (i << 4)), x, y, z, arg2) != 0) {
-            command = (command + 1) & 0xFF;
+            command++;
         }
     }
 
     if (!(D_807FBB60 & 2) && (actor->unk5C & 1)) {
-        actor = (LightActorView *)actor->unk174; // FAKE: reuses the dead actor local as the named pointer (v0 web)
-        if ((*(s16 *)((u8 *)actor + 0xD4) != 0) && (gFrameCounter & 2)) {
+        FakesLightHitState *hit = actor->unk174;
+        if (hit->unkD4 != 0 && (gFrameCounter & 2)) {
             secondary->l.col[0] = 0;
             secondary->l.col[1] = 0;
             secondary->l.col[2] = 0;
@@ -384,9 +388,7 @@ Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
         }
     }
 
-    cnt = command; // FAKE: separate loop-bound/count web (swaps s1/s2 priority)
-    command ^= 0; // FAKE: keeps cnt a distinct web live into the tail (v1)
-    for (i = 0; i < cnt; i++) {
+    for (i = 0; i < command; i++) {
         Gfx *dl = arg0++;
         dl->words.w0 = (0xDC080000 | ((((i * 0x18 + 0x30) / 8) & 0xFF) << 8)) | 0xA;
         dl->words.w1 = (u32)&((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].l[i];
@@ -395,10 +397,10 @@ Gfx *actorBuildLightDisplayList(Gfx *arg0, Actor *arg1, s16 arg2) {
         Gfx *gdl1 = arg0++;
         Gfx *gdl2;
         Gfx *gdl3;
-        gdl1->words.w0 = (0xDC080000 | ((((cnt * 0x18 + 0x30) / 8) & 0xFF) << 8)) | 0xA;
+        gdl1->words.w0 = (0xDC080000 | ((((command * 0x18 + 0x30) / 8) & 0xFF) << 8)) | 0xA;
         gdl2 = arg0++;
         gdl1->words.w1 = (u32)&((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].a;
-        gdl2->words.w1 = cnt * 0x18;
+        gdl2->words.w1 = command * 0x18;
         gdl2->words.w0 = 0xDB020000;
         gdl3 = arg0++;
         gdl3->words.w1 = 0;
