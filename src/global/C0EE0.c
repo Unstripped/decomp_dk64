@@ -5,18 +5,18 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 
 #ifdef NON_MATCHING
-typedef struct LgBObj {
+typedef struct BC1E0_Obj {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
-} LgBObj;
+} BC1E0_Obj;
 
-typedef struct LgBModel {
-    /* 0x00 */ LgBObj *unk0;
+typedef struct BC1E0_Model {
+    /* 0x00 */ BC1E0_Obj *unk0;
     /* 0x04 */ u8 pad4[0x34];
     /* 0x38 */ f32 unk38;
-} LgBModel;
+} BC1E0_Model;
 
-typedef struct LgBState {
+typedef struct BC1E0_State {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;
@@ -35,11 +35,11 @@ typedef struct LgBState {
     /* 0x37 */ s8 unk37;
     /* 0x38 */ u8 unk38;
     /* 0x39 */ u8 unk39;
-} LgBState;
+} BC1E0_State;
 
-typedef struct LgBActor {
+typedef struct BC1E0_Actor {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ LgBModel *unk4;
+    /* 0x004 */ BC1E0_Model *unk4;
     /* 0x008 */ u8 pad8[0x58];
     /* 0x060 */ u32 unk60;
     /* 0x064 */ u8 pad64[0x18];
@@ -53,10 +53,10 @@ typedef struct LgBActor {
     /* 0x12A */ u8 pad12A[0x34];
     /* 0x15E */ u8 unk15E;
     /* 0x15F */ u8 pad15F[0x19];
-    /* 0x178 */ LgBState *unk178;
-} LgBActor;
+    /* 0x178 */ BC1E0_State *unk178;
+} BC1E0_Actor;
 
-#define LGB ((LgBActor *)D_807FBB40)
+#define BC1E0_LGB ((BC1E0_Actor *)D_807FBB40)
 
 extern s8 D_80750650;
 extern s8 D_807FC8C0[16];
@@ -98,8 +98,8 @@ void func_806BC1E0(void) {
     f32 b;
     f32 sp70;
     s16 i;
-    LgBState *st;
-    LgBObj *obj;
+    BC1E0_State *st;
+    BC1E0_Obj *obj;
     s32 j;
     s16 adx;
     s16 dx;
@@ -112,25 +112,25 @@ void func_806BC1E0(void) {
     s16 zeros;
     f64 fx;
 
-    st = LGB->unk178;
-    obj = LGB->unk4->unk0;
+    st = BC1E0_LGB->unk178;
+    obj = BC1E0_LGB->unk4->unk0;
     behaviourFrameBegin();
-    if (!(LGB->unk60 & 0x10)) {
+    if (!(BC1E0_LGB->unk60 & 0x10)) {
         st->unk4 = 0.0f;
         func_806BD0CC();
-        LGB->unk128 = 0x80;
-        LGB->unk60 &= 0xFFFF7FFF;
-        st->unk24 = LGB->unk7C;
-        st->unk28 = LGB->unk80;
-        st->unk2C = LGB->unk84;
+        BC1E0_LGB->unk128 = 0x80;
+        BC1E0_LGB->unk60 &= 0xFFFF7FFF;
+        st->unk24 = BC1E0_LGB->unk7C;
+        st->unk28 = BC1E0_LGB->unk80;
+        st->unk2C = BC1E0_LGB->unk84;
         if (sp70 != 0) {}  // FAKE: dummy statement steers uopt
-        st->unk30 = LGB->unk4->unk38;
+        st->unk30 = BC1E0_LGB->unk4->unk38;
         currentActorClearFlag();
     }
     switch (st->unk38) {
     case 0:
         if (flagGet(0x10F, 0) == 0) {
-            if ((LGB->unk7C - D_807FBB4C->unk7C) * (LGB->unk7C - D_807FBB4C->unk7C) + (LGB->unk84 - D_807FBB4C->unk84) * (LGB->unk84 - D_807FBB4C->unk84) < 14400.0) {
+            if ((BC1E0_LGB->unk7C - D_807FBB4C->unk7C) * (BC1E0_LGB->unk7C - D_807FBB4C->unk7C) + (BC1E0_LGB->unk84 - D_807FBB4C->unk84) * (BC1E0_LGB->unk84 - D_807FBB4C->unk84) < 14400.0) {
                 camStartPath(D_807FBB40, 0, 1);
                 st->unk39 = 0;
                 st->unk38 = 1;
@@ -171,9 +171,9 @@ void func_806BC1E0(void) {
                 st->unk38 = 3;
                 st->unk4 = 0.025f;
                 st->unk0 = 0.0f;
-                st->unk8 = LGB->unk7C;
-                st->unkC = LGB->unk80;
-                st->unk10 = LGB->unk84;
+                st->unk8 = BC1E0_LGB->unk7C;
+                st->unkC = BC1E0_LGB->unk80;
+                st->unk10 = BC1E0_LGB->unk84;
                 st->unk14 = 294.0f;
                 st->unk18 = 0.0f;
                 st->unk1C = 359.0f;
@@ -184,12 +184,12 @@ void func_806BC1E0(void) {
                 hudSpawnCountdownTimer(0xDC, 0x2A, 0x3C);
                 flagSet(0x30, 1, 2);
                 sfxAllocateChannel(0x78, 1.0f);
-                actorSetStateTwo(LGB->unk11C);
+                actorSetStateTwo(BC1E0_LGB->unk11C);
             }
             break;
         case 2:
             if (camIsCutsceneActive() == 0) {
-                if ((LGB->unk7C - D_807FBB4C->unk7C) * (LGB->unk7C - D_807FBB4C->unk7C) + (LGB->unk84 - D_807FBB4C->unk84) * (LGB->unk84 - D_807FBB4C->unk84) > 25600.0) {
+                if ((BC1E0_LGB->unk7C - D_807FBB4C->unk7C) * (BC1E0_LGB->unk7C - D_807FBB4C->unk7C) + (BC1E0_LGB->unk84 - D_807FBB4C->unk84) * (BC1E0_LGB->unk84 - D_807FBB4C->unk84) > 25600.0) {
                     st->unk39 = 0;
                     st->unk38 = 0;
                 }
@@ -203,7 +203,7 @@ void func_806BC1E0(void) {
             if (st->unk38 == 3) {
                 st->unk38 = 4;
             }
-            if (LGB->unk11C != NULL && LGB->unk11C->unk154 == 5) {
+            if (BC1E0_LGB->unk11C != NULL && BC1E0_LGB->unk11C->unk154 == 5) {
                 ones = 0;
                 zeros = 0;
                 j = 0;
@@ -226,9 +226,9 @@ void func_806BC1E0(void) {
                 }
                 st->unk4 = 0.0125f;
                 st->unk0 = 0.0f;
-                st->unk8 = LGB->unk7C;
+                st->unk8 = BC1E0_LGB->unk7C;
                 st->unkC = 0.0f;
-                st->unk10 = LGB->unk84;
+                st->unk10 = BC1E0_LGB->unk84;
                 st->unk14 = st->unk24;
                 st->unk18 = st->unk28;
                 st->unk1C = st->unk2C;
@@ -280,7 +280,7 @@ void func_806BC1E0(void) {
                     }
                     if (dy < -1) {
                         dy = -1;
-                        if (n == 0) {}  // FAKE: dummy statement steers uopt
+                        if (v & 3) {}  // FAKE: dummy statement steers uopt
                     }
                     if (dy >= 2) {
                         dy = 1;
@@ -306,7 +306,7 @@ void func_806BC1E0(void) {
             sfxStopChannel(0x78, 1);
             sfxAllocateChannel(0x56, 1.0f);
             actorScriptStart(D_807FBB40, 0x31C);
-            actorDespawn(LGB->unk11C);
+            actorDespawn(BC1E0_LGB->unk11C);
             camStartPath(D_807FBB40, 2, 1);
             st->unk38 = 8;
         }
@@ -326,7 +326,7 @@ void func_806BC1E0(void) {
         break;
     case 7:
         if (st->unk34 == 0 && st->unk4 == 0.0f) {
-            actorDespawn(LGB->unk11C);
+            actorDespawn(BC1E0_LGB->unk11C);
             actorScriptStart(D_807FBB40, 0x31C);
             camStartPath(D_807FBB40, 3, 1);
             st->unk38 = 9;
@@ -347,8 +347,8 @@ void func_806BC1E0(void) {
         if (adx && adx) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         break;
     }
-    LGB->unk60 |= 0x400;
-    LGB->unk15E = 0x14;
+    BC1E0_LGB->unk60 |= 0x400;
+    BC1E0_LGB->unk15E = 0x14;
     st->unk34--;
     if (st->unk34 < 0) {
         st->unk34 = 0;
@@ -369,9 +369,9 @@ void func_806BC1E0(void) {
         if ((f64)st->unk0 >= 1.0) {
             st->unk0 = 0.0; // FAKE: double zero literal (constant register)
             st->unk4 = 0.0; // FAKE: double zero literal (constant register)
-            LGB->unk7C = st->unk14;
-            LGB->unk80 = st->unk18;
-            LGB->unk84 = st->unk1C;
+            BC1E0_LGB->unk7C = st->unk14;
+            BC1E0_LGB->unk80 = st->unk18;
+            BC1E0_LGB->unk84 = st->unk1C;
         } else {
             t = st->unk0;
             if (D_80750650 == 0) {
@@ -382,17 +382,17 @@ void func_806BC1E0(void) {
                     t = 1.0f;
                 }
             }
-            LGB->unk7C = st->unk8 + t * (st->unk14 - st->unk8);
-            LGB->unk84 = st->unk10 + t * (st->unk1C - st->unk10);
+            BC1E0_LGB->unk7C = st->unk8 + t * (st->unk14 - st->unk8);
+            BC1E0_LGB->unk84 = st->unk10 + t * (st->unk1C - st->unk10);
             if (D_80750650 == 0) {
                 old = st->unkC;
-                LGB->unk80 = st->unkC + t * (st->unk18 - st->unkC);
+                BC1E0_LGB->unk80 = st->unkC + t * (st->unk18 - st->unkC);
             } else {
                 t = st->unk20;
                 old = st->unkC;
                 a = st->unk0;
                 b = (f32)((f64)(st->unk18 - st->unkC) - (f64)t * 0.5);
-                LGB->unk80 = (f64)old + ((f64)(b * a) + (f64)(a * a * t) * 0.5);
+                BC1E0_LGB->unk80 = (f64)old + ((f64)(b * a) + (f64)(a * a * t) * 0.5);
             }
         }
         if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {
@@ -402,7 +402,7 @@ void func_806BC1E0(void) {
             controllerApplyMotionWindow(D_807FBB40, obj, st->unk0 * 40.0f);
         }
     }
-    LGB->unk4->unk38 = LGB->unk4->unk38 + (sp70 - LGB->unk4->unk38) * 0.25f;
+    BC1E0_LGB->unk4->unk38 = BC1E0_LGB->unk4->unk38 + (sp70 - BC1E0_LGB->unk4->unk38) * 0.25f;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 #else
