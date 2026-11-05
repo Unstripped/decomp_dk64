@@ -271,7 +271,8 @@ s32 chunk;
             idx = 0;
             found = 0;
             size -= 8;
-            if ((((MapDlCommand *)list)->unk0 >> 24) == 0) {
+            key = ((MapDlCommand *)list)->unk0;
+            if (((u32)key >> 24) == 0) {
                 n = *count;
                 key = ((MapDlCommand *)list)->unk4;
                 if (buf == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -297,16 +298,18 @@ s32 chunk;
                 if (found == 0) {
                     ((MapChunkCellRefs *)buf)[n].unk0 = key;
                     if (size && size) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                    *(s32 *)((u8 *)buf + (((*count << 3) + *count) << 2) + 4) = -1;
-                    *(s32 *)((u8 *)buf + (((*count << 3) + *count) << 2) + 8) = -1;
-                    *(s32 *)((u8 *)buf + (((*count << 3) + *count) << 2) + 12) = -1;
-                    *(s32 *)((u8 *)buf + (((*count << 3) + *count) << 2) + 16) = -1;
+                    ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 1 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
+                    if (D_807F70B0 != 0) {} // FAKE: keeps the global-address range ahead of constant webs
+                    ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 2 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
+                    if (D_807F70B0 == 0) {} // FAKE: keeps the global-address range ahead of constant webs
+                    ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 3 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
+                    ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 4 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
                     ((MapChunkCellRefs *)buf)[*count].unk4[kind] = list + 8;
-                    ((MapChunkCellRefs *)buf)[*count].unk14[kind] = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + gMapChunks[chunk].unk58;
+                    ((MapChunkCellRefs *)buf)[*count].unk14[kind] = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + (gMapChunks + chunk)->unk58;
                     *count += 1;
                 } else {
                     ((MapChunkCellRefs *)buf)[idx].unk4[kind] = list + 8;
-                    ((MapChunkCellRefs *)buf)[idx].unk14[kind] = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + gMapChunks[chunk].unk58;
+                    ((MapChunkCellRefs *)buf)[idx].unk14[kind] = gMapChunks[chunk].unk58 + (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4);
                 }
             }
             list += 8;
