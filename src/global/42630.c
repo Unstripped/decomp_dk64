@@ -100,14 +100,14 @@ typedef struct CsLoadSlot {
     /* 0x8C */ u8 pad8C[4];
 } CsLoadSlot; /* 0x90 */
 
-s16 csModelSlotGetTableIndex(s16 arg0) {
-    return ((CsLoadSlot *)D_807F6000)[hashTableLookup(arg0)].unk8A;
+s16 csModelSlotGetTableIndex(s16 modelId) {
+    return ((CsLoadSlot *)D_807F6000)[hashTableLookup(modelId)].unk8A;
 }
 
-s16 csModelIdTableAlloc(s16 arg0, u8 arg1) {
+s16 csModelIdTableAlloc(s16 modelId, u8 isLowTable) {
     s32 i;
 
-    if (arg1 == 0) {
+    if (isLowTable == 0) {
         i = 0x226;
     } else {
         i = 0;
@@ -115,22 +115,22 @@ s16 csModelIdTableAlloc(s16 arg0, u8 arg1) {
     while (gCsModelIds[i] != -1) {
         i++;
     }
-    gCsModelIds[i] = arg0;
+    gCsModelIds[i] = modelId;
     return i;
 }
 
 void csModelStateSetByte(s16, s16, s16);
 
-void csModelStateSetFirstByte(s16 arg0, s16 arg1) {
-    csModelStateSetByte(arg0, arg1, 0);
+void csModelStateSetFirstByte(s16 modelIndex, s16 val) {
+    csModelStateSetByte(modelIndex, val, 0);
 }
 
-void csModelStateSetByte(s16 arg0, s16 arg1, s16 arg2) {
+void csModelStateSetByte(s16 modelIndex, s16 val, s16 byteOffset) {
     s16 slot;
 
-    slot = hashTableLookup(gCsModelIds[arg0]);
+    slot = hashTableLookup(gCsModelIds[modelIndex]);
     if (slot != -1) {
-        ((CsLoadSlot *)D_807F6000)[slot].unk7C->unk0[arg2 + 0x48] = arg1;
+        ((CsLoadSlot *)D_807F6000)[slot].unk7C->unk0[byteOffset + 0x48] = val;
         ((CsLoadSlot *)D_807F6000)[slot].unk7C->unk0[0x54] = 1;
     }
 }
@@ -147,7 +147,7 @@ void csTimerQueueClear(void) {
     }
 }
 
-void csTimerQueueAdd(s16 arg0, s16 arg1, s16 arg2) {
+void csTimerQueueAdd(s16 timerId, s16 modelIndex, s16 val) {
     s16 i = 0;
     s32 found = 0;
 
@@ -160,17 +160,17 @@ void csTimerQueueAdd(s16 arg0, s16 arg1, s16 arg2) {
     }
     if (found) {
         gCsTimerQueue[i].unk6 = 1;
-        gCsTimerQueue[i].unk0 = arg0;
-        gCsTimerQueue[i].unk2 = arg1;
-        gCsTimerQueue[i].unk4 = arg2;
+        gCsTimerQueue[i].unk0 = timerId;
+        gCsTimerQueue[i].unk2 = modelIndex;
+        gCsTimerQueue[i].unk4 = val;
     }
 }
 
-void csTimerQueueFire(s16 arg0) {
+void csTimerQueueFire(s16 timerId) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        if (gCsTimerQueue[i].unk6 != 0 && arg0 == gCsTimerQueue[i].unk0) {
+        if (gCsTimerQueue[i].unk6 != 0 && timerId == gCsTimerQueue[i].unk0) {
             csModelStateSetFirstByte(gCsTimerQueue[i].unk2, gCsTimerQueue[i].unk4);
             gCsTimerQueue[i].unk6 = 0;
         }
@@ -192,7 +192,7 @@ typedef struct CsLoadSpawn {
     /* 0x8 */ u8 unk8;
 } CsLoadSpawn;
 
-void csScriptLoad(s16 *arg0) {
+void csScriptLoad(s16 *scriptData) {
     s16 n;
     s16 *p;
     s32 slot;
@@ -205,8 +205,8 @@ void csScriptLoad(s16 *arg0) {
     CsLoadNode **tail;
     CsLoadNode *node;
 
-    n = *arg0;
-    p = arg0 + 1;
+    n = *scriptData;
+    p = scriptData + 1;
     if (n != 0) {
         do {
             id = *p;
@@ -267,20 +267,20 @@ void csScriptLoad(s16 *arg0) {
 
 void heapFree(void *);
 
-void csStateFree(CsLoadState *arg0) {
+void csStateFree(CsLoadState *loadState) {
     CsLoadNode *node;
     CsLoadNode *next;
 
-    if (*(void **)arg0 != NULL) {
-        heapFree(*(void **)arg0);
+    if (*(void **)loadState != NULL) {
+        heapFree(*(void **)loadState);
     }
-    node = arg0->unkA0;
+    node = loadState->unkA0;
     while (node != NULL) {
         next = node->unk4C;
         heapFree(node);
         node = next;
     }
-    heapFree(arg0);
+    heapFree(loadState);
 }
 
 // Cutscene condition/command list node (one script step).
@@ -419,13 +419,13 @@ typedef struct CsStateSlot {
 struct CsModelSlot;
 extern u8 gCsVarsDirty[];
 
-void csModelStateSetVars(s32 arg0, u8 *arg1) {
+void csModelStateSetVars(s32 modelIndex, u8 *varsData) {
     s16 slot;
 
-    slot = hashTableLookup(gCsModelIds[arg0]);
+    slot = hashTableLookup(gCsModelIds[modelIndex]);
     if (slot != -1) {
-        memcpy(((CsStateSlot *)D_807F6000)[slot].unk7C + 0x14, arg1, 0x20);
-        gCsVarsDirty[arg0] = 1;
+        memcpy(((CsStateSlot *)D_807F6000)[slot].unk7C + 0x14, varsData, 0x20);
+        gCsVarsDirty[modelIndex] = 1;
     }
 }
 
@@ -2092,11 +2092,11 @@ typedef struct CsCamView {
     /* 0x245 */ u8 unk245;
 } CsCamView;
 
-void func_80641724(s16 arg0) {
+void func_80641724(s16 modelId) {
     CsCamView *cam;
 
     cam = gPlayerSlots->unk4->unk174;
-    switch (arg0) {
+    switch (modelId) {
         case 0x33:
         case 0xBC:
         case 0x125:
@@ -2114,17 +2114,17 @@ void func_80641724(s16 arg0) {
 
 void func_8067AB20(void *, void *, s32, s32, s16 *, s32);
 
-void csSendMsgByActorType(s16 arg0, s16 arg1) {
+void csSendMsgByActorType(s16 actorType, s16 msgParam) {
     s32 i;
     Actor *actor;
-    s16 sp44[2];
+    s16 msgPayload[2];
 
-    sp44[0] = 0;
-    sp44[1] = arg1;
+    msgPayload[0] = 0;
+    msgPayload[1] = msgParam;
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if ((u32)actor->unk58 == arg0) {
-            func_8067AB20(0, actor, 0x01000000, 1, sp44, 0);
+        if ((u32)actor->unk58 == actorType) {
+            func_8067AB20(0, actor, 0x01000000, 1, msgPayload, 0);
         }
     }
 }
@@ -2132,16 +2132,16 @@ void csSendMsgByActorType(s16 arg0, s16 arg1) {
 void heapFreeDeferred(void *);
 void actorFindActiveByType(s32, void *);
 
-void func_80641874(s16 arg0, s16 arg1) {
-    s16 *sp24;
-    void *sp20;
+void func_80641874(s16 paramA, s16 paramB) {
+    s16 *msgPayload;
+    void *targetActor;
 
-    sp24 = heapAlloc(4);
-    heapFreeDeferred(sp24);
-    sp24[1] = arg0;
-    sp24[0] = arg1;
-    actorFindActiveByType(0xE, &sp20);
-    func_8067AB20(0, sp20, 0x01000000, 1, sp24, 0);
+    msgPayload = heapAlloc(4);
+    heapFreeDeferred(msgPayload);
+    msgPayload[1] = paramA;
+    msgPayload[0] = paramB;
+    actorFindActiveByType(0xE, &targetActor);
+    func_8067AB20(0, targetActor, 0x01000000, 1, msgPayload, 0);
 }
 
 s32 csModelStateTrySetByte(s16 a, s16 b, s16 c) {
@@ -2378,7 +2378,7 @@ typedef struct CsPlayerPosView {
 
 s32 csPosWithinRadius(s16, f32, f32, f32);
 
-s32 csPlayerNearPos(s16 arg0) {
+s32 csPlayerNearPos(s16 targetPosIndex) {
     u8 i;
     CsPlayerPosView *p;
 
@@ -2386,7 +2386,7 @@ s32 csPlayerNearPos(s16 arg0) {
         p = (CsPlayerPosView *)gPlayerSlots + i;
         if (p->unk0 != 0) {
             Actor *a = p->unk4;
-            if (csPosWithinRadius(arg0, a->unk7C, a->unk80, a->unk84)) {
+            if (csPosWithinRadius(targetPosIndex, a->unk7C, a->unk80, a->unk84)) {
                 return 1;
             }
         }
@@ -2394,13 +2394,13 @@ s32 csPlayerNearPos(s16 arg0) {
     return 0;
 }
 
-s32 csPlayerSavedPosNearPos(s16 arg0) {
+s32 csPlayerSavedPosNearPos(s16 targetPosIndex) {
     u8 i;
     CsPlayerPosView *p;
 
     for (i = 0; i < D_80750AB4; i++) {
         p = (CsPlayerPosView *)gPlayerSlots + i;
-        if (p->unk0 != 0 && csPosWithinRadius(arg0, p->unk210, p->unk214, p->unk218)) {
+        if (p->unk0 != 0 && csPosWithinRadius(targetPosIndex, p->unk210, p->unk214, p->unk218)) {
             return 1;
         }
     }
@@ -2408,15 +2408,15 @@ s32 csPlayerSavedPosNearPos(s16 arg0) {
 }
 
 
-s32 csSpawnNodeNearPos(s16 arg0, s16 arg1, s16 arg2) {
+s32 csSpawnNodeNearPos(s16 targetPosIndex, s16 minNodeIndex, s16 maxNodeIndex) {
     s16 i;
     Actor *a;
 
-    for (i = arg1; i <= arg2; i++) {
+    for (i = minNodeIndex; i <= maxNodeIndex; i++) {
         if (spawnNodeHasActor(i)) {
             a = spawnNodeActivate(i, 0);
             if (a != NULL) {
-                if (csPosWithinRadius(arg0, a->unk7C, a->unk80, a->unk84)) {
+                if (csPosWithinRadius(targetPosIndex, a->unk7C, a->unk80, a->unk84)) {
                     return 1;
                 }
             }
@@ -2427,11 +2427,11 @@ s32 csSpawnNodeNearPos(s16 arg0, s16 arg1, s16 arg2) {
 
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 
-void csSnapToGround(s16 arg0, s16 arg1) {
+void csSnapToGround(s16 mode, s16 csId) {
     s32 pad;
     f32 y;
 
-    switch (arg0) {
+    switch (mode) {
     case 0:
         y = gCsPosY;
         if (collisionCheckGroundAtPoint(gCsPosX, gCsPosZ, &y)) {
@@ -2443,7 +2443,7 @@ void csSnapToGround(s16 arg0, s16 arg1) {
     }
 }
 
-s32 csCompareVar(f32 *arg0, s16 arg1, s16 arg2) {
+s32 csCompareVar(f32 *varsArray, s16 packedParam, s16 compareValue) {
     u8 idx;
     u8 mode;
     s32 ret;
@@ -2451,23 +2451,23 @@ s32 csCompareVar(f32 *arg0, s16 arg1, s16 arg2) {
     f32 th;
 
     ret = 0;
-    mode = arg1 & 0xFF;
-    idx = (arg1 >> 8) & 0xFF;
-    v = arg0[idx];
+    mode = packedParam & 0xFF;
+    idx = (packedParam >> 8) & 0xFF;
+    v = varsArray[idx];
     switch (mode) {
     case 0:
-        th = arg2 / 10.0f;
+        th = compareValue / 10.0f;
         if (((th < v) ? (v - th) : (th - v)) < 0.05) {
             ret = 1;
         }
         break;
     case 1:
-        if (arg2 / 10.0f < v) {
+        if (compareValue / 10.0f < v) {
             ret = 1;
         }
         break;
     case 2:
-        if (v < arg2 / 10.0f) {
+        if (v < compareValue / 10.0f) {
             ret = 1;
         }
         break;
@@ -2476,14 +2476,14 @@ s32 csCompareVar(f32 *arg0, s16 arg1, s16 arg2) {
 }
 
 
-s32 func_806425FC(s16 arg0, s16 arg1) {
+s32 func_806425FC(s16 packedParam, s16 compareValue) {
     f32 v;
     f32 th;
     s32 ret;
     u8 mode;
 
     ret = 0;
-    switch ((u8)((arg0 >> 8) % 255)) {
+    switch ((u8)((packedParam >> 8) % 255)) {
     case 0:
         if (D_807F6208 && D_807F6208) {
         }
@@ -2496,21 +2496,21 @@ s32 func_806425FC(s16 arg0, s16 arg1) {
         v = D_807F6210;
         break;
     }
-    mode = arg0 & 0xFF;
+    mode = packedParam & 0xFF;
     switch (mode) {
     case 0:
-        th = arg1 / 10.0f;
+        th = compareValue / 10.0f;
         if (((th < v) ? (v - th) : (th - v)) != 0.1) {
             ret = 1;
         }
         break;
     case 1:
-        if (arg1 / 10.0f < v) {
+        if (compareValue / 10.0f < v) {
             ret = 1;
         }
         break;
     case 2:
-        if (v < arg1 / 10.0f) {
+        if (v < compareValue / 10.0f) {
             ret = 1;
         }
         break;
@@ -2519,34 +2519,34 @@ s32 func_806425FC(s16 arg0, s16 arg1) {
 }
 
 
-void csSetRot(s16 arg0, s16 arg1, void *cs, s16 arg3, u8 arg4) {
+void csSetRot(s16 modeAndAxis, s16 rotValue, void *cs, s16 csId, u8 isRelative) {
     f32 v;
     u8 lo;
     u8 hi;
 
-    lo = arg0 & 0xFF;
-    hi = (arg0 >> 8) & 0xFF;
-    v = arg1 / 10.0f;
+    lo = modeAndAxis & 0xFF;
+    hi = (modeAndAxis >> 8) & 0xFF;
+    v = rotValue / 10.0f;
     if (lo == 1) {
-        v = ((CsState *)cs)->unk14[arg1];
+        v = ((CsState *)cs)->unk14[rotValue];
     }
     switch (hi) {
     case 0:
-        if (arg4 == 1) {
+        if (isRelative == 1) {
             gCsRotX += v;
         } else {
             gCsRotX = v;
         }
         break;
     case 1:
-        if (arg4 == 1) {
+        if (isRelative == 1) {
             gCsRotY += v;
         } else {
             gCsRotY = v;
         }
         break;
     case 2:
-        if (arg4 == 1) {
+        if (isRelative == 1) {
             gCsRotZ += v;
         } else {
             gCsRotZ = v;
@@ -2555,34 +2555,34 @@ void csSetRot(s16 arg0, s16 arg1, void *cs, s16 arg3, u8 arg4) {
     }
 }
 
-void csSetPos(s16 arg0, s16 arg1, void *cs, s16 arg3, u8 arg4) {
+void csSetPos(s16 modeAndAxis, s16 posValue, void *cs, s16 csId, u8 isRelative) {
     f32 v;
     u8 lo;
     u8 hi;
 
-    lo = arg0 & 0xFF;
-    hi = (arg0 >> 8) & 0xFF;
-    v = arg1 / 10.0f;
+    lo = modeAndAxis & 0xFF;
+    hi = (modeAndAxis >> 8) & 0xFF;
+    v = posValue / 10.0f;
     if (lo == 1) {
-        v = ((CsState *)cs)->unk14[arg1];
+        v = ((CsState *)cs)->unk14[posValue];
     }
     switch (hi) {
     case 0:
-        if (arg4 == 1) {
+        if (isRelative == 1) {
             gCsPosX += v;
         } else {
             gCsPosX = v;
         }
         break;
     case 1:
-        if (arg4 == 1) {
+        if (isRelative == 1) {
             gCsPosY += v;
         } else {
             gCsPosY = v;
         }
         break;
     case 2:
-        if (arg4 == 1) {
+        if (isRelative == 1) {
             gCsPosZ += v;
         } else {
             gCsPosZ = v;
