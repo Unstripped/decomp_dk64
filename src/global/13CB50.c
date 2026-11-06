@@ -29,26 +29,26 @@ void alCSPPlay(ALCSPlayer *seqp) {
     alEvtqPostEvent(&seqp->evtq, &evt, 0);
 }
 
-void func_80737E90(CspApiCSPlayer *seqp, s32 arg1) {
-    seqp->unk84 = arg1;
+void func_80737E90(CspApiCSPlayer *seqp, s32 val) {
+    seqp->unk84 = val;
 }
 
-void setCSPInstrumentFlags(ALCSPlayer *seqp, s32 arg1, s32 arg2) {
+void setCSPInstrumentFlags(ALCSPlayer *seqp, s32 instIndex, s32 flags) {
     ALInstrument *inst;
 
-    arg1 &= 0xFF;
-    arg2 &= 0xFF;
-    if (arg1 < seqp->bank->instCount) {
-        inst = seqp->bank->instArray[arg1];
+    instIndex &= 0xFF;
+    flags &= 0xFF;
+    if (instIndex < seqp->bank->instCount) {
+        inst = seqp->bank->instArray[instIndex];
         if (inst != NULL) {
-            inst->flags = (arg2 * 2) | (inst->flags & 1);
+            inst->flags = (flags * 2) | (inst->flags & 1);
         }
     }
 }
 
-void setCSPChannelStateValue(CspApiCSPlayer *seqp, s32 arg1, s32 arg2) {
-    arg2 &= 0xFF;
-    seqp->chanState[arg1].unk10 = arg2;
+void setCSPChannelStateValue(CspApiCSPlayer *seqp, s32 chan, s32 value) {
+    value &= 0xFF;
+    seqp->chanState[chan].unk10 = value;
 }
 
 void resetCSPChannelStates(CspApiCSPlayer *seqp) {
