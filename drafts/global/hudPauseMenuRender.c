@@ -1,4 +1,4 @@
-// hudPauseMenuRender (src/global/ACDC0.c): stage 4: full-TU full 339 text 323 reloc 12 shape 102; 890/890 insns, frame 0x1A0, saved-register set exact. Reusing consumed Actor* parameter as the case-1 integer offset removes off1's named stack home; ONLY changes versus previous draft are swc1/lwc1 f6/f18 164(sp) to target 168(sp). Tagged parameter-reuse FAKE; 15 FAKEs total. Plain fdiff: FAILED: Section .text content mismatch (built: 20896 bytes, expected: 20896 bytes); FAILED: Relocations mismatch. Tried sequential nested-call expansion (no effect); unscaled s32 cache t0/sp138 (386); premultiply y/xy (408/412); integer-typed ghost variants (no improvement); consumed it/tab/list offset and unscaled variants (349+); u32/s16/u16 offset types (no improvement); every single FAKE removal from actor-reuse (no improvement preserving count); first-loop s32 y accumulation, x premultiply, and explicit sprite y narrowing (no improvement). Prior Matcher9 scalar/roles/prune results reviewed, not repeated. Existing earlier diagnosis retained: loop-1 x premultiplication matches mul.s order/mfc1 nop locally but worsens total; uopt -l5 j/s2 priorities and as1 swaps 946+509 do not supply a C match.
+// hudPauseMenuRender (src/global/ACDC0.c): Menu4-hud: stage4 retained full339 text323 reloc12 shape102, 993 normalized rows/890 instructions, frame0x1A0, float(ph) home168(sp). Actor offset reuse removes off1; equal to prior best, improves HEAD341 only. j43 priority71.476 s3 is blocked from s2 by earlier angv331 priority77.5, NOT the later s2-variable120 priority8.571. Lowering angle64 or raising j79 fixes that pair but regresses404/385; j guard76.238 still below77.5. Clock-address ghost substitutions drop instruction count and rejected. Parked fdiff OK, active .text mismatch.
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -183,7 +183,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
         case 1:
             for (i = 0; i < 2; i++) {
                 s32 angv;
-                actor = (Actor *)(hud->unkC[i] * 4); // FAKE: reuse consumed parameter as integer offset to remove off1's stack home
+                actor = (Actor *)(hud->unkC[i] * 4); // FAKE: reuse the consumed parameter to remove off1's stack home.
                 angv = -hud->unk10;
                 fa = 1.0f - hud->unk0;
                 if ((s32)actor < 0x3B6 && (s32)actor >= -0x3B5) {
