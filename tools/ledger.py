@@ -13,6 +13,7 @@ ingests the agent's report, including attempts that improved nothing.
     python3 tools/ledger.py route --seg SEG [--agent NAME] [--task FILE|-] [--force] [--tier finish|strong] [--dry-run] [FUNC ...]
     python3 tools/ledger.py backfill-models SESSIONS_DIR
     python3 tools/ledger.py seed-git            # one-off approximate history (idempotent)
+    python3 tools/ledger.py plan [--seg SEG] [--arms a,b] [--objective rate|value] [--seed N] [--force] [--write PREFIX]
 
 record: functions come from the `- \\`FUNC\\`` lines of a task file (`-` = stdin, e.g.
   `cat local://tasks/A.md | ... --task -`) plus explicit FUNC arguments. Every function must
@@ -40,6 +41,22 @@ route: the model tier for one agent's functions, written to .scratch/routes/<age
 
 backfill-models: fills `model` on past attempt events from the omp subagent transcripts
   (`<agent>.jsonl` started at most 36 h before the attempt) under SESSIONS_DIR.
+
+plan: sizes the outstanding work and picks a model per function by Thompson sampling. Arms
+  are the models in ARMS (selector, relative cost, per-agent capacity). Each attempt with a
+  known model is a Bernoulli trial (matched or not) in a cell (arm, tries before it 0/1-2/
+  3-5/6+, size s<=150/m<=400/l insns); a cell's Beta posterior is shrunk towards the arm's
+  overall rate scaled by the bucket's difficulty, and one function's own failures with an arm
+  lower that arm for it. One draw per function picks the arm with the best sampled p/cost
+  (`--objective value`: p*value - cost; all negative = hold); the printed shares come from
+  extra draws. A function is held without new evidence since its last attempt: changed
+  draft/quirk hits/next step (route fingerprint), or a related knowledge/ido entry (naming it,
+  or among the top quirk hits for its draft note) committed after that attempt. Functions
+  with 6+ tries or over 400 insns go to an agent alone; the rest are packed per arm by diff
+  class (from the draft note) and file under the arm's capacity. `--write PREFIX` writes
+  one pool route per arm (.scratch/routes/PREFIX_<arm>.json, `pool: true`: the router keeps
+  it for every worker of workpool `PREFIX_<arm>` until it expires) and one task file per
+  item under .scratch/plan/PREFIX/; record an item with `--agent PREFIX_<arm> --task <file>`.
 
 rank: every function still GLOBAL_ASM (or parked) in C files, tiered:
   1 never attempted (no exact or approximate event), smallest first;
@@ -482,6 +499,306 @@ def cmd_route(a):
     print(f"route {a.agent}: {tier} {model} -> .scratch/routes/{a.agent}.json")
 
 
+# ---------------------------------------------------------------- plan (Thompson sampling)
+
+# Arms of the model bandit. `cost`: relative cost of one agent attempt (tune: only ratios
+# matter); `capacity`/`max_funcs`: how many instructions/functions one agent of this model
+# gets in one item; `prior`: assumed match rate while the arm has no recorded attempts.
+ARMS = {
+    "flash": dict(model="google-antigravity/gemini-3.8-flash:high", cost=1.0, capacity=1200, max_funcs=6, prior=0.25),
+    "sonnet": dict(model="anthropic/claude-sonnet-5-5:high", cost=4.0, capacity=900, max_funcs=4, prior=0.35),
+    "astra": dict(model="openai-codex/gpt-6-astra:xhigh", cost=10.0, capacity=10**6, max_funcs=1, prior=0.35),
+    "fable": dict(model="anthropic/claude-fable-5-1:xhigh", cost=10.0, capacity=10**6, max_funcs=1, prior=0.35),
+}
+ARM_STRENGTH = 4   # pseudo-attempts of the hierarchical prior behind each (arm, bucket) cell
+FUNC_STRENGTH = 20  # pseudo-attempts of the cell rate behind one function's own failures
+SINGLE_TRIES = 6   # functions tried this often (or larger than SINGLE_INSNS) go to an agent alone
+SINGLE_INSNS = 400
+CLASSES = {"schedule": ("switch", "jr", "as1", "hoist", "delay", "schedul", "xbb", "label"),
+           "stack": ("spill", "frame", "stack", "home", "temploc", "slot", "sp+"),
+           "regalloc": ("regalloc", "uopt", "register", "colour", "color", "candidate", "priority", "forbidden")}
+
+
+def arm_of(model):
+    """Arm name of a recorded model selector (provider/name:level), or None."""
+    if not model:
+        return None
+    base = model.split(":")[0]
+    return next((k for k, c in ARMS.items() if c["model"].split(":")[0] == base), None)
+
+
+def tries_bucket(n):
+    return "0" if n == 0 else "1-2" if n <= 2 else "3-5" if n < SINGLE_TRIES else f"{SINGLE_TRIES}+"
+
+
+def size_bucket(n):
+    return "?" if not n else "s" if n <= 150 else "m" if n <= SINGLE_INSNS else "l"
+
+
+def elf_func_sizes(path):
+    """vram -> instruction count of every sized FUNC symbol of a big-endian ELF32 file."""
+    import struct
+    data = open(path, "rb").read()
+    shoff, = struct.unpack_from(">I", data, 0x20)
+    shentsize, shnum = struct.unpack_from(">HH", data, 0x2E)
+    secs = [struct.unpack_from(">IIIIIIIIII", data, shoff + i * shentsize) for i in range(shnum)]
+    out = {}
+    for s in secs:
+        if s[1] != 2:  # SHT_SYMTAB
+            continue
+        off, size, entsize = s[4], s[5], s[9] or 16
+        for i in range(size // entsize):
+            _, value, sz, info, _, _ = struct.unpack_from(">IIIBBH", data, off + i * entsize)
+            if info & 0xF == 2 and sz:
+                out[value] = sz // 4
+    return out
+
+
+def all_sizes(live):
+    """(seg, vram) -> instructions for live functions (their .s) and every sized symbol of the build ELFs."""
+    sizes = {}
+    for path in glob.glob(os.path.join(ROOT, "build", "*.elf")):
+        stem = os.path.basename(path)[:-4]
+        seg = "boot" if stem == "dk64.us" else stem
+        try:
+            for v, n in elf_func_sizes(path).items():
+                sizes[(seg, v)] = n
+        except Exception:
+            continue
+    for k, info in live.items():
+        if info["insns"]:
+            sizes[k] = info["insns"]
+    return sizes
+
+
+def knowledge_times():
+    """knowledge/ido path -> UTC time of its newest commit; uncommitted changes count as now."""
+    out, cur = {}, None
+    for line in git("log", "--format=__%cI", "--name-only", "--", "knowledge/ido").split("\n"):
+        if line.startswith("__"):
+            cur = utc(line[2:])
+        elif line.strip() and line not in out:
+            out[line.strip()] = cur
+    for line in git("status", "--porcelain", "--", "knowledge/ido").split("\n"):
+        if line.strip():
+            out[line[3:].strip()] = now()
+    return out
+
+
+def related_knowledge(corpus, name, note, k=8):
+    """Repo-relative paths of the quirk entries/guides about NAME: those naming it, plus the
+    top-K entries for its draft note (symptom- and structure-relevant knowledge)."""
+    paths = set()
+    _, hits, _ = quirks.func_hits(corpus, [name], Path(ROOT), limit=10**6)
+    if note:
+        hits = list(hits) + quirks.search(corpus, note, kind="entry", limit=k)
+    for h in hits:
+        obj = h.entry if h.kind == "entry" else h.guide
+        p = getattr(obj, "path", None)
+        if p:
+            paths.add(os.path.relpath(str(p), ROOT))
+    return paths
+
+
+def diff_class(note):
+    low = note.lower()
+    counts = {c: sum(low.count(w) for w in ws) for c, ws in CLASSES.items()}
+    best = max(counts, key=counts.get)
+    return best if counts[best] else "other"
+
+
+def bandit_cells(by, sizes):
+    """(arm, tries bucket, size bucket) -> [successes, failures] from exact attempts with a known
+    model; also per-arm and per-bucket totals for the hierarchical prior."""
+    cells, arm_tot, bucket_tot = {}, {}, {}
+    for key, evs in by.items():
+        n = 0
+        for e in evs:
+            if e.get("approx") or e["outcome"] in ("skipped", "blocked"):
+                continue
+            arm = arm_of(e.get("model"))
+            if arm:
+                b = (tries_bucket(n), size_bucket(sizes.get(key)))
+                hit = e["outcome"] == "matched"
+                for d, k in ((cells, (arm,) + b), (arm_tot, arm), (bucket_tot, b)):
+                    d.setdefault(k, [0, 0])[0 if hit else 1] += 1
+            n += 1
+    return cells, arm_tot, bucket_tot
+
+
+def cell_prior(arm, b, arm_tot, bucket_tot):
+    """Prior mean of one (arm, bucket) cell: the arm's overall rate scaled by how hard the bucket
+    is relative to all attempts (configured `prior` while the arm has no data)."""
+    s, f = arm_tot.get(arm, (0, 0))
+    arm_rate = (s + 1) / (s + f + 2) if s + f else ARMS[arm]["prior"]
+    gs = sum(v[0] for v in bucket_tot.values())
+    gn = sum(v[0] + v[1] for v in bucket_tot.values())
+    bs, bf = bucket_tot.get(b, (0, 0))
+    scale = ((bs + 1) / (bs + bf + 2)) / ((gs + 1) / (gn + 2)) if gn else 1.0
+    return min(max(arm_rate * scale, 0.01), 0.95)
+
+
+def sample_theta(rng, arm, b, fails, cells, arm_tot, bucket_tot):
+    """One Thompson draw of this function's match rate under ARM: the cell rate from its Beta
+    posterior, then the function's own failures with that arm on top."""
+    mu0 = cell_prior(arm, b, arm_tot, bucket_tot)
+    s, f = cells.get((arm,) + b, (0, 0))
+    mu = rng.betavariate(ARM_STRENGTH * mu0 + s, ARM_STRENGTH * (1 - mu0) + f)
+    mu = min(max(mu, 1e-4), 1 - 1e-4)
+    return rng.betavariate(FUNC_STRENGTH * mu, FUNC_STRENGTH * (1 - mu) + fails)
+
+
+def cmd_plan(a):
+    if a.write and not AGENT.fullmatch(a.write):
+        sys.exit("plan: --write prefix must be letters, digits or underscores")
+    arms = [x for x in (a.arms.split(",") if a.arms else ARMS) if x in ARMS]
+    if not arms:
+        sys.exit(f"plan: --arms must name some of {', '.join(ARMS)}")
+    rng = random.Random(a.seed)
+    live = unmatched()
+    units, by = history(load())
+    sizes = all_sizes(live)
+    cells, arm_tot, bucket_tot = bandit_cells(by, sizes)
+    corpus = quirks.load()
+    ktimes = knowledge_times()
+    rows, held = [], []
+    for key, info in sorted(live.items()):
+        if a.seg and key[0] != a.seg:
+            continue
+        seg, v = key
+        if info["src"].endswith(".s"):
+            continue
+        evs = by.get(key, [])
+        ex = [e for e in evs if not e.get("approx") and e["outcome"] != "skipped"]
+        last = ex[-1] if ex else None
+        name = info["name"]
+        fp = fingerprint(seg, name, "", corpus)
+        evidence = []
+        if last is None:
+            evidence.append("never attempted")
+        else:
+            if last["outcome"] == "blocked" and not a.force:
+                held.append((info, f"blocked {last['ts'][:10]}: split/data work first"))
+                continue
+            if last.get("fp") and last["fp"] != fp:
+                evidence.append("draft/quirk/next changed")
+            new = sorted(p for p in related_knowledge(corpus, name, info["note"])
+                         if ktimes.get(p) and ktimes[p] > last["ts"])
+            if new:
+                evidence.append("new knowledge: " + ", ".join(os.path.basename(p)[:-3] for p in new[:4])
+                                + (f" +{len(new) - 4}" if len(new) > 4 else ""))
+            if not evidence and not a.force:
+                held.append((info, f"no new evidence since {last['ts'][:10]} ({len(ex)} tries)"))
+                continue
+        fails = Counter(arm_of(e.get("model")) for e in ex if e["outcome"] != "matched")
+        b = (tries_bucket(len(ex)), size_bucket(info["insns"]))
+        value = lambda arm, th: th / ARMS[arm]["cost"] if a.objective == "rate" else th * a.value - ARMS[arm]["cost"]
+        wins = Counter()
+        for _ in range(a.draws):
+            th = {arm: sample_theta(rng, arm, b, fails.get(arm, 0), cells, arm_tot, bucket_tot) for arm in arms}
+            wins[max(arms, key=lambda arm: value(arm, th[arm]))] += 1
+        th = {arm: sample_theta(rng, arm, b, fails.get(arm, 0), cells, arm_tot, bucket_tot) for arm in arms}
+        arm = max(arms, key=lambda x: value(x, th[x]))  # the Thompson decision: one draw
+        if a.objective == "value" and value(arm, th[arm]) < 0 and not a.force:
+            held.append((info, f"expected value negative for every arm (best {arm} p~{th[arm]:.2f})"))
+            continue
+        mean = {}
+        for x in arms:
+            mu0 = cell_prior(x, b, arm_tot, bucket_tot)
+            s, f = cells.get((x,) + b, (0, 0))
+            mu = (ARM_STRENGTH * mu0 + s) / (ARM_STRENGTH + s + f)
+            mean[x] = FUNC_STRENGTH * mu / (FUNC_STRENGTH + fails.get(x, 0))
+        rows.append(dict(seg=seg, vram=f"0x{v:08X}", name=name, src=info["src"], insns=info["insns"],
+                         tries=len(ex), stage=info["stage"], cls=diff_class(info["note"]), bucket=b,
+                         arm=arm, p=mean[arm], share=wins[arm] / a.draws, wins=dict(wins),
+                         evidence="; ".join(evidence), fp=fp))
+    # pack: hard or large functions alone; the rest by diff class, then file, under the arm's capacity
+    items = []
+    for arm in arms:
+        cap, mx = ARMS[arm]["capacity"], ARMS[arm]["max_funcs"]
+        mine = sorted((r for r in rows if r["arm"] == arm), key=lambda r: (r["cls"], r["src"], r["insns"]))
+        group = []
+        for r in mine:
+            if mx == 1 or r["tries"] >= SINGLE_TRIES or r["insns"] > SINGLE_INSNS:
+                items.append((arm, [r]))
+                continue
+            if group and (len(group) >= mx or sum(g["insns"] for g in group) + r["insns"] > cap
+                          or group[-1]["cls"] != r["cls"]):
+                items.append((arm, group))
+                group = []
+            group.append(r)
+        if group:
+            items.append((arm, group))
+    total = len(rows) + len(held)
+    print(f"outstanding {total}: dispatch {len(rows)} in {len(items)} items, hold {len(held)}"
+          f"  (objective {a.objective}, {a.draws} draws/function, seed {a.seed})")
+    print("arm stats (matched/attempts by tries bucket): "
+          + "; ".join(f"{x} " + " ".join(f"{tb}:{sum(v[0] for k, v in cells.items() if k[0] == x and k[1] == tb)}/"
+                                        f"{sum(v[0] + v[1] for k, v in cells.items() if k[0] == x and k[1] == tb)}"
+                                        for tb in ("0", "1-2", "3-5", f"{SINGLE_TRIES}+")) for x in arms))
+    for arm in arms:
+        mine = [it for it in items if it[0] == arm]
+        if not mine:
+            continue
+        fs = [r for _, g in mine for r in g]
+        exp = sum(r["p"] for r in fs)
+        print(f"\npool {(a.write + '_' + arm) if a.write else arm}: {ARMS[arm]['model']}  {len(mine)} items, "
+              f"{len(fs)} functions, {sum(r['insns'] for r in fs)} insns, E[matches] {exp:.1f}, "
+              f"cost {len(mine) * ARMS[arm]['cost']:.0f}")
+        for i, (_, g) in enumerate(mine, 1):
+            print(f"  item {i}: {sum(r['insns'] for r in g)} insns, {g[0]['cls']}")
+            for r in g:
+                alt = " ".join(f"{k}:{n / a.draws:.0%}" for k, n in sorted(r["wins"].items(), key=lambda kv: -kv[1]))
+                print(f"    {r['seg']:8} {r['name']:36} {r['insns']:>5} insns  {r['tries']:>2} tries  "
+                      f"stage {r['stage'] or '-'}  p~{r['p']:.2f}  [{alt}]  ({r['evidence']})")
+    if held:
+        print("\nheld:")
+        for info, why in held:
+            print(f"  {info['name']:40} {info['insns']:>5} insns  {why}")
+    if not a.write:
+        return
+    base = git("rev-parse", "HEAD").strip()
+    tdir = os.path.join(ROOT, ".scratch", "plan", a.write)
+    os.makedirs(tdir, exist_ok=True)
+    os.makedirs(ROUTES, exist_ok=True)
+    plan = dict(created=now(), base=base, pools={})
+    for arm in arms:
+        mine = [g for x, g in items if x == arm]
+        if not mine:
+            continue
+        pool = f"{a.write}_{arm}"
+        fs = [r for g in mine for r in g]
+        route = dict(agent=pool, created=now(), tier=arm, model=ARMS[arm]["model"], forced=a.force, pool=True,
+                     note=f"{arm}: plan {a.write}, {len(mine)} items, {len(fs)} functions"[:200],
+                     functions=[dict(seg=r["seg"], vram=r["vram"], name=r["name"], tier=arm,
+                                     reason=r["evidence"], fp=r["fp"]) for r in fs])
+        with open(os.path.join(ROUTES, pool + ".json"), "w") as f:
+            json.dump(route, f, indent=1)
+            f.write("\n")
+        tasks = []
+        for i, g in enumerate(mine, 1):
+            item = f"{pool}_{i}"
+            lines = [f"# Task {item}", f"Pool: {pool} ({ARMS[arm]['model']})", f"Base commit: {base}", "Private copies:"]
+            for src in sorted({r["src"] for r in g}):
+                lines.append(f"  mkdir -p .scratch/{item} && git show {base}:{src} > .scratch/{item}/{os.path.basename(src)}")
+            lines.append("Functions:")
+            for r in g:
+                lines.append(f"- `{r['name']}` ({r['insns']} insns, {r['tries']} tries, stage {r['stage'] or '-'}, "
+                             f"{r['cls']}; segment `{r['seg']}`; file {r['src']}; draft: `python3 tools/drafts.py show "
+                             f"{r['seg']} {r['name']}`; evidence: {r['evidence']})")
+            path = os.path.join(tdir, item + ".md")
+            with open(path, "w") as f:
+                f.write("\n".join(lines) + "\n")
+            tasks.append(os.path.relpath(path, ROOT))
+        plan["pools"][pool] = dict(arm=arm, model=ARMS[arm]["model"], tasks=tasks)
+        print(f"route {pool}: {ARMS[arm]['model']} -> .scratch/routes/{pool}.json; {len(tasks)} task files in "
+              f"{os.path.relpath(tdir, ROOT)}/")
+    with open(os.path.join(tdir, "plan.json"), "w") as f:
+        json.dump(plan, f, indent=1)
+        f.write("\n")
+
+
+
 def _when(t):
     """Transcript timestamp (ISO string or epoch ms) as an aware UTC datetime."""
     if isinstance(t, (int, float)):
@@ -640,6 +957,17 @@ def main():
     o.add_argument("--dry-run", action="store_true")
     o.add_argument("funcs", nargs="*")
     o.set_defaults(fn=cmd_route)
+    n = sub.add_parser("plan")
+    n.add_argument("--seg")
+    n.add_argument("--arms", help=f"comma list of arms to consider (default all: {','.join(ARMS)})")
+    n.add_argument("--objective", choices=("rate", "value"), default="rate",
+                   help="rate: sampled p / cost (matches per cost unit); value: p * --value - cost")
+    n.add_argument("--value", type=float, default=20.0, help="worth of one match in cost units (--objective value)")
+    n.add_argument("--draws", type=int, default=200, help="extra draws per function for the printed arm shares")
+    n.add_argument("--seed", type=int)
+    n.add_argument("--force", action="store_true", help="dispatch held functions too")
+    n.add_argument("--write", metavar="PREFIX", help="write pool routes PREFIX_<arm> and task files")
+    n.set_defaults(fn=cmd_plan)
     b = sub.add_parser("backfill-models")
     b.add_argument("sessions")
     b.set_defaults(fn=cmd_backfill_models)

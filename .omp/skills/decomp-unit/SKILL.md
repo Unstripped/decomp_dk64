@@ -67,14 +67,16 @@ Split at every TU boundary BEFORE round 1, seed the stubs' shared externs, keep 
    from the previous session's `local/findings.md` (dispatch.md step 3).
 3. Partition (dispatch.md) and verify each file with
    `python3 tools/unit_check.py coverage src/<seg>/<file>.c <Agent>=<funcs>...`.
-4. Dispatch up to 6 agents, each in PRIVATE COPY mode from a named base commit. Route each
-   task first: `cat local://tasks/<A>.md | python3 tools/ledger.py route --agent <A> --seg <seg> --task -`,
-   then spawn it with `name`/`label` `<A>` (`.omp/extensions/decomp-router.ts` applies the model).
-   Exit 2 = no new evidence since the last attempt: drop the function, or give it a new draft or
-   a `next:` step (`--force` only for a deliberate retry). Pair same-tier functions with
-   `tools/dk python3 tools/similar.py -s <seg> --pairs <FUNC>...` (`route --dry-run` shows tiers).
-   Re-route after each record; re-prompts keep their model, so respawn when the tier changes.
-   Efficiency runs with normal agents: skip `route`.
+4. Plan, then dispatch up to 6 agents, each in PRIVATE COPY mode from a named base commit.
+   `python3 tools/ledger.py plan` sizes the work and picks a model per function by Thompson
+   sampling over past attempts (arms, costs and capacities in `ARMS`); it holds functions
+   with no new evidence, sends 6+-try or 400+-insn functions alone, packs the rest per model.
+   `plan --write <P>` writes one routed pool per model (`<P>_<arm>`, underscores only) and one
+   task file per item in `.scratch/plan/<P>/`; run `workpool("task", name="<P>_<arm>")` and
+   push one item per idle worker (never more items than free workers: queued items reach a
+   busy worker as one batch and get minutes each). Check `drafts/spawns.jsonl` shows the
+   pool's model before waiting. `route --dry-run` writes nothing. A single routed agent:
+   `ledger.py route --agent <A> ...`, then spawn it named `<A>`.
 5. As each agent reports: check the report against its list and the stage of anything
    parked, and its section-3 knowledge IDs (an attempted function with none: put the
    lookups into its next task); append it to `.scratch/all-reports.md`. A zero-yield copy is merged only for parks (merge.md).
@@ -88,7 +90,8 @@ Split at every TU boundary BEFORE round 1, seed the stubs' shared externs, keep 
    --symptom` on its reported diff, citing the IDs on its task line as `next: <step>` (the route fingerprint reads it). Then record every function of the task, matched or not (zero
    yield too, also when the copy is not merged):
    `cat local://tasks/<A>.md | python3 tools/ledger.py record --unit "<YYYY-MM-DD: unit>" --agent <A> --seg <seg> --task -`
-   (outcome and stage come from the tree after the merge; add `FUNC=skipped` for functions
+   (pool items: `--agent <P>_<arm> --task .scratch/plan/<P>/<item>.md`, so the model comes from the
+   pool's spawn; outcome and stage come from the tree after the merge; add `FUNC=skipped` for functions
    the report says it never reached). Your own probes: `--agent orchestrator FUNC`; a
    split/data blocker: `--unit - FUNC=blocked --note "..."`. Commit `drafts/spawns.jsonl` with `drafts/attempts.jsonl`.
 6. Stop rule (dispatch.md): a round matching fewer than ~1 function per agent, or only

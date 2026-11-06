@@ -2,7 +2,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent";
 
-// Applies `.scratch/routes/<agent>.json` written by `tools/ledger.py route`; logs to drafts/spawns.jsonl.
+// Applies `.scratch/routes/<agent>.json` written by `tools/ledger.py route` (consumed by its one
+// spawn) or `ledger.py plan --write` (`pool: true`: kept for every `<pool>-N` worker until it
+// expires); logs to drafts/spawns.jsonl.
 const MAX_AGE_MS = 6 * 3600 * 1000;
 
 function stamp(): string {
@@ -47,7 +49,7 @@ export default function decompRouter(pi: ExtensionAPI) {
 				functions: route.functions,
 			};
 			fs.appendFileSync(log, `${JSON.stringify(entry)}\n`);
-			fs.unlinkSync(file);
+			if (!route.pool) fs.unlinkSync(file);
 			return { model: route.model, note: `dk64 router: ${route.note}` };
 		} catch (err) {
 			return { block: true, reason: `decomp-router: ${file ?? log}: ${err instanceof Error ? err.message : String(err)}` };
