@@ -319,16 +319,25 @@ void jetpacBonusItemUpdate(JetpacItem *arg0) {
     if (inner->unkC == 0) {
         return;
     }
-    if (inner->unk144 == 2) {} // FAKE: empty block boundary + const-2 web in the compare block (as1 delay slot / li hoist)
-    if (arg0->unk34 < inner->unk144) {
-        arg0->unk34 = arg0->unk34 + 1;
-        return;
+    {
+        s32 t = arg0->unk34;
+        if (t < inner->unk144) {
+            if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
+            arg0->unk34 = t + 1;
+            return;
+        }
     }
-    if (inner->unk4 && inner->unk4) {} // FAKE: steers uopt candidate priority
+    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
+    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
+    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
+    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
+    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
+    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
+    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
+    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
     if (arg0->unk1C == 1) {
         arg0->unk1C = 2;
     }
-    if (inner->unk4) {} // FAKE: steers uopt candidate priority
     new_var = &jetpacPlayer;
     new_var2 = &D_8002F054;
     if (arg0->unk38 == 0) {
@@ -416,7 +425,6 @@ void jetpacBonusItemUpdate(JetpacItem *arg0) {
     case 3:
     case 4:
         arg0->unk34++;
-        if (arg0->unk34 && arg0->unk34) {} // FAKE: raises the unk34 candidate priority (base address -> v1)
         v34 = arg0->unk34 - inner->unk144;
         if (v34 >= 0x18) {
             v34 -= 0x18;
