@@ -73,52 +73,52 @@ void func_806F1C04(Actor *, void *, s32 *);
 
 void func_806BF920(void) {
     u16 *state;
-    s32 sp20;
-    s32 sp1C;
+    s32 outCount;
+    s32 bufferSize;
 
     state = R1V->unk17C;
-    sp20 = 0;
+    outCount = 0;
     if (!(R1V->unk60 & 0x10)) {
-        sp1C = 0;
+        bufferSize = 0;
         switch (*state) {
             case 1:
             case 2:
             case 3:
-                sp1C = 3;
+                bufferSize = 3;
                 break;
             case 9:
             case 10:
             case 11:
-                sp1C = 5;
+                bufferSize = 5;
                 break;
             case 4:
             case 5:
-                sp1C = 2;
+                bufferSize = 2;
                 break;
         }
-        if (sp1C != 0) {
+        if (bufferSize != 0) {
             R1V->unk4->unk1C = heapAlloc(0x100);
-            func_806C8220(0, R1V->unk178, sp1C);
+            func_806C8220(0, R1V->unk178, bufferSize);
         }
     }
     switch (*state) {
         case 1:
         case 2:
         case 3:
-            func_806F22A8(D_807FBB40, R1V->unk4->unk1C, &sp20);
+            func_806F22A8(D_807FBB40, R1V->unk4->unk1C, &outCount);
             break;
         case 9:
         case 10:
         case 11:
-            func_806F1EB0(D_807FBB40, R1V->unk4->unk1C, &sp20);
+            func_806F1EB0(D_807FBB40, R1V->unk4->unk1C, &outCount);
             break;
         case 4:
         case 5:
-            func_806F1C04(D_807FBB40, R1V->unk4->unk1C, &sp20);
+            func_806F1C04(D_807FBB40, R1V->unk4->unk1C, &outCount);
             break;
     }
-    if (sp20 != 0) {
-        R1V->unk4->unk1C[sp20 * 8] = 0;
+    if (outCount != 0) {
+        R1V->unk4->unk1C[outCount * 8] = 0;
     }
 }
 
@@ -129,8 +129,8 @@ void func_806F10E8();
 void func_80613214();
 void controllerAnimSetState(Actor *, s16, f32, f32);
 
-void func_806BFA8C(u16 arg0) {
-    switch (arg0) {
+void func_806BFA8C(u16 animId) {
+    switch (animId) {
         case 0xEA:
         case 0x23E:
         case 0x23F:
@@ -361,10 +361,10 @@ void actorScriptedCommandUpdate(void) {
     f32 ratio2;
     u8 *col;
     s32 node;
-    f32 sp74;
-    f32 sp70;
-    f32 sp6C;
-    f32 sp68;
+    f32 particleScale;
+    f32 posX;
+    f32 posY;
+    f32 posZ;
 
     state = LgBV->unk17C;
     if (!(LgBV->unk60 & 0x10)) {
@@ -585,13 +585,13 @@ void actorScriptedCommandUpdate(void) {
     if (state->unk30 != 0xFF) {
         for (j = 0; j < state->unk31 && state->unk30 != 0xFF; j++) {
             if (j == 0xFE) {} // FAKE: extra 254 reference gives the 254 const a higher colouring priority (s4); dropping it costs 75 lines
-            sp74 = (((randomNonNegative() >> 15) % 32767) % 51 + 0x4B) * 0.01;
+            particleScale = (((randomNonNegative() >> 15) % 32767) % 51 + 0x4B) * 0.01;
             if (state->unk30 == 0xFE) {
-                actorGetNodePos(D_807FBB40, 4, &sp70, &sp6C, &sp68);
+                actorGetNodePos(D_807FBB40, 4, &posX, &posY, &posZ);
             } else if (pathPlaybackIsActive(state->unk30) != 0) {
                 pathPlaybackAdvance(state->unk30);
-                pathPlaybackGetPosition(state->unk30, &sp70, &sp6C, &sp68);
-                sp6C += 10.0f;
+                pathPlaybackGetPosition(state->unk30, &posX, &posY, &posZ);
+                posY += 10.0f;
             } else {
                 state->unk30 = 0xFF;
             }
@@ -603,7 +603,7 @@ void actorScriptedCommandUpdate(void) {
                 func_807149C8(col[0], col[1], col[2], 0xFF);
                 func_8071498C(func_80717D4C);
                 func_80714950(-10 - (randomNonNegative() >> 15) % 30);
-                func_80714CC0(D_80746B80[state->unk33], (f32)state->unk22 * 0.01 * sp74, sp70, sp6C, sp68);
+                func_80714CC0(D_80746B80[state->unk33], (f32)state->unk22 * 0.01 * particleScale, posX, posY, posZ);
             }
         }
     }
@@ -699,8 +699,8 @@ void func_80613C48(Actor *, s16, f32, f32);
 void actorCopyPoseAndScale(void *, void *, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 
-void func_806C10A0(u8 arg0, u16 arg1, s16 arg2) {
-    f32 sp34;
+void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
+    f32 nodeY;
 
     if (!(R1V->unk60 & 0x10)) {
         func_806F0C18(D_807FBB40);
@@ -724,8 +724,8 @@ void func_806C10A0(u8 arg0, u16 arg1, s16 arg2) {
         case 0x12:
             switch (R1V->unk155) {
                 case 0:
-                    func_8070D8C0(D_807FBB40, arg1, arg0);
-                    actorScriptStart(D_807FBB40, arg2);
+                    func_8070D8C0(D_807FBB40, actionId, paramA);
+                    actorScriptStart(D_807FBB40, scriptId);
                     R1V->unk155++;
                     break;
                 case 2:
@@ -733,7 +733,7 @@ void func_806C10A0(u8 arg0, u16 arg1, s16 arg2) {
                         func_80613C48(D_807FBB40, 0xE4, 0.0f, 2.0f);
                         actorSpawn(0xE1, 0x98);
                         actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 0.21f);
-                        actorGetNodePos(D_807FBB40, 1, &D_807FBB44->unk7C, &sp34, &D_807FBB44->unk84);
+                        actorGetNodePos(D_807FBB40, 1, &D_807FBB44->unk7C, &nodeY, &D_807FBB44->unk84);
                         actorScriptStart(D_807FBB44, 0x298);
                         ((R1C46aActor *)D_807FBB44)->unk11C = R1V;
                         R1V->unk155++;
@@ -769,7 +769,7 @@ void func_806C1300(void) {
 void func_8067ACB4(Actor *);
 s32 playerSelectMoveTier(Actor *, f32, f32, u8, s16);
 
-void func_806C13AC(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
+void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 animMax) {
     s16 val;
     s32 ret;
 
@@ -778,22 +778,22 @@ void func_806C13AC(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
         func_8067ACB4(D_807FBB40);
         R1V->unkCC = 1;
     }
-    val = ret = playerSelectMoveTier(D_807FBB40, R1V->unkB8, R1S90->unk26, R1S90->unk34, arg0);
+    val = ret = playerSelectMoveTier(D_807FBB40, R1V->unkB8, R1S90->unk26, R1S90->unk34, threshold);
     if (ret != R1S90->unk34) {
         switch (ret) {
             case 0:
             case 1:
             case 2:
-                func_80613C48(D_807FBB40, arg1, 0.0f, 6.0f);
+                func_80613C48(D_807FBB40, animLow, 0.0f, 6.0f);
                 break;
             case 3:
-                func_80613C48(D_807FBB40, arg2, 0.0f, 6.0f);
+                func_80613C48(D_807FBB40, animMid, 0.0f, 6.0f);
                 break;
             case 4:
-                func_80613C48(D_807FBB40, arg3, 0.0f, 6.0f);
+                func_80613C48(D_807FBB40, animHigh, 0.0f, 6.0f);
                 break;
             case 5:
-                func_80613C48(D_807FBB40, arg4, 0.0f, 6.0f);
+                func_80613C48(D_807FBB40, animMax, 0.0f, 6.0f);
                 break;
         }
         R1S90->unk34 = val;
@@ -803,7 +803,7 @@ void func_806C13AC(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
 s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
 
-void func_806C151C(u16 arg0, u8 arg1, s16 arg2) {
+void func_806C151C(u16 actionId, u8 actionParam, s16 flagId) {
     f32 dx;
     f32 dy;
     f32 dz;
@@ -817,9 +817,9 @@ void func_806C151C(u16 arg0, u8 arg1, s16 arg2) {
         near = 1;
     }
     if ((u8)near) {
-        if (!flagGet(arg2, 2)) {
-            func_8070D8C0(D_807FBB40, arg0, arg1);
-            flagSet(arg2, 1, 2);
+        if (!flagGet(flagId, 2)) {
+            func_8070D8C0(D_807FBB40, actionId, actionParam);
+            flagSet(flagId, 1, 2);
         }
     }
 }
@@ -871,8 +871,8 @@ void func_806C1734(void) {
     R1C46aSub4 *sub;
     s32 rnd;
     R1C46aInner *inner;
-    s16 sp2A;
-    u8 sp29;
+    s16 animFrame;
+    u8 nodeIndex;
 
     behaviourFrameBegin();
     if (!(R1V->unk60 & 0x10)) {
@@ -880,7 +880,7 @@ void func_806C1734(void) {
     }
     func_806BF920();
     if (R1V->unk60 & 0x10000000) {
-        sp2A = R1V->unk4->unk0->unk4;
+        animFrame = R1V->unk4->unk0->unk4;
         actorScriptedCommandUpdate();
         sub = R1V->unk4;
         if (*sub->unk8 == 0) {
@@ -900,20 +900,20 @@ void func_806C1734(void) {
                     }
                     break;
                 case 0xEA:
-                    if (R1V->unk155 != 0 && sp2A >= 10) {
+                    if (R1V->unk155 != 0 && animFrame >= 10) {
                         R1V->unk155 = 0;
                         projectileGetTargetCoords(D_807FBB40, 7);
                         projectileSpawnNodeEntry(0x29, 0xCA, 0.4f, R1V->unkE6, 250.0f, 0.0f, D_807FBB40);
                     }
                     break;
                 case 0x112:
-                    if (sp2A >= 0x44 && sp2A < 0x64 && (gFrameCounter % 3) == 0) {
+                    if (animFrame >= 0x44 && animFrame < 0x64 && (gFrameCounter % 3) == 0) {
                         rnd = randomNonNegative() >> 15;
-                        sp29 = (rnd % 0x7FFF) % 2;
+                        nodeIndex = (rnd % 0x7FFF) % 2;
                         func_807149B8(1);
                         func_80714950(0x50);
                         func_8071498C(func_8071A8B0);
-                        func_80714C08(&D_807200D4, 0.5f, D_807FBB40, sp29 + 9, 2);
+                        func_80714C08(&D_807200D4, 0.5f, D_807FBB40, nodeIndex + 9, 2);
                     }
                     break;
             }
@@ -1301,9 +1301,9 @@ typedef struct R1C46bSub4 {
 
 void actorSpawnOctagonRingsByTimer(void) {
     f32 v;
-    f32 sp78;
-    f32 sp74;
-    f32 sp70;
+    f32 nodeX;
+    f32 nodeY;
+    f32 nodeZ;
     f32 s;
     f32 pad;
     s16 i;
@@ -1318,8 +1318,8 @@ void actorSpawnOctagonRingsByTimer(void) {
         if (gFrameCounter % 6 == 0) {
             s = (v / 70.0 > 1.0) ? 1.0 : v / 70.0;
             do {
-                actorGetNodePos(D_807FBB40, i, &sp78, &sp74, &sp70);
-                effectSpawnOctagonRing((s * 0.3 < 0.15) ? 0.15 : s * 0.3, sp78, sp74 + 3.0f, sp70);
+                actorGetNodePos(D_807FBB40, i, &nodeX, &nodeY, &nodeZ);
+                effectSpawnOctagonRing((s * 0.3 < 0.15) ? 0.15 : s * 0.3, nodeX, nodeY + 3.0f, nodeZ);
                 i++;
             } while (i < 5);
         }
@@ -1330,42 +1330,42 @@ void func_807149A8(s32);
 void func_80714944(s32);
 void func_80717D84();
 
-void effectSpawnColoredParticleAtPoint(u8 arg0, u8 arg1, u8 arg2, f32 arg3, f32 arg4, f32 arg5, void *arg6, f32 arg7) {
+void effectSpawnColoredParticleAtPoint(u8 r, u8 g, u8 b, f32 x, f32 y, f32 z, void *particleGfx, f32 scale) {
     func_807149A8(1000);
     func_80714998(0xFF);
     func_80714944(((randomNonNegative() >> 15) % 0x7FFF) % 11);
-    func_807149C8(arg0, arg1, arg2, 0xFF);
+    func_807149C8(r, g, b, 0xFF);
     func_8071498C(func_80717D84);
     func_80714950(2);
-    func_80714CC0(arg6, arg7 * 0.2, arg3, arg4, arg5);
+    func_80714CC0(particleGfx, scale * 0.2, x, y, z);
 }
 
 extern u8 D_80747B00[];
 
-void actorSpawnParticlesAlongNodeLoop(u8 arg0, u8 arg1, u8 arg2, void *arg3) {
+void actorSpawnParticlesAlongNodeLoop(u8 startNode, u8 endNode, u8 colorIndex, void *particleGfx) {
     f32 scale;
-    f32 spA8;
-    f32 spA4;
-    f32 spA0;
-    f32 sp9C;
-    f32 sp98;
-    f32 sp94;
+    f32 node1X;
+    f32 node1Y;
+    f32 node1Z;
+    f32 node2X;
+    f32 node2Y;
+    f32 node2Z;
     f32 frac;
     s16 i;
     s16 j;
 
     scale = D_807FBB40->unk4->unk38 / 0.15;
     scale = scale / 1.5;
-    for (i = arg0; i <= arg1; i++) {
+    for (i = startNode; i <= endNode; i++) {
         for (j = 0; j < 3.0; j++) {
             frac = (f32)j / 3.0;
-            actorGetNodePos(D_807FBB40, i, &spA8, &spA4, &spA0);
-            if (i < arg1) {
-                actorGetNodePos(D_807FBB40, i + 1, &sp9C, &sp98, &sp94);
+            actorGetNodePos(D_807FBB40, i, &node1X, &node1Y, &node1Z);
+            if (i < endNode) {
+                actorGetNodePos(D_807FBB40, i + 1, &node2X, &node2Y, &node2Z);
             } else {
-                actorGetNodePos(D_807FBB40, arg0, &sp9C, &sp98, &sp94);
+                actorGetNodePos(D_807FBB40, startNode, &node2X, &node2Y, &node2Z);
             }
-            effectSpawnColoredParticleAtPoint(D_80747B00[arg2 * 3], D_80747B00[arg2 * 3 + 1], D_80747B00[arg2 * 3 + 2], (sp9C - spA8) * frac + spA8, (sp98 - spA4) * frac + spA4, (sp94 - spA0) * frac + spA0, arg3, scale);
+            effectSpawnColoredParticleAtPoint(D_80747B00[colorIndex * 3], D_80747B00[colorIndex * 3 + 1], D_80747B00[colorIndex * 3 + 2], (node2X - node1X) * frac + node1X, (node2Y - node1Y) * frac + node1Y, (node2Z - node1Z) * frac + node1Z, particleGfx, scale);
         }
     }
 }
@@ -1462,16 +1462,16 @@ extern s32 D_807FBB68;
 
 void func_806C2DF4(void) {
     LgC2DF4State *state;
-    s32 sp60;
-    s32 sp5C;
-    s32 sp58;
-    f32 sp54;
+    s32 nodePosX;
+    s32 nodePosY;
+    s32 nodePosZ;
+    f32 scale;
     s32 rnd;
 
     state = LgV->unk17C;
     behaviourFrameBegin();
     if (!(LgV->unk60 & 0x10)) {
-        sp54 = LgV->unk4->unk38;
+        scale = LgV->unk4->unk38;
         func_806136B4(D_807FBB40);
         controllerAnimInit(D_807FBB40, state->unk0);
         LgV->unk140 = actorSub140CreateFromModel(D_807FBB40);
@@ -1548,7 +1548,7 @@ void func_806C2DF4(void) {
                 animSetFrameAndSubframe(D_807FBB40, 0, ((LgC2DF4S9C *)D_807FDC9C)->unk14, 0);
                 break;
             case 0x45:
-                sp54 *= 10.0f;
+                scale *= 10.0f;
             case 0x3D:
                 LgV->unkCC = 2;
                 LgV->unk60 |= 0x400;
@@ -1578,8 +1578,8 @@ void func_806C2DF4(void) {
                 LgV->unk60 |= 0x400;
                 break;
             case 0xE2:
-                sp54 *= 8.0f;
-                actorSetUniformScale(D_807FBB40, sp54);
+                scale *= 8.0f;
+                actorSetUniformScale(D_807FBB40, scale);
                 LgV->unkE8 = 0xC8;
                 func_806BFBB4();
                 actorSpawnParticlesAlongNodeRanges();
@@ -1598,13 +1598,13 @@ void func_806C2DF4(void) {
                 LgV->unk60 |= 0x1000;
                 break;
         }
-        actorSetUniformScale(D_807FBB40, sp54);
+        actorSetUniformScale(D_807FBB40, scale);
         if (gCurrentMap == 0xD0) {
             D_807FDC98->unk46 |= 0x100;
             LgV->unk60 &= 0xFEFFFFFF;
         }
     }
-    actorGetNodePosOrPosition(D_807FBB40, &sp60, &sp5C, &sp58);
+    actorGetNodePosOrPosition(D_807FBB40, &nodePosX, &nodePosY, &nodePosZ);
     func_806BF920();
     actorScriptedCommandUpdate();
     LgV->unk6A = 0;
@@ -1750,10 +1750,10 @@ void func_806C3A8C(void) {
     s32 dist;
     f32 pad0;
     f32 pad1;
-    u8 sp23;
-    u8 sp22;
-    u8 sp21;
-    u8 sp20;
+    u8 flag1;
+    u8 flag2;
+    u8 flag3;
+    u8 flag4;
 
     dist = (D_807FBB4C->unk7C - D_807FBB40->unk7C) * (D_807FBB4C->unk7C - D_807FBB40->unk7C) + (D_807FBB4C->unk80 - D_807FBB40->unk80) * (D_807FBB4C->unk80 - D_807FBB40->unk80) + (D_807FBB4C->unk84 - D_807FBB40->unk84) * (D_807FBB4C->unk84 - D_807FBB40->unk84);
     behaviourFrameBegin();
@@ -1800,11 +1800,11 @@ void func_806C3A8C(void) {
             break;
         case 0x1F:
             if ((u8)(dist < 0x2710) && D_807FBB40->unk155[0] == 0) {
-                sp20 = flagGet(0xBD, 0);
-                sp21 = flagGet(0xBC, 0);
-                sp22 = flagGet(0xBB, 0);
-                sp23 = flagGet(0xBA, 0);
-                D_80750AC8 = flagGet(0xBE, 0) + sp23 + sp22 + sp21 + sp20;
+                flag4 = flagGet(0xBD, 0);
+                flag3 = flagGet(0xBC, 0);
+                flag2 = flagGet(0xBB, 0);
+                flag1 = flagGet(0xBA, 0);
+                D_80750AC8 = flagGet(0xBE, 0) + flag1 + flag2 + flag3 + flag4;
                 func_8070D8C0(D_807FBB40, 0x17, 2);
                 D_807FBB40->unk155[0]++;
             }
