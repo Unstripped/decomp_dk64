@@ -146,13 +146,13 @@ void bossSpawnerUpdate(void) {
     s32 k;
     s32 i;
     BossSpawnerState *s;
-    s8 sp6B;
-    s8 sp6A;
-    s8 sp69;
-    s8 sp68;
-    s8 sp67;
+    s8 prevSubState;
+    s8 hitPlayer;
+    s8 bounceDir;
+    s8 spawnParticle;
+    s8 topReached;
     BossSpawnState *st;
-    s32 sp5C;
+    s32 cutsceneId;
     f32 lx;
     f32 lz;
     s16 j;
@@ -160,9 +160,9 @@ void bossSpawnerUpdate(void) {
     static s16 D_80035B70 = 0;
 
     s = SPAWNER_ACTOR->unk174;
-    sp67 = 0;
-    sp68 = 0;
-    sp6A = 0;
+    topReached = 0;
+    spawnParticle = 0;
+    hitPlayer = 0;
     if (!(SPAWNER_ACTOR->unk60 & 0x10)) {
         D_80035B28 = 0xF;
         D_80035B34 = 0;
@@ -209,15 +209,15 @@ void bossSpawnerUpdate(void) {
         SPAWNER_PLAYER->unk60 &= ~4;
         SPAWNER_PLAYER->unk144 = 1;
         if (D_807FBDC4 != 0) {
-            sp5C = D_80035B44[D_80036DC0];
+            cutsceneId = D_80035B44[D_80036DC0];
             SPAWNER_ACTOR->unk146 = 0;
             for (i = 4; D_80036DC0 < i; i--) {
                 func_8068A764(D_807FBB40, D_80035B58[D_80035B44[i]]);
             }
             D_80036DC0++;
-            sp5C = D_80035B4C[sp5C];
-            func_806C8E58(sp5C);
-            func_806F09F0(D_807FBB4C, sp5C);
+            cutsceneId = D_80035B4C[cutsceneId];
+            func_806C8E58(cutsceneId);
+            func_806F09F0(D_807FBB4C, cutsceneId);
             SPAWNER_PLAYER->unk154 = 0xC;
             SPAWNER_PLAYER->unk155 = 0;
             func_8067AAB8(D_807FBB40, D_807FBB4C, 0, 180.0f, 0x46);
@@ -255,24 +255,24 @@ void bossSpawnerUpdate(void) {
     SPAWNER_ACTOR->unkE6 &= 0xFFF;
     SPAWNER_ACTOR->unk80 = func_80612794(SPAWNER_ACTOR->unkE6) * 5.0 + s->unk0;
     if (SPAWNER_PLAYER->unk154 == 0x45 && SPAWNER_PLAYER->unk155 >= 2 && D_80036DC4 < 10000.0) {
-        sp6A = 1;
+        hitPlayer = 1;
     }
-    sp69 = 0;
+    bounceDir = 0;
     s->unk4 += s->unk8;
     dx = 1.0f;
     if (s->unk4 > dx) {
         s->unk4 = dx;
-        sp69 = 1;
+        bounceDir = 1;
     }
     if (s->unk4 < (f32)0) {
         s->unk4 = (f32)0;
-        sp69 = -1;
+        bounceDir = -1;
     }
-    if (sp69 != 0 && camIsCutsceneActive() == 0) {
+    if (bounceDir != 0 && camIsCutsceneActive() == 0) {
         s->unk10++;
     }
     s->unk17 = 0;
-    sp6B = s->unk13;
+    prevSubState = s->unk13;
     switch (s->unk13) {
     case 0:
         i = 5;
@@ -299,8 +299,8 @@ void bossSpawnerUpdate(void) {
                 s->unk15 = 0;
             }
         }
-        if (sp69 != 0 && D_80035B40 == 0) {
-            sp68 = 1;
+        if (bounceDir != 0 && D_80035B40 == 0) {
+            spawnParticle = 1;
             D_80035B2C = 0;
         }
         break;
@@ -319,14 +319,14 @@ void bossSpawnerUpdate(void) {
             s->unk8 = 0.1f;
             break;
         }
-        if (sp69 == 1) {
-            sp67 = 1;
+        if (bounceDir == 1) {
+            topReached = 1;
             if (i < s->unk10) {
                 s->unk13 = 0;
                 s->unk15++;
                 sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
             }
-            if (sp6A != 0) {
+            if (hitPlayer != 0) {
                 sfxPlayOnFreeSlot(0x97, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 s->unk16++;
                 s->unk15 = 0;
@@ -357,8 +357,8 @@ void bossSpawnerUpdate(void) {
                 s->unk15 = 0;
             }
         }
-        if (sp69 != 0 && D_80035B40 == 0) {
-            sp68 = 1;
+        if (bounceDir != 0 && D_80035B40 == 0) {
+            spawnParticle = 1;
         }
         break;
     case 3:
@@ -367,7 +367,7 @@ void bossSpawnerUpdate(void) {
             s->unk13 = 2;
             sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
         }
-        if (sp69 != 0) {
+        if (bounceDir != 0) {
             s->unk17 = 1;
         }
         break;
@@ -403,8 +403,8 @@ void bossSpawnerUpdate(void) {
         break;
     case 6:
         s->unk8 = -0.1f;
-        if (sp69 == -1) {
-            sp67 = 1;
+        if (bounceDir == -1) {
+            topReached = 1;
             if (D_80035B70 < s->unk10) {
                 sfxPlayOnFreeSlot(0x17D, 0x3E80, 0x427C0000, 0x3F800000, 0, 0);
                 D_80035B70 = D_80035B70 + 1;
@@ -419,7 +419,7 @@ void bossSpawnerUpdate(void) {
                     sfxPlayOnFreeSlot(0x37F, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                     sfxPlayOnFreeSlot(0x381, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
                 }
-                sp68 = 1;
+                spawnParticle = 1;
             }
             D_80035B68 = 0x1E;
         }
@@ -456,10 +456,10 @@ void bossSpawnerUpdate(void) {
             s->unk15 = 0x14;
         }
     }
-    if (sp6B != s->unk13) {
+    if (prevSubState != s->unk13) {
         s->unk10 = 0;
     }
-    if (sp68 != 0) {
+    if (spawnParticle != 0) {
         if (s->unk12 == 2 || s->unk12 == 3) {
             s->unk14++;
         } else {
@@ -472,21 +472,21 @@ void bossSpawnerUpdate(void) {
         }
     }
     D_80035B68++;
-    if (sp67 != 0) {
-        sp5C = (D_80035B68 & 0x1F) - 0x10;
-        i = sp5C;
+    if (topReached != 0) {
+        cutsceneId = (D_80035B68 & 0x1F) - 0x10;
+        i = cutsceneId;
         k = s->unk14;
-        if (sp5C < 0) {
-            i = -sp5C;
+        if (cutsceneId < 0) {
+            i = -cutsceneId;
         }
         if (i >= 0x10) {
             i = 0xF;
         }
-        sp5C = (i << 4) & 0xFF;
-        if (sp5C && sp5C) {} // FAKE: pins the sp5C def before the lx/lz loads
+        cutsceneId = (i << 4) & 0xFF;
+        if (cutsceneId && cutsceneId) {} // FAKE: pins the cutsceneId def before the lx/lz loads
         lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)SPAWNER_ACTOR->unk7C);
         lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)SPAWNER_ACTOR->unk84);
-        lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);
+        lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, cutsceneId, cutsceneId, cutsceneId);
         if (s->unk12 == 1) {
             k = s->unk14 + 2;
             if (k >= 4) {
@@ -494,7 +494,7 @@ void bossSpawnerUpdate(void) {
             }
             lx = (f32)((f64)D_80035B00[k] * 0.33 + (f64)SPAWNER_ACTOR->unk7C);
             lz = (f32)((f64)D_80035B08[k] * 0.33 + (f64)SPAWNER_ACTOR->unk84);
-            lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, sp5C, sp5C, sp5C);
+            lightAdd(lx, 400.0f, lz, lx, 300.0f, lz, 200.0f, 0, cutsceneId, cutsceneId, cutsceneId);
         }
     }
     s->unkC--;
@@ -503,7 +503,7 @@ void bossSpawnerUpdate(void) {
         lightSetColor(0.5f, 0.5f, 0.5f, -1);
         func_8068B80C();
     }
-    D_80035B40 = sp69;
+    D_80035B40 = bounceDir;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
@@ -581,7 +581,7 @@ void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, void *);
 
 void bossFollowerActorUpdate(void) {
     BossFollowerLink *sub174 = ACTOR->unk174;
-    BossParentState *sp30 = sub174->unk0->unk174;
+    BossParentState *parentState = sub174->unk0->unk174;
     BossAnimState *sub4_0 = ACTOR->unk4->unk0;
     static s16 D_80035B74 = 0x78; // FAKE: function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
 
@@ -595,7 +595,7 @@ void bossFollowerActorUpdate(void) {
         ACTOR->unk12A = 0xFA0;
     }
     if (D_80035B28 & (1 << sub174->unk4)) {
-        ACTOR->unkE8 = (s16)(s32)((f64)sp30->unk4 * 1024.0) - 0x400;  // FAKE: no-code (s16) narrowing of the truncated value burns ugen ring temps
+        ACTOR->unkE8 = (s16)(s32)((f64)parentState->unk4 * 1024.0) - 0x400;  // FAKE: no-code (s16) narrowing of the truncated value burns ugen ring temps
         ACTOR->unkE4 = D_80035B2C;
         if (sub4_0 != NULL) {
             if (D_80035B3C != sub4_0->unk4) {
@@ -637,14 +637,14 @@ void bossFollowerActorUpdate(void) {
     if (sub174->unk5 == 0) {
         ACTOR->unk144 = 0xC;
         if (sub174->unk4 == 0) {
-            if (sp30->unk17 == 1) {
+            if (parentState->unk17 == 1) {
                 if (sub174->unk0->unk154 == 0) {
                     D_80035B74 = 0x28;
                 }
                 D_80035B74 -= 1;
                 if (D_80035B74 < 0) {
-                    f32 zo = D_80035B20[sp30->unk14];
-                    f32 xo = D_80035B18[sp30->unk14];
+                    f32 zo = D_80035B20[parentState->unk14];
+                    f32 xo = D_80035B18[parentState->unk14];
                     D_80035B74 = 0xA;
                     projectileSetTargetCoords(ACTOR->unk7C + xo, ACTOR->unk80 + 270.0f, ACTOR->unk84 + zo);
                     projectileAimAndSpawn(0x2C, 1, 0.25f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, 2400.0f, ACTOR);
@@ -653,26 +653,26 @@ void bossFollowerActorUpdate(void) {
                 D_80035B74 = 0;
             }
         }
-        ACTOR->unk7C = D_80035B00[sp30->unk14] + sub174->unk0->unk7C;
-        ACTOR->unk84 = D_80035B08[sp30->unk14] + sub174->unk0->unk84;
-        ACTOR->unkE6 = D_80035B10[sp30->unk14];
+        ACTOR->unk7C = D_80035B00[parentState->unk14] + sub174->unk0->unk7C;
+        ACTOR->unk84 = D_80035B08[parentState->unk14] + sub174->unk0->unk84;
+        ACTOR->unkE6 = D_80035B10[parentState->unk14];
     } else {
-        s32 var_v0;
+        s32 oppSide;
         ACTOR->unk144 = 1;
-        var_v0 = sp30->unk14 + 2;
-        if (var_v0 >= 4) {
-            var_v0 -= 4;
+        oppSide = parentState->unk14 + 2;
+        if (oppSide >= 4) {
+            oppSide -= 4;
         }
-        ACTOR->unk7C = D_80035B00[var_v0] + sub174->unk0->unk7C;
+        ACTOR->unk7C = D_80035B00[oppSide] + sub174->unk0->unk7C;
         if (D_80035B18) {}  // FAKE: deadsweep dead statement (steers uopt)
-        ACTOR->unk84 = D_80035B08[var_v0] + sub174->unk0->unk84;
-        ACTOR->unkE6 = D_80035B10[var_v0];
+        ACTOR->unk84 = D_80035B08[oppSide] + sub174->unk0->unk84;
+        ACTOR->unkE6 = D_80035B10[oppSide];
         ACTOR->unk60 |= 0x800000;
         ACTOR->unk16A = 0x23;
         if (sub174->unk5 && sub174->unk5) {} // FAKE: steers uopt colouring (const 35 -> a1)
         ACTOR->unk16B = 0x23;
         ACTOR->unk16C = 0x46;
-        if (sp30->unk12 != 1) {
+        if (parentState->unk12 != 1) {
             ACTOR->unk60 &= ~4;
         } else {
             ACTOR->unk60 |= 4;
