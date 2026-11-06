@@ -28,14 +28,14 @@ typedef struct R1C0C1Spawned {
 } R1C0C1Spawned;
 
 void func_806BD170(void) {
-    Actor *sp54;
+    Actor *activeRingActor;
     s16 i;
-    s16 sp50;
+    s16 activeRingIdx;
     s16 count;
     s16 pos;
     R1C0C1Sub174 *sub;
 
-    sp50 = -1;
+    activeRingIdx = -1;
     i = 0;
     count = 0;
     for (; i < 8; i++) {
@@ -60,22 +60,22 @@ void func_806BD170(void) {
             sub->unk4 = D_807FBB40;
             sub->unk2 = i;
             if (flagGet(D_80744710[i], 0) != 0) {
-                sp50 = i;
-                sp54 = D_807FBB44;
-                sp54->unk154 = 5;
+                activeRingIdx = i;
+                activeRingActor = D_807FBB44;
+                activeRingActor->unk154 = 5;
                 count++;
             }
         }
     }
     D_807506A4 = 0;
     if (flagGet(0x1BB, 0) == 0) {
-        sp50 = -1;
+        activeRingIdx = -1;
     }
-    if (D_80750660 == 0 && sp50 != -1) {
-        ((R1C0C1Spawned *)sp54)->unk146 = 1;
-        sp54->unk154 = 1;
+    if (D_80750660 == 0 && activeRingIdx != -1) {
+        ((R1C0C1Spawned *)activeRingActor)->unk146 = 1;
+        activeRingActor->unk154 = 1;
         D_80750660 = 1;
-        D_807FC8D0 = sp50;
+        D_807FC8D0 = activeRingIdx;
     }
 }
 
@@ -112,11 +112,11 @@ typedef struct RingNodeActor178 {
 } RingNodeActor178;
 
 void actorNodeRingUpdate(void) {
-    RingNodePtr178 *sp34 = ((RingNodeActor178 *)D_807FBB40)->unk178;
+    RingNodePtr178 *nodePtr = ((RingNodeActor178 *)D_807FBB40)->unk178;
     f32 dx;
     f32 dz;
-    u8 sp2B;
-    u16 sp28;
+    u8 shakeMagnitude;
+    u16 shakeDuration;
     s16 v3 = D_8076A0A6;
     s16 idx;
     s8 *cnt = &D_807506B4;
@@ -135,7 +135,7 @@ void actorNodeRingUpdate(void) {
         D_807FBB44->unk64 |= 0x20;
         D_807FBB44->unk60 |= 0x400;
         D_807FBB44->unk12A = 0x7D0;
-        sp34->unk0 = D_807FBB44;
+        nodePtr->unk0 = D_807FBB44;
         D_807FC8D4 = 1000.0f;
         func_806BD170();
         D_807FBB40->unk154 = 0;
@@ -156,7 +156,7 @@ void actorNodeRingUpdate(void) {
     }
     dx = D_807FBB40->unk7C - D_807FBB4C->unk7C;
     dz = D_807FBB40->unk84 - D_807FBB4C->unk84;
-    sp28 = 0;
+    shakeDuration = 0;
     D_807FC8D4 = dx * dx + dz * dz;
     switch (D_807FBB40->unk154) {
         case 1:
@@ -175,7 +175,7 @@ void actorNodeRingUpdate(void) {
         case 3:
             if (D_807FBB40->unk155[0] & 1) {
                 D_807FBB40->unk155[0]++;
-                sp2B = 0xF; sp28 = 0x28;
+                shakeMagnitude = 0xF; shakeDuration = 0x28;
             }
             break;
     }
@@ -184,8 +184,8 @@ void actorNodeRingUpdate(void) {
             actorScriptStart(D_807FBB40, 0x2F0);
         }
     }
-    if (sp28) {
-        camStartShake(gCamActor, sp2B, sp28);
+    if (shakeDuration) {
+        camStartShake(gCamActor, shakeMagnitude, shakeDuration);
     }
     if (idx >= 0) {
         n = *cnt;
@@ -239,12 +239,12 @@ f32 randomFloat(void);
 
 void func_806BD7B0(void) {
     R1C0C1Sub174 *st = D_807FBB40->unk174;
-    f32 sp48;
-    f32 sp44;
-    f32 sp40;
+    f32 sparkX;
+    f32 sparkY;
+    f32 sparkZ;
     R1C0C1Ptr178 *p;
     s32 limit;
-    R1C0C1Blob8 sp30;
+    R1C0C1Blob8 cutsceneModelIds;
 
     switch (D_807FBB40->unk154) {
         case 5:
@@ -287,7 +287,7 @@ void func_806BD7B0(void) {
                         sfxPlayOnFreeSlot(0x1F6, 0x7FFF, 63.0f, 1.0f, 5, 0);
                     }
                     if (st->unk0 >= 0xB) {
-                        sp30 = D_807506B8;
+                        cutsceneModelIds = D_807506B8;
                         D_807FBB40->unk154 = 4;
                         sfxAllocateChannel(0x7D, 1.0f);
                         actorScriptStart(st->unk4, D_80750684[st->unk2]);
@@ -295,7 +295,7 @@ void func_806BD7B0(void) {
                         st->unk4->unk154 = 3;
                         st->unk4->unk155[0] = 0;
                         camStartPath(0, 1, 1);
-                        csModelStateSetFirstByte(sp30.b[st->unk2], 2);
+                        csModelStateSetFirstByte(cutsceneModelIds.b[st->unk2], 2);
                     }
                 }
                 if (D_807FBB40->unk128 < 0x80) {
@@ -305,10 +305,10 @@ void func_806BD7B0(void) {
                 func_80714950(0x10064);
                 func_8071498C(func_8071AADC);
                 func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
-                sp48 = randomFloat() * 30.0 + D_807FBB40->unk7C;
-                sp44 = randomFloat() * 30.0 + (D_807FBB40->unk80 + 20.0);
-                sp40 = randomFloat() * 30.0 + D_807FBB40->unk84;
-                func_80714CC0(&D_80720A7C, 1.2f, sp48, sp44, sp40);
+                sparkX = randomFloat() * 30.0 + D_807FBB40->unk7C;
+                sparkY = randomFloat() * 30.0 + (D_807FBB40->unk80 + 20.0);
+                sparkZ = randomFloat() * 30.0 + D_807FBB40->unk84;
+                func_80714CC0(&D_80720A7C, 1.2f, sparkX, sparkY, sparkZ);
             }
             break;
         case 4:
