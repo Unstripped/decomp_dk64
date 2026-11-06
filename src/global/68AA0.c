@@ -76,8 +76,8 @@ typedef struct ActorTargetType {
     u8 pad86[0xA];
 } ActorTargetType;
 
-u8 mapObjectIsTargetType(s16 arg0) {
-    s16 val = ((ActorTargetType *)D_807F6000)[arg0].unk84;
+u8 mapObjectIsTargetType(s16 objIndex) {
+    s16 val = ((ActorTargetType *)D_807F6000)[objIndex].unk84;
 
     if (val == 1 || val == 0xC || val == 0x10 || val == 0xF3 || val == 0x134 || val == 0x135 || val == 0x138) {
         return 1;
@@ -94,7 +94,7 @@ extern PlayerAreaView *gPlayerSlots;
 
 f32 sfxUpdateDistanceVolumeAndPan(f32, f32, f32, u8, u8, f32);
 
-void actorTargetEntriesUpdateSfx(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
+void actorTargetEntriesUpdateSfx(u8 targetType, u8 volume, u8 sfxId, f32 factor) {
     ActorTargetEntry *entry;
     s32 i;
     s32 stride;
@@ -107,7 +107,7 @@ void actorTargetEntriesUpdateSfx(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
         j = 0;
         found = 0;
         entry = (ActorTargetEntry *)((s32)D_807F9420 + i * stride);
-        if (entry->unk6 == arg0) {
+        if (entry->unk6 == targetType) {
             do {
                 if (D_807F9420[i].u.unk7_arr[j] == gPlayerSlots[0].unk290) {
                     found = 1;
@@ -119,7 +119,7 @@ void actorTargetEntriesUpdateSfx(u8 arg0, u8 arg1, u8 arg2, f32 arg3) {
             } while (D_807F9420[i].u.unk7_arr[j] != -1);
 
             if (found) {
-                sfxUpdateDistanceVolumeAndPan(entry->unk0, entry->unk2, entry->unk4, arg1, arg2, arg3);
+                sfxUpdateDistanceVolumeAndPan(entry->unk0, entry->unk2, entry->unk4, volume, sfxId, factor);
             }
         }
     }
