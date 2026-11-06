@@ -77,28 +77,28 @@ typedef struct {
 
 f32 func_80611BB4(f32, f32);
 
-void computeBiquadCoefficients(f32 arg0, f32 arg1, f32 arg2, LpfNMBiquad *arg3, LpfNMBiquad *arg4) {
-    f32 sp3C;
-    f32 sp38;
-    f32 sp34;
-    f32 sp30;
-    f32 sp2C;
-    f32 sp28;
-    f32 sp24;
-    f32 sp20;
-    f32 sp1C;
+void computeBiquadCoefficients(f32 sampleRate, f32 cutoffFreq, f32 qFactor, LpfNMBiquad *numCoeffs, LpfNMBiquad *denCoeffs) {
+    f32 omega;
+    f32 omegaSq;
+    f32 alpha;
+    f32 pad1;
+    f32 pad2;
+    f32 pad3;
+    f32 pad4;
+    f32 pad5;
+    f32 pad6;
 
-    if (arg1 >= arg0 - 200.0f) {
-        arg1 = arg0 - 200.0f;
+    if (cutoffFreq >= sampleRate - 200.0f) {
+        cutoffFreq = sampleRate - 200.0f;
     }
-    sp3C = func_80611BB4(arg1 * 3.141592741f, arg0);
-    sp38 = sp3C * sp3C;
-    sp34 = (sp3C * 1.414213657f) / arg2;
-    arg3->unk0 = sp38 / (1.0f + sp38 + sp34);
-    arg3->unk4 = 2.0f * arg3->unk0;
-    arg3->unk8 = arg3->unk0;
-    arg4->unk4 = ((sp38 - 1.0f) * 2.0f) / (1.0f + sp38 + sp34);
-    arg4->unk8 = ((1.0f + sp38) - sp34) / (1.0f + sp38 + sp34);
+    omega = func_80611BB4(cutoffFreq * 3.141592741f, sampleRate);
+    omegaSq = omega * omega;
+    alpha = (omega * 1.414213657f) / qFactor;
+    numCoeffs->unk0 = omegaSq / (1.0f + omegaSq + alpha);
+    numCoeffs->unk4 = 2.0f * numCoeffs->unk0;
+    numCoeffs->unk8 = numCoeffs->unk0;
+    denCoeffs->unk4 = ((omegaSq - 1.0f) * 2.0f) / (1.0f + omegaSq + alpha);
+    denCoeffs->unk8 = ((1.0f + omegaSq) - alpha) / (1.0f + omegaSq + alpha);
 }
 
 typedef struct {
@@ -110,61 +110,61 @@ typedef struct {
 } SynLPFilter;
 
 void _init_lpfilter(SynLPFilter *filter) {
-    s32 sp14;
-    s32 sp10;
+    s32 i;
+    s32 scaledCoeff;
     s16 spE;
     f32 sp8;
     f32 sp4;
     f32 sp0;
 
-    sp10 = (s32)((f32)filter->unk0 * 16384.0f);
-    spE = (s16)(sp10 >> 0xF);
+    scaledCoeff = (s32)((f32)filter->unk0 * 16384.0f);
+    spE = (s16)(scaledCoeff >> 0xF);
     filter->unk2 = (s16)(s32)(16384.0f - (f32)spE);
     filter->state = 0;
-    sp14 = 0;
+    i = 0;
     do {
-        filter->coeff[sp14] = 0;
-    } while (++sp14 < 8);
-    filter->coeff[sp14++] = spE;
+        filter->coeff[i] = 0;
+    } while (++i < 8);
+    filter->coeff[i++] = spE;
     sp0 = 16384.0f;
     sp4 = sp8 = (f32)spE / sp0;
-    if (sp14 < 0x10) {
+    if (i < 0x10) {
         do {
             sp4 *= sp8;
-            filter->coeff[sp14] = (s16)(s32)(sp4 * sp0);
-        } while (++sp14 < 0x10);
+            filter->coeff[i] = (s16)(s32)(sp4 * sp0);
+        } while (++i < 0x10);
     }
 }
 
-f32 n_alSemitonesToPitchRatio(s32 arg0) {
+f32 n_alSemitonesToPitchRatio(s32 semitones) {
     f32 sp4;
     f32 sp0;
 
     sp0 = 1.0f;
-    if (arg0 >= 0) {
+    if (semitones >= 0) {
         sp4 = 1.0594631f;
     } else {
         sp4 = 0.9438743f;
-        arg0 = -arg0;
+        semitones = -semitones;
     }
-    if (arg0 != 0) {
+    if (semitones != 0) {
         do {
-            if (arg0 & 1) {
+            if (semitones & 1) {
                 sp0 *= sp4;
             }
             sp4 *= sp4;
-            arg0 = arg0 >> 1;
-        } while (arg0 != 0);
+            semitones = semitones >> 1;
+        } while (semitones != 0);
     }
     return sp0;
 }
 
 void computeBiquadCoefficients(f32, f32, f32, LpfNMBiquad *, LpfNMBiquad *);
 
-void rebuildLowPassCoefficients(SynLPFilter *filter, f32 arg1) {
-    s32 sp3C;
-    LpfNMBiquad sp30;
-    LpfNMBiquad sp24;
+void rebuildLowPassCoefficients(SynLPFilter *filter, f32 sampleRate) {
+    s32 i;
+    LpfNMBiquad numCoeffs;
+    LpfNMBiquad denCoeffs;
 
     if (filter->unk2 == 0) {
         return;
@@ -172,20 +172,20 @@ void rebuildLowPassCoefficients(SynLPFilter *filter, f32 arg1) {
     if (filter->unk2 < 10) {
         filter->unk2 = 10;
     }
-    computeBiquadCoefficients(arg1, (f32)filter->unk0 + 10.0f, (f32)filter->unk2 / 10.0f, &sp30, &sp24);
-    sp3C = 3;
+    computeBiquadCoefficients(sampleRate, (f32)filter->unk0 + 10.0f, (f32)filter->unk2 / 10.0f, &numCoeffs, &denCoeffs);
+    i = 3;
     do {
-        filter->coeff[sp3C] = 0;
-    } while (++sp3C < 8);
-    filter->coeff[0] = (s16)(s32)(((f32 *)&sp30)[0] * (26768.0f - ((f32)filter->unk2 * 128.0f)));
-    filter->coeff[1] = (s16)(s32)(((f32 *)&sp30)[1] * (26768.0f - ((f32)filter->unk2 * 128.0f)));
+        filter->coeff[i] = 0;
+    } while (++i < 8);
+    filter->coeff[0] = (s16)(s32)(((f32 *)&numCoeffs)[0] * (26768.0f - ((f32)filter->unk2 * 128.0f)));
+    filter->coeff[1] = (s16)(s32)(((f32 *)&numCoeffs)[1] * (26768.0f - ((f32)filter->unk2 * 128.0f)));
     filter->coeff[2] = 0;
-    filter->coeff[8] = (s16)(s32)(((f32 *)&sp24)[1] * -16384.0f);
-    filter->coeff[9] = (s16)(s32)(((f32 *)&sp24)[2] * -16384.0f);
-    sp3C = 10;
+    filter->coeff[8] = (s16)(s32)(((f32 *)&denCoeffs)[1] * -16384.0f);
+    filter->coeff[9] = (s16)(s32)(((f32 *)&denCoeffs)[2] * -16384.0f);
+    i = 10;
     do {
-        filter->coeff[sp3C] = 0;
-    } while (++sp3C < 16);
+        filter->coeff[i] = 0;
+    } while (++i < 16);
 }
 
 typedef struct {
@@ -232,79 +232,79 @@ typedef struct {
 
 extern s32 D_80756458[];
 
-void n_alFxNew(void **arg0, void *arg1, s16 arg2, ALHeap *arg3) {
-    u16 sp36;
-    u16 sp34;
-    u16 sp32;
-    s32 *sp2C;
-    LpfNMFx *sp28;
-    LpfNMFxState *sp24;
+void n_alFxNew(void **outFx, void *config, s16 busIndex, ALHeap *heap) {
+    u16 sectionIdx;
+    u16 tableOffset;
+    u16 bufIdx;
+    s32 *paramTable;
+    LpfNMFx *section;
+    LpfNMFxState *fxState;
 
-    sp2C = NULL;
-    sp24 = alHeapDBAlloc(NULL, 0, arg3, 1, 0x30);
-    *arg0 = sp24;
-    switch (((u8 *)arg1 + arg2)[0x1C]) {
+    paramTable = NULL;
+    fxState = alHeapDBAlloc(NULL, 0, heap, 1, 0x30);
+    *outFx = fxState;
+    switch (((u8 *)config + busIndex)[0x1C]) {
         case 6:
-            sp2C = *(s32 **)((u8 *)arg1 + (arg2 * 4) + 0x20);
+            paramTable = *(s32 **)((u8 *)config + (busIndex * 4) + 0x20);
             break;
         default:
-            sp2C = D_80756458;
+            paramTable = D_80756458;
             break;
     }
 
-    sp34 = 0;
-    sp24->unk8 = (u8)sp2C[sp34];
-    sp34 += 1;
-    sp24->unk0 = sp2C[sp34];
-    sp34 += 1;
-    sp24->unk4 = alHeapDBAlloc(NULL, 0, arg3, sp24->unk8, 0x28);
-    sp24->unk20 = alHeapDBAlloc(NULL, 0, arg3, sp24->unk0, 2);
-    sp24->unk28 = sp24->unk20;
-    sp24->unk24 = alHeapDBAlloc(NULL, 0, arg3, sp24->unk0, 2);
-    sp24->unk2C = sp24->unk24;
-    for (sp32 = 0; sp32 < (u32)sp24->unk0; sp32++) {
-        sp24->unk24[sp32] = 0;
-        sp24->unk20[sp32] = sp24->unk24[sp32];
+    tableOffset = 0;
+    fxState->unk8 = (u8)paramTable[tableOffset];
+    tableOffset += 1;
+    fxState->unk0 = paramTable[tableOffset];
+    tableOffset += 1;
+    fxState->unk4 = alHeapDBAlloc(NULL, 0, heap, fxState->unk8, 0x28);
+    fxState->unk20 = alHeapDBAlloc(NULL, 0, heap, fxState->unk0, 2);
+    fxState->unk28 = fxState->unk20;
+    fxState->unk24 = alHeapDBAlloc(NULL, 0, heap, fxState->unk0, 2);
+    fxState->unk2C = fxState->unk24;
+    for (bufIdx = 0; bufIdx < (u32)fxState->unk0; bufIdx++) {
+        fxState->unk24[bufIdx] = 0;
+        fxState->unk20[bufIdx] = fxState->unk24[bufIdx];
     }
-    for (sp36 = 0; (s32)sp36 < (s32)sp24->unk8; sp36++) {
-        sp28 = &sp24->unk4[sp36];
-        sp28->unk0 = sp2C[sp34];
-        sp34 += 1;
-        sp28->unk4 = sp2C[sp34];
-        sp34 += 1;
-        sp28->unkA = (s16)sp2C[sp34];
-        sp34 += 1;
-        sp28->unk8 = (s16)sp2C[sp34];
-        sp34 += 1;
-        sp28->unkC = (s16)sp2C[sp34];
-        sp34 += 1;
-        if (sp2C[sp34] != 0) {
-            sp28->unk10 = ((f32)sp2C[sp34] / 1000.0f * 2.0f) / (f32)*(s32 *)((u8 *)arg1 + 0x18);
-            sp34 += 1;
-            sp28->unk1C = ((f32)sp2C[sp34] / 173123.4062f) * (f32)(u32)(sp28->unk4 - sp28->unk0);
-            sp34 += 1;
-            sp28->unk14 = 1.0f;
-            sp28->unk18 = 0;
-            sp28->unk24 = alHeapDBAlloc(NULL, 0, arg3, 1, 0x38);
-            sp28->unk24->unk14 = alHeapDBAlloc(NULL, 0, arg3, 1, 0x20);
-            sp28->unk24->unk18 = alHeapDBAlloc(NULL, 0, arg3, 1, 0x20);
-            sp28->unk24->unk24 = 0.0f;
-            sp28->unk24->unk28 = 1;
+    for (sectionIdx = 0; (s32)sectionIdx < (s32)fxState->unk8; sectionIdx++) {
+        section = &fxState->unk4[sectionIdx];
+        section->unk0 = paramTable[tableOffset];
+        tableOffset += 1;
+        section->unk4 = paramTable[tableOffset];
+        tableOffset += 1;
+        section->unkA = (s16)paramTable[tableOffset];
+        tableOffset += 1;
+        section->unk8 = (s16)paramTable[tableOffset];
+        tableOffset += 1;
+        section->unkC = (s16)paramTable[tableOffset];
+        tableOffset += 1;
+        if (paramTable[tableOffset] != 0) {
+            section->unk10 = ((f32)paramTable[tableOffset] / 1000.0f * 2.0f) / (f32)*(s32 *)((u8 *)config + 0x18);
+            tableOffset += 1;
+            section->unk1C = ((f32)paramTable[tableOffset] / 173123.4062f) * (f32)(u32)(section->unk4 - section->unk0);
+            tableOffset += 1;
+            section->unk14 = 1.0f;
+            section->unk18 = 0;
+            section->unk24 = alHeapDBAlloc(NULL, 0, heap, 1, 0x38);
+            section->unk24->unk14 = alHeapDBAlloc(NULL, 0, heap, 1, 0x20);
+            section->unk24->unk18 = alHeapDBAlloc(NULL, 0, heap, 1, 0x20);
+            section->unk24->unk24 = 0.0f;
+            section->unk24->unk28 = 1;
         } else {
-            sp28->unk24 = NULL;
-            sp34 += 1;
-            sp34 += 1;
+            section->unk24 = NULL;
+            tableOffset += 1;
+            tableOffset += 1;
         }
-        if (sp2C[sp34] != 0) {
-            sp28->unk20 = alHeapDBAlloc(NULL, 0, arg3, 1, 0x38);
-            sp28->unk20->unk2C = alHeapDBAlloc(NULL, 0, arg3, 1, 8);
-            sp28->unk20->unk30 = alHeapDBAlloc(NULL, 0, arg3, 1, 8);
-            sp28->unk20->base.unk0 = (s16)sp2C[sp34];
-            sp34 += 1;
-            _init_lpfilter((SynLPFilter *)sp28->unk20);
+        if (paramTable[tableOffset] != 0) {
+            section->unk20 = alHeapDBAlloc(NULL, 0, heap, 1, 0x38);
+            section->unk20->unk2C = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+            section->unk20->unk30 = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+            section->unk20->base.unk0 = (s16)paramTable[tableOffset];
+            tableOffset += 1;
+            _init_lpfilter((SynLPFilter *)section->unk20);
         } else {
-            sp28->unk20 = NULL;
-            sp34 += 1;
+            section->unk20 = NULL;
+            tableOffset += 1;
         }
     }
 }
@@ -352,41 +352,41 @@ typedef struct {
     void *unkBC;
 } SynPVoiceInit;
 
-void alN_PVoiceNew(SynPVoiceInit *arg0, s32 (*arg1)(void *), ALHeap *arg2) {
-    arg0->unkC = alHeapDBAlloc(NULL, 0, arg2, 1, 0x20);
-    arg0->unk10 = alHeapDBAlloc(NULL, 0, arg2, 1, 0x20);
-    arg0->unk28 = arg1(arg0->unk2C);
-    arg0->unk34 = 0;
-    arg0->unk38 = 1;
-    arg0->unk3C = 0;
-    arg0->unk40 = alHeapDBAlloc(NULL, 0, arg2, 1, 0x20);
-    arg0->unk4C = 0.0f;
-    arg0->unk50 = 1;
-    arg0->unk44 = 1.0f;
-    arg0->unk48 = 0;
-    arg0->unk54 = alHeapDBAlloc(NULL, 0, arg2, 1, 0x50);
-    arg0->unk78 = 1;
-    arg0->unk84 = 0;
-    arg0->unk5A = 1;
-    arg0->unk68 = 1;
-    arg0->unk6E = 1;
-    arg0->unk5C = 1;
-    arg0->unk5E = 1;
-    arg0->unk60 = 0;
-    arg0->unk62 = 0;
-    arg0->unk66 = 1;
-    arg0->unk64 = 0;
-    arg0->unk66 = 1;
-    arg0->unk64 = 0;
-    arg0->unk70 = 0;
-    arg0->unk74 = 0;
-    arg0->unk58 = 0;
-    arg0->unk7C = 0;
-    arg0->unk80 = 0;
-    arg0->unk8C = 0;
-    arg0->unk92 = 0;
-    arg0->unk90 = 0;
-    arg0->unkBC = alHeapDBAlloc(NULL, 0, arg2, 1, 8);
-    arg0->unkB8 = 0;
+void alN_PVoiceNew(SynPVoiceInit *pvoice, s32 (*initCallback)(void *), ALHeap *heap) {
+    pvoice->unkC = alHeapDBAlloc(NULL, 0, heap, 1, 0x20);
+    pvoice->unk10 = alHeapDBAlloc(NULL, 0, heap, 1, 0x20);
+    pvoice->unk28 = initCallback(pvoice->unk2C);
+    pvoice->unk34 = 0;
+    pvoice->unk38 = 1;
+    pvoice->unk3C = 0;
+    pvoice->unk40 = alHeapDBAlloc(NULL, 0, heap, 1, 0x20);
+    pvoice->unk4C = 0.0f;
+    pvoice->unk50 = 1;
+    pvoice->unk44 = 1.0f;
+    pvoice->unk48 = 0;
+    pvoice->unk54 = alHeapDBAlloc(NULL, 0, heap, 1, 0x50);
+    pvoice->unk78 = 1;
+    pvoice->unk84 = 0;
+    pvoice->unk5A = 1;
+    pvoice->unk68 = 1;
+    pvoice->unk6E = 1;
+    pvoice->unk5C = 1;
+    pvoice->unk5E = 1;
+    pvoice->unk60 = 0;
+    pvoice->unk62 = 0;
+    pvoice->unk66 = 1;
+    pvoice->unk64 = 0;
+    pvoice->unk66 = 1;
+    pvoice->unk64 = 0;
+    pvoice->unk70 = 0;
+    pvoice->unk74 = 0;
+    pvoice->unk58 = 0;
+    pvoice->unk7C = 0;
+    pvoice->unk80 = 0;
+    pvoice->unk8C = 0;
+    pvoice->unk92 = 0;
+    pvoice->unk90 = 0;
+    pvoice->unkBC = alHeapDBAlloc(NULL, 0, heap, 1, 8);
+    pvoice->unkB8 = 0;
 }
 
