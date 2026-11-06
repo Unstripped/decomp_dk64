@@ -21,19 +21,19 @@ extern u8 D_807F0474[];
 extern u32 D_807FBB60;
 extern PlayerStruct *gPlayerSlots;
 
-void rumbleInfoClear(RumbleInfo *);
-void rumbleMotorStart(u8);
-void rumbleMotorStop(u8);
-void rumbleResetAll(s32);
-s32 rumbleGetPakState(u8);
-void rumbleRequest(u8, u8, s32);
-void rumbleInfoCancel(RumbleInfo *);
-void rumbleCancel(u8);
+void rumbleInfoClear(RumbleInfo *info);
+void rumbleMotorStart(u8 port);
+void rumbleMotorStop(u8 port);
+void rumbleResetAll(s32 unused);
+s32 rumbleGetPakState(u8 port);
+void rumbleRequest(u8 playerIndex, u8 intensity, s32 duration);
+void rumbleInfoCancel(RumbleInfo *info);
+void rumbleCancel(u8 playerIndex);
 void rumbleShutdown(void);
 void rumbleInit(void);
 int rumbleShouldPause(void);
 void rumbleUpdate(void);
-void rumbleSetPaused(s32);
+void rumbleSetPaused(s32 paused);
 
 extern s32 controllerGetPort(s32);
 extern u8 controllerGetActiveMask(void);
@@ -47,50 +47,50 @@ extern s32 func_807143E8(void);
 OSPfs gRumblePfs[4];
 RumbleInfo gRumbleInfo[4];
 
-void rumbleInfoClear(RumbleInfo *arg0) {
-    bzero(arg0, 0x14);
+void rumbleInfoClear(RumbleInfo *info) {
+    bzero(info, 0x14);
 }
 
-void rumbleMotorStart(u8 arg0) {
-    RumbleInfo *sp18;
+void rumbleMotorStart(u8 port) {
+    RumbleInfo *info;
 
-    if (__osMotorAccess(&gRumblePfs[arg0], 1) == 4) {
-        sp18 = &gRumbleInfo[arg0];
-        rumbleInfoClear(sp18);
-        sp18->unk00 = 3;
+    if (__osMotorAccess(&gRumblePfs[port], 1) == 4) {
+        info = &gRumbleInfo[port];
+        rumbleInfoClear(info);
+        info->unk00 = 3;
     } else {
-        D_807F0474[arg0 * 0x14] = 1;
+        D_807F0474[port * 0x14] = 1;
     }
 }
 
-void rumbleMotorInit(u8 arg0) {
-    s32 ret = osMotorInit(&D_807ECCF0, &gRumblePfs[arg0], arg0);
+void rumbleMotorInit(u8 port) {
+    s32 ret = osMotorInit(&D_807ECCF0, &gRumblePfs[port], port);
 
     switch (ret) {
     case 0:
-        gRumbleInfo[arg0].unk00 = 1;
+        gRumbleInfo[port].unk00 = 1;
         break;
     case 1:
-        gRumbleInfo[arg0].unk00 = 0;
+        gRumbleInfo[port].unk00 = 0;
         break;
     case 11:
-        gRumbleInfo[arg0].unk00 = 2;
+        gRumbleInfo[port].unk00 = 2;
         break;
     case 4:
-        gRumbleInfo[arg0].unk00 = 3;
+        gRumbleInfo[port].unk00 = 3;
         break;
     }
 }
 
-void rumbleMotorStop(u8 arg0) {
-    rumbleMotorInit(arg0);
-    __osMotorAccess(&gRumblePfs[arg0], 0);
-    __osMotorAccess(&gRumblePfs[arg0], 0);
-    __osMotorAccess(&gRumblePfs[arg0], 0);
-    D_807F0474[arg0 * 0x14] = 0;
+void rumbleMotorStop(u8 port) {
+    rumbleMotorInit(port);
+    __osMotorAccess(&gRumblePfs[port], 0);
+    __osMotorAccess(&gRumblePfs[port], 0);
+    __osMotorAccess(&gRumblePfs[port], 0);
+    D_807F0474[port * 0x14] = 0;
 }
 
-void rumbleResetAll(s32 arg0) {
+void rumbleResetAll(s32 unused) {
     s32 i;
     s32 j;
 
@@ -105,18 +105,18 @@ void rumbleResetAll(s32 arg0) {
     }
 }
 
-s32 rumbleGetPakState(u8 arg0) {
-    if (arg0 >= 4) {
+s32 rumbleGetPakState(u8 port) {
+    if (port >= 4) {
         return 0;
     }
-    return gRumbleInfo[controllerGetPort(arg0)].unk00;
+    return gRumbleInfo[controllerGetPort(port)].unk00;
 }
 
-void rumbleRequest(u8 arg0, u8 arg1, s32 arg2) {
+void rumbleRequest(u8 playerIndex, u8 intensity, s32 duration) {
     RumbleInfo *info;
 
-    info = &gRumbleInfo[controllerGetPort(arg0)];
-    if (gRumblePaused != 1 && info->unk00 == 1 && gPlayerSlots[arg0].unk2EB == 0) {
+    info = &gRumbleInfo[controllerGetPort(playerIndex)];
+    if (gRumblePaused != 1 && info->unk00 == 1 && gPlayerSlots[playerIndex].unk2EB == 0) {
         if (func_8071432C() != 0 || func_8071441C() != 0) {
             if (info->unk12 != 0) {
                 if (info->unk10 >= 0x1F) {
@@ -125,21 +125,21 @@ void rumbleRequest(u8 arg0, u8 arg1, s32 arg2) {
                 info->unk12 = 0;
                 info->unk10 = 0;
             }
-            info->unk0C = arg2;
-            info->unk05 = arg1;
+            info->unk0C = duration;
+            info->unk05 = intensity;
         }
     }
 }
 
-void rumbleInfoCancel(RumbleInfo *arg0) {
-    if (arg0->unk00 == 1) {
-        arg0->unk05 = 0;
-        arg0->unk0C = 0;
+void rumbleInfoCancel(RumbleInfo *info) {
+    if (info->unk00 == 1) {
+        info->unk05 = 0;
+        info->unk0C = 0;
     }
 }
 
-void rumbleCancel(u8 arg0) {
-    rumbleInfoCancel(&gRumbleInfo[controllerGetPort(arg0)]);
+void rumbleCancel(u8 playerIndex) {
+    rumbleInfoCancel(&gRumbleInfo[controllerGetPort(playerIndex)]);
 }
 
 void rumbleShutdown(void) {
@@ -229,9 +229,9 @@ void rumbleUpdate(void) {
     }
 }
 
-void rumbleSetPaused(s32 arg0) {
-    if (arg0 != gRumblePaused) {
-        gRumblePaused = arg0;
+void rumbleSetPaused(s32 paused) {
+    if (paused != gRumblePaused) {
+        gRumblePaused = paused;
         gRumbleResetPending = 1;
     }
 }
