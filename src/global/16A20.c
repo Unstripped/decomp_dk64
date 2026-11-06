@@ -4,78 +4,78 @@ extern u16 D_80746A50[];
 extern u16 D_80746ACC[];
 extern u16 D_80746B4C[];
 
-s32 mathFixedPointInterp(s32 arg0) {
+s32 mathFixedPointInterp(s32 inputVal) {
     u32 val;
-    u16 *var_a2;
-    s32 var_a1;
-    s32 var_v1;
+    u16 *table;
+    s32 shift;
+    s32 mask;
     s32 index;
-    u16 temp_a3;
+    u16 cur;
     u16 next;
     s32 masked;
     s32 diff;
 
-    var_v1 = 7;
-    if (arg0 >= 0x7FE0) {
-        var_a1 = 3;
-        var_a2 = D_80746B4C;
-        arg0 -= 0x7FE0;
+    mask = 7;
+    if (inputVal >= 0x7FE0) {
+        shift = 3;
+        table = D_80746B4C;
+        inputVal -= 0x7FE0;
     } else {
-        var_v1 = 0x1FF;
-        if (arg0 >= 0x7800) {
-            var_v1 = 0x1F;
-            var_a1 = 5;
-            var_a2 = D_80746ACC;
-            arg0 -= 0x7800;
+        mask = 0x1FF;
+        if (inputVal >= 0x7800) {
+            mask = 0x1F;
+            shift = 5;
+            table = D_80746ACC;
+            inputVal -= 0x7800;
         } else {
-            var_a1 = 9;
-            var_a2 = D_80746A50;
+            shift = 9;
+            table = D_80746A50;
         }
     }
-    index = arg0 >> var_a1;
-    temp_a3 = var_a2[index];
-    next = var_a2[index + 1];
-    masked = arg0 & var_v1;
-    val = temp_a3;
+    index = inputVal >> shift;
+    cur = table[index];
+    next = table[index + 1];
+    masked = inputVal & mask;
+    val = cur;
     diff = val - next;
-    return val - (((s32)(((u32)diff) * masked)) >> var_a1);
+    return val - (((s32)(((u32)diff) * masked)) >> shift);
 }
 
 s32 mathFixedPointInterp(s32);
 
-s32 acosFixed16(s16 arg0) {
-    s32 var_a0_2;
-    s32 temp_v0;
+s32 acosFixed16(s16 val) {
+    s32 absVal;
+    s32 interpVal;
 
-    if (arg0 >= 0) {
-        var_a0_2 = arg0;
+    if (val >= 0) {
+        absVal = val;
     } else {
-        var_a0_2 = -arg0;
+        absVal = -val;
     }
-    temp_v0 = mathFixedPointInterp(var_a0_2);
-    var_a0_2 = temp_v0;
-    if (arg0 < 0) {
-        var_a0_2 = 0xFFFF - temp_v0;
+    interpVal = mathFixedPointInterp(absVal);
+    absVal = interpVal;
+    if (val < 0) {
+        absVal = 0xFFFF - interpVal;
     }
-    return var_a0_2 & 0xFFFF;
+    return absVal & 0xFFFF;
 }
 
-s16 asinFixed16(s16 arg0) {
-    s32 var_a0;
-    s32 var_a0_2;
-    s32 temp_v0;
+s16 asinFixed16(s16 val) {
+    s32 result;
+    s32 absVal;
+    s32 interpVal;
 
-    if (arg0 >= 0) {
-        var_a0_2 = arg0;
+    if (val >= 0) {
+        absVal = val;
     } else {
-        var_a0_2 = -arg0;
+        absVal = -val;
     }
-    temp_v0 = mathFixedPointInterp(var_a0_2);
-    if (arg0 >= 0) {
-        var_a0 = 0x7FFF - temp_v0;
+    interpVal = mathFixedPointInterp(absVal);
+    if (val >= 0) {
+        result = 0x7FFF - interpVal;
     } else {
-        temp_v0 = temp_v0 - 0x8000;
-        var_a0 = temp_v0;
+        interpVal = interpVal - 0x8000;
+        result = interpVal;
     }
-    return var_a0;
+    return result;
 }
