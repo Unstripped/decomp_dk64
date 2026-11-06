@@ -23,8 +23,8 @@ extern u8 D_807FD9D5;
 
 #define L8F0_TEXTURE ((L8F0Texture *)D_807550D0)
 
-void dlAppendTextureLoad(Gfx **arg0, void *arg1) {
-    Gfx *gfx = *arg0;
+void dlAppendTextureLoad(Gfx **glistp, void *texture) {
+    Gfx *gfx = *glistp;
     s32 width;
     s32 height;
     s32 type;
@@ -32,7 +32,7 @@ void dlAppendTextureLoad(Gfx **arg0, void *arg1) {
     s32 ult;
     s32 lrt;
 
-    D_807550D0 = arg1;
+    D_807550D0 = texture;
     D_807FD9D0 = 0x400;
     D_807FD9D2 = 0x400;
     D_807FD9D4 = 0;
@@ -70,18 +70,18 @@ void dlAppendTextureLoad(Gfx **arg0, void *arg1) {
     default:
         return;
     }
-    *arg0 = gfx;
+    *glistp = gfx;
 }
 
 #undef L8F0_TEXTURE
 
 
 
-void func_8070F2C8(s16 arg0, s16 arg1, s8 arg2, s8 arg3) {
-    D_807FD9D0 = arg0;
-    D_807FD9D2 = arg1;
-    D_807FD9D4 = arg2;
-    D_807FD9D5 = arg3;
+void func_8070F2C8(s16 scaleS, s16 scaleT, s8 flipS, s8 flipT) {
+    D_807FD9D0 = scaleS;
+    D_807FD9D2 = scaleT;
+    D_807FD9D4 = flipS;
+    D_807FD9D5 = flipT;
 }
 
 typedef struct R1135bTexture {
@@ -98,7 +98,7 @@ typedef struct R1135bTexture {
 
 extern R1135bTexture *D_807550D0;
 
-void dlAppendTextureRectangle(Gfx **arg0, s16 arg1, s16 arg2) {
+void dlAppendTextureRectangle(Gfx **glistp, s16 screenX, s16 screenY) {
     Gfx *dl;
     f32 fx;
     f32 fy;
@@ -113,10 +113,10 @@ void dlAppendTextureRectangle(Gfx **arg0, s16 arg1, s16 arg2) {
     s16 dsdx;
     s16 dtdy;
 
-    dl = *arg0;
+    dl = *glistp;
     if (D_807550D0 != NULL) {
-        fx = (f32)arg1 * 0.25f;
-        fy = (f32)arg2 * 0.25f;
+        fx = (f32)screenX * 0.25f;
+        fy = (f32)screenY * 0.25f;
         ix = (s32)fx;
         s = (s32)(((f32)D_807550D0->unk10 - (fx - (f32)ix)) * 32.0f);
         iy = (s32)fy;
@@ -138,6 +138,6 @@ void dlAppendTextureRectangle(Gfx **arg0, s16 arg1, s16 arg2) {
             dtdy = D_807FD9D2;
         }
         gSPTextureRectangle(dl++, ix * 4, iy * 4, x1, y1, G_TX_RENDERTILE, s, t, dsdx, dtdy);
-        *arg0 = dl;
+        *glistp = dl;
     }
 }
