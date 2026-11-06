@@ -2380,28 +2380,22 @@ void func_806F0344(void) {
     D_807FBB44->unk11C = (s32)D_807FBB48;
 }
 
-#ifdef NON_MATCHING
 void func_806F03C4(void) {
     s32 ev;
-    EfECamBlock *camera;
 
     switch (D_807FBB48->unk58) {
     case 2:
         ev = 7;
-        camera = &EfECam[gCurrentPlayerIndex];
         break;
     case 3:
         ev = 0;
-        camera = &EfECam[gCurrentPlayerIndex];
         break;
     case 4:
         EfEPS->unk1F0 |= 0x100;
         ev = 4;
-        camera = &EfECam[gCurrentPlayerIndex];
         break;
     case 5:
-        camera = &EfECam[gCurrentPlayerIndex];
-        if (camera->unk2C0 == 1) {
+        if (EfECam[gCurrentPlayerIndex].unk2C0 == 1) {
             ev = 8;
         } else {
             ev = 0x1F;
@@ -2409,14 +2403,19 @@ void func_806F03C4(void) {
         break;
     case 6:
         ev = 9;
-        camera = &EfECam[gCurrentPlayerIndex];
         break;
-    case 7:  // FAKE: second as1-visible ref to the default label (jump-table hole) keeps its lui out of the entry stall; widens the table to 6 entries (sltiu 6 vs 5)
     default:
-        camera = &EfECam[gCurrentPlayerIndex];
         break;
     }
-    D_807FBB48->unkE6 = mathAngleBetweenPoints2D(camera->unk210, camera->unk218,
+    if (D_807FBB48 && D_807FBB48 && D_807FBB48) {}  // FAKE: pads as1 XBB source window
+    if (D_807FBB48 && D_807FBB48 && D_807FBB48) {}  // FAKE: pads as1 XBB source window
+    if (D_807FBB48 && D_807FBB48 && D_807FBB48) {}  // FAKE: pads as1 XBB source window
+    if (D_807FBB48 && D_807FBB48 && D_807FBB48) {}  // FAKE: pads as1 XBB source window
+    if (D_807FBB48 && D_807FBB48 && D_807FBB48) {}  // FAKE: pads as1 XBB source window
+    if (D_807FBB48 && D_807FBB48 && D_807FBB48) {}  // FAKE: pads as1 XBB source window
+    if (D_807FBB48 && D_807FBB48 && D_807FBB48) {}  // FAKE: pads as1 XBB source window
+    if (D_807FBB48 && D_807FBB48 && D_807FBB48) {}  // FAKE: pads as1 XBB source window
+    D_807FBB48->unkE6 = mathAngleBetweenPoints2D(EfECam[gCurrentPlayerIndex].unk210, EfECam[gCurrentPlayerIndex].unk218,
                                                   D_807FBB48->unk7C, D_807FBB48->unk84);
     if (D_807FBB68 & 2) {
         EfEPS->unk1F0 &= ~0x100;
@@ -2430,10 +2429,6 @@ void func_806F03C4(void) {
     D_807FBB48->unk154 = 0x67;
     D_807FBB48->unk155[0] = 0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/EFDC0/func_806F03C4.s")
-#endif
 
 void func_806E9964(EfEPlayerState *);
 
