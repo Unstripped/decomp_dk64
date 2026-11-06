@@ -9,13 +9,13 @@ extern u8 D_807FF0F8;
 
 void updateCSPOutputChannelMode(s32 arg0, s32 arg1);
 
-void configureCSPOutputMode(u8 arg0) {
+void configureCSPOutputMode(u8 mode) {
     s32 i;
 
     D_807FF0F0 = 0;
     D_807FF0F1 = 0;
     D_807FF0F2 = 0;
-    switch (arg0) {
+    switch (mode) {
         case 1:
             D_807FF0F1 = 1;
             break;
@@ -32,34 +32,34 @@ void configureCSPOutputMode(u8 arg0) {
     } while ((i += 1) < 2);
 }
 
-void updateCSPOutputChannelMode(s32 arg0, s32 arg1) {
-    if (arg1 == 0) {
-        arg1 = *(&D_807FF0F8 + arg0);
+void updateCSPOutputChannelMode(s32 chan, s32 outputMode) {
+    if (outputMode == 0) {
+        outputMode = *(&D_807FF0F8 + chan);
     }
-    *(&D_807FF0F4 + arg0) = 0;
-    *(&D_807FF0F6 + arg0) = 0;
-    switch (arg1) {
+    *(&D_807FF0F4 + chan) = 0;
+    *(&D_807FF0F6 + chan) = 0;
+    switch (outputMode) {
         case 2:
             if (D_807FF0F0 != 0) {
-                *(&D_807FF0F6 + arg0) = 1;
+                *(&D_807FF0F6 + chan) = 1;
             }
             break;
         case 3:
             if (D_807FF0F0 != 0) {
-                *(&D_807FF0F4 + arg0) = 1;
+                *(&D_807FF0F4 + chan) = 1;
             }
             break;
         case 4:
             if (D_807FF0F1 == 0) {
-                *(&D_807FF0F4 + arg0) = 1;
+                *(&D_807FF0F4 + chan) = 1;
             }
             break;
         case 5:
             if (D_807FF0F1 == 0) {
-                *(&D_807FF0F4 + arg0) = 1;
-                *(&D_807FF0F6 + arg0) = 1;
+                *(&D_807FF0F4 + chan) = 1;
+                *(&D_807FF0F6 + chan) = 1;
             }
             break;
     }
-    *(&D_807FF0F8 + arg0) = arg1;
+    *(&D_807FF0F8 + chan) = outputMode;
 }
