@@ -81,18 +81,18 @@ void actorPatrolFollowerUpdate();
 
 void enemyAggroStateUpdate(s32, s32, s32);
 u8 patrolPathStep(u8, u8);
-void actorPatrolFollowerUpdate(arg0, arg1, arg2)
-s16 arg0;
-u8 arg1;
-u16 arg2;
+void actorPatrolFollowerUpdate(targetId, skipStep, movementFlags)
+s16 targetId;
+u8 skipStep;
+u16 movementFlags;
 {
     Actor *actor;
 
-    if (arg0 != 0 && (D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0)) {
+    if (targetId != 0 && (D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0)) {
         actor = D_807FBB40;
         if (actor->unk154 != 0x37) {
             ((B1F60Actor *)actor)->unkC0 = 200.0f;
-            func_8072D714(D_807FBB70.unk1FC, arg0, actor);
+            func_8072D714(D_807FBB70.unk1FC, targetId, actor);
         }
     }
     if (D_807FBB40->unk154) {}  // FAKE: raises the actor-type expression's priority so the switch-selector copy colours v0
@@ -102,22 +102,22 @@ u16 arg2;
         case 0x10:
         case 0x15:
         case 0x23:
-            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, (actor->unk6A & 1) ? arg2 : (arg2 | 2), 0.0f);
+            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, (actor->unk6A & 1) ? movementFlags : (movementFlags | 2), 0.0f);
             break;
         case 2:
         case 3:
         case 7:
         case 0x35:
-            actorMoveWithinZone(D_807FBB40->unk154, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, arg2, 0.0f);
+            actorMoveWithinZone(D_807FBB40->unk154, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, movementFlags, 0.0f);
             break;
         case 0x37:
             switch (((B1F60Actor *)actor)->unk155) {
                 case 0:
-                    actorMoveWithinZone(0x37, 0.0f, 0.0f, arg2 | 0x4200, 0.0f);
+                    actorMoveWithinZone(0x37, 0.0f, 0.0f, movementFlags | 0x4200, 0.0f);
                     break;
                 case 1:
                     sfxSpawnTableNodes(actor);
-                    if (arg1 != 0) {
+                    if (skipStep != 0) {
                         B1F60A->unk155 = 2;
                         break;
                     }
@@ -125,7 +125,7 @@ u16 arg2;
                     actor = D_807FBB40;
                     ((B1F60Actor *)actor)->unk155++;
                 case 2:
-                    actorMoveWithinZone(0x37, 0.0f, 0.0f, arg2 | 0x4200, 0.0f);
+                    actorMoveWithinZone(0x37, 0.0f, 0.0f, movementFlags | 0x4200, 0.0f);
                     break;
                 case 3:
                     func_8072DC7C(0xA);
