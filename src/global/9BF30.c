@@ -30,51 +30,51 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 void matrixMakeRotationY(f32 (*)[4], f32);
 
-Gfx *projectileRenderSpriteRing(Gfx *arg0, Actor *arg1) {
+Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     ActorTrailState *sub;
     f32 mtx2[4][4];
     f32 mtx1[4][4];
     s16 i;
-    s16 sp110;
+    s16 stepAngle;
     f64 q0;
     f64 q1;
     f64 q2;
     f64 q3;
     f32 f;
     s32 idx;
-    f32 spE4;
+    f32 collisionRadius;
     f32 vx;
     f32 vz;
     f32 vy;
     f32 vscale;
     Gfx *_g; // FAKE: three loop packets below share this one Gfx pointer; shrinks the block-local stack homes by 12 bytes
 
-    sub = arg1->unk174;
-    sp110 = 0x1000 / sub->unk0;
-    idx = (((sub->unk10++) % 16) + arg1->unk168) & 0xFF;
+    sub = actor->unk174;
+    stepAngle = 0x1000 / sub->unk0;
+    idx = (((sub->unk10++) % 16) + actor->unk168) & 0xFF;
 
-    gSPDisplayList(arg0++, &D_1000118);
-    gSPMatrix(arg0++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPMatrix(arg0++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
-    gSPTexture(arg0++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
-    gDPSetCombine(arg0++, 0x119623, 0xFF2FFFFF);
-    gDPSetTextureFilter(arg0++, G_TF_BILERP);
-    gSPGeometryMode(arg0++, 0, G_ZBUFFER);
-    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x00504A50);
-    gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    gSPDisplayList(glist++, &D_1000118);
+    gSPMatrix(glist++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(glist++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPTexture(glist++, 0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON);
+    gDPSetCombine(glist++, 0x119623, 0xFF2FFFFF);
+    gDPSetTextureFilter(glist++, G_TF_BILERP);
+    gSPGeometryMode(glist++, 0, G_ZBUFFER);
+    gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x00504A50);
+    gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
 
-    actorFreeModelNodeList(arg1);
+    actorFreeModelNodeList(actor);
 
-    if (arg1->unk15F != 0) {
+    if (actor->unk15F != 0) {
         switch (sub->unk11) {
         case 0:
-            spE4 = (f32)(((f64)sub->unk8) * 10.0);
+            collisionRadius = (f32)(((f64)sub->unk8) * 10.0);
             break;
         case 1:
-            spE4 = (f32)((((f64)sub->unk8) * 0.15) * 2048.0);
+            collisionRadius = (f32)((((f64)sub->unk8) * 0.15) * 2048.0);
             break;
         }
-        actorSetCollisionRadius(arg1, spE4);
+        actorSetCollisionRadius(actor, collisionRadius);
     }
 
     i = 0;
@@ -82,41 +82,41 @@ Gfx *projectileRenderSpriteRing(Gfx *arg0, Actor *arg1) {
         do {
             switch (sub->unk11) {
             case 0:
-                vx = func_80612794(i * sp110) * sub->unk8;
-                vy = func_80612790(i * sp110) * sub->unk8;
+                vx = func_80612794(i * stepAngle) * sub->unk8;
+                vy = func_80612790(i * stepAngle) * sub->unk8;
                 vscale = 1.0f;
                 vz = 0.0f;
                 break;
             case 1:
-                q0 = ((f64)((*((s16 *)(((u8 *)arg1) + 0xEE))) - arg1->unk15F)) * 0.05;
+                q0 = ((f64)((*((s16 *)(((u8 *)actor) + 0xEE))) - actor->unk15F)) * 0.05;
                 q1 = (1.0 < q0) ? (1.0) : (q0);
                 f = (f32)((q1 * 0.028999999999999998) + 0.001);
                 vscale = 130.0f * f;
                 vz = 1500.0f * f;
-                vx = func_80612794(arg1->unkE6 + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * sp110)))));
-                vy = func_80612790(arg1->unkE6 + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * sp110)))));
+                vx = func_80612794(actor->unkE6 + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
+                vy = func_80612790(actor->unkE6 + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
                 break;
             }
-            if (arg1->unk15F != 0) {
-                actorAppendModelNode(arg1, vx, vz, vy, (f32)(((f64)vscale) * 80.0), -1);
+            if (actor->unk15F != 0) {
+                actorAppendModelNode(actor, vx, vz, vy, (f32)(((f64)vscale) * 80.0), -1);
             }
-            _g = (Gfx *)(arg0++); _g->words.w0 = 0xFD180000; _g->words.w1 = ((s32 *)D_807FC7C0)[idx];
-            gDPSetTile(arg0++, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0, 0, G_TX_LOADTILE, 0, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD); gDPLoadSync(arg0++); gDPLoadBlock(arg0++, G_TX_LOADTILE, 0, 0, 0x3FF, 0x80); gDPPipeSync(arg0++); _g = (Gfx *)(arg0++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; gDPSetTileSize(arg0++, G_TX_RENDERTILE, 0, 0, 0x7C, 0x7C); // FAKE: shared Gfx pointer; one source line steers scheduling
+            _g = (Gfx *)(glist++); _g->words.w0 = 0xFD180000; _g->words.w1 = ((s32 *)D_807FC7C0)[idx];
+            gDPSetTile(glist++, G_IM_FMT_RGBA, G_IM_SIZ_32b, 0, 0, G_TX_LOADTILE, 0, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOLOD); gDPLoadSync(glist++); gDPLoadBlock(glist++, G_TX_LOADTILE, 0, 0, 0x3FF, 0x80); gDPPipeSync(glist++); _g = (Gfx *)(glist++); _g->words.w0 = 0xF5181000; _g->words.w1 = 0x00080200; gDPSetTileSize(glist++, G_TX_RENDERTILE, 0, 0, 0x7C, 0x7C); // FAKE: shared Gfx pointer; one source line steers scheduling
 
             guScaleF(mtx2, vscale, vscale, vscale);
             matrixMakeRotationY(mtx1, (f32)(((*((s16 *)(gPlayerSlots + 0x2C8))) * 0x168) / 4096));
             guMtxCatF(mtx2, mtx1, mtx2);
-            guTranslateF(mtx1, arg1->unk7C + vx, arg1->unk80, arg1->unk84 + vy);
+            guTranslateF(mtx1, actor->unk7C + vx, actor->unk80, actor->unk84 + vy);
             guMtxCatF(mtx2, mtx1, mtx2);
             guMtxF2L(mtx2, (Mtx *)(sub->unk4 + (((i * 2) + D_807444FC) << 6)));
-            _g = (Gfx *)(arg0++); _g->words.w0 = 0xDA380003; _g->words.w1 = (u32)(sub->unk4 + (((i * 2) + D_807444FC) << 6)); // FAKE: shared Gfx pointer
-            gSPVertex(arg0++, osVirtualToPhysical(&D_80750280), 4, 0);
-            gSP2Triangles(arg0++, 0, 1, 2, 0, 0, 2, 3, 0);
-            gDPPipeSync(arg0++);
+            _g = (Gfx *)(glist++); _g->words.w0 = 0xDA380003; _g->words.w1 = (u32)(sub->unk4 + (((i * 2) + D_807444FC) << 6)); // FAKE: shared Gfx pointer
+            gSPVertex(glist++, osVirtualToPhysical(&D_80750280), 4, 0);
+            gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
+            gDPPipeSync(glist++);
             i++;
         } while (i < sub->unk0);
     }
-    return arg0;
+    return glist;
 }
 
 
@@ -145,7 +145,7 @@ typedef struct ProjectileState {
     u8 unk11;
 } ProjectileState;
 
-Gfx *projectileRenderSpriteRing(Gfx *, Actor *);
+Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void actorDespawn(Actor *);
 void heapFree(void *);
@@ -302,12 +302,12 @@ void effectRadialSprayUpdate(void);
 
 void projectileActorUpdate(void) {
     ProjectileSubState *sub;
-    ProjectileTriple sp68;
-    s16 var_s1;
+    ProjectileTriple spriteTriple;
+    s16 particleIdx;
 
     sub = ((ProjectileActor *)D_807FBB40)->unk174;
     if (!(G_ACTOR->unk60 & 0x10)) {
-        sp68 = *(ProjectileTriple *)D_807502C0;
+        spriteTriple = *(ProjectileTriple *)D_807502C0;
         G_ACTOR->unk6A &= (G_ACTOR->unk6E = -2);
         G_ACTOR->unkEE = (s16)((G_ACTOR->unk124->unk0 / 6.2831855f) * 4095.0f);
         G_ACTOR->unkB8 = G_ACTOR->unk124->unk4;
@@ -329,7 +329,7 @@ void projectileActorUpdate(void) {
         if (sub->unk13 == 3) {
             func_8071498C(effectPulseSpinUpdate);
         }
-        func_80714C08(((void **)&sp68)[sub->unk13 - 1], G_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
+        func_80714C08(((void **)&spriteTriple)[sub->unk13 - 1], G_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
         sub->unk0 = D_8076A068;
         sub->unk12 = 0;
         G_ACTOR->unk60 |= 0x80000;
@@ -344,9 +344,9 @@ void projectileActorUpdate(void) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0x14);
         }
         if (D_807FBB85 == 0) {
-            for (var_s1 = 0; var_s1 < 0xC; var_s1 += 2) {
+            for (particleIdx = 0; particleIdx < 0xC; particleIdx += 2) {
                 func_807149B8(1);
-                func_80714950(var_s1 + 0xB000000);
+                func_80714950(particleIdx + 0xB000000);
                 func_8071498C(effectRadialSprayUpdate);
                 func_80714CC0(&D_8071FBA0, (f32)(((f64)((s32)(randomNonNegative() >> 15) % 10) * 0.05) + 0.2),
                     G_ACTOR->unk7C, G_ACTOR->unk80, G_ACTOR->unk84);
