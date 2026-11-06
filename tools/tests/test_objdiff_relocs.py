@@ -14,14 +14,16 @@ RODATA_VRAM = 0x80758000
 RODATA_SIZE = 0x1000
 DATA_VRAM = 0x80759000
 DATA_SIZE = 0x1000
+BSS_VRAM = 0x8075A000
+BSS_SIZE = 0x1000
 FAKE_OBJ_PATH = "fake_object.o"
 
 
 @pytest.fixture(autouse=True)
 def mock_sections(monkeypatch):
     """Supply real section sizes and vrams for fake object paths without requiring ELF binaries."""
-    sec_sizes = {".rodata": RODATA_SIZE, ".data": DATA_SIZE}
-    vrams = {".rodata": RODATA_VRAM, ".data": DATA_VRAM}
+    sec_sizes = {".rodata": RODATA_SIZE, ".data": DATA_SIZE, ".bss": BSS_SIZE}
+    vrams = {".rodata": RODATA_VRAM, ".data": DATA_VRAM, ".bss": BSS_VRAM}
     monkeypatch.setattr(objdiff, "get_section_sizes", lambda obj_path: sec_sizes)
     monkeypatch.setattr(objdiff, "object_section_vrams", lambda obj_path, absolute: vrams)
     return {"sec_sizes": sec_sizes, "vrams": vrams}
@@ -192,3 +194,90 @@ def test_extern_target_left_untouched():
     )
     assert norm_text_named == input_text
     assert norm_relocs_named == named_extern_relocs
+
+
+def test_alias_in_bss_vs_symbol_plus_addend():
+    """Case 5: An alias inside .bss (absolute/splat) vs defined symbol + addend.
+
+    When expected asm references an interior alias (e.g. D_8075A062 defined in
+    undefined_syms) while C references a base symbol with an addend (e.g.
+    D_8075A060 + 0x2), both resolve to the same VRAM address inside .bss and
+    normalise to identical .bss-relative text bytes and relocs.
+    """
+    base_offset = 0x0060
+    addend = 0x0002
+    alias_offset = base_offset + addend  # 0x0062
+
+    sym_base = f"D_{BSS_VRAM + base_offset:08X}"
+    sym_alias = f"D_{BSS_VRAM + alias_offset:08X}"
+    absolute = {sym_alias: BSS_VRAM + alias_offset}
+
+    # Expected style: relocations target interior alias with 0 addend in instruction
+    text_exp = (0x3C010000).to_bytes(4, "big") + (0xA02F0000).to_bytes(4, "big")
+    relocs_exp = [
+        (0, "R_MIPS_HI16", sym_base),
+        (4, "R_MIPS_LO16", sym_alias),
+    ]
+
+    # Built style: relocations target base symbol, instruction encodes addend
+    text_built = (0x3C010000).to_bytes(4, "big") + (0xA02F0000 | addend).to_bytes(4, "big")
+    relocs_built = [
+        (0, "R_MIPS_HI16", sym_base),
+        (4, "R_MIPS_LO16", sym_base),
+    ]
+
+    norm_text_exp, norm_relocs_exp = objdiff.normalise_own_section_relocs(
+        FAKE_OBJ_PATH, text_exp, relocs_exp, absolute
+    )
+    norm_text_built, norm_relocs_built = objdiff.normalise_own_section_relocs(
+        FAKE_OBJ_PATH, text_built, relocs_built, absolute
+    )
+
+    # Both targets become .bss
+    assert norm_relocs_exp == [(0, "R_MIPS_HI16", ".bss"), (4, "R_MIPS_LO16", ".bss")]
+    assert norm_relocs_built == [(0, "R_MIPS_HI16", ".bss"), (4, "R_MIPS_LO16", ".bss")]
+
+    # Both encode identical section offsets
+    assert norm_text_exp == norm_text_built
+    assert norm_relocs_exp == norm_relocs_built
+
+
+def test_different_bss_addresses_differ():
+    """Case 6: References to different addresses in .bss must remain different.
+
+    Genuine differences in .bss targets (e.g. D_8075A062 vs D_8075A060 + 0x3)
+    must produce different normalised text immediates.
+    """
+    base_offset = 0x0060
+    sym_base = f"D_{BSS_VRAM + base_offset:08X}"
+    alias_offset = base_offset + 0x0002
+    sym_alias = f"D_{BSS_VRAM + alias_offset:08X}"
+    absolute = {sym_alias: BSS_VRAM + alias_offset}
+
+    # Input 1 targets alias at offset 0x0062
+    text_1 = (0x3C010000).to_bytes(4, "big") + (0xA02F0000).to_bytes(4, "big")
+    relocs_1 = [
+        (0, "R_MIPS_HI16", sym_base),
+        (4, "R_MIPS_LO16", sym_alias),
+    ]
+
+    # Input 2 targets base symbol + addend 0x0003 (offset 0x0063)
+    text_2 = (0x3C010000).to_bytes(4, "big") + (0xA02F0003).to_bytes(4, "big")
+    relocs_2 = [
+        (0, "R_MIPS_HI16", sym_base),
+        (4, "R_MIPS_LO16", sym_base),
+    ]
+
+    norm_text_1, norm_relocs_1 = objdiff.normalise_own_section_relocs(
+        FAKE_OBJ_PATH, text_1, relocs_1, absolute
+    )
+    norm_text_2, norm_relocs_2 = objdiff.normalise_own_section_relocs(
+        FAKE_OBJ_PATH, text_2, relocs_2, absolute
+    )
+
+    # Both targets become .bss
+    assert norm_relocs_1 == [(0, "R_MIPS_HI16", ".bss"), (4, "R_MIPS_LO16", ".bss")]
+    assert norm_relocs_2 == [(0, "R_MIPS_HI16", ".bss"), (4, "R_MIPS_LO16", ".bss")]
+
+    # But normalised text must differ due to differing offsets (0x0062 vs 0x0063)
+    assert norm_text_1 != norm_text_2

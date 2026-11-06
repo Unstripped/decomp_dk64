@@ -153,7 +153,7 @@ def object_section_vrams(obj_path, absolute):
 
 def normalise_own_section_relocs(obj_path, text, relocs, absolute, vrams=None):
     """Normalise relocations against absolute symbols that lie inside the object's own
-    .rodata/.data section to section+offset, matching IDO's C output."""
+    data sections (.rodata/.data/.bss/etc.) to section+offset, matching IDO's C output."""
     if vrams is None:
         vrams = object_section_vrams(obj_path, absolute)
     sec_sizes = get_section_sizes(obj_path)
@@ -168,7 +168,7 @@ def normalise_own_section_relocs(obj_path, text, relocs, absolute, vrams=None):
         matched_sec = None
         offset = 0
         if addr is not None and rtype in ("R_MIPS_HI16", "R_MIPS_LO16", "R_MIPS_32"):
-            for sec in (".rodata", ".data"):
+            for sec in DATA_SECTIONS:
                 if sec in vrams:
                     base = vrams[sec]
                     size = sec_sizes.get(sec, 0)
