@@ -1170,7 +1170,6 @@ void func_80028E3C(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     s16 unk0;
     char pad2[2];
@@ -1280,12 +1279,9 @@ void bonusLightFlashGameUpdate(void) {
                 sfxPlayOnFreeSlot(D_8002D8EC[randomLcgNext() & 3], 0x7FFF, 63.0f, 1.0f, 0x14, 0);
             }
         } else {
-            if (randomFloat() < 0.5f) {
-                D_8002D8FC = 0;
-            } else {
-                D_8002D8FC = -0x64;
-            }
-            D_8002D8F8 = 1;
+            if (randomFloat() < 0.5f) { D_8002D8FC = 0; }
+            else { d = -100; if (d) {} D_8002D8FC = d | 0; } // FAKE/LAYOUT: dead test and |0 keep d colored in v0; preserve this line.
+            j = 1; if (j) {} D_8002D8F8 = j | 0; // FAKE/LAYOUT: dead test and |0 keep j colored in v1; preserve this line.
         }
         if (t0->unk0 < -0x1E) {
             t0->unk0 = D_8002D8F4;
@@ -1296,7 +1292,7 @@ void bonusLightFlashGameUpdate(void) {
             } while (i < 6);
             for (i = 0; i != 6; i++) {
                 j = i;
-                r = ((((((randomLcgNext() & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 7;
+                r = ((((((((randomLcgNext() & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 0xFFu) & 7; // FAKE: restore the temporary ring after coloring the two constants.
                 while (r >= 0) {
                     if (t0->unk8[j] == -1) {
                         r -= 1;
@@ -1388,10 +1384,6 @@ void bonusLightFlashGameUpdate(void) {
     renderCallbacksRegister(func_80029B9C, D_807FBB40, 3);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/bonus/nonmatchings/2690/bonusLightFlashGameUpdate.s")
-#endif
 
 typedef struct {
     char pad0[3];
