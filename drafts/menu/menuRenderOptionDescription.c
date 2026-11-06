@@ -1,4 +1,4 @@
-// menuRenderOptionDescription (src/menu/E550.c): stage 4 improved, Base05eae3cc2edbb5a497074c2a4825b276d546c9a2. Corrected full=66 text=66 reloc=0 shape=13 n=417/417 frame232. IMPORTANT scorer boundary bug: D_80032F48 is a global alias on the final jr-ra delay slot (addiu sp,sp,232); deadsweep/as1probe stop at its objdump header and omit the target delay slot. Their raw target n416 and raw full67/shape14 are truncated; restoring the real target delay slot gives full66/shape13 with correct n417. Nominal prior draft full85/n415 was two instructions short against complete target. New levers: y=0 and do on one source line removes an as1 scheduling barrier (as1 scan proof reproduced in C); arg1=&off plus first-call dereference makes off addressable and spills it at212(sp); duplicate D_800339D0 dead test fixes post-loop saved-register rotation to width-address=s1, font-height=s2, first-string=s3; fresh Gfx* textDl for first hudDrawScaledText return improves final argument scheduling. Keeps prior yo reuse, off declaration -20 and four old dead tests removed. Remaining: loop t5/ra/s1 cycle, alpha spill76 vs target96, x-loop andi vs move, graphics-temporary v0/v1 vs targett1/t2, ring offsets after text x conversion, and off v1 vs targett0. Tried parameter/real-local scaling, nested narrow casts, scalar/array/union storage, scalar coordinate sharing and frame-preserving endpoint layouts, signed/unsigned Gfx operands, endpoint ordering, zero-valued spC0 terms; no further gain. Actual ABI discrepancies textGetFontHeight u8(s16), texCacheFindOrLoad arg u16, textDrawStringVtx font s16/flagsu8: 30 corrected-prototype combinations left code unchanged, no header edits. uopt level5 traced. as1 scan rounds2 (3949 edits/round) found the same-line route; remaining apparent lower-count deletions invalid. deadsweep rounds2 improved raw74 to68, subsequent 752 variants on fresh-return best found none. Permuter -j2 --seconds600,14969 iterations: bestscore1012 remeasures rawfull78/shape26/n417 and rejected; natural fresh-return-local derivative is retained instead. Plain C fdiff: FAILED: Section .text content mismatch (built: 2560 bytes, expected: 2560 bytes); no relocation mismatch. Default parked fdiff: OK. Copy .scratch/Matcher4-menuRenderOptionDescription/E550.c; merge improved park only, not a match.
+// menuRenderOptionDescription (src/menu/E550.c): StackGroup stage4; Base 7cd507e274df69c7fa35a857595a8de5dfeb8563; full51 text51 reloc0 shape3, n417/417 and frame232 exact. Removed yy/yyo/textDl named homes; expanded two preloop OtherMode packets using consumed arg1 and not-yet-loaded tex, removing two GBI packet homes. First alpha&255 spill4C->60; all observed stack offsets exact. Postloop packet macros retained. Remaining u16 induction andi/compare plus postloop register coloring. Full-width induction variants regressed127. Active fdiff text mismatch same2560 bytes, parked plain OK/non-matching OK. Full map .scratch/StackGroup/menuRenderOptionDescription.md.
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 extern s16 D_80744490;
@@ -24,9 +24,6 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     char *spC4;
     s32 spC0;
     s32 yo;
-    s32 yyo;
-    s32 yy;
-    Gfx *textDl;
 
     spCC = textTableGetString(0xD, 0, 1);
     spC8 = textTableGetString(0xD, 1, 1);
@@ -42,20 +39,18 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
         alpha = 0xFF;
     }
     gDPSetPrimColor(dl++, 0, 0, alpha, alpha, alpha, 0xFF);
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0);
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0);
+    arg1 = dl++; ((Gfx *)arg1)->words.w0 = 0xE3001201; ((Gfx *)arg1)->words.w1 = 0; // FAKE: reuse a consumed parameter's packet home.
+    tex = (u32)dl++; ((Gfx *)tex)->words.w0 = 0xE3000C00; ((Gfx *)tex)->words.w1 = 0; // FAKE: reuse the not-yet-loaded texture's home.
     tex = texCacheFindOrLoad(0xB0);
     yo = (s32)(((f32)D_80744494 - 82.0f) * 0.5f);
     y = 0; do {  // FAKE: one source line removes a scheduling barrier before the loop.
         xo = (s32)(((f32)D_80744490 - 204.0f) * 0.5f);
-        yy = y + 0x29;
-        yyo = yo + 0x29;
         x = 0;
         if (x && x) {}  // FAKE: deadsweep: steers uopt candidate priority
         do {
-            gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 82, x, y, x + 0x66, yy, 0,
+            gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 82, x, y, x + 0x66, (y + 0x29), 0,
                                   G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
-            gSPTextureRectangle(dl++, xo << 2, yo << 2, (xo + 0x66) << 2, yyo << 2, 0, x << 5, y << 5, 0x400, 0x400);
+            gSPTextureRectangle(dl++, xo << 2, yo << 2, (xo + 0x66) << 2, (yo + 0x29) << 2, 0, x << 5, y << 5, 0x400, 0x400);
             x += 0x66;
             xo += 0x66;
         } while (x != 0xCC);
@@ -76,6 +71,6 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     arg1 = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
     off = D_8074450C * 0xC8;
     xx = xx | 0;  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
-    textDl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)arg1 * 4), .5f, spC8);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
-    return hudDrawScaledText(textDl, xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), .5f, spC4);
+    dl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)arg1 * 4), .5f, spC8);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
+    return hudDrawScaledText(dl, xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), .5f, spC4);
 }

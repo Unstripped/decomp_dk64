@@ -157,9 +157,6 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     char *spC4;
     s32 spC0;
     s32 yo;
-    s32 yyo;
-    s32 yy;
-    Gfx *textDl;
 
     spCC = textTableGetString(0xD, 0, 1);
     spC8 = textTableGetString(0xD, 1, 1);
@@ -175,20 +172,18 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
         alpha = 0xFF;
     }
     gDPSetPrimColor(dl++, 0, 0, alpha, alpha, alpha, 0xFF);
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0);
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0);
+    arg1 = dl++; ((Gfx *)arg1)->words.w0 = 0xE3001201; ((Gfx *)arg1)->words.w1 = 0; // FAKE: reuse a consumed parameter's packet home.
+    tex = (u32)dl++; ((Gfx *)tex)->words.w0 = 0xE3000C00; ((Gfx *)tex)->words.w1 = 0; // FAKE: reuse the not-yet-loaded texture's home.
     tex = texCacheFindOrLoad(0xB0);
     yo = (s32)(((f32)D_80744494 - 82.0f) * 0.5f);
     y = 0; do {  // FAKE: one source line removes a scheduling barrier before the loop.
         xo = (s32)(((f32)D_80744490 - 204.0f) * 0.5f);
-        yy = y + 0x29;
-        yyo = yo + 0x29;
         x = 0;
         if (x && x) {}  // FAKE: deadsweep: steers uopt candidate priority
         do {
-            gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 82, x, y, x + 0x66, yy, 0,
+            gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 82, x, y, x + 0x66, (y + 0x29), 0,
                                   G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
-            gSPTextureRectangle(dl++, xo << 2, yo << 2, (xo + 0x66) << 2, yyo << 2, 0, x << 5, y << 5, 0x400, 0x400);
+            gSPTextureRectangle(dl++, xo << 2, yo << 2, (xo + 0x66) << 2, (yo + 0x29) << 2, 0, x << 5, y << 5, 0x400, 0x400);
             x += 0x66;
             xo += 0x66;
         } while (x != 0xCC);
@@ -209,8 +204,8 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     arg1 = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
     off = D_8074450C * 0xC8;
     xx = xx | 0;  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
-    textDl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)arg1 * 4), .5f, spC8);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
-    return hudDrawScaledText(textDl, xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), .5f, spC4);
+    dl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)arg1 * 4), .5f, spC8);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
+    return hudDrawScaledText(dl, xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), .5f, spC4);
 }
 #else
 
