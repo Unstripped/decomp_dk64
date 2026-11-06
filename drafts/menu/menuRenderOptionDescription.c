@@ -1,4 +1,4 @@
-// menuRenderOptionDescription (src/menu/E550.c): Stack2 full-width route: full40 text40 reloc0 shape9, n417/417 frame0xE8; s32 x loop separated from postloop text coordinate (xo), single empty x guard at inner-loop head raises induction priority above300 and restores ALL loop register colouring. xx declaration after spC0 restores string/font homes. Alpha spill remains5C vs60; two loop scheduling groups plus postloop packet/off colouring remain. Base3087bd3c9842f2b5f77c8aae267d88523478f104. Derivation in .scratch/StackGroup/menuRenderOptionDescription.md.
+// menuRenderOptionDescription (src/menu/E550.c): Stack2 s32 route full35 text35 reloc0 shape7 n417/417 frame0xE8 (base3087bd3c). Fullwidth induction priority203->303.333 via loop-only x plus head empty guard restores all loop registers; shared loadTilePacket bit125 priority151.5 colours t1 for both loop and postloop OtherMode. as1probe x=0/do line join 37->35. Remaining Combine v0 vs t2, off v1 vs t0, yy/yyo spills +4, scheduling and FP-to-GPR scratch choices. Derivation and failed carrier probes in .scratch/StackGroup/menuRenderOptionDescription.md.
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 extern s16 D_80744490;
@@ -24,6 +24,7 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     s32 spC0;
     s16 xx;
     s32 yo;
+    Gfx *loadTilePacket;
 
     spCC = textTableGetString(0xD, 0, 1);
     spC8 = textTableGetString(0xD, 1, 1);
@@ -45,11 +46,18 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     yo = (s32)(((f32)D_80744494 - 82.0f) * 0.5f);
     y = 0; do {  // FAKE: one source line removes a scheduling barrier before the loop.
         xo = (s32)(((f32)D_80744490 - 204.0f) * 0.5f);
-        x = 0;
-        do {
-            if (x) {} // FAKE: induction priority
-            gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 82, x, y, x + 0x66, (y + 0x29), 0,
-                                  G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+        x = 0; do { // FAKE: as1probe proved this boundary reorders induction initialization.
+            if (x) {} // FAKE: shorten the full-width induction range and raise its colouring priority.
+            { gDPSetTextureImage(dl++, G_IM_FMT_I, G_IM_SIZ_8b, 102, tex); \
+              gDPSetTile(dl++, G_IM_FMT_I, G_IM_SIZ_8b, (((((x + 0x66) - x + 1) >> 1) + 7) >> 3), 0, G_TX_LOADTILE, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0); \
+              gDPLoadSync(dl++); \
+              loadTilePacket = dl++; \
+              loadTilePacket->words.w0 = _SHIFTL(G_LOADTILE, 24, 8) | _SHIFTL(x << 1, 12, 12) | _SHIFTL(y << 2, 0, 12); \
+              loadTilePacket->words.w1 = _SHIFTL(G_TX_LOADTILE, 24, 3) | _SHIFTL((x + 0x66) << 1, 12, 12) | _SHIFTL((y + 0x29) << 2, 0, 12); \
+              gDPPipeSync(dl++); \
+              gDPSetTile(dl++, G_IM_FMT_I, G_IM_SIZ_4b, (((((x + 0x66) - x + 1) >> 1) + 7) >> 3), 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0); \
+              gDPSetTileSize(dl++, G_TX_RENDERTILE, x << 2, y << 2, (x + 0x66) << 2, (y + 0x29) << 2); \
+              } // FAKE: expanded GBI packet reuse; continuations retain macro scheduling.
             gSPTextureRectangle(dl++, xo << 2, yo << 2, (xo + 0x66) << 2, (yo + 0x29) << 2, 0, x << 5, y << 5, 0x400, 0x400);
             x += 0x66;
             xo += 0x66;
@@ -64,7 +72,7 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
     if (D_800339D0 && D_800339D0) {}  // FAKE: duplicate reference steers the post-loop register allocation.
     if (D_800339D0 && D_800339D0) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
+    loadTilePacket = dl++; loadTilePacket->words.w0 = 0xE200001C; loadTilePacket->words.w1 = 0x504240; // FAKE: reuse the t1 load-tile range for this packet.
     gDPSetCombine(dl++, 0xFF97FF, 0xFF2CFE7F);
     dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), spCC, 0);
     xx = (s32)((f32)D_80744490 * 0.5f) * 4;

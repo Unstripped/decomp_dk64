@@ -150,13 +150,14 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     s32 y;
     s32 xo;
     s32 off;
-    u16 x;
-    s16 xx;
+    s32 x;
     char *spCC;
     char *spC8;
     char *spC4;
     s32 spC0;
+    s16 xx;
     s32 yo;
+    Gfx *loadTilePacket;
 
     spCC = textTableGetString(0xD, 0, 1);
     spC8 = textTableGetString(0xD, 1, 1);
@@ -178,11 +179,18 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     yo = (s32)(((f32)D_80744494 - 82.0f) * 0.5f);
     y = 0; do {  // FAKE: one source line removes a scheduling barrier before the loop.
         xo = (s32)(((f32)D_80744490 - 204.0f) * 0.5f);
-        x = 0;
-        if (x && x) {}  // FAKE: deadsweep: steers uopt candidate priority
-        do {
-            gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 82, x, y, x + 0x66, (y + 0x29), 0,
-                                  G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
+        x = 0; do { // FAKE: as1probe proved this boundary reorders induction initialization.
+            if (x) {} // FAKE: shorten the full-width induction range and raise its colouring priority.
+            { gDPSetTextureImage(dl++, G_IM_FMT_I, G_IM_SIZ_8b, 102, tex); \
+              gDPSetTile(dl++, G_IM_FMT_I, G_IM_SIZ_8b, (((((x + 0x66) - x + 1) >> 1) + 7) >> 3), 0, G_TX_LOADTILE, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0); \
+              gDPLoadSync(dl++); \
+              loadTilePacket = dl++; \
+              loadTilePacket->words.w0 = _SHIFTL(G_LOADTILE, 24, 8) | _SHIFTL(x << 1, 12, 12) | _SHIFTL(y << 2, 0, 12); \
+              loadTilePacket->words.w1 = _SHIFTL(G_TX_LOADTILE, 24, 3) | _SHIFTL((x + 0x66) << 1, 12, 12) | _SHIFTL((y + 0x29) << 2, 0, 12); \
+              gDPPipeSync(dl++); \
+              gDPSetTile(dl++, G_IM_FMT_I, G_IM_SIZ_4b, (((((x + 0x66) - x + 1) >> 1) + 7) >> 3), 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0); \
+              gDPSetTileSize(dl++, G_TX_RENDERTILE, x << 2, y << 2, (x + 0x66) << 2, (y + 0x29) << 2); \
+              } // FAKE: expanded GBI packet reuse; continuations retain macro scheduling.
             gSPTextureRectangle(dl++, xo << 2, yo << 2, (xo + 0x66) << 2, (yo + 0x29) << 2, 0, x << 5, y << 5, 0x400, 0x400);
             x += 0x66;
             xo += 0x66;
@@ -192,14 +200,14 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     } while (y != 0x52);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
-    x = (s32)((f32)(D_80744490 - textGetStringWidth(1, spCC)) * 0.5f);
+    xo = (s32)((f32)(D_80744490 - textGetStringWidth(1, spCC)) * 0.5f);
     yo = (s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
     if (D_800339D0 && D_800339D0) {}  // FAKE: duplicate reference steers the post-loop register allocation.
     if (D_800339D0 && D_800339D0) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, 3, 29, 0x504240);
+    loadTilePacket = dl++; loadTilePacket->words.w0 = 0xE200001C; loadTilePacket->words.w1 = 0x504240; // FAKE: reuse the t1 load-tile range for this packet.
     gDPSetCombine(dl++, 0xFF97FF, 0xFF2CFE7F);
-    dl = textDrawStringVtx(dl, 1, (s16)(x * 4), (s16)(yo * 4), spCC, 0);
+    dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), spCC, 0);
     xx = (s32)((f32)D_80744490 * 0.5f) * 4;
     arg1 = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
     off = D_8074450C * 0xC8;
