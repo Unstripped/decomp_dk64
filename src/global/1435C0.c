@@ -110,203 +110,203 @@ extern u8 D_807FF0F0;
 extern u8 D_807FF0F1;
 extern u8 D_807FF0F2;
 
-s32 n_alEnvmixerPull(void *arg0, s32 arg1, s32 arg2) {
-    s32 sp54;
-    EnvMixerPullView *sp50;
-    s16 sp4E;
-    s32 sp48;
-    s32 sp44;
-    s32 sp40;
-    s16 sp3E;
-    s32 sp38;
-    EnvNode *sp34;
-    s32 sp30;
-    EnvNode *sp2C;
-    s32 sp28;
-    EnvNode *sp24;
-    EnvNode *sp20;
+s32 n_alEnvmixerPull(void *filter, s32 time, s32 cmdList) {
+    s32 cmd;
+    EnvMixerPullView *f;
+    s16 outOffset;
+    s32 lastTime;
+    s32 curTime;
+    s32 subSamples;
+    s16 samplePtr;
+    s32 ratio;
+    EnvNode *node;
+    s32 samplesLeft;
+    EnvNode *paramNode;
+    s32 scaledVol;
+    EnvNode *segNode;
+    EnvNode *freeNode;
 
-    sp54 = arg2;
-    sp50 = arg0;
-    sp44 = arg1;
-    sp3E = 0;
-    sp30 = 0xB8;
-    sp4E = 0;
-    while (sp50->unk7C != NULL) {
-        sp48 = sp44;
-        sp44 = sp50->unk7C->unk4;
-        sp40 = ((sp44 - sp48 + 0xB7) / 184) * 0xB8;
-        if (sp40 == 0) {
-            sp44 = sp48;
+    cmd = cmdList;
+    f = filter;
+    curTime = time;
+    samplePtr = 0;
+    samplesLeft = 0xB8;
+    outOffset = 0;
+    while (f->unk7C != NULL) {
+        lastTime = curTime;
+        curTime = f->unk7C->unk4;
+        subSamples = ((curTime - lastTime + 0xB7) / 184) * 0xB8;
+        if (subSamples == 0) {
+            curTime = lastTime;
         }
-        if (sp40 > sp30) {
+        if (subSamples > samplesLeft) {
             break;
         }
-        switch (sp50->unk7C->type) {
+        switch (f->unk7C->type) {
         case 13:
-            sp2C = sp50->unk7C;
-            if (sp2C->unkA != 0) {
-                sp50->unk48 = 1;
+            paramNode = f->unk7C;
+            if (paramNode->unkA != 0) {
+                f->unk48 = 1;
             }
-            _decodeChunk(sp50, 5, sp2C->unk20);
-            sp50->unk84 = 1;
-            sp50->unk78 = 1;
-            sp50->unk70 = 0;
-            sp50->unk74 = ((sp2C->unk1C + 0xB7) / 184) * 0xB8;
-            sp28 = (sp2C->unk10 + sp2C->unk10) / 2;
-            sp50->unk5A = sp28;
-            sp50->unk58 = sp2C->unk12;
-            sp50->unk60 = (D_80756490[sp2C->unk13 & 0x7F] & 0xFFFE) | ((s32)sp2C->unk13 >> 7);
+            _decodeChunk(f, 5, paramNode->unk20);
+            f->unk84 = 1;
+            f->unk78 = 1;
+            f->unk70 = 0;
+            f->unk74 = ((paramNode->unk1C + 0xB7) / 184) * 0xB8;
+            scaledVol = (paramNode->unk10 + paramNode->unk10) / 2;
+            f->unk5A = scaledVol;
+            f->unk58 = paramNode->unk12;
+            f->unk60 = (D_80756490[paramNode->unk13 & 0x7F] & 0xFFFE) | ((s32)paramNode->unk13 >> 7);
             if (D_807FF0F0 == 0) {
-                sp50->unk60 &= 0xFFFE;
+                f->unk60 &= 0xFFFE;
             }
-            sp50->unk62 = D_8075658E[-(sp2C->unk13 & 0x7F)] & 0xFFFE;
+            f->unk62 = D_8075658E[-(paramNode->unk13 & 0x7F)] & 0xFFFE;
             if (D_807FF0F2 != 0) {
-                sp50->unk58 = (sp50->unk58 >> 1) + 0x20;
+                f->unk58 = (f->unk58 >> 1) + 0x20;
             } else if (D_807FF0F1 != 0) {
-                sp50->unk58 = 0x40;
+                f->unk58 = 0x40;
             }
-            if (sp2C->unk1C != 0) {
-                sp50->unk5C = 1;
-                sp50->unk5E = 1;
+            if (paramNode->unk1C != 0) {
+                f->unk5C = 1;
+                f->unk5E = 1;
             } else {
-                sp50->unk5C = (D_80756490[sp50->unk58] * sp50->unk5A) >> 15;
-                sp50->unk5E = (D_8075658E[-sp50->unk58] * sp50->unk5A) >> 15;
+                f->unk5C = (D_80756490[f->unk58] * f->unk5A) >> 15;
+                f->unk5E = (D_8075658E[-f->unk58] * f->unk5A) >> 15;
             }
-            sp50->unk44 = sp2C->data.f;
-            sp50->unk92 = sp2C->unk15;
-            sp50->unk90 = sp2C->unk18;
-            sp50->unkB8 = 1;
-            sp50->unk8C = sp2C->unk14;
+            f->unk44 = paramNode->data.f;
+            f->unk92 = paramNode->unk15;
+            f->unk90 = paramNode->unk18;
+            f->unkB8 = 1;
+            f->unk8C = paramNode->unk14;
             break;
         case 11:
         case 12:
         case 16:
-            sp54 = _pullSubFrame((EnvMixerEnv *)sp50, &sp4E, &sp3E, sp40, (EnvAcmd *)sp54);
-            if (sp50->unk70 >= sp50->unk74) {
-                sp50->unk68 = (D_80756490[sp50->unk58] * sp50->unk5A) >> 15;
-                sp50->unk6E = (D_8075658E[-sp50->unk58] * sp50->unk5A) >> 15;
-                sp50->unk70 = sp50->unk74;
-                sp50->unk5C = sp50->unk68;
-                sp50->unk5E = sp50->unk6E;
+            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
+            if (f->unk70 >= f->unk74) {
+                f->unk68 = (D_80756490[f->unk58] * f->unk5A) >> 15;
+                f->unk6E = (D_8075658E[-f->unk58] * f->unk5A) >> 15;
+                f->unk70 = f->unk74;
+                f->unk5C = f->unk68;
+                f->unk5E = f->unk6E;
             } else {
-                sp50->unk5C = _getVol(sp50->unk5C, sp50->unk70, sp50->unk66, sp50->unk64);
-                sp50->unk5E = _getVol(sp50->unk5E, sp50->unk70, sp50->unk6C, sp50->unk6A);
+                f->unk5C = _getVol(f->unk5C, f->unk70, f->unk66, f->unk64);
+                f->unk5E = _getVol(f->unk5E, f->unk70, f->unk6C, f->unk6A);
             }
-            if (sp50->unk5C == 0) {
-                sp50->unk5C = 1;
+            if (f->unk5C == 0) {
+                f->unk5C = 1;
             }
-            if (sp50->unk5E == 0) {
-                sp50->unk5E = 1;
+            if (f->unk5E == 0) {
+                f->unk5E = 1;
             }
-            if (sp50->unk7C->type == 0xC) {
+            if (f->unk7C->type == 0xC) {
                 if (D_807FF0F2 != 0) {
-                    sp50->unk58 = (sp50->unk7C->data.s.s1 >> 1) + 0x20;
+                    f->unk58 = (f->unk7C->data.s.s1 >> 1) + 0x20;
                 } else if (D_807FF0F1 != 0) {
-                    sp50->unk58 = 0x40;
+                    f->unk58 = 0x40;
                 } else {
-                    sp50->unk58 = sp50->unk7C->data.i;
+                    f->unk58 = f->unk7C->data.i;
                 }
             }
-            if (sp50->unk7C->type == 0xB) {
-                sp50->unk70 = 0;
-                sp38 = sp50->unk7C->data.i;
-                sp38 = (sp38 + sp38) / 2;
-                sp50->unk5A = sp38;
-                sp50->unk74 = ((*(s32 *)&sp50->unk7C->unk10 + 0xB7) / 184) * 0xB8;
+            if (f->unk7C->type == 0xB) {
+                f->unk70 = 0;
+                ratio = f->unk7C->data.i;
+                ratio = (ratio + ratio) / 2;
+                f->unk5A = ratio;
+                f->unk74 = ((*(s32 *)&f->unk7C->unk10 + 0xB7) / 184) * 0xB8;
             }
-            if (sp50->unk7C->type == 0x10) {
-                if (((((sp50->unk60 ^ sp50->unk62) & 1) ^ ((sp50->unk7C->data.i + 1) >> 7)) != 0) && (D_807FF0F0 != 0)) {
-                    if (sp50->unk58 >= 0x41) {
-                        sp50->unk60 ^= 1;
+            if (f->unk7C->type == 0x10) {
+                if (((((f->unk60 ^ f->unk62) & 1) ^ ((f->unk7C->data.i + 1) >> 7)) != 0) && (D_807FF0F0 != 0)) {
+                    if (f->unk58 >= 0x41) {
+                        f->unk60 ^= 1;
                     } else {
-                        sp50->unk62 ^= 1;
+                        f->unk62 ^= 1;
                     }
                 }
-                sp50->unk60 = (D_80756490[sp50->unk7C->data.i & 0x7F] & 0xFFFE) | (sp50->unk60 & 1);
-                sp50->unk62 = (D_8075658E[-(sp50->unk7C->data.i & 0x7F)] & 0xFFFE) | (sp50->unk62 & 1);
+                f->unk60 = (D_80756490[f->unk7C->data.i & 0x7F] & 0xFFFE) | (f->unk60 & 1);
+                f->unk62 = (D_8075658E[-(f->unk7C->data.i & 0x7F)] & 0xFFFE) | (f->unk62 & 1);
             }
-            sp50->unk78 = 1;
+            f->unk78 = 1;
             break;
         case 14:
-            sp24 = sp50->unk7C;
-            if (sp24->unkA != 0) {
-                sp50->unk48 = 1;
+            segNode = f->unk7C;
+            if (segNode->unkA != 0) {
+                f->unk48 = 1;
             }
-            _decodeChunk(sp50, 5, sp24->data.ptr);
-            sp50->unk84 = 1;
+            _decodeChunk(f, 5, segNode->data.ptr);
+            f->unk84 = 1;
             break;
         case 15:
-            sp54 = _pullSubFrame((EnvMixerEnv *)sp50, &sp4E, &sp3E, sp40, (EnvAcmd *)sp54);
-            n_alEnvmixerParam(sp50, 4, 0);
+            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
+            n_alEnvmixerParam(f, 4, 0);
             break;
         case 0:
-            sp20 = sp50->unk7C;
-            ((EnvPVoice *)sp20->data.ptr)->unk88 = 0;
-            _n_freePVoice(sp20->data.ptr);
+            freeNode = f->unk7C;
+            ((EnvPVoice *)freeNode->data.ptr)->unk88 = 0;
+            _n_freePVoice(freeNode->data.ptr);
             break;
         case 7:
-            sp54 = _pullSubFrame((EnvMixerEnv *)sp50, &sp4E, &sp3E, sp40, (EnvAcmd *)sp54);
-            sp50->unk44 = sp50->unk7C->data.f;
+            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
+            f->unk44 = f->unk7C->data.f;
             break;
         case 8:
-            sp54 = _pullSubFrame((EnvMixerEnv *)sp50, &sp4E, &sp3E, sp40, (EnvAcmd *)sp54);
-            sp50->unk48 = 1;
+            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
+            f->unk48 = 1;
             break;
         case 5:
-            sp54 = _pullSubFrame((EnvMixerEnv *)sp50, &sp4E, &sp3E, sp40, (EnvAcmd *)sp54);
-            _decodeChunk(sp50, 5, sp50->unk7C->data.ptr);
+            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
+            _decodeChunk(f, 5, f->unk7C->data.ptr);
             break;
         default:
-            sp54 = _pullSubFrame((EnvMixerEnv *)sp50, &sp4E, &sp3E, sp40, (EnvAcmd *)sp54);
-            n_alEnvmixerParam((EnvMixerEnv *)sp50, sp50->unk7C->type, sp50->unk7C->data.ptr);
+            cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, subSamples, (EnvAcmd *)cmd);
+            n_alEnvmixerParam((EnvMixerEnv *)f, f->unk7C->type, f->unk7C->data.ptr);
             break;
         }
-        sp3E += sp40 * 2;
-        sp30 -= sp40;
-        sp34 = sp50->unk7C;
-        sp50->unk7C = sp50->unk7C->next;
-        if (sp50->unk7C == NULL) {
-            sp50->unk80 = 0;
+        samplePtr += subSamples * 2;
+        samplesLeft -= subSamples;
+        node = f->unk7C;
+        f->unk7C = f->unk7C->next;
+        if (f->unk7C == NULL) {
+            f->unk80 = 0;
         }
-        __n_freeParam(sp34);
+        __n_freeParam(node);
     }
-    sp54 = _pullSubFrame((EnvMixerEnv *)sp50, &sp4E, &sp3E, sp30, (EnvAcmd *)sp54);
-    if (sp50->unk70 > sp50->unk74) {
-        sp50->unk70 = sp50->unk74;
+    cmd = _pullSubFrame((EnvMixerEnv *)f, &outOffset, &samplePtr, samplesLeft, (EnvAcmd *)cmd);
+    if (f->unk70 > f->unk74) {
+        f->unk70 = f->unk74;
     }
-    return sp54;
+    return cmd;
 }
 
 
-s32 n_alEnvmixerParam(EnvMixerEnv *arg0, s32 arg1, void *arg2) {
-    EnvMixerEnv *sp24;
+s32 n_alEnvmixerParam(EnvMixerEnv *filter, s32 paramID, void *paramVal) {
+    EnvMixerEnv *env;
 
-    sp24 = arg0;
-    switch (arg1) {
+    env = filter;
+    switch (paramID) {
     case 3:
-        if (sp24->unk80 != NULL) {
-            *(void **)sp24->unk80 = arg2;
+        if (env->unk80 != NULL) {
+            *(void **)env->unk80 = paramVal;
         } else {
-            sp24->unk7C = arg2;
+            env->unk7C = paramVal;
         }
-        sp24->unk80 = arg2;
+        env->unk80 = paramVal;
         break;
     case 4:
-        sp24->unk78 = 1;
-        sp24->unk84 = 0;
-        sp24->unk5A = 1;
-        sp24->unk74 = 0;
-        sp24->unk4C = 0.0f;
-        sp24->unk50 = 1;
-        sp24->unk48 = 0;
-        alResampleParam(sp24, 4, arg2);
+        env->unk78 = 1;
+        env->unk84 = 0;
+        env->unk5A = 1;
+        env->unk74 = 0;
+        env->unk4C = 0.0f;
+        env->unk50 = 1;
+        env->unk48 = 0;
+        alResampleParam(env, 4, paramVal);
         break;
     case 9:
-        sp24->unk84 = 1;
+        env->unk84 = 1;
         break;
     default:
-        alResampleParam(sp24, arg1, arg2);
+        alResampleParam(env, paramID, paramVal);
         break;
     }
     return 0;
@@ -320,16 +320,16 @@ struct EnvAcmd {
 extern EnvAcmd *n_alResamplePull();
 s16 _getRate(f32, f32, s32, s16 *);
 
-EnvAcmd *_pullSubFrame(EnvMixerEnv *arg0, s16 *arg1, s16 *arg2, s32 arg3, EnvAcmd *arg4) {
+EnvAcmd *_pullSubFrame(EnvMixerEnv *filter, s16 *outp, s16 *samplePtr, s32 count, EnvAcmd *cmdList) {
     EnvAcmd *ptr;
     EnvMixerEnv *env;
 
-    ptr = arg4;
-    env = arg0;
-    if ((env->unk84 != 1) || (arg3 == 0)) {
+    ptr = cmdList;
+    env = filter;
+    if ((env->unk84 != 1) || (count == 0)) {
         return ptr;
     }
-    ptr = n_alResamplePull(env, arg1, arg3, arg4);
+    ptr = n_alResamplePull(env, outp, count, cmdList);
     if (env->unk78 != 0) {
         env->unk78 = 0;
         env->unk68 = (D_80756490[env->unk58] * env->unk5A) >> 15;
@@ -371,57 +371,57 @@ EnvAcmd *_pullSubFrame(EnvMixerEnv *arg0, s16 *arg1, s16 *arg2, s32 arg3, EnvAcm
         cmd->w0 = 0x03000000;
         cmd->w1 = osVirtualToPhysical(env->unk54);
     }
-    *arg1 += 0x170;
+    *outp += 0x170;
     env->unk70 += 0xB8;
     return ptr;
 }
 
-s16 _getRate(f32 arg0, f32 arg1, s32 arg2, s16 *arg3) {
-    s16 spE;
-    s16 spC;
-    f32 sp8;
-    f32 sp4;
-    f32 sp0;
+s16 _getRate(f32 curVol, f32 targetVol, s32 delta, s16 *ratem) {
+    s16 rate;
+    s16 round;
+    f32 invDelta;
+    f32 rawRate;
+    f32 frac;
 
-    if (arg2 == 0) {
-        if (arg0 <= arg1) {
-            *(u16 *)arg3 = 0xFFFF;
+    if (delta == 0) {
+        if (curVol <= targetVol) {
+            *(u16 *)ratem = 0xFFFF;
             return 0x7FFF;
         } else {
-            *arg3 = 0;
+            *ratem = 0;
             return -0x8000;
         }
     }
-    sp8 = 1.0f / (f32)arg2;
-    if (arg1 < 1.0f) {
-        arg1 = 1.0f;
+    invDelta = 1.0f / (f32)delta;
+    if (targetVol < 1.0f) {
+        targetVol = 1.0f;
     }
-    if (arg0 <= 0.0f) {
-        arg0 = 1.0f;
+    if (curVol <= 0.0f) {
+        curVol = 1.0f;
     }
-    sp4 = (arg1 - arg0) * sp8 * 8.0f;
-    spE = (s16)(s32)sp4;
-    sp0 = sp4 - (f32)spE;
-    spE -= 1;
-    sp0 += 1.0f;
-    spC = (s16)(s32)sp0;
-    spE += spC;
-    sp0 -= (f32)spC;
-    *arg3 = (s16)(u32)(65535.0f * sp0);
-    return spE;
+    rawRate = (targetVol - curVol) * invDelta * 8.0f;
+    rate = (s16)(s32)rawRate;
+    frac = rawRate - (f32)rate;
+    rate -= 1;
+    frac += 1.0f;
+    round = (s16)(s32)frac;
+    rate += round;
+    frac -= (f32)round;
+    *ratem = (s16)(u32)(65535.0f * frac);
+    return rate;
 }
 
 
-s16 _getVol(s16 arg0, s32 arg1, s16 arg2, u16 arg3) {
-    s32 sp4;
+s16 _getVol(s16 init, s32 delta, s16 rate, u16 ratem) {
+    s32 change;
 
-    arg1 >>= 3;
-    if (arg1 == 0) {
-        return arg0;
+    delta >>= 3;
+    if (delta == 0) {
+        return init;
     }
-    sp4 = arg3 * arg1;
-    sp4 = sp4 >> 0x10;
-    sp4 += arg2 * arg1;
-    arg0 += sp4;
-    return arg0;
+    change = ratem * delta;
+    change = change >> 0x10;
+    change += rate * delta;
+    init += change;
+    return init;
 }
