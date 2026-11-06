@@ -1,9 +1,0 @@
-modelRoles:
-  good_boi: openai-codex/gpt-6-astra:xhigh
-  fast_boi: google-antigravity/gemini-3.8-flash:high
-
-
-task:
-  agentModelOverrides:
-    sonic: "@fast_boi"   # "fast" workers
-    task: "@good_boi"    # "good" workers
