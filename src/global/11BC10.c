@@ -30,15 +30,15 @@ typedef struct {
     void *unk384;
 } RotatingEffectActorView;
 
-void func_80716F10(RotatingEffectActorView *arg0, void *arg1) {
-    f32 sp68[4][4];
-    f32 sp28[4][4];
+void func_80716F10(RotatingEffectActorView *effect, void *unused) {
+    f32 scaleMtx[4][4];
+    f32 rotMtx[4][4];
 
-    guScaleF(sp68, arg0->unk360, arg0->unk364, 0.0f);
-    guRotateF(sp28, (f32)arg0->unk35C, 0.0f, 0.0f, 1.0f);
-    guMtxCatF(sp68, sp28, sp68);
-    guMtxF2L(sp68, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
-    arg0->unk32C = 2;
+    guScaleF(scaleMtx, effect->unk360, effect->unk364, 0.0f);
+    guRotateF(rotMtx, (f32)effect->unk35C, 0.0f, 0.0f, 1.0f);
+    guMtxCatF(scaleMtx, rotMtx, scaleMtx);
+    guMtxF2L(scaleMtx, (Mtx *)((u8 *)effect + (D_807444FC << 6) + 0x128));
+    effect->unk32C = 2;
 }
 
 typedef struct {
@@ -46,24 +46,24 @@ typedef struct {
     f32 unk4;
 } RotationState;
 
-void func_80716FB4(RotatingEffectActorView *arg0, void *arg1) {
-    f32 sp70[4][4];
-    f32 sp30[4][4];
-    RotationState *var_v1;
+void func_80716FB4(RotatingEffectActorView *effect, void *unused) {
+    f32 scaleMtx[4][4];
+    f32 rotMtx[4][4];
+    RotationState *state;
 
-    var_v1 = (RotationState *)arg0->unk384;
-    if (var_v1 == NULL) {
-        arg0->unk384 = heapAlloc(8);
-        ((RotationState *)arg0->unk384)->unk0 = (randomLcgNext() % 36000U) / 100U;
-        ((RotationState *)arg0->unk384)->unk4 = (randomLcgNext() % 400U) / 100U;
-        var_v1 = (RotationState *)arg0->unk384;
+    state = (RotationState *)effect->unk384;
+    if (state == NULL) {
+        effect->unk384 = heapAlloc(8);
+        ((RotationState *)effect->unk384)->unk0 = (randomLcgNext() % 36000U) / 100U;
+        ((RotationState *)effect->unk384)->unk4 = (randomLcgNext() % 400U) / 100U;
+        state = (RotationState *)effect->unk384;
     }
-    var_v1->unk0 += var_v1->unk4;
-    guScaleF(sp70, arg0->unk360, arg0->unk364, 0.0f);
-    guRotateF(sp30, ((RotationState *)arg0->unk384)->unk0, 0.0f, 0.0f, 1.0f);
-    guMtxCatF(sp70, sp30, sp70);
-    guMtxF2L(sp70, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
-    arg0->unk32C = 2;
+    state->unk0 += state->unk4;
+    guScaleF(scaleMtx, effect->unk360, effect->unk364, 0.0f);
+    guRotateF(rotMtx, ((RotationState *)effect->unk384)->unk0, 0.0f, 0.0f, 1.0f);
+    guMtxCatF(scaleMtx, rotMtx, scaleMtx);
+    guMtxF2L(scaleMtx, (Mtx *)((u8 *)effect + (D_807444FC << 6) + 0x128));
+    effect->unk32C = 2;
 }
 
 typedef struct {
@@ -74,22 +74,22 @@ typedef struct {
     s16 unk8;
 } OrbitMotionState10;
 
-void effectOrbitXZUpdate(RotatingEffectActorView *arg0, void *arg1) {
-    OrbitMotionState10 *var_v1;
+void effectOrbitXZUpdate(RotatingEffectActorView *effect, void *unused) {
+    OrbitMotionState10 *state;
 
-    if (!arg0->unk384) {
-        arg0->unk384 = heapAlloc(0xA);
-        var_v1 = arg0->unk384;
-        var_v1->unk0 = (s16) ((randomNonNegative() >> 15) % 0xFFF);
-        var_v1->unk2 = arg0->unk35C & 0xFFFF;
-        var_v1->unk4 = (arg0->unk35C >> 16) & 0xFFFF;
-        var_v1->unk6 = arg0->unk340;
-        var_v1->unk8 = arg0->unk348;
+    if (!effect->unk384) {
+        effect->unk384 = heapAlloc(0xA);
+        state = effect->unk384;
+        state->unk0 = (s16) ((randomNonNegative() >> 15) % 0xFFF);
+        state->unk2 = effect->unk35C & 0xFFFF;
+        state->unk4 = (effect->unk35C >> 16) & 0xFFFF;
+        state->unk6 = effect->unk340;
+        state->unk8 = effect->unk348;
     }
-    var_v1 = arg0->unk384;
-    var_v1->unk0 = var_v1->unk4 + var_v1->unk0;
-    arg0->unk340 = func_80612794(var_v1->unk0) * var_v1->unk2 + var_v1->unk6;
-    arg0->unk348 = func_80612790(var_v1->unk0) * var_v1->unk2 + var_v1->unk8;
+    state = effect->unk384;
+    state->unk0 = state->unk4 + state->unk0;
+    effect->unk340 = func_80612794(state->unk0) * state->unk2 + state->unk6;
+    effect->unk348 = func_80612790(state->unk0) * state->unk2 + state->unk8;
 }
 
 
@@ -103,27 +103,27 @@ typedef struct {
 void lightSetFlags();
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
-void effectPuffRiseUpdate(RotatingEffectActorView *arg0, void *arg1) {
-    PuffRiseMotionState *var_v1;
+void effectPuffRiseUpdate(RotatingEffectActorView *effect, void *unused) {
+    PuffRiseMotionState *state;
 
-    if (arg0->unk384 == NULL) {
-        arg0->unk384 = heapAlloc(8);
-        var_v1 = arg0->unk384;
-        var_v1->unk0 = (randomNonNegative() >> 15) % 0xFFF;
-        var_v1->unk2 = ((randomNonNegative() >> 15) % 10) + 2;
-        var_v1->unk4 = 0;
-        var_v1->unk6 = -50 - (((randomNonNegative() >> 15) % 10000) % 600);
+    if (effect->unk384 == NULL) {
+        effect->unk384 = heapAlloc(8);
+        state = effect->unk384;
+        state->unk0 = (randomNonNegative() >> 15) % 0xFFF;
+        state->unk2 = ((randomNonNegative() >> 15) % 10) + 2;
+        state->unk4 = 0;
+        state->unk6 = -50 - (((randomNonNegative() >> 15) % 10000) % 600);
     }
-    var_v1 = arg0->unk384;
-    arg0->unk344 = (f32) ((f64) arg0->unk344 - (f64) var_v1->unk6 / 100.0);
-    var_v1->unk6 += 0x14;
-    arg0->unk340 += (0.04 * (f64) var_v1->unk4) * (f64) func_80612794(var_v1->unk0);
-    arg0->unk348 += (0.04 * (f64) var_v1->unk4) * (f64) func_80612790(var_v1->unk0);
-    var_v1->unk0 += 0x50;
-    var_v1->unk4 += var_v1->unk2;
-    if (arg0->unk35C != 0) {
+    state = effect->unk384;
+    effect->unk344 = (f32) ((f64) effect->unk344 - (f64) state->unk6 / 100.0);
+    state->unk6 += 0x14;
+    effect->unk340 += (0.04 * (f64) state->unk4) * (f64) func_80612794(state->unk0);
+    effect->unk348 += (0.04 * (f64) state->unk4) * (f64) func_80612790(state->unk0);
+    state->unk0 += 0x50;
+    state->unk4 += state->unk2;
+    if (effect->unk35C != 0) {
         lightSetFlags(1);
-        lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, 40.0f, 0, 0xFF,
+        lightAdd(effect->unk340, effect->unk344, effect->unk348, 0.0f, 0.0f, 0.0f, 40.0f, 0, 0xFF,
                  0xFF, (randomNonNegative() >> 15) % 0xFF);
     }
 }
@@ -153,43 +153,43 @@ typedef struct {
     ConfettiMotionState *unk384;
 } ConfettiActorView;
 
-void func_80717404(ConfettiActorView *arg0, void *arg1) {
+void func_80717404(ConfettiActorView *effect, void *unused) {
     ConfettiMotionState *motion;
-    ConfettiParams *var_s2;
+    ConfettiParams *params;
     f64 scale;
     s32 rem;
 
-    if (arg0->unk384 == NULL) {
-        arg0->unk384 = heapAlloc(0xC);
-        var_s2 = &arg0->unk35C;
+    if (effect->unk384 == NULL) {
+        effect->unk384 = heapAlloc(0xC);
+        params = &effect->unk35C;
         do {} while (0); // FAKE: block boundary
-        motion = arg0->unk384;
-        if (var_s2->unk0 != 0) {
-            motion->unk0 = (f32) (((randomNonNegative() >> 15) % 200) + var_s2->unk0 - 100);
+        motion = effect->unk384;
+        if (params->unk0 != 0) {
+            motion->unk0 = (f32) (((randomNonNegative() >> 15) % 200) + params->unk0 - 100);
         } else {
             motion->unk0 = (f32) ((randomNonNegative() >> 15) % 0xFFF);
         }
-        scale = (arg0->unk36F != 0) ? 4.0 : 1.0;
+        scale = (effect->unk36F != 0) ? 4.0 : 1.0;
         motion->unk4 = (f32) ((((randomNonNegative() >> 15) % 10) + 5) * scale);
         rem = (randomNonNegative() >> 15) % 6;
-        motion->unk8 = (f32) (var_s2->unk2 + rem);
+        motion->unk8 = (f32) (params->unk2 + rem);
     }
-    motion = arg0->unk384;
-    var_s2 = &arg0->unk35C;
-    if (arg0->unk36F != 0) {
-        arg0->unk340 += 4.0 * ((0.01 * (f64) var_s2->unk2) * (f64) func_80612794((s16) motion->unk0));
-        arg0->unk344 += 4.0 * ((0.01 * (f64) var_s2->unk2) * (f64) func_80612790((s16) motion->unk0));
+    motion = effect->unk384;
+    params = &effect->unk35C;
+    if (effect->unk36F != 0) {
+        effect->unk340 += 4.0 * ((0.01 * (f64) params->unk2) * (f64) func_80612794((s16) motion->unk0));
+        effect->unk344 += 4.0 * ((0.01 * (f64) params->unk2) * (f64) func_80612790((s16) motion->unk0));
     } else {
-        arg0->unk340 += (0.04 * (f64) var_s2->unk2) * (f64) func_80612794((s16) motion->unk0);
-        arg0->unk348 += (0.04 * (f64) var_s2->unk2) * (f64) func_80612790((s16) motion->unk0);
-        if (var_s2->unk0 == 0) {
-            arg0->unk344 += motion->unk8;
+        effect->unk340 += (0.04 * (f64) params->unk2) * (f64) func_80612794((s16) motion->unk0);
+        effect->unk348 += (0.04 * (f64) params->unk2) * (f64) func_80612790((s16) motion->unk0);
+        if (params->unk0 == 0) {
+            effect->unk344 += motion->unk8;
             motion->unk8 = (f32) ((f64) motion->unk8 - 0.5);
         } else {
-            arg0->unk344 += (f64) motion->unk8 * 0.2;
+            effect->unk344 += (f64) motion->unk8 * 0.2;
         }
     }
-    var_s2->unk2 = (s16) (var_s2->unk2 + motion->unk4);
+    params->unk2 = (s16) (params->unk2 + motion->unk4);
 }
 
 
@@ -200,20 +200,20 @@ void func_807149B8(s32);
 void func_80714CC0(s32, f32, f32, f32, f32);
 extern s32 D_8074E880[];
 
-void func_80717760(RotatingEffectActorView *arg0, u8 *arg1) {
-    s32 temp_v0;
+void func_80717760(RotatingEffectActorView *effect, u8 *isDone) {
+    s32 timer;
 
-    temp_v0 = arg0->unk35C;
-    *((u8 *)arg0 + 0x36D) = 0;
-    if (temp_v0 != 0) {
-        arg0->unk35C = temp_v0 - 1;
+    timer = effect->unk35C;
+    *((u8 *)effect + 0x36D) = 0;
+    if (timer != 0) {
+        effect->unk35C = timer - 1;
         func_807149B8(1);
         func_8071498C(func_80717404);
         func_80714950(0xA);
-        func_80714CC0(D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 0.8f, arg0->unk340, arg0->unk344, arg0->unk348);
+        func_80714CC0(D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 0.8f, effect->unk340, effect->unk344, effect->unk348);
         return;
     }
-    *arg1 = 1;
+    *isDone = 1;
 }
 
 typedef struct {
@@ -221,11 +221,11 @@ typedef struct {
     s16 unk2;
 } RandomDriftState;
 
-void func_80717814(RotatingEffectActorView *arg0, void *arg1) {
+void func_80717814(RotatingEffectActorView *effect, void *unused) {
     RotatingEffectActorView *actor;
     RandomDriftState *motion;
 
-    actor = arg0;
+    actor = effect;
     if (actor->unk384 == NULL) {
         actor->unk384 = heapAlloc(4);
         motion = actor->unk384;
@@ -271,46 +271,46 @@ typedef struct {
     u16 unk38C;
 } OrbitEffectActorView;
 
-void func_80717930(OrbitEffectActorView *arg0, void *arg1) {
-    f32 temp_fv0;
+void func_80717930(OrbitEffectActorView *effect, void *unused) {
+    f32 scaleFactor;
     f32 call_result;
-    s32 temp_v1;
-    OrbitMotionState *temp_s1;
-    void *temp_v0;
+    s32 flags;
+    OrbitMotionState *state;
+    void *allocatedState;
     ScaleHolder *temp_v0_2;
 
-    if (arg0->unk384 == NULL) {
-        arg0->unk384 = heapAlloc(0xA);
-        temp_v0 = arg0->unk384;
-        ((OrbitMotionState *)temp_v0)->unk0 = (randomNonNegative() >> 0xF) % 4095;
-        ((OrbitMotionState *)temp_v0)->unk2 = arg0->unk340;
-        ((OrbitMotionState *)temp_v0)->unk4 = arg0->unk348;
-        temp_v1 = arg0->unk35C;
-        if (temp_v1 & 0x8000) {
-            arg0->unk35C = temp_v1 & 0xFFFF7FFF;
-            ((OrbitMotionState *)temp_v0)->unk6 = 0xC8;
-            ((OrbitMotionState *)temp_v0)->unk8 = 0xA;
+    if (effect->unk384 == NULL) {
+        effect->unk384 = heapAlloc(0xA);
+        allocatedState = effect->unk384;
+        ((OrbitMotionState *)allocatedState)->unk0 = (randomNonNegative() >> 0xF) % 4095;
+        ((OrbitMotionState *)allocatedState)->unk2 = effect->unk340;
+        ((OrbitMotionState *)allocatedState)->unk4 = effect->unk348;
+        flags = effect->unk35C;
+        if (flags & 0x8000) {
+            effect->unk35C = flags & 0xFFFF7FFF;
+            ((OrbitMotionState *)allocatedState)->unk6 = 0xC8;
+            ((OrbitMotionState *)allocatedState)->unk8 = 0xA;
         } else {
-            ((OrbitMotionState *)temp_v0)->unk6 = 0x46;
-            ((OrbitMotionState *)temp_v0)->unk8 = 0xF;
+            ((OrbitMotionState *)allocatedState)->unk6 = 0x46;
+            ((OrbitMotionState *)allocatedState)->unk8 = 0xF;
         }
-        temp_v0_2 = arg0->unk338;
+        temp_v0_2 = effect->unk338;
         if (temp_v0_2 != NULL) {
-            temp_fv0 = temp_v0_2->unk4->unk38 / 0.15;
-            ((OrbitMotionState *)temp_v0)->unk8 = ((OrbitMotionState *)temp_v0)->unk8 * temp_fv0;
-            arg0->unk35C = arg0->unk35C * temp_fv0;
+            scaleFactor = temp_v0_2->unk4->unk38 / 0.15;
+            ((OrbitMotionState *)allocatedState)->unk8 = ((OrbitMotionState *)allocatedState)->unk8 * scaleFactor;
+            effect->unk35C = effect->unk35C * scaleFactor;
         }
     }
-    temp_s1 = arg0->unk384;
-    if (arg0->unk38C & 2) {
-        arg0->unk340 = func_80612794(temp_s1->unk0) * arg0->unk35C + D_807FBB4C->unk7C;
-        arg0->unk348 = func_80612790(temp_s1->unk0) * arg0->unk35C + D_807FBB4C->unk84;
+    state = effect->unk384;
+    if (effect->unk38C & 2) {
+        effect->unk340 = func_80612794(state->unk0) * effect->unk35C + D_807FBB4C->unk7C;
+        effect->unk348 = func_80612790(state->unk0) * effect->unk35C + D_807FBB4C->unk84;
     } else {
-        arg0->unk340 = func_80612794(temp_s1->unk0) * arg0->unk35C + temp_s1->unk2;
-        arg0->unk348 = func_80612790(temp_s1->unk0) * arg0->unk35C + temp_s1->unk4;
+        effect->unk340 = func_80612794(state->unk0) * effect->unk35C + state->unk2;
+        effect->unk348 = func_80612790(state->unk0) * effect->unk35C + state->unk4;
     }
-    arg0->unk344 += temp_s1->unk8 * 0.1;
-    temp_s1->unk0 += temp_s1->unk6;
+    effect->unk344 += state->unk8 * 0.1;
+    state->unk0 += state->unk6;
 }
 
 typedef struct {
@@ -358,81 +358,81 @@ typedef struct {
 
 extern void *gPlayerSlots;
 
-void effectPlayerDistanceFadeUpdate(arg0, arg1)
-TimedEffectActorView *arg0;
-s8 *arg1;
+void effectPlayerDistanceFadeUpdate(effect, isDone)
+TimedEffectActorView *effect;
+s8 *isDone;
 {
-    PlayerDistanceFadeState *var_v1;
+    PlayerDistanceFadeState *state;
     f32 dy;
     f32 scale;
     f32 dz;
     f32 dx;
     f32 dist;
-    s32 temp_v0;
+    s32 curStep;
     s32 value;
 
-    scale = (f32) ((s32) (arg0->unk34C * 3) / 4);
-    if (arg0->unk384 == NULL) {
-        arg0->unk384 = heapAlloc(6);
-        var_v1 = arg0->unk384;
-        var_v1->unk0 = 0;
-        var_v1->unk2 = *(s16 *) ((u8 *) arg0->unk330 + 0x16) * arg0->unk350;
-        var_v1->unk4 = arg0->unk36D;
+    scale = (f32) ((s32) (effect->unk34C * 3) / 4);
+    if (effect->unk384 == NULL) {
+        effect->unk384 = heapAlloc(6);
+        state = effect->unk384;
+        state->unk0 = 0;
+        state->unk2 = *(s16 *) ((u8 *) effect->unk330 + 0x16) * effect->unk350;
+        state->unk4 = effect->unk36D;
     }
-    var_v1 = arg0->unk384;
-    temp_v0 = var_v1->unk0;
-    if (temp_v0 == var_v1->unk2) {
-        *arg1 = 1;
+    state = effect->unk384;
+    curStep = state->unk0;
+    if (curStep == state->unk2) {
+        *isDone = 1;
     } else {
-        var_v1->unk0 = temp_v0 + 1;
+        state->unk0 = curStep + 1;
     }
-    dz = ((PlayerDistanceView *) gPlayerSlots)->unk218 - arg0->unk348;
-    dx = ((PlayerDistanceView *) gPlayerSlots)->unk210 - arg0->unk340;
-    dy = ((PlayerDistanceView *) gPlayerSlots)->unk214 - arg0->unk344;
+    dz = ((PlayerDistanceView *) gPlayerSlots)->unk218 - effect->unk348;
+    dx = ((PlayerDistanceView *) gPlayerSlots)->unk210 - effect->unk340;
+    dy = ((PlayerDistanceView *) gPlayerSlots)->unk214 - effect->unk344;
     dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
     if (dist < scale) {
-        arg0->unk36D = var_v1->unk4;
+        effect->unk36D = state->unk4;
         return;
     }
-    value = (s32) ((f32) var_v1->unk4 * ((dist - scale) / ((f32) arg0->unk34C - scale)));
-    if (var_v1->unk4 < value) {
-        value = (s32) var_v1->unk4;
+    value = (s32) ((f32) state->unk4 * ((dist - scale) / ((f32) effect->unk34C - scale)));
+    if (state->unk4 < value) {
+        value = (s32) state->unk4;
     }
-    arg0->unk36D = var_v1->unk4 - value;
+    effect->unk36D = state->unk4 - value;
 }
 
-void func_80717CE8(arg0, arg1)
-TimedEffectActorView *arg0;
-s8 *arg1;
+void func_80717CE8(effect, isDone)
+TimedEffectActorView *effect;
+s8 *isDone;
 {
-    if (arg0->unk36D != 0xFF) {
-        arg0->unk36D += 0x14;
+    if (effect->unk36D != 0xFF) {
+        effect->unk36D += 0x14;
     }
-    if ((s32) arg0->unk36D >= 0xEB) {
-        arg0->unk36D = 0xFFU;
+    if ((s32) effect->unk36D >= 0xEB) {
+        effect->unk36D = 0xFFU;
     }
-    arg0->unk344 = (f32) ((f64) arg0->unk344 - ((f64) arg0->unk35C / 100.0));
+    effect->unk344 = (f32) ((f64) effect->unk344 - ((f64) effect->unk35C / 100.0));
 }
 
-void func_80717D4C(arg0, arg1)
-TimedEffectActorView *arg0;
-s8 *arg1;
+void func_80717D4C(effect, isDone)
+TimedEffectActorView *effect;
+s8 *isDone;
 {
-    arg0->unk344 = (f32) ((f64) arg0->unk344 - ((f64) arg0->unk35C / 100.0));
+    effect->unk344 = (f32) ((f64) effect->unk344 - ((f64) effect->unk35C / 100.0));
 }
 
-void func_80717D84(TimedEffectActorView *arg0, s8 *arg1) {
-    s32 temp_v0;
-    u8 temp_v1;
+void func_80717D84(TimedEffectActorView *effect, s8 *isDone) {
+    s32 alphaStep;
+    u8 curAlpha;
 
-    temp_v0 = arg0->unk35C;
-    temp_v1 = arg0->unk36D;
-    if (temp_v0 < (s32) temp_v1) {
-        arg0->unk36D = (u8) (temp_v1 - temp_v0);
+    alphaStep = effect->unk35C;
+    curAlpha = effect->unk36D;
+    if (alphaStep < (s32) curAlpha) {
+        effect->unk36D = (u8) (curAlpha - alphaStep);
         return;
     }
-    arg0->unk36D = 0U;
-    *arg1 = 1;
+    effect->unk36D = 0U;
+    *isDone = 1;
 }
 
 typedef struct {
@@ -444,25 +444,25 @@ typedef struct {
     s16 unkE;
 } DriftMotionState;
 
-void effectDriftXZUpdate(RotatingEffectActorView *arg0, void *arg1) {
+void effectDriftXZUpdate(RotatingEffectActorView *effect, void *unused) {
     DriftMotionState *state;
 
-    if (arg0->unk384 == NULL) {
-        arg0->unk384 = heapAlloc(0x10);
-        state = arg0->unk384;
-        state->unk0 = arg0->unk340;
-        state->unk4 = arg0->unk348;
+    if (effect->unk384 == NULL) {
+        effect->unk384 = heapAlloc(0x10);
+        state = effect->unk384;
+        state->unk0 = effect->unk340;
+        state->unk4 = effect->unk348;
         state->unk8 = 0;
         state->unkA = 0;
         state->unkC = (randomNonNegative() % 10000) % 150 - 75;
         state->unkE = (randomNonNegative() % 10000) % 150 - 75;
     }
-    state = arg0->unk384;
-    arg0->unk340 = (f32) ((f64) func_80612794(state->unk8) * 6.0 + (f64) state->unk0);
-    arg0->unk348 = (f32) ((f64) func_80612794(state->unkA) * 6.0 + (f64) state->unk4);
+    state = effect->unk384;
+    effect->unk340 = (f32) ((f64) func_80612794(state->unk8) * 6.0 + (f64) state->unk0);
+    effect->unk348 = (f32) ((f64) func_80612794(state->unkA) * 6.0 + (f64) state->unk4);
     state->unk8 += state->unkC;
     state->unkA += state->unkE;
-    arg0->unk344 = (f32) ((f64) arg0->unk344 - (f64) arg0->unk35C / 100.0);
+    effect->unk344 = (f32) ((f64) effect->unk344 - (f64) effect->unk35C / 100.0);
 }
 
 typedef struct {
@@ -472,17 +472,17 @@ typedef struct {
     f32 unkC;
 } VelocityMotionState;
 
-void effectShrinkOffsetUpdate(arg0, arg1)
-TimedEffectActorView *arg0;
-s8 *arg1;
+void effectShrinkOffsetUpdate(effect, isDone)
+TimedEffectActorView *effect;
+s8 *isDone;
 {
     VelocityMotionState *state;
     void *parent;
 
-    if (arg0->unk384 == NULL) {
-        parent = arg0->unk338;
-        arg0->unk384 = heapAlloc(0x10);
-        state = arg0->unk384;
+    if (effect->unk384 == NULL) {
+        parent = effect->unk338;
+        effect->unk384 = heapAlloc(0x10);
+        state = effect->unk384;
         if (parent != NULL) {
             state->unk0 = (*(f32 *) ((u8 *) parent + 0xB8) * 0.025f) * func_80612794(*(s16 *) ((u8 *) parent + 0xEE));
             state->unk4 = (*(f32 *) ((u8 *) parent + 0xB8) * 0.025f) * func_80612790(*(s16 *) ((u8 *) parent + 0xEE));
@@ -490,119 +490,119 @@ s8 *arg1;
             state->unk0 = 0.0f;
             state->unk4 = 0.0f;
         }
-        state->unk8 = arg0->unk360;
+        state->unk8 = effect->unk360;
         state->unkC = 0.2f;
     }
-    state = arg0->unk384;
-    arg0->unk344 = (f32) ((f64) arg0->unk344 - (f64) arg0->unk35C / 100.0);
-    arg0->unk340 += state->unk0;
-    arg0->unk348 += state->unk4;
+    state = effect->unk384;
+    effect->unk344 = (f32) ((f64) effect->unk344 - (f64) effect->unk35C / 100.0);
+    effect->unk340 += state->unk0;
+    effect->unk348 += state->unk4;
     state->unk0 = (f32) ((f64) state->unk0 * 0.93);
     state->unk4 = (f32) ((f64) state->unk4 * 0.93);
 }
 
 
-void func_80718080(TimedEffectActorView *arg0) {
-    f32 temp_fv0;
-    VelocityMotionState *temp_v0;
+void func_80718080(TimedEffectActorView *effect) {
+    f32 scaleFactor;
+    VelocityMotionState *state;
 
     effectShrinkOffsetUpdate();
-    temp_v0 = arg0->unk384;
-    arg0->unk360 = temp_v0->unkC * temp_v0->unk8;
-    arg0->unk364 = arg0->unk360;
-    temp_fv0 = temp_v0->unkC;
-    if (temp_fv0 < 2.0f) {
-        temp_v0->unkC = (f32) ((f64) temp_fv0 + 0.2);
+    state = effect->unk384;
+    effect->unk360 = state->unkC * state->unk8;
+    effect->unk364 = effect->unk360;
+    scaleFactor = state->unkC;
+    if (scaleFactor < 2.0f) {
+        state->unkC = (f32) ((f64) scaleFactor + 0.2);
     }
 }
 
-void func_807180F4(s32 arg0, s32 arg1) {
+void func_807180F4(s32 effect, s32 unused) {
     func_80717D4C();
-    func_80716FB4((RotatingEffectActorView *)arg0, (void *)arg1);
+    func_80716FB4((RotatingEffectActorView *)effect, (void *)unused);
 }
 
-void func_80718124(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
+void func_80718124(f32 scale, f32 x, f32 y, f32 z) {
     func_807149B8(1);
     func_80714998(3);
     func_8071498C(&func_80718380);
-    func_80714CC0((s32)&D_8071FEF4, arg0, arg1, arg2, arg3);
+    func_80714CC0((s32)&D_8071FEF4, scale, x, y, z);
 }
 
 extern s16 D_807502D0;
 
-void effectFallUpdate(TimedEffectActorView *arg0, s8 *arg1) {
-    s16 *temp_v0;
-    s16 *var_v1;
+void effectFallUpdate(TimedEffectActorView *effect, s8 *isDone) {
+    s16 *newVel;
+    s16 *velocity;
 
-    var_v1 = arg0->unk384;
-    if (var_v1 == NULL) {
-        temp_v0 = heapAlloc(2);
-        arg0->unk384 = temp_v0;
-        *temp_v0 = 0;
-        var_v1 = arg0->unk384;
+    velocity = effect->unk384;
+    if (velocity == NULL) {
+        newVel = heapAlloc(2);
+        effect->unk384 = newVel;
+        *newVel = 0;
+        velocity = effect->unk384;
     }
-    arg0->unk344 += (f32) *var_v1;
-    *var_v1 -= 1;
-    var_v1 = arg0->unk384;
-    if (*var_v1 < D_807502D0) {
-        *var_v1 = D_807502D0;
+    effect->unk344 += (f32) *velocity;
+    *velocity -= 1;
+    velocity = effect->unk384;
+    if (*velocity < D_807502D0) {
+        *velocity = D_807502D0;
     }
-    if (arg0->unk344 < (f32) arg0->unk35C) {
-        *arg1 = 1;
-        func_80718124((f32) ((f64) arg0->unk360 * 1.5), arg0->unk340, arg0->unk35C, arg0->unk348);
+    if (effect->unk344 < (f32) effect->unk35C) {
+        *isDone = 1;
+        func_80718124((f32) ((f64) effect->unk360 * 1.5), effect->unk340, effect->unk35C, effect->unk348);
     }
 }
 
 typedef f32 EffectMatrix[4][4];
 
-void func_8071827C(TimedEffectActorView *arg0, s8 *arg1) {
-    EffectMatrix sp70;
-    EffectMatrix sp30;
-    u8 temp_v0;
+void func_8071827C(TimedEffectActorView *effect, s8 *isDone) {
+    EffectMatrix modelMtx;
+    EffectMatrix tempMtx;
+    u8 alpha;
 
-    guScaleF(sp70, arg0->unk360, arg0->unk364, 0.0f);
-    guRotateF(sp30, 90.0f, 1.0f, 0.0f, 0.0f);
-    guMtxCatF(sp70, sp30, sp70);
-    guTranslateF(sp30, arg0->unk340, arg0->unk344, arg0->unk348);
-    guMtxCatF(sp70, sp30, sp70);
-    temp_v0 = arg0->unk36D;
-    arg0->unk360 = (f32) ((f64) arg0->unk360 + 0.07);
-    arg0->unk364 = (f32) ((f64) arg0->unk364 + 0.07);
-    if ((s32) temp_v0 >= 0xA) {
-        arg0->unk36D = (u8) (temp_v0 - 0xA);
+    guScaleF(modelMtx, effect->unk360, effect->unk364, 0.0f);
+    guRotateF(tempMtx, 90.0f, 1.0f, 0.0f, 0.0f);
+    guMtxCatF(modelMtx, tempMtx, modelMtx);
+    guTranslateF(tempMtx, effect->unk340, effect->unk344, effect->unk348);
+    guMtxCatF(modelMtx, tempMtx, modelMtx);
+    alpha = effect->unk36D;
+    effect->unk360 = (f32) ((f64) effect->unk360 + 0.07);
+    effect->unk364 = (f32) ((f64) effect->unk364 + 0.07);
+    if ((s32) alpha >= 0xA) {
+        effect->unk36D = (u8) (alpha - 0xA);
     } else {
-        arg0->unk36D = 0U;
+        effect->unk36D = 0U;
     }
-    guMtxF2L(sp70, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
-    ((u8 *) arg0)[0x32C] = 3;
+    guMtxF2L(modelMtx, (Mtx *) ((u8 *) effect + (D_807444FC << 6) + 0x128));
+    ((u8 *) effect)[0x32C] = 3;
 }
 
-void func_80718380(TimedEffectActorView *arg0, s8 *arg1) {
-    EffectMatrix sp70;
-    EffectMatrix sp30;
-    u32 temp_v1;
+void func_80718380(TimedEffectActorView *effect, s8 *isDone) {
+    EffectMatrix modelMtx;
+    EffectMatrix tempMtx;
+    u32 rotAngle;
 
-    if (arg0->unk384 == NULL) {
-        arg0->unk384 = heapAlloc(4);
-        temp_v1 = (u32) (randomLcgNext() % 36000U) / 100U;
-        *(f32 *) arg0->unk384 = (f32) temp_v1;
+    if (effect->unk384 == NULL) {
+        effect->unk384 = heapAlloc(4);
+        rotAngle = (u32) (randomLcgNext() % 36000U) / 100U;
+        *(f32 *) effect->unk384 = (f32) rotAngle;
     }
-    guScaleF(sp70, arg0->unk360, arg0->unk364, 0.0f);
-    guRotateF(sp30, 90.0f, 1.0f, 0.0f, 0.0f);
-    guMtxCatF(sp70, sp30, sp70);
-    guRotateF(sp30, *(f32 *) arg0->unk384, 0.0f, 1.0f, 0.0f);
-    guMtxCatF(sp70, sp30, sp70);
-    guTranslateF(sp30, arg0->unk340, arg0->unk344, arg0->unk348);
-    guMtxCatF(sp70, sp30, sp70);
-    if ((s32) arg0->unk36D >= 0xA) {
-        arg0->unk36D -= 0xA;
+    guScaleF(modelMtx, effect->unk360, effect->unk364, 0.0f);
+    guRotateF(tempMtx, 90.0f, 1.0f, 0.0f, 0.0f);
+    guMtxCatF(modelMtx, tempMtx, modelMtx);
+    guRotateF(tempMtx, *(f32 *) effect->unk384, 0.0f, 1.0f, 0.0f);
+    guMtxCatF(modelMtx, tempMtx, modelMtx);
+    guTranslateF(tempMtx, effect->unk340, effect->unk344, effect->unk348);
+    guMtxCatF(modelMtx, tempMtx, modelMtx);
+    if ((s32) effect->unk36D >= 0xA) {
+        effect->unk36D -= 0xA;
     } else {
-        arg0->unk36D = 0U;
+        effect->unk36D = 0U;
     }
-    guMtxF2L(sp70, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
-    ((u8 *) arg0)[0x32C] = 3;
-    if (arg0->unk36D == 0) {
-        *arg1 = 1;
+    guMtxF2L(modelMtx, (Mtx *) ((u8 *) effect + (D_807444FC << 6) + 0x128));
+    ((u8 *) effect)[0x32C] = 3;
+    if (effect->unk36D == 0) {
+        *isDone = 1;
     }
 }
 
@@ -616,37 +616,37 @@ typedef struct {
     f32 unkAC;
 } GroundSpinTargetView;
 
-void effectGroundDecalSpinUpdate(TimedEffectActorView *arg0, s8 *arg1) {
-    EffectMatrix sp70;
-    EffectMatrix sp30;
+void effectGroundDecalSpinUpdate(TimedEffectActorView *effect, s8 *isDone) {
+    EffectMatrix modelMtx;
+    EffectMatrix tempMtx;
 
-    if (arg0->unk384 == NULL) {
-        arg0->unk384 = heapAlloc(8);
-        ((GroundSpinState *) arg0->unk384)->unk0 = 0.0f;
-        ((GroundSpinState *) arg0->unk384)->unk4 = (f32) ((randomLcgNext() % 400U) / 100U);
+    if (effect->unk384 == NULL) {
+        effect->unk384 = heapAlloc(8);
+        ((GroundSpinState *) effect->unk384)->unk0 = 0.0f;
+        ((GroundSpinState *) effect->unk384)->unk4 = (f32) ((randomLcgNext() % 400U) / 100U);
     }
-    guScaleF(sp70, arg0->unk360, arg0->unk364, 0.0f);
-    guRotateF(sp30, ((GroundSpinState *) arg0->unk384)->unk0, 0.0f, 0.0f, 1.0f);
-    guMtxCatF(sp70, sp30, sp70);
-    guRotateF(sp30, 90.0f, 1.0f, 0.0f, 0.0f);
-    guMtxCatF(sp70, sp30, sp70);
-    if (arg0->unk338 != NULL) {
-        arg0->unk344 = ((GroundSpinTargetView *) arg0->unk338)->unkAC;
+    guScaleF(modelMtx, effect->unk360, effect->unk364, 0.0f);
+    guRotateF(tempMtx, ((GroundSpinState *) effect->unk384)->unk0, 0.0f, 0.0f, 1.0f);
+    guMtxCatF(modelMtx, tempMtx, modelMtx);
+    guRotateF(tempMtx, 90.0f, 1.0f, 0.0f, 0.0f);
+    guMtxCatF(modelMtx, tempMtx, modelMtx);
+    if (effect->unk338 != NULL) {
+        effect->unk344 = ((GroundSpinTargetView *) effect->unk338)->unkAC;
     }
-    guTranslateF(sp30, arg0->unk340, arg0->unk344, arg0->unk348);
-    guMtxCatF(sp70, sp30, sp70);
-    guMtxF2L(sp70, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
-    if (arg0->unk35C != 0) {
-        ((GroundSpinState *) arg0->unk384)->unk0 += ((GroundSpinState *) arg0->unk384)->unk4;
-        arg0->unk360 = (f32) ((f64) arg0->unk360 - 0.02);
-        arg0->unk364 = (f32) ((f64) arg0->unk364 - 0.02);
-        if (arg0->unk36D >= 0xA) {
-            arg0->unk36D -= 0xA;
+    guTranslateF(tempMtx, effect->unk340, effect->unk344, effect->unk348);
+    guMtxCatF(modelMtx, tempMtx, modelMtx);
+    guMtxF2L(modelMtx, (Mtx *) ((u8 *) effect + (D_807444FC << 6) + 0x128));
+    if (effect->unk35C != 0) {
+        ((GroundSpinState *) effect->unk384)->unk0 += ((GroundSpinState *) effect->unk384)->unk4;
+        effect->unk360 = (f32) ((f64) effect->unk360 - 0.02);
+        effect->unk364 = (f32) ((f64) effect->unk364 - 0.02);
+        if (effect->unk36D >= 0xA) {
+            effect->unk36D -= 0xA;
         } else {
-            arg0->unk36D = 0;
+            effect->unk36D = 0;
         }
     }
-    ((u8 *) arg0)[0x32C] = 3;
+    ((u8 *) effect)[0x32C] = 3;
 }
 
 
