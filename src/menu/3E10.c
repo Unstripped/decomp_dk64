@@ -1599,7 +1599,6 @@ void func_8002C91C(MenuScreenActor *arg0, s32 arg1) {
 }
 
 
-#ifdef NON_MATCHING
 typedef struct MenuModelScale {
     char pad0[0x34];
     f32 unk34;
@@ -1690,11 +1689,10 @@ void menuCharacterSelectUpdateActor(void) {
                 Menu6_Sub174 *sub = Menu6B_N->unk174;
                 sub->unk0 = temp_s1->unk0;
             }
+            sp4F = 1;
             if (Menu6B_A->unk154 != 0) {} // FAKE: extra reference of the unk154 value; recolours the shared A->unk154 candidate (t0) and the PRE reload position
-            sp4F = 1 | 0; // FAKE: no-code spelling of the constant (steers the sp4F store colour)
-            if (temp_s1->unk4 != 0) {} // FAKE: dead test; one ugen ring step before the join block (t7 lui)
-            sp4F = sp4F | 0; // FAKE: no-code def of sp4F (ring/colour steer)
-                    }
+            if (temp_s1->unk0->unk60 && temp_s1->unk0->unk60) {} // FAKE: repeated dead load steers uopt lifetimes and the ugen temporary ring
+        }
         row = &D_80033894[Menu6B_A->unk154];
         func_800317E8((MenuScreenState *)sp5C, row->a, row->b, &sp54, &sp50, 2, 0, 1.8f);
         Menu6B_A->unk7C = D_807FBB4C->unk7C + (sp54 - 160.0f);
@@ -1723,10 +1721,6 @@ void menuCharacterSelectUpdateActor(void) {
     }
     actorUpdateModelMatrix(Menu6B_A, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/menu/nonmatchings/3E10/menuCharacterSelectUpdateActor.s")
-#endif
 
 extern s8 D_8074583C;
 extern s8 D_80745840;
