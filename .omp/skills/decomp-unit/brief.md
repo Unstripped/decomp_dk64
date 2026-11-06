@@ -9,25 +9,27 @@ Matching decompilation of Donkey Kong 64 (USA), repo <repo root> (ALWAYS use abs
 under it for read/edit/write). Read AGENTS.md first:
 IDO 5.3 `-O2 -mips2`, run every build tool inside the container via `tools/dk <cmd>`,
 write C from the local asm only (do not reuse code from the community DK64 decomp),
-never commit, never edit ok-fine (report findings instead). Read the ok-fine quirks
-by writing JSON to `xd://mcp__ok_fine_read_concept`:
-`{"project":"dk64","id":"notes/ido-matching-quirks"}` and
-`{"project":"dk64","id":"runbooks/decompile-function"}`.
+never commit, never edit `knowledge/ido/` or ok-fine (report findings instead); follow
+"# Knowledge lookups" below throughout.
 Read the matched functions already in your file and REUSE its declarations and structs.
 <file-specific facts: shared header (e.g. include/actor.h), key globals, names so far>
-<IDO tricks the previous rounds of this unit found (from their reports, section 3)>
+<knowledge IDs earlier rounds of this unit found useful (report section 3), new entries added this unit>
 <hidden empty functions (8-byte `jr $ra; nop` merged into a preceding `.s`): addresses and
 their owners; the C needs `void func_ADDR(void) {}` right after the owner>
 
-Register-allocation toolbox (most later-round near misses are regalloc only): access a
-global struct pointer directly vs caching it in a local; local declaration order; split or
-merge temporaries, s32 vs narrow temps, scope temps per switch case; commutative operand
-order; sequential vs chained assignment; exact prototypes (void vs s32 return, f32 vs
-unprototyped, a callback symbol declared as a function rather than `&D_...`); nested call
-argument vs sequential assignment; ternary vs if/else; `do {} while` vs `while`; signedness
-of compares and selectors (constant webs are typed). A `lbu a0; move v1,a0` copy with
-swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a match, diff
-`objdump -dr` relocations against expected (swapped externs look identical in the text).
+# Knowledge lookups (mandatory, frequent)
+`knowledge/ido/` holds ~560 IDO quirks and guides from every past unit; most problems you
+meet are already solved there, and re-deriving a known rule wastes budget. Query it with
+`python3 tools/quirks.py` (host-side, compact output) at least:
+- before writing C for a function: `func <FUNC>` (what earlier attempts learned about it);
+- at every stage change and whenever a diff stops shrinking: `search --symptom <tag> <words
+  from the diff>` (`tags` lists symptoms with the diff each one means; regalloc-only near
+  misses: `--symptom regalloc`);
+- before any trick or tool route not in this brief, and before reporting a new quirk.
+`get <ID>` prints an entry or guide section in full. Report the IDs you used (section 3).
+A `lbu a0; move v1,a0` copy with swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`.
+Before reporting a match, diff `objdump -dr` relocations against expected (swapped externs
+look identical in the text).
 
 # Concurrency rules (several agents run at once)
 - NEVER run `tools/dk make` (any target), `make split`, `python3 -m splat`, `make expected`,
@@ -117,14 +119,9 @@ swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a
   temps (nested calls), structural spelling grids, then `deadsweep.py sweep --extra <locals>`,
   then simulated annealing (`.scratch/*/anneal.py` from past units: dead tests + which local
   each use reads + declaration order, cost full + 6*|insn delta| + 0.3*fakes), then greedy-delete
-  FAKEs that no longer change the score. A wrong register at stage 6: uopt takes the cheapest
-  legal register (`cupcosts`: call-adjacent ranges pay per caller-saved register, callee-saved
-  ones pay a first-use cost) and the lowest number only on ties, so for call-free ranges read the
-  variable's `forbidden:` line (`uopt_trace.sh -l 5`) and find which earlier candidate live in one
-  of its blocks (a call's argument registers, a local shared with another loop, a spilled
-  call-argument expression) supplies each register the target forbids; ok-fine
-  `notes/ido-load-overlay-diagnostics` first. If single-local reuse stalls, test coordinated
-  lifetime partitions across loops rather than rejecting each reuse in isolation.
+  FAKEs that no longer change the score. A wrong register at stage 6: run
+  `python3 tools/quirks.py get ido-load-overlay-diagnostics` and `search --symptom regalloc
+  forbidden` first (cheapest legal register, forbidden sets, coordinated cross-loop lifetimes).
   Once allocation matches, combine independent `.loc`-removal hits before abandoning a
   schedule near-miss: each may fix only part of one multi-initializer scheduling group.
   Never keep a dead read of a local unassigned on some path: guard it or add a real pre-definition.
@@ -174,6 +171,8 @@ whole report rather than replying "earlier report stands".)
    reached (stages 1–6), a one-line closest-diff note each (and confirm you saved its draft
    or parked it under NON_MATCHING).
 2. Names ONLY for behaviour you confirmed: `func_X -> <prefix>CamelCase` + one-line reason.
-3. New IDO quirks not already in the ok-fine note (one bullet each).
+3. Knowledge: per function, the `quirks.py` IDs you used and whether each helped; then new
+   IDO quirks that `quirks.py search` does not already have (one bullet each: title, phase,
+   symptom tags, one-paragraph rule naming the function it came from).
 4. Final file path.
 ````

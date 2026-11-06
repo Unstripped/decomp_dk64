@@ -108,7 +108,7 @@ List them in the brief.
 - Data: overlays keep one named asm `[0xOFF, data, 0]`; global keeps the shared
   `[0x14B740, data]` blob and only gains `.rodata` entries, one per file.
 - First build exactly N bytes long: an unreferenced late_rodata float (owner `-` in the tool
-  output) was emitted as `.rodata`; fix in the symbol file (ok-fine quirks).
+  output) was emitted as `.rodata`; fix in the symbol file (`python3 tools/quirks.py search late_rodata force_migration`).
 - An f32+f64 pair merged into one label shows up as a standalone
   `asm/<seg>/nonmatchings/<file>/D_XXXXXXXX.s`: give the float `type:f32 size:0x4` and the
   double `type:f64 force_migration:True function_owner:<func>`.

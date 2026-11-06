@@ -8,8 +8,8 @@ description: Orchestrate one unit of DK64 matching-decompilation work (split a s
 One unit = pick the next segment or subsystem, make it C, match as many functions as the
 rounds yield, name them, record status. AGENTS.md rules always apply (matching build, no
 game data, build tools only via `tools/dk`). This skill is the procedure; IDO/compiler
-facts live in ok-fine (`notes/ido-matching-quirks`), the matching method in AGENTS.md
-"Decompiling a function".
+facts live in `knowledge/ido/` (query and extend with `python3 tools/quirks.py`; AGENTS.md
+"Decompiling a function" says when), the matching method in AGENTS.md "Decompiling a function".
 
 Read each file when its phase starts (`skill://decomp-unit/<file>`), and re-read it after
 a context compaction:
@@ -26,11 +26,11 @@ a context compaction:
 
 ## 0. Ingest
 
-1. ok-fine: `list_projects` with `repository` = `git remote get-url origin`; read
-   `architecture/overlay-c-units` and the concept for the chosen subsystem
-   (`search_concepts`). Agents read `notes/ido-matching-quirks` themselves (brief); it is
-   ~75 KB, so search it (`search_concepts`, or grep the body read from Python) when you
-   write an agent's next step, fix a split symbol, or append quirks in §4.
+1. ok-fine (architecture only): `list_projects` with `repository` = `git remote get-url
+   origin`; read `architecture/overlay-c-units` and the concept for the chosen subsystem
+   (`search_concepts`). IDO/compiler knowledge is not in ok-fine: run `python3
+   tools/quirks.py` (`func`, `search --symptom`) whenever you pick functions, write an
+   agent's next step, fix a split symbol, or file quirks in §4.
 2. `ROADMAP.md` section 9; `git status` (unexpected changes are the user's: never stage them).
 3. `find src -name '*.c' -exec touch {} +`, then `tools/dk make` must end with
    `build/dk64.us.z64: OK` (make has no header deps: an `include/` retype left 6 files of
@@ -69,14 +69,16 @@ Split at every TU boundary BEFORE round 1, seed the stubs' shared externs, keep 
    `python3 tools/unit_check.py coverage src/<seg>/<file>.c <Agent>=<funcs>...`.
 4. Dispatch up to 6 agents, each in PRIVATE COPY mode from a named base commit.
 5. As each agent reports: check the report against its list and the stage of anything
-   parked; append it to `.scratch/all-reports.md`. A zero-yield copy is merged only for parks (merge.md).
+   parked, and its section-3 knowledge IDs (an attempted function with none: put the
+   lookups into its next task); append it to `.scratch/all-reports.md`. A zero-yield copy is merged only for parks (merge.md).
    `python3 tools/drafts.py collect`, then `git diff drafts/` (restore any note it
    replaced), then
    `tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage include/<h>.h] .scratch/<A> <base> src/<seg>/<f>.c`
    (`--stage` every file the merge depends on outside the given `src` files: headers a unify
    agent extended, symbol files). Continue only after `GATE_OK` and `COMMITTED`. Append new
    findings to `local://findings.md`; refill the slot from the new HEAD with a concrete
-   next step per function. Then record every function of the task, matched or not (zero
+   next step per function, built from `python3 tools/quirks.py func <FUNC>` and a `search
+   --symptom` on its reported diff, citing the IDs. Then record every function of the task, matched or not (zero
    yield too, also when the copy is not merged):
    `cat local://tasks/<A>.md | python3 tools/ledger.py record --unit "<YYYY-MM-DD: unit>" --agent <A> --seg <seg> --task -`
    (outcome and stage come from the tree after the merge; add `FUNC=skipped` for functions
@@ -113,16 +115,17 @@ a parked `NON_MATCHING` function is stage 4+ and counts as unmatched.
    named groups, near-misses incl. parked ones, unattempted large functions; check every
    cited name exists in the symbol file). `tools/dk python3 tools/progress.py --readme`.
 4. Commit `<A>/<b>: name N functions; ROADMAP + README: <unit> status`.
-5. ok-fine (you, not agents: parallel agent edits broke footnote ids once): update
-   `architecture/overlay-c-units` (overlays) or the subsystem concept, and append new quirks
-   from the reports to `notes/ido-matching-quirks`; sources at `git rev-parse HEAD`;
-   `verify_concept`.
+5. Knowledge (you, not agents): ok-fine: update `architecture/overlay-c-units` (overlays) or
+   the subsystem concept, sources at `git rev-parse HEAD`, `verify_concept`. IDO quirks from
+   report section 3: `python3 tools/quirks.py search` each first. Extend a matching entry by
+   editing its file (body, `functions`, `sources`), else `quirks.py add` with `--source <src
+   path>@<HEAD>`. Then `quirks.py check` and commit `knowledge/ido: <unit> quirks`.
 
 ## 5. Improve this skill (every run, before the final yield)
 
 1. Fold what this run taught about the *procedure* into the file that owns the phase (a
    step that failed, a brief instruction agents misread, a better list size or stop
-   threshold, a new tool flag). IDO/compiler facts go to ok-fine, never here.
+   threshold, a new tool flag). IDO/compiler facts go to `knowledge/ido/` (`quirks.py add`), never here.
 2. Size caps: SKILL.md and each reference file ≤ 150 lines, brief.md ≤ 180 (every agent
    reads all of it). A new lesson replaces or merges existing text; over the cap, condense
    in the same commit. One rule per lesson, with at most one clause of why; the evidence

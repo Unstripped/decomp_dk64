@@ -9,7 +9,7 @@ and follow it exactly". Afterwards run the checks in SKILL.md §4.
 # Goal
 Name matched functions of segment <seg> in the DK64 decomp, repo <repo root> (ALWAYS absolute
 paths). Read AGENTS.md first; run build tools only via `tools/dk <cmd>`. Never commit, never
-edit ok-fine. The matching agents' reports, with proposed names: `local://all-reports.md`.
+edit ok-fine or `knowledge/ido/`. The matching agents' reports, with proposed names: `local://all-reports.md`.
 
 # Rules
 - Name only matched-C functions whose behaviour you confirmed from the code:

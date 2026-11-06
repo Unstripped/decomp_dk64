@@ -2,7 +2,7 @@
 
 Up to 6 agents at once. Agents follow [brief.md](brief.md); the matching method itself
 (stage order, `uopt_trace.sh`, permuter, NON_MATCHING parking) is AGENTS.md "Decompiling a
-function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
+function" step 4, and IDO tricks come from `python3 tools/quirks.py` (`knowledge/ido/`).
 
 ## Before the first dispatch
 
