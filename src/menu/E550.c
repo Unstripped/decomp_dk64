@@ -198,13 +198,13 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
         y += 0x29;
         yo += 0x29;
     } while (y != 0x52);
+    if ((s8)D_800339D0 && xo) {}  // FAKE: keep xo below the row-mask priority while merging the post-loop packet block.
+    if ((s8)D_800339D0 && xo) {}  // FAKE: preserve xo's range length and the Combine packet's v0/v1 interference.
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
     xo = (s32)((f32)(D_80744490 - textGetStringWidth(1, spCC)) * 0.5f);
     yo = (s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
-    if ((s8)D_800339D0 && (s8)D_800339D0) {}  // FAKE: separate the ghost's signed-byte expression from the alpha load's spill region.
-    if ((s8)D_800339D0 && (s8)D_800339D0) {}  // FAKE: retain the post-loop allocation constraints.
     loadTilePacket = dl++; loadTilePacket->words.w0 = 0xE200001C; loadTilePacket->words.w1 = 0x504240; // FAKE: reuse the t1 load-tile range for this packet.
     arg1 = dl++; ((Gfx *)arg1)->words.w0 = 0xFCFF97FF; ((Gfx *)arg1)->words.w1 = 0xFF2CFE7F; // FAKE: reuse the consumed parameter's packet home.
     dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), spCC, 0);

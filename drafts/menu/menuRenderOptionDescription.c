@@ -1,16 +1,4 @@
-// menuRenderOptionDescription (src/menu/E550.c): Stage 6; Menu3b full14/text14/reloc0/shape3, normalized417/417, frame0xE8 and every stack offset exact. Genuine use: x=(s32)((f32)D_80744490*0.5f); off=D_8074450C*200; xx=x*4. This replaces the fake offset x-to-off carrier, keeps v1 occupied by x across off, and fixes the raw byte and entire first scaled-text setup. Target has no live v0/v1 value across Combine; v0 width-return last use80032D84, v1 last pre-call store80032D5C. Combine v0/t2, loop-tail schedule, final-call scratch differences remain. Active fdiff FAILED .text2560/2560; parked fdiff OK; --non-matching compiles.
-extern Gfx D_1000118[];
-extern Mtx D_20000C0;
-extern s16 D_80744490;
-extern s16 D_80744494;
-extern u8 D_8074450C;
-char *textTableGetString(s32, s32, s32);
-s32 textGetFontHeight(s32);
-s32 texCacheFindOrLoad(s32);
-s32 textGetStringWidth(s32, char *);
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
-Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
-
+// menuRenderOptionDescription (src/menu/E550.c): Menu4: full14->10 text10 reloc0 shape3, 417 lines and frame0xE8; relocated existing xo guards preserve x304 and row-mask priorities, giving Combine t2. Remaining tail as1 scheduling and final ugen/as1 scratch chain; parked fdiff OK, active full-TU mismatch.
 Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     u32 tex;
     s32 alpha;
@@ -65,13 +53,13 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
         y += 0x29;
         yo += 0x29;
     } while (y != 0x52);
+    if ((s8)D_800339D0 && xo) {}  // FAKE: keep xo below the row-mask priority while merging the post-loop packet block.
+    if ((s8)D_800339D0 && xo) {}  // FAKE: preserve xo's range length and the Combine packet's v0/v1 interference.
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
     xo = (s32)((f32)(D_80744490 - textGetStringWidth(1, spCC)) * 0.5f);
     yo = (s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
-    if ((s8)D_800339D0 && (s8)D_800339D0) {}  // FAKE: separate the ghost's signed-byte expression from the alpha load's spill region.
-    if ((s8)D_800339D0 && (s8)D_800339D0) {}  // FAKE: retain the post-loop allocation constraints.
     loadTilePacket = dl++; loadTilePacket->words.w0 = 0xE200001C; loadTilePacket->words.w1 = 0x504240; // FAKE: reuse the t1 load-tile range for this packet.
     arg1 = dl++; ((Gfx *)arg1)->words.w0 = 0xFCFF97FF; ((Gfx *)arg1)->words.w1 = 0xFF2CFE7F; // FAKE: reuse the consumed parameter's packet home.
     dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), spCC, 0);
