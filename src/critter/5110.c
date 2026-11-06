@@ -19,8 +19,8 @@ typedef struct Struct_807FBB40 {
     Struct_807FBB40_174 *unk174;
 } Struct_807FBB40;
 
-s32 critterBitwiseNot(s32 arg0) {
-    return ~arg0;
+s32 critterBitwiseNot(s32 val) {
+    return ~val;
 }
 
 extern s8 D_80029FA0;
@@ -53,19 +53,19 @@ Gfx *critterRenderCenterImage(Gfx *, Struct_807FBB40 *);
 void func_80029118(void) {
     s32 pad88;
     u16 tmp;
-    Struct_807FBB40_174 *temp_s0;
-    s32 *var_s0;
-    void (*temp_v1)(void *, s32);
-    s32 temp_t3;
-    s32 sp74;
-    s32 sp70;
-    s32 sp58[6];
+    Struct_807FBB40_174 *challengeState;
+    s32 *alignedBuf;
+    void (*dcacheFunc)(void *, s32);
+    s32 pad2;
+    s32 mapChallengeIdx;
+    s32 rewardFlag;
+    s32 dmaBuffer[6];
     s32 pad54;
-    s32 sp50;
+    s32 dmaRomOffset;
     s32 pad40[4];
-    s32 sp3C;
-    s32 sp38;
-    temp_s0 = D_807FBB40->unk174;
+    s32 returnMap;
+    s32 returnExit;
+    challengeState = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_80029FA8 = 0;
         camStartPath(0, 0, 1);
@@ -75,19 +75,19 @@ void func_80029118(void) {
         slotQueueSetShownValue(4, 0, 0);
         switch (gCurrentMap) {
         case 0xB1:
-            temp_s0->unk4 = 0x3C;
+            challengeState->unk4 = 0x3C;
             D_80029FA0 = 1;
             break;
         case 0xB6:
-            temp_s0->unk4 = 0x3C;
+            challengeState->unk4 = 0x3C;
             D_80029FA0 = 1;
             break;
         case 0xB4:
-            temp_s0->unk4 = 0x3C;
+            challengeState->unk4 = 0x3C;
             D_80029FA0 = 5;
             break;
         case 0xB5:
-            temp_s0->unk4 = 0x3C;
+            challengeState->unk4 = 0x3C;
             D_80029FA0 = 5;
             break;
         }
@@ -99,21 +99,21 @@ void func_80029118(void) {
         if ((D_807444EC == 1) && (camIsPathPaused() != 0)) {
             switch (gCurrentMap) {
             case 0xB1:
-                sp74 = 0;
+                mapChallengeIdx = 0;
                 break;
             case 0xB6:
-                sp74 = 1;
+                mapChallengeIdx = 1;
                 break;
             case 0xB4:
-                sp74 = 2;
+                mapChallengeIdx = 2;
                 break;
             case 0xB5:
-                sp74 = 3;
+                mapChallengeIdx = 3;
                 break;
             }
-            func_8070D8C0(D_807FBB40, 0x19, *(u8 *)((char *)&sp74 + 3));
+            func_8070D8C0(D_807FBB40, 0x19, *(u8 *)((char *)&mapChallengeIdx + 3));
             D_807FBB40->unk154 = 1;
-            hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)temp_s0)[5]);
+            hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)challengeState)[5]);
         }
         break;
     case 0x1:
@@ -125,74 +125,74 @@ void func_80029118(void) {
         }
         break;
     case 0x2:
-        var_s0 = sp58;
-        if ((s32)var_s0 & 7) {
+        alignedBuf = dmaBuffer;
+        if ((s32)alignedBuf & 7) {
             do {
-                var_s0 = (s32 *)((char *)var_s0 + 4);
-            } while ((s32)var_s0 & 7);
+                alignedBuf = (s32 *)((char *)alignedBuf + 4);
+            } while ((s32)alignedBuf & 7);
         }
-        temp_v1 = (void (*)(void *, s32))critterBitwiseNot(~(s32)osWritebackDCache);
+        dcacheFunc = (void (*)(void *, s32))critterBitwiseNot(~(s32)osWritebackDCache);
         if (D_80029FA0 <= 0) {
             D_807FBB40->unk154 = 3;
         }
-        temp_v1(var_s0, 0x10);
-        sp50 = critterBitwiseNot(-0xDC1);
-        ((void (*)(void *, s32, s32, s32, void *, s32, void *))critterBitwiseNot(~(s32)osPiStartDma))(&D_807ECE00, 0, 0, sp50, var_s0, 0x10, &D_807655F0);
+        dcacheFunc(alignedBuf, 0x10);
+        dmaRomOffset = critterBitwiseNot(-0xDC1);
+        ((void (*)(void *, s32, s32, s32, void *, s32, void *))critterBitwiseNot(~(s32)osPiStartDma))(&D_807ECE00, 0, 0, dmaRomOffset, alignedBuf, 0x10, &D_807655F0);
         if (D_807FBB40->unk11C->unk154 == 5) {
             D_807FBB40->unk154 = 0xFF;
         }
         ((void (*)(void *, s32, s32))critterBitwiseNot(~(s32)osRecvMesg))(&D_807655F0, 0, 1);
-        ((void (*)(void *, s32))critterBitwiseNot(~(s32)osInvalDCache))(var_s0, 0x10);
-        var_s0[0] += var_s0[1];
-        if (var_s0[0] != 0x0A78F00E) {
+        ((void (*)(void *, s32))critterBitwiseNot(~(s32)osInvalDCache))(alignedBuf, 0x10);
+        alignedBuf[0] += alignedBuf[1];
+        if (alignedBuf[0] != 0x0A78F00E) {
             flagSet((gCurrentMap == 0xB6) ? 0x184 : 0x183, 0, 0);
         }
         break;
     case 0x3:
         D_807FBB40->unk11C->unk154 = 1;
-        temp_s0->unk2 = gfxResourceCreate(1, "WELL DONE!", 2, 160.0f, 100.0f, 0.0f);
+        challengeState->unk2 = gfxResourceCreate(1, "WELL DONE!", 2, 160.0f, 100.0f, 0.0f);
         sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
-        temp_s0->unk0 = 0x78;
+        challengeState->unk0 = 0x78;
         D_807FBB40->unk154 = 0xFE;
         D_80029FA8 = 1;
         break;
     case 0xFE:
-        if (temp_s0->unk0 > 0) {
-            temp_s0->unk0--;
-            if (temp_s0->unk0 == 0) {
+        if (challengeState->unk0 > 0) {
+            challengeState->unk0--;
+            if (challengeState->unk0 == 0) {
                 if (D_80029FA8 != 0) {
                     if (gCurrentMap == 0xB4) {
                         D_80029FA4 = 0x14;
                     }
                     switch (gCurrentMap) {
                     case 0xB1:
-                        sp70 = 0x182;
+                        rewardFlag = 0x182;
                         break;
                     case 0xB6:
-                        sp70 = 0x183;
+                        rewardFlag = 0x183;
                         break;
                     case 0xB4:
-                        sp70 = 0x184;
+                        rewardFlag = 0x184;
                         break;
                     case 0xB5:
-                        sp70 = 0x185;
+                        rewardFlag = 0x185;
                         break;
                     }
-                    if (sp70 && sp70) {} // FAKE: promotes sp70 to a register; adds no new uninitialised read (flagSet below reads sp70 on every path here, incl. the original default-less switch)
-                    flagSet(sp70, 1, 0);
+                    if (rewardFlag && rewardFlag) {} // FAKE: promotes rewardFlag to a register; adds no new uninitialised read (flagSet below reads rewardFlag on every path here, incl. the original default-less switch)
+                    flagSet(rewardFlag, 1, 0);
                 }
                 tmp = D_80029FA4;
                 D_807FCC44 = tmp;
                 slotQueueSetShownValue(4, 0, tmp);
-                func_805FF800(&sp3C, &sp38);
-                func_805FF628(sp3C, 0);
+                func_805FF800(&returnMap, &returnExit);
+                func_805FF628(returnMap, 0);
             }
         }
         break;
     case 0xFF:
         D_80029FA8 = 0;
-        temp_s0->unk2 = gfxResourceCreate(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
-        temp_s0->unk0 = 0x78;
+        challengeState->unk2 = gfxResourceCreate(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
+        challengeState->unk0 = 0x78;
         D_807FBB40->unk154 = 0xFE;
         break;
     }
@@ -205,8 +205,8 @@ extern u8 D_2000180[];
 
 Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
 
-Gfx *critterRenderCenterImage(Gfx *glistp, Struct_807FBB40 *arg1) {
-    Struct_807FBB40_174 *t1 = arg1->unk174;
+Gfx *critterRenderCenterImage(Gfx *glistp, Struct_807FBB40 *actor) {
+    Struct_807FBB40_174 *t1 = actor->unk174;
 
     gSPDisplayList(glistp++, &D_1000118);
     gDPPipeSync(glistp++);
@@ -214,7 +214,7 @@ Gfx *critterRenderCenterImage(Gfx *glistp, Struct_807FBB40 *arg1) {
     gDPSetCombineMode(glistp++, G_CC_MODULATEIDECALA_PRIM, G_CC_MODULATEIDECALA_PRIM);
     gDPSetRenderMode(glistp++, G_RM_OPA_SURF, G_RM_TEX_EDGE2);
     gSPMatrix(glistp++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    if (arg1->unk154 == 0xFE) {
+    if (actor->unk154 == 0xFE) {
         glistp = textDrawAnimated(glistp, t1->unk2, 2, 160.0f, 100.0f, 0.0f, 1.5f);
     }
     return glistp;
