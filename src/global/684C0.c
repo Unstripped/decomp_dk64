@@ -43,53 +43,53 @@ void *heapAlloc(s32);
 s32 triggerZoneContainsActor();
 void triggerZoneSpawnTrigger();
 
-void triggerZoneInit(TriggerZoneActor *arg0) {
-    s32 var_s0;
-    TriggerZoneNode **var_s1;
-    s32 temp_s2;
-    TriggerZoneData *temp_s3;
+void triggerZoneInit(TriggerZoneActor *actor) {
+    s32 i;
+    TriggerZoneNode **link;
+    s32 zoneCount;
+    TriggerZoneData *zones;
     TriggerZoneNode *temp_v0_2;
 
-    var_s1 = &D_807F9410;
-    temp_s2 = *(s32 *)(arg0->unk54 + (u8 *)arg0);
-    temp_s3 = (TriggerZoneData *)((s32 *)(arg0->unk54 + (u8 *)arg0) + 1);
-    *var_s1 = NULL;
-    for (var_s0 = 0; var_s0 < temp_s2; var_s0++) {
+    link = &D_807F9410;
+    zoneCount = *(s32 *)(actor->unk54 + (u8 *)actor);
+    zones = (TriggerZoneData *)((s32 *)(actor->unk54 + (u8 *)actor) + 1);
+    *link = NULL;
+    for (i = 0; i < zoneCount; i++) {
         temp_v0_2 = heapAlloc(sizeof(TriggerZoneNode));
-        *var_s1 = temp_v0_2;
-        var_s1 = &temp_v0_2->next;
-        temp_v0_2->zone = &temp_s3[var_s0];
+        *link = temp_v0_2;
+        link = &temp_v0_2->next;
+        temp_v0_2->zone = &zones[i];
         temp_v0_2->subList = NULL;
         temp_v0_2->next = NULL;
     }
 }
 
-void triggerZoneCheckEntry(TriggerZoneActor *arg0) {
+void triggerZoneCheckEntry(TriggerZoneActor *actor) {
     TriggerZoneNode *node;
-    TriggerZoneSubNode **var_s0;
+    TriggerZoneSubNode **subLink;
     TriggerZoneSubNode *subNode;
     TriggerZoneSubNode *newNode;
     for (node = D_807F9410; node != NULL; node = node->next) {
-        if ((f32)node->zone->xMin <= arg0->unk7C &&
-            (f32)node->zone->yMin <= arg0->unk80 &&
-            (f32)node->zone->zMin <= arg0->unk84 &&
-            arg0->unk7C <= (f32)node->zone->xMax &&
-            arg0->unk80 <= (f32)node->zone->yMax &&
-            arg0->unk84 <= (f32)node->zone->zMax) {
-            if (triggerZoneContainsActor(arg0, node->subList) == 0) {
-                triggerZoneSpawnTrigger(arg0, node->zone);
-                var_s0 = &node->subList;
-                subNode = *var_s0;
+        if ((f32)node->zone->xMin <= actor->unk7C &&
+            (f32)node->zone->yMin <= actor->unk80 &&
+            (f32)node->zone->zMin <= actor->unk84 &&
+            actor->unk7C <= (f32)node->zone->xMax &&
+            actor->unk80 <= (f32)node->zone->yMax &&
+            actor->unk84 <= (f32)node->zone->zMax) {
+            if (triggerZoneContainsActor(actor, node->subList) == 0) {
+                triggerZoneSpawnTrigger(actor, node->zone);
+                subLink = &node->subList;
+                subNode = *subLink;
                 if (subNode != NULL) {
                     do {
-                        var_s0 = &subNode->next;
+                        subLink = &subNode->next;
                         subNode = subNode->next;
                     } while (subNode != NULL);
                 }
                 newNode = heapAlloc(sizeof(TriggerZoneSubNode));
-                *var_s0 = newNode;
-                newNode->actor = arg0;
-                newNode->unk4 = arg0->unk54;
+                *subLink = newNode;
+                newNode->actor = actor;
+                newNode->unk4 = actor->unk54;
                 newNode->spawnedActor = D_807FBB44;
                 newNode->next = NULL;
             }
@@ -107,26 +107,26 @@ typedef struct TriggerSpawnSub174 {
 s32 controllerLookupStateByHash(TriggerZoneActor *);
 s32 actorSpawn(s32, s32);
 
-s32 triggerZoneContainsActor(TriggerZoneActor *arg0, TriggerZoneSubNode *arg1) {
-    while (arg1 != NULL) {
-        if (arg0 == arg1->actor && arg1->unk4 == arg0->unk54) {
+s32 triggerZoneContainsActor(TriggerZoneActor *actor, TriggerZoneSubNode *subNode) {
+    while (subNode != NULL) {
+        if (actor == subNode->actor && subNode->unk4 == actor->unk54) {
             return 1;
         }
-        arg1 = arg1->next;
+        subNode = subNode->next;
     }
     return 0;
 }
 
-void triggerZoneSpawnTrigger(TriggerZoneActor *arg0, TriggerZoneData *arg1) {
-    TriggerSpawnSub174 *temp_v1;
+void triggerZoneSpawnTrigger(TriggerZoneActor *actor, TriggerZoneData *zone) {
+    TriggerSpawnSub174 *spawnState;
 
-    actorSpawn(0x7B, controllerLookupStateByHash(arg0));
-    D_807FBB44->unk11C = (s32)arg0;
-    temp_v1 = D_807FBB44->unk174;
-    temp_v1->unkE = arg1->unkE;
-    temp_v1->unkC = arg1->unkC;
-    temp_v1->unkF = arg1->unkF;
-    arg0->unk156++;
+    actorSpawn(0x7B, controllerLookupStateByHash(actor));
+    D_807FBB44->unk11C = (s32)actor;
+    spawnState = D_807FBB44->unk174;
+    spawnState->unkE = zone->unkE;
+    spawnState->unkC = zone->unkC;
+    spawnState->unkF = zone->unkF;
+    actor->unk156++;
 }
 
 void actorDespawn(Actor *);
@@ -136,7 +136,7 @@ void triggerZoneUpdate(void) {
     TriggerZoneNode *node;
     TriggerZoneSubNode **subListPtr;
     TriggerZoneSubNode *subNode;
-    TriggerZoneSubNode *temp_a0;
+    TriggerZoneSubNode *toFree;
     TriggerZoneActor *actor;
     TriggerZoneData *zone;
     for (node = D_807F9410; node != NULL; node = node->next) {
@@ -151,10 +151,10 @@ void triggerZoneUpdate(void) {
                 (f32)zone->zMax < actor->unk84) {
                 actor->unk156--;
                 actorDespawn(subNode->spawnedActor);
-                temp_a0 = subNode;
+                toFree = subNode;
                 *subListPtr = subNode->next;
                 subNode = subNode->next;
-                heapFree(temp_a0);
+                heapFree(toFree);
             } else {
                 subListPtr = &subNode->next;
                 subNode = subNode->next;
@@ -163,7 +163,7 @@ void triggerZoneUpdate(void) {
     }
 }
 
-void triggerZoneRemoveSpawned(Actor *arg0) {
+void triggerZoneRemoveSpawned(Actor *spawnedActor) {
     TriggerZoneNode *node;
     TriggerZoneSubNode **subListPtr;
     TriggerZoneSubNode *subNode;
@@ -172,7 +172,7 @@ void triggerZoneRemoveSpawned(Actor *arg0) {
     for (node = D_807F9410; node != NULL; node = node->next) {
         for (subListPtr = &node->subList, subNode = *subListPtr; subNode != NULL; ) {
             spawned = subNode->spawnedActor;
-            if (arg0 == spawned) {
+            if (spawnedActor == spawned) {
                 *subListPtr = subNode->next;
                 heapFree(subNode);
                 return;
