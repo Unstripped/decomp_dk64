@@ -859,12 +859,13 @@ def transcripts(sessions):
 
 
 def main_sessions(sessions):
-    """[(start, end, path, [(time, model selector or None, thinking level or None)])] for every
-    top-level (orchestrator) session transcript directly under SESSIONS."""
+    """[dict(start, end, changes, msgs)] for every top-level (orchestrator) session transcript
+    directly under SESSIONS: `changes` = [(time, model selector or None, thinking level or None)],
+    `msgs` = [(time, provider/model, message text, tool-call argument texts)] of its assistant messages."""
     out = []
     for path in glob.glob(os.path.join(sessions, "*.jsonl")):
         start = end = None
-        changes = []
+        changes, msgs = [], []
         with open(path, errors="replace") as fh:
             for line in fh:
                 try:
@@ -880,8 +881,20 @@ def main_sessions(sessions):
                     changes.append((t, d["model"], None))
                 elif d.get("type") == "thinking_level_change" and d.get("thinkingLevel"):
                     changes.append((t, None, d["thinkingLevel"]))
+                m = d.get("message")
+                if isinstance(m, dict) and m.get("role") == "assistant" and isinstance(m.get("content"), list):
+                    text, calls = [], []
+                    for c in m["content"]:
+                        if not isinstance(c, dict):
+                            continue
+                        if "arguments" in c:
+                            calls.append(json.dumps(c["arguments"]))
+                        else:
+                            text.append(str(c.get("text") or c.get("thinking") or ""))
+                    model = f"{m.get('provider')}/{m['model']}" if m.get("model") else None
+                    msgs.append((t, model, "\n".join(text), calls))
         if start and changes:
-            out.append((start, end, path, changes))
+            out.append(dict(path=path, start=start, end=end, changes=changes, msgs=msgs))
     return out
 
 
@@ -895,13 +908,37 @@ def session_model(changes, ts):
     return None if model is None else model + (f":{level}" if level else "")
 
 
+def orchestrator_model(sess, name, ts, window=datetime.timedelta(minutes=15)):
+    """Model of an orchestrator attempt on NAME recorded at TS in session SESS, or None unless
+    provenance is unambiguous: one of its tool calls within WINDOW of TS ran `ledger.py record`
+    with `orchestrator` and NAME in its arguments, and the model and thinking level did not change
+    between the session's first assistant mention of NAME and that call (every assistant message
+    in between ran on that model)."""
+    word = re.compile(rf"\b{re.escape(name)}\b")
+    rec = [t for t, _, _, calls in sess["msgs"] if abs(t - ts) <= window
+           and any("ledger.py record" in c and "orchestrator" in c and word.search(c) for c in calls)]
+    if not rec:
+        return None
+    rt = min(rec, key=lambda t: abs(t - ts))
+    first = next((t for t, _, text, calls in sess["msgs"]
+                  if t <= rt and (word.search(text) or any(word.search(c) for c in calls))), rt)
+    sel = session_model(sess["changes"], rt)
+    if sel is None or session_model(sess["changes"], first) != sel:
+        return None
+    if any(first < t <= rt for t, _, _ in sess["changes"]):
+        return None
+    base = sel.split(":")[0]
+    if any(m and m.split("/")[-1] != base.split("/")[-1] for t, m, _, _ in sess["msgs"] if first <= t <= rt):
+        return None
+    return sel
+
+
 def cmd_backfill_models(a):
     index = transcripts(a.sessions)
     mains = main_sessions(a.sessions)
     with open(LEDGER) as fh:
         lines = [line.rstrip("\n") for line in fh if line.strip()]
     filled = total = 0
-    texts = {}
     for i, line in enumerate(lines):
         e = json.loads(line)
         if e["type"] != "attempt" or e.get("approx") or e.get("agent") is None or e.get("model") is not None:
@@ -909,17 +946,10 @@ def cmd_backfill_models(a):
         total += 1
         ts = _when(e["ts"])
         if e["agent"] == "orchestrator":
-            # the main session that ran `ledger.py record` for this function at that time
-            cands = []
-            for start, end, path, changes in mains:
-                if not (start <= ts <= end + datetime.timedelta(minutes=10)):
-                    continue
-                if path not in texts:
-                    texts[path] = open(path, errors="replace").read()
-                if "ledger.py record" in texts[path] and re.search(rf"\b{re.escape(e['name'])}\b", texts[path]):
-                    cands.append(session_model(changes, ts))
-            if len(cands) == 1 and cands[0]:
-                e["model"], e["model_src"] = cands[0], "session"
+            cands = {m for s in mains if s["start"] <= ts <= s["end"] + datetime.timedelta(minutes=15)
+                     for m in [orchestrator_model(s, e["name"], ts)] if m}
+            if len(cands) == 1:
+                e["model"], e["model_src"] = cands.pop(), "session"
                 lines[i] = json.dumps(e, sort_keys=True)
                 filled += 1
             continue

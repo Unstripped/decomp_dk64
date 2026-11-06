@@ -83,3 +83,32 @@ def test_session_model_replays_model_and_level_changes():
                (t(2), None, "xhigh"), (t(3), "anthropic/claude-sonnet-5-5", None)]
     assert ledger.session_model(changes, t(2)) == "anthropic/claude-opus-5-5:xhigh"
     assert ledger.session_model(changes, t(4)) == "anthropic/claude-sonnet-5-5:xhigh"
+
+
+def session(changes, msgs):
+    t = lambda h, m=0: ledger._when(f"2026-11-06T{h:02d}:{m:02d}:00Z")
+    return t, dict(changes=[(t(*c[0]), c[1], c[2]) for c in changes],
+                   msgs=[(t(*x[0]), x[1], x[2], x[3]) for x in msgs])
+
+
+SONNET_MSG = "anthropic/claude-sonnet-5-5"
+RECORD = '{"command": "python3 tools/ledger.py record --unit U --agent orchestrator --seg global funcA"}'
+
+
+def test_orchestrator_model_from_the_record_call_of_that_function():
+    t, s = session([((1,), SONNET_MSG, None), ((1,), None, "xhigh")],
+                   [((2,), SONNET_MSG, "working on funcA", []), ((3,), SONNET_MSG, "", [RECORD])])
+    assert ledger.orchestrator_model(s, "funcA", t(3)) == "anthropic/claude-sonnet-5-5:xhigh"
+
+
+def test_orchestrator_model_needs_a_record_call_naming_the_function():
+    unrelated = '{"command": "python3 tools/ledger.py record --unit U --agent orchestrator --seg global funcB"}'
+    t, s = session([((1,), SONNET_MSG, None), ((1,), None, "xhigh")],
+                   [((2,), SONNET_MSG, "funcA looks hard", []), ((3,), SONNET_MSG, "", [unrelated])])
+    assert ledger.orchestrator_model(s, "funcA", t(3)) is None
+
+
+def test_orchestrator_model_unknown_when_model_changed_mid_work():
+    t, s = session([((1,), "anthropic/claude-opus-5-5", None), ((2, 30), SONNET_MSG, None)],
+                   [((2,), "anthropic/claude-opus-5-5", "funcA first look", []), ((3,), SONNET_MSG, "", [RECORD])])
+    assert ledger.orchestrator_model(s, "funcA", t(3)) is None
