@@ -67,7 +67,14 @@ Split at every TU boundary BEFORE round 1, seed the stubs' shared externs, keep 
    from the previous session's `local/findings.md` (dispatch.md step 3).
 3. Partition (dispatch.md) and verify each file with
    `python3 tools/unit_check.py coverage src/<seg>/<file>.c <Agent>=<funcs>...`.
-4. Dispatch up to 6 agents, each in PRIVATE COPY mode from a named base commit.
+4. Dispatch up to 6 agents, each in PRIVATE COPY mode from a named base commit. Route each
+   task first: `cat local://tasks/<A>.md | python3 tools/ledger.py route --agent <A> --seg <seg> --task -`,
+   then spawn it with `name`/`label` `<A>` (`.omp/extensions/decomp-router.ts` applies the model).
+   Exit 2 = no new evidence since the last attempt: drop the function, or give it a new draft or
+   a `next:` step (`--force` only for a deliberate retry). Pair same-tier functions with
+   `tools/dk python3 tools/similar.py -s <seg> --pairs <FUNC>...` (`route --dry-run` shows tiers).
+   Re-route after each record; re-prompts keep their model, so respawn when the tier changes.
+   Efficiency runs with normal agents: skip `route`.
 5. As each agent reports: check the report against its list and the stage of anything
    parked, and its section-3 knowledge IDs (an attempted function with none: put the
    lookups into its next task); append it to `.scratch/all-reports.md`. A zero-yield copy is merged only for parks (merge.md).
@@ -78,12 +85,12 @@ Split at every TU boundary BEFORE round 1, seed the stubs' shared externs, keep 
    agent extended, symbol files). Continue only after `GATE_OK` and `COMMITTED`. Append new
    findings to `local://findings.md`; refill the slot from the new HEAD with a concrete
    next step per function, built from `python3 tools/quirks.py func <FUNC>` and a `search
-   --symptom` on its reported diff, citing the IDs. Then record every function of the task, matched or not (zero
+   --symptom` on its reported diff, citing the IDs on its task line as `next: <step>` (the route fingerprint reads it). Then record every function of the task, matched or not (zero
    yield too, also when the copy is not merged):
    `cat local://tasks/<A>.md | python3 tools/ledger.py record --unit "<YYYY-MM-DD: unit>" --agent <A> --seg <seg> --task -`
    (outcome and stage come from the tree after the merge; add `FUNC=skipped` for functions
    the report says it never reached). Your own probes: `--agent orchestrator FUNC`; a
-   split/data blocker: `--unit - FUNC=blocked --note "..."`.
+   split/data blocker: `--unit - FUNC=blocked --note "..."`. Commit `drafts/spawns.jsonl` with `drafts/attempts.jsonl`.
 6. Stop rule (dispatch.md): a round matching fewer than ~1 function per agent, or only
    near-misses and 500+-instruction functions left. List what is left with
    `python3 tools/unit_check.py left src/<seg>/<file>.c ...` before stopping.

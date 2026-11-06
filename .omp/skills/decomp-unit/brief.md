@@ -159,7 +159,8 @@ order, never `extern f64 D_8075...` (identical code, but `.rodata` fails).
 Report every assigned function, matched or not. One that won't match gets its exact original
 `#pragma GLOBAL_ASM(...)` line back (or a NON_MATCHING park, see above) and EVERY unmatched
 function gets a saved draft (even "no stored draft" ones):
-`python3 tools/drafts.py save <seg> <FUNC> .scratch/<YourName>/<FUNC>_best.c --note "<closest diff, what you tried>"`,
+`python3 tools/drafts.py save <seg> <FUNC> .scratch/<YourName>/<FUNC>_best.c --note "stage <N>: full=<F> text=<T> reloc=<R> shape=<S>; <what you tried>"`
+(numbers from `tools/dk python3 tools/deadsweep.py score .scratch/<YourName>/<file>.c src/<seg>/<file>.c <FUNC>`; `score=none` when it does not compile),
 where `<FUNC>_best.c` holds ONLY that function and its declarations (`save` rejects
 `#pragma GLOBAL_ASM` lines). Start from `python3 tools/drafts.py show <seg> <FUNC>` if one
 exists. Your final file MUST give OK or TEXT OK: never leave non-matching C in it.

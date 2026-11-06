@@ -8,7 +8,7 @@ first line is a `// <FUNC> (<src file>): <note>` header (closest diff, what was 
 rest is the draft C (the function plus the local declarations it needs). .scratch/ stays
 the per-session work area; anything worth continuing in a later session goes here.
 
-    python3 tools/drafts.py save SEG FUNC FILE [--note TEXT]  # store/replace a draft
+    python3 tools/drafts.py save SEG FUNC FILE --note "stage N: full=F text=T reloc=R shape=S; ..."  # store/replace a draft
     python3 tools/drafts.py show SEG FUNC                     # print its path and contents
     python3 tools/drafts.py list [SEG]                        # drafts with their notes
     python3 tools/drafts.py collect                           # import newer .scratch/*/<FUNC>_best.c
@@ -23,6 +23,9 @@ the source file in the same directory (the one whose GLOBAL_ASM line names
 copy. Drafts whose segment can't be determined are reported and skipped, never guessed.
 `save` and `collect` refuse a draft containing `#pragma GLOBAL_ASM` lines; they and `paste`
 refuse one that defines another function the src file already defines (a saved private copy).
+`save` requires a note giving the stage and the deadsweep score (`score=none` when FUNC does not
+compile): `tools/ledger.py` reads both. `collect` keeps the note of a `_best.c` that starts
+with a `// <FUNC> (...): <note>` header.
 `prune` runs after every merge: a function that left GLOBAL_ASM is matched.
 `paste` replaces FUNC's `GLOBAL_ASM` line (or the whole `#ifdef NON_MATCHING` park around it)
 in its src file with the draft minus its header, for "text-identical, reloc only" reports;
@@ -143,6 +146,10 @@ def main() -> None:
     args = ap.parse_args()
 
     if args.cmd == "save":
+        if not (re.search(r"stage\s*[1-6]", args.note, re.I)
+                and re.search(r"full=\d+ text=\d+ reloc=\d+ shape=\d+|score=none", args.note)):
+            sys.exit('note must give the stage and the deadsweep score: "stage N: full=F text=T reloc=R shape=S; '
+                     '<what you tried>" (tools/deadsweep.py score), or "stage N: score=none; ..." when FUNC does not compile')
         print(write(args.seg, args.func, args.file, args.note, unmatched()))
     elif args.cmd == "show":
         path = stored().get((args.seg, args.func))
@@ -174,7 +181,11 @@ def main() -> None:
             if (seg, func) in have and os.path.getmtime(have[(seg, func)]) >= os.path.getmtime(p):
                 continue
             try:
-                print(write(seg, func, p, f"from {os.path.relpath(p, ROOT)}", todo))
+                head = open(p).readline()
+                rel = os.path.relpath(p, ROOT)
+                note = (head.split("): ", 1)[1].strip() if head.startswith(f"// {func} (") and "): " in head
+                        else f"from {rel}")
+                print(write(seg, func, p, note, todo))
             except SystemExit as e:
                 print(f"skipped: {e}")
     elif args.cmd == "prune":

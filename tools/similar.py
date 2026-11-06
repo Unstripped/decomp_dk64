@@ -138,6 +138,8 @@ def main():
         "--min", dest="min_score", type=float, default=0.50,
         help="lowest score listed (default 0.50; random same-length pairs score <= 0.44 at p99)",
     )
+    ap.add_argument("--pairs", action="store_true",
+                    help="pair the given FUNCs with each other (greedy, highest score first)")
     ap.add_argument("funcs", nargs="+", metavar="FUNC")
     args = ap.parse_args()
     if args.n < 1:
@@ -149,6 +151,32 @@ def main():
     funcs = load_functions(repo_root)
 
     rc = 0
+    if args.pairs:
+        picked = []
+        for name in args.funcs:
+            t = min((f for f in funcs if f.seg == args.segment and f.name == name), key=lambda f: f.addr, default=None)
+            if t is None:
+                print(f"similar: {name} not found in segment {args.segment}", file=sys.stderr)
+                rc = 1
+                continue
+            picked.append(t)
+        scored = []
+        for i, a in enumerate(picked):
+            for b in picked[i + 1:]:
+                if a.seq and b.seq:
+                    s = 1 - Levenshtein.distance(a.seq, b.seq) / max(len(a.seq), len(b.seq))
+                    scored.append((-s, a.name, b.name, a, b))
+        scored.sort(key=lambda t: t[:3])
+        used = set()
+        for neg, _, _, a, b in scored:
+            if a.name in used or b.name in used or -neg < args.min_score - 1e-9:
+                continue
+            used |= {a.name, b.name}
+            print(f"pair  {-neg:.2f}  {a.name} ({len(a.seq)} insns)  {b.name} ({len(b.seq)} insns)")
+        for t in picked:
+            if t.name not in used:
+                print(f"single  {t.name} ({len(t.seq)} insns)")
+        sys.exit(rc)
     for name in args.funcs:
         targets = sorted((f for f in funcs if f.seg == args.segment and f.name == name), key=lambda f: f.addr)
         if not targets:
