@@ -180,9 +180,9 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
     f32 sp84;
     f32 sp80;
     f32 sp7C;
-    s16 sp72;
-    s32 a;
     s16 node;
+    s32 a;
+    s16 sp72;
     s32 t;
     s32 sv[5];
 
