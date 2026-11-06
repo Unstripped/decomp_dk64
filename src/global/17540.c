@@ -59,8 +59,8 @@ Vec3f vec3fCross(Vec3f a, Vec3f b) {
     return r;
 }
 
-void vec3fSet(Vec3f *arg0, f32 arg1, f32 arg2, f32 arg3) {
-    arg0->x = arg1;
-    arg0->y = arg2;
-    arg0->z = arg3;
+void vec3fSet(Vec3f *v, f32 x, f32 y, f32 z) {
+    v->x = x;
+    v->y = y;
+    v->z = z;
 }
