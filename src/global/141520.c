@@ -49,7 +49,7 @@ void n_alFxPull(void);
 void n_alFxParamHdl(s32, s16, s32);
 void rebuildLowPassCoefficients(SynFXFilter *, f32);
 
-void func_8073C820(ALVoice *voice, u8 arg1) {
+void func_8073C820(ALVoice *voice, u8 val) {
     SynVoiceParam *param;
 
     if (voice->pvoice != NULL) {
@@ -59,46 +59,46 @@ void func_8073C820(ALVoice *voice, u8 arg1) {
         }
         param->delta = n_syn->paramSamples + ((SynPVoice *)voice->pvoice)->delta;
         param->type = 0x10;
-        param->data.i = arg1;
+        param->data.i = val;
         param->next = NULL;
         n_alEnvmixerParam(voice->pvoice, 3, param);
     }
 }
 
-s32 n_alSynGetFXDelay(s16 arg0) {
+s32 n_alSynGetFXDelay(s16 busIndex) {
     SynFilter *sp4;
 
     sp4 = n_syn->outputFilter;
     if (sp4->handler == n_alFxPull) {
-        return n_syn->fxBus[arg0].field20;
+        return n_syn->fxBus[busIndex].field20;
     } else {
         return 0;
     }
 }
 
-s32 n_alSynGetFXFeedback(s16 arg0) {
+s32 n_alSynGetFXFeedback(s16 busIndex) {
     SynFilter *sp4;
 
     sp4 = n_syn->outputFilter;
     if (sp4->handler == n_alFxPull) {
-        return n_syn->fxBus[arg0].field44;
+        return n_syn->fxBus[busIndex].field44;
     } else {
         return 0;
     }
 }
 
-void n_alSynSetFXParam(s32 arg0, s16 arg1, s32 arg2) {
-    s32 sp1C;
+void n_alSynSetFXParam(s32 fxType, s16 paramId, s32 paramVal) {
+    s32 fxParam;
 
-    sp1C = arg0;
-    n_alFxParamHdl(sp1C, arg1, arg2);
+    fxParam = fxType;
+    n_alFxParamHdl(fxParam, paramId, paramVal);
 }
 
-void n_alSynSetFXFilterParam(SynFXFilter *arg0, s16 arg1, s32 *arg2) {
-    if (arg1 == 8) {
-        arg0->unk2 = (s16)(s32)((f32)*arg2 * 0.1f);
-    } else if (arg1 == 9) {
-        arg0->unk0 = (s16)*arg2;
+void n_alSynSetFXFilterParam(SynFXFilter *filter, s16 paramId, s32 *valuePtr) {
+    if (paramId == 8) {
+        filter->unk2 = (s16)(s32)((f32)*valuePtr * 0.1f);
+    } else if (paramId == 9) {
+        filter->unk0 = (s16)*valuePtr;
     }
-    rebuildLowPassCoefficients(arg0, (f32)n_syn->outputRate);
+    rebuildLowPassCoefficients(filter, (f32)n_syn->outputRate);
 }
