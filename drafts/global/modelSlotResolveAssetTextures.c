@@ -1,4 +1,4 @@
-// modelSlotResolveAssetTextures (src/global/36880.c): pick-one attempt 3 (base 5f3a78ec): joining the arm's first 12 statements on ONE source line (as1 .loc scheduling) takes the draft shape4->1 at unchanged full29/text29 (the one remaining shape row is the extra move a0,v1; 122 vs 121 normalized rows, not instructions: the target is 113 instructions). Pointer-first variant (pad = seg->unkA0 before the diff; diff = (seg->unkA8 - pad) >> 3) matches the row count (121) with A0 in a0 and no move, but full40 shape2: left are flags v1 vs a3, A8/diff v0/v1 swap, ring t1/t2 at lbu 28(s1), second-call addu operand order. uopt -l5 observations (reg ids 1=v0 2=v1 3=a0 4=a1 5=a2 6=a3): flags forbids only {v0 (p), s0} so it takes v1. HYPOTHESIS, unverified: the target a3 needs ids 1-5 forbidden at its turn (p v0, a v1 web, arg entry pieces; node0 regsused a0-a2), i.e. flags in an early node, and the &arg2 / arg0->unk20 dead-test FAKEs may push it to node 5; dropping the dead test did not give a3, it shifted the ugen ring (full47). Dead-statement sweep on the pointer-first base (12 symbols, 1824 variants), 8 diff-variable forms, 162 pad/pointer holder forms and a 25-minute permuter run found nothing better.
+// modelSlotResolveAssetTextures (src/global/36880.c): stage 4: full=39 text=39 reloc=0 shape=2; pointer-first variant with s32 sp30 and dead-test removal improves full 40 -> 39, text 39, shape 2, reloc 0 on exact target instruction count (113 instructions, 121 normalized rows). s32 sp30 fixes the second call's addu a1, a0, reg operand order to match target (was inverted under u32). Removing early dead test eliminates spurious CFG blocks and restores 1:1 statement-to-instruction alignment in the head. Traces (-l5/-l6) show flags (cand 19) takes v1 because node 0 only forbids {a0,a1,a2}, p forbids v0, and no node 0 candidate claims v1 (ties lowest id 2 < 6); target's a3 requires forbidding v1. as1probe scan on records 455-520 showed 0 improvements over 504 mutations, confirming remaining diff is purely allocator stage 4. | Prior: modelSlotResolveAssetTextures (src/global/36880.c): pick-one attempt 3 (base 5f3a78ec): joining the arm's first 12 statements on ONE source line (as1 .loc scheduling) takes the draft shape4->1 at unchanged full29/text29 (the one remaining shape row is the extra move a0,v1; 122 vs 121 normalized rows, not instructions: the target is 113 instructions). Pointer-first variant (pad = seg->unkA0 before the diff; diff = (seg->unkA8 - pad) >> 3) matches the row count (121) with A0 in a0 and no move, but full40 shape2: left are flags v1 vs a3, A8/diff v0/v1 swap, ring t1/t2 at lbu 28(s1), second-call addu operand order. uopt -l5 observations (reg ids 1=v0 2=v1 3=a0 4=a1 5=a2 6=a3): flags forbids only {v0 (p), s0} so it takes v1. HYPOTHESIS, unverified: the target a3 needs ids 1-5 forbidden at its turn (p v0, a v1 web, arg entry pieces; node0 regsused a0-a2), i.e. flags in an early node, and the &arg2 / arg0->unk20 dead-test FAKEs may push it to node 5; dropping the dead test did not give a3, it shifted the ugen ring (full47). Dead-statement sweep on the pointer-first base (12 symbols, 1824 variants), 8 diff-variable forms, 162 pad/pointer holder forms and a 25-minute permuter run found nothing better.
 s32 dlResolveNodeTextures(DisplayListCmd *, DisplayListCmd *, ModelSegmentNode *, u8);
 
 s32 modelSlotResolveAssetTextures(arg0, arg1, arg2)
@@ -11,7 +11,7 @@ u8 arg2;
     ModelSegmentData *volatile seg2; // FAKE: keeps a memory copy of seg (target reloads it from 0x3C(sp) in the else branch)
     ModelSlotObjHeader *p;
     s32 pad;
-    u32 sp30;
+    s32 sp30;
     ModelSegmentNode *node;
     u8 res;
     s32 sp24;
@@ -22,14 +22,13 @@ u8 arg2;
     seg2 = seg;
     obj = (ModelSlotObjHeader *)p;
     p->unk8 = gFrameCounter;
-    if (arg0->unk20 && arg0->unk20) {} // FAKE: dead test steers uopt colouring
     if (!(arg0->unk8C & 0x20)) {
         if (!(p->unk0 & 0x10) || arg2 != 0) {
             p = (ModelSlotObjHeader *)seg;
             arg0->unk8C |= 0x20;
             obj->unk3C += 1;
             if (obj->unk1C == 1) {
-                node = (ModelSegmentNode *)((ModelSlotSegOwner *)arg0)->unk20->unkB8; pad = seg->unkA8 - seg->unkA0; sp24 = ((u32)pad >> 3) * 8; sp30 = (seg->unkB0 - seg->unkA8) >> 3; pad = seg->unkA0; res = dlResolveNodeTextures((DisplayListCmd *)pad, (DisplayListCmd *)(pad + sp24), node, arg2); sp20 = sp30 * 8; if (res && res) {} sp30 = seg->unkA8; res |= dlResolveNodeTextures((DisplayListCmd *)sp30, (DisplayListCmd *)(sp30 + sp20), node, arg2); if (node != 0) { pad = seg->unkA4;  // LAYOUT: arm statements on one source line steer as1 scheduling; FAKE: pad/sp30 reuse and dead `res && res` test steer uopt colouring
+                node = (ModelSegmentNode *)((ModelSlotSegOwner *)arg0)->unk20->unkB8; pad = seg->unkA0; sp24 = ((u32)(seg->unkA8 - pad) >> 3) * 8; sp30 = (seg->unkB0 - seg->unkA8) >> 3; res = dlResolveNodeTextures((DisplayListCmd *)pad, (DisplayListCmd *)(pad + sp24), node, arg2); sp20 = sp30 * 8; if (res && res) {} sp30 = seg->unkA8; res |= dlResolveNodeTextures((DisplayListCmd *)sp30, (DisplayListCmd *)(sp30 + sp20), node, arg2); if (node != 0) { pad = seg->unkA4;  // LAYOUT: arm statements on one source line steer as1 scheduling; FAKE: pad/sp30 reuse and dead `res && res` test steer uopt colouring
                     res |= dlResolveNodeTextures((DisplayListCmd *)pad, (DisplayListCmd *)(pad + sp24), node, arg2);
                     pad = seg->unkAC; // FAKE: reuses the pad word as the CSE'd pointer (steers uopt colouring)
                     res |= dlResolveNodeTextures((DisplayListCmd *)pad, (DisplayListCmd *)(pad + sp20), node, arg2);
