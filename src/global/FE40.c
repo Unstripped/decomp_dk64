@@ -10,77 +10,77 @@ void heapFree(void *);
 void gunzip(void *, void *, void *);
 void func_80002790(void *, void *, void *, s32);
 
-void dmaReadAssetDecompress(u32 arg0, void *arg1, s32 *arg2, u8 arg3, u8 arg4, u8 arg5, void *arg6) {
+void dmaReadAssetDecompress(u32 romAddr, void *dst, s32 *sizePtr, u8 decompressFlag1, u8 decompressFlag2, u8 compressType, void *scratchBuf) {
     s32 count;
     s32 size;
-    void *sp5C;
-    void *sp58;
+    void *dmaBuf;
+    void *dstStart;
     s32 rem;
-    void *sp50;
+    void *allocBuf;
     void *ptr;
 
-    sp58 = arg1;
-    if (arg3 || arg4) {
-        if ((arg3 & 0xFF) & 0x80) { // FAKE: redundant andi burns one ugen ring temp (as1 deletes it)
-            sp5C = arg6;
-            arg6 = (u8 *)arg6 + 0x3800;
-        } else if (arg6 != NULL) {
-            sp5C = (void *)0x80024000;
+    dstStart = dst;
+    if (decompressFlag1 || decompressFlag2) {
+        if ((decompressFlag1 & 0xFF) & 0x80) { // FAKE: redundant andi burns one ugen ring temp (as1 deletes it)
+            dmaBuf = scratchBuf;
+            scratchBuf = (u8 *)scratchBuf + 0x3800;
+        } else if (scratchBuf != NULL) {
+            dmaBuf = (void *)0x80024000;
         } else {
-            sp50 = heapAlloc(*arg2);
-            sp5C = sp50;
+            allocBuf = heapAlloc(*sizePtr);
+            dmaBuf = allocBuf;
         }
     } else {
-        sp5C = arg1;
+        dmaBuf = dst;
     }
-    osInvalDCache(sp5C, *arg2);
-    size = *arg2;
-    count = 0; ptr = sp5C; while (count < ((u32)size >> 14)) { // LAYOUT: joined onto the loop header line (as1 preheader order)
-        osPiStartDma(&D_807ECE00, 0, 0, arg0, ptr, 0x4000, &D_807655F0);
+    osInvalDCache(dmaBuf, *sizePtr);
+    size = *sizePtr;
+    count = 0; ptr = dmaBuf; while (count < ((u32)size >> 14)) { // LAYOUT: joined onto the loop header line (as1 preheader order)
+        osPiStartDma(&D_807ECE00, 0, 0, romAddr, ptr, 0x4000, &D_807655F0);
         D_80746834 = 4;
         osRecvMesg(&D_807655F0, NULL, 1);
         D_80746834 = 0;
         count++;
-        size = *arg2;
-        arg0 += 0x4000;
+        size = *sizePtr;
+        romAddr += 0x4000;
         ptr = (u8 *)ptr + 0x4000;
     }
     rem = size - (((u32)size >> 14) << 14);
     if (rem != 0) {
-        osPiStartDma(&D_807ECE00, 0, 0, arg0, ptr, rem, &D_807655F0);
+        osPiStartDma(&D_807ECE00, 0, 0, romAddr, ptr, rem, &D_807655F0);
         D_80746834 = 5;
         osRecvMesg(&D_807655F0, NULL, 1);
         D_80746834 = 0;
     }
-    D_807ECE18 = arg6;
-    if ((arg6 == NULL) && ((arg5 == 1) || (arg5 == 2))) {
+    D_807ECE18 = scratchBuf;
+    if ((scratchBuf == NULL) && ((compressType == 1) || (compressType == 2))) {
         D_807ECE18 = heapAlloc(0x4000);
     }
-    switch (arg5) {
+    switch (compressType) {
     case 1:
-        if (arg3) {
-            gunzip(&sp5C, &arg1, D_807ECE18);
+        if (decompressFlag1) {
+            gunzip(&dmaBuf, &dst, D_807ECE18);
         }
-        if (arg4) {
-            gunzip(&sp5C, &arg1, D_807ECE18);
+        if (decompressFlag2) {
+            gunzip(&dmaBuf, &dst, D_807ECE18);
         }
         break;
     case 2:
-        if (arg3) {
-            func_80002790(&sp5C, &arg1, D_807ECE18, arg3);
+        if (decompressFlag1) {
+            func_80002790(&dmaBuf, &dst, D_807ECE18, decompressFlag1);
         }
-        if (arg4) {
-            func_80002790(&sp5C, &arg1, D_807ECE18, arg4);
+        if (decompressFlag2) {
+            func_80002790(&dmaBuf, &dst, D_807ECE18, decompressFlag2);
         }
         break;
     }
-    if ((arg6 == NULL) && ((arg5 == 1) || (arg5 == 2))) {
+    if ((scratchBuf == NULL) && ((compressType == 1) || (compressType == 2))) {
         heapFree(D_807ECE18);
     }
-    if (arg3 || arg4) {
-        *arg2 = (u8 *)arg1 - (u8 *)sp58;
-        if (arg6 == NULL) {
-            heapFree(sp50);
+    if (decompressFlag1 || decompressFlag2) {
+        *sizePtr = (u8 *)dst - (u8 *)dstStart;
+        if (scratchBuf == NULL) {
+            heapFree(allocBuf);
         }
     }
 }
