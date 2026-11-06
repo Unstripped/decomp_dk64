@@ -20,7 +20,8 @@
                                    (`-` = no draft) and `parked` for #ifdef NON_MATCHING ones
   vanished [<rev>]                 src/ files changed since <rev> (default HEAD) whose count of
                                    function definitions + GLOBAL_ASM lines changed (a namer or
-                                   merge that deleted a function); exit 1 on any
+                                   merge that deleted a function); registered hand-asm moves are
+                                   retained when their generated glabel exists; exit 1 on other changes
   pragma-tail <src.c>...           files ending in a #pragma GLOBAL_ASM directly after a function's
                                    closing `}`, or without a trailing newline (that file once built
                                    without its last function: undefined reference at link); exit 1
@@ -38,6 +39,7 @@
 """
 import argparse
 import glob
+import json
 import os
 import re
 import subprocess
@@ -174,6 +176,14 @@ def count_funcs(text):
 
 
 def cmd_vanished(a):
+    handwritten = set()
+    for path in json.load(open(os.path.join(ROOT, "handwritten_asm.json"))):
+        full = os.path.join(ROOT, path)
+        if not path.startswith("asm/") or not os.path.isfile(full):
+            continue
+        directory = path.split("/")[1]
+        seg = directory if os.path.isdir(os.path.join(ROOT, "src", directory)) else ""
+        handwritten.update((seg, name) for name in re.findall(r"^glabel (\w+)$", open(full).read(), re.M))
     files = subprocess.run(["git", "diff", "--name-only", a.rev, "--", "src"], cwd=ROOT, capture_output=True, text=True, check=True).stdout.split()
     bad = False
     for f in files:
@@ -182,7 +192,10 @@ def cmd_vanished(a):
         old = subprocess.run(["git", "show", f"{a.rev}:{f}"], cwd=ROOT, capture_output=True, text=True)
         if old.returncode:
             continue
-        o, n = count_funcs(old.stdout), count_funcs(open(os.path.join(ROOT, f)).read())
+        current = open(os.path.join(ROOT, f)).read()
+        o, n = count_funcs(old.stdout), count_funcs(current)
+        moved = (set(PRAGMA.findall(old.stdout)) - set(PRAGMA.findall(current))) & handwritten
+        n += len(moved)
         if o != n:
             print(f"{f} {o} -> {n}"); bad = True
     print("vanished OK" if not bad else "vanished FAILED")

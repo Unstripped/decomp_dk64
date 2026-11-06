@@ -31,6 +31,7 @@
   "asm/global/1E2D0.s": "Handwritten math entries share non-ABI integer/FP state and internal jump targets.",
   "asm/global/61690.s": "Handwritten routine with 64-bit saves, multiplication, and integer-to-FP transfers.",
   "asm/global/77B90.s": "Handwritten 64-bit math using dmult, ld/sd, and kernel registers.",
+  "asm/global/110F00.s": "Handwritten float-to-integer helper using round.w.s and mfc1; IDO C cannot emit it.",
   "asm/global/146010.s": "RSP microcode, including COP0 DMA helpers; not CPU C.",
   "asm/global/146C40.s": "RSP microcode overlays, including func_80742E9C and func_8074422C DMA helpers; not CPU C."
 }

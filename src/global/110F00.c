@@ -9,8 +9,6 @@ void mtxIdentityF();
 void mtxLookDirF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz);
 void mtxLookDirPosF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz, f32 px, f32 py, f32 pz);
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/110F00/func_8070C200.s")
-
 void mtxScaleTranslateF(Mat4F *mf, f32 sx, f32 sy, f32 sz, f32 x, f32 y, f32 z) {
     mtxIdentityF(mf);
     mf->m[0][0] = sx;
