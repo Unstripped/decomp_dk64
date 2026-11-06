@@ -12,14 +12,14 @@ typedef struct {
     /* 0x12 */ s16 unk12;
 } Struct80005A90;
 
-void func_80005A90(Struct80005A90 *arg0, s32 arg1, s32 arg2, s16 arg3, s16 arg4, s16 arg5, u8 arg6, u8 arg7, s16 arg8, s16 arg9) {
-    arg0->unk0 = arg1;
-    arg0->unk4 = arg2;
-    arg0->unk8 = arg3;
-    arg0->unkA = arg4;
-    arg0->unkC = arg5;
-    arg0->unkE = arg6;
-    arg0->unkF = arg7;
-    arg0->unk10 = arg8;
-    arg0->unk12 = arg9;
+void func_80005A90(Struct80005A90 *texDesc, s32 texture, s32 param2, s16 width, s16 height, s16 format, u8 param6, u8 param7, s16 param8, s16 param9) {
+    texDesc->unk0 = texture;
+    texDesc->unk4 = param2;
+    texDesc->unk8 = width;
+    texDesc->unkA = height;
+    texDesc->unkC = format;
+    texDesc->unkE = param6;
+    texDesc->unkF = param7;
+    texDesc->unk10 = param8;
+    texDesc->unk12 = param9;
 }
