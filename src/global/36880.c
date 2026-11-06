@@ -2930,7 +2930,6 @@ s32 dlResolveNodeTextures(DisplayListCmd *arg0, DisplayListCmd *arg1, ModelSegme
     return result;
 }
 
-#ifdef NON_MATCHING
 typedef struct {
     /* 0x00 */ u8 pad0[0x60];
     /* 0x60 */ u8 unk60;
@@ -3052,6 +3051,12 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *arg0, Gfx *arg1, f32 arg2, f32 
         guRotateF(spB8, arg0->unk18, 0.0f, 0.0f, 1.0f);
         guMtxCatF(spF8, spB8, spF8);
     }
+    if (arg0 && arg0 && arg0) {} // FAKE: dead block pads as1's XBB window (limit 10) so the rotation compares don't hoist `addiu a0,sp,184` (6 guards needed)
+    if (arg0 && arg0 && arg0) {} // FAKE: same
+    if (arg0 && arg0 && arg0) {} // FAKE: same
+    if (arg0 && arg0 && arg0) {} // FAKE: same
+    if (arg0 && arg0 && arg0) {} // FAKE: same
+    if (arg0 && arg0 && arg0) {} // FAKE: same
     guTranslateF(spB8, arg0->unk0, arg0->unk4, arg0->unk8);
     guMtxCatF(spF8, spB8, spF8);
     guMtxF2L(spF8, &arg0->unk20[D_807444FC]);
@@ -3157,10 +3162,6 @@ gSPClearGeometryMode(arg1++, G_FOG | G_CULL_BOTH);
     gSPPopMatrix(arg1++, G_MTX_MODELVIEW);
     return arg1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/renderModelAnimatedSlot.s")
-#endif
 
 typedef struct RenderQuadModelObj {
     /* 0x00 */ f32 unk0;
