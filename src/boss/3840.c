@@ -16,18 +16,18 @@ extern BossB_Struct_DC9C *D_807FDC9C;
 void heapFree(void *);
 void *heapAlloc(s32);
 
-void func_80027840(u8 *arg0) {
+void func_80027840(u8 *data) {
     s16 i;
     u8 *dst;
 
     if (D_807FDC98->unk20 != NULL) {
         heapFree(D_807FDC98->unk20);
     }
-    D_807FDC9C->unk11 = *arg0;
-    D_807FDC98->unk20 = heapAlloc(*arg0 * 2);
+    D_807FDC9C->unk11 = *data;
+    D_807FDC98->unk20 = heapAlloc(*data * 2);
     dst = D_807FDC98->unk20;
-    for (i = 0; i < *arg0; i++) {
-        dst[0] = arg0[i + 1];
+    for (i = 0; i < *data; i++) {
+        dst[0] = data[i + 1];
         dst[1] = 0;
         dst += 2;
     }
@@ -39,9 +39,9 @@ typedef struct {
     f32 unkC;
 } BossB_Struct_800278F4;
 
-void bossLerpCoords(BossB_Struct_800278F4 *arg0, f32 arg1, s16 arg2, s16 arg3) {
-    arg0->unkC += ((f32)arg2 - arg0->unkC) * arg1;
-    arg0->unk8 += ((f32)arg3 - arg0->unk8) * arg1;
+void bossLerpCoords(BossB_Struct_800278F4 *coords, f32 factor, s16 targetY, s16 targetX) {
+    coords->unkC += ((f32)targetY - coords->unkC) * factor;
+    coords->unk8 += ((f32)targetX - coords->unk8) * factor;
 }
 
 typedef struct {
@@ -58,14 +58,14 @@ extern BossB_Struct_DC90 *D_807FDC90;
 
 s32 randomNonNegative(void);
 
-void func_80027950(BossB_Struct_80027950 *arg0, u8 *arg1) {
+void func_80027950(BossB_Struct_80027950 *state, u8 *waypointRanges) {
     u8 prev = D_807FDC90->unk25;
     do {
         s32 rand = randomNonNegative() >> 15;
-        u8 offset = arg0->unk15;
-        D_807FDC90->unk25 = arg1[offset] + ((rand % 65536) % (arg1[offset + 1] - arg1[offset] + 1));
+        u8 offset = state->unk15;
+        D_807FDC90->unk25 = waypointRanges[offset] + ((rand % 65536) % (waypointRanges[offset + 1] - waypointRanges[offset] + 1));
     } while (D_807FDC90->unk25 == prev);
-    arg0->unk15 += 2;
+    state->unk15 += 2;
 }
 
 typedef struct BossWaypoint {
@@ -95,11 +95,11 @@ typedef struct {
 extern BossB_Struct_807FBB40 *D_807FBB40;
 extern BossWaypointList *D_807FDCA0;
 
-void bossPickFarthestWaypoint(void *arg0, u8 *arg1) {
+void bossPickFarthestWaypoint(void *state, u8 *waypointRanges) {
     s16 i;
     s32 max_dist = 0;
 
-    for (i = arg1[((BossB_Struct_80027950 *)arg0)->unk15]; i <= arg1[((BossB_Struct_80027950 *)arg0)->unk15 + 1]; i++) {
+    for (i = waypointRanges[((BossB_Struct_80027950 *)state)->unk15]; i <= waypointRanges[((BossB_Struct_80027950 *)state)->unk15 + 1]; i++) {
         u8 idx = D_807FDC98->unk20[i * 2];
         BossActorPos *actor = (BossActorPos *)D_807FBB40;
         BossWaypoint *pt = &D_807FDCA0->points[idx];
@@ -113,7 +113,7 @@ void bossPickFarthestWaypoint(void *arg0, u8 *arg1) {
             D_807FDC90->unk25 = i;
         }
     }
-    ((BossB_Struct_80027950 *)arg0)->unk15 += 2;
+    ((BossB_Struct_80027950 *)state)->unk15 += 2;
 }
 
 
@@ -211,23 +211,23 @@ void bossPickFarthestWaypoint(void *, u8 *);
 #define DC90 ((BossWorkState *)D_807FDC90)
 #define DC9C ((BossConfig *)D_807FDC9C)
 
-u8 bossScriptStep(u8 *arg0, u16 arg1, f32 arg2) {
-    BossPlayerData *sp34;
+u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
+    BossPlayerData *playerData;
     BossScriptState *s0;
-    u8 var_t1;
-    u8 sp2E;
+    u8 advanceScript;
+    u8 didLoop;
     u8 tmp;
 
-    sp34 = D_807FBB4C->unk174;
+    playerData = D_807FBB4C->unk174;
     s0 = BA40->unk178;
-    sp2E = 0;
-    var_t1 = 1;
+    didLoop = 0;
+    advanceScript = 1;
     switch (BA40->unk154) {
     case 0x54:
-        var_t1 = 0;
+        advanceScript = 0;
         if (BA40->unk155 != 0) {
             if (currentActorTestClearFlag() != 0) {
-                var_t1 = 1;
+                advanceScript = 1;
             }
         } else {
             currentActorClearFlag();
@@ -235,36 +235,36 @@ u8 bossScriptStep(u8 *arg0, u16 arg1, f32 arg2) {
         }
         break;
     case 0x5F:
-        camStartPath(D_807FBB40, arg0[s0->unk15++], 1);
+        camStartPath(D_807FBB40, script[s0->unk15++], 1);
         break;
     case 0x5E:
         if (D_807444EC == 1) {
-            camEndPath(sp34->unk104);
+            camEndPath(playerData->unk104);
         }
         D_8076A0B3 = 0;
         BA40->unk60 &= ~4;
         D_8076A0B1 |= 0x10;
-        s0->unk4 = arg0[s0->unk15++] * 30;
+        s0->unk4 = script[s0->unk15++] * 30;
         break;
     case 0x5D:
-        actorSetTargetSpeed(D_807FBB40, arg0[s0->unk15++]);
+        actorSetTargetSpeed(D_807FBB40, script[s0->unk15++]);
         break;
     case 0x5C:
         {
             u8 *p = BA40->unk17C;
-            *p = arg0[s0->unk15];
+            *p = script[s0->unk15];
             s0->unk15++;
         }
         break;
     case 0x5A:
-        func_8070D8C0(D_807FBB40, arg0[s0->unk15], arg0[s0->unk15 + 1]);
+        func_8070D8C0(D_807FBB40, script[s0->unk15], script[s0->unk15 + 1]);
         s0->unk15 += 2;
         break;
     case 0x42:
 block_16:
-        actorMoveWithinZone(0x42, DC90->unkA, DC90->unkE, arg1, arg2);
+        actorMoveWithinZone(0x42, DC90->unkA, DC90->unkE, turnSpeed, fwdSpeed);
         if (patrolPathStep(BA40->unk154, 0) == 0) {
-            var_t1 = 0;
+            advanceScript = 0;
         }
         break;
     case 0x69:
@@ -277,49 +277,49 @@ block_16:
         BA40->unk60 &= ~4;
         break;
     case 0x51:
-        actorScriptStart(D_807FBB40, (arg0[s0->unk15] << 8) + arg0[s0->unk15 + 1]);
+        actorScriptStart(D_807FBB40, (script[s0->unk15] << 8) + script[s0->unk15 + 1]);
         s0->unk15 += 2;
         break;
     case 0x55:
-        var_t1 = 0;
+        advanceScript = 0;
         if (BA40->unk155 == 0) {
             tmp = s0->unk15;
-            s0->unk8[0] = (arg0[tmp] << 8) + arg0[tmp + 1];
+            s0->unk8[0] = (script[tmp] << 8) + script[tmp + 1];
             s0->unk15 = tmp + 2;
             BA40->unk155 = 1;
         } else {
             s0->unk8[0] -= 1;
             if (s0->unk8[0] == 0) {
-                var_t1 = 1;
+                advanceScript = 1;
             }
         }
         break;
     case 0x23:
-        var_t1 = 0;
+        advanceScript = 0;
         if (BA40->unk155 == 0) {
             tmp = s0->unk15;
-            s0->unk8[0] = arg0[tmp];
+            s0->unk8[0] = script[tmp];
             s0->unk15 = tmp + 1;
             BA40->unk155 = 1;
             actorSetTargetSpeed(D_807FBB40, DC9C->unkD);
         } else {
-            actorMoveWithinZone(0x23, DC90->unk4->unk7C, DC90->unk4->unk84, arg1, arg2);
+            actorMoveWithinZone(0x23, DC90->unk4->unk7C, DC90->unk4->unk84, turnSpeed, fwdSpeed);
             s0->unk8[0] -= 1;
-            if ((s0->unk8[0] == 0) || (sp34->unk1F0 & 0x80000)) {
-                sp34->unk1F0 &= ~0x80000;
-                var_t1 = 1;
+            if ((s0->unk8[0] == 0) || (playerData->unk1F0 & 0x80000)) {
+                playerData->unk1F0 &= ~0x80000;
+                advanceScript = 1;
                 actorSetTargetSpeed(D_807FBB40, DC9C->unkC);
             }
         }
         break;
     case 0x52:
         if (!(BA40->unk6A & 1)) {
-            var_t1 = 0;
+            advanceScript = 0;
         }
         break;
     case 0x53:
         if (BA40->unk155 == 0) {
-            var_t1 = 0;
+            advanceScript = 0;
         }
         break;
     case 0x4F:
@@ -335,64 +335,64 @@ block_16:
         break;
     case 0x63:
         tmp = s0->unk15;
-        if (s0->unk8[arg0[tmp]] != 0) {
-            s0->unk8[arg0[tmp]] -= 1;
-            var_t1 = 0;
+        if (s0->unk8[script[tmp]] != 0) {
+            s0->unk8[script[tmp]] -= 1;
+            advanceScript = 0;
         } else {
             s0->unk15 = tmp + 1;
         }
         break;
     case 0x62:
-        s0->unk8[arg0[s0->unk15]] = arg0[s0->unk15 + 1];
+        s0->unk8[script[s0->unk15]] = script[s0->unk15 + 1];
         s0->unk15 += 2;
-        sp2E = 1;
+        didLoop = 1;
         break;
     case 0x64:
-        s0->unk18[arg0[s0->unk15]] = arg0[s0->unk15 + 1];
+        s0->unk18[script[s0->unk15]] = script[s0->unk15 + 1];
         s0->unk15 += 2;
-        sp2E = 1;
+        didLoop = 1;
         break;
     case 0x68:
         DC90->unk1A &= 0xFFEF;
-        sp2E = 1;
+        didLoop = 1;
         break;
     case 0x65:
-        DC90->unk2C = arg0[s0->unk15];
+        DC90->unk2C = script[s0->unk15];
         s0->unk15++;
-        sp2E = 1;
+        didLoop = 1;
         break;
     case 0x67:
-        func_80027950((BossB_Struct_80027950 *)s0, arg0);
-        var_t1 = 0;
+        func_80027950((BossB_Struct_80027950 *)s0, script);
+        advanceScript = 0;
         BA40->unk154 = 0x42;
         BA40->unk155 = 0;
         goto block_16;
     case 0x4C:
-        bossPickFarthestWaypoint(s0, arg0);
-        var_t1 = 0;
+        bossPickFarthestWaypoint(s0, script);
+        advanceScript = 0;
         BA40->unk154 = 0x42;
         BA40->unk155 = 0;
         goto block_16;
     case 0x4B:
         DC90->unk25++;
-        if (arg0[s0->unk15 + 1] < DC90->unk25) {
-            DC90->unk25 = arg0[s0->unk15];
+        if (script[s0->unk15 + 1] < DC90->unk25) {
+            DC90->unk25 = script[s0->unk15];
         }
         s0->unk15 += 2;
-        var_t1 = 0;
+        advanceScript = 0;
         BA40->unk154 = 0x42;
         BA40->unk155 = 0;
         goto block_16;
     case 0x41:
-        DC90->unk25 = arg0[s0->unk15];
+        DC90->unk25 = script[s0->unk15];
         s0->unk15++;
-        var_t1 = 0;
+        advanceScript = 0;
         BA40->unk154 = 0x42;
         BA40->unk155 = 0;
         goto block_16;
     case 0x49:
     case 0x4A:
-        var_t1 = 0;
+        advanceScript = 0;
         switch (BA40->unk155) {
         case 0:
             BA40->unk128 -= 0xA;
@@ -403,10 +403,10 @@ block_16:
             break;
         case 1:
             if (BA40->unk154 == 0x49) {
-                DC90->unk25 = arg0[s0->unk15];
+                DC90->unk25 = script[s0->unk15];
                 s0->unk15++;
             } else {
-                func_80027950((BossB_Struct_80027950 *)s0, arg0);
+                func_80027950((BossB_Struct_80027950 *)s0, script);
             }
             patrolPathStep(0x49, 0);
             BA40->unk7C = DC90->unkA;
@@ -417,7 +417,7 @@ block_16:
             BA40->unk128 += 0xA;
             if (BA40->unk128 >= 0x100) {
                 BA40->unk128 = 0xFF;
-                var_t1 = 1;
+                advanceScript = 1;
             }
             break;
         }
@@ -425,15 +425,15 @@ block_16:
     case 0x6D:
         break;
     default:
-        var_t1 = 0;
+        advanceScript = 0;
         break;
     }
-    if (var_t1 != 0) {
-        BA40->unk154 = arg0[s0->unk15];
+    if (advanceScript != 0) {
+        BA40->unk154 = script[s0->unk15];
         s0->unk15++;
         BA40->unk155 = 0;
     }
-    return sp2E;
+    return didLoop;
 }
 
 
@@ -465,18 +465,18 @@ void effectWispHomeUpdate(void);
 extern s32 D_8074E880[];
 extern Boss3C_Struct_8478 *D_807FDC94;
 
-void bossSpawnParticleRing(arg0, arg1, arg2, arg3, arg4, arg5)
-u16 arg0;
-s16 arg1;
-s16 arg2;
-s16 arg3;
-s16 arg4;
-u8 arg5;
+void bossSpawnParticleRing(flag, x, y, z, unkRot, unkScale)
+u16 flag;
+s16 x;
+s16 y;
+s16 z;
+s16 unkRot;
+u8 unkScale;
 {
     s16 s0;
 
     sfxAllocateChannel(0x36, 1.0f);
-    if (flagGet((s16)arg0, 0) != 0) {
+    if (flagGet((s16)flag, 0) != 0) {
         func_80028458();
         return;
     }
@@ -487,7 +487,7 @@ u8 arg5;
         func_80714950(D_807FDC94);
         func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, D_807FDC94->unk7C, D_807FDC94->unk80 + (f32)D_807FDC94->unk15E, D_807FDC94->unk84);
     }
-    actorSpawnNodeEntryScaled(0x48, (f32)arg1, (f32)arg2, (f32)arg3, (s32)arg4, (s32)arg5, (s16)arg0, 0);
+    actorSpawnNodeEntryScaled(0x48, (f32)x, (f32)y, (f32)z, (s32)unkRot, (s32)unkScale, (s16)flag, 0);
 }
 
 void hudSpawnCountdownTimer(s32, s32, s32);
@@ -515,26 +515,26 @@ void heapFreeDeferred(void *);
 void *func_8070068C(Gfx *);
 void textDrawStringVtx(void *, s32, s32, s32, char *, s32);
 
-void bossDrawRoundText(Gfx *arg0, s32 arg1) {
-    Boss2C_MtxF sp90;
-    Boss2C_MtxF sp50;
-    Mtx *sp4C;
-    char sp3C[16];
+void bossDrawRoundText(Gfx *glist, s32 unused) {
+    Boss2C_MtxF scaleMtx;
+    Boss2C_MtxF transMtx;
+    Mtx *mtx;
+    char textBuf[16];
 
-    sp4C = heapAlloc(sizeof(Mtx));
-    heapFreeDeferred(sp4C);
-    guScaleF(sp90, 0.6f, 0.6f, 1.0f);
-    guTranslateF(sp50, 100.0f, (f32)(gPlayerSlots->unk276 * 4 - 0x3C), 0.0f);
-    guMtxCatF(sp90, sp50, sp90);
-    guMtxF2L(sp90, sp4C);
-    Boss2C_WRITE_GFX(arg0++, 0xDA380003, (u32)sp4C);
-    _sprintf(sp3C, "ROUND %d", D_80750AD4);
-    Boss2C_WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
-    Boss2C_WRITE_GFX(arg0++, 0xE7000000, 0);
-    Boss2C_WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-    Boss2C_WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFFFF);
-    arg0 = func_8070068C(arg0);
-    textDrawStringVtx(arg0, 1, 0, 0, sp3C, 0);
+    mtx = heapAlloc(sizeof(Mtx));
+    heapFreeDeferred(mtx);
+    guScaleF(scaleMtx, 0.6f, 0.6f, 1.0f);
+    guTranslateF(transMtx, 100.0f, (f32)(gPlayerSlots->unk276 * 4 - 0x3C), 0.0f);
+    guMtxCatF(scaleMtx, transMtx, scaleMtx);
+    guMtxF2L(scaleMtx, mtx);
+    Boss2C_WRITE_GFX(glist++, 0xDA380003, (u32)mtx);
+    _sprintf(textBuf, "ROUND %d", D_80750AD4);
+    Boss2C_WRITE_GFX(glist++, 0xDE000000, (u32)&D_1000118);
+    Boss2C_WRITE_GFX(glist++, 0xE7000000, 0);
+    Boss2C_WRITE_GFX(glist++, 0xFC119623, 0xFF2FFFFF);
+    Boss2C_WRITE_GFX(glist++, 0xFA000000, 0xFFFFFFFF);
+    glist = func_8070068C(glist);
+    textDrawStringVtx(glist, 1, 0, 0, textBuf, 0);
 }
 
 static void func_80028818(void) {}
@@ -584,14 +584,14 @@ void renderCallbacksRegister(void *, void *, s32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 
 
-void bossRoundFrame(u8 *arg0) {
-    BossScriptState *sp44;
-    u8 sp43;
-    s16 sp30;
+void bossRoundFrame(u8 *script) {
+    BossScriptState *scriptState;
+    u8 mapOffset;
+    s16 mapFlag;
     BossSoundState *s0;
 
-    sp44 = BA40->unk178;
-    sp43 = gCurrentMap - 0xCB;
+    scriptState = BA40->unk178;
+    mapOffset = gCurrentMap - 0xCB;
     s0 = (BossSoundState *)BA40->unk17C;
     if (D_807FBB4C->unk80 < 30.0f) {
         D_807FBB4C->unk7C = 780.0f;
@@ -603,7 +603,7 @@ void bossRoundFrame(u8 *arg0) {
         slotQueueSetDisplayMode(5, 0, 1);
         slotQueueSetDisplayMode(2, 0, 1);
         BA40->unk60 &= 0xFFFDFFFF;
-        if ((sp44->unk14 == 0) || (BA40->unk58 != 0x126)) {
+        if ((scriptState->unk14 == 0) || (BA40->unk58 != 0x126)) {
             if (flagGet(0x5A, 2) == 0) {
                 healthRefill(0);
             }
@@ -635,13 +635,13 @@ void bossRoundFrame(u8 *arg0) {
         }
         break;
     case 0x6C:
-        sp44->unk12 |= 1;
+        scriptState->unk12 |= 1;
         func_80028680();
-        if ((sp44->unk14 != 0) && (BA40->unk58 == 0x126)) {
+        if ((scriptState->unk14 != 0) && (BA40->unk58 == 0x126)) {
             actorSetStateThree(BA40->unk11C);
         }
-        BA40->unk154 = arg0[sp44->unk15];
-        sp44->unk15++;
+        BA40->unk154 = script[scriptState->unk15];
+        scriptState->unk15++;
         BA40->unk155 = 0;
         break;
     default:
@@ -649,7 +649,7 @@ void bossRoundFrame(u8 *arg0) {
             bossResetAudioChannels();
             BA40->unk154 = 0x6A;
             BA40->unk155 = 0;
-            camStartPath(D_807FBB40, D_800359C4[sp43], 1);
+            camStartPath(D_807FBB40, D_800359C4[mapOffset], 1);
             flagSet(0x5A, 1, 2);
         }
         break;
@@ -670,13 +670,13 @@ void bossRoundFrame(u8 *arg0) {
             flagSet(0x5C, 0, 2);
             flagSet(0x55, 1, 2);
         } else {
-            sp30 = sp43 + 0x55;
-            if (flagGet(sp30, 2) == 0) {
-                camStartPath(D_807FBB40, D_800359A0[sp43], 1);
-                flagSet(sp30, 1, 2);
+            mapFlag = mapOffset + 0x55;
+            if (flagGet(mapFlag, 2) == 0) {
+                camStartPath(D_807FBB40, D_800359A0[mapOffset], 1);
+                flagSet(mapFlag, 1, 2);
             } else if (flagGet(0x5A, 2) != 0) {
                 if (flagGet(0x5B, 2) != 0) {
-                    camStartPath(D_807FBB40, D_800359AC[sp43], 1);
+                    camStartPath(D_807FBB40, D_800359AC[mapOffset], 1);
                     flagSet(0x5A, 0, 2);
                 } else {
                     sfxStopChannel(0x2B, 0);
@@ -687,7 +687,7 @@ void bossRoundFrame(u8 *arg0) {
                     D_80750AD4 -= 1;
                 }
             } else {
-                camStartPath(D_807FBB40, D_800359B8[sp43], 1);
+                camStartPath(D_807FBB40, D_800359B8[mapOffset], 1);
             }
         }
     }
@@ -758,7 +758,7 @@ void bossRoundFrame(u8 *arg0) {
             s0->unkE = s0->unkE + 0x4650;
         }
     }
-    if ((sp44->unk12 & 1) && (func_805FCA64() != 0)) {
+    if ((scriptState->unk12 & 1) && (func_805FCA64() != 0)) {
         renderCallbacksRegister(bossDrawRoundText, D_807FBB40, 3);
     }
 }
@@ -767,10 +767,10 @@ void bossRoundFrame(u8 *arg0) {
 void actorSetNodeFlag(void *, s32);
 void actorClearNodeFlag(void *, s32);
 
-void func_800290D4(arg0)
-u8 arg0;
+void func_800290D4(enable)
+u8 enable;
 {
-    if (arg0) {
+    if (enable) {
         actorSetNodeFlag(D_807FBB40, 2);
         actorSetNodeFlag(D_807FBB40, 3);
     } else {
@@ -791,14 +791,14 @@ extern BossB_Struct_800359D0 D_800359D0[];
 
 s32 flagGet(s16, s32);
 
-void bossUpdateStageState(s16 *arg0) {
+void bossUpdateStageState(s16 *outStage) {
     s16 i = 0;
     while (D_800359D0[i].unk0 != 0 && gCurrentMap != D_800359D0[i].unk0) {
         i++;
     }
-    if (D_800359D0[i].unk0 != 0 && D_800359D0[i].unk4 == *arg0) {
+    if (D_800359D0[i].unk0 != 0 && D_800359D0[i].unk4 == *outStage) {
         if (flagGet(D_800359D0[i].unk2, 2) != 0) {
-            *arg0 = D_800359D0[i].unk5;
+            *outStage = D_800359D0[i].unk5;
         }
     }
 }
