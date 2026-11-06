@@ -95,11 +95,11 @@ u64 D_807655E8;
 // as1 schedules by source line: each segment entry stays on one line (matches the target store order)
 #define SEG ((SegEntry *)gSegmentTable)
 
-void globalInit(OSMesgQueue *arg0, s32 arg1) {
-    if (arg1 != 0) {
-        mainThreadHalt(arg0, arg1);
+void globalInit(OSMesgQueue *queue, s32 haltReason) {
+    if (haltReason != 0) {
+        mainThreadHalt(queue, haltReason);
     }
-    D_807655E0 = arg0;
+    D_807655E0 = queue;
     SEG[0].vramStart = (u32)boot_VRAM; SEG[0].vramEnd = (u32)boot_VRAM_END; SEG[0].bssStart = (u32)boot_BSS_START; SEG[0].bssEnd = (u32)boot_BSS_END;
     SEG[1].vramStart = (u32)globalInit; SEG[1].vramEnd = (u32)global_VRAM_END; SEG[1].bssStart = (u32)&D_80761050; SEG[1].bssEnd = (u32)global_BSS_END;
     SEG[2].vramStart = (u32)multiplayer_VRAM; SEG[2].vramEnd = (u32)multiplayer_VRAM_END; SEG[2].bssStart = (u32)multiplayer_BSS_START; SEG[2].bssEnd = (u32)multiplayer_BSS_END;
@@ -119,22 +119,22 @@ void globalInit(OSMesgQueue *arg0, s32 arg1) {
 }
 
 
-void mainThreadHalt(OSMesgQueue *arg0, s32 arg1) {
+void mainThreadHalt(OSMesgQueue *queue, s32 haltCode) {
     u64 *p;
     u64 *q;
-    Struct80744464 sp34;
+    Struct80744464 timeConfig;
     s32 pad[4];
-    void *sp20;
+    void *receivedMsg;
 
-    sp34 = D_80744464;
-    if (arg1 == 2) {
+    timeConfig = D_80744464;
+    if (haltCode == 2) {
         osViBlack(1);
         audioThreadStop(1);
         D_80744460 = 1;
         while (1) {
         }
     }
-    osRecvMesg(arg0, &sp20, 1);
+    osRecvMesg(queue, &receivedMsg, 1);
     D_80744460 = 1;
     audioThreadStop(1);
     osStopThread(&D_80761430);
