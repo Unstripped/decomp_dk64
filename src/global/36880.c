@@ -2826,7 +2826,6 @@ void modelSlotsStepSegmentCommands(void) {
 
 
 
-#ifdef NON_MATCHING
 s32 dlResolveNodeTextures(DisplayListCmd *, DisplayListCmd *, ModelSegmentNode *, u8);
 
 s32 modelSlotResolveAssetTextures(arg0, arg1, arg2)
@@ -2836,42 +2835,46 @@ u8 arg2;
 {
     ModelSegmentData *seg;
     ModelSlotObjHeader *obj;
-    ModelSegmentData *volatile seg2; // FAKE: keeps a memory copy of seg (target reloads it from 0x3C(sp) in the else branch)
-    ModelSlotObjHeader *p;
-    s32 pad;
-    u32 sp30;
+    ModelSegmentData *volatile seg2; // FAKE: memory copy of seg that the else branch reads back (target reloads 0x3C(sp))
+    u32 temp;
+    u32 cmds;
+    u32 count;
     ModelSegmentNode *node;
     u8 res;
-    s32 sp24;
-    s32 sp20;
-    if (&arg2) {} // FAKE: preserves the argument's memory home
-    p = (ModelSlotObjHeader *)arg0->unk24;
+    u8 flags;
+    u32 size0;
+    u32 size1;
+
+    temp = (u32)arg0->unk24;
     seg = ((ModelSlotSegOwner *)arg0)->unk20;
     seg2 = seg;
-    obj = (ModelSlotObjHeader *)p;
-    p->unk8 = gFrameCounter;
-    if (arg0->unk20 && arg0->unk20) {} // FAKE: dead test steers uopt colouring
-    if (!(arg0->unk8C & 0x20)) {
-        if (!(obj->unk0 & 0x10) || arg2 != 0) {
-            arg0->unk8C |= 0x20;
+    obj = (ModelSlotObjHeader *)temp;
+    ((ModelSlotObjHeader *)temp)->unk8 = gFrameCounter;
+    flags = arg0->unk8C;
+    if (!(flags & 0x20)) {
+        if (!(((ModelSlotObjHeader *)temp)->unk0 & 0x10) || arg2 != 0) {
+            temp = (u32)seg; // FAKE: dead redefinition keeps obj's early web (v0) separate from obj (Q0546)
+            arg0->unk8C = flags | 0x20;
             obj->unk3C += 1;
             if (obj->unk1C == 1) {
+                count = seg->unkB0 - seg->unkA8;
+                cmds = seg->unkA0;
+                temp = (seg->unkA8 - cmds) >> 3;
+                count = count >> 3;
                 node = (ModelSegmentNode *)((ModelSlotSegOwner *)arg0)->unk20->unkB8;
-                pad = seg->unkA8 - seg->unkA0; // FAKE: reuses pad for the length difference (steers uopt colouring)
-                sp24 = ((u32)pad >> 3) * 8;
-                sp30 = (seg->unkB0 - seg->unkA8) >> 3;
-                pad = seg->unkA0; // FAKE: reuses the pad word as the CSE'd pointer (steers uopt colouring)
-                res = dlResolveNodeTextures((DisplayListCmd *)pad, (DisplayListCmd *)(pad + sp24), node, arg2);
-                sp20 = sp30 * 8;
-                if (res && res) {} // FAKE: dead test steers uopt colouring
-                sp30 = seg->unkA8; // FAKE: reuses dead sp30 as the CSE'd pointer (steers uopt colouring)
-                res |= dlResolveNodeTextures((DisplayListCmd *)sp30, (DisplayListCmd *)(sp30 + sp20), node, arg2);
+                size0 = temp * 8;
+                temp = 0; // FAKE: dead store keeps size0 a variable instead of a propagated expression
+                res = dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size0), node, arg2);
+                cmds = seg->unkA8;
+                size1 = count * 8;
+                count = 0; // FAKE: dead store keeps size1 a variable instead of a propagated expression
+                res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size1), node, arg2);
                 if (node != 0) {
-                    pad = seg->unkA4; // FAKE: reuses the pad word as the CSE'd pointer (steers uopt colouring)
-                    res |= dlResolveNodeTextures((DisplayListCmd *)pad, (DisplayListCmd *)(pad + sp24), node, arg2);
-                    pad = seg->unkAC; // FAKE: reuses the pad word as the CSE'd pointer (steers uopt colouring)
-                    res |= dlResolveNodeTextures((DisplayListCmd *)pad, (DisplayListCmd *)(pad + sp20), node, arg2);
-                    if (seg->unkA0 == 0) {} // FAKE: dead test steers uopt colouring
+                    cmds = seg->unkA4;
+                    res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size0), node, arg2);
+                    cmds = seg->unkAC;
+                    res |= dlResolveNodeTextures((DisplayListCmd *)cmds, (DisplayListCmd *)(cmds + size1), node, arg2);
+                    if (seg->unkA0 == 0) {} // FAKE: dead test keeps seg live past the last call so it stays in s0
                 }
                 if (res != 0) {
                     obj->unk0 &= ~0x10;
@@ -2886,10 +2889,6 @@ u8 arg2;
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/36880/modelSlotResolveAssetTextures.s")
-#endif
 
 
 s32 dlResolveNodeTextures(DisplayListCmd *arg0, DisplayListCmd *arg1, ModelSegmentNode *arg2, u8 arg3) {
