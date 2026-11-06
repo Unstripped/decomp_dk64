@@ -523,15 +523,6 @@ DlOpInfo D_8074685C[27] = {
 extern char D_80757184[];
 extern char D_80757188[];
 char *D_80746A0C[2] = { D_80757184, D_80757188 };
-#ifndef NON_MATCHING
-s32 D_80746A14 = 0;
-u32 D_80746A18 = 0;
-s16 D_80746A1C = 0;
-u32 D_80746A20 = 0;
-s32 D_80746A24 = 0;
-s32 D_80746A28 = 0;
-s8 D_80746A2C = 4;
-#endif
 extern u32 D_807F05A4;
 extern u32 D_807F0984;
 extern u32 D_80744478;
@@ -539,7 +530,6 @@ extern void faultFontSetColorMode(s32);
 extern void controllerStartRead(void);
 
 
-#ifdef NON_MATCHING
 s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     static s32 D_80746A14 = 0;
     static u32 D_80746A18 = 0;
@@ -615,16 +605,16 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
         faultFontInit(D_80744470[p], 0, 1);
         line = 0;
         mode = D_80746A24;
-        cur = D_80746A20;
+        cur = *(u32 *)&D_80746A20;
+        if (*(u32 *)&D_80746A20) {}  // FAKE: second ilod of D_80746A20 makes uopt keep the load in a CSE temp ($v0), so as1 expands it via lui $v0 and moves it to s5
         while (done == 0 && line < 0xF) {
             off = cur - D_807F05A4;
             if (line < 0xE) {
                 D_80746A28 = mode;
                 D_80746A18 = cur;
             }
-            op = *(u32 *)cur >> 24;
+            op = (*(u32 *)cur >> 24) & 0xFFFF;  // FAKE: burns one ugen ring slot before opcode/extent temporaries
             if (D_807F05A4 + D_807F0984 < cur) {
-                if (done == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 done = 1;
             }
             if ((op & 0xF0) == 0xC0) {
@@ -665,7 +655,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
                 }
                 line = 0x1E;
             } else {
-                if (D_80746A20) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (D_80746A20 && D_80746A20) {}  // FAKE: dead read at the opcode branch start steers uopt candidate order (i = 0 is scheduled first)
                 colorIdx = 0;
                 found = 0;
                 if (op == 0xE7) {
@@ -718,7 +708,3 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     controllerStartRead();
     return ret;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/13980/schedDlDebugDump.s")
-#endif
