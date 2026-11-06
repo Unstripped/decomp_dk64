@@ -17,8 +17,8 @@ typedef struct LB3bState {
     u8 unk9;
 } LB3bState;
 
-Gfx *bonusRenderCounterHud(Gfx *gdl, Actor *arg1) {
-    LB3bState *s = *(LB3bState **)((u8 *)arg1 + 0x178);
+Gfx *bonusRenderCounterHud(Gfx *gdl, Actor *actor) {
+    LB3bState *s = *(LB3bState **)((u8 *)actor + 0x178);
 
     if (func_805FCA64()) {
         gSPDisplayList(gdl++, &D_1000118);
@@ -108,16 +108,16 @@ void renderCallbacksRegister(void *, void *, s32);
 void bonusControllerUpdate(void) {
     s16 i;
     LB3bState *s;
-    u8 sp6F;
-    u8 sp6E;
-    char *sp68;
-    u8 sp67;
+    u8 challengeType;
+    u8 targetCount;
+    char *messageText;
+    u8 hasMessage;
     u8 v3;
     u8 a2v;
-    char *sp60;
+    char *msgBuf;
     s32 pad5C;
     s32 pad58;
-    char *sp54;
+    char *msgBufCount;
     s32 pad50;
     s32 pad4C;
     s32 t;
@@ -125,11 +125,11 @@ void bonusControllerUpdate(void) {
 
     s = *(LB3bState **)((u8 *)D_807FBB40 + 0x178);
     behaviourFrameBegin();
-    sp6F = D_807FDC9C->unk14;
-    sp6E = D_807FDC9C->unkA;
+    challengeType = D_807FDC9C->unk14;
+    targetCount = D_807FDC9C->unkA;
     commandQueuePush(D_807FBB4C, D_807FBB4C->unk7C, D_807FBB4C->unk80 + 30.0f, D_807FBB4C->unk84, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     if (!(D_807FBB40->unk60 & 0x10)) {
-        sp67 = 0;
+        hasMessage = 0;
         currentActorClearFlag();
         D_807FDC98->unk46 |= 0x80;
         slotQueueSetDisplayMode(2, 0, 1);
@@ -137,15 +137,15 @@ void bonusControllerUpdate(void) {
         slotQueueSetDisplayMode(4, 0, 2);
         D_807FBB40->unk154 = 0;
         hudSpawnCountdownTimer(0xDC, 0x2A, D_807FDC9C->unkB);
-        switch (sp6F) {
+        switch (challengeType) {
         case 14:
             csModelStateSetByte((randomNonNegative() >> 15) % 32767 % 4, 1, 1);
         case 0:
         case 4:
         case 13:
 tail:
-            sp68 = textTableGetString(0x1A, 2, 1);
-            sp67 = 1;
+            messageText = textTableGetString(0x1A, 2, 1);
+            hasMessage = 1;
             break;
         case 15:
             func_806C8E58(8);
@@ -172,18 +172,18 @@ tail:
         case 8:
         case 11:
             D_80750AC4 = 0;
-            sp68 = textTableGetString(0x1A, 3, 1);
-            sp67 = 1;
+            messageText = textTableGetString(0x1A, 3, 1);
+            hasMessage = 1;
             break;
         case 9:
             ((Actor *)spawnNodeActivate((randomNonNegative() >> 15) % 32767 % 8 + 0x11, 0))->unk15F = 1;
             break;
         }
-        if (sp67 != 0) {
-            s->unk9 = gfxResourceCreate(1, sp68, 8, 0.0f, 0.0f, 0.0f);
+        if (hasMessage != 0) {
+            s->unk9 = gfxResourceCreate(1, messageText, 8, 0.0f, 0.0f, 0.0f);
             func_806FDAB8(s->unk9, 0.0f);
-            s->unk4 = sp6E;
-            s->unk2 = sp6E;
+            s->unk4 = targetCount;
+            s->unk2 = targetCount;
         }
     }
     if (D_807FBB40->unk154 == 0) {
@@ -193,18 +193,18 @@ tail:
                 if (D_807FBB70.unk258[i] == 3) {
                     a2v = 1;
                     v3 = D_807FBB70.unk278[i][3];
-                    switch (sp6F) {
+                    switch (challengeType) {
                     case 0:
                         if (s->unk4 != 0) {
                             if (s->unk4 >= 2) {
-                                sp68 = textTableGetString(0x1A, 0xF, 1);
-                                sp60 = heapAlloc(strlen(sp68) + 5);
-                                heapFreeDeferred(sp60);
-                                _sprintf(sp60, "%d %s", s->unk4, sp68);
+                                messageText = textTableGetString(0x1A, 0xF, 1);
+                                msgBuf = heapAlloc(strlen(messageText) + 5);
+                                heapFreeDeferred(msgBuf);
+                                _sprintf(msgBuf, "%d %s", s->unk4, messageText);
                             } else {
-                                sp60 = textTableGetString(0x1A, 0x10, 1);
+                                msgBuf = textTableGetString(0x1A, 0x10, 1);
                             }
-                            textSpawnMarkerChecked(0, 0, 0x8C, sp60, 0, 0x28, 8, 8);
+                            textSpawnMarkerChecked(0, 0, 0x8C, msgBuf, 0, 0x28, 8, 8);
                             a2v = 0;
                         }
                         break;
@@ -219,15 +219,15 @@ tail:
                         break;
                     case 2:
                         a2v = 1;
-                        if (slotQueueGetValue(0xB, 0) < sp6E) {
+                        if (slotQueueGetValue(0xB, 0) < targetCount) {
                             if (s->unk4 >= 2) {
-                                sp68 = textTableGetString(0x1A, 0x11, 1);
-                                sp54 = heapAlloc(strlen(sp68) + 5);
-                                _sprintf(sp54, "%d %s", sp6E - slotQueueGetValue(0xB, 0), sp68);
+                                messageText = textTableGetString(0x1A, 0x11, 1);
+                                msgBufCount = heapAlloc(strlen(messageText) + 5);
+                                _sprintf(msgBufCount, "%d %s", targetCount - slotQueueGetValue(0xB, 0), messageText);
                             } else {
-                                sp54 = textTableGetString(0x1A, 0x12, 1);
+                                msgBufCount = textTableGetString(0x1A, 0x12, 1);
                             }
-                            textSpawnMarkerChecked(0, 0, 0x8C, sp54, 0, 0x28, 8, 8);
+                            textSpawnMarkerChecked(0, 0, 0x8C, msgBufCount, 0, 0x28, 8, 8);
                             a2v = 0;
                         }
                         break;
@@ -262,7 +262,7 @@ tail:
         }
     }
     if (D_807FBB40->unk154 == 0) {
-        switch (sp6F) {
+        switch (challengeType) {
         case 15:
             func_80724A20();
         case 4:
@@ -273,9 +273,9 @@ tail:
                 bonusEndWin(1, 0xE);
             }
         case 0:
-            if ((((sp6E - D_80744508) < 0) ? 0 : (sp6E - D_80744508)) != s->unk4) {
+            if ((((targetCount - D_80744508) < 0) ? 0 : (targetCount - D_80744508)) != s->unk4) {
                 func_806FDAB8(s->unk9, 3.1415927f);
-                s->unk4 = ((sp6E - D_80744508) < 0) ? 0 : (sp6E - D_80744508);
+                s->unk4 = ((targetCount - D_80744508) < 0) ? 0 : (targetCount - D_80744508);
             }
             goto render;
         case 7:
@@ -296,9 +296,9 @@ tail:
                 bonusEndWin(1, 0xE);
             }
         case 2:
-            if ((((sp6E - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (sp6E - slotQueueGetValue(0xB, 0))) != s->unk4) {
+            if ((((targetCount - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (targetCount - slotQueueGetValue(0xB, 0))) != s->unk4) {
                 func_806FDAB8(s->unk9, 3.1415927f);
-                s->unk4 = ((sp6E - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (sp6E - slotQueueGetValue(0xB, 0));
+                s->unk4 = ((targetCount - slotQueueGetValue(0xB, 0)) < 0) ? 0 : (targetCount - slotQueueGetValue(0xB, 0));
             }
 render:
             if (s->unk0 >= 2) {
@@ -320,7 +320,7 @@ render:
             if (D_8076AEF2 == 0x11) {
                 func_8070E8DC(2);
             }
-            func_8070D8C0(D_807FBB40, 0, D_8002D863[sp6F << 2]);
+            func_8070D8C0(D_807FBB40, 0, D_8002D863[challengeType << 2]);
             s->unk0 += 1;
         }
         break;
@@ -342,7 +342,7 @@ render:
                 t = 0x75;
                 break;
             default:
-                switch (sp6F) {
+                switch (challengeType) {
                 case 1:
                     t = 0x59;
                     break;
@@ -362,29 +362,29 @@ render:
     }
     switch (D_807FBB40->unk154) {
     case 0:
-        if ((sp6F == 1 || sp6F == 0 || sp6F == 2 || sp6F == 0x10) && D_807FBB4C->unk80 < 0.0f) {
+        if ((challengeType == 1 || challengeType == 0 || challengeType == 2 || challengeType == 0x10) && D_807FBB4C->unk80 < 0.0f) {
             bonusEndLose(1, 1);
             return;
         }
-        if (sp6F == 4 && D_807FBB4C->unk80 < -20.0f) {
+        if (challengeType == 4 && D_807FBB4C->unk80 < -20.0f) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x362, 0xFF, 0x7F, 0);
             bonusEndLose(0, 1);
             camStartPath(D_807FBB40, 1, 1);
             return;
         }
         if (D_807FBB4C->unk154 == 0x73) {
-            if (sp6F == 1) {
+            if (challengeType == 1) {
                 bonusEndLose(1, 0x13);
                 return;
             }
             bonusEndLose(1, 1);
             return;
         }
-        if (sp6F == 3 && D_807FBB4C->unk154 == 0x31) {
+        if (challengeType == 3 && D_807FBB4C->unk154 == 0x31) {
             bonusEndLose(1, 0x14);
             return;
         }
-        pv = &sp6F;
+        pv = &challengeType;
         if (((Actor *)D_807FBB40->unk11C)->unk154 == 5) {
             if (*pv == 3) {
                 bonusEndWin(1, 0x15);
@@ -420,7 +420,7 @@ render:
     }
 }
 
-Gfx *func_80024D3C(Gfx *gdl, u8 arg1) {
+Gfx *func_80024D3C(Gfx *gdl, u8 unused) {
     gSPDisplayList(gdl++, &D_1000118);
     gDPSetCombineMode(gdl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetPrimColor(gdl++, 0, 0, 255, 255, 255, 255);
