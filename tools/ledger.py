@@ -47,8 +47,8 @@ plan: sizes the outstanding work and picks a model per function by Thompson samp
   known model is a Bernoulli trial (matched or not) in a cell (arm, tries before it 0/1-2/
   3-5/6+, size s<=150/m<=400/l insns); a cell's Beta posterior is shrunk towards the arm's
   overall rate scaled by the bucket's difficulty, and one function's own failures with an arm
-  lower that arm for it. One draw per function picks the arm with the best sampled p/cost
-  among its eligible arms (6+ tries: frontier arms only, `frontier=True` in ARMS)
+  lower that arm for it. One draw per function picks the arm with the best sampled p/cost;
+  on a function with 6+ tries non-frontier arms cost HARD_COST_MULT times more (soft rule)
   (`--objective value`: p*value - cost; all negative = hold); the printed shares come from
   extra draws. A function is held without new evidence since its last attempt: changed
   draft/quirk hits/next step (route fingerprint), or a related knowledge/ido entry (naming it,
@@ -504,10 +504,15 @@ def cmd_route(a):
 
 # Arms of the model bandit. `cost`: relative cost of one agent attempt (tune: only ratios
 # matter); `capacity`/`max_funcs`: how many instructions/functions one agent of this model
-# gets in one item; `prior`: assumed match rate while the arm has no recorded attempts.
+# gets in one item; `prior`: assumed match rate while the arm has no recorded attempts
+# (`prior_from`: borrow that arm's overall rate instead); `frontier`: high-reasoning arm, no
+# HARD_COST_MULT on heavily tried functions. Arms of one model at different thinking levels
+# are separate arms; a recorded model without a level counts for the first arm of its model.
 ARMS = {
     "flash": dict(model="google-antigravity/gemini-3.8-flash:high", cost=1.0, capacity=1200, max_funcs=6, prior=0.25),
     "sonnet": dict(model="anthropic/claude-sonnet-5-5:high", cost=4.0, capacity=900, max_funcs=4, prior=0.35),
+    "sonnet_xhigh": dict(model="anthropic/claude-sonnet-5-5:xhigh", cost=6.0, capacity=900, max_funcs=4, prior=0.35,
+                         prior_from="sonnet", frontier=True),
     "astra": dict(model="openai-codex/gpt-6-astra:xhigh", cost=10.0, capacity=10**6, max_funcs=1, prior=0.35, frontier=True),
     "fable": dict(model="anthropic/claude-fable-5-1:xhigh", cost=10.0, capacity=10**6, max_funcs=1, prior=0.35, frontier=True),
 }
@@ -515,28 +520,30 @@ ARM_STRENGTH = 4   # pseudo-attempts of the hierarchical prior behind each (arm,
 FUNC_STRENGTH = 20  # pseudo-attempts of the cell rate behind one function's own failures
 SINGLE_TRIES = 6   # functions tried this often (or larger than SINGLE_INSNS) go to an agent alone
 SINGLE_INSNS = 400
+HARD_COST_MULT = 3.0  # soft rule: a non-frontier arm costs this much more on a SINGLE_TRIES+ function
 CLASSES = {"schedule": ("switch", "jr", "as1", "hoist", "delay", "schedul", "xbb", "label"),
            "stack": ("spill", "frame", "stack", "home", "temploc", "slot", "sp+"),
            "regalloc": ("regalloc", "uopt", "register", "colour", "color", "candidate", "priority", "forbidden")}
 
 
 def arm_of(model):
-    """Arm name of a recorded model selector (provider/name:level), or None."""
+    """Arm name of a recorded model selector (provider/name[:level]), or None: the arm with that
+    exact selector, else the first arm of that model."""
     if not model:
         return None
+    exact = next((k for k, c in ARMS.items() if c["model"] == model), None)
+    if exact:
+        return exact
     base = model.split(":")[0]
     return next((k for k, c in ARMS.items() if c["model"].split(":")[0] == base), None)
 
 
-def eligible_arms(arms, tries):
-    """Arms Thompson sampling may choose for a function tried TRIES times: a function tried
-    SINGLE_TRIES+ times goes to a frontier arm only (exploration picks among those); with no
-    frontier arm in ARMS, all of them."""
-    if tries >= SINGLE_TRIES:
-        frontier = [x for x in arms if ARMS[x].get("frontier")]
-        if frontier:
-            return frontier
-    return list(arms)
+def arm_cost(arm, tries):
+    """Cost of one attempt by ARM on a function tried TRIES times. Soft rule: heavily tried
+    functions make non-frontier arms HARD_COST_MULT times dearer, so they win only when their
+    sampled match rate is that much higher (they keep getting picked, and learning, sometimes)."""
+    c = ARMS[arm]["cost"]
+    return c * HARD_COST_MULT if tries >= SINGLE_TRIES and not ARMS[arm].get("frontier") else c
 
 
 def tries_bucket(n):
@@ -640,8 +647,11 @@ def bandit_cells(by, sizes):
 
 def cell_prior(arm, b, arm_tot, bucket_tot):
     """Prior mean of one (arm, bucket) cell: the arm's overall rate scaled by how hard the bucket
-    is relative to all attempts (configured `prior` while the arm has no data)."""
+    is relative to all attempts (while the arm has no data: its `prior_from` arm's rate, else
+    the configured `prior`)."""
     s, f = arm_tot.get(arm, (0, 0))
+    if not s + f and ARMS[arm].get("prior_from"):
+        s, f = arm_tot.get(ARMS[arm]["prior_from"], (0, 0))
     arm_rate = (s + 1) / (s + f + 2) if s + f else ARMS[arm]["prior"]
     gs = sum(v[0] for v in bucket_tot.values())
     gn = sum(v[0] + v[1] for v in bucket_tot.values())
@@ -704,8 +714,10 @@ def cmd_plan(a):
                 continue
         fails = Counter(arm_of(e.get("model")) for e in ex if e["outcome"] != "matched")
         b = (tries_bucket(len(ex)), size_bucket(info["insns"]))
-        value = lambda arm, th: th / ARMS[arm]["cost"] if a.objective == "rate" else th * a.value - ARMS[arm]["cost"]
-        elig = eligible_arms(arms, len(ex))
+        n_tries = len(ex)
+        value = lambda arm, th: (th / arm_cost(arm, n_tries) if a.objective == "rate"
+                                 else th * a.value - arm_cost(arm, n_tries))
+        elig = list(arms)
         wins = Counter()
         for _ in range(a.draws):
             th = {arm: sample_theta(rng, arm, b, fails.get(arm, 0), cells, arm_tot, bucket_tot) for arm in elig}
@@ -846,18 +858,71 @@ def transcripts(sessions):
     return out
 
 
+def main_sessions(sessions):
+    """[(start, end, path, [(time, model selector or None, thinking level or None)])] for every
+    top-level (orchestrator) session transcript directly under SESSIONS."""
+    out = []
+    for path in glob.glob(os.path.join(sessions, "*.jsonl")):
+        start = end = None
+        changes = []
+        with open(path, errors="replace") as fh:
+            for line in fh:
+                try:
+                    d = json.loads(line)
+                except ValueError:
+                    continue
+                if not isinstance(d, dict) or d.get("timestamp") is None:
+                    continue
+                t = _when(d["timestamp"])
+                start = start or t
+                end = t
+                if d.get("type") == "model_change" and d.get("model"):
+                    changes.append((t, d["model"], None))
+                elif d.get("type") == "thinking_level_change" and d.get("thinkingLevel"):
+                    changes.append((t, None, d["thinkingLevel"]))
+        if start and changes:
+            out.append((start, end, path, changes))
+    return out
+
+
+def session_model(changes, ts):
+    """`provider/model:level` active at TS from a session's model/thinking-level changes."""
+    model = level = None
+    for t, m, lv in changes:
+        if t > ts:
+            break
+        model, level = m or model, lv or level
+    return None if model is None else model + (f":{level}" if level else "")
+
+
 def cmd_backfill_models(a):
     index = transcripts(a.sessions)
+    mains = main_sessions(a.sessions)
     with open(LEDGER) as fh:
         lines = [line.rstrip("\n") for line in fh if line.strip()]
     filled = total = 0
+    texts = {}
     for i, line in enumerate(lines):
         e = json.loads(line)
-        if (e["type"] != "attempt" or e.get("approx") or e.get("agent") in (None, "orchestrator")
-                or e.get("model") is not None):
+        if e["type"] != "attempt" or e.get("approx") or e.get("agent") is None or e.get("model") is not None:
             continue
         total += 1
         ts = _when(e["ts"])
+        if e["agent"] == "orchestrator":
+            # the main session that ran `ledger.py record` for this function at that time
+            cands = []
+            for start, end, path, changes in mains:
+                if not (start <= ts <= end + datetime.timedelta(minutes=10)):
+                    continue
+                if path not in texts:
+                    texts[path] = open(path, errors="replace").read()
+                if "ledger.py record" in texts[path] and re.search(rf"\b{re.escape(e['name'])}\b", texts[path]):
+                    cands.append(session_model(changes, ts))
+            if len(cands) == 1 and cands[0]:
+                e["model"], e["model_src"] = cands[0], "session"
+                lines[i] = json.dumps(e, sort_keys=True)
+                filled += 1
+            continue
         cands = [(s, m) for s, m in index.get(e["agent"], [])
                  if s <= ts and ts - s <= datetime.timedelta(hours=36)]
         if cands:

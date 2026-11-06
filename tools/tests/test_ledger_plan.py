@@ -51,15 +51,35 @@ def test_arm_without_data_uses_configured_prior():
 
 
 def test_recorded_selectors_map_to_arms_regardless_of_level():
-    assert ledger.arm_of("anthropic/claude-sonnet-5-5:xhigh") == "sonnet"
+    assert ledger.arm_of("anthropic/claude-sonnet-5-5:medium") == "sonnet"
     assert ledger.arm_of("google-antigravity/gemini-3.8-flash") == "flash"
     assert ledger.arm_of("someone/else") is None
 
 
-def test_heavily_tried_functions_only_go_to_frontier_arms():
-    arms = list(ledger.ARMS)
-    hard = ledger.eligible_arms(arms, ledger.SINGLE_TRIES)
-    assert hard and all(ledger.ARMS[x].get("frontier") for x in hard)
-    assert ledger.eligible_arms(arms, ledger.SINGLE_TRIES - 1) == arms
-    # an explicit --arms list without frontier arms is honoured
-    assert ledger.eligible_arms(["flash", "sonnet"], 20) == ["flash", "sonnet"]
+
+def test_soft_rule_makes_cheap_arms_dearer_only_on_heavily_tried_functions():
+    hard = ledger.SINGLE_TRIES
+    assert ledger.arm_cost("sonnet", hard) == ledger.ARMS["sonnet"]["cost"] * ledger.HARD_COST_MULT
+    assert ledger.arm_cost("sonnet", hard - 1) == ledger.ARMS["sonnet"]["cost"]
+    assert ledger.arm_cost("astra", hard) == ledger.ARMS["astra"]["cost"]
+
+
+def test_thinking_level_selects_its_own_arm():
+    assert ledger.arm_of("anthropic/claude-sonnet-5-5:xhigh") == "sonnet_xhigh"
+    assert ledger.arm_of("anthropic/claude-sonnet-5-5:high") == "sonnet"
+    assert ledger.arm_of("anthropic/claude-sonnet-5-5") == "sonnet"
+
+
+def test_arm_without_data_borrows_its_sibling_rate():
+    bucket_tot = {("6+", "m"): [1, 1]}
+    arm_tot = {"sonnet": [9, 1]}
+    assert ledger.cell_prior("sonnet_xhigh", ("6+", "m"), arm_tot, bucket_tot) == \
+        ledger.cell_prior("sonnet", ("6+", "m"), arm_tot, bucket_tot)
+
+
+def test_session_model_replays_model_and_level_changes():
+    t = lambda h: ledger._when(f"2026-11-06T{h:02d}:00:00Z")
+    changes = [(t(1), "anthropic/claude-opus-5-5", None), (t(1), None, "medium"),
+               (t(2), None, "xhigh"), (t(3), "anthropic/claude-sonnet-5-5", None)]
+    assert ledger.session_model(changes, t(2)) == "anthropic/claude-opus-5-5:xhigh"
+    assert ledger.session_model(changes, t(4)) == "anthropic/claude-sonnet-5-5:xhigh"
