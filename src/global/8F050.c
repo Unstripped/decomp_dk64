@@ -28,57 +28,57 @@ void animSetLoopLimit(s32, s32, s32);
 void animSetFinished(s32, s32, s32);
 void animSetFrameAndSubframe(s32, s32, s16, f32);
 
-void animStopAtFrame(s32 arg0, s32 arg1, s32 arg2) {
-    animSetLoopLimit(arg0, arg1, -1);
-    animSetFinished(arg0, arg1, 1);
-    animSetFrameAndSubframe(arg0, arg1, arg2, 0.0f);
+void animStopAtFrame(s32 actor, s32 animSlot, s32 frame) {
+    animSetLoopLimit(actor, animSlot, -1);
+    animSetFinished(actor, animSlot, 1);
+    animSetFrameAndSubframe(actor, animSlot, frame, 0.0f);
 }
 
-s32 actorConfigLookup(s32 arg0, s32 *arg1) {
+s32 actorConfigLookup(s32 actorType, s32 *outIndex) {
     ActorConfig8F050 *cfg;
     s32 found;
     u32 i;
     u32 next;
 
-    if (arg0 && arg0 && arg0) {} // FAKE
+    if (actorType && actorType && actorType) {} // FAKE
     cfg = D_80750100;
     found = 0;
-    *arg1 = 0;
+    *outIndex = 0;
     i = 0; do {
         next = i + 1;
-        if (arg0 == cfg[i].unk0) {
+        if (actorType == cfg[i].unk0) {
             found = 1;
             next = i;
         } else {
-            *arg1 = next;
+            *outIndex = next;
             i = next;
         }
     } while (next < 7 && !found);
     return found;
 }
 
-void actorConfigApplyAnimFrame(Actor4C *arg0, s32 arg1, s32 arg2) {
+void actorConfigApplyAnimFrame(Actor4C *actor, s32 cfgIndex, s32 frame) {
     s32 i;
     s32 temp;
 
-    if (arg0->unk4C == 0) {
-        arg0->unk4C = controllerAnimStateLoadAsset(arg0, *(s16 *)((u8 *)D_80750102 + arg1 * 20), 0);
+    if (actor->unk4C == 0) {
+        actor->unk4C = controllerAnimStateLoadAsset(actor, *(s16 *)((u8 *)D_80750102 + cfgIndex * 20), 0);
     }
     for (i = 0; i < 8; i += 4) {
-        temp = *(s32 *)((u8 *)&D_80750100[arg1] + i + 0xC);
+        temp = *(s32 *)((u8 *)&D_80750100[cfgIndex] + i + 0xC);
         if (temp != -1) {
-            animStopAtFrame((s32)arg0, temp, arg2);
+            animStopAtFrame((s32)actor, temp, frame);
         }
     }
 }
 
 s32 actorConfigLookup(s32, s32 *);
 
-void actorConfigApplyAnimFrameByType(s32 arg0, s32 arg1, s32 arg2) {
-    s32 sp1C;
+void actorConfigApplyAnimFrameByType(s32 actor, s32 actorType, s32 frame) {
+    s32 cfgIndex;
 
-    if (actorConfigLookup(arg1, &sp1C)) {
-        actorConfigApplyAnimFrame((Actor4C *)arg0, sp1C, arg2);
+    if (actorConfigLookup(actorType, &cfgIndex)) {
+        actorConfigApplyAnimFrame((Actor4C *)actor, cfgIndex, frame);
     }
 }
 
@@ -125,7 +125,7 @@ f32 renderScaleDistanceByFov(f32);
 
 void actorProximityUpdate(void) {
     ProximitySub174 *sub;
-    s32 sp80;
+    s32 cfgIndex;
     s32 pad[3];
     s32 i;
     ProximityActor *actor;
@@ -139,22 +139,22 @@ void actorProximityUpdate(void) {
             dist_sq = ((actor->unk84 - gPlayerSlots->unk218) * (actor->unk84 - gPlayerSlots->unk218)) +
                       (((actor->unk7C - gPlayerSlots->unk210) * (actor->unk7C - gPlayerSlots->unk210)) +
                        ((actor->unk80 - gPlayerSlots->unk214) * (actor->unk80 - gPlayerSlots->unk214)));
-            if (actorConfigLookup(actor->unk58, &sp80) != 0) {
-                r = renderScaleDistanceByFov(D_80750100[sp80].unk4);
-                switch (D_80750100[sp80].unk8) {
+            if (actorConfigLookup(actor->unk58, &cfgIndex) != 0) {
+                r = renderScaleDistanceByFov(D_80750100[cfgIndex].unk4);
+                switch (D_80750100[cfgIndex].unk8) {
                 case 0:
                     if (gPlayerCount >= 2) {
                         sub = actor->unk174;
                         a2 = D_807552F4[sub->unk1A4];
                         if (a2 >= 0) {
-                            actorConfigApplyAnimFrame((Actor4C *)actor, sp80, a2);
+                            actorConfigApplyAnimFrame((Actor4C *)actor, cfgIndex, a2);
                         }
                     }
                     break;
                 case 1:
                     if (r * r < dist_sq) {
                         if (actor->unk4C == 0) {
-                            actor->unk4C = controllerAnimStateLoadAsset(actor, D_80750100[sp80].unk2, 0);
+                            actor->unk4C = controllerAnimStateLoadAsset(actor, D_80750100[cfgIndex].unk2, 0);
                         }
                     } else if (actor->unk4C != 0) {
                         controllerAnimFreeSub(actor, 1);
@@ -163,7 +163,7 @@ void actorProximityUpdate(void) {
                 case 2:
                     if (dist_sq < r * r) {
                         if (actor->unk4C == 0) {
-                            actor->unk4C = controllerAnimStateLoadAsset(actor, D_80750100[sp80].unk2, 0);
+                            actor->unk4C = controllerAnimStateLoadAsset(actor, D_80750100[cfgIndex].unk2, 0);
                         }
                     } else if (actor->unk4C != 0) {
                         controllerAnimFreeSub(actor, 1);
@@ -175,10 +175,10 @@ void actorProximityUpdate(void) {
     }
 }
 
-void func_8068A764(Actor146 *arg0, u8 arg1) {
-    arg0->unk146 |= (1 << arg1);
+void func_8068A764(Actor146 *actor, u8 bit) {
+    actor->unk146 |= (1 << bit);
 }
 
-void func_8068A784(Actor146 *arg0, u8 arg1) {
-    arg0->unk146 &= ~(1 << arg1);
+void func_8068A784(Actor146 *actor, u8 bit) {
+    actor->unk146 &= ~(1 << bit);
 }
