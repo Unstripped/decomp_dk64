@@ -39,7 +39,7 @@ void pathSplineSample(s32, s32, f32, f32 *, f32 *, f32 *);
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 s16 pathEntryCount(s32);
 
-void pathFollowUpdateHeading(PathFollowOwner *arg0, u8 arg1) {
+void pathFollowUpdateHeading(PathFollowOwner *owner, u8 continuous) {
     s32 fresh;
     PathFollowState *s;
     s32 idx;
@@ -52,24 +52,24 @@ void pathFollowUpdateHeading(PathFollowOwner *arg0, u8 arg1) {
     f32 z1;
     s16 heading;
     s32 cnt;
-    u8 sp47;
+    u8 pathEnded;
 
-    sp47 = 0;
+    pathEnded = 0;
     fresh = 0;
-    if (arg0->unk118 == NULL) {
-        arg0->unk118 = heapAlloc(0x14);
-        s = arg0->unk118;
-        if (arg0->unkB0 != -1 && pathExists(arg0->unkB0) != 0) {
-            s->unk12 = arg0->unkB0;
+    if (owner->unk118 == NULL) {
+        owner->unk118 = heapAlloc(0x14);
+        s = owner->unk118;
+        if (owner->unkB0 != -1 && pathExists(owner->unkB0) != 0) {
+            s->unk12 = owner->unkB0;
         } else {
             s->unk12 = -1;
         }
         s->unkC = 0;
         fresh = 1;
     } else {
-        s = arg0->unk118;
+        s = owner->unk118;
     }
-    if (arg1 != 0 || s->unkC == 0) {
+    if (continuous != 0 || s->unkC == 0) {
         if (s->unk12 == -1) {
             s->unkC = 1;
             s->unk10 = 0;
@@ -77,9 +77,9 @@ void pathFollowUpdateHeading(PathFollowOwner *arg0, u8 arg1) {
             return;
         }
         if (fresh != 0) {
-            pathFindClosestPoint(s->unk12, arg0->unk7C, arg0->unk80, arg0->unk84, &s->unk4, &s->unk8);
+            pathFindClosestPoint(s->unk12, owner->unk7C, owner->unk80, owner->unk84, &s->unk4, &s->unk8);
         } else {
-            pathRefineClosestPoint(s->unk12, arg0->unk7C, arg0->unk80, arg0->unk84, &s->unk4, &s->unk8);
+            pathRefineClosestPoint(s->unk12, owner->unk7C, owner->unk80, owner->unk84, &s->unk4, &s->unk8);
         }
         frac = s->unk8;
         idx = s->unk4;
@@ -98,26 +98,26 @@ void pathFollowUpdateHeading(PathFollowOwner *arg0, u8 arg1) {
         cnt = pathEntryCount(s->unk12) - 1;
         if (s->unk4 >= cnt) {
             if (cnt == s->unk4) {
-                sp47 = 1;
+                pathEnded = 1;
                 s->unk10 = 0;
             } else {
-                sp47 = 1;
+                pathEnded = 1;
                 s->unk10 = 0;
             }
         }
-        if (sp47 != 0 && arg1 == 0) {
+        if (pathEnded != 0 && continuous == 0) {
             s->unkC = 1;
         }
     }
 }
 
-void animationOwnerFreeBuffer(AnimationOwner *arg0) {
-    void *temp_a1;
+void animationOwnerFreeBuffer(AnimationOwner *owner) {
+    void *buffer;
 
-    temp_a1 = arg0->unk118;
-    if (temp_a1 != 0) {
-        heapFree(temp_a1);
-        arg0->unk118 = NULL;
+    buffer = owner->unk118;
+    if (buffer != 0) {
+        heapFree(buffer);
+        owner->unk118 = NULL;
     }
 }
 
