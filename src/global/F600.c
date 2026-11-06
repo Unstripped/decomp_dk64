@@ -118,7 +118,6 @@ void controllerGetReadData(OSContPad *pad) {
     D_807ECD08 = 0;
 }
 
-#ifdef NON_MATCHING
 extern u8 D_807463B8;
 extern s32 gFrameCounter;
 extern u8 D_8076A0B1;
@@ -217,14 +216,13 @@ void controllerUpdate(void) {
             if (D_807463B8 == D_807463B8) {} // FAKE: retain CFG without a mode value live across blocks
             mask = mask | 1;
         }
-        sum = padIdx * 3;
-        sum *= 2;
+        sum = padIdx * 2;
         if (mask != 0) {
-            pad = (OSContPad *)((u8 *)D_807ECD10 + sum);
-            padOffset = *(u16 *)pad; // FAKE: carry the initial button copy outside the timer-index web
+            pad = &D_807ECD10[padIdx];
+            padOffset = *(u16 *)pad; // FAKE: preserve the initial button value's allocation web
+            pressed = ((*(u16 *)((u8 *)CtrlAHeld + sum)) ^ padOffset) & padOffset;
+            (*(u16 *)((u8 *)CtrlAHeld + sum)) = pad->button;
             buttons = padOffset;
-            pressed = (CtrlAHeld[padIdx] ^ pad->button) & pad->button;
-            CtrlAHeld[padIdx] = pad->button;
             if (D_807463B8 == 0) {
                 if (D_8076A0B1 & 0x11) {
                     pad->button &= 0x1000;
@@ -261,10 +259,6 @@ void controllerUpdate(void) {
     D_807ECDEC = D_807ECD10;
     D_807ECDF0 = D_807ECD48[0];
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/F600/controllerUpdate.s")
-#endif
 
 void controllerLatchPad(OSContPad *pad) {
     D_807ECD58.button = pad->button;
