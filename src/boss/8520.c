@@ -27,18 +27,18 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 void spawnNodeSpawnById(s16, s16, s16, s16, s32, s32, s32);
 
-void func_8002C520(s16 arg0, s16 arg1, s16 arg2) {
+void func_8002C520(s16 actorType, s16 distance, s16 angle) {
     f32 pad;
     f32 sinVal;
     f32 fArg1;
 
-    sinVal = func_80612794(arg2);
-    fArg1 = arg1;
+    sinVal = func_80612794(angle);
+    fArg1 = distance;
     spawnNodeSpawnById(
-        arg0,
+        actorType,
         sinVal * fArg1 + D_807FBB40->unk7C,
         D_807FDC9C->unk6,
-        func_80612790(arg2) * fArg1 + D_807FBB40->unk84,
+        func_80612790(angle) * fArg1 + D_807FBB40->unk84,
         0, 0, 0
     );
     D_807FBB44->unkC8 *= 2;
@@ -72,39 +72,39 @@ void animSetLoopLimit(void *, s32, s32);
 void animSetFinished(void *, s32, s32);
 void animSetFrameAndSubframe(void *, s32, s16, f32);
 
-void func_8002C748(arg0)
-u8 arg0;
+void func_8002C748(animSlot)
+u8 animSlot;
 {
     D_807FDC90->unk28 = 2;
-    animSetLoopLimit(D_807FBB40, arg0, 1);
-    animSetFinished(D_807FBB40, arg0, 1);
-    animSetFrameAndSubframe(D_807FBB40, arg0, D_807FDC90->unk28 & 0xF, 0.0f);
+    animSetLoopLimit(D_807FBB40, animSlot, 1);
+    animSetFinished(D_807FBB40, animSlot, 1);
+    animSetFrameAndSubframe(D_807FBB40, animSlot, D_807FDC90->unk28 & 0xF, 0.0f);
 }
 
 void bossAnimFrameBounceStep(void) {
-    u16 var_t1 = 0;
-    u8 var_t0;
+    u16 directionBit = 0;
+    u8 directionFlag;
     u8 val;
-    var_t0 = D_807FDC90->unk28 & 0x80;
+    directionFlag = D_807FDC90->unk28 & 0x80;
     val = D_807FDC90->unk28 & 0xF;
-    if (var_t0) {
+    if (directionFlag) {
         val += 1;
         if (val >= 2) {
-            var_t0 = 0;
+            directionFlag = 0;
         } else {
-            var_t1 = 0x8000;
+            directionBit = 0x8000;
         }
     } else {
         val -= 1;
         if (val <= 0) {
-            var_t0 = 0x80;
+            directionFlag = 0x80;
         } else {
-            var_t1 = 0x8000;
+            directionBit = 0x8000;
         }
     }
     animSetFrameAndSubframe(D_807FBB40, 0, (s16)val, 0.0f);
     animSetFrameAndSubframe(D_807FBB40, 1, (s16)val, 0.0f);
-    D_807FDC90->unk28 = var_t1 | val | var_t0;
+    D_807FDC90->unk28 = directionBit | val | directionFlag;
 }
 
 typedef struct BossA_Struct_807FDC94 {
@@ -244,9 +244,9 @@ void actorUpdateModelMatrix(void *, s32);
 #define DC9C ((BossConfig *)D_807FDC9C)
 
 void func_8002C964(void) {
-    BossSwayState *sp3C;
+    BossSwayState *swayState;
 
-    sp3C = A40->unk178;
+    swayState = A40->unk178;
     behaviourFrameBegin();
     if (!(A40->unk60 & 0x10)) {
         func_8002C748(0);
@@ -370,8 +370,8 @@ void func_8002C964(void) {
                 if (D_807FBD70 == 4) {
                     actorScriptStart(D_807FBB40, 0x2FC);
                     func_8072D9D4();
-                    sp3C->unk2 = 0x96;
-                    sp3C->unk4 = 0x800;
+                    swayState->unk2 = 0x96;
+                    swayState->unk4 = 0x800;
                     A40->unkEE = A40->unkE6;
                     if (A40->unk134 == 1) {
                         A40->unk154 = 0x28;
@@ -396,14 +396,14 @@ void func_8002C964(void) {
         actorPatrolFollowerUpdate(0x2F7, 1, 0);
         break;
     }
-    if (sp3C->unk2 > 0) {
-        sp3C->unk0 = func_80612794(sp3C->unk4) * sp3C->unk2;
-        sp3C->unk4 += 0x32;
-        sp3C->unk2 -= 1;
-        A40->unkE8 = -sp3C->unk0;
-        A40->unk7C = func_80612794(A40->unkEE) * sp3C->unk0 + DC9C->unk4;
-        A40->unk84 = func_80612790(A40->unkEE) * sp3C->unk0 + DC9C->unk8;
-        A40->unk80 = DC9C->unk6 - sqrtf(0x1C390 - sp3C->unk0 * sp3C->unk0);
+    if (swayState->unk2 > 0) {
+        swayState->unk0 = func_80612794(swayState->unk4) * swayState->unk2;
+        swayState->unk4 += 0x32;
+        swayState->unk2 -= 1;
+        A40->unkE8 = -swayState->unk0;
+        A40->unk7C = func_80612794(A40->unkEE) * swayState->unk0 + DC9C->unk4;
+        A40->unk84 = func_80612790(A40->unkEE) * swayState->unk0 + DC9C->unk8;
+        A40->unk80 = DC9C->unk6 - sqrtf(0x1C390 - swayState->unk0 * swayState->unk0);
     }
     if (DC90->unk28 & 0x8000) {
         bossAnimFrameBounceStep();
