@@ -31,8 +31,8 @@ extern ActorProximityEntry *D_807F9430;
 extern s16 D_807F9434;
 
 void *heapAlloc(s32);
-s32 actorEntryTypeIsEmitter(s16);
-void actorApplyRotatedOffset(s32, s32, f32);
+s32 actorEntryTypeIsEmitter(s16 actorType);
+void actorApplyRotatedOffset(s32 entryIdx, s32 actorType, f32 angle);
 void actorInitEntryPoints(void) {
     s32 count;
     s32 i;
@@ -63,49 +63,49 @@ void actorInitEntryPoints(void) {
     }
 }
 
-void actorApplyRotatedOffset(s32 arg0, s32 arg1, f32 arg2) {
+void actorApplyRotatedOffset(s32 entryIdx, s32 actorType, f32 angle) {
     s32 pad[2];
-    f32 sp74;
-    f32 sp70;
-    f32 sp6C;
-    f32 sp2C[4][4];
+    f32 outX;
+    f32 outY;
+    f32 outZ;
+    f32 rotMtx[4][4];
 
-    if (arg1 == 0x138) {
-        guRotateF(sp2C, arg2, 0.0f, 1.0f, 0.0f);
-        guMtxXFMF(sp2C, 0.0f, 0.0f, -10.0f, &sp74, &sp70, &sp6C);
-        D_807F9430[arg0].unk2 += sp74;
-        D_807F9430[arg0].unk6 += sp6C;
+    if (actorType == 0x138) {
+        guRotateF(rotMtx, angle, 0.0f, 1.0f, 0.0f);
+        guMtxXFMF(rotMtx, 0.0f, 0.0f, -10.0f, &outX, &outY, &outZ);
+        D_807F9430[entryIdx].unk2 += outX;
+        D_807F9430[entryIdx].unk6 += outZ;
     }
 }
 
-void actorUpdateEntryCoordinates(s16 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
+void actorUpdateEntryCoordinates(s16 targetId, f32 x, f32 y, f32 z, f32 scale, f32 angle) {
     s32 i;
 
     for (i = 0; i < D_807F9434; i++) {
-        if (arg0 == D_807F9430[i].unkA) {
-            D_807F9430[i].unk2 = arg1;
-            D_807F9430[i].unk4 = arg2;
-            D_807F9430[i].unk6 = arg3;
-            actorApplyRotatedOffset(i, D_807F9430[i].unk0, arg5);
-            D_807F9430[i].unk8 = arg4 * 100.0;
+        if (targetId == D_807F9430[i].unkA) {
+            D_807F9430[i].unk2 = x;
+            D_807F9430[i].unk4 = y;
+            D_807F9430[i].unk6 = z;
+            actorApplyRotatedOffset(i, D_807F9430[i].unk0, angle);
+            D_807F9430[i].unk8 = scale * 100.0;
             return;
         }
     }
 }
 
 
-void actorClearEntrySlot(s16 arg0) {
+void actorClearEntrySlot(s16 targetId) {
     s32 i;
 
     for (i = 0; i < D_807F9434; i++) {
-        if (arg0 == D_807F9430[i].unkA) {
+        if (targetId == D_807F9430[i].unkA) {
             D_807F9430[i].unkA = -1;
         }
     }
 }
 
-s32 actorEntryTypeIsEmitter(s16 arg0) {
-    if ((arg0 == 1) || (arg0 == 0x10) || (arg0 == 0x74) || (arg0 == 0xF3) || (arg0 == 0x138) || (arg0 == 0x288)) {
+s32 actorEntryTypeIsEmitter(s16 actorType) {
+    if ((actorType == 1) || (actorType == 0x10) || (actorType == 0x74) || (actorType == 0xF3) || (actorType == 0x138) || (actorType == 0x288)) {
         return 1;
     }
     return 0;
@@ -122,8 +122,8 @@ extern PlayerPositionView *gPlayerSlots;
 extern u8 gPlayerCount;
 
 s32 func_8063C2A8(s16);
-void actorEntryEmitJitterParticle(s16);
-void actorEntryEmitScaledParticle(s16);
+void actorEntryEmitJitterParticle(s16 entryIdx);
+void actorEntryEmitScaledParticle(s16 entryIdx);
 
 void actorUpdateEntryEmitters(void) {
     s32 i;
@@ -173,9 +173,9 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 extern u8 D_807213D0;
 void effectDriftXZUpdate(void);
 
-void actorEntryEmitJitterParticle(s16 arg0) {
+void actorEntryEmitJitterParticle(s16 entryIdx) {
     ActorProximityEntry *entry;
-    s32 sp20;
+    s32 randX;
     s32 temp;
 
     if (((randomNonNegative() % 10000) % 12) == 0) {
@@ -186,11 +186,11 @@ void actorEntryEmitJitterParticle(s16 arg0) {
         func_807149C8(255, 200, 200, 200);
         func_80714A08(0.2f, 0.1f);
         func_80714A28(4);
-        sp20 = randomNonNegative();
+        randX = randomNonNegative();
         temp = randomNonNegative();
-        entry = (ActorProximityEntry *)((u8 *)D_807F9430 + arg0 * sizeof(ActorProximityEntry));
+        entry = (ActorProximityEntry *)((u8 *)D_807F9430 + entryIdx * sizeof(ActorProximityEntry));
         func_80714CC0(&D_807213D0, 0.0f,
-            (((f64) ((sp20 % 10000) % 100) / 20.0) + (f64) entry->unk2) - 2.5,
+            (((f64) ((randX % 10000) % 100) / 20.0) + (f64) entry->unk2) - 2.5,
             (f64) entry->unk4 + 4.0,
             (((f64) ((temp % 10000) % 100) / 20.0) + (f64) entry->unk6) - 2.5);
     }
@@ -199,24 +199,24 @@ void actorEntryEmitJitterParticle(s16 arg0) {
 
 extern u8 D_80720A7C;
 
-void actorEntryEmitScaledParticle(s16 arg0) {
-    f32 sp34;
+void actorEntryEmitScaledParticle(s16 entryIdx) {
+    f32 scaleFactor;
     s32 temp;
-    s32 sp2C;
-    s32 sp28;
+    s32 randY;
+    s32 randX;
 
     if (((randomNonNegative() % 10000) % 10) == 0) {
-        sp34 = (f64) D_807F9430[arg0].unk8 / 25.0;
+        scaleFactor = (f64) D_807F9430[entryIdx].unk8 / 25.0;
         func_807149B8(1);
         func_80714998(2);
         func_80714A28(4);
-        sp28 = randomNonNegative();
-        sp2C = randomNonNegative();
+        randX = randomNonNegative();
+        randY = randomNonNegative();
         temp = randomNonNegative();
         func_80714CC0(&D_80720A7C, 0.4f,
-            ((((f64) ((sp28 % 10000) % 300) / 20.0) - 7.5) * (f64) sp34) + (f64) (D_807F9430 + arg0)->unk2,
-            (((f64) ((sp2C % 10000) % 600) / 20.0) * (f64) sp34) + (f64) (D_807F9430 + arg0)->unk4,
-            ((((f64) ((temp % 10000) % 300) / 20.0) - 7.5) * (f64) sp34) + (f64) (D_807F9430 + arg0)->unk6);
+            ((((f64) ((randX % 10000) % 300) / 20.0) - 7.5) * (f64) scaleFactor) + (f64) (D_807F9430 + entryIdx)->unk2,
+            (((f64) ((randY % 10000) % 600) / 20.0) * (f64) scaleFactor) + (f64) (D_807F9430 + entryIdx)->unk4,
+            ((((f64) ((temp % 10000) % 300) / 20.0) - 7.5) * (f64) scaleFactor) + (f64) (D_807F9430 + entryIdx)->unk6);
     }
 }
 
