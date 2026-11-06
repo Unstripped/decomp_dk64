@@ -486,7 +486,7 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
     GcVoiceState *voiceState;
     u8 pan;
     GdChanState *chanSt;
-    s32 sp90;
+    s32 oscTypeOrIndex;
     ALVoiceConfig vc;
     ALSound *sound;
     s16 cents;
@@ -494,16 +494,16 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
     f32 oscVal;
     u8 fxmix;
     u8 unityPitch;
-    f32 sp70;
+    f32 voiceTune;
     void *oscState;
     ALInstrument *inst;
-    u8 sp67;
-    u8 sp66;
-    s32 sp60;
-    s32 sp5C;
-    s32 sp58;
-    f32 sp54;
-    s32 sp50;
+    u8 currentVal;
+    u8 targetVal;
+    s32 stepDelta;
+    s32 targetInst;
+    s32 bendVal;
+    f32 bendRatio;
+    s32 bendCents;
 
     midi = (ALMIDIEvent *)&event->msg;
     status = midi->status & 0xF0;
@@ -561,13 +561,13 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     }
                     voiceState->flags = 0;
                     if (chanSt->unk24 != 0) {
-                        sp90 = chanSt->unk28;
+                        oscTypeOrIndex = chanSt->unk28;
                     } else {
                         inst = GdCH(seqp, chan).instrument;
-                        sp90 = inst->tremType;
+                        oscTypeOrIndex = inst->tremType;
                     }
                     oscVal = 127.0f;
-                    if (sp90 != 0 && seqp->initOsc != NULL) {
+                    if (oscTypeOrIndex != 0 && seqp->initOsc != NULL) {
                         if (chanSt->unk24 != 0) {
                             delta = ((GdOscInit)seqp->initOsc)(&oscState, &oscVal, chanSt->unk28, chanSt->unk29, chanSt->unk2A, chanSt->unk2B, chanSt->unk31);
                         } else {
@@ -585,11 +585,11 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     voiceState->tremelo = (u32)oscVal;
                     oscVal = 1.0f;
                     if (chanSt->unk24 != 0) {
-                        sp90 = chanSt->unk2C;
+                        oscTypeOrIndex = chanSt->unk2C;
                     } else {
-                        sp90 = inst->vibType;
+                        oscTypeOrIndex = inst->vibType;
                     }
-                    if (sp90 != 0 && seqp->initOsc != NULL) {
+                    if (oscTypeOrIndex != 0 && seqp->initOsc != NULL) {
                         if (chanSt->unk24 != 0) {
                             delta = ((GdOscInit)seqp->initOsc)(&oscState, &oscVal, chanSt->unk2C, chanSt->unk2D, chanSt->unk2E, chanSt->unk2F, chanSt->unk31);
                         } else {
@@ -610,9 +610,9 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     fxmix = n_alCSPClampVoiceFXMix(voiceState, seqp);
                     unityPitch = chanSt->unk11;
                     if (unityPitch != 0) {
-                        sp70 = n_alSemitonesToPitchRatio(((cents / 100) + chanSt->unk12) - 0x40) * 440.0f * chanSt->pitchBend;
+                        voiceTune = n_alSemitonesToPitchRatio(((cents / 100) + chanSt->unk12) - 0x40) * 440.0f * chanSt->pitchBend;
                     } else {
-                        sp70 = 127.0f;
+                        voiceTune = 127.0f;
                     }
                     pan = __n_vsPan(voiceState, seqp);
                     vol = __n_vsVol(voiceState, seqp);
@@ -621,7 +621,7 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     } else {
                         delta = sound->envelope->attackTime;
                     }
-                    n_alSynStartVoiceParams(voice, sound->wavetable, pitch, vol, pan, fxmix, unityPitch, sp70, chanSt->unk13, delta);
+                    n_alSynStartVoiceParams(voice, sound->wavetable, pitch, vol, pan, fxmix, unityPitch, voiceTune, chanSt->unk13, delta);
                     evt.type = 6;
                     evt.msg.vol.voice = voice;
                     if (chanSt->unk24 != 0) {
@@ -713,29 +713,29 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     }
                     midi->byte1 = 0xFE;
                 case 0xFE:
-                    sp67 = GdCH(seqp, chan).unk0D;
-                    sp66 = GdCH(seqp, chan).unk0E;
+                    currentVal = GdCH(seqp, chan).unk0D;
+                    targetVal = GdCH(seqp, chan).unk0E;
                     vel = GdCH(seqp, chan).unk0F;
-                    sp60 = sp66 - sp67;
-                    if (sp60 > 0) {
+                    stepDelta = targetVal - currentVal;
+                    if (stepDelta > 0) {
                         if (vel & 0x80) {
                             vel = (vel & 0x7F) << 1;
                         }
-                        if (sp60 > vel) {
-                            sp60 = vel;
+                        if (stepDelta > vel) {
+                            stepDelta = vel;
                         }
                     } else {
                         vel &= 0x7F;
-                        if (sp60 < -vel) {
-                            sp60 = -vel;
+                        if (stepDelta < -vel) {
+                            stepDelta = -vel;
                         }
                     }
-                    sp67 += sp60;
-                    GdCH(seqp, chan).unk0D = sp67;
-                    if (sp67 != sp66) {
+                    currentVal += stepDelta;
+                    GdCH(seqp, chan).unk0D = currentVal;
+                    if (currentVal != targetVal) {
                         alEvtqPostEvent(&seqp->evtq, event, seqp->uspt * 100);
                     }
-                    if (sp67 != 0) {
+                    if (currentVal != 0) {
                         seqp->chanMask |= 1 << chan;
                     } else {
                         seqp->chanMask &= ~(1 << chan);
@@ -832,23 +832,23 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
             }
             break;
         case 0xC0:
-            sp90 = (GdCH(seqp, chan).unk32 << 7) + key;
-            if (sp90 < seqp->bank->instCount) {
-                sp5C = (s32)seqp->bank->instArray[sp90];
-                __n_setInstChanState(seqp, (ALInstrument *)sp5C, chan);
+            oscTypeOrIndex = (GdCH(seqp, chan).unk32 << 7) + key;
+            if (oscTypeOrIndex < seqp->bank->instCount) {
+                targetInst = (s32)seqp->bank->instArray[oscTypeOrIndex];
+                __n_setInstChanState(seqp, (ALInstrument *)targetInst, chan);
             } else {
             }
             break;
         case 0xE0:
-            sp58 = ((byte2 << 7) + byte1) - 0x2000;
-            sp50 = (GdCH(seqp, chan).bendRange * sp58) / 8192;
-            sp54 = alCents2Ratio(sp50);
-            GdCH(seqp, chan).pitchBend = sp54;
+            bendVal = ((byte2 << 7) + byte1) - 0x2000;
+            bendCents = (GdCH(seqp, chan).bendRange * bendVal) / 8192;
+            bendRatio = alCents2Ratio(bendCents);
+            GdCH(seqp, chan).pitchBend = bendRatio;
             for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                 if (vs->channel == chan) {
-                    n_alSynSetPitch(&vs->voice, vs->pitch * sp54 * vs->vibrato);
+                    n_alSynSetPitch(&vs->voice, vs->pitch * bendRatio * vs->vibrato);
                     if (GdCH(seqp, chan).unk11 != 0) {
-                        n_alSynSetPan(&vs->voice, n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase) * 440.0f * sp54 * vs->vibrato);
+                        n_alSynSetPan(&vs->voice, n_alSemitonesToPitchRatio(vs->key - vs->sound->keyMap->keyBase) * 440.0f * bendRatio * vs->vibrato);
                     }
                 }
             }
