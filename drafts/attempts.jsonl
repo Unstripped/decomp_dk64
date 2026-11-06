@@ -2187,3 +2187,5 @@
 {"agent": "Finisher3", "approx": false, "name": "csCmdPointHitEffectSpawn", "note": "", "outcome": "attempted", "seg": "global", "stage": "5", "ts": "2026-11-06T02:38:17Z", "type": "attempt", "unit": "2026-11-05: diff-class groups", "vram": "0x80646058"}
 {"agent": "Finisher3", "approx": false, "name": "func_806F03C4", "note": "", "outcome": "attempted", "seg": "global", "stage": "6", "ts": "2026-11-06T02:38:17Z", "type": "attempt", "unit": "2026-11-05: diff-class groups", "vram": "0x806F03C4"}
 {"agent": "Finisher3", "approx": false, "name": "scriptOpPlaySoundAndShake", "note": "", "outcome": "attempted", "seg": "global", "stage": "4", "ts": "2026-11-06T02:38:17Z", "type": "attempt", "unit": "2026-11-05: diff-class groups", "vram": "0x80616E08"}
+{"approx": false, "ts": "2026-11-06T03:59:29Z", "type": "unit", "unit": "2026-11-06: csCmdPointHitEffectSpawn focused match"}
+{"agent": "orchestrator", "approx": false, "name": "csCmdPointHitEffectSpawn", "note": "", "outcome": "matched", "seg": "global", "stage": null, "ts": "2026-11-06T03:59:29Z", "type": "attempt", "unit": "2026-11-06: csCmdPointHitEffectSpawn focused match", "vram": "0x80646058"}

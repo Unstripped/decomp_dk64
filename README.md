@@ -13,14 +13,14 @@ This repository contains no game data. You need your own copy of the ROM to buil
 Percentages count matched C plus approved handwritten-assembly function bytes out of all function bytes in each code segment. C and handwritten bytes are reported separately. Assets (textures, models, text), alignment padding, and data embedded in text are not counted; see [ROADMAP.md](ROADMAP.md).
 
 <!-- progress:start -->
-**Overall: 97.60%** of code bytes matched (1,696,068 / 1,737,704 bytes, 4,479 / 4,499 functions)
+**Overall: 97.71%** of code bytes matched (1,697,884 / 1,737,704 bytes, 4,480 / 4,499 functions)
 
 `███████████████████████████████████████░`
 
 | Segment | Contents | Progress | C bytes | Handwritten bytes | Matched / total bytes | Functions |
 |---|---|---|--:|--:|--:|--:|
 | `boot` | boot, libultra, inflate | `████████████████████` 100.0% | 47,692 | 6,092 | 53,784 / 53,784 | 229 / 229 |
-| `global` | main game code | `███████████████████░` 97.1% | 1,269,684 | 15,408 | 1,285,092 / 1,323,472 | 3,583 / 3,601 |
+| `global` | main game code | `███████████████████░` 97.2% | 1,271,500 | 15,408 | 1,286,908 / 1,323,472 | 3,584 / 3,601 |
 | `multiplayer` | `ovl02`, multiplayer modes | `████████████████████` 100.0% | 12,132 | 0 | 12,132 / 12,132 | 31 / 31 |
 | `minecart` | `ovl03`, minecart rides | `████████████████████` 100.0% | 19,332 | 0 | 19,332 / 19,332 | 25 / 25 |
 | `bonus` | `ovl04`, bonus barrels | `███████████████████░` 94.6% | 36,868 | 0 | 36,868 / 38,972 | 46 / 47 |
@@ -30,7 +30,7 @@ Percentages count matched C plus approved handwritten-assembly function bytes ou
 | `arcade` | `ovl08`, Donkey Kong arcade | `████████████████████` 100.0% | 57,880 | 0 | 57,880 / 57,880 | 98 / 98 |
 | `jetpac` | `ovl09`, Jetpac | `███████████████████░` 96.0% | 27,636 | 0 | 27,636 / 28,788 | 107 / 108 |
 | `menu` | `ovl10`, main menu / file select | `████████████████████` 100.0% | 61,232 | 0 | 61,232 / 61,232 | 113 / 113 |
-| **Total** |  | `████████████████████` 97.6% | 1,674,568 | 21,500 | 1,696,068 / 1,737,704 | 4,479 / 4,499 |
+| **Total** |  | `████████████████████` 97.7% | 1,676,384 | 21,500 | 1,697,884 / 1,737,704 | 4,480 / 4,499 |
 <!-- progress:end -->
 
 Refresh after a matching build with `tools/dk python3 tools/progress.py --readme`.
