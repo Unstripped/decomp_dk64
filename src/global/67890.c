@@ -37,14 +37,14 @@ s32 assetLoad(s32, s32, s32, s32);
 #define TARGET_QUAD(i) (&((ActorTargetQuadRaw *)D_807F93F0)[i])
 #define TARGET_VTX(off) ((ActorTargetVtx *)((u8 *)D_807F93FC + (off)))
 
-void actorTargetTableLoad(void *arg0) {
+void actorTargetTableLoad(void *assetData) {
     s32 j;
     s32 sp[3];
     s32 i;
     s32 vtx_off;
     u8 *p;
 
-    p = arg0;
+    p = assetData;
     sp[0] = 0;
     D_807F93F8 = *(s32 *)(p + *(s32 *)(p + 0x50));
     if (D_807F93F8 != 0) {
@@ -82,11 +82,11 @@ typedef struct ActorTargetEntry {
 
 extern ActorTargetEntry *D_807F93F0;
 
-s32 actorTargetTableContainsId(s32 arg0) {
+s32 actorTargetTableContainsId(s32 targetId) {
     s32 i;
 
     for (i = 0; i < D_807F93F8; i++) {
-        if (arg0 == D_807F93F0[i].unk38) {
+        if (targetId == D_807F93F0[i].unk38) {
             return 1;
         }
     }
@@ -119,7 +119,7 @@ extern ActorTargetDistanceEntry *D_807F93F4;
 f32 func_80611BB4(f32, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
-void actorCalculateTargetDistancesAndAngles(f32 arg0, f32 arg1, f32 arg2) {
+void actorCalculateTargetDistancesAndAngles(f32 camX, f32 camY, f32 camZ) {
     s32 i;
     f32 ratio;
     f32 dist2d;
@@ -129,7 +129,7 @@ void actorCalculateTargetDistancesAndAngles(f32 arg0, f32 arg1, f32 arg2) {
     for (i = 0; i < D_807F93F8; i++) {
         D_807F93F4[i].unk11 = 0;
         if (D_807F6C2C[((ActorTargetQuadEntry *)D_807F93F0)[i].unk38] != 0) {
-            D_807F93F4[i].unk0 = sqrtf((((arg0 - D_807F93F4[i].unk4) * (arg0 - D_807F93F4[i].unk4)) + ((arg1 - D_807F93F4[i].unk8) * (arg1 - D_807F93F4[i].unk8))) + ((arg2 - D_807F93F4[i].unkC) * (arg2 - D_807F93F4[i].unkC)));
+            D_807F93F4[i].unk0 = sqrtf((((camX - D_807F93F4[i].unk4) * (camX - D_807F93F4[i].unk4)) + ((camY - D_807F93F4[i].unk8) * (camY - D_807F93F4[i].unk8))) + ((camZ - D_807F93F4[i].unkC) * (camZ - D_807F93F4[i].unkC)));
             ratio = (D_807F93F4[i].unk0 - (f32)((ActorTargetQuadEntry *)D_807F93F0)[i].unk3A) / (f32)(((ActorTargetQuadEntry *)D_807F93F0)[i].unk3C - ((ActorTargetQuadEntry *)D_807F93F0)[i].unk3A);
             if ((f64)ratio > 1.0) {
                 D_807F93F4[i].unk10 = ((ActorTargetQuadEntry *)D_807F93F0)[i].unk3F;
@@ -140,11 +140,11 @@ void actorCalculateTargetDistancesAndAngles(f32 arg0, f32 arg1, f32 arg2) {
                 f32 fa = (u32)e3E;
                 D_807F93F4[i].unk10 = (u8)(u32)(((f32)(((ActorTargetQuadEntry *)D_807F93F0)[i].unk3F - e3E) * ratio) + fa);
             }
-            D_807F93F4[i].unk12 = (s32)((f64)mathAngleBetweenPoints2D(arg0, arg2, D_807F93F4[i].unk4, D_807F93F4[i].unkC) * 0.5) % 255;
-            dz = arg2 - D_807F93F4[i].unkC;
-            dx = arg0 - D_807F93F4[i].unk4;
+            D_807F93F4[i].unk12 = (s32)((f64)mathAngleBetweenPoints2D(camX, camZ, D_807F93F4[i].unk4, D_807F93F4[i].unkC) * 0.5) % 255;
+            dz = camZ - D_807F93F4[i].unkC;
+            dx = camX - D_807F93F4[i].unk4;
             dist2d = sqrtf((dz * dz) + (dx * dx));
-            angle = ((f64)func_80611BB4(D_807F93F4[i].unk8 - arg1, dist2d) * 2048.0) / 3.1415927410125732;
+            angle = ((f64)func_80611BB4(D_807F93F4[i].unk8 - camY, dist2d) * 2048.0) / 3.1415927410125732;
             D_807F93F4[i].unk13 = (s32)((f64)angle * 0.5) % 255;
             D_807F93F4[i].unk11 = 1;
         } else {
@@ -155,39 +155,39 @@ void actorCalculateTargetDistancesAndAngles(f32 arg0, f32 arg1, f32 arg2) {
 
 Gfx *renderTargetQuad(Gfx *, s32);
 
-Gfx *renderDepthSortedTargets(Gfx *arg0) {
+Gfx *renderDepthSortedTargets(Gfx *glist) {
     s32 pad;
-    s32 var_s1;
-    f32 temp_fv0;
-    f32 var_fs0;
-    f32 var_fv1;
-    s32 var_s0;
-    s32 var_v0;
+    s32 furthestIdx;
+    f32 dist;
+    f32 maxDist;
+    f32 bestDist;
+    s32 found;
+    s32 i;
 
-    var_fs0 = 100000000.0f;
+    maxDist = 100000000.0f;
     do {
-        var_s0 = 0;
-        var_fv1 = 0.0f;
-        var_v0 = 0;
+        found = 0;
+        bestDist = 0.0f;
+        i = 0;
         if (D_807F93F8 > 0) {
             do {
-                if (D_807F93F4[var_v0].unk11 != 0) {
-                    temp_fv0 = D_807F93F4[var_v0].unk0;
-                    if ((temp_fv0 < var_fs0) && (var_fv1 < temp_fv0)) {
-                        var_s1 = var_v0;
-                        var_fv1 = temp_fv0;
-                        var_s0 = 1;
+                if (D_807F93F4[i].unk11 != 0) {
+                    dist = D_807F93F4[i].unk0;
+                    if ((dist < maxDist) && (bestDist < dist)) {
+                        furthestIdx = i;
+                        bestDist = dist;
+                        found = 1;
                     }
                 }
-                var_v0 += 1;
-            } while (var_v0 < D_807F93F8);
+                i += 1;
+            } while (i < D_807F93F8);
         }
-        var_fs0 = var_fv1;
-        if (var_s0 != 0) {
-            arg0 = renderTargetQuad(arg0, var_s1);
+        maxDist = bestDist;
+        if (found != 0) {
+            glist = renderTargetQuad(glist, furthestIdx);
         }
-    } while (var_s0 != 0);
-    return arg0;
+    } while (found != 0);
+    return glist;
 }
 
 typedef struct ActorTargetDistanceView {
@@ -202,18 +202,18 @@ typedef struct ActorTargetDistanceView {
 
 #define W(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
-Gfx *renderTargetQuad(Gfx *glist, s32 arg1) {
+Gfx *renderTargetQuad(Gfx *glist, s32 targetIdx) {
     W(glist++, 0xE7000000, 0);
     W(glist++, 0xE200001C, 0x00504A50);
     W(glist++, 0xFC11FE23, 0xFFFFF7FB);
     W(glist++, 0xE3000A01, 0);
     W(glist++, 0xD9000000, 0);
     W(glist++, 0xD9FFFFFF, 0x00200005);
-    gDPSetPrimColor(glist++, 0, 0, 100, 100, 100, TARGET_VIEW[arg1].unk10);
+    gDPSetPrimColor(glist++, 0, 0, 100, 100, 100, TARGET_VIEW[targetIdx].unk10);
     W(glist++, 0xD7000002, 0xFFFFFFFF);
     gDPLoadTextureBlock(glist++, D_807F9400, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 64, 0, G_TX_WRAP, G_TX_WRAP, 6, 6, 0, 0);
-    gDPSetTileSize(glist++, 0, TARGET_VIEW[arg1].unk12, TARGET_VIEW[arg1].unk13, 63 << 2, 63 << 2);
-    gSPVertex(glist++, osVirtualToPhysical(&D_807F93FC[arg1 * 4]), 4, 0);
+    gDPSetTileSize(glist++, 0, TARGET_VIEW[targetIdx].unk12, TARGET_VIEW[targetIdx].unk13, 63 << 2, 63 << 2);
+    gSPVertex(glist++, osVirtualToPhysical(&D_807F93FC[targetIdx * 4]), 4, 0);
     W(glist++, 0x06000204, 0x00000406);
     W(glist++, 0xE7000000, 0);
     return glist;
