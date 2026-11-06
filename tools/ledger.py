@@ -48,6 +48,7 @@ plan: sizes the outstanding work and picks a model per function by Thompson samp
   3-5/6+, size s<=150/m<=400/l insns); a cell's Beta posterior is shrunk towards the arm's
   overall rate scaled by the bucket's difficulty, and one function's own failures with an arm
   lower that arm for it. One draw per function picks the arm with the best sampled p/cost
+  among its eligible arms (6+ tries: frontier arms only, `frontier=True` in ARMS)
   (`--objective value`: p*value - cost; all negative = hold); the printed shares come from
   extra draws. A function is held without new evidence since its last attempt: changed
   draft/quirk hits/next step (route fingerprint), or a related knowledge/ido entry (naming it,
@@ -507,8 +508,8 @@ def cmd_route(a):
 ARMS = {
     "flash": dict(model="google-antigravity/gemini-3.8-flash:high", cost=1.0, capacity=1200, max_funcs=6, prior=0.25),
     "sonnet": dict(model="anthropic/claude-sonnet-5-5:high", cost=4.0, capacity=900, max_funcs=4, prior=0.35),
-    "astra": dict(model="openai-codex/gpt-6-astra:xhigh", cost=10.0, capacity=10**6, max_funcs=1, prior=0.35),
-    "fable": dict(model="anthropic/claude-fable-5-1:xhigh", cost=10.0, capacity=10**6, max_funcs=1, prior=0.35),
+    "astra": dict(model="openai-codex/gpt-6-astra:xhigh", cost=10.0, capacity=10**6, max_funcs=1, prior=0.35, frontier=True),
+    "fable": dict(model="anthropic/claude-fable-5-1:xhigh", cost=10.0, capacity=10**6, max_funcs=1, prior=0.35, frontier=True),
 }
 ARM_STRENGTH = 4   # pseudo-attempts of the hierarchical prior behind each (arm, bucket) cell
 FUNC_STRENGTH = 20  # pseudo-attempts of the cell rate behind one function's own failures
@@ -525,6 +526,17 @@ def arm_of(model):
         return None
     base = model.split(":")[0]
     return next((k for k, c in ARMS.items() if c["model"].split(":")[0] == base), None)
+
+
+def eligible_arms(arms, tries):
+    """Arms Thompson sampling may choose for a function tried TRIES times: a function tried
+    SINGLE_TRIES+ times goes to a frontier arm only (exploration picks among those); with no
+    frontier arm in ARMS, all of them."""
+    if tries >= SINGLE_TRIES:
+        frontier = [x for x in arms if ARMS[x].get("frontier")]
+        if frontier:
+            return frontier
+    return list(arms)
 
 
 def tries_bucket(n):
@@ -693,17 +705,18 @@ def cmd_plan(a):
         fails = Counter(arm_of(e.get("model")) for e in ex if e["outcome"] != "matched")
         b = (tries_bucket(len(ex)), size_bucket(info["insns"]))
         value = lambda arm, th: th / ARMS[arm]["cost"] if a.objective == "rate" else th * a.value - ARMS[arm]["cost"]
+        elig = eligible_arms(arms, len(ex))
         wins = Counter()
         for _ in range(a.draws):
-            th = {arm: sample_theta(rng, arm, b, fails.get(arm, 0), cells, arm_tot, bucket_tot) for arm in arms}
-            wins[max(arms, key=lambda arm: value(arm, th[arm]))] += 1
-        th = {arm: sample_theta(rng, arm, b, fails.get(arm, 0), cells, arm_tot, bucket_tot) for arm in arms}
-        arm = max(arms, key=lambda x: value(x, th[x]))  # the Thompson decision: one draw
+            th = {arm: sample_theta(rng, arm, b, fails.get(arm, 0), cells, arm_tot, bucket_tot) for arm in elig}
+            wins[max(elig, key=lambda arm: value(arm, th[arm]))] += 1
+        th = {arm: sample_theta(rng, arm, b, fails.get(arm, 0), cells, arm_tot, bucket_tot) for arm in elig}
+        arm = max(elig, key=lambda x: value(x, th[x]))  # the Thompson decision: one draw
         if a.objective == "value" and value(arm, th[arm]) < 0 and not a.force:
             held.append((info, f"expected value negative for every arm (best {arm} p~{th[arm]:.2f})"))
             continue
         mean = {}
-        for x in arms:
+        for x in elig:
             mu0 = cell_prior(x, b, arm_tot, bucket_tot)
             s, f = cells.get((x,) + b, (0, 0))
             mu = (ARM_STRENGTH * mu0 + s) / (ARM_STRENGTH + s + f)

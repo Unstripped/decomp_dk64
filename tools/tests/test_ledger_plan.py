@@ -54,3 +54,12 @@ def test_recorded_selectors_map_to_arms_regardless_of_level():
     assert ledger.arm_of("anthropic/claude-sonnet-5-5:xhigh") == "sonnet"
     assert ledger.arm_of("google-antigravity/gemini-3.8-flash") == "flash"
     assert ledger.arm_of("someone/else") is None
+
+
+def test_heavily_tried_functions_only_go_to_frontier_arms():
+    arms = list(ledger.ARMS)
+    hard = ledger.eligible_arms(arms, ledger.SINGLE_TRIES)
+    assert hard and all(ledger.ARMS[x].get("frontier") for x in hard)
+    assert ledger.eligible_arms(arms, ledger.SINGLE_TRIES - 1) == arms
+    # an explicit --arms list without frontier arms is honoured
+    assert ledger.eligible_arms(["flash", "sonnet"], 20) == ["flash", "sonnet"]
