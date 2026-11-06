@@ -76,7 +76,8 @@ function" step 4, and IDO tricks come from `python3 tools/quirks.py` (`knowledge
   where plain passes matched 0. Reject permuter C that reads/writes outside an object
   (`(u8 *)&x - 1`); no-op idioms (`(0, 1) +`, `x = x`, empty `if`) are accepted.
 - Forward a key pattern that unblocks a common near-miss to running siblings at once,
-  one by one (`write agent://<id>`; `agent://all` also wakes finished agents, which act).
+  one by one (`write agent://<id>`; `agent://all` also wakes finished agents, which act), and
+  hand the same diff class to the agent that found it (revisit 12: 4 matches in an hour this way).
 - Best refill once lists run out (critter/jetpac unit: 16 of ~35 parks matched): a finished
   agent takes 1–2 of a SIBLING's stage-5/6 parks with the latest `local://findings.md` and
   one named untried trick from it. Parks that had 2 zero-yield passes still matched when a
