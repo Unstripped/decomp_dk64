@@ -1,31 +1,31 @@
 #include "common.h"
 
-f32 powfInt(f32 arg0, s16 arg1) {
+f32 powfInt(f32 base, s16 exp) {
     f32 result;
     s16 i;
 
     result = 1.0f;
-    if (arg1 != 0) {
+    if (exp != 0) {
         i = 0;
-        if (arg1 > 0) {
+        if (exp > 0) {
             do {
                 i++;
-                result *= arg0;
-            } while (i < arg1);
+                result *= base;
+            } while (i < exp);
         }
     }
     return result;
 }
 
-f32 floorLog10(s16 arg0) {
+f32 floorLog10(s16 val) {
     s16 digits;
 
     digits = 0;
-    if (arg0 != 0) {
+    if (val != 0) {
         do {
-            arg0 = (s16)(arg0 / 10);
+            val = (s16)(val / 10);
             digits++;
-        } while (arg0 != 0);
+        } while (val != 0);
     }
     return (f32)(digits - 1);
 }
@@ -33,45 +33,45 @@ f32 floorLog10(s16 arg0) {
 f32 cosApprox(f32);
 f32 sinApprox(f32);
 
-void matrixMakeRotationX(f32 (*arg0)[4], f32 arg1) {
+void matrixMakeRotationX(f32 (*dst)[4], f32 angleDeg) {
     f32 sine;
     f32 cosine;
 
-    arg1 *= 0.01745329238f;
-    sine = sinApprox(arg1);
-    cosine = cosApprox(arg1);
-    guMtxIdentF(arg0);
-    arg0[1][2] = sine;
-    arg0[2][1] = -sine;
-    arg0[1][1] = cosine;
-    arg0[2][2] = cosine;
+    angleDeg *= 0.01745329238f;
+    sine = sinApprox(angleDeg);
+    cosine = cosApprox(angleDeg);
+    guMtxIdentF(dst);
+    dst[1][2] = sine;
+    dst[2][1] = -sine;
+    dst[1][1] = cosine;
+    dst[2][2] = cosine;
 }
-void matrixMakeRotationY(f32 (*arg0)[4], f32 arg1) {
+void matrixMakeRotationY(f32 (*dst)[4], f32 angleDeg) {
     f32 sine;
     f32 cosine;
 
-    arg1 *= 0.01745329238f;
-    sine = sinApprox(arg1);
-    cosine = cosApprox(arg1);
-    guMtxIdentF(arg0);
-    arg0[2][0] = sine;
-    arg0[0][2] = -sine;
-    arg0[0][0] = cosine;
-    arg0[2][2] = cosine;
+    angleDeg *= 0.01745329238f;
+    sine = sinApprox(angleDeg);
+    cosine = cosApprox(angleDeg);
+    guMtxIdentF(dst);
+    dst[2][0] = sine;
+    dst[0][2] = -sine;
+    dst[0][0] = cosine;
+    dst[2][2] = cosine;
 }
 
-void matrixMakeRotationZ(f32 (*arg0)[4], f32 arg1) {
+void matrixMakeRotationZ(f32 (*dst)[4], f32 angleDeg) {
     f32 sine;
     f32 cosine;
 
-    arg1 *= 0.01745329238f;
-    sine = sinApprox(arg1);
-    cosine = cosApprox(arg1);
-    guMtxIdentF(arg0);
-    arg0[0][1] = sine;
-    arg0[1][0] = -sine;
-    arg0[0][0] = cosine;
-    arg0[1][1] = cosine;
+    angleDeg *= 0.01745329238f;
+    sine = sinApprox(angleDeg);
+    cosine = cosApprox(angleDeg);
+    guMtxIdentF(dst);
+    dst[0][1] = sine;
+    dst[1][0] = -sine;
+    dst[0][0] = cosine;
+    dst[1][1] = cosine;
 }
 
 
