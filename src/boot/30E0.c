@@ -16,10 +16,10 @@ s32 inflate(void);
 s32 get_method(void);
 void clear_bufs(void);
 
-void gunzip(u8 **arg0, u8 **arg1, s32 arg2) {
-    inbuf = *arg0;
-    slide = *arg1;
-    huftPool = arg2;
+void gunzip(u8 **inBufPtr, u8 **outBufPtr, s32 huftStorage) {
+    inbuf = *inBufPtr;
+    slide = *outBufPtr;
+    huftPool = huftStorage;
     clear_bufs();
     if (inbuf[inptr] != 0x1F) {
         inptr += 1;
@@ -27,8 +27,8 @@ void gunzip(u8 **arg0, u8 **arg1, s32 arg2) {
     method = get_method();
     if (method >= 0) {
         inflate();
-        *arg0 += inptr;
-        *arg1 += outcnt;
+        *inBufPtr += inptr;
+        *outBufPtr += outcnt;
     }
 }
 
@@ -67,13 +67,13 @@ s32 get_method(void) {
     return c;
 }
 
-u32 bi_reverse(u32 arg0, s32 arg1) {
+u32 bi_reverse(u32 code, s32 bitCount) {
     u32 res = 0;
 
     do {
-        res |= arg0 & 1;
-        arg0 >>= 1, res <<= 1;
-    } while (--arg1 > 0);
+        res |= code & 1;
+        code >>= 1, res <<= 1;
+    } while (--bitCount > 0);
     return res >> 1;
 }
 
