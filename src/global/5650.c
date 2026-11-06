@@ -19,36 +19,36 @@ void timerQueueInit(void) {
     gTimerQueue = NULL;
 }
 
-s32 func_8060095C(s32 arg0, s32 *arg1, s32 *arg2) {
-    *arg1 += 0x50505050;
-    *arg2 += 0x50505050;
-    return arg0 + 0x3FFF00FF;
+s32 func_8060095C(s32 funcOffset, s32 *valA, s32 *valB) {
+    *valA += 0x50505050;
+    *valB += 0x50505050;
+    return funcOffset + 0x3FFF00FF;
 }
 
-void timerQueueAdd(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+void timerQueueAdd(void *callback, s32 delay, s32 param0, s32 param1, s32 param2) {
     QueuedFunction *curr;
     QueuedFunction *node;
     QueuedFunction *prev;
     s32 pad1;
     s32 pad2;
-    s32 sp30;
+    s32 piIoResult;
     s32 pad3;
-    s32 sp28;
-    s32 sp24;
+    s32 expectedVal;
+    s32 checkAddress;
 
     prev = NULL;
     node = heapAlloc(0x18);
-    sp28 = 0xC6F0AFA9;
-    sp24 = 0x5FAFBA0C;
-    ((s32 (*)(u32, s32 *))func_8060095C((s32)osPiReadIo + 0xC000FF01, &sp28, &sp24))(sp24, &sp30);
-    if (sp30 != sp28) {
-        arg1 *= 2;
+    expectedVal = 0xC6F0AFA9;
+    checkAddress = 0x5FAFBA0C;
+    ((s32 (*)(u32, s32 *))func_8060095C((s32)osPiReadIo + 0xC000FF01, &expectedVal, &checkAddress))(checkAddress, &piIoResult);
+    if (piIoResult != expectedVal) {
+        delay *= 2;
     }
-    node->callback = arg0;
-    node->arg0 = arg2;
-    node->arg1 = arg3;
-    node->arg2 = arg4;
-    node->time = D_8076A068 + arg1;
+    node->callback = callback;
+    node->arg0 = param0;
+    node->arg1 = param1;
+    node->arg2 = param2;
+    node->time = D_8076A068 + delay;
     node->next = NULL;
     curr = gTimerQueue;
     if (curr != NULL) {
