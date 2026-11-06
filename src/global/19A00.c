@@ -1392,10 +1392,9 @@ void camStartShakeFromPoint(s32, u8, u16, s32, f32, f32, f32, f32);
 s16 mapActionLookupEntry(s16, Actor *, u8);
 
 
-#ifdef NON_MATCHING
 s32 scriptOpPlaySoundAndShake(Actor *arg0) {
     s16 sp4E;
-    volatile u8 sp4D; // FAKE: memory-resident local steers as1 scheduling
+    volatile u8 sp4D; // FAKE: volatile loads are not hoistable, keeps the 0xFF arm's lbu out of the bnez delay slot
     s16 sp4A;
     u8 sp49;
     u8 var_v1;
@@ -1406,13 +1405,10 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
     scriptReadU8((u8 *)&sp4D);
     scriptReadU16((u8 *)&sp4A);
     scriptReadU8(&sp49);
-    if (sp49 == 1) {} // FAKE
-    if (sp4A && sp4A) {} // FAKE
     if (((PlayerSoundView *)gPlayerSlots)[((GlobalSoundState *)gActivePlayerState)->unk1A4].unk2C0 == 2) {
         var_v1 = 0xA;
         if (sp4E == 1) {
             sp4D = (u32)((f64)(u32)sp4D * 0.5);
-            if (sp49 == 2) {} // FAKE: dead test steers as1 hoisting
         }
         camStartShakeFromPoint(((GlobalSoundState *)gActivePlayerState)->unk104, 0xA, 8, ((ActorSoundPosView *)arg0)->unk7C, ((ActorSoundPosView *)arg0)->unk80, ((ActorSoundPosView *)arg0)->unk84, 100.0f, 800.0f);
     } else if (((PlayerSoundView *)gPlayerSlots)[((GlobalSoundState *)gActivePlayerState)->unk1A4].unk2C0 == 0) {
@@ -1436,18 +1432,19 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
             break;
         }
     }
+    if (arg0 && arg0 && arg0) {} // FAKE: empty guard adds a block to as1's XBB window (limit 10), pushing the then-arm's lh/li hoists out
+    if (arg0 && arg0 && arg0) {} // FAKE: same (6 guards needed)
+    if (arg0 && arg0 && arg0) {} // FAKE: same
+    if (arg0 && arg0 && arg0) {} // FAKE: same
+    if (arg0 && arg0 && arg0) {} // FAKE: same
+    if (arg0 && arg0 && arg0) {} // FAKE: same
     sp4E = mapActionLookupEntry(sp4E, arg0, ((ActorSoundPosView *)arg0)->unk78);
-    if (sp4A) {} // FAKE
     if ((sp4E == 2) || (sp4E == 8)) {
         sp49 = 0xA;
     }
     sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, sp4E, (s32)sp4D, (s32)sp4A, (s32)sp49, (s32)var_v1, 0.3f, 0);
     return 1;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/19A00/scriptOpPlaySoundAndShake.s")
-#endif
 
 typedef struct ActorSoundView {
     u8 pad0[0x78];
