@@ -33,128 +33,128 @@ typedef struct {
 
 struct AdpcmNMAcmd *alLoadParam(struct AdpcmNMAcmd *ptr, struct AdpcmNMLoadFilter *filter, s32 samples, s32 count, s16 out, s16 state, s32 flags);
 
-struct AdpcmNMAcmd *n_alAdpcmPull(AdpcmFilter *arg0, s16 *arg1, s32 arg2, struct AdpcmNMAcmd *arg3) {
-    AdpcmAcmd *sp7C;
-    s16 sp7A;
-    s32 sp74;
-    s32 sp70;
-    s32 sp6C;
-    s32 sp68;
-    s32 sp64;
-    s32 sp60;
-    s32 sp5C;
-    s32 sp58;
-    s32 sp54;
-    s32 sp50;
-    s32 sp4C;
-    s32 sp48;
-    AdpcmFilter *sp44;
-    AdpcmAcmd *sp40;
-    AdpcmAcmd *sp3C;
-    AdpcmAcmd *sp38;
+struct AdpcmNMAcmd *n_alAdpcmPull(AdpcmFilter *filter, s16 *outp, s32 count, struct AdpcmNMAcmd *cmdList) {
+    AdpcmAcmd *cmd;
+    s16 state;
+    s32 neededSamples;
+    s32 frameBlocks;
+    s32 byteCount;
+    s32 wasteBytes;
+    s32 clearOffset;
+    s32 clearBytes;
+    s32 chunkCount;
+    s32 dmaOut;
+    s32 subSamples;
+    s32 outAddr;
+    s32 wasLoaded;
+    s32 isLooping;
+    AdpcmFilter *f;
+    AdpcmAcmd *initCmd;
+    AdpcmAcmd *dmaCmd;
+    AdpcmAcmd *clearCmd;
 
-    sp7C = (AdpcmAcmd *)arg3;
-    sp4C = 0;
-    sp48 = 0;
-    sp44 = arg0;
-    if (arg2 == 0) {
-        return (struct AdpcmNMAcmd *)sp7C;
+    cmd = (AdpcmAcmd *)cmdList;
+    wasLoaded = 0;
+    isLooping = 0;
+    f = filter;
+    if (count == 0) {
+        return (struct AdpcmNMAcmd *)cmd;
     }
-    sp7A = 0;
-    sp40 = sp7C++;
-    sp40->w0 = (sp44->unk24 & 0xFFFFFF) | 0x0B000000;
-    sp40->w1 = ((u32)sp44->unk20->loop + 8) & 0x1FFFFFFF;
-    sp48 = ((u32)(sp44->unk30 + arg2) > (u32)sp44->unk18) && sp44->unk1C;
-    if (sp48 != 0) {
-        sp5C = sp44->unk18 - sp44->unk30;
+    state = 0;
+    initCmd = cmd++;
+    initCmd->w0 = (f->unk24 & 0xFFFFFF) | 0x0B000000;
+    initCmd->w1 = ((u32)f->unk20->loop + 8) & 0x1FFFFFFF;
+    isLooping = ((u32)(f->unk30 + count) > (u32)f->unk18) && f->unk1C;
+    if (isLooping != 0) {
+        chunkCount = f->unk18 - f->unk30;
     } else {
-        sp5C = arg2;
+        chunkCount = count;
     }
-    if (sp44->unk34 != 0) {
-        sp54 = 0x10 - sp44->unk34;
+    if (f->unk34 != 0) {
+        subSamples = 0x10 - f->unk34;
     } else {
-        sp54 = 0;
+        subSamples = 0;
     }
-    sp74 = sp5C - sp54;
-    if (sp74 < 0) {
-        sp74 = 0;
+    neededSamples = chunkCount - subSamples;
+    if (neededSamples < 0) {
+        neededSamples = 0;
     }
-    sp70 = (sp74 + 0xF) >> 4;
-    sp6C = sp70 * 9;
-    if (sp48 != 0) {
-        sp7C = (AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)sp7C, (struct AdpcmNMLoadFilter *)sp44, sp74, sp6C, *arg1, sp7A, sp44->unk38);
-        if (sp44->unk34 != 0) {
-            *arg1 += sp44->unk34 * 2;
+    frameBlocks = (neededSamples + 0xF) >> 4;
+    byteCount = frameBlocks * 9;
+    if (isLooping != 0) {
+        cmd = (AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)cmd, (struct AdpcmNMLoadFilter *)f, neededSamples, byteCount, *outp, state, f->unk38);
+        if (f->unk34 != 0) {
+            *outp += f->unk34 * 2;
         } else {
-            *arg1 += 0x20;
+            *outp += 0x20;
         }
-        sp44->unk34 = sp44->unk14 & 0xF;
-        sp44->unk3C = sp44->unk20->unk0 + ((u32)sp44->unk14 >> 4) * 9 + 9;
-        sp44->unk30 = sp44->unk14;
-        sp50 = *arg1;
-        if (arg2 > sp5C) {
+        f->unk34 = f->unk14 & 0xF;
+        f->unk3C = f->unk20->unk0 + ((u32)f->unk14 >> 4) * 9 + 9;
+        f->unk30 = f->unk14;
+        outAddr = *outp;
+        if (count > chunkCount) {
             do {
-                arg2 -= sp5C;
-                sp58 = (((sp70 + 1) << 5) + sp50 + 0x10) & ~0x1F;
-                sp50 += sp5C * 2;
-                if ((sp44->unk1C != -1) && (sp44->unk1C != 0)) {
-                    sp44->unk1C = sp44->unk1C - 1;
+                count -= chunkCount;
+                dmaOut = (((frameBlocks + 1) << 5) + outAddr + 0x10) & ~0x1F;
+                outAddr += chunkCount * 2;
+                if ((f->unk1C != -1) && (f->unk1C != 0)) {
+                    f->unk1C = f->unk1C - 1;
                 }
-                sp5C = ((u32)arg2 < (u32)(sp44->unk18 - sp44->unk14)) ? arg2 : sp44->unk18 - sp44->unk14;
-                sp74 = (sp5C - 0x10) + sp44->unk34;
-                if (sp74 < 0) {
-                    sp74 = 0;
+                chunkCount = ((u32)count < (u32)(f->unk18 - f->unk14)) ? count : f->unk18 - f->unk14;
+                neededSamples = (chunkCount - 0x10) + f->unk34;
+                if (neededSamples < 0) {
+                    neededSamples = 0;
                 }
-                sp70 = (sp74 + 0xF) >> 4;
-                sp6C = sp70 * 9;
-                sp7C = (AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)sp7C, (struct AdpcmNMLoadFilter *)sp44, sp74, sp6C, sp58, sp7A, sp44->unk38 | 2);
-                sp3C = sp7C++;
-                sp3C->w0 = (((sp44->unk34 * 2) + sp58) & 0xFFFFFF) | 0x0A000000;
-                sp3C->w1 = ((sp50 & 0xFFFF) << 0x10) | ((sp5C * 2) & 0xFFFF);
-            } while (arg2 > sp5C);
+                frameBlocks = (neededSamples + 0xF) >> 4;
+                byteCount = frameBlocks * 9;
+                cmd = (AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)cmd, (struct AdpcmNMLoadFilter *)f, neededSamples, byteCount, dmaOut, state, f->unk38 | 2);
+                dmaCmd = cmd++;
+                dmaCmd->w0 = (((f->unk34 * 2) + dmaOut) & 0xFFFFFF) | 0x0A000000;
+                dmaCmd->w1 = ((outAddr & 0xFFFF) << 0x10) | ((chunkCount * 2) & 0xFFFF);
+            } while (count > chunkCount);
         }
-        sp44->unk34 = (sp44->unk34 + arg2) & 0xF;
-        sp44->unk30 = sp44->unk30 + arg2;
-        sp44->unk3C = sp44->unk3C + (sp70 * 9);
-        return (struct AdpcmNMAcmd *)sp7C;
+        f->unk34 = (f->unk34 + count) & 0xF;
+        f->unk30 = f->unk30 + count;
+        f->unk3C = f->unk3C + (frameBlocks * 9);
+        return (struct AdpcmNMAcmd *)cmd;
     }
-    sp5C = sp70 << 4;
-    sp68 = (sp44->unk3C + sp6C) - (sp44->unk20->unk0 + sp44->unk20->unk4);
-    if (sp68 < 0) {
-        sp68 = 0;
+    chunkCount = frameBlocks << 4;
+    wasteBytes = (f->unk3C + byteCount) - (f->unk20->unk0 + f->unk20->unk4);
+    if (wasteBytes < 0) {
+        wasteBytes = 0;
     }
-    sp60 = (sp68 / 9) * 0x10;
-    if (sp60 > (sp5C + sp54)) {
-        sp60 = sp5C + sp54;
+    clearBytes = (wasteBytes / 9) * 0x10;
+    if (clearBytes > (chunkCount + subSamples)) {
+        clearBytes = chunkCount + subSamples;
     }
-    sp6C -= sp68;
-    if ((sp60 - (sp60 & 0xF)) < arg2) {
-        sp4C = 1;
-        sp7C = (AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)sp7C, (struct AdpcmNMLoadFilter *)sp44, sp5C - sp60, sp6C, *arg1, sp7A, sp44->unk38);
-        if (sp44->unk34 != 0) {
-            *arg1 += sp44->unk34 * 2;
+    byteCount -= wasteBytes;
+    if ((clearBytes - (clearBytes & 0xF)) < count) {
+        wasLoaded = 1;
+        cmd = (AdpcmAcmd *)alLoadParam((struct AdpcmNMAcmd *)cmd, (struct AdpcmNMLoadFilter *)f, chunkCount - clearBytes, byteCount, *outp, state, f->unk38);
+        if (f->unk34 != 0) {
+            *outp += f->unk34 * 2;
         } else {
-            *arg1 += 0x20;
+            *outp += 0x20;
         }
-        sp44->unk34 = (sp44->unk34 + arg2) & 0xF;
-        sp44->unk30 = sp44->unk30 + arg2;
-        sp44->unk3C = sp44->unk3C + (sp70 * 9);
+        f->unk34 = (f->unk34 + count) & 0xF;
+        f->unk30 = f->unk30 + count;
+        f->unk3C = f->unk3C + (frameBlocks * 9);
     } else {
-        sp44->unk34 = 0;
-        sp44->unk3C = sp44->unk3C + (sp70 * 9);
+        f->unk34 = 0;
+        f->unk3C = f->unk3C + (frameBlocks * 9);
     }
-    if (sp60 != 0) {
-        sp44->unk34 = 0;
-        if (sp4C != 0) {
-            sp64 = ((sp54 + sp5C) - sp60) * 2;
+    if (clearBytes != 0) {
+        f->unk34 = 0;
+        if (wasLoaded != 0) {
+            clearOffset = ((subSamples + chunkCount) - clearBytes) * 2;
         } else {
-            sp64 = 0;
+            clearOffset = 0;
         }
-        sp38 = sp7C++;
-        sp38->w0 = ((*arg1 + sp64) & 0xFFFFFF) | 0x02000000;
-        sp38->w1 = sp60 * 2;
+        clearCmd = cmd++;
+        clearCmd->w0 = ((*outp + clearOffset) & 0xFFFFFF) | 0x02000000;
+        clearCmd->w1 = clearBytes * 2;
     }
-    return (struct AdpcmNMAcmd *)sp7C;
+    return (struct AdpcmNMAcmd *)cmd;
 }
 
 typedef struct DecodeBook {
