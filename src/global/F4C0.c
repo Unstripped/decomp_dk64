@@ -19,32 +19,32 @@ extern PlayerStateContext *D_807FBB40;
 extern GlobalContextView *gActivePlayerState;
 extern PlayerRaceContext *gPlayerSlots;
 
-s16 mapActionLookupEntry(s16 arg0, void *arg1, u8 arg2) {
-    s16 temp_v1;
-    s32 var_v0;
-    s32 var_v1;
+s16 mapActionLookupEntry(s16 actionId, void *actor, u8 subType) {
+    s16 lookupAction;
+    s32 i;
+    s32 found;
 
-    var_v0 = 0;
-    var_v1 = 0;
-    while ((var_v0 < 14) && (var_v1 == 0)) {
-        if ((arg0 == D_80746340[var_v0].unk0) && (arg2 == D_80746340[var_v0].unk2)) {
-            var_v1 = 1;
+    i = 0;
+    found = 0;
+    while ((i < 14) && (found == 0)) {
+        if ((actionId == D_80746340[i].unk0) && (subType == D_80746340[i].unk2)) {
+            found = 1;
         } else {
-            var_v0++;
+            i++;
         }
     }
-    if (var_v1 != 0) {
+    if (found != 0) {
         if ((D_807FBB40->unk5C & 1) && (gPlayerSlots[gActivePlayerState->unk1A4].unk2C0 == 2)) {
             return 0x97;
         }
-        if (*((u16 *)((u8 *)arg1 + 0x6A)) & 4) {
+        if (*((u16 *)((u8 *)actor + 0x6A)) & 4) {
             return 0xA;
         }
-        temp_v1 = *(s16 *)((u8 *)D_80746344 + var_v0 * 6);
-        if (temp_v1 == 0) {
+        lookupAction = *(s16 *)((u8 *)D_80746344 + i * 6);
+        if (lookupAction == 0) {
             return *(s16 *)((u8 *)D_80745BDE + gCurrentMap * 4);
         }
-        return temp_v1;
+        return lookupAction;
     }
-    return arg0;
+    return actionId;
 }
