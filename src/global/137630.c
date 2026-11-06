@@ -37,11 +37,11 @@ typedef struct GbNode_s {
 extern GbNode *D_807FF030;
 extern GbNode *D_807FF034;
 
-s32 oscInit(GbNode **out, f32 *arg1, u8 type, u8 arg3, u8 arg4, u8 arg5) {
+s32 oscInit(GbNode **out, f32 *outVal, u8 type, u8 rate, u8 depth, u8 delay) {
     GbNode *node;
     s32 ret = 0;
 
-    if (arg5 == 0) {
+    if (delay == 0) {
         return 0;
     }
     if (D_807FF030) {
@@ -49,20 +49,20 @@ s32 oscInit(GbNode **out, f32 *arg1, u8 type, u8 arg3, u8 arg4, u8 arg5) {
         D_807FF030 = D_807FF030->next;
         node->type = type;
         *out = node;
-        ret = arg5 << 14;
+        ret = delay << 14;
         switch (type) {
         case 1:
             node->unk24 = 0;
-            node->unk22 = 0x103 - arg3;
-            node->unk28.u.b = arg4 >> 1;
+            node->unk22 = 0x103 - rate;
+            node->unk28.u.b = depth >> 1;
             node->unk28.u.c = 0x7F - node->unk28.u.b;
-            *arg1 = node->unk28.u.c;
+            *outVal = node->unk28.u.c;
             break;
         case 0x80:
-            node->unk28.f = oscVibratoDepthPow(arg4);
+            node->unk28.f = oscVibratoDepthPow(depth);
             node->unk24 = 0;
-            node->unk22 = 0x103 - arg3;
-            *arg1 = 1.0f;
+            node->unk22 = 0x103 - rate;
+            *outVal = 1.0f;
             break;
         default:
             break;
@@ -71,9 +71,9 @@ s32 oscInit(GbNode **out, f32 *arg1, u8 type, u8 arg3, u8 arg4, u8 arg5) {
     return ret;
 }
 
-s32 oscUpdate(GbNode *arg0, f32 *arg1) {
+s32 oscUpdate(GbNode *oscNode, f32 *outVal) {
     f32 f;
-    GbNode *node = arg0;
+    GbNode *node = oscNode;
     s32 ret = 0x3E80;
 
     switch (node->type) {
@@ -85,7 +85,7 @@ s32 oscUpdate(GbNode *arg0, f32 *arg1) {
         f = (f32)node->unk24 / (f32)node->unk22;
         f = sinApprox(f * 6.283185482f);
         f = (f32)node->unk28.u.b * f;
-        *arg1 = (f32)node->unk28.u.c + f;
+        *outVal = (f32)node->unk28.u.c + f;
         break;
     case 0x80:
         node->unk24++;
@@ -94,7 +94,7 @@ s32 oscUpdate(GbNode *arg0, f32 *arg1) {
         }
         f = (f32)node->unk24 / (f32)node->unk22;
         f = sinApprox(f * 6.283185482f) * node->unk28.f;
-        *arg1 = alCents2Ratio((s32)f);
+        *outVal = alCents2Ratio((s32)f);
         break;
     default:
         break;
@@ -102,22 +102,22 @@ s32 oscUpdate(GbNode *arg0, f32 *arg1) {
     return ret;
 }
 
-void oscStop(GbNode *arg0) {
-    GbNode *node = arg0;
+void oscStop(GbNode *oscNode) {
+    GbNode *node = oscNode;
 
-    arg0->next = D_807FF030;
-    D_807FF030 = arg0;
+    oscNode->next = D_807FF030;
+    D_807FF030 = oscNode;
 }
 
-f32 oscSinAngle(f32 arg0) {
-    return sinApprox(arg0 / 10430.37988f);
+f32 oscSinAngle(f32 angle) {
+    return sinApprox(angle / 10430.37988f);
 }
 
-void oscSetupConfig(ALSeqpConfig *arg0, s32 count) {
+void oscSetupConfig(ALSeqpConfig *config, s32 count) {
     GbNode *ptr;
     s32 i;
 
-    D_807FF030 = D_807FF034 = alHeapDBAlloc(NULL, 0, arg0->heap, count, 0x2C);
+    D_807FF030 = D_807FF034 = alHeapDBAlloc(NULL, 0, config->heap, count, 0x2C);
     D_807FF030 = D_807FF034;
     ptr = D_807FF034;
     for (i = 0; i < count - 1; i++) {
@@ -125,7 +125,7 @@ void oscSetupConfig(ALSeqpConfig *arg0, s32 count) {
         ptr = ptr->next;
     }
     ptr->next = NULL;
-    arg0->initOsc = oscInit;
-    arg0->updateOsc = oscUpdate;
-    arg0->stopOsc = oscStop;
+    config->initOsc = oscInit;
+    config->updateOsc = oscUpdate;
+    config->stopOsc = oscStop;
 }
