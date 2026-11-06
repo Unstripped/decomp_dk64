@@ -1,9 +1,9 @@
-// textDrawStringVtx (src/global/100180.c): stage 6 park: 470 instructions / 1880 bytes, frame 0xC8 and saved-register set exact; normalized full=165 text=165 reloc=0 shape=55 (490 lines incl relocations), improved from full=192/shape=72. Plain fdiff CURRENT (5936); .text built/expected 9312 bytes. w/h s16; count/i s32; fi direct font-table expression removes home; reordered yoff/w/h homes plus padFrame. Five baseline FAKEs and four-arg gradient prototype retained: correcting phantom arity alone or in grids regresses. Tried scalar/type/arity combinations, all FAKE subsets, yoff reuse/narrowing, glyph inlining, width assignment forms, stack-home arrangements, bounded live-range probes, scaled-height lifetime/CSE forms. Permuter -j2 --seconds600 best7079 vs7919 baseline had invalid conditional height scaling; other leading hints corrupt h4 or strStart; safe height-motion adaptations worsen165->186+. No better equivalent candidate found. Input prior note incorrectly claimed changes absent from its stored C body.
+// textDrawStringVtx (src/global/100180.c): stage 6: R11_textDrawStringVtx (base 9d6acd9dc66f1deacad36794631e27332c87412b): retained stage-6 park full=165 text=165 reloc=0 shape=55, 470 insns/frame 0xC8. Dissected uopt candidate register coloring via -l5/-l6 and as1probe: discovered that the core remaining diff is a 4-way callee-save rotation (s2=h4, s4=gx, s6=0x07000000, line spilled to stack in built vs s2=gx, s4=0x07000000, s6=line, h4 homed at 126($sp) in target). In target, all 9 callee-saves (s0=dl, s1=vp, s2=gx, s3=w4, s4=0x07000000, s5=x, s6=line, s7=font-ptr/flags, fp=count) are fully occupied, forcing h4 to spill to 126($sp); in built, uopt assigns s2 to h4 (cand 153, adjsave 75.0), pushing gx->s4, 0x07000000->s6, and displacing line out of s6 into stack, leaving fp unused and count assigned to s6 (cand 8, adjsave 58.0). Replacing TEXT_GFX_CMD dummy g* pointers with direct dl updates collapses stack frame (full 338). as1probe scan confirmed no single-record as1 reordering bridges the register allocation gap. Exact stage-6 park fdiff OK. | Prior: stage 6 park: 470 instructions / 1880 bytes, frame 0xC8 and saved-register set exact; normalized full=165 text=165 reloc=0 shape=55 (490 lines incl relocations), improved from full=192/shape=72. Plain fdiff CURRENT (5936); .text built/expected 9312 bytes. w/h s16; count/i s32; fi direct font-table expression removes home; reordered yoff/w/h homes plus padFrame. Five baseline FAKEs and four-arg gradient prototype retained: correcting phantom arity alone or in grids regresses. Tried scalar/type/arity combinations, all FAKE subsets, yoff reuse/narrowing, glyph inlining, width assignment forms, stack-home arrangements, bounded live-range probes, scaled-height lifetime/CSE forms. Permuter -j2 --seconds600 best7079 vs7919 baseline had invalid conditional height scaling; other leading hints corrupt h4 or strStart; safe height-motion adaptations worsen165->186+. No better equivalent candidate found. Input prior note incorrectly claimed changes absent from its stored C body.
 extern Mtx D_20000C0;
 extern Gfx D_2000180;
 Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
 void heapFreeDeferred(void *);
-Gfx *func_805FD030(Gfx *);
+Gfx *gfxInit2DDisplayList(Gfx *);
 void vtxSetQuadGradientColors(void *, u8, u8, s8);
 
 #define TEXT_GFX_CMD(g, a, b) \
@@ -83,7 +83,7 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     if (flags & 1) {
         TEXT_GFX_CMD(g3, 0xDA380003, (u32)&D_2000180);
     }
-    dl = func_805FD030(dl);
+    dl = gfxInit2DDisplayList(dl);
     line = 1;
     if (D_80754A34[font * 6 + 1] + 1 >= 2) {
         do {
