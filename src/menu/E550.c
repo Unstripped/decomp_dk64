@@ -143,25 +143,25 @@ s32 textGetStringWidth(s32, char *);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 
-Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
+Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     u32 tex;
     s32 alpha;
     s32 y;
     s32 xo;
     s32 off;
     s32 x;
-    char *spCC;
-    char *spC8;
-    char *spC4;
-    s32 spC0;
+    char *headerStr;
+    char *descStr1;
+    char *descStr2;
+    s32 fontHeight;
     s16 xx;
     s32 yo;
     Gfx *loadTilePacket;
 
-    spCC = textTableGetString(0xD, 0, 1);
-    spC8 = textTableGetString(0xD, 1, 1);
-    spC4 = textTableGetString(0xD, 2, 1);
-    spC0 = textGetFontHeight(1);
+    headerStr = textTableGetString(0xD, 0, 1);
+    descStr1 = textTableGetString(0xD, 1, 1);
+    descStr2 = textTableGetString(0xD, 2, 1);
+    fontHeight = textGetFontHeight(1);
     gDPPipeSync(dl++);
     gSPDisplayList(dl++, D_1000118);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, 3, 29, 0x0F0A4000);
@@ -200,19 +200,19 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     if ((s8)D_800339D0 && xo) {}  // FAKE: preserve xo's range length and the Combine packet's v0/v1 interference.
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
-    xo = (s32)((f32)(D_80744490 - textGetStringWidth(1, spCC)) * 0.5f);
-    yo = (s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0);
+    xo = (s32)((f32)(D_80744490 - textGetStringWidth(1, headerStr)) * 0.5f);
+    yo = (s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)fontHeight);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
     loadTilePacket = dl++; loadTilePacket->words.w0 = 0xE200001C; loadTilePacket->words.w1 = 0x504240; // FAKE: reuse the t1 load-tile range for this packet.
-    arg1 = dl++; ((Gfx *)arg1)->words.w0 = 0xFCFF97FF; ((Gfx *)arg1)->words.w1 = 0xFF2CFE7F; // FAKE: reuse the consumed parameter's packet home.
-    dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), spCC, 0);
+    actor = dl++; ((Gfx *)actor)->words.w0 = 0xFCFF97FF; ((Gfx *)actor)->words.w1 = 0xFF2CFE7F; // FAKE: reuse the consumed parameter's packet home.
+    dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), headerStr, 0);
     x = (s32)((f32)D_80744490 * 0.5f);
-    arg1 = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
+    actor = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
     off = D_8074450C * 0xC8;
     xx = x * 4;
     xx = xx | 0;  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
-    dl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)arg1 * 4), .5f, spC8);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
-    xo = (s32)((f64)off + (f64)spC0 * 0.5);
-    spC0 = xx; // FAKE: reuse the consumed font-height local to evaluate final y before the call arguments.
-    return hudDrawScaledText(dl, (s16)spC0, (s16)(xo * 4), .5f, spC4);
+    dl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)actor * 4), .5f, descStr1);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
+    xo = (s32)((f64)off + (f64)fontHeight * 0.5);
+    fontHeight = xx; // FAKE: reuse the consumed font-height local to evaluate final y before the call arguments.
+    return hudDrawScaledText(dl, (s16)fontHeight, (s16)(xo * 4), .5f, descStr2);
 }
