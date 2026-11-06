@@ -22,21 +22,21 @@ typedef struct {
 
 extern u8 D_807FC950[];
 
-void func_8060B430(RecordTargetView *arg0, PositionRecord *arg1) {
-    arg0->unk7C = arg1->unk0;
-    arg0->unk80 = arg1->unk4;
-    arg0->unk84 = arg1->unk8;
-    arg0->unkE6 = arg1->unkC;
-    memcpy(&D_807FC950[arg1->unk10 * 0x5E], arg1->unk12, 0x5E);
+void func_8060B430(RecordTargetView *target, PositionRecord *record) {
+    target->unk7C = record->unk0;
+    target->unk80 = record->unk4;
+    target->unk84 = record->unk8;
+    target->unkE6 = record->unkC;
+    memcpy(&D_807FC950[record->unk10 * 0x5E], record->unk12, 0x5E);
 }
 
 extern s16 D_807463B0;
 extern s8 D_807463B8;
 extern PositionRecord D_807ECE20;
 
-s16 func_8060B49C(RecordTargetView *arg0, s32 arg1) {
+s16 func_8060B49C(RecordTargetView *target, s32 unused) {
     D_807463B8 = 2;
-    func_8060B430(arg0, &D_807ECE20);
+    func_8060B430(target, &D_807ECE20);
     return D_807463B0;
 }
 
@@ -45,21 +45,21 @@ extern u16 D_807463B4;
 extern u16 *D_807ECE94;
 extern s16 *D_807ECE98;
 
-void func_8060B4D4(u8 *arg0) {
+void func_8060B4D4(u8 *controllerData) {
     if (D_807463AC < (D_807463B0 - 1)) {
-        arg0[2] = ((s8 *) D_807ECE98)[2];
-        arg0[3] = ((s8 *) D_807ECE98)[3];
+        controllerData[2] = ((s8 *) D_807ECE98)[2];
+        controllerData[3] = ((s8 *) D_807ECE98)[3];
         if (*D_807ECE98 & 0x8000) {
             D_807463B4 = *D_807ECE94;
             D_807ECE94++;
         }
-        *(s16 *) arg0 = D_807463B4 & 0xEFFF;
+        *(s16 *) controllerData = D_807463B4 & 0xEFFF;
     }
 }
 
-void func_8060B55C(s16 *arg0) {
+void func_8060B55C(s16 *outDuration) {
     if (D_807463AC < (D_807463B0 - 1)) {
-        *arg0 = *D_807ECE98 & 0x7FFF;
+        *outDuration = *D_807ECE98 & 0x7FFF;
         D_807ECE98 += 2;
         D_807463AC++;
     } else {
@@ -74,8 +74,8 @@ extern s16 *D_807ECE90;
 
 void *heapAlloc(s32);
 
-void recordInitPositionBuffers(s32 arg0) {
-    s32 temp_s0;
+void recordInitPositionBuffers(s32 src) {
+    s32 byteCount;
 
     if (D_807463A8 == NULL) {
         D_807463A8 = heapAlloc(0x1C20);
@@ -85,17 +85,17 @@ void recordInitPositionBuffers(s32 arg0) {
         D_807ECE90 = heapAlloc(0xE10);
     }
     D_807ECE94 = D_807ECE90;
-    memcpy(&D_807463B0, (void *)arg0, 2);
-    arg0 += 2;
-    temp_s0 = D_807463B0 * 4;
-    memcpy(D_807463A8, (void *)arg0, temp_s0);
-    arg0 += temp_s0;
-    memcpy(&D_807463A0, (void *)arg0, 2);
-    arg0 += 2;
-    temp_s0 = D_807463A0 * 2;
-    memcpy(D_807ECE90, (void *)arg0, temp_s0);
-    temp_s0 = arg0 + temp_s0;
-    memcpy(&D_807ECE20, (void *)temp_s0, 0x70);
+    memcpy(&D_807463B0, (void *)src, 2);
+    src += 2;
+    byteCount = D_807463B0 * 4;
+    memcpy(D_807463A8, (void *)src, byteCount);
+    src += byteCount;
+    memcpy(&D_807463A0, (void *)src, 2);
+    src += 2;
+    byteCount = D_807463A0 * 2;
+    memcpy(D_807ECE90, (void *)src, byteCount);
+    byteCount = src + byteCount;
+    memcpy(&D_807ECE20, (void *)byteCount, 0x70);
 }
 
 
@@ -122,14 +122,14 @@ void func_8060B700(void) {
 
 s32 assetLoad(s32, s32, s32, s32);
 void assetFreeBuffer(s32, s32, s32);
-void recordInitPositionBuffers(s32);
+void recordInitPositionBuffers(s32 src);
 
-void func_8060B750(s32 arg0) {
-    s32 sp1C;
+void func_8060B750(s32 assetIndex) {
+    s32 assetData;
 
-    sp1C = assetLoad(0x11, arg0, 1, 1);
-    recordInitPositionBuffers(sp1C);
-    assetFreeBuffer(sp1C, 0xF8, 0x33);
+    assetData = assetLoad(0x11, assetIndex, 1, 1);
+    recordInitPositionBuffers(assetData);
+    assetFreeBuffer(assetData, 0xF8, 0x33);
     D_807ECE98 = D_807463A8;
     D_807ECE94 = D_807ECE90;
     D_807463AC = 0;
@@ -143,7 +143,7 @@ u8 func_8060B7C4(void) {
 }
 
 
-void func_8060B7D0(s32 *arg0, s32 *arg1) {
-    *arg0 = ((u8 *) &D_807ECE20)[0xE];
-    *arg1 = ((u8 *) &D_807ECE20)[0xF];
+void func_8060B7D0(s32 *outMap, s32 *outExit) {
+    *outMap = ((u8 *) &D_807ECE20)[0xE];
+    *outExit = ((u8 *) &D_807ECE20)[0xF];
 }
