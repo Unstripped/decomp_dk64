@@ -20,7 +20,6 @@ typedef struct JetpacActor {
     void (*unk48)(struct JetpacActor *);
     u8 pad4C[4];
 } JetpacActor;
-void jetpacSnapActorToGrid(JetpacActor *arg0);
 typedef struct JetpacState {
     u8 pad0[0x4C];
     JetpacActor actors[4];
@@ -32,10 +31,10 @@ typedef struct {
 extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
 f32 jetpacRandFloat(void);
-void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
-void dlAppendTextureLoad(Gfx **arg0, s32 arg1);
-void func_8070F2C8(s32 arg0, s32 arg1, u8 arg2, s32 arg3);
-void dlAppendTextureRectangle(Gfx **arg0, s16 arg1, s16 arg2);
+void jetpacGridAddTiledSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flipFlag);
+void dlAppendTextureLoad(Gfx **glistp, s32 texture);
+void func_8070F2C8(s32 width, s32 height, u8 flip, s32 unk);
+void dlAppendTextureRectangle(Gfx **glistp, s16 x, s16 y);
 typedef struct {
     u8 pad0[8];
     s32 lives;
@@ -82,25 +81,25 @@ void jetpacInitGrid(void) {
     }
 }
 
-void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4) {
+void jetpacGridAddSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flipFlag) {
     JetpacCell *cell;
     s32 i;
     JetpacCellItem *item;
     u8 *src;
 
     item = NULL;
-    if (arg1 >= 0 && arg2 >= 0 && arg1 < 0x101 && arg2 < 0xC1) {
-        cell = &jetpacGrid[0][0] + (arg1 / 8 + ((arg2 / 8) << 5));
+    if (x >= 0 && y >= 0 && x < 0x101 && y < 0xC1) {
+        cell = &jetpacGrid[0][0] + (x / 8 + ((y / 8) << 5));
         if (cell->count < 6) {
             item = &cell->items[cell->count++];
         }
         if (item != NULL) {
-            item->x = arg1;
-            item->y = arg2;
-            item->unk8 = arg4;
-            item->unkC = (s32)arg0;
+            item->x = x;
+            item->y = y;
+            item->unk8 = flipFlag;
+            item->unkC = (s32)sprite;
             if (cell->color[3] == 0 || (cell->color[3] < 0xFF && jetpacRandFloat() > 0.97)) {
-                src = arg3;
+                src = color;
                 for (i = 0; i < 4; i++) {
                     cell->color[i] = src[i];
                 }
@@ -111,8 +110,8 @@ void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 a
 
 extern s32 jetpacTiledSpriteCount;
 
-void jetpacInitRdp(Gfx **arg0) {
-    Gfx *g = *arg0;
+void jetpacInitRdp(Gfx **glistp) {
+    Gfx *g = *glistp;
 
     WRITE_GFX(g++, 0xE7000000, 0);
     WRITE_GFX(g++, 0xED080060, 0x00480360);
@@ -128,7 +127,7 @@ void jetpacInitRdp(Gfx **arg0) {
 
     jetpacTiledSpriteCount = 0;
     jetpacInitGrid();
-    *arg0 = g;
+    *glistp = g;
 }
 
 typedef struct {
@@ -144,9 +143,9 @@ typedef struct {
 
 extern J1aSprite D_80042BD0[][256];
 extern u8 D_807444FC;
-void jetpacGridAddSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4);
+void jetpacGridAddSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flipFlag);
 
-void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4) {
+void jetpacGridAddTiledSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flipFlag) {
     s32 ya;
     s32 h;
     s32 xd;
@@ -157,22 +156,22 @@ void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, 
     s32 dx;
     s32 xEnd;
 
-    w = ((J1aSprite *)arg0)->unkA - 1;
-    h = ((J1aSprite *)arg0)->unkC - 1;
+    w = ((J1aSprite *)sprite)->unkA - 1;
+    h = ((J1aSprite *)sprite)->unkC - 1;
 
     if (jetpacTiledSpriteCount < 0x100) {
-        if (arg1 < 0) {
-            arg1 += 0x100;
+        if (x < 0) {
+            x += 0x100;
         }
         dy = 0;
-        yEnd = arg2;
+        yEnd = y;
         if (h > 0) {
             do {
                 yEnd += 8;
                 yEnd &= 0xFFF8;
-                yEnd -= arg2;
+                yEnd -= y;
                 dx = 0;
-                xEnd = arg1;
+                xEnd = x;
                 if (yEnd >= h) {
                     if (!h) {
                     }
@@ -187,14 +186,14 @@ void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, 
                         }
                         dst = &D_80042BD0[D_807444FC][jetpacTiledSpriteCount];
                         *(s32 *)(u32)&jetpacTiledSpriteCount = jetpacTiledSpriteCount + 1; // FAKE: indirect store (a direct str gets a .noalias re-emit that lets as1 hoist the sp reload above the sw)
-                        *dst = *(J1aSprite *)arg0;
+                        *dst = *(J1aSprite *)sprite;
                         xEnd += 8;
                         xEnd &= 0xFFF8;
-                        xEnd -= arg1;
+                        xEnd -= x;
                         if (xEnd >= w) {
                             xEnd = w;
                         }
-                        if (arg4 != 0) {
+                        if (flipFlag != 0) {
                             dst->unk10 = dst->unk10 + w - xEnd;
                         } else {
                             dst->unk10 = dst->unk10 + dx;
@@ -202,14 +201,14 @@ void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, 
                         dst->unk12 = dst->unk12 + dy;
                         dst->unkA = xEnd - dx + 1;
                         dst->unkC = yEnd - dy + 1;
-                        ya = arg2 + dy;
-                        xd = arg1 + dx;
+                        ya = y + dy;
+                        xd = x + dx;
                         if (xd >= 0x100) {
                             xd -= 0x100;
                         }
-                        jetpacGridAddSprite((JetpacSprite *)dst, xd, ya, arg3, arg4);
+                        jetpacGridAddSprite((JetpacSprite *)dst, xd, ya, color, flipFlag);
                         dx = xEnd;
-                        xEnd = xEnd + arg1;
+                        xEnd = xEnd + x;
                         if (!w) {
                         }
                         if (!w) {
@@ -221,14 +220,14 @@ void jetpacGridAddTiledSprite(JetpacSprite *arg0, s32 arg1, s32 arg2, u8 *arg3, 
                     }
                 }
                 dy = yEnd;
-                yEnd = yEnd + arg2;
+                yEnd = yEnd + y;
             } while (dy < h);
         }
     }
 }
 
 
-void jetpacGridDraw(Gfx **arg0) {
+void jetpacGridDraw(Gfx **glistp) {
     JetpacCell *cell;
     JetpacCellItem *item;
     s32 item_idx;
@@ -236,7 +235,7 @@ void jetpacGridDraw(Gfx **arg0) {
     s32 col;
     s32 row;
 
-    g = *arg0;
+    g = *glistp;
     cell = &jetpacGrid[0][0];
     for (row = 0; row < 24; row++) {
         col = 0;
@@ -259,5 +258,5 @@ void jetpacGridDraw(Gfx **arg0) {
             cell++;
         } while (col != 32);
     }
-    *arg0 = g;
+    *glistp = g;
 }
