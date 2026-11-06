@@ -1,4 +1,4 @@
-// menuRenderOptionDescription (src/menu/E550.c): Stack2 s32 route full35 text35 reloc0 shape7 n417/417 frame0xE8 (base3087bd3c). Fullwidth induction priority203->303.333 via loop-only x plus head empty guard restores all loop registers; shared loadTilePacket bit125 priority151.5 colours t1 for both loop and postloop OtherMode. as1probe x=0/do line join 37->35. Remaining Combine v0 vs t2, off v1 vs t0, yy/yyo spills +4, scheduling and FP-to-GPR scratch choices. Derivation and failed carrier probes in .scratch/StackGroup/menuRenderOptionDescription.md.
+// menuRenderOptionDescription (src/menu/E550.c): Stack2b base e2d84dd93c9c4587dcc6cbdd995e39eb813c5c15: full35->31 text31 reloc0 shape7 n417/frame0xE8. x=D*200; off=x makes off bit281 forbid v1 and choose target t0 (x bit96 priority304 remains v1). Raw byte load still v1. Alternate slotfix-middle-outertail.c scores33/shape3 with ALL stack offsets exact, but six scratch-register differences replace four stack differences. Full derivation in .scratch/StackGroup/menuRenderOptionDescription.md; Combine still lacks v0/v1 edges.
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 extern s16 D_80744490;
@@ -77,7 +77,7 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), spCC, 0);
     xx = (s32)((f32)D_80744490 * 0.5f) * 4;
     arg1 = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
-    off = D_8074450C * 0xC8;
+    x = D_8074450C * 0xC8; off = x; // FAKE: the v1 carrier interferes with off, assigning its spill range to t0.
     xx = xx | 0;  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
     dl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)arg1 * 4), .5f, spC8);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
     return hudDrawScaledText(dl, xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), .5f, spC4);
