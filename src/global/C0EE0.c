@@ -4,7 +4,6 @@
 extern Actor *D_807FBB40;
 extern Actor *D_807FBB4C;
 
-#ifdef NON_MATCHING
 typedef struct BC1E0_Obj {
     /* 0x00 */ u8 pad0[0x10];
     /* 0x10 */ s16 unk10;
@@ -98,14 +97,13 @@ void enemyGridStateStep(void) {
     f32 b;
     f32 sp70;
     s16 i;
+    s16 adx;
     BC1E0_State *st;
     BC1E0_Obj *obj;
     s32 j;
-    s16 adx;
-    s16 dx;
+    s32 dx;
+    s32 dy;
     s16 best;
-    s8 v;
-    s16 dy;
     s16 n;
     s8 cand[16];
     s16 ones;
@@ -241,8 +239,8 @@ void enemyGridStateStep(void) {
                 n = 0;
                 for (i = 0; i < 16; i++) {
                     if (D_807FC8C0[i] == 0 || D_807FC8C0[i] == -1) {
-                        dx = (s16)(i & 3) - st->unk36;  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
-                        dy = (s16)(i >> 2) - st->unk37;  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
+                        dx = (s16)((s16)(i & 3) - st->unk36);  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
+                        dy = (s16)((s16)(i >> 2) - st->unk37);  // FAKE: redundant operand narrowing burns 2 ring temps (as1 deletes it)
                         if (dx > 0) {
                             adx = dx;
                         } else {
@@ -268,9 +266,11 @@ void enemyGridStateStep(void) {
                 }
                 if (n > 0) {
                     acc = randomFloat();
-                    v = cand[(s32)(acc * (f32)(n - 1))];
-                    dx = (s16)(v & 3) - st->unk36;  // FAKE: redundant operand narrowing
-                    dy = (u16)(v >> 2) - st->unk37;  // FAKE: redundant operand narrowing
+                    adx = cand[(s32)(acc * (f32)(n - 1))];  // FAKE: reuses adx for the chosen cell (no separate s8 home keeps the 0x88 frame)
+                    dx = (s16)(adx & 3) - st->unk36;  // FAKE: redundant operand narrowing
+                    dy = (u16)(adx >> 2) - st->unk37;  // FAKE: redundant operand narrowing
+                    dx = (s16)dx;  // FAKE: s32 dx/dy with deferred s16 narrowing orders ugen's ring temps (adx >> 2 before dx's sll)
+                    dy = (s16)dy;  // FAKE: see dx above
                     if (dx < -1) {
                         dx = -1;
                         if (ones == 0) {}  // FAKE: dummy statement steers uopt
@@ -280,7 +280,7 @@ void enemyGridStateStep(void) {
                     }
                     if (dy < -1) {
                         dy = -1;
-                        if (v & 3) {}  // FAKE: dummy statement steers uopt
+                        if (adx & 3) {}  // FAKE: dummy statement steers uopt
                     }
                     if (dy >= 2) {
                         dy = 1;
@@ -405,10 +405,6 @@ void enemyGridStateStep(void) {
     BC1E0_LGB->unk4->unk38 = BC1E0_LGB->unk4->unk38 + (sp70 - BC1E0_LGB->unk4->unk38) * 0.25f;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/C0EE0/enemyGridStateStep.s")
-#endif
 
 extern u8 D_1000118[];
 extern u8 D_2000180[];
