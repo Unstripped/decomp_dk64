@@ -105,15 +105,15 @@ void sfxSpawnTableNodes(void *);
 void sfxStopSlotSound(Actor *, s32);
 
 void func_806B91E0(void) {
-    u16 sp36 = 0;
-    s16 *sp30 = BDEE0AA->unk178;
+    u16 animFlags = 0;
+    s16 *heightTarget = BDEE0AA->unk178;
 
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         behaviourSetAnimIds(0x321, 0x322, 0x323);
         func_80724CA4(0x11, 1);
         actorClearNodeFlag(D_807FBB40, 4);
-        *sp30 = BDEE0S9C->unkA * 10;
+        *heightTarget = BDEE0S9C->unkA * 10;
     }
     if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && D_807FBB40->unk154 != 0x37) {
         D_807FDC90->unk2C = 0x1388;
@@ -213,13 +213,13 @@ void func_806B91E0(void) {
     case 0x10:
         if ((D_807FBB40->unk154 != 0x11) && (D_807FBB40->unk154 != 0x27)) {
             if (D_807FBB40->unk155[0] == 0) {
-                *sp30 = BDEE0S9C->unkA * 2;
+                *heightTarget = BDEE0S9C->unkA * 2;
                 D_807FBB40->unk155[0] = 1;
             }
-            if (*sp30 != 0) {
-                (*sp30)--;
+            if (*heightTarget != 0) {
+                (*heightTarget)--;
             } else {
-                sp36 = 0x20;
+                animFlags = 0x20;
                 actorUpdateAnimSpeedFromSpeed(0);
                 if (D_807FBB40->unkB8 != 0.0f) {
                     D_807FBB40->unkB8 = D_807FBB40->unkB8 - 1.0f;
@@ -233,7 +233,7 @@ void func_806B91E0(void) {
             }
         }
         BDEE0AA->unk4->unk1C->unk6 -= D_807FBB40->unkB8 * 50.0f;
-        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, sp36, 0.0f);
+        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, animFlags, 0.0f);
         break;
     case 2:
     case 3:
@@ -310,13 +310,13 @@ void effectPuffRiseUpdate(void);
 void func_80717D4C(void);
 extern void *D_8074E880[];
 
-void actorSpawnRandomParticleNearActor(u8 arg0, s8 arg1) {
+void actorSpawnRandomParticleNearActor(u8 particleType, s8 yOffset) {
     s32 pad;
-    s32 sp28;
-    s32 sp24;
-    s32 sp20;
+    s32 randC;
+    s32 randB;
+    s32 randA;
 
-    switch (arg0) {
+    switch (particleType) {
         case 0:
             func_8071498C(effectPuffRiseUpdate);
             break;
@@ -326,10 +326,10 @@ void actorSpawnRandomParticleNearActor(u8 arg0, s8 arg1) {
             break;
     }
     func_807149B8(1);
-    sp20 = randomNonNegative();
-    sp24 = randomNonNegative();
-    sp28 = randomNonNegative();
-    func_80714CC0(D_8074E880[((sp20 >> 15) % 1000) % 3], (f32)(((sp24 >> 15) % 256) * 0.001953125 + 0.5), (f32)((sp28 >> 15) % 6) + (D_807FBB40->unk7C - 3.0f), D_807FBB40->unk80 + (f32)arg1, (f32)((randomNonNegative() >> 15) % 6) + (D_807FBB40->unk84 - 3.0f));
+    randA = randomNonNegative();
+    randB = randomNonNegative();
+    randC = randomNonNegative();
+    func_80714CC0(D_8074E880[((randA >> 15) % 1000) % 3], (f32)(((randB >> 15) % 256) * 0.001953125 + 0.5), (f32)((randC >> 15) % 6) + (D_807FBB40->unk7C - 3.0f), D_807FBB40->unk80 + (f32)yOffset, (f32)((randomNonNegative() >> 15) % 6) + (D_807FBB40->unk84 - 3.0f));
 }
 
 extern u8 D_80750628[];
@@ -346,29 +346,29 @@ f32 func_80611BB4(f32, f32);
 void matrixMakeRotationX(f32 (*)[4], f32);
 void matrixMakeRotationY(f32 (*)[4], f32);
 
-s32 actorBuildNodeAlignedMatrix(u8 arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
+s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 z) {
     f32 spA[4][4];
     f32 spB[4][4];
-    f32 sp3C;
-    f32 sp38;
-    f32 sp34;
+    f32 nodeX;
+    f32 nodeY;
+    f32 nodeZ;
     u8 node;
 
-    node = D_80750628[arg0];
+    node = D_80750628[nodeLookupIdx];
     if (node) {
         f32 ang;
 
-        actorGetNodePos(*(Actor **)&D_807FDCA0->unk1C, node, &sp3C, &sp38, &sp34);
-        func_80611A70(arg2, arg4, &sp3C, &sp34);
-        ang = func_80611BB4(sp3C - arg2, sp34 - arg4);
-        guTranslateF(spA, 0.0f, -arg1, 0.0f);
+        actorGetNodePos(*(Actor **)&D_807FDCA0->unk1C, node, &nodeX, &nodeY, &nodeZ);
+        func_80611A70(x, z, &nodeX, &nodeZ);
+        ang = func_80611BB4(nodeX - x, nodeZ - z);
+        guTranslateF(spA, 0.0f, -yOffset, 0.0f);
         matrixMakeRotationY(spB, (D_807FBB40->unkE6 * 0x168) / 4096);
         guMtxCatF(spA, spB, spA);
         matrixMakeRotationX(spB, -90.0f);
         guMtxCatF(spA, spB, spA);
-        guAlignF(spB, (ang * 57.295776f) + 180.0f, sp3C - arg2, sp38 - arg3, sp34 - arg4);
+        guAlignF(spB, (ang * 57.295776f) + 180.0f, nodeX - x, nodeY - y, nodeZ - z);
         guMtxCatF(spA, spB, spA);
-        guTranslateF(spB, 0.0f, arg1, 0.0f);
+        guTranslateF(spB, 0.0f, yOffset, 0.0f);
         guMtxCatF(spA, spB, spA);
         guScaleF(spB, D_807FBB40->unk4->unk34, D_807FBB40->unk4->unk38, D_807FBB40->unk4->unk3C);
         guMtxCatF(spA, spB, spA);
@@ -399,7 +399,7 @@ typedef struct BDEE0DC924 {
 } BDEE0DC924;
 
 extern BDEE0DC924 *gPlayerSlots;
-s32 func_806BA240(u8, s16);
+s32 func_806BA240(u8 action, s16 animId);
 
 typedef struct BDEE0DCA0Tgt {
     /* 0x00 */ u8 pad0[0x1C];
@@ -415,12 +415,12 @@ void func_80613C48(void *, s16, f32, f32);
 s32 playerStateQueueCallback(s32, void *, s32);
 s32 func_8072DCF4(void *, void *, s32);
 
-s32 func_806BA240(u8 arg0, s16 arg1) {
+s32 func_806BA240(u8 action, s16 animId) {
     s16 *p;
     Actor *tgt;
-    f32 sp4C;
-    f32 sp48;
-    f32 sp44;
+    f32 nodeX;
+    f32 nodeY;
+    f32 nodeZ;
     u8 node;
     s32 var;
 
@@ -486,7 +486,7 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
             }
         }
         BDEE0DCA0T->unk20 = BDEE0DCA0T->unk20 + 1;
-        actorGetNodePos(tgt, node, &sp4C, &sp48, &sp44);
+        actorGetNodePos(tgt, node, &nodeX, &nodeY, &nodeZ);
         if (BDEE0S90->unk1A & 0x80) {
             if (!(BDEE0S90->unk1C & 0x80)) {
                 BDEE0AA->unkC0 = 300.0f;
@@ -495,18 +495,18 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
                 return 0;
             }
             D_807FBB40->unk144 = 0x24;
-            if (arg1 != 0) {
-                func_80613C48(D_807FBB40, arg1, 0.0f, 4.0f);
+            if (animId != 0) {
+                func_80613C48(D_807FBB40, animId, 0.0f, 4.0f);
             }
             p[0] = (-p[0]) * 0.1 + p[0];
             p[1] = (-p[1]) * 0.1 + p[1];
             if (node < 0xB) {
                 D_807FBB40->unkE6 = tgt->unkE6;
             }
-            D_807FBB40->unk7C = sp4C;
-            D_807FBB40->unk84 = sp44;
-            D_807FBB40->unk80 = sp48;
-            if (actorBuildNodeAlignedMatrix(node, arg0, sp4C, sp48, sp44) != 0) {
+            D_807FBB40->unk7C = nodeX;
+            D_807FBB40->unk84 = nodeZ;
+            D_807FBB40->unk80 = nodeY;
+            if (actorBuildNodeAlignedMatrix(node, action, nodeX, nodeY, nodeZ) != 0) {
                 return 1;
             }
         }
@@ -516,7 +516,7 @@ s32 func_806BA240(u8 arg0, s16 arg1) {
 
 void func_8072B7CC(s32);
 
-void func_806BA76C(f32 arg0) {
+void func_806BA76C(f32 speedMultiplier) {
     s16 *p;
     f32 x;
     f32 z;
@@ -544,7 +544,7 @@ void func_806BA76C(f32 arg0) {
                 flags = 0x810;
             }
             if (!(actorMoveWithinZone(sel, x, z, flags & 0xFFFF, 0.0f) & 1) && D_807FBB40->unkFC == 0) {
-                *p = *p + arg0;
+                *p = *p + speedMultiplier;
             }
             break;
         case 0x37:
@@ -614,17 +614,17 @@ s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void matrixMakeRotationZ(f32 (*)[4], f32);
 s16 mathAngleEaseToward(s16, s16, f32);
 
-void func_806BA93C(arg0, arg1, arg2)
-u8 arg0;
-u8 arg1;
-u8 arg2;
+void func_806BA93C(sideOffset, rollAmount, pivotZ)
+u8 sideOffset;
+u8 rollAmount;
+u8 pivotZ;
 {
     BDEE0Sub178 *s1;
-    f32 spA4[4][4];
-    f32 sp64[4][4];
+    f32 modelMtx[4][4];
+    f32 rotMtx[4][4];
     s16 sgn;
     s32 dir;
-    f32 sp58;
+    f32 stepDist;
     s16 a;
 
     s1 = BDEE0A->unk178;
@@ -661,7 +661,7 @@ u8 arg2;
             break;
         }
         if (s1->unk0 >= 0x801) {
-            sp58 = sqrtf((1.0 - cosApprox(0.7853982f)) * (2 * (f32)(arg0 * 2) * (f32)(arg0 * 2)));
+            stepDist = sqrtf((1.0 - cosApprox(0.7853982f)) * (2 * (f32)(sideOffset * 2) * (f32)(sideOffset * 2)));
             if (s1->unk2) {
                 dir = 1;
             } else {
@@ -670,8 +670,8 @@ u8 arg2;
             s1->unk0 -= 0x800;
             s1->unk2 ^= 1;
             a = dir << 8;
-            D_807FBB40->unk7C += D_807FBB40->unk4->unk38 * sp58 * func_80612794(D_807FBB40->unkE6 + a);
-            D_807FBB40->unk84 += D_807FBB40->unk4->unk38 * sp58 * func_80612790(D_807FBB40->unkE6 + a);
+            D_807FBB40->unk7C += D_807FBB40->unk4->unk38 * stepDist * func_80612794(D_807FBB40->unkE6 + a);
+            D_807FBB40->unk84 += D_807FBB40->unk4->unk38 * stepDist * func_80612790(D_807FBB40->unkE6 + a);
             sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x1B1, 0xFF, 0x7F, 0xA, 0x3C, 0.3f, 0);
         }
         func_806BA8C8();
@@ -680,25 +680,25 @@ u8 arg2;
         } else {
             sgn = 1;
         }
-        guTranslateF(spA4, sgn * arg0, 0.0f, 0.0f);
-        matrixMakeRotationZ(sp64, func_80612794(s1->unk0) * (f32)(sgn * arg1));
-        guMtxCatF(spA4, sp64, spA4);
+        guTranslateF(modelMtx, sgn * sideOffset, 0.0f, 0.0f);
+        matrixMakeRotationZ(rotMtx, func_80612794(s1->unk0) * (f32)(sgn * rollAmount));
+        guMtxCatF(modelMtx, rotMtx, modelMtx);
         if (D_807FBB40->unk154 == 0x37) {
-            matrixMakeRotationY(sp64, (f32)(sgn * D_807FDC90->unk2C));
+            matrixMakeRotationY(rotMtx, (f32)(sgn * D_807FDC90->unk2C));
         } else {
-            matrixMakeRotationY(sp64, func_80612794(s1->unk0 - 0x400) * (f32)(-sgn * 0x2D));
+            matrixMakeRotationY(rotMtx, func_80612794(s1->unk0 - 0x400) * (f32)(-sgn * 0x2D));
         }
-        guMtxCatF(spA4, sp64, spA4);
+        guMtxCatF(modelMtx, rotMtx, modelMtx);
         if (D_807FBB40->unk154 == 0x37) {
             switch (BDEE0A->unk155) {
             case 1:
                 D_807FDC90->unk2C = mathAngleEaseToward((D_807FDC90->unk2C << 12) / 0x168, 0, 3.0f) * 0x168 / 4096;
                 s1->unk0 = s1->unk0 + (-s1->unk0) * 0.3;
-                guTranslateF(sp64, 0.0f, 0.0f, (f32)-arg2);
-                guMtxCatF(spA4, sp64, spA4);
-                matrixMakeRotationX(sp64, (f32)s1->unk4);
-                guMtxCatF(spA4, sp64, spA4);
-                guTranslateF(sp64, 0.0f, 0.0f, (f32)arg2);
+                guTranslateF(rotMtx, 0.0f, 0.0f, (f32)-pivotZ);
+                guMtxCatF(modelMtx, rotMtx, modelMtx);
+                matrixMakeRotationX(rotMtx, (f32)s1->unk4);
+                guMtxCatF(modelMtx, rotMtx, modelMtx);
+                guTranslateF(rotMtx, 0.0f, 0.0f, (f32)pivotZ);
                 D_807FDC90->unk30 += 2.0f;
                 s1->unk4 = (f32)s1->unk4 + D_807FDC90->unk30;
                 if (s1->unk4 >= 0x5B) {
@@ -712,17 +712,17 @@ u8 arg2;
                 }
                 break;
             case 2:
-                guTranslateF(sp64, 0.0f, 0.0f, (f32)-arg2);
-                guMtxCatF(spA4, sp64, spA4);
-                matrixMakeRotationX(sp64, 90.0f);
-                guMtxCatF(spA4, sp64, spA4);
-                guTranslateF(sp64, 0.0f, 0.0f, (f32)arg2);
+                guTranslateF(rotMtx, 0.0f, 0.0f, (f32)-pivotZ);
+                guMtxCatF(modelMtx, rotMtx, modelMtx);
+                matrixMakeRotationX(rotMtx, 90.0f);
+                guMtxCatF(modelMtx, rotMtx, modelMtx);
+                guTranslateF(rotMtx, 0.0f, 0.0f, (f32)pivotZ);
                 break;
             }
-            guMtxCatF(spA4, sp64, spA4);
+            guMtxCatF(modelMtx, rotMtx, modelMtx);
         }
-        guTranslateF(sp64, (f32)(-sgn * arg0), 0.0f, 0.0f);
-        guMtxCatF(spA4, sp64, BDEE0A->unkC);
+        guTranslateF(rotMtx, (f32)(-sgn * sideOffset), 0.0f, 0.0f);
+        guMtxCatF(modelMtx, rotMtx, BDEE0A->unkC);
         actorUpdateModelMatrix(D_807FBB40, 1);
     }
 }
@@ -812,7 +812,7 @@ extern Actor *D_807FBB44;
 
 s32 spawnNodeSpawnById(u8, s16, s16, s16, s32, s32, s32);
 
-s32 actorSpawnJitteredChild(u8 arg0, s16 arg1, s16 arg2, s32 arg3) {
+s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, s32 extraParam) {
     BDEE0Sub174 *v;
     s32 r3;
     s32 r2;
@@ -826,19 +826,19 @@ s32 actorSpawnJitteredChild(u8 arg0, s16 arg1, s16 arg2, s32 arg3) {
     r1 = randomNonNegative();
     r2 = randomNonNegative();
     r3 = randomNonNegative();
-    if (spawnNodeSpawnById(arg0,
+    if (spawnNodeSpawnById(actorType,
                       (s16)((f32)((r1 >> 15) % 10) + (D_807FBB40->unk7C - 5.0f)),
                       (s16)(D_807FBB40->unk80 + 5.0f),
                       (s16)((f32)((r2 >> 15) % 10) + (D_807FBB40->unk84 - 5.0f)),
                       ((r3 >> 15) % 1024) + D_807FBB40->unkE6 - 0x200,
-                      arg1, arg2) != 0) {
+                      animId, subId) != 0) {
         D_807FBB44->unk154 = 0x17;
         D_807FBB44->unk155[0] = 0;
         v = D_807FBB44->unk174;
         v->unk2E = 0x1E;
-        if (arg3 != 0) {
+        if (extraParam != 0) {
             v->unk0->unk46 &= ~8;
-            v->unk4 = arg3;
+            v->unk4 = extraParam;
         }
         D_807FBB44->unk144 = 1;
         D_807FBB44->unk12A = 0x3E8;
