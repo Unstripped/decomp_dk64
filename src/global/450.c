@@ -353,14 +353,14 @@ OSTimer D_8076A130;
 void *D_8076A150;
 u32 D_8076A154;
 
-void seg11DmaRead(s32 arg0, s32 arg1, void *arg2) {
-    s32 sp2C;
+void seg11DmaRead(s32 romOffset, s32 size, void *dst) {
+    s32 romBase;
 
-    sp2C = D_8000DDCC;
-    osWritebackDCache(arg2, arg1);
-    osPiStartDma(&D_807ECE00, 0, 0, sp2C + arg0, arg2, (u32) arg1, &D_807655F0);
+    romBase = D_8000DDCC;
+    osWritebackDCache(dst, size);
+    osPiStartDma(&D_807ECE00, 0, 0, romBase + romOffset, dst, (u32) size, &D_807655F0);
     osRecvMesg(&D_807655F0, NULL, 1);
-    osInvalDCache(arg2, arg1);
+    osInvalDCache(dst, size);
 }
 
 void func_805FB7E4(void) {
@@ -369,11 +369,11 @@ void func_805FB7E4(void) {
     void *pad0;
     void *pad1;
     u16 *src;
-    u8 *temp_s0;
+    u8 *compressedBuf;
     void *pad2;
     void *pad3;
-    u8 *sp3C;
-    u8 *sp38;
+    u8 *gzipSrc;
+    u8 *gzipDst;
     s32 i;
     s32 j;
 
@@ -384,15 +384,15 @@ void func_805FB7E4(void) {
     }
     osWritebackDCacheAll();
 
-    temp_s0 = (u8 *)D_80744470[1] + 0xC800;
-    seg11DmaRead(0x38, 0x10, temp_s0);
-    seg11DmaRead(*(s32 *)temp_s0 + 0x178, 0x10, temp_s0);
-    seg11DmaRead(*(s32 *)temp_s0, *(s32 *)(temp_s0 + 4) - *(s32 *)temp_s0, temp_s0);
+    compressedBuf = (u8 *)D_80744470[1] + 0xC800;
+    seg11DmaRead(0x38, 0x10, compressedBuf);
+    seg11DmaRead(*(s32 *)compressedBuf + 0x178, 0x10, compressedBuf);
+    seg11DmaRead(*(s32 *)compressedBuf, *(s32 *)(compressedBuf + 4) - *(s32 *)compressedBuf, compressedBuf);
 
-    sp3C = temp_s0;
-    sp38 = (u8 *)D_80744470[1];
+    gzipSrc = compressedBuf;
+    gzipDst = (u8 *)D_80744470[1];
     src = (u16 *)D_80744470[1];
-    gunzip(&sp3C, &sp38, (u8 *)D_80744470[1] + 0x15E00);
+    gunzip(&gzipSrc, &gzipDst, (u8 *)D_80744470[1] + 0x15E00);
 
     fb = (u16 *)((u8 *)D_80744470[0] + 0xF080);
     i = 0;
@@ -420,14 +420,14 @@ loop_5:
 
 void loadOverlay(u8, u8, s32);
 
-void viModeSetup(arg0)
-u8 arg0;
+void viModeSetup(overlaySlot)
+u8 overlaySlot;
 {
-    u8 var_a1;
-    s32 var_a2;
+    u8 overlayId;
+    s32 overlayParam;
 
-    var_a1 = 1;
-    var_a2 = 0;
+    overlayId = 1;
+    overlayParam = 0;
     func_806003EC(D_8076A0AA);
     if (D_807445A4 && D_807445A4) {}  // FAKE: deadsweep dead statement (steers uopt; keeps the D_807445A4 address out of a register)
     if (gCurrentMap == 0x28) {
@@ -437,10 +437,10 @@ u8 arg0;
     }
     switch (D_807444EC) {
     case 3:
-        var_a1 = 9;
+        overlayId = 9;
     case 4:
-        if (var_a1 == 1) {
-            var_a1 = 10;
+        if (overlayId == 1) {
+            overlayId = 10;
         }
         D_80744498 = 0;
         D_8074449C = 0;
@@ -448,21 +448,21 @@ u8 arg0;
         D_807444A4 = D_8074450C * 0xF0 - 1;
         break;
     default:
-        var_a2 = func_8060042C(gCurrentMap);
+        overlayParam = func_8060042C(gCurrentMap);
         if (D_807FBB64 & 1) {
-            var_a1 = 7;
+            overlayId = 7;
         } else if (D_807FBB64 & 0x1000) {
-            var_a1 = 6;
+            overlayId = 6;
         } else if (D_807FBB64 & 0x104000) {
-            var_a1 = 8;
+            overlayId = 8;
         } else if (D_807FBB64 & 0x80000) {
-            var_a1 = 4;
+            overlayId = 4;
         } else if (D_807FBB64 & 0x2000) {
-            var_a1 = 5;
+            overlayId = 5;
         } else if (D_807FBB64 & 0x4000000) {
-            var_a1 = 3;
+            overlayId = 3;
         } else if (D_807FBB64 & 0x40000000) {
-            var_a1 = 2;
+            overlayId = 2;
         }
         D_80744498 = D_8074450C * 10;
         D_8074449C = D_8074450C * 10;
@@ -470,7 +470,7 @@ u8 arg0;
         D_807444A4 = D_8074450C * 0xE6 - 1;
         break;
     }
-    loadOverlay(arg0, var_a1, var_a2);
+    loadOverlay(overlaySlot, overlayId, overlayParam);
     if (D_807445A4 == 0) {
         osViSetMode(&osViModeTable[(&D_80744584)[osTvType + osTvType + D_8074450C]]);
         if (D_807445A0 == 0) {
@@ -516,7 +516,7 @@ void func_805FBC5C(void) {
 
 void func_805FBE04(void) {
     s32 stackpad1;
-    f32 sp28;
+    f32 aspectScale;
 
     osWritebackDCacheAll();
     osInvalDCache((void *)0x80000000, 0x800000);
@@ -538,19 +538,19 @@ void func_805FBE04(void) {
     flagsClearAllBank2();
     func_805FF118();
     csTimerQueueClear();
-    sp28 = cameraStepAspectScale();
+    aspectScale = cameraStepAspectScale();
     guTranslate(&D_80767E68, 0.0f, 0.0f, 0.0f);
     guTranslate(&D_80769018, 0.0f, 0.0f, 0.0f);
-    guPerspective(&D_80767CE8, &D_8076A09C, D_807444B8, D_807444BC * sp28, D_807444C8, D_807444C4, 1.0f);
-    guPerspective(&D_80768E98, &D_8076A09C, D_807444B8, D_807444BC * sp28, D_807444C8, D_807444C4, 1.0f);
+    guPerspective(&D_80767CE8, &D_8076A09C, D_807444B8, D_807444BC * aspectScale, D_807444C8, D_807444C4, 1.0f);
+    guPerspective(&D_80768E98, &D_8076A09C, D_807444B8, D_807444BC * aspectScale, D_807444C8, D_807444C4, 1.0f);
 }
 
 extern s16 D_8074682C;
 extern u8 D_807F059C;
 
-void mainThreadLoop(s32 arg0) {
+void mainThreadLoop(s32 unused) {
     u8 first;
-    s32 sp38;
+    s32 receivedMesg;
 
     first = 1;
     if (osTvType == 0) {
@@ -560,7 +560,7 @@ void mainThreadLoop(s32 arg0) {
     osViSetSpecialFeatures(0x42);
     func_805FBE04();
     D_8076A070[0] = D_80767CC0 - 2;
-    osRecvMesg(&D_8076A110, (OSMesg *)&sp38, 1);
+    osRecvMesg(&D_8076A110, (OSMesg *)&receivedMesg, 1);
     while (1) {
         D_8074682C = 0xC8;
         while (D_80744460 != 0) {
@@ -615,8 +615,8 @@ void mainThreadLoop(s32 arg0) {
 }
 
 void func_805FC2B0(void) {
-    Gfx *sp2C;
-    Gfx *sp28;
+    Gfx *glist;
+    Gfx *gfxEnd;
 
     controllerStartRead();
     schedSubmitGfxTask(D_8076A050[D_807444FC], D_8076A088, 3, (D_8076A0A4 != 0) ? 0 : 1, 0x4D2, 1);
@@ -658,11 +658,11 @@ void func_805FC2B0(void) {
     resListTick();
     D_8076A150 = D_8076A050[D_807444FC];
     if ((D_8076A0B1 & 1) && gScreenFadeProgress == 31.0f) {
-        sp2C = D_8076A050[D_807444FC];
-        sp28 = D_8076A048 + 0xDB0;
+        glist = D_8076A050[D_807444FC];
+        gfxEnd = D_8076A048 + 0xDB0;
         renderCallbacksReset();
     } else {
-        func_805FD088((Struct_8076A048 *)D_8076A048, &sp2C, &sp28);
+        func_805FD088((Struct_8076A048 *)D_8076A048, &glist, &gfxEnd);
     }
     if (D_807FBB60 & 0x100) {
         D_807FBB60 &= ~0x100;
@@ -674,13 +674,13 @@ void func_805FC2B0(void) {
             func_807094D0(3, &D_807FBB60);
         }
     } else {
-        sp2C = screenFadeUpdate(sp2C, D_8076AEE0);
+        glist = screenFadeUpdate(glist, D_8076AEE0);
     }
     if (D_8076A0A4 != 0 && D_807444EC != 6) {
-        func_805FE71C(sp2C, D_807444FC, &D_8076A088, 0);
-        func_805FE7B4(sp28, (s32)D_8076A048, &D_8076A08C, 1);
+        func_805FE71C(glist, D_807444FC, &D_8076A088, 0);
+        func_805FE7B4(gfxEnd, (s32)D_8076A048, &D_8076A08C, 1);
     } else {
-        func_805FE71C(sp2C, D_807444FC, &D_8076A088, 1);
+        func_805FE71C(glist, D_807444FC, &D_8076A088, 1);
     }
 }
 
@@ -767,13 +767,13 @@ s32 func_805FC98C(void) {
 }
 
 s32 func_805FCA64(void) {
-    s32 var_v1;
+    s32 canRenderHud;
 
-    var_v1 = (D_8076A0B1 & 0x10) == 0;
-    if (var_v1 != 0) {
-        var_v1 = D_8076A0B3 == 0;
+    canRenderHud = (D_8076A0B1 & 0x10) == 0;
+    if (canRenderHud != 0) {
+        canRenderHud = D_8076A0B3 == 0;
     }
-    return var_v1 & 0xFF;
+    return canRenderHud & 0xFF;
 }
 
 extern u8 D_80750AB4;
@@ -831,7 +831,7 @@ typedef struct {
 #define PLAYER_VIEWS ((PlayerViewData *)gPlayerSlots)
 #define ABS_DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 
-void playerViewsBuildMatrices(void *arg0) {
+void playerViewsBuildMatrices(void *outMtx) {
     Actor *pa;
     PlayerActorData *pl;
     HeldActorData *held;
@@ -880,8 +880,8 @@ void playerViewsBuildMatrices(void *arg0) {
     } else {
         offs = 0.0f;
     }
-    guPerspective((Mtx *)arg0, &D_8076A09C, PLAYER_VIEWS->unk27C, fov * aspect, PLAYER_VIEWS->unk284, PLAYER_VIEWS->unk288, 1.0f);
-    guLookAt((Mtx *)((u8 *)arg0 + 0x200), PLAYER_VIEWS->unk210 + offs, PLAYER_VIEWS->unk214, PLAYER_VIEWS->unk218 + offs,
+    guPerspective((Mtx *)outMtx, &D_8076A09C, PLAYER_VIEWS->unk27C, fov * aspect, PLAYER_VIEWS->unk284, PLAYER_VIEWS->unk288, 1.0f);
+    guLookAt((Mtx *)((u8 *)outMtx + 0x200), PLAYER_VIEWS->unk210 + offs, PLAYER_VIEWS->unk214, PLAYER_VIEWS->unk218 + offs,
              PLAYER_VIEWS->unk228, PLAYER_VIEWS->unk22C, PLAYER_VIEWS->unk230,
              PLAYER_VIEWS->unk240, PLAYER_VIEWS->unk244, PLAYER_VIEWS->unk248);
     D_807445CC[0]++;
@@ -907,21 +907,21 @@ Gfx *gfxInit2DDisplayList(Gfx *glistp) {
 }
 
 
-void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
+void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
     Gfx *glist;
     Gfx *glist2;
 
     glist = D_8076A050[D_807444FC];
-    gSPPerspNormalize(&arg0->unkDB0[0], D_8076A09C);
-    glist2 = &arg0->unkDB0[1];
+    gSPPerspNormalize(&frameGfx->unkDB0[0], D_8076A09C);
+    glist2 = &frameGfx->unkDB0[1];
     gSPClipRatio(glist2++, FRUSTRATIO_3);
 
     gSPSegment(glist++, 0, 0);
-    gSPSegment(glist++, 2, osVirtualToPhysical(arg0));
+    gSPSegment(glist++, 2, osVirtualToPhysical(frameGfx));
     gSPSegment(glist++, 1, osVirtualToPhysical(D_8076A080));
 
     gSPSegment(glist2++, 0, 0);
-    gSPSegment(glist2++, 2, osVirtualToPhysical(arg0));
+    gSPSegment(glist2++, 2, osVirtualToPhysical(frameGfx));
     gSPSegment(glist2++, 1, osVirtualToPhysical(D_8076A080));
 
     gSPDisplayList(glist++, &D_1000090);
@@ -933,12 +933,12 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     gDPSetScissor(glist++, G_SC_NON_INTERLACE, 0, 0, D_80744490, D_80744494);
     gDPSetScissor(glist2++, G_SC_NON_INTERLACE, 0, 0, D_80744490, D_80744494);
 
-    guTranslate(&arg0->unk180, 0.0f, 0.0f, 0.0f);
-    guOrtho(&arg0->unk80, 0.0f, (f32)((f64)(f32)D_80744490 - 1.0), (f32)((f64)(f32)D_80744494 - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
-    guOrtho(&arg0->unkC0, 0.0f, (f32)(((f64)(f32)D_80744490 * 4.0) - 1.0), (f32)(((f64)(f32)D_80744494 * 4.0) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
-    guOrtho(&arg0->unk140, 0.0f, (f32)((2.0 * (f64)(f32)D_80744490) - 1.0), (f32)((2.0 * (f64)(f32)D_80744494) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
-    guOrtho(&arg0->unk100, (f32)((f64)(f32)gPlayerSlots->rect[0] * 4.0), (f32)(((f64)(f32)gPlayerSlots->rect[2] * 4.0) - 1.0), (f32)(((f64)(f32)gPlayerSlots->rect[3] * 4.0) - 1.0), (f32)((f64)(f32)gPlayerSlots->rect[1] * 4.0), -20000.0f, 20000.0f, 1.0f);
-    guPerspective(&arg0->unk0, &D_8076A09C, D_807444B8, cameraStepAspectScale() * D_807444BC, D_807444C8, D_807444C4, 1.0f);
+    guTranslate(&frameGfx->unk180, 0.0f, 0.0f, 0.0f);
+    guOrtho(&frameGfx->unk80, 0.0f, (f32)((f64)(f32)D_80744490 - 1.0), (f32)((f64)(f32)D_80744494 - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&frameGfx->unkC0, 0.0f, (f32)(((f64)(f32)D_80744490 * 4.0) - 1.0), (f32)(((f64)(f32)D_80744494 * 4.0) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&frameGfx->unk140, 0.0f, (f32)((2.0 * (f64)(f32)D_80744490) - 1.0), (f32)((2.0 * (f64)(f32)D_80744494) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&frameGfx->unk100, (f32)((f64)(f32)gPlayerSlots->rect[0] * 4.0), (f32)(((f64)(f32)gPlayerSlots->rect[2] * 4.0) - 1.0), (f32)(((f64)(f32)gPlayerSlots->rect[3] * 4.0) - 1.0), (f32)((f64)(f32)gPlayerSlots->rect[1] * 4.0), -20000.0f, 20000.0f, 1.0f);
+    guPerspective(&frameGfx->unk0, &D_8076A09C, D_807444B8, cameraStepAspectScale() * D_807444BC, D_807444C8, D_807444C4, 1.0f);
 
     gSPMatrix(glist2++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(glist2++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
@@ -959,7 +959,7 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     gSPClearGeometryMode(glist++, -1);
     gSPSetGeometryMode(glist++, 0x200404);
 
-    glist = (Gfx *)func_80701CA0(playerViewsRender(glist, arg0, 0xFFFD));
+    glist = (Gfx *)func_80701CA0(playerViewsRender(glist, frameGfx, 0xFFFD));
     if (gPlayerCount == 1) {
         glist = (Gfx *)lensFlareBuildDisplayList((s32)glist);
     }
@@ -971,8 +971,8 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     }
 
     if (((D_8076A0B1 & 0x10) || (D_8076A0B3 != 0)) && ((gPlayerCount == 1) || (D_80750AB8 == 1))) {
-        f32 temp_fv0;
-        f32 var_fv1;
+        f32 fadeAlpha;
+        f32 fadeScale;
         gDPPipeSync(glist++);
         gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0x300000);
         gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0);
@@ -982,15 +982,15 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
 
         if (D_8076A0B3 != 0) {
             D_8076A0B3 -= 15;
-            var_fv1 = (f32)(1.0 - ((f64)(u32)D_8076A0B3 / 255.0));
-            temp_fv0 = (f32)(D_807444AC - D_807444A8) * var_fv1;
+            fadeScale = (f32)(1.0 - ((f64)(u32)D_8076A0B3 / 255.0));
+            fadeAlpha = (f32)(D_807444AC - D_807444A8) * fadeScale;
             gDPFillRectangle(glist++, 0,
-                (temp_fv0 < (f32)D_807444A8) ? (f32)D_807444A8 - temp_fv0 : 0.0f,
+                (fadeAlpha < (f32)D_807444A8) ? (f32)D_807444A8 - fadeAlpha : 0.0f,
                 (D_80744490 > 0) ? D_80744490 : 0,
-                (temp_fv0 < (f32)D_807444AC) ? (f32)D_807444AC - temp_fv0 : 0.0f);
-            gDPFillRectangle(glist++, 0, D_807444B0 + temp_fv0, D_80744490, D_807444B4 + temp_fv0);
-            gPlayerSlots->rect[1] = (s16)(s32)((f32)D_807444AC - temp_fv0);
-            gPlayerSlots->rect[3] = (s16)(s32)((f32)D_807444B0 + temp_fv0);
+                (fadeAlpha < (f32)D_807444AC) ? (f32)D_807444AC - fadeAlpha : 0.0f);
+            gDPFillRectangle(glist++, 0, D_807444B0 + fadeAlpha, D_80744490, D_807444B4 + fadeAlpha);
+            gPlayerSlots->rect[1] = (s16)(s32)((f32)D_807444AC - fadeAlpha);
+            gPlayerSlots->rect[3] = (s16)(s32)((f32)D_807444B0 + fadeAlpha);
         } else {
             gDPFillRectangle(glist++, 0, D_807444A8, D_80744490, D_807444AC);
             gDPFillRectangle(glist++, 0, D_807444B0, D_80744490, D_807444B4);
@@ -1056,8 +1056,8 @@ void func_805FD088(Struct_8076A048 *arg0, Gfx **arg1, Gfx **arg2) {
     textFontAgeSheets();
     texCacheUpdate();
     commandQueueReset();
-    *arg1 = glist;
-    *arg2 = glist2;
+    *outGlist = glist;
+    *outGlist2 = glist2;
 }
 
 
@@ -1081,11 +1081,11 @@ Gfx *func_805FE4D4(Gfx *glistp) {
 }
 
 
-void func_805FE544(u8 arg0) {
+void func_805FE544(u8 numScreens) {
     if (D_807FBB64 & 1) {
         D_8076A058 = 0x1770;
     } else {
-        D_8076A058 = arg0 * 3000;
+        D_8076A058 = numScreens * 3000;
     }
     D_8076A050[0] = heapAlloc(D_8076A058 * sizeof(Gfx));
     D_8076A050[1] = heapAlloc(D_8076A058 * sizeof(Gfx));
@@ -1094,11 +1094,11 @@ void func_805FE544(u8 arg0) {
 }
 
 
-Gfx *func_805FE634(Gfx *glistp, u8 arg1) {
+Gfx *func_805FE634(Gfx *glistp, u8 fbIndex) {
     gDPPipeSync(glistp++);
     gDPSetRenderMode(glistp++, 0, 0);
     gDPSetCycleType(glistp++, G_CYC_FILL);
-    gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, D_80744490, D_80744470[arg1]);
+    gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, D_80744490, D_80744470[fbIndex]);
     gDPSetFillColor(glistp++, 0x10001);
     gDPPipeSync(glistp++);
     gDPFillRectangle(glistp++, 0, 0, D_80744490 - 1, D_80744494 - 1);
@@ -1106,37 +1106,37 @@ Gfx *func_805FE634(Gfx *glistp, u8 arg1) {
 }
 
 
-void func_805FE71C(Gfx *arg0, u8 arg1, s32 *arg2, u8 arg3) {
-    Gfx *glistp = arg0;
+void func_805FE71C(Gfx *inGlist, u8 bufIdx, s32 *outSize, u8 fullSync) {
+    Gfx *glistp = inGlist;
 
-    if (arg3) {
+    if (fullSync) {
         gDPFullSync(glistp++);
     }
     gSPEndDisplayList(glistp++);
-    *arg2 = glistp - (Gfx *)D_8076A050[arg1];
-    if (*arg2 >= D_8076A058) {
+    *outSize = glistp - (Gfx *)D_8076A050[bufIdx];
+    if (*outSize >= D_8076A058) {
         faultSetMessage(0x12, 0, 0, 0);
     }
 }
 
 
-void func_805FE7B4(Gfx *arg0, s32 arg1, s32 *arg2, u8 arg3) {
-    Gfx *glistp = arg0;
+void func_805FE7B4(Gfx *inGlist, s32 basePtr, s32 *outSize, u8 fullSync) {
+    Gfx *glistp = inGlist;
 
-    if (arg3) {
+    if (fullSync) {
         gDPFullSync(glistp++);
     }
     gSPEndDisplayList(glistp++);
-    *arg2 = ((s32)glistp - arg1 - 0xDB0) >> 3;
+    *outSize = ((s32)glistp - basePtr - 0xDB0) >> 3;
 }
 
 
 void func_805FE7FC(void) {
-    s32 sp2C;
-    s32 sp28;
-    s32 sp24;
-    f32 var_fv0;
-    s32 temp_a0;
+    s32 mapChunkAsset;
+    s32 loadedAsset;
+    s32 modelAsset;
+    f32 audioVolume;
+    s32 activeMap;
 
     D_80746830 = 1;
     D_8076A090 = 0;
@@ -1164,7 +1164,7 @@ void func_805FE7FC(void) {
     
 
     gCurrentMap = D_807444E4;
-    temp_a0 = gCurrentMap;
+    activeMap = gCurrentMap;
     if (gCurrentMap != 0x50) {
         if (gCurrentMap != 0x51) {
             D_807FBB60 |= 0x30030;
@@ -1174,9 +1174,9 @@ void func_805FE7FC(void) {
     } else {
         D_807FBB60 &= 0xFFFEFFCF;
     }
-    if (temp_a0 == 2) {
+    if (activeMap == 2) {
         D_807444EC = 3;
-    } else if (temp_a0 == 9) {
+    } else if (activeMap == 9) {
         D_807444EC = 4;
     } else {
         D_807444EC = 0;
@@ -1210,35 +1210,35 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         proxPathListClear();
         mapSearchTableReset();
         pathFreeAsset(gCurrentMap);
-        sp2C = assetLoad(1, gCurrentMap, 1, 1);
+        mapChunkAsset = assetLoad(1, gCurrentMap, 1, 1);
         renderEntryListsReset();
-        mapChunkAllocLists(sp2C);
-        mapHeaderLoad(sp2C);
+        mapChunkAllocLists(mapChunkAsset);
+        mapHeaderLoad(mapChunkAsset);
         func_806C95D0(gCurrentMap);
         billboardCacheInit();
         mapLoadNodeAsset(gCurrentMap);
         actorListInitOffsets();
         modelTypeCountsInit();
         displayListFreeQueueReset();
-        sp24 = assetLoad(9, gCurrentMap, 1, 1);
+        modelAsset = assetLoad(9, gCurrentMap, 1, 1);
         modelSlotsAllocate(gCurrentMap, 1);
-        actorMapModelsSetup(sp24, 0, 0);
+        actorMapModelsSetup(modelAsset, 0, 0);
         actorInitTargetEntries();
         lightInitGlobals();
         actorInit();
         actorSpawnInitialSet();
         volumeTriggerTableInit(gCurrentMap);
-        camInit(sp28 = assetLoad(8, gCurrentMap, 1, 1));
-        if (sp28 != 0) {
-            assetFreeBuffer(sp28, 0x8D0, 2);
+        camInit(loadedAsset = assetLoad(8, gCurrentMap, 1, 1));
+        if (loadedAsset != 0) {
+            assetFreeBuffer(loadedAsset, 0x8D0, 2);
         }
         func_80712B80();
         func_806C7D40(D_807444E8);
         effectResetLists();
-        sp28 = assetLoad(0x10, gCurrentMap, 1, 1);
-        func_80724C78(sp28);
-        if (sp28 != 0) {
-            assetFreeBuffer(sp28, 0x8DD, 2);
+        loadedAsset = assetLoad(0x10, gCurrentMap, 1, 1);
+        func_80724C78(loadedAsset);
+        if (loadedAsset != 0) {
+            assetFreeBuffer(loadedAsset, 0x8DD, 2);
         }
         camResetAllPlayers();
         renderCallbacksReset();
@@ -1246,10 +1246,10 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         func_8070E8C8();
         timerQueueAdd(sfxPlayCurrent, 2, 0, 0, 0);
         if (D_807FBB64 & 0x1000) {
-            sp28 = assetLoad(0x16, gCurrentMap, 1, 1);
-            func_80026FD0(sp28);
-            if (sp28 != 0) {
-                assetFreeBuffer(sp28, 0x8ED, 2);
+            loadedAsset = assetLoad(0x16, gCurrentMap, 1, 1);
+            func_80026FD0(loadedAsset);
+            if (loadedAsset != 0) {
+                assetFreeBuffer(loadedAsset, 0x8ED, 2);
             }
         }
         if (D_807FBB64 & 0x2000) {
@@ -1261,12 +1261,12 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
             if ((gCurrentMap == 0x11) && (flagGet(0x302, 0) != 0)) {
                 sfxAllocateChannel(0x74, 1.0f);
             } else {
-                temp_a0 = D_80745BDC[gCurrentMap][0];
-                var_fv0 = 1.0f;
-                if ((temp_a0 == 6) || (temp_a0 == 0x1F)) {
-                    var_fv0 = 0.5493331552f;
+                activeMap = D_80745BDC[gCurrentMap][0];
+                audioVolume = 1.0f;
+                if ((activeMap == 6) || (activeMap == 0x1F)) {
+                    audioVolume = 0.5493331552f;
                 }
-                sfxAllocateChannel(temp_a0, var_fv0);
+                sfxAllocateChannel(activeMap, audioVolume);
             }
         }
         if ((gCurrentMap == 0x22) || (gCurrentMap == 0xB8)) {
@@ -1295,19 +1295,19 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
 }
 
 
-void func_805FEE84(s8 arg0, s8 arg1, s8 arg2, s8 arg3) {
-    D_8074447C = arg0;
-    D_80744480 = arg1;
-    D_80744484 = arg2;
-    D_80744488 = arg3;
+void func_805FEE84(s8 val0, s8 val1, s8 val2, s8 val3) {
+    D_8074447C = val0;
+    D_80744480 = val1;
+    D_80744484 = val2;
+    D_80744488 = val3;
 }
 
-void func_805FEEB8(s32 *arg0, s32 arg1) {
+void func_805FEEB8(s32 *val, s32 alignment) {
     s32 rem;
 
-    rem = *arg0 % arg1;
+    rem = *val % alignment;
     if (rem != 0) {
-        *arg0 = *arg0 + arg1 - rem;
+        *val = *val + alignment - rem;
     }
 }
 
