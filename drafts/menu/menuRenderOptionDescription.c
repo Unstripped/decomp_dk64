@@ -1,4 +1,4 @@
-// menuRenderOptionDescription (src/menu/E550.c): Menu4: full14->10 text10 reloc0 shape3, 417 lines and frame0xE8; relocated existing xo guards preserve x304 and row-mask priorities, giving Combine t2. Remaining tail as1 scheduling and final ugen/as1 scratch chain; parked fdiff OK, active full-TU mismatch.
+// menuRenderOptionDescription (src/menu/E550.c): Menu4b: full5 text5 reloc0 shape3 417/417; precompute final y and route prior call cursor through consumed spC8 to preserve callee colors; final scratch ring matches, remaining as1 inner tail and movea0/movea1 order. Private copy not yet updated.
 Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     u32 tex;
     s32 alpha;
@@ -68,6 +68,8 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     off = D_8074450C * 0xC8;
     xx = x * 4;
     xx = xx | 0;  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
-    dl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)arg1 * 4), .5f, spC8);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
-    return hudDrawScaledText(dl, xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), .5f, spC4);
+    spC8 = (char *)hudDrawScaledText(dl, xx, (s16)(*(s32 *)arg1 * 4), .5f, spC8);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
+    xo = (s32)((f64)off + (f64)spC0 * 0.5);
+    if (xo) {} // FAKE: preserve precomputed final argument
+    return hudDrawScaledText((Gfx *)spC8, xx, (s16)(xo * 4), .5f, spC4);
 }
