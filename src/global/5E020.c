@@ -57,12 +57,12 @@ void hashTableInsert(s32 key, s32 value) {
         node->value = value;
     }
 }
-s32 hashTableLookup(s32 arg0) {
+s32 hashTableLookup(s32 key) {
     HashNode *node;
 
-    node = D_807F7370[hashTableHashKey(arg0)];
+    node = D_807F7370[hashTableHashKey(key)];
     while (node != NULL) {
-        if (arg0 == node->key) {
+        if (key == node->key) {
             return node->value;
         }
         node = node->next;
@@ -70,11 +70,11 @@ s32 hashTableLookup(s32 arg0) {
     return -1;
 }
 
-void hashTableRemove(s32 arg0) {
-    HashNode **prev = &D_807F7370[hashTableHashKey(arg0)];
+void hashTableRemove(s32 key) {
+    HashNode **prev = &D_807F7370[hashTableHashKey(key)];
     HashNode *node = *prev;
 
-    while ((node != NULL) && (arg0 != node->key)) {
+    while ((node != NULL) && (key != node->key)) {
         prev = &node->next;
         node = node->next;
     }
@@ -84,8 +84,8 @@ void hashTableRemove(s32 arg0) {
     }
 }
 
-s32 hashTableHashKey(s32 arg0) {
-    s32 k = (arg0 > 0) ? arg0 : -arg0;
+s32 hashTableHashKey(s32 key) {
+    s32 k = (key > 0) ? key : -key;
 
     return k % 100;
 }
