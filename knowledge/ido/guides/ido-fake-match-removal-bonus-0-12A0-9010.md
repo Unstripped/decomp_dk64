@@ -1,0 +1,12 @@
+---
+title: "IDO fake-match removal findings (src/bonus/0.c, 12A0.c, 9010.c)"
+description: "Which suspected codegen hacks in the bonus overlay controller/reel/score files were removable and which genuinely steer IDO 5.3 output."
+origin: "ok-fine dk64/notes/ido-fake-match-removal-bonus-0-12A0-9010"
+---
+Established while removing fake matches in `src/bonus/0.c`, `12A0.c`, `9010.c` (each change gated by a full-ROM match; see also boss findings (guide ido-fake-match-removal-boss: python3 tools/quirks.py get ido-fake-match-removal-boss)).
+
+**Removable (output unchanged):** empty `if (!pv && !pv && !pv) {}` guard; `volatile` on a pad local; `(char *)` casts when the string locals are typed `char *` and the local prototypes for the string-returning helpers return `char *`; `(s32)ptr` casts when the local prototype takes `void *` (also for `(s32)&sym`, e.g. `func_80714CC0`); `*((u8 *)&x + 1)` byte trick -> `(u8)x`; raw float bit patterns (`0x41200000`) -> local prototype takes `f32`, pass `10.0f`; `(f64)` and `3.1415927410125732` literal -> `3.1415927f`; byte offsets on actor/state pointers -> file-local struct with the used fields; `D_807FD580` is a `void *` in these files and `Struct807FD580` is only visible when actor.h is included (which also redeclares `D_807FDC98` etc. as typed pointers), so use a tiny file-local struct plus a cast macro.
+
+**NOT removable:** `pv = &sp6F; if (*pv == 3)` in bonusControllerUpdate: taking the address keeps `sp6F` memory-resident (the pointer itself is optimized away); without it IDO registerizes `sp6F` and the frame grows 0x78 -> 0x80; a 2-element array for sp6E/sp6F gets the frame right but changes text size. Shared-tail `goto tail` / `goto render` in the same function: restructuring (pre-switch `if`, duplicating the tail) changes the switch dispatch/size. The pad locals there (`pad5C`, `pad58`, `pad50`, `pad4C`) are real frame padding. `s32 two = 2` used only as `(f32)two` divisor in bonusReelGameUpdate: `2.0f`, `2` and `2.0` all change the code. `if (x % 32) {} else {...}` -> use `if (!((x) % 32)) {...}` (matches); `x % 32 == 0` folds to `andi` and does not match.
+
+**Alias locals change regalloc:** `Struct *s = arg0;` for a `void *` param in bonusResetAmmo (2690.c) moves arg0 from s4 to s1 and the symbol/const registers swap; only inline casts get within one s5/s6 swap; the original `p = (s32)D_8071A038;` plus `(s32 *)arg0 + i` temps remain.
