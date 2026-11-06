@@ -200,8 +200,8 @@ void actorApproachTargetSpeed(s32);
 void minecartFollowTrack(MinecartCart *, s32, s32);
 void actorGetNodePos(Actor_25F0 *, s32, f32 *, f32 *, f32 *);
 void commandQueuePush(Actor_25F0 *, s16, s16, s16, s32, s32, s32, s32, s32);
-void minecartPlayPassBySfx(MinecartCart *);
-void minecartChooseBranchSide(MinecartCart *);
+void minecartPlayPassBySfx(MinecartCart *cart);
+void minecartChooseBranchSide(MinecartCart *cart);
 u8 *heapAlloc(s32);
 f32 sqrtf(f32);
 u32 randomLcgNext(void);
@@ -220,7 +220,7 @@ s32 mathAngleDistance(s16, s16);
 s32 playerStateQueueCallback(s32, void *, s32);
 
 void minecartFollowerBehaviour(void) {
-    u8 sp47 = 0x96;
+    u8 followDist = 0x96;
 
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -260,7 +260,7 @@ void minecartFollowerBehaviour(void) {
         }
         break;
     case 6:
-        sp47 = 0xFA;
+        followDist = 0xFA;
         if ((gFrameCounter % D_807FDC9C->unkA) == 0) {
             sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x182, 0xFF, 0x7F, 0, 0, 0.3f, 0);
             actorSpawn(0x11F, 0x50);
@@ -280,8 +280,8 @@ void minecartFollowerBehaviour(void) {
         /* fallthrough */
     case 1:
         D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, (D_807FBB4C->unkE6 + 0x800) & 0xFFF, 8.0f);
-        D_807FBB40->unk7C = (func_80612794(D_807FBB4C->unkE6) * sp47 + D_807FBB4C->unk7C - D_807FBB40->unk7C) * 0.3 + D_807FBB40->unk7C;
-        D_807FBB40->unk84 = (func_80612790(D_807FBB4C->unkE6) * sp47 + D_807FBB4C->unk84 - D_807FBB40->unk84) * 0.3 + D_807FBB40->unk84;
+        D_807FBB40->unk7C = (func_80612794(D_807FBB4C->unkE6) * followDist + D_807FBB4C->unk7C - D_807FBB40->unk7C) * 0.3 + D_807FBB40->unk7C;
+        D_807FBB40->unk84 = (func_80612790(D_807FBB4C->unkE6) * followDist + D_807FBB4C->unk84 - D_807FBB40->unk84) * 0.3 + D_807FBB40->unk84;
         D_807FBB40->unk7C += 4.0f * func_80612794(gFrameCounter * 0x35);
         D_807FBB40->unk84 += 4.0f * func_80612790(gFrameCounter * 0x3E);
         D_807FBB40->unk80 = (func_80612794(gFrameCounter * 0x32) * 10.0f) + (gActivePlayerState->unk88->unkA4 + 30.0f);
@@ -290,10 +290,10 @@ void minecartFollowerBehaviour(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-s32 minecartSetTargetAheadOfPlayer(MinecartTargetState *arg0, f32 arg1) {
-    arg0->unkA = ((func_80612794(D_807FBB4C->unkE6) * (gActivePlayerState->unk88->unkB8 * arg1)) + D_807FBB4C->unk7C);
-    arg0->unkC = gActivePlayerState->unk88->unkA4;
-    arg0->unkE = ((func_80612790(D_807FBB4C->unkE6) * (gActivePlayerState->unk88->unkB8 * arg1)) + D_807FBB4C->unk84);
+s32 minecartSetTargetAheadOfPlayer(MinecartTargetState *targetState, f32 distanceFactor) {
+    targetState->unkA = ((func_80612794(D_807FBB4C->unkE6) * (gActivePlayerState->unk88->unkB8 * distanceFactor)) + D_807FBB4C->unk7C);
+    targetState->unkC = gActivePlayerState->unk88->unkA4;
+    targetState->unkE = ((func_80612790(D_807FBB4C->unkE6) * (gActivePlayerState->unk88->unkB8 * distanceFactor)) + D_807FBB4C->unk84);
 }
 
 void minecartSpawnRandomParticle(void) {
@@ -312,14 +312,14 @@ void minecartSpawnRandomParticle(void) {
 
 void minecartFollowerChildBehaviour(void) {
     s32 padA;
-    MinecartTargetState *sp68;
-    s16 sp66;
+    MinecartTargetState *targetState;
+    s16 angleOffset;
     s32 padB;
     s32 padC;
-    f32 sp58;
-    f32 sp54;
-    f32 sp50;
-    f32 sp4C;
+    f32 interpT;
+    f32 sinT;
+    f32 lateralOffset;
+    f32 vertOffset;
     Actor_25F0 *s2;
     s16 *p;
     f64 d;
@@ -328,8 +328,8 @@ void minecartFollowerChildBehaviour(void) {
     s16 v;
 
     s2 = D_807FBB40->unk11C;
-    sp68 = s2->unk174;
-    sp66 = D_807FBB40->unk168 * D_807FBB40->unkEC;
+    targetState = s2->unk174;
+    angleOffset = D_807FBB40->unk168 * D_807FBB40->unkEC;
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80613C48(D_807FBB40, 0x59C, 0.0f, 0.0f);
         D_807FBB40->unk60 |= 0x800000;
@@ -340,8 +340,8 @@ void minecartFollowerChildBehaviour(void) {
         D_807FBB40->unk128 = 0x96;
     }
     D_807FBB40->unkE6 = s2->unkE6;
-    D_807FBB40->unk7C = (func_80612794(s2->unkE6 + sp66) * 47.0f + s2->unk7C - D_807FBB40->unk7C) * 0.3 + D_807FBB40->unk7C;
-    D_807FBB40->unk84 = (func_80612790(s2->unkE6 + sp66) * 47.0f + s2->unk84 - D_807FBB40->unk84) * 0.3 + D_807FBB40->unk84;
+    D_807FBB40->unk7C = (func_80612794(s2->unkE6 + angleOffset) * 47.0f + s2->unk7C - D_807FBB40->unk7C) * 0.3 + D_807FBB40->unk7C;
+    D_807FBB40->unk84 = (func_80612790(s2->unkE6 + angleOffset) * 47.0f + s2->unk84 - D_807FBB40->unk84) * 0.3 + D_807FBB40->unk84;
     D_807FBB40->unk80 += (s2->unk80 - 10.0f - D_807FBB40->unk80) * 0.3;
     switch (s2->unk154) {
     case 2:
@@ -355,16 +355,16 @@ void minecartFollowerChildBehaviour(void) {
                     D_807FBB40->unk155 = 0;
                     actorScriptStart(D_807FBB40, 0x312);
                     s2->unk155 = 1;
-                    minecartSetTargetAheadOfPlayer(sp68, 2.2f);
+                    minecartSetTargetAheadOfPlayer(targetState, 2.2f);
                 }
                 break;
             case 1:
                 d = D_807FBB40->unk4->unk0[1] / 17.0;
                 var = MIN(1.0, d);
                 x = func_80612790(var * 2048.0f + 2048.0f) * 0.5 + 0.5;
-                D_807FBB40->unk7C = (sp68->unkA - D_807FBB40->unk7C) * x + D_807FBB40->unk7C;
+                D_807FBB40->unk7C = (targetState->unkA - D_807FBB40->unk7C) * x + D_807FBB40->unk7C;
                 D_807FBB40->unk80 = (D_807FBB40->unk80 + 10.0f) + ((gActivePlayerState->unk88->unkA4 - (D_807FBB40->unk80 + 10.0f)) * x);
-                D_807FBB40->unk84 = (sp68->unkE - D_807FBB40->unk84) * x + D_807FBB40->unk84;
+                D_807FBB40->unk84 = (targetState->unkE - D_807FBB40->unk84) * x + D_807FBB40->unk84;
                 if (D_807FBB4C->unk4->unk64 == 0x294 || (D_807FBB40->unk4->unk0[1] > 16.0f && D_807FBB40->unk4->unk0[1] < 18.0f)) {
                     D_807FBB40->unk132 = 1;
                 } else {
@@ -383,23 +383,23 @@ void minecartFollowerChildBehaviour(void) {
             minecartSpawnRandomParticle();
             switch (s2->unk155) {
             case 0:
-                sp68->unk2C = 0x46;
+                targetState->unk2C = 0x46;
                 s2->unk155 = 1;
                 D_807FBB40->unk132 = 1;
                 sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x301, 0xFF, 0x7F, 0, 0, 0.0f, 0);
             case 1:
-                minecartSetTargetAheadOfPlayer(sp68, 0.3f);
-                v = sp68->unk2C;
-                sp68->unk2C = v - 1;
+                minecartSetTargetAheadOfPlayer(targetState, 0.3f);
+                v = targetState->unk2C;
+                targetState->unk2C = v - 1;
                 if (v != 0) {
-                    sp58 = func_80612790(sp68->unk2C / 70.0 * 2048.0 + 2048.0) * 0.5 + 0.5;
-                    sp54 = func_80612794(2048.0f * sp58);
-                    sp50 = func_80612794(sp58 * 1536.0f + 1024.0f) * (D_807FBB40->unk168 * -110);
-                    sp4C = (func_80612790(sp58 * 4096.0f) * 0.5 + 0.5) * 50.0 + -30.0;
-                    D_807FBB40->unk7C = ((func_80612794(D_807FBB4C->unkE6 - 0x400) * sp50 + sp68->unkA) - D_807FBB40->unk7C) * sp54 + D_807FBB40->unk7C;
-                    D_807FBB40->unk80 += (gActivePlayerState->unk88->unkA4 + sp4C - D_807FBB40->unk80) * sp54;
-                    D_807FBB40->unk84 = ((func_80612790(D_807FBB4C->unkE6 - 0x400) * sp50 + sp68->unkE) - D_807FBB40->unk84) * sp54 + D_807FBB40->unk84;
-                    if (sp68->unk2C < 0x10) {
+                    interpT = func_80612790(targetState->unk2C / 70.0 * 2048.0 + 2048.0) * 0.5 + 0.5;
+                    sinT = func_80612794(2048.0f * interpT);
+                    lateralOffset = func_80612794(interpT * 1536.0f + 1024.0f) * (D_807FBB40->unk168 * -110);
+                    vertOffset = (func_80612790(interpT * 4096.0f) * 0.5 + 0.5) * 50.0 + -30.0;
+                    D_807FBB40->unk7C = ((func_80612794(D_807FBB4C->unkE6 - 0x400) * lateralOffset + targetState->unkA) - D_807FBB40->unk7C) * sinT + D_807FBB40->unk7C;
+                    D_807FBB40->unk80 += (gActivePlayerState->unk88->unkA4 + vertOffset - D_807FBB40->unk80) * sinT;
+                    D_807FBB40->unk84 = ((func_80612790(D_807FBB4C->unkE6 - 0x400) * lateralOffset + targetState->unkE) - D_807FBB40->unk84) * sinT + D_807FBB40->unk84;
+                    if (targetState->unk2C < 0x10) {
                         D_807FBB40->unk132 = 0;
                     }
                 } else {
@@ -416,7 +416,7 @@ void minecartFollowerChildBehaviour(void) {
         break;
     case 6:
         if (s2->unk155 == 0) {
-            sp68->unk2C = D_807FDC9C->unkB;
+            targetState->unk2C = D_807FDC9C->unkB;
             s2->unk155 = 1;
         }
         if (D_807FBB40->unk168 == 1) {
@@ -424,9 +424,9 @@ void minecartFollowerChildBehaviour(void) {
         } else {
             D_807FBB40->unkE4 = mathAngleEaseToward(D_807FBB40->unkE4, 0x400, 16.0f);
         }
-        v = sp68->unk2C;
+        v = targetState->unk2C;
         if (v != 0) {
-            sp68->unk2C = v - 1;
+            targetState->unk2C = v - 1;
         } else {
             s2->unk155 = 0xFF;
         }
@@ -461,14 +461,14 @@ void minecartFollowerChildBehaviour(void) {
 void func_80027778(void) {
     f32 d;
     f32 dist;
-    MinecartCart *sp64;
+    MinecartCart *playerCart;
     s32 a;
-    s16 sp5E;
-    s16 sp5C;
+    s16 pointX;
+    s16 pointZ;
 
-    sp64 = gActivePlayerState->unk88->unk174;
-    sp5E = D_807F5FD4[D_807FBB40->unk15F][D_807FBB40->unk168].x;
-    sp5C = D_807F5FD4[D_807FBB40->unk15F][D_807FBB40->unk168].z;
+    playerCart = gActivePlayerState->unk88->unk174;
+    pointX = D_807F5FD4[D_807FBB40->unk15F][D_807FBB40->unk168].x;
+    pointZ = D_807F5FD4[D_807FBB40->unk15F][D_807FBB40->unk168].z;
     if (!(D_807FBB40->unk60 & 0x10)) {
         func_80613C48(D_807FBB40, 0x5FF, 0.0f, 0.0f);
         animSetSpeed(D_807FBB40, 0, 1.0f);
@@ -476,9 +476,9 @@ void func_80027778(void) {
         animSetLoopLimit(D_807FBB40, 0, -1);
         D_807FBB40->unk144 = 0x24;
         if (D_807FBB40->unk11C->unk15F == 1) {
-            D_807FBB40->unk15F = *sp64->unk34 & ~0xC0;
+            D_807FBB40->unk15F = *playerCart->unk34 & ~0xC0;
         } else {
-            switch (*sp64->unk34 & ~0xC0) {
+            switch (*playerCart->unk34 & ~0xC0) {
             case 1:
             case 2:
                 D_807FBB40->unk15F = (D_807FBB40->unk11C->unk15F ^ 1) + 1;
@@ -495,7 +495,7 @@ void func_80027778(void) {
                 break;
             }
         }
-        a = sp64->unk10 - 2;
+        a = playerCart->unk10 - 2;
         D_807FBB40->unk168 = MAX(0, a);
         D_807FBB40->unkB8 = 1100.0f;
         D_807FBB40->unkC0 = 400.0f;
@@ -512,12 +512,12 @@ void func_80027778(void) {
         func_807149B8(1);
         func_80714CC0(D_80720120, 1.0f, D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f, D_807FBB40->unk84);
     }
-    D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, mathAngleBetweenPoints2D(sp5E, sp5C, D_807FBB40->unk7C, D_807FBB40->unk84), 6.0f);
+    D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, mathAngleBetweenPoints2D(pointX, pointZ, D_807FBB40->unk7C, D_807FBB40->unk84), 6.0f);
     D_807FBB40->unkEE = D_807FBB40->unkE6;
     actorApplyGravity();
     actorApplyVelocity(D_807FBB40);
     actorUpdateFloorContactAndTilt(D_807FBB40, 2.0 * func_80612794(gFrameCounter * 0x64) + 10.0);
-    if ((sp5E - D_807FBB40->unk7C) * (sp5E - D_807FBB40->unk7C) + (sp5C - D_807FBB40->unk84) * (sp5C - D_807FBB40->unk84) < 1600.0f) {
+    if ((pointX - D_807FBB40->unk7C) * (pointX - D_807FBB40->unk7C) + (pointZ - D_807FBB40->unk84) * (pointZ - D_807FBB40->unk84) < 1600.0f) {
         D_807FBB40->unk168++;
     }
     if (D_807FBB85 != 0 || --D_807FBB40->unkF0 == 0) {
@@ -568,35 +568,35 @@ void minecartStartScriptNearPlayer(void) {
     }
 }
 
-void minecartChooseBranchSide(MinecartCart *arg0) {
+void minecartChooseBranchSide(MinecartCart *cart) {
     PlayerState_25F0 *c = D_807FDC94->unk174;
     MinecartCart *d = c->unk88->unk174;
     u8 b = *d->unk34 - 0x10;
 
-    if (b < *arg0->unk34) {
-        arg0->unk42 = 1;
-    } else if (*arg0->unk34 < b) {
-        arg0->unk42 = 2;
+    if (b < *cart->unk34) {
+        cart->unk42 = 1;
+    } else if (*cart->unk34 < b) {
+        cart->unk42 = 2;
     } else {
-        arg0->unk42 = 0;
+        cart->unk42 = 0;
     }
 }
 
 void minecartAdjustTargetSpeed(void) {
-    u16 temp_v1;
+    u16 targetAngle;
     PlayerState_25F0 *comp = D_807FDC94->unk174;
 
-    temp_v1 = D_807FBB40->unk4->unk1C->unk4;
-    if (temp_v1 >= 0x47D1 && temp_v1 < 0xB830) {
+    targetAngle = D_807FBB40->unk4->unk1C->unk4;
+    if (targetAngle >= 0x47D1 && targetAngle < 0xB830) {
         D_807FDC90->unk26 = MAX(9, D_807FDC90->unk26 - 5);
-    } else if (temp_v1 < 0x3830 || temp_v1 >= 0xC7D1) {
+    } else if (targetAngle < 0x3830 || targetAngle >= 0xC7D1) {
         D_807FDC90->unk26 = MIN(D_807FDC9C->unkD, D_807FDC90->unk26 + 5);
     } else {
         D_807FDC90->unk26 = comp->unk88->unkB8;
     }
 }
 
-void minecartPlayPassBySfx(MinecartCart *arg0) {
+void minecartPlayPassBySfx(MinecartCart *cart) {
     f32 d;
     f32 dist = D_807FBB40->unk7C - D_807FDC94->unk7C;
     dist = dist * dist;
@@ -605,20 +605,20 @@ void minecartPlayPassBySfx(MinecartCart *arg0) {
     d = D_807FBB40->unk84 - D_807FDC94->unk84;
     dist = sqrtf(dist + d * d);
     if (dist < 200.0f) {
-        if (++arg0->unk3A >= 9) {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1F, 0xFF, (127.0f - (dist - arg0->unk3C)), 0);
-            arg0->unk3A = randomLcgNext() / 4294967295.0 * 3.0;
+        if (++cart->unk3A >= 9) {
+            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1F, 0xFF, (127.0f - (dist - cart->unk3C)), 0);
+            cart->unk3A = randomLcgNext() / 4294967295.0 * 3.0;
         }
     }
-    arg0->unk3C = dist;
+    cart->unk3C = dist;
 }
 
 void func_800280BC(void) {
     MinecartCart *cart;
     StructBB70_Sub *sub;
-    f32 sp4C;
-    f32 sp48;
-    f32 sp44;
+    f32 nodePosZ;
+    f32 nodePosY;
+    f32 nodePosX;
     u8 *alloc;
     cart = D_807FBB40->unk178;
     behaviourFrameBegin();
@@ -657,8 +657,8 @@ void func_800280BC(void) {
         actorSpawnNodeEffectFacingCamera(6, 0xFF);
         actorApproachTargetSpeed(0x200);
         minecartFollowTrack(cart, 0x7FFF, 0x23);
-        actorGetNodePos(D_807FBB40, 5, &sp44, &sp48, &sp4C);
-        commandQueuePush(D_807FBB40, sp44, sp48, sp4C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        actorGetNodePos(D_807FBB40, 5, &nodePosX, &nodePosY, &nodePosZ);
+        commandQueuePush(D_807FBB40, nodePosX, nodePosY, nodePosZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         minecartPlayPassBySfx(cart);
         return;
     case 2:
@@ -674,12 +674,12 @@ void func_800280BC(void) {
 void func_8002835C(void) {
     MinecartCart *cart;
     StructBB70_Sub *sub;
-    f32 sp6C;
-    f32 sp68;
-    f32 sp64;
-    f32 sp60;
-    f32 sp5C;
-    f32 sp58;
+    f32 node2Z;
+    f32 node2Y;
+    f32 node2X;
+    f32 node1Z;
+    f32 node1Y;
+    f32 node1X;
     u8 *alloc;
     s32 pad0, pad1, pad2;
 
@@ -720,8 +720,8 @@ void func_8002835C(void) {
         if ((gCurrentMap == 0x4D) || (gCurrentMap == 0x81) || (gCurrentMap == 0x82)) {
             minecartChooseBranchSide(cart);
             minecartApplyJunction(cart, D_80028BD0, 0, 3);
-            actorGetNodePos(D_807FBB40, 1, &sp58, &sp5C, &sp60);
-            actorGetNodePos(D_807FBB40, 2, &sp64, &sp68, &sp6C);
+            actorGetNodePos(D_807FBB40, 1, &node1X, &node1Y, &node1Z);
+            actorGetNodePos(D_807FBB40, 2, &node2X, &node2Y, &node2Z);
         }
         actorApproachTargetSpeed(0x200);
         minecartFollowTrack(cart, 0x7FFF, 0x23);
@@ -729,8 +729,8 @@ void func_8002835C(void) {
             D_807FBB40->unk154 = 1;
             cart->unk34--;
         }
-        actorGetNodePos(D_807FBB40, 5, &sp58, &sp5C, &sp60);
-        commandQueuePush(D_807FBB40, sp58, sp5C, sp60, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        actorGetNodePos(D_807FBB40, 5, &node1X, &node1Y, &node1Z);
+        commandQueuePush(D_807FBB40, node1X, node1Y, node1Z, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         minecartPlayPassBySfx(cart);
         return;
     case 2:
@@ -746,9 +746,9 @@ void func_8002835C(void) {
 void func_800286EC(void) {
     MinecartCart *cart;
     s32 pad;
-    f32 sp7C;
-    f32 sp78;
-    f32 sp74;
+    f32 nodePosZ;
+    f32 nodePosY;
+    f32 nodePosX;
     PlayerState_25F0 *playerState;
     f64 t1;
     f64 t2;
@@ -804,8 +804,8 @@ case_1:
         actorApproachTargetSpeed(0x200);
         actorSpawnNodeEffectFacingCamera(6, 0xFF);
         minecartFollowTrack(cart, 0x7FFF, 0x23);
-        actorGetNodePos(D_807FBB40, 5, &sp74, &sp78, &sp7C);
-        commandQueuePush(D_807FBB40, sp74, sp78, sp7C, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        actorGetNodePos(D_807FBB40, 5, &nodePosX, &nodePosY, &nodePosZ);
+        commandQueuePush(D_807FBB40, nodePosX, nodePosY, nodePosZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
         if (D_807FBB4C->unk154 == 0x70 || cart->unk10 == 0x90) {
             D_807FBB40->unk154++;
         }
