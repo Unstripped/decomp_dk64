@@ -141,8 +141,8 @@ extern u16 gActiveActorCount;
 extern ActorEntry gActiveActors[];
 
 void func_806ADFE0(void) {
-    f32 sp88[4][4];
-    f32 sp48[4][4];
+    f32 transMtx[4][4];
+    f32 rotMtx[4][4];
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unkB8 = (randomNonNegative() >> 15) % 50 + 0x46;
@@ -164,11 +164,11 @@ void func_806ADFE0(void) {
     if (D_807FBB40->unk15F != 0) {
         actorUpdateModelMatrix(D_807FBB40, 0);
     } else {
-        guTranslateF(sp88, 0, -30.0f, 0);
-        matrixMakeRotationX(sp48, 180.0f);
-        guMtxCatF(sp88, sp48, sp88);
-        guTranslateF(sp48, 0, 30.0f, 0.0f);
-        guMtxCatF(sp88, sp48, D_807FBB40->unkC);
+        guTranslateF(transMtx, 0, -30.0f, 0);
+        matrixMakeRotationX(rotMtx, 180.0f);
+        guMtxCatF(transMtx, rotMtx, transMtx);
+        guTranslateF(rotMtx, 0, 30.0f, 0.0f);
+        guMtxCatF(transMtx, rotMtx, D_807FBB40->unkC);
         actorUpdateModelMatrix(D_807FBB40, 1);
     }
     if ((D_807FBB40->unk6A & 1) && !(D_807FBB40->unk6C & 1)) {
@@ -187,20 +187,20 @@ s32 actorSpawn(s32, s32);
 u32 actorGetNodePos(B2CE0Actor *, s16, f32 *, f32 *, f32 *);
 void actorSetUniformScale(void *, s32);
 
-void actorSpawnChildAtNode(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
-    f32 sp2C;
-    f32 sp28;
-    f32 sp24;
+void actorSpawnChildAtNode(s32 actorType, s16 angleOffset, s16 nodeIndex, s16 extraParam) {
+    f32 nodeX;
+    f32 nodeY;
+    f32 nodeZ;
 
-    if (actorSpawn(0xED, arg0) != 0) {
-        actorGetNodePos(D_807FBB40, arg2, &sp2C, &sp28, &sp24);
+    if (actorSpawn(0xED, actorType) != 0) {
+        actorGetNodePos(D_807FBB40, nodeIndex, &nodeX, &nodeY, &nodeZ);
         D_807FBB44->unkA4 = D_807FBB40->unkA4;
-        D_807FBB44->unkE6 = D_807FBB40->unkE6 + arg1;
+        D_807FBB44->unkE6 = D_807FBB40->unkE6 + angleOffset;
         D_807FBB44->unkEE = D_807FBB44->unkE6;
-        D_807FBB44->unk168 = arg3;
-        D_807FBB44->unk7C = sp2C;
-        D_807FBB44->unk80 = sp28;
-        D_807FBB44->unk84 = sp24;
+        D_807FBB44->unk168 = extraParam;
+        D_807FBB44->unk7C = nodeX;
+        D_807FBB44->unk80 = nodeY;
+        D_807FBB44->unk84 = nodeZ;
         actorSetUniformScale(D_807FBB44, *(s32 *)&D_807FBB40->unk4->unk38);
     }
 }
@@ -212,24 +212,24 @@ f32 func_80612794(s16);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void playerStateQueueCallback(s32, B2CE0Actor *, s32);
 
-void func_806AE394(f32 arg0, f32 arg1) {
-    f32 sp64;
-    f32 sp60;
-    f32 sp5C;
-    f32 sp58;
-    f32 sp54;
-    f32 sp50;
-    s16 sp4E;
+void func_806AE394(f32 distOffset, f32 radius) {
+    f32 node1X;
+    f32 node1Y;
+    f32 node1Z;
+    f32 node2X;
+    f32 node2Y;
+    f32 node2Z;
+    s16 angle;
 
-    actorGetNodePos(D_807FBB40, 1, &sp64, &sp60, &sp5C);
-    actorGetNodePos(D_807FBB40, 2, &sp58, &sp54, &sp50);
-    sp4E = mathAngleBetweenPoints2D(sp58, sp50, sp64, sp5C);
-    lensFlareAddSource(sp64, sp60, sp5C, sp58, sp54, sp50, 0.6f, 0xFF, 0xFF, 0xFF);
-    sp64 = func_80612794(sp4E) * arg0 + D_807FBB40->unk7C;
-    sp5C = func_80612790(sp4E) * arg0 + D_807FBB40->unk84;
-    lightAdd(sp64, D_807FBB40->unk80, sp5C, 0.0f, 0.0f, 0.0f, arg1, 0, 0xFF, 0xFF, 0xFF);
+    actorGetNodePos(D_807FBB40, 1, &node1X, &node1Y, &node1Z);
+    actorGetNodePos(D_807FBB40, 2, &node2X, &node2Y, &node2Z);
+    angle = mathAngleBetweenPoints2D(node2X, node2Z, node1X, node1Z);
+    lensFlareAddSource(node1X, node1Y, node1Z, node2X, node2Y, node2Z, 0.6f, 0xFF, 0xFF, 0xFF);
+    node1X = func_80612794(angle) * distOffset + D_807FBB40->unk7C;
+    node1Z = func_80612790(angle) * distOffset + D_807FBB40->unk84;
+    lightAdd(node1X, D_807FBB40->unk80, node1Z, 0.0f, 0.0f, 0.0f, radius, 0, 0xFF, 0xFF, 0xFF);
     if (D_807FBB40->unk154 != 0) {
-        if ((D_807FDC94->unk7C - sp64) * (D_807FDC94->unk7C - sp64) + (D_807FDC94->unk80 - D_807FBB40->unk80) * (D_807FDC94->unk80 - D_807FBB40->unk80) + (D_807FDC94->unk84 - sp5C) * (D_807FDC94->unk84 - sp5C) < arg1 * arg1) {
+        if ((D_807FDC94->unk7C - node1X) * (D_807FDC94->unk7C - node1X) + (D_807FDC94->unk80 - D_807FBB40->unk80) * (D_807FDC94->unk80 - D_807FBB40->unk80) + (D_807FDC94->unk84 - node1Z) * (D_807FDC94->unk84 - node1Z) < radius * radius) {
             D_807FBB40->unkE6 = mathAngleBetweenPoints2D(D_807FDC94->unk7C, D_807FDC94->unk84, D_807FBB40->unk7C, D_807FBB40->unk84);
             playerStateQueueCallback(0x43, D_807FBB40, 0);
             D_807FBB40->unk154 = 0;
@@ -420,15 +420,15 @@ void func_806AEE08(void) {
 }
 
 void func_806AEE84(void) {
-    B2CE0Sub178 *sp34;
-    f32 sp30;
+    B2CE0Sub178 *patrolState;
+    f32 scaleFactor;
 
-    sp34 = D_807FBB40->unk178;
-    sp30 = D_807FBB40->unk4->unk38 / 0.15;
+    patrolState = D_807FBB40->unk178;
+    scaleFactor = D_807FBB40->unk4->unk38 / 0.15;
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
-        sp34->unk0 = 0x2710;
-        sp34->unk2 = 0x20;
+        patrolState->unk0 = 0x2710;
+        patrolState->unk2 = 0x20;
         behaviourSetAnimIds(0x2AD, 0x2AB, 0x2AC);
         func_80724CA4(2, 1);
     }
@@ -501,7 +501,7 @@ void func_806AEE84(void) {
                     break;
                 case 2:
                     projectileGetTargetCoords(D_807FBB40, 2);
-                    projectileSpawnNodeEntry(0x32, 0x63, sp30 * 0.4, D_807FBB40->unkE6, 300.0f, 280.0f, D_807FBB40);
+                    projectileSpawnNodeEntry(0x32, 0x63, scaleFactor * 0.4, D_807FBB40->unkE6, 300.0f, 280.0f, D_807FBB40);
                     D_807FBB40->unk155 = 3;
                     break;
                 case 4:
@@ -651,7 +651,7 @@ void func_80714C08(void *, f32, B2CE0Actor *, s32, s32);
 void effectTumbleBounceUpdate();
 extern u8 D_8072073C;
 
-void effectSpawnActorParticleBurst(u8 arg0) {
+void effectSpawnActorParticleBurst(u8 nodeIndex) {
     s16 i;
     f32 temp;
 
@@ -662,7 +662,7 @@ void effectSpawnActorParticleBurst(u8 arg0) {
         func_8071498C(effectTumbleBounceUpdate);
         func_80714998(2);
         func_80714950(0);
-        func_80714C08(&D_8072073C, temp * 0.15, D_807FBB40, arg0, 0);
+        func_80714C08(&D_8072073C, temp * 0.15, D_807FBB40, nodeIndex, 0);
     }
 }
 
