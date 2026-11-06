@@ -214,14 +214,15 @@ void controllerUpdate(void) {
             padIdx = i;
         }
         if (i == 0 && D_807463B8 == 2) {
-            if (D_807463B8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if (D_807463B8 == D_807463B8) {} // FAKE: retain CFG without a mode value live across blocks
             mask = mask | 1;
         }
-        padOffset = padIdx * 3;
+        sum = padIdx * 3;
+        sum *= 2;
         if (mask != 0) {
-            pad = (OSContPad *)((u16 *)D_807ECD10 + padOffset);
-            k = *(u16 *)pad; // FAKE: carry button read in the timer-index candidate
-            buttons = k;
+            pad = (OSContPad *)((u8 *)D_807ECD10 + sum);
+            padOffset = *(u16 *)pad; // FAKE: carry the initial button copy outside the timer-index web
+            buttons = padOffset;
             pressed = (CtrlAHeld[padIdx] ^ pad->button) & pad->button;
             CtrlAHeld[padIdx] = pad->button;
             if (D_807463B8 == 0) {
