@@ -40,17 +40,17 @@ typedef struct {
 extern VolumeTriggerTable *D_80755A14;
 void *heapAlloc(s32);
 
-void volumeTriggerTableLoad(s16 *arg0) {
+void volumeTriggerTableLoad(s16 *data) {
     VolumeTriggerRaw *src;
     VolumeTrigger *e;
     s16 i;
 
     D_80755A14->count = 0;
     D_80755A14->entries = NULL;
-    if (arg0 != NULL) {
-        src = (VolumeTriggerRaw *)(arg0 + 1);
+    if (data != NULL) {
+        src = (VolumeTriggerRaw *)(data + 1);
         i = 0;
-        D_80755A14->count = *arg0;
+        D_80755A14->count = *data;
         while (i < D_80755A14->count) {
             if (i == 0) {
                 D_80755A14->entries = heapAlloc(D_80755A14->count * 0x3A);
@@ -79,26 +79,26 @@ typedef struct {
 extern VolumeTriggerHook D_807557A0[];
 void *assetLoad(s32, s32, s32, s32);
 s32 assetFreeBuffer(void *, s32, s32);
-s32 actorFindActiveByType(s16, Actor **);
+s32 actorFindActiveByType(s16 actorType, Actor **outActor);
 
-void volumeTriggerTableInit(s32 arg0) {
+void volumeTriggerTableInit(s32 mapId) {
     VolumeTriggerHook *p;
     s32 i;
     s32 n = 0x27;
     s32 ua0;
     s32 ua1;
-    Actor *sp30;
+    Actor *actor;
     void *buf;
 
-    buf = assetLoad(0x12, arg0, 1, 0);
+    buf = assetLoad(0x12, mapId, 1, 0);
     volumeTriggerTableLoad(buf);
     if (buf != NULL) {
         assetFreeBuffer(buf, 0xC1, 0x3D);
     }
     p = D_807557A0;
     for (i = 0; i < n; i++, p++) {
-        actorFindActiveByType(p->unk2, &sp30);
-        p->unk8 = sp30;
+        actorFindActiveByType(p->unk2, &actor);
+        p->unk8 = actor;
     }
 }
 
@@ -110,7 +110,7 @@ typedef struct {
 extern ActiveActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 
-s32 actorFindActiveByType(s16 arg0, Actor **arg1) {
+s32 actorFindActiveByType(s16 actorType, Actor **outActor) {
     s32 found = 0;
     s32 i = 0;
     Actor *actor;
@@ -120,14 +120,14 @@ s32 actorFindActiveByType(s16 arg0, Actor **arg1) {
     if (gActiveActorCount > 0) {
         do {
             actor = gActiveActors[i].actor;
-            if (actor->unk58 == (arg0 & 0xFFFFFFFFu)) {
+            if (actor->unk58 == (actorType & 0xFFFFFFFFu)) {
                 found = 1;
             } else {
                 i++;
             }
         } while (!found && i < gActiveActorCount);
     }
-    *arg1 = actor;
+    *outActor = actor;
     return found;
 }
 
@@ -137,7 +137,7 @@ extern s16 D_807FDCBA;
 extern s16 D_807FDCBC;
 void func_8067AB20(void *, void *, s32, s32, void *, s32);
 s32 volumeTriggerUpdate(VolumeTrigger *);
-void volumeTriggerSetEnabled(s32, u8);
+void volumeTriggerSetEnabled(s32 triggerId, u8 enabled);
 
 typedef struct {
     s16 unk0;
@@ -193,7 +193,7 @@ extern u8 gPlayerCount;
 extern s16 D_8076A0AA;
 s32 flagTryTriggerOnce(s16, s16);
 
-s32 volumeTriggerUpdate(VolumeTrigger *arg0) {
+s32 volumeTriggerUpdate(VolumeTrigger *trigger) {
     u8 found = 0;
     f32 y;
     u8 result = 0;
@@ -203,46 +203,46 @@ s32 volumeTriggerUpdate(VolumeTrigger *arg0) {
     for (i = 0; i < gPlayerCount; i++) {
         players = &((PlayerSlot *)gPlayerSlots)[i];
         if (players->active) {
-            if (arg0->unk8 == -1 || ((f32)arg0->unk2 <= players->actor->unk80 && players->actor->unk80 < (f32)(arg0->unk2 + arg0->unk8))) {
-                y = ((f32)arg0->unk4 - players->actor->unk84) * ((f32)arg0->unk4 - players->actor->unk84) + ((f32)arg0->unk0 - players->actor->unk7C) * ((f32)arg0->unk0 - players->actor->unk7C);
-                if (y < (f32)(arg0->unk6 * arg0->unk6)) {
+            if (trigger->unk8 == -1 || ((f32)trigger->unk2 <= players->actor->unk80 && players->actor->unk80 < (f32)(trigger->unk2 + trigger->unk8))) {
+                y = ((f32)trigger->unk4 - players->actor->unk84) * ((f32)trigger->unk4 - players->actor->unk84) + ((f32)trigger->unk0 - players->actor->unk7C) * ((f32)trigger->unk0 - players->actor->unk7C);
+                if (y < (f32)(trigger->unk6 * trigger->unk6)) {
                     found = 1;
                 }
             }
         }
     }
-    switch (arg0->unkC) {
+    switch (trigger->unkC) {
         case 0:
-            if (found && arg0->unk38 == 1 && arg0->unk39) {
+            if (found && trigger->unk38 == 1 && trigger->unk39) {
                 result = 1;
             }
             break;
         case 1:
-            if (!found && !arg0->unk38 && arg0->unk39) {
+            if (!found && !trigger->unk38 && trigger->unk39) {
                 result = 1;
             }
             break;
         case 2:
-            if (found && arg0->unk39) {
+            if (found && trigger->unk39) {
                 result = 1;
             }
             break;
     }
     if (result) {
-        if (!flagTryTriggerOnce(D_8076A0AA, arg0->unkA)) {
+        if (!flagTryTriggerOnce(D_8076A0AA, trigger->unkA)) {
             result = 0;
         }
     }
     if (found) {
-        arg0->unk38 = 0;
+        trigger->unk38 = 0;
     } else {
-        arg0->unk38 = 1;
+        trigger->unk38 = 1;
     }
     return result;
 }
 
 
-void volumeTriggerSetEnabled(s32 arg0, u8 arg1) {
+void volumeTriggerSetEnabled(s32 triggerId, u8 enabled) {
     s32 found;
     VolumeTrigger *e;
     s32 i;
@@ -251,14 +251,14 @@ void volumeTriggerSetEnabled(s32 arg0, u8 arg1) {
     e = D_80755A14->entries;
 
     for (i = 0; i < D_80755A14->count && !found; i++, e++) {
-        if (arg0 == e->unkA) {
-            e->unk39 = arg1;
+        if (triggerId == e->unkA) {
+            e->unk39 = enabled;
             found = 1;
         }
     }
 }
 
-s32 volumeTriggerSetPosition(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
+s32 volumeTriggerSetPosition(s32 triggerId, s16 x, s16 y, s16 z) {
     s32 found;
     VolumeTrigger *e;
     s32 i;
@@ -266,10 +266,10 @@ s32 volumeTriggerSetPosition(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
     found = 0;
     e = D_80755A14->entries;
     for (i = 0; i < D_80755A14->count && !found; i++, e++) {
-        if (arg0 == e->unkA) {
-            e->unk0 = arg1;
-            e->unk2 = arg2;
-            e->unk4 = arg3;
+        if (triggerId == e->unkA) {
+            e->unk0 = x;
+            e->unk2 = y;
+            e->unk4 = z;
             found = 1;
         }
     }
