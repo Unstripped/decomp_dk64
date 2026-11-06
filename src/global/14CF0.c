@@ -61,46 +61,46 @@ extern OSMesgQueue D_807659E8;
 extern u8 D_807F059C[];
 extern OSMesgQueue gScheduler;
 
-void schedSubmitGfxTask(void *arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, u8 arg5) {
+void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers, s32 taskId, u8 writebackAll) {
     SchedGfxTask *msg;
     s32 size;
 
     if (D_80744460 != 0) {
         return;
     }
-    msg = &D_807F05A8[arg2][D_807444FC];
-    D_807F059C[arg2] = 1;
+    msg = &D_807F05A8[taskIdx][D_807444FC];
+    D_807F059C[taskIdx] = 1;
     msg->type = 1;
     msg->task_flags = 0;
     msg->ucode_boot = D_805FB000;
     msg->ucode_boot_size = D_805FB0D0 - D_805FB000;
-    msg->ucode = D_807F0570[arg2];
-    msg->ucode_data = D_807F0588[arg2];
+    msg->ucode = D_807F0570[taskIdx];
+    msg->ucode_data = D_807F0588[taskIdx];
     msg->ucode_size = 0x1000;
     msg->ucode_data_size = 0x800;
     msg->dram_stack = D_8076AF20;
     msg->dram_stack_size = 0x400;
     msg->output_buff = (void *)D_807F05A4;
     msg->output_buff_size = D_807F05A4 + D_807F0984;
-    msg->data_ptr = arg0;
-    msg->data_size = arg1 * 8;
+    msg->data_ptr = glist;
+    msg->data_size = numCommands * 8;
     msg->yield_data_ptr = D_8076B320;
     msg->yield_data_size = 0xC00;
     msg->next = NULL;
     msg->msgQ = &D_807659E8;
-    msg->msg = (OSMesg)((arg2 << 16) | arg4);
+    msg->msg = (OSMesg)((taskIdx << 16) | taskId);
     msg->flags = 3;
-    if (arg3) {
+    if (swapBuffers) {
         msg->flags |= 0x40;
     }
     msg->framebuffer = D_80744470[D_807444FC];
     msg->client = D_80767CD8;
-    if (arg5) {
+    if (writebackAll) {
         osWritebackDCacheAll();
     } else {
-        size = arg1 * 8;
+        size = numCommands * 8;
         osWritebackDCache(msg, sizeof(SchedGfxTask));
-        osWritebackDCache(arg0, size);
+        osWritebackDCache(glist, size);
         osWritebackDCache(D_80767CE8 + D_807444FC * 0x11B0, 0x11B0);
     }
     osSendMesg(&gScheduler, msg, 1);
@@ -108,16 +108,16 @@ void schedSubmitGfxTask(void *arg0, s32 arg1, u8 arg2, u8 arg3, s32 arg4, u8 arg
 
 extern s8 D_80746834;
 
-void func_80610268(s32 arg0) {
-    void *sp34;
-    s32 temp_t8;
+void func_80610268(s32 targetTaskId) {
+    void *receivedMsg;
+    s32 receivedTaskId;
 
     do {
         D_80746834 = 8;
-        osRecvMesg(&D_807659E8, &sp34, 1);
+        osRecvMesg(&D_807659E8, &receivedMsg, 1);
         D_80746834 = 0;
-        D_807F059C[(u32)sp34 >> 0x10] = 0;
-        temp_t8 = ((s32)sp34 & 0xFFFF) & 0xFFFF;
-        sp34 = (void *)temp_t8;
-    } while (temp_t8 != arg0);
+        D_807F059C[(u32)receivedMsg >> 0x10] = 0;
+        receivedTaskId = ((s32)receivedMsg & 0xFFFF) & 0xFFFF;
+        receivedMsg = (void *)receivedTaskId;
+    } while (receivedTaskId != targetTaskId);
 }
