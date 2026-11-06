@@ -60,16 +60,16 @@ void animSetFrameAndSubframe(void *, s32, s16, f32);
 void animSetFinished(void *, s32, s32);
 
 
-void critterSetDigitFrames(s32 arg0) {
-    s32 var_s0;
+void critterSetDigitFrames(s32 val) {
+    s32 digit;
     f32 zero = 0.0f;
-    s32 n = arg0;
+    s32 n = val;
 
-    for (var_s0 = 2; var_s0 >= 0; var_s0--) {
-        animSetLoopLimit(D_807FBB40, var_s0, 1);
-        animSetSpeed(D_807FBB40, var_s0, zero);
-        animSetFrameAndSubframe(D_807FBB40, var_s0, (n % 10) + 1, zero);
-        animSetFinished(D_807FBB40, var_s0, 0);
+    for (digit = 2; digit >= 0; digit--) {
+        animSetLoopLimit(D_807FBB40, digit, 1);
+        animSetSpeed(D_807FBB40, digit, zero);
+        animSetFrameAndSubframe(D_807FBB40, digit, (n % 10) + 1, zero);
+        animSetFinished(D_807FBB40, digit, 0);
         n /= 10;
     }
 }
@@ -105,103 +105,103 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 f32 randomFloat(void);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 f32 sqrtf(f32);
-void critterSetDigitFrames(s32);
+void critterSetDigitFrames(s32 val);
 
 void func_80027448(void) {
-    s32 sp6C;
-    s32 sp68;
-    s32 sp64;
-    s16 *sp60;
-    f32 sp5C;
-    f32 sp58;
-    f32 sp54;
-    f32 sp50;
-    f32 sp4C;
-    f32 sp48;
-    s8 sp47;
-    s8 sp46;
+    s32 worldIndex;
+    s32 pad;
+    s32 requiredCount;
+    s16 *timerPtr;
+    f32 dx;
+    f32 dy;
+    f32 dz;
+    f32 dist;
+    f32 padF1;
+    f32 padF2;
+    s8 hasSecretDiscount;
+    s8 canSecretUnlock;
 
-    sp60 = D_807FBB40->unk174;
-    sp46 = 0;
-    sp47 = 0;
-    sp6C = func_805FF030(D_8076A0AB, 0);
-    if (sp6C >= 8) {
-        sp6C = 7;
+    timerPtr = D_807FBB40->unk174;
+    canSecretUnlock = 0;
+    hasSecretDiscount = 0;
+    worldIndex = func_805FF030(D_8076A0AB, 0);
+    if (worldIndex >= 8) {
+        worldIndex = 7;
     }
     if (gCurrentMap == 0x2A) {
-        sp64 = D_807446C0[sp6C];
+        requiredCount = D_807446C0[worldIndex];
     } else {
-        sp64 = D_807446D0[sp6C];
+        requiredCount = D_807446D0[worldIndex];
     }
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk64 |= 0x20;
         if (gCurrentMap == 0x2A) {
             actorScriptStart(D_807FBB40, 0x39F);
             D_807FBB40->unk155 = 4;
-            if (D_807FC930[sp6C] < sp64) {
+            if (D_807FC930[worldIndex] < requiredCount) {
                 slotQueueUpdate(0, 1, 0);
             }
         } else {
             slotQueueUpdate(9, 1, 0);
-            if (flagGet((s16)(sp6C + 0x1CD), 0) != 0) {
+            if (flagGet((s16)(worldIndex + 0x1CD), 0) != 0) {
                 D_807FBB40->unk155 = 4;
             }
             actorScriptStart(D_807FBB40, 0x39E);
-            critterSetDigitFrames(sp64);
+            critterSetDigitFrames(requiredCount);
         }
-        *sp60 = 0;
+        *timerPtr = 0;
         D_8002A1B0 = 0.0f;
         D_80029F84 = 0;
         D_80029F80 = 0;
     } else if (D_80029F84 != 0) {
-        s8 *pair = &D_807446E0[sp6C + sp6C];
+        s8 *pair = &D_807446E0[worldIndex + worldIndex];
 
         if (gPlayerCharacterId == pair[1]) {
-            if (func_806FB418() < sp64 && sp6C != 7) {
-                sp64 = pair[0];
-                sp47 = 1;
+            if (func_806FB418() < requiredCount && worldIndex != 7) {
+                requiredCount = pair[0];
+                hasSecretDiscount = 1;
             }
-            if (sp6C == 7) {
+            if (worldIndex == 7) {
                 if (D_80029F84 == 1) {
-                    sp46 = 1;
+                    canSecretUnlock = 1;
                 } else {
-                    sp64 = D_807446EE;
-                    sp47 = 1;
+                    requiredCount = D_807446EE;
+                    hasSecretDiscount = 1;
                 }
             }
         }
     }
     D_807FBB40->unk15E = 0x23;
     if (gCurrentMap != 0x2A) {
-        sp5C = D_807FBB4C->unk7C - D_807FBB40->unk7C;
-        sp58 = (f32)(2.0 * (f64)(D_807FBB4C->unk80 - D_807FBB40->unk80));
-        sp54 = D_807FBB4C->unk84 - D_807FBB40->unk84;
-        sp50 = sqrtf(sp5C * sp5C + sp58 * sp58 + sp54 * sp54);
-        if ((f64)sp50 < 300.0 && flagGet(0x17E, 0) == 0) {
+        dx = D_807FBB4C->unk7C - D_807FBB40->unk7C;
+        dy = (f32)(2.0 * (f64)(D_807FBB4C->unk80 - D_807FBB40->unk80));
+        dz = D_807FBB4C->unk84 - D_807FBB40->unk84;
+        dist = sqrtf(dx * dx + dy * dy + dz * dz);
+        if ((f64)dist < 300.0 && flagGet(0x17E, 0) == 0) {
             func_8070E8DC(1);
             func_8070D8C0(D_807FBB40, 0x1D, 0);
             camStartPath(D_807FBB40, 1, 1);
             flagSet(0x17E, 1, 0);
-        } else if (sp46 != 0 && (f64)sp50 < 200.0 && camIsCutsceneActive() == 0 && D_807FBB4C->unk154 == 0x24 && D_807FBB4C->unk155 == 2 && (f64)sp54 > -35.0) {
-            if ((f64)sp5C > -27.0 && (f64)sp5C < 27.0 && (D_807FBB4C->unkE6 < 0x200 || D_807FBB4C->unkE6 >= 0xE01)) {
+        } else if (canSecretUnlock != 0 && (f64)dist < 200.0 && camIsCutsceneActive() == 0 && D_807FBB4C->unk154 == 0x24 && D_807FBB4C->unk155 == 2 && (f64)dz > -35.0) {
+            if ((f64)dx > -27.0 && (f64)dx < 27.0 && (D_807FBB4C->unkE6 < 0x200 || D_807FBB4C->unkE6 >= 0xE01)) {
                 D_80029F84 = 2;
                 sfxPlayOnFreeSlot(0x145, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 camStartShake(gCamActor, 0xA, 0xA);
                 D_807FBB40->unk155 = 0xA;
-                *sp60 = 0;
+                *timerPtr = 0;
                 actorScriptStart(D_807FBB40, 0x3A1);
             }
         }
         switch (D_807FBB40->unk155) {
         case 10:
-            *sp60 += 1;
-            if (*sp60 == 0xA) {
-                critterSetDigitFrames(sp64);
+            *timerPtr += 1;
+            if (*timerPtr == 0xA) {
+                critterSetDigitFrames(requiredCount);
                 sfxPlayOnFreeSlot(0xE, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
             }
-            if (*sp60 >= 0x2E) {
+            if (*timerPtr >= 0x2E) {
                 D_807FBB40->unk155 = 0;
-                if (func_806FB418() < sp64) { // FAKE: empty guard keeps the call; real body probably missing
+                if (func_806FB418() < requiredCount) { // FAKE: empty guard keeps the call; real body probably missing
                 }
             }
             break;
@@ -209,49 +209,49 @@ void func_80027448(void) {
             if (gCurrentMap == 0xAA && gPlayerCharacterId != 4) {
                 D_8002A1B0 = 0.0f;
             }
-            if ((f64)sp50 < 70.0 && (f64)D_8002A1B0 >= 70.0) {
+            if ((f64)dist < 70.0 && (f64)D_8002A1B0 >= 70.0) {
                 s16 var;
 
                 func_8070E8DC(1);
                 camStartPath(D_807FBB40, 0x1B, 5);
-                if (func_806FB418() < sp64) {
+                if (func_806FB418() < requiredCount) {
                     func_8070D8C0(D_807FBB40, 0x1D, 1);
                     actorScriptStart(D_807FBB40, 0x3A1);
                     D_807FBB40->unk155 = 1;
                 } else {
-                    flagSet((s16)(sp6C + 0x1CD), 1, 0);
-                    var = sp47 != 0 ? sp6C + 2 : 2;
+                    flagSet((s16)(worldIndex + 0x1CD), 1, 0);
+                    var = hasSecretDiscount != 0 ? worldIndex + 2 : 2;
                     func_8070D8C0(D_807FBB40, 0x1D, (u8)var);
                     actorScriptStart(D_807FBB40, 0x3A0);
                     D_807FBB40->unk155 = 2;
-                    *sp60 = 0;
+                    *timerPtr = 0;
                 }
             }
             break;
         case 1:
-            if ((f64)sp50 > 110.0) {
+            if ((f64)dist > 110.0) {
                 D_807FBB40->unk155 = 0;
             }
             break;
         case 2:
-            if (camIsPathPaused() == 0 && *sp60 >= 0x14) {
-                if (*sp60 == 0x32) {
+            if (camIsPathPaused() == 0 && *timerPtr >= 0x14) {
+                if (*timerPtr == 0x32) {
                     actorScriptStart(D_807FBB40, 0x3A2);
                 }
-                if (*sp60 >= 0x3D) {
+                if (*timerPtr >= 0x3D) {
                     func_807149B8(0);
                     func_807149FC(1);
                     func_80714CC0(D_80720A7C, 0.5f, (f32)(((f64)randomFloat() * 35.0 + (f64)D_807FBB40->unk7C) - 15.0), (f32)((f64)randomFloat() * 35.0 + (f64)D_807FBB40->unk80), (f32)(((f64)randomFloat() * 35.0 + (f64)D_807FBB40->unk84) - 15.0));
                 }
-                if (*sp60 >= 0x51) {
+                if (*timerPtr >= 0x51) {
                     D_807FBB40->unk4->unk34 = (f32)((f64)D_807FBB40->unk4->unk34 * 0.9);
                     D_807FBB40->unk4->unk38 = D_807FBB40->unk4->unk34;
                     D_807FBB40->unk4->unk3C = D_807FBB40->unk4->unk34;
                 }
-                *sp60 += 1;
+                *timerPtr += 1;
             } else {
-                if (*sp60 < 0x14) {
-                    *sp60 += 1;
+                if (*timerPtr < 0x14) {
+                    *timerPtr += 1;
                 }
             }
             break;
@@ -271,7 +271,7 @@ void func_80027448(void) {
             D_807FBB40->unk4->unk3C = 0.0f;
             break;
         }
-        D_8002A1B0 = sp50;
+        D_8002A1B0 = dist;
         if (D_807ECD48 != 0) {
             if (D_80029F90[D_80029F80] & D_807ECD48) {
                 D_80029F80 += 1;
@@ -298,9 +298,9 @@ void func_80027448(void) {
 void func_80027DC0(void) {
     f32 dx;
     f32 dz;
-    Actor_3340 *sp34;
-    s32 var_t5;
-    s32 var_t6;
+    Actor_3340 *savedActor;
+    s32 inRangeIntro;
+    s32 inRangeReward;
 
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -319,8 +319,8 @@ void func_80027DC0(void) {
     dz = D_807FBB40->unk84 - D_807FBB4C->unk84;
     switch (D_807FBB40->unk154) {
     case 1:
-        var_t5 = ((dx * dx + dz * dz) < 10000.0f) != 0;
-        if (var_t5) {
+        inRangeIntro = ((dx * dx + dz * dz) < 10000.0f) != 0;
+        if (inRangeIntro) {
             flagSet(0x179, 1, 0);
             camStartPath(D_807FBB4C, 0, 1);
             currentActorClearFlag();
@@ -328,7 +328,7 @@ void func_80027DC0(void) {
         }
         break;
     case 2:
-        sp34 = D_807FBB40;
+        savedActor = D_807FBB40;
         if (D_807FBB40->unk155 != 0) {
             D_807FBB40->unk155++;
             if (D_807FBB40->unk155 < 0x4B) {
@@ -336,14 +336,14 @@ void func_80027DC0(void) {
                 if (!(gFrameCounter & 3)) {
                     effectSpawnBurst(0);
                 }
-                D_807FBB40 = sp34;
+                D_807FBB40 = savedActor;
             } else {
                 D_807FBB40 = D_807FBB4C;
                 D_807FBB4C->unk154 = 0x2D;
                 D_807FBB4C->unk155 = 0;
                 func_80614E78(D_807FBB4C, 0x42);
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB4C, 0xF2, 0xFF, 0x7F, 0);
-                D_807FBB40 = sp34;
+                D_807FBB40 = savedActor;
                 D_807FBB40->unk155 = 0;
                 sfxStopSlotSound(D_807FBB4C, 1);
             }
@@ -355,8 +355,8 @@ void func_80027DC0(void) {
         }
         break;
     case 3:
-        var_t6 = ((dx * dx + dz * dz) < 10000.0f) != 0;
-        if (var_t6) {
+        inRangeReward = ((dx * dx + dz * dz) < 10000.0f) != 0;
+        if (inRangeReward) {
             camStartPath(D_807FBB40, 1, 1);
             currentActorClearFlag();
             D_807FBB40->unk154 = 4;
