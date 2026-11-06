@@ -36,11 +36,11 @@ typedef struct LightKeyframeSet {
 extern LightKeyframeSet gLightKeyframeTable[];
 extern s32 gFrameCounter;
 
-void lightQueueKeyframed(u8 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, s16 arg5, f32 arg6, s16 arg7) {
+void lightQueueKeyframed(u8 keyframeSetIndex, s16 lightId, f32 x, f32 y, f32 z, s16 radius, f32 fade, s16 targetId) {
     u8 count;
     s32 i;
     s32 total;
-    s32 temp_hi;
+    s32 cyclePos;
     s32 accum;
     s32 next;
     f32 t;
@@ -48,58 +48,58 @@ void lightQueueKeyframed(u8 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, s16 ar
     f32 base;
     f64 d6;
 
-    arg0 = arg0 - 1;
+    keyframeSetIndex = keyframeSetIndex - 1;
     if (gLightQueueCount != 0x1E) {
         for (i = 0; i < gLightQueueCount; i++) {
-            if (arg1 == gLightQueue[i].unk0) {
+            if (lightId == gLightQueue[i].unk0) {
                 return;
             }
         }
 
         total = 0;
         count = 0;
-        for (i = 0; gLightKeyframeTable[arg0].sub[i].unkA != 0; count++, i++) {
-            total += gLightKeyframeTable[arg0].sub[i].unkA;
+        for (i = 0; gLightKeyframeTable[keyframeSetIndex].sub[i].unkA != 0; count++, i++) {
+            total += gLightKeyframeTable[keyframeSetIndex].sub[i].unkA;
         }
 
-        temp_hi = (arg1 + gFrameCounter) % total;
-        accum = gLightKeyframeTable[arg0].sub[0].unkA;
+        cyclePos = (lightId + gFrameCounter) % total;
+        accum = gLightKeyframeTable[keyframeSetIndex].sub[0].unkA;
         i = 1;
-        while (temp_hi >= accum) {
-            accum += gLightKeyframeTable[arg0].sub[i].unkA;
+        while (cyclePos >= accum) {
+            accum += gLightKeyframeTable[keyframeSetIndex].sub[i].unkA;
             i++;
         }
 
         i--;
-        accum -= gLightKeyframeTable[arg0].sub[i].unkA;
-        temp_hi -= accum;
-        t = (f32)temp_hi / (f32)gLightKeyframeTable[arg0].sub[i].unkA;
+        accum -= gLightKeyframeTable[keyframeSetIndex].sub[i].unkA;
+        cyclePos -= accum;
+        t = (f32)cyclePos / (f32)gLightKeyframeTable[keyframeSetIndex].sub[i].unkA;
         next = i + 1;
         if (next == count) {
             next = 0;
         }
 
 
-        d6 = arg6;
+        d6 = fade;
         if (d6 < 0.8) {
             factor = 1.0f;
         } else {
             factor = 1.0 - ((d6 - 0.8) / 0.19999999999999996);
         }
 
-        base = gLightKeyframeTable[arg0].sub[i].unk0 + (gLightKeyframeTable[arg0].sub[next].unk0 - gLightKeyframeTable[arg0].sub[i].unk0) * t;
+        base = gLightKeyframeTable[keyframeSetIndex].sub[i].unk0 + (gLightKeyframeTable[keyframeSetIndex].sub[next].unk0 - gLightKeyframeTable[keyframeSetIndex].sub[i].unk0) * t;
         base = base * factor;
 
-        gLightQueue[gLightQueueCount].unk16 = (u32)(((f32)(u32)gLightKeyframeTable[arg0].sub[i].r + (f32)(gLightKeyframeTable[arg0].sub[next].r - gLightKeyframeTable[arg0].sub[i].r) * t) * base);
-        gLightQueue[gLightQueueCount].unk17 = (u32)(((f32)(u32)gLightKeyframeTable[arg0].sub[i].g + (f32)(gLightKeyframeTable[arg0].sub[next].g - gLightKeyframeTable[arg0].sub[i].g) * t) * base);
-        gLightQueue[gLightQueueCount].unk18 = (u32)(((f32)(u32)gLightKeyframeTable[arg0].sub[i].b + (f32)(gLightKeyframeTable[arg0].sub[next].b - gLightKeyframeTable[arg0].sub[i].b) * t) * base);
-        gLightQueue[gLightQueueCount].unk10 = (s32)((f32)gLightKeyframeTable[arg0].sub[i].unk8 + (f32)(gLightKeyframeTable[arg0].sub[next].unk8 - gLightKeyframeTable[arg0].sub[i].unk8) * t);
-        gLightQueue[gLightQueueCount].unk4 = arg2;
-        gLightQueue[gLightQueueCount].unk8 = arg3;
-        gLightQueue[gLightQueueCount].unkC = arg4;
-        gLightQueue[gLightQueueCount].unk12 = arg7;
-        gLightQueue[gLightQueueCount].unk14 = arg5;
-        gLightQueue[gLightQueueCount++].unk0 = arg1;
+        gLightQueue[gLightQueueCount].unk16 = (u32)(((f32)(u32)gLightKeyframeTable[keyframeSetIndex].sub[i].r + (f32)(gLightKeyframeTable[keyframeSetIndex].sub[next].r - gLightKeyframeTable[keyframeSetIndex].sub[i].r) * t) * base);
+        gLightQueue[gLightQueueCount].unk17 = (u32)(((f32)(u32)gLightKeyframeTable[keyframeSetIndex].sub[i].g + (f32)(gLightKeyframeTable[keyframeSetIndex].sub[next].g - gLightKeyframeTable[keyframeSetIndex].sub[i].g) * t) * base);
+        gLightQueue[gLightQueueCount].unk18 = (u32)(((f32)(u32)gLightKeyframeTable[keyframeSetIndex].sub[i].b + (f32)(gLightKeyframeTable[keyframeSetIndex].sub[next].b - gLightKeyframeTable[keyframeSetIndex].sub[i].b) * t) * base);
+        gLightQueue[gLightQueueCount].unk10 = (s32)((f32)gLightKeyframeTable[keyframeSetIndex].sub[i].unk8 + (f32)(gLightKeyframeTable[keyframeSetIndex].sub[next].unk8 - gLightKeyframeTable[keyframeSetIndex].sub[i].unk8) * t);
+        gLightQueue[gLightQueueCount].unk4 = x;
+        gLightQueue[gLightQueueCount].unk8 = y;
+        gLightQueue[gLightQueueCount].unkC = z;
+        gLightQueue[gLightQueueCount].unk12 = targetId;
+        gLightQueue[gLightQueueCount].unk14 = radius;
+        gLightQueue[gLightQueueCount++].unk0 = lightId;
     }
 }
 
@@ -149,23 +149,23 @@ typedef struct ActorSlotEntry {
 extern ActorSlotEntry *D_807F6000;
 s32 hashTableLookup(s32);
 
-void actorSetTargetSlotByte(s32 arg0, u8 arg1) {
-    u8 *volatile sp1C;
-    s16 temp_a0;
-    s32 temp_v0;
-    u8 *temp_v1;
+void actorSetTargetSlotByte(s32 key, u8 val) {
+    u8 *volatile dst;
+    s16 slotType;
+    s32 slotIdx;
+    u8 *slotBase;
 
-    temp_v0 = hashTableLookup(arg0);
-    if (temp_v0 != -1) {
-        temp_v1 = (u8 *)D_807F6000 + (temp_v0 * 0x90);
-        temp_a0 = *(s16 *)(temp_v1 + 0x86);
-        if (temp_a0 != 1) {
-            if (temp_a0 == 2) {
-                sp1C = *(u8 **)(temp_v1 + 0x20) + 0x5B;
+    slotIdx = hashTableLookup(key);
+    if (slotIdx != -1) {
+        slotBase = (u8 *)D_807F6000 + (slotIdx * 0x90);
+        slotType = *(s16 *)(slotBase + 0x86);
+        if (slotType != 1) {
+            if (slotType == 2) {
+                dst = *(u8 **)(slotBase + 0x20) + 0x5B;
             }
         } else {
-            sp1C = *(u8 **)(temp_v1 + 0x20) + 0xC3;
+            dst = *(u8 **)(slotBase + 0x20) + 0xC3;
         }
-        *sp1C = arg1;
+        *dst = val;
     }
 }
