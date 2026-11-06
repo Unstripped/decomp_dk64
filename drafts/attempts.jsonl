@@ -2206,3 +2206,7 @@
 {"agent": "orchestrator", "approx": false, "name": "schedDlDebugDump", "note": "", "outcome": "matched", "seg": "global", "stage": null, "ts": "2026-11-06T16:19:11Z", "type": "attempt", "unit": "2026-11-06: pick-one match (shared-node temp web)", "vram": "0x8060FAE4"}
 {"approx": false, "ts": "2026-11-06T17:13:16Z", "type": "unit", "unit": "2026-11-06: pick-one match attempt 2"}
 {"agent": "orchestrator", "approx": false, "name": "modelSlotResolveAssetTextures", "note": "", "outcome": "parked", "seg": "global", "stage": null, "ts": "2026-11-06T17:13:16Z", "type": "attempt", "unit": "2026-11-06: pick-one match attempt 2", "vram": "0x80636D38"}
+{"approx": false, "ts": "2026-11-06T17:57:39Z", "type": "unit", "unit": "2026-11-06: pick-one match attempt 3"}
+{"agent": "orchestrator", "approx": false, "name": "modelSlotResolveAssetTextures", "note": "", "outcome": "attempted", "seg": "global", "stage": null, "ts": "2026-11-06T17:57:39Z", "type": "attempt", "unit": "2026-11-06: pick-one match attempt 3", "vram": "0x80636D38"}
+{"agent": "orchestrator", "approx": false, "name": "eepromSaveRecords", "note": "", "outcome": "attempted", "seg": "global", "stage": null, "ts": "2026-11-06T17:57:39Z", "type": "attempt", "unit": "2026-11-06: pick-one match attempt 3", "vram": "0x8060D2C8"}
+{"agent": "orchestrator", "approx": false, "name": "func_806F03C4", "note": "", "outcome": "attempted", "seg": "global", "stage": "6", "ts": "2026-11-06T17:57:39Z", "type": "attempt", "unit": "2026-11-06: pick-one match attempt 3", "vram": "0x806F03C4"}
