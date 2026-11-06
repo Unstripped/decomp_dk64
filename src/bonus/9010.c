@@ -28,8 +28,8 @@ typedef struct BonusEHud {
     u8 unkD;
 } BonusEHud;
 
-Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *arg1) {
-    BonusEHud *hud = arg1->unk174;
+Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *actor) {
+    BonusEHud *hud = actor->unk174;
     s16 i;
     s16 y;
     char buf[24];
@@ -47,7 +47,7 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *arg1) {
     }
     switch (gCurrentMap) {
     case 0xBF:
-        if (arg1->unk154 == 2) {
+        if (actor->unk154 == 2) {
             y = 0x1E0 - (D_8002D92C * 3 << 4);
             for (i = -1; i < D_8002D92C; i++) {
                 if (i >= 0) {
@@ -95,7 +95,7 @@ void renderCallbacksRegister(void *, void *, s32);
 
 void bonusScoreHudUpdate(void) {
     BonusEHud *hud = D_807FBB40->unk174;
-    s32 sp28;
+    s32 actionParam;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         camStartPath(0, 0, 1);
@@ -116,13 +116,13 @@ void bonusScoreHudUpdate(void) {
             if (camIsPathPaused()) {
                 switch (gCurrentMap) {
                 case 0xBF:
-                    sp28 = 0x1F;
+                    actionParam = 0x1F;
                     break;
                 case 0xB8:
-                    sp28 = 0x20;
+                    actionParam = 0x20;
                     break;
                 }
-                func_8070D8C0(D_807FBB40, 0, sp28);
+                func_8070D8C0(D_807FBB40, 0, actionParam);
                 D_807FBB40->unk154 = 1;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
             } else if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
@@ -190,18 +190,18 @@ void bonusScoreHudUpdate(void) {
 extern s8 D_8002D910[];
 extern s8 D_8002D91C[];
 
-void bonusQueueScore(s16 arg0) {
+void bonusQueueScore(s16 targetId) {
     s32 i;
     s32 j;
 
     D_8002D928 = 5;
     for (i = 0; i < 4; i++) {
-        if (arg0 == D_8002D91C[i]) {
+        if (targetId == D_8002D91C[i]) {
             D_8002D928 += 0xF;
         }
     }
     i = 0;
-    while (i < 10 && arg0 != D_8002D910[i]) {
+    while (i < 10 && targetId != D_8002D910[i]) {
         i++;
     }
     j = i - 1;
@@ -221,16 +221,16 @@ void bonusQueueScore(s16 arg0) {
 }
 
 
-void bonusRegisterHit(s16 arg0) {
-    s8 var_v0;
+void bonusRegisterHit(s16 targetType) {
+    s8 points;
 
-    if (arg0 == 0xD4) {
-        var_v0 = 0xA;
+    if (targetType == 0xD4) {
+        points = 0xA;
     } else {
-        var_v0 = 2;
+        points = 2;
     }
     if (D_8002D92C < 6) {
-        D_8002DEF0[D_8002D92C] = var_v0;
+        D_8002DEF0[D_8002D92C] = points;
         D_8002D92C += 1;
         D_8002D930 = 0x14;
     }
