@@ -118,55 +118,55 @@ OSMesg D_807704C0[32];
 u8 D_80770540[0x18];
 s32 D_80770558[2];
 
-void *audioDmaNew();
+void *audioDmaNew(AudioDmaContext **outContext);
 void n_alInit(s32 *, AudioInitArgs *);
 void audioThreadMain();
 #include "common.h"
 #include "actor.h"
 
 
-void audioThreadInit(AudioInitArgs *arg0, s32 arg1, AudioTaskConfig *arg2) {
+void audioThreadInit(AudioInitArgs *initArgs, s32 threadPriority, AudioTaskConfig *taskConfig) {
     AudioDmaNode *curr;
-    AudioSynthesizerConfig sp44;
+    AudioSynthesizerConfig synConfig;
     u32 i;
 
-    arg0->dmaNew = audioDmaNew;
-    arg0->unk18 = D_8000DCB4;
+    initArgs->dmaNew = audioDmaNew;
+    initArgs->unk18 = D_8000DCB4;
     D_80770194 = 0x228;
     D_8077019C = 0x398;
-    sp44 = D_807452D0;
-    arg0->synConfig = &sp44;
-    arg0->unk24 = (u8 *)&sp44 + 0x10C;
-    n_alInit((s32 *)&D_8076D708, arg0);
+    synConfig = D_807452D0;
+    initArgs->synConfig = &synConfig;
+    initArgs->unk24 = (u8 *)&synConfig + 0x10C;
+    n_alInit((s32 *)&D_8076D708, initArgs);
     D_807701A4 = (s32 *)&D_8076D708;
 
     D_8076FE68[0].prev = NULL;
     D_8076FE68[0].next = NULL;
 
     for (i = 0; (i ^ 0) < 39; i++) { // FAKE: x ^ 0 keeps i from being strength-reduced away (steers LFTR)
-        if (arg2 != 0) {} // FAKE: dead use of arg2 swaps $s4/$s5 and the i/prev register order
+        if (taskConfig != 0) {} // FAKE: dead use of taskConfig swaps $s4/$s5 and the i/prev register order
         alLink((ALLink *)&D_8076FE68[i + 1], (ALLink *)&D_8076FE68[i]);
-        D_8076FE68[i].unk10 = alHeapDBAlloc(NULL, 0, arg0->heap, 1, 0x800);
+        D_8076FE68[i].unk10 = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, 0x800);
     }
-    D_8076FE68[i].unk10 = alHeapDBAlloc(NULL, 0, arg0->heap, 1, 0x800);
+    D_8076FE68[i].unk10 = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, 0x800);
 
     for (curr = (AudioDmaNode *)D_8076D4D0.cmdBuffers; curr < (AudioDmaNode *)D_8076D4D0.tasks; ) {
-        *(void **)curr = alHeapDBAlloc(NULL, 0, arg0->heap, 1, arg2->cmdCount * 8);
+        *(void **)curr = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, taskConfig->cmdCount * 8);
         curr = (AudioDmaNode *)((u8 *)curr + 4);
     }
 
-    D_807701A0 = arg2->cmdCount;
+    D_807701A0 = taskConfig->cmdCount;
     for (i = 0; i < 3; i++) {
-        ((AudioTask **)&D_8076D4D0)[i + 2] = alHeapDBAlloc(NULL, 0, arg0->heap, 1, sizeof(AudioTask));
+        ((AudioTask **)&D_8076D4D0)[i + 2] = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, sizeof(AudioTask));
         ((AudioTask **)&D_8076D4D0)[i + 2]->msgBuf = 2;
         ((AudioTask **)&D_8076D4D0)[i + 2]->self = ((AudioTask **)&D_8076D4D0)[i + 2];
-        ((AudioTask **)&D_8076D4D0)[i + 2]->sampleBuffer = alHeapDBAlloc(NULL, 0, arg0->heap, 1, D_8077019C * 4);
+        ((AudioTask **)&D_8076D4D0)[i + 2]->sampleBuffer = alHeapDBAlloc(NULL, 0, initArgs->heap, 1, D_8077019C * 4);
     }
     osCreateMesgQueue(&D_8076D6D0, D_8076D6E8, 8);
     osCreateMesgQueue(&D_8076D698, D_8076D6B0, 8);
     osCreateMesgQueue(&D_807704A8, D_807704C0, 0x20);
 
-    osCreateThread(&D_8076D4E8, 4, audioThreadMain, NULL, D_8076FE68, arg1);
+    osCreateThread(&D_8076D4E8, 4, audioThreadMain, NULL, D_8076FE68, threadPriority);
 }
 
 void audioThreadStart(void) {
@@ -174,7 +174,7 @@ void audioThreadStart(void) {
     osStartThread(&D_8076D4E8);
 }
 
-void audioThreadStop(s32 arg0) {
+void audioThreadStop(s32 unused) {
     if (D_807452CC != 0) {
         osStopThread(&D_8076D4E8);
     }
@@ -191,35 +191,35 @@ s32 audioDmaCallback();
 
 void schedAddClient(void *, void *, OSMesgQueue *, s32, s32);
 s32 audioBuildTask();
-void audioCheckAiLength();
+void audioCheckAiLength(s32 unused);
 void seqUpdateVolumeFades(void);
 void n_alClose(void *);
-void audioThreadMain(s32 arg0) {
+void audioThreadMain(s32 isFirstFrame) {
     s32 done;
-    OSMesg sp58;
+    OSMesg receivedMsg;
     s32 first;
-    void *var_s0;
+    void *prevAiTask;
     s32 numBuffers;
     done = 0;
-    var_s0 = NULL;
+    prevAiTask = NULL;
     first = 1;
     schedAddClient(&gScheduler, &D_8076D4C0, &D_8076D698, 2, 2);
     osSendMesg(&D_8076D698, (OSMesg)5, 0);
     numBuffers = 3;
     do {
-        osRecvMesg(&D_8076D698, &sp58, 1);
-        switch ((s32)sp58) {
+        osRecvMesg(&D_8076D698, &receivedMsg, 1);
+        switch ((s32)receivedMsg) {
         case 5:
             if (gScheduler.audioListHead != NULL) {
                 osSendMesg(&gScheduler.interruptQ, (OSMesg)0x29E, 1);
             }
-            audioBuildTask(D_8076D4D0.tasks[D_807452C0 % numBuffers], var_s0);
-            arg0 = first != 0;
+            audioBuildTask(D_8076D4D0.tasks[D_807452C0 % numBuffers], prevAiTask);
+            isFirstFrame = first != 0;
             first = 0;
-            var_s0 = D_8076D4D0.tasks[(D_807452C0 + 1) % numBuffers];
-            if (!arg0) {
-                osRecvMesg(&D_8076D6D0, &sp58, 1);
-                audioCheckAiLength(var_s0);
+            prevAiTask = D_8076D4D0.tasks[(D_807452C0 + 1) % numBuffers];
+            if (!isFirstFrame) {
+                osRecvMesg(&D_8076D6D0, &receivedMsg, 1);
+                audioCheckAiLength(prevAiTask);
             }
             seqUpdateVolumeFades();
             break;
@@ -308,7 +308,7 @@ s32 audioBuildTask(AudioTask *task, AudioAiBuffer *aiBuf) {
     return 1;
 }
 
-void audioCheckAiLength(s32 arg0) {
+void audioCheckAiLength(s32 unused) {
     s32 zero = 0;
     if (((osAiGetLength() >> 2) == 0) && (D_807454E8[zero] == 0)) {
         D_807454E8[zero] = 0;
@@ -317,7 +317,7 @@ void audioCheckAiLength(s32 arg0) {
 
 
 s32 audioDmaCallback(u32 addr, s32 len, void *state) {
-    void *sp44;
+    void *dmaBuf;
     s32 pad[3];
     AudioDmaNode *node;
     AudioDmaNode *last;
@@ -369,20 +369,20 @@ s32 audioDmaCallback(u32 addr, s32 len, void *state) {
     addr -= head;
     node->unk8 = addr;
     node->unkC = D_807452C0;
-    sp44 = node->unk10;
-    osPiStartDma(&D_807701A8[D_807452C4++], 1, 0, addr, sp44, 0x800, &D_807704A8);
-    return osVirtualToPhysical(sp44) + head;
+    dmaBuf = node->unk10;
+    osPiStartDma(&D_807701A8[D_807452C4++], 1, 0, addr, dmaBuf, 0x800, &D_807704A8);
+    return osVirtualToPhysical(dmaBuf) + head;
 }
 
 
 
-void *audioDmaNew(AudioDmaContext **arg0) {
+void *audioDmaNew(AudioDmaContext **outContext) {
     if (D_80770188.unk0 == 0) {
         D_80770188.unk4 = 0;
         D_80770188.unk8 = &D_8076FE68[0];
         D_80770188.unk0 = 1;
     }
-    *arg0 = &D_80770188;
+    *outContext = &D_80770188;
     return audioDmaCallback;
 }
 
