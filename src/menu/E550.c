@@ -208,9 +208,10 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     loadTilePacket = dl++; loadTilePacket->words.w0 = 0xE200001C; loadTilePacket->words.w1 = 0x504240; // FAKE: reuse the t1 load-tile range for this packet.
     arg1 = dl++; ((Gfx *)arg1)->words.w0 = 0xFCFF97FF; ((Gfx *)arg1)->words.w1 = 0xFF2CFE7F; // FAKE: reuse the consumed parameter's packet home.
     dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), spCC, 0);
-    xx = (s32)((f32)D_80744490 * 0.5f) * 4;
+    x = (s32)((f32)D_80744490 * 0.5f);
     arg1 = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
-    x = D_8074450C * 0xC8; off = x; // FAKE: the v1 carrier interferes with off, assigning its spill range to t0.
+    off = D_8074450C * 0xC8;
+    xx = x * 4;
     xx = xx | 0;  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
     dl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)arg1 * 4), .5f, spC8);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
     return hudDrawScaledText(dl, xx, (s16)((s32)((f64)off + (f64)spC0 * 0.5) * 4), .5f, spC4);
