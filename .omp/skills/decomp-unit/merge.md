@@ -23,7 +23,7 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
 - The copy argument is a DIRECTORY holding `<f>.c`. An agent's HEAD-based file
   (`<f>_head.c`, built against current `src`) goes to `.scratch/<A>H/<f>.c` with its base,
   or, when `src` is unchanged since, `cp` it over `src` and gate `- - src/<seg>/<f>.c`.
-- After a reduced-TU score reaches zero, run whole-object `fdiff.sh`; normalisation can hide literal ownership.
+- After a reduced-TU zero, confirm the claimed match is UNPARKED and run whole-file `fdiff.sh` on that C; a park's OK checks asm.
 - `vanished` counts both park branches: after unparking, compare old/new object text symbols before treating a count drop as deletion.
 - Never pipe a merge or gate into `tail`/`grep` and chain `&& git commit`: the pipe hides the
   exit status, and a conflict (src untouched) or a red build was committed that way twice.
@@ -40,8 +40,8 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
   build fine (dozens in the matching tree).
 - Never run the gate on a file another agent (the namer) edits in place: merge rewrites
   `src` (pruning).
-- The ROM hash is the gate; per-file `objdiff.sh` OK/TEXT OK is only a pre-check (TEXT OK
-  once hid a `.rodata` shift and two swapped externs).
+- The ROM hash is the final gate, not proof that C was unparked: check the active branch
+  and its fdiff first. Per-file TEXT OK alone can hide a `.rodata` shift or swapped externs.
 - A zero-yield copy is merged only for its parks: when one moved up a stage, replaced a
   non-equivalent park, or its declarations live only in the copy (drafts hold the function
   alone). Merge prunes unused declarations; a DIRECT-mode file needs a manual `git diff` look.

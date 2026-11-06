@@ -38,13 +38,12 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
   worth one dedicated agent; a second dedicated pass is worth it only with new findings in
   the context (F4C0 revisit: third passes on 104F0/17B90 parks matched 0 of 20; a first
   pass on old `-g` parks with the compiler's rule in the task matched 2 of 2).
-- Revisit of old parks: wave 1 per-file tasks (1-5 functions, large ones alone), then waves of
-  3-8 agents by diff KIND (schedule/as1, FP, int regalloc, frame/spill); keep going while a wave
-  matches ~1+ per agent (revisit 5: 0.4, 0.9, 1.4; revisit 6: 0.35, 1.0). Tail of 5+-attempt
-  parks: prefer inline focused sessions (revisit 9: 1 of 34 tasks). On a leftovers-only tree
-  (every function attempted), run parallel agents on the smallest stage-5/6 parks and reassign an
-  agent to the next-smallest stage-6 park in the same file as soon as it reports, reusing its
-  findings; the stage-6 park matched in 10 minutes after the stage-4/6 first targets failed in ~40.
+- Revisit old parks per file first, then by DIFF CLASS (schedule/as1, FP, integer allocation,
+  frame/spill), never by more spelling grids once those stall. Require each class agent to
+  derive the responsible compiler rule from source before editing; then apply it to its
+  targets. Keep per-function derivations in a shared `.scratch/` directory and pass their
+  paths to the next agent. Refill from fresh HEAD with the new evidence; four matches in the
+  diff-class campaign followed this change of method, not another blind retry.
 - Each `tasks[]` item lists its functions with the last diff note and stage; start from the stored draft (`tools/drafts.py show <seg> <FUNC>`), not m2c.
 - Re-check stored “regalloc-only” notes against whole-file diffs before dispatch; reconsider repeated-store loop structure and extern-float constant-pool ownership before more spelling variants (CC800 focused match).
 - The agent's budget is its context window and request cap, not wall-clock time: the brief
@@ -117,9 +116,9 @@ function" step 4, and IDO tricks are ok-fine `notes/ido-matching-quirks`.
 
 - Compare every report against its assigned list: agents have silently skipped functions
   and deleted another function's `GLOBAL_ASM` line (`merge_drafts.py` refuses the latter).
-- Merge the file the report names as final (`<f>_final.c` is common): copy it to
-  `.scratch/<A>M/<f>.c` first. `grep -n` each function the report calls unmatched in that copy:
-  one left as C (MainLoop's `frameTimingUpdate`) failed the gate on segment size.
+- Merge the file named as final (`<f>_final.c` is common); copy to `.scratch/<A>M/<f>.c`.
+  For every claimed match, confirm its C is UNPARKED and its whole-file fdiff tested that
+  same form: a parked `OK` only checks asm. Never accept the ROM gate alone as proof of unpark.
 - The `wait` status line lags: before reassigning an agent's "untouched" functions, ask it
   (`write agent://<id>`); EffB had already worked them.
 - Check the stage of everything parked: agents park stage-2/3 C despite the brief. Only

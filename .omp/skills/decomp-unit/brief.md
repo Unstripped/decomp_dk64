@@ -60,9 +60,9 @@ swapped registers: compare `adjsave` in `uopt_trace.sh -l 5`. Before reporting a
   scheduling difference.
 - If code matches but `.rodata` differs only by zero padding between functions, report it:
   that is a hidden translation-unit boundary, not something to fix in C.
-- Key compiler patterns: when you discover a pattern that resolves a common near-miss
-  (e.g. post-increment equality `if (reg++ == N)` placing stores in delay slots, K&R spills,
-  unrolled loop idioms), report it clearly or message siblings via `write agent://<id>`.
+- Keep per-function compiler derivations and rejected routes in the task's shared `.scratch/`
+  notes directory; hand the paths to the next agent. Report new rules clearly or message
+  siblings via `write agent://<id>`; when spelling grids stall, derive the rule before editing.
 - DIRECT mode (you are the only agent on the file): edit it in place, check with
   `tools/objdiff.sh src/<seg>/<file>.c [FUNC]`.
 - Run fdiff and `--non-matching` serially for each copy: both overwrite the same object.
@@ -147,8 +147,9 @@ take starter C from `tools/dk python3 tools/m2c.py -s <segment> <FUNC>`. First r
 tools/unit_check.py protos [--seg <overlay>] <your copy>`: callee return/param widths and arity
 that differ from the CURRENT definition (`void` vs `s32`, `u8`/`s16` declared `s32`, phantom
 params) each flip the caller's v0/v1, ring or `andi`s; an unused `s32` result takes a ring temp.
-When the permuter (or anything else) reaches score 0, put the readable C into your copy in place
-of the function's `GLOBAL_ASM` line and confirm with fdiff: a draft-only match is not merged.
+When a scorer reaches zero, put readable C UNPARKED in your whole-file copy and run fdiff
+on that same form: a parked `OK` checks asm, not C; `--non-matching` is only a compile check.
+A draft-only or still-parked "match" is not a match, even if a ROM gate passes.
 Stop on outcome, not time: report as soon as every assigned function is matched, or is back
 on its exact `GLOBAL_ASM` line with a saved draft whose note names the stage and the exact
 remaining diff, and you have no untried idea left (a few attempts in a row that no longer
