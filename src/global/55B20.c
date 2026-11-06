@@ -390,7 +390,6 @@ void mapFaceBuildTriangleFan(s32 arg0) {
 }
 
 
-#ifdef NON_MATCHING
 typedef struct MapDlCommand {
     /* 0x0 */ u32 unk0;
     /* 0x4 */ s32 unk4;
@@ -426,9 +425,7 @@ s32 chunk;
     s32 cfound;
     s32 cidx;
 
-    key = 0;  // FAKE: pre-defs fix uopt candidate numbering (key, cidx, cfound colour order)
-    cidx = 0;  // FAKE: pre-defs fix uopt candidate numbering (key, cidx, cfound colour order)
-    cfound = 0;  // FAKE: pre-defs fix uopt candidate numbering (key, cidx, cfound colour order)
+    key = 0;  // FAKE: makes key the first unconstrained register candidate
     if (size != 0) {
         do {
             idx = 0;
@@ -439,9 +436,7 @@ s32 chunk;
                 n = *count;
                 key = ((MapDlCommand *)list)->unk4;
                 if (buf == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                cfound = 0;
                 if (n > 0) {
-                    if (D_807F70B0 && D_807F70B0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     do {
                         if (key == ((MapChunkCellRefs *)buf)[idx].unk0) {
                             found = 1;
@@ -451,6 +446,7 @@ s32 chunk;
                     } while (idx < n && found == 0);
                 }
                 cidx = 0;
+                cfound = 0;
                 do {
                     if (key == ((MapCellOffsets *)D_807F70B0)[cidx].unk2) {
                         cfound = 1;
@@ -462,9 +458,7 @@ s32 chunk;
                     ((MapChunkCellRefs *)buf)[n].unk0 = key;
                     if (size && size) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 1 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
-                    if (D_807F70B0 != 0) {} // FAKE: keeps the global-address range ahead of constant webs
                     ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 2 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
-                    if (D_807F70B0 == 0) {} // FAKE: keeps the global-address range ahead of constant webs
                     ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 3 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
                     ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 4 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
                     ((MapChunkCellRefs *)buf)[*count].unk4[kind] = list + 8;
@@ -476,13 +470,10 @@ s32 chunk;
                 }
             }
             list += 8;
+            if ((size & list) && (size & list)) {} // FAKE: constrains loop invariants after both search indices are dead
         } while (size != 0);
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapChunkBuildCellTable.s")
-#endif
 
 s32 mapChunkIsInUse(s16 arg0) {
     s32 var_v0;
