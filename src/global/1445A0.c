@@ -39,7 +39,7 @@ typedef struct AuxSynth {
 extern AuxSynth *n_syn;
 extern AuxAcmd *n_alEnvmixerPull();
 
-AuxAcmd *n_alAuxBusPull(void *arg0, AuxAcmd *arg1, s32 arg2, s32 *arg3) {
+AuxAcmd *n_alAuxBusPull(void *time, AuxAcmd *cmdList, s32 busIndex, s32 *outCount) {
     AuxAcmd *ptr;
     AuxBus *bus;
     AuxPVoice **pvoices;
@@ -48,8 +48,8 @@ AuxAcmd *n_alAuxBusPull(void *arg0, AuxAcmd *arg1, s32 arg2, s32 *arg3) {
     u32 max;
     u32 ratio;
 
-    ptr = arg1;
-    bus = n_syn->buses + arg2;
+    ptr = cmdList;
+    bus = n_syn->buses + busIndex;
     pvoices = bus->pvoices;
     count = 0;
     max = 1;
@@ -60,11 +60,11 @@ AuxAcmd *n_alAuxBusPull(void *arg0, AuxAcmd *arg1, s32 arg2, s32 *arg3) {
         cmd->w0 = 0x020007C0;
         cmd->w1 = 0x2E0;
     }
-    *arg3 = 0;
+    *outCount = 0;
     for (i = 0; i < bus->count; i++) {
-        if ((pvoices[i]->env != NULL) && (pvoices[i]->env->time == arg2) && (pvoices[i]->env->resample != NULL) && (pvoices[i]->env->resample->pitch >= 0x40)) {
-            ptr = n_alEnvmixerPull(pvoices[i], arg0, ptr);
-            (*arg3)++;
+        if ((pvoices[i]->env != NULL) && (pvoices[i]->env->time == busIndex) && (pvoices[i]->env->resample != NULL) && (pvoices[i]->env->resample->pitch >= 0x40)) {
+            ptr = n_alEnvmixerPull(pvoices[i], time, ptr);
+            (*outCount)++;
             count++;
             if (pvoices[i]->env->resample->pitch > max) {
                 max = pvoices[i]->env->resample->pitch;
@@ -94,15 +94,15 @@ AuxAcmd *n_alAuxBusPull(void *arg0, AuxAcmd *arg1, s32 arg2, s32 *arg3) {
         }
     }
     for (i = 0; i < bus->count; i++) {
-        if (((pvoices[i]->env != NULL) && (pvoices[i]->env->time == arg2) &&
+        if (((pvoices[i]->env != NULL) && (pvoices[i]->env->time == busIndex) &&
              ((pvoices[i]->env->resample == NULL) || (pvoices[i]->env->resample->pitch < 0x40))) ||
-            ((pvoices[i]->env == NULL) && (arg2 == 0))) {
+            ((pvoices[i]->env == NULL) && (busIndex == 0))) {
             AuxAcmd *oldPtr;
 
             oldPtr = ptr;
-            ptr = n_alEnvmixerPull(pvoices[i], arg0, ptr);
+            ptr = n_alEnvmixerPull(pvoices[i], time, ptr);
             if (ptr != oldPtr) {
-                (*arg3)++;
+                (*outCount)++;
             }
         }
     }
