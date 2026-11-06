@@ -173,8 +173,8 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
         alpha = 0xFF;
     }
     gDPSetPrimColor(dl++, 0, 0, alpha, alpha, alpha, 0xFF);
-    arg1 = dl++; ((Gfx *)arg1)->words.w0 = 0xE3001201; ((Gfx *)arg1)->words.w1 = 0; // FAKE: reuse a consumed parameter's packet home.
-    tex = (u32)dl++; ((Gfx *)tex)->words.w0 = 0xE3000C00; ((Gfx *)tex)->words.w1 = 0; // FAKE: reuse the not-yet-loaded texture's home.
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0);
     tex = texCacheFindOrLoad(0xB0);
     yo = (s32)(((f32)D_80744494 - 82.0f) * 0.5f);
     y = 0; do {  // FAKE: one source line removes a scheduling barrier before the loop.
@@ -203,10 +203,10 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *arg1) {
     xo = (s32)((f32)(D_80744490 - textGetStringWidth(1, spCC)) * 0.5f);
     yo = (s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)spC0);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
-    if (D_800339D0 && D_800339D0) {}  // FAKE: duplicate reference steers the post-loop register allocation.
-    if (D_800339D0 && D_800339D0) {}  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
+    if ((s8)D_800339D0 && (s8)D_800339D0) {}  // FAKE: separate the ghost's signed-byte expression from the alpha load's spill region.
+    if ((s8)D_800339D0 && (s8)D_800339D0) {}  // FAKE: retain the post-loop allocation constraints.
     loadTilePacket = dl++; loadTilePacket->words.w0 = 0xE200001C; loadTilePacket->words.w1 = 0x504240; // FAKE: reuse the t1 load-tile range for this packet.
-    gDPSetCombine(dl++, 0xFF97FF, 0xFF2CFE7F);
+    arg1 = dl++; ((Gfx *)arg1)->words.w0 = 0xFCFF97FF; ((Gfx *)arg1)->words.w1 = 0xFF2CFE7F; // FAKE: reuse the consumed parameter's packet home.
     dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), spCC, 0);
     xx = (s32)((f32)D_80744490 * 0.5f) * 4;
     arg1 = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
