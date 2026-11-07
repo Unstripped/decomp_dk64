@@ -139,8 +139,8 @@ function" step 4, and IDO tricks come from `python3 tools/quirks.py` (`knowledge
 - After each report run `tools/dk --status`: finished agents leave annealers/sweeps holding a
   lock (revisit 13: one survived its agent); stop them. A shared prototype fix re-scores parks
   (hud 321 → 405 under the real s16 param): give running agents the new baseline.
-- A pass that solves a structural layer (spill slots, FP ring, colour world) gets a fresh-HEAD
-  follow-up at once (revisit 13: gfx 90 → 19 → match, modelAnim 93 → match).
+- A solved structural layer (spill slots, FP ring) or a matched sibling's source style gets a
+  fresh-HEAD follow-up at once (revisit 13: gfx, modelAnim; lightSample's arrays matched lightApply).
 
 ## Stop rule
 
