@@ -348,7 +348,7 @@ s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
     HeapBlock *end;
 
     blockSize = (blockSize + 0xF) & ~0xF;
-    bs = blockSize; // FAKE: u32 copy of the narrowed formal; keeps the loop store off a ucvt temp
+    bs = (u32)blockSize;
     stride = blockSize + 0x10;
     rem = size % stride;
     if (rem == 0) {
