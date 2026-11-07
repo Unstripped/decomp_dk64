@@ -367,8 +367,8 @@ void enemyGridStateStep(void) {
             sp70 += (st->unk0 - 0.5f) * 0.25f;
         }
         if ((f64)st->unk0 >= 1.0) {
-            st->unk0 = 0.0; // FAKE: double zero literal (constant register)
-            st->unk4 = 0.0; // FAKE: double zero literal (constant register)
+            st->unk0 = 0;
+            st->unk4 = 0;
             BC1E0_LGB->unk7C = st->unk14;
             BC1E0_LGB->unk80 = st->unk18;
             BC1E0_LGB->unk84 = st->unk1C;
