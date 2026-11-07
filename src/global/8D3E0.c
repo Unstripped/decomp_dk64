@@ -153,7 +153,7 @@ void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
             modelSlotsApplyRecords(D_8076A160[mapIndex].unk20, D_8076A160[mapIndex].unk1C);
         }
         if (gMapChunkCount > 0) {
-            flag = 0, modelAsset = (s32)&D_8076A160[mapIndex]; do { lightSetColor( // FAKE: init + call on one line steers as1 order of the hoisted ldc1 vs addu
+            flag = 0, modelAsset = (s32)&D_8076A160[mapIndex]; do { lightSetColor( // LAYOUT: init + call on one line steers as1 order of the hoisted ldc1 vs addu
                 (f32)((f64)(u32)((u8 *)modelAsset)[0x24] / 255.0),
                 (f32)((f64)(u32)((u8 *)modelAsset)[0x25] / 255.0),
                 (f32)((f64)(u32)((u8 *)modelAsset)[0x26] / 255.0),
