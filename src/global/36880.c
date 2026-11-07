@@ -4422,9 +4422,8 @@ void modelSlotSerializeAll(u8 **arg0, s32 *arg1) {
     if (D_807F6010 != NULL) {
         heapFree(D_807F6010);
     }
-    size = D_80747D70 * 0x30;
-    size += 4;
-    size += 4; // FAKE: split +8 keeps the product written into size's reg (as1 would fold `move; addiu` otherwise)
+    size = D_80747D70 * sizeof(ModelSlotSerializedOut) + sizeof(s32);
+    size += sizeof(s32);
     p = gCsVarsDirty; do { // LAYOUT: statement on the do line keeps the lui/addiu hoist order
         if (*p) {
             size += 0x24;
