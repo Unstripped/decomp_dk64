@@ -696,7 +696,9 @@ void func_8002FF74(void) {
         }
         break;
     case 0x29:
-        if (BOSS_ACTOR->unk155 == 0) { // FAKE: empty guard; real case body probably missing
+        switch (BOSS_ACTOR->unk155) {
+        case 0:
+            break;
         }
         break;
     default:
