@@ -86,7 +86,7 @@ typedef struct ModelSlot {
 
 typedef struct ModelAnimEntryRaw {
     u8 *unk0;
-    u32 unk4;
+    f32 unk4;
     u8 pad8[6];
     u8 unkE;
     u8 padF[2];
@@ -195,7 +195,24 @@ void modelAnimEntryStep(void *arg0) {
     modelAnimEntryBuildNodeMatrices(arg0);
 }
 
-void modelAnimEntryBuildKeyMatrix();
+typedef struct ModelBTrack {
+    u8 *unk0;
+    u8 *unk4;
+} ModelBTrack;
+
+typedef struct ModelBKey {
+    f32 unk0;
+    f32 unk4;
+    f32 unk8;
+    f32 unkC;
+    f32 unk10;
+    f32 unk14;
+    f32 unk18;
+    f32 unk1C;
+    f32 unk20;
+} ModelBKey; /* 0x24 */
+
+void modelAnimEntryBuildKeyMatrix(u8, f32, ModelBTrack *, u8 *, u8);
 void mtxCopyQueuePush();
 void mtxCopyQueueCancelDest();
 
@@ -254,34 +271,11 @@ void modelAnimEntryQueueMatrixCopies(u32 *arg0, u32 *arg1) {
     if (D_807444FC && D_807444FC) {}  // FAKE: deadsweep dead statement (extends D_807444FC live range: v1 not v0, address temps a2/a3)
 }
 
-#ifdef NON_MATCHING
-typedef struct ModelBTrack {
-    u8 *unk0;
-    u8 *unk4;
-} ModelBTrack;
-
-typedef struct ModelBKey {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    f32 unk10;
-    f32 unk14;
-    f32 unk18;
-    f32 unk1C;
-    f32 unk20;
-} ModelBKey; /* 0x24 */
-
 void matrixMakeRotationX(f32 (*)[4], f32);
 void matrixMakeRotationY(f32 (*)[4], f32);
 void matrixMakeRotationZ(f32 (*)[4], f32);
 
-void modelAnimEntryBuildKeyMatrix(arg0, arg1, arg2, arg3, arg4)
-u8 arg0;
-u32 arg1;
-ModelBTrack *arg2;
-u8 *arg3;
-u8 arg4;
+void modelAnimEntryBuildKeyMatrix(u8 arg0, f32 arg1, ModelBTrack *arg2, u8 *arg3, u8 arg4)
 {
     u32 off;
     f32 x;
@@ -295,11 +289,11 @@ u8 arg4;
     f32 c2;
     f32 fa;
     f32 fb;
-    s32 q0;  // pad words: frame/home layout
+    f32 fc;
+    f32 fd;
+    s32 q0;  // LAYOUT: three pad words (frame size / local homes)
     s32 q1;
     s32 q2;
-    s32 q3;
-    s32 q4;
     float work[4][4];
     float mtx[4][4];
 
@@ -312,7 +306,7 @@ u8 arg4;
     } else if (180.0 < x) {
         x -= 360.0;
     }
-    x *= (*(f32 *)&arg1);
+    x *= arg1;
     x += fb;
     fa = ((ModelBKey *)arg3)[arg0 + 1].unk10;
     fb = ((ModelBKey *)arg3)[arg0].unk10;
@@ -322,7 +316,7 @@ u8 arg4;
     } else if (y > 180.0) {
         y -= 360.0;
     }
-    y *= (*(f32 *)&arg1);
+    y *= arg1;
     y += fb;
     fa = ((ModelBKey *)arg3)[arg0 + 1].unk14;
     fb = ((ModelBKey *)arg3)[arg0].unk14;
@@ -332,54 +326,55 @@ u8 arg4;
     } else if (180.0 < z) {
         z -= 360.0;
     }
-    z *= (*(f32 *)&arg1);
+    z *= arg1;
     z += fb;
-    c6 = ((ModelBKey *)arg3)[1 + arg0].unk18 - ((ModelBKey *)arg3)[arg0].unk18;
-    c6 *= (*(f32 *)&arg1);
+    c6 = ((ModelBKey *)arg3)[arg0 + 1].unk18 - ((ModelBKey *)arg3)[arg0].unk18;
+    c6 *= arg1;
     c6 += ((ModelBKey *)arg3)[arg0].unk18;
-    c7 = (*(f32 *)&arg1) * (((ModelBKey *)arg3)[1 + arg0].unk1C - ((ModelBKey *)arg3)[arg0].unk1C) + ((ModelBKey *)arg3)[arg0].unk1C;
+    c7 = ((ModelBKey *)arg3)[arg0 + 1].unk1C - ((ModelBKey *)arg3)[arg0].unk1C;
+    c7 *= arg1;
+    c7 += ((ModelBKey *)arg3)[arg0].unk1C;
     c8 = ((ModelBKey *)arg3)[arg0 + 1].unk20 - ((ModelBKey *)arg3)[arg0].unk20;
-    c8 *= (*(f32 *)&arg1);
+    c8 *= arg1;
     c8 += ((ModelBKey *)arg3)[arg0].unk20;
-    c0 = ((ModelBKey *)arg3)[arg0 + 1].unk0 - ((ModelBKey *)arg3)[arg0].unk0;
-    c0 *= (*(f32 *)&arg1);
-    c0 += ((ModelBKey *)arg3)[arg0].unk0;
-    c1 = ((ModelBKey *)arg3)[arg0 + 1].unk4 - ((ModelBKey *)arg3)[arg0].unk4;
-    c1 *= (*(f32 *)&arg1);
-    c1 += ((ModelBKey *)arg3)[arg0].unk4;
-    fa = (*(f32 *)&arg1);
-    c2 = ((ModelBKey *)arg3)[arg0 + 1].unk8 - ((ModelBKey *)arg3)[arg0].unk8;
-    c2 *= fa;
-    c2 += ((ModelBKey *)arg3)[arg0].unk8;
+    fc = ((ModelBKey *)arg3)[arg0 + 1].unk0;
+    fd = ((ModelBKey *)arg3)[arg0].unk0;
+    c0 = (fc - fd) * arg1 + fd;
+    fc = ((ModelBKey *)arg3)[arg0 + 1].unk4;
+    fd = ((ModelBKey *)arg3)[arg0].unk4;
+    c1 = (fc - fd) * arg1 + fd;
+    fc = ((ModelBKey *)arg3)[arg0 + 1].unk8;
+    fd = ((ModelBKey *)arg3)[arg0].unk8;
+    c2 = (fc - fd) * arg1 + fd;
     switch (arg4 & 0xF) {
     case 0:
         break;
     case 1:
-        c6 *= (f32)(0.125 * (arg4 >> 4 & 0xF));
+        c6 *= (f32)((arg4 >> 4 & 0xF) * 0.125);
         break;
     case 2:
-        c7 *= (f32)(0.125 * (arg4 >> 4 & 0xF));
+        c7 *= (f32)((arg4 >> 4 & 0xF) * 0.125);
         break;
     case 3:
-        c8 *= (f32)(0.125 * (arg4 >> 4 & 0xF));
+        c8 *= (f32)((arg4 >> 4 & 0xF) * 0.125);
         break;
     case 4:
         x *= (f32)((arg4 >> 4 & 0xF) * 0.125);
         break;
     case 5:
-        y *= (f32)(0.125 * (arg4 >> 4 & 0xF));
+        y *= (f32)((arg4 >> 4 & 0xF) * 0.125);
         break;
     case 6:
-        z *= (f32)(((arg4 >> 4) & 0xF) * 0.125);
+        z *= (f32)((arg4 >> 4 & 0xF) * 0.125);
         break;
     case 7:
         c0 *= (f32)((arg4 >> 4 & 0xF) * 0.125);
         break;
     case 8:
-        c1 *= (f32)(((arg4 >> 4) & 0xF) * 0.125);
+        c1 *= (f32)((arg4 >> 4 & 0xF) * 0.125);
         break;
     case 9:
-        c2 *= (f32)(0.125 * (arg4 >> 4 & 0xF));
+        c2 = ((fc - fd) * arg1 + fd) * (f32)((arg4 >> 4 & 0xF) * 0.125);
         break;
     }
     memcpy(work, arg2->unk4 + off, 0x40);
@@ -397,10 +392,6 @@ u8 arg4;
     guMtxCatF(work, mtx, work);
     guMtxF2L(work, (Mtx *)(off + arg2->unk0));
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/54150/modelAnimEntryBuildKeyMatrix.s")
-#endif
 
 typedef struct ModelAnimEntryView {
     u8 *unk0;
