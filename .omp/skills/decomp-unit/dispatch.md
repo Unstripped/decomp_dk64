@@ -104,9 +104,9 @@ function" step 4, and IDO tricks come from `python3 tools/quirks.py` (`knowledge
 
 - Same method as near-misses; forward every trick a finished large agent found into the next
   large agent's task. A huge function can use a splice script (`git show HEAD:src/...` + draft).
-- Jump-table functions: split both objdumps at every branch to the epilogue and diff case
-  by case with registers normalised (ugen numbering cascades from the first divergence; raw
-  counts overstate the diff ~5×).
+- Diff jump-table cases and isolated loops separately (register numbering cascades); retain
+  both regional and whole-function scores. Report compile errors separately, and keep
+  saved-register/frame constraints visible when a regional score excludes the prologue.
 - 201B0: 6 held-back large functions (440–1102 insns), one per re-prompted finished agent from
   fresh HEAD: 4 matched, then fresh-eyes passes 2 of 5 parks. Give callers' fixed prototypes.
 
