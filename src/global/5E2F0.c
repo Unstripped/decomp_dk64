@@ -728,4 +728,145 @@ s32 mapChunkIsInUse(s16);
 
 
 
+#ifdef NON_MATCHING
+void lightSampleColorAtPosition(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 *arg4, u8 *arg5, u8 *arg6, s16 arg7) {
+    LightTrigger *entry;
+    f32 r;
+    f32 g;
+    f32 b;
+    s32 i;
+    s32 pad2;
+    f32 pad;
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (1) {}  // FAKE: node count
+    if (mapChunkIsInUse(arg7) == 0) {
+        *arg4 = *arg5 = *arg6 = 0xFF;
+        return;
+    }
+    if (D_807F7EC8 == 0) {
+        *arg4 = (s32)(D_8076A0B4[arg7] * 255.0f);
+        *arg5 = (s32)(D_8076A0B8[arg7] * 255.0f);
+        *arg6 = (s32)(D_8076A0BC[arg7] * 255.0f);
+        return;
+    }
+    r = D_8076A0B4[arg7]; g = D_8076A0B8[arg7]; b = D_8076A0BC[arg7];  // LAYOUT: one line changes as1 scheduling of the three loads
+
+    for (i = 0; i < D_807F7EC8; i++) {
+        entry = &D_807F7BC8[i];
+        switch (entry->unk3E) {
+        case 1: {
+            f32 dz;
+            f32 dy;
+            f32 dx;
+            f32 nz;
+            f32 ny;
+            f32 nx;
+            f32 dist;
+            f32 dot;
+            dx = arg0 - (f32)(entry->unk38 / 3);
+            dy = arg1 - (f32)(entry->unk3A / 3);
+            dz = arg2 - (f32)(entry->unk3C / 3);
+            dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
+            if (dist == 0.0f) {
+                dist = 0.1f;
+            }
+            nz = dz / dist;
+            goto lbl; lbl:  // FAKE: block boundary
+            nx = dx / dist;
+            ny = dy / dist;
+            dot = (entry->unk14 * nz) + ((nx * entry->unkC) + (ny * entry->unk10));
+            if (dot < 0.0f) {
+                if ((nx * entry->unk1C) + (ny * entry->unk1C) + dz) {}  // FAKE: keeps the nx/ny stores (no copy-propagation under a multiply), dz live here
+                dot = 0.0f;
+            }
+            if (entry->unk0 <= dot) {
+                if (entry->unk4 <= dot) {
+                    dot = 1.0f;
+                } else {
+                    dot -= entry->unk0;
+                    dot *= entry->unk8;
+                }
+                if ((f64)dist > 300.0) {
+                    if ((f64)dist > 1100.0) {
+                        dot = 0.0f;
+                    } else {
+                        dot = (f64)dot * (1.0 - (((f64)dist - 300.0) / 800.0));
+                    }
+                }
+                r += entry->unk2C * dot;
+                g += entry->unk30 * dot;
+                b += entry->unk34 * dot;
+                if (nx + ny + nx + ny + nx + ny) {}  // FAKE: gives the dx/dist and dy/dist temps priority 15 (coloured after dist)
+            }
+            break;
+        }
+        case 0: {
+            f32 dz;
+            f32 dx;
+            f32 dy;
+            f32 dist;
+            f32 diff_val;
+            f32 range;
+            f32 max_range;
+            f32 factor;
+            dz = (f32)(entry->unk3C / 3) - arg2;
+            dx = (f32)(entry->unk38 / 3) - arg0;
+            dy = (f32)(entry->unk3A / 3) - arg1;
+            dist = sqrtf((dz * dz) + ((dx * dx) + (dy * dy)));
+            diff_val = dist - (f32)arg3;
+            if (dist <= (f32)arg3) {
+                diff_val = 0.1f;
+            }
+            range = entry->unk28 / 3.0f;
+            if (diff_val < range) {
+                r += entry->unk2C;
+                g += entry->unk30;
+                b += entry->unk34;
+            } else {
+                diff_val -= range;
+                max_range = (1.0f / entry->unk24) / 3.0f;
+                max_range -= range;
+                if (diff_val < max_range) {
+                    factor = 1.0f - (diff_val / max_range);
+                    r += entry->unk2C * factor;
+                    g += entry->unk30 * factor;
+                    b += entry->unk34 * factor;
+                }
+            }
+            break;
+        }
+        }
+    }
+    if (r > 1.0f) {
+        r = 1.0f;
+    }
+    if (g > 1.0f) {
+        g = 1.0f;
+    }
+    if (b > 1.0f) {
+        b = 1.0f;
+    }
+    *arg4 = (s32)(r * 255.0f);
+    *arg5 = (s32)(g * 255.0f);
+    *arg6 = (s32)(b * 255.0f);
+}
+#else
+
 #pragma GLOBAL_ASM("asm/global/nonmatchings/5E2F0/lightSampleColorAtPosition.s")
+#endif
