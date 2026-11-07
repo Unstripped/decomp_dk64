@@ -4470,7 +4470,7 @@ void camInitZones(void) {
     if (gCamZoneSorted != NULL) {
         heapFree(gCamZoneSorted);
     }
-    gCamZoneSorted = heapAlloc((s32)((s16 *)4 + CAM_ZONE_ENTRIES_PATH->unkC0 * 2));  // FAKE: ixa(const, mul) tree keeps ugen from putting the lh leaf in a0 (target: lh t6 ring temp); equals unkC0 * 4 + 4
+    gCamZoneSorted = heapAlloc((CAM_ZONE_ENTRIES_PATH->unkC0 * 2 + 2) * sizeof(s16));
     for (i = 0; i < CAM_ZONE_ENTRIES_PATH->unkC0; i++) {
         gCamZoneSorted[i * 2] = i;
         gCamZoneSorted[i * 2 + 1] = camGetZoneCell(i);
