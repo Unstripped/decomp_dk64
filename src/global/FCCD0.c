@@ -568,7 +568,7 @@ s16 arg2;
 {
     u8 *pa;
     u8 *sp48;
-    s16 *pb;  // FAKE: unused local, keeps a 4-byte home slot (shifts the sp offsets of the homes below it)
+    s16 *pad0;
     s32 temp_v0;
     s32 sp3C;
     s32 temp_a3;
@@ -577,7 +577,7 @@ s16 arg2;
     SlotQueueStatSlot *temp_a0;
     s32 sp28;
 
-    pa = &arg1;  // FAKE: keeps arg1 memory-resident (plain lbu per use)
+    pa = &arg1;  // LAYOUT: keeps arg1 memory-resident (plain lbu per use)
     sp28 = arg1;
     temp_v0_2 = func_806C8DE0(arg1);
     sp48 = (u8 *)D_807FC950 + (arg1 * 0x306 + temp_v0_2 * 0x5E);
@@ -586,8 +586,8 @@ s16 arg2;
     if (((temp_a0->unk2D == 0) || (arg2 >= 0)) && (temp_a0->unk2C == 0)) {
         if ((arg0 != 0xA) && (arg0 != 0xC)) {
             temp_v1 = temp_a0->unk0;
-            if (temp_a0 && temp_a0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
-            if (temp_v0 > 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
+            if (temp_a0 && temp_a0) {}  // LAYOUT: dead reference steers uopt candidate priority (spill-slot order)
+            if (temp_v0 > 0) {}  // LAYOUT: dead reference steers uopt candidate priority (spill-slot order)
             if ((*temp_v1 + arg2) < 0) {
                 *temp_v1 = 0;
             } else {
@@ -595,7 +595,7 @@ s16 arg2;
                 *temp_v1 += arg2;
                 temp_v0_2 = slotQueueGetMaxValue(arg0, sp28);
                 temp_v1 = ((SlotQueueStatSlot *)temp_v0)[arg0].unk0;
-                if (D_8076A0AB && D_8076A0AB) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
+                if (D_8076A0AB && D_8076A0AB) {}  // LAYOUT: dead reference steers uopt candidate priority (spill-slot order)
                 if (temp_v0_2 < *temp_v1) {
                     *temp_v1 = temp_v0_2;
                 }
@@ -605,19 +605,19 @@ s16 arg2;
                 if ((arg2 > 0) && ((arg0 * 0x30) == 0)) {
                     temp_v0_2 = func_805FF030(D_8076A0AB, 1);
                     temp_a3 = *(u16 *)(sp48 + 0xA + (temp_v0_2 * 2)) + *(u16 *)(sp48 + 0x26 + (temp_v0_2 * 2));
-                    if (D_8076A0AB == 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
+                    if (D_8076A0AB == 0) {}  // LAYOUT: dead reference steers uopt candidate priority (spill-slot order)
                     if ((temp_a3 >= 0x4B) && ((temp_a3 - arg2) < 0x4B)) {
                         temp_v0 = flagGridIndex(0x225, temp_v0_2, (&gPlayerCharacterId)[arg1]);
                         flagSet(temp_v0, 1, 0);
                         func_80687C48();
                     }
-                    if (temp_a3 == 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
+                    if (temp_a3 == 0) {}  // LAYOUT: dead reference steers uopt candidate priority (spill-slot order)
                     if ((temp_a3 == 0x64) && ((temp_a3 - arg2) < 0x64)) {
                         sfxAllocateChannel(0xAC, 1.0f);
                     }
                 }
             }
-            if (sp28) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
+            if (sp28) {}  // LAYOUT: dead reference steers uopt candidate priority (spill-slot order)
         }
         if ((arg0 * 0x30) == 0x180) {
             func_806F8278(arg1);
@@ -1246,7 +1246,7 @@ s32 slotQueueStateMoveToTarget(s32 arg0, s32 arg1) {
     s32 x;
     s32 step;
     s32 absd;
-    s32 sign; // FAKE: pad keeping the 0x30 slot-offset spill at 48(sp)
+    s32 pad;
     s32 tmp;
 
     node = SLOT_QUEUE_FADE_SLOT->unk28;
@@ -1267,7 +1267,7 @@ s32 slotQueueStateMoveToTarget(s32 arg0, s32 arg1) {
         } while (node != NULL);
     }
     if (flag == 0) {
-        if (*SLOT_QUEUE_FADE_SLOT->unk0 == 0) {} // FAKE: hoists the *unk0 load above the null test
+        if (*SLOT_QUEUE_FADE_SLOT->unk0 == 0) {} // LAYOUT: hoists the *unk0 load into the null test delay slot
         if (SLOT_QUEUE_FADE_SLOT->unk0 != NULL) {
             x = *SLOT_QUEUE_FADE_SLOT->unk0;
             s1 = SLOT_QUEUE_FADE_SLOT->unk4;
