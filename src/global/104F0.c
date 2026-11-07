@@ -748,7 +748,7 @@ void eepromSaveRecords(s32 arg0) {
         osWritebackDCacheAll();
         if ((u32)D_807EDEAC & ~0x3FU) {}  // FAKE: an unsigned -64 use after the calls keeps the unsigned mask constants of the arm above uncoloured (li at,-64)
         memcpy(D_807ED6A8 + (u32)sector * 8, workingData + (u32)sector * 8, 0x800 - (sector << 3));  // FAKE: (u32) casts make the products read the variable, not its ucvt widening (widening keeps the shift and the loop test: move s4,s1)
-        q = (u8 *)((u32)D_807ECD08 | 0);  // FAKE: keeps the polled address a ring temp (la t2; lbu t3,0(t2))
+        q = (u8 *)((u32)D_807ECD08);
         if (*q != 0) do sleepMilliseconds(1.0f); while (*p != 0);
         if ((u32)sector) {}  // FAKE: direct read of sector raises the variable's priority above its widening (var s1, widening s4)
         if (D_80744460 != 0) {
@@ -890,7 +890,7 @@ void eepromSavePlayerData(void) {
 
     if (gPlayerCount == 1) {
         if (func_80714394() != 0 || func_8071432C() != 0) {
-            base = (u8 *)((u32)D_807FC950 | 0); // FAKE: `| 0` keeps the base in a saved reg (blocks copy-propagation into @sym+off)
+            base = (u8 *)((u32)D_807FC950);
             entry = base;
             total = func_805FC98C();
             value = func_8060C724(D_807467C8);
