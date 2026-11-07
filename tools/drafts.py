@@ -15,6 +15,7 @@ the per-session work area; anything worth continuing in a later session goes her
     python3 tools/drafts.py prune                             # delete drafts of matched functions
     python3 tools/drafts.py paste SEG FUNC                    # put a draft into its src file
     python3 tools/drafts.py unpark SEG FUNC [--note TEXT]     # park -> draft, src back to the bare pragma
+    python3 tools/drafts.py note SEG FUNC "stage N: ..."      # prepend a corrected note, keep the history
 
 SEG is the asm directory name: boot, global, or an overlay (boss, jetpac, ...).
 `collect` takes the segment of a `.scratch/<Agent>/<FUNC>_best.c` from the private copy of
@@ -34,6 +35,9 @@ hash decide.
 `unpark` is the reverse for a `NON_MATCHING` park that must not stay parked (instruction count
 differs from the target, or not equivalent): the parked C becomes the draft (header: TEXT, then
 the old draft's note) and the block becomes the bare `#pragma GLOBAL_ASM` line again.
+`note` puts TEXT (which must name the stage) in front of the header note and keeps the old note
+after ` | `, e.g. when an agent's reported stage is wrong (count-inexact "stage 4" is stage 3);
+extra `// <FUNC> (...)` header lines left by hand edits are folded into the one header.
 """
 import argparse
 import glob
@@ -143,6 +147,10 @@ def main() -> None:
     up.add_argument("seg")
     up.add_argument("func")
     up.add_argument("--note", default="unparked")
+    nt = sub.add_parser("note")
+    nt.add_argument("seg")
+    nt.add_argument("func")
+    nt.add_argument("text")
     args = ap.parse_args()
 
     if args.cmd == "save":
@@ -157,6 +165,23 @@ def main() -> None:
             sys.exit(f"no draft for {args.seg} {args.func}")
         print(os.path.relpath(path, ROOT))
         print(open(path).read(), end="")
+    elif args.cmd == "note":
+        if not re.search(r"stage\s*[1-6]", args.text, re.I):
+            sys.exit('note must name the stage: "stage N: <closest diff, next step>"')
+        path = stored().get((args.seg, args.func))
+        if not path:
+            sys.exit(f"no draft for {args.seg} {args.func}")
+        prefix = f"// {args.func} ("
+        lines = open(path).read().split("\n")
+        head, notes = None, []
+        while lines and lines[0].startswith(prefix):
+            head, _, old = lines.pop(0).partition("): ")
+            notes.append(old)
+        if head is None:
+            sys.exit(f"{os.path.relpath(path, ROOT)} has no `{prefix}...)` header")
+        with open(path, "w") as f:
+            f.write(f"{head}): " + " | ".join([args.text] + notes) + "\n" + "\n".join(lines))
+        print(os.path.relpath(path, ROOT))
     elif args.cmd == "list":
         for (seg, func), path in sorted(stored().items()):
             if args.seg and seg != args.seg:
