@@ -507,11 +507,11 @@ void *heapAlloc(u32 size) { while (1) { // LAYOUT: loop header on the function l
     }
 }
 
-u8 func_80611154(void) {
+u8 heapGetFlags(void) {
     return D_80746A37;
 }
 
-void func_80611160(void) {
+void heapClearReclaimFlag(void) {
     D_80746A30 = 0;
 }
 
@@ -756,7 +756,7 @@ void heapFillBlock(s32 *ptr, s32 val) {
     }
 }
 
-void func_80611724(s32 arg0, s32 arg1) {
+void heapTickDeferredFreesHook(s32 arg0, s32 arg1) {
     &arg0;
     &arg1;
 }
@@ -769,7 +769,7 @@ void heapTickDeferredFrees(void) {
     DeferredFree *entry;
     s32 count;
 
-    func_80611724(a, b);
+    heapTickDeferredFreesHook(a, b);
     if (~a != *(s32 *)(b + 0x54002C80)) {
         flag = 1;
     }
@@ -791,5 +791,5 @@ void heapTickDeferredFrees(void) {
     }
 }
 
-void func_80611844(void) {
+void heapCodeEnd(void) {
 }

@@ -1,16 +1,16 @@
 #include "common.h"
 
-extern s32 D_80746A40;
+extern s32 sRandomSeed;
 extern u64 __ll_mul(u64, u64);
 
 s32 randomLcgNext(void) {
-    u64 seed = (u32)D_80746A40;
+    u64 seed = (u32)sRandomSeed;
     u64 prod = __ll_mul(seed, 0x01DF5E0DULL);
-    return D_80746A40 = (prod + 1) & 0xFFFFFFFF;
+    return sRandomSeed = (prod + 1) & 0xFFFFFFFF;
 }
 
 void setRandomSeed(s32 seed) {
-    D_80746A40 = seed;
+    sRandomSeed = seed;
 }
 
 s32 randomLcgNext(void);
@@ -23,7 +23,7 @@ s32 randomNonNegative(void) {
     return randomLcgNext() & 0x7FFFFFFF;
 }
 
-void func_80611A70(f32 refX, f32 refY, f32 *outX, f32 *outY) {
+void mathNudgeCoords(f32 refX, f32 refY, f32 *outX, f32 *outY) {
     f32 value;
     f64 delta;
 
@@ -54,7 +54,7 @@ f32 acosApprox(f32);
 f32 func_80611BB4(f32 dx, f32 dy) {
     f32 angleA;
     f32 hypot;
-    f32 temp_fv0_2;
+    f32 acosVal;
     f32 angle;
 
     if (dx == 0.0f) {
@@ -72,10 +72,10 @@ f32 func_80611BB4(f32 dx, f32 dy) {
     } else {
         hypot = sqrtf((dx * dx) + (dy * dy));
         if (dy < dx) {
-            temp_fv0_2 = acosApprox(dy / hypot);
-            angle = temp_fv0_2;
+            acosVal = acosApprox(dy / hypot);
+            angle = acosVal;
             if (dx < 0.0f) {
-                angle = 6.2831855f - temp_fv0_2;
+                angle = 6.2831855f - acosVal;
             }
         } else {
             angleA = 1.5707964f - acosApprox(dx / hypot);

@@ -223,7 +223,7 @@ void sfxStopChannel(s32, s32);
 void slotQueueCancel(s32, s32);
 void func_806F0C18(void *);
 void effectSpawnActorBone(void *, s32, f32);
-s32 func_80611A70(f32, f32, f32 *, f32 *);
+s32 mathNudgeCoords(f32, f32, f32 *, f32 *);
 void matrixMakeRotationY(f32 (*)[4], f32);
 void matrixMakeRotationX(void *, s32);
 s32 camIsCutsceneActive(void);
@@ -350,7 +350,7 @@ void func_8068EF54(void) {
     }
     actorGetNodePos(sp74, 1, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
     actorGetNodePos(sp74, 0xB, &sp11C, &sp118, &sp114);
-    func_80611A70(D_807FBB40->unk7C, D_807FBB40->unk84, &sp11C, &sp114);
+    mathNudgeCoords(D_807FBB40->unk7C, D_807FBB40->unk84, &sp11C, &sp114);
     sp90 = func_80611BB4(sp11C - D_807FBB40->unk7C, sp114 - D_807FBB40->unk84);
     if (sp74->unk5C == 0x40) {
         actorGetNodePos(sp74, 0xC, &sp6C, &sp68, &sp64);

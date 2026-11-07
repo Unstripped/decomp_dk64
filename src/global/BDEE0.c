@@ -341,7 +341,7 @@ typedef struct BDEE0DCA0 {
 
 extern BDEE0DCA0 *D_807FDCA0;
 s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void func_80611A70(f32, f32, f32 *, f32 *);
+void mathNudgeCoords(f32, f32, f32 *, f32 *);
 f32 func_80611BB4(f32, f32);
 void matrixMakeRotationX(f32 (*)[4], f32);
 void matrixMakeRotationY(f32 (*)[4], f32);
@@ -359,7 +359,7 @@ s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 
         f32 ang;
 
         actorGetNodePos(*(Actor **)&D_807FDCA0->unk1C, node, &nodeX, &nodeY, &nodeZ);
-        func_80611A70(x, z, &nodeX, &nodeZ);
+        mathNudgeCoords(x, z, &nodeX, &nodeZ);
         ang = func_80611BB4(nodeX - x, nodeZ - z);
         guTranslateF(spA, 0.0f, -yOffset, 0.0f);
         matrixMakeRotationY(spB, (D_807FBB40->unkE6 * 0x168) / 4096);

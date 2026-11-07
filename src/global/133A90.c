@@ -687,7 +687,7 @@ void proxPathFollowerStep(H1ActorB **pActor) {
 }
 
 void splineSetBasisTension(f32);
-void func_80611A70(f32, f32, f32 *, f32 *);
+void mathNudgeCoords(f32, f32, f32 *, f32 *);
 void proxPathInterpolatePosition(u8, f32, ProxPath *, f32 *, f32 *, f32 *);
 
 
@@ -745,7 +745,7 @@ void proxPathActorFollowSpline(H1ActorB *actor, H1ActorState *state, ProxPath *p
     actor->unk7C = (p2[0] - state->unk13C) * state->unk148 + state->unk13C;
     actor->unk80 = (p2[1] - state->unk140) * state->unk148 + state->unk140;
     actor->unk84 = (p2[2] - state->unk144) * state->unk148 + state->unk144;
-    func_80611A70(p0[0], p0[2], &p1[0], &p1[2]);
+    mathNudgeCoords(p0[0], p0[2], &p1[0], &p1[2]);
     yaw = func_80611BB4(p1[0] - p0[0], p1[2] - p0[2]) * 57.29577637f + 180.0f;
     guTranslateF(m1, 0.0f, state->unk148 * -80.0f, 0.0f);
     guScaleF(m2, actor->unk4->unk34, actor->unk4->unk38, actor->unk4->unk3C);

@@ -46,7 +46,7 @@ s32 schedTaskDone(SchedStruct *, TaskNode *);
 void schedAppendTask(SchedStruct *, TaskNode *);
 void schedStartTask(SchedStruct *, s32);
 void schedYield(SchedStruct *);
-void func_8060FAA4(OSMesgQueue *, OSMesg, s32);
+void schedSendMesgTimed(OSMesgQueue *, OSMesg, s32);
 s32 schedDlDebugDump(s32, s32);
 
 typedef struct {
@@ -281,7 +281,7 @@ void schedHandleRetrace(SchedStruct *sc) {
         D_80746820 = sc->unk284 + 1;
         osDpSetStatus(8);
         if (D_807F04E0->msgQ != NULL) {
-            func_8060FAA4(D_807F04E0->msgQ, D_807F04E0->msg, 0);
+            schedSendMesgTimed(D_807F04E0->msgQ, D_807F04E0->msg, 0);
         }
         D_807F04E0 = NULL;
     } else {
@@ -400,7 +400,7 @@ s32 schedTaskDone(SchedStruct *sc, TaskNode *task) {
         if (task->msgQ != NULL) {
             if (D_807F04E0 == 0 || type != 1) {
                 if (task->flags & 0x40) {
-                    func_8060FAA4(task->msgQ, task->msg, 0);
+                    schedSendMesgTimed(task->msgQ, task->msg, 0);
                     ret = 1;
                     goto end;
                 }
@@ -474,7 +474,7 @@ void schedYield(SchedStruct *arg0) {
     }
 }
 
-void func_8060FAA4(OSMesgQueue *arg0, OSMesg arg1, s32 arg2) {
+void schedSendMesgTimed(OSMesgQueue *arg0, OSMesg arg1, s32 arg2) {
     osGetTime();
     osGetTime();
     osSendMesg(arg0, arg1, arg2);

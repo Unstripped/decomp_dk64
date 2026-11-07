@@ -122,7 +122,7 @@ extern u8 D_807463B8;
 extern s32 gFrameCounter;
 extern u8 D_8076A0B1;
 void heapTickDeferredFrees(void);
-void func_80611844(void);
+void heapCodeEnd(void);
 s32 func_8071432C(void);
 void func_80712944(OSContPad *);
 void func_8060B4D4(OSContPad *);
@@ -196,7 +196,7 @@ void controllerUpdate(void) {
     sum = 0;
     D_807ECD66 = (D_807ECD58.button ^ D_807ECD60.button) & D_807ECD58.button;
     p = (u32 *)heapTickDeferredFrees;
-    end = (u32 *)func_80611844;
+    end = (u32 *)heapCodeEnd;
     while (p < end) {
         sum += *p;
         p += 1;
