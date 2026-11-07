@@ -722,7 +722,7 @@ void critterUpdateZoneProximity(CritterObj *obj) {
         }
         obj->homeZone->near = f;
         obj->homeZone->frame = D_807444FC;
-        m = (CritterViewer *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * sizeof(CritterViewer)); // FAKE: int temp ring
+        m = &gPlayerSlots[0] + gCurrentPlayerIndex;
         dist = ((f32)obj->homeZone->z - m->z) * ((f32)obj->homeZone->z - m->z) + (((f32)obj->homeZone->x - m->x) * ((f32)obj->homeZone->x - m->x) + ((f32)obj->homeZone->y - m->y) * ((f32)obj->homeZone->y - m->y));
         obj->homeZone->distSq = dist;
         if (dist < lim) {
