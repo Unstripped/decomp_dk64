@@ -816,7 +816,7 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
         ret = mathAngleRadDeltaTurns(&state->unk0, angle);
         spE0 = func_806F1AE0((F5BActor *) arg0, (F5BAccel *) state, 0.02f);
     }
-    for (slot = arg1, slot += index, k = 0; k != 2; k++, cur++) {
+    slot = arg1; slot += index; k = 0; do { // LAYOUT: one source line lets as1 schedule the loop preheader
         accel1 = 0.0f;
         accel0 = 0.0f;
         spC8 = 0.0f;
@@ -856,7 +856,8 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
             slot++;
             kind++;
         } while (i != 8);
-    }
+        k++; cur++; // LAYOUT: one source line orders the k/cur reload-increment-store tail
+    } while (k != 2);
     *arg2 = index;
 }
 
