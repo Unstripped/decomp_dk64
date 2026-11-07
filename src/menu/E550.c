@@ -176,7 +176,7 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0);
     tex = texCacheFindOrLoad(0xB0);
     yo = (s32)(((f32)D_80744494 - 82.0f) * 0.5f);
-    y = 0; do {  // FAKE: one source line removes a scheduling barrier before the loop.
+    y = 0; do {  // LAYOUT: one source line removes a scheduling barrier before the loop.
         xo = (s32)(((f32)D_80744490 - 204.0f) * 0.5f);
         for (x = 0; x != 0xCC; x += 0x66) { // LAYOUT: keep the induction update on the loop-header line.
             if (x) {} // FAKE: shorten the full-width induction range and raise its colouring priority.

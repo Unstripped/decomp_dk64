@@ -583,7 +583,7 @@ void bossFollowerActorUpdate(void) {
     BossFollowerLink *sub174 = ACTOR->unk174;
     BossParentState *parentState = sub174->unk0->unk174;
     BossAnimState *sub4_0 = ACTOR->unk4->unk0;
-    static s16 D_80035B74 = 0x78; // FAKE: function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
+    static s16 D_80035B74 = 0x78; // function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
 
     if (sub174->unk5 == 0) {
         f32 dx = D_807FBB4C->unk7C - ACTOR->unk7C;
@@ -595,7 +595,7 @@ void bossFollowerActorUpdate(void) {
         ACTOR->unk12A = 0xFA0;
     }
     if (D_80035B28 & (1 << sub174->unk4)) {
-        ACTOR->unkE8 = (s16)(s32)((f64)parentState->unk4 * 1024.0) - 0x400;  // FAKE: no-code (s16) narrowing of the truncated value burns ugen ring temps
+        ACTOR->unkE8 = (s16)(parentState->unk4 * 1024.0) - 0x400;
         ACTOR->unkE4 = D_80035B2C;
         if (sub4_0 != NULL) {
             if (D_80035B3C != sub4_0->unk4) {

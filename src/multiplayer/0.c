@@ -491,7 +491,7 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, MpControllerActor *controller) {
                     fy = fy * 8.0f;
                     pre = (s32) slotQueueGetValue(3, playerIndex);
                     if (pre != 0) {
-                        g0 = curGlist++; g0->words.w0 = 0xFA000000; g0->words.w1 = (alpha & 0xFF) | 0x641E0000; // FAKE: same-line packet stores steer as1 scheduling
+                        g0 = curGlist++; g0->words.w0 = 0xFA000000; g0->words.w1 = (alpha & 0xFF) | 0x641E0000; // LAYOUT: same-line packet stores steer as1 scheduling
                         _sprintf(textBuf, "%d", pre);
                     } else {
                         _sprintf(textBuf, "%d", slotQueueGetValue(2, playerIndex));
