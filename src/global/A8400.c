@@ -566,7 +566,7 @@ void textBoxUpdateRows(Actor *arg0) {
     ChainNode *node;
     ChainNode *cur;
     u8 stop;
-    u8 pad[0x90];  // FAKE: reserves 0x90 frame bytes (expected frame 0x110 / f32 spill at 0x50 need an unidentified 0x90-byte local)
+    u8 pad[0x90];
     f32 acc;
     f32 dt;
     f32 lim;
@@ -697,7 +697,7 @@ void textBoxUpdatePosition(Actor *arg0, struct SpriteBehaviour *arg1, f32 arg2) 
     f32 sp7C, sp78;
     s32 sp74;
     SpriteFrameNode *node;
-    s32 pad; // FAKE: frame layout (unused word between sp74 and sp68)
+    s32 pad;
     f32 sp68, sp64, sp60;
 
     sp74 = 0;
