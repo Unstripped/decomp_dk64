@@ -2252,7 +2252,7 @@ s32 actorResolveModelSlotCollision(arg0)
 Actor *arg0;
 {
     ActorHitSubView *sub;
-    s8 pm;
+    s8 pad;
     s16 slot;
     DynamicBuffer *buf;
     f32 px[3];
@@ -2279,7 +2279,6 @@ Actor *arg0;
         u8 kind;
 
         kind = 0;
-    pm = kind; // FAKE: s8 pad read pairs with slot so the s16 sits at +0 of its word
         sub = (ActorHitSubView *)arg0->unk140;
         ret = 0;
         slot = hashTableLookup(sub->unk26);
