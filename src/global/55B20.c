@@ -150,11 +150,13 @@ void mapGridTriangleBuildPlane(s32, void *);
 
 
 #ifdef NON_MATCHING
+typedef struct { s32 offset; s16 unk4; s16 unk6; s16 unk8; s16 unkA; } R13o6ColEntry;
+
 void mapChunksInitFromMapData(MapData *arg0) {
     s32 i;
     s32 off;
     s32 base;
-    u8 buf[0xE30];
+    u8 buf[0xE38];
     s32 count;
     u8 *p;
     u32 total;
@@ -163,12 +165,8 @@ void mapChunksInitFromMapData(MapData *arg0) {
     s32 cellsOff;
     s32 boxesOff;
     s32 vecsOff;
-    s32 triOff;
-    s32 relocOff;
     s32 k;
     s32 h;
-    volatile s32 colOff;  // FAKE: retains collision-header offset stack accesses
-    volatile s32 w;  // FAKE: retains collision-data base stack accesses
 
     D_807F70AC = 0;
     D_807F713A = 0;
@@ -177,6 +175,7 @@ void mapChunksInitFromMapData(MapData *arg0) {
         D_807F7138 = arg0->unkC;
         D_807F7074 = heapAlloc(0x40);
         guScale(D_807F7074, 1.0f / 3.0f, 1.0f / 3.0f, 1.0f / 3.0f);
+        if (gMapChunks && gMapChunks) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         cellsOff = arg0->unk58;
         D_807F70AC = *(s32 *)((u8 *)arg0 + cellsOff);
         D_807F70B0 = (struct MapCell *)((u8 *)arg0 + cellsOff + 4);
@@ -184,30 +183,31 @@ void mapChunksInitFromMapData(MapData *arg0) {
         D_807F70B4 = (struct MapBox *)((u8 *)arg0 + boxesOff + 4);
         vecsOff = arg0->unk60;
         D_807F6C14 = (MapGridVectors *)((u8 *)arg0 + vecsOff);
+        if (D_807F5DE8 && D_807F5DE8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         base = arg0->unk34;
         off = arg0->unk64;
         chunkOff = arg0->unk68;
-        triOff = arg0->unk6C;
-        D_807F6C20 = *(s32 *)((u8 *)arg0 + triOff);
-        D_807F6C1C = (u8 *)((u8 *)arg0 + triOff + 4);
+        cellsOff = arg0->unk6C;
+        D_807F6C20 = *(s32 *)((u8 *)arg0 + cellsOff);
+        D_807F6C1C = (u8 *)((u8 *)arg0 + cellsOff + 4);
         D_807F6C2C = heapAlloc(D_807F6C20);
-        relocOff = arg0->unk70;
-        D_807F6C10 = *(s32 *)((u8 *)arg0 + relocOff);
-        D_807F6C0C = (u8 *)((u8 *)arg0 + relocOff + 4);
+        boxesOff = arg0->unk70;
+        *(s32 *)((u8 *)&D_807F6C2C - 0x1C) = *(s32 *)((u8 *)arg0 + boxesOff);  // FAKE: stores D_807F6C10 through another lda so the loop's &D_807F6C10 web excludes this block
+        *(u8 **)((u8 *)&D_807F6C20 - 0x14) = (u8 *)((u8 *)arg0 + boxesOff + 4);  // FAKE: stores D_807F6C0C through another lda (same reason)
         for (i = 0; i < D_807F6C10; i++) {
             if (((MapRelocEntry *)D_807F6C0C)[i].unk8 != -1) {
                 ((MapRelocEntry *)D_807F6C0C)[i].unk8 += (s32)((u8 *)arg0 + base);
+                if (gMapChunks == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             if (((MapRelocEntry *)D_807F6C0C)[i].unkC != -1) {
                 ((MapRelocEntry *)D_807F6C0C)[i].unkC += (s32)((u8 *)arg0 + base);
             }
         }
+        if (D_807F6C10 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         gMapChunks = heapAlloc(gMapChunkCount * 0x1C8);
         p = (u8 *)arg0 + chunkOff;
         n = 0;
         if (gMapChunkCount > 0) {
-            w = (s32)arg0 + off;
-            colOff = 0;
             do {
                 count = 0;
                 gMapChunks[n].unk0 = 0;
@@ -268,21 +268,19 @@ void mapChunksInitFromMapData(MapData *arg0) {
                 gMapChunks[n].unk10 = gMapChunks[n].unk8;
                 if (gMapChunks[n].unk5 == 2) {
                     mapChunkBuildCellTable(gMapChunks[n].unk38, gMapChunks[n].unk48, buf, &count, 3, n);
+                    if (D_807F6C10 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 }
                 gMapChunks[n].unk5C = *(s32 *)(p + 4);
                 p += 8;
                 gMapChunks[n].unk60 = 0;
                 gMapChunks[n].unk64 = 0;
                 if (gMapChunks == 0) {}  // FAKE: dead statement (steers uopt colouring)
-                {
-                    h = (w + 4) + colOff;
-                    gMapChunks[n].unk78 = *(s32 *)h + w;
-                    gMapChunks[n].unk7C = *(s32 *)(h + 0xC) + w;
-                    gMapChunks[n].unk80 = *(s16 *)(h + 4);
-                    gMapChunks[n].unk82 = *(s16 *)(h + 6);
-                    gMapChunks[n].unk84 = *(s16 *)(h + 8);
-                    gMapChunks[n].unk86 = *(s16 *)(h + 0xA);
-                }
+                gMapChunks[n].unk78 = ((R13o6ColEntry *)((s32)arg0 + off + 4))[n].offset + ((s32)arg0 + off);
+                gMapChunks[n].unk7C = ((R13o6ColEntry *)((s32)arg0 + off + 4))[n + 1].offset + ((s32)arg0 + off);
+                gMapChunks[n].unk80 = ((R13o6ColEntry *)((s32)arg0 + off + 4))[n].unk4;
+                gMapChunks[n].unk82 = ((R13o6ColEntry *)((s32)arg0 + off + 4))[n].unk6;
+                gMapChunks[n].unk84 = ((R13o6ColEntry *)((s32)arg0 + off + 4))[n].unk8;
+                gMapChunks[n].unk86 = ((R13o6ColEntry *)((s32)arg0 + off + 4))[n].unkA;
                 gMapChunks[n].unk28 = -1;
                 if (count != 0) {
                     gMapChunks[n].unk4C = heapAlloc(count * 0x24);
@@ -292,7 +290,6 @@ void mapChunksInitFromMapData(MapData *arg0) {
                     }
                 }
                 gMapChunks[n].unk50 = count;
-                colOff += 12;
                 n++;
             } while (n < gMapChunkCount);
         }
@@ -302,9 +299,11 @@ void mapChunksInitFromMapData(MapData *arg0) {
         }
         D_807F7079 = 1;
         D_807F7078[0] = 1;
-        for (k = 0; k < 0x30; k++) {
+        k = 0;
+        do {
             D_807F707A[k] = 1;
-        }
+            k++;
+        } while (k < 0x30);
         D_807F70AA = 0;
     } else {
         gMapChunks = NULL;
