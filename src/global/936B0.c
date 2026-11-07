@@ -1026,14 +1026,14 @@ u8 arg3;
     Actor *sp78;
     s16 sp76;
     s16 temp_lo;
-    s16 temp_t0; // FAKE: unused s16 local, reserves a frame home slot
+    s16 pad74;
     s16 sp70;
     s16 sp6E;
     s16 sp6C;
     f32 temp_fv0;
     f32 temp_fv1;
     f32 dist;
-    f64 var_ft2; // FAKE: unused f64 local, reserves a frame home slot
+    f64 pad58;
     OwnerKongStateView *temp_t4;
     ProjectileHomingState *sp50;
     f32 sp4C;
@@ -1130,7 +1130,7 @@ f32 *arg6;
 f32 *arg7;
 f32 *arg8;
 {
-    s32 padTop[2]; // FAKE: pads the top of the frame (home slots of the original's register-only locals)
+    s32 padTop[2];
     s32 ret;
     s32 i;
     Actor *a;
@@ -1141,13 +1141,13 @@ f32 *arg8;
     ProjectileActorSub174 *sub;
     f32 d[3];
     f32 n[3];
-    f32 padA4[1]; // FAKE: frame hole between the direction vector and n[]
+    f32 padA4[1];
     f32 dirX;
     f32 dirY;
     f32 dirZ;
-    f32 pad94[1]; // FAKE: frame hole between best and the direction vector
+    f32 pad94[1];
     f32 best;
-    f32 pad8C[1]; // FAKE: frame hole between ox and best
+    f32 pad8C[1];
     f32 ox;
     f32 oy;
     f32 oz;
@@ -1246,7 +1246,7 @@ f32 *arg8;
     }
     if (arg5 != 0) {
         if (D_80747D70 > 0) {
-            j = 0; do { // FAKE: init and do on one line (one as1 line) steers the loop-limit candidate priority
+            j = 0; do { // LAYOUT: init and do on one line (one as1 line) steers the loop-limit candidate priority
                 switch (((ModelSlotPosTypeView *)((u8 *)D_807F6000 + j))->unk84) {
                     case 0x125:
                     case 0x126:

@@ -536,7 +536,7 @@ void func_80666D88(f32 arg0, f32 arg1, u8 arg2, Actor *arg3, u8 arg4) {
             temp_v0 = gPlayerSlots[gCurrentPlayerIndex].unk2C0;
             if (temp_v0 != 0) {
                 if (temp_v0 != 2) {
-                    var_v0 = D_80752F98; var_v1 = D_80752F7C; // FAKE: same-line join steers as1 scheduling (addiu order)
+                    var_v0 = D_80752F98; var_v1 = D_80752F7C; // LAYOUT: same-line join steers as1 scheduling (addiu order)
                 } else {
                     var_v0 = D_80753008;
                     var_v1 = D_80752FEC;
