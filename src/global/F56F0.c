@@ -815,7 +815,17 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
         value = (s8) (s32) state->unk10;
         ret = mathAngleRadDeltaTurns(&state->unk0, angle);
         spE0 = func_806F1AE0((F5BActor *) arg0, (F5BAccel *) state, 0.02f);
-    } slot = arg1; slot += index; k = 0; do { accel1 = 0.0f; accel0 = 0.0f; spC8 = 0.0f; spC4 = 0.0f; pair = cur->unk1C; if (active != 0) { y = pos[k][1]; newvel = y - cur->unk4; delta = newvel - cur->unk8; // FAKE: one source line lets as1 schedule the loop preheader
+    }
+    for (slot = arg1, slot += index, k = 0; k != 2; k++, cur++) {
+        accel1 = 0.0f;
+        accel0 = 0.0f;
+        spC8 = 0.0f;
+        spC4 = 0.0f;
+        pair = cur->unk1C;
+        if (active != 0) {
+            y = pos[k][1];
+            newvel = y - cur->unk4;
+            delta = newvel - cur->unk8;
             cur->unk4 = y;
             cur->unk8 = newvel;
             boost = 0.4f * ret;
@@ -846,8 +856,7 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
             slot++;
             kind++;
         } while (i != 8);
-        k++; cur++; // FAKE: one source line orders the k/cur reload-increment-store tail
-    } while (k != 2);
+    }
     *arg2 = index;
 }
 
@@ -932,7 +941,7 @@ void func_806F22A8(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
         }
         fs2 = (f32) ((f64) ((1.0f - (arg0->unkB8 / 130.0f)) * D_80752F4C) + (2e-05 * (f64) fs0));
     }
-    i = 0; do {  // FAKE: one source line orders the preheader moves (move s1,zero after addiu s4)
+    for (i = 0; i != 11; i++) {
         if (active != 0) {
             func_806F1A18(fs3, fs1, &pair->unk0, &spB0);
             func_806F1A18(fs2, fs1, &pair->unkC, &spAC);
@@ -940,14 +949,14 @@ void func_806F22A8(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
         arg1[index].unk0 = value[3];
         arg1[index].unk1 = kind;
         if (kind == 0) {}  // FAKE: extra use raises kind's uopt priority above the hoisted loop addresses (kind in s3)
-        i += 1;
+
         arg1[index].unk2 = (s16) (s32) ((f64) (pair->unk0.unk4 + pair->unk0.unk0) * 10430.218905280077);
         arg1[index].unk4 = (s16) (s32) ((f64) (pair->unkC.unk4 + pair->unkC.unk0) * 10430.218905280077);
         arg1[index].unk6 = 0;
         pair++;
         index++;
         kind++;
-    } while (i != 11);
+    }
     *arg2 = index;
 }
 
