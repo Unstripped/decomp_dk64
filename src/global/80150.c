@@ -3213,7 +3213,7 @@ void tagBarrelStartSelection(struct TagBarrelData *arg0_in) {
     f32 dummy;
     Actor *sp34;
     TagBarrelKongSub *sp30;
-    s32 sp28_pad; // FAKE: unused home keeps sp28's spill slot below the switch temp (frame 0x40)
+    s32 sp28_pad;
     s32 sp28;
 
     switch (D_807FBB40->unk155[0]) {
