@@ -78,7 +78,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     int i;
     int i2;
     int *q1;
-    int fillx[4]; // FAKE: frame pad (original locals unknown; keeps frame 440 and the base spill at 404)
+    int fillx[4];
     double tmp;
     double etmp;
     double ernd;
