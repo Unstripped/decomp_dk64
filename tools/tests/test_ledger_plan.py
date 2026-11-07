@@ -47,7 +47,7 @@ def test_own_failures_lower_that_arm_for_the_function():
 
 def test_arm_without_data_uses_configured_prior():
     bucket_tot = {("6+", "m"): [1, 1]}
-    assert abs(ledger.cell_prior("fable", ("6+", "m"), {}, bucket_tot) - ledger.ARMS["fable"]["prior"]) < 1e-9
+    assert abs(ledger.cell_prior("opus", ("6+", "m"), {}, bucket_tot) - ledger.ARMS["opus"]["prior"]) < 1e-9
 
 
 def test_recorded_selectors_map_to_arms_regardless_of_level():
@@ -61,7 +61,7 @@ def test_soft_rule_makes_cheap_arms_dearer_only_on_heavily_tried_functions():
     hard = ledger.SINGLE_TRIES
     assert ledger.arm_cost("sonnet", hard) == ledger.ARMS["sonnet"]["cost"] * ledger.HARD_COST_MULT
     assert ledger.arm_cost("sonnet", hard - 1) == ledger.ARMS["sonnet"]["cost"]
-    assert ledger.arm_cost("astra", hard) == ledger.ARMS["astra"]["cost"]
+    assert ledger.arm_cost("opus", hard) == ledger.ARMS["opus"]["cost"]
 
 
 def test_thinking_level_selects_its_own_arm():

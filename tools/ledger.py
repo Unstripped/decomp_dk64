@@ -109,7 +109,7 @@ AGENT = re.compile(r"[A-Za-z0-9_]{1,48}")
 FRESH_TRIES = 2
 CLOSE_FULL = 10
 TIERS = {"finish": ["anthropic/claude-sonnet-5-5:high"],
-         "strong": ["openai-codex/gpt-6-astra:xhigh", "anthropic/claude-fable-5-1:xhigh"]}
+         "strong": ["anthropic/claude-opus-5-5:xhigh"]}
 RANK = {"finish": 0, "strong": 1}
 
 
@@ -513,8 +513,7 @@ ARMS = {
     "sonnet": dict(model="anthropic/claude-sonnet-5-5:high", cost=4.0, capacity=900, max_funcs=4, prior=0.35),
     "sonnet_xhigh": dict(model="anthropic/claude-sonnet-5-5:xhigh", cost=6.0, capacity=900, max_funcs=4, prior=0.35,
                          prior_from="sonnet", frontier=True),
-    "astra": dict(model="openai-codex/gpt-6-astra:xhigh", cost=10.0, capacity=10**6, max_funcs=1, prior=0.35, frontier=True),
-    "fable": dict(model="anthropic/claude-fable-5-1:xhigh", cost=10.0, capacity=10**6, max_funcs=1, prior=0.35, frontier=True),
+    "opus": dict(model="anthropic/claude-opus-5-5:xhigh", cost=10.0, capacity=10**6, max_funcs=1, prior=0.35, frontier=True),
 }
 ARM_STRENGTH = 4   # pseudo-attempts of the hierarchical prior behind each (arm, bucket) cell
 FUNC_STRENGTH = 20  # pseudo-attempts of the cell rate behind one function's own failures
