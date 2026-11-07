@@ -558,7 +558,8 @@ void eepromValidateSaveSlots(void) {
         idx = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) * (j = i + 1)) / 4) - 1;
         stored = ((u32 *)D_807ED6A8)[idx];
         len = ((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7)) / 8) - 4;
-        if (stored != (eepromCalculateCrc32(data, len) ^ 0)) {  // FAKE: keeps stored on the left of beq
+        hit = eepromCalculateCrc32(data, len);
+        if (stored != hit) {
             ok = 0;
             slot = i;
             eepromClearSlotData((u8)slot & 0xFF, 0);
@@ -606,7 +607,8 @@ void eepromValidateSaveSlots(void) {
     off = ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8);
     idx = (((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4 + 0x3F) & ~0x3F)) / 8) + 0x40) / 4 - 1;
     stored = ((u32 *)D_807ED6A8)[idx];
-    if (stored != (eepromCalculateCrc32(D_807ED6A8 + off, 0x3C) ^ 0)) {  // FAKE: keeps stored on the left of beql
+    hit = eepromCalculateCrc32(D_807ED6A8 + off, 0x3C);
+    if (stored != hit) {
         ok = 0;
         func_8060CB74();
     }
