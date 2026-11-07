@@ -1,12 +1,12 @@
 #include "common.h"
 
 typedef struct {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
+    s16 x;
+    s16 y;
+    s16 z;
     u8 pad6;
-    u8 unk7;
-    u8 unk8;
+    u8 radius;
+    u8 targetSpeed;
     u8 pad9;
 } RaceC_Entry;
 
@@ -67,7 +67,7 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 void actorScriptStart(void *, s32);
 
-void func_80024000(void) {
+void raceOpponentFollowWaypoints(void) {
     f32 speedDelta;
     f32 turnDelta;
     f32 fs0;
@@ -92,10 +92,10 @@ void func_80024000(void) {
     curSpeed = RC_A->unkB8;
     oscSpeed = func_80612794((s16)(s32)(RC_A->unkE0 * 11.4)) * 20.0f;
     a0 = &D_807FDCA0->unk14[D_807FDC90->unk25];
-    fs0 = RC_A->unk7C - a0->unk0;
-    fs1 = RC_A->unk84 - a0->unk4;
-    if (sqrtf(fs1 * fs1 + fs0 * fs0) < (a0 = &D_807FDCA0->unk14[D_807FDC90->unk25])->unk7) {
-        if ((a0->unk2 < RC_A->unk80 ? RC_A->unk80 - a0->unk2 : -(RC_A->unk80 - a0->unk2)) < 80.0f && D_807FDC90->unk25 < D_807FDCA0->unk10 - 1) {
+    fs0 = RC_A->unk7C - a0->x;
+    fs1 = RC_A->unk84 - a0->z;
+    if (sqrtf(fs1 * fs1 + fs0 * fs0) < (a0 = &D_807FDCA0->unk14[D_807FDC90->unk25])->radius) {
+        if ((a0->y < RC_A->unk80 ? RC_A->unk80 - a0->y : -(RC_A->unk80 - a0->y)) < 80.0f && D_807FDC90->unk25 < D_807FDCA0->unk10 - 1) {
             RaceC_Row *row = (RaceC_Row *)((u8 *)routeRows + routeRowIdx * 12);
             if (row->unk0 == D_807FDC90->unk25) {
                 if (row) {}  // FAKE: dead test steers uopt FP callee-saved colouring (fs0/fs1)
@@ -112,7 +112,7 @@ void func_80024000(void) {
         }
         a0 = &D_807FDCA0->unk14[D_807FDC90->unk25];
     }
-    speedDelta = (f64)(a0->unk8 - RC_A->unkB8 / 10.0f) * 0.8;
+    speedDelta = (f64)(a0->targetSpeed - RC_A->unkB8 / 10.0f) * 0.8;
     fv0 = (f64)(RC_A->unk80 - RC_B->unk80) * 0.25;
     if (fv0 > 6.0f) {
         fv0 = 6.0f;
@@ -143,7 +143,7 @@ void func_80024000(void) {
     curSpeed = sqrtf(fs0 * fs0 + fs1 * fs1);
     fv0 = func_80611BB4(fs0, fs1);
     if (RC_A->unkC4 != -20.0f && RC_A->unkC4 != -360.0f) {
-        RC_A->unkB8 = D_807FDCA0->unk14[D_807FDC90->unk25].unk8 * 10.0;
+        RC_A->unkB8 = D_807FDCA0->unk14[D_807FDC90->unk25].targetSpeed * 10.0;
     } else {
         RC_A->unkB8 = curSpeed;
     }
@@ -162,20 +162,20 @@ void func_80024000(void) {
 
 typedef struct {
     u8 pad0[0x1A];
-    s16 unk1A;
-    s32 unk1C;
+    s16 rewardFlag;
+    s32 requiredCoins;
 } RaceC_Arg1;
 
 typedef struct {
     u8 pad0[0x36];
-    u8 unk36;
+    u8 active;
 } RaceC_Arg0;
 
 s32 flagGet(s16, s32);
 extern u16 D_80750AC4;
 
-int func_80024634(RaceC_Arg0 *controller, RaceC_Arg1 *config) {
-    return controller->unk36 != 0 && flagGet(config->unk1A, 0) == 0 && D_80750AC4 >= config->unk1C;
+int raceCheckCoinRequirement(RaceC_Arg0 *controller, RaceC_Arg1 *config) {
+    return controller->active != 0 && flagGet(config->rewardFlag, 0) == 0 && D_80750AC4 >= config->requiredCoins;
 }
 
 typedef struct {
@@ -532,13 +532,13 @@ void raceOpponentBehaviourUpdate(void) {
             }
         }
         L4_D->unkE6 = (L4_D->unkE6 + L4_S->unk2C) & 0xFFF;
-        func_80024000();
+        raceOpponentFollowWaypoints();
         break;
     case 7:
         if (gCurrentMap == 0xE) {
             actorSetTargetSpeed(D_807FBB40, 0xB4);
         }
-        func_80024000();
+        raceOpponentFollowWaypoints();
         break;
     case 8:
         L4_D->unk154 = 2;
@@ -646,7 +646,7 @@ void raceOpponentBehaviourUpdate(void) {
                 sfxStopSlotSound(D_807FBB48, 0);
                 playerStateQueueCallback(0x55, NULL, 0);
                 L4_D->unkB8 = 0.0f;
-                if (func_80024634((void *)controller, (void *)config) != 0) {
+                if (raceCheckCoinRequirement((void *)controller, (void *)config) != 0) {
                     L4_D->unk154 = 0xA;
                     L4_D->unk155 = 0;
                 } else {
@@ -664,7 +664,7 @@ void raceOpponentBehaviourUpdate(void) {
         case 2:
             if (!(L4_D->unk60 & 0x02000000)) {
                 camResumePath();
-                if (func_80024634((void *)controller, (void *)config) == 0) {
+                if (raceCheckCoinRequirement((void *)controller, (void *)config) == 0) {
                     controller->unk35 = 4;
                 }
                 controller->unk35 = controller->unk35 + 1;

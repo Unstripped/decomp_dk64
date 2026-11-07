@@ -1,4 +1,6 @@
 // Overlay race (ovl05, segment table entry 5)
+raceOpponentFollowWaypoints = 0x80024000; // type:func
+raceCheckCoinRequirement = 0x80024634; // type:func
 raceGetNextWaypointIndex = 0x80025770; // type:func
 raceGetPrevWaypointIndex = 0x8002578C; // type:func
 racePlayCheckpointSfx = 0x80026004; // type:func
