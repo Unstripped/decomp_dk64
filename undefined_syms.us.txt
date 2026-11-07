@@ -327,3 +327,9 @@ D_807F5E1C = 0x807F5E1C;
 D_807EDEA9 = 0x807EDEA9;
 D_807EDEAA = 0x807EDEAA;
 D_807EDEAB = 0x807EDEAB;
+
+/* 55B20 function-static count, early chunk-count alias and flag-array interior labels */
+D_807F6C20 = 0x807F6C20;
+D_807F6C28 = 0x807F6C28;
+D_807F7079 = 0x807F7079;
+D_807F707A = 0x807F707A;

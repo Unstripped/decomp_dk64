@@ -49,12 +49,16 @@ typedef struct MapChunk {
     /* 0x088 */ u8 pad88[0x140];
 } MapChunk;
 
-extern u8 D_807F7078[];
+extern u8 D_807F7078[0x32];
 extern s32 gMapChunkCount;
+extern s32 D_807F6C28;
 extern MapChunk *gMapChunks;
 extern u8 *D_807F6C1C;
 extern s32 D_807F6C20;
 extern u8 *D_807F6C2C;
+extern s32 D_807F6C80;
+extern s32 D_807F6C84;
+extern f32 D_807F6C88[12];
 
 typedef struct MapHeader {
     /* 0x000 */ u8 pad0[0x64];
@@ -74,7 +78,7 @@ void mapChunkAllocLists(MapHeader *arg0) {
     s32 count;
     s32 size;
 
-    temp = gMapChunkCount = *(s32 *)(arg0->unk64 + (u8 *)arg0);
+    temp = D_807F6C28 = *(s32 *)(arg0->unk64 + (u8 *)arg0); // FAKE: alias gMapChunkCount so its BSS symbol is first emitted by the initializer
     if (temp >= 2) {
         count = temp & 0xFF;
     } else {
@@ -147,12 +151,22 @@ void lightSetTargetColor(f32, f32, f32, s16);
 void lightCopyTargetColors(s16);
 void mapChunkBuildCellTable(s32, s32, void *, s32 *, s32, s32);
 void mapGridTriangleBuildPlane(s32, void *);
+extern s16 D_807F6C30[20];
+extern s16 D_807F6C58[20];
+extern u8 D_807F6CB8[0xC0];
+extern f32 D_807F6D78[60];
+extern f32 D_807F6E68[60];
+extern f32 D_807F6F58[60];
+extern u8 D_807F7048[16];
+extern u8 D_807F7058;
+extern u8 D_807F7060[16];
+extern u8 D_807F7070;
 
 
-#ifdef NON_MATCHING
 typedef struct { s32 offset; s16 unk4; s16 unk6; s16 unk8; s16 unkA; } R13o6ColEntry;
 
 void mapChunksInitFromMapData(MapData *arg0) {
+    static volatile s32 D_807F6C20; // FAKE: function-static volatile accesses keep separate symbolic address webs
     s32 i;
     s32 off;
     s32 base;
@@ -168,6 +182,10 @@ void mapChunksInitFromMapData(MapData *arg0) {
     s32 k;
     s32 size;
 
+    (void)(&gMapGridTrianglePlanes, &gMapChunkCount, &D_807F6C2C, D_807F6C30, D_807F6C58); // FAKE: emit BSS symbols in address order
+    (void)(&D_807F6C80, &D_807F6C84, D_807F6C88, D_807F6CB8); // FAKE: emit BSS symbols in address order
+    (void)(D_807F6D78, D_807F6E68, D_807F6F58, D_807F7048, &D_807F7058, D_807F7060); // FAKE: emit BSS symbols in address order
+    (void)(&D_807F7070, &D_807F7074, D_807F7078, &D_807F70AA, &D_807F70AB, &D_807F70AC); // FAKE: emit BSS symbols in address order
     D_807F70AC = 0;
     D_807F713A = 0;
     D_807F70AB = 0;
@@ -183,20 +201,20 @@ void mapChunksInitFromMapData(MapData *arg0) {
         vecsOff = arg0->unk60;
         D_807F6C14 = (MapGridVectors *)((u8 *)arg0 + vecsOff);
         if (arg0) {}  // FAKE: uopt block boundary (boxes holder gets a0, no call in its block)
-        base = arg0->unk34;
         off = arg0->unk64;
         chunkOff = arg0->unk68;
+        base = arg0->unk34;
         cellsOff = arg0->unk6C;
         D_807F6C20 = *(s32 *)((u8 *)arg0 + cellsOff);
         D_807F6C1C = (u8 *)((u8 *)arg0 + cellsOff + 4);
         D_807F6C2C = heapAlloc(D_807F6C20);
         boxesOff = arg0->unk70;
-        *(s32 *)((u8 *)&D_807F6C2C - 0x1C) = *(s32 *)((u8 *)arg0 + boxesOff);  // FAKE: stores D_807F6C10 through another lda so the loop's &D_807F6C10 web excludes this block
-        *(u8 **)((u8 *)&D_807F6C2C - 0x20) = (u8 *)((u8 *)arg0 + boxesOff + 4);  // FAKE: stores D_807F6C0C through the same neighbour lda (keeps the count with the extern flag array)
+        *(s32 *)((u8 *)&D_807F6C84 - 0x74) = *(s32 *)((u8 *)arg0 + boxesOff); // FAKE: neighbor-symbol store separates the loop address web
+        *(u8 **)((u8 *)D_807F6C88 - 0x7C) = (u8 *)((u8 *)arg0 + boxesOff + 4); // FAKE: neighbor-symbol store separates the loop address web
         for (i = 0; i < D_807F6C10; i++) {
             if (((MapRelocEntry *)D_807F6C0C)[i].unk8 != -1) {
                 ((MapRelocEntry *)D_807F6C0C)[i].unk8 += (s32)((u8 *)arg0 + base);
-                if (arg0) {}  // FAKE: arg0 use at loop-1 weight (arg0 outranks the -1 constant: s7/fp)
+                if ((u32)arg0 == (u32)((MapRelocEntry *)D_807F6C0C)[i].unkC) {} // FAKE: keep the pointer reload on the store path and arg0 above the -1 constant in uopt priority
             }
             if (((MapRelocEntry *)D_807F6C0C)[i].unkC != -1) {
                 ((MapRelocEntry *)D_807F6C0C)[i].unkC += (s32)((u8 *)arg0 + base);
@@ -304,10 +322,6 @@ void mapChunksInitFromMapData(MapData *arg0) {
         gMapChunks = NULL;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/55B20/mapChunksInitFromMapData.s")
-#endif
 
 typedef struct MapNodeEntry {
     /* 0x00 */ u8 *unk0;
@@ -655,10 +669,27 @@ u8 mapChunkPurgeNodeList(s32 arg0, s16 *arg1, u8 arg2) {
     return flag;
 }
 
+MapGridPoint *gMapGridTrianglePlanes;
+s32 gMapChunkCount;
+u8 *D_807F6C2C;
+s16 D_807F6C30[20];
+s16 D_807F6C58[20];
 s32 D_807F6C80;
 s32 D_807F6C84; // unreferenced word between the chunk count and D_807F6C88
 f32 D_807F6C88[12];
-extern s16 D_807F6C58[];
+u8 D_807F6CB8[0xC0]; // unreferenced space before the clipping scratch buffers
+f32 D_807F6D78[60];
+f32 D_807F6E68[60];
+f32 D_807F6F58[60];
+u8 D_807F7048[16];
+u8 D_807F7058;
+u8 D_807F7060[16];
+u8 D_807F7070;
+Mtx *D_807F7074;
+u8 D_807F7078[0x32];
+u8 D_807F70AA;
+u8 D_807F70AB;
+s32 D_807F70AC;
 struct MapCell;
 struct MapBox;
 extern u8 D_807F7140;
@@ -1557,9 +1588,7 @@ typedef struct MapZone {
 
 extern void *D_807F70B8[];
 extern u8 D_807F7048[];
-extern u8 D_807F7058;
 extern u8 D_807F7060[];
-extern u8 D_807F7070;
 
 s32 mapTriangleBoundsContainPoint(MapTriangle *, f32, f32);
 s32 mapTriangleContainsPoint(void *, f32, f32);
