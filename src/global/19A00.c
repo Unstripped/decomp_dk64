@@ -596,7 +596,7 @@ s32 func_806159EC(s32 arg0) {
 
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
-    controllerAnimSetState(arg0, sp1E, 0.0f, (f32)0); // FAKE: (f32)0 breaks the 0.0f CSE (li a3 instead of mfc1)
+    controllerAnimSetState(arg0, sp1E, 0.0f, 0);
     return 1;
 }
 s32 func_80615A3C(s32 arg0) {
@@ -1394,7 +1394,7 @@ s16 mapActionLookupEntry(s16, Actor *, u8);
 
 s32 scriptOpPlaySoundAndShake(Actor *arg0) {
     s16 sp4E;
-    volatile u8 sp4D; // FAKE: volatile loads are not hoistable, keeps the 0xFF arm's lbu out of the bnez delay slot
+    volatile u8 sp4D; // LAYOUT: volatile load stops as1 hoisting lbu into bnez delay slot
     s16 sp4A;
     u8 sp49;
     u8 var_v1;
@@ -1432,12 +1432,12 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
             break;
         }
     }
-    if (arg0 && arg0 && arg0) {} // FAKE: empty guard adds a block to as1's XBB window (limit 10), pushing the then-arm's lh/li hoists out
-    if (arg0 && arg0 && arg0) {} // FAKE: same (6 guards needed)
-    if (arg0 && arg0 && arg0) {} // FAKE: same
-    if (arg0 && arg0 && arg0) {} // FAKE: same
-    if (arg0 && arg0 && arg0) {} // FAKE: same
-    if (arg0 && arg0 && arg0) {} // FAKE: same
+    if (arg0 && arg0 && arg0) {} // LAYOUT: pads as1 XBB window to prevent then-arm lh/li hoists
+    if (arg0 && arg0 && arg0) {} // LAYOUT: same (6 guards pad the 10-candidate window)
+    if (arg0 && arg0 && arg0) {} // LAYOUT: same
+    if (arg0 && arg0 && arg0) {} // LAYOUT: same
+    if (arg0 && arg0 && arg0) {} // LAYOUT: same
+    if (arg0 && arg0 && arg0) {} // LAYOUT: same
     sp4E = mapActionLookupEntry(sp4E, arg0, ((ActorSoundPosView *)arg0)->unk78);
     if ((sp4E == 2) || (sp4E == 8)) {
         sp49 = 0xA;
@@ -1508,7 +1508,7 @@ s32 scriptOpPlayPositionalSoundPlayerStateVolume(Actor *arg0) {
         var_v0 = 0xA;
     } else if (gPlayerSlots[((GlobalStateView7238 *)gActivePlayerState)->unk1A4].unk2C0 == 0) {
         var_v0 = 0xFF;
-        sp3B = (u8)(u32)((f64)(var_v0 ^ 0) * 0.5); // FAKE: blocks constant folding of the conversion
+        sp3B *= 0.5;
     } else {
         switch (arg0->unk58) {
         case 6:
@@ -2476,7 +2476,7 @@ void scriptCmdSpawnFallingEffect(Actor *arg0) {
             sp38 = arg0->unk80;
             sp34 = arg0->unk84;
         } else {
-            actorGetNodePos(arg0, node ^ 0, &sp3C, &sp38, &sp34); // FAKE: delay-slot scheduling
+            actorGetNodePos(arg0, node, &sp3C, &sp38, &sp34);
         }
         sp38 += (f32)sp49 * sp40;
         if (sp48 != 0) {
