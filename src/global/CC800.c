@@ -1044,7 +1044,7 @@ void func_806C93E4(Actor *arg0, Struct807FD580 *arg1) {
     arg0->unk128 = 0xFF;
 }
 
-void func_800268DC(Actor *, void *, void *);
+void func_800268DC(Actor *, void *, void *); /* mpResetPlayerOnRespawn (multiplayer) */
 void sfxStopSlotSound(Actor *, u8);
 s32 camIsCutsceneActive(void);
 void camResetAllPlayers(void);
@@ -1077,7 +1077,7 @@ void func_806C9434(s32 arg0) {
     ctl->unk200 = 0;
     ctl->unk4 = 0.0f;
     if (gPlayerCount >= 2) {
-        func_800268DC(D_807FBB48, ctl, sp2C);
+        func_800268DC(D_807FBB48, ctl, sp2C); /* mpResetPlayerOnRespawn */
     }
     func_806C9304(D_807FBB48, ctl);
     if (camIsCutsceneActive() == 0) {

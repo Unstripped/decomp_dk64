@@ -144,18 +144,18 @@ extern s8 D_8076A105;
 void func_80714638(void);
 s32 randomNonNegative(void);
 typedef struct MpSpawnPoint {
-    s16 unk0;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    s16 unk8;
+    s16 x;
+    s16 y;
+    s16 z;
+    s16 radius;
+    s16 respawnTimer;
 } MpSpawnPoint;
 
 typedef struct MpMapEntry {
-    s32 unk0;
+    s32 mapId;
     s32 count;
     MpSpawnPoint *items;
-    s32 ids[4];
+    s32 modelIds[4];
     char pad1C[4];
 } MpMapEntry;
 extern MpMapEntry D_80026FA4[];
@@ -542,7 +542,7 @@ MpMapEntry *mpFindCurrentMapEntry(void) {
     MpMapEntry *ret = NULL;
 
     for (i = 0; (i < 4U) && (ret == NULL); i++) {
-        if (gCurrentMap == D_80026FA4[i].unk0) {
+        if (gCurrentMap == D_80026FA4[i].mapId) {
             ret = &D_80026FA4[i];
         }
     }
@@ -656,9 +656,9 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
         if (temp == -1) {
             if (controllerState->unk4C == 0 && actorFindByType(0x7A) == 0 && mpFindModelSlotByType(0x1D2) == 0) {
                 MpSpawnPoint *pos = spawnPoint;
-                if (delayedSpawnQueueContains(0x1D2, 0, pos->unk0, pos->unk2, pos->unk4) == 0) {
+                if (delayedSpawnQueueContains(0x1D2, 0, pos->x, pos->y, pos->z) == 0) {
                     pos = spawnPoint;
-                    func_806F5FE8(0x1D2, pos->unk0, pos->unk2, pos->unk4, 10);
+                    func_806F5FE8(0x1D2, pos->x, pos->y, pos->z, 10);
                 }
             }
         } else if (D_807552E8 == 5 && mpGetPlayerScore(temp) >= D_807552F0) {
@@ -702,11 +702,11 @@ void mpUpdateItemSpawns(void) {
         item = items;
         if (mapEntry->count > 0) {
             do {
-                if (item->unk8 != 0) {
-                    item->unk8--;
+                if (item->respawnTimer != 0) {
+                    item->respawnTimer--;
                 } else {
                     j = 0;
-                    if (item->unk6 == 0) {
+                    if (item->radius == 0) {
                         num_outer = 1;
                     } else {
                         num_outer = ((randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
@@ -716,11 +716,11 @@ void mpUpdateItemSpawns(void) {
                             k = 0;
                             num_inner = ((randomNonNegative() >> 15) % 0x7FFF % 3) + 1;
                             spawnDelay = (s16) mpRandomSpawnDelay();
-                            fs1 = (f32) ((((f64) randomFloat() * 0.8) + 0.2) * (f64) item->unk6);
+                            fs1 = (f32) ((((f64) randomFloat() * 0.8) + 0.2) * (f64) item->radius);
                             angle = (randomNonNegative() >> 15) % 4096;
-                            fs3 = (f32) item->unk0;
-                            fs0 = (f32) (item->unk2 - 23);
-                            fs4 = (f32) item->unk4;
+                            fs3 = (f32) item->x;
+                            fs0 = (f32) (item->y - 23);
+                            fs4 = (f32) item->z;
                             fs3 += fs1 * func_80612794(angle);
                             fs4 += fs1 * func_80612790(angle);
                             if (num_inner >= 2) {
@@ -746,7 +746,7 @@ void mpUpdateItemSpawns(void) {
                             j++;
                         } while (j != num_outer);
                     }
-                    item->unk8 = mpRandomSpawnDelay();
+                    item->respawnTimer = mpRandomSpawnDelay();
                 }
                 item++;
                 itemIndex++;
@@ -868,13 +868,13 @@ void mpApplyPendingEffect(s32 playerIndex) {
 void csModelStateSetFirstByte(s16, s32);
 
 void mpResetMapModelStates(void) {
-    MpMapEntry *temp;
+    MpMapEntry *mapEntry;
     s32 i;
 
-    temp = mpFindCurrentMapEntry();
+    mapEntry = mpFindCurrentMapEntry();
     i = 0;
-    while (i < 4 && temp->ids[i] != -1) {
-        csModelStateSetFirstByte(temp->ids[i], 0);
+    while (i < 4 && mapEntry->modelIds[i] != -1) {
+        csModelStateSetFirstByte(mapEntry->modelIds[i], 0);
         i++;
     }
 }
@@ -955,7 +955,7 @@ void mpUpdate(void) {
         case 2:
             if (flag != 0) {
                 MpSpawnPoint *q = mpFindCurrentMapEntry()->items;
-                func_806F5FE8(0x1D2, q->unk0, q->unk2, q->unk4, 10);
+                func_806F5FE8(0x1D2, q->x, q->y, q->z, 10);
             }
             break;
         case 4:
@@ -1102,27 +1102,27 @@ extern void func_806F0C18(void *);
 extern s32 func_80714608(s32);
 extern MpFlagState *gActivePlayerState;
 
-void func_800268DC(MpActor *playerIndex, MpKongState *itemType, MpScore *count) {
-    count->unk2F6 = 0;
-    count->unk2F0 = 0;
-    count->unk2F4 = 0;
-    count->unk2F2 = 0;
-    itemType->unkD4 = 90;
-    func_806F0C18(playerIndex);
-    playerIndex->unk60 &= ~0x20000000;
-    itemType->unk247 = -1;
-    itemType->unk246 = 0;
+void mpResetPlayerOnRespawn(MpActor *playerActor, MpKongState *kongState, MpScore *playerScore) {
+    playerScore->unk2F6 = 0;
+    playerScore->unk2F0 = 0;
+    playerScore->unk2F4 = 0;
+    playerScore->unk2F2 = 0;
+    kongState->unkD4 = 90;
+    func_806F0C18(playerActor);
+    playerActor->unk60 &= ~0x20000000;
+    kongState->unk247 = -1;
+    kongState->unk246 = 0;
     if (func_80714608(0) != 0) {
         gActivePlayerState->unk21E = 0;
     }
     if (D_807552E8 == 3 || D_807552E8 == 5) {
-        slotQueueAddValue(1, itemType->unk1A4, -10);
+        slotQueueAddValue(1, kongState->unk1A4, -10);
     }
 }
 
-void mpDeductDeathPenalty(MpKongState *playerIndex) {
+void mpDeductDeathPenalty(MpKongState *kongState) {
     if (D_807552E8 == 2) {
-        slotQueueAddValue(1, playerIndex->unk1A4, -3);
+        slotQueueAddValue(1, kongState->unk1A4, -3);
     }
 }
 

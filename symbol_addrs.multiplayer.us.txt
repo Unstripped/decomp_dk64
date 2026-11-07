@@ -23,6 +23,7 @@ mpResetMapModelStates = 0x80025F84; // type:func
 mpFreeHudIcons = 0x80025FFC; // type:func
 mpUpdate = 0x80026094; // type:func
 mpSetFlags = 0x800268C0; // type:func
+mpResetPlayerOnRespawn = 0x800268DC; // type:func
 mpDeductDeathPenalty = 0x8002698C; // type:func
 mpDropItemsOnHit = 0x800269C8; // type:func
 mpApplyDeathPenalty = 0x80026B0C; // type:func
