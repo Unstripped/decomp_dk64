@@ -77,7 +77,7 @@ u8 actorCheckCollisionsAgainstActiveActors(CollisionActor *self, s32 anglePtr1, 
     posZ = sub140->unk8;
     radius = sub140->unkC;
     D_807FB600 = 0;
-    do { i = 0; if (gActiveActorCount > 0) { entry = gActiveActors; do { other = (CollisionActor *) entry->actor; other_sub140 = other->unk140; if ((((!(other->unk60 & 0x2000)) && (sub140 != other_sub140)) && (other->unk144 != 1)) && (other->unk60 & 0x10)) { if (collisionSpheresOverlap(posX, posY, posZ, radius, other_sub140->unk0, other_sub140->unk4, other_sub140->unk8, other_sub140->unkC)) { node = sub140->unk8C; D_807FB5FF = 0; if (other->unk64 & 0x20) { D_807FB5FD = 0; } else { D_807FB5FD = 1; } while ((node != 0) && (D_807FB5FF == 0)) { if ((node->unk26 != 0) && (!(node->unk27 & 2))) { hitMask |= func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, other_sub140->unkA4, other_sub140->unkA8, anglePtr1, anglePtr2); } node = node->next; } if (other->unk64 & 0x20) { self->unkFC |= hitMask; } if (D_807FB5FF != 0) { ret |= actorCollisionReflectAndPush((Actor *) self, (Actor *) other); } } } i++; entry++; } while (i < gActiveActorCount); } } while (0); // FAKE: same-line preheader steers ugen tie-break order
+    i = 0; if (gActiveActorCount > 0) { entry = gActiveActors; do { other = (CollisionActor *) entry->actor; other_sub140 = other->unk140; if ((((!(other->unk60 & 0x2000)) && (sub140 != other_sub140)) && (other->unk144 != 1)) && (other->unk60 & 0x10)) { if (collisionSpheresOverlap(posX, posY, posZ, radius, other_sub140->unk0, other_sub140->unk4, other_sub140->unk8, other_sub140->unkC)) { node = sub140->unk8C; D_807FB5FF = 0; if (other->unk64 & 0x20) { D_807FB5FD = 0; } else { D_807FB5FD = 1; } while ((node != 0) && (D_807FB5FF == 0)) { if ((node->unk26 != 0) && (!(node->unk27 & 2))) { hitMask |= func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, other_sub140->unkA4, other_sub140->unkA8, anglePtr1, anglePtr2); } node = node->next; } if (other->unk64 & 0x20) { self->unkFC |= hitMask; } if (D_807FB5FF != 0) { ret |= actorCollisionReflectAndPush((Actor *) self, (Actor *) other); } } } i++; entry++; } while (i < gActiveActorCount); } // LAYOUT: same-line preheader steers ugen tie-break order
     return ret;
 }
 
@@ -363,7 +363,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
     D_807FB547 = 0;
     func_80672E90(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8);
     actorSetCameraBoundaryMode(other->unk58);
-    if (*(u8 *)&flag != 0) { // FAKE: address-taken flag stops cvt CSE (flag reloaded)
+    if (flag != 0) {
         hit = func_80673708(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8, hitRadius, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->unkF4, (s32)&other->unkF6);
     } else {
         actorSetTargetAngleBounds(selfBounds->unkA4 + otherBounds->unk58 * 0x58);
