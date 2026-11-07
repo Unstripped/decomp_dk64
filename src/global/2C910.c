@@ -89,7 +89,6 @@ Actor *actorFromSpawnNodeOrDefault(s16 arg0) {
 }
 
 
-#ifdef NON_MATCHING
 #define Matcher14_OFF(p, T, o) (*(T *)((u8 *)(p) + (o)))
 
 extern u8 D_807457E4[];
@@ -189,14 +188,17 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
     sp9C = Matcher14_OFF(D_807FBB4C, void *, 0x174);
     actorFindActiveByType(0xC, &sp94);
     p = (void *)((u32)arg1 >> 16); // FAKE: dead store; makes the ushr item precede the (s16)arg1 item (spilltemps slot order)
-    b = (s16)arg1;
+    b = (s16)(arg1 & 0xFFFF);
     a = (s16)((u32)arg1 >> 16);
     spA0[0] = a;
-    spA0[1] = b & 0xFFFF; // FAKE: ugen allocs a ring temp for the mask, as1 deletes it (stands in for the missing entry ring loads)
+    spA0[1] = b;
     c = (s16)((u32)arg2 >> 16);
     spA0[2] = c;
-    d = (s16)arg2;
+    d = (s16)(arg2 & 0xFFFF);
     spA0[3] = d;
+    if ((u32)d < 0U) { // FAKE: unreachable call precolors d, keeping its item spilled
+        sfxSetMode(d);
+    }
     switch (arg0 & 0xFF) {
         case 0x45:
             spawnNodesSetActorStateByFlag(2, 0x40);
@@ -221,15 +223,16 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             func_806F0C18(D_807FBB4C);
             return;
         case 0x33:
-            p = Matcher14_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C);
-            Matcher14_OFF(p, u8, 0x30) = 0xFE;
-            Matcher14_OFF(p, u8, 0x33) = b;
-            Matcher14_OFF(p, u8, 0x22) = c;
-            Matcher14_OFF(p, u8, 0x32) = d;
-            Matcher14_OFF(p, u8, 0x31) = 1;
+            q = Matcher14_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C);
+            Matcher14_OFF(q, u8, 0x30) = 0xFE;
+            Matcher14_OFF(q, u8, 0x33) = b;
+            Matcher14_OFF(q, u8, 0x22) = c;
+            Matcher14_OFF(q, u8, 0x32) = d;
+            Matcher14_OFF(q, u8, 0x31) = 1;
             return;
         case 0x34:
-            Matcher14_OFF(Matcher14_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C), u8, 0x30) = 0xFF;
+            q = Matcher14_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C);
+            Matcher14_OFF(q, u8, 0x30) = 0xFF;
             return;
         case 0x0:
             Matcher14_OFF(sp9C, s16, 0x70) = Matcher14_OFF(D_807FBB4C, s16, 0xE6);
@@ -456,7 +459,8 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             n_alSndpPlay((void *)D_8076D1FC, (s16)(b - 0x7FF), (u32)(c != 0 ? ((f64)c / 255.0) * 32767.0 : 16383.5), 0x3F, d != 0 ? (f64)d / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
             return;
         case 0x19:
-            sp72 = (a > 0 ? a : -a) <= 0 ? 0 : (a > 0 ? a : -a) - 1;
+            node = (a > 0 ? a : -a) <= 0 ? 0 : (a > 0 ? a : -a) - 1;
+            sp72 = node;
             n_alSndpStop(*(s32 *)(D_807F5D70 + sp72 * 4));
             return;
         case 0x1A:
@@ -485,8 +489,8 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             sfxSetMode(a & 0xFF);
             return;
         case 0x3C:
-            p = Matcher14_OFF(spawnNodeActivate(1, 0), void *, 0x17C);
-            Matcher14_OFF(p, u8, 0xD) |= a;
+            q = Matcher14_OFF(spawnNodeActivate(1, 0), void *, 0x17C);
+            Matcher14_OFF(q, u8, 0xD) |= a;
             return;
         case 0x3B:
             Matcher14_OFF(actorFromSpawnNodeOrDefault(a), s16, 0x146) = b;
@@ -511,7 +515,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             Matcher14_OFF(sp98, s16, 0xE6) = mathAngleBetweenPoints2D(sp84, sp7C, Matcher14_OFF(sp98, f32, 0x7C), Matcher14_OFF(sp98, f32, 0x84));
             return;
         case 0x2F:
-            csModelStateSetFirstByte((s16)a, d);
+            csModelStateSetFirstByte((s16)a, (s16)(u16)d); // FAKE: prevents sharing this narrowing across calls
             if (b != 0) {
                 csModelStateSetFirstByte(b, (s16)d);
             }
@@ -565,10 +569,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
     }
 }
 #undef Matcher14_OFF
-#else
 
-#pragma GLOBAL_ASM("asm/global/nonmatchings/2C910/camPathCommandDispatch.s")
-#endif
 
 extern Actor *D_807FBB40;
 
