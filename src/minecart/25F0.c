@@ -171,7 +171,7 @@ void actorScriptStart(Actor_25F0 *, s32);
 void actorSpawn(s32, s32);
 void actorCopyPoseAndScale(void *, void *, f32);
 s16 controllerLookupStateByHash(void *);
-void func_806131D4(void *, s16);
+void controllerAnimLoadStateAsset1(void *, s16);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 func_80724A20(void);
 s16 mathAngleEaseToward(s16, s16, f32);
@@ -231,7 +231,7 @@ void minecartFollowerBehaviour(void) {
         D_807FBB44->unk168 = -1;
         D_807FBB44->unk4->unk34 *= -1.0f;
         D_807FBB44->unkEC = 0x2BC;
-        func_806131D4(D_807FBB44, controllerLookupStateByHash(D_807FBB44));
+        controllerAnimLoadStateAsset1(D_807FBB44, controllerLookupStateByHash(D_807FBB44));
         actorSpawn(0x11C, 0x4C);
         actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 1.5 * D_807FBB40->unk4->unk38);
         D_807FBB44->unk11C = D_807FBB40;

@@ -58,7 +58,7 @@ extern s16 D_807FC3F0;
 
 void *heapAlloc(s32);
 void controllerStepMotionWindows();
-void func_80614A64(Actor *);
+void actorCheckWorldBounds(Actor *);
 ActorSub140 *actorSub140CreateFromModel(Actor *);
 void collisionClearFlags(Actor *);
 void actorUpdateSubnodeRotationAndMtx(Actor *);
@@ -488,7 +488,7 @@ void actorDespawnByOwner(s32 arg0) {
     actorFlushDespawnQueue();
 }
 
-void func_806136B4(void);
+void controllerAnimFree(void);
 void effectFreeByResource(Actor *);
 void pathPlaybackStopForActor(Actor *);
 void actorSub140Free(ActorSub140 *);
@@ -515,7 +515,7 @@ void actorFreeImmediate(Actor *arg0) {
     Actor *temp;
 
     if (((ActorBufferView *)arg0)->unk0 != 0) {
-        func_806136B4();
+        controllerAnimFree();
     }
     temp = (Actor *)arg0->unk11C;
     if (temp != NULL) {
@@ -637,7 +637,7 @@ void actorUpdateWhilePaused(void) {
             actorPostTick(D_807FBB40);
         }
         if (D_807FBB40->unk4 != NULL) {
-            func_80614A64(D_807FBB40);
+            actorCheckWorldBounds(D_807FBB40);
         }
     }
     actorGlobalCallbacksDispatchAndFree(1);
@@ -649,7 +649,7 @@ void func_80678B04(void) {
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
         if (!(actor->unk60 & 0x08000000) && (actor->unk60 & 0x500) && (actor->unk60 & 0x4000)) {
-            func_80614A64(actor);
+            actorCheckWorldBounds(actor);
         }
         actor->unk60 &= ~0x100;
     }
@@ -711,7 +711,7 @@ void actorPostTick(Actor *actor) {
         if (actor->unk4 != NULL) {
             controllerStepMotionWindows(actor);
             if (((actor->unk60 & 0x500) || ((ActorUnk156View *)actor)->unk156 != 0) && !(actor->unk60 & 0x4000)) {
-                func_80614A64(actor);
+                actorCheckWorldBounds(actor);
             }
         }
     }
@@ -728,7 +728,7 @@ void actorPostTick(Actor *actor) {
 void func_80678DD8(Actor *actor) {
     controllerStepMotionWindows();
     if (actor->unk60 & 0x500) {
-        func_80614A64(actor);
+        actorCheckWorldBounds(actor);
     }
 }
 

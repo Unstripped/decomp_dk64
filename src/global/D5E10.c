@@ -5501,7 +5501,7 @@ typedef struct LD5BPlayer {
 #define LD5B_P ((LD5BPlayer *)gActivePlayerState)
 
 void func_80678DD8(Actor *);
-void func_80614A64(Actor *);
+void actorCheckWorldBounds(Actor *);
 
 void func_806DE264(void) {
     f32 sp4C;
@@ -5645,7 +5645,7 @@ void func_806DE264(void) {
         break;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
-    func_80614A64(D_807FBB40);
+    actorCheckWorldBounds(D_807FBB40);
 }
 
 void func_806DE930(void) {

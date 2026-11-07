@@ -156,19 +156,19 @@ void gfxSwapGeometryModeCullBits(GfxCmdWords *cmdStart, GfxCmdWords *cmdEnd) {
     }
 }
 
-void func_80613194(ControllerView *controller, s16 assetId) {
+void controllerAnimLoadStateAsset(ControllerView *controller, s16 assetId) {
     if (controller->unk50 == NULL) {
         controller->unk50 = controllerAnimStateLoadAsset(controller, assetId, 0);
     }
 }
 
-void func_806131D4(ControllerView *controller, s16 assetId) {
+void controllerAnimLoadStateAsset1(ControllerView *controller, s16 assetId) {
     if (controller->unk50 == NULL) {
         controller->unk50 = controllerAnimStateLoadAsset(controller, assetId, 1);
     }
 }
 
-void func_80613214(ControllerView *controller) {
+void controllerAnimFreeStateAsset(ControllerView *controller) {
     if (controller->unk50 != NULL) {
         controllerAnimFreeSub(controller, 2);
         controller->unk50 = NULL;
@@ -255,7 +255,7 @@ typedef struct {
     u32 unk60;
 } ControllerCommandOwner;
 
-void func_80613358(ControllerCommandOwner *owner, s32 commandIndex, ControllerCommand *command) {
+void controllerSetCommand(ControllerCommandOwner *owner, s32 commandIndex, ControllerCommand *command) {
     u32 *arg2_words;
     ControllerCommand *commands;
     ControllerCommand *destination;
@@ -466,7 +466,7 @@ s32 controllerAnimInit(AnimControllerInit *controller, u16 assetId) {
     return 0;
 }
 
-void func_806136B4(ControllerAnimView *controller) {
+void controllerAnimFree(ControllerAnimView *controller) {
     void *buffer1;
     void *temp_a1_2;
     void *temp_a1_3;
@@ -896,13 +896,13 @@ typedef struct {
 } ControllerActorTypeView;
 extern u16 *D_807FBB58;
 struct AnimControllerRef;
-void func_80614014(struct AnimControllerRef *controller, u16 animId, f32 animSpeed, u8 flags);
+void controllerAnimSetDirect(struct AnimControllerRef *controller, u16 animId, f32 animSpeed, u8 flags);
 
 void controllerAnimSetFromTable(ControllerActorTypeView *actorView, u16 animIndex, f32 animSpeed, u8 flags) {
     u16 x = animIndex;
     u16 idx = (u16)(7 * x + actorView->unk58 - 2);
     if (x) {} // FAKE: dead test makes the copy of animIndex a ring temp (move t6,a1) and the sum v0
-    func_80614014((struct AnimControllerRef *)actorView, D_807FBB58[idx], animSpeed, flags);
+    controllerAnimSetDirect((struct AnimControllerRef *)actorView, D_807FBB58[idx], animSpeed, flags);
 }
 
 typedef struct {
@@ -943,7 +943,7 @@ typedef struct AnimControllerRef {
 } AnimControllerRef;
 
 
-void func_80614014(AnimControllerRef *controller, u16 animId, f32 animSpeed, u8 flags) {
+void controllerAnimSetDirect(AnimControllerRef *controller, u16 animId, f32 animSpeed, u8 flags) {
     AnimSlotRef *slot;
     AnimResourceSlot *resource;
 
@@ -1318,7 +1318,7 @@ typedef struct {
     ControllerSubState *unk4;
 } ControllerStateOwner;
 
-f32 func_80614A54(ControllerStateOwner *actor) {
+f32 actorGetAnimProgress(ControllerStateOwner *actor) {
     return actor->unk4->unk0->unk4;
 }
 
@@ -1337,7 +1337,7 @@ typedef struct {
 extern u8 D_807444FC;
 void func_806195D0(f32, f32);
 void actorTouchSub140Timestamp();
-void func_80614A64(ControllerActorView *actor) {
+void actorCheckWorldBounds(ControllerActorView *actor) {
     f32 x = actor->unk7C;
     if (x >= -8192.0f) {
         f32 y = actor->unk80;

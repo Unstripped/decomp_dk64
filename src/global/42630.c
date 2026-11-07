@@ -767,7 +767,7 @@ Actor *spawnNodeActivate(s16, u16);
 u8 spawnNodeHasActor(u8);
 s32 spawnNodeIsInCooldown(u8);
 s32 listContainsS16(s16);
-f32 func_80614A54(void *);
+f32 actorGetAnimProgress(void *);
 s32 func_806C8D2C(s16);
 s32 pathPlaybackIsActive(s32);
 u8 csPosOnScreenOfNearPlayer(s16);
@@ -1204,7 +1204,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = ((CsCondSpawn *)&D_807F61F0)->unk8;
         break;
     case 0x33:
-        height = func_80614A54(D_807FBB4C);
+        height = actorGetAnimProgress(D_807FBB4C);
         ret = 0;
         if (cmd->a == 0 && cmd->b < (s16)height) {
             ret = 1;

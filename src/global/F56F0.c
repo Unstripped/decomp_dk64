@@ -208,7 +208,7 @@ typedef struct F5N2ActorState {
     s32 flags;
 } F5N2ActorState;
 
-void func_80613214(void);
+void controllerAnimFreeStateAsset(void);
 void func_806C8D20(Actor *);
 
 void func_806F1048(Actor *arg0) {
@@ -225,7 +225,7 @@ void func_806F1048(Actor *arg0) {
     case 0xC7:
     case 0xC8:
         if (!(state->flags & 0x40)) {
-            func_80613214();
+            controllerAnimFreeStateAsset();
         }
         break;
     }
@@ -249,7 +249,7 @@ typedef struct F5N3ActorSub10E8 {
 void func_806F0C18(Actor *);
 s32 actorSpawn(s32, s32);
 void actorCopyPoseAndScale(Actor *, Actor *, f32);
-void func_80613194(Actor *, s32);
+void controllerAnimLoadStateAsset(Actor *, s32);
 
 void func_806F10E8(Actor *arg0) {
     switch (((F5N3ActorState *) arg0)->state) {
@@ -265,22 +265,22 @@ void func_806F10E8(Actor *arg0) {
         case 3:
         case 0xC5:
             func_806F0C18(arg0);
-            func_80613194(arg0, 2);
+            controllerAnimLoadStateAsset(arg0, 2);
             break;
         case 4:
         case 0xC6:
             func_806F0C18(arg0);
-            func_80613194(arg0, 7);
+            controllerAnimLoadStateAsset(arg0, 7);
             break;
         case 5:
         case 0xC7:
             func_806F0C18(arg0);
-            func_80613194(arg0, 0xA);
+            controllerAnimLoadStateAsset(arg0, 0xA);
             break;
         case 6:
         case 0xC8:
             func_806F0C18(arg0);
-            func_80613194(arg0, 0xD);
+            controllerAnimLoadStateAsset(arg0, 0xD);
             break;
     }
 }
@@ -299,7 +299,7 @@ void func_806F1250(Actor *arg0) {
     F5N3ActorExtra *extra = arg0->unk174;
 
     if (arg0->unk58 == 6) {
-        func_80613194(arg0, 0x10);
+        controllerAnimLoadStateAsset(arg0, 0x10);
         sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, 0x2E2, 0xFF, 0xA0, 0, 0x32, 0.0f, 0);
         if (!(D_807FBB68 & 2)) {
             sfxAllocateChannel(0x6C, 1.0f);
@@ -312,7 +312,7 @@ void func_806F12FC(Actor *arg0) {
     F5N3ActorExtra *extra = arg0->unk174;
 
     if (arg0->unk58 == 6) {
-        func_80613214();
+        controllerAnimFreeStateAsset();
         sfxStopChannel(0x6C, 0);
     }
     extra->flags &= ~0x40;

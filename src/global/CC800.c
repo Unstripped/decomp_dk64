@@ -910,7 +910,7 @@ typedef struct G01Arg8F8C {
     /* 0x0C */ u32 unkC;
 } G01Arg8F8C;
 
-void func_806136B4(Actor *, void *);
+void controllerAnimFree(Actor *, void *);
 void actorSub140Free(ActorSub140 *);
 void controllerAnimInit(Actor *, u16);
 ActorSub140 *actorSub140CreateFromModel(Actor *);
@@ -920,7 +920,7 @@ void func_806C8F8C(void *arg) {
 
     G01A->unk58 = arg0->unk0;
     D_807FD584 = arg0->unk4;
-    func_806136B4(D_807FBB48, arg0);
+    controllerAnimFree(D_807FBB48, arg0);
     actorSub140Free(G01A->unk140);
     controllerAnimInit(D_807FBB48, arg0->unkA);
     G01A->unk140 = actorSub140CreateFromModel(D_807FBB48);

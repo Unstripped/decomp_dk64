@@ -504,7 +504,7 @@ extern PlayerView *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 
-void func_80614A64(void *);
+void actorCheckWorldBounds(void *);
 void *renderActorDisplayList(void *, void *);
 s32 mapPointOutsideClipBounds(f32, f32, f32, u8, s32);
 void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
@@ -557,7 +557,7 @@ void *renderActorEntryBuildDisplayList(s32 context, void *actor, GfxWords *glist
     }
     RENDER_ACT->unk60 |= 0x100;
     if (!(RENDER_ACT->unk60 & 0x200)) {
-        func_80614A64(actor);
+        actorCheckWorldBounds(actor);
     }
     gDPPipeSync((Gfx *)glist++);
     gSPSetGeometryMode((Gfx *)glist++, G_ZBUFFER | G_SHADING_SMOOTH);

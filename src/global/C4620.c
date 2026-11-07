@@ -126,7 +126,7 @@ void func_806F0D68();
 void func_806C7BAC();
 void func_806F0C18(void *);
 void func_806F10E8();
-void func_80613214();
+void controllerAnimFreeStateAsset();
 void controllerAnimSetState(Actor *, s16, f32, f32);
 
 void func_806BFA8C(u16 animId) {
@@ -157,7 +157,7 @@ void func_806BFA8C(u16 animId) {
             func_806F10E8(D_807FBB40);
             break;
         case 0x2CF:
-            func_80613214(D_807FBB40);
+            controllerAnimFreeStateAsset(D_807FBB40);
             controllerAnimSetState(D_807FBB40, 0x2CF, 0.0f, 0.0f);
             break;
     }
@@ -165,12 +165,12 @@ void func_806BFA8C(u16 animId) {
 
 void controllerStepMotionWindows();
 void actorUpdateModelMatrix(Actor *, s32);
-void func_80614A64(Actor *);
+void actorCheckWorldBounds(Actor *);
 
 void func_806BFBB4(void) {
     controllerStepMotionWindows(D_807FBB40);
     actorUpdateModelMatrix(D_807FBB40, 0);
-    func_80614A64(D_807FBB40);
+    actorCheckWorldBounds(D_807FBB40);
 }
 
 typedef struct LgBFInner {
@@ -1002,7 +1002,7 @@ done:
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-void func_80613194();
+void controllerAnimLoadStateAsset();
 void renderCallbacksRegister(void *, void *, s32);
 void gfxBuildScanlineNoise();
 
@@ -1014,7 +1014,7 @@ void func_806C1CCC(void) {
         func_806C15E8();
         func_80724CA4(2, 1);
         if (gCurrentMap == 0x4C) {
-            func_80613194(D_807FBB40, 0xE);
+            controllerAnimLoadStateAsset(D_807FBB40, 0xE);
         }
         func_806F09F0(D_807FBB40, R1V->unk5A);
     }
@@ -1441,7 +1441,7 @@ typedef struct LgC2DF4S9C {
 
 #define LgV ((LgC2DF4Actor *)D_807FBB40)
 
-void func_806136B4(Actor *);
+void controllerAnimFree(Actor *);
 void controllerAnimInit(Actor *, u16);
 ActorSub140 *actorSub140CreateFromModel(Actor *);
 void actorSetUniformScale(Actor *, f32);
@@ -1472,7 +1472,7 @@ void func_806C2DF4(void) {
     behaviourFrameBegin();
     if (!(LgV->unk60 & 0x10)) {
         scale = LgV->unk4->unk38;
-        func_806136B4(D_807FBB40);
+        controllerAnimFree(D_807FBB40);
         controllerAnimInit(D_807FBB40, state->unk0);
         LgV->unk140 = actorSub140CreateFromModel(D_807FBB40);
         LgV->unk146 = 0;

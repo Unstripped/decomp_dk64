@@ -120,7 +120,7 @@ void func_805FF8F8(void);
 s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void controllerAnimSetState(void *, s16, f32, f32);
 void controllerStepMotionWindows(void *);
-void func_80614A64(void *);
+void actorCheckWorldBounds(void *);
 void scriptSetActorRampTarget(void *, f32, f32);
 u8 camCueTimerIsRunning(void);
 s32 camSetFlags(s32, s32);
@@ -440,7 +440,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             }
             Matcher14_OFF(sp98, f32, 0x9C) = Matcher14_OFF(sp98, f32, 0x80);
             actorUpdateModelMatrix(sp98, 0);
-            func_80614A64(sp98);
+            actorCheckWorldBounds(sp98);
             return;
         case 0x14:
             if (a >= 0) {

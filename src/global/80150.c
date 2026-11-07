@@ -1897,8 +1897,8 @@ void func_806FF01C();
 
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-void func_80613194(Actor *, s16);
-void func_80613214(Actor *);
+void controllerAnimLoadStateAsset(Actor *, s16);
+void controllerAnimFreeStateAsset(Actor *);
 void camSetFixedView(s32, f32, f32, f32, f32, f32, f32, u8);
 void camSetTargetScaled(s32, Actor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
@@ -1989,7 +1989,7 @@ void func_8067FB6C(void) {
         sp5C = func_80612794(sp4E) * 50.0f;
         sp58 = func_80612790(sp4E) * 50.0f;
         if (sub->unk1B == 1) {
-            func_80613194(D_807FBB40, 0x75);
+            controllerAnimLoadStateAsset(D_807FBB40, 0x75);
         }
         if (sub->unk1B) {
             sub->unk1B--;
@@ -2001,7 +2001,7 @@ void func_8067FB6C(void) {
             ActorFB6CCamHolder *temp_s0_2;
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x18, 0xFF, 0x7F, 1);
             temp_s0_2 = sub->unk0->unk174;
-            func_80613214(D_807FBB40);
+            controllerAnimFreeStateAsset(D_807FBB40);
             if (!(D_807FBB68 & 2)) {
                 if (sub->unk1C == 3) {
                     var_v0 = 0x64;

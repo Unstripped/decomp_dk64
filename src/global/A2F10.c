@@ -1049,7 +1049,7 @@ void actorSpawnAttachedTo(Actor *arg0) {
 u8 func_80665AAC(Actor *);
 s32 actorIsActive(Actor *);
 s32 actorTableContains(Actor *);
-void func_806131D4(void *, s16);
+void controllerAnimLoadStateAsset1(void *, s16);
 extern u8 D_807444FC;
 
 void actorMirrorParentModelY(void) {
@@ -1065,7 +1065,7 @@ void actorMirrorParentModelY(void) {
     if (!(ATTACHED_ACTOR->unk60 & 0x10)) {
         ATTACHED_ACTOR->unk60 |= 0x8100000;
         ATTACHED_ACTOR->unk60 &= 0xFFFF7FFF;
-        func_806131D4(D_807FBB40, controllerLookupStateByHash(D_807FBB40));
+        controllerAnimLoadStateAsset1(D_807FBB40, controllerLookupStateByHash(D_807FBB40));
         sub->unk4 = ATTACHED_ACTOR->unk11C->unk54;
         sub->unk0 = (s32) ATTACHED_ACTOR->unk11C;
         sub->unk8 = ATTACHED_ACTOR->unk11C->unk58;
@@ -1123,7 +1123,7 @@ void actorMirrorParentModelAxis(void) {
     if (!(ATTACHED_ACTOR->unk60 & 0x10)) {
         ATTACHED_ACTOR->unk60 |= 0x8100000;
         ATTACHED_ACTOR->unk60 &= 0xFFFF7FFF;
-        func_806131D4(D_807FBB40, controllerLookupStateByHash(D_807FBB40));
+        controllerAnimLoadStateAsset1(D_807FBB40, controllerLookupStateByHash(D_807FBB40));
         sub->unk4 = ATTACHED_ACTOR->unk11C->unk54;
         sub->unk0 = (s32) ATTACHED_ACTOR->unk11C;
         sub->unk8 = ATTACHED_ACTOR->unk11C->unk58;

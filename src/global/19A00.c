@@ -618,7 +618,7 @@ s32 func_80615A94(s32 arg0) {
     return 1;
 }
 
-void func_80614014(s32, u16, f32, u8);
+void controllerAnimSetDirect(s32, u16, f32, u8);
 
 s32 func_80615ADC(s32 arg0) {
     u16 sp1E;
@@ -627,7 +627,7 @@ s32 func_80615ADC(s32 arg0) {
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
     scriptReadU8(&sp1D);
-    func_80614014(arg0, sp1E, 0.0f, sp1D);
+    controllerAnimSetDirect(arg0, sp1E, 0.0f, sp1D);
     return 1;
 }
 
