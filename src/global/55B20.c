@@ -1225,7 +1225,7 @@ s32 mapNodeTriangleContainsPoint(void *arg0, f32 arg1, f32 arg2) {
     f64 ox;
     f64 oz;
     f64 c;
-    f64 lead0; // FAKE: unused pad local, keeps the 0xC8 frame and the dx/dz/ox/oz home slots
+    f64 pad;
     u16 flag;
     s32 i;
 
@@ -1728,10 +1728,7 @@ f32 mapTriangleHeightAtPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
     f64 dCE;
     f64 N1;
     f64 N2;
-    f64 N3;
     f64 dC10;
-    f64 N3b;
-
     d02 = (f64)(arg0->unk0 - arg0->unk2);
     d68 = (f64)(arg0->unk6 - arg0->unk8);
     dCE = (f64)(arg0->unkC - arg0->unkE);
@@ -1740,11 +1737,9 @@ f32 mapTriangleHeightAtPoint(MapTriangle *arg0, f32 arg1, f32 arg2) {
     dC10 = (f64)(arg0->unkC - arg0->unk10);
     N1 = d68 * dC10 - dCE * d6A;
     N2 = dCE * d04 - d02 * dC10;
-    N3b = d02 * d6A - d68 * d04;  // FAKE: separate named web for the q term (N3 below recomputes it for t)
-    q = -((f64)arg0->unkE * N3b + (N1 * (f64)arg0->unk2 + N2 * (f64)arg0->unk8));
+    q = -((f64)arg0->unkE * (d02 * d6A - d68 * d04) + (N1 * (f64)arg0->unk2 + N2 * (f64)arg0->unk8));
     if (N2 * 2000.0 > 0.01 || N2 * 2000.0 < -0.01) {
-        N3 = d02 * d6A - d68 * d04;  // FAKE: second web of the same product
-        t = N1 * arg1 + N2 * -1000.0 + N3 * arg2 + q;
+        t = N1 * arg1 + N2 * -1000.0 + (d02 * d6A - d68 * d04) * arg2 + q;
         t = t / (N2 * 2000.0);
         if (t < 0.0) {
             t = 0.0 - t;
@@ -1786,7 +1781,7 @@ s32 mapTriangleContainsPoint(void *arg0, f32 arg1, f32 arg2) {
     f64 ox;
     f64 oz;
     f64 c;
-    f64 lead0; // FAKE: unused pad local, keeps the 0xC8 frame and the dx/dz/ox/oz home slots
+    f64 pad;
     u16 flag;
     s32 i;
 
@@ -2862,9 +2857,9 @@ void mapPolyClipToFrustumPlane(f32 *arg0, f32 *arg1, s32 arg2, s32 *arg3, s32 ar
     f64 y;
     f64 z;
 
-    cur = (MapVec3 *)arg0; // FAKE: gives cur an earlier candidate index than arg4 (s7/s8 colouring)
+    cur = (MapVec3 *)arg0;
     n = 0;
-    prev = arg2 - 1 + (MapVec3 *)arg0;
+    prev = cur + (arg2 - 1);
     plane = (MapPlane *)(D_807F5E68 + (arg4 << 6));
     for (i = 0; i < arg2; i++, prev = cur) {
         cur = i + (MapVec3 *)arg0;
