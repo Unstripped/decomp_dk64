@@ -97,7 +97,7 @@ void *assetLoad(s32, s32, s32, s32);
     out = (&D_807FDA30)[D_807FDA1A]; (&D_807FDA30)[D_807FDA1A] = 0xFF; D_807FDA1A--
 #define ANGA_POOL ((EffectSpritePoolHeader *)D_807550E0)
 
-void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s32 spawnY, s32 initialAlpha) {
+void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s32 spawnY, u8 initialAlpha) {
     EffectSpriteParticle *entry;
     s16 i;
     s32 idx;
@@ -126,7 +126,7 @@ void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s32
     entry->unkC = (f32)(s16)spawnY;
     entry->unk10 = scale;
     entry->unk0 = mapChunk;
-    entry->unkB1 = *(u8 *)((u8 *)&initialAlpha + 3); // FAKE: lbu of the narrow initialAlpha home; the shared prototype passes s32
+    entry->unkB1 = initialAlpha;
     entry->unk14 = ANGA_PLAYER->unk2C4;
     entry->unk18 = ANGA_PLAYER->unk210;
     entry->unk1C = ANGA_PLAYER->unk218;
@@ -631,7 +631,7 @@ extern s32 D_807FBB60;
 extern u8 D_807FDA1B;
 extern f32 *D_8076A0B4;
 extern u8 D_8077058C[];
-void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s32 spawnY, s32 initialAlpha);
+void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s32 spawnY, u8 initialAlpha);
 Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor);
 void renderCallbacksRegister(void *, void *, s32);
 
@@ -669,7 +669,7 @@ void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scal
         idx = 0;
         if (count > 0) do { // LAYOUT: if/do on one line steers as1 preheader scheduling
             randX = (f32)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 320);
-            effectSpritePoolSpawn(0, mapChunk, (f32)(((f64)(f32)((f64)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 125) / 800.0) + 0.1) * 2.5 * (f64)scale), (s16)(s32)randX, -10, (u32)(90.0f * scale) & 0xFF);
+            effectSpritePoolSpawn(0, mapChunk, (f32)(((f64)(f32)((f64)((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % 125) / 800.0) + 0.1) * 2.5 * (f64)scale), (s16)(s32)randX, -10, 90.0f * scale);
             idx += 1;
         } while (idx != count);
         if (*D_807550E0 != 0) {
