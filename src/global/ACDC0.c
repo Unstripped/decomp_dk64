@@ -106,7 +106,7 @@ void heapFree(void *);
 void heapFreeDeferred(void *);
 void *heapAlloc(s32);
 s32 _sprintf(char *, const char *, ...);
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s32, void *, s32);
+Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 s32 textGetStringWidth();
 Gfx *renderRotatedSprite(Gfx *, s32, s32, u8, s32, s32, s32, s32, f32, f32, s32, f32);
 Gfx *gfxFillScreenColor(Gfx *, s32, s32, s32, s32);
