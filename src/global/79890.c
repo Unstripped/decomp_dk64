@@ -264,7 +264,7 @@ void actorCollisionCheckNodeSpheres(CollisionCheckActor *self) {
             if (D_807FB620 != NULL) {
                 collisionHitRecordsFlush((s32)self, actor);
             }
-            i++; entry++; // FAKE: one line keeps the entry/i spill-store order
+            i++; entry++; // LAYOUT: one line keeps the entry/i spill-store order
         } while (i < gActiveActorCount);
     }
 }
