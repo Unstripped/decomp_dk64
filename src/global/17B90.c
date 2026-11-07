@@ -783,7 +783,7 @@ typedef struct {
 void *controllerAnimCacheGetOrLoad(s32 id);
 
 void controllerAnimSetState(ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend) {
-    void *pad; // FAKE: frame pad (removing it changes the frame)
+    void *pad; // LAYOUT: frame pad (keeps frame size at 0x38 instead of 0x30)
     AnimDataState *anim;
     AnimSlotState *slot0;
     AnimSlotState *slot4;
