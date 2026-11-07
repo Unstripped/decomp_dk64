@@ -295,7 +295,7 @@ void mtxTranslateL(Mtx *m, f32 x, f32 y, f32 z) {
 }
 
 void mtxLookDirF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz) {
-    f32 padtop[3]; // FAKE: pad words steer the frame size
+    f32 padtop[3];
     f32 t;
     f32 m00;
     f32 m10;
@@ -381,7 +381,7 @@ void mtxLookDirL(Mtx *view, Mtx *cam, f32 dx, f32 dy, f32 dz) {
 }
 
 void mtxLookDirPosF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz, f32 px, f32 py, f32 pz) {
-    f32 padtop[3]; // FAKE: pad words steer the frame size
+    f32 padtop[3];
     f32 t;
     f32 m00;
     f32 m10;
