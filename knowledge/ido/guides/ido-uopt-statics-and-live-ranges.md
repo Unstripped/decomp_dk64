@@ -8,7 +8,7 @@ Facts established while matching the 2892-instruction `func_806057F8` (now `sfxU
 ## Globals vs statics
 
 - **Extern globals are never uopt register candidates;** only locals (`M`) and statics (`S`) appear as `isvar` in the `uopt_trace.sh -l 5` candidate table. A global that the target keeps in an FP register across a region, with redundant `swc1 reg, %lo(G)` stores at block entries and a reload in one branch, is a **function-local `static`**. A file-scope static or a plain definition does not reproduce it (calls to same-file functions kill it). Check first that only this function references the symbol.
-- Such a static needs its TU to own the bss at the right address: IDO lays out `.bss` in definition order, objects ≥ 8 bytes 8-aligned, function statics after the file-scope definitions that precede the function, section size rounded to 16. With `SUBALIGN(16)` the TU's `.bss` must start at a 16-aligned object, so define the neighbouring vars too and split the asm bss in the yaml (`{type: .bss, name: <tu>}` between two named `bss` pieces).
+- Such a static needs its TU to own the bss at the right address. Objects of 8+ bytes are 8-aligned and section size is rounded to 16, but **later definitions do not determine allocation order when function bodies reference their symbols first**: even `(void)&G` can establish the order without runtime code (Q0565). Inspect object `nm` offsets. With `SUBALIGN(16)` the TU's `.bss` must start at a 16-aligned object, so define neighboring variables too and split the asm bss in the yaml. Function-local volatile statics retain native symbolic accesses where extern/file-scope volatile objects do not (Q0564).[^f55b20]
 - **Store-to-load forwarding:** int/pointer stores to an extern are forwarded to the next load of it; float stores are not (`swc1` then `lwc1`). An int global stored and immediately reloaded with separate `lui at`/`lui tN` pairs means `&G` was not a colored constant candidate: a codeless `if (G != NULL) {}` before the function's main loop extends that address constant's live range over the loop so it stays uncolored.
 
 ## Constants and expressions
@@ -52,3 +52,4 @@ Learned on the 1941-insn camera path update (matched 2026-10-25).[^c201b0]
 [^f7130]: src/global/7130.c @ a9ca3062c87b
 [^yaml]: dk64.global.us.yaml @ a9ca3062c87b
 [^c201b0]: src/global/201B0.c @ a9ca3062c87b
+[^f55b20]: src/global/55B20.c @ 3710d41a7a1a1c5dde751020b6f4a8b79a226880

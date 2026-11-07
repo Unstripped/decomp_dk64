@@ -23,11 +23,11 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
 - The copy argument is a DIRECTORY holding `<f>.c`. An agent's HEAD-based file
   (`<f>_head.c`, built against current `src`) goes to `.scratch/<A>H/<f>.c` with its base,
   or, when `src` is unchanged since, `cp` it over `src` and gate `- - src/<seg>/<f>.c`.
-- After a reduced-TU zero, confirm the claimed match is UNPARKED and run whole-file `fdiff.sh` on that C; a park's OK checks asm.
+- After a reduced-TU zero, confirm the C is UNPARKED and run whole-file `fdiff.sh`; normalized text may erase wrong branch targets, and reduced TUs omit later data definitions.
 - `vanished` counts both park branches: after unparking, compare old/new object text symbols before treating a count drop as deletion.
 - Never pipe a merge or gate into `tail`/`grep` and chain `&& git commit`: the pipe hides the
   exit status, and a conflict (src untouched) or a red build was committed that way twice.
-  Without `--commit`, commit only after reading `GATE_OK`. A bare `merge_drafts.py merge`
+  Without `--commit`, commit only after reading `GATE_OK`; `--stage` is parsed only after `--commit MSG`. A bare `merge_drafts.py merge`
   goes inside `sh -c '...; echo "exit $?"'` (the persistent shell's `set -e` otherwise
   aborts silently after merge already wrote `src`). Run gates with the bash tool and a long
   timeout, never from the eval kernel: its 30 s cell deadline kills the client mid-gate.
