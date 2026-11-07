@@ -77,7 +77,7 @@ void dlAppendTextureLoad(Gfx **glistp, void *texture) {
 
 
 
-void func_8070F2C8(s16 scaleS, s16 scaleT, s8 flipS, s8 flipT) {
+void dlSetTextureScaleAndFlip(s16 scaleS, s16 scaleT, s8 flipS, s8 flipT) {
     D_807FD9D0 = scaleS;
     D_807FD9D2 = scaleT;
     D_807FD9D4 = flipS;

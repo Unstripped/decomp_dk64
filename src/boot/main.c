@@ -68,8 +68,8 @@ extern u8 seg11_FALLBACK_END[];
 
 void gunzip(void *, void *, u32);
 void noExpPakScreen(void);
-void func_800004B4(void *, void *);
-void func_800004F4(void *);
+void decompressGlobal(void *, void *);
+void bootResetThread(void *);
 void bootMainThread(void *);
 void bootStartMainThread(void);
 
@@ -82,12 +82,12 @@ void dmaCopy(u32 romStart, u32 romEnd, void *dest) {
     } while (osPiGetStatus() & PI_STATUS_DMA_BUSY);
 }
 
-void func_800004B4(void *a, void *b) {
+void decompressGlobal(void *a, void *b) {
     gunzip(a, b, 0x804FAE00);
     gunzip(a, b, 0x804FAE00);
 }
 
-void func_800004F4(void *arg) {
+void bootResetThread(void *arg) {
     s32 msg;
     s32 pad;
 
@@ -119,7 +119,7 @@ void bootMainThread(void *arg) {
 
     osCreateMesgQueue(&D_80011548, D_80011520, 10);
     osSetEventMesg(OS_EVENT_PRENMI, &D_80011548, (OSMesg)0x29D);
-    osCreateThread(&D_80011560, 11, func_800004F4, NULL, &D_80012710, 100);
+    osCreateThread(&D_80011560, 11, bootResetThread, NULL, &D_80012710, 100);
     osStartThread(&D_80011560);
     osCreateViManager(OS_PRIORITY_VIMGR);
     osViSetMode(&osViModeTable[viModes.v[osTvType]]);
@@ -134,7 +134,7 @@ void bootMainThread(void *arg) {
         src = (void *)0x80020000;
         dst = (void *)0x805FB300;
         dmaCopy((u32)global_LOAD_START, (u32)global_LOAD_END, src);
-        func_800004B4(&src, &dst);
+        decompressGlobal(&src, &dst);
         osInvalICache((void *)0x805FB300, (u32)dst - 0x805FB300);
         osWritebackDCacheAll();
         SEG(0, boot_ROM)

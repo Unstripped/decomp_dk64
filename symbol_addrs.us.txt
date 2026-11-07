@@ -1,5 +1,7 @@
 // Boot (segment table entry 0)
 dmaCopy = 0x80000450; // type:func
+decompressGlobal = 0x800004B4; // type:func
+bootResetThread = 0x800004F4; // type:func
 gSegmentTable = 0x8000DCC4; // type:SegmentTableEntry size:0x1B0
 bootMainThread = 0x800005A8; // type:func
 bootStartMainThread = 0x80000980; // type:func
@@ -672,6 +674,7 @@ textLayoutAppendRows = 0x8070DED4; // type:func
 resApplyKind = 0x8070E548; // type:func
 textTableGetString = 0x8070E750; // type:func
 dlAppendTextureLoad = 0x8070E8F0; // type:func
+dlSetTextureScaleAndFlip = 0x8070F2C8; // type:func
 dlAppendTextureRectangle = 0x8070F2FC; // type:func
 effectSpritePoolReset = 0x8070F570; // type:func
 effectSpritePoolSpawn = 0x8070F5CC; // type:func
@@ -2375,6 +2378,7 @@ __ll_mod = 0x800059A8; // type:func
 __ll_rshift = 0x80005A44; // type:func
 __osGetCurrFaultedThread = 0x80005A70; // type:func
 __osGetFpcCsr = 0x80005A80; // type:func
+dlInitTextureDescriptor = 0x80005A90; // type:func
 osStopThread = 0x80005AE0; // type:func
 osDpSetStatus = 0x80005BA0; // type:func
 __osSpSetStatus = 0x80005BB0; // type:func
