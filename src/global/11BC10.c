@@ -155,14 +155,12 @@ typedef struct {
 
 void func_80717404(ConfettiActorView *effect, void *unused) {
     ConfettiMotionState *motion;
-    ConfettiParams *params;
+    ConfettiParams *params = &effect->unk35C;
     f64 scale;
     s32 rem;
 
     if (effect->unk384 == NULL) {
         effect->unk384 = heapAlloc(0xC);
-        params = &effect->unk35C;
-        do {} while (0); // FAKE: block boundary
         motion = effect->unk384;
         if (params->unk0 != 0) {
             motion->unk0 = (f32) (((randomNonNegative() >> 15) % 200) + params->unk0 - 100);
@@ -1359,8 +1357,8 @@ typedef struct {
 
 
 void effectRadialSprayUpdate(RadialSprayActorView *arg0, s8 *arg1) {
-    f32 sp80[4][4]; // FAKE: unused 128-byte buffer steers frame size
-    f32 sp40[4][4]; // FAKE: unused 128-byte buffer steers frame size
+    f32 pad80[4][4];
+    f32 pad40[4][4];
     f32 pad3C;
     f32 sp38;
     f32 sp34;
@@ -2504,9 +2502,9 @@ void effectActorOrbitFollowUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         temp_v0->unk0 = temp_v0->unk0 + 0.033333335f;
     }
     temp_v0->unk4 = (f32)(temp_v0->unk4 + temp_v0->unk8);
-    temp_v0->unk4 = (f32)((((s32)temp_v0->unk4 & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
+    temp_v0->unk4 = (f32)((((s32)temp_v0->unk4 & 0xFFF) & 0xFFFF) & 0xFFFF); // LAYOUT: extra 0xFFFF masks steer ugen int temp ring
     temp_v0->unkC = (f32)(temp_v0->unkC + temp_v0->unk10);
-    temp_v0->unkC = (f32)((((s32)temp_v0->unkC & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
+    temp_v0->unkC = (f32)((((s32)temp_v0->unkC & 0xFFF) & 0xFFFF) & 0xFFFF); // LAYOUT: extra 0xFFFF masks steer ugen int temp ring
     arg0->unk340 = (f32) (((((func_80612794((s16) (s32) temp_v0->unk4) * (15.0f * temp_v0->unk0)) + sp28->unk7C) - arg0->unk340) * sp20) + arg0->unk340);
     arg0->unk348 = (f32) (((((func_80612790((s16) (s32) temp_v0->unk4) * (15.0f * temp_v0->unk0)) + sp28->unk84) - arg0->unk348) * sp20) + arg0->unk348);
     arg0->unk344 = (f32) (((((((func_80612794((s16) (s32) temp_v0->unkC) * (temp_v0->unk14 * temp_v0->unk0)) + 1.0f) * 15.0f) + sp28->unk80) - arg0->unk344) * sp20) + arg0->unk344);
@@ -2586,10 +2584,10 @@ void effectArcAroundActorUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         return;
     }
     var_fv0 = temp_v0->unk10 * ((1.0f - (temp_v0->unk0 * 2)) * 2048.0f);
-    var_fv0 = (f32)((((s32)var_fv0 & 0xFFFF) & 0xFFFF) & 0xFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
+    var_fv0 = (f32)((((s32)var_fv0 & 0xFFFF) & 0xFFFF) & 0xFFF); // LAYOUT: extra 0xFFFF masks steer ugen int temp ring
     sp2C = func_80612794((s16)(s32)var_fv0) * temp_v0->unk8;
     temp_v0->unk14 = (f32)((f64)temp_v0->unk14 + (2.0 * (f64)((1.0f - (temp_v0->unk0 * 2)) * 4096.0f) * (f64)temp_v0->unkC));
-    temp_v0->unk14 = (f32)((((s32)temp_v0->unk14 & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
+    temp_v0->unk14 = (f32)((((s32)temp_v0->unk14 & 0xFFF) & 0xFFFF) & 0xFFFF); // LAYOUT: extra 0xFFFF masks steer ugen int temp ring
     sp3C = func_80612794((s16)(s32)temp_v0->unk14) * sp2C;
     temp_fv0 = func_80612790((s16)(s32)temp_v0->unk14);
     temp_fa0 = temp_v0->unk4;
@@ -2711,9 +2709,9 @@ void effectDecelDriftFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         sp1C->unk0 = 0.8f;
     }
     sp24 = func_80612794((s16)(s32)sp1C->unk4);
-    sp24 = sp1C->unk0 * sp24; // FAKE: forces mul.s operand order (load first, call result second)
+    sp24 = sp1C->unk0 * sp24; // LAYOUT: forces mul.s operand order (load first, call result second)
     temp_fa0 = func_80612790((s16)(s32)sp1C->unk4);
-    temp_fa0 = sp1C->unk0 * temp_fa0; // FAKE: forces mul.s operand order (load first, call result second)
+    temp_fa0 = sp1C->unk0 * temp_fa0; // LAYOUT: forces mul.s operand order (load first, call result second)
     arg0->unk360 = (f32)((f64)arg0->unk360 * 1.08);
     arg0->unk364 = (f32)((f64)arg0->unk364 * 1.08);
     if ((f64)arg0->unk360 > 8.0) {
