@@ -228,7 +228,7 @@ void hudPauseMenuUpdate(void) {
     s32 x;
     s32 a2;
     s32 lim;
-    s16 half; // FAKE: unused pad; its mere declaration keeps the end-block ring temps
+    s16 half;
     if (D_807505D4) {} // FAKE: dead read, splits the D_807505D4 address web
 
     hud = D_807FBB40->unk174;
