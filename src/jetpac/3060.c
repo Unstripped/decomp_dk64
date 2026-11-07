@@ -61,14 +61,14 @@ f32 jetpacRandFloat(void) {
     return (f32)((randomNonNegative() >> 15) % 60000) / 60000.0f;
 }
 
-volatile int jetpacCheckAabbOverlapWrapped(f32 minX1, f32 minY1, f32 maxX1, f32 maxY1, f32 minX2, f32 minY2, f32 maxX2, f32 maxY2) { // FAKE: volatile return type changes codegen
+int jetpacCheckAabbOverlapWrapped(f32 minX1, f32 minY1, f32 maxX1, f32 maxY1, f32 minX2, f32 minY2, f32 maxX2, f32 maxY2) {
     f32 span1A_min, span1A_max, span1B_min, span1B_max, span2A_min, span2A_max, span2B_min, span2B_max;
     jetpacWrapSpanX(minX1, maxX1, &span1A_min, &span1A_max, &span1B_min, &span1B_max);
     jetpacWrapSpanX(minX2, maxX2, &span2A_min, &span2A_max, &span2B_min, &span2B_max);
     return jetpacCheckAabbOverlap(span1A_min, minY1, span1A_max, maxY1, span2A_min, minY2, span2A_max, maxY2) || jetpacCheckAabbOverlap(span1B_min, minY1, span1B_max, maxY1, span2B_min, minY2, span2B_max, maxY2);
 }
 
-volatile int jetpacIsOverRocket(f32 x) { // FAKE: volatile return type changes codegen
+int jetpacIsOverRocket(f32 x) {
     return (165.0f <= x) && (x <= 171.0f);
 }
 
