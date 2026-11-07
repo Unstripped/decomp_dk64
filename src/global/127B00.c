@@ -99,7 +99,7 @@ s32 pathPlaybackStart(s32 owner, s32 pathId, u8 prependStartPoint, f32 x, f32 y,
     PathEntry *path;
     s32 i;
     s32 found;
-    PathPlayback *pad; // FAKE: unused local steers stack layout (spill and sp54 slots)
+    PathPlayback *pad;
     PathPoint startPoint;
     s32 extra;
     s32 j;
