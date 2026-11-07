@@ -102,16 +102,13 @@ function" step 4, and IDO tricks come from `python3 tools/quirks.py` (`knowledge
 
 ## Large functions
 
-- Same method as near-misses, plus forward every trick a finished large agent found into
-  the next large agent's task text.
-- A single huge function can be worked on a private copy with a splice script (regenerate
-  the copy from `git show HEAD:src/...` + the function draft each time).
+- Same method as near-misses; forward every trick a finished large agent found into the next
+  large agent's task. A huge function can use a splice script (`git show HEAD:src/...` + draft).
 - Jump-table functions: split both objdumps at every branch to the epilogue and diff case
   by case with registers normalised (ugen numbering cascades from the first divergence; raw
   counts overstate the diff ~5×).
-- 201B0: all 6 held-back large functions (440–1102 insns) went one per re-prompted finished
-  agent from fresh HEAD copies; 4 matched in one pass, 2 parked, then fresh-eyes passes
-  matched 2 of 5 parks. Give the callers' fixed prototype in the task text.
+- 201B0: 6 held-back large functions (440–1102 insns), one per re-prompted finished agent from
+  fresh HEAD: 4 matched, then fresh-eyes passes 2 of 5 parks. Give callers' fixed prototypes.
 
 ## Checking reports
 
@@ -124,7 +121,8 @@ function" step 4, and IDO tricks come from `python3 tools/quirks.py` (`knowledge
   (`write agent://<id>`); EffB had already worked them.
 - Check the stage of everything parked: agents park stage-2/3 C despite the brief. Only
   stage 4+ (same blocks, saved registers, frame AND instruction count) stays parked; a report
-  saying `N vs M insns` is stage 3: keep the stored park if its count was right, else `drafts.py unpark`.
+  saying `N vs M insns` is stage 3: keep the stored park if its count was right, else `drafts.py unpark`;
+  fix the draft's stated stage with `drafts.py note SEG FUNC "stage 3: ..."` (keeps the history).
   Count objdump instructions, not `nm -S` (a TU's last function includes .text padding nops; 3 of revisit 5's unparks).
   A stage-6 park is not proof of equivalence (201B0: a parked clamp was a min, the asm a
   max); a fresh-eyes pass on a sibling's park checks branch sense first. Reject dead tests
@@ -136,10 +134,13 @@ function" step 4, and IDO tricks come from `python3 tools/quirks.py` (`knowledge
 - A report naming one exact small shape diff (`move v0,s1; addiu s1,8; sw 0(v0)`) is worth
   your own 5-minute test: `deadsweep.py score <copy> <src> FUNC --body <variant>` on 2–3
   idiom variants (a GBI macro form matched a 520-insn park the agent had left at 4 insns).
-- An agent whose last message answers a late async notice ("earlier report stands") hides
-  its report: read `history://<id>` and take the last `## 1.` section.
-- Save every report as it arrives: append `read agent://<id>` to `.scratch/all-reports.md`
-  (fresh per unit); the namer gets it as `local://all-reports.md`.
+- A late async notice can hide a report: read `history://<id>`, last `## 1.` section. Save each
+  report as it arrives (`agent://<id>` → `.scratch/all-reports.md`, fresh per unit).
+- After each report run `tools/dk --status`: finished agents leave annealers/sweeps holding a
+  lock (revisit 13: one survived its agent); stop them. A shared prototype fix re-scores parks
+  (hud 321 → 405 under the real s16 param): give running agents the new baseline.
+- A pass that solves a structural layer (spill slots, FP ring, colour world) gets a fresh-HEAD
+  follow-up at once (revisit 13: gfx 90 → 19 → match, modelAnim 93 → match).
 
 ## Stop rule
 

@@ -71,11 +71,13 @@ Split at every TU boundary BEFORE round 1, seed the stubs' shared externs, keep 
    `python3 tools/ledger.py plan` sizes the work and picks a model per function by Thompson
    sampling over past attempts (arms, costs and capacities in `ARMS`); it holds functions
    with no new evidence, sends 6+-try or 400+-insn functions alone, packs the rest per model.
+   Leftovers with 6+ tries: `--arms sonnet_xhigh,opus` (flash wins on cost alone at 1/58).
    `plan --write <P>` writes one routed pool per model (`<P>_<arm>`, underscores only) and one
    task file per item in `.scratch/plan/<P>/`; run `workpool("task", name="<P>_<arm>")` and
-   push one item per idle worker (never more items than free workers: queued items reach a
-   busy worker as one batch and get minutes each). Check `drafts/spawns.jsonl` shows the
-   pool's model before waiting. `route --dry-run` writes nothing. A single routed agent:
+   push one item per idle worker (never more items than free workers). An idle worker takes the
+   next item with its whole context: past ~120 requests, copy the route (`jq '.agent="<P>F_<arm>"'`
+   into `.scratch/routes/<P>F_<arm>.json`) and push to a fresh pool of that name. Check
+   `drafts/spawns.jsonl` shows the pool's model before waiting. A single routed agent:
    `ledger.py route --agent <A> ...`, then spawn it named `<A>`.
 5. As each agent reports: check the report against its list and the stage of anything
    parked, and its section-3 knowledge IDs (an attempted function with none: put the
