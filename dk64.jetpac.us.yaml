@@ -42,6 +42,7 @@ segments:
     start: 0x0
     vram: 0x80024000
     bss_size: 0x16FD0
+    subalign: 8 # interior data carve at 0x9CE8, not a new TU boundary
     subsegments:
       - [0x0, c, 0]
       - [0x1460, c, 1460]
@@ -50,6 +51,8 @@ segments:
       - [0x3480, c, 3480]
       - [0x4FC0, c, 4FC0]
       - [0x7090, data, 0]
+      - [0x9CE8, .data, 3480] # item color + bonus template; same-TU callback affects as1 scheduling
+      - [0x9D38, data, 9D38]
       - [0xA9D0, .rodata, 0]
       - [0xAB20, .rodata, 1460]
       - [0xAB30, .rodata, 1A60]

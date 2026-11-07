@@ -9,7 +9,7 @@ typedef struct {
     s32 unk14;
 } JetpacSprite;
 
-typedef struct {
+typedef struct JetpacItem {
     JetpacSprite *sprites[2];
     f32 unk8;
     f32 unkC;
@@ -26,8 +26,8 @@ typedef struct {
     s32 unk38;
     s32 unk3C;
     s32 unk40;
-    s32 unk44;
-    void (*unk48)(void *, s32);
+    void (*unk44)(struct JetpacItem *);
+    void (*unk48)(struct JetpacItem *, s32);
 } JetpacItem;
 
 typedef struct {
@@ -147,10 +147,8 @@ extern s32 D_8002F074;
 extern s32 D_8002F078;
 void jetpacPlaySound(s32);
 void jetpacSpawnFuelPod();
-#ifdef NON_MATCHING
 void flagSet(s32, s32, s32);
 void jetpacSpawnBonusItem(JetpacPlayer *);
-#endif
 
 typedef struct JetW2FpABox {
     /* 0x0 */ s32 unk0;
@@ -248,7 +246,7 @@ typedef struct {
     u8 a;
 } J3Color;
 
-extern J3Color D_8002DCE8;
+J3Color D_8002DCE8 = {255, 255, 255, 1};
 extern s32 D_8002F3C0;
 f32 jetpacRoundFloat(f32);
 
@@ -285,7 +283,15 @@ void jetpacDrawItem(JetpacItem *arg0, s32 arg1) {
 s32 flagGet(s32, s32);
 extern u8 D_8002F3C8;
 extern JetpacSprite D_8002D968[];
-extern JetpacItem D_8002DCEC;
+void jetpacBonusItemUpdate(JetpacItem *);
+
+JetpacItem D_8002DCEC = {
+    {NULL, NULL},
+    0.0f, 16.0f, 0.0f, 0.8f,
+    {255, 0, 0, 1},
+    1, 0, 0, 4, 16, 16, 0, 0, 250, 0,
+    jetpacBonusItemUpdate, jetpacDrawItem,
+};
 
 void jetpacSpawnBonusItem(JetpacPlayer *arg0) {
     JetpacItem sp24 = D_8002DCEC;
@@ -307,7 +313,6 @@ void jetpacSpawnBonusItem(JetpacPlayer *arg0) {
 }
 
 
-#ifdef NON_MATCHING
 void jetpacBonusItemUpdate(JetpacItem *arg0) {
     JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
     s32 v;
@@ -322,19 +327,10 @@ void jetpacBonusItemUpdate(JetpacItem *arg0) {
     {
         s32 t = arg0->unk34;
         if (t < inner->unk144) {
-            if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
             arg0->unk34 = t + 1;
             return;
         }
     }
-    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
-    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
-    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
-    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
-    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
-    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
-    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
-    if (arg0 && arg0 && arg0) {} // FAKE: pads as1 XBB source window
     if (arg0->unk1C == 1) {
         arg0->unk1C = 2;
     }
@@ -442,10 +438,6 @@ void jetpacBonusItemUpdate(JetpacItem *arg0) {
         break;
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/jetpac/nonmatchings/3480/jetpacBonusItemUpdate.s")
-#endif
 
 
 

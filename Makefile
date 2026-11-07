@@ -160,6 +160,10 @@ OVERLAY_C_FILES := $(shell find $(OVERLAYS:%=src/%) -name '*.c' 2>/dev/null)
 # Suppress o32 odd single-precision FP register warnings in global asm.
 $(GLOBAL_O_FILES): ASFLAGS += -W
 
+# Jetpac's 80-byte C data carve splits an original TU at 8-byte boundaries.
+# Preserve the exact lengths of the surrounding asm fragments (no 16-byte tail pad).
+$(BUILD_DIR)/asm/jetpac/data/0.data.o $(BUILD_DIR)/asm/jetpac/data/9D38.data.o: ASFLAGS += -no-pad-sections
+
 .PHONY: all setup extract split check progress expected clean distclean
 .DEFAULT_GOAL := all
 .DELETE_ON_ERROR:
