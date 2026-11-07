@@ -161,7 +161,7 @@ typedef struct Actor {
     /* 0x0A4 */ f32 unkA4;
     /* 0x0A8 */ u8 unkA8[4];
     /* 0x0AC */ f32 unkAC;
-    /* 0x0B0 */ u8 unkB0[8];
+    /* 0x0B0 */ s8 unkB0[8];
     /* 0x0B8 */ f32 unkB8;
     /* 0x0BC */ f32 unkBC;
     /* 0x0C0 */ f32 unkC0;

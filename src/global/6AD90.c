@@ -843,7 +843,7 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
                     if (arg3 != 0) {
                         if (((Actor *)arg3)->unk80 < var_fs0) {
                             ((Actor *)arg3)->unk6A |= 4;
-                            *(s8 *)&((Actor *)arg3)->unkB0[0] = -1; // FAKE: s8 view makes the store constant -1 (u8 field folds to 0xFF)
+                            ((Actor *)arg3)->unkB0[0] = -1;
                             if (var_s3->unk4A & 1) {
                                 D_807F94B0 = 1;
                             }
