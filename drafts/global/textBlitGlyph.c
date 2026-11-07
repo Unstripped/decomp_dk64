@@ -1,53 +1,51 @@
-// textBlitGlyph (src/global/100180.c): stage 5: full=62 text=62 reloc=0 shape=22 (unchanged park, base d5911a57; R12_fable_6, cut short by orchestrator). Derivation from the -l 5 traces (leaf function: constrained = >=22 interfering neighbours): park has phase(13)/odd(45) at 22 neighbours -> constrained v0/v1, w2(23) 21 -> t3, cvt(arg0)(27) 19 -> t4. Target webs read from the asm: v0 = (phasemask != 0) bool, v1 = (oddmask != 0) bool, t2 = oddmask var (then arg4), t3 = cvt(arg0) live through the loop (blez t3, slt at,a2,t3; arg0 >>= 1 in place, srl a0,t3,1; andi t3,a0,0xff; move a0,t3), t4 = phasemask var, t5 = *arg5 byte cvt, no w2/ret locals, return (phase && odd) + arg1 + arg0 (beqz v0; move a2,v0; move a2,v1). Tested a2 = s32 oddBit = arg0 & 1; phaseBit = *arg5 & 1; dstRow/dst; *arg5 += arg0; arg0 >>= 1; phase = phaseBit != 0; odd = oddBit != 0; loop tests on phase/odd; return (phase && odd)+arg1+arg0: the bool vars are propagated away and the uneq isops become the v0 (41.5, CSE'd through the loop) and odd-bool candidates, phasemask -> t4 with sltu v0,zero,t4 exactly as target, BUT cvt(arg0) now has 23 neighbours -> constrained -> v1, pushing odd-bool to t0 and the rest down (full 146, frame 88). The remaining lever is to cut cvt(arg0) to <=21 neighbours (two fewer entry-block candidates, e.g. no extra locals: the target probably has 10 locals like the park) so it is coloured unconstrained in bit order after src, srcRow, oddmask (t0,t1,t2 -> t3) and before phasemask (t4), arg5 cvt (t5). Also: oddBit = arg0 & 1 is NOT propagated into oddBit != 0 when arg0 is shifted in between (a2 kept it as t3 web); phaseBit (load-based) is never propagated (Q0550). Variants a1/a3/a4/a5 (statement orders, arg0 = arg0 >> 1, phase = phase && odd) 146-168. | Previous: stage 5: full=62 text=62 reloc=0 shape=22; R12_sonnet_xhigh_4 (base 564cfef3) Q0548 XBB-window survey: as1probe keep on the park, patched as1 variants limit 0/1/2/3/5/10/100 (L100 built privately from as1patch by patching `li t4,10` at 0x42ace4 to 100, built with /usr/bin/make in .scratch/R12_sonnet_xhigh_4/as1L) and jr-live, plus as1probe scan. RESULT: pure uopt/ugen colouring, no as1 lever. Limits 0..10 and 100 all score full=62 (n=161 unchanged), jrlive full=62; scan (1817 edits) improves only via single-instruction deletes/swaps, no label/alias/live insert; no hoist in the diff, so no `X && X && X` guard applies and none is missing from the window. Remaining diff stays the phase/odd constrained-register ownership and entry scheduling noted below. | Prior: stage 5: full=62 text=62 reloc=0 shape=22; R11_textBlitGlyph: traced uopt_trace.sh -l 5 candidate coloring; phase (13) and odd (45) both have 23 interfering neighbors (>=22 threshold) so are constrained and take v0, v1; unconstrained take t0-t5 and s0-s3 in candidate order. Remaining diff is raw-mask vs boolean construction where target keeps raw masks in t2, t4 with sltu v0, v1, while uopt boolean collapse forces ugen register ring into temporary fallback (move v0, t7) and swaps t6/t9, t8/t9 throughout the loop. Exact park form restored. | Prior: BlitGlyph (base 0475d51c), stage 5/6: no improved C; retained full62/text62/reloc0/shape22, 161/161 instructions, frame0x50 and s0-s3. Whole-file plain-C fdiff remains Section .text mismatch (9312/9312 bytes), CURRENT(2737); final .scratch/BlitGlyph/100180.c restored exact base park and fdiff OK. L5 candidate map: phase bit13/adjsave41.625 -> v0, odd45/1.3333 -> v1 (both 23 interfering neighbors, constrained); unconstrained src0/193.875 -> t0, srcRow5/3.875 -> t1, phase-byte cvt18/3 -> t2, w2var23/13.875 -> t3, arg0cvt27/4 -> t4, shift28/3 -> t5, dstRow30/3.875 -> s0, arg6var34/1.25 -> s1, dst49/286.375 -> s2, row57/3.875 -> s3. Raw AND bits19 and47 are not separate colored live ranges in baseline. Target raw-mask t2/t4 ownership therefore requires genuinely changed candidate construction, not priority-only tuning. Ugen source eval.p: Ustr3017-3040 passes destination hint; immediate binary3919-3926 forwards it; shared-node2681-2683 discards hint; eval2/1680-1688 evaluates children without hint. Raw masks + in-place arg0 shift + normalized return recreate t4 phase-mask/t5 byte and single sltu v0 (full141/shape14/n160), but false phase==0 tests continue to use raw mask while true tests use normalized value, extending both lifetimes and miscoloring width/v1, src/t1, srcRow/t2, oddBool/t0; spill24 not28. No successful inverse-sharing route: nested !/==0, deferred local zero, no-code integer wrappers collapse; u8 bool cast retains two real andi (full130/n162). Rejected coordinated operand-kill carriers (full188-221), raw/normalized flag signedness and width (141-244), raw-mask no-CFG zero-product reuse (143-220), witness+width mutation (146-153), arg4 narrowing-before-mask chain (127/n158; coordinated 127-244). No new externs or header edits. Evidence .scratch/BlitGlyph/as1-{base,raw,boolcast,kill}/ and .scratch/trace/.scratch_BlitGlyph_{100180,raw-whole}.list. | Prior paragraphs: BlitGlyph (base 0475d51c), stage 5/6: no improved C; retained full62/text62/reloc0/shape22, 161/161 instructions, frame0x50 and s0-s3. Whole-file plain-C fdiff remains Section .text mismatch (9312/9312 bytes), CURRENT(2737); final .scratch/BlitGlyph/100180.c restored exact base park and fdiff OK. L5 candidate map: phase bit13/adjsave41.625 -> v0, odd45/1.3333 -> v1 (both 23 interfering neighbors, constrained); unconstrained src0/193.875 -> t0, srcRow5/3.875 -> t1, phase-byte cvt18/3 -> t2, w2var23/13.875 -> t3, arg0cvt27/4 -> t4, shift28/3 -> t5, dstRow30/3.875 -> s0, arg6var34/1.25 -> s1, dst49/286.375 -> s2, row57/3.875 -> s3. Raw AND bits19 and47 are not separate colored live ranges in baseline. Target raw-mask t2/t4 ownership therefore requires genuinely changed candidate construction, not priority-only tuning. Ugen source eval.p: Ustr3017-3040 passes destination hint; immediate binary3919-3926 forwards it; shared-node2681-2683 discards hint; eval2/1680-1688 evaluates children without hint. Raw masks + in-place arg0 shift + normalized return recreate t4 phase-mask/t5 byte and single sltu v0 (full141/shape14/n160), but false phase==0 tests continue to use raw mask while true tests use normalized value, extending both lifetimes and miscoloring width/v1, src/t1, srcRow/t2, oddBool/t0; spill24 not28. No successful inverse-sharing route: nested !/==0, deferred local zero, no-code integer wrappers collapse; u8 bool cast retains two real andi (full130/n162). Rejected coordinated operand-kill carriers (full188-221), raw/normalized flag signedness and width (141-244), raw-mask no-CFG zero-product reuse (143-220), witness+width mutation (146-153), arg4 narrowing-before-mask chain (127/n158; coordinated 127-244). No new externs or header edits. Evidence .scratch/BlitGlyph/as1-{base,raw,boolcast,kill}/ and .scratch/trace/.scratch_BlitGlyph_{100180,raw-whole}.list. | Matcher8 stage 5: improved full79/text79/reloc0/shape23 to full62/text62/reloc0/shape22, expected/got161 instructions, frame80 with s0-s3. Base 5937b87d0f81c5da18c52ccd9f3c872eee7ca511. Private park .scratch/Matcher8-textBlitGlyph/100180.c; plain C .scratch/Matcher8-textBlitGlyph/plain-best62.c. Reuse consumed u8 arg4 as the per-row low-bit flag (removes lead local), fixing both shared spill homes 24(sp)->28(sp) and alone improving 79->78. Spell the first odd-width tail update as *dst = *dst | (*src << 4), not compound |=: this changes ugen temporary allocation across the following branches and gives text62 with no FAKEs or signature changes. Entry scheduling/Boolean-width lowering and scratch-register differences remain. Plain-C fdiff: FAILED: Section .text mismatch. | Finisher2b (base 82b768fd2cde4792d240c55bf4f4cd4bc3e0be85): retained full62 stage-5 park. Boolean odd alone is full71/163 rows; unsigned narrowed width full101/frame72; parameter halving plus both raw-mask witnesses full166/frame64. Witnesses preserve raw masks but do not preserve the constrained/unconstrained graph or saved set. No improved C retained. Evidence: .scratch/Finisher2b-textBlitGlyph/*-score.txt and raw-mask-l5.txt; final private park fdiff OK.
+// textBlitGlyph (src/global/100180.c): stage 6: full=60 text=60 reloc=0 shape=0 n=161 (was stage 5 full=62 shape=22); park in src updated. Frame 0x50, spill slot 28(sp), uopt colouring, schedule and return sequence are exact; the ENTIRE remaining diff is ugen scratch-ring names ($t6-$t9) from the loop header on. Key structure: u8 phaseBit/oddBit mask locals (their store narrowings burn ring temps exactly like the target entry), no bool locals (tests spell (phaseBit != 0) so all phase tests share the v0 uneq candidate), return ((phaseBit != 0) && oddBit) + arg1 + (u32)arg0 (the && hidden temp + s32 pad = 32 bytes of cfe locals -> spill at -52), tail arm1 compound *dst |= *src << 4 (dst loaded first), dstRow = (u8 *)(arg6 * 16 + arg1) + arg6 * arg4. RING MODEL (verified with 0 mismatches over whole-function ugen listings of 3 variants, script .scratch/argon/tbg/fifo.py): ugen allocates $14/$15/$24/$25 from a FIFO free list (alloc = front, frees appended in operand order at last use). Inverting the target final asm: the loop arm needs queue [25,24,14,15] at $33 and the tail arm [24,25,15,14], while both headers narrow into the FIFO front ($14 / $15). HYPOTHESIS, not established: if the target's ugen emitted these instructions in the same order and blocks as ours (unverified: as1 hoists across blocks, Q0548, fills delay slots, e.g. j++ sits in arm1's beqz slot, and renames), FIFO would need one extra alloc+free after each header narrowing plus queue [14,15,25,24] at $32 (ours [25,15,24,14]); a different ugen order/placement of the visible instructions would explain the same final asm. Next step: map as1 provenance on our own t.s vs final asm for the loop header/arm1 and tail blocks before searching for a hidden-event construct again. Ruled out: extra narrowings (dn1-dn6: as1 collapses the header to one andi), s16/u16/s8 low-bit locals (sll/sra stay visible), low-bit in reused u8 locals, assignment-in-condition, for/while/do inner-loop forms (canonicalised), 315+126+728 entry statement orders, 45 entry-tail spellings, 7 dstRow spellings (arg4-product-first gives [14,15,..] at $32 but moves visible entry regs). Permuter 1500 s -j3 best = this body.
 s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 arg6) {
     u8 *srcRow;
     u8 *dst;
     s16 j;
     s16 row;
     u8 *src;
-    s32 phase;
-    s32 w2;
+    u8 phaseBit;
+    u8 oddBit;
     u8 *dstRow;
-    s32 ret;
-    s32 odd;
+    s32 pad;
     src = (u8 *)arg2;
-    srcRow = (u8 *)(arg2 + (arg3 >> 1));
-    phase = (*(u8 *)arg5 & 1) != 0;
-    w2 = arg0 >> 1;
-    dstRow = (u8 *)arg1 + arg6 * 16 + arg6 * arg4;
-    odd = arg0 & 1;
-    dst = dstRow;
+    srcRow = (u8 *)arg2 + (arg3 >> 1);
+    oddBit = arg0 & 1;
+    phaseBit = *(u8 *)arg5 & 1;
+    dstRow = (u8 *)(arg6 * 16 + arg1) + arg6 * arg4;
     *(u8 *)arg5 = *(u8 *)arg5 + arg0;
-    arg0 = w2;
+    arg0 >>= 1;
+    dst = dstRow;
     for (row = 0; row < 0x10; row++) {
         j = 0;
-        if (w2 > 0) {
+        if (arg0 > 0) {
             arg4 = arg3 & 1;
             do {
-                if (arg4 && phase == 0) {
+                if (arg4 && !(phaseBit != 0)) {
                     *dst |= *src++ << 4;
                     *dst++ |= (*src & 0xF0) >> 4;
-                } else if (arg4 && phase != 0) {
+                } else if (arg4 && (phaseBit != 0)) {
                     *dst |= *src++ & 0xF;
                     dst++;
                     *dst |= *src & 0xF0;
-                } else if (arg4 == 0 && phase != 0) {
+                } else if (arg4 == 0 && (phaseBit != 0)) {
                     *dst++ |= (*src & 0xF0) >> 4;
                     *dst |= *src++ << 4;
                 } else {
                     *dst++ |= *src++;
                 }
                 j++;
-            } while (j < w2);
+            } while (j < arg0);
         }
         srcRow += 0x100;
-        if (odd != 0) {
+        if (oddBit) {
             arg4 = arg3 & 1;
-            if (arg4 && phase == 0) {
-                *dst = *dst | (*src << 4);
-            } else if (arg4 && phase != 0) {
+            if (arg4 && !(phaseBit != 0)) {
                 *dst |= *src << 4;
-            } else if (arg4 == 0 && phase != 0) {
+            } else if (arg4 && (phaseBit != 0)) {
+                *dst |= *src << 4;
+            } else if (arg4 == 0 && (phaseBit != 0)) {
                 *dst |= (*src & 0xF0) >> 4;
             } else {
                 *dst |= *src;
@@ -57,9 +55,5 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
         src = srcRow;
         dst = dstRow;
     }
-    ret = phase;
-    if (phase != 0) {
-        ret = odd;
-    }
-    return ret + arg1 + arg0;
+    return ((phaseBit != 0) && oddBit) + arg1 + (u32)arg0;
 }

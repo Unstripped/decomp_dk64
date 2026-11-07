@@ -33,49 +33,47 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
     s16 j;
     s16 row;
     u8 *src;
-    s32 phase;
-    s32 w2;
+    u8 phaseBit;
+    u8 oddBit;
     u8 *dstRow;
-    s32 ret;
-    s32 odd;
+    s32 pad;
     src = (u8 *)arg2;
-    srcRow = (u8 *)(arg2 + (arg3 >> 1));
-    phase = (*(u8 *)arg5 & 1) != 0;
-    w2 = arg0 >> 1;
-    dstRow = (u8 *)arg1 + arg6 * 16 + arg6 * arg4;
-    odd = arg0 & 1;
-    dst = dstRow;
+    srcRow = (u8 *)arg2 + (arg3 >> 1);
+    oddBit = arg0 & 1;
+    phaseBit = *(u8 *)arg5 & 1;
+    dstRow = (u8 *)(arg6 * 16 + arg1) + arg6 * arg4;
     *(u8 *)arg5 = *(u8 *)arg5 + arg0;
-    arg0 = w2;
+    arg0 >>= 1;
+    dst = dstRow;
     for (row = 0; row < 0x10; row++) {
         j = 0;
-        if (w2 > 0) {
+        if (arg0 > 0) {
             arg4 = arg3 & 1;
             do {
-                if (arg4 && phase == 0) {
+                if (arg4 && !(phaseBit != 0)) {
                     *dst |= *src++ << 4;
                     *dst++ |= (*src & 0xF0) >> 4;
-                } else if (arg4 && phase != 0) {
+                } else if (arg4 && (phaseBit != 0)) {
                     *dst |= *src++ & 0xF;
                     dst++;
                     *dst |= *src & 0xF0;
-                } else if (arg4 == 0 && phase != 0) {
+                } else if (arg4 == 0 && (phaseBit != 0)) {
                     *dst++ |= (*src & 0xF0) >> 4;
                     *dst |= *src++ << 4;
                 } else {
                     *dst++ |= *src++;
                 }
                 j++;
-            } while (j < w2);
+            } while (j < arg0);
         }
         srcRow += 0x100;
-        if (odd != 0) {
+        if (oddBit) {
             arg4 = arg3 & 1;
-            if (arg4 && phase == 0) {
-                *dst = *dst | (*src << 4);
-            } else if (arg4 && phase != 0) {
+            if (arg4 && !(phaseBit != 0)) {
                 *dst |= *src << 4;
-            } else if (arg4 == 0 && phase != 0) {
+            } else if (arg4 && (phaseBit != 0)) {
+                *dst |= *src << 4;
+            } else if (arg4 == 0 && (phaseBit != 0)) {
                 *dst |= (*src & 0xF0) >> 4;
             } else {
                 *dst |= *src;
@@ -85,11 +83,7 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
         src = srcRow;
         dst = dstRow;
     }
-    ret = phase;
-    if (phase != 0) {
-        ret = odd;
-    }
-    return ret + arg1 + arg0;
+    return ((phaseBit != 0) && oddBit) + arg1 + (u32)arg0;
 }
 #else
 
