@@ -1394,7 +1394,7 @@ s16 mapActionLookupEntry(s16, Actor *, u8);
 
 s32 scriptOpPlaySoundAndShake(Actor *arg0) {
     s16 sp4E;
-    volatile u8 sp4D; // LAYOUT: volatile load stops as1 hoisting lbu into bnez delay slot
+    volatile u8 sp4D; // FAKE: volatile loads are not hoistable, keeps the 0xFF arm's lbu out of the bnez delay slot
     s16 sp4A;
     u8 sp49;
     u8 var_v1;
@@ -1432,12 +1432,12 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
             break;
         }
     }
-    if (arg0 && arg0 && arg0) {} // LAYOUT: pads as1 XBB window to prevent then-arm lh/li hoists
-    if (arg0 && arg0 && arg0) {} // LAYOUT: same (6 guards pad the 10-candidate window)
-    if (arg0 && arg0 && arg0) {} // LAYOUT: same
-    if (arg0 && arg0 && arg0) {} // LAYOUT: same
-    if (arg0 && arg0 && arg0) {} // LAYOUT: same
-    if (arg0 && arg0 && arg0) {} // LAYOUT: same
+    if (arg0 && arg0 && arg0) {} // FAKE: empty guard adds a block to as1's XBB window (limit 10), pushing the then-arm's lh/li hoists out
+    if (arg0 && arg0 && arg0) {} // FAKE: same (6 guards needed)
+    if (arg0 && arg0 && arg0) {} // FAKE: same
+    if (arg0 && arg0 && arg0) {} // FAKE: same
+    if (arg0 && arg0 && arg0) {} // FAKE: same
+    if (arg0 && arg0 && arg0) {} // FAKE: same
     sp4E = mapActionLookupEntry(sp4E, arg0, ((ActorSoundPosView *)arg0)->unk78);
     if ((sp4E == 2) || (sp4E == 8)) {
         sp49 = 0xA;

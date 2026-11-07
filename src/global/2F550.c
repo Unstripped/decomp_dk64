@@ -181,7 +181,7 @@ void frustumOrientPolyNormals(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32
     poly = arg3;
     for (i = 0; i < 5; poly++, i++) {
         planePolyCalcEquation(poly);
-        if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < (0, 0.0)) {}  // LAYOUT: second use of the sum makes it a coloured candidate (f0) and keeps its tree order for LFTR
+        if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < (0, 0.0)) {}  // FAKE: second use of the sum makes it a coloured candidate (f0) and keeps its tree order for LFTR
         if (poly->d + (poly->a * xs[i] + poly->b * ys[i] + poly->c * zs[i]) < (0, 0.0)) {
             polyFlipWinding(poly);
             planePolyCalcEquation(poly);
@@ -1267,7 +1267,7 @@ s32 mapBspBoxInFrustum(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
         }
         d = ((((ClipPlane *)arg10)[i].unk20 * arg0 + ((ClipPlane *)arg10)[i].unk28 * arg4) + ((ClipPlane *)arg10)[i].unk30 * arg2) + ((ClipPlane *)arg10)[i].unk38;
         if (d < 0.00) {
-            if (arg4 && arg4) {} // LAYOUT: lowers arg4's cvt candidate priority (FP colouring of the head)
+            if (arg4 && arg4) {} // FAKE: lowers arg4's cvt candidate priority (FP colouring of the head)
             in2 = 1;
         }
         if (in1 != 0 && in2 != 0) {
@@ -1511,17 +1511,17 @@ u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     n[0] = c[0] / len;
     n[1] = c[1] / len;
     n[2] = c[2] / len;
-    n[0] = n[0] * 20.000f;  // LAYOUT: separate (uncoloured) 20.0f literal web
+    n[0] = n[0] * 20.000f;  // FAKE: separate (uncoloured) 20.0f literal web
     n[1] = 20.0f * n[1];
-    n[2] = n[2] * 20.00f;  // LAYOUT: separate (uncoloured) 20.0f literal web
+    n[2] = n[2] * 20.00f;  // FAKE: separate (uncoloured) 20.0f literal web
     p[0] = arg0->unk5C[0] + n[0];
     p[1] = arg0->unk62[0] + n[1];
     p[2] = arg0->unk68[0] + n[2];
     s1 = nx * arg2 + ny * arg3 + nz * arg4 + d;
     if (s1 > 0.0) {
-        if (ny > 0.0f) {}  // LAYOUT: colours nx/ny/nz f14/f16/f18
+        if (ny > 0.0f) {}  // FAKE: colours nx/ny/nz f14/f16/f18
         if (nx * p[0] + ny * p[1] + nz * p[2] + d > 0.0) {
-            if (nx && nx) {}  // LAYOUT: nx coloured before nz
+            if (nx && nx) {}  // FAKE: nx coloured before nz
             return 0;
         }
     }
@@ -1553,7 +1553,7 @@ s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     i = 0;
     dot = arg0->unk4C * arg1 + arg0->unk50 * arg2 + arg0->unk54 * arg3 + arg0->unk58;
     len = sqrtf(arg0->unk4C * arg0->unk4C + arg0->unk50 * arg0->unk50 + arg0->unk54 * arg0->unk54);
-    if (dot && dot) {}  // LAYOUT: dead reference steers uopt candidate priority
+    if (dot && dot) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     dist = dot / len;
     absd = dist;
     if (dist < 0.0) {
@@ -1569,7 +1569,7 @@ s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
         dx = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 0) - arg1;
         dy = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 4) - arg2;
         dz = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 8) - arg3;
-        if (dx) {}  // LAYOUT: lowers dx priority (extra block in its range)
+        if (dx) {}  // FAKE: lowers dx priority (extra block in its range)
         d = nx * dx + ny * dy + nz * dz;
         if (d > 0.01 || d < -0.01) {
             t = dot / d;

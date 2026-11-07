@@ -168,7 +168,7 @@ void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
     s32 sp1C;
 
     healthRefill((u8) arg1);
-    if (arg1 == 0) {} // LAYOUT: keeps arg1 in a1 with an eager restore after healthRefill
+    if (arg1 == 0) {} // FAKE: keeps arg1 in a1 with an eager restore after healthRefill
     if (D_807FBB64 & 1) {
         arg0->unk155++;
         if (D_807FBB68 & 2) {
@@ -585,7 +585,7 @@ Gfx *func_807135B4(Gfx *arg0) {
         if ((D_807ECD09 != 0) && ((func_807142D8() == 0) || (var_v1 = 1, (gCurrentMap == 0x4C)))) {
             return arg0;
         }
-        if (&D_80755370 && &D_80755370 && &D_80755370) {}  // LAYOUT: dead address test steers as1 delay-slot fill (bne+nop instead of bnel)
+        if (&D_80755370 && &D_80755370 && &D_80755370) {}  // FAKE: dead address test, steers as1 delay-slot fill (bne+nop instead of bnel)
         sp34 = (f32) ((f64) sp34 * 0.5);
         R117D_WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
         arg0 = hudDrawScaledText(arg0, (s16) (s32) (sp34 * 4.0f), (s16) (s32) ((f32) D_8074450C * sp30 * 4.0f), 0.7f, textTableGetString(0xC, (s32) (&sp38.unk0)[var_v1], 1));
