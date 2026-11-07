@@ -268,7 +268,7 @@ void menuUpdateMainScreen(void *arg0, s32 arg1) {
             temp_t2 = var_a0_2;
             if (D_800336A0 & (1 << var_a0_2)) {
                 do {
-                    if (D_800336A0 && D_800336A0) {}  // LAYOUT: steers uopt coloring of address/const webs
+                    if (D_800336A0 && D_800336A0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     var_a0_2 += 1;
                     if (var_a0_2 == 0xB) {
                         var_a0_2 = 0;
@@ -283,7 +283,7 @@ void menuUpdateMainScreen(void *arg0, s32 arg1) {
                 do {
                     if (D_800336A4[D_80033F54] != -1) {
                         do {
-                            if (D_800337F0 && D_800337F0) {}  // LAYOUT: steers uopt colouring of address/const webs
+                            if (D_800337F0 && D_800337F0) {}  // FAKE: deadsweep: steers uopt colouring of the address/const webs
                             D_80033F54 += 1;
                         } while (D_800336A4[D_80033F54] != -1);
                     }
@@ -683,7 +683,7 @@ void menuInitFileSummary(void *arg0, s32 arg1) {
         p++;
     }
     osPiReadIo(func_800297A8(0xAFFE1464), &sp64);
-    if ((func_800297A8(0x0107183B) ^ 0) != sp64) { // LAYOUT: ^ 0 flips commutative bne/beq operand order
+    if ((func_800297A8(0x0107183B) ^ 0) != sp64) { // FAKE: ^ 0 flips the commutative bne/beq operand order
         *(u32 *)(s32)&actorUpdateCollisionSpheres = 0x03E00008;
     }
     D_8003380C = 0;
@@ -1545,10 +1545,10 @@ Gfx *arg1;
             arg1 = hudDrawScaledText(arg1, x, sp12C, 0.6f, sp64);
             i += 1;
             q += 1;
-            arg1 = arg1; // LAYOUT: self-assignment steers as1 order of q++ vs arg1 move
+            arg1 = arg1; // FAKE: no-op self-assignment steers as1 order of q++ vs arg1 move
             x += step;
         } while (i < D_80033878);
-        if (i) {} // LAYOUT: dead if keeps loop counter live after loop (as1 order)
+        if (i) {} // FAKE: dead if keeps loop counter live after the loop (as1 order)
     }
     return (s32)hudDrawScaledText(arg1, 0x280, (s16)(sp12C - 0x50), 0.6f, (char *)D_80033F28[0x1F]);
 }
@@ -1575,7 +1575,7 @@ void func_8002C91C(MenuScreenActor *arg0, s32 arg1) {
             D_8003387C[n] = t & 0x7F;
             D_80033F20[n] = i;
             D_80033F24[i] = n;
-            if ((n ^ 0) == D_8076A105) { // LAYOUT: ^ 0 steers bne operand order
+            if ((n ^ 0) == D_8076A105) { // FAKE: no-op `^ 0` steers codegen
                 D_80744524[i] += 1;
             }
             D_80033878 = n + 1;
@@ -1684,14 +1684,14 @@ void menuCharacterSelectUpdateActor(void) {
                 *q = *sp38;
             }
             Menu6B_N->unk154 = Menu6B_A->unk154;
-            Menu6B_N->unk155 = (s16)idx; // LAYOUT: narrowing cast burns one ugen t-ring temp
+            Menu6B_N->unk155 = (s16)idx; // FAKE: no-op narrowing cast, burns one ugen t-ring temp
             {
                 Menu6_Sub174 *sub = Menu6B_N->unk174;
                 sub->unk0 = temp_s1->unk0;
             }
             sp4F = 1;
-            if (Menu6B_A->unk154 != 0) {} // LAYOUT: recolours shared unk154 candidate (t0) and PRE reload position
-            if (temp_s1->unk0->unk60 && temp_s1->unk0->unk60) {} // LAYOUT: repeated dead load steers uopt lifetimes and ugen temp ring
+            if (Menu6B_A->unk154 != 0) {} // FAKE: extra reference of the unk154 value; recolours the shared A->unk154 candidate (t0) and the PRE reload position
+            if (temp_s1->unk0->unk60 && temp_s1->unk0->unk60) {} // FAKE: repeated dead load steers uopt lifetimes and the ugen temporary ring
         }
         row = &D_80033894[Menu6B_A->unk154];
         func_800317E8((MenuScreenState *)sp5C, row->a, row->b, &sp54, &sp50, 2, 0, 1.8f);
@@ -2424,14 +2424,14 @@ void menuHandleHighScoreNameEntryInput(void *arg0, s32 arg1) {
             }
             v0 = 0;
             if (v1 == 1 || (D_800339C0 = v1, v1 >= 0x10)) {
-                if (D_80033F61 && D_80033F61) {} // LAYOUT: steers register colouring (frame counter / D_80033F61 candidates)
+                if (D_80033F61 && D_80033F61) {} // FAKE: dead test steers register colouring (frame counter / D_80033F61 candidates)
                 D_800339C0 = v1;
                 v0 = arg1;
                 if (v1 >= 0x10) {
                     v1 = 0xF;
-                    if (D_80033F60 == 0xF) {} // LAYOUT: constant 15 becomes a coloured web (v1), leaving gFrameCounter a ring temp
+                    if (D_80033F60 == 0xF) {} // FAKE: constant 15 becomes a coloured web (v1), leaving gFrameCounter a ring temp
                     D_800339C0 = v1;
-                    if (D_80033F60 == 0xF) {} // LAYOUT: second reference to 15 web
+                    if (D_80033F60 == 0xF) {} // FAKE: second reference to the 15 web
                     if (!(gFrameCounter & 1)) {
                         v0 = 0;
                     }
@@ -3445,14 +3445,14 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *arg0, u8 *arg1) {
                 sp68 = 65.0f;
                 break;
             case 3:
-                if (arg0 && arg0 && arg0) {} // LAYOUT: lowers idx colouring priority below case-15 address temps
+                if (arg0 && arg0 && arg0) {} // FAKE: lowers idx colouring priority below the case-15 address temps
                 sp4C = 3;
                 sp64 = 1365.0f;
                 sp68 = 55.0f;
                 break;
             case 10:
                 sp4C = 2;
-                if (D_80033804 && D_80033804) {}  // LAYOUT: steers uopt candidate priority
+                if (D_80033804 && D_80033804) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 sp64 = 2048.0f;
                 sp68 = 50.0f;
                 break;
@@ -3461,7 +3461,7 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *arg0, u8 *arg1) {
             idx -= p->unk17 * (s32)sp64;
             idx -= (s32)(p->unk4 * sp64);
             t = (s16)idx;
-            if (D_80033804 == 0) {}  // LAYOUT: steers uopt candidate priority
+            if (D_80033804 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             arg0->unk340 = 160.0f - func_80612794(t) * sp68;
             arg0->unk344 = 120.0f - func_80612790(t) * sp68;
             if (func_800317E8(p, arg0->unk340, arg0->unk344, &arg0->unk340, &arg0->unk344, sp4C, 0, 1.0f) == (s32)c->unk8) {
@@ -3481,7 +3481,7 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *arg0, u8 *arg1) {
             arg0->unk340 = D_80033F68[idx];
             arg0->unk344 = D_80033F80[idx];
             arg0->unk360 = D_80033F98[idx];
-            if (arg1 != 0) {}  // LAYOUT: steers uopt candidate priority
+            if (arg1 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             arg0->unk364 = D_80033F98[idx];
             D_80033F68[idx] = -200.0f;
             D_80033F80[idx] = -200.0f;
@@ -3521,7 +3521,7 @@ s32 menuEvaluateSelectorSpline(void *arg0, s32 arg1, f32 *arg2, f32 *arg3, f32 *
         arg1 -= 5;
     }
     ret = arg1;
-    if (arg1 << 2) {} // LAYOUT: orders byte-offset spill before spline-pointer spill
+    if (arg1 << 2) {} // FAKE: orders the byte-offset spill before the spline-pointer spill.
     arg1 *= 4;
     (&D_8003378C[arg1])[2] = D_8003373C[arg1];
     D_8003373C[arg1 + 2] = -D_8003378C[arg1];
