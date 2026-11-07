@@ -89,6 +89,10 @@ Hidden TUs found only after round 1 cost a re-split while agents run; settle the
   split + restore under one lease) must START 16-aligned: IDO 16-aligns a TU's `.bss`, so
   `D_807F6C88` alone landed at `...C90`; `0x807F6C80`–`0x807F6CC0` with its leading neighbours
   defined matched (unused tail before the next label is fine).
+- Before another scheduling search, inspect data relocations referencing the target function
+  and include its owned callback initializers in the whole-TU comparison (Q0552).
+- An interior `.data` carve is not a TU boundary: preserve both fragment lengths and linker
+  subalignment, then gate the full ROM rather than importing unrelated asset bytes.
 
 ## Hidden empty functions
 
