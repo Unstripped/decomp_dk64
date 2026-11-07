@@ -235,7 +235,7 @@ s32 arcadeFindFreeEntityReverse(void) {
     return 0;
 }
 
-s32 func_800247F0(void) {
+s32 arcadeFindFreeEntitySlot39(void) {
     s32 i;
     for (i = 0x27; i >= 0; i--) {
         if (D_8004BCD0[i].unk18 == 0) {
@@ -245,7 +245,7 @@ s32 func_800247F0(void) {
     return 0;
 }
 
-s32 func_80024828(void) {
+s32 arcadeFindFreeEntitySlot36(void) {
     s32 i;
     for (i = 0x24; i >= 0; i--) {
         if (D_8004BCD0[i].unk18 == 0) {
@@ -2310,7 +2310,7 @@ void arcadeUpdatePlayerAnimation(s32 arg0) {
                     for (s4 = 0x6C; s4 != 0xCC; s4 += 0x10) {
                         fs0 = s4;
                         for (s0 = 0xA6; s0 != 0xC6; s0 += 0x10) {
-                            s32 index = func_800247F0();
+                            s32 index = arcadeFindFreeEntitySlot39();
                             D_8004BCD0[index] = D_8004A6B8;
                             D_8004BCD0[index].unk0 = fs0;
                             D_8004BCD0[index].unk4 = s0;
@@ -2519,7 +2519,7 @@ void arcadeUpdatePlayerEntity(s32 arg0) {
                     }
                 }
                 if (n != 0) {
-                    i = func_800247F0();
+                    i = arcadeFindFreeEntitySlot39();
                     D_8004BCD0[i] = D_8004A5F8;
                     D_8004BCD0[i].unk0 = E.unk0;
                     D_8004BCD0[i].unk4 = E.unk4 + 9.0f;
@@ -2950,7 +2950,7 @@ void arcadeUpdateBouncingBarrel(s32 arg0) {
 extern u8 D_80037788[];
 extern u8 D_80037990[];
 
-void func_8002E158(s32 arg0) {
+void arcadeUpdateSpringEntity(s32 arg0) {
     s32 sw;
 
     if (D_8004C71D == 0) {
@@ -2997,7 +2997,7 @@ extern u8 D_80032470[];
 extern u8 D_800326B8[];
 extern u8 D_80032900[];
 
-void func_8002E3D4(s32 arg0) {
+void arcadeUpdateOilDrumEntity(s32 arg0) {
     s32 n;
 
     if (D_8004C71D == 0) {
@@ -3029,7 +3029,7 @@ void func_8002E3D4(s32 arg0) {
             if (D_8004BCD0[arg0].unk10++ > 40.0f) {
                 D_8004BCD0[arg0].unk19 = 2;
                 D_8004BCD0[arg0].unk10 = 0.0f;
-                n = func_80024828();
+                n = arcadeFindFreeEntitySlot36();
                 D_8004BCD0[n] = D_8004A3D8;
                 D_8004BCD0[n].unk19 = 3;
                 D_8004BCD0[n].unkC = -1.0f;
@@ -3059,7 +3059,7 @@ void func_8002E3D4(s32 arg0) {
     }
 }
 
-void func_8002E6E0(s32 arg0) {
+void arcadeUpdatePaulineLower(s32 arg0) {
     ArcadeEntity *entry = &D_8004BCD0[arg0];
 
     if (D_8004C722 == 2) {
@@ -3077,7 +3077,7 @@ void func_8002E6E0(s32 arg0) {
     }
 }
 
-void func_8002E794(s32 arg0) {
+void arcadeUpdatePaulineUpper(s32 arg0) {
     ArcadeEntity *entry = &D_8004BCD0[arg0];
 
     if (D_8004C722 == 2) {
@@ -3104,7 +3104,7 @@ void func_8002E794(s32 arg0) {
     }
 }
 
-void func_8002E8A0(s32 arg0) {
+void arcadeUpdateHeartEntity(s32 arg0) {
     D_8004BCD0[arg0].unk14 = D_8003AE58;
     if (D_8004C721 != 0) {
         D_8004BCD0[arg0].unk4 = D_8004BCD0[arcadeFindEntityByType(0x1A)].unk4 - 8.0f;
@@ -3123,7 +3123,7 @@ void func_8002E8A0(s32 arg0) {
     }
 }
 
-void func_8002E9DC(s32 arg0) {
+void arcadeUpdateHelpSpeechBubble(s32 arg0) {
     if (D_8004C722 == 2) {
         D_8004BCD0[arg0].unk0 = (D_8004BCD0[D_8004C71F].unk0 >= 160.0f) * 0x28 + 0x80;
         if (D_8004C708 == 2) {
@@ -3158,7 +3158,7 @@ void func_8002E9DC(s32 arg0) {
     }
 }
 
-void func_8002EB40(s32 arg0) {
+void arcadeUpdateConveyorPulleys(s32 arg0) {
     s32 val;
     ArcadeEntity *entity;
 
@@ -3188,7 +3188,7 @@ extern u8 D_80040540[];
 extern u8 D_80044460[];
 extern u8 D_80045428[];
 
-void func_8002EC04(s32 arg0) {
+void arcadeUpdateDonkeyKongIntro(s32 arg0) {
     if (D_8004C6DC == 0x3C) {
         n_alSndpPlay(D_8076D1F8, 0x46, 0x7FFF, 0x3F, 1.0f, 0, 0);
     }
@@ -3238,7 +3238,7 @@ extern u8 D_8003E9F0[];
 extern u8 D_80043498[];
 extern u8 D_800463F0[];
 extern ArcadeEntity D_8004A3B8;
-void func_8002EEB8(s32 arg0) {
+void arcadeUpdateDonkeyKongStage1(s32 arg0) {
     s32 idx;
     s32 n;
 
@@ -3401,7 +3401,7 @@ extern u8 D_80049348[];
 extern s32 D_8004A75C;
 extern ArcadeEntity D_8004A6F8;
 
-void func_8002F82C(s32 arg0) {
+void arcadeUpdateDonkeyKongStage4(s32 arg0) {
     s32 cnt;
 
     switch (D_8004BCD0[arg0].unk19) {
@@ -3499,7 +3499,7 @@ void func_8002F82C(s32 arg0) {
 
 extern ArcadeEntity D_8004A418;
 
-void func_8002FE28(s32 arg0) {
+void arcadeUpdateDonkeyKongStage2(s32 arg0) {
     s32 cnt;
 
     if (D_8004C71D == 0) {
@@ -3525,7 +3525,7 @@ void func_8002FE28(s32 arg0) {
     }
 }
 
-void func_80030044(s32 arg0) {
+void arcadeUpdateDonkeyKongStage3(s32 arg0) {
     s32 tmp;
 
     switch (D_8004BCD0[arg0].unk19) {
@@ -3569,7 +3569,7 @@ void func_80030044(s32 arg0) {
     }
 }
 
-void func_80030210(s32 arg0) {
+void arcadeUpdateScorePopup(s32 arg0) {
     if (0.0f == D_8004BCD0[arg0].unk10) {
         n_alSndpPlay(D_8076D1F8, 0x45, 0x7FFF, 0x3F, 1.0f, 0, 0);
     }
@@ -3578,7 +3578,7 @@ void func_80030210(s32 arg0) {
     }
 }
 
-void func_800302B4(s32 arg0) {
+void arcadeUpdateCollectibleItem(s32 arg0) {
     if (D_8004BCD0[arg0].unk0 == (f32)(s32)D_8004BCD0[D_8004C71F].unk0 &&
         D_8004BCD0[arg0].unk4 == (f32)(s32)D_8004BCD0[D_8004C71F].unk4) {
         D_8004BCD0[arg0].unk18 = 0x14;
@@ -3600,7 +3600,7 @@ extern u8 D_80039640[];
 extern u8 D_80039888[];
 extern u8 D_80039AD0[];
 
-void func_800303B8(u8 arg0) {
+void arcadeUpdateHammerEntity(u8 arg0) {
     s32 i;
     s32 idx;
 
@@ -3644,7 +3644,7 @@ void func_800303B8(u8 arg0) {
                     if (arcadeAbs(D_8004BCD0[i].unk0 - D_8004BCD0[arg0].unk0) < 0xD) {
                         if (arcadeAbs(D_8004BCD0[i].unk4 - D_8004BCD0[arg0].unk4) < 8) {
                             n_alSndpPlay(D_8076D1F8, 0x4B, 0x7FFF, 0x3F, 1.0f, 0, 0);
-                            idx = (u8)func_800247F0();
+                            idx = (u8)arcadeFindFreeEntitySlot39();
                             D_8004BCD0[idx] = D_8004A618;
                             D_8004BCD0[idx].unk18 = 7;
                             D_8004BCD0[idx].unk1D = D_8004BCD0[i].unk18;
@@ -3666,7 +3666,7 @@ void func_800303B8(u8 arg0) {
     }
 }
 
-void func_80030734(u8 arg0) {
+void arcadeUpdateHammerSmash(u8 arg0) {
     ArcadeEntity *entity = &D_8004BCD0[arg0];
     u8 temp;
     u8 rand;
@@ -3701,7 +3701,7 @@ void func_80030734(u8 arg0) {
     }
 }
 
-void func_80030880(u8 arg0) {
+void arcadeUpdateRivetEntity(u8 arg0) {
     if (D_8004BCD0[arg0].unk0 == (f32)(s32)D_8004BCD0[D_8004C71F].unk0) {
         f32 diff = D_8004BCD0[arg0].unk4 - D_8004BCD0[D_8004C71F].unk4;
         if (diff < 20.0f && diff > -2.0f) {
@@ -3713,7 +3713,7 @@ void func_80030880(u8 arg0) {
         D_8004BCD0[arg0].unk18 = 0;
         D_8004C718 = D_8004BCD0[arg0].unk1C ^ D_8004C718;
         if (D_8004C718) {
-            ArcadeEntity *new_entity = &D_8004BCD0[(u8)func_800247F0()];
+            ArcadeEntity *new_entity = &D_8004BCD0[(u8)arcadeFindFreeEntitySlot39()];
             *new_entity = D_8004A5F8;
             new_entity->unk0 = D_8004BCD0[D_8004C71F].unk0;
             new_entity->unk4 = D_8004BCD0[D_8004C71F].unk4 + 14.0f;
@@ -3723,7 +3723,7 @@ void func_80030880(u8 arg0) {
     }
 }
 
-void func_80030A04(u8 arg0) {
+void arcadeUpdateRetractableLadder(u8 arg0) {
     f32 new_var;
 
     if (D_8004C71D == 0) {
@@ -3743,7 +3743,7 @@ void func_80030A04(u8 arg0) {
     }
 }
 
-void func_80030B08(u8 arg0) {
+void arcadeUpdateCementPanEntity(u8 arg0) {
     if (D_8004C71D == 0) {
         D_8004BCD0[arg0].unk0 += D_8004A308[D_8004BCD0[arg0].unk1C];
         if (D_8004BCD0[arg0].unk0 > 288.0f || D_8004BCD0[arg0].unk0 < 32.0f || (D_8004BCD0[arg0].unk0 == 160.0f && D_8004BCD0[arg0].unk4 == 127.0f)) {
@@ -3757,7 +3757,7 @@ void func_80030B08(u8 arg0) {
     }
 }
 
-void func_80030C70(u8 arg0) {
+void arcadeUpdateVictoryPauline(u8 arg0) {
     if (460.0f < D_8004BCD0[arcadeFindEntityByType(0x17)].unk10) {
         return;
     }
@@ -3819,7 +3819,7 @@ void arcadeUpdateNameEntryCursor(u8 arg0) {
     }
 }
 
-void func_80030FB0(u8 arg0) {
+void arcadeUpdateBonusBox(u8 arg0) {
     if (D_8004BCD0[arg0].unk1C >= D_8004C71E) {
         D_8004BCD0[arg0].unk18 = 0;
     }
@@ -3828,29 +3828,29 @@ void func_80030FB0(u8 arg0) {
 /* ArcS2 declarations */
 void arcadeUpdateBarrelEntity(s32);
 void arcadeUpdateBouncingBarrel(s32);
-void func_8002E158(s32);
-void func_8002E3D4(s32);
+void arcadeUpdateSpringEntity(s32);
+void arcadeUpdateOilDrumEntity(s32);
 void arcadeUpdatePlayerEntity(s32);
-void func_8002E794(s32);
-void func_8002E8A0(s32);
-void func_8002E9DC(s32);
-void func_8002E6E0(s32);
-void func_8002EB40(s32);
-void func_8002EC04(s32);
-void func_8002EEB8(s32);
-void func_8002F82C(s32);
-void func_8002FE28(s32);
-void func_80030044(s32);
-void func_80030210(s32);
-void func_800302B4(s32);
-void func_800303B8(u8);
-void func_80030734(u8);
-void func_80030880(u8);
-void func_80030A04(u8);
-void func_80030B08(u8);
-void func_80030C70(u8);
+void arcadeUpdatePaulineUpper(s32);
+void arcadeUpdateHeartEntity(s32);
+void arcadeUpdateHelpSpeechBubble(s32);
+void arcadeUpdatePaulineLower(s32);
+void arcadeUpdateConveyorPulleys(s32);
+void arcadeUpdateDonkeyKongIntro(s32);
+void arcadeUpdateDonkeyKongStage1(s32);
+void arcadeUpdateDonkeyKongStage4(s32);
+void arcadeUpdateDonkeyKongStage2(s32);
+void arcadeUpdateDonkeyKongStage3(s32);
+void arcadeUpdateScorePopup(s32);
+void arcadeUpdateCollectibleItem(s32);
+void arcadeUpdateHammerEntity(u8);
+void arcadeUpdateHammerSmash(u8);
+void arcadeUpdateRivetEntity(u8);
+void arcadeUpdateRetractableLadder(u8);
+void arcadeUpdateCementPanEntity(u8);
+void arcadeUpdateVictoryPauline(u8);
 void arcadeUpdateNameEntryCursor(u8);
-void func_80030FB0(u8);
+void arcadeUpdateBonusBox(u8);
 
 void arcadeDispatchEntities(void) {
     u8 i = 0;
@@ -3864,73 +3864,73 @@ void arcadeDispatchEntities(void) {
             arcadeUpdateBouncingBarrel(i);
             break;
         case 3:
-            func_8002E158(i);
+            arcadeUpdateSpringEntity(i);
             break;
         case 19:
-            func_8002E3D4(i);
+            arcadeUpdateOilDrumEntity(i);
             break;
         case 13:
             arcadeUpdatePlayerEntity(i);
             break;
         case 26:
-            func_8002E794(i);
+            arcadeUpdatePaulineUpper(i);
             break;
         case 30:
-            func_8002E8A0(i);
+            arcadeUpdateHeartEntity(i);
             break;
         case 29:
-            func_8002E9DC(i);
+            arcadeUpdateHelpSpeechBubble(i);
             break;
         case 27:
-            func_8002E6E0(i);
+            arcadeUpdatePaulineLower(i);
             break;
         case 18:
-            func_8002EB40(i);
+            arcadeUpdateConveyorPulleys(i);
             break;
         case 21:
-            func_8002EC04(i);
+            arcadeUpdateDonkeyKongIntro(i);
             break;
         case 22:
-            func_8002EEB8(i);
+            arcadeUpdateDonkeyKongStage1(i);
             break;
         case 23:
-            func_8002F82C(i);
+            arcadeUpdateDonkeyKongStage4(i);
             break;
         case 24:
-            func_8002FE28(i);
+            arcadeUpdateDonkeyKongStage2(i);
             break;
         case 25:
-            func_80030044(i);
+            arcadeUpdateDonkeyKongStage3(i);
             break;
         case 20:
-            func_80030210(i);
+            arcadeUpdateScorePopup(i);
             break;
         case 5:
-            func_800302B4(i);
+            arcadeUpdateCollectibleItem(i);
             break;
         case 6:
-            func_800303B8(i);
+            arcadeUpdateHammerEntity(i);
             break;
         case 7:
-            func_80030734(i);
+            arcadeUpdateHammerSmash(i);
             break;
         case 11:
-            func_80030880(i);
+            arcadeUpdateRivetEntity(i);
             break;
         case 12:
-            func_80030A04(i);
+            arcadeUpdateRetractableLadder(i);
             break;
         case 9:
             arcadeUpdateNameEntryCursor(i);
             break;
         case 4:
-            func_80030B08(i);
+            arcadeUpdateCementPanEntity(i);
             break;
         case 15:
-            func_80030C70(i);
+            arcadeUpdateVictoryPauline(i);
             break;
         case 10:
-            func_80030FB0(i);
+            arcadeUpdateBonusBox(i);
             break;
         }
     } while (++i < 0x50);
