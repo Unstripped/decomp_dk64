@@ -220,7 +220,6 @@ void mapChunksInitFromMapData(MapData *arg0) {
                 ((MapRelocEntry *)D_807F6C0C)[i].unkC += (s32)((u8 *)arg0 + base);
             }
         }
-        if (D_807F5DE8 && D_807F5DE8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         gMapChunks = heapAlloc(gMapChunkCount * 0x1C8);
         p = (u8 *)arg0 + chunkOff;
         for (n = 0; n < gMapChunkCount; n++) {
@@ -444,7 +443,6 @@ s32 chunk;
             if (((u32)key >> 24) == 0) {
                 n = *count;
                 key = ((MapDlCommand *)list)->unk4;
-                if (buf == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 if (n > 0) {
                     do {
                         if (key == ((MapChunkCellRefs *)buf)[idx].unk0) {
@@ -465,7 +463,6 @@ s32 chunk;
                 } while (cfound == 0);
                 if (found == 0) {
                     ((MapChunkCellRefs *)buf)[n].unk0 = key;
-                    if (size && size) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 1 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
                     ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 2 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
                     ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 3 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
