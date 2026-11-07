@@ -470,7 +470,7 @@ Gfx *raceDrawHudText(Gfx *arg0, RaceUnknown174 *arg1) {
         _sprintf(sp68, "%s %d %s %d", sp50, var_t0, sp4C, temp_t1->unk24);
         arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)(2.0f * (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), sp68, 4);
         g0 = arg0++;
-        g0->words.w0 = 0xDA380007; g0->words.w1 = (u32)&D_20000C0; // FAKE: same-line stores steer the ori/addiu schedule
+        g0->words.w0 = 0xDA380007; g0->words.w1 = (u32)&D_20000C0; // LAYOUT: same-line stores steer the ori/addiu schedule
         g0 = arg0++;
         g0->words.w0 = 0xDA380005;
         g0->words.w1 = (u32)((u8 *)arg1 + (D_807444FC << 6) + 0x50);
