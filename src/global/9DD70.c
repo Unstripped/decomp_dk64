@@ -96,8 +96,7 @@ void actorPhotoUpdate(void) {
     f32 mtx1[4][4];
     f32 mtx2[4][4];
     s16 frameElapsed;
-    s16 l1Angle;
-    s32 *l1Dest; // FAKE: unused, reserves a frame word
+    s32 l1Angle;
     u8 pad;
     f32 t;
 
@@ -695,10 +694,8 @@ s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
 void actorSpotLightUpdate(void) {
-    f32 targetZ;
-    f32 targetY;
-    f32 targetX;
-    s32 pad60[3]; // FAKE: reserves frame bytes 0x60-0x6B
+    f32 targetPos[3];
+    f32 sourcePos[3];
     u16 red;
     u16 green;
     u16 blue;
@@ -736,8 +733,8 @@ void actorSpotLightUpdate(void) {
             }
             lightSetFlags(2);
             lightSetTargetId(*(s16 *)D_807FBB40->unk12C);
-            actorGetNodePos(D_807FBB40, 2, &targetX, &targetY, &targetZ);
-            lightAdd((f32)((f64)D_807FBB40->unk7C + 0.3), D_807FBB40->unk80, D_807FBB40->unk84, targetX, targetY, targetZ, 0.0f, 1, red, green, blue);
+            actorGetNodePos(D_807FBB40, 2, &targetPos[0], &targetPos[1], &targetPos[2]);
+            lightAdd((f32)((f64)D_807FBB40->unk7C + 0.3), D_807FBB40->unk80, D_807FBB40->unk84, targetPos[0], targetPos[1], targetPos[2], 0.0f, 1, red, green, blue);
         }
     } else {
         lightState->unk0 = lightState->unk0 - 1;
@@ -1148,7 +1145,7 @@ void textMarkerUpdateMatrix(void) {
     case 0x41:
     case 0x42:
         for (i = 0; i < D_807FBDC4; i++) {
-            if (D_807FBB70.unk258[i] - 1 == 0) {  // FAKE: `- 1 == 0` keeps const 1 from becoming a hoisted typed-constant candidate (target: li at,1 inside the loop)
+            if (D_807FBB70.unk258[i] == 1) {
                 markerView->unk2A = 0;
                 D_807FBB40->unk154 = 5;
             }

@@ -2127,7 +2127,8 @@ void projectileBounceExplodeScaledUpdate(void) {
         var_a0 = mathAngleArcMidpoint(BOUNCE_EXPLODE_ACTOR->unkF4, BOUNCE_EXPLODE_ACTOR->unkF6);
         t = BOUNCE_EXPLODE_ACTOR->unkEE;
         t = (t + 0x800) & 0xFFF;
-        BOUNCE_EXPLODE_ACTOR->unkEE = (0, var_a0) + (s16)(var_a0 - t);  // FAKE: (0, x) steers addu operand order
+        var_a0 += (s16)(var_a0 - t);
+        BOUNCE_EXPLODE_ACTOR->unkEE = var_a0;
         if (BOUNCE_EXPLODE_ACTOR->unkEE < 0) {
             BOUNCE_EXPLODE_ACTOR->unkEE += 0xFFF;
         }

@@ -1484,7 +1484,7 @@ extern s16 gWaypointIndex;
 extern s16 gWaypointCallbackId;
 extern s32 gWaypointCallbackParam;
 
-void playerWaypointPathStart(u8 arg0, s32 arg1, s32 arg2, s16 arg3, s32 arg4) {
+void playerWaypointPathStart(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4) {
     F5N4ActorExtra *temp_v0;
 
     temp_v0 = (F5N4ActorExtra *)((Actor *)arg1)->unk174;
@@ -1498,7 +1498,7 @@ void playerWaypointPathStart(u8 arg0, s32 arg1, s32 arg2, s16 arg3, s32 arg4) {
         gWaypointCursor = gWaypointPathEntry->unk4;
         gWaypointCallbackId = arg3;
         gWaypointCallbackParam = arg2;
-        if (*(u8 *)((u8 *)&arg4 + 3) == 0) { // FAKE: narrow lbu of the s32 stack arg
+        if (arg4 == 0) {
             actorSetPositionAndFacingAngle((Actor *)arg1, gWaypointCursor);
         }
     }
@@ -1519,7 +1519,7 @@ void deferredEntryFree(F5DDeferredEntry *arg0) {
 }
 
 
-void playerWaypointPathStart(u8, s32, s32, s16, s32);
+void playerWaypointPathStart(u8, s32, s32, s16, u8);
 
 void playerWaypointPathStartPacked(s32 arg0, s32 arg1, s16 arg2, s16 arg3) {
     s32 var_v0;
