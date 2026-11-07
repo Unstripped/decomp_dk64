@@ -26,7 +26,6 @@ void func_806FB488(void) {
 s32 textBlitGlyph(u8, s32, s32, s16, u8, s8 *, u8);
 
 
-#ifdef NON_MATCHING
 s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 arg6) {
     u8 *srcRow;
     u8 *dst;
@@ -41,25 +40,25 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
     srcRow = (u8 *)arg2 + (arg3 >> 1);
     oddBit = arg0 & 1;
     phaseBit = *(u8 *)arg5 & 1;
-    dstRow = (u8 *)(arg6 * 16 + arg1) + arg6 * arg4;
+    dstRow = (u8 *)(arg1 + arg6 * 16 + arg6 * arg4);
+    dst = dstRow;
     *(u8 *)arg5 = *(u8 *)arg5 + arg0;
     arg0 >>= 1;
-    dst = dstRow;
     for (row = 0; row < 0x10; row++) {
         j = 0;
         if (arg0 > 0) {
             arg4 = arg3 & 1;
             do {
-                if (arg4 && !(phaseBit != 0)) {
-                    *dst |= *src++ << 4;
+                if (arg4 && !phaseBit) {
+                    *dst |= (*src++ & 0xF) << 4;
                     *dst++ |= (*src & 0xF0) >> 4;
-                } else if (arg4 && (phaseBit != 0)) {
+                } else if (arg4 && phaseBit) {
                     *dst |= *src++ & 0xF;
                     dst++;
                     *dst |= *src & 0xF0;
-                } else if (arg4 == 0 && (phaseBit != 0)) {
+                } else if (!arg4 && phaseBit) {
                     *dst++ |= (*src & 0xF0) >> 4;
-                    *dst |= *src++ << 4;
+                    *dst |= (*src++ & 0xF) << 4;
                 } else {
                     *dst++ |= *src++;
                 }
@@ -69,11 +68,11 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
         srcRow += 0x100;
         if (oddBit) {
             arg4 = arg3 & 1;
-            if (arg4 && !(phaseBit != 0)) {
-                *dst |= *src << 4;
-            } else if (arg4 && (phaseBit != 0)) {
-                *dst |= *src << 4;
-            } else if (arg4 == 0 && (phaseBit != 0)) {
+            if (arg4 && !phaseBit) {
+                *dst |= (*src & 0xF) << 4;
+            } else if (arg4 && phaseBit) {
+                *dst |= (*src & 0xF) << 4;
+            } else if (!arg4 && phaseBit) {
                 *dst |= (*src & 0xF0) >> 4;
             } else {
                 *dst |= *src;
@@ -83,12 +82,8 @@ s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 a
         src = srcRow;
         dst = dstRow;
     }
-    return ((phaseBit != 0) && oddBit) + arg1 + (u32)arg0;
+    return (phaseBit && oddBit) + arg1 + (u32)arg0;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/100180/textBlitGlyph.s")
-#endif
 
 
 
