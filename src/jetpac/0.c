@@ -514,9 +514,7 @@ void jetpacUpdateStateAndInput(s32 glist) {
     D_8002BA6C /= 30;
     jetpacGame.unk4 = jetpacGame.unk0;
     jetpacGame.unk0 = D_807ECDE8->unk0;
-    if (0) { // FAKE: regalloc
-    }
-    if ((zero = D_807ECDE8->unk2) >= 0x1F) {
+    if (D_807ECDE8->unk2 >= 0x1F) {
         jetpacGame.unk0 |= 0x100;
     }
     if (D_807ECDE8->unk2 < -0x1E) {
