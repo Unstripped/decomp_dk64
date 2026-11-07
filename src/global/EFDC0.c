@@ -2048,7 +2048,7 @@ void playerTakeDamage(s16 arg0) {
                 }
                 if (D_807FBB48->unk154 == 0x36) {
                     if (D_807FBB48->unk6A & 4) {
-                        D_807FBB48->unkC0 = D_80753078[D_807FD584] / (f32)4; // FAKE: keeps div.s instead of a multiply by 0.25f
+                        D_807FBB48->unkC0 = D_80753078[D_807FD584] / 4;
                     } else {
                         D_807FBB48->unkC0 = D_80753078[D_807FD584];
                     }
