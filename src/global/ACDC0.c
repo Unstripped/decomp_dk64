@@ -681,7 +681,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     f32 fb;
     f32 fc;
     f32 fd;
-    s32 off1;
 
     hud = actor->unk174;
     tab = (HudCountEntry *)((u8 *)D_807FC7F8 + 0x158);
@@ -704,7 +703,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 off = off * 4 + (s32)(fa * it[j].unk0);
                 y = y * 4 + (s32)(fa * it[j].unk4);
                 off = off + it[j].unkC * 4;
-                y = y + it[j].unkE * 4 + hud->unkC[i] * 4;
+                y = it[j].unkE * 4 + y + hud->unkC[i] * 4;
                 dl = textDrawStringVtx(dl, 1, (s16)off, (s16)y, it[j].unk11, 1);
             }
         }
@@ -813,10 +812,10 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
         case 1:
             for (i = 0; i < 2; i++) {
                 s32 angv;
-                off1 = hud->unkC[i] * 4;
+                actor = (Actor *)(hud->unkC[i] * 4); // FAKE: reuse the consumed parameter to remove off1's stack home.
                 angv = -hud->unk10;
                 fa = 1.0f - hud->unk0;
-                if (off1 < 0x3B6 && off1 >= -0x3B5) {
+                if ((s32)actor < 0x3B6 && (s32)actor >= -0x3B5) {
                     if (fa > 0.05f) {
                         f32 fc;
                         f32 fe;
@@ -839,7 +838,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                             yy += 0x20;
                             off = j + i * 5;
                             D_807FC840[off] = (f32)yy - fd;
-                            D_807FC868[off] = (f32)(s16)((s32)(fc - (f32)y0) + off1) - fe;
+                            D_807FC868[off] = (f32)(s16)((s32)(fc - (f32)y0) + (s32)actor) - fe;
                             D_807FC890[off] = ff;
                             if (((s8 *)&D_80750530)[j] != 0) {
                                 D_807FC890[off] = (f32)((f64)D_807FC890[off] * 0.75);
@@ -865,11 +864,11 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     } else {
                         fd = fa;
                     }
-                    if (off1 == 0) {
+                    if ((s32)actor == 0) {
                         fc = fc + fd * 400.0;
                     }
                     j = *(s16 *)((u8 *)D_807FC992 + hud->unk14 * 0x5E + D_80750560[hud->unk8[i]] * 2);
-                    dl = hudDrawCountPair(0x2A8, (s32)((f32)off1 + fc), j, 5, dl, 0, 0.8f);
+                    dl = hudDrawCountPair(0x2A8, (s32)((f32)(s32)actor + fc), j, 5, dl, 0, 0.8f);
                 }
             }
             D_80750538++;
