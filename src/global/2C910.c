@@ -175,35 +175,34 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
     void *sp98;
     void *sp94;
     void *q;
-    void *p;
-    void *r; // FAKE: reserves the original local-frame slot.
+    s32 a;
+    s32 b;
     f32 sp84;
     f32 sp80;
     f32 sp7C;
-    s16 node;
-    s32 a;
+    s32 c;
+    s32 d;
     s16 sp72;
-    s32 t;
-    s32 sv[5];
+    s16 node;
+    void *p;
 
     sp9C = Matcher14_OFF(D_807FBB4C, void *, 0x174);
     actorFindActiveByType(0xC, &sp94);
+    p = (void *)((u32)arg1 >> 16); // FAKE: dead store; makes the ushr item precede the (s16)arg1 item (spilltemps slot order)
+    b = (s16)arg1;
     a = (s16)((u32)arg1 >> 16);
     spA0[0] = a;
-    if (1) {  // FAKE: block barrier: keeps the arg2 halves in their own uopt block (prologue order; full 529 -> 262)
-        sv[3] = (s16)arg1;
-        spA0[1] = sv[3];
-        sv[1] = (s16)((u32)arg2 >> 16);
-        spA0[2] = sv[1];
-        sv[0] = (s16)arg2;
-    }
-    spA0[3] = sv[0];
+    spA0[1] = b & 0xFFFF; // FAKE: ugen allocs a ring temp for the mask, as1 deletes it (stands in for the missing entry ring loads)
+    c = (s16)((u32)arg2 >> 16);
+    spA0[2] = c;
+    d = (s16)arg2;
+    spA0[3] = d;
     switch (arg0 & 0xFF) {
         case 0x45:
             spawnNodesSetActorStateByFlag(2, 0x40);
             return;
         case 0x42:
-            textSpawnSubtitle(a & 0xFF, (s16)(sv[3] != 0 ? sv[3] : 0x5A), (u8)sv[1]);
+            textSpawnSubtitle(a & 0xFF, (s16)(b != 0 ? b : 0x5A), (u8)c);
             return;
         case 0x41:
             func_805FF8F8();
@@ -224,9 +223,9 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
         case 0x33:
             p = Matcher14_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C);
             Matcher14_OFF(p, u8, 0x30) = 0xFE;
-            Matcher14_OFF(p, u8, 0x33) = sv[3];
-            Matcher14_OFF(p, u8, 0x22) = sv[1];
-            Matcher14_OFF(p, u8, 0x32) = sv[0];
+            Matcher14_OFF(p, u8, 0x33) = b;
+            Matcher14_OFF(p, u8, 0x22) = c;
+            Matcher14_OFF(p, u8, 0x32) = d;
             Matcher14_OFF(p, u8, 0x31) = 1;
             return;
         case 0x34:
@@ -234,12 +233,12 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             return;
         case 0x0:
             Matcher14_OFF(sp9C, s16, 0x70) = Matcher14_OFF(D_807FBB4C, s16, 0xE6);
-            Matcher14_OFF(sp9C, f32, 0x74) = sv[3];
+            Matcher14_OFF(sp9C, f32, 0x74) = b;
             Matcher14_OFF(sp9C, f32, 0x6C) = a;
             playerStateQueueCallback(0x17, 0, 0);
             return;
         case 0x1:
-            func_80028EE8((sv[1] + 6) & 0xFF, 0, 0xC8, a & 0xFF, 0, sv[3] + 0x28, 0x64, 0xFF);
+            func_80028EE8((c + 6) & 0xFF, 0, 0xC8, a & 0xFF, 0, b + 0x28, 0x64, 0xFF);
             return;
         case 0x2:
             Matcher14_OFF(sp9C, s32, 0x1F0) |= 8;
@@ -248,51 +247,51 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             Matcher14_OFF(sp9C, s32, 0x1F0) &= ~8;
             return;
         case 0x24:
-            func_80724994(1, a, (s16)sv[3], (s16)sv[1], sv[0]);
+            func_80724994(1, a, b, c, d);
             return;
         case 0x5:
             spawnNodeSpawnById(a, 0, 0, 0, 0, 0, 0);
             return;
         case 0x4:
             if (a != 0) {
-                func_80724994(3, a, sv[3], (s16)sv[1], sv[0]);
+                func_80724994(3, a, b, c, d);
                 return;
             }
-            if (sv[3] == 2) {
+            if (b == 2) {
                 Matcher14_OFF(Matcher14_OFF(Matcher14_OFF(D_807FBB48, void *, 4), void *, 0), s16, 0x10) = -1;
-                actorScriptStart(D_807FBB48, D_80747750[sv[1]]);
-                if (sv[0] != 0) {
-                    scriptSetActorRampTarget(D_807FBB48, sv[0] / 100.0, 0);
+                actorScriptStart(D_807FBB48, D_80747750[c]);
+                if (d != 0) {
+                    scriptSetActorRampTarget(D_807FBB48, d / 100.0, 0);
                     return;
                 }
             }
         default:
             return;
         case 0x6:
-            camSetPathLookActor(spawnNodeActivate(a, 0), sv[3]);
+            camSetPathLookActor(spawnNodeActivate(a, 0), b);
             return;
         case 0x7:
-            camLoopPathStep(a, (u8)sv[3]);
+            camLoopPathStep(a, (u8)b);
             return;
         case 0x2D:
             camSetPathLookAhead(a);
             return;
         case 0x2E:
-            Matcher14_OFF(actorFromSpawnNodeOrDefault(a), u8, 0x15E) = sv[3];
+            Matcher14_OFF(actorFromSpawnNodeOrDefault(a), u8, 0x15E) = b;
             return;
         case 0x25:
             playerWaypointPathStartPacked((s32)D_807FBB4C, 0, a, 0);
             return;
         case 0x26:
-            func_80641874(a, sv[3]);
+            func_80641874(a, b);
             return;
         case 0x27:
             node = a;
-            sv[4] = (u8)sv[1];
-            mapChunkEffectSetFlag(node, (s16)sv[3], 0, (u8)sv[1]);
-            mapChunkEffectSetFlag(node, (s16)sv[3], 1, sv[4]);
-            mapChunkEffectSetFlag(node, sv[3], 2, sv[4]);
-            mapChunkEffectSetFlag(node, (s16)sv[3], 3, sv[4]);
+            sp72 = b; // FAKE: s16 copy keeps (s16)b out of PRE (target reloads lh per call)
+            mapChunkEffectSetFlag(node, sp72, 0, (u8)c);
+            mapChunkEffectSetFlag(node, sp72, 1, (u8)c);
+            mapChunkEffectSetFlag(node, sp72, 2, (u8)c);
+            mapChunkEffectSetFlag(node, sp72, 3, (u8)c);
             return;
         case 0x8:
             camSetPath(a);
@@ -301,15 +300,15 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             func_8070B308(a);
             return;
         case 0x9:
-            camSetRollBlend(a, sv[3], sv[1]);
+            camSetRollBlend(a, b, c);
             return;
         case 0x10:
-            camStartShake((s32)gCamActor, sv[3], a);
+            camStartShake((s32)gCamActor, b, a);
             return;
         case 0xA:
             if (a != 0) {
                 p = spawnNodeActivate(a, 0);
-                if (sv[3] != 0) {
+                if (b != 0) {
                     Matcher14_OFF(p, s32, 0x60) |= 4;
                     return;
                 }
@@ -320,7 +319,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             p = spawnNodeActivate(sp72++, 0);
             if (p != NULL) {
                 do {
-                    if (sv[3] != 0) {
+                    if (b != 0) {
                         Matcher14_OFF(p, s32, 0x60) |= 4;
                     } else {
                         Matcher14_OFF(p, s32, 0x60) &= ~4;
@@ -331,7 +330,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             }
             break;
         case 0xB:
-            zoneEntrySpawnEffect(a, sv[3], sv[1], (s16)sv[0]);
+            zoneEntrySpawnEffect(a, b, c, d);
             return;
         case 0x11:
             screenWipeStart(((u32)arg1 >> 16) & 0xFF);
@@ -348,16 +347,16 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             func_8067AB20((s32)gCamActor, sp94, 0x01000000, 0x14, spA0, 0);
             return;
         case 0x31:
-            if (sv[0] != 0) {
+            if (d != 0) {
                 commandSetParameters(0x320, 0x82, 0, 0x64, 0x64, 0x64);
                 commandSetFlags(1, 1);
                 return;
             }
-            commandSetParameters(0x320, 0x82, 0, a, sv[3], sv[1]);
+            commandSetParameters(0x320, 0x82, 0, a, b, c);
             commandSetFlags(1, 0);
             return;
         case 0x32:
-            effectNodeSetTargetPosition(a, sv[3], sv[1], sv[0] * 0.01);
+            effectNodeSetTargetPosition(a, b, c, d * 0.01);
             return;
         case 0xE:
             func_80729AA4(a);
@@ -388,19 +387,19 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             break;
         case 0x29:
             if (camCueTimerIsRunning() == 0) {
-                func_80712524(a, sv[3]);
+                func_80712524(a, b);
                 return;
             }
             break;
         case 0x43:
             if (camCueTimerIsRunning() == 0) {
-                D_8075536C = sv[1];
-                func_80712524(a, sv[3]);
+                D_8075536C = c;
+                func_80712524(a, b);
                 return;
             }
             break;
         case 0x3F:
-            func_80713EB0(a, sv[3], sv[1]);
+            func_80713EB0(a, b, c);
             return;
         case 0x2A:
             p = spawnNodeActivate(a, 0);
@@ -412,7 +411,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
         case 0x28:
             sp98 = spawnNodeActivate(a, 0);
             if (sp98 != NULL) {
-                q = spawnNodeActivate((s16)sv[3], 0);
+                q = spawnNodeActivate(b, 0);
                 if (q != NULL) {
                                         actorCopyPoseAndScale(sp98, q, Matcher14_OFF(Matcher14_OFF(q, void *, 4), f32, 0x38));
                     controllerAnimSetState(sp98, Matcher14_OFF(Matcher14_OFF(Matcher14_OFF(q, void *, 4), void *, 0), s16, 0x10), Matcher14_OFF(Matcher14_OFF(Matcher14_OFF(q, void *, 4), void *, 0), f32, 4), 0.0f);
@@ -429,10 +428,10 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             } else {
                 actorClearMovementFlags(sp98 = D_807FBB4C);
             }
-            zoneEntryGetPosition(sv[3], sv[1], &Matcher14_OFF(sp98, f32, 0x7C), &Matcher14_OFF(sp98, f32, 0x80), &Matcher14_OFF(sp98, f32, 0x84));
+            zoneEntryGetPosition(b, c, &Matcher14_OFF(sp98, f32, 0x7C), &Matcher14_OFF(sp98, f32, 0x80), &Matcher14_OFF(sp98, f32, 0x84));
             func_8067A69C(0, sp98, Matcher14_OFF(sp98, f32, 0x7C), Matcher14_OFF(sp98, f32, 0x84), 2, 1);
             {
-                s32 t = (sv[0] << 12) / 360;
+                s32 t = (d << 12) / 360;
                 Matcher14_OFF(sp98, s16, 0xEE) = t;
                 Matcher14_OFF(sp98, s16, 0xE6) = t;
             }
@@ -447,23 +446,17 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
                 } else {
                     sp98 = D_807FBB4C;
                 }
-                D_807F5D7C = sfxPlayAtPositionPooled(Matcher14_OFF(sp98, f32, 0x7C), Matcher14_OFF(sp98, f32, 0x80), Matcher14_OFF(sp98, f32, 0x84), sv[3], (u32)(sv[1] != 0 ? (f64)sv[1] : 127.5), sv[0] != 0 ? sv[0] : 0x7F, 0, 0, 0.0f, 0);
+                D_807F5D7C = sfxPlayAtPositionPooled(Matcher14_OFF(sp98, f32, 0x7C), Matcher14_OFF(sp98, f32, 0x80), Matcher14_OFF(sp98, f32, 0x84), b, (u32)(c != 0 ? (f64)c : 127.5), d != 0 ? d : 0x7F, 0, 0, 0.0f, 0);
                 return;
             }
-            if (sv[3] < 0x800) {
-                n_alSndpPlay((void *)D_8076D1F8, sv[3], (u32)(sv[1] != 0 ? ((f64)sv[1] / 255.0) * 32767.0 : 16383.5), 0x3F, sv[0] != 0 ? (f64)sv[0] / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
+            if (b < 0x800) {
+                n_alSndpPlay((void *)D_8076D1F8, b, (u32)(c != 0 ? ((f64)c / 255.0) * 32767.0 : 16383.5), 0x3F, d != 0 ? (f64)d / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
                 return;
             }
-            n_alSndpPlay((void *)D_8076D1FC, (s16)(sv[3] - 0x7FF), (u32)(sv[1] != 0 ? ((f64)sv[1] / 255.0) * 32767.0 : 16383.5), 0x3F, sv[0] != 0 ? (f64)sv[0] / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
+            n_alSndpPlay((void *)D_8076D1FC, (s16)(b - 0x7FF), (u32)(c != 0 ? ((f64)c / 255.0) * 32767.0 : 16383.5), 0x3F, d != 0 ? (f64)d / 127.0 : 1.0, 0, (u8 *)D_807F5D6C + -(a * 4));
             return;
         case 0x19:
-            arg2 = (u32)(a > 0 ? a : -a); // FAKE: unsigned expression keeps the absolute-value temporary's allocation.
-            if ((s32)arg2 <= 0) {
-                sp72 = 0;
-            } else {
-                arg2 = (u32)(a > 0 ? a : -a); // FAKE: unsigned expression keeps the absolute-value temporary's allocation.
-                sp72 = (s32)arg2 - 1;
-            }
+            sp72 = (a > 0 ? a : -a) <= 0 ? 0 : (a > 0 ? a : -a) - 1;
             n_alSndpStop(*(s32 *)(D_807F5D70 + sp72 * 4));
             return;
         case 0x1A:
@@ -475,7 +468,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             } else {
                 sp98 = D_807FBB4C;
             }
-            sfxPlayActorSound(sp98, (s16)sv[3], 0, 1, 0, sv[1] != 0 ? sv[1] : 0xFF, 1.0f, sv[0]);
+            sfxPlayActorSound(sp98, b, 0, 1, 0, c != 0 ? c : 0xFF, 1.0f, d);
             return;
         case 0x37:
             if (a != 0) {
@@ -496,54 +489,53 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             Matcher14_OFF(p, u8, 0xD) |= a;
             return;
         case 0x3B:
-            Matcher14_OFF(actorFromSpawnNodeOrDefault(a), s16, 0x146) = sv[3];
+            Matcher14_OFF(actorFromSpawnNodeOrDefault(a), s16, 0x146) = b;
             return;
         case 0x1C:
             Matcher14_OFF(actorFromSpawnNodeOrDefault(a), s16, 0xE6) = Matcher14_OFF(gPlayerSlots, s16, 0x2C8) & 0xFFF;
             return;
         case 0x30:
             p = actorFromSpawnNodeOrDefault(a);
-            if (sv[3] >= 0) {
-                Matcher14_OFF(p, u8, 0x16A) = sv[3];
+            if (b >= 0) {
+                Matcher14_OFF(p, u8, 0x16A) = b;
                 Matcher14_OFF(p, s32, 0x60) |= 0x800000;
-                Matcher14_OFF(p, u8, 0x16B) = sv[1];
-                Matcher14_OFF(p, u8, 0x16C) = sv[0];
+                Matcher14_OFF(p, u8, 0x16B) = c;
+                Matcher14_OFF(p, u8, 0x16C) = d;
                 return;
             }
             Matcher14_OFF(p, s32, 0x60) &= 0xFF7FFFFF;
             return;
         case 0x2C:
             sp98 = actorFromSpawnNodeOrDefault(a);
-            zoneEntryGetPosition(sv[3], (u8)sv[1], &sp84, &sp80, &sp7C);
+            zoneEntryGetPosition(b, (u8)c, &sp84, &sp80, &sp7C);
             Matcher14_OFF(sp98, s16, 0xE6) = mathAngleBetweenPoints2D(sp84, sp7C, Matcher14_OFF(sp98, f32, 0x7C), Matcher14_OFF(sp98, f32, 0x84));
             return;
         case 0x2F:
-            csModelStateSetFirstByte((s16)a, (s16)sv[0]);
-            t = sv[3];
-            if (t != 0) {
-                csModelStateSetFirstByte(t, (s16)sv[0]);
+            csModelStateSetFirstByte((s16)a, d);
+            if (b != 0) {
+                csModelStateSetFirstByte(b, (s16)d);
             }
-            if (sv[1] != 0) {
-                csModelStateSetFirstByte((s16)sv[1], (s16)sv[0]);
+            if (c != 0) {
+                csModelStateSetFirstByte((s16)c, (s16)d);
                 return;
             }
             break;
         case 0x15:
-            csModelStateSetFirstByte((s16)a, (s16)sv[3]);
+            csModelStateSetFirstByte((s16)a, (s16)b);
             return;
         case 0x17:
-            sfxAllocateChannel(a, sv[3] != 0 ? (f64)sv[3] / 255.0 : 1.0);
+            sfxAllocateChannel(a, b != 0 ? (f64)b / 255.0 : 1.0);
             return;
         case 0x18:
             func_8070E8DC(1);
             /* fallthrough */
         case 0x39:
-            func_8070D8C0(actorFromSpawnNodeOrDefault(a), (u16)sv[3], (u8)sv[1]);
+            func_8070D8C0(actorFromSpawnNodeOrDefault(a), (u16)b, (u8)c);
             return;
         case 0x1E:
             actorSpawn(0x108, 0x1D);
-            Matcher14_OFF(D_807FBB44, s16, 0xF0) = sv[1];
-            func_8070D8C0(D_807FBB44, a & 0xFFFF, (u8)sv[3]);
+            Matcher14_OFF(D_807FBB44, s16, 0xF0) = c;
+            func_8070D8C0(D_807FBB44, a & 0xFFFF, (u8)b);
             return;
         case 0x1D:
             camPausePath();
@@ -553,14 +545,14 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             return;
         case 0x22:
             if (a != 0) {
-                func_805FF378(a, sv[3]);
+                func_805FF378(a, b);
                 return;
             }
             func_80712830(D_807FBB4C, 0);
             return;
         case 0x23:
             D_8076AEE0 = a;
-            gScreenFadeRate = sv[3] / 100.0;
+            gScreenFadeRate = b / 100.0;
             return;
         case 0x3A:
             func_8071268C();
