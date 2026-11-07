@@ -503,16 +503,12 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
     f32 temp_fa1;
     s32 i;
     f32 three;
-    s16 a3 = arg3;
-    s16 a4 = arg4;
-    s16 a5 = arg5;
-    s16 a6 = arg6;
 
     *arg10 = 0;
     D_807F7BC0 = 0;
     three = 3;
     for (i = 0; i < D_80748300; i++) {
-        if (lightCheckVolumeBounds(&D_807F7500[i], arg0, arg1, arg2, a3, a4, a5, a6, arg7, arg8, arg9)) {
+        if (lightCheckVolumeBounds(&D_807F7500[i], arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9)) {
             if (D_807F7BC0 < 12) {
                 if (D_807F7500[i].unk3A & 1) {
                     *arg10 = 1;
@@ -561,8 +557,6 @@ s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4
             }
         }
     }
-    if (D_807F7BC0 > 0.0f) {}  // FAKE: steers FP temp colours (random search)
-    if (arg10 && arg10) {}  // FAKE: deadsweep: arg10 priority above a3..a6 (s4)
     return D_807F7BC0;
 }
 void *memcpy(void *, const void *, unsigned int);
