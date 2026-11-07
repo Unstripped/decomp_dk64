@@ -184,7 +184,7 @@ extern InteractionEntry D_8074ABCC[];
 void actorCollisionRunInteractionTable(InteractionActor *actorA, InteractionActor *actorB) {
     InteractionEntry *entry;
     s32 done;
-    s16 two;
+    s32 kind;
     s32 found;
     s32 j;
 
@@ -209,7 +209,8 @@ void actorCollisionRunInteractionTable(InteractionActor *actorA, InteractionActo
             }
             if (found) {
                 entry->unk8(actorA, actorB, entry->unk4 & 0xFF, entry->unk5 & 0xFF);
-                if (entry->unkC == 0 || entry->unkC == (two = 2)) {  // FAKE: makes the constant 2 a register operand (bnel v0,s6 order)
+                kind = entry->unkC;
+                if (kind == 0 || kind == 2) {
                     done = 1;
                 }
             }
