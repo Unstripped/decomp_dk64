@@ -565,7 +565,7 @@ void controllerAnimFreeSub(Actor *, u8);
 extern Actor *D_807FBB44;
 
 void actorListUpdateSpawns(void) {
-    s32 pad; // FAKE: unused local; moves spawnInfo's stack slot down 4 bytes
+    s32 pad;
     ActorListSpawnInfo spawnInfo;
     Actor *actor;
     ActorListNodeInternal *node;
