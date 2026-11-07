@@ -835,7 +835,7 @@ void actorRegisterGlobalCallback(ActorCallbackNode *arg0) {
 void actorGlobalCallbacksDispatchAndFree(arg0)
 u8 arg0;
 {
-    do { ActorCallbackNode **ptr = D_807FBFE0; do { if (((*ptr) != 0) && ((*ptr)->unk4 == arg0)) { ((void (*)(void *)) (*ptr)->callback)(&(*ptr)->unk8); heapFree(*ptr); *ptr = 0; } ptr++; } while (ptr != ((ActorCallbackNode **) (&D_807FBFF0))); } while (0); // FAKE: one-line statement line coordinates steer mirrored-pair scheduling
+    ActorCallbackNode **ptr = D_807FBFE0; do { if (((*ptr) != 0) && ((*ptr)->unk4 == arg0)) { ((void (*)(void *)) (*ptr)->callback)(&(*ptr)->unk8); heapFree(*ptr); *ptr = 0; } ptr++; } while (ptr != ((ActorCallbackNode **) (&D_807FBFF0))); // LAYOUT: one-line statement line coordinates steer mirrored-pair scheduling
 }
 
 void actorFreeCallbackList(Actor *actor) {
@@ -1381,7 +1381,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
     s32 sp3C;
     s32 var_a2;
     void *sp24;
-    s32 temp_a3;  // FAKE: unused local pads the stack frame (target frame 0x40)
+    s32 pad;
     s32 var_v0;
 
     D_807FBB85 = 1;
@@ -1549,7 +1549,7 @@ void actorDispatchCollisionResults(Actor *arg0) {
     s32 i;
     f32 sp68;
     f32 sp64;
-    s32 pad60; // FAKE: unused local reproducing the frame slot between sp64 and sp5C
+    s32 pad60;
     f32 sp5C;
     f32 sp58;
 
