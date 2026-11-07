@@ -375,13 +375,12 @@ Gfx *textLoadFontSheetGfx(Gfx *arg0, u8 arg1, s32 arg2) {
 }
 
 
-#ifdef NON_MATCHING
 extern Mtx D_20000C0;
 extern Gfx D_2000180;
 Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
 void heapFreeDeferred(void *);
 Gfx *gfxInit2DDisplayList(Gfx *);
-void vtxSetQuadGradientColors(void *, u8, u8, s8);
+void vtxSetQuadGradientColors(void *, u8, u8);
 
 #define TEXT_GFX_CMD(g, a, b) \
     { (g) = (Gfx *)(dl++); (g)->words.w0 = (a); (g)->words.w1 = (b); }
@@ -418,8 +417,8 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
     s16 gx;
     s16 w;
     s16 h;
-    u8 *glyph;
-    s16 *v;
+    TextBlitGlyphInfo *glyph;
+    s32 padStack;
     s32 count;
     Gfx *g11;
     s32 padFrame;
@@ -461,122 +460,106 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
         TEXT_GFX_CMD(g3, 0xDA380003, (u32)&D_2000180);
     }
     dl = gfxInit2DDisplayList(dl);
-    line = 1;
-    if (D_80754A34[font * 6 + 1] + 1 >= 2) {
-        do {
-            TEXT_GFX_CMD(g8, 0xE7000000, 0);
-            started = 0;
-            ch = *str++;
-            if (ch) {
-                do {
-                    if (ch != 0x20) {
-                        yoff = textMapCharToGlyph(font, &ch) * 4;
-                        glyph = (u8 *)((u8 **)D_80754A18)[font] + ch * 4;
-                        w4 = glyph[2];
-                        h4 = D_80754A34[font * 6 + 2];
-                        w = w4;
-                        h = h4;
-                        w4 = w4 * 4;
-                        if (count && count) {} // FAKE: count web
-                        if (count && count) {} // FAKE: count web
-                        h4 = h4 * 4;
-                        gx = *(s16 *)glyph;
-                        if (center) {
-                            tmp = (D_80754A34[font * 6 + 5] * 4 - w4) / 2;
-                            if (tmp < 0) {
-                                if (yoff == 0) {} // FAKE: yoff web
-                                pad = 0;
-                            } else {
-                                pad = tmp;
-                            }
-                            x += pad;
-                        }
-                        if (ch >= D_807549FC[font][line - 1] && ch < D_807549FC[font][line]) {
-                            if (started == 0) {
-                                started = 1;
-                                dl = textLoadFontSheetGfx(dl, font, (s16)line);
-                            }
-                            v = (s16 *)vp;
-                            v[0] = x;
-                            v[1] = yoff + y + h4 - 1;
-                            v[9] = yoff + y + h4 - 1;
-                            v[2] = -5;
-                            v[4] = gx << 6;
-                            v[5] = h << 6;
-                            v[8] = x + w4 - 1;
-                            v[10] = -5;
-                            v[12] = (gx + w) << 6;
-                            v[13] = h << 6;
-                            v[16] = x + w4 - 1;
-                            v[17] = yoff + y;
-                            v[18] = -5;
-                            v[20] = (gx + w) << 6;
-                            v[21] = 0;
-                            v[25] = yoff + y;
-                            v[24] = x;
-                            v[26] = -5;
-                            v[28] = gx << 6;
-                            if (count && count) {} // FAKE: count web
-                            v[29] = 0;
-                            vp++;
-                            vp++;
-                            vp++;
-                            vp++;
-                            if (flags & 0x32) {
-                                vtxSetQuadGradientColors(vp - 4, idx, flags, yoff);
-                            }
-                            count += 4;
-                            if (count >= 0x20) {
-                                TEXT_GFX_VTX(g7, osVirtualToPhysical(batch), 0x20, 0);
-                                i = count / 4;
-                                while (i-- > 0) {
-                                    TEXT_GFX_QUAD(g10, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
-                                }
-                                count = 0;
-                                batch = vp;
-                            }
-                        }
-                        if (center) {
-                            tmp = D_80754A34[font * 6 + 5] * 4;
-                            x += (w4 < tmp) ? w4 : tmp;
-                            if (w4 < tmp) {
-                                x = x + tmp - pad - w4;
-                            }
+    for (line = 1; line < D_80754A34[font * 6 + 1] + 1; line++) {
+        TEXT_GFX_CMD(g8, 0xE7000000, 0);
+        started = 0;
+        ch = *str++;
+        if (ch) {
+            do {
+                if (ch != 0x20) {
+                    yoff = textMapCharToGlyph(font, &ch) * 4;
+                    glyph = &((TextBlitGlyphInfo *)D_80754A18[font])[ch];
+                    w4 = glyph->unk2 * 4;
+                    h4 = D_80754A34[font * 6 + 2] * 4;
+                    gx = glyph->unk0;
+                    w = glyph->unk2;
+                    h = D_80754A34[font * 6 + 2];
+                    if (center) {
+                        tmp = (D_80754A34[font * 6 + 5] * 4 - w4) / 2;
+                        if (tmp < 0) {
+                            pad = 0;
                         } else {
-                            x += (((u8 **)D_80754A18)[font][ch * 4 + 2] + D_80754A34[font * 6 + 4]) * 4;
+                            pad = tmp;
                         }
-                    } else if (center) {
-                        x += D_80754A34[font * 6 + 5] * 4;
-                    } else {
-                        x += D_80754A34[font * 6 + 3] * 4;
+                        x += pad;
                     }
-                    idx++;
-                    ch = *str++;
-                } while (ch);
-                idx = 0;
-            }
-            x = startX;
-            if (count != 0) {
-                TEXT_GFX_VTX(g11, osVirtualToPhysical(batch), count, 0);
-                batch = vp;
-                i = count / 4;
-                while (i-- > 0) {
-                    TEXT_GFX_QUAD(g1, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
+                    if (ch >= D_807549FC[font][line - 1] && ch < D_807549FC[font][line]) {
+                        if (started == 0) {
+                            dl = textLoadFontSheetGfx(dl, font, (s16)line);
+                            started = 1;
+                        }
+                        vp[0].v.ob[0] = x;
+                        vp[0].v.ob[1] = yoff + y + h4 - 1;
+                        vp[1].v.ob[1] = yoff + y + h4 - 1;
+                        vp[0].v.ob[2] = -5;
+                        vp[0].v.tc[0] = gx << 6; vp[0].v.tc[1] = h << 6; // LAYOUT: one line lets as1 store tc[1] before tc[0]
+                        vp[1].v.ob[0] = x + w4 - 1;
+                        vp[1].v.ob[2] = -5;
+                        if (w4) {} // FAKE: splits the vertex block so its first and last temps share v0
+                        vp[1].v.tc[0] = (gx + w) << 6;
+                        vp[1].v.tc[1] = h << 6;
+                        vp[2].v.ob[0] = x + w4 - 1;
+                        vp[2].v.ob[1] = yoff + y;
+                        vp[2].v.ob[2] = -5;
+                        vp[2].v.tc[0] = (gx + w) << 6;
+                        vp[2].v.tc[1] = 0;
+                        vp[3].v.ob[1] = yoff + y;
+                        vp[3].v.ob[0] = x;
+                        vp[3].v.ob[2] = -5;
+                        vp[3].v.tc[0] = gx << 6;
+                        vp[3].v.tc[1] = 0;
+                        vp++;
+                        vp++;
+                        vp++;
+                        vp++;
+                        if (flags & 0x32) {
+                            vtxSetQuadGradientColors(vp - 4, idx, flags);
+                        }
+                        count += 4;
+                        if (count >= 0x20) {
+                            TEXT_GFX_VTX(g7, osVirtualToPhysical(batch), 0x20, 0);
+                            i = count /= 4;
+                            while (i-- > 0) {
+                                TEXT_GFX_QUAD(g10, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
+                            }
+                            count = 0;
+                            batch = vp;
+                        }
+                    }
+                    if (center) {
+                        tmp = D_80754A34[font * 6 + 5] * 4;
+                        x += (w4 < tmp) ? w4 : tmp;
+                        if (w4 < tmp) {
+                            x = x + tmp - pad - w4;
+                        }
+                    } else {
+                        x += (((TextBlitGlyphInfo *)D_80754A18[font])[ch].unk2 + D_80754A34[font * 6 + 4]) * 4;
+                    }
+                } else if (center) {
+                    x += D_80754A34[font * 6 + 5] * 4;
+                } else {
+                    x += D_80754A34[font * 6 + 3] * 4;
                 }
-                if (count) {} // FAKE: count web
-                count = 0;
+                idx++;
+                ch = *str++;
+            } while (ch);
+            idx = 0;
+        }
+        x = startX;
+        if (count != 0) {
+            TEXT_GFX_VTX(g11, osVirtualToPhysical(batch), count, 0);
+            batch = vp;
+            i = count /= 4;
+            while (i-- > 0) {
+                TEXT_GFX_QUAD(g8, i * 4, i * 4 + 1, i * 4 + 2, i * 4 + 3);
             }
-            str = strStart;
-            line++;
-        } while (line < D_80754A34[font * 6 + 1] + 1);
+            count = 0;
+        }
+        str = strStart;
     }
     TEXT_GFX_CMD(g1, 0xE7000000, 0);
     return dl;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/100180/textDrawStringVtx.s")
-#endif
 
 extern Mtx D_2000000;
 extern Mtx D_2000080;
