@@ -1,4 +1,6 @@
 // Overlay minecart (ovl03, segment table entry 3)
+minecartTriggerLoss = 0x80024000; // type:func
+minecartTriggerWin = 0x800240DC; // type:func
 minecartSpawnWheelEffect = 0x800241A0; // type:func
 minecartStepSpeedToTarget = 0x80024254; // type:func
 minecartPlayerCartUpdate = 0x8002430C; // type:func

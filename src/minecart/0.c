@@ -143,7 +143,7 @@ void sfxAllocateChannel(s32, f32);
 s32 playerStateQueueCallback();
 void camStartPath();
 
-void func_80024000(u8 useCutsceneCam, u8 textIndex) {
+void minecartTriggerLoss(u8 useCutsceneCam, u8 textIndex) {
     sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
     textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, textIndex, 1), 0, 0x28, 8, 8);
     D_807FBB40->unk11C->unk154 = 0;
@@ -155,7 +155,7 @@ void func_80024000(u8 useCutsceneCam, u8 textIndex) {
     }
 }
 
-void func_800240DC(u8 useCutsceneCam, u8 textIndex) {
+void minecartTriggerWin(u8 useCutsceneCam, u8 textIndex) {
     s32 temp = textTableGetString(0x1A, textIndex, 1);
     textSpawnMarkerChecked(0x81, 0, 0x78, temp, 0, 0x28, 8, 8);
     D_807FBB40->unk11C->unk154 = 0;
@@ -527,11 +527,11 @@ void minecartPlayerCartJunctionBehaviour(void) {
     case 2:
     case 3:
         if (D_807FBB40->unk4->unk64 == 0x292) {
-            func_800240DC(1, 0x14);
+            minecartTriggerWin(1, 0x14);
             D_807FBB40->unk154 = 5;
         } else if (D_807FBB40->unk11C != NULL && D_807FBB40->unk11C->unk154 == 5) {
             func_80726EE0(0);
-            func_80024000(1, 0xE);
+            minecartTriggerLoss(1, 0xE);
             D_807FBB40->unk154 = 5;
             break;
         }
