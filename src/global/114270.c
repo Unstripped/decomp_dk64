@@ -820,7 +820,7 @@ s32 effectSpritePoolFadeOut(void) {
         renderCallbacksRegister((void *)effectSpriteRenderPool, NULL, 1);
         return 0;
     }
-    else if (D_807FDA1C != 6) {
+    if (D_807FDA1C != 6) {
         D_8077058C[0] = 0;
         heapFreeDeferred(*(void **)((u8 *)queue + 4));
         for (i = 0; i < (s32)(&D_80755264)[D_807FDA1C * 0x14]; i++) {
@@ -830,5 +830,6 @@ s32 effectSpritePoolFadeOut(void) {
         D_807FDA28 = 0;
         return 1;
     }
+    // FAKE: no final return; fall-through path (*queue == 0 && D_807FDA1C == 6) returns queue (D_807550E0) in v0 implicitly
 }
 
