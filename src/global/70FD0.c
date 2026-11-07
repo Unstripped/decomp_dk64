@@ -2035,7 +2035,7 @@ void func_8066FE08(s32 arg0) {
     s32 var_a3;
     s32 temp_v0;
     ModelSlotHitRecord *sub;
-    s32 var_a0; // FAKE: s32 (explicit (s16) narrowing at each def) keeps the s16 sign-test chain shared with var_a0's store
+    s16 var_a0;
     f32 sp160;
     f32 sp15C;
     f32 sp158;
@@ -2062,7 +2062,7 @@ void func_8066FE08(s32 arg0) {
     f32 sp50;
     s16 temp_a2;
     s16 temp_v0b;
-    s16 padW; // FAKE: unused filler word, keeps the frame layout
+    s16 padW;
     f32 sp44;
 
     var_a3 = 0;
