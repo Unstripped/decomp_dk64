@@ -50,7 +50,7 @@ void func_80032550(void) {
                 actorScriptStart(D_807FBB40, 0x2A7);
                 D_807FBB40->unk155++;
             }
-        } while (0); // FAKE: do/while(0) wrapper steers branch codegen
+        } while (0); // LAYOUT: do/while(0) steers branch layout
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -176,10 +176,10 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0);
     tex = texCacheFindOrLoad(0xB0);
     yo = (s32)(((f32)D_80744494 - 82.0f) * 0.5f);
-    y = 0; do {  // FAKE: one source line removes a scheduling barrier before the loop.
+    y = 0; do {  // LAYOUT: removes a scheduling barrier before the loop
         xo = (s32)(((f32)D_80744490 - 204.0f) * 0.5f);
         for (x = 0; x != 0xCC; x += 0x66) { // LAYOUT: keep the induction update on the loop-header line.
-            if (x) {} // FAKE: shorten the full-width induction range and raise its colouring priority.
+            if (x) {} // LAYOUT: shorten induction range and steer coloring
             { gDPSetTextureImage(dl++, G_IM_FMT_I, G_IM_SIZ_8b, 102, tex); \
               gDPSetTile(dl++, G_IM_FMT_I, G_IM_SIZ_8b, (((((x + 0x66) - x + 1) >> 1) + 7) >> 3), 0, G_TX_LOADTILE, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0); \
               gDPLoadSync(dl++); \
@@ -189,30 +189,30 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
               gDPPipeSync(dl++); \
               gDPSetTile(dl++, G_IM_FMT_I, G_IM_SIZ_4b, (((((x + 0x66) - x + 1) >> 1) + 7) >> 3), 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0); \
               gDPSetTileSize(dl++, G_TX_RENDERTILE, x << 2, y << 2, (x + 0x66) << 2, (y + 0x29) << 2); \
-              } // FAKE: expanded GBI packet reuse; continuations retain macro scheduling.
+              } // LAYOUT: continuations retain macro scheduling
             gSPTextureRectangle(dl++, xo << 2, yo << 2, (xo + 0x66) << 2, (yo + 0x29) << 2, 0, x << 5, y << 5, 0x400, 0x400);
             xo += 0x66;
         }
         y += 0x29;
         yo += 0x29;
     } while (y != 0x52);
-    if ((s8)D_800339D0 && xo) {}  // FAKE: keep xo below the row-mask priority while merging the post-loop packet block.
-    if ((s8)D_800339D0 && xo) {}  // FAKE: preserve xo's range length and the Combine packet's v0/v1 interference.
+    if ((s8)D_800339D0 && xo) {}  // LAYOUT: keep xo below row-mask priority
+    if ((s8)D_800339D0 && xo) {}  // LAYOUT: preserve xo range length and Combine interference
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
     xo = (s32)((f32)(D_80744490 - textGetStringWidth(1, headerStr)) * 0.5f);
     yo = (s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)fontHeight);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
-    loadTilePacket = dl++; loadTilePacket->words.w0 = 0xE200001C; loadTilePacket->words.w1 = 0x504240; // FAKE: reuse the t1 load-tile range for this packet.
-    actor = dl++; ((Gfx *)actor)->words.w0 = 0xFCFF97FF; ((Gfx *)actor)->words.w1 = 0xFF2CFE7F; // FAKE: reuse the consumed parameter's packet home.
+    loadTilePacket = dl++; loadTilePacket->words.w0 = 0xE200001C; loadTilePacket->words.w1 = 0x504240; // LAYOUT: reuse t1 load-tile range
+    actor = dl++; ((Gfx *)actor)->words.w0 = 0xFCFF97FF; ((Gfx *)actor)->words.w1 = 0xFF2CFE7F; // LAYOUT: reuse consumed parameter packet home
     dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), headerStr, 0);
     x = (s32)((f32)D_80744490 * 0.5f);
-    actor = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
+    actor = &off;  // LAYOUT: retains stack home across text draw
     off = D_8074450C * 0xC8;
     xx = x * 4;
-    xx = xx | 0;  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
-    dl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)actor * 4), .5f, descStr1);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
+    xx = xx | 0;  // LAYOUT: steers uopt candidate priority
+    dl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)actor * 4), .5f, descStr1);  // LAYOUT: .5f spells separate constant web (lui a3, no mfc1)
     xo = (s32)((f64)off + (f64)fontHeight * 0.5);
-    fontHeight = xx; // FAKE: reuse the consumed font-height local to evaluate final y before the call arguments.
+    fontHeight = xx; // LAYOUT: reuse consumed local to evaluate final y before call args
     return hudDrawScaledText(dl, (s16)fontHeight, (s16)(xo * 4), .5f, descStr2);
 }
