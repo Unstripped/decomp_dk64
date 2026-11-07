@@ -321,7 +321,7 @@ Gfx *mpDrawGlyph(Gfx *glistp, s16 *pX, s16 y, void *texture, s32 count) {
     return glistp;
 }
 
-Gfx *func_800246EC(Gfx *glistp, MpControllerState *controllerState, f32 spacing) {
+Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spacing) {
     s16 glyphX;
     s32 i;
     s32 nxt;
@@ -401,7 +401,7 @@ Gfx *func_800246EC(Gfx *glistp, MpControllerState *controllerState, f32 spacing)
 int _sprintf(char *, const char *, ...);
 s32 textGetStringWidth(s32, char *);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
-Gfx *func_800246EC(Gfx *glistp, MpControllerState *controllerState, f32 spacing);
+Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spacing);
 
 Gfx *mpDrawPlayerScores(Gfx *glistp, MpControllerActor *controller) {
     char scoreStr[32];
@@ -416,7 +416,7 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, MpControllerActor *controller) {
     posXStep = (f32) D_80744490 / (f32) (gPlayerCount + 1);
     posY = (f32) (((MpViewport *)temp)->unk6 + 8);
     gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, D_80744490, D_80744494);
-    glistp = func_800246EC(glistp, state, posXStep);
+    glistp = mpDrawScoreGlyphs(glistp, state, posXStep);
     if (D_807552E8 != 3) {
         gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, 180);
         gSPDisplayList(glistp++, &D_1000118);
@@ -460,7 +460,7 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, MpControllerActor *controller) {
     state = controller->unk174;
     fontHeight = (f32) textGetFontHeight(1);
     fontHeight2 = (f32) textGetFontHeight(1);
-    curGlist = func_800246EC(glist, state, 0.0f);
+    curGlist = mpDrawScoreGlyphs(glist, state, 0.0f);
     gSPDisplayList(curGlist++, &D_1000118);
     gSPMatrix(curGlist++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gSPMatrix(curGlist++, state->unk30, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -643,7 +643,7 @@ void func_806F5FE8(s32, s16, s16, s16, s32);
 
 extern s32 D_807552F0;
 
-void func_80025654(MpControllerState *controllerState) {
+void mpUpdateCrownSpawns(MpControllerState *controllerState) {
     s32 temp;
     MpSpawnPoint * volatile spawnPoint; // FAKE: volatile forces stack home
 
@@ -867,7 +867,7 @@ void mpApplyPendingEffect(s32 playerIndex) {
 
 void csModelStateSetFirstByte(s16, s32);
 
-void func_80025F84(void) {
+void mpResetMapModelStates(void) {
     MpMapEntry *temp;
     s32 i;
 
@@ -986,7 +986,7 @@ void mpUpdate(void) {
         switch (D_807552E4.unk4) {
         case 3:
         case 5:
-            func_80025654(s7);
+            mpUpdateCrownSpawns(s7);
             break;
         case 2:
             mpUpdateItemSpawns();
@@ -1120,7 +1120,7 @@ void func_800268DC(MpActor *playerIndex, MpKongState *itemType, MpScore *count) 
     }
 }
 
-void func_8002698C(MpKongState *playerIndex) {
+void mpDeductDeathPenalty(MpKongState *playerIndex) {
     if (D_807552E8 == 2) {
         slotQueueAddValue(1, playerIndex->unk1A4, -3);
     }
@@ -1144,7 +1144,7 @@ void mpDropItemsOnHit(u8 playerIndex, s8 dropCount) {
         ctrl->unk4C = 1;
         slotQueueAddValue(1, playerIndex, -10);
         if (D_807552E8 == 5) {
-            func_80025F84();
+            mpResetMapModelStates();
         }
         actorSpawnNodeEntryScaled(0x7A, s0->unk7C, s0->unk80, s0->unk84, s0->unkE6, 1, -1, 0);
         s1->unk2FA = 0;
