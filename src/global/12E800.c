@@ -1453,7 +1453,6 @@ s32 patrolGetTargetAngle(void) {
 }
 
 
-#ifdef NON_MATCHING
 typedef struct MiscBPatrolState {
     /* 0x00 */ u8 pad0[0xA];
     /* 0x0A */ s16 unkA;
@@ -1481,7 +1480,7 @@ typedef struct MiscBPatrolWaypoint {
 
 typedef struct MiscBPatrolPathData {
     /* 0x00 */ u8 pad0[0x14];
-    /* 0x14 */ u8 *unk14;
+    /* 0x14 */ MiscBPatrolWaypoint *unk14;
 } MiscBPatrolPathData;
 
 typedef struct MiscBPatrolActorView {
@@ -1506,196 +1505,144 @@ typedef struct MiscBPatrolActorView {
 #define MISCB_PATROL_STATE ((MiscBPatrolState *)D_807FDC90)
 #define MISCB_PATROL_PATH_DATA ((MiscBPatrolPathData *)D_807FDCA0)
 #define MISCB_PATROL_ACTOR ((MiscBPatrolActorView *)D_807FBB40)
-#define MISCB_PATROL_WAYPOINT(off) ((MiscBPatrolWaypoint *)(MISCB_PATROL_PATH_DATA->unk14 + (off)))
+#define MISCB_PATROL_PAIRS ((D1Pair *)D1DC98G->unk20)
 
-u8 patrolPathStep(u8 arg0, u8 arg1)
-{
-  u8 q1;
-  u8 p2;
-  u8 key;
-  u8 type;
-  s16 x;
-  s16 y;
-  s16 z;
-  u8 moved;
-  u8 q2;
-  u8 p3;
-  u8 new_var;
-  u8 p1;
-  s32 idx;
-  s32 v;
-  s32 dir;
-  s32 off;
-  dir = (idx = ((MiscBPatrolState *) D_807FDC90)->unk25);
-  idx = idx & 0x7F;
-  dir = dir & 0x80;
-  key = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].a;
-  type = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].b;
-  off = key * 10;
-  x = ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + off))->x;
-  y = ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + off))->y;
-  z = ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + off))->z;
-  moved = (((((MiscBPatrolActorView *) D_807FBB40)->unk7C - x) * (((MiscBPatrolActorView *) D_807FBB40)->unk7C - x)) + ((((MiscBPatrolActorView *) D_807FBB40)->unk84 - z) * (((MiscBPatrolActorView *) D_807FBB40)->unk84 - z))) < ((f32) (((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + off))->r * ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + off))->r));
-  if (((arg1 & 1) && (((MiscBPatrolActorView *) D_807FBB40)->unk88 == ((MiscBPatrolActorView *) D_807FBB40)->unk7C)) && (((MiscBPatrolActorView *) D_807FBB40)->unk90 == ((MiscBPatrolActorView *) D_807FBB40)->unk84))
-  {
-    ((MiscBPatrolState *) D_807FDC90)->unk20++;
-    if ((((MiscBPatrolState *) D_807FDC90)->unk20++) > 0x10)
-    {
-      moved = 1;
-      ((MiscBPatrolState *) D_807FDC90)->unk20 = 0;
+u8 patrolPathStep(u8 arg0, u8 arg1) {
+    u8 dir;
+    u8 pad;
+    u8 key;
+    u8 type;
+    s16 x;
+    s16 y;
+    s16 z;
+    u8 moved;
+    u8 next;
+    u8 idx;
+    u8 nextKey;
+    s32 v;
+
+    idx = MISCB_PATROL_STATE->unk25;
+    dir = idx;
+    dir &= 0x80;
+    idx &= 0x7F;
+    key = MISCB_PATROL_PAIRS[idx].a;
+    type = MISCB_PATROL_PAIRS[idx].b;
+    x = MISCB_PATROL_PATH_DATA->unk14[key].x;
+    y = MISCB_PATROL_PATH_DATA->unk14[key].y;
+    z = MISCB_PATROL_PATH_DATA->unk14[key].z;
+    moved = ((MISCB_PATROL_ACTOR->unk7C - x) * (MISCB_PATROL_ACTOR->unk7C - x)) + ((MISCB_PATROL_ACTOR->unk84 - z) * (MISCB_PATROL_ACTOR->unk84 - z)) <
+            (f32)(MISCB_PATROL_PATH_DATA->unk14[key].r * MISCB_PATROL_PATH_DATA->unk14[key].r);
+    if ((arg1 & 1) && MISCB_PATROL_ACTOR->unk7C == MISCB_PATROL_ACTOR->unk88 && MISCB_PATROL_ACTOR->unk84 == MISCB_PATROL_ACTOR->unk90) {
+        if (D_807FDC90) {} // FAKE: two uopt blocks in idx's live range drop its priority below key's (key t2, idx t3)
+        MISCB_PATROL_STATE->unk20++;
+        if (MISCB_PATROL_STATE->unk20++ > 0x10) {
+            moved = 1;
+            MISCB_PATROL_STATE->unk20 = 0;
+        }
+    } else {
+        MISCB_PATROL_STATE->unk20 = 0;
     }
-  }
-  else
-  {
-    ((MiscBPatrolState *) D_807FDC90)->unk20 = 0;
-  }
-  switch (arg0)
-  {
-    case 0x49:
-      v = idx + 1;
-      key = (v < ((D1Dc9cViewG *) D_807FDC9C)->unk11) ? (v) : (0);
-      v = mathAngleBetweenPoints2D(((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + (((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[key].a * 10)))->x, ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + (((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[key].a * 10)))->z, x, z);
-      ((MiscBPatrolActorView *) D_807FBB40)->unkEE = v;
-      ((MiscBPatrolActorView *) D_807FBB40)->unkE6 = v;
-
-    case 0x42:
-
-    case 0x5B:
-      ((MiscBPatrolState *) D_807FDC90)->unkA = x;
-      ((MiscBPatrolState *) D_807FDC90)->unkC = y;
-      ((MiscBPatrolState *) D_807FDC90)->unkE = z;
-      break;
-
-    case 2:
-    case 0x26:
-  if (D_807FDC9C && D_807FDC9C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    case 0x60:
-      if (moved)
-      {
-        if (type == 6)
-        {
-  if (D_807FDCA0 != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-          ((MiscBPatrolState *) D_807FDC90)->unk25 = ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + off))->unk8;
-        }
-        else if ((idx + 1) < ((D1Dc9cViewG *) D_807FDC9C)->unk11)
-        {
-          ((MiscBPatrolState *) D_807FDC90)->unk25 = idx + 1;
-        }
-        else
-        {
-          ((MiscBPatrolState *) D_807FDC90)->unk25 = 0;
-        }
-      }
-      else
-      {
-        ((MiscBPatrolState *) D_807FDC90)->unkA = x;
-        ((MiscBPatrolState *) D_807FDC90)->unkC = y;
-        ((MiscBPatrolState *) D_807FDC90)->unkE = z;
-      }
-      break;
-
-    case 3:
-      if (moved)
-    {
-      if (dir != 0)
-      {
-        if (idx > 0)
-        {
-          idx = (u8) (idx - 1);
-        }
-        else
-        {
-          idx = (u8) (idx + 1);
-          dir = 0;
-        }
-      }
-      else
-        if (idx < (((D1Dc9cViewG *) D_807FDC9C)->unk11 - 1))
-      {
-        idx = (u8) (idx + 1);
-      }
-      else
-      {
-        idx = (u8) (idx - 1);
-        dir = 0x80;
-      }
-      ((MiscBPatrolState *) D_807FDC90)->unk25 = dir | (idx & 0xFFFFFFFFFFFFFFFF);
+    switch (arg0) {
+        case 0x49:
+            v = idx + 1;
+            next = (v < D1DC9CG->unk11) ? (u8)v : 0;
+            v = MISCB_PATROL_PAIRS[next].a;
+            v = mathAngleBetweenPoints2D(MISCB_PATROL_PATH_DATA->unk14[v].x, MISCB_PATROL_PATH_DATA->unk14[v].z, x, z);
+            MISCB_PATROL_ACTOR->unkEE = v;
+            MISCB_PATROL_ACTOR->unkE6 = v;
+        case 0x42:
+        case 0x5B:
+            MISCB_PATROL_STATE->unkA = x;
+            MISCB_PATROL_STATE->unkC = y;
+            MISCB_PATROL_STATE->unkE = z;
+            break;
+        case 2:
+        case 0x26:
+        case 0x60:
+            if (moved) {
+                if (type == 6) {
+                    MISCB_PATROL_STATE->unk25 = MISCB_PATROL_PATH_DATA->unk14[key].unk8;
+                } else if (idx + 1 < D1DC9CG->unk11) {
+                    MISCB_PATROL_STATE->unk25 = idx + 1;
+                } else {
+                    MISCB_PATROL_STATE->unk25 = 0;
+                }
+            } else {
+                MISCB_PATROL_STATE->unkA = x;
+                MISCB_PATROL_STATE->unkC = y;
+                MISCB_PATROL_STATE->unkE = z;
+            }
+            break;
+        case 3:
+            if (moved) {
+                if (dir) {
+                    if (idx > 0) {
+                        idx--;
+                    } else {
+                        idx++;
+                        dir = 0;
+                    }
+                } else if (idx < D1DC9CG->unk11 - 1) {
+                    idx++;
+                } else {
+                    idx--;
+                    dir = 0x80;
+                }
+                MISCB_PATROL_STATE->unk25 = dir | idx;
+            } else {
+                MISCB_PATROL_STATE->unkA = x;
+                MISCB_PATROL_STATE->unkC = y;
+                MISCB_PATROL_STATE->unkE = z;
+            }
+            break;
     }
-    else
-    {
-      ((MiscBPatrolState *) D_807FDC90)->unkA = x;
-      ((MiscBPatrolState *) D_807FDC90)->unkC = y;
-      ((MiscBPatrolState *) D_807FDC90)->unkE = z;
+    idx = MISCB_PATROL_STATE->unk25 & 0x7F;
+    if (moved) {
+        MISCB_PATROL_STATE->unk1A |= 4;
+        switch (type) {
+            case 1:
+                nextKey = MISCB_PATROL_PAIRS[idx].a;
+                v = patrolGetTargetAngle();
+                MISCB_PATROL_ACTOR->unkEE = v;
+                MISCB_PATROL_ACTOR->unkE6 = v;
+                MISCB_PATROL_ACTOR->unk7C = MISCB_PATROL_PATH_DATA->unk14[nextKey].x;
+                MISCB_PATROL_ACTOR->unk80 = MISCB_PATROL_PATH_DATA->unk14[nextKey].y;
+                MISCB_PATROL_ACTOR->unk84 = MISCB_PATROL_PATH_DATA->unk14[nextKey].z;
+                break;
+            case 2:
+                MISCB_PATROL_ACTOR->unk154 = 0x26;
+                MISCB_PATROL_ACTOR->unk155 = 0;
+                break;
+            case 4:
+                MISCB_PATROL_ACTOR->unk154 = 0x19;
+                MISCB_PATROL_ACTOR->unk155 = 0;
+                MISCB_PATROL_STATE->unk2C = MISCB_PATROL_PATH_DATA->unk14[key].unk8;
+                break;
+            case 5:
+                actorSetTargetSpeed(D_807FBB40, MISCB_PATROL_PATH_DATA->unk14[key].unk8);
+                break;
+            case 7:
+                MISCB_PATROL_ACTOR->unk154 = 0x3B;
+                moved = 0;
+                break;
+            case 8:
+                MISCB_PATROL_ACTOR->unk154 = 0x13;
+                MISCB_PATROL_ACTOR->unk155 = 0;
+                break;
+            case 3:
+                if (MISCB_PATROL_ACTOR->unk58 == 0xAF) {
+                    MISCB_PATROL_ACTOR->unk154 = 0x37;
+                    MISCB_PATROL_ACTOR->unk155 = 0;
+                }
+                D_80744508++;
+                MISCB_PATROL_ACTOR->unk154 = 0x40;
+                break;
+        }
+    } else {
+        MISCB_PATROL_STATE->unk1A &= 0xFFFB;
     }
-      break;
-
-  }
-
-  idx = ((MiscBPatrolState *) D_807FDC90)->unk25 & 0x7F;
-  if (moved)
-  {
-    ((MiscBPatrolState *) D_807FDC90)->unk1A |= 4;
-    switch (type)
-    {
-      case 1:
-        new_var = ((D1Pair *) ((D1Dc98ViewG *) D_807FDC98)->unk20)[idx].a;
-        key = new_var;
-        v = patrolGetTargetAngle();
-        ((MiscBPatrolActorView *) D_807FBB40)->unkEE = v;
-        ((MiscBPatrolActorView *) D_807FBB40)->unkE6 = v;
-        ((MiscBPatrolActorView *) D_807FBB40)->unk7C = ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + (key * 10)))->x;
-        ((MiscBPatrolActorView *) D_807FBB40)->unk80 = ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + (key * 10)))->y;
-        ((MiscBPatrolActorView *) D_807FBB40)->unk84 = ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + (key * 10)))->z;
-        break;
-
-      case 2:
-        ((MiscBPatrolActorView *) D_807FBB40)->unk154 = 0x26;
-        ((MiscBPatrolActorView *) D_807FBB40)->unk155 = 0;
-        break;
-
-      case 4:
-        ((MiscBPatrolActorView *) D_807FBB40)->unk154 = 0x19;
-        ((MiscBPatrolActorView *) D_807FBB40)->unk155 = 0;
-        ((MiscBPatrolState *) D_807FDC90)->unk2C = ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + off))->unk8;
-        break;
-
-      case 5:
-        actorSetTargetSpeed(D_807FBB40, ((MiscBPatrolWaypoint *) (((MiscBPatrolPathData *) D_807FDCA0)->unk14 + off))->unk8);
-        return moved;
-
-      case 7:
-        ((MiscBPatrolActorView *) D_807FBB40)->unk154 = 0x3B;
-        moved = 0;
-        break;
-
-      case 8:
-        ((MiscBPatrolActorView *) D_807FBB40)->unk154 = 0x13;
-        ((MiscBPatrolActorView *) D_807FBB40)->unk155 = 0;
-        break;
-
-      case 3:
-        if (((MiscBPatrolActorView *) D_807FBB40)->unk58 == 0xAF)
-      {
-        ((MiscBPatrolActorView *) D_807FBB40)->unk154 = 0x37;
-        ((MiscBPatrolActorView *) D_807FBB40)->unk155 = 0;
-      }
-        D_80744508++;
-        ((MiscBPatrolActorView *) D_807FBB40)->unk154 = 0x40;
-        break;
-
-    }
-
-  }
-  else
-  {
-    ((MiscBPatrolState *) D_807FDC90)->unk1A &= 0xFFFB;
-  }
-  return moved;
+    return moved;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/12E800/patrolPathStep.s")
-#endif
 
 
 typedef struct D1ActorViewI {
