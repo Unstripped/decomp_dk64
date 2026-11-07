@@ -67,13 +67,13 @@ extern void *D_8002E830;
 extern void *D_8002E8A8;
 extern s32 D_8002BA6C;
 extern void *D_8002E878;
-void func_80029F7C(JetpacActor *actor);
+void jetpacActorUpdateFighter(JetpacActor *actor);
 void jetpacActorUpdateHop(JetpacActor *actor);
-void func_8002A67C(JetpacActor *actor);
+void jetpacActorHopImpulse(JetpacActor *actor);
 void jetpacActorUpdateBounce(JetpacActor *actor);
 f32 jetpacActorAccelClamp(f32 targetDelta, f32 curVel);
 f32 jetpacRandFloat(void);
-void func_80029B90(JetpacActor *actor);
+void jetpacActorPickWanderDirection(JetpacActor *actor);
 void jetpacActorUpdateWander(JetpacActor *actor);
 void jetpacActorInitHoming(JetpacActor *actor);
 void jetpacActorUpdateHoming(JetpacActor *actor);
@@ -97,8 +97,8 @@ void jetpacPlaySound(s32 soundId);
 void jetpacGridAddTiledSprite(void *, s32, s32, void *, s32);
 void jetpacUpdateExplosion(void *);
 Gfx *textDrawString(Gfx *, s32, s16, s16, s32);
-void func_80029640(JetpacActor *actor, f32 a1, f32 a2);
-void func_800298C8(JetpacActor *actor);
+void jetpacActorInitStraight(JetpacActor *actor, f32 a1, f32 a2);
+void jetpacActorUpdateMeteor(JetpacActor *actor);
 extern u8 D_80045BE0, D_80045BE1, D_80045BE2, D_80045BE3;
 extern u8 D_8002E9C0, D_8002E9C4, D_8002E9C8, D_8002E9CC;
 
@@ -262,7 +262,7 @@ void jetpacBounceOffLedge(JetpacActor *actor, s32 ledgeIndex) {
     }
 }
 
-void func_80029640(JetpacActor *actor, f32 a1, f32 a2) {
+void jetpacActorInitStraight(JetpacActor *actor, f32 a1, f32 a2) {
     s32 cnt2;
     s32 cnt1;
     s32 i;
@@ -323,18 +323,18 @@ void jetpacActorUpdateStraight(JetpacActor *actor) {
     }
 }
 
-void func_80029884(JetpacActor *actor) {
+void jetpacActorInitMeteor(JetpacActor *actor) {
     actor->unk28 = 0xB;
-    func_80029640(actor, 1.6f, 0.5f);
-    actor->unk48 = func_800298C8;
+    jetpacActorInitStraight(actor, 1.6f, 0.5f);
+    actor->unk48 = jetpacActorUpdateMeteor;
 }
 
-void func_800298C8(JetpacActor *actor) {
+void jetpacActorUpdateMeteor(JetpacActor *actor) {
     jetpacActorUpdateStraight(actor);
     actor->unk4C = &D_8002E800[(s32)actor->unk0 % 2];
 }
 
-void func_8002992C(JetpacActor *actor) {
+void jetpacActorInitBounce(JetpacActor *actor) {
     actor->unk48 = jetpacActorUpdateBounce;
     actor->unk44 = 0x50;
     if (actor->unk4 < 88.0f) {
@@ -378,7 +378,7 @@ void jetpacActorUpdateBounce(JetpacActor *actor) {
     }
 }
 
-void func_80029AF8(JetpacActor *actor) {
+void jetpacActorInitWander(JetpacActor *actor) {
     actor->unk48 = jetpacActorUpdateWander;
     actor->unk44 = 0x28;
     if (actor->unk4 < 88.0f) {
@@ -386,11 +386,11 @@ void func_80029AF8(JetpacActor *actor) {
     } else {
         actor->unk8 = 1.2f;
     }
-    func_80029B90(actor);
+    jetpacActorPickWanderDirection(actor);
     actor->unk2C = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
 }
 
-void func_80029B90(JetpacActor *actor) {
+void jetpacActorPickWanderDirection(JetpacActor *actor) {
     if ((f64)actor->unkC == 0.0) {
         if ((f64)jetpacRandFloat() < 0.5) {
             actor->unkC = -0.6f;
@@ -408,7 +408,7 @@ void jetpacActorUpdateWander(JetpacActor *actor) {
     switch (actor->unk14) {
     case 3:
         if (--actor->unk2C == 0) {
-            func_80029B90(actor);
+            jetpacActorPickWanderDirection(actor);
             actor->unk2C = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
         }
         res = jetpacCheckLedgeCollision((f32)actor->unk1C + actor->unk0 + actor->unk8,
@@ -439,8 +439,8 @@ void jetpacActorUpdateWander(JetpacActor *actor) {
     }
 }
 
-void func_80029E0C(JetpacActor *actor) {
-    actor->unk48 = func_80029F7C;
+void jetpacActorInitFighter(JetpacActor *actor) {
+    actor->unk48 = jetpacActorUpdateFighter;
     actor->unk44 = 0x37;
     actor->unk2C = (s32)((jetpacRandFloat() * 60.0f) + 10.0f);
     actor->unk40 = (u32)((jetpacRandFloat() * 180.0f) + 10.0f);
@@ -459,7 +459,7 @@ void func_80029E0C(JetpacActor *actor) {
     actor->unk4C = &D_8002E878;
 }
 
-void func_80029F7C(JetpacActor *actor) {
+void jetpacActorUpdateFighter(JetpacActor *actor) {
     switch (actor->unk14) {
     case 3:
         if (actor->unk2C == 0) {
@@ -536,7 +536,7 @@ void jetpacActorInitHoming(JetpacActor *actor) {
     jetpacActorSteerToPlayer(actor);
 }
 
-void func_8002A2AC(JetpacActor *actor) {
+void jetpacActorInitSaucer(JetpacActor *actor) {
     actor->unk28 = 8;
     actor->unk4C = &D_8002E890;
     jetpacActorInitHoming(actor);
@@ -626,14 +626,14 @@ void jetpacActorUpdateHoming(JetpacActor *actor) {
     }
 }
 
-void func_8002A67C(JetpacActor *actor) {
+void jetpacActorHopImpulse(JetpacActor *actor) {
     s32 t = actor->unk2C % 4 + 1;
 
     actor->unkC = -1.2 / (f64)t;
     actor->unk2C = actor->unk2C + 1;
 }
 
-void func_8002A6C0(JetpacActor *actor) {
+void jetpacActorInitHop(JetpacActor *actor) {
     actor->unk48 = jetpacActorUpdateHop;
     actor->unk44 = 0x3C;
     actor->unk2C = (s32)(jetpacRandFloat() * 16.0f);
@@ -642,7 +642,7 @@ void func_8002A6C0(JetpacActor *actor) {
     } else {
         actor->unk8 = 1.2f;
     }
-    func_8002A67C(actor);
+    jetpacActorHopImpulse(actor);
     actor->unk4C = &D_8002E8A8;
 }
 
@@ -663,7 +663,7 @@ void jetpacActorUpdateHop(JetpacActor *actor) {
             jetpacBounceOffLedge(actor, res);
             cur = actor->unkC;
             if (prev > 0.0f && cur < 0.0f) {
-                func_8002A67C(actor);
+                jetpacActorHopImpulse(actor);
             }
         }
         if (jetpacCheckPlayerHit(actor) == 0) {
@@ -683,14 +683,14 @@ void jetpacActorUpdateHop(JetpacActor *actor) {
     }
 }
 
-void func_8002A8F0(JetpacActor *actor) {
+void jetpacActorInitCross(JetpacActor *actor) {
     actor->unk28 = 0xE;
     actor->unk4C = &D_8002E8C0;
-    func_80029640(actor, 1.2f, 0.3f);
+    jetpacActorInitStraight(actor, 1.2f, 0.3f);
     actor->unk48 = jetpacActorUpdateStraight;
 }
 
-void func_8002A944(JetpacActor *actor) {
+void jetpacActorInitBlob(JetpacActor *actor) {
     actor->unk28 = 0xE;
     actor->unk4C = &D_8002E8D8;
     jetpacActorInitHoming(actor);
