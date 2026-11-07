@@ -696,10 +696,9 @@ extern u8 D_807ECD08[];
 extern OSMesgQueue D_807ECCF0;
 
 
-#ifdef NON_MATCHING
 void eepromSaveRecords(s32 arg0) {
     s32 j;
-    s32 sector;
+    u16 sector;
     s32 offset;
     s32 height;
     u16 idx;
@@ -709,6 +708,7 @@ void eepromSaveRecords(s32 arg0) {
     u8 workingData[0x800];
     u8 savedData[0x800];
     u8 *p;
+    u8 *q;
     p = D_807ECD08;
     if (D_807EDEAC == 2) {
         _sprintf((char *)D_807ECEA8 + ((((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) + 0x207) & ~7) / 8), D_807467C0);
@@ -728,26 +728,29 @@ void eepromSaveRecords(s32 arg0) {
             sector = 0;
             offset = D_807ECEA0[0];
             offset += 0x6B7;
-            offset = (offset - (offset & 0x3F)) + 0x27;
+            offset = (offset & ~0x3FU) + 0x27;
             offset = ((s32)(offset & ~7U) * 4) + 0x3F;
             offset = (s32)(offset & ~0x3FU);
             offset /= 8;
         } else {
             offset = (((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F);
             offset /= 8;
-            sector = (offset / 8) & 0xFFFF;
+            sector = offset / 8;
         }
         a = offset;
         if (a) {}  // FAKE: live range / colouring of the narrowed index temp
         b = ((offset + 0x40) / 4) - 1;
+        offset = 0;  // FAKE: dead store; the operand is redefined, so b's value is not copy-propagated into the index and b stays the variable (same colour as the loop's b)
         if (b) {}  // FAKE: live range / colouring of the narrowed index temp
         ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, 0x3C);
         bzero(strlen(D_807467C0) - (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) + workingData + 0x840, (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) - strlen(D_807467C0) - 0x40);
         if (D_807ECEA0) {}  // FAKE: deadsweep dead statement (steers uopt)
         osWritebackDCacheAll();
-        memcpy(D_807ED6A8 + sector * 8, workingData + sector * 8, 0x800 - (sector << 3));
-        if (D_807ECD08[0] != 0) do sleepMilliseconds(1.0f); while (*p != 0);
-        if (D_807ECD08 && D_807ECD08) {}  // FAKE: colours the polled D_807ECD08 address candidate
+        if ((u32)D_807EDEAC & ~0x3FU) {}  // FAKE: an unsigned -64 use after the calls keeps the unsigned mask constants of the arm above uncoloured (li at,-64)
+        memcpy(D_807ED6A8 + (u32)sector * 8, workingData + (u32)sector * 8, 0x800 - (sector << 3));  // FAKE: (u32) casts make the products read the variable, not its ucvt widening (widening keeps the shift and the loop test: move s4,s1)
+        q = (u8 *)((u32)D_807ECD08 | 0);  // FAKE: keeps the polled address a ring temp (la t2; lbu t3,0(t2))
+        if (*q != 0) do sleepMilliseconds(1.0f); while (*p != 0);
+        if ((u32)sector) {}  // FAKE: direct read of sector raises the variable's priority above its widening (var s1, widening s4)
         if (D_80744460 != 0) {
             D_807467C4 = 0;
         } else {
@@ -771,10 +774,6 @@ void eepromSaveRecords(s32 arg0) {
         }
     }
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/104F0/eepromSaveRecords.s")
-#endif
 
 extern void eepromSaveRecords(s32);
 
