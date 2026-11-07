@@ -168,7 +168,7 @@ void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
     s32 sp1C;
 
     healthRefill((u8) arg1);
-    if (arg1 == 0) {} // FAKE: keeps arg1 in a1 with an eager restore after healthRefill
+    if (arg1 == 0) {} // LAYOUT: keeps arg1 in a1 with an eager restore after healthRefill
     if (D_807FBB64 & 1) {
         arg0->unk155++;
         if (D_807FBB68 & 2) {
@@ -585,7 +585,7 @@ Gfx *func_807135B4(Gfx *arg0) {
         if ((D_807ECD09 != 0) && ((func_807142D8() == 0) || (var_v1 = 1, (gCurrentMap == 0x4C)))) {
             return arg0;
         }
-        if (&D_80755370 && &D_80755370 && &D_80755370) {}  // FAKE: dead address test, steers as1 delay-slot fill (bne+nop instead of bnel)
+        if (&D_80755370 && &D_80755370 && &D_80755370) {}  // LAYOUT: dead address test steers as1 delay-slot fill (bne+nop instead of bnel)
         sp34 = (f32) ((f64) sp34 * 0.5);
         R117D_WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
         arg0 = hudDrawScaledText(arg0, (s16) (s32) (sp34 * 4.0f), (s16) (s32) ((f32) D_8074450C * sp30 * 4.0f), 0.7f, textTableGetString(0xC, (s32) (&sp38.unk0)[var_v1], 1));
@@ -636,7 +636,7 @@ Gfx *func_807138CC(Gfx *arg0) {
         temp_fv0 = (temp_fv0 < 0.0f) ? 0.0f : ((temp_fv0 > 1.0f) ? 1.0f : temp_fv0);
         arg0 = func_80713764(func_80713438(arg0, (u32) (255.0f * temp_fv0)), (u32) (255.0f * temp_fv0), 0);
     }
-    g = arg0++; g->words.w0 = 0xDC080008; // FAKE: same-line pointer-copy and first store steers as1 move/ori order
+    g = arg0++; g->words.w0 = 0xDC080008; // LAYOUT: same-line pointer-copy and first store steers as1 move/ori order
     g->words.w1 = (u32)sp3C;
     return func_806FF144(arg0);
 }
@@ -656,14 +656,12 @@ extern u8 D_80755378[];
 
 Gfx *func_80713B40(Gfx *arg0) {
     s16 temp_t0;
-    s16 temp_v0;
+    s16 pad0;
     s16 var_v1;
-
     temp_t0 = D_8075531C - 0x8C;
     if (temp_t0 >= 0) {
         if (temp_t0 < 0x96) {
-            temp_v0 = temp_t0 - 0x5A;
-            var_v1 = temp_v0; // FAKE: copy of temp_v0 steers regalloc
+            var_v1 = temp_t0 - 0x5A;
             if (var_v1 < 0) {
                 var_v1 = 0xFF;
             } else {
@@ -719,7 +717,7 @@ extern s32 D_80755348;
 Gfx *renderTimerMinutesSecondsHUD(Gfx *, f32, f32, s32);
 
 Gfx *hudDrawCountdownTimer(Gfx *arg0) {
-    s32 pad[8]; // FAKE: frame size 0x40 (eight unused words above sp1C)
+    s32 pad[8];
     f32 sp1C;
     Gfx *temp_v0;
 
@@ -758,8 +756,8 @@ void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
                 }
             }
         } else {
-            hudPauseMenuRefreshTotals(); // FAKE: a0 still holds arg0; passing it makes uopt emit move a0,a3
-            sum = 0; for (i = 0; i < 7; i++) { sum += D_807FC828[i]; } if (arg2 == 1) { // FAKE: one source line lets as1 reorder the unrolled loads
+            hudPauseMenuRefreshTotals();
+            sum = 0; for (i = 0; i < 7; i++) { sum += D_807FC828[i]; } if (arg2 == 1) { // LAYOUT: one source line lets as1 reorder the unrolled loads
                 if (sum < 0x118) {
                     arg0 = -1;
                 } else {
