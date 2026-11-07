@@ -1258,7 +1258,7 @@ void func_806A112C(void) {
                 sub2 = ATTACHED_ACTOR_SPAWNED->unk174;
                 sub2->unk0 = sub->unk0;
                 ATTACHED_ACTOR_SPAWNED->unk15F = i;
-                ATTACHED_ACTOR_SPAWNED->unkE6 = ATTACHED_ACTOR->unkE6 + (((i / 3) & 0xFFFF) << 10); // FAKE: touches one ugen temp (ring phase) without emitting code
+                ATTACHED_ACTOR_SPAWNED->unkE6 = ATTACHED_ACTOR->unkE6 + ((u16)(i / 3) << 10);
                 ATTACHED_ACTOR_SPAWNED->unk7C = ATTACHED_ACTOR->unk7C -
                     func_80612794(ATTACHED_ACTOR_SPAWNED->unkE6) * d;
                 ATTACHED_ACTOR_SPAWNED->unk80 = ATTACHED_ACTOR->unk80 +
