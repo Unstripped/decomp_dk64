@@ -312,16 +312,10 @@ void func_8072A450(void) {
     }
 }
 
-typedef struct D1Sub4View {
-    /* 0x00 */ u8 pad0[0x38];
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ u8 pad3C[0x28];
-    /* 0x64 */ u16 unk64;
-} D1Sub4View;
 
 typedef struct D1ActorView3 {
     /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ D1Sub4View *unk4;
+    /* 0x04 */ ActorSub4 *unk4;
     /* 0x08 */ u8 pad8[0x54];
     /* 0x5C */ u16 unk5C;
     /* 0x5E */ u8 pad5E[0x1E];
@@ -729,7 +723,7 @@ void actorApproachTargetSpeed(u16 arg0) {
 void actorSetBehaviourState(u8 arg0, s16 arg1, s32 arg2) {
     D1A3_154 = arg0;
     *((u8 *)gCurrentActor + 0x155) = 0;
-    if (arg2 != D1A3->unk4->unk64) {
+    if (arg2 != D1A3->unk4->animId) {
         actorScriptStart(gCurrentActor, arg2);
     }
     actorSetTargetSpeed(gCurrentActor, arg1);

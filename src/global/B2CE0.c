@@ -1,14 +1,6 @@
 #include "common.h"
 #include "actor.h"
 
-typedef struct B2CE0Sub4 {
-    /* 0x00 */ u8 pad0[0x34];
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ f32 unk3C;
-    /* 0x40 */ u8 pad40[0x24];
-    /* 0x64 */ u16 unk64;
-} B2CE0Sub4;
 
 typedef struct B2CE0Sub178 {
     /* 0x00 */ s16 unk0;
@@ -17,7 +9,7 @@ typedef struct B2CE0Sub178 {
 
 typedef struct B2CE0Actor {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ B2CE0Sub4 *unk4;
+    /* 0x004 */ ActorSub4 *unk4;
     /* 0x008 */ u8 pad8[4];
     /* 0x00C */ f32 unkC[4][4];
     /* 0x04C */ u8 pad4C[0xC];
@@ -829,7 +821,7 @@ void func_806B0354(void) {
     }
     switch (gCurrentActor->unk154) {
         case 4:
-            if (gCurrentActor->unk4->unk64 == 0x378) {
+            if (gCurrentActor->unk4->animId == 0x378) {
                 gCurrentActor->unk154 = 0x23;
                 gCurrentActor->unk155 = 0;
             } else if (actorIsTargetWithinDistance(0x64) != 0
@@ -851,7 +843,7 @@ void func_806B0354(void) {
                         actorScriptStart(gCurrentActor, 0x379);
                         actorSetTargetSpeed(gCurrentActor, 0);
                     } else {
-                        if (gCurrentActor->unk4->unk64 == 0x378) {
+                        if (gCurrentActor->unk4->animId == 0x378) {
                             actorMoveWithinZone(0x23, D_807FDC94->x, D_807FDC94->z, 0, 0.0f);
                         } else {
                             func_8072E1A4(0xA, D_807FDC94);

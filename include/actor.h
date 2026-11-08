@@ -6,10 +6,13 @@
 struct Actor;
 
 typedef struct ActorSub4 {
-    /* 0x00 */ u8 unk00[0x34];
+    /* 0x00 */ void *model;
+    /* 0x04 */ u8 pad04[0x30];
     /* 0x34 */ f32 unk34;
     /* 0x38 */ f32 unk38;
     /* 0x3C */ f32 unk3C;
+    /* 0x40 */ u8 pad40[0x24];
+    /* 0x64 */ u16 animId;
 } ActorSub4;
 
 typedef struct ModelNode {
