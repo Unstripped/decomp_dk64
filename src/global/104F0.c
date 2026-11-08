@@ -82,8 +82,8 @@ u8 eepromGetSectorForSlot(s32 slot) {
 }
 
 
-extern s32 func_8071432C(void);
-extern s32 func_80714394(void);
+extern s32 menuIsTransitionType6(void);
+extern s32 menuIsTransitionType7Or9(void);
 
 void eepromCopySlot(void) {
     u8 original;
@@ -95,7 +95,7 @@ void eepromCopySlot(void) {
 
     original = eepromGetSectorForSlot(D_807467C8);
     replacement = eepromGetSectorForSlot(3);
-    if (((func_8071432C() != 0) || (func_80714394() != 0)) && (original != replacement)) {
+    if (((menuIsTransitionType6() != 0) || (menuIsTransitionType7Or9() != 0)) && (original != replacement)) {
         unk0 = D_807ECEA0[0];
         unk0 += 0x6B7;
         unk0 = (unk0 & ~0x3F) + 0x27;
@@ -878,8 +878,8 @@ void func_8060DEA8(void) {
 }
 
 extern u32 func_805FC98C(void);
-extern s32 func_80714394(void);
-extern s32 func_8071432C(void);
+extern s32 menuIsTransitionType7Or9(void);
+extern s32 menuIsTransitionType6(void);
 
 void eepromSavePlayerData(void) {
     u8 *entry;
@@ -891,7 +891,7 @@ void eepromSavePlayerData(void) {
     s32 k;
 
     if (gPlayerCount == 1) {
-        if (func_80714394() != 0 || func_8071432C() != 0) {
+        if (menuIsTransitionType7Or9() != 0 || menuIsTransitionType6() != 0) {
             base = (u8 *)((u32)D_807FC950);
             entry = base;
             total = func_805FC98C();
@@ -993,7 +993,7 @@ u8 eepromReadChecksumBit(u16 arg0, u8 arg1) {
     u8 output;
 
     result = 0;
-    if (func_8071432C() != 0) {
+    if (menuIsTransitionType6() != 0) {
         eepromGetSectorOffset(&value, &output, 0, 0, arg1, eepromGetSectorForSlot(D_807467C8));
         result = eepromReadBitfield((value + arg0) & 0xFFFF, 1);
     }
@@ -1008,7 +1008,7 @@ void func_8060E430(u16 arg0, u8 arg1, u8 arg2) {
     u16 value;
     u8 unk;
 
-    if (func_8071432C() != 0) {
+    if (menuIsTransitionType6() != 0) {
         eepromGetSectorOffset(&value, &unk, 0, 0, arg2, eepromGetSectorForSlot(D_807467C8));
         eepromWriteBitfield(arg1, (value + arg0) & 0xFFFF, 1);
     }

@@ -29,7 +29,7 @@ extern ActorEntry gActiveActors[];
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void actorSpawnNodeEntryScaled(s16, s32, s32, s32, s16, u8, s16, s32);
-void func_8067A70C(Actor *, Actor *, s32, f32, f32, s32, s32);
+void actorAppendCallbackPayloadA70C(Actor *, Actor *, s32, f32, f32, s32, s32);
 
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
@@ -131,7 +131,7 @@ void actorPlaceAttachedChildren(s16 arg0) {
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
         if ((s32)actor->unk11C == (s32)gCurrentActor) {
-            func_8067A70C(gCurrentActor, actor, *(s32 *)&gCurrentActor->x,
+            actorAppendCallbackPayloadA70C(gCurrentActor, actor, *(s32 *)&gCurrentActor->x,
                           gCurrentActor->y + (f32)arg0, gCurrentActor->z, 2,
                           1);
         }

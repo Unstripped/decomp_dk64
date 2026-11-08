@@ -135,7 +135,7 @@ void screenWipeStart();
 void actorUpdateModelMatrix(void *, u8);
 void csModelStateSetFirstByte();
 void func_80641874(s16, s16);
-void func_8067A69C(s32, void *, f32, f32, u8, u8);
+void actorAppendCallbackPayloadA69C(s32, void *, f32, f32, u8, u8);
 void func_8067AB20(s32, void *, s32, u8, void *, u8);
 void actorCopyPoseAndScale(void *, void *, f32);
 void func_80687C48(void);
@@ -148,7 +148,7 @@ void func_8070D8C0(void *, s32, u8);
 void func_8070E8DC(s8);
 void menuTransitionToMap(s32, s32);
 void menuSetTransitionTypeBFlag(void);
-void func_807127F4(s32);
+void menuTransitionToCreditsOrMap28(s32);
 void func_80712830(void *, s32);
 void func_80713EB0(s32, s32, s32);
 void func_80724994(u8, s16, s16, s16, s16);
@@ -216,7 +216,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             mapRequestTransition(0x22, 0xC);
             return;
         case 0x40:
-            func_807127F4(0);
+            menuTransitionToCreditsOrMap28(0);
             return;
         case 0x36:
             playerSetKongByActorType(a + 2);
@@ -432,7 +432,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
                 actorClearMovementFlags(sp98 = D_807FBB4C);
             }
             zoneEntryGetPosition(b, c, &Matcher14_OFF(sp98, f32, 0x7C), &Matcher14_OFF(sp98, f32, 0x80), &Matcher14_OFF(sp98, f32, 0x84));
-            func_8067A69C(0, sp98, Matcher14_OFF(sp98, f32, 0x7C), Matcher14_OFF(sp98, f32, 0x84), 2, 1);
+            actorAppendCallbackPayloadA69C(0, sp98, Matcher14_OFF(sp98, f32, 0x7C), Matcher14_OFF(sp98, f32, 0x84), 2, 1);
             {
                 s32 t = (d << 12) / 360;
                 Matcher14_OFF(sp98, s16, 0xEE) = t;

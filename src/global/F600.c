@@ -123,7 +123,7 @@ extern s32 gFrameCounter;
 extern u8 D_8076A0B1;
 void heapTickDeferredFrees(void);
 void heapCodeEnd(void);
-s32 func_8071432C(void);
+s32 menuIsTransitionType6(void);
 void func_80712944(OSContPad *);
 void func_8060B4D4(OSContPad *);
 void playerStateWaypointAimUpdate(OSContPad *, OSContPad *);
@@ -150,7 +150,7 @@ void controllerUpdate(void) {
     u32 *end;
     s32 padOffset;
 
-    compact = func_8071432C();
+    compact = menuIsTransitionType6();
     D_807ECD60.button = D_807ECD58.button;
     D_807ECD60.stick_x = D_807ECD58.stick_x;
     D_807ECD60.stick_y = D_807ECD58.stick_y;

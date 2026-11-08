@@ -247,7 +247,7 @@ typedef struct ScriptSelectorState {
     s32 unk84;
 } ScriptSelectorState;
 
-s32 func_80615134(Actor *arg0) {
+s32 scriptOpCheckSelectorActive(Actor *arg0) {
     ScriptSelectorState *state;
     ScriptSelectorValue *value;
 
@@ -392,7 +392,7 @@ s32 func_8061540C(Actor *arg0) {
     return 0;
 }
 
-s32 func_8061551C(Actor *arg0) {
+s32 scriptOpEnableValueState10(Actor *arg0) {
     ScriptValueState *state;
 
     D_807F5AF0++;
@@ -436,7 +436,7 @@ s32 scriptOpWaitRegisterZero(Actor *arg0) {
     return 0;
 }
 
-s32 func_80615664(Actor *arg0) {
+s32 scriptOpWaitValueZero(Actor *arg0) {
     if (((ScriptValueState *)arg0->unk4)->unk4->unk0 == 0) {
         D_807F5AF0++;
         return 1;
@@ -444,7 +444,7 @@ s32 func_80615664(Actor *arg0) {
     return 0;
 }
 
-s32 func_806156A0(Actor *arg0) {
+s32 scriptOpWaitValueEqual(Actor *arg0) {
     ScriptValueState *state;
 
     state = (ScriptValueState *)arg0->unk4;
@@ -990,7 +990,7 @@ typedef struct ScriptFlagState {
     s32 unk78;
 } ScriptFlagState;
 
-s32 func_806163D0(Actor *arg0) {
+s32 scriptOpEnableFlag8000(Actor *arg0) {
     ScriptFlagState *temp_v1;
 
     temp_v1 = (ScriptFlagState *)arg0->unk4;
@@ -1022,7 +1022,7 @@ typedef struct ScriptCountdownState {
     s32 unk88;
 } ScriptCountdownState;
 
-s32 func_80616470(Actor *arg0) {
+s32 scriptOpCompareStateToU16(Actor *arg0) {
     u16 sp1E;
 
     D_807F5AF0++;
@@ -1031,7 +1031,7 @@ s32 func_80616470(Actor *arg0) {
     return 1;
 }
 
-s32 func_806164C4(Actor *arg0) {
+s32 scriptOpCompareSubStateToU16(Actor *arg0) {
     u16 sp1E;
 
     D_807F5AF0++;
@@ -1065,7 +1065,7 @@ typedef struct GlobalCountdownView {
     s16 unk4E;
 } GlobalCountdownView;
 
-s32 func_80616594(Actor *arg0) {
+s32 scriptOpCompareGlobalCountdown(Actor *arg0) {
     u16 sp1E;
 
     D_807F5AF0++;
@@ -1253,7 +1253,7 @@ s32 scriptOpSetCommandHandler(Actor *arg0) {
 
 void sfxPlayOnFreeSlot(s16, s32, f32, f32, s32, s32);
 
-s32 func_80616A9C(s32 arg0) {
+s32 scriptOpPlaySoundOnFreeSlot(s32 arg0) {
     s16 sp26;
     u8 sp25;
     s16 sp22;
@@ -1662,7 +1662,7 @@ void sfxSetVolumeAndPan(u8, f32, f32);
 void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, u8);
 void func_8070D8C0(Actor *, u16, u8);
-s32 func_80617DFC(Actor *, s16);
+s32 scriptOpBranchOnCondition(Actor *, s16);
 extern u8 D_80746D60[];
 
 typedef struct ActorStateSubView {
@@ -1778,7 +1778,7 @@ s32 scriptOpStopSoundChannel(Actor *arg0) {
     return 1;
 }
 
-s32 func_80617CC0(Actor *arg0) {
+s32 scriptOpSetActorTextState(Actor *arg0) {
     u16 sp1E;
     u8 sp1D;
 
@@ -1803,7 +1803,7 @@ void func_80617D20(Actor *arg0) {
     } else {
         value = state->unk0;
     }
-    func_80617DFC(arg0, (s16)value->value);
+    scriptOpBranchOnCondition(arg0, (s16)value->value);
 }
 
 typedef struct ScriptTimerSetState {
@@ -1829,8 +1829,8 @@ typedef struct GlobalFlagsView {
     s32 unk1F0;
 } GlobalFlagsView;
 
-void func_80617D70(Actor *arg0) {
-    func_80617DFC(arg0, ((ScriptTimerSetState *)arg0->unk4)->unk8A);
+void scriptOpBranchByTimer8A(Actor *arg0) {
+    scriptOpBranchOnCondition(arg0, ((ScriptTimerSetState *)arg0->unk4)->unk8A);
 }
 
 void func_80617D94(Actor *arg0) {
@@ -1852,7 +1852,7 @@ typedef struct ScriptBranchState {
     s32 unk88;
 } ScriptBranchState;
 
-s32 func_80617DFC(Actor *arg0, s16 arg1) {
+s32 scriptOpBranchOnCondition(Actor *arg0, s16 arg1) {
     u8 sp2F;
     s16 sp2C;
     s16 sp2A;
@@ -2086,7 +2086,7 @@ void func_80618430(Actor *arg0) {
     func_80714C08(D_8071FF18, 0.4f, arg0, sp27, 0);
 }
 
-void func_8061849C(Actor *arg0) {
+void scriptCmdEnablePlayerFlag40000(Actor *arg0) {
     ((GlobalFlagsView *)gActivePlayerState)->unk1F0 |= 0x40000;
 }
 
@@ -2147,7 +2147,7 @@ void func_80618608(Actor *arg0) {
     func_80714C08(&D_8072006C, 0.4f, arg0, sp3F, 2);
 }
 
-void func_80618728(Actor *arg0) {
+void scriptCmdSpawnBoneEffects(Actor *arg0) {
     func_807149A8(0x7D0);
     func_80714998(3);
     effectSpawnBone(arg0, 0x16, 0.8f, 0.0f, 0.0f, 0.0f, -0x78);

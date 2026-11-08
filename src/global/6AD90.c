@@ -187,7 +187,7 @@ typedef struct CollisionQueryActor {
 u8 func_8062BCC8(void *, f32, f32, f32, s32);
 u8 collisionTestSubmeshBoundary(f32, f32, f32 *, s32);
 s32 collisionTestActorBoxFloor(Actor *, f32, f32, f32, f32 *);
-void func_8067A7EC(Actor *, s32, s32, s32, f32, s32, u8);
+void actorAppendCallback10(Actor *, s32, s32, s32, f32, s32, u8);
 s32 mathCheckCloserFloatThreshold(f32, f32, f32, u8);
 extern f32 D_807F9460;
 extern s8 D_807F9464;
@@ -371,7 +371,7 @@ s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg
             ((CollisionQueryActor *)arg0)->unkD8 = D_807F9494;
             ((CollisionQueryActor *)arg0)->unkA4 = sp50;
             if (((CollisionQueryActor *)arg0)->unk6C & 1) {
-                func_8067A7EC(arg0, (s32)D_807F9470, *(s32 *)&D_807F9474, *(s32 *)&D_807F9478, D_807F947C, (s32)D_807F9480, *(u8 *)&D_807F94B2);
+                actorAppendCallback10(arg0, (s32)D_807F9470, *(s32 *)&D_807F9474, *(s32 *)&D_807F9478, D_807F947C, (s32)D_807F9480, *(u8 *)&D_807F94B2);
                 ((CollisionQueryActor *)arg0)->unk6A |= 8;
             }
         }

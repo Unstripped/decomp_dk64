@@ -161,10 +161,10 @@ s32 func_806744A8(void *, s32, s32, s32, s32);
 s32 actorCheckFacingTarget(Actor *);
 void actorGetMatrix(struct ActorMtxOwner *owner, CollisionMtxF dst, s8 mtxIndex);
 void matrix4Invert(CollisionMtxF, CollisionMtxF);
-void func_8067A864(Actor *, Actor *, s16, s16, f32 *, f32 *, s8, s32, s32);
+void actorAppendCallbackPayloadA864(Actor *, Actor *, s16, s16, f32 *, f32 *, s8, s32, s32);
 void actorReflectCollisionAngle(Actor *, void *, void *);
 s32 actorGetCollisionThreshold(Actor *);
-void func_8067A908(Actor *, Actor *, f32 *, f32 *, s8, s32, s32);
+void actorAppendCallbackPayloadA908(Actor *, Actor *, f32 *, f32 *, s8, s32, s32);
 s32 actorIsTargetWithinAngle(s16, s16);
 
 u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
@@ -250,10 +250,10 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
             actorReflectCollisionAngle(self, (CollisionTarget *)D_807FB5D8, selfBounds);
         }
     case 0:
-        func_8067A908(self, other, &localPos[0], &localPts[0][0], ((CollisionTarget *)D_807FB5D8)->unk4E, D_807FB5D0, actorGetCollisionThreshold(self));
+        actorAppendCallbackPayloadA908(self, other, &localPos[0], &localPts[0][0], ((CollisionTarget *)D_807FB5D8)->unk4E, D_807FB5D0, actorGetCollisionThreshold(self));
         break;
     case 1:
-        func_8067A864(self, other, ((CollisionActorFull *)self)->unkE6, (s16)(s32)((CollisionActorFull *)self)->unkB8, &localPos[0], &localPts[0][0], ((CollisionTarget *)D_807FB5D8)->unk4E, D_807FB5D0, actorGetCollisionThreshold(self));
+        actorAppendCallbackPayloadA864(self, other, ((CollisionActorFull *)self)->unkE6, (s16)(s32)((CollisionActorFull *)self)->unkB8, &localPos[0], &localPts[0][0], ((CollisionTarget *)D_807FB5D8)->unk4E, D_807FB5D0, actorGetCollisionThreshold(self));
         if (actorIsTargetWithinAngle(gPlayerPadState.unk28, 400) && (f64)gPlayerPadState.unk4 > 30.0) {
             ((CollisionActorFull *)self)->unkE6 = selfBounds->unk66;
         }
@@ -325,7 +325,7 @@ void actorSetTargetAngleBounds();
 u8 func_806738D0(s32, s32, s32, s32, s32, s32);
 u8 playerFindIndexByActor(Actor *);
 void func_8067A99C(s32, Actor *, s32);
-void func_8067A69C(s32, Actor *, f32, f32, u8, u8);
+void actorAppendCallbackPayloadA69C(s32, Actor *, f32, f32, u8, u8);
 
 void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *verts, s8 mtxIndex, s32 hitRadius, s32 maxClamp, u8 flag) {
     ActorCollisionSub140 *selfBounds;
@@ -438,7 +438,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
             pushZ = worldZ - normal[2];
             func_8067A99C((s32)self, other, clamp);
         }
-        func_8067A69C((s32)self, other, pushX, pushZ, 1, 1);
+        actorAppendCallbackPayloadA69C((s32)self, other, pushX, pushZ, 1, 1);
         for (node = otherBounds->unk8C; node != 0; node = node->next) {
             if (node->unk26 != 0) {
                 other->hasArcBounds |= func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->arcYawMin, (s32)&other->arcYawMax);

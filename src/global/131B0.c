@@ -39,9 +39,9 @@ extern s32 controllerGetPort(s32);
 extern u8 controllerGetActiveMask(void);
 extern u32 screenWipeGetState(void);
 extern u32 camIsCutsceneActive(void);
-extern s32 func_8071432C(void);
-extern s32 func_8071441C(void);
-extern s32 func_807143E8(void);
+extern s32 menuIsTransitionType6(void);
+extern s32 menuIsTransitionTypeC(void);
+extern s32 menuIsTransitionTypeD(void);
 
 // .bss 0x807F02D0-0x807F04C0
 OSPfs gRumblePfs[4];
@@ -117,7 +117,7 @@ void rumbleRequest(u8 playerIndex, u8 intensity, s32 duration) {
 
     info = &gRumbleInfo[controllerGetPort(playerIndex)];
     if (gRumblePaused != 1 && info->unk00 == 1 && gPlayerSlots[playerIndex].unk2EB == 0) {
-        if (func_8071432C() != 0 || func_8071441C() != 0) {
+        if (menuIsTransitionType6() != 0 || menuIsTransitionTypeC() != 0) {
             if (info->unk12 != 0) {
                 if (info->unk10 >= 0x1F) {
                     return;
@@ -157,7 +157,7 @@ int rumbleShouldPause(void) {
            ((D_8076A0B1 & 1) != 0) ||
            (screenWipeGetState() != 0) ||
            (camIsCutsceneActive() != 0) ||
-           (func_8071432C() == 0 && func_8071441C() == 0 && func_807143E8() == 0);
+           (menuIsTransitionType6() == 0 && menuIsTransitionTypeC() == 0 && menuIsTransitionTypeD() == 0);
 }
 
 void rumbleUpdate(void) {

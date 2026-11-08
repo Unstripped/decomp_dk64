@@ -869,13 +869,13 @@ void func_806F5FE8(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s32 arg4) {
 
 extern void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
 extern void effectSpawnParticleRingAtPosition(f32, f32, f32, s32);
-extern s32 func_8071432C(void);
+extern s32 menuIsTransitionType6(void);
 extern s32 D_807FBB60;
 
 void delayedSpawnQueueTick(void) {
     s32 i;
 
-    if (func_8071432C() != 0) {
+    if (menuIsTransitionType6() != 0) {
         if (!(D_807FBB60 & 2)) {
             for (i = 0; i < 60; i++) {
                 if (D_80754240[i].unk10 != 0) {

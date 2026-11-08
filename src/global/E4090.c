@@ -1476,7 +1476,7 @@ void func_806E2C74(Actor *arg0) {
 extern s32 D_807FBB64;
 s32 flagGet(s32, s32);
 s32 func_807142D8(void);
-s32 func_8071441C(void);
+s32 menuIsTransitionTypeC(void);
 
 s32 func_806E2CC4(void) {
     s32 var_v1;
@@ -1500,7 +1500,7 @@ s32 func_806E2CC4(void) {
                                 if (var_v1 == 0) {
                                     var_v1 = func_807142D8() != 0;
                                     if (var_v1 == 0) {
-                                        var_v1 = func_8071441C() != 0;
+                                        var_v1 = menuIsTransitionTypeC() != 0;
                                     }
                                 }
                             }
@@ -1769,10 +1769,10 @@ void func_806E36B4(void) {
 }
 
 
-void func_806CFEA4(void);
+void playerSetTerminalVelocity594(void);
 
 void playerInputClearVelocity(void) {
-    func_806CFEA4();
+    playerSetTerminalVelocity594();
 }
 
 
@@ -2104,7 +2104,7 @@ void playerInputHandleBButtonGun(void) {
         G25_P->unk5C = D_80767CC0;
     }
     if (D_807FBB8C && (flagGet(0x185, 0) || (D_807FBB64 & 0x10000000) || (gPlayerCount >= 2) ||
-                       func_8071441C())) {
+                       menuIsTransitionTypeC())) {
         playerStateQueueCallback(3, 0, gCurrentPlayerIndex);
         return;
     }
@@ -2836,13 +2836,13 @@ extern u8 gPausingPlayer;
 extern s32 D_807FBB60;
 extern f32 gScreenFadeProgress;
 s32 camIsCutsceneActive(void);
-s32 func_8071432C(void);
+s32 menuIsTransitionType6(void);
 s32 screenWipeGetState(void);
 s32 screenWipeGetCooldown(void);
 
 void playerInputRequestPause(void) {
     if ((G25_PAD(D_807FD63C, u16) & 0x1000) && (camIsCutsceneActive() == 0) && (gScreenFadeProgress == 0.0f) &&
-        ((func_8071432C() != 0) || (func_8071441C() != 0) || (func_807142D8() != 0)) &&
+        ((menuIsTransitionType6() != 0) || (menuIsTransitionTypeC() != 0) || (func_807142D8() != 0)) &&
         (screenWipeGetState() == 0) && (screenWipeGetCooldown() == 0)) {
         gPausingPlayer = gCurrentPlayerIndex;
         D_807FBB60 |= 1;
@@ -3300,7 +3300,7 @@ s32 func_806E770C(void) {
             var_v1 = gPlayerCount;
             var_v1 = var_v1 >= 2;
             if (var_v1 == 0) {
-                var_v1 = func_8071441C() != 0;
+                var_v1 = menuIsTransitionTypeC() != 0;
             }
         }
     }
@@ -4606,7 +4606,7 @@ void func_806EAAA0(void) {
     }
 }
 
-void func_806CFECC(void);
+void playerSetTerminalVelocity5B0(void);
 void func_806F0D68(void *);
 s16 func_8062773C(void *);
 
@@ -4704,7 +4704,7 @@ void func_806EACEC(void) {
     }
     if (gCurrentActor->contactFlags & 1) {
         if ((D_80767CC0 - G32_P->unk58) < 0xF) {
-            func_806CFECC();
+            playerSetTerminalVelocity5B0();
             ((G32Act *)gCurrentActor)->unkC0 = D_807535CC[D_807FD584];
             G32_P->unk50 = 0;
             G32_P->unk3C = 0;

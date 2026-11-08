@@ -135,10 +135,10 @@ void playerStateDispatchQueuedCallback(void) {
 
 
 void playerApproachVelocity(s16, f32, f32);
-void func_806CFECC(void);
+void playerSetTerminalVelocity5B0(void);
 
 void playerStateInitApproachVelocity(void) {
-    func_806CFECC();
+    playerSetTerminalVelocity5B0();
     gCurrentActor->state = 0x22;
     gCurrentActor->unk155[0] = 0;
     EfA_A40->unkC0 = 100.0f;
@@ -287,7 +287,7 @@ void camSetZoomLevel(void *, s32);
 void func_806F0D68(Actor *);
 void sfxStopSlotSound(Actor *, u8);
 
-void func_806EB744(void) {
+void playerStateTakeDamagePrep(void) {
     Actor *actor;
     s16 speed;
     s32 state;
@@ -324,8 +324,8 @@ void func_806EB744(void) {
     D_807FBB48->contactFlags |= 0x2000;
 }
 
-void func_806EB8CC(void) {
-    func_806EB744();
+void playerStateEnterKnockbackState2(void) {
+    playerStateTakeDamagePrep();
     D_807FBB48->state = 2;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk155[0] = 0xA;
@@ -338,9 +338,9 @@ void func_806EB8CC(void) {
     EfA_P->unk38 = 0.0f;
 }
 
-void func_806EB964(void) {
+void playerStateEnterKnockbackState4(void) {
     sfxPlayOnFreeSlot(0x1B9, 0x7FFF, 63.0f, 1.0f, 0xA, 0);
-    func_806EB744();
+    playerStateTakeDamagePrep();
     D_807FBB48->state = 4;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk155[0] = 0xA;
@@ -350,8 +350,8 @@ void func_806EB964(void) {
     slotQueueUpdate(6, 1, 0);
 }
 
-void func_806EBA04(void) {
-    func_806EB744();
+void playerStateEnterKnockbackState3(void) {
+    playerStateTakeDamagePrep();
     D_807FBB48->state = 3;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk155[0] = 0xA;
@@ -360,8 +360,8 @@ void func_806EBA04(void) {
     EfA_P->unk38 = 0.0f;
 }
 
-void func_806EBA74(void) {
-    func_806EB744();
+void playerStateEnterKnockbackState5(void) {
+    playerStateTakeDamagePrep();
     D_807FBB48->state = 5;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk155[0] = 0xA;
@@ -378,7 +378,7 @@ void func_806EBAF4(void) {
     EfA_P->unk50 = 0;
 }
 
-void func_806EBB44(void) {
+void playerStateEnterStunState1(void) {
     extern u32 D_807FBB60;
 
     D_807FBB60 |= 0x4000;
@@ -390,7 +390,7 @@ void func_806EBB44(void) {
     EfA_P->unk4C = -1;
 }
 
-void func_806EBBD0(void) {
+void playerStateEnterKnockbackState6(void) {
     D_807FBB48->state = 6;
     D_807FBB48->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0);
@@ -400,7 +400,7 @@ void func_806EBBD0(void) {
     *(s32 *)((u8 *)D_807FBB48 + 0x60) &= ~4;
 }
 
-void func_806EBC60(void) {
+void playerStateEnterElectrocute(void) {
     D_807FBB48->state = 0x6B;
     D_807FBB48->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0);
@@ -457,7 +457,7 @@ void func_8072DB68(s32);
 void func_80026004();
 void playerTransformAnimalStartSfx(Actor *);
 
-void func_806EBCF0(void) {
+void playerStateEnterSquish(void) {
     ((EfBActor *)D_807FBB48)->unk154 = 7;
     ((EfBActor *)D_807FBB48)->unk155 = 0;
     actorScriptStartByIndex(D_807FBB48, 0x7A);
@@ -556,7 +556,7 @@ void func_80613C48(Actor *, s32, f32, f32);
 void actorCopyPoseAndScale(Actor *, Actor *, f32);
 void controllerAnimSetStateRemap(Actor *, s32, f32, f32);
 
-void func_806EC044(void) {
+void playerStateEnterFlattened(void) {
     f32 speed;
 
     speed = 1.0f;
@@ -578,7 +578,7 @@ void func_806EC044(void) {
     slotQueueUpdate(0, 1, 0);
 }
 
-void func_806EC1A8(void) {
+void playerStateEnterSlideSlope(void) {
     s32 animation;
 
     *(u32 *)((u8 *)EfA_P->unk104->unk174 + 0xAC) |= 4;
@@ -595,7 +595,7 @@ void func_806EC1A8(void) {
     if (D_807FBB48->actorType == 2) { animation = 0x53; } else { animation = 0x1C7; } func_80613C48(D_807FBB48, (s16)animation, 0.0f, 0.0f); // LAYOUT: one source line steers the scheduler (li at,2 after mfc1)
 }
 
-void func_806EC2CC(void) {
+void playerStateEnterFrozen(void) {
     Actor *actor;
 
     D_807FBB48->state = 0x75;
@@ -765,7 +765,7 @@ void func_806EC4AC(void) {
 }
 
 
-void func_806EC708(void) {
+void playerStateEnterKnockbackRecovery(void) {
     EFN3_A48->unk154 = 0x51;
     EFN3_A48->unk155 = 0;
     EFN3_P->unk54 = D_80753908[D_807FD584];
@@ -778,7 +778,7 @@ void func_806EC708(void) {
     EFN3_P->unk58 = D_80767CC0 - 0x1E;
 }
 
-void func_806EC800(void) {
+void playerStateEnterDamageKnockback(void) {
     f32 current;
     f32 limit;
 
@@ -813,7 +813,7 @@ typedef struct EfN3bPlayerState {
 
 extern Actor *D_807FBB90;
 
-void func_806EC8C4(void) {
+void playerStateEnterAirDamageReaction(void) {
     EFN3B_P->unk1B0 = (EfN3bTarget *)D_807FBB90;
     EFN3B_P->unk1B4 = EFN3B_P->unk1B0->unk54;
     switch ((u32)EFN3B_P->unk1B0->unk58) {
@@ -834,7 +834,7 @@ void func_806EC8C4(void) {
     EFN3_A48->unk155 = 0;
 }
 
-void func_806EC994(void) {
+void playerStateEnterGroundImpact(void) {
     actorScriptStartByIndex(D_807FBB48, 8);
     scriptSetActorRampTarget(D_807FBB48, 1.0f, 0.0f);
     controllerAnimSetStateRemap(D_807FBB48, 0x2E, 0.0f, 6.0f);
@@ -1373,7 +1373,7 @@ void func_806ED6B0(void) {
             actorScriptStart(D_807FBB48, 0x156);
             EfL1A48->unkB8 = 0.0f;
             EfL1PS->unk50 = 4;
-            func_806CFECC();
+            playerSetTerminalVelocity5B0();
             break;
         case 0x31:
             EfL1A48->unk154 = 0x63;
@@ -1404,7 +1404,7 @@ void func_806ED6B0(void) {
                 EfL1A48->unkB8 = 100.0f;
             }
             EfL1PS->unk50 = 4;
-            func_806CFECC();
+            playerSetTerminalVelocity5B0();
             func_806ED508(*(u16 *)((u8 *)EfL1Cam[gCurrentPlayerIndex].unk2A0 + 0x5A));
             break;
         case 0x84:
@@ -1528,13 +1528,13 @@ typedef struct EfCActorC0S32 {
     s32 unkC0;
 } EfCActorC0S32;
 
-void func_8067A784(Actor *, s32, s16, s32, s32);
+void actorAppendCallback4000(Actor *, s32, s16, s32, s32);
 
 void func_806EE1C4(void) {
     s32 value = ((EfCPlayer1AC *)gActivePlayerState)->unk1AC;
 
     if (value != 0) {
-        func_8067A784(gCurrentActor, value, D_807FBB48->yaw,
+        actorAppendCallback4000(gCurrentActor, value, D_807FBB48->yaw,
                       ((EfCActorC0S32 *)gCurrentActor)->unkC0, (s32)gCurrentActor->speedXZ);
         ((EfCPlayer1AC *)gActivePlayerState)->unk1AC = 0;
         ((EfCPlayer1AC *)gActivePlayerState)->unk1B0 = 0;

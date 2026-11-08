@@ -74,14 +74,14 @@ void actorFlushDespawnQueue(void);
 void actorRegisterActive(Actor *);
 void actorDespawnByOwner(s32);
 void actorFreeImmediate(Actor *);
-void func_806787CC(void);
-static void func_806787EC(void);
-static void func_806787F4(void);
-static void func_806787FC(void);
-static void func_80678804(void);
-static void func_8067880C(void);
-static void func_80678814(void);
-static void func_8067881C(void);
+void actorUpdateSpawnsWrapper(void);
+static void actorStub7CA80_00(void);
+static void actorStub7CA80_01(void);
+static void actorStub7CA80_02(void);
+static void actorStub7CA80_03(void);
+static void actorStub7CA80_04(void);
+static void actorStub7CA80_05(void);
+static void actorStub7CA80_06(void);
 void func_80678B04(void);
 void actorPreTick(Actor *);
 void func_80678DD8(Actor *);
@@ -98,10 +98,10 @@ void actorQueueDelayedCallback(s32, s32, s32, u8, s32, void *, s32);
 ActorCallbackNode *actorAllocCallbackNode(s32, s32, u8, s32, void *);
 void actorDispatchCallbacks(Actor *);
 void actorCollisionEventsCancel(s32, u8);
-void func_8067A69C(s32, Actor *, f32, f32, u8, u8);
-void func_8067A70C(s32, Actor *, f32, f32, f32, u8, u8);
-void func_8067A784(s32, Actor *, s16, f32, s16);
-void func_8067A7EC(s32, Actor *, f32, f32, f32, s32, u8);
+void actorAppendCallbackPayloadA69C(s32, Actor *, f32, f32, u8, u8);
+void actorAppendCallbackPayloadA70C(s32, Actor *, f32, f32, f32, u8, u8);
+void actorAppendCallback4000(s32, Actor *, s16, f32, s16);
+void actorAppendCallback10(s32, Actor *, f32, f32, f32, s32, u8);
 void func_8067A99C(s32, Actor *, s32);
 void func_8067A9F0(s32, Actor *, f32, f32, f32);
 void func_8067AA58(s32, Actor *, f32, f32);
@@ -567,17 +567,17 @@ void actorFreeImmediate(Actor *arg0) {
     heapFree(arg0);
 }
 
-void func_806787CC(void) {
+void actorUpdateSpawnsWrapper(void) {
     actorListUpdateSpawns();
 }
 
-static void func_806787EC(void) {}
-static void func_806787F4(void) {}
-static void func_806787FC(void) {}
-static void func_80678804(void) {}
-static void func_8067880C(void) {}
-static void func_80678814(void) {}
-static void func_8067881C(void) {}
+static void actorStub7CA80_00(void) {}
+static void actorStub7CA80_01(void) {}
+static void actorStub7CA80_02(void) {}
+static void actorStub7CA80_03(void) {}
+static void actorStub7CA80_04(void) {}
+static void actorStub7CA80_05(void) {}
+static void actorStub7CA80_06(void) {}
 
 void actorUpdateActiveList(u8);
 void actorGlobalCallbacksDispatchAndFree();
@@ -1559,7 +1559,7 @@ void actorDispatchCollisionResults(Actor *arg0) {
             break;
         case 1:
             if (actorCollisionGetNodeHitPoint(arg0, D_807FBB70.unk204[i], &sp68, &sp64) != 0) {
-                func_8067A69C((s32)arg0, (Actor *)D_807FBB70.unk204[i], sp68, sp64, 0, 1);
+                actorAppendCallbackPayloadA69C((s32)arg0, (Actor *)D_807FBB70.unk204[i], sp68, sp64, 0, 1);
             }
             break;
         case 2:
@@ -1591,7 +1591,7 @@ void actorDispatchCollisionResults(Actor *arg0) {
             if (D_807FBB70.unk244[i] == 6) {
                 actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x40, 0, 0, 0);
             }
-            func_8067A70C((s32)arg0, (Actor *)D_807FBB70.unk204[i], arg0->x, arg0->y, arg0->z, 2, 1);
+            actorAppendCallbackPayloadA70C((s32)arg0, (Actor *)D_807FBB70.unk204[i], arg0->x, arg0->y, arg0->z, 2, 1);
             actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x80, 0, 0, 0);
             playerDropHeldActor(arg0);
             break;
@@ -1614,7 +1614,7 @@ void actorDispatchCollisionResults(Actor *arg0) {
         for (i = 0; i < D_807FBB70.unk39; i++) {
             if (COLLISION_STATE->unk8C[i] == 0) {
                 collisionTransformPointByActorMtx(arg0, COLLISION_STATE->unk6C[i], &COLLISION_STATE->unk3C[i].x, COLLISION_STATE->unk3C[i].y, &COLLISION_STATE->unk3C[i].z);
-                func_8067A69C((s32)arg0, (Actor *)COLLISION_STATE->unk7C[i], COLLISION_STATE->unk3C[i].x, COLLISION_STATE->unk3C[i].z, 1, 1);
+                actorAppendCallbackPayloadA69C((s32)arg0, (Actor *)COLLISION_STATE->unk7C[i], COLLISION_STATE->unk3C[i].x, COLLISION_STATE->unk3C[i].z, 1, 1);
             }
         }
     }
@@ -1628,7 +1628,7 @@ void actorDispatchCollisionResults(Actor *arg0) {
     }
 }
 
-void func_8067A69C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
+void actorAppendCallbackPayloadA69C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
     ActorPayloadA69C *temp = heapAlloc(sizeof(ActorPayloadA69C));
     temp->unk0 = arg2;
     temp->unk4 = arg3;
@@ -1637,7 +1637,7 @@ void func_8067A69C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) 
     actorAppendCallback(arg1, arg0, 0x10, 0, 1, temp);
 }
 
-void func_8067A70C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6) {
+void actorAppendCallbackPayloadA70C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6) {
     ActorPayloadA70C *temp = heapAlloc(sizeof(ActorPayloadA70C));
     temp->unk0 = arg2;
     temp->unk4 = arg3;
@@ -1647,7 +1647,7 @@ void func_8067A70C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5,
     actorAppendCallback(arg1, arg0, 0x20, 0, 1, temp);
 }
 
-void func_8067A784(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
+void actorAppendCallback4000(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
     ActorPayloadAAB8 *temp = heapAlloc(sizeof(ActorPayloadAAB8));
     temp->unk0 = arg2;
     temp->unk4 = arg3;
@@ -1655,7 +1655,7 @@ void func_8067A784(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
     actorAppendCallback(arg1, arg0, 0x4000, 0, 1, temp);
 }
 
-void func_8067A7EC(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5, u8 arg6) {
+void actorAppendCallback10(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5, u8 arg6) {
     ActorPayloadA7EC *temp = heapAlloc(sizeof(ActorPayloadA7EC));
     temp->unk0 = arg2;
     temp->unk4 = arg3;
@@ -1675,7 +1675,7 @@ typedef struct ActorPayloadA864 {
     s32 unk3C;
 } ActorPayloadA864;
 
-void func_8067A864(s32 arg0, Actor *arg1, s16 arg2, s16 arg3, void *arg4, void *arg5, s32 arg6, s32 arg7, s32 arg8) {
+void actorAppendCallbackPayloadA864(s32 arg0, Actor *arg1, s16 arg2, s16 arg3, void *arg4, void *arg5, s32 arg6, s32 arg7, s32 arg8) {
     ActorPayloadA864 *temp = heapAlloc(sizeof(ActorPayloadA864));
     temp->unk0 = arg2;
     temp->unk2 = arg3;
@@ -1695,7 +1695,7 @@ typedef struct ActorPayloadA908 {
     s32 unk38;
 } ActorPayloadA908;
 
-void func_8067A908(s32 arg0, Actor *arg1, void *arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6) {
+void actorAppendCallbackPayloadA908(s32 arg0, Actor *arg1, void *arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6) {
     ActorPayloadA908 *temp = heapAlloc(sizeof(ActorPayloadA908));
     memcpy(temp, arg2, 0xC);
     memcpy((u8 *)temp + 0xC, arg3, 0x24);

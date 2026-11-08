@@ -1431,7 +1431,7 @@ void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, s32);
 s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void camSetFollowMode(s32);
-void func_8067A70C(Actor *, Actor *, f32, f32, f32, u8, u8);
+void actorAppendCallbackPayloadA70C(Actor *, Actor *, f32, f32, f32, u8, u8);
 void animResetEndFrame(Actor *, s32);
 void animSetEndFrame(Actor *, s32, s32);
 void actorSetInteractionTimer(Actor *);
@@ -1649,7 +1649,7 @@ void transformBarrelUpdate(void) {
                 var_t0->unk18 = 0x64;
             }
         }
-        func_8067A70C(gCurrentActor, var_t0->unk4, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
+        actorAppendCallbackPayloadA70C(gCurrentActor, var_t0->unk4, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
         var_t0->unk0--;
         if (var_t0->unk0 == 0) {
             var_t0->unk0 = 0xC;
@@ -1902,7 +1902,7 @@ void controllerAnimFreeStateAsset(Actor *);
 void camSetFixedView(s32, f32, f32, f32, f32, f32, f32, u8);
 void camSetTargetScaled(s32, Actor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
-void func_8067A70C(Actor *, Actor *, f32, f32, f32, u8, u8);
+void actorAppendCallbackPayloadA70C(Actor *, Actor *, f32, f32, f32, u8, u8);
 void renderCallbacksRegister(void *, void *, s32);
 
 void func_8067FB6C(void) {
@@ -1969,7 +1969,7 @@ void func_8067FB6C(void) {
             } else {
                 gCurrentActor->y = sinApprox((f32)sub->unk4 * sub->unk14) * sub->unk10 + sub->unk8;
             }
-            func_8067A70C(gCurrentActor, sub->unk0, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
+            actorAppendCallbackPayloadA70C(gCurrentActor, sub->unk0, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 2, 1);
             sp4E = gCurrentActor->yaw;
             sub->unk4++;
             break;
@@ -2885,7 +2885,7 @@ void cannonUpdate(void) {
     case 3:
         if (actorCountOwnedByClass(gCurrentActor, 4, 0) == 0) {
             actorAppendCallback(sub->unk4, (s32)gCurrentActor, 0x40, 1, 0, 0);
-            func_8067A70C(gCurrentActor, sub->unk4, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z - 42.0f, 2, 1);
+            actorAppendCallbackPayloadA70C(gCurrentActor, sub->unk4, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z - 42.0f, 2, 1);
             sub->unk4->flags &= ~8;
             playerResumeLocomotion(sub->unk4);
             gCurrentActor->flags |= 4;

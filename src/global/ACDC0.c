@@ -136,7 +136,7 @@ void mapRequestTransition(s32, s32);
 void mapCheckAutoTransition(void);
 void mapTransitionToPreviousOrExit(void);
 void screenWipeStart(s32);
-void func_80714638(void);
+void menuReturnToTitleWithMode3(void);
 void renderCallbacksRegister(void *, void *, s32);
 
 s32 hudFindItemIndex(s8 itemId) {
@@ -1935,7 +1935,7 @@ void hudTwoOptionMenuUpdate(void) {
             heapFreeDeferred(D_807FC7E0);
         } else if (gCurrentActor->unk155[0] == 1) {
             D_8076A105 = -1;
-            func_80714638();
+            menuReturnToTitleWithMode3();
             gCurrentActor->unk155[0] = 2;
         }
     }

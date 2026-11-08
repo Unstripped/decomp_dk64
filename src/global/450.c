@@ -112,7 +112,7 @@ void collisionBstRebalanceAll(void);
 void modelSlotExpireNextBuffers(void);
 void collisionBufferCacheUpdate(void);
 void actorInit(void);
-void func_806787CC(void);
+void actorUpdateSpawnsWrapper(void);
 void actorGlobalCallbacksReset(void);
 void actorUpdateWhilePaused(void);
 void actorMapModelsSetup(s32, s32, s32);
@@ -156,7 +156,7 @@ void func_80712A40(void);
 void func_80712B80(void);
 void func_80712BD4(void);
 s32 screenStateTickAndDraw(s32);
-s32 func_80714464(void);
+s32 menuIsTransitionTypeAOrE(void);
 void effectResetLists(void);
 void effectUpdateAll(s32);
 void commandStateInit(void);
@@ -640,7 +640,7 @@ void func_805FC2B0(void) {
         playerViewsBuildMatrices(D_8076A048);
     } else {
         lightClearCount();
-        func_806787CC();
+        actorUpdateSpawnsWrapper();
         playerViewsBuildMatrices(D_8076A048);
         billboardCacheEvictStale();
         actorProximityUpdate();
@@ -688,10 +688,10 @@ void func_805FC2B0(void) {
 #include "actor.h"
 
 extern Actor *gSpawnedActor;
-s32 func_80714360(void);
-s32 func_8071432C(void);
-s32 func_8071441C(void);
-s32 func_807143E8(void);
+s32 menuIsTransitionType8(void);
+s32 menuIsTransitionType6(void);
+s32 menuIsTransitionTypeC(void);
+s32 menuIsTransitionTypeD(void);
 Actor *actorFindByType(u16);
 void actorDespawn(void *);
 s32 actorSpawn(s32, s32);
@@ -702,14 +702,14 @@ void slotQueueReset(void);
 s32 pauseStateUpdate(void) {
     Actor *actor;
 
-    if ((gCurrentMap == 0x50) || (func_80714360() == 0 && func_8071432C() == 0 && func_8071441C() == 0 && func_807143E8() == 0)) {
+    if ((gCurrentMap == 0x50) || (menuIsTransitionType8() == 0 && menuIsTransitionType6() == 0 && menuIsTransitionTypeC() == 0 && menuIsTransitionTypeD() == 0)) {
         D_807FBB60 &= ~1;
     }
     if (D_807FBB60 & 2) {
-        if ((D_807FBB60 & 0x40) && (func_8071432C() != 0 || func_8071441C() != 0)) {
+        if ((D_807FBB60 & 0x40) && (menuIsTransitionType6() != 0 || menuIsTransitionTypeC() != 0)) {
             sfxStopChannel(0x22, 0);
             D_807FBB60 &= 0xFFEBFFBD;
-            actor = actorFindByType((gPlayerCount < 2 && func_8071441C() == 0) ? 0x5F : 0x157);
+            actor = actorFindByType((gPlayerCount < 2 && menuIsTransitionTypeC() == 0) ? 0x5F : 0x157);
             if (actor != NULL) {
                 actorDespawn(actor);
             }
@@ -726,10 +726,10 @@ s32 pauseStateUpdate(void) {
             } else {
                 D_807445C8 -= 1;
                 if (D_807445C8 <= 0) {
-                    if ((func_8071432C() != 0 || func_8071441C() != 0) && !(D_807FBB60 & 0x40000)) {
+                    if ((menuIsTransitionType6() != 0 || menuIsTransitionTypeC() != 0) && !(D_807FBB60 & 0x40000)) {
                         sfxAllocateChannel(0x22, 1.0f);
                         sfxAllocateChannel(0x29, 1.0f);
-                        if (gPlayerCount < 2 && func_8071441C() == 0) {
+                        if (gPlayerCount < 2 && menuIsTransitionTypeC() == 0) {
                             actorSpawn(0x5F, 0);
                             D_807FBB60 |= 0x100000;
                         } else {
@@ -965,7 +965,7 @@ void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
     }
     glist = gfxPassThrough(screenWipeDraw(renderCallbacksExecute((s32)glist, 1)));
 
-    if ((gCurrentMap == 0x4C) || (gCurrentMap == 0x50) || ((func_80714464() != 0) && (gCurrentMap != 0xD0))) {
+    if ((gCurrentMap == 0x4C) || (gCurrentMap == 0x50) || ((menuIsTransitionTypeAOrE() != 0) && (gCurrentMap != 0xD0))) {
         D_8076A0B1 &= ~0x10;
         D_8076A0B3 = 0;
     }

@@ -59,7 +59,7 @@ extern u8 D_800339D0;
 extern s32 D_807FBB60;
 void lightSetFovAngles(f32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-void func_807145F8(void);
+void menuSetFlag5324(void);
 void renderCallbacksRegister(void *, void *, s32);
 Gfx *menuRenderOptionDescription(Gfx *, void *);
 
@@ -119,7 +119,7 @@ void menuUpdateLightFadeActor(void) {
         }
         break;
     case 4:
-        func_807145F8();
+        menuSetFlag5324();
         gCurrentActor->unk154++;
         break;
     }

@@ -41,7 +41,7 @@ extern Mtx D_20000C0;
 extern s32 gFrameCounter;
 extern s32 D_807FBB60;
 f32 func_80612794(s16);
-s32 func_80714464();
+s32 menuIsTransitionTypeAOrE();
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
 Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *hudState) {
@@ -63,7 +63,7 @@ Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *h
     if (pips - 1 > 3) {} /* dead: stops IDO hoisting pips - 1 above the PrimColor select */
     fs0 = (f32)((f64)(u32)hudState->unk2E0 / 65535.0);
     amp = ((stats->unk2FC * 0x46) - 0x46) & 0xFF;
-    if ((D_807FBB60 & 3) || (func_80714464() != 0)) {
+    if ((D_807FBB60 & 3) || (menuIsTransitionTypeAOrE() != 0)) {
         return glist;
     }
     gSPDisplayList(glist++, &D_1000118);
@@ -149,8 +149,8 @@ typedef struct HealthPlayerState {
 void func_80026B0C(s32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 s32 func_805FCA64(void);
-s32 func_8071432C(void);
-s32 func_8071441C(void);
+s32 menuIsTransitionType6(void);
+s32 menuIsTransitionTypeC(void);
 s32 healthGetPerMelon(void);
 
 void healthApplyPendingDelta(s32 playerIndex, HealthPlayerState *hudState, HealthPlayerState *playerState, s32 newHealth) {
@@ -170,7 +170,7 @@ void healthApplyPendingDelta(s32 playerIndex, HealthPlayerState *hudState, Healt
                 playerState->unk2FB = limit;
             }
         } else if (playerState->unk2FD < 0) {
-            if ((func_8071432C() != 0) || (func_8071441C() != 0)) {
+            if ((menuIsTransitionType6() != 0) || (menuIsTransitionTypeC() != 0)) {
                 playerState->unk2FB += playerState->unk2FD;
             }
             if (playerState->unk2FB <= 0) {

@@ -130,8 +130,8 @@ void func_806F5378(void);
 void slotQueueUpdate(s32, s32, s32);
 s32 menuIsTransitionActive(void);
 void func_80712F10(s32 *, s32 *);
-s32 func_807143E8(void);
-s32 func_8071441C(void);
+s32 menuIsTransitionTypeD(void);
+s32 menuIsTransitionTypeC(void);
 s32 flagGet(s32, s32);
 void flagSet();
 void func_807313BC(void);
@@ -432,13 +432,13 @@ void mapTransitionToPreviousOrExit(void) {
     if (mapFindPreviousSavedMap(&targetMap, &exitIndex) != 0) {
         mapSlotFree(gCurrentMap);
         mapRequestTransition(targetMap, exitIndex);
-    } else if (func_807143E8() != 0) {
+    } else if (menuIsTransitionTypeD() != 0) {
         mapRequestTransition(0xF, 0);
     }
 }
 
 void mapTransitionToMenuOrPrevious(void) {
-    if (func_8071441C() != 0) {
+    if (menuIsTransitionTypeC() != 0) {
         mapRequestTransition(0x50, 0);
     } else {
         mapTransitionToPreviousOrExit();

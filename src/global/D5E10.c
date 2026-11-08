@@ -434,7 +434,7 @@ typedef struct NmD5E10aTbl {
 } NmD5E10aTbl;
 
 extern NmD5E10aTbl D_80750FB0;
-s32 func_807143E8();
+s32 menuIsTransitionTypeD();
 s32 func_80600340();
 void actorListSetCustomFloat(s16, s16, s32, f32);
 
@@ -458,7 +458,7 @@ void func_806D205C(void) {
         playerApplyMotionWithHorizontalVelocity();
     }
     if ((currentActorTestClearFlag() != 0) || (G08_P->unk23C--, (G08_P->unk23C == 0))) {
-        if (func_807143E8() == 0) {
+        if (menuIsTransitionTypeD() == 0) {
             r = func_80600340(&sp1C, 3, sp2C);
             t = r;
             actorListSetCustomFloat(sp2C[1], t, 7, 2.0f);
@@ -606,7 +606,7 @@ void playerInputUpdate5D(void) {
 }
 
 void playerSetBaseGravityIfFalling();
-void func_806CFECC();
+void playerSetTerminalVelocity5B0();
 
 void func_806D24E4(void) {
     actorRegisterSnapToBoneCallback();
@@ -617,7 +617,7 @@ void func_806D24E4(void) {
             return;
         case 1:
             G09_A->unkC0 = G09_P->unk54;
-            func_806CFECC();
+            playerSetTerminalVelocity5B0();
             G09_A->unk155++;
             playerInputUpdate(0x5E);
             playerSetBaseGravityIfFalling();
@@ -1446,7 +1446,7 @@ void func_806D4010(void) {
             break;
         case 1:
             G11_A->unkC0 = G11_P->unk54;
-            func_806CFECC();
+            playerSetTerminalVelocity5B0();
             func_806D3FA0();
             G11_A->unk155++;
             playerInputUpdate(0x21);
@@ -1480,7 +1480,7 @@ void func_806D4010(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D423C(void) {
+void playerInputUpdate5(void) {
     G11_A->unkC0 = G11_P->unk54;
     playerInputUpdate(5);
     playerApplyMotionWithHorizontalVelocity();
@@ -1511,7 +1511,7 @@ void func_806D428C(void) {
                 playerApplyFullPhysics();
             }
             G11_A->unkC0 = G11_P->unk54;
-            func_806CFECC();
+            playerSetTerminalVelocity5B0();
             G11_A->unk155++;
             playerInputUpdate(0x21);
             playerSetBaseGravityIfFalling();
@@ -1562,7 +1562,7 @@ void func_806D45A4(void) {
             break;
         case 1:
             G11_A->unkC0 = G11_P->unk54;
-            func_806CFECC();
+            playerSetTerminalVelocity5B0();
             func_806D3FA0();
             G11_A->unk155++;
             playerInputUpdate(0x21);
@@ -1637,7 +1637,7 @@ void func_806D491C(void) {
             break;
         case 1:
             G11_A->unkC0 = G11_P->unk54;
-            func_806CFECC();
+            playerSetTerminalVelocity5B0();
             func_806D3FA0();
             G11_A->unk155++;
             playerInputUpdate(0x25);
@@ -1736,7 +1736,7 @@ void func_806D4A70(void) {
 extern f32 D_80753620[];
 extern f32 D_8075363C[];
 void func_806D3FA0(void);
-void func_806CFDEC();
+void playerSetTerminalVelocity658();
 
 void func_806D4C7C(void) {
     switch (G08_A40->unk155) {
@@ -1757,7 +1757,7 @@ void func_806D4C7C(void) {
     case 2:
         playerApplyFullPhysics();
         playerInputUpdate(0x2B);
-        func_806CFDEC();
+        playerSetTerminalVelocity658();
         func_806D3608();
         break;
     case 3:
@@ -1779,7 +1779,7 @@ extern f32 D_80753690[];
 extern f32 D_807536C8[];
 extern f32 D_807536E4[];
 void func_806CF878();
-void func_806CFDA8();
+void playerSetTerminalVelocity700();
 
 void func_806D4DE4(void) {
     func_806CF878();
@@ -1821,7 +1821,7 @@ void func_806D4DE4(void) {
     case 6:
         playerApplyFullPhysics();
         playerInputUpdate(0x2C);
-        func_806CFDA8();
+        playerSetTerminalVelocity700();
         func_806D3608();
         break;
     case 7:
@@ -1974,7 +1974,7 @@ void func_806D5300(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D57F0(void) {
+void playerInputUpdate1WithZeroUnk4(void) {
     playerInputUpdate(1);
     G08_P->unk4 = 0.0f;
     playerApplyFullPhysics();
@@ -2110,12 +2110,12 @@ void func_806D5CCC(void) {
         case 1:
             switch (G13_A->unk155) {
                 case 0:
-                    func_806CFECC();
+                    playerSetTerminalVelocity5B0();
                     playerInputUpdate(0x17);
                     playerApplyGravityAndMotion();
                     break;
                 case 1:
-                    func_806CFECC();
+                    playerSetTerminalVelocity5B0();
                     playerInputUpdate(0x16);
                     playerApplyGravityAndMotion();
                     break;
@@ -2536,7 +2536,7 @@ void func_806D6B00(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D6F0C(void) {
+void playerInputUpdate8(void) {
     mathAngleStepToward(&G14_A->unkE6, G14_A->unkEE, G14_P->unk48);
     playerInputUpdate(8);
     playerApplyFullPhysics();
@@ -2920,7 +2920,7 @@ void func_806D7FE8(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D8070(void) {
+void playerInputUpdate1FullPhysics(void) {
     playerInputUpdate(1);
     playerApplyFullPhysics();
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -2931,7 +2931,7 @@ extern f32 D_80753470[];
 extern f32 D_8075348C[];
 extern s16 D_807534A8[];
 extern f32 D_80753738[];
-void func_806CFE30();
+void playerSetTerminalVelocity754();
 
 void func_806D80A8(void) {
     switch (G08_A40->unk155) {
@@ -2951,12 +2951,12 @@ void func_806D80A8(void) {
             G08_A40->unkB8 = 0.0f;
             G08_A40->unk155++;
             playerInputUpdate(0x47);
-            func_806CFE30();
+            playerSetTerminalVelocity754();
             playerApplyGravityAndMotion();
             break;
         case 2:
             mathAngleStepToward(&G08_A40->unkE6, G08_A40->unkEE, 0x32);
-            func_806CFE30();
+            playerSetTerminalVelocity754();
             func_806D3608();
             playerApplyFullPhysics();
             mathAngleStepToward(&G08_A40->unkE6, G08_A40->unkEE, 0x32);
@@ -2995,11 +2995,11 @@ void func_806D8308(void) {
             G15_EA(gCurrentActor) = G08_A40->unkEE;
             G08_A40->unk155++;
             playerInputUpdate(0x48);
-            func_806CFE30();
+            playerSetTerminalVelocity754();
             playerApplyGravityAndMotion();
             break;
         case 2:
-            func_806CFE30();
+            playerSetTerminalVelocity754();
             func_806D3608();
             playerApplyGravityAndMotion();
             playerInputUpdate(0x48);
@@ -3388,7 +3388,7 @@ void func_806D8FCC(void) {
         case 1:
             playerApplyFullPhysics();
             G16_A->unkC0 = G16_P->unk54;
-            func_806CFECC();
+            playerSetTerminalVelocity5B0();
             G16_A->unk155 = G16_A->unk155 + 1;
             playerInputUpdate(0x21);
             playerSetBaseGravityIfFalling();
@@ -3730,7 +3730,7 @@ extern f32 D_807FBC58;
 void playerClearCarriedItemState(void);
 s32 actorTableContains(void *);
 void actorAppendCallback(void *, void *, s32, s32, s32, s32);
-void func_8067A784(void *, void *, s16, f32, s32);
+void actorAppendCallback4000(void *, void *, s16, f32, s32);
 void playerStartPickupApproach(void *);
 extern f32 D_807533B8[];
 #define G17_B48 ((G17Actor *)D_807FBB48)
@@ -3967,7 +3967,7 @@ void func_806DA4D8(void) {
         break;
     case 4:
         playerInputUpdate(5);
-        func_8067A784(gCurrentActor, G17_P->unk1AC, G17_B48->unkE6, G17_A->unk4->unk34 * (D_807533B8[D_807FD584] * 3.0) / (new_var = 0.15), 0);
+        actorAppendCallback4000(gCurrentActor, G17_P->unk1AC, G17_B48->unkE6, G17_A->unk4->unk34 * (D_807533B8[D_807FD584] * 3.0) / (new_var = 0.15), 0);
         G17_A->unk155++;
         break;
     case 5:
@@ -4150,7 +4150,7 @@ void func_806DABE4(void) {
             G18_A->unkB8 = 0.0f;
             break;
         case 1:
-            func_8067A784(gCurrentActor, G18_P->unk1AC, D_807FBB48->yaw, D_807533B8[D_807FD584], (s32)D_8075339C[D_807FD584]);
+            actorAppendCallback4000(gCurrentActor, G18_P->unk1AC, D_807FBB48->yaw, D_807533B8[D_807FD584], (s32)D_8075339C[D_807FD584]);
             G18_P->unk1AC = NULL;
             G18_P->unk1B0 = 0;
             G18_A->unk155++;
@@ -4183,7 +4183,7 @@ void func_806DADA0(void) {
             G18_A->unkB8 = 0.0f;
             break;
         case 1:
-            func_8067A784(gCurrentActor, G18_P->unk1AC, D_807FBB48->yaw, D_807533F0[D_807FD584], (s32)D_807533D4[D_807FD584]);
+            actorAppendCallback4000(gCurrentActor, G18_P->unk1AC, D_807FBB48->yaw, D_807533F0[D_807FD584], (s32)D_807533D4[D_807FD584]);
             G18_P->unk1AC = NULL;
             G18_P->unk1B0 = 0;
             G18_A->unk155++;
@@ -4215,7 +4215,7 @@ void func_806DAF5C(void) {
             break;
         case 1:
             G18_A->unkC0 = G18_P->unk54;
-            func_806CFECC();
+            playerSetTerminalVelocity5B0();
             func_806D3FA0();
             G18_A->unk155++;
             playerInputUpdate(0x21);
@@ -4235,7 +4235,7 @@ void func_806DAF5C(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806DB08C(void) {
+void playerInputUpdate12(void) {
     playerInputUpdate(0x12);
     playerApplyFullPhysics();
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -5202,7 +5202,7 @@ void func_806DD874(void) {
         G19_A->unkEE = (G19_A->unkE6 + 0x800) & 0xFFF;
         G19_A->unkC0 = D_80753CB4[D_807FD584];
         G19_A->unkB8 = 100.0f;
-        func_806CFECC();
+        playerSetTerminalVelocity5B0();
         G19_A->unk155++;
         G19_P->unk3C = 3;
         playerInputUpdate(0x29);

@@ -1,82 +1,82 @@
 #include "common.h"
 #include "actor.h"
 
-void func_806C71A0(void) {
+void actorStubCBEA0_00(void) {
 }
 
-void func_806C71A8(void) {
+void actorStubCBEA0_01(void) {
 }
 
-void func_806C71B0(void) {
+void actorStubCBEA0_02(void) {
 }
 
-void func_806C71B8(void) {
+void actorStubCBEA0_03(void) {
 }
 
-void func_806C71C0(void) {
+void actorStubCBEA0_04(void) {
 }
 
-void func_806C71C8(void) {
+void actorStubCBEA0_05(void) {
 }
 
-void func_806C71D0(void) {
+void actorStubCBEA0_06(void) {
 }
 
-void func_806C71D8(void) {
+void actorStubCBEA0_07(void) {
 }
 
-void func_806C71E0(void) {
+void actorStubCBEA0_08(void) {
 }
 
-void func_806C71E8(void) {
+void actorStubCBEA0_09(void) {
 }
 
-void func_806C71F0(void) {
+void actorStubCBEA0_10(void) {
 }
 
-void func_806C71F8(void) {
+void actorStubCBEA0_11(void) {
 }
 
-void func_806C7200(void) {
+void actorStubCBEA0_12(void) {
 }
 
-void func_806C7208(void) {
+void actorStubCBEA0_13(void) {
 }
 
-void func_806C7210(void) {
+void actorStubCBEA0_14(void) {
 }
 
-void func_806C7218(void) {
+void actorStubCBEA0_15(void) {
 }
 
-void func_806C7220(void) {
+void actorStubCBEA0_16(void) {
 }
 
-void func_806C7228(void) {
+void actorStubCBEA0_17(void) {
 }
 
-void func_806C7230(void) {
+void actorStubCBEA0_18(void) {
 }
 
-void func_806C7238(void) {
+void actorStubCBEA0_19(void) {
 }
 
-void func_806C7240(void) {
+void actorStubCBEA0_20(void) {
 }
 
-void func_806C7248(void) {
+void actorStubCBEA0_21(void) {
 }
 
-void func_806C7250(void) {
+void actorStubCBEA0_22(void) {
 }
 
-void func_806C7258(void) {
+void actorStubCBEA0_23(void) {
 }
 
-void func_806C7260(void) {
+void actorStubCBEA0_24(void) {
 }
 
-void func_806C7268(void) {
+void actorStubCBEA0_25(void) {
 }
 
 typedef struct R1C2CB_Entry {

@@ -577,7 +577,7 @@ void n_alSndpPostEvent(s32, s32, s16);
 void func_80724A20(void);
 void actorSetStateOne(void *);
 void actorSetStateThree(void *);
-s32 func_8071441C(void);
+s32 menuIsTransitionTypeC(void);
 f32 sfxGetChannelVolume(s32);
 s32 func_805FCA64(void);
 void renderCallbacksRegister(void *, void *, s32);
@@ -655,7 +655,7 @@ void bossRoundFrame(u8 *script) {
         break;
     }
     if (!(BA40->unk60 & 0x10)) {
-        if (func_8071441C() != 0) {
+        if (menuIsTransitionTypeC() != 0) {
             flagSet(0x55, 0, 2);
         }
         if ((flagGet(0x5D, 2) == 0) || (flagGet(0x5C, 2) != 0)) {

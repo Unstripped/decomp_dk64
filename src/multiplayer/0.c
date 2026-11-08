@@ -141,7 +141,7 @@ extern s32 D_807552EC;
 extern u8 gPlayerCount;
 extern s32 D_807FBB60;
 extern s8 D_8076A105;
-void func_80714638(void);
+void menuReturnToTitleWithMode3(void);
 s32 randomNonNegative(void);
 typedef struct MpSpawnPoint {
     s16 x;
@@ -257,7 +257,7 @@ void mpDetermineWinner(MpControllerState *controllerState) {
         } while (i < gPlayerCount);
     }
     D_807FBB60 |= 0x40001;
-    func_80714638();
+    menuReturnToTitleWithMode3();
     D_8076A105 = winnerIndex;
 }
 
@@ -636,7 +636,7 @@ s32 mpFindModelSlotByType(s32 slotType) {
     return modelSlotFindByType(slotType, &slotIndex, &slotX, &slotY, &slotZ, &angleA, &angleB);
 }
 
-s32 func_8071432C(void);
+s32 menuIsTransitionType6(void);
 void *actorFindByType();
 s32 delayedSpawnQueueContains(s32, s32, s16, s16, s16);
 void func_806F5FE8(s32, s16, s16, s16, s32);
@@ -648,7 +648,7 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
     MpSpawnPoint * volatile spawnPoint; // FAKE: volatile forces stack home
 
     spawnPoint = mpFindCurrentMapEntry()->items;
-    if (func_8071432C() != 0 && !(D_807FBB60 & 2)) {
+    if (menuIsTransitionType6() != 0 && !(D_807FBB60 & 2)) {
         if (D_807552E8 == 3) {
             mpUpdateMatchTimer();
         }
@@ -697,7 +697,7 @@ void mpUpdateItemSpawns(void) {
     mapEntry = mpFindCurrentMapEntry();
     items = mapEntry->items;
     mpUpdateMatchTimer();
-    if (func_8071432C() != 0 && !(D_807FBB60 & 2)) {
+    if (menuIsTransitionType6() != 0 && !(D_807FBB60 & 2)) {
         itemIndex = 0;
         item = items;
         if (mapEntry->count > 0) {

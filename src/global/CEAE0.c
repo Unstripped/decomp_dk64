@@ -2309,7 +2309,7 @@ typedef struct HeldActorFollowArg {
     /* 0x8 */ Actor *unk8;
 } HeldActorFollowArg;
 
-void func_8067A70C(s32, Actor *, f32, f32, f32, u8, u8);
+void actorAppendCallbackPayloadA70C(s32, Actor *, f32, f32, f32, u8, u8);
 
 void playerHeldActorFollowStep(HeldActorFollowArg *arg0) {
     f32 nodeX[2];
@@ -2333,7 +2333,7 @@ void playerHeldActorFollowStep(HeldActorFollowArg *arg0) {
     outX = (midX - arg0->unk8->x) * arg0->unk0 + arg0->unk8->x;
     outY = (midY - arg0->unk8->y) * arg0->unk0 + arg0->unk8->y;
     outZ = (midZ - arg0->unk8->z) * arg0->unk0 + arg0->unk8->z;
-    func_8067A70C((s32)arg0->unk4, arg0->unk8, outX, outY, outZ, 2, 1);
+    actorAppendCallbackPayloadA70C((s32)arg0->unk4, arg0->unk8, outX, outY, outZ, 2, 1);
 }
 
 typedef struct G05Node2 {
@@ -2436,7 +2436,7 @@ s32 playerGetHoldNodeIndices(s32 *arg0, s32 *arg1) {
 
 extern s32 D_80753428[];
 extern f32 D_8075340C[];
-void func_8067A784(Actor *, Actor *, s16, s32, s32);
+void actorAppendCallback4000(Actor *, Actor *, s16, s32, s32);
 
 void playerThrowHeldActor(Actor *arg0) {
     G05PlayerView *p;
@@ -2444,7 +2444,7 @@ void playerThrowHeldActor(Actor *arg0) {
     if (arg0->collisionFlags & 1) {
         p = arg0->unk174;
         if (p->unk1AC != NULL) {
-            func_8067A784(gCurrentActor, p->unk1AC, D_807FBB48->yaw, D_80753428[D_807FD584], (s32)D_8075340C[D_807FD584]);
+            actorAppendCallback4000(gCurrentActor, p->unk1AC, D_807FBB48->yaw, D_80753428[D_807FD584], (s32)D_8075340C[D_807FD584]);
             p->unk1AC = NULL;
             p->unk1B0 = NULL;
         }
@@ -2686,7 +2686,7 @@ void playerSetBaseGravityIfFalling(void) {
 
 extern f32 D_80753700[];
 
-void func_806CFDA8(void) {
+void playerSetTerminalVelocity700(void) {
     if (G03_A->unkC0 < 0.0f) {
         ((G03ActorView *)gCurrentActor)->unkC4 = D_80753700[D_807FD584];
     }
@@ -2694,7 +2694,7 @@ void func_806CFDA8(void) {
 
 extern f32 D_80753658[];
 
-void func_806CFDEC(void) {
+void playerSetTerminalVelocity658(void) {
     if (G03_A->unkC0 < 0.0f) {
         ((G03ActorView *)gCurrentActor)->unkC4 = D_80753658[D_807FD584];
     }
@@ -2702,7 +2702,7 @@ void func_806CFDEC(void) {
 
 extern f32 D_80753754[];
 
-void func_806CFE30(void) {
+void playerSetTerminalVelocity754(void) {
     if (G03_A->unkC0 < 0.0f) {
         ((G03ActorView *)D_807FBB48)->unkC4 = D_80753754[D_807FD584];
     }
@@ -2716,19 +2716,19 @@ void playerSetBaseGravity(void) {
 
 extern f32 D_80753594[];
 
-void func_806CFEA4(void) {
+void playerSetTerminalVelocity594(void) {
     ((G03ActorView *)D_807FBB48)->unkC4 = D_80753594[D_807FD584];
 }
 
 extern f32 D_807535B0[];
 
-void func_806CFECC(void) {
+void playerSetTerminalVelocity5B0(void) {
     ((G03ActorView *)D_807FBB48)->unkC4 = D_807535B0[D_807FD584];
 }
 
 extern f32 D_807536E4[];
 
-void func_806CFEF4(void) {
+void playerSetTerminalVelocity6E4(void) {
     ((G03ActorView *)D_807FBB48)->unkC4 = D_807536E4[D_807FD584];
 }
 
@@ -2843,7 +2843,7 @@ void playerSetNormalMoveParams(void) {
     G06_P->unk38 = D_807531FC[D_807FD584];
 }
 
-void func_806D0378(void) {
+void playerSetTerminalVelocity578(void) {
     ((G03ActorView *)D_807FBB48)->unkC4 = D_80753578[D_807FD584];
     G06_P->unk50 = 0;
     G06_P->unk28 = 1;
@@ -2857,12 +2857,12 @@ void playerInitMoveParams(void) {
     } else {
         playerSetNormalMoveParams();
     }
-    func_806D0378();
+    playerSetTerminalVelocity578();
 }
 
 void playerInitNormalMoveParams(void) {
     playerSetNormalMoveParams();
-    func_806D0378();
+    playerSetTerminalVelocity578();
 }
 
 extern f32 gPlayerLargeModeScale;

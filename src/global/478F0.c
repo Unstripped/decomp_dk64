@@ -1427,7 +1427,7 @@ void func_80646DC4(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void func_80647108(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnModelNodeEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     func_80714950(-0x78);
     func_8071498C(func_80717D4C);
     func_807149B8(1);
@@ -1435,7 +1435,7 @@ void func_80647108(CsState *cs, s16 csId, s16 b, s16 c) {
     func_80714B84(D_8071FFA0, 1.5f, csId, 1, 0);
 }
 
-void func_80647170(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdGetModelNodeAndProject(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x;
     f32 y;
     f32 z;
@@ -1544,7 +1544,7 @@ void func_8064774C(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern u8 D_80720EA4[];
 
-void func_80647834(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnTumbleBounceRing(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
     f32 t;
 
@@ -1635,7 +1635,7 @@ void csCmdBlinkNodeFrames(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-void func_80647CF4(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnPointParticles(CsState *cs, s16 csId, s16 b, s16 c) {
     func_80714998(2);
     if (b != 0) {
         func_80714CC0(D_8071FBC8, 3.0f, gCsPosX, gCsPosY, gCsPosZ);
@@ -1919,7 +1919,7 @@ typedef struct CsPlayerStateView {
     /* 0x290 */ s16 unk290;
 } CsPlayerStateView;
 
-s32 func_80648C50(void) {
+s32 csIsPlayerState4OrC(void) {
     s16 state = ((CsPlayerStateView *)gPlayerSlots)->unk290;
 
     if (state == 4 || state == 0xC) {
@@ -1974,7 +1974,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
     switch (q->unk0) {
         case 0:
             if (q->unk2 == 0) {
-                if (func_80648C50() != 0 || flag == 0) {
+                if (csIsPlayerState4OrC() != 0 || flag == 0) {
                     q->unk0 = 1;
                     q->unk2 = 0x190;
                     q->unk4 = 0.0f;
@@ -1990,7 +1990,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
             q->unk4 += 0.01;
             if (q->unk4 > 1.0) {
                 q->unk4 = 1.0f;
-                if (--q->unk2 == 0 || (func_80648C50() == 0 && flag != 0)) {
+                if (--q->unk2 == 0 || (csIsPlayerState4OrC() == 0 && flag != 0)) {
                     q->unk0 = 2;
                 }
             }
@@ -2107,7 +2107,7 @@ void func_806491F4(CsState *cs, s16 csId, s16 b, s16 c) {
 void func_8071F660(void);
 extern u8 D_80721298[];
 
-void func_806493C4(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnRandomNodeParticles(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
     u8 idx;
 
@@ -2650,7 +2650,7 @@ typedef struct CsNodePair {
 extern s16 D_8074822C[][2];
 extern CsNodePair D_80748244[];
 
-void func_8064A804(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdResolveNodePair(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 *p;
     u8 found;
     s16 idx;
@@ -3061,7 +3061,7 @@ Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 Actor *spawnNodeActivate(s16, u16);
 void actorScriptStart(void *, s32);
 void scriptSetActorRampTarget(void *, f32, f32);
-void func_8064B900(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnActorNodeByCase(CsState *cs, s16 csId, s16 b, s16 c) {
     Actor *a;
     switch (b) {
         case 2:
@@ -3563,7 +3563,7 @@ void func_8064CD3C(CsState *cs, s16 csId, s16 b, s16 c) {
 u8 modelAnimEntryIsActive(s16, s16);
 void modelAnimEntryStop(s16, s16);
 
-void func_8064D0C4(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSetCeilAndFloorAtPos(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 ceil;
     f32 floor;
     u8 active;
@@ -4320,7 +4320,7 @@ void camStartPath(void *, s32, s32);
 void sfxAllocateChannel(s32, f32);
 extern u8 D_80721530[];
 
-void func_8064F028(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnActorAtPoint(CsState *cs, s16 csId, s16 b, s16 c) {
     func_807149C8(0xFF, 0xFF, 0xFF, 0x80);
     func_8071498C(func_8064EE08);
     func_807149FC(-1);
@@ -4407,7 +4407,7 @@ u8 func_8064F358(CsState *cs, s16 csId, s16 b, s16 c) {
 
 s32 flagCountRange(s32, s32, s32);
 
-u8 func_8064F404(CsState *cs, s16 csId, s16 b, s16 c) {
+u8 csCondCountFlags261Ge4(CsState *cs, s16 csId, s16 b, s16 c) {
     return flagCountRange(0x261, 0xA, 0) >= 4;
 }
 
