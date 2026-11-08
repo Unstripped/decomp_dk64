@@ -1857,10 +1857,10 @@ void func_806E3B00(void) {
 }
 
 
-void func_806F142C(Actor *);
+void playerResumeLocomotionDecel(Actor *);
 
 void func_806E3C14(void) {
-    func_806F142C(gCurrentActor);
+    playerResumeLocomotionDecel(gCurrentActor);
 }
 
 
@@ -2094,7 +2094,7 @@ s32 mathAngleInArcWithMargin();
 s32 collisionTestSphere(f32, f32, f32, f32, void *, void *, s32, s32);
 void projectileTrySpawnFromSlot(void *);
 void sfxPlayScriptActorSoundForPlayer(void *, s32, s32);
-void func_806F0B34(void *);
+void playerPlayKongSpecificSfx(void *);
 void func_806EAB44();
 
 void func_806E41EC(void) {
@@ -2324,7 +2324,7 @@ void func_806E4E88(void) {
     if (G25_PAD(D_807FD63C, u16) & 2) {
         if (D_80767CC0 - G25_P->unk60 < 0xF) {
             if (G25_P->unk8C) {
-                func_806F0B34(gCurrentActor);
+                playerPlayKongSpecificSfx(gCurrentActor);
             }
             G25_P->unk8C = 0;
             func_806EAB44(gCurrentActor, 0);
@@ -2345,7 +2345,7 @@ void func_806E5044(void) {
     if (G25_PAD(D_807FD63C, u16) & 2) {
         if (D_80767CC0 - G25_P->unk60 < 0xF) {
             if (G25_P->unk8C) {
-                func_806F0B34(gCurrentActor);
+                playerPlayKongSpecificSfx(gCurrentActor);
             }
             G25_P->unk8C = 0;
             func_806EAB44(gCurrentActor, 0);
@@ -2570,7 +2570,7 @@ void func_805FF9AC(s32, s32, s32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_806C93E4(void *, void *);
 s32 camStartPath(void *, s32, s32);
-void func_806F1250(Actor *);
+void playerTransformAnimalStartSfx(Actor *);
 void timerQueueAdd(void *, s32, s32, s32, s32);
 void func_8071496C(s16);
 void func_80714CC0(void *, f32, f32, f32, f32);
@@ -2626,7 +2626,7 @@ s32 func_806E56EC() {
                 return 1;
             case 4:
                 if (!(G26_PL->unk1F0 & 0x40)) {
-                    func_806F1250(D_807FBB4C);
+                    playerTransformAnimalStartSfx(D_807FBB4C);
                     G26_PL->unk1FE = G26_GS->unk10;
                 }
                 return 1;
@@ -4105,7 +4105,7 @@ void func_806E9468(void) {
 extern s16 D_8075388C[];
 extern s16 D_807538C8[];
 void n_alSndpStop(s32);
-void func_806CA2AC(void);
+void playerClearCarriedItemState(void);
 
 s32 func_806E9580(void) {
     f32 diff;
@@ -4131,7 +4131,7 @@ s32 func_806E9580(void) {
             }
             if (((f32)n < diff) && func_806E770C()) {
                 playerStateQueueCallback(0x3E, 0, gCurrentPlayerIndex);
-                func_806CA2AC();
+                playerClearCarriedItemState();
             } else if (gCurrentActor->unk6A & 1) {
                 if (*((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + 0x2C0) == 1) {
                     lim = D_8075386C[D_807FD584];
@@ -4141,7 +4141,7 @@ s32 func_806E9580(void) {
                 if (lim < diff) {
                     playerStateQueueCallback(0x3D, 0, gCurrentPlayerIndex);
                     ret = 1;
-                    func_806CA2AC();
+                    playerClearCarriedItemState();
                 }
             } else {
                 if (*((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + 0x2C0) == 1) {
@@ -4156,7 +4156,7 @@ s32 func_806E9580(void) {
                         n_alSndpStop(G30_M->unkC4);
                     }
                     ret = 1;
-                    func_806CA2AC();
+                    playerClearCarriedItemState();
                 }
             }
         }

@@ -774,7 +774,7 @@ typedef struct {
 } RaceDC9C;
 extern StructBB70_Race D_807FBB70;
 extern RaceDC9C *D_807FDC9C;
-void func_8067E278(s32, s32);
+void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void commandQueuePush(void *, s16, s16, s16, s32, s32, s32, s32, s32);
 
@@ -801,7 +801,7 @@ void raceObstacleCarBehaviorUpdate(void) {
     targetActor = cursor->unk30;
     targetState = targetActor->view.a.unk178;
     if ((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) {
-        func_8067E278(0, 1);
+        tagBarrelSpawnActorSmokePuffs(0, 1);
         gCurrentActor->unk154 = 0x40;
     }
     actorGetNodePos(gCurrentActor, 6, &nodeX, &nodeY, &nodeZ);

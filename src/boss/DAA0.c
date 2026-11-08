@@ -122,7 +122,7 @@ void actorDespawn(void *);
 s32 mapRequestTransition(s32, s32);
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 void func_8068A764(void *, u8);
-void func_806C8E58(s16);
+void playerSetKongByActorType(s16);
 void func_806F09F0(void *, u16);
 void func_8067AAB8(void *, void *, s32, f32, s32);
 void sfxPlayOnFreeSlot();
@@ -216,7 +216,7 @@ void bossSpawnerUpdate(void) {
             }
             D_80036DC0++;
             cutsceneId = D_80035B4C[cutsceneId];
-            func_806C8E58(cutsceneId);
+            playerSetKongByActorType(cutsceneId);
             func_806F09F0(D_807FBB4C, cutsceneId);
             SPAWNER_PLAYER->unk154 = 0xC;
             SPAWNER_PLAYER->unk155 = 0;
@@ -243,7 +243,7 @@ void bossSpawnerUpdate(void) {
         s->unkE--;
         if (s->unkE < 0) {
             SPAWNER_ACTOR->unk154 = 0;
-            func_806C8E58(4);
+            playerSetKongByActorType(4);
             func_806F09F0(D_807FBB4C, 4);
             s->unk13 = 1;
         }

@@ -78,7 +78,7 @@ void hudSpawnCountdownTimer(s32, s32, u8);
 s32 randomNonNegative(void);
 void csModelStateSetByte(s16, s32, s32);
 void csModelStateSetFirstByte(s32, s32);
-void func_806C8E58(s32);
+void playerSetKongByActorType(s32);
 void actorScriptStartByIndex(void *, s32);
 void playerInitMoveParams(void);
 char *textTableGetString(s32, s32, s32);
@@ -148,7 +148,7 @@ tail:
             hasMessage = 1;
             break;
         case 15:
-            func_806C8E58(8);
+            playerSetKongByActorType(8);
             D_807FBB48->state = 0xC;
             D_807FBB48->unk155[0] = 0;
             actorScriptStartByIndex(D_807FBB48, 9);

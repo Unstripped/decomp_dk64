@@ -33,7 +33,7 @@ typedef struct G00Row {
 
 extern G00Row D_8075C410[];
 
-s32 func_806C7B34(void) {
+s32 playerGetModelAssetId(void) {
     return D_8075C410[gPlayerCharacterId[0]].unk0;
 }
 
@@ -512,7 +512,7 @@ void func_806F09F0(Actor *, u16);
 void playerResumeLocomotion(Actor *);
 void func_806C90C4(s32);
 void func_806C8984(void);
-void func_806C8D20(Actor *);
+void actorSetInteractionTimer(Actor *);
 
 void func_806C850C(s32 arg0, u8 arg1) {
     G00Row *row;
@@ -559,7 +559,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
         gCamActor = gSpawnedActor;
     }
     gSpawnedActor->flags |= 0x100000;
-    func_806C8D20(D_807FBB48);
+    actorSetInteractionTimer(D_807FBB48);
     G00_P->unk26 = 0x64;
     G00_A48->unkC4 = D_80753578[D_807FD584];
     G00_A48->unkC8 = D_807535E8[D_807FD584];
@@ -727,7 +727,7 @@ void func_806C8984(void) {
     }
 }
 
-void func_806C8D20(Actor *arg0) {
+void actorSetInteractionTimer(Actor *arg0) {
     arg0->unk144 = 0x3C;
 }
 
@@ -737,7 +737,7 @@ extern s32 D_8075C420;
 extern u8 D_8075C427;
 extern G00Row D_8075C430[];
 
-u8 func_806C8D2C(s16 arg0) {
+u8 playerLookupKongByActorType(s16 arg0) {
     G00Row *p;
 
     if (arg0 == D_8075C410[0].unk0) {
@@ -772,7 +772,7 @@ typedef struct G00View1EE {
     /* 0x1EE */ s16 unk1EE;
 } G00View1EE;
 
-s32 func_806C8DE0(s32 arg0) {
+s32 playerGetResolvedKongId(s32 arg0) {
     s32 var_v1;
     Actor *p;
     G00View1EE *q;
@@ -781,14 +781,14 @@ s32 func_806C8DE0(s32 arg0) {
     if (var_v1 == 6 || var_v1 == 7) {
         p = gPlayerSlots[arg0].unk4;
         q = ((G00View1EE **)&p->unk174)[arg0];
-        var_v1 = func_806C8D2C(q->unk1EE);
+        var_v1 = playerLookupKongByActorType(q->unk1EE);
     }
     return var_v1;
 }
 
 void func_806C8F8C(void *);
 
-void func_806C8E58(s16 arg0) {
+void playerSetKongByActorType(s16 arg0) {
     s32 found;
     u8 i;
 
@@ -987,7 +987,7 @@ void func_806C90C4(s32 arg0) {
 void func_806C9434(s32);
 void actorClearMovementFlags(void *);
 
-void func_806C92C4(s32 arg0) {
+void playerRespawnResetPhysics(s32 arg0) {
     actorClearMovementFlags(D_807FBB48);
     func_806C9434(arg0);
     D_807FBB48->unk9C = D_807FBB48->y;
@@ -1035,10 +1035,10 @@ void func_806C9304(Actor *arg0, G01Ctl *arg1) {
     }
 }
 
-void func_806F12FC(void);
+void playerTransformAnimalEndSfx(void);
 
 void func_806C93E4(Actor *arg0, Struct807FD580 *arg1) {
-    func_806F12FC();
+    playerTransformAnimalEndSfx();
     arg1->stateFlags &= ~0x30;
     arg0->flags |= 0x8000;
     arg0->unk128 = 0xFF;
@@ -1049,7 +1049,7 @@ void sfxStopSlotSound(Actor *, u8);
 s32 camIsCutsceneActive(void);
 void camResetAllPlayers(void);
 void camResetPlayer(Actor *, u8);
-void func_806C8D20(Actor *);
+void actorSetInteractionTimer(Actor *);
 void playerResumeLocomotion(Actor *);
 void func_806C90C4(s32);
 
@@ -1061,7 +1061,7 @@ void func_806C9434(s32 arg0) {
     void *sp2C;
     u8 i;
 
-    func_806C8DE0(ctl->unk1A4);
+    playerGetResolvedKongId(ctl->unk1A4);
     sp2C = &D_807FC950[0][ctl->unk1A4 * 0x306];
     ctl->unk250 = 0x78;
     i = 0;
@@ -1087,7 +1087,7 @@ void func_806C9434(s32 arg0) {
             camResetPlayer(D_807FBB48, ctl->unk1A4);
         }
     }
-    func_806C8D20(D_807FBB48);
+    actorSetInteractionTimer(D_807FBB48);
     playerResumeLocomotion(D_807FBB48);
     G01A->unkE8 = 0;
     G01A->unkE4 = 0;
@@ -1099,12 +1099,12 @@ extern G01Pos D_807FC908;
 extern G01Pos D_807FD574;
 void *assetLoad(s32, s32, s32, s32);
 u32 assetGetCachedSizeOrResolve(s32, s32);
-void func_806C9658(s32);
+void playerCheckSpawnerFlagFixup(s32);
 
 void func_806C95D0(s32 arg0) {
     D_807FC900 = assetLoad(0x17, arg0, 1, 1);
     D_807FC904 = assetGetCachedSizeOrResolve(0x17, arg0) / 10U;
-    func_806C9658(arg0);
+    playerCheckSpawnerFlagFixup(arg0);
     D_807FC908.unk6 = 0;
     D_807FC908.unk0 = D_807FD574.unk0;
     D_807FC908.unk2 = D_807FD574.unk2;
@@ -1113,7 +1113,7 @@ void func_806C95D0(s32 arg0) {
 
 s32 flagGet(s32, s32);
 
-void func_806C9658(s32 arg0) {
+void playerCheckSpawnerFlagFixup(s32 arg0) {
     if (arg0 == 0x1E) {
         if (flagGet(0xA0, 0) != 0) {
             D_807FC900[18].unk2 = 0x65D;
@@ -1292,7 +1292,7 @@ void func_806C9C1C(s32 arg0) {
 void flagSet(s32, s32, s32);
 
 void func_806C9C80(s32 arg0, s32 arg1, s32 arg2) {
-    s32 idx = func_806C8DE0(arg0);
+    s32 idx = playerGetResolvedKongId(arg0);
     u8 *p = &D_807FC950[0][arg0 * 0x306 + idx * 0x5E];
 
     p[2] = 7;

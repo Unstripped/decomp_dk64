@@ -125,7 +125,7 @@ void camStartPath(void *, s32, s32);
 void modelRecordFindAndSet(void *, void *, s16, s16);
 s32 actorListFindClosestTargetIndex(s32, s32, u8, f32, f32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
-u8 func_806C8DE0(s32);
+u8 playerGetResolvedKongId(s32);
 void func_806F5378(void);
 void slotQueueUpdate(s32, s32, s32);
 s32 menuIsTransitionActive(void);
@@ -305,7 +305,7 @@ void mapRequestTransition(s32 map, s32 exitIndex) {
         func_80712F10(&map, &exitIndex);
         if (map != -1) {
             if ((s32) gPlayerCharacterId >= 6) {
-                gPlayerCharacterId = func_806C8DE0(0);
+                gPlayerCharacterId = playerGetResolvedKongId(0);
             }
             D_8076A0B1 |= 1;
             D_8076AEF2 = (s16) gCurrentMap;

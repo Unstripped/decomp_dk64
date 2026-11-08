@@ -16,43 +16,43 @@ void playerUpdateCommon(s32);
 void func_806F3190(Actor *, s32);
 void actorOrNodeFlags(Actor *, s32, s32);
 
-void func_806C9DE0(void) {
+void playerUpdateSoundEffect0(void) {
     playerUpdateCommon(0);
     func_806F3190(gCurrentActor, 0);
 }
 
-void func_806C9E10(void) {
+void playerUpdateSoundEffect2(void) {
     playerUpdateCommon(0);
     func_806F3190(gCurrentActor, 2);
 }
 
-void func_806C9E40(void) {
+void playerUpdateSoundEffect3(void) {
     playerUpdateCommon(0);
     func_806F3190(gCurrentActor, 3);
 }
 
-void func_806C9E70(void) {
+void playerUpdateSoundEffect4(void) {
     playerUpdateCommon(0);
     func_806F3190(gCurrentActor, 4);
 }
 
-void func_806C9EA0(void) {
+void playerUpdateSoundEffect6(void) {
     playerUpdateCommon(0);
     func_806F3190(gCurrentActor, 6);
 }
 
-void func_806C9ED0(void) {
+void playerUpdateSoundEffect1(void) {
     playerUpdateCommon(0);
     func_806F3190(gCurrentActor, 1);
 }
 
-void func_806C9F00(void) {
+void playerUpdateSoundEffect7(void) {
     actorOrNodeFlags(gCurrentActor, 3, 8);
     playerUpdateCommon(0);
     func_806F3190(gCurrentActor, 7);
 }
 
-void func_806C9F44(void) {
+void playerUpdateSoundEffect5(void) {
     playerUpdateCommon(0);
     func_806F3190(gCurrentActor, 5);
 }
@@ -62,7 +62,7 @@ void func_806EAB44(Actor *, u8);
 
 void func_806E9964(Struct807FD580 *);
 
-void func_806C9F74(Actor *arg0) {
+void playerCheckAndResetCarriedActor(Actor *arg0) {
     u8 temp_v0 = arg0->state;
     s16 flags = D_80750B54[temp_v0][0];
 
@@ -227,7 +227,7 @@ void playerClearStaleHitSource(void) {
     }
 }
 
-void func_806CA2AC(void) {
+void playerClearCarriedItemState(void) {
     G02_P->unkC8 = -1;
     sfxStopSlotSound(gCurrentActor, 1);
 }
@@ -272,9 +272,9 @@ void slotQueueAddValue(s32, u8, s16);
 void actorScriptStartByIndex(Actor *, s32);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 
-void func_806CA2E4(void) {
+void playerCheckAndClearCarriedItem(void) {
     if (G02_P->unkC8 != -1 && (flagGet(0x179, 0) == 0 || G02_A->unkE0 != 0.0f || (D_807FBB64 & 0x800000) || slotQueueGetValue(5, G02_P->unk1A4) == 0)) {
-        func_806CA2AC();
+        playerClearCarriedItemState();
         G02_P->unkC8 = -1;
         return;
     }
@@ -301,7 +301,7 @@ void func_806CA2E4(void) {
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF2, 0xFF, 0x7F, 0);
                 G02_A->unkB8 = 0.0f;
             }
-            func_806CA2AC();
+            playerClearCarriedItemState();
         }
     }
 }
@@ -436,7 +436,7 @@ extern s16 D_807F5FEA;
 extern s32 D_80720020;
 
 void func_806CB53C();
-void func_806CBE44(void);
+void playerCheckQueueDropCallback(void);
 void func_806CF580(void);
 void playerCheckLedgeGrab(void);
 void sfxStopChannel(s32, s32);
@@ -502,7 +502,7 @@ void playerUpdateCommon(s32 arg0) {
             gCurrentActor->unk15E = gCurrentActor->unk140->unkC * 0.15 * 0.5;
         }
     }
-    func_806CBE44();
+    playerCheckQueueDropCallback();
     flags = D_80750B54[gCurrentActor->state][0];
     if (flags & 8) {
         gCurrentActor->unk68 |= 2;
@@ -535,7 +535,7 @@ void playerUpdateCommon(s32 arg0) {
         PLAYER_STATE->unk245 = PLAYER_STATE->unk245 - 1;
     }
     func_806CB53C();
-    func_806CA2E4();
+    playerCheckAndClearCarriedItem();
     func_806CA540();
     if (D_80770561 == 0x6B && gCurrentActor->state != 0x6E) {
         sfxStopChannel(0x6B, 0);
@@ -790,9 +790,9 @@ void playerInitNormalMoveParams(void);
 void playerSetSizeMode(Actor *, u8);
 void playerScaleTransitionStep(void);
 void sfxStopChannel(s32, s32);
-void func_806F12FC(Actor *);
+void playerTransformAnimalEndSfx(Actor *);
 void playerResumeLocomotion(Actor *);
-void func_806C9F74(Actor *);
+void playerCheckAndResetCarriedActor(Actor *);
 
 void func_806CB53C(void) {
     s32 a0;
@@ -874,7 +874,7 @@ void func_806CB53C(void) {
                 playerInitNormalMoveParams();
             }
             if (flag != 0) {
-                func_806C9F74(gCurrentActor);
+                playerCheckAndResetCarriedActor(gCurrentActor);
             }
         }
     }
@@ -917,7 +917,7 @@ void func_806CB53C(void) {
             if (LB_P->unk1FE == 0) {
                 sfxStopChannel(0x6C, 0);
                 gCurrentActor->flags |= 0x8000;
-                func_806F12FC(gCurrentActor);
+                playerTransformAnimalEndSfx(gCurrentActor);
             }
         }
     }
@@ -954,7 +954,7 @@ void func_806CB53C(void) {
 
 
 
-void func_806CBE44(void) {
+void playerCheckQueueDropCallback(void) {
     if (D_807FBB70.unk2 != 0 && D_807FBB70.unk3[0x11] == 1) {
         playerStateQueueCallback(0x20, NULL, gCurrentPlayerIndex);
     }
@@ -964,7 +964,7 @@ extern f32 D_80753250[];
 s32 mathAngleDistance(s16, s16);
 void actorScriptExecute(Actor *);
 
-void func_806CBE90(void) {
+void playerCheckLandingSfx(void) {
     if ((G02_A->unk6A & 0x21) == 1) {
         if (G02_A->unk6A & 0x200) {
             if (G02_A->unk6E == -1) {
@@ -1140,7 +1140,7 @@ typedef struct G03PlayerView {
 #define G03_P ((G03PlayerView *)gActivePlayerState)
 
 void playerUpdateHorizontalVelocity(s32);
-void func_806CBE90(void);
+void playerCheckLandingSfx(void);
 void playerApplyMotion(void);
 void playerApplyGravity(void);
 f32 mathApproachF32(f32, f32, f32);
@@ -1180,7 +1180,7 @@ void func_806CC364(u8 arg0) {
 
 extern f32 D_807539C0[];
 
-void func_806CC5DC(void) {
+void playerDecelerateAndApplyMotion(void) {
     gCurrentActor->speedXZ = mathApproachF32(gCurrentActor->speedXZ, 0.0f, D_807539C0[D_807FD584]);
     playerApplyMotion();
     func_806CC364(1);
@@ -1244,29 +1244,29 @@ void func_806CC638(f32 arg0) {
 
 extern u8 D_807FD586;
 
-void func_806CC8A8(void) {
+void playerSetUnk586Flag(void) {
     D_807FD586 = 1;
 }
 
-void func_806CC8B8(void) {
+void playerApplyFullPhysics(void) {
     playerApplyGravity();
-    func_806CBE90();
+    playerCheckLandingSfx();
     playerUpdateHorizontalVelocity(1);
     playerApplyMotion();
 }
 
-void func_806CC8F0(void) {
-    func_806CBE90();
+void playerApplyMotionWithHorizontalVelocity(void) {
+    playerCheckLandingSfx();
     playerUpdateHorizontalVelocity(1);
     playerApplyMotion();
 }
 
-void func_806CC920(void) {
+void playerApplyHorizontalMotion(void) {
     playerUpdateHorizontalVelocity(1);
     playerApplyMotion();
 }
 
-void func_806CC948(void) {
+void playerApplyGravityAndMotion(void) {
     playerApplyGravity();
     playerApplyMotion();
 }
@@ -1324,7 +1324,7 @@ void func_806CCB94(void) {
     }
 }
 
-s32 func_806CCC10(void) {
+s32 playerIsDamageOrKnockbackState(void) {
     switch (D_807FBB48->state) {
         case 15:
         case 16:
@@ -2749,7 +2749,7 @@ void playerEnterFall(Actor *arg0) {
 s16 func_806CDD24(Actor *, f32, f32, s32);
 s16 func_806CE174(Actor *, f32, f32, s32);
 s16 func_806CE4E4(Actor *, f32, f32, s32);
-void func_806C8D20(Actor *);
+void actorSetInteractionTimer(Actor *);
 void func_806D0150(Actor *);
 
 void playerResumeLocomotion(Actor *arg0) {
@@ -2760,7 +2760,7 @@ void playerResumeLocomotion(Actor *arg0) {
     p->unk4C = -1;
     p->unk10C = 0;
     if (arg0->unk144 == 1) {
-        func_806C8D20(arg0);
+        actorSetInteractionTimer(arg0);
     }
     if (D_807FBB64 & 0x80000) {
         if (p->unk88 != NULL && p->unk88->actorType == 0x1D) {

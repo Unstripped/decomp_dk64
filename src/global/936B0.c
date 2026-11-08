@@ -3213,7 +3213,7 @@ typedef struct ProjectileChaseActor {
 #define CHASE_ACTOR ((ProjectileChaseActor *)gCurrentActor)
 #define CHASE_TARGET ((ProjectileChaseActor *)D_807FBB4C)
 
-void func_8067E278(s32, s32);
+void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void actorSetUniformScale(Actor *, f32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 void effectFollowParentUpdate(void);
@@ -3259,7 +3259,7 @@ void projectileChaseTargetUpdate(void) {
         CHASE_ACTOR->unk60 &= ~0x80000;
     }
     if (((u32)(sp44->unk0 + D_80750344) < D_8076A068) || ((CHASE_ACTOR->unkFD != 0) && (CHASE_ACTOR->unk58 != 0xA9)) || (D_807FBB85 != 0)) {
-        func_8067E278(0, 1);
+        tagBarrelSpawnActorSmokePuffs(0, 1);
         sfxStopSlotSound(gCurrentActor, 0);
         actorDespawn(gCurrentActor);
         if ((CHASE_ACTOR->unk11C != NULL) && (CHASE_ACTOR->unk11C->unk58 == 0xB9) && (CHASE_ACTOR->unk11C->unk154 != 0x37)) {

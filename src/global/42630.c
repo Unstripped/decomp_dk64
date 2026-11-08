@@ -768,7 +768,7 @@ u8 spawnNodeHasActor(u8);
 s32 spawnNodeIsInCooldown(u8);
 s32 listContainsS16(s16);
 f32 actorGetAnimProgress(void *);
-s32 func_806C8D2C(s16);
+s32 playerLookupKongByActorType(s16);
 s32 pathPlaybackIsActive(s32);
 u8 csPosOnScreenOfNearPlayer(s16);
 s32 csPlayerNearPos(s16);
@@ -912,7 +912,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x34:
-        h = func_806C8D2C(cmd->a) * 0x5E;
+        h = playerLookupKongByActorType(cmd->a) * 0x5E;
         q = &D_807FC950[gCurrentPlayerIndex * 0x306 + h];
         if (*q >= cmd->b) {
             ret = 1;
@@ -1328,7 +1328,7 @@ s32 cutsceneTriggerCheck(s16);
 void func_8068B830(s16, s16, s16);
 void func_8068B8FC(void);
 void hudSpawnCountdownTimer(s32, s32, u8, void *);
-void func_806C92C4(s16);
+void playerRespawnResetPhysics(s16);
 void playerThrowHeldActor(Actor *);
 void playerStateQueueCallback(s16, s32, s32);
 void playerStateSetCallbackParameters(s32, s16, s16, s16);
@@ -1581,7 +1581,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         zoneEntrySetDisabled(CMDB(cmd)->a, CMDB(cmd)->b, CMDB(cmd)->c);
         break;
     case 0x5B:
-        func_806C92C4(cmd->a);
+        playerRespawnResetPhysics(cmd->a);
         break;
     case 0x5A:
         cs->unk68 = cmd->a;

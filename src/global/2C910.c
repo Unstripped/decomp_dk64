@@ -139,7 +139,7 @@ void func_8067A69C(s32, void *, f32, f32, u8, u8);
 void func_8067AB20(s32, void *, s32, u8, void *, u8);
 void actorCopyPoseAndScale(void *, void *, f32);
 void func_80687C48(void);
-void func_806C8E58(s16);
+void playerSetKongByActorType(s16);
 void playerResumeLocomotion(void *);
 void func_806F0C18(void *);
 void playerWaypointPathStartPacked(s32, s32, s16, s16);
@@ -219,7 +219,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             func_807127F4(0);
             return;
         case 0x36:
-            func_806C8E58(a + 2);
+            playerSetKongByActorType(a + 2);
             func_806F0C18(D_807FBB4C);
             return;
         case 0x33:

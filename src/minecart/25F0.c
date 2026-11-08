@@ -191,7 +191,7 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 void func_80724CA4(s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(Actor_25F0 *, s16, u8, s16, u8);
 void camStartShake(s32, s32, s32);
-void func_8067E278(s32, s32);
+void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void func_80724E48(s32);
 s32 func_8072DE10(s32);
 void minecartStartScriptNearPlayer(void);
@@ -530,7 +530,7 @@ void minecartUpdateFollower(void) {
                 camSetTargetScaled(gActivePlayerState->unk104, gActivePlayerState->actor, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
             }
         }
-        func_8067E278(0, 1);
+        tagBarrelSpawnActorSmokePuffs(0, 1);
         actorDespawn(gCurrentActor);
     }
     dist = gCurrentActor->unk7C - gPlayerSlots->unk210;
@@ -630,7 +630,7 @@ void minecartUpdateObstacleType1(void) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x7F, 0x1E);
         camStartShake(gCamActor, 0xA, 0x14);
         gCurrentActor->unk154 = 0x40;
-        func_8067E278(0, 1);
+        tagBarrelSpawnActorSmokePuffs(0, 1);
     }
     switch (gCurrentActor->unk154) {
     case 0:
@@ -695,7 +695,7 @@ void minecartUpdateObstacleType2(void) {
         gCurrentActor->unk154 = 0;
     }
     if ((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) {
-        func_8067E278(0, 1);
+        tagBarrelSpawnActorSmokePuffs(0, 1);
         gCurrentActor->unk154 = 0x40;
         camStartShake(gCamActor, 0xA, 0x14);
     }
@@ -811,7 +811,7 @@ case_1:
         }
         return;
     case 2:
-        func_8067E278(0, 1);
+        tagBarrelSpawnActorSmokePuffs(0, 1);
         gCurrentActor->unk154 = 0x40;
         actorUpdateModelMatrix(gCurrentActor, 0);
         return;

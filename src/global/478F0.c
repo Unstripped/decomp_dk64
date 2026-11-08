@@ -252,11 +252,11 @@ void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     st->timer--;
 }
 
-void func_8067DF44(f32, f32, f32, f32, u8, u8);
+void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
 
 void func_8064384C(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSlot *slot = &D_807F6000[hashTableLookup(csId)];
-    func_8067DF44(slot->x, slot->y, slot->z, slot->w, 0, 1);
+    tagBarrelSpawnSmokeAndPuffs(slot->x, slot->y, slot->z, slot->w, 0, 1);
 }
 
 extern u8 D_8071FE08[];

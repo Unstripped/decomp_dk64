@@ -17,7 +17,7 @@ extern BossByteTable6 D_8003598C;
 extern u8 effectDecelDriftFadeUpdate;
 extern u8 D_8071FFA0;
 
-void func_8067E2E4(void *, s32, f32);
+void tagBarrelSpawnNodeSmokePuffs(void *, s32, f32);
 void func_80714950();
 void func_8071498C(void *);
 void func_80714998(s32);
@@ -31,7 +31,7 @@ void bossArmydilloSpawnSmoke(void) {
 
     for (i = 0; i < 6; i++) {
         smokeBones = D_8003598C;
-        func_8067E2E4(gCurrentActor, smokeBones.bytes[i], 3.0f);
+        tagBarrelSpawnNodeSmokePuffs(gCurrentActor, smokeBones.bytes[i], 3.0f);
     }
 
     for (i = 0; i < 12; i++) {
@@ -329,7 +329,7 @@ u8 bossPieceStep(u8 *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 e
         if (p1->y < -300.0f) {
             p1->y = -300.0f;
             if (-50.0f < OBJ->f2[pieceIdx]) {
-                func_8067E2E4(gCurrentActor, (u8)(pieceIdx + 1), 1.5f);
+                tagBarrelSpawnNodeSmokePuffs(gCurrentActor, (u8)(pieceIdx + 1), 1.5f);
                 func_8068A784(gCurrentActor, pieceIdx);
                 OBJ->state[pieceIdx] = 0;
                 ret = 1;
@@ -807,7 +807,7 @@ void bossArmydilloStep(void) {
     }
     func_8072881C(0, D_807FDC90->unk28);
     if ((D_807FBB70[0x200] == 9) || (D_807FBB70[0x15] != 0)) {
-        func_8067E2E4(gCurrentActor, 0xC, 2.0f);
+        tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 0xC, 2.0f);
         gCurrentActor->unk138 = 0;
         gCurrentActor->unk144 = 1;
         currentActorClearFlag();
@@ -821,7 +821,7 @@ void bossArmydilloStep(void) {
         gCurrentActor->unk155 = 0;
         gCurrentActor->unk138 = 0;
         D_80750190 = 1;
-        func_8067E2E4(gCurrentActor, 0xC, 2.0f);
+        tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 0xC, 2.0f);
         actorScriptStart(gCurrentActor, 0x262);
         state->unk15 = 0;
         state->unk14++;
@@ -849,7 +849,7 @@ void bossArmydilloStep(void) {
             break;
         case 2:                                     /* switch 2 */
             if (!(gFrameCounter & 3)) {
-                func_8067E2E4(gCurrentActor, (((randomNonNegative() >> 15) % 32767 % 10) + 0xD) & 0xFF, 1.0f);
+                tagBarrelSpawnNodeSmokePuffs(gCurrentActor, (((randomNonNegative() >> 15) % 32767 % 10) + 0xD) & 0xFF, 1.0f);
             }
             if (currentActorTestClearFlag() != 0) {
                 bossArmydilloSpawnSmoke();
@@ -956,8 +956,8 @@ void bossArmydilloStep(void) {
                 effectSpawnJointBeam(0xD, 0x16, 0x17, 0x1C);
             }
             if (currentActorTestClearFlag() != 0) {
-                func_8067E2E4(gCurrentActor, 6, 1.0f);
-                func_8067E2E4(gCurrentActor, 7, 1.0f);
+                tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 6, 1.0f);
+                tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 7, 1.0f);
                 actorScriptStart(gCurrentActor, 0x26C);
                 bossPieceSetState(state17C, 0, 5);
                 bossPieceSetState(state17C, 1, 5);

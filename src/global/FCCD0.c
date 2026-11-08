@@ -139,7 +139,7 @@ extern u16 D_80750AC8;
 extern void *gSlotQueueMaskList;
 void *heapAlloc(s32);
 void heapClearBlock(void *);
-s32 func_806C8DE0(s32);
+s32 playerGetResolvedKongId(s32);
 s32 slotQueueGetMaxValue();
 void slotQueueSetDisplayMode(u8, u8, u8);
 s32 func_807142D8();
@@ -177,7 +177,7 @@ void slotQueueInit(s32 arg0) {
         fp = (u8 *)D_807FC950;
         i = 0;
         do {
-            sp84 = (u8 *)(func_806C8DE0(i) * 0x5E);
+            sp84 = (u8 *)(playerGetResolvedKongId(i) * 0x5E);
             sp84 = (u8 *)((s32)fp + (s32)sp84);
             player = i;
             if (player && player) {
@@ -346,7 +346,7 @@ u16 slotQueueGetValue(u8 arg0, u8 arg1) {
             if (D_8076A0AB && D_8076A0AB) {}
             var_a2 = *(u16 *)slot->unk0;
         } else {
-            sp1C = func_806C8DE0(arg1);
+            sp1C = playerGetResolvedKongId(arg1);
             temp_v0 = mapGetHubWorldIndex(D_8076A0AB, 1);
             if (arg0 != 0xA) {
                 if (arg0 == 0xC) {
@@ -448,7 +448,7 @@ void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
     s32 temp_v0;
 
     sp1C = mapGetHubWorldIndex(D_8076A0AB, 1);
-    temp_v0 = func_806C8DE0(0);
+    temp_v0 = playerGetResolvedKongId(0);
     temp_a3 = temp_v0;
     *arg0 = 0x7F;
     if (arg2 != 8) {
@@ -483,7 +483,7 @@ s32 slotQueueGetMaxValue(s32 arg0, s32 arg1) {
     u8 temp_a0;
     s32 var_v0;
 
-    temp_v0 = func_806C8DE0(arg1);
+    temp_v0 = playerGetResolvedKongId(arg1);
     var_a0 = 0x64;
     switch (arg0) {
     case 1:
@@ -579,7 +579,7 @@ s16 arg2;
 
     pa = &arg1;  // FAKE: keeps arg1 memory-resident (plain lbu per use)
     sp28 = arg1;
-    temp_v0_2 = func_806C8DE0(arg1);
+    temp_v0_2 = playerGetResolvedKongId(arg1);
     sp48 = (u8 *)D_807FC950 + (arg1 * 0x306 + temp_v0_2 * 0x5E);
     temp_v0 = slotQueueGetAddress(arg1);
     temp_a0 = (SlotQueueStatSlot *)temp_v0 + arg0;
@@ -1088,7 +1088,7 @@ Gfx *slotQueueDrawPlayerLabels(s32 arg0, SlotQueueDrawNode *arg1, Gfx *arg2) {
 
     cursor = arg1->unk14;
     player = mapGetHubWorldIndex(D_8076A0AB, 1);
-    active = func_806C8DE0(0);
+    active = playerGetResolvedKongId(0);
     off = arg0 * 0x30;
     savedU16 = *(u16 *)((u8 *)gSlotQueue + off + 4);
     savedY = cursor[1];
@@ -1403,7 +1403,7 @@ s32 slotQueueGetSpriteAsset(s32 arg0) {
     u32 player;
 
     result = 0;
-    player = func_806C8DE0(0);
+    player = playerGetResolvedKongId(0);
     if (arg0 == 13) {
         player = D_80754288;
     }

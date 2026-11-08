@@ -55,7 +55,7 @@ s32 currentActorTestClearFlag(void);
 void actorUpdateModelMatrix(B6C50Actor *, s32);
 void actorUpdateFloorContactAndTilt(B6C50Actor *, f32);
 void actorCopyPoseAndScale(B6C50Actor *, B6C50Actor *, f32);
-void func_8067DF44(f32, f32, f32, f32, u8, u8);
+void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
 void hudSpawnCountdownTimer(s32, s32, u8);
 void func_80714998(s32);
 void func_807149A8(s16);
@@ -123,7 +123,7 @@ void func_806B1F50(void) {
                     gCurrentActor->unk60 &= ~4;
                     gCurrentActor->unk68 &= 0xFFBF;
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xED, 0xFF, 0x7F, 0x14);
-                    func_8067DF44(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->unk38 * 2 / 0.15, 0, 1);
+                    tagBarrelSpawnSmokeAndPuffs(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->unk38 * 2 / 0.15, 0, 1);
                     actorDespawn((B6C50Actor *)D_807FDC94);
                     gCurrentActor->unk155++;
                     break;
@@ -198,7 +198,7 @@ void func_806B24B8(void) {
     if (D_807FBB70.unk15 != 0 || D_807FBB70.unk200 == 9) {
         gCurrentActor->unk144 = 1;
         gCurrentActor->unk154 = 0x40;
-        func_8067DF44(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->unk38 / 0.15, 0, 1);
+        tagBarrelSpawnSmokeAndPuffs(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->unk38 / 0.15, 0, 1);
     }
     if (gCurrentActor->unk154 == 0x23) {
         if (gCurrentActor->unkF0 == 0) {

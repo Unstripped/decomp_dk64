@@ -218,7 +218,7 @@ extern void *gCamActor;
 
 void behaviourFrameBegin(void);
 s32 flagGet(s32, s32);
-void func_8067E278(s32, s32);
+void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void func_8072D714(s32, s32);
 void actorSetUniformScale(void *, f32);
 void actorSpawnLinkedFollower(void);
@@ -262,7 +262,7 @@ void bossKutOutStep(void) {
     }
     if (((D_807FBD70 == 9) || (D_807FBB85 != 0)) && (A40->unk154 != 0x37)) {
         if (flagGet(0xF7, 0) != 0) {
-            func_8067E278(0, 1);
+            tagBarrelSpawnActorSmokePuffs(0, 1);
             A40->unk154 = 0x40;
         } else {
             camStartPath(gCurrentActor, 6, 1);

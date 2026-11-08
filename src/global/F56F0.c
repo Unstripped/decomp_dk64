@@ -51,7 +51,7 @@ void func_806F09F0(Actor *arg0, u16 arg1) {
 
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 
-void func_806F0B34(Actor *arg0) {
+void playerPlayKongSpecificSfx(Actor *arg0) {
     switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
     case 0:
         sfxPlayFromActorWithAltitudeCheck(arg0, 0x17C, 0xFF, 0x7F, 0x19);
@@ -124,14 +124,14 @@ void func_806F0C18(Actor *arg0) {
     if (arg0->unk5C & 1) {
         extra = arg0->unk174;
         if (extra->unk8C != 0) {
-            func_806F0B34(arg0);
+            playerPlayKongSpecificSfx(arg0);
             extra->unk8C = 0;
         }
     }
 }
 
 extern u8 D_807FC952[];
-s32 func_806C8DE0(u8);
+s32 playerGetResolvedKongId(u8);
 s32 func_80714608(s32);
 void func_806F5A48(u8, s32, Actor *, s32);
 
@@ -197,7 +197,7 @@ void func_806F0D68(Actor *arg0) {
             extra->unk8C = 1;
         }
         if (func_80714608(0) != 0) {
-            D_807FC952[extra->unk1A4 * 0x306 + func_806C8DE0(extra->unk1A4) * 0x5E] = 1;
+            D_807FC952[extra->unk1A4 * 0x306 + playerGetResolvedKongId(extra->unk1A4) * 0x5E] = 1;
             func_806F5A48(extra->unk1A4, 0, arg0, 0x8F);
         }
     }
@@ -209,7 +209,7 @@ typedef struct F5N2ActorState {
 } F5N2ActorState;
 
 void controllerAnimFreeStateAsset(void);
-void func_806C8D20(Actor *);
+void actorSetInteractionTimer(Actor *);
 
 void func_806F1048(Actor *arg0) {
     F5N2ActorState *state = arg0->unk174;
@@ -229,7 +229,7 @@ void func_806F1048(Actor *arg0) {
         }
         break;
     }
-    func_806C8D20(gCurrentActor);
+    actorSetInteractionTimer(gCurrentActor);
 }
 
 typedef struct F5N3ActorState {
@@ -295,7 +295,7 @@ void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, s32);
 extern s32 D_807FBB68;
 
-void func_806F1250(Actor *arg0) {
+void playerTransformAnimalStartSfx(Actor *arg0) {
     F5N3ActorExtra *extra = arg0->unk174;
 
     if (arg0->actorType == 6) {
@@ -308,7 +308,7 @@ void func_806F1250(Actor *arg0) {
     extra->flags |= 0x40;
 }
 
-void func_806F12FC(Actor *arg0) {
+void playerTransformAnimalEndSfx(Actor *arg0) {
     F5N3ActorExtra *extra = arg0->unk174;
 
     if (arg0->actorType == 6) {
@@ -320,7 +320,7 @@ void func_806F12FC(Actor *arg0) {
 
 void playerFireWeapon();
 
-void func_806F1350(s32 arg0) {
+void playerFireWeaponPrimary(s32 arg0) {
     playerFireWeapon(0, 1);
 }
 
@@ -333,7 +333,7 @@ typedef struct F5AActorSub4 {
 
 void scriptReadU32(f32 *);
 
-void func_806F1380(Actor *arg0) {
+void scriptCmdCompareSpeedXZ(Actor *arg0) {
     f32 temp;
 
     scriptReadU32(&temp);
@@ -350,7 +350,7 @@ typedef struct F5APlayerState {
 void scriptReadU8(u8 *);
 s32 playerSelectMoveTier(Actor *, f32, f32, s16, s16);
 
-void func_806F13C8(Actor *arg0) {
+void scriptCmdCompareMoveTier(Actor *arg0) {
     u8 temp;
 
     scriptReadU8(&temp);
@@ -366,7 +366,7 @@ typedef struct F5APlayerCoefficient {
 extern F5APlayerCoefficient D_807FD618[];
 void playerResumeLocomotion(void);
 
-void func_806F142C(void) {
+void playerResumeLocomotionDecel(void) {
     f32 value;
 
     playerResumeLocomotion();

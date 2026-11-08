@@ -218,7 +218,7 @@ void playerWaypointPathStartLineFromActor(void *, s16, s16, s32);
 void mapRequestTransitionFast(s16, s16);
 void func_805FF9AC(s16, s16, s16, s32);
 void mapTransitionExitCurrent(s16, s16);
-void func_806C92C4(s16);
+void playerRespawnResetPhysics(s16);
 void mapTransitionToPreviousOrExit(void);
 void mapTransitionToMenuOrPrevious(void);
 void mapSetTransitionExtraCounter(u8);
@@ -358,7 +358,7 @@ void actorCutsceneDispatchEvents(void) {
             break;
         case 0x6:
             gActivePlayerState->unk100 = 1;
-            func_806C92C4(eventData[0]);
+            playerRespawnResetPhysics(eventData[0]);
             break;
         case 0x7:
             if (!(D_807FBB60 & 0x400)) {

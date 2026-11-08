@@ -319,7 +319,7 @@ void csModelStateSetFirstByte(s16, s16);
 f32 sqrtf(f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
 void billboardSubmit(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-s32 func_806CCC10(void);
+s32 playerIsDamageOrKnockbackState(void);
 void hudSpawnTextScreen(s32);
 s32 mathAngleStepToward(s16 *, s16, s32);
 void playerStateQueueCallback(s16, void *, u8);
@@ -405,7 +405,7 @@ void raceOpponentBehaviourUpdate(void) {
         L4_D->unkC4 = -40.0f;
         L4_D->unkC0 = 400.0f;
     }
-    if (func_806CCC10() != 0) {
+    if (playerIsDamageOrKnockbackState() != 0) {
         L4_D->unk132 = 1;
     } else {
         L4_D->unk132 = 2;

@@ -194,7 +194,7 @@ void healthApplyPendingDelta(s32 playerIndex, HealthPlayerState *hudState, Healt
     }
 }
 
-s32 func_806C8DE0(s32);
+s32 playerGetResolvedKongId(s32);
 f32 sinApprox(f32);
 
 s32 healthHudUpdateDraw(glist, playerIndex, hudState)
@@ -211,7 +211,7 @@ HealthHudState *hudState;
     s32 single;
 
     hud = (u8 *)(playerIndex * 0x306 + (s32)D_807FC950);
-    idx = func_806C8DE0(playerIndex);
+    idx = playerGetResolvedKongId(playerIndex);
     elem = (u8 *)((s32)hud + idx * 0x5E);
     mode = hudState->unk2E4;
     bits = hudState->unk2E3;

@@ -76,9 +76,9 @@ s32 actorDespawn(Actor *);
 void func_8067B4C8(void);
 void func_8067BA7C(s32);
 s32 tagBarrelCheckProximityAndFall(s32, u8 *, u8 *, u8 *);
-void func_8067C71C(void);
+void actorTransformCameraUpdate(void);
 void tagBarrelDespawnEffects(void);
-void func_8067DF44(f32, f32, f32, f32, u8, u8);
+void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
 void tagBarrelResetMovement(void);
 void tagBarrelTriggerRecoil(void);
 void tagBarrelCheckRecoil(void);
@@ -644,24 +644,24 @@ void func_8067C2B8(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_8067C67C(void) {
-    func_8067C71C();
+void actorTransformCameraUpdateA(void) {
+    actorTransformCameraUpdate();
 }
 
-void func_8067C69C(void) {
-    func_8067C71C();
+void actorTransformCameraUpdateB(void) {
+    actorTransformCameraUpdate();
 }
 
-void func_8067C6BC(void) {
-    func_8067C71C();
+void actorTransformCameraUpdateC(void) {
+    actorTransformCameraUpdate();
 }
 
 void func_8067C6DC(void) {
     textMarkerUpdateMatrix();
 }
 
-void func_8067C6FC(void) {
-    func_8067C71C();
+void actorTransformCameraUpdateD(void) {
+    actorTransformCameraUpdate();
 }
 
 extern Actor *gSpawnedActor;
@@ -810,14 +810,14 @@ void actorCallbackMaskDisable(Actor *, s32);
 void actorCollisionEventsCancel(Actor *, s32);
 void func_8067ACB4(Actor *);
 void actorCopyPoseAndScale(Actor *, Actor *, f32);
-void func_8067E278();
+void tagBarrelSpawnActorSmokePuffs();
 void actorReleaseFromPlayerHold(Actor *);
 void func_807149A8(s32);
 void effectWobbleRiseUpdate(void);
 void pathFollowUpdateHeading(Actor *, s32);
 void animationOwnerFreeBuffer(Actor *);
 
-void func_8067C71C(void) {
+void actorTransformCameraUpdate(void) {
     ActorC71CState *temp_s1;
     ActorC71CMtxF spB4;
     ActorC71CMtxF sp74;
@@ -1051,7 +1051,7 @@ void func_8067C71C(void) {
         } else {
             switch (ACTOR_C71C->unk58) {
             case 0x1A:
-                func_8067E278(1, 1);
+                tagBarrelSpawnActorSmokePuffs(1, 1);
                 ACTOR_C71C->unk60 &= ~0x8000;
                 ACTOR_C71C->unk128 = 0;
                 ACTOR_C71C->unk154 = 9;
@@ -1230,7 +1230,7 @@ void tagBarrelDespawnEffects(void) {
     }
 }
 
-void func_8067DF44(f32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
+void tagBarrelSpawnSmokeAndPuffs(f32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
     f64 sp80;
     f32 sp7C;
     f32 temp_fs2;
@@ -1273,20 +1273,20 @@ void func_8067DF44(f32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
     }
 }
 
-void func_8067E278(arg0, arg1)
+void tagBarrelSpawnActorSmokePuffs(arg0, arg1)
 u8 arg0;
 u8 arg1;
 {
-    func_8067DF44(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, (f32) ((f64) gCurrentActor->unk4->unk38 / 0.15), arg0, arg1);
+    tagBarrelSpawnSmokeAndPuffs(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, (f32) ((f64) gCurrentActor->unk4->unk38 / 0.15), arg0, arg1);
 }
 
-void func_8067E2E4(s32 arg0, u8 arg1, f32 arg2) {
+void tagBarrelSpawnNodeSmokePuffs(s32 arg0, u8 arg1, f32 arg2) {
     f32 sp2C;
     f32 sp28;
     f32 sp24;
 
     actorGetNodePos(gCurrentActor, arg1, &sp2C, &sp28, &sp24);
-    func_8067DF44(sp2C, sp28, sp24, arg2, 0, 1);
+    tagBarrelSpawnSmokeAndPuffs(sp2C, sp28, sp24, arg2, 0, 1);
 }
 
 void tagBarrelResetMovement(void) {
@@ -1323,7 +1323,7 @@ void tagBarrelCheckRecoil(void) {
     }
 }
 
-void func_8067E4D4(void) {
+void tagBarrelUpdateRecoilState0(void) {
     transformBarrelUpdate();
     if (gCurrentActor->state == 0) {
         tagBarrelCheckRecoil();
@@ -1352,20 +1352,20 @@ void func_8067E510(void) {
     transformBarrelUpdate();
 }
 
-void func_8067E69C(void) {
+void tagBarrelUpdateAndCheckRecoil(void) {
     transformBarrelUpdate();
     tagBarrelCheckRecoil();
 }
 
-void func_8067E6C4(void) {
+void transformBarrelWrapperUpdateA(void) {
     transformBarrelUpdate();
 }
 
-void func_8067E6E4(void) {
+void transformBarrelWrapperUpdateB(void) {
     transformBarrelUpdate();
 }
 
-void func_8067E704(void) {
+void transformBarrelWrapperUpdateC(void) {
     transformBarrelUpdate();
 }
 
@@ -1376,7 +1376,7 @@ void func_8067E724(void) {
     transformBarrelUpdate();
 }
 
-void func_8067E764(void) {
+void transformBarrelWrapperUpdateD(void) {
     transformBarrelUpdate();
 }
 
@@ -1434,7 +1434,7 @@ void camSetFollowMode(s32);
 void func_8067A70C(Actor *, Actor *, f32, f32, f32, u8, u8);
 void animResetEndFrame(Actor *, s32);
 void animSetEndFrame(Actor *, s32, s32);
-void func_806C8D20(Actor *);
+void actorSetInteractionTimer(Actor *);
 s32 slotQueueGetValue(s32, s32);
 void slotQueueUpdate(s32, u8, s32);
 void slotQueueAddValue(s32, u8, s32);
@@ -1716,7 +1716,7 @@ void transformBarrelUpdate(void) {
             }
             func_8067AAB8((s32)gCurrentActor, var_t0->unk4, angle, -40.0f, 0);
         }
-        func_806C8D20(var_t0->unk4);
+        actorSetInteractionTimer(var_t0->unk4);
         tagBarrelDespawnEffects();
         gCurrentActor->state = 4;
         if (((u32)gCurrentActor->actorType) == 0x39) {
@@ -2964,7 +2964,7 @@ void tagBarrelOrbitKongs(void *arg0) {
     } while (var_s1 != 5);
 }
 
-void func_80682DF4(void *arg0, u16 *arg1, s32 arg2) {
+void actorScriptStartByKongIndex(void *arg0, u16 *arg1, s32 arg2) {
     arg2 = arg2 * 7;
     arg2 += *arg1 - 2;
     actorScriptStart(arg0, D_807FBB54[arg2], arg2);
@@ -3018,7 +3018,7 @@ void tagBarrelSpawnKongs(TagBarrelSpawnArgs *arg0) {
             *temp_s0 = ((KongActionEntry *)D_8074E814)[i].unk2;
             func_806F09F0(gSpawnedActor, *temp_s0);
             var_a2 = (i == arg0->unk6) ? 0x8B : 0x8A;
-            func_80682DF4(gSpawnedActor, temp_s0, var_a2);
+            actorScriptStartByKongIndex(gSpawnedActor, temp_s0, var_a2);
         } else {
             u8 *temp = gSpawnedActor->unk174;
             *temp = i;
@@ -3338,7 +3338,7 @@ void healthRefill(s32);
 void sfxStopChannel(s32, s32);
 void camRestoreYaw(Actor *);
 void camResetPlayer(Actor *, s32);
-void func_806C8E58(s16);
+void playerSetKongByActorType(s16);
 s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 struct TagBarrelData;
 
@@ -3367,7 +3367,7 @@ void tagBarrelUpdateSelection(struct TagBarrelData *arg0_in) {
         if (((gPlayerPadState.unk30 >= 0x29) && !sp28) || !var_s0) {
             arg0->unk4 = 20;
             if (((Actor *)arg0->unk8[arg0->unk6])->actorType == 0x13C) {
-                func_80682DF4(arg0->unk8[arg0->unk6], (u16 *)((Actor *)arg0->unk8[arg0->unk6])->unk174, 0x8C);
+                actorScriptStartByKongIndex(arg0->unk8[arg0->unk6], (u16 *)((Actor *)arg0->unk8[arg0->unk6])->unk174, 0x8C);
             }
             arg0->unk7 = arg0->unk6;
             if (var_s0) {
@@ -3380,7 +3380,7 @@ void tagBarrelUpdateSelection(struct TagBarrelData *arg0_in) {
                 arg0->unk6 = 0;
             }
             if (((Actor *)arg0->unk8[arg0->unk6])->actorType == 0x13C) {
-                func_80682DF4(arg0->unk8[arg0->unk6], (u16 *)((Actor *)arg0->unk8[arg0->unk6])->unk174, 0x8B);
+                actorScriptStartByKongIndex(arg0->unk8[arg0->unk6], (u16 *)((Actor *)arg0->unk8[arg0->unk6])->unk174, 0x8B);
             }
         } else {
             if (!sp28 && sp4A != 0) {
@@ -3414,7 +3414,7 @@ void tagBarrelUpdateSelection(struct TagBarrelData *arg0_in) {
                     arg0->unk4 = 30;
                     sp30->unk1F0 &= ~0x20000000;
                     var_s0 = ((KongActionEntry *)D_8074E814)[arg0->unk6].unk2;
-                    func_806C8E58(var_s0);
+                    playerSetKongByActorType(var_s0);
                     func_806F09F0(sp34, var_s0);
                     *(u8 *)((u8 *)sp30 + 0x8C) = 0;
                     sp34->yaw = arg0->unk38;
@@ -3678,14 +3678,14 @@ void tagBarrelUpdate(void) {
     actorUpdateModelMatrix(actor, 0);
 }
 
-void func_806844EC(void) {
+void tagBarrelWrapperUpdateA(void) {
     tagBarrelUpdate();
 }
 
-void func_8068450C(void) {
+void tagBarrelWrapperUpdateB(void) {
     tagBarrelUpdate();
 }
 
-void func_8068452C(void) {
+void tagBarrelWrapperUpdateC(void) {
     tagBarrelUpdate();
 }

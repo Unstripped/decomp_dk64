@@ -67,7 +67,7 @@ void enemyAggroStateUpdate(s32, s32, s32);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void actorScriptStart(void *, s32);
-void func_8067E278(s32, s32);
+void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void func_8072B7CC(s32);
@@ -183,7 +183,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             BA790A->unk155 = BA790A->unk155 + 1;
             break;
         case 2:
-            func_8067E278(0, 1);
+            tagBarrelSpawnActorSmokePuffs(0, 1);
             func_8072D99C();
             break;
         }
@@ -232,7 +232,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             break;
         case 2:
             sfxSpawnTableNodes(gCurrentActor);
-            func_8067E278(1, 1);
+            tagBarrelSpawnActorSmokePuffs(1, 1);
             actorSetNodeFlag(gCurrentActor, 3);
             camStartShakeFromPoint(gCamActor, 5, 0x14, BA790A->unk7C, BA790A->unk80, BA790A->unk84, 200.0f, 400.0f);
             BA790A->unk155 = BA790A->unk155 + 1;

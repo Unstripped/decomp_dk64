@@ -205,7 +205,7 @@ s32 menuGetTimerFlag();
 void eepromSavePlayerData();
 void menuReturnToTitle();
 void func_807127B4();
-s32 func_806C8DE0();
+s32 playerGetResolvedKongId();
 s32 mathAngleSignedDistance(s16, s16);
 void mapTransitionToWorldHub();
 void flagSet(s32, s32, s32);
@@ -276,7 +276,7 @@ void hudPauseMenuUpdate(void) {
         hud->unk16 = -1;
         hud->unk0 = 1.0f;
         hud->unk4 = 0.0f;
-        hud->unk14 = func_806C8DE0(0);
+        hud->unk14 = playerGetResolvedKongId(0);
         hud->unk8[0] = hudFindItemIndex(mapGetHubWorldIndex(D_8076A0AB, 1));
         if (D_807505D0 < hud->unk8[0]) {
             hud->unk8[0] = 0;
@@ -1022,7 +1022,7 @@ extern s32 D_80721518;
 
 s32 mapGetHubWorldIndex(s32, s32);
 f32 floatCeil(f32);
-s32 func_806C8DE0(s32);
+s32 playerGetResolvedKongId(s32);
 s32 func_806F6E58(s32);
 s32 slotQueueGetCountStep(s32);
 s32 flagGridIndex(s32, s32, s32);
@@ -1056,7 +1056,7 @@ void hudPauseMenuBuildPage(iconObj, arg1)
 
     hud = (HudPausePage *)iconObj;
     saved = gPlayerCharacterId;
-    e2 = HUD_PAUSE_COUNT(func_806C8DE0(0));
+    e2 = HUD_PAUSE_COUNT(playerGetResolvedKongId(0));
     gPlayerCharacterId = hud->unk14;
     ent = HUD_PAUSE_COUNT(hud->unk14);
     idx = hud->unk8[hud->unk15];
