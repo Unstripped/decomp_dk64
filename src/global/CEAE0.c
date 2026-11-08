@@ -1591,19 +1591,19 @@ void playerApproachVelocity(s16 arg0, f32 arg1, f32 arg2) {
     }
 }
 
-f32 mathApproachF32(f32 arg0, f32 arg1, f32 arg2) {
-    if (arg0 < arg1) {
-        arg0 += arg2;
-        if (arg1 < arg0) {
-            arg0 = arg1;
+f32 mathApproachF32(f32 current, f32 target, f32 step) {
+    if (current < target) {
+        current += step;
+        if (target < current) {
+            current = target;
         }
     } else {
-        arg0 -= arg2;
-        if (arg0 < arg1) {
-            arg0 = arg1;
+        current -= step;
+        if (current < target) {
+            current = target;
         }
     }
-    return arg0;
+    return current;
 }
 
 void playerApplyDeceleration(void) {
