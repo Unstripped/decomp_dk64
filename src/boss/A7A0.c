@@ -106,7 +106,7 @@ void actorScriptStart(BossC_A7A0_Actor *, s32);
 void actorScriptExecute(BossC_A7A0_Actor *);
 void controllerAnimSetState(s32, s16, f32, f32);
 
-void func_8002E9B8(s32 scriptId, s16 animId) {
+void bossKRoolLankySetAnim(s32 scriptId, s16 animId) {
     BossC_A7A0_178 *link = gCurrentActor->unk178;
 
     actorScriptStart(gCurrentActor, scriptId);
@@ -122,10 +122,10 @@ typedef struct BossC_A7A0_DC9C {
 extern BossC_A7A0_DC9C *D_807FDC9C;
 void actorSetTargetSpeed(BossC_A7A0_Actor *, s32);
 
-void func_8002EA14(void) {
+void bossKRoolLankyRunTowardPlayer(void) {
     BossC_A7A0_178 *link = gCurrentActor->unk178;
 
-    func_8002E9B8(0x406, 0x674);
+    bossKRoolLankySetAnim(0x406, 0x674);
     actorSetTargetSpeed(gCurrentActor, D_807FDC9C->unkC + (link->unk14 * 10) + 15);
 }
 
@@ -218,7 +218,7 @@ s32 func_8072881C(s32, void *);
 #define BB70 (*(BossStageInfo *)&D_807FBB70)
 #define DC9C ((BossConfig *)D_807FDC9C)
 
-void func_8002EA7C(void) {
+void bossKRoolLankyStep(void) {
     BossScriptState *scriptState;
     u8 *scriptOpcodes;
 
@@ -246,12 +246,12 @@ void func_8002EA7C(void) {
             case 0:
                 actorSetTargetSpeed(gCurrentActor, 0);
                 camStartPath(ACTOR4C, 9, 1);
-                func_8002E9B8(0x3F5, 0x679);
+                bossKRoolLankySetAnim(0x3F5, 0x679);
                 ACTOR40->unk155++;
                 break;
             case 2:
                 actorSetTargetSpeed(gCurrentActor, DC9C->unkD);
-                func_8002E9B8(0x3F4, 0x678);
+                bossKRoolLankySetAnim(0x3F4, 0x678);
                 ACTOR40->unk155++;
                 break;
             case 3:
@@ -270,7 +270,7 @@ void func_8002EA7C(void) {
         case 0x2C:
             if (ACTOR40->unk155 == 0) {
                 playerStateQueueCallback(0x36, ACTOR40, 0);
-                func_8002EA14();
+                bossKRoolLankyRunTowardPlayer();
                 ACTOR40->unk154 = 0x42;
                 ACTOR40->unk155 = 0;
             }
@@ -284,11 +284,11 @@ void func_8002EA7C(void) {
         case 0:
             switch (ACTOR40->unk155) {
             case 0:
-                func_8002E9B8(0x3F5, 0x679);
+                bossKRoolLankySetAnim(0x3F5, 0x679);
                 ACTOR40->unk155++;
                 break;
             case 2:
-                func_8002EA14();
+                bossKRoolLankyRunTowardPlayer();
                 ACTOR40->unk154 = scriptOpcodes[scriptState->unk15++];
                 ACTOR40->unk155 = 0;
                 actorSetCollisionRadius(ACTOR4C, (f32)(ACTOR4C->unk140->unkC * 2));
@@ -319,7 +319,7 @@ void func_8002EA7C(void) {
                 break;
             case 2:
                 bossResetMinions(NULL);
-                func_8002EA14();
+                bossKRoolLankyRunTowardPlayer();
                 scriptState->unk15 = 0;
                 scriptState->unk14++;
                 scriptOpcodes = D_80035A80[scriptState->unk14];

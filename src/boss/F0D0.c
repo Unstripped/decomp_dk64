@@ -134,7 +134,7 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *sub14, u8 *waypointIndices) {
     return val;
 }
 
-void func_8003340C(u8 *waypointIndices) {
+void bossSetAnimationByWaypoint(u8 *waypointIndices) {
     s32 animId;
 
     animId = gCurrentActor->unk4->unk64;
@@ -167,7 +167,7 @@ void bossInterpolateWaypoints(u8 *waypointPair, f32 progress) {
     gCurrentActor->unkE6 = mathAngleEaseToward(gCurrentActor->unkE6, mathAngleBetweenPoints2D(D_807FDCA0->unk14[waypointPair[1]].unk0, D_807FDCA0->unk14[waypointPair[1]].unk4, D_807FDCA0->unk14[waypointPair[0]].unk0, D_807FDCA0->unk14[waypointPair[0]].unk4), 10.0f);
 }
 
-void func_800336C0(void) {
+void bossSpawnPuffDebris(void) {
     f32 scale;
 
     scale = (f32) ((f64) gCurrentActor->unk4->unk38 / 0.15);
@@ -228,7 +228,7 @@ void bossSpawnObjectAtWaypoint(u8 *waypointIndex) {
     projectileAimAndSpawn(0x2C, 2, gCurrentActor->unk4->unk38, D_807FDCA0->unk14[waypointIndex[3]].unk0, D_807FDCA0->unk14[waypointIndex[3]].unk2, D_807FDCA0->unk14[waypointIndex[3]].unk4, 1200.0f, gCurrentActor);
 }
 
-s32 func_800339D8(BossE_F0D0_Sub14 *sub14, u8 *scriptOpcodes) {
+s32 bossCheckPlayerBelow(BossE_F0D0_Sub14 *sub14, u8 *scriptOpcodes) {
     if ((D_807FBB4C->unk80 < (gCurrentActor->unk80 - 10.0f)) && (sub14->unk14 < 5)) {
         sub14->unk15 = sub14->unk16;
         gCurrentActor->unk154 = scriptOpcodes[sub14->unk15];
@@ -241,7 +241,7 @@ s32 func_800339D8(BossE_F0D0_Sub14 *sub14, u8 *scriptOpcodes) {
 }
 
 
-void func_80033A80(s8 healthDelta) {
+void bossAdjustHealth(s8 healthDelta) {
     gCurrentActor->unk128 += healthDelta;
     if (gCurrentActor->unk128 < 0) {
         gCurrentActor->unk128 = 0;
@@ -383,14 +383,14 @@ void currentActorClearFlag(void);
 void volumeTriggerSetEnabled(s32, s32);
 s32 func_80724A20(void);
 u8 bossPickWaypointStep(BossE_F0D0_Sub14 *, u8 *);
-void func_8003340C(u8 *);
-void func_800336C0(void);
+void bossSetAnimationByWaypoint(u8 *);
+void bossSpawnPuffDebris(void);
 void bossInterpolateWaypoints(u8 *, f32);
 void bossSpawnObjectAtWaypoint(u8 *);
 void func_8072E1A4(s32, void *);
 void actorApplyVelocityCustom(void *, f32, f32);
-s32 func_800339D8(BossE_F0D0_Sub14 *, u8 *);
-void func_80033A80(s8);
+s32 bossCheckPlayerBelow(BossE_F0D0_Sub14 *, u8 *);
+void bossAdjustHealth(s8);
 void effectSpawnBoneDebris(s32, s32);
 void effectSpawnBoneDebrisScaled(s32, s16, s32);
 void effectSpawnJointBeam(s32, s32, s32, s32);
@@ -408,7 +408,7 @@ void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(void *, u8);
 void bossScriptStep(u8 *, s32, f32);
 
-void func_80033AF0(void) {
+void bossMainStep(void) {
     BossF_State *st;
     BossF_Sub *sub;
     u8 *tbl;
@@ -604,7 +604,7 @@ void func_80033AF0(void) {
         case 9:
             if (BF->unk4->unk38 < BX->unk30) {
                 actorSetUniformScale(gCurrentActor, BF->unk4->unk38 * 1.01);
-                func_800336C0();
+                bossSpawnPuffDebris();
                 flag7F = 1;
             } else {
                 actorScriptStart(gCurrentActor, 0x227);
@@ -654,7 +654,7 @@ void func_80033AF0(void) {
         case 0:
             st->unk18 = tbl[st->unk15++];
             st->unk19 = st->unk18;
-            func_8003340C((u8 *)sub);
+            bossSetAnimationByWaypoint((u8 *)sub);
             sub->unk1 = bossPickWaypointStep((BossE_F0D0_Sub14 *)st, (u8 *)sub);
             BF->unk155 = 1;
             BF->unk6A |= 1;
@@ -688,7 +688,7 @@ void func_80033AF0(void) {
             if (st->unk18 != 0) {
                 sub->unk1 = bossPickWaypointStep((BossE_F0D0_Sub14 *)st, (u8 *)sub);
                 st->unk18--;
-                func_8003340C((u8 *)sub);
+                bossSetAnimationByWaypoint((u8 *)sub);
                 BF->unk155 = 1;
             } else {
                 BF->unk154 = tbl[st->unk15];
@@ -701,7 +701,7 @@ void func_80033AF0(void) {
     case 0x25:
     case 0x28:
         func_8072E1A4(0xA, D_807FBB4C);
-        if (func_800339D8((BossE_F0D0_Sub14 *)st, tbl) != 0) {
+        if (bossCheckPlayerBelow((BossE_F0D0_Sub14 *)st, tbl) != 0) {
             bossSetRandomObjectPair(sub, 0);
         } else if (func_80724A20() == 0) {
             switch (BF->unk155) {
@@ -852,7 +852,7 @@ block_131:
             flag7F = 1;
             break;
         case 4:
-            func_80033A80(((s8 *)st)[9]);
+            bossAdjustHealth(((s8 *)st)[9]);
             break;
         case 5:
             BF->unk154 = tbl[st->unk15];
@@ -892,7 +892,7 @@ block_131:
             }
             break;
         case 2:
-            func_80033A80(5);
+            bossAdjustHealth(5);
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
@@ -951,7 +951,7 @@ block_131:
 #undef BX
 #undef BPTS
 
-void func_8003575C(void) {
+void bossShockwaveTriggerDamage(void) {
     f32 dx, dz;
 
     switch (gCurrentActor->unk155) {

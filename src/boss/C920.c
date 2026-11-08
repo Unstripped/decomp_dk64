@@ -63,7 +63,7 @@ void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
-void func_80030920(s32 unused) {
+void bossKRoolChunkySetupFight(s32 unused) {
     s16 targetYaw;
 
     gActivePlayerState->unk1FE = 1;
@@ -85,7 +85,7 @@ void func_80030920(s32 unused) {
     }
     camSetTarget(gCamActor, D_807FBB4C, 4, 0x800, 0x5A, 0, 0x46, 0x64, 0x3A, 0, 0.3f);
 }
-void func_80030AE0(BossD_Sub178 *sub178) {
+void bossKRoolChunkyResetPhase(BossD_Sub178 *sub178) {
     bossSetCannonsVisible(0);
     gActivePlayerState->unk1F4 = 0;
     if (D_807FBB4C->unk154 != 0x36) {
@@ -100,7 +100,7 @@ void func_80030AE0(BossD_Sub178 *sub178) {
     csModelStateSetFirstByte(0xA, 0xA);
 }
 
-void func_80030C30(f32 stepRate) {
+void bossKRoolChunkyInterpolatePosition(f32 stepRate) {
     gCurrentActor->unk7C = (f32) (((f64) (D_807FBB4C->unk7C - (f32) D_807FDC90->unkA) * gCurrentActor->unk160) + (f64) D_807FDC90->unkA);
     gCurrentActor->unk80 = (f32) (((f64) (D_807FBB4C->unk80 - (f32) D_807FDC90->unkC) * gCurrentActor->unk160) + (f64) D_807FDC90->unkC);
     gCurrentActor->unk84 = (f32) (((f64) (D_807FBB4C->unk84 - (f32) D_807FDC90->unkE) * gCurrentActor->unk160) + (f64) D_807FDC90->unkE);
@@ -110,7 +110,7 @@ void func_80030C30(f32 stepRate) {
     }
 }
 
-void func_80030D50(void) {
+void bossKRoolChunkyOscillateSway(void) {
     s32 pad[1];
     f32 sinOffset;
     sinOffset = func_80612794((s16)(gCurrentActor->unk160 * 10240.0));
@@ -119,7 +119,7 @@ void func_80030D50(void) {
     gCurrentActor->unk84 += (80.0f * func_80612790(gCurrentActor->unkE6 + 0x400)) * sinOffset;
 }
 
-void func_80030E58(void) {
+void bossKRoolChunkyPlayTauntSfx(void) {
     D_807FDC90->unk1A |= 1;
     sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x2E2, 0xFF, 0x65, 0, 0, 0.0f, 0);
 }
@@ -242,7 +242,7 @@ void actorUpdateModelMatrix(void *, s32);
 #define WORK_STATE ((BossWorkState *)D_807FDC90)
 #define PLAYER_DATA ((BossPlayerData *)gActivePlayerState)
 
-void func_80030EC4(void) {
+void bossKRoolChunkyStep(void) {
     BossScriptState *scriptState;
     u8 *scriptOpcodes;
     s16 waypointCoords[3];
@@ -297,10 +297,10 @@ void func_80030EC4(void) {
             break;
         case 1:
             if (scriptState->unk14 >= 2) {
-                func_80030E58();
+                bossKRoolChunkyPlayTauntSfx();
             }
             BOSS_ACTOR->unk132 = 4;
-            func_80030920((s32)scriptState);
+            bossKRoolChunkySetupFight((s32)scriptState);
             scriptSetActorRampTarget(BOSS_ACTOR, D_80035AE4[scriptState->unk14], 0.0f);
             BOSS_ACTOR->unk155++;
             break;
@@ -309,9 +309,9 @@ void func_80030EC4(void) {
             BOSS_ACTOR->unk155++;
             /* fallthrough */
         case 4:
-            func_80030C30(D_80035AD4[scriptState->unk14]);
+            bossKRoolChunkyInterpolatePosition(D_80035AD4[scriptState->unk14]);
             if (scriptState->unk14 == 3) {
-                func_80030D50();
+                bossKRoolChunkyOscillateSway();
             }
             break;
         case 5:
@@ -335,9 +335,9 @@ void func_80030EC4(void) {
                 }
                 func_80641874(2, 0xFF);
             }
-            func_80030C30(D_80035AD4[scriptState->unk14]);
+            bossKRoolChunkyInterpolatePosition(D_80035AD4[scriptState->unk14]);
             if (scriptState->unk14 == 3) {
-                func_80030D50();
+                bossKRoolChunkyOscillateSway();
             }
             break;
         case 7:
@@ -374,18 +374,18 @@ void func_80030EC4(void) {
                     BOSS_ACTOR->unk132 = 1;
                     scriptState->unk15 = scriptState->unk16;
                 }
-                func_80030AE0((BossD_Sub178 *)scriptState);
+                bossKRoolChunkyResetPhase((BossD_Sub178 *)scriptState);
                 BOSS_ACTOR->unk154 = scriptOpcodes[scriptState->unk15];
                 scriptState->unk15++;
                 BOSS_ACTOR->unk155 = 0;
                 actorScriptStart(BOSS_ACTOR, 0x3E4);
-                func_80030E58();
+                bossKRoolChunkyPlayTauntSfx();
             }
             break;
         }
         break;
     case 0x28:
-        func_80030E58();
+        bossKRoolChunkyPlayTauntSfx();
         BOSS_ACTOR->unk154 = scriptOpcodes[scriptState->unk15];
         scriptState->unk15++;
         BOSS_ACTOR->unk155 = 0;

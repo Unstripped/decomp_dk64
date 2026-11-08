@@ -536,7 +536,7 @@ void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *
 
 void func_8002FDF8(s32, u8);
 
-void func_8002FF74(void) {
+void bossKRoolTinyStep(void) {
     BossScriptState *st;
     BossActor **list;
     u8 *tbl;
@@ -708,7 +708,7 @@ void func_8002FF74(void) {
     actorUpdateModelMatrix(BOSS_ACTOR, 0);
 }
 
-void func_80030888(void) {
+void bossKRoolTinyUpdateMinion(void) {
     BossE_B100_Sub11C *sub11C;
     BossE_B100_Sub178 *sub178;
     s32 scaleVal;
