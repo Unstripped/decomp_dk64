@@ -271,7 +271,11 @@ typedef struct Struct807FDC90 {
 } Struct807FDC90;
 
 typedef struct Struct807FDC98 {
-    /* 0x00 */ u8 pad0[0x46];
+    /* 0x00 */ u8 pad0[0x26];
+    /* 0x26 */ s16 animId0;
+    /* 0x28 */ s16 animId1;
+    /* 0x2A */ s16 animId2;
+    /* 0x2C */ u8 pad2C[0x46 - 0x2C];
     /* 0x46 */ u16 unk46;
 } Struct807FDC98;
 

@@ -748,19 +748,12 @@ void actorAddPulsingLight(void) {
     lightAdd(D1A3->unk7C, D1A3->unk80 + 10.0f, D1A3->unk84, 0.0f, 0.0f, 0.0f, x, 0, 0xFF, 0xFF, 0xFF);
 }
 
-typedef struct D1Dc98View {
-    /* 0x00 */ u8 pad0[0x26];
-    /* 0x26 */ s16 unk26;
-    /* 0x28 */ s16 unk28;
-    /* 0x2A */ s16 unk2A;
-} D1Dc98View;
 
-#define D1DC98 ((D1Dc98View *)D_807FDC98)
 
 void behaviourSetAnimIds(s16 arg0, s16 arg1, s16 arg2) {
-    D1DC98->unk26 = arg0;
-    D1DC98->unk28 = arg1;
-    D1DC98->unk2A = arg2;
+    D_807FDC98->animId0 = arg0;
+    D_807FDC98->animId1 = arg1;
+    D_807FDC98->animId2 = arg2;
 }
 
 typedef struct F1Dc90 {
