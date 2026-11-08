@@ -141,59 +141,59 @@ extern Struct_807FD63A D_807FD63A[];
 
 
 
-void func_8002BBD0(RaceUnknownActor *arg0, s32 arg1) {
-    RaceUnknown174 *sp1C;
-    void *temp_v0;
+void func_8002BBD0(RaceUnknownActor *actor, s32 count) {
+    RaceUnknown174 *race174;
+    void *allocated;
 
-    sp1C = arg0->unk174;
-    temp_v0 = heapAlloc(arg1 * 8);
-    sp1C->unk20 = temp_v0;
-    heapClearBlock(temp_v0);
-    sp1C->unk1E = arg1;
-    sp1C->unk1C = 0xFFFF;
-    arg0->unk154 = 0;
+    race174 = actor->unk174;
+    allocated = heapAlloc(count * 8);
+    race174->unk20 = allocated;
+    heapClearBlock(allocated);
+    race174->unk1E = count;
+    race174->unk1C = 0xFFFF;
+    actor->unk154 = 0;
 }
 
 u16 *raceGetRoute(u8);
 void func_8002F36C(void *, void *);
 s32 cameraFindViewportEntry(u8);
-#define RaceE3 ((RaceStruct3 *)arg3)
+#define RaceE3 ((RaceStruct3 *)participantData)
 
-void func_8002BC2C(RaceUnknownActor *arg0, s32 arg1, RaceUnknownActor *arg2, RaceUnknown174 *arg3) {
-    RaceUnknown174 *temp_t0;
-    RacePair *temp_v1;
-    RacePair *temp_v0;
-    u16 *temp_a1;
+void func_8002BC2C(RaceUnknownActor *manager, s32 slot, RaceUnknownActor *participant, RaceUnknown174 *participantData) {
+    RaceUnknown174 *managerData;
+    RacePair *pairs;
+    RacePair *slotEntry;
+    u16 *route;
 
-    temp_t0 = arg0->unk174;
-    temp_v1 = temp_t0->unk20;
-    temp_v0 = (RacePair *)((s32)temp_v1 + (arg1 * 8));
-    temp_v0->unk0 = arg2;
-    temp_v0->unk4 = RaceE3;
+    managerData = manager->unk174;
+    pairs = managerData->unk20;
+    slotEntry = (RacePair *)((s32)pairs + (slot * 8));
+    slotEntry->unk0 = participant;
+    slotEntry->unk4 = RaceE3;
     RaceE3->unk45 = 0;
     RaceE3->unk3A = 0;
     RaceE3->unk37 = 1;
     if (RaceE3->unk27 == 0) {
-        temp_a1 = raceGetRoute(temp_t0->unk26);
-        if (temp_a1 != NULL) {
-            RaceE3->unk3C = *temp_a1 - 1;
-            func_8002F36C(arg3, temp_a1);
+        route = raceGetRoute(managerData->unk26);
+        if (route != NULL) {
+            RaceE3->unk3C = *route - 1;
+            func_8002F36C(participantData, route);
         }
         RaceE3->unk48 = cameraFindViewportEntry(RaceE3->unk28);
     }
 }
 #undef RaceE3
 
-void func_8002BCB0(RaceUnknownActor *arg0, s32 arg1, s32 *arg2, s32 *arg3) {
-    RaceUnknown174 *temp_v0;
-    RacePair *temp_v1;
-    RacePair *temp_t0;
+void func_8002BCB0(RaceUnknownActor *manager, s32 slot, s32 *outActor, s32 *outData) {
+    RaceUnknown174 *managerData;
+    RacePair *pairs;
+    RacePair *slotEntry;
 
-    temp_v0 = arg0->unk174;
-    temp_v1 = temp_v0->unk20;
-    temp_t0 = (RacePair *)((s32)temp_v1 + (arg1 * 8));
-    *arg2 = (s32)temp_t0->unk0;
-    *arg3 = (s32)temp_t0->unk4;
+    managerData = manager->unk174;
+    pairs = managerData->unk20;
+    slotEntry = (RacePair *)((s32)pairs + (slot * 8));
+    *outActor = (s32)slotEntry->unk0;
+    *outData = (s32)slotEntry->unk4;
 }
 
 typedef struct RaceEBounds {
@@ -203,8 +203,8 @@ typedef struct RaceEBounds {
 } RaceEBounds;
 extern RaceEBounds *D_807F5FD4;
 
-void func_8002BCD4(RaceUnknownActor *arg0) {
-    RaceUnknown174 *temp_v0;
+void func_8002BCD4(RaceUnknownActor *actor) {
+    RaceUnknown174 *race174;
     f32 *p;
     f32 minX;
     f32 minZ;
@@ -217,7 +217,7 @@ void func_8002BCD4(RaceUnknownActor *arg0) {
     minZ = 9999.0f;
     maxX = -1.0f;
     maxZ = -1.0f;
-    temp_v0 = arg0->unk174;
+    race174 = actor->unk174;
     for (p = D_807F5FD4->start; p < D_807F5FD4->end; p += 3) {
         x = p[0];
         if (x < minX) {
@@ -234,26 +234,26 @@ void func_8002BCD4(RaceUnknownActor *arg0) {
             maxZ = z;
         }
     }
-    temp_v0->unkC = ((maxX - minX) * 0.5f + minX) - 10.0f;
-    temp_v0->unk10 = ((maxZ - minZ) * 0.5f + minZ) - 20.0f;
-    temp_v0->unk4 = 116.48f / (maxX - minX);
-    temp_v0->unk8 = 121.6f / (maxZ - minZ);
+    race174->unkC = ((maxX - minX) * 0.5f + minX) - 10.0f;
+    race174->unk10 = ((maxZ - minZ) * 0.5f + minZ) - 20.0f;
+    race174->unk4 = 116.48f / (maxX - minX);
+    race174->unk8 = 121.6f / (maxZ - minZ);
 }
 
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
-Gfx *func_8002BDDC(Gfx *arg0, RaceUnknownActor *arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5, u8 arg6) {
-    RaceUnknown174 *temp_v0;
+Gfx *func_8002BDDC(Gfx *dl, RaceUnknownActor *actor, f32 posX, f32 posZ, u8 red, u8 green, u8 blue) {
+    RaceUnknown174 *race174;
 
-    temp_v0 = arg1->unk174;
-    arg2 = temp_v0->unkC - arg2;
-    arg3 = temp_v0->unk10 - arg3;
-    arg2 *= temp_v0->unk4;
-    arg3 *= temp_v0->unk8;
-    gDPSetPrimColor(arg0++, 0, 0, arg4, arg5, arg6, 0xC8);
-    return renderRotatedSprite(arg0, 0x4A, 3, 1, 0x10, 0x10,
-        (s32)(((0.5f * arg2) + 50.0f) * 4.0f),
-        (s32)(((0.5f * arg3) + 60.0f) * 4.0f),
+    race174 = actor->unk174;
+    posX = race174->unkC - posX;
+    posZ = race174->unk10 - posZ;
+    posX *= race174->unk4;
+    posZ *= race174->unk8;
+    gDPSetPrimColor(dl++, 0, 0, red, green, blue, 0xC8);
+    return renderRotatedSprite(dl, 0x4A, 3, 1, 0x10, 0x10,
+        (s32)(((0.5f * posX) + 50.0f) * 4.0f),
+        (s32)(((0.5f * posZ) + 60.0f) * 4.0f),
         1.0f, 1.0f, 0, 0.0f);
 }
 
@@ -270,151 +270,151 @@ void *textTableGetString(s32, s32, s32);
 s32 textGetStringWidth(s32, void *);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 
-Gfx *func_8002BEE8(Gfx *arg0, RaceUnknownActor *arg1) {
-    u8 sp3F;
-    s32 sp38;
-    s32 temp_v0;
-    RaceUnknown174 *temp_v1;
-    s32 var_a2;
-    void *var_s1;
-    f32 temp_fv0;
+Gfx *func_8002BEE8(Gfx *dl, RaceUnknownActor *actor) {
+    u8 alpha;
+    s32 textX;
+    s32 unused;
+    RaceUnknown174 *race174;
+    s32 countdownVal;
+    void *textStr;
+    f32 fadeFactor;
 
-    sp3F = 0xFF;
-    sp38 = D_80744490 / 2;
-    temp_v1 = arg1->unk174;
-    if (arg1->unk154 == 2 || arg1->unk154 == 1) {
-        if (temp_v1->unk1C < 0x78) {
-            if (temp_v1->unk1C < 0x5A) {
-                var_a2 = (0x78 - temp_v1->unk1C) / 30;
-                if (var_a2 >= 3) {
-                    var_a2 = 3;
+    alpha = 0xFF;
+    textX = D_80744490 / 2;
+    race174 = actor->unk174;
+    if (actor->unk154 == 2 || actor->unk154 == 1) {
+        if (race174->unk1C < 0x78) {
+            if (race174->unk1C < 0x5A) {
+                countdownVal = (0x78 - race174->unk1C) / 30;
+                if (countdownVal >= 3) {
+                    countdownVal = 3;
                 }
-                var_s1 = heapAlloc(4);
-                heapFreeDeferred(var_s1);
-                _sprintf(var_s1, "%d", var_a2);
+                textStr = heapAlloc(4);
+                heapFreeDeferred(textStr);
+                _sprintf(textStr, "%d", countdownVal);
             } else {
-                temp_fv0 = (f32)(0x78 - temp_v1->unk1C) * 0.033333335f;
-                sp3F = (u8)(u32)((f32)sp3F * temp_fv0);
-                var_s1 = textTableGetString(0x26, 9, 1);
+                fadeFactor = (f32)(0x78 - race174->unk1C) * 0.033333335f;
+                alpha = (u8)(u32)((f32)alpha * fadeFactor);
+                textStr = textTableGetString(0x26, 9, 1);
             }
-            WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
-            WRITE_GFX(arg0++, 0xE7000000, 0);
-            WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
-            WRITE_GFX(arg0++, 0xFA000000, sp3F & 0xFF);
-            WRITE_GFX(arg0++, 0xFCFF97FF, 0xFF2CFE7F);
-            sp38 -= textGetStringWidth(1, var_s1) >> 1;
-            arg0 = textDrawStringVtx(arg0, 1, (s16)(sp38 * 4), 0x3C, var_s1, 1);
+            WRITE_GFX(dl++, 0xDE000000, (u32)&D_1000118);
+            WRITE_GFX(dl++, 0xE7000000, 0);
+            WRITE_GFX(dl++, 0xE200001C, 0x00504240);
+            WRITE_GFX(dl++, 0xFA000000, alpha & 0xFF);
+            WRITE_GFX(dl++, 0xFCFF97FF, 0xFF2CFE7F);
+            textX -= textGetStringWidth(1, textStr) >> 1;
+            dl = textDrawStringVtx(dl, 1, (s16)(textX * 4), 0x3C, textStr, 1);
         }
     }
-    return arg0;
+    return dl;
 }
 
-Gfx *func_8002C14C(Gfx *arg0, RaceUnknown174 *arg1) {
-    Struct806C7C94 *temp_v0;
-    s32 temp_ft4;
-    s32 temp_t0;
-    s32 var_s0;
-    s32 var_s1;
-    f32 temp_fs1;
-    s16 temp_s4;
-    f32 f_s1;
+Gfx *func_8002C14C(Gfx *dl, RaceUnknown174 *race174) {
+    Struct806C7C94 *hudPos;
+    s32 screenX;
+    s32 screenY;
+    s32 i;
+    s32 offset;
+    f32 doubleX;
+    s16 scaledY;
+    f32 f_offset;
 
-    temp_v0 = arg1->unk48;
-    temp_ft4 = (s32)((f64)(temp_v0->unk4 + 8) + 4.0);
-    temp_t0 = temp_v0->unkA - 0x22;
-    WRITE_GFX(arg0++, 0xFA000000, 0xFFC800B4);
-    var_s0 = 0;
-    if (arg1->unk2A > 0) {
-        var_s1 = 0;
-        temp_fs1 = (f32)temp_ft4 + (f32)temp_ft4;
-        temp_s4 = (s16)(s32)(((f32)temp_t0 + (f32)temp_t0) * 4.0f);
+    hudPos = race174->unk48;
+    screenX = (s32)((f64)(hudPos->unk4 + 8) + 4.0);
+    screenY = hudPos->unkA - 0x22;
+    WRITE_GFX(dl++, 0xFA000000, 0xFFC800B4);
+    i = 0;
+    if (race174->unk2A > 0) {
+        offset = 0;
+        doubleX = (f32)screenX + (f32)screenX;
+        scaledY = (s16)(s32)(((f32)screenY + (f32)screenY) * 4.0f);
         do {
             Gfx *next;
-            f_s1 = var_s1;
-            next = renderRotatedSprite(arg0, 0x4A, 3, 1, 0x10, 0x10,
-                (s32)((temp_fs1 + f_s1) * 4.0f),
-                temp_s4, 4.0f, 4.0f, 0, 0.0f);
-            var_s0++;
-            var_s1 += 0x10;
-            arg0 = next;
-        } while (var_s0 < arg1->unk2A);
+            f_offset = offset;
+            next = renderRotatedSprite(dl, 0x4A, 3, 1, 0x10, 0x10,
+                (s32)((doubleX + f_offset) * 4.0f),
+                scaledY, 4.0f, 4.0f, 0, 0.0f);
+            i++;
+            offset += 0x10;
+            dl = next;
+        } while (i < race174->unk2A);
     }
-    if (arg1->unk2A != 0) {
-        WRITE_GFX(arg0++, 0xDA380003, (u32)&D_2000180);
+    if (race174->unk2A != 0) {
+        WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
     }
-    return arg0;
+    return dl;
 }
 
 u32 textGetFontHeight(s32);
 
-Gfx *func_8002C2E8(Gfx *arg0, RaceUnknown174 *arg1) {
-    f32 temp_fs0;
-    f32 temp_fs1;
-    f32 temp_fs2;
-    f32 temp_fv0;
-    Struct806C7C94 *temp_s0;
-    f32 sp70;
-    f32 temp_t1;
-    f32 temp_t2;
-    s16 temp_s3;
-    s32 var_s0;
-    s32 var_s1;
-    void *temp_v0_2;
+Gfx *func_8002C2E8(Gfx *dl, RaceUnknown174 *race174) {
+    f32 posX;
+    f32 doublePosX;
+    f32 posY;
+    f32 halfFontHeight;
+    Struct806C7C94 *hudPos;
+    f32 savedHalfFontHeight;
+    f32 halfWidthMult;
+    f32 spriteX;
+    s16 scaledSpriteY;
+    s32 xOffset;
+    s32 count;
+    void *labelStr;
     Gfx *next;
 
-    temp_s0 = arg1->unk48;
-    temp_fv0 = (f32)textGetFontHeight(1) * 0.5f;
-    sp70 = temp_fv0;
-    temp_fs0 = (f32)(temp_s0->unk4 + 8);
-    temp_fs2 = (f32)(temp_s0->unkA - 0x10);
-    temp_fs2 -= 2 * temp_fv0;
-    temp_v0_2 = textTableGetString(0x26, 0xA, 1);
-    WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFFFF);
-    arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)(2.0f * (temp_fs0 * 4.0f)), (s16)(s32)(2.0f * (temp_fs2 * 4.0f)), temp_v0_2, 4);
-    WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
-    WRITE_GFX(arg0++, 0xDA380005, (u32)((u8 *)arg1 + (D_807444FC << 6) + 0x50));
-    temp_t1 = 0.5f;
-    temp_fs0 += temp_t1 * (f32)textGetStringWidth(1, temp_v0_2);
-    temp_fs0 = (f32)((f64)temp_fs0 + 8.0);
-    temp_fs1 = temp_fs0 + temp_fs0;
-    temp_fs2 = (f32)((f64)temp_fs2 + (0.4 * (f64)sp70));
-    WRITE_GFX(arg0++, 0xFA000000, 0xFFFF00FF);
-    temp_s3 = (s16)(s32)((temp_fs2 + temp_fs2) * 4.0f);
-    for (var_s0 = 0; var_s0 < 0x78; var_s0 += 0x18) {
-        temp_t2 = temp_fs1;
-        temp_t2 += (f32)var_s0;
-        arg0 = renderRotatedSprite(arg0, 0x4B, 3, 1, 0x40, 0x40, (s32)(temp_t2 * 4.0f), temp_s3, 1.5f, 1.5f, 0, 0.0f);
+    hudPos = race174->unk48;
+    halfFontHeight = (f32)textGetFontHeight(1) * 0.5f;
+    savedHalfFontHeight = halfFontHeight;
+    posX = (f32)(hudPos->unk4 + 8);
+    posY = (f32)(hudPos->unkA - 0x10);
+    posY -= 2 * halfFontHeight;
+    labelStr = textTableGetString(0x26, 0xA, 1);
+    WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
+    dl = textDrawStringVtx(dl, 1, (s16)(s32)(2.0f * (posX * 4.0f)), (s16)(s32)(2.0f * (posY * 4.0f)), labelStr, 4);
+    WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
+    WRITE_GFX(dl++, 0xDA380005, (u32)((u8 *)race174 + (D_807444FC << 6) + 0x50));
+    halfWidthMult = 0.5f;
+    posX += halfWidthMult * (f32)textGetStringWidth(1, labelStr);
+    posX = (f32)((f64)posX + 8.0);
+    doublePosX = posX + posX;
+    posY = (f32)((f64)posY + (0.4 * (f64)savedHalfFontHeight));
+    WRITE_GFX(dl++, 0xFA000000, 0xFFFF00FF);
+    scaledSpriteY = (s16)(s32)((posY + posY) * 4.0f);
+    for (xOffset = 0; xOffset < 0x78; xOffset += 0x18) {
+        spriteX = doublePosX;
+        spriteX += (f32)xOffset;
+        dl = renderRotatedSprite(dl, 0x4B, 3, 1, 0x40, 0x40, (s32)(spriteX * 4.0f), scaledSpriteY, 1.5f, 1.5f, 0, 0.0f);
     }
-    WRITE_GFX(arg0++, 0xFA000000, 0xFF0000FF);
-    var_s1 = 0;
-    if ((5 - arg1->unk44) > 0) {
-        var_s0 = 0;
+    WRITE_GFX(dl++, 0xFA000000, 0xFF0000FF);
+    count = 0;
+    if ((5 - race174->unk44) > 0) {
+        xOffset = 0;
         do {
-            temp_t2 = temp_fs1;
-            temp_t2 += (f32)var_s0;
-            next = renderRotatedSprite(arg0, 0x45, 3, 1, 0x40, 0x40, (s32)(temp_t2 * 4.0f), temp_s3, 1.5f, 1.5f, 0, 0.0f);
-            var_s1 += 1;
-            var_s0 += 0x18;
-            arg0 = next;
-        } while (var_s1 < (5 - arg1->unk44));
+            spriteX = doublePosX;
+            spriteX += (f32)xOffset;
+            next = renderRotatedSprite(dl, 0x45, 3, 1, 0x40, 0x40, (s32)(spriteX * 4.0f), scaledSpriteY, 1.5f, 1.5f, 0, 0.0f);
+            count += 1;
+            xOffset += 0x18;
+            dl = next;
+        } while (count < (5 - race174->unk44));
     }
-    WRITE_GFX(arg0++, 0xDA380003, (u32)&D_2000180);
-    return arg0;
+    WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
+    return dl;
 }
 
 
-Gfx *func_8002C63C(Gfx *arg0, RaceUnknown174 *arg1) {
-    WRITE_GFX(arg0++, 0xE7000000, 0);
-    WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
-    WRITE_GFX(arg0++, 0xE3000A01, 0);
-    WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-    arg0 = gfxInit2DDisplayList(arg0);
-    WRITE_GFX(arg0++, 0xDE000000, (u32)&D_1000118);
-    WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
-    guScale((Mtx *)((u8 *)arg1 + (D_807444FC << 6) + 0x50), 0.5f, 0.5f, 1.0f);
-    WRITE_GFX(arg0++, 0xDA380005, (u32)((u8 *)arg1 + (D_807444FC << 6) + 0x50));
-    WRITE_GFX(arg0++, 0xDA380003, (u32)&D_2000180);
-    return arg0;
+Gfx *func_8002C63C(Gfx *dl, RaceUnknown174 *race174) {
+    WRITE_GFX(dl++, 0xE7000000, 0);
+    WRITE_GFX(dl++, 0xE200001C, 0x00504240);
+    WRITE_GFX(dl++, 0xE3000A01, 0);
+    WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
+    dl = gfxInit2DDisplayList(dl);
+    WRITE_GFX(dl++, 0xDE000000, (u32)&D_1000118);
+    WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
+    guScale((Mtx *)((u8 *)race174 + (D_807444FC << 6) + 0x50), 0.5f, 0.5f, 1.0f);
+    WRITE_GFX(dl++, 0xDA380005, (u32)((u8 *)race174 + (D_807444FC << 6) + 0x50));
+    WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
+    return dl;
 }
 
 typedef struct RaceE76CView {
@@ -430,68 +430,68 @@ typedef struct RaceE76CView {
 extern s32 D_8002FCC0[];
 u32 strlen(u8 *);
 Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
-#define RaceE76C ((RaceE76CView *)arg1)
+#define RaceE76C ((RaceE76CView *)race174)
 
-Gfx *raceDrawHudText(Gfx *arg0, RaceUnknown174 *arg1) {
-    RaceUnknown174 *temp_t1;
-    Struct806C7C94 *temp_v0;
+Gfx *raceDrawHudText(Gfx *dl, RaceUnknown174 *race174) {
+    RaceUnknown174 *parent174;
+    Struct806C7C94 *hudPos;
     s32 pad6C;
-    void *sp68;
-    u8 var_t0;
-    s32 sp60;
-    s32 sp5C;
-    s32 var_v0;
-    u32 ret;
-    s32 sp50;
-    s32 sp4C;
-    s32 sp48;
-    s32 var_a3;
+    void *textBuf;
+    u8 lap;
+    s32 textX;
+    s32 textY;
+    s32 placeIdx;
+    u32 fontHeight;
+    s32 lapStr;
+    s32 ofStr;
+    s32 len;
+    s32 hudFlags;
     Gfx *g0;
 
-    temp_v0 = arg1->unk48;
-    var_t0 = RaceE76C->unk37;
-    temp_t1 = arg1->unk30->unk174;
-    sp60 = temp_v0->unk4 + 8;
-    sp5C = temp_v0->unkA - 0x10;
-    g0 = arg0++;
+    hudPos = race174->unk48;
+    lap = RaceE76C->unk37;
+    parent174 = race174->unk30->unk174;
+    textX = hudPos->unk4 + 8;
+    textY = hudPos->unkA - 0x10;
+    g0 = dl++;
         g0->words.w1 = 0;
         g0->words.w0 = 0xE7000000;
-    WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFFFF);
-    var_a3 = temp_t1->unk0;
-    if (var_a3 & 4) {
-        var_t0 = (var_t0 < temp_t1->unk24) ? var_t0 : temp_t1->unk24;
-        var_t0 = (var_t0 >= 2) ? var_t0 : 1;
-        sp50 = (s32)textTableGetString(0x26, 0xB, 1);
-        sp4C = (s32)textTableGetString(0x26, 0xC, 1);
-        sp48 = strlen((u8 *)sp50);
-        sp48 += strlen((u8 *)sp4C);
-        sp68 = heapAlloc(sp48 + 8);
-        heapFreeDeferred(sp68);
-        _sprintf(sp68, "%s %d %s %d", sp50, var_t0, sp4C, temp_t1->unk24);
-        arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)(2.0f * (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), sp68, 4);
-        g0 = arg0++;
+    WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
+    hudFlags = parent174->unk0;
+    if (hudFlags & 4) {
+        lap = (lap < parent174->unk24) ? lap : parent174->unk24;
+        lap = (lap >= 2) ? lap : 1;
+        lapStr = (s32)textTableGetString(0x26, 0xB, 1);
+        ofStr = (s32)textTableGetString(0x26, 0xC, 1);
+        len = strlen((u8 *)lapStr);
+        len += strlen((u8 *)ofStr);
+        textBuf = heapAlloc(len + 8);
+        heapFreeDeferred(textBuf);
+        _sprintf(textBuf, "%s %d %s %d", lapStr, lap, ofStr, parent174->unk24);
+        dl = textDrawStringVtx(dl, 1, (s16)(s32)(2.0f * (f32)(textX * 4)), (s16)(s32)(2.0f * (f32)(textY * 4)), textBuf, 4);
+        g0 = dl++;
         g0->words.w0 = 0xDA380007; g0->words.w1 = (u32)&D_20000C0; // LAYOUT: same-line stores steer the ori/addiu schedule
-        g0 = arg0++;
+        g0 = dl++;
         g0->words.w0 = 0xDA380005;
-        g0->words.w1 = (u32)((u8 *)arg1 + (D_807444FC << 6) + 0x50);
-        ret = textGetFontHeight(1);
-        sp5C = (s32)((f32)sp5C - (0.5f * (f32)ret));
-        var_a3 = temp_t1->unk0;
+        g0->words.w1 = (u32)((u8 *)race174 + (D_807444FC << 6) + 0x50);
+        fontHeight = textGetFontHeight(1);
+        textY = (s32)((f32)textY - (0.5f * (f32)fontHeight));
+        hudFlags = parent174->unk0;
     }
-    if (var_a3 & 2) {
-        var_v0 = RaceE76C->unk36;
-        if ((var_v0 + 1) == temp_t1->unk1E) {
-            var_v0 = 3;
+    if (hudFlags & 2) {
+        placeIdx = RaceE76C->unk36;
+        if ((placeIdx + 1) == parent174->unk1E) {
+            placeIdx = 3;
         }
         if (RaceE76C->unk45 != 0) {
-            var_v0 = 4;
+            placeIdx = 4;
         }
-        arg0 = textDrawStringVtx(arg0, 1, (s16)(s32)((f32)(sp60 * 4) + (f32)(sp60 * 4)), (s16)(s32)(2.0f * (f32)(sp5C * 4)), textTableGetString(0x26, D_8002FCC0[var_v0], 1), 4);
+        dl = textDrawStringVtx(dl, 1, (s16)(s32)((f32)(textX * 4) + (f32)(textX * 4)), (s16)(s32)(2.0f * (f32)(textY * 4)), textTableGetString(0x26, D_8002FCC0[placeIdx], 1), 4);
     }
     if (RaceE76C->unk34 >= 3 && RaceE76C->unk34 < 5) {
-        arg0 = textDrawAnimated(arg0, RaceE76C->unk46, 2, 160.0f, 100.0f, 0.0f, 1.5f);
+        dl = textDrawAnimated(dl, RaceE76C->unk46, 2, 160.0f, 100.0f, 0.0f, 1.5f);
     }
-    return arg0;
+    return dl;
 }
 
 
@@ -501,33 +501,33 @@ Gfx *func_8002C2E8(Gfx *, RaceUnknown174 *);
 Gfx *func_8002C14C(Gfx *, RaceUnknown174 *);
 Gfx *raceDrawHudText(Gfx *, RaceUnknown174 *);
 
-Gfx *func_8002CAC8(Gfx *arg0, RaceUnknownActor *arg1, RaceUnknown174 *arg2) {
-    RaceUnknown174 *sp24;
-    RaceUnknownActor *temp_v1;
-    RaceUnknown174 *temp_v0;
+Gfx *func_8002CAC8(Gfx *dl, RaceUnknownActor *actor, RaceUnknown174 *race174) {
+    RaceUnknown174 *parent174;
+    RaceUnknownActor *playerActor;
+    RaceUnknown174 *player174;
 
-    sp24 = arg2->unk30->unk174;
-    if (arg2 == NULL || func_807142D8() != 0) {
-        return arg0;
+    parent174 = race174->unk30->unk174;
+    if (race174 == NULL || func_807142D8() != 0) {
+        return dl;
     }
-    temp_v1 = gPlayerSlots[arg2->unk28].unk4;
-    if (temp_v1 == NULL) {
-        return arg0;
+    playerActor = gPlayerSlots[race174->unk28].unk4;
+    if (playerActor == NULL) {
+        return dl;
     }
-    temp_v0 = temp_v1->unk174;
-    if (arg1 != temp_v0->unk88) {
-        return arg0;
+    player174 = playerActor->unk174;
+    if (actor != player174->unk88) {
+        return dl;
     }
-    arg0 = func_8002C63C(arg0, arg2);
-    if (sp24->unk0 & 8) {
-        arg0 = func_8002C2E8(arg0, arg2);
-    } else if (sp24->unk0 & 0x10) {
-        arg0 = func_8002C14C(arg0, arg2);
+    dl = func_8002C63C(dl, race174);
+    if (parent174->unk0 & 8) {
+        dl = func_8002C2E8(dl, race174);
+    } else if (parent174->unk0 & 0x10) {
+        dl = func_8002C14C(dl, race174);
     }
-    if (sp24->unk0 & 6) {
-        arg0 = raceDrawHudText(arg0, arg2);
+    if (parent174->unk0 & 6) {
+        dl = raceDrawHudText(dl, race174);
     }
-    return arg0;
+    return dl;
 }
 
 struct RaceECB3;
@@ -554,66 +554,66 @@ typedef struct RaceECB3 {
     struct RaceUnknownActor *unk2C;
 } RaceECB3;
 
-Gfx *func_8002CBEC(Gfx *arg0, RaceUnknownActor *arg1) {
-    RaceECBView *temp_s5;
-    RaceECB3 *temp_s0;
-    RaceUnknownActor *temp_t0;
-    RaceUnknownActor *temp_v1;
-    RaceECBPair *temp_s6;
+Gfx *func_8002CBEC(Gfx *dl, RaceUnknownActor *actor) {
+    RaceECBView *radarView;
+    RaceECB3 *participantStruct;
+    RaceUnknownActor *participantActor;
+    RaceUnknownActor *targetActor;
+    RaceECBPair *pairs;
     s32 i;
     int red;
     int blue;
 
-    temp_s5 = (RaceECBView *)arg1->unk174;
-    if (temp_s5->unk0 & 1) {
-        temp_s6 = temp_s5->unk20;
-        WRITE_GFX(arg0++, 0xE7000000, 0);
-        WRITE_GFX(arg0++, 0xD7000000, 0xFFFFFFFF);
-        WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
-        arg0 = gfxInit2DDisplayList(arg0);
-        WRITE_GFX(arg0++, 0xFA000000, 0x3CA0);
-        WRITE_GFX(arg0++, 0xE3000A01, 0);
-        WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFDF6FB);
-        WRITE_GFX(arg0++, 0xF6148170, 0x00048070);
-        WRITE_GFX(arg0++, 0xE7000000, 0);
-        WRITE_GFX(arg0++, 0xFA000000, 0x8000FF64);
-        WRITE_GFX(arg0++, 0xF6150070, 0x00040068);
-        WRITE_GFX(arg0++, 0xF6150178, 0x00040170);
-        WRITE_GFX(arg0++, 0xF6048170, 0x00040070);
-        WRITE_GFX(arg0++, 0xF6150170, 0x00148070);
-        WRITE_GFX(arg0++, 0xE7000000, 0);
-        WRITE_GFX(arg0++, 0xFA000000, 0xFFFFFFB4);
-        WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
-        WRITE_GFX(arg0++, 0xDA380003, (u32)&D_2000180);
-        WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
-        WRITE_GFX(arg0++, 0xD7000002, 0x80008000);
-        arg0 = renderRotatedSprite(arg0, temp_s5->unk14, 3, 1, 0x40, 0x40, 0x88, 0x130, 2.0, 2.0, 0, 0.0f);
-        arg0 = renderRotatedSprite(arg0, temp_s5->unk16, 3, 1, 0x40, 0x40, 0x108, 0x130, 2, 2, 0, 0.0f);
-        arg0 = renderRotatedSprite(arg0, temp_s5->unk18, 3, 1, 0x40, 0x40, 0x88, 0xB0, 2.0f, 2.0f, 0, 0.0f);
-        arg0 = renderRotatedSprite(arg0, temp_s5->unk1A, 3, 1, 0x40, 0x40, 0x108, 0xB0, 2.0f, 2.0f, 0, 0.0f);
-        for (i = 0; i < temp_s5->unk1E; i++) {
-            temp_t0 = temp_s6[i].unk0;
-            if (temp_t0 == NULL) {
+    radarView = (RaceECBView *)actor->unk174;
+    if (radarView->unk0 & 1) {
+        pairs = radarView->unk20;
+        WRITE_GFX(dl++, 0xE7000000, 0);
+        WRITE_GFX(dl++, 0xD7000000, 0xFFFFFFFF);
+        WRITE_GFX(dl++, 0xE200001C, 0x00504240);
+        dl = gfxInit2DDisplayList(dl);
+        WRITE_GFX(dl++, 0xFA000000, 0x3CA0);
+        WRITE_GFX(dl++, 0xE3000A01, 0);
+        WRITE_GFX(dl++, 0xFCFFFFFF, 0xFFFDF6FB);
+        WRITE_GFX(dl++, 0xF6148170, 0x00048070);
+        WRITE_GFX(dl++, 0xE7000000, 0);
+        WRITE_GFX(dl++, 0xFA000000, 0x8000FF64);
+        WRITE_GFX(dl++, 0xF6150070, 0x00040068);
+        WRITE_GFX(dl++, 0xF6150178, 0x00040170);
+        WRITE_GFX(dl++, 0xF6048170, 0x00040070);
+        WRITE_GFX(dl++, 0xF6150170, 0x00148070);
+        WRITE_GFX(dl++, 0xE7000000, 0);
+        WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFB4);
+        WRITE_GFX(dl++, 0xFC119623, 0xFF2FFFFF);
+        WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
+        WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
+        WRITE_GFX(dl++, 0xD7000002, 0x80008000);
+        dl = renderRotatedSprite(dl, radarView->unk14, 3, 1, 0x40, 0x40, 0x88, 0x130, 2.0, 2.0, 0, 0.0f);
+        dl = renderRotatedSprite(dl, radarView->unk16, 3, 1, 0x40, 0x40, 0x108, 0x130, 2, 2, 0, 0.0f);
+        dl = renderRotatedSprite(dl, radarView->unk18, 3, 1, 0x40, 0x40, 0x88, 0xB0, 2.0f, 2.0f, 0, 0.0f);
+        dl = renderRotatedSprite(dl, radarView->unk1A, 3, 1, 0x40, 0x40, 0x108, 0xB0, 2.0f, 2.0f, 0, 0.0f);
+        for (i = 0; i < radarView->unk1E; i++) {
+            participantActor = pairs[i].unk0;
+            if (participantActor == NULL) {
                 continue;
             }
-            temp_s0 = temp_s6[i].unk4;
-            if (temp_s0->unk27 == 0) {
+            participantStruct = pairs[i].unk4;
+            if (participantStruct->unk27 == 0) {
                 red = 0x80;
                 blue = 0x80;
-            } else if (temp_s0->unk27 == 1) {
+            } else if (participantStruct->unk27 == 1) {
                 red = 0xFF;
                 blue = 0;
             } else {
                 continue;
             }
-            arg0 = func_8002BDDC(arg0, arg1, temp_t0->unk7C, temp_t0->unk84, red, 0, blue);
-            temp_v1 = temp_s0->unk2C;
-            if (temp_v1 != NULL) {
-                arg0 = func_8002BDDC(arg0, arg1, temp_v1->unk7C, temp_v1->unk84, 0xFF, 0xC8, 0);
+            dl = func_8002BDDC(dl, actor, participantActor->unk7C, participantActor->unk84, red, 0, blue);
+            targetActor = participantStruct->unk2C;
+            if (targetActor != NULL) {
+                dl = func_8002BDDC(dl, actor, targetActor->unk7C, targetActor->unk84, 0xFF, 0xC8, 0);
             }
         }
     }
-    return func_8002BEE8(arg0, arg1);
+    return func_8002BEE8(dl, actor);
 }
 
 
@@ -627,72 +627,72 @@ void func_80025E9C(RaceUnknownActor *);
 void func_8002BCD4(RaceUnknownActor *);
 
 void func_8002CFF0(void) {
-    RaceUnknown174 *temp_v0;
+    RaceUnknown174 *race174;
     RaceUnknownActor *actor;
 
     actorSpawn(0x132, 0);
     actor = D_807FBB44;
     func_80025E9C(actor);
     func_8002BCD4(actor);
-    temp_v0 = actor->unk174;
-    temp_v0->unk0 = 0x17;
-    temp_v0->unk14 = 0x46;
-    temp_v0->unk16 = 0x47;
-    temp_v0->unk18 = 0x48;
-    temp_v0->unk1A = 0x49;
-    temp_v0->unk24 = 2;
+    race174 = actor->unk174;
+    race174->unk0 = 0x17;
+    race174->unk14 = 0x46;
+    race174->unk16 = 0x47;
+    race174->unk18 = 0x48;
+    race174->unk1A = 0x49;
+    race174->unk24 = 2;
 }
 
 
 void func_8002D064(void) {
-    RaceUnknown174 *sp1C;
+    RaceUnknown174 *race174;
 
     actorSpawn(0x132, 0);
-    sp1C = D_807FBB44->unk174;
+    race174 = D_807FBB44->unk174;
     raceInitParticipants(D_807FBB44);
-    sp1C->unk0 = 0xE;
-    sp1C->unk24 = 2;
+    race174->unk0 = 0xE;
+    race174->unk24 = 2;
 }
 
 void func_8002D0B0(void) {
-    RaceUnknown174 *sp1C;
+    RaceUnknown174 *race174;
 
     actorSpawn(0x132, 0);
-    sp1C = D_807FBB44->unk174;
+    race174 = D_807FBB44->unk174;
     func_800292D0(D_807FBB44);
-    sp1C->unk0 = 0xE;
-    sp1C->unk24 = 2;
+    race174->unk0 = 0xE;
+    race174->unk24 = 2;
 }
 
 void func_8002D0FC(void) {
-    RaceUnknown174 *sp1C;
+    RaceUnknown174 *race174;
 
     actorSpawn(0x132, 0);
-    sp1C = D_807FBB44->unk174;
+    race174 = D_807FBB44->unk174;
     func_8002E2C8(D_807FBB44);
-    sp1C->unk0 = 2;
-    sp1C->unk24 = 1;
+    race174->unk0 = 2;
+    race174->unk24 = 1;
 }
 
 extern RaceUnknownActor *D_807FBB40;
 extern s32 D_8002FCD4[];
 s32 gfxResourceCreate(s32, void *, s32, f32, f32, f32);
 
-void func_8002D148(RacePair *arg0, u8 arg1) {
+void func_8002D148(RacePair *pair, u8 newStatus) {
     RaceUnknown174 *t;
     s32 slot;
 
-    if (arg0->unk4->unk34 != arg1) {
-        arg0->unk4->unk34 = arg1;
-        arg0->unk4->unk35 = 0;
-        if (arg1 == 3) {
+    if (pair->unk4->unk34 != newStatus) {
+        pair->unk4->unk34 = newStatus;
+        pair->unk4->unk35 = 0;
+        if (newStatus == 3) {
             t = D_807FBB40->unk174;
-            slot = arg0->unk4->unk36;
-            if (slot + 1 == (u32)t->unk1E || arg0->unk4->unk45 != 0) {
+            slot = pair->unk4->unk36;
+            if (slot + 1 == (u32)t->unk1E || pair->unk4->unk45 != 0) {
                 slot = 3;
             }
-            if (arg0->unk4->unk27 == 0) {
-                arg0->unk4->unk46 = gfxResourceCreate(1, textTableGetString(0x26, D_8002FCD4[slot], 1), 2, 160.0f, 100.0f, 0.0f);
+            if (pair->unk4->unk27 == 0) {
+                pair->unk4->unk46 = gfxResourceCreate(1, textTableGetString(0x26, D_8002FCD4[slot], 1), 2, 160.0f, 100.0f, 0.0f);
             }
         }
     }
@@ -700,26 +700,26 @@ void func_8002D148(RacePair *arg0, u8 arg1) {
 
 void func_8002D148(RacePair *, u8);
 
-void func_8002D224(u8 arg0) {
+void func_8002D224(u8 newStatus) {
     s32 i;
-    RaceUnknown174 *temp_s2;
-    RacePair *temp_s3;
+    RaceUnknown174 *race174;
+    RacePair *pairs;
 
-    temp_s2 = D_807FBB40->unk174;
-    temp_s3 = temp_s2->unk20;
-    D_807FBB40->unk154 = arg0;
-    for (i = 0; i < temp_s2->unk1E; i++) {
-        if (temp_s3[i].unk0 != 0) {
-            func_8002D148(&temp_s3[i], arg0);
+    race174 = D_807FBB40->unk174;
+    pairs = race174->unk20;
+    D_807FBB40->unk154 = newStatus;
+    for (i = 0; i < race174->unk1E; i++) {
+        if (pairs[i].unk0 != 0) {
+            func_8002D148(&pairs[i], newStatus);
         }
     }
 }
 
-f32 func_8002D2C0(RaceStruct3 *arg0) {
+f32 func_8002D2C0(RaceStruct3 *race3) {
     f32 temp;
 
-    if (arg0->unk26 >= 11 && arg0->unk26 < 15 && (D_807FD63A[arg0->unk28].unk0 & 0x2000)) {
-        temp = arg0->unk26 - 10;
+    if (race3->unk26 >= 11 && race3->unk26 < 15 && (D_807FD63A[race3->unk28].unk0 & 0x2000)) {
+        temp = race3->unk26 - 10;
         return temp * 0.2f;
     }
     return 0.0f;
@@ -727,17 +727,17 @@ f32 func_8002D2C0(RaceStruct3 *arg0) {
 
 void actorDespawn(void *, void *);
 
-void func_8002D338(void *arg0, RaceUnknownC *arg1) {
-    RaceUnknownActor *temp_v0;
-    RaceUnknown174 *temp_v1;
+void func_8002D338(void *parent, RaceUnknownC *child) {
+    RaceUnknownActor *childActor;
+    RaceUnknown174 *race174;
 
-    temp_v0 = arg1->unkC;
-    temp_v1 = temp_v0->unk174;
-    temp_v1->unk2C = NULL;
-    actorDespawn(arg0, arg1);
+    childActor = child->unkC;
+    race174 = childActor->unk174;
+    race174->unk2C = NULL;
+    actorDespawn(parent, child);
 }
 
-RaceUnknownActor *raceFindNearestParticipant(RaceUnknownActor *arg0) {
+RaceUnknownActor *raceFindNearestParticipant(RaceUnknownActor *self) {
     RaceUnknownActor *owner;
     f32 best;
     f32 d;
@@ -749,15 +749,15 @@ RaceUnknownActor *raceFindNearestParticipant(RaceUnknownActor *arg0) {
     s32 i;
 
     best = 1e9f;
-    own174 = arg0->unk174;
+    own174 = self->unk174;
     owner = own174->unk30;
     t = owner->unk174;
     ret = NULL;
     list = t->unk20;
     for (i = 0; i < t->unk1E; i++) {
         o = list[i].unk0;
-        if (o != NULL && o != arg0) {
-            d = (arg0->unk7C - o->unk7C) * (arg0->unk7C - o->unk7C) + (arg0->unk80 - o->unk80) * (arg0->unk80 - o->unk80) + (arg0->unk84 - o->unk84) * (arg0->unk84 - o->unk84);
+        if (o != NULL && o != self) {
+            d = (self->unk7C - o->unk7C) * (self->unk7C - o->unk7C) + (self->unk80 - o->unk80) * (self->unk80 - o->unk80) + (self->unk84 - o->unk84) * (self->unk84 - o->unk84);
             if (d < best) {
                 ret = o;
                 best = d;
@@ -770,16 +770,16 @@ RaceUnknownActor *raceFindNearestParticipant(RaceUnknownActor *arg0) {
 void sfxAllocateChannel(s32, f32);
 
 void racePlayResultSfx(void) {
-    RaceUnknown174 *temp_v0;
+    RaceUnknown174 *race174;
     RacePair *list;
     RaceStruct3 *s;
     s32 i;
     s32 id;
 
-    temp_v0 = D_807FBB40->unk174;
+    race174 = D_807FBB40->unk174;
     id = 0;
-    list = temp_v0->unk20;
-    i = temp_v0->unk1E - 1;
+    list = race174->unk20;
+    i = race174->unk1E - 1;
     if (i >= 0) {
         do {
             s = list[i].unk4;
@@ -880,21 +880,21 @@ void raceUpdateStandings(void) {
     }
 }
 
-void func_8002D72C(RaceUnknownActor *arg0) {
-    RaceUnknown174 *temp_v0;
+void func_8002D72C(RaceUnknownActor *actor) {
+    RaceUnknown174 *race174;
 
-    if (arg0 != NULL && arg0->unk154 == 0) {
-        temp_v0 = arg0->unk174;
-        temp_v0->unk1C = 2;
+    if (actor != NULL && actor->unk154 == 0) {
+        race174 = actor->unk174;
+        race174->unk1C = 2;
     }
 }
 
-void func_8002D754(RaceUnknownActor *arg0) {
-    RaceUnknown174 *temp_v0;
+void func_8002D754(RaceUnknownActor *actor) {
+    RaceUnknown174 *race174;
 
-    if (arg0 != NULL && arg0->unk154 == 0) {
-        temp_v0 = arg0->unk174;
-        temp_v0->unk1C = 0;
+    if (actor != NULL && actor->unk154 == 0) {
+        race174 = actor->unk174;
+        race174->unk1C = 0;
     }
 }
 
@@ -1012,33 +1012,33 @@ void func_8002D778(void) {
 
 f32 func_80612794(s16);
 
-void func_8002DA68(RaceUnknown174 *arg0) {
-    s16 var_v0;
-    f32 temp_fa0;
-    f32 temp_fv1;
+void func_8002DA68(RaceUnknown174 *race174) {
+    s16 angle;
+    f32 scale;
+    f32 scaleCopy;
 
     switch (D_807FBB40->unk154) {
     case 0:
-        var_v0 = arg0->unk2;
-        if (((s16)(var_v0 % 2048) >= 0x81) && ((0x800 - (s16)(var_v0 % 2048)) >= 0x81)) {
-            arg0->unk2 = var_v0 + 0x80;
-            var_v0 = arg0->unk2;
+        angle = race174->unk2;
+        if (((s16)(angle % 2048) >= 0x81) && ((0x800 - (s16)(angle % 2048)) >= 0x81)) {
+            race174->unk2 = angle + 0x80;
+            angle = race174->unk2;
         }
         break;
     case 1:
-        arg0->unk2 += 0x80;
-        var_v0 = arg0->unk2;
+        race174->unk2 += 0x80;
+        angle = race174->unk2;
         break;
     default:
-        var_v0 = arg0->unk2;
+        angle = race174->unk2;
         break;
     }
-    arg0->unk2 = var_v0 & 0xFFF;
-    temp_fa0 = (((func_80612794(arg0->unk2) + 1.0f) * 1.5) + 1.0) * arg0->unk4;
-    D_807FBB40->unk4->unk34[2] = temp_fa0;
-    temp_fv1 = D_807FBB40->unk4->unk34[2];
-    D_807FBB40->unk4->unk34[1] = temp_fv1;
-    D_807FBB40->unk4->unk34[0] = temp_fv1;
+    race174->unk2 = angle & 0xFFF;
+    scale = (((func_80612794(race174->unk2) + 1.0f) * 1.5) + 1.0) * race174->unk4;
+    D_807FBB40->unk4->unk34[2] = scale;
+    scaleCopy = D_807FBB40->unk4->unk34[2];
+    D_807FBB40->unk4->unk34[1] = scaleCopy;
+    D_807FBB40->unk4->unk34[0] = scaleCopy;
 }
 void animSetSpeed(RaceUnknownActor *, s32, f32);
 void animSetLoopLimit(RaceUnknownActor *, s32, s32);
@@ -1064,24 +1064,24 @@ void actorUpdateFloorContactAndTilt(RaceUnknownActor *, f32);
 void actorUpdateModelMatrix(RaceUnknownActor *, s32);
 
 void func_8002DC24(void) {
-    RaceUnknown174 *temp_a0 = D_807FBB40->unk174;
+    RaceUnknown174 *race174 = D_807FBB40->unk174;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
-        temp_a0->unk4 = D_807FBB40->unk4->unk34[1];
+        race174->unk4 = D_807FBB40->unk4->unk34[1];
     }
-    switch (temp_a0->unk0) {
+    switch (race174->unk0) {
     case 2:
-        func_8002DB90(temp_a0);
+        func_8002DB90(race174);
         break;
     case 1:
-        func_8002DB90(temp_a0);
+        func_8002DB90(race174);
         actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         D_807FBB40->unk80 = D_807FBB40->unkAC;
         D_807FBB40->unk6A |= 4;
         D_807FBB40->unk6C |= 4;
         break;
     default:
-        func_8002DA68(temp_a0);
+        func_8002DA68(race174);
         break;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -1092,18 +1092,18 @@ typedef struct RaceFView8 {
     u8 unk8;
 } RaceFView8;
 
-void func_8002DCF0(RaceUnknownDCF0 *arg0, s32 arg1) {
+void func_8002DCF0(RaceUnknownDCF0 *holder, s32 state) {
     u8 i;
     RaceUnknownActor *a;
     RaceFView8 *p;
 
     for (i = 0; i < 2; i++) {
-        a = arg0->unk1C[i];
+        a = holder->unk1C[i];
         if (a != NULL) {
             p = (RaceFView8 *)a->unk174;
-            if (arg1 == 1) {
+            if (state == 1) {
                 if (p->unk8 == 0) {
-                    a->unk154 = arg1;
+                    a->unk154 = state;
                 }
                 p->unk8 = p->unk8 + 1;
             } else {
@@ -1111,15 +1111,15 @@ void func_8002DCF0(RaceUnknownDCF0 *arg0, s32 arg1) {
                     p->unk8 = p->unk8 - 1;
                 }
                 if (p->unk8 == 0) {
-                    a->unk154 = arg1;
+                    a->unk154 = state;
                 }
             }
         }
     }
 }
 
-f32 raceLerp(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
-    return ((arg4 - arg2) * ((arg0 - arg1) / (arg3 - arg1))) + arg2;
+f32 raceLerp(f32 t, f32 x0, f32 y0, f32 x1, f32 y1) {
+    return ((y1 - y0) * ((t - x0) / (x1 - x0))) + y0;
 }
 
 typedef struct RaceCurvePoint {
@@ -1133,80 +1133,80 @@ typedef struct RaceVec3f {
     f32 z;
 } RaceVec3f;
 
-f32 func_8002DDA0(f32 arg0, RaceCurvePoint *arg1) {
+f32 func_8002DDA0(f32 targetX, RaceCurvePoint *points) {
     u8 i;
     f32 ret;
     s32 found;
 
     found = 0;
     i = 1;
-    if (arg0 < arg1[0].x) {
-        ret = arg1[0].y;
+    if (targetX < points[0].x) {
+        ret = points[0].y;
         found = 1;
     }
     if (found == 0) {
         do {
-            f32 x = arg1[i].x;
-            if (arg0 < x) {
-                ret = raceLerp(arg0, arg1[i - 1].x, arg1[i - 1].y, x, arg1[i].y);
+            f32 x = points[i].x;
+            if (targetX < x) {
+                ret = raceLerp(targetX, points[i - 1].x, points[i - 1].y, x, points[i].y);
                 found = 1;
             }
             i++;
         } while (i < 6 && found == 0);
     }
     if (found == 0) {
-        ret = arg1[5].y;
+        ret = points[5].y;
     }
     return ret;
 }
 
-void func_8002DE78(RaceUnknownActor *arg0, u8 arg1, RaceCurvePoint *arg2, RaceVec3f *arg3) {
-    switch (arg1) {
+void func_8002DE78(RaceUnknownActor *actor, u8 mode, RaceCurvePoint *points, RaceVec3f *values) {
+    switch (mode) {
     case 0:
     case 1:
-        arg2[0].y = arg3->x;
-        arg2[1].y = arg3->y;
-        arg2[2].y = arg3->y;
-        arg2[3].y = arg3->y;
-        arg2[4].y = arg3->y;
-        arg2[5].y = arg3->z;
+        points[0].y = values->x;
+        points[1].y = values->y;
+        points[2].y = values->y;
+        points[3].y = values->y;
+        points[4].y = values->y;
+        points[5].y = values->z;
         break;
     case 2:
     case 3:
-        arg2[3].y = arg3->z;
-        arg2[4].y = arg3->z;
-        arg2[5].y = arg3->z;
+        points[3].y = values->z;
+        points[4].y = values->z;
+        points[5].y = values->z;
         break;
     case 5:
-        arg2[0].y = arg3->x;
-        arg2[1].y = arg3->z;
-        arg2[2].y = arg3->z;
-        arg2[3].y = arg3->z;
-        arg2[4].y = arg3->z;
-        arg2[5].y = arg3->z;
+        points[0].y = values->x;
+        points[1].y = values->z;
+        points[2].y = values->z;
+        points[3].y = values->z;
+        points[4].y = values->z;
+        points[5].y = values->z;
         break;
     }
     D_807FBB40->unk155 = 0;
-    arg0->unkF = arg1;
+    actor->unkF = mode;
 }
 
 s32 randomLcgNext(void);
 
-f32 func_8002DF38(RaceUnknownActor *arg0, f32 arg1, RaceCurvePoint *arg2, RaceVec3f *arg3) {
+f32 func_8002DF38(RaceUnknownActor *actor, f32 t, RaceCurvePoint *points, RaceVec3f *values) {
     f32 ret;
     f32 lim;
     RaceSub4 *sub;
 
-    switch (arg0->unkF) {
+    switch (actor->unkF) {
     case 0:
-        ret = func_8002DDA0(arg1, arg2);
+        ret = func_8002DDA0(t, points);
         break;
     case 1:
-        ret = func_8002DDA0(arg1, arg2);
-        if (arg0->unk10 != 0) {
-            if (arg2[4].x < arg1) {
+        ret = func_8002DDA0(t, points);
+        if (actor->unk10 != 0) {
+            if (points[4].x < t) {
                 if ((u32)randomLcgNext() % 0xFF < 0xA) {
-                    func_8002DE78(arg0, 2, arg2, arg3);
+                    func_8002DE78(actor, 2, points, values);
                 }
             }
         }
@@ -1214,36 +1214,36 @@ f32 func_8002DF38(RaceUnknownActor *arg0, f32 arg1, RaceCurvePoint *arg2, RaceVe
     case 2:
     case 3:
     case 4:
-        if (arg0->unkF == 3 || arg0->unkF == 4 || arg0->unk10 != 0) {
-            sub = arg0->unk4;
+        if (actor->unkF == 3 || actor->unkF == 4 || actor->unk10 != 0) {
+            sub = actor->unk4;
             lim = sub->unk4;
-            arg2[0].y = lim < arg3->x ? lim : arg3->x;
-            arg2[1].y = lim < arg3->y ? lim : arg3->y;
-            if (arg0->unkF == 4) {
-                arg2[2].y = lim;
+            points[0].y = lim < values->x ? lim : values->x;
+            points[1].y = lim < values->y ? lim : values->y;
+            if (actor->unkF == 4) {
+                points[2].y = lim;
             } else {
-                arg2[2].y = arg3->z;
+                points[2].y = values->z;
             }
-            ret = func_8002DDA0(arg1, arg2);
-            if (arg0->unkF == 2) {
-                if (arg1 < arg2[3].x) {
-                    func_8002DE78(arg0, 3, arg2, arg3);
+            ret = func_8002DDA0(t, points);
+            if (actor->unkF == 2) {
+                if (t < points[3].x) {
+                    func_8002DE78(actor, 3, points, values);
                 }
             }
-            if (arg0->unkF == 3) {
-                if (arg1 < arg2[2].x) {
-                    func_8002DE78(arg0, 4, arg2, arg3);
+            if (actor->unkF == 3) {
+                if (t < points[2].x) {
+                    func_8002DE78(actor, 4, points, values);
                 }
             }
-        } else if (arg0->unkF == 2) {
-            ret = arg3->y;
-            func_8002DE78(arg0, 1, arg2, arg3);
+        } else if (actor->unkF == 2) {
+            ret = values->y;
+            func_8002DE78(actor, 1, points, values);
         }
         break;
     case 5:
-        ret = func_8002DDA0(arg1, arg2);
-        if (arg1 < arg2[1].x) {
-            func_8002DE78(arg0, 1, arg2, arg3);
+        ret = func_8002DDA0(t, points);
+        if (t < points[1].x) {
+            func_8002DE78(actor, 1, points, values);
         }
         break;
     default:
@@ -1253,25 +1253,25 @@ f32 func_8002DF38(RaceUnknownActor *arg0, f32 arg1, RaceCurvePoint *arg2, RaceVe
     return ret;
 }
 
-f32 func_8002E1C8(RaceUnknownActor *arg0, f32 arg1, RaceCurvePoint *arg2, RaceVec3f *arg3) {
+f32 func_8002E1C8(RaceUnknownActor *actor, f32 t, RaceCurvePoint *points, RaceVec3f *values) {
     f32 ret;
 
-    switch (arg0->unkF) {
+    switch (actor->unkF) {
     case 0:
-        ret = func_8002DDA0(arg1, arg2);
+        ret = func_8002DDA0(t, points);
         break;
     case 1:
-        ret = func_8002DDA0(arg1, arg2);
-        if (arg0->unk10 != 0) {
-            if (arg2[4].x < arg1) {
-                func_8002DE78(arg0, 5, arg2, arg3);
+        ret = func_8002DDA0(t, points);
+        if (actor->unk10 != 0) {
+            if (points[4].x < t) {
+                func_8002DE78(actor, 5, points, values);
             }
         }
         break;
     case 5:
-        ret = func_8002DDA0(arg1, arg2);
-        if (arg1 < arg2[1].x) {
-            func_8002DE78(arg0, 1, arg2, arg3);
+        ret = func_8002DDA0(t, points);
+        if (t < points[1].x) {
+            func_8002DE78(actor, 1, points, values);
         }
         break;
     default:
@@ -1285,56 +1285,56 @@ extern u8 gPlayerCount;
 RaceUnknownActor *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
 void func_8002BC2C(RaceUnknownActor *, s32, RaceUnknownActor *, RaceUnknown174 *);
 
-void func_8002E2C8(RaceUnknownActor *arg0) {
-    RaceUnknown174 *sp5C;
-    RaceUnknown174 *sp58;
-    RaceUnknownActor *sp54;
-    s32 var_s1;
-    s32 var_s0;
-    s32 var_s4;
+void func_8002E2C8(RaceUnknownActor *raceManager) {
+    RaceUnknown174 *managerData;
+    RaceUnknown174 *participantData;
+    RaceUnknownActor *participantActor;
+    s32 slotIndex;
+    s32 playerIdx;
+    s32 participantCount;
 
-    var_s4 = gPlayerCount;
-    var_s1 = 0;
-    sp5C = arg0->unk174;
-    if (var_s4 == 1) {
-        var_s4++;
+    participantCount = gPlayerCount;
+    slotIndex = 0;
+    managerData = raceManager->unk174;
+    if (participantCount == 1) {
+        participantCount++;
     }
-    func_8002BBD0(arg0, var_s4);
+    func_8002BBD0(raceManager, participantCount);
     if (gPlayerCount == 1) {
-        sp54 = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
-        sp58 = sp54->unk178;
-        sp58->unk27 = 1;
-        func_8002BC2C(arg0, 0, sp54, sp58);
-        var_s1 = 1;
-        func_8002BCB0(arg0, 0, sp54->unk17C, sp54->unk17C + 1);
-        sp5C->unk25 = 1;
+        participantActor = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
+        participantData = participantActor->unk178;
+        participantData->unk27 = 1;
+        func_8002BC2C(raceManager, 0, participantActor, participantData);
+        slotIndex = 1;
+        func_8002BCB0(raceManager, 0, participantActor->unk17C, participantActor->unk17C + 1);
+        managerData->unk25 = 1;
     } else {
-        sp5C->unk25 = 0;
+        managerData->unk25 = 0;
     }
-    for (var_s0 = 0; var_s0 < gPlayerCount; var_s0++) {
+    for (playerIdx = 0; playerIdx < gPlayerCount; playerIdx++) {
         actorSpawn(0x13B, 0);
-        sp54 = D_807FBB44;
-        sp58 = sp54->unk174;
-        sp58->unk27 = 0;
-        func_8002BC2C(arg0, var_s1, sp54, sp58);
-        var_s1++;
-        sp58->unk28 = var_s0;
+        participantActor = D_807FBB44;
+        participantData = participantActor->unk174;
+        participantData->unk27 = 0;
+        func_8002BC2C(raceManager, slotIndex, participantActor, participantData);
+        slotIndex++;
+        participantData->unk28 = playerIdx;
     }
-    var_s0 = 0;
-    if (var_s4 > 0) {
+    playerIdx = 0;
+    if (participantCount > 0) {
         do {
-            func_8002BCB0(arg0, var_s0, (s32 *)&sp54, (s32 *)&sp58);
-            sp58->unk36 = var_s0;
-            var_s0++;
-            sp58->unk30 = arg0;
-        } while (var_s0 != var_s4);
+            func_8002BCB0(raceManager, playerIdx, (s32 *)&participantActor, (s32 *)&participantData);
+            participantData->unk36 = playerIdx;
+            playerIdx++;
+            participantData->unk30 = raceManager;
+        } while (playerIdx != participantCount);
     }
-    sp5C->unk26 = 0;
+    managerData->unk26 = 0;
 }
 
 
-void func_8002E464(void *arg0, RaceUnknownActor *arg1) {
-    func_8002CAC8(arg0, arg1, arg1->unk174);
+void func_8002E464(void *gfx, RaceUnknownActor *actor) {
+    func_8002CAC8(gfx, actor, actor->unk174);
 }
 
 void playerStateQueueCallback(s32, RaceUnknownActor *, u8, RaceUnknownActor *);
@@ -1342,46 +1342,46 @@ void func_8002F490(RaceStruct3 *);
 void renderCallbacksRegister(void *, RaceUnknownActor *, s32);
 
 void func_8002E484(void) {
-    RaceUnknownActor *var_a3;
-    RaceUnknownActor *temp_a1;
-    RaceStruct3 *temp_s0;
-    f32 temp_fa0;
-    f32 temp_fv0_2;
+    RaceUnknownActor *playerActor;
+    RaceUnknownActor *raceActor;
+    RaceStruct3 *raceData;
+    f32 curMax;
+    f32 diff;
 
-    temp_a1 = D_807FBB40;
-    temp_s0 = (RaceStruct3 *)temp_a1->unk174;
-    var_a3 = gPlayerSlots[temp_s0->unk28].unk4;
-    if (!(temp_a1->unk60 & 0x10)) {
-        playerStateQueueCallback(0x4E, temp_a1, temp_s0->unk28, var_a3);
+    raceActor = D_807FBB40;
+    raceData = (RaceStruct3 *)raceActor->unk174;
+    playerActor = gPlayerSlots[raceData->unk28].unk4;
+    if (!(raceActor->unk60 & 0x10)) {
+        playerStateQueueCallback(0x4E, raceActor, raceData->unk28, playerActor);
         D_807FBB40->unk154 = 0;
         D_807FBB40->unk155 = 0;
-        temp_a1 = D_807FBB40;
+        raceActor = D_807FBB40;
     }
-    if ((temp_s0->unk34 == 2) && (temp_a1->unk154 == 0)) {
-        playerStateQueueCallback(0x57, NULL, temp_s0->unk28, var_a3);
-        temp_a1 = D_807FBB40;
-        temp_a1->unk154++;
-        temp_a1 = D_807FBB40;
+    if ((raceData->unk34 == 2) && (raceActor->unk154 == 0)) {
+        playerStateQueueCallback(0x57, NULL, raceData->unk28, playerActor);
+        raceActor = D_807FBB40;
+        raceActor->unk154++;
+        raceActor = D_807FBB40;
     }
-    temp_a1->unk7C = var_a3->unk7C;
-    D_807FBB40->unk80 = var_a3->unk80;
-    D_807FBB40->unk84 = var_a3->unk84;
-    if (temp_s0->unk34 == 2) {
-        func_8002F490(temp_s0);
-        temp_a1 = D_807FBB40;
+    raceActor->unk7C = playerActor->unk7C;
+    D_807FBB40->unk80 = playerActor->unk80;
+    D_807FBB40->unk84 = playerActor->unk84;
+    if (raceData->unk34 == 2) {
+        func_8002F490(raceData);
+        raceActor = D_807FBB40;
     }
-    if ((temp_s0->unk34 > 0) && (temp_s0->unk34 < 5)) {
+    if ((raceData->unk34 > 0) && (raceData->unk34 < 5)) {
         renderCallbacksRegister((void *)func_8002E464, D_807FBB40, 3);
     }
-    temp_s0->unk1C = (temp_s0->unk40 < temp_s0->unk1C) ? temp_s0->unk1C : temp_s0->unk40;
-    temp_fa0 = temp_s0->unk18;
-    temp_fv0_2 = (f32)(temp_s0->unk3A * 3000) - temp_s0->unk40;
-    temp_s0->unk14 = temp_fv0_2;
-    if (temp_fv0_2 < temp_fa0) {
-        temp_s0->unk18 = temp_fa0;
+    raceData->unk1C = (raceData->unk40 < raceData->unk1C) ? raceData->unk1C : raceData->unk40;
+    curMax = raceData->unk18;
+    diff = (f32)(raceData->unk3A * 3000) - raceData->unk40;
+    raceData->unk14 = diff;
+    if (diff < curMax) {
+        raceData->unk18 = curMax;
         return;
     }
-    temp_s0->unk18 = temp_s0->unk14;
+    raceData->unk18 = raceData->unk14;
 }
 
 typedef struct RaceFE644Arg {
@@ -1399,65 +1399,65 @@ f32 func_80611BB4(f32, f32);
 f32 func_80612790(s16);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
-void func_8002E644(RaceFE644Arg *arg0) {
-    f32 sp5C;
-    f32 sp58;
-    f32 sp54;
-    f32 sp50;
-    f32 fv1;
-    s16 sp4A;
-    s16 sp48;
-    s16 sp46;
-    f32 sp40;
-    s32 sp3C;
-    RaceUnknownActor *s0;
+void func_8002E644(RaceFE644Arg *collision) {
+    f32 distSq;
+    f32 unused_pad;
+    f32 velX;
+    f32 velZ;
+    f32 playerVel;
+    s16 diffAnglePlayer;
+    s16 diffAngleActor;
+    s16 targetAngle;
+    f32 bounceScale;
+    s32 sfxId;
+    RaceUnknownActor *actor;
 
-    s0 = arg0->unk0;
-    sp5C = (s0->unk7C - D_807FBB40->unk7C) * (s0->unk7C - D_807FBB40->unk7C) + (s0->unk84 - D_807FBB40->unk84) * (s0->unk84 - D_807FBB40->unk84);
-    if (D_807FBD70 == 4 && sp5C < arg0->unk14 && (arg0->unkF == 1 || arg0->unkF == 0 || arg0->unkF == 4 || (D_807FBB40->unk58 == 0x143 && arg0->unkF == 5))) {
-        sp46 = mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, s0->unk7C, s0->unk84);
-        sp40 = 1.0f;
-        if (mathAngleDistance(s0->unkEE, sp46) < 0x200) {
-            sp40 = 4.0f;
+    actor = collision->unk0;
+    distSq = (actor->unk7C - D_807FBB40->unk7C) * (actor->unk7C - D_807FBB40->unk7C) + (actor->unk84 - D_807FBB40->unk84) * (actor->unk84 - D_807FBB40->unk84);
+    if (D_807FBD70 == 4 && distSq < collision->unk14 && (collision->unkF == 1 || collision->unkF == 0 || collision->unkF == 4 || (D_807FBB40->unk58 == 0x143 && collision->unkF == 5))) {
+        targetAngle = mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, actor->unk7C, actor->unk84);
+        bounceScale = 1.0f;
+        if (mathAngleDistance(actor->unkEE, targetAngle) < 0x200) {
+            bounceScale = 4.0f;
         }
-        sp48 = (s16)(s0->unkEE - sp46) & 0xFFF;
-        sp4A = (s16)(D_807FBB40->unkEE - sp46);
-        sp4A = sp4A & 0xFFF;
-        sp54 = func_80612794(sp48) * s0->unkB8;
-        sp50 = func_80612790(sp48) * s0->unkB8;
-        fv1 = func_80612790(sp4A) * D_807FBB40->unkB8;
-        sp50 = (fv1 - sp50) * sp40 + fv1;
-        s0->unkB8 = sqrtf(sp54 * sp54 + sp50 * sp50);
-        s0->unkEE = (s16)(s32)(((f64)func_80611BB4(sp54, sp50) * 4096.0) / 6.2831854820251465);
-        s0->unkEE = s0->unkEE + sp46;
-        s0->unkEE = s0->unkEE & 0xFFF;
-        if (arg0->unkE == 0) {
+        diffAngleActor = (s16)(actor->unkEE - targetAngle) & 0xFFF;
+        diffAnglePlayer = (s16)(D_807FBB40->unkEE - targetAngle);
+        diffAnglePlayer = diffAnglePlayer & 0xFFF;
+        velX = func_80612794(diffAngleActor) * actor->unkB8;
+        velZ = func_80612790(diffAngleActor) * actor->unkB8;
+        playerVel = func_80612790(diffAnglePlayer) * D_807FBB40->unkB8;
+        velZ = (playerVel - velZ) * bounceScale + playerVel;
+        actor->unkB8 = sqrtf(velX * velX + velZ * velZ);
+        actor->unkEE = (s16)(s32)(((f64)func_80611BB4(velX, velZ) * 4096.0) / 6.2831854820251465);
+        actor->unkEE = actor->unkEE + targetAngle;
+        actor->unkEE = actor->unkEE & 0xFFF;
+        if (collision->unkE == 0) {
             switch (D_807FBB40->unk58) {
             case 0x134:
-                sp3C = 0x1F9;
+                sfxId = 0x1F9;
                 break;
             case 0x143:
-                sp3C = 0x18A;
+                sfxId = 0x18A;
                 break;
             }
-            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, (s16)sp3C, 0xFF, 0x7F, 0, 0, 0.0f, 0);
-            arg0->unkE = 0x14;
+            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, (s16)sfxId, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+            collision->unkE = 0x14;
         }
     }
-    arg0->unk14 = sp5C;
-    if (arg0->unkE > 0) {
-        arg0->unkE = arg0->unkE - 1;
+    collision->unk14 = distSq;
+    if (collision->unkE > 0) {
+        collision->unkE = collision->unkE - 1;
     }
 }
 
 s32 slotQueueGetValue(s32, s32);
-s32 func_8002E8EC(RaceStruct3 *arg0, RaceStruct3 *arg1, s32 arg2) {
+s32 func_8002E8EC(RaceStruct3 *race3_0, RaceStruct3 *race3_1, s32 threshold) {
     s32 ret;
 
-    if (arg1->unk45 != 0) {
+    if (race3_1->unk45 != 0) {
         ret = 0;
-    } else if (arg0->unk36 != 0) {
-        if (slotQueueGetValue(11, 0) >= arg2) {
+    } else if (race3_0->unk36 != 0) {
+        if (slotQueueGetValue(11, 0) >= threshold) {
             ret = 1;
         } else {
             ret = 3;
