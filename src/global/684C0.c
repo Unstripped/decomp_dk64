@@ -48,19 +48,19 @@ void triggerZoneInit(TriggerZoneActor *actor) {
     TriggerZoneNode **link;
     s32 zoneCount;
     TriggerZoneData *zones;
-    TriggerZoneNode *temp_v0_2;
+    TriggerZoneNode *newNode;
 
     link = &D_807F9410;
     zoneCount = *(s32 *)(actor->unk54 + (u8 *)actor);
     zones = (TriggerZoneData *)((s32 *)(actor->unk54 + (u8 *)actor) + 1);
     *link = NULL;
     for (i = 0; i < zoneCount; i++) {
-        temp_v0_2 = heapAlloc(sizeof(TriggerZoneNode));
-        *link = temp_v0_2;
-        link = &temp_v0_2->next;
-        temp_v0_2->zone = &zones[i];
-        temp_v0_2->subList = NULL;
-        temp_v0_2->next = NULL;
+        newNode = heapAlloc(sizeof(TriggerZoneNode));
+        *link = newNode;
+        link = &newNode->next;
+        newNode->zone = &zones[i];
+        newNode->subList = NULL;
+        newNode->next = NULL;
     }
 }
 

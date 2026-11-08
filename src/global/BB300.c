@@ -57,7 +57,7 @@ void func_80724C2C(s32);
 void func_806B6DB0();
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 
-void actorUpdatePulseIntensity(u8 arg0) {
+void actorUpdatePulseIntensity(u8 active) {
     u8 *p = BB300A->unk178;
     s32 pad1;
     BB300Quad *q = BB300A->unk4->unk1C;
@@ -66,7 +66,7 @@ void actorUpdatePulseIntensity(u8 arg0) {
     f32 x;
     u32 a;
 
-    if (!arg0) {
+    if (!active) {
         p[0] = -p[0] * 0.2 + (u32)p[0];
         p[1] = 0;
     } else {
@@ -162,18 +162,18 @@ void func_806B6958(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-void func_806B6C88(s16 arg0, s16 arg1) {
+void func_806B6C88(s16 speed, s16 angle) {
     if (actorSpawn(0xD3, 0x24) != 0) {
         BB300A44->unk154 = 0x23;
         actorScriptStart(D_807FBB44, 0x237);
-        BB300A44->unkE6 = arg1;
+        BB300A44->unkE6 = angle;
         BB300A44->unkEE = BB300A44->unkE6;
         actorCopyPoseAndScale(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
         BB300A44->unkA4 = BB300A->unkA4;
         BB300A44->unkC4 = D_807502E8;
         BB300A44->unkC8 = D_807502E0;
         BB300A44->unkB8 = 0.0f;
-        actorSetTargetSpeed(D_807FBB40, arg0 * 1.25);
+        actorSetTargetSpeed(D_807FBB40, speed * 1.25);
         memcpy(BB300A44->unk174, BB300A->unk174, 0x3C);
     }
 }
@@ -229,7 +229,7 @@ s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void sfxSpawnTableNodes(Actor *);
 void sfxStopSlotSound(Actor *, s32);
 
-void func_806B6DB0(s32 arg0) {
+void func_806B6DB0(s32 aggroRange) {
     BB300Sub178 *p;
     s16 diff;
     u8 near;
@@ -377,7 +377,7 @@ void func_806B6DB0(s32 arg0) {
     case 3:
         patrolPathStep(D_807FBB40->unk154, 1);
     default:
-        enemyAggroStateUpdate(arg0, 0x232, 0x233);
+        enemyAggroStateUpdate(aggroRange, 0x232, 0x233);
         break;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);

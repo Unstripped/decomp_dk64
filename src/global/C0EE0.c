@@ -95,7 +95,7 @@ void enemyGridStateStep(void) {
     f32 a;
     f32 t;
     f32 b;
-    f32 sp70;
+    f32 targetScaleY;
     s16 i;
     s16 adx;
     BC1E0_State *st;
@@ -121,7 +121,7 @@ void enemyGridStateStep(void) {
         st->unk24 = BC1E0_LGB->unk7C;
         st->unk28 = BC1E0_LGB->unk80;
         st->unk2C = BC1E0_LGB->unk84;
-        if (sp70 != 0) {}  // FAKE: dummy statement steers uopt
+        if (targetScaleY != 0) {}  // FAKE: dummy statement steers uopt
         st->unk30 = BC1E0_LGB->unk4->unk38;
         currentActorClearFlag();
     }
@@ -353,7 +353,7 @@ void enemyGridStateStep(void) {
     if (st->unk34 < 0) {
         st->unk34 = 0;
     }
-    sp70 = st->unk30;
+    targetScaleY = st->unk30;
     if (st->unk4 != 0.0f && st->unk34 == 0) {
         a = st->unk4;
         old = st->unk0;
@@ -364,7 +364,7 @@ void enemyGridStateStep(void) {
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x361, 0xFF, 0x7F, 0xA);
             }
         } else {
-            sp70 += (st->unk0 - 0.5f) * 0.25f;
+            targetScaleY += (st->unk0 - 0.5f) * 0.25f;
         }
         if ((f64)st->unk0 >= 1.0) {
             st->unk0 = 0;
@@ -402,7 +402,7 @@ void enemyGridStateStep(void) {
             controllerApplyMotionWindow(D_807FBB40, obj, st->unk0 * 40.0f);
         }
     }
-    BC1E0_LGB->unk4->unk38 = BC1E0_LGB->unk4->unk38 + (sp70 - BC1E0_LGB->unk4->unk38) * 0.25f;
+    BC1E0_LGB->unk4->unk38 = BC1E0_LGB->unk4->unk38 + (targetScaleY - BC1E0_LGB->unk4->unk38) * 0.25f;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 

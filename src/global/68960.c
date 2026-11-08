@@ -13,7 +13,7 @@ extern MapFogEntry D_80748B70[];
 extern s32 gCurrentMap;
 s32 func_8061CC00(void);
 
-void mapUpdateFogDistance(f32 *arg0, s16 arg1) {
+void mapUpdateFogDistance(f32 *pDist, s16 characterId) {
     s16 limit = 6;
     f32 target;
     f32 val;
@@ -25,14 +25,14 @@ void mapUpdateFogDistance(f32 *arg0, s16 arg1) {
         } else {
             target = 900.0f;
         }
-        val = *arg0;
-        *arg0 = (target - val) * 0.03 + val;
+        val = *pDist;
+        *pDist = (target - val) * 0.03 + val;
     }
 
     for (i = 0; i < limit; i++) {
-        if (gCurrentMap == D_80748B70[i].unk0 && (arg1 == D_80748B70[i].unk2 || D_80748B70[i].unk2 == -1)) {
-            val = *arg0;
-            *arg0 = (D_80748B70[i].unk4 - val) * 0.03 + val;
+        if (gCurrentMap == D_80748B70[i].unk0 && (characterId == D_80748B70[i].unk2 || D_80748B70[i].unk2 == -1)) {
+            val = *pDist;
+            *pDist = (D_80748B70[i].unk4 - val) * 0.03 + val;
             return;
         }
     }

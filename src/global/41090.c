@@ -4,10 +4,10 @@
 extern s32 gCurrentMap;
 
 typedef struct {
-    void (*unk0)();
-    void (*unk4)();
-    void (*unk8)();
-    u8 unkC;
+    void (*init)();
+    void (*draw)();
+    void (*update)();
+    u8 active;
 } MapSurfaceEffect;
 
 extern MapSurfaceEffect D_80747D80[8];
@@ -23,27 +23,27 @@ void mapSurfaceEffectsReset(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        D_80747D80[i].unkC = 0;
+        D_80747D80[i].active = 0;
     }
 }
 
-void mapSurfaceEffectInit(s16 arg0) {
-    if (D_80747D80[arg0].unkC == 0) {
-        D_80747D80[arg0].unk0();
-        D_80747D80[arg0].unkC = 1;
+void mapSurfaceEffectInit(s16 effectIdx) {
+    if (D_80747D80[effectIdx].active == 0) {
+        D_80747D80[effectIdx].init();
+        D_80747D80[effectIdx].active = 1;
     }
 }
 
-void mapSurfaceEffectDraw(s32 arg0, s16 arg1) {
-    D_80747D80[arg1].unk4(arg0);
+void mapSurfaceEffectDraw(s32 gdl, s16 effectIdx) {
+    D_80747D80[effectIdx].draw(gdl);
 }
 
 void mapSurfaceEffectsUpdate(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
-        if (D_80747D80[i].unkC != 0) {
-            D_80747D80[i].unk8();
+        if (D_80747D80[i].active != 0) {
+            D_80747D80[i].update();
         }
     }
 }

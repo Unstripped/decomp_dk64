@@ -127,7 +127,7 @@ void actorUpdateNearestSpotlight(void) {
     lightAdd(A[0], A[1], A[2], B[0], B[1], B[2], 0.0f, 1, ((u8 *)p)[1], ((u8 *)p)[1], ((u8 *)p)[1]);
 }
 
-void func_806C6884(s16 arg0, s16 arg1, u16 arg2) {
+void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
     u16 dist;
     f32 dx;
     f32 dz;
@@ -150,13 +150,13 @@ void func_806C6884(s16 arg0, s16 arg1, u16 arg2) {
             sfxPlayActorSound(D_807FBB40, 0x132, 0, 0, 0, 0xA0, 1.0f, 0);
         }
     }
-    if (dist - arg1 < 0) {
+    if (dist - stopDist < 0) {
         dist = 0;
     } else {
-        dist = dist - arg1;
+        dist = dist - stopDist;
     }
     actorSetTargetSpeed(D_807FBB40, (s32)((u32)dist * 2.0));
-    func_8072A920(0x23, arg0, D_807FDC94->unk7C, D_807FDC94->unk80 + arg0 * 3.0, D_807FDC94->unk84, 0x1E, 3.3f, 100.0f, arg2 | 0x2000);
+    func_8072A920(0x23, yOffset, D_807FDC94->unk7C, D_807FDC94->unk80 + yOffset * 3.0, D_807FDC94->unk84, 0x1E, 3.3f, 100.0f, flags | 0x2000);
     D_807FBB40->unk80 += 0.5 * func_80612794(gFrameCounter * 40);
     actorUpdateNearestSpotlight();
     actorUpdateModelMatrix(D_807FBB40, 0);

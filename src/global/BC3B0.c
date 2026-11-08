@@ -78,7 +78,7 @@ void projectileSetTargetCoords(f32, f32, f32);
 void projectileAimAndSpawn(s16, s32, f32, f32, f32, f32, f32, void *);
 extern s32 gCurrentMap;
 
-void actorCursorFireProjectile(void *arg0) {
+void actorCursorFireProjectile(void *unused) {
     s32 id;
 
     if ((gCurrentMap != 0x5A) && (gCurrentMap != 0x64)) {
@@ -167,8 +167,8 @@ void renderCallbacksRegister(void *, void *, s32);
 
 void func_806B7EA0(void) {
     BC3B0Cursor *c;
-    f32 sp40;
-    f32 sp3C;
+    f32 screenX;
+    f32 screenY;
     c = (BC3B0Cursor *)BC3B0CA->unk178;
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -218,8 +218,8 @@ void func_806B7EA0(void) {
     }
     if (D_807FBB40->unk154 != 0x11) {
         if (D_807FBB40->unk154 == 0x23 && func_8061CC00() == 0) {
-            camProjectToScreen(D_807FDC94->unk7C, D_807FDC94->unk80 + (u32)D_807FDC94->unk15E, D_807FDC94->unk84, &sp40, &sp3C, 0, 1.0f, 0);
-            actorCursorSteer(c, sp40, sp3C);
+            camProjectToScreen(D_807FDC94->unk7C, D_807FDC94->unk80 + (u32)D_807FDC94->unk15E, D_807FDC94->unk84, &screenX, &screenY, 0, 1.0f, 0);
+            actorCursorSteer(c, screenX, screenY);
         }
     } else {
         if (func_8061CC00() == 0) {
