@@ -497,12 +497,12 @@ s32 mapChunkIsInUse(s16 arg0) {
     return var_v1 & 0xFF;
 }
 
-void mapByteArraySet(s16 arg0, s8 arg1) {
-    D_807F7078[arg0] = arg1;
+void mapByteArraySet(s16 index, s8 val) {
+    D_807F7078[index] = val;
 }
 
-void mapObjectSetByte(s16 arg0, u8 arg1, u8 arg2) {
-    D_807F6C1C[(u32)(arg0 * 2) * 0xA + arg1 * 0xA + 9] = arg2;
+void mapObjectSetByte(s16 objIndex, u8 byteOffset, u8 val) {
+    D_807F6C1C[(u32)(objIndex * 2) * 0xA + byteOffset * 0xA + 9] = val;
 }
 
 f32 sqrtf(f32);
@@ -1286,13 +1286,13 @@ typedef struct {
 extern MapPlayer *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 
-void mapChunkActivate(s16 arg0) {
-    gMapChunks[arg0].unk0 = 1;
-    gMapChunks[arg0].unk1 |= 1 << gCurrentPlayerIndex;
-    gMapChunks[arg0].unk68 = gPlayerSlots[gCurrentPlayerIndex].unk270;
-    gMapChunks[arg0].unk6C = gPlayerSlots[gCurrentPlayerIndex].unk272;
-    gMapChunks[arg0].unk70 = gPlayerSlots[gCurrentPlayerIndex].unk274;
-    gMapChunks[arg0].unk74 = gPlayerSlots[gCurrentPlayerIndex].unk276;
+void mapChunkActivate(s16 chunkIndex) {
+    gMapChunks[chunkIndex].unk0 = 1;
+    gMapChunks[chunkIndex].unk1 |= 1 << gCurrentPlayerIndex;
+    gMapChunks[chunkIndex].unk68 = gPlayerSlots[gCurrentPlayerIndex].unk270;
+    gMapChunks[chunkIndex].unk6C = gPlayerSlots[gCurrentPlayerIndex].unk272;
+    gMapChunks[chunkIndex].unk70 = gPlayerSlots[gCurrentPlayerIndex].unk274;
+    gMapChunks[chunkIndex].unk74 = gPlayerSlots[gCurrentPlayerIndex].unk276;
 }
 
 
