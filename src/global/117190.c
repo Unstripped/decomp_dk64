@@ -716,19 +716,19 @@ void func_80713C8C(void) {
 extern s32 D_80755348;
 Gfx *renderTimerMinutesSecondsHUD(Gfx *, f32, f32, s32);
 
-Gfx *hudDrawCountdownTimer(Gfx *arg0) {
+Gfx *hudDrawCountdownTimer(Gfx *dl) {
     s32 pad[8];
-    f32 sp1C;
-    Gfx *temp_v0;
+    f32 timerX;
+    Gfx *dlCur;
 
     if ((func_80712628() != 0) && !(D_807FBB60 & 3)) {
-        sp1C = (f32) D_80744490 * 0.5f;
-        temp_v0 = func_807132DC(arg0);
-        R117D_WRITE_GFX(temp_v0++, 0xFC119623, 0xFF2FFFFF);
-        R117D_WRITE_GFX(temp_v0++, 0xFA000000, 0xFFFFFFFF);
-        arg0 = renderTimerMinutesSecondsHUD(temp_v0, sp1C, 214.0f, D_80755348);
+        timerX = (f32) D_80744490 * 0.5f;
+        dlCur = func_807132DC(dl);
+        R117D_WRITE_GFX(dlCur++, 0xFC119623, 0xFF2FFFFF);
+        R117D_WRITE_GFX(dlCur++, 0xFA000000, 0xFFFFFFFF);
+        dl = renderTimerMinutesSecondsHUD(dlCur, timerX, 214.0f, D_80755348);
     }
-    return arg0;
+    return dl;
 }
 
 s32 func_80713EA8(s32 arg0) {
@@ -790,7 +790,7 @@ Gfx *func_80713B40(Gfx *);
 extern s8 D_807552E0;
 void camStartPath(s32, s16, s32);
 
-Gfx *screenStateTickAndDraw(Gfx *arg0) {
+Gfx *screenStateTickAndDraw(Gfx *dl) {
     char buffer[40];
 
     if ((D_80755338 != 0) && (gFrameCounter == 1)) {
@@ -800,12 +800,12 @@ Gfx *screenStateTickAndDraw(Gfx *arg0) {
         }
     }
     if (D_807552E0 != 0) {
-        arg0 = func_807132DC(arg0);
+        dl = func_807132DC(dl);
         _sprintf(buffer, "SECURITY %d", D_807552E0);
-        arg0 = hudDrawScaledText(arg0, 0x280, 0x1E0, 1.0f, buffer);
+        dl = hudDrawScaledText(dl, 0x280, 0x1E0, 1.0f, buffer);
     }
     D_807552E0 = 0;
-    R117D_WRITE_GFX(arg0++, 0xE7000000, 0);
+    R117D_WRITE_GFX(dl++, 0xE7000000, 0);
     if (D_80755334 < 0x5A) {
         D_80755334++;
     }
@@ -830,16 +830,16 @@ Gfx *screenStateTickAndDraw(Gfx *arg0) {
     }
     switch (D_80755314) {
     case 0:
-    case 1: arg0 = (Gfx *)func_8071375C((s32)arg0); break;
-    case 2: arg0 = func_807138A4(arg0); break;
-    case 3: arg0 = func_807138CC(arg0); break;
+    case 1: dl = (Gfx *)func_8071375C((s32)dl); break;
+    case 2: dl = func_807138A4(dl); break;
+    case 3: dl = func_807138CC(dl); break;
     case 7:
-    case 9: arg0 = func_80713B40(arg0); break;
-    case 6: arg0 = hudDrawCountdownTimer(arg0); break;
-    case 5: arg0 = (Gfx *)func_80713EA8((s32)arg0); break;
+    case 9: dl = func_80713B40(dl); break;
+    case 6: dl = hudDrawCountdownTimer(dl); break;
+    case 5: dl = (Gfx *)func_80713EA8((s32)dl); break;
     case 11: break;
     }
-    return arg0;
+    return dl;
 }
 
 typedef struct {
