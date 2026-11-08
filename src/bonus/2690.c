@@ -48,7 +48,7 @@ void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 
 s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 s16 mathAngleEaseToward(s16, s16, f32);
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 void rumbleRequest(s32, s32, s32);
 void bonusResetAmmo(void *);
 extern u16 D_807FD63C;
@@ -475,7 +475,7 @@ u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
     bonusExt->unk20 = screenY;
     gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(aimX, aimZ, gCurrentActor->x, gCurrentActor->z), 10.0f);
     distance = sqrtf((gCurrentActor->x - aimX) * (gCurrentActor->x - aimX) + (gCurrentActor->z - aimZ) * (gCurrentActor->z - aimZ));
-    gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, (s32)(func_80611BB4(gCurrentActor->y - aimY, distance) * 2048.0 / 3.1415927f + 150.0), 5.0f);
+    gCurrentActor->roll = mathAngleEaseToward(gCurrentActor->roll, (s32)(mathAtan2(gCurrentActor->y - aimY, distance) * 2048.0 / 3.1415927f + 150.0), 5.0f);
     if ((D_807FD63C & 0xE000) != 0) {
         if (gCurrentActor->state == 0) {
             fireStatus[0] = 1;
@@ -600,7 +600,7 @@ void bonusTargetGameUpdate(void) {
     if (t3c->unk0 > 0) {
         t3c->unk22 = 0;
         if (gCurrentActor->state == 0 && (gPlayerPadState.unk30 >= 0x1F || gPlayerPadState.unk31 >= 0x1F)) {
-            ang = func_80611BB4(gPlayerPadState.unk2F, gPlayerPadState.unk2E) / 6.2831855f * 8.0 + 5.5;
+            ang = mathAtan2(gPlayerPadState.unk2F, gPlayerPadState.unk2E) / 6.2831855f * 8.0 + 5.5;
             if (9.0f < ang) {
                 ang -= 8.0f;
             }

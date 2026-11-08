@@ -339,19 +339,19 @@ void func_80665ACC(Actor *actor) {
     actor->flags |= 0x20;
 }
 
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 
 f32 mathAngleBetweenPointsDeg(s32 x1, s32 y1, s32 x2, s32 y2) {
     f32 angleRad;
 
     if (x2 >= x1 && y2 >= y1) {
-        angleRad = func_80611BB4(y2 - y1, x2 - x1) + 1.570796371f;
+        angleRad = mathAtan2(y2 - y1, x2 - x1) + 1.570796371f;
     } else if (x2 >= x1 && y2 < y1) {
-        angleRad = 1.570796371f - func_80611BB4(y1 - y2, x2 - x1);
+        angleRad = 1.570796371f - mathAtan2(y1 - y2, x2 - x1);
     } else if (x2 < x1 && y2 < y1) {
-        angleRad = (f64)func_80611BB4(y1 - y2, x1 - x2) + 4.71238911151885986;
+        angleRad = (f64)mathAtan2(y1 - y2, x1 - x2) + 4.71238911151885986;
     } else if (x2 < x1 && y2 >= y1) {
-        angleRad = 4.71238911151885986 - (f64)func_80611BB4(y2 - y1, x1 - x2);
+        angleRad = 4.71238911151885986 - (f64)mathAtan2(y2 - y1, x1 - x2);
     }
     return angleRad * 57.29577637f;
 }
@@ -400,7 +400,7 @@ void mathCalculatePitchAngle(f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, s16
     } else {
         max_dist = dist;
     }
-    func_80611BB4(y2 - y1, max_dist);
+    mathAtan2(y2 - y1, max_dist);
 }
 
 typedef struct ActorSubNodeData {

@@ -62,7 +62,7 @@ extern RaceC_Row D_8002FB10[];
 extern RaceC_Row D_8002FB70[];
 #define RC_A ((RaceC_Act *)gCurrentActor)
 #define RC_B ((RaceC_Act *)D_807FBB48)
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void actorScriptStart(void *, s32);
@@ -121,7 +121,7 @@ void raceOpponentFollowWaypoints(void) {
         fv0 = -6.0f;
     }
     speedDelta = speedDelta + fv0;
-    v1 = (s32)((f64)func_80611BB4(-fs0, -fs1) * 4096.0 / 6.2831854820251465);
+    v1 = (s32)((f64)mathAtan2(-fs0, -fs1) * 4096.0 / 6.2831854820251465);
     v1 = v1 - RC_A->unkEE;
     if (v1 >= 0x800) {
         v1 = (f64)v1 - 4096.0;
@@ -141,7 +141,7 @@ void raceOpponentFollowWaypoints(void) {
     fs0 += func_80612790(RC_A->unkEE) * turnDelta;
     fs1 -= func_80612794(RC_A->unkEE) * turnDelta;
     curSpeed = sqrtf(fs0 * fs0 + fs1 * fs1);
-    fv0 = func_80611BB4(fs0, fs1);
+    fv0 = mathAtan2(fs0, fs1);
     if (RC_A->unkC4 != -20.0f && RC_A->unkC4 != -360.0f) {
         RC_A->unkB8 = D_807FDCA0->unk14[D_807FDC90->unk25].targetSpeed * 10.0;
     } else {
@@ -463,7 +463,7 @@ void raceOpponentBehaviourUpdate(void) {
                 }
             }
         }
-        ang16 = angU = (s32)((f64)func_80611BB4(-dx, -dz) * 4096.0 / 6.2831854820251465);
+        ang16 = angU = (s32)((f64)mathAtan2(-dx, -dz) * 4096.0 / 6.2831854820251465);
         mathAngleStepToward(&L4_D->unkE6, (angU + angU - L4_D->unkEE) & 0xFFF, 0x32);
         mathAngleStepToward(&L4_D->unkEE, ang16, 0xF);
         if (L4_S == 0) {} // FAKE: dead pointer test, steers t-register allocation

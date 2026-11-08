@@ -75,7 +75,7 @@ typedef struct {
 } LpfNMBiquad;
 
 
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 
 void computeBiquadCoefficients(f32 sampleRate, f32 cutoffFreq, f32 qFactor, LpfNMBiquad *numCoeffs, LpfNMBiquad *denCoeffs) {
     f32 omega;
@@ -91,7 +91,7 @@ void computeBiquadCoefficients(f32 sampleRate, f32 cutoffFreq, f32 qFactor, LpfN
     if (cutoffFreq >= sampleRate - 200.0f) {
         cutoffFreq = sampleRate - 200.0f;
     }
-    omega = func_80611BB4(cutoffFreq * 3.141592741f, sampleRate);
+    omega = mathAtan2(cutoffFreq * 3.141592741f, sampleRate);
     omegaSq = omega * omega;
     alpha = (omega * 1.414213657f) / qFactor;
     numCoeffs->unk0 = omegaSq / (1.0f + omegaSq + alpha);

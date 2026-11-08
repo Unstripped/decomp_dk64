@@ -2745,7 +2745,7 @@ extern s8 D_807FD63E;
 extern s8 D_807FD63F;
 
 f32 cosApprox(f32);
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 void csModelStateSetFirstByte(s16, s16);
 void hudSpawnCountdownTimer(s32, s32, u8);
 void actorSetStateTwo(Actor *);
@@ -2871,7 +2871,7 @@ void cannonUpdate(void) {
             projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y + D_8074E7FC, gCurrentActor->z);
             x = ((CannonPlayerView *)gPlayerSlots)->unk230 - ((CannonPlayerView *)gPlayerSlots)->unk218;
             y = ((CannonPlayerView *)gPlayerSlots)->unk228 - ((CannonPlayerView *)gPlayerSlots)->unk210;
-            pitch = func_80611BB4(((CannonPlayerView *)gPlayerSlots)->unk22C - ((CannonPlayerView *)gPlayerSlots)->unk214, sqrtf(x * x + y * y));
+            pitch = mathAtan2(((CannonPlayerView *)gPlayerSlots)->unk22C - ((CannonPlayerView *)gPlayerSlots)->unk214, sqrtf(x * x + y * y));
             sinV = sinApprox(pitch) * D_8074E808;
             y = cosApprox(pitch) * D_8074E808;
             projectileSpawnNodeEntry(0x4A, 0, 0.6f, sub->unk8, y, sinV, (s32)gCurrentActor);

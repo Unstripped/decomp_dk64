@@ -825,7 +825,7 @@ s32 critterSteerToTargetCallback(CritterObj *obj, CritterGroup *grp) {
 }
 
 extern f32 sqrtf(f32);
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 f32 func_80612800(s16);
 s16 mathAngleEaseToward(s16, s16, f32);
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
@@ -884,7 +884,7 @@ void critterSteerToTarget(CritterObj *obj, CritterGroup *grp, void (*steerFunc)(
     }
     dist = sqrtf(dx * dx + dz * dz);
     if ((u8)use_y) {
-        obj->pitch = mathAngleEaseToward(obj->pitch, (s16)(((f64)func_80611BB4(dy, dist) * 2048.0) / 3.1415927410125732), obj->turnRate);
+        obj->pitch = mathAngleEaseToward(obj->pitch, (s16)(((f64)mathAtan2(dy, dist) * 2048.0) / 3.1415927410125732), obj->turnRate);
     }
     ang = mathAngleDiscrete(tx, tz, obj->x, obj->z, dist);
     obj->prevYaw = obj->yaw;

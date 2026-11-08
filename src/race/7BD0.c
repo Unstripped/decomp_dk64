@@ -1395,7 +1395,7 @@ typedef struct RaceFE644Arg {
 extern u8 D_807FBD70;
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 mathAngleDistance(s16, s16);
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 f32 func_80612790(s16);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
@@ -1428,7 +1428,7 @@ void raceHandleRacerCollision(RaceFE644Arg *collision) {
         playerVel = func_80612790(diffAnglePlayer) * gCurrentActor->unkB8;
         velZ = (playerVel - velZ) * bounceScale + playerVel;
         actor->unkB8 = sqrtf(velX * velX + velZ * velZ);
-        actor->unkEE = (s16)(s32)(((f64)func_80611BB4(velX, velZ) * 4096.0) / 6.2831854820251465);
+        actor->unkEE = (s16)(s32)(((f64)mathAtan2(velX, velZ) * 4096.0) / 6.2831854820251465);
         actor->unkEE = actor->unkEE + targetAngle;
         actor->unkEE = actor->unkEE & 0xFFF;
         if (collision->unkE == 0) {

@@ -340,13 +340,13 @@ u8 raceCheckGateCrossed(RaceWaypoint *node) {
     return crossed;
 }
 
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 s32 mathAngleDistance(s16, s16);
 
 u8 raceIsFacingWaypoint(RaceWaypoint *node) {
     f32 diff_x = gCurrentActor->x - (f32)node->x;
     f32 diff_z = gCurrentActor->z - (f32)node->z;
-    s16 angle = (s32)(func_80611BB4(diff_x, diff_z) * 651.8986206f) & 0xFFF;
+    s16 angle = (s32)(mathAtan2(diff_x, diff_z) * 651.8986206f) & 0xFFF;
 
     return mathAngleDistance(angle, node->angle) < 0x400;
 }

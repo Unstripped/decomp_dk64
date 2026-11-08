@@ -576,7 +576,7 @@ s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 mathPickCloserTargetPoint3D(f32, f32, f32, MinecartTrackPoint *, MinecartTrackPoint *, MinecartTrackPoint *, MinecartTrackPoint *, f32 *, f32 *, f32 *);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 s16 mathAngleEaseToward(s16, s16, f32);
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 void func_8067ACB4(void *);
@@ -626,7 +626,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
         gCurrentActor->unk84 = targetPt[-1].z;
         gCurrentActor->unkA4 = targetPt[-1].y;
         gCurrentActor->unkE6 = mathAngleBetweenPoints2D(targetPt->x, targetPt->z, gCurrentActor->unk7C, gCurrentActor->unk84);
-        gCurrentActor->unkE8 = (s16)(s32)(((f64)func_80611BB4(gCurrentActor->unk80 - targetPt->y,
+        gCurrentActor->unkE8 = (s16)(s32)(((f64)mathAtan2(gCurrentActor->unk80 - targetPt->y,
                                 sqrtf((gCurrentActor->unk7C - targetPt->x) * (gCurrentActor->unk7C - targetPt->x) + (gCurrentActor->unk84 - targetPt->z) * (gCurrentActor->unk84 - targetPt->z))) * 2048.0) / 3.1415927410125732);
         cart->unkC = targetPt - 2;
         sfxPlayActorSound(gCurrentActor, 0x113, 0, 1, 0, 0xFF, 1.0f, 0);
@@ -670,7 +670,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     gCurrentActor->unkE6 = mathAngleEaseToward(gCurrentActor->unkE6, (s16)(f32)mathAngleBetweenPoints2D(frontTargetPt[0], frontTargetPt[2], rearTargetPt[0], rearTargetPt[2]), 1.7f);
     diff = sqrtf((frontTargetPt[0] - rearTargetPt[0]) * (frontTargetPt[0] - rearTargetPt[0]) + (frontTargetPt[2] - rearTargetPt[2]) * (frontTargetPt[2] - rearTargetPt[2]));
     prev = gCurrentActor->unkE8;
-    gCurrentActor->unkE8 = (s16)(s32)(((f64)func_80611BB4(rearTargetPt[1] - frontTargetPt[1], diff) * 2048.0) / 3.1415927410125732);
+    gCurrentActor->unkE8 = (s16)(s32)(((f64)mathAtan2(rearTargetPt[1] - frontTargetPt[1], diff) * 2048.0) / 3.1415927410125732);
     prev = prev - (f32)gCurrentActor->unkE8;
     if (prev > 2048.0f) {
         prev -= 4096.0f;

@@ -3465,7 +3465,7 @@ void func_806D91A4(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void sfxPlayScriptActorSoundForPlayer(void *, s32, s32);
 extern f32 D_80753CD0[];
@@ -3510,7 +3510,7 @@ void func_806D9320(void) {
             } else {
                 G16_A->unkB8 = G16_A->unkB8 - (f32)n;
             }
-            G16_A->unkE8 = func_80611BB4(G16_A->unkB8, G16_A->unkC0) * 4096.0f / 6.2831855f;
+            G16_A->unkE8 = mathAtan2(G16_A->unkB8, G16_A->unkC0) * 4096.0f / 6.2831855f;
             G16_A->unkE6 = (mathAngleBetweenPoints2D(G16_A->unk7C, G16_A->unk84, G16_P->unkB0, G16_P->unkB8) + 0x800) % 4095;
             G16_A->unkEE = G16_A->unkE6;
             temp_fa1 = G16_P->unkB4 - G16_E->unk80;
@@ -4258,13 +4258,13 @@ void func_806DB0C4(void) {
         dx = G18_P->unkA4 - G18_P->unk9C;
         dz = G18_P->unkA8 - G18_P->unkA0;
         G18_P->unk94 = sqrtf(dx * dx + dz * dz) * 0.8;
-        G18_P->unk98 = func_80611BB4(dx, dz) * 4096.0f / 6.2831855f;
+        G18_P->unk98 = mathAtan2(dx, dz) * 4096.0f / 6.2831855f;
         G18_P->unk4C = -1;
     }
     G18_P->unkAC += 0.02;
     if (G18_P->unkAC > 1.0) {
         if (G18_P->unkDC != NULL) {
-            G18_P->unk98 = func_80611BB4(G18_P->unkDC->unk7C - G18_P->unk9C, G18_P->unkDC->unk84 - G18_P->unkA0) * 4096.0f / 6.2831855f;
+            G18_P->unk98 = mathAtan2(G18_P->unkDC->unk7C - G18_P->unk9C, G18_P->unkDC->unk84 - G18_P->unkA0) * 4096.0f / 6.2831855f;
             if ((s16)(s32)G18_P->unk98 == G18_A->unkE6) {
                 playerResumeLocomotion(gCurrentActor);
             }

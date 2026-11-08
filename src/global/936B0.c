@@ -118,7 +118,7 @@ typedef struct PlayerCameraXZView {
     u8 pad214[4];
     f32 unk218;
 } PlayerCameraXZView;
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 void func_807149C8(s32, s32, s32, s32);
 s32 func_80714C08(void *, f32, Actor *, s32, s32);
 struct PlayerTrackEntry;
@@ -136,7 +136,7 @@ void actorSpawnNodeEffectFacingCamera(s32 arg0, u8 arg1) {
 
     actorGetNodePos(gCurrentActor, arg0, &sp48, &sp44, &sp40);
     tgt = sp48 - ((PlayerCameraXZView *)gPlayerSlots)->unk210;  // FAKE: tgt holds the 2nd arg so it is evaluated first
-    tgt = (s16)(func_80611BB4(((PlayerCameraXZView *)gPlayerSlots)->unk218 - sp40, tgt) * 651.8986f + 1024.0f) & 0xFFF;
+    tgt = (s16)(mathAtan2(((PlayerCameraXZView *)gPlayerSlots)->unk218 - sp40, tgt) * 651.8986f + 1024.0f) & 0xFFF;
     cur = gCurrentActor->yaw;
     if (cur < tgt) {
         diff = tgt - cur;
@@ -174,7 +174,7 @@ void actorSpawnNodeEffectFacingCamera(s32 arg0, u8 arg1) {
 
 extern Actor *gCurrentActor;
 
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 
 typedef struct OwnerPlayerState {
     u8 pad0[0xBC];
@@ -351,7 +351,7 @@ void func_8068EF54(void) {
     actorGetNodePos(sp74, 1, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
     actorGetNodePos(sp74, 0xB, &sp11C, &sp118, &sp114);
     mathNudgeCoords(gCurrentActor->x, gCurrentActor->z, &sp11C, &sp114);
-    sp90 = func_80611BB4(sp11C - gCurrentActor->x, sp114 - gCurrentActor->z);
+    sp90 = mathAtan2(sp11C - gCurrentActor->x, sp114 - gCurrentActor->z);
     if (sp74->unk5C == 0x40) {
         actorGetNodePos(sp74, 0xC, &sp6C, &sp68, &sp64);
         sp74->moveYaw = mathAngleBetweenPoints2D(sp6C, sp64, gCurrentActor->x, gCurrentActor->z);
@@ -517,7 +517,7 @@ u8 arg3;
     sp40 += func_80612794(S->unk0) * sp38;
     sp3C += func_80612790(S->unk0) * sp38;
     ACTOR_MOVE_VIEW->unkB8 = sqrtf(sp40 * sp40 + sp3C * sp3C);
-    ACTOR_MOVE_VIEW->unkEE = (s16)(s32)(func_80611BB4(sp40, sp3C) * 4096.0 / 6.2831854820251465);
+    ACTOR_MOVE_VIEW->unkEE = (s16)(s32)(mathAtan2(sp40, sp3C) * 4096.0 / 6.2831854820251465);
     if (fl[2] != 0) {
         sp34 = 0x400 - ACTOR_MOVE_VIEW->unkDE;
         temp_v0 = mathAngleSignedDistance(ACTOR_MOVE_VIEW->unkDC, S->unk0);
@@ -2700,7 +2700,7 @@ void projectileMatrixRotationUpdate(void) {
         G_PROJECTILE_ROT_ACTOR->unk16E = 0x3C;
         G_PROJECTILE_ROT_ACTOR->unk16F = 0x3C;
         func_80613C48(gCurrentActor, 0x404, 0.0f, 1.0f);
-        temp_s2->unk8 = -(func_80611BB4(G_PROJECTILE_ROT_ACTOR->unkC0, G_PROJECTILE_ROT_ACTOR->unkB8) * 57.295776f);
+        temp_s2->unk8 = -(mathAtan2(G_PROJECTILE_ROT_ACTOR->unkC0, G_PROJECTILE_ROT_ACTOR->unkB8) * 57.295776f);
         temp_s2->unk10 = 0;
         temp_s2->unkC = (f32)((u32)(randomLcgNext() % 3600U) / 10U);
         temp_s2->unk13 = (u8)(u32)G_PROJECTILE_ROT_ACTOR->unk124->unk10;
@@ -2798,7 +2798,7 @@ void projectileRotatingLightUpdate(f32 arg0, u8 arg1) {
         temp_v0->unk38 = 2.0 * temp_v0->unk38;
         temp_v0 = G_PROJECTILE_ROT_ACTOR->unk4;
         temp_v0->unk3C = 2.0 * temp_v0->unk3C;
-        temp_s2->unk8 = -(func_80611BB4(G_PROJECTILE_ROT_ACTOR->unkC0, G_PROJECTILE_ROT_ACTOR->unkB8) * 57.295776f);
+        temp_s2->unk8 = -(mathAtan2(G_PROJECTILE_ROT_ACTOR->unkC0, G_PROJECTILE_ROT_ACTOR->unkB8) * 57.295776f);
         G_PROJECTILE_ROT_ACTOR->unk144 = 0x3C;
         temp_s2->unk0 = D_8076A068;
         temp_s2->unk12 = 0;
@@ -3295,7 +3295,7 @@ void projectileChaseTargetUpdate(void) {
         CHASE_ACTOR->unkEE = mathAngleEaseToward(CHASE_ACTOR->unkEE, CHASE_ACTOR->unkE6, 1.0f);
         CHASE_ACTOR->unkF0 = mathAngleEaseToward(CHASE_ACTOR->unkF0, (s16)(s32)(((f64)mathCalculatePitchAngle(CHASE_TARGET->unk7C, CHASE_TARGET->unk80 + (f32)(u32)CHASE_TARGET->unk15E, CHASE_TARGET->unk84, CHASE_ACTOR->unk7C, CHASE_ACTOR->unk80, CHASE_ACTOR->unk84, 20) * 2048.0) / 3.1415927410125732), 30.0f);
         CHASE_ACTOR->unkC0 = func_80612794(CHASE_ACTOR->unkF0) * -CHASE_ACTOR->unkB8;
-        sp44->unk8 = -(func_80611BB4(CHASE_ACTOR->unkC0, CHASE_ACTOR->unkB8) * 57.295776f);
+        sp44->unk8 = -(mathAtan2(CHASE_ACTOR->unkC0, CHASE_ACTOR->unkB8) * 57.295776f);
         break;
     case 1:
         if (CHASE_ACTOR->unkB8 - 10.0f > 5.0f) {

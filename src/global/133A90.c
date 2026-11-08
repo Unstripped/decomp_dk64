@@ -335,7 +335,7 @@ void modelSlotGetNodePos(void *, s32, s32, f32 *, f32 *, f32 *);
 extern s16 D_807FD584;
 extern s16 D_80753B74[];
 s32 mathAngleDistance(s16, s16);
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 s32 proxPathSegmentAngleCheck(ProxPath *, s32, s16);
 
 s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *outSegment) {
@@ -384,7 +384,7 @@ s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *o
             camClosestPointOnSegment(actor->x, actor->y, actor->z, ax, ay, az, bx, by, bz, &ox, &oy, &oz);
             *outDist = (actor->x - ox) * (actor->x - ox) + (actor->y - oy) * (actor->y - oy) + (actor->z - oz) * (actor->z - oz);
             if (*outDist < r2 && *outDist < best) {
-                ang = func_80611BB4(ox - actor->x, oz - actor->z) * 4096.0 / 6.2831855f;
+                ang = mathAtan2(ox - actor->x, oz - actor->z) * 4096.0 / 6.2831855f;
                 if (mathAngleDistance(ang, actor->yaw) < 0x2BC) {
                     if (proxPathSegmentAngleCheck(path, i, actor->yaw)) {
                         best = *outDist;
@@ -673,7 +673,7 @@ void proxPathFollowerStep(H1ActorB **pActor) {
             dx = x - actor->unk7C;
             dz = z - actor->unk84;
             dist = sqrtf(dx * dx + dz * dz);
-            ang = func_80611BB4(dist, dy);
+            ang = mathAtan2(dist, dy);
             actor->unkE8 = 0.0 - ang * 2048.0 / 3.1415927f;
         } else {
             actor->unkE8 = 0;
@@ -746,7 +746,7 @@ void proxPathActorFollowSpline(H1ActorB *actor, H1ActorState *state, ProxPath *p
     actor->unk80 = (p2[1] - state->unk140) * state->unk148 + state->unk140;
     actor->unk84 = (p2[2] - state->unk144) * state->unk148 + state->unk144;
     mathNudgeCoords(p0[0], p0[2], &p1[0], &p1[2]);
-    yaw = func_80611BB4(p1[0] - p0[0], p1[2] - p0[2]) * 57.29577637f + 180.0f;
+    yaw = mathAtan2(p1[0] - p0[0], p1[2] - p0[2]) * 57.29577637f + 180.0f;
     guTranslateF(m1, 0.0f, state->unk148 * -80.0f, 0.0f);
     guScaleF(m2, actor->unk4->unk34, actor->unk4->unk38, actor->unk4->unk3C);
     guMtxCatF(m1, m2, m1);

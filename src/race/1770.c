@@ -277,7 +277,7 @@ void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participan
 
 f32 func_80612790(s16);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32);
 void func_80714950(void *);
 void func_8071498C(void *);
@@ -399,7 +399,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     pos[2] = func_80612790(gCurrentActor->unkEE) * gCurrentActor->unkB8 + gCurrentActor->unk84;
     pos[1] = gCurrentActor->unk80;
     dist = sqrtf((cur->x - nxt->x) * (cur->x - nxt->x) + (cur->z - nxt->z) * (cur->z - nxt->z));
-    pathState->unk1C = mathAngleEaseToward(pathState->unk1C, func_80611BB4(cur->y - nxt->y, dist) * 2048.0 / 3.1415927f, 3.0f);
+    pathState->unk1C = mathAngleEaseToward(pathState->unk1C, mathAtan2(cur->y - nxt->y, dist) * 2048.0 / 3.1415927f, 3.0f);
     if (gCurrentActor->unkB8 > 0.001) {
         gCurrentActor->unkEE = mathAngleEaseToward(gCurrentActor->unkEE, ang, 50.0f / gCurrentActor->unkB8);
     }

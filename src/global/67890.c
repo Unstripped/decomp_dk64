@@ -116,7 +116,7 @@ typedef struct ActorTargetDistanceEntry {
 
 extern u8 *D_807F6C2C;
 extern ActorTargetDistanceEntry *D_807F93F4;
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void actorCalculateTargetDistancesAndAngles(f32 camX, f32 camY, f32 camZ) {
@@ -144,7 +144,7 @@ void actorCalculateTargetDistancesAndAngles(f32 camX, f32 camY, f32 camZ) {
             dz = camZ - D_807F93F4[i].unkC;
             dx = camX - D_807F93F4[i].unk4;
             dist2d = sqrtf((dz * dz) + (dx * dx));
-            angle = ((f64)func_80611BB4(D_807F93F4[i].unk8 - camY, dist2d) * 2048.0) / 3.1415927410125732;
+            angle = ((f64)mathAtan2(D_807F93F4[i].unk8 - camY, dist2d) * 2048.0) / 3.1415927410125732;
             D_807F93F4[i].unk13 = (s32)((f64)angle * 0.5) % 255;
             D_807F93F4[i].unk11 = 1;
         } else {

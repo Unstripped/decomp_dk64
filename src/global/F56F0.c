@@ -699,7 +699,7 @@ typedef struct {
 } F56AActor;
 
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 
 void func_806F1C04(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     F56AState *state = ((F56AActor *) arg0)->unk178;
@@ -728,7 +728,7 @@ void func_806F1C04(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     kind = 0x14;
     actorGetNodePos(arg0, 0xD, &posA[0], &posA[1], &posA[2]);
     actorGetNodePos(arg0, 0xE, &posB[0], &posB[1], &posB[2]);
-    angle = func_80611BB4(posA[2] - posB[2], posA[0] - posB[0]);
+    angle = mathAtan2(posA[2] - posB[2], posA[0] - posB[0]);
     if (active == 0) {
         state->unk0 = angle;
         state->unk4 = posA[1];
@@ -793,7 +793,7 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     value = -0x80;
     actorGetNodePos(arg0, 0xD, &pos[0][0], &pos[0][1], &pos[0][2]);
     actorGetNodePos(arg0, 0xE, &pos[1][0], &pos[1][1], &pos[1][2]);
-    angle = func_80611BB4(pos[0][2] - pos[1][2], pos[0][0] - pos[1][0]);
+    angle = mathAtan2(pos[0][2] - pos[1][2], pos[0][0] - pos[1][0]);
     if (active == 0) {
         for (k = 0; k != 2; k++) {
             cur[k].unk0 = angle;
@@ -1003,7 +1003,7 @@ typedef struct F5N5CameraEntry {
     s16 unk6;
 } F5N5CameraEntry;
 
-extern f32 func_80611BB4(f32, f32);
+extern f32 mathAtan2(f32, f32);
 #define F5N5_PATH_SAMPLE ((F5N5PathSample *)gPlayerSlots + gCurrentPlayerIndex)
 
 void func_806F2754(F5N5CameraActor *arg0, F5N5CameraEntry *arg1, s32 *arg2) {
@@ -1016,7 +1016,7 @@ void func_806F2754(F5N5CameraActor *arg0, F5N5CameraEntry *arg1, s32 *arg2) {
     delta = (chain->unkB2 - arg0->unkE6) - 0x800;
     x = F5N5_PATH_SAMPLE->y0 - F5N5_PATH_SAMPLE->y1;
     y = F5N5_PATH_SAMPLE->x0 - F5N5_PATH_SAMPLE->x1;
-    planarAngle = func_80611BB4(F5N5_PATH_SAMPLE->z0 - F5N5_PATH_SAMPLE->z1, sqrtf((x * x) + (y * y)));
+    planarAngle = mathAtan2(F5N5_PATH_SAMPLE->z0 - F5N5_PATH_SAMPLE->z1, sqrtf((x * x) + (y * y)));
     delta &= 0xFFF;
     if ((delta < 0xC00) && (delta >= 0x801)) {
         arg0->unkE6 = (arg0->unkE6 + delta) - 0xC00;

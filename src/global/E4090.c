@@ -153,7 +153,7 @@ typedef struct PadInputState {
 extern PadInputState gPlayerPadState[];
 
 u16 inputRemapButtons(u16, u16 *);
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 f32 sqrtf(f32);
 
 typedef struct PadRawInput {
@@ -272,7 +272,7 @@ s32 playerInputUpdate(s32 arg0) {
         INPUT_STATE.unk0 = INPUT_STATE.unk0 + 1;
     }
     if (mag != 0.0f) {
-        t = ang = func_80611BB4(INPUT_STATE.unk2E, -INPUT_STATE.unk2F) * 4096.0f / 6.2831855f;
+        t = ang = mathAtan2(INPUT_STATE.unk2E, -INPUT_STATE.unk2F) * 4096.0f / 6.2831855f;
         INPUT_STATE.unk28 = (*(s16 *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + 0x2C8) + t) & 0xFFF;
     } else {
         ang = INPUT_STATE.unk20[0];
@@ -1173,7 +1173,7 @@ void func_806E2140(void) {
     }
 }
 
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 f32 sqrtf(f32);
 extern struct G31Cam *gPlayerSlots;
 
@@ -1358,7 +1358,7 @@ u8 arg1;
                     projectileSetTargetCoords(LE40B_OBJ->unk210, LE40B_OBJ->unk214, ang2);
                     dz = LE40B_OBJ->unk230 - LE40B_OBJ->unk218;
                     dx = LE40B_OBJ->unk228 - LE40B_OBJ->unk210;
-                    ang2 = func_80611BB4(LE40B_OBJ->unk22C - LE40B_OBJ->unk214, sqrtf(dz * dz + dx * dx));
+                    ang2 = mathAtan2(LE40B_OBJ->unk22C - LE40B_OBJ->unk214, sqrtf(dz * dz + dx * dx));
                     sp50 = D_80753E2C[D_807FD584] * sinApprox(ang2);
                     sp54 = D_80753E2C[D_807FD584] * cosApprox(ang2);
                     projectileSpawnNodeEntry(spawnId, (s16)flags, scale,
@@ -1963,7 +1963,7 @@ void func_806E3E40(void) {
             } else {
                 a = -ground;
             }
-            arg = (f64)(func_80611BB4(a, ang) - 1.5707964f) * 16384.0 / 1.5707963705062866 + 63000.0;
+            arg = (f64)(mathAtan2(a, ang) - 1.5707964f) * 16384.0 / 1.5707963705062866 + 63000.0;
         } else {
             arg = 63000.0f;
         }

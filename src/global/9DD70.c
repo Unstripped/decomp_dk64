@@ -2,7 +2,7 @@
 #include "actor.h"
 
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 
 void mathAngleBetweenPoints3D(s16 *pitch, s16 *yaw, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
     f32 dx;
@@ -11,7 +11,7 @@ void mathAngleBetweenPoints3D(s16 *pitch, s16 *yaw, f32 x1, f32 y1, f32 z1, f32 
     *yaw = mathAngleBetweenPoints2D(x1, z1, x2, z2);
     dx = x2 - x1;
     dz = z2 - z1;
-    *pitch = (s16)(s32)(((f64)func_80611BB4(y2 - y1, sqrtf((dx * dx) + (dz * dz))) * 2048.0) / 3.1415927410125732);
+    *pitch = (s16)(s32)(((f64)mathAtan2(y2 - y1, sqrtf((dx * dx) + (dz * dz))) * 2048.0) / 3.1415927410125732);
 }
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }

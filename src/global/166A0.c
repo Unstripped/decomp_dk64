@@ -51,7 +51,7 @@ void mathNudgeCoords(f32 refX, f32 refY, f32 *outX, f32 *outY) {
 
 f32 acosApprox(f32);
 
-f32 func_80611BB4(f32 dx, f32 dy) {
+f32 mathAtan2(f32 dx, f32 dy) {
     f32 angleA;
     f32 hypot;
     f32 acosVal;

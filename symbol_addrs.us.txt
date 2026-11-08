@@ -966,6 +966,7 @@ setRandomSeed = 0x806119F0; // type:func
 randomFloat = 0x806119FC; // type:func
 randomNonNegative = 0x80611A44; // type:func
 mathNudgeCoords = 0x80611A70; // type:func
+mathAtan2 = 0x80611BB4; // type:func
 truncateFloat = 0x80611CF0; // type:func
 floatToS32 = 0x80611D08; // type:func
 mathFixedPointInterp = 0x80611D20; // type:func

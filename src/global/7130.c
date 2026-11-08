@@ -516,7 +516,7 @@ s32 func_8062F388(LevelSoundEmitter **);
 void actorTargetEntriesUpdateSfx(s32, s32, s32, f32);
 s32 flagGet(s32, s32);
 void n_alSndpPostEvent(s32, s32, ...);
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
 void n_alSndpStop(s32);
 void seqSetVolumeInstant(s32, f32);
@@ -626,7 +626,7 @@ void sfxUpdateLevelAmbient(void) {
                     if (s0 == 0 || D_80770DE4 < D_80770DD4) {
                         spE7 = s0;
                         D_80770DD4 = D_80770DE4;
-                        var_fs0 = ((f64)func_80611BB4(dx, dz) * 4096.0) / 6.2831854820251465 - (f64)entry->unk6;
+                        var_fs0 = ((f64)mathAtan2(dx, dz) * 4096.0) / 6.2831854820251465 - (f64)entry->unk6;
                     }
                 }
                 s0++;

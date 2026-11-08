@@ -170,7 +170,7 @@ f32 raceEvaluateCurveTargetSpeed(void *, f32, void *, void *);
 extern s32 D_807FBB64;
 f32 func_80612794(s16);
 f32 func_80612790(s16);
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 s16 mathAngleFromVector2D(f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32, s16);
 void actorStepPhysics(Actor_BB40 *, s16, s16);
@@ -321,7 +321,7 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
     velX += func_80612794(a1) * forwardAccel;
     velZ += func_80612790(a1) * forwardAccel;
     gCurrentActor->unkB8 = sqrtf((velX * velX) + (velZ * velZ));
-    gCurrentActor->unkEE = (s16)(s32)(func_80611BB4(velX, velZ) * 651.8986f);
+    gCurrentActor->unkEE = (s16)(s32)(mathAtan2(velX, velZ) * 651.8986f);
     if (onGround != 0) {
         pitchAngle = 0x400 - gCurrentActor->unkDE;
         signedDist = mathAngleSignedDistance(gCurrentActor->unkDC, gCurrentActor->unkE6);

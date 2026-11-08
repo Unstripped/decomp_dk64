@@ -576,7 +576,7 @@ s32 collisionIsTriangleDegenerate(CollisionTri *arg0) {
     return 0;
 }
 
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 
 s8 collisionTriangleSlopeClass(s16 *a) {
     f32 v2[3];
@@ -605,7 +605,7 @@ s8 collisionTriangleSlopeClass(s16 *a) {
         } else {
             temp = -cross[1];
         }
-        angle = func_80611BB4(temp, len);
+        angle = mathAtan2(temp, len);
     }
 
     if ((f64)(f32)((f64)angle * 57.29577791868205) < 10.0) {
@@ -674,7 +674,7 @@ u8 *arg1;
     if ((f64)var_fa1 < 0.01 && (f64)var_fa1 > -0.01) {
         angle = 1.57f;
     } else {
-        angle = func_80611BB4(var_fa0, var_fa1);
+        angle = mathAtan2(var_fa0, var_fa1);
     }
 
     if (0.0 <= (f64)sp84[0] && 0.0 <= (f64)sp84[2]) {

@@ -1256,7 +1256,7 @@ void camEndPath(CamFollowActor *arg0) {
     }
 }
 
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 
 void func_8061D6A8(CamFollowState *cam) {
     CamFollowActor *actor = cam->unk0;
@@ -1269,10 +1269,10 @@ void func_8061D6A8(CamFollowState *cam) {
             (cam->unk84 - (actor->unk7C + cam->unk94 * func_80612794(actor->unkE6))) +
         (cam->unk8C - (actor->unk84 + cam->unk94 * func_80612790(actor->unkE6))) *
             (cam->unk8C - (actor->unk84 + func_80612790(actor->unkE6) * cam->unk94)));
-    D_807476B0 = func_80611BB4(actor->unk80 - cam->unk88,
+    D_807476B0 = mathAtan2(actor->unk80 - cam->unk88,
                                sqrtf((cam->unk0->unk84 - cam->unk8C) * (cam->unk0->unk84 - cam->unk8C) +
                                      (actor->unk7C - cam->unk84) * (actor->unk7C - cam->unk84)));
-    yaw = func_80611BB4(cam->unk6C - cam->unk88,
+    yaw = mathAtan2(cam->unk6C - cam->unk88,
                         sqrtf((actor->unk84 - cam->unk8C) * (actor->unk84 - cam->unk8C) +
                               (actor->unk7C - cam->unk84) * (actor->unk7C - cam->unk84)));
     if (D_807476B0 > 3.1415927f) {
@@ -4971,7 +4971,7 @@ f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 
 void camPolarFromPoints(f32 *outYaw, f32 *outPitch, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
     *outYaw = mathAngleBetweenPointsDeg(x2, z2, x1, z1) * 0.017453292f;
-    *outPitch = func_80611BB4(y1 - y2, sqrtf((x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2)));
+    *outPitch = mathAtan2(y1 - y2, sqrtf((x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2)));
 }
 
 void func_8062754C(f32 t) {

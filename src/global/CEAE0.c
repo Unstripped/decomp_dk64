@@ -1386,7 +1386,7 @@ typedef struct NmCEAE0bActor {
 #define NMB_A ((NmCEAE0bActor *)gCurrentActor)
 #define NMB_P ((NmCEAE0bPlayer *)gActivePlayerState)
 
-f32 func_80611BB4(f32, f32);
+f32 mathAtan2(f32, f32);
 
 void playerUpdateHorizontalVelocity(arg0) u8 arg0; {
     f32 fa1;
@@ -1459,7 +1459,7 @@ void playerUpdateHorizontalVelocity(arg0) u8 arg0; {
             if (!(NMB_A->unk6A & 0x1000) && 700.0f < speed) {
                 speed = 700.0f;
             }
-            fv1 = func_80611BB4(sp44, sp40);
+            fv1 = mathAtan2(sp44, sp40);
             if (arg0 != 0) {
                 NMB_A->unkB8 = speed;
                 NMB_A->unkEE = (s32)((fv1 * 4096.0) / 6.2831855f);
@@ -1502,7 +1502,7 @@ void playerUpdateHorizontalVelocity(arg0) u8 arg0; {
             sp40 = func_80612790(NMB_A->unkDC) * sp38;
             sp40 = fa1 + sp40;
             speed = sqrtf(sp44 * sp44 + sp40 * sp40);
-            ang = (s32)((func_80611BB4(sp44, sp40) * 4096.0) / 6.2831855f);
+            ang = (s32)((mathAtan2(sp44, sp40) * 4096.0) / 6.2831855f);
             if (arg0 != 0) {
                 if (speed != 0.0f) {
                     playerApproachVelocity(ang, speed, NMB_P->unk38);
@@ -1587,7 +1587,7 @@ void playerApproachVelocity(s16 arg0, f32 arg1, f32 arg2) {
         G03_A->unkB8 = arg2;
     }
     if (G03_A->unkB8 != 0.0) {
-        G03_A->unkEE = func_80611BB4(vA, vB) * 4096.0 / 6.2831855f;
+        G03_A->unkEE = mathAtan2(vA, vB) * 4096.0 / 6.2831855f;
     }
 }
 
@@ -2299,7 +2299,7 @@ void playerComputePickupHoldPitch(void) {
     actorGetNodePos(gCurrentActor, sp20, &sp44, &sp3C, &sp34);
     sp28 = sp3C - sp38;
     dist = sqrtf((sp34 - sp30) * (sp34 - sp30) + (sp44 - sp40) * (sp44 - sp40));
-    G05_P->unk1BC = 0.0 - func_80611BB4(sp28, dist) * 57.29577637f + 270.0;
+    G05_P->unk1BC = 0.0 - mathAtan2(sp28, dist) * 57.29577637f + 270.0;
 }
 
 
@@ -3220,7 +3220,7 @@ void func_806D0EBC(s32 arg0) {
 }
 
 s16 mathAngleFromVector2D(f32 arg0, f32 arg1) {
-    s16 angle = (s32)(func_80611BB4(arg0, arg1) * 4096.0f / 6.2831855f);
+    s16 angle = (s32)(mathAtan2(arg0, arg1) * 4096.0f / 6.2831855f);
 
     angle -= 0x400;
     return angle & 0xFFF;
