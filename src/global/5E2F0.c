@@ -323,9 +323,9 @@ void lightApplyToActors(void) {
                     dirX = d[0] / dist;
                     dirY = d[1] / dist;
                     dirZ = d[2] / dist;
-                    d[0] = actor->unk7C - D_807F7500[i].x;
-                    d[1] = actor->unk80 - D_807F7500[i].y;
-                    d[2] = actor->unk84 - D_807F7500[i].z;
+                    d[0] = actor->x - D_807F7500[i].x;
+                    d[1] = actor->y - D_807F7500[i].y;
+                    d[2] = actor->z - D_807F7500[i].z;
                     dist = sqrtf((d[0] * d[0]) + (d[1] * d[1]) + (d[2] * d[2]));
                     if (dist == 0.0f) {
                         dist = 0.1f;
@@ -349,10 +349,10 @@ void lightApplyToActors(void) {
                                          (u32)((f32)D_807F7500[i].unk37 * dot), (u32)((f32)D_807F7500[i].unk38 * dot),
                                          0);
                         if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
-                            dist = sqrtf(((D_807F7500[i].x - actor->unk7C) * (D_807F7500[i].x - actor->unk7C)) +
-                                         ((D_807F7500[i].z - actor->unk84) * (D_807F7500[i].z - actor->unk84)));
+                            dist = sqrtf(((D_807F7500[i].x - actor->x) * (D_807F7500[i].x - actor->x)) +
+                                         ((D_807F7500[i].z - actor->z) * (D_807F7500[i].z - actor->z)));
                             dist2d = (dist != 0) ? dist : 0.001f;
-                            scale = (D_807F7500[i].y - actor->unk80) / dist2d;
+                            scale = (D_807F7500[i].y - actor->y) / dist2d;
                             if (!(scale > 0)) {
                                 scale = -scale;
                             }
@@ -360,8 +360,8 @@ void lightApplyToActors(void) {
                                 scale = 0.1f;
                             }
                             scale = ((f32)actor->unk15E * 0.4f) / scale;
-                            angle = mathAngleBetweenPoints2D(D_807F7500[i].x, D_807F7500[i].z, actor->unk7C,
-                                                             actor->unk84);
+                            angle = mathAngleBetweenPoints2D(D_807F7500[i].x, D_807F7500[i].z, actor->x,
+                                                             actor->z);
                             if (actor->unk4 != NULL) {
                                 shadowScale[0] = actor->unk4->unk34;
                                 shadowScale[1] = actor->unk4->unk3C;
@@ -378,21 +378,21 @@ void lightApplyToActors(void) {
                     }
                     break;
                 case 0:
-                    edgeDist = sqrtf(((D_807F7500[i].x - actor->unk7C) * (D_807F7500[i].x - actor->unk7C)) +
-                                     ((D_807F7500[i].y - actor->unk80) * (D_807F7500[i].y - actor->unk80)) +
-                                     ((D_807F7500[i].z - actor->unk84) * (D_807F7500[i].z - actor->unk84))) -
+                    edgeDist = sqrtf(((D_807F7500[i].x - actor->x) * (D_807F7500[i].x - actor->x)) +
+                                     ((D_807F7500[i].y - actor->y) * (D_807F7500[i].y - actor->y)) +
+                                     ((D_807F7500[i].z - actor->z) * (D_807F7500[i].z - actor->z))) -
                                (f32)*(s16 *)((u8 *)actor + 0xCE);
                     if (edgeDist < 0.0) {
                         edgeDist = 0.1f;
                     }
                     maxDist = D_807F7500[i].unk14 * 1.3f;
                     if ((actor->unk60 & 0x01000000) && (edgeDist < maxDist) && (actor->unk60 & 4)) {
-                        dist2d = sqrtf(((D_807F7500[i].x - actor->unk7C) * (D_807F7500[i].x - actor->unk7C)) +
-                                       ((D_807F7500[i].z - actor->unk84) * (D_807F7500[i].z - actor->unk84)));
+                        dist2d = sqrtf(((D_807F7500[i].x - actor->x) * (D_807F7500[i].x - actor->x)) +
+                                       ((D_807F7500[i].z - actor->z) * (D_807F7500[i].z - actor->z)));
                         if (dist2d == 0.0f) {
                             dist2d = 1.0f;
                         }
-                        scale = (D_807F7500[i].y - actor->unk80) / dist2d;
+                        scale = (D_807F7500[i].y - actor->y) / dist2d;
                         if (!(scale > 0)) {
                             scale = -scale;
                         }
@@ -400,8 +400,8 @@ void lightApplyToActors(void) {
                             scale = 0.1f;
                         }
                         scale = ((f32)actor->unk15E * 0.4f) / scale;
-                        angle = mathAngleBetweenPoints2D(D_807F7500[i].x, D_807F7500[i].z, actor->unk7C,
-                                                         actor->unk84);
+                        angle = mathAngleBetweenPoints2D(D_807F7500[i].x, D_807F7500[i].z, actor->x,
+                                                         actor->z);
                         if (scale > 10.0f) {
                             scale = 10.0f;
                         }

@@ -469,7 +469,7 @@ void actorCollisionUpdateNodeFlags(Actor *actor, u8 flagIndex) {
             match = 0;
             i = 0;
             do {
-                if ((actor->unk58 == D_80748F58[i].unk0) && (*ptr == D_80748F58[i].unk2)) {
+                if ((actor->actorType == D_80748F58[i].unk0) && (*ptr == D_80748F58[i].unk2)) {
                     actorSetNodeValue(actor, *ptr, D_80748F58[i].unk4);
                     match = 1;
                 } else {
@@ -484,7 +484,7 @@ void actorCollisionUpdateNodeFlags(Actor *actor, u8 flagIndex) {
 
 extern s32 gCurrentMap;
 void func_8067618C(Actor *actor, s8 *outFlagIndex) {
-    if ((gCurrentMap == 0x53) && (actor->unk58 == 6) && (actor->unk154 == 0x1E)) {
+    if ((gCurrentMap == 0x53) && (actor->actorType == 6) && (actor->state == 0x1E)) {
         *outFlagIndex = 0x15;
     }
 }
@@ -512,7 +512,7 @@ typedef struct Beh798_8074C608 {
 extern Beh798_8074C608 D_8074C608[];
 
 u8 func_80676208(Actor *actor) {
-    return D_8074C608[actor->unk58].unk0;
+    return D_8074C608[actor->actorType].unk0;
 }
 
 s32 func_80676220(s16 actorType) {

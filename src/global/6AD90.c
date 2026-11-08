@@ -114,9 +114,9 @@ void collisionQueryActorFloor(Actor *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg
     if (((u8 *)arg0)[0xCC] != 0 && arg0->unk110 == 0 && (arg0->unk60 & 0x10)) {
         actorGetNodePos(arg0, ((u8 *)arg0)[0xCC] ^ 0, &sp3C, &sp38, &sp34); // FAKE: x ^ 0 keeps the node id in v0 (no spill)
     } else {
-        sp3C = arg0->unk7C;
+        sp3C = arg0->x;
         sp38 = arg0->unk8C;
-        sp34 = arg0->unk84;
+        sp34 = arg0->z;
     }
     collisionFindFloorAtPoint(arg0, sp3C, sp38, sp34, arg1, arg2, arg3, arg4, arg5);
 }
@@ -127,7 +127,7 @@ void collisionCheckActorFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *ar
     f32 sp38;
     f32 sp34;
 
-    if (arg0->unk58 == 0xBC) {
+    if (arg0->actorType == 0xBC) {
         D_807F94B3 = 1;
     } else {
         D_807F94B3 = 0;
@@ -841,7 +841,7 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
                     break;
                 case 1:
                     if (arg3 != 0) {
-                        if (((Actor *)arg3)->unk80 < var_fs0) {
+                        if (((Actor *)arg3)->y < var_fs0) {
                             ((Actor *)arg3)->unk6A |= 4;
                             ((Actor *)arg3)->unkB0[0] = -1;
                             if (var_s3->unk4A & 1) {
@@ -1081,7 +1081,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                             }
                         } else {
                             if (arg3 != NULL) {
-                                if ((f64)(arg3->unk80 * 6.0f) < h2) {
+                                if ((f64)(arg3->y * 6.0f) < h2) {
                                     arg3->unk6A |= 4;
                                     arg3->unkB0[0] = tri->unk16 >> 4;
                                     if (*(s8 *)&arg3->unkB0[0] == 0xF) {

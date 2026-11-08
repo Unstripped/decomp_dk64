@@ -101,18 +101,18 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         diff = BA790A->unkEE - BA790A->unkE6;
     }
     if (D_807FBD70 == 9 || D_807FBB85 != 0) {
-        if (D_807FBB40->unk154 != 0x37 && D_807FBB40->unk154 != 0x38) {
-            switch (D_807FBB40->unk58) {
+        if (D_807FBB40->state != 0x37 && D_807FBB40->state != 0x38) {
+            switch (D_807FBB40->actorType) {
             case 0xAF:
                 if (D_807444EC == 1) {
                     if (D_807FBB40->unk60 & 4) {
-                        D_807FBB40->unk154 = 0x38;
+                        D_807FBB40->state = 0x38;
                         BA790A->unk155 = 0;
                     } else {
                         func_8072D99C();
                     }
                 } else {
-                    D_807FBB40->unk154 = 0x37;
+                    D_807FBB40->state = 0x37;
                     BA790A->unk155 = 0;
                 }
                 break;
@@ -135,7 +135,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             sfxStopSlotSound(D_807FBB40, 0);
         }
     }
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
     case 0x33:
         if (D_807FBD70 == 2) {
             BA790A->unkC0 = 150.0f;
@@ -146,8 +146,8 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         } else {
             x = 2;
         }
-        actorMoveWithinZone(0x33, D_807FDC94->unk7C, D_807FDC94->unk84, x, 6.0f);
-        if (D_807FBB40->unk58 == 0xB6) {
+        actorMoveWithinZone(0x33, D_807FDC94->x, D_807FDC94->z, x, 6.0f);
+        if (D_807FBB40->actorType == 0xB6) {
             enemyAggroStateUpdate(aggroRange, 0x24E, 0x24D);
         }
         break;
@@ -159,17 +159,17 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             BA790A->unk155 = 1;
         }
         if (D_807444EC != 1) {
-            if (D_807FBB40->unk58 == 0xB6) {
+            if (D_807FBB40->actorType == 0xB6) {
                 x = 0x24D;
             } else {
                 x = 0x24C;
             }
             enemyAggroStateUpdate(aggroRange, 0x24E, x);
         }
-        if (D_807FBB40->unk154 == 0x33) {
+        if (D_807FBB40->state == 0x33) {
             ret = 1;
             BA790A->unkB8 = ((BA790View9C *)D_807FDC9C)->unkD;
-            q = mathAngleBetweenPoints2D(D_807FDC94->unk7C, D_807FDC94->unk84, D_807FBB40->unk7C, D_807FBB40->unk84);
+            q = mathAngleBetweenPoints2D(D_807FDC94->x, D_807FDC94->z, D_807FBB40->x, D_807FBB40->z);
             BA790A->unkE6 = q;
             BA790A->unkEE = q;
         }
@@ -222,7 +222,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             sel = BA790A->unk155;
         }
         if (sel < 4) {
-            actorMoveWithinZone(0x33, D_807FDC94->unk7C, D_807FDC94->unk84, 0x20, 6.0f);
+            actorMoveWithinZone(0x33, D_807FDC94->x, D_807FDC94->z, 0x20, 6.0f);
             sel = BA790A->unk155;
         }
         switch (sel) {
@@ -306,12 +306,12 @@ void func_806B640C(void) {
         }
         lightUpdateFromActorLighting(&D_807FBB40->unk16A, &D_807FBB40->unk16B, &D_807FBB40->unk16C);
     }
-    sel = D_807FBB40->unk154;
+    sel = D_807FBB40->state;
     if (sel != 0x37 && sel != 0x38) {
         if (*p > 0) {
             (*p)--;
             if (*p == 0xA) {
-                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x150, 0xFF, 0x7F, 0x1E, 0x32, 0.3f, 0);
+                sfxPlayAtPositionPooled(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, 0x150, 0xFF, 0x7F, 0x1E, 0x32, 0.3f, 0);
             }
             if (*p == 0) {
                 D_807FBB70.unk200 = 9;

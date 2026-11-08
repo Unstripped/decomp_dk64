@@ -1027,7 +1027,7 @@ s32 func_80616470(Actor *arg0) {
 
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
-    ((ScriptCountdownState *)arg0->unk4)->unk88 = arg0->unk154 - sp1E;
+    ((ScriptCountdownState *)arg0->unk4)->unk88 = arg0->state - sp1E;
     return 1;
 }
 
@@ -1277,7 +1277,7 @@ s32 func_80616BA4(Actor *arg0) {
 
     D_807F5AF0++;
     scriptReadU8(&sp1F);
-    arg0->unk154 = (temp = sp1F);
+    arg0->state = (temp = sp1F);
     arg0->unk155[0] = 0;
     return 1;
 }
@@ -1285,7 +1285,7 @@ s32 func_80616BA4(Actor *arg0) {
 s32 func_80616BF0(Actor *arg0) {
     D_807F5AF0++;
     arg0->unk155[0] = 0;
-    arg0->unk154++;
+    arg0->state++;
     return 1;
 }
 
@@ -1415,7 +1415,7 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
         var_v1 = 0xFF;
         sp4D = (u32)((f64)(u32)sp4D * 0.5);
     } else {
-        switch (arg0->unk58) {
+        switch (arg0->actorType) {
         case 6:
         case 7:
             var_v1 = 0x46;
@@ -1442,7 +1442,7 @@ s32 scriptOpPlaySoundAndShake(Actor *arg0) {
     if ((sp4E == 2) || (sp4E == 8)) {
         sp49 = 0xA;
     }
-    sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, sp4E, (s32)sp4D, (s32)sp4A, (s32)sp49, (s32)var_v1, 0.3f, 0);
+    sfxPlayAtPositionPooled(arg0->x, arg0->y, arg0->z, sp4E, (s32)sp4D, (s32)sp4A, (s32)sp49, (s32)var_v1, 0.3f, 0);
     return 1;
 }
 
@@ -1510,7 +1510,7 @@ s32 scriptOpPlayPositionalSoundPlayerStateVolume(Actor *arg0) {
         var_v0 = 0xFF;
         sp3B *= 0.5;
     } else {
-        switch (arg0->unk58) {
+        switch (arg0->actorType) {
         case 6:
         case 7:
         case 8:
@@ -1525,7 +1525,7 @@ s32 scriptOpPlayPositionalSoundPlayerStateVolume(Actor *arg0) {
             break;
         }
     }
-    sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, sp3E, sp3B, 0x7F, sp3D, var_v0, 0.3f, 0);
+    sfxPlayAtPositionPooled(arg0->x, arg0->y, arg0->z, sp3E, sp3B, 0x7F, sp3D, var_v0, 0.3f, 0);
     return 1;
 }
 
@@ -1544,7 +1544,7 @@ s32 func_80617400(Actor *arg0) {
     scriptReadU8(&sp35);
     scriptReadU8(&sp34);
     if (arg0->unk60 & 4) {
-        sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, sp36, sp33, sp32, sp35, sp34, 0.3f, 0);
+        sfxPlayAtPositionPooled(arg0->x, arg0->y, arg0->z, sp36, sp33, sp32, sp35, sp34, 0.3f, 0);
     }
     return 1;
 }
@@ -1579,9 +1579,9 @@ s32 func_806174B4(Actor *arg0) {
             node_actor = arg0;
             actorGetNodePos(node_actor, sp42, &sp54, &sp50, &sp4C);
         } else {
-            sp54 = arg0->unk7C;
-            sp50 = arg0->unk80;
-            sp4C = arg0->unk84;
+            sp54 = arg0->x;
+            sp50 = arg0->y;
+            sp4C = arg0->z;
         }
         sfxPlayAtPositionPooled(sp54, sp50, sp4C, sp4A, sp40, sp3F, sp49, sp43, sp38, sp41);
     }
@@ -1611,7 +1611,7 @@ s32 scriptOpPlayDistanceVolumeSound(Actor *arg0) {
     scriptReadU8(&sp44);
     val = (((((f64)((ActorSoundScaleState *)arg0->unk4)->unk34 / 0.4381361) * 200.0) + 55.0) * (f64)sp43) / 255;
     var_fv1 = (val > 255.0) ? 255.0 : val;
-    sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, sp46, (u32)var_fv1, sp42, sp45, sp44, 0.3f, 0);
+    sfxPlayAtPositionPooled(arg0->x, arg0->y, arg0->z, sp46, (u32)var_fv1, sp42, sp45, sp44, 0.3f, 0);
     return 1;
 }
 
@@ -1630,7 +1630,7 @@ void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
     u8 var_v1;
     s32 pitch;
     s32 temp_v0;
-    temp_v0 = (arg1 * 7 + arg0->unk58 - 2) & 0xFFFF;
+    temp_v0 = (arg1 * 7 + arg0->actorType - 2) & 0xFFFF;
     arg1 = D_807FBB5C[temp_v0];
     var_v1 = 0xFF;
     if (arg1 == 0) {
@@ -1646,13 +1646,13 @@ void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
         temp_v0 = 80;
         var_v1 = (u8)(u32)((f64)(var_v1 ^ 0) * 0.5);
     } else {
-        if (arg0->unk58 == 2 || arg0->unk58 == 4) {
+        if (arg0->actorType == 2 || arg0->actorType == 4) {
             temp_v0 = 50;
         } else {
             temp_v0 = 60;
         }
     }
-    sfxPlayAtPositionForPlayer(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, var_v1, pitch, arg2, temp_v0, 0.3f);
+    sfxPlayAtPositionForPlayer(arg0->x, arg0->y, arg0->z, arg1, var_v1, pitch, arg2, temp_v0, 0.3f);
 }
 
 void sfxPlayScriptActorSoundForPlayer(Actor *, s16, u8);
@@ -1989,7 +1989,7 @@ void projectileTrySpawnFromSlot(Actor *arg0) {
     if ((slotQueueGetValue(4, sp44->unk1A4) != 0) && (actorCountOwnedByClass(arg0, 4, 0) < D_80753E64[D_807FD584])) {
         slotQueueAddValue(4, sp44->unk1A4, -1);
         sp50 = (f32)((f64)arg0->unk4->unk38 * 2.6666667064030967);
-        switch (arg0->unk58) {
+        switch (arg0->actorType) {
             case 2:
             case 6:
             case 7: var_fv0 = 30.0f; break;
@@ -1997,16 +1997,16 @@ void projectileTrySpawnFromSlot(Actor *arg0) {
             case 5: var_fv0 = 20.0f; break;
             default: var_fv0 = 30.0f; break;
         }
-        if (collisionTestSphere(arg0->unk7C, (f32)((f64)arg0->unk80 + 30.0), arg0->unk84, var_fv0, &sp40, &sp3E, 1, 0) != 0) {
-            if (arg0->unk154 == 2) {
+        if (collisionTestSphere(arg0->x, (f32)((f64)arg0->y + 30.0), arg0->z, var_fv0, &sp40, &sp3E, 1, 0) != 0) {
+            if (arg0->state == 2) {
                 temp_v0 = &((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex];
                 var_a2 = mathAngleBetweenPoints2D(temp_v0->unk228, temp_v0->unk230, temp_v0->unk210, temp_v0->unk218);
             } else {
-                var_a2 = arg0->unkE6;
+                var_a2 = arg0->yaw;
             }
             if (mathAngleInArcWithMargin(sp40, sp3E, var_a2, 0) == 0) projectileSetSpawnFlag();
         }
-        if (arg0->unk154 == 2) {
+        if (arg0->state == 2) {
             projectileGetTargetCoords(D_807FBB48, 6);
             temp_fv0 = ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk230 - ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk218;
             temp_fv1 = ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk228 - ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk210;
@@ -2015,7 +2015,7 @@ void projectileTrySpawnFromSlot(Actor *arg0) {
             return;
         }
         projectileGetTargetCoords(arg0, 7);
-        projectileSpawnNodeEntry(0x29, D_807FD568->unk2, sp50, arg0->unkE6, D_80753E48[D_807FD584], 0.0f, arg0);
+        projectileSpawnNodeEntry(0x29, D_807FD568->unk2, sp50, arg0->yaw, D_80753E48[D_807FD584], 0.0f, arg0);
     }
 }
 
@@ -2097,7 +2097,7 @@ void func_806184BC(Actor *arg0) {
     if (sp2F == 0xFF) {
         func_807149B8(0);
         func_807149FC(1);
-        func_80714CC0(D_8071FE08, 0.7f, arg0->unk7C, arg0->unk80 + 7.0f, arg0->unk84);
+        func_80714CC0(D_8071FE08, 0.7f, arg0->x, arg0->y + 7.0f, arg0->z);
     } else {
         func_8071498C(func_8071B24C);
         func_80714998(2);
@@ -2273,7 +2273,7 @@ void scriptCmdActorCamShake(Actor *arg0) {
     scriptReadU16((u8 *)&sp42);
     scriptReadU16((u8 *)&sp40);
     sp3F = (u32)((f64)sp3F * ((f64)arg0->unk4->unk38 / 0.15));
-    temp_v0 = arg0->unk58;
+    temp_v0 = arg0->actorType;
     if ((temp_v0 == 0xCC) || ((arg0->unk6A & 1) && ((arg0->unk60 & 4) || (temp_v0 == 0xE4)) && (D_807444EC != 1))) {
         var_v1 = (sp3F >= 21) ? 20 : sp3F;
         camStartShakeFromPoint(((GlobalSpawnView *)gActivePlayerState)->unk104, sp3E, var_v1, sp4C, sp48, sp44, (f32)sp42, (f32)sp40);
@@ -2313,7 +2313,7 @@ void func_80618C00(Actor *arg0, u8 arg1) {
 
     scale = 0.04f;
     actorGetNodePos(arg0, arg1, &sp3C, &sp38, &sp34);
-    if ((arg0->unk58 == 6) || (arg0->unk58 == 7)) {
+    if ((arg0->actorType == 6) || (arg0->actorType == 7)) {
         scale = 0.1f;
     }
     actorSpawnEffectChild(sp3C, arg0->unkA4, sp34, 0.03f, scale, arg0, 0);
@@ -2322,7 +2322,7 @@ void func_80618C00(Actor *arg0, u8 arg1) {
 void func_80618C8C(Actor *arg0) {
     u8 node;
 
-    if (arg0->unk58 == 2) {
+    if (arg0->actorType == 2) {
         node = 2;
     } else {
         node = 8;
@@ -2472,9 +2472,9 @@ void scriptCmdSpawnFallingEffect(Actor *arg0) {
         func_80714998(sp4B);
         func_807149FC(sp46);
         if ((node = sp4A) == 0) {
-            sp3C = arg0->unk7C;
-            sp38 = arg0->unk80;
-            sp34 = arg0->unk84;
+            sp3C = arg0->x;
+            sp38 = arg0->y;
+            sp34 = arg0->z;
         } else {
             actorGetNodePos(arg0, node, &sp3C, &sp38, &sp34);
         }
@@ -2538,15 +2538,15 @@ void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
     scriptReadU16((u8 *)&sp40);
     actorSpawn(0x139, sp42);
     actorCopyPoseAndScale(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
-    D_807FBB44->unkE6 = arg0->unkE6;
-    D_807FBB44->unkE8 = arg0->unkE8;
-    D_807FBB44->unkE4 = arg0->unkE4;
+    D_807FBB44->yaw = arg0->yaw;
+    D_807FBB44->roll = arg0->roll;
+    D_807FBB44->pitch = arg0->pitch;
     var_v1 = (ChildEffectNodeState *)D_807FBB44->unk174;
     var_v1->unk10 = 0.0f;
     if (sp46 != 0xFFFF) {
         func_807149FC(-1);
         func_807149B8(1);
-        switch (arg0->unk58) {
+        switch (arg0->actorType) {
             default:
                 var_fs0 = (f32)((f64)var_fs0 * 0.2);
                 break;
@@ -2567,7 +2567,7 @@ void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
                 break;
         }
     }
-    D_807FBB44->unk80 -= var_v1->unk10;
+    D_807FBB44->y -= var_v1->unk10;
     if (sp46 != 0xFFFF) {
         func_80714C08(D_80746B80[sp46], var_fs0, D_807FBB44, 1, 2);
     }

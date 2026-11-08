@@ -214,7 +214,7 @@ void func_806C8D20(Actor *);
 void func_806F1048(Actor *arg0) {
     F5N2ActorState *state = arg0->unk174;
 
-    switch (arg0->unk58) {
+    switch (arg0->actorType) {
     case 4:
     case 0xC6:
         state->flags &= ~0x100;
@@ -298,9 +298,9 @@ extern s32 D_807FBB68;
 void func_806F1250(Actor *arg0) {
     F5N3ActorExtra *extra = arg0->unk174;
 
-    if (arg0->unk58 == 6) {
+    if (arg0->actorType == 6) {
         controllerAnimLoadStateAsset(arg0, 0x10);
-        sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, 0x2E2, 0xFF, 0xA0, 0, 0x32, 0.0f, 0);
+        sfxPlayAtPositionPooled(arg0->x, arg0->y, arg0->z, 0x2E2, 0xFF, 0xA0, 0, 0x32, 0.0f, 0);
         if (!(D_807FBB68 & 2)) {
             sfxAllocateChannel(0x6C, 1.0f);
         }
@@ -311,7 +311,7 @@ void func_806F1250(Actor *arg0) {
 void func_806F12FC(Actor *arg0) {
     F5N3ActorExtra *extra = arg0->unk174;
 
-    if (arg0->unk58 == 6) {
+    if (arg0->actorType == 6) {
         controllerAnimFreeStateAsset();
         sfxStopChannel(0x6C, 0);
     }
@@ -905,7 +905,7 @@ void func_806F22A8(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     value[3] = -0x80;
     actorGetNodePos(arg0, 5, &x, &y, &z);
     if (active == 0) {
-        state->unk0 = (f32) arg0->unkE6;
+        state->unk0 = (f32) arg0->yaw;
         state->unk4 = y;
         D_80752F4C = 0.0f;
         if ((state->unk14 != 0) && (((F56AActor *) arg0)->unk60 & 0x100) && (state->unk18 == 3)) {
@@ -914,16 +914,16 @@ void func_806F22A8(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     } else {
         fs2 = y - state->unk4;
         dz = fs2 - state->unk8;
-        fs0 = state->unk0 - (f32) arg0->unkE6;
+        fs0 = state->unk0 - (f32) arg0->yaw;
         if (((F56AIdxSub *) arg0->unk4)->unk0->unk10 >= 0) {
             target = (f32) D_80752D4E[((F56AIdxSub *) arg0->unk4)->unk0->unk10];
         } else {
             target = -128.0f;
         }
-        state->unk0 = (f32) arg0->unkE6;
+        state->unk0 = (f32) arg0->yaw;
         state->unk10 = (f32) ((f64) state->unk10 + ((f64) (target - state->unk10) * 0.3));
         value[3] = (s8) state->unk10;
-        if (arg0->unk154 == 0x4F) {
+        if (arg0->state == 0x4F) {
             fs1 = 0.01f;
             spA8 = 0.0001f;
             spA4 = 0.4f;
@@ -1297,14 +1297,14 @@ void func_806F3190(Actor *arg0, u16 arg1) {
     f32 v;
 
     sp74 = arg0->unk174;
-    if ((arg0->unk154 != 0x77) && (arg0->unk60 & 4)) {
+    if ((arg0->state != 0x77) && (arg0->unk60 & 4)) {
         sub = (F56CSub *)arg0->unk4;
         sp64 = sub->unk1C;
         sp60 = sub->unk20;
         sp5C = sub->unk24;
         sp70 = 0;
         sp6C = 0;
-        if ((func_80714608(0) != 0) && ((sp74->unk21E != 0x1E) || (arg0->unk154 == 0x34))) {
+        if ((func_80714608(0) != 0) && ((sp74->unk21E != 0x1E) || (arg0->state == 0x34))) {
             func_806F2A40((s32)arg0, sp60, &sp6C);
         }
         switch (arg1) {
@@ -1316,7 +1316,7 @@ void func_806F3190(Actor *arg0, u16 arg1) {
             }
             break;
         case 1:
-            switch (arg0->unk154) {
+            switch (arg0->state) {
             case 7:
             case 8:
             case 9:
@@ -1340,7 +1340,7 @@ void func_806F3190(Actor *arg0, u16 arg1) {
             }
             break;
         case 2:
-            switch (arg0->unk154) {
+            switch (arg0->state) {
             case 0x26:
                 if (arg0->unk155[0] != 0) {
                     t = (*(F56CHead **)arg0->unk4)->unk4;
@@ -1459,9 +1459,9 @@ void actorSetPositionAndFacingAngle(Actor *arg0, F5N4Coord *arg1) {
     s16 angle;
 
     actorClearMovementFlags(arg0);
-    arg0->unk7C = arg1->unk0;
-    arg0->unk80 = arg1->unk2;
-    arg0->unk84 = arg1->unk4;
+    arg0->x = arg1->unk0;
+    arg0->y = arg1->unk2;
+    arg0->z = arg1->unk4;
     angle = mathAngleBetweenPoints2D(arg1->unk12, arg1->unk16, arg1->unk0, arg1->unk4);
     ((F5N4ActorView *)arg0)->unkEE = angle;
     ((F5N4ActorView *)arg0)->unkE6 = angle;
@@ -1611,21 +1611,21 @@ u8 arg3;
     F5N6Point *q;
     F56CEnt *entry;
 
-    angle = mathAngleBetweenPoints2D((f32)arg1, (f32)arg2, arg0->unk7C, arg0->unk84);
+    angle = mathAngleBetweenPoints2D((f32)arg1, (f32)arg2, arg0->x, arg0->z);
     entry = (F56CEnt *)&gWaypointPaths->unk4[gWaypointPaths->unk0];
-    if (arg0->unk154 != 0x44) {
+    if (arg0->state != 0x44) {
         entry->unk0 = 2;
         entry->unk4 = heapAlloc(0x24);
         heapClearBlock(entry->unk4);
         q = entry->unk4 + 1;
         p = entry->unk4;
-        p->x = arg0->unk7C;
-        p->y = arg0->unk80;
-        p->z = arg0->unk84;
+        p->x = arg0->x;
+        p->y = arg0->y;
+        p->z = arg0->z;
         p->unk9 = 0x28;
-        q->x = func_80612794(angle) * arg3 + arg0->unk7C;
-        q->y = arg0->unk80;
-        q->z = func_80612790(angle) * arg3 + arg0->unk84;
+        q->x = func_80612794(angle) * arg3 + arg0->x;
+        q->y = arg0->y;
+        q->z = func_80612790(angle) * arg3 + arg0->z;
         q->unk9 = 0x28;
         playerWaypointPathStart(*((u8 *)gWaypointPaths + 1), (s32)arg0, 0, 0, 0);
         gWaypointFlags = 0;
@@ -1728,8 +1728,8 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
     blend = 0.2f;
     next = F5L1_WP + 1;
     speed = (u32)cur->speed * 0.7;
-    dx = F5L1_TGTA->unk7C - next->x;
-    dz = F5L1_TGTA->unk84 - next->z;
+    dx = F5L1_TGTA->x - next->x;
+    dz = F5L1_TGTA->z - next->z;
     close = dx * dx + dz * dz < 100.0f;
     if (close) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     flags = gWaypointFlags;
@@ -1779,15 +1779,15 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
             blend = 1.0f;
             gWaypointFlags &= 0xFFFD;
         }
-        if (F5L1_TGTA->unk154 == 0x4F) {
-            ang = mathAngleBetweenPointsDeg(next->x, next->z, (s32)F5L1_TGTA->unk7C, (s32)F5L1_TGTA->unk84) * 0.017453292f - (F5L1_TGTA->unkE6 * 3.1415927f) * 0.00048828125;
-            pitch = mathCalculatePitchAngle(next->x, next->y, next->z, F5L1_TGTA->unk7C, F5L1_TGTA->unk80, F5L1_TGTA->unk84, 0);
+        if (F5L1_TGTA->state == 0x4F) {
+            ang = mathAngleBetweenPointsDeg(next->x, next->z, (s32)F5L1_TGTA->x, (s32)F5L1_TGTA->z) * 0.017453292f - (F5L1_TGTA->yaw * 3.1415927f) * 0.00048828125;
+            pitch = mathCalculatePitchAngle(next->x, next->y, next->z, F5L1_TGTA->x, F5L1_TGTA->y, F5L1_TGTA->z, 0);
             arg0->flags |= 0x4000;
             yawT = ang;
             pitchT = F5L1_CLAMP(sinApprox(pitch) * speed);
         } else {
             camAng = mathAngleBetweenPointsDeg((s32)F5L1Cam->targetX, (s32)F5L1Cam->targetZ, (s32)F5L1Cam->x, (s32)F5L1Cam->z);
-            ang = mathAngleBetweenPointsDeg(next->x, next->z, (s32)F5L1_TGTA->unk7C, (s32)F5L1_TGTA->unk84) * 0.017453292f - camAng * 0.017453292f;
+            ang = mathAngleBetweenPointsDeg(next->x, next->z, (s32)F5L1_TGTA->x, (s32)F5L1_TGTA->z) * 0.017453292f - camAng * 0.017453292f;
             yawT = F5L1_CLAMP(sinApprox(ang) * speed);
             pitchT = F5L1_CLAMP(cosApprox(ang) * speed);
         }

@@ -293,10 +293,10 @@ void func_806C80E4(void) {
     } else {
         sp28 = 0.0f;
     }
-    sp30 = func_80612794(D_807FBB4C->unkE6) * sp28;
-    var2 = func_80612790(D_807FBB4C->unkE6) * sp28;
-    actorListSpawnNodeEntryDefault((s16)D_807FD570, D_807FBB4C->unk7C + sp30, (f32)((f64)D_807FBB4C->unk80 + 7.0),
-                  D_807FBB4C->unk84 + var2, 0, 1.0f, D_807FBB4C);
+    sp30 = func_80612794(D_807FBB4C->yaw) * sp28;
+    var2 = func_80612790(D_807FBB4C->yaw) * sp28;
+    actorListSpawnNodeEntryDefault((s16)D_807FD570, D_807FBB4C->x + sp30, (f32)((f64)D_807FBB4C->y + 7.0),
+                  D_807FBB4C->z + var2, 0, 1.0f, D_807FBB4C);
     ((G00View1F0 *)D_807FBB4C->unk174)->unk1F0 |= 0x01000000;
 }
 
@@ -551,7 +551,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_P->unk244 = 0;
     G00_P->unk120 = -0x64;
     D_807FD584 = row->unk4;
-    G00_P->unk1EE = D_807FBB44->unk58;
+    G00_P->unk1EE = D_807FBB44->actorType;
     func_806E2C74(D_807FBB48);
     actorSpawn(0xBC, 0);
     G00_P->unk104 = D_807FBB44;
@@ -588,7 +588,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     if (flagGet(0xCE, 0) != 0) {
         G00_P->unk1F0 |= 0x100000;
     }
-    func_806C8220(1, G00_A48->unk178, D_807FBB48->unk58);
+    func_806C8220(1, G00_A48->unk178, D_807FBB48->actorType);
     G00_A48->unk146 = 0;
     func_806F09F0(D_807FBB48, *(u16 *)((u8 *)D_807FBB48 + 0x5A));
     G00_A48->unkDE = 0x400;
@@ -670,7 +670,7 @@ void func_806C8984(void) {
         playerSetBaseGravity();
         actorScriptStart(D_807FBB48, 0);
         func_80613C48(D_807FBB48, 0, 0.0f, 0.0f);
-        D_807FBB48->unk154 = 0x7D;
+        D_807FBB48->state = 0x7D;
         D_807FBB48->unk155[0] = 0;
         D_807FBB48->unk60 &= 0xFFFF7FFF;
         D_807FBB48->unk128 = 0;
@@ -696,7 +696,7 @@ void func_806C8984(void) {
         func_80028840();
     case 0x28:
     case 0x51:
-        D_807FBB48->unk154 = 0x77;
+        D_807FBB48->state = 0x77;
         D_807FBB48->unk155[0] = 0;
         return;
     case 0x4E:
@@ -704,12 +704,12 @@ void func_806C8984(void) {
     case 0x83:
         func_806F0D68(D_807FBB48);
         L6V->unk48 = D_80753354[D_807FD584];
-        D_807FBB48->unk154 = 0x62;
+        D_807FBB48->state = 0x62;
         D_807FBB48->unk155[0] = 0;
         func_80614E78(D_807FBB48, 0x52);
         return;
     case 0xD3:
-        D_807FBB48->unk154 = 0x5F;
+        D_807FBB48->state = 0x5F;
         D_807FBB48->unk155[0] = 0;
         func_80614E78(D_807FBB48, 0x4B);
         return;
@@ -718,7 +718,7 @@ void func_806C8984(void) {
     case 0xC5:
     case 0xD0:
     case 0xD5:
-        D_807FBB48->unk154 = 0x77;
+        D_807FBB48->state = 0x77;
         D_807FBB48->unk155[0] = 0;
         return;
     case 0x6F:
@@ -990,7 +990,7 @@ void actorClearMovementFlags(void *);
 void func_806C92C4(s32 arg0) {
     actorClearMovementFlags(D_807FBB48);
     func_806C9434(arg0);
-    D_807FBB48->unk9C = D_807FBB48->unk80;
+    D_807FBB48->unk9C = D_807FBB48->y;
 }
 
 typedef struct G01Player {
@@ -1174,7 +1174,7 @@ s8 func_806C9830(arg0, arg1)
                     func_800268C0(1, arg1);
                 }
             } else if (q->unk5C & 4) {
-                if (q->unk58 == 0x29 || q->unk58 == 0xAB) {
+                if (q->actorType == 0x29 || q->actorType == 0xAB) {
                     v = -3;
                     if (D_807FBB64 & 0x04000000) {
                         func_800268C0(2, arg1);

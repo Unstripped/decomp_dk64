@@ -228,14 +228,14 @@ block_21:
     billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][3], halfWidth, halfHeight, texWidth - 1, texHeight - 1);
 
     groundY = actor->unkA4;
-    if ((*(u16 *)&gBillboardFlags & 2) && (actor->unk6A & 2) && (actor->unkAC <= actor->unk80)) {
-        f32 diff1 = (actor->unk80 > actor->unkAC) ? (actor->unk80 - actor->unkAC) : -(actor->unk80 - actor->unkAC);
-        f32 diff2 = (actor->unk80 > actor->unkA4) ? (actor->unk80 - actor->unkA4) : -(actor->unk80 - actor->unkA4);
+    if ((*(u16 *)&gBillboardFlags & 2) && (actor->unk6A & 2) && (actor->unkAC <= actor->y)) {
+        f32 diff1 = (actor->y > actor->unkAC) ? (actor->y - actor->unkAC) : -(actor->y - actor->unkAC);
+        f32 diff2 = (actor->y > actor->unkA4) ? (actor->y - actor->unkA4) : -(actor->y - actor->unkA4);
         if (diff1 < diff2) {
             groundY = actor->unkAC;
         }
     }
-    scale = 1.0 - (f64)((actor->unk80 - groundY) / (f32)fadeDistance);
+    scale = 1.0 - (f64)((actor->y - groundY) / (f32)fadeDistance);
     if (scale < 0.0) {
         scale = 0.0f;
     }
@@ -260,7 +260,7 @@ block_21:
         actorGetNodePos(actor, ACTOR_FIELD(u8, 0xCC), &shadowY, &shadowX, &shadowZ);
         guTranslateF(mtx2, shadowY, actor->unkA4, shadowZ);
     } else {
-        guTranslateF(mtx2, actor->unk7C, groundY, actor->unk84);
+        guTranslateF(mtx2, actor->x, groundY, actor->z);
     }
     guMtxCatF(mtx1, mtx2, mtx1);
 

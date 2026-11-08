@@ -301,8 +301,8 @@ void func_80717930(OrbitEffectActorView *effect, void *unused) {
     }
     state = effect->unk384;
     if (effect->unk38C & 2) {
-        effect->unk340 = func_80612794(state->unk0) * effect->unk35C + D_807FBB4C->unk7C;
-        effect->unk348 = func_80612790(state->unk0) * effect->unk35C + D_807FBB4C->unk84;
+        effect->unk340 = func_80612794(state->unk0) * effect->unk35C + D_807FBB4C->x;
+        effect->unk348 = func_80612790(state->unk0) * effect->unk35C + D_807FBB4C->z;
     } else {
         effect->unk340 = func_80612794(state->unk0) * effect->unk35C + state->unk2;
         effect->unk348 = func_80612790(state->unk0) * effect->unk35C + state->unk4;
@@ -2192,9 +2192,9 @@ void effectConvergeOnNodeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     motion = arg0->unk384;
     actorGetNodePos(node, 1, &motion->unk4, &motion->unk8, &motion->unkC);
     factor = (f32)((f64)motion->unk0 / 30.0);
-    arg0->unk340 = (D_807FBB4C->unk7C - motion->unk4) * factor + motion->unk4;
-    arg0->unk344 = (D_807FBB4C->unk80 - motion->unk8) * factor + motion->unk8;
-    arg0->unk348 = (D_807FBB4C->unk84 - motion->unkC) * factor + motion->unkC;
+    arg0->unk340 = (D_807FBB4C->x - motion->unk4) * factor + motion->unk4;
+    arg0->unk344 = (D_807FBB4C->y - motion->unk8) * factor + motion->unk8;
+    arg0->unk348 = (D_807FBB4C->z - motion->unkC) * factor + motion->unkC;
     motion->unk0 -= 1.0f;
     if (motion->unk0 == 0.0f) {
         *(s32 *)((u8 *)gActivePlayerState + 0x1F0) |= 0x20000;

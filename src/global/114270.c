@@ -544,14 +544,14 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     skipTimer = 0;
     skipNearPlayer = 0;
 
-    if ((D_807FBB4C->unk154 == 3) || (D_807FBB4C->unk154 == 5)) {
+    if ((D_807FBB4C->state == 3) || (D_807FBB4C->state == 5)) {
         f32 rem = (((L10CA0CamView *)gCamActor)->unkB4 > 180.0f) ? 0.0f : 180.0f - ((L10CA0CamView *)gCamActor)->unkB4;
         if (count == 0) {}  // FAKE: deadsweep dead statement (steers uopt: count's temp slot)
         D_807FD9EC = (f32)((f64)rem * 0.02 * 240.0);
     } else {
         D_807FD9EC = 240.0f;
     }
-    if ((D_807FBB4C->unk154 == 0x42) && ((((L10CA0TimerView *)gActivePlayerState)->unkBC == 0x62) || (((L10CA0TimerView *)gActivePlayerState)->unkBC == 0x88))) {
+    if ((D_807FBB4C->state == 0x42) && ((((L10CA0TimerView *)gActivePlayerState)->unkBC == 0x62) || (((L10CA0TimerView *)gActivePlayerState)->unkBC == 0x88))) {
         skipTimer = 1;
     }
     if ((player->unkFA != 0) && (((L10CA0PlayerView *)gPlayerSlots)->unk214 < player->unk90 + 3.0f)) {

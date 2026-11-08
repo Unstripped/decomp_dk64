@@ -723,8 +723,8 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *bgTex, void *rotAngle, void *mtx, s32 p
             x = ((PlayerViewBackdrop *)gPlayerSlots)->unk210;
             z = ((PlayerViewBackdrop *)gPlayerSlots)->unk218;
         } else {
-            x = D_807FBB4C->unk7C;
-            z = D_807FBB4C->unk84;
+            x = D_807FBB4C->x;
+            z = D_807FBB4C->z;
         }
         x = sqrtf(((x - 3000.0f) * (x - 3000.0f)) + ((z - 5000.0f) * (z - 5000.0f)));
         if (x < 2500.0f) {

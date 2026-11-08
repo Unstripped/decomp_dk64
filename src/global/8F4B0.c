@@ -755,7 +755,7 @@ void playerCameraUpdateFromTarget(void) {
     }
     if (D_807444EC != 1) {
             dd = 0;  // FAKE: lengthens dd's live range so its priority drops below the B variable (angleB gets a1)
-            stateVal = (*(Actor **)targetState)->unk154;
+            stateVal = (*(Actor **)targetState)->state;
             switch (stateVal) {
             case 0x63:
                 stepFactor = 0.02f;

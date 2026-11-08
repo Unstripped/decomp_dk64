@@ -240,7 +240,7 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
     f32 dist;
 
     state = playerActor->unk174;
-    isPlayer = playerActor->unk58 == 6;
+    isPlayer = playerActor->actorType == 6;
     node = D_807FDCC0;
     bestDist = 9999.0f;
     best = NULL;
@@ -249,9 +249,9 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
     }
     while (node != NULL) {
         got = proxPathGetActorPosition(node->unk0, node->unk4, &x, &y, &z);
-        dx = playerActor->unk7C - x;
-        dy = playerActor->unk80 - y;
-                dz = playerActor->unk84 - z;
+        dx = playerActor->x - x;
+        dy = playerActor->y - y;
+                dz = playerActor->z - z;
         dist = sqrtf(dx * dx + dy * dy + dz * dz);
         if (dist < node->unk1C && node->unk31 != 0) {
             if (node->unk6 == 1 || (allowBoss != 0 && (node->unk0->unk60 & 0x04000000))) {
@@ -311,9 +311,9 @@ u8 proxPathGetActorPosition(Actor *actor, u8 mode, f32 *outX, f32 *outY, f32 *ou
     ret = 0;
     switch (mode) {
     case 0:
-        *outX = actor->unk7C;
-        *outY = actor->unk80;
-        *outZ = actor->unk84;
+        *outX = actor->x;
+        *outY = actor->y;
+        *outZ = actor->z;
         break;
     case 1:
     case 2:
@@ -358,7 +358,7 @@ s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *o
 
     ret = 0;
     best = 999999.0f;
-    if (actor->unk154 == 0x5A || actor->unk154 == 0x58) {
+    if (actor->state == 0x5A || actor->state == 0x58) {
         r2 = path->unk24 * path->unk24;
     } else {
         r2 = path->unk20 * path->unk20;
@@ -381,12 +381,12 @@ s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *o
                 modelSlotGetNodePos(path->unk0, 1, idB, &bx, &by, &bz);
                 break;
             }
-            camClosestPointOnSegment(actor->unk7C, actor->unk80, actor->unk84, ax, ay, az, bx, by, bz, &ox, &oy, &oz);
-            *outDist = (actor->unk7C - ox) * (actor->unk7C - ox) + (actor->unk80 - oy) * (actor->unk80 - oy) + (actor->unk84 - oz) * (actor->unk84 - oz);
+            camClosestPointOnSegment(actor->x, actor->y, actor->z, ax, ay, az, bx, by, bz, &ox, &oy, &oz);
+            *outDist = (actor->x - ox) * (actor->x - ox) + (actor->y - oy) * (actor->y - oy) + (actor->z - oz) * (actor->z - oz);
             if (*outDist < r2 && *outDist < best) {
-                ang = func_80611BB4(ox - actor->unk7C, oz - actor->unk84) * 4096.0 / 6.2831855f;
-                if (mathAngleDistance(ang, actor->unkE6) < 0x2BC) {
-                    if (proxPathSegmentAngleCheck(path, i, actor->unkE6)) {
+                ang = func_80611BB4(ox - actor->x, oz - actor->z) * 4096.0 / 6.2831855f;
+                if (mathAngleDistance(ang, actor->yaw) < 0x2BC) {
+                    if (proxPathSegmentAngleCheck(path, i, actor->yaw)) {
                         best = *outDist;
                         ret = 1;
                         *outSegment = i;
@@ -469,12 +469,12 @@ f32 proxPathAttachToSegment(Actor *actor, H1ActorState *state, ProxPath *path, u
             }
         }
     }
-    state->unk13C = actor->unk7C;
-    state->unk140 = actor->unk80;
-    state->unk144 = actor->unk84;
+    state->unk13C = actor->x;
+    state->unk140 = actor->y;
+    state->unk144 = actor->z;
     state->unk148 = 0.0f;
     memcpy(state->unk15C, (u8 *)actor + 0xC, 0x40);
-    actor->unkE6 = mathAngleBetweenPointsRad(ox, oz, actor->unk7C, actor->unk84) * 57.29577637f / 360.0 * 4095.0;
+    actor->yaw = mathAngleBetweenPointsRad(ox, oz, actor->x, actor->z) * 57.29577637f / 360.0 * 4095.0;
     return t;
 }
 
@@ -649,7 +649,7 @@ void proxPathFollowerStep(H1ActorB **pActor) {
     case 0:
         proxPathGetSegmentMatrices(node->unk0, node->unk4, idA, idB, &p128, &p124);
         mtxLerpL(p128, p124, 1.0 - t, &mtx);
-        rot = (actor->unkE6 - state->unk130->unkE6) & 0xFFF;
+        rot = (actor->unkE6 - state->unk130->yaw) & 0xFFF;
         guRotateF(m6, rot / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
         guTranslateF(mA, 0.0f, state->unk138 + -80.0, 0.0f);
         guMtxCatF(m6, mA, mA);
@@ -785,8 +785,8 @@ void proxPathActorFollowSpline(H1ActorB *actor, H1ActorState *state, ProxPath *p
         state->unk19E = ((s32)(D_807F6000[slot].unk14 * 4096.0f / 360.0f) + state->unk19E) & 0xFFF;
         break;
     case 0:
-        state->unk19C = (state->unk19C + path->unk0->unkE6) & 0xFFF;
-        state->unk19E = (state->unk19E + path->unk0->unkE6) & 0xFFF;
+        state->unk19C = (state->unk19C + path->unk0->yaw) & 0xFFF;
+        state->unk19E = (state->unk19E + path->unk0->yaw) & 0xFFF;
         break;
     }
 }

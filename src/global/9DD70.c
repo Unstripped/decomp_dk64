@@ -119,7 +119,7 @@ void actorPhotoUpdate(void) {
         sfxStopSlotSound(D_807FBB40, 0);
     }
     t = PAN_MIN(1.0, ((frameElapsed - 0x1E) < 0 ? 0 : (frameElapsed - 0x1E)) / 60.0f * 5.0);
-    if (t < 1.0 && D_807FBB40->unk58 != 0xD9) {
+    if (t < 1.0 && D_807FBB40->actorType != 0xD9) {
         color5551CopyLerpToWhite((s16 *)subState->unk4, &(&subState->unk8)[D_807444FC], t);
         animSetNodeItem(D_807FBB40, 0, 0, (&subState->unk8)[D_807444FC]);
     } else {
@@ -139,15 +139,15 @@ void actorPhotoUpdate(void) {
     }
     mathAngleBetweenPoints3D(&pitch, &yaw, ((CameraView *)gPlayerSlots)->unk210, ((CameraView *)gPlayerSlots)->unk214, ((CameraView *)gPlayerSlots)->unk218, ((CameraView *)gPlayerSlots)->unk228, ((CameraView *)gPlayerSlots)->unk22C, ((CameraView *)gPlayerSlots)->unk230);
     t = PAN_MIN(30.0, frameElapsed) / 30.0;
-    D_807FBB40->unkE6 = yaw;
+    D_807FBB40->yaw = yaw;
     l1Angle = (f32)pitch - (2048.0f + -2048.0f * t);
-    D_807FBB40->unkE8 = l1Angle;
+    D_807FBB40->roll = l1Angle;
     guRotateF(mtx1, pitch / 4095.0 * 360.0, 1.0f, 0.0f, 0.0f);
     guRotateF(mtx2, yaw / 4095.0 * 360.0, 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx1, mtx2, mtx1);
     guTranslateF(mtx2, ((CameraView *)gPlayerSlots)->unk210, ((CameraView *)gPlayerSlots)->unk214, ((CameraView *)gPlayerSlots)->unk218);
     guMtxCatF(mtx1, mtx2, mtx1);
-    guMtxXFMF(mtx1, 0.0f, 0.0f, -30.0f * t, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
+    guMtxXFMF(mtx1, 0.0f, 0.0f, -30.0f * t, &D_807FBB40->x, &D_807FBB40->y, &D_807FBB40->z);
     if (subState->unk10 != 0) {
         subState->unk10--;
     } else {
@@ -164,7 +164,7 @@ void actorPhotoUpdate(void) {
         sfxStopSlotSound(D_807FBB40, 0);
         subState->unk0->unk1F0 &= ~0x8000;
         subState->unk0->unk1EC = 0xFF;
-        if (D_807FBB40->unk58 == 0xD9) {
+        if (D_807FBB40->actorType == 0xD9) {
             assetFreeBuffer((s32)subState->unk4, 0xF6, 0x45);
         } else {
             heapFreeDeferred((Mtx *)subState->unk4);
@@ -532,14 +532,14 @@ s32 actorCheckAlwaysFalse(void) {
     s32 v;
 
     for (i = 0; i < D_807FBBA9; i++) {
-        v = ((TextActorList *)&D_807FBB70)->unk7C[i]->unk58;
+        v = ((TextActorList *)&D_807FBB70)->unk7C[i]->actorType;
         if (v != 2 && v != 3) { // FAKE: keeps both state tests as beq-to-latch (dead carrier v)
             v = 0;
         }
         if (v == 5) {} // FAKE: dead test of the carrier
         if (i == 5) {} // FAKE: consumes a ring temp (t0)
     }
-    if (D_807FBB40->unk58 == 0x1F) {
+    if (D_807FBB40->actorType == 0x1F) {
         return 0;
     }
     return 0;
@@ -734,7 +734,7 @@ void actorSpotLightUpdate(void) {
             lightSetFlags(2);
             lightSetTargetId(*(s16 *)D_807FBB40->unk12C);
             actorGetNodePos(D_807FBB40, 2, &targetPos[0], &targetPos[1], &targetPos[2]);
-            lightAdd((f32)((f64)D_807FBB40->unk7C + 0.3), D_807FBB40->unk80, D_807FBB40->unk84, targetPos[0], targetPos[1], targetPos[2], 0.0f, 1, red, green, blue);
+            lightAdd((f32)((f64)D_807FBB40->x + 0.3), D_807FBB40->y, D_807FBB40->z, targetPos[0], targetPos[1], targetPos[2], 0.0f, 1, red, green, blue);
         }
     } else {
         lightState->unk0 = lightState->unk0 - 1;
@@ -806,7 +806,7 @@ void func_8069B010(void) {
         func_80714C08(D_80720E14, 0.9f, D_807FBB40, 1, 2);
         *p = D_8076A068;
         D_807FBB40->unk60 |= 0x80000;
-        collisionCheckActorFloor(D_807FBB40, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, &D_807FBB40->unkA4);
+        collisionCheckActorFloor(D_807FBB40, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, &D_807FBB40->unkA4);
     }
     func_8067ACB4(D_807FBB40);
     billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x4B, 0x78, 0, 1.0f);
@@ -817,14 +817,14 @@ void func_8069B010(void) {
             return;
         }
         if (D_807FBB40->unk15F == link->unk15F) {
-            if ((D_807FBB40->unk7C - D_807FBB4C->unk7C) * (D_807FBB40->unk7C - D_807FBB4C->unk7C) + (D_807FBB40->unk84 - D_807FBB4C->unk84) * (D_807FBB40->unk84 - D_807FBB4C->unk84) > 900.0f) {
-                ((LinkedActorView *)D_807FBB40->unk11C)->unkEC = (s16)(mathAngleBetweenPointsDeg((s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk84, (s32)D_807FBB4C->unk7C, (s32)D_807FBB4C->unk84) - mathAngleBetweenPointsDeg((s32)((CameraPoseView *)gPlayerSlots)->unk228, (s32)((CameraPoseView *)gPlayerSlots)->unk230, (s32)((CameraPoseView *)gPlayerSlots)->unk210, (s32)((CameraPoseView *)gPlayerSlots)->unk218));
+            if ((D_807FBB40->x - D_807FBB4C->x) * (D_807FBB40->x - D_807FBB4C->x) + (D_807FBB40->z - D_807FBB4C->z) * (D_807FBB40->z - D_807FBB4C->z) > 900.0f) {
+                ((LinkedActorView *)D_807FBB40->unk11C)->unkEC = (s16)(mathAngleBetweenPointsDeg((s32)D_807FBB40->x, (s32)D_807FBB40->z, (s32)D_807FBB4C->x, (s32)D_807FBB4C->z) - mathAngleBetweenPointsDeg((s32)((CameraPoseView *)gPlayerSlots)->unk228, (s32)((CameraPoseView *)gPlayerSlots)->unk230, (s32)((CameraPoseView *)gPlayerSlots)->unk210, (s32)((CameraPoseView *)gPlayerSlots)->unk218));
             }
-            lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0.0f, 0.0f, 0.0f, 100.0f, 0, 0xFF, 0xFF, 0);
+            lightAdd(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, 0.0f, 0.0f, 0.0f, 100.0f, 0, 0xFF, 0xFF, 0);
         }
         if (D_807FBD70 == 9) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1CE, 0xFF, 0x7F, 0x1E);
-            func_80714CC0(D_8071FE08, 1.0f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+            func_80714CC0(D_8071FE08, 1.0f, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z);
             actorAppendCallback((Actor *)D_807FBB40->unk11C, D_807FBB40, 0x02000000, D_807FBB40->unk15F, 0, 0);
             actorDespawn(D_807FBB40);
         }
@@ -925,7 +925,7 @@ void func_8069B3FC(void) {
                 break;
         }
     }
-    D_807FBB40->unkE6 += *p;
+    D_807FBB40->yaw += *p;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
@@ -1047,15 +1047,15 @@ void textMarkerUpdateMatrix(void) {
         if (actorHasActiveMovementFlags(D_807FBB40) != 0) {
             D_807FBB40->unk144 = 2;
             D_807FBB40->unk68 |= 1;
-            D_807FBB40->unk154 = 2;
+            D_807FBB40->state = 2;
             *(u8 *)((u8 *)D_807FBB40 + 0x155) = 1;
             markerView->unk1C = 0x1E;
         }
         markerView->unk28 = ((ActorSub124View *)D_807FBB40->unk124)->unk0;
         if (markerView->unk28 != 0) {
-            markerView->unk4 = D_807FBB40->unk7C;
-            markerView->unk8 = D_807FBB40->unk80;
-            markerView->unkC = D_807FBB40->unk84;
+            markerView->unk4 = D_807FBB40->x;
+            markerView->unk8 = D_807FBB40->y;
+            markerView->unkC = D_807FBB40->z;
             markerView->unk10 = D_807FBB40->unk4->unk34 / 0.15;
         }
         if (((ActorSub124View *)D_807FBB40->unk124)->unk4 == 1) {
@@ -1063,7 +1063,7 @@ void textMarkerUpdateMatrix(void) {
         } else {
             D_807FBB40->unk132 = 1;
         }
-        switch (D_807FBB40->unk58) {
+        switch (D_807FBB40->actorType) {
         case 0x43:
             if (flagGet(0x9A, 0) != 0) {
                 func_8068A2FC(D_807FBB40);
@@ -1080,7 +1080,7 @@ void textMarkerUpdateMatrix(void) {
             }
             break;
         }
-        switch (D_807FBB40->unk58) {
+        switch (D_807FBB40->actorType) {
         case 0x3F:
         case 0x40:
         case 0x41:
@@ -1091,47 +1091,47 @@ void textMarkerUpdateMatrix(void) {
     }
     if (D_807FBB94 != 0) {
         markerView->unk14 = D_807FBB98;
-        D_807FBB40->unk154 = 1;
+        D_807FBB40->state = 1;
         actorCallbackMaskDisable(D_807FBB40, 0x8000);
         actorCollisionEventsCancel(markerView->unk14, 1);
         D_807FBB40->unk144 = 0x2C;
     }
     if (D_807FBB95 != 0) {
-        D_807FBB40->unk154 = 2;
+        D_807FBB40->state = 2;
         *(u8 *)((u8 *)D_807FBB40 + 0x155) = 0;
         markerView->unk1C = 0x1E;
         D_807FBB40->unk144 = 0x3C;
         actorCallbackMaskEnable(D_807FBB40, 0x8000);
         if (gCurrentMap == 7 && actorListFindIdByActor(D_807FBB40) == 0x17) {
-            actorListSetPosByActor(D_807FBB40, D_807FBB40->unk7C, D_807FBB40->unkA4, D_807FBB40->unk84);
+            actorListSetPosByActor(D_807FBB40, D_807FBB40->x, D_807FBB40->unkA4, D_807FBB40->z);
         }
     }
-    if (gCurrentMap == 0x22 && D_807FBB40->unk58 == 0x3D &&
-        (D_807FBB40->unk154 == 0 || D_807FBB40->unk154 == 2)) {
-        if (D_807FBB40->unk7C >= 3242.0 && D_807FBB40->unk84 >= 252.0 &&
-            D_807FBB40->unk7C <= 3842.0 && D_807FBB40->unk84 <= 852.0) {
-            D_807FBB40->unk154 = 4;
+    if (gCurrentMap == 0x22 && D_807FBB40->actorType == 0x3D &&
+        (D_807FBB40->state == 0 || D_807FBB40->state == 2)) {
+        if (D_807FBB40->x >= 3242.0 && D_807FBB40->z >= 252.0 &&
+            D_807FBB40->x <= 3842.0 && D_807FBB40->z <= 852.0) {
+            D_807FBB40->state = 4;
         }
     }
     if (D_807FBB85 != 0 || D_807FBD70 == 9) {
-        D_807FBB40->unk154 = 4;
+        D_807FBB40->state = 4;
         actorReleaseFromPlayerHold(D_807FBB40);
     }
     if (D_807FBB9C != 0) {
-        D_807FBB40->unk154 = 3;
+        D_807FBB40->state = 3;
         D_807FBB40->unk144 = 0x3C;
         actorCallbackMaskEnable(D_807FBB40, 0x8000);
-        D_807FBB40->unkE6 = *(s16 *)((u8 *)&D_807FBB70 + 0x36);
+        D_807FBB40->yaw = *(s16 *)((u8 *)&D_807FBB70 + 0x36);
         *(s16 *)((u8 *)D_807FBB40 + 0xEE) = *(s16 *)((u8 *)&D_807FBB70 + 0x36);
         *(f32 *)((u8 *)D_807FBB40 + 0xC0) = *(f32 *)((u8 *)&D_807FBB70 + 0x30);
         D_807FBB40->unkB8 = (f32)*(s16 *)((u8 *)&D_807FBB70 + 0x34);
         actorCollisionEventsCancel(markerView->unk14, 1);
-        if (D_807FBB40->unk58 == 0x43 && gCurrentMap == 0x1E) {
+        if (D_807FBB40->actorType == 0x43 && gCurrentMap == 0x1E) {
             D_807FBB40->unk60 |= 0x200000;
             markerView->unk0 = D_8076A068;
         }
     }
-    if (D_807FBB40->unk58 == 0x55) {
+    if (D_807FBB40->actorType == 0x55) {
         if (actorHasActiveMovementFlags(D_807FBB40) != 0) {
             D_807FBB40->unk60 |= 0x400;
         } else {
@@ -1139,7 +1139,7 @@ void textMarkerUpdateMatrix(void) {
         }
     }
     func_8067ACB4(D_807FBB40);
-    switch (D_807FBB40->unk58) {
+    switch (D_807FBB40->actorType) {
     case 0x3F:
     case 0x40:
     case 0x41:
@@ -1147,26 +1147,26 @@ void textMarkerUpdateMatrix(void) {
         for (i = 0; i < D_807FBDC4; i++) {
             if (D_807FBB70.unk258[i] == 1) {
                 markerView->unk2A = 0;
-                D_807FBB40->unk154 = 5;
+                D_807FBB40->state = 5;
             }
         }
         break;
     }
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
     case 0:
         D_807FBB40->unk144 = 2;
         D_807FBB40->unk64 |= 8;
         D_807FBB40->unk60 |= 0x80000000;
         D_807FBB40->unk68 |= 1;
         if (actorHasCallbackTargetThisFrame() != 0) {
-            D_807FBB40->unk154 = 4;
+            D_807FBB40->state = 4;
         }
         break;
     case 1:
         D_807FBB40->unk68 &= 0xFFFE;
         D_807FBB40->unk64 &= ~8;
         D_807FBB40->unk60 &= 0x7FFFFFFF;
-        markerView->unk20 = (f32)(((f64)markerView->unk14->unkE6 / 4095.0) * 360.0);
+        markerView->unk20 = (f32)(((f64)markerView->unk14->yaw / 4095.0) * 360.0);
         break;
     case 2:
         D_807FBB40->unk64 &= ~8;
@@ -1175,12 +1175,12 @@ void textMarkerUpdateMatrix(void) {
             markerView->unk1C--;
         }
         if (markerView->unk1C == 0 && (D_807FBB40->unk6A & 1)) {
-            D_807FBB40->unk154 = 0;
+            D_807FBB40->state = 0;
         } else if (actorHasActiveMovementFlags(D_807FBB40) != 0) {
             markerView->unk1C = 0x1E;
         }
         if ((D_807FBB40->unk6A & 1) && *(u8 *)((u8 *)D_807FBB40 + 0x155) == 0) {
-            if (D_807FBB40->unk58 == 0x55) {
+            if (D_807FBB40->actorType == 0x55) {
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x8B, 0x64, 0x7F, 0x14);
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x97, 0x64, 0x7F, 0x14);
             } else {
@@ -1192,7 +1192,7 @@ void textMarkerUpdateMatrix(void) {
         D_807FBB40->unkB8 = 0.0f;
         D_807FBB40->unk68 |= 1;
         if (actorHasCallbackTargetThisFrame() != 0) {
-            D_807FBB40->unk154 = 4;
+            D_807FBB40->state = 4;
         }
         break;
     case 3:
@@ -1202,31 +1202,31 @@ void textMarkerUpdateMatrix(void) {
         }
         stateActive = 0;
         markerView->unk24 = markerView->unk24 - 10.0f;
-        if (D_807FBB40->unk58 == 0x43 && gCurrentMap == 0x1E &&
+        if (D_807FBB40->actorType == 0x43 && gCurrentMap == 0x1E &&
             (u32)(D_8076A068 - markerView->unk0) >= 0x5B) {
             stateActive = 1;
         }
-        if (stateActive != 0 || (D_807FBB40->unkFC != 0 && actorAngleInArc(D_807FBB40, D_807FBB40->unkE6) == 0)) {
-            D_807FBB40->unk154 = 4;
+        if (stateActive != 0 || (D_807FBB40->unkFC != 0 && actorAngleInArc(D_807FBB40, D_807FBB40->yaw) == 0)) {
+            D_807FBB40->state = 4;
         }
         D_807FBB40->unk68 &= 0xFFFE;
         D_807FBB40->unk64 &= ~8;
         D_807FBB40->unk60 &= 0x7FFFFFFF;
         break;
     case 4:
-        if (D_807FBB40->unk58 == 0x3D && markerView->unk28 == 0) {
+        if (D_807FBB40->actorType == 0x3D && markerView->unk28 == 0) {
             switch (actorListFindIdByActor(D_807FBB40)) {
             case 0x17:
                 if (flagGet(0x19, 0) == 0) {
-                    actorSpawnNodeEntryScaled(0x2D, D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f,
-                                  D_807FBB40->unk84, 0, 2, 0x19, 0);
+                    actorSpawnNodeEntryScaled(0x2D, D_807FBB40->x, D_807FBB40->y + 10.0f,
+                                  D_807FBB40->z, 0, 2, 0x19, 0);
                     sfxAllocateChannel(0x14, 1.0f);
                 }
                 break;
             case 6:
                 if (flagGet(0x1D, 0) == 0) {
-                    actorSpawnNodeEntryScaled(0x6E, D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f,
-                                  D_807FBB40->unk84, 0, 2, 0x1D, 0);
+                    actorSpawnNodeEntryScaled(0x6E, D_807FBB40->x, D_807FBB40->y + 10.0f,
+                                  D_807FBB40->z, 0, 2, 0x1D, 0);
                 }
                 break;
             }
@@ -1252,9 +1252,9 @@ void textMarkerUpdateMatrix(void) {
                     func_8071498C(func_80717D4C);
                     func_80714950(-0x96 - ((randomNonNegative() >> 15) % 50));
                 }
-                func_80714CC0(&D_80720340, 1.6f, D_807FBB40->unk7C + offsetX,
-                              D_807FBB40->unk80 + offsetY, D_807FBB40->unk84 + offsetZ);
-                if (D_807FBB40->unk58 == 0x3D) {
+                func_80714CC0(&D_80720340, 1.6f, D_807FBB40->x + offsetX,
+                              D_807FBB40->y + offsetY, D_807FBB40->z + offsetZ);
+                if (D_807FBB40->actorType == 0x3D) {
                     offsetX = (2.0f * randomFloat()) - 1.0f;
                     offsetY = (2.0f * randomFloat()) - 1.0f;
                     offsetZ = (2.0f * randomFloat()) - 1.0f;
@@ -1272,14 +1272,14 @@ void textMarkerUpdateMatrix(void) {
                     dz = randomFloat();
                     func_80714CC0((void *)((s32 *)&namePair)[(randVal >> 15) % 2],
                                   (f32)(((f64)dz * 0.5) + 0.2),
-                                  D_807FBB40->unk7C + offsetX, D_807FBB40->unk80 + offsetY,
-                                  D_807FBB40->unk84 + offsetZ);
+                                  D_807FBB40->x + offsetX, D_807FBB40->y + offsetY,
+                                  D_807FBB40->z + offsetZ);
                 }
             }
             camStartShake(*(s32 *)((u8 *)D_807FBB4C->unk174 + 0x104), 0x14, 0xF);
         }
         if (markerView->unk28 != 0) {
-            D_807FBB40->unk154 = 0xA;
+            D_807FBB40->state = 0xA;
             D_807FBB40->unk138 = 0;
             D_807FBB40->unk144 = 1;
             D_807FBB40->unk60 &= ~4;
@@ -1299,15 +1299,15 @@ void textMarkerUpdateMatrix(void) {
             sfxSetVolumeAndPan(*(s16 *)((u8 *)D_807FBB40 + 0x6E),
                                (f32)(((f64)(u32)markerView->unk2A / 400.0) + 0.5), 2.0f);
         }
-        lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80 + 30.0f, D_807FBB40->unk84,
+        lightAdd(D_807FBB40->x, D_807FBB40->y + 30.0f, D_807FBB40->z,
                  0, 0.0f, .0f, (f32)(((f64)(u32)markerView->unk2A / 250.0) * 100.0), 0, 0xFF, 0xFF, 0);  // FAKE: .0f spelling = separate zero web (target: two distinct lightAdd zero webs)
-        D_807FBB40->unkE6 = D_807FBB40->unkE6 + markerView->unk2A;
-        D_807FBB40->unk80 = D_807FBB40->unkA4;
+        D_807FBB40->yaw = D_807FBB40->yaw + markerView->unk2A;
+        D_807FBB40->y = D_807FBB40->unkA4;
         break;
     case 10:
-        dz = D_807FBB4C->unk84 - markerView->unkC;
-        dx = D_807FBB4C->unk7C - markerView->unk4;
-        dy = D_807FBB4C->unk80 - markerView->unk8;
+        dz = D_807FBB4C->z - markerView->unkC;
+        dx = D_807FBB4C->x - markerView->unk4;
+        dy = D_807FBB4C->y - markerView->unk8;
         if ((dz * dz) + ((dx * dx) + (dy * dy)) > 2500.0f) {
             spawnArgs[0] = markerView->unk28;
             if (D_807FBB40->unk132 == 2) {
@@ -1323,15 +1323,15 @@ void textMarkerUpdateMatrix(void) {
     case 0x63:
         break;
     }
-    if (D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 3) {
-        *(s16 *)((u8 *)D_807FBB40 + 0xEE) = D_807FBB40->unkE6;
+    if (D_807FBB40->state == 2 || D_807FBB40->state == 3) {
+        *(s16 *)((u8 *)D_807FBB40 + 0xEE) = D_807FBB40->yaw;
         actorApplyVelocity(D_807FBB40);
         actorUpdateFloorContactAndTilt(D_807FBB40, 0);
-        if (D_807FBB40->unk154 == 3 && (D_807FBB40->unk6A & 1) && !(D_807FBB40->unk6C & 1)) {
-            D_807FBB40->unk154 = 4;
+        if (D_807FBB40->state == 3 && (D_807FBB40->unk6A & 1) && !(D_807FBB40->unk6C & 1)) {
+            D_807FBB40->state = 4;
         }
-        if (D_807FBB40->unk154 == 2 && (D_807FBB40->unk6A & 4)) {
-            D_807FBB40->unk154 = 4;
+        if (D_807FBB40->state == 2 && (D_807FBB40->unk6A & 4)) {
+            D_807FBB40->state = 4;
         }
         *(s16 *)((u8 *)D_807FBB40 + 0xDC) = 0x3FF;
         *(s16 *)((u8 *)D_807FBB40 + 0xDE) = 0x3FF;
@@ -1344,7 +1344,7 @@ void textMarkerUpdateMatrix(void) {
     case 0x26:
     case 0x71:
     case 0xC2:
-        if (D_807FBB40->unk58 == 0x3D) {
+        if (D_807FBB40->actorType == 0x3D) {
             if (D_807FBB40->unk110 == 1) {
                 if (D_807FBB94) {}  // FAKE: ghost candidate (see the particleLoopIdx loop), keeps the D_807FBB94 web live across the gCurrentMap switch
                 D_807FBB40->unk60 |= 0x200000;
@@ -1354,19 +1354,19 @@ void textMarkerUpdateMatrix(void) {
         }
         break;
     }
-    if (D_807FBB40->unk154 != 0x63) {
+    if (D_807FBB40->state != 0x63) {
         billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x64, 0x78, 0, 1.0f);
     }
     guScaleF(mtxA, D_807FBB40->unk4->unk34, D_807FBB40->unk4->unk38, D_807FBB40->unk4->unk3C);
     guRotateF(mtxB, markerView->unk24, 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
-    guRotateF(mtxB, (f32)(((f64)D_807FBB40->unkE6 / 4095.0) * 360.0), 0.0, 1.0f, 0.0);
+    guRotateF(mtxB, (f32)(((f64)D_807FBB40->yaw / 4095.0) * 360.0), 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
     guRotateF(mtxB, (f32)(0.0 - (f64)D_807FBC60), 1.0f, 0.0, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
     guRotateF(mtxB, (markerView->unk20 + 90.0f) - D_807FBC64, 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
-    if (D_807FBB40->unk154 == 3) {
+    if (D_807FBB40->state == 3) {
         ang = *(s16 *)((u8 *)D_807FBB40 + 0xDE);
 
         if (ang < 0x3E8) {
@@ -1383,7 +1383,7 @@ void textMarkerUpdateMatrix(void) {
             guMtxCatF(mtxA, mtxB, mtxA);
         }
     }
-    guTranslateF(mtxB, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+    guTranslateF(mtxB, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z);
     guMtxCatF(mtxA, mtxB, (f32 (*)[4])((u8 *)D_807FBB40 + 0xC));
 }
 
@@ -1417,10 +1417,10 @@ void actorUpdateTimerBarAndRange(void) {
     }
     /* dz is computed before dx into a temp: this is what makes IDO emit the
        target's dx, dz, dy float load/sub scheduling (dx, dy, dz otherwise). */
-    dzTmp = D_807FBB40->unk84 - ((CameraPos *)gPlayerSlots)->unk218;
-    dx = D_807FBB40->unk7C - ((CameraPos *)gPlayerSlots)->unk210;
+    dzTmp = D_807FBB40->z - ((CameraPos *)gPlayerSlots)->unk218;
+    dx = D_807FBB40->x - ((CameraPos *)gPlayerSlots)->unk210;
     dz = dzTmp;
-    dy = D_807FBB40->unk80 - ((CameraPos *)gPlayerSlots)->unk214;
+    dy = D_807FBB40->y - ((CameraPos *)gPlayerSlots)->unk214;
     dist = dx * dx + dy * dy;
     if (dz * dz + dist < 18000.0) {
         D_807FBB40->unk60 |= 0x400;
@@ -1434,7 +1434,7 @@ void actorSpawnEffectAndTick(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk12C[4] = 0x3C;
         D_807FBB40->unk12C[5] = 0x3C;
-        actorListSpawnNodeEntryDefault(0x83, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84,
+        actorListSpawnNodeEntryDefault(0x83, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z,
                       0, 1.0f, (s32)D_807FBB40);
     }
     textMarkerUpdateMatrix();
@@ -1499,16 +1499,16 @@ void textSpawnMarker(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 
         if (fontStyle & 0x80) {
             sub->unkA = gfxResourceCreate((s16)(fontStyle & 0xFF7F), textStr, 2, 160.0f, (f32)y, 0.0f);
             *(s16 *)((u8 *)D_807FBB44 + 0xEE) = 1;
-            D_807FBB44->unk80 = (f32)y;
+            D_807FBB44->y = (f32)y;
             return;
         }
         if (x == 0) {
-            D_807FBB44->unk7C = (f32)((D_80744490 - textGetStringWidth((s16)fontStyle, textStr)) * 2);
+            D_807FBB44->x = (f32)((D_80744490 - textGetStringWidth((s16)fontStyle, textStr)) * 2);
         } else {
-            D_807FBB44->unk7C = (f32)(x * 4);
+            D_807FBB44->x = (f32)(x * 4);
         }
-        D_807FBB44->unk80 = (f32)(y * 4);
-        D_807FBB44->unk84 = (f32)fontStyle;
+        D_807FBB44->y = (f32)(y * 4);
+        D_807FBB44->z = (f32)fontStyle;
         D_807FBB44->unk16A = 0xFF;
         D_807FBB44->unk16B = 0xFF;
         D_807FBB44->unk16C = 0xFF;
@@ -1586,7 +1586,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
     if (&state == 0) {} // FAKE: keeps state/mode/width/x/y in spill-style home slots
     sub = actor->unk174;
     state = 3;
-    mode = (u8)actor->unk84;
+    mode = (u8)actor->z;
     TEXT_MARKER_GFX(gfx++, 0xDE000000, &D_1000118);
     TEXT_MARKER_GFX(gfx++, 0xFC119623, 0xFF2FFFFF);
 
@@ -1596,26 +1596,26 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
             vtxGradientSetPosition((s16)(actor->unk15F * 3 + 0x4000));
             break;
         case 0:
-            if (actor->unk84 == 1.0f) {
+            if (actor->z == 1.0f) {
                 s16 w2;
 
-                w2 = (s16)(s32)((((f64)actor->unk15F * 0.0078125 > 1.0 ? 1.0 : (f64)actor->unk15F * 0.0078125) * 0.9) * (f64)textGetStringWidth((s16)(s32)actor->unk84, (s32)*sub) + (f64)actor->unk7C * 0.25);
+                w2 = (s16)(s32)((((f64)actor->unk15F * 0.0078125 > 1.0 ? 1.0 : (f64)actor->unk15F * 0.0078125) * 0.9) * (f64)textGetStringWidth((s16)(s32)actor->z, (s32)*sub) + (f64)actor->x * 0.25);
                 func_807149B8(1);
                 func_8071498C(func_80717404);
                 func_80714950(0xA);
                 func_8071495C();
-                func_80714CC0((void *)D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, (f32)w2, (f32)((f64)actor->unk80 * 0.25 + 12.0), -5.0f);
+                func_80714CC0((void *)D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, (f32)w2, (f32)((f64)actor->y * 0.25 + 12.0), -5.0f);
             }
         default:
             vtxGradientSetPosition((s16)(actor->unk15F * 3));
             break;
     }
 
-    x = (s16)(s32)actor->unk7C;
-    y = (s16)(s32)actor->unk80;
+    x = (s16)(s32)actor->x;
+    y = (s16)(s32)actor->y;
     switch (mode) {
         case 1:
-            width = textGetStringWidth((s16)(s32)actor->unk84, (s32)*sub);
+            width = textGetStringWidth((s16)(s32)actor->z, (s32)*sub);
             state = 0x13;
             gfx = renderAppendScaledMatrix(gfx, (ActorPositionView *)actor, width, 0.8f);
             state &= 0xFFFE;
@@ -1630,7 +1630,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
         case 0:
             mode = 6;
             width = textGetStringWidth(6, (s32)*sub);
-            actor->unk7C = (f32)((D_80744490 - width) * 2);
+            actor->x = (f32)((D_80744490 - width) * 2);
             gfx = renderAppendScaledMatrix(gfx, (ActorPositionView *)actor, width, 0.8f);
             state = 0;
             x = -(width * 2);
@@ -1663,9 +1663,9 @@ Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
     WRITE_GFX_U32(gfx++, 0xFC11FE23, 0xFFFFF3F9);
     WRITE_GFX_U32(gfx++, 0xDA380003, &D_2000180);
     if (actor->unk168++ < 100) {
-        gfx = textDrawAnimated(gfx, *(u8 *)((u8 *)model + 0xA), 2, 160.0f, actor->unk80, 0.0f, 1.0f);
+        gfx = textDrawAnimated(gfx, *(u8 *)((u8 *)model + 0xA), 2, 160.0f, actor->y, 0.0f, 1.0f);
     } else {
-        gfx = textDrawAnimated(gfx, *(u8 *)((u8 *)model + 0xA), 1, 160.0f, actor->unk80, 0.0f, 1.0f);
+        gfx = textDrawAnimated(gfx, *(u8 *)((u8 *)model + 0xA), 1, 160.0f, actor->y, 0.0f, 1.0f);
     }
     return gfx;
 }
@@ -1678,19 +1678,19 @@ void textMarkerUpdate(void) {
     u8 *model;
 
     model = (u8 *)D_807FBB40->unk174;
-    if (D_807FBB40->unkEE != 0) {
+    if (D_807FBB40->moveYaw != 0) {
         renderCallbacksRegister(textMarkerRender, D_807FBB40, 3);
         return;
     }
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk168 = *(u16 *)(model + 4);
     }
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
     case 0:
         if (D_807FBB40->unk168 != 0) {
             D_807FBB40->unk168--;
         } else {
-            D_807FBB40->unk154 = 1;
+            D_807FBB40->state = 1;
         }
         break;
     case 1:
@@ -1853,12 +1853,12 @@ void func_8069E088(void) {
         func_80613C48(D_807FBB40, 0x5ED, 0.0f, 0.0f);
     }
     D_807FBB40->unk15E = 0x14;
-    if (D_807FBB40->unk154 < 0x1E) {
-        D_807FBB40->unk154++;
+    if (D_807FBB40->state < 0x1E) {
+        D_807FBB40->state++;
     }
-    if (D_807FBB40->unk154 == 0x1E) {
+    if (D_807FBB40->state == 0x1E) {
         unk = 0;
-        D_807FBB40->unk154 = 0x64;
+        D_807FBB40->state = 0x64;
         func_8070E8DC(1);
         if (flagGet(0x178, 0) == 0) {
             flagSet(0x178, 1, 0);

@@ -549,10 +549,10 @@ void csStateEndUpdate(CsStateFull *cs) {
     cs->unk5C = 0;
     cs->unk9A |= 1;
     if (actor != NULL) {
-        cs->unk94->unk7C = gCsPosX;
-        actor->unk80 = gCsPosY;
-        actor->unk84 = gCsPosZ;
-        actor->unkE6 = gCsRotY * 4096.0f / 360.0f;
+        cs->unk94->x = gCsPosX;
+        actor->y = gCsPosY;
+        actor->z = gCsPosZ;
+        actor->yaw = gCsRotY * 4096.0f / 360.0f;
         flags = D_807FBB60;
         if (flags & 0x1000) {
             D_807FBB60 = flags & ~0x1000;
@@ -1165,7 +1165,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x19:
-        if (cmd->a == D_807FBB4C->unk58) {
+        if (cmd->a == D_807FBB4C->actorType) {
             ret = 1;
         } else {
             ret = 0;
@@ -1191,7 +1191,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x2A:
         if (((CsCondSpawn *)&D_807F61F0)->unk8 != 0) {
-            if (((CsCondSpawn *)&D_807F61F0)->unk0->unk154 == 5) {
+            if (((CsCondSpawn *)&D_807F61F0)->unk0->state == 5) {
                 ret = 1;
             } else {
                 ret = 0;
@@ -2123,7 +2123,7 @@ void csSendMsgByActorType(s16 actorType, s16 msgParam) {
     msgPayload[1] = msgParam;
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if ((u32)actor->unk58 == actorType) {
+        if ((u32)actor->actorType == actorType) {
             func_8067AB20(0, actor, 0x01000000, 1, msgPayload, 0);
         }
     }
@@ -2195,8 +2195,8 @@ typedef struct CsCamStateView {
 s32 func_806419F8(void) {
     CsCamStateView *cam = gPlayerSlots->unk4->unk174;
 
-    if ((D_807FBB4C->unk154 == 0x42 && (cam->unkBC == 0x62 || cam->unkBC == 0x88 || cam->unkBC == 0x17)) || D_807FBB4C->unk154 == 0x52 ||
-        D_807FBB4C->unk154 == 0x67 || ((CsPlayerView *)gPlayerSlots)->unk29C == 0x1C || ((CsPlayerView *)gPlayerSlots)->unk29C == 0x53) {
+    if ((D_807FBB4C->state == 0x42 && (cam->unkBC == 0x62 || cam->unkBC == 0x88 || cam->unkBC == 0x17)) || D_807FBB4C->state == 0x52 ||
+        D_807FBB4C->state == 0x67 || ((CsPlayerView *)gPlayerSlots)->unk29C == 0x1C || ((CsPlayerView *)gPlayerSlots)->unk29C == 0x53) {
         return 0;
     }
     return 1;
@@ -2234,7 +2234,7 @@ void func_80641BCC(s16 a, s16 b, s16 csId) {
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (!(actor->unk60 & 0x2000) && actor->unk58 == a && csId == actor->unk10C) {
+        if (!(actor->unk60 & 0x2000) && actor->actorType == a && csId == actor->unk10C) {
             if (b != 0) {
                 actor->unk68 |= 4;
             } else {
@@ -2262,7 +2262,7 @@ void func_80641C98(s16 a, s16 b, s16 csId) {
     }
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (!(actor->unk60 & 0x2000) && actor->unk58 == a && csId == actor->unk10C) {
+        if (!(actor->unk60 & 0x2000) && actor->actorType == a && csId == actor->unk10C) {
             actorAppendCallback(actor, 0, 0x800, x, 0, 0);
         }
     }
@@ -2277,10 +2277,10 @@ void csStartCamPath(void *cs, s16 camIdx, s16 mode, s16 c) {
     if (((CsState *)cs)->unk94 == NULL && func_80678014(0x14) != 0) {
         ((CsState *)cs)->unk94 = D_807FBB44;
         D_807FBB44->unk144 = 1;
-        D_807FBB44->unk7C = gCsPosX;
-        D_807FBB44->unk80 = gCsPosY;
-        D_807FBB44->unk84 = gCsPosZ;
-        D_807FBB44->unkE6 = gCsRotY * 4096.0f / 360.0f;
+        D_807FBB44->x = gCsPosX;
+        D_807FBB44->y = gCsPosY;
+        D_807FBB44->z = gCsPosZ;
+        D_807FBB44->yaw = gCsRotY * 4096.0f / 360.0f;
         if (*(u8 *)&D_807F693F != 0) {
             D_807FBB44->unk15E = c;
         }
@@ -2336,9 +2336,9 @@ u8 csPosOnScreenOfNearPlayer(s16 radius) {
     for (i = 0; i < D_80750AB4; i++) {
         if (CS_PLAYERS_SCREEN[i].unk0 != 0) {
             a = CS_PLAYERS_SCREEN[i].unk4;
-            dx = gCsPosX - a->unk7C;
-            dy = gCsPosY - a->unk80;
-            dz = gCsPosZ - a->unk84;
+            dx = gCsPosX - a->x;
+            dy = gCsPosY - a->y;
+            dz = gCsPosZ - a->z;
             dx *= dx;
             dy *= dy;
             dz *= dz;
@@ -2386,7 +2386,7 @@ s32 csPlayerNearPos(s16 targetPosIndex) {
         p = (CsPlayerPosView *)gPlayerSlots + i;
         if (p->unk0 != 0) {
             Actor *a = p->unk4;
-            if (csPosWithinRadius(targetPosIndex, a->unk7C, a->unk80, a->unk84)) {
+            if (csPosWithinRadius(targetPosIndex, a->x, a->y, a->z)) {
                 return 1;
             }
         }
@@ -2416,7 +2416,7 @@ s32 csSpawnNodeNearPos(s16 targetPosIndex, s16 minNodeIndex, s16 maxNodeIndex) {
         if (spawnNodeHasActor(i)) {
             a = spawnNodeActivate(i, 0);
             if (a != NULL) {
-                if (csPosWithinRadius(targetPosIndex, a->unk7C, a->unk80, a->unk84)) {
+                if (csPosWithinRadius(targetPosIndex, a->x, a->y, a->z)) {
                     return 1;
                 }
             }

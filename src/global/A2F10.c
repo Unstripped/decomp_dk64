@@ -120,8 +120,8 @@ void actorSpawnNodeEntryAtActor(s32 arg0, s16 arg1) {
     Actor *actor;
 
     actor = D_807FBB40;
-    actorSpawnNodeEntryScaled(arg0, *(s32 *)&actor->unk7C, *(s32 *)&actor->unk80,
-                  *(s32 *)&actor->unk84, 0, 0, arg1, (s32)actor);
+    actorSpawnNodeEntryScaled(arg0, *(s32 *)&actor->x, *(s32 *)&actor->y,
+                  *(s32 *)&actor->z, 0, 0, arg1, (s32)actor);
 }
 
 void actorPlaceAttachedChildren(s16 arg0) {
@@ -131,8 +131,8 @@ void actorPlaceAttachedChildren(s16 arg0) {
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
         if ((s32)actor->unk11C == (s32)D_807FBB40) {
-            func_8067A70C(D_807FBB40, actor, *(s32 *)&D_807FBB40->unk7C,
-                          D_807FBB40->unk80 + (f32)arg0, D_807FBB40->unk84, 2,
+            func_8067A70C(D_807FBB40, actor, *(s32 *)&D_807FBB40->x,
+                          D_807FBB40->y + (f32)arg0, D_807FBB40->z, 2,
                           1);
         }
     }
@@ -151,12 +151,12 @@ void actorAttachChildCallbacks(void) {
 }
 
 int actorIsTargetInRange(Actor *arg0, f32 arg1, f32 arg2) {
-    return arg0->unk80 - 8.0f <= D_807FBB40->unk80 &&
-           D_807FBB40->unk80 < arg0->unk80 + arg1 &&
-           arg2 > (arg0->unk7C - D_807FBB40->unk7C) *
-                      (arg0->unk7C - D_807FBB40->unk7C) +
-                  (arg0->unk84 - D_807FBB40->unk84) *
-                      (arg0->unk84 - D_807FBB40->unk84) &&
+    return arg0->y - 8.0f <= D_807FBB40->y &&
+           D_807FBB40->y < arg0->y + arg1 &&
+           arg2 > (arg0->x - D_807FBB40->x) *
+                      (arg0->x - D_807FBB40->x) +
+                  (arg0->z - D_807FBB40->z) *
+                      (arg0->z - D_807FBB40->z) &&
            arg0->unk144 != 1;
 }
 
@@ -323,22 +323,22 @@ void func_8069E774(void) {
     sp68 = func_80612794(((ActorHeadingView *)D_807FBB40)->unkEE);
     D_807FBB40->unk4->unk38 = D_807FBB40->unk4->unk38 + 0.01 * (f64)sp68;
     ((ActorHeadingView *)D_807FBB40)->unkEE += 0x1F4;
-    D_807FBB40->unkE6 += 0x32;
-    D_807FBB40->unk154++;
-    if (D_807FBB40->unk154 == D_807FBB40->unk168) {
+    D_807FBB40->yaw += 0x32;
+    D_807FBB40->state++;
+    if (D_807FBB40->state == D_807FBB40->unk168) {
         animSetFinished(D_807FBB40, 0, 0);
-    } else if (D_807FBB40->unk168 < D_807FBB40->unk154) {
-        sp8E = 0x12C - (D_807FBB40->unk154 - D_807FBB40->unk168) * 0x28;
+    } else if (D_807FBB40->unk168 < D_807FBB40->state) {
+        sp8E = 0x12C - (D_807FBB40->state - D_807FBB40->unk168) * 0x28;
         if (animIsPlaying(D_807FBB40, 0) == 0) {
             sp87 = 1;
             *sp74 &= 0xFDFFFFFF;
             actorSetCollisionRadius(sp78, (f32)node->unkC);
-            actorGetOrSetNodeScale(sp78, func_8069E724(sp78->unk58), 0.0f);
+            actorGetOrSetNodeScale(sp78, func_8069E724(sp78->actorType), 0.0f);
             actorDespawn(D_807FBB40);
         }
     }
     lightSetFlags(1);
-    lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0.0f,
+    lightAdd(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, 0.0f,
              0.0f, 0.0f, D_807FBB40->unk4->unk34 * (f32)sp8E * node->unk0, 0,
              node->unk10, node->unk11, node->unk12);
     if (gCurrentMap != 0x4C) {
@@ -352,7 +352,7 @@ void func_8069E774(void) {
             for (i = 0; i < gPlayerCount; i++) {
                 target = gPlayerSlots[i].actor;
                 if (sp7F[3] == 0 ||
-                    (i != sp80->unk1A4 && target->unk154 != 0x84)) {
+                    (i != sp80->unk1A4 && target->state != 0x84)) {
                     if (actorIsTargetInRange(target, (f32)target->unk15E, sp88) !=
                         0) {
                         playerStateQueueCallback((s16)sp60, D_807FBB40, i & 0xFF);
@@ -375,9 +375,9 @@ void func_8069E774(void) {
                           (f32)(2.0 * ((f64)(D_807FBB40->unk4->unk34 * (f32)sp8E) *
                                        6.66666667)));
             actorGetOrSetNodeScale(
-                (Actor *)D_807FBB40->unk11C, func_8069E724(sp78->unk58),
+                (Actor *)D_807FBB40->unk11C, func_8069E724(sp78->actorType),
                 (f32)((f64)(D_807FBB40->unk4->unk34 * (f32)sp8E) * 6.66666667));
-            actorOrNodeFlags(sp78, func_8069E724(sp78->unk58), 3);
+            actorOrNodeFlags(sp78, func_8069E724(sp78->actorType), 3);
         }
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -390,10 +390,10 @@ s32 actorIsTargetInCylinder(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4) {
     f32 dz;
 
     actor = D_807FBB4C;
-    dx = actor->unk7C - arg0;
-    dz = actor->unk84 - arg2;
-    if (dx * dx + dz * dz < arg4 * arg4 && arg1 <= actor->unk80 &&
-        actor->unk80 < arg1 + arg3) {
+    dx = actor->x - arg0;
+    dz = actor->z - arg2;
+    if (dx * dx + dz * dz < arg4 * arg4 && arg1 <= actor->y &&
+        actor->y < arg1 + arg3) {
         return 1;
     }
     return 0;
@@ -579,9 +579,9 @@ void renderScaledSprite(Gfx *arg0, Actor *arg1) {
     WRITE_GFX(arg0++, 0xE200001C, 0x00504340);
     WRITE_GFX(arg0++, 0xDA380007, (u32)&D_20000C0);
     WRITE_GFX(arg0++, 0xE7000000, 0);
-    WRITE_GFX(arg0++, 0xFA000000, (arg1->unkE6 & 0xFF) | 0xFFFFFF00);
+    WRITE_GFX(arg0++, 0xFA000000, (arg1->yaw & 0xFF) | 0xFFFFFF00);
     renderRotatedSprite(arg0, (u16)(arg1->unk15F + 0x61), 0, 2, 0x28, 0x33,
-                  (s32)arg1->unk7C, (s32)arg1->unk80, scale, scale, 0, 0.0f);
+                  (s32)arg1->x, (s32)arg1->y, scale, scale, 0, 0.0f);
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A410.s")
@@ -634,7 +634,7 @@ Gfx *actorBannerTextRender(Gfx *arg0, Actor *arg1) {
     WRITE_GFX(arg0++, 0xFC119623, 0xFF2FFFFF);
     WRITE_GFX(arg0++, 0xE200001C, 0x00504240);
     WRITE_GFX(arg0++, 0xE7000000, 0);
-    WRITE_GFX(arg0++, 0xFA000000, (arg1->unkE6 & 0xFF) | 0xFFFFFF00);
+    WRITE_GFX(arg0++, 0xFA000000, (arg1->yaw & 0xFF) | 0xFFFFFF00);
     arg0 = func_8070068C(arg0);
     sp78 = heapAlloc(0x40);
     heapFreeDeferred(sp78);
@@ -672,11 +672,11 @@ Gfx *actorBannerTextRender(Gfx *arg0, Actor *arg1) {
     }
     sp66 = textGetStringWidth(sp2C = sp65, sp68);
     if (sp64 != 0) {
-        arg1->unk7C = (f32)((0x140 - sp66) << 1);
+        arg1->x = (f32)((0x140 - sp66) << 1);
     }
     guScaleF(spBC, spFC, spFC, 1.0f);
-    guTranslateF(sp7C, (f32)((f64)arg1->unk7C + 2.0 * (f64)sp66),
-                 arg1->unk80 * 4.0f, 0.0f);
+    guTranslateF(sp7C, (f32)((f64)arg1->x + 2.0 * (f64)sp66),
+                 arg1->y * 4.0f, 0.0f);
     guMtxCatF(spBC, sp7C, spBC);
     guMtxF2L(spBC, (Mtx *)sp78);
     WRITE_GFX(arg0++, 0xDA380003, (u32)sp78);
@@ -1200,8 +1200,8 @@ void actorSetGroupState(u8 arg0, u8 arg1) {
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (actor->unk58 == 0x94 && actor->unk15F / 3 == arg0) {
-            actor->unk154 = arg1;
+        if (actor->actorType == 0x94 && actor->unk15F / 3 == arg0) {
+            actor->state = arg1;
             actor->unk155[0] = 0;
         }
     }

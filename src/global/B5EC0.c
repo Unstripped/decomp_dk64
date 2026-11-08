@@ -137,13 +137,13 @@ void func_806B13B4(u8 arg0) {
         behaviourSetAnimIds(0x205, 0x203, 0x204);
         func_80724CA4(2, 1);
     }
-    sel = D_807FBB40->unk154;
+    sel = D_807FBB40->state;
     if (sel == 0x27) {
         ((B5EC0Actor *)D_807FBB40)->unk132 = 2;
-        sel = D_807FBB40->unk154;
+        sel = D_807FBB40->state;
     } else if (sel != 0x32) {
         ((B5EC0Actor *)D_807FBB40)->unk132 = 1;
-        sel = D_807FBB40->unk154;
+        sel = D_807FBB40->state;
     }
     if (sel != 0x32 || D_807FBB70.unk15 != 0) {
         if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && sel != 0x37) {
@@ -156,18 +156,18 @@ void func_806B13B4(u8 arg0) {
             }
             ((B5EC0View90 *)D_807FDC90)->unk35 = 2;
             D_807FBB40->unk138 &= 0xFFFF7FFF;
-            sel = D_807FBB40->unk154;
+            sel = D_807FBB40->state;
         } else if (D_807FBB70.unk200 == 4) {
             func_8072DEA8(0x209, 0x31, D_807FBB70.unk1FC);
-            sel = D_807FBB40->unk154;
+            sel = D_807FBB40->state;
         } else if (D_807FBB70.unk200 == 5) {
             func_8072DEA8(0x20A, 0x32, D_807FBB70.unk1FC);
             ((B5EC0Actor *)D_807FBB40)->unkC0 = 220.0f;
             D_807FBB40->unk132 = 8;
-            sel = D_807FBB40->unk154;
+            sel = D_807FBB40->state;
         }
     }
-    sel = D_807FBB40->unk154;
+    sel = D_807FBB40->state;
     switch (sel) {
     case 0x31:
         if (((B5EC0Actor *)D_807FBB40)->unk155 != 0 || (*((B5EC0Actor *)D_807FBB40)->unk4)->unk24 == 0.0f) {
@@ -213,7 +213,7 @@ void func_806B13B4(u8 arg0) {
             actorScriptStart(D_807FBB40, 0x205);
             ((B5EC0Actor *)D_807FBB40)->unk155 += 1;
         case 1:
-            actorMoveWithinZone(D_807FBB40->unk154, ((B5EC0View94 *)D_807FDC94)->unk7C, ((B5EC0View94 *)D_807FDC94)->unk84, 0x200, 0.0f);
+            actorMoveWithinZone(D_807FBB40->state, ((B5EC0View94 *)D_807FDC94)->unk7C, ((B5EC0View94 *)D_807FDC94)->unk84, 0x200, 0.0f);
             if (((B5EC0Actor *)D_807FBB40)->unkB8 < 1.0f) {
                 ((B5EC0Actor *)D_807FBB40)->unk155 += 1;
             }
@@ -227,7 +227,7 @@ void func_806B13B4(u8 arg0) {
         }
         break;
     case 0x27:
-        actorMoveWithinZone(D_807FBB40->unk154, ((B5EC0View94 *)D_807FDC94)->unk7C, ((B5EC0View94 *)D_807FDC94)->unk84, 0x200, 0.0f);
+        actorMoveWithinZone(D_807FBB40->state, ((B5EC0View94 *)D_807FDC94)->unk7C, ((B5EC0View94 *)D_807FDC94)->unk84, 0x200, 0.0f);
         switch (((B5EC0Actor *)D_807FBB40)->unk155) {
         case 0:
             actorSetTargetSpeed(D_807FBB40, 0);
@@ -271,7 +271,7 @@ void func_806B13B4(u8 arg0) {
         break;
     case 1:
         if (func_8072E54C() != 0) {
-            D_807FBB40->unk154 = 0x11;
+            D_807FBB40->state = 0x11;
             ((B5EC0Actor *)D_807FBB40)->unk155 = 0;
         }
     case 0x10:
@@ -280,15 +280,15 @@ void func_806B13B4(u8 arg0) {
             func_806B1290();
             func_806B1348();
         }
-        func_80724E48((u8)(D_807FBB40->unk154 == 1 ? 2 : 0));
-        actorMoveWithinZone(D_807FBB40->unk154, ((B5EC0View94 *)D_807FDC94)->unk7C, ((B5EC0View94 *)D_807FDC94)->unk84, 0, 0.0f);
+        func_80724E48((u8)(D_807FBB40->state == 1 ? 2 : 0));
+        actorMoveWithinZone(D_807FBB40->state, ((B5EC0View94 *)D_807FDC94)->unk7C, ((B5EC0View94 *)D_807FDC94)->unk84, 0, 0.0f);
         break;
     case 2:
     case 3:
     case 7:
     case 0x35:
         func_80724E48((u8)(sel == 0x35 ? 2 : 3), sel);
-        actorMoveWithinZone(D_807FBB40->unk154, ((B5EC0View90 *)D_807FDC90)->unkA, ((B5EC0View90 *)D_807FDC90)->unkE, 0, 0.0f);
+        actorMoveWithinZone(D_807FBB40->state, ((B5EC0View90 *)D_807FDC90)->unkA, ((B5EC0View90 *)D_807FDC90)->unkE, 0, 0.0f);
         break;
     case 0x37:
         ((B5EC0Actor *)D_807FBB40)->unkE6 = mathAngleEaseToward(((B5EC0Actor *)D_807FBB40)->unkE6, ((B5EC0Actor *)D_807FBB40)->unkEE, 7.0f);
@@ -316,7 +316,7 @@ void func_806B13B4(u8 arg0) {
         func_8072B7CC(0x203);
         break;
     }
-    sel = D_807FBB40->unk154;
+    sel = D_807FBB40->state;
     switch (sel) {
     case 0x31:
     case 0x37:
@@ -324,7 +324,7 @@ void func_806B13B4(u8 arg0) {
         break;
     case 2:
     case 3:
-        patrolPathStep(D_807FBB40->unk154, 1);
+        patrolPathStep(D_807FBB40->state, 1);
     default:
         enemyAggroStateUpdate(0x6400, 0x203, 0x204);
         break;

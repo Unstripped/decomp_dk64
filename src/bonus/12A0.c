@@ -57,9 +57,9 @@ Gfx *bonusRenderReelHud(Gfx *gdl, Actor *actor) {
 void *bonusSpawnReel(s32 type, s16 x, s16 y, s16 z) {
     if (actorSpawn(0xDB, type) != 0) {
         BonusEObj *obj = D_807FBB44->unk174;
-        D_807FBB44->unk7C = (f32)x;
-        D_807FBB44->unk80 = (f32)y;
-        D_807FBB44->unk84 = (f32)z;
+        D_807FBB44->x = (f32)x;
+        D_807FBB44->y = (f32)y;
+        D_807FBB44->z = (f32)z;
         obj->unk0 = D_807FBB40;
     }
     return D_807FBB44;
@@ -96,7 +96,7 @@ void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void bonusReelNextRound(LB3Obj *obj) {
     LB3Player *player = D_807FBB4C->unk174;
     camSetTarget(player->unk104, D_807FBB4C, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
-    D_807FBB40->unk154 = 3;
+    D_807FBB40->state = 3;
     D_807FBB40->unk155[0] = 1;
     D_807FBB40->unk168 = 0;
 }
@@ -104,7 +104,7 @@ void bonusReelNextRound(LB3Obj *obj) {
 void bonusInitActors(LB3Obj *obj, u8 timerVal) {
     u8 i = 0;
     do {
-        obj->act[i]->unk154++;
+        obj->act[i]->state++;
         obj->act[i]->unkF0 = timerVal;
     } while (++i < 4);
 }
@@ -156,8 +156,8 @@ void bonusReelGameUpdate(void) {
     player = D_807FBB4C->unk174;
     obj = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk7C = 52.0f;
-        D_807FBB40->unk84 = 18.0f;
+        D_807FBB40->x = 52.0f;
+        D_807FBB40->z = 18.0f;
         obj->unk19 = gfxResourceCreate(1, "HIT", 8, 0.0f, 0.0f, 0.0f);
         func_806FDAB8(obj->unk19, 0.0f);
         obj->unk16 = 3;
@@ -192,11 +192,11 @@ void bonusReelGameUpdate(void) {
             break;
         }
     }
-    if (obj->unk1A != 0 && ((Actor *)D_807FBB40->unk11C)->unk154 == 5) {
-        D_807FBB40->unk154 = 1;
+    if (obj->unk1A != 0 && ((Actor *)D_807FBB40->unk11C)->state == 5) {
+        D_807FBB40->state = 1;
         D_807FBB40->unk155[0] = 0;
     }
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
     case 0:
         switch (D_807FBB40->unk155[0]) {
         case 0:
@@ -207,7 +207,7 @@ void bonusReelGameUpdate(void) {
             break;
         case 1:
             if (!(D_807FBB40->unk60 & 0x02000000)) {
-                D_807FBB40->unk154 = 3;
+                D_807FBB40->state = 3;
                 D_807FBB40->unk155[0] = 0;
                 func_8071495C();
                 func_80714998(2);
@@ -223,8 +223,8 @@ void bonusReelGameUpdate(void) {
             hudSpawnCountdownTimer(0xDC, 0x2A, obj->unk1C);
             D_807FBB40->unk155[0] = 1;
         case 1:
-            if (obj->act[3]->unk154 == 0) {
-                D_807FBB40->unk154 = 2;
+            if (obj->act[3]->state == 0) {
+                D_807FBB40->state = 2;
             }
             break;
         }
@@ -243,7 +243,7 @@ void bonusReelGameUpdate(void) {
             }
             break;
         case 1:
-            D_807FBB40->unkE8 = func_80612794(obj->unk10) * -1024.0f + 1024.0f;
+            D_807FBB40->roll = func_80612794(obj->unk10) * -1024.0f + 1024.0f;
             obj->unk10 += obj->unk12;
             if (obj->unk10 >= 0x800) {
                 obj->unk12 = -0x40;
@@ -251,7 +251,7 @@ void bonusReelGameUpdate(void) {
                 D_807FBB40->unk6E = sfxPlayOnFreeSlot(0x24D, 0x7FFF, 64.0f, 1.0f, 0, 0);
                 camSetTarget(player->unk104, D_807FBB48, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
             } else if (obj->unk10 < 0x400) {
-                D_807FBB40->unk154 = 5;
+                D_807FBB40->state = 5;
                 D_807FBB40->unk155[0] = 0;
             }
             break;
@@ -259,15 +259,15 @@ void bonusReelGameUpdate(void) {
         break;
     case 5:
         if (D_807FBB40->unk168 == 4) {
-            D_807FBB40->unk154 = 7;
+            D_807FBB40->state = 7;
             D_807FBB40->unk155[0] = 0;
             break;
         }
         if (D_807FBB40->unk155[0] != 0) {
-            bonusSpawnEffectBurst(obj->act[D_807FBB40->unk168]->unk7C, obj->act[D_807FBB40->unk168]->unk80, obj->act[D_807FBB40->unk168]->unk84 + 20.0f, 0xF);
-            obj->act[D_807FBB40->unk168]->unk154 += 1;
+            bonusSpawnEffectBurst(obj->act[D_807FBB40->unk168]->x, obj->act[D_807FBB40->unk168]->y, obj->act[D_807FBB40->unk168]->z + 20.0f, 0xF);
+            obj->act[D_807FBB40->unk168]->state += 1;
             D_807FBB40->unk168 += 1;
-            D_807FBB40->unk154 = 6;
+            D_807FBB40->state = 6;
             D_807FBB40->unk155[0] = 0;
         }
         break;
@@ -276,14 +276,14 @@ void bonusReelGameUpdate(void) {
             n_alSndpStop(D_807457E4[D_807FBB40->unk6E]);
         }
     case 1:
-        if (((Actor *)D_807FBB40->unk11C)->unk154 != 5) {
+        if (((Actor *)D_807FBB40->unk11C)->state != 5) {
             if (bonusGetReelSymbol(obj, 0) == 0 && bonusGetReelSymbol(obj, 0) == bonusGetReelSymbol(obj, 1) && bonusGetReelSymbol(obj, 1) == bonusGetReelSymbol(obj, 2) && bonusGetReelSymbol(obj, 2) == bonusGetReelSymbol(obj, 3)) {
                 func_806FDAB8(obj->unk19, 3.1415927f);
                 obj->unk16 -= 1;
                 if (obj->unk16 == 0) {
                     D_807FBB4C->unk155[0] = 1;
                     bonusEndWin(0, 0);
-                    D_807FBB40->unk154 = 8;
+                    D_807FBB40->state = 8;
                     obj->unk10 = 0;
                     obj->unk1A = 0;
                     camStartPath(0, 0, 0x11);
@@ -298,7 +298,7 @@ void bonusReelGameUpdate(void) {
         } else {
             D_807FBB4C->unk155[0] = 2;
             bonusEndLose(0, 1);
-            D_807FBB40->unk154 = 9;
+            D_807FBB40->state = 9;
             obj->unk10 = 0;
             obj->unk1A = 0;
             camStartPath(0, 0, 0x11);
@@ -308,17 +308,17 @@ void bonusReelGameUpdate(void) {
         i = 0;
         do {
             if (!((obj->unk10 - i * 8 + 0x18) % 32)) {
-                bonusSpawnEffectBurst(obj->act[i]->unk7C, obj->act[i]->unk80, obj->act[i]->unk84 + 20.0f, 0xF);
+                bonusSpawnEffectBurst(obj->act[i]->x, obj->act[i]->y, obj->act[i]->z + 20.0f, 0xF);
             }
         } while (++i < 4);
     case 9:
         obj->unk10 += 1;
         break;
     }
-    if (D_807FBB40->unk154 > 0 && D_807FBB40->unk154 < 8) {
+    if (D_807FBB40->state > 0 && D_807FBB40->state < 8) {
         renderCallbacksRegister(bonusRenderReelHud, D_807FBB40, 3);
     }
-    if (D_807FBB40->unk154 >= 8) {
+    if (D_807FBB40->state >= 8) {
         if (obj->unk20 != 0) {
             effectFreeAndUnlink(obj->unk20);
             obj->unk20 = 0;
@@ -336,46 +336,46 @@ void bonusReelUpdate(void) {
 
     obj = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unkE8 = ((randomNonNegative() >> 15) % 6 * 0x3C000) / 360;
+        D_807FBB40->roll = ((randomNonNegative() >> 15) % 6 * 0x3C000) / 360;
     }
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
     case 1:
         obj->unk4 = -0x18;
-        D_807FBB40->unk154 += 1;
+        D_807FBB40->state += 1;
         break;
     case 2:
         if (obj->unk4 < 0) {
-            D_807FBB40->unkE8 += obj->unk4;
+            D_807FBB40->roll += obj->unk4;
             obj->unk4 += 2;
         } else {
-            D_807FBB40->unk154 += 1;
+            D_807FBB40->state += 1;
             obj->unk4 = D_807FBB40->unkF0;
         }
         break;
     case 4:
-        t = 0x2AB - (D_807FBB40->unkE8 % 0x2AB);
+        t = 0x2AB - (D_807FBB40->roll % 0x2AB);
         if (t < obj->unk4) {
-            D_807FBB40->unk154 += 1;
-            if (obj->unk0->unk154 < 8) {
-                obj->unk0->unk154 = 5;
+            D_807FBB40->state += 1;
+            if (obj->unk0->state < 8) {
+                obj->unk0->state = 5;
                 obj->unk0->unk155[0] = 0;
             }
             D_807FBB40->unk160 = asinApprox((obj->unk4 - t) * 0.015625);
-            D_807FBB40->unk168 = (D_807FBB40->unkE8 + t) & 0xFFF;
+            D_807FBB40->unk168 = (D_807FBB40->roll + t) & 0xFFF;
             D_807FBB40->unk15F = D_807FBB40->unk168 / 0x2AB;
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x17A, 0xFF, 0x7F, 1);
         }
     case 3:
-        D_807FBB40->unkE8 += obj->unk4;
-        D_807FBB40->unkE8 &= 0xFFF;
+        D_807FBB40->roll += obj->unk4;
+        D_807FBB40->roll &= 0xFFF;
         break;
     case 5:
         if (D_807FBB40->unk160 < 6.2831854820251465) {
-            D_807FBB40->unkE8 = sinApprox(D_807FBB40->unk160) * 90.0 + D_807FBB40->unk168;
+            D_807FBB40->roll = sinApprox(D_807FBB40->unk160) * 90.0 + D_807FBB40->unk168;
             D_807FBB40->unk160 = D_807FBB40->unk160 + 0.3;
         } else {
-            D_807FBB40->unkE8 = D_807FBB40->unk168;
-            D_807FBB40->unk154 = 0;
+            D_807FBB40->roll = D_807FBB40->unk168;
+            D_807FBB40->state = 0;
         }
         break;
     }
@@ -386,21 +386,21 @@ void camStartPathNearWall(void *, s32, s32, s32);
 void bonusEndWin(u8 useCutsceneCam, u8 textIndex) {
     sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
     textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, textIndex, 1), 0, 0x28, 8, 8);
-    ((Actor *)D_807FBB40->unk11C)->unk154 = 0;
+    ((Actor *)D_807FBB40->unk11C)->state = 0;
     sfxAllocateChannel(0x28, 1.0f);
     playerStateQueueCallback(0x44, 0, 0);
-    D_807FBB40->unk154 += 1;
+    D_807FBB40->state += 1;
     if (useCutsceneCam != 0) {
         camStartPathNearWall(D_807FBB4C, 5, 0x21, 5);
     }
 }
 
 void bonusEndLose(u8 useCutsceneCam, u8 textIndex) {
-    ((Actor *)D_807FBB40->unk11C)->unk154 = 0;
+    ((Actor *)D_807FBB40->unk11C)->state = 0;
     textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, textIndex, 1), 0, 0x28, 8, 8);
     sfxAllocateChannel(0x57, 1.0f);
     playerStateQueueCallback(0x43, 0, 0);
-    D_807FBB40->unk154 += 1;
+    D_807FBB40->state += 1;
     if (useCutsceneCam != 0) {
         camStartPathNearWall(D_807FBB4C, 5, 0x21, 5);
     }

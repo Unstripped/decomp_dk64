@@ -47,7 +47,7 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *actor) {
     }
     switch (gCurrentMap) {
     case 0xBF:
-        if (actor->unk154 == 2) {
+        if (actor->state == 2) {
             y = 0x1E0 - (D_8002D92C * 3 << 4);
             for (i = -1; i < D_8002D92C; i++) {
                 if (i >= 0) {
@@ -99,7 +99,7 @@ void bonusScoreHudUpdate(void) {
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         camStartPath(0, 0, 1);
-        D_807FBB40->unk154 = 0;
+        D_807FBB40->state = 0;
         hud->unk4 = 0x3C;
         D_8002D92C = 0;
         D_8002D930 = 0;
@@ -110,7 +110,7 @@ void bonusScoreHudUpdate(void) {
         D_8002D924 = 0;
         D_8002D928 = 0;
     }
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
     case 0:
         if (D_807444EC == 1) {
             if (camIsPathPaused()) {
@@ -123,11 +123,11 @@ void bonusScoreHudUpdate(void) {
                     break;
                 }
                 func_8070D8C0(D_807FBB40, 0, actionParam);
-                D_807FBB40->unk154 = 1;
+                D_807FBB40->state = 1;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
             } else if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
                 camStartPath(D_807FBB4C, 1, 1);
-                D_807FBB40->unk154 = 2;
+                D_807FBB40->state = 2;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
                 actorSetStateTwo((void *)D_807FBB40->unk11C);
             }
@@ -136,14 +136,14 @@ void bonusScoreHudUpdate(void) {
     case 1:
         if (!(D_807FBB40->unk60 & 0x02000000) || ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000))) {
             camResumePath();
-            D_807FBB40->unk154 = 2;
+            D_807FBB40->state = 2;
             actorSetStateTwo((void *)D_807FBB40->unk11C);
         }
         break;
     case 2:
-        if (((Actor *)D_807FBB40->unk11C)->unk154 == 5) {
+        if (((Actor *)D_807FBB40->unk11C)->state == 5) {
             D_8002D930 = 0;
-            D_807FBB40->unk154 = 3;
+            D_807FBB40->state = 3;
             hud->unk0 = 0x78;
         }
         switch (gCurrentMap) {
@@ -175,11 +175,11 @@ void bonusScoreHudUpdate(void) {
         }
         break;
     case 3:
-        ((Actor *)D_807FBB40->unk11C)->unk154 = 1;
+        ((Actor *)D_807FBB40->unk11C)->state = 1;
         hud->unk0 -= 1;
         if (hud->unk0 == 0) {
             func_805FF378(0x50, 0);
-            D_807FBB40->unk154 = 4;
+            D_807FBB40->state = 4;
         }
         break;
     }

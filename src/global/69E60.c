@@ -469,9 +469,9 @@ void actorUpdatePositionAndSub140(Actor *actor) {
     f32 z;
     f32 scale;
 
-    x = actor->unk7C;
-    y = actor->unk80;
-    z = actor->unk84;
+    x = actor->x;
+    y = actor->y;
+    z = actor->z;
     if (actor->unk4 != NULL) {
         renderEntryAddOrUpdate(0, 0, actor, x, y, z, actor->unk12A, 0, 1, -1, 1);
     }

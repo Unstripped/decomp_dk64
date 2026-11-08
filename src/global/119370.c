@@ -937,7 +937,7 @@ Gfx *effectGridBuildDisplayList(EffectDrawView *drawView, Gfx *inGlist, s16 alph
     if (drawView->unk38C & 0x50) {
         return inGlist;
     }
-    if ((((D_807FBB4C->unk154 == 0x83) || (D_807FBB4C->unk154 == 0x67)) && !(drawView->unk38C & 0x20)) || (((D_807FBB60 & 0x100002) == 0x100002) && !(drawView->unk38C & 0x100))) {
+    if ((((D_807FBB4C->state == 0x83) || (D_807FBB4C->state == 0x67)) && !(drawView->unk38C & 0x20)) || (((D_807FBB60 & 0x100002) == 0x100002) && !(drawView->unk38C & 0x100))) {
         return inGlist;
     }
     if (alpha == -1) {

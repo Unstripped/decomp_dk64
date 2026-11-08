@@ -139,7 +139,7 @@ typedef struct Actor {
     /* 0x000 */ u8 unk00[4];
     /* 0x004 */ ActorSub4 *unk4;
     /* 0x008 */ u8 unk08[0x50];
-    /* 0x058 */ s32 unk58;
+    /* 0x058 */ s32 actorType;
     /* 0x05C */ u16 unk5C;
     /* 0x05E */ u8 unk5E[2];
     /* 0x060 */ u32 unk60;
@@ -149,9 +149,9 @@ typedef struct Actor {
     /* 0x06C */ u16 unk6C;
     /* 0x06E */ s16 unk6E;
     /* 0x070 */ u8 unk70[0xC];
-    /* 0x07C */ f32 unk7C;
-    /* 0x080 */ f32 unk80;
-    /* 0x084 */ f32 unk84;
+    /* 0x07C */ f32 x;
+    /* 0x080 */ f32 y;
+    /* 0x084 */ f32 z;
     /* 0x088 */ f32 unk88;
     /* 0x08C */ f32 unk8C;
     /* 0x090 */ f32 unk90;
@@ -167,11 +167,11 @@ typedef struct Actor {
     /* 0x0C0 */ f32 unkC0;
     /* 0x0C4 */ f32 unkC4;
     /* 0x0C8 */ u8 unkC8[0x1C];
-    /* 0x0E4 */ s16 unkE4;
-    /* 0x0E6 */ s16 unkE6;
-    /* 0x0E8 */ s16 unkE8;
+    /* 0x0E4 */ s16 pitch;
+    /* 0x0E6 */ s16 yaw;
+    /* 0x0E8 */ s16 roll;
     /* 0x0EA */ u8 unkEA[4];
-    /* 0x0EE */ s16 unkEE;
+    /* 0x0EE */ s16 moveYaw;
     /* 0x0F0 */ s16 unkF0;
     /* 0x0F2 */ u8 unkF2[2];
     /* 0x0F4 */ s16 unkF4;
@@ -200,7 +200,7 @@ typedef struct Actor {
     /* 0x144 */ u8 unk144;
     /* 0x145 */ u8 unk145[0xB];
     /* 0x150 */ s32 unk150;
-    /* 0x154 */ u8 unk154;
+    /* 0x154 */ u8 state;
     /* 0x155 */ u8 unk155[7];
     /* 0x15C */ s16 unk15C;
     /* 0x15E */ u8 unk15E;

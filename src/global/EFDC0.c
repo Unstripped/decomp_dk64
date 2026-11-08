@@ -139,7 +139,7 @@ void func_806CFECC(void);
 
 void func_806EB2B8(void) {
     func_806CFECC();
-    D_807FBB40->unk154 = 0x22;
+    D_807FBB40->state = 0x22;
     D_807FBB40->unk155[0] = 0;
     EfA_A40->unkC0 = 100.0f;
     EfA_P->unk50 = 0;
@@ -156,7 +156,7 @@ void func_806EB364(void) {
         playerResumeLocomotion(D_807FBB48);
         return;
     }
-    D_807FBB40->unk154 = 0x3D;
+    D_807FBB40->state = 0x3D;
     D_807FBB40->unk155[0] = 0;
     if (EfA_P->unk4E == 0x22) {
         actorScriptStart(D_807FBB40, 0x131);
@@ -184,7 +184,7 @@ s32 playerCanTakeHit(Actor *arg0) {
         return 0;
     }
     pred |= 0; // FAKE: second def of pred keeps the || copy out of copy propagation
-    if ((arg0->unk154 != 0x34) && (arg0->unk154 != 0x36)) {
+    if ((arg0->state != 0x34) && (arg0->state != 0x36)) {
         if (sub) {} // FAKE: keeps sub live so the state byte takes v1
         pred &= 1;
     } else {
@@ -194,13 +194,13 @@ s32 playerCanTakeHit(Actor *arg0) {
 }
 
 void func_806EB4B4(void) {
-    D_807FBB40->unk154 = 0x23;
+    D_807FBB40->state = 0x23;
     D_807FBB40->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0x3BC);
 }
 
 void func_806EB4F8(void) {
-    D_807FBB40->unk154 = 0x5F;
+    D_807FBB40->state = 0x5F;
     D_807FBB40->unk155[0] = 0;
     EfA_P->unk1A3 = 0;
     func_80614E78(D_807FBB40, 0x4A);
@@ -217,7 +217,7 @@ void func_806EB544(void) {
         selector = 3;
     }
     slotQueueUpdate(selector, 0, 0);
-    D_807FBB40->unk154 = 0x60;
+    D_807FBB40->state = 0x60;
     D_807FBB40->unk155[0] = 0;
     EfA_P->unk1A3 = 0;
     func_80614E78(D_807FBB40, 0x4B);
@@ -258,7 +258,7 @@ void func_806EB5C8(void) {
 void func_806EB6D8(void) {
     EfA_P->unk4C = -1;
     EfA_P->unk38 = 170.0f;
-    D_807FBB40->unk154 = 0x3F;
+    D_807FBB40->state = 0x3F;
     D_807FBB40->unk155[0] = 0;
     EfA_P->unk4E = 0;
     actorScriptStart(D_807FBB40, 0x14F);
@@ -319,14 +319,14 @@ void func_806EB744(void) {
     subactor->unkBC = 0x80;
     ((EfN2TargetActor *)EfA_P->unk104)->unkB4 = speed;
     subactor->unkB8 = speed;
-    subactor->unkB2 = D_807FBB48->unkE6 + 0x800;
+    subactor->unkB2 = D_807FBB48->yaw + 0x800;
     D_807FBB48->unkB8 = 0.0f;
     D_807FBB48->unk6A |= 0x2000;
 }
 
 void func_806EB8CC(void) {
     func_806EB744();
-    D_807FBB48->unk154 = 2;
+    D_807FBB48->state = 2;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk155[0] = 0xA;
     if (EfA_P->unk8C != 0) {
@@ -341,7 +341,7 @@ void func_806EB8CC(void) {
 void func_806EB964(void) {
     sfxPlayOnFreeSlot(0x1B9, 0x7FFF, 63.0f, 1.0f, 0xA, 0);
     func_806EB744();
-    D_807FBB48->unk154 = 4;
+    D_807FBB48->state = 4;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk155[0] = 0xA;
     actorScriptStart(D_807FBB48, 0x13);
@@ -352,7 +352,7 @@ void func_806EB964(void) {
 
 void func_806EBA04(void) {
     func_806EB744();
-    D_807FBB48->unk154 = 3;
+    D_807FBB48->state = 3;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk155[0] = 0xA;
     actorScriptStart(D_807FBB48, 0);
@@ -362,7 +362,7 @@ void func_806EBA04(void) {
 
 void func_806EBA74(void) {
     func_806EB744();
-    D_807FBB48->unk154 = 5;
+    D_807FBB48->state = 5;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk155[0] = 0xA;
     actorScriptStart(D_807FBB48, 0);
@@ -372,7 +372,7 @@ void func_806EBA74(void) {
 }
 
 void func_806EBAF4(void) {
-    D_807FBB40->unk154 = 0x4F;
+    D_807FBB40->state = 0x4F;
     D_807FBB40->unk155[0] = 2;
     func_80614E78(D_807FBB40, 0x34);
     EfA_P->unk50 = 0;
@@ -382,7 +382,7 @@ void func_806EBB44(void) {
     extern u32 D_807FBB60;
 
     D_807FBB60 |= 0x4000;
-    D_807FBB48->unk154 = 1;
+    D_807FBB48->state = 1;
     D_807FBB48->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0);
     func_80614D48(D_807FBB48, 0, 0);
@@ -391,7 +391,7 @@ void func_806EBB44(void) {
 }
 
 void func_806EBBD0(void) {
-    D_807FBB48->unk154 = 6;
+    D_807FBB48->state = 6;
     D_807FBB48->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0);
     func_80614D48(D_807FBB48, 0, 0);
@@ -401,7 +401,7 @@ void func_806EBBD0(void) {
 }
 
 void func_806EBC60(void) {
-    D_807FBB48->unk154 = 0x6B;
+    D_807FBB48->state = 0x6B;
     D_807FBB48->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0);
     func_80614D48(D_807FBB48, 0, 0);
@@ -561,7 +561,7 @@ void func_806EC044(void) {
 
     speed = 1.0f;
     func_806F0C18(D_807FBB40);
-    D_807FBB48->unk154 = 0x6C;
+    D_807FBB48->state = 0x6C;
     D_807FBB48->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0x3B);
     if (gPlayerCharacterId[0] == 0) {
@@ -569,9 +569,9 @@ void func_806EC044(void) {
     }
     scriptSetActorRampTarget(D_807FBB48, speed, 0.0f);
     actorClearMovementFlags(D_807FBB48);
-    D_807FBB48->unk7C = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk0;
-    D_807FBB48->unk80 = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk4 + 5.0f;
-    D_807FBB48->unk84 = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk8;
+    D_807FBB48->x = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk0;
+    D_807FBB48->y = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk4 + 5.0f;
+    D_807FBB48->z = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk8;
     *(s16 *)((u8 *)D_807FBB48 + 0xE4) = 0;
     *(s16 *)((u8 *)D_807FBB48 + 0xE8) = 0;
     camStartPath(D_807FBB48, 0, 1);
@@ -582,7 +582,7 @@ void func_806EC1A8(void) {
     s32 animation;
 
     *(u32 *)((u8 *)EfA_P->unk104->unk174 + 0xAC) |= 4;
-    D_807FBB48->unk154 = 0x6D;
+    D_807FBB48->state = 0x6D;
     D_807FBB48->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0);
     EFB_P->unk50 = 0;
@@ -592,13 +592,13 @@ void func_806EC1A8(void) {
         D_807FBB48->unk144 = 1;
     }
     EFB_P->unk88 = (EfBActor *)EFB_C[gCurrentPlayerIndex].unk2A0;
-    if (D_807FBB48->unk58 == 2) { animation = 0x53; } else { animation = 0x1C7; } func_80613C48(D_807FBB48, (s16)animation, 0.0f, 0.0f); // FAKE: one source line steers the scheduler (li at,2 after mfc1)
+    if (D_807FBB48->actorType == 2) { animation = 0x53; } else { animation = 0x1C7; } func_80613C48(D_807FBB48, (s16)animation, 0.0f, 0.0f); // FAKE: one source line steers the scheduler (li at,2 after mfc1)
 }
 
 void func_806EC2CC(void) {
     Actor *actor;
 
-    D_807FBB48->unk154 = 0x75;
+    D_807FBB48->state = 0x75;
     D_807FBB48->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0);
     EFB_P->unk50 = 0;
@@ -613,9 +613,9 @@ void func_806EC2CC(void) {
 
 void func_806EC3BC(void) {
     ((EfN2PlayerState *)gActivePlayerState)->unk12 = D_807539EC[D_807FD584];
-    ((EfN2PlayerState *)gActivePlayerState)->unk14 = D_807FBB40->unkE6;
+    ((EfN2PlayerState *)gActivePlayerState)->unk14 = D_807FBB40->yaw;
     ((EfN2PlayerState *)gActivePlayerState)->unk10 = D_807539DC[D_807FD584];
-    D_807FBB40->unk154 = 0x4F;
+    D_807FBB40->state = 0x4F;
     D_807FBB40->unk155[0] = 1;
     if (D_807FBB40->unkC0 > 0.0f) {
         D_807FBB40->unkC0 = 0.0f;
@@ -877,7 +877,7 @@ void func_806ECAC4(void) {
 void func_806ECBD4(void) {
     D_807FBB48->unk6A |= 0x40;
     D_807FBB48->unk64 &= ~0x2000;
-    D_807FBB48->unk154 = 0x57;
+    D_807FBB48->state = 0x57;
     D_807FBB48->unk155[0] = 0;
     func_80614E78(D_807FBB48, 0x69);
     actorScriptExecute(D_807FBB48);
@@ -939,7 +939,7 @@ void func_806ECC48(void) {
     callback = EfN4PS->unk104->unk174;
     D_807FBB48->unk6A |= 0x40;
     D_807FBB48->unk64 &= ~0x2000;
-    D_807FBB48->unk154 = 0x59;
+    D_807FBB48->state = 0x59;
     D_807FBB48->unk155[0] = 0;
     func_80614E78(D_807FBB48, 0x70);
     actorScriptExecute(D_807FBB48);
@@ -950,7 +950,7 @@ void func_806ECCDC(void) {
     void *callback;
 
     callback = EfN4PS->unk104->unk174;
-    D_807FBB40->unk154 = 0x17;
+    D_807FBB40->state = 0x17;
     D_807FBB40->unk155[0] = 0;
     if (D_807FBB68 & 2) {
         EfN4PS->unk54 = D_807535CC[D_807FD584] * 1.3;
@@ -983,14 +983,14 @@ void func_806ECDD4(void) {
 }
 
 void func_806ECE2C(void) {
-    if ((gPlayerCount >= 2) || (D_807FBB48->unk58 != 6) || (EfN4CamBlocks[gCurrentPlayerIndex].unk2C0 == 1)) {
+    if ((gPlayerCount >= 2) || (D_807FBB48->actorType != 6) || (EfN4CamBlocks[gCurrentPlayerIndex].unk2C0 == 1)) {
         ((EfN4ActorC0 *)D_807FBB48)->unkC0 = 260.0f;
         playerSetBaseGravity();
         EfN4PS->unk50 = 0;
         EfN4PS->unk48 = 0x64;
         func_80614E78(D_807FBB48, 0x1F);
         scriptSetActorRampTarget(D_807FBB48, 1.0f, 0.0f);
-        D_807FBB48->unk154 = 0x30;
+        D_807FBB48->state = 0x30;
         D_807FBB48->unk155[0] = 0;
         playerDropHeldActor(D_807FBB48);
     }
@@ -1014,7 +1014,7 @@ void func_806ECF1C(void) {
     ((EfCPlayer48 *)gActivePlayerState)->unk50 = 0;
     func_80614E78(D_807FBB48, 0x20);
     scriptSetActorRampTarget(D_807FBB48, 1.0f, 0.0f);
-    D_807FBB48->unk154 = 0x30;
+    D_807FBB48->state = 0x30;
     D_807FBB48->unk155[0] = 0;
     playerDropHeldActor(D_807FBB48);
 }
@@ -1041,8 +1041,8 @@ void func_806ECF9C(void) {
 }
 
 void func_806ED050(void) {
-    if ((D_807FBB40->unk154 != 2) && (gPlayerCharacterId[gCurrentPlayerIndex] == 6)) {
-        D_807FBB40->unk154 = 0x29;
+    if ((D_807FBB40->state != 2) && (gPlayerCharacterId[gCurrentPlayerIndex] == 6)) {
+        D_807FBB40->state = 0x29;
         D_807FBB40->unk155[0] = 0;
         func_80614E78(D_807FBB40, 0x3F);
         EfN4PS->unk64 = 0;
@@ -1063,18 +1063,18 @@ void func_806ED0FC(void) {
     func_80614E78(D_807FBB48, 0x21);
     target = EfN4CamBlocks[gCurrentPlayerIndex].unk2A0;
     if (target != NULL) {
-        EfN4PS->unkBC = target->unk58;
+        EfN4PS->unkBC = target->actorType;
         EfN4PS->unkBE = actorListFindIdByActor(EfN4CamBlocks[gCurrentPlayerIndex].unk2A0);
     } else {
         EfN4PS->unkBC = 0;
         EfN4PS->unkBE = -1;
     }
     if (D_807FBB40->unk6A & 4) {
-        D_807FBB48->unk154 = 0x43;
+        D_807FBB48->state = 0x43;
         D_807FBB48->unk155[0] = 0;
         return;
     }
-    D_807FBB48->unk154 = 0x42;
+    D_807FBB48->state = 0x42;
     D_807FBB48->unk155[0] = 0;
 }
 
@@ -1117,7 +1117,7 @@ void func_806ED244(void) {
     }
     actorScriptStart(((EfdAPlayer *)gActivePlayerState)->unk88, 0x292);
     if (gActivePlayerState && gActivePlayerState) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    if (D_807FBB48->unk154 != 9) {
+    if (D_807FBB48->state != 9) {
         func_80614E78(D_807FBB48, 0x83);
     }
 }
@@ -1175,7 +1175,7 @@ void func_806ED5C0(Actor *arg0) {
     u16 state;
     s32 ev;
 
-    state = arg0->unk58;
+    state = arg0->actorType;
     id = actorListFindIdByActor(arg0);
     switch (gCurrentMap) {
     case 26:
@@ -1463,7 +1463,7 @@ void playerRevertToSavedKong(void) {
 
 void func_806EE02C(void) {
     playerThrowHeldActor(D_807FBB48);
-    D_807FBB48->unk154 = 0x55;
+    D_807FBB48->state = 0x55;
     D_807FBB48->unk155[0] = 0;
 }
 
@@ -1486,7 +1486,7 @@ typedef struct EfCCamBlock {
 
 void func_806EE06C(void) {
     playerThrowHeldActor(D_807FBB48);
-    D_807FBB48->unk154 = 0x56;
+    D_807FBB48->state = 0x56;
     D_807FBB48->unk155[0] = 0;
     func_80614E78(D_807FBB48, 0x87);
     ((EfCPlayerState06 *)gActivePlayerState)->unk50 = 0;
@@ -1510,7 +1510,7 @@ void func_806EE10C(void) {
             } else {
                 func_80614E78(D_807FBB48, 0x27);
             }
-            D_807FBB48->unk154 = 0x36;
+            D_807FBB48->state = 0x36;
             D_807FBB48->unk155[0] = 0;
         }
         ((EfCPlayerD4 *)gActivePlayerState)->unkD4 = D_807530B0[D_807FD584];
@@ -1534,14 +1534,14 @@ void func_806EE1C4(void) {
     s32 value = ((EfCPlayer1AC *)gActivePlayerState)->unk1AC;
 
     if (value != 0) {
-        func_8067A784(D_807FBB40, value, D_807FBB48->unkE6,
+        func_8067A784(D_807FBB40, value, D_807FBB48->yaw,
                       ((EfCActorC0S32 *)D_807FBB40)->unkC0, (s32)D_807FBB40->unkB8);
         ((EfCPlayer1AC *)gActivePlayerState)->unk1AC = 0;
         ((EfCPlayer1AC *)gActivePlayerState)->unk1B0 = 0;
     }
     func_806CA2AC();
     func_80614E78(D_807FBB40, 0x1C);
-    D_807FBB48->unk154 = 0x20;
+    D_807FBB48->state = 0x20;
     D_807FBB48->unk155[0] = 0;
 }
 
@@ -1549,7 +1549,7 @@ void func_806EE1C4(void) {
 void func_806EE26C(void) {
     func_806CA2AC();
     func_80614E78(D_807FBB40, 0x1C);
-    D_807FBB48->unk154 = 0x21;
+    D_807FBB48->state = 0x21;
     D_807FBB48->unk155[0] = 0;
 }
 
@@ -1568,7 +1568,7 @@ void func_806EE2B8(void) {
         selector = -1;
         func_806CA2AC();
         target = EfCCam[gCurrentPlayerIndex].unk2A0;
-        if ((target != NULL) && (target->unk58 == 0x123)) {
+        if ((target != NULL) && (target->actorType == 0x123)) {
             selector = -2;
         }
         if (func_806C9974(gCurrentPlayerIndex, selector) != 0) {
@@ -1578,12 +1578,12 @@ void func_806EE2B8(void) {
             } else {
                 func_80614E78(D_807FBB48, 0x27);
             }
-            D_807FBB48->unk154 = 0x36;
+            D_807FBB48->state = 0x36;
             D_807FBB48->unk155[0] = 0;
         } else {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0);
             func_80614E78(D_807FBB40, 0x1E);
-            D_807FBB40->unk154 = 0x20;
+            D_807FBB40->state = 0x20;
             D_807FBB40->unk155[0] = 1;
         }
     }
@@ -1606,12 +1606,12 @@ void playerTakeFallDamage(void) {
         } else {
             func_80614E78(D_807FBB48, 0x27);
         }
-        D_807FBB48->unk154 = 0x36;
+        D_807FBB48->state = 0x36;
         D_807FBB48->unk155[0] = 0;
     } else {
         sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0);
         func_80614E78(D_807FBB40, 0x1E);
-        D_807FBB40->unk154 = 0x20;
+        D_807FBB40->state = 0x20;
         D_807FBB40->unk155[0] = 1;
     }
     if ((((EfCPlayerD4 *)gActivePlayerState)->unkD4 == 0) && (gPlayerCount < 2)) {
@@ -1637,7 +1637,7 @@ void func_806EE5A4(void) {
     sfxStopChannel(0x6B, 0);
     D_807FBB40->unk168 = ((EfDE5Player *)gPlayerSlots)[gCurrentPlayerIndex].unk2A8;
     func_80614E78(D_807FBB40, 0x1D);
-    D_807FBB48->unk154 = 0x6F;
+    D_807FBB48->state = 0x6F;
     D_807FBB48->unk155[0] = 0;
 }
 
@@ -1655,21 +1655,21 @@ extern void playerResumeLocomotion(Actor *);
 void func_806EE660(void) {
     playerThrowHeldActor(D_807FBB48);
     func_80614E78(D_807FBB48, 0x32);
-    D_807FBB48->unk154 = 0x52;
+    D_807FBB48->state = 0x52;
     D_807FBB48->unk155[0] = 0;
 }
 
 void func_806EE6B0(void) {
     playerThrowHeldActor(D_807FBB48);
     func_80614E78(D_807FBB48, 0x86);
-    D_807FBB48->unk154 = 0x53;
+    D_807FBB48->state = 0x53;
     D_807FBB48->unk155[0] = 0;
 }
 
 void func_806EE700(void) {
     playerThrowHeldActor(D_807FBB48);
     playerResumeLocomotion(D_807FBB48);
-    D_807FBB48->unk154 = 0x54;
+    D_807FBB48->state = 0x54;
     D_807FBB48->unk155[0] = 0;
 }
 
@@ -1762,7 +1762,7 @@ void func_806EE994(void) {
     if (playerCanTakeHit(D_807FBB40) != 0) {
         EfDStateDc->unkDC = EfDPlayer[gCurrentPlayerIndex].unk2A0;
         D_807FBB40->unk144 = 1;
-        D_807FBB40->unk154 = 0x34;
+        D_807FBB40->state = 0x34;
         D_807FBB40->unk155[0] = 0;
         actorScriptStart(D_807FBB40, 0);
         func_806C9974(gCurrentPlayerIndex, -0x40);
@@ -1864,12 +1864,12 @@ void playerTakeDamage(s16 arg0) {
             func_806CA2AC();
             playerDropHeldActor(D_807FBB48);
             if ((EfL2PS->unk88 != NULL) &&
-                ((EfL2PS->unk88->unk58 == 0x1D) || (EfL2PS->unk88->unk58 == 0x57) ||
-                 (EfL2PS->unk88->unk58 == 0x50) || (EfL2PS->unk88->unk58 == 0x3E))) {
+                ((EfL2PS->unk88->actorType == 0x1D) || (EfL2PS->unk88->actorType == 0x57) ||
+                 (EfL2PS->unk88->actorType == 0x50) || (EfL2PS->unk88->actorType == 0x3E))) {
                 EfL2PS->unkD4 = D_807530E0[D_807FD584];
                 actorScriptStart(EfL2PS->unk88, 0x292);
                 sfxPlayScriptActorSoundForPlayer(D_807FBB48, 0x11, 0);
-                if (EfL2PS->unk88->unk58 != 0x57) {
+                if (EfL2PS->unk88->actorType != 0x57) {
                     func_8072DB68(3);
                 }
             } else {
@@ -1880,7 +1880,7 @@ void playerTakeDamage(s16 arg0) {
                     }
                     playerRecordHitSource(D_807FBB48, EfL2Player[gCurrentPlayerIndex].unk2A0,
                                   EfL2Player[gCurrentPlayerIndex].unk29C);
-                    if ((func_80714608(0) != 0) && (D_807FBB48->unk154 == 0x3C) &&
+                    if ((func_80714608(0) != 0) && (D_807FBB48->state == 0x3C) &&
                         (EfL2Player[gCurrentPlayerIndex].unk29C != 0xE)) {
                         EfL2PS->unk250 -= arg0 * 0xA;
                         if (EfL2PS->unk250 < 0) {
@@ -1904,7 +1904,7 @@ void playerTakeDamage(s16 arg0) {
                     } else {
                         func_80614E78(D_807FBB48, 0x27);
                     }
-                    D_807FBB48->unk154 = 0x36;
+                    D_807FBB48->state = 0x36;
                     D_807FBB48->unk155[0] = 0;
                     if (func_80714608(0) != 0) {
                         D_807FBB48->unkC0 = D_80753128[D_807FD584] * 5.0f;
@@ -1915,18 +1915,18 @@ void playerTakeDamage(s16 arg0) {
                 } else {
                     switch (EfL2Player[gCurrentPlayerIndex].unk29C) {
                     case 0xE:
-                        D_807FBB48->unk154 = 0x66;
+                        D_807FBB48->state = 0x66;
                         D_807FBB48->unk155[0] = 0;
                         func_80614E78(D_807FBB48, 0x26);
                         D_807FBB48->unkC4 = D_8075310C[D_807FD584];
                         break;
                     case 0x31:
                         if (sp33 != 0) {
-                            D_807FBB48->unk154 = 0x37;
+                            D_807FBB48->state = 0x37;
                             D_807FBB48->unk155[0] = 0;
                             func_80614E78(D_807FBB48, 0x28);
                         } else {
-                            D_807FBB48->unk154 = 0x34;
+                            D_807FBB48->state = 0x34;
                             D_807FBB48->unk155[0] = 0;
                             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0);
                             func_80614E78(D_807FBB40, 0x1E);
@@ -1934,28 +1934,28 @@ void playerTakeDamage(s16 arg0) {
                         break;
                     case 0x2B:
                         if (sp33 != 0) {
-                            D_807FBB48->unk154 = 0x37;
+                            D_807FBB48->state = 0x37;
                             D_807FBB48->unk155[0] = 0;
                             func_80614E78(D_807FBB48, 0x28);
                         } else {
-                            D_807FBB48->unk154 = 0x32;
+                            D_807FBB48->state = 0x32;
                             D_807FBB48->unk155[0] = 0;
                             func_80614E78(D_807FBB48, 0x25);
                         }
                         break;
                     case 0x32:
                         if (sp33 != 0) {
-                            D_807FBB48->unk154 = 0x37;
+                            D_807FBB48->state = 0x37;
                             D_807FBB48->unk155[0] = 0;
                             func_80614E78(D_807FBB48, 0x28);
                         } else {
-                            D_807FBB48->unk154 = 0x35;
+                            D_807FBB48->state = 0x35;
                             D_807FBB48->unk155[0] = 0;
                             func_80614E78(D_807FBB48, 0x26);
                         }
                         break;
                     case 0x37:
-                        D_807FBB48->unk154 = 0x33;
+                        D_807FBB48->state = 0x33;
                         D_807FBB48->unk155[0] = 0;
                         actorScriptStart(D_807FBB48, 4);
                         break;
@@ -1963,18 +1963,18 @@ void playerTakeDamage(s16 arg0) {
                     case 0x2F:
                         if (sp33 != 0) {
                             if (gCurrentMap == 0x6F) {
-                                D_807FBB48->unk154 = 0x38;
+                                D_807FBB48->state = 0x38;
                                 D_807FBB48->unk155[0] = 0;
                                 actorScriptStart(D_807FBB48, 0x3B5);
                                 actorScriptStart(EfL2PS->unk88, 0x3BB);
                                 EfL2PS->unkC2 = (gFrameCounter & 1) ? -0xFA : 0xFA;
                             } else {
-                                D_807FBB48->unk154 = 0x37;
+                                D_807FBB48->state = 0x37;
                                 D_807FBB48->unk155[0] = 0;
                                 func_80614E78(D_807FBB48, 0x28);
                             }
-                        } else if (D_807FBB48->unk154 != 0x63) {
-                            D_807FBB48->unk154 = 0x31;
+                        } else if (D_807FBB48->state != 0x63) {
+                            D_807FBB48->state = 0x31;
                             D_807FBB48->unk155[0] = 0;
                             func_80614E78(D_807FBB48, 0x24);
                         } else {
@@ -1984,13 +1984,13 @@ void playerTakeDamage(s16 arg0) {
                     }
                 }
                 if (EfL2Player[gCurrentPlayerIndex].unk2A0 != NULL) {
-                    var_a0 = mathAngleBetweenPoints2D(D_807FBB48->unk7C, D_807FBB48->unk84,
-                                                      EfL2Player[gCurrentPlayerIndex].unk2A0->unk7C,
-                                                      EfL2Player[gCurrentPlayerIndex].unk2A0->unk84);
+                    var_a0 = mathAngleBetweenPoints2D(D_807FBB48->x, D_807FBB48->z,
+                                                      EfL2Player[gCurrentPlayerIndex].unk2A0->x,
+                                                      EfL2Player[gCurrentPlayerIndex].unk2A0->z);
                 } else {
-                    var_a0 = (D_807FBB48->unkEE + 0x800) & 0xFFF;
+                    var_a0 = (D_807FBB48->moveYaw + 0x800) & 0xFFF;
                 }
-                D_807FBB48->unkEE = var_a0;
+                D_807FBB48->moveYaw = var_a0;
                 switch (EfL2Player[gCurrentPlayerIndex].unk29C) {
                 case 0x2E:
                 case 0x2F:
@@ -2046,7 +2046,7 @@ void playerTakeDamage(s16 arg0) {
                 if ((gPlayerCount >= 2) && (sp2C == 0)) {
                     EfL2PS->unkD4 = 0x3C;
                 }
-                if (D_807FBB48->unk154 == 0x36) {
+                if (D_807FBB48->state == 0x36) {
                     if (D_807FBB48->unk6A & 4) {
                         D_807FBB48->unkC0 = D_80753078[D_807FD584] / 4;
                     } else {
@@ -2061,15 +2061,15 @@ void playerTakeDamage(s16 arg0) {
 
 void func_806EF830(void) {
     void *new_var;
-    if ((D_807FBB48->unk154 == 0x36) || (D_807FBB48->unk154 == 0x39) ||
-        (D_807FBB48->unk154 == 0x3A) || (D_807FBB48->unk154 == 0x71) ||
-        (D_807FBB48->unk154 == 0x73) || (D_807FBB48->unk154 == 0x74)) {
+    if ((D_807FBB48->state == 0x36) || (D_807FBB48->state == 0x39) ||
+        (D_807FBB48->state == 0x3A) || (D_807FBB48->state == 0x71) ||
+        (D_807FBB48->state == 0x73) || (D_807FBB48->state == 0x74)) {
         return;
     }
     func_806CA2AC();
     D_807FBB48->unk60 &= 0xFFFF7FFF;
     func_80614E78(D_807FBB48, 0x27);
-    D_807FBB48->unk154 = 0x39;
+    D_807FBB48->state = 0x39;
     D_807FBB48->unk155[0] = 0;
     ((u8 *)gActivePlayerState)[0x11C] = 0x19;
     func_8061B610(((void **)gActivePlayerState)[0x41]);
@@ -2086,13 +2086,13 @@ extern void camStartPath(Actor *, s32, s32);
 
 void func_806EF944(void) {
     if (playerCanTakeHit(D_807FBB48) != 0) {
-        if (D_807FBB48->unk154 != 0x3B) {
+        if (D_807FBB48->state != 0x3B) {
             if (camIsCutsceneActive() == 0) {
                 func_806CA2AC();
                 playerDropHeldActor(D_807FBB48);
                 D_807FBB48->unk144 = 1;
                 func_80614E78(D_807FBB48, 0x2A);
-                D_807FBB48->unk154 = 0x3B;
+                D_807FBB48->state = 0x3B;
                 D_807FBB48->unk155[0] = 0;
                 func_806C9974(gCurrentPlayerIndex, -0x40);
                 camStartPath(D_807FBB48, 0xB, 0x85);
@@ -2107,7 +2107,7 @@ void func_806EFA08(void) {
 }
 
 void func_806EFA1C(void) {
-    D_807FBB40->unk154 = 0x6A;
+    D_807FBB40->state = 0x6A;
     D_807FBB40->unk155[0] = 0;
 }
 
@@ -2126,14 +2126,14 @@ void func_806EFA3C(void) {
     spawnParams = D_8075D380;
     height = D_807FBB48->unk4->unk34;
     actorSpawn(0x140, 0xB9);
-    if (D_807FBB48->unk58 == 2) {
+    if (D_807FBB48->actorType == 2) {
         height *= 1.25;
     }
     actorCopyPoseAndScale(D_807FBB44, D_807FBB48, height);
     actorScriptStart(D_807FBB44, ((u16 *)&spawnParams)[gPlayerCharacterId[((u8 *)gActivePlayerState)[0x1A4]]]);
     D_807FBB44->unk60 |= 0x40000000;
     func_80614E78(D_807FBB48, 0x88);
-    D_807FBB40->unk154 = 0x79;
+    D_807FBB40->state = 0x79;
     D_807FBB40->unk155[0] = 0;
 }
 
@@ -2157,16 +2157,16 @@ void func_806EFB4C(void) {
     func_806C9F74(D_807FBB48);
     playerDropHeldActor(D_807FBB48);
     func_80614E78(D_807FBB48, 0x5B);
-    D_807FBB48->unk154 = 0x70;
+    D_807FBB48->state = 0x70;
     D_807FBB48->unk155[0] = 0;
     if (D_807FBB48->unkFC != 0) {
-        D_807FBB48->unkE6 = mathAngleArcMidpoint(D_807FBB48->unkF4, D_807FBB48->unkF6);
+        D_807FBB48->yaw = mathAngleArcMidpoint(D_807FBB48->unkF4, D_807FBB48->unkF6);
     } else {
-        D_807FBB48->unkE6 = mathAngleBetweenPoints2D(
+        D_807FBB48->yaw = mathAngleBetweenPoints2D(
             ((EfDNavigationPlayer *)gPlayerSlots)[gCurrentPlayerIndex].unk210,
             ((EfDNavigationPlayer *)gPlayerSlots)[gCurrentPlayerIndex].unk218,
-            D_807FBB48->unk7C,
-            D_807FBB48->unk84);
+            D_807FBB48->x,
+            D_807FBB48->z);
     }
     camStartPathNearWall(D_807FBB48, 0x15, 0x1F, 5);
 }
@@ -2175,16 +2175,16 @@ void func_806EFC38(void) {
     func_806CA2AC();
     playerDropHeldActor(D_807FBB48);
     func_806C9F74(D_807FBB48);
-    if (D_807FBB48->unk154 != 0x6D) {
+    if (D_807FBB48->state != 0x6D) {
         func_80614E78(D_807FBB48, 0x5B);
-        D_807FBB48->unk154 = 0x71;
+        D_807FBB48->state = 0x71;
         D_807FBB48->unk155[0] = 0;
     }
-    D_807FBB48->unkE6 = mathAngleBetweenPoints2D(
+    D_807FBB48->yaw = mathAngleBetweenPoints2D(
         ((EfDNavigationPlayer *)gPlayerSlots)[gCurrentPlayerIndex].unk210,
         ((EfDNavigationPlayer *)gPlayerSlots)[gCurrentPlayerIndex].unk218,
-        D_807FBB48->unk7C,
-        D_807FBB48->unk84);
+        D_807FBB48->x,
+        D_807FBB48->z);
     if (gCurrentMap == 8) {
         camStartPath(D_807FBB48, 2, 1);
         D_807FBB48->unk155[0] = 0xFF;
@@ -2240,10 +2240,10 @@ void func_806EFD50(void) {
     func_806CA2AC();
     playerDropHeldActor(D_807FBB48);
     func_80614E78(D_807FBB48, 0x5B);
-    D_807FBB48->unk154 = 0x72;
+    D_807FBB48->state = 0x72;
     D_807FBB48->unk155[0] = 0;
-    D_807FBB48->unkE6 = mathAngleBetweenPoints2D(EfECam[gCurrentPlayerIndex].unk210, EfECam[gCurrentPlayerIndex].unk218,
-                                                  D_807FBB48->unk7C, D_807FBB48->unk84);
+    D_807FBB48->yaw = mathAngleBetweenPoints2D(EfECam[gCurrentPlayerIndex].unk210, EfECam[gCurrentPlayerIndex].unk218,
+                                                  D_807FBB48->x, D_807FBB48->z);
     camStartPath(D_807FBB48, 0x15, 5);
 }
 
@@ -2257,18 +2257,18 @@ void func_806EFDFC(void) {
     playerDropHeldActor(D_807FBB48);
     func_806CA2AC();
     D_807FBB48->unk144 = 1;
-    if (D_807FBB48->unk154 != 0x7D) {
+    if (D_807FBB48->state != 0x7D) {
         if (D_807FBB48->unk6A & 4) {
             func_80614E78(D_807FBB48, 0x34);
         } else if (!(D_807FBB48->unk6A & 2)) {
             func_80614E78(D_807FBB48, 0x5D);
         }
     }
-    D_807FBB48->unk154 = 0x73;
+    D_807FBB48->state = 0x73;
     D_807FBB48->unk155[0] = 0;
-    if ((EfEPS->unk88 == NULL) || (((Actor *)EfEPS->unk88)->unk58 != 0x57)) {
-        D_807FBB48->unkE6 = mathAngleBetweenPoints2D(EfECam[gCurrentPlayerIndex].unk210, EfECam[gCurrentPlayerIndex].unk218,
-                                                      D_807FBB48->unk7C, D_807FBB48->unk84);
+    if ((EfEPS->unk88 == NULL) || (((Actor *)EfEPS->unk88)->actorType != 0x57)) {
+        D_807FBB48->yaw = mathAngleBetweenPoints2D(EfECam[gCurrentPlayerIndex].unk210, EfECam[gCurrentPlayerIndex].unk218,
+                                                      D_807FBB48->x, D_807FBB48->z);
     }
     ((EfEActorC0 *)D_807FBB48)->unkC0 = 0.0f;
     EfEPS->unk23C = 0x5A;
@@ -2280,18 +2280,18 @@ void func_806EFF34(void) {
     playerDropHeldActor(D_807FBB48);
     func_806CA2AC();
     D_807FBB48->unk144 = 1;
-    if (D_807FBB48->unk154 != 0x7D) {
+    if (D_807FBB48->state != 0x7D) {
         if (D_807FBB48->unk6A & 4) {
             func_80614E78(D_807FBB48, 0x34);
         } else if (!(D_807FBB48->unk6A & 2)) {
             func_80614E78(D_807FBB48, 0x5C);
         }
     }
-    D_807FBB48->unk154 = 0x74;
+    D_807FBB48->state = 0x74;
     D_807FBB48->unk155[0] = 0;
-    if ((EfEPS->unk88 == NULL) || (((Actor *)EfEPS->unk88)->unk58 != 0x57)) {
-        D_807FBB48->unkE6 = mathAngleBetweenPoints2D(EfECam[gCurrentPlayerIndex].unk210, EfECam[gCurrentPlayerIndex].unk218,
-                                                      D_807FBB48->unk7C, D_807FBB48->unk84);
+    if ((EfEPS->unk88 == NULL) || (((Actor *)EfEPS->unk88)->actorType != 0x57)) {
+        D_807FBB48->yaw = mathAngleBetweenPoints2D(EfECam[gCurrentPlayerIndex].unk210, EfECam[gCurrentPlayerIndex].unk218,
+                                                      D_807FBB48->x, D_807FBB48->z);
     }
     ((EfEActorC0 *)D_807FBB48)->unkC0 = 0.0f;
     EfEPS->unk23C = 0x5A;
@@ -2306,7 +2306,7 @@ void func_806F0074(void) {
 
 
 void func_806F007C(void) {
-    D_807FBB40->unk154 = 0x84;
+    D_807FBB40->state = 0x84;
     D_807FBB40->unk155[0] = 0;
     actorScriptStart(D_807FBB40, 0);
 }
@@ -2318,7 +2318,7 @@ void func_806F00BC(void) {
     D_807FBB48->unk132 = 2;
     EfEPS->unk4C = -1;
     EfEPS->unk30 = D_80753250[D_807FD584];
-    D_807FBB48->unk154 = 0x7A;
+    D_807FBB48->state = 0x7A;
     D_807FBB48->unk155[0] = 0;
 }
 
@@ -2333,7 +2333,7 @@ void func_806F014C(void) {
 void func_806F0184(void) {
     func_806CA2AC();
     EfEPS->unk1F0 &= ~0x20;
-    D_807FBB48->unk154 = 0x7B;
+    D_807FBB48->state = 0x7B;
     D_807FBB48->unk155[0] = 0;
 }
 
@@ -2347,7 +2347,7 @@ void func_806F01D8(void) {
 
 void func_806F0238(void) {
     func_80614E78(D_807FBB48, 9);
-    D_807FBB48->unk154 = 0xC;
+    D_807FBB48->state = 0xC;
     D_807FBB48->unk155[0] = 0;
 }
 
@@ -2358,9 +2358,9 @@ void func_806F027C(void) {
     EfEPS->unk4C = -1;
     EfEPS->unk30 = D_80753250[D_807FD584];
     playerSetBaseGravity();
-    if (D_807FBB48->unk154 != 0x7C) {
+    if (D_807FBB48->state != 0x7C) {
         func_806CA2AC();
-        D_807FBB48->unk154 = 0x7C;
+        D_807FBB48->state = 0x7C;
         D_807FBB48->unk155[0] = 0;
         actorScriptStart(D_807FBB48, 0x13);
         actorSpawn(0x117, 0xC5);
@@ -2372,7 +2372,7 @@ void func_806F027C(void) {
 
 void func_806F0344(void) {
     playerSetBaseGravity();
-    D_807FBB48->unk154 = 0x7D;
+    D_807FBB48->state = 0x7D;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk60 &= ~4;
     actorSpawn(0x11A, 0x21);
@@ -2383,7 +2383,7 @@ void func_806F0344(void) {
 void func_806F03C4(void) {
     s32 ev;
 
-    switch (D_807FBB48->unk58) {
+    switch (D_807FBB48->actorType) {
     case 2:
         ev = 7;
         break;
@@ -2415,18 +2415,18 @@ void func_806F03C4(void) {
     if (D_807FBB48 && D_807FBB48 && D_807FBB48) {}  // FAKE: pads as1 XBB source window
     if (D_807FBB48 && D_807FBB48 && D_807FBB48) {}  // FAKE: pads as1 XBB source window
     if (D_807FBB48 && D_807FBB48 && D_807FBB48) {}  // FAKE: pads as1 XBB source window
-    D_807FBB48->unkE6 = mathAngleBetweenPoints2D(EfECam[gCurrentPlayerIndex].unk210, EfECam[gCurrentPlayerIndex].unk218,
-                                                  D_807FBB48->unk7C, D_807FBB48->unk84);
+    D_807FBB48->yaw = mathAngleBetweenPoints2D(EfECam[gCurrentPlayerIndex].unk210, EfECam[gCurrentPlayerIndex].unk218,
+                                                  D_807FBB48->x, D_807FBB48->z);
     if (D_807FBB68 & 2) {
         EfEPS->unk1F0 &= ~0x100;
         actorScriptStart(D_807FBB48, 0x165);
     } else {
-        if (D_807FBB48->unk154 != 0x56) {
+        if (D_807FBB48->state != 0x56) {
             camStartPath(D_807FBB48, (s16)ev, 5);
         }
         func_80614E78(D_807FBB48, 0x5A);
     }
-    D_807FBB48->unk154 = 0x67;
+    D_807FBB48->state = 0x67;
     D_807FBB48->unk155[0] = 0;
 }
 
@@ -2435,14 +2435,14 @@ void func_806E9964(EfEPlayerState *);
 void func_806F0624(void) {
     EfEPS->unk1F4 |= 0x10;
     func_806E9964(EfEPS);
-    D_807FBB48->unk154 = 0x83;
+    D_807FBB48->state = 0x83;
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->unk60 |= 0x40000004;
     D_807FBB48->unk60 &= ~1;
 }
 
 void func_806F06A4(void) {
-    D_807FBB48->unk154 = 0x87;
+    D_807FBB48->state = 0x87;
     D_807FBB48->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0);
     EfEPS->unk50 = 0;
@@ -2455,12 +2455,12 @@ typedef struct EfEActorE4 {
 } EfEActorE4;
 
 void func_806F0700(void) {
-    D_807FBB48->unk154 = 0x88;
+    D_807FBB48->state = 0x88;
     D_807FBB48->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0);
-    D_807FBB48->unk7C = EfEPS->unk22C;
-    D_807FBB48->unk80 = EfEPS->unk230;
-    D_807FBB48->unk84 = EfEPS->unk234;
+    D_807FBB48->x = EfEPS->unk22C;
+    D_807FBB48->y = EfEPS->unk230;
+    D_807FBB48->z = EfEPS->unk234;
     ((EfEActorE4 *)D_807FBB48)->unkE4 = -0x3E6;
     D_807FBB48->unk4->unk34 = 0.01f;
     D_807FBB48->unk4->unk38 = 0.01f;
@@ -2472,7 +2472,7 @@ void func_806F0700(void) {
 
 void func_806F07CC(void) {
     sfxPlayFromActorWithAltitudeCheck(D_807FBB48, 0xF3, 0xFF, 0x7F, 0x19);
-    D_807FBB48->unk154 = 0x19;
+    D_807FBB48->state = 0x19;
     D_807FBB48->unk155[0] = 0;
     EfEPS->unk54 = D_807535CC[D_807FD584] * 2.6;
     EfEPS->unk50 = 0xC;
@@ -2493,7 +2493,7 @@ void func_806F0878(void) {
     }
     EfEPS->unk38 = D_807531FC[D_807FD584];
     playerThrowHeldActor(D_807FBB48);
-    D_807FBB48->unk154 = 0x15;
+    D_807FBB48->state = 0x15;
     D_807FBB48->unk155[0] = 0;
     func_80614E78(D_807FBB48, 6);
     D_807FBB48->unk6A |= 0x20;
@@ -2506,7 +2506,7 @@ void func_806F0930(void) {
     }
     EfEPS->unk38 = D_807531FC[D_807FD584];
     playerThrowHeldActor(D_807FBB48);
-    D_807FBB48->unk154 = 0x16;
+    D_807FBB48->state = 0x16;
     D_807FBB48->unk155[0] = 0;
     func_80614E78(D_807FBB48, 7);
     D_807FBB48->unk6A |= 0x20;

@@ -128,7 +128,7 @@ void enemyGridStateStep(void) {
     switch (st->unk38) {
     case 0:
         if (flagGet(0x10F, 0) == 0) {
-            if ((BC1E0_LGB->unk7C - D_807FBB4C->unk7C) * (BC1E0_LGB->unk7C - D_807FBB4C->unk7C) + (BC1E0_LGB->unk84 - D_807FBB4C->unk84) * (BC1E0_LGB->unk84 - D_807FBB4C->unk84) < 14400.0) {
+            if ((BC1E0_LGB->unk7C - D_807FBB4C->x) * (BC1E0_LGB->unk7C - D_807FBB4C->x) + (BC1E0_LGB->unk84 - D_807FBB4C->z) * (BC1E0_LGB->unk84 - D_807FBB4C->z) < 14400.0) {
                 camStartPath(D_807FBB40, 0, 1);
                 st->unk39 = 0;
                 st->unk38 = 1;
@@ -147,14 +147,14 @@ void enemyGridStateStep(void) {
             if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
                 camResumePath();
                 st->unk39 = 1;
-                D_807FBB4C->unk154 = 0xC;
+                D_807FBB4C->state = 0xC;
                 D_807FBB4C->unk155[0] = 0;
                 playerResumeLocomotion(D_807FBB4C);
             }
             if ((D_807ECD58 & 0x4000) && !(D_807ECD60 & 0x4000)) {
                 camResumePath();
                 st->unk39 = 2;
-                D_807FBB4C->unk154 = 0xC;
+                D_807FBB4C->state = 0xC;
                 D_807FBB4C->unk155[0] = 0;
                 playerResumeLocomotion(D_807FBB4C);
             }
@@ -187,7 +187,7 @@ void enemyGridStateStep(void) {
             break;
         case 2:
             if (camIsCutsceneActive() == 0) {
-                if ((BC1E0_LGB->unk7C - D_807FBB4C->unk7C) * (BC1E0_LGB->unk7C - D_807FBB4C->unk7C) + (BC1E0_LGB->unk84 - D_807FBB4C->unk84) * (BC1E0_LGB->unk84 - D_807FBB4C->unk84) > 25600.0) {
+                if ((BC1E0_LGB->unk7C - D_807FBB4C->x) * (BC1E0_LGB->unk7C - D_807FBB4C->x) + (BC1E0_LGB->unk84 - D_807FBB4C->z) * (BC1E0_LGB->unk84 - D_807FBB4C->z) > 25600.0) {
                     st->unk39 = 0;
                     st->unk38 = 0;
                 }
@@ -201,7 +201,7 @@ void enemyGridStateStep(void) {
             if (st->unk38 == 3) {
                 st->unk38 = 4;
             }
-            if (BC1E0_LGB->unk11C != NULL && BC1E0_LGB->unk11C->unk154 == 5) {
+            if (BC1E0_LGB->unk11C != NULL && BC1E0_LGB->unk11C->state == 5) {
                 ones = 0;
                 zeros = 0;
                 j = 0;

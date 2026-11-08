@@ -216,11 +216,11 @@ s32 actorSpawnFromInfo(ActorSpawnInfo *arg0) {
     if (actorAllocate((u16)arg0->unk0)) {
         temp = D_8074D8D4[arg0->unk0];
         if (D_8074DA30[temp](&arg0->unk4)) {
-            D_807FBB44->unk7C = arg0->unkC;
-            D_807FBB44->unk80 = arg0->unk10;
-            D_807FBB44->unk84 = arg0->unk14;
+            D_807FBB44->x = arg0->unkC;
+            D_807FBB44->y = arg0->unk10;
+            D_807FBB44->z = arg0->unk14;
             D_807FBB44->unk124 = arg0->unk1C;
-            D_807FBB44->unkE6 = arg0->unk18;
+            D_807FBB44->yaw = arg0->unk18;
             D_807FBB44->unk15C = arg0->unk1A;
             if (arg0->unk8 != 0) {
                 actorScriptStart(D_807FBB44, arg0->unk8);
@@ -559,7 +559,7 @@ void actorFreeImmediate(Actor *arg0) {
         heapFree(((ActorBufferView *)arg0)->unk14C);
     }
     func_8062D26C(arg0);
-    if (arg0->unk58 != 0x12B) {
+    if (arg0->actorType != 0x12B) {
         resQueueRemove(arg0);
     }
     renderCallbacksDisableForActor(arg0);
@@ -615,7 +615,7 @@ void actorUpdateActiveList(u8 arg0) {
         D_807FBB40 = gActiveActors[i].actor;
         if ((arg0 == 1 && !(D_807FBB40->unk60 & 0x100000)) || (arg0 == 2 && (D_807FBB40->unk60 & 0x100000))) {
             actorPreTick(D_807FBB40);
-            D_8074C0A0[D_807FBB40->unk58]();
+            D_8074C0A0[D_807FBB40->actorType]();
             actorPostTick(D_807FBB40);
         }
         i = D_807FBB3C;
@@ -633,7 +633,7 @@ void actorUpdateWhilePaused(void) {
         D_807FBB40 = gActiveActors[i].actor;
         if (D_807FBB40->unk64 & 2) {
             actorPreTick(D_807FBB40);
-            D_8074C0A0[D_807FBB40->unk58]();
+            D_8074C0A0[D_807FBB40->actorType]();
             actorPostTick(D_807FBB40);
         }
         if (D_807FBB40->unk4 != NULL) {
@@ -660,9 +660,9 @@ void actorPreTick(Actor *arg0) {
     if (arg0->unk5C & 1) {
         playerSetActiveGlobals(arg0);
     }
-    arg0->unk88 = arg0->unk7C;
-    arg0->unk8C = arg0->unk80;
-    arg0->unk90 = arg0->unk84;
+    arg0->unk88 = arg0->x;
+    arg0->unk8C = arg0->y;
+    arg0->unk90 = arg0->z;
     arg0->unkBC = arg0->unkB8;
     D_807F94B4 = 0;
     if (arg0->unk140 != NULL) {
@@ -701,8 +701,8 @@ void actorUpdateEffects(Actor *);
 void animListUpdate(Actor *);
 
 void actorPostTick(Actor *actor) {
-    if ((void *)func_8067B3F4 == (void *)D_8074DA30[D_8074D8D4[actor->unk58]]) {
-        guTranslateF((void *)((u8 *)actor + 0xC), actor->unk7C, actor->unk80, actor->unk84);
+    if ((void *)func_8067B3F4 == (void *)D_8074DA30[D_8074D8D4[actor->actorType]]) {
+        guTranslateF((void *)((u8 *)actor + 0xC), actor->x, actor->y, actor->z);
     }
     actorUpdatePositionAndSub140(actor);
     func_80678E6C(actor);
@@ -733,7 +733,7 @@ void func_80678DD8(Actor *actor) {
 }
 
 void func_80678E14(Actor *actor) {
-    f32 temp_fv0 = actor->unk80;
+    f32 temp_fv0 = actor->y;
 
     if (actor->unk8C < temp_fv0) {
         actor->unk9C = temp_fv0;
@@ -1335,13 +1335,13 @@ void actorDispatchCallbacks(Actor *arg0) {
     if ((var_s7 != -1) && ((*(u8 *)&sp3E == 1) || (actorCheckPointInAngleArc(arg0, sp4C, sp44) != 0))) {
         switch (sp40) {
         case 16:
-            arg0->unk7C = sp4C;
-            arg0->unk84 = sp44;
+            arg0->x = sp4C;
+            arg0->z = sp44;
             return;
         case 32:
-            arg0->unk7C = sp4C;
-            arg0->unk80 = sp48;
-            arg0->unk84 = sp44;
+            arg0->x = sp4C;
+            arg0->y = sp48;
+            arg0->z = sp44;
             break;
         }
     }
@@ -1392,7 +1392,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
             if (arg2 != 0) {
                 sp3C = 0x30;
             }
-            if (arg1 != NULL && arg1->unk58 == 0x116) {
+            if (arg1 != NULL && arg1->actorType == 0x116) {
                 effectSpawnBurstParticleCluster(arg0);
                 switch (arg1->unk155[0]) {
                 case 1:
@@ -1430,7 +1430,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
                         if (arg1->unk5C & 4) {
                             var_v0 = 3;
                         }
-                        if (arg1->unk154 != 0x28 && var_v0 < 3) {
+                        if (arg1->state != 0x28 && var_v0 < 3) {
                             sp3C = 0x2B;
                         } else {
                             sp3C = 0xE;
@@ -1591,7 +1591,7 @@ void actorDispatchCollisionResults(Actor *arg0) {
             if (D_807FBB70.unk244[i] == 6) {
                 actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x40, 0, 0, 0);
             }
-            func_8067A70C((s32)arg0, (Actor *)D_807FBB70.unk204[i], arg0->unk7C, arg0->unk80, arg0->unk84, 2, 1);
+            func_8067A70C((s32)arg0, (Actor *)D_807FBB70.unk204[i], arg0->x, arg0->y, arg0->z, 2, 1);
             actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x80, 0, 0, 0);
             playerDropHeldActor(arg0);
             break;
@@ -1826,7 +1826,7 @@ Actor *actorFindByType(u16 arg0) {
     s32 i;
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
-        if (actor->unk58 == arg0) {
+        if (actor->actorType == arg0) {
             return actor;
         }
     }
@@ -1856,7 +1856,7 @@ void actorTableInsert(Actor *arg0) {
     if (D_807FC3F0 < 256) {
         D_807FBFF0[D_807FC3F0++] = (s32)arg0;
     } else {
-        faultSetMessage(0x13, arg0->unk58, 0, 0);
+        faultSetMessage(0x13, arg0->actorType, 0, 0);
     }
     actorTableSort();
 }
@@ -1991,10 +1991,10 @@ u8 playerFindIndexByActor(s32 arg0) {
 }
 
 void actorCopyPoseAndScale(Actor *arg0, Actor *arg1, f32 arg2) {
-    arg0->unk7C = arg1->unk7C;
-    arg0->unk80 = arg1->unk80;
-    arg0->unk84 = arg1->unk84;
-    arg0->unkE6 = arg1->unkE6;
+    arg0->x = arg1->x;
+    arg0->y = arg1->y;
+    arg0->z = arg1->z;
+    arg0->yaw = arg1->yaw;
     if (arg0->unk4 != NULL) {
         arg0->unk4->unk34 = arg2;
         arg0->unk4->unk38 = arg2;

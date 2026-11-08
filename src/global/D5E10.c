@@ -115,8 +115,8 @@ void func_806D1110(void) {
 }
 
 void func_806D11FC(void) {
-    if (D_807FBB40->unkAC < D_807FBB40->unk80 + 4.5f) {
-        D_807FBB40->unk80 = D_807FBB40->unkAC - 4.5f;
+    if (D_807FBB40->unkAC < D_807FBB40->y + 4.5f) {
+        D_807FBB40->y = D_807FBB40->unkAC - 4.5f;
     }
 }
 
@@ -4150,7 +4150,7 @@ void func_806DABE4(void) {
             G18_A->unkB8 = 0.0f;
             break;
         case 1:
-            func_8067A784(D_807FBB40, G18_P->unk1AC, D_807FBB48->unkE6, D_807533B8[D_807FD584], (s32)D_8075339C[D_807FD584]);
+            func_8067A784(D_807FBB40, G18_P->unk1AC, D_807FBB48->yaw, D_807533B8[D_807FD584], (s32)D_8075339C[D_807FD584]);
             G18_P->unk1AC = NULL;
             G18_P->unk1B0 = 0;
             G18_A->unk155++;
@@ -4183,7 +4183,7 @@ void func_806DADA0(void) {
             G18_A->unkB8 = 0.0f;
             break;
         case 1:
-            func_8067A784(D_807FBB40, G18_P->unk1AC, D_807FBB48->unkE6, D_807533F0[D_807FD584], (s32)D_807533D4[D_807FD584]);
+            func_8067A784(D_807FBB40, G18_P->unk1AC, D_807FBB48->yaw, D_807533F0[D_807FD584], (s32)D_807533D4[D_807FD584]);
             G18_P->unk1AC = NULL;
             G18_P->unk1B0 = 0;
             G18_A->unk155++;
@@ -4959,9 +4959,9 @@ void func_806DCA7C(void) {
         G19_P->unk38 = 150.0f;
         if (G19_P->unk158 != 0) {
             actorGetNodePos((Actor *)G19_P->unk158, 1, &sp44, &sp40, &sp3C);
-            sp4C = sp40 - D_807FBB48->unk80;
+            sp4C = sp40 - D_807FBB48->y;
             sp4C = (f64)sp4C / ((f64)D_807FBB48->unk4->unk38 * 0.16666666675);
-            dist = (f32)((f64)sqrtf((sp44 - D_807FBB48->unk7C) * (sp44 - D_807FBB48->unk7C) + (sp3C - D_807FBB48->unk84) * (sp3C - D_807FBB48->unk84)) / ((f64)D_807FBB48->unk4->unk38 * 0.16666666675));
+            dist = (f32)((f64)sqrtf((sp44 - D_807FBB48->x) * (sp44 - D_807FBB48->x) + (sp3C - D_807FBB48->z) * (sp3C - D_807FBB48->z)) / ((f64)D_807FBB48->unk4->unk38 * 0.16666666675));
             spd = G19_B->unkB8;
             sp50 = dist / spd - 1.0f;
             if (sp50 < 1.0f) {
@@ -5008,16 +5008,16 @@ void func_806DCF60(void) {
             for (i = 0; i < gActiveActorCount; i++) {
                 a = (G19Actor *)gActiveActors[i].actor;
                 if (!(a->unk60 & 0x2000) && (a->unk60 & 0x04000000) && ((void *)a != G19_P->unk130) && ((void *)a != (void *)D_807FBB48)) {
-                    ang = (s32)(((f64)(mathAngleBetweenPointsRad(a->unk7C, a->unk84, D_807FBB48->unk7C, D_807FBB48->unk84) * 57.295776f) / 360.0) * 4095.0);
+                    ang = (s32)(((f64)(mathAngleBetweenPointsRad(a->unk7C, a->unk84, D_807FBB48->x, D_807FBB48->z) * 57.295776f) / 360.0) * 4095.0);
                     d = mathAngleDistance(ang, G19_P->unk154);
-                    dx = a->unk7C - D_807FBB48->unk7C;
-                    dz = a->unk84 - D_807FBB48->unk84;
+                    dx = a->unk7C - D_807FBB48->x;
+                    dz = a->unk84 - D_807FBB48->z;
                     dist = sqrtf(dx * dx + dz * dz);
                     if ((d < 0x258) && (dist < best)) {
-                        if (D_807FBB48->unk80 < a->unk80) {
-                            v = a->unk80 - D_807FBB48->unk80;
+                        if (D_807FBB48->y < a->unk80) {
+                            v = a->unk80 - D_807FBB48->y;
                         } else {
-                            v = -(a->unk80 - D_807FBB48->unk80);
+                            v = -(a->unk80 - D_807FBB48->y);
                         }
                         if (v < 100.0) {
                             best = dist;
@@ -5028,7 +5028,7 @@ void func_806DCF60(void) {
                 }
             }
         } else {
-            ang = (s32)(((f64)(mathAngleBetweenPointsRad(cur->unk7C, cur->unk84, D_807FBB48->unk7C, D_807FBB48->unk84) * 57.295776f) / 360.0) * 4095.0);
+            ang = (s32)(((f64)(mathAngleBetweenPointsRad(cur->unk7C, cur->unk84, D_807FBB48->x, D_807FBB48->z) * 57.295776f) / 360.0) * 4095.0);
             if (mathAngleDistance(ang, G19_P->unk154) < 0x258) {
                 G19_P->unk154 = ang;
             }

@@ -2080,7 +2080,7 @@ void func_8066FE08(s32 arg0) {
             if (var_v1 < 0) {
                 var_v1 += 0x1000;
             }
-            temp_a1 = D_807FBB40->unkE6;
+            temp_a1 = D_807FBB40->yaw;
             var_a0 = (s16)(var_v1 - temp_a1);
             var_v1 = (1 | var_a3) ? var_v1 : var_v1 + 1; // FAKE: redefines var_v1 (always-true condition folds) so uopt does not forward var_a0's store into the sign test
             if (var_a0 < 0) {
@@ -2117,7 +2117,7 @@ void func_8066FE08(s32 arg0) {
             if (var_v1 < 0) {
                 var_v1 += 0x1000;
             }
-            temp_a1 = D_807FBB40->unkE6;
+            temp_a1 = D_807FBB40->yaw;
             var_a0 = (s16)(var_v1 - temp_a1);
             var_v1 = 0; // FAKE: dead store (var_v1 unused below) so uopt does not forward var_a0's store into the sign test
             if (var_a0 < 0) {
@@ -2172,8 +2172,8 @@ void func_8066FE08(s32 arg0) {
                 guTranslateF(tmp, sp160, sp15C, sp158);
                 guMtxCatF(mtx, tmp, mtx);
                 guMtxXFMF(mtx, sp74, sp70, sp6C, &sp68, &sp64, &sp60);
-                sp50 = (f32)camDistance3D((s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk80, (s32)D_807FBB40->unk84, (s32)sp68, (s32)sp64, (s32)sp60);
-                if (sp50 < (f32)camDistance3D((s32)D_807FBB40->unk7C, (s32)D_807FBB40->unk80, (s32)D_807FBB40->unk84, (s32)sp5C, (s32)sp58, (s32)sp54)) {
+                sp50 = (f32)camDistance3D((s32)D_807FBB40->x, (s32)D_807FBB40->y, (s32)D_807FBB40->z, (s32)sp68, (s32)sp64, (s32)sp60);
+                if (sp50 < (f32)camDistance3D((s32)D_807FBB40->x, (s32)D_807FBB40->y, (s32)D_807FBB40->z, (s32)sp5C, (s32)sp58, (s32)sp54)) {
                     sub->unk52 = 1;
                     return;
                 }
@@ -2292,7 +2292,7 @@ Actor *arg0;
             D_807FB600 = 1;
             D_807FB602 = 0;
             func_80672E90(sub->unk0, sub->unk4, sub->unk8);
-            actorSetCameraBoundaryMode(arg0->unk58);
+            actorSetCameraBoundaryMode(arg0->actorType);
             hit = (ModelSlotHitView *)D_807F6000[slot].unk7C;
             if (hit != NULL) {
                 if (hit->unk9B & 4) {
@@ -2329,7 +2329,7 @@ Actor *arg0;
             }
             if (D_807FB601 != 0 && hit != NULL) {
                 ((ModelSlotHitView *)D_807F6000[slot].unk7C)->unk5C = D_807FB601;
-                ((ModelSlotHitView *)D_807F6000[slot].unk7C)->unk5E = arg0->unk58;
+                ((ModelSlotHitView *)D_807F6000[slot].unk7C)->unk5E = arg0->actorType;
             }
             if (D_807F6000[slot].unk7C != NULL && ((ModelSlotHitView *)D_807F6000[slot].unk7C)->unk6E != 0) {
                 actorQueueCollisionCallbacks((CollisionActor *)arg0);
@@ -2344,8 +2344,8 @@ Actor *arg0;
                 modelSlotBuildTransformMatrix(slot, sub->unk5A, mtx);
                 guMtxXFMF(mtx, sub->unk4C, sub->unk50, sub->unk54, &x, &y, &z);
                 if (kind == 1 || kind == 4) {
-                    arg0->unk7C = x;
-                    arg0->unk84 = z;
+                    arg0->x = x;
+                    arg0->z = z;
                 } else {
                     for (i = 0; i < 3; i++) {
                         guMtxXFMF(mtx, sub->unk28[i], sub->unk34[i], sub->unk40[i], &px[i], &py[i], &pz[i]);
@@ -2386,8 +2386,8 @@ Actor *arg0;
                     out[1] = out[1] * scale;
                     out[2] = out[2] * scale;
                     if (kind == 3 || actorCheckPointInAngleArc((struct ActorMotionWork *)arg0, x - out[0], z - out[2]) != 0) {
-                        arg0->unk7C = x - out[0];
-                        arg0->unk84 = z - out[2];
+                        arg0->x = x - out[0];
+                        arg0->z = z - out[2];
                     }
                 }
             } else {

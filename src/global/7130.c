@@ -1917,12 +1917,12 @@ s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void sfxPlayFromActorWithAltitudeCheck(Actor *arg0, s16 arg1, u8 arg2, s16 arg3, u8 arg4) {
     s32 var_v0;
 
-    if (arg0->unk80 + 20.0f < arg0->unkAC && (arg1 < 0x355 || arg1 >= 0x35E)) {
+    if (arg0->y + 20.0f < arg0->unkAC && (arg1 < 0x355 || arg1 >= 0x35E)) {
         var_v0 = 0x5A;
     } else {
         var_v0 = 0;
     }
-    sfxPlayAtPositionPooled(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, arg2, arg3, arg4, 0x4B, 0.3f, var_v0);
+    sfxPlayAtPositionPooled(arg0->x, arg0->y, arg0->z, arg1, arg2, arg3, arg4, 0x4B, 0.3f, var_v0);
 }
 
 void sfxPlayFromTargetSlot(s16 arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 arg6) {
@@ -1932,7 +1932,7 @@ void sfxPlayFromTargetSlot(s16 arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg
 void sfxPlayAtPosition(f32, f32, f32, s16, u8, f32, u8, u8);
 
 void sfxPlayFromActorDirect(Actor *arg0, s16 arg1, u8 arg2, f32 arg3, u8 arg4, u8 arg5) {
-    sfxPlayAtPosition(arg0->unk7C, arg0->unk80, arg0->unk84, arg1, arg2, arg3, arg4, arg5);
+    sfxPlayAtPosition(arg0->x, arg0->y, arg0->z, arg1, arg2, arg3, arg4, arg5);
 }
 
 extern u8 gPlayerCount;

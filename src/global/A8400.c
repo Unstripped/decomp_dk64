@@ -314,7 +314,7 @@ Gfx *textBoxRender(Gfx *arg0, Actor *arg1) {
     guTranslateF(spE0, -48.0f, -32.0f, 0.0f);
     guScaleF(spA0, scale, scale, 1.0f);
     guMtxCatF(spE0, spA0, spE0);
-    guTranslateF(spA0, arg1->unk7C * 4.0f, arg1->unk80 * 4.0f, 0.0f);
+    guTranslateF(spA0, arg1->x * 4.0f, arg1->y * 4.0f, 0.0f);
     guMtxCatF(spE0, spA0, spE0);
     guMtxF2L(spE0, (Mtx *) (state->unk34 + (D_807444FC << 6)));
     WRITE_GFX(dl++, 0xE7000000, 0);
@@ -582,11 +582,11 @@ void textBoxUpdateRows(Actor *arg0) {
         lim = 1.0f;
     }
     state->unk40 = lim;
-    mathAddWaveOffset(&arg0->unk7C, &arg0->unk80, state->unk20, lim, (MotionAngles *) state);
-    state->unk44 = arg0->unk7C - (f64) (state->unk20 * 136.8f) * 0.5;
-    state->unk48 = arg0->unk80 - (f64) (state->unk20 * 79.799995f) * 0.5;
-    state->unk4C = arg0->unk7C + (f64) (state->unk20 * 136.8f) * 0.5;
-    state->unk50 = arg0->unk80 + (f64) (state->unk20 * 79.799995f) * 0.5;
+    mathAddWaveOffset(&arg0->x, &arg0->y, state->unk20, lim, (MotionAngles *) state);
+    state->unk44 = arg0->x - (f64) (state->unk20 * 136.8f) * 0.5;
+    state->unk48 = arg0->y - (f64) (state->unk20 * 79.799995f) * 0.5;
+    state->unk4C = arg0->x + (f64) (state->unk20 * 136.8f) * 0.5;
+    state->unk50 = arg0->y + (f64) (state->unk20 * 79.799995f) * 0.5;
     state->unk44 = ((f32) gPlayerSlots->unk270 < state->unk44) ? state->unk44 : (f32) gPlayerSlots->unk270;
     state->unk48 = ((f32) gPlayerSlots->unk272 < state->unk48) ? state->unk48 : (f32) gPlayerSlots->unk272;
     state->unk4C = (state->unk4C < (f32) gPlayerSlots->unk274) ? state->unk4C : (f32) gPlayerSlots->unk274;
@@ -596,11 +596,11 @@ void textBoxUpdateRows(Actor *arg0) {
     while (((s32) state->unk10 >= i) && (node != NULL) && (stop == 0)) {
         last = (i == state->unk10);
         dt = node->unk18;
-        if (((f64) (acc + dt) > 73.79999542236328) && (arg0->unk154 == 1)) {
-            arg0->unk154 = 2;
+        if (((f64) (acc + dt) > 73.79999542236328) && (arg0->state == 1)) {
+            arg0->state = 2;
             state->unk18 = (f32) ((f64) (acc + dt) - 73.79999542236328);
             stop = 1;
-        } else if (((acc + dt) < 0.0f) && (arg0->unk154 == 2)) {
+        } else if (((acc + dt) < 0.0f) && (arg0->state == 2)) {
             state->unk14 = state->unk14 + dt;
             state->unkC = node->unk1C;
             state->unk10--;
@@ -618,13 +618,13 @@ void textBoxUpdateRows(Actor *arg0) {
         }
         i++;
     }
-    mode = arg0->unk154;
+    mode = arg0->state;
     if (mode == 3) {
         if (state->unk12 != 0) {
             state->unk12 = state->unk12 - 1;
-            mode = arg0->unk154;
+            mode = arg0->state;
         } else {
-            mode = arg0->unk154 = 1;
+            mode = arg0->state = 1;
             if (acc && acc) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }
@@ -896,7 +896,7 @@ void textBoxUpdate(void) {
     } else {
         v0 = sub->unk55;
         if (!(v0 & 1)) {
-            if (D_807FBB40->unk154 != 4 && D_807FBB40->unk154 != 5) {
+            if (D_807FBB40->state != 4 && D_807FBB40->state != 5) {
                 if (15.0 < (f64)sub->unk0) {
                     if (D_807ECD66 & 0x4000) {
                         sub->unk55 = v0 | 1;
@@ -915,7 +915,7 @@ void textBoxUpdate(void) {
                     }
                     if (sub->unk55 & 1) {
                         camResumePath();
-                        D_807FBB40->unk154 = 5;
+                        D_807FBB40->state = 5;
                     }
                 }
             }
@@ -923,12 +923,12 @@ void textBoxUpdate(void) {
     }
     sub->unk38 = sub->unk38 + 0x14;
     sub->unk3A = sub->unk3A + 0x32;
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
     case 0:
         if (sub->unk0 < 0x1E) {
             sub->unk0 = sub->unk0 + 1;
         } else {
-            D_807FBB40->unk154 = 1;
+            D_807FBB40->state = 1;
             sub->unk1D = D_807503F0;
             func_8070E808(D_807FBB40, sub->unk4);
             renderCalcChainCenterOffset((ChainRowHead *)sub);
@@ -947,7 +947,7 @@ void textBoxUpdate(void) {
         sub->unk14 = sub->unk14 - f;
         sub->unk18 = sub->unk18 - f;
         if ((f64)sub->unk18 < 0.0001) {
-            D_807FBB40->unk154 = 1;
+            D_807FBB40->state = 1;
         }
         break;
     case 4:
@@ -959,14 +959,14 @@ void textBoxUpdate(void) {
             }
             sub->unk0 = sub->unk0 - 1;
         } else {
-            D_807FBB40->unk154 = 5;
+            D_807FBB40->state = 5;
         }
         break;
     case 5:
         resQueueRemove(sub->unk4);
         break;
     }
-    if (D_807FBB40->unk154 != 5) {
+    if (D_807FBB40->state != 5) {
         sub->unk20 = (f32)sub->unk0 * 0.033333335f;
         textBoxUpdatePosition(D_807FBB40, sub, sp18);
         if (sub->unk0 != 0) {

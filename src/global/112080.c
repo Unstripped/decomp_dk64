@@ -185,7 +185,7 @@ void *func_8070D754(void *key) {
         heapClearBlock(*link);
         (*link)->key = key;
         actorSpawn(0x12B, 0, key);
-        D_807FBB44->unk154 = 0;
+        D_807FBB44->state = 0;
         (*link)->actor = D_807FBB44;
         state = (S112dActorKeyState *)D_807FBB44->unk174;
         state->key = key;
@@ -217,8 +217,8 @@ void func_8070D82C(S112dContainer *container, u16 id, u8 count) {
     (*entry)->id = id;
     (*entry)->count = count;
     (*entry)->next = NULL;
-    if (container->actor->unk154 == 4) {
-        container->actor->unk154 = 0;
+    if (container->actor->state == 4) {
+        container->actor->state = 0;
     }
 }
 
@@ -677,7 +677,7 @@ s32 textLayoutAppendRows(s32 owner, s32 textBytes, u16 length) {
             text = textBuffer;
             switch (((u8 *)textBytes)[i]) {
             case 0x7E:
-                _sprintf(textBuffer, "%s", D_8074E778[D_807FBB48->unk58]);
+                _sprintf(textBuffer, "%s", D_8074E778[D_807FBB48->actorType]);
                 break;
             case 0x40:
                 _sprintf(textBuffer, "%d", D_80750AC8);
@@ -1002,7 +1002,7 @@ void func_8070E808(Actor *actor, void *key) {
         if (state->unk54 & 1) {
             timerQueueAdd(camResumePathCallback, 0x1E, 0, 0, 0);
         }
-        actor->unk154 = 4;
+        actor->state = 4;
         return;
     }
     resApplyKind(actor, link->unk8->unk0, link->unk8->unk2);

@@ -585,9 +585,9 @@ void actorListUpdateSpawns(void) {
                         actorDeregisterActive(actor);
                         actor = node->unk44;
                         node->unk48 = 0;
-                        node->unk10 = actor->unk7C;
-                        node->unk14 = actor->unk80;
-                        node->unk18 = actor->unk84;
+                        node->unk10 = actor->x;
+                        node->unk14 = actor->y;
+                        node->unk18 = actor->z;
                         node->unk4A = *(s16 *)&actor->unk12C[0];
                         controllerAnimFreeSub(actor, 0);
                         controllerAnimFreeSub(node->unk44, 1);
@@ -824,9 +824,9 @@ s32 actorListGetOrSetState(s16 targetId, u8 newState, u8 setFlag) {
         return 0;
     }
     if (setFlag != 0) {
-        node->unk44->unk154 = newState;
+        node->unk44->state = newState;
     }
-    return node->unk44->unk154;
+    return node->unk44->state;
 }
 
 s32 actorListIsIdActive(s16 targetId) {
@@ -959,7 +959,7 @@ u8 actorListDespawnIfFar(ActorListNode *node) {
 }
 
 u8 actorListDespawnIfFarAndIdle(ActorListNode *node) {
-    return (mapChunkIsVisible(*(s16 *)&node->unk44->unk12C, node) == 0 || !(playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18) < node->unk54)) && (node->unk44->unk114 == NULL) && (node->unk44->unk154 == 0);
+    return (mapChunkIsVisible(*(s16 *)&node->unk44->unk12C, node) == 0 || !(playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18) < node->unk54)) && (node->unk44->unk114 == NULL) && (node->unk44->state == 0);
 }
 
 s32 actorListDespawnNever(s32 node) {
@@ -977,7 +977,7 @@ u8 actorListIsPlayerInRadius(ActorListNode *node) {
 }
 
 u8 actorListIsPlayerOutsideRadius(ActorListNode *node) {
-    return !(playerGetMinSquaredDist3D(node->unk44->unk7C, node->unk44->unk80, node->unk44->unk84) < node->unk54);
+    return !(playerGetMinSquaredDist3D(node->unk44->x, node->unk44->y, node->unk44->z) < node->unk54);
 }
 
 void actorListClearForcedIds(void) {
@@ -1022,6 +1022,6 @@ void func_8068A2FC(Actor *actor) {
     actor->unk60 &= ~0x8000;
     actor->unk144 = 1;
     actor->unk138 = 0;
-    actor->unk154 = 0x63;
+    actor->state = 0x63;
     func_8066E6C8(actor, 0, 0);
 }

@@ -9,7 +9,7 @@ extern void *gPlayerSlots;
 u8 func_8072E5B0(void) {
     Actor *a = D_807FBB4C;
 
-    return !(a->unk6A & 1) && !(a->unk110 == 1) && !(a->unk154 == 0x63);
+    return !(a->unk6A & 1) && !(a->unk110 == 1) && !(a->state == 0x63);
 }
 
 typedef struct {
@@ -120,7 +120,7 @@ s32 actorFindActiveByType(s16 actorType, Actor **outActor) {
     if (gActiveActorCount > 0) {
         do {
             actor = gActiveActors[i].actor;
-            if (actor->unk58 == (actorType & 0xFFFFFFFFu)) {
+            if (actor->actorType == (actorType & 0xFFFFFFFFu)) {
                 found = 1;
             } else {
                 i++;
@@ -203,8 +203,8 @@ s32 volumeTriggerUpdate(VolumeTrigger *trigger) {
     for (i = 0; i < gPlayerCount; i++) {
         players = &((PlayerSlot *)gPlayerSlots)[i];
         if (players->active) {
-            if (trigger->unk8 == -1 || ((f32)trigger->unk2 <= players->actor->unk80 && players->actor->unk80 < (f32)(trigger->unk2 + trigger->unk8))) {
-                y = ((f32)trigger->unk4 - players->actor->unk84) * ((f32)trigger->unk4 - players->actor->unk84) + ((f32)trigger->unk0 - players->actor->unk7C) * ((f32)trigger->unk0 - players->actor->unk7C);
+            if (trigger->unk8 == -1 || ((f32)trigger->unk2 <= players->actor->y && players->actor->y < (f32)(trigger->unk2 + trigger->unk8))) {
+                y = ((f32)trigger->unk4 - players->actor->z) * ((f32)trigger->unk4 - players->actor->z) + ((f32)trigger->unk0 - players->actor->x) * ((f32)trigger->unk0 - players->actor->x);
                 if (y < (f32)(trigger->unk6 * trigger->unk6)) {
                     found = 1;
                 }

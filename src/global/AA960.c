@@ -61,7 +61,7 @@ void sfxSpawnTableNodes(Actor *actor) {
         return;
     }
     while (found == 0 && D_80750400[i].unk0 != 0) {
-        if (D_80750400[i].unk0 == actor->unk58) {
+        if (D_80750400[i].unk0 == actor->actorType) {
             found = 1;
         } else {
             i++;
@@ -75,7 +75,7 @@ void sfxSpawnTableNodes(Actor *actor) {
     }
     step = (s16)(0xFFF / D_80750400[i].unk5);
     for (j = 0; j < D_80750400[i].unk5; j++) {
-        actorSpawnNodeEntryScaled(D_80750400[i].unk2, actor->unk7C, actor->unk80, actor->unk84, offset, 1, -1, 0);
+        actorSpawnNodeEntryScaled(D_80750400[i].unk2, actor->x, actor->y, actor->z, offset, 1, -1, 0);
         offset = offset + step;
     }
 }
@@ -128,7 +128,7 @@ void effectSpawnAttachedSpriteColored(void *spriteAsset, s32 characterId) {
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(D_807FBB40->unk60 & 0x10)) {
-        if (characterId != D_807FBB4C->unk58) {
+        if (characterId != D_807FBB4C->actorType) {
             func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
         }
         effectSpawnAttachedSprite(temp, spriteAsset, 1.0f);
@@ -240,7 +240,7 @@ void func_806A6468(void) {
     state = D_807FBB40->unk174;
     actorDropBounceExpireUpdate(4.5f);
     if (!(D_807FBB40->unk60 & 0x10)) {
-        switch (D_807FBB4C->unk58) {
+        switch (D_807FBB4C->actorType) {
         case 3:
             anim = &D_807203B0;
             break;
@@ -258,8 +258,8 @@ void func_806A6468(void) {
             break;
         }
         effectSpawnAttachedSprite(state, anim, 1.0f);
-        if (D_807FBB40->unk154 == 0x63) {
-            D_807FBB40->unk154 = 1;
+        if (D_807FBB40->state == 0x63) {
+            D_807FBB40->state = 1;
             D_807FBB40->unk15F = 2;
         }
     }
@@ -278,7 +278,7 @@ void func_806A6574(void) {
     state = D_807FBB40->unk174;
     actorDropBounceExpireUpdate(4.5f);
     if (!(D_807FBB40->unk60 & 0x10)) {
-        switch (D_807FBB4C->unk58) {
+        switch (D_807FBB4C->actorType) {
         case 3:
             anim = &D_80720EE8;
             break;
@@ -340,9 +340,9 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         floorOffset *= 2.0f;
     }
     if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk154 = (u8)(s32)((BehaviourConfig *)D_807FBB40->unk124)->unk0;
+        D_807FBB40->state = (u8)(s32)((BehaviourConfig *)D_807FBB40->unk124)->unk0;
         *(s16 *)((u8 *)D_807FBB40 + 0xEE) = (s16)(s32)((BehaviourConfig *)D_807FBB40->unk124)->unk4;
-        D_807FBB40->unkE6 = *(s16 *)((u8 *)D_807FBB40 + 0xEE);
+        D_807FBB40->yaw = *(s16 *)((u8 *)D_807FBB40 + 0xEE);
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         state->unk0 = 0;
         state->unk1 = 0;
@@ -350,7 +350,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         *(s16 *)((u8 *)D_807FBB40 + 0xFA) = 0x270F;
     }
     if (D_807FBB70.unk0 != 0) {
-        D_807FBB40->unk154 = D_807FBB70.unk1[0];
+        D_807FBB40->state = D_807FBB70.unk1[0];
     }
     func_8067ACB4(D_807FBB40);
     if (D_807FBB40->unkFC != 0) {
@@ -365,7 +365,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
             *(s16 *)((u8 *)D_807FBB40 + 0xEE) = temp + c;
         }
     }
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
     case 0:
         break;
     case 1:
@@ -374,10 +374,10 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         *(f32 *)((u8 *)D_807FBB40 + 0xC0) = (f32)((f64)((randomLcgNext() / 10000) % 200) * 0.5 + 220.0 - 50.0);
-        if (!(D_807FBB64 & 0x4000) && (((u32)D_807FBB40->unk58 < 0x4B) || ((u32)D_807FBB40->unk58 >= 0x50))) {
+        if (!(D_807FBB64 & 0x4000) && (((u32)D_807FBB40->actorType < 0x4B) || ((u32)D_807FBB40->actorType >= 0x50))) {
             D_807FBB40->unkB8 = 30.0f;
         }
-        D_807FBB40->unk154++;
+        D_807FBB40->state++;
     case 2:
         actorApplyVelocity(D_807FBB40);
         actorUpdateFloorContactAndTilt(D_807FBB40, floorOffset);
@@ -402,18 +402,18 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
             case 3:
                 D_807FBB40->unkB8 = 0.0f;
                 *(f32 *)((u8 *)D_807FBB40 + 0xC0) = 0.0f;
-                if (D_807FBB40->unk58 == 0x8C) {
+                if (D_807FBB40->actorType == 0x8C) {
                     state->unk1 = 1;
                 }
-                if (D_807FBB40->unk58 != 0x6E && D_807FBB40->unk58 != 0x8C && !(D_807FBB64 & 0x4000) && D_807FBB40->unk15F != 2) {
+                if (D_807FBB40->actorType != 0x6E && D_807FBB40->actorType != 0x8C && !(D_807FBB64 & 0x4000) && D_807FBB40->unk15F != 2) {
                     state->unk8 = 0x64;
-                    D_807FBB40->unk154 = 3;
+                    D_807FBB40->state = 3;
                 } else {
-                    D_807FBB40->unk154 = 0x64;
+                    D_807FBB40->state = 0x64;
                 }
                 break;
             }
-            switch (D_807FBB40->unk58) {
+            switch (D_807FBB40->actorType) {
             case 0x34:
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xF5, (*(f32 *)((u8 *)D_807FBB40 + 0xC0) + 105.0f), 0x7F, 0x1E);
                 break;
@@ -434,21 +434,21 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
             state->unk8--;
         }
         if (state->unk8 == 0) {
-            D_807FBB40->unk154 = 4;
+            D_807FBB40->state = 4;
         }
         break;
     case 4:
         state->unk4[0x36D] -= 5;
         if ((s32)state->unk4[0x36D] < 0xA) {
-            if ((D_807FBB64 & 0x10000) && actorTypeIsRespawnPickup(D_807FBB40->unk58) != 0) {
-                func_806F5F2C(D_807FBB40->unk58, 0x258, (s16)(s32)D_807FBB40->unk7C, (s16)(s32)D_807FBB40->unk80, (s32)D_807FBB40->unk84);
+            if ((D_807FBB64 & 0x10000) && actorTypeIsRespawnPickup(D_807FBB40->actorType) != 0) {
+                func_806F5F2C(D_807FBB40->actorType, 0x258, (s16)(s32)D_807FBB40->x, (s16)(s32)D_807FBB40->y, (s32)D_807FBB40->z);
             }
             actorDespawn(D_807FBB40);
         }
         break;
     case 25:
         state->unk8 = 0x64;
-        D_807FBB40->unk154 = 3;
+        D_807FBB40->state = 3;
         state->unk1 = 1;
         break;
     }
@@ -511,9 +511,9 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
         D_807FBB40->unk16B = 0xFF;
         D_807FBB40->unk16C = 0xFF;
         D_807FBB40->unk60 &= ~0x8000;
-        D_807FBB40->unk154 = (s32)((ActorConfig *)D_807FBB40->unk124)->unk0;
+        D_807FBB40->state = (s32)((ActorConfig *)D_807FBB40->unk124)->unk0;
         AA960_PHY->unkEE = ((ActorConfig *)D_807FBB40->unk124)->unk4;
-        D_807FBB40->unkE6 = AA960_PHY->unkEE;
+        D_807FBB40->yaw = AA960_PHY->unkEE;
         state->unk0 = 0;
         state->unk1 = 1;
         state->unkA = ((ActorConfig *)D_807FBB40->unk124)->unk8;
@@ -525,7 +525,7 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
     }
     D_807FBB40->unk128 = state->unk8 * 0.033333335f * 255.0f;
     if (D_807FBB70.unk0 != 0) {
-        D_807FBB40->unk154 = D_807FBB70.unk1[0];
+        D_807FBB40->state = D_807FBB70.unk1[0];
     }
     func_8067ACB4(D_807FBB40);
     if (D_807FBB40->unkFC != 0 && actorAngleInArc(D_807FBB40, AA960_PHY->unkEE) == 0) {
@@ -537,13 +537,13 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
             AA960_PHY->unkEE = temp + c;
         }
     }
-    if (D_807FBB40->unk154 == 1 || D_807FBB40->unk154 == 2 || D_807FBB40->unk154 == 4
-        || D_807FBB40->unk154 == 5 || D_807FBB40->unk154 == 6) {
+    if (D_807FBB40->state == 1 || D_807FBB40->state == 2 || D_807FBB40->state == 4
+        || D_807FBB40->state == 5 || D_807FBB40->state == 6) {
         D_807FBB40->unk144 = 0x1C;
         actorSetCollisionRadius(D_807FBB40, 60.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
-        switch (D_807FBB40->unk154) {
+        switch (D_807FBB40->state) {
         case 1:
             D_807FBB40->unkB8 = D_80750384;
             AA960_PHY->unkC0 = 0.0f;
@@ -564,9 +564,9 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
             AA960_PHY->unkC0 = 2000.0f;
             break;
         }
-        D_807FBB40->unk154 = 3;
+        D_807FBB40->state = 3;
     }
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
     case 0:
         break;
     case 3:
@@ -599,12 +599,12 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
                 AA960_PHY->unkC0 = 0.0f;
                 temp = 0x1E;
                 if (fadeAlpha != 0) {
-                    D_807FBB40->unk154 = 0x64;
+                    D_807FBB40->state = 0x64;
                 }
                 break;
             }
-            if (D_807FBB40->unk58 == 0x48) {
-                sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2A1, temp, 0x7F, 0, 0, 0.0f, 0);
+            if (D_807FBB40->actorType == 0x48) {
+                sfxPlayAtPositionPooled(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, 0x2A1, temp, 0x7F, 0, 0, 0.0f, 0);
             }
             state->unk0++;
         }
@@ -612,7 +612,7 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
     case 0x64:
         break;
     }
-    D_807FBB40->unkE6 += 0x72;
+    D_807FBB40->yaw += 0x72;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
@@ -644,15 +644,15 @@ void actorUpdateSfxAndGround(void) {
         effectSpawnBurstParticleCluster(D_807FBB40);
     }
     if (counter->unk8 == 1) {
-        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x73, 0xFF, 0x7F, 1, 0, 0.0f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, 0x73, 0xFF, 0x7F, 1, 0, 0.0f, 0);
         sfxAllocateChannel(0x3B, 0.7f);
     } else if (counter->unk8 == 0xA) {
-        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x19C, 0xB4, 0x7F, 1, 0, 0.0f, 0);
+        sfxPlayAtPositionPooled(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, 0x19C, 0xB4, 0x7F, 1, 0, 0.0f, 0);
     }
     actorBounceFadeInSpinUpdate(0);
-    if (D_807FBB40->unk80 < D_807FBB40->unkAC) {
+    if (D_807FBB40->y < D_807FBB40->unkAC) {
         D_807FBB40->unkB8 = 0.0f;
-        D_807FBB40->unk80 = D_807FBB40->unkAC;
+        D_807FBB40->y = D_807FBB40->unkAC;
         ((ActorPhysics *)D_807FBB40)->unkC0 = ((ActorPhysics *)D_807FBB40)->unkC4;
     }
     billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x96, 0x78, 0, 1.0f);
@@ -713,7 +713,7 @@ void actorPathCollectibleUpdate(void *unused) {
 
     state = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        if (D_807FBB40->unk58 == 0x93) {
+        if (D_807FBB40->actorType == 0x93) {
             state->unk6 = -1;
         } else {
             state->unk6 = actorListLookupEntry(actorListFindIdByActor(D_807FBB40) & 0xFFFF);
@@ -738,12 +738,12 @@ void actorPathCollectibleUpdate(void *unused) {
     } else {
         if (state->unk2 != -1) {
             pathPlaybackAdvance(state->unk2);
-            pathPlaybackGetPosition(state->unk2, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
+            pathPlaybackGetPosition(state->unk2, &D_807FBB40->x, &D_807FBB40->y, &D_807FBB40->z);
         }
-        D_807FBB40->unk80 += 5.0 * func_80612794(state->unk4);
+        D_807FBB40->y += 5.0 * func_80612794(state->unk4);
         state->unk4 = (state->unk4 + 0x50) & 0xFFF;
         if (D_8076A068 % 0x18 == 0) {
-            switch (D_807FBB40->unk58) {
+            switch (D_807FBB40->actorType) {
             case 0x5B:
                 temp = 6;
                 break;
@@ -764,17 +764,17 @@ void actorPathCollectibleUpdate(void *unused) {
             if (flag != 0) {
                 func_807149B8(1);
                 cond = 1;
-                if (D_807FBB40->unk58 == 0x93) {
+                if (D_807FBB40->actorType == 0x93) {
                     cond = 0;
-                } else if (D_807FBB4C->unk58 == 3 && D_807FBB40->unk58 == 0x5B) {
+                } else if (D_807FBB4C->actorType == 3 && D_807FBB40->actorType == 0x5B) {
                     cond = 0;
-                } else if (D_807FBB4C->unk58 == 6 && D_807FBB40->unk58 == 0x6F) {
+                } else if (D_807FBB4C->actorType == 6 && D_807FBB40->actorType == 0x6F) {
                     cond = 0;
-                } else if (D_807FBB4C->unk58 == 5 && D_807FBB40->unk58 == 0x70) {
+                } else if (D_807FBB4C->actorType == 5 && D_807FBB40->actorType == 0x70) {
                     cond = 0;
-                } else if (D_807FBB4C->unk58 == 4 && D_807FBB40->unk58 == 0x71) {
+                } else if (D_807FBB4C->actorType == 4 && D_807FBB40->actorType == 0x71) {
                     cond = 0;
-                } else if (D_807FBB4C->unk58 == 2 && D_807FBB40->unk58 == 0x72) {
+                } else if (D_807FBB4C->actorType == 2 && D_807FBB40->actorType == 0x72) {
                     cond = 0;
                 }
                 if (cond != 0) {
@@ -793,9 +793,9 @@ void actorPathCollectibleUpdate(void *unused) {
         }
         if (D_807FBD70 == 4) {
             effectSpawnBurstParticleCluster(D_807FBB40);
-            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2BF, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
+            sfxPlayAtPositionPooled(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, 0x2BF, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
             actorDespawn(D_807FBB40);
-            if (D_807FBB40->unk58 == 0x93) {
+            if (D_807FBB40->actorType == 0x93) {
                 func_80724994(3, 1, 0x27, 0, 0);
             } else {
                 if (state->unk6 != -1) {

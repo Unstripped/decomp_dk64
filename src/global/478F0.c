@@ -845,10 +845,10 @@ void func_80645700(CsState *cs, s16 csId, s16 b, s16 c) {
     func_807149A8(0x7D0);
     func_80714CC0(D_80720BC4, 2.5f, (*D_807F5FD4)[idx].x, (*D_807F5FD4)[idx].y, (*D_807F5FD4)[idx].z);
     if (c != 0) {
-        if (D_807FBB4C->unk154 == 0x42) {
-            p->a = *(f32 *)&D_807FBB4C->unk80;
+        if (D_807FBB4C->state == 0x42) {
+            p->a = *(f32 *)&D_807FBB4C->y;
         }
-        f = *(f32 *)&D_807FBB4C->unk80;
+        f = *(f32 *)&D_807FBB4C->y;
         if ((p->a - f > 200.0 || f < 10.0f) && p->b == 0.0) {
             func_805FF9AC(0x48, 0x1C, 0, 0);
             p->b = 1.0f;
@@ -2013,7 +2013,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
             }
             break;
     }
-    if ((D_807FBB4C->unk154 == 0x42 && gActivePlayerState->unkBC == 0x62) || D_807FBB4C->unk154 == 0x67) {
+    if ((D_807FBB4C->state == 0x42 && gActivePlayerState->unkBC == 0x62) || D_807FBB4C->state == 0x67) {
         q->unk0 = 0;
         q->unk2 = 0x190;
         q->unk4 = 0.0f;
@@ -2719,7 +2719,7 @@ s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (!(actor->unk60 & 0x2000) && actor->unk58 == 4 && actor->unk110 == 1 && csId == actor->unk10C) {
+        if (!(actor->unk60 & 0x2000) && actor->actorType == 4 && actor->unk110 == 1 && csId == actor->unk10C) {
             if (b != actor->unk10E[0] && actor->unk10E[0] != 0) {
                 modelAnimEntryStart(csId, actor->unk10E[0], 2);
                 func_80641874(actor->unk10E[0] + 4, 0);
@@ -2827,15 +2827,15 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     if (p->unk4F == 0) {
         pl = gPlayerSlots->unk4;
-        if (pl->unk154 == 0x1C && pl->unk155[0] < 7 && gPlayerCharacterId == 0 && pl->unk110 == 1) {
+        if (pl->state == 0x1C && pl->unk155[0] < 7 && gPlayerCharacterId == 0 && pl->unk110 == 1) {
             if (csId == pl->unk10C) {
                 bestD = 100000.0f;
                 best = -1;
                 i = 0;
                 do {
                     modelSlotGetNodePos(csId, 1, i + 1, &x, &y, &z);
-                    x = D_807FBB4C->unk7C - x;
-                    z = D_807FBB4C->unk84 - z;
+                    x = D_807FBB4C->x - x;
+                    z = D_807FBB4C->z - z;
                     d = x * x + z * z;
                     if (d < bestD) {
                         best = i;
@@ -3079,7 +3079,7 @@ void func_8064B900(CsState *cs, s16 csId, s16 b, s16 c) {
         case 0:
             a = spawnNodeActivate(8, 0);
             if (a != NULL) {
-                a->unk154 = 0x3C;
+                a->state = 0x3C;
             }
             break;
     }
@@ -3129,8 +3129,8 @@ s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 mathAngleDistance(s16, s16);
 
 s32 csCondActorFacingPos(CsState *cs, s16 csId, s16 b, s16 c) {
-    s16 ang = mathAngleBetweenPoints2D((s16)gCsPosX, (s16)gCsPosZ, (s16)D_807FBB4C->unk7C, (s16)D_807FBB4C->unk84);
-    return (u8)(mathAngleDistance(ang, D_807FBB4C->unkE6) < 0x384);
+    s16 ang = mathAngleBetweenPoints2D((s16)gCsPosX, (s16)gCsPosZ, (s16)D_807FBB4C->x, (s16)D_807FBB4C->z);
+    return (u8)(mathAngleDistance(ang, D_807FBB4C->yaw) < 0x384);
 }
 
 typedef struct CsPlayerSlot {
@@ -3891,10 +3891,10 @@ void func_8064DE04(CsState *cs, s16 csId, s16 b, s16 c) {
         id = ((CsStateFlagView *)cs)->unk5E;
         for (i = 0; i < gActiveActorCount; i++) {
             a = gActiveActors[i].actor;
-            if (a->unk58 == id) {
-                dx = a->unk7C - gCsPosX;
-                dy = a->unk80 - gCsPosY;
-                dz = a->unk84 - gCsPosZ;
+            if (a->actorType == id) {
+                dx = a->x - gCsPosX;
+                dy = a->y - gCsPosY;
+                dz = a->z - gCsPosZ;
                 d = dx * dx + dy * dy + dz * dz;
                 if (d < bestDist) {
                     bestDist = d;
@@ -3905,7 +3905,7 @@ void func_8064DE04(CsState *cs, s16 csId, s16 b, s16 c) {
         if (best != NULL) {
             actorAppendCallback(best, 0, 8, 0, 0, NULL);
         }
-        if (b == 0 && best != NULL && best->unk58 == 0x55) {
+        if (b == 0 && best != NULL && best->actorType == 0x55) {
             ((CsCamFlagsView *)cam)->unk1F0 &= 0xFFDFFFFF;
         }
     }
@@ -4108,14 +4108,14 @@ void func_8064E65C(CsState *cs, s16 csId, s16 b, s16 c) {
             D_807FBB44->unk60 |= 0x400;
             actorScriptStart(D_807FBB44, 0x335);
             if (b == 11) {
-                D_807FBB44->unk7C = gCsPosX;
-                D_807FBB44->unk80 = gCsPosY;
-                D_807FBB44->unk84 = gCsPosZ;
+                D_807FBB44->x = gCsPosX;
+                D_807FBB44->y = gCsPosY;
+                D_807FBB44->z = gCsPosZ;
                 break;
             }
-            D_807FBB44->unk7C = x;
-            D_807FBB44->unk80 = y;
-            D_807FBB44->unk84 = z;
+            D_807FBB44->x = x;
+            D_807FBB44->y = y;
+            D_807FBB44->z = z;
         case 1:
         case 3:
         case 4:
@@ -4328,12 +4328,12 @@ void func_8064F028(CsState *cs, s16 csId, s16 b, s16 c) {
     func_80714998(2);
     func_80714CC0(D_80721530, 0.0f, gCsPosX, gCsPosY + 17.5, gCsPosZ);
     actorSpawn(0x9C, 0x53);
-    D_807FBB44->unk7C = gCsPosX;
-    D_807FBB44->unk80 = gCsPosY;
-    D_807FBB44->unk84 = gCsPosZ;
-    D_807FBB44->unkE6 = gCsRotY * 4096.0f / 360.0f;
+    D_807FBB44->x = gCsPosX;
+    D_807FBB44->y = gCsPosY;
+    D_807FBB44->z = gCsPosZ;
+    D_807FBB44->yaw = gCsRotY * 4096.0f / 360.0f;
     if (gCurrentMap == 0xB2 || (gCurrentMap == 0xAD && b == 4)) {
-        D_807FBB44->unkE6 += 0x800;
+        D_807FBB44->yaw += 0x800;
     }
     camStartPath(D_807FBB44, 0x22, 5);
     sfxAllocateChannel(0xAB, 1.0f);
@@ -4364,7 +4364,7 @@ u8 csCondActorInFront(CsState *cs, s16 csId, s16 b, s16 c) {
     co = func_80612790(angle);
     d = gCsPosX * s + gCsPosZ * co;
     d = -d;
-    r = (D_807FBB4C->unk7C * s + co * D_807FBB4C->unk84) + d;
+    r = (D_807FBB4C->x * s + co * D_807FBB4C->z) + d;
 
     return r > 6.0;
 }

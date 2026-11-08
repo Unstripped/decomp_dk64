@@ -77,10 +77,10 @@ void actorUpdateNearestSpotlight(void) {
     best = 999999;
     for (i = 0; i < gActiveActorCount; i++) {
         e = gActiveActors[i].actor;
-        if (e->unk58 == 0xF0 || e->unk58 == 0xF9) {
-            dx = e->unk7C - D_807FBB4C->unk7C;
-            dy = e->unk80 - D_807FBB4C->unk80;
-            dz = e->unk84 - D_807FBB4C->unk84;
+        if (e->actorType == 0xF0 || e->actorType == 0xF9) {
+            dx = e->x - D_807FBB4C->x;
+            dy = e->y - D_807FBB4C->y;
+            dz = e->z - D_807FBB4C->z;
             d = dx * dx + dy * dy + dz * dz;
             if (d < best) {
                 best = d;
@@ -89,37 +89,37 @@ void actorUpdateNearestSpotlight(void) {
         }
     }
     if (found != D_807FBB40) {
-        D_807FBB40->unk154 = 0x40;
+        D_807FBB40->state = 0x40;
         return;
     }
-    switch (D_807FBB40->unk58) {
+    switch (D_807FBB40->actorType) {
         case 0xF0:
             if (D_807FBB40->unk60 & 0x100) {
                 actorGetNodePos(D_807FBB40, 1, A, &A[1], &A[2]);
             } else {
-                A[0] = D_807FBB40->unk7C;
-                A[1] = D_807FBB40->unk80;
-                A[2] = D_807FBB40->unk84;
+                A[0] = D_807FBB40->x;
+                A[1] = D_807FBB40->y;
+                A[2] = D_807FBB40->z;
             }
-            dx = D_807FBB40->unk7C - D_807FBB4C->unk7C;
-            dy = D_807FBB40->unk80 - D_807FBB4C->unk80;
-            dz = D_807FBB40->unk84 - D_807FBB4C->unk84;
+            dx = D_807FBB40->x - D_807FBB4C->x;
+            dy = D_807FBB40->y - D_807FBB4C->y;
+            dz = D_807FBB40->z - D_807FBB4C->z;
             if (dx * dx + dy * dy + dz * dz > 40000.0f && (D_807FBB40->unk60 & 0x100)) {
                 actorGetNodePos(D_807FBB40, 2, B, &B[1], &B[2]);
             } else {
-                B[0] = D_807FBB4C->unk7C;
-                B[1] = D_807FBB4C->unk80;
-                B[2] = D_807FBB4C->unk84;
+                B[0] = D_807FBB4C->x;
+                B[1] = D_807FBB4C->y;
+                B[2] = D_807FBB4C->z;
             }
             lightSetFovAngles(30.0f, 80.0f);
             break;
         case 0xF9:
-            A[0] = D_807FBB40->unk7C;
-            A[1] = D_807FBB40->unk80;
-            A[2] = D_807FBB40->unk84;
-            B[0] = func_80612794(D_807FBB40->unkE6) * 40.0f + D_807FBB40->unk7C;
-            B[1] = D_807FBB40->unk80 - 20.0f;
-            B[2] = func_80612790(D_807FBB40->unkE6) * 40.0f + D_807FBB40->unk84;
+            A[0] = D_807FBB40->x;
+            A[1] = D_807FBB40->y;
+            A[2] = D_807FBB40->z;
+            B[0] = func_80612794(D_807FBB40->yaw) * 40.0f + D_807FBB40->x;
+            B[1] = D_807FBB40->y - 20.0f;
+            B[2] = func_80612790(D_807FBB40->yaw) * 40.0f + D_807FBB40->z;
             lightSetFovAngles(20.0f, 40.0f);
             break;
     }
@@ -133,8 +133,8 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
     f32 dz;
 
     behaviourFrameBegin();
-    dx = D_807FBB40->unk7C - D_807FDC94->unk7C;
-    dz = D_807FBB40->unk84 - D_807FDC94->unk84;
+    dx = D_807FBB40->x - D_807FDC94->x;
+    dz = D_807FBB40->z - D_807FDC94->z;
     dist = (u16)sqrtf(dx * dx + dz * dz);
     if (!(D_807FBB40->unk60 & 0x10)) {
         R1C8CBSub178 *p = R1V->unk178;
@@ -146,7 +146,7 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
         p->unk2 = 0;
         p->unk0 = 0xFF;
         ((R1C8CBView98 *)D_807FDC98)->unk3C = 1.0f;
-        if (D_807FBB40->unk58 == 0xF0) {
+        if (D_807FBB40->actorType == 0xF0) {
             sfxPlayActorSound(D_807FBB40, 0x132, 0, 0, 0, 0xA0, 1.0f, 0);
         }
     }
@@ -156,8 +156,8 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
         dist = dist - stopDist;
     }
     actorSetTargetSpeed(D_807FBB40, (s32)((u32)dist * 2.0));
-    func_8072A920(0x23, yOffset, D_807FDC94->unk7C, D_807FDC94->unk80 + yOffset * 3.0, D_807FDC94->unk84, 0x1E, 3.3f, 100.0f, flags | 0x2000);
-    D_807FBB40->unk80 += 0.5 * func_80612794(gFrameCounter * 40);
+    func_8072A920(0x23, yOffset, D_807FDC94->x, D_807FDC94->y + yOffset * 3.0, D_807FDC94->z, 0x1E, 3.3f, 100.0f, flags | 0x2000);
+    D_807FBB40->y += 0.5 * func_80612794(gFrameCounter * 40);
     actorUpdateNearestSpotlight();
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
@@ -223,9 +223,9 @@ void func_806C6BC8(void) {
                 ratio = (f32)R1S->unk2C / (f32)R1S->unk2E;
                 actorGetNodePos(D_807FBB40, 2, &x, &y, &z);
                 actorSetUniformScale(D_807FBB4C, ratio * 0.13 + 0.02);
-                D_807FBB4C->unk7C += (x - D_807FBB4C->unk7C) * 0.05;
-                D_807FBB4C->unk80 += (y - D_807FBB4C->unk80) * 0.05;
-                D_807FBB4C->unk84 += (z - D_807FBB4C->unk84) * 0.05;
+                D_807FBB4C->x += (x - D_807FBB4C->x) * 0.05;
+                D_807FBB4C->y += (y - D_807FBB4C->y) * 0.05;
+                D_807FBB4C->z += (z - D_807FBB4C->z) * 0.05;
                 R1S->unk2C--;
                 if (R1S->unk2C == 0) {
                     func_805FF9AC(0x33, 0, 0, 1);
@@ -234,7 +234,7 @@ void func_806C6BC8(void) {
             break;
         case 0x27:
             if (R1S->unk2E != 0) {
-                D_807FBB40->unk80 += 2.0f;
+                D_807FBB40->y += 2.0f;
                 R1S->unk2E--;
                 actorSetUniformScale(D_807FBB40, R1S->unk30 + (0.01 - R1S->unk30) * (R1S->unk2E / 150.0));
             } else {
@@ -270,7 +270,7 @@ void func_806C6BC8(void) {
                                 R1V->unk155 = 3;
                             }
                         }
-                        if (R1V->unk11C->unk154 == 5 || D_807FBB4C->unk58 != 3) {
+                        if (R1V->unk11C->unk154 == 5 || D_807FBB4C->actorType != 3) {
                             actorScriptStart(D_807FBB40, 0x2BA);
                             scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
                             csModelStateSetFirstByte(0x33, 0);

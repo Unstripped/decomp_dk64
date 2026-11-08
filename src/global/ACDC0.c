@@ -1845,7 +1845,7 @@ void hudTextScreenUpdate(void) {
     }
     if (D_807FBB40->unk168 != 0) {
         D_807FBB40->unk168--;
-    } else if (D_807FBB40->unk154 == 0) {
+    } else if (D_807FBB40->state == 0) {
         if (D_807ECD58 & 0x8000) {
             switch (D_807FBB40->unk15F) {
                 case 2:
@@ -1861,7 +1861,7 @@ void hudTextScreenUpdate(void) {
                     func_805FF378(gCurrentMap, 0);
                     break;
             }
-            D_807FBB40->unk154 = 1;
+            D_807FBB40->state = 1;
         } else if (D_807ECD58 & 0x4000) {
             switch (D_807FBB40->unk15F) {
                 case 3:
@@ -1877,7 +1877,7 @@ void hudTextScreenUpdate(void) {
                     func_805FF898();
                     break;
             }
-            D_807FBB40->unk154 = 1;
+            D_807FBB40->state = 1;
         }
     }
     renderCallbacksRegister(hudDrawTextScreen, D_807FBB40, 5);

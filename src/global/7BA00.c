@@ -21,18 +21,18 @@ void actorTriggerPlayerKnockbackSound(Actor* attacker, Actor* target, s32 unused
         kong = beh[0x1A4];
         *(s32*)(beh + 0x1F0) |= 0x80000;
         if (*(s16*)(beh + 0xD4) == (beh[0x1A4] * 0)) { // FAKE: keeps kong live across check
-            if (D_807FBB4C->unk154 != 0x36) {
+            if (D_807FBB4C->state != 0x36) {
                 if (playerCanTakeHit(D_807FBB4C)) {
-                    if (D_807FBB4C->unk58 == 6 && gPlayerSlots[kong].unk2C0 == 2) {
-                        if (D_807FBB4C->unk154 != 0x31) {
+                    if (D_807FBB4C->actorType == 6 && gPlayerSlots[kong].unk2C0 == 2) {
+                        if (D_807FBB4C->state != 0x31) {
                             if (attacker->unk5C & 0x80) {
-                                sfxPlayAtPositionPooled(target->unk7C, target->unk80, target->unk84, 0x1E0, 0xFF, 0x64, 0x1E, 0, 0.3f, 0);
+                                sfxPlayAtPositionPooled(target->x, target->y, target->z, 0x1E0, 0xFF, 0x64, 0x1E, 0, 0.3f, 0);
                             }
                         }
-                    } else if (attacker->unk58 == 0xBB) {
-                        sfxPlayAtPositionPooled(target->unk7C, target->unk80, target->unk84, 0x37, 0xFF, 0x7F, 0x1E, 0x5A, 0.3f, 0);
+                    } else if (attacker->actorType == 0xBB) {
+                        sfxPlayAtPositionPooled(target->x, target->y, target->z, 0x37, 0xFF, 0x7F, 0x1E, 0x5A, 0.3f, 0);
                     } else {
-                        sfxPlayAtPositionPooled(target->unk7C, target->unk80, target->unk84, 0x1E0, 0xFF, 0x7F, 0x1E, 0x5A, 0.3f, 0);
+                        sfxPlayAtPositionPooled(target->x, target->y, target->z, 0x1E0, 0xFF, 0x7F, 0x1E, 0x5A, 0.3f, 0);
                     }
                 }
             }

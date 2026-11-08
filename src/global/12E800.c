@@ -67,22 +67,22 @@ void behaviourFrameBegin(void) {
     D_807FDCA0 = D1DC98D->unk1C;
     D_807FDC90->unk18++;
     if (D_807FBB40->unk60 & 0x20000000) {
-        if (D_807FBB40->unk154 != 0x37 && D_807FBB40->unk154 != 0x36) {
+        if (D_807FBB40->state != 0x37 && D_807FBB40->state != 0x36) {
             if (((D1S4 *)D_807FDC94->unk4)->unk0->unk10 != D1DC90D->unk16) {
                 D_807FBB40->unk60 &= ~0x20000000;
             }
         }
     }
     if (D_807FBB40->unk5C & 2) {
-        if ((D_807444EC == 1 && (D1DC98D->unk46 & 8)) || (D_807FDC94 != NULL && D_807FDC94->unk154 == 0x42)) {
-            if (D_807FBB40->unk154 >= 0x23 && D_807FBB40->unk154 < 0x36) {
+        if ((D_807444EC == 1 && (D1DC98D->unk46 & 8)) || (D_807FDC94 != NULL && D_807FDC94->state == 0x42)) {
+            if (D_807FBB40->state >= 0x23 && D_807FBB40->state < 0x36) {
                 D_807FBB40->unk144 = 1;
-                D_807FBB40->unk154 = 0x3A;
+                D_807FBB40->state = 0x3A;
                 D_807FBB40->unk155[0] = 0;
             }
         }
         if (D_807FBB70.unk1B) {
-            if (D_807FBB40->unk154 != 0x39) {
+            if (D_807FBB40->state != 0x39) {
                 if (D1DC98D->unk46 & 0x800) {
                     D_807FBB70.unk15 = 1;
                 } else {
@@ -90,7 +90,7 @@ void behaviourFrameBegin(void) {
                     D_807FBB40->unk138 = 0;
                     D_807FBB40->unk60 &= 0xFFFD7FFF;
                     D_807FBB40->unk144 = 1;
-                    D_807FBB40->unk154 = 0x39;
+                    D_807FBB40->state = 0x39;
                     D_807FBB40->unk155[0] = 0;
                     actorScriptStart(D_807FBB40, D1DC98D->unk2A);
                     sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0x14);
@@ -99,7 +99,7 @@ void behaviourFrameBegin(void) {
             }
         }
         if ((D1DC98D->unk46 & 0x4000) && (D_807FBB40->unk6A & 4)) {
-            if (D_807FBB40->unk80 + (f32)(u32)D_807FBB40->unk15E < D1AE->unkAC) {
+            if (D_807FBB40->y + (f32)(u32)D_807FBB40->unk15E < D1AE->unkAC) {
                 D_807FBB70.unk15 = 1;
             }
         }
@@ -107,14 +107,14 @@ void behaviourFrameBegin(void) {
             if (D_807FDC94->unk5C & 1) {
                 if ((((D1S174 *)D_807FDC94->unk174)->unk1F0 ^ ((D1S174 *)D_807FDC94->unk174)->unk1F8) & 0x100000) {
                     sfxStopSlotSound(D_807FBB40, 0);
-                    D_807FBB40->unk154 = 0;
+                    D_807FBB40->state = 0;
                     D_807FBB40->unk155[0] = 0;
                     D_807FBB85 = 1;
                 }
             }
         }
     }
-    if (D_807FBB40->unk58 != 0xAF && D_807FBB40->unk154 == 0x37 && D_807FBB40->unk138 != 0) {
+    if (D_807FBB40->actorType != 0xAF && D_807FBB40->state == 0x37 && D_807FBB40->unk138 != 0) {
         D_807FBB40->unk138 = 0;
         if (!D_807FBB70.unk1B) {
         }
@@ -307,7 +307,7 @@ void func_8072A450(void) {
             e = &D_8075EB80[D1DC98C->unk44];
             b = (u32)(sub->unk34 * (u32)e->unk14 * D1DC98C->unk30);
             c = (u32)(sub->unk3C * (u32)e->unk15 * D1DC98C->unk30);
-            billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, b, c, 1, 0x12C, a, D_807FBB40->unkE6, 1.0f);
+            billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, b, c, 1, 0x12C, a, D_807FBB40->yaw, 1.0f);
         }
     }
 }
@@ -1010,7 +1010,7 @@ void func_8072B7CC(s32 arg0) {
                     actorSetTargetSpeed(D_807FBB40, 0);
                 }
                 F1A->unk155 = F1A->unk155 + 1;
-            } else if ((D_807444EC == 0) && (D_807FDC94->unk154 != 0x42)) {
+            } else if ((D_807444EC == 0) && (D_807FDC94->state != 0x42)) {
                 F1A->unk132 = 1;
                 F1A->unk144 = 0x24;
                 F1A->unk154 = F1S9C->unk10;
@@ -1028,7 +1028,7 @@ void func_8072B7CC(s32 arg0) {
                 if (gFrameCounter & 1) {
                     F1A->unk80 += 1.0f;
                 }
-                if (D_807FBB4C->unk154 != 0x67) {
+                if (D_807FBB4C->state != 0x67) {
                     actorQueueDelayedCallback(D_807FBB40, 0, 8, 0, 0, 0, 1);
                 }
             }
@@ -1124,8 +1124,8 @@ u8 func_8072C670(u8 arg0, u8 *arg1) {
 
     *arg1 = 1;
     if (D_807FBB40->unk5C & 2) {
-        if (D_807FBB40->unk154 != 0x15 &&
-            ((D_807FDC94->unk58 == 6 && ((D1PlayerView *)gPlayerSlots)->unk2C0 == 2 && gPlayerCount == 1) ||
+        if (D_807FBB40->state != 0x15 &&
+            ((D_807FDC94->actorType == 6 && ((D1PlayerView *)gPlayerSlots)->unk2C0 == 2 && gPlayerCount == 1) ||
              ((D_807FDC94->unk5C & 1) && (st->unk1F0 & 0x10)))) {
             ret = 7;
         } else if (D1DC90H->unk37 == 7 && arg0 != 0 && !(D1DC90H->unk1A & 0x200) && D1DC90H->unk20 == 0) {
@@ -1282,7 +1282,7 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
     st = D_807FDC94->unk174;
     me = C1B40;
 #define SQ(x) ((x) * (x))
-    dist = (s32)(SQ(me->unk7C - D_807FDC94->unk7C) + SQ(me->unk80 - D_807FDC94->unk80) + SQ(me->unk84 - D_807FDC94->unk84));
+    dist = (s32)(SQ(me->unk7C - D_807FDC94->x) + SQ(me->unk80 - D_807FDC94->y) + SQ(me->unk84 - D_807FDC94->z));
     near = dist < arg0;
     if (near == 0) {
         near = (C1D98->unk46 & 4) != 0;
@@ -1292,7 +1292,7 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
     } else {
         ang = C1D90->unk8 - me->unkEE;
     }
-    if ((zoneCanReachPoint((Actor *)me, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, D_807FDCA0) != 0) && !(C1D98->unk46 & 0x2000) && !(st->unk1F0 & 0x8000)) {
+    if ((zoneCanReachPoint((Actor *)me, D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, D_807FDCA0) != 0) && !(C1D98->unk46 & 0x2000) && !(st->unk1F0 & 0x8000)) {
         C1D90->unk1A |= 0x400;
     } else {
         C1D90->unk1A &= 0xFBFF;
@@ -1368,7 +1368,7 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
             }
             break;
         case 7:
-            if ((SQ(D_807FBB40->unk84 - C1D90->unkE) + SQ(D_807FBB40->unk7C - C1D90->unkA)) < 400.0f) {
+            if ((SQ(D_807FBB40->z - C1D90->unkE) + SQ(D_807FBB40->x - C1D90->unkA)) < 400.0f) {
                 if (!(C1D90->unk1A & 0x80)) {
                     actorSetDefaultState(C1D98->unk28);
                 } else {
@@ -1714,7 +1714,7 @@ void func_8072D714(D1ActorViewI *arg0, s32 arg1) {
 
 void func_8072D99C(void) {
     D_807FBB40->unk144 = 1;
-    D_807FBB40->unk154 = 0x40;
+    D_807FBB40->state = 0x40;
     D_80744508++;
 }
 
@@ -1754,7 +1754,7 @@ typedef struct E2ActorView {
 extern Actor *D_807FBD6C;
 
 void func_8072DA60(void) {
-    func_80714CC0(&D_8071FB34, 0.55f, D_807FBD6C->unk7C, D_807FBD6C->unk80, D_807FBD6C->unk84);
+    func_80714CC0(&D_8071FB34, 0.55f, D_807FBD6C->x, D_807FBD6C->y, D_807FBD6C->z);
 }
 
 void func_80714998(s32);
@@ -1766,7 +1766,7 @@ void func_8072DAA4(void) {
     func_807149B8(1);
     func_8071498C(func_80717D4C);
     func_80714950(-0x28 - ((randomNonNegative() >> 15) % 15));
-    func_80714CC0(&D_8071FF18, (f32)(((randomNonNegative() >> 15) % 1000) / 2000.0 + 0.5), D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+    func_80714CC0(&D_8071FF18, (f32)(((randomNonNegative() >> 15) % 1000) / 2000.0 + 0.5), D_807FBB40->x, D_807FBB40->y, D_807FBB40->z);
 }
 
 extern u8 gCurrentPlayerIndex;
@@ -1789,7 +1789,7 @@ void func_8072DB68(s32 arg0) {
     slotQueueUpdate(0xB, 0, 0);
     sfxAllocateChannel(0x41, 1.0f);
     for (i = 0; i < cnt; i++) {
-        actorSpawnNodeEntryScaled(0x36, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, D_807FBB4C->unkE6 + i * 200 - 200, 1, -1, 0);
+        actorSpawnNodeEntryScaled(0x36, D_807FBB4C->x, D_807FBB4C->y, D_807FBB4C->z, D_807FBB4C->yaw + i * 200 - 200, 1, -1, 0);
     }
 }
 
@@ -1806,8 +1806,8 @@ f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 s32 camIsCutsceneActive(void);
 
 s32 func_8072DCF4(Actor *arg0, Actor *arg1, u16 arg2) {
-    f32 deg = mathAngleBetweenPointsDeg((s32)arg1->unk7C, (s32)arg1->unk84, (s32)arg0->unk7C, (s32)arg0->unk84);
-    s16 a = (f64)arg0->unkE6 / 4095.0 * 65536.0;
+    f32 deg = mathAngleBetweenPointsDeg((s32)arg1->x, (s32)arg1->z, (s32)arg0->x, (s32)arg0->z);
+    s16 a = (f64)arg0->yaw / 4095.0 * 65536.0;
     f32 t = 360.0 - deg;
     s16 b = (f64)t / 360.0 * 65536.0;
     s32 diff;
@@ -1832,7 +1832,7 @@ s32 func_8072DE10(u16 arg0) {
 void actorSetTargetSpeed(Actor *, s32);
 
 void actorSetDefaultState(s32 arg0) {
-    D_807FBB40->unk154 = D_807FDC9C->unk10;
+    D_807FBB40->state = D_807FDC9C->unk10;
     D_807FBB40->unk155[0] = 0;
     actorScriptStart(D_807FBB40, arg0);
     actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC);
@@ -1862,7 +1862,7 @@ void func_8072DEA8(void *arg0, u8 arg1, Actor *arg2) {
         if (arg2->unk5C & 4) {
             E2A->unkEE = (((E2ActorView *)arg2)->unkEE + 0x800) & 0xFFF;
         } else {
-            E2A->unkEE = (arg2->unkE6 + 0x800) & 0xFFF;
+            E2A->unkEE = (arg2->yaw + 0x800) & 0xFFF;
         }
         actorSetBehaviourState(arg1, 0, (s32)arg0);
         b8 = arg2->unkB8;
@@ -1887,27 +1887,27 @@ u8 func_8072E0A8(s32 arg0, s16 arg1) {
     s16 ang;
     s16 diff;
 
-    close = (((D_807FDC94->unk7C - D_807FBB40->unk7C) * (D_807FDC94->unk7C - D_807FBB40->unk7C) + (D_807FDC94->unk84 - D_807FBB40->unk84) * (D_807FDC94->unk84 - D_807FBB40->unk84)) < (f32)(arg0 * arg0));
-    ang = mathAngleBetweenPoints2D(D_807FDC94->unk7C, D_807FDC94->unk84, D_807FBB40->unk7C, D_807FBB40->unk84);
-    if (ang < D_807FBB40->unkE6) {
-        diff = D_807FBB40->unkE6 - ang;
+    close = (((D_807FDC94->x - D_807FBB40->x) * (D_807FDC94->x - D_807FBB40->x) + (D_807FDC94->z - D_807FBB40->z) * (D_807FDC94->z - D_807FBB40->z)) < (f32)(arg0 * arg0));
+    ang = mathAngleBetweenPoints2D(D_807FDC94->x, D_807FDC94->z, D_807FBB40->x, D_807FBB40->z);
+    if (ang < D_807FBB40->yaw) {
+        diff = D_807FBB40->yaw - ang;
     } else {
-        diff = ang - D_807FBB40->unkE6;
+        diff = ang - D_807FBB40->yaw;
     }
     if (diff > 0x800) {
         diff = 0x1000 - diff;
     }
-    return diff < arg1 && close && D_807FDC94->unk154 != 0x42;
+    return diff < arg1 && close && D_807FDC94->state != 0x42;
 }
 
 void func_8072E1A4(u8 arg0, Actor *arg1) {
-    D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, mathAngleBetweenPoints2D(arg1->unk7C, arg1->unk84, D_807FBB40->unk7C, D_807FBB40->unk84), (u32)arg0);
+    D_807FBB40->yaw = mathAngleEaseToward(D_807FBB40->yaw, mathAngleBetweenPoints2D(arg1->x, arg1->z, D_807FBB40->x, D_807FBB40->z), (u32)arg0);
 }
 
 u8 actorIsTargetWithinDistance(u16 arg0) {
-    f32 dx = D_807FBB40->unk7C - D_807FDC94->unk7C;
-    f32 dy = D_807FBB40->unk80 - D_807FDC94->unk80;
-    f32 dz = D_807FBB40->unk84 - D_807FDC94->unk84;
+    f32 dx = D_807FBB40->x - D_807FDC94->x;
+    f32 dy = D_807FBB40->y - D_807FDC94->y;
+    f32 dz = D_807FBB40->z - D_807FDC94->z;
 
     return (dx * dx + dy * dy + dz * dz) < (f32)(arg0 * arg0);
 }
@@ -1918,9 +1918,9 @@ void actorGetNodePosOrPosition(Actor *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
     if (((E2ActorView *)arg0)->unkCC != 0) {
         actorGetNodePos(arg0, ((E2ActorView *)arg0)->unkCC & 0xFFFFFFFFu, arg1, arg2, arg3);
     } else {
-        *arg1 = arg0->unk7C;
-        *arg2 = arg0->unk80;
-        *arg3 = arg0->unk84;
+        *arg1 = arg0->x;
+        *arg2 = arg0->y;
+        *arg3 = arg0->z;
     }
 }
 

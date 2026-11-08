@@ -46,7 +46,7 @@ s32 func_80724A20(void) {
         do {
             if (D_807FBB70.unk258[i] == 3) {
                 found = 1;
-                D_807FBB40->unk154 = D_807FBB70.unk278[i][1];
+                D_807FBB40->state = D_807FBB70.unk278[i][1];
                 D_807FBB40->unk155[0] = 0;
             }
             i++;
@@ -278,11 +278,11 @@ void func_80724E48(u8 arg0) {
     angle = 0.0f;
     if (arg0 == 8) {
         pitchArg = 0x46;
-        sp34 = D_807FBB4C->unkE6 * 3.1415927f * (1.0 / 2048.0);
+        sp34 = D_807FBB4C->yaw * 3.1415927f * (1.0 / 2048.0);
         sp30 = A1CAM(D_807FBB4C);
         sp28 = 1.0431069f;
     } else {
-        sp34 = D_807FBB40->unkE6 * 3.1415927f * (1.0 / 2048.0);
+        sp34 = D_807FBB40->yaw * 3.1415927f * (1.0 / 2048.0);
         sp30 = A1CAM(D_807FBB40);
         pitchArg = ((A1Tbl18 *)D_8075EB80)[A1DC98->unk44].unkD;
         sp28 = ((A1Tbl18 *)D_8075EB80)[A1DC98->unk44].unkC * 4 * 3.1415927f * (1.0 / 2048.0);
@@ -297,28 +297,28 @@ void func_80724E48(u8 arg0) {
         }
         switch (arg0) {
             case 8:
-                sp38 = mathCalculatePitchAngle(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, pitchArg);
-                angle = mathAngleBetweenPointsRad(D_807FBB40->unk7C, D_807FBB40->unk84, D_807FBB4C->unk7C, D_807FBB4C->unk84) - sp34;
+                sp38 = mathCalculatePitchAngle(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, D_807FBB4C->x, D_807FBB4C->y, D_807FBB4C->z, pitchArg);
+                angle = mathAngleBetweenPointsRad(D_807FBB40->x, D_807FBB40->z, D_807FBB4C->x, D_807FBB4C->z) - sp34;
                 break;
             case 7:
-                sp38 = mathCalculatePitchAngle(D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, pitchArg);
-                angle = mathAngleBetweenPointsRad(D_807FDC94->unk7C, D_807FDC94->unk84, D_807FBB40->unk7C, D_807FBB40->unk84) - sp34;
+                sp38 = mathCalculatePitchAngle(D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, pitchArg);
+                angle = mathAngleBetweenPointsRad(D_807FDC94->x, D_807FDC94->z, D_807FBB40->x, D_807FBB40->z) - sp34;
                 break;
             case 6:
-                sp38 = mathCalculatePitchAngle(A1PLR->unk210, A1PLR->unk214, A1PLR->unk218, D_807FBB40->unk7C, D_807FBB40->unk80 + (u32)D_807FBB40->unk15E, D_807FBB40->unk84, pitchArg);
-                angle = mathAngleBetweenPointsRad(A1PLR->unk210, A1PLR->unk218, D_807FBB40->unk7C, D_807FBB40->unk84) - sp34;
+                sp38 = mathCalculatePitchAngle(A1PLR->unk210, A1PLR->unk214, A1PLR->unk218, D_807FBB40->x, D_807FBB40->y + (u32)D_807FBB40->unk15E, D_807FBB40->z, pitchArg);
+                angle = mathAngleBetweenPointsRad(A1PLR->unk210, A1PLR->unk218, D_807FBB40->x, D_807FBB40->z) - sp34;
                 break;
             case 0:
-                sp38 = mathCalculatePitchAngle(A1PLR->unk2B4, A1PLR->unk2B8, A1PLR->unk2BC, D_807FBB40->unk7C, D_807FBB40->unk80 + (u32)D_807FBB40->unk15E, D_807FBB40->unk84, pitchArg);
+                sp38 = mathCalculatePitchAngle(A1PLR->unk2B4, A1PLR->unk2B8, A1PLR->unk2BC, D_807FBB40->x, D_807FBB40->y + (u32)D_807FBB40->unk15E, D_807FBB40->z, pitchArg);
             case 1:
-                angle = mathAngleBetweenPointsRad(A1PLR->unk2B4, A1PLR->unk2BC, D_807FBB40->unk7C, D_807FBB40->unk84) - sp34;
+                angle = mathAngleBetweenPointsRad(A1PLR->unk2B4, A1PLR->unk2BC, D_807FBB40->x, D_807FBB40->z) - sp34;
                 break;
             case 2:
                 angle = A1DC90->unk24 * 2 * 0.017453292f;
                 break;
             case 3:
-                sp38 = mathCalculatePitchAngle(A1DC90->unkA, A1DC90->unkC, A1DC90->unkE, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, pitchArg);
-                angle = mathAngleBetweenPointsRad(A1DC90->unkA, A1DC90->unkE, D_807FBB40->unk7C, D_807FBB40->unk84) - sp34;
+                sp38 = mathCalculatePitchAngle(A1DC90->unkA, A1DC90->unkC, A1DC90->unkE, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, pitchArg);
+                angle = mathAngleBetweenPointsRad(A1DC90->unkA, A1DC90->unkE, D_807FBB40->x, D_807FBB40->z) - sp34;
                 break;
         }
         if (angle < 0.0f) {
@@ -615,10 +615,10 @@ s16 *arg5;
     for (i = 0; i < arg2->count10 && !stop; i++) {
         e = F1ENT(arg2, i);
         if (!(e->flags & 0x80) && ((e->flags & 0x7F) == 3)) {
-            if (segmentIntersectsCircle2D((s32)arg1->unk7C, (s32)arg1->unk84, e->x, e->z, (s32)D_807FDC94->unk7C, (s32)D_807FDC94->unk84, 0x14) == 0) {
+            if (segmentIntersectsCircle2D((s32)arg1->x, (s32)arg1->z, e->x, e->z, (s32)D_807FDC94->x, (s32)D_807FDC94->z, 0x14) == 0) {
                 if (zoneCanReachPoint(arg1, e->x, e->y, e->z, arg2) != 0) {
-                    if (((arg0 & 1) && (d = (s32)(((D_807FDC94->unk7C - e->x) * (D_807FDC94->unk7C - e->x)) + ((D_807FDC94->unk84 - e->z) * (D_807FDC94->unk84 - e->z))), best < d)) ||
-                        ((arg0 & 2) && (d = (s32)(((arg1->unk7C - e->x) * (arg1->unk7C - e->x)) + ((arg1->unk84 - e->z) * (arg1->unk84 - e->z))), d < best))) {
+                    if (((arg0 & 1) && (d = (s32)(((D_807FDC94->x - e->x) * (D_807FDC94->x - e->x)) + ((D_807FDC94->z - e->z) * (D_807FDC94->z - e->z))), best < d)) ||
+                        ((arg0 & 2) && (d = (s32)(((arg1->x - e->x) * (arg1->x - e->x)) + ((arg1->z - e->z) * (arg1->z - e->z))), d < best))) {
                         best = d;
                         *arg3 = e->x;
                         *arg4 = e->y;
@@ -657,9 +657,9 @@ s32 zoneCanReachPoint(Actor *arg0, s16 arg1, s16 arg2, s16 arg3, F1Tbl *arg4) {
 
     cross = 0;
     edges = 0;
-    x = arg0->unk7C;
-    y = arg0->unk80 + (f32)(u32)arg0->unk15E;
-    z = arg0->unk84;
+    x = arg0->x;
+    y = arg0->y + (f32)(u32)arg0->unk15E;
+    z = arg0->z;
     for (i = 1; i < arg4->count8; i++) {
         if ((i + 1) != arg4->count8) {
             res = lineSegmentIntersect2D(arg1, arg3, -0x8000, -0x8000, ((F1Pt6 *)arg4->entsC)[i].x, ((F1Pt6 *)arg4->entsC)[i].z, ((F1Pt6 *)arg4->entsC)[i + 1].x, ((F1Pt6 *)arg4->entsC)[i + 1].z, &f1, &f2);
@@ -709,9 +709,9 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
     arg0->unkF4 = 0;
     arg0->unkF6 = 0xFFF;
     found = 0;
-    x = arg0->unk7C;
-    y = arg0->unk80;
-    z = arg0->unk84;
+    x = arg0->x;
+    y = arg0->y;
+    z = arg0->z;
     for (i = 0; i < arg3->count10; i++) {
         e = F1ENT(arg3, i);
         sel = e->flags & 0x7F;
@@ -744,11 +744,11 @@ typedef struct F1Pt {
 } F1Pt;
 
 void actorSetPositionFromPoint(Actor *arg0, F1Pt *arg1) {
-    arg0->unk7C = arg1->unk4;
-    arg0->unk80 = arg1->unk6;
+    arg0->x = arg1->unk4;
+    arg0->y = arg1->unk6;
     arg0->unk8C = arg1->unk6;
-    arg0->unk84 = arg1->unk8;
-    arg0->unkE6 = arg1->unk2;
+    arg0->z = arg1->unk8;
+    arg0->yaw = arg1->unk2;
 }
 
 typedef struct A4Act {
@@ -1256,7 +1256,7 @@ void spawnNodeSpawnAtTablePoint(s16 arg0, u8 arg1) {
     s16 sp34;
 
     tbl = ((C1Tbl98 *)D_807FDC98)->unk20[arg1][0];
-    sp34 = (s16)(s32)((mathAngleBetweenPointsDeg((s32)D_807FDC94->unk7C, (s32)D_807FDC94->unk84, C1PTS[tbl].x, C1PTS[tbl].z) * 4096.0f) / 360.0f);
+    sp34 = (s16)(s32)((mathAngleBetweenPointsDeg((s32)D_807FDC94->x, (s32)D_807FDC94->z, C1PTS[tbl].x, C1PTS[tbl].z) * 4096.0f) / 360.0f);
     if (spawnNodeSpawnById(arg0, C1PTS[tbl].x, C1PTS[tbl].y, C1PTS[tbl].z, sp34, ((randomNonNegative() >> 0xF) % 100) + 0x64, ((randomNonNegative() >> 0xF) % 100) + 0xC8) != 0) {
         C1ACT44->unk154 = 0x17;
         C1ACT44->unk155 = 0;

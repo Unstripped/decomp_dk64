@@ -202,14 +202,14 @@ void func_806B24B8(void) {
     }
     if (D_807FBB40->unk154 == 0x23) {
         if (D_807FBB40->unkF0 == 0) {
-            dx = D_807FBB40->unk7C - D_807FDC94->unk7C;
-            dz = D_807FBB40->unk84 - D_807FDC94->unk84;
+            dx = D_807FBB40->unk7C - D_807FDC94->x;
+            dz = D_807FBB40->unk84 - D_807FDC94->z;
             if (sqrtf(dx * dx + dz * dz) < 30.0f) {
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2CA, 0xFF, 0x7F, 0x14);
                 D_807FBB40->unkF0 = 1;
             }
         }
-        actorMoveWithinZone(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+        actorMoveWithinZone(0x23, D_807FDC94->x, D_807FDC94->z, 0, 0.0f);
     } else {
         func_8072B7CC(0x1F8);
     }

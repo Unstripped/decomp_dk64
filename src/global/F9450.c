@@ -1506,21 +1506,21 @@ void gridCollectActorsInRange(u8 arg0) {
                 for (i = 0; i < gActiveActorCount; i++) {
                     {
                         actor = gActiveActors[i].unk0;
-                        if ((D_807FBB60 & 0x10000) && (F94D_ENTRY->unkE == actor->unk58) && ((F94D_ENTRY->unkC == 0) || (F94D_ENTRY->unkC == player->unk58))) {
+                        if ((D_807FBB60 & 0x10000) && (F94D_ENTRY->unkE == actor->actorType) && ((F94D_ENTRY->unkC == 0) || (F94D_ENTRY->unkC == player->actorType))) {
                             node = (F94D_Node *) D_807FD780[arg0];
-                            found = (f32) camDistance3D((s32) actor->unk7C, (s32) ((f32) F94D_ENTRY->unk10 + actor->unk80), (s32) actor->unk84, (s32) ((F94D_Node *)&D_807FD740[arg0])->unk0, (s32) ((F94D_Node *)&D_807FD740[arg0])->unk4, (s32) ((F94D_Node *)&D_807FD740[arg0])->unk8) < ((f32) F94D_ENTRY->unk12 + ((F94D_Node *)&D_807FD740[arg0])->unkC) - 1.0f;
+                            found = (f32) camDistance3D((s32) actor->x, (s32) ((f32) F94D_ENTRY->unk10 + actor->y), (s32) actor->z, (s32) ((F94D_Node *)&D_807FD740[arg0])->unk0, (s32) ((F94D_Node *)&D_807FD740[arg0])->unk4, (s32) ((F94D_Node *)&D_807FD740[arg0])->unk8) < ((f32) F94D_ENTRY->unk12 + ((F94D_Node *)&D_807FD740[arg0])->unkC) - 1.0f;
                             while ((found == 0) && (node != NULL)) {
-                                found = (f32) camDistance3D((s32) actor->unk7C, (s32) ((f32) F94D_ENTRY->unk10 + actor->unk80), (s32) actor->unk84, (s32) node->unk0, (s32) node->unk4, (s32) node->unk8) < ((f32) F94D_ENTRY->unk12 + node->unkC) - 1.0f;
+                                found = (f32) camDistance3D((s32) actor->x, (s32) ((f32) F94D_ENTRY->unk10 + actor->y), (s32) actor->z, (s32) node->unk0, (s32) node->unk4, (s32) node->unk8) < ((f32) F94D_ENTRY->unk12 + node->unkC) - 1.0f;
                                 node = node->unk10;
                             }
-                            if ((actor->unk154 == 0x64) || (found != 0)) {
-                                if ((D_807FBB64 & 0x10000) && (actorTypeIsRespawnPickup(actor->unk58) != 0)) {
-                                    func_806F5F2C(actor->unk58, 0x258, (s16) (s32) actor->unk7C, (s16) (s32) actor->unk80, (s32) actor->unk84);
+                            if ((actor->state == 0x64) || (found != 0)) {
+                                if ((D_807FBB64 & 0x10000) && (actorTypeIsRespawnPickup(actor->actorType) != 0)) {
+                                    func_806F5F2C(actor->actorType, 0x258, (s16) (s32) actor->x, (s16) (s32) actor->y, (s32) actor->z);
                                 }
                                 sub = actor->unk174;
                                 if (sub->unk1 != 0) {
                                     if (gPlayerCount >= 2) {
-                                        switch ((u32) actor->unk58) {
+                                        switch ((u32) actor->actorType) {
                                         case 0x7A:
                                             playerStateHandleSoundEffects(0x1D2, arg0);
                                             func_806F54E0(arg0, 0x1D2, 0);
@@ -1558,7 +1558,7 @@ void gridCollectActorsInRange(u8 arg0) {
                                             break;
                                         }
                                     } else {
-                                        switch (actor->unk58) {
+                                        switch (actor->actorType) {
                                         case 0x2F:
                                         case 0x48:
                                         case 0x56:
@@ -1568,7 +1568,7 @@ void gridCollectActorsInRange(u8 arg0) {
                                             flag = 0;
                                             break;
                                         }
-                                        slot = modelSlotAppend(F94D_ENTRY->unk0, actor->unk7C, func_806F7378(actor->unk58) + actor->unk80, actor->unk84, 0.0f, 0);
+                                        slot = modelSlotAppend(F94D_ENTRY->unk0, actor->x, func_806F7378(actor->actorType) + actor->y, actor->z, 0.0f, 0);
                                         tblIdx = csModelSlotGetTableIndex(slot);
                                         func_80731410(D_8076A0AA, tblIdx, sub->unkA, func_8073198C(sub->unkA));
                                         tblIdx = csModelSlotGetTableIndex(slot);
@@ -1641,8 +1641,8 @@ void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
     case 0x90:
         sfxAllocateChannel(0x12, 1.0f);
         func_80687C48();
-        temp_fv0 = D_807FBB4C->unk80;
-        if (((temp_fv0 - D_807FBB4C->unkA4) < 100.0f) && (D_807FBB4C->unk154 != 0x63) && (!(D_807FBB4C->unk6A & 4) || !((D_807FBB4C->unkAC - temp_fv0) > 20.0f))) {
+        temp_fv0 = D_807FBB4C->y;
+        if (((temp_fv0 - D_807FBB4C->unkA4) < 100.0f) && (D_807FBB4C->state != 0x63) && (!(D_807FBB4C->unk6A & 4) || !((D_807FBB4C->unkAC - temp_fv0) > 20.0f))) {
             playerStateQueueCallback(0x29, 0, F9L2_PS->unk1A4);
             return;
         }
@@ -1650,8 +1650,8 @@ void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
     case 0x74:
     case 0x288:
         sfxAllocateChannel(0x12, 1.0f);
-        temp_fv0_2 = D_807FBB4C->unk80;
-        if (((temp_fv0_2 - D_807FBB4C->unkA4) < 100.0f) && (D_807FBB4C->unk154 != 0x63) && (!(D_807FBB4C->unk6A & 4) || !((D_807FBB4C->unkAC - temp_fv0_2) > 20.0f))) {
+        temp_fv0_2 = D_807FBB4C->y;
+        if (((temp_fv0_2 - D_807FBB4C->unkA4) < 100.0f) && (D_807FBB4C->state != 0x63) && (!(D_807FBB4C->unk6A & 4) || !((D_807FBB4C->unkAC - temp_fv0_2) > 20.0f))) {
             playerStateQueueCallback(0x29, 0, F9L2_PS->unk1A4);
             return;
         }

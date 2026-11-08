@@ -200,7 +200,7 @@ s32 playerInputUpdate(s32 arg0) {
     s32 old;
     s16 ang;
 
-    old = D_807FBB48->unk154;
+    old = D_807FBB48->state;
     INPUT_BUTTONS = inputRemapButtons(D_807ECDEC->unk0, D_80750FF0);
     INPUT_STATE.unk2C = inputRemapButtons(D_807ECDF0, D_80750FF0);
     if (INPUT_PLAYER->unk1F4 & 0x20) {
@@ -324,7 +324,7 @@ s32 playerInputUpdate(s32 arg0) {
     }
     if (gPlayerPadState) {} // FAKE: keeps &gPlayerPadState live to the tail (const-hoist register order)
     gPlayerInputHandlers[arg0].fn[16]();
-    return D_807FBB48->unk154 - old;
+    return D_807FBB48->state - old;
 }
 
 u16 inputRemapButtons(u16 arg0, u16 *arg1) {
@@ -396,7 +396,7 @@ void playerProjectMoveSpeedOntoAngle(s16 arg0) {
 
 void playerClearMoveTarget(void) {
     G21_PLAYER->unk4 = 0.0f;
-    G21_PLAYER->unkA = D_807FBB40->unkE6;
+    G21_PLAYER->unkA = D_807FBB40->yaw;
 }
 
 
@@ -420,7 +420,7 @@ void playerUpdateMoveTargetFromStick(void) {
         return;
     }
     G21_PLAYER->unk4 = 0.0f;
-    G21_PLAYER->unkA = D_807FBB40->unkE6;
+    G21_PLAYER->unkA = D_807FBB40->yaw;
 }
 
 typedef struct G21ActorEE {
@@ -488,7 +488,7 @@ void func_806E0294(void) {
         var_fv0 = 400.0f;
     }
     var_fv0 = var_fv0 * ((f64)G21_PLAYER->unk48 / 400.0);
-    mathAngleStepToward(&D_807FBB40->unkE6, G21_PLAYER->unkA, (s16)(s32)(var_fv0 * var_fv1));
+    mathAngleStepToward(&D_807FBB40->yaw, G21_PLAYER->unkA, (s16)(s32)(var_fv0 * var_fv1));
 }
 
 extern u8 D_807FD640[];
@@ -550,7 +550,7 @@ void func_806E04E0(void) {
     }
     if (var_fv1 < 14.0f) {
         var_fv1 = (temp_v1->unk8 * 0.7) + 0.3;
-        temp_v0 = D_807FBB40->unkE6 - G21_PLAYER->unkA;
+        temp_v0 = D_807FBB40->yaw - G21_PLAYER->unkA;
         if (temp_v0 > 0) {
             var_fv0 = (f32)temp_v0;
         } else {
@@ -563,18 +563,18 @@ void func_806E04E0(void) {
             var_fv0 = 400.0f;
         }
         var_fv0 = var_fv0 * ((f64)G21_PLAYER->unk48 / 400.0);
-        mathAngleStepToward(&D_807FBB40->unkE6, G21_PLAYER->unkA, (s16)(s32)(var_fv0 * var_fv1));
+        mathAngleStepToward(&D_807FBB40->yaw, G21_PLAYER->unkA, (s16)(s32)(var_fv0 * var_fv1));
     }
 }
 
 void func_806E0654(void) {
     playerUpdateMoveTargetFromStick();
-    mathAngleStepToward(&D_807FBB40->unkE6, G21_ACTOR_EE->unkEA, G21_PLAYER->unk48);
+    mathAngleStepToward(&D_807FBB40->yaw, G21_ACTOR_EE->unkEA, G21_PLAYER->unk48);
 }
 
 void func_806E0694(void) {
     playerUpdateMoveTargetFromStick();
-    mathAngleStepToward(&D_807FBB40->unkE6, G21_PLAYER->unkA, G21_PLAYER->unk48);
+    mathAngleStepToward(&D_807FBB40->yaw, G21_PLAYER->unkA, G21_PLAYER->unk48);
     G21_PLAYER->unk4 = 0.0f;
 }
 
@@ -586,7 +586,7 @@ void func_806E06E8(void) {
     } else {
         var_a1 = G21_ACTOR_EE->unkEE + 0x800;
     }
-    mathAngleStepToward(&D_807FBB40->unkE6, var_a1, G21_PLAYER->unk48 / 4);
+    mathAngleStepToward(&D_807FBB40->yaw, var_a1, G21_PLAYER->unk48 / 4);
     G21_PLAYER->unk4 = 0.0f;
 }
 
@@ -598,7 +598,7 @@ void func_806E077C(void) {
     } else {
         var_a1 = G21_ACTOR_EE->unkEE;
     }
-    mathAngleStepToward(&D_807FBB40->unkE6, var_a1, G21_PLAYER->unk48 / 4);
+    mathAngleStepToward(&D_807FBB40->yaw, var_a1, G21_PLAYER->unk48 / 4);
     G21_PLAYER->unk4 = 0.0f;
 }
 
@@ -757,7 +757,7 @@ void func_806E0BEC(void) {
         if ((f64)var_fv1 < 0.2) {
             var_fv1 = 0.2f;
         }
-        temp_v0 = D_807FBB40->unkE6 - G22_M->unkA;
+        temp_v0 = D_807FBB40->yaw - G22_M->unkA;
         if (temp_v0 > 0) {
             var_fv0 = (f32)temp_v0;
         } else {
@@ -770,7 +770,7 @@ void func_806E0BEC(void) {
             var_fv0 = 400.0f;
         }
         var_fv0 = var_fv0 * ((f64)G22_M->unk48 / 400.0);
-        mathAngleStepToward(&D_807FBB40->unkE6, G22_M->unkA, (s16)(s32)(var_fv0 * var_fv1));
+        mathAngleStepToward(&D_807FBB40->yaw, G22_M->unkA, (s16)(s32)(var_fv0 * var_fv1));
     }
 }
 
@@ -788,7 +788,7 @@ void playerTurnByStickX(void) {
         if (1) {} // FAKE: steers uopt candidate priority (temp_v1 before temp_a0)
         if (1) {} // FAKE: steers uopt candidate priority (temp_v1 before temp_a0)
         if (1) {} // FAKE: steers uopt candidate priority (temp_v1 before temp_a0)
-        temp_v1 = D_807FBB40->unkE6;
+        temp_v1 = D_807FBB40->yaw;
         temp_a0 = temp_v1 - G22_M->unkA;
         if (temp_a0 > 0) {
             var_fv0 = (f32)temp_a0;
@@ -804,15 +804,15 @@ void playerTurnByStickX(void) {
         }
         if (var_fv0 > 1.0f) {} // FAKE: keeps the 2048/4096/400 compare chain
         var_fv0 = (f32)((pad->unk2E * G22_M->unk48) / 400);
-        D_807FBB40->unkE6 = (s16)(s32)((f32)temp_v1 - var_fv0);
+        D_807FBB40->yaw = (s16)(s32)((f32)temp_v1 - var_fv0);
         if (1) {} // FAKE: steers uopt candidate priority
-        if (D_807FBB40->unkE6 >= 0x1000) {
+        if (D_807FBB40->yaw >= 0x1000) {
             if (!D_807FBB40 && !D_807FBB40 && !D_807FBB40) {} // FAKE: steers uopt candidate priority
             if (temp_a0) {} // FAKE: steers uopt candidate priority
-            D_807FBB40->unkE6 -= 0x1000;
+            D_807FBB40->yaw -= 0x1000;
         }
-        if (D_807FBB40->unkE6 < 0) {
-            D_807FBB40->unkE6 += 0x1000;
+        if (D_807FBB40->yaw < 0) {
+            D_807FBB40->yaw += 0x1000;
         }
     }
     pad = &gPlayerPadState[gCurrentPlayerIndex];
@@ -903,8 +903,8 @@ void playerPathMoveByStickYAndTurn(void) {
         G22_M->unk8 = 0;
     }
     proxPathAdvance(((s8 *)&D_807FD63F)[gCurrentPlayerIndex * 0x34] / 80.0);
-    D_807FBB40->unkE6 += D_807FD63E[gCurrentPlayerIndex].unk0;
-    D_807FBB40->unkE6 &= 0xFFF;
+    D_807FBB40->yaw += D_807FD63E[gCurrentPlayerIndex].unk0;
+    D_807FBB40->yaw &= 0xFFF;
     playerClampYawToArc();
 }
 
@@ -932,22 +932,22 @@ void playerClampYawToArc(void) {
     hi = G22_M->unk19E;
     lo = G22_M->unk19C;
     if (lo < hi) {
-        cur = D_807FBB40->unkE6;
+        cur = D_807FBB40->yaw;
         if (cur < lo || hi < cur) {
             outside = 1;
         }
     } else {
-        cur = D_807FBB40->unkE6;
+        cur = D_807FBB40->yaw;
         if (hi < cur && cur < lo) {
             outside = 1;
         }
     }
     if (outside) {
         sp1C = mathAngleDistance(cur, lo);
-        if (sp1C < mathAngleDistance(D_807FBB40->unkE6, G22_M->unk19E)) {
-            D_807FBB40->unkE6 = G22_M->unk19C;
+        if (sp1C < mathAngleDistance(D_807FBB40->yaw, G22_M->unk19E)) {
+            D_807FBB40->yaw = G22_M->unk19C;
         } else {
-            D_807FBB40->unkE6 = G22_M->unk19E;
+            D_807FBB40->yaw = G22_M->unk19E;
         }
     }
 }
@@ -971,8 +971,8 @@ void playerSetMoveSpeedFromStickX(void) {
 void func_806E17F4(void) {
     playerUpdateMoveTargetFromStick();
     mathAngleStepToward(&G21_ACTOR_EE->unkEE, G22_M->unkA, G22_M->unk48);
-    mathAngleStepToward(&D_807FBB40->unkE6, G21_ACTOR_EE->unkEE, G22_M->unk48);
-    playerProjectMoveSpeedOntoAngle(D_807FBB40->unkE6);
+    mathAngleStepToward(&D_807FBB40->yaw, G21_ACTOR_EE->unkEE, G22_M->unk48);
+    playerProjectMoveSpeedOntoAngle(D_807FBB40->yaw);
 }
 
 void playerInputNoop(void) {
@@ -1279,7 +1279,7 @@ u8 arg1;
                     }
                 }
                 rumbleRequest(LE40B_S->unk1A4, 0xFF, 3);
-                switch (D_807FBB40->unk58) {
+                switch (D_807FBB40->actorType) {
                     case 7:
                         spawnId = 0xAB;
                         scale = 0.5f;
@@ -1344,9 +1344,9 @@ u8 arg1;
                 if (arg0) {
                     ang = mathAngleBetweenPoints2D(LE40B_OBJ->unk228, LE40B_OBJ->unk230, LE40B_OBJ->unk210, LE40B_OBJ->unk218);
                 } else {
-                    ang = D_807FBB40->unkE6;
+                    ang = D_807FBB40->yaw;
                 }
-                if (D_807FBB40->unk58 == 4) {
+                if (D_807FBB40->actorType == 4) {
                     if ((!arg0 && actorTestNodeSegmentCollision(D_807FBB40)) || actorAngleInArcWithMargin(D_807FBB40, ang, 0) == 0) {
                         projectileSetSpawnFlag();
                     }
@@ -1365,12 +1365,12 @@ u8 arg1;
                                              mathAngleBetweenPoints2D(LE40B_OBJ->unk228, LE40B_OBJ->unk230, LE40B_OBJ->unk210, LE40B_OBJ->unk218),
                                              sp54, sp50, D_807FBB48);
                 } else {
-                    if ((D_807FBB40->unk58 == 2 || D_807FBB40->unk58 == 3 || D_807FBB40->unk58 == 6 || D_807FBB40->unk58 == 7)) {
+                    if ((D_807FBB40->actorType == 2 || D_807FBB40->actorType == 3 || D_807FBB40->actorType == 6 || D_807FBB40->actorType == 7)) {
                         func_807149B8(1);
                         func_80714950(0x50);
                         func_8071498C(func_8071A8B0);
                         func_80714C08(&D_807200D4, 0.5f, D_807FBB48, LE40B_S->unk90 + 9, 2);
-                        if (D_807FBB40->unk58 == 6 || D_807FBB40->unk58 == 7) {
+                        if (D_807FBB40->actorType == 6 || D_807FBB40->actorType == 7) {
                             func_807149B8(1);
                             func_80714950(0x50);
                             func_8071498C(func_8071A8B0);
@@ -1378,7 +1378,7 @@ u8 arg1;
                         }
                     }
                     projectileGetTargetCoords(D_807FBB48, LE40B_S->unk90 + 9);
-                    projectileSpawnNodeEntry(spawnId, (s16)flags, scale, D_807FBB48->unkE6, D_80753E2C[D_807FD584], 0.0f, D_807FBB48);
+                    projectileSpawnNodeEntry(spawnId, (s16)flags, scale, D_807FBB48->yaw, D_80753E2C[D_807FD584], 0.0f, D_807FBB48);
                 }
                 if ((func_80714608(0) != 0) && (slotQueueGetValue((u8)sel, gCurrentPlayerIndex) == 0)) {
                     func_806F0C18(D_807FBB40);
@@ -1387,7 +1387,7 @@ u8 arg1;
                 func_806E2C74(D_807FBB40);
             }
         } else {
-            switch (D_807FBB40->unk58) {
+            switch (D_807FBB40->actorType) {
                 case 6:
                 case 7:
                     sfx = 0x190;
@@ -1459,7 +1459,7 @@ typedef struct G23State90 {
 void func_806E2C74(Actor *arg0) {
     G23State90 *state = arg0->unk174;
 
-    switch (arg0->unk58) {
+    switch (arg0->actorType) {
     case 2:
     case 4:
     case 5:
@@ -1516,7 +1516,7 @@ s32 func_806E2CC4(void) {
 void func_806E2DE8(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2C & 1) && func_806E2CC4()) {
         func_80614E78(D_807FBB40, 0x47);
-        D_807FBB40->unk154 = 0x2C;
+        D_807FBB40->state = 0x2C;
         D_807FBB40->unk155[0] = 0;
     }
 }
@@ -1551,9 +1551,9 @@ void func_806E2F3C(void) {
     if (gPlayerCount >= 2) {
         var_v1 = func_806E56EC() == 0;
     }
-    if (var_v1 && (D_807FBB40->unk154 != 0x62) && (D_807FBB40->unk6A & 1)) {
+    if (var_v1 && (D_807FBB40->state != 0x62) && (D_807FBB40->unk6A & 1)) {
         G21_PLAYER->unk48 = D_80753354[D_807FD584];
-        D_807FBB40->unk154 = 0x62;
+        D_807FBB40->state = 0x62;
         D_807FBB40->unk155[0] = 0;
         func_80614E78(D_807FBB40, 0x52);
     }
@@ -2360,7 +2360,7 @@ void func_806E5044(void) {
 
 void func_806E521C(void) {
     if (func_80714608(0)) {
-        if (((D_807FBB40->unk154 == 0x31) || (D_807FBB40->unk154 == 0x32)) && (G25_P->unk8C == 0)) {
+        if (((D_807FBB40->state == 0x31) || (D_807FBB40->state == 0x32)) && (G25_P->unk8C == 0)) {
             func_806E4D84();
         }
     }
@@ -3582,7 +3582,7 @@ void func_806E8244(void) {
     if (func_805FCA64() != 0) {
         renderCallbacksRegister(actorDrawAnimatedEffect, G29_M->unk88, 5);
     }
-    v = D_807FBB40->unkE6;
+    v = D_807FBB40->yaw;
     if (v < 0x200 || v >= 0xE01) {
         st->unk2 = ((G29Stick *)((u8 *)gPlayerPadState + gCurrentPlayerIndex * 0x34))->unk2E;
         c = &gPlayerPadState[gCurrentPlayerIndex];
@@ -3752,7 +3752,7 @@ void func_806E88D8(void) {
 
     a = G29_M->unk88;
     if (a != NULL) {
-        if (D_807FBB40->unk58 == 4) {
+        if (D_807FBB40->actorType == 4) {
             sp24 = 0x1C7;
             a2 = 0x1C5;
             sp1C = 0x1C6;
@@ -4031,7 +4031,7 @@ void func_806E9070(void) {
         G30_M->unk88->unkC0 = D_80750338;
         G30_M->unk58 = G24_SCHED280 - 0x1E;
         func_80614E78(D_807FBB40, 0x7C);
-        if (D_807FBB40->unk58 == 2) {
+        if (D_807FBB40->actorType == 2) {
             actorScriptStart(G30_M->unk88, 0x294);
         } else {
             actorScriptStart(G30_M->unk88, 0x293);
@@ -4089,7 +4089,7 @@ void func_806E93F8(void) {
 void func_806E9468(void) {
     if (G30_PAD(D_807FD63C, u16) & 0xA000) {
         G30_M->unk12 = D_807539EC[D_807FD584];
-        G30_M->unk14 = D_807FBB40->unkE6;
+        G30_M->unk14 = D_807FBB40->yaw;
         G30_M->unk10 = D_807539DC[D_807FD584];
         G29_PAR->unk154 = 0x7F;
         G29_PAR->unk155 = 0;
@@ -4190,7 +4190,7 @@ void func_806E9964(arg0) Struct807FD580 *arg0; {
     s32 flag;
 
     a = D_807FBB40;
-    flag = (a->unk154 == 5) || (a->unk154 == 0x65);
+    flag = (a->state == 5) || (a->state == 0x65);
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2A & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 4)) {
         if (flag) {
             func_806E9D1C(7, 3, 0);
@@ -4443,7 +4443,7 @@ void cameraZoomIn(void) {
     s32 buttons;
 
     buttons = G31_PAD(D_807FD63A, u16);
-    if (!(buttons & 0x2000) && !(buttons & 2) && (D_807FBB40->unk154 == 2)) {
+    if (!(buttons & 0x2000) && !(buttons & 2) && (D_807FBB40->state == 2)) {
         limit = (gCurrentMap == 0x22) ? 15.0 : 13.0;
         cam = (G31Cam *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0);
         next = cam->unk27C - 1.5f;
@@ -4463,7 +4463,7 @@ void cameraZoomOut(void) {
     s32 buttons;
 
     buttons = G31_PAD(D_807FD63A, u16);
-    if (!(buttons & 0x2000) && !(buttons & 1) && (D_807FBB40->unk154 == 2)) {
+    if (!(buttons & 0x2000) && !(buttons & 1) && (D_807FBB40->state == 2)) {
         cam = (G31Cam *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0);
         next = cam->unk27C + 1.5f;
         if (next < 45.0) {
@@ -4517,7 +4517,7 @@ void aimUpdateFromStick(void) {
             *dist = state->unkBC - 0x50;
         }
         G31_PLAYER->unk104->unkB4 = *dist;
-        D_807FBB40->unkE6 = (state->unkB2 + 0x800) & 0xFFF;
+        D_807FBB40->yaw = (state->unkB2 + 0x800) & 0xFFF;
     }
 }
 

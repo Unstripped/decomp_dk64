@@ -33,7 +33,7 @@ u8 func_806BDD90(void) {
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         if (func_805FF0C8() != 0) {
-            D_807FBB40->unk154 = 0x40;
+            D_807FBB40->state = 0x40;
         } else {
             R1C2CBA->unk130 = 0x3C;
             R1C2CBA->unk131 = 0x3C;
@@ -75,10 +75,10 @@ void func_806BDEC8(void) {
     R1C2CB_Sub174 *sub = D_807FBB4C->unk174;
 
     if (func_806BDD90() == 1) {
-        D_807FBB40->unk154 = 0x12;
+        D_807FBB40->state = 0x12;
         D_807FBB40->unk155[0] = 0;
     }
-    if (D_807FBB40->unk154 == 0x12) {
+    if (D_807FBB40->state == 0x12) {
         switch (D_807FBB40->unk155[0]) {
         case 0:
             R1C2CBC0->unkC0 = 150.0f;
@@ -100,7 +100,7 @@ void func_806BDEC8(void) {
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
             } else if (func_805FF0C8() == 0) {
-                D_807FBB40->unk154 = 0;
+                D_807FBB40->state = 0;
                 D_807FBB40->unk155[0] = 0;
             }
             break;
@@ -166,14 +166,14 @@ void func_806BE09C(void) {
     if (func_806BDD90() == 1) {
         R1C2CBS->unk2C = slotQueueGetValue(0, 0);
         if (R1C2CBS->unk2C != 0) {
-            D_807FBB40->unk154 = 0x12;
+            D_807FBB40->state = 0x12;
             D_807FBB40->unk155[0] = 0;
             R1C2CBS->unk2E = 0x32;
             actorScriptStart(D_807FBB40, 0x28A);
             camSetTargetCutsceneUnscaled(sub->unk104, D_807FBB4C, 4, 0x990, 0x5A, -0x2E, 0x3C, 0xA, 0x20, 0, 0.3f);
-            angle = mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, D_807FBB4C->unk7C, D_807FBB4C->unk84);
-            D_807FBB4C->unkE6 = angle;
-            R1C2CBE->unkEE = D_807FBB4C->unkE6;
+            angle = mathAngleBetweenPoints2D(D_807FBB40->x, D_807FBB40->z, D_807FBB4C->x, D_807FBB4C->z);
+            D_807FBB4C->yaw = angle;
+            R1C2CBE->unkEE = D_807FBB4C->yaw;
         }
     }
     func_80724E48(0);
@@ -184,7 +184,7 @@ void func_806BE09C(void) {
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorSetUniformScale(D_807FBB40, target);
     }
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
     case 0x12:
         actorSetUniformScale(D_807FBB40, (target - D_807FBB40->unk4->unk34) * 0.1 + D_807FBB40->unk4->unk34);
         switch (D_807FBB40->unk155[0]) {
@@ -223,7 +223,7 @@ void func_806BE09C(void) {
                 R1C2CBS->unk2C--;
             } else {
                 actorScriptStart(D_807FBB40, 0x28B);
-                D_807FBB40->unk154 = 0x27;
+                D_807FBB40->state = 0x27;
                 D_807FBB40->unk155[0] = 0;
             }
             break;
@@ -231,8 +231,8 @@ void func_806BE09C(void) {
         break;
     case 0x27:
         if (D_807FBB40->unk155[0] == 1) {
-            effectSpawnMultiTierRing(4.0f, 1, D_807FBB40->unk7C, D_807FBB40->unk80 + 5.0f, D_807FBB40->unk84);
-            D_807FBB40->unk154 = 0x28;
+            effectSpawnMultiTierRing(4.0f, 1, D_807FBB40->x, D_807FBB40->y + 5.0f, D_807FBB40->z);
+            D_807FBB40->state = 0x28;
             D_807FBB40->unk155[0] = 0;
             R1C2CBS->unk2C = 0x3C;
         }
@@ -240,7 +240,7 @@ void func_806BE09C(void) {
     case 0x28:
         R1C2CBS->unk2C--;
         if (R1C2CBS->unk2C == 0) {
-            D_807FBB40->unk154 = 0;
+            D_807FBB40->state = 0;
             D_807FBB40->unk155[0] = 0;
             R1C2CBS->unk2E = 0;
         }

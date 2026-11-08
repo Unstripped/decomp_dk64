@@ -203,9 +203,9 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
     actorGetMatrix((struct ActorMtxOwner *)otherBounds, otherMtx, ((CollisionTarget *)D_807FB5D8)->unk4E);
     matrix4Invert(invMtx, otherMtx);
     if (((CollisionActorFull *)other)->unk64 & 0x10) {
-        posX = self->unk7C;
-        posY = self->unk80;
-        posZ = self->unk84;
+        posX = self->x;
+        posY = self->y;
+        posZ = self->z;
     } else {
         posX = (f32)D_807FB5C4 / 8;
         posY = (f32)D_807FB5C8 / 8;
@@ -362,7 +362,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
     D_807FB600 = 1;
     D_807FB547 = 0;
     func_80672E90(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8);
-    actorSetCameraBoundaryMode(other->unk58);
+    actorSetCameraBoundaryMode(other->actorType);
     if (flag != 0) {
         hit = func_80673708(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8, hitRadius, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->unkF4, (s32)&other->unkF6);
     } else {
@@ -486,5 +486,5 @@ s32 actorIsTargetWithinAngle(s16 angle, s16 threshold) {
 }
 
 s32 actorCheckFacingTarget(Actor *actor) {
-    return actorIsTargetWithinAngle(actor->unkE6, 400);
+    return actorIsTargetWithinAngle(actor->yaw, 400);
 }

@@ -106,7 +106,7 @@ u8 nodeCount;
         data->unk8 = 0.75f;
         data->unk10 = 0.00f;
         data->unkC = 0.f;
-        data->unk1C = D_807FBB40->unk80;
+        data->unk1C = D_807FBB40->y;
         data->unk20 = 0.000f;
         data->unk24 = (f32)((f64)(s32)((randomNonNegative() >> 15) % 100) / 1000.0 + 0.1);
         data->unk18 = 0.0f;
@@ -122,7 +122,7 @@ u8 nodeCount;
         data->unk15 = 0;
         data->unk28 = flagGet(0x183, 0) != 0 || (D_807FBB64 & 0x10000000) != 0 || func_807142D8() != 0;
     }
-    if (D_807FBB4C->unk154 == 0x63 || data->unk28 == 0 ||
+    if (D_807FBB4C->state == 0x63 || data->unk28 == 0 ||
         (*(s32 *)D_807FBB40->unk124 == 1 && !(player->unk1F0 & 0x40))) {
         D_807FBB40->unk60 &= 0xFBFFFFFB;
     } else {
@@ -136,28 +136,28 @@ u8 nodeCount;
         }
     }
     if (data->unk16 != 0) {
-        D_807FBB40->unk80 -= 1.0;
+        D_807FBB40->y -= 1.0;
         data->unk16--;
         data->unk1C -= 1.0;
     }
     node = ((BoneChainSub4 *)D_807FBB40->unk4)->unk1C;
     if (data->unk0 > 2.0f) {
         if (data->unkC < 3.926991f && data->unkC + data->unk4 >= 3.926991f) {
-            if (D_807FBB40->unk58 == 0x74) {
+            if (D_807FBB40->actorType == 0x74) {
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x257, (f64)data->unk0 * 100.0 / limit, 0x7F, 5);
             } else {
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1C, (f64)data->unk0 * 100.0 / limit, 0x7F, 5);
             }
         }
         if (data->unkC < 0.7853982f && data->unkC + data->unk4 >= 0.7853982f) {
-            if (D_807FBB40->unk58 == 0x74) {
+            if (D_807FBB40->actorType == 0x74) {
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x258, (f64)data->unk0 * 25.0 / limit, 0x7F, 0x14);
             } else {
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1D, (f64)data->unk0 * 25.0 / limit, 0x7F, 0x14);
             }
         }
     }
-    if (D_807FBB40->unk58 != 0x74 && data->unk0 > 10.0f) {
+    if (D_807FBB40->actorType != 0x74 && data->unk0 > 10.0f) {
         if (data->unkC < 2.3561945f && data->unkC + data->unk4 >= 2.3561945f) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1E, 0xFF, 0x7F, 0x14);
         }
@@ -165,7 +165,7 @@ u8 nodeCount;
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1E, 0xFF, 0x7F, 0x14);
         }
     }
-    switch (D_807FBB40->unk58) {
+    switch (D_807FBB40->actorType) {
     case 0x44:
     case 0x74:
         dir = 1;
@@ -185,7 +185,7 @@ u8 nodeCount;
         node[i].unk6 = 0;
         data->unk10 = data->unk10 * data->unk8;
     }
-    if (D_807FBB40->unk58 == 0x45 || D_807FBB40->unk58 == 0x21) {
+    if (D_807FBB40->actorType == 0x45 || D_807FBB40->actorType == 0x21) {
         node[i].unk0 = -0x80;
         node[i].unk1 = 1;
         node[i].unk4 = (s16)(s32)((f64)data->unk18 / 360.0 * 65535.0);
@@ -198,14 +198,14 @@ u8 nodeCount;
         }
     }
     node[i].unk0 = 0;
-    if (D_807FBB4C->unk154 == 0x58) {
+    if (D_807FBB4C->state == 0x58) {
         data->unk15 = 5;
     } else if (data->unk15 != 0) {
         data->unk15--;
     }
     if ((D_807FBB4C->unk6A & 0x40) && data->unk14 == 0 && D_807FBB40 == player->unk130) {
         data->unk0 = 15.0f;
-        if (mathAngleDistance(D_807FBB4C->unkE6, D_807FBB40->unkE6) < 0x400) {
+        if (mathAngleDistance(D_807FBB4C->yaw, D_807FBB40->yaw) < 0x400) {
             data->unkC = 3.1415927f;
         } else {
             data->unkC = 0.0f;
@@ -239,15 +239,15 @@ u8 nodeCount;
             player->unk14C = 200.0f;
             player->unk150 = 200.0f;
         }
-        player->unk154 = D_807FBB40->unkE6 & 0xFFF;
+        player->unk154 = D_807FBB40->yaw & 0xFFF;
         if ((f64)data->unkC < 1.5707964f || data->unkC > 4.71238911151886) {
             player->unk154 = (player->unk154 + 0x800) & 0xFFF;
         }
     }
-    switch (D_807FBB40->unk58) {
+    switch (D_807FBB40->actorType) {
     case 0x21:
     case 0x45:
-        D_807FBB40->unk80 = sinApprox(data->unk20) * 5.0 + data->unk1C;
+        D_807FBB40->y = sinApprox(data->unk20) * 5.0 + data->unk1C;
         data->unk20 += data->unk24;
         break;
     }

@@ -93,8 +93,8 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
                 f = (f32)((q1 * 0.028999999999999998) + 0.001);
                 vscale = 130.0f * f;
                 vz = 1500.0f * f;
-                vx = func_80612794(actor->unkE6 + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
-                vy = func_80612790(actor->unkE6 + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
+                vx = func_80612794(actor->yaw + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
+                vy = func_80612790(actor->yaw + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
                 break;
             }
             if (actor->unk15F != 0) {
@@ -106,7 +106,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
             guScaleF(mtx2, vscale, vscale, vscale);
             matrixMakeRotationY(mtx1, (f32)(((*((s16 *)(gPlayerSlots + 0x2C8))) * 0x168) / 4096));
             guMtxCatF(mtx2, mtx1, mtx2);
-            guTranslateF(mtx1, actor->unk7C + vx, actor->unk80, actor->unk84 + vy);
+            guTranslateF(mtx1, actor->x + vx, actor->y, actor->z + vy);
             guMtxCatF(mtx2, mtx1, mtx2);
             guMtxF2L(mtx2, (Mtx *)(sub->unk4 + (((i * 2) + D_807444FC) << 6)));
             _g = (Gfx *)(glist++); _g->words.w0 = 0xDA380003; _g->words.w1 = (u32)(sub->unk4 + (((i * 2) + D_807444FC) << 6)); // FAKE: shared Gfx pointer
@@ -176,8 +176,8 @@ void projectileSpriteRingUpdate(void) {
     if (sub->unk11 != 0) {
         if (kind == 1) {
             if (D_807FBB40) {}  // FAKE: steers uopt: hoists &D_807FBB40 into a1 for this block
-            D_807FBB40->unk7C += sub->unkC * func_80612794(D_807FBB40->unkE6);
-            D_807FBB40->unk84 += sub->unkC * func_80612790(D_807FBB40->unkE6);
+            D_807FBB40->x += sub->unkC * func_80612794(D_807FBB40->yaw);
+            D_807FBB40->z += sub->unkC * func_80612790(D_807FBB40->yaw);
             if (D_807FBB40->unk15F != 0) {
                 D_807FBB40->unk15F -= 1;
             } else if (D_807FBB40->unk168 == 0x20) {

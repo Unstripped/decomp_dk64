@@ -74,7 +74,7 @@ void modelSlotClearFlags(s32, s32);
 void func_806B8C78(void) {
     f64 t;
 
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
         case 1:
             switch (D_807FBB40->unk155[0]) {
                 case 0:
@@ -83,8 +83,8 @@ void func_806B8C78(void) {
                     D_807FBB40->unk155[0]++;
                     break;
                 case 2:
-                    if (D_807FBB40->unk80 > -20.0f) {
-                        D_807FBB40->unk80 = D_807FBB40->unk80 - BD820A->unkC0;
+                    if (D_807FBB40->y > -20.0f) {
+                        D_807FBB40->y = D_807FBB40->y - BD820A->unkC0;
                     }
                     t = BD820A->unkC0 + 0.5;
                     BD820A->unkC0 = (t < 8.0) ? t : 8.0;
@@ -100,22 +100,22 @@ void func_806B8C78(void) {
             effectSpawnRandomParticleAtPoint(0x258, 0x15E, 0x1E5, 0x6E);
             effectSpawnRandomParticleAtPoint(0x258, 0x190, 0x1E5, 0x73);
             effectSpawnRandomParticleAtPoint(0x258, 0x1C2, 0x1E5, 0x74);
-            D_807FBB40->unk154++;
+            D_807FBB40->state++;
             D_807FDC90->unk2C = 0x46;
             break;
         case 3:
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
             } else {
-                D_807FBB40->unk154 = 0x40;
+                D_807FBB40->state = 0x40;
             }
             if (D_807FDC90->unk2C < 0x28) {
                 modelSlotOrFlags(4, 0x10);
                 modelSlotOrFlags(6, 0x10);
                 modelSlotClearFlags(5, 0x10);
                 modelSlotClearFlags(7, 0x10);
-                if ((D_807FDC90->unk2C < 0x15 && (randomNonNegative() >> 15) % 1000 < 0x12C) || D_807FBB40->unk154 == 0x40) {
-                    if (D_807FBB40->unk154 == 0x40) {
+                if ((D_807FDC90->unk2C < 0x15 && (randomNonNegative() >> 15) % 1000 < 0x12C) || D_807FBB40->state == 0x40) {
+                    if (D_807FBB40->state == 0x40) {
                         modelSlotOrFlags(5, 0x10);
                         modelSlotOrFlags(7, 0x10);
                         sfxPlayOnFreeSlot(0x1D0, 0x58EF, 63.0f, 1.0f, 0, 0);
@@ -151,7 +151,7 @@ void func_806B904C(void) {
         D_807FBB40->unk4->unk38 = v;
         D_807FBB40->unk4->unk3C = v;
         if (func_805FF0C8() != 0) {
-            D_807FBB40->unk154 = 0x40;
+            D_807FBB40->state = 0x40;
         } else {
             BD820A->unk12A = 0x3E8;
             BD820A->unk130 = 0x3C;
@@ -163,7 +163,7 @@ void func_806B904C(void) {
     }
     for (i = 0; i < D_807FBB70.unk254; i++) {
         if (D_807FBB70.unk258[i] == 3) {
-            D_807FBB40->unk154 = D_807FBB70.unk278[i][1];
+            D_807FBB40->state = D_807FBB70.unk278[i][1];
             D_807FBB40->unk155[0] = 0;
         }
     }

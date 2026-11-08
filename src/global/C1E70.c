@@ -49,12 +49,12 @@ void func_806BD170(void) {
             D_807FBB44->unk16B = 0xFF;
             D_807FBB44->unk16C = 0xFF;
             D_807FBB44->unk128 = 0xFF;
-            D_807FBB44->unk7C = func_80612794(pos) * 270.0f + D_807FBB40->unk7C;
-            D_807FBB44->unk84 = func_80612790(pos) * 270.0f + D_807FBB40->unk84;
-            D_807FBB44->unk80 = 100.0f;
-            D_807FBB44->unkE6 = pos;
+            D_807FBB44->x = func_80612794(pos) * 270.0f + D_807FBB40->x;
+            D_807FBB44->z = func_80612790(pos) * 270.0f + D_807FBB40->z;
+            D_807FBB44->y = 100.0f;
+            D_807FBB44->yaw = pos;
             R1C0C1_SPAWNED_146 = 0;
-            D_807FBB44->unk154 = 0;
+            D_807FBB44->state = 0;
             sub = D_807FBB44->unk174;
             sub->unk0 = 0;
             sub->unk4 = D_807FBB40;
@@ -62,7 +62,7 @@ void func_806BD170(void) {
             if (flagGet(D_80744710[i], 0) != 0) {
                 activeRingIdx = i;
                 activeRingActor = D_807FBB44;
-                activeRingActor->unk154 = 5;
+                activeRingActor->state = 5;
                 count++;
             }
         }
@@ -73,7 +73,7 @@ void func_806BD170(void) {
     }
     if (D_80750660 == 0 && activeRingIdx != -1) {
         ((R1C0C1Spawned *)activeRingActor)->unk146 = 1;
-        activeRingActor->unk154 = 1;
+        activeRingActor->state = 1;
         D_80750660 = 1;
         D_807FC8D0 = activeRingIdx;
     }
@@ -124,7 +124,7 @@ void actorNodeRingUpdate(void) {
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         if (func_806BDD2C() != 0) {
-            D_807FBB40->unk154 = 0x40;
+            D_807FBB40->state = 0x40;
             return;
         }
         D_807FBB40->unk12A = 0x7D0;
@@ -138,12 +138,12 @@ void actorNodeRingUpdate(void) {
         nodePtr->unk0 = D_807FBB44;
         D_807FC8D4 = 1000.0f;
         func_806BD170();
-        D_807FBB40->unk154 = 0;
+        D_807FBB40->state = 0;
         if (D_80750660 != 0) {
             D_80750660 = 0;
         }
         if (flagGet(0x1BB, 0) == 0) {
-            D_807FBB40->unk154 = 1;
+            D_807FBB40->state = 1;
         }
     }
     idx = -1;
@@ -154,21 +154,21 @@ void actorNodeRingUpdate(void) {
             idx++;
         }
     }
-    dx = D_807FBB40->unk7C - D_807FBB4C->unk7C;
-    dz = D_807FBB40->unk84 - D_807FBB4C->unk84;
+    dx = D_807FBB40->x - D_807FBB4C->x;
+    dz = D_807FBB40->z - D_807FBB4C->z;
     shakeDuration = 0;
     D_807FC8D4 = dx * dx + dz * dz;
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
         case 1:
             actorScriptStart(D_807FBB40, 0x2EF);
-            D_807FBB40->unk154 = 2;
+            D_807FBB40->state = 2;
             camStartPath(D_807FBB4C, 2, 1);
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
                 sfxAllocateChannel(0x7D, 1.0f);
                 actorScriptStart(D_807FBB40, 0x2F1);
-                D_807FBB40->unk154 = 3;
+                D_807FBB40->state = 3;
                 D_807FBB40->unk155[0] = 0;
             }
             break;
@@ -246,13 +246,13 @@ void func_806BD7B0(void) {
     s32 limit;
     R1C0C1Blob8 cutsceneModelIds;
 
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
         case 5:
             if (D_807506A4 != 0 && camIsCutsceneActive() == 0) {
                 st->unk0++;
                 if (st->unk0 >= 0x29) {
                     D_807506A4 = 0;
-                    D_807FBB40->unk154 = 1;
+                    D_807FBB40->state = 1;
                 }
             } else {
                 st->unk0 = 0;
@@ -260,11 +260,11 @@ void func_806BD7B0(void) {
             break;
         case 1:
             st->unk0 = 0;
-            D_807FBB40->unk154 = 2;
+            D_807FBB40->state = 2;
             break;
         case 2:
             if (D_807FC8D4 < 160000.0) {
-                D_807FBB40->unk154 = 3;
+                D_807FBB40->state = 3;
                 st->unk0 = 0;
                 sfxAllocateChannel(0x3B, 1.0f);
                 sfxPlayOnFreeSlot(0x258, 0x7FFF, 63.0f, 1.0f, 5, 0);
@@ -288,33 +288,33 @@ void func_806BD7B0(void) {
                     }
                     if (st->unk0 >= 0xB) {
                         cutsceneModelIds = D_807506B8;
-                        D_807FBB40->unk154 = 4;
+                        D_807FBB40->state = 4;
                         sfxAllocateChannel(0x7D, 1.0f);
                         actorScriptStart(st->unk4, D_80750684[st->unk2]);
                         st->unk0 = 0;
-                        st->unk4->unk154 = 3;
+                        st->unk4->state = 3;
                         st->unk4->unk155[0] = 0;
                         camStartPath(0, 1, 1);
                         csModelStateSetFirstByte(cutsceneModelIds.b[st->unk2], 2);
                     }
                 }
                 if (D_807FBB40->unk128 < 0x80) {
-                    D_807FBB40->unk80 -= 6.0;
+                    D_807FBB40->y -= 6.0;
                 }
             } else {
                 func_80714950(0x10064);
                 func_8071498C(func_8071AADC);
                 func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
-                sparkX = randomFloat() * 30.0 + D_807FBB40->unk7C;
-                sparkY = randomFloat() * 30.0 + (D_807FBB40->unk80 + 20.0);
-                sparkZ = randomFloat() * 30.0 + D_807FBB40->unk84;
+                sparkX = randomFloat() * 30.0 + D_807FBB40->x;
+                sparkY = randomFloat() * 30.0 + (D_807FBB40->y + 20.0);
+                sparkZ = randomFloat() * 30.0 + D_807FBB40->z;
                 func_80714CC0(&D_80720A7C, 1.2f, sparkX, sparkY, sparkZ);
             }
             break;
         case 4:
             if (func_806BDD2C() != 0) {
                 p = ((R1C0C1Act178 *)st->unk4)->unk178;
-                p->unk0->unk80 += 5.0;
+                p->unk0->y += 5.0;
                 if (st->unk0 == 0x10E) {
                     flagSet(0x315, 1, 0);
                     func_80712524(D_80750664[14], D_80750664[15]);

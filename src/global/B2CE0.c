@@ -229,8 +229,8 @@ void func_806AE394(f32 distOffset, f32 radius) {
     node1Z = func_80612790(angle) * distOffset + D_807FBB40->unk84;
     lightAdd(node1X, D_807FBB40->unk80, node1Z, 0.0f, 0.0f, 0.0f, radius, 0, 0xFF, 0xFF, 0xFF);
     if (D_807FBB40->unk154 != 0) {
-        if ((D_807FDC94->unk7C - node1X) * (D_807FDC94->unk7C - node1X) + (D_807FDC94->unk80 - D_807FBB40->unk80) * (D_807FDC94->unk80 - D_807FBB40->unk80) + (D_807FDC94->unk84 - node1Z) * (D_807FDC94->unk84 - node1Z) < radius * radius) {
-            D_807FBB40->unkE6 = mathAngleBetweenPoints2D(D_807FDC94->unk7C, D_807FDC94->unk84, D_807FBB40->unk7C, D_807FBB40->unk84);
+        if ((D_807FDC94->x - node1X) * (D_807FDC94->x - node1X) + (D_807FDC94->y - D_807FBB40->unk80) * (D_807FDC94->y - D_807FBB40->unk80) + (D_807FDC94->z - node1Z) * (D_807FDC94->z - node1Z) < radius * radius) {
+            D_807FBB40->unkE6 = mathAngleBetweenPoints2D(D_807FDC94->x, D_807FDC94->z, D_807FBB40->unk7C, D_807FBB40->unk84);
             playerStateQueueCallback(0x43, D_807FBB40, 0);
             D_807FBB40->unk154 = 0;
             D_807FBB40->unk155 = 0;
@@ -315,7 +315,7 @@ void func_806AE588(void) {
             actorScriptStart(D_807FBB40, 0x1FD);
             D_807FBB40->unk155++;
         case 1:
-            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
             if (D_807FBB40->unkB8 < 1.0f) {
                 D_807FBB40->unk155++;
             }
@@ -329,7 +329,7 @@ void func_806AE588(void) {
         }
         break;
     case 0x27:
-        actorMoveWithinZone(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+        actorMoveWithinZone(0x23, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
         switch (D_807FBB40->unk155) {
         case 0:
             actorSetTargetSpeed(D_807FBB40, 0);
@@ -360,7 +360,7 @@ void func_806AE588(void) {
         sel = D_807FBB40->unk154;
     case 0x10:
         func_80724E48((sel == 1) ? 2 : 0);
-        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0, 0.0f);
         break;
     case 2:
     case 3:
@@ -459,7 +459,7 @@ void func_806AEE84(void) {
                     actorScriptStart(D_807FBB40, 0x2B0);
                     D_807FBB40->unk155 = 1;
                 case 1:
-                    actorMoveWithinZone(0x11, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+                    actorMoveWithinZone(0x11, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
                     if (D_807FBB40->unkB8 < 1.0f) {
                         D_807FBB40->unk155++;
                     }
@@ -490,7 +490,7 @@ void func_806AEE84(void) {
                     actorSetDefaultState(0x2AB);
                     break;
             }
-            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
             break;
         case 0x25:
             func_80724E48(0);
@@ -522,7 +522,7 @@ void func_806AEE84(void) {
         case 0x10:
             func_806AEE08();
             func_80724E48(D_807FBB40->unk154 == 1 ? 2 : 0);
-            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0, 0.0f);
             break;
         case 2:
         case 3:
@@ -594,7 +594,7 @@ void func_806AF688(void) {
                     actorScriptStart(D_807FBB40, 0x2C0);
                     D_807FBB40->unk155++;
                 case 1:
-                    actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+                    actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
                     if (D_807FBB40->unkB8 < 1.0f) {
                         D_807FBB40->unk155++;
                     }
@@ -613,7 +613,7 @@ void func_806AF688(void) {
                 D_807FBB40->unk155 = 0;
             }
             func_80724E48(D_807FBB40->unk154 == 1 ? 2 : 0);
-            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0, 0.0f);
             break;
         case 2:
         case 3:
@@ -712,7 +712,7 @@ void func_806AFB58(void) {
             actorScriptStart(D_807FBB40, 0x2D9);
             D_807FBB40->unk155++;
         case 1:
-            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
             if (D_807FBB40->unkB8 < 1.0f) {
                 D_807FBB40->unk155++;
             }
@@ -729,7 +729,7 @@ void func_806AFB58(void) {
         if (D_807FBB40->unkEC < 0xFFFF) {
             func_8072E1A4(0xA, D_807FDC94);
         }
-        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
         switch (D_807FBB40->unk155) {
         case 0:
             actorSetTargetSpeed(D_807FBB40, 0);
@@ -764,7 +764,7 @@ void func_806AFB58(void) {
         sel = D_807FBB40->unk154;
     case 0x10:
         func_80724E48((sel == 1) ? 2 : 0);
-        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0, 0.0f);
         break;
     case 2:
     case 3:
@@ -833,7 +833,7 @@ void func_806B0354(void) {
                 D_807FBB40->unk154 = 0x23;
                 D_807FBB40->unk155 = 0;
             } else if (actorIsTargetWithinDistance(0x64) != 0
-                       && zoneCanReachPoint(D_807FBB40, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, D_807FDCA0) != 0) {
+                       && zoneCanReachPoint(D_807FBB40, D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, D_807FDCA0) != 0) {
                 actorScriptStart(D_807FBB40, 0x37B);
                 D_807FBB40->unk154 = 0x23;
                 D_807FBB40->unk155 = 0;
@@ -852,12 +852,12 @@ void func_806B0354(void) {
                         actorSetTargetSpeed(D_807FBB40, 0);
                     } else {
                         if (D_807FBB40->unk4->unk64 == 0x378) {
-                            actorMoveWithinZone(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+                            actorMoveWithinZone(0x23, D_807FDC94->x, D_807FDC94->z, 0, 0.0f);
                         } else {
                             func_8072E1A4(0xA, D_807FDC94);
                         }
                         if (actorIsTargetWithinDistance(0xC8) == 0
-                            || zoneCanReachPoint(D_807FBB40, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, D_807FDCA0) == 0) {
+                            || zoneCanReachPoint(D_807FBB40, D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, D_807FDCA0) == 0) {
                             actorScriptStart(D_807FBB40, 0x37C);
                             D_807FBB40->unk154 = 4;
                             D_807FBB40->unk155 = 0;
@@ -866,7 +866,7 @@ void func_806B0354(void) {
                     }
                     break;
                 case 2:
-                    actorMoveWithinZone(0, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+                    actorMoveWithinZone(0, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
                     break;
             }
             break;
@@ -905,10 +905,10 @@ s32 func_806B0770(void) {
     found = 0;
     for (i = 0; !found && i < gActiveActorCount; i++) {
         other = gActiveActors[i].actor;
-        if (other->unk58 == 0x29) {
-            dx = other->unk7C - D_807FBB40->unk7C;
-            dy = other->unk80 - D_807FBB40->unk80;
-            dz = other->unk84 - D_807FBB40->unk84;
+        if (other->actorType == 0x29) {
+            dx = other->x - D_807FBB40->unk7C;
+            dy = other->y - D_807FBB40->unk80;
+            dz = other->z - D_807FBB40->unk84;
             if (dx * dx + dy * dy + dz * dz < 10000.0f) {
                 D_807FBB40->unk154 = 0x28;
                 found = 1;
@@ -1003,7 +1003,7 @@ void func_806B0848(void) {
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x4200, 0.0f);
             break;
         case 0x27:
-            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
             switch (D_807FBB40->unk155) {
                 case 0:
                     actorSetTargetSpeed(D_807FBB40, 0);
@@ -1024,7 +1024,7 @@ void func_806B0848(void) {
             break;
         case 0x28:
             func_8072E1A4(0xA, D_807FDC94);
-            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
             switch (D_807FBB40->unk155) {
                 case 0:
                     actorSetTargetSpeed(D_807FBB40, 0);
@@ -1048,7 +1048,7 @@ void func_806B0848(void) {
                         actorScriptStart(D_807FBB40, 0x35E);
                         D_807FBB40->unk155 = D_807FBB40->unk155 + 1;
                     case 1:
-                        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0x200, 0.0f);
+                        actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
                         if (D_807FBB40->unkB8 < 1.0f) {
                             D_807FBB40->unk155 = D_807FBB40->unk155 + 1;
                         }
@@ -1074,7 +1074,7 @@ void func_806B0848(void) {
             }
         case 0x10:
             func_806B0770();
-            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+            actorMoveWithinZone(D_807FBB40->unk154, D_807FDC94->x, D_807FDC94->z, 0, 0.0f);
             break;
         case 2:
         case 3:

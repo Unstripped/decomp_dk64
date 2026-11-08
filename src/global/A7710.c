@@ -21,21 +21,21 @@ void hudSpawnCountdownTimer(s16 x, s16 y, u8 seconds) {
     D_807FBB40->unk11C = (s32)D_807FBB44;
     *(s32 *)((u8 *)gActivePlayerState + 0x1A8) = (s32)D_807FBB44;
     *(s32 *)((u8 *)D_807FBB44->unk174 + 0xC) = seconds;
-    D_807FBB44->unk7C = (f32)x;
-    D_807FBB44->unk80 = (f32)y;
-    D_807FBB44->unk154 = 1;
+    D_807FBB44->x = (f32)x;
+    D_807FBB44->y = (f32)y;
+    D_807FBB44->state = 1;
     D_807FBB44->unk128 = 0;
 }
 
 void actorSetStateTwo(Actor *actor) {
-    actor->unk154 = 2;
+    actor->state = 2;
     actor->unk155[0] = 0;
     actor->unk128 = 0xFF;
 }
 
 void actorSetStateOne(Actor *actor) {
     if (actor != NULL) {
-        actor->unk154 = 1;
+        actor->state = 1;
         actor->unk155[0] = 0;
     }
 }
@@ -45,7 +45,7 @@ void hudCountdownTimerSaveElapsed(Actor *actor) {
 }
 
 void actorSetStateThree(Actor *actor) {
-    actor->unk154 = 3;
+    actor->state = 3;
     actor->unk155[0] = 0;
 }
 
@@ -100,7 +100,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
         unk15F = actor->unk15F;
         if (unk15F == 0xB) {
             gfx = func_8070068C(gfx);
-            gfx = textDrawStringVtx(gfx, 0x86, (s16)(s32)(actor->unk7C * 4.0f),
+            gfx = textDrawStringVtx(gfx, 0x86, (s16)(s32)(actor->x * 4.0f),
                                 (s16)((gPlayerSlots->unk276 * 4) - 0x3C),
                                 gfxResourceFindById(sub->unk10)->unk4, 1);
         } else {
@@ -109,15 +109,15 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
             if (actor->unk168 == 3) {
                 offset = -7;
             }
-            gfx = textDrawAnimated(gfx, sub->unk10, unk15F, actor->unk7C + (f32)offset,
-                                actor->unk80 + 5.0f, 0.0f, 1.0f);
-            if (actor->unk154 == 2) {
+            gfx = textDrawAnimated(gfx, sub->unk10, unk15F, actor->x + (f32)offset,
+                                actor->y + 5.0f, 0.0f, 1.0f);
+            if (actor->state == 2) {
                 gfx = func_8070068C(gfx);
                 func_8071495C();
                 sinAngle = sinApprox(angle);
                 func_80714CC0(&D_8071FC58, 0.5f,
-                              (f32)((f64)sinAngle * 40.0 + (f64)(40.0f + actor->unk7C)),
-                              (f32)((f64)cosApprox(angle) * 25.0 + (f64)actor->unk80),
+                              (f32)((f64)sinAngle * 40.0 + (f64)(40.0f + actor->x)),
+                              (f32)((f64)cosApprox(angle) * 25.0 + (f64)actor->y),
                               0.0f);
             }
         }
@@ -167,9 +167,9 @@ void hudCountdownTimerUpdate(void) {
         }
         timer->unk10 = gfxResourceCreate(D_807FBB40->unk15F == 0xB ? 6 : 3, text, D_807FBB40->unk15F, 0.0f, 0.0f, 0.0f);
     }
-    if (D_807FBB40->unk154 == 3) {
+    if (D_807FBB40->state == 3) {
         timer->unk0 = osGetTime() - D_807FC7D0;
-        D_807FBB40->unk154 = 2;
+        D_807FBB40->state = 2;
         D_807FBB40->unk155[0] = 1;
     }
     timer->unk0 += D_807445B0;
@@ -185,7 +185,7 @@ void hudCountdownTimerUpdate(void) {
     angle = (f32)(((__ull_to_d(usec) / 10000.0) / 100.0) * 3.1415927410125732 + 1.5707963705062866);
     func_806FDAB8(timer->unk10, 0.0f);
     secsLeft = timer->unkC - timer->unk8;
-    switch (D_807FBB40->unk154) {
+    switch (D_807FBB40->state) {
     case 1:
         if (D_807FBB40->unk128 < 0xFF) {
             if (D_807FBB40->unk128 + 3 >= 0x100) {
@@ -198,7 +198,7 @@ void hudCountdownTimerUpdate(void) {
         D_807FBB40->unk168 = 0;
         break;
     case 4:
-        D_807FBB40->unk154 = 2;
+        D_807FBB40->state = 2;
         D_807FBB40->unk155[0] = 0xFF;
         // fallthrough
     case 2:
@@ -215,7 +215,7 @@ void hudCountdownTimerUpdate(void) {
             if (nextBeepAngle <= angle) {
                 if (timer->unk8 >= timer->unkC
                     && (D_807FBB40->unk15F == 6 || timer->unkC < timer->unk8 || D_807FC7D8 >= 0x5B)) {
-                    D_807FBB40->unk154 = 5;
+                    D_807FBB40->state = 5;
                     D_807FBB40->unk155[0] = 0;
                 } else if (D_807FBB40->unk15F == 6) {
                     if ((s32)(nextBeepAngle / 3.1415927f) & 1) {
@@ -225,12 +225,12 @@ void hudCountdownTimerUpdate(void) {
                     }
                 }
                 if (secsLeft == 0xA) {
-                    D_807FBB40->unk154 = 4;
+                    D_807FBB40->state = 4;
                 }
             }
             if (D_807FBB40->unk15F == 6) {
                 _sprintf(text, "%.2d", secsLeft);
-            } else if (D_807FBB40->unk154 != 5) {
+            } else if (D_807FBB40->state != 5) {
                 _sprintf(text, "%.2d:%.2d:%.2d", secsLeft / 60, secsLeft % 60, 0x63 - D_807FC7D8);
             } else {
                 _sprintf(text, "00:00:00");
@@ -238,7 +238,7 @@ void hudCountdownTimerUpdate(void) {
             D_807FBB40->unk168 = strlen(text);
             gfxResourceSetString(timer->unk10, text);
         } else {
-            D_807FBB40->unk154 = 5;
+            D_807FBB40->state = 5;
             D_807FBB40->unk155[0] = 0;
             gfxResourceSetString(timer->unk10, "00:00:00");
         }

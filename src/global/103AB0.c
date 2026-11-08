@@ -235,7 +235,7 @@ s32 func_806FFF88(void) {
     s32 var_s1;
     s32 var_s2;
 
-    if (D_807FBB40->unk58 == 0xD9) {
+    if (D_807FBB40->actorType == 0xD9) {
         func_806FFF5C();
         return;
     }
