@@ -507,9 +507,9 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
     state = gCurrentActor->unk174;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x801000;
-        gCurrentActor->unk16A = 0xFF;
-        gCurrentActor->unk16B = 0xFF;
-        gCurrentActor->unk16C = 0xFF;
+        gCurrentActor->tintR = 0xFF;
+        gCurrentActor->tintG = 0xFF;
+        gCurrentActor->tintB = 0xFF;
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->state = (s32)((ActorConfig *)gCurrentActor->unk124)->unk0;
         AA960_PHY->unkEE = ((ActorConfig *)gCurrentActor->unk124)->unk4;

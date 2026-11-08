@@ -1238,9 +1238,9 @@ void bonusLightFlashGameUpdate(void) {
         camStartPath(0, 0, 1);
         gCurrentActor->roll = 0x9A;
         gCurrentActor->flags |= 0x800000;
-        gCurrentActor->unk16A = 0xFF;
-        gCurrentActor->unk16B = 0xFF;
-        gCurrentActor->unk16C = 0xFF;
+        gCurrentActor->tintR = 0xFF;
+        gCurrentActor->tintG = 0xFF;
+        gCurrentActor->tintB = 0xFF;
         i = 0;
         do {
             t0->unk8[i] = i | 0x80;

@@ -838,9 +838,9 @@ void func_806B4DCC(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags = gCurrentActor->flags | 0x400;
         D_807FDC98->unk46 = D_807FDC98->unk46 | 0x40;
-        gCurrentActor->unk16A = 0xFA;
-        gCurrentActor->unk16B = 0xFA;
-        gCurrentActor->unk16C = 0xFA;
+        gCurrentActor->tintR = 0xFA;
+        gCurrentActor->tintG = 0xFA;
+        gCurrentActor->tintB = 0xFA;
         actorSpawnNodeEntryAtActor(0x2D, 0x44);
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2C1, 0xFF, 0x7F, 0, 0x14, 0.0f, 0);
     }

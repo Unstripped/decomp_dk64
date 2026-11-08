@@ -1835,7 +1835,7 @@ void hudTextScreenUpdate(void) {
     s32 i;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk168 = 0x1E;
+        gCurrentActor->yawSpeed = 0x1E;
         gCurrentActor->unk128 = 0;
         gCurrentActor->flags &= ~0x8000;
         D_807FC7E0 = heapAlloc(0xC);
@@ -1843,8 +1843,8 @@ void hudTextScreenUpdate(void) {
             D_807FC7E0[i] = textTableGetString(0x24, i + 0xF, 0);
         }
     }
-    if (gCurrentActor->unk168 != 0) {
-        gCurrentActor->unk168--;
+    if (gCurrentActor->yawSpeed != 0) {
+        gCurrentActor->yawSpeed--;
     } else if (gCurrentActor->state == 0) {
         if (D_807ECD58 & 0x8000) {
             switch (gCurrentActor->unk15F) {

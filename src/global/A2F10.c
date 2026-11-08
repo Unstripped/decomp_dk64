@@ -274,9 +274,9 @@ void func_8069E774(void) {
         animSetFinished(gCurrentActor, 0, 1);
         *sp74 |= 0x02000000;
         gCurrentActor->flags |= 0x800000;
-        gCurrentActor->unk16A = 0xFF;
-        gCurrentActor->unk16B = 0xFF;
-        gCurrentActor->unk16C = 0xFF;
+        gCurrentActor->tintR = 0xFF;
+        gCurrentActor->tintG = 0xFF;
+        gCurrentActor->tintB = 0xFF;
         switch (controllerLookupStateByHash(gCurrentActor)) {
         case 0xAD:
             node->unk10 = 0xFF;
@@ -325,10 +325,10 @@ void func_8069E774(void) {
     ((ActorHeadingView *)gCurrentActor)->unkEE += 0x1F4;
     gCurrentActor->yaw += 0x32;
     gCurrentActor->state++;
-    if (gCurrentActor->state == gCurrentActor->unk168) {
+    if (gCurrentActor->state == gCurrentActor->yawSpeed) {
         animSetFinished(gCurrentActor, 0, 0);
-    } else if (gCurrentActor->unk168 < gCurrentActor->state) {
-        sp8E = 0x12C - (gCurrentActor->state - gCurrentActor->unk168) * 0x28;
+    } else if (gCurrentActor->yawSpeed < gCurrentActor->state) {
+        sp8E = 0x12C - (gCurrentActor->state - gCurrentActor->yawSpeed) * 0x28;
         if (animIsPlaying(gCurrentActor, 0) == 0) {
             sp87 = 1;
             *sp74 &= 0xFDFFFFFF;

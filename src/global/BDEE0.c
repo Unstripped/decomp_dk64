@@ -118,7 +118,7 @@ void func_806B91E0(void) {
     if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && gCurrentActor->state != 0x37) {
         D_807FDC90->timer = 0x1388;
         func_8072D714(D_807FBB70.unk1FC, 0x327);
-        gCurrentActor->unk138 &= 0xFFFF7FFF;
+        gCurrentActor->callbackMask &= 0xFFFF7FFF;
     } else if (D_807FBB70.unk200 == 4) {
         func_8072DEA8(0x325, 0x31, D_807FBB70.unk1FC);
     } else if (D_807FBB70.unk200 == 5) {
@@ -730,9 +730,9 @@ u8 pivotZ;
 void func_806BB32C(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk16A = 0xFA;
-        gCurrentActor->unk16B = 0xFA;
-        gCurrentActor->unk16C = 0xFA;
+        gCurrentActor->tintR = 0xFA;
+        gCurrentActor->tintG = 0xFA;
+        gCurrentActor->tintB = 0xFA;
     }
     if (gCurrentActor->state == 0x17) {
         actorSpawnRandomParticleNearActor(0, 0);

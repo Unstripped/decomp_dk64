@@ -87,7 +87,7 @@ void behaviourFrameBegin(void) {
                     D_807FBB70.unk15 = 1;
                 } else {
                     actorGlobalStateClearEvents();
-                    gCurrentActor->unk138 = 0;
+                    gCurrentActor->callbackMask = 0;
                     gCurrentActor->flags &= 0xFFFD7FFF;
                     gCurrentActor->unk144 = 1;
                     gCurrentActor->state = 0x39;
@@ -114,8 +114,8 @@ void behaviourFrameBegin(void) {
             }
         }
     }
-    if (gCurrentActor->actorType != 0xAF && gCurrentActor->state == 0x37 && gCurrentActor->unk138 != 0) {
-        gCurrentActor->unk138 = 0;
+    if (gCurrentActor->actorType != 0xAF && gCurrentActor->state == 0x37 && gCurrentActor->callbackMask != 0) {
+        gCurrentActor->callbackMask = 0;
         if (!D_807FBB70.unk1B) {
         }
     }

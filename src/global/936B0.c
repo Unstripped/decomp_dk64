@@ -269,9 +269,9 @@ void func_8068EF54(void) {
         buf->unk8 = 0;
         gCurrentActor->yaw = 0;
         if (sp74->actorType == 0xC5) {
-            gCurrentActor->unk16A = 0xFF;
-            gCurrentActor->unk16B = 0xFF;
-            gCurrentActor->unk16C = 0xFF;
+            gCurrentActor->tintR = 0xFF;
+            gCurrentActor->tintG = 0xFF;
+            gCurrentActor->tintB = 0xFF;
             gCurrentActor->flags |= 0x800000;
         }
         sp7C->unk8 = 0;
@@ -1324,12 +1324,12 @@ void projectileSpawnWithShockwave(s16 arg0, f32 arg1, u8 arg2, u8 arg3, u8 arg4,
     actorSpawn(0x102, arg0);
     actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, arg1);
     *(s16 *)((u8 *)gSpawnedActor + 0xF0) = arg0;
-    gSpawnedActor->unk16A = arg2;
-    gSpawnedActor->unk16B = arg3;
-    gSpawnedActor->unk16C = arg4;
+    gSpawnedActor->tintR = arg2;
+    gSpawnedActor->tintG = arg3;
+    gSpawnedActor->tintB = arg4;
     gSpawnedActor->unk15F = arg5;
-    gSpawnedActor->unk168 = 1;
-    *(f64 *)&gSpawnedActor->unk160 = (f64)arg6;
+    gSpawnedActor->yawSpeed = 1;
+    *(f64 *)&gSpawnedActor->splineT = (f64)arg6;
     if (arg7 != 0.0f) {
         waterRippleStart(gCurrentActor->x, gCurrentActor->z, arg7, 2.0f, arg8, arg9);
     }
@@ -1348,7 +1348,7 @@ void projectileSpawnActor107(u8 arg0, u8 arg1, f32 arg2, f32 arg3, u8 arg4, u8 a
     sub->unk0 = arg1;
     gSpawnedActor->y = *(f32 *)gCurrentActor->unkA8;
     gSpawnedActor->unk15F = arg4;
-    gSpawnedActor->unk168 = arg5;
+    gSpawnedActor->yawSpeed = arg5;
 }
 
 typedef struct ProjectileSpawnCfg {

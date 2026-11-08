@@ -142,17 +142,17 @@ void actorSpawnEffectChild(f32 posX, f32 posY, f32 posZ, f32 scaleXZ, f32 scaleY
     gSpawnedActor->z = posZ;
     if ((parent != NULL) && (parent->collisionFlags & 1)) {
         if (fastGrow != 0) {
-            gSpawnedActor->unk168 = 0xF;
-            *(f64*)&gSpawnedActor->unk160 = 1.11;
+            gSpawnedActor->yawSpeed = 0xF;
+            *(f64*)&gSpawnedActor->splineT = 1.11;
             gSpawnedActor->unk15F = 1;
             return;
         }
-        gSpawnedActor->unk168 = 0x19;
-        *(f64*)&gSpawnedActor->unk160 = 1.09;
+        gSpawnedActor->yawSpeed = 0x19;
+        *(f64*)&gSpawnedActor->splineT = 1.09;
         return;
     }
-    gSpawnedActor->unk168 = 0x20;
-    *(f64*)&gSpawnedActor->unk160 = 1.07;
+    gSpawnedActor->yawSpeed = 0x20;
+    *(f64*)&gSpawnedActor->splineT = 1.07;
     gSpawnedActor->unk15F = 0;
 }
 
@@ -710,9 +710,9 @@ void effectActorGrowthTick(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->flags |= 0x800000;
-        gCurrentActor->unk16A = 0xFF;
-        gCurrentActor->unk16B = ((randomNonNegative() >> 15) % 75) + 0xB4;
-        gCurrentActor->unk16C = 0x28;
+        gCurrentActor->tintR = 0xFF;
+        gCurrentActor->tintG = ((randomNonNegative() >> 15) % 75) + 0xB4;
+        gCurrentActor->tintB = 0x28;
         gCurrentActor->unk128 = 0xFF;
     }
     if ((f64)gCurrentActor->unk4->unk38 > 1.0) {

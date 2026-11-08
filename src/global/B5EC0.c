@@ -155,7 +155,7 @@ void func_806B13B4(u8 arg0) {
                 ((B5EC0Actor *)gCurrentActor)->unkC0 = 200.0f;
             }
             ((B5EC0View90 *)D_807FDC90)->unk35 = 2;
-            gCurrentActor->unk138 &= 0xFFFF7FFF;
+            gCurrentActor->callbackMask &= 0xFFFF7FFF;
             sel = gCurrentActor->state;
         } else if (D_807FBB70.unk200 == 4) {
             func_8072DEA8(0x209, 0x31, D_807FBB70.unk1FC);

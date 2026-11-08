@@ -683,7 +683,7 @@ void actorPreTick(Actor *arg0) {
     } else if (arg0->unk140 != NULL) {
         arg0->unk140->unk6C = 0;
     }
-    if (arg0->unk110 != 0) {
+    if (arg0->attachMode != 0) {
         actorUpdateSubnodeRotationAndMtx(arg0);
     }
 }
@@ -856,11 +856,11 @@ void actorFreeCallbackList(Actor *actor) {
 }
 
 void actorCallbackMaskEnable(Actor *actor, s32 mask) {
-    actor->unk138 |= mask;
+    actor->callbackMask |= mask;
 }
 
 void actorCallbackMaskDisable(Actor *actor, s32 mask) {
-    actor->unk138 &= ~mask;
+    actor->callbackMask &= ~mask;
 }
 
 void actorAppendCallback(Actor *actor, s32 arg1, s32 arg2, u8 arg3, s32 arg4, void *arg5) {
@@ -1106,7 +1106,7 @@ void actorDispatchCallbacks(Actor *arg0) {
     temp_v0 = actorCallbackListSort(arg0->callbacks);
     arg0->callbacks = temp_v0;
     var_s2 = temp_v0;
-    sp50 = arg0->unk138;
+    sp50 = arg0->callbackMask;
     if (temp_v0 != NULL) {
         do {
             if ((s32)var_s2->callback == 0) {}  // FAKE: dead test steers uopt colouring of the callback id (a0 vs a1)

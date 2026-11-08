@@ -280,7 +280,7 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
     char buf[3];
     s32 n;
 
-    v = actor->unk168 / 30;
+    v = actor->yawSpeed / 30;
     if (v) {
         if (v >= 4) {
             n = 3;
@@ -291,7 +291,7 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
     } else {
         _sprintf(buf, (char *)textTableGetString(0x26, 9, 1));
     }
-    if (actor->unk168 % 30 == 0) {
+    if (actor->yawSpeed % 30 == 0) {
         if (v != 0) {
             if (v >= 2) {
                 n = 0x75;
@@ -307,7 +307,7 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
     gDPSetPrimColor(gdl++, 0, 0, 255, 255, 255, 255);
     gdl = func_8070068C(gdl);
     gdl = textDrawStringVtx(gdl, 1, (s16)((0x140 - textGetStringWidth(1, buf)) << 1), 0xAA, buf, 1);
-    n = actor->unk168-- == 0;
+    n = actor->yawSpeed-- == 0;
     if (n) {
         actor->unk155[0]++;
     }

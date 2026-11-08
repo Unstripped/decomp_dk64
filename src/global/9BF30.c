@@ -51,7 +51,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
 
     sub = actor->unk174;
     stepAngle = 0x1000 / sub->unk0;
-    idx = (((sub->unk10++) % 16) + actor->unk168) & 0xFF;
+    idx = (((sub->unk10++) % 16) + actor->yawSpeed) & 0xFF;
 
     gSPDisplayList(glist++, &D_1000118);
     gSPMatrix(glist++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -180,8 +180,8 @@ void projectileSpriteRingUpdate(void) {
             gCurrentActor->z += sub->unkC * func_80612790(gCurrentActor->yaw);
             if (gCurrentActor->unk15F != 0) {
                 gCurrentActor->unk15F -= 1;
-            } else if (gCurrentActor->unk168 == 0x20) {
-                gCurrentActor->unk168 = 0x10;
+            } else if (gCurrentActor->yawSpeed == 0x20) {
+                gCurrentActor->yawSpeed = 0x10;
                 sub->unk10 = 0;
             } else if (sub->unk10 >= 0x10) {
                 heapFree(sub->unk4);
@@ -199,10 +199,10 @@ void projectileSpriteRingUpdate(void) {
                 sub->unk0 = temp;
             }
         } else {
-            sub->unk8 = sub->unk8 + (f32)((gCurrentActor->unk168 - sub->unk10) + 0x10)
+            sub->unk8 = sub->unk8 + (f32)((gCurrentActor->yawSpeed - sub->unk10) + 0x10)
                 * (sub->unkC * 0.0625);
         }
-        if ((sub->unk10 - gCurrentActor->unk168) >= 0x10) {
+        if ((sub->unk10 - gCurrentActor->yawSpeed) >= 0x10) {
             u8 count;
 
             count = gCurrentActor->unk15F;
@@ -210,7 +210,7 @@ void projectileSpriteRingUpdate(void) {
             if (count) {
                 projectileSpawnActor107(0, sub->unk0, sub->unk8, sub->unkC, 0, 0x10);
                 if (gCurrentActor->unk15F == 0) {
-                    gCurrentActor->unk168 = 0x10;
+                    gCurrentActor->yawSpeed = 0x10;
                 } else {
                     sub->unk10 = 0;
                 }

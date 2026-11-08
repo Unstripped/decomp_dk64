@@ -154,7 +154,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
                     D_807FBB4C->y = gCurrentActor->y - 2.0f;
                     D_807FBB4C->z = gCurrentActor->z;
                     D_807FBB4C->contactFlags &= 0xFFFE;
-                    D_807FBB4C->unk110 = 0;
+                    D_807FBB4C->attachMode = 0;
                 }
             }
             actorAirPatrolStep((gCurrentActor->state == 0x26) ? 0x26 : 2, 0x23D, 0x23E);
@@ -236,7 +236,7 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
             camStartPath(0, (s16)var, 1);
         }
         if (subActor != 0) {
-            subActor->unk168 = 0;
+            subActor->yawSpeed = 0;
         }
     }
     if (rewardCutsceneId == R1C8aC->unk13 && (gCurrentActor->unk15F & 0x80) && D_807FDC90->timer == 0x5A && flagGet(rewardFlag, 0) == 0) {
@@ -389,11 +389,11 @@ u8 func_806C4AC4(u16 spawnCooldown, u16 maxSpawns) {
             }
             if (*cooldownPtr != 0) {
                 (*cooldownPtr)--;
-            } else if (gCurrentActor->unk168 < maxSpawns) {
+            } else if (gCurrentActor->yawSpeed < maxSpawns) {
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x1DD, 0xFF, 0x7F, 0x14, 0x14, 0.0f, 0);
                 actorSpawn(0x18, 0);
-                gCurrentActor->unk168++;
-                gSpawnedActor->unk15F = gCurrentActor->unk168;
+                gCurrentActor->yawSpeed++;
+                gSpawnedActor->unk15F = gCurrentActor->yawSpeed;
                 gSpawnedActor->x = gCurrentActor->x;
                 gSpawnedActor->y = gCurrentActor->y - 10.0f;
                 gSpawnedActor->z = gCurrentActor->z;
@@ -429,7 +429,7 @@ void func_806C4EE0(u8 subAction, u8 stateValue) {
     func_8070D8C0(gCurrentActor, 0xF, subAction);
     gCurrentActor->state = 0x29;
     gCurrentActor->unk155[0] = 0;
-    gCurrentActor->unk168 = stateValue;
+    gCurrentActor->yawSpeed = stateValue;
     R1C8aA->unkF0 = 0;
 }
 

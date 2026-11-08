@@ -325,13 +325,13 @@ void func_8067BA7C(s32 arg0) {
             break;
         case 20:
             if (arg0 == 0x95) {
-                gCurrentActor->unk168 = 0x1E;
+                gCurrentActor->yawSpeed = 0x1E;
                 gCurrentActor->state = 0x15;
             }
             break;
         case 21:
-            if (gCurrentActor->unk168 != 0) {
-                gCurrentActor->unk168--;
+            if (gCurrentActor->yawSpeed != 0) {
+                gCurrentActor->yawSpeed--;
             } else {
                 gCurrentActor->state = 0xA;
             }
@@ -2247,7 +2247,7 @@ void tagBarrelActorUpdate(void) {
         temp_f = (f64)gCurrentActor->unk4->unk34 / 0.15;
         gCurrentActor->floorY = gCurrentActor->y;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-        gCurrentActor->unk110 = 0;
+        gCurrentActor->attachMode = 0;
         gCurrentActor->flags |= 2;
         sub->unk0 = gCurrentActor->y;
         sub->unk4 = 0;
@@ -3040,7 +3040,7 @@ void tagBarrelUpdateSelectedKong(void) {
         animSetFrameAndSubframe(gCurrentActor, 0, sp2C.arr[*sp28].unk2, 0.0f);
         actorScriptStart(gCurrentActor, 0x329);
     }
-    gCurrentActor->unk16D = gCurrentActor->unk15F;
+    gCurrentActor->tintA = gCurrentActor->unk15F;
     gCurrentActor->yaw += 0x32;
     gCurrentActor->yaw &= 0xFFF;
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -3107,7 +3107,7 @@ void func_80683158(void) {
         }
     }
     *((u8 *)((ActorSub4View3158 *)gCurrentActor->unk4)->unk1C + sp3C * 8) = 0;
-    gCurrentActor->unk16D = gCurrentActor->unk15F;
+    gCurrentActor->tintA = gCurrentActor->unk15F;
     gCurrentActor->yaw = mathAngleBetweenPoints2D(gPlayerSlots->unk210, gPlayerSlots->unk218, gCurrentActor->x, gCurrentActor->z);
     extra8 = extra->unk8;
     if (func_8072881C(0, extra8) != 0) {
@@ -3612,7 +3612,7 @@ void tagBarrelUpdate(void) {
         actor = gCurrentActor;
         actor->floorY = actor->y;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-        gCurrentActor->unk110 = 0;
+        gCurrentActor->attachMode = 0;
         actor = gCurrentActor;
         actor->flags |= 2;
         actor = gCurrentActor;
@@ -3636,7 +3636,7 @@ void tagBarrelUpdate(void) {
             if (((Actor *)D_807FBB4C)->contactFlags & 4 || func_806C9D7C() != 0) {
                 actor = gCurrentActor;
                 actor->unk155[0] = 0;
-            } else if (((Actor *)D_807FBB4C)->unk110 != 1 && (((Actor *)D_807FBB4C)->contactFlags & ((Actor *)D_807FBB4C)->prevContactFlags & 1)) {
+            } else if (((Actor *)D_807FBB4C)->attachMode != 1 && (((Actor *)D_807FBB4C)->contactFlags & ((Actor *)D_807FBB4C)->prevContactFlags & 1)) {
                 tagBarrelCheckKongFlag(((Actor *)D_807FBB4C)->actorType, 1);
             }
         }

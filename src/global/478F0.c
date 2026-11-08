@@ -2719,7 +2719,7 @@ s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (!(actor->flags & 0x2000) && actor->actorType == 4 && actor->unk110 == 1 && csId == actor->unk10C) {
+        if (!(actor->flags & 0x2000) && actor->actorType == 4 && actor->attachMode == 1 && csId == actor->cutsceneId) {
             if (b != actor->unk10E[0] && actor->unk10E[0] != 0) {
                 modelAnimEntryStart(csId, actor->unk10E[0], 2);
                 func_80641874(actor->unk10E[0] + 4, 0);
@@ -2827,8 +2827,8 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     if (p->unk4F == 0) {
         pl = gPlayerSlots->unk4;
-        if (pl->state == 0x1C && pl->unk155[0] < 7 && gPlayerCharacterId == 0 && pl->unk110 == 1) {
-            if (csId == pl->unk10C) {
+        if (pl->state == 0x1C && pl->unk155[0] < 7 && gPlayerCharacterId == 0 && pl->attachMode == 1) {
+            if (csId == pl->cutsceneId) {
                 bestD = 100000.0f;
                 best = -1;
                 i = 0;
@@ -3150,7 +3150,7 @@ s32 csFindPlayerSlotByModel(s32 a, s32 b) {
         do {
             if (p->unk0 != 0) {
                 q = p->unk4;
-                if (q->unk110 == 1 && q->unk10C == a && q->unk10E[0] == b) {
+                if (q->attachMode == 1 && q->cutsceneId == a && q->unk10E[0] == b) {
                     return i;
                 }
             }

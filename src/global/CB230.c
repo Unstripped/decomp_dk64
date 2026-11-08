@@ -140,9 +140,9 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
         R1C8CBSub178 *p = R1V->unk178;
         gCurrentActor->renderFlags |= 4;
         gCurrentActor->flags |= 0x800000;
-        gCurrentActor->unk16A = 0xFF;
-        gCurrentActor->unk16B = 0xFF;
-        gCurrentActor->unk16C = 0xFF;
+        gCurrentActor->tintR = 0xFF;
+        gCurrentActor->tintG = 0xFF;
+        gCurrentActor->tintB = 0xFF;
         p->unk2 = 0;
         p->unk0 = 0xFF;
         ((R1C8CBView98 *)D_807FDC98)->unk3C = 1.0f;

@@ -45,9 +45,9 @@ void func_806BD170(void) {
             gSpawnedActor->flags |= 0x800400;
             pos = i * 0x200 + 0x104;
             gSpawnedActor->flags &= 0xFFFF7FFF;
-            gSpawnedActor->unk16A = 0xFF;
-            gSpawnedActor->unk16B = 0xFF;
-            gSpawnedActor->unk16C = 0xFF;
+            gSpawnedActor->tintR = 0xFF;
+            gSpawnedActor->tintG = 0xFF;
+            gSpawnedActor->tintB = 0xFF;
             gSpawnedActor->unk128 = 0xFF;
             gSpawnedActor->x = func_80612794(pos) * 270.0f + gCurrentActor->x;
             gSpawnedActor->z = func_80612790(pos) * 270.0f + gCurrentActor->z;

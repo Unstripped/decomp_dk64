@@ -196,7 +196,7 @@ typedef struct Actor {
     /* 0x0E8 */ s16 roll;
     /* 0x0EA */ u8 unkEA[4];
     /* 0x0EE */ s16 moveYaw;
-    /* 0x0F0 */ s16 unkF0;
+    /* 0x0F0 */ s16 movePitch;
     /* 0x0F2 */ u8 unkF2[2];
     /* 0x0F4 */ s16 arcYawMin;
     /* 0x0F6 */ s16 arcYawMax;
@@ -207,9 +207,9 @@ typedef struct Actor {
     };
     /* 0x0FD */ u8 unkFD;
     /* 0x0FE */ u8 unkFE[0xE];
-    /* 0x10C */ s16 unk10C;
+    /* 0x10C */ s16 cutsceneId;
     /* 0x10E */ u8 unk10E[2];
-    /* 0x110 */ u8 unk110;
+    /* 0x110 */ u8 attachMode;
     /* 0x111 */ u8 unk111[3];
     /* 0x114 */ ActorList *riderList;
     /* 0x118 */ u8 unk118[4];
@@ -230,7 +230,7 @@ typedef struct Actor {
     /* 0x132 */ s16 unk132;
     /* 0x134 */ s16 health;
     /* 0x136 */ s16 damage;
-    /* 0x138 */ s32 unk138;
+    /* 0x138 */ s32 callbackMask;
     /* 0x13C */ ActorCallbackNode *callbacks;
     /* 0x140 */ ActorSub140 *unk140;
     /* 0x144 */ u8 unk144;
@@ -241,12 +241,12 @@ typedef struct Actor {
     /* 0x15C */ s16 unk15C;
     /* 0x15E */ u8 unk15E;
     /* 0x15F */ u8 unk15F;
-    /* 0x160 */ f64 unk160;
-    /* 0x168 */ s16 unk168;
-    /* 0x16A */ u8 unk16A;
-    /* 0x16B */ u8 unk16B;
-    /* 0x16C */ u8 unk16C;
-    /* 0x16D */ u8 unk16D;
+    /* 0x160 */ f64 splineT;
+    /* 0x168 */ s16 yawSpeed;
+    /* 0x16A */ u8 tintR;
+    /* 0x16B */ u8 tintG;
+    /* 0x16C */ u8 tintB;
+    /* 0x16D */ u8 tintA;
     /* 0x16E */ u8 unk16E[6];
     /* 0x174 */ void *unk174;
 } Actor;

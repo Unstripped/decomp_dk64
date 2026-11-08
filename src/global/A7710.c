@@ -104,9 +104,9 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
                                 (s16)((gPlayerSlots->unk276 * 4) - 0x3C),
                                 gfxResourceFindById(sub->unk10)->unk4, 1);
         } else {
-            angle = (f32)(6.28318548202514648 - 2.0 * actor->unk160);
+            angle = (f32)(6.28318548202514648 - 2.0 * actor->splineT);
             offset = 8;
-            if (actor->unk168 == 3) {
+            if (actor->yawSpeed == 3) {
                 offset = -7;
             }
             gfx = textDrawAnimated(gfx, sub->unk10, unk15F, actor->x + (f32)offset,
@@ -195,7 +195,7 @@ void hudCountdownTimerUpdate(void) {
             }
         }
         func_806FDAB8(timer->unk10, 1.5707964f);
-        gCurrentActor->unk168 = 0;
+        gCurrentActor->yawSpeed = 0;
         break;
     case 4:
         gCurrentActor->state = 2;
@@ -211,7 +211,7 @@ void hudCountdownTimerUpdate(void) {
         secsLeft = timer->unkC - timer->unk8;
         if (secsLeft >= 0) {
             func_806FDAB8(timer->unk10, angle < 0.0f ? 0.0f : angle);
-            gCurrentActor->unk160 = angle < 0.0f ? 0.0f : angle;
+            gCurrentActor->splineT = angle < 0.0f ? 0.0f : angle;
             if (nextBeepAngle <= angle) {
                 if (timer->unk8 >= timer->unkC
                     && (gCurrentActor->unk15F == 6 || timer->unkC < timer->unk8 || D_807FC7D8 >= 0x5B)) {
@@ -235,7 +235,7 @@ void hudCountdownTimerUpdate(void) {
             } else {
                 _sprintf(text, "00:00:00");
             }
-            gCurrentActor->unk168 = strlen(text);
+            gCurrentActor->yawSpeed = strlen(text);
             gfxResourceSetString(timer->unk10, text);
         } else {
             gCurrentActor->state = 5;
@@ -287,7 +287,7 @@ void hudCountdownTimerUpdate(void) {
             }
             break;
         }
-        gCurrentActor->unk168 = 0;
+        gCurrentActor->yawSpeed = 0;
         if (secsLeft <= 0 && secsLeft >= -2) {
             func_806FDAB8(timer->unk10, (f32)((((f64)((randomNonNegative() >> 15) % 180)) / 180.0) * 3.1415927410125732 + 1.5707963705062866));
         }

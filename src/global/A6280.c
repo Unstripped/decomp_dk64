@@ -99,7 +99,7 @@ void actorSeekTargetUpdate(void) {
                 gCurrentActor->unk132 *= 2;
             }
         }
-        if ((D_807FBB4C->contactFlags & 1) && D_807FBB4C->unk110 == 0) {
+        if ((D_807FBB4C->contactFlags & 1) && D_807FBB4C->attachMode == 0) {
             gCurrentActor->unk132 = 1;
         }
     }
@@ -427,27 +427,27 @@ void actorMidpointOrbitUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x1000;
         actorSetUniformScale(gCurrentActor, ((MidpointOrbitConfig *)gCurrentActor->unk124)->unkC);
-        gCurrentActor->unk168 = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, D_807FBB4C->x, D_807FBB4C->z);
-        gCurrentActor->unkF0 = (D_807FBB4C->y + (f32)D_807FBB4C->unk15E - gCurrentActor->y) * 0.5;
+        gCurrentActor->yawSpeed = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, D_807FBB4C->x, D_807FBB4C->z);
+        gCurrentActor->movePitch = (D_807FBB4C->y + (f32)D_807FBB4C->unk15E - gCurrentActor->y) * 0.5;
         ORBIT_ACTOR->unkEC = sqrtf((gCurrentActor->x - D_807FBB4C->x) * (gCurrentActor->x - D_807FBB4C->x) + (gCurrentActor->z - D_807FBB4C->z) * (gCurrentActor->z - D_807FBB4C->z)) * 0.5;
         sub->unk0 = gCurrentActor->x + (D_807FBB4C->x - gCurrentActor->x) * 0.5;
         sub->unk2 = gCurrentActor->y + (D_807FBB4C->y - gCurrentActor->y) * 0.5;
         sub->unk4 = gCurrentActor->z + (D_807FBB4C->z - gCurrentActor->z) * 0.5;
         gCurrentActor->unk144 = 0x24;
         ORBIT_ACTOR->unkFA = 0x2328;
-        gCurrentActor->unk160 = ((MidpointOrbitConfig *)gCurrentActor->unk124)->unk4;
+        gCurrentActor->splineT = ((MidpointOrbitConfig *)gCurrentActor->unk124)->unk4;
         {
-            f64 v = gCurrentActor->unk160 * (ORBIT_ACTOR->unkEC * 0.01);
-            gCurrentActor->unk160 = (v > 15.0 ? v : 15.0) < 150.0 ? (v > 15.0 ? v : 15.0) : 150.0;
+            f64 v = gCurrentActor->splineT * (ORBIT_ACTOR->unkEC * 0.01);
+            gCurrentActor->splineT = (v > 15.0 ? v : 15.0) < 150.0 ? (v > 15.0 ? v : 15.0) : 150.0;
         }
-        sub->unk8 = gCurrentActor->unk160;
+        sub->unk8 = gCurrentActor->splineT;
     }
     func_8067ACB4(gCurrentActor);
-    ratio = (sub->unk8 / gCurrentActor->unk160) * -4096.0 + 4096.0;
-    sub->unk6 = gCurrentActor->unk168 + ratio;
+    ratio = (sub->unk8 / gCurrentActor->splineT) * -4096.0 + 4096.0;
+    sub->unk6 = gCurrentActor->yawSpeed + ratio;
     gCurrentActor->x = func_80612794(sub->unk6) * ORBIT_ACTOR->unkEC + sub->unk0;
     gCurrentActor->z = func_80612790(sub->unk6) * ORBIT_ACTOR->unkEC + sub->unk4;
-    gCurrentActor->y = func_80612790(2048.0f + ratio) * gCurrentActor->unkF0 + sub->unk2;
+    gCurrentActor->y = func_80612790(2048.0f + ratio) * gCurrentActor->movePitch + sub->unk2;
     actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     gCurrentActor->yaw += 0x12C;
     if ((gCurrentActor->yaw & 0x7FF) < 0x12C) {

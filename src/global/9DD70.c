@@ -1280,7 +1280,7 @@ void textMarkerUpdateMatrix(void) {
         }
         if (markerView->unk28 != 0) {
             gCurrentActor->state = 0xA;
-            gCurrentActor->unk138 = 0;
+            gCurrentActor->callbackMask = 0;
             gCurrentActor->unk144 = 1;
             gCurrentActor->flags &= ~4;
         }
@@ -1336,7 +1336,7 @@ void textMarkerUpdateMatrix(void) {
         *(s16 *)((u8 *)gCurrentActor + 0xDC) = 0x3FF;
         *(s16 *)((u8 *)gCurrentActor + 0xDE) = 0x3FF;
     } else {
-        gCurrentActor->unk110 = 0;
+        gCurrentActor->attachMode = 0;
         gCurrentActor->contactFlags &= 0xFBF7;
     }
     if (D_807FBB94) {}  // FAKE: ghost candidate, extends the D_807FBB94 web over the gCurrentMap switch temp
@@ -1345,7 +1345,7 @@ void textMarkerUpdateMatrix(void) {
     case 0x71:
     case 0xC2:
         if (gCurrentActor->actorType == 0x3D) {
-            if (gCurrentActor->unk110 == 1) {
+            if (gCurrentActor->attachMode == 1) {
                 if (D_807FBB94) {}  // FAKE: ghost candidate (see the particleLoopIdx loop), keeps the D_807FBB94 web live across the gCurrentMap switch
                 gCurrentActor->flags |= 0x200000;
             } else {
@@ -1509,9 +1509,9 @@ void textSpawnMarker(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 
         }
         gSpawnedActor->y = (f32)(y * 4);
         gSpawnedActor->z = (f32)fontStyle;
-        gSpawnedActor->unk16A = 0xFF;
-        gSpawnedActor->unk16B = 0xFF;
-        gSpawnedActor->unk16C = 0xFF;
+        gSpawnedActor->tintR = 0xFF;
+        gSpawnedActor->tintG = 0xFF;
+        gSpawnedActor->tintB = 0xFF;
         len = strlen((char *)textStr) + 1;
         sub->unk0 = (void *)heapAlloc(len);
         _strcpy((char *)sub->unk0, (char *)textStr);
@@ -1645,7 +1645,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
             break;
     }
 
-    gDPSetPrimColor(gfx++, 0, 0, actor->unk16A, actor->unk16B, actor->unk16C, actor->unk15F);
+    gDPSetPrimColor(gfx++, 0, 0, actor->tintR, actor->tintG, actor->tintB, actor->unk15F);
     return textDrawStringVtx(gfx, (s16)mode, x, y, *sub, state);
 }
 
@@ -1662,7 +1662,7 @@ Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
     WRITE_GFX_U32(gfx++, 0xFA000000, 0xFFFFFFFF);
     WRITE_GFX_U32(gfx++, 0xFC11FE23, 0xFFFFF3F9);
     WRITE_GFX_U32(gfx++, 0xDA380003, &D_2000180);
-    if (actor->unk168++ < 100) {
+    if (actor->yawSpeed++ < 100) {
         gfx = textDrawAnimated(gfx, *(u8 *)((u8 *)model + 0xA), 2, 160.0f, actor->y, 0.0f, 1.0f);
     } else {
         gfx = textDrawAnimated(gfx, *(u8 *)((u8 *)model + 0xA), 1, 160.0f, actor->y, 0.0f, 1.0f);
@@ -1683,12 +1683,12 @@ void textMarkerUpdate(void) {
         return;
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk168 = *(u16 *)(model + 4);
+        gCurrentActor->yawSpeed = *(u16 *)(model + 4);
     }
     switch (gCurrentActor->state) {
     case 0:
-        if (gCurrentActor->unk168 != 0) {
-            gCurrentActor->unk168--;
+        if (gCurrentActor->yawSpeed != 0) {
+            gCurrentActor->yawSpeed--;
         } else {
             gCurrentActor->state = 1;
         }
@@ -1704,12 +1704,12 @@ void textMarkerUpdate(void) {
             } else {
                 gCurrentActor->unk15F = 0xFF;
                 gCurrentActor->unk155[0]++;
-                gCurrentActor->unk168 = *(u16 *)(model + 6);
+                gCurrentActor->yawSpeed = *(u16 *)(model + 6);
             }
             break;
         case 1:
-            if (gCurrentActor->unk168 != 0) {
-                gCurrentActor->unk168--;
+            if (gCurrentActor->yawSpeed != 0) {
+                gCurrentActor->yawSpeed--;
             } else {
                 gCurrentActor->unk155[0]++;
             }
@@ -1792,9 +1792,9 @@ void textUpdateThreeDigitCounter(void) {
         model[0] = textBuildDigitNode(0x21, (void *)model[0], 0, val / 100, 0x20);
         model[1] = textBuildDigitNode(0x21, (void *)model[1], 1, val % 100 / 10, 0x20);
         model[2] = textBuildDigitNode(0x21, (void *)model[2], 2, val % 10, 0x20);
-        gCurrentActor->unk16A = 0xFF;
-        gCurrentActor->unk16B = 0xFF;
-        gCurrentActor->unk16C = 0xFF;
+        gCurrentActor->tintR = 0xFF;
+        gCurrentActor->tintG = 0xFF;
+        gCurrentActor->tintB = 0xFF;
         gCurrentActor->flags |= 0x800000;
         *(u32 *)((u8 *)gActivePlayerState + 0x1F0) &= ~0x20000;
         if (val >= *(u16 *)((u8 *)D_807446C0 + unk)) {

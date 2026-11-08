@@ -569,9 +569,9 @@ void func_806EC044(void) {
     }
     scriptSetActorRampTarget(D_807FBB48, speed, 0.0f);
     actorClearMovementFlags(D_807FBB48);
-    D_807FBB48->x = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk0;
-    D_807FBB48->y = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk4 + 5.0f;
-    D_807FBB48->z = D_807F6000[hashTableLookup(D_807FBB48->unk10C)].unk8;
+    D_807FBB48->x = D_807F6000[hashTableLookup(D_807FBB48->cutsceneId)].unk0;
+    D_807FBB48->y = D_807F6000[hashTableLookup(D_807FBB48->cutsceneId)].unk4 + 5.0f;
+    D_807FBB48->z = D_807F6000[hashTableLookup(D_807FBB48->cutsceneId)].unk8;
     *(s16 *)((u8 *)D_807FBB48 + 0xE4) = 0;
     *(s16 *)((u8 *)D_807FBB48 + 0xE8) = 0;
     camStartPath(D_807FBB48, 0, 1);
@@ -1635,7 +1635,7 @@ extern void sfxStopChannel(s32, s32);
 void func_806EE5A4(void) {
     playerClearCarriedItemState();
     sfxStopChannel(0x6B, 0);
-    gCurrentActor->unk168 = ((EfDE5Player *)gPlayerSlots)[gCurrentPlayerIndex].unk2A8;
+    gCurrentActor->yawSpeed = ((EfDE5Player *)gPlayerSlots)[gCurrentPlayerIndex].unk2A8;
     actorScriptStartByIndex(gCurrentActor, 0x1D);
     D_807FBB48->state = 0x6F;
     D_807FBB48->unk155[0] = 0;

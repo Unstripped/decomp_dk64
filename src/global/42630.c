@@ -1489,7 +1489,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         i = 0;
         for (; i < gActiveActorCount; i++) {
             actor = gActiveActors[i].actor;
-            if (!(actor->flags & 0x2000) && actor->unk110 == 1 && csId == actor->unk10C) {
+            if (!(actor->flags & 0x2000) && actor->attachMode == 1 && csId == actor->cutsceneId) {
                 actorAppendCallback(actor, 0, 8, 0, 0, 0);
             }
         }
@@ -1925,7 +1925,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         i = 0;
         for (; i < gActiveActorCount; i++) {
             actor = gActiveActors[i].actor;
-            if (!(actor->flags & 0x2000) && actor->unk110 == 1 && csId == actor->unk10C) {
+            if (!(actor->flags & 0x2000) && actor->attachMode == 1 && csId == actor->cutsceneId) {
                 if (cmd->a != 0) {
                     actor->flags2 |= 4;
                 } else {
@@ -2234,7 +2234,7 @@ void func_80641BCC(s16 a, s16 b, s16 csId) {
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (!(actor->flags & 0x2000) && actor->actorType == a && csId == actor->unk10C) {
+        if (!(actor->flags & 0x2000) && actor->actorType == a && csId == actor->cutsceneId) {
             if (b != 0) {
                 actor->flags2 |= 4;
             } else {
@@ -2262,7 +2262,7 @@ void func_80641C98(s16 a, s16 b, s16 csId) {
     }
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (!(actor->flags & 0x2000) && actor->actorType == a && csId == actor->unk10C) {
+        if (!(actor->flags & 0x2000) && actor->actorType == a && csId == actor->cutsceneId) {
             actorAppendCallback(actor, 0, 0x800, x, 0, 0);
         }
     }

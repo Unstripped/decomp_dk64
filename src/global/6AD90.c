@@ -111,7 +111,7 @@ void collisionQueryActorFloor(Actor *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg
 
     D_807F94BC = 0;
     D_807F94B3 = 0;
-    if (((u8 *)arg0)[0xCC] != 0 && arg0->unk110 == 0 && (arg0->flags & 0x10)) {
+    if (((u8 *)arg0)[0xCC] != 0 && arg0->attachMode == 0 && (arg0->flags & 0x10)) {
         actorGetNodePos(arg0, ((u8 *)arg0)[0xCC] ^ 0, &sp3C, &sp38, &sp34); // FAKE: x ^ 0 keeps the node id in v0 (no spill)
     } else {
         sp3C = arg0->x;
@@ -1059,7 +1059,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                                 collisionStoreTriangleNormalAnglesS16((s32)arg3, (struct CollisionPlaneTriS *)tri, 1);
                                 if (arg3 != NULL) {
                                     arg3->unk70[8] = tri->unk15;
-                                    arg3->unk16D = D_807F94B5;
+                                    arg3->tintA = D_807F94B5;
                                 }
                                 D_807F94B1 = tri->unk15;
                                 if (tri->unk12 & 2) {

@@ -21,9 +21,9 @@ const Rgb8 D_80757F70[8] = {
 };
 
 void actorSetTintFromPalette(u8 arg0) {
-    gSpawnedActor->unk16A = D_80757F70[arg0].r;
-    gSpawnedActor->unk16B = D_80757F70[arg0].g;
-    gSpawnedActor->unk16C = D_80757F70[arg0].b;
+    gSpawnedActor->tintR = D_80757F70[arg0].r;
+    gSpawnedActor->tintG = D_80757F70[arg0].g;
+    gSpawnedActor->tintB = D_80757F70[arg0].b;
 }
 
 u8 *_strchr(u8 *, s32);

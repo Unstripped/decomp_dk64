@@ -1021,7 +1021,7 @@ void func_8068A2FC(Actor *actor) {
     actor->unk128 = 0;
     actor->flags &= ~0x8000;
     actor->unk144 = 1;
-    actor->unk138 = 0;
+    actor->callbackMask = 0;
     actor->state = 0x63;
     func_8066E6C8(actor, 0, 0);
 }

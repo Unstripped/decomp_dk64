@@ -9,7 +9,7 @@ extern void *gPlayerSlots;
 u8 func_8072E5B0(void) {
     Actor *a = D_807FBB4C;
 
-    return !(a->contactFlags & 1) && !(a->unk110 == 1) && !(a->state == 0x63);
+    return !(a->contactFlags & 1) && !(a->attachMode == 1) && !(a->state == 0x63);
 }
 
 typedef struct {

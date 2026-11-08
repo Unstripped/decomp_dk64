@@ -304,7 +304,7 @@ void func_806B640C(void) {
                 actorScriptStart(gCurrentActor, 0x24F);
             }
         }
-        lightUpdateFromActorLighting(&gCurrentActor->unk16A, &gCurrentActor->unk16B, &gCurrentActor->unk16C);
+        lightUpdateFromActorLighting(&gCurrentActor->tintR, &gCurrentActor->tintG, &gCurrentActor->tintB);
     }
     sel = gCurrentActor->state;
     if (sel != 0x37 && sel != 0x38) {
