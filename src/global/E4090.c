@@ -439,7 +439,7 @@ typedef struct G21ActorEE {
 
 extern u8 D_807FD618[];
 
-void func_806E0178(void) {
+void playerInputUpdateStickFacingYaw(void) {
     f32 var_fv0;
     f32 var_fv1;
     s32 temp_v0;
@@ -465,7 +465,7 @@ void func_806E0178(void) {
     mathAngleStepToward(&G21_ACTOR_EE->unkEE, G21_PLAYER->unkA, (s16)(s32)(var_fv0 * var_fv1));
 }
 
-void func_806E0294(void) {
+void playerInputUpdateStickFacingYawSlow(void) {
     f32 var_fv0;
     f32 var_fv1;
     s32 temp_v0;
@@ -533,7 +533,7 @@ f32 inputLerpByStickAbsY(f32 arg0, f32 arg1) {
     return 0.0f;
 }
 
-void func_806E04E0(void) {
+void playerInputUpdateStickMoveTarget(void) {
     f32 temp_fv0;
     f32 var_fv0;
     f32 var_fv1;
@@ -1072,7 +1072,7 @@ void playerInputHandleAButtonState0(void) {
     }
 }
 
-void func_806E1BA4(void) {
+void playerInputHandleAButtonJump(void) {
     f32 temp_fv0;
     f32 temp_fv1;
 
@@ -1210,7 +1210,7 @@ s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
 f32 cosApprox(f32);
 f32 sinApprox(f32);
 u8 actorTestNodeSegmentCollision(void *);
-void func_806E2C74(Actor *);
+void playerInputSetState90(Actor *);
 s32 actorIsActiveType2B(Actor *);
 s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
@@ -1384,7 +1384,7 @@ u8 arg1;
                     func_806F0C18(gCurrentActor);
                     playerResumeLocomotion(gCurrentActor);
                 }
-                func_806E2C74(gCurrentActor);
+                playerInputSetState90(gCurrentActor);
             }
         } else {
             switch (gCurrentActor->actorType) {
@@ -1456,7 +1456,7 @@ typedef struct G23State90 {
     /* 0x90 */ u8 unk90;
 } G23State90;
 
-void func_806E2C74(Actor *arg0) {
+void playerInputSetState90(Actor *arg0) {
     G23State90 *state = arg0->customState;
 
     switch (arg0->actorType) {
@@ -1478,7 +1478,7 @@ s32 flagGet(s32, s32);
 s32 func_807142D8(void);
 s32 menuIsTransitionTypeC(void);
 
-s32 func_806E2CC4(void) {
+s32 playerInputCanFireWeapon(void) {
     s32 var_v1;
 
     var_v1 = func_80714608(0) == 0;
@@ -1514,7 +1514,7 @@ s32 func_806E2CC4(void) {
 }
 
 void playerInputHandlerCheckZAndTriggerState2C(void) {
-    if ((gPlayerPadState[gCurrentPlayerIndex].unk2C & 1) && func_806E2CC4()) {
+    if ((gPlayerPadState[gCurrentPlayerIndex].unk2C & 1) && playerInputCanFireWeapon()) {
         actorScriptStartByIndex(gCurrentActor, 0x47);
         gCurrentActor->state = 0x2C;
         gCurrentActor->unk155[0] = 0;
@@ -1544,7 +1544,7 @@ void playerInputHandlerCheckBAndFireWeapon(void) {
 extern s16 D_80753354[];
 s32 func_806E56EC();
 
-void func_806E2F3C(void) {
+void playerInputHandleZButtonCrouch(void) {
     s32 var_v1;
 
     var_v1 = 1;
@@ -1838,7 +1838,7 @@ void sfxStopSlotSound();
 void playerApplyDeceleration(void);
 extern struct G29BtnA D_807FD63A[];
 
-void func_806E3B00(void) {
+void playerInputHandleZButtonState27(void) {
     f32 temp;
 
     if (!(G24_PAD(D_807FD63A, u16) & 0x2000)) {
@@ -1909,7 +1909,7 @@ void playerStepPitchAngleToward(f32 arg0) {
     m->unk1A0 = (u32)f;
 }
 
-void func_806E3E40(void) {
+void playerInputHandleStickAction(void) {
     static u8 D_807FD6E0; // function-local static (only user): uopt treats it as non-aliased; needs the E4090 .bss carve
     static u8 D_807FD6E1;
     f32 ang;
@@ -2295,7 +2295,7 @@ void playerInputHandleZButtonState4B(void) {
     }
 }
 
-void func_806E4D14(void) {
+void playerInputThrowHeldActor(void) {
     if ((G25_P->unk1AC->unk58 != 0x55) && (G25_P->unk1AC->unk58 != 0x82)) {
         G25_A->unkC0 = 200.0f;
         G25_A->unk154 = 0x4D;
@@ -2304,7 +2304,7 @@ void func_806E4D14(void) {
     }
 }
 
-void func_806E4D84(void) {
+void playerInputHandleAButtonFire(void) {
     if ((func_806E56EC() == 0) && (G25_P->unkC8 == -1)) {
         if ((gPlayerCharacterId[gCurrentPlayerIndex] != 6) || (G25_A->unkB8 < D_807531E0[gCurrentCharacterIndex])) {
             G25_A->unk154 = 0x3C;
@@ -2316,8 +2316,8 @@ void func_806E4D84(void) {
     }
 }
 
-void func_806E4E88(void) {
-    if ((G25_PAD(D_807FD63C, u16) & 1) && func_806E2CC4()) {
+void playerInputHandleZButtonFire(void) {
+    if ((G25_PAD(D_807FD63C, u16) & 1) && playerInputCanFireWeapon()) {
         projectileTrySpawnFromSlot(gCurrentActor);
         sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x21, 0x19);
     }
@@ -2337,8 +2337,8 @@ void func_806E4E88(void) {
     }
 }
 
-void func_806E5044(void) {
-    if ((G25_PAD(D_807FD63C, u16) & 1) && func_806E2CC4()) {
+void playerInputHandleZButtonShoot(void) {
+    if ((G25_PAD(D_807FD63C, u16) & 1) && playerInputCanFireWeapon()) {
         projectileTrySpawnFromSlot(gCurrentActor);
         sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x21, 0x19);
     }
@@ -2358,10 +2358,10 @@ void func_806E5044(void) {
     }
 }
 
-void func_806E521C(void) {
+void playerInputUpdateStickSwimming(void) {
     if (func_80714608(0)) {
         if (((gCurrentActor->state == 0x31) || (gCurrentActor->state == 0x32)) && (G25_P->unk8C == 0)) {
-            func_806E4D84();
+            playerInputHandleAButtonFire();
         }
     }
 }
@@ -2575,7 +2575,7 @@ void timerQueueAdd(void *, s32, s32, s32, s32);
 void effectSetAngle(s16);
 void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectSpawnBurstParticleCluster(Actor *);
-void func_806E5C2C(s32, s32, s32);
+void playerInputStartTransitionToMap(s32, s32, s32);
 
 s32 func_806E56EC() {
     s32 i;
@@ -2640,7 +2640,7 @@ s32 func_806E56EC() {
                     G26_PL->unk54 = D_807535CC[gCurrentCharacterIndex] * 2.5;
                     G26_PL->unk50 = 0x28;
                     actorScriptStartByIndex(gCurrentActor, 0x22);
-                    timerQueueAdd(func_806E5C2C, 0x14, G26_GS->unk10, G26_GS->unk12, 0);
+                    timerQueueAdd(playerInputStartTransitionToMap, 0x14, G26_GS->unk10, G26_GS->unk12, 0);
                     for (i = 0; i != 0x14; i++) {
                         effectSetDepth(1);
                         effectSetCallback(func_8071F034);
@@ -2680,7 +2680,7 @@ s32 func_806E56EC() {
 
 void transitionSetState(s32);
 
-void func_806E5C2C(s32 arg0, s32 arg1, s32 arg2) {
+void playerInputStartTransitionToMap(s32 arg0, s32 arg1, s32 arg2) {
     if (arg1 != 0) {
         transitionSetState(2);
         screenSetTransitionFadeType(0);
@@ -2767,17 +2767,17 @@ void playerInputHandlerNoop1(void) {
 void playerInputHandlerNoop2(void) {
 }
 
-void func_806E5E68(void) {
+void playerInputHandleZButtonQueueCallback24(void) {
     if (!(G25_P->unk1F0 & 0x20)) {
         playerStateQueueCallback(0x24, 0, gCurrentPlayerIndex);
     }
 }
 
-void func_806E5EA8(void) {
+void playerInputQueueCallback24Direct(void) {
     playerStateQueueCallback(0x24, 0, gCurrentPlayerIndex);
 }
 
-void func_806E5ED4(void) {
+void playerInputHandleBButtonMusicalInstrument(void) {
     if ((G25_PAD(D_807FD63C, u16) & 2) && (D_807FD568[2] & 1) &&
         (*((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + 0x2C0) == 1) && !(G25_P->unk1F0 & 0x30) &&
         (func_80714608(0) == 0)) {
@@ -2785,7 +2785,7 @@ void func_806E5ED4(void) {
     }
 }
 
-void func_806E5FA0(void) {
+void playerInputHandleBButtonFairyCamera(void) {
     if ((G25_PAD(D_807FD63C, u16) & 2) && (D_807FD568[2] & 1) && !(gGlobalOverlayFlags & 0x200) &&
         (*((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + 0x2C0) == 1) && !(G25_P->unk1F0 & 0x30) &&
         (func_80714608(0) == 0)) {
@@ -2796,7 +2796,7 @@ void func_806E5FA0(void) {
 void camClearSecondTarget(void *);
 void camSetSecondTarget(void *, s32, s32);
 
-void func_806E607C(void) {
+void playerInputHandleRButtonCameraLock(void) {
     G26Obj *obj;
 
     obj = G26_P->unk104->unk174;
@@ -2822,7 +2822,7 @@ void func_806E607C(void) {
     }
 }
 
-void func_806E61D0(void) {
+void playerInputHandleRButtonReleaseCameraLock(void) {
     G26Obj *obj;
 
     if (!(gGlobalOverlayFlags & 1) && ((gPlayerCount < 2) || (gSplitScreenMode != 0))) {
@@ -2907,7 +2907,7 @@ void playerInputRecordBPress(void) {
     }
 }
 
-void func_806E63B8(void) {
+void playerInputCalculateStickForwardSpeed(void) {
     f32 temp;
 
     if (gPlayerPadState[gCurrentPlayerIndex].unk4 != 0.0f) {
@@ -2924,7 +2924,7 @@ void func_806E63B8(void) {
     mathAngleStepToward(&G27_A->unkE4, 0, 0x10);
 }
 
-void func_806E64D0(void) {
+void playerInputCalculateStickTurnRate(void) {
     s16 var_a1;
 
     if (gPlayerPadState[gCurrentPlayerIndex].unk30 != 0) {
@@ -4107,7 +4107,7 @@ extern s16 D_807538C8[];
 void n_alSndpStop(s32);
 void playerClearCarriedItemState(void);
 
-s32 func_806E9580(void) {
+s32 playerInputPostUpdate(void) {
     f32 diff;
     f32 lim;
     f32 t;
@@ -4205,19 +4205,19 @@ void func_806E9964(arg0) PlayerState *arg0; {
     arg0->stateFlags &= ~0x8000;
 }
 
-void func_806E9A5C(void) {
+void playerInputHandleCRightMode16(void) {
     if (!(gActivePlayerState->stateFlags & 0x8000) && ((G30_PAD(D_807FD63C, u16) & 0xC) == 8)) {
         func_806E9964(gActivePlayerState);
     }
 }
 
-void func_806E9ACC(void) {
+void playerInputHandleCLeftMode16(void) {
     if (!(gActivePlayerState->stateFlags & 0x8000) && ((G30_PAD(D_807FD63C, u16) & 0xC) == 4)) {
         func_806E9964(gActivePlayerState);
     }
 }
 
-void func_806E9B3C(void) {
+void playerInputHandleZButtonMode17(void) {
     if (!(gActivePlayerState->stateFlags & 0x8000) && (G30_PAD(D_807FD63C, u16) & 4)) {
         func_806E9964(gActivePlayerState);
     }
@@ -4253,11 +4253,11 @@ void func_806E9BA8(arg0) s32 arg0; {
     }
 }
 
-void func_806E9CDC(void) {
+void playerInputHandleZButtonMode18(void) {
     func_806E9BA8(0x64);
 }
 
-void func_806E9CFC(void) {
+void playerInputPostUpdateMode18(void) {
     func_806E9BA8(0x65);
 }
 
@@ -4288,7 +4288,7 @@ typedef struct G30State2 {
     /* 0xAC */ u32 unkAC;
 } G30State2;
 
-void func_806E9DE0(void) {
+void playerInputHandleCUpCameraZoomIn(void) {
     G30State2 *state;
     s32 act;
 
@@ -4344,7 +4344,7 @@ typedef struct G31Link {
 
 s32 func_80714608();
 
-void func_806E9ECC(void) {
+void playerInputHandleCUpMode16(void) {
     G31State *state;
 
     if ((G31_PAD(D_807FD63C, u16) & 2) && (gCurrentActor->contactFlags & 1)) {
@@ -4355,7 +4355,7 @@ void func_806E9ECC(void) {
     }
 }
 
-void func_806E9F8C(void) {
+void playerInputHandleCUpMode7(void) {
     G31State *state;
 
     if ((G31_PAD(D_807FD63C, u16) & 8) && (gCurrentActor->contactFlags & 1)) {
@@ -4485,17 +4485,17 @@ void cameraZoomStopSound(void) {
     }
 }
 
-s32 func_806E9580();
+s32 playerInputPostUpdate();
 
-void func_806EA5CC(void) {
-    if (func_806E9580()) {
+void playerInputPostUpdateFirstPerson(void) {
+    if (playerInputPostUpdate()) {
         func_806EAB44(gCurrentActor, 1);
     }
 }
 
-void func_806EA600(void) {
+void playerInputUpdateStickFirstPersonAim(void) {
     cameraZoomStopSound();
-    func_806EA5CC();
+    playerInputPostUpdateFirstPerson();
 }
 
 void aimUpdateFromStick(void) {
@@ -4521,31 +4521,31 @@ void aimUpdateFromStick(void) {
     }
 }
 
-void func_806EA7E8(void) {
+void playerInputHandleAButtonAimRight(void) {
     if ((G31_PAD(D_807FD63C, u16) & 0xC000) == 0x8000) {
         func_806EAB44(gCurrentActor, 0);
     }
 }
 
-void func_806EA844(void) {
+void playerInputHandleBButtonAimLeft(void) {
     if ((G31_PAD(D_807FD63C, u16) & 0xC000) == 0x4000) {
         func_806EAB44(gCurrentActor, 0);
     }
 }
 
-void func_806EA8A0(void) {
+void playerInputHandleAButtonAimUp(void) {
     if ((G31_PAD(D_807FD63C, u16) & 0xC000) == 0x8000) {
         func_806EAB44(gCurrentActor, 1);
     }
 }
 
-void func_806EA8FC(void) {
+void playerInputHandleBButtonAimDown(void) {
     if ((G31_PAD(D_807FD63C, u16) & 0xC000) == 0x4000) {
         func_806EAB44(gCurrentActor, 1);
     }
 }
 
-void func_806EA958(void) {
+void playerInputPostUpdateMode12(void) {
     if ((G31_PAD(D_807FD63C, u16) & 0xC) == 8) {
         func_806EAB44(gCurrentActor, 0);
     }
@@ -4553,7 +4553,7 @@ void func_806EA958(void) {
 
 void func_806E9874();
 
-void func_806EA9B4(void) {
+void playerInputHandleCDownMode14(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2A & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 4)) {
         func_806E9874();
         return;
@@ -4563,7 +4563,7 @@ void func_806EA9B4(void) {
     }
 }
 
-void func_806EAA44(void) {
+void playerInputHandleCUpMode13(void) {
     if ((G31_PAD(D_807FD63C, u16) & 0xC) == 8) {
         func_806EAB44(gCurrentActor, 1);
     }
@@ -4596,7 +4596,7 @@ typedef struct G32State {
     /* 0x1F4 */ u32 unk1F4;
 } G32State;
 
-void func_806EAAA0(void) {
+void playerInputHandleCDownMode15(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2A & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 4) && !(gGlobalOverlayFlags & 2)) {
         func_806E9804(8);
         return;
@@ -4680,7 +4680,7 @@ typedef struct G32Plr {
 
 #define G32_P ((G32Plr *)gActivePlayerState)
 
-void func_806EAC8C(void) {
+void playerInputUpdateStickMode18(void) {
     G32Inner *inner;
 
     inner = G32_P->unk88->unk178;
@@ -4689,7 +4689,7 @@ void func_806EAC8C(void) {
     }
 }
 
-void func_806EACBC(void) {
+void playerInputHandleAButtonMode18(void) {
     G32Inner *inner;
 
     inner = G32_P->unk88->unk178;
@@ -4775,7 +4775,7 @@ void func_806EAF6C(void) {
 void playerInputHandlerNoop3(void) {
 }
 
-void func_806EAFF4(void) {
+void playerInputHandleCUpRotate120(void) {
     if (G31_PAD(D_807FD63A, u16) & 0x2000) {
         ((G32Act *)gCurrentActor)->unkC0 = 0.0f;
     } else {
@@ -4783,7 +4783,7 @@ void func_806EAFF4(void) {
     }
 }
 
-void func_806EB058(void) {
+void playerInputHandleCDownRotateMinus120(void) {
     if (G31_PAD(D_807FD63A, u16) & 0xC) {
         ((G32Act *)gCurrentActor)->unkC0 = 0.0f;
     } else {
