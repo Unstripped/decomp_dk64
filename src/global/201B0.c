@@ -132,7 +132,7 @@ extern s32 gCurrentMap;
 extern u8 D_8076A0B1;
 extern u8 D_8076A0B3;
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
 extern s32 D_807FBB60;
 extern s32 D_807FBB64;
@@ -905,7 +905,7 @@ void camRequestPathLength(void) {
 extern CamPathData gCamGlobalPaths;
 extern CamPathData gCamMapPaths;
 extern void *gCamPathActor;
-extern Actor *D_807FBB44;
+extern Actor *gSpawnedActor;
 extern u8 gCamPathLoopCount;
 extern s16 gCamPathFrameCount;
 extern u8 D_80770DC9;
@@ -937,8 +937,8 @@ u16 camStartPath(void *arg0, s16 arg1, u8 arg2) {
         gCamActivePaths = &gCamMapPaths;
     }
     if (actorSpawn(0xAD, 0) != 0) {
-        gCamPathActor = D_807FBB44;
-        D_807FBB44->unk144 = 1;
+        gCamPathActor = gSpawnedActor;
+        gSpawnedActor->unk144 = 1;
     } else {
         return 0;
     }
@@ -3898,11 +3898,11 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
                         break;
                     case 0x6E:
                     case 0x6F:
-                        yOffset = D_807FBB40->unk15E;
+                        yOffset = gCurrentActor->unk15E;
                         break;
                     case 0x52:
                     case 0x54:
-                        yOffset = D_807FBB40->unk15E;
+                        yOffset = gCurrentActor->unk15E;
                         break;
                     case 0x59:
                         if (D_807FBB68 & 2) {

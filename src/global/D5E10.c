@@ -1,8 +1,8 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
-extern Actor *D_807FBB44;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 extern Actor *D_807FBB48;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
@@ -86,7 +86,7 @@ typedef struct G08Actor {
 
 #define G08_P ((G08Player *)gActivePlayerState)
 #define G08_A48 ((G08Actor *)D_807FBB48)
-#define G08_A40 ((G08Actor *)D_807FBB40)
+#define G08_A40 ((G08Actor *)gCurrentActor)
 
 extern u32 D_807FBB60;
 extern G08Slot D_807FD63A[];
@@ -106,24 +106,24 @@ void func_806D1110(void) {
     G08_A48->unkE6 = G08_P->unkA;
     func_806CC8F0();
     if (!(D_807FD63A[gCurrentPlayerIndex].unk0 & 0x200C)) {
-        playerResumeLocomotion(D_807FBB40);
-        func_806C8D20(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
+        func_806C8D20(gCurrentActor);
     } else {
         G08_A40->unk144 = 1;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D11FC(void) {
-    if (D_807FBB40->unkAC < D_807FBB40->y + 4.5f) {
-        D_807FBB40->y = D_807FBB40->unkAC - 4.5f;
+    if (gCurrentActor->unkAC < gCurrentActor->y + 4.5f) {
+        gCurrentActor->y = gCurrentActor->unkAC - 4.5f;
     }
 }
 
 void func_806D1238(void) {
     playerInputUpdate(0x66);
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D1270(void) {
@@ -132,9 +132,9 @@ void func_806D1270(void) {
 void func_806D1278(void) {
     playerInputUpdate(1);
     if (!(gActivePlayerState->unk1F0 & 0x10000)) {
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 f32 mathApproachF32(f32, f32, f32);
@@ -153,15 +153,15 @@ void func_806D12CC(void) {
         case 1:
             func_806CC8F0();
             if ((G08_A40->unkB8 > 10.0f) && (G08_A40->unk4->unk64 != 0x317)) {
-                actorScriptStart(D_807FBB40, 0x317);
+                actorScriptStart(gCurrentActor, 0x317);
             } else if ((G08_A40->unkB8 == 0.0f) && (G08_A40->unk4->unk64 != 0x314)) {
-                actorScriptStart(D_807FBB40, 0x314);
+                actorScriptStart(gCurrentActor, 0x314);
             }
             playerInputUpdate(0x67);
             break;
     }
     func_806D11FC();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void mathAngleStepToward();
@@ -188,7 +188,7 @@ void func_806D1420(void) {
         G08_A40->unk155 = 0;
         G08_P->unk1C = 2.0f;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern f32 D_80753AFC[];
@@ -241,7 +241,7 @@ void func_806D1568(void) {
                     if (G08_P->unk50 != 0) {
                         G08_P->unk50--;
                         if (G08_P->unk50 == 0) {
-                            actorScriptStart(D_807FBB40, 0x315);
+                            actorScriptStart(gCurrentActor, 0x315);
                         }
                     }
                 }
@@ -256,18 +256,18 @@ void func_806D1568(void) {
             func_806CC638(0.0f);
             temp0 = G08_A40->unkB8 / 200.0;
             temp1 = G08_A40->unkC0 / 200.0;
-            scriptSetActorRampTarget(D_807FBB40, sqrtf(temp0 * temp0 + temp1 * temp1), 5.0f);
+            scriptSetActorRampTarget(gCurrentActor, sqrtf(temp0 * temp0 + temp1 * temp1), 5.0f);
             if ((G08_A40->unkB8 == 0.0f) || (G08_P->unk18 != 0)) {
                 G08_P->unk50 = D_80753A78[D_807FD584];
-                scriptSetActorRampTarget(D_807FBB40, 0.5f, G08_P->unk50);
+                scriptSetActorRampTarget(gCurrentActor, 0.5f, G08_P->unk50);
                 G08_A40->unk155 = 2;
             }
             if (G08_A40->unkAC < G08_A40->unk80 + 4.0f) {
-                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x10, 0xFF, 0x7F, 1);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x10, 0xFF, 0x7F, 1);
                 if (G08_A40->unkC0 > 150.0f) {
                     G08_A40->unk154 = 0x82;
                     G08_A40->unk155 = 0;
-                    actorScriptStart(D_807FBB40, 0);
+                    actorScriptStart(gCurrentActor, 0);
                 } else {
                     G08_A40->unk154 = 0x7E;
                     G08_A40->unk155 = 0;
@@ -275,7 +275,7 @@ void func_806D1568(void) {
             }
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void playerApproachVelocity(s16, f32, f32);
@@ -316,7 +316,7 @@ void func_806D19A8(void) {
             break;
     }
     func_806D11FC();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806CC920();
@@ -348,25 +348,25 @@ void func_806D1B60(void) {
             if (G08_A40->unkAC < G08_A40->unk80 + 4.0f) {
                 G08_A40->unk154 = 0x7E;
                 G08_A40->unk155 = 0;
-                actorScriptStart(D_807FBB40, 0x317);
+                actorScriptStart(gCurrentActor, 0x317);
             } else {
                 G08_A40->unk154 = 0x7F;
                 G08_A40->unk155 = 3;
-                actorScriptStart(D_807FBB40, 0x318);
+                actorScriptStart(gCurrentActor, 0x318);
                 G08_P->unk38 = 300.0f;
                 G08_P->unk10 = 0xF;
             }
             break;
     }
     func_806D11FC();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D1D3C(void) {
     G08_P->unk4 = 0.0f;
     playerInputUpdate(0x65);
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D1D84(void) {
@@ -374,7 +374,7 @@ void func_806D1D84(void) {
     G08_P->unk30 = 20.0f;
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_805FF8F8();
@@ -387,7 +387,7 @@ void func_806D1DEC(void) {
     if ((currentActorTestClearFlag() != 0) || (G08_A40->unk155 == 1) || (G08_P->unk23C--, (G08_P->unk23C == 0))) {
         func_805FF8F8();
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_805FF898();
@@ -398,10 +398,10 @@ void func_806D1E90(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     func_806CC8B8();
     if (G08_A40->unk155 != 0) {
-        func_805FF898(D_807FBB40);
+        func_805FF898(gCurrentActor);
         G08_A40->unk155++;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void hudSpawnTextScreen(s32);
@@ -426,7 +426,7 @@ void func_806D1F28(void) {
         hudSpawnTextScreen(0);
         G08_A40->unk155++;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct NmD5E10aTbl {
@@ -466,16 +466,16 @@ void func_806D205C(void) {
         func_805FF898();
         G08_A40->unk155++;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 
 void func_806D21E4(void) {
     playerInputUpdate(0);
     if (!(D_807FBB60 & 0x4000) && !(D_807FBB60 & 0x8000)) {
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G09Actor {
@@ -502,13 +502,13 @@ typedef struct G09ActorSub4 {
     /* 0x64 */ u16 unk64;
 } G09ActorSub4;
 
-#define G09_A ((G09Actor *)D_807FBB40)
+#define G09_A ((G09Actor *)gCurrentActor)
 
 
 void func_806D2238(void) {
     playerInputUpdate(1);
     if (G09_A->unk155 == 0) {
-        func_80614E78(D_807FBB40, 0);
+        func_80614E78(gCurrentActor, 0);
         G09_A->unk155 = 1;
         G09_A->unk60 &= ~4;
     }
@@ -667,7 +667,7 @@ void func_806D266C(void) {
 
     actorRegisterSnapToBoneCallback();
     func_806D25CC();
-    actorGetNodePos(D_807FBB40, 3, &sp2C, &sp28, &sp24);
+    actorGetNodePos(gCurrentActor, 3, &sp2C, &sp28, &sp24);
     func_806F4D70(gCurrentPlayerIndex, sp2C, sp28, sp24, 25.0f);
 }
 
@@ -678,7 +678,7 @@ void func_806D26D8(void) {
 
     actorRegisterSnapToBoneCallback();
     func_806D25CC();
-    actorGetNodePos(D_807FBB40, 2, &sp2C, &sp28, &sp24);
+    actorGetNodePos(gCurrentActor, 2, &sp2C, &sp28, &sp24);
     func_806F4D70(gCurrentPlayerIndex, sp2C, sp28, sp24, 25.0f);
 }
 
@@ -701,7 +701,7 @@ void func_806D27A4(void) {
     func_806D2744(0x63);
     if (camIsPlayingPath(5) != 0) {
         if (G09_A->unk4->unk64 != 0x3B0) {
-            actorScriptStart(D_807FBB40, 0x3B0);
+            actorScriptStart(gCurrentActor, 0x3B0);
         }
         if ((currentActorTestClearFlag() != 0) || (G09_A->unk155 != 0)) {
             func_805FF8F8();
@@ -737,9 +737,9 @@ void func_806D28E4(void) {
 
 
 void func_806D2904(void) {
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
     if (G09_A->unk155++ >= 0xC9) {
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
     }
 }
 
@@ -758,10 +758,10 @@ void func_806D2954(s16 arg0) {
     if ((G09_P->unk8C != 0) && (func_805FCA64() != 0)) {
         if (D_807FD568->unk2 == 7) {
             arg0 = 0xF;
-            renderCallbacksRegister(&func_806FF75C, D_807FBB40, 5);
+            renderCallbacksRegister(&func_806FF75C, gCurrentActor, 5);
         } else {
             arg0 = 0xE;
-            renderCallbacksRegister(&func_806FF01C, D_807FBB40, 5);
+            renderCallbacksRegister(&func_806FF01C, gCurrentActor, 5);
         }
     }
     if (G09_A->unk155 != 0) {
@@ -781,9 +781,9 @@ void func_806D2A14(s16 arg0) {
     }
     if (func_805FCA64(arg0) != 0) {
         if (playerInputUpdate(arg0) == 0) {
-            renderCallbacksRegister(&func_806FF358, D_807FBB40, 3);
+            renderCallbacksRegister(&func_806FF358, gCurrentActor, 3);
         }
-        renderCallbacksRegister(&func_806FF32C, D_807FBB40, 3);
+        renderCallbacksRegister(&func_806FF32C, gCurrentActor, 3);
     }
 }
 
@@ -793,7 +793,7 @@ void func_806FFB2C();
 void func_806D2AA0(s16 arg0) {
     playerInputUpdate(1);
     if (G09_A->unk155 < 6) {
-        renderCallbacksRegister(&func_806FFB2C, D_807FBB40, 3);
+        renderCallbacksRegister(&func_806FFB2C, gCurrentActor, 3);
         G09_A->unk155++;
     } else {
         G09_A->unk154 = arg0;
@@ -801,11 +801,11 @@ void func_806D2AA0(s16 arg0) {
     }
     if (G09_A->unk155 == 2) {
         actorSpawn(0xCA, 0x8D);
-        G09_P->unk88 = (G09Actor *)D_807FBB44;
-        *(void **)((G09Actor *)D_807FBB44)->unk174 = gActivePlayerState;
+        G09_P->unk88 = (G09Actor *)gSpawnedActor;
+        *(void **)((G09Actor *)gSpawnedActor)->unk174 = gActivePlayerState;
         G09_P->unk1F0 |= 0x8000;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D2B90(void) {
@@ -861,7 +861,7 @@ typedef struct G10Actor {
     /* 0x155 */ u8 unk155;
 } G10Actor;
 
-#define G10_A ((G10Actor *)D_807FBB40)
+#define G10_A ((G10Actor *)gCurrentActor)
 
 extern u8 D_807463B8;
 s32 camIsCutsceneActive();
@@ -871,21 +871,21 @@ void sfxStopSlotSound();
 void func_806D2BD0(void) {
     func_806D2954(0xC);
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
     if ((camIsCutsceneActive() != 0) && (G10_A->unk6E != -1)) {
-        sfxStopSlotSound(D_807FBB40, 0);
+        sfxStopSlotSound(gCurrentActor, 0);
     }
     if (D_807463B8 == 3) {
-        func_806C9F74(D_807FBB40);
+        func_806C9F74(gCurrentActor);
     }
 }
 
 void func_806D2C54(void) {
     func_806D2A14(0x10);
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
     if (D_807463B8 == 3) {
-        func_806C9F74(D_807FBB40);
+        func_806C9F74(gCurrentActor);
     }
 }
 
@@ -925,9 +925,9 @@ void func_806D2CAC(void) {
     func_806D2954(0xD);
     func_806CC638(D_80753A5C[D_807FD584]);
     if (func_806D850C() != 0) {
-        func_806EAB44(D_807FBB40, 1);
+        func_806EAB44(gCurrentActor, 1);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D2D38(void) {
@@ -935,9 +935,9 @@ void func_806D2D38(void) {
     func_806D2A14(0x11);
     func_806CC638(D_80753A5C[D_807FD584]);
     if (func_806D850C() != 0) {
-        func_806EAB44(D_807FBB40, 1);
+        func_806EAB44(gCurrentActor, 1);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern u32 gFrameCounter;
@@ -954,7 +954,7 @@ void func_806D2DC4(void) {
         sel = 0x14;
     }
     if ((gFrameCounter >= 2) && (playerInputUpdate(sel) == 0)) {
-        s8 temp = func_806CDD24(D_807FBB40, G10_A->unkB8, G10_P->unk4, 1);
+        s8 temp = func_806CDD24(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
 
         if (temp != 0xC) {
             G10_A->unk154 = temp ^ 0;
@@ -962,7 +962,7 @@ void func_806D2DC4(void) {
         }
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern f32 D_807536E4[];
@@ -1028,7 +1028,7 @@ void func_806D2E9C(void) {
         sel = 0x7E;
     }
     if ((sel != G10_A->unk4->unk64) && (G10_A->unk4->unk64 != 0x81)) {
-        actorScriptStart(D_807FBB40, sel);
+        actorScriptStart(gCurrentActor, sel);
     }
     if ((G10_P->unk1F0 & 0x40000000) && (G10_P->unk240 == 0)) {
         func_80687400();
@@ -1041,8 +1041,8 @@ void func_806D2E9C(void) {
         if (D_807FBB68 & 2) {
             G10_A->unk144 |= 8;
         }
-        playerResumeLocomotion(D_807FBB40);
-        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 1, 0xFF, 0x7F, 0x1E);
+        playerResumeLocomotion(gCurrentActor);
+        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 1, 0xFF, 0x7F, 0x1E);
     }
     if (camIsCutsceneActive() == 0) {
         func_806CC948();
@@ -1050,13 +1050,13 @@ void func_806D2E9C(void) {
             slotQueueAddValue(5, gCurrentPlayerIndex, -1);
         }
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D3224(void) {
     G10_A->unkEE = G10_A->unkE6;
     if (playerInputUpdate(0x1D) == 0) {
-        s8 temp = func_806CE174(D_807FBB40, G10_A->unkB8, G10_P->unk4, 1);
+        s8 temp = func_806CE174(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
 
         if (temp != 0x5D) {
             G10_A->unk154 = temp ^ 0;
@@ -1064,7 +1064,7 @@ void func_806D3224(void) {
         }
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D32C0(void) {
@@ -1074,7 +1074,7 @@ void func_806D32C0(void) {
         playerInputUpdate(0x1E);
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern f32 D_807531E0[];
@@ -1089,7 +1089,7 @@ void func_806D332C(void) {
         G10_P->unkE = -1;
     }
     if (playerInputUpdate(0x13) == 0) {
-        s8 temp = func_806CDD24(D_807FBB40, G10_A->unkB8, G10_P->unk4, 1);
+        s8 temp = func_806CDD24(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
 
         if (temp != 0xD) {
             G10_A->unk154 = temp ^ 0;
@@ -1107,12 +1107,12 @@ void func_806D332C(void) {
     }
     G10_P->unkC = G10_P->unkE;
     G10_P->unkE = G10_P->unkA;
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D34B4(void) {
     if (playerInputUpdate(0x1C) == 0) {
-        s8 temp = func_806CE174(D_807FBB40, G10_A->unkB8, G10_P->unk4, 1);
+        s8 temp = func_806CE174(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
 
         if (temp != 0x5E) {
             G10_A->unk154 = temp ^ 0;
@@ -1120,7 +1120,7 @@ void func_806D34B4(void) {
         }
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D3530(void) {
@@ -1165,7 +1165,7 @@ void func_806D36CC(void) {
             break;
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D374C(void) {
@@ -1180,7 +1180,7 @@ void func_806D374C(void) {
             break;
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D37CC(void) {
@@ -1189,9 +1189,9 @@ void func_806D37CC(void) {
         func_806CC8B8();
         if (G10_A->unk6A & 1) {
             if (G10_A->unkE0 != 0.0f) {
-                playerResumeLocomotion(D_807FBB40);
+                playerResumeLocomotion(gCurrentActor);
             } else {
-                playerSetBaseGravity(D_807FBB40);
+                playerSetBaseGravity(gCurrentActor);
                 playerStateQueueCallback(0x35, 0, gCurrentPlayerIndex);
             }
         }
@@ -1201,7 +1201,7 @@ void func_806D37CC(void) {
         G10_A->unkB8 = 0.0f;
         func_806CC8B8();
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_80685210(f32, s32, s32);
@@ -1212,7 +1212,7 @@ void func_806D38AC(s32 arg0) {
     G10_A->unkF8 = 0x12C;
     if ((G10_A->unk80 - G10_A->unkA4) > 5.0f) {
         if (G10_A->unkC4 == -260.0f) {
-            playerSetBaseGravity(D_807FBB40);
+            playerSetBaseGravity(gCurrentActor);
         } else if (G10_A->unkC4 != -30.0f) {
             G10_A->unk6A |= 0x1000;
         } else {
@@ -1228,23 +1228,23 @@ void func_806D38AC(s32 arg0) {
         G10_A->unk155 = 0;
         G10_P->unk54 = G10_A->unkC0;
         G10_P->unk50 = 0;
-        func_80614E78(D_807FBB40, 0x67);
+        func_80614E78(gCurrentActor, 0x67);
     }
     playerInputUpdate(arg0);
     func_806CC8B8();
     if (!(G10_A->unk6A & 0x200)) {
-        playerResumeLocomotion(D_807FBB40);
-        sfxStopSlotSound(D_807FBB40, 0);
-        camReturnToFollow(G10_P->unk104, D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
+        sfxStopSlotSound(gCurrentActor, 0);
+        camReturnToFollow(G10_P->unk104, gCurrentActor);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void camSetTarget(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
 void func_806D3A38(void) {
     if (G10_A->unk155 == 0) {
-        camSetTarget(G10_P->unk104, D_807FBB40, 4, 0x800, 0x32, 0, 5, 0x32, 0x14, 0, 0.2f);
+        camSetTarget(G10_P->unk104, gCurrentActor, 4, 0x800, 0x32, 0, 5, 0x32, 0x14, 0, 0.2f);
         G10_A->unk155++;
     }
     func_806D38AC(0x3D);
@@ -1310,7 +1310,7 @@ typedef struct G11Pad {
 } G11Pad;
 
 #define G11_P ((G11Player *)gActivePlayerState)
-#define G11_A ((G11Actor *)D_807FBB40)
+#define G11_A ((G11Actor *)gCurrentActor)
 
 extern G11Pad D_807FD618[];
 void func_806D38AC();
@@ -1335,7 +1335,7 @@ void func_806D3B48(void) {
         G11Actor *e = G11_P->unk88->unk174;
         e->unk45 = 1;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D3530();
@@ -1359,13 +1359,13 @@ void func_806D3BC8(void) {
                 playerSetBaseGravity();
                 G11_A->unk154 = 0xF;
                 G11_A->unk155 = 0;
-                func_80614E78(D_807FBB40, 0x5E);
+                func_80614E78(gCurrentActor, 0x5E);
             } else {
                 func_806D3530();
             }
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 
@@ -1374,9 +1374,9 @@ void func_806D3CD4(void) {
     playerInputUpdate(0x3C);
     func_806CC8B8();
     if (G11_A->unkB8 == 0.0f && G11_A->unkE0 == 0.0f) {
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D3D5C(void) {
@@ -1384,9 +1384,9 @@ void func_806D3D5C(void) {
     playerInputUpdate(0x3B);
     func_806CC8B8();
     if (G11_A->unkB8 == 0.0f && G11_A->unkE0 == 0.0f) {
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern f32 D_8075327C[];
@@ -1397,7 +1397,7 @@ void func_806D3DE4(void) {
     switch (G11_A->unk155) {
         case 0:
             playerInputUpdate(0x41);
-            func_80614E78(D_807FBB40, 5);
+            func_80614E78(gCurrentActor, 5);
             G11_P->unk30 = D_8075327C[D_807FD584];
             playerApplyDeceleration();
             func_806CC948();
@@ -1418,12 +1418,12 @@ void func_806D3DE4(void) {
             playerInputUpdate(0x41);
             mathAngleStepTowardThreshold(&G11_A->unkE6, G11_P->unkA, D_80753298[D_807FD584], 0xC00);
             if (G11_P->unk4 == 0.0f) {
-                playerResumeLocomotion(D_807FBB40);
+                playerResumeLocomotion(gCurrentActor);
             }
             func_806CC8B8();
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D3FA0(void) {
@@ -1471,20 +1471,20 @@ void func_806D4010(void) {
                 G11_A->unk155 = 0;
                 G11_P->unk54 = D_80753604[D_807FD584];
                 G11_P->unk50 = 0;
-                func_80614E78(D_807FBB40, 0x13);
+                func_80614E78(gCurrentActor, 0x13);
             }
             playerInputUpdate(0x30);
             func_806CC8B8();
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D423C(void) {
     G11_A->unkC0 = G11_P->unk54;
     playerInputUpdate(5);
     func_806CC8F0();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern f32 D_80753234[];
@@ -1543,13 +1543,13 @@ void func_806D428C(void) {
                 G11_A->unk155 = 0;
                 G11_P->unk54 = D_80753604[D_807FD584];
                 G11_P->unk50 = 0;
-                func_80614E78(D_807FBB40, 0x13);
+                func_80614E78(gCurrentActor, 0x13);
             }
             playerInputUpdate(0x30);
             func_806CC8B8();
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 u8 func_806CE4E4(Actor *, f32, f32, s32);
@@ -1581,7 +1581,7 @@ void func_806D45A4(void) {
             break;
         case 3:
             G11_P->unk4C = -1;
-            G11_A->unk154 = func_806CE4E4(D_807FBB40, G11_A->unkB8, G11_P->unk4, 1);
+            G11_A->unk154 = func_806CE4E4(gCurrentActor, G11_A->unkB8, G11_P->unk4, 1);
             G11_A->unk155 = 0;
             if (G11_A->unk154 == 0x3F) {
                 G11_A->unk155 = 1;
@@ -1590,7 +1590,7 @@ void func_806D45A4(void) {
             func_806CC8B8();
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 
@@ -1622,11 +1622,11 @@ void func_806D4758(void) {
         case 2:
             func_806CC8B8();
             if (playerInputUpdate(0x31) == 0 && G11_A->unkB8 < G11_P->unk4) {
-                playerResumeLocomotion(D_807FBB40);
+                playerResumeLocomotion(gCurrentActor);
             }
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D491C(void) {
@@ -1658,7 +1658,7 @@ void func_806D491C(void) {
             func_806CC8B8();
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G12Player {
@@ -1704,7 +1704,7 @@ void func_806D4A70(void) {
         }
         playerInputUpdate(0x24);
         if (G08_A40->unk6A & 1) {
-            func_806F142C(D_807FBB40);
+            func_806F142C(gCurrentActor);
         }
         break;
     case 1:
@@ -1716,8 +1716,8 @@ void func_806D4A70(void) {
         }
         func_806CC8F0();
         if (G08_A40->unk6A & 1) {
-            func_806F142C(D_807FBB40);
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 1, 0xFF, 0x7F, 0x1E);
+            func_806F142C(gCurrentActor);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 1, 0xFF, 0x7F, 0x1E);
         }
         break;
     case 2:
@@ -1725,11 +1725,11 @@ void func_806D4A70(void) {
         playerInputUpdate(0x24);
         func_806CC8B8();
         if (G08_A40->unk6A & 1) {
-            func_806F142C(D_807FBB40);
+            func_806F142C(gCurrentActor);
         }
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 
@@ -1741,7 +1741,7 @@ void func_806CFDEC();
 void func_806D4C7C(void) {
     switch (G08_A40->unk155) {
     case 0:
-        scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
+        scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
         playerInputUpdate(0x2C);
         func_806CC8B8();
         break;
@@ -1771,7 +1771,7 @@ void func_806D4C7C(void) {
         func_806CC8B8();
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern f32 D_80753674[];
@@ -1785,7 +1785,7 @@ void func_806D4DE4(void) {
     func_806CF878();
     switch (G08_A40->unk155) {
     case 0:
-        scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
+        scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
         playerInputUpdate(0x2C);
         func_806CC8B8();
         break;
@@ -1830,7 +1830,7 @@ void func_806D4DE4(void) {
         func_806CC8B8();
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void effectSpawnMultiTierRingWithActor();
@@ -1860,11 +1860,11 @@ void func_806D5008(void) {
     case 3:
         playerInputUpdate(0x2E);
         if (!(G08_A40->unk6A & 4)) {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x96, 0xFF, 0x7F, 0x19);
-            effectSpawnMultiTierRingWithActor(D_807FBB40, ((u8 *)D_807FD568)[1]);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x96, 0xFF, 0x7F, 0x19);
+            effectSpawnMultiTierRingWithActor(gCurrentActor, ((u8 *)D_807FD568)[1]);
             camStartShake(G10_P->unk104, 0x14, (u16)(((u8 *)D_807FD568)[1] * 5));
         }
-        scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
+        scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
         G08_A40->unk155++;
         func_806CC948();
         break;
@@ -1882,7 +1882,7 @@ void func_806D5008(void) {
         func_806CC8B8();
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D5218(void) {
@@ -1896,7 +1896,7 @@ void func_806D5218(void) {
         mathAngleStepToward(&G08_A40->unkEE, G08_A40->unkE6, (s16)(G08_P->unk48 * 1.25));
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern f32 D_80750FC0;
@@ -1927,8 +1927,8 @@ void func_806D5300(void) {
     s32 i;
 
     if (G08_A40->unk155 < 2 || D_80750FD8 < G08_A40->unkB8) {
-        scale = D_807FBB40->unk4->unk38 / 0.15;
-        actorGetNodePos(D_807FBB40, 7, &sp90, &sp8C, &sp88);
+        scale = gCurrentActor->unk4->unk38 / 0.15;
+        actorGetNodePos(gCurrentActor, 7, &sp90, &sp8C, &sp88);
         for (i = 0; i < D_80750FD4; i++) {
             x = (randomNonNegative() >> 15) % 10000 % D_80750FC8 - D_80750FC8 / 2;
             y = (randomNonNegative() >> 15) % 10000 % D_80750FCC - D_80750FCC / 2;
@@ -1954,7 +1954,7 @@ void func_806D5300(void) {
         G08_A40->unk155++;
         break;
     case 2:
-        if (D_807FBB40->unkFC != 0) {
+        if (gCurrentActor->unkFC != 0) {
             f32 t = D_8075352C[D_807FD584];
 
             if (t < G08_A40->unkB8 && !(G12_P->unk1F4 & 8)) {
@@ -1967,18 +1967,18 @@ void func_806D5300(void) {
     case 3:
         G08_A40->unkB8 = 0.0f;
         playerInputUpdate(5);
-        func_806F142C(D_807FBB40);
+        func_806F142C(gCurrentActor);
         break;
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D57F0(void) {
     playerInputUpdate(1);
     G08_P->unk4 = 0.0f;
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 
@@ -2001,18 +2001,18 @@ void func_806D5834(void) {
                 do {
                     G08_A40->unk154 = 0x27;
                     G08_A40->unk155 = 0;
-                    func_80614E78(D_807FBB40, 0x40);
+                    func_80614E78(gCurrentActor, 0x40);
                 } while (0);
             } else {
                 G08_A40->unk154 = 0x28;
                 G08_A40->unk155 = 0;
-                func_80614E78(D_807FBB40, 0x41);
+                func_80614E78(gCurrentActor, 0x41);
             }
         }
         break;
     }
     func_806CC948();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G13Player {
@@ -2052,7 +2052,7 @@ typedef struct G13Actor {
 } G13Actor;
 
 #define G13_P ((G13Player *)gActivePlayerState)
-#define G13_A ((G13Actor *)D_807FBB40)
+#define G13_A ((G13Actor *)gCurrentActor)
 
 void func_806D59E4(void) {
     switch (G13_A->unk155) {
@@ -2070,12 +2070,12 @@ void func_806D59E4(void) {
             if ((u32)(D_80767CC0 - G13_P->unk5C) < 0x32) {
                 G13_A->unk154 = 0x28;
                 G13_A->unk155 = 0;
-                func_80614E78(D_807FBB40, 0x41);
+                func_80614E78(gCurrentActor, 0x41);
             }
             break;
     }
     func_806CC948();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D5B44(void) {
@@ -2098,7 +2098,7 @@ void func_806D5B44(void) {
             break;
     }
     func_806CC948();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern f32 D_807531FC[];
@@ -2178,7 +2178,7 @@ void func_806D5CCC(void) {
                     if ((u32)(D_80767CC0 - G13_P->unk5C) < 0x14) {
                         G13_A->unk154 = 0x26;
                         G13_A->unk155 = 0;
-                        func_80614E78(D_807FBB40, 0x3F);
+                        func_80614E78(gCurrentActor, 0x3F);
                     }
                     playerInputUpdate(0x15);
                     func_806CC8B8();
@@ -2211,7 +2211,7 @@ void func_806D5CCC(void) {
             }
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern s16 D_80753558[];
@@ -2272,7 +2272,7 @@ void func_806D61B8(void) {
             }
             func_806CC8B8();
             if (G13_P->unk4 != 0.0f) {
-                playerResumeLocomotion(D_807FBB40);
+                playerResumeLocomotion(gCurrentActor);
             }
             break;
         case 5:
@@ -2283,7 +2283,7 @@ void func_806D61B8(void) {
             func_806CC948();
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern s16 D_80753548[];
@@ -2308,8 +2308,8 @@ void func_806D6558(void) {
                     G13_P->unk68 = D_8075352C[D_807FD584];
                 }
             }
-            if (G13_A->unkFC != 0 && actorAngleInArc(D_807FBB40, G13_A->unkE6) == 0) {
-                func_80614E78(D_807FBB40, 0x49);
+            if (G13_A->unkFC != 0 && actorAngleInArc(gCurrentActor, G13_A->unkE6) == 0) {
+                func_80614E78(gCurrentActor, 0x49);
                 G13_A->unkEE = (G13_A->unkE6 + 0x800) % 4096;
                 G13_A->unk155 = 3;
                 G13_A->unkB8 = D_8075352C[D_807FD584];
@@ -2327,8 +2327,8 @@ void func_806D6558(void) {
             break;
         case 2:
             playerInputUpdate(0x1A);
-            if (G13_A->unkFC != 0 && actorAngleInArc(D_807FBB40, G13_A->unkE6) == 0) {
-                func_80614E78(D_807FBB40, 0x49);
+            if (G13_A->unkFC != 0 && actorAngleInArc(gCurrentActor, G13_A->unkE6) == 0) {
+                func_80614E78(gCurrentActor, 0x49);
                 G13_A->unkEE = (G13_A->unkE6 + 0x800) % 4096;
                 G13_A->unk155++;
                 G13_A->unkB8 = D_8075352C[D_807FD584];
@@ -2358,7 +2358,7 @@ void func_806D6558(void) {
             func_806CC948();
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G14Anim {
@@ -2419,7 +2419,7 @@ typedef struct G14Player {
     /* 0x21E */ u16 unk21E;
 } G14Player;
 
-#define G14_A ((G14Actor *)D_807FBB40)
+#define G14_A ((G14Actor *)gCurrentActor)
 #define G14_P ((G14Player *)gActivePlayerState)
 
 extern f32 D_8075305C[];
@@ -2437,7 +2437,7 @@ s32 func_806D69A4(void) {
     if (G14_A->unkFC != 0) {
         if (mathAngleDistance(G14_A->unkE6, ((((G14_A->unkF6 - G14_A->unkF4) & 0xFFF) / 2) + G14_A->unkF4 + 0x800) & 0xFFF) < 0x2BC) {
             if (G14_A->unkB8 > 150.0f) {
-                func_80614E78(D_807FBB40, 0x49);
+                func_80614E78(gCurrentActor, 0x49);
                 G14_A->unkEE = (G14_A->unkE6 + 0x800) % 4096;
                 G14_A->unk155 = 2;
                 G14_A->unkB8 = D_8075352C[D_807FD584];
@@ -2446,7 +2446,7 @@ s32 func_806D69A4(void) {
                 }
                 return 1;
             }
-            playerResumeLocomotion(D_807FBB40);
+            playerResumeLocomotion(gCurrentActor);
             return 1;
         }
         mathAngleStepToward(&G14_A->unkE6, G14_A->unkEE, G14_P->unk48);
@@ -2494,25 +2494,25 @@ void func_806D6B00(void) {
                 func_8071498C(&func_8071B2EC);
                 func_80714998(2);
                 func_807149B8(1);
-                func_80714C08(&D_8071FF18, 0.2f, D_807FBB40, 2, 0);
+                func_80714C08(&D_8071FF18, 0.2f, gCurrentActor, 2, 0);
             }
             if (randomLcgNext() % 3U == 0) {
                 func_8071498C(&func_8071B2EC);
                 func_80714998(2);
                 func_807149B8(1);
-                func_80714C08(&D_8071FF18, 0.2f, D_807FBB40, 3, 0);
+                func_80714C08(&D_8071FF18, 0.2f, gCurrentActor, 3, 0);
             }
             if (randomLcgNext() % 3U == 0) {
                 func_8071498C(&func_8071B2EC);
                 func_80714998(2);
                 func_807149B8(1);
-                func_80714C08(&D_8071FF18, 0.2f, D_807FBB40, 9, 0);
+                func_80714C08(&D_8071FF18, 0.2f, gCurrentActor, 9, 0);
             }
             if (randomLcgNext() % 3U == 0) {
                 func_8071498C(&func_8071B2EC);
                 func_80714998(2);
                 func_807149B8(1);
-                func_80714C08(&D_8071FF18, 0.2f, D_807FBB40, 0xA, 0);
+                func_80714C08(&D_8071FF18, 0.2f, gCurrentActor, 0xA, 0);
             }
         }
         break;
@@ -2533,14 +2533,14 @@ void func_806D6B00(void) {
         func_806CC948();
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D6F0C(void) {
     mathAngleStepToward(&G14_A->unkE6, G14_A->unkEE, G14_P->unk48);
     playerInputUpdate(8);
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D6F64(void) {
@@ -2559,11 +2559,11 @@ void func_806D6F64(void) {
         G14_A->unkB8 = 0.0f;
         break;
     case 2:
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
         break;
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D7098(void) {
@@ -2577,10 +2577,10 @@ void func_806D7098(void) {
         func_806CC8B8();
         break;
     case 1:
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D7170(void) {
@@ -2599,7 +2599,7 @@ void func_806D7170(void) {
         effectSpawnRandomBoneDebris(1, 8);
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D7238(void) {
@@ -2610,9 +2610,9 @@ void func_806D7238(void) {
     G14_A->unkB8 = 0.0f;
     func_806CC8B8();
     if (G14_P->unk21E == 0) {
-        func_80712830(D_807FBB40, gCurrentPlayerIndex);
+        func_80712830(gCurrentActor, gCurrentPlayerIndex);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D72D4(void) {
@@ -2630,7 +2630,7 @@ void func_806D72D4(void) {
         playerInputUpdate(3);
         G14_P->unk4 = 0.0f;
         if (gPlayerCharacterId[gCurrentPlayerIndex] == 4) {
-            f32 t = ((G14Anim **)D_807FBB40->unk4)[0]->unk4;
+            f32 t = ((G14Anim **)gCurrentActor->unk4)[0]->unk4;
 
             if (t >= 29.0f && t < 33.0f) {
                 G14_A->unkEE = (G14_A->unkE6 + 0x800) & 0xFFF;
@@ -2650,10 +2650,10 @@ void func_806D72D4(void) {
         break;
     case 2:
         G14_A->unkB8 = 0.0f;
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D7510(void) {
@@ -2685,7 +2685,7 @@ void func_806D7510(void) {
     G14_P->unk4 = 0.0f;
     G14_P->unk30 = 2.0f;
     func_806CC8F0();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D7704(void) {
@@ -2697,7 +2697,7 @@ void func_806D7704(void) {
         playerInputUpdate(5);
         G14_P->unk4 = D_80753144[D_807FD584];
         if (G14_P->unk1A3 != 0) {
-            sfxStopSlotSound(D_807FBB40, 0);
+            sfxStopSlotSound(gCurrentActor, 0);
             G14_P->unk1A3 = 0;
         }
         G14_P->unkA = G14_A->unkEE;
@@ -2709,19 +2709,19 @@ void func_806D7704(void) {
         break;
     case 2:
         playerInputUpdate(3);
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
         break;
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void actorSetUniformScale(Actor *, f32);
 
 void func_806D7878(void) {
-    f64 t = D_807FBB40->unk4->unk38;
+    f64 t = gCurrentActor->unk4->unk38;
 
-    actorSetUniformScale(D_807FBB40, (0.001 - t) * 0.01 + t);
+    actorSetUniformScale(gCurrentActor, (0.001 - t) * 0.01 + t);
     G14_A->unk128 -= 0x14;
     if (G14_A->unk128 < 0) {
         G14_A->unk128 = 0;
@@ -2739,18 +2739,18 @@ void func_806D7878(void) {
         break;
     case 2:
         if (gCurrentMap != 0x52 && gCurrentMap != 0xE) {
-            func_80712830(D_807FBB40, gCurrentPlayerIndex);
+            func_80712830(gCurrentActor, gCurrentPlayerIndex);
         }
         G14_A->unk155++;
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D79E4(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     func_806CC948();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G15PlayerB {
@@ -2822,28 +2822,28 @@ void func_806D7A28(void) {
                 v2 = G15_PB->unk11C;
                 if (v2 >= 0xBF) {
                     if (!flag && v2 % 3 == 0) {
-                        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, (s16)(((v2 & 2) / 2) + 0x57), 0xFF, 0x7F, 0x1E);
+                        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, (s16)(((v2 & 2) / 2) + 0x57), 0xFF, 0x7F, 0x1E);
                     }
                 } else if (flag) {
-                    func_80712830(D_807FBB40, gCurrentPlayerIndex);
+                    func_80712830(gCurrentActor, gCurrentPlayerIndex);
                 }
             }
             if ((G15_PB->unk1F0 & 0x1000) && !(gFrameCounter & 3)) {
                 func_807149C8(0x64, 0x64, 0x64, 0xC8);
                 func_80714998(2);
-                effectSpawnBoneDefault(D_807FBB40, (s16)(((randomNonNegative() >> 15) % 32767) % 8 + 1), 0.4f, 0.0f, 0.0f, 0.0f, -0x50);
+                effectSpawnBoneDefault(gCurrentActor, (s16)(((randomNonNegative() >> 15) % 32767) % 8 + 1), 0.4f, 0.0f, 0.0f, 0.0f, -0x50);
             }
             G08_A40->unkB8 = 0.0f;
             playerApplyMotion();
             break;
         default:
             if (gPlayerCount >= 2) {
-                func_80712830(D_807FBB40, gCurrentPlayerIndex);
+                func_80712830(gCurrentActor, gCurrentPlayerIndex);
             }
             G15_PB->unk1F0 &= ~0x1000;
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D7DF8(void) {
@@ -2858,7 +2858,7 @@ void func_806D7DF8(void) {
             break;
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D7E88(void) {
@@ -2872,7 +2872,7 @@ void func_806D7E88(void) {
             break;
         case 1:
             if (playerInputUpdate(0x46) == 0) {
-                v = func_806CE4E4(D_807FBB40, G08_A40->unkB8, G08_P->unk4, 1);
+                v = func_806CE4E4(gCurrentActor, G08_A40->unkB8, G08_P->unk4, 1);
                 new_var = v;
                 if (v != 0x3F) {
                     G08_A40->unk154 = new_var;
@@ -2882,7 +2882,7 @@ void func_806D7E88(void) {
             break;
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D7F48(void) {
@@ -2891,7 +2891,7 @@ void func_806D7F48(void) {
 
     func_806CBE90();
     if (playerInputUpdate(0x46) == 0) {
-        r = func_806CE4E4(D_807FBB40, G08_A40->unkB8, G08_P->unk4, 1);
+        r = func_806CE4E4(gCurrentActor, G08_A40->unkB8, G08_P->unk4, 1);
         if (r != 0x40) {
             v = r;
             G08_A40->unk154 = v;
@@ -2902,7 +2902,7 @@ void func_806D7F48(void) {
         }
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D7FE8(void) {
@@ -2913,17 +2913,17 @@ void func_806D7FE8(void) {
         case 1:
             G08_A40->unk154 = 0x3C;
             G08_A40->unk155 = 1;
-            func_80614E78(D_807FBB40, 0xB);
+            func_80614E78(gCurrentActor, 0xB);
             break;
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D8070(void) {
     playerInputUpdate(1);
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern f32 D_80753454[];
@@ -2936,7 +2936,7 @@ void func_806CFE30();
 void func_806D80A8(void) {
     switch (G08_A40->unk155) {
         case 0:
-            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0);
+            scriptSetActorRampTarget(gCurrentActor, 1.0f, 0);
             playerInputUpdate(0x47);
             func_806CC948();
             playerApplyDeceleration();
@@ -2965,14 +2965,14 @@ void func_806D80A8(void) {
         case 3:
             playerInputUpdate(0x35);
             if (D_807FD618[gCurrentPlayerIndex].unk0 != 0.0f) {
-                scriptSetActorRampTarget(D_807FBB40, 3.0f, 0.0f);
+                scriptSetActorRampTarget(gCurrentActor, 3.0f, 0.0f);
             }
             G08_P->unk4 = 0.0f;
             playerSetBaseGravity();
             func_806CC8B8();
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern f32 D_80753770[];
@@ -2983,8 +2983,8 @@ extern f32 D_807537C4[];
 void func_806D8308(void) {
     switch (G08_A40->unk155) {
         case 0:
-            G15_EA(D_807FBB40) = G08_A40->unkEE;
-            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0);
+            G15_EA(gCurrentActor) = G08_A40->unkEE;
+            scriptSetActorRampTarget(gCurrentActor, 1.0f, 0);
             playerInputUpdate(0x48);
             func_806CC948();
             break;
@@ -2992,7 +2992,7 @@ void func_806D8308(void) {
             G08_A40->unkC0 = *(f32 *)((u8 *)gActivePlayerState + 0x54);
             G08_A40->unkC4 = D_807537A8[D_807FD584];
             G08_A40->unkB8 = D_80753770[D_807FD584];
-            G15_EA(D_807FBB40) = G08_A40->unkEE;
+            G15_EA(gCurrentActor) = G08_A40->unkEE;
             G08_A40->unk155++;
             playerInputUpdate(0x48);
             func_806CFE30();
@@ -3012,7 +3012,7 @@ void func_806D8308(void) {
             break;
         case 4:
             if (G08_P->unk4 > 10.0f) {
-                playerResumeLocomotion(D_807FBB40);
+                playerResumeLocomotion(gCurrentActor);
             }
             G08_P->unk30 = D_807537C4[D_807FD584];
             playerInputUpdate(0x33);
@@ -3020,7 +3020,7 @@ void func_806D8308(void) {
             func_806CC8B8();
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G15Actor {
@@ -3045,7 +3045,7 @@ typedef struct G15PlayerEntry {
     /* 0x2C1 */ u8 pad2C1[0x2F];
 } G15PlayerEntry;
 
-#define G15_A ((G15Actor *)D_807FBB40)
+#define G15_A ((G15Actor *)gCurrentActor)
 
 extern G15PlayerEntry *gPlayerSlots;
 extern s16 D_8075387C[];
@@ -3076,10 +3076,10 @@ s32 func_806D850C(void) {
         if (G15_A->unkC0 > 0.0f) {
             G15_A->unkC0 = 0.0f;
         }
-        func_80614E78(D_807FBB40, 0x36);
-        controllerAnimSetStateRemap(D_807FBB40, 0x31, 0, 8.0f);
-        scriptSetActorRampTarget(D_807FBB40, 0.5f, 0);
-        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x10, 0xFF, 0x7F, 1);
+        func_80614E78(gCurrentActor, 0x36);
+        controllerAnimSetStateRemap(gCurrentActor, 0x31, 0, 8.0f);
+        scriptSetActorRampTarget(gCurrentActor, 0.5f, 0);
+        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x10, 0xFF, 0x7F, 1);
     }
     if (G15_A->unkAC < G15_A->unk80 + sp2C) {
         G15_A->unk80 = G15_A->unkAC - sp2C;
@@ -3112,7 +3112,7 @@ typedef struct G15ActorB {
     /* 0x155 */ u8 unk155;
 } G15ActorB;
 
-#define G15_B ((G15ActorB *)D_807FBB40)
+#define G15_B ((G15ActorB *)gCurrentActor)
 
 extern f32 D_80753988[];
 extern f32 D_807539A4[];
@@ -3148,7 +3148,7 @@ void func_806D87FC(void) {
             playerInputUpdate(0x4D);
             func_806CC8F0();
             if (G15_B->unkB8 != 0.0f) {
-                func_80614E78(D_807FBB40, 0x3A);
+                func_80614E78(gCurrentActor, 0x3A);
                 G15_B->unk155 = 2;
             }
             break;
@@ -3156,21 +3156,21 @@ void func_806D87FC(void) {
             playerInputUpdate(0x4D);
             func_806CC8F0();
             if (G15_B->unkB8 == 0.0f) {
-                func_80614E78(D_807FBB40, 0x33);
+                func_80614E78(gCurrentActor, 0x33);
                 G15_B->unk155 = 1;
             } else {
                 fv0 = G08_P->unk4 * 1.5 / 40.0;
                 if (G15_B->unk4->unk48 < fv0) {
-                    scriptSetActorRampTarget(D_807FBB40, fv0, 0.0f);
+                    scriptSetActorRampTarget(gCurrentActor, fv0, 0.0f);
                 } else {
-                    scriptSetActorRampTarget(D_807FBB40, fv0, 5.0f);
+                    scriptSetActorRampTarget(gCurrentActor, fv0, 5.0f);
                 }
             }
             break;
     }
     func_806D850C();
     G15_B->unk60 &= ~1;
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D8A64(void) {
@@ -3188,7 +3188,7 @@ void func_806D8A64(void) {
         case 1:
             a->unkE8 = 0;
             *(s16 *)G08_A40->unkE4 = 0;
-            playerResumeLocomotion(D_807FBB40);
+            playerResumeLocomotion(gCurrentActor);
             a = G08_A40;
             break;
     }
@@ -3271,7 +3271,7 @@ typedef struct G16Actor {
 } G16Actor;
 
 #define G16_P ((G16Player *)gActivePlayerState)
-#define G16_A ((G16Actor *)D_807FBB40)
+#define G16_A ((G16Actor *)gCurrentActor)
 
 extern s16 D_80753A88[];
 extern f32 D_80753AE0[];
@@ -3309,9 +3309,9 @@ void func_806D8B08(void) {
             }
             t = G16_P->unk10 / 7.5 + 1.0;
             if (G16_A->unk4->unk48 < t) {
-                scriptSetActorRampTarget(D_807FBB40, t, 0.0f);
+                scriptSetActorRampTarget(gCurrentActor, t, 0.0f);
             } else {
-                scriptSetActorRampTarget(D_807FBB40, t, 15.0f);
+                scriptSetActorRampTarget(gCurrentActor, t, 15.0f);
             }
             effectSpawnAuraBurst(2);
             fv0 = G16_A->unkAC;
@@ -3329,11 +3329,11 @@ void func_806D8B08(void) {
                 if (G16_P->unk50 != 0) {
                     G16_P->unk50 = G16_P->unk50 - 1;
                     if (G16_P->unk50 == 0) {
-                        func_80614E78(D_807FBB40, 0x34);
+                        func_80614E78(gCurrentActor, 0x34);
                     }
                 }
             }
-            func_806D0EBC(D_807FBB40);
+            func_806D0EBC(gCurrentActor);
             goto end;
         case 3:
             playerInputUpdate(0x50);
@@ -3367,12 +3367,12 @@ void func_806D8B08(void) {
     }
     if (G16_A->unkB8 == 0.0f || G16_P->unk18 != 0) {
         G16_P->unk50 = D_80753A78[D_807FD584];
-        scriptSetActorRampTarget(D_807FBB40, 0.5f, (f32)G16_P->unk50);
+        scriptSetActorRampTarget(gCurrentActor, 0.5f, (f32)G16_P->unk50);
         G16_A->unk155 = 2;
     }
-    func_806D0EBC(D_807FBB40);
+    func_806D0EBC(gCurrentActor);
 end:
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D8FCC(void) {
@@ -3409,7 +3409,7 @@ void func_806D8FCC(void) {
             playerSetBaseGravity();
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D9134(void) {
@@ -3417,7 +3417,7 @@ void func_806D9134(void) {
     G08_A40->unkB8 = 0.0f;
     G08_A40->unkC0 = 0.0f;
     playerApplyMotion();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D9184(void) {
@@ -3436,15 +3436,15 @@ void func_806D91A4(void) {
 
     if (G16_A->unkFC) {
         G16_A->unkB8 = 0.0f;
-        playerEnterFall(D_807FBB40);
+        playerEnterFall(gCurrentActor);
     }
     if (G16_A->unkFC || ((G16_A->unk6A & 1) && !(G16_A->unk6C & 1))) {
-        camReturnToFollow(G16_P->unk104, D_807FBB40);
+        camReturnToFollow(G16_P->unk104, gCurrentActor);
     }
     if (!(G16_A->unk6A & 1)) {
         func_807149B8(1);
         func_807149FC(1);
-        func_80714C08(&D_8072014C, 0.8f, D_807FBB40, 1, 0);
+        func_80714C08(&D_8072014C, 0.8f, gCurrentActor, 1, 0);
     }
     nv = G16_A->unk6C;
     b = nv;
@@ -3462,7 +3462,7 @@ void func_806D91A4(void) {
     }
     playerInputUpdate(1);
     func_806CC948();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 f32 func_80611BB4(f32, f32);
@@ -3489,12 +3489,12 @@ void func_806D9320(void) {
         case 0:
             G16_A->unk60 &= 0xFFBFFFFF;
             if (G16_A->unkFC || ((G16_A->unk6A & 1) && !(G16_A->unk6C & 1))) {
-                camReturnToFollow(G16_P->unk104, D_807FBB40);
+                camReturnToFollow(G16_P->unk104, gCurrentActor);
             }
             if (!(G16_A->unk6A & 1)) {
                 func_807149B8(1);
                 func_807149FC(1);
-                func_80714C08(&D_8072014C, 0.8f, D_807FBB40, 1, 0);
+                func_80714C08(&D_8072014C, 0.8f, gCurrentActor, 1, 0);
             }
             nv = G16_A->unk6C;
             b = nv;
@@ -3541,7 +3541,7 @@ void func_806D9320(void) {
             break;
         case 1:
             playerInputUpdate(0x20);
-            func_80614E78(D_807FBB40, 0x23);
+            func_80614E78(gCurrentActor, 0x23);
             G16_A->unkE8 = 0;
             playerSetBaseGravity();
             G16_A->unk155 = G16_A->unk155 + 1;
@@ -3550,7 +3550,7 @@ void func_806D9320(void) {
             playerInputUpdate(0x20);
             break;
         case 3:
-            sfxPlayScriptActorSoundForPlayer(D_807FBB40, 0x10, 0);
+            sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x10, 0);
             G16_P->unk30 = D_80753250[D_807FD584];
             G16_A->unk155 = G16_A->unk155 + 1;
         case 4:
@@ -3559,7 +3559,7 @@ void func_806D9320(void) {
             break;
     }
     func_806CC948();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D97A4(void) {
@@ -3569,7 +3569,7 @@ void func_806D97A4(void) {
     }
     playerApproachVelocity(G16_P->unk70, G16_P->unk6C, G16_P->unk38);
     func_806CC948();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D9820(void) {
@@ -3587,13 +3587,13 @@ void func_806D9820(void) {
             }
             t = G16_A->unkB8 * 0.025;
             v = (t > 1.0) ? t : 1.0;
-            scriptSetActorRampTarget(D_807FBB40, v, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, v, 0.0f);
             break;
         case 1:
             func_806CC8B8();
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D9924(Actor *arg0) {
@@ -3646,7 +3646,7 @@ void func_806D9940(void) {
             G16_A->unk155 = G16_A->unk155 + 1;
             break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G17Sub4 {
@@ -3723,7 +3723,7 @@ typedef struct G17Player {
     /* 0x242 */ u16 unk242;
 } G17Player;
 
-#define G17_A ((G17Actor *)D_807FBB40)
+#define G17_A ((G17Actor *)gCurrentActor)
 #define G17_P ((G17Player *)gActivePlayerState)
 
 extern f32 D_807FBC58;
@@ -3776,7 +3776,7 @@ void func_806D9AD4(void) {
             G17_P->unk23C = 0x190;
         }
         if (G17_P->unk23C == 0xD2) {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x264, 0xFF, 0x64, 0x19);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x264, 0xFF, 0x64, 0x19);
         }
         if (G17_P->unk23C >= 0x12D) {
             gActivePlayerState->unk1F0 &= ~0x40;
@@ -3791,7 +3791,7 @@ void func_806D9AD4(void) {
         G17_A->unk155++;
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D9D58(void) {
@@ -3833,7 +3833,7 @@ void func_806D9D58(void) {
         }
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806D9FD0(void) {
@@ -3875,7 +3875,7 @@ void func_806D9FD0(void) {
         }
         break;
     case 3:
-        actorScriptStart(D_807FBB40, 0x16A);
+        actorScriptStart(gCurrentActor, 0x16A);
         playerInputUpdate(0x43);
         func_806CC8B8();
         G17_A->unk155++;
@@ -3896,7 +3896,7 @@ void func_806D9FD0(void) {
         func_806CC8B8();
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806DA320(void) {
@@ -3906,13 +3906,13 @@ void func_806DA320(void) {
     } else {
         v = G17_A->unkB8;
     }
-    scriptSetActorRampTarget(D_807FBB40, v / 25.0f + 0.25, 2.0f);
+    scriptSetActorRampTarget(gCurrentActor, v / 25.0f + 0.25, 2.0f);
     playerInputUpdate(0x49);
     if (!(G17_A->unk6A & 0x10)) {
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806DA3E4(void) {
@@ -3923,7 +3923,7 @@ void func_806DA3E4(void) {
     G17_A->unk84 = (G17_P->unk234 - G17_A->unk84) * 0.2 + G17_A->unk84;
     mathAngleStepToward(&G17_A->unkE6, (s16)mathAngleBetweenPoints2D(G17_P->unk220, G17_P->unk228, G17_A->unk7C, G17_A->unk84), 0x32);
     playerApplyMotion();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806DA4D8(void) {
@@ -3932,9 +3932,9 @@ void func_806DA4D8(void) {
     if (actorTableContains(G17_P->unk1B0) == 0 || G17_P->unk1B0->unk54 != G17_P->unk1B4) {
         G17_P->unk1AC = NULL;
         G17_P->unk1B0 = NULL;
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
         func_806CC8B8();
-        actorUpdateModelMatrix(D_807FBB40, 0);
+        actorUpdateModelMatrix(gCurrentActor, 0);
         return;
     }
     switch (G17_A->unk155) {
@@ -3955,7 +3955,7 @@ void func_806DA4D8(void) {
     case 2:
         G17_P->unk1AC = G17_P->unk1B0;
         G17_P->unk1B8 = G17_P->unk1AC->unk58;
-        actorAppendCallback(G17_P->unk1AC, D_807FBB40, 0x2000, 1, 0, 0);
+        actorAppendCallback(G17_P->unk1AC, gCurrentActor, 0x2000, 1, 0, 0);
         playerRegisterHeldActorFollow(0.4f);
         playerComputePickupHoldPitch();
         G17_A->unk155++;
@@ -3967,7 +3967,7 @@ void func_806DA4D8(void) {
         break;
     case 4:
         playerInputUpdate(5);
-        func_8067A784(D_807FBB40, G17_P->unk1AC, G17_B48->unkE6, G17_A->unk4->unk34 * (D_807533B8[D_807FD584] * 3.0) / (new_var = 0.15), 0);
+        func_8067A784(gCurrentActor, G17_P->unk1AC, G17_B48->unkE6, G17_A->unk4->unk34 * (D_807533B8[D_807FD584] * 3.0) / (new_var = 0.15), 0);
         G17_A->unk155++;
         break;
     case 5:
@@ -3976,36 +3976,36 @@ void func_806DA4D8(void) {
     case 6:
         G17_P->unk1AC = G17_P->unk1B0;
         G17_P->unk1B8 = G17_P->unk1AC->unk58;
-        actorAppendCallback(G17_P->unk1AC, D_807FBB40, 0x2000, 1, 0, 0);
+        actorAppendCallback(G17_P->unk1AC, gCurrentActor, 0x2000, 1, 0, 0);
         playerRegisterHeldActorFollow(0.4f);
         playerComputePickupHoldPitch();
         G17_A->unk155 = 3;
         break;
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806DA7EC(void) {
     playerInputUpdate(6);
     if (D_807FD618[gCurrentPlayerIndex].unk0 != 0.0f) {
-        scriptSetActorRampTarget(D_807FBB40, 3.0f, 0.0f);
+        scriptSetActorRampTarget(gCurrentActor, 3.0f, 0.0f);
     }
     mathAngleStepToward(&G17_A->unkE6, G17_P->unkA, G17_P->unk48);
     G17_P->unk4 = 0.0f;
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806DA89C(void) {
     playerInputUpdate(7);
     if (D_807FD618[gCurrentPlayerIndex].unk0 != 0.0f) {
-        scriptSetActorRampTarget(D_807FBB40, 2.0f, 0.0f);
+        scriptSetActorRampTarget(gCurrentActor, 2.0f, 0.0f);
     }
     mathAngleStepToward(&G17_A->unkE6, G17_P->unkA, G17_P->unk48);
     G17_P->unk4 = 0.0f;
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806DA94C(void) {
@@ -4013,14 +4013,14 @@ void func_806DA94C(void) {
     playerRegisterHeldActorFollow(1.0f);
     playerRegisterHeldActorAlign();
     playerComputePickupHoldPitch();
-    G17_A->unk154 = playerSelectCarryMoveState(D_807FBB40, G17_A->unkB8, G17_P->unk4, 1);
+    G17_A->unk154 = playerSelectCarryMoveState(gCurrentActor, G17_A->unkB8, G17_P->unk4, 1);
     G17_A->unk155 = 0;
     playerInputUpdate(0x37);
     if (!(G17_A->unk6A & 1)) {
         func_806D3608();
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806DAA14(void) {
@@ -4028,14 +4028,14 @@ void func_806DAA14(void) {
     playerRegisterHeldActorFollow(1.0f);
     playerRegisterHeldActorAlign();
     playerComputePickupHoldPitch();
-    G17_A->unk154 = playerSelectCarryMoveState(D_807FBB40, G17_A->unkB8, G17_P->unk4, 1);
+    G17_A->unk154 = playerSelectCarryMoveState(gCurrentActor, G17_A->unkB8, G17_P->unk4, 1);
     G17_A->unk155 = 0;
     playerInputUpdate(0x37);
     if (!(G17_A->unk6A & 1)) {
         func_806D3608();
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G18Player {
@@ -4111,7 +4111,7 @@ typedef struct G18State {
 } G18State;
 
 #define G18_P ((G18Player *)gActivePlayerState)
-#define G18_A ((G18Actor *)D_807FBB40)
+#define G18_A ((G18Actor *)gCurrentActor)
 #define G18_S ((G18State *)&D_807FBB70)
 
 
@@ -4126,7 +4126,7 @@ void func_806DAADC(void) {
         case 1:
             playerRegisterHeldActorFollow(0.5f);
             if (G18_P->unk1AC != NULL) {
-                actorAppendCallback(G18_P->unk1AC, D_807FBB40, 0x2000, 0, 0, 0);
+                actorAppendCallback(G18_P->unk1AC, gCurrentActor, 0x2000, 0, 0, 0);
             }
             G18_P->unk1AC = NULL;
             G18_P->unk1B0 = 0;
@@ -4134,7 +4134,7 @@ void func_806DAADC(void) {
             break;
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern f32 D_80753364[];
@@ -4150,7 +4150,7 @@ void func_806DABE4(void) {
             G18_A->unkB8 = 0.0f;
             break;
         case 1:
-            func_8067A784(D_807FBB40, G18_P->unk1AC, D_807FBB48->yaw, D_807533B8[D_807FD584], (s32)D_8075339C[D_807FD584]);
+            func_8067A784(gCurrentActor, G18_P->unk1AC, D_807FBB48->yaw, D_807533B8[D_807FD584], (s32)D_8075339C[D_807FD584]);
             G18_P->unk1AC = NULL;
             G18_P->unk1B0 = 0;
             G18_A->unk155++;
@@ -4168,7 +4168,7 @@ void func_806DABE4(void) {
             break;
     }
     func_806CC948();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern f32 D_807533D4[];
@@ -4183,7 +4183,7 @@ void func_806DADA0(void) {
             G18_A->unkB8 = 0.0f;
             break;
         case 1:
-            func_8067A784(D_807FBB40, G18_P->unk1AC, D_807FBB48->yaw, D_807533F0[D_807FD584], (s32)D_807533D4[D_807FD584]);
+            func_8067A784(gCurrentActor, G18_P->unk1AC, D_807FBB48->yaw, D_807533F0[D_807FD584], (s32)D_807533D4[D_807FD584]);
             G18_P->unk1AC = NULL;
             G18_P->unk1B0 = 0;
             G18_A->unk155++;
@@ -4201,7 +4201,7 @@ void func_806DADA0(void) {
             break;
     }
     func_806CC948();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806DAF5C(void) {
@@ -4210,7 +4210,7 @@ void func_806DAF5C(void) {
     playerComputePickupHoldPitch();
     switch (G18_A->unk155) {
         case 0:
-            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0);
+            scriptSetActorRampTarget(gCurrentActor, 1.0f, 0);
             playerInputUpdate(0x21);
             break;
         case 1:
@@ -4232,13 +4232,13 @@ void func_806DAF5C(void) {
             break;
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806DB08C(void) {
     playerInputUpdate(0x12);
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern s16 D_8075326C[];
@@ -4266,7 +4266,7 @@ void func_806DB0C4(void) {
         if (G18_P->unkDC != NULL) {
             G18_P->unk98 = func_80611BB4(G18_P->unkDC->unk7C - G18_P->unk9C, G18_P->unkDC->unk84 - G18_P->unkA0) * 4096.0f / 6.2831855f;
             if ((s16)(s32)G18_P->unk98 == G18_A->unkE6) {
-                playerResumeLocomotion(D_807FBB40);
+                playerResumeLocomotion(gCurrentActor);
             }
         }
         G18_P->unkAC = 1.0f;
@@ -4275,10 +4275,10 @@ void func_806DB0C4(void) {
     G18_A->unk7C = G18_P->unk9C + (G18_P->unkA4 - G18_P->unk9C) * dx;
     G18_A->unk84 = G18_P->unkA0 + (G18_P->unkA8 - G18_P->unkA0) * G18_P->unkAC;
     playerApplyMotion();
-    func_806CDD24(D_807FBB40, G18_P->unk94, G18_P->unk94, 0);
+    func_806CDD24(gCurrentActor, G18_P->unk94, G18_P->unk94, 0);
     mathAngleStepToward(&G18_A->unkE6, (s16)(s32)G18_P->unk98, (s16)(D_8075326C[D_807FD584] / 2));
     G18_A->unkEE = G18_A->unkE6;
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -4307,13 +4307,13 @@ void func_806DB3AC(void) {
             }
             break;
         case 2:
-            actorClearMovementFlags(D_807FBB40);
+            actorClearMovementFlags(gCurrentActor);
             G18_A->unk7C = G18_P->unk204;
             G18_A->unk80 = G18_P->unk208 + 10.0;
             G18_A->unk8C = G18_A->unk80;
             G18_A->unk84 = G18_P->unk20C;
             func_806C8220(0, G18_A->unk178, G18_A->unk58);
-            camResetPlayer(D_807FBB40, G18_P->unk1A4);
+            camResetPlayer(gCurrentActor, G18_P->unk1A4);
             screenWipeStart(6);
             G18_P->unk23C = 0x14;
             sfxPlayAtPositionPooled(G18_A->unk7C, G18_A->unk80, G18_A->unk84, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
@@ -4333,14 +4333,14 @@ void func_806DB3AC(void) {
             }
             break;
         case 5:
-            func_806C8D20(D_807FBB40);
+            func_806C8D20(gCurrentActor);
             matrixCacheRestoreLimit();
-            playerResumeLocomotion(D_807FBB40);
+            playerResumeLocomotion(gCurrentActor);
             playerInputUpdate(0x30);
             break;
     }
     playerApplyMotion();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void actorCopyPoseAndScale(void *, void *, f32);
@@ -4355,7 +4355,7 @@ void func_806DB670(void) {
         case 0:
             G18_A->unk144 = 1;
             if (actorSpawn(0x3C, 0x98)) {
-                actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 0.15f);
+                actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.15f);
             }
             G18_A->unk155++;
             break;
@@ -4392,13 +4392,13 @@ void func_806DB670(void) {
             break;
         case 7:
             D_807FBB60 &= 0xFFFCFFDF;
-            actorClearMovementFlags(D_807FBB40);
+            actorClearMovementFlags(gCurrentActor);
             G18_A->unk7C = G18_P->unk204;
             G18_A->unk80 = G18_P->unk208;
             G18_A->unk8C = G18_A->unk80;
             G18_A->unk84 = G18_P->unk20C;
             func_806C8220(0, G18_A->unk178, G18_A->unk58);
-            camResetPlayer(D_807FBB40, G18_P->unk1A4);
+            camResetPlayer(gCurrentActor, G18_P->unk1A4);
             G18_P->unk23C = 0x14;
             screenWipeStart(2);
             G18_A->unk155++;
@@ -4409,7 +4409,7 @@ void func_806DB670(void) {
             if (G18_P->unk23C == 0) {
                 sfxStartAreaAmbient();
                 if (actorSpawn(0x3C, 0x98)) {
-                    actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 0.15f);
+                    actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.15f);
                 }
                 G18_A->unk155++;
                 G18_P->unk23C = 0xC;
@@ -4428,7 +4428,7 @@ void func_806DB670(void) {
             break;
         case 11:
             playerInputUpdate(0x20);
-            func_80614E78(D_807FBB40, 0x1B);
+            func_80614E78(gCurrentActor, 0x1B);
             playerSetBaseGravity();
             G18_A->unk155++;
             break;
@@ -4438,16 +4438,16 @@ void func_806DB670(void) {
             playerApplyGravity();
             break;
         case 14:
-            sfxPlayScriptActorSoundForPlayer(D_807FBB40, 0x2F, 0);
+            sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x2F, 0);
             G18_A->unk155++;
         case 15:
-            func_806C8D20(D_807FBB40);
+            func_806C8D20(gCurrentActor);
             matrixCacheRestoreLimit();
             playerInputUpdate(0x30);
             break;
     }
     playerApplyMotion();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct LBPlayer {
@@ -4476,7 +4476,7 @@ typedef struct LBActor {
     /* 0x155 */ u8 unk155;
 } LBActor;
 
-#define LB_A ((LBActor *)D_807FBB40)
+#define LB_A ((LBActor *)gCurrentActor)
 #define LB_P ((LBPlayer *)gActivePlayerState)
 
 extern u8 D_8071FC58;
@@ -4509,7 +4509,7 @@ void func_806DBB04(void) {
         } else {
             LB_P->unk108 = 150.0f;
             LB_A->unk155 = LB_A->unk155 + 1;
-            camSetTargetScaled(LB_P->unk104, D_807FBB40, 6, 0, 0x1E, 0, 5, 0x2D, 0x14, 0xC8, 0.15f);
+            camSetTargetScaled(LB_P->unk104, gCurrentActor, 6, 0, 0x1E, 0, 5, 0x2D, 0x14, 0xC8, 0.15f);
         }
         break;
     case 2:
@@ -4543,7 +4543,7 @@ void func_806DBB04(void) {
     LB_P->unkCC = LB_P->unkCC & 0xFFF;
     if (!(gFrameCounter & 1)) {
         sp63 = (randomNonNegative() >> 15) % 65535 % 3;
-        actorGetNodePos(D_807FBB40, 5, &sp5C, &sp58, &sp54);
+        actorGetNodePos(gCurrentActor, 5, &sp5C, &sp58, &sp54);
         sp5C += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
         sp58 += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
         sp54 += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
@@ -4562,9 +4562,9 @@ void func_806DBB04(void) {
     LB_A->unkC0 = 0.0f;
     LB_A->unkB8 = 0.0f;
     playerApplyMotion();
-    actorGetNodePos(D_807FBB40, 0xC, &sp6C, &sp68, &sp64);
+    actorGetNodePos(gCurrentActor, 0xC, &sp6C, &sp68, &sp64);
     lightAdd(sp6C, sp68, sp64, 0.0f, 0.0f, 0.0f, 80.0f, 0, 0xFF, 0xFF, 0);
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G19Actor {
@@ -4643,7 +4643,7 @@ typedef struct G19Player {
     /* 0x268 */ u8 unk268;
 } G19Player;
 
-#define G19_A ((G19Actor *)D_807FBB40)
+#define G19_A ((G19Actor *)gCurrentActor)
 #define G19_P ((G19Player *)gActivePlayerState)
 
 
@@ -4659,7 +4659,7 @@ void func_806DC170(void) {
         G19_A->unk144 = 1;
         G19_P->unk23C = 0xA;
         G19_A->unk155++;
-        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2EB, 0xFF, 0x7F, 2);
+        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x2EB, 0xFF, 0x7F, 2);
         break;
     case 1:
         if (G19_P->unk23C >= 2) {
@@ -4669,7 +4669,7 @@ void func_806DC170(void) {
         }
         break;
     case 2:
-        actorClearMovementFlags(D_807FBB40);
+        actorClearMovementFlags(gCurrentActor);
         G19_A->unk7C = G19_P->unk204;
         G19_A->unk80 = G19_P->unk208;
         G19_A->unk8C = G19_A->unk80;
@@ -4677,7 +4677,7 @@ void func_806DC170(void) {
         t = G19_P->unk21C;
         G19_A->unkEE = t;
         G19_A->unkE6 = t;
-        camResetPlayer(D_807FBB40, G19_P->unk1A4);
+        camResetPlayer(gCurrentActor, G19_P->unk1A4);
         func_806C8220(0, (void *)G19_A->unk178, G19_A->unk58);
         G19_A->unk155++;
         break;
@@ -4690,7 +4690,7 @@ void func_806DC170(void) {
         break;
     case 4:
         G19_P->unk268 = 0x3C;
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
         break;
     }
     f = (f32)G19_P->unk23C * 0.015;
@@ -4700,7 +4700,7 @@ void func_806DC170(void) {
         i += 4;
     } while (i != 0xC);
     playerApplyMotion();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806DC3A4(f32 arg0) {
@@ -4748,7 +4748,7 @@ typedef struct LD5Player {
     /* 0x158 */ s32 unk158;
 } LD5Player;
 
-#define LD5_A ((LD5Actor *)D_807FBB40)
+#define LD5_A ((LD5Actor *)gCurrentActor)
 #define LD5_P ((LD5Player *)gActivePlayerState)
 
 extern s16 D_80753C84[];
@@ -4766,7 +4766,7 @@ void func_806DC410(void) {
     f64 d;
 
     if (LD5_A->unk155 != 0 && !(LD5_A->unk6A & 0x40)) {
-        playerEnterFall(D_807FBB40);
+        playerEnterFall(gCurrentActor);
         if (LD5_P->unk8C != 0) {
             func_806D374C();
             return;
@@ -4809,7 +4809,7 @@ void func_806DC410(void) {
                 break;
             }
             func_806DC3A4(sp1C);
-            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
         }
         break;
     case 2:
@@ -4831,7 +4831,7 @@ void func_806DC410(void) {
             } else {
                 f = -d;
             }
-            scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
         }
         break;
     case 3:
@@ -4857,7 +4857,7 @@ void func_806DC410(void) {
             } else {
                 f = -d;
             }
-            scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
         }
         break;
     case 4:
@@ -4883,7 +4883,7 @@ void func_806DC410(void) {
             } else {
                 f = -d;
             }
-            scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
         }
         break;
     }
@@ -4927,9 +4927,9 @@ void func_806DCA7C(void) {
             absd = -diff;
         }
         if (absd < 0x400) {
-            func_80614E78(D_807FBB40, 0x6D);
+            func_80614E78(gCurrentActor, 0x6D);
         } else {
-            func_80614E78(D_807FBB40, 0x6E);
+            func_80614E78(gCurrentActor, 0x6E);
         }
         mathAngleStepTowardThreshold(&G19_A->unkE6, G19_A->unkEE, 0x78, 0x600);
         G19_A->unkC0 = G19_P->unk150;
@@ -4984,7 +4984,7 @@ void func_806DCA7C(void) {
         G19_P->unk30 = 10.0f;
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern ActorEntry gActiveActors[];
@@ -5060,7 +5060,7 @@ typedef struct L6Player {
     /* 0x100 */ s32 unk100;
 } L6Player;
 
-#define L6_A ((L6Actor *)D_807FBB40)
+#define L6_A ((L6Actor *)gCurrentActor)
 #define L6_P ((L6Player *)gActivePlayerState)
 
 extern s16 D_80753CA4[];
@@ -5073,7 +5073,7 @@ void func_806DD24C(void) {
     f64 d;
 
     if (L6_A->unk155 != 0 && (!(L6_A->unk6A & 0x40) || ((L6_A->unk6A & 4) && (f64)(L6_A->unkAC - L6_A->unk80) > 3.0))) {
-        playerEnterFall(D_807FBB40);
+        playerEnterFall(gCurrentActor);
         if (L6_P->unk8C != 0) {
             func_806D374C();
             return;
@@ -5110,7 +5110,7 @@ void func_806DD24C(void) {
                 break;
             }
             func_806DC3A4(sp1C);
-            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
         }
         break;
     case 2:
@@ -5132,7 +5132,7 @@ void func_806DD24C(void) {
             } else {
                 f = -d;
             }
-            scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
         }
         break;
     case 3:
@@ -5158,7 +5158,7 @@ void func_806DD24C(void) {
             } else {
                 f = -d;
             }
-            scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
         }
         break;
     case 4:
@@ -5184,7 +5184,7 @@ void func_806DD24C(void) {
             } else {
                 f = -d;
             }
-            scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
         }
         break;
     }
@@ -5237,7 +5237,7 @@ void func_806DD874(void) {
         func_806CC8B8();
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 s32 playerProbeLedgeAhead(Actor *, f32 *, s32, f32);
@@ -5295,7 +5295,7 @@ typedef struct LD5Pad {
     /* 0x30 */ u8 pad30[4];
 } LD5Pad;
 
-#define LD5C_A ((LD5CActor *)D_807FBB40)
+#define LD5C_A ((LD5CActor *)gCurrentActor)
 #define LD5C_P ((LD5CPlayer *)gActivePlayerState)
 
 extern LD5Pad gPlayerPadState[];
@@ -5355,7 +5355,7 @@ void func_806DDAB0(void) {
                 if (LD5C_A->unk155 == 1) {
                     t = LD5C_A->unkB8 * 0.025;
                     f = t > 0.1 ? t : 0.1;
-                    scriptSetActorRampTarget(D_807FBB40, f, 1.0f);
+                    scriptSetActorRampTarget(gCurrentActor, f, 1.0f);
                 } else {
                     func_80614E78(D_807FBB48, 0x77);
                     LD5C_A->unk155 = 1;
@@ -5371,7 +5371,7 @@ void func_806DDAB0(void) {
                 if (LD5C_A->unk155 == 3) {
                     t = LD5C_A->unkB8 * 0.025;
                     f = t > 0.1 ? t : 0.1;
-                    scriptSetActorRampTarget(D_807FBB40, f, 0.0f);
+                    scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
                 } else {
                     func_80614E78(D_807FBB48, 0x78);
                     LD5C_A->unk155 = 3;
@@ -5381,7 +5381,7 @@ void func_806DDAB0(void) {
         }
         LD5C_A->unkC0 = 0.0f;
         LD5C_A->unkB8 = LD5C_P->unk4;
-        if (playerProbeLedgeAhead(D_807FBB40, &sp64, 1, 15.0f) != 0) {
+        if (playerProbeLedgeAhead(gCurrentActor, &sp64, 1, 15.0f) != 0) {
             if (LD5C_A->unk80 <= sp64 && sp64 - sp50 - LD5C_A->unk80 < 10.0f && func_80666AEC() != 0) {
                 LD5C_A->unk80 = sp64 - sp50;
                 sp49 = 1;
@@ -5401,7 +5401,7 @@ void func_806DDAB0(void) {
             sp60 &= 0xFFF;
             LD5C_A->unkEE = LD5C_A->unkF6 - 0xA;
         }
-        sp62 = actorSetTargetAngleAndCheck(D_807FBB40, sp60);
+        sp62 = actorSetTargetAngleAndCheck(gCurrentActor, sp60);
         if (sp62 == 0) {
             LD5C_A->unkB8 = 0.0f;
         }
@@ -5439,7 +5439,7 @@ void func_806DDAB0(void) {
     }
     if (a != 0 || v != 0) {
         LD5C_P->unkFC = 0x14;
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
         LD5C_A->unk60 &= ~0x800;
     }
     if (*(s8 *)((u8 *)&D_807FD63F + gCurrentPlayerIndex * 0x34) >= 0x33 && LD5C_P->unkF8 == 0 && v == 0) {
@@ -5449,11 +5449,11 @@ void func_806DDAB0(void) {
         LD5C_P->unkF0 = LD5C_A->unk80 + sp50;
         LD5C_P->unkF4 = LD5C_P->unkF0;
     }
-    actorStepPhysics(D_807FBB40, LD5C_A->unkEE, LD5C_A->unkEE);
-    actorApplyVelocity(D_807FBB40);
+    actorStepPhysics(gCurrentActor, LD5C_A->unkEE, LD5C_A->unkEE);
+    actorApplyVelocity(gCurrentActor);
     actorSkipFloorSnap();
-    actorUpdateFloorContactAndTilt(D_807FBB40, 0);
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateFloorContactAndTilt(gCurrentActor, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct LD5Anim {
@@ -5497,7 +5497,7 @@ typedef struct LD5BPlayer {
     /* 0x0F4 */ f32 unkF4;
 } LD5BPlayer;
 
-#define LD5B_A ((LD5BActor *)D_807FBB40)
+#define LD5B_A ((LD5BActor *)gCurrentActor)
 #define LD5B_P ((LD5BPlayer *)gActivePlayerState)
 
 void func_80678DD8(Actor *);
@@ -5514,7 +5514,7 @@ void func_806DE264(void) {
     LD5B_A->unkC0 = 0.0f;
     LD5B_A->unkB8 = 0.0f;
     playerInputUpdate(1);
-    if (playerProbeLedgeAhead(D_807FBB40, &sp3C, 1, 15.0f) != 0) {
+    if (playerProbeLedgeAhead(gCurrentActor, &sp3C, 1, 15.0f) != 0) {
         LD5B_P->unkF0 = sp3C;
     }
     if (LD5B_P->unkF0 < LD5B_P->unkF4) {
@@ -5523,21 +5523,21 @@ void func_806DE264(void) {
         f = -(LD5B_P->unkF4 - LD5B_P->unkF0);
     }
     if (f > 20.0) {
-        playerEnterFall(D_807FBB40);
-        actorUpdateModelMatrix(D_807FBB40, 0);
+        playerEnterFall(gCurrentActor);
+        actorUpdateModelMatrix(gCurrentActor, 0);
         return;
     }
     LD5B_P->unkF4 = LD5B_P->unkF0;
     LD5B_A->unk60 |= 0x08000000;
-    actorUpdateModelMatrix(D_807FBB40, 0);
-    func_80678DD8(D_807FBB40);
+    actorUpdateModelMatrix(gCurrentActor, 0);
+    func_80678DD8(gCurrentActor);
     switch (LD5B_A->unk155) {
     case 0:
         switch (LD5B_A->unk58) {
         case 4:
             f = (*LD5B_A->unk4)->unk4;
             if (f < 25.0f) {
-                actorGetNodePos(D_807FBB40, 7, &sp44, &sp48, &sp4C);
+                actorGetNodePos(gCurrentActor, 7, &sp44, &sp48, &sp4C);
                 d = sp48 - LD5B_A->unk80;
                 LD5B_A->unk80 = LD5B_P->unkF0 - d;
                 f = (*LD5B_A->unk4)->unk4;
@@ -5556,7 +5556,7 @@ void func_806DE264(void) {
         case 5:
             f = (*LD5B_A->unk4)->unk4;
             if (f < 17.0f) {
-                actorGetNodePos(D_807FBB40, 7, &sp44, &sp48, &sp4C);
+                actorGetNodePos(gCurrentActor, 7, &sp44, &sp48, &sp4C);
                 d = sp48 - LD5B_A->unk80;
                 LD5B_A->unk80 = LD5B_P->unkF0 - d;
                 f = (*LD5B_A->unk4)->unk4;
@@ -5573,7 +5573,7 @@ void func_806DE264(void) {
             }
             break;
         case 2:
-            actorGetNodePos(D_807FBB40, 7, &sp44, &sp48, &sp4C);
+            actorGetNodePos(gCurrentActor, 7, &sp44, &sp48, &sp4C);
             d = sp48 - LD5B_A->unk80;
                 LD5B_A->unk80 = LD5B_P->unkF0 - d;
             if ((*LD5B_A->unk4)->unk4 > 16.0f) {
@@ -5589,7 +5589,7 @@ void func_806DE264(void) {
         case 7:
             f = (*LD5B_A->unk4)->unk4;
             if (f < 18.0f) {
-                actorGetNodePos(D_807FBB40, 7, &sp44, &sp48, &sp4C);
+                actorGetNodePos(gCurrentActor, 7, &sp44, &sp48, &sp4C);
                 d = sp48 - LD5B_A->unk80;
                 LD5B_A->unk80 = LD5B_P->unkF0 - d;
                 LD5B_A->unk7C = LD5B_P->unkE0;
@@ -5605,14 +5605,14 @@ void func_806DE264(void) {
                     f = -(LD5B_A->unkA4 - LD5B_P->unkF0);
                 }
                 if (f >= 20.0) {
-                    playerEnterFall(D_807FBB40);
+                    playerEnterFall(gCurrentActor);
                 } else {
                     LD5B_A->unk80 = LD5B_A->unkA4;
                 }
             }
             break;
         default:
-            actorGetNodePos(D_807FBB40, 7, &sp44, &sp48, &sp4C);
+            actorGetNodePos(gCurrentActor, 7, &sp44, &sp48, &sp4C);
             d = sp48 - LD5B_A->unk80;
                 LD5B_A->unk80 = LD5B_P->unkF0 - d;
             if ((*LD5B_A->unk4)->unk4 > 14.0f) {
@@ -5638,33 +5638,33 @@ void func_806DE264(void) {
             LD5B_A->unk80 = LD5B_A->unkA4;
             LD5B_A->unk6A |= 1;
             LD5B_A->unkC0 = -50.0f;
-            playerResumeLocomotion(D_807FBB40);
+            playerResumeLocomotion(gCurrentActor);
         } else {
-            playerEnterFall(D_807FBB40);
+            playerEnterFall(gCurrentActor);
         }
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
-    actorCheckWorldBounds(D_807FBB40);
+    actorUpdateModelMatrix(gCurrentActor, 0);
+    actorCheckWorldBounds(gCurrentActor);
 }
 
 void func_806DE930(void) {
     G19_P->unk4 = 0.0f;
     if ((playerInputUpdate(1) == 0) && (G19_A->unk6A & 1)) {
-        func_806CDD24(D_807FBB40, G19_A->unkB8, 0, 1);
+        func_806CDD24(gCurrentActor, G19_A->unkB8, 0, 1);
     }
     if (gCurrentMap == 0x52) {
         G19_P->unk30 = D_80753250[D_807FD584] * 5.0;
     }
     func_806CC8B8();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern s32 D_80750FDC;
 
 void func_806DE9F4(void) {
     if (G19_A->unk155 == 0) {
-        camSetTarget(G19_P->unk104, D_807FBB40, 4, 0x800, 0x32, 0, 5, 0x32, 0x14, 0, 0.2f);
+        camSetTarget(G19_P->unk104, gCurrentActor, 4, 0x800, 0x32, 0, 5, 0x32, 0x14, 0, 0.2f);
         G19_A->unk155++;
     }
     func_806D38AC(1);
@@ -5675,27 +5675,27 @@ void func_806DE9F4(void) {
 void func_806DEAA4(void) {
     switch (G19_A->unk155) {
     case 0:
-        camSetTargetScaled((void *)G19_P->unk104, D_807FBB40, 4, 0, 0x19, 0, 5, -3, 0xA, 0, 0.15f);
-        func_80614E78(D_807FBB40, 0x85);
+        camSetTargetScaled((void *)G19_P->unk104, gCurrentActor, 4, 0, 0x19, 0, 5, -3, 0xA, 0, 0.15f);
+        func_80614E78(gCurrentActor, 0x85);
         G19_A->unk155++;
     case 2:
-        camSetTargetScaled((void *)G19_P->unk104, D_807FBB40, 4, 0x396, 0x19, 0, 5, 0xB, 0xB, 0, 0.15f);
+        camSetTargetScaled((void *)G19_P->unk104, gCurrentActor, 4, 0x396, 0x19, 0, 5, 0xB, 0xB, 0, 0.15f);
         G19_A->unk155++;
         break;
     case 4:
-        camSetTargetScaled((void *)G19_P->unk104, D_807FBB40, 4, 0xE74, 0x14, 0, 5, 0x13, 0xA, 0, 0.15f);
+        camSetTargetScaled((void *)G19_P->unk104, gCurrentActor, 4, 0xE74, 0x14, 0, 5, 0x13, 0xA, 0, 0.15f);
         G19_A->unk155++;
         break;
     case 6:
-        camSetTargetScaled((void *)G19_P->unk104, D_807FBB40, 4, 0x800, 0x11, 0, 5, 0x29, 0xA, 0, 0.15f);
+        camSetTargetScaled((void *)G19_P->unk104, gCurrentActor, 4, 0x800, 0x11, 0, 5, 0x29, 0xA, 0, 0.15f);
         G19_A->unk155++;
         break;
     case 8:
-        camResetPlayer(D_807FBB40, 0);
+        camResetPlayer(gCurrentActor, 0);
         G19_P->unk1F0 |= 4;
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G20Actor {
@@ -5703,7 +5703,7 @@ typedef struct G20Actor {
     /* 0x155 */ u8 unk155;
 } G20Actor;
 
-#define G20_A ((G20Actor *)D_807FBB40)
+#define G20_A ((G20Actor *)gCurrentActor)
 
 void camResumePath();
 
@@ -5711,9 +5711,9 @@ void func_806DECD4(void) {
     if (G20_A->unk155 == 1) {
         camResumePath();
         G20_A->unk155++;
-        playerResumeLocomotion(D_807FBB40);
+        playerResumeLocomotion(gCurrentActor);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G20Sub4 {
@@ -5761,8 +5761,8 @@ typedef struct G20ActorE {
     /* 0x174 */ void *unk174;
 } G20ActorE;
 
-#define G20_E40 ((G20ActorE *)D_807FBB40)
-#define G20_E44 ((G20ActorE *)D_807FBB44)
+#define G20_E40 ((G20ActorE *)gCurrentActor)
+#define G20_E44 ((G20ActorE *)gSpawnedActor)
 
 s32 func_806F8EB4();
 void camStartPath(void *, s32, s32);
@@ -5784,7 +5784,7 @@ void func_806DED44(void) {
     s32 a1;
 
     playerInputUpdate(1);
-    func_806D9924(D_807FBB40);
+    func_806D9924(gCurrentActor);
     sel = G20_E40->unk155;
     switch (sel) {
     case 0:
@@ -5793,20 +5793,20 @@ void func_806DED44(void) {
         } else {
             a1 = 0x11;
         }
-        camStartPath(D_807FBB40, a1, 5);
+        camStartPath(gCurrentActor, a1, 5);
         G20_E40->unk155 = 1;
         break;
     case 1:
         D_807FBB60 &= 0xFFFEFFCF;
         actorSpawn(0x141, 0x3D);
-        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, G20_E40->unk4->unk38 * 2);
+        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, G20_E40->unk4->unk38 * 2);
         G20_E44->unk60 |= 0x40000000;
         G20_E44->unkE6 += 0x800;
         G20_E44->unkE6 &= 0xFFF;
-        G20_E44->unk11C = D_807FBB40;
-        actorScriptStart(D_807FBB44, 0x2B7);
+        G20_E44->unk11C = gCurrentActor;
+        actorScriptStart(gSpawnedActor, 0x2B7);
         light = G20_E44->unk174;
-        light->unk10 = D_807FBB40;
+        light->unk10 = gCurrentActor;
         light->unk18 = G20_E40->unk12C;
         col = light->unk18;
         if (col == -1) {
@@ -5818,9 +5818,9 @@ void func_806DED44(void) {
         lightGetColor(&light->unk0, &light->unk4, &light->unk8, col);
         lightSetColor(1.0f, 1.0f, 1.0f, ((s16 *)light)[0x1A / 2]);
         actorSpawn(0x136, 0xA8);
-        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, G20_E40->unk4->unk34);
+        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, G20_E40->unk4->unk34);
         G20_E44->unk60 |= 0x40000000;
-        light->unkC = D_807FBB44;
+        light->unkC = gSpawnedActor;
         light->unk1E = func_806F8EB4() == 0x14;
         G20_E40->unk155 = 2;
         break;
@@ -5835,7 +5835,7 @@ void func_806DED44(void) {
         if (currentActorTestClearFlag()) {
             owner = G20_E40->unk174;
             currentActorClearFlag();
-            playerResumeLocomotion(D_807FBB40);
+            playerResumeLocomotion(gCurrentActor);
             healthRefill(owner->unk1A4);
             p = &D_80750FE0;
             do {
@@ -5845,7 +5845,7 @@ void func_806DED44(void) {
         }
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G20Block {
@@ -5865,7 +5865,7 @@ typedef struct G20ActorC {
     /* 0x174 */ G20Sub174 *unk174;
 } G20ActorC;
 
-#define G20_C ((G20ActorC *)D_807FBB40)
+#define G20_C ((G20ActorC *)gCurrentActor)
 
 #define G20_BLK ((G20Block *)gPlayerSlots)
 extern u8 D_80750AB8;
@@ -5891,7 +5891,7 @@ void func_806DF050(void) {
         G20_C->unk60 &= ~4;
     }
     func_806CC948();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G20Target {
@@ -5917,7 +5917,7 @@ typedef struct G20ActorB {
     /* 0x174 */ G20Target *unk174;
 } G20ActorB;
 
-#define G20_B ((G20ActorB *)D_807FBB40)
+#define G20_B ((G20ActorB *)gCurrentActor)
 
 void func_806DF1A0(void) {
     G20Target *t = G20_B->unk174;
@@ -5929,7 +5929,7 @@ void func_806DF1A0(void) {
     G20_B->unk80 += (t->unk230 - G20_B->unk80) * 0.125f;
     G20_B->unk84 += (t->unk234 - G20_B->unk84) * 0.125f;
     G20_B->unkE4 += 0xFF;
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct G20ActorD {
@@ -5948,7 +5948,7 @@ typedef struct G20ActorD {
     /* 0x174 */ G20Target *unk174;
 } G20ActorD;
 
-#define G20_D ((G20ActorD *)D_807FBB40)
+#define G20_D ((G20ActorD *)gCurrentActor)
 
 void func_806DF280(void) {
     G20Target *t = G20_D->unk174;
@@ -5966,5 +5966,5 @@ void func_806DF280(void) {
     G20_D->unk84 += t->unk228;
     G20_D->unkE4 += 0xFF;
     G20_D->unkE4 &= 0xFFF;
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }

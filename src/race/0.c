@@ -54,13 +54,13 @@ typedef struct {
 } RaceC_Act;
 
 extern s32 gCurrentMap;
-extern void *D_807FBB40;
+extern void *gCurrentActor;
 extern void *D_807FBB48;
 extern RaceC_DC90 *D_807FDC90;
 extern RaceC_DCA0 *D_807FDCA0;
 extern RaceC_Row D_8002FB10[];
 extern RaceC_Row D_8002FB70[];
-#define RC_A ((RaceC_Act *)D_807FBB40)
+#define RC_A ((RaceC_Act *)gCurrentActor)
 #define RC_B ((RaceC_Act *)D_807FBB48)
 f32 func_80611BB4(f32, f32);
 f32 func_80612790(s16);
@@ -101,7 +101,7 @@ void raceOpponentFollowWaypoints(void) {
                 if (row) {}  // FAKE: dead test steers uopt FP callee-saved colouring (fs0/fs1)
                 RC_A->unkC4 = row->unk4;
                 if (row->unk8 == 1) {
-                    actorScriptStart(D_807FBB40, 0x286);
+                    actorScriptStart(gCurrentActor, 0x286);
                     RC_A->unkC0 = 200.0f;
                     RC_A->unk154 += 1;
                 }
@@ -295,7 +295,7 @@ extern u8 D_807FBD70;
 extern u16 D_80750AC8;
 extern s32 D_8002FB94[];
 
-#define L4_D ((LargeR4_Act *)D_807FBB40)
+#define L4_D ((LargeR4_Act *)gCurrentActor)
 #define L4_S ((LargeR4_State *)D_807FDC90)
 #define L4_P ((LargeR4_Path *)D_807FDCA0)
 
@@ -386,7 +386,7 @@ void raceOpponentBehaviourUpdate(void) {
             flag = 0x66;
         }
         if (flagGet(flag, 2) == 0 && flagGet(config->unk18.h.lo, 0) == 0) {
-            camStartPath(D_807FBB40, 0, 1);
+            camStartPath(gCurrentActor, 0, 1);
             currentActorClearFlag();
             flagSet(flag, 1, 2);
         } else {
@@ -395,11 +395,11 @@ void raceOpponentBehaviourUpdate(void) {
     }
     rowIdx = L4_S->unk24;
     if (child != NULL && controller->unk34 < 3 && D_807FBD70 == 4) {
-        playerStateQueueCallback(0x33, D_807FBB40, 0);
+        playerStateQueueCallback(0x33, gCurrentActor, 0);
     }
     if (controller->unk34 < 3 && L4_D->unk154 == 2 && D_807FBD70 == 5) {
-        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1CA, 0xFF, 0x7F, 0xA);
-        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x209, 0xFF, 0x7F, 0xA);
+        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CA, 0xFF, 0x7F, 0xA);
+        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x209, 0xFF, 0x7F, 0xA);
         L4_D->unkB8 = 0.0f;
         L4_D->unk154 = 0x14;
         L4_D->unkC4 = -40.0f;
@@ -428,12 +428,12 @@ void raceOpponentBehaviourUpdate(void) {
     case 1:
         if (controller->unk34 == 2) {
             if (gCurrentMap == 0x52) {
-                actorSetTargetSpeed(D_807FBB40, 0x10E);
+                actorSetTargetSpeed(gCurrentActor, 0x10E);
             } else {
-                actorSetTargetSpeed(D_807FBB40, 0xAA);
+                actorSetTargetSpeed(gCurrentActor, 0xAA);
             }
             L4_S->unk35 = 0xA;
-            actorScriptStart(D_807FBB40, 0x282);
+            actorScriptStart(gCurrentActor, 0x282);
             L4_D->unk154 = L4_D->unk154 + 1;
             break;
         }
@@ -452,7 +452,7 @@ void raceOpponentBehaviourUpdate(void) {
             if (dist < 80.0f) {
                 if (L4_S->unk25 < L4_P->unk10 - 1) {
                     if (L4_P->unk14[L4_S->unk25].unk8 == 0) {
-                        actorScriptStart(D_807FBB40, 0x283);
+                        actorScriptStart(gCurrentActor, 0x283);
                         L4_D->unk154 = L4_D->unk154 + 1;
                     }
                     if (L4_S->unk25 == routeRows[rowIdx].unk0) {
@@ -473,7 +473,7 @@ void raceOpponentBehaviourUpdate(void) {
             } else {
                 L4_D->unk154 = 9;
             }
-            actorScriptStart(D_807FBB40, 0);
+            actorScriptStart(gCurrentActor, 0);
             L4_D->unk155 = 0;
         }
         break;
@@ -492,7 +492,7 @@ void raceOpponentBehaviourUpdate(void) {
         if (L4_S->unk2E != 0) {
             L4_S->unk2E = L4_S->unk2E - 1;
         } else if (L4_D->unkFC != 0) {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xFF, 0x46, 0x7F, 2);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, 0x46, 0x7F, 2);
             L4_S->unk2E = 0x14;
         }
         if (L4_S->unk25 == routeRows[L4_S->unk24].unk0 && routeRows[L4_S->unk24].unk8 == 1) {
@@ -513,7 +513,7 @@ void raceOpponentBehaviourUpdate(void) {
             L4_S->unk2C = (s32)((f64)L4_S->unk2C - (f64)L4_S->unk2C * 0.3);
         } else {
             if ((L4_D->unk6A & 1) && !(L4_D->unk6C & 1)) {
-                actorScriptStart(D_807FBB40, 0x285);
+                actorScriptStart(gCurrentActor, 0x285);
                 L4_D->unkC4 = -20.0f;
             }
             fv1 = (f32)(L4_D->unkEE - L4_D->unkDC);
@@ -536,7 +536,7 @@ void raceOpponentBehaviourUpdate(void) {
         break;
     case 7:
         if (gCurrentMap == 0xE) {
-            actorSetTargetSpeed(D_807FBB40, 0xB4);
+            actorSetTargetSpeed(gCurrentActor, 0xB4);
         }
         raceOpponentFollowWaypoints();
         break;
@@ -546,10 +546,10 @@ void raceOpponentBehaviourUpdate(void) {
         break;
     case 9:
         L4_S->unk35 = 8;
-        actorSetTargetSpeed(D_807FBB40, 0);
+        actorSetTargetSpeed(gCurrentActor, 0);
         actorApproachTargetSpeed(0x200);
         if (L4_D->unk155 == 0) {
-            actorScriptStart(D_807FBB40, 0x287);
+            actorScriptStart(gCurrentActor, 0x287);
             L4_D->unk155 = L4_D->unk155 + 1;
         }
         break;
@@ -557,7 +557,7 @@ void raceOpponentBehaviourUpdate(void) {
         x = L4_D->unk155;
         switch (x) {
         case 0:
-            actorSetTargetSpeed(D_807FBB40, 0);
+            actorSetTargetSpeed(gCurrentActor, 0);
             L4_S->unk35 = 8;
             L4_D->unk155 = 1;
             break;
@@ -568,7 +568,7 @@ void raceOpponentBehaviourUpdate(void) {
             break;
         case 2:
             L4_S->unk35 = 0;
-            actorScriptStart(D_807FBB40, 0x288);
+            actorScriptStart(gCurrentActor, 0x288);
             L4_D->unk155 = L4_D->unk155 + 1;
             break;
         }
@@ -630,7 +630,7 @@ void raceOpponentBehaviourUpdate(void) {
             controller->unkD0 = 0;
             if (flagGet(config->unk18.h.lo, 0) == 0) {
                 tmp = D_8002FB94[func_8002E8EC(controller, config->unk4, config->unk1C)];
-                camStartPath(D_807FBB40, tmp, 1);
+                camStartPath(gCurrentActor, tmp, 1);
                 currentActorClearFlag();
             } else {
                 func_805FF544();
@@ -702,12 +702,12 @@ void raceOpponentBehaviourUpdate(void) {
         break;
     }
     actorApplyGravity();
-    actorStepPhysics(D_807FBB40, L4_D->unkEE, L4_D->unkEE);
-    actorApplyVelocity(D_807FBB40);
-    actorUpdateFloorContactAndTilt(D_807FBB40, 0);
-    billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x96, 0x78, 0, 1.0f);
+    actorStepPhysics(gCurrentActor, L4_D->unkEE, L4_D->unkEE);
+    actorApplyVelocity(gCurrentActor);
+    actorUpdateFloorContactAndTilt(gCurrentActor, 0);
+    billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x96, 0x78, 0, 1.0f);
     if (controller->unk34 == 2) {
         func_8002F490(controller);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }

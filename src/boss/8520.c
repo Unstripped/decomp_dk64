@@ -19,9 +19,9 @@ typedef struct BossA_Struct_807FBB44 {
     s16 unk12A;
 } BossA_Struct_807FBB44;
 
-extern BossA_Struct_807FBB40 *D_807FBB40;
+extern BossA_Struct_807FBB40 *gCurrentActor;
 extern BossA_Struct_807FDC9C *D_807FDC9C;
-extern BossA_Struct_807FBB44 *D_807FBB44;
+extern BossA_Struct_807FBB44 *gSpawnedActor;
 
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -36,13 +36,13 @@ void func_8002C520(s16 actorType, s16 distance, s16 angle) {
     fArg1 = distance;
     spawnNodeSpawnById(
         actorType,
-        sinVal * fArg1 + D_807FBB40->unk7C,
+        sinVal * fArg1 + gCurrentActor->unk7C,
         D_807FDC9C->unk6,
-        func_80612790(angle) * fArg1 + D_807FBB40->unk84,
+        func_80612790(angle) * fArg1 + gCurrentActor->unk84,
         0, 0, 0
     );
-    D_807FBB44->unkC8 *= 2;
-    D_807FBB44->unk12A = 0x7D0;
+    gSpawnedActor->unkC8 *= 2;
+    gSpawnedActor->unk12A = 0x7D0;
 }
 
 typedef struct BossA_Struct_807FDC90 {
@@ -64,7 +64,7 @@ void func_8002C5F4(void) {
 
     if (!(D_807FDC90->unk1A & 0x8000)) {
         D_807FDC90->unk1A |= 0x8000;
-        camStartPath(D_807FBB44, 2, 1);
+        camStartPath(gSpawnedActor, 2, 1);
     }
 }
 
@@ -76,9 +76,9 @@ void func_8002C748(animSlot)
 u8 animSlot;
 {
     D_807FDC90->unk28 = 2;
-    animSetLoopLimit(D_807FBB40, animSlot, 1);
-    animSetFinished(D_807FBB40, animSlot, 1);
-    animSetFrameAndSubframe(D_807FBB40, animSlot, D_807FDC90->unk28 & 0xF, 0.0f);
+    animSetLoopLimit(gCurrentActor, animSlot, 1);
+    animSetFinished(gCurrentActor, animSlot, 1);
+    animSetFrameAndSubframe(gCurrentActor, animSlot, D_807FDC90->unk28 & 0xF, 0.0f);
 }
 
 void bossAnimFrameBounceStep(void) {
@@ -102,8 +102,8 @@ void bossAnimFrameBounceStep(void) {
             directionBit = 0x8000;
         }
     }
-    animSetFrameAndSubframe(D_807FBB40, 0, (s16)val, 0.0f);
-    animSetFrameAndSubframe(D_807FBB40, 1, (s16)val, 0.0f);
+    animSetFrameAndSubframe(gCurrentActor, 0, (s16)val, 0.0f);
+    animSetFrameAndSubframe(gCurrentActor, 1, (s16)val, 0.0f);
     D_807FDC90->unk28 = directionBit | val | directionFlag;
 }
 
@@ -123,7 +123,7 @@ void projectileGetTargetCoords(void *, s32);
 void projectileAimAndSpawn(s32, s16, f32, f32, f32, f32, f32, void *);
 
 void func_8002C8B4(void) {
-    projectileGetTargetCoords(D_807FBB40, 1);
+    projectileGetTargetCoords(gCurrentActor, 1);
     projectileAimAndSpawn(
         0x116,
         ((randomNonNegative() >> 15) % 3) + 1,
@@ -132,7 +132,7 @@ void func_8002C8B4(void) {
         D_807FDC94->unk80 + (f32)D_807FDC94->unk15E,
         D_807FDC94->unk84,
         300.0f,
-        D_807FBB40
+        gCurrentActor
     );
 }
 
@@ -238,7 +238,7 @@ void actorPatrolFollowerUpdate(s32, s32, s32);
 void bossAnimFrameBounceStep(void);
 void actorUpdateModelMatrix(void *, s32);
 
-#define A40 ((BossActor *)D_807FBB40)
+#define A40 ((BossActor *)gCurrentActor)
 #define DC90 ((BossWorkState *)D_807FDC90)
 #define DC94 ((BossActorPos *)D_807FDC94)
 #define DC9C ((BossConfig *)D_807FDC9C)
@@ -257,7 +257,7 @@ void func_8002C964(void) {
         A40->unk60 |= 0x400;
         A40->unk132 = 4;
         A40->unk154 = 0x1E;
-        actorSetUniformScale(D_807FBB40, 2.0 * A40->unk4->unk34);
+        actorSetUniformScale(gCurrentActor, 2.0 * A40->unk4->unk34);
         actorSpawnLinkedFollower();
     }
     if (((D_807FBD70 == 9) || (D_807FBB85 != 0)) && (A40->unk154 != 0x37)) {
@@ -265,7 +265,7 @@ void func_8002C964(void) {
             func_8067E278(0, 1);
             A40->unk154 = 0x40;
         } else {
-            camStartPath(D_807FBB40, 6, 1);
+            camStartPath(gCurrentActor, 6, 1);
             A40->unkC0 = 200.0f;
             func_8072D714(D_807FBD6C, 0x2F7);
         }
@@ -274,9 +274,9 @@ void func_8002C964(void) {
     case 0x28:
         switch (A40->unk155) {
         case 0:
-            camStartPath(D_807FBB40, 8, 1);
-            actorScriptStart(D_807FBB40, 0);
-            func_80613C48(D_807FBB40, 0x589, 0.0f, 0.0f);
+            camStartPath(gCurrentActor, 8, 1);
+            actorScriptStart(gCurrentActor, 0);
+            func_80613C48(gCurrentActor, 0x589, 0.0f, 0.0f);
             DC90->unk2C = 0;
             A40->unk155 = 1;
             A40->unk144 = 1;
@@ -288,7 +288,7 @@ void func_8002C964(void) {
             }
             A40->unk80 += 2.0f;
             A40->unkE6 += DC90->unk2C;
-            actorSetUniformScale(D_807FBB40, ((0.3 - A40->unk4->unk38) * 0.05) + A40->unk4->unk38);
+            actorSetUniformScale(gCurrentActor, ((0.3 - A40->unk4->unk38) * 0.05) + A40->unk4->unk38);
             break;
         case 2: {
             s16 v;
@@ -311,9 +311,9 @@ void func_8002C964(void) {
                 DC90->unk28 |= 0x8000;
                 A40->unk132 = 1;
                 A40->unk154 = 0x23;
-                actorSetTargetSpeed(D_807FBB40, DC9C->unkD);
+                actorSetTargetSpeed(gCurrentActor, DC9C->unkD);
                 A40->unk144 = 0x24;
-                actorScriptStart(D_807FBB40, 0x2F4);
+                actorScriptStart(gCurrentActor, 0x2F4);
             }
             break;
         }
@@ -356,10 +356,10 @@ void func_8002C964(void) {
                 DC90->unk2C = 0x96;
                 DC90->unk28 |= 0x8000;
                 A40->unk132 = 8;
-                actorScriptStart(D_807FBB40, 0x2FA);
+                actorScriptStart(gCurrentActor, 0x2FA);
             }
             if ((camIsCutsceneActive() == 0) && ((randomNonNegative() >> 15) % 1000 >= 0x3E4)) {
-                actorScriptStart(D_807FBB40, 0x2FD);
+                actorScriptStart(gCurrentActor, 0x2FD);
                 A40->unk155 = 3;
             }
             break;
@@ -368,7 +368,7 @@ void func_8002C964(void) {
                 DC90->unk2C -= 1;
             } else {
                 if (D_807FBD70 == 4) {
-                    actorScriptStart(D_807FBB40, 0x2FC);
+                    actorScriptStart(gCurrentActor, 0x2FC);
                     func_8072D9D4();
                     swayState->unk2 = 0x96;
                     swayState->unk4 = 0x800;
@@ -408,6 +408,6 @@ void func_8002C964(void) {
     if (DC90->unk28 & 0x8000) {
         bossAnimFrameBounceStep();
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

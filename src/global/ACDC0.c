@@ -65,8 +65,8 @@ extern s8 D_80750560[9];
 extern HudTextEntry *D_807FC7F0[2];
 extern s8 D_807FC7F8[2];
 extern u32 D_807FBB60;
-extern Actor *D_807FBB40;
-extern Actor *D_807FBB44;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 extern Actor *D_807FBB4C;
 extern char **D_807FC7E0;
 extern void **D_807FC7E8;
@@ -231,7 +231,7 @@ void hudPauseMenuUpdate(void) {
     s16 half;
     if (D_807505D4) {} // FAKE: dead read, splits the D_807505D4 address web
 
-    hud = D_807FBB40->unk174;
+    hud = gCurrentActor->unk174;
     i = gCurrentMap;
     switch (i) {
         case 0x6:
@@ -252,7 +252,7 @@ void hudPauseMenuUpdate(void) {
             }
             break;
     }
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         D_807FC7E0 = heapAlloc(0x6C);
         for (i = 0; i < 0x1B; i++) {
             D_807FC7E0[i] = textTableGetString(0x24, i, 0);
@@ -560,8 +560,8 @@ void hudPauseMenuUpdate(void) {
         hud->unk0 = D_80750584[D_8075052C];
         ((HudPauseCamera *)gPlayerSlots)->unk214 = D_807FC7FC + hud->unk0 * 100.0;
     }
-    renderCallbacksRegister(hudDrawDimOverlay, D_807FBB40, 1);
-    renderCallbacksRegister(hudPauseMenuRender, D_807FBB40, 5);
+    renderCallbacksRegister(hudDrawDimOverlay, gCurrentActor, 1);
+    renderCallbacksRegister(hudPauseMenuRender, gCurrentActor, 5);
 }
 
 #undef HUD_PAUSE_MODE
@@ -1815,8 +1815,8 @@ Gfx *hudDrawTextScreen(Gfx *dl, Actor *actor) {
 
 void hudSpawnTextScreen(u8 arg0) {
     actorSpawn(0x156, 0);
-    D_807FBB44->unk15F = arg0;
-    D_807FBB44->unk64 |= 2;
+    gSpawnedActor->unk15F = arg0;
+    gSpawnedActor->unk64 |= 2;
     D_807FBB60 |= 0x40001;
 }
 
@@ -1828,26 +1828,26 @@ void hudFreeTextAndDespawn(void) {
         heapFreeDeferred(D_807FC7E0[i]);
     }
     heapFreeDeferred(D_807FC7E0);
-    actorDespawn(D_807FBB40);
+    actorDespawn(gCurrentActor);
 }
 
 void hudTextScreenUpdate(void) {
     s32 i;
 
-    if (!(D_807FBB40->flags & 0x10)) {
-        D_807FBB40->unk168 = 0x1E;
-        D_807FBB40->unk128 = 0;
-        D_807FBB40->flags &= ~0x8000;
+    if (!(gCurrentActor->flags & 0x10)) {
+        gCurrentActor->unk168 = 0x1E;
+        gCurrentActor->unk128 = 0;
+        gCurrentActor->flags &= ~0x8000;
         D_807FC7E0 = heapAlloc(0xC);
         for (i = 0; i < 3; i++) {
             D_807FC7E0[i] = textTableGetString(0x24, i + 0xF, 0);
         }
     }
-    if (D_807FBB40->unk168 != 0) {
-        D_807FBB40->unk168--;
-    } else if (D_807FBB40->state == 0) {
+    if (gCurrentActor->unk168 != 0) {
+        gCurrentActor->unk168--;
+    } else if (gCurrentActor->state == 0) {
         if (D_807ECD58 & 0x8000) {
-            switch (D_807FBB40->unk15F) {
+            switch (gCurrentActor->unk15F) {
                 case 2:
                     camStartPath(0, 0x20, 1);
                     hudFreeTextAndDespawn();
@@ -1861,9 +1861,9 @@ void hudTextScreenUpdate(void) {
                     func_805FF378(gCurrentMap, 0);
                     break;
             }
-            D_807FBB40->state = 1;
+            gCurrentActor->state = 1;
         } else if (D_807ECD58 & 0x4000) {
-            switch (D_807FBB40->unk15F) {
+            switch (gCurrentActor->unk15F) {
                 case 3:
                 case 4:
                     func_80724994(3, 7, 0x3C, 0, 0);
@@ -1877,10 +1877,10 @@ void hudTextScreenUpdate(void) {
                     func_805FF898();
                     break;
             }
-            D_807FBB40->state = 1;
+            gCurrentActor->state = 1;
         }
     }
-    renderCallbacksRegister(hudDrawTextScreen, D_807FBB40, 5);
+    renderCallbacksRegister(hudDrawTextScreen, gCurrentActor, 5);
 }
 
 Gfx *hudDrawTwoOptionMenu(Gfx *dl, Actor *actor) {
@@ -1902,7 +1902,7 @@ void hudTwoOptionMenuUpdate(void) {
     s32 off;
     u16 btn;
 
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         D_807FC7E0 = heapAlloc(0x10);
         i = 0;
         do {
@@ -1912,13 +1912,13 @@ void hudTwoOptionMenuUpdate(void) {
         D_807FBB60 &= ~0x10030;
         screenWipeStart(7);
         D_807FC80E = 0;
-        D_807FBB40->unk155[0] = 0;
+        gCurrentActor->unk155[0] = 0;
     }
     i = gPausingPlayer;
     off = i * 0x2F0;
     if (((HudPlayerView *)((u8 *)gPlayerSlots + off))->unk294->unk3 >= 0x33 || ((HudPlayerView *)((u8 *)gPlayerSlots + off))->unk294->unk3 < -0x32) {
         if (!(D_807FC80E & 1)) {
-            D_807FBB40->unk155[0] = 1 - D_807FBB40->unk155[0];
+            gCurrentActor->unk155[0] = 1 - gCurrentActor->unk155[0];
             D_807FC80E |= 1;
             sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
         }
@@ -1927,18 +1927,18 @@ void hudTwoOptionMenuUpdate(void) {
     }
     btn = *((HudPlayerView *)((u8 *)gPlayerSlots + off))->unk298;
     if (btn & 0x8000) {
-        if (D_807FBB40->unk155[0] == 0) {
+        if (gCurrentActor->unk155[0] == 0) {
             D_807FBB60 |= 0x10070;
             for (i = 0; i < 4; i++) {
                 heapFreeDeferred(D_807FC7E0[i]);
             }
             heapFreeDeferred(D_807FC7E0);
-        } else if (D_807FBB40->unk155[0] == 1) {
+        } else if (gCurrentActor->unk155[0] == 1) {
             D_8076A105 = -1;
             func_80714638();
-            D_807FBB40->unk155[0] = 2;
+            gCurrentActor->unk155[0] = 2;
         }
     }
-    renderCallbacksRegister(hudDrawDimOverlay, D_807FBB40, 1);
-    renderCallbacksRegister(hudDrawTwoOptionMenu, D_807FBB40, 5);
+    renderCallbacksRegister(hudDrawDimOverlay, gCurrentActor, 1);
+    renderCallbacksRegister(hudDrawTwoOptionMenu, gCurrentActor, 5);
 }

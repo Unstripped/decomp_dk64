@@ -95,8 +95,8 @@ typedef struct RacePlayerPos {
 } RacePlayerPos;
 
 extern RaceRouteTable *D_8002FCF0;
-extern RaceActor *D_807FBB40;
-extern RaceActor *D_807FBB44;
+extern RaceActor *gCurrentActor;
+extern RaceActor *gSpawnedActor;
 extern RacePlayerPos *gPlayerSlots;
 extern u8 gPlayerCount;
 
@@ -222,18 +222,18 @@ void func_8002ED04(f32 scaleFactor, s32 kind, u8 mode) {
         case 1:
             if (mode != 0) {
                 actorSpawn(0x137, 0xB0);
-                actorScriptStart(D_807FBB44, 0x2A9);
+                actorScriptStart(gSpawnedActor, 0x2A9);
             } else {
                 actorSpawn(0x137, 0xB1);
-                actorScriptStart(D_807FBB44, 0x2AA);
+                actorScriptStart(gSpawnedActor, 0x2AA);
             }
             break;
         case 2:
             actorSpawn(0x137, mode != 0 ? 0xD8 : 0xD9);
             break;
     }
-    actorState = D_807FBB44->state;
-    raceScaleVelocity(D_807FBB44, scaleFactor);
+    actorState = gSpawnedActor->state;
+    raceScaleVelocity(gSpawnedActor, scaleFactor);
     actorState->unk0 = kind;
 }
 
@@ -251,23 +251,23 @@ void func_8002EDD4(RaceWaypoint *node) {
             for (i = 0; i < 2; i++) {
                 func_8002ED04(node->unk14, node->kind, i ^ 1);
                 j = i;
-                node->actors[j] = D_807FBB44;
-                D_807FBB44->angle = (node->angle + 0x800) & 0xFFF;
+                node->actors[j] = gSpawnedActor;
+                gSpawnedActor->angle = (node->angle + 0x800) & 0xFFF;
                 if (j != 0) {
                     xoff *= -1.0f;
                 }
-                guRotateF(mA, D_807FBB44->angle * 0.087890625f, 0.0f, 1.0f, 0.0f);
+                guRotateF(mA, gSpawnedActor->angle * 0.087890625f, 0.0f, 1.0f, 0.0f);
                 guTranslateF(mB, node->x, node->y, node->z);
                 guMtxCatF(mA, mB, mA);
-                guMtxXFMF(mA, xoff, 0.0f, 0.0f, &D_807FBB44->x, &D_807FBB44->y, &D_807FBB44->z);
+                guMtxXFMF(mA, xoff, 0.0f, 0.0f, &gSpawnedActor->x, &gSpawnedActor->y, &gSpawnedActor->z);
             }
         } else {
             func_8002ED04(node->unk14, node->kind, node->mode == 1);
-            node->actors[0] = D_807FBB44;
-            D_807FBB44->angle = (node->angle + 0x800) & 0xFFF;
-            D_807FBB44->x = node->x;
-            D_807FBB44->y = node->y;
-            D_807FBB44->z = node->z;
+            node->actors[0] = gSpawnedActor;
+            gSpawnedActor->angle = (node->angle + 0x800) & 0xFFF;
+            gSpawnedActor->x = node->x;
+            gSpawnedActor->y = node->y;
+            gSpawnedActor->z = node->z;
         }
     }
 }
@@ -321,9 +321,9 @@ u8 func_8002F0AC(RaceWaypoint *node) {
             gateZ = node->z;
             break;
     }
-    dx = D_807FBB40->prevX - D_807FBB40->x;
-    dz = D_807FBB40->prevZ - D_807FBB40->z;
-    res = raceLineIntersectParam(D_807FBB40->x, D_807FBB40->z, dx, dz, gateX, gateZ, gateDx, gateDz);
+    dx = gCurrentActor->prevX - gCurrentActor->x;
+    dz = gCurrentActor->prevZ - gCurrentActor->z;
+    res = raceLineIntersectParam(gCurrentActor->x, gCurrentActor->z, dx, dz, gateX, gateZ, gateDx, gateDz);
     switch (node->mode) {
         case 2:
             if (res > 0.0f && res < 1.0f) {
@@ -344,8 +344,8 @@ f32 func_80611BB4(f32, f32);
 s32 mathAngleDistance(s16, s16);
 
 u8 raceIsFacingWaypoint(RaceWaypoint *node) {
-    f32 diff_x = D_807FBB40->x - (f32)node->x;
-    f32 diff_z = D_807FBB40->z - (f32)node->z;
+    f32 diff_x = gCurrentActor->x - (f32)node->x;
+    f32 diff_z = gCurrentActor->z - (f32)node->z;
     s16 angle = (s32)(func_80611BB4(diff_x, diff_z) * 651.8986206f) & 0xFFF;
 
     return mathAngleDistance(angle, node->angle) < 0x400;
@@ -405,9 +405,9 @@ void func_8002F490(RaceTracker *tracker) {
         val = list->items[tracker->unk3A];
         node = raceGetWaypoint(val);
         if (node != NULL) {
-            if (((f32)node->x - D_807FBB40->x) * ((f32)node->x - D_807FBB40->x) + ((f32)node->z - D_807FBB40->z) * ((f32)node->z - D_807FBB40->z) > 900.0f) {
-                headingAngle = mathAngleBetweenPointsDeg(node->x, node->z, (s32)D_807FBB40->x, (s32)D_807FBB40->z);
-                D_807FBB40->unkEC = (s32)(headingAngle - mathAngleBetweenPointsDeg(
+            if (((f32)node->x - gCurrentActor->x) * ((f32)node->x - gCurrentActor->x) + ((f32)node->z - gCurrentActor->z) * ((f32)node->z - gCurrentActor->z) > 900.0f) {
+                headingAngle = mathAngleBetweenPointsDeg(node->x, node->z, (s32)gCurrentActor->x, (s32)gCurrentActor->z);
+                gCurrentActor->unkEC = (s32)(headingAngle - mathAngleBetweenPointsDeg(
                     (s32)gPlayerSlots[tracker->playerIdx].f228,
                     (s32)gPlayerSlots[tracker->playerIdx].f230,
                     (s32)gPlayerSlots[tracker->playerIdx].pos[tracker->playerIdx],
@@ -440,7 +440,7 @@ void func_8002F490(RaceTracker *tracker) {
                 node = raceGetWaypoint(val);
                 tracker->unk38 = raceIsFacingWaypoint(node);
             }
-            tracker->unk40 = func_8002F304(node, D_807FBB40->x, D_807FBB40->z);
+            tracker->unk40 = func_8002F304(node, gCurrentActor->x, gCurrentActor->z);
         }
     }
 }

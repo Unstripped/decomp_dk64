@@ -1,8 +1,8 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
-extern Actor *D_807FBB44;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 extern void *gActivePlayerState;
 s32 actorSpawn(s32, s32);
 
@@ -13,18 +13,18 @@ void hudSpawnCountdownTimer(s16 x, s16 y, u8 seconds) {
     actorSpawn(0xB0, 0);
     if (x & 0x8000) {
         seconds--;
-        D_807FBB44->unk15F = 0xB;
+        gSpawnedActor->unk15F = 0xB;
     } else {
-        D_807FBB44->unk15F = 6;
+        gSpawnedActor->unk15F = 6;
     }
     x &= 0x7FFF;
-    D_807FBB40->unk11C = (s32)D_807FBB44;
-    *(s32 *)((u8 *)gActivePlayerState + 0x1A8) = (s32)D_807FBB44;
-    *(s32 *)((u8 *)D_807FBB44->unk174 + 0xC) = seconds;
-    D_807FBB44->x = (f32)x;
-    D_807FBB44->y = (f32)y;
-    D_807FBB44->state = 1;
-    D_807FBB44->unk128 = 0;
+    gCurrentActor->unk11C = (s32)gSpawnedActor;
+    *(s32 *)((u8 *)gActivePlayerState + 0x1A8) = (s32)gSpawnedActor;
+    *(s32 *)((u8 *)gSpawnedActor->unk174 + 0xC) = seconds;
+    gSpawnedActor->x = (f32)x;
+    gSpawnedActor->y = (f32)y;
+    gSpawnedActor->state = 1;
+    gSpawnedActor->unk128 = 0;
 }
 
 void actorSetStateTwo(Actor *actor) {
@@ -158,22 +158,22 @@ void hudCountdownTimerUpdate(void) {
     u64 usec;
     s32 secsLeft;
 
-    timer = D_807FBB40->unk174;
-    if (!(D_807FBB40->flags & 0x10)) {
-        if (D_807FBB40->unk15F == 6) {
+    timer = gCurrentActor->unk174;
+    if (!(gCurrentActor->flags & 0x10)) {
+        if (gCurrentActor->unk15F == 6) {
             _sprintf(text, "%.2d", timer->unkC);
         } else {
             _sprintf(text, "%.2d:%.2d:00", (u32)timer->unkC / 60U, (u32)timer->unkC % 60U);
         }
-        timer->unk10 = gfxResourceCreate(D_807FBB40->unk15F == 0xB ? 6 : 3, text, D_807FBB40->unk15F, 0.0f, 0.0f, 0.0f);
+        timer->unk10 = gfxResourceCreate(gCurrentActor->unk15F == 0xB ? 6 : 3, text, gCurrentActor->unk15F, 0.0f, 0.0f, 0.0f);
     }
-    if (D_807FBB40->state == 3) {
+    if (gCurrentActor->state == 3) {
         timer->unk0 = osGetTime() - D_807FC7D0;
-        D_807FBB40->state = 2;
-        D_807FBB40->unk155[0] = 1;
+        gCurrentActor->state = 2;
+        gCurrentActor->unk155[0] = 1;
     }
     timer->unk0 += D_807445B0;
-    if (D_807FBB40->unk15F == 0xB) {
+    if (gCurrentActor->unk15F == 0xB) {
         timer->unk0 += gCamPathTimeDelta;
     }
     usec = __ull_div(__ll_mul(osGetTime() - timer->unk0, 0x40), 0xBB8);
@@ -185,25 +185,25 @@ void hudCountdownTimerUpdate(void) {
     angle = (f32)(((__ull_to_d(usec) / 10000.0) / 100.0) * 3.1415927410125732 + 1.5707963705062866);
     func_806FDAB8(timer->unk10, 0.0f);
     secsLeft = timer->unkC - timer->unk8;
-    switch (D_807FBB40->state) {
+    switch (gCurrentActor->state) {
     case 1:
-        if (D_807FBB40->unk128 < 0xFF) {
-            if (D_807FBB40->unk128 + 3 >= 0x100) {
-                D_807FBB40->unk128 = 0xFF;
+        if (gCurrentActor->unk128 < 0xFF) {
+            if (gCurrentActor->unk128 + 3 >= 0x100) {
+                gCurrentActor->unk128 = 0xFF;
             } else {
-                D_807FBB40->unk128 = D_807FBB40->unk128 + 3;
+                gCurrentActor->unk128 = gCurrentActor->unk128 + 3;
             }
         }
         func_806FDAB8(timer->unk10, 1.5707964f);
-        D_807FBB40->unk168 = 0;
+        gCurrentActor->unk168 = 0;
         break;
     case 4:
-        D_807FBB40->state = 2;
-        D_807FBB40->unk155[0] = 0xFF;
+        gCurrentActor->state = 2;
+        gCurrentActor->unk155[0] = 0xFF;
         // fallthrough
     case 2:
-        if (D_807FBB40->unk155[0] == 0) {
-            D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
+        if (gCurrentActor->unk155[0] == 0) {
+            gCurrentActor->unk155[0] = gCurrentActor->unk155[0] + 1;
             timer->unk0 = osGetTime();
             timer->unk8 = 0;
             angle = 1.5707964f;
@@ -211,13 +211,13 @@ void hudCountdownTimerUpdate(void) {
         secsLeft = timer->unkC - timer->unk8;
         if (secsLeft >= 0) {
             func_806FDAB8(timer->unk10, angle < 0.0f ? 0.0f : angle);
-            D_807FBB40->unk160 = angle < 0.0f ? 0.0f : angle;
+            gCurrentActor->unk160 = angle < 0.0f ? 0.0f : angle;
             if (nextBeepAngle <= angle) {
                 if (timer->unk8 >= timer->unkC
-                    && (D_807FBB40->unk15F == 6 || timer->unkC < timer->unk8 || D_807FC7D8 >= 0x5B)) {
-                    D_807FBB40->state = 5;
-                    D_807FBB40->unk155[0] = 0;
-                } else if (D_807FBB40->unk15F == 6) {
+                    && (gCurrentActor->unk15F == 6 || timer->unkC < timer->unk8 || D_807FC7D8 >= 0x5B)) {
+                    gCurrentActor->state = 5;
+                    gCurrentActor->unk155[0] = 0;
+                } else if (gCurrentActor->unk15F == 6) {
                     if ((s32)(nextBeepAngle / 3.1415927f) & 1) {
                         sfxPlayOnFreeSlot(0x8E, 0x58EF, 63.0f, 1.0f, 5, 0);
                     } else {
@@ -225,21 +225,21 @@ void hudCountdownTimerUpdate(void) {
                     }
                 }
                 if (secsLeft == 0xA) {
-                    D_807FBB40->state = 4;
+                    gCurrentActor->state = 4;
                 }
             }
-            if (D_807FBB40->unk15F == 6) {
+            if (gCurrentActor->unk15F == 6) {
                 _sprintf(text, "%.2d", secsLeft);
-            } else if (D_807FBB40->state != 5) {
+            } else if (gCurrentActor->state != 5) {
                 _sprintf(text, "%.2d:%.2d:%.2d", secsLeft / 60, secsLeft % 60, 0x63 - D_807FC7D8);
             } else {
                 _sprintf(text, "00:00:00");
             }
-            D_807FBB40->unk168 = strlen(text);
+            gCurrentActor->unk168 = strlen(text);
             gfxResourceSetString(timer->unk10, text);
         } else {
-            D_807FBB40->state = 5;
-            D_807FBB40->unk155[0] = 0;
+            gCurrentActor->state = 5;
+            gCurrentActor->unk155[0] = 0;
             gfxResourceSetString(timer->unk10, "00:00:00");
         }
         break;
@@ -255,7 +255,7 @@ void hudCountdownTimerUpdate(void) {
         case 0xA0:
         case 0xA1:
         case 0xA2:
-            switch (D_807FBB40->unk155[0]) {
+            switch (gCurrentActor->unk155[0]) {
             case 0:
             case 7:
             case 14:
@@ -266,7 +266,7 @@ void hudCountdownTimerUpdate(void) {
                 sfxPlayOnFreeSlot(0x3BD, 0x7FFF, 63.0f, 1.15f, 1, 0x80);
                 break;
             }
-            D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
+            gCurrentActor->unk155[0] = gCurrentActor->unk155[0] + 1;
             break;
         case 0x13:
         case 0x15:
@@ -281,19 +281,19 @@ void hudCountdownTimerUpdate(void) {
             break;
         case 0x14:
         default:
-            if (D_807FBB40->unk155[0] == 0) {
+            if (gCurrentActor->unk155[0] == 0) {
                 sfxPlayOnFreeSlot(0x1BB, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                D_807FBB40->unk155[0] = D_807FBB40->unk155[0] + 1;
+                gCurrentActor->unk155[0] = gCurrentActor->unk155[0] + 1;
             }
             break;
         }
-        D_807FBB40->unk168 = 0;
+        gCurrentActor->unk168 = 0;
         if (secsLeft <= 0 && secsLeft >= -2) {
             func_806FDAB8(timer->unk10, (f32)((((f64)((randomNonNegative() >> 15) % 180)) / 180.0) * 3.1415927410125732 + 1.5707963705062866));
         }
         break;
     }
-    renderCallbacksRegister(renderActorSpriteCallback, D_807FBB40, 7);
+    renderCallbacksRegister(renderActorSpriteCallback, gCurrentActor, 7);
 }
 
 void func_806A36F4(void) {

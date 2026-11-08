@@ -7,7 +7,7 @@ extern Mtx D_2000180;
 extern s8 D_8002D92C;
 extern s8 D_8002DEF0[];
 extern s32 gCurrentMap;
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 s32 _sprintf(char *, const char *, ...);
 Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
 Gfx *hudDrawRollingCounter(Gfx *, s32, s32, void *, s16, void *);
@@ -94,12 +94,12 @@ void func_8070D8C0(void *, s32, u8);
 void renderCallbacksRegister(void *, void *, s32);
 
 void bonusScoreHudUpdate(void) {
-    BonusEHud *hud = D_807FBB40->unk174;
+    BonusEHud *hud = gCurrentActor->unk174;
     s32 actionParam;
 
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         camStartPath(0, 0, 1);
-        D_807FBB40->state = 0;
+        gCurrentActor->state = 0;
         hud->unk4 = 0x3C;
         D_8002D92C = 0;
         D_8002D930 = 0;
@@ -110,7 +110,7 @@ void bonusScoreHudUpdate(void) {
         D_8002D924 = 0;
         D_8002D928 = 0;
     }
-    switch (D_807FBB40->state) {
+    switch (gCurrentActor->state) {
     case 0:
         if (D_807444EC == 1) {
             if (camIsPathPaused()) {
@@ -122,28 +122,28 @@ void bonusScoreHudUpdate(void) {
                     actionParam = 0x20;
                     break;
                 }
-                func_8070D8C0(D_807FBB40, 0, actionParam);
-                D_807FBB40->state = 1;
+                func_8070D8C0(gCurrentActor, 0, actionParam);
+                gCurrentActor->state = 1;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
             } else if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
                 camStartPath(D_807FBB4C, 1, 1);
-                D_807FBB40->state = 2;
+                gCurrentActor->state = 2;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
-                actorSetStateTwo((void *)D_807FBB40->unk11C);
+                actorSetStateTwo((void *)gCurrentActor->unk11C);
             }
         }
         break;
     case 1:
-        if (!(D_807FBB40->flags & 0x02000000) || ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000))) {
+        if (!(gCurrentActor->flags & 0x02000000) || ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000))) {
             camResumePath();
-            D_807FBB40->state = 2;
-            actorSetStateTwo((void *)D_807FBB40->unk11C);
+            gCurrentActor->state = 2;
+            actorSetStateTwo((void *)gCurrentActor->unk11C);
         }
         break;
     case 2:
-        if (((Actor *)D_807FBB40->unk11C)->state == 5) {
+        if (((Actor *)gCurrentActor->unk11C)->state == 5) {
             D_8002D930 = 0;
-            D_807FBB40->state = 3;
+            gCurrentActor->state = 3;
             hud->unk0 = 0x78;
         }
         switch (gCurrentMap) {
@@ -175,16 +175,16 @@ void bonusScoreHudUpdate(void) {
         }
         break;
     case 3:
-        ((Actor *)D_807FBB40->unk11C)->state = 1;
+        ((Actor *)gCurrentActor->unk11C)->state = 1;
         hud->unk0 -= 1;
         if (hud->unk0 == 0) {
             func_805FF378(0x50, 0);
-            D_807FBB40->state = 4;
+            gCurrentActor->state = 4;
         }
         break;
     }
     D_80744518 = hud->unkA;
-    renderCallbacksRegister(bonusRenderScoreHud, D_807FBB40, 3);
+    renderCallbacksRegister(bonusRenderScoreHud, gCurrentActor, 3);
 }
 
 extern s8 D_8002D910[];

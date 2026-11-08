@@ -48,7 +48,7 @@ typedef struct {
     BossE_F0D0_FDCA0_Sub *unk14;
 } BossE_F0D0_FDCA0;
 
-extern BossE_F0D0_Actor *D_807FBB40;
+extern BossE_F0D0_Actor *gCurrentActor;
 extern BossE_F0D0_Actor *D_807FBB4C;
 extern BossE_F0D0_FDCA0 *D_807FDCA0;
 void actorScriptStart(void *, s32);
@@ -90,7 +90,7 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *sub14, u8 *waypointIndices) {
         }
     }
 
-    if (D_807FBB4C->unk80 < D_807FBB40->unk80 - 10.0f) {
+    if (D_807FBB4C->unk80 < gCurrentActor->unk80 - 10.0f) {
         BossWaypointPick center = D_80035B80;
         return center.b[(randomNonNegative() >> 15) % 4];
     }
@@ -137,15 +137,15 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *sub14, u8 *waypointIndices) {
 void func_8003340C(u8 *waypointIndices) {
     s32 animId;
 
-    animId = D_807FBB40->unk4->unk64;
+    animId = gCurrentActor->unk4->unk64;
     if (animId != 0x223 && waypointIndices[3] == waypointIndices[1]) {
-        actorScriptStart(D_807FBB40, 0x223);
-        actorScriptExecute(D_807FBB40);
+        actorScriptStart(gCurrentActor, 0x223);
+        actorScriptExecute(gCurrentActor);
         return;
     }
     if (animId != 0x224 && waypointIndices[3] != waypointIndices[1]) {
-        actorScriptStart(D_807FBB40, 0x224);
-        actorScriptExecute(D_807FBB40);
+        actorScriptStart(gCurrentActor, 0x224);
+        actorScriptExecute(gCurrentActor);
     }
 }
 
@@ -157,25 +157,25 @@ void bossInterpolateWaypoints(u8 *waypointPair, f32 progress) {
     f64 val;
     f32 factor;
 
-    val = (f64)(D_807FBB40->unk4->unk0->unk4 * progress);
+    val = (f64)(gCurrentActor->unk4->unk0->unk4 * progress);
 
     factor = (f32)(1.0 + (f64)func_80612794((s16)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
 
-    D_807FBB40->unk7C = (f32)D_807FDCA0->unk14[waypointPair[1]].unk0 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk0 - D_807FDCA0->unk14[waypointPair[1]].unk0) * factor;
-    D_807FBB40->unk84 = (f32)D_807FDCA0->unk14[waypointPair[1]].unk4 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk4 - D_807FDCA0->unk14[waypointPair[1]].unk4) * factor;
+    gCurrentActor->unk7C = (f32)D_807FDCA0->unk14[waypointPair[1]].unk0 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk0 - D_807FDCA0->unk14[waypointPair[1]].unk0) * factor;
+    gCurrentActor->unk84 = (f32)D_807FDCA0->unk14[waypointPair[1]].unk4 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk4 - D_807FDCA0->unk14[waypointPair[1]].unk4) * factor;
 
-    D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, mathAngleBetweenPoints2D(D_807FDCA0->unk14[waypointPair[1]].unk0, D_807FDCA0->unk14[waypointPair[1]].unk4, D_807FDCA0->unk14[waypointPair[0]].unk0, D_807FDCA0->unk14[waypointPair[0]].unk4), 10.0f);
+    gCurrentActor->unkE6 = mathAngleEaseToward(gCurrentActor->unkE6, mathAngleBetweenPoints2D(D_807FDCA0->unk14[waypointPair[1]].unk0, D_807FDCA0->unk14[waypointPair[1]].unk4, D_807FDCA0->unk14[waypointPair[0]].unk0, D_807FDCA0->unk14[waypointPair[0]].unk4), 10.0f);
 }
 
 void func_800336C0(void) {
     f32 scale;
 
-    scale = (f32) ((f64) D_807FBB40->unk4->unk38 / 0.15);
+    scale = (f32) ((f64) gCurrentActor->unk4->unk38 / 0.15);
     func_80714998(2);
     func_8071498C(&effectPuffRiseUpdate);
     func_807149B8(1);
     func_80714950(1);
-    func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) scale, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+    func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) scale, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84);
 }
 
 void csModelStateSetFirstByte(s16, u8);
@@ -224,17 +224,17 @@ u8 stateByte;
 void projectileGetTargetCoords(void *, s32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
 void bossSpawnObjectAtWaypoint(u8 *waypointIndex) {
-    projectileGetTargetCoords(D_807FBB40, 1);
-    projectileAimAndSpawn(0x2C, 2, D_807FBB40->unk4->unk38, D_807FDCA0->unk14[waypointIndex[3]].unk0, D_807FDCA0->unk14[waypointIndex[3]].unk2, D_807FDCA0->unk14[waypointIndex[3]].unk4, 1200.0f, D_807FBB40);
+    projectileGetTargetCoords(gCurrentActor, 1);
+    projectileAimAndSpawn(0x2C, 2, gCurrentActor->unk4->unk38, D_807FDCA0->unk14[waypointIndex[3]].unk0, D_807FDCA0->unk14[waypointIndex[3]].unk2, D_807FDCA0->unk14[waypointIndex[3]].unk4, 1200.0f, gCurrentActor);
 }
 
 s32 func_800339D8(BossE_F0D0_Sub14 *sub14, u8 *scriptOpcodes) {
-    if ((D_807FBB4C->unk80 < (D_807FBB40->unk80 - 10.0f)) && (sub14->unk14 < 5)) {
+    if ((D_807FBB4C->unk80 < (gCurrentActor->unk80 - 10.0f)) && (sub14->unk14 < 5)) {
         sub14->unk15 = sub14->unk16;
-        D_807FBB40->unk154 = scriptOpcodes[sub14->unk15];
+        gCurrentActor->unk154 = scriptOpcodes[sub14->unk15];
         sub14->unk15++;
-        D_807FBB40->unk155 = 0;
-        actorScriptStart(D_807FBB40, 0);
+        gCurrentActor->unk155 = 0;
+        actorScriptStart(gCurrentActor, 0);
         return 1;
     }
     return 0;
@@ -242,13 +242,13 @@ s32 func_800339D8(BossE_F0D0_Sub14 *sub14, u8 *scriptOpcodes) {
 
 
 void func_80033A80(s8 healthDelta) {
-    D_807FBB40->unk128 += healthDelta;
-    if (D_807FBB40->unk128 < 0) {
-        D_807FBB40->unk128 = 0;
-        D_807FBB40->unk155++;
-    } else if (D_807FBB40->unk128 >= 0x100) {
-        D_807FBB40->unk128 = 0xFF;
-        D_807FBB40->unk155++;
+    gCurrentActor->unk128 += healthDelta;
+    if (gCurrentActor->unk128 < 0) {
+        gCurrentActor->unk128 = 0;
+        gCurrentActor->unk155++;
+    } else if (gCurrentActor->unk128 >= 0x100) {
+        gCurrentActor->unk128 = 0xFF;
+        gCurrentActor->unk155++;
     }
 }
 
@@ -343,7 +343,7 @@ typedef struct BossF_Pts {
     BossF_Pt *unk14;
 } BossF_Pts;
 
-#define BF ((BossF_Actor *)D_807FBB40)
+#define BF ((BossF_Actor *)gCurrentActor)
 #define BP ((BossF_Actor *)D_807FBB4C)
 #define BX ((BossF_Extra *)D_807FDC90)
 #define BPTS ((BossF_Pts *)D_807FDCA0)
@@ -436,13 +436,13 @@ void func_80033AF0(void) {
     }
     flag7F = 0;
     behaviourFrameBegin();
-    func_8067ACB4(D_807FBB40);
+    func_8067ACB4(gCurrentActor);
     if (!(BF->unk60 & 0x10)) {
         BF->unkCC = 1;
         BF->unk144 = 0x24;
         if (flagGet(0x6A, 2) != 0) {
-            actorScriptStart(D_807FBB40, 0x226);
-            camStartPath(D_807FBB40, 0x14, 1);
+            actorScriptStart(gCurrentActor, 0x226);
+            camStartPath(gCurrentActor, 0x14, 1);
             sub->unk0 = 9;
             sub->unk2 = 5;
             BF->unk154 = 0x20;
@@ -452,7 +452,7 @@ void func_80033AF0(void) {
         } else {
             BF->unk146 = 0;
             BX->unk30 = BF->unk4->unk38;
-            actorSetUniformScale(D_807FBB40, BX->unk30 * 0.333);
+            actorSetUniformScale(gCurrentActor, BX->unk30 * 0.333);
             BF->unk154 = 0x1E;
             BF->unk155 = 0;
             BF->unk80 += 650.0f;
@@ -492,7 +492,7 @@ void func_80033AF0(void) {
             BF->unk154 = 0x2B;
             BF->unk155 = 0;
         } else {
-            actorScriptStart(D_807FBB40, 0x226);
+            actorScriptStart(gCurrentActor, 0x226);
             BF->unk154 = 0x37;
             BF->unk155 = 0;
         }
@@ -540,8 +540,8 @@ void func_80033AF0(void) {
             effectSpawnBoneDebris(4, 1);
             flag7F = 1;
             actorApplyGravity();
-            actorApplyVelocityCustom(D_807FBB40, 0.0f, BF->unkC0);
-            actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
+            actorApplyVelocityCustom(gCurrentActor, 0.0f, BF->unkC0);
+            actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
             if (BF->unk110 == 1) {
                 BF->unk155++;
             }
@@ -552,19 +552,19 @@ void func_80033AF0(void) {
             }
             break;
         case 2:
-            actorScriptStart(D_807FBB40, 0x225);
-            actorScriptExecute(D_807FBB40);
+            actorScriptStart(gCurrentActor, 0x225);
+            actorScriptExecute(gCurrentActor);
             st->unk18 = 2;
             sub->unk1 = D_80035BD8[st->unk18];
             sub->unk2 = 0xFF;
             BF->unk155++;
             BF->unk6A |= 1;
         case 3:
-            scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
             BF->unk155++;
         case 4:
-            func_8067ACB4(D_807FBB40);
-            actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
+            func_8067ACB4(gCurrentActor);
+            actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
             bossInterpolateWaypoints((u8 *)sub, 0.025f);
             if (BF->unk4->unk0->unk4 >= 40.0f) {
                 BF->unk6A |= 1;
@@ -585,7 +585,7 @@ void func_80033AF0(void) {
                 sub->unk1 = D_80035BD8[left];
                 BF->unk155 = 3;
             } else {
-                actorScriptStart(D_807FBB40, 0x224);
+                actorScriptStart(gCurrentActor, 0x224);
                 BF->unk155++;
             }
             break;
@@ -593,28 +593,28 @@ void func_80033AF0(void) {
             func_8072E1A4(0xA, D_807FBB4C);
             break;
         case 7:
-            actorScriptStart(D_807FBB40, 0x222);
+            actorScriptStart(gCurrentActor, 0x222);
             BF->unk155++;
         case 8:
             if (currentActorTestClearFlag() != 0) {
                 BF->unk155++;
-                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x128, 0xFF, 0x19, 0);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x128, 0xFF, 0x19, 0);
             }
             break;
         case 9:
             if (BF->unk4->unk38 < BX->unk30) {
-                actorSetUniformScale(D_807FBB40, BF->unk4->unk38 * 1.01);
+                actorSetUniformScale(gCurrentActor, BF->unk4->unk38 * 1.01);
                 func_800336C0();
                 flag7F = 1;
             } else {
-                actorScriptStart(D_807FBB40, 0x227);
+                actorScriptStart(gCurrentActor, 0x227);
                 BF->unk155++;
             }
             break;
         case 11:
             BF->unk6A &= 0xFFFE;
             if (currentActorTestClearFlag() != 0) {
-                actorScriptStart(D_807FBB40, 0x22C);
+                actorScriptStart(gCurrentActor, 0x22C);
                 BF->unk155++;
             }
             break;
@@ -635,7 +635,7 @@ void func_80033AF0(void) {
         case 1:
         case 2:
             bossSetRandomObjectPair(sub, 0);
-            actorScriptStart(D_807FBB40, 0x226);
+            actorScriptStart(gCurrentActor, 0x226);
             BF->unk155 = 3;
             break;
         case 3:
@@ -660,11 +660,11 @@ void func_80033AF0(void) {
             BF->unk6A |= 1;
         case 1:
             BF->unk155 = 2;
-            scriptSetActorRampTarget(D_807FBB40, D_80036C40[st->unk14], 0.0f);
+            scriptSetActorRampTarget(gCurrentActor, D_80036C40[st->unk14], 0.0f);
             sub->unk6 = playerAbove;
         case 2:
-            func_8067ACB4(D_807FBB40);
-            actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
+            func_8067ACB4(gCurrentActor);
+            actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
             bossInterpolateWaypoints((u8 *)sub, BF->unk4->unk64 == 0x223 ? 0.02173913f : 0.041666664f);
             if (BF->unk4->unk64 == 0x223) {
                 v = 0x35;
@@ -709,23 +709,23 @@ void func_80033AF0(void) {
                 bossSetRandomObjectPair(sub, 0xA);
                 st->unk18 = tbl[st->unk15++] - 1;
                 st->unk19 = tbl[st->unk15++];
-                actorScriptStart(D_807FBB40, 0x229);
+                actorScriptStart(gCurrentActor, 0x229);
                 BF->unk155 = 1;
                 break;
             case 2:
                 if (BF->unk154 == 0x25) {
-                    actorScriptStart(D_807FBB40, 0x228);
+                    actorScriptStart(gCurrentActor, 0x228);
                     goto block_131;
                 }
                 if (!(BX->unk1A & 0x8000)) {
                     if (BP->unk110 == 1) {
-                        camStartPath(D_807FBB40, 0xF, 1);
+                        camStartPath(gCurrentActor, 0xF, 1);
                         BX->unk1A |= 0x8000;
                         goto block_130;
                     }
                 } else {
 block_130:
-                    actorScriptStart(D_807FBB40, 0x22F);
+                    actorScriptStart(gCurrentActor, 0x22F);
 block_131:
                     BF->unk155 = 3;
                 }
@@ -735,21 +735,21 @@ block_131:
                     effectSpawnBoneDebris(3, 1);
                     flag7F = 1;
                 } else {
-            actorGetNodePos(D_807FBB40, 1, &boneX, &boneY, &boneZ);
+            actorGetNodePos(gCurrentActor, 1, &boneX, &boneY, &boneZ);
             boneX += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
             boneY += (f32)((randomNonNegative() >> 15) % 100 + 0x32);
             boneZ += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
             func_807149B8(1);
             func_8071498C(D_8071EDEC);
-            func_80714950((s32)D_807FBB40);
+            func_80714950((s32)gCurrentActor);
             func_80714CC0(D_8071FC58, 1.5f, boneX, boneY, boneZ);
-            func_80714C08(D_80720054, 3.0f, D_807FBB40, 1, 2);
+            func_80714C08(D_80720054, 3.0f, gCurrentActor, 1, 2);
         }
                 break;
             case 4:
                 if (BF->unk154 == 0x25) {
-                    projectileGetTargetCoords(D_807FBB40, 3);
-                    projectileAimAndSpawn(0x3B, 1, 1.2f, BP->unk7C, BP->unk80 + 5.0f, BP->unk84, 900.0f, D_807FBB40);
+                    projectileGetTargetCoords(gCurrentActor, 3);
+                    projectileAimAndSpawn(0x3B, 1, 1.2f, BP->unk7C, BP->unk80 + 5.0f, BP->unk84, 900.0f, gCurrentActor);
                 } else {
                     sub->unk1 = bossPickWaypointStep((BossE_F0D0_Sub14 *)st, (u8 *)sub);
                     bossSpawnObjectAtWaypoint((u8 *)sub);
@@ -763,7 +763,7 @@ block_131:
                     BX->unk2C = st->unk19;
                     BF->unk155 = 7;
                 } else {
-                    actorScriptStart(D_807FBB40, 0x22D);
+                    actorScriptStart(gCurrentActor, 0x22D);
                     BF->unk155 = 8;
                 }
                 break;
@@ -780,7 +780,7 @@ block_131:
                 break;
             case 9:
                 bossSetRandomObjectPair(sub, 0);
-                actorScriptStart(D_807FBB40, 0x22C);
+                actorScriptStart(gCurrentActor, 0x22C);
                 BF->unk155 = 0xA;
                 break;
             case 11:
@@ -798,9 +798,9 @@ block_131:
         case 2:
             actorAppendActiveCallback8();
             bossSetRandomObjectPair(sub, 0);
-            actorScriptStart(D_807FBB40, 0x22E);
-            camStartPath(D_807FBB40, 2, 1);
-            actorSpawnAttachment(D_807FBB40, 1.2f);
+            actorScriptStart(gCurrentActor, 0x22E);
+            camStartPath(gCurrentActor, 2, 1);
+            actorSpawnAttachment(gCurrentActor, 1.2f);
             sfxPlayAtPositionPooled(BF->unk7C, BF->unk80, BF->unk84, 0x305, 0xFF, 0x7F, 0, 0, 0.0f, 0);
             BF->unk155 = 3;
             break;
@@ -816,7 +816,7 @@ block_131:
             break;
         case 6:
             if (st->unk14 < 3) {
-                actorScriptStart(D_807FBB40, 0x22C);
+                actorScriptStart(gCurrentActor, 0x22C);
             } else {
                 BF->unk155 = BF->unk155 + 1;
             }
@@ -837,7 +837,7 @@ block_131:
         switch (BF->unk155) {
         case 0:
             BF->unk60 &= 0xFFFF7FFF;
-            actorScriptStart(D_807FBB40, 0x231);
+            actorScriptStart(gCurrentActor, 0x231);
             st->unk8 = (s8)tbl[st->unk15++];
             BF->unk155++;
             break;
@@ -864,7 +864,7 @@ block_131:
     case 0x2B:
         switch (BF->unk155) {
         case 0:
-            actorScriptStart(D_807FBB40, 0x222);
+            actorScriptStart(gCurrentActor, 0x222);
             BX->unk2C = 0x5A;
             BF->unk155++;
             break;
@@ -883,7 +883,7 @@ block_131:
     case 0x37:
         switch (BF->unk155) {
         case 0:
-            camStartPath(D_807FBB40, 6, 0x81);
+            camStartPath(gCurrentActor, 6, 0x81);
             BF->unk155++;
             break;
         case 1:
@@ -934,12 +934,12 @@ block_131:
     }
     if (flag7F != 0) {
         if (BF->unk6E == -1) {
-            sfxPlayActorSound(D_807FBB40, 0x135, 0x4B, 1, 0, 0xB4, 1.0f, 0);
+            sfxPlayActorSound(gCurrentActor, 0x135, 0x4B, 1, 0, 0xB4, 1.0f, 0);
         }
     } else {
-        sfxStopSlotSound(D_807FBB40, 0);
+        sfxStopSlotSound(gCurrentActor, 0);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 #undef sub
 #undef tbl
@@ -954,25 +954,25 @@ block_131:
 void func_8003575C(void) {
     f32 dx, dz;
 
-    switch (D_807FBB40->unk155) {
+    switch (gCurrentActor->unk155) {
     case 1:
-        if (D_807FBB40->unk154 == 0) {
-            dx = D_807FBB4C->unk7C - D_807FBB40->unk7C;
-            dz = D_807FBB4C->unk84 - D_807FBB40->unk84;
+        if (gCurrentActor->unk154 == 0) {
+            dx = D_807FBB4C->unk7C - gCurrentActor->unk7C;
+            dz = D_807FBB4C->unk84 - gCurrentActor->unk84;
             if (dx * dx + dz * dz < 4225.0f) {
                 if (D_807FBB4C->unk154 != 0x31) {
-                    playerStateQueueCallback(0x2E, D_807FBB40, 0);
+                    playerStateQueueCallback(0x2E, gCurrentActor, 0);
                 }
-                D_807FBB40->unk154++;
+                gCurrentActor->unk154++;
             }
         }
         break;
     case 3:
-        actorDespawn(D_807FBB40);
+        actorDespawn(gCurrentActor);
         break;
     }
-    camStartShakeFromPoint(gCamActor, 5, 0x14, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 200.0f, 400.0f);
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    camStartShakeFromPoint(gCamActor, 5, 0x14, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 200.0f, 400.0f);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/F0D0/D_80036C10.s")

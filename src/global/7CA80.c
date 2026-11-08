@@ -42,8 +42,8 @@ extern u16 D_8074D624[];
 extern u8 D_807F94B4;
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
-extern Actor *D_807FBB40;
-extern Actor *D_807FBB44;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 extern Actor *D_807FBB48;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBE08;
@@ -216,14 +216,14 @@ s32 actorSpawnFromInfo(ActorSpawnInfo *arg0) {
     if (actorAllocate((u16)arg0->unk0)) {
         temp = D_8074D8D4[arg0->unk0];
         if (D_8074DA30[temp](&arg0->unk4)) {
-            D_807FBB44->x = arg0->unkC;
-            D_807FBB44->y = arg0->unk10;
-            D_807FBB44->z = arg0->unk14;
-            D_807FBB44->unk124 = arg0->unk1C;
-            D_807FBB44->yaw = arg0->unk18;
-            D_807FBB44->unk15C = arg0->unk1A;
+            gSpawnedActor->x = arg0->unkC;
+            gSpawnedActor->y = arg0->unk10;
+            gSpawnedActor->z = arg0->unk14;
+            gSpawnedActor->unk124 = arg0->unk1C;
+            gSpawnedActor->yaw = arg0->unk18;
+            gSpawnedActor->unk15C = arg0->unk1A;
             if (arg0->unk8 != 0) {
-                actorScriptStart(D_807FBB44, arg0->unk8);
+                actorScriptStart(gSpawnedActor, arg0->unk8);
             }
             return 1;
         }
@@ -400,7 +400,7 @@ u16 arg0;
         gActiveActors[gActiveActorCount].unk4 = 0;
         D_807FBB3E = gActiveActorCount;
         gActiveActorCount++;
-        D_807FBB44 = (Actor *)actor;
+        gSpawnedActor = (Actor *)actor;
         return 1;
     }
     return 0;
@@ -418,7 +418,7 @@ s32 actorQueueOrDespawn(Actor *arg0) {
         if (D_807FBF10 == 0x40) {
             faultSetMessage(0xC, 0, 0, 0);
         }
-        if (arg0 == D_807FBB40) {
+        if (arg0 == gCurrentActor) {
             D_807FBE08 = 1;
         }
         for (i = 0; i < D_807FBF10; i++) {
@@ -612,11 +612,11 @@ void actorUpdateActiveList(u8 arg0) {
 
     for (i = D_807FBB3C = 0; i < gActiveActorCount; i = D_807FBB3C = i + 1) {
         D_807FBE08 = 0;
-        D_807FBB40 = gActiveActors[i].actor;
-        if ((arg0 == 1 && !(D_807FBB40->flags & 0x100000)) || (arg0 == 2 && (D_807FBB40->flags & 0x100000))) {
-            actorPreTick(D_807FBB40);
-            D_8074C0A0[D_807FBB40->actorType]();
-            actorPostTick(D_807FBB40);
+        gCurrentActor = gActiveActors[i].actor;
+        if ((arg0 == 1 && !(gCurrentActor->flags & 0x100000)) || (arg0 == 2 && (gCurrentActor->flags & 0x100000))) {
+            actorPreTick(gCurrentActor);
+            D_8074C0A0[gCurrentActor->actorType]();
+            actorPostTick(gCurrentActor);
         }
         i = D_807FBB3C;
     }
@@ -630,14 +630,14 @@ void actorUpdateWhilePaused(void) {
         D_807FBFE0[j] = NULL;
     }
     for (i = D_807FBB3C = 0; i < gActiveActorCount; i = ++D_807FBB3C) {
-        D_807FBB40 = gActiveActors[i].actor;
-        if (D_807FBB40->unk64 & 2) {
-            actorPreTick(D_807FBB40);
-            D_8074C0A0[D_807FBB40->actorType]();
-            actorPostTick(D_807FBB40);
+        gCurrentActor = gActiveActors[i].actor;
+        if (gCurrentActor->unk64 & 2) {
+            actorPreTick(gCurrentActor);
+            D_8074C0A0[gCurrentActor->actorType]();
+            actorPostTick(gCurrentActor);
         }
-        if (D_807FBB40->unk4 != NULL) {
-            actorCheckWorldBounds(D_807FBB40);
+        if (gCurrentActor->unk4 != NULL) {
+            actorCheckWorldBounds(gCurrentActor);
         }
     }
     actorGlobalCallbacksDispatchAndFree(1);
@@ -2016,7 +2016,7 @@ void func_8067B2B8(s32 arg0) {
 }
 
 s32 func_8067B2C0(s32 arg0) {
-    D_807FBB44->unk144 = 1;
+    gSpawnedActor->unk144 = 1;
     return 1;
 }
 
@@ -2033,21 +2033,21 @@ typedef struct ActorInitArg {
 } ActorInitArg;
 
 s32 func_8067B2DC(ActorInitArg *arg0) {
-    if (controllerAnimInit(D_807FBB44, arg0->unk2, arg0) != 0) {
-        D_807FBB44->unk140 = actorSub140CreateFromModel(D_807FBB44);
-        D_807FBB44->unk15E = (u32)(((f64)((ActorSub140View *)D_807FBB44->unk140)->unkC * 0.15) * 0.5);
+    if (controllerAnimInit(gSpawnedActor, arg0->unk2, arg0) != 0) {
+        gSpawnedActor->unk140 = actorSub140CreateFromModel(gSpawnedActor);
+        gSpawnedActor->unk15E = (u32)(((f64)((ActorSub140View *)gSpawnedActor->unk140)->unkC * 0.15) * 0.5);
         return 1;
     }
     return 0;
 }
 
 s32 func_8067B3F4(s32 arg0) {
-    D_807FBB44->unk140 = actorSub140CreateFromModel(D_807FBB44);
+    gSpawnedActor->unk140 = actorSub140CreateFromModel(gSpawnedActor);
     return 1;
 }
 
 s32 func_8067B42C(s32 arg0) {
-    D_807FBB44->flags |= 0x2000;
+    gSpawnedActor->flags |= 0x2000;
     return 1;
 }
 

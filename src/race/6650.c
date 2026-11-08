@@ -39,7 +39,7 @@ typedef struct {
 } Struct_arg0;
 
 extern u8 gPlayerCount;
-extern Struct_sp54 *D_807FBB44;
+extern Struct_sp54 *gSpawnedActor;
 typedef struct {
     char pad[0x34];
     f32 unk34[3];
@@ -92,7 +92,7 @@ typedef struct {
     Struct_sp58 *unk178;
     Struct_sp20 *unk17C;
 } Actor_BB40;
-extern Actor_BB40 *D_807FBB40;
+extern Actor_BB40 *gCurrentActor;
 
 void behaviourFrameBegin(void);
 void func_8002DE78(void *, s32, void *, void *);
@@ -111,7 +111,7 @@ void actorUpdateModelMatrix(void *, s32);
 extern void *D_8002FC70;
 extern void *D_8002FCA0;
 extern s16 D_80750AC8;
-extern Actor_BB40 *D_807FBB40;
+extern Actor_BB40 *gCurrentActor;
 
 void playerStateQueueCallback();
 s32 sfxStopSlotSound(Actor_BB40 *, u8);
@@ -238,7 +238,7 @@ void raceInitParticipants(Struct_arg0 *raceMgr) {
     func_8002BBD0(raceMgr, numParticipants);
     for (i = 0; i < gPlayerCount; i++) {
         actorSpawn(0x142, 0x95);
-        racerActor = D_807FBB44;
+        racerActor = gSpawnedActor;
         racerState = racerActor->unk174;
         racerState->unk27 = 0;
         func_8002BC2C(raceMgr, participantIndex, racerActor, racerState);
@@ -288,43 +288,43 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
     s16 a0;
     f32 tiltScale;
 
-    onGround = D_807FBB40->unk6A & 1;
-    a1 = D_807FBB40->unkE6;
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk144 = 0x3C;
-        D_807FBB40->unk60 |= 0x10400;
-        D_807FBB40->unk154 = 0;
-        D_807FBB40->unk155 = 0;
-        D_807FBB40->unkB8 = 0.0f;
-        D_807FBB40->unkC4 = -20.0f;
-        D_807FBB40->unkC8 = -900.0f;
-        D_807FBB40->unkF8 = 0x12C;
+    onGround = gCurrentActor->unk6A & 1;
+    a1 = gCurrentActor->unkE6;
+    if (!(gCurrentActor->unk60 & 0x10)) {
+        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->unk60 |= 0x10400;
+        gCurrentActor->unk154 = 0;
+        gCurrentActor->unk155 = 0;
+        gCurrentActor->unkB8 = 0.0f;
+        gCurrentActor->unkC4 = -20.0f;
+        gCurrentActor->unkC8 = -900.0f;
+        gCurrentActor->unkF8 = 0x12C;
     }
-    velX = func_80612794(D_807FBB40->unkEE) * D_807FBB40->unkB8;
-    velZ = func_80612790(D_807FBB40->unkEE) * D_807FBB40->unkB8;
+    velX = func_80612794(gCurrentActor->unkEE) * gCurrentActor->unkB8;
+    velZ = func_80612790(gCurrentActor->unkEE) * gCurrentActor->unkB8;
     if (racerState->unk20 != 0) {
         a1 = a1 + 0x800;
         a1 = a1 & 0xFFF;
         racerState->unk4 = (f32)((f64)racerState->unk4 * 0.85);
     }
     if (onGround != 0) {
-        fv0 = (f32)((f64)(racerState->unk8 * D_807FBB40->unkB8) * 0.2);
+        fv0 = (f32)((f64)(racerState->unk8 * gCurrentActor->unkB8) * 0.2);
         if (!(fv0 > 1.0f)) {
             fv0 = 1.0f;
         }
-        forwardAccel = (f32)((f64)(racerState->unk4 * 35.0f) + ((f64)D_807FBB40->unkB8 * 0.13));
-        friction = (f32)((f64)(D_807FBB40->unkB8 * D_807FBB40->unkB8 * 0.00025f) + (27.0 + (f64)fv0));
+        forwardAccel = (f32)((f64)(racerState->unk4 * 35.0f) + ((f64)gCurrentActor->unkB8 * 0.13));
+        friction = (f32)((f64)(gCurrentActor->unkB8 * gCurrentActor->unkB8 * 0.00025f) + (27.0 + (f64)fv0));
     } else {
         forwardAccel = racerState->unk4 * 2;
-        friction = (D_807FBB40->unkB8 * D_807FBB40->unkB8 * 0.00002f) + 2;
+        friction = (gCurrentActor->unkB8 * gCurrentActor->unkB8 * 0.00002f) + 2;
     }
     velX += func_80612794(a1) * forwardAccel;
     velZ += func_80612790(a1) * forwardAccel;
-    D_807FBB40->unkB8 = sqrtf((velX * velX) + (velZ * velZ));
-    D_807FBB40->unkEE = (s16)(s32)(func_80611BB4(velX, velZ) * 651.8986f);
+    gCurrentActor->unkB8 = sqrtf((velX * velX) + (velZ * velZ));
+    gCurrentActor->unkEE = (s16)(s32)(func_80611BB4(velX, velZ) * 651.8986f);
     if (onGround != 0) {
-        pitchAngle = 0x400 - D_807FBB40->unkDE;
-        signedDist = mathAngleSignedDistance(D_807FBB40->unkDC, D_807FBB40->unkE6);
+        pitchAngle = 0x400 - gCurrentActor->unkDE;
+        signedDist = mathAngleSignedDistance(gCurrentActor->unkDC, gCurrentActor->unkE6);
         tiltScale = (f32)pitchAngle;
         targetTilt = (s16)(s32)(func_80612790(signedDist) * tiltScale);
         fv0 = func_80612794(signedDist) * tiltScale;
@@ -332,14 +332,14 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
         a3 = (s32)fv0;
         a3 = a3 & 0xFFF;
     } else {
-        v1 = mathAngleFromVector2D(D_807FBB40->unkB8, D_807FBB40->unkC0);
-        a0 = D_807FBB40->unkEE;
+        v1 = mathAngleFromVector2D(gCurrentActor->unkB8, gCurrentActor->unkC0);
+        a0 = gCurrentActor->unkEE;
         if (v1 >= 0x800) {
             v1 = 0xFFF - v1;
             a0 = a0 + 0x800;
             a0 = a0 & 0xFFF;
         }
-        yawDelta = mathAngleSignedDistance(a0, D_807FBB40->unkE6);
+        yawDelta = mathAngleSignedDistance(a0, gCurrentActor->unkE6);
         tiltScale = (f32)v1;
         targetTilt = (s16)(s32)(func_80612790(yawDelta) * tiltScale);
         a3 = (s32)(func_80612794(yawDelta) * tiltScale);
@@ -363,38 +363,38 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
             steerAmount += 2.0f * (f32)v0 * fv1;
         }
     }
-    D_807FBB40->unkE8 = mathAngleEaseToward(D_807FBB40->unkE8, targetTilt, 4.0f, a3);
-    D_807FBB40->unkE4 = mathAngleEaseToward(D_807FBB40->unkE4, (s32)a3, 4.0f, a3);
-    D_807FBB40->unkB8 = D_807FBB40->unkB8 - friction;
-    fv1 = D_807FBB40->unkB8;
+    gCurrentActor->unkE8 = mathAngleEaseToward(gCurrentActor->unkE8, targetTilt, 4.0f, a3);
+    gCurrentActor->unkE4 = mathAngleEaseToward(gCurrentActor->unkE4, (s32)a3, 4.0f, a3);
+    gCurrentActor->unkB8 = gCurrentActor->unkB8 - friction;
+    fv1 = gCurrentActor->unkB8;
     if (fv1 < 0.0f) {
-        D_807FBB40->unkB8 = 0.0f;
-        fv1 = D_807FBB40->unkB8;
+        gCurrentActor->unkB8 = 0.0f;
+        fv1 = gCurrentActor->unkB8;
     }
     if (racerState->unk20 != 0) {
         if (fv1 < 100.0f) {
-            D_807FBB40->unkB8 = fv1;
-            fv1 = D_807FBB40->unkB8;
+            gCurrentActor->unkB8 = fv1;
+            fv1 = gCurrentActor->unkB8;
         } else {
-            D_807FBB40->unkB8 = 100.0f;
-            fv1 = D_807FBB40->unkB8;
+            gCurrentActor->unkB8 = 100.0f;
+            fv1 = gCurrentActor->unkB8;
         }
     }
-    fv0 = fv1 - D_807FBB40->unkBC;
+    fv0 = fv1 - gCurrentActor->unkBC;
     if (fv0 < 0.0f) {
         fv0 = 0.0f;
     }
-    D_807FBB40->unkE6 = (s16)(s32)((f64)D_807FBB40->unkE6 + ((f64)(steerAmount * -40.0f) * (1.0 + ((f64)fv0 * 0.05))));
-    D_807FBB40->unkE6 = D_807FBB40->unkE6 & 0xFFF;
-    D_807FBB40->unkC0 = D_807FBB40->unkC0 + D_807FBB40->unkC4;
-    fv1 = D_807FBB40->unkC8;
-    if (D_807FBB40->unkC0 < fv1) {
-        D_807FBB40->unkC0 = fv1;
+    gCurrentActor->unkE6 = (s16)(s32)((f64)gCurrentActor->unkE6 + ((f64)(steerAmount * -40.0f) * (1.0 + ((f64)fv0 * 0.05))));
+    gCurrentActor->unkE6 = gCurrentActor->unkE6 & 0xFFF;
+    gCurrentActor->unkC0 = gCurrentActor->unkC0 + gCurrentActor->unkC4;
+    fv1 = gCurrentActor->unkC8;
+    if (gCurrentActor->unkC0 < fv1) {
+        gCurrentActor->unkC0 = fv1;
     }
-    a0 = D_807FBB40->unkEE;
-    actorStepPhysics(D_807FBB40, a0, a0);
-    actorApplyVelocity(D_807FBB40);
-    actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
+    a0 = gCurrentActor->unkEE;
+    actorStepPhysics(gCurrentActor, a0, a0);
+    actorApplyVelocity(gCurrentActor);
+    actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (D_807FBB64 & 0x2000) {
         func_8002F490(racerState);
     }
@@ -415,20 +415,20 @@ void func_8002AE9C(void) {
     s32 j;
     u32 flags;
 
-    actor = D_807FBB40;
+    actor = gCurrentActor;
     racerState = actor->unk174;
     j = racerState->unk28;
     colorMode = 0xB4;
     if (!(actor->unk60 & 0x10)) {
         playerStateQueueCallback(0x4D, actor, j);
-        D_807FBB40->unk144 = 0x3C;
-        actor = D_807FBB40;
+        gCurrentActor->unk144 = 0x3C;
+        actor = gCurrentActor;
         actor->unk60 &= 0xFFFDFFFF;
         for (i = 0; i < 3; i++) {
-            D_807FBB40->unk4->unk34[i] *= 0.3;
+            gCurrentActor->unk4->unk34[i] *= 0.3;
         }
         racerState->unk44 = 5;
-        actorOrNodeFlags(D_807FBB40, 2, 8);
+        actorOrNodeFlags(gCurrentActor, 2, 8);
         func_80026CA8();
     }
     switch (racerState->unk34) {
@@ -441,18 +441,18 @@ void func_8002AE9C(void) {
         case 2:
         case 3:
         case 4:
-            func_80026D2C(D_807FBB40->unkB8 * 0.0307692308f);
+            func_80026D2C(gCurrentActor->unkB8 * 0.0307692308f);
             raceUpdateRacerMotion(racerState);
             break;
         case 5:
             if (racerState->unk35 == 0) {
                 racerState->unk35++;
                 slotQueueCancel(0xB, 0);
-                actor = D_807FBB40;
+                actor = gCurrentActor;
                 actor->unk60 &= ~4;
-                D_807FBB40->unkB8 = 0.0f;
+                gCurrentActor->unkB8 = 0.0f;
                 for (i = 0; i < 2; i++) {
-                    actor = D_807FBB40;
+                    actor = gCurrentActor;
                     if (actor->unk6E[i] != -1) {
                         sfxStopSlotSound(actor, i);
                     }
@@ -460,7 +460,7 @@ void func_8002AE9C(void) {
             }
             break;
     }
-    actor = D_807FBB40;
+    actor = gCurrentActor;
     flags = actor->unk60;
     if (racerState->unk4 <= 0 || racerState->unk8 > 0) {
         colorMode = 0xF0;
@@ -468,13 +468,13 @@ void func_8002AE9C(void) {
     if (flags & 4) {
         actorSpawnNodeEffectFacingCamera(1, colorMode);
         actorSpawnNodeEffectFacingCamera(2, colorMode);
-        actor = D_807FBB40;
+        actor = gCurrentActor;
     }
     if (racerState->unk34 > 0 && racerState->unk34 < 5) {
         func_806F4D70(racerState->unk28, actor->unk7C, actor->unk80, actor->unk84, actor->unk4->unk34[1] / 0.15 * 40.0);
-        renderCallbacksRegister(func_8002AE6C, D_807FBB40, 3);
+        renderCallbacksRegister(func_8002AE6C, gCurrentActor, 3);
     }
-    actor = D_807FBB40;
+    actor = gCurrentActor;
     actorUpdateModelMatrix(actor, 0);
 }
 
@@ -501,19 +501,19 @@ void func_8002B180(Struct_sp58 *racerState, Struct_8002B180_Arg1 *aux) {
     targetSpeed = func_8002F784(routeIndex, racerState, aux->unk4);
     idx = D_807FDC98->unk20[D_807FDC90->unk25 * 2];
     waypoint = &D_807FDCA0->unk14[idx];
-    dx = (f32)waypoint->unk0 - D_807FBB40->unk7C;
-    dz = (f32)waypoint->unk4 - D_807FBB40->unk84;
+    dx = (f32)waypoint->unk0 - gCurrentActor->unk7C;
+    dz = (f32)waypoint->unk4 - gCurrentActor->unk84;
     distToWaypoint = sqrtf((dx * dx) + (dz * dz));
     waypoint = &D_807FDCA0->unk14[idx];
     if (distToWaypoint < (f32)waypoint->unk7) {
-        if (D_807FBB40->unk7C) { // FAKE: empty guard steers float regalloc
+        if (gCurrentActor->unk7C) { // FAKE: empty guard steers float regalloc
         }
         D_807FDC90->unk25++;
         D_807FDC90->unk25 = D_807FDC90->unk25 % D_807FDC9C->unk11;
     }
     waypoint = &D_807FDCA0->unk14[idx];
-    sp_angle = mathAngleDiscrete((f32)waypoint->unk0, (f32)waypoint->unk4, D_807FBB40->unk7C, D_807FBB40->unk84, distToWaypoint);
-    angleDelta = mathAngleSignedDistance((s16)sp_angle, D_807FBB40->unkE6);
+    sp_angle = mathAngleDiscrete((f32)waypoint->unk0, (f32)waypoint->unk4, gCurrentActor->unk7C, gCurrentActor->unk84, distToWaypoint);
+    angleDelta = mathAngleSignedDistance((s16)sp_angle, gCurrentActor->unkE6);
 
     sp_angle = distToWaypoint;
     steerAngle = angleDelta;
@@ -532,7 +532,7 @@ void func_8002B180(Struct_sp58 *racerState, Struct_8002B180_Arg1 *aux) {
             func_8002DE78(aux, 0, &D_8002FC70, &D_8002FCA0);
         }
         targetVel = func_8002E1C8(aux, targetSpeed, &D_8002FC70, &D_8002FCA0);
-        D_807FBB40->unkB8 = (D_807FBB40->unkB8 < 650.0f) ? D_807FBB40->unkB8 : 650.0f;
+        gCurrentActor->unkB8 = (gCurrentActor->unkB8 < 650.0f) ? gCurrentActor->unkB8 : 650.0f;
         racerState->unk4 = targetVel;
     }
 }
@@ -541,12 +541,12 @@ void func_8002B180(Struct_sp58 *racerState, Struct_8002B180_Arg1 *aux) {
 void func_8002B518(Struct_sp58 *racerState) {
     switch (racerState->unk35) {
         case 0:
-            if (D_807FBB40->unk60 & 0x2000000) {
+            if (gCurrentActor->unk60 & 0x2000000) {
                 racerState->unk35++;
             }
             break;
         case 1:
-            if (!(D_807FBB40->unk60 & 0x2000000)) {
+            if (!(gCurrentActor->unk60 & 0x2000000)) {
                 camResumePath();
                 racerState->unk35++;
             }
@@ -592,7 +592,7 @@ void func_805FF544(void);
 void func_8002B6F4(Struct_sp58 *racerState, void *aux) {
     if (racerState->unk35 == 0) {
         if (flagGet(0x145, 0) == 0) {
-            camStartPath(D_807FBB40, 1, 1);
+            camStartPath(gCurrentActor, 1, 1);
             currentActorClearFlag();
         } else {
             func_805FF544();
@@ -609,11 +609,11 @@ void func_8002B76C(Struct_sp58 *racerState, void *aux) {
         case 0:
             if (flagGet(0x145, 0) == 0) {
                 playerStateQueueCallback(0x55, 0, 0);
-                D_807FBB40->unkE4 = 0;
-                D_807FBB40->unkE8 = 0;
+                gCurrentActor->unkE4 = 0;
+                gCurrentActor->unkE8 = 0;
                 for (i = 0; i < 2; i++) {
-                    if (D_807FBB40->unk6E[i] != -1) {
-                        sfxStopSlotSound(D_807FBB40, i);
+                    if (gCurrentActor->unk6E[i] != -1) {
+                        sfxStopSlotSound(gCurrentActor, i);
                     }
                 }
             }
@@ -622,12 +622,12 @@ void func_8002B76C(Struct_sp58 *racerState, void *aux) {
         case 1:
             if (currentActorTestClearFlag()) {
                 currentActorClearFlag();
-                func_8070D8C0(D_807FBB40, 0x22, (u8)func_8002B6C8(racerState, aux));
+                func_8070D8C0(gCurrentActor, 0x22, (u8)func_8002B6C8(racerState, aux));
                 racerState->unk35++;
             }
             break;
         case 2:
-            if (!(D_807FBB40->unk60 & 0x2000000)) {
+            if (!(gCurrentActor->unk60 & 0x2000000)) {
                 camResumePath();
                 racerState->unk35++;
             }
@@ -661,27 +661,27 @@ void func_8002B964(void) {
     Struct_sp20 *aux;
     s32 i;
 
-    racerState = D_807FBB40->unk178;
-    aux = D_807FBB40->unk17C;
+    racerState = gCurrentActor->unk178;
+    aux = gCurrentActor->unk17C;
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(gCurrentActor->unk60 & 0x10)) {
         aux->unk10 = 1;
         func_8002DE78(aux, 5, &D_8002FC70, &D_8002FCA0);
-        D_807FBB40->unk144 = 0x3C;
-        D_807FBB40->unk60 &= 0xFFFDFFFE;
+        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->unk60 &= 0xFFFDFFFE;
         racerState->unk10 = 1.0f;
         for (i = 0; i < 3; i++) {
-            D_807FBB40->unk4->unk34[i] *= 0.3;
+            gCurrentActor->unk4->unk34[i] *= 0.3;
         }
         if (flagGet(0x38, 2) == 0 && flagGet(0x145, 0) == 0) {
-            camStartPath(D_807FBB40, 0, 1);
+            camStartPath(gCurrentActor, 0, 1);
             currentActorClearFlag();
             flagSet(0x38, 1, 2);
         } else {
             racerState->unk35 = 3;
         }
         D_80750AC8 = 0xA;
-        actorOrNodeFlags(D_807FBB40, 4, 8);
+        actorOrNodeFlags(gCurrentActor, 4, 8);
     }
     switch (racerState->unk34) {
         case 0:
@@ -701,10 +701,10 @@ void func_8002B964(void) {
         func_8002E644(aux);
         func_8002B180(racerState, (Struct_8002B180_Arg1 *)aux);
         raceUpdateRacerMotion(racerState);
-        func_800283D4(D_807FBB40->unkB8 * 0.0307692308f);
+        func_800283D4(gCurrentActor->unkB8 * 0.0307692308f);
     } else {
-        D_807FBB40->unkB8 = 0.0f;
+        gCurrentActor->unkB8 = 0.0f;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

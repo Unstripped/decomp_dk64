@@ -2,8 +2,8 @@
 #include "actor.h"
 
 
-extern Actor *D_807FBB40;
-extern Actor *D_807FBB44;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 extern Actor *D_807FBB48;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
@@ -75,7 +75,7 @@ typedef struct EfAParameters {
 } EfAParameters;
 
 #define EfA_P ((EfAPlayer *)gActivePlayerState)
-#define EfA_A40 ((EfAActor *)D_807FBB40)
+#define EfA_A40 ((EfAActor *)gCurrentActor)
 
 extern EfAParameters gPlayerStateCallbackParams;
 void func_80614D48(Actor *, f32, f32);
@@ -139,8 +139,8 @@ void func_806CFECC(void);
 
 void func_806EB2B8(void) {
     func_806CFECC();
-    D_807FBB40->state = 0x22;
-    D_807FBB40->unk155[0] = 0;
+    gCurrentActor->state = 0x22;
+    gCurrentActor->unk155[0] = 0;
     EfA_A40->unkC0 = 100.0f;
     EfA_P->unk50 = 0;
     EfA_P->unk2C = 100.0f;
@@ -148,7 +148,7 @@ void func_806EB2B8(void) {
         playerApproachVelocity(EfA_P->unkA, EfA_P->unk4, EfA_P->unk38);
     }
     EfA_P->unk2C = 10.0f;
-    actorScriptStart(D_807FBB40, 0x17B);
+    actorScriptStart(gCurrentActor, 0x17B);
 }
 
 void func_806EB364(void) {
@@ -156,13 +156,13 @@ void func_806EB364(void) {
         playerResumeLocomotion(D_807FBB48);
         return;
     }
-    D_807FBB40->state = 0x3D;
-    D_807FBB40->unk155[0] = 0;
+    gCurrentActor->state = 0x3D;
+    gCurrentActor->unk155[0] = 0;
     if (EfA_P->unk4E == 0x22) {
-        actorScriptStart(D_807FBB40, 0x131);
+        actorScriptStart(gCurrentActor, 0x131);
         return;
     }
-    func_80614E78(D_807FBB40, 0xD);
+    func_80614E78(gCurrentActor, 0xD);
 }
 
 #define EfA_Q ((EfAQueuedCall *)gPlayerSlots)
@@ -194,16 +194,16 @@ s32 playerCanTakeHit(Actor *arg0) {
 }
 
 void func_806EB4B4(void) {
-    D_807FBB40->state = 0x23;
-    D_807FBB40->unk155[0] = 0;
+    gCurrentActor->state = 0x23;
+    gCurrentActor->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0x3BC);
 }
 
 void func_806EB4F8(void) {
-    D_807FBB40->state = 0x5F;
-    D_807FBB40->unk155[0] = 0;
+    gCurrentActor->state = 0x5F;
+    gCurrentActor->unk155[0] = 0;
     EfA_P->unk1A3 = 0;
-    func_80614E78(D_807FBB40, 0x4A);
+    func_80614E78(gCurrentActor, 0x4A);
 }
 
 extern s32 slotQueueGetValue(s32, u8);
@@ -217,10 +217,10 @@ void func_806EB544(void) {
         selector = 3;
     }
     slotQueueUpdate(selector, 0, 0);
-    D_807FBB40->state = 0x60;
-    D_807FBB40->unk155[0] = 0;
+    gCurrentActor->state = 0x60;
+    gCurrentActor->unk155[0] = 0;
     EfA_P->unk1A3 = 0;
-    func_80614E78(D_807FBB40, 0x4B);
+    func_80614E78(gCurrentActor, 0x4B);
 }
 
 typedef struct EfN2Player {
@@ -250,7 +250,7 @@ void func_806EB5C8(void) {
     }
     EfA_A40->unk154 = 0x2A;
     EfA_A40->unk155 = 0;
-    func_80614E78(D_807FBB40, 0x43);
+    func_80614E78(gCurrentActor, 0x43);
     ((EfN2Player *)gActivePlayerState)->unk64 = 0;
     ((EfN2Player *)gActivePlayerState)->unkC8 = 0x32;
 }
@@ -258,10 +258,10 @@ void func_806EB5C8(void) {
 void func_806EB6D8(void) {
     EfA_P->unk4C = -1;
     EfA_P->unk38 = 170.0f;
-    D_807FBB40->state = 0x3F;
-    D_807FBB40->unk155[0] = 0;
+    gCurrentActor->state = 0x3F;
+    gCurrentActor->unk155[0] = 0;
     EfA_P->unk4E = 0;
-    actorScriptStart(D_807FBB40, 0x14F);
+    actorScriptStart(gCurrentActor, 0x14F);
 }
 
 typedef struct EfN2SubActor {
@@ -372,9 +372,9 @@ void func_806EBA74(void) {
 }
 
 void func_806EBAF4(void) {
-    D_807FBB40->state = 0x4F;
-    D_807FBB40->unk155[0] = 2;
-    func_80614E78(D_807FBB40, 0x34);
+    gCurrentActor->state = 0x4F;
+    gCurrentActor->unk155[0] = 2;
+    func_80614E78(gCurrentActor, 0x34);
     EfA_P->unk50 = 0;
 }
 
@@ -526,8 +526,8 @@ void func_806EBFD0(void) {
 }
 
 void func_806EC014(void) {
-    playerDropHeldActor(D_807FBB40);
-    playerResumeLocomotion(D_807FBB40);
+    playerDropHeldActor(gCurrentActor);
+    playerResumeLocomotion(gCurrentActor);
 }
 
 typedef struct EfN2ModelSlot {
@@ -560,7 +560,7 @@ void func_806EC044(void) {
     f32 speed;
 
     speed = 1.0f;
-    func_806F0C18(D_807FBB40);
+    func_806F0C18(gCurrentActor);
     D_807FBB48->state = 0x6C;
     D_807FBB48->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0x3B);
@@ -613,16 +613,16 @@ void func_806EC2CC(void) {
 
 void func_806EC3BC(void) {
     ((EfN2PlayerState *)gActivePlayerState)->unk12 = D_807539EC[D_807FD584];
-    ((EfN2PlayerState *)gActivePlayerState)->unk14 = D_807FBB40->yaw;
+    ((EfN2PlayerState *)gActivePlayerState)->unk14 = gCurrentActor->yaw;
     ((EfN2PlayerState *)gActivePlayerState)->unk10 = D_807539DC[D_807FD584];
-    D_807FBB40->state = 0x4F;
-    D_807FBB40->unk155[0] = 1;
-    if (D_807FBB40->speedY > 0.0f) {
-        D_807FBB40->speedY = 0.0f;
+    gCurrentActor->state = 0x4F;
+    gCurrentActor->unk155[0] = 1;
+    if (gCurrentActor->speedY > 0.0f) {
+        gCurrentActor->speedY = 0.0f;
     }
-    func_80614E78(D_807FBB40, 0x36);
-    controllerAnimSetStateRemap(D_807FBB40, 0x31, 0.0f, 8.0f);
-    scriptSetActorRampTarget(D_807FBB40, 0.5f, 0.0f);
+    func_80614E78(gCurrentActor, 0x36);
+    controllerAnimSetStateRemap(gCurrentActor, 0x31, 0.0f, 8.0f);
+    scriptSetActorRampTarget(gCurrentActor, 0.5f, 0.0f);
 }
 
 typedef struct EfN3PlayerState {
@@ -681,7 +681,7 @@ typedef struct EfN3Camera {
 } EfN3Camera;
 
 #define EFN3_P ((EfN3PlayerState *)gActivePlayerState)
-#define EFN3_A40 ((EfN3Actor *)D_807FBB40)
+#define EFN3_A40 ((EfN3Actor *)gCurrentActor)
 #define EFN3_A48 ((EfN3Actor *)D_807FBB48)
 #define EFN3_C ((EfN3Camera *)gPlayerSlots)
 
@@ -760,7 +760,7 @@ void func_806EC4AC(void) {
     }
     EFN3_A48->unk154 = 0x4E;
     EFN3_A48->unk155 = 0;
-    func_80614E78(D_807FBB40, 0x35);
+    func_80614E78(gCurrentActor, 0x35);
     EFN3_P->unk48 = D_807539FC[D_807FD584];
 }
 
@@ -774,7 +774,7 @@ void func_806EC708(void) {
     EFN3_P->unk2C = D_80753924[D_807FD584];
     EFN3_P->unk30 = D_80753940[D_807FD584];
     func_80614E78(D_807FBB48, 0x3E);
-    scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
+    scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
     EFN3_P->unk58 = D_80767CC0 - 0x1E;
 }
 
@@ -847,9 +847,9 @@ void func_806EC994(void) {
 }
 
 void func_806ECA74(void) {
-    ((EfBActor *)D_807FBB40)->unk154 = 0x24;
-    ((EfBActor *)D_807FBB40)->unk155 = 0;
-    actorScriptStart(D_807FBB40, 0x1B2);
+    ((EfBActor *)gCurrentActor)->unk154 = 0x24;
+    ((EfBActor *)gCurrentActor)->unk155 = 0;
+    actorScriptStart(gCurrentActor, 0x1B2);
     EFB_P->unkC8 = 0x32;
 }
 
@@ -950,8 +950,8 @@ void func_806ECCDC(void) {
     void *callback;
 
     callback = EfN4PS->unk104->unk174;
-    D_807FBB40->state = 0x17;
-    D_807FBB40->unk155[0] = 0;
+    gCurrentActor->state = 0x17;
+    gCurrentActor->unk155[0] = 0;
     if (D_807FBB68 & 2) {
         EfN4PS->unk54 = D_807535CC[D_807FD584] * 1.3;
     } else {
@@ -960,7 +960,7 @@ void func_806ECCDC(void) {
     D_807FBB48->speedXZ = EfN4PS->unk124;
     EfN4PS->unk50 = 0;
     EfN4PS->unk3C = 0xA;
-    func_80614E78(D_807FBB40, 0x10);
+    func_80614E78(gCurrentActor, 0x10);
     camStartBlendRamp(callback, 0x14);
 }
 
@@ -1041,10 +1041,10 @@ void func_806ECF9C(void) {
 }
 
 void func_806ED050(void) {
-    if ((D_807FBB40->state != 2) && (gPlayerCharacterId[gCurrentPlayerIndex] == 6)) {
-        D_807FBB40->state = 0x29;
-        D_807FBB40->unk155[0] = 0;
-        func_80614E78(D_807FBB40, 0x3F);
+    if ((gCurrentActor->state != 2) && (gPlayerCharacterId[gCurrentPlayerIndex] == 6)) {
+        gCurrentActor->state = 0x29;
+        gCurrentActor->unk155[0] = 0;
+        func_80614E78(gCurrentActor, 0x3F);
         EfN4PS->unk64 = 0;
         EfN4PS->unk68 = D_8075380C[D_807FD584];
     }
@@ -1057,9 +1057,9 @@ void func_806ED0FC(void) {
     func_806CA2AC();
     playerThrowHeldActor(D_807FBB48);
     EfN4PS->unk8C = 0;
-    func_806F0C18(D_807FBB40);
-    sfxStopSlotSound(D_807FBB40, 0);
-    sfxStopSlotSound(D_807FBB40, 1);
+    func_806F0C18(gCurrentActor);
+    sfxStopSlotSound(gCurrentActor, 0);
+    sfxStopSlotSound(gCurrentActor, 1);
     func_80614E78(D_807FBB48, 0x21);
     target = EfN4CamBlocks[gCurrentPlayerIndex].unk2A0;
     if (target != NULL) {
@@ -1069,7 +1069,7 @@ void func_806ED0FC(void) {
         EfN4PS->unkBC = 0;
         EfN4PS->unkBE = -1;
     }
-    if (D_807FBB40->unk6A & 4) {
+    if (gCurrentActor->unk6A & 4) {
         D_807FBB48->state = 0x43;
         D_807FBB48->unk155[0] = 0;
         return;
@@ -1273,7 +1273,7 @@ typedef struct EfL1Global568 {
 #define EfL1PS ((EfL1PlayerState *)gActivePlayerState)
 #define EfL1Cam ((EfL1CamBlock *)gPlayerSlots)
 #define EfL1G568 ((EfL1Global568 *)D_807FD568)
-#define EfL1A40 ((EfL1Actor *)D_807FBB40)
+#define EfL1A40 ((EfL1Actor *)gCurrentActor)
 #define EfL1A48 ((EfL1Actor *)D_807FBB48)
 
 extern void *D_807FD568;
@@ -1339,7 +1339,7 @@ void func_806ED6B0(void) {
         case 0x88:
         case 0x89:
             func_806C8D20(D_807FBB48);
-            playerEnterFall(D_807FBB40);
+            playerEnterFall(gCurrentActor);
             playerSetBaseGravity();
             break;
         case 0x19:
@@ -1363,7 +1363,7 @@ void func_806ED6B0(void) {
             EfL1A48->unk60 &= 0xFFFF7FFF;
             EfL1A48->unk128 = 0x7F;
             effectSpawnActorOrbitParticles(D_807FBB48);
-            playerEnterFall(D_807FBB40);
+            playerEnterFall(gCurrentActor);
             playerSetBaseGravity();
             break;
         case 0x38:
@@ -1427,7 +1427,7 @@ void func_806ED6B0(void) {
             func_806F0D68(D_807FBB48);
         }
     } else {
-        func_806F0C18(D_807FBB40);
+        func_806F0C18(gCurrentActor);
     }
     if (EfL1Cam[gCurrentPlayerIndex].unk2A0 != NULL) {
         func_806ED5C0((Actor *)EfL1Cam[gCurrentPlayerIndex].unk2A0);
@@ -1441,9 +1441,9 @@ void func_806ED6B0(void) {
         if (EfL1A40->unkC0 > 0.0f) {
             EfL1A40->unkC0 = 0.0f;
         }
-        func_80614E78(D_807FBB40, 0x36);
-        controllerAnimSetStateRemap(D_807FBB40, 0x31, 0.0f, 8.0f);
-        scriptSetActorRampTarget(D_807FBB40, 0.5f, 0.0f);
+        func_80614E78(gCurrentActor, 0x36);
+        controllerAnimSetStateRemap(gCurrentActor, 0x31, 0.0f, 8.0f);
+        scriptSetActorRampTarget(gCurrentActor, 0.5f, 0.0f);
     }
 }
 
@@ -1534,13 +1534,13 @@ void func_806EE1C4(void) {
     s32 value = ((EfCPlayer1AC *)gActivePlayerState)->unk1AC;
 
     if (value != 0) {
-        func_8067A784(D_807FBB40, value, D_807FBB48->yaw,
-                      ((EfCActorC0S32 *)D_807FBB40)->unkC0, (s32)D_807FBB40->speedXZ);
+        func_8067A784(gCurrentActor, value, D_807FBB48->yaw,
+                      ((EfCActorC0S32 *)gCurrentActor)->unkC0, (s32)gCurrentActor->speedXZ);
         ((EfCPlayer1AC *)gActivePlayerState)->unk1AC = 0;
         ((EfCPlayer1AC *)gActivePlayerState)->unk1B0 = 0;
     }
     func_806CA2AC();
-    func_80614E78(D_807FBB40, 0x1C);
+    func_80614E78(gCurrentActor, 0x1C);
     D_807FBB48->state = 0x20;
     D_807FBB48->unk155[0] = 0;
 }
@@ -1548,7 +1548,7 @@ void func_806EE1C4(void) {
 
 void func_806EE26C(void) {
     func_806CA2AC();
-    func_80614E78(D_807FBB40, 0x1C);
+    func_80614E78(gCurrentActor, 0x1C);
     D_807FBB48->state = 0x21;
     D_807FBB48->unk155[0] = 0;
 }
@@ -1581,10 +1581,10 @@ void func_806EE2B8(void) {
             D_807FBB48->state = 0x36;
             D_807FBB48->unk155[0] = 0;
         } else {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0);
-            func_80614E78(D_807FBB40, 0x1E);
-            D_807FBB40->state = 0x20;
-            D_807FBB40->unk155[0] = 1;
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16, 0xFF, 0x7F, 0);
+            func_80614E78(gCurrentActor, 0x1E);
+            gCurrentActor->state = 0x20;
+            gCurrentActor->unk155[0] = 1;
         }
     }
     if ((((EfCPlayerD4 *)gActivePlayerState)->unkD4 == 0) && (gPlayerCount < 2)) {
@@ -1609,10 +1609,10 @@ void playerTakeFallDamage(void) {
         D_807FBB48->state = 0x36;
         D_807FBB48->unk155[0] = 0;
     } else {
-        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0);
-        func_80614E78(D_807FBB40, 0x1E);
-        D_807FBB40->state = 0x20;
-        D_807FBB40->unk155[0] = 1;
+        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16, 0xFF, 0x7F, 0);
+        func_80614E78(gCurrentActor, 0x1E);
+        gCurrentActor->state = 0x20;
+        gCurrentActor->unk155[0] = 1;
     }
     if ((((EfCPlayerD4 *)gActivePlayerState)->unkD4 == 0) && (gPlayerCount < 2)) {
         ((EfCPlayerD4 *)gActivePlayerState)->unkD4 = D_807530B0[D_807FD584];
@@ -1635,8 +1635,8 @@ extern void sfxStopChannel(s32, s32);
 void func_806EE5A4(void) {
     func_806CA2AC();
     sfxStopChannel(0x6B, 0);
-    D_807FBB40->unk168 = ((EfDE5Player *)gPlayerSlots)[gCurrentPlayerIndex].unk2A8;
-    func_80614E78(D_807FBB40, 0x1D);
+    gCurrentActor->unk168 = ((EfDE5Player *)gPlayerSlots)[gCurrentPlayerIndex].unk2A8;
+    func_80614E78(gCurrentActor, 0x1D);
     D_807FBB48->state = 0x6F;
     D_807FBB48->unk155[0] = 0;
 }
@@ -1646,7 +1646,7 @@ extern void playerEnterFall(Actor *);
 
 void func_806EE634(void) {
     playerSetBaseGravity();
-    playerEnterFall(D_807FBB40);
+    playerEnterFall(gCurrentActor);
 }
 
 extern void playerThrowHeldActor(Actor *);
@@ -1759,15 +1759,15 @@ extern void actorScriptStart(Actor *, s32);
 extern void scriptSetActorRampTarget(Actor *, f32, f32);
 
 void func_806EE994(void) {
-    if (playerCanTakeHit(D_807FBB40) != 0) {
+    if (playerCanTakeHit(gCurrentActor) != 0) {
         EfDStateDc->unkDC = EfDPlayer[gCurrentPlayerIndex].unk2A0;
-        D_807FBB40->unk144 = 1;
-        D_807FBB40->state = 0x34;
-        D_807FBB40->unk155[0] = 0;
-        actorScriptStart(D_807FBB40, 0);
+        gCurrentActor->unk144 = 1;
+        gCurrentActor->state = 0x34;
+        gCurrentActor->unk155[0] = 0;
+        actorScriptStart(gCurrentActor, 0);
         func_806C9974(gCurrentPlayerIndex, -0x40);
         playerSetBaseGravity();
-        scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
+        scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
     }
 }
 
@@ -1846,7 +1846,7 @@ void playerTakeDamage(s16 arg0) {
 
     sp33 = 0;
     if (D_807FBB48->unk6A & 4) {
-        temp_fv1 = D_807FBB40->unkAC - D_807FBB40->unkA4;
+        temp_fv1 = gCurrentActor->unkAC - gCurrentActor->unkA4;
         if (EfL2Player[gCurrentPlayerIndex].unk2C0 == 1) {
             var_fv0 = D_8075386C[D_807FD584];
         } else {
@@ -1928,8 +1928,8 @@ void playerTakeDamage(s16 arg0) {
                         } else {
                             D_807FBB48->state = 0x34;
                             D_807FBB48->unk155[0] = 0;
-                            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0);
-                            func_80614E78(D_807FBB40, 0x1E);
+                            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16, 0xFF, 0x7F, 0);
+                            func_80614E78(gCurrentActor, 0x1E);
                         }
                         break;
                     case 0x2B:
@@ -2107,8 +2107,8 @@ void func_806EFA08(void) {
 }
 
 void func_806EFA1C(void) {
-    D_807FBB40->state = 0x6A;
-    D_807FBB40->unk155[0] = 0;
+    gCurrentActor->state = 0x6A;
+    gCurrentActor->unk155[0] = 0;
 }
 
 typedef struct EfN7SpawnParams {
@@ -2129,12 +2129,12 @@ void func_806EFA3C(void) {
     if (D_807FBB48->actorType == 2) {
         height *= 1.25;
     }
-    actorCopyPoseAndScale(D_807FBB44, D_807FBB48, height);
-    actorScriptStart(D_807FBB44, ((u16 *)&spawnParams)[gPlayerCharacterId[((u8 *)gActivePlayerState)[0x1A4]]]);
-    D_807FBB44->flags |= 0x40000000;
+    actorCopyPoseAndScale(gSpawnedActor, D_807FBB48, height);
+    actorScriptStart(gSpawnedActor, ((u16 *)&spawnParams)[gPlayerCharacterId[((u8 *)gActivePlayerState)[0x1A4]]]);
+    gSpawnedActor->flags |= 0x40000000;
     func_80614E78(D_807FBB48, 0x88);
-    D_807FBB40->state = 0x79;
-    D_807FBB40->unk155[0] = 0;
+    gCurrentActor->state = 0x79;
+    gCurrentActor->unk155[0] = 0;
 }
 
 
@@ -2306,9 +2306,9 @@ void func_806F0074(void) {
 
 
 void func_806F007C(void) {
-    D_807FBB40->state = 0x84;
-    D_807FBB40->unk155[0] = 0;
-    actorScriptStart(D_807FBB40, 0);
+    gCurrentActor->state = 0x84;
+    gCurrentActor->unk155[0] = 0;
+    actorScriptStart(gCurrentActor, 0);
 }
 
 
@@ -2364,7 +2364,7 @@ void func_806F027C(void) {
         D_807FBB48->unk155[0] = 0;
         actorScriptStart(D_807FBB48, 0x13);
         actorSpawn(0x117, 0xC5);
-        D_807FBB44->unk11C = (s32)D_807FBB48;
+        gSpawnedActor->unk11C = (s32)D_807FBB48;
         func_806C8D20(D_807FBB48);
     }
 }
@@ -2376,8 +2376,8 @@ void func_806F0344(void) {
     D_807FBB48->unk155[0] = 0;
     D_807FBB48->flags &= ~4;
     actorSpawn(0x11A, 0x21);
-    actorScriptStart(D_807FBB44, 0x232);
-    D_807FBB44->unk11C = (s32)D_807FBB48;
+    actorScriptStart(gSpawnedActor, 0x232);
+    gSpawnedActor->unk11C = (s32)D_807FBB48;
 }
 
 void func_806F03C4(void) {

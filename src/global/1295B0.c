@@ -1,8 +1,8 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
-extern Actor *D_807FBB44;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern void *gPlayerSlots;
@@ -46,8 +46,8 @@ s32 func_80724A20(void) {
         do {
             if (D_807FBB70.unk258[i] == 3) {
                 found = 1;
-                D_807FBB40->state = D_807FBB70.unk278[i][1];
-                D_807FBB40->unk155[0] = 0;
+                gCurrentActor->state = D_807FBB70.unk278[i][1];
+                gCurrentActor->unk155[0] = 0;
             }
             i++;
         } while (found == 0 && i < D_807FBB70.unk254);
@@ -134,7 +134,7 @@ typedef struct A1View {
 } A1View;
 
 extern A1View *D_807FBD6C;
-#define A1ACT ((A1View *)D_807FBB40)
+#define A1ACT ((A1View *)gCurrentActor)
 
 void func_80724C2C(s16 arg0) {
     s16 angle;
@@ -168,7 +168,7 @@ typedef struct A1Entry10 {
     /* 0xC */ f32 unkC;
 } A1Entry10;
 
-#define A1SUB4 ((A1Sub4 *)D_807FBB40->unk4)
+#define A1SUB4 ((A1Sub4 *)gCurrentActor->unk4)
 
 void func_80724CA4(s16 arg0, s16 arg1) {
     u8 *table;
@@ -282,8 +282,8 @@ void func_80724E48(u8 arg0) {
         sp30 = A1CAM(D_807FBB4C);
         sp28 = 1.0431069f;
     } else {
-        sp34 = D_807FBB40->yaw * 3.1415927f * (1.0 / 2048.0);
-        sp30 = A1CAM(D_807FBB40);
+        sp34 = gCurrentActor->yaw * 3.1415927f * (1.0 / 2048.0);
+        sp30 = A1CAM(gCurrentActor);
         pitchArg = ((A1Tbl18 *)D_8075EB80)[A1DC98->unk44].unkD;
         sp28 = ((A1Tbl18 *)D_8075EB80)[A1DC98->unk44].unkC * 4 * 3.1415927f * (1.0 / 2048.0);
         if (pitchArg == 0xFF) {
@@ -297,28 +297,28 @@ void func_80724E48(u8 arg0) {
         }
         switch (arg0) {
             case 8:
-                sp38 = mathCalculatePitchAngle(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, D_807FBB4C->x, D_807FBB4C->y, D_807FBB4C->z, pitchArg);
-                angle = mathAngleBetweenPointsRad(D_807FBB40->x, D_807FBB40->z, D_807FBB4C->x, D_807FBB4C->z) - sp34;
+                sp38 = mathCalculatePitchAngle(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, D_807FBB4C->x, D_807FBB4C->y, D_807FBB4C->z, pitchArg);
+                angle = mathAngleBetweenPointsRad(gCurrentActor->x, gCurrentActor->z, D_807FBB4C->x, D_807FBB4C->z) - sp34;
                 break;
             case 7:
-                sp38 = mathCalculatePitchAngle(D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, pitchArg);
-                angle = mathAngleBetweenPointsRad(D_807FDC94->x, D_807FDC94->z, D_807FBB40->x, D_807FBB40->z) - sp34;
+                sp38 = mathCalculatePitchAngle(D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, pitchArg);
+                angle = mathAngleBetweenPointsRad(D_807FDC94->x, D_807FDC94->z, gCurrentActor->x, gCurrentActor->z) - sp34;
                 break;
             case 6:
-                sp38 = mathCalculatePitchAngle(A1PLR->unk210, A1PLR->unk214, A1PLR->unk218, D_807FBB40->x, D_807FBB40->y + (u32)D_807FBB40->unk15E, D_807FBB40->z, pitchArg);
-                angle = mathAngleBetweenPointsRad(A1PLR->unk210, A1PLR->unk218, D_807FBB40->x, D_807FBB40->z) - sp34;
+                sp38 = mathCalculatePitchAngle(A1PLR->unk210, A1PLR->unk214, A1PLR->unk218, gCurrentActor->x, gCurrentActor->y + (u32)gCurrentActor->unk15E, gCurrentActor->z, pitchArg);
+                angle = mathAngleBetweenPointsRad(A1PLR->unk210, A1PLR->unk218, gCurrentActor->x, gCurrentActor->z) - sp34;
                 break;
             case 0:
-                sp38 = mathCalculatePitchAngle(A1PLR->unk2B4, A1PLR->unk2B8, A1PLR->unk2BC, D_807FBB40->x, D_807FBB40->y + (u32)D_807FBB40->unk15E, D_807FBB40->z, pitchArg);
+                sp38 = mathCalculatePitchAngle(A1PLR->unk2B4, A1PLR->unk2B8, A1PLR->unk2BC, gCurrentActor->x, gCurrentActor->y + (u32)gCurrentActor->unk15E, gCurrentActor->z, pitchArg);
             case 1:
-                angle = mathAngleBetweenPointsRad(A1PLR->unk2B4, A1PLR->unk2BC, D_807FBB40->x, D_807FBB40->z) - sp34;
+                angle = mathAngleBetweenPointsRad(A1PLR->unk2B4, A1PLR->unk2BC, gCurrentActor->x, gCurrentActor->z) - sp34;
                 break;
             case 2:
                 angle = A1DC90->unk24 * 2 * 0.017453292f;
                 break;
             case 3:
-                sp38 = mathCalculatePitchAngle(A1DC90->unkA, A1DC90->unkC, A1DC90->unkE, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, pitchArg);
-                angle = mathAngleBetweenPointsRad(A1DC90->unkA, A1DC90->unkE, D_807FBB40->x, D_807FBB40->z) - sp34;
+                sp38 = mathCalculatePitchAngle(A1DC90->unkA, A1DC90->unkC, A1DC90->unkE, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, pitchArg);
+                angle = mathAngleBetweenPointsRad(A1DC90->unkA, A1DC90->unkE, gCurrentActor->x, gCurrentActor->z) - sp34;
                 break;
         }
         if (angle < 0.0f) {
@@ -557,7 +557,7 @@ typedef struct SpawnNodeList {
     /* 0x4 */ SpawnNode *nodes;
 } SpawnNodeList;
 
-#define C1ACT44 ((C1ActorView *)D_807FBB44)
+#define C1ACT44 ((C1ActorView *)gSpawnedActor)
 
 extern SpawnNodeList *D_80755694;
 s32 actorSpawn(s32, s32);
@@ -1071,8 +1071,8 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
         }
     }
     if (type == 5) {
-        ((A4Act *)D_807FBB40)->unk6A |= 4;
-        ((A4Act *)D_807FBB40)->unk6C |= 4;
+        ((A4Act *)gCurrentActor)->unk6A |= 4;
+        ((A4Act *)gCurrentActor)->unk6C |= 4;
     }
 }
 #undef A4ENTRY
@@ -1208,7 +1208,7 @@ Actor *spawnNodeSpawnById(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 
             entry = &D_8075EB80[node->unk44];
             if (actorSpawn(entry->unk0, entry->unk2) != 0) {
                 node->unk46 |= 4;
-                spawnNodeInitActorFromEntry(D_807FBB44, node);
+                spawnNodeInitActorFromEntry(gSpawnedActor, node);
                 if (arg1 != 0) {
                     C1ACT44->unk7C = arg1;
                     C1ACT44->unk80 = arg2;
@@ -1219,7 +1219,7 @@ Actor *spawnNodeSpawnById(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 
                 C1ACT44->unkB8 = arg5;
                 C1ACT44->unkC0 = arg6;
                 C1ACT44->unk6A = 0;
-                return D_807FBB44;
+                return gSpawnedActor;
             }
         }
     }
@@ -1303,11 +1303,11 @@ void func_80727678(void) {
                 switch (D_807FBB70.unk258[j]) {
                     case 1:
                         if ((node->unk42 == 0) && (spawnFlagConditionMet(((s16 *)&gCurrentMap)[1], node->unk13) != 0) && (entry = &D_8075EB80[node->unk44], actorSpawn(entry->unk0, entry->unk2) != 0)) {
-                            spawnNodeInitActorFromEntry(D_807FBB44, node);
+                            spawnNodeInitActorFromEntry(gSpawnedActor, node);
                         } else if ((node->unk42 == 3) && (spawnFlagConditionMet(((s16 *)&gCurrentMap)[1], node->unk13) != 0)) {
                             entry = &D_8075EB80[node->unk44];
                             if (actorSpawn(entry->unk0, entry->unk2) != 0) {
-                                spawnNodeInitActorFromEntry(D_807FBB44, node);
+                                spawnNodeInitActorFromEntry(gSpawnedActor, node);
                                 C1ACT44->unk154 = 0x36;
                             }
                         }
@@ -1320,7 +1320,7 @@ void func_80727678(void) {
                     case 3:
                     case 4:
                         if (node->unk42 == 5) {
-                            func_8067AB20(D_807FBB40, node->unk18, 0x01000000, D_807FBB70.unk258[j] & 0xFF, ptr, 0);
+                            func_8067AB20(gCurrentActor, node->unk18, 0x01000000, D_807FBB70.unk258[j] & 0xFF, ptr, 0);
                         }
                         break;
                 }
@@ -1376,7 +1376,7 @@ typedef struct C1PlayerView {
 
 #define C1S90 ((C1State90 *)D_807FDC90)
 #define C1PLAYERS ((C1PlayerView *)gPlayerSlots)
-#define C1ACT40 ((C1ActorView *)D_807FBB40)
+#define C1ACT40 ((C1ActorView *)gCurrentActor)
 
 extern s16 D_8076A0AA;
 extern s32 D_807FBB64;
@@ -1437,7 +1437,7 @@ void spawnNodesUpdate(void) {
                     spawnNodeSelectEntry(node);
                     entry = &D_8075EB80[node->unk44];
                     if (actorSpawn(entry->unk0, entry->unk2) != 0) {
-                        spawnNodeInitActorFromEntry(D_807FBB44, node);
+                        spawnNodeInitActorFromEntry(gSpawnedActor, node);
                         C1ACT44->unk154 = 0x36;
                         node->unk46 |= 1;
                     }
@@ -1448,7 +1448,7 @@ void spawnNodesUpdate(void) {
                 spawnNodeSelectEntry(node);
                 entry = &D_8075EB80[node->unk44];
                 if (actorSpawn(entry->unk0, entry->unk2) != 0) {
-                    spawnNodeInitActorFromEntry(D_807FBB44, node);
+                    spawnNodeInitActorFromEntry(gSpawnedActor, node);
                 }
             }
         } else if (active && (node->unk18->unk154 == 0x40)) {
@@ -1850,15 +1850,15 @@ u8 func_8072881C(u8 arg0, u32 *arg1) {
     u8 ret;
 
     ret = 0;
-    if ((arg0 & 0x80) || (((*arg1 + 0x32) < gFrameCounter) && (((randomNonNegative() >> 0xF) % 1000) >= 0x3C1) && (animIsPlaying(D_807FBB40, arg0) == 0))) {
+    if ((arg0 & 0x80) || (((*arg1 + 0x32) < gFrameCounter) && (((randomNonNegative() >> 0xF) % 1000) >= 0x3C1) && (animIsPlaying(gCurrentActor, arg0) == 0))) {
         arg0 &= 0x7F;
-        animSetSpeed(D_807FBB40, arg0, 1.0f);
-        animSetLoopMode(D_807FBB40, arg0, 1);
-        animSetDirection(D_807FBB40, arg0, 0);
-        animSetEndFrame(D_807FBB40, arg0, 3);
-        animClearStartFrame(D_807FBB40, arg0);
-        animSetFrameAndSubframe(D_807FBB40, arg0, 0, 0.0f);
-        animSetLoopLimit(D_807FBB40, arg0, 2);
+        animSetSpeed(gCurrentActor, arg0, 1.0f);
+        animSetLoopMode(gCurrentActor, arg0, 1);
+        animSetDirection(gCurrentActor, arg0, 0);
+        animSetEndFrame(gCurrentActor, arg0, 3);
+        animClearStartFrame(gCurrentActor, arg0);
+        animSetFrameAndSubframe(gCurrentActor, arg0, 0, 0.0f);
+        animSetLoopLimit(gCurrentActor, arg0, 2);
         *arg1 = gFrameCounter;
         ret = 1;
     }
@@ -1867,13 +1867,13 @@ u8 func_8072881C(u8 arg0, u32 *arg1) {
 
 
 void func_80728950(u8 arg0) {
-    animSetLoopLimit(D_807FBB40, arg0, 1);
-    animSetFinished(D_807FBB40, arg0, 1);
-    animSetFrameAndSubframe(D_807FBB40, arg0, 2, 0.0f);
+    animSetLoopLimit(gCurrentActor, arg0, 1);
+    animSetFinished(gCurrentActor, arg0, 1);
+    animSetFrameAndSubframe(gCurrentActor, arg0, 2, 0.0f);
 }
 
 void currentActorAnimSetFrame(u8 arg0, u8 arg1) {
-    animSetFrameAndSubframe(D_807FBB40, arg0, arg1, 0.0f);
+    animSetFrameAndSubframe(gCurrentActor, arg0, arg1, 0.0f);
 }
 
 typedef struct A2PtrPair {
@@ -1903,7 +1903,7 @@ extern u8 D_8071FC58[];
 extern u8 D_8071FFA0[];
 extern void *D_8074E880[];
 extern s32 gCamActor;
-#define A2B44V ((A2B44 *)D_807FBB44)
+#define A2B44V ((A2B44 *)gSpawnedActor)
 
 u32 randomLcgNext(void);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
@@ -2033,7 +2033,7 @@ void zoneEntrySpawnEffect(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                     break;
                 case 20:
                     actorSpawn(0x92, 0x73);
-                    actorScriptStart(D_807FBB44, 0x42A);
+                    actorScriptStart(gSpawnedActor, 0x42A);
                     return;
                 case 30:
                 case 31:
@@ -2049,7 +2049,7 @@ void zoneEntrySpawnEffect(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
             break;
         case 15:
             actorSpawn(0x92, 0x73);
-            actorScriptStart(D_807FBB44, 0x42A);
+            actorScriptStart(gSpawnedActor, 0x42A);
             return;
         case 6:
             for (i = 0; i < arg3; i++) {

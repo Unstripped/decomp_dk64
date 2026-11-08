@@ -35,7 +35,7 @@ typedef struct {
 } LightPosEntry;
 
 extern s32 gFrameCounter;
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern u8 D_807FC621;
 extern u8 D_807FC622;
 extern u8 D_807501C0[][3];
@@ -54,7 +54,7 @@ void lightUpdateFromActorLighting(u8 *outR, u8 *outG, u8 *outB) {
     s32 lightIndex;
     u8 idx;
 
-    if (D_807FBB40->flags & 4) {
+    if (gCurrentActor->flags & 4) {
         switch (D_807FC622) {
         case 0:
             *outR = 0xFF;
@@ -244,7 +244,7 @@ s32 effectSpritePoolFadeOut(void);
 void actorUpdateEntryEmitters(void);
 void particleSpawnPathTrail(void);
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern u8 D_807FBDC4;
 extern ActorGlobalState D_807FBB70;
 extern s16 D_807FDCBC;
@@ -274,8 +274,8 @@ void actorCutsceneDispatchEvents(void) {
     s16 paramA;
     s16 mode;
 
-    csState = (CutsceneActorState *)D_807FBB40->unk174;
-    if (!(D_807FBB40->flags & 0x10)) {
+    csState = (CutsceneActorState *)gCurrentActor->unk174;
+    if (!(gCurrentActor->flags & 0x10)) {
         csState->unk0 = 0;
         csState->unk1A = -1;
         csState->unk21 = 0;
@@ -707,14 +707,14 @@ void playerCameraUpdateFromTarget(void) {
     s32 dd;
     s16 tmpd;
     u8 pad_v1;
-    targetState = D_807FBB40->unk174;
+    targetState = gCurrentActor->unk174;
     angleDiff = 0;
     maxDiff = 0x1E;
     stepFactor = 0.08f;
     scaleFactor = 8.0f;
     player = (void *)((*(u8 *)((u8 *)targetState + 0xFB) * 0x2F0) + (u8 *)gPlayerSlots);
-    *(s16 *)((u8 *)player + 0x2CC) = ((AimActorAngles *)D_807FBB40)->unkEC;
-    ((AimActorAngles *)D_807FBB40)->unkEC = ((AimActorAngles *)D_807FBB40)->unkE4;
+    *(s16 *)((u8 *)player + 0x2CC) = ((AimActorAngles *)gCurrentActor)->unkEC;
+    ((AimActorAngles *)gCurrentActor)->unkEC = ((AimActorAngles *)gCurrentActor)->unkE4;
     *(s16 *)((u8 *)player + 0x2CA) = (s16)(s32)*(f32 *)((u8 *)player + 0x214);
     angleRad = mathAngleBetweenPointsRad(*(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x230), *(f32 *)((u8 *)player + 0x228));
     dz = *(f32 *)((u8 *)player + 0x230) - *(f32 *)((u8 *)player + 0x218);
@@ -731,14 +731,14 @@ void playerCameraUpdateFromTarget(void) {
     *(f32 *)((u8 *)player + 0x2D8) = 6.2831855f - clampedPitch;
     func_806C9D20(*(u8 *)((u8 *)targetState + 0xFB));
     angleA = mathAngleBetweenPoints2D(*(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x228), *(f32 *)((u8 *)player + 0x230));
-    camUpdate(D_807FBB40, (u8 *)player + 0x210, (u8 *)player + 0x214, (u8 *)player + 0x218, (u8 *)player + 0x228, (u8 *)player + 0x22C, (u8 *)player + 0x230, (u8 *)player + 0x240, (u8 *)player + 0x244, (u8 *)player + 0x248);
+    camUpdate(gCurrentActor, (u8 *)player + 0x210, (u8 *)player + 0x214, (u8 *)player + 0x218, (u8 *)player + 0x228, (u8 *)player + 0x22C, (u8 *)player + 0x230, (u8 *)player + 0x240, (u8 *)player + 0x244, (u8 *)player + 0x248);
     angleB = mathAngleBetweenPoints2D(*(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x228), *(f32 *)((u8 *)player + 0x230));
     if (D_807FBB4C != *(Actor **)targetState) {
         return;
     }
     if ((gCurrentMap == 0x1F) || (gCurrentMap == 0x33)) {
         if (D_807FC624 && D_807FC624) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        ((AimActorAngles *)D_807FBB40)->unkE4 = (s16)(s32)(func_80612794(D_807FC624) * 100.0f);
+        ((AimActorAngles *)gCurrentActor)->unkE4 = (s16)(s32)(func_80612794(D_807FC624) * 100.0f);
         if (gCurrentMap == 0x1F) {
             if (D_807FC624 < 0x1E) {
                 sfxPlayOnFreeSlot(0x15, 0x7FFF, 64.0f, 1.0f, 10, 128);
@@ -795,7 +795,7 @@ calc_angle:
             minLimit = -maxDiff;
             stateVal = (minLimit < angleDiff) ? angleDiff : minLimit;
             stateVal = (stateVal < maxDiff) ? ((minLimit < angleDiff) ? angleDiff : minLimit) : maxDiff;
-            curAngle = (f32)((AimActorAngles *)D_807FBB40)->unkE4;
-            ((AimActorAngles *)D_807FBB40)->unkE4 = (s16)(s32)(((((f32)stateVal * scaleFactor) - curAngle) * stepFactor) + curAngle);
+            curAngle = (f32)((AimActorAngles *)gCurrentActor)->unkE4;
+            ((AimActorAngles *)gCurrentActor)->unkE4 = (s16)(s32)(((((f32)stateVal * scaleFactor) - curAngle) * stepFactor) + curAngle);
     }
 }

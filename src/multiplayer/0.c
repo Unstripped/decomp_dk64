@@ -162,7 +162,7 @@ extern MpMapEntry D_80026FA4[];
 extern s32 gCurrentMap;
 extern u64 __ll_mul(u64, u64);
 extern u64 __ull_div(u64, u64);
-extern MpControllerActor *D_807FBB40;
+extern MpControllerActor *gCurrentActor;
 void renderCallbacksRegister(void *, void *, s32);
 extern MpSettings D_807552E4;
 extern MpPlayer *gPlayerSlots;
@@ -265,7 +265,7 @@ void mpUpdateMatchTimer(void) {
     MpControllerState *state;
     u64 x;
 
-    state = D_807FBB40->unk174;
+    state = gCurrentActor->unk174;
     x = __ull_div(__ll_mul(osGetTime() - state->unk0, 0x40), 0xBB8);
     if (!(D_807FBB60 & 2)) {
         x = __ull_div(x, 0xF4240);
@@ -275,7 +275,7 @@ void mpUpdateMatchTimer(void) {
         state->unk8 = 0;
         mpDetermineWinner(state);
     }
-    renderCallbacksRegister(mpDrawTimer, D_807FBB40, 7);
+    renderCallbacksRegister(mpDrawTimer, gCurrentActor, 7);
 }
 
 void mpCheckScoreLimit(void) {
@@ -287,7 +287,7 @@ void mpCheckScoreLimit(void) {
         do {
             score = mpGetPlayerScore(i);
             if ((score >= D_807552E4.unkC) || (score < -0x3E7)) {
-                mpDetermineWinner(D_807FBB40->unk174);
+                mpDetermineWinner(gCurrentActor->unk174);
                 return;
             }
             i++;
@@ -310,7 +310,7 @@ void mpCheckLastPlayerStanding(void) {
         } while (i < gPlayerCount);
     }
     if (aliveCount < 2) {
-        mpDetermineWinner(D_807FBB40->unk174);
+        mpDetermineWinner(gCurrentActor->unk174);
     }
 }
 
@@ -933,8 +933,8 @@ void mpUpdate(void) {
     s32 vb;
     s32 vc;
 
-    s7 = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    s7 = gCurrentActor->unk174;
+    if (!(gCurrentActor->unk60 & 0x10)) {
         flag = 0;
         func_806C9AE0();
         for (i = 0; i < gPlayerCount; i++) {
@@ -975,7 +975,7 @@ void mpUpdate(void) {
         guScale(s7->unk30, 0.5f, 0.5f, 1.0f);
         s7->unkC = D_807552E4.unkC;
         s7->unkC = s7->unkC * 60;
-        D_807FBB40->unk64 |= 2;
+        gCurrentActor->unk64 |= 2;
         s7->unk44 = assetLoad(0xE, 0xB9, 0, 0);
         s7->unk48 = assetLoad(0xE, 0xBA, 0, 0);
         s7->unk10 = 0;
@@ -1090,7 +1090,7 @@ void mpUpdate(void) {
             s7->unk34 = D_80767CC0;
         }
     }
-    renderCallbacksRegister(mpDrawHud, D_807FBB40, 7);
+    renderCallbacksRegister(mpDrawHud, gCurrentActor, 7);
 }
 
 

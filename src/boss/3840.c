@@ -92,7 +92,7 @@ typedef struct {
     s32 unk11C;
 } BossB_Struct_807FBB40;
 
-extern BossB_Struct_807FBB40 *D_807FBB40;
+extern BossB_Struct_807FBB40 *gCurrentActor;
 extern BossWaypointList *D_807FDCA0;
 
 void bossPickFarthestWaypoint(void *state, u8 *waypointRanges) {
@@ -101,7 +101,7 @@ void bossPickFarthestWaypoint(void *state, u8 *waypointRanges) {
 
     for (i = waypointRanges[((BossB_Struct_80027950 *)state)->unk15]; i <= waypointRanges[((BossB_Struct_80027950 *)state)->unk15 + 1]; i++) {
         u8 idx = D_807FDC98->unk20[i * 2];
-        BossActorPos *actor = (BossActorPos *)D_807FBB40;
+        BossActorPos *actor = (BossActorPos *)gCurrentActor;
         BossWaypoint *pt = &D_807FDCA0->points[idx];
         f32 dz = actor->z - (f32)pt->z;
         f32 dx = actor->x - (f32)pt->x;
@@ -207,7 +207,7 @@ void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorScriptStart(void *, s32);
 void bossPickFarthestWaypoint(void *, u8 *);
 
-#define BA40 ((BossActor *)D_807FBB40)
+#define BA40 ((BossActor *)gCurrentActor)
 #define DC90 ((BossWorkState *)D_807FDC90)
 #define DC9C ((BossConfig *)D_807FDC9C)
 
@@ -235,7 +235,7 @@ u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
         }
         break;
     case 0x5F:
-        camStartPath(D_807FBB40, script[s0->unk15++], 1);
+        camStartPath(gCurrentActor, script[s0->unk15++], 1);
         break;
     case 0x5E:
         if (D_807444EC == 1) {
@@ -247,7 +247,7 @@ u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
         s0->unk4 = script[s0->unk15++] * 30;
         break;
     case 0x5D:
-        actorSetTargetSpeed(D_807FBB40, script[s0->unk15++]);
+        actorSetTargetSpeed(gCurrentActor, script[s0->unk15++]);
         break;
     case 0x5C:
         {
@@ -257,7 +257,7 @@ u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
         }
         break;
     case 0x5A:
-        func_8070D8C0(D_807FBB40, script[s0->unk15], script[s0->unk15 + 1]);
+        func_8070D8C0(gCurrentActor, script[s0->unk15], script[s0->unk15 + 1]);
         s0->unk15 += 2;
         break;
     case 0x42:
@@ -277,7 +277,7 @@ block_16:
         BA40->unk60 &= ~4;
         break;
     case 0x51:
-        actorScriptStart(D_807FBB40, (script[s0->unk15] << 8) + script[s0->unk15 + 1]);
+        actorScriptStart(gCurrentActor, (script[s0->unk15] << 8) + script[s0->unk15 + 1]);
         s0->unk15 += 2;
         break;
     case 0x55:
@@ -301,14 +301,14 @@ block_16:
             s0->unk8[0] = script[tmp];
             s0->unk15 = tmp + 1;
             BA40->unk155 = 1;
-            actorSetTargetSpeed(D_807FBB40, DC9C->unkD);
+            actorSetTargetSpeed(gCurrentActor, DC9C->unkD);
         } else {
             actorMoveWithinZone(0x23, DC90->unk4->unk7C, DC90->unk4->unk84, turnSpeed, fwdSpeed);
             s0->unk8[0] -= 1;
             if ((s0->unk8[0] == 0) || (playerData->unk1F0 & 0x80000)) {
                 playerData->unk1F0 &= ~0x80000;
                 advanceScript = 1;
-                actorSetTargetSpeed(D_807FBB40, DC9C->unkC);
+                actorSetTargetSpeed(gCurrentActor, DC9C->unkC);
             }
         }
         break;
@@ -495,7 +495,7 @@ void actorSetStateTwo(s32);
 
 void func_80028680(void) {
     hudSpawnCountdownTimer(-0x7F83, 0xD2, 0xB4);
-    actorSetStateTwo(D_807FBB40->unk11C);
+    actorSetStateTwo(gCurrentActor->unk11C);
 }
 
 #define Boss2C_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
@@ -630,7 +630,7 @@ void bossRoundFrame(u8 *script) {
         break;
     case 0x6A:
         if (BA40->unk155 == 0) {
-            actorScriptStart(D_807FBB40, 0);
+            actorScriptStart(gCurrentActor, 0);
             BA40->unk155++;
         }
         break;
@@ -649,7 +649,7 @@ void bossRoundFrame(u8 *script) {
             bossResetAudioChannels();
             BA40->unk154 = 0x6A;
             BA40->unk155 = 0;
-            camStartPath(D_807FBB40, D_800359C4[mapOffset], 1);
+            camStartPath(gCurrentActor, D_800359C4[mapOffset], 1);
             flagSet(0x5A, 1, 2);
         }
         break;
@@ -662,21 +662,21 @@ void bossRoundFrame(u8 *script) {
             bossResetAudioChannels();
             D_80750AD4 = 1;
             if (flagGet(0x5D, 2) == 0) {
-                camStartPath(D_807FBB40, 0x19, 1);
+                camStartPath(gCurrentActor, 0x19, 1);
                 flagSet(0x5D, 1, 2);
             } else {
-                camStartPath(D_807FBB40, D_800359A0[0], 1);
+                camStartPath(gCurrentActor, D_800359A0[0], 1);
             }
             flagSet(0x5C, 0, 2);
             flagSet(0x55, 1, 2);
         } else {
             mapFlag = mapOffset + 0x55;
             if (flagGet(mapFlag, 2) == 0) {
-                camStartPath(D_807FBB40, D_800359A0[mapOffset], 1);
+                camStartPath(gCurrentActor, D_800359A0[mapOffset], 1);
                 flagSet(mapFlag, 1, 2);
             } else if (flagGet(0x5A, 2) != 0) {
                 if (flagGet(0x5B, 2) != 0) {
-                    camStartPath(D_807FBB40, D_800359AC[mapOffset], 1);
+                    camStartPath(gCurrentActor, D_800359AC[mapOffset], 1);
                     flagSet(0x5A, 0, 2);
                 } else {
                     sfxStopChannel(0x2B, 0);
@@ -687,7 +687,7 @@ void bossRoundFrame(u8 *script) {
                     D_80750AD4 -= 1;
                 }
             } else {
-                camStartPath(D_807FBB40, D_800359B8[mapOffset], 1);
+                camStartPath(gCurrentActor, D_800359B8[mapOffset], 1);
             }
         }
     }
@@ -759,7 +759,7 @@ void bossRoundFrame(u8 *script) {
         }
     }
     if ((scriptState->unk12 & 1) && (func_805FCA64() != 0)) {
-        renderCallbacksRegister(bossDrawRoundText, D_807FBB40, 3);
+        renderCallbacksRegister(bossDrawRoundText, gCurrentActor, 3);
     }
 }
 
@@ -771,11 +771,11 @@ void func_800290D4(enable)
 u8 enable;
 {
     if (enable) {
-        actorSetNodeFlag(D_807FBB40, 2);
-        actorSetNodeFlag(D_807FBB40, 3);
+        actorSetNodeFlag(gCurrentActor, 2);
+        actorSetNodeFlag(gCurrentActor, 3);
     } else {
-        actorClearNodeFlag(D_807FBB40, 2);
-        actorClearNodeFlag(D_807FBB40, 3);
+        actorClearNodeFlag(gCurrentActor, 2);
+        actorClearNodeFlag(gCurrentActor, 3);
     }
 }
 

@@ -1,10 +1,10 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
 
-extern Actor *D_807FBB44;
+extern Actor *gSpawnedActor;
 extern s16 D_80744710[];
 extern s8 D_807506A4;
 extern s8 D_80750660;
@@ -21,7 +21,7 @@ typedef struct R1C0C1Sub174 {
     /* 0x04 */ Actor *unk4;
 } R1C0C1Sub174;
 
-#define R1C0C1_SPAWNED_146 (((R1C0C1Spawned *)D_807FBB44)->unk146)
+#define R1C0C1_SPAWNED_146 (((R1C0C1Spawned *)gSpawnedActor)->unk146)
 typedef struct R1C0C1Spawned {
     /* 0x000 */ u8 pad0[0x146];
     /* 0x146 */ s16 unk146;
@@ -41,27 +41,27 @@ void func_806BD170(void) {
     for (; i < 8; i++) {
         if (flagGet(i + 0x1BC, 0) == 0) {
             actorSpawn(0x14E, 0xCD);
-            D_807FBB44->unk12A = 0x7D0;
-            D_807FBB44->flags |= 0x800400;
+            gSpawnedActor->unk12A = 0x7D0;
+            gSpawnedActor->flags |= 0x800400;
             pos = i * 0x200 + 0x104;
-            D_807FBB44->flags &= 0xFFFF7FFF;
-            D_807FBB44->unk16A = 0xFF;
-            D_807FBB44->unk16B = 0xFF;
-            D_807FBB44->unk16C = 0xFF;
-            D_807FBB44->unk128 = 0xFF;
-            D_807FBB44->x = func_80612794(pos) * 270.0f + D_807FBB40->x;
-            D_807FBB44->z = func_80612790(pos) * 270.0f + D_807FBB40->z;
-            D_807FBB44->y = 100.0f;
-            D_807FBB44->yaw = pos;
+            gSpawnedActor->flags &= 0xFFFF7FFF;
+            gSpawnedActor->unk16A = 0xFF;
+            gSpawnedActor->unk16B = 0xFF;
+            gSpawnedActor->unk16C = 0xFF;
+            gSpawnedActor->unk128 = 0xFF;
+            gSpawnedActor->x = func_80612794(pos) * 270.0f + gCurrentActor->x;
+            gSpawnedActor->z = func_80612790(pos) * 270.0f + gCurrentActor->z;
+            gSpawnedActor->y = 100.0f;
+            gSpawnedActor->yaw = pos;
             R1C0C1_SPAWNED_146 = 0;
-            D_807FBB44->state = 0;
-            sub = D_807FBB44->unk174;
+            gSpawnedActor->state = 0;
+            sub = gSpawnedActor->unk174;
             sub->unk0 = 0;
-            sub->unk4 = D_807FBB40;
+            sub->unk4 = gCurrentActor;
             sub->unk2 = i;
             if (flagGet(D_80744710[i], 0) != 0) {
                 activeRingIdx = i;
-                activeRingActor = D_807FBB44;
+                activeRingActor = gSpawnedActor;
                 activeRingActor->state = 5;
                 count++;
             }
@@ -112,7 +112,7 @@ typedef struct RingNodeActor178 {
 } RingNodeActor178;
 
 void actorNodeRingUpdate(void) {
-    RingNodePtr178 *nodePtr = ((RingNodeActor178 *)D_807FBB40)->unk178;
+    RingNodePtr178 *nodePtr = ((RingNodeActor178 *)gCurrentActor)->unk178;
     f32 dx;
     f32 dz;
     u8 shakeMagnitude;
@@ -122,28 +122,28 @@ void actorNodeRingUpdate(void) {
     s8 *cnt = &D_807506B4;
     s8 n;
 
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         if (func_806BDD2C() != 0) {
-            D_807FBB40->state = 0x40;
+            gCurrentActor->state = 0x40;
             return;
         }
-        D_807FBB40->unk12A = 0x7D0;
-        D_807FBB40->flags |= 0x400;
+        gCurrentActor->unk12A = 0x7D0;
+        gCurrentActor->flags |= 0x400;
         v3 = 0;
-        D_807506B4 = 0; actorSpawn(0x73, 0xC4, &D_807FBB40);
-        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
-        D_807FBB44->unk64 |= 0x20;
-        D_807FBB44->flags |= 0x400;
-        D_807FBB44->unk12A = 0x7D0;
-        nodePtr->unk0 = D_807FBB44;
+        D_807506B4 = 0; actorSpawn(0x73, 0xC4, &gCurrentActor);
+        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->unk4->unk38);
+        gSpawnedActor->unk64 |= 0x20;
+        gSpawnedActor->flags |= 0x400;
+        gSpawnedActor->unk12A = 0x7D0;
+        nodePtr->unk0 = gSpawnedActor;
         D_807FC8D4 = 1000.0f;
         func_806BD170();
-        D_807FBB40->state = 0;
+        gCurrentActor->state = 0;
         if (D_80750660 != 0) {
             D_80750660 = 0;
         }
         if (flagGet(0x1BB, 0) == 0) {
-            D_807FBB40->state = 1;
+            gCurrentActor->state = 1;
         }
     }
     idx = -1;
@@ -154,34 +154,34 @@ void actorNodeRingUpdate(void) {
             idx++;
         }
     }
-    dx = D_807FBB40->x - D_807FBB4C->x;
-    dz = D_807FBB40->z - D_807FBB4C->z;
+    dx = gCurrentActor->x - D_807FBB4C->x;
+    dz = gCurrentActor->z - D_807FBB4C->z;
     shakeDuration = 0;
     D_807FC8D4 = dx * dx + dz * dz;
-    switch (D_807FBB40->state) {
+    switch (gCurrentActor->state) {
         case 1:
-            actorScriptStart(D_807FBB40, 0x2EF);
-            D_807FBB40->state = 2;
+            actorScriptStart(gCurrentActor, 0x2EF);
+            gCurrentActor->state = 2;
             camStartPath(D_807FBB4C, 2, 1);
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
                 sfxAllocateChannel(0x7D, 1.0f);
-                actorScriptStart(D_807FBB40, 0x2F1);
-                D_807FBB40->state = 3;
-                D_807FBB40->unk155[0] = 0;
+                actorScriptStart(gCurrentActor, 0x2F1);
+                gCurrentActor->state = 3;
+                gCurrentActor->unk155[0] = 0;
             }
             break;
         case 3:
-            if (D_807FBB40->unk155[0] & 1) {
-                D_807FBB40->unk155[0]++;
+            if (gCurrentActor->unk155[0] & 1) {
+                gCurrentActor->unk155[0]++;
                 shakeMagnitude = 0xF; shakeDuration = 0x28;
             }
             break;
     }
     if (camIsCutsceneActive() == 0) {
-        if (((RingNodeSub4 *)D_807FBB40->unk4)->unk64 != 0x2F0) {
-            actorScriptStart(D_807FBB40, 0x2F0);
+        if (((RingNodeSub4 *)gCurrentActor->unk4)->unk64 != 0x2F0) {
+            actorScriptStart(gCurrentActor, 0x2F0);
         }
     }
     if (shakeDuration) {
@@ -204,7 +204,7 @@ void actorNodeRingUpdate(void) {
         }
     }
     D_8076A0A6 = 0;
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 
@@ -238,7 +238,7 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 f32 randomFloat(void);
 
 void func_806BD7B0(void) {
-    R1C0C1Sub174 *st = D_807FBB40->unk174;
+    R1C0C1Sub174 *st = gCurrentActor->unk174;
     f32 sparkX;
     f32 sparkY;
     f32 sparkZ;
@@ -246,13 +246,13 @@ void func_806BD7B0(void) {
     s32 limit;
     R1C0C1Blob8 cutsceneModelIds;
 
-    switch (D_807FBB40->state) {
+    switch (gCurrentActor->state) {
         case 5:
             if (D_807506A4 != 0 && camIsCutsceneActive() == 0) {
                 st->unk0++;
                 if (st->unk0 >= 0x29) {
                     D_807506A4 = 0;
-                    D_807FBB40->state = 1;
+                    gCurrentActor->state = 1;
                 }
             } else {
                 st->unk0 = 0;
@@ -260,35 +260,35 @@ void func_806BD7B0(void) {
             break;
         case 1:
             st->unk0 = 0;
-            D_807FBB40->state = 2;
+            gCurrentActor->state = 2;
             break;
         case 2:
             if (D_807FC8D4 < 160000.0) {
-                D_807FBB40->state = 3;
+                gCurrentActor->state = 3;
                 st->unk0 = 0;
                 sfxAllocateChannel(0x3B, 1.0f);
                 sfxPlayOnFreeSlot(0x258, 0x7FFF, 63.0f, 1.0f, 5, 0);
-                camStartPath(D_807FBB40, 0, 1);
-                actorScriptStart(D_807FBB40, 0x291);
-                D_807FBB40->unk155[0] = 0;
-                ((R1C0C1Spawned *)D_807FBB40)->unk146 = 1;
+                camStartPath(gCurrentActor, 0, 1);
+                actorScriptStart(gCurrentActor, 0x291);
+                gCurrentActor->unk155[0] = 0;
+                ((R1C0C1Spawned *)gCurrentActor)->unk146 = 1;
             }
             break;
         case 3:
-            if (D_807FBB40->unk155[0] == 1) {
-                D_807FBB40->unk155[0]++;
-            } else if (D_807FBB40->unk155[0] == 2) {
+            if (gCurrentActor->unk155[0] == 1) {
+                gCurrentActor->unk155[0]++;
+            } else if (gCurrentActor->unk155[0] == 2) {
                 sfxStopChannel(0x3B, 1);
-                D_807FBB40->unk128 -= 8;
-                if (D_807FBB40->unk128 <= 0) {
-                    D_807FBB40->unk128 = 0;
+                gCurrentActor->unk128 -= 8;
+                if (gCurrentActor->unk128 <= 0) {
+                    gCurrentActor->unk128 = 0;
                     st->unk0++;
                     if (st->unk0 == 1) {
                         sfxPlayOnFreeSlot(0x1F6, 0x7FFF, 63.0f, 1.0f, 5, 0);
                     }
                     if (st->unk0 >= 0xB) {
                         cutsceneModelIds = D_807506B8;
-                        D_807FBB40->state = 4;
+                        gCurrentActor->state = 4;
                         sfxAllocateChannel(0x7D, 1.0f);
                         actorScriptStart(st->unk4, D_80750684[st->unk2]);
                         st->unk0 = 0;
@@ -298,16 +298,16 @@ void func_806BD7B0(void) {
                         csModelStateSetFirstByte(cutsceneModelIds.b[st->unk2], 2);
                     }
                 }
-                if (D_807FBB40->unk128 < 0x80) {
-                    D_807FBB40->y -= 6.0;
+                if (gCurrentActor->unk128 < 0x80) {
+                    gCurrentActor->y -= 6.0;
                 }
             } else {
                 func_80714950(0x10064);
                 func_8071498C(func_8071AADC);
                 func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
-                sparkX = randomFloat() * 30.0 + D_807FBB40->x;
-                sparkY = randomFloat() * 30.0 + (D_807FBB40->y + 20.0);
-                sparkZ = randomFloat() * 30.0 + D_807FBB40->z;
+                sparkX = randomFloat() * 30.0 + gCurrentActor->x;
+                sparkY = randomFloat() * 30.0 + (gCurrentActor->y + 20.0);
+                sparkZ = randomFloat() * 30.0 + gCurrentActor->z;
                 func_80714CC0(&D_80720A7C, 1.2f, sparkX, sparkY, sparkZ);
             }
             break;
@@ -343,8 +343,8 @@ void func_806BD7B0(void) {
         case 0:
             break;
     }
-    D_807FBB40->unk15E = 0x28;
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    gCurrentActor->unk15E = 0x28;
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 s32 func_806BDD2C(void) {

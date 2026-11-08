@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
@@ -21,7 +21,7 @@ typedef struct BD820View9C {
     /* 0x0F */ u8 unkF;
 } BD820View9C;
 
-#define BD820A ((BD820Actor *)D_807FBB40)
+#define BD820A ((BD820Actor *)gCurrentActor)
 #define BD820S9C ((BD820View9C *)D_807FDC9C)
 
 extern void *D_8074E880[];
@@ -74,17 +74,17 @@ void modelSlotClearFlags(s32, s32);
 void func_806B8C78(void) {
     f64 t;
 
-    switch (D_807FBB40->state) {
+    switch (gCurrentActor->state) {
         case 1:
-            switch (D_807FBB40->unk155[0]) {
+            switch (gCurrentActor->unk155[0]) {
                 case 0:
                     BD820A->unkC0 = 0.0f;
-                    actorScriptStart(D_807FBB40, 0x290);
-                    D_807FBB40->unk155[0]++;
+                    actorScriptStart(gCurrentActor, 0x290);
+                    gCurrentActor->unk155[0]++;
                     break;
                 case 2:
-                    if (D_807FBB40->y > -20.0f) {
-                        D_807FBB40->y = D_807FBB40->y - BD820A->unkC0;
+                    if (gCurrentActor->y > -20.0f) {
+                        gCurrentActor->y = gCurrentActor->y - BD820A->unkC0;
                     }
                     t = BD820A->unkC0 + 0.5;
                     BD820A->unkC0 = (t < 8.0) ? t : 8.0;
@@ -100,22 +100,22 @@ void func_806B8C78(void) {
             effectSpawnRandomParticleAtPoint(0x258, 0x15E, 0x1E5, 0x6E);
             effectSpawnRandomParticleAtPoint(0x258, 0x190, 0x1E5, 0x73);
             effectSpawnRandomParticleAtPoint(0x258, 0x1C2, 0x1E5, 0x74);
-            D_807FBB40->state++;
+            gCurrentActor->state++;
             D_807FDC90->unk2C = 0x46;
             break;
         case 3:
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
             } else {
-                D_807FBB40->state = 0x40;
+                gCurrentActor->state = 0x40;
             }
             if (D_807FDC90->unk2C < 0x28) {
                 modelSlotOrFlags(4, 0x10);
                 modelSlotOrFlags(6, 0x10);
                 modelSlotClearFlags(5, 0x10);
                 modelSlotClearFlags(7, 0x10);
-                if ((D_807FDC90->unk2C < 0x15 && (randomNonNegative() >> 15) % 1000 < 0x12C) || D_807FBB40->state == 0x40) {
-                    if (D_807FBB40->state == 0x40) {
+                if ((D_807FDC90->unk2C < 0x15 && (randomNonNegative() >> 15) % 1000 < 0x12C) || gCurrentActor->state == 0x40) {
+                    if (gCurrentActor->state == 0x40) {
                         modelSlotOrFlags(5, 0x10);
                         modelSlotOrFlags(7, 0x10);
                         sfxPlayOnFreeSlot(0x1D0, 0x58EF, 63.0f, 1.0f, 0, 0);
@@ -145,28 +145,28 @@ void func_806B904C(void) {
     f32 v;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         v = ((f64)BD820S9C->unkF / 255.0) * 0.75;
-        D_807FBB40->unk4->unk34 = v;
-        D_807FBB40->unk4->unk38 = v;
-        D_807FBB40->unk4->unk3C = v;
+        gCurrentActor->unk4->unk34 = v;
+        gCurrentActor->unk4->unk38 = v;
+        gCurrentActor->unk4->unk3C = v;
         if (func_805FF0C8() != 0) {
-            D_807FBB40->state = 0x40;
+            gCurrentActor->state = 0x40;
         } else {
             BD820A->unk12A = 0x3E8;
             BD820A->unk130 = 0x3C;
             BD820A->unk131 = 0x3C;
-            func_80613C48(D_807FBB40, 0x482, 0.0f, 0.0f);
+            func_80613C48(gCurrentActor, 0x482, 0.0f, 0.0f);
         }
         modelSlotOrFlags(5, 0x10);
         modelSlotOrFlags(7, 0x10);
     }
     for (i = 0; i < D_807FBB70.unk254; i++) {
         if (D_807FBB70.unk258[i] == 3) {
-            D_807FBB40->state = D_807FBB70.unk278[i][1];
-            D_807FBB40->unk155[0] = 0;
+            gCurrentActor->state = D_807FBB70.unk278[i][1];
+            gCurrentActor->unk155[0] = 0;
         }
     }
     func_806B8C78();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }

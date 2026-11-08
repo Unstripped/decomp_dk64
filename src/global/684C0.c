@@ -38,7 +38,7 @@ typedef struct TriggerZoneNode {
 } TriggerZoneNode;
 
 extern TriggerZoneNode *D_807F9410;
-extern Actor *D_807FBB44;
+extern Actor *gSpawnedActor;
 void *heapAlloc(s32);
 s32 triggerZoneContainsActor();
 void triggerZoneSpawnTrigger();
@@ -90,7 +90,7 @@ void triggerZoneCheckEntry(TriggerZoneActor *actor) {
                 *subLink = newNode;
                 newNode->actor = actor;
                 newNode->unk4 = actor->unk54;
-                newNode->spawnedActor = D_807FBB44;
+                newNode->spawnedActor = gSpawnedActor;
                 newNode->next = NULL;
             }
         }
@@ -121,8 +121,8 @@ void triggerZoneSpawnTrigger(TriggerZoneActor *actor, TriggerZoneData *zone) {
     TriggerSpawnSub174 *spawnState;
 
     actorSpawn(0x7B, controllerLookupStateByHash(actor));
-    D_807FBB44->unk11C = (s32)actor;
-    spawnState = D_807FBB44->unk174;
+    gSpawnedActor->unk11C = (s32)actor;
+    spawnState = gSpawnedActor->unk174;
     spawnState->unkE = zone->unkE;
     spawnState->unkC = zone->unkC;
     spawnState->unkF = zone->unkF;

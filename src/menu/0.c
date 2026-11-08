@@ -116,7 +116,7 @@ typedef struct {
     char pad178[8];
     MenuStruct_80024000 *unk180;
 } MenuRenderActor;
-extern MenuRenderActor *D_807FBB40;
+extern MenuRenderActor *gCurrentActor;
 extern s16 D_80750AC8;
 s32 currentActorTestClearFlag(void);
 void func_8070D8C0(void *, s32, u8);
@@ -134,7 +134,7 @@ void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
         if (currentActorTestClearFlag() != 0) {
             if (playVoice != 0) {
                 currentActorClearFlag();
-                func_8070D8C0(D_807FBB40, 0xB, 0);
+                func_8070D8C0(gCurrentActor, 0xB, 0);
                 if ((mode = menu->unk1A) == 1) {
                     mode = 1;
                 } else if (mode >= 2) {
@@ -143,7 +143,7 @@ void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
                     mode = 3;
                 }
                 D_80750AC8 = menu->unk1A;
-                func_8070D8C0(D_807FBB40, 0xB, mode);
+                func_8070D8C0(gCurrentActor, 0xB, mode);
             } else {
                 if (menu->unk1A == 1) {
                     mode = 5;
@@ -151,13 +151,13 @@ void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
                     mode = 6;
                 }
                 D_80750AC8 = menu->unk1A;
-                func_8070D8C0(D_807FBB40, 0xB, mode);
+                func_8070D8C0(gCurrentActor, 0xB, mode);
             }
             menu->unk1++;
         }
         break;
     case 1:
-        if (!(D_807FBB40->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->unk60 & 0x02000000)) {
             camResumePath();
             menu->unk1++;
         }
@@ -205,12 +205,12 @@ u8 targetState;
     switch (menu->unk1) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
-            func_8070D8C0(D_807FBB40, 0xB, targetState);
+            func_8070D8C0(gCurrentActor, 0xB, targetState);
             menu->unk1++;
         }
         break;
     case 1:
-        if (!(D_807FBB40->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->unk60 & 0x02000000)) {
             camResumePath();
             menu->unk1++;
         }
@@ -345,7 +345,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
         break;
     case 1:
         if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
-            D_807FBB40->unk15F = 0;
+            gCurrentActor->unk15F = 0;
             menu->unk1 = 3;
         } else {
             menu->unk19 = 1;
@@ -358,7 +358,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
                 i++;
             } while (i < 0x225);
             {
-                u8 a3 = D_807FBB40->unk15F;
+                u8 a3 = gCurrentActor->unk15F;
                 s32 d = 0xFF - a3;
                 s32 inc;
                 if (d >= 9) {
@@ -366,9 +366,9 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
                 } else {
                     inc = d;
                 }
-                D_807FBB40->unk15F = a3 + inc;
+                gCurrentActor->unk15F = a3 + inc;
             }
-            renderCallbacksRegister(menuDrawOptionsOverlay, D_807FBB40, 3);
+            renderCallbacksRegister(menuDrawOptionsOverlay, gCurrentActor, 3);
             if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x4000) {
                 menuResetAudioState();
                 menu->unk1 = 2;
@@ -404,7 +404,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
             D_80032F50 = 1;
             menu->unk1 = 0x37;
         }
-        renderCallbacksRegister(menuDrawOptionsOverlay, D_807FBB40, 3);
+        renderCallbacksRegister(menuDrawOptionsOverlay, gCurrentActor, 3);
         break;
     }
     MenuM0_X18(menu) = D_807ECDEC->unk3;
@@ -419,11 +419,11 @@ void menuProcessOptionInput(MenuStruct_80024000 *menu) {
             currentActorClearFlag(menu);
             menu->unk1++;
             D_80750AC8 = func_80712548(menu);
-            func_8070D8C0(D_807FBB40, 0xB, 8);
+            func_8070D8C0(gCurrentActor, 0xB, 8);
         }
         break;
     case 1:
-        if (!(D_807FBB40->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->unk60 & 0x02000000)) {
             camResumePath();
             menu->unk1++;
         }
@@ -451,8 +451,8 @@ void menuDispatchAction(void) {
 
     targetState = -1;
     isSessionActive = 0;
-    menu = D_807FBB40->unk180;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    menu = gCurrentActor->unk180;
+    if (!(gCurrentActor->unk60 & 0x10)) {
         camPathIndex = 1;
         menu->unk2 = flagCountRange(0x1FD, 0x28, 0);
         menu->unk1A = flagGridSumRows(0x1D5, 0, 7, gPlayerCharacterId);
@@ -516,7 +516,7 @@ void menuDispatchAction(void) {
     }
     behaviourFrameBegin();
     actorScriptedCommandUpdate();
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 typedef struct {
     s16 unk0;
@@ -552,10 +552,10 @@ void menuUpdateProgressGrid(void) {
     s32 k;
     s32 idx;
 
-    pSlideY = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    pSlideY = gCurrentActor->unk174;
+    if (!(gCurrentActor->unk60 & 0x10)) {
         *pSlideY = 0xF0;
-        D_807FBB40->unk154 = 0;
+        gCurrentActor->unk154 = 0;
         D_800330D0 = (s32)heapAlloc(0x80);
         D_800330D4 = heapAlloc(0x140);
         memcpy(D_800330D4, D_800330E0, 0x140);
@@ -617,7 +617,7 @@ void menuUpdateProgressGrid(void) {
     }
     D_800330D8 = 0;
     if (*pSlideY >= -0x3E7) {
-        renderCallbacksRegister(menuDrawProgressGrid, D_807FBB40, 3);
+        renderCallbacksRegister(menuDrawProgressGrid, gCurrentActor, 3);
     }
 }
 

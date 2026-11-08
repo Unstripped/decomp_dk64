@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern Actor *D_807FBB48;
 extern void *gPlayerSlots;
 
@@ -658,7 +658,7 @@ void proxPathFollowerStep(H1ActorB **pActor) {
         actorGetNodePos(actor, 8, &actor->unk7C, &actor->unk80, &actor->unk84);
         state->unk19C = 0;
         state->unk19E = 0xFFF;
-        if (D_807FBB40->unk6A & 0x40) {
+        if (gCurrentActor->unk6A & 0x40) {
             switch (actor->unk58) {
             case 2:
             case 5:

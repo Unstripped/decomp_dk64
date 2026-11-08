@@ -617,7 +617,7 @@ Gfx *func_8002CBEC(Gfx *dl, RaceUnknownActor *actor) {
 }
 
 
-extern RaceUnknownActor *D_807FBB44;
+extern RaceUnknownActor *gSpawnedActor;
 void actorSpawn(s32, s32);
 void raceInitParticipants(RaceUnknownActor *);
 void func_800292D0(RaceUnknownActor *);
@@ -631,7 +631,7 @@ void func_8002CFF0(void) {
     RaceUnknownActor *actor;
 
     actorSpawn(0x132, 0);
-    actor = D_807FBB44;
+    actor = gSpawnedActor;
     func_80025E9C(actor);
     func_8002BCD4(actor);
     race174 = actor->unk174;
@@ -648,8 +648,8 @@ void func_8002D064(void) {
     RaceUnknown174 *race174;
 
     actorSpawn(0x132, 0);
-    race174 = D_807FBB44->unk174;
-    raceInitParticipants(D_807FBB44);
+    race174 = gSpawnedActor->unk174;
+    raceInitParticipants(gSpawnedActor);
     race174->unk0 = 0xE;
     race174->unk24 = 2;
 }
@@ -658,8 +658,8 @@ void func_8002D0B0(void) {
     RaceUnknown174 *race174;
 
     actorSpawn(0x132, 0);
-    race174 = D_807FBB44->unk174;
-    func_800292D0(D_807FBB44);
+    race174 = gSpawnedActor->unk174;
+    func_800292D0(gSpawnedActor);
     race174->unk0 = 0xE;
     race174->unk24 = 2;
 }
@@ -668,13 +668,13 @@ void func_8002D0FC(void) {
     RaceUnknown174 *race174;
 
     actorSpawn(0x132, 0);
-    race174 = D_807FBB44->unk174;
-    func_8002E2C8(D_807FBB44);
+    race174 = gSpawnedActor->unk174;
+    func_8002E2C8(gSpawnedActor);
     race174->unk0 = 2;
     race174->unk24 = 1;
 }
 
-extern RaceUnknownActor *D_807FBB40;
+extern RaceUnknownActor *gCurrentActor;
 extern s32 D_8002FCD4[];
 s32 gfxResourceCreate(s32, void *, s32, f32, f32, f32);
 
@@ -686,7 +686,7 @@ void func_8002D148(RacePair *pair, u8 newStatus) {
         pair->unk4->unk34 = newStatus;
         pair->unk4->unk35 = 0;
         if (newStatus == 3) {
-            t = D_807FBB40->unk174;
+            t = gCurrentActor->unk174;
             slot = pair->unk4->unk36;
             if (slot + 1 == (u32)t->unk1E || pair->unk4->unk45 != 0) {
                 slot = 3;
@@ -705,9 +705,9 @@ void func_8002D224(u8 newStatus) {
     RaceUnknown174 *race174;
     RacePair *pairs;
 
-    race174 = D_807FBB40->unk174;
+    race174 = gCurrentActor->unk174;
     pairs = race174->unk20;
-    D_807FBB40->unk154 = newStatus;
+    gCurrentActor->unk154 = newStatus;
     for (i = 0; i < race174->unk1E; i++) {
         if (pairs[i].unk0 != 0) {
             func_8002D148(&pairs[i], newStatus);
@@ -776,7 +776,7 @@ void racePlayResultSfx(void) {
     s32 i;
     s32 id;
 
-    race174 = D_807FBB40->unk174;
+    race174 = gCurrentActor->unk174;
     id = 0;
     list = race174->unk20;
     i = race174->unk1E - 1;
@@ -837,7 +837,7 @@ void raceUpdateStandings(void) {
     u8 cnt;
     u8 swap;
 
-    t = D_807FBB40->unk174;
+    t = gCurrentActor->unk174;
     cnt = 0;
     base = t->unk20;
     for (i = t->unk1E - 1; i >= 0; i--) {
@@ -926,11 +926,11 @@ void func_8002D778(void) {
     s32 k;
     RacePair *list;
 
-    t = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    t = gCurrentActor->unk174;
+    if (!(gCurrentActor->unk60 & 0x10)) {
         t->unk1C = 0x1E;
     }
-    switch (D_807FBB40->unk154) {
+    switch (gCurrentActor->unk154) {
     case 0:
         if (t->unk1C != 0) {
             t->unk1C = (u32)t->unk1C - 1;
@@ -1004,8 +1004,8 @@ void func_8002D778(void) {
     }
     raceUpdateWaypointActivation(t);
     if (func_807142D8() == 0) {
-        if (D_807FBB40->unk154 > 0 && D_807FBB40->unk154 < 5) {
-            renderCallbacksRegister((void *)func_8002CBEC, D_807FBB40, 3);
+        if (gCurrentActor->unk154 > 0 && gCurrentActor->unk154 < 5) {
+            renderCallbacksRegister((void *)func_8002CBEC, gCurrentActor, 3);
         }
     }
 }
@@ -1017,7 +1017,7 @@ void func_8002DA68(RaceUnknown174 *race174) {
     f32 scale;
     f32 scaleCopy;
 
-    switch (D_807FBB40->unk154) {
+    switch (gCurrentActor->unk154) {
     case 0:
         angle = race174->unk2;
         if (((s16)(angle % 2048) >= 0x81) && ((0x800 - (s16)(angle % 2048)) >= 0x81)) {
@@ -1035,10 +1035,10 @@ void func_8002DA68(RaceUnknown174 *race174) {
     }
     race174->unk2 = angle & 0xFFF;
     scale = (((func_80612794(race174->unk2) + 1.0f) * 1.5) + 1.0) * race174->unk4;
-    D_807FBB40->unk4->unk34[2] = scale;
-    scaleCopy = D_807FBB40->unk4->unk34[2];
-    D_807FBB40->unk4->unk34[1] = scaleCopy;
-    D_807FBB40->unk4->unk34[0] = scaleCopy;
+    gCurrentActor->unk4->unk34[2] = scale;
+    scaleCopy = gCurrentActor->unk4->unk34[2];
+    gCurrentActor->unk4->unk34[1] = scaleCopy;
+    gCurrentActor->unk4->unk34[0] = scaleCopy;
 }
 void animSetSpeed(RaceUnknownActor *, s32, f32);
 void animSetLoopLimit(RaceUnknownActor *, s32, s32);
@@ -1046,16 +1046,16 @@ void animSetFinished(RaceUnknownActor *, s32, s32);
 s32 animIsPlaying(RaceUnknownActor *, s32);
 
 void func_8002DB90() {
-    if (D_807FBB40->unk154 != 0) {
-        if (D_807FBB40->unk154 == 1) {
-            if (animIsPlaying(D_807FBB40, 0) == 0) {
-                animSetSpeed(D_807FBB40, 0, 1.0f);
-                animSetLoopLimit(D_807FBB40, 0, -1);
+    if (gCurrentActor->unk154 != 0) {
+        if (gCurrentActor->unk154 == 1) {
+            if (animIsPlaying(gCurrentActor, 0) == 0) {
+                animSetSpeed(gCurrentActor, 0, 1.0f);
+                animSetLoopLimit(gCurrentActor, 0, -1);
             }
         }
     } else {
-        if (animIsPlaying(D_807FBB40, 0) != 0) {
-            animSetFinished(D_807FBB40, 0, 1);
+        if (animIsPlaying(gCurrentActor, 0) != 0) {
+            animSetFinished(gCurrentActor, 0, 1);
         }
     }
 }
@@ -1064,10 +1064,10 @@ void actorUpdateFloorContactAndTilt(RaceUnknownActor *, f32);
 void actorUpdateModelMatrix(RaceUnknownActor *, s32);
 
 void func_8002DC24(void) {
-    RaceUnknown174 *race174 = D_807FBB40->unk174;
+    RaceUnknown174 *race174 = gCurrentActor->unk174;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        race174->unk4 = D_807FBB40->unk4->unk34[1];
+    if (!(gCurrentActor->unk60 & 0x10)) {
+        race174->unk4 = gCurrentActor->unk4->unk34[1];
     }
     switch (race174->unk0) {
     case 2:
@@ -1075,16 +1075,16 @@ void func_8002DC24(void) {
         break;
     case 1:
         func_8002DB90(race174);
-        actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
-        D_807FBB40->unk80 = D_807FBB40->unkAC;
-        D_807FBB40->unk6A |= 4;
-        D_807FBB40->unk6C |= 4;
+        actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
+        gCurrentActor->unk80 = gCurrentActor->unkAC;
+        gCurrentActor->unk6A |= 4;
+        gCurrentActor->unk6C |= 4;
         break;
     default:
         func_8002DA68(race174);
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct RaceFView8 {
@@ -1186,7 +1186,7 @@ void func_8002DE78(RaceUnknownActor *actor, u8 mode, RaceCurvePoint *points, Rac
         points[5].y = values->z;
         break;
     }
-    D_807FBB40->unk155 = 0;
+    gCurrentActor->unk155 = 0;
     actor->unkF = mode;
 }
 
@@ -1313,7 +1313,7 @@ void func_8002E2C8(RaceUnknownActor *raceManager) {
     }
     for (playerIdx = 0; playerIdx < gPlayerCount; playerIdx++) {
         actorSpawn(0x13B, 0);
-        participantActor = D_807FBB44;
+        participantActor = gSpawnedActor;
         participantData = participantActor->unk174;
         participantData->unk27 = 0;
         func_8002BC2C(raceManager, slotIndex, participantActor, participantData);
@@ -1348,30 +1348,30 @@ void func_8002E484(void) {
     f32 curMax;
     f32 diff;
 
-    raceActor = D_807FBB40;
+    raceActor = gCurrentActor;
     raceData = (RaceStruct3 *)raceActor->unk174;
     playerActor = gPlayerSlots[raceData->unk28].unk4;
     if (!(raceActor->unk60 & 0x10)) {
         playerStateQueueCallback(0x4E, raceActor, raceData->unk28, playerActor);
-        D_807FBB40->unk154 = 0;
-        D_807FBB40->unk155 = 0;
-        raceActor = D_807FBB40;
+        gCurrentActor->unk154 = 0;
+        gCurrentActor->unk155 = 0;
+        raceActor = gCurrentActor;
     }
     if ((raceData->unk34 == 2) && (raceActor->unk154 == 0)) {
         playerStateQueueCallback(0x57, NULL, raceData->unk28, playerActor);
-        raceActor = D_807FBB40;
+        raceActor = gCurrentActor;
         raceActor->unk154++;
-        raceActor = D_807FBB40;
+        raceActor = gCurrentActor;
     }
     raceActor->unk7C = playerActor->unk7C;
-    D_807FBB40->unk80 = playerActor->unk80;
-    D_807FBB40->unk84 = playerActor->unk84;
+    gCurrentActor->unk80 = playerActor->unk80;
+    gCurrentActor->unk84 = playerActor->unk84;
     if (raceData->unk34 == 2) {
         func_8002F490(raceData);
-        raceActor = D_807FBB40;
+        raceActor = gCurrentActor;
     }
     if ((raceData->unk34 > 0) && (raceData->unk34 < 5)) {
-        renderCallbacksRegister((void *)func_8002E464, D_807FBB40, 3);
+        renderCallbacksRegister((void *)func_8002E464, gCurrentActor, 3);
     }
     raceData->unk1C = (raceData->unk40 < raceData->unk1C) ? raceData->unk1C : raceData->unk40;
     curMax = raceData->unk18;
@@ -1413,26 +1413,26 @@ void func_8002E644(RaceFE644Arg *collision) {
     RaceUnknownActor *actor;
 
     actor = collision->unk0;
-    distSq = (actor->unk7C - D_807FBB40->unk7C) * (actor->unk7C - D_807FBB40->unk7C) + (actor->unk84 - D_807FBB40->unk84) * (actor->unk84 - D_807FBB40->unk84);
-    if (D_807FBD70 == 4 && distSq < collision->unk14 && (collision->unkF == 1 || collision->unkF == 0 || collision->unkF == 4 || (D_807FBB40->unk58 == 0x143 && collision->unkF == 5))) {
-        targetAngle = mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, actor->unk7C, actor->unk84);
+    distSq = (actor->unk7C - gCurrentActor->unk7C) * (actor->unk7C - gCurrentActor->unk7C) + (actor->unk84 - gCurrentActor->unk84) * (actor->unk84 - gCurrentActor->unk84);
+    if (D_807FBD70 == 4 && distSq < collision->unk14 && (collision->unkF == 1 || collision->unkF == 0 || collision->unkF == 4 || (gCurrentActor->unk58 == 0x143 && collision->unkF == 5))) {
+        targetAngle = mathAngleBetweenPoints2D(gCurrentActor->unk7C, gCurrentActor->unk84, actor->unk7C, actor->unk84);
         bounceScale = 1.0f;
         if (mathAngleDistance(actor->unkEE, targetAngle) < 0x200) {
             bounceScale = 4.0f;
         }
         diffAngleActor = (s16)(actor->unkEE - targetAngle) & 0xFFF;
-        diffAnglePlayer = (s16)(D_807FBB40->unkEE - targetAngle);
+        diffAnglePlayer = (s16)(gCurrentActor->unkEE - targetAngle);
         diffAnglePlayer = diffAnglePlayer & 0xFFF;
         velX = func_80612794(diffAngleActor) * actor->unkB8;
         velZ = func_80612790(diffAngleActor) * actor->unkB8;
-        playerVel = func_80612790(diffAnglePlayer) * D_807FBB40->unkB8;
+        playerVel = func_80612790(diffAnglePlayer) * gCurrentActor->unkB8;
         velZ = (playerVel - velZ) * bounceScale + playerVel;
         actor->unkB8 = sqrtf(velX * velX + velZ * velZ);
         actor->unkEE = (s16)(s32)(((f64)func_80611BB4(velX, velZ) * 4096.0) / 6.2831854820251465);
         actor->unkEE = actor->unkEE + targetAngle;
         actor->unkEE = actor->unkEE & 0xFFF;
         if (collision->unkE == 0) {
-            switch (D_807FBB40->unk58) {
+            switch (gCurrentActor->unk58) {
             case 0x134:
                 sfxId = 0x1F9;
                 break;
@@ -1440,7 +1440,7 @@ void func_8002E644(RaceFE644Arg *collision) {
                 sfxId = 0x18A;
                 break;
             }
-            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, (s16)sfxId, 0xFF, 0x7F, 0, 0, 0.0f, 0);
+            sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, (s16)sfxId, 0xFF, 0x7F, 0, 0, 0.0f, 0);
             collision->unkE = 0x14;
         }
     }

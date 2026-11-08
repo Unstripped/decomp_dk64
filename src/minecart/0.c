@@ -133,7 +133,7 @@ typedef struct Struct_807FBB4C {
     Struct_807FC924_4_174 *unk174;
 } Struct_807FBB4C;
 
-extern Struct_807FBB40 *D_807FBB40;
+extern Struct_807FBB40 *gCurrentActor;
 extern Struct_807FBB4C *D_807FBB4C;
 
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
@@ -146,10 +146,10 @@ void camStartPath();
 void minecartTriggerLoss(u8 useCutsceneCam, u8 textIndex) {
     sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
     textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, textIndex, 1), 0, 0x28, 8, 8);
-    D_807FBB40->unk11C->unk154 = 0;
+    gCurrentActor->unk11C->unk154 = 0;
     sfxAllocateChannel(0x28, 1.0f);
     playerStateQueueCallback(0x44, 0, 0);
-    D_807FBB40->unk154++;
+    gCurrentActor->unk154++;
     if (useCutsceneCam != 0) {
         camStartPath(D_807FBB4C, 5, 5);
     }
@@ -158,10 +158,10 @@ void minecartTriggerLoss(u8 useCutsceneCam, u8 textIndex) {
 void minecartTriggerWin(u8 useCutsceneCam, u8 textIndex) {
     s32 temp = textTableGetString(0x1A, textIndex, 1);
     textSpawnMarkerChecked(0x81, 0, 0x78, temp, 0, 0x28, 8, 8);
-    D_807FBB40->unk11C->unk154 = 0;
+    gCurrentActor->unk11C->unk154 = 0;
     sfxAllocateChannel(0x2A, 1.0f);
     playerStateQueueCallback(0x43, 0, 0);
-    D_807FBB40->unk154++;
+    gCurrentActor->unk154++;
     if (useCutsceneCam != 0) {
         camStartPath(D_807FBB4C, 5, 5);
     }
@@ -180,10 +180,10 @@ s32 func_80714C08(void *, s32, void *, s32, s32);
 void minecartSpawnWheelEffect(MinecartCart *cart, u8 side, u8 probabilityThreshold) {
     if ((u32)(u8)randomLcgNext() >= (u32)probabilityThreshold) {
         if (cart->unk0 == 0) {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x8A, 0x96, 0x7F, 0x32);
-            func_80714950(D_807FBB40);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8A, 0x96, 0x7F, 0x32);
+            func_80714950(gCurrentActor);
             func_8071498C(&D_8071A440);
-            D_80028C30 = func_80714C08(&D_8072006C, 0x3ECCCCCD, D_807FBB40, side + 7, 2);
+            D_80028C30 = func_80714C08(&D_8072006C, 0x3ECCCCCD, gCurrentActor, side + 7, 2);
         }
     }
 }
@@ -193,23 +193,23 @@ void minecartStepSpeedToTarget(MinecartCart *cart) {
     f32 nextSpeed;
     f32 targetSpeed = targetSpeedInt;
 
-    if (targetSpeed != D_807FBB40->unkB8) {
-        if (D_807FBB40->unkB8 < targetSpeed) {
-            nextSpeed = D_807FBB40->unkB8 + 8.0f;
+    if (targetSpeed != gCurrentActor->unkB8) {
+        if (gCurrentActor->unkB8 < targetSpeed) {
+            nextSpeed = gCurrentActor->unkB8 + 8.0f;
             if (targetSpeed < nextSpeed) {
-                D_807FBB40->unkB8 = targetSpeed;
+                gCurrentActor->unkB8 = targetSpeed;
                 return;
             }
-            D_807FBB40->unkB8 = nextSpeed;
+            gCurrentActor->unkB8 = nextSpeed;
             return;
         }
-        if (targetSpeed < D_807FBB40->unkB8) {
-            nextSpeed = D_807FBB40->unkB8 - 8.0f;
+        if (targetSpeed < gCurrentActor->unkB8) {
+            nextSpeed = gCurrentActor->unkB8 - 8.0f;
             if (nextSpeed < targetSpeed) {
-                D_807FBB40->unkB8 = targetSpeed;
+                gCurrentActor->unkB8 = targetSpeed;
                 return;
             }
-            D_807FBB40->unkB8 = nextSpeed;
+            gCurrentActor->unkB8 = nextSpeed;
         }
     }
 }
@@ -222,11 +222,11 @@ void minecartPlayerCartUpdate(u8 initTrackSegment, s32 trackTable, s16 maxAngleD
     s32 pad0, pad1, pad2, pad3, pad4, pad5, pad6, pad7, pad8;
     f32 nodePos[3];
 
-    s1 = D_807FBB40->unk174;
+    s1 = gCurrentActor->unk174;
     playerState = gPlayerSlots->unk4->unk174;
-    flags = D_807FBB40->unk60;
+    flags = gCurrentActor->unk60;
     if (!(flags & 0x10)) {
-        D_807FBB40->unk60 = flags | 0x1400;
+        gCurrentActor->unk60 = flags | 0x1400;
         if (gCurrentMap == 6 || gCurrentMap == 0x37 || gCurrentMap == 0x6A) {
             slotQueueUpdate(0xB, 1, 0);
             D_80750AC4 = 0;
@@ -236,53 +236,53 @@ void minecartPlayerCartUpdate(u8 initTrackSegment, s32 trackTable, s16 maxAngleD
         s1->unk4 = gPlayerSlots->unk4;
         s1->unk8 = 0;
     }
-    switch (D_807FBB40->unk154) {
+    switch (gCurrentActor->unk154) {
     case 0:
-        if ((s1->unk4->unk7C - D_807FBB40->unk7C) * (s1->unk4->unk7C - D_807FBB40->unk7C) +
-            (s1->unk4->unk80 - D_807FBB40->unk80) * (s1->unk4->unk80 - D_807FBB40->unk80) +
-            (s1->unk4->unk84 - D_807FBB40->unk84) * (s1->unk4->unk84 - D_807FBB40->unk84) < 400.0f) {
+        if ((s1->unk4->unk7C - gCurrentActor->unk7C) * (s1->unk4->unk7C - gCurrentActor->unk7C) +
+            (s1->unk4->unk80 - gCurrentActor->unk80) * (s1->unk4->unk80 - gCurrentActor->unk80) +
+            (s1->unk4->unk84 - gCurrentActor->unk84) * (s1->unk4->unk84 - gCurrentActor->unk84) < 400.0f) {
             s1->unk34 = (u8 *)trackTable;
             s1->unk10 = initTrackSegment;
             s1->unk30 = (u8 *)trackTable;
-            playerStateQueueCallback(0x45, D_807FBB40, s1->unk8);
-            D_807FBB40->unk154++;
+            playerStateQueueCallback(0x45, gCurrentActor, s1->unk8);
+            gCurrentActor->unk154++;
         } else {
-            actorUpdateModelMatrix(D_807FBB40, 0);
+            actorUpdateModelMatrix(gCurrentActor, 0);
             break;
         }
     case 1:
         minecartFollowTrack(s1, maxAngleDelta, maxTiltLimit);
-        camSetTargetScaled(playerState->unk104, D_807FBB40, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
-        D_807FBB40->unk154++;
+        camSetTargetScaled(playerState->unk104, gCurrentActor, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
+        gCurrentActor->unk154++;
         break;
 
     case 2:
-        actorGetNodePos(D_807FBB40, 9, &s1->unk4->unk7C, &s1->unk4->unk80, &s1->unk4->unk84);
-        D_807FBB40->unk154++;
-        if (D_807FBB40->unk168 == 0 && gCurrentMap != 6) {
-            D_807FBB40->unk168 = 2;
+        actorGetNodePos(gCurrentActor, 9, &s1->unk4->unk7C, &s1->unk4->unk80, &s1->unk4->unk84);
+        gCurrentActor->unk154++;
+        if (gCurrentActor->unk168 == 0 && gCurrentMap != 6) {
+            gCurrentActor->unk168 = 2;
         }
         /* fallthrough */
     case 3:
     case 5:
-        if (D_807FBB40->unk168 == 0 && camIsCutsceneActive() != 0) {
-            D_807FBB40->unk168 = 1;
+        if (gCurrentActor->unk168 == 0 && camIsCutsceneActive() != 0) {
+            gCurrentActor->unk168 = 1;
         }
-        if (D_807FBB40->unk168 == 1 && D_807FBB40->unk155 == 0) {
+        if (gCurrentActor->unk168 == 1 && gCurrentActor->unk155 == 0) {
             if (camIsCutsceneActive() != 0) {
                 playerState->unk1F0 |= 8;
             } else {
-                camSetTargetScaled(playerState->unk104, D_807FBB40, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
+                camSetTargetScaled(playerState->unk104, gCurrentActor, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
                 playerState->unk1F0 &= ~8;
                 s1->unk3E = 0x3C;
-                D_807FBB40->unk155++;
+                gCurrentActor->unk155++;
             }
         }
         actorSpawnNodeEffectFacingCamera(6, 0xFF);
         minecartStepSpeedToTarget(s1);
         minecartFollowTrack(s1, maxAngleDelta, maxTiltLimit);
-        actorGetNodePos(D_807FBB40, 5, &nodePos[0], &nodePos[1], &nodePos[2]);
-        commandQueuePush(D_807FBB40, (s16)(s32)nodePos[0], (s16)(s32)nodePos[1], (s16)(s32)nodePos[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
+        actorGetNodePos(gCurrentActor, 5, &nodePos[0], &nodePos[1], &nodePos[2]);
+        commandQueuePush(gCurrentActor, (s16)(s32)nodePos[0], (s16)(s32)nodePos[1], (s16)(s32)nodePos[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
         commandQueuePush(s1->unk4, (s16)(s32)nodePos[0], (s16)(s32)nodePos[1], (s16)(s32)nodePos[2], 0xFF, 0xFF, 0xFF, 0xFF, 0);
         break;
 
@@ -305,11 +305,11 @@ void minecartUpdateHeadlight(void) {
     f32 lightPos[3];
 
     if (gActivePlayerState->unk1F0 & 0x10000002) {
-        actorGetNodePos(D_807FBB40, 2, &lightPos[0], &lightPos[1], &lightPos[2]);
-        actorGetNodePos(D_807FBB40, 1, &lightAim[0], &lightAim[1], &lightAim[2]);
+        actorGetNodePos(gCurrentActor, 2, &lightPos[0], &lightPos[1], &lightPos[2]);
+        actorGetNodePos(gCurrentActor, 1, &lightAim[0], &lightAim[1], &lightAim[2]);
     } else {
-        actorGetNodePos(D_807FBB40, 1, &lightPos[0], &lightPos[1], &lightPos[2]);
-        actorGetNodePos(D_807FBB40, 2, &lightAim[0], &lightAim[1], &lightAim[2]);
+        actorGetNodePos(gCurrentActor, 1, &lightPos[0], &lightPos[1], &lightPos[2]);
+        actorGetNodePos(gCurrentActor, 2, &lightAim[0], &lightAim[1], &lightAim[2]);
     }
     lightSetDistanceThreshold(0xC8);
     lightSetFovAngles(20.0f, 40.0f);
@@ -320,9 +320,9 @@ extern s32 D_80028C34;
 extern s32 D_80028C3C;
 
 void minecartUpdateHeadlightAndSpeed(void) {
-    MinecartCart *cart = D_807FBB40->unk174;
+    MinecartCart *cart = gCurrentActor->unk174;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(gCurrentActor->unk60 & 0x10)) {
         cart->unk24 = 0.1f;
         cart->unk28 = 5.0f;
     }
@@ -344,37 +344,37 @@ void minecartUpdatePhysics(void) {
     s16 prevVertPos;
     MinecartCart *cart;
 
-    f32 scaleFactor = (f32)((f64)D_807FBB40->unk4->unk38 * 0.16666666675);
-    cart = D_807FBB40->unk174;
+    f32 scaleFactor = (f32)((f64)gCurrentActor->unk4->unk38 * 0.16666666675);
+    cart = gCurrentActor->unk174;
     prevVertPos = cart->unk0;
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unkC8 = (f32) D_807502D0;
+    if (!(gCurrentActor->unk60 & 0x10)) {
+        gCurrentActor->unkC8 = (f32) D_807502D0;
         cart->unk24 = 3.0f;
         cart->unk28 = 12.0f;
     }
     if (cart->unk10 == 0x90) {
-        D_807FBB40->unkB8 = 130.0f;
-        D_807FBB40->unkC4 = (f32) ((f64) D_807502F8 * 0.6);
+        gCurrentActor->unkB8 = 130.0f;
+        gCurrentActor->unkC4 = (f32) ((f64) D_807502F8 * 0.6);
         if (cart->unk0 == 0) {
-            D_807FBB40->unkC0 = (f32) ((f64) D_80750338 * 1.6);
+            gCurrentActor->unkC0 = (f32) ((f64) D_80750338 * 1.6);
         }
     } else {
-        D_807FBB40->unkC4 = (f32) D_807502F8;
+        gCurrentActor->unkC4 = (f32) D_807502F8;
     }
-    cart->unk0 = (s16)((f32)cart->unk0 + D_807FBB40->unkC0 * scaleFactor);
+    cart->unk0 = (s16)((f32)cart->unk0 + gCurrentActor->unkC0 * scaleFactor);
     actorApplyGravity();
     if (cart->unk0 < 0) {
         cart->unk0 = 0;
         if (prevVertPos != 0) {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x8B, 0xFF, 0x7F, 0x1E);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8B, 0xFF, 0x7F, 0x1E);
         }
     }
     minecartPlayerCartUpdate(3, (s32)&D_80028C40, cart->unk2, 0x19);
     if (D_807FBB4C->unk12C != 0x12 && D_807FBB4C->unk12C != 0xB) {
         minecartUpdateHeadlight();
     }
-    if (D_807FBB40->unk154 != 0) {
-        actorGetNodePos(D_807FBB40, 9, &cart->unk4->unk7C, &cart->unk4->unk80, &cart->unk4->unk84);
+    if (gCurrentActor->unk154 != 0) {
+        actorGetNodePos(gCurrentActor, 9, &cart->unk4->unk7C, &cart->unk4->unk80, &cart->unk4->unk84);
     }
 }
 
@@ -400,34 +400,34 @@ void minecartReverseTrackBehaviour(void) {
     MinecartTrackPoint tmp;
     MinecartCart *s0;
 
-    scaleFactor = (f32)((f64)D_807FBB40->unk4->unk38 * 0.16666666675);
-    s0 = D_807FBB40->unk174;
+    scaleFactor = (f32)((f64)gCurrentActor->unk4->unk38 * 0.16666666675);
+    s0 = gCurrentActor->unk174;
     prevVertPos = s0->unk0;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(gCurrentActor->unk60 & 0x10)) {
         actorSetUniformScale(D_807FBB4C, 0.12f);
-        D_807FBB40->unkC4 = D_807502F8;
-        D_807FBB40->unkC8 = D_807502D0;
+        gCurrentActor->unkC4 = D_807502F8;
+        gCurrentActor->unkC8 = D_807502D0;
         s0->unk24 = 0.1f;
         s0->unk28 = 5.0f;
     }
-    s0->unk0 = (s16)((f32)s0->unk0 + D_807FBB40->unkC0 * scaleFactor);
+    s0->unk0 = (s16)((f32)s0->unk0 + gCurrentActor->unkC0 * scaleFactor);
     actorApplyGravity();
     if (s0->unk0 < 0) {
         s0->unk0 = 0;
         if (prevVertPos != 0) {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x8B, 0xFF, 0x7F, 0x1E);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8B, 0xFF, 0x7F, 0x1E);
         }
     }
     if (((MinecartPlayerActorFlags *)D_807FBB4C)->unk6A & 0x100) {
         ((MinecartPlayerActorFlags *)D_807FBB4C)->unk6A &= ~0x100;
-        D_807FBB40->unk168 = 2;
+        gCurrentActor->unk168 = 2;
     }
     minecartPlayerCartUpdate(1, (s32)&D_80028C48, 0x7FFF, 0x23);
     minecartUpdateHeadlight();
-    if (*s0->unk34 >= 7 && camIsCutsceneActive() != 0 && D_807FBB40->unk154 != 5) {
-        D_807FBB40->unkB8 = 300.0f;
+    if (*s0->unk34 >= 7 && camIsCutsceneActive() != 0 && gCurrentActor->unk154 != 5) {
+        gCurrentActor->unkB8 = 300.0f;
     }
-    if (D_807FBB40->unk154 == 4) {
+    if (gCurrentActor->unk154 == 4) {
         for (i = 0; i < D_807F5FD0; i++) {
             n = D_807F5FD4[i + 1] - D_807F5FD4[i];
             for (j = 0; j < n / 2; j++) {
@@ -438,11 +438,11 @@ void minecartReverseTrackBehaviour(void) {
         }
         s0->unk34 = (u8 *)&D_80028C50;
         s0->unk10 = 2;
-        D_807FBB40->unk154 = 5;
+        gCurrentActor->unk154 = 5;
         s0->unkC = 0;
     }
-    if (D_807FBB40->unk154 != 0) {
-        actorGetNodePos(D_807FBB40, 9, &s0->unk4->unk7C, &s0->unk4->unk80, &s0->unk4->unk84);
+    if (gCurrentActor->unk154 != 0) {
+        actorGetNodePos(gCurrentActor, 9, &s0->unk4->unk7C, &s0->unk4->unk80, &s0->unk4->unk84);
     }
 }
 
@@ -494,66 +494,66 @@ void minecartPlayerCartJunctionBehaviour(void) {
     f32 diff;
     f32 scale;
 
-    cart = D_807FBB40->unk174;
+    cart = gCurrentActor->unk174;
     playerState = D_807FBB4C->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(gCurrentActor->unk60 & 0x10)) {
         cart->unk30 = heapAlloc(3);
         cart->unk30[0] = 0x10;
         cart->unk30[1] = 0xFF;
         cart->unk24 = 3.0f;
         cart->unk28 = 12.0f;
-        D_807FBB40->unk168 = 3;
+        gCurrentActor->unk168 = 3;
         playerState->unk1F0 |= 8;
-        camStartPath(D_807FBB40, 0, 1, cart);
-        actorScriptStart(D_807FBB40, 0);
+        camStartPath(gCurrentActor, 0, 1, cart);
+        actorScriptStart(gCurrentActor, 0);
     }
-    if (D_807FBB40->unk154 != 5 && D_807FBB40->unk154 != 6) {
-        diff = (gPlayerSlots->unk214 - D_807FBB40->unk80) - 100.0f;
+    if (gCurrentActor->unk154 != 5 && gCurrentActor->unk154 != 6) {
+        diff = (gPlayerSlots->unk214 - gCurrentActor->unk80) - 100.0f;
         scale = (f32)(((f64)diff / 650.0 * 0.15) + .15);
-        actorSetUniformScale(D_807FBB40, scale);
+        actorSetUniformScale(gCurrentActor, scale);
         actorSetUniformScale(D_807FBB4C, scale);
     }
     if (playerState->unk1F0 & 8) {
         cart->unk3E = 3;
     }
-    if (D_807FBB40->unk154 < 5) {
+    if (gCurrentActor->unk154 < 5) {
         minecartPlayerCartUpdate(0x16, (s32)cart->unk30, 0, 0x19);
     }
     if (camIsCutsceneActive() == 0) {
         camSetFixedView(playerState->unk104, 322.0f, 900.0f, 268.0f, 325.0f, -9000.0f, 500.0f, 0);
     }
-    switch (D_807FBB40->unk154) {
+    switch (gCurrentActor->unk154) {
     case 1:
     case 2:
     case 3:
-        if (D_807FBB40->unk4->unk64 == 0x292) {
+        if (gCurrentActor->unk4->unk64 == 0x292) {
             minecartTriggerWin(1, 0x14);
-            D_807FBB40->unk154 = 5;
-        } else if (D_807FBB40->unk11C != NULL && D_807FBB40->unk11C->unk154 == 5) {
+            gCurrentActor->unk154 = 5;
+        } else if (gCurrentActor->unk11C != NULL && gCurrentActor->unk11C->unk154 == 5) {
             func_80726EE0(0);
             minecartTriggerLoss(1, 0xE);
-            D_807FBB40->unk154 = 5;
+            gCurrentActor->unk154 = 5;
             break;
         }
         minecartApplyJunction(cart, (MinecartElem **)&D_80028C20, 0x10, 0x13);
-        actorGetNodePos(D_807FBB40, 9, &cart->unk4->unk7C, &cart->unk4->unk80, &cart->unk4->unk84);
+        actorGetNodePos(gCurrentActor, 9, &cart->unk4->unk7C, &cart->unk4->unk80, &cart->unk4->unk84);
         return;
     case 4:
-        D_807FBB40->unk154 = 3;
+        gCurrentActor->unk154 = 3;
         cart->unk34--;
         break;
     case 5:
-        actorSetUniformScale(D_807FBB40, 0.15f);
+        actorSetUniformScale(gCurrentActor, 0.15f);
         actorSetUniformScale(D_807FBB4C, 0.225f);
-        D_807FBB40->unkE4 = 0;
-        D_807FBB40->unk154++;
+        gCurrentActor->unkE4 = 0;
+        gCurrentActor->unk154++;
         break;
     case 10:
         sfxAllocateChannel(0x5A, 1.0f);
         hudSpawnCountdownTimer(0x78, 0x78, (gCurrentMap == 0x4D) ? 0x1E : (gCurrentMap == 0x81) ? 0x2D : 0x3C);
-        actorSetStateTwo(D_807FBB40->unk11C);
+        actorSetStateTwo(gCurrentActor->unk11C);
         playerState->unk1F0 &= ~8;
-        D_807FBB40->unk154 = 3;
+        gCurrentActor->unk154 = 3;
         break;
     }
 }
@@ -613,65 +613,65 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     MinecartTrackPoint *p;
 
     prevPrevPt = cart->unkC;
-    oldYaw = D_807FBB40->unkE6;
+    oldYaw = gCurrentActor->unkE6;
     lateralShift = 0;
     trackIndex = (*cart->unk34 + cart->unk3F) & 0xFF3F;
-    func_8067ACB4(D_807FBB40);
+    func_8067ACB4(gCurrentActor);
     if (cart->unk34 != NULL && prevPrevPt == NULL) {
-        D_807FBB40->unk144 = 0x24;
+        gCurrentActor->unk144 = 0x24;
         targetPt = &D_807F5FD4[trackIndex][cart->unk10++];
-        D_807FBB40->unk7C = targetPt->x;
+        gCurrentActor->unk7C = targetPt->x;
         targetPt++;
-        D_807FBB40->unk80 = targetPt[-1].y;
-        D_807FBB40->unk84 = targetPt[-1].z;
-        D_807FBB40->unkA4 = targetPt[-1].y;
-        D_807FBB40->unkE6 = mathAngleBetweenPoints2D(targetPt->x, targetPt->z, D_807FBB40->unk7C, D_807FBB40->unk84);
-        D_807FBB40->unkE8 = (s16)(s32)(((f64)func_80611BB4(D_807FBB40->unk80 - targetPt->y,
-                                sqrtf((D_807FBB40->unk7C - targetPt->x) * (D_807FBB40->unk7C - targetPt->x) + (D_807FBB40->unk84 - targetPt->z) * (D_807FBB40->unk84 - targetPt->z))) * 2048.0) / 3.1415927410125732);
+        gCurrentActor->unk80 = targetPt[-1].y;
+        gCurrentActor->unk84 = targetPt[-1].z;
+        gCurrentActor->unkA4 = targetPt[-1].y;
+        gCurrentActor->unkE6 = mathAngleBetweenPoints2D(targetPt->x, targetPt->z, gCurrentActor->unk7C, gCurrentActor->unk84);
+        gCurrentActor->unkE8 = (s16)(s32)(((f64)func_80611BB4(gCurrentActor->unk80 - targetPt->y,
+                                sqrtf((gCurrentActor->unk7C - targetPt->x) * (gCurrentActor->unk7C - targetPt->x) + (gCurrentActor->unk84 - targetPt->z) * (gCurrentActor->unk84 - targetPt->z))) * 2048.0) / 3.1415927410125732);
         cart->unkC = targetPt - 2;
-        sfxPlayActorSound(D_807FBB40, 0x113, 0, 1, 0, 0xFF, 1.0f, 0);
+        sfxPlayActorSound(gCurrentActor, 0x113, 0, 1, 0, 0xFF, 1.0f, 0);
         cart->unk41 = 1;
     }
     targetPt = &D_807F5FD4[trackIndex][cart->unk10];
     if (cart->unk10 >= 2) {
         prevPrevPt = targetPt - 2;
     }
-    if (D_807FBB40->unkB8 < 0.0f && D_807FBB40->unk7C == targetPt[-1].x && D_807FBB40->unk84 == targetPt[-1].z && cart->unk10 >= 2) {
+    if (gCurrentActor->unkB8 < 0.0f && gCurrentActor->unk7C == targetPt[-1].x && gCurrentActor->unk84 == targetPt[-1].z && cart->unk10 >= 2) {
         cart->unk10--;
         targetPt--;
     }
-    actorGetNodePos(D_807FBB40, 3, &frontNodePos[0], &frontNodePos[1], &frontNodePos[2]);
-    actorGetNodePos(D_807FBB40, 4, &rearNodePos[0], &rearNodePos[1], &rearNodePos[2]);
-    stepDist = (f64)(D_807FBB40->unk4->unk38 * D_807FBB40->unkB8) * 0.16666666675;
+    actorGetNodePos(gCurrentActor, 3, &frontNodePos[0], &frontNodePos[1], &frontNodePos[2]);
+    actorGetNodePos(gCurrentActor, 4, &rearNodePos[0], &rearNodePos[1], &rearNodePos[2]);
+    stepDist = (f64)(gCurrentActor->unk4->unk38 * gCurrentActor->unkB8) * 0.16666666675;
     if (gCurrentMap == 0x4D || gCurrentMap == 0x81 || gCurrentMap == 0x82) {
         stepDist = (f64)stepDist * 1.8;
     } else {
-        if ((2.0 * (f64)func_80612794(D_807FBB40->unkE8)) + 1.0 < 0.6) {
+        if ((2.0 * (f64)func_80612794(gCurrentActor->unkE8)) + 1.0 < 0.6) {
             t = 0.6;
         } else {
-            t = (2.0 * (f64)func_80612794(D_807FBB40->unkE8)) + 1.0;
+            t = (2.0 * (f64)func_80612794(gCurrentActor->unkE8)) + 1.0;
         }
         stepDist = (f64)stepDist * (2.5 * t);
     }
     waypointAngle = mathAngleBetweenPoints2D(targetPt->x, targetPt->z, targetPt[-1].x, targetPt[-1].z);
     if (cart->unk0 == 0) {
-        D_80770B68[D_80770628[D_807FBB40->unk6E]] = ((f64)stepDist / 15.0) + 0.7;
+        D_80770B68[D_80770628[gCurrentActor->unk6E]] = ((f64)stepDist / 15.0) + 0.7;
     } else {
-        D_80770B68[D_80770628[D_807FBB40->unk6E]] = 0.0f;
+        D_80770B68[D_80770628[gCurrentActor->unk6E]] = 0.0f;
     }
-    if (D_807FBB40->unkF0 != 0) {
-        D_807FBB40->unkF0 = D_807FBB40->unkF0 - 1;
+    if (gCurrentActor->unkF0 != 0) {
+        gCurrentActor->unkF0 = gCurrentActor->unkF0 - 1;
         mathPickCloserTargetPoint3D(frontNodePos[0], frontNodePos[1], frontNodePos[2], targetPt, targetPt + 1, targetPt + 1, targetPt + 2, &frontTargetPt[0], &frontTargetPt[1], &frontTargetPt[2]);
         mathPickCloserTargetPoint3D(rearNodePos[0], rearNodePos[1], rearNodePos[2], targetPt - 1, targetPt, targetPt, targetPt + 1, &rearTargetPt[0], &rearTargetPt[1], &rearTargetPt[2]);
     } else {
         mathPickCloserTargetPoint3D(frontNodePos[0], frontNodePos[1], frontNodePos[2], targetPt - 1, targetPt, targetPt, targetPt + 1, &frontTargetPt[0], &frontTargetPt[1], &frontTargetPt[2]);
         mathPickCloserTargetPoint3D(rearNodePos[0], rearNodePos[1], rearNodePos[2], prevPrevPt, prevPrevPt + 1, targetPt - 1, targetPt, &rearTargetPt[0], &rearTargetPt[1], &rearTargetPt[2]);
     }
-    D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, (s16)(f32)mathAngleBetweenPoints2D(frontTargetPt[0], frontTargetPt[2], rearTargetPt[0], rearTargetPt[2]), 1.7f);
+    gCurrentActor->unkE6 = mathAngleEaseToward(gCurrentActor->unkE6, (s16)(f32)mathAngleBetweenPoints2D(frontTargetPt[0], frontTargetPt[2], rearTargetPt[0], rearTargetPt[2]), 1.7f);
     diff = sqrtf((frontTargetPt[0] - rearTargetPt[0]) * (frontTargetPt[0] - rearTargetPt[0]) + (frontTargetPt[2] - rearTargetPt[2]) * (frontTargetPt[2] - rearTargetPt[2]));
-    prev = D_807FBB40->unkE8;
-    D_807FBB40->unkE8 = (s16)(s32)(((f64)func_80611BB4(rearTargetPt[1] - frontTargetPt[1], diff) * 2048.0) / 3.1415927410125732);
-    prev = prev - (f32)D_807FBB40->unkE8;
+    prev = gCurrentActor->unkE8;
+    gCurrentActor->unkE8 = (s16)(s32)(((f64)func_80611BB4(rearTargetPt[1] - frontTargetPt[1], diff) * 2048.0) / 3.1415927410125732);
+    prev = prev - (f32)gCurrentActor->unkE8;
     if (prev > 2048.0f) {
         prev -= 4096.0f;
     }
@@ -686,16 +686,16 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
             }
         }
         if (cnt < 5) {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x20, 0xFF, 0x7F, 0x14);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x20, 0xFF, 0x7F, 0x14);
         }
     }
-    predX = func_80612794(waypointAngle) * stepDist + D_807FBB40->unk7C;
-    predZ = func_80612790(waypointAngle) * stepDist + D_807FBB40->unk84;
-    predY = D_807FBB40->unkA4;
-    if (mathPickCloserTargetPoint3D(predX, predY, predZ, targetPt - 1, targetPt, targetPt, targetPt + 1, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84) != 0) {
+    predX = func_80612794(waypointAngle) * stepDist + gCurrentActor->unk7C;
+    predZ = func_80612790(waypointAngle) * stepDist + gCurrentActor->unk84;
+    predY = gCurrentActor->unkA4;
+    if (mathPickCloserTargetPoint3D(predX, predY, predZ, targetPt - 1, targetPt, targetPt, targetPt + 1, &gCurrentActor->unk7C, &gCurrentActor->unk80, &gCurrentActor->unk84) != 0) {
         cart->unk10++;
     }
-    D_807FBB40->unk80 = D_807FBB40->unk80 + (f32)cart->unk0;
+    gCurrentActor->unk80 = gCurrentActor->unk80 + (f32)cart->unk0;
     n = D_807F5FD4[trackIndex + 1] - D_807F5FD4[trackIndex];
     if (D_807F5FD0 == trackIndex + 1) {
         limit = n - 1;
@@ -705,13 +705,13 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     if (cart->unk10 >= limit) {
         cart->unk34++;
         if (*cart->unk34 == 0xFF) {
-            D_807FBB40->unk154++;
+            gCurrentActor->unk154++;
         }
         if (gActivePlayerState->unk1FC != 0 && cart->unk4 == (void *)D_807FBB4C) {
             cart->unk3F = gActivePlayerState->unk1FC;
             gActivePlayerState->unk1FC = 0;
         } else if (gCurrentMap == 0x6A) {
-            D_807FBB40->unkF0 = 0x1E;
+            gCurrentActor->unkF0 = 0x1E;
             cart->unk2C = 0.0f;
             if (*cart->unk34 & 0x80) {
                 cart->unk3F = (u32)cart->unk3F >> 1;
@@ -734,8 +734,8 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
         i = (*cart->unk34 + cart->unk40) & 0x3F;
         q = &D_807F5FD4[i][cart->unk10];
         mathPickCloserTargetPoint3D(predX, predY, predZ, q - 1, q, q, q + 1, &junctionX, &junctionY, &junctionZ);
-        D_807FBB40->unk7C = D_807FBB40->unk7C + (junctionX - D_807FBB40->unk7C) * cart->unk2C;
-        D_807FBB40->unk84 = D_807FBB40->unk84 + (junctionZ - D_807FBB40->unk84) * cart->unk2C;
+        gCurrentActor->unk7C = gCurrentActor->unk7C + (junctionX - gCurrentActor->unk7C) * cart->unk2C;
+        gCurrentActor->unk84 = gCurrentActor->unk84 + (junctionZ - gCurrentActor->unk84) * cart->unk2C;
         cart->unk2C = (f64)cart->unk2C - 0.06;
         if (cart->unk2C < 0.0f) {
             cart->unk2C = 0.0f;
@@ -743,7 +743,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     }
     prevTiltSign = (cart->unk14 > 0.0f) ? 1 : ((cart->unk14 < 0.0f) ? -1 : 0);
     if (angleDeltaInput == 0x7FFF) {
-        v1 = D_807FBB40->unkE6 - oldYaw;
+        v1 = gCurrentActor->unkE6 - oldYaw;
         if (v1 >= 0x801) {
             v1 -= 0x1000;
         }
@@ -777,7 +777,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
         minecartSpawnWheelEffect(cart, 0, 0xE6);
     } else {
         minecartSpawnWheelEffect(cart, gFrameCounter & 1, 0xFA);
-        actorUpdateModelMatrix(D_807FBB40, 0);
+        actorUpdateModelMatrix(gCurrentActor, 0);
     }
     if (lateralShift != 0) {
         if (cart->unk18 < 10.0f) {
@@ -805,15 +805,15 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
                 i2++;
             } while (i2 < 0x14);
             if (cnt2 < 5) {
-                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x21, 0xFF, 0x7F, 0x14);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x21, 0xFF, 0x7F, 0x14);
             }
         }
-        guTranslateF(D_807FBB40->unkC, (f32)lateralShift, 0.0f, 0.0f);
+        guTranslateF(gCurrentActor->unkC, (f32)lateralShift, 0.0f, 0.0f);
         matrixMakeRotationZ(mtxTilt, cart->unk14);
-        guMtxCatF(D_807FBB40->unkC, mtxTilt, D_807FBB40->unkC);
+        guMtxCatF(gCurrentActor->unkC, mtxTilt, gCurrentActor->unkC);
         guTranslateF(mtxTilt, (f32)-lateralShift, 0.0f, 0.0f);
-        guMtxCatF(D_807FBB40->unkC, mtxTilt, D_807FBB40->unkC);
-        actorUpdateModelMatrix(D_807FBB40, 1);
+        guMtxCatF(gCurrentActor->unkC, mtxTilt, gCurrentActor->unkC);
+        actorUpdateModelMatrix(gCurrentActor, 1);
         lim = (cart->unk14 > 0.0f) ? cart->unk14 : -cart->unk14;
         if ((f32)cart->unk39 < lim) {
             if (cart->unk14 > 0.0f) {
@@ -825,9 +825,9 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     }
     if (((cart->unk14 > 0.0f) ? 1 : ((cart->unk14 < 0.0f) ? -1 : 0)) != prevTiltSign) {
         if (cart->unk39 != 0 && cart->unk0 == 0) {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x8B, ((cart->unk39 / maxTiltLimit) * 0x7F + 0x80) & 0xFF, 0x7F, 0x1E);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8B, ((cart->unk39 / maxTiltLimit) * 0x7F + 0x80) & 0xFF, 0x7F, 0x1E);
             cart->unk39 = 0;
         }
     }
-    actorUpdateFloorContactAndTilt(D_807FBB40, 0);
+    actorUpdateFloorContactAndTilt(gCurrentActor, 0);
 }

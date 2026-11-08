@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern void *gPlayerSlots;
@@ -173,7 +173,7 @@ void volumeTriggerUpdateAll(void) {
                 sub = (VolumeTriggerSubView *)&e->subs[j];
                 if (D_807557A0[e->subs[j].unk0].unkC == NULL || D_807557A0[e->subs[j].unk0].unkC()) {
                     flag = (u16)D_807557A0[sub->unk0].unk2 == 0xA ? 1 : 0;
-                    func_8067AB20(D_807FBB40, D_807557A0[sub->unk0].unk8, 0x01000000, D_807557A0[sub->unk0].unk7, e->subs[j].unk2, flag);
+                    func_8067AB20(gCurrentActor, D_807557A0[sub->unk0].unk8, 0x01000000, D_807557A0[sub->unk0].unk7, e->subs[j].unk2, flag);
                     D_807FDCB8 = e->unk0;
                     D_807FDCBA = e->unk2;
                     D_807FDCBC = e->unk4;

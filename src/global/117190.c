@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern void *gPlayerSlots;
 extern s32 gCurrentMap;
 extern u32 D_807FBB68;

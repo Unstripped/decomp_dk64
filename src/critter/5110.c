@@ -29,7 +29,7 @@ extern u8 D_807444EC;
 extern u8 D_807655F0[];
 extern s32 gCurrentMap;
 extern u8 D_807ECE00[];
-extern Struct_807FBB40 *D_807FBB40;
+extern Struct_807FBB40 *gCurrentActor;
 extern u16 D_807FCC44;
 extern u8 D_807FCC40[];
 
@@ -64,8 +64,8 @@ void critterBattleArenaUpdate(void) {
     s32 pad40[4];
     s32 returnMap;
     s32 returnExit;
-    challengeState = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    challengeState = gCurrentActor->unk174;
+    if (!(gCurrentActor->unk60 & 0x10)) {
         D_80029FA8 = 0;
         camStartPath(0, 0, 1);
         tmp = *(u16 *)&D_807FCC40[4];
@@ -90,10 +90,10 @@ void critterBattleArenaUpdate(void) {
             D_80029FA0 = 5;
             break;
         }
-        D_807FBB40->unk154 = 0;
+        gCurrentActor->unk154 = 0;
     }
 
-    switch (D_807FBB40->unk154) {
+    switch (gCurrentActor->unk154) {
     case 0x0:
         if ((D_807444EC == 1) && (camIsPathPaused() != 0)) {
             switch (gCurrentMap) {
@@ -110,16 +110,16 @@ void critterBattleArenaUpdate(void) {
                 mapChallengeIdx = 3;
                 break;
             }
-            func_8070D8C0(D_807FBB40, 0x19, *(u8 *)((char *)&mapChallengeIdx + 3));
-            D_807FBB40->unk154 = 1;
+            func_8070D8C0(gCurrentActor, 0x19, *(u8 *)((char *)&mapChallengeIdx + 3));
+            gCurrentActor->unk154 = 1;
             hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)challengeState)[5]);
         }
         break;
     case 0x1:
-        if (!(D_807FBB40->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->unk60 & 0x02000000)) {
             camResumePath();
-            D_807FBB40->unk154 = 2;
-            actorSetStateTwo(D_807FBB40->unk11C);
+            gCurrentActor->unk154 = 2;
+            actorSetStateTwo(gCurrentActor->unk11C);
             sfxAllocateChannel(8, 1.0f);
         }
         break;
@@ -132,13 +132,13 @@ void critterBattleArenaUpdate(void) {
         }
         dcacheFunc = (void (*)(void *, s32))critterBitwiseNot(~(s32)osWritebackDCache);
         if (D_80029FA0 <= 0) {
-            D_807FBB40->unk154 = 3;
+            gCurrentActor->unk154 = 3;
         }
         dcacheFunc(alignedBuf, 0x10);
         dmaRomOffset = critterBitwiseNot(-0xDC1);
         ((void (*)(void *, s32, s32, s32, void *, s32, void *))critterBitwiseNot(~(s32)osPiStartDma))(&D_807ECE00, 0, 0, dmaRomOffset, alignedBuf, 0x10, &D_807655F0);
-        if (D_807FBB40->unk11C->unk154 == 5) {
-            D_807FBB40->unk154 = 0xFF;
+        if (gCurrentActor->unk11C->unk154 == 5) {
+            gCurrentActor->unk154 = 0xFF;
         }
         ((void (*)(void *, s32, s32))critterBitwiseNot(~(s32)osRecvMesg))(&D_807655F0, 0, 1);
         ((void (*)(void *, s32))critterBitwiseNot(~(s32)osInvalDCache))(alignedBuf, 0x10);
@@ -148,11 +148,11 @@ void critterBattleArenaUpdate(void) {
         }
         break;
     case 0x3:
-        D_807FBB40->unk11C->unk154 = 1;
+        gCurrentActor->unk11C->unk154 = 1;
         challengeState->textGfxHandle = gfxResourceCreate(1, "WELL DONE!", 2, 160.0f, 100.0f, 0.0f);
         sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
         challengeState->timer = 0x78;
-        D_807FBB40->unk154 = 0xFE;
+        gCurrentActor->unk154 = 0xFE;
         D_80029FA8 = 1;
         break;
     case 0xFE:
@@ -192,10 +192,10 @@ void critterBattleArenaUpdate(void) {
         D_80029FA8 = 0;
         challengeState->textGfxHandle = gfxResourceCreate(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
         challengeState->timer = 0x78;
-        D_807FBB40->unk154 = 0xFE;
+        gCurrentActor->unk154 = 0xFE;
         break;
     }
-    renderCallbacksRegister(&critterRenderCenterImage, D_807FBB40, 3);
+    renderCallbacksRegister(&critterRenderCenterImage, gCurrentActor, 3);
 }
 
 extern u8 D_1000118[];

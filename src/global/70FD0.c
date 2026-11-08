@@ -2024,7 +2024,7 @@ typedef struct ModelSlotHitRecord {
     f32 unk90;
 } ModelSlotHitRecord;
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 f32 sinApprox(f32);
 f32 cosApprox(f32);
 s32 camDistance3D(s32, s32, s32, s32, s32, s32);
@@ -2080,7 +2080,7 @@ void func_8066FE08(s32 arg0) {
             if (var_v1 < 0) {
                 var_v1 += 0x1000;
             }
-            temp_a1 = D_807FBB40->yaw;
+            temp_a1 = gCurrentActor->yaw;
             var_a0 = (s16)(var_v1 - temp_a1);
             var_v1 = (1 | var_a3) ? var_v1 : var_v1 + 1; // FAKE: redefines var_v1 (always-true condition folds) so uopt does not forward var_a0's store into the sign test
             if (var_a0 < 0) {
@@ -2117,7 +2117,7 @@ void func_8066FE08(s32 arg0) {
             if (var_v1 < 0) {
                 var_v1 += 0x1000;
             }
-            temp_a1 = D_807FBB40->yaw;
+            temp_a1 = gCurrentActor->yaw;
             var_a0 = (s16)(var_v1 - temp_a1);
             var_v1 = 0; // FAKE: dead store (var_v1 unused below) so uopt does not forward var_a0's store into the sign test
             if (var_a0 < 0) {
@@ -2172,8 +2172,8 @@ void func_8066FE08(s32 arg0) {
                 guTranslateF(tmp, sp160, sp15C, sp158);
                 guMtxCatF(mtx, tmp, mtx);
                 guMtxXFMF(mtx, sp74, sp70, sp6C, &sp68, &sp64, &sp60);
-                sp50 = (f32)camDistance3D((s32)D_807FBB40->x, (s32)D_807FBB40->y, (s32)D_807FBB40->z, (s32)sp68, (s32)sp64, (s32)sp60);
-                if (sp50 < (f32)camDistance3D((s32)D_807FBB40->x, (s32)D_807FBB40->y, (s32)D_807FBB40->z, (s32)sp5C, (s32)sp58, (s32)sp54)) {
+                sp50 = (f32)camDistance3D((s32)gCurrentActor->x, (s32)gCurrentActor->y, (s32)gCurrentActor->z, (s32)sp68, (s32)sp64, (s32)sp60);
+                if (sp50 < (f32)camDistance3D((s32)gCurrentActor->x, (s32)gCurrentActor->y, (s32)gCurrentActor->z, (s32)sp5C, (s32)sp58, (s32)sp54)) {
                     sub->unk52 = 1;
                     return;
                 }

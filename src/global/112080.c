@@ -1,8 +1,8 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
-extern Actor *D_807FBB44;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 extern Actor *D_807FBB48;
 
 void func_8070D380(s32 size, void *dst, s32 *src) {
@@ -185,9 +185,9 @@ void *func_8070D754(void *key) {
         heapClearBlock(*link);
         (*link)->key = key;
         actorSpawn(0x12B, 0, key);
-        D_807FBB44->state = 0;
-        (*link)->actor = D_807FBB44;
-        state = (S112dActorKeyState *)D_807FBB44->unk174;
+        gSpawnedActor->state = 0;
+        (*link)->actor = gSpawnedActor;
+        state = (S112dActorKeyState *)gSpawnedActor->unk174;
         state->key = key;
     }
     return *link;

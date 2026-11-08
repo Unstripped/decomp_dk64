@@ -35,8 +35,8 @@ typedef struct B6C50View90 {
     /* 0x04 */ B6C50Actor *unk4;
 } B6C50View90;
 
-extern B6C50Actor *D_807FBB40;
-extern B6C50Actor *D_807FBB44;
+extern B6C50Actor *gCurrentActor;
+extern B6C50Actor *gSpawnedActor;
 extern ActorGlobalState D_807FBB70;
 extern s32 D_8072030C;
 extern u32 gFrameCounter;
@@ -75,90 +75,90 @@ void func_806B1F50(void) {
     u8 tint;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(gCurrentActor->unk60 & 0x10)) {
         D_807FDC98->unk46 |= 0xA0;
-        D_807FBB40->unk60 |= 0x400;
-        D_807FBB40->unk154 = 0;
-        D_807FBB40->unk155 = 0;
+        gCurrentActor->unk60 |= 0x400;
+        gCurrentActor->unk154 = 0;
+        gCurrentActor->unk155 = 0;
         actorSpawn(0x73, 0x7D);
-        ((B6C50View90 *)D_807FDC90)->unk4 = D_807FBB44;
-        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, 0.3f);
-        D_807FBB44->unk7C = func_80612794(D_807FBB40->unkE6) * 14.0f + D_807FBB40->unk7C;
-        D_807FBB44->unk84 = func_80612790(D_807FBB40->unkE6) * 14.0f + D_807FBB40->unk84;
-        actorClearNodeFlag(D_807FBB44, 3);
-        actorClearNodeFlag(D_807FBB44, 1);
-        actorUpdateFloorContactAndTilt(D_807FBB44, 14.0f);
-        D_807FBB40->unk68 &= 0xFFBF;
-        D_807FBB44->unk60 |= 0x1000;
+        ((B6C50View90 *)D_807FDC90)->unk4 = gSpawnedActor;
+        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.3f);
+        gSpawnedActor->unk7C = func_80612794(gCurrentActor->unkE6) * 14.0f + gCurrentActor->unk7C;
+        gSpawnedActor->unk84 = func_80612790(gCurrentActor->unkE6) * 14.0f + gCurrentActor->unk84;
+        actorClearNodeFlag(gSpawnedActor, 3);
+        actorClearNodeFlag(gSpawnedActor, 1);
+        actorUpdateFloorContactAndTilt(gSpawnedActor, 14.0f);
+        gCurrentActor->unk68 &= 0xFFBF;
+        gSpawnedActor->unk60 |= 0x1000;
         func_807149B8(1);
         func_807149FC(-1);
-        func_807149A8(D_807FBB44->unk12A * 0.75);
-        func_80714C08(&D_8072030C, 0.28f, D_807FBB44, 1, 2);
-        actorScriptStart(D_807FBB40, 0x300);
-        sfxPlayActorSound(D_807FBB40, 0x135, 0x64, 0, 0, 0x78, 1.0f, 0);
+        func_807149A8(gSpawnedActor->unk12A * 0.75);
+        func_80714C08(&D_8072030C, 0.28f, gSpawnedActor, 1, 2);
+        actorScriptStart(gCurrentActor, 0x300);
+        sfxPlayActorSound(gCurrentActor, 0x135, 0x64, 0, 0, 0x78, 1.0f, 0);
     }
     if (D_807FBB70.unk15 != 0 || D_807FBB70.unk200 == 9) {
-        D_807FBB40->unk11C->unk154 = 0;
-        camStartPath(D_807FBB40, 6, 5);
-        D_807FBB40->unk144 = 1;
-        D_807FBB40->unk154 = 0x37;
-        D_807FBB40->unk155 = 0;
+        gCurrentActor->unk11C->unk154 = 0;
+        camStartPath(gCurrentActor, 6, 5);
+        gCurrentActor->unk144 = 1;
+        gCurrentActor->unk154 = 0x37;
+        gCurrentActor->unk155 = 0;
     } else if (D_807FBB70.unk200 == 4) {
-        D_807FBB40->unk155++;
+        gCurrentActor->unk155++;
     }
-    switch (D_807FBB40->unk154) {
+    switch (gCurrentActor->unk154) {
         case 0x27:
             break;
         case 0:
             if (currentActorTestClearFlag() != 0) {
                 hudSpawnCountdownTimer(0xDC, 0x2A, 0x1E);
-                actorSetStateTwo(D_807FBB40->unk11C);
-                D_807FBB40->unk154 = 7;
-                D_807FBB40->unk155 = 0;
+                actorSetStateTwo(gCurrentActor->unk11C);
+                gCurrentActor->unk154 = 7;
+                gCurrentActor->unk155 = 0;
             }
             break;
         case 0x37:
-            switch (D_807FBB40->unk155) {
+            switch (gCurrentActor->unk155) {
                 case 0x3C:
-                    D_807FBB40->unk60 &= ~4;
-                    D_807FBB40->unk68 &= 0xFFBF;
-                    sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0xED, 0xFF, 0x7F, 0x14);
-                    func_8067DF44(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, D_807FBB40->unk4->unk38 * 2 / 0.15, 0, 1);
+                    gCurrentActor->unk60 &= ~4;
+                    gCurrentActor->unk68 &= 0xFFBF;
+                    sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xED, 0xFF, 0x7F, 0x14);
+                    func_8067DF44(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->unk38 * 2 / 0.15, 0, 1);
                     actorDespawn((B6C50Actor *)D_807FDC94);
-                    D_807FBB40->unk155++;
+                    gCurrentActor->unk155++;
                     break;
                 case 0x64:
-                    actorDespawn(D_807FBB40->unk11C);
-                    D_807FBB40->unk154 = 0x40;
+                    actorDespawn(gCurrentActor->unk11C);
+                    gCurrentActor->unk154 = 0x40;
                     sfxAllocateChannel(0x2A, 1.0f);
                 default:
-                    D_807FBB40->unk155++;
+                    gCurrentActor->unk155++;
                     break;
             }
             break;
         default:
-            if (D_807FBB40->unk11C != NULL && D_807FBB40->unk11C->unk154 == 5) {
-                D_807FBB40->unk138 &= ~0x8000;
-                sfxStopSlotSound(D_807FBB40, 0);
+            if (gCurrentActor->unk11C != NULL && gCurrentActor->unk11C->unk154 == 5) {
+                gCurrentActor->unk138 &= ~0x8000;
+                sfxStopSlotSound(gCurrentActor, 0);
                 func_80726EE0(0);
                 effectFreeByResource((B6C50Actor *)D_807FDC94);
-                actorDespawn(D_807FBB40->unk11C);
-                D_807FBB40->unk154 = 0x27;
-                D_807FBB40->unk155 = 0;
-                camStartPath(D_807FBB40, 3, 1);
-                actorScriptStart(D_807FBB40, 0x307);
-                D_807FBB40->unkE6 += 0x800;
-                D_807FBB40->unk84 += 5.0f;
+                actorDespawn(gCurrentActor->unk11C);
+                gCurrentActor->unk154 = 0x27;
+                gCurrentActor->unk155 = 0;
+                camStartPath(gCurrentActor, 3, 1);
+                actorScriptStart(gCurrentActor, 0x307);
+                gCurrentActor->unkE6 += 0x800;
+                gCurrentActor->unk84 += 5.0f;
             }
-            if (D_807FBB40->unk155 != 0 && actorTableContains(D_807FDC94) != 0 && gFrameCounter % 7 == 0) {
-                tint = -D_807FBB40->unk155 * 0x1E + 0xB4;
+            if (gCurrentActor->unk155 != 0 && actorTableContains(D_807FDC94) != 0 && gFrameCounter % 7 == 0) {
+                tint = -gCurrentActor->unk155 * 0x1E + 0xB4;
                 func_80714998(3);
-                func_807149C8(tint, tint, tint & 0xFF, D_807FBB40->unk129);
+                func_807149C8(tint, tint, tint & 0xFF, gCurrentActor->unk129);
                 effectSpawnBoneDefault((B6C50Actor *)D_807FDC94, 1, 1.0f, 0.0f, 0.0f, 0.0f, -0x96);
             }
             break;
     }
-    actorUpdateModelMatrix((B6C50Actor *)*(s32 *)&D_807FBB40, 0);
+    actorUpdateModelMatrix((B6C50Actor *)*(s32 *)&gCurrentActor, 0);
 }
 
 extern B6C50Actor *D_807FBB4C;
@@ -176,42 +176,42 @@ void func_806B24B8(void) {
     f32 dz;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(gCurrentActor->unk60 & 0x10)) {
         found = actorFindByType(0x110);
         if (found != NULL) {
             ((B6C50View90 *)D_807FDC90)->unk4 = found;
         }
         D_807FDC9C->unk10 = 0x23;
-        func_80613C48(D_807FBB40, 0x599, 0.0f, 0.0f);
-        D_807FBB40->unk68 &= 0xFFBF;
-        sfxPlayActorSound(D_807FBB40, 0x139, 0x78, 0, 1, 0x3C, 0.56f, 0);
-        D_807FBB40->unk60 |= 0x400;
+        func_80613C48(gCurrentActor, 0x599, 0.0f, 0.0f);
+        gCurrentActor->unk68 &= 0xFFBF;
+        sfxPlayActorSound(gCurrentActor, 0x139, 0x78, 0, 1, 0x3C, 0.56f, 0);
+        gCurrentActor->unk60 |= 0x400;
     }
     if (gFrameCounter % 10 == 0) {
         func_807149B8(1);
-        func_80714C08(&D_80720340, D_807FBB40->unk4->unk38 * 6.66666667 * 0.9, D_807FBB40, 1, 2);
+        func_80714C08(&D_80720340, gCurrentActor->unk4->unk38 * 6.66666667 * 0.9, gCurrentActor, 1, 2);
     }
     if (actorTableContains(D_807FDC94) == 0) {
         ((B6C50View90 *)D_807FDC90)->unk4 = D_807FBB4C;
         D_807FDC94 = (Actor *)((B6C50View90 *)D_807FDC90)->unk4;
     }
     if (D_807FBB70.unk15 != 0 || D_807FBB70.unk200 == 9) {
-        D_807FBB40->unk144 = 1;
-        D_807FBB40->unk154 = 0x40;
-        func_8067DF44(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, D_807FBB40->unk4->unk38 / 0.15, 0, 1);
+        gCurrentActor->unk144 = 1;
+        gCurrentActor->unk154 = 0x40;
+        func_8067DF44(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->unk38 / 0.15, 0, 1);
     }
-    if (D_807FBB40->unk154 == 0x23) {
-        if (D_807FBB40->unkF0 == 0) {
-            dx = D_807FBB40->unk7C - D_807FDC94->x;
-            dz = D_807FBB40->unk84 - D_807FDC94->z;
+    if (gCurrentActor->unk154 == 0x23) {
+        if (gCurrentActor->unkF0 == 0) {
+            dx = gCurrentActor->unk7C - D_807FDC94->x;
+            dz = gCurrentActor->unk84 - D_807FDC94->z;
             if (sqrtf(dx * dx + dz * dz) < 30.0f) {
-                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x2CA, 0xFF, 0x7F, 0x14);
-                D_807FBB40->unkF0 = 1;
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x2CA, 0xFF, 0x7F, 0x14);
+                gCurrentActor->unkF0 = 1;
             }
         }
         actorMoveWithinZone(0x23, D_807FDC94->x, D_807FDC94->z, 0, 0.0f);
     } else {
         func_8072B7CC(0x1F8);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }

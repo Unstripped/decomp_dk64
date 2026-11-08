@@ -58,7 +58,7 @@ typedef struct LB3bTbl {
     u8 *unk278[8];
 } LB3bTbl;
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern Actor *D_807FBB48;
 extern Actor *D_807FBB4C;
 extern s32 gCurrentMap;
@@ -123,19 +123,19 @@ void bonusControllerUpdate(void) {
     s32 t;
     u8 *pv;
 
-    s = *(LB3bState **)((u8 *)D_807FBB40 + 0x178);
+    s = *(LB3bState **)((u8 *)gCurrentActor + 0x178);
     behaviourFrameBegin();
     challengeType = D_807FDC9C->unk14;
     targetCount = D_807FDC9C->unkA;
     commandQueuePush(D_807FBB4C, D_807FBB4C->x, D_807FBB4C->y + 30.0f, D_807FBB4C->z, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         hasMessage = 0;
         currentActorClearFlag();
         D_807FDC98->unk46 |= 0x80;
         slotQueueSetDisplayMode(2, 0, 1);
         slotQueueSetDisplayMode(5, 0, 1);
         slotQueueSetDisplayMode(4, 0, 2);
-        D_807FBB40->state = 0;
+        gCurrentActor->state = 0;
         hudSpawnCountdownTimer(0xDC, 0x2A, D_807FDC9C->unkB);
         switch (challengeType) {
         case 14:
@@ -186,7 +186,7 @@ tail:
             s->unk2 = targetCount;
         }
     }
-    if (D_807FBB40->state == 0) {
+    if (gCurrentActor->state == 0) {
         i = 0;
         if (D_807FBDC4 > 0) {
             do {
@@ -243,8 +243,8 @@ tail:
                         a2v = 0;
                         if (v3 != 0x12) {
                             if (v3 == 0x27) {
-                                D_807FBB40->unk15F += 1;
-                                if (D_807FBB40->unk15F >= 3) {
+                                gCurrentActor->unk15F += 1;
+                                if (gCurrentActor->unk15F >= 3) {
                                     csModelStateSetFirstByte(2, 0xA);
                                 }
                             } else {
@@ -261,7 +261,7 @@ tail:
             } while (++i < D_807FBDC4);
         }
     }
-    if (D_807FBB40->state == 0) {
+    if (gCurrentActor->state == 0) {
         switch (challengeType) {
         case 15:
             func_80724A20();
@@ -284,8 +284,8 @@ tail:
             goto render;
         case 5:
             if (gCurrentMap == 0x85 && s->unk4 == 1) {
-                if (D_807FBB40->unk155[0] == 0) {
-                    D_807FBB40->unk155[0] += 1;
+                if (gCurrentActor->unk155[0] == 0) {
+                    gCurrentActor->unk155[0] += 1;
                     func_80641874(0, 0);
                     func_80641874(1, 0);
                     func_80641874(2, 0);
@@ -302,7 +302,7 @@ tail:
             }
 render:
             if (s->unk0 >= 2) {
-                renderCallbacksRegister(bonusRenderCounterHud, D_807FBB40, 3);
+                renderCallbacksRegister(bonusRenderCounterHud, gCurrentActor, 3);
             }
             break;
         case 9:
@@ -320,14 +320,14 @@ render:
             if (D_8076AEF2 == 0x11) {
                 func_8070E8DC(2);
             }
-            func_8070D8C0(D_807FBB40, 0, D_8002D863[challengeType << 2]);
+            func_8070D8C0(gCurrentActor, 0, D_8002D863[challengeType << 2]);
             s->unk0 += 1;
         }
         break;
     case 1:
-        if (!(D_807FBB40->flags & 0x02000000)) {
-            camResumePath(D_807FBB40);
-            actorSetStateTwo((void *)D_807FBB40->unk11C);
+        if (!(gCurrentActor->flags & 0x02000000)) {
+            camResumePath(gCurrentActor);
+            actorSetStateTwo((void *)gCurrentActor->unk11C);
             switch (gCurrentMap) {
             case 3:
             case 0x23:
@@ -360,16 +360,16 @@ render:
         }
         break;
     }
-    switch (D_807FBB40->state) {
+    switch (gCurrentActor->state) {
     case 0:
         if ((challengeType == 1 || challengeType == 0 || challengeType == 2 || challengeType == 0x10) && D_807FBB4C->y < 0.0f) {
             bonusEndLose(1, 1);
             return;
         }
         if (challengeType == 4 && D_807FBB4C->y < -20.0f) {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x362, 0xFF, 0x7F, 0);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x362, 0xFF, 0x7F, 0);
             bonusEndLose(0, 1);
-            camStartPath(D_807FBB40, 1, 1);
+            camStartPath(gCurrentActor, 1, 1);
             return;
         }
         if (D_807FBB4C->state == 0x73) {
@@ -385,7 +385,7 @@ render:
             return;
         }
         pv = &challengeType;
-        if (((Actor *)D_807FBB40->unk11C)->state == 5) {
+        if (((Actor *)gCurrentActor->unk11C)->state == 5) {
             if (*pv == 3) {
                 bonusEndWin(1, 0x15);
                 return;
@@ -395,8 +395,8 @@ render:
         }
         break;
     case 1:
-        ((Actor *)D_807FBB40->unk11C)->state = 0;
-        D_807FBB40->state += 1;
+        ((Actor *)gCurrentActor->unk11C)->state = 0;
+        gCurrentActor->state += 1;
         break;
     case 0x27:
         func_806FDAB8(s->unk9, 3.1415927f);
@@ -405,11 +405,11 @@ render:
             bonusEndWin(1, 0xE);
             return;
         }
-        D_807FBB40->state = 0;
+        gCurrentActor->state = 0;
         break;
     case 0x28:
         s->unk2 = 1;
-        D_807FBB40->state = 0;
+        gCurrentActor->state = 0;
         break;
     case 0x37:
         bonusEndLose(1, 1);
@@ -475,9 +475,9 @@ typedef struct LB3bInput {
 void bonusMazeChallengeUpdate(void) {
     LB3bSnd *snd;
 
-    snd = *(LB3bSnd **)((u8 *)D_807FBB40 + 0x178);
+    snd = *(LB3bSnd **)((u8 *)gCurrentActor + 0x178);
     behaviourFrameBegin();
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         snd->unk0 = 0x12C;
         snd->unkA = 0;
         snd->unk8 = 0;
@@ -487,32 +487,32 @@ void bonusMazeChallengeUpdate(void) {
         spawnNodeActivateAndSetState(2, 0x40, 0x10);
         spawnNodeActivateAndSetState(3, 0x40, 0x10);
         spawnNodeActivateAndSetState(4, 0x40, 0x10);
-        D_807FBB40->state = 0;
-        D_807FBB40->unk155[0] = 0;
+        gCurrentActor->state = 0;
+        gCurrentActor->unk155[0] = 0;
         camRequestPathLength();
         snd->unk18 = camStartPath(0, 0, 1);
     }
-    switch (D_807FBB40->state) {
+    switch (gCurrentActor->state) {
     case 0:
         if (snd->unk18 != 0) {
             snd->unk18--;
         } else {
-            actorSetStateTwo((void *)D_807FBB40->unk11C);
-            D_807FBB40->state = 1;
+            actorSetStateTwo((void *)gCurrentActor->unk11C);
+            gCurrentActor->state = 1;
         }
         break;
     case 1:
-        if (((Actor *)D_807FBB40->unk11C)->state == 5) {
+        if (((Actor *)gCurrentActor->unk11C)->state == 5) {
             textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, 0x15, 1), 0, 0x28, 8, 8);
             func_80726EE0(0);
             sfxAllocateChannel(0x28, 1.0f);
             actorSpawnNodeEntryScaled(0x56, 588.0f, 240.0f, 582.0f, 0, 0, bonusGetSoundForMap(), 0);
-            D_807FBB40->state = 2;
+            gCurrentActor->state = 2;
         }
         if (D_807FBB4C->state == 0x39) {
             func_805FF898();
             func_806C9974(0, 0x40);
-            D_807FBB40->state = 2;
+            gCurrentActor->state = 2;
         }
         break;
     }

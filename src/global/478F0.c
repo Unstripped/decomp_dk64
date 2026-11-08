@@ -2,7 +2,7 @@
 #include "actor.h"
 #include "cutscene.h"
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
@@ -3056,7 +3056,7 @@ void func_8064B868(CsState *cs, s16 csId, s16 b, s16 c) {
     effectNodeSetUnk4A(6, 0);
 }
 
-extern Actor *D_807FBB44;
+extern Actor *gSpawnedActor;
 Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 Actor *spawnNodeActivate(s16, u16);
 void actorScriptStart(void *, s32);
@@ -3066,7 +3066,7 @@ void func_8064B900(CsState *cs, s16 csId, s16 b, s16 c) {
     switch (b) {
         case 2:
             spawnNodeSpawnById(8, 0, 0, 0, 0, 0, 0);
-            D_807FBB44->flags &= ~4;
+            gSpawnedActor->flags &= ~4;
             break;
         case 1:
             a = spawnNodeActivate(8, 0);
@@ -4102,20 +4102,20 @@ void func_8064E65C(CsState *cs, s16 csId, s16 b, s16 c) {
         case 11:
             sfxPlayAtPositionPooled(x, y, z, 0x305, 0x64, 0x7F, 0, 0, 0.0f, 0);
             actorSpawn(0xB3, 0x5D);
-            D_807FBB44->unk4->unk34 = D_807FBB44->unk4->unk34 * 3.2;
-            D_807FBB44->unk4->unk38 = D_807FBB44->unk4->unk38 * 3.2;
-            D_807FBB44->unk4->unk3C = D_807FBB44->unk4->unk3C * 3.2;
-            D_807FBB44->flags |= 0x400;
-            actorScriptStart(D_807FBB44, 0x335);
+            gSpawnedActor->unk4->unk34 = gSpawnedActor->unk4->unk34 * 3.2;
+            gSpawnedActor->unk4->unk38 = gSpawnedActor->unk4->unk38 * 3.2;
+            gSpawnedActor->unk4->unk3C = gSpawnedActor->unk4->unk3C * 3.2;
+            gSpawnedActor->flags |= 0x400;
+            actorScriptStart(gSpawnedActor, 0x335);
             if (b == 11) {
-                D_807FBB44->x = gCsPosX;
-                D_807FBB44->y = gCsPosY;
-                D_807FBB44->z = gCsPosZ;
+                gSpawnedActor->x = gCsPosX;
+                gSpawnedActor->y = gCsPosY;
+                gSpawnedActor->z = gCsPosZ;
                 break;
             }
-            D_807FBB44->x = x;
-            D_807FBB44->y = y;
-            D_807FBB44->z = z;
+            gSpawnedActor->x = x;
+            gSpawnedActor->y = y;
+            gSpawnedActor->z = z;
         case 1:
         case 3:
         case 4:
@@ -4328,14 +4328,14 @@ void func_8064F028(CsState *cs, s16 csId, s16 b, s16 c) {
     func_80714998(2);
     func_80714CC0(D_80721530, 0.0f, gCsPosX, gCsPosY + 17.5, gCsPosZ);
     actorSpawn(0x9C, 0x53);
-    D_807FBB44->x = gCsPosX;
-    D_807FBB44->y = gCsPosY;
-    D_807FBB44->z = gCsPosZ;
-    D_807FBB44->yaw = gCsRotY * 4096.0f / 360.0f;
+    gSpawnedActor->x = gCsPosX;
+    gSpawnedActor->y = gCsPosY;
+    gSpawnedActor->z = gCsPosZ;
+    gSpawnedActor->yaw = gCsRotY * 4096.0f / 360.0f;
     if (gCurrentMap == 0xB2 || (gCurrentMap == 0xAD && b == 4)) {
-        D_807FBB44->yaw += 0x800;
+        gSpawnedActor->yaw += 0x800;
     }
-    camStartPath(D_807FBB44, 0x22, 5);
+    camStartPath(gSpawnedActor, 0x22, 5);
     sfxAllocateChannel(0xAB, 1.0f);
     sfxPlayOnFreeSlot(0x2EA, 0x7FFF, 63.0f, 1.0f, 0, 0);
     D_807F6951 = b;

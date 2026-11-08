@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
@@ -87,7 +87,7 @@ void actorCursorFireProjectile(void *unused) {
         id = 0x63;
     }
     projectileSetTargetCoords(D_807FDC94->x, D_807FDC94->y + 100.0f, D_807FDC94->z);
-    projectileAimAndSpawn(id, 1, 0.5f, D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, 285.0f, D_807FBB40);
+    projectileAimAndSpawn(id, 1, 0.5f, D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, 285.0f, gCurrentActor);
 }
 
 typedef struct BC3B0Cursor {
@@ -147,7 +147,7 @@ typedef struct BC3B0CursorCfg {
     /* 0x0A */ s16 unkA;
 } BC3B0CursorCfg;
 
-#define BC3B0CA ((BC3B0CursorActor *)D_807FBB40)
+#define BC3B0CA ((BC3B0CursorActor *)gCurrentActor)
 #define BC3B0S90 ((BC3B0View90 *)D_807FDC90)
 #define BC3B0CCfg ((BC3B0CursorCfg *)D_807FDC9C)
 
@@ -171,7 +171,7 @@ void func_806B7EA0(void) {
     f32 screenY;
     c = (BC3B0Cursor *)BC3B0CA->unk178;
     behaviourFrameBegin();
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         D_807FDC98->unk46 |= 0x60;
         D_807FBB64 |= 2;
         hudSpawnCountdownTimer(0xDC, 0x2A, BC3B0CCfg->unkA ? BC3B0CCfg->unkA : 10, &D_807FBB64);
@@ -189,20 +189,20 @@ void func_806B7EA0(void) {
         if (BC3B0S90->unk2E != 0) {
             return;
         }
-        D_807FBB40->state = 0x23;
-        D_807FBB40->unk155[0] = 0;
+        gCurrentActor->state = 0x23;
+        gCurrentActor->unk155[0] = 0;
         sfxPlayOnFreeSlot(0x1A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
-        actorSetStateTwo(D_807FBB40->unk11C);
+        actorSetStateTwo(gCurrentActor->unk11C);
         D_807FBB68 |= 1;
         D_807FBB64 |= 2;
     }
-    if (((Actor *)D_807FBB40->unk11C)->state == 5 && D_807FBB40->state != 0x11) {
+    if (((Actor *)gCurrentActor->unk11C)->state == 5 && gCurrentActor->state != 0x11) {
         if (D_807FDC94->unkFC != 0) {
             D_807FDC94->yaw = mathAngleArcMidpoint(D_807FDC94->unkF4, D_807FDC94->unkF6);
         }
         camStartPath(0, 6, 5);
-        D_807FBB40->state = 0x11;
-        D_807FBB40->unk155[0] = 0;
+        gCurrentActor->state = 0x11;
+        gCurrentActor->unk155[0] = 0;
         c->unk10 = (s32)D_807FDC94->x;
         c->unk12 = (s32)(D_807FDC94->y + (u32)D_807FDC94->unk15E);
         c->unk14 = (s32)D_807FDC94->z;
@@ -216,14 +216,14 @@ void func_806B7EA0(void) {
             c->unk18 -= 0.18;
         }
     }
-    if (D_807FBB40->state != 0x11) {
-        if (D_807FBB40->state == 0x23 && func_8061CC00() == 0) {
+    if (gCurrentActor->state != 0x11) {
+        if (gCurrentActor->state == 0x23 && func_8061CC00() == 0) {
             camProjectToScreen(D_807FDC94->x, D_807FDC94->y + (u32)D_807FDC94->unk15E, D_807FDC94->z, &screenX, &screenY, 0, 1.0f, 0);
             actorCursorSteer(c, screenX, screenY);
         }
     } else {
         if (func_8061CC00() == 0) {
-            renderCallbacksRegister(actorCursorDrawBurst, D_807FBB40, 3);
+            renderCallbacksRegister(actorCursorDrawBurst, gCurrentActor, 3);
         }
         if (BC3B0S90->unk2C != 0) {
             BC3B0S90->unk2C = BC3B0S90->unk2C - 1;
@@ -242,7 +242,7 @@ void func_806B7EA0(void) {
         camProjectToScreen(c->unk10, c->unk12, c->unk14, &c->x, &c->y, 0, 1.0f, 0);
     }
     if (func_8061CC00() == 0) {
-        renderCallbacksRegister(actorCursorDrawSprite, D_807FBB40, 3);
+        renderCallbacksRegister(actorCursorDrawSprite, gCurrentActor, 3);
     }
 }
 
@@ -268,7 +268,7 @@ typedef struct BC3B0View9C {
     /* 0x0F */ u8 unkF;
 } BC3B0View9C;
 
-#define BC3B0EA ((BC3B0EmitterActor *)D_807FBB40)
+#define BC3B0EA ((BC3B0EmitterActor *)gCurrentActor)
 #define BC3B0S98 ((BC3B0View98 *)D_807FDC98)
 #define BC3B0S9C ((BC3B0View9C *)D_807FDC9C)
 
@@ -294,17 +294,17 @@ void actorUpdateBurstProjectileEmitter(void);
 
 void actorUpdatePeriodicParticleEmitter(void) {
     behaviourFrameBegin();
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         BC3B0S90->unk30 = BC3B0S9C->unkB;
-        actorSetCollisionRadius(D_807FBB40, 300.0f);
-        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 280.0f, -1);
-        actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        actorSetCollisionRadius(gCurrentActor, 300.0f);
+        actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 280.0f, -1);
+        actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
     }
     if (BC3B0S90->unk30 <= 0.001) {
         BC3B0S90->unk2C = BC3B0S9C->unkA;
         BC3B0S90->unk30 = BC3B0S9C->unkB;
-        actorSetNodeFlag(D_807FBB40, 1);
-        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x182, 0xFF, 0x7F, 0x1E);
+        actorSetNodeFlag(gCurrentActor, 1);
+        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x182, 0xFF, 0x7F, 0x1E);
     }
     BC3B0S90->unk30 = BC3B0S90->unk30 - 1.0;
     if (BC3B0S90->unk2C != 0 && gFrameCounter % 5 == 0) {
@@ -312,34 +312,34 @@ void actorUpdatePeriodicParticleEmitter(void) {
         func_807149B8(1);
         func_80714950(-0x1C2);
         func_8071498C(func_80717D4C);
-        func_80714CC0(D_807201D4, 1.2f, D_807FBB40->x, D_807FBB40->y + 7.0, D_807FBB40->z);
+        func_80714CC0(D_807201D4, 1.2f, gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z);
     }
     if (BC3B0S90->unk2C != 0) {
-        lightAdd(D_807FBB40->x, D_807FBB40->y + 7.0, D_807FBB40->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, 0xFF, 0xC8, 0);
+        lightAdd(gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, 0xFF, 0xC8, 0);
         BC3B0S90->unk2C--;
         if (BC3B0S90->unk2C == 0) {
-            actorClearNodeFlag(D_807FBB40, 1);
+            actorClearNodeFlag(gCurrentActor, 1);
         }
     }
 }
 
 void actorUpdateAimedProjectileEmitter(void) {
     behaviourFrameBegin();
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         BC3B0S90->unk2E = BC3B0S98->unkB;
     }
     if (BC3B0S90->unk2E == 0) {
         BC3B0S90->unk2C = BC3B0S98->unkA;
         BC3B0S90->unk2E = BC3B0S98->unkB;
-        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x182, 0xFF, 0x7F, 0x1E);
+        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x182, 0xFF, 0x7F, 0x1E);
     }
     BC3B0S90->unk2E--;
     if (BC3B0S90->unk2C != 0 && gFrameCounter % 5 == 0) {
-        projectileSetTargetCoords(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z);
-        projectileAimAndSpawn(0x51, 1, 0.3f, D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, 80.0f, D_807FBB40);
+        projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        projectileAimAndSpawn(0x51, 1, 0.3f, D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, 80.0f, gCurrentActor);
     }
     if (BC3B0S90->unk2C != 0) {
-        lightAdd(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, 0xFF, 0xC8, 0);
+        lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, 0xFF, 0xC8, 0);
         BC3B0S90->unk2C--;
     }
 }
@@ -358,7 +358,7 @@ void actorUpdateBurstProjectileEmitter(void) {
     s16 kind;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         BC3B0S90->unk30 = BC3B0S9C->unkB;
         *a = BC3B0S9C->unkD;
     }
@@ -370,12 +370,12 @@ void actorUpdateBurstProjectileEmitter(void) {
         BC3B0S90->unk2C = BC3B0S9C->unkA;
         BC3B0S90->unk30 = BC3B0S9C->unkB;
         *b = 0;
-        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x17, 0xFF, 0x7F, 0x19);
+        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17, 0xFF, 0x7F, 0x19);
     }
     BC3B0S90->unk30 = BC3B0S90->unk30 - 1.0;
     if (BC3B0S90->unk2C != 0 && *b == 0) {
-        projectileSetTargetCoords(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z);
-        switch (D_807FBB40->actorType) {
+        projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        switch (gCurrentActor->actorType) {
             case 0xDC:
                 kind = 0x37;
                 break;
@@ -383,7 +383,7 @@ void actorUpdateBurstProjectileEmitter(void) {
                 kind = 0x1E;
                 break;
         }
-        projectileSpawnNodeEntry(kind, 0, 0.6f, D_807FBB40->yaw, BC3B0S9C->unkC * 10, 0.0f, 0);
+        projectileSpawnNodeEntry(kind, 0, 0.6f, gCurrentActor->yaw, BC3B0S9C->unkC * 10, 0.0f, 0);
         BC3B0S90->unk2C--;
         *b = BC3B0S9C->unkF;
     }

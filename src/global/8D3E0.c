@@ -55,7 +55,7 @@ typedef struct ActorListNode {
 extern s32 gCurrentMap;
 extern ActorListSub20 D_807500B4;
 extern ActorListSub20 D_807500D4;
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern ActorListNode *D_807FC400;
 extern ActorListEntry4 *D_807FC5C4;
 extern u8 D_807FC5C8;
@@ -562,7 +562,7 @@ void actorRegisterActive(Actor *);
 s32 actorSpawnFromInfo(ActorListSpawnInfo *);
 s32 controllerAnimStateLoadAsset();
 void controllerAnimFreeSub(Actor *, u8);
-extern Actor *D_807FBB44;
+extern Actor *gSpawnedActor;
 
 void actorListUpdateSpawns(void) {
     s32 pad;
@@ -618,13 +618,13 @@ void actorListUpdateSpawns(void) {
                     spawnInfo.unk1A = 0;
                     spawnInfo.unk1C = (s32)node->unk24;
                     if (actorSpawnFromInfo(&spawnInfo) != 0) {
-                        node->unk44 = D_807FBB44;
+                        node->unk44 = gSpawnedActor;
                         node->unk48 = 1;
-                        D_807FBB44->unk11C = node->unk50;
-                        if (D_807FBB44->unk4 != NULL) {
-                            D_807FBB44->unk4->unk34 = (f32)(node->unk20 * 0.15);
-                            D_807FBB44->unk4->unk38 = (f32)(node->unk20 * 0.15);
-                            D_807FBB44->unk4->unk3C = (f32)(node->unk20 * 0.15);
+                        gSpawnedActor->unk11C = node->unk50;
+                        if (gSpawnedActor->unk4 != NULL) {
+                            gSpawnedActor->unk4->unk34 = (f32)(node->unk20 * 0.15);
+                            gSpawnedActor->unk4->unk38 = (f32)(node->unk20 * 0.15);
+                            gSpawnedActor->unk4->unk3C = (f32)(node->unk20 * 0.15);
                         }
                     }
                 } else if (node->unk48 == 0) {
@@ -798,7 +798,7 @@ void actorListDispatchEvent(s16 targetId, void *eventData) {
     }
     if (found) {
         if (node->unk44 != NULL) {
-            func_8067AB20((s32)D_807FBB40, node->unk44, 0x1000000, 1, eventData, 0);
+            func_8067AB20((s32)gCurrentActor, node->unk44, 0x1000000, 1, eventData, 0);
         }
     }
 }

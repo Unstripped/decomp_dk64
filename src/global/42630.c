@@ -2,7 +2,7 @@
 #include "actor.h"
 #include "cutscene.h"
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
@@ -1267,7 +1267,7 @@ extern Actor *D_807F61F4;
 extern s16 gCsTrackedModels[16];
 extern u8 gCsTrackedModelCount;
 extern s16 D_807F693A;
-extern Actor *D_807FBB44;
+extern Actor *gSpawnedActor;
 extern Actor *D_807FBB48;
 extern u32 D_807FBB68;
 
@@ -1534,13 +1534,13 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x66:
         if (D_807F61F0.unk8 == 0) {
             actorSpawn(0xB1, 0);
-            actor = D_807FBB40;
-            D_807F61F0.unk4 = D_807FBB44;
-            D_807FBB40 = D_807FBB44;
+            actor = gCurrentActor;
+            D_807F61F0.unk4 = gSpawnedActor;
+            gCurrentActor = gSpawnedActor;
             hudSpawnCountdownTimer(0xDC, 0x2A, CMDB(cmd)->a, &D_807F61F0);
-            D_807F61F0.unk0 = D_807FBB44;
+            D_807F61F0.unk0 = gSpawnedActor;
             D_807F61F0.unk8 = 1;
-            D_807FBB40 = actor;
+            gCurrentActor = actor;
         }
         break;
     case 0x67:
@@ -2275,14 +2275,14 @@ void csStartCamPath(void *cs, s16 camIdx, s16 mode, s16 c) {
     s32 flag;
 
     if (((CsState *)cs)->unk94 == NULL && func_80678014(0x14) != 0) {
-        ((CsState *)cs)->unk94 = D_807FBB44;
-        D_807FBB44->unk144 = 1;
-        D_807FBB44->x = gCsPosX;
-        D_807FBB44->y = gCsPosY;
-        D_807FBB44->z = gCsPosZ;
-        D_807FBB44->yaw = gCsRotY * 4096.0f / 360.0f;
+        ((CsState *)cs)->unk94 = gSpawnedActor;
+        gSpawnedActor->unk144 = 1;
+        gSpawnedActor->x = gCsPosX;
+        gSpawnedActor->y = gCsPosY;
+        gSpawnedActor->z = gCsPosZ;
+        gSpawnedActor->yaw = gCsRotY * 4096.0f / 360.0f;
         if (*(u8 *)&D_807F693F != 0) {
-            D_807FBB44->unk15E = c;
+            gSpawnedActor->unk15E = c;
         }
         if (*(u8 *)&D_807F693F != 0) {
             flag = 4;

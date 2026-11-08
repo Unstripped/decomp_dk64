@@ -87,11 +87,11 @@ typedef struct {
     u8 pad8[0x2F0 - 8];
 } RaceC_Player;
 
-#define RC_A ((RaceC_Actor *)D_807FBB40)
+#define RC_A ((RaceC_Actor *)gCurrentActor)
 
 extern u8 gPlayerCount;
-extern void *D_807FBB40;
-extern RaceC_Actor *D_807FBB44;
+extern void *gCurrentActor;
+extern RaceC_Actor *gSpawnedActor;
 void func_8002BBD0(void *, s32);
 void actorSpawn(s32, s32);
 void func_8002BC2C(void *, s32, void *, void *);
@@ -120,7 +120,7 @@ void func_800292D0(RaceC_Actor *actor) {
     func_8002BBD0(actor, numCompetitors);
     for (i = 0; i < gPlayerCount; i++) {
         actorSpawn(0x133, 0x9F);
-        spawnedActor = D_807FBB44;
+        spawnedActor = gSpawnedActor;
         racerState = spawnedActor->unk174;
         racerState->unk27 = 0;
         func_8002BC2C(actor, slotIndex, spawnedActor, racerState);
@@ -204,7 +204,7 @@ void func_800294A8(void) {
                 s4->unk35 += 1;
             }
             if (s0->unk1C == 0x3C) {
-                camSetTargetScaled(s1->unk104, D_807FBB40, 4, 0x800, 0x32, 0, 0x28, 0x1E, 0x14, 0, 0.4f);
+                camSetTargetScaled(s1->unk104, gCurrentActor, 4, 0x800, 0x32, 0, 0x28, 0x1E, 0x14, 0, 0.4f);
             }
         }
         if (s4->unk34 == 2) {
@@ -221,7 +221,7 @@ void func_800294A8(void) {
         }
         func_8068F72C(s4, nextState, 1, 1);
         if (func_807142D8() == 0) {
-            renderCallbacksRegister(func_800292B0, D_807FBB40, 3);
+            renderCallbacksRegister(func_800292B0, gCurrentActor, 3);
         }
     } else if (v34 == 5 && s4->unk35 == 0) {
         RC_A->unk60 &= ~4;
@@ -230,12 +230,12 @@ void func_800294A8(void) {
         s4->unk35 += 1;
         for (i = 0; i < 2; i++) {
             if (RC_A->unk6E[i] != -1) {
-                sfxStopSlotSound(D_807FBB40, i);
+                sfxStopSlotSound(gCurrentActor, i);
             }
         }
     }
     actorInterpolateAngles(subFlag, s4, nextState);
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 typedef struct {
     u8 pad0[0x25];
@@ -322,7 +322,7 @@ typedef struct {
 } RaceWaypoint;
 
 #define G2_WP ((RaceWaypoint *)((u8 *)D_807FDCA0->unk14 + idx * 10))
-#define G2_F(o) (*(f32 *)((u8 *)D_807FBB40 + (o)))
+#define G2_F(o) (*(f32 *)((u8 *)gCurrentActor + (o)))
 
 f32 raceRacerSteerTowardWaypoint(void) {
     s32 idx;
@@ -367,7 +367,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
         switch (G2_WP->unk8) {
             case 2:
                 if (leadDistance < 0.0f) {
-                    actorScriptStart(D_807FBB40, 0x29E);
+                    actorScriptStart(gCurrentActor, 0x29E);
                     if (targetView->unkF >= 2) {
                         func_8002DE78(targetView, 1, D_8002FC20, D_8002FC50);
                     }
@@ -375,7 +375,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
                 }
                 break;
             case 3:
-                actorScriptStart(D_807FBB40, 0x2A1);
+                actorScriptStart(gCurrentActor, 0x2A1);
                 break;
         }
     }
@@ -401,7 +401,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
             switch (s0->unk35) {
                 case 0:
                     if (RC_A->unk4->unk64 == 0x29E && targetView->unk10 != 0 && D_8002FC28 < leadDistance && leadDistance < D_8002FC30 && (randomLcgNext() & 0xFF) < 0xFU) {
-                        actorScriptStart(D_807FBB40, 0x29F);
+                        actorScriptStart(gCurrentActor, 0x29F);
                     }
                     break;
                 case 1:
@@ -414,14 +414,14 @@ f32 raceRacerSteerTowardWaypoint(void) {
                     break;
                 case 4:
                     if (subFlag != 0) {
-                        actorScriptStart(D_807FBB40, 0x2A2);
+                        actorScriptStart(gCurrentActor, 0x2A2);
                         s0->unk35 += 1;
                         G2_F(0xC4) = -30.0f;
                     }
                     break;
                 case 5:
                     if (RC_A->unk80 <= G2_F(0xAC)) {
-                        actorScriptStart(D_807FBB40, 0x29D);
+                        actorScriptStart(gCurrentActor, 0x29D);
                         s0->unk35 = 0;
                         targetView->unk10 = targetView->unkF != 0;
                     }
@@ -450,7 +450,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
         prevTargetState = targetView->unkF;
         targetSpeed = func_8002DF38(targetView, leadDistance, D_8002FC20, D_8002FC50);
         if (prevTargetState == 2 && targetView->unkF == 3) {
-            actorScriptStart(D_807FBB40, 0x2A0);
+            actorScriptStart(gCurrentActor, 0x2A0);
         }
         if (prevTargetState == 3 && targetView->unkF == 4) {
             s0->unk35 = prevSubPhase;
@@ -563,7 +563,7 @@ void func_8002A0AC(void) {
         func_8002DE78(targetView, 5, D_8002FC20, D_8002FC50);
         s0->unk34 = 0;
         camRequestPathLength();
-        v = camStartPath(D_807FBB40, 1, 1) - 0x3C;
+        v = camStartPath(gCurrentActor, 1, 1) - 0x3C;
         managerState->unk1C = v;
         targetView->unkA = v;
         s0->unk4 = 1.0f;
@@ -598,7 +598,7 @@ void func_8002A0AC(void) {
                 playerStateQueueCallback(0x55, 0, 0);
                 RC_A->unkE4 = 0;
                 RC_A->unkE8 = 0;
-                actorScriptStart(D_807FBB40, 0x29A);
+                actorScriptStart(gCurrentActor, 0x29A);
             }
             s0->unk35 += 1;
             break;
@@ -606,7 +606,7 @@ void func_8002A0AC(void) {
             if (currentActorTestClearFlag() != 0) {
                 finishPlacement = targetView->unk4;
                 currentActorClearFlag();
-                func_8070D8C0(D_807FBB40, 0x12, func_8002A080((s32)s0, finishPlacement) & 0xFF);
+                func_8070D8C0(gCurrentActor, 0x12, func_8002A080((s32)s0, finishPlacement) & 0xFF);
                 s0->unk35 += 1;
             }
             break;
@@ -645,19 +645,19 @@ void func_8002A0AC(void) {
     case 0x2A2:
         fv1 = RC_A->unkB8 * 0.0025f;
         fv1 = fv1 < 0.1 ? 0.1 : fv1;
-        scriptSetActorRampTarget(D_807FBB40, fv1, 10.0f);
+        scriptSetActorRampTarget(gCurrentActor, fv1, 10.0f);
         break;
     case 0x2A0:
         if (RC_A->unk4->unk0->unk10 == 0x4A7) {
-            func_80029F88(D_807FBB40, s0, RC_A->unkB8 - targetView->unk0->unkB8, (leadDistance - D_8002FC30) * 40.0f, 23.0f);
+            func_80029F88(gCurrentActor, s0, RC_A->unkB8 - targetView->unk0->unkB8, (leadDistance - D_8002FC30) * 40.0f, 23.0f);
             break;
         }
     default:
         if (RC_A->unk4->unk0->unk10 != 0x49B) {
-            scriptSetActorRampTarget(D_807FBB40, 1.0f, 10.0f);
+            scriptSetActorRampTarget(gCurrentActor, 1.0f, 10.0f);
         }
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
     func_8072881C(0, &D_807FDC90->unk28);
 }

@@ -127,7 +127,7 @@ typedef struct {
 } RaceNodeActor;
 
 extern RaceAPoint3f **D_807F5FD4;
-extern RaceActor *D_807FBB40;
+extern RaceActor *gCurrentActor;
 f32 func_80612794(s16);
 s32 mathPickCloserTargetPoint3D(f32, f32, f32, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, f32 *, f32 *, f32 *);
 
@@ -145,7 +145,7 @@ void func_800257A4(RacePathState *pathState, f32 *outPos, f32 *inPos, s32 nextWa
     curPoint = &points[pathState->unk2];
     laneDiff = pathState->unk0 - pathState->unk1;
     mathPickCloserTargetPoint3D(inPos[0], inPos[1], inPos[2], curPoint, &points[nextWaypoint], &points[nextWaypoint], &points[nextNextWaypoint], &closerTarget[0], &closerTarget[1], &closerTarget[2]);
-    pathState->unk8 += 0.01 * D_807FBB40->unkB8;
+    pathState->unk8 += 0.01 * gCurrentActor->unkB8;
     if (pathState->unk8 >= 1.0f) {
         pathState->unk8 = 1.0f;
         pathState->unk0 = pathState->unk1;
@@ -193,7 +193,7 @@ void func_8002597C(void) {
 }
 
 extern s16 D_80750AC4;
-extern RaceActor *D_807FBB44;
+extern RaceActor *gSpawnedActor;
 void func_8002BBD0(void *, s32);
 void func_8002BC2C(void *, s32, void *, void *);
 RaceNodeActor *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
@@ -211,7 +211,7 @@ void func_80025E9C(RaceActor *parent) {
     parentPart = parent->unk174;
     func_8002BBD0(parent, 2);
     actorSpawn(0x12E, 0x95);
-    s2 = D_807FBB44;
+    s2 = gSpawnedActor;
     s0 = s2->unk174;
     func_8002BC2C(parent, 1, s2, s0);
     s0->unk37 = 0;
@@ -226,7 +226,7 @@ void func_80025E9C(RaceActor *parent) {
     temp->participant = s0;
     temp->actor = s2;
     actorSpawn(0x130, 0);
-    spawnedActor = D_807FBB44;
+    spawnedActor = gSpawnedActor;
     s1->unk34 = spawnedActor;
     s0 = spawnedNode->unk178;
     func_8002BC2C(parent, 0, spawnedNode, s0);
@@ -295,10 +295,10 @@ void func_80026098(f32 *tgt, f32 *pos) {
     angle = mathAngleBetweenPointsRad(tgt[0], tgt[2], pos[0], pos[2]) * 2048.0 / 3.1415927f;
     dz = pos[2] - tgt[2];
     dx = pos[0] - tgt[0];
-    offsetDist = sqrtf((dz * dz) + (dx * dx)) * (*(f32 *)&D_807FBB40->unkB8 * 0.03);
-    D_807FBB40->unk7C = pos[0] + (func_80612794(angle) * offsetDist);
-    D_807FBB40->unk84 = pos[2] + (func_80612790(angle) * offsetDist);
-    D_807FBB40->unk80 = D_807FBB40->unk80 + (tgt[1] - D_807FBB40->unk80) * 0.8;
+    offsetDist = sqrtf((dz * dz) + (dx * dx)) * (*(f32 *)&gCurrentActor->unkB8 * 0.03);
+    gCurrentActor->unk7C = pos[0] + (func_80612794(angle) * offsetDist);
+    gCurrentActor->unk84 = pos[2] + (func_80612790(angle) * offsetDist);
+    gCurrentActor->unk80 = gCurrentActor->unk80 + (tgt[1] - gCurrentActor->unk80) * 0.8;
 }
 
 s16 mathAngleSignedDistance();
@@ -316,15 +316,15 @@ void func_800261E0(RacePathState *pathState) {
     yawOffset &= 0xFFF;
     sinVal = func_80612790(yawOffset);
     cosVal = func_80612794(yawOffset);
-    D_807FBB40->unkE6 = D_807FBB40->unkEE + yawOffset;
-    D_807FBB40->unkE6 &= 0xFFF;
+    gCurrentActor->unkE6 = gCurrentActor->unkEE + yawOffset;
+    gCurrentActor->unkE6 &= 0xFFF;
     rollScaled = rollOffset;
-    D_807FBB40->unkE8 = rollScaled * sinVal;
-    D_807FBB40->unkE8 = D_807FBB40->unkE8 + pathState->unk20;
-    D_807FBB40->unkE8 &= 0xFFF;
-    D_807FBB40->unkE4 = rollScaled * cosVal;
-    D_807FBB40->unkE4 = D_807FBB40->unkE4 + pathState->unk24;
-    D_807FBB40->unkE4 &= 0xFFF;
+    gCurrentActor->unkE8 = rollScaled * sinVal;
+    gCurrentActor->unkE8 = gCurrentActor->unkE8 + pathState->unk20;
+    gCurrentActor->unkE8 &= 0xFFF;
+    gCurrentActor->unkE4 = rollScaled * cosVal;
+    gCurrentActor->unkE4 = gCurrentActor->unkE4 + pathState->unk24;
+    gCurrentActor->unkE4 &= 0xFFF;
 }
 
 void func_800257A4(RacePathState *pathState, f32 *outPos, f32 *inPos, s32 nextWaypoint, s32 nextNextWaypoint);
@@ -364,21 +364,21 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     cur = &points[pathState->unk2];
     nxt2 = &points[next2];
     nxt = &points[next];
-    oldAng = D_807FBB40->unkEE;
+    oldAng = gCurrentActor->unkEE;
     flag = pathState->unk39;
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk7C = cur->x;
-        D_807FBB40->unk80 = cur->y;
-        D_807FBB40->unk84 = cur->z;
-        D_807FBB40->unkB8 = 0.0f;
-        D_807FBB40->unkE6 = mathAngleBetweenPointsRad(nxt->x, nxt->z, D_807FBB40->unk7C, D_807FBB40->unk84) * 2048.0 / 3.1415927f;
-        D_807FBB40->unkEE = D_807FBB40->unkE6;
+    if (!(gCurrentActor->unk60 & 0x10)) {
+        gCurrentActor->unk7C = cur->x;
+        gCurrentActor->unk80 = cur->y;
+        gCurrentActor->unk84 = cur->z;
+        gCurrentActor->unkB8 = 0.0f;
+        gCurrentActor->unkE6 = mathAngleBetweenPointsRad(nxt->x, nxt->z, gCurrentActor->unk7C, gCurrentActor->unk84) * 2048.0 / 3.1415927f;
+        gCurrentActor->unkEE = gCurrentActor->unkE6;
         pathState->unk18 = 0.0f;
     }
     if (flag != 0) {
         thrust = 0.0f;
         pathState->unk39--;
-        D_807FBB40->unkB8 = 0.0f;
+        gCurrentActor->unkB8 = 0.0f;
         pathState->unk14 = 0.0f;
         pathState->unk10 = 0;
     } else {
@@ -389,19 +389,19 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     } else {
         pathState->unk14 = pathState->unk14 * 0.7;
     }
-    spd = D_807FBB40->unkB8 * D_807FBB40->unkB8 * 0.0033333334f + 0.2;
-    D_807FBB40->unkB8 = D_807FBB40->unkB8 + (thrust - spd);
-    if (D_807FBB40->unkB8 < 0.0f) {
-        D_807FBB40->unkB8 = 0.0f;
+    spd = gCurrentActor->unkB8 * gCurrentActor->unkB8 * 0.0033333334f + 0.2;
+    gCurrentActor->unkB8 = gCurrentActor->unkB8 + (thrust - spd);
+    if (gCurrentActor->unkB8 < 0.0f) {
+        gCurrentActor->unkB8 = 0.0f;
     }
     ang = mathAngleBetweenPointsRad(nxt->x, nxt->z, cur->x, cur->z) * 2048.0 / 3.1415927f;
-    pos[0] = func_80612794(D_807FBB40->unkEE) * D_807FBB40->unkB8 + D_807FBB40->unk7C;
-    pos[2] = func_80612790(D_807FBB40->unkEE) * D_807FBB40->unkB8 + D_807FBB40->unk84;
-    pos[1] = D_807FBB40->unk80;
+    pos[0] = func_80612794(gCurrentActor->unkEE) * gCurrentActor->unkB8 + gCurrentActor->unk7C;
+    pos[2] = func_80612790(gCurrentActor->unkEE) * gCurrentActor->unkB8 + gCurrentActor->unk84;
+    pos[1] = gCurrentActor->unk80;
     dist = sqrtf((cur->x - nxt->x) * (cur->x - nxt->x) + (cur->z - nxt->z) * (cur->z - nxt->z));
     pathState->unk1C = mathAngleEaseToward(pathState->unk1C, func_80611BB4(cur->y - nxt->y, dist) * 2048.0 / 3.1415927f, 3.0f);
-    if (D_807FBB40->unkB8 > 0.001) {
-        D_807FBB40->unkEE = mathAngleEaseToward(D_807FBB40->unkEE, ang, 50.0f / D_807FBB40->unkB8);
+    if (gCurrentActor->unkB8 > 0.001) {
+        gCurrentActor->unkEE = mathAngleEaseToward(gCurrentActor->unkEE, ang, 50.0f / gCurrentActor->unkB8);
     }
     if (mathPickCloserTargetPoint3D(pos[0], pos[1], pos[2], cur, nxt, nxt, nxt2, &tgt[0], &tgt[1], &tgt[2]) != 0) {
         raceAdvanceCheckpoint(pathState, participant, count);
@@ -416,16 +416,16 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
         pathState->unk4--;
     }
     func_80026098(tgt, pos);
-    yawDelta = mathAngleSignedDistance(D_807FBB40->unkEE, (s16)oldAng);
-    pathState->unk28 += -0.04f * D_807FBB40->unkB8 * yawDelta * func_80612790(pathState->unk18);
-    pathState->unk28 -= 10.0f * D_807FBB40->unkB8 * func_80612794(pathState->unk18);
+    yawDelta = mathAngleSignedDistance(gCurrentActor->unkEE, (s16)oldAng);
+    pathState->unk28 += -0.04f * gCurrentActor->unkB8 * yawDelta * func_80612790(pathState->unk18);
+    pathState->unk28 -= 10.0f * gCurrentActor->unkB8 * func_80612794(pathState->unk18);
     pathState->unk28 = pathState->unk28 * 0.7f;
     pathState->unk18 = pathState->unk18 + pathState->unk28;
     func_800261E0(pathState);
     if (spawnSparks != 0) {
-        if ((u32)(randomLcgNext() & 0xFF) < D_807FBB40->unkB8 * 0.3 && pathState->unk0 == pathState->unk1) {
-            mathPickCloserTargetPoint3D(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, cur, &points[next], &points[next], nxt2, &hx, &hy, &hz);
-            func_80714950(D_807FBB40);
+        if ((u32)(randomLcgNext() & 0xFF) < gCurrentActor->unkB8 * 0.3 && pathState->unk0 == pathState->unk1) {
+            mathPickCloserTargetPoint3D(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, cur, &points[next], &points[next], nxt2, &hx, &hy, &hz);
+            func_80714950(gCurrentActor);
             func_8071498C(timedLightOrbitUpdate);
             D_8002FBB0[D_8002FBC0] = func_80714CC0(&D_8072006C, 0.4f, hx, hy, hz);
             D_8002FBC0++;
@@ -435,7 +435,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     }
     if (participant != NULL) {
         nxt = &points[next];
-        participant->unk40 = (D_807FBB40->unk7C - nxt->x) * (D_807FBB40->unk7C - nxt->x) + (D_807FBB40->unk80 - nxt->y) * (D_807FBB40->unk80 - nxt->y) + (D_807FBB40->unk84 - nxt->z) * (D_807FBB40->unk84 - nxt->z);
+        participant->unk40 = (gCurrentActor->unk7C - nxt->x) * (gCurrentActor->unk7C - nxt->x) + (gCurrentActor->unk80 - nxt->y) * (gCurrentActor->unk80 - nxt->y) + (gCurrentActor->unk84 - nxt->z) * (gCurrentActor->unk84 - nxt->z);
     }
 }
 
@@ -447,20 +447,20 @@ void func_80026B20(RaceParticipant *participant) {
     RaceAuxState *projAux;
 
     if (participant->unk2C == NULL && participant->unk2A != 0) {
-        actorPath = D_807FBB40->unk178;
+        actorPath = gCurrentActor->unk178;
         participant->unk2A--;
         actorSpawn(0x131, 0x96);
-        projPath = D_807FBB44->unk178;
-        projAux = D_807FBB44->unk17C;
-        projAux->unkC = D_807FBB40;
-        projAux->unk8 = raceFindNearestParticipant(D_807FBB40);
-        participant->unk2C = D_807FBB44;
-        D_807FBB44->unk7C = D_807FBB40->unk7C;
-        D_807FBB44->unk80 = D_807FBB40->unk80;
-        D_807FBB44->unk84 = D_807FBB40->unk84;
-        D_807FBB44->unkEE = D_807FBB40->unkEE;
-        D_807FBB44->unkE6 = D_807FBB40->unkE6;
-        D_807FBB44->unkB8 = D_807FBB40->unkB8;
+        projPath = gSpawnedActor->unk178;
+        projAux = gSpawnedActor->unk17C;
+        projAux->unkC = gCurrentActor;
+        projAux->unk8 = raceFindNearestParticipant(gCurrentActor);
+        participant->unk2C = gSpawnedActor;
+        gSpawnedActor->unk7C = gCurrentActor->unk7C;
+        gSpawnedActor->unk80 = gCurrentActor->unk80;
+        gSpawnedActor->unk84 = gCurrentActor->unk84;
+        gSpawnedActor->unkEE = gCurrentActor->unkEE;
+        gSpawnedActor->unkE6 = gCurrentActor->unkE6;
+        gSpawnedActor->unkB8 = gCurrentActor->unkB8;
         *projPath = *actorPath;
         sfxPlayOnFreeSlot(0x18B, 0x7FFF, 64.0f, 1.0f, 0, 0);
     } else {
@@ -472,8 +472,8 @@ void func_80026B20(RaceParticipant *participant) {
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 
 void func_80026CA8(void) {
-    sfxPlayActorSound(D_807FBB40, 0x12D, 0, 1, 0, 0xFF, 1.0f, 0);
-    sfxPlayActorSound(D_807FBB40, 0x12E, 0, 1, 1, 0xFF, 1.0f, 0);
+    sfxPlayActorSound(gCurrentActor, 0x12D, 0, 1, 0, 0xFF, 1.0f, 0);
+    sfxPlayActorSound(gCurrentActor, 0x12E, 0, 1, 1, 0xFF, 1.0f, 0);
 }
 
 extern s16 D_80770628[];
@@ -484,16 +484,16 @@ void func_80026D2C(f32 moveSpeed) {
     s32 pad;
     s16 idx;
 
-    idx = D_80770628[D_807FBB40->unk6E[0]];
+    idx = D_80770628[gCurrentActor->unk6E[0]];
     D_80770B68[idx] = moveSpeed / 20.0 + 1.0;
     D_80770BC0[idx] = 1.0f;
-    idx = D_80770628[D_807FBB40->unk6E[1]];
-    D_807FBB40->unk74 = moveSpeed / 20.0;
-    if (D_807FBB40->unk74 > 1.0) {
-        D_807FBB40->unk74 = 1.0f;
+    idx = D_80770628[gCurrentActor->unk6E[1]];
+    gCurrentActor->unk74 = moveSpeed / 20.0;
+    if (gCurrentActor->unk74 > 1.0) {
+        gCurrentActor->unk74 = 1.0f;
     }
-    if (D_807FBB40->unk74 < 0.0) {
-        D_807FBB40->unk74 = 0.0f;
+    if (gCurrentActor->unk74 < 0.0) {
+        gCurrentActor->unk74 = 0.0f;
     }
     if (D_80770BC0[idx] == 0.0f) {
         D_80770B68[idx] = ((u32)randomLcgNext() / 4294967295.0 * 0.05 + 0.975) * (0.2 + moveSpeed / 15.0);
@@ -541,20 +541,20 @@ void func_80026F04(void) {
     f32 bumpY;
     f32 bumpZ;
 
-    s1 = D_807FBB40->unk174;
-    pathState = D_807FBB40->unk178;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    s1 = gCurrentActor->unk174;
+    pathState = gCurrentActor->unk178;
+    if (!(gCurrentActor->unk60 & 0x10)) {
         len = D_807F5FD4[pathState->unk0 + 1] - D_807F5FD4[pathState->unk0];
         s1->unk2A = 3;
-        D_807FBB40->unk144 = 0x3C;
+        gCurrentActor->unk144 = 0x3C;
         pathState->unk2 = raceGetPrevWaypointIndex(len, 0);
         racePathFollowStep(pathState, s1, 1);
         if (func_807142D8() != 0 || flagGet(0x12, 2) != 0) {
-            playerStateQueueCallback(0x4B, D_807FBB40, s1->unk28);
+            playerStateQueueCallback(0x4B, gCurrentActor, s1->unk28);
         } else {
-            playerWaypointPathStartPacked(D_807FBB4C, D_807FBB40, 0, 0x4B);
+            playerWaypointPathStartPacked(D_807FBB4C, gCurrentActor, 0, 0x4B);
         }
-        actorClearNodeFlag(D_807FBB40, 2);
+        actorClearNodeFlag(gCurrentActor, 2);
         func_80026CA8();
     }
     if (D_807FBD70 == 5 && pathState->unk39 == 0) {
@@ -576,7 +576,7 @@ void func_80026F04(void) {
         o = s1->unk30;
         o2 = o->unk174;
         if (o2->unk1C == 8 || o2->unk1C == 0x13) {
-            sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x187, 0xFF, 0x7F, 0, 0, 0.3f, 0);
+            sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x187, 0xFF, 0x7F, 0, 0, 0.3f, 0);
         }
         func_80026D2C(s1->unk26 * 1.5);
     } else if (s1->unk34 < 5) {
@@ -602,14 +602,14 @@ void func_80026F04(void) {
             }
         }
         racePathFollowStep(pathState, s1, 1);
-        D_807FBB40->unk80 += 20.0f * func_80612794(sv * 0.5f);
-        func_80026D2C(D_807FBB40->unkB8);
+        gCurrentActor->unk80 += 20.0f * func_80612794(sv * 0.5f);
+        func_80026D2C(gCurrentActor->unkB8);
     } else if (s1->unk34 == 5) {
-        D_807FBB40->unk60 &= ~4;
-        D_807FBB40->unkB8 = 0.0f;
+        gCurrentActor->unk60 &= ~4;
+        gCurrentActor->unkB8 = 0.0f;
         for (i = 0; i != 2; i++) {
-            if (D_807FBB40->unk6E[i] != -1) {
-                sfxStopSlotSound(D_807FBB40, i & 0xFF);
+            if (gCurrentActor->unk6E[i] != -1) {
+                sfxStopSlotSound(gCurrentActor, i & 0xFF);
             }
         }
     }
@@ -622,23 +622,23 @@ void func_80026F04(void) {
         } else {
             off = -200.0f;
         }
-        bumpX = D_807FBB40->unk7C;
-        bumpZ = D_807FBB40->unk84;
-        bumpY = D_807FBB40->unk80 + off;
+        bumpX = gCurrentActor->unk7C;
+        bumpZ = gCurrentActor->unk84;
+        bumpY = gCurrentActor->unk80 + off;
         func_806F4D70(s1->unk28, bumpX, bumpY, bumpZ, 12.0f);
-        bumpX += D_807FBB40->unk88;
+        bumpX += gCurrentActor->unk88;
         bumpX *= 0.5;
-        bumpZ += D_807FBB40->unk90;
+        bumpZ += gCurrentActor->unk90;
         bumpZ *= 0.5;
         gridAppendPositionNode(s1->unk28, bumpX, bumpY, bumpZ, 12.0f);
     }
-    if (D_807FBB40->unk60 & 4) {
+    if (gCurrentActor->unk60 & 4) {
         actorSpawnNodeEffectFacingCamera(1, 0xC8);
         actorSpawnNodeEffectFacingCamera(2, 0xC8);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
     if (s1->unk34 > 0 && s1->unk34 < 5) {
-        renderCallbacksRegister(func_80026EE4, D_807FBB40, 3);
+        renderCallbacksRegister(func_80026EE4, gCurrentActor, 3);
     }
 }
 
@@ -665,32 +665,32 @@ void func_800274C0(void) {
     u16 t3;
 
     hasCollided = 0;
-    participant = D_807FBB40->unk174;
-    pathState = D_807FBB40->unk178;
-    s1 = D_807FBB40->unk17C;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    participant = gCurrentActor->unk174;
+    pathState = gCurrentActor->unk178;
+    s1 = gCurrentActor->unk17C;
+    if (!(gCurrentActor->unk60 & 0x10)) {
         s1->unk0 = 0x78;
-        D_807FBB40->unk60 |= 0x10;
-        D_807FBB40->unk144 = 0x3C;
+        gCurrentActor->unk60 |= 0x10;
+        gCurrentActor->unk144 = 0x3C;
         participant->unk4 = 5.0f;
     }
     if ((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0) || (D_807FBB70.unk200 == 5)) {
         func_807149B8(1);
-        func_80714CC0(D_80720340, 3.0f, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
-        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0xF6, 0xFF, 0x7F, 0x14, 0x32, 0.3f, 0);
+        func_80714CC0(D_80720340, 3.0f, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84);
+        sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0xF6, 0xFF, 0x7F, 0x14, 0x32, 0.3f, 0);
         hasCollided = 1;
     }
     racePathFollowStep(pathState, participant, 0);
-    D_807FBB40->unk80 += 5.0f;
+    gCurrentActor->unk80 += 5.0f;
     if (s1->unk0 != 0) {
         func_807149B8(1);
-        func_80714CC0(D_8071FFA0, 1.0f, D_807FBB40->unk7C, D_807FBB40->unk80 + 10.0f, D_807FBB40->unk84);
+        func_80714CC0(D_8071FFA0, 1.0f, gCurrentActor->unk7C, gCurrentActor->unk80 + 10.0f, gCurrentActor->unk84);
         if (--s1->unk0 == 0) {
             hasCollided = 1;
         }
     }
     if (hasCollided != 0) {
-        func_8002D338(D_807FBB40, s1);
+        func_8002D338(gCurrentActor, s1);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }

@@ -3,7 +3,7 @@
 
 extern u8 *D_807F5AF0;
 extern Struct807FD580 *gActivePlayerState;
-extern Actor *D_807FBB44;
+extern Actor *gSpawnedActor;
 
 typedef struct ActorRampState {
     u8 pad0[0x48];
@@ -2394,10 +2394,10 @@ void func_80618EE8(Actor *arg0) {
     u8 *script;
 
     actorSpawn(0x135, D_80746E10[((ActorEffectView *)arg0)->unk58]);
-    actorCopyPoseAndScale(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
-    ((ActorEffectView *)D_807FBB44)->unkE8 = ((ActorEffectView *)arg0)->unkE8;
-    ((ActorEffectView *)D_807FBB44)->unkE4 = ((ActorEffectView *)arg0)->unkE4;
-    script = ((ActorEffectView *)D_807FBB44)->unk174;
+    actorCopyPoseAndScale(gSpawnedActor, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
+    ((ActorEffectView *)gSpawnedActor)->unkE8 = ((ActorEffectView *)arg0)->unkE8;
+    ((ActorEffectView *)gSpawnedActor)->unkE4 = ((ActorEffectView *)arg0)->unkE4;
+    script = ((ActorEffectView *)gSpawnedActor)->unk174;
     scriptReadU8(script + 6);
 }
 
@@ -2408,8 +2408,8 @@ void func_80618F74(Actor *arg0) {
     scriptReadU8(&sp1F);
     if (sp1F != 0) {
         actorSpawn(0x136, 0xA8);
-        actorCopyPoseAndScale(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
-        ((GlobalSpawnView *)gActivePlayerState)->unk88 = D_807FBB44;
+        actorCopyPoseAndScale(gSpawnedActor, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
+        ((GlobalSpawnView *)gActivePlayerState)->unk88 = gSpawnedActor;
     } else {
         actor = (ActorEffectView *)((GlobalSpawnView *)gActivePlayerState)->unk88;
         if ((actor != NULL) && (actor->unk58 == 0x136)) {
@@ -2537,11 +2537,11 @@ void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
     scriptReadU16((u8 *)&sp42);
     scriptReadU16((u8 *)&sp40);
     actorSpawn(0x139, sp42);
-    actorCopyPoseAndScale(D_807FBB44, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
-    D_807FBB44->yaw = arg0->yaw;
-    D_807FBB44->roll = arg0->roll;
-    D_807FBB44->pitch = arg0->pitch;
-    var_v1 = (ChildEffectNodeState *)D_807FBB44->unk174;
+    actorCopyPoseAndScale(gSpawnedActor, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
+    gSpawnedActor->yaw = arg0->yaw;
+    gSpawnedActor->roll = arg0->roll;
+    gSpawnedActor->pitch = arg0->pitch;
+    var_v1 = (ChildEffectNodeState *)gSpawnedActor->unk174;
     var_v1->unk10 = 0.0f;
     if (sp46 != 0xFFFF) {
         func_807149FC(-1);
@@ -2567,9 +2567,9 @@ void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
                 break;
         }
     }
-    D_807FBB44->y -= var_v1->unk10;
+    gSpawnedActor->y -= var_v1->unk10;
     if (sp46 != 0xFFFF) {
-        func_80714C08(D_80746B80[sp46], var_fs0, D_807FBB44, 1, 2);
+        func_80714C08(D_80746B80[sp46], var_fs0, gSpawnedActor, 1, 2);
     }
     var_v1->unk0 = sp44;
     var_v1->unk4 = arg0;

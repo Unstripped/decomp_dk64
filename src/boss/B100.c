@@ -45,8 +45,8 @@ typedef struct BossE_B100_Actor {
     struct BossE_B100_Actor **unk17C;
 } BossE_B100_Actor;
 
-extern BossE_B100_Actor *D_807FBB40;
-extern BossE_B100_Actor *D_807FBB44;
+extern BossE_B100_Actor *gCurrentActor;
+extern BossE_B100_Actor *gSpawnedActor;
 extern u8 D_807FBD70;
 extern s32 gFrameCounter;
 
@@ -189,9 +189,9 @@ s32 currentActorTestClearFlag(void);
 void func_8072A450(void);
 s32 func_8072881C(s32, void *);
 
-#define MAIN_ACTOR ((BossMainActor *)D_807FBB40)
+#define MAIN_ACTOR ((BossMainActor *)gCurrentActor)
 #define PLAYER_ACTOR ((BossMainActor *)D_807FBB4C)
-#define SECOND_ACTOR ((BossMainActor *)D_807FBB44)
+#define SECOND_ACTOR ((BossMainActor *)gSpawnedActor)
 #define TIMER_STATE ((BossTimerState *)D_807FDC90)
 
 void bossDogadonStep(void) {
@@ -394,7 +394,7 @@ u8 scaleFactor;
     BossE_B100_Sub20 *sub;
     f32 sin_val;
 
-    sub = D_807FBB40->unk4->unk20;
+    sub = gCurrentActor->unk4->unk20;
     sub->unk0 = 2;
     sub->unk1 = 4;
     sub->unk4 = 1.0f;
@@ -456,7 +456,7 @@ u8 scaleVal;
     s32 finalScale;
     s32 animFrame;
 
-    if (D_807FBB40->unk15F == 2) {
+    if (gCurrentActor->unk15F == 2) {
         finalScale = 4;
     } else {
         finalScale = scaleVal;
@@ -464,9 +464,9 @@ u8 scaleVal;
     func_8002FB7C(finalScale & 0xFF);
     if (D_807FBD70 == 4) {
         bossActorGroupCommand(actorObj, 0xF, 0, 0);
-        animFrame = (0xA - D_807FBB40->unk134) & 0xFF;
-        func_8002FC48(D_807FBB40, animFrame);
-        actorScriptStart(D_807FBB40, 0x415);
+        animFrame = (0xA - gCurrentActor->unk134) & 0xFF;
+        func_8002FC48(gCurrentActor, animFrame);
+        actorScriptStart(gCurrentActor, 0x415);
     }
     if (D_807FBD70 == 5 || D_807FBD70 == 4) {
         func_8072DA60();
@@ -479,12 +479,12 @@ u8 slotIndex;
 s32 modelId;
 {
     actorSpawn(0xE5, modelId);
-    actorCopyPoseAndScale(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
-    D_807FBB44->unk60 |= 0x1400;
-    D_807FBB44->unk11C = D_807FBB40;
-    D_807FBB44->unk144 = D_807FBB40->unk144;
-    D_807FBB44->unk60 = D_807FBB40->unk60;
-    actorList[slotIndex] = D_807FBB44;
+    actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->unk4->unk38);
+    gSpawnedActor->unk60 |= 0x1400;
+    gSpawnedActor->unk11C = gCurrentActor;
+    gSpawnedActor->unk144 = gCurrentActor->unk144;
+    gSpawnedActor->unk60 = gCurrentActor->unk60;
+    actorList[slotIndex] = gSpawnedActor;
 }
 
 typedef struct {
@@ -519,7 +519,7 @@ typedef struct {
     f32 unk38;
 } BossPlayerData;
 
-#define BOSS_ACTOR ((BossActor *)D_807FBB40)
+#define BOSS_ACTOR ((BossActor *)gCurrentActor)
 
 extern BossPlayerData *gActivePlayerState;
 extern u8 *D_80035AA4[];
@@ -559,7 +559,7 @@ void func_8002FF74(void) {
         func_8002FEC0(list, 2, 0x6F);
         st->unk12 = 0;
         if (flagGet(0x51, 2)) {
-            func_8002FC48(D_807FBB40, 4);
+            func_8002FC48(gCurrentActor, 4);
             BOSS_ACTOR->unk15F = 2;
             list[0]->unk15F = 1;
             st->unk12 = 1;
@@ -577,7 +577,7 @@ void func_8002FF74(void) {
             st->unk12 = 3;
         }
         st->unk14 = 0;
-        bossActorGroupCommand(D_807FBB40, 0xF, 0x40E, 0);
+        bossActorGroupCommand(gCurrentActor, 0xF, 0x40E, 0);
     }
     tbl = D_80035AA4[st->unk14];
     if (BOSS_ACTOR->unk154) {
@@ -587,7 +587,7 @@ void func_8002FF74(void) {
         gActivePlayerState->unk38 = 150.0f;
     }
     func_8002FDF8((s32)BOSS_ACTOR, st->unk14);
-    bossActorGroupCommand(D_807FBB40, (1 << st->unk12) & 0xFF, 1, 0);
+    bossActorGroupCommand(gCurrentActor, (1 << st->unk12) & 0xFF, 1, 0);
     switch (BOSS_ACTOR->unk154) {
     case 0x1F:
         switch (BOSS_ACTOR->unk155) {
@@ -713,14 +713,14 @@ void func_80030888(void) {
     BossE_B100_Sub178 *sub178;
     s32 scaleVal;
 
-    sub11C = D_807FBB40->unk11C;
+    sub11C = gCurrentActor->unk11C;
     sub178 = sub11C->unk178;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(gCurrentActor->unk60 & 0x10)) {
         func_80724DB0(2, 1, sub11C);
     }
-    scaleVal = (D_807FBB40->unk15F == 1) ? sub178->unk14 : 0;
+    scaleVal = (gCurrentActor->unk15F == 1) ? sub178->unk14 : 0;
     func_8002FDF8(sub11C, (u8)scaleVal);
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 #pragma GLOBAL_ASM("asm/boss/nonmatchings/B100/D_800368C0.s")

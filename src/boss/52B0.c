@@ -19,8 +19,8 @@ typedef struct {
     f32 unk84;
 } BossB_ActorBB40;
 
-extern BossB_ActorBB40 *D_807FBB40;
-extern BossB_ActorBB44 *D_807FBB44;
+extern BossB_ActorBB40 *gCurrentActor;
+extern BossB_ActorBB44 *gSpawnedActor;
 
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -29,11 +29,11 @@ void scriptSetActorRampTarget(void *, f32, f32);
 
 void func_800292B0(f32 scale) {
     projectileSpawnWithShockwave(0x6A, 1.2f, 0, 0x96, 0xFF, 0xB, 1.015f, 0.0f, 0.0f, 0.0f);
-    sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x221, 0x80, 0x7F, 1, 0, 0.3f, 0);
-    D_807FBB44->unk80 = D_807FBB40->unk80;
-    D_807FBB44->unk4->unk38 *= scale;
-    func_80613C48(D_807FBB44, 0x4F9, 0.0f, 0.0f);
-    scriptSetActorRampTarget(D_807FBB44, 1.5f, 0.0f);
+    sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x221, 0x80, 0x7F, 1, 0, 0.3f, 0);
+    gSpawnedActor->unk80 = gCurrentActor->unk80;
+    gSpawnedActor->unk4->unk38 *= scale;
+    func_80613C48(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
+    scriptSetActorRampTarget(gSpawnedActor, 1.5f, 0.0f);
 }
 
 
@@ -48,7 +48,7 @@ void func_800293C0(void) {
     func_807149B8(1);
     func_80714998(3);
     func_807149C8(0x78, 0x78, 0x78, 0xC8);
-    effectSpawnBoneDefault(D_807FBB40, (((randomNonNegative() >> 15) % 0x7FFF) % 16) + 3, 2.0f, 0.0f, 0.0f, 0.0f, -0x96);
+    effectSpawnBoneDefault(gCurrentActor, (((randomNonNegative() >> 15) % 0x7FFF) % 16) + 3, 2.0f, 0.0f, 0.0f, 0.0f, -0x96);
 }
 
 typedef struct Boss3F_52B0_178 {
@@ -158,7 +158,7 @@ void behaviourFrameBegin(void);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void func_8072E1A4(s32, void *);
 
-#define ACTOR ((Boss3F_52B0_Actor *)D_807FBB40)
+#define ACTOR ((Boss3F_52B0_Actor *)gCurrentActor)
 
 void func_80029468(void) {
 

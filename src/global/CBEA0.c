@@ -88,7 +88,7 @@ typedef struct R1C2CB_Entry {
 
 extern R1C2CB_Entry D_807506D0[];
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern s8 D_80750754;
 extern s16 D_80750758;
 extern s8 D_807506D5[];
@@ -114,7 +114,7 @@ void spriteLinearInterpolateFrame(void) {
     s32 t;
     s32 k;
 
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         D_807FC8F0 = assetLoad(0x13, 7, 1, 1);
         D_807FC8E0 = 0;
         for (i = 0; D_807FC8F0[i] != 0x2A; i++) {
@@ -134,7 +134,7 @@ void spriteLinearInterpolateFrame(void) {
             D_807FC8E8 = 0;
         }
     }
-    actor = D_807FBB40;
+    actor = gCurrentActor;
     if (D_807FC8E2 > 0) {
         D_807FC8E2--;
     }

@@ -687,7 +687,7 @@ void func_805FC2B0(void) {
 
 #include "actor.h"
 
-extern Actor *D_807FBB44;
+extern Actor *gSpawnedActor;
 s32 func_80714360(void);
 s32 func_8071432C(void);
 s32 func_8071441C(void);
@@ -735,7 +735,7 @@ s32 pauseStateUpdate(void) {
                         } else {
                             actorSpawn(0x157, 0);
                         }
-                        D_807FBB44->unk64 |= 2;
+                        gSpawnedActor->unk64 |= 2;
                     }
                     D_807445C0 = osGetTime();
                     D_807FBB60 ^= 1;

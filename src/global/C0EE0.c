@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
 
 typedef struct BC1E0_Obj {
@@ -55,7 +55,7 @@ typedef struct BC1E0_Actor {
     /* 0x178 */ BC1E0_State *unk178;
 } BC1E0_Actor;
 
-#define BC1E0_LGB ((BC1E0_Actor *)D_807FBB40)
+#define BC1E0_LGB ((BC1E0_Actor *)gCurrentActor)
 
 extern s8 D_80750650;
 extern s8 D_807FC8C0[16];
@@ -129,7 +129,7 @@ void enemyGridStateStep(void) {
     case 0:
         if (flagGet(0x10F, 0) == 0) {
             if ((BC1E0_LGB->unk7C - D_807FBB4C->x) * (BC1E0_LGB->unk7C - D_807FBB4C->x) + (BC1E0_LGB->unk84 - D_807FBB4C->z) * (BC1E0_LGB->unk84 - D_807FBB4C->z) < 14400.0) {
-                camStartPath(D_807FBB40, 0, 1);
+                camStartPath(gCurrentActor, 0, 1);
                 st->unk39 = 0;
                 st->unk38 = 1;
             }
@@ -143,7 +143,7 @@ void enemyGridStateStep(void) {
     case 2:
         switch (st->unk39) {
         case 0:
-            renderCallbacksRegister(func_806BCF98, D_807FBB40, 5);
+            renderCallbacksRegister(func_806BCF98, gCurrentActor, 5);
             if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
                 camResumePath();
                 st->unk39 = 1;
@@ -160,7 +160,7 @@ void enemyGridStateStep(void) {
             }
             break;
         case 1:
-            camStartPath(D_807FBB40, 1, 1);
+            camStartPath(gCurrentActor, 1, 1);
             st->unk39 = 3;
             break;
         case 3:
@@ -178,7 +178,7 @@ void enemyGridStateStep(void) {
                 st->unk36 = 3;
                 st->unk37 = 0;
                 st->unk20 = -500.0f;
-                actorScriptStart(D_807FBB40, 0x31C);
+                actorScriptStart(gCurrentActor, 0x31C);
                 hudSpawnCountdownTimer(0xDC, 0x2A, 0x3C);
                 flagSet(0x30, 1, 2);
                 sfxAllocateChannel(0x78, 1.0f);
@@ -215,7 +215,7 @@ void enemyGridStateStep(void) {
                     j++;
                 } while (&D_807FC8C0[j] < &D_807FC8D0); // FAKE: pointer-compare bound steers loop strength reduction
                 flagSet(0x30, 0, 2, ones);
-                actorScriptStart(D_807FBB40, 0x31C);
+                actorScriptStart(gCurrentActor, 0x31C);
                 D_80750650 = 1;
                 if (ones < zeros) {
                     st->unk38 = 6;
@@ -233,7 +233,7 @@ void enemyGridStateStep(void) {
                 st->unk20 = -500.0f;
                 st->unk34 = 0x1E;
             } else {
-                actorScriptStart(D_807FBB40, 0);
+                actorScriptStart(gCurrentActor, 0);
                 D_80750650 = 0;
                 best = 4;
                 n = 0;
@@ -305,9 +305,9 @@ void enemyGridStateStep(void) {
         if (st->unk34 == 0 && st->unk4 == 0.0f) {
             sfxStopChannel(0x78, 1);
             sfxAllocateChannel(0x56, 1.0f);
-            actorScriptStart(D_807FBB40, 0x31C);
+            actorScriptStart(gCurrentActor, 0x31C);
             actorDespawn(BC1E0_LGB->unk11C);
-            camStartPath(D_807FBB40, 2, 1);
+            camStartPath(gCurrentActor, 2, 1);
             st->unk38 = 8;
         }
         break;
@@ -327,8 +327,8 @@ void enemyGridStateStep(void) {
     case 7:
         if (st->unk34 == 0 && st->unk4 == 0.0f) {
             actorDespawn(BC1E0_LGB->unk11C);
-            actorScriptStart(D_807FBB40, 0x31C);
-            camStartPath(D_807FBB40, 3, 1);
+            actorScriptStart(gCurrentActor, 0x31C);
+            camStartPath(gCurrentActor, 3, 1);
             st->unk38 = 9;
             sfxStopChannel(0x78, 1);
             sfxAllocateChannel(0x57, 1.0f);
@@ -361,7 +361,7 @@ void enemyGridStateStep(void) {
         if (D_80750650 == 0) {
             if (old < 0.63f && st->unk0 >= 0.63f) {
                 csModelStateSetByte(st->unk36 + st->unk37 * 4, 1, 1);
-                sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x361, 0xFF, 0x7F, 0xA);
+                sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x361, 0xFF, 0x7F, 0xA);
             }
         } else {
             targetScaleY += (st->unk0 - 0.5f) * 0.25f;
@@ -397,13 +397,13 @@ void enemyGridStateStep(void) {
         }
         if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {
             if (obj->unk10 != 0x5C3) {
-                func_80613C48(D_807FBB40, 0x5C3, 0.0f, 0.0f);
+                func_80613C48(gCurrentActor, 0x5C3, 0.0f, 0.0f);
             }
-            controllerApplyMotionWindow(D_807FBB40, obj, st->unk0 * 40.0f);
+            controllerApplyMotionWindow(gCurrentActor, obj, st->unk0 * 40.0f);
         }
     }
     BC1E0_LGB->unk4->unk38 = BC1E0_LGB->unk4->unk38 + (targetScaleY - BC1E0_LGB->unk4->unk38) * 0.25f;
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern u8 D_1000118[];

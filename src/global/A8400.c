@@ -867,7 +867,7 @@ typedef struct SpriteBehaviour {
     /* 0x55 */ u8 unk55;
 } SpriteBehaviour;
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern u16 D_807ECD58;
 extern u16 D_807ECD66;
 extern u8 D_807503F0;
@@ -887,16 +887,16 @@ void textBoxUpdate(void) {
     s32 v0;
     f32 f;
 
-    sub = D_807FBB40->unk174;
+    sub = gCurrentActor->unk174;
     sp18 = 0.05f;
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         sp18 = 1.0f;
         sub->unk34 = heapAlloc(0x280);
         sub->unk55 = 0;
     } else {
         v0 = sub->unk55;
         if (!(v0 & 1)) {
-            if (D_807FBB40->state != 4 && D_807FBB40->state != 5) {
+            if (gCurrentActor->state != 4 && gCurrentActor->state != 5) {
                 if (15.0 < (f64)sub->unk0) {
                     if (D_807ECD66 & 0x4000) {
                         sub->unk55 = v0 | 1;
@@ -915,7 +915,7 @@ void textBoxUpdate(void) {
                     }
                     if (sub->unk55 & 1) {
                         camResumePath();
-                        D_807FBB40->state = 5;
+                        gCurrentActor->state = 5;
                     }
                 }
             }
@@ -923,14 +923,14 @@ void textBoxUpdate(void) {
     }
     sub->unk38 = sub->unk38 + 0x14;
     sub->unk3A = sub->unk3A + 0x32;
-    switch (D_807FBB40->state) {
+    switch (gCurrentActor->state) {
     case 0:
         if (sub->unk0 < 0x1E) {
             sub->unk0 = sub->unk0 + 1;
         } else {
-            D_807FBB40->state = 1;
+            gCurrentActor->state = 1;
             sub->unk1D = D_807503F0;
-            func_8070E808(D_807FBB40, sub->unk4);
+            func_8070E808(gCurrentActor, sub->unk4);
             renderCalcChainCenterOffset((ChainRowHead *)sub);
         }
         break;
@@ -947,7 +947,7 @@ void textBoxUpdate(void) {
         sub->unk14 = sub->unk14 - f;
         sub->unk18 = sub->unk18 - f;
         if ((f64)sub->unk18 < 0.0001) {
-            D_807FBB40->state = 1;
+            gCurrentActor->state = 1;
         }
         break;
     case 4:
@@ -959,19 +959,19 @@ void textBoxUpdate(void) {
             }
             sub->unk0 = sub->unk0 - 1;
         } else {
-            D_807FBB40->state = 5;
+            gCurrentActor->state = 5;
         }
         break;
     case 5:
         resQueueRemove(sub->unk4);
         break;
     }
-    if (D_807FBB40->state != 5) {
+    if (gCurrentActor->state != 5) {
         sub->unk20 = (f32)sub->unk0 * 0.033333335f;
-        textBoxUpdatePosition(D_807FBB40, sub, sp18);
+        textBoxUpdatePosition(gCurrentActor, sub, sp18);
         if (sub->unk0 != 0) {
-            textBoxUpdateRows(D_807FBB40);
-            renderCallbacksRegister(textBoxRender, D_807FBB40, 3);
+            textBoxUpdateRows(gCurrentActor);
+            renderCallbacksRegister(textBoxRender, gCurrentActor, 3);
         }
     }
 }

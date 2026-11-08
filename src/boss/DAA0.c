@@ -37,7 +37,7 @@ typedef struct BossD_Actor {
     f64 unk160;
 } BossD_Actor;
 
-extern BossD_Actor *D_807FBB40;
+extern BossD_Actor *gCurrentActor;
 extern BossD_Actor *D_807FBB4C;
 
 void camStartPath(void *, s32, u8);
@@ -111,7 +111,7 @@ typedef struct BossSpawnedActor {
     BossSpawnState *unk174;
 } BossSpawnedActor;
 
-extern BossSpawnedActor *D_807FBB44;
+extern BossSpawnedActor *gSpawnedActor;
 extern u8 D_807FBDC4;
 extern s8 D_80036DC0;
 extern f32 D_80036DC4;
@@ -137,7 +137,7 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 void lightSetColor(f32, f32, f32, s32);
 void func_8068B80C(void);
 
-#define SPAWNER_ACTOR ((BossSpawnerActor *)D_807FBB40)
+#define SPAWNER_ACTOR ((BossSpawnerActor *)gCurrentActor)
 #define SPAWNER_PLAYER ((BossSpawnerActor *)D_807FBB4C)
 
 void bossSpawnerUpdate(void) {
@@ -176,15 +176,15 @@ void bossSpawnerUpdate(void) {
         D_80035B70 = 5;
         for (i = 0; i != 8; i++) {
             if (actorSpawn(0xA6, D_80035B60[i >> 1]) != 0) {
-                st = D_807FBB44->unk174;
+                st = gSpawnedActor->unk174;
                 st->unk0 = SPAWNER_ACTOR;
                 st->unk4 = i >> 1;
                 st->unk5 = i & 1;
-                D_807FBB44->unk80 = SPAWNER_ACTOR->unk80 + 50.0f;
-                D_807FBB44->unk4->unk34 = 0.1;
-                D_807FBB44->unk4->unk38 = 0.1;
-                D_807FBB44->unk4->unk3C = 0.1;
-                D_807FBB44->unk60 |= 0x400;
+                gSpawnedActor->unk80 = SPAWNER_ACTOR->unk80 + 50.0f;
+                gSpawnedActor->unk4->unk34 = 0.1;
+                gSpawnedActor->unk4->unk38 = 0.1;
+                gSpawnedActor->unk4->unk3C = 0.1;
+                gSpawnedActor->unk60 |= 0x400;
             }
         }
         D_80036DC4 = 160000.0f;
@@ -212,7 +212,7 @@ void bossSpawnerUpdate(void) {
             cutsceneId = D_80035B44[D_80036DC0];
             SPAWNER_ACTOR->unk146 = 0;
             for (i = 4; D_80036DC0 < i; i--) {
-                func_8068A764(D_807FBB40, D_80035B58[D_80035B44[i]]);
+                func_8068A764(gCurrentActor, D_80035B58[D_80035B44[i]]);
             }
             D_80036DC0++;
             cutsceneId = D_80035B4C[cutsceneId];
@@ -220,7 +220,7 @@ void bossSpawnerUpdate(void) {
             func_806F09F0(D_807FBB4C, cutsceneId);
             SPAWNER_PLAYER->unk154 = 0xC;
             SPAWNER_PLAYER->unk155 = 0;
-            func_8067AAB8(D_807FBB40, D_807FBB4C, 0, 180.0f, 0x46);
+            func_8067AAB8(gCurrentActor, D_807FBB4C, 0, 180.0f, 0x46);
             SPAWNER_ACTOR->unk154 = 1;
             SPAWNER_PLAYER->unk144 = D_80035B38;
         }
@@ -504,7 +504,7 @@ void bossSpawnerUpdate(void) {
         func_8068B80C();
     }
     D_80035B40 = bounceDir;
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 
@@ -577,7 +577,7 @@ void controllerApplyMotionWindow(void *, void *, f32);
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, void *);
 
-#define ACTOR ((BossFollowerActor *)D_807FBB40)
+#define ACTOR ((BossFollowerActor *)gCurrentActor)
 
 void bossFollowerActorUpdate(void) {
     BossFollowerLink *sub174 = ACTOR->unk174;

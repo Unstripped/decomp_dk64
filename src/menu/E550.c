@@ -20,7 +20,7 @@ typedef struct {
     u8 unk16C;
 } MenuLightFadeActor;
 
-extern MenuLightFadeActor *D_807FBB40;
+extern MenuLightFadeActor *gCurrentActor;
 extern u8 D_80033FB0;
 extern u8 D_80033FB1;
 extern u8 D_80033FB2;
@@ -34,25 +34,25 @@ void actorUpdateModelMatrix(MenuLightFadeActor *, s32);
 
 void menuLightSpotlightActorUpdate(void) {
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk154 = 0;
-        D_807FBB40->unk155 = 0;
-        D_807FBB40->unkCD = 1;
-        D_807FBB40->unk60 &= ~4;
+    if (!(gCurrentActor->unk60 & 0x10)) {
+        gCurrentActor->unk154 = 0;
+        gCurrentActor->unk155 = 0;
+        gCurrentActor->unkCD = 1;
+        gCurrentActor->unk60 &= ~4;
     }
-    if (D_807FBB40->unk60 & 4) {
+    if (gCurrentActor->unk60 & 4) {
         lightUpdateFromActorLighting(&D_80033FB0, &D_80033FB1, &D_80033FB2);
     }
-    if (D_807FBB40->unk154 == 0 && D_807FBB40->unk155 == 0) {
+    if (gCurrentActor->unk154 == 0 && gCurrentActor->unk155 == 0) {
         do {
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
-                actorScriptStart(D_807FBB40, 0x2A7);
-                D_807FBB40->unk155++;
+                actorScriptStart(gCurrentActor, 0x2A7);
+                gCurrentActor->unk155++;
             }
         } while (0); // FAKE: do/while(0) wrapper steers branch codegen
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern u8 D_800339D0;
@@ -67,45 +67,45 @@ void menuUpdateLightFadeActor(void) {
     s32 d;
     s32 cur;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk15F = 0;
+    if (!(gCurrentActor->unk60 & 0x10)) {
+        gCurrentActor->unk15F = 0;
         currentActorClearFlag();
-        D_807FBB40->unk154 = 0;
+        gCurrentActor->unk154 = 0;
     }
     behaviourFrameBegin();
-    switch (D_807FBB40->unk154) {
+    switch (gCurrentActor->unk154) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            actorScriptStart(D_807FBB40, 0x2D6);
-            D_807FBB40->unk154++;
-            D_807FBB40->unk155 = 0;
+            actorScriptStart(gCurrentActor, 0x2D6);
+            gCurrentActor->unk154++;
+            gCurrentActor->unk155 = 0;
             D_807FBB60 &= ~0x30;
         }
         break;
     case 1:
         lightSetFovAngles(20.0f, 40.0f);
-        cur = D_807FBB40->unk15F;
-        if (D_807FBB40->unk15F != 0xFF) {
+        cur = gCurrentActor->unk15F;
+        if (gCurrentActor->unk15F != 0xFF) {
             d = (0xFF - cur < 3) ? 0xFF - cur : 3;
-            D_807FBB40->unk15F = cur + d;
+            gCurrentActor->unk15F = cur + d;
         }
-        lightAdd(D_807FBB40->unk7C, D_807FBB40->unk80 + 20.0f, D_807FBB40->unk84, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0.0f, 1, D_807FBB40->unk15F, D_807FBB40->unk15F, D_807FBB40->unk15F);
+        lightAdd(gCurrentActor->unk7C, gCurrentActor->unk80 + 20.0f, gCurrentActor->unk84, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0.0f, 1, gCurrentActor->unk15F, gCurrentActor->unk15F, gCurrentActor->unk15F);
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            D_807FBB40->unk60 |= 0x800000;
-            D_807FBB40->unk154 = 2;
+            gCurrentActor->unk60 |= 0x800000;
+            gCurrentActor->unk154 = 2;
         }
         break;
     case 2:
-        D_807FBB40->unk16A -= 8;
-        D_807FBB40->unk16B -= 8;
-        D_807FBB40->unk16C -= 8;
-        if (D_807FBB40->unk16A < 9) {
-            D_807FBB40->unk16A = 0;
-            D_807FBB40->unk16B = 0;
-            D_807FBB40->unk16C = 0;
-            D_807FBB40->unk154 = 3;
+        gCurrentActor->unk16A -= 8;
+        gCurrentActor->unk16B -= 8;
+        gCurrentActor->unk16C -= 8;
+        if (gCurrentActor->unk16A < 9) {
+            gCurrentActor->unk16A = 0;
+            gCurrentActor->unk16B = 0;
+            gCurrentActor->unk16C = 0;
+            gCurrentActor->unk154 = 3;
             D_800339D0 = 0;
         }
         break;
@@ -115,18 +115,18 @@ void menuUpdateLightFadeActor(void) {
         }
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            D_807FBB40->unk154 = 4;
+            gCurrentActor->unk154 = 4;
         }
         break;
     case 4:
         func_807145F8();
-        D_807FBB40->unk154++;
+        gCurrentActor->unk154++;
         break;
     }
-    if (D_807FBB40->unk154 >= 3) {
-        renderCallbacksRegister(menuRenderOptionDescription, D_807FBB40, 3);
+    if (gCurrentActor->unk154 >= 3) {
+        renderCallbacksRegister(menuRenderOptionDescription, gCurrentActor, 3);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 

@@ -100,7 +100,7 @@ typedef struct Struct_BB40_58 {
     MenuWidgetState *unk174;
     Struct_80025D14 *unk178;
 } Struct_BB40_58;
-extern Struct_BB40_58 *D_807FBB40;
+extern Struct_BB40_58 *gCurrentActor;
 
 extern u8 D_807FC950[][0x5E];
 
@@ -220,7 +220,7 @@ void func_80025FB4(Struct_80025D14 *state, u8 *inventory, s32 isExiting) {
     }
     count++;
     state->unkC = func_805FF030(D_8076A0AB, 0);
-    switch (D_807FBB40->unk58) {
+    switch (gCurrentActor->unk58) {
     case 0xBD:
         tbl = D_80033260[0];
         break;
@@ -291,7 +291,7 @@ s32 menuGetOptionAvailability(Struct_80025D14 *state, s32 optionIdx) {
 }
 
 s32 func_80026250(Struct_80025D14 *state) {
-    s32 ret = D_807FBB40->unk58 == 0xBD;
+    s32 ret = gCurrentActor->unk58 == 0xBD;
 
     if (ret != 0) {
         ret = state->unkA == 0;
@@ -344,7 +344,7 @@ void func_800262A8(Struct_80025D14 *state, void *inventory, s32 hasSecondAction)
         currentActorClearFlag();
         state->unk12 = 0;
         state->unkE++;
-        switch (D_807FBB40->unk58) {
+        switch (gCurrentActor->unk58) {
         case 0xBF:
             a = 3;
             b = 7;
@@ -431,9 +431,9 @@ void func_800262A8(Struct_80025D14 *state, void *inventory, s32 hasSecondAction)
             break;
         }
         if (hasSecondAction != 0) {
-            func_8070D8C0(D_807FBB40, textParam1, pairs[8].lo);
+            func_8070D8C0(gCurrentActor, textParam1, pairs[8].lo);
         }
-        func_8070D8C0(D_807FBB40, textParam1, pairs[availability].lo);
+        func_8070D8C0(gCurrentActor, textParam1, pairs[availability].lo);
         if (availability == 2 || availability == 3 || availability == 6 || availability == 7) {
             slotQueueInit(0);
             slotQueueUpdate(1, 1, 0);
@@ -451,7 +451,7 @@ void menuDispatchSubmenuAction(Struct_80025D14 *state, u8 *inventory, s32 flag) 
         func_800262A8(state, inventory, flag);
         break;
     case 1:
-        if (!(D_807FBB40->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->unk60 & 0x02000000)) {
             state->unkE = 0;
             state->unkD = state->unkF;
             camResumePath();
@@ -475,18 +475,18 @@ s32 menuExitSubmenu(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
     state->unkE = 0;
     if (flagGet(0x61, 2) == 0) {
         if (flag != 0) {
-            playerWaypointPathStartPacked(D_807FBB4C, D_807FBB40, 0, 0x1B);
+            playerWaypointPathStartPacked(D_807FBB4C, gCurrentActor, 0, 0x1B);
             camStartPath(0, 0, 1);
         } else {
             camStartPath(0, 4, 1);
-            playerStateQueueCallback(0x1B, D_807FBB40, 0);
+            playerStateQueueCallback(0x1B, gCurrentActor, 0);
         }
     } else {
-        playerStateQueueCallback(0x1B, D_807FBB40, 0);
+        playerStateQueueCallback(0x1B, gCurrentActor, 0);
         camStartPath(0, 0xB, 1);
     }
     currentActorClearFlag();
-    D_807FBB40->unk60 |= 0x10000000;
+    gCurrentActor->unk60 |= 0x10000000;
     return flag;
 }
 
@@ -499,7 +499,7 @@ void menuTransitionToSubmenu(Struct_80025D14 *state, u8 *inventory) {
     func_80025FB4(state, inventory, 0);
     state->unkD = 0;
     state->unkE = 0;
-    playerStateQueueCallback(0x1B, D_807FBB40, 0);
+    playerStateQueueCallback(0x1B, gCurrentActor, 0);
 }
 
 extern s32 D_807FBB60;
@@ -523,7 +523,7 @@ void func_80026874(Struct_80025D14 *state, u8 *inventory) {
         break;
     case 1:
     case 5:
-        renderCallbacksRegister(func_80025B64, D_807FBB40, 3);
+        renderCallbacksRegister(func_80025B64, gCurrentActor, 3);
         break;
     case 10:
         if (func_80026250(state) == 0) {
@@ -558,7 +558,7 @@ void func_80026874(Struct_80025D14 *state, u8 *inventory) {
         break;
     case 15:
         textParam1 = -1;
-        switch (D_807FBB40->unk58) {
+        switch (gCurrentActor->unk58) {
         case 0xBD:
             textParam1 = 8;
             if (func_80026250(state) != 0) {
@@ -582,7 +582,7 @@ void func_80026874(Struct_80025D14 *state, u8 *inventory) {
         camStartPath(gPlayerSlots->unk4, 3, 1);
         state->unkD = 3;
         state->unkE = 0;
-        func_8070D8C0(D_807FBB40, textParam1, textParam2);
+        func_8070D8C0(gCurrentActor, textParam1, textParam2);
         break;
     }
 }
@@ -643,15 +643,15 @@ void func_80026B28(Struct_80025D14 *state, void *inventory, s32 flagId) {
                 textParam1 = 7;
                 break;
             }
-            func_8070D8C0(D_807FBB40, textParam1, textParam2);
+            func_8070D8C0(gCurrentActor, textParam1, textParam2);
             if (extraTextParam >= 0) {
-                func_8070D8C0(D_807FBB40, textParam1, extraTextParam);
+                func_8070D8C0(gCurrentActor, textParam1, extraTextParam);
             }
             state->unkE++;
         }
         break;
     case 1:
-        if (!(D_807FBB40->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->unk60 & 0x02000000)) {
             flagSet(flagId, 1, 0);
             camResumePath();
             state->unkE++;
@@ -678,18 +678,18 @@ void func_80026DAC(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
 
     switch (state->unkE) {
     case 0:
-        if (!(D_807FBB40->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->unk60 & 0x02000000)) {
             camResumePath();
             state->unkE++;
             flagSet(flagId, 1, 0);
         }
         break;
     case 2:
-        if (!(D_807FBB40->unk60 & 0x02000000)) {
+        if (!(gCurrentActor->unk60 & 0x02000000)) {
             x = -1;
             camResumePath();
             state->unkE = 4;
-            switch (D_807FBB40->unk58) {
+            switch (gCurrentActor->unk58) {
             case 0xBE:
                 x = 2;
             case 0xBF:
@@ -708,7 +708,7 @@ void func_80026DAC(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
             v = -1;
             currentActorClearFlag();
             playerResumeLocomotion(D_807FBB4C);
-            switch (D_807FBB40->unk58) {
+            switch (gCurrentActor->unk58) {
             case 0xBE:
                 textParam1 = 7;
                 textParam2 = 0x11;
@@ -723,7 +723,7 @@ void func_80026DAC(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
                 }
                 if (v >= 0 && (inventory[v] & 1)) {
                     if (slotQueueGetValue((u8)queueItemId, 0) < slotQueueGetMaxValue(queueItemId, 0)) {
-                        func_8070D8C0(D_807FBB40, textParam1, textParam2);
+                        func_8070D8C0(gCurrentActor, textParam1, textParam2);
                         slotQueueAddValue(queueItemId, 0, 0x3E7);
                         state->unkE = 0;
                         camPathId = 5;
@@ -786,35 +786,35 @@ void func_800270E0(void) {
 
     behaviourFrameBegin();
     if (gCurrentMap == 5) {
-        st = D_807FBB40->unk178;
+        st = gCurrentActor->unk178;
         p = D_807FC950[gPlayerCharacterId];
-        if (!(D_807FBB40->unk60 & 0x10)) {
+        if (!(gCurrentActor->unk60 & 0x10)) {
             if (flagGet(0x180, 0) != 0) {
-                D_807FBB40->unk155 = 0;
+                gCurrentActor->unk155 = 0;
             } else {
-                D_807FBB40->unk155 = 0xFF;
+                gCurrentActor->unk155 = 0xFF;
             }
         }
-        if (D_807FBB40->unk155 != 0xFF) {
+        if (gCurrentActor->unk155 != 0xFF) {
             flag = 0x17F;
             if (func_805FF030(D_8076A0AB, 0) != 7) {
                 flag = 0x177;
             }
             a3 = 0x26E;
-            if (!(D_807FBB40->unk60 & 0x10)) {
+            if (!(gCurrentActor->unk60 & 0x10)) {
                 if (menuExitSubmenu(st, p, flag) != 0) {
                     a3 = 0x26F;
                 }
-                actorScriptStart(D_807FBB40, a3);
+                actorScriptStart(gCurrentActor, a3);
             }
             menuDispatchCurrentMenuAction(st, p, flag);
         } else {
-            if (!(D_807FBB40->unk60 & 0x10)) {
+            if (!(gCurrentActor->unk60 & 0x10)) {
                 *((u8 *)st + 0xC) = 7;
                 if (flagGet(0x17F, 0) == 0) {
-                    actorScriptStart(D_807FBB40, 0x26E);
+                    actorScriptStart(gCurrentActor, 0x26E);
                     camStartPath(0, 5, 1);
-                    D_807FBB40->unk154 = 0;
+                    gCurrentActor->unk154 = 0;
                     flagSet(0x64, 1, 2);
                 } else {
                     n = 0;
@@ -825,54 +825,54 @@ void func_800270E0(void) {
                     } while (i != 4);
                     if (n != 4) {
                         camPathId = 0;
-                        D_807FBB40->unk154 = 3;
+                        gCurrentActor->unk154 = 3;
                     } else {
                         camPathId = 6;
-                        D_807FBB40->unk154 = 4;
+                        gCurrentActor->unk154 = 4;
                         st->unkB = 1;
                         st->unk4 = 0;
                         st->unk11 = 1;
                         menuApplyPurchase(st, p);
                         flagSet(0x180, 1, 0);
                     }
-                    playerWaypointPathStartPacked(D_807FBB4C, D_807FBB40, 0, 0x1B);
+                    playerWaypointPathStartPacked(D_807FBB4C, gCurrentActor, 0, 0x1B);
                     camStartPath(0, (s16)camPathId, 1);
                     currentActorClearFlag();
-                    actorScriptStart(D_807FBB40, 0x26E);
+                    actorScriptStart(gCurrentActor, 0x26E);
                 }
             }
-            switch (D_807FBB40->unk154) {
+            switch (gCurrentActor->unk154) {
             case 0:
                 if (currentActorTestClearFlag() != 0) {
-                    func_8070D8C0(D_807FBB40, 8, 0x1C);
-                    D_807FBB40->unk154 = 1;
+                    func_8070D8C0(gCurrentActor, 8, 0x1C);
+                    gCurrentActor->unk154 = 1;
                 }
                 break;
             case 1:
-                if (!(D_807FBB40->unk60 & 0x02000000)) {
+                if (!(gCurrentActor->unk60 & 0x02000000)) {
                     playerResumeLocomotion(D_807FBB4C);
                     currentActorClearFlag();
                     camStartPath(0, 1, 1);
                     func_805FF898();
-                    D_807FBB40->unk154 = 2;
+                    gCurrentActor->unk154 = 2;
                 }
                 break;
             case 3:
                 if (currentActorTestClearFlag() != 0) {
-                    func_8070D8C0(D_807FBB40, 8, 0x1D);
-                    D_807FBB40->unk154 = 1;
+                    func_8070D8C0(gCurrentActor, 8, 0x1D);
+                    gCurrentActor->unk154 = 1;
                 }
                 break;
             case 4:
                 if (currentActorTestClearFlag() != 0) {
-                    func_8070D8C0(D_807FBB40, 8, 0x1E);
-                    D_807FBB40->unk154 = 5;
+                    func_8070D8C0(gCurrentActor, 8, 0x1E);
+                    gCurrentActor->unk154 = 5;
                 }
                 break;
             case 5:
-                if (!(D_807FBB40->unk60 & 0x02000000)) {
+                if (!(gCurrentActor->unk60 & 0x02000000)) {
                     camResumePath();
-                    D_807FBB40->unk154 = 6;
+                    gCurrentActor->unk154 = 6;
                 }
                 break;
             case 6:
@@ -880,7 +880,7 @@ void func_800270E0(void) {
                     playerStateQueueCallback(0x52, 0, 0);
                     D_807FBB60 &= 0xFFFEFFCF;
                     gPlayerSlots->unk4->unk60 |= 0x40000000;
-                    D_807FBB40->unk154 = 7;
+                    gCurrentActor->unk154 = 7;
                     currentActorClearFlag();
                     camStartPath(gPlayerSlots->unk4, 2, 1);
                 }
@@ -889,18 +889,18 @@ void func_800270E0(void) {
                 if (currentActorTestClearFlag() != 0) {
                     D_807FBB60 |= 0x10030;
                     D_80750AC8 = 0xF;
-                    func_8070D8C0(D_807FBB40, 8, 0x1F);
-                    D_807FBB40->unk154 = 1;
+                    func_8070D8C0(gCurrentActor, 8, 0x1F);
+                    gCurrentActor->unk154 = 1;
                 }
                 break;
             }
         }
     }
-    if (D_807FBB40->unk60 & 0x10000000) {
+    if (gCurrentActor->unk60 & 0x10000000) {
         behaviourFrameBegin();
         actorScriptedCommandUpdate();
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 s32 menuDecodeAddressConstant(s32 val) {
@@ -921,10 +921,10 @@ void menuCheckControllerAntiPiracy(void) {
 
     behaviourFrameBegin();
     if (gCurrentMap == 0x19) {
-        temp = D_807FBB40->unk178;
+        temp = gCurrentActor->unk178;
         ptr = D_807FC950[gPlayerCharacterId];
 
-        if (!(D_807FBB40->unk60 & 0x10)) {
+        if (!(gCurrentActor->unk60 & 0x10)) {
 
             s32 *cur = (s32 *)controllerUpdate;
             s32 *end = (s32 *)controllerLatchPad;
@@ -945,28 +945,28 @@ void menuCheckControllerAntiPiracy(void) {
         }
         menuDispatchCurrentMenuAction(temp, ptr, 0x175);
     }
-    if (D_807FBB40->unk60 & 0x10000000) {
+    if (gCurrentActor->unk60 & 0x10000000) {
         behaviourFrameBegin();
         actorScriptedCommandUpdate();
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 void func_80027738(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 1) {
-        Struct_80025D14 *temp = D_807FBB40->unk178;
+        Struct_80025D14 *temp = gCurrentActor->unk178;
         u8 *ptr = D_807FC950[gPlayerCharacterId];
 
-        if (!(D_807FBB40->unk60 & 0x10)) {
+        if (!(gCurrentActor->unk60 & 0x10)) {
             menuExitSubmenu(temp, ptr, 0x176);
         }
         menuDispatchCurrentMenuAction(temp, ptr, 0x176);
     }
-    if (D_807FBB40->unk60 & 0x10000000) {
+    if (gCurrentActor->unk60 & 0x10000000) {
         behaviourFrameBegin();
         actorScriptedCommandUpdate();
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 
@@ -1013,7 +1013,7 @@ void actorDespawn(void *);
 void renderCallbacksRegister(void *, void *, s32);
 
 void menuUpdateTransformedWidgets(void) {
-    MenuWidgetState *fp = D_807FBB40->unk174;
+    MenuWidgetState *fp = gCurrentActor->unk174;
     s32 done = 0;
     Struct_80025D14 *st = NULL;
     f32 mA[4][4];
@@ -1030,7 +1030,7 @@ void menuUpdateTransformedWidgets(void) {
         st = fp->unk94->unk178;
     }
     if (st != NULL) {
-        if (!(D_807FBB40->unk60 & 0x10)) {
+        if (!(gCurrentActor->unk60 & 0x10)) {
             textIds = D_8003365C[0];
             guScaleF(mA, 0.6f, 0.6f, 1.0f);
             guTranslateF(mB, 640.0f, 800.0f, 0.0f);
@@ -1084,13 +1084,13 @@ void menuUpdateTransformedWidgets(void) {
         }
         switch (fp->unk90) {
         case 0x78:
-            D_807FBB40->unk154 = 1;
+            gCurrentActor->unk154 = 1;
             break;
         case 0x1E:
-            D_807FBB40->unk154 = 2;
+            gCurrentActor->unk154 = 2;
             break;
         }
-        switch (D_807FBB40->unk154) {
+        switch (gCurrentActor->unk154) {
         case 1:
             d = (0xFF - fp->unk8 > 0x10) ? 0x10 : 0xFF - fp->unk8;
             fp->unk8 += d;
@@ -1101,14 +1101,14 @@ void menuUpdateTransformedWidgets(void) {
             break;
         }
         if (done == 0) {
-            if (D_807FBB40->unk154 != 0) {
-                renderCallbacksRegister(menuDrawTransformedWidgets, D_807FBB40, 3);
+            if (gCurrentActor->unk154 != 0) {
+                renderCallbacksRegister(menuDrawTransformedWidgets, gCurrentActor, 3);
             }
-            if (D_807FBB40->unk58 == 0x140) {
-                actorUpdateModelMatrix(D_807FBB40, 0);
+            if (gCurrentActor->unk58 == 0x140) {
+                actorUpdateModelMatrix(gCurrentActor, 0);
             }
         } else {
-            actorDespawn(D_807FBB40);
+            actorDespawn(gCurrentActor);
         }
     }
 }

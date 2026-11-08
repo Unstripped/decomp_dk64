@@ -42,7 +42,7 @@ typedef struct BossD_DC90 {
     u8 unk28[4];
 } BossD_DC90;
 
-extern BossD_Actor *D_807FBB40;
+extern BossD_Actor *gCurrentActor;
 extern BossD_Actor *D_807FBB4C;
 extern BossD_D580 *gActivePlayerState;
 extern BossD_DC90 *D_807FDC90;
@@ -68,18 +68,18 @@ void func_80030920(s32 unused) {
 
     gActivePlayerState->unk1FE = 1;
     func_800290D4(1);
-    D_807FBB40->unk144 = 0x24;
-    playerStateQueueCallback(0x19, D_807FBB40, 0);
-    zoneEntryGetPosition(1, 8, &D_807FBB40->unk7C, &D_807FBB40->unk80, &D_807FBB40->unk84);
-    D_807FDC90->unkA = D_807FBB40->unk7C;
-    D_807FDC90->unkC = D_807FBB40->unk80;
-    D_807FDC90->unkE = D_807FBB40->unk84;
+    gCurrentActor->unk144 = 0x24;
+    playerStateQueueCallback(0x19, gCurrentActor, 0);
+    zoneEntryGetPosition(1, 8, &gCurrentActor->unk7C, &gCurrentActor->unk80, &gCurrentActor->unk84);
+    D_807FDC90->unkA = gCurrentActor->unk7C;
+    D_807FDC90->unkC = gCurrentActor->unk80;
+    D_807FDC90->unkE = gCurrentActor->unk84;
     zoneEntryGetPosition(1, 0x20, &D_807FBB4C->unk7C, &D_807FBB4C->unk80, &D_807FBB4C->unk84);
-    D_807FBB4C->unkE6 = mathAngleBetweenPoints2D(D_807FBB40->unk7C, D_807FBB40->unk84, D_807FBB4C->unk7C, D_807FBB4C->unk84);
+    D_807FBB4C->unkE6 = mathAngleBetweenPoints2D(gCurrentActor->unk7C, gCurrentActor->unk84, D_807FBB4C->unk7C, D_807FBB4C->unk84);
     targetYaw = D_807FBB4C->unkE6 + 0x800;
-    D_807FBB40->unkE6 = targetYaw;
-    D_807FBB40->unkEE = targetYaw;
-    actorScriptStart(D_807FBB40, 0x3F9);
+    gCurrentActor->unkE6 = targetYaw;
+    gCurrentActor->unkEE = targetYaw;
+    actorScriptStart(gCurrentActor, 0x3F9);
     if (camIsCutsceneActive() != 0) {
         camEndPath(gCamActor);
     }
@@ -101,27 +101,27 @@ void func_80030AE0(BossD_Sub178 *sub178) {
 }
 
 void func_80030C30(f32 stepRate) {
-    D_807FBB40->unk7C = (f32) (((f64) (D_807FBB4C->unk7C - (f32) D_807FDC90->unkA) * D_807FBB40->unk160) + (f64) D_807FDC90->unkA);
-    D_807FBB40->unk80 = (f32) (((f64) (D_807FBB4C->unk80 - (f32) D_807FDC90->unkC) * D_807FBB40->unk160) + (f64) D_807FDC90->unkC);
-    D_807FBB40->unk84 = (f32) (((f64) (D_807FBB4C->unk84 - (f32) D_807FDC90->unkE) * D_807FBB40->unk160) + (f64) D_807FDC90->unkE);
-    D_807FBB40->unk160 += stepRate;
-    if (D_807FBB40->unk160 > 0.8) {
-        D_807FBB40->unk160 = 0.8;
+    gCurrentActor->unk7C = (f32) (((f64) (D_807FBB4C->unk7C - (f32) D_807FDC90->unkA) * gCurrentActor->unk160) + (f64) D_807FDC90->unkA);
+    gCurrentActor->unk80 = (f32) (((f64) (D_807FBB4C->unk80 - (f32) D_807FDC90->unkC) * gCurrentActor->unk160) + (f64) D_807FDC90->unkC);
+    gCurrentActor->unk84 = (f32) (((f64) (D_807FBB4C->unk84 - (f32) D_807FDC90->unkE) * gCurrentActor->unk160) + (f64) D_807FDC90->unkE);
+    gCurrentActor->unk160 += stepRate;
+    if (gCurrentActor->unk160 > 0.8) {
+        gCurrentActor->unk160 = 0.8;
     }
 }
 
 void func_80030D50(void) {
     s32 pad[1];
     f32 sinOffset;
-    sinOffset = func_80612794((s16)(D_807FBB40->unk160 * 10240.0));
-    D_807FBB40->unk7C += (80.0f * func_80612794(D_807FBB40->unkE6 + 0x400)) * sinOffset;
-    sinOffset = func_80612794((s16)(D_807FBB40->unk160 * 10240.0));
-    D_807FBB40->unk84 += (80.0f * func_80612790(D_807FBB40->unkE6 + 0x400)) * sinOffset;
+    sinOffset = func_80612794((s16)(gCurrentActor->unk160 * 10240.0));
+    gCurrentActor->unk7C += (80.0f * func_80612794(gCurrentActor->unkE6 + 0x400)) * sinOffset;
+    sinOffset = func_80612794((s16)(gCurrentActor->unk160 * 10240.0));
+    gCurrentActor->unk84 += (80.0f * func_80612790(gCurrentActor->unkE6 + 0x400)) * sinOffset;
 }
 
 void func_80030E58(void) {
     D_807FDC90->unk1A |= 1;
-    sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x2E2, 0xFF, 0x65, 0, 0, 0.0f, 0);
+    sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x2E2, 0xFF, 0x65, 0, 0, 0.0f, 0);
 }
 
 typedef struct BossScriptState {
@@ -237,7 +237,7 @@ void billboardSubmit(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 func_8072881C(s32, void *);
 void actorUpdateModelMatrix(void *, s32);
 
-#define BOSS_ACTOR ((BossActor *)D_807FBB40)
+#define BOSS_ACTOR ((BossActor *)gCurrentActor)
 #define PLAYER_ACTOR ((BossActor *)D_807FBB4C)
 #define WORK_STATE ((BossWorkState *)D_807FDC90)
 #define PLAYER_DATA ((BossPlayerData *)gActivePlayerState)

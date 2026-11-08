@@ -132,7 +132,7 @@ void loadModelAssetTable(void) {
     }
 }
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 
 typedef struct ProjectileState {
     s16 unk0;
@@ -160,36 +160,36 @@ void projectileSpriteRingUpdate(void) {
     f64 temp;
     f64 max;
 
-    sub = D_807FBB40->unk174;
-    if (!(D_807FBB40->flags & 0x10)) {
-        *(s16 *)((u8 *)D_807FBB40 + 0xEE) = D_807FBB40->unk15F;
+    sub = gCurrentActor->unk174;
+    if (!(gCurrentActor->flags & 0x10)) {
+        *(s16 *)((u8 *)gCurrentActor + 0xEE) = gCurrentActor->unk15F;
         sub->unk4 = heapAlloc(0x1000);
-        if (D_807FBB40->unk15F != 0) {
-            D_807FBB40->unk144 = 0x24;
+        if (gCurrentActor->unk15F != 0) {
+            gCurrentActor->unk144 = 0x24;
         }
         if (sub->unk11 == 1) {
-            sfxPlayActorSound(D_807FBB40, 0x128, 1, 1, 0, 0xFF, 0.2f, 0);
-            sfxPlayActorSound(D_807FBB40, 0x139, 0x3C, 1, 1, 0xFF, 1.0f, 0);
+            sfxPlayActorSound(gCurrentActor, 0x128, 1, 1, 0, 0xFF, 0.2f, 0);
+            sfxPlayActorSound(gCurrentActor, 0x139, 0x3C, 1, 1, 0xFF, 1.0f, 0);
         }
     }
     kind = sub->unk11;  // FAKE: copy of the dispatch byte; steers uopt register choice (a0 instead of v0)
     if (sub->unk11 != 0) {
         if (kind == 1) {
-            if (D_807FBB40) {}  // FAKE: steers uopt: hoists &D_807FBB40 into a1 for this block
-            D_807FBB40->x += sub->unkC * func_80612794(D_807FBB40->yaw);
-            D_807FBB40->z += sub->unkC * func_80612790(D_807FBB40->yaw);
-            if (D_807FBB40->unk15F != 0) {
-                D_807FBB40->unk15F -= 1;
-            } else if (D_807FBB40->unk168 == 0x20) {
-                D_807FBB40->unk168 = 0x10;
+            if (gCurrentActor) {}  // FAKE: steers uopt: hoists &gCurrentActor into a1 for this block
+            gCurrentActor->x += sub->unkC * func_80612794(gCurrentActor->yaw);
+            gCurrentActor->z += sub->unkC * func_80612790(gCurrentActor->yaw);
+            if (gCurrentActor->unk15F != 0) {
+                gCurrentActor->unk15F -= 1;
+            } else if (gCurrentActor->unk168 == 0x20) {
+                gCurrentActor->unk168 = 0x10;
                 sub->unk10 = 0;
             } else if (sub->unk10 >= 0x10) {
                 heapFree(sub->unk4);
-                actorDespawn(D_807FBB40);
+                actorDespawn(gCurrentActor);
             }
         }
     } else {
-        if (D_807FBB40->unk15F != 0) {
+        if (gCurrentActor->unk15F != 0) {
             sub->unk8 += sub->unkC;
             temp = (f64)sub->unk8 * 0.3;
             max = 32.0;
@@ -199,28 +199,28 @@ void projectileSpriteRingUpdate(void) {
                 sub->unk0 = temp;
             }
         } else {
-            sub->unk8 = sub->unk8 + (f32)((D_807FBB40->unk168 - sub->unk10) + 0x10)
+            sub->unk8 = sub->unk8 + (f32)((gCurrentActor->unk168 - sub->unk10) + 0x10)
                 * (sub->unkC * 0.0625);
         }
-        if ((sub->unk10 - D_807FBB40->unk168) >= 0x10) {
+        if ((sub->unk10 - gCurrentActor->unk168) >= 0x10) {
             u8 count;
 
-            count = D_807FBB40->unk15F;
-            D_807FBB40->unk15F = count - 1;
+            count = gCurrentActor->unk15F;
+            gCurrentActor->unk15F = count - 1;
             if (count) {
                 projectileSpawnActor107(0, sub->unk0, sub->unk8, sub->unkC, 0, 0x10);
-                if (D_807FBB40->unk15F == 0) {
-                    D_807FBB40->unk168 = 0x10;
+                if (gCurrentActor->unk15F == 0) {
+                    gCurrentActor->unk168 = 0x10;
                 } else {
                     sub->unk10 = 0;
                 }
             } else {
                 heapFree(sub->unk4);
-                actorDespawn(D_807FBB40);
+                actorDespawn(gCurrentActor);
             }
         }
     }
-    renderCallbacksRegister(projectileRenderSpriteRing, D_807FBB40, 1);
+    renderCallbacksRegister(projectileRenderSpriteRing, gCurrentActor, 1);
 }
 
 typedef struct ProjectileConfig {
@@ -298,14 +298,14 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 void effectPulseSpinUpdate(void);
 void effectRadialSprayUpdate(void);
 
-#define G_ACTOR ((ProjectileActor *)D_807FBB40)
+#define G_ACTOR ((ProjectileActor *)gCurrentActor)
 
 void projectileActorUpdate(void) {
     ProjectileSubState *sub;
     ProjectileTriple spriteTriple;
     s16 particleIdx;
 
-    sub = ((ProjectileActor *)D_807FBB40)->unk174;
+    sub = ((ProjectileActor *)gCurrentActor)->unk174;
     if (!(G_ACTOR->unk60 & 0x10)) {
         spriteTriple = *(ProjectileTriple *)D_807502C0;
         G_ACTOR->unk6A &= (G_ACTOR->unk6E = -2);
@@ -313,9 +313,9 @@ void projectileActorUpdate(void) {
         G_ACTOR->unkB8 = G_ACTOR->unk124->unk4;
         G_ACTOR->unkC0 = G_ACTOR->unk124->unk8;
         G_ACTOR->unk144 = 0x3C;
-        actorSetCollisionRadius(D_807FBB40, 40.0f);
-        actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 30.0f, -1);
-        actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
+        actorSetCollisionRadius(gCurrentActor, 40.0f);
+        actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 30.0f, -1);
+        actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         sub->unk13 = (u8)(u32)G_ACTOR->unk124->unk10;
         func_807149FC(-1);
         func_80714998(2);
@@ -329,19 +329,19 @@ void projectileActorUpdate(void) {
         if (sub->unk13 == 3) {
             func_8071498C(effectPulseSpinUpdate);
         }
-        func_80714C08(((void **)&spriteTriple)[sub->unk13 - 1], G_ACTOR->unk124->unkC, D_807FBB40, 1, 2);
+        func_80714C08(((void **)&spriteTriple)[sub->unk13 - 1], G_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sub->unk0 = D_8076A068;
         sub->unk12 = 0;
         G_ACTOR->unk60 |= 0x80000;
         G_ACTOR->unk155 = sub->unk13;
     }
-    func_8067ACB4(D_807FBB40);
-    actorApplyVelocity(D_807FBB40);
-    actorUpdateFloorContactAndTilt(D_807FBB40, 4.0f);
-    billboardSubmit(D_807FBB40, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x96, 0x78, 0, 1.0f);
+    func_8067ACB4(gCurrentActor);
+    actorApplyVelocity(gCurrentActor);
+    actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
+    billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x96, 0x78, 0, 1.0f);
     if ((G_ACTOR->unk6A & 1) || (G_ACTOR->unkFC != 0) || (D_807FBB85 != 0)) {
         if (sub->unk13 == 3) {
-            sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16, 0xFF, 0x7F, 0x14);
+            sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16, 0xFF, 0x7F, 0x14);
         }
         if (D_807FBB85 == 0) {
             for (particleIdx = 0; particleIdx < 0xC; particleIdx += 2) {
@@ -352,7 +352,7 @@ void projectileActorUpdate(void) {
                     G_ACTOR->unk7C, G_ACTOR->unk80, G_ACTOR->unk84);
             }
         }
-        actorDespawn(D_807FBB40);
+        actorDespawn(gCurrentActor);
     }
 }
 

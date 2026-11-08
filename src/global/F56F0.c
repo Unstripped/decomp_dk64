@@ -1,8 +1,8 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
-extern Actor *D_807FBB44;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 extern Actor *D_807FBB48;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
@@ -229,7 +229,7 @@ void func_806F1048(Actor *arg0) {
         }
         break;
     }
-    func_806C8D20(D_807FBB40);
+    func_806C8D20(gCurrentActor);
 }
 
 typedef struct F5N3ActorState {
@@ -257,10 +257,10 @@ void func_806F10E8(Actor *arg0) {
         case 0xC4:
             func_806F0C18(arg0);
             actorSpawn(0xEF, 0xA6);
-            actorCopyPoseAndScale(D_807FBB44, arg0, ((F5N3ActorSub10E8 *) arg0->unk4)->unk38 * 1.25);
-            ((F5N3ActorState *) D_807FBB44)->unkE4 = ((F5N3ActorState *) arg0)->unkE4;
-            ((F5N3ActorState *) D_807FBB44)->unkE8 = ((F5N3ActorState *) arg0)->unkE8;
-            D_807FBB44->flags |= 0x40000000;
+            actorCopyPoseAndScale(gSpawnedActor, arg0, ((F5N3ActorSub10E8 *) arg0->unk4)->unk38 * 1.25);
+            ((F5N3ActorState *) gSpawnedActor)->unkE4 = ((F5N3ActorState *) arg0)->unkE4;
+            ((F5N3ActorState *) gSpawnedActor)->unkE8 = ((F5N3ActorState *) arg0)->unkE8;
+            gSpawnedActor->flags |= 0x40000000;
             break;
         case 3:
         case 0xC5:
@@ -370,8 +370,8 @@ void func_806F142C(void) {
     f32 value;
 
     playerResumeLocomotion();
-    value = D_807FBB40->speedXZ;
-    D_807FBB40->speedXZ =
+    value = gCurrentActor->speedXZ;
+    gCurrentActor->speedXZ =
         D_807FD618[gCurrentPlayerIndex].value * (value - (value / 2)) + (value / 2);
 }
 

@@ -100,7 +100,7 @@ struct RaceActor {
 };
 
 extern Point3f **D_807F5FD4;
-extern RaceActor *D_807FBB40;
+extern RaceActor *gCurrentActor;
 
 s32 raceGetNextWaypointIndex(s32, s32);
 
@@ -259,7 +259,7 @@ void func_80027C60(void) {
 
     for (idx = 1; idx < 3; idx++) {
         func_807149B8(1);
-        func_80714C08(&D_80720120, 1.0f, D_807FBB40, idx, 0);
+        func_80714C08(&D_80720120, 1.0f, gCurrentActor, idx, 0);
     }
 }
 
@@ -291,12 +291,12 @@ void func_80027CE8(void) {
     RaceCursor *competitorCursor;
     f32 competitorDist;
 
-    state = D_807FBB40->view.a.unk178;
-    cursor = D_807FBB40->view.a.unk17C;
+    state = gCurrentActor->view.a.unk178;
+    cursor = gCurrentActor->view.a.unk17C;
     targetActor = cursor->unk30;
     targetCursor = targetActor->view.b.unk178;
-    aux = D_807FBB40->view.a.unk184;
-    distToTarget = func_80027920(D_807FBB40, cursor, targetActor, targetCursor);
+    aux = gCurrentActor->view.a.unk184;
+    distToTarget = func_80027920(gCurrentActor, cursor, targetActor, targetCursor);
     targetSpeed = func_8002E1C8(aux, distToTarget, D_8002FBD0, D_8002FC00);
     flag = (cursor->unk0 == cursor->unk1) && (cursor->unk4 == 0);
     if (aux->unkF != 0) {
@@ -327,7 +327,7 @@ void func_80027CE8(void) {
                             competitorActor = spawnNodeActivate(nodeIndex, 0);
                             competitorCursor = competitorActor->view.b.unk178;
                             if (competitorCursor->unk0 == cursor->unk0) {
-                                competitorDist = func_80027920(D_807FBB40, cursor, competitorActor, competitorCursor);
+                                competitorDist = func_80027920(gCurrentActor, cursor, competitorActor, competitorCursor);
                                 if ((competitorDist > 20.0f) && (competitorDist < 300.0f)) {
                                     foundCompetitor = 1;
                                     func_80027B30(cursor);
@@ -343,15 +343,15 @@ void func_80027CE8(void) {
     }
     state->unk4 = targetSpeed;
     if ((distToTarget < 0.0f) && (aux->unk14 > 0.0f)) {
-        if (D_807FBB40->unk6E[1] == -1) {
-            sfxPlayActorSound(D_807FBB40, 0x130, 0, 1, 1, 0xFF, 1.0f, 0);
+        if (gCurrentActor->unk6E[1] == -1) {
+            sfxPlayActorSound(gCurrentActor, 0x130, 0, 1, 1, 0xFF, 1.0f, 0);
         }
-        D_807FBB40->unk72 = 0x14;
+        gCurrentActor->unk72 = 0x14;
     }
-    if (D_807FBB40->unk72 > 0) {
-        D_807FBB40->unk72--;
-    } else if (D_807FBB40->unk6E[1] != -1) {
-        sfxStopSlotSound(D_807FBB40, 1);
+    if (gCurrentActor->unk72 > 0) {
+        gCurrentActor->unk72--;
+    } else if (gCurrentActor->unk6E[1] != -1) {
+        sfxStopSlotSound(gCurrentActor, 1);
     }
     if (distToTarget < -7000.0f) {
         targetState = targetActor->view.b.unk174;
@@ -371,12 +371,12 @@ void func_800280E8(RaceCursor *cursor) {
     u8 *flag;
 
     v1 = cursor->unk30;
-    flag = D_807FBB40->view.a.unk180;
-    aux = D_807FBB40->view.a.unk184;
-    if (D_807FBB40->unkB8 > v1->unkB8) {
-        y = D_807FBB40->unkB8 - v1->unkB8;
+    flag = gCurrentActor->view.a.unk180;
+    aux = gCurrentActor->view.a.unk184;
+    if (gCurrentActor->unkB8 > v1->unkB8) {
+        y = gCurrentActor->unkB8 - v1->unkB8;
     } else {
-        y = -(D_807FBB40->unkB8 - v1->unkB8);
+        y = -(gCurrentActor->unkB8 - v1->unkB8);
     }
     if (*flag == 0) {
         y *= 1.5;
@@ -386,10 +386,10 @@ void func_800280E8(RaceCursor *cursor) {
         sfxPlayOnFreeSlot(0x18A, 0x7FFF, 64.0f, 1.0f, 0xA, 0);
         if (aux->unk14 < 0.0f) {
             v1->unkB8 -= y;
-            D_807FBB40->unkB8 += y;
+            gCurrentActor->unkB8 += y;
         } else {
             v1->unkB8 += y;
-            D_807FBB40->unkB8 -= y;
+            gCurrentActor->unkB8 -= y;
         }
     }
 }
@@ -401,12 +401,12 @@ void func_800282D8(void) {
     RaceActor *targetActor;
     RaceState *targetState;
 
-    state = D_807FBB40->view.a.unk178;
+    state = gCurrentActor->view.a.unk178;
     targetActor = state->unk30;
     targetState = targetActor->view.b.unk174;
     switch (targetState->unk1C) {
     case 0x5A:
-        sfxPlayActorSound(D_807FBB40, 0x107, 0, 1, 0, 0xFF, 1.0f, 0);
+        sfxPlayActorSound(gCurrentActor, 0x107, 0, 1, 0, 0xFF, 1.0f, 0);
     case 0x1D:
     case 0x25:
     case 0x2C:
@@ -417,7 +417,7 @@ void func_800282D8(void) {
     case 0x47:
     case 0x4E:
     case 0x54:
-        sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x187, 0xFF, (s32)(((f64)(targetState->unk1C - 0x1D) * 0.5) + 157.0), 0, 0, 0.3f, 0);
+        sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x187, 0xFF, (s32)(((f64)(targetState->unk1C - 0x1D) * 0.5) + 157.0), 0, 0, 0.3f, 0);
         break;
     }
 }
@@ -429,8 +429,8 @@ extern f32 D_80770BC0[];
 void func_800283D4(f32 moveSpeed) {
     s16 idx;
 
-    idx = D_80770628[D_807FBB40->unk6E[0]];
-    D_807FBB40->unk74 = 1.0f;
+    idx = D_80770628[gCurrentActor->unk6E[0]];
+    gCurrentActor->unk74 = 1.0f;
     D_80770B68[idx] = (f64)(moveSpeed * 0.05f) + 1.0;
     D_80770BC0[idx] = 1.0f;
 }
@@ -480,16 +480,16 @@ void func_80028440(void) {
     s32 audioSlot;
     s32 pad30;
 
-    state = D_807FBB40->view.a.unk178;
-    cursor = D_807FBB40->view.a.unk17C;
-    flagPtr = D_807FBB40->view.a.unk180;
-    aux = D_807FBB40->view.a.unk184;
+    state = gCurrentActor->view.a.unk178;
+    cursor = gCurrentActor->view.a.unk17C;
+    flagPtr = gCurrentActor->view.a.unk180;
+    aux = gCurrentActor->view.a.unk184;
     targetActor = state->unk30;
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(gCurrentActor->unk60 & 0x10)) {
         count = D_807F5FD4[cursor->unk0 + 1] - D_807F5FD4[cursor->unk0];
-        D_807FBB40->unk144 = 0x3C;
-        D_807FBB40->unk60 &= ~1;
+        gCurrentActor->unk144 = 0x3C;
+        gCurrentActor->unk60 &= ~1;
         cursor->unk0 = cursor->unk1 = 2;
         aux->unk14 = 0.0f;
         cursor->unk2 = raceGetPrevWaypointIndex(count, 0);
@@ -497,14 +497,14 @@ void func_80028440(void) {
         func_8002DE78(aux, 5, D_8002FBD0, D_8002FC00);
         state->unk34 = 0;
         if ((flagGet(0x12, 2) == 0) && (flagGet(0x8B, 0) == 0) && (func_807142D8() == 0)) {
-            camStartPath(D_807FBB40, 0, 1);
+            camStartPath(gCurrentActor, 0, 1);
             flagSet(0x12, 1, 2);
         } else {
             state->unk35 = 3;
         }
         currentActorClearFlag();
         D_80750AC8 = 0xA;
-        actorClearNodeFlag(D_807FBB40, 4);
+        actorClearNodeFlag(gCurrentActor, 4);
     }
     if (D_807FBD70 == 4) {
         func_800280E8(cursor);
@@ -531,24 +531,24 @@ void func_80028440(void) {
     }
     if (state->unk34 < 5) {
         racePathFollowStep(cursor, state, 1);
-        D_807FBB40->unk80 += 50.0f * func_80612794((s16)(cursor->unk20 * 0.5f));
+        gCurrentActor->unk80 += 50.0f * func_80612794((s16)(cursor->unk20 * 0.5f));
     } else {
-        D_807FBB40->unkB8 = 0.0f;
+        gCurrentActor->unkB8 = 0.0f;
     }
-    func_800283D4(D_807FBB40->unkB8);
+    func_800283D4(gCurrentActor->unkB8);
     if (state->unk34 == 0) {
         phase = state->unk35;
         statePhase = state->unk35;
         cursorVal = statePhase;
         switch (cursorVal) {
         case 0:
-            if (D_807FBB40->unk60 & 0x02000000) {
+            if (gCurrentActor->unk60 & 0x02000000) {
                 state->unk35 = state->unk35 + 1;
                 phase = state->unk35;
             }
             break;
         case 1:
-            if (!(D_807FBB40->unk60 & 0x02000000)) {
+            if (!(gCurrentActor->unk60 & 0x02000000)) {
                 camResumePath();
                 state->unk35++;
                 phase = state->unk35;
@@ -576,7 +576,7 @@ void func_80028440(void) {
         if (state->unk35 == 0) {
             if (flagGet(0x8B, 0) == 0) {
                 cam = D_8002FC0C[func_8002E8EC(state, aux->unk4, 0xA)];
-                camStartPath(D_807FBB40, cam, 1);
+                camStartPath(gCurrentActor, cam, 1);
                 currentActorClearFlag();
             } else {
                 func_805FF544();
@@ -590,12 +590,12 @@ void func_80028440(void) {
             if (flagGet(0x8B, 0) == 0) {
                 playerStateQueueCallback(0x55, 0, 0);
                 idx = 0;
-                D_807FBB40->unkE4 = 0;
+                gCurrentActor->unkE4 = 0;
                 audioSlot = 0;
-                D_807FBB40->unkE8 = 0;
+                gCurrentActor->unkE8 = 0;
                 do {
-                    if (*(s16 *)((u8 *)D_807FBB40 + audioSlot + 0x6E) != -1) {
-                        sfxStopSlotSound(D_807FBB40, idx);
+                    if (*(s16 *)((u8 *)gCurrentActor + audioSlot + 0x6E) != -1) {
+                        sfxStopSlotSound(gCurrentActor, idx);
                     }
                     idx += 1;
                     audioSlot += 2;
@@ -604,12 +604,12 @@ void func_80028440(void) {
             state->unk35++;
             break;
         case 1:
-            if (D_807FBB40->unk60 & 0x02000000) {
+            if (gCurrentActor->unk60 & 0x02000000) {
                 state->unk35++;
             }
             break;
         case 2:
-            if (!(D_807FBB40->unk60 & 0x02000000)) {
+            if (!(gCurrentActor->unk60 & 0x02000000)) {
                 camResumePath();
                 if ((state->unk36 == 0) || (slotQueueGetValue(0xB, 0) < 0xA)) {
                     state->unk35 = 3;
@@ -637,7 +637,7 @@ void func_80028440(void) {
             break;
         }
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 typedef struct {
@@ -669,8 +669,8 @@ void func_80028AD0(void) {
     RaceState *state;
     RaceActor *playerActor;
 
-    cursor = D_807FBB40->view.b.unk178;
-    state = D_807FBB40->view.b.unk174;
+    cursor = gCurrentActor->view.b.unk178;
+    state = gCurrentActor->view.b.unk174;
     targetActor = cursor->unk30;
     targetState = targetActor->view.b.unk174;
     targetCursor = targetActor->view.b.unk178;
@@ -678,7 +678,7 @@ void func_80028AD0(void) {
     playerState = playerActor->view.b.unk174;
     pathLength = D_807F5FD4[cursor->unk0 + 1] - D_807F5FD4[cursor->unk0];
     offsetSign = 1.0f;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(gCurrentActor->unk60 & 0x10)) {
         prevWaypoint = raceGetPrevWaypointIndex(pathLength, targetCursor->unk2);
         cursor->unk2 = prevWaypoint;
         cursor->unk2 = raceGetPrevWaypointIndex(pathLength, (u16)prevWaypoint);
@@ -690,7 +690,7 @@ void func_80028AD0(void) {
         state->unk34 = tgtStateMode;
         state->unk35 = 0;
     }
-    dist = func_80027920(D_807FBB40, cursor, targetActor, targetCursor);
+    dist = func_80027920(gCurrentActor, cursor, targetActor, targetCursor);
     distToTarget = dist;
     tgtCursorSub = targetCursor->unk1;
     if (cursor->unk1 != tgtCursorSub) {
@@ -707,8 +707,8 @@ void func_80028AD0(void) {
         cursor->unk10 = targetCursor->unk10;
         state->unk4 = targetState->unk4 + ((dist - (90.0f * offsetSign)) * 0.006f);
         if (dist < 30.0f) {
-            if (targetActor->unkB8 < D_807FBB40->unkB8) {
-                D_807FBB40->unkB8 = targetActor->unkB8;
+            if (targetActor->unkB8 < gCurrentActor->unkB8) {
+                gCurrentActor->unkB8 = targetActor->unkB8;
             }
         }
         racePathFollowStep(cursor, state, 0);
@@ -726,7 +726,7 @@ void func_80028AD0(void) {
             camYOffset = dist;
         }
         camYOffset = (20.0f * camYOffset) + 20.0f;
-        camSetFixedView(playerState->unk104, D_807FBB40->unk7C, D_807FBB40->unk80 + camYOffset, D_807FBB40->unk84, targetActor->unk7C, targetActor->unk80 + 20.0f, targetActor->unk84, 1);
+        camSetFixedView(playerState->unk104, gCurrentActor->unk7C, gCurrentActor->unk80 + camYOffset, gCurrentActor->unk84, targetActor->unk7C, targetActor->unk80 + 20.0f, targetActor->unk84, 1);
     }
 }
 
@@ -745,9 +745,9 @@ void raceFindNearestWaypoint(RaceCursor *cursor) {
     count = D_807F5FD4[1] - D_807F5FD4[0];
     p = D_807F5FD4[0];
     best = 10000000.0f;
-    px = D_807FBB40->unk7C;
-    py = D_807FBB40->unk80;
-    pz = D_807FBB40->unk84;
+    px = gCurrentActor->unk7C;
+    py = gCurrentActor->unk80;
+    pz = gCurrentActor->unk84;
     for (i = 0; i < 3; i++) {
         for (j = 0; j < count; j++) {
             d = RB_SQ(px - p->x) + RB_SQ(py - p->y) + RB_SQ(pz - p->z);
@@ -787,32 +787,32 @@ void func_80029054(void) {
     f32 nodeY;
     f32 nodeX;
 
-    state = D_807FBB40->view.a.unk178;
-    cursor = D_807FBB40->view.a.unk17C;
+    state = gCurrentActor->view.a.unk178;
+    cursor = gCurrentActor->view.a.unk17C;
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(gCurrentActor->unk60 & 0x10)) {
         raceFindNearestWaypoint(cursor);
-        D_807FBB40->unk144 = 0x3C;
+        gCurrentActor->unk144 = 0x3C;
         state->unk4 = 0.5f;
-        actorClearNodeFlag(D_807FBB40, 1);
+        actorClearNodeFlag(gCurrentActor, 1);
         cursor->unk30 = spawnNodeActivate(1, 0);
-        D_807FBB40->unk60 &= ~1;
+        gCurrentActor->unk60 &= ~1;
     }
     targetActor = cursor->unk30;
     targetState = targetActor->view.a.unk178;
     if ((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) {
         func_8067E278(0, 1);
-        D_807FBB40->unk154 = 0x40;
+        gCurrentActor->unk154 = 0x40;
     }
-    actorGetNodePos(D_807FBB40, 6, &nodeX, &nodeY, &nodeZ);
-    commandQueuePush(D_807FBB40, (s16)nodeX, (s16)nodeY, (s16)nodeZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-    actorGetNodePos(D_807FBB40, 0xB, &nodeX, &nodeY, &nodeZ);
-    commandQueuePush(D_807FBB40, (s16)nodeX, (s16)nodeY, (s16)nodeZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    actorGetNodePos(gCurrentActor, 6, &nodeX, &nodeY, &nodeZ);
+    commandQueuePush(gCurrentActor, (s16)nodeX, (s16)nodeY, (s16)nodeZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    actorGetNodePos(gCurrentActor, 0xB, &nodeX, &nodeY, &nodeZ);
+    commandQueuePush(gCurrentActor, (s16)nodeX, (s16)nodeY, (s16)nodeZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     racePathFollowStep(cursor, state, 1);
     if ((state->unk34 == 0) && (targetState->unk34 == 5)) {
         D_807FDC9C->unk14 = 0;
-        D_807FBB40->unk154 = 0x40;
+        gCurrentActor->unk154 = 0x40;
         state->unk34++;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }

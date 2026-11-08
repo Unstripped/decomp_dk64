@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
@@ -40,10 +40,10 @@ typedef struct BB300Actor {
     /* 0x178 */ u8 *unk178;
 } BB300Actor;
 
-#define BB300A44 ((BB300Actor *)D_807FBB44)
-#define BB300A ((BB300Actor *)D_807FBB40)
+#define BB300A44 ((BB300Actor *)gSpawnedActor)
+#define BB300A ((BB300Actor *)gCurrentActor)
 
-extern Actor *D_807FBB44;
+extern Actor *gSpawnedActor;
 extern s16 D_807502E0;
 extern f32 D_807502E8;
 
@@ -85,7 +85,7 @@ void actorUpdatePulseIntensity(u8 active) {
                 p[0] -= 0x50;
                 a = p[0];
                 if (p[0] >= 0x64 && (s32)a < 0xB4) {
-                    sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x16C, 0xFF, 0xA0, 6);
+                    sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x16C, 0xFF, 0xA0, 6);
                     a = p[0];
                 }
                 if ((s32)a < 0x50) {
@@ -132,7 +132,7 @@ void func_8072B7CC();
 
 void func_806B6958(void) {
     behaviourFrameBegin();
-    if (!(D_807FBB40->flags & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         BB300S90->unk35 = BB300S90->unk35 * 2;
         BB300S90->unk2C = 0xD2;
         BB300S90->unk1F = (u32)BB300S90->unk1F * 1.5;
@@ -149,31 +149,31 @@ void func_806B6958(void) {
         func_80724C2C(-0x96);
     }
     if (BB300S90->unk2C == 0 || D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) {
-        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x3B2, 0xFF, 0x7F, 0x1E);
-        sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x3B7, 0xFF, 0x7F, 0x1E);
+        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3B2, 0xFF, 0x7F, 0x1E);
+        sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3B7, 0xFF, 0x7F, 0x1E);
         effectSpawnRing();
-        actorDespawn(D_807FBB40);
+        actorDespawn(gCurrentActor);
     }
-    if (D_807FBB40->state == 0x23) {
+    if (gCurrentActor->state == 0x23) {
         actorMoveWithinZone(0x23, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
     } else {
         func_8072B7CC(0x237);
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806B6C88(s16 speed, s16 angle) {
     if (actorSpawn(0xD3, 0x24) != 0) {
         BB300A44->unk154 = 0x23;
-        actorScriptStart(D_807FBB44, 0x237);
+        actorScriptStart(gSpawnedActor, 0x237);
         BB300A44->unkE6 = angle;
         BB300A44->unkEE = BB300A44->unkE6;
-        actorCopyPoseAndScale(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
+        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->unk4->unk38);
         BB300A44->unkA4 = BB300A->unkA4;
         BB300A44->unkC4 = D_807502E8;
         BB300A44->unkC8 = D_807502E0;
         BB300A44->unkB8 = 0.0f;
-        actorSetTargetSpeed(D_807FBB40, speed * 1.25);
+        actorSetTargetSpeed(gCurrentActor, speed * 1.25);
         memcpy(BB300A44->unk174, BB300A->unk174, 0x3C);
     }
 }
@@ -183,7 +183,7 @@ typedef struct BB300Sub178 {
     /* 0x2 */ s16 unk2;
 } BB300Sub178;
 
-// Second view of the current actor (D_807FBB40): same object as BB300Actor, but unk178 is typed as BB300Sub178.
+// Second view of the current actor (gCurrentActor): same object as BB300Actor, but unk178 is typed as BB300Sub178.
 typedef struct BB300ActorAlt {
     /* 0x000 */ u8 pad0[0xC0];
     /* 0x0C0 */ f32 unkC0;
@@ -236,98 +236,98 @@ void func_806B6DB0(s32 aggroRange) {
     s32 tgt;
     s32 sel;
 
-    p = ((BB300ActorAlt *)D_807FBB40)->unk178;
-    if (((BB300ActorAlt *)D_807FBB40)->unkEE < D_807FBB40->yaw) {
-        diff = D_807FBB40->yaw - ((BB300ActorAlt *)D_807FBB40)->unkEE;
+    p = ((BB300ActorAlt *)gCurrentActor)->unk178;
+    if (((BB300ActorAlt *)gCurrentActor)->unkEE < gCurrentActor->yaw) {
+        diff = gCurrentActor->yaw - ((BB300ActorAlt *)gCurrentActor)->unkEE;
     } else {
-        diff = ((BB300ActorAlt *)D_807FBB40)->unkEE - D_807FBB40->yaw;
+        diff = ((BB300ActorAlt *)gCurrentActor)->unkEE - gCurrentActor->yaw;
     }
-    near = ((D_807FBB40->x - D_807FDC94->x) * (D_807FBB40->x - D_807FDC94->x) + (D_807FBB40->z - D_807FDC94->z) * (D_807FBB40->z - D_807FDC94->z)) < 2500.0f;
-    if (!(D_807FBB40->flags & 0x10)) {
+    near = ((gCurrentActor->x - D_807FDC94->x) * (gCurrentActor->x - D_807FDC94->x) + (gCurrentActor->z - D_807FDC94->z) * (gCurrentActor->z - D_807FDC94->z)) < 2500.0f;
+    if (!(gCurrentActor->flags & 0x10)) {
         ((BB300View98 *)D_807FDC98)->unk34 = 1.0f;
         func_80724CA4(2, 2);
-        D_807FBB40->speedXZ = ((BB300View9C *)D_807FDC9C)->unkC;
+        gCurrentActor->speedXZ = ((BB300View9C *)D_807FDC9C)->unkC;
     }
-    if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && D_807FBB40->state != 0x37) {
+    if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && gCurrentActor->state != 0x37) {
         tgt = D_807FBB70.unk1FC;
-        ((BB300ActorAlt *)D_807FBB40)->unkC0 = 200.0f;
+        ((BB300ActorAlt *)gCurrentActor)->unkC0 = 200.0f;
         func_8072D714(tgt, 0x236);
         if ((tgt != 0 && ((Actor *)tgt)->actorType == 0x29) || (gCurrentMap == 0x10 && ((BB300View9C *)D_807FDC9C)->unk13 < 0x11)) {
             BB300S90->unk1A |= 1;
         }
     }
-    sel = D_807FBB40->state;
-    if (sel == 0x23 && D_807FBB40->speedXZ > 90.0f && diff >= 0x1F5 && diff < 0xE0C) {
-        diff = ((BB300ActorAlt *)D_807FBB40)->unkEE - D_807FBB40->yaw;
+    sel = gCurrentActor->state;
+    if (sel == 0x23 && gCurrentActor->speedXZ > 90.0f && diff >= 0x1F5 && diff < 0xE0C) {
+        diff = ((BB300ActorAlt *)gCurrentActor)->unkEE - gCurrentActor->yaw;
         if (diff < 0 || diff >= 0x801) {
             p->unk2 = 0x8C;
         } else {
             p->unk2 = -0x8C;
         }
         actorSetBehaviourState(0x14, 0xA, 0x235);
-        sel = D_807FBB40->state;
+        sel = gCurrentActor->state;
     }
     switch (sel) {
     case 0x14:
-        switch (((BB300ActorAlt *)D_807FBB40)->unk155) {
+        switch (((BB300ActorAlt *)gCurrentActor)->unk155) {
         case 0:
             BB300S90->unk2C = 0x1E;
-            ((BB300ActorAlt *)D_807FBB40)->unk155 += 1;
+            ((BB300ActorAlt *)gCurrentActor)->unk155 += 1;
             break;
         case 1:
             if (BB300S90->unk2C != 0) {
-                D_807FBB40->yaw += p->unk2;
+                gCurrentActor->yaw += p->unk2;
                 p->unk2 += -p->unk2 * 0.01;
                 BB300S90->unk2C -= 1;
                 if (!(gFrameCounter & 3)) {
                     func_8072DAA4();
                 }
             } else {
-                ((BB300ActorAlt *)D_807FBB40)->unk155 = 2;
+                ((BB300ActorAlt *)gCurrentActor)->unk155 = 2;
             }
             break;
         case 2:
-            sfxStopSlotSound(D_807FBB40, 0);
+            sfxStopSlotSound(gCurrentActor, 0);
             actorSetBehaviourState(1, ((BB300View9C *)D_807FDC9C)->unkC, 0x232);
-            ((BB300ActorAlt *)D_807FBB40)->unkEE = D_807FBB40->yaw;
+            ((BB300ActorAlt *)gCurrentActor)->unkEE = gCurrentActor->yaw;
             break;
         }
         func_80724E48(5);
         actorUpdatePulseIntensity(0);
-        actorMoveWithinZone(D_807FBB40->state, D_807FDC94->x, D_807FDC94->z, 0x300, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, D_807FDC94->x, D_807FDC94->z, 0x300, 0.0f);
         break;
     case 1:
         if ((randomNonNegative() >> 15) % 1000 >= 0x3E3) {
-            D_807FBB40->state = 0x11;
-            ((BB300ActorAlt *)D_807FBB40)->unk155 = 0;
+            gCurrentActor->state = 0x11;
+            ((BB300ActorAlt *)gCurrentActor)->unk155 = 0;
         }
     case 0x10:
     case 0x23:
         func_8072881C(0, (u8 *)D_807FDC90 + 0x28);
-        func_80724E48((u8)(D_807FBB40->state == 1 ? 2 : 0));
+        func_80724E48((u8)(gCurrentActor->state == 1 ? 2 : 0));
         actorUpdatePulseIntensity(near);
-        actorMoveWithinZone(D_807FBB40->state, D_807FDC94->x, D_807FDC94->z, 0x400, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, D_807FDC94->x, D_807FDC94->z, 0x400, 0.0f);
         break;
     case 2:
     case 3:
     case 7:
     case 0x35:
         func_8072881C(0, (u8 *)D_807FDC90 + 0x28);
-        func_80724E48((u8)(D_807FBB40->state == 0x35 ? 2 : 3));
+        func_80724E48((u8)(gCurrentActor->state == 0x35 ? 2 : 3));
         actorUpdatePulseIntensity(0);
-        actorMoveWithinZone(D_807FBB40->state, BB300S90->unkA, BB300S90->unkE, 0x400, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, BB300S90->unkA, BB300S90->unkE, 0x400, 0.0f);
         break;
     case 0x11:
         func_8072881C(0, (u8 *)D_807FDC90 + 0x28);
         actorUpdatePulseIntensity(0);
-        actorMoveWithinZone(D_807FBB40->state, D_807FDC94->x, D_807FDC94->z, 2, 0.0f);
-        switch (((BB300ActorAlt *)D_807FBB40)->unk155) {
+        actorMoveWithinZone(gCurrentActor->state, D_807FDC94->x, D_807FDC94->z, 2, 0.0f);
+        switch (((BB300ActorAlt *)gCurrentActor)->unk155) {
         case 1:
             break;
         case 0:
-            actorSetTargetSpeed(D_807FBB40, 0);
-            actorScriptStart(D_807FBB40, 0x234);
-            ((BB300ActorAlt *)D_807FBB40)->unk155 += 1;
+            actorSetTargetSpeed(gCurrentActor, 0);
+            actorScriptStart(gCurrentActor, 0x234);
+            ((BB300ActorAlt *)gCurrentActor)->unk155 += 1;
             break;
         case 2:
             actorSetBehaviourState(1, ((BB300View9C *)D_807FDC9C)->unkC, 0x232);
@@ -335,30 +335,30 @@ void func_806B6DB0(s32 aggroRange) {
         }
         break;
     case 0x37:
-        switch (((BB300ActorAlt *)D_807FBB40)->unk155) {
+        switch (((BB300ActorAlt *)gCurrentActor)->unk155) {
         case 0:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x20, 0.0f);
             break;
         case 1:
-            sfxSpawnTableNodes(D_807FBB40);
-            ((BB300ActorAlt *)D_807FBB40)->unkC0 = 100.0f;
-            ((BB300ActorAlt *)D_807FBB40)->unk155 += 1;
+            sfxSpawnTableNodes(gCurrentActor);
+            ((BB300ActorAlt *)gCurrentActor)->unkC0 = 100.0f;
+            ((BB300ActorAlt *)gCurrentActor)->unk155 += 1;
         case 2:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x20, 0.0f);
             break;
         case 3:
             if (BB300S90->unk1A & 1) {
-                ((BB300ActorAlt *)D_807FBB40)->unk155 += 1;
+                ((BB300ActorAlt *)gCurrentActor)->unk155 += 1;
             } else {
-                func_806B6C88(((BB300View9C *)D_807FDC9C)->unkD, mathAngleBetweenPoints2D(D_807FDC94->x, D_807FDC94->z, D_807FBB40->x, D_807FBB40->z));
-                ((BB300ActorAlt *)D_807FBB40)->unk155 = 5;
+                func_806B6C88(((BB300View9C *)D_807FDC9C)->unkD, mathAngleBetweenPoints2D(D_807FDC94->x, D_807FDC94->z, gCurrentActor->x, gCurrentActor->z));
+                ((BB300ActorAlt *)gCurrentActor)->unk155 = 5;
             }
             break;
         case 4:
             func_8072DC7C(5);
             break;
         case 5:
-            D_807FBB40->state = 0x40;
+            gCurrentActor->state = 0x40;
             break;
         }
         break;
@@ -368,19 +368,19 @@ void func_806B6DB0(s32 aggroRange) {
         func_8072B7CC(0x232, sel);
         break;
     }
-    sel = D_807FBB40->state;
+    sel = gCurrentActor->state;
     switch (sel) {
     case 0x37:
     case 0x40:
         break;
     case 2:
     case 3:
-        patrolPathStep(D_807FBB40->state, 1);
+        patrolPathStep(gCurrentActor->state, 1);
     default:
         enemyAggroStateUpdate(aggroRange, 0x232, 0x233);
         break;
     }
-    actorUpdateModelMatrix(D_807FBB40, 0);
+    actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 void func_806B75F4(void) {

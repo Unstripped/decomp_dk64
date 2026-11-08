@@ -1,8 +1,8 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
-extern Actor *D_807FBB44;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 extern Actor *D_807FBB48;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
@@ -50,8 +50,8 @@ void func_806C7B50(s32 arg0, u8 arg1, Actor *arg2) {
     G00SpawnSub *sub;
 
     actorSpawn(arg0, 0x82);
-    actorCopyPoseAndScale(D_807FBB44, arg2, 0.15f);
-    sub = D_807FBB44->unk174;
+    actorCopyPoseAndScale(gSpawnedActor, arg2, 0.15f);
+    sub = gSpawnedActor->unk174;
     sub->unk4 = arg2;
     sub->unk8 = arg1;
 }
@@ -60,8 +60,8 @@ void func_806C7BAC(s32 arg0, Actor *arg1) {
     G00SpawnSub *sub;
 
     actorSpawn(0x25, 0x8C);
-    actorCopyPoseAndScale(D_807FBB44, D_807FBB48, 0.15f);
-    sub = D_807FBB44->unk174;
+    actorCopyPoseAndScale(gSpawnedActor, D_807FBB48, 0.15f);
+    sub = gSpawnedActor->unk174;
     sub->unk0 = arg0;
     sub->unk4 = arg1;
 }
@@ -528,22 +528,22 @@ void func_806C850C(s32 arg0, u8 arg1) {
     }
     row = &D_8075C410[gPlayerCharacterId[sel]];
     actorSpawn(row->unk0, row->unk8);
-    D_807FBB44->flags &= ~0x1000;
-    D_807FBB44->flags |= row->unkC;
-    D_807FBB44->unk16E[0] = 0x42;
-    D_807FBB44->unk16E[1] = 0x42;
-    D_807FBB44->flags |= 0x01000000;
+    gSpawnedActor->flags &= ~0x1000;
+    gSpawnedActor->flags |= row->unkC;
+    gSpawnedActor->unk16E[0] = 0x42;
+    gSpawnedActor->unk16E[1] = 0x42;
+    gSpawnedActor->flags |= 0x01000000;
     if (gPlayerCount >= 2) {
-        D_807FBB44->unk64 |= 0x200;
+        gSpawnedActor->unk64 |= 0x200;
     }
-    D_807FBB44->unk68 |= 0xC0;
-    ((G00Sub4 *)D_807FBB44->unk4)->unk1C = heapAlloc(0x100);
-    *((G00Sub4 *)D_807FBB44->unk4)->unk1C = 0;
-    ((G00Sub4 *)D_807FBB44->unk4)->unk20 = heapAlloc(0x200);
-    *((G00Sub4 *)D_807FBB44->unk4)->unk20 = 0xFF;
-    ((G00Sub4 *)D_807FBB44->unk4)->unk24 = heapAlloc(0x200);
-    *((G00Sub4 *)D_807FBB44->unk4)->unk24 = 0xFF;
-    D_807FBB48 = D_807FBB44;
+    gSpawnedActor->unk68 |= 0xC0;
+    ((G00Sub4 *)gSpawnedActor->unk4)->unk1C = heapAlloc(0x100);
+    *((G00Sub4 *)gSpawnedActor->unk4)->unk1C = 0;
+    ((G00Sub4 *)gSpawnedActor->unk4)->unk20 = heapAlloc(0x200);
+    *((G00Sub4 *)gSpawnedActor->unk4)->unk20 = 0xFF;
+    ((G00Sub4 *)gSpawnedActor->unk4)->unk24 = heapAlloc(0x200);
+    *((G00Sub4 *)gSpawnedActor->unk4)->unk24 = 0xFF;
+    D_807FBB48 = gSpawnedActor;
     gActivePlayerState = D_807FBB48->unk174;
     G00_P->unk247 = -1;
     G00_P->unk1A4 = sel;
@@ -551,14 +551,14 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_P->unk244 = 0;
     G00_P->unk120 = -0x64;
     D_807FD584 = row->unk4;
-    G00_P->unk1EE = D_807FBB44->actorType;
+    G00_P->unk1EE = gSpawnedActor->actorType;
     func_806E2C74(D_807FBB48);
     actorSpawn(0xBC, 0);
-    G00_P->unk104 = D_807FBB44;
+    G00_P->unk104 = gSpawnedActor;
     if (sel == 0) {
-        gCamActor = D_807FBB44;
+        gCamActor = gSpawnedActor;
     }
-    D_807FBB44->flags |= 0x100000;
+    gSpawnedActor->flags |= 0x100000;
     func_806C8D20(D_807FBB48);
     G00_P->unk26 = 0x64;
     G00_A48->unkC4 = D_80753578[D_807FD584];
@@ -675,9 +675,9 @@ void func_806C8984(void) {
         D_807FBB48->flags &= 0xFFFF7FFF;
         D_807FBB48->unk128 = 0;
         actorSpawn(0x11A, 0x21);
-        actorScriptStart(D_807FBB44, 0x232);
-        D_807FBB44->unk11C = (s32)D_807FBB48;
-        L6V->unk88 = D_807FBB44;
+        actorScriptStart(gSpawnedActor, 0x232);
+        gSpawnedActor->unk11C = (s32)D_807FBB48;
+        L6V->unk88 = gSpawnedActor;
         return;
     case 0x6:
         func_806C7B50(0x1D, 0, D_807FBB48);
@@ -687,7 +687,7 @@ void func_806C8984(void) {
     case 0x7A:
     case 0x7B:
         actorSpawn(0xDA, 0x94);
-        L6V->unk88 = D_807FBB44;
+        L6V->unk88 = gSpawnedActor;
         return;
     case 0x4C:
         commandSetFlags(0, 0);

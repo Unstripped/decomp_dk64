@@ -1350,6 +1350,8 @@ playerFindIndexByActor = 0x8067B1E0; // type:func
 actorCopyPoseAndScale = 0x8067B238; // type:func
 gActiveActors = 0x807FB930;
 gActiveActorCount = 0x807FBB34;
+gCurrentActor = 0x807FBB40;
+gSpawnedActor = 0x807FBB44;
 
 // Tag barrel behavior
 tagBarrelCheckProximityAndFall = 0x8067BF84; // type:func

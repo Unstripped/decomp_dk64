@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB44;
+extern Actor *gSpawnedActor;
 
 typedef struct {
     u8 r;
@@ -21,9 +21,9 @@ const Rgb8 D_80757F70[8] = {
 };
 
 void actorSetTintFromPalette(u8 arg0) {
-    D_807FBB44->unk16A = D_80757F70[arg0].r;
-    D_807FBB44->unk16B = D_80757F70[arg0].g;
-    D_807FBB44->unk16C = D_80757F70[arg0].b;
+    gSpawnedActor->unk16A = D_80757F70[arg0].r;
+    gSpawnedActor->unk16B = D_80757F70[arg0].g;
+    gSpawnedActor->unk16C = D_80757F70[arg0].b;
 }
 
 u8 *_strchr(u8 *, s32);
@@ -538,8 +538,8 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             return;
         case 0x1E:
             actorSpawn(0x108, 0x1D);
-            Matcher14_OFF(D_807FBB44, s16, 0xF0) = c;
-            func_8070D8C0(D_807FBB44, a & 0xFFFF, (u8)b);
+            Matcher14_OFF(gSpawnedActor, s16, 0xF0) = c;
+            func_8070D8C0(gSpawnedActor, a & 0xFFFF, (u8)b);
             return;
         case 0x1D:
             camPausePath();
@@ -571,18 +571,18 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
 #undef Matcher14_OFF
 
 
-extern Actor *D_807FBB40;
+extern Actor *gCurrentActor;
 
 s32 currentActorTestClearFlag(void) {
     s32 r = 0;
 
-    if (D_807FBB40->unk6A & 0x100) {
-        D_807FBB40->unk6A &= 0xFEFF;
+    if (gCurrentActor->unk6A & 0x100) {
+        gCurrentActor->unk6A &= 0xFEFF;
         r = 1;
     }
     return r;
 }
 
 void currentActorClearFlag(void) {
-    D_807FBB40->unk6A &= 0xFEFF;
+    gCurrentActor->unk6A &= 0xFEFF;
 }

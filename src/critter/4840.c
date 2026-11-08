@@ -35,9 +35,9 @@ s32 textGetStringWidth(s16, s32);
 void heapFree(void *);
 void actorSpawn(s32, s32);
 extern s16 D_80744490;
-extern Actor_4840 *D_807FBB44;
+extern Actor_4840 *gSpawnedActor;
 
-extern Actor_4840 *D_807FBB40;
+extern Actor_4840 *gCurrentActor;
 void renderCallbacksRegister(void *, void *, s32);
 Gfx *critterRenderText(Gfx *, Actor_4840 *);
 
@@ -148,9 +148,9 @@ void critterShowText(u8 fontIndex, s32 unused, s16 yPos, u8 textIndex, s16 unuse
         heapFree(s0->unk4);
     } else {
         actorSpawn(0x10A, 0);
-        s0 = D_807FBB44->unk174;
-        D_807FBB44->unk174->unk0 = yPos * 4;
-        D_8002A1C4 = D_807FBB44;
+        s0 = gSpawnedActor->unk174;
+        gSpawnedActor->unk174->unk0 = yPos * 4;
+        D_8002A1C4 = gSpawnedActor;
         D_8002A1C4->unkEC = 0;
     }
     D_8002A1C4->unk7C = (f32)critterLayoutWords(s0, (char *)((s32)D_8002A1C0 + (textIndex << 5)), startX);
@@ -168,7 +168,7 @@ void critterUpdateText(void) {
     TextData *textData;
     s16 nextWordIndex;
 
-    actor = D_807FBB40;
+    actor = gCurrentActor;
     textData = actor->unk174;
 
     if (D_8002A1CC < 0xF0) {
@@ -177,12 +177,12 @@ void critterUpdateText(void) {
             nextWordIndex = actor->unkEE + 1;
             actor->unkEE = nextWordIndex;
             textData->timers[nextWordIndex] = 0xC;
-            actor = D_807FBB40;
+            actor = gCurrentActor;
         }
     }
     if (actor->unk168 != 0) {
         actor->unk168--;
-        renderCallbacksRegister(critterRenderText, D_807FBB40, 3);
+        renderCallbacksRegister(critterRenderText, gCurrentActor, 3);
     }
     D_8002A1CE++;
 }

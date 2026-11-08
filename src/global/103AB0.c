@@ -1,8 +1,8 @@
 #include "common.h"
 #include "actor.h"
 
-extern Actor *D_807FBB40;
-extern Actor *D_807FBB44;
+extern Actor *gCurrentActor;
+extern Actor *gSpawnedActor;
 extern Actor *D_807FBB48;
 extern Actor *D_807FBB4C;
 extern void *gPlayerSlots;
@@ -235,7 +235,7 @@ s32 func_806FFF88(void) {
     s32 var_s1;
     s32 var_s2;
 
-    if (D_807FBB40->actorType == 0xD9) {
+    if (gCurrentActor->actorType == 0xD9) {
         func_806FFF5C();
         return;
     }

@@ -15,7 +15,7 @@ extern MapActionEntry D_80746340[];
 extern s16 D_80746344[];
 extern s16 D_80745BDE[];
 extern s32 gCurrentMap;
-extern PlayerStateContext *D_807FBB40;
+extern PlayerStateContext *gCurrentActor;
 extern GlobalContextView *gActivePlayerState;
 extern PlayerRaceContext *gPlayerSlots;
 
@@ -34,7 +34,7 @@ s16 mapActionLookupEntry(s16 actionId, void *actor, u8 subType) {
         }
     }
     if (found != 0) {
-        if ((D_807FBB40->unk5C & 1) && (gPlayerSlots[gActivePlayerState->unk1A4].unk2C0 == 2)) {
+        if ((gCurrentActor->unk5C & 1) && (gPlayerSlots[gActivePlayerState->unk1A4].unk2C0 == 2)) {
             return 0x97;
         }
         if (*((u16 *)((u8 *)actor + 0x6A)) & 4) {
