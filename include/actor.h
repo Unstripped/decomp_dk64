@@ -201,7 +201,10 @@ typedef struct Actor {
     /* 0x0F4 */ s16 arcYawMin;
     /* 0x0F6 */ s16 arcYawMax;
     /* 0x0F8 */ u8 unkF8[4];
-    /* 0x0FC */ u8 hasArcBounds;
+    union {
+        /* 0x0FC */ u8 hasArcBounds;
+        /* 0x0FC */ u8 unkFC;
+    };
     /* 0x0FD */ u8 unkFD;
     /* 0x0FE */ u8 unkFE[0xE];
     /* 0x10C */ s16 unk10C;
@@ -215,10 +218,15 @@ typedef struct Actor {
     /* 0x124 */ s32 unk124;
     /* 0x128 */ s16 unk128;
     /* 0x12A */ s16 unk12A;
-    /* 0x12C */ s16 chunkIndex;
-    /* 0x12E */ u8 pad12E[2];
-    /* 0x130 */ u8 unk130;
-    /* 0x131 */ u8 unk131;
+    union {
+        struct {
+            /* 0x12C */ s16 chunkIndex;
+            /* 0x12E */ u8 pad12E[2];
+            /* 0x130 */ u8 unk130;
+            /* 0x131 */ u8 unk131;
+        };
+        /* 0x12C */ u8 unk12C[6];
+    };
     /* 0x132 */ s16 unk132;
     /* 0x134 */ s16 health;
     /* 0x136 */ s16 damage;
@@ -247,16 +255,31 @@ typedef struct Actor {
 // Fields are named by offset; sizes are the largest offset seen so far.
 typedef struct Struct807FDC90 {
     /* 0x00 */ u8 pad0[0xA];
-    /* 0x0A */ s16 targetX;
-    /* 0x0C */ s16 targetY;
-    /* 0x0E */ s16 targetZ;
+    union {
+        /* 0x0A */ s16 targetX;
+        /* 0x0A */ s16 unkA;
+    };
+    union {
+        /* 0x0C */ s16 targetY;
+        /* 0x0C */ s16 unkC;
+    };
+    union {
+        /* 0x0E */ s16 targetZ;
+        /* 0x0E */ s16 unkE;
+    };
     /* 0x10 */ u8 pad10[8];
     /* 0x18 */ u16 unk18;
     /* 0x1A */ u8 pad1A[0xE];
     /* 0x28 */ u8 unk28[4];
-    /* 0x2C */ s16 timer;
+    union {
+        /* 0x2C */ s16 timer;
+        /* 0x2C */ s16 unk2C;
+    };
     /* 0x2E */ u8 pad2E[2];
-    /* 0x30 */ f32 scale;
+    union {
+        /* 0x30 */ f32 scale;
+        /* 0x30 */ f32 unk30;
+    };
 } Struct807FDC90;
 typedef struct Struct807FDC98 {
     /* 0x00 */ u8 pad0[0x26];

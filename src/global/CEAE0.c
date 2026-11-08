@@ -2626,7 +2626,7 @@ void playerCheckLedgeGrab(void) {
     u8 flag;
     s32 pad[2];
 
-    if (!(D_807FBB64 & 0x20000) && gCurrentActor->unkFC != 0 && G06_P->unk8C == 0 && !(gCurrentActor->unk6A & 1) && G06_P->unkE8 != 0) {
+    if (!(D_807FBB64 & 0x20000) && gCurrentActor->hasArcBounds != 0 && G06_P->unk8C == 0 && !(gCurrentActor->unk6A & 1) && G06_P->unkE8 != 0) {
         flag = (gCurrentMap == 0x53 || gCurrentMap == 0xC5) ? 1 : 0;
         notWall = actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0;
         if (notWall || !(D_80753E10[D_807FD584] < gCurrentActor->speedXZ) || flag != 0) {
