@@ -312,16 +312,16 @@ s32 func_806F4E74(s16 arg0) {
 }
 
 
-s32 gridCoordsToIndex(f32 arg0, f32 arg1) {
-    s32 temp_ft1;
-    s32 temp_ft3;
+s32 gridCoordsToIndex(f32 x, f32 z) {
+    s32 gridZ;
+    s32 gridX;
 
-    temp_ft3 = (s32) (arg0 / 500.0f);
-    temp_ft1 = (s32) (arg1 / 500.0f);
-    if ((D_807FD722 < temp_ft3) || (D_807FD724 < temp_ft1) || (arg0 < 0.0f) || (arg1 < 0.0f)) {
+    gridX = (s32) (x / 500.0f);
+    gridZ = (s32) (z / 500.0f);
+    if ((D_807FD722 < gridX) || (D_807FD724 < gridZ) || (x < 0.0f) || (z < 0.0f)) {
         return -1;
     }
-    return (D_807FD722 * temp_ft1) + temp_ft3;
+    return (D_807FD722 * gridZ) + gridX;
 }
 
 typedef struct F9F1_Rect {
@@ -768,11 +768,11 @@ void func_806F5A48(u8 arg0, s16 arg1, F9N2At58 *arg2, u16 arg3) {
 
 extern s32 D_80754248[];
 
-s32 actorTypeIsRespawnPickup(s32 arg0) {
+s32 actorTypeIsRespawnPickup(s32 actorType) {
     s32 i;
 
     for (i = 0; i < 7; i++) {
-        if (arg0 == D_80754248[i]) {
+        if (actorType == D_80754248[i]) {
             return 1;
         }
     }
@@ -1363,24 +1363,24 @@ void gridTickPlayers(void) {
 }
 
 
-s32 listContainsS16(s16 arg0) {
+s32 listContainsS16(s16 value) {
     s32 step;
-    s16 *var_a1;
+    s16 *cur;
     s16 *start;
-    s32 var_v0;
+    s32 count;
 
-    var_v0 = 0;
+    count = 0;
     start = &D_807FD790;
     step = 1;
-    if ((s32) D_807FD798 > (arg0 * 0)) {
-        var_a1 = start;
+    if ((s32) D_807FD798 > (value * 0)) {
+        cur = start;
         do {
-            var_v0 += 1;
-            if (arg0 == *var_a1) {
+            count += 1;
+            if (value == *cur) {
                 return 1;
             }
-            var_a1 += step;
-        } while (var_v0 < (s32) D_807FD798);
+            cur += step;
+        } while (count < (s32) D_807FD798);
     }
     return 0;
 }
