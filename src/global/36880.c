@@ -41,17 +41,17 @@ void modelSkipListClear(void) {
 
 extern s16 D_807F6140[];
 
-void modelSkipListAdd(s16 arg0) {
+void modelSkipListAdd(s16 modelIndex) {
     if (D_807F6148 != 4) {
-        D_807F6140[D_807F6148++] = arg0;
+        D_807F6140[D_807F6148++] = modelIndex;
     }
 }
 
-s32 modelSkipListContains(s16 arg0) {
+s32 modelSkipListContains(s16 modelIndex) {
     s32 i;
 
     for (i = 0; i < D_807F6148; i++) {
-        if (D_807F6140[i] == arg0) {
+        if (D_807F6140[i] == modelIndex) {
             return 1;
         }
     }
