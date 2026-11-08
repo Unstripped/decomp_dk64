@@ -253,11 +253,22 @@ typedef struct Struct807FDC9C {
 typedef struct Struct807FD580 {
     /* 0x000 */ u8 pad0[0x88];
     /* 0x088 */ Actor *actor;
-    /* 0x08C */ u8 pad8C[0x1A4 - 0x8C];
+    /* 0x08C */ u8 pad8C[0x104 - 0x8C];
+    /* 0x104 */ Actor *camActor;
+    /* 0x108 */ u8 pad108[0x1A4 - 0x108];
     /* 0x1A4 */ u8 playerIndex;
-    /* 0x1A5 */ u8 pad1A5[0x1F0 - 0x1A5];
+    /* 0x1A5 */ u8 pad1A5[0x1AC - 0x1A5];
+    /* 0x1AC */ Actor *heldActor;
+    /* 0x1B0 */ Actor *queuedHeldActor;
+    /* 0x1B4 */ u8 pad1B4[0x1B8 - 0x1B4];
+    /* 0x1B8 */ u16 heldActorType;
+    /* 0x1BA */ u8 pad1BA[0x1F0 - 0x1BA];
     /* 0x1F0 */ s32 stateFlags;
 } Struct807FD580;
+#define unk104 camActor
+#define unk1AC heldActor
+#define unk1B0 queuedHeldActor
+#define unk1B8 heldActorType
 #define unk1F0 stateFlags
 
 extern Struct807FDC90 *D_807FDC90;

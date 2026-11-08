@@ -1,5 +1,6 @@
 #include "common.h"
 #include "sched.h"
+#include "actor.h"
 
 typedef struct {
     u8 unk0;
@@ -24,14 +25,6 @@ typedef struct {
     s32 unk8;
 } Struct807447A0;
 
-typedef struct {
-    u8 pad0[0x7C];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0xE6 - 0x88];
-    s16 unkE6;
-} Struct807FBB4C;
 
 typedef struct {
     u16 unk0;
@@ -81,7 +74,7 @@ extern u8 D_8076A220;
 extern s16 D_8076A232;
 extern Struct8076A160 D_8076A2E0[];
 extern s32 D_807F6010;
-extern Struct807FBB4C *D_807FBB4C;
+extern Actor *D_807FBB4C;
 extern s32 D_807FBB60;
 extern s32 D_807FBB64;
 extern s32 D_807FBB68;
@@ -164,10 +157,6 @@ typedef struct {
     s32 unk4;
 } KeyValuePair;
 
-typedef struct {
-    u8 pad0[0x58];
-    s32 unk58;
-} Unk58View;
 
 extern KeyValuePair D_80744800[];
 
@@ -177,7 +166,7 @@ s32 func_805FEF10(s32 *outValue) {
 
     found = 0;
     for (i = 0; (u32)i < 4 && !found; i++) {
-        found = ((Unk58View *)D_807FBB4C)->unk58 == D_80744800[i].unk0;
+        found = D_807FBB4C->actorType == D_80744800[i].unk0;
         if (found) {
             *outValue = D_80744800[i].unk4;
         }
@@ -398,14 +387,14 @@ void func_805FF670(void) {
             step = 5;
             do {
                 dist = (i * 2) + 30;
-                spawnX = D_807FBB4C->unk7C - func_80612794(D_807FBB4C->unkE6) * dist;
-                spawnZ = D_807FBB4C->unk84 - func_80612790(D_807FBB4C->unkE6) * dist;
+                spawnX = D_807FBB4C->x - func_80612794(D_807FBB4C->yaw) * dist;
+                spawnZ = D_807FBB4C->z - func_80612790(D_807FBB4C->yaw) * dist;
                 actorSpawnNodeEntryScaled(
                     0x35,
                     spawnX,
-                    D_807FBB4C->unk80 + offset + (f32)(i * step),
+                    D_807FBB4C->y + offset + (f32)(i * step),
                     spawnZ,
-                    D_807FBB4C->unkE6,
+                    D_807FBB4C->yaw,
                     1,
                     -1,
                     0
@@ -474,17 +463,7 @@ typedef struct {
     u8 rgb[52][3];
 } SlotLightColors;
 
-typedef struct {
-    u8 pad0[0x1AC];
-    Unk58View *unk1AC;
-    u8 pad1B0[0x1F0 - 0x1B0];
-    s32 unk1F0;
-} PlayerActorData;
 
-typedef struct {
-    u8 pad0[0x174];
-    PlayerActorData *unk174;
-} ActorPlayerHolder;
 
 extern s8 D_80750ACC;
 extern s32 gMapChunkCount;
@@ -498,7 +477,7 @@ void lightGetColor(f32 *, f32 *, f32 *, s16);
 void faultSetMessage(s32, s32, s32, s32);
 
 void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
-    Struct807FBB4C *cam;
+    Actor *cam;
     s32 serializedSize;
     s32 i;
     s32 found;
@@ -507,7 +486,7 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     f32 g;
     f32 b;
     s32 pad;
-    PlayerActorData *obj;
+    Struct807FD580 *obj;
 
     found = 0;
     i = 0;
@@ -544,10 +523,10 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     D_8076A160[i].unk2 = flags;
     if (flags & 1) {
         cam = D_807FBB4C;
-        D_8076A160[i].unk4 = cam->unk7C;
-        D_8076A160[i].unk8 = cam->unk80;
-        D_8076A160[i].unkC = cam->unk84;
-        D_8076A160[i].unk10 = cam->unkE6;
+        D_8076A160[i].unk4 = cam->x;
+        D_8076A160[i].unk8 = cam->y;
+        D_8076A160[i].unkC = cam->z;
+        D_8076A160[i].unk10 = cam->yaw;
     }
     D_8076A160[i].unk12 = gCurrentMap;
     if (flags & 2) {
@@ -561,10 +540,10 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     }
     k = 1;
     D_80750ACC = k;
-    obj = ((ActorPlayerHolder *)D_807FBB4C)->unk174;
-    D_807FD56C = obj->unk1F0;
-    if (obj->unk1AC != NULL) {
-        D_807FD570 = obj->unk1AC->unk58;
+    obj = (Struct807FD580 *)D_807FBB4C->unk174;
+    D_807FD56C = obj->stateFlags;
+    if (obj->heldActor != NULL) {
+        D_807FD570 = obj->heldActor->actorType;
     } else {
         D_807FD570 = 0;
     }
