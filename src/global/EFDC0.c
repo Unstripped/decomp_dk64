@@ -1517,11 +1517,6 @@ void func_806EE10C(void) {
     }
 }
 
-typedef struct EfCPlayer1AC {
-    u8 pad0[0x1AC];
-    s32 unk1AC;
-    s32 unk1B0;
-} EfCPlayer1AC;
 
 typedef struct EfCActorC0S32 {
     u8 pad0[0xC0];
@@ -1531,13 +1526,13 @@ typedef struct EfCActorC0S32 {
 void actorAppendCallback4000(Actor *, s32, s16, s32, s32);
 
 void func_806EE1C4(void) {
-    s32 value = ((EfCPlayer1AC *)gActivePlayerState)->unk1AC;
+    s32 value = (s32)gActivePlayerState->heldActor;
 
     if (value != 0) {
         actorAppendCallback4000(gCurrentActor, value, D_807FBB48->yaw,
                       ((EfCActorC0S32 *)gCurrentActor)->unkC0, (s32)gCurrentActor->speedXZ);
-        ((EfCPlayer1AC *)gActivePlayerState)->unk1AC = 0;
-        ((EfCPlayer1AC *)gActivePlayerState)->unk1B0 = 0;
+        gActivePlayerState->heldActor = NULL;
+        gActivePlayerState->queuedHeldActor = NULL;
     }
     playerClearCarriedItemState();
     actorScriptStartByIndex(gCurrentActor, 0x1C);
@@ -1553,10 +1548,6 @@ void func_806EE26C(void) {
     D_807FBB48->unk155[0] = 0;
 }
 
-typedef struct EfCPlayer104 {
-    u8 pad0[0x104];
-    void *unk104;
-} EfCPlayer104;
 
 
 void func_806EE2B8(void) {
@@ -1591,7 +1582,7 @@ void func_806EE2B8(void) {
         ((EfCPlayerD4 *)gActivePlayerState)->unkD4 = D_807530B0[D_807FD584];
     }
     if (value != 0) {
-        camStartShake(((EfCPlayer104 *)gActivePlayerState)->unk104, 0x14, 0x14);
+        camStartShake(gActivePlayerState->camActor, 0x14, 0x14);
     }
 }
 
@@ -1618,7 +1609,7 @@ void playerTakeFallDamage(void) {
         ((EfCPlayerD4 *)gActivePlayerState)->unkD4 = D_807530B0[D_807FD584];
     }
     if (shouldNotify != 0) {
-        camStartShake(((EfCPlayer104 *)gActivePlayerState)->unk104, 0x14, 0x14);
+        camStartShake(gActivePlayerState->camActor, 0x14, 0x14);
     }
 }
 

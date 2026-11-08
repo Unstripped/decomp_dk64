@@ -231,7 +231,7 @@ typedef struct Actor {
     /* 0x150 */ s32 floorTriangle;
     /* 0x154 */ u8 state;
     /* 0x155 */ u8 unk155[7];
-    /* 0x15C */ s16 unk15C;
+    /* 0x15C */ s16 spawnTimer;
     /* 0x15E */ u8 unk15E;
     /* 0x15F */ u8 unk15F;
     /* 0x160 */ f64 splineT;
@@ -342,6 +342,10 @@ typedef struct PlayerState {
     /* 0x247 */ s8 attackerType;
     /* 0x248 */ s8 attackerPlayerIndex;
     /* 0x249 */ u8 attackerSpawnNodeId;
+    /* 0x24A */ u8 unk24A;
+    /* 0x24B */ u8 pad24B;
+    /* 0x24C */ u16 attackerAnimId;
+    /* 0x24E */ u16 hitCounter;
 } PlayerState;
 
 typedef PlayerState Struct807FD580;

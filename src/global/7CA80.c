@@ -221,7 +221,7 @@ s32 actorSpawnFromInfo(ActorSpawnInfo *arg0) {
             gSpawnedActor->z = arg0->unk14;
             gSpawnedActor->unk124 = arg0->unk1C;
             gSpawnedActor->yaw = arg0->unk18;
-            gSpawnedActor->unk15C = arg0->unk1A;
+            gSpawnedActor->spawnTimer = arg0->unk1A;
             if (arg0->unk8 != 0) {
                 actorScriptStart(gSpawnedActor, arg0->unk8);
             }
