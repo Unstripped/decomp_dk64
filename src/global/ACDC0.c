@@ -627,7 +627,6 @@ Gfx *hudSetupTextState(Gfx *dl) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/D_8075AAE4.s")
 
 
-#ifdef NON_MATCHING
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -705,7 +704,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 }
                 off = ((HudTextEntry *)((u8 *)it + j * 0x18))->unk8;
                 y = ((HudTextEntry *)((u8 *)it + j * 0x18))->unkA;
-                off = off * 4 + (s32)(fa * ((HudTextEntry *)((u8 *)it + j * 0x18))->unk0);
+                off = (u16)(off * 4) + (s16)(s64)(s32)((f32)fa * ((HudTextEntry *)((u8 *)it + j * 0x18))->unk0); // FAKE: narrow through a 64-bit pair to preserve the ugen scratch-register order.
                 y *= 4;
                 y += (u16)(s32)(fa * ((HudTextEntry *)((u8 *)it + j * 0x18))->unk4);
                 off = (s16)((u32)off + ((HudTextEntry *)((u8 *)it + j * 0x18))->unkC * 4);
@@ -911,10 +910,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     if (D_80750530 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     return ret;
 }
-#else
-
-#pragma GLOBAL_ASM("asm/global/nonmatchings/ACDC0/hudPauseMenuRender.s")
-#endif
 
 Gfx *hudDrawCountPair(s16 x, s16 y, s16 n1, s16 n2, Gfx *dl, s8 flag, f32 scale) {
     Mtx *mtx;
