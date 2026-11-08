@@ -7,7 +7,7 @@ void jetpacDrawScoreboard(s32);
 void jetpacUpdateRocketFlight(void);
 void jetpacInitRdp(s32);
 void jetpacDrawLedges(void);
-void func_800289EC(void);
+void jetpacDrawRocket(void);
 void jetpacGridDraw(s32);
 void eepromSetField(s32, s32, s32, s32, s32);
 void func_8060DEA8(void);
@@ -18,7 +18,7 @@ void n_alSndpPostEvent(s32, ...);
 void jetpacUpdateLasers(void);
 void jetpacUpdateActors(void);
 void jetpacDrawActors(void);
-void func_800285DC(void);
+void jetpacDrawBonusItem(void);
 void jetpacDrawLasers(void);
 extern s32 D_8076D1F8;
 extern s16 D_8002BA52[];
@@ -267,7 +267,7 @@ void jetpacStateLanding(s32 glist) {
     jetpacUpdateRocketFlight();
     jetpacInitRdp(glist);
     jetpacDrawLedges();
-    func_800289EC();
+    jetpacDrawRocket();
     jetpacGridDraw(glist);
 }
 
@@ -297,7 +297,7 @@ void jetpacStateGameplay(s32 glist) {
     jetpacDrawPlayer();
     jetpacDrawActors();
     jetpacItemsUpdate();
-    func_800285DC();
+    jetpacDrawBonusItem();
     jetpacDrawLasers();
     jetpacGridDraw(glist);
     if (jetpacIsSpawnDelay() != 0) {
@@ -370,8 +370,8 @@ void jetpacStateTakeoff(s32 glist) {
     jetpacInitRdp(glist);
     jetpacDrawLedges();
     jetpacDrawActors();
-    func_800289EC();
-    func_800285DC();
+    jetpacDrawRocket();
+    jetpacDrawBonusItem();
     jetpacDrawLasers();
     jetpacGridDraw(glist);
 }

@@ -494,7 +494,7 @@ void jetpacItemsUpdate(void) {
         item++;
     } while (i != count);
 }
-void func_800285DC(void) {
+void jetpacDrawBonusItem(void) {
     JetpacPlayer *inner = &jetpacGame.players[jetpacGame.active_player];
     inner->bonus.unk48(&inner->bonus, 5);
 }
@@ -591,7 +591,7 @@ typedef struct {
     s32 v;
 } J3Word;
 extern JetpacSprite D_8002DC38[];
-void func_800289EC(void) {
+void jetpacDrawRocket(void) {
     JetpacItem *item;
     s32 pad;
     J3Word flameColor;
