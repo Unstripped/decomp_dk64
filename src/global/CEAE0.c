@@ -340,7 +340,7 @@ typedef struct PlayerEffectObj {
 typedef struct PlayerUpdateState {
     /* 0x000 */ s16 unk0;
     /* 0x002 */ u8 pad2[0x8D - 2];
-    /* 0x08D */ u8 unk8D;
+    /* 0x08D */ u8 hitStatus;
     /* 0x08E */ u8 pad8E[0xCA - 0x8E];
     /* 0x0CA */ u8 unkCA;
     /* 0x0CB */ u8 padCB[0xD4 - 0xCB];
@@ -552,7 +552,7 @@ void playerUpdateCommon(s32 arg0) {
     }
     gCurrentActor->renderFlags &= ~0x1000;
     gPlayerStateHandlers[gCurrentActor->state].fn();
-    PLAYER_STATE->unk8D = collisionGetHitStatus();
+    PLAYER_STATE->hitStatus = collisionGetHitStatus();
     if (gPlayerCount == 1) {
         gCurrentActor->renderFlags &= ~0x200;
     }

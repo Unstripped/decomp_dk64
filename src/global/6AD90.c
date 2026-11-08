@@ -971,9 +971,9 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     dynamicBufferAllocateEntry(cell);
     arg0 = arg0 * 6.0f;
     arg1 = arg1 * 6.0f;
-    if (arg3 != NULL && arg3->floorTriangle != 0 && collisionCheckTriangleXZBoundsS16(arg3->floorTriangle, (s32)arg0, (s32)arg1) != 0 &&
+    if (arg3 != NULL && arg3->floorTriangle != NULL && collisionCheckTriangleXZBoundsS16((s16 *)arg3->floorTriangle, (s32)arg0, (s32)arg1) != 0 &&
         collisionPointInTriangleXZS16((s16 *)arg3->floorTriangle, arg0, arg1) != 0 && D_807F5FC0 == 0) {
-        tri = (CollisionStaticTri *)arg3->floorTriangle;
+        tri = arg3->floorTriangle;
         sp150 = tri + 1;
     } else {
         tri = (CollisionStaticTri *)((CollisionCellRange *)D_807F9514)[cell].unk0;
@@ -1074,7 +1074,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                                         arg3->renderFlags |= 0x40;
                                     }
                                     if (arg3 != NULL) {
-                                        arg3->floorTriangle = (s32)tri;
+                                        arg3->floorTriangle = tri;
                                     }
                                     return 1;
                                 }
@@ -1119,7 +1119,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
         spS.cb |= collisionTestHardcodedFloorPlane(&spS.cc, spC4, cur, arg2);
     }
     if (arg3 != NULL) {
-        arg3->floorTriangle = 0;
+        arg3->floorTriangle = NULL;
     }
     return spS.cb;
 }
@@ -1235,10 +1235,10 @@ void actorClearBufferReferences(s32 arg0) {
 
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
-        u32 val = actor->floorTriangle;
+        u32 val = (u32)actor->floorTriangle;
 
         if (!(actor->flags & 0x2000) && val >= min && max >= val) {
-            actor->floorTriangle = 0;
+            actor->floorTriangle = NULL;
         }
     }
 }

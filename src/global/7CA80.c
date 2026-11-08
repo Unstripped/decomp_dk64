@@ -469,7 +469,7 @@ void actorDeregisterActive(Actor *arg0) {
         gActiveActors[i].unk4 = gActiveActors[gActiveActorCount].unk4;
     }
     func_8062D26C(arg0);
-    arg0->floorTriangle = 0;
+    arg0->floorTriangle = NULL;
 }
 
 void actorDespawnByOwner(s32 arg0) {

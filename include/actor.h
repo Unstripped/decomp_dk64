@@ -1,3 +1,4 @@
+struct CollisionStaticTri;
 #ifndef ACTOR_H
 #define ACTOR_H
 
@@ -229,7 +230,7 @@ typedef struct Actor {
     /* 0x140 */ ActorSub140 *collision;
     /* 0x144 */ u8 unk144;
     /* 0x145 */ u8 unk145[0xB];
-    /* 0x150 */ s32 floorTriangle;
+    /* 0x150 */ struct CollisionStaticTri *floorTriangle;
     /* 0x154 */ u8 state;
     /* 0x155 */ u8 unk155[7];
     /* 0x15C */ s16 spawnTimer;
@@ -298,13 +299,13 @@ typedef struct PlayerState {
     /* 0x026 */ s16 unk26;
     /* 0x028 */ s16 unk28;
     /* 0x02A */ u8 pad2A[2];
-    /* 0x02C */ f32 unk2C;
-    /* 0x030 */ f32 unk30;
+    /* 0x02C */ f32 airAccel;
+    /* 0x030 */ f32 decelRate;
     /* 0x034 */ u8 pad34[4];
     /* 0x038 */ f32 targetSpeed;
-    /* 0x03C */ s16 unk3C;
+    /* 0x03C */ s16 airTimer;
     /* 0x03E */ s16 approachTimer;
-    /* 0x040 */ s16 unk40;
+    /* 0x040 */ s16 approachYaw;
     /* 0x042 */ u8 pad42[6];
     /* 0x048 */ s16 turnRate;
     /* 0x04A */ u8 pad4A[0xA];
@@ -312,7 +313,7 @@ typedef struct PlayerState {
     /* 0x058 */ u8 pad58[0x30];
     /* 0x088 */ Actor *actor;
     /* 0x08C */ u8 gunDrawn;
-    /* 0x08D */ u8 unk8D;
+    /* 0x08D */ u8 hitStatus;
     /* 0x08E */ u8 pad8E[0x6E];
     /* 0x0FC */ s32 unkFC;
     /* 0x100 */ s32 respawnTimer;
@@ -334,8 +335,8 @@ typedef struct PlayerState {
     /* 0x1E4 */ s32 scaleMode;
     /* 0x1E8 */ u8 pad1E8[8];
     /* 0x1F0 */ s32 stateFlags;
-    /* 0x1F4 */ s32 unk1F4;
-    /* 0x1F8 */ s32 unk1F8;
+    /* 0x1F4 */ s32 stateFlags2;
+    /* 0x1F8 */ s32 stateFlags3;
     /* 0x1FC */ s32 cartDamage;
     /* 0x200 */ s16 unk200;
     /* 0x202 */ u8 pad202[0x44];
