@@ -24,31 +24,31 @@ void func_80614E78(void *, s32);
 s32 slotQueueGetValue(u8, u8);
 void slotQueueUpdate(s32, s32, s32);
 
-void playerHolsterGun(s32 arg0, G21Actor1A0 *arg1, u8 arg2) {
+void playerHolsterGun(s32 actor, G21Actor1A0 *state, u8 isFirstPerson) {
     s32 id;
 
     id = 0x4A;
-    if (arg2) {
+    if (isFirstPerson) {
         id = 0x4C;
     }
-    arg1->unk1A3 = 0;
-    func_80614E78((void *)arg0, id);
+    state->unk1A3 = 0;
+    func_80614E78((void *)actor, id);
 }
 
-void playerDrawGun(s32 arg0, G21Actor1A0 *arg1, u8 arg2) {
+void playerDrawGun(s32 actor, G21Actor1A0 *state, u8 isFirstPerson) {
     s32 id;
     s32 a;
 
     id = 0x4B;
     a = 2;
-    if (slotQueueGetValue(3, arg1->unk1A4)) {
+    if (slotQueueGetValue(3, state->unk1A4)) {
         a = 3;
     }
     slotQueueUpdate(a, 0, 0);
-    if (arg2) {
+    if (isFirstPerson) {
         id = 0x4D;
     }
-    func_80614E78((void *)arg0, id);
+    func_80614E78((void *)actor, id);
 }
 
 void playerToggleGun(s32 arg0, G21Actor1A0 *arg1, u8 arg2) {
