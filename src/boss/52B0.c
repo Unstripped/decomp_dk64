@@ -27,7 +27,7 @@ void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s16, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 
-void func_800292B0(f32 scale) {
+void bossMadJackSpawnShockwave(f32 scale) {
     projectileSpawnWithShockwave(0x6A, 1.2f, 0, 0x96, 0xFF, 0xB, 1.015f, 0.0f, 0.0f, 0.0f);
     sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x221, 0x80, 0x7F, 1, 0, 0.3f, 0);
     gSpawnedActor->unk80 = gCurrentActor->unk80;
@@ -43,7 +43,7 @@ void func_80714998(s32);
 void func_807149C8(s32, s32, s32, s32);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
-void func_800293C0(void) {
+void bossMadJackSpawnSparkles(void) {
     randomNonNegative();
     func_807149B8(1);
     func_80714998(3);
@@ -160,7 +160,7 @@ void func_8072E1A4(s32, void *);
 
 #define ACTOR ((Boss3F_52B0_Actor *)gCurrentActor)
 
-void func_80029468(void) {
+void bossMadJackStep(void) {
 
     Boss3F_52B0_178 *scriptState;
     s32 pad48;
@@ -195,7 +195,7 @@ void func_80029468(void) {
             ACTOR->unk155++;
             break;
         case 2:
-            func_800292B0(1.8f);
+            bossMadJackSpawnShockwave(1.8f);
             D_807FDC90->unk2C = 0x14;
             ACTOR->unk155++;
             break;
@@ -203,7 +203,7 @@ void func_80029468(void) {
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
             } else {
-                func_800292B0(1.0f);
+                bossMadJackSpawnShockwave(1.0f);
                 ACTOR->unk155++;
             }
             break;
@@ -295,7 +295,7 @@ void func_80029468(void) {
                 break;
             case 3:
                 if (!(gFrameCounter & 3)) {
-                    func_800293C0();
+                    bossMadJackSpawnSparkles();
                 }
                 break;
             case 4:

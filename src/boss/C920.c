@@ -48,7 +48,7 @@ extern BossD_D580 *gActivePlayerState;
 extern BossD_DC90 *D_807FDC90;
 extern void *gCamActor;
 
-void func_800290D4(s32);
+void bossSetCannonsVisible(s32);
 s32 playerStateQueueCallback(s32, void *, s32);
 void zoneEntryGetPosition(s32, s32, void *, void *, void *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -67,7 +67,7 @@ void func_80030920(s32 unused) {
     s16 targetYaw;
 
     gActivePlayerState->unk1FE = 1;
-    func_800290D4(1);
+    bossSetCannonsVisible(1);
     gCurrentActor->unk144 = 0x24;
     playerStateQueueCallback(0x19, gCurrentActor, 0);
     zoneEntryGetPosition(1, 8, &gCurrentActor->unk7C, &gCurrentActor->unk80, &gCurrentActor->unk84);
@@ -86,7 +86,7 @@ void func_80030920(s32 unused) {
     camSetTarget(gCamActor, D_807FBB4C, 4, 0x800, 0x5A, 0, 0x46, 0x64, 0x3A, 0, 0.3f);
 }
 void func_80030AE0(BossD_Sub178 *sub178) {
-    func_800290D4(0);
+    bossSetCannonsVisible(0);
     gActivePlayerState->unk1F4 = 0;
     if (D_807FBB4C->unk154 != 0x36) {
         playerResumeLocomotion(D_807FBB4C);
@@ -261,7 +261,7 @@ void func_80030EC4(void) {
         BOSS_ACTOR->unk110 = 0;
         BOSS_ACTOR->unk60 &= ~0x8000;
         playerSetLargeModeScale(0.45f);
-        func_800290D4(0);
+        bossSetCannonsVisible(0);
         flagSet(0x5F, 0, 2);
     }
     if (WORK_STATE->unk1A & 1) {

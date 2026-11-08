@@ -16,7 +16,7 @@ extern BossB_Struct_DC9C *D_807FDC9C;
 void heapFree(void *);
 void *heapAlloc(s32);
 
-void func_80027840(u8 *data) {
+void bossInitScriptData(u8 *data) {
     s16 i;
     u8 *dst;
 
@@ -58,7 +58,7 @@ extern BossB_Struct_DC90 *D_807FDC90;
 
 s32 randomNonNegative(void);
 
-void func_80027950(BossB_Struct_80027950 *state, u8 *waypointRanges) {
+void bossPickRandomWaypoint(BossB_Struct_80027950 *state, u8 *waypointRanges) {
     u8 prev = D_807FDC90->unk25;
     do {
         s32 rand = randomNonNegative() >> 15;
@@ -362,7 +362,7 @@ block_16:
         didLoop = 1;
         break;
     case 0x67:
-        func_80027950((BossB_Struct_80027950 *)s0, script);
+        bossPickRandomWaypoint((BossB_Struct_80027950 *)s0, script);
         advanceScript = 0;
         BA40->unk154 = 0x42;
         BA40->unk155 = 0;
@@ -406,7 +406,7 @@ block_16:
                 DC90->unk25 = script[s0->unk15];
                 s0->unk15++;
             } else {
-                func_80027950((BossB_Struct_80027950 *)s0, script);
+                bossPickRandomWaypoint((BossB_Struct_80027950 *)s0, script);
             }
             patrolPathStep(0x49, 0);
             BA40->unk7C = DC90->unkA;
@@ -439,7 +439,7 @@ block_16:
 
 void func_805FF8F8(void);
 
-void func_80028458(void) {
+void bossClearMinigame(void) {
     func_805FF8F8();
 }
 
@@ -477,7 +477,7 @@ u8 unkScale;
 
     sfxAllocateChannel(0x36, 1.0f);
     if (flagGet((s16)flag, 0) != 0) {
-        func_80028458();
+        bossClearMinigame();
         return;
     }
     for (s0 = 0; s0 < 6; s0++) {
@@ -493,7 +493,7 @@ u8 unkScale;
 void hudSpawnCountdownTimer(s32, s32, s32);
 void actorSetStateTwo(s32);
 
-void func_80028680(void) {
+void bossStartCountdownTimer(void) {
     hudSpawnCountdownTimer(-0x7F83, 0xD2, 0xB4);
     actorSetStateTwo(gCurrentActor->unk11C);
 }
@@ -537,7 +537,7 @@ void bossDrawRoundText(Gfx *glist, s32 unused) {
     textDrawStringVtx(glist, 1, 0, 0, textBuf, 0);
 }
 
-static void func_80028818(void) {}
+static void bossRoundDummy(void) {}
 
 void flagSet(s16, s32, s32);
 
@@ -636,7 +636,7 @@ void bossRoundFrame(u8 *script) {
         break;
     case 0x6C:
         scriptState->unk12 |= 1;
-        func_80028680();
+        bossStartCountdownTimer();
         if ((scriptState->unk14 != 0) && (BA40->unk58 == 0x126)) {
             actorSetStateThree(BA40->unk11C);
         }
@@ -767,7 +767,7 @@ void bossRoundFrame(u8 *script) {
 void actorSetNodeFlag(void *, s32);
 void actorClearNodeFlag(void *, s32);
 
-void func_800290D4(enable)
+void bossSetCannonsVisible(enable)
 u8 enable;
 {
     if (enable) {

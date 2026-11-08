@@ -445,7 +445,7 @@ void scriptSetActorRampTarget(void *, f32, f32);
 s32 mathAngleSignedDistance(s16, s16);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 
-void func_80024EAC(void) {
+void bossArmydilloAimTowardTarget(void) {
     s32 res;
     u16 animState;
 
@@ -476,7 +476,7 @@ typedef struct Boss2A_Struct_807FBB40_4FA8 {
 u8 bossPieceStep(u8 *, u8, f32, f32, f32);
 void animSetLoopLimit(void *, s32, s32);
 
-void func_80024FA8(void *boss, u8 *pieceData, s32 unused, u8 *pieceList) {
+void bossArmydilloOpenCannons(void *boss, u8 *pieceData, s32 unused, u8 *pieceList) {
     u8 i;
     u8 res;
 
@@ -542,13 +542,13 @@ void bossPieceListStep(void *boss, u8 *pieceData, s32 unused, u8 *pieceList) {
 void actorClearNodeFlag(void *, s32);
 void actorSetNodeFlag(void *, s32);
 
-void func_8002531C(void) {
+void bossArmydilloHideCannons(void) {
     actorClearNodeFlag(gCurrentActor, 3);
     actorClearNodeFlag(gCurrentActor, 4);
     actorClearNodeFlag(gCurrentActor, 5);
 }
 
-void func_80025364(void) {
+void bossArmydilloShowCannons(void) {
     actorSetNodeFlag(gCurrentActor, 3);
     actorSetNodeFlag(gCurrentActor, 4);
     actorSetNodeFlag(gCurrentActor, 5);
@@ -565,7 +565,7 @@ extern u8 D_80720120;
 void func_807149A8(s32);
 void func_80714C08(void *, f32, void *, s32, s32);
 
-void func_800253AC(void) {
+void bossArmydilloSpawnExhaustSmoke(void) {
     f32 val;
     s32 p;
     f64 dval;
@@ -718,9 +718,9 @@ extern s32 gCamActor;
 
 void bossArmydilloSpawnSmoke();
 void bossPieceListStep();
-void func_800253AC();
-void func_80027770();
-void func_80027840();
+void bossArmydilloSpawnExhaustSmoke();
+void bossArmydilloDebrisFall();
+void bossInitScriptData();
 void bossScriptStep(u8 *, s32, f32);
 void bossSpawnParticleRing();
 s32 randomNonNegative();
@@ -757,7 +757,7 @@ s32 patrolPathStep();
 #define D_807FDC90 ((Boss3B_DC90 *)D_807FDC90)
 #define D_807FDC94 ((Boss3B_DC94 *)D_807FDC94)
 
-void func_800254D0(void) {
+void bossArmydilloStep(void) {
     s32 pad_top[1];
     Boss3B_Sp78 *state17C;
     u8 *scriptData;
@@ -777,10 +777,10 @@ void func_800254D0(void) {
     if (!(gCurrentActor->unk60 & 0x10)) {
         D_807FDC98->unk38 = 0.002f;
         camSetSecondTarget(gCamActor, 0, 0);
-        func_80027840(&D_80035CC0);
+        bossInitScriptData(&D_80035CC0);
         gCurrentActor->unkC4 = (f32) D_807502F4;
         gCurrentActor->unkC8 = (f32) D_807502D8;
-        func_8002531C();
+        bossArmydilloHideCannons();
         D_807FDC98->unk2C = 0.01f;
         D_807FDC98->unk30 = 3.0f;
         gCurrentActor->unk12A = 0x3E8;
@@ -816,7 +816,7 @@ void func_800254D0(void) {
         gCurrentActor->unk154 = 0x37;
         gCurrentActor->unk155 = 0;
     } else if (D_807FBB70[0x200] == 4) {
-        func_8002531C();
+        bossArmydilloHideCannons();
         gCurrentActor->unk154 = 0x4D;
         gCurrentActor->unk155 = 0;
         gCurrentActor->unk138 = 0;
@@ -875,7 +875,7 @@ void func_800254D0(void) {
                 controllerAnimSetState(gCurrentActor, 0x39A, 0.0f, 30.0f);
                 gCurrentActor->unkEE = 0;
             }
-            func_80027770();
+            bossArmydilloDebrisFall();
             break;
         case 4:                                     /* switch 2 */
             gCurrentActor->unk72 = (gCurrentActor->unk72 + 1);
@@ -929,11 +929,11 @@ void func_800254D0(void) {
             case 2:                                 /* switch 3 */
             case 3:                                 /* switch 3 */
                 if (gCurrentActor->unk154 == 0x29) {
-                    func_80024FA8(state, state17C, scriptData, &D_80035984);
+                    bossArmydilloOpenCannons(state, state17C, scriptData, &D_80035984);
                 } else if (gCurrentActor->unk154 == 0x2E) {
-                    func_80024FA8(state, state17C, scriptData, &D_80035988);
+                    bossArmydilloOpenCannons(state, state17C, scriptData, &D_80035988);
                 } else {
-                    func_80024FA8(state, state17C, scriptData, &D_80035980);
+                    bossArmydilloOpenCannons(state, state17C, scriptData, &D_80035980);
                 }
                 break;
             case 4:                                 /* switch 3 */
@@ -1009,7 +1009,7 @@ void func_800254D0(void) {
                 D_807FDC90->unk2E = 0x12C;
             }
             gCurrentActor->unkC0 = (f32) D_807FDC90->unk2E;
-            func_800253AC();
+            bossArmydilloSpawnExhaustSmoke();
             playSfx = 1;
             actorMoveWithinZone(0x45, 510.0f, 480.0f, 0x292, 0.0f);
             if (gCurrentActor->unkB4 > 30.0f) {
@@ -1022,7 +1022,7 @@ void func_800254D0(void) {
         case 2:                                     /* switch 5 */
             actorMoveWithinZone(0x45, 510.0f, 480.0f, 0x292, 0.0f);
             if (gFrameCounter & 8) {
-                func_800253AC();
+                bossArmydilloSpawnExhaustSmoke();
                 playSfx = 1;
                 gCurrentActor->unkC0 = 100.0f;
             }
@@ -1128,7 +1128,7 @@ void func_800254D0(void) {
     case 0x30:                                      /* switch 1 */
         actorMoveWithinZone(0x45, 510.0f, 480.0f, 0x292, 0.0f);
         if (gFrameCounter & 8) {
-            func_800253AC();
+            bossArmydilloSpawnExhaustSmoke();
             playSfx = 1;
             gCurrentActor->unkC0 = 100.0f;
         }
@@ -1203,7 +1203,7 @@ void func_800254D0(void) {
             /* fallthrough */
         case 2:                                     /* switch 10 */
             if (D_807FDC90->unk2C != 0) {
-                func_80024EAC();
+                bossArmydilloAimTowardTarget();
                 D_807FDC90->unk2C = (s16) (D_807FDC90->unk2C - 1);
             } else {
                 actorScriptStart(gCurrentActor, (cannonBone == 1) ? 0x25D : 0x25E);
@@ -1233,7 +1233,7 @@ void func_800254D0(void) {
         switch (gCurrentActor->unk155) {                        /* switch 11; irregular */
         case 0:                                     /* switch 11 */
             gCurrentActor->unk138 = -1;
-            func_80025364();
+            bossArmydilloShowCannons();
             D_807FDC90->unk2C = (s16) *(state->unk15 + scriptData);
             state->unk15 = state->unk15 + 1;
             if (camIsCutsceneActive() != 0) {
@@ -1248,7 +1248,7 @@ void func_800254D0(void) {
                 D_807FDC90->unk2C--;
                 break;
             }
-            func_8002531C();
+            bossArmydilloHideCannons();
             gCurrentActor->unk154 = scriptData[state->unk15++];
             gCurrentActor->unk155 = 0;
             break;
@@ -1286,13 +1286,13 @@ void func_800254D0(void) {
     case 0x26:                                      /* switch 1 */
         switch (gCurrentActor->unk155) {                        /* switch 13; irregular */
         case 0:                                     /* switch 13 */
-            func_80027840(&D_80035CB8);
+            bossInitScriptData(&D_80035CB8);
             gCurrentActor->unk155 = 1;
             /* fallthrough */
         case 1:                                     /* switch 13 */
             actorMoveWithinZone(0x42, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, 0x290, 0.0f);
             if (gFrameCounter & 8) {
-                func_800253AC();
+                bossArmydilloSpawnExhaustSmoke();
                 playSfx = 1;
                 gCurrentActor->unkC0 = 100.0f;
             }
@@ -1385,7 +1385,7 @@ void func_800254D0(void) {
 s32 randomNonNegative(void);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
-void func_80027770(void) {
+void bossArmydilloDebrisFall(void) {
     u8 val;
 
     if (!(gFrameCounter & 3)) {

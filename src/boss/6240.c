@@ -158,7 +158,7 @@ s32 randomNonNegative(void);
 f32 func_80612790(s16);
 f32 func_80612794(s16);
 
-void func_8002A240(void) {
+void bossPufftossBobStep(void) {
     BossC_6240_17C *s0 = gCurrentActor->unk17C;
     f32 sinVal;
     if (s0->unk4 != 0) {
@@ -177,7 +177,7 @@ void func_8002A240(void) {
 void *actorFindByType(s32);
 void func_8067AB20(void *, void *, s32, s32, void *, s32);
 
-void func_8002A41C(u8 targetIndex) {
+void bossPufftossNotifyLaser(u8 targetIndex) {
     void *target;
     f32 targetPos[2];
 
@@ -217,7 +217,7 @@ void func_807149B8(s32);
 void func_807149C8(s32, s32, s32, s32);
 void func_80714C08(void *, f32, void *, s32, s32);
 
-void func_8002A55C(u8 sparkleInterval, f32 scale) {
+void bossPufftossSpawnGlow(u8 sparkleInterval, f32 scale) {
     if (!(sparkleInterval & gFrameCounter)) {
         func_807149B8(1);
         func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
@@ -299,7 +299,7 @@ extern BossC_6240_DC98 *D_807FDC98;
 extern BossC_6240_DC9C *D_807FDC9C;
 extern BossC_6240_DCA0 *D_807FDCA0;
 
-void func_80027840(void *);
+void bossInitScriptData(void *);
 void bossScriptStep(u8 *, s32, f32);
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
@@ -350,7 +350,7 @@ void n_alSndpPlay(s32, s16, s32, s32, f32, s32, void *);
 void n_alSndpStop(s32);
 
 
-void func_8002A92C(void) {
+void bossPufftossStep(void) {
     BossC_6240_178 *state;
     BossC_6240_17C *state17C;
     u8 *scriptData;
@@ -379,7 +379,7 @@ void func_8002A92C(void) {
         playerSetLargeModeScale(1.2f);
         loadModelAssetTable();
         gCurrentActor->unkCC = 2;
-        func_80027840(&D_800362F0);
+        bossInitScriptData(&D_800362F0);
         D_807FDC98->unk30 = 3.0f;
         gCurrentActor->unkB8 = 0.0f;
         gCurrentActor->unk60 |= 0x800000;
@@ -401,7 +401,7 @@ void func_8002A92C(void) {
     if (D_807FBB70.unk200 == 4) {
         if (state->unk14 == 3) {
             actorGetOrSetNodeScale(gCurrentActor, 1, 200.0f);
-            func_8002A41C(0);
+            bossPufftossNotifyLaser(0);
             gCurrentActor->unk154 = 0x56;
             gCurrentActor->unk155 = 0;
             actorScriptStart(gCurrentActor, 0x2D1);
@@ -446,7 +446,7 @@ void func_8002A92C(void) {
         n_alSndpPlay(D_8076D1F8, sndId, 0x7FFF, 0x3F, 1.0f, 0, &state->unk1C);
     } else if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (actorTableContains(D_807FBB70.unk1FC) != 0) && (D_807FBB70.unk1FC->unk5C == 1)) {
         playerSetSizeMode(D_807FBB4C, 2);
-        func_8002A41C(1);
+        bossPufftossNotifyLaser(1);
         csModelStateSetFirstByte(0, 0xA);
         camSetFollowMode(gCamActor);
         camStartPath(gCurrentActor, 8, 1);
@@ -486,7 +486,7 @@ void func_8002A92C(void) {
         if (!(D_807FDC90->unk1A & 0x8000)) {
             if (D_807FDC90->unk2C != 0) {
                 if (D_807FDC90->unk2C == 100) {
-                    func_8002A41C(2);
+                    bossPufftossNotifyLaser(2);
                 }
                 if (D_807FDC90->unk2C < 21) {
                     gCurrentActor->unk60 |= 0x20000000;
@@ -503,7 +503,7 @@ void func_8002A92C(void) {
             } else {
                 gCurrentActor->unk60 &= 0xDFFFFFFF;
                 actorGetOrSetNodeScale(gCurrentActor, 1, 64.0f);
-                func_8002A41C(1);
+                bossPufftossNotifyLaser(1);
                 state->unk15 = state->unk16;
                 gCurrentActor->unk154 = scriptData[state->unk15++];
                 gCurrentActor->unk155 = 0;
@@ -719,7 +719,7 @@ void func_8002A92C(void) {
             gCurrentActor->unk155 = 2;
             break;
         case 2:
-            func_8002A55C(0, (f32) (((f64) gCurrentActor->unk4->unk0->unk4 * 0.06) + 2.0));
+            bossPufftossSpawnGlow(0, (f32) (((f64) gCurrentActor->unk4->unk0->unk4 * 0.06) + 2.0));
             break;
         case 3:
             projectileGetTargetCoords(gCurrentActor, 1);
@@ -735,13 +735,13 @@ void func_8002A92C(void) {
             }
             break;
         }
-        func_8002A240();
+        bossPufftossBobStep();
         break;
     case 0x4D:
         updateY = 0;
         switch (gCurrentActor->unk155) {
         case 1:
-            func_8002A55C(3, 3.0f);
+            bossPufftossSpawnGlow(3, 3.0f);
             break;
         case 2:
             checkFloor = 0;
