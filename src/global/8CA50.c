@@ -198,9 +198,9 @@ void animNodeAdvanceTime(AnimNode *node) {
         node->unk14 -= node->unk10;
         subframe = node->unk14;
         if ((f64)subframe < 0.0) {
-            s32 step = (s32)subframe - 1;
-            node->unkC = (s16)(node->unkC + (u32)step); // FAKE: u32 cast keeps the add unreassociated (-1 folded into v0)
-            node->unk14 = subframe - (f32)step;
+            u32 step = (s32)subframe - 1;
+            node->unkC += step;
+            node->unk14 = subframe - (f32)(s32)step;
         }
         if (node->unkC < 0) {
             negFrame = -node->unkC;
