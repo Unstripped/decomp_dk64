@@ -104,7 +104,7 @@ extern RaceActor *gCurrentActor;
 
 s32 raceGetNextWaypointIndex(s32, s32);
 
-s32 func_800276B0(s32 pathLength, RaceCursor *curA, RaceCursor *curB) {
+s32 raceGetWaypointDiff(s32 pathLength, RaceCursor *curA, RaceCursor *curB) {
     s32 diff;
     s32 abs_diff;
     s32 sign;
@@ -121,7 +121,7 @@ s32 func_800276B0(s32 pathLength, RaceCursor *curA, RaceCursor *curB) {
 void mathPickCloserTargetPoint3D(f32, f32, f32, Point3f *, Point3f *, Point3f *, Point3f *, f32 *, f32 *, f32 *);
 
 #define RB_SQ(v) ((v) * (v))
-f32 func_80027710(s32 pathLength, RaceActor *actor, RaceCursor *cursor) {
+f32 raceGetWaypointSegmentFraction(s32 pathLength, RaceActor *actor, RaceCursor *cursor) {
     s32 idx1;
     s32 idx2;
     Point3f *base;
@@ -162,7 +162,7 @@ f32 raceGetPathDistance(s32 pathLength, u16 laneIndex, u16 waypointIndex) {
     return sqrtf((dx * dx) + (dy * dy) + (dz * dz));
 }
 
-f32 func_80027920(RaceActor *actorA, RaceCursor *curA, RaceActor *actorB, RaceCursor *curB) {
+f32 raceGetPathDistanceBetweenRacers(RaceActor *actorA, RaceCursor *curA, RaceActor *actorB, RaceCursor *curB) {
     s32 count;
     s32 dir;
     f32 fracA;
@@ -175,9 +175,9 @@ f32 func_80027920(RaceActor *actorA, RaceCursor *curA, RaceActor *actorB, RaceCu
     s32 end;
 
     count = D_807F5FD4[curB->unk0 + 1] - D_807F5FD4[curB->unk0];
-    dir = func_800276B0(count, curA, curB);
-    fracA = func_80027710(count, actorA, curA);
-    fracB = func_80027710(count, actorB, curB);
+    dir = raceGetWaypointDiff(count, curA, curB);
+    fracA = raceGetWaypointSegmentFraction(count, actorA, curA);
+    fracB = raceGetWaypointSegmentFraction(count, actorB, curB);
     distA = raceGetPathDistance(count, curB->unk0, curA->unk2);
     distB = raceGetPathDistance(count, curB->unk0, curB->unk2);
     if (dir == 0) {
@@ -204,7 +204,7 @@ f32 func_80027920(RaceActor *actorA, RaceCursor *curA, RaceActor *actorB, RaceCu
 
 u32 randomLcgNext(void);
 
-void func_80027AF8(RaceCursor *cursor, s8 dir) {
+void raceChangeLaneRelative(RaceCursor *cursor, s8 dir) {
     if (dir > 0) {
         cursor->unk1++;
     } else {
@@ -213,7 +213,7 @@ void func_80027AF8(RaceCursor *cursor, s8 dir) {
     cursor->unk8 = 0.0f;
 }
 
-void func_80027B30(RaceCursor *cursor) {
+void raceChangeLaneRandom(RaceCursor *cursor) {
     switch (cursor->unk0) {
     case 0:
         cursor->unk1++;
@@ -254,7 +254,7 @@ extern void *D_80720120;
 void func_807149B8(s32);
 void func_80714C08(void *, f32, void *, s32, s32);
 
-void func_80027C60(void) {
+void raceTriggerBoostParticles(void) {
     s32 idx;
 
     for (idx = 1; idx < 3; idx++) {
@@ -265,14 +265,14 @@ void func_80027C60(void) {
 
 extern f32 D_8002FBD0[];
 extern u8 D_8002FC00[];
-f32 func_8002E1C8(RaceAux *, f32, f32 *, u8 *);
-void func_8002DE78(RaceAux *, s32, f32 *, u8 *);
+f32 raceEvaluateCurveTargetSpeed(RaceAux *, f32, f32 *, u8 *);
+void raceSetPiecewiseCurveMode(RaceAux *, s32, f32 *, u8 *);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(void *, u8);
 s32 spawnNodeHasActor(u8);
 void *spawnNodeActivate(s16, s32);
 
-void func_80027CE8(void) {
+void raceAiUpdateSpeedAndLane(void) {
     RaceState *state;
     RaceCursor *cursor;
     RaceActor *targetActor;
@@ -296,26 +296,26 @@ void func_80027CE8(void) {
     targetActor = cursor->unk30;
     targetCursor = targetActor->view.b.unk178;
     aux = gCurrentActor->view.a.unk184;
-    distToTarget = func_80027920(gCurrentActor, cursor, targetActor, targetCursor);
-    targetSpeed = func_8002E1C8(aux, distToTarget, D_8002FBD0, D_8002FC00);
+    distToTarget = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, targetActor, targetCursor);
+    targetSpeed = raceEvaluateCurveTargetSpeed(aux, distToTarget, D_8002FBD0, D_8002FC00);
     flag = (cursor->unk0 == cursor->unk1) && (cursor->unk4 == 0);
     if (aux->unkF != 0) {
         leaderActor = state->unk30;
         if (raceGetCompletionFraction(cursor, state, leaderActor->view.b.unk174) > 0.8) {
-            func_8002DE78(aux, 0, D_8002FBD0, D_8002FC00);
+            raceSetPiecewiseCurveMode(aux, 0, D_8002FBD0, D_8002FC00);
         }
     }
     switch (aux->unkF) {
     case 5:
-        func_80027C60();
+        raceTriggerBoostParticles();
     case 0:
     case 1:
         if (flag) {
             randVal = randomLcgNext();
             if ((D_8002FBD0[2] < distToTarget) && (distToTarget < D_8002FBD0[4]) && (cursor->unk0 != targetCursor->unk0) && ((u8)((randVal & 0xFF) < 0x14))) {
-                func_80027AF8(cursor, targetCursor->unk0 - cursor->unk0);
+                raceChangeLaneRelative(cursor, targetCursor->unk0 - cursor->unk0);
             } else if ((D_8002FBD0[6] < distToTarget) && (distToTarget < D_8002FBD0[8]) && (cursor->unk0 == targetCursor->unk0) && ((u8)((randVal & 0xFF) < 0x14))) {
-                func_80027B30(cursor);
+                raceChangeLaneRandom(cursor);
             }
             flag = (cursor->unk0 == cursor->unk1) && (cursor->unk4 == 0);
             if (flag) {
@@ -327,10 +327,10 @@ void func_80027CE8(void) {
                             competitorActor = spawnNodeActivate(nodeIndex, 0);
                             competitorCursor = competitorActor->view.b.unk178;
                             if (competitorCursor->unk0 == cursor->unk0) {
-                                competitorDist = func_80027920(gCurrentActor, cursor, competitorActor, competitorCursor);
+                                competitorDist = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, competitorActor, competitorCursor);
                                 if ((competitorDist > 20.0f) && (competitorDist < 300.0f)) {
                                     foundCompetitor = 1;
-                                    func_80027B30(cursor);
+                                    raceChangeLaneRandom(cursor);
                                 }
                             }
                         }
@@ -363,7 +363,7 @@ void func_80027CE8(void) {
 void rumbleRequest(s32, u8, s32, u8 *);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 
-void func_800280E8(RaceCursor *cursor) {
+void raceHandleCollisionRumble(RaceCursor *cursor) {
     RaceActor *v1;
     s32 pad[2];
     RaceAux *aux;
@@ -396,7 +396,7 @@ void func_800280E8(RaceCursor *cursor) {
 
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, u8, s32, s32, f32, s32);
 
-void func_800282D8(void) {
+void racePlayTireScreechSfx(void) {
     RaceState *state;
     RaceActor *targetActor;
     RaceState *targetState;
@@ -426,7 +426,7 @@ extern s16 D_80770628[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
 
-void func_800283D4(f32 moveSpeed) {
+void raceUpdateOpponentEnginePitch(f32 moveSpeed) {
     s16 idx;
 
     idx = D_80770628[gCurrentActor->unk6E[0]];
@@ -443,9 +443,9 @@ void behaviourFrameBegin(void);
 void actorClearNodeFlag(void *, s32);
 void actorUpdateModelMatrix(void *, s32);
 void racePathFollowStep(RaceCursor *, RaceState *, s32);
-void func_8002D72C(void *);
-void func_8002D754(void *);
-s32 func_8002E8EC(RaceState *, void *, s32);
+void raceSetIntroCutscenePhase(void *);
+void raceClearIntroCutscenePhase(void *);
+s32 raceCheckLapCompletionThreshold(RaceState *, void *, s32);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
 s32 flagGet(s32, s32);
@@ -461,7 +461,7 @@ void spawnNodeSpawnById(s16, s32, s32, s32, s32, s32, s32);
 f32 func_80612794(s16);
 s32 func_807142D8(void);
 
-void func_80028440(void) {
+void raceOpponentCarBehaviorUpdate(void) {
     s32 pad70[2];
     u8 *flagPtr;
     RaceAux *aux;
@@ -494,7 +494,7 @@ void func_80028440(void) {
         aux->unk14 = 0.0f;
         cursor->unk2 = raceGetPrevWaypointIndex(count, 0);
         aux->unk10 = 1;
-        func_8002DE78(aux, 5, D_8002FBD0, D_8002FC00);
+        raceSetPiecewiseCurveMode(aux, 5, D_8002FBD0, D_8002FC00);
         state->unk34 = 0;
         if ((flagGet(0x12, 2) == 0) && (flagGet(0x8B, 0) == 0) && (func_807142D8() == 0)) {
             camStartPath(gCurrentActor, 0, 1);
@@ -507,7 +507,7 @@ void func_80028440(void) {
         actorClearNodeFlag(gCurrentActor, 4);
     }
     if (D_807FBD70 == 4) {
-        func_800280E8(cursor);
+        raceHandleCollisionRumble(cursor);
     } else if (D_807FBD70 == 5) {
         cursor->unk39 = 0x1E;
         cursor->unk20 = 0.0f;
@@ -524,10 +524,10 @@ void func_80028440(void) {
             cursor->unk20 = 0.0f;
         }
     } else if ((state->unk34 >= 2) && (state->unk34 < 4)) {
-        func_80027CE8();
+        raceAiUpdateSpeedAndLane();
     }
     if (state->unk34 == 1) {
-        func_800282D8();
+        racePlayTireScreechSfx();
     }
     if (state->unk34 < 5) {
         racePathFollowStep(cursor, state, 1);
@@ -535,7 +535,7 @@ void func_80028440(void) {
     } else {
         gCurrentActor->unkB8 = 0.0f;
     }
-    func_800283D4(gCurrentActor->unkB8);
+    raceUpdateOpponentEnginePitch(gCurrentActor->unkB8);
     if (state->unk34 == 0) {
         phase = state->unk35;
         statePhase = state->unk35;
@@ -563,9 +563,9 @@ void func_80028440(void) {
             break;
         }
         if (phase < 3) {
-            func_8002D72C(targetActor);
+            raceSetIntroCutscenePhase(targetActor);
         } else {
-            func_8002D754(targetActor);
+            raceClearIntroCutscenePhase(targetActor);
             idx = 2;
             do {
                 spawnNodeSpawnById(idx, 0, 0, 0, 0, 0, 0);
@@ -575,7 +575,7 @@ void func_80028440(void) {
     } else if (state->unk34 == 4) {
         if (state->unk35 == 0) {
             if (flagGet(0x8B, 0) == 0) {
-                cam = D_8002FC0C[func_8002E8EC(state, aux->unk4, 0xA)];
+                cam = D_8002FC0C[raceCheckLapCompletionThreshold(state, aux->unk4, 0xA)];
                 camStartPath(gCurrentActor, cam, 1);
                 currentActorClearFlag();
             } else {
@@ -648,7 +648,7 @@ typedef struct {
 extern RaceBStructPlayer *gPlayerSlots;
 void camSetFixedView(void *, f32, f32, f32, f32, f32, f32, s32);
 
-void func_80028AD0(void) {
+void raceCameraBehaviorUpdate(void) {
     s32 pad54[3];
     RaceActor *targetActor;
     RaceState *targetState;
@@ -690,7 +690,7 @@ void func_80028AD0(void) {
         state->unk34 = tgtStateMode;
         state->unk35 = 0;
     }
-    dist = func_80027920(gCurrentActor, cursor, targetActor, targetCursor);
+    dist = raceGetPathDistanceBetweenRacers(gCurrentActor, cursor, targetActor, targetCursor);
     distToTarget = dist;
     tgtCursorSub = targetCursor->unk1;
     if (cursor->unk1 != tgtCursorSub) {
@@ -778,7 +778,7 @@ void func_8067E278(s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void commandQueuePush(void *, s16, s16, s16, s32, s32, s32, s32, s32);
 
-void func_80029054(void) {
+void raceObstacleCarBehaviorUpdate(void) {
     RaceActor *targetActor;
     RaceCursor *cursor;
     RaceState *state;

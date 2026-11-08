@@ -1,9 +1,9 @@
 #include "common.h"
 
 extern s32 D_8002FC5C[];
-void func_8002CAC8(s32, void *, void *);
-void func_8002D0B0(void);
-s32 func_8002E8EC(s32, s32, s32);
+void raceRenderHud(s32, void *, void *);
+void raceInitCompetitorRaceManager(void);
+s32 raceCheckLapCompletionThreshold(s32, s32, s32);
 
 typedef struct {
     u8 pad0[0x4];
@@ -92,18 +92,18 @@ typedef struct {
 extern u8 gPlayerCount;
 extern void *gCurrentActor;
 extern RaceC_Actor *gSpawnedActor;
-void func_8002BBD0(void *, s32);
+void raceInitParticipantArray(void *, s32);
 void actorSpawn(s32, s32);
-void func_8002BC2C(void *, s32, void *, void *);
+void raceRegisterParticipant(void *, s32, void *, void *);
 RaceC_Actor *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
-void func_8002BCB0(void *, s32, void *, void *);
+void raceGetParticipantPair(void *, s32, void *, void *);
 void actorInitFromSpawnPoint(void *, void *);
 
-void func_800292B0(s32 renderContext, RaceC_Actor *actor) {
-    func_8002CAC8(renderContext, actor, actor->unk174);
+void raceRacerRenderCallback(s32 renderContext, RaceC_Actor *actor) {
+    raceRenderHud(renderContext, actor, actor->unk174);
 }
 
-void func_800292D0(RaceC_Actor *actor) {
+void raceSpawnCompetitors(RaceC_Actor *actor) {
     RaceC_State *managerState;
     RaceC_State *racerState;
     RaceC_Actor *spawnedActor;
@@ -117,13 +117,13 @@ void func_800292D0(RaceC_Actor *actor) {
     if (numCompetitors == 1) {
         numCompetitors++;
     }
-    func_8002BBD0(actor, numCompetitors);
+    raceInitParticipantArray(actor, numCompetitors);
     for (i = 0; i < gPlayerCount; i++) {
         actorSpawn(0x133, 0x9F);
         spawnedActor = gSpawnedActor;
         racerState = spawnedActor->unk174;
         racerState->unk27 = 0;
-        func_8002BC2C(actor, slotIndex, spawnedActor, racerState);
+        raceRegisterParticipant(actor, slotIndex, spawnedActor, racerState);
         slotIndex++;
         racerState->unk28 = i;
     }
@@ -132,15 +132,15 @@ void func_800292D0(RaceC_Actor *actor) {
         spawnedActor = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         racerState = spawnedActor->unk178;
         racerState->unk27 = 1;
-        func_8002BC2C(actor, slotIndex, spawnedActor, racerState);
-        func_8002BCB0(actor, 0, spawnedActor->unk180, &spawnedActor->unk180->unk4);
+        raceRegisterParticipant(actor, slotIndex, spawnedActor, racerState);
+        raceGetParticipantPair(actor, 0, spawnedActor->unk180, &spawnedActor->unk180->unk4);
         managerState->unk25 = 1;
     } else {
         managerState->unk25 = 0;
     }
     if (numCompetitors > 0) {
         do {
-            func_8002BCB0(actor, i, &spawnedActor, &racerState);
+            raceGetParticipantPair(actor, i, &spawnedActor, &racerState);
             racerState->unk36 = i;
             racerState->unk30 = actor;
             if (racerState->unk27 == 0) {
@@ -152,8 +152,8 @@ void func_800292D0(RaceC_Actor *actor) {
     managerState->unk26 = 0;
 }
 
-void func_80029488(void) {
-    func_8002D0B0();
+void raceInitCompetitorsAndManager(void) {
+    raceInitCompetitorRaceManager();
 }
 
 extern RaceC_Player *gPlayerSlots;
@@ -163,7 +163,7 @@ void func_80690190(void *, void *);
 void slotQueueUpdate(s32, s32, s32);
 void slotQueueCancel(s32, s32);
 void camSetTargetScaled(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-f32 func_8002D2C0(void *);
+f32 raceGetHandicapSpeedBonus(void *);
 void func_8068F72C(void *, void *, s32, s32);
 s32 func_807142D8(void);
 void renderCallbacksRegister(void *, void *, s32);
@@ -171,7 +171,7 @@ void sfxStopSlotSound(void *, u8);
 void actorInterpolateAngles(u8, void *, void *);
 void actorUpdateModelMatrix(void *, s32);
 
-void func_800294A8(void) {
+void raceCompetitorMotionUpdate(void) {
     s32 v34;
     RaceC_State *nextState;
     RaceC_State *s4;
@@ -209,7 +209,7 @@ void func_800294A8(void) {
         }
         if (s4->unk34 == 2) {
             if (s4->unk26 != 0) {
-                s4->unk4 = func_8002D2C0(s4) * 2;
+                s4->unk4 = raceGetHandicapSpeedBonus(s4) * 2;
                 if (s4->unk4 > 1.0) {
                     s4->unk25 = 0x14;
                 }
@@ -221,7 +221,7 @@ void func_800294A8(void) {
         }
         func_8068F72C(s4, nextState, 1, 1);
         if (func_807142D8() == 0) {
-            renderCallbacksRegister(func_800292B0, gCurrentActor, 3);
+            renderCallbacksRegister(raceRacerRenderCallback, gCurrentActor, 3);
         }
     } else if (v34 == 5 && s4->unk35 == 0) {
         RC_A->unk60 &= ~4;
@@ -276,13 +276,13 @@ extern u8 D_8002FC50[];
 extern f32 D_8002FC30;
 
 void actorScriptStart(void *, s32);
-void func_8002DE78(void *, s32, void *, void *);
+void raceSetPiecewiseCurveMode(void *, s32, void *, void *);
 
 extern f32 D_8002FC28;
 extern f32 D_8002FC58;
-f32 func_8002DF38(void *, f32, void *, void *);
+f32 raceEvaluateCurveWithRubberband(void *, f32, void *, void *);
 void *raceGetRoute(u8);
-f32 func_8002F784(void *, void *, void *);
+f32 raceGetPathDistanceBetweenTrackers(void *, void *, void *);
 f32 raceGetProgressPercent(void *, void *, void *);
 s32 randomLcgNext(void);
 s16 mathAngleSignedDistance(s16, s16);
@@ -352,7 +352,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
     tmp = s0->unk30;
     managerState = tmp->unk174;
     route = raceGetRoute(managerState->unk26);
-    leadDistance = func_8002F784(route, s0, targetView->unk4);
+    leadDistance = raceGetPathDistanceBetweenTrackers(route, s0, targetView->unk4);
     targetSpeed = 0.0f;
     subFlag = RC_A->unk6A & 1;
     prevSubPhase = s0->unk35;
@@ -369,7 +369,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
                 if (leadDistance < 0.0f) {
                     actorScriptStart(gCurrentActor, 0x29E);
                     if (targetView->unkF >= 2) {
-                        func_8002DE78(targetView, 1, D_8002FC20, D_8002FC50);
+                        raceSetPiecewiseCurveMode(targetView, 1, D_8002FC20, D_8002FC50);
                     }
                     s0->unk35 = 1;
                 }
@@ -393,7 +393,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
         return leadDistance;
     }
     if (targetView->unkF != 0 && raceGetProgressPercent(route, s0, managerState) > 0.75) {
-        func_8002DE78(targetView, 0, D_8002FC20, D_8002FC50);
+        raceSetPiecewiseCurveMode(targetView, 0, D_8002FC20, D_8002FC50);
     }
     switch (targetView->unkF) {
         case 0:
@@ -439,7 +439,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
                     ang = ang & 0xFFF;
                     break;
                 case 4:
-                    func_8002DE78(targetView, 5, D_8002FC20, D_8002FC50);
+                    raceSetPiecewiseCurveMode(targetView, 5, D_8002FC20, D_8002FC50);
                     s0->unk2 = 0;
                     break;
             }
@@ -448,7 +448,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
     }
     if (targetSpeed == 0.0f) {
         prevTargetState = targetView->unkF;
-        targetSpeed = func_8002DF38(targetView, leadDistance, D_8002FC20, D_8002FC50);
+        targetSpeed = raceEvaluateCurveWithRubberband(targetView, leadDistance, D_8002FC20, D_8002FC50);
         if (prevTargetState == 2 && targetView->unkF == 3) {
             actorScriptStart(gCurrentActor, 0x2A0);
         }
@@ -488,7 +488,7 @@ typedef struct {
 
 void scriptSetActorRampTarget(void *, f32, f32);
 
-void func_80029F88(RaceC_Holder *actorHolder, void *racerState, f32 relSpeed, f32 leadDelta, f32 targetDist) {
+void raceAdjustRubberbandTargetSpeed(RaceC_Holder *actorHolder, void *racerState, f32 relSpeed, f32 leadDelta, f32 targetDist) {
     RaceC_Inner *v;
     f32 a;
     f32 b;
@@ -514,8 +514,8 @@ void func_80029F88(RaceC_Holder *actorHolder, void *racerState, f32 relSpeed, f3
     }
 }
 
-s32 func_8002A080(s32 state, s32 index) {
-    return D_8002FC5C[func_8002E8EC(state, index, 10)];
+s32 raceGetFinishCutsceneCam(s32 state, s32 index) {
+    return D_8002FC5C[raceCheckLapCompletionThreshold(state, index, 10)];
 }
 
 void behaviourFrameBegin(void);
@@ -527,7 +527,7 @@ s32 currentActorTestClearFlag(void);
 s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
 f32 raceRacerSteerTowardWaypoint(void);
-void func_8002E644(void *);
+void raceHandleRacerCollision(void *);
 void func_805FF544(void);
 void csModelStateSetFirstByte(s32, s32);
 void func_8070D8C0(void *, s32, s32);
@@ -535,7 +535,7 @@ void func_8072881C(s32, void *);
 void hudSpawnTextScreen(s32);
 void playerStateQueueCallback(s32, s32, s32);
 
-void func_8002A0AC(void) {
+void raceOpponentRacerBehaviorUpdate(void) {
     RaceC_State *s0;
     void *racerData;
     RaceC_Target *targetView;
@@ -560,7 +560,7 @@ void func_8002A0AC(void) {
         s0->unk10 = 1.0f;
         RC_A->unk60 &= 0xFFFDFFFE;
         RC_A->unk12A = 0x5DC;
-        func_8002DE78(targetView, 5, D_8002FC20, D_8002FC50);
+        raceSetPiecewiseCurveMode(targetView, 5, D_8002FC20, D_8002FC50);
         s0->unk34 = 0;
         camRequestPathLength();
         v = camStartPath(gCurrentActor, 1, 1) - 0x3C;
@@ -580,7 +580,7 @@ void func_8002A0AC(void) {
     if (s0->unk34 < 5) {
         leadDistance = raceRacerSteerTowardWaypoint();
         if (s0->unk34 == 2) {
-            func_8002E644(targetView);
+            raceHandleRacerCollision(targetView);
         } else if (s0->unk34 == 4 && targetView->unk8 == 0) {
             targetView->unk8 = 1;
             if (flagGet(0xA5, 0) == 0) {
@@ -606,7 +606,7 @@ void func_8002A0AC(void) {
             if (currentActorTestClearFlag() != 0) {
                 finishPlacement = targetView->unk4;
                 currentActorClearFlag();
-                func_8070D8C0(gCurrentActor, 0x12, func_8002A080((s32)s0, finishPlacement) & 0xFF);
+                func_8070D8C0(gCurrentActor, 0x12, raceGetFinishCutsceneCam((s32)s0, finishPlacement) & 0xFF);
                 s0->unk35 += 1;
             }
             break;
@@ -619,7 +619,7 @@ void func_8002A0AC(void) {
         case 3:
             if (currentActorTestClearFlag() != 0) {
                 raceResult = targetView->unk4;
-                raceResult = func_8002A080((s32)s0, raceResult);
+                raceResult = raceGetFinishCutsceneCam((s32)s0, raceResult);
                 currentActorClearFlag();
                 if (raceResult == 0) {
                     csModelStateSetFirstByte(0x3B, 0xA);
@@ -649,7 +649,7 @@ void func_8002A0AC(void) {
         break;
     case 0x2A0:
         if (RC_A->unk4->unk0->unk10 == 0x4A7) {
-            func_80029F88(gCurrentActor, s0, RC_A->unkB8 - targetView->unk0->unkB8, (leadDistance - D_8002FC30) * 40.0f, 23.0f);
+            raceAdjustRubberbandTargetSpeed(gCurrentActor, s0, RC_A->unkB8 - targetView->unk0->unkB8, (leadDistance - D_8002FC30) * 40.0f, 23.0f);
             break;
         }
     default:

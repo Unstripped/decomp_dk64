@@ -95,18 +95,18 @@ typedef struct {
 extern Actor_BB40 *gCurrentActor;
 
 void behaviourFrameBegin(void);
-void func_8002DE78(void *, s32, void *, void *);
+void raceSetPiecewiseCurveMode(void *, s32, void *, void *);
 void actorOrNodeFlags(void *, s32, s32);
-void func_8002E644(void *);
+void raceHandleRacerCollision(void *);
 typedef struct {
     char pad[0x4];
     void *unk4;
     char pad8[0xF - 0x8];
     u8 unkF;
 } Struct_8002B180_Arg1;
-void func_8002B180(Struct_sp58 *racerState, Struct_8002B180_Arg1 *aux);
+void raceSteerTowardTargetWaypoint(Struct_sp58 *racerState, Struct_8002B180_Arg1 *aux);
 void raceUpdateRacerMotion(Struct_sp58 *racerState);
-void func_800283D4(f32);
+void raceUpdateOpponentEnginePitch(f32);
 void actorUpdateModelMatrix(void *, s32);
 extern void *D_8002FC70;
 extern void *D_8002FCA0;
@@ -119,8 +119,8 @@ void func_8070D8C0(Actor_BB40 *, s32, s32);
 void csModelStateSetFirstByte(s32, s32);
 void flagSet(s32, s32, s32);
 void hudSpawnTextScreen(s32);
-void func_80026CA8(void);
-void func_80026D2C(f32);
+void racePlayEngineSfx(void);
+void raceUpdateEngineSoundPitch(f32);
 void actorSpawnNodeEffectFacingCamera(s32, u8);
 void slotQueueUpdate(s32, s32, s32);
 void slotQueueCancel(s32, s32);
@@ -162,11 +162,11 @@ extern Struct_DC9C *D_807FDC9C;
 extern Struct_FDCA0 *D_807FDCA0;
 
 s32 raceGetRoute(u8);
-f32 func_8002F784(s32, Struct_sp58 *, void *);
+f32 raceGetPathDistanceBetweenTrackers(s32, Struct_sp58 *, void *);
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 s16 mathAngleSignedDistance(s16, s16);
 f32 raceGetProgressPercent(s32, Struct_sp58 *, Struct_sp5C *);
-f32 func_8002E1C8(void *, f32, void *, void *);
+f32 raceEvaluateCurveTargetSpeed(void *, f32, void *, void *);
 extern s32 D_807FBB64;
 f32 func_80612794(s16);
 f32 func_80612790(s16);
@@ -176,7 +176,7 @@ s16 mathAngleEaseToward(s16, s16, f32, s16);
 void actorStepPhysics(Actor_BB40 *, s16, s16);
 void actorApplyVelocity(Actor_BB40 *);
 void actorUpdateFloorContactAndTilt(Actor_BB40 *, f32);
-void func_8002F490(Struct_sp58 *);
+void raceUpdateLapAndWaypointTracker(Struct_sp58 *);
 typedef struct {
     char pad[0x104];
     void *unk104;
@@ -206,19 +206,19 @@ typedef struct {
 } Struct_8002B610_Arg1;
 
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void func_800282D8(void);
+void racePlayTireScreechSfx(void);
 
-void func_8002D72C(void *);
-void func_8002D754(void *);
+void raceSetIntroCutscenePhase(void *);
+void raceClearIntroCutscenePhase(void *);
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
 void camResumePath(void);
 
-void func_8002BBD0(void *, s32);
+void raceInitParticipantArray(void *, s32);
 void actorSpawn(s32, s32);
-void func_8002BC2C(void *, s32, void *, void *);
+void raceRegisterParticipant(void *, s32, void *, void *);
 void *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
-void func_8002BCB0(void *, s32, void *, void *);
+void raceGetParticipantPair(void *, s32, void *, void *);
 void actorInitFromSpawnPoint(void *, void *);
 
 void raceInitParticipants(Struct_arg0 *raceMgr) {
@@ -235,13 +235,13 @@ void raceInitParticipants(Struct_arg0 *raceMgr) {
     if (numParticipants == 1) {
         numParticipants++;
     }
-    func_8002BBD0(raceMgr, numParticipants);
+    raceInitParticipantArray(raceMgr, numParticipants);
     for (i = 0; i < gPlayerCount; i++) {
         actorSpawn(0x142, 0x95);
         racerActor = gSpawnedActor;
         racerState = racerActor->unk174;
         racerState->unk27 = 0;
-        func_8002BC2C(raceMgr, participantIndex, racerActor, racerState);
+        raceRegisterParticipant(raceMgr, participantIndex, racerActor, racerState);
         participantIndex++;
         racerState->unk28 = i;
     }
@@ -250,15 +250,15 @@ void raceInitParticipants(Struct_arg0 *raceMgr) {
         racerActor = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         racerState = racerActor->unk178;
         racerState->unk27 = 1;
-        func_8002BC2C(raceMgr, participantIndex, racerActor, racerState);
-        func_8002BCB0(raceMgr, 0, racerActor->unk17C, (u8 *)racerActor->unk17C + 4);
+        raceRegisterParticipant(raceMgr, participantIndex, racerActor, racerState);
+        raceGetParticipantPair(raceMgr, 0, racerActor->unk17C, (u8 *)racerActor->unk17C + 4);
         cursor->unk25 = 1;
     } else {
         cursor->unk25 = 0;
     }
     if (numParticipants > 0) {
         do {
-            func_8002BCB0(raceMgr, i, &racerActor, &racerState);
+            raceGetParticipantPair(raceMgr, i, &racerActor, &racerState);
             racerState->unk36 = i;
             racerState->unk30 = raceMgr;
             actorInitFromSpawnPoint(racerActor, racerState);
@@ -396,18 +396,18 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (D_807FBB64 & 0x2000) {
-        func_8002F490(racerState);
+        raceUpdateLapAndWaypointTracker(racerState);
     }
 }
 
-s32 func_8002CAC8(void *, void *, void *);
+s32 raceRenderHud(void *, void *, void *);
 void actorDrawAnimatedEffect(s32, void *);
 
-void func_8002AE6C(void *glist, Actor_BB40 *actor) {
-    actorDrawAnimatedEffect(func_8002CAC8(glist, actor, actor->unk174), actor);
+void raceParticleRenderCallback(void *glist, Actor_BB40 *actor) {
+    actorDrawAnimatedEffect(raceRenderHud(glist, actor, actor->unk174), actor);
 }
 
-void func_8002AE9C(void) {
+void raceParticipantMotionUpdate(void) {
     Actor_BB40 *actor;
     Struct_sp58 *racerState;
     s32 i;
@@ -429,7 +429,7 @@ void func_8002AE9C(void) {
         }
         racerState->unk44 = 5;
         actorOrNodeFlags(gCurrentActor, 2, 8);
-        func_80026CA8();
+        racePlayEngineSfx();
     }
     switch (racerState->unk34) {
         case 1:
@@ -441,7 +441,7 @@ void func_8002AE9C(void) {
         case 2:
         case 3:
         case 4:
-            func_80026D2C(gCurrentActor->unkB8 * 0.0307692308f);
+            raceUpdateEngineSoundPitch(gCurrentActor->unkB8 * 0.0307692308f);
             raceUpdateRacerMotion(racerState);
             break;
         case 5:
@@ -472,13 +472,13 @@ void func_8002AE9C(void) {
     }
     if (racerState->unk34 > 0 && racerState->unk34 < 5) {
         func_806F4D70(racerState->unk28, actor->unk7C, actor->unk80, actor->unk84, actor->unk4->unk34[1] / 0.15 * 40.0);
-        renderCallbacksRegister(func_8002AE6C, gCurrentActor, 3);
+        renderCallbacksRegister(raceParticleRenderCallback, gCurrentActor, 3);
     }
     actor = gCurrentActor;
     actorUpdateModelMatrix(actor, 0);
 }
 
-void func_8002B180(Struct_sp58 *racerState, Struct_8002B180_Arg1 *aux) {
+void raceSteerTowardTargetWaypoint(Struct_sp58 *racerState, Struct_8002B180_Arg1 *aux) {
     f32 steerAngle;
     f32 waypointRadius;
     f32 angleDelta;
@@ -498,7 +498,7 @@ void func_8002B180(Struct_sp58 *racerState, Struct_8002B180_Arg1 *aux) {
     pad = racerState->unk30;
     cursor = pad->unk174;
     routeIndex = raceGetRoute(cursor->unk26);
-    targetSpeed = func_8002F784(routeIndex, racerState, aux->unk4);
+    targetSpeed = raceGetPathDistanceBetweenTrackers(routeIndex, racerState, aux->unk4);
     idx = D_807FDC98->unk20[D_807FDC90->unk25 * 2];
     waypoint = &D_807FDCA0->unk14[idx];
     dx = (f32)waypoint->unk0 - gCurrentActor->unk7C;
@@ -529,16 +529,16 @@ void func_8002B180(Struct_sp58 *racerState, Struct_8002B180_Arg1 *aux) {
     racerState->unkC += ((steerAngle * 0.0033333334f) - racerState->unkC) * 0.5f;
     if (racerState->unk34 >= 2 && racerState->unk34 < 5) {
         if (aux->unkF != 0 && raceGetProgressPercent(routeIndex, racerState, cursor) > 0.75) {
-            func_8002DE78(aux, 0, &D_8002FC70, &D_8002FCA0);
+            raceSetPiecewiseCurveMode(aux, 0, &D_8002FC70, &D_8002FCA0);
         }
-        targetVel = func_8002E1C8(aux, targetSpeed, &D_8002FC70, &D_8002FCA0);
+        targetVel = raceEvaluateCurveTargetSpeed(aux, targetSpeed, &D_8002FC70, &D_8002FCA0);
         gCurrentActor->unkB8 = (gCurrentActor->unkB8 < 650.0f) ? gCurrentActor->unkB8 : 650.0f;
         racerState->unk4 = targetVel;
     }
 }
 
 
-void func_8002B518(Struct_sp58 *racerState) {
+void raceUpdateCountdownState(Struct_sp58 *racerState) {
     switch (racerState->unk35) {
         case 0:
             if (gCurrentActor->unk60 & 0x2000000) {
@@ -559,13 +559,13 @@ void func_8002B518(Struct_sp58 *racerState) {
             break;
     }
     if (racerState->unk35 < 3) {
-        func_8002D72C(racerState->unk30);
+        raceSetIntroCutscenePhase(racerState->unk30);
     } else {
-        func_8002D754(racerState->unk30);
+        raceClearIntroCutscenePhase(racerState->unk30);
     }
 }
 
-void func_8002B610(Struct_sp58 *racerState, Struct_8002B610_Arg1 *aux) {
+void racePlayIntroCameraCutscene(Struct_sp58 *racerState, Struct_8002B610_Arg1 *aux) {
     if (racerState->unk35 == 0) {
         Struct_8002B610_Sub *sub = aux->unk4;
         Struct_PlayerActor *actor = gPlayerSlots[sub->unk28].unk4;
@@ -573,14 +573,14 @@ void func_8002B610(Struct_sp58 *racerState, Struct_8002B610_Arg1 *aux) {
         camSetTargetScaled(unk174->unk104, aux->unk0, 4, 0x800, 0xBE, 0, 0x4A, 0xAE, 0x2D, 0, 0.2f);
         racerState->unk35++;
     }
-    func_800282D8();
+    racePlayTireScreechSfx();
 }
 
 extern s32 D_8002FCAC[];
-s32 func_8002E8EC(void *, void *, s32);
+s32 raceCheckLapCompletionThreshold(void *, void *, s32);
 
-s32 func_8002B6C8(void *racerState, void *aux) {
-    return D_8002FCAC[func_8002E8EC(racerState, aux, 10)];
+s32 raceGetFinishCameraId(void *racerState, void *aux) {
+    return D_8002FCAC[raceCheckLapCompletionThreshold(racerState, aux, 10)];
 }
 
 
@@ -589,7 +589,7 @@ void camStartPath(void *, s32, s32);
 void currentActorClearFlag(void);
 void func_805FF544(void);
 
-void func_8002B6F4(Struct_sp58 *racerState, void *aux) {
+void raceFinishCameraCutscene(Struct_sp58 *racerState, void *aux) {
     if (racerState->unk35 == 0) {
         if (flagGet(0x145, 0) == 0) {
             camStartPath(gCurrentActor, 1, 1);
@@ -601,7 +601,7 @@ void func_8002B6F4(Struct_sp58 *racerState, void *aux) {
     }
 }
 
-void func_8002B76C(Struct_sp58 *racerState, void *aux) {
+void raceHandlePostRaceFinished(Struct_sp58 *racerState, void *aux) {
     s32 i;
     s32 var;
 
@@ -622,7 +622,7 @@ void func_8002B76C(Struct_sp58 *racerState, void *aux) {
         case 1:
             if (currentActorTestClearFlag()) {
                 currentActorClearFlag();
-                func_8070D8C0(gCurrentActor, 0x22, (u8)func_8002B6C8(racerState, aux));
+                func_8070D8C0(gCurrentActor, 0x22, (u8)raceGetFinishCameraId(racerState, aux));
                 racerState->unk35++;
             }
             break;
@@ -634,7 +634,7 @@ void func_8002B76C(Struct_sp58 *racerState, void *aux) {
             break;
         case 3:
             if (currentActorTestClearFlag()) {
-                var = func_8002B6C8(racerState, aux);
+                var = raceGetFinishCameraId(racerState, aux);
                 currentActorClearFlag();
                 if (var == 0) {
                     csModelStateSetFirstByte(1, 0xA);
@@ -656,7 +656,7 @@ void func_8002B76C(Struct_sp58 *racerState, void *aux) {
     }
 }
 
-void func_8002B964(void) {
+void raceOpponentRacerMotionUpdate(void) {
     Struct_sp58 *racerState;
     Struct_sp20 *aux;
     s32 i;
@@ -666,7 +666,7 @@ void func_8002B964(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->unk60 & 0x10)) {
         aux->unk10 = 1;
-        func_8002DE78(aux, 5, &D_8002FC70, &D_8002FCA0);
+        raceSetPiecewiseCurveMode(aux, 5, &D_8002FC70, &D_8002FCA0);
         gCurrentActor->unk144 = 0x3C;
         gCurrentActor->unk60 &= 0xFFFDFFFE;
         racerState->unk10 = 1.0f;
@@ -685,23 +685,23 @@ void func_8002B964(void) {
     }
     switch (racerState->unk34) {
         case 0:
-            func_8002B518(racerState);
+            raceUpdateCountdownState(racerState);
             break;
         case 1:
-            func_8002B610(racerState, (Struct_8002B610_Arg1 *)aux);
+            racePlayIntroCameraCutscene(racerState, (Struct_8002B610_Arg1 *)aux);
             break;
         case 4:
-            func_8002B6F4(racerState, aux->unk4);
+            raceFinishCameraCutscene(racerState, aux->unk4);
             break;
         case 5:
-            func_8002B76C(racerState, aux->unk4);
+            raceHandlePostRaceFinished(racerState, aux->unk4);
             break;
     }
     if (racerState->unk34 < 5) {
-        func_8002E644(aux);
-        func_8002B180(racerState, (Struct_8002B180_Arg1 *)aux);
+        raceHandleRacerCollision(aux);
+        raceSteerTowardTargetWaypoint(racerState, (Struct_8002B180_Arg1 *)aux);
         raceUpdateRacerMotion(racerState);
-        func_800283D4(gCurrentActor->unkB8 * 0.0307692308f);
+        raceUpdateOpponentEnginePitch(gCurrentActor->unkB8 * 0.0307692308f);
     } else {
         gCurrentActor->unkB8 = 0.0f;
     }

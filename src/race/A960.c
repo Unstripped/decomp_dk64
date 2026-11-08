@@ -123,7 +123,7 @@ RaceWaypoint *raceGetWaypoint(u8 idx) {
 void *memcpy(void *, const void *, unsigned int);
 void *heapAlloc(s32);
 void heapClearBlock(void *);
-void func_8002EDD4(RaceWaypoint *node);
+void raceInitGateActors(RaceWaypoint *node);
 
 void raceLoadRouteData(u8 *data) {
     u8 *src;
@@ -158,7 +158,7 @@ void raceLoadRouteData(u8 *data) {
         for (m = 0; m < D_8002FCF0->count2; m++) {
             memcpy(node, src, 0x1C);
             src += 0x1C;
-            func_8002EDD4(node);
+            raceInitGateActors(node);
             node++;
         }
         ent = D_8002FCF0->items;
@@ -175,13 +175,13 @@ void raceLoadRouteData(u8 *data) {
 }
 
 u8 *assetLoad(s32, s32, s32, s32);
-void func_80025FDC(void);
-void func_80029488(void);
-void func_8002D0FC(void);
-void func_8002D064(void);
+void raceInitSplineAndOpponent(void);
+void raceInitCompetitorsAndManager(void);
+void raceInitBeetleRaceManager(void);
+void raceInitGenericRaceManager(void);
 extern s16 D_80750AC4;
 
-void func_8002EC08(s32 routeAssetId) {
+void raceInitRoute(s32 routeAssetId) {
     u8 *assetData;
 
     assetData = assetLoad(0x18, routeAssetId, 1, 1);
@@ -190,17 +190,17 @@ void func_8002EC08(s32 routeAssetId) {
     raceLoadRouteData(assetData);
     switch (routeAssetId) {
         case 0x1B:
-            func_80025FDC();
+            raceInitSplineAndOpponent();
             break;
         case 0x27:
-            func_80029488();
+            raceInitCompetitorsAndManager();
             break;
         case 0xE:
         case 0x52:
-            func_8002D0FC();
+            raceInitBeetleRaceManager();
             break;
         case 0xB9:
-            func_8002D064();
+            raceInitGenericRaceManager();
             break;
     }
     D_80750AC4 = 0;
@@ -215,7 +215,7 @@ void raceScaleVelocity(RaceActor *actor, f32 scaleFactor) {
 void actorSpawn(s32, s32);
 void actorScriptStart(void *, s32);
 
-void func_8002ED04(f32 scaleFactor, s32 kind, u8 mode) {
+void raceSpawnGateActor(f32 scaleFactor, s32 kind, u8 mode) {
     RaceActorState *actorState;
 
     switch (kind) {
@@ -237,7 +237,7 @@ void func_8002ED04(f32 scaleFactor, s32 kind, u8 mode) {
     actorState->unk0 = kind;
 }
 
-void func_8002EDD4(RaceWaypoint *node) {
+void raceInitGateActors(RaceWaypoint *node) {
     f32 mA[4][4];
     f32 mB[4][4];
     f32 pad[5];
@@ -249,7 +249,7 @@ void func_8002EDD4(RaceWaypoint *node) {
         if (node->mode == 2) {
             xoff = (f32)node->width * 0.5f;
             for (i = 0; i < 2; i++) {
-                func_8002ED04(node->unk14, node->kind, i ^ 1);
+                raceSpawnGateActor(node->unk14, node->kind, i ^ 1);
                 j = i;
                 node->actors[j] = gSpawnedActor;
                 gSpawnedActor->angle = (node->angle + 0x800) & 0xFFF;
@@ -262,7 +262,7 @@ void func_8002EDD4(RaceWaypoint *node) {
                 guMtxXFMF(mA, xoff, 0.0f, 0.0f, &gSpawnedActor->x, &gSpawnedActor->y, &gSpawnedActor->z);
             }
         } else {
-            func_8002ED04(node->unk14, node->kind, node->mode == 1);
+            raceSpawnGateActor(node->unk14, node->kind, node->mode == 1);
             node->actors[0] = gSpawnedActor;
             gSpawnedActor->angle = (node->angle + 0x800) & 0xFFF;
             gSpawnedActor->x = node->x;
@@ -283,7 +283,7 @@ f32 raceLineIntersectParam(f32 x1, f32 y1, f32 dx1, f32 dy1, f32 x2, f32 y2, f32
     return r;
 }
 
-u8 func_8002F0AC(RaceWaypoint *node) {
+u8 raceCheckGateCrossed(RaceWaypoint *node) {
     f32 gateDx;
     f32 gateDz;
     f32 dx;
@@ -351,16 +351,16 @@ u8 raceIsFacingWaypoint(RaceWaypoint *node) {
     return mathAngleDistance(angle, node->angle) < 0x400;
 }
 
-f32 func_8002F304(RaceWaypoint *node, f32 x, f32 z) {
+f32 raceGetNormalDistanceToWaypoint(RaceWaypoint *node, f32 x, f32 z) {
     f32 normZ = node->unkC;
     f32 normX = node->unk8;
 
     return raceLineIntersectParam((f32)node->x, (f32)node->z, -normZ, normX, x, z, normX, normZ);
 }
 
-void func_8002DCF0(RaceWaypoint *node, s32 state);
+void raceSetGateVisualState(RaceWaypoint *node, s32 state);
 
-void func_8002F36C(RaceTracker *tracker, RaceRoute *route) {
+void raceActivateNextGate(RaceTracker *tracker, RaceRoute *route) {
     RaceWaypoint *node;
 
     if (route->active != 0) {
@@ -371,16 +371,16 @@ void func_8002F36C(RaceTracker *tracker, RaceRoute *route) {
             val = route->items[tracker->unk3C];
             node = raceGetWaypoint(val);
         } while (node->kind == 0);
-        func_8002DCF0(node, 1);
+        raceSetGateVisualState(node, 1);
     }
 }
 
-void func_8002F420(RaceTracker *tracker, RaceRoute *route) {
+void raceAdvanceActiveGate(RaceTracker *tracker, RaceRoute *route) {
     if (route->active != 0) {
         if (tracker->unk3C == tracker->unk3A) {
             u16 val = route->items[tracker->unk3C];
-            func_8002DCF0(raceGetWaypoint(val), 0);
-            func_8002F36C(tracker, route);
+            raceSetGateVisualState(raceGetWaypoint(val), 0);
+            raceActivateNextGate(tracker, route);
         }
     }
 }
@@ -389,7 +389,7 @@ f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
-void func_8002F490(RaceTracker *tracker) {
+void raceUpdateLapAndWaypointTracker(RaceTracker *tracker) {
     RaceActor *actor;
     RaceActorState *state;
     RaceRoute *list;
@@ -418,7 +418,7 @@ void func_8002F490(RaceTracker *tracker) {
             } else if (raceIsFacingWaypoint(node) != 0) {
                 if (tracker->unk27 == 0) {
                     if (node->kind != 0) {
-                        if (func_8002F0AC(node) == 0) {
+                        if (raceCheckGateCrossed(node) == 0) {
                             sfxPlayAtPositionPooled(node->x, node->y, node->z, 0x98, 0xFF, 0x7F, 0, 0, 0.3f, 0);
                             if (tracker->unk44 != 0) {
                                 tracker->unk44--;
@@ -429,7 +429,7 @@ void func_8002F490(RaceTracker *tracker) {
                             sfxAllocateChannel(0x43, 1.0f);
                         }
                     }
-                    func_8002F420(tracker, list);
+                    raceAdvanceActiveGate(tracker, list);
                 }
                 tracker->unk3A += 1;
                 tracker->unk3A %= list->count;
@@ -440,12 +440,12 @@ void func_8002F490(RaceTracker *tracker) {
                 node = raceGetWaypoint(val);
                 tracker->unk38 = raceIsFacingWaypoint(node);
             }
-            tracker->unk40 = func_8002F304(node, gCurrentActor->x, gCurrentActor->z);
+            tracker->unk40 = raceGetNormalDistanceToWaypoint(node, gCurrentActor->x, gCurrentActor->z);
         }
     }
 }
 
-f32 func_8002F784(RaceRoute *route, RaceTracker *trackerA, RaceTracker *trackerB) {
+f32 raceGetPathDistanceBetweenTrackers(RaceRoute *route, RaceTracker *trackerA, RaceTracker *trackerB) {
     s32 diff;
     f32 acc;
     f32 prevX;
@@ -475,7 +475,7 @@ f32 func_8002F784(RaceRoute *route, RaceTracker *trackerA, RaceTracker *trackerB
                 val = route->items[idx];
                 node = raceGetWaypoint(val);
                 if (!first) {
-                    acc += func_8002F304(node, prevX, prevZ);
+                    acc += raceGetNormalDistanceToWaypoint(node, prevX, prevZ);
                 }
                 first = 0;
                 cur++;

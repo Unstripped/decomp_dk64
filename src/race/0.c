@@ -311,9 +311,9 @@ s32 camStartPath(void *, s16, s32);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
 void flagSet(s16, s32, s32);
-void func_8002D72C(void *);
-s32 func_8002E8EC(void *, s32, s32);
-void func_8002F490(void *);
+void raceSetIntroCutscenePhase(void *);
+s32 raceCheckLapCompletionThreshold(void *, s32, s32);
+void raceUpdateLapAndWaypointTracker(void *);
 void func_805FF544(void);
 void csModelStateSetFirstByte(s16, s16);
 f32 sqrtf(f32);
@@ -604,7 +604,7 @@ void raceOpponentBehaviourUpdate(void) {
             break;
         }
         if (y < 3) {
-            func_8002D72C(kid);
+            raceSetIntroCutscenePhase(kid);
         }
         break;
 
@@ -629,7 +629,7 @@ void raceOpponentBehaviourUpdate(void) {
             slotQueueCancel(0xB, 0);
             controller->unkD0 = 0;
             if (flagGet(config->unk18.h.lo, 0) == 0) {
-                tmp = D_8002FB94[func_8002E8EC(controller, config->unk4, config->unk1C)];
+                tmp = D_8002FB94[raceCheckLapCompletionThreshold(controller, config->unk4, config->unk1C)];
                 camStartPath(gCurrentActor, tmp, 1);
                 currentActorClearFlag();
             } else {
@@ -707,7 +707,7 @@ void raceOpponentBehaviourUpdate(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x96, 0x78, 0, 1.0f);
     if (controller->unk34 == 2) {
-        func_8002F490(controller);
+        raceUpdateLapAndWaypointTracker(controller);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

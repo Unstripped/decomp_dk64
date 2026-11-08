@@ -131,7 +131,7 @@ extern RaceActor *gCurrentActor;
 f32 func_80612794(s16);
 s32 mathPickCloserTargetPoint3D(f32, f32, f32, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, f32 *, f32 *, f32 *);
 
-void func_800257A4(RacePathState *pathState, f32 *outPos, f32 *inPos, s32 nextWaypoint, s32 nextNextWaypoint) {
+void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPos, s32 nextWaypoint, s32 nextNextWaypoint) {
     s32 padA;
     s32 padB;
     RaceAPoint3f *points;
@@ -160,7 +160,7 @@ extern s32 D_807F5FD0;
 void *memcpy(void *, const void *, unsigned int);
 void *heapAlloc(s32);
 
-void func_8002597C(void) {
+void raceInitSplinePoints(void) {
     RaceAPoint3f *buf;
     u8 *src;
     RaceAPoint3f **tbl;
@@ -194,11 +194,11 @@ void func_8002597C(void) {
 
 extern s16 D_80750AC4;
 extern RaceActor *gSpawnedActor;
-void func_8002BBD0(void *, s32);
-void func_8002BC2C(void *, s32, void *, void *);
+void raceInitParticipantArray(void *, s32);
+void raceRegisterParticipant(void *, s32, void *, void *);
 RaceNodeActor *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
 
-void func_80025E9C(RaceActor *parent) {
+void raceInitOpponentEntities(RaceActor *parent) {
     RaceParticipant *parentPart;
     RaceActor *s2;
     RacePathState *s1;
@@ -209,11 +209,11 @@ void func_80025E9C(RaceActor *parent) {
     u8 *pad;
 
     parentPart = parent->unk174;
-    func_8002BBD0(parent, 2);
+    raceInitParticipantArray(parent, 2);
     actorSpawn(0x12E, 0x95);
     s2 = gSpawnedActor;
     s0 = s2->unk174;
-    func_8002BC2C(parent, 1, s2, s0);
+    raceRegisterParticipant(parent, 1, s2, s0);
     s0->unk37 = 0;
     s0->unk27 = 0;
     s0->unk30 = parent;
@@ -229,7 +229,7 @@ void func_80025E9C(RaceActor *parent) {
     spawnedActor = gSpawnedActor;
     s1->unk34 = spawnedActor;
     s0 = spawnedNode->unk178;
-    func_8002BC2C(parent, 0, spawnedNode, s0);
+    raceRegisterParticipant(parent, 0, spawnedNode, s0);
     s0->unk37 = 0;
     s0->unk27 = 1;
     s0->unk30 = parent;
@@ -245,12 +245,12 @@ void func_80025E9C(RaceActor *parent) {
     parentPart->unk25 = 1;
 }
 
-void func_8002597C(void);
-void func_8002CFF0(void);
+void raceInitSplinePoints(void);
+void raceInitCarRaceManager(void);
 
-void func_80025FDC(void) {
-    func_8002597C();
-    func_8002CFF0();
+void raceInitSplineAndOpponent(void) {
+    raceInitSplinePoints();
+    raceInitCarRaceManager();
 }
 
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
@@ -285,7 +285,7 @@ void timedLightOrbitUpdate();
 extern u8 D_8072006C;
 extern s32 D_8002FBB0[4];
 extern u8 D_8002FBC0;
-void func_80026098(f32 *tgt, f32 *pos) {
+void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
     s16 angle;
     s32 pad;
     f32 offsetDist;
@@ -303,7 +303,7 @@ void func_80026098(f32 *tgt, f32 *pos) {
 
 s16 mathAngleSignedDistance();
 
-void func_800261E0(RacePathState *pathState) {
+void raceUpdateOrientation(RacePathState *pathState) {
     s16 pad;
     s16 rollOffset;
     f32 sinVal;
@@ -327,9 +327,9 @@ void func_800261E0(RacePathState *pathState) {
     gCurrentActor->unkE4 &= 0xFFF;
 }
 
-void func_800257A4(RacePathState *pathState, f32 *outPos, f32 *inPos, s32 nextWaypoint, s32 nextNextWaypoint);
-void func_80026098(f32 *tgt, f32 *pos);
-void func_800261E0(RacePathState *pathState);
+void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPos, s32 nextWaypoint, s32 nextNextWaypoint);
+void raceApplyPositionOffset(f32 *tgt, f32 *pos);
+void raceUpdateOrientation(RacePathState *pathState);
 s32 raceGetNextWaypointIndex(s32, s32);
 void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participant, s32 pathLength);
 s32 randomLcgNext(void);
@@ -411,17 +411,17 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
         nxt2 = &points[next2];
     }
     if (pathState->unk0 != pathState->unk1) {
-        func_800257A4(pathState, tgt, pos, next, next2);
+        raceInterpolateWaypointPos(pathState, tgt, pos, next, next2);
     } else if (pathState->unk4 != 0) {
         pathState->unk4--;
     }
-    func_80026098(tgt, pos);
+    raceApplyPositionOffset(tgt, pos);
     yawDelta = mathAngleSignedDistance(gCurrentActor->unkEE, (s16)oldAng);
     pathState->unk28 += -0.04f * gCurrentActor->unkB8 * yawDelta * func_80612790(pathState->unk18);
     pathState->unk28 -= 10.0f * gCurrentActor->unkB8 * func_80612794(pathState->unk18);
     pathState->unk28 = pathState->unk28 * 0.7f;
     pathState->unk18 = pathState->unk18 + pathState->unk28;
-    func_800261E0(pathState);
+    raceUpdateOrientation(pathState);
     if (spawnSparks != 0) {
         if ((u32)(randomLcgNext() & 0xFF) < gCurrentActor->unkB8 * 0.3 && pathState->unk0 == pathState->unk1) {
             mathPickCloserTargetPoint3D(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, cur, &points[next], &points[next], nxt2, &hx, &hy, &hz);
@@ -441,7 +441,7 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
 
 s32 raceFindNearestParticipant(void *);
 
-void func_80026B20(RaceParticipant *participant) {
+void raceSpawnProjectile(RaceParticipant *participant) {
     RacePathState *projPath;
     RacePathState *actorPath;
     RaceAuxState *projAux;
@@ -471,7 +471,7 @@ void func_80026B20(RaceParticipant *participant) {
 
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 
-void func_80026CA8(void) {
+void racePlayEngineSfx(void) {
     sfxPlayActorSound(gCurrentActor, 0x12D, 0, 1, 0, 0xFF, 1.0f, 0);
     sfxPlayActorSound(gCurrentActor, 0x12E, 0, 1, 1, 0xFF, 1.0f, 0);
 }
@@ -480,7 +480,7 @@ extern s16 D_80770628[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
 
-void func_80026D2C(f32 moveSpeed) {
+void raceUpdateEngineSoundPitch(f32 moveSpeed) {
     s32 pad;
     s16 idx;
 
@@ -501,10 +501,10 @@ void func_80026D2C(f32 moveSpeed) {
     }
 }
 
-void func_8002CAC8(void *, void *, void *);
+void raceRenderHud(void *, void *, void *);
 
-void func_80026EE4(void *glist, RaceActor *actor) {
-    func_8002CAC8(glist, actor, actor->unk174);
+void raceVehicleRenderCallback(void *glist, RaceActor *actor) {
+    raceRenderHud(glist, actor, actor->unk174);
 }
 
 extern u8 D_807FBD70;
@@ -520,14 +520,14 @@ void actorClearNodeFlag(void *, s32);
 void func_8072DB68(s32);
 void slotQueueUpdate(s32, s32, s32);
 void slotQueueCancel(s32, s32);
-f32 func_8002D2C0(void *);
+f32 raceGetHandicapSpeedBonus(void *);
 void func_806F4D70(u8, f32, f32, f32, f32);
 void gridAppendPositionNode(u8, f32, f32, f32, f32);
 void actorSpawnNodeEffectFacingCamera(s32, s32);
 void sfxStopSlotSound(void *, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
-void func_80026F04(void) {
+void raceVehicleBehaviorUpdate(void) {
     s32 len;
     RacePathState *pathState;
     RaceParticipant *s1;
@@ -555,7 +555,7 @@ void func_80026F04(void) {
             playerWaypointPathStartPacked(D_807FBB4C, gCurrentActor, 0, 0x4B);
         }
         actorClearNodeFlag(gCurrentActor, 2);
-        func_80026CA8();
+        racePlayEngineSfx();
     }
     if (D_807FBD70 == 5 && pathState->unk39 == 0) {
         if (s1->unk34 == 2) {
@@ -578,11 +578,11 @@ void func_80026F04(void) {
         if (o2->unk1C == 8 || o2->unk1C == 0x13) {
             sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x187, 0xFF, 0x7F, 0, 0, 0.3f, 0);
         }
-        func_80026D2C(s1->unk26 * 1.5);
+        raceUpdateEngineSoundPitch(s1->unk26 * 1.5);
     } else if (s1->unk34 < 5) {
         sv = 0;
         if (s1->unk26 != 0) {
-            bumpZ = func_8002D2C0(s1);
+            bumpZ = raceGetHandicapSpeedBonus(s1);
             if (bumpZ != 0) {
                 bumpZ = 1.5f * bumpZ + 1.5f;
                 racePlayCheckpointSfx(pathState, 0x1E, bumpZ);
@@ -603,7 +603,7 @@ void func_80026F04(void) {
         }
         racePathFollowStep(pathState, s1, 1);
         gCurrentActor->unk80 += 20.0f * func_80612794(sv * 0.5f);
-        func_80026D2C(gCurrentActor->unkB8);
+        raceUpdateEngineSoundPitch(gCurrentActor->unkB8);
     } else if (s1->unk34 == 5) {
         gCurrentActor->unk60 &= ~4;
         gCurrentActor->unkB8 = 0.0f;
@@ -614,7 +614,7 @@ void func_80026F04(void) {
         }
     }
     if (s1->unk29 != 0) {
-        func_80026B20(s1);
+        raceSpawnProjectile(s1);
     }
     if (s1->unk34 < 5) {
         if (s1->unk34 == 2) {
@@ -638,7 +638,7 @@ void func_80026F04(void) {
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
     if (s1->unk34 > 0 && s1->unk34 < 5) {
-        renderCallbacksRegister(func_80026EE4, gCurrentActor, 3);
+        renderCallbacksRegister(raceVehicleRenderCallback, gCurrentActor, 3);
     }
 }
 
@@ -654,9 +654,9 @@ extern u8 D_80720340[];
 extern u8 D_8071FFA0[];
 
 void func_807149B8(s32);
-void func_8002D338(void *, void *);
+void raceDespawnProjectile(void *, void *);
 
-void func_800274C0(void) {
+void raceProjectileBehaviorUpdate(void) {
     RaceParticipant *participant;
     RacePathState *pathState;
     s32 pad[3];
@@ -690,7 +690,7 @@ void func_800274C0(void) {
         }
     }
     if (hasCollided != 0) {
-        func_8002D338(gCurrentActor, s1);
+        raceDespawnProjectile(gCurrentActor, s1);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

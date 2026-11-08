@@ -141,7 +141,7 @@ extern Struct_807FD63A D_807FD63A[];
 
 
 
-void func_8002BBD0(RaceUnknownActor *actor, s32 count) {
+void raceInitParticipantArray(RaceUnknownActor *actor, s32 count) {
     RaceUnknown174 *race174;
     void *allocated;
 
@@ -155,11 +155,11 @@ void func_8002BBD0(RaceUnknownActor *actor, s32 count) {
 }
 
 u16 *raceGetRoute(u8);
-void func_8002F36C(void *, void *);
+void raceActivateNextGate(void *, void *);
 s32 cameraFindViewportEntry(u8);
 #define RaceE3 ((RaceStruct3 *)participantData)
 
-void func_8002BC2C(RaceUnknownActor *manager, s32 slot, RaceUnknownActor *participant, RaceUnknown174 *participantData) {
+void raceRegisterParticipant(RaceUnknownActor *manager, s32 slot, RaceUnknownActor *participant, RaceUnknown174 *participantData) {
     RaceUnknown174 *managerData;
     RacePair *pairs;
     RacePair *slotEntry;
@@ -177,14 +177,14 @@ void func_8002BC2C(RaceUnknownActor *manager, s32 slot, RaceUnknownActor *partic
         route = raceGetRoute(managerData->unk26);
         if (route != NULL) {
             RaceE3->unk3C = *route - 1;
-            func_8002F36C(participantData, route);
+            raceActivateNextGate(participantData, route);
         }
         RaceE3->unk48 = cameraFindViewportEntry(RaceE3->unk28);
     }
 }
 #undef RaceE3
 
-void func_8002BCB0(RaceUnknownActor *manager, s32 slot, s32 *outActor, s32 *outData) {
+void raceGetParticipantPair(RaceUnknownActor *manager, s32 slot, s32 *outActor, s32 *outData) {
     RaceUnknown174 *managerData;
     RacePair *pairs;
     RacePair *slotEntry;
@@ -203,7 +203,7 @@ typedef struct RaceEBounds {
 } RaceEBounds;
 extern RaceEBounds *D_807F5FD4;
 
-void func_8002BCD4(RaceUnknownActor *actor) {
+void raceCalculatePathBoundingBox(RaceUnknownActor *actor) {
     RaceUnknown174 *race174;
     f32 *p;
     f32 minX;
@@ -242,7 +242,7 @@ void func_8002BCD4(RaceUnknownActor *actor) {
 
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
-Gfx *func_8002BDDC(Gfx *dl, RaceUnknownActor *actor, f32 posX, f32 posZ, u8 red, u8 green, u8 blue) {
+Gfx *raceRenderMinimapIcon(Gfx *dl, RaceUnknownActor *actor, f32 posX, f32 posZ, u8 red, u8 green, u8 blue) {
     RaceUnknown174 *race174;
 
     race174 = actor->unk174;
@@ -270,7 +270,7 @@ void *textTableGetString(s32, s32, s32);
 s32 textGetStringWidth(s32, void *);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 
-Gfx *func_8002BEE8(Gfx *dl, RaceUnknownActor *actor) {
+Gfx *raceRenderCountdownText(Gfx *dl, RaceUnknownActor *actor) {
     u8 alpha;
     s32 textX;
     s32 unused;
@@ -309,7 +309,7 @@ Gfx *func_8002BEE8(Gfx *dl, RaceUnknownActor *actor) {
     return dl;
 }
 
-Gfx *func_8002C14C(Gfx *dl, RaceUnknown174 *race174) {
+Gfx *raceRenderSpeedBoostHud(Gfx *dl, RaceUnknown174 *race174) {
     Struct806C7C94 *hudPos;
     s32 screenX;
     s32 screenY;
@@ -347,7 +347,7 @@ Gfx *func_8002C14C(Gfx *dl, RaceUnknown174 *race174) {
 
 u32 textGetFontHeight(s32);
 
-Gfx *func_8002C2E8(Gfx *dl, RaceUnknown174 *race174) {
+Gfx *raceRenderCoinHud(Gfx *dl, RaceUnknown174 *race174) {
     f32 posX;
     f32 doublePosX;
     f32 posY;
@@ -403,7 +403,7 @@ Gfx *func_8002C2E8(Gfx *dl, RaceUnknown174 *race174) {
 }
 
 
-Gfx *func_8002C63C(Gfx *dl, RaceUnknown174 *race174) {
+Gfx *raceInitHudDisplayList(Gfx *dl, RaceUnknown174 *race174) {
     WRITE_GFX(dl++, 0xE7000000, 0);
     WRITE_GFX(dl++, 0xE200001C, 0x00504240);
     WRITE_GFX(dl++, 0xE3000A01, 0);
@@ -496,12 +496,12 @@ Gfx *raceDrawHudText(Gfx *dl, RaceUnknown174 *race174) {
 
 
 s32 func_807142D8(void);
-Gfx *func_8002C63C(Gfx *, RaceUnknown174 *);
-Gfx *func_8002C2E8(Gfx *, RaceUnknown174 *);
-Gfx *func_8002C14C(Gfx *, RaceUnknown174 *);
+Gfx *raceInitHudDisplayList(Gfx *, RaceUnknown174 *);
+Gfx *raceRenderCoinHud(Gfx *, RaceUnknown174 *);
+Gfx *raceRenderSpeedBoostHud(Gfx *, RaceUnknown174 *);
 Gfx *raceDrawHudText(Gfx *, RaceUnknown174 *);
 
-Gfx *func_8002CAC8(Gfx *dl, RaceUnknownActor *actor, RaceUnknown174 *race174) {
+Gfx *raceRenderHud(Gfx *dl, RaceUnknownActor *actor, RaceUnknown174 *race174) {
     RaceUnknown174 *parent174;
     RaceUnknownActor *playerActor;
     RaceUnknown174 *player174;
@@ -518,11 +518,11 @@ Gfx *func_8002CAC8(Gfx *dl, RaceUnknownActor *actor, RaceUnknown174 *race174) {
     if (actor != player174->unk88) {
         return dl;
     }
-    dl = func_8002C63C(dl, race174);
+    dl = raceInitHudDisplayList(dl, race174);
     if (parent174->unk0 & 8) {
-        dl = func_8002C2E8(dl, race174);
+        dl = raceRenderCoinHud(dl, race174);
     } else if (parent174->unk0 & 0x10) {
-        dl = func_8002C14C(dl, race174);
+        dl = raceRenderSpeedBoostHud(dl, race174);
     }
     if (parent174->unk0 & 6) {
         dl = raceDrawHudText(dl, race174);
@@ -554,7 +554,7 @@ typedef struct RaceECB3 {
     struct RaceUnknownActor *unk2C;
 } RaceECB3;
 
-Gfx *func_8002CBEC(Gfx *dl, RaceUnknownActor *actor) {
+Gfx *raceRenderMinimapAndCountdown(Gfx *dl, RaceUnknownActor *actor) {
     RaceECBView *radarView;
     RaceECB3 *participantStruct;
     RaceUnknownActor *participantActor;
@@ -606,34 +606,34 @@ Gfx *func_8002CBEC(Gfx *dl, RaceUnknownActor *actor) {
             } else {
                 continue;
             }
-            dl = func_8002BDDC(dl, actor, participantActor->unk7C, participantActor->unk84, red, 0, blue);
+            dl = raceRenderMinimapIcon(dl, actor, participantActor->unk7C, participantActor->unk84, red, 0, blue);
             targetActor = participantStruct->unk2C;
             if (targetActor != NULL) {
-                dl = func_8002BDDC(dl, actor, targetActor->unk7C, targetActor->unk84, 0xFF, 0xC8, 0);
+                dl = raceRenderMinimapIcon(dl, actor, targetActor->unk7C, targetActor->unk84, 0xFF, 0xC8, 0);
             }
         }
     }
-    return func_8002BEE8(dl, actor);
+    return raceRenderCountdownText(dl, actor);
 }
 
 
 extern RaceUnknownActor *gSpawnedActor;
 void actorSpawn(s32, s32);
 void raceInitParticipants(RaceUnknownActor *);
-void func_800292D0(RaceUnknownActor *);
-void func_8002E2C8(RaceUnknownActor *);
+void raceSpawnCompetitors(RaceUnknownActor *);
+void raceInitBeetleRaceParticipants(RaceUnknownActor *);
 
-void func_80025E9C(RaceUnknownActor *);
-void func_8002BCD4(RaceUnknownActor *);
+void raceInitOpponentEntities(RaceUnknownActor *);
+void raceCalculatePathBoundingBox(RaceUnknownActor *);
 
-void func_8002CFF0(void) {
+void raceInitCarRaceManager(void) {
     RaceUnknown174 *race174;
     RaceUnknownActor *actor;
 
     actorSpawn(0x132, 0);
     actor = gSpawnedActor;
-    func_80025E9C(actor);
-    func_8002BCD4(actor);
+    raceInitOpponentEntities(actor);
+    raceCalculatePathBoundingBox(actor);
     race174 = actor->unk174;
     race174->unk0 = 0x17;
     race174->unk14 = 0x46;
@@ -644,7 +644,7 @@ void func_8002CFF0(void) {
 }
 
 
-void func_8002D064(void) {
+void raceInitGenericRaceManager(void) {
     RaceUnknown174 *race174;
 
     actorSpawn(0x132, 0);
@@ -654,22 +654,22 @@ void func_8002D064(void) {
     race174->unk24 = 2;
 }
 
-void func_8002D0B0(void) {
+void raceInitCompetitorRaceManager(void) {
     RaceUnknown174 *race174;
 
     actorSpawn(0x132, 0);
     race174 = gSpawnedActor->unk174;
-    func_800292D0(gSpawnedActor);
+    raceSpawnCompetitors(gSpawnedActor);
     race174->unk0 = 0xE;
     race174->unk24 = 2;
 }
 
-void func_8002D0FC(void) {
+void raceInitBeetleRaceManager(void) {
     RaceUnknown174 *race174;
 
     actorSpawn(0x132, 0);
     race174 = gSpawnedActor->unk174;
-    func_8002E2C8(gSpawnedActor);
+    raceInitBeetleRaceParticipants(gSpawnedActor);
     race174->unk0 = 2;
     race174->unk24 = 1;
 }
@@ -678,7 +678,7 @@ extern RaceUnknownActor *gCurrentActor;
 extern s32 D_8002FCD4[];
 s32 gfxResourceCreate(s32, void *, s32, f32, f32, f32);
 
-void func_8002D148(RacePair *pair, u8 newStatus) {
+void raceSetParticipantRaceStatus(RacePair *pair, u8 newStatus) {
     RaceUnknown174 *t;
     s32 slot;
 
@@ -698,9 +698,9 @@ void func_8002D148(RacePair *pair, u8 newStatus) {
     }
 }
 
-void func_8002D148(RacePair *, u8);
+void raceSetParticipantRaceStatus(RacePair *, u8);
 
-void func_8002D224(u8 newStatus) {
+void raceSetAllParticipantsStatus(u8 newStatus) {
     s32 i;
     RaceUnknown174 *race174;
     RacePair *pairs;
@@ -710,12 +710,12 @@ void func_8002D224(u8 newStatus) {
     gCurrentActor->unk154 = newStatus;
     for (i = 0; i < race174->unk1E; i++) {
         if (pairs[i].unk0 != 0) {
-            func_8002D148(&pairs[i], newStatus);
+            raceSetParticipantRaceStatus(&pairs[i], newStatus);
         }
     }
 }
 
-f32 func_8002D2C0(RaceStruct3 *race3) {
+f32 raceGetHandicapSpeedBonus(RaceStruct3 *race3) {
     f32 temp;
 
     if (race3->unk26 >= 11 && race3->unk26 < 15 && (D_807FD63A[race3->unk28].unk0 & 0x2000)) {
@@ -727,7 +727,7 @@ f32 func_8002D2C0(RaceStruct3 *race3) {
 
 void actorDespawn(void *, void *);
 
-void func_8002D338(void *parent, RaceUnknownC *child) {
+void raceDespawnProjectile(void *parent, RaceUnknownC *child) {
     RaceUnknownActor *childActor;
     RaceUnknown174 *race174;
 
@@ -801,7 +801,7 @@ void racePlayResultSfx(void) {
 
 extern s32 gCurrentMap;
 
-void func_8002D4A0(void) {
+void racePlayStartRaceMusic(void) {
     s32 soundId;
     f32 vol;
 
@@ -869,18 +869,18 @@ void raceUpdateStandings(void) {
     for (i = 0; i < t->unk1E; i++, q++) {
         q->unk4->unk36 = i;
         if (q->unk4->unk45 != 0 || (q->unk4->unk34 == 2 && t->unk24 < q->unk4->unk37)) {
-            func_8002D148(q, 3);
+            raceSetParticipantRaceStatus(q, 3);
             cnt++;
         }
     }
     if (cnt >= t->unk1E - 1) {
-        func_8002D224(3);
+        raceSetAllParticipantsStatus(3);
         racePlayResultSfx();
         t->unk1C = 0;
     }
 }
 
-void func_8002D72C(RaceUnknownActor *actor) {
+void raceSetIntroCutscenePhase(RaceUnknownActor *actor) {
     RaceUnknown174 *race174;
 
     if (actor != NULL && actor->unk154 == 0) {
@@ -889,7 +889,7 @@ void func_8002D72C(RaceUnknownActor *actor) {
     }
 }
 
-void func_8002D754(RaceUnknownActor *actor) {
+void raceClearIntroCutscenePhase(RaceUnknownActor *actor) {
     RaceUnknown174 *race174;
 
     if (actor != NULL && actor->unk154 == 0) {
@@ -915,7 +915,7 @@ void raceUpdateWaypointActivation(RaceUnknown174 *);
 
 void raceUpdateStandings(void);
 
-void func_8002D778(void) {
+void raceManagerBehaviorUpdate(void) {
     void renderCallbacksRegister(void *, RaceUnknownActor *, s32);
     RaceUnknown174 *t;
     u16 sound;
@@ -935,7 +935,7 @@ void func_8002D778(void) {
         if (t->unk1C != 0) {
             t->unk1C = (u32)t->unk1C - 1;
         } else {
-            func_8002D224(1);
+            raceSetAllParticipantsStatus(1);
         }
         break;
     case 1:
@@ -943,9 +943,9 @@ void func_8002D778(void) {
             if (t->unk1C % 30 == 0) {
                 sound = 0x75;
                 if (t->unk1C == 0x5A) {
-                    func_8002D224(2);
+                    raceSetAllParticipantsStatus(2);
                     sound = 0x74;
-                    func_8002D4A0();
+                    racePlayStartRaceMusic();
                 }
                 sfxPlayOnFreeSlot(sound, 0x7FFF, 64.0f, 1.0, 0, 0x80);
             }
@@ -960,16 +960,16 @@ void func_8002D778(void) {
         break;
     case 3:
         if (gCurrentMap == 0xE || gCurrentMap == 0x52) {
-            func_8002D224(4);
+            raceSetAllParticipantsStatus(4);
             t->unk1C = 0x32;
         } else {
             t->unk1C = t->unk1C + 1;
             if (t->unk1C >= 0x78) {
                 if (t->unk25 == 1) {
-                    func_8002D224(4);
+                    raceSetAllParticipantsStatus(4);
                     t->unk1C = 0x32;
                 } else {
-                    func_8002D224(6);
+                    raceSetAllParticipantsStatus(6);
                 }
             }
         }
@@ -998,21 +998,21 @@ void func_8002D778(void) {
             }
             if (!t->unk1C && !t->unk1C && !t->unk1C) { // FAKE: empty guard steers regalloc
             }
-            func_8002D224(5);
+            raceSetAllParticipantsStatus(5);
         }
         break;
     }
     raceUpdateWaypointActivation(t);
     if (func_807142D8() == 0) {
         if (gCurrentActor->unk154 > 0 && gCurrentActor->unk154 < 5) {
-            renderCallbacksRegister((void *)func_8002CBEC, gCurrentActor, 3);
+            renderCallbacksRegister((void *)raceRenderMinimapAndCountdown, gCurrentActor, 3);
         }
     }
 }
 
 f32 func_80612794(s16);
 
-void func_8002DA68(RaceUnknown174 *race174) {
+void raceUpdateFinishLineFlagBobbing(RaceUnknown174 *race174) {
     s16 angle;
     f32 scale;
     f32 scaleCopy;
@@ -1045,7 +1045,7 @@ void animSetLoopLimit(RaceUnknownActor *, s32, s32);
 void animSetFinished(RaceUnknownActor *, s32, s32);
 s32 animIsPlaying(RaceUnknownActor *, s32);
 
-void func_8002DB90() {
+void raceUpdateCheckeredFlagAnimation() {
     if (gCurrentActor->unk154 != 0) {
         if (gCurrentActor->unk154 == 1) {
             if (animIsPlaying(gCurrentActor, 0) == 0) {
@@ -1063,7 +1063,7 @@ void func_8002DB90() {
 void actorUpdateFloorContactAndTilt(RaceUnknownActor *, f32);
 void actorUpdateModelMatrix(RaceUnknownActor *, s32);
 
-void func_8002DC24(void) {
+void raceFinishBannerBehaviorUpdate(void) {
     RaceUnknown174 *race174 = gCurrentActor->unk174;
 
     if (!(gCurrentActor->unk60 & 0x10)) {
@@ -1071,17 +1071,17 @@ void func_8002DC24(void) {
     }
     switch (race174->unk0) {
     case 2:
-        func_8002DB90(race174);
+        raceUpdateCheckeredFlagAnimation(race174);
         break;
     case 1:
-        func_8002DB90(race174);
+        raceUpdateCheckeredFlagAnimation(race174);
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         gCurrentActor->unk80 = gCurrentActor->unkAC;
         gCurrentActor->unk6A |= 4;
         gCurrentActor->unk6C |= 4;
         break;
     default:
-        func_8002DA68(race174);
+        raceUpdateFinishLineFlagBobbing(race174);
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -1092,7 +1092,7 @@ typedef struct RaceFView8 {
     u8 unk8;
 } RaceFView8;
 
-void func_8002DCF0(RaceUnknownDCF0 *holder, s32 state) {
+void raceSetGateVisualState(RaceUnknownDCF0 *holder, s32 state) {
     u8 i;
     RaceUnknownActor *a;
     RaceFView8 *p;
@@ -1133,7 +1133,7 @@ typedef struct RaceVec3f {
     f32 z;
 } RaceVec3f;
 
-f32 func_8002DDA0(f32 targetX, RaceCurvePoint *points) {
+f32 raceEvaluatePiecewiseCurve(f32 targetX, RaceCurvePoint *points) {
     u8 i;
     f32 ret;
     s32 found;
@@ -1160,7 +1160,7 @@ f32 func_8002DDA0(f32 targetX, RaceCurvePoint *points) {
     return ret;
 }
 
-void func_8002DE78(RaceUnknownActor *actor, u8 mode, RaceCurvePoint *points, RaceVec3f *values) {
+void raceSetPiecewiseCurveMode(RaceUnknownActor *actor, u8 mode, RaceCurvePoint *points, RaceVec3f *values) {
     switch (mode) {
     case 0:
     case 1:
@@ -1192,21 +1192,21 @@ void func_8002DE78(RaceUnknownActor *actor, u8 mode, RaceCurvePoint *points, Rac
 
 s32 randomLcgNext(void);
 
-f32 func_8002DF38(RaceUnknownActor *actor, f32 t, RaceCurvePoint *points, RaceVec3f *values) {
+f32 raceEvaluateCurveWithRubberband(RaceUnknownActor *actor, f32 t, RaceCurvePoint *points, RaceVec3f *values) {
     f32 ret;
     f32 lim;
     RaceSub4 *sub;
 
     switch (actor->unkF) {
     case 0:
-        ret = func_8002DDA0(t, points);
+        ret = raceEvaluatePiecewiseCurve(t, points);
         break;
     case 1:
-        ret = func_8002DDA0(t, points);
+        ret = raceEvaluatePiecewiseCurve(t, points);
         if (actor->unk10 != 0) {
             if (points[4].x < t) {
                 if ((u32)randomLcgNext() % 0xFF < 0xA) {
-                    func_8002DE78(actor, 2, points, values);
+                    raceSetPiecewiseCurveMode(actor, 2, points, values);
                 }
             }
         }
@@ -1224,26 +1224,26 @@ f32 func_8002DF38(RaceUnknownActor *actor, f32 t, RaceCurvePoint *points, RaceVe
             } else {
                 points[2].y = values->z;
             }
-            ret = func_8002DDA0(t, points);
+            ret = raceEvaluatePiecewiseCurve(t, points);
             if (actor->unkF == 2) {
                 if (t < points[3].x) {
-                    func_8002DE78(actor, 3, points, values);
+                    raceSetPiecewiseCurveMode(actor, 3, points, values);
                 }
             }
             if (actor->unkF == 3) {
                 if (t < points[2].x) {
-                    func_8002DE78(actor, 4, points, values);
+                    raceSetPiecewiseCurveMode(actor, 4, points, values);
                 }
             }
         } else if (actor->unkF == 2) {
             ret = values->y;
-            func_8002DE78(actor, 1, points, values);
+            raceSetPiecewiseCurveMode(actor, 1, points, values);
         }
         break;
     case 5:
-        ret = func_8002DDA0(t, points);
+        ret = raceEvaluatePiecewiseCurve(t, points);
         if (t < points[1].x) {
-            func_8002DE78(actor, 1, points, values);
+            raceSetPiecewiseCurveMode(actor, 1, points, values);
         }
         break;
     default:
@@ -1253,25 +1253,25 @@ f32 func_8002DF38(RaceUnknownActor *actor, f32 t, RaceCurvePoint *points, RaceVe
     return ret;
 }
 
-f32 func_8002E1C8(RaceUnknownActor *actor, f32 t, RaceCurvePoint *points, RaceVec3f *values) {
+f32 raceEvaluateCurveTargetSpeed(RaceUnknownActor *actor, f32 t, RaceCurvePoint *points, RaceVec3f *values) {
     f32 ret;
 
     switch (actor->unkF) {
     case 0:
-        ret = func_8002DDA0(t, points);
+        ret = raceEvaluatePiecewiseCurve(t, points);
         break;
     case 1:
-        ret = func_8002DDA0(t, points);
+        ret = raceEvaluatePiecewiseCurve(t, points);
         if (actor->unk10 != 0) {
             if (points[4].x < t) {
-                func_8002DE78(actor, 5, points, values);
+                raceSetPiecewiseCurveMode(actor, 5, points, values);
             }
         }
         break;
     case 5:
-        ret = func_8002DDA0(t, points);
+        ret = raceEvaluatePiecewiseCurve(t, points);
         if (t < points[1].x) {
-            func_8002DE78(actor, 1, points, values);
+            raceSetPiecewiseCurveMode(actor, 1, points, values);
         }
         break;
     default:
@@ -1283,9 +1283,9 @@ f32 func_8002E1C8(RaceUnknownActor *actor, f32 t, RaceCurvePoint *points, RaceVe
 
 extern u8 gPlayerCount;
 RaceUnknownActor *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
-void func_8002BC2C(RaceUnknownActor *, s32, RaceUnknownActor *, RaceUnknown174 *);
+void raceRegisterParticipant(RaceUnknownActor *, s32, RaceUnknownActor *, RaceUnknown174 *);
 
-void func_8002E2C8(RaceUnknownActor *raceManager) {
+void raceInitBeetleRaceParticipants(RaceUnknownActor *raceManager) {
     RaceUnknown174 *managerData;
     RaceUnknown174 *participantData;
     RaceUnknownActor *participantActor;
@@ -1299,14 +1299,14 @@ void func_8002E2C8(RaceUnknownActor *raceManager) {
     if (participantCount == 1) {
         participantCount++;
     }
-    func_8002BBD0(raceManager, participantCount);
+    raceInitParticipantArray(raceManager, participantCount);
     if (gPlayerCount == 1) {
         participantActor = spawnNodeSpawnById(1, 0, 0, 0, 0, 0, 0);
         participantData = participantActor->unk178;
         participantData->unk27 = 1;
-        func_8002BC2C(raceManager, 0, participantActor, participantData);
+        raceRegisterParticipant(raceManager, 0, participantActor, participantData);
         slotIndex = 1;
-        func_8002BCB0(raceManager, 0, participantActor->unk17C, participantActor->unk17C + 1);
+        raceGetParticipantPair(raceManager, 0, participantActor->unk17C, participantActor->unk17C + 1);
         managerData->unk25 = 1;
     } else {
         managerData->unk25 = 0;
@@ -1316,14 +1316,14 @@ void func_8002E2C8(RaceUnknownActor *raceManager) {
         participantActor = gSpawnedActor;
         participantData = participantActor->unk174;
         participantData->unk27 = 0;
-        func_8002BC2C(raceManager, slotIndex, participantActor, participantData);
+        raceRegisterParticipant(raceManager, slotIndex, participantActor, participantData);
         slotIndex++;
         participantData->unk28 = playerIdx;
     }
     playerIdx = 0;
     if (participantCount > 0) {
         do {
-            func_8002BCB0(raceManager, playerIdx, (s32 *)&participantActor, (s32 *)&participantData);
+            raceGetParticipantPair(raceManager, playerIdx, (s32 *)&participantActor, (s32 *)&participantData);
             participantData->unk36 = playerIdx;
             playerIdx++;
             participantData->unk30 = raceManager;
@@ -1333,15 +1333,15 @@ void func_8002E2C8(RaceUnknownActor *raceManager) {
 }
 
 
-void func_8002E464(void *gfx, RaceUnknownActor *actor) {
-    func_8002CAC8(gfx, actor, actor->unk174);
+void racePlayerHudRenderCallback(void *gfx, RaceUnknownActor *actor) {
+    raceRenderHud(gfx, actor, actor->unk174);
 }
 
 void playerStateQueueCallback(s32, RaceUnknownActor *, u8, RaceUnknownActor *);
-void func_8002F490(RaceStruct3 *);
+void raceUpdateLapAndWaypointTracker(RaceStruct3 *);
 void renderCallbacksRegister(void *, RaceUnknownActor *, s32);
 
-void func_8002E484(void) {
+void racePlayerTrackerBehaviorUpdate(void) {
     RaceUnknownActor *playerActor;
     RaceUnknownActor *raceActor;
     RaceStruct3 *raceData;
@@ -1367,11 +1367,11 @@ void func_8002E484(void) {
     gCurrentActor->unk80 = playerActor->unk80;
     gCurrentActor->unk84 = playerActor->unk84;
     if (raceData->unk34 == 2) {
-        func_8002F490(raceData);
+        raceUpdateLapAndWaypointTracker(raceData);
         raceActor = gCurrentActor;
     }
     if ((raceData->unk34 > 0) && (raceData->unk34 < 5)) {
-        renderCallbacksRegister((void *)func_8002E464, gCurrentActor, 3);
+        renderCallbacksRegister((void *)racePlayerHudRenderCallback, gCurrentActor, 3);
     }
     raceData->unk1C = (raceData->unk40 < raceData->unk1C) ? raceData->unk1C : raceData->unk40;
     curMax = raceData->unk18;
@@ -1399,7 +1399,7 @@ f32 func_80611BB4(f32, f32);
 f32 func_80612790(s16);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
-void func_8002E644(RaceFE644Arg *collision) {
+void raceHandleRacerCollision(RaceFE644Arg *collision) {
     f32 distSq;
     f32 unused_pad;
     f32 velX;
@@ -1451,7 +1451,7 @@ void func_8002E644(RaceFE644Arg *collision) {
 }
 
 s32 slotQueueGetValue(s32, s32);
-s32 func_8002E8EC(RaceStruct3 *race3_0, RaceStruct3 *race3_1, s32 threshold) {
+s32 raceCheckLapCompletionThreshold(RaceStruct3 *race3_0, RaceStruct3 *race3_1, s32 threshold) {
     s32 ret;
 
     if (race3_1->unk45 != 0) {
