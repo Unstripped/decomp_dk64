@@ -32,21 +32,21 @@ typedef struct {
 
 #define PLAYER_VIEWPORT(i) ((PlayerViewport *)((u8 *)gPlayerSlots + (i) * 0x2F0))
 
-Gfx *playerViewGfxSetup(Gfx *arg0, u8 arg1) {
-    gDPPipeSync(arg0++);
-    gSPViewport(arg0++, osVirtualToPhysical(((PlayerViewport *)gPlayerSlots)[arg1].unk250[D_807444FC]));
+Gfx *playerViewGfxSetup(Gfx *dl, u8 playerIndex) {
+    gDPPipeSync(dl++);
+    gSPViewport(dl++, osVirtualToPhysical(((PlayerViewport *)gPlayerSlots)[playerIndex].unk250[D_807444FC]));
     {
-        Gfx *_g = (Gfx *)(arg0++);
-        _g->words.w0 = ((s32)((f32)PLAYER_VIEWPORT(arg1)->unk272 * 4.0f) & 0xFFF) | 0xED000000 |
-                       (((s32)((f32)PLAYER_VIEWPORT(arg1)->unk270 * 4.0f) & 0xFFF) << 12);
-        _g->words.w1 = ((s32)((f32)PLAYER_VIEWPORT(arg1)->unk276 * 4.0f) & 0xFFF) |
-                       (((s32)((f32)PLAYER_VIEWPORT(arg1)->unk274 * 4.0f) & 0xFFF) << 12);
+        Gfx *_g = (Gfx *)(dl++);
+        _g->words.w0 = ((s32)((f32)PLAYER_VIEWPORT(playerIndex)->unk272 * 4.0f) & 0xFFF) | 0xED000000 |
+                       (((s32)((f32)PLAYER_VIEWPORT(playerIndex)->unk270 * 4.0f) & 0xFFF) << 12);
+        _g->words.w1 = ((s32)((f32)PLAYER_VIEWPORT(playerIndex)->unk276 * 4.0f) & 0xFFF) |
+                       (((s32)((f32)PLAYER_VIEWPORT(playerIndex)->unk274 * 4.0f) & 0xFFF) << 12);
     }
-    gSPDisplayList(arg0++, &D_1000118);
-    gDPSetCombineMode(arg0++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
-    gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
-    gSPMatrix(arg0++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    return arg0;
+    gSPDisplayList(dl++, &D_1000118);
+    gDPSetCombineMode(dl++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
+    gSPMatrix(dl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    return dl;
 }
 
 typedef struct {
