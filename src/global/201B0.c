@@ -325,15 +325,15 @@ typedef struct CamStateYaw {
     /* 0xB2 */ s16 unkB2;
 } CamStateYaw;
 
-void camApplySway(CamState *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7) {
+void camApplySway(CamState *state, f32 *posX, f32 *posY, f32 *posZ, f32 ampXZ, f32 ampY, f32 freqXZ, f32 freqY) {
     f32 sp1C;
-    f32 sp18;
+    f32 sinYaw;
 
-    sp18 = func_80612794(((CamStateYaw *)arg0)->unkB2 + 0x400);
-    *arg1 += arg4 * func_80612794((u32)gFrameCounter * arg6) * sp18;
-    sp18 = func_80612790(((CamStateYaw *)arg0)->unkB2 + 0x400);
-    *arg3 += arg4 * func_80612794((u32)gFrameCounter * arg6) * sp18;
-    *arg2 += arg5 * func_80612794((u32)gFrameCounter * arg7);
+    sinYaw = func_80612794(((CamStateYaw *)state)->unkB2 + 0x400);
+    *posX += ampXZ * func_80612794((u32)gFrameCounter * freqXZ) * sinYaw;
+    sinYaw = func_80612790(((CamStateYaw *)state)->unkB2 + 0x400);
+    *posZ += ampXZ * func_80612794((u32)gFrameCounter * freqXZ) * sinYaw;
+    *posY += ampY * func_80612794((u32)gFrameCounter * freqY);
 }
 
 u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
@@ -346,12 +346,12 @@ typedef struct CamStateFloor {
     /* 0xFA */ u8 unkFA;
 } CamStateFloor;
 
-void camSampleFloorHeight(CamActor *arg0, CamState *arg1, f32 arg2, f32 arg3) {
-    f32 sp24 = 99999.0f;
+void camSampleFloorHeight(CamActor *camActor, CamState *state, f32 sampleX, f32 sampleZ) {
+    f32 floorY = 99999.0f;
 
-    ((CamStateFloor *)arg1)->unkFA = 0;
-    collisionCheckActorFloor((Actor *)arg0, arg2, sp24, arg3, &sp24);
-    ((CamStateFloor *)arg1)->unkFA = collisionGetFloorHeight(&((CamStateFloor *)arg1)->unk90);
+    ((CamStateFloor *)state)->unkFA = 0;
+    collisionCheckActorFloor((Actor *)camActor, sampleX, floorY, sampleZ, &floorY);
+    ((CamStateFloor *)state)->unkFA = collisionGetFloorHeight(&((CamStateFloor *)state)->unk90);
 }
 
 typedef struct CamStateSettle {
