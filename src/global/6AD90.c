@@ -416,9 +416,9 @@ u8 func_80666AB8(void) {
     return D_807F94B7;
 }
 
-void collisionGetCoords(s16 *arg0, s16 *arg1) {
-    *arg0 = D_807F94A2;
-    *arg1 = D_807F94A4;
+void collisionGetCoords(s16 *outX, s16 *outZ) {
+    *outX = D_807F94A2;
+    *outZ = D_807F94A4;
 }
 
 u8 func_80666AE0(void) {
@@ -2451,8 +2451,8 @@ void func_8066B0DC(void) {
     D_807F967C = 1;
 }
 
-void assetSetRomTableOffset(s32 arg0) {
-    D_807F9678 = arg0;
+void assetSetRomTableOffset(s32 offset) {
+    D_807F9678 = offset;
 }
 
 void *heapAllocFromPool(s32, s32);
@@ -3032,6 +3032,6 @@ void collisionBstSortFlatItems(CollisionBstFlatItem *arr, s32 low, s32 high) {
     }
 }
 
-u32 collisionGetBucketIndex(u32 arg0) {
-    return (arg0 >> 12) % 20;
+u32 collisionGetBucketIndex(u32 key) {
+    return (key >> 12) % 20;
 }
