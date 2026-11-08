@@ -29,6 +29,7 @@ void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 void matrixMakeRotationY(f32 (*)[4], f32);
+// Writes G_MTX through the function-scope _g pointer to avoid gbi.h's block-local phantom stack slot
 #define gSPMatrixShared(pkt, m, p) { _g = (Gfx *)(pkt); _g->words.w0 = (_SHIFTL(G_MTX, 24, 8) | _SHIFTL(((sizeof(Mtx) - 1) / 8), 19, 5) | _SHIFTL(((p) ^ G_MTX_PUSH), 0, 8)); _g->words.w1 = (u32)(m); }
 
 Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
@@ -110,7 +111,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
             guTranslateF(mtx1, actor->x + vx, actor->y, actor->z + vy);
             guMtxCatF(mtx2, mtx1, mtx2);
             guMtxF2L(mtx2, (Mtx *)(sub->unk4 + (((i * 2) + gGfxBufferIndex) << 6)));
-            gSPMatrixShared(glist++, sub->unk4 + (((i * 2) + gGfxBufferIndex) << 6), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+            gSPMatrixShared(glist++, sub->unk4 + (((i * 2) + gGfxBufferIndex) << 6), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH); // FAKE: gSPMatrix through the function-scope _g (shared Gfx pointer)
             gSPVertex(glist++, osVirtualToPhysical(&D_80750280), 4, 0);
             gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(glist++);
