@@ -707,5 +707,5 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     return g;
 }
 
-void func_80025AE0(void) {
+void menuProgressGridNoop(void) {
 }

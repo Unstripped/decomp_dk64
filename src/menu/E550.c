@@ -32,7 +32,7 @@ void currentActorClearFlag(void);
 void actorScriptStart(MenuLightFadeActor *, s32);
 void actorUpdateModelMatrix(MenuLightFadeActor *, s32);
 
-void func_80032550(void) {
+void menuLightSpotlightActorUpdate(void) {
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk154 = 0;
