@@ -1841,7 +1841,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
             case 6:
                 actorScriptStartByIndex(arg0, 0x1B);
                 actorScriptExecute(arg0);
-                gCurrentActor->unk9C = gCurrentActor->y;
+                gCurrentActor->peakY = gCurrentActor->y;
                 sp36 = 0x1E;
                 break;
         }
@@ -1946,7 +1946,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
             case 6:
                 actorScriptStartByIndex(arg0, 0x58);
                 actorScriptExecute(arg0);
-                gCurrentActor->unk9C = gCurrentActor->y;
+                gCurrentActor->peakY = gCurrentActor->y;
                 sp36 = 0x1F;
                 break;
         }
@@ -2009,7 +2009,7 @@ s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
             case 6:
                 actorScriptStartByIndex(arg0, 0x1B);
                 actorScriptExecute(arg0);
-                gCurrentActor->unk9C = gCurrentActor->y;
+                gCurrentActor->peakY = gCurrentActor->y;
                 sp36 = 0x1E;
                 break;
         }
@@ -2636,7 +2636,7 @@ void playerCheckLedgeGrab(void) {
             if (sp3B != 0 && G03_A->unkC0 < 0.0 && sp36 >= 0x385) {
                 hit = 0;
                 if (func_80666AEC() != 0) {
-                    if (gCurrentActor->y - gCurrentActor->unkA4 > 15.0f) {
+                    if (gCurrentActor->y - gCurrentActor->floorY > 15.0f) {
                         if (flag != 0) {
                             if (D_80753E00[D_807FD584] + gCurrentActor->y < sp3C + 15.0f && sp3C - D_80753E00[D_807FD584] - gCurrentActor->y < 80.0f) {
                                 hit = 1;
@@ -2736,7 +2736,7 @@ void playerEnterFall(Actor *arg0) {
     G03_A->unkC0 = 0.0f;
     actorScriptStartByIndex(arg0, 0x1B);
     actorScriptExecute(arg0);
-    gCurrentActor->unk9C = gCurrentActor->y;
+    gCurrentActor->peakY = gCurrentActor->y;
     if (G06_P->unk8C) {
         arg0->state = 0x1F;
         arg0->unk155[0] = 0;

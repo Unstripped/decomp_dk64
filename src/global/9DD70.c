@@ -806,7 +806,7 @@ void func_8069B010(void) {
         func_80714C08(D_80720E14, 0.9f, gCurrentActor, 1, 2);
         *p = D_8076A068;
         gCurrentActor->flags |= 0x80000;
-        collisionCheckActorFloor(gCurrentActor, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, &gCurrentActor->unkA4);
+        collisionCheckActorFloor(gCurrentActor, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, &gCurrentActor->floorY);
     }
     func_8067ACB4(gCurrentActor);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x4B, 0x78, 0, 1.0f);
@@ -1042,7 +1042,7 @@ void textMarkerUpdateMatrix(void) {
     markerView = gCurrentActor->unk174;
     if (!(gCurrentActor->flags & 0x10)) {
         *(s16 *)((u8 *)gCurrentActor + 0xFA) = 0x270F;
-        gCurrentActor->unkA4 = 99999.0f;
+        gCurrentActor->floorY = 99999.0f;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
         if (actorHasActiveMovementFlags(gCurrentActor) != 0) {
             gCurrentActor->unk144 = 2;
@@ -1103,7 +1103,7 @@ void textMarkerUpdateMatrix(void) {
         gCurrentActor->unk144 = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
         if (gCurrentMap == 7 && actorListFindIdByActor(gCurrentActor) == 0x17) {
-            actorListSetPosByActor(gCurrentActor, gCurrentActor->x, gCurrentActor->unkA4, gCurrentActor->z);
+            actorListSetPosByActor(gCurrentActor, gCurrentActor->x, gCurrentActor->floorY, gCurrentActor->z);
         }
     }
     if (gCurrentMap == 0x22 && gCurrentActor->actorType == 0x3D &&
@@ -1302,7 +1302,7 @@ void textMarkerUpdateMatrix(void) {
         lightAdd(gCurrentActor->x, gCurrentActor->y + 30.0f, gCurrentActor->z,
                  0, 0.0f, .0f, (f32)(((f64)(u32)markerView->unk2A / 250.0) * 100.0), 0, 0xFF, 0xFF, 0);  // FAKE: .0f spelling = separate zero web (target: two distinct lightAdd zero webs)
         gCurrentActor->yaw = gCurrentActor->yaw + markerView->unk2A;
-        gCurrentActor->y = gCurrentActor->unkA4;
+        gCurrentActor->y = gCurrentActor->floorY;
         break;
     case 10:
         dz = D_807FBB4C->z - markerView->unkC;

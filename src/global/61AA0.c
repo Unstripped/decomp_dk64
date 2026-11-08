@@ -180,7 +180,7 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
         gBillboardFlags = 0;
         return;
     }
-    if ((actor->unkA4 > 32767.0f) || (actor->unkA4 < -32768.0f)) {
+    if ((actor->floorY > 32767.0f) || (actor->floorY < -32768.0f)) {
         gBillboardFlags = 0;
         return;
     }
@@ -227,12 +227,12 @@ block_21:
     billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][2], (s16)-((f32)halfWidth * xRatio), halfHeight, 0, texHeight - 1);
     billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][3], halfWidth, halfHeight, texWidth - 1, texHeight - 1);
 
-    groundY = actor->unkA4;
-    if ((*(u16 *)&gBillboardFlags & 2) && (actor->contactFlags & 2) && (actor->unkAC <= actor->y)) {
-        f32 diff1 = (actor->y > actor->unkAC) ? (actor->y - actor->unkAC) : -(actor->y - actor->unkAC);
-        f32 diff2 = (actor->y > actor->unkA4) ? (actor->y - actor->unkA4) : -(actor->y - actor->unkA4);
+    groundY = actor->floorY;
+    if ((*(u16 *)&gBillboardFlags & 2) && (actor->contactFlags & 2) && (actor->waterY <= actor->y)) {
+        f32 diff1 = (actor->y > actor->waterY) ? (actor->y - actor->waterY) : -(actor->y - actor->waterY);
+        f32 diff2 = (actor->y > actor->floorY) ? (actor->y - actor->floorY) : -(actor->y - actor->floorY);
         if (diff1 < diff2) {
-            groundY = actor->unkAC;
+            groundY = actor->waterY;
         }
     }
     scale = 1.0 - (f64)((actor->y - groundY) / (f32)fadeDistance);
@@ -258,7 +258,7 @@ block_21:
 
     if (ACTOR_FIELD(u8, 0xCC)) {
         actorGetNodePos(actor, ACTOR_FIELD(u8, 0xCC), &shadowY, &shadowX, &shadowZ);
-        guTranslateF(mtx2, shadowY, actor->unkA4, shadowZ);
+        guTranslateF(mtx2, shadowY, actor->floorY, shadowZ);
     } else {
         guTranslateF(mtx2, actor->x, groundY, actor->z);
     }

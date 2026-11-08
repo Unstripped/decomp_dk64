@@ -71,8 +71,8 @@ void actorSpawnGroundEffectAtNode(u8 nodeIndex) {
     f32 z;
 
     actorGetNodePos(gCurrentActor, nodeIndex, &x, &y, &z);
-    effectSpawnScatterRandom(&D_8071FFA0, 0, 1.0f, 3, 5, 0x28, x, gCurrentActor->unkA4, z);
-    actorSpawnEffectChild(x, gCurrentActor->unkA4, z, 0.05f, 0.04f, gCurrentActor, 0);
+    effectSpawnScatterRandom(&D_8071FFA0, 0, 1.0f, 3, 5, 0x28, x, gCurrentActor->floorY, z);
+    actorSpawnEffectChild(x, gCurrentActor->floorY, z, 0.05f, 0.04f, gCurrentActor, 0);
 }
 
 s32 randomNonNegative(void);

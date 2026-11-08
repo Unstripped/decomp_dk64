@@ -1114,7 +1114,7 @@ void bonusTurtleTroubleTurtleUpdate(void) {
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->yaw = (randomNonNegative() >> 0xF) % 4096;
-        gCurrentActor->unkC4 = -10.0f;
+        gCurrentActor->accelY = -10.0f;
         gCurrentActor->contactFlags &= 0xFFFE;
         func_80613C48(gCurrentActor, 0x688, 0.0f, 0.0f);
         scriptSetActorRampTarget(gCurrentActor, 1.0, 0.0f);
@@ -1150,7 +1150,7 @@ void bonusTurtleTroubleTurtleUpdate(void) {
             v = -t0->unkC * 1.5;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, (u8)((255.0 < v) ? 255.0 : v), 0x7F, 0xA);
         }
-        gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->unkC4;
+        gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->accelY;
         t0->unkC = gCurrentActor->speedY;
         func_8067ACB4(gCurrentActor);
         actorApplyVelocity(gCurrentActor);

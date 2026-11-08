@@ -715,7 +715,7 @@ s16 arg1;
     s16 idx;
 
     idx = D_80770628[gCurrentActor->soundSlot];
-    if (gCurrentActor->y < gCurrentActor->unkAC + 4.0f) {
+    if (gCurrentActor->y < gCurrentActor->waterY + 4.0f) {
         D_80770B68[idx] = ((f64)gCurrentActor->speedXZ / 300.0) + 1.0;
         D_80770BC0[idx] = 1.0f;
     } else {
@@ -724,7 +724,7 @@ s16 arg1;
     }
 
     idx = D_80770628[*(s16 *)gCurrentActor->unk70];
-    if (gCurrentActor->y < gCurrentActor->unkAC + 4.0f) {
+    if (gCurrentActor->y < gCurrentActor->waterY + 4.0f) {
         if (D_80770BC0[idx] == 0.0f) {
             D_80770B68[idx] = (((f64)(u32)randomLcgNext() / 4294967295.0) * 0.05 + 0.975) * (0.2 + ((f64)gCurrentActor->speedXZ / 300.0));
             D_80770BC0[idx] = 1.0f;
@@ -3089,8 +3089,8 @@ void projectileFallBounceUpdate(void) {
     temp_v0 = gCurrentActor->unk174;
     if (!(gCurrentActor->flags & 0x10)) {
         temp_fv0 = gCurrentActor->y;
-        gCurrentActor->unk9C = temp_fv0;
-        gCurrentActor->unkA0 = temp_fv0;
+        gCurrentActor->peakY = temp_fv0;
+        gCurrentActor->prevPeakY = temp_fv0;
         if (D_807FBB64 & 0x80000) {
             gCurrentActor->unk144 = 0x3C;
         } else {
@@ -3099,7 +3099,7 @@ void projectileFallBounceUpdate(void) {
         *temp_v0 = D_8076A068;
         gCurrentActor->flags |= 0x80000;
         collisionQueryActorFloor(gCurrentActor, &sp79, &sp70, &sp78, &sp6C, sp77);
-        gCurrentActor->unkC4 = D_807502F8 - (f32)(((randomNonNegative() >> 15) % 32767) % 10);
+        gCurrentActor->accelY = D_807502F8 - (f32)(((randomNonNegative() >> 15) % 32767) % 10);
         gCurrentActor->contactFlags &= 0xFFFE;
     }
     if (D_807FBB70.unk200 == 5) {
@@ -3126,7 +3126,7 @@ void projectileFallBounceUpdate(void) {
                 temp_v1_2 = gCurrentActor->unk155[0];
                 if (temp_v1_2 < 2) {
                     gCurrentActor->unk155[0] = temp_v1_2 + 1;
-                    gCurrentActor->speedY = (f32)((f64)(gCurrentActor->unkA0 - gCurrentActor->y) * 1.5);
+                    gCurrentActor->speedY = (f32)((f64)(gCurrentActor->prevPeakY - gCurrentActor->y) * 1.5);
                     camStartShake(((CameraShakeTargetView *)gActivePlayerState)->unk104, 0xA, 0x14);
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C1, 0xFF, 0x7F, 0x1E);
                     effectSpawnScatterRandom(&D_8071FFA0, 0, 1.0f, 4, 0x14, 0x96, (s32)gCurrentActor->x, (s32)gCurrentActor->y, (s32)gCurrentActor->z);
@@ -3142,7 +3142,7 @@ void projectileFallBounceUpdate(void) {
                 }
                 gCurrentActor->roll = (s16)(s32)((f64)gCurrentActor->roll - var_fv1);
             }
-            gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->unkC4;
+            gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->accelY;
             temp_fv0 = (f32)D_807502D0;
             if (gCurrentActor->speedY < temp_fv0) {
                 gCurrentActor->speedY = temp_fv0;

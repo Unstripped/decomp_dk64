@@ -150,7 +150,7 @@ void func_806B2790(void) {
         case 0x10:
         case 0x23:
             B7490A->unkE4 += 800.0f * func_80612794(D_807FDC90->unk18 * 15);
-            func_8072A920(gCurrentActor->state, 0, D_807FDC94->x, ((gCurrentActor->unkAC - gCurrentActor->unk15E) < D_807FDC94->y) ? (gCurrentActor->unkAC - gCurrentActor->unk15E) : D_807FDC94->y, D_807FDC94->z, 0x1E, 3.3f, 100.0f, 0x2040);
+            func_8072A920(gCurrentActor->state, 0, D_807FDC94->x, ((gCurrentActor->waterY - gCurrentActor->unk15E) < D_807FDC94->y) ? (gCurrentActor->waterY - gCurrentActor->unk15E) : D_807FDC94->y, D_807FDC94->z, 0x1E, 3.3f, 100.0f, 0x2040);
             if (D_807FBD70 == 2) {
                 gCurrentActor->state = 0x27;
                 gCurrentActor->unk155[0] = 0;
@@ -160,7 +160,7 @@ void func_806B2790(void) {
         case 3:
         case 7:
         case 0x35:
-            func_8072A920(st, 0, D_807FDC90->targetX, (D_807FDC90->targetY < (gCurrentActor->unkAC - gCurrentActor->unk15E)) ? D_807FDC90->targetY : (gCurrentActor->unkAC - gCurrentActor->unk15E), D_807FDC90->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
+            func_8072A920(st, 0, D_807FDC90->targetX, (D_807FDC90->targetY < (gCurrentActor->waterY - gCurrentActor->unk15E)) ? D_807FDC90->targetY : (gCurrentActor->waterY - gCurrentActor->unk15E), D_807FDC90->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
         case 0x37:
             switch (gCurrentActor->unk155[0]) {
@@ -277,7 +277,7 @@ void func_806B2D64(void) {
         case 0x10:
         case 0x23:
             actorEmptyStub();
-            func_8072A920(gCurrentActor->state, 0, D_807FDC94->x, ((gCurrentActor->unkAC - gCurrentActor->unk15E) < D_807FDC94->y) ? (gCurrentActor->unkAC - gCurrentActor->unk15E) : D_807FDC94->y, D_807FDC94->z, 0x1E, 3.3f, 100.0f, 0x2040);
+            func_8072A920(gCurrentActor->state, 0, D_807FDC94->x, ((gCurrentActor->waterY - gCurrentActor->unk15E) < D_807FDC94->y) ? (gCurrentActor->waterY - gCurrentActor->unk15E) : D_807FDC94->y, D_807FDC94->z, 0x1E, 3.3f, 100.0f, 0x2040);
             if (D_807FBD70 == 2) {
                 gCurrentActor->state = 0x27;
                 gCurrentActor->unk155[0] = 0;
@@ -289,7 +289,7 @@ void func_806B2D64(void) {
         case 7:
         case 0x35:
             actorEmptyStub();
-            func_8072A920(gCurrentActor->state, 0, D_807FDC90->targetX, (D_807FDC90->targetY < (gCurrentActor->unkAC - gCurrentActor->unk15E)) ? D_807FDC90->targetY : (gCurrentActor->unkAC - gCurrentActor->unk15E), D_807FDC90->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
+            func_8072A920(gCurrentActor->state, 0, D_807FDC90->targetX, (D_807FDC90->targetY < (gCurrentActor->waterY - gCurrentActor->unk15E)) ? D_807FDC90->targetY : (gCurrentActor->waterY - gCurrentActor->unk15E), D_807FDC90->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
         case 0x37:
             switch (gCurrentActor->unk155[0]) {
@@ -427,8 +427,8 @@ void actorSwellBurstUpdate(void) {
     switch (gCurrentActor->state) {
         case 4:
             actorMoveWithinZone(0, 0.0f, 0.0f, 2, 0.0f);
-            if (gCurrentActor->y < gCurrentActor->unkAC) {
-                gCurrentActor->y = gCurrentActor->unkAC;
+            if (gCurrentActor->y < gCurrentActor->waterY) {
+                gCurrentActor->y = gCurrentActor->waterY;
                 B7490A->unkC0 = B7490A->unkC4;
             }
         case 0:
@@ -471,7 +471,7 @@ void actorSwellBurstUpdate(void) {
         case 2:
         case 3:
             dx = D_807FDC90->targetY;
-            func_8072A920(gCurrentActor->state, 0, D_807FDC90->targetX, (dx < (gCurrentActor->unkAC - gCurrentActor->unk15E)) ? dx : (gCurrentActor->unkAC - gCurrentActor->unk15E), D_807FDC90->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
+            func_8072A920(gCurrentActor->state, 0, D_807FDC90->targetX, (dx < (gCurrentActor->waterY - gCurrentActor->unk15E)) ? dx : (gCurrentActor->waterY - gCurrentActor->unk15E), D_807FDC90->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
         default:
             func_8072B7CC(0x32E);

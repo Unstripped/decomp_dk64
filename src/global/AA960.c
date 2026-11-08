@@ -650,9 +650,9 @@ void actorUpdateSfxAndGround(void) {
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x19C, 0xB4, 0x7F, 1, 0, 0.0f, 0);
     }
     actorBounceFadeInSpinUpdate(0);
-    if (gCurrentActor->y < gCurrentActor->unkAC) {
+    if (gCurrentActor->y < gCurrentActor->waterY) {
         gCurrentActor->speedXZ = 0.0f;
-        gCurrentActor->y = gCurrentActor->unkAC;
+        gCurrentActor->y = gCurrentActor->waterY;
         ((ActorPhysics *)gCurrentActor)->unkC0 = ((ActorPhysics *)gCurrentActor)->unkC4;
     }
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x96, 0x78, 0, 1.0f);
@@ -664,11 +664,11 @@ void actorSpawnRingBurstAndUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x400;
         effectSpawnRingBursts(gCurrentActor, 20.0f, 40.0f, 0x1E);
-        gCurrentActor->unkA4 = 99999.0f;
+        gCurrentActor->floorY = 99999.0f;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     }
     actorBounceFadeInSpinUpdate(0);
-    if (gCurrentActor->unkA4 != 99999.0f) {
+    if (gCurrentActor->floorY != 99999.0f) {
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x19, 0x19, 1, 0x96, 0x78, 0, 1.0f);
     }
 }
@@ -865,7 +865,7 @@ void effectActorSparkleTick(void) {
         actorAppendModelSubNode(gCurrentActor, 0.0f, 10.0f, 0.0f, -1);
         actorSetCollisionRadius(gCurrentActor, 175.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 10.0f, 0.0f, 80.0f, -1);
-        gCurrentActor->unkA4 = 99999.0f;
+        gCurrentActor->floorY = 99999.0f;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     }
     func_8067ACB4(gCurrentActor);
@@ -893,7 +893,7 @@ void effectActorSparkleTick(void) {
         func_807149C8(0xFF, 0xFF, 0xFF, flag ? 0xFF : 0x7F);
         func_80714C08(&D_80721170, 0.4f, gCurrentActor, 1, 2);
     }
-    if (gCurrentActor->unkA4 != 99999.0f) {
+    if (gCurrentActor->floorY != 99999.0f) {
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x96, 0x78, 0, 1.0f);
     }
 }

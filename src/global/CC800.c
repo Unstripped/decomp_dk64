@@ -990,7 +990,7 @@ void actorClearMovementFlags(void *);
 void playerRespawnResetPhysics(s32 arg0) {
     actorClearMovementFlags(D_807FBB48);
     func_806C9434(arg0);
-    D_807FBB48->unk9C = D_807FBB48->y;
+    D_807FBB48->peakY = D_807FBB48->y;
 }
 
 typedef struct G01Player {

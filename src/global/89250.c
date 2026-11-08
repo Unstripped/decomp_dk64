@@ -461,13 +461,13 @@ void effectSpawnScatterRandom(void *texture, u8 colorMode, f32 scale, u8 count, 
 void actorUpdateEffects(Actor *actor) {
     if (!(actor->renderFlags & 4)) {
         if ((actor->flags & 0x10) && ((actor->contactFlags ^ actor->prevContactFlags) & 4)) {
-            effectSpawnDebrisParticles(actor, 0.0f, actor->x, actor->unkAC, actor->z);
+            effectSpawnDebrisParticles(actor, 0.0f, actor->x, actor->waterY, actor->z);
         }
         if (actor->contactFlags & 4) {
             effectActorCheckGroundScaleSpawn(actor);
         }
     }
-    if ((actor->flags2 & 0x40) && func_80665AAC(actor) && !(actor->contactFlags & 0x800) && (actor->unkA4 <= actor->y)) {
+    if ((actor->flags2 & 0x40) && func_80665AAC(actor) && !(actor->contactFlags & 0x800) && (actor->floorY <= actor->y)) {
         actorSpawnAttachedTo(actor);
     }
     if (actor->flags2 & 0x80) {
@@ -486,7 +486,7 @@ void effectSpawnActorScale(Actor *actor) {
     func_8071498C(effectGroundDecalSpinUpdate);
     func_80714A28(4);
     func_807149C8(0xC8, 0xFF, 0xFF, 0xC8);
-    ((Actor338 *)func_80714CC0(&D_8071FED0, (f64) scale * 0.6, actor->x, actor->unkAC, actor->z))->unk338 = actor;
+    ((Actor338 *)func_80714CC0(&D_8071FED0, (f64) scale * 0.6, actor->x, actor->waterY, actor->z))->unk338 = actor;
 }
 
 typedef struct EffectPlayerData {
@@ -519,7 +519,7 @@ void effectActorCheckGroundScaleSpawn(Actor *actor) {
         } else {
             floorYOffset = (f32)(u32)actor->unk15E;
         }
-        if ((actor->unkAC - floorYOffset) <= actor->y) {
+        if ((actor->waterY - floorYOffset) <= actor->y) {
             if (!(gFrameCounter & 3)) {
                 shouldSpawn = (f64)actor->speedXZ != 0.0;
                 if (*(ActorFloorContact **)actor->unk118 != NULL && (*(ActorFloorContact **)actor->unk118)->unk10 != 0) {
@@ -554,7 +554,7 @@ void effectSpawnBurstParticles(Actor *actor) {
     func_807149B8(1);
     func_807149FC(1);
     func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
-    func_80714CC0(&D_8071FC0C, (f64)scale * 0.65, actor->x, actor->unkAC + 15.0f, actor->z);
+    func_80714CC0(&D_8071FC0C, (f64)scale * 0.65, actor->x, actor->waterY + 15.0f, actor->z);
     if (D_80750AD0 == 0) {
         count = (randomLcgNext() & 3) + 4;
         i = 0;
@@ -565,7 +565,7 @@ void effectSpawnBurstParticles(Actor *actor) {
                 func_807149FC(-1);
                 func_8071498C(effectFloorFallUpdate);
                 func_80714A28(4);
-                func_80714CC0(&D_80720B58, scale01, actor->x, actor->unkAC, actor->z);
+                func_80714CC0(&D_80720B58, scale01, actor->x, actor->waterY, actor->z);
                 i++;
             } while (i < count);
         }
@@ -594,9 +594,9 @@ void effectSpawnDebrisParticles(Actor *actor, f32 scaleParam, f32 posX, f32 posY
             if (actor->speedY > -10.0f || (actor->contactFlags & actor->prevContactFlags & 1)) {
                 f = 0.0f;
             } else {
-                f = actor->unkA0 - actor->y;
+                f = actor->prevPeakY - actor->y;
             }
-            limit = (actor->unkAC - actor->unkA4) * 2;
+            limit = (actor->waterY - actor->floorY) * 2;
             f = (f < limit ? f : limit) < 0.0f ? 0.0f : (f < limit ? f : limit);
 
             if (actor->actorType == 0x29 || actor->actorType == 0x32) {

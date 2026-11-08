@@ -1846,7 +1846,7 @@ void playerTakeDamage(s16 arg0) {
 
     sp33 = 0;
     if (D_807FBB48->contactFlags & 4) {
-        temp_fv1 = gCurrentActor->unkAC - gCurrentActor->unkA4;
+        temp_fv1 = gCurrentActor->waterY - gCurrentActor->floorY;
         if (EfL2Player[gCurrentPlayerIndex].unk2C0 == 1) {
             var_fv0 = D_8075386C[D_807FD584];
         } else {
@@ -1910,7 +1910,7 @@ void playerTakeDamage(s16 arg0) {
                         D_807FBB48->speedY = D_80753128[D_807FD584] * 5.0f;
                         D_807FBB48->speedXZ = D_80753144[D_807FD584] * 5.0f;
                         EfL2PS->unk38 = D_807531FC[D_807FD584] * 5.0f;
-                        D_807FBB48->unkC4 = D_8075310C[D_807FD584];
+                        D_807FBB48->accelY = D_8075310C[D_807FD584];
                     }
                 } else {
                     switch (EfL2Player[gCurrentPlayerIndex].unk29C) {
@@ -1918,7 +1918,7 @@ void playerTakeDamage(s16 arg0) {
                         D_807FBB48->state = 0x66;
                         D_807FBB48->unk155[0] = 0;
                         actorScriptStartByIndex(D_807FBB48, 0x26);
-                        D_807FBB48->unkC4 = D_8075310C[D_807FD584];
+                        D_807FBB48->accelY = D_8075310C[D_807FD584];
                         break;
                     case 0x31:
                         if (sp33 != 0) {
@@ -2005,7 +2005,7 @@ void playerTakeDamage(s16 arg0) {
                         D_807FBB48->speedY = D_80753040[D_807FD584];
                         D_807FBB48->speedXZ = D_8075305C[D_807FD584];
                         EfL2PS->unkD4 = D_807530B0[D_807FD584];
-                        D_807FBB48->unkC4 = D_80753024[D_807FD584];
+                        D_807FBB48->accelY = D_80753024[D_807FD584];
                     }
                     break;
                 case 0x32:
@@ -2015,7 +2015,7 @@ void playerTakeDamage(s16 arg0) {
                     }
                     EfL2PS->unkD4 = D_807530D0[D_807FD584];
                     D_807FBB48->speedXZ = D_807530F0[D_807FD584];
-                    D_807FBB48->unkC4 = D_8075310C[D_807FD584];
+                    D_807FBB48->accelY = D_8075310C[D_807FD584];
                     break;
                 case 0xE:
                     if (gPlayerCount >= 2) {
@@ -2027,14 +2027,14 @@ void playerTakeDamage(s16 arg0) {
                         D_807FBB48->speedXZ = D_80753144[D_807FD584] * 10.0f;
                         EfL2PS->unk38 = D_807531FC[D_807FD584] * 10.0f;
                         EfL2PS->unkD4 = 0xA;
-                        D_807FBB48->unkC4 = D_8075310C[D_807FD584];
+                        D_807FBB48->accelY = D_8075310C[D_807FD584];
                     } else {
                         D_807FBB48->speedY = D_80753128[D_807FD584];
                         D_807FBB48->speedXZ = D_80753144[D_807FD584];
                         if (arg0 != 0) {
                             EfL2PS->unkD4 = D_80753160[D_807FD584];
                         }
-                        D_807FBB48->unkC4 = D_8075310C[D_807FD584];
+                        D_807FBB48->accelY = D_8075310C[D_807FD584];
                     }
                     break;
                 case 0x37:

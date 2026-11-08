@@ -736,15 +736,15 @@ void func_80678E14(Actor *actor) {
     f32 temp_fv0 = actor->y;
 
     if (actor->prevY < temp_fv0) {
-        actor->unk9C = temp_fv0;
+        actor->peakY = temp_fv0;
         return;
     }
     if (actor->contactFlags & 5) {
         if (actor->prevContactFlags & 5) {
-            actor->unk9C = temp_fv0;
+            actor->peakY = temp_fv0;
             return;
         }
-        actor->unkA0 = actor->unk9C;
+        actor->prevPeakY = actor->peakY;
     }
 }
 

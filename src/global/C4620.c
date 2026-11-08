@@ -1180,7 +1180,7 @@ void func_806C226C(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         ((R1C46bActor *)gCurrentActor)->unkC4 = D_807502F4;
-        gCurrentActor->y = gCurrentActor->unkA4;
+        gCurrentActor->y = gCurrentActor->floorY;
         gCurrentActor->unk12A = 0x4B0;
         if (flagGet(0x9E, 0) != 0) {
             if (((R1C46bState9C *)D_807FDC9C)->unk13 == 0x16) {

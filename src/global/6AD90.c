@@ -848,7 +848,7 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
                                 D_807F94B0 = 1;
                             }
                         }
-                        ((Actor *)arg3)->unkAC = var_fs0;
+                        ((Actor *)arg3)->waterY = var_fs0;
                         ((Actor *)arg3)->contactFlags |= 2;
                     }
                     D_807F9484 = 1;
@@ -1089,7 +1089,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                                     }
                                 }
                                 arg3->contactFlags |= 2;
-                                arg3->unkAC = h2 / 6.0;
+                                arg3->waterY = h2 / 6.0;
                             }
                             if (tri->unk12 & 0x20) {
                                 func_80666D88(*arg2 * 6.0f, (f32)h2, 1, arg3, 1);

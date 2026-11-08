@@ -2316,7 +2316,7 @@ void func_80618C00(Actor *arg0, u8 arg1) {
     if ((arg0->actorType == 6) || (arg0->actorType == 7)) {
         scale = 0.1f;
     }
-    actorSpawnEffectChild(sp3C, arg0->unkA4, sp34, 0.03f, scale, arg0, 0);
+    actorSpawnEffectChild(sp3C, arg0->floorY, sp34, 0.03f, scale, arg0, 0);
 }
 
 void func_80618C8C(Actor *arg0) {

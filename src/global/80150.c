@@ -383,7 +383,7 @@ void func_8067BD28(void) {
 void func_8067BDB8(void) {
     func_8067BA7C(0x95);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-    gCurrentActor->y = gCurrentActor->unkA4;
+    gCurrentActor->y = gCurrentActor->floorY;
 }
 
 void func_8067BDF8(void) {
@@ -1481,7 +1481,7 @@ void transformBarrelUpdate(void) {
                 gCurrentActor->unk128 = 0;
             }
         }
-        gCurrentActor->unkA4 = gCurrentActor->y;
+        gCurrentActor->floorY = gCurrentActor->y;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         gCurrentActor->flags |= 2;
         var_t0->unk10 = gCurrentActor->unk4->unk38;
@@ -1929,8 +1929,8 @@ void func_8067FB6C(void) {
         sub->unk4 = ((f64)sub->unk14 != 0.0) ? (4.71238899230957031 / (f64)sub->unk14) : (f64)0;
         sub->unk1C = ((ActorFB6CSpawnData *)gCurrentActor->unk124)->unk8;
         sub->unk18 = gCurrentActor->yaw;
-        gCurrentActor->unkA4 = 99999.0f;
-        collisionCheckGroundAtPoint(gCurrentActor->x, gCurrentActor->z, &gCurrentActor->unkA4);
+        gCurrentActor->floorY = 99999.0f;
+        collisionCheckGroundAtPoint(gCurrentActor->x, gCurrentActor->z, &gCurrentActor->floorY);
         if (sub->unk1C == 3) {
             gCurrentActor->unk132 = 2;
         } else {
@@ -2245,7 +2245,7 @@ void tagBarrelActorUpdate(void) {
     sp83 = 0;
     if (!(gCurrentActor->flags & 0x10)) {
         temp_f = (f64)gCurrentActor->unk4->unk34 / 0.15;
-        gCurrentActor->unkA4 = gCurrentActor->y;
+        gCurrentActor->floorY = gCurrentActor->y;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         gCurrentActor->unk110 = 0;
         gCurrentActor->flags |= 2;
@@ -2606,8 +2606,8 @@ void rocketbarrelUpdate(void) {
 
     var_v1 = (RocketbarrelState *)gCurrentActor->unk174;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unkA4 = 99999.0f;
-        collisionCheckGroundAtPoint(gCurrentActor->x, gCurrentActor->z, &gCurrentActor->unkA4);
+        gCurrentActor->floorY = 99999.0f;
+        collisionCheckGroundAtPoint(gCurrentActor->x, gCurrentActor->z, &gCurrentActor->floorY);
         if (1 == *(s32 *)gCurrentActor->unk124) {
             if (func_8067B450(gCurrentActor) == 0) {
                 gCurrentActor->state = 0x14;
@@ -3610,7 +3610,7 @@ void tagBarrelUpdate(void) {
             gCurrentActor->unk12A = 0x15E;
         }
         actor = gCurrentActor;
-        actor->unkA4 = actor->y;
+        actor->floorY = actor->y;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         gCurrentActor->unk110 = 0;
         actor = gCurrentActor;

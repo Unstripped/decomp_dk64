@@ -115,8 +115,8 @@ void func_806D1110(void) {
 }
 
 void playerClampYAboveFloor(void) {
-    if (gCurrentActor->unkAC < gCurrentActor->y + 4.5f) {
-        gCurrentActor->y = gCurrentActor->unkAC - 4.5f;
+    if (gCurrentActor->waterY < gCurrentActor->y + 4.5f) {
+        gCurrentActor->y = gCurrentActor->waterY - 4.5f;
     }
 }
 

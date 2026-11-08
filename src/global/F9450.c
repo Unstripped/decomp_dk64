@@ -1642,7 +1642,7 @@ void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
         sfxAllocateChannel(0x12, 1.0f);
         func_80687C48();
         temp_fv0 = D_807FBB4C->y;
-        if (((temp_fv0 - D_807FBB4C->unkA4) < 100.0f) && (D_807FBB4C->state != 0x63) && (!(D_807FBB4C->contactFlags & 4) || !((D_807FBB4C->unkAC - temp_fv0) > 20.0f))) {
+        if (((temp_fv0 - D_807FBB4C->floorY) < 100.0f) && (D_807FBB4C->state != 0x63) && (!(D_807FBB4C->contactFlags & 4) || !((D_807FBB4C->waterY - temp_fv0) > 20.0f))) {
             playerStateQueueCallback(0x29, 0, F9L2_PS->unk1A4);
             return;
         }
@@ -1651,7 +1651,7 @@ void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
     case 0x288:
         sfxAllocateChannel(0x12, 1.0f);
         temp_fv0_2 = D_807FBB4C->y;
-        if (((temp_fv0_2 - D_807FBB4C->unkA4) < 100.0f) && (D_807FBB4C->state != 0x63) && (!(D_807FBB4C->contactFlags & 4) || !((D_807FBB4C->unkAC - temp_fv0_2) > 20.0f))) {
+        if (((temp_fv0_2 - D_807FBB4C->floorY) < 100.0f) && (D_807FBB4C->state != 0x63) && (!(D_807FBB4C->contactFlags & 4) || !((D_807FBB4C->waterY - temp_fv0_2) > 20.0f))) {
             playerStateQueueCallback(0x29, 0, F9L2_PS->unk1A4);
             return;
         }

@@ -245,7 +245,7 @@ void func_806AD9F4(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         D_807FDC98->unk46 |= 0x200;
         behaviourSetAnimIds(0x2F4, 0x2F4, 0x2F4);
-        if (gCurrentActor->y != gCurrentActor->unkA4) {
+        if (gCurrentActor->y != gCurrentActor->floorY) {
             gCurrentActor->state = 0x1E;
             actorScriptStart(gCurrentActor, 0x2F8);
             actorSpawnLinkedFollower();
