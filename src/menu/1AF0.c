@@ -47,7 +47,7 @@ Gfx *textDrawStringVtx();
 char *textTableGetString(s32, s32, s32);
 s32 _sprintf(char *, const char *, ...);
 
-Gfx *func_80025B64(Gfx *dl, MenuShopPromptActor *actor) {
+Gfx *menuDrawShopCostPrompt(Gfx *dl, MenuShopPromptActor *actor) {
     Struct_80025D14 *st = actor->unk178;
     char buf[0x28];
 
@@ -204,7 +204,7 @@ extern MenuM1_Entry D_80033408[][7];
 extern u8 D_8076A0AB;
 s32 func_805FF030(s32, s32);
 
-void func_80025FB4(Struct_80025D14 *state, u8 *inventory, s32 isExiting) {
+void menuCheckInventoryItemPurchased(Struct_80025D14 *state, u8 *inventory, s32 isExiting) {
     MenuM1_Entry *tbl;
     s32 found = 0;
     s32 count = 6;
@@ -290,7 +290,7 @@ s32 menuGetOptionAvailability(Struct_80025D14 *state, s32 optionIdx) {
     return ret;
 }
 
-s32 func_80026250(Struct_80025D14 *state) {
+s32 menuIsSpecialMovePurchased(Struct_80025D14 *state) {
     s32 ret = gCurrentActor->unk58 == 0xBD;
 
     if (ret != 0) {
@@ -324,7 +324,7 @@ typedef struct {
     u8 lo;
 } MenuM1_Pair;
 
-void func_800262A8(Struct_80025D14 *state, void *inventory, s32 hasSecondAction) {
+void menuFormatShopPurchaseText(Struct_80025D14 *state, void *inventory, s32 hasSecondAction) {
     MenuM1_Pair *pairs;
     u16 textParam1;
     s32 availability;
@@ -442,13 +442,13 @@ void func_800262A8(Struct_80025D14 *state, void *inventory, s32 hasSecondAction)
     }
 }
 
-void func_800262A8(Struct_80025D14 *, void *, s32);
+void menuFormatShopPurchaseText(Struct_80025D14 *, void *, s32);
 void camResumePath(void);
 
 void menuDispatchSubmenuAction(Struct_80025D14 *state, u8 *inventory, s32 flag) {
     switch (state->unkE) {
     case 0:
-        func_800262A8(state, inventory, flag);
+        menuFormatShopPurchaseText(state, inventory, flag);
         break;
     case 1:
         if (!(gCurrentActor->unk60 & 0x02000000)) {
@@ -464,13 +464,13 @@ void menuDispatchSubmenuAction(Struct_80025D14 *state, u8 *inventory, s32 flag) 
 extern void *D_807FBB4C;
 void playerWaypointPathStartPacked(void *, void *, s32, s32);
 void camStartPath(void *, s32, s32);
-void func_80025FB4(Struct_80025D14 *, u8 *, s32);
+void menuCheckInventoryItemPurchased(Struct_80025D14 *, u8 *, s32);
 s32 playerStateQueueCallback(s32, void *, s32);
 
 s32 menuExitSubmenu(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
     s32 flag = flagGet((s16)flagId, 0) == 0;
 
-    func_80025FB4(state, inventory, flag);
+    menuCheckInventoryItemPurchased(state, inventory, flag);
     state->unkD = 0;
     state->unkE = 0;
     if (flagGet(0x61, 2) == 0) {
@@ -496,7 +496,7 @@ void menuTransitionToSubmenu(Struct_80025D14 *state, u8 *inventory) {
     state->unkA = 1;
     camStartPath(0, 0xF, 1);
     currentActorClearFlag();
-    func_80025FB4(state, inventory, 0);
+    menuCheckInventoryItemPurchased(state, inventory, 0);
     state->unkD = 0;
     state->unkE = 0;
     playerStateQueueCallback(0x1B, gCurrentActor, 0);
@@ -510,7 +510,7 @@ void slotQueueCancel(s32, s32);
 s32 actorSpawn(s32, s32);
 void func_80614E78(void *, s32);
 
-void func_80026874(Struct_80025D14 *state, u8 *inventory) {
+void menuUpdateShopPurchaseStep(Struct_80025D14 *state, u8 *inventory) {
     s32 textParam1;
     s32 textParam2;
 
@@ -523,10 +523,10 @@ void func_80026874(Struct_80025D14 *state, u8 *inventory) {
         break;
     case 1:
     case 5:
-        renderCallbacksRegister(func_80025B64, gCurrentActor, 3);
+        renderCallbacksRegister(menuDrawShopCostPrompt, gCurrentActor, 3);
         break;
     case 10:
-        if (func_80026250(state) == 0) {
+        if (menuIsSpecialMovePurchased(state) == 0) {
             slotQueueCancel(1, 0);
             slotQueueCancel(0xE, 0);
             menuApplyPurchase(state, inventory);
@@ -561,7 +561,7 @@ void func_80026874(Struct_80025D14 *state, u8 *inventory) {
         switch (gCurrentActor->unk58) {
         case 0xBD:
             textParam1 = 8;
-            if (func_80026250(state) != 0) {
+            if (menuIsSpecialMovePurchased(state) != 0) {
                 state->unkA = 1;
                 menuTransitionToSubmenu(state, inventory);
                 return;
@@ -591,7 +591,7 @@ extern u16 D_80033A50[][4];
 extern u16 D_80033A78[];
 extern u16 D_800334E4[];
 
-void func_80026B28(Struct_80025D14 *state, void *inventory, s32 flagId) {
+void menuUpdateShopDialogueStep(Struct_80025D14 *state, void *inventory, s32 flagId) {
     s32 textParam2;
     s32 textParam1;
     s32 extraTextParam;
@@ -668,7 +668,7 @@ void func_80026B28(Struct_80025D14 *state, void *inventory, s32 flagId) {
 void func_805FF898(void);
 void playerResumeLocomotion(void *);
 
-void func_80026DAC(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
+void menuUpdateShopExitingStep(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
     s32 x;
     s32 camPathId;
     s32 textParam1;
@@ -746,8 +746,8 @@ void func_80026DAC(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
     }
 }
 
-void func_80026B28(Struct_80025D14 *, void *, s32);
-void func_80026DAC(Struct_80025D14 *, u8 *, s32);
+void menuUpdateShopDialogueStep(Struct_80025D14 *, void *, s32);
+void menuUpdateShopExitingStep(Struct_80025D14 *, u8 *, s32);
 
 void menuDispatchCurrentMenuAction(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
     s32 flag = flagGet((s16)flagId, 0) == 0;
@@ -757,13 +757,13 @@ void menuDispatchCurrentMenuAction(Struct_80025D14 *state, u8 *inventory, s32 fl
         menuDispatchSubmenuAction(state, inventory, flag);
         break;
     case 1:
-        func_80026874(state, inventory);
+        menuUpdateShopPurchaseStep(state, inventory);
         break;
     case 2:
-        func_80026B28(state, inventory, flagId);
+        menuUpdateShopDialogueStep(state, inventory, flagId);
         break;
     case 3:
-        func_80026DAC(state, inventory, flagId);
+        menuUpdateShopExitingStep(state, inventory, flagId);
         break;
     }
 }
@@ -774,7 +774,7 @@ void actorScriptedCommandUpdate(void);
 void actorUpdateModelMatrix(void *, s32);
 void actorScriptStart(void *, s32);
 
-void func_800270E0(void) {
+void menuUpdateCrankyShopActor(void) {
     s32 i;
     s32 n;
     s32 camPathId;
@@ -951,7 +951,7 @@ void menuCheckControllerAntiPiracy(void) {
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
-void func_80027738(void) {
+void menuUpdateFunkyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 1) {
         Struct_80025D14 *temp = gCurrentActor->unk178;
@@ -1115,6 +1115,6 @@ void menuUpdateTransformedWidgets(void) {
 
 void menuUpdateTransformedWidgets(void);
 
-void func_80027DEC(void) {
+void menuUpdateOverlayWidgetActor(void) {
     menuUpdateTransformedWidgets();
 }
