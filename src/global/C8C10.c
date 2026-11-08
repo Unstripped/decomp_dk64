@@ -912,10 +912,10 @@ void actorAttachChildCallbacks(void);
 void actorDespawn(Actor *);
 void actorScriptStartByIndex(Actor *, s32);
 s32 randomNonNegative(void);
-void func_807149B8(s32);
+void effectSetDepth(s32);
 void effectShrinkFadeMatrixUpdate(void);
-void func_8071498C(void (*)(void));
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetCallback(void (*)(void));
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 f32 sqrtf(f32);
 s32 func_8072DE10(u16);
 s32 spawnNodeIdForActor(Actor *);
@@ -946,9 +946,9 @@ void func_806C5C20(void) {
     func_80724E48(6);
     actorMoveWithinZone(1, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x2C9, 0.0f);
     if (!(gFrameCounter & 3)) {
-        func_807149B8(1);
-        func_8071498C(effectShrinkFadeMatrixUpdate);
-        func_80714CC0(&D_8071FB08, 1.6f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectSetDepth(1);
+        effectSetCallback(effectShrinkFadeMatrixUpdate);
+        effectCreateAtPosition(&D_8071FB08, 1.6f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
     if (!(gActivePlayerState->stateFlags & 0x8000)) {
         dist = sqrtf((R1C8CBP->unk218 - gCurrentActor->z) * (R1C8CBP->unk218 - gCurrentActor->z) +

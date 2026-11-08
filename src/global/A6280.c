@@ -181,12 +181,12 @@ void camStartPath(Actor *, s32, s32);
 void flagSet(s32, s32, s32);
 s32 randomNonNegative(void);
 void effectDecelDriftFadeUpdate(void);
-void func_8071498C(void *);
-void func_80714950(s32);
-void func_807149B8(s32);
-void func_807149C8(s32, s32, s32, s32);
-void func_80714998(s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetCallback(void *);
+void effectSetSpeed(s32);
+void effectSetDepth(s32);
+void effectSetColor(s32, s32, s32, s32);
+void effectSetMode(s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void func_8072881C(s32, void *);
 
 void func_806A1AC4(void) {
@@ -239,12 +239,12 @@ void func_806A1AC4(void) {
             if (!(gFrameCounter & 7)) {
                 for (i = 0; i < 0xC; i++) {
                     driftSpeed = (((randomNonNegative() >> 15) % 32767) % 171 + 0x96) * 0.01;
-                    func_8071498C((void *)effectDecelDriftFadeUpdate);
-                    func_80714950(i);
-                    func_807149B8(1);
-                    func_807149C8(0x8C, 0x8C, 0x8C, 0xFF);
-                    func_80714998(5);
-                    func_80714CC0(&sEffectSparkConfig, driftSpeed, gCurrentActor->x, gCurrentActor->y + 50.0f, gCurrentActor->z);
+                    effectSetCallback((void *)effectDecelDriftFadeUpdate);
+                    effectSetSpeed(i);
+                    effectSetDepth(1);
+                    effectSetColor(0x8C, 0x8C, 0x8C, 0xFF);
+                    effectSetMode(5);
+                    effectCreateAtPosition(&sEffectSparkConfig, driftSpeed, gCurrentActor->x, gCurrentActor->y + 50.0f, gCurrentActor->z);
                 }
             }
             break;
@@ -351,13 +351,13 @@ void actorSinkAndDespawn(void) {
             node = 1;
             if (sub->unk0 == 0) {
                 do {
-                    func_80714998(2);
-                    func_807149B8(1);
-                    func_8071498C(&func_80717D4C);
-                    func_80714950(-0x64);
-                    func_807149C8(0x64, 0x46, 0x1E, 0xFF);
+                    effectSetMode(2);
+                    effectSetDepth(1);
+                    effectSetCallback(&func_80717D4C);
+                    effectSetSpeed(-0x64);
+                    effectSetColor(0x64, 0x46, 0x1E, 0xFF);
                     actorGetNodePos(gCurrentActor, node, &nodeX, &nodeY, &nodeZ);
-                    func_80714CC0(&D_8071FF18, 2.0f, nodeX, nodeY + 10.0, nodeZ);
+                    effectCreateAtPosition(&D_8071FF18, 2.0f, nodeX, nodeY + 10.0, nodeZ);
                     node++;
                 } while (node != 9);
                 sub->unk0 = 0xF;

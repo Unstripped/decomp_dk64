@@ -93,13 +93,13 @@ void func_8068A764(Actor *, u8);
 void textMarkerUpdateMatrix(void);
 void slotQueueCancel(s32, s32);
 s32 textTableGetString(s32, s32, s32);
-void func_80714950();
-void func_8071496C(s32);
-void func_8071498C(void *);
-void func_80714998(u32);
-void func_807149B8(u32);
-void func_807149FC(s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetSpeed();
+void effectSetAngle(s32);
+void effectSetCallback(void *);
+void effectSetMode(u32);
+void effectSetDepth(u32);
+void effectSetDuration(s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectRadialSprayUpdate(void);
 void effectPuffExpandFadeUpdate(void);
 void effectSpinBillboardingUpdate(void);
@@ -168,7 +168,7 @@ void controllerAnimSetState(Actor *, s16, f32, f32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void actorQueueDelayedCallback(Actor *, Actor *, s32, s32, s32, s32, s32);
 void func_8067AAB8(s32, Actor *, s16, f32, s16);
-void func_80714C08(void *, f32, void *, s32, s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32);
 
 void func_8067B4C8(void) {
     ActorB4C8State *sub = gCurrentActor->customState;
@@ -230,9 +230,9 @@ void func_8067B4C8(void) {
             peer->unkB8 = sub->unk10;
             func_8067AAB8((s32)gCurrentActor, sub->unk0, gCurrentActor->yaw, 0.0f, sub->unk4);
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
-            func_80714998(2);
-            func_807149B8(1);
-            func_80714C08(&D_8071FBC8, 2.0f, gCurrentActor, 1, 2);
+            effectSetMode(2);
+            effectSetDepth(1);
+            effectCreateAtActorBone(&D_8071FBC8, 2.0f, gCurrentActor, 1, 2);
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x17, 0xFF, 0x7F, 0x19, 0x1E, 0.3f, 0);
             gCurrentActor->state++;
             sub->unk14 = 4;
@@ -312,9 +312,9 @@ void func_8067BA7C(s32 arg0) {
             break;
         case 10:
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x31, 0xFF, 0x7F, 1);
-            func_807149B8(0);
-            func_807149FC(1);
-            func_80714CC0(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
+            effectSetDepth(0);
+            effectSetDuration(1);
+            effectCreateAtPosition(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
             actorListSpawnNodeEntryDefault(arg0, gCurrentActor->x, gCurrentActor->y + 8.3, gCurrentActor->z, 0, 1.0f, gCurrentActor);
             gCurrentActor->state++;
             break;
@@ -502,9 +502,9 @@ s32 tagBarrelCheckProximityAndFall(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
         actorListSpawnNodeEntryDefault(arg0, gCurrentActor->x, (f32)((f64)gCurrentActor->y + 8.3), gCurrentActor->z, 0, 1.0f, gCurrentActor);
         if (gCurrentActor->flags & 0x10) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x31, 0xFF, 0x7F, 1);
-            func_807149B8(0);
-            func_807149FC(1);
-            func_80714CC0(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
+            effectSetDepth(0);
+            effectSetDuration(1);
+            effectCreateAtPosition(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
         }
     }
     if (*arg2 != 0) {
@@ -812,7 +812,7 @@ void func_8067ACB4(Actor *);
 void actorCopyPoseAndScale(Actor *, Actor *, f32);
 void tagBarrelSpawnActorSmokePuffs();
 void actorReleaseFromPlayerHold(Actor *);
-void func_807149A8(s32);
+void effectSetMaxDistance(s32);
 void effectWobbleRiseUpdate(void);
 void pathFollowUpdateHeading(Actor *, s32);
 void animationOwnerFreeBuffer(Actor *);
@@ -833,10 +833,10 @@ void actorTransformCameraUpdate(void) {
         temp_s1->unk39 = 0;
         if (ACTOR_C71C->unk58 == 0x1A) {
             ACTOR_C71C->unk60 |= 0x1000;
-            func_807149B8(1);
-            func_807149FC(-1);
-            func_807149A8((s16)((f64)ACTOR_C71C->unk12A * 0.75));
-            func_80714C08(&D_8072030C, 0.14f, gCurrentActor, 1, 2);
+            effectSetDepth(1);
+            effectSetDuration(-1);
+            effectSetMaxDistance((s16)((f64)ACTOR_C71C->unk12A * 0.75));
+            effectCreateAtActorBone(&D_8072030C, 0.14f, gCurrentActor, 1, 2);
             actorClearNodeFlag(gCurrentActor, 3);
         }
         ACTOR_C71C->unkA4 = 99999.0f;
@@ -1004,10 +1004,10 @@ void actorTransformCameraUpdate(void) {
         break;
     case 6:
         if (((randomLcgNext() / 100000) % 3) == 0) {
-            func_807149B8(1);
-            func_807149FC(-1);
-            func_8071498C(effectWobbleRiseUpdate);
-            func_80714CC0(&D_8071FC40, 0.0f, ACTOR_C71C->unk7C, ACTOR_C71C->unk80, ACTOR_C71C->unk84);
+            effectSetDepth(1);
+            effectSetDuration(-1);
+            effectSetCallback(effectWobbleRiseUpdate);
+            effectCreateAtPosition(&D_8071FC40, 0.0f, ACTOR_C71C->unk7C, ACTOR_C71C->unk80, ACTOR_C71C->unk84);
         }
         if (temp_s1->unk30 != 0) {
             if (temp_s1->unk30 == 1) {
@@ -1204,27 +1204,27 @@ void tagBarrelDespawnEffects(void) {
 
     temp_fs0 = (f64) gCurrentActor->sub4->scaleY / 0.15;
     rumbleRequest(0, 0xB4, 0xA);
-    func_807149B8(0);
-    func_807149FC(1);
-    func_80714CC0(&D_8071FE08, (f64) temp_fs0 * 0.75, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+    effectSetDepth(0);
+    effectSetDuration(1);
+    effectCreateAtPosition(&D_8071FE08, (f64) temp_fs0 * 0.75, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x23, 0xFF, 0x7F, 1);
 
     for (var_s1 = 0; var_s1 != 7; var_s1++) {
         temp_s0 = ((s32) (randomLcgNext() / 10000U)) % 3;
-        func_807149B8(1);
-        func_807149FC(0xA);
-        func_8071498C(effectTumbleBounceUpdate);
-        func_80714998(2);
-        func_80714950(2);
+        effectSetDepth(1);
+        effectSetDuration(0xA);
+        effectSetCallback(effectTumbleBounceUpdate);
+        effectSetMode(2);
+        effectSetSpeed(2);
         switch (temp_s0) {
         case 0:
-            func_80714CC0(&D_8071FE64, (f64) temp_fs0 * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&D_8071FE64, (f64) temp_fs0 * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             break;
         case 1:
-            func_80714CC0(&D_8071FE88, (f64) temp_fs0 * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&D_8071FE88, (f64) temp_fs0 * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             break;
         case 2:
-            func_80714CC0(&D_8071FEAC, (f64) temp_fs0 * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(&D_8071FEAC, (f64) temp_fs0 * 0.25, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             break;
         }
     }
@@ -1241,34 +1241,34 @@ void tagBarrelSpawnSmokeAndPuffs(f32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4
     if (arg5 != 0) {
         sfxPlayAtPositionPooled(arg0, arg1, arg2, 0xF6, 0xFF, 0x7F, 0x19, 0x1E, 0.3f, 0);
     }
-    func_807149B8(1);
-    func_8071498C(effectPuffExpandFadeUpdate);
-    func_80714CC0(&D_80720120, 0.0f, arg0, arg1 + 5.0f, arg2);
+    effectSetDepth(1);
+    effectSetCallback(effectPuffExpandFadeUpdate);
+    effectCreateAtPosition(&D_80720120, 0.0f, arg0, arg1 + 5.0f, arg2);
     sp80 = (f64) arg3;
     sp7C = sp80 * 1.5;
     for (var_s0 = 0; var_s0 < 5; var_s0++) {
         temp_fs1 = (f32) (((s32) (randomNonNegative() >> 15) % 20) - 10) * arg3;
         temp_fs2 = (f32) (((s32) (randomNonNegative() >> 15) % 20) - 10) * arg3;
         temp_fs0 = (f32) (((s32) (randomNonNegative() >> 15) % 20) - 10) * arg3;
-        func_8071496C(4);
-        func_807149B8(1);
-        func_807149FC(1);
-        func_8071498C(effectSpinBillboardingUpdate);
-        func_80714CC0(&D_80720340, sp7C, arg0 + temp_fs1, arg1 + temp_fs2, arg2 + temp_fs0);
+        effectSetAngle(4);
+        effectSetDepth(1);
+        effectSetDuration(1);
+        effectSetCallback(effectSpinBillboardingUpdate);
+        effectCreateAtPosition(&D_80720340, sp7C, arg0 + temp_fs1, arg1 + temp_fs2, arg2 + temp_fs0);
     }
-    func_8071496C(4);
-    func_807149B8(1);
-    func_807149FC(1);
-    func_8071498C(effectSpinBillboardingUpdate);
-    func_80714CC0(&D_80720340, sp7C, arg0, arg1, arg2);
+    effectSetAngle(4);
+    effectSetDepth(1);
+    effectSetDuration(1);
+    effectSetCallback(effectSpinBillboardingUpdate);
+    effectCreateAtPosition(&D_80720340, sp7C, arg0, arg1, arg2);
     if (arg4 != 0) {
         for (var_s0 = 0; var_s0 != 12; var_s0++) {
-            func_807149B8(1);
-            func_807149FC(2);
-            func_80714950(var_s0 + 0x0B020000);
-            func_8071498C(effectRadialSprayUpdate);
-            func_80714998(1);
-            func_80714CC0(&D_8072038C, (f32)(sp80 * 0.5), arg0, arg1, arg2);
+            effectSetDepth(1);
+            effectSetDuration(2);
+            effectSetSpeed(var_s0 + 0x0B020000);
+            effectSetCallback(effectRadialSprayUpdate);
+            effectSetMode(1);
+            effectCreateAtPosition(&D_8072038C, (f32)(sp80 * 0.5), arg0, arg1, arg2);
         }
     }
 }
@@ -1342,9 +1342,9 @@ void func_8067E510(void) {
     if (gCurrentActor->state == 0) {
         for (i = 0; i < gActorGlobalState.unk254; i++) {
             if (gActorGlobalState.unk258[i] == 1) {
-                func_807149B8(0);
-                func_807149FC(1);
-                func_80714CC0(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
+                effectSetDepth(0);
+                effectSetDuration(1);
+                effectCreateAtPosition(&D_8071FE08, 0.5f, gCurrentActor->x, gCurrentActor->y + 7.0f, gCurrentActor->z);
                 actorDespawn(gCurrentActor);
             }
         }
@@ -2020,8 +2020,8 @@ void func_8067FB6C(void) {
             }
             func_8067AAB8((s32)gCurrentActor, sub->unk0, gCurrentActor->yaw, 0.0f, var_v0);
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
-            func_80714998(2);
-            func_80714C08(&D_8071FBC8, 1.6f, gCurrentActor, 1, 2);
+            effectSetMode(2);
+            effectCreateAtActorBone(&D_8071FBC8, 1.6f, gCurrentActor, 1, 2);
             gCurrentActor->flags &= ~0x400;
             gCurrentActor->state = 2;
             gCurrentActor->unk155[0] = 0x1E;
@@ -2218,7 +2218,7 @@ void actorSetCustomInt(Actor *, s16, s32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 
 extern s16 D_80750390;
-void func_80714A28(s32);
+void effectSetFlags(s32);
 void sfxAllocateChannel(s32, f32);
 void func_806C7BAC(void *, Actor *);
 
@@ -2327,15 +2327,15 @@ void tagBarrelActorUpdate(void) {
             coord[2] = ((f64)((randomNonNegative() >> 15) % (s32)(30.0f * temp_f2)) - (15.0 * (f64)temp_f2)) + gCurrentActor->x;
             coord[1] = ((f64)((randomNonNegative() >> 15) % (s32)(30.0f * temp_f2)) - (15.0 * (f64)temp_f2)) + gCurrentActor->y;
             coord[0] = ((f64)((randomNonNegative() >> 15) % (s32)(30.0f * temp_f2)) - (15.0 * (f64)temp_f2)) + gCurrentActor->z;
-            func_807149B8(1);
-            func_80714A28(4);
+            effectSetDepth(1);
+            effectSetFlags(4);
             if (gCurrentActor->state == 0) {
-                func_8071498C(&effectZSpinMatrixUpdate);
-                func_80714CC0(D_8071FC58, 0.5f, coord[2], coord[1], coord[0]);
+                effectSetCallback(&effectZSpinMatrixUpdate);
+                effectCreateAtPosition(D_8071FC58, 0.5f, coord[2], coord[1], coord[0]);
             } else {
-                func_80714950((s32)(gCurrentActor->sub4->scaleX * 100.0f) + (sub->unk8 << 16));
-                func_8071498C(effectOrbitXZUpdate);
-                func_80714CC0(D_8071FC58, 0.5f, gCurrentActor->x, coord[1], gCurrentActor->z);
+                effectSetSpeed((s32)(gCurrentActor->sub4->scaleX * 100.0f) + (sub->unk8 << 16));
+                effectSetCallback(effectOrbitXZUpdate);
+                effectCreateAtPosition(D_8071FC58, 0.5f, gCurrentActor->x, coord[1], gCurrentActor->z);
             }
         }
     }
@@ -3579,7 +3579,7 @@ typedef struct TagBarrelData {
 } TagBarrelData;
 
 extern u8 D_8071FC8C[];
-void func_80714A28(s32);
+void effectSetFlags(s32);
 s32 mapIsBossArena(void);
 s32 func_806C9D7C(void);
 s32 tagBarrelCheckKongFlag(s32, s32);
@@ -3597,13 +3597,13 @@ void tagBarrelUpdate(void) {
         sub->unk24 = gCurrentActor->y;
         *(s16 *)&gCurrentActor->unk145[1] = 0;
         gCurrentActor->eyeHeight = 0;
-        func_80714998(2);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_807149A8(0x3E8);
-        func_80714A28(4);
+        effectSetMode(2);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectSetMaxDistance(0x3E8);
+        effectSetFlags(4);
         actor = gCurrentActor;
-        func_80714CC0(&D_8071FC8C, 1.3f, actor->x, (f32)((f64)actor->y + 13.0), actor->z);
+        effectCreateAtPosition(&D_8071FC8C, 1.3f, actor->x, (f32)((f64)actor->y + 13.0), actor->z);
         if (mapIsBossArena()) {
             gCurrentActor->drawDistance = 0x7D0;
         } else {

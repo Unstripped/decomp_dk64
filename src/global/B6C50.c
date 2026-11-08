@@ -57,12 +57,12 @@ void actorUpdateFloorContactAndTilt(B6C50Actor *, f32);
 void actorCopyPoseAndScale(B6C50Actor *, B6C50Actor *, f32);
 void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
 void hudSpawnCountdownTimer(s32, s32, u8);
-void func_80714998(s32);
-void func_807149A8(s16);
-void func_807149B8(s32);
-void func_807149C8(s32, s32, s32, s32);
-void func_807149FC(s32);
-void func_80714C08(void *, f32, void *, s32, s32);
+void effectSetMode(s32);
+void effectSetMaxDistance(s16);
+void effectSetDepth(s32);
+void effectSetColor(s32, s32, s32, s32);
+void effectSetDuration(s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32);
 void effectFreeByResource(B6C50Actor *);
 void func_80726EE0(s32);
 void behaviourFrameBegin(void);
@@ -90,10 +90,10 @@ void func_806B1F50(void) {
         actorUpdateFloorContactAndTilt(gSpawnedActor, 14.0f);
         gCurrentActor->unk68 &= 0xFFBF;
         gSpawnedActor->unk60 |= 0x1000;
-        func_807149B8(1);
-        func_807149FC(-1);
-        func_807149A8(gSpawnedActor->unk12A * 0.75);
-        func_80714C08(&D_8072030C, 0.28f, gSpawnedActor, 1, 2);
+        effectSetDepth(1);
+        effectSetDuration(-1);
+        effectSetMaxDistance(gSpawnedActor->unk12A * 0.75);
+        effectCreateAtActorBone(&D_8072030C, 0.28f, gSpawnedActor, 1, 2);
         actorScriptStart(gCurrentActor, 0x300);
         sfxPlayActorSound(gCurrentActor, 0x135, 0x64, 0, 0, 0x78, 1.0f, 0);
     }
@@ -152,8 +152,8 @@ void func_806B1F50(void) {
             }
             if (gCurrentActor->unk155 != 0 && actorTableContains(gBehaviourTargetActor) != 0 && gFrameCounter % 7 == 0) {
                 tint = -gCurrentActor->unk155 * 0x1E + 0xB4;
-                func_80714998(3);
-                func_807149C8(tint, tint, tint & 0xFF, gCurrentActor->unk129);
+                effectSetMode(3);
+                effectSetColor(tint, tint, tint & 0xFF, gCurrentActor->unk129);
                 effectSpawnBoneDefault((B6C50Actor *)gBehaviourTargetActor, 1, 1.0f, 0.0f, 0.0f, 0.0f, -0x96);
             }
             break;
@@ -188,8 +188,8 @@ void func_806B24B8(void) {
         gCurrentActor->unk60 |= 0x400;
     }
     if (gFrameCounter % 10 == 0) {
-        func_807149B8(1);
-        func_80714C08(&D_80720340, gCurrentActor->unk4->scaleY * 6.66666667 * 0.9, gCurrentActor, 1, 2);
+        effectSetDepth(1);
+        effectCreateAtActorBone(&D_80720340, gCurrentActor->unk4->scaleY * 6.66666667 * 0.9, gCurrentActor, 1, 2);
     }
     if (actorTableContains(gBehaviourTargetActor) == 0) {
         ((B6C50View90 *)gBehaviourWorkState)->unk4 = gPrimaryPlayerActor;

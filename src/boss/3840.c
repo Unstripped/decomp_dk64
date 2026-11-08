@@ -454,11 +454,11 @@ typedef struct {
 
 void sfxAllocateChannel(s32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
-void func_80714950(void *);
-void func_8071498C(void *);
-void func_807149B8(s32);
-void func_807149FC(s32);
-void func_80714CC0(s32, f32, f32, f32, f32);
+void effectSetSpeed(void *);
+void effectSetCallback(void *);
+void effectSetDepth(s32);
+void effectSetDuration(s32);
+void effectCreateAtPosition(s32, f32, f32, f32, f32);
 s32 flagGet(s16, s32);
 void effectWispHomeUpdate(void);
 
@@ -481,11 +481,11 @@ u8 unkScale;
         return;
     }
     for (s0 = 0; s0 < 6; s0++) {
-        func_8071498C(effectWispHomeUpdate);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_80714950(gBehaviourTargetActor);
-        func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk80 + (f32)gBehaviourTargetActor->unk15E, gBehaviourTargetActor->unk84);
+        effectSetCallback(effectWispHomeUpdate);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectSetSpeed(gBehaviourTargetActor);
+        effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk80 + (f32)gBehaviourTargetActor->unk15E, gBehaviourTargetActor->unk84);
     }
     actorSpawnNodeEntryScaled(0x48, (f32)x, (f32)y, (f32)z, (s32)unkRot, (s32)unkScale, (s16)flag, 0);
 }
@@ -597,7 +597,7 @@ void bossRoundFrame(u8 *script) {
         gPrimaryPlayerActor->unk7C = 780.0f;
         gPrimaryPlayerActor->unk80 = 50.0f;
         gPrimaryPlayerActor->unk84 = 750.0f;
-        func_80714CC0((s32)D_8071FE08, 1.0f, gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk80, gPrimaryPlayerActor->unk84);
+        effectCreateAtPosition((s32)D_8071FE08, 1.0f, gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk80, gPrimaryPlayerActor->unk84);
     }
     if (!(BA40->unk60 & 0x10)) {
         slotQueueSetDisplayMode(5, 0, 1);

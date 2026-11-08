@@ -283,11 +283,11 @@ void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void actorSetNodeFlag(Actor *, s32);
 void actorClearNodeFlag(Actor *, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-void func_807149FC(s32);
-void func_807149B8(s32);
-void func_80714950(s32);
-void func_8071498C(void *);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetDuration(s32);
+void effectSetDepth(s32);
+void effectSetSpeed(s32);
+void effectSetCallback(void *);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
 void actorUpdateBurstProjectileEmitter(void);
@@ -308,11 +308,11 @@ void actorUpdatePeriodicParticleEmitter(void) {
     }
     BC3B0S90->unk30 = BC3B0S90->unk30 - 1.0;
     if (BC3B0S90->unk2C != 0 && gFrameCounter % 5 == 0) {
-        func_807149FC(3);
-        func_807149B8(1);
-        func_80714950(-0x1C2);
-        func_8071498C(func_80717D4C);
-        func_80714CC0(D_807201D4, 1.2f, gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z);
+        effectSetDuration(3);
+        effectSetDepth(1);
+        effectSetSpeed(-0x1C2);
+        effectSetCallback(func_80717D4C);
+        effectCreateAtPosition(D_807201D4, 1.2f, gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z);
     }
     if (BC3B0S90->unk2C != 0) {
         lightAdd(gCurrentActor->x, gCurrentActor->y + 7.0, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, 0xFF, 0xC8, 0);

@@ -1387,11 +1387,11 @@ s32 listContainsS16(s16 value) {
 
 
 u32 randomLcgNext(void);
-void func_80714950(s32);
-void func_8071496C(s16);
-void func_8071498C(void *);
-void func_807149B8(s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetSpeed(s32);
+void effectSetAngle(s16);
+void effectSetCallback(void *);
+void effectSetDepth(s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern u8 D_8071FC58;
 extern u8 func_8071C48C;
 extern u8 func_8071C620;
@@ -1403,10 +1403,10 @@ void effectSpawnRandomSpread(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
     f64 half;
     s32 i;
 
-    func_80714950(0x1006E);
-    func_8071498C(&func_8071C48C);
-    func_807149B8(1);
-    func_80714CC0(&D_8071FC58, arg3, arg0, arg1, arg2);
+    effectSetSpeed(0x1006E);
+    effectSetCallback(&func_8071C48C);
+    effectSetDepth(1);
+    effectCreateAtPosition(&D_8071FC58, arg3, arg0, arg1, arg2);
     i = 0;
     if (arg5 > 0) {
         half = 1000.0 / ((f64)arg4 + (f64)arg4);
@@ -1414,10 +1414,10 @@ void effectSpawnRandomSpread(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
             x = (f32)((f64)((f32)(randomLcgNext() / 10000U % 1000U) / arg4) - half);
             y = (f32)((f64)((f32)(randomLcgNext() / 10000U % 1000U) / arg4) - half);
             z = (f32)((f64)((f32)(randomLcgNext() / 10000U % 1000U) / arg4) - half);
-            func_8071498C(&func_8071C620);
-            func_8071496C(i + 1);
-            func_807149B8(1);
-            func_80714CC0(&D_8071FC58, arg3, arg0 + x, arg1 + y, arg2 + z);
+            effectSetCallback(&func_8071C620);
+            effectSetAngle(i + 1);
+            effectSetDepth(1);
+            effectCreateAtPosition(&D_8071FC58, arg3, arg0 + x, arg1 + y, arg2 + z);
             i++;
         } while (i != arg5);
     }

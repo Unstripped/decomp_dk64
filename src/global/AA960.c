@@ -33,14 +33,14 @@ extern u8 D_80721378[];
 void actorSpawnNodeEntryScaled(s16 actorType, f32 x, f32 y, f32 z, s32 yaw, s32 pitch, s32 roll, s32 extraParam);
 void effectSpawnAttachedSpriteColored(void *, s32);
 void func_806A6230(void);
-void func_80714A08(f32, f32);
-s32 func_80714C08(void *, f32, void *, s32, s32);
+void effectSetScale(f32, f32);
+s32 effectCreateAtActorBone(void *, f32, void *, s32, s32);
 void sfxAllocateChannel(s32, f32);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
-void func_807149C8(s32, s32, s32, u8);
-void func_80714998(s32);
-void func_807149B8(s32);
-void func_807149FC(s32);
+void effectSetColor(s32, s32, s32, u8);
+void effectSetMode(s32);
+void effectSetDepth(s32);
+void effectSetDuration(s32);
 void actorDropBounceExpireUpdate(f32 floorOffset);
 void effectSpawnAttachedSprite(void *targetState, void *spriteAsset, f32 scale);
 
@@ -99,10 +99,10 @@ void effectSpawnAttachedSprite(void *targetState, void *spriteAsset, f32 scale) 
     if (gGlobalCutsceneFlags & 0x10) {
         scale = scale + scale;
     }
-    func_807149FC(-1);
-    func_807149B8(1);
-    func_80714998(2);
-    *(s32 *)((u8 *)targetState + 4) = func_80714C08(spriteAsset, scale * 0.35, gCurrentActor, 1, 2);
+    effectSetDuration(-1);
+    effectSetDepth(1);
+    effectSetMode(2);
+    *(s32 *)((u8 *)targetState + 4) = effectCreateAtActorBone(spriteAsset, scale * 0.35, gCurrentActor, 1, 2);
 }
 
 void func_806A5F44(void) {
@@ -129,7 +129,7 @@ void effectSpawnAttachedSpriteColored(void *spriteAsset, s32 characterId) {
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
         if (characterId != gPrimaryPlayerActor->actorType) {
-            func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
+            effectSetColor(0xFF, 0xFF, 0xFF, 0x64);
         }
         effectSpawnAttachedSprite(temp, spriteAsset, 1.0f);
     }
@@ -160,7 +160,7 @@ void func_806A615C(void) {
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        func_80714A08(-0.35f, 0.35f);
+        effectSetScale(-0.35f, 0.35f);
         effectSpawnAttachedSprite(temp, D_80720768, 1.0f);
     }
 }
@@ -195,7 +195,7 @@ void func_806A62D4(void) {
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        func_807149C8(0xFF, 0xFF, 0, 0xFF);
+        effectSetColor(0xFF, 0xFF, 0, 0xFF);
         effectSpawnAttachedSprite(temp, D_807211D0, 1.5f);
     }
 }
@@ -674,8 +674,8 @@ void actorSpawnRingBurstAndUpdate(void) {
 }
 
 void actorDespawn(void *);
-void func_80714950(s32);
-void func_8071498C(void (*)(void));
+void effectSetSpeed(s32);
+void effectSetCallback(void (*)(void));
 void effectOrbitSourceUpdate(void);
 void effectProximityFadeUpdate(void);
 void slotQueueUpdate(s32, s32, s32);
@@ -703,7 +703,7 @@ void pathPlaybackAdvance(s32);
 void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 void func_80724994(s32, s32, s32, s32, s32);
 f32 mathSinF(s16);
-void func_80714A28(s32);
+void effectSetFlags(s32);
 
 void actorPathCollectibleUpdate(void *unused) {
     EffectState *state;
@@ -762,7 +762,7 @@ void actorPathCollectibleUpdate(void *unused) {
             }
             flag = (temp == -1 || flagGet(temp, 0) != 0) ? 1 : 0;
             if (flag != 0) {
-                func_807149B8(1);
+                effectSetDepth(1);
                 cond = 1;
                 if (gCurrentActor->actorType == 0x93) {
                     cond = 0;
@@ -778,14 +778,14 @@ void actorPathCollectibleUpdate(void *unused) {
                     cond = 0;
                 }
                 if (cond != 0) {
-                    func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
+                    effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
                 } else {
-                    func_8071498C(&effectProximityFadeUpdate);
-                    func_80714950(0x226);
+                    effectSetCallback(&effectProximityFadeUpdate);
+                    effectSetSpeed(0x226);
                 }
-                func_80714A28(4);
-                func_80714998(3);
-                func_80714C08(unused, 0.8f, gCurrentActor, 1, 2);
+                effectSetFlags(4);
+                effectSetMode(3);
+                effectCreateAtActorBone(unused, 0.8f, gCurrentActor, 1, 2);
                 gCurrentActor->unk144 = 2;
             } else {
                 gCurrentActor->unk144 = 1;
@@ -874,11 +874,11 @@ void effectActorSparkleTick(void) {
             if (gFrameCounter % 5 == 0) {
                 idx = (randomNonNegative() >> 15) % 0xFF % 7;
                 table = D_807504A4;
-                func_8071498C(&effectOrbitSourceUpdate);
-                func_807149FC(-1);
-                func_807149B8(1);
-                func_80714950(100);
-                func_80714C08((void *)table.unk0[idx], 0.2f, gCurrentActor, 1, 0);
+                effectSetCallback(&effectOrbitSourceUpdate);
+                effectSetDuration(-1);
+                effectSetDepth(1);
+                effectSetSpeed(100);
+                effectCreateAtActorBone((void *)table.unk0[idx], 0.2f, gCurrentActor, 1, 0);
                 sfxAllocateChannel(0x7F, 1.0f);
                 slotQueueUpdate(7, 0, 0);
                 slotQueueAddValue(7, 0, (s16)slotQueueGetMaxValue(7, 0));
@@ -886,12 +886,12 @@ void effectActorSparkleTick(void) {
         }
     }
     if (!(gFrameCounter & 0xF)) {
-        func_807149B8(1);
-        func_8071498C(&effectProximityFadeUpdate);
-        func_80714950(0x226);
-        func_80714998(2);
-        func_807149C8(0xFF, 0xFF, 0xFF, flag ? 0xFF : 0x7F);
-        func_80714C08(&D_80721170, 0.4f, gCurrentActor, 1, 2);
+        effectSetDepth(1);
+        effectSetCallback(&effectProximityFadeUpdate);
+        effectSetSpeed(0x226);
+        effectSetMode(2);
+        effectSetColor(0xFF, 0xFF, 0xFF, flag ? 0xFF : 0x7F);
+        effectCreateAtActorBone(&D_80721170, 0.4f, gCurrentActor, 1, 2);
     }
     if (gCurrentActor->floorY != 99999.0f) {
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0xE, 0xE, 1, 0x96, 0x78, 0, 1.0f);

@@ -279,8 +279,8 @@ f32 mathCosF(s16);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 f32 mathAtan2(f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32);
-void func_80714950(void *);
-void func_8071498C(void *);
+void effectSetSpeed(void *);
+void effectSetCallback(void *);
 void timedLightOrbitUpdate();
 extern u8 D_8072006C;
 extern s32 D_8002FBB0[4];
@@ -333,7 +333,7 @@ void raceUpdateOrientation(RacePathState *pathState);
 s32 raceGetNextWaypointIndex(s32, s32);
 void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participant, s32 pathLength);
 s32 randomLcgNext(void);
-s32 func_80714CC0(void *, f32, f32, f32, f32);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
 void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, u8 spawnSparks) {
@@ -425,9 +425,9 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     if (spawnSparks != 0) {
         if ((u32)(randomLcgNext() & 0xFF) < gCurrentActor->unkB8 * 0.3 && pathState->unk0 == pathState->unk1) {
             mathPickCloserTargetPoint3D(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, cur, &points[next], &points[next], nxt2, &hx, &hy, &hz);
-            func_80714950(gCurrentActor);
-            func_8071498C(timedLightOrbitUpdate);
-            D_8002FBB0[D_8002FBC0] = func_80714CC0(&D_8072006C, 0.4f, hx, hy, hz);
+            effectSetSpeed(gCurrentActor);
+            effectSetCallback(timedLightOrbitUpdate);
+            D_8002FBB0[D_8002FBC0] = effectCreateAtPosition(&D_8072006C, 0.4f, hx, hy, hz);
             D_8002FBC0++;
             D_8002FBC0 = D_8002FBC0 % 4;
             sfxPlayAtPositionPooled(hx, hy, hz, 0x8A, 0x96, 0x7F, 0x14, 0x50, 0.3f, 0);
@@ -653,7 +653,7 @@ extern StructBB70_Race gActorGlobalState;
 extern u8 D_80720340[];
 extern u8 sEffectSparkConfig[];
 
-void func_807149B8(s32);
+void effectSetDepth(s32);
 void raceDespawnProjectile(void *, void *);
 
 void raceProjectileBehaviorUpdate(void) {
@@ -675,16 +675,16 @@ void raceProjectileBehaviorUpdate(void) {
         participant->unk4 = 5.0f;
     }
     if ((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0) || (gActorGlobalState.unk200 == 5)) {
-        func_807149B8(1);
-        func_80714CC0(D_80720340, 3.0f, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84);
+        effectSetDepth(1);
+        effectCreateAtPosition(D_80720340, 3.0f, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84);
         sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0xF6, 0xFF, 0x7F, 0x14, 0x32, 0.3f, 0);
         hasCollided = 1;
     }
     racePathFollowStep(pathState, participant, 0);
     gCurrentActor->unk80 += 5.0f;
     if (s1->unk0 != 0) {
-        func_807149B8(1);
-        func_80714CC0(sEffectSparkConfig, 1.0f, gCurrentActor->unk7C, gCurrentActor->unk80 + 10.0f, gCurrentActor->unk84);
+        effectSetDepth(1);
+        effectCreateAtPosition(sEffectSparkConfig, 1.0f, gCurrentActor->unk7C, gCurrentActor->unk80 + 10.0f, gCurrentActor->unk84);
         if (--s1->unk0 == 0) {
             hasCollided = 1;
         }

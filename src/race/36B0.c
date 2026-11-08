@@ -251,15 +251,15 @@ f32 raceGetCompletionFraction(RaceCursor *cursor, RaceState *state, RaceState *l
 }
 
 extern void *D_80720120;
-void func_807149B8(s32);
-void func_80714C08(void *, f32, void *, s32, s32);
+void effectSetDepth(s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32);
 
 void raceTriggerBoostParticles(void) {
     s32 idx;
 
     for (idx = 1; idx < 3; idx++) {
-        func_807149B8(1);
-        func_80714C08(&D_80720120, 1.0f, gCurrentActor, idx, 0);
+        effectSetDepth(1);
+        effectCreateAtActorBone(&D_80720120, 1.0f, gCurrentActor, idx, 0);
     }
 }
 

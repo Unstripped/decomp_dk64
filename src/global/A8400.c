@@ -350,12 +350,12 @@ Gfx *textBoxRender(Gfx *arg0, Actor *arg1) {
     return arg0;
 }
 
-void func_8071495C(void);
-void func_80714998(s32);
-void func_807149B8(s32);
-void func_807149FC(s32);
-void func_80714A68(s16, s16, s16, s16);
-void *func_80714CC0(void *, f32, f32, f32, f32);
+void effectEnableFade(void);
+void effectSetMode(s32);
+void effectSetDepth(s32);
+void effectSetDuration(s32);
+void effectSetBounds(s16, s16, s16, s16);
+void *effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern void *D_80755390[];
 
 typedef struct SpriteObject {
@@ -407,13 +407,13 @@ void textBoxRowUpdateIcon(SpriteRow *arg0, SpriteVector *arg1, SpriteVector *arg
     f32 sp30 = arg0->unk8;
 
     if (slot->unk4 == NULL) {
-        func_807149FC(-1);
-        func_807149B8(0);
-        func_8071495C();
-        func_80714998(2);
-        func_80714A68((s16) (s32) arg2->unk44, (s16) (s32) arg2->unk48, (s16) (s32) arg2->unk4C,
+        effectSetDuration(-1);
+        effectSetDepth(0);
+        effectEnableFade();
+        effectSetMode(2);
+        effectSetBounds((s16) (s32) arg2->unk44, (s16) (s32) arg2->unk48, (s16) (s32) arg2->unk4C,
                       (s16) (s32) arg2->unk50);
-        slot->unk4 = func_80714CC0(D_80755390[slot->unk0], 1.0f, arg2->unk44, arg2->unk48, 1);
+        slot->unk4 = effectCreateAtPosition(D_80755390[slot->unk0], 1.0f, arg2->unk44, arg2->unk48, 1);
         if (slot->unk2 != 0) {
             slot->unk4->unk360 *= -1.0f;
         }

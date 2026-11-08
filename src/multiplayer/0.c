@@ -557,12 +557,12 @@ extern u8 gPlayerCharacterId[];
 extern u8 D_8071F3C0;
 extern u8 D_807207BC;
 void effectFreeAndUnlink(s32);
-void func_807149B8(s32);
-void func_807149FC(s32);
-void func_80714998(s32);
-void func_807149C8(s32, s32, s32, s32);
-void func_8071498C(void *);
-s32 func_80714C08(void *, f32, void *, s32, s32);
+void effectSetDepth(s32);
+void effectSetDuration(s32);
+void effectSetMode(s32);
+void effectSetColor(s32, s32, s32, s32);
+void effectSetCallback(void *);
+s32 effectCreateAtActorBone(void *, f32, void *, s32, s32);
 
 s32 mpUpdateScoreEffects(void) {
     s32 i;
@@ -594,12 +594,12 @@ s32 mpUpdateScoreEffects(void) {
                         boneIndex = 0xD;
                         break;
                     }
-                    func_807149B8(1);
-                    func_807149FC(-1);
-                    func_80714998(2);
-                    func_807149C8(0xFF, 0xFF, 0xFF, 0x7F);
-                    func_8071498C(p);
-                    ac->unk260 = func_80714C08(&D_807207BC, 0.5f, gPlayerSlots[i].unk4, boneIndex, 2);
+                    effectSetDepth(1);
+                    effectSetDuration(-1);
+                    effectSetMode(2);
+                    effectSetColor(0xFF, 0xFF, 0xFF, 0x7F);
+                    effectSetCallback(p);
+                    ac->unk260 = effectCreateAtActorBone(&D_807207BC, 0.5f, gPlayerSlots[i].unk4, boneIndex, 2);
                     sc->unk2FA = totalScore;
                 }
                 if (sc->unk2FA < totalScore) {
@@ -904,9 +904,9 @@ void func_806F5FA0(s32, s32, s32);
 void slotQueueInit(s32);
 void *heapAlloc(s32);
 void *assetLoad(s32, s32, s32, s32);
-void func_8071495C(void);
-void func_80714944(s32);
-s32 func_80714CC0(void *, f32, f32, f32, f32);
+void effectEnableFade(void);
+void effectSetParam(s32);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern s32 D_8076D1F8;
 extern u32 D_80767CC0;
 extern u64 D_807445B0;
@@ -1022,17 +1022,17 @@ void mpUpdate(void) {
                     continue;
                 }
                 vp = s7->unk20[k];
-                func_8071495C();
-                func_807149FC(-1);
-                func_80714998(0);
-                func_80714944(D_80027024[j].unk8);
+                effectEnableFade();
+                effectSetDuration(-1);
+                effectSetMode(0);
+                effectSetParam(D_80027024[j].unk8);
                 if (j == 0) {
                     x = (f32)(vp->unk4 + 0xB);
                 } else {
                     x = (f32)(vp->unk8 - 0xB);
                 }
                 y = (f32)(vp->unkA - 0xB);
-                s7->unk50[j * gPlayerCount + k] = func_80714CC0(D_80027024[j].unk0, D_80027024[j].unk4, x, y, -10.0f);
+                s7->unk50[j * gPlayerCount + k] = effectCreateAtPosition(D_80027024[j].unk0, D_80027024[j].unk4, x, y, -10.0f);
             }
         }
         s7->unk70 = 1;

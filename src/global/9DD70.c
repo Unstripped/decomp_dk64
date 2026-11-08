@@ -783,11 +783,11 @@ void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
-void func_8071498C(void *);
-void func_807149B8(u8);
-void func_807149FC(s32);
-s32 func_80714C08(void *, f32, Actor *, s32, s32);
-s32 func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetCallback(void *);
+void effectSetDepth(u8);
+void effectSetDuration(s32);
+s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 
 void func_8069B010(void) {
@@ -800,10 +800,10 @@ void func_8069B010(void) {
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 60.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_8071498C(effectScaleSpinUpdate);
-        func_80714C08(D_80720E14, 0.9f, gCurrentActor, 1, 2);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectSetCallback(effectScaleSpinUpdate);
+        effectCreateAtActorBone(D_80720E14, 0.9f, gCurrentActor, 1, 2);
         *p = gGameFrameCounter;
         gCurrentActor->flags |= 0x80000;
         collisionCheckActorFloor(gCurrentActor, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, &gCurrentActor->floorY);
@@ -824,7 +824,7 @@ void func_8069B010(void) {
         }
         if (gBossFightPhase == 9) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CE, 0xFF, 0x7F, 0x1E);
-            func_80714CC0(D_8071FE08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectCreateAtPosition(D_8071FE08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, gCurrentActor->unk15F, 0, 0);
             actorDespawn(gCurrentActor);
         }
@@ -842,7 +842,7 @@ extern u8 D_8071FC8C;
 extern u8 D_8071FCC0;
 void func_80717D4C(void);
 s32 randomNonNegative(void);
-void func_80714950(s32);
+void effectSetSpeed(s32);
 void sfxStopChannel(s32, s32);
 
 void func_8069B3FC(void) {
@@ -869,9 +869,9 @@ void func_8069B3FC(void) {
         if (gCurrentActor->unk155[0] < 4) {
             for (j = 2; j < 3; j++) {
                 for (i = 0; i < 2; i++) {
-                    func_8071498C(func_80717D4C);
-                    func_807149B8(1);
-                    func_80714950((randomNonNegative() >> 15) % 10000 % 120 + 0x50);
+                    effectSetCallback(func_80717D4C);
+                    effectSetDepth(1);
+                    effectSetSpeed((randomNonNegative() >> 15) % 10000 % 120 + 0x50);
                     switch ((randomNonNegative() >> 15) % 10000 % 3) {
                         case 0:
                             sel = &D_8071FC58;
@@ -883,7 +883,7 @@ void func_8069B3FC(void) {
                             sel = &D_8071FCC0;
                             break;
                     }
-                    func_80714C08(sel, 0.6f, gCurrentActor, j, 0);
+                    effectCreateAtActorBone(sel, 0.6f, gCurrentActor, j, 0);
                 }
             }
         }
@@ -1012,8 +1012,8 @@ void sfxSetVolumeAndPan(u8, f32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 s32 actorAngleInArc(Actor *, s16);
 f32 randomFloat(void);
-void func_8071496C(s16);
-void func_80714998(s32);
+void effectSetAngle(s16);
+void effectSetMode(s32);
 void camStartShake(s32, s32, s32);
 void effectLightPulseOscillate(void);
 void effectTumbleBounceUpdate(void);
@@ -1242,17 +1242,17 @@ void textMarkerUpdateMatrix(void) {
                 offsetX = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
                 offsetY = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
                 offsetZ = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
-                func_8071496C(particleLoopIdx);
+                effectSetAngle(particleLoopIdx);
                 if (D_807FBB94 && D_807FBB94) {}  // FAKE: ghost candidate: two reads in the particleLoopIdx loop make D_807FBB94 a high-priority v0 web (with the two tests below) that forces the shared switch temp to v1 / early markerView piece to v0
-                func_807149B8(1);
+                effectSetDepth(1);
                 if (particleLoopIdx == 0) {
-                    callback = effectLightPulseOscillate; func_80714950(0x100FA);  // LAYOUT: keep the callback store in the call's delay slot
-                    func_8071498C(callback);
+                    callback = effectLightPulseOscillate; effectSetSpeed(0x100FA);  // LAYOUT: keep the callback store in the call's delay slot
+                    effectSetCallback(callback);
                 } else {
-                    func_8071498C(func_80717D4C);
-                    func_80714950(-0x96 - ((randomNonNegative() >> 15) % 50));
+                    effectSetCallback(func_80717D4C);
+                    effectSetSpeed(-0x96 - ((randomNonNegative() >> 15) % 50));
                 }
-                func_80714CC0(&D_80720340, 1.6f, gCurrentActor->x + offsetX,
+                effectCreateAtPosition(&D_80720340, 1.6f, gCurrentActor->x + offsetX,
                               gCurrentActor->y + offsetY, gCurrentActor->z + offsetZ);
                 if (gCurrentActor->actorType == 0x3D) {
                     offsetX = (2.0f * randomFloat()) - 1.0f;
@@ -1262,15 +1262,15 @@ void textMarkerUpdateMatrix(void) {
                     offsetY *= 30.0f;
                     offsetZ *= 30.0f;
                     offsetY += 30.0f;
-                    func_807149B8(1);
-                    func_807149FC(0x3C);
-                    func_8071498C(effectTumbleBounceUpdate);
-                    func_80714998(2);
-                    func_80714950(2);
+                    effectSetDepth(1);
+                    effectSetDuration(0x3C);
+                    effectSetCallback(effectTumbleBounceUpdate);
+                    effectSetMode(2);
+                    effectSetSpeed(2);
                     randVal = randomNonNegative();
                     if (randVal) {}  // FAKE: block split between the randVal def and the call (steers ugen ring / uopt colouring)
                     dz = randomFloat();
-                    func_80714CC0((void *)((s32 *)&namePair)[(randVal >> 15) % 2],
+                    effectCreateAtPosition((void *)((s32 *)&namePair)[(randVal >> 15) % 2],
                                   (f32)(((f64)dz * 0.5) + 0.2),
                                   gCurrentActor->x + offsetX, gCurrentActor->y + offsetY,
                                   gCurrentActor->z + offsetZ);
@@ -1571,7 +1571,7 @@ extern Gfx D_1000118;
 
 extern s32 D_8074E880[];
 void effectConfettiPhysicsUpdate(void);
-void func_8071495C(void);
+void effectEnableFade(void);
 void vtxGradientSetPosition(s16);
 extern Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, char *, u8);
 
@@ -1600,11 +1600,11 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
                 s16 w2;
 
                 w2 = (s16)(s32)((((f64)actor->unk15F * 0.0078125 > 1.0 ? 1.0 : (f64)actor->unk15F * 0.0078125) * 0.9) * (f64)textGetStringWidth((s16)(s32)actor->z, (s32)*sub) + (f64)actor->x * 0.25);
-                func_807149B8(1);
-                func_8071498C(effectConfettiPhysicsUpdate);
-                func_80714950(0xA);
-                func_8071495C();
-                func_80714CC0((void *)D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, (f32)w2, (f32)((f64)actor->y * 0.25 + 12.0), -5.0f);
+                effectSetDepth(1);
+                effectSetCallback(effectConfettiPhysicsUpdate);
+                effectSetSpeed(0xA);
+                effectEnableFade();
+                effectCreateAtPosition((void *)D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, (f32)w2, (f32)((f64)actor->y * 0.25 + 12.0), -5.0f);
             }
         default:
             vtxGradientSetPosition((s16)(actor->unk15F * 3));

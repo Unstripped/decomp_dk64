@@ -13,14 +13,14 @@ extern CsPlayer *gPlayerSlots;
 extern u8 D_8071FF18[];
 extern u8 sEffectSparkConfig[];
 s32 randomLcgNext(void);
-void func_80714950(s32);
-void func_8071498C(void *);
+void effectSetSpeed(s32);
+void effectSetCallback(void *);
 void func_80717D4C(void);
-void func_80714998(u8);
-void func_807149B8(u8);
-void func_807149C8(s32, s32, s32, s32);
-void func_80714B84(void *, f32, s32, s32, s32);
-s32 func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetMode(u8);
+void effectSetDepth(u8);
+void effectSetColor(s32, s32, s32, s32);
+void effectCreateAtModelNode(void *, f32, s32, s32, s32);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 void *heapAlloc(s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 u8 collisionCheckGroundAtPoint(f32, f32, f32 *);
@@ -35,9 +35,9 @@ void lightSetRadius(s32);
 
 
 void csCmdSpawnFixedNodeEffects(CsState *cs, s16 csId, s16 b, s16 c) {
-    func_80714B84(D_8071FF18, 0.3f, csId, 1, 0);
-    func_80714B84(D_8071FF18, 0.3f, csId, 2, 0);
-    func_80714B84(D_8071FF18, 0.3f, csId, 3, 0);
+    effectCreateAtModelNode(D_8071FF18, 0.3f, csId, 1, 0);
+    effectCreateAtModelNode(D_8071FF18, 0.3f, csId, 2, 0);
+    effectCreateAtModelNode(D_8071FF18, 0.3f, csId, 3, 0);
 }
 
 typedef struct CsSlotAnim {
@@ -68,12 +68,12 @@ void csCmdSpawnSparksAtNodes(CsState *cs, s16 csId, s16 b, s16 c) {
     if (type == 0xD || type == 0x15 || type == 0x19) {
         for (i = 1; i != 0xF; i++) {
             modelSlotGetNodePos(csId, 1, i, &x, &y, &z);
-            func_807149B8(1);
-            func_80714998(2);
-            func_80714950(-(s32)((u32)randomLcgNext() / 10000 % 50) - 0x14);
-            func_807149C8(0xE1, 0x87, 0x38, 0xFF);
-            func_8071498C(func_80717D4C);
-            func_80714CC0(D_8071FF18, 0.5f, x, y + 2.0f, z);
+            effectSetDepth(1);
+            effectSetMode(2);
+            effectSetSpeed(-(s32)((u32)randomLcgNext() / 10000 % 50) - 0x14);
+            effectSetColor(0xE1, 0x87, 0x38, 0xFF);
+            effectSetCallback(func_80717D4C);
+            effectCreateAtPosition(D_8071FF18, 0.5f, x, y + 2.0f, z);
         }
     }
 }
@@ -149,12 +149,12 @@ void csCmdPeriodicNodeEffect(CsState *cs, s16 csId, s16 b, s16 c) {
 
     if (gFrameCounter % c == 0) {
         idx = (u32)randomLcgNext() / 10000 % b + 1;
-        func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
-        func_80714950(-0x78);
-        func_8071498C(func_80717D4C);
-        func_807149B8(1);
-        func_80714998(3);
-        func_80714B84(sEffectSparkConfig, 1.5f, csId, idx, 0);
+        effectSetColor(0xFF, 0xFF, 0xFF, 0x64);
+        effectSetSpeed(-0x78);
+        effectSetCallback(func_80717D4C);
+        effectSetDepth(1);
+        effectSetMode(3);
+        effectCreateAtModelNode(sEffectSparkConfig, 1.5f, csId, idx, 0);
     }
 }
 
@@ -164,13 +164,13 @@ void csPeriodicPointEffect(s32 a, s32 b, u32 c) {
 
     if (gFrameCounter % c == 0) {
         idx = (u32)randomLcgNext() / 10000 % b;
-        func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
-        func_80714950(-0x78);
-        func_8071498C(func_80717D4C);
-        func_807149B8(1);
-        func_80714998(3);
+        effectSetColor(0xFF, 0xFF, 0xFF, 0x64);
+        effectSetSpeed(-0x78);
+        effectSetCallback(func_80717D4C);
+        effectSetDepth(1);
+        effectSetMode(3);
         p = *D_807F5FD4 + idx;
-        func_80714CC0(sEffectSparkConfig, 1.5f, p->x, p->y, p->z);
+        effectCreateAtPosition(sEffectSparkConfig, 1.5f, p->x, p->y, p->z);
     }
 }
 
@@ -242,11 +242,11 @@ void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
         x = (*D_807F5FD4)[idx].x;
         y = (*D_807F5FD4)[idx].y;
         z = (*D_807F5FD4)[idx].z;
-        func_80714998(2);
-        func_807149B8(1);
-        func_80714950(0);
-        func_8071498C(timedLightPulse);
-        func_80714CC0(D_8071FB54, 0.667f, x, y + 10, z);
+        effectSetMode(2);
+        effectSetDepth(1);
+        effectSetSpeed(0);
+        effectSetCallback(timedLightPulse);
+        effectCreateAtPosition(D_8071FB54, 0.667f, x, y + 10, z);
         st->timer = 0x19;
     }
     st->timer--;
@@ -263,7 +263,7 @@ extern u8 D_8071FE08[];
 extern u8 D_8071FE64[];
 extern u8 D_8071FE88[];
 extern u8 D_8071FEAC[];
-void func_807149FC(s32);
+void effectSetDuration(s32);
 void effectTumbleBounceUpdate();
 void effectLightPulseOscillate();
 
@@ -282,27 +282,27 @@ void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
         y = gCsPosY;
         z = gCsPosZ;
     }
-    func_807149B8(0);
-    func_807149FC(1);
-    func_80714950(0x100C8);
-    func_8071498C(effectLightPulseOscillate);
-    func_80714CC0(D_8071FE08, 1.5f, x, y, z);
+    effectSetDepth(0);
+    effectSetDuration(1);
+    effectSetSpeed(0x100C8);
+    effectSetCallback(effectLightPulseOscillate);
+    effectCreateAtPosition(D_8071FE08, 1.5f, x, y, z);
     for (i = 0; i != 7; i++) {
         r = (s32)((u32)randomLcgNext() / 10000) % 3;
-        func_807149B8(1);
-        func_807149FC(10);
-        func_8071498C(effectTumbleBounceUpdate);
-        func_80714998(2);
-        func_80714950(7);
+        effectSetDepth(1);
+        effectSetDuration(10);
+        effectSetCallback(effectTumbleBounceUpdate);
+        effectSetMode(2);
+        effectSetSpeed(7);
         switch (r) {
             case 0:
-                func_80714CC0(D_8071FE64, 0.5f, x, y, z);
+                effectCreateAtPosition(D_8071FE64, 0.5f, x, y, z);
                 break;
             case 1:
-                func_80714CC0(D_8071FE88, 0.5f, x, y, z);
+                effectCreateAtPosition(D_8071FE88, 0.5f, x, y, z);
                 break;
             case 2:
-                func_80714CC0(D_8071FEAC, 0.5f, x, y, z);
+                effectCreateAtPosition(D_8071FEAC, 0.5f, x, y, z);
                 break;
         }
     }
@@ -311,18 +311,18 @@ void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
 
 void csCmdPeriodicEffectPair(CsState *cs, s16 csId, s16 b, s16 c) {
     if ((gFrameCounter % 5) == 0) {
-        func_80714950(-0x78);
-        func_8071498C(func_80717D4C);
-        func_807149B8(1);
-        func_80714998(3);
-        func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
-        func_80714B84(sEffectSparkConfig, 1.0f, csId, 1, 0);
-        func_80714950(-0x78);
-        func_8071498C(func_80717D4C);
-        func_807149B8(1);
-        func_80714998(3);
-        func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
-        func_80714B84(sEffectSparkConfig, 1.0f, csId, 2, 0);
+        effectSetSpeed(-0x78);
+        effectSetCallback(func_80717D4C);
+        effectSetDepth(1);
+        effectSetMode(3);
+        effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
+        effectCreateAtModelNode(sEffectSparkConfig, 1.0f, csId, 1, 0);
+        effectSetSpeed(-0x78);
+        effectSetCallback(func_80717D4C);
+        effectSetDepth(1);
+        effectSetMode(3);
+        effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
+        effectCreateAtModelNode(sEffectSparkConfig, 1.0f, csId, 2, 0);
     }
 }
 
@@ -360,12 +360,12 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
     lightAdd(gCsPosX, gCsPosY, gCsPosZ, 0.0f, 0.0f, 0.0f, 200.0f * f, 0, 0xFF,
              (u32)((-80.0f * f) + 255.0f), (u32)((-205.0f * f) + 255.0f));
     if (t > 0.6 && (gFrameCounter % 6) == 0) {
-        func_807149FC(2);
-        func_807149B8(1);
-        func_80714950(-0x190);
-        func_807149C8(0xFF, 0xFF, 0xFF, 1);
-        func_8071498C(func_80717CE8);
-        func_80714CC0(D_807201D4, 1.2f, gCsPosX, gCsPosY + 30.0, gCsPosZ);
+        effectSetDuration(2);
+        effectSetDepth(1);
+        effectSetSpeed(-0x190);
+        effectSetColor(0xFF, 0xFF, 0xFF, 1);
+        effectSetCallback(func_80717CE8);
+        effectCreateAtPosition(D_807201D4, 1.2f, gCsPosX, gCsPosY + 30.0, gCsPosZ);
     }
     if (t < 0.1) {
         ((CsLightView *)cs)->unk49 = 1;
@@ -373,18 +373,18 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern void *D_8074E880[];
-void func_8071496C(s16);
+void effectSetAngle(s16);
 void effectBurstParticleUpdate();
 
 void csCmdSpawnEffectsAtPos(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 i;
 
     for (i = 0; i < 30; i++) {
-        func_807149B8(1);
-        func_807149FC(1);
-        func_8071498C(effectBurstParticleUpdate);
-        func_8071496C(i / 7);
-        func_80714CC0(D_8074E880[i % 3], 1.4f, gCsPosX, gCsPosY, gCsPosZ);
+        effectSetDepth(1);
+        effectSetDuration(1);
+        effectSetCallback(effectBurstParticleUpdate);
+        effectSetAngle(i / 7);
+        effectCreateAtPosition(D_8074E880[i % 3], 1.4f, gCsPosX, gCsPosY, gCsPosZ);
     }
 }
 
@@ -603,9 +603,9 @@ void csCmdStormLightningRain(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
 extern u8 D_8071FBC8[];
 
 void csCmdSpawnEffectAtNode(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
-    func_80714998(2);
-    func_807149B8(1);
-    func_80714B84(D_8071FBC8, 1.5f, arg1, arg2, 1);
+    effectSetMode(2);
+    effectSetDepth(1);
+    effectCreateAtModelNode(D_8071FBC8, 1.5f, arg1, arg2, 1);
 }
 
 void csSplineLightStep(f32 *, s16, s16, f32);
@@ -685,10 +685,10 @@ void csCmdNodeSpotLightFov(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
 void effectTimerCountdownAlphaUpdate(void);
 
 void csCmdSpawnRandomEffectAtPos(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
-    func_807149FC(-1);
-    func_8071498C(effectTimerCountdownAlphaUpdate);
-    func_80714950(0x50);
-    func_80714CC0(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.5f, gCsPosX, gCsPosY, gCsPosZ);
+    effectSetDuration(-1);
+    effectSetCallback(effectTimerCountdownAlphaUpdate);
+    effectSetSpeed(0x50);
+    effectCreateAtPosition(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.5f, gCsPosX, gCsPosY, gCsPosZ);
 }
 
 void effectLightFlickerDecay(void);
@@ -699,19 +699,19 @@ void csCmdRandomPointEffects(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
 
     if ((u32)randomLcgNext() / 10000 % arg2 == 0) {
         sel = (u32)randomLcgNext() / 10000 % arg3;
-        func_80714998(2);
-        func_80714950(0x10064);
-        func_8071498C(effectLightFlickerDecay);
-        func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
-        func_80714CC0(D_80720A7C, 1.2f, D_807F5FD4[0][sel].x, D_807F5FD4[0][sel].y, D_807F5FD4[0][sel].z);
+        effectSetMode(2);
+        effectSetSpeed(0x10064);
+        effectSetCallback(effectLightFlickerDecay);
+        effectSetColor(0xFF, 0xFF, 0xFF, 0xFF);
+        effectCreateAtPosition(D_80720A7C, 1.2f, D_807F5FD4[0][sel].x, D_807F5FD4[0][sel].y, D_807F5FD4[0][sel].z);
     }
     if ((u32)randomLcgNext() / 10000 % arg2 == 0) {
         sel = (u32)randomLcgNext() / 10000 % arg3;
-        func_80714998(2);
-        func_80714950(0x10064);
-        func_8071498C(effectLightFlickerDecay);
-        func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
-        func_80714CC0(D_80720A7C, 1.2f, D_807F5FD4[1][sel].x, D_807F5FD4[1][sel].y, D_807F5FD4[1][sel].z);
+        effectSetMode(2);
+        effectSetSpeed(0x10064);
+        effectSetCallback(effectLightFlickerDecay);
+        effectSetColor(0xFF, 0xFF, 0xFF, 0xFF);
+        effectCreateAtPosition(D_80720A7C, 1.2f, D_807F5FD4[1][sel].x, D_807F5FD4[1][sel].y, D_807F5FD4[1][sel].z);
     }
 }
 
@@ -728,12 +728,12 @@ void csCmdGroundPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
         idx = (randomLcgNext() / 10000U) % (u32)c;
         y = D_807F5FD4[b][idx].y;
         if (collisionCheckGroundAtPoint(D_807F5FD4[b][idx].x, D_807F5FD4[b][idx].z, &y)) {
-            func_80714950(y + 2.0);
-            func_8071498C((void *)effectFallUpdate);
-            func_807149FC(-1);
-            func_807149B8(1);
-            func_807149C8(0xFF, 0xFF, 0xFF, D_807480EF);
-            func_80714CC0(D_80720CD8, D_807480E8, D_807F5FD4[b][idx].x, D_807F5FD4[b][idx].y,
+            effectSetSpeed(y + 2.0);
+            effectSetCallback((void *)effectFallUpdate);
+            effectSetDuration(-1);
+            effectSetDepth(1);
+            effectSetColor(0xFF, 0xFF, 0xFF, D_807480EF);
+            effectCreateAtPosition(D_80720CD8, D_807480E8, D_807F5FD4[b][idx].x, D_807F5FD4[b][idx].y,
                           D_807F5FD4[b][idx].z);
         }
     }
@@ -759,11 +759,11 @@ void csCmdSpawnMultiRingParticles(CsState *cs, s16 csId, s16 b, s16 c) {
 
     for (i = 0; i < 20; i++) {
         sel = (s32)(randomLcgNext() / 10000U) % 4;
-        func_807149B8(1);
-        func_807149FC(0x3C);
-        func_8071498C((void *)effectTumbleBounceUpdate);
-        func_80714998(2);
-        func_80714950(2);
+        effectSetDepth(1);
+        effectSetDuration(0x3C);
+        effectSetCallback((void *)effectTumbleBounceUpdate);
+        effectSetMode(2);
+        effectSetSpeed(2);
         switch (sel) {
             case 0:
                 p = D_80720E44;
@@ -778,23 +778,23 @@ void csCmdSpawnMultiRingParticles(CsState *cs, s16 csId, s16 b, s16 c) {
                 p = D_80720E8C;
                 break;
         }
-        func_80714CC0(p, 0.5f, gCsPosX, gCsPosY, gCsPosZ);
+        effectCreateAtPosition(p, 0.5f, gCsPosX, gCsPosY, gCsPosZ);
     }
     for (i = 0; i != 6; i++) {
         x = (f32)((randomLcgNext() / 1000U) % 150U) - 75.0;
         z = (f32)((randomLcgNext() / 1000U) % 150U) - 75.0;
         scale = (f32)((randomLcgNext() / 1000U) % 50U - 25.0) / 50.0;
         if (i == 0) {
-            func_80714950(0x100FA);
-            func_8071498C((void *)effectLightPulseOscillate);
+            effectSetSpeed(0x100FA);
+            effectSetCallback((void *)effectLightPulseOscillate);
         } else {
-            func_80714950(-0xAA);
-            func_8071498C((void *)func_80717D4C);
+            effectSetSpeed(-0xAA);
+            effectSetCallback((void *)func_80717D4C);
         }
-        func_807149B8(1);
-        func_80714998(3);
-        func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
-        func_80714CC0(sEffectSparkConfig, scale + 3.5, gCsPosX + x, gCsPosY + 30.0, gCsPosZ + z);
+        effectSetDepth(1);
+        effectSetMode(3);
+        effectSetColor(0xFF, 0xFF, 0xFF, 0x64);
+        effectCreateAtPosition(sEffectSparkConfig, scale + 3.5, gCsPosX + x, gCsPosY + 30.0, gCsPosZ + z);
     }
 }
 
@@ -804,12 +804,12 @@ void csCmdChanceNodeEffect(CsState *cs, s16 csId, s16 b, s16 c) {
 
     if ((randomLcgNext() / 10000U) % (u32)b == 0) {
         sp24 = (randomLcgNext() / 10000U) % (u32)c;
-        func_80714998(2);
-        func_80714950(0x10064);
-        func_8071498C(effectLightFlickerDecay);
-        func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
-        func_807149B8(1);
-        func_80714B84(D_80720A7C, 0.5f, csId, sp24 + 1, 0);
+        effectSetMode(2);
+        effectSetSpeed(0x10064);
+        effectSetCallback(effectLightFlickerDecay);
+        effectSetColor(0xFF, 0xFF, 0xFF, 0xFF);
+        effectSetDepth(1);
+        effectCreateAtModelNode(D_80720A7C, 0.5f, csId, sp24 + 1, 0);
     }
 }
 
@@ -818,7 +818,7 @@ typedef struct CsFloatPair {
     f32 b;
 } CsFloatPair;
 
-void func_807149A8(s32);
+void effectSetMaxDistance(s32);
 void func_805FF9AC(s32, s32, s32, s32);
 extern u8 D_80720BC4[];
 void effectLightGrowShrinkUpdate(void);
@@ -838,12 +838,12 @@ void csCmdInterpolateFloatPair(CsState *cs, s16 csId, s16 b, s16 c) {
     p = *(CsFloatPair **)cs;
 
     idx = (randomLcgNext() / 10000U) % (u32)b;
-    func_807149B8(1);
-    func_80714998(3);
-    func_80714950(3);
-    func_8071498C((void *)effectLightGrowShrinkUpdate);
-    func_807149A8(0x7D0);
-    func_80714CC0(D_80720BC4, 2.5f, (*D_807F5FD4)[idx].x, (*D_807F5FD4)[idx].y, (*D_807F5FD4)[idx].z);
+    effectSetDepth(1);
+    effectSetMode(3);
+    effectSetSpeed(3);
+    effectSetCallback((void *)effectLightGrowShrinkUpdate);
+    effectSetMaxDistance(0x7D0);
+    effectCreateAtPosition(D_80720BC4, 2.5f, (*D_807F5FD4)[idx].x, (*D_807F5FD4)[idx].y, (*D_807F5FD4)[idx].z);
     if (c != 0) {
         if (gPrimaryPlayerActor->state == 0x42) {
             p->a = *(f32 *)&gPrimaryPlayerActor->y;
@@ -872,13 +872,13 @@ void csCmdPeriodicIntervalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
         angle = r1 % 2048 + (gCsRotY * 4096.0f / 360.0f - 1024.0f);
         r2 = randomNonNegative() >> 15;
         dist = r2 % 32767 % 6 + 15;
-        func_80714950(-0x32 - (randomNonNegative() >> 15) % 80);
-        func_8071498C((void *)func_80717D4C);
-        func_807149B8(1);
-        func_80714998(2);
+        effectSetSpeed(-0x32 - (randomNonNegative() >> 15) % 80);
+        effectSetCallback((void *)func_80717D4C);
+        effectSetDepth(1);
+        effectSetMode(2);
         s = mathSinF(angle);
         d = dist;
-        func_80714CC0(sEffectSparkConfig, 1.0f, s * d + gCsPosX, gCsPosY + 50.0f, mathCosF(angle) * d + gCsPosZ);
+        effectCreateAtPosition(sEffectSparkConfig, 1.0f, s * d + gCsPosX, gCsPosY + 50.0f, mathCosF(angle) * d + gCsPosZ);
     }
 }
 
@@ -888,11 +888,11 @@ void csCmdSpawnEffectsAtNodeRange(CsState *cs, s16 csId, s16 b, s16 c) {
     i = 0;
     if (b > 0) {
         do {
-            func_80714950(-0x96 - ((randomNonNegative() >> 15) % 80));
-            func_8071498C((void *)func_80717D4C);
-            func_807149B8(1);
-            func_80714998(2);
-            func_80714B84(sEffectSparkConfig, 1.0f, csId, i + 1, 0);
+            effectSetSpeed(-0x96 - ((randomNonNegative() >> 15) % 80));
+            effectSetCallback((void *)func_80717D4C);
+            effectSetDepth(1);
+            effectSetMode(2);
+            effectCreateAtModelNode(sEffectSparkConfig, 1.0f, csId, i + 1, 0);
             i++;
         } while (i < b);
     }
@@ -1005,12 +1005,12 @@ void csCmdPeriodicProximityEffects(CsState *cs, s16 csId, s16 b, s16 c) {
 
     if (!(gFrameCounter & 0xF)) {
         for (i = 1; i != 0xB; i++) {
-            func_807149B8(1);
-            func_80714998(2);
-            func_8071498C(effectProximityFadeUpdate);
-            func_80714950(0x2BC);
-            func_807149A8(0x2BC);
-            func_80714B84(&D_80720B00, x + 1.1, csId, i, 1);
+            effectSetDepth(1);
+            effectSetMode(2);
+            effectSetCallback(effectProximityFadeUpdate);
+            effectSetSpeed(0x2BC);
+            effectSetMaxDistance(0x2BC);
+            effectCreateAtModelNode(&D_80720B00, x + 1.1, csId, i, 1);
             x += 0.05;
         }
     }
@@ -1122,12 +1122,12 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
         while (!hit && start != p->idx) {
             if (sqrtf((CS_PLAYER->x - CS_POINT->x) * (CS_PLAYER->x - CS_POINT->x) + (CS_PLAYER->y - CS_POINT->y) * (CS_PLAYER->y - CS_POINT->y) +
                       (CS_PLAYER->z - CS_POINT->z) * (CS_PLAYER->z - CS_POINT->z)) < D_807480F0) {
-                func_807149B8(1);
-                func_80714998(3);
-                func_80714950(0);
-                func_8071498C(effectLightGrowShrinkUpdate);
-                func_807149A8(0x320);
-                func_80714CC0(D_80720BC4, 2.5f, CS_POINT->x, CS_POINT->y, CS_POINT->z);
+                effectSetDepth(1);
+                effectSetMode(3);
+                effectSetSpeed(0);
+                effectSetCallback(effectLightGrowShrinkUpdate);
+                effectSetMaxDistance(0x320);
+                effectCreateAtPosition(D_80720BC4, 2.5f, CS_POINT->x, CS_POINT->y, CS_POINT->z);
                 hit = 1;
             } else {
                 p->idx++;
@@ -1286,13 +1286,13 @@ void csCmdPlayerProximityPointCheck(s32 **slot, s16 csId, s16 b, s16 c) {
             dy = pl->y - v->y;
             if (sqrtf(dz * dz + (dx * dx + dy * dy)) < D_807480F0) {
                 hit = 1;
-                func_807149B8(1);
-                func_80714998(3);
-                func_80714950(0);
-                func_8071498C(effectLightGrowShrinkUpdate);
-                func_807149A8(0x320);
+                effectSetDepth(1);
+                effectSetMode(3);
+                effectSetSpeed(0);
+                effectSetCallback(effectLightGrowShrinkUpdate);
+                effectSetMaxDistance(0x320);
                 v = *p + D_807F5FD4[0];
-                func_80714CC0(D_80720BC4, 2.5f, v->x, v->y, v->z);
+                effectCreateAtPosition(D_80720BC4, 2.5f, v->x, v->y, v->z);
             } else {
                 *p += 1;
                 if (cnt == *p) {
@@ -1339,27 +1339,27 @@ void csCmdSpawnDirectionalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
             fy = d1 - 50.0;
             d0 = (u32)randomLcgNext() / 1000 % 100;
             fz = d0 - 50.0;
-            func_8071496C(i);
-            func_807149B8(1);
+            effectSetAngle(i);
+            effectSetDepth(1);
             if (i == 0) {
-                func_80714950(D_80748150 + 0x10000);
-                func_8071498C(effectLightFlickerDecay);
-                func_80714998(D_80748154[3]);
+                effectSetSpeed(D_80748150 + 0x10000);
+                effectSetCallback(effectLightFlickerDecay);
+                effectSetMode(D_80748154[3]);
             } else {
-                func_8071498C(effectSpinBillboardingUpdate);
+                effectSetCallback(effectSpinBillboardingUpdate);
             }
-            func_80714CC0(D_80720BE8, D_80748140, gCsPosX + fx, gCsPosY + fy, gCsPosZ + fz);
+            effectCreateAtPosition(D_80720BE8, D_80748140, gCsPosX + fx, gCsPosY + fy, gCsPosZ + fz);
             i++;
         } while (i < D_80748148);
         i = 0;
     }
     do {
-        func_8071498C(effectDecelDriftFadeUpdate);
-        func_80714950(i);
-        func_807149B8(1);
-        func_807149C8(0x8C, 0x8C, 0x8C, 0xFF);
-        func_80714998(3);
-        func_80714CC0(sEffectSparkConfig, D_80748144, gCsPosX, gCsPosY + D_8074814C, gCsPosZ);
+        effectSetCallback(effectDecelDriftFadeUpdate);
+        effectSetSpeed(i);
+        effectSetDepth(1);
+        effectSetColor(0x8C, 0x8C, 0x8C, 0xFF);
+        effectSetMode(3);
+        effectCreateAtPosition(sEffectSparkConfig, D_80748144, gCsPosX, gCsPosY + D_8074814C, gCsPosZ);
         i++;
     } while (i < 0xC);
     for (i = 0; i != 0x1130; i += 0x190) {
@@ -1391,11 +1391,11 @@ void csCmdSpawnScaledSphereEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     if (b != 0) {
         for (i = 1; i != 7; i++) {
             modelSlotGetNodePos(csId, 1, i, &x, &y, &z);
-            func_8071496C(i);
-            func_807149B8(1);
-            func_8071498C(effectSpinBillboardingUpdate);
-            func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
-            func_80714CC0(D_80720BE8, 1.5f, x, y, z);
+            effectSetAngle(i);
+            effectSetDepth(1);
+            effectSetCallback(effectSpinBillboardingUpdate);
+            effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
+            effectCreateAtPosition(D_80720BE8, 1.5f, x, y, z);
         }
         return;
     }
@@ -1428,11 +1428,11 @@ void csCmdSpawnScaledSphereEffects(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdSpawnModelNodeEffects(CsState *cs, s16 csId, s16 b, s16 c) {
-    func_80714950(-0x78);
-    func_8071498C(func_80717D4C);
-    func_807149B8(1);
-    func_80714998(3);
-    func_80714B84(sEffectSparkConfig, 1.5f, csId, 1, 0);
+    effectSetSpeed(-0x78);
+    effectSetCallback(func_80717D4C);
+    effectSetDepth(1);
+    effectSetMode(3);
+    effectCreateAtModelNode(sEffectSparkConfig, 1.5f, csId, 1, 0);
 }
 
 void csCmdGetModelNodeAndProject(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -1467,16 +1467,16 @@ void csCmdSpawnRandomJitterEffects(CsState *cs, s16 csId, s16 b, s16 c) {
         dz = (f32)((u32)randomLcgNext() / 1000 % 20) - 10.0;
         sc = (u32)randomLcgNext() / 1000 % 50 - 25.0;
         sc = sc / 50.0;
-        func_80714950(-0xAA);
-        func_8071498C(func_80717D4C);
-        func_807149B8(1);
-        func_80714998(3);
-        func_8071496C(i << 1);
-        func_80714CC0(sEffectSparkConfig, sc + 1.5, gCsPosX + dx, gCsPosY + dy, gCsPosZ + dz);
+        effectSetSpeed(-0xAA);
+        effectSetCallback(func_80717D4C);
+        effectSetDepth(1);
+        effectSetMode(3);
+        effectSetAngle(i << 1);
+        effectCreateAtPosition(sEffectSparkConfig, sc + 1.5, gCsPosX + dx, gCsPosY + dy, gCsPosZ + dz);
     }
 }
 
-void func_80714944(s32);
+void effectSetParam(s32);
 
 void csCmdSpawnEffectAtRandomNode(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 node;
@@ -1485,14 +1485,14 @@ void csCmdSpawnEffectAtRandomNode(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 z;
 
     node = (u32)randomLcgNext() / 1000 % 10 + 1;
-    func_80714950(-0x28A - (u32)randomLcgNext() / 1000 % 200);
-    func_8071498C(func_80717D4C);
-    func_807149B8(1);
-    func_80714998(9);
-    func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
-    func_80714944(5);
+    effectSetSpeed(-0x28A - (u32)randomLcgNext() / 1000 % 200);
+    effectSetCallback(func_80717D4C);
+    effectSetDepth(1);
+    effectSetMode(9);
+    effectSetColor(0xFF, 0xFF, 0xFF, 0x64);
+    effectSetParam(5);
     modelSlotGetNodePos(csId, 1, node, &x, &y, &z);
-    func_80714CC0(sEffectSparkConfig, 1.5f, x, y - 70.0f, z);
+    effectCreateAtPosition(sEffectSparkConfig, 1.5f, x, y - 70.0f, z);
 }
 
 extern u8 D_80720DE0[];
@@ -1520,10 +1520,10 @@ void csCmdPointListEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     x = p->x;
     y = p->y;
     z = p->z;
-    func_80714998(2);
-    func_807149B8(1);
-    func_807149C8(0xFF, 0xFF, 0xFF, 0xC8);
-    func_80714CC0(D_80720DE0, 1.0f, x, y + 10, z);
+    effectSetMode(2);
+    effectSetDepth(1);
+    effectSetColor(0xFF, 0xFF, 0xFF, 0xC8);
+    effectCreateAtPosition(D_80720DE0, 1.0f, x, y + 10, z);
 }
 
 extern u8 D_80748168[];
@@ -1533,12 +1533,12 @@ void csCmdSpawnFallingSparkles(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
 
     for (i = 1; i != 0xF; i++) {
-        func_80714950(-0x78);
-        func_8071498C(func_80717D4C);
-        func_807149B8(1);
-        func_80714998(3);
-        func_807149C8(0xFF, 0xFF, 0xFF, D_80748168[3]);
-        func_80714B84(sEffectSparkConfig, D_8074816C, csId, i, 0);
+        effectSetSpeed(-0x78);
+        effectSetCallback(func_80717D4C);
+        effectSetDepth(1);
+        effectSetMode(3);
+        effectSetColor(0xFF, 0xFF, 0xFF, D_80748168[3]);
+        effectCreateAtModelNode(sEffectSparkConfig, D_8074816C, csId, i, 0);
     }
 }
 
@@ -1549,21 +1549,21 @@ void csCmdSpawnTumbleBounceRing(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 t;
 
     for (i = 0; i < 12; i++) {
-        func_807149B8(1);
-        func_807149FC(0x3C);
-        func_8071498C(effectTumbleBounceUpdate);
-        func_80714998(2);
-        func_80714950(4);
+        effectSetDepth(1);
+        effectSetDuration(0x3C);
+        effectSetCallback(effectTumbleBounceUpdate);
+        effectSetMode(2);
+        effectSetSpeed(4);
         t = (u32)randomLcgNext() / 1000 % 80;
-        func_80714CC0(D_80720EA4, 1.0f, gCsPosX, gCsPosY + t, gCsPosZ);
+        effectCreateAtPosition(D_80720EA4, 1.0f, gCsPosX, gCsPosY + t, gCsPosZ);
     }
     for (i = 1; i != 6; i++) {
-        func_80714950(-0x78);
-        func_8071498C(func_80717D4C);
-        func_807149B8(1);
-        func_80714998(3);
-        func_807149C8(0xFF, 0xFF, 0xFF, 0x78);
-        func_80714B84(sEffectSparkConfig, 3.0f, csId, i, 0);
+        effectSetSpeed(-0x78);
+        effectSetCallback(func_80717D4C);
+        effectSetDepth(1);
+        effectSetMode(3);
+        effectSetColor(0xFF, 0xFF, 0xFF, 0x78);
+        effectCreateAtModelNode(sEffectSparkConfig, 3.0f, csId, i, 0);
     }
 }
 
@@ -1576,15 +1576,15 @@ void csCmdSpawnOrbitingPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
 
     y = 0.0f;
     for (i = 0; i != 6; i++) {
-        func_8071496C(i << 1);
-        func_807149B8(1);
-        func_807149FC(7);
-        func_8071498C(effectCircleRiseFadeUpdate);
-        func_80714998(1);
-        func_80714950(y);
-        func_80714CC0(D_8071FC8C, 0.5f, gCsPosX, gCsPosY, gCsPosZ);
-        func_80714950(y + 2048.0f);
-        func_80714CC0(D_8071FC8C, 0.5f, gCsPosX, gCsPosY, gCsPosZ);
+        effectSetAngle(i << 1);
+        effectSetDepth(1);
+        effectSetDuration(7);
+        effectSetCallback(effectCircleRiseFadeUpdate);
+        effectSetMode(1);
+        effectSetSpeed(y);
+        effectCreateAtPosition(D_8071FC8C, 0.5f, gCsPosX, gCsPosY, gCsPosZ);
+        effectSetSpeed(y + 2048.0f);
+        effectCreateAtPosition(D_8071FC8C, 0.5f, gCsPosX, gCsPosY, gCsPosZ);
         y += 682.0f;
     }
 }
@@ -1636,11 +1636,11 @@ void csCmdBlinkNodeFrames(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 void csCmdSpawnPointParticles(CsState *cs, s16 csId, s16 b, s16 c) {
-    func_80714998(2);
+    effectSetMode(2);
     if (b != 0) {
-        func_80714CC0(D_8071FBC8, 3.0f, gCsPosX, gCsPosY, gCsPosZ);
+        effectCreateAtPosition(D_8071FBC8, 3.0f, gCsPosX, gCsPosY, gCsPosZ);
     } else {
-        func_80714B84(D_8071FBC8, 3.0f, csId, 1, 0);
+        effectCreateAtModelNode(D_8071FBC8, 3.0f, csId, 1, 0);
     }
 }
 
@@ -1659,11 +1659,11 @@ void csCmdSpawnDustPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
             dx = (f32)((randomLcgNext() / 10000U) % 200U) * 0.25 - 2.0;
             dy = (f32)((randomLcgNext() / 10000U) % 200U) * 0.25 - 2.0;
             dz = (f32)((randomLcgNext() / 10000U) % 200U) * 0.25 - 2.0;
-            func_807149B8(1);
-            func_80714950(1);
-            func_807149FC(-1);
-            func_8071498C(effectWobbleRiseUpdate);
-            func_80714CC0(D_8071FC40, 0.0f, gCsPosX + dx, gCsPosY + dy, gCsPosZ + dz);
+            effectSetDepth(1);
+            effectSetSpeed(1);
+            effectSetDuration(-1);
+            effectSetCallback(effectWobbleRiseUpdate);
+            effectCreateAtPosition(D_8071FC40, 0.0f, gCsPosX + dx, gCsPosY + dy, gCsPosZ + dz);
             i++;
         } while (i != 12);
     }
@@ -1705,11 +1705,11 @@ void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         sp38 *= gCsScale;
         sp40 += gCsPosX;
         sp38 += gCsPosZ;
-        func_807149B8(1);
-        func_80714950(2);
-        func_807149FC(-1);
-        func_8071498C(effectWobbleRiseUpdate);
-        func_80714CC0(D_8071FC40, 0.0f, sp40, m[4][0], sp38);
+        effectSetDepth(1);
+        effectSetSpeed(2);
+        effectSetDuration(-1);
+        effectSetCallback(effectWobbleRiseUpdate);
+        effectCreateAtPosition(D_8071FC40, 0.0f, sp40, m[4][0], sp38);
     }
 #undef S
 }
@@ -1726,8 +1726,8 @@ extern u8 D_80721250[];
 extern u8 D_8072126C[];
 extern u32 gGameFrameCounter;
 void effectZRotationMatrixUpdate(void);
-void func_80714A08(f32, f32);
-void func_80714A28(s16);
+void effectSetScale(f32, f32);
+void effectSetFlags(s16);
 
 void csCmdSpawnOrbitingSparks(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 *tex;
@@ -1747,7 +1747,7 @@ void csCmdSpawnOrbitingSparks(CsState *cs, s16 csId, s16 b, s16 c) {
         p->unk8 = 0;
     }
     p = *(CsOrbitCounters **)cs;
-    func_807149B8(1);
+    effectSetDepth(1);
     switch (b) {
         case 0:
             tex = D_80721200;
@@ -1766,18 +1766,18 @@ void csCmdSpawnOrbitingSparks(CsState *cs, s16 csId, s16 b, s16 c) {
     sb = mathSinF(*(s16 *)((u8 *)p + 6)) * 0.1;
     p->unk0 += 0x32;
     p->unk4 += 0x64;
-    func_80714A08(sa + 1.0, sb + 1.0);
-    func_807149A8(0x578);
-    func_80714A28(4);
-    func_80714CC0(tex, 0.0f, gCsPosX + sx, mathSinF(*(s16 *)((u8 *)p + 0xA)) * 10.0 + (gCsPosY + 80.0), gCsPosZ + sz);
+    effectSetScale(sa + 1.0, sb + 1.0);
+    effectSetMaxDistance(0x578);
+    effectSetFlags(4);
+    effectCreateAtPosition(tex, 0.0f, gCsPosX + sx, mathSinF(*(s16 *)((u8 *)p + 0xA)) * 10.0 + (gCsPosY + 80.0), gCsPosZ + sz);
     p->unk8 += 0x64;
     if (gGameFrameCounter % 12U == 0) {
-        func_807149B8(1);
-        func_80714950(0x5A);
-        func_8071498C(effectZRotationMatrixUpdate);
-        func_807149A8(0x578);
-        func_80714A28(4);
-        func_80714CC0(D_8072126C, 2.0f, gCsPosX + sx, gCsPosY + 30.0, gCsPosZ + sz);
+        effectSetDepth(1);
+        effectSetSpeed(0x5A);
+        effectSetCallback(effectZRotationMatrixUpdate);
+        effectSetMaxDistance(0x578);
+        effectSetFlags(4);
+        effectCreateAtPosition(D_8072126C, 2.0f, gCsPosX + sx, gCsPosY + 30.0, gCsPosZ + sz);
     }
 }
 
@@ -1806,7 +1806,7 @@ void csCmdSpawnSphereEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     if (n > 0) {
         r = b & 0xFF;
         do {
-            func_8071496C(randomFloat() * (f32)(c >> 8));
+            effectSetAngle(randomFloat() * (f32)(c >> 8));
             do {
                 x = 2.0f * randomFloat() - 1.0f;
                 y = 2.0f * randomFloat() - 1.0f;
@@ -1818,7 +1818,7 @@ void csCmdSpawnSphereEffects(CsState *cs, s16 csId, s16 b, s16 c) {
             y *= len;
             z *= len;
             y += r;
-            func_80714CC0(D_8071FF18, scale * 1.5, gCsPosX + x, gCsPosY + y, gCsPosZ + z);
+            effectCreateAtPosition(D_8071FF18, scale * 1.5, gCsPosX + x, gCsPosY + y, gCsPosZ + z);
             i++;
         } while (i != n);
     }
@@ -1881,12 +1881,12 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
         dy *= spread;
         dz *= spread;
         dy += base;
-        func_807149B8(1);
-        func_807149FC(0x3C);
-        func_8071498C(effectTumbleBounceUpdate);
-        func_80714998(2);
-        func_80714950(2);
-        func_80714CC0(tbl, (randomFloat() * 0.5 + 0.2) * scale, gCsPosX + dx, gCsPosY + dy, gCsPosZ + dz);
+        effectSetDepth(1);
+        effectSetDuration(0x3C);
+        effectSetCallback(effectTumbleBounceUpdate);
+        effectSetMode(2);
+        effectSetSpeed(2);
+        effectCreateAtPosition(tbl, (randomFloat() * 0.5 + 0.2) * scale, gCsPosX + dx, gCsPosY + dy, gCsPosZ + dz);
         if (i < 6) {
             dx = 2.0f * randomFloat() - 1.0f;
             dy = 2.0f * randomFloat() - 1.0f;
@@ -1898,19 +1898,19 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
             r = (u32)randomLcgNext() / 1000 % 50 - 25.0;
             r = r / 50.0;
             if (i == 0) {
-                func_80714950(0x100FA);
-                func_8071498C(effectLightPulseOscillate);
+                effectSetSpeed(0x100FA);
+                effectSetCallback(effectLightPulseOscillate);
             } else {
-                func_80714950(-0xAA);
-                func_8071498C(func_80717D4C);
+                effectSetSpeed(-0xAA);
+                effectSetCallback(func_80717D4C);
             }
-            func_80714998(3);
-            func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
-            func_80714CC0(sEffectSparkConfig, (r + 3.5) * scale, gCsPosX + dx, gCsPosY + dy, gCsPosZ + dz);
+            effectSetMode(3);
+            effectSetColor(0xFF, 0xFF, 0xFF, 0x64);
+            effectCreateAtPosition(sEffectSparkConfig, (r + 3.5) * scale, gCsPosX + dx, gCsPosY + dy, gCsPosZ + dz);
         }
     }
-    func_807149B8(1);
-    func_80714CC0(D_80720340, scale * 2.5, gCsPosX, b + gCsPosY, gCsPosZ);
+    effectSetDepth(1);
+    effectCreateAtPosition(D_80720340, scale * 2.5, gCsPosX, b + gCsPosY, gCsPosZ);
 }
 
 
@@ -2036,12 +2036,12 @@ void csCmdSpawnFallingWhiteSparks(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
 
     for (i = 1; i != 8; i++) {
-        func_80714950(-0x78);
-        func_8071498C(func_80717D4C);
-        func_807149B8(1);
-        func_80714998(3);
-        func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
-        func_80714B84(sEffectSparkConfig, 3.5f, csId, i, 0);
+        effectSetSpeed(-0x78);
+        effectSetCallback(func_80717D4C);
+        effectSetDepth(1);
+        effectSetMode(3);
+        effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
+        effectCreateAtModelNode(sEffectSparkConfig, 3.5f, csId, i, 0);
     }
 }
 
@@ -2113,11 +2113,11 @@ void csCmdSpawnRandomNodeParticles(CsState *cs, s16 csId, s16 b, s16 c) {
 
     for (i = 0; i < b; i++) {
         idx = (randomNonNegative() >> 15) % 32767 % (c + 1);
-        func_807149B8(1);
-        func_807149A8(0x7D0);
-        func_8071498C(func_8071F660);
-        func_807149FC(8);
-        func_80714CC0(D_80721298, 1.0f, (*D_807F5FD4)[idx].x, (*D_807F5FD4)[idx].y, (*D_807F5FD4)[idx].z);
+        effectSetDepth(1);
+        effectSetMaxDistance(0x7D0);
+        effectSetCallback(func_8071F660);
+        effectSetDuration(8);
+        effectCreateAtPosition(D_80721298, 1.0f, (*D_807F5FD4)[idx].x, (*D_807F5FD4)[idx].y, (*D_807F5FD4)[idx].z);
     }
 }
 extern u16 D_807446C0[];
@@ -2202,8 +2202,8 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     if (&pz == 0) {}
     ang = gCsRotY * 4096.0f / 360.0f;
     if (c == 2) {
-        func_807149B8(0);
-        func_80714CC0(D_80720A7C, 0.5f, randomFloat() * 35.0 + gCsPosX - 15.0, randomFloat() * 35.0 + gCsPosY, randomFloat() * 35.0 + gCsPosZ - 15.0);
+        effectSetDepth(0);
+        effectCreateAtPosition(D_80720A7C, 0.5f, randomFloat() * 35.0 + gCsPosX - 15.0, randomFloat() * 35.0 + gCsPosY, randomFloat() * 35.0 + gCsPosZ - 15.0);
         return;
     }
     p = (CsCamVecView *)gPlayerSlots->unk4->customState;
@@ -2233,10 +2233,10 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         xo = t * sinA + ez;
         zo = mathSinF(ang) * 100.0 + py;
         ang += 0x400;
-        func_807149FC(-1);
-        func_807149B8(0);
-        func_8071498C(cb);
-        obj = (CsObjStateView *)func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, px, py, pz);
+        effectSetDuration(-1);
+        effectSetDepth(0);
+        effectSetCallback(cb);
+        obj = (CsObjStateView *)effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, px, py, pz);
         q = obj->unk384 = heapAlloc(0x28);
         q->unk0 = (randomNonNegative() >> 15) % 5 + 10;
         q->unk4 = 0.0f;
@@ -3269,8 +3269,8 @@ void csCmdSpawnFourNodeEntries(CsState *cs, s16 csId, s16 b, s16 c) {
     actorSpawnNodeEntryScaled(0x2F, gCsPosX, gCsPosY + 15.0f, gCsPosZ, 0x400, 1, -1, 0);
     actorSpawnNodeEntryScaled(0x2F, gCsPosX, gCsPosY + 15.0f, gCsPosZ, 0x800, 1, -1, 0);
     actorSpawnNodeEntryScaled(0x2F, gCsPosX, gCsPosY + 15.0f, gCsPosZ, 0xC00, 1, -1, 0);
-    func_807149B8(1);
-    func_80714CC0(sEffectSparkConfig, 2.5f, gCsPosX, gCsPosY + 30.0f, gCsPosZ);
+    effectSetDepth(1);
+    effectCreateAtPosition(sEffectSparkConfig, 2.5f, gCsPosX, gCsPosY + 30.0f, gCsPosZ);
 }
 
 typedef struct CsCamObjView {
@@ -4321,12 +4321,12 @@ void sfxAllocateChannel(s32, f32);
 extern u8 D_80721530[];
 
 void csCmdSpawnActorAtPoint(CsState *cs, s16 csId, s16 b, s16 c) {
-    func_807149C8(0xFF, 0xFF, 0xFF, 0x80);
-    func_8071498C(func_8064EE08);
-    func_807149FC(-1);
-    func_807149B8(1);
-    func_80714998(2);
-    func_80714CC0(D_80721530, 0.0f, gCsPosX, gCsPosY + 17.5, gCsPosZ);
+    effectSetColor(0xFF, 0xFF, 0xFF, 0x80);
+    effectSetCallback(func_8064EE08);
+    effectSetDuration(-1);
+    effectSetDepth(1);
+    effectSetMode(2);
+    effectCreateAtPosition(D_80721530, 0.0f, gCsPosX, gCsPosY + 17.5, gCsPosZ);
     actorSpawn(0x9C, 0x53);
     gSpawnedActor->x = gCsPosX;
     gSpawnedActor->y = gCsPosY;

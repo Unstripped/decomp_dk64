@@ -119,8 +119,8 @@ typedef struct PlayerCameraXZView {
     f32 unk218;
 } PlayerCameraXZView;
 f32 mathAtan2(f32, f32);
-void func_807149C8(s32, s32, s32, s32);
-s32 func_80714C08(void *, f32, Actor *, s32, s32);
+void effectSetColor(s32, s32, s32, s32);
+s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
 struct PlayerTrackEntry;
 extern struct PlayerTrackEntry *gPlayerSlots;
 extern Actor *gCurrentActor;
@@ -166,8 +166,8 @@ void actorSpawnNodeEffectFacingCamera(s32 arg0, u8 arg1) {
             if (gCurrentActor->sub4 != NULL) {
                 vol *= gCurrentActor->sub4->scaleY;
             }
-            func_807149C8(0xFF, 0xFF, 0xFF, alpha);
-            func_80714C08(&D_80720054, vol, gCurrentActor, arg0, 2);
+            effectSetColor(0xFF, 0xFF, 0xFF, alpha);
+            effectCreateAtActorBone(&D_80720054, vol, gCurrentActor, arg0, 2);
         }
     }
 }
@@ -932,11 +932,11 @@ typedef struct {
 extern s32 gCamActor;
 void waterRippleStart(f32, f32, f32, f32, f32, f32);
 void camStartShake(s32, s32, s32);
-void func_807149B8(s32);
-void func_80714950(s32);
-void func_80714998(s32);
-void func_8071498C(void *);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetDepth(s32);
+void effectSetSpeed(s32);
+void effectSetMode(s32);
+void effectSetCallback(void *);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern u8 D_80750AD0;
 
 void projectileGetTargetCoords(Actor *arg0, s32 arg1) {
@@ -1048,9 +1048,9 @@ u8 arg3;
             temp_a = ((Actor *)arg1->parentActor)->customState;
             temp_t4 = temp_a->unk104->customState;
             if (temp_t4->unkF3 == 3) {
-                func_8071498C(effectLifetimeCountdownUpdate);
-                func_80714950(0x32);
-                func_80714CC0(arg2, sp50->unk14, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectSetCallback(effectLifetimeCountdownUpdate);
+                effectSetSpeed(0x32);
+                effectCreateAtPosition(arg2, sp50->unk14, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
         if (projectileFindHomingTarget(arg0, (void **)&sp78, arg1, 0, *(u8 *)&arg3, arg3 == 0, &sp4C, &sp48, &sp44) != 0) { // FAKE: address-taken byte read keeps the arg3 lbu in a ring temp (candidate left uncoloured)
@@ -1292,7 +1292,7 @@ f32 *arg8;
     return ret;
 }
 
-void func_807149C8(s32, s32, s32, s32);
+void effectSetColor(s32, s32, s32, s32);
 extern s32 sEffectSparkConfig;
 void func_80717D4C(void);
 void actorSpawnSparkleBurst(void) {
@@ -1311,12 +1311,12 @@ void actorSpawnSparkleBurst(void) {
         dx = (f32)(((f64)(u32)((randomLcgNext() / 10000) % 200) / 5.0) - 20.0);
         dy = (f32)(((f64)(u32)((randomLcgNext() / 10000) % 200) / 5.0) - 20.0);
         dz = (f32)(((f64)(u32)((randomLcgNext() / 10000) % 200) / 5.0) - 20.0);
-        func_807149B8(1);
-        func_807149C8(0x8C, 0x8C, 0x8C, 0x64);
-        func_80714950(i * -0x14);
-        func_80714998(3);
-        func_8071498C(func_80717D4C);
-        func_80714CC0(&sEffectSparkConfig, 2.0f, gCurrentActor->x + dx, gCurrentActor->y + 42.0f + dy, gCurrentActor->z + dz);
+        effectSetDepth(1);
+        effectSetColor(0x8C, 0x8C, 0x8C, 0x64);
+        effectSetSpeed(i * -0x14);
+        effectSetMode(3);
+        effectSetCallback(func_80717D4C);
+        effectCreateAtPosition(&sEffectSparkConfig, 2.0f, gCurrentActor->x + dx, gCurrentActor->y + 42.0f + dy, gCurrentActor->z + dz);
     }
 }
 
@@ -1428,17 +1428,17 @@ void billboardSetFlags(s16);
 void effectLightPulseOscillate(void);
 void effectSpinBillboardingUpdate(void);
 void func_8071BC80(void);
-void func_807149A8(s32);
-void func_807149FC(s32);
+void effectSetMaxDistance(s32);
+void effectSetDuration(s32);
 void actorSetCollisionRadius(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void func_8067ACB4(Actor *);
 void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void func_80714A28(s32);
+void effectSetFlags(s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-s32 func_80714C08(void *, f32, Actor *, s32, s32);
+s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
 
 void projectileBounceParticleUpdate(void *arg0) {
     f32 sp48;
@@ -1473,11 +1473,11 @@ void projectileBounceParticleUpdate(void *arg0) {
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 35.0f, -1);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, sp48, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_807149A8(1000);
-        func_80714A28(4);
-        func_80714C08(arg0, sp64, gCurrentActor, 1, 2);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectSetMaxDistance(1000);
+        effectSetFlags(4);
+        effectCreateAtActorBone(arg0, sp64, gCurrentActor, 1, 2);
         if (temp_s3->unk13 >= 0xB) {
             PROJECTILE_BOUNCE_ACTOR->unk132 = 2;
         }
@@ -1521,10 +1521,10 @@ void projectileBounceParticleUpdate(void *arg0) {
             temp_s3->unk12 = 0xA;
         }
         if (temp_s3->unk12 != 0) {
-            func_807149B8(1);
-            func_807149FC(1);
-            func_8071498C(effectSpinBillboardingUpdate);
-            func_80714CC0(&D_80720340, PROJECTILE_BOUNCE_ACTOR->unk124->unkC, PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84);
+            effectSetDepth(1);
+            effectSetDuration(1);
+            effectSetCallback(effectSpinBillboardingUpdate);
+            effectCreateAtPosition(&D_80720340, PROJECTILE_BOUNCE_ACTOR->unk124->unkC, PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84);
             temp_s3->unk12 = temp_s3->unk12 - 1;
         }
     }
@@ -1541,20 +1541,20 @@ void projectileBounceParticleUpdate(void *arg0) {
         }
     }
     if (PROJECTILE_BOUNCE_ACTOR->unkFC != 0 || temp_s3->unk12 == 1 || D_807FBB85 != 0) {
-        func_807149B8(1);
-        func_807149FC(1);
+        effectSetDepth(1);
+        effectSetDuration(1);
         if (PROJECTILE_BOUNCE_ACTOR->unk58 != 0x3B && temp_s3->unk13 != 0x63) {
-            func_80714950(0x100FA);
-            func_8071498C(effectLightPulseOscillate);
+            effectSetSpeed(0x100FA);
+            effectSetCallback(effectLightPulseOscillate);
         }
-        func_80714CC0(&D_80720340, 2.0 * PROJECTILE_BOUNCE_ACTOR->unk124->unkC, PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84);
+        effectCreateAtPosition(&D_80720340, 2.0 * PROJECTILE_BOUNCE_ACTOR->unk124->unkC, PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84);
         if (temp_s3->unk13 < 0xA) {
             for (var_s1 = -0x12C; var_s1 != 0x12C; var_s1 += 0x32) {
-                func_807149B8(1);
-                func_807149FC(2);
-                func_80714950((PROJECTILE_BOUNCE_ACTOR->unkEE + var_s1) % 4095);
-                func_8071498C(func_8071BC80);
-                func_80714CC0(&D_8072038C, PROJECTILE_BOUNCE_ACTOR->unk124->unkC * 0.5, PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84);
+                effectSetDepth(1);
+                effectSetDuration(2);
+                effectSetSpeed((PROJECTILE_BOUNCE_ACTOR->unkEE + var_s1) % 4095);
+                effectSetCallback(func_8071BC80);
+                effectCreateAtPosition(&D_8072038C, PROJECTILE_BOUNCE_ACTOR->unk124->unkC * 0.5, PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84);
             }
         }
         sfxPlayAtPositionPooled(PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84, 0xF6, 0xFF, 0x7F, 0x1E, 0x1E, 0.7f, 0);
@@ -1624,20 +1624,20 @@ void projectileSparkleUpdate(s32 arg0) {
         actorSetCollisionRadius(gCurrentActor, 40.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 30.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        func_807149FC(1);
-        func_80714998(2);
-        func_807149B8(1);
-        func_8071498C(effectGrowExpandMatrixUpdate);
-        func_80714950((s32)(randomNonNegative() >> 15) % 360);
-        func_807149A8(2000);
+        effectSetDuration(1);
+        effectSetMode(2);
+        effectSetDepth(1);
+        effectSetCallback(effectGrowExpandMatrixUpdate);
+        effectSetSpeed((s32)(randomNonNegative() >> 15) % 360);
+        effectSetMaxDistance(2000);
         switch ((u8)arg0) {
         case 0:
-            func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
-            func_80714C08(&D_80720120, G_SPARKLE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+            effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
+            effectCreateAtActorBone(&D_80720120, G_SPARKLE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
             break;
         case 1:
-            func_807149C8(0xC8, 0xC8, 0xFA, 0x9B);
-            func_80714C08(&D_80720BE8, G_SPARKLE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+            effectSetColor(0xC8, 0xC8, 0xFA, 0x9B);
+            effectCreateAtActorBone(&D_80720BE8, G_SPARKLE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
             break;
         }
         sp2C->unk13 = (u8)(u32)G_SPARKLE_ACTOR->unk124->unk10;
@@ -1797,9 +1797,9 @@ void projectileDespawnOrExplode(void) {
         actorSetCollisionRadius(gCurrentActor, 50.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 40.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_80714C08(&D_80720020, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectCreateAtActorBone(&D_80720020, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         *sp44 = gGameFrameCounter;
     }
     func_8067ACB4(gCurrentActor);
@@ -1810,11 +1810,11 @@ void projectileDespawnOrExplode(void) {
     if (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1) || gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9) {
         other = G_PROJECTILE_ACTOR->unk11C;
         if (other == NULL || other->actorType != 0x2E || (other->actorType == 0x2E && (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1)))) {
-            func_807149B8(0);
-            func_807149FC(1);
-            func_8071498C(effectLifetimeCountdownUpdate);
-            func_80714950(0xC);
-            func_80714CC0(&D_807202D0, 0.75f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectSetDepth(0);
+            effectSetDuration(1);
+            effectSetCallback(effectLifetimeCountdownUpdate);
+            effectSetSpeed(0xC);
+            effectCreateAtPosition(&D_807202D0, 0.75f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x61, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
         actorDespawn(gCurrentActor);
@@ -1847,10 +1847,10 @@ void projectileHomingUpdate(void) {
         actorSetCollisionRadius(gCurrentActor, 50.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 40.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_80714A28(4);
-        func_80714C08(&D_807200A0, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectSetFlags(4);
+        effectCreateAtActorBone(&D_807200A0, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp44->unk14 = G_PROJECTILE_ACTOR->unk124->unkC;
         sp44->unk0 = gGameFrameCounter;
         G_PROJECTILE_ACTOR->unk60 |= 0x01080000;
@@ -1884,18 +1884,18 @@ void projectileHomingUpdate(void) {
         ((G_PROJECTILE_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
         D_807FBB85 != 0 ||
         (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < gGameFrameCounter)) {
-        func_807149B8(1);
-        func_80714950(0x1006E);
-        func_8071498C(effectLightPulseOscillate);
-        func_80714CC0(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectSetDepth(1);
+        effectSetSpeed(0x1006E);
+        effectSetCallback(effectLightPulseOscillate);
+        effectCreateAtPosition(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8D, 0xFF, 0x7F, 0x1E);
         actorDespawn(gCurrentActor);
         if (D_80750AD0 == 0) {
             for (var_s1 = 0; var_s1 != 0xC; var_s1 += 2) {
-                func_807149B8(1);
-                func_80714950(0x0B000000 + var_s1);
-                func_8071498C(effectRadialSprayUpdate);
-                func_80714CC0(&D_807200EC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectSetDepth(1);
+                effectSetSpeed(0x0B000000 + var_s1);
+                effectSetCallback(effectRadialSprayUpdate);
+                effectCreateAtPosition(&D_807200EC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
     }
@@ -1925,10 +1925,10 @@ void projectileMultiplayerUpdate(void) {
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_80714A28(4);
-        func_80714C08(&D_8072029C, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectSetFlags(4);
+        effectCreateAtActorBone(&D_8072029C, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp44->unk14 = G_PROJECTILE_ACTOR->unk124->unkC;
         sp44->unk0 = gGameFrameCounter;
         G_PROJECTILE_ACTOR->unk60 |= 0x01080000;
@@ -1958,11 +1958,11 @@ void projectileMultiplayerUpdate(void) {
         (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < gGameFrameCounter)) {
         if (D_80750AD0 == 0) {
             for (var_s1 = 0; var_s1 != 0xC; var_s1 += 2) {
-                func_807149B8(1);
-                func_80714950(0x05000000 + var_s1);
-                func_80714998(1);
-                func_8071498C(effectRadialSprayUpdate);
-                func_80714CC0(&D_80720BA0, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectSetDepth(1);
+                effectSetSpeed(0x05000000 + var_s1);
+                effectSetMode(1);
+                effectSetCallback(effectRadialSprayUpdate);
+                effectCreateAtPosition(&D_80720BA0, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x91, 0xFF, 0x7F, 0x1E);
@@ -1979,10 +1979,10 @@ void projectileMultiplayerUpdate(void) {
 void projectileSpawnExplosion(void) {
     s32 i;
 
-    func_807149B8(1);
-    func_80714950(0x1006E);
-    func_8071498C(effectLightPulseOscillate);
-    func_80714CC0(&D_80720120, 2.0f, gCurrentActor->x, gCurrentActor->y + 22.0f, gCurrentActor->z);
+    effectSetDepth(1);
+    effectSetSpeed(0x1006E);
+    effectSetCallback(effectLightPulseOscillate);
+    effectCreateAtPosition(&D_80720120, 2.0f, gCurrentActor->x, gCurrentActor->y + 22.0f, gCurrentActor->z);
 
     for (i = 0; i < gPlayerCount; i++) {
         camStartShakeFromPoint(gPlayerSlots[i].actor->unk174->unk104, 7, 0x16, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 200.0f, 400.0f);
@@ -1992,10 +1992,10 @@ void projectileSpawnExplosion(void) {
 
     if (D_80750AD0 == 0) {
         for (i = 0; i < 12; i++) {
-            func_807149B8(1);
-            func_80714950(0x0B010000 + i);
-            func_8071498C(effectRadialSprayUpdate);
-            func_80714CC0(&D_807200EC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectSetDepth(1);
+            effectSetSpeed(0x0B010000 + i);
+            effectSetCallback(effectRadialSprayUpdate);
+            effectCreateAtPosition(&D_807200EC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
     }
 
@@ -2090,12 +2090,12 @@ void projectileBounceExplodeScaledUpdate(void) {
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, sp5C * 50.0, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         sp64->unk13 = (u8)(u32)BOUNCE_EXPLODE_ACTOR->unk124->unk10;
-        func_807149FC(-1);
-        func_807149B8(1);
+        effectSetDuration(-1);
+        effectSetDepth(1);
         sp64->unk0 = gGameFrameCounter;
         if (sp64->unk13 >= 0xCA) {
-            func_80714950(0xA);
-            func_8071498C(effectLightPulseOscillate);
+            effectSetSpeed(0xA);
+            effectSetCallback(effectLightPulseOscillate);
         }
         if (sp64->unk13 >= 0xCB) {
             BOUNCE_EXPLODE_ACTOR->unkC0 = 250.0f * sp5C;
@@ -2103,7 +2103,7 @@ void projectileBounceExplodeScaledUpdate(void) {
         } else {
             BOUNCE_EXPLODE_ACTOR->unkC0 = 200.0f * sp5C;
         }
-        func_80714C08(&D_80720268, BOUNCE_EXPLODE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+        effectCreateAtActorBone(&D_80720268, BOUNCE_EXPLODE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp64->unk4 = 0;
         BOUNCE_EXPLODE_ACTOR->unk60 |= 0x01080000;
         BOUNCE_EXPLODE_ACTOR->unkFA = 0x2328;
@@ -2188,17 +2188,17 @@ void projectileBounceExplodeScaledUpdate(void) {
     if ((((BOUNCE_EXPLODE_ACTOR->unk6A & 1) && sp64->unk4 == 4) || gActorGlobalState.unk15 != 0) && BOUNCE_EXPLODE_ACTOR->unk154 == 0) {
         sp3C = 250.0f * sp5C;
         if (sp64->unk13 != 0xCA) {
-            func_807149B8(1);
-            func_80714950(0x100D2);
-            func_8071498C(effectLightPulseOscillate);
-            func_80714CC0(&D_80720120, 2.0f, gCurrentActor->x, gCurrentActor->y + 22.0f, gCurrentActor->z);
+            effectSetDepth(1);
+            effectSetSpeed(0x100D2);
+            effectSetCallback(effectLightPulseOscillate);
+            effectCreateAtPosition(&D_80720120, 2.0f, gCurrentActor->x, gCurrentActor->y + 22.0f, gCurrentActor->z);
             actorSpawnSparkleBurst();
             if (D_80750AD0 == 0) {
                 for (var_s0 = 0; var_s0 != 12; var_s0++) {
-                    func_807149B8(1);
-                    func_80714950(0x0B010000 + var_s0);
-                    func_8071498C(effectRadialSprayUpdate);
-                    func_80714CC0(&D_807200EC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                    effectSetDepth(1);
+                    effectSetSpeed(0x0B010000 + var_s0);
+                    effectSetCallback(effectRadialSprayUpdate);
+                    effectCreateAtPosition(&D_807200EC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                 }
             }
         }
@@ -2317,10 +2317,10 @@ void projectileBounceExplodeGreenUpdate(void) {
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_807149C8(0, 0xFF, 0, 0xFF);
-        func_80714C08(&D_80720268, G_PROJECTILE_BEAM_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectSetColor(0, 0xFF, 0, 0xFF);
+        effectCreateAtActorBone(&D_80720268, G_PROJECTILE_BEAM_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp4C->unk0 = gGameFrameCounter;
         sp4C->unk4 = 0;
         G_PROJECTILE_BEAM_ACTOR->unk60 |= 0x80000;
@@ -2411,10 +2411,10 @@ void projectileBeamUpdate(void) {
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_80714A28(4);
-        func_80714C08(&D_807201A0, G_PROJECTILE_BEAM_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectSetFlags(4);
+        effectCreateAtActorBone(&D_807201A0, G_PROJECTILE_BEAM_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp44->unk14 = G_PROJECTILE_BEAM_ACTOR->unk124->unkC;
         sp44->unk0 = gGameFrameCounter;
         G_PROJECTILE_BEAM_ACTOR->unk60 |= 0x01080000;
@@ -2442,18 +2442,18 @@ void projectileBeamUpdate(void) {
         ((G_PROJECTILE_BEAM_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
         D_807FBB85 != 0 ||
         (G_PROJECTILE_BEAM_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < gGameFrameCounter)) {
-        func_807149B8(1);
-        func_80714950(0x1006E);
-        func_8071498C(effectLightPulseOscillate);
-        func_80714CC0(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectSetDepth(1);
+        effectSetSpeed(0x1006E);
+        effectSetCallback(effectLightPulseOscillate);
+        effectCreateAtPosition(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1E5, 0xFF, 0x7F, 0x1E);
         actorDespawn(gCurrentActor);
         if (D_80750AD0 == 0) {
             for (var_s1 = 0; var_s1 != 0xC; var_s1 += 2) {
-                func_807149B8(1);
-                func_80714950(0x0B000000 + var_s1);
-                func_8071498C(effectRadialSprayUpdate);
-                func_80714CC0(&D_807200EC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectSetDepth(1);
+                effectSetSpeed(0x0B000000 + var_s1);
+                effectSetCallback(effectRadialSprayUpdate);
+                effectCreateAtPosition(&D_807200EC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
     }
@@ -2483,10 +2483,10 @@ void projectileImpactExplosionUpdate(void) {
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_80714A28(4);
-        func_80714C08(&D_80720268, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectSetFlags(4);
+        effectCreateAtActorBone(&D_80720268, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp34->unk14 = G_PROJECTILE_ACTOR->unk124->unkC;
         sp34->unk0 = gGameFrameCounter;
         G_PROJECTILE_ACTOR->unk60 |= 0x01080000;
@@ -2617,10 +2617,10 @@ void projectileRotatingUpdate(void) {
         actorSetCollisionRadius(gCurrentActor, 50.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 40.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_80714A28(4);
-        func_80714C08(&D_807206A8, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectSetFlags(4);
+        effectCreateAtActorBone(&D_807206A8, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp44->unk14 = G_PROJECTILE_ACTOR->unk124->unkC;
         sp44->unk0 = gGameFrameCounter;
         G_PROJECTILE_ACTOR->unk60 |= 0x01080000;
@@ -2648,19 +2648,19 @@ void projectileRotatingUpdate(void) {
         ((G_PROJECTILE_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
         D_807FBB85 != 0 ||
         (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < gGameFrameCounter)) {
-        func_807149B8(1);
-        func_80714950(0x1006E);
-        func_8071498C(effectLightPulseOscillate);
-        func_80714CC0(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectSetDepth(1);
+        effectSetSpeed(0x1006E);
+        effectSetCallback(effectLightPulseOscillate);
+        effectCreateAtPosition(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, 0xFF, 0x7F, 5);
         actorDespawn(gCurrentActor);
         if (D_80750AD0 == 0) {
             s32 var_s0;
             for (var_s0 = 0; var_s0 != 0xC; var_s0 += 2) {
-                func_807149B8(1);
-                func_80714950(0x0B000000 + var_s0);
-                func_8071498C(effectRadialSprayUpdate);
-                func_80714CC0(&D_807206DC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectSetDepth(1);
+                effectSetSpeed(0x0B000000 + var_s0);
+                effectSetCallback(effectRadialSprayUpdate);
+                effectCreateAtPosition(&D_807206DC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
     }
@@ -2824,9 +2824,9 @@ void projectileRotatingLightUpdate(f32 arg0, u8 arg1) {
     lightAdd(G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, *(s32 *)&G_PROJECTILE_ROT_ACTOR->unk84, 0.0f, 0.0f, 0.0f, 80.0f, 0, sp97, sp96, sp95);
     if (sp48 == 1) {
         if (!temp_s2->unk12 && ((G_PROJECTILE_ROT_ACTOR->unk6A & 1) || G_PROJECTILE_ROT_ACTOR->unkFD != 0 || D_807FBB85 != 0)) {
-            func_80714950(0x1006E);
-            func_8071498C(effectLightPulseOscillate);
-            func_80714CC0(&D_8072006C, 1.2f, G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, G_PROJECTILE_ROT_ACTOR->unk84);
+            effectSetSpeed(0x1006E);
+            effectSetCallback(effectLightPulseOscillate);
+            effectCreateAtPosition(&D_8072006C, 1.2f, G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, G_PROJECTILE_ROT_ACTOR->unk84);
             effectSpawnBoneWhite(0, 0, 0.8f, G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, G_PROJECTILE_ROT_ACTOR->unk84, -0x50);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x3F, 0x14);
             temp_s2->unk12 = 2;
@@ -2901,15 +2901,15 @@ void projectileParticleSpawnerTick(void) {
         actorSetCollisionRadius(gCurrentActor, 110.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 100.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_80714C08(&D_80720804, G_PROJECTILE_PARTICLE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectCreateAtActorBone(&D_80720804, G_PROJECTILE_PARTICLE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp54->unk0 = gGameFrameCounter;
         G_PROJECTILE_PARTICLE_ACTOR->unk60 |= 0x80000;
         if (sp54->unk13 != 0xA) {
-            func_80714998(2);
-            func_807149B8(1);
-            func_80714CC0(&D_8071FBC8, 1.5f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+            effectSetMode(2);
+            effectSetDepth(1);
+            effectCreateAtPosition(&D_8071FBC8, 1.5f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
     }
     func_8067ACB4(gCurrentActor);
@@ -2917,25 +2917,25 @@ void projectileParticleSpawnerTick(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
     if (G_PROJECTILE_PARTICLE_ACTOR->unk6A & 4) {
-        func_807149B8(1);
-        func_807149FC(-1);
-        func_8071498C(effectProjectileDriftUpdate);
-        func_80714950((s32)gCurrentActor);
-        func_80714CC0(&D_8071FC40, 0.3f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+        effectSetDepth(1);
+        effectSetDuration(-1);
+        effectSetCallback(effectProjectileDriftUpdate);
+        effectSetSpeed((s32)gCurrentActor);
+        effectCreateAtPosition(&D_8071FC40, 0.3f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
     if (((G_PROJECTILE_PARTICLE_ACTOR->hasArcBounds != 0) && ((u32)(gGameFrameCounter - sp54->unk0) >= 6)) || D_807FBB85 != 0) {
         if ((D_807FBB85 != 0) && (sp54->unk13 != 0xA)) {
-            func_807149B8(1);
-            func_80714950(0x100D2);
-            func_8071498C(effectLightPulseOscillate);
-            func_80714CC0(&D_80720120, 2.0f, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z);
+            effectSetDepth(1);
+            effectSetSpeed(0x100D2);
+            effectSetCallback(effectLightPulseOscillate);
+            effectCreateAtPosition(&D_80720120, 2.0f, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z);
             camStartShakeFromPoint(((PlayerTrackActor *)gPrimaryPlayerActor)->unk174->unk104, 7, 0x16, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 200.0f, 400.0f);
             actorSpawnSparkleBurst();
             for (var_s0 = 0; var_s0 != 12; var_s0 += 2) {
-                func_807149B8(1);
-                func_80714950(0x0B000000 + var_s0);
-                func_8071498C(effectRadialSprayUpdate);
-                func_80714CC0(&D_807206DC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectSetDepth(1);
+                effectSetSpeed(0x0B000000 + var_s0);
+                effectSetCallback(effectRadialSprayUpdate);
+                effectCreateAtPosition(&D_807206DC, 0.35f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
         }
         if (sp54->unk13 != 0xA) {
@@ -2949,7 +2949,7 @@ void projectileParticleSpawnerTick(void) {
 }
 
 extern f32 D_80750274;
-void func_8071496C(s16);
+void effectSetAngle(s16);
 
 typedef struct ProjectileHomingActor {
     u8 pad0[0x60];
@@ -3001,9 +3001,9 @@ void projectileHomingParticleUpdate(void) {
         actorSetCollisionRadius(gCurrentActor, 110.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 100.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_80714C08(&D_80720804, G_PROJECTILE_HOMING_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectCreateAtActorBone(&D_80720804, G_PROJECTILE_HOMING_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         *sp74 = gGameFrameCounter;
         G_PROJECTILE_HOMING_ACTOR->unk60 |= 0x80000;
     }
@@ -3022,16 +3022,16 @@ void projectileHomingParticleUpdate(void) {
             temp_fs2 = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
             temp_fs3 = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
             temp_fs4 = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
-            func_8071496C(var_s1);
-            func_807149B8(1);
+            effectSetAngle(var_s1);
+            effectSetDepth(1);
             if (var_s1 == 0) {
-                func_80714950(0x1006E);
-                func_8071498C(effectLightPulseOscillate);
+                effectSetSpeed(0x1006E);
+                effectSetCallback(effectLightPulseOscillate);
             } else {
-                func_8071498C(func_80717D4C);
-                func_80714950(-150 - ((randomNonNegative() >> 15) % 50));
+                effectSetCallback(func_80717D4C);
+                effectSetSpeed(-150 - ((randomNonNegative() >> 15) % 50));
             }
-            func_80714CC0(&D_80720340, 1.6f, gCurrentActor->x + temp_fs2, gCurrentActor->y + temp_fs3, gCurrentActor->z + temp_fs4);
+            effectCreateAtPosition(&D_80720340, 1.6f, gCurrentActor->x + temp_fs2, gCurrentActor->y + temp_fs3, gCurrentActor->z + temp_fs4);
             var_s1 += 2;
         } while (var_s1 != 16);
         camStartShake(gCamActor, 20, 15);
@@ -3310,11 +3310,11 @@ void projectileChaseTargetUpdate(void) {
         break;
     }
     if (CHASE_ACTOR->unk58 == 0x59) {
-        func_807149B8(1);
-        func_8071498C(effectFollowParentUpdate);
-        func_807149A8(1000);
-        func_80714950((s32)gCurrentActor);
-        func_80714C08(&D_80720120, 1.0f, gCurrentActor, 1, 0);
+        effectSetDepth(1);
+        effectSetCallback(effectFollowParentUpdate);
+        effectSetMaxDistance(1000);
+        effectSetSpeed((s32)gCurrentActor);
+        effectCreateAtActorBone(&D_80720120, 1.0f, gCurrentActor, 1, 0);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

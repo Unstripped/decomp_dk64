@@ -18,12 +18,12 @@ extern u8 effectDecelDriftFadeUpdate;
 extern u8 sEffectSparkConfig;
 
 void tagBarrelSpawnNodeSmokePuffs(void *, s32, f32);
-void func_80714950();
-void func_8071498C(void *);
-void func_80714998(s32);
-void func_807149B8(s32);
-void func_807149C8(s32, s32, s32, s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetSpeed();
+void effectSetCallback(void *);
+void effectSetMode(s32);
+void effectSetDepth(s32);
+void effectSetColor(s32, s32, s32, s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 void bossArmydilloSpawnSmoke(void) {
     BossByteTable6 smokeBones;
@@ -35,12 +35,12 @@ void bossArmydilloSpawnSmoke(void) {
     }
 
     for (i = 0; i < 12; i++) {
-        func_8071498C((void *)(s32)&effectDecelDriftFadeUpdate);
-        func_80714950(i);
-        func_807149B8(1);
-        func_807149C8(0x8C, 0x8C, 0x8C, 0xFF);
-        func_80714998(3);
-        func_80714CC0(&sEffectSparkConfig, 2.5f, ((BossActorPos *)gCurrentActor)->unk7C, ((BossActorPos *)gCurrentActor)->unk80 + 40.0f, ((BossActorPos *)gCurrentActor)->unk84);
+        effectSetCallback((void *)(s32)&effectDecelDriftFadeUpdate);
+        effectSetSpeed(i);
+        effectSetDepth(1);
+        effectSetColor(0x8C, 0x8C, 0x8C, 0xFF);
+        effectSetMode(3);
+        effectCreateAtPosition(&sEffectSparkConfig, 2.5f, ((BossActorPos *)gCurrentActor)->unk7C, ((BossActorPos *)gCurrentActor)->unk80 + 40.0f, ((BossActorPos *)gCurrentActor)->unk84);
     }
 }
 
@@ -562,8 +562,8 @@ typedef struct BossActorUnkC0 {
 extern u8 effectFollowParentUpdate;
 extern u8 D_80720120;
 
-void func_807149A8(s32);
-void func_80714C08(void *, f32, void *, s32, s32);
+void effectSetMaxDistance(s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32);
 
 void bossArmydilloSpawnExhaustSmoke(void) {
     f32 val;
@@ -573,16 +573,16 @@ void bossArmydilloSpawnExhaustSmoke(void) {
     dval = (0.0 < (f64)((BossActorUnkC0 *)gCurrentActor)->unkC0) ? (f64)((BossActorUnkC0 *)gCurrentActor)->unkC0 : 0.0;
     val = (f32)((f32)((dval / 150.0) * 0.12) + 0.3) * 4.0f;
     p = (s32)&effectFollowParentUpdate;
-    func_807149B8(1);
-    func_8071498C((void *)p);
-    func_807149A8(1000);
-    func_80714950(gCurrentActor);
-    func_80714C08(&D_80720120, val, gCurrentActor, 3, 0);
-    func_807149B8(1);
-    func_8071498C((void *)p);
-    func_807149A8(1000);
-    func_80714950(gCurrentActor);
-    func_80714C08(&D_80720120, val, gCurrentActor, 4, 0);
+    effectSetDepth(1);
+    effectSetCallback((void *)p);
+    effectSetMaxDistance(1000);
+    effectSetSpeed(gCurrentActor);
+    effectCreateAtActorBone(&D_80720120, val, gCurrentActor, 3, 0);
+    effectSetDepth(1);
+    effectSetCallback((void *)p);
+    effectSetMaxDistance(1000);
+    effectSetSpeed(gCurrentActor);
+    effectCreateAtActorBone(&D_80720120, val, gCurrentActor, 4, 0);
 }
 
 typedef struct Boss3B_178 {
@@ -1394,8 +1394,8 @@ void bossArmydilloDebrisFall(void) {
         } else {
             val = ((randomNonNegative() >> 15) % 0x7FFF) % 7 + 0x1D;
         }
-        func_80714998(3);
-        func_807149C8(0x50, 0x50, 0x50, 0xC8);
+        effectSetMode(3);
+        effectSetColor(0x50, 0x50, 0x50, 0xC8);
         effectSpawnBoneDefault(gCurrentActor, val, 2.0f, 0.0f, 0.0f, 0.0f, -0x78);
     }
 }

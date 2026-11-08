@@ -941,11 +941,11 @@ void billboardSetFlags(s32);
 void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void func_8071496C(s16);
-void func_807149B8(s32);
-void func_8071498C(void *);
-void func_807149C8(s32, s32, s32, s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetAngle(s16);
+void effectSetDepth(s32);
+void effectSetCallback(void *);
+void effectSetColor(s32, s32, s32, s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectSpinBillboardingUpdate(void);
 extern void *gCamActor;
 extern u8 gBossFightPhase;
@@ -984,11 +984,11 @@ void actorFallAndBurstUpdate(void) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x162, 0xE1, 0x3C, 1);
         for (i = 1; i != 7; i++) {
             actorGetNodePos(gCurrentActor, i, &pos.unk8, &pos.unk4, &pos.unk0);
-            func_8071496C(i);
-            func_807149B8(1);
-            func_8071498C(effectSpinBillboardingUpdate);
-            func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
-            func_80714CC0(&D_80720BE8, 1.5f, pos.unk8, pos.unk4, pos.unk0);
+            effectSetAngle(i);
+            effectSetDepth(1);
+            effectSetCallback(effectSpinBillboardingUpdate);
+            effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
+            effectCreateAtPosition(&D_80720BE8, 1.5f, pos.unk8, pos.unk4, pos.unk0);
         }
         actorDespawn(gCurrentActor);
     }

@@ -59,16 +59,16 @@ extern s32 D_8072140C;
 extern s32 D_8071FF18;
 
 s32 randomNonNegative(void);
-void func_80714944(s32);
-void func_80714950(s32);
-void func_8071498C(void (*)(void));
-void func_80714998(s32);
-void func_807149A8(s32);
-void func_807149B8(s32);
-void func_807149C8(s32, s32, s32, s32);
-void func_807149FC(s32);
-void func_80714A28(s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetParam(s32);
+void effectSetSpeed(s32);
+void effectSetCallback(void (*)(void));
+void effectSetMode(s32);
+void effectSetMaxDistance(s32);
+void effectSetDepth(s32);
+void effectSetColor(s32, s32, s32, s32);
+void effectSetDuration(s32);
+void effectSetFlags(s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectPlayerDistanceFadeUpdate(void);
 void func_80717D4C(void);
 
@@ -94,30 +94,30 @@ void particleSpawnPathTrail(void) {
                 if (sqrtf((dz * dz) + ((dx * dx) + (dy * dy))) < (f32)node->unk14) {
                     if ((gFrameCounter % 18) == 0) {
                         for (t = 0.0f; (f64)t <= 1.0; t += node->unk10) {
-                            func_807149B8(1);
-                            func_80714998(3);
-                            func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
-                            func_80714A28(4);
-                            func_8071498C(effectPlayerDistanceFadeUpdate);
-                            func_807149FC(2);
-                            func_80714944((randomNonNegative() % 10000) % 6);
-                            func_807149A8(node->unk14);
-                            func_80714CC0(&D_8072140C, node->unk18,
+                            effectSetDepth(1);
+                            effectSetMode(3);
+                            effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
+                            effectSetFlags(4);
+                            effectSetCallback(effectPlayerDistanceFadeUpdate);
+                            effectSetDuration(2);
+                            effectSetParam((randomNonNegative() % 10000) % 6);
+                            effectSetMaxDistance(node->unk14);
+                            effectCreateAtPosition(&D_8072140C, node->unk18,
                                           (f32)(node->unk8 - node->unk2) * t + (f32)node->unk2,
                                           (f32)(node->unkA - node->unk4) * t + (f32)node->unk4,
                                           (f32)(node->unkC - node->unk6) * t + (f32)node->unk6);
                         }
                     }
                     if ((gFrameCounter % 10) == 0) {
-                        func_807149B8(1);
-                        func_80714998(3);
-                        func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
-                        func_80714A28(4);
-                        func_8071498C(func_80717D4C);
-                        func_80714950(-0xAA);
-                        func_807149A8(node->unk14);
+                        effectSetDepth(1);
+                        effectSetMode(3);
+                        effectSetColor(0xFF, 0xFF, 0xFF, 0x96);
+                        effectSetFlags(4);
+                        effectSetCallback(func_80717D4C);
+                        effectSetSpeed(-0xAA);
+                        effectSetMaxDistance(node->unk14);
                         factor = (f32)((f64)((randomNonNegative() % 10000) % 1000) / 1000.0);
-                        func_80714CC0(&D_8071FF18, node->unk1C,
+                        effectCreateAtPosition(&D_8071FF18, node->unk1C,
                                       (f32)(node->unk8 - node->unk2) * factor + (f32)node->unk2,
                                       (f32)(node->unkA - node->unk4) * factor + (f32)node->unk4,
                                       (f32)(node->unkC - node->unk6) * factor + (f32)node->unk6);

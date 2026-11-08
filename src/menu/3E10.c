@@ -784,8 +784,8 @@ void menuInitFileSelect(MenuScreenActor *actor, s32 unused) {
 
 extern u8 D_8071FBC8;
 extern u8 D_8071FE08;
-void func_8071495C(void);
-void *func_80714CC0(void *, f32, f32, f32, f32);
+void effectEnableFade(void);
+void *effectCreateAtPosition(void *, f32, f32, f32, f32);
 void eepromSetCurrentSlot(u8, s32);
 extern s8 D_80033FAC;
 
@@ -795,10 +795,10 @@ void menuMysteryHandleInput(MenuScreenActor *actor, s32 buttons) {
     if (state->unk0 == 0.0f && state->unk4 == 0.0f) {
         if (buttons & 1) {
             if ((buttons & 8) && (D_80033FAC != 0)) {
-                func_8071495C();
-                func_80714CC0(&D_8071FBC8, 10.3f, 240.0f, 120.0f, -10.0f);
-                func_8071495C();
-                func_80714CC0(&D_8071FE08, 10.3f, 240.0f, 120.0f, -10.0f);
+                effectEnableFade();
+                effectCreateAtPosition(&D_8071FBC8, 10.3f, 240.0f, 120.0f, -10.0f);
+                effectEnableFade();
+                effectCreateAtPosition(&D_8071FE08, 10.3f, 240.0f, 120.0f, -10.0f);
                 sfxPlayOnFreeSlot(0xF6, 0x7FFF, 63.0f, 1.0f, 0, 0);
                 eepromSetCurrentSlot(D_80033F48, 1);
                 state->unk16 = 0;
@@ -3111,11 +3111,11 @@ typedef struct Menu10_Fx {
     Menu10_Burst *unk384;
 } Menu10_Fx;
 
-void func_80714950(void *);
-void func_8071498C(void *);
-void func_80714998(u8);
-void func_807149FC(s32);
-void func_80714A28(s32);
+void effectSetSpeed(void *);
+void effectSetCallback(void *);
+void effectSetMode(u8);
+void effectSetDuration(s32);
+void effectSetFlags(s32);
 void menuUpdateElementTargetAndColor();
 f32 sqrtf(f32);
 
@@ -3127,13 +3127,13 @@ void menuSpawnUiElementEffect(MenuScreenState *state, void *assetPtr, s32 posX, 
     f32 dist;
     f32 scale;
 
-    func_80714998(flags);
-    func_8071495C();
-    func_807149FC(-1);
-    func_80714950(state);
-    func_8071498C(menuUpdateElementTargetAndColor);
-    func_80714A28(1);
-    fx = func_80714CC0(assetPtr, elemScale, posX, posY, -10.0f);
+    effectSetMode(flags);
+    effectEnableFade();
+    effectSetDuration(-1);
+    effectSetSpeed(state);
+    effectSetCallback(menuUpdateElementTargetAndColor);
+    effectSetFlags(1);
+    fx = effectCreateAtPosition(assetPtr, elemScale, posX, posY, -10.0f);
     burst = heapAlloc(0x28);
     fx->unk384 = burst;
     burst->unk0 = fxType;
@@ -3704,14 +3704,14 @@ void menuUpdateKioskActor(void) {
             subState->unk23C = 0x3E8;
         }
         if (subState->unk23C == 8) {
-            func_8071495C();
-            func_80714CC0(&D_8071FE08, 8.3f, 160.0f, 120.0f, -10.0f);
+            effectEnableFade();
+            effectCreateAtPosition(&D_8071FE08, 8.3f, 160.0f, 120.0f, -10.0f);
             sfxPlayOnFreeSlot(0x23, 0x7FFF, 63.0f, 1.0f, 0, 0);
             sfxPlayOnFreeSlot(0x17, 0x7FFF, 63.0f, 1.0f, 0, 0);
             for (i = 0; i != 5; i++) {
-                func_8071498C(menuSparkleParticleUpdate);
-                func_8071495C();
-                func_80714CC0(&D_8071FE64, 1.8f, 160.0f, 120.0f, -10.0f);
+                effectSetCallback(menuSparkleParticleUpdate);
+                effectEnableFade();
+                effectCreateAtPosition(&D_8071FE64, 1.8f, 160.0f, 120.0f, -10.0f);
             }
         }
         if (subState->unk23C >= 0xC) {

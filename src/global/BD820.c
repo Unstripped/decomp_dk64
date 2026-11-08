@@ -32,34 +32,34 @@ extern void func_80717D4C(void);
 s32 randomNonNegative(void);
 void behaviourFrameBegin(void);
 void actorUpdateModelMatrix(Actor *, s32);
-void func_8071496C(s16);
-void func_8071498C(void *);
-void func_807149B8(s32);
-void func_807149FC(s32);
-void func_80714950(s32);
-void func_80714998(s32);
-void func_807149C8(s32, s32, s32, s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetAngle(s16);
+void effectSetCallback(void *);
+void effectSetDepth(s32);
+void effectSetDuration(s32);
+void effectSetSpeed(s32);
+void effectSetMode(s32);
+void effectSetColor(s32, s32, s32, s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void controllerAnimSetStateIfChanged(Actor *, s32, f32, f32);
 u8 mapHasCollectedSufficientItems(void);
 void modelSlotOrFlags(s32, s32);
 void func_806B8C78(void);
 
 void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 lifetime) {
-    func_8071498C(effectWispWanderUpdate);
-    func_807149FC(-1);
-    func_807149B8(1);
-    func_8071496C(lifetime);
-    func_80714CC0(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 1.8f, x, y, z);
+    effectSetCallback(effectWispWanderUpdate);
+    effectSetDuration(-1);
+    effectSetDepth(1);
+    effectSetAngle(lifetime);
+    effectCreateAtPosition(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 1.8f, x, y, z);
 }
 
 void func_806B8BDC(s16 x, s16 y, s16 z) {
-    func_80714998(2);
-    func_8071498C(func_80717D4C);
-    func_80714950(-0x28);
-    func_807149B8(1);
-    func_807149C8(0xFF, 0xFF, 0xFF, 0xC8);
-    func_80714CC0(sEffectSparkConfig, 2.0f, x, y, z);
+    effectSetMode(2);
+    effectSetCallback(func_80717D4C);
+    effectSetSpeed(-0x28);
+    effectSetDepth(1);
+    effectSetColor(0xFF, 0xFF, 0xFF, 0xC8);
+    effectCreateAtPosition(sEffectSparkConfig, 2.0f, x, y, z);
 }
 
 extern s16 gCsModelIds[];

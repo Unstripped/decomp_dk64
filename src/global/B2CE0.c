@@ -97,7 +97,7 @@ void actorApplyVelocity(B2CE0Actor *);
 void actorUpdateFloorContactAndTilt(B2CE0Actor *, f32);
 void billboardSubmit(B2CE0Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void actorDespawn(B2CE0Actor *);
 extern u8 D_8071FBC8[];
 extern ActorGlobalState gActorGlobalState;
@@ -170,7 +170,7 @@ void func_806ADFE0(void) {
         return;
     }
     if ((gCurrentActor->unk6A & 1) && (gCurrentActor->unk6C & 1)) {
-        func_80714CC0(D_8071FBC8, 1.0f, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84);
+        effectCreateAtPosition(D_8071FBC8, 1.0f, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84);
         actorDespawn(gCurrentActor);
     }
 }
@@ -634,12 +634,12 @@ void func_806AF688(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_807149B8(s32);
-void func_807149FC(s32);
-void func_8071498C(void (*)());
-void func_80714998(s32);
-void func_80714950(s32);
-void func_80714C08(void *, f32, B2CE0Actor *, s32, s32);
+void effectSetDepth(s32);
+void effectSetDuration(s32);
+void effectSetCallback(void (*)());
+void effectSetMode(s32);
+void effectSetSpeed(s32);
+void effectCreateAtActorBone(void *, f32, B2CE0Actor *, s32, s32);
 void effectTumbleBounceUpdate();
 extern u8 D_8072073C;
 
@@ -649,12 +649,12 @@ void effectSpawnActorParticleBurst(u8 nodeIndex) {
 
     for (i = 0; i < 7; i++) {
         temp = gCurrentActor->unk4->scaleY / 0.15;
-        func_807149B8(1);
-        func_807149FC(10);
-        func_8071498C(effectTumbleBounceUpdate);
-        func_80714998(2);
-        func_80714950(0);
-        func_80714C08(&D_8072073C, temp * 0.15, gCurrentActor, nodeIndex, 0);
+        effectSetDepth(1);
+        effectSetDuration(10);
+        effectSetCallback(effectTumbleBounceUpdate);
+        effectSetMode(2);
+        effectSetSpeed(0);
+        effectCreateAtActorBone(&D_8072073C, temp * 0.15, gCurrentActor, nodeIndex, 0);
     }
 }
 

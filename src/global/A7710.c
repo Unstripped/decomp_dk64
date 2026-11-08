@@ -77,8 +77,8 @@ Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
 Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
 f32 sinApprox(f32);
 f32 cosApprox(f32);
-void func_8071495C(void);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectEnableFade(void);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
     RenderActorSub *sub;
@@ -113,9 +113,9 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
                                 actor->y + 5.0f, 0.0f, 1.0f);
             if (actor->state == 2) {
                 gfx = func_8070068C(gfx);
-                func_8071495C();
+                effectEnableFade();
                 sinAngle = sinApprox(angle);
-                func_80714CC0(&D_8071FC58, 0.5f,
+                effectCreateAtPosition(&D_8071FC58, 0.5f,
                               (f32)((f64)sinAngle * 40.0 + (f64)(40.0f + actor->x)),
                               (f32)((f64)cosApprox(angle) * 25.0 + (f64)actor->y),
                               0.0f);

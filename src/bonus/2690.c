@@ -213,13 +213,13 @@ s32 randomLcgNext(void);
 f32 randomFloat(void);
 void effectSpriteMatrixUpdate();
 extern u8 D_8071FFD4[];
-void func_80714944(s32);
-void func_80714950(void *);
-void func_8071495C(void);
-void func_8071498C(void *);
-void func_80714998(s32);
-void func_807149FC(s32);
-s32 func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetParam(s32);
+void effectSetSpeed(void *);
+void effectEnableFade(void);
+void effectSetCallback(void *);
+void effectSetMode(s32);
+void effectSetDuration(s32);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectFreeAndUnlink(s32);
 
 extern Actor *gSpawnedActor;
@@ -442,13 +442,13 @@ void bonusResetAmmo(void *ammoData) {
         }
         ammoFlag = (u8 *)ammoData + i;
         ammoFlag[0x18] = 0;
-        func_8071495C();
-        func_807149FC(-1);
-        func_80714998(2);
-        func_80714944(i * 3);
-        func_8071498C((void *)p);
-        func_80714950(ammoFlag + 0x18);
-        ammoSlot[1] = func_80714CC0(D_8071FFD4, 1.0f, (f32) y, 210.0f, -10.0f);
+        effectEnableFade();
+        effectSetDuration(-1);
+        effectSetMode(2);
+        effectSetParam(i * 3);
+        effectSetCallback((void *)p);
+        effectSetSpeed(ammoFlag + 0x18);
+        ammoSlot[1] = effectCreateAtPosition(D_8071FFD4, 1.0f, (f32) y, 210.0f, -10.0f);
         y -= 0x1E;
     }
     sfxPlayOnFreeSlot(0x3E4, 0x7FFF, 63.0f, 1.0f, 5, 0);

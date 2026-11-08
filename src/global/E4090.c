@@ -1205,8 +1205,8 @@ void projectileSpawnNodeEntry(s32, s32, f32, s16, f32, f32, void *);
 void rumbleRequest(u8, u8, s32);
 void camStartShake(s32, s32, s32);
 s32 actorAngleInArcWithMargin(void *, s32, s32);
-void func_80714950(s32);
-s32 func_80714C08(void *, f32, Actor *, s32, s32);
+void effectSetSpeed(s32);
+s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
 f32 cosApprox(f32);
 f32 sinApprox(f32);
 u8 actorTestNodeSegmentCollision(void *);
@@ -1220,8 +1220,8 @@ s32 actorCountOwnedByClass(void *, s32, s32);
 void func_806F0C18(void *);
 void playerResumeLocomotion(Actor *);
 void slotQueueAddValue(s32, s32, s32);
-void func_807149B8(s32);
-void func_8071498C(void *);
+void effectSetDepth(s32);
+void effectSetCallback(void *);
 
 typedef struct LE40BObj {
     /* 0x000 */ u8 pad0[0x210];
@@ -1366,15 +1366,15 @@ u8 arg1;
                                              sp54, sp50, gActivePlayerActor);
                 } else {
                     if ((gCurrentActor->actorType == 2 || gCurrentActor->actorType == 3 || gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7)) {
-                        func_807149B8(1);
-                        func_80714950(0x50);
-                        func_8071498C(effectLightPulseOscillate);
-                        func_80714C08(&D_807200D4, 0.5f, gActivePlayerActor, LE40B_S->unk90 + 9, 2);
+                        effectSetDepth(1);
+                        effectSetSpeed(0x50);
+                        effectSetCallback(effectLightPulseOscillate);
+                        effectCreateAtActorBone(&D_807200D4, 0.5f, gActivePlayerActor, LE40B_S->unk90 + 9, 2);
                         if (gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7) {
-                            func_807149B8(1);
-                            func_80714950(0x50);
-                            func_8071498C(effectLightPulseOscillate);
-                            func_80714C08(&D_8071FBC8, 0.5f, gActivePlayerActor, 9, 2);
+                            effectSetDepth(1);
+                            effectSetSpeed(0x50);
+                            effectSetCallback(effectLightPulseOscillate);
+                            effectCreateAtActorBone(&D_8071FBC8, 0.5f, gActivePlayerActor, 9, 2);
                         }
                     }
                     projectileGetTargetCoords(gActivePlayerActor, LE40B_S->unk90 + 9);
@@ -2572,8 +2572,8 @@ void func_806C93E4(void *, void *);
 s32 camStartPath(void *, s32, s32);
 void playerTransformAnimalStartSfx(Actor *);
 void timerQueueAdd(void *, s32, s32, s32, s32);
-void func_8071496C(s16);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetAngle(s16);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectSpawnBurstParticleCluster(Actor *);
 void func_806E5C2C(s32, s32, s32);
 
@@ -2642,10 +2642,10 @@ s32 func_806E56EC() {
                     actorScriptStartByIndex(gCurrentActor, 0x22);
                     timerQueueAdd(func_806E5C2C, 0x14, G26_GS->unk10, G26_GS->unk12, 0);
                     for (i = 0; i != 0x14; i++) {
-                        func_807149B8(1);
-                        func_8071498C(func_8071F034);
-                        func_8071496C(i);
-                        func_80714CC0(D_8072014C, 0.8f, G26_AC->unk7C, G26_AC->unk80, G26_AC->unk84);
+                        effectSetDepth(1);
+                        effectSetCallback(func_8071F034);
+                        effectSetAngle(i);
+                        effectCreateAtPosition(D_8072014C, 0.8f, G26_AC->unk7C, G26_AC->unk80, G26_AC->unk84);
                     }
                     effectSpawnBurstParticleCluster(gPrimaryPlayerActor);
                     return 1;

@@ -99,9 +99,9 @@ void camStartShake(void *, s32, s32);
 s32 func_806FB418(void);
 void resQueueSetValue(s32);
 void resQueueAttachActor(void *, s32, s32);
-void func_807149B8(s32);
-void func_807149FC(s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetDepth(s32);
+void effectSetDuration(s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 f32 randomFloat(void);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 f32 sqrtf(f32);
@@ -239,9 +239,9 @@ void critterBananaFairyUpdate(void) {
                     actorScriptStart(gCurrentActor, 0x3A2);
                 }
                 if (*timerPtr >= 0x3D) {
-                    func_807149B8(0);
-                    func_807149FC(1);
-                    func_80714CC0(D_80720A7C, 0.5f, (f32)(((f64)randomFloat() * 35.0 + (f64)gCurrentActor->unk7C) - 15.0), (f32)((f64)randomFloat() * 35.0 + (f64)gCurrentActor->unk80), (f32)(((f64)randomFloat() * 35.0 + (f64)gCurrentActor->unk84) - 15.0));
+                    effectSetDepth(0);
+                    effectSetDuration(1);
+                    effectCreateAtPosition(D_80720A7C, 0.5f, (f32)(((f64)randomFloat() * 35.0 + (f64)gCurrentActor->unk7C) - 15.0), (f32)((f64)randomFloat() * 35.0 + (f64)gCurrentActor->unk80), (f32)(((f64)randomFloat() * 35.0 + (f64)gCurrentActor->unk84) - 15.0));
                 }
                 if (*timerPtr >= 0x51) {
                     gCurrentActor->unk4->unk34 = (f32)((f64)gCurrentActor->unk4->unk34 * 0.9);
@@ -261,9 +261,9 @@ void critterBananaFairyUpdate(void) {
             gCurrentActor->unk4->unk3C = 0.0f;
             sfxStopSlotSound(gCurrentActor, 0);
             gCurrentActor->unk155 = 4;
-            func_807149B8(0);
-            func_807149FC(1);
-            func_80714CC0(D_8071FE08, 0.5f, gCurrentActor->unk7C, gCurrentActor->unk80 + 7.0f, gCurrentActor->unk84);
+            effectSetDepth(0);
+            effectSetDuration(1);
+            effectCreateAtPosition(D_8071FE08, 0.5f, gCurrentActor->unk7C, gCurrentActor->unk80 + 7.0f, gCurrentActor->unk84);
             break;
         case 4:
             gCurrentActor->unk4->unk34 = 0.0f;

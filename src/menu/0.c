@@ -54,21 +54,21 @@ void menuPlaySoundFromTable(MenuStruct_80024000 *menu) {
 
 
 extern u8 D_80720268;
-void func_80714998(s32);
-void func_807149B8(s32);
-void func_807149FC(s32);
-MenuActor_340 *func_80714CC0(void *, s32, s32, s32, f32);
+void effectSetMode(s32);
+void effectSetDepth(s32);
+void effectSetDuration(s32);
+MenuActor_340 *effectCreateAtPosition(void *, s32, s32, s32, f32);
 
 void menuSpawnPositionalActor(MenuStruct_80024000 *menu) {
     menu->unk10 = 11.35f;
     menu->unkC = -6.55f;
     menu->unk14 = 6.6f;
     menu->unk6 = 0;
-    func_80714998(0);
-    func_807149B8(1);
-    func_807149FC(-1);
-    func_80714998(0);
-    menu->unk8 = func_80714CC0(&D_80720268, 0x3E99999A, 0x43350000, 0x40400000, 82.0f);
+    effectSetMode(0);
+    effectSetDepth(1);
+    effectSetDuration(-1);
+    effectSetMode(0);
+    menu->unk8 = effectCreateAtPosition(&D_80720268, 0x3E99999A, 0x43350000, 0x40400000, 82.0f);
 }
 
 void effectFreeAndUnlink(MenuActor_340 *);

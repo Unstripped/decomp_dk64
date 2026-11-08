@@ -793,15 +793,15 @@ typedef struct SlotQueueEffectNode {
 
 void slotQueueNormalizeSpriteScale(void *, s32);
 s32 slotQueueGetSpriteAsset(s32);
-void func_80714944(s32);
-void func_80714950(void *);
-void func_8071495C(void);
-void func_8071498C(void (*)(void));
-void func_80714998(u8);
-void func_807149C8(s32, s32, s32, s32);
-void func_807149FC(s32);
-void func_80714A28(s32);
-void *func_80714CC0(s32, f32, f32, f32, f32);
+void effectSetParam(s32);
+void effectSetSpeed(void *);
+void effectEnableFade(void);
+void effectSetCallback(void (*)(void));
+void effectSetMode(u8);
+void effectSetColor(s32, s32, s32, s32);
+void effectSetDuration(s32);
+void effectSetFlags(s32);
+void *effectCreateAtPosition(s32, f32, f32, f32, f32);
 void effectWaveMotionUpdate(void);
 
 void effectSpawnSprite(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
@@ -812,20 +812,20 @@ void effectSpawnSprite(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
 
     temp_s0 = *(SlotQueueEffectNode **)((u8 *)arg0 + 0x14);
     sp2C = 2;
-    func_8071495C();
-    func_807149FC(-1);
+    effectEnableFade();
+    effectSetDuration(-1);
     if (arg1 == 0xE) {
         sp2C = 1;
     }
-    func_80714998(((u8 *)&sp2C)[3]);
-    func_80714944(arg4);
-    func_80714950(arg0);
-    func_8071498C(effectWaveMotionUpdate);
-    func_80714A28(0x21);
+    effectSetMode(((u8 *)&sp2C)[3]);
+    effectSetParam(arg4);
+    effectSetSpeed(arg0);
+    effectSetCallback(effectWaveMotionUpdate);
+    effectSetFlags(0x21);
     if (arg1 == 3) {
-        func_807149C8(0xFF, 0, 0, 0xFF);
+        effectSetColor(0xFF, 0, 0, 0xFF);
     }
-    temp_s0->unk8 = func_80714CC0(slotQueueGetSpriteAsset(arg1), 1.0f, arg2, arg3, -10.0f);
+    temp_s0->unk8 = effectCreateAtPosition(slotQueueGetSpriteAsset(arg1), 1.0f, arg2, arg3, -10.0f);
     temp_s0->unk2 = 0;
     if (arg1 == 7) {
         temp_s0->unk4 = 1;
@@ -963,12 +963,12 @@ void slotQueueInitEffectSprites(s32 arg0) {
     temp_v0->unk0 = *(s32 *)((u8 *)gSlotQueue + arg0 * 0x30 + 8) + 0x14;
     temp_v0->unk4 = *(s32 *)((u8 *)gSlotQueue + arg0 * 0x30 + 0xC) - 0x14;
     for (i = 0; i < 5; i++) {
-        func_8071495C();
-        func_807149FC(-1);
-        func_8071498C((void (*)(void))effectSpriteUpdatePosition);
-        func_80714950((void *)i);
+        effectEnableFade();
+        effectSetDuration(-1);
+        effectSetCallback((void (*)(void))effectSpriteUpdatePosition);
+        effectSetSpeed((void *)i);
         ((f32 *)&D_807FD7A0)[i] = -100.0f;
-        func_80714CC0((s32)D_80750518[i], 1.0f, -200.0f, 0.0f, -10.0f);
+        effectCreateAtPosition((s32)D_80750518[i], 1.0f, -200.0f, 0.0f, -10.0f);
     }
 }
 

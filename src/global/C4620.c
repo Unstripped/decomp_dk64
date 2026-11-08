@@ -338,13 +338,13 @@ s32 mathAngleLerp(s16, s16, f32);
 void lightUpdateFromActorLighting(void *, void *, void *);
 void heapFree(void *);
 s32 randomNonNegative(void);
-void func_80714950(s32);
-void func_8071498C(void *);
-void func_80714998(s32);
-void func_807149A8(s32);
-void func_807149B8(s32);
-void func_807149C8(s32, s32, s32, s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetSpeed(s32);
+void effectSetCallback(void *);
+void effectSetMode(s32);
+void effectSetMaxDistance(s32);
+void effectSetDepth(s32);
+void effectSetColor(s32, s32, s32, s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void func_80717D4C(void);
 void actorApplyVelocityCustom(void *, f32, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
@@ -596,14 +596,14 @@ void actorScriptedCommandUpdate(void) {
                 state->unk30 = 0xFF;
             }
             if (state->unk30 == 0xFE || (state->unk30 != 0xFF && pathPlaybackIsActive(state->unk30) != 0)) {
-                func_807149A8(0x7D0);
-                func_807149B8(1);
-                func_80714998(2);
+                effectSetMaxDistance(0x7D0);
+                effectSetDepth(1);
+                effectSetMode(2);
                 col = &D_80747B00[state->unk32 * 3u];
-                func_807149C8(col[0], col[1], col[2], 0xFF);
-                func_8071498C(func_80717D4C);
-                func_80714950(-10 - (randomNonNegative() >> 15) % 30);
-                func_80714CC0(sScriptEffectSprites[state->unk33], (f32)state->unk22 * 0.01 * particleScale, posX, posY, posZ);
+                effectSetColor(col[0], col[1], col[2], 0xFF);
+                effectSetCallback(func_80717D4C);
+                effectSetSpeed(-10 - (randomNonNegative() >> 15) % 30);
+                effectCreateAtPosition(sScriptEffectSprites[state->unk33], (f32)state->unk22 * 0.01 * particleScale, posX, posY, posZ);
             }
         }
     }
@@ -855,13 +855,13 @@ void func_806C1640(void) {
 extern u32 gFrameCounter;
 extern u8 D_8071FB08;
 extern u8 D_807200D4;
-void func_80714998(s32);
-void func_807149B8(s32);
-void func_8071498C(void *);
+void effectSetMode(s32);
+void effectSetDepth(s32);
+void effectSetCallback(void *);
 void effectShrinkFadeMatrixUpdate(void);
-void func_80714950(s32);
+void effectSetSpeed(s32);
 void effectLightPulseOscillate(void);
-void func_80714C08(void *, f32, void *, s32, s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32);
 void func_806F1048();
 s32 randomNonNegative(void);
 void projectileGetTargetCoords(void *, s32);
@@ -888,10 +888,10 @@ void func_806C1734(void) {
             switch (inner->unk10) {
                 case 0xBB:
                     if (30.0f < R1V->unkC0 && !(gFrameCounter & 3)) {
-                        func_80714998(2);
-                        func_807149B8(1);
-                        func_8071498C(effectShrinkFadeMatrixUpdate);
-                        func_80714C08(&D_8071FB08, 0.8f, gCurrentActor, 5, 0);
+                        effectSetMode(2);
+                        effectSetDepth(1);
+                        effectSetCallback(effectShrinkFadeMatrixUpdate);
+                        effectCreateAtActorBone(&D_8071FB08, 0.8f, gCurrentActor, 5, 0);
                     }
                     break;
                 case 0x114:
@@ -910,10 +910,10 @@ void func_806C1734(void) {
                     if (animFrame >= 0x44 && animFrame < 0x64 && (gFrameCounter % 3) == 0) {
                         rnd = randomNonNegative() >> 15;
                         nodeIndex = (rnd % 0x7FFF) % 2;
-                        func_807149B8(1);
-                        func_80714950(0x50);
-                        func_8071498C(effectLightPulseOscillate);
-                        func_80714C08(&D_807200D4, 0.5f, gCurrentActor, nodeIndex + 9, 2);
+                        effectSetDepth(1);
+                        effectSetSpeed(0x50);
+                        effectSetCallback(effectLightPulseOscillate);
+                        effectCreateAtActorBone(&D_807200D4, 0.5f, gCurrentActor, nodeIndex + 9, 2);
                     }
                     break;
             }
@@ -929,7 +929,7 @@ void func_806C1734(void) {
 
 void func_80724CA4(s32, s32);
 void func_806F09F0(Actor *, u16);
-void func_807149C8(s32, s32, s32, s32);
+void effectSetColor(s32, s32, s32, s32);
 void func_80724E48(u8);
 extern Actor *gBehaviourTargetActor;
 extern u8 D_8071FBA0;
@@ -945,9 +945,9 @@ void func_806C19F4(void) {
     if (R1V->unk60 & 0x10000000) {
         actorScriptedCommandUpdate();
         if (R1V->unk4->unk0->unk10 == 0x1A4) {
-            func_807149B8(1);
-            func_807149C8(0x96, 0xFF, 0xFF, 0xFF);
-            func_80714C08(&D_8071FBA0, 0.7f, gCurrentActor, 5, 0);
+            effectSetDepth(1);
+            effectSetColor(0x96, 0xFF, 0xFF, 0xFF);
+            effectCreateAtActorBone(&D_8071FBA0, 0.7f, gCurrentActor, 5, 0);
         }
         func_80724E48(gBehaviourTargetActor == gPrimaryPlayerActor ? 5 : 7);
     } else {
@@ -990,7 +990,7 @@ void func_806C1B50(void) {
                     goto done;
             }
             if ((f32)thr < R1V->unk4->unk0->unk4) {
-                func_80714C08(&D_8071FB34, 0.5f, gCurrentActor, kind, 0);
+                effectCreateAtActorBone(&D_8071FB34, 0.5f, gCurrentActor, kind, 0);
                 R1V->unk155 = 0;
             }
         }
@@ -1041,7 +1041,7 @@ void effectScatterFallUpdate();
 void animSetLoopLimit(Actor *, s32, s32);
 void animSetFinished(Actor *, s32, s32);
 void animSetFrameAndSubframe(Actor *, s32, s16, f32);
-void func_807149FC(s32);
+void effectSetDuration(s32);
 
 void func_806C1E44(void) {
     s32 i;
@@ -1086,11 +1086,11 @@ void func_806C1E44(void) {
                             if (gBehaviourWorkState->timer == 0) {
                                 gCurrentActor->unk155[0] = 0;
                             }
-                            func_80714998(2);
-                            func_807149B8(1);
-                            func_807149FC(0x28);
-                            func_8071498C(effectWobbleScaleUpdate);
-                            func_80714C08(D_8071FF58, 0.05f, gCurrentActor, 1, 0);
+                            effectSetMode(2);
+                            effectSetDepth(1);
+                            effectSetDuration(0x28);
+                            effectSetCallback(effectWobbleScaleUpdate);
+                            effectCreateAtActorBone(D_8071FF58, 0.05f, gCurrentActor, 1, 0);
                         }
                     }
             }
@@ -1105,11 +1105,11 @@ void func_806C1E44(void) {
                 case 3:
                     i = 0;
                     do {
-                        func_807149B8(1);
-                        func_807149FC(0x28);
-                        func_8071498C(effectScatterFallUpdate);
-                        func_80714950(gCurrentActor->yaw);
-                        func_80714C08(D_80720B58, 0.7f, gCurrentActor, 1, 0);
+                        effectSetDepth(1);
+                        effectSetDuration(0x28);
+                        effectSetCallback(effectScatterFallUpdate);
+                        effectSetSpeed(gCurrentActor->yaw);
+                        effectCreateAtActorBone(D_80720B58, 0.7f, gCurrentActor, 1, 0);
                         i++;
                     } while (i != 10);
                     gCurrentActor->unk155[0]++;
@@ -1156,7 +1156,7 @@ void zoneEntryGetPosition(s32, s32, f32 *, f32 *, f32 *);
 void actorTurnTowardActorYaw(s32, void *);
 s32 actorIsTargetWithinDistance(s32);
 s32 func_8072881C(s32, void *);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void camStartPath(void *, s32, s32);
 s32 camIsCutsceneActive(void);
 void resQueueSetValue(s32);
@@ -1207,10 +1207,10 @@ void func_806C226C(void) {
             if (gCurrentActor->contactFlags & 4) {
                 actorPitchEaseTowardPoint(2, 0, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetY, (f32)gBehaviourWorkState->targetZ, 0x46, 30.0f, 100.0f, 0);
                 if (((randomNonNegative() >> 15) % 1000) >= 0x3A3) {
-                    func_8071498C(effectWobbleRiseUpdate);
-                    func_807149B8(1);
-                    func_807149FC(-1);
-                    func_80714CC0(&D_8071FC40, 0, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                    effectSetCallback(effectWobbleRiseUpdate);
+                    effectSetDepth(1);
+                    effectSetDuration(-1);
+                    effectCreateAtPosition(&D_8071FC40, 0, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                 }
             } else {
                 if ((gCurrentActor->contactFlags ^ gCurrentActor->prevContactFlags) & 1) {
@@ -1326,18 +1326,18 @@ void actorSpawnOctagonRingsByTimer(void) {
     }
 }
 
-void func_807149A8(s32);
-void func_80714944(s32);
+void effectSetMaxDistance(s32);
+void effectSetParam(s32);
 void effectLinearFadeAlphaUpdate();
 
 void effectSpawnColoredParticleAtPoint(u8 r, u8 g, u8 b, f32 x, f32 y, f32 z, void *particleGfx, f32 scale) {
-    func_807149A8(1000);
-    func_80714998(0xFF);
-    func_80714944(((randomNonNegative() >> 15) % 0x7FFF) % 11);
-    func_807149C8(r, g, b, 0xFF);
-    func_8071498C(effectLinearFadeAlphaUpdate);
-    func_80714950(2);
-    func_80714CC0(particleGfx, scale * 0.2, x, y, z);
+    effectSetMaxDistance(1000);
+    effectSetMode(0xFF);
+    effectSetParam(((randomNonNegative() >> 15) % 0x7FFF) % 11);
+    effectSetColor(r, g, b, 0xFF);
+    effectSetCallback(effectLinearFadeAlphaUpdate);
+    effectSetSpeed(2);
+    effectCreateAtPosition(particleGfx, scale * 0.2, x, y, z);
 }
 
 extern u8 D_80747B00[];
@@ -1653,9 +1653,9 @@ void func_806C2DF4(void) {
             }
         case 0x436:
             if (!(gFrameCounter & 1)) {
-                func_807149A8(0x7D0);
-                func_80714998(3);
-                func_807149C8(0x32, 0x32, 0x32, 0xFF);
+                effectSetMaxDistance(0x7D0);
+                effectSetMode(3);
+                effectSetColor(0x32, 0x32, 0x32, 0xFF);
                 effectSpawnBoneDefault(gCurrentActor, 1, 1.3f, 0, 0, 0, -0x50);
             }
             break;
@@ -1665,9 +1665,9 @@ void func_806C2DF4(void) {
         case 0x4DD:
         case 0x4DE:
             if (!(gFrameCounter & 3)) {
-                func_807149B8(1);
-                func_8071498C(effectShrinkFadeMatrixUpdate);
-                func_80714C08(&D_8071FB08, 0.6f, gCurrentActor, 2, 0);
+                effectSetDepth(1);
+                effectSetCallback(effectShrinkFadeMatrixUpdate);
+                effectCreateAtActorBone(&D_8071FB08, 0.6f, gCurrentActor, 2, 0);
             }
             break;
         case 0x4C7:
@@ -1715,7 +1715,7 @@ void func_806C2DF4(void) {
             break;
         case 0x52E:
             if (LgV->unk4->unk0->unk4 < 2.0f) {
-                func_80714C08(&D_8071FB34, 1.5f, gCurrentActor, 6, 0);
+                effectCreateAtActorBone(&D_8071FB34, 1.5f, gCurrentActor, 6, 0);
             }
             break;
         case 0x527:

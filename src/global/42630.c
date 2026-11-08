@@ -1335,9 +1335,9 @@ void playerStateSetCallbackParameters(s32, s16, s16, s16);
 void gridMoveNode(s16, f32, f32, f32);
 void slotQueueSetDisplayMode(u8, u8, u8);
 void transitionSetState(s32);
-s32 func_807146A4(s16);
-void func_807149B8(s32);
-void func_80714B84(s32, f32, s16, s16, s32);
+s32 effectGridFindByTargetId(s16);
+void effectSetDepth(s32);
+void effectCreateAtModelNode(s32, f32, s16, s16, s32);
 s32 pathPlaybackStart(s32, s16, u8, f32, f32, f32, s32);
 void pathPlaybackSetSpeed(s32, u8);
 void pathPlaybackSetLoopMode(s32, u8);
@@ -1609,9 +1609,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x4E:
-        slot = func_807146A4(cmd->a);
-        func_807149B8(1);
-        func_80714B84(slot, cmd->b / 100.0, csId, cmd->c, 0);
+        slot = effectGridFindByTargetId(cmd->a);
+        effectSetDepth(1);
+        effectCreateAtModelNode(slot, cmd->b / 100.0, csId, cmd->c, 0);
         break;
     case 0x4C:
         h = (s16)(modelAnimEntryGetUnkC(csId, cmd->a) + cmd->b);
@@ -2592,10 +2592,10 @@ void csSetPos(s16 modeAndAxis, s16 posValue, void *cs, s16 csId, u8 isRelative) 
 }
 
 u32 randomLcgNext(void);
-void func_807149FC(s32);
-void func_80714950(s32);
-void func_8071498C(void *);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetDuration(s32);
+void effectSetSpeed(s32);
+void effectSetCallback(void *);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void func_80717D4C(void);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 extern u8 D_8071FC58[];
@@ -2610,11 +2610,11 @@ void csCmdSpawnSparkAndLight(CsState *cs, s16 csId, s16 b, s16 c) {
         x = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
         y = (randomLcgNext() / 10000 % 200) / 10.0 - 7.0;
         z = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
-        func_807149B8(1);
-        func_807149FC(2);
-        func_80714950(0x64);
-        func_8071498C(func_80717D4C);
-        func_80714CC0(D_8071FC58, 0.5f, gCsPosX + x, gCsPosY + y, gCsPosZ + z);
+        effectSetDepth(1);
+        effectSetDuration(2);
+        effectSetSpeed(0x64);
+        effectSetCallback(func_80717D4C);
+        effectCreateAtPosition(D_8071FC58, 0.5f, gCsPosX + x, gCsPosY + y, gCsPosZ + z);
     }
     lightAdd(gCsPosX, gCsPosY, gCsPosZ, 0.0f, 0.0f, 0.0f, 300.0f, 0, 0xA6, 0x30, 0xFF);
 }

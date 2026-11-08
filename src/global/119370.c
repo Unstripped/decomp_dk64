@@ -3,7 +3,7 @@
 
 extern u8 gGfxBufferIndex;
 extern u8 gViewportCount;
-extern s16 D_807FDB34;
+extern s16 sEffectPendingZOffset;
 
 void *heapAlloc(s32);
 u32 randomLcgNext(void);
@@ -45,43 +45,43 @@ typedef struct EffectNode {
 } EffectNode;
 
 
-extern EffectGridNode *D_807FDB00;
-extern EffectNode *D_807FDB04;
-extern EffectNode *D_807FDB08;
-extern s8 D_807FDB0C;
-extern s8 D_807FDB0D;
-extern s8 D_807FDB0E;
-extern s8 D_807FDB0F;
-extern s32 D_807FDB10;
-extern s32 D_807FDB14;
-extern s8 D_807FDB18;
-extern s16 D_807FDB1A;
-extern u8 D_807FDB1C;
-extern s8 D_807FDB1D;
-extern f32 D_807FDB20;
-extern f32 D_807FDB24;
-extern s8 D_807FDB28;
-extern s32 D_807FDB2C;
-extern s32 D_807FDB30;
-extern u16 D_807FDB36;
-extern s16 D_807FDB38;
-extern s16 D_807FDB3A;
-extern s16 D_807FDB3C;
-extern s16 D_807FDB3E;
-extern s16 D_807FDB40;
-extern s16 D_807FDB42;
+extern EffectGridNode *sEffectGridHead;
+extern EffectNode *sEffectListHead;
+extern EffectNode *sEffectListTail;
+extern s8 sEffectPendingColorR;
+extern s8 sEffectPendingColorG;
+extern s8 sEffectPendingColorB;
+extern s8 sEffectPendingColorA;
+extern s32 sEffectPendingDuration;
+extern s32 sEffectPendingCallback;
+extern s8 sEffectPendingDepth;
+extern s16 sEffectPendingAngle;
+extern u8 sEffectPendingMode;
+extern s8 sEffectPendingFade;
+extern f32 sEffectPendingScaleX;
+extern f32 sEffectPendingScaleY;
+extern s8 sEffectPendingHasScale;
+extern s32 sEffectPendingSpeed;
+extern s32 sEffectPendingParam;
+extern u16 sEffectPendingFlags;
+extern s16 sEffectPendingLifetime;
+extern s16 sEffectPendingMaxDist;
+extern s16 sEffectPendingBoundsMinX;
+extern s16 sEffectPendingBoundsMinY;
+extern s16 sEffectPendingBoundsMaxX;
+extern s16 sEffectPendingBoundsMaxY;
 
 void effectResetState(void);
 
 void effectResetLists(void) {
-    D_807FDB00 = NULL;
-    D_807FDB04 = NULL;
-    D_807FDB08 = NULL;
+    sEffectGridHead = NULL;
+    sEffectListHead = NULL;
+    sEffectListTail = NULL;
     effectResetState();
 }
 
-s32 func_807146A4(s32 targetId) {
-    EffectGridNode *node = D_807FDB00;
+s32 effectGridFindByTargetId(s32 targetId) {
+    EffectGridNode *node = sEffectGridHead;
 
     if (node != NULL) {
         do {
@@ -91,7 +91,7 @@ s32 func_807146A4(s32 targetId) {
             node = node->unk24;
         } while (node != NULL);
     }
-    return (s32) D_807FDB00->unk0;
+    return (s32) sEffectGridHead->unk0;
 }
 
 void effectGridGetByteDimensions(EffectGridNode *grid, u8 *outW, u8 *outH) {
@@ -122,7 +122,7 @@ void effectGridRegister(EffectGridNode *grid) {
     s32 count;
     s32 i;
 
-    newNode = D_807FDB00;
+    newNode = sEffectGridHead;
     byteOffset = 0xB;
     last = NULL;
     while (newNode != NULL) {
@@ -150,10 +150,10 @@ void effectGridRegister(EffectGridNode *grid) {
     newNode->unk16 = grid->unk12;
     newNode->unk18 = -1;
 
-    if (D_807FDB00 != NULL) {
+    if (sEffectGridHead != NULL) {
         last->unk24 = newNode;
     } else {
-        D_807FDB00 = newNode;
+        sEffectGridHead = newNode;
     }
 
     count = newNode->unk8 * newNode->unk9 * newNode->unk16;
@@ -164,78 +164,78 @@ void effectGridRegister(EffectGridNode *grid) {
     newNode->unk20 = (u8 *) grid + 0x14;
 }
 
-void func_80714944(s32 param) {
-    D_807FDB30 = param;
+void effectSetParam(s32 param) {
+    sEffectPendingParam = param;
 }
 
-void func_80714950(s32 initSpeed) {
-    D_807FDB2C = initSpeed;
+void effectSetSpeed(s32 initSpeed) {
+    sEffectPendingSpeed = initSpeed;
 }
 
-void func_8071495C(void) {
-    D_807FDB1D = 1;
+void effectEnableFade(void) {
+    sEffectPendingFade = 1;
 }
 
-void func_8071496C(s16 val) {
-    D_807FDB1A = val;
+void effectSetAngle(s16 val) {
+    sEffectPendingAngle = val;
 }
 
-void func_8071497C(s16 val) {
-    D_807FDB34 = val;
+void effectSetZOffset(s16 val) {
+    sEffectPendingZOffset = val;
 }
 
-void func_8071498C(s32 callback) {
-    D_807FDB14 = callback;
+void effectSetCallback(s32 callback) {
+    sEffectPendingCallback = callback;
 }
 
-void func_80714998(s8 mode) {
-    D_807FDB1C = mode;
+void effectSetMode(s8 mode) {
+    sEffectPendingMode = mode;
 }
 
-void func_807149A8(s16 val) {
-    D_807FDB3A = val;
+void effectSetMaxDistance(s16 val) {
+    sEffectPendingMaxDist = val;
 }
 
-void func_807149B8(s8 val) {
-    D_807FDB18 = val;
+void effectSetDepth(s8 val) {
+    sEffectPendingDepth = val;
 }
 
-void func_807149C8(s8 r, s8 g, s8 b, s8 a) {
-    D_807FDB0C = r;
-    D_807FDB0D = g;
-    D_807FDB0E = b;
-    D_807FDB0F = a;
+void effectSetColor(s8 r, s8 g, s8 b, s8 a) {
+    sEffectPendingColorR = r;
+    sEffectPendingColorG = g;
+    sEffectPendingColorB = b;
+    sEffectPendingColorA = a;
 }
 
-void func_807149FC(s32 duration) {
-    D_807FDB10 = duration;
+void effectSetDuration(s32 duration) {
+    sEffectPendingDuration = duration;
 }
 
-void func_80714A08(f32 scaleX, f32 scaleY) {
-    D_807FDB20 = scaleX;
-    D_807FDB24 = scaleY;
-    D_807FDB28 = 1;
+void effectSetScale(f32 scaleX, f32 scaleY) {
+    sEffectPendingScaleX = scaleX;
+    sEffectPendingScaleY = scaleY;
+    sEffectPendingHasScale = 1;
 }
 
-void func_80714A28(s16 flags) {
-    D_807FDB36 = flags;
+void effectSetFlags(s16 flags) {
+    sEffectPendingFlags = flags;
 }
 
 void effectFlagsOr(u8 flagBits) {
-    u16 *temp = &D_807FDB36;
+    u16 *temp = &sEffectPendingFlags;
 
     *temp = *temp | flagBits;
 }
 
-void func_80714A58(s16 val) {
-    D_807FDB38 = val;
+void effectSetLifetime(s16 val) {
+    sEffectPendingLifetime = val;
 }
 
-void func_80714A68(s16 minX, s16 minY, s16 maxX, s16 maxY) {
-    D_807FDB3C = minX;
-    D_807FDB3E = minY;
-    D_807FDB40 = maxX;
-    D_807FDB42 = maxY;
+void effectSetBounds(s16 minX, s16 minY, s16 maxX, s16 maxY) {
+    sEffectPendingBoundsMinX = minX;
+    sEffectPendingBoundsMinY = minY;
+    sEffectPendingBoundsMaxX = maxX;
+    sEffectPendingBoundsMaxY = maxY;
 }
 
 extern u8 gHiResScale;
@@ -244,31 +244,31 @@ void effectResetState(void) {
     s32 temp;
     u16 new_var;
 
-    D_807FDB0F = 0;
-    D_807FDB10 = 1;
-    D_807FDB14 = 0;
-    D_807FDB18 = 0;
-    D_807FDB1C = 1;
-    D_807FDB1A = 0;
-    D_807FDB1D = 0;
-    D_807FDB28 = 0;
+    sEffectPendingColorA = 0;
+    sEffectPendingDuration = 1;
+    sEffectPendingCallback = 0;
+    sEffectPendingDepth = 0;
+    sEffectPendingMode = 1;
+    sEffectPendingAngle = 0;
+    sEffectPendingFade = 0;
+    sEffectPendingHasScale = 0;
     temp = gHiResScale * 0xA;
     new_var = 0;
-    D_807FDB2C = new_var;
-    D_807FDB30 = new_var;
-    D_807FDB36 = 0;
-    D_807FDB38 = -1;
-    D_807FDB3C = temp;
-    D_807FDB3E = temp;
-    D_807FDB40 = gHiResScale * 0x135;
-    D_807FDB42 = gHiResScale * 0xE5;
-    D_807FDB3A = 0x258;
+    sEffectPendingSpeed = new_var;
+    sEffectPendingParam = new_var;
+    sEffectPendingFlags = 0;
+    sEffectPendingLifetime = -1;
+    sEffectPendingBoundsMinX = temp;
+    sEffectPendingBoundsMinY = temp;
+    sEffectPendingBoundsMaxX = gHiResScale * 0x135;
+    sEffectPendingBoundsMaxY = gHiResScale * 0xE5;
+    sEffectPendingMaxDist = 0x258;
 }
 
 void modelSlotGetNodePos();
 EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, void *owner, s32 boneIndex, s32 subIndex, u8 flags);
 
-void func_80714B84(s32 asset, f32 scale, s32 modelSlot, s32 nodeIndex, u8 flags) {
+void effectCreateAtModelNode(s32 asset, f32 scale, s32 modelSlot, s32 nodeIndex, u8 flags) {
     f32 nodeX;
     f32 nodeY;
     f32 nodeZ;
@@ -279,7 +279,7 @@ void func_80714B84(s32 asset, f32 scale, s32 modelSlot, s32 nodeIndex, u8 flags)
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 
-void func_80714C08(s32 asset, f32 scale, void *actor, s32 boneIndex, u8 flags) {
+void effectCreateAtActorBone(s32 asset, f32 scale, void *actor, s32 boneIndex, u8 flags) {
     f32 boneX;
     f32 boneY;
     f32 boneZ;
@@ -287,13 +287,13 @@ void func_80714C08(s32 asset, f32 scale, void *actor, s32 boneIndex, u8 flags) {
 
     actorGetNodePos(actor, boneIndex, &boneX, &boneY, &boneZ);
     new_var = ((Actor *) actor)->flags & 0x200;
-    if ((!new_var && (((Actor *) actor)->sub4 != NULL)) && (D_807FDB36 & 0x80)) {
+    if ((!new_var && (((Actor *) actor)->sub4 != NULL)) && (sEffectPendingFlags & 0x80)) {
         effectFlagsOr(0x40);
     }
     effectCreate(asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, (s32) flags);
 }
 
-void func_80714CC0(s32 asset, f32 scale, f32 x, f32 y, f32 z) {
+void effectCreateAtPosition(s32 asset, f32 scale, f32 x, f32 y, f32 z) {
     effectCreate(asset, scale, x, y, z, NULL, 0, 0, 0);
 }
 
@@ -308,7 +308,7 @@ EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, voi
     s32 i;
 
     effectGridRegister((EffectGridNode *)asset);
-    node = D_807FDB00;
+    node = sEffectGridHead;
     found = 0;
     if (node != NULL) {
         do {
@@ -324,73 +324,73 @@ EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, voi
         return NULL;
     }
     effect = heapAlloc(0x3A0);
-    if (D_807FDB04 != NULL) {
-        D_807FDB08->next = effect;
-        effect->previous = D_807FDB08;
+    if (sEffectListHead != NULL) {
+        sEffectListTail->next = effect;
+        effect->previous = sEffectListTail;
     } else {
-        D_807FDB04 = effect;
+        sEffectListHead = effect;
         effect->previous = NULL;
     }
-    D_807FDB08 = effect;
-    if ((u8) D_807FDB1D != 0) {
+    sEffectListTail = effect;
+    if ((u8) sEffectPendingFade != 0) {
         posX *= 4.0f;
         posY *= 4.0f;
         posZ *= 4.0f;
         scale *= 4.0f;
-        D_807FDB20 *= 4.0f;
-        D_807FDB24 *= 4.0f;
+        sEffectPendingScaleX *= 4.0f;
+        sEffectPendingScaleY *= 4.0f;
     }
     UA1_D08_FIELD(f32, effect, 0x340) = posX;
     UA1_D08_FIELD(f32, effect, 0x344) = posY;
     UA1_D08_FIELD(f32, effect, 0x348) = posZ;
-    if ((u8) D_807FDB28 != 0) {
-        UA1_D08_FIELD(f32, effect, 0x360) = D_807FDB20;
-        UA1_D08_FIELD(f32, effect, 0x364) = D_807FDB24;
+    if ((u8) sEffectPendingHasScale != 0) {
+        UA1_D08_FIELD(f32, effect, 0x360) = sEffectPendingScaleX;
+        UA1_D08_FIELD(f32, effect, 0x364) = sEffectPendingScaleY;
     } else {
         UA1_D08_FIELD(f32, effect, 0x360) = scale;
         UA1_D08_FIELD(f32, effect, 0x364) = scale;
     }
-    if ((u8) D_807FDB0F != 0) {
-        UA1_D08_FIELD(u8, effect, 0x36A) = *(u8 *)&D_807FDB0C;
-        UA1_D08_FIELD(u8, effect, 0x36B) = *(u8 *)&D_807FDB0D;
-        UA1_D08_FIELD(u8, effect, 0x36C) = *(u8 *)&D_807FDB0E;
-        UA1_D08_FIELD(u8, effect, 0x36D) = *(u8 *)&D_807FDB0F;
+    if ((u8) sEffectPendingColorA != 0) {
+        UA1_D08_FIELD(u8, effect, 0x36A) = *(u8 *)&sEffectPendingColorR;
+        UA1_D08_FIELD(u8, effect, 0x36B) = *(u8 *)&sEffectPendingColorG;
+        UA1_D08_FIELD(u8, effect, 0x36C) = *(u8 *)&sEffectPendingColorB;
+        UA1_D08_FIELD(u8, effect, 0x36D) = *(u8 *)&sEffectPendingColorA;
     } else {
         UA1_D08_FIELD(u8, effect, 0x36A) = *((u8 *)node + 0x10);
         UA1_D08_FIELD(u8, effect, 0x36B) = *((u8 *)node + 0x11);
         UA1_D08_FIELD(u8, effect, 0x36C) = *((u8 *)node + 0x12);
         UA1_D08_FIELD(u8, effect, 0x36D) = *((u8 *)node + 0x13);
     }
-    UA1_D08_FIELD(u8, effect, 0x36E) = *(u8 *)&D_807FDB18;
-    effect->mode = *(u8 *)&D_807FDB1D;
-    UA1_D08_FIELD(s16, effect, 0x368) = D_807FDB1A;
+    UA1_D08_FIELD(u8, effect, 0x36E) = *(u8 *)&sEffectPendingDepth;
+    effect->mode = *(u8 *)&sEffectPendingFade;
+    UA1_D08_FIELD(s16, effect, 0x368) = sEffectPendingAngle;
     UA1_D08_FIELD(s32, effect, 0x380) = *((u8 *)node + 9) * *((u8 *)node + 8);
     UA1_D08_FIELD(u8, effect, 0x334) = flags;
     effect->resource = (s32)owner;
     UA1_D08_FIELD(s16, effect, 0x33C) = boneIndex;
     UA1_D08_FIELD(s8, effect, 0x33E) = subIndex;
-    UA1_D08_FIELD(s16, effect, 0x34E) = D_807FDB30;
-    UA1_D08_FIELD(u8, effect, 0x350) = D_807FDB1C;
+    UA1_D08_FIELD(s16, effect, 0x34E) = sEffectPendingParam;
+    UA1_D08_FIELD(u8, effect, 0x350) = sEffectPendingMode;
     UA1_D08_FIELD(u8, effect, 0x351) = 0;
-    UA1_D08_FIELD(s32, effect, 0x354) = D_807FDB10;
+    UA1_D08_FIELD(s32, effect, 0x354) = sEffectPendingDuration;
     UA1_D08_FIELD(s32, effect, 0x358) = 0;
-    UA1_D08_FIELD(s32, effect, 0x35C) = D_807FDB2C;
+    UA1_D08_FIELD(s32, effect, 0x35C) = sEffectPendingSpeed;
     if (gGlobalOverlayFlags & 0x100) {
         UA1_D08_FIELD(s16, effect, 0x34C) = 0x7D0;
     } else {
-        UA1_D08_FIELD(s16, effect, 0x34C) = D_807FDB3A;
+        UA1_D08_FIELD(s16, effect, 0x34C) = sEffectPendingMaxDist;
     }
     UA1_D08_FIELD(EffectGridNode *, effect, 0x330) = node;
     effect->next = NULL;
-    UA1_D08_FIELD(s32, effect, 0x328) = D_807FDB14;
+    UA1_D08_FIELD(s32, effect, 0x328) = sEffectPendingCallback;
     effect->allocation = NULL;
-    UA1_D08_FIELD(s16, effect, 0x388) = D_807FDB38;
+    UA1_D08_FIELD(s16, effect, 0x388) = sEffectPendingLifetime;
     UA1_D08_FIELD(s8, effect, 0x38A) = -1;
-    effect->flags = D_807FDB36;
-    UA1_D08_FIELD(s16, effect, 0x38E) = D_807FDB3C;
-    UA1_D08_FIELD(s16, effect, 0x390) = D_807FDB3E;
-    UA1_D08_FIELD(s16, effect, 0x392) = D_807FDB40;
-    UA1_D08_FIELD(s16, effect, 0x394) = D_807FDB42;
+    effect->flags = sEffectPendingFlags;
+    UA1_D08_FIELD(s16, effect, 0x38E) = sEffectPendingBoundsMinX;
+    UA1_D08_FIELD(s16, effect, 0x390) = sEffectPendingBoundsMinY;
+    UA1_D08_FIELD(s16, effect, 0x392) = sEffectPendingBoundsMaxX;
+    UA1_D08_FIELD(s16, effect, 0x394) = sEffectPendingBoundsMaxY;
     for (i = 0; i < gViewportCount; i++) {
         ((void **)effect)[i * 2] = heapAlloc(0x200);
         ((void **)effect)[i * 2 + 1] = heapAlloc(0x200);
@@ -494,7 +494,7 @@ extern s32 gPlayerSlots;
 void assetFreeBuffer(s32, s32, s32);
 s16 mapChunkFindByPosition(f32, f32, f32, s32);
 s32 renderEntryAddOrUpdate(s32, u8, void *, f32, f32, f32, s32, s32, s32, s32, s32);
-void func_80715A3C(s16 *, u8, u8 *, s32, s32, s32 *);
+void effectLoadFrameAssets(s16 *, u8, u8 *, s32, s32, s32 *);
 void effectFreeAndUnlink(EffectNode *);
 void effectComputeTransformMatrix(Mtx *, u8, f32, f32, f32, f32, f32, f32, f32, f32, u8);
 
@@ -506,7 +506,7 @@ void effectUpdateAll(u8 pGlist) {
     s32 offset;
     s32 offset2;
 
-    effect = D_807FDB04;
+    effect = sEffectListHead;
     for (; effect != NULL; effect = effect->next) {
         if (UA1_D08_FIELD(s16, effect, 0x368) == 0) {
             UA1_D08_FIELD(u8, effect, 0x32C) = 0;
@@ -621,7 +621,7 @@ void effectUpdateAll(u8 pGlist) {
                                            UA1_D08_FIELD(f32, effect, 0x344),
                                            UA1_D08_FIELD(f32, effect, 0x348), 0, 0, 1, -1, 3);
                 }
-                func_80715A3C((s16 *)UA1_D08_FIELD(void *, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x20),
+                effectLoadFrameAssets((s16 *)UA1_D08_FIELD(void *, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x20),
                               UA1_D08_FIELD(u8, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x15),
                               (u8 *)UA1_D08_FIELD(void *, UA1_D08_FIELD(EffectGridNode *, effect, 0x330), 0x1C),
                               UA1_D08_FIELD(s32, effect, 0x380), UA1_D08_FIELD(s16, effect, 0x34E),
@@ -641,7 +641,7 @@ void effectUpdateAll(u8 pGlist) {
             }
         }
     }
-    for (node2 = D_807FDB00; node2 != NULL; node2 = node2->unk24) {
+    for (node2 = sEffectGridHead; node2 != NULL; node2 = node2->unk24) {
         if (gFrameCounter - node2->unk18 >= 0xB) {
             continue;
         }
@@ -672,7 +672,7 @@ void effectFreeAndUnlink(EffectNode *);
 void effectFreeByResource(s32 resource) {
     EffectNode *effect;
 
-    effect = D_807FDB04;
+    effect = sEffectListHead;
     if (effect != NULL) {
         do {
             if (resource == effect->resource) {
@@ -687,7 +687,7 @@ void effectFreeAll(void) {
     EffectNode *effect;
     EffectNode *next;
 
-    effect = D_807FDB04;
+    effect = sEffectListHead;
     if (effect != NULL) {
         do {
             next = effect->next;
@@ -739,12 +739,12 @@ void effectFreeAndUnlink(EffectNode *effect) {
     if (previous != NULL) {
         previous->next = next;
     } else {
-        D_807FDB04 = next;
+        sEffectListHead = next;
     }
     if (next != NULL) {
         next->previous = previous;
     } else {
-        D_807FDB08 = previous;
+        sEffectListTail = previous;
     }
 }
 
@@ -755,7 +755,7 @@ typedef struct EffectRouteEntry {
 
 s32 assetLoad(s32, s16, s32, s32);
 
-void func_80715A3C(s16 *effect, u8 inX, u8 *inY, s32 inZ, s32 screenX, s32 *screenY) {
+void effectLoadFrameAssets(s16 *effect, u8 inX, u8 *inY, s32 inZ, s32 screenX, s32 *screenY) {
     u8 category;
     s32 i;
     s32 index;
@@ -841,7 +841,7 @@ void effectComputeTransformMatrix(Mtx *dst, u8 x, f32 y, f32 z, f32 scaleX, f32 
         } else {
             guScaleF(scale, 1.0f, 1.0f, 1.0f);
         }
-        matrixMakeRotationZ(transform, (f32)D_807FDB34);
+        matrixMakeRotationZ(transform, (f32)sEffectPendingZOffset);
         guMtxCatF(scale, transform, scale);
         guTranslateF(transform, yaw, roll, mode);
         guMtxCatF(scale, transform, scale);

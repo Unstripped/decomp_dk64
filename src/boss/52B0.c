@@ -38,16 +38,16 @@ void bossMadJackSpawnShockwave(f32 scale) {
 
 
 s32 randomNonNegative(void);
-void func_807149B8(s32);
-void func_80714998(s32);
-void func_807149C8(s32, s32, s32, s32);
+void effectSetDepth(s32);
+void effectSetMode(s32);
+void effectSetColor(s32, s32, s32, s32);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void bossMadJackSpawnSparkles(void) {
     randomNonNegative();
-    func_807149B8(1);
-    func_80714998(3);
-    func_807149C8(0x78, 0x78, 0x78, 0xC8);
+    effectSetDepth(1);
+    effectSetMode(3);
+    effectSetColor(0x78, 0x78, 0x78, 0xC8);
     effectSpawnBoneDefault(gCurrentActor, (((randomNonNegative() >> 15) % 0x7FFF) % 16) + 3, 2.0f, 0.0f, 0.0f, 0.0f, -0x96);
 }
 

@@ -1909,10 +1909,10 @@ extern f32 D_80750FD8;
 extern s32 D_8074E880[];
 extern f32 D_8075352C[];
 s32 randomNonNegative();
-void func_80714950(s32);
-void func_8071498C(void *);
-void func_807149B8(s32);
-void func_80714CC0(s32, f32, f32, f32, f32);
+void effectSetSpeed(s32);
+void effectSetCallback(void *);
+void effectSetDepth(s32);
+void effectCreateAtPosition(s32, f32, f32, f32, f32);
 void func_80717D4C();
 
 void func_806D5300(void) {
@@ -1933,10 +1933,10 @@ void func_806D5300(void) {
             x = (randomNonNegative() >> 15) % 10000 % D_80750FC8 - D_80750FC8 / 2;
             y = (randomNonNegative() >> 15) % 10000 % D_80750FCC - D_80750FCC / 2;
             z = (randomNonNegative() >> 15) % 10000 % D_80750FD0 - D_80750FD0 / 2;
-            func_80714950(D_80750FC4);
-            func_8071498C(&func_80717D4C);
-            func_807149B8(1);
-            func_80714CC0(D_8074E880[randomNonNegative() % 10000 % 3], D_80750FC0 * scale, x * scale + sp90, y * scale + sp8C, z * scale + sp88);
+            effectSetSpeed(D_80750FC4);
+            effectSetCallback(&func_80717D4C);
+            effectSetDepth(1);
+            effectCreateAtPosition(D_8074E880[randomNonNegative() % 10000 % 3], D_80750FC0 * scale, x * scale + sp90, y * scale + sp8C, z * scale + sp88);
         }
     }
     switch (G08_A40->unk155) {
@@ -2431,7 +2431,7 @@ void effectSpawnJointBeam();
 void effectSpawnRandomBoneDebris();
 void func_80712830(Actor *, u8);
 s32 randomLcgNext(void);
-void func_80714998(s32);
+void effectSetMode(s32);
 
 s32 func_806D69A4(void) {
     if (G14_A->hasArcBounds != 0) {
@@ -2454,7 +2454,7 @@ s32 func_806D69A4(void) {
     return 0;
 }
 
-void func_80714C08(void *, f32, void *, s32, s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32);
 void effectSineHorizontalDriftUpdate();
 extern u8 D_8071FF18;
 
@@ -2491,28 +2491,28 @@ void func_806D6B00(void) {
         G14_P->unk30 = D_80753548[gCurrentCharacterIndex];
         if (G14_A->unkB8 > 20.0f) {
             if (randomLcgNext() % 3U == 0) {
-                func_8071498C(&effectSineHorizontalDriftUpdate);
-                func_80714998(2);
-                func_807149B8(1);
-                func_80714C08(&D_8071FF18, 0.2f, gCurrentActor, 2, 0);
+                effectSetCallback(&effectSineHorizontalDriftUpdate);
+                effectSetMode(2);
+                effectSetDepth(1);
+                effectCreateAtActorBone(&D_8071FF18, 0.2f, gCurrentActor, 2, 0);
             }
             if (randomLcgNext() % 3U == 0) {
-                func_8071498C(&effectSineHorizontalDriftUpdate);
-                func_80714998(2);
-                func_807149B8(1);
-                func_80714C08(&D_8071FF18, 0.2f, gCurrentActor, 3, 0);
+                effectSetCallback(&effectSineHorizontalDriftUpdate);
+                effectSetMode(2);
+                effectSetDepth(1);
+                effectCreateAtActorBone(&D_8071FF18, 0.2f, gCurrentActor, 3, 0);
             }
             if (randomLcgNext() % 3U == 0) {
-                func_8071498C(&effectSineHorizontalDriftUpdate);
-                func_80714998(2);
-                func_807149B8(1);
-                func_80714C08(&D_8071FF18, 0.2f, gCurrentActor, 9, 0);
+                effectSetCallback(&effectSineHorizontalDriftUpdate);
+                effectSetMode(2);
+                effectSetDepth(1);
+                effectCreateAtActorBone(&D_8071FF18, 0.2f, gCurrentActor, 9, 0);
             }
             if (randomLcgNext() % 3U == 0) {
-                func_8071498C(&effectSineHorizontalDriftUpdate);
-                func_80714998(2);
-                func_807149B8(1);
-                func_80714C08(&D_8071FF18, 0.2f, gCurrentActor, 0xA, 0);
+                effectSetCallback(&effectSineHorizontalDriftUpdate);
+                effectSetMode(2);
+                effectSetDepth(1);
+                effectCreateAtActorBone(&D_8071FF18, 0.2f, gCurrentActor, 0xA, 0);
             }
         }
         break;
@@ -2776,7 +2776,7 @@ void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void camStartPathNearWall(void *, s32, s32, s32);
 void func_806CF918();
 s32 func_80714608(s32);
-void func_807149C8(s32, s32, s32, s32);
+void effectSetColor(s32, s32, s32, s32);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void func_806D7A28(void) {
@@ -2829,8 +2829,8 @@ void func_806D7A28(void) {
                 }
             }
             if ((G15_PB->unk1F0 & 0x1000) && !(gFrameCounter & 3)) {
-                func_807149C8(0x64, 0x64, 0x64, 0xC8);
-                func_80714998(2);
+                effectSetColor(0x64, 0x64, 0x64, 0xC8);
+                effectSetMode(2);
                 effectSpawnBoneDefault(gCurrentActor, (s16)(((randomNonNegative() >> 15) % 32767) % 8 + 1), 0.4f, 0.0f, 0.0f, 0.0f, -0x50);
             }
             G08_A40->unkB8 = 0.0f;
@@ -3426,7 +3426,7 @@ void func_806D9184(void) {
 
 extern s32 D_8072014C;
 void playerEnterFall();
-void func_807149FC(s32);
+void effectSetDuration(s32);
 
 void func_806D91A4(void) {
     s32 n;
@@ -3442,9 +3442,9 @@ void func_806D91A4(void) {
         camReturnToFollow(G16_P->unk104, gCurrentActor);
     }
     if (!(G16_A->unk6A & 1)) {
-        func_807149B8(1);
-        func_807149FC(1);
-        func_80714C08(&D_8072014C, 0.8f, gCurrentActor, 1, 0);
+        effectSetDepth(1);
+        effectSetDuration(1);
+        effectCreateAtActorBone(&D_8072014C, 0.8f, gCurrentActor, 1, 0);
     }
     nv = G16_A->unk6C;
     b = nv;
@@ -3492,9 +3492,9 @@ void func_806D9320(void) {
                 camReturnToFollow(G16_P->unk104, gCurrentActor);
             }
             if (!(G16_A->unk6A & 1)) {
-                func_807149B8(1);
-                func_807149FC(1);
-                func_80714C08(&D_8072014C, 0.8f, gCurrentActor, 1, 0);
+                effectSetDepth(1);
+                effectSetDuration(1);
+                effectCreateAtActorBone(&D_8072014C, 0.8f, gCurrentActor, 1, 0);
             }
             nv = G16_A->unk6C;
             b = nv;
@@ -3757,10 +3757,10 @@ void playerStateTransformSparkles(void) {
         randomNonNegative();
         sp28 = (s32)(randomNonNegative() >> 15) % 30 + G17_A->unk80;
         randomNonNegative();
-        func_807149B8(1);
-        func_80714950((G17_P->unk23C << 16) + (s32)(15.0 * (G17_A->unk128 / 255.0)));
-        func_8071498C(effectOrbitXZUpdate);
-        func_80714CC0((s32)&D_8071FC8C, 0.5f, G17_A->unk7C, sp28, G17_A->unk84);
+        effectSetDepth(1);
+        effectSetSpeed((G17_P->unk23C << 16) + (s32)(15.0 * (G17_A->unk128 / 255.0)));
+        effectSetCallback(effectOrbitXZUpdate);
+        effectCreateAtPosition((s32)&D_8071FC8C, 0.5f, G17_A->unk7C, sp28, G17_A->unk84);
         sel = G17_A->unk155;
     }
     switch (sel) {
@@ -4547,16 +4547,16 @@ void func_806DBB04(void) {
         sp5C += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
         sp58 += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
         sp54 += (f32)((randomNonNegative() >> 15) % 65535 % 16 - 8);
-        func_80714998(2);
-        func_807149B8(1);
-        func_8071498C(effectPuffRiseUpdate);
-        func_80714950((randomNonNegative() >> 15) % 100 + 0x64);
+        effectSetMode(2);
+        effectSetDepth(1);
+        effectSetCallback(effectPuffRiseUpdate);
+        effectSetSpeed((randomNonNegative() >> 15) % 100 + 0x64);
         if (sp63 == 2) {
-            func_80714CC0((s32)&D_8071FCC0, 0.5f, sp5C, sp58, sp54);
+            effectCreateAtPosition((s32)&D_8071FCC0, 0.5f, sp5C, sp58, sp54);
         } else if (sp63 == 1) {
-            func_80714CC0((s32)&D_8071FC8C, 0.5f, sp5C, sp58, sp54);
+            effectCreateAtPosition((s32)&D_8071FC8C, 0.5f, sp5C, sp58, sp54);
         } else {
-            func_80714CC0((s32)&D_8071FC58, 0.5f, sp5C, sp58, sp54);
+            effectCreateAtPosition((s32)&D_8071FC58, 0.5f, sp5C, sp58, sp54);
         }
     }
     LB_A->unkC0 = 0.0f;

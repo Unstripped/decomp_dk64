@@ -53,12 +53,12 @@ extern BossE_F0D0_Actor *gPrimaryPlayerActor;
 extern BossE_F0D0_FDCA0 *D_807FDCA0;
 void actorScriptStart(void *, s32);
 void actorScriptExecute(void *);
-void func_80714998(s32);
-void func_8071498C(void *);
-void func_807149B8(s32);
-void func_80714950(s32);
+void effectSetMode(s32);
+void effectSetCallback(void *);
+void effectSetDepth(s32);
+void effectSetSpeed(s32);
 s32 randomNonNegative(void);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void actorDespawn(void *);
 void playerStateQueueCallback(s32, void *, s32);
 void camStartShakeFromPoint(void *, s32, s32, f32, f32, f32, f32, f32);
@@ -171,11 +171,11 @@ void bossSpawnPuffDebris(void) {
     f32 scale;
 
     scale = (f32) ((f64) gCurrentActor->unk4->unk38 / 0.15);
-    func_80714998(2);
-    func_8071498C(&effectPuffRiseUpdate);
-    func_807149B8(1);
-    func_80714950(1);
-    func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) scale, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84);
+    effectSetMode(2);
+    effectSetCallback(&effectPuffRiseUpdate);
+    effectSetDepth(1);
+    effectSetSpeed(1);
+    effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) scale, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84);
 }
 
 void csModelStateSetFirstByte(s16, u8);
@@ -402,7 +402,7 @@ void camSetSecondTarget(void *, s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void effectSpawnScatterRandom(void *, s32, f32, s32, s32, s32, s32, s32, s32);
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
-void func_80714C08(void *, f32, void *, s32, s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(void *, u8);
@@ -739,11 +739,11 @@ block_131:
             boneX += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
             boneY += (f32)((randomNonNegative() >> 15) % 100 + 0x32);
             boneZ += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
-            func_807149B8(1);
-            func_8071498C(D_8071EDEC);
-            func_80714950((s32)gCurrentActor);
-            func_80714CC0(D_8071FC58, 1.5f, boneX, boneY, boneZ);
-            func_80714C08(D_80720054, 3.0f, gCurrentActor, 1, 2);
+            effectSetDepth(1);
+            effectSetCallback(D_8071EDEC);
+            effectSetSpeed((s32)gCurrentActor);
+            effectCreateAtPosition(D_8071FC58, 1.5f, boneX, boneY, boneZ);
+            effectCreateAtActorBone(D_80720054, 3.0f, gCurrentActor, 1, 2);
         }
                 break;
             case 4:

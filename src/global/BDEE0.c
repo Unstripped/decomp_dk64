@@ -302,10 +302,10 @@ void func_806B9CB0(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_80714950(s32);
-void func_8071498C(void *);
-void func_807149B8(s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetSpeed(s32);
+void effectSetCallback(void *);
+void effectSetDepth(s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectPuffRiseUpdate(void);
 void func_80717D4C(void);
 extern void *D_8074E880[];
@@ -318,18 +318,18 @@ void actorSpawnRandomParticleNearActor(u8 particleType, s8 yOffset) {
 
     switch (particleType) {
         case 0:
-            func_8071498C(effectPuffRiseUpdate);
+            effectSetCallback(effectPuffRiseUpdate);
             break;
         case 1:
-            func_80714950(-0x258);
-            func_8071498C(func_80717D4C);
+            effectSetSpeed(-0x258);
+            effectSetCallback(func_80717D4C);
             break;
     }
-    func_807149B8(1);
+    effectSetDepth(1);
     randA = randomNonNegative();
     randB = randomNonNegative();
     randC = randomNonNegative();
-    func_80714CC0(D_8074E880[((randA >> 15) % 1000) % 3], (f32)(((randB >> 15) % 256) * 0.001953125 + 0.5), (f32)((randC >> 15) % 6) + (gCurrentActor->x - 3.0f), gCurrentActor->y + (f32)yOffset, (f32)((randomNonNegative() >> 15) % 6) + (gCurrentActor->z - 3.0f));
+    effectCreateAtPosition(D_8074E880[((randA >> 15) % 1000) % 3], (f32)(((randB >> 15) % 256) * 0.001953125 + 0.5), (f32)((randC >> 15) % 6) + (gCurrentActor->x - 3.0f), gCurrentActor->y + (f32)yOffset, (f32)((randomNonNegative() >> 15) % 6) + (gCurrentActor->z - 3.0f));
 }
 
 extern u8 D_80750628[];
@@ -473,7 +473,7 @@ s32 func_806BA240(u8 action, s16 animId) {
                 gCurrentActor->flags |= 0x20000000;
                 if (BDEE0AA->unkF0 == 0) {
                     BDEE0AA->unkF0 = 0x28;
-                    func_80714CC0(D_8071FB34, 2.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                    effectCreateAtPosition(D_8071FB34, 2.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                     sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
                     actorScriptStart(tgt, 0x220);
                     tgt->unk155[0] = 2;

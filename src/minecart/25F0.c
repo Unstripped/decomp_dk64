@@ -179,15 +179,15 @@ f32 mathSinF(s16);
 f32 mathCosF(s16);
 void actorUpdateModelMatrix(Actor_25F0 *, s32);
 void actorGetOrSetNodeScale(Actor_25F0 *, s32, f32);
-void func_807149FC(s32);
-void func_80714C08(void *, f32, Actor_25F0 *, s32, s32);
+void effectSetDuration(s32);
+void effectCreateAtActorBone(void *, f32, Actor_25F0 *, s32, s32);
 void minecartApplyJunction(MinecartCart *, void *, s32, s32);
 s32 randomNonNegative(void);
-void func_80714950(s32);
-void func_8071498C(s32 *);
-void func_807149B8(s32);
-void func_80714A28(s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetSpeed(s32);
+void effectSetCallback(s32 *);
+void effectSetDepth(s32);
+void effectSetFlags(s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void func_80724CA4(s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(Actor_25F0 *, s16, u8, s16, u8);
 void camStartShake(s32, s32, s32);
@@ -297,11 +297,11 @@ s32 minecartSetTargetAheadOfPlayer(MinecartTargetState *targetState, f32 distanc
 }
 
 void minecartSpawnRandomParticle(void) {
-    func_80714950(((randomNonNegative() >> 15) % 100) + 300);
-    func_8071498C(&D_80717D4C);
-    func_807149B8(1);
-    func_80714A28(4);
-    func_80714CC0(
+    effectSetSpeed(((randomNonNegative() >> 15) % 100) + 300);
+    effectSetCallback(&D_80717D4C);
+    effectSetDepth(1);
+    effectSetFlags(4);
+    effectCreateAtPosition(
         D_8074E880[((randomNonNegative() >> 15) % 1000) % 3],
         0.5f,
         ((randomNonNegative() >> 15) % 20) + (gCurrentActor->unk7C - 10.0f),
@@ -509,8 +509,8 @@ void minecartUpdateFollower(void) {
         gCurrentActor->unkEC = 0;
     }
     if (gFrameCounter % 3 == 0) {
-        func_807149B8(1);
-        func_80714CC0(D_80720120, 1.0f, gCurrentActor->unk7C, gCurrentActor->unk80 + 10.0f, gCurrentActor->unk84);
+        effectSetDepth(1);
+        effectCreateAtPosition(D_80720120, 1.0f, gCurrentActor->unk7C, gCurrentActor->unk80 + 10.0f, gCurrentActor->unk84);
     }
     gCurrentActor->unkE6 = mathAngleEaseToward(gCurrentActor->unkE6, mathAngleBetweenPoints2D(pointX, pointZ, gCurrentActor->unk7C, gCurrentActor->unk84), 6.0f);
     gCurrentActor->unkEE = gCurrentActor->unkE6;
@@ -689,9 +689,9 @@ void minecartUpdateObstacleType2(void) {
         if ((gCurrentMap == 0x4D) || (gCurrentMap == 0x81) || (gCurrentMap == 0x82)) {
             actorGetOrSetNodeScale(gCurrentActor, 1, 50.0f);
         }
-        func_807149B8(1);
-        func_807149FC(-1);
-        func_80714C08(&D_8072030C, 0.14f, gCurrentActor, 0xB, 2);
+        effectSetDepth(1);
+        effectSetDuration(-1);
+        effectCreateAtActorBone(&D_8072030C, 0.14f, gCurrentActor, 0xB, 2);
         gCurrentActor->unk154 = 0;
     }
     if ((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) {
@@ -759,9 +759,9 @@ void minecartUpdateObstacleType3(void) {
     if (!(gCurrentActor->unk60 & 0x10)) {
         gCurrentActor->unk144 = 0x3C;
         gBehaviourWorkState->unk35 = 2;
-        func_807149B8(1);
-        func_807149FC(-1);
-        func_80714C08(&D_8072030C, 0.14f, gCurrentActor, 0xB, 2);
+        effectSetDepth(1);
+        effectSetDuration(-1);
+        effectCreateAtActorBone(&D_8072030C, 0.14f, gCurrentActor, 0xB, 2);
     }
     if (gActorGlobalState.unk200 == 4) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x7F, 0x1E);

@@ -70,13 +70,13 @@ void scriptSetActorRampTarget(void *, f32, f32);
 void actorTurnTowardActorYaw(s32, void *);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void actorSetUniformScale(void *, f32);
-void func_807149B8(s32);
-void func_807149FC(s32);
-void func_80714950(s32);
-void func_8071498C(void *);
+void effectSetDepth(s32);
+void effectSetDuration(s32);
+void effectSetSpeed(s32);
+void effectSetCallback(void *);
 void effectRadialSprayUpdate();
-void func_80714998(s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetMode(s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void actorGetOrSetNodeScale(void *, s32, f32);
@@ -445,12 +445,12 @@ void actorSwellBurstUpdate(void) {
                         actorSetUniformScale(gCurrentActor, dx * 1.01);
                     } else {
                         for (i = 0; i < 0xC; i++) {
-                            func_807149B8(1);
-                            func_807149FC(2);
-                            func_80714950(i + 0x0B020000);
-                            func_8071498C(effectRadialSprayUpdate);
-                            func_80714998(1);
-                            func_80714CC0(D_8072073C, 2.0 * gCurrentActor->sub4->scaleY, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                            effectSetDepth(1);
+                            effectSetDuration(2);
+                            effectSetSpeed(i + 0x0B020000);
+                            effectSetCallback(effectRadialSprayUpdate);
+                            effectSetMode(1);
+                            effectCreateAtPosition(D_8072073C, 2.0 * gCurrentActor->sub4->scaleY, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                         }
                         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3D, 0xFF, 0x7F, 0);
                         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x35C, 0xFF, 0x7F, 0, 0x32, 0.3f, 0);
@@ -569,7 +569,7 @@ s32 actorFlyTowardPosition(B7490Pos *targetPos, u8 action) {
     return actorMoveWithinZone(action, targetPos->x, targetPos->z, 0x2E0, 0.0f);
 }
 
-void func_807149C8(u8, u8, u8, u8);
+void effectSetColor(u8, u8, u8, u8);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void actorSpawnPeriodicBoneEffect(void) {
@@ -598,8 +598,8 @@ void actorSpawnPeriodicBoneEffect(void) {
             period = 0;
     }
     if ((period != 0) && ((gFrameCounter % period) == 0)) {
-        func_80714998(3);
-        func_807149C8(col, col, col, *(u8 *) ((u8 *) gCurrentActor + 0x129));
+        effectSetMode(3);
+        effectSetColor(col, col, col, *(u8 *) ((u8 *) gCurrentActor + 0x129));
         effectSpawnBoneDefault(gCurrentActor, 1, f, 0.0f, 0.0f, 0.0f, -0x50);
     }
 }

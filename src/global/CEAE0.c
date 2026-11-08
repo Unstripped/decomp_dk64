@@ -2,9 +2,7 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
-extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
@@ -452,16 +450,16 @@ void mapSetPendingTransition(s32, s32);
 void mapExecuteDeathTransition(u8);
 void mapExecuteVoidTransition();
 void healthRefill(u8);
-void func_8071495C();
-void func_807149C8(s32, s32, s32, s32);
+void effectEnableFade();
+void effectSetColor(s32, s32, s32, s32);
 void effectFreeAndUnlink(void *);
 s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, f32 *, f32, s32);
 s32 playerStateQueueCallback(s32, Actor *, u8);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 sqrtf(f32);
-void func_807149FC(s32);
-void func_80714998(s32);
-s32 func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetDuration(s32);
+void effectSetMode(s32);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 void playerUpdateCommon(s32 arg0) {
     f32 dy;
@@ -599,11 +597,11 @@ void playerUpdateCommon(s32 arg0) {
                     PLAYER_STATE->unk250 = PLAYER_STATE->unk250 - 1;
                 }
                 if (PLAYER_STATE->unk254 == NULL) {
-                    func_807149FC(-1);
-                    func_80714998(0);
-                    func_807149C8(0xFF, 0xFF, 0xFF, 0x78);
-                    func_8071495C();
-                    PLAYER_STATE->unk254 = (PlayerEffectObj *)func_80714CC0(&D_80720020, 0.7f, gActivePlayerActor->x, gActivePlayerActor->y, gActivePlayerActor->z);
+                    effectSetDuration(-1);
+                    effectSetMode(0);
+                    effectSetColor(0xFF, 0xFF, 0xFF, 0x78);
+                    effectEnableFade();
+                    PLAYER_STATE->unk254 = (PlayerEffectObj *)effectCreateAtPosition(&D_80720020, 0.7f, gActivePlayerActor->x, gActivePlayerActor->y, gActivePlayerActor->z);
                 }
             } else {
                 if (PLAYER_STATE->unk250 < 0x78) {
@@ -778,13 +776,13 @@ s32 randomNonNegative();
 s32 camIsCutsceneActive();
 void func_80687400();
 void actorScriptStart(Actor *, s32);
-void func_8071498C(void *);
-void func_807149B8(s32);
-void func_807149FC(s32);
-void func_80714A28(s32);
-void func_80714950(s32);
-void func_80714C08(void *, f32, void *, s32, s32);
-s32 func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetCallback(void *);
+void effectSetDepth(s32);
+void effectSetDuration(s32);
+void effectSetFlags(s32);
+void effectSetSpeed(s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 s32 playerStateQueueCallback(s32, Actor *, u8);
 void playerInitNormalMoveParams(void);
 void playerSetSizeMode(Actor *, u8);
@@ -812,12 +810,12 @@ void func_806CB53C(void) {
             v0 = LB_P->unk23E;
         }
         if (v0 != 0) {
-            func_80714950((randomNonNegative() >> 15) % 10 + 0x8008);
-            func_807149FC(2);
-            func_8071498C(&func_80717930);
-            func_807149B8(1);
-            func_80714A28(6);
-            func_80714C08(&sEffectSparkConfig, ((randomNonNegative() >> 15) % 50) / 80.0 + 0.5, gCurrentActor, 2, 0);
+            effectSetSpeed((randomNonNegative() >> 15) % 10 + 0x8008);
+            effectSetDuration(2);
+            effectSetCallback(&func_80717930);
+            effectSetDepth(1);
+            effectSetFlags(6);
+            effectCreateAtActorBone(&sEffectSparkConfig, ((randomNonNegative() >> 15) % 50) / 80.0 + 0.5, gCurrentActor, 2, 0);
             LB_P->unk23E = LB_P->unk23E - 1;
             v0 = LB_P->unk23E;
         }
@@ -909,10 +907,10 @@ void func_806CB53C(void) {
         if (LB_P->unk1FE != -1) {
             LB_P->unk1FE = LB_P->unk1FE - 1;
             if (!(LB_P->unk1FE & 7)) {
-                func_8071498C(&effectZSpinMatrixUpdate);
-                func_807149B8(1);
-                func_807149FC(3);
-                func_80714CC0(&D_8071FB08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                effectSetCallback(&effectZSpinMatrixUpdate);
+                effectSetDepth(1);
+                effectSetDuration(3);
+                effectCreateAtPosition(&D_8071FB08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
             if (LB_P->unk1FE == 0) {
                 sfxStopChannel(0x6C, 0);
@@ -2542,22 +2540,22 @@ void func_806CF580(void) {
     }
     if ((gCurrentActor->state == 0x4F || gCurrentActor->state == 0x7F) && D_80750AD0 == 0 &&
         (u32)(G05_P->unkD0 + 9) < (u32)gFrameCounter && randomLcgNext() % 2500 / 200 == 0) {
-        func_8071498C(effectWobbleRiseUpdate);
-        func_807149B8(1);
-        func_807149FC(-1);
-        func_80714C08(&D_8071FC40, 0, gCurrentActor, 4, 0);
+        effectSetCallback(effectWobbleRiseUpdate);
+        effectSetDepth(1);
+        effectSetDuration(-1);
+        effectCreateAtActorBone(&D_8071FC40, 0, gCurrentActor, 4, 0);
         G05_P->unkD0 = gFrameCounter;
     }
 }
 
-void func_80714998(s32);
+void effectSetMode(s32);
 
 void func_806CF878(void) {
     if (!(gFrameCounter & 3) && G02_A->unk155 >= 5 && G03_A->unkC0 > 30.0f) {
-        func_80714998(2);
-        func_807149B8(1);
-        func_8071498C(&effectZSpinMatrixUpdate);
-        func_80714CC0(&D_8071FB08, 0.8f, G03_A->unk7C, G03_A->unk80, G03_A->unk84);
+        effectSetMode(2);
+        effectSetDepth(1);
+        effectSetCallback(&effectZSpinMatrixUpdate);
+        effectCreateAtPosition(&D_8071FB08, 0.8f, G03_A->unk7C, G03_A->unk80, G03_A->unk84);
     }
 }
 
@@ -2568,11 +2566,11 @@ void func_806CF918(void) {
     s32 i;
 
     for (i = 0; i != 0xC8; i += 0x28) {
-        func_8071498C(&effectSpiralDriftMatrixUpdate);
-        func_807149B8(1);
-        func_80714950(i);
-        func_807149FC(0x45);
-        func_80714C08(&D_8071FF40, 0.05f, gCurrentActor, 6, 2);
+        effectSetCallback(&effectSpiralDriftMatrixUpdate);
+        effectSetDepth(1);
+        effectSetSpeed(i);
+        effectSetDuration(0x45);
+        effectCreateAtActorBone(&D_8071FF40, 0.05f, gCurrentActor, 6, 2);
     }
 }
 

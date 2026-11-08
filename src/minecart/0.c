@@ -173,17 +173,17 @@ extern s32 D_8072006C;
 
 s32 randomLcgNext();
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-void func_80714950(void *);
-void func_8071498C(void *);
-s32 func_80714C08(void *, s32, void *, s32, s32);
+void effectSetSpeed(void *);
+void effectSetCallback(void *);
+s32 effectCreateAtActorBone(void *, s32, void *, s32, s32);
 
 void minecartSpawnWheelEffect(MinecartCart *cart, u8 side, u8 probabilityThreshold) {
     if ((u32)(u8)randomLcgNext() >= (u32)probabilityThreshold) {
         if (cart->unk0 == 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8A, 0x96, 0x7F, 0x32);
-            func_80714950(gCurrentActor);
-            func_8071498C(&effectTimedLightIntensityFade);
-            D_80028C30 = func_80714C08(&D_8072006C, 0x3ECCCCCD, gCurrentActor, side + 7, 2);
+            effectSetSpeed(gCurrentActor);
+            effectSetCallback(&effectTimedLightIntensityFade);
+            D_80028C30 = effectCreateAtActorBone(&D_8072006C, 0x3ECCCCCD, gCurrentActor, side + 7, 2);
         }
     }
 }

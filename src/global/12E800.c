@@ -339,13 +339,13 @@ extern u8 D_80720120[];
 extern u16 D_80744508;
 s32 func_80666A94();
 s32 func_80666AA0();
-s32 func_80714CC0(void *, f32, f32, f32, f32);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 void func_8072A714(void) {
     if (D1A3->unk5C & 2) {
         if (func_80666A94() || func_80666AA0()) {
             if (func_80666AA0()) {
-                func_80714CC0(&D_80720120, D1A3->unk4->scaleY * 6.66666666999999968, D1A3->unk7C, D1A3->unk80, D1A3->unk84);
+                effectCreateAtPosition(&D_80720120, D1A3->unk4->scaleY * 6.66666666999999968, D1A3->unk7C, D1A3->unk80, D1A3->unk84);
             }
             D1A3_154 = 0x40;
             D_80744508++;
@@ -860,9 +860,9 @@ void actorSetDefaultState(s32);
 void func_8072E320(f32);
 u8 sfxSlotAllocateActor(Actor *, s16, u8, u8, u8, f32, s8);
 void actorQueueDelayedCallback();
-void func_8071498C(void *);
-void func_80714950(s32);
-void func_807149B8(s32);
+void effectSetCallback(void *);
+void effectSetSpeed(s32);
+void effectSetDepth(s32);
 void func_80717D4C(void);
 extern u8 D_8071FC58[];
 
@@ -1033,10 +1033,10 @@ void func_8072B7CC(s32 arg0) {
                     F1A->unk155++;
                     break;
                 case 1:
-                    func_8071498C(func_80717D4C);
-                    func_807149B8(1);
-                    func_80714950(-0x28 - (((randomNonNegative() >> 0xF) % 10000) % 120));
-                    func_80714CC0(D_8071FC58, 0.5f, (f32)((((randomNonNegative() >> 0xF) % 20) + F1S9C->unk4) - 0xA), (f32)F1S9C->unk6, (f32)((((randomNonNegative() >> 0xF) % 20) + F1S9C->unk8) - 0xA));
+                    effectSetCallback(func_80717D4C);
+                    effectSetDepth(1);
+                    effectSetSpeed(-0x28 - (((randomNonNegative() >> 0xF) % 10000) % 120));
+                    effectCreateAtPosition(D_8071FC58, 0.5f, (f32)((((randomNonNegative() >> 0xF) % 20) + F1S9C->unk4) - 0xA), (f32)F1S9C->unk6, (f32)((((randomNonNegative() >> 0xF) % 20) + F1S9C->unk8) - 0xA));
                     if (F1S90->unk39 != 0) {
                         f32 t;
 
@@ -1708,7 +1708,7 @@ void func_8072D99C(void) {
 extern u8 D_8071FB34[];
 
 void func_8072D9D4(void) {
-    func_80714CC0(&D_8071FB34, 0.55f, D1A3->unk7C, D1A3->unk80 + (u32)D1A3->unk15E * 0.5, D1A3->unk84);
+    effectCreateAtPosition(&D_8071FB34, 0.55f, D1A3->unk7C, D1A3->unk80 + (u32)D1A3->unk15E * 0.5, D1A3->unk84);
 }
 
 typedef struct E2ActorView {
@@ -1741,19 +1741,19 @@ typedef struct E2ActorView {
 extern Actor *D_807FBD6C;
 
 void sfxPlayAtFBD6CPosition(void) {
-    func_80714CC0(&D_8071FB34, 0.55f, D_807FBD6C->x, D_807FBD6C->y, D_807FBD6C->z);
+    effectCreateAtPosition(&D_8071FB34, 0.55f, D_807FBD6C->x, D_807FBD6C->y, D_807FBD6C->z);
 }
 
-void func_80714998(s32);
+void effectSetMode(s32);
 extern u8 D_8071FF18;
 extern void func_80717D4C(void);
 
 void func_8072DAA4(void) {
-    func_80714998(2);
-    func_807149B8(1);
-    func_8071498C(func_80717D4C);
-    func_80714950(-0x28 - ((randomNonNegative() >> 15) % 15));
-    func_80714CC0(&D_8071FF18, (f32)(((randomNonNegative() >> 15) % 1000) / 2000.0 + 0.5), gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+    effectSetMode(2);
+    effectSetDepth(1);
+    effectSetCallback(func_80717D4C);
+    effectSetSpeed(-0x28 - ((randomNonNegative() >> 15) % 15));
+    effectCreateAtPosition(&D_8071FF18, (f32)(((randomNonNegative() >> 15) % 1000) / 2000.0 + 0.5), gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
 }
 
 extern u8 gCurrentPlayerIndex;

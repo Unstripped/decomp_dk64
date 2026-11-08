@@ -1912,17 +1912,17 @@ void camStartShake(s32, s32, s32);
 void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
 void effectSpawnDebrisParticles(void *, f32, f32, f32, f32);
 void enemyAggroEnable(void);
-void func_8071495C(void);
-void func_80714950(s32);
-void func_8071496C(s16);
-void func_8071498C(void *);
-void func_80714998(u8);
-void func_807149A8(s32);
-void func_807149B8(s32);
-void func_807149C8(s32, s32, s32, s32);
-void func_807149FC(s32);
-void func_80714A28(s32);
-s32 func_80714CC0(void *, f32, f32, f32, f32);
+void effectEnableFade(void);
+void effectSetSpeed(s32);
+void effectSetAngle(s16);
+void effectSetCallback(void *);
+void effectSetMode(u8);
+void effectSetMaxDistance(s32);
+void effectSetDepth(s32);
+void effectSetColor(s32, s32, s32, s32);
+void effectSetDuration(s32);
+void effectSetFlags(s32);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectPuffRiseUpdate(void);
 void effectConfettiPhysicsUpdate(void);
 void func_80717D4C(void);
@@ -1969,12 +1969,12 @@ void zoneEntrySpawnEffect(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                 ox0 = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0);
                 oy0 = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 20);
                 oz0 = (f32)((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0);
-                func_807149C8(0xE6, 0xE6, 0xE6, 0xC8);
-                func_8071498C(func_80717D4C);
-                func_80714950(-(i * 20));
-                func_807149B8(1);
-                func_80714998(arg2);
-                func_80714CC0(sEffectSparkConfig, 1.5f, (f32)x + ox0, (f32)y + oy0, (f32)z + oz0);
+                effectSetColor(0xE6, 0xE6, 0xE6, 0xC8);
+                effectSetCallback(func_80717D4C);
+                effectSetSpeed(-(i * 20));
+                effectSetDepth(1);
+                effectSetMode(arg2);
+                effectCreateAtPosition(sEffectSparkConfig, 1.5f, (f32)x + ox0, (f32)y + oy0, (f32)z + oz0);
             }
             return;
         case 7:
@@ -2059,38 +2059,38 @@ void zoneEntrySpawnEffect(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                 ex6 = ((ZoneEntry *)(group->unk14 + arg2))->unk0;
                 ez6 = ((ZoneEntry *)(group->unk14 + arg2))->unk4;
                 ang6 = mathAngleBetweenPoints2D((f32)ex6, (f32)ez6, (f32)x, (f32)z);
-                func_807149B8(1);
-                func_807149FC(idx6[sel6]);
-                func_8071498C(effectConfettiPhysicsUpdate);
-                func_80714950((ang6 << 16) + 3);
-                func_80714CC0(((void **)&fx6)[sel6], (f32)((randomNonNegative() >> 0xF) % 1000 * 0.0005 + 0.2), (f32)x, (f32)(y + 10), (f32)z);
+                effectSetDepth(1);
+                effectSetDuration(idx6[sel6]);
+                effectSetCallback(effectConfettiPhysicsUpdate);
+                effectSetSpeed((ang6 << 16) + 3);
+                effectCreateAtPosition(((void **)&fx6)[sel6], (f32)((randomNonNegative() >> 0xF) % 1000 * 0.0005 + 0.2), (f32)x, (f32)(y + 10), (f32)z);
             }
             return;
         case 12:
-            func_807149A8(0x7D0);
-            func_80714998(1);
-            func_80714CC0(D_8071FC0C, arg2 * 0.01, (f32)x, (f32)y, (f32)z);
+            effectSetMaxDistance(0x7D0);
+            effectSetMode(1);
+            effectCreateAtPosition(D_8071FC0C, arg2 * 0.01, (f32)x, (f32)y, (f32)z);
             return;
         case 8:
             scale8 = arg2 * 0.01;
             for (i = 0; i < arg3; i++) {
                 kx8 = ((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0) * scale8;
                 kz8 = ((randomNonNegative() >> 0xF) % 0x8000 % 40 - 20.0) * scale8;
-                func_807149A8(0x7D0);
-                func_807149B8(1);
-                func_80714CC0(D_8071FB54, scale8 * 1.3, (f32)x + kx8, (f32)y, (f32)z + kz8);
-                func_807149C8(0xD2, 0xD2, 0xD2, 0xC8);
+                effectSetMaxDistance(0x7D0);
+                effectSetDepth(1);
+                effectCreateAtPosition(D_8071FB54, scale8 * 1.3, (f32)x + kx8, (f32)y, (f32)z + kz8);
+                effectSetColor(0xD2, 0xD2, 0xD2, 0xC8);
                 effectSpawnBoneDefault(NULL, 0, scale8 * 1.2, (f32)x + kx8, (f32)y, (f32)z + kz8, -0xB4);
             }
             return;
         case 9:
             for (i = 0; i < arg2; i++) {
-                func_80714998(2);
-                func_8071498C(effectPuffRiseUpdate);
-                func_807149B8(1);
-                func_80714950(1);
-                func_8071496C(i * 3);
-                func_80714CC0(D_8074E880[(randomNonNegative() >> 0xF) % 1000 % 3], arg3 * 0.01, (f32)x, (f32)y, (f32)z);
+                effectSetMode(2);
+                effectSetCallback(effectPuffRiseUpdate);
+                effectSetDepth(1);
+                effectSetSpeed(1);
+                effectSetAngle(i * 3);
+                effectCreateAtPosition(D_8074E880[(randomNonNegative() >> 0xF) % 1000 % 3], arg3 * 0.01, (f32)x, (f32)y, (f32)z);
             }
             return;
         case 10:
@@ -2098,8 +2098,8 @@ void zoneEntrySpawnEffect(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                 rnd10 = randomNonNegative() >> 0xF;
                 ox10 = (f32)(rnd10 % 300);
                 oy10 = (f32)((randomNonNegative() >> 0xF) % 200);
-                func_8071495C();
-                func_80714CC0(D_8071FB34, arg3 * 0.01, ox10, oy10, -10.0f);
+                effectEnableFade();
+                effectCreateAtPosition(D_8071FB34, arg3 * 0.01, ox10, oy10, -10.0f);
             }
             return;
         case 11:
@@ -2107,12 +2107,12 @@ void zoneEntrySpawnEffect(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                 jx = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
                 jy = (randomLcgNext() / 10000 % 200) / 10.0 - 7.0;
                 jz = (randomLcgNext() / 10000 % 200) / 10.0 - 10.0;
-                func_807149B8(1);
-                func_807149FC(2);
-                func_80714950(0x64);
-                func_8071498C(func_80717D4C);
-                func_8071496C(i / 7);
-                func_80714CC0(D_8071FC58, arg3 * 0.01, (f32)(x + jx), (f32)(y + jy), (f32)(z + jz));
+                effectSetDepth(1);
+                effectSetDuration(2);
+                effectSetSpeed(0x64);
+                effectSetCallback(func_80717D4C);
+                effectSetAngle(i / 7);
+                effectCreateAtPosition(D_8071FC58, arg3 * 0.01, (f32)(x + jx), (f32)(y + jy), (f32)(z + jz));
             }
             return;
         case 13:
@@ -2123,12 +2123,12 @@ void zoneEntrySpawnEffect(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                 kx14 = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
                 ky14 = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
                 kz14 = (f32)(randomLcgNext() / 10000 % 200) / 10.0 - 5.0;
-                func_807149B8(1);
-                func_80714950(2);
-                func_807149FC(-1);
-                func_8071498C(effectWobbleRiseUpdate);
-                func_80714A28(4);
-                func_80714CC0(D_8071FC40, 0.0f, (f32)x + kx14, (f32)y + ky14, (f32)z + kz14);
+                effectSetDepth(1);
+                effectSetSpeed(2);
+                effectSetDuration(-1);
+                effectSetCallback(effectWobbleRiseUpdate);
+                effectSetFlags(4);
+                effectCreateAtPosition(D_8071FC40, 0.0f, (f32)x + kx14, (f32)y + ky14, (f32)z + kz14);
             }
             break;
     }

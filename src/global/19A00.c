@@ -2019,15 +2019,15 @@ void projectileTrySpawnFromSlot(Actor *arg0) {
     }
 }
 
-void func_80714950(s32);
-void func_8071498C(void *);
-void func_80714998(s32);
-void func_807149A8(s32);
-void func_807149B8(s32);
-void func_807149FC(s32);
-void func_80714A28(s32);
-void func_80714C08(void *, f32, Actor *, u8, s32);
-void *func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetSpeed(s32);
+void effectSetCallback(void *);
+void effectSetMode(s32);
+void effectSetMaxDistance(s32);
+void effectSetDepth(s32);
+void effectSetDuration(s32);
+void effectSetFlags(s32);
+void effectCreateAtActorBone(void *, f32, Actor *, u8, s32);
+void *effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectSpawnBone(Actor *, s32, f32, f32, f32, f32, s32);
 void actorGetNodePosOrPosition(Actor *, s32 *, f32 *, f32 *);
 extern void effectDownwardDriftUpdate(void);
@@ -2079,11 +2079,11 @@ void scriptCmdAttachToParentNode(Actor *arg0) {
     u8 sp27;
 
     scriptReadU8(&sp27);
-    func_8071498C(effectDownwardDriftUpdate);
-    func_80714998(2);
-    func_80714950(((ActorEffectView *)arg0)->unkE6);
-    func_807149B8(1);
-    func_80714C08(D_8071FF18, 0.4f, arg0, sp27, 0);
+    effectSetCallback(effectDownwardDriftUpdate);
+    effectSetMode(2);
+    effectSetSpeed(((ActorEffectView *)arg0)->unkE6);
+    effectSetDepth(1);
+    effectCreateAtActorBone(D_8071FF18, 0.4f, arg0, sp27, 0);
 }
 
 void scriptCmdEnablePlayerFlag40000(Actor *arg0) {
@@ -2095,16 +2095,16 @@ void scriptCmdDetachFromParent(Actor *arg0) {
 
     scriptReadU8(&sp2F);
     if (sp2F == 0xFF) {
-        func_807149B8(0);
-        func_807149FC(1);
-        func_80714CC0(D_8071FE08, 0.7f, arg0->x, arg0->y + 7.0f, arg0->z);
+        effectSetDepth(0);
+        effectSetDuration(1);
+        effectCreateAtPosition(D_8071FE08, 0.7f, arg0->x, arg0->y + 7.0f, arg0->z);
     } else {
-        func_8071498C(effectUpwardDriftUpdate);
-        func_80714998(2);
-        func_80714950((((ActorEffectView *)arg0)->unkE6 + 0x800) & 0xFFF);
-        func_807149B8(1);
-        func_80714A28(0x80);
-        func_80714C08(D_8071FF18, 0.4f, arg0, sp2F, 0);
+        effectSetCallback(effectUpwardDriftUpdate);
+        effectSetMode(2);
+        effectSetSpeed((((ActorEffectView *)arg0)->unkE6 + 0x800) & 0xFFF);
+        effectSetDepth(1);
+        effectSetFlags(0x80);
+        effectCreateAtActorBone(D_8071FF18, 0.4f, arg0, sp2F, 0);
     }
 }
 
@@ -2112,11 +2112,11 @@ void scriptCmdSetActorInteractionTimer(Actor *arg0) {
     u8 sp27;
 
     scriptReadU8(&sp27);
-    func_8071498C(effectSineDriftUpdate);
-    func_80714998(2);
-    func_80714950(((ActorEffectView *)arg0)->unkEE);
-    func_807149B8(1);
-    func_80714C08(D_8071FF18, 0.4f, arg0, sp27, 0);
+    effectSetCallback(effectSineDriftUpdate);
+    effectSetMode(2);
+    effectSetSpeed(((ActorEffectView *)arg0)->unkEE);
+    effectSetDepth(1);
+    effectCreateAtActorBone(D_8071FF18, 0.4f, arg0, sp27, 0);
 }
 
 extern s32 gGlobalCutsceneFlags;
@@ -2133,26 +2133,26 @@ void scriptCmdSpawnAttachedActor(Actor *arg0) {
     scriptReadU8(&sp3F);
     if (gGlobalCutsceneFlags & 2) {
         for (var_s0 = 0; var_s0 < 0x14; var_s0++) {
-            func_807149B8(1);
-            func_807149FC(-1);
-            func_8071498C(effectFloorFallUpdate);
-            func_80714A28(4);
-            func_80714C08(&D_80720B58, 0.1f, arg0, sp3F, 0);
+            effectSetDepth(1);
+            effectSetDuration(-1);
+            effectSetCallback(effectFloorFallUpdate);
+            effectSetFlags(4);
+            effectCreateAtActorBone(&D_80720B58, 0.1f, arg0, sp3F, 0);
         }
         return;
     }
     sfxPlayFromActorWithAltitudeCheck(arg0, 0x8A, 0x96, 0x7F, 0x32);
-    func_80714950((s32)arg0);
-    func_8071498C(effectTimedLightIntensityFade);
-    func_80714C08(&D_8072006C, 0.4f, arg0, sp3F, 2);
+    effectSetSpeed((s32)arg0);
+    effectSetCallback(effectTimedLightIntensityFade);
+    effectCreateAtActorBone(&D_8072006C, 0.4f, arg0, sp3F, 2);
 }
 
 void scriptCmdSpawnBoneEffects(Actor *arg0) {
-    func_807149A8(0x7D0);
-    func_80714998(3);
+    effectSetMaxDistance(0x7D0);
+    effectSetMode(3);
     effectSpawnBone(arg0, 0x16, 0.8f, 0.0f, 0.0f, 0.0f, -0x78);
-    func_807149A8(0x7D0);
-    func_80714998(3);
+    effectSetMaxDistance(0x7D0);
+    effectSetMode(3);
     effectSpawnBone(arg0, 0x17, 0.8f, 0.0f, 0.0f, 0.0f, -0x78);
 }
 
@@ -2354,7 +2354,7 @@ void scriptCmdClearActorNodeFlag(Actor *arg0) {
 }
 
 extern void *sScriptEffectSprites[];
-void func_8071496C(s32);
+void effectSetAngle(s32);
 
 void scriptCmdSpawnOrbitEffects(Actor *arg0) {
     s32 i;
@@ -2364,13 +2364,13 @@ void scriptCmdSpawnOrbitEffects(Actor *arg0) {
     scriptReadU8(&sp43);
     scriptReadU8(&sp42);
     for (i = sp43; i < sp42; i++) {
-        func_8071498C(effectOrbitSourceUpdate);
-        func_807149FC(-1);
-        func_807149B8(1);
-        func_8071496C(1);
-        func_80714950(1);
-        func_80714A28(0x20);
-        func_80714C08(sScriptEffectSprites[i], 0.2f, arg0, 7, 0);
+        effectSetCallback(effectOrbitSourceUpdate);
+        effectSetDuration(-1);
+        effectSetDepth(1);
+        effectSetAngle(1);
+        effectSetSpeed(1);
+        effectSetFlags(0x20);
+        effectCreateAtActorBone(sScriptEffectSprites[i], 0.2f, arg0, 7, 0);
     }
 }
 
@@ -2468,9 +2468,9 @@ void scriptCmdSpawnFallingEffect(Actor *arg0) {
     scriptReadU16((u8 *)&sp46);
     if (D_80750AD0 == 0) {
         sp40 = (f32)(u32)sp4C * 0.00048828125f;
-        func_807149B8(1);
-        func_80714998(sp4B);
-        func_807149FC(sp46);
+        effectSetDepth(1);
+        effectSetMode(sp4B);
+        effectSetDuration(sp46);
         if ((node = sp4A) == 0) {
             sp3C = arg0->x;
             sp38 = arg0->y;
@@ -2480,9 +2480,9 @@ void scriptCmdSpawnFallingEffect(Actor *arg0) {
         }
         sp38 += (f32)sp49 * sp40;
         if (sp48 != 0) {
-            func_8071498C(sScriptEffectCallbacks[sp48]);
+            effectSetCallback(sScriptEffectCallbacks[sp48]);
         }
-        effect = func_80714CC0(sScriptEffectSprites[sp4E], sp40, sp3C, sp38, sp34);
+        effect = effectCreateAtPosition(sScriptEffectSprites[sp4E], sp40, sp3C, sp38, sp34);
         sp2F = 0;
         switch (sp48) {
             case 1:
@@ -2521,7 +2521,7 @@ typedef struct ChildEffectSub4View {
     u16 unk64;
 } ChildEffectSub4View;
 
-void func_807149C8(s32, s32, s32, s32);
+void effectSetColor(s32, s32, s32, s32);
 
 void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
     u16 sp46;
@@ -2544,24 +2544,24 @@ void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
     var_v1 = (ChildEffectNodeState *)gSpawnedActor->customState;
     var_v1->unk10 = 0.0f;
     if (sp46 != 0xFFFF) {
-        func_807149FC(-1);
-        func_807149B8(1);
+        effectSetDuration(-1);
+        effectSetDepth(1);
         switch (arg0->actorType) {
             default:
                 var_fs0 = (f32)((f64)var_fs0 * 0.2);
                 break;
             case 0xBB:
                 var_fs0 = (f32)((f64)var_fs0 * 0.4);
-                func_807149C8(0, 0xFF, 0, 0xFF);
+                effectSetColor(0, 0xFF, 0, 0xFF);
                 break;
             case 4:
             case 5:
-                func_80714998(0);
+                effectSetMode(0);
                 var_fs0 = (f32)((f64)var_fs0 * 0.18);
                 var_v1->unk10 = -1.4f;
                 break;
             case 3:
-                func_80714998(0);
+                effectSetMode(0);
                 var_fs0 = (f32)((f64)var_fs0 * 0.25);
                 var_v1->unk10 = -1.4f;
                 break;
@@ -2569,7 +2569,7 @@ void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
     }
     gSpawnedActor->y -= var_v1->unk10;
     if (sp46 != 0xFFFF) {
-        func_80714C08(sScriptEffectSprites[sp46], var_fs0, gSpawnedActor, 1, 2);
+        effectCreateAtActorBone(sScriptEffectSprites[sp46], var_fs0, gSpawnedActor, 1, 2);
     }
     var_v1->unk0 = sp44;
     var_v1->unk4 = arg0;

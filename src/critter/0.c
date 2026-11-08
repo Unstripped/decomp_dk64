@@ -366,11 +366,11 @@ Gfx *func_80024C88(Gfx *gdl, CritterObj *obj) {
 }
 
 s16 mathAngleSignedDistance(s16, s16);
-void func_807149B8(s32);
-void func_80714950(s32);
-void func_807149FC(s32);
-void func_8071498C(void *);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetDepth(s32);
+void effectSetSpeed(s32);
+void effectSetDuration(s32);
+void effectSetCallback(void *);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern u8 effectWobbleRiseUpdate;
 extern u8 D_8071FC40;
 
@@ -393,11 +393,11 @@ void critterUpdateObjType2(CritterObj *obj) {
         }
         yawDelta = mathAngleSignedDistance(obj->yaw, obj->prevYaw);
         if (randVal <= 0) {
-            func_807149B8(1);
-            func_80714950(1);
-            func_807149FC(-1);
-            func_8071498C(&effectWobbleRiseUpdate);
-            func_80714CC0(&D_8071FC40, 0, obj->x, obj->y, obj->z);
+            effectSetDepth(1);
+            effectSetSpeed(1);
+            effectSetDuration(-1);
+            effectSetCallback(&effectWobbleRiseUpdate);
+            effectCreateAtPosition(&D_8071FC40, 0, obj->x, obj->y, obj->z);
         }
         if (yawDelta > 0) {
             absv = yawDelta;

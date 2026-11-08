@@ -191,11 +191,11 @@ void effectConfettiPhysicsUpdate(ConfettiActorView *effect, void *unused) {
 }
 
 
-void func_80714950(s32);
+void effectSetSpeed(s32);
 void effectConfettiPhysicsUpdate();
-void func_8071498C(void *);
-void func_807149B8(s32);
-void func_80714CC0(s32, f32, f32, f32, f32);
+void effectSetCallback(void *);
+void effectSetDepth(s32);
+void effectCreateAtPosition(s32, f32, f32, f32, f32);
 extern s32 D_8074E880[];
 
 void effectTimerCountdownAlphaUpdate(RotatingEffectActorView *effect, u8 *isDone) {
@@ -205,10 +205,10 @@ void effectTimerCountdownAlphaUpdate(RotatingEffectActorView *effect, u8 *isDone
     *((u8 *)effect + 0x36D) = 0;
     if (timer != 0) {
         effect->unk35C = timer - 1;
-        func_807149B8(1);
-        func_8071498C(effectConfettiPhysicsUpdate);
-        func_80714950(0xA);
-        func_80714CC0(D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 0.8f, effect->unk340, effect->unk344, effect->unk348);
+        effectSetDepth(1);
+        effectSetCallback(effectConfettiPhysicsUpdate);
+        effectSetSpeed(0xA);
+        effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 0.8f, effect->unk340, effect->unk344, effect->unk348);
         return;
     }
     *isDone = 1;
@@ -334,7 +334,7 @@ typedef struct {
 } TimedEffectActorView;
 
 
-void func_80714998(s32);
+void effectSetMode(s32);
 void effectRandomYRotDecalUpdate();
 extern u8 sEffectImpactPuffConfig;
 
@@ -520,10 +520,10 @@ void func_807180F4(s32 effect, s32 unused) {
 }
 
 void effectSpawnImpactPuff(f32 scale, f32 x, f32 y, f32 z) {
-    func_807149B8(1);
-    func_80714998(3);
-    func_8071498C(&effectRandomYRotDecalUpdate);
-    func_80714CC0((s32)&sEffectImpactPuffConfig, scale, x, y, z);
+    effectSetDepth(1);
+    effectSetMode(3);
+    effectSetCallback(&effectRandomYRotDecalUpdate);
+    effectCreateAtPosition((s32)&sEffectImpactPuffConfig, scale, x, y, z);
 }
 
 extern s16 D_807502D0;
@@ -1672,7 +1672,7 @@ typedef struct {
     u8 brightness;
 } SparkSpawnActorView;
 
-void func_807149C8(s32, s32, s32, s32);
+void effectSetColor(s32, s32, s32, s32);
 extern u8 sEffectSparkConfig;
 
 void effectSparkSpawnUpdate(SparkSpawnActorView *arg0, s8 *arg1) {
@@ -1698,13 +1698,13 @@ void effectSparkSpawnUpdate(SparkSpawnActorView *arg0, s8 *arg1) {
         return;
     }
     if (((randomNonNegative() >> 15) % 100) >= 91) {
-        func_80714998(3);
-        func_8071498C(func_80717D4C);
-        func_80714950(-0xA);
-        func_807149B8(1);
-        func_807149C8(0x9B, 0x9B, 0x9B, 0x96);
+        effectSetMode(3);
+        effectSetCallback(func_80717D4C);
+        effectSetSpeed(-0xA);
+        effectSetDepth(1);
+        effectSetColor(0x9B, 0x9B, 0x9B, 0x96);
         random = randomNonNegative();
-        func_80714CC0((s32)&sEffectSparkConfig, 0.8f,
+        effectCreateAtPosition((s32)&sEffectSparkConfig, 0.8f,
             (f32)(((random >> 15) % 65535) & 7) + arg0->x,
             arg0->y + 10.0f,
             (f32)(((randomNonNegative() >> 15) % 65535) & 7) + arg0->z);
@@ -1843,7 +1843,7 @@ typedef struct {
     u32 unk35C;
 } PulseFadeActorView;
 
-void func_807149FC(s32);
+void effectSetDuration(s32);
 void effectFallingSparkUpdate();
 extern u8 D_807201D4;
 
@@ -1868,10 +1868,10 @@ void timedLightPulse(PulseFadeActorView *arg0, s8 *arg1) {
             temp_v0_2 = arg0->unk34E;
             if ((temp_v0_2 == 0xA) && (arg0->unk351 == 0)) {
                 sfxPlayAtPositionPooled(arg0->unk340, arg0->unk344, arg0->unk348, 0xE4, 0xFF, 0x7F, 0x1E, 0x46, 9.0f, 0);
-                func_807149FC(-1);
-                func_807149B8(1);
-                func_8071498C(effectFallingSparkUpdate);
-                func_80714CC0((s32)&D_807201D4, 0.8f, arg0->unk340, arg0->unk344, arg0->unk348);
+                effectSetDuration(-1);
+                effectSetDepth(1);
+                effectSetCallback(effectFallingSparkUpdate);
+                effectCreateAtPosition((s32)&D_807201D4, 0.8f, arg0->unk340, arg0->unk344, arg0->unk348);
                 return;
             }
             temp_fv0 = (f32)(arg0->unk330->unk16 * 2);
@@ -1889,7 +1889,7 @@ void timedLightPulse(PulseFadeActorView *arg0, s8 *arg1) {
     }
 }
 
-void func_80714944(s32);
+void effectSetParam(s32);
 extern u8 D_8071FB54;
 
 void effectFallingSparkUpdate(TimedEffectActorView *arg0, u8 *arg1) {
@@ -1921,12 +1921,12 @@ void effectFallingSparkUpdate(TimedEffectActorView *arg0, u8 *arg1) {
     }
     if (*arg1 != 0) {
         sfxPlayAtPositionPooled(arg0->unk340, arg0->unk344, arg0->unk348, 0xEA, 0xFF, 0x7F, 0x1E, 0x46, 9.0f, 0);
-        func_80714998(2);
-        func_807149B8(1);
-        func_80714950(1);
-        func_8071498C(timedLightPulse);
-        func_80714944(7);
-        func_80714CC0((s32)&D_8071FB54, 0.667f, arg0->unk340, sp50 + 10.0f, arg0->unk348);
+        effectSetMode(2);
+        effectSetDepth(1);
+        effectSetSpeed(1);
+        effectSetCallback(timedLightPulse);
+        effectSetParam(7);
+        effectCreateAtPosition((s32)&D_8071FB54, 0.667f, arg0->unk340, sp50 + 10.0f, arg0->unk348);
     }
     lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, 200.0f, 0, sp48[0], sp48[1], sp48[2]);
 }
@@ -2093,9 +2093,9 @@ void effectWispWanderUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     lightSetFlags(1);
     lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, 150.0f, 0, 0x96, 0x96, 0xFF);
     if (!(gFrameCounter & 3)) {
-        func_807149B8(1);
-        func_8071498C(effectShrinkFadeMatrixUpdate);
-        func_80714CC0((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);
+        effectSetDepth(1);
+        effectSetCallback(effectShrinkFadeMatrixUpdate);
+        effectCreateAtPosition((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);
     }
     state->rotation += state->speed;
     guScaleF(spA0, arg0->unk360, arg0->unk364, 0.0f);
@@ -2153,9 +2153,9 @@ void effectWispHomeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     lightSetFlags(1);
     lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, 150.0f, 0, 0x96, 0x96, 0xFF);
     if (!(gFrameCounter & 3)) {
-        func_807149B8(1);
-        func_8071498C(effectShrinkFadeMatrixUpdate);
-        func_80714CC0((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);
+        effectSetDepth(1);
+        effectSetCallback(effectShrinkFadeMatrixUpdate);
+        effectCreateAtPosition((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);
     }
     state->rotation += state->speed;
     guScaleF(sp98, arg0->unk360, arg0->unk364, 0.0f);
@@ -2261,7 +2261,7 @@ typedef struct {
 
 void effectFallStateInit(OrbitSourceActor *, TimedEffectActorView *, s8 *);
 
-void func_80714A28(s16);
+void effectSetFlags(s16);
 
 void effectOrbitSourceUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     OrbitSourceState *var_v1;
@@ -2294,12 +2294,12 @@ void effectOrbitSourceUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         *arg1 = 1;
     }
     if ((gFrameCounter % arg0->unk35C) == 0) {
-        func_807149B8(1);
-        func_807149FC(-1);
-        func_80714950(0x2A);
-        func_8071498C(&effectLifetimeCountdownUpdate);
-        func_80714A28(0x20);
-        func_80714CC0(*(s32 *) arg0->unk330, arg0->unk360, arg0->unk340, arg0->unk344, arg0->unk348);
+        effectSetDepth(1);
+        effectSetDuration(-1);
+        effectSetSpeed(0x2A);
+        effectSetCallback(&effectLifetimeCountdownUpdate);
+        effectSetFlags(0x20);
+        effectCreateAtPosition(*(s32 *) arg0->unk330, arg0->unk360, arg0->unk340, arg0->unk344, arg0->unk348);
     }
 }
 
@@ -3086,9 +3086,9 @@ void effectLerpPathUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         arg0->unk344 = (state->unk18 * state->unk20) + state->unkC;
         arg0->unk348 = (state->unk1C * state->unk20) + state->unk10;
         if (!(gFrameCounter & 3)) {
-            func_807149B8(1);
-            func_8071498C(effectShrinkFadeMatrixUpdate);
-            func_80714CC0((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);
+            effectSetDepth(1);
+            effectSetCallback(effectShrinkFadeMatrixUpdate);
+            effectCreateAtPosition((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);
         }
         state->unk4 = state->unk4 + state->unk0;
         guScaleF(sp78, arg0->unk360, arg0->unk364, 0.0f);

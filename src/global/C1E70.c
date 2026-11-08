@@ -230,11 +230,11 @@ void sfxStopChannel(s32, s32);
 void csModelStateSetFirstByte(s32, s32);
 void camResumePath(void);
 void menuTransitionToMap(s32, s32);
-void func_80714950(s32);
-void func_8071498C(void (*)(void));
+void effectSetSpeed(s32);
+void effectSetCallback(void (*)(void));
 void effectLightFlickerDecay(void);
-void func_807149C8(s32, s32, s32, s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetColor(s32, s32, s32, s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 f32 randomFloat(void);
 
 void func_806BD7B0(void) {
@@ -302,13 +302,13 @@ void func_806BD7B0(void) {
                     gCurrentActor->y -= 6.0;
                 }
             } else {
-                func_80714950(0x10064);
-                func_8071498C(effectLightFlickerDecay);
-                func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
+                effectSetSpeed(0x10064);
+                effectSetCallback(effectLightFlickerDecay);
+                effectSetColor(0xFF, 0xFF, 0xFF, 0xFF);
                 sparkX = randomFloat() * 30.0 + gCurrentActor->x;
                 sparkY = randomFloat() * 30.0 + (gCurrentActor->y + 20.0);
                 sparkZ = randomFloat() * 30.0 + gCurrentActor->z;
-                func_80714CC0(&D_80720A7C, 1.2f, sparkX, sparkY, sparkZ);
+                effectCreateAtPosition(&D_80720A7C, 1.2f, sparkX, sparkY, sparkZ);
             }
             break;
         case 4:

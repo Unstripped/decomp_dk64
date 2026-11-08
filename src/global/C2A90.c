@@ -143,12 +143,12 @@ void actorSetUniformScale(Actor *, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void func_80724E48(s32);
 void effectSpawnMultiTierRing(f32, s32, f32, f32, f32);
-void func_8071498C(void (*)(void));
-void func_807149FC(s32);
-void func_807149B8(s32);
-void func_80714950(void *);
+void effectSetCallback(void (*)(void));
+void effectSetDuration(s32);
+void effectSetDepth(s32);
+void effectSetSpeed(void *);
 void *slotQueueGetSpriteAsset(s32);
-s32 func_80714C08(void *, f32, Actor *, s32, s32);
+s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
 
 void func_806BE09C(void) {
     R1C2CB_Sub174 *sub;
@@ -207,11 +207,11 @@ void func_806BE09C(void) {
                         R1C2CBS->unk2C = 0;
                         slotQueueCancel(0, 0);
                     }
-                    func_8071498C(effectConvergeOnNodeUpdate);
-                    func_807149FC(-1);
-                    func_807149B8(1);
-                    func_80714950(gCurrentActor);
-                    func_80714C08(slotQueueGetSpriteAsset(0), 0.3f, gPrimaryPlayerActor, 4, 0);
+                    effectSetCallback(effectConvergeOnNodeUpdate);
+                    effectSetDuration(-1);
+                    effectSetDepth(1);
+                    effectSetSpeed(gCurrentActor);
+                    effectCreateAtActorBone(slotQueueGetSpriteAsset(0), 0.3f, gPrimaryPlayerActor, 4, 0);
                 }
             } else if (R1C2CBS->unk2E == 0) {
                 R1C2CBS->unk2C = 0x1E;

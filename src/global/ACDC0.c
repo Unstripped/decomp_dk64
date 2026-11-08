@@ -114,13 +114,13 @@ Gfx *hudSetupTextState(Gfx *);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, void *);
 void hudPauseMenuBuildPage();
 void hudPauseMenuIconUpdate();
-void func_80714998(u8);
-void func_8071495C(void);
-void func_807149FC(s32);
-void func_80714950(void *);
-void func_8071498C(void (*)());
-void func_80714A28(s32);
-HudTextObj *func_80714CC0(s32, f32, f32, f32, f32);
+void effectSetMode(u8);
+void effectEnableFade(void);
+void effectSetDuration(s32);
+void effectSetSpeed(void *);
+void effectSetCallback(void (*)());
+void effectSetFlags(s32);
+HudTextObj *effectCreateAtPosition(s32, f32, f32, f32, f32);
 s32 slotQueueGetSpriteAsset(s32);
 f32 randomFloat(void);
 f32 sqrtf(f32);
@@ -1291,18 +1291,18 @@ void hudPauseMenuSpawnIcon(HudEntry *iconObj, s32 arg1, s32 arg2, s32 arg3, f32 
     f32 len;
     f32 fy;
 
-    func_80714998(arg5);
-    func_8071495C();
-    func_807149FC(-1);
-    func_80714950(iconObj);
-    func_8071498C(hudPauseMenuIconUpdate);
-    func_80714A28(0x101);
+    effectSetMode(arg5);
+    effectEnableFade();
+    effectSetDuration(-1);
+    effectSetSpeed(iconObj);
+    effectSetCallback(hudPauseMenuIconUpdate);
+    effectSetFlags(0x101);
     if (arg1 < 0) {
         fy = arg2;
-        obj = func_80714CC0(arg1, arg4, fy, (f32)arg3, -10.0f);
+        obj = effectCreateAtPosition(arg1, arg4, fy, (f32)arg3, -10.0f);
     } else {
         fy = arg2;
-        obj = func_80714CC0(slotQueueGetSpriteAsset(arg1), arg4, fy, (f32)arg3, -10.0f);
+        obj = effectCreateAtPosition(slotQueueGetSpriteAsset(arg1), arg4, fy, (f32)arg3, -10.0f);
     }
     arg1 = 7;
     if (arg6 == 6) {

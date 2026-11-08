@@ -161,14 +161,14 @@ void actorUpdateEntryEmitters(void) {
 
 
 s32 randomNonNegative(void);
-void func_807149B8(s32);
-void func_80714998(s32);
-void func_80714950(s32);
-void func_8071498C(void *);
-void func_807149C8(s32, s32, s32, s32);
-void func_80714A08(f32, f32);
-void func_80714A28(s32);
-void func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetDepth(s32);
+void effectSetMode(s32);
+void effectSetSpeed(s32);
+void effectSetCallback(void *);
+void effectSetColor(s32, s32, s32, s32);
+void effectSetScale(f32, f32);
+void effectSetFlags(s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 extern u8 D_807213D0;
 void effectDriftXZUpdate(void);
@@ -179,17 +179,17 @@ void actorEntryEmitJitterParticle(s16 entryIdx) {
     s32 temp;
 
     if (((randomNonNegative() % 10000) % 12) == 0) {
-        func_807149B8(1);
-        func_80714998(7);
-        func_80714950(((randomNonNegative() % 10000) % 50) - 120);
-        func_8071498C(effectDriftXZUpdate);
-        func_807149C8(255, 200, 200, 200);
-        func_80714A08(0.2f, 0.1f);
-        func_80714A28(4);
+        effectSetDepth(1);
+        effectSetMode(7);
+        effectSetSpeed(((randomNonNegative() % 10000) % 50) - 120);
+        effectSetCallback(effectDriftXZUpdate);
+        effectSetColor(255, 200, 200, 200);
+        effectSetScale(0.2f, 0.1f);
+        effectSetFlags(4);
         randX = randomNonNegative();
         temp = randomNonNegative();
         entry = (ActorProximityEntry *)((u8 *)D_807F9430 + entryIdx * sizeof(ActorProximityEntry));
-        func_80714CC0(&D_807213D0, 0.0f,
+        effectCreateAtPosition(&D_807213D0, 0.0f,
             (((f64) ((randX % 10000) % 100) / 20.0) + (f64) entry->unk2) - 2.5,
             (f64) entry->unk4 + 4.0,
             (((f64) ((temp % 10000) % 100) / 20.0) + (f64) entry->unk6) - 2.5);
@@ -207,13 +207,13 @@ void actorEntryEmitScaledParticle(s16 entryIdx) {
 
     if (((randomNonNegative() % 10000) % 10) == 0) {
         scaleFactor = (f64) D_807F9430[entryIdx].unk8 / 25.0;
-        func_807149B8(1);
-        func_80714998(2);
-        func_80714A28(4);
+        effectSetDepth(1);
+        effectSetMode(2);
+        effectSetFlags(4);
         randX = randomNonNegative();
         randY = randomNonNegative();
         temp = randomNonNegative();
-        func_80714CC0(&D_80720A7C, 0.4f,
+        effectCreateAtPosition(&D_80720A7C, 0.4f,
             ((((f64) ((randX % 10000) % 300) / 20.0) - 7.5) * (f64) scaleFactor) + (f64) (D_807F9430 + entryIdx)->unk2,
             (((f64) ((randY % 10000) % 600) / 20.0) * (f64) scaleFactor) + (f64) (D_807F9430 + entryIdx)->unk4,
             ((((f64) ((temp % 10000) % 300) / 20.0) - 7.5) * (f64) scaleFactor) + (f64) (D_807F9430 + entryIdx)->unk6);

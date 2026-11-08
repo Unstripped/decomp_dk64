@@ -72,10 +72,10 @@ u8 bonusGetReelSymbol(LB3Obj *obj, u8 reelIndex) {
     return D_8002D8B0[idx][obj->act[idx]->unk15F];
 }
 
-void func_807149B8(s32);
-s32 func_8071498C(void (*)(void));
-void func_80714950(s32);
-s32 func_80714CC0(void *, f32, f32, f32, f32);
+void effectSetDepth(s32);
+s32 effectSetCallback(void (*)(void));
+void effectSetSpeed(s32);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 s32 randomNonNegative();
 extern void *D_8074E880[];
 void effectConfettiPhysicsUpdate(void);
@@ -84,10 +84,10 @@ void bonusSpawnEffectBurst(s16 x, s16 y, s16 z, s16 count) {
     s16 i;
 
     for (i = 0; i < count; i++) {
-        func_807149B8(1);
-        func_8071498C(effectConfettiPhysicsUpdate);
-        func_80714950(1);
-        func_80714CC0(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.3f, (f32)x, (f32)y, (f32)z);
+        effectSetDepth(1);
+        effectSetCallback(effectConfettiPhysicsUpdate);
+        effectSetSpeed(1);
+        effectCreateAtPosition(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.3f, (f32)x, (f32)y, (f32)z);
     }
 }
 
@@ -128,9 +128,9 @@ s32 playerStateQueueCallback(s32, s32, s32);
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 unsigned int camStartPath(s32, s32, s32);
 void resQueueAttachActor(void *, s32, u8);
-void func_8071495C(void);
-void func_80714998(s32);
-void func_807149FC(s32);
+void effectEnableFade(void);
+void effectSetMode(s32);
+void effectSetDuration(s32);
 void hudSpawnCountdownTimer(s32, s32, s32);
 void actorSetStateTwo(void *);
 void n_alSndpStop(s32);
@@ -209,10 +209,10 @@ void bonusReelGameUpdate(void) {
             if (!(gCurrentActor->flags & 0x02000000)) {
                 gCurrentActor->state = 3;
                 gCurrentActor->unk155[0] = 0;
-                func_8071495C();
-                func_80714998(2);
-                func_807149FC(-1);
-                obj->unk20 = func_80714CC0(&D_80720CF0, 1.0f, 40.0f, 200.0f, 5.0f);
+                effectEnableFade();
+                effectSetMode(2);
+                effectSetDuration(-1);
+                obj->unk20 = effectCreateAtPosition(&D_80720CF0, 1.0f, 40.0f, 200.0f, 5.0f);
             }
             break;
         }

@@ -213,23 +213,23 @@ void bossPufftossNotifyLaser(u8 targetIndex) {
 
 extern u8 D_80720120[];
 
-void func_807149B8(s32);
-void func_807149C8(s32, s32, s32, s32);
-void func_80714C08(void *, f32, void *, s32, s32);
+void effectSetDepth(s32);
+void effectSetColor(s32, s32, s32, s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32);
 
 void bossPufftossSpawnGlow(u8 sparkleInterval, f32 scale) {
     if (!(sparkleInterval & gFrameCounter)) {
-        func_807149B8(1);
-        func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
-        func_80714C08(D_80720120, scale, gCurrentActor, 1, 0);
+        effectSetDepth(1);
+        effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
+        effectCreateAtActorBone(D_80720120, scale, gCurrentActor, 1, 0);
     }
 }
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void func_8071498C(void *);
-void func_80714950(void *);
-void func_80714CC0(void *, f32, f32, f32, f32);
-void func_80714998(s32);
+void effectSetCallback(void *);
+void effectSetSpeed(void *);
+void effectCreateAtPosition(void *, f32, f32, f32, f32);
+void effectSetMode(s32);
 void func_8071EDEC(void);
 void effectPuffRiseUpdate(void);
 extern void *D_8074E880[];
@@ -244,16 +244,16 @@ void bossSpawnSparkles(void) {
     sparkX += (f32)(((randomNonNegative() >> 15) % 80) - 40);
     sparkY += (f32)(((randomNonNegative() >> 15) % 100) + 50);
     sparkZ += (f32)(((randomNonNegative() >> 15) % 80) - 40);
-    func_807149B8(1);
-    func_8071498C(func_8071EDEC);
-    func_80714950(gCurrentActor);
-    func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
-    func_80714CC0(D_80720120, 1.5f, sparkX, sparkY, sparkZ);
+    effectSetDepth(1);
+    effectSetCallback(func_8071EDEC);
+    effectSetSpeed(gCurrentActor);
+    effectSetColor(0xFF, 0xD7, 0x58, 0xFF);
+    effectCreateAtPosition(D_80720120, 1.5f, sparkX, sparkY, sparkZ);
     for (i = 0; i < 4; i++) {
-        func_80714998(2);
-        func_8071498C(effectPuffRiseUpdate);
-        func_807149B8(1);
-        func_80714C08(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.5f, gCurrentActor, ((randomNonNegative() >> 15) % 32767 % 22) + 2, 0);
+        effectSetMode(2);
+        effectSetCallback(effectPuffRiseUpdate);
+        effectSetDepth(1);
+        effectCreateAtActorBone(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.5f, gCurrentActor, ((randomNonNegative() >> 15) % 32767 % 22) + 2, 0);
     }
 }
 
@@ -432,7 +432,7 @@ void bossPufftossStep(void) {
         }
         gBehaviourWorkState->unk16 = (s16) (*gBehaviourTargetActor->unk4)->unk10;
         gCurrentActor->unk60 |= 0x20000000;
-        func_80714CC0(&D_8071FB34, 2.0f, ((randomNonNegative() >> 0xF) % 30 + nodeX) - 15.0f, ((randomNonNegative() >> 0xF) % 30 + nodeY) - 15.0f, ((randomNonNegative() >> 0xF) % 30 + nodeZ) - 15.0f);
+        effectCreateAtPosition(&D_8071FB34, 2.0f, ((randomNonNegative() >> 0xF) % 30 + nodeX) - 15.0f, ((randomNonNegative() >> 0xF) % 30 + nodeY) - 15.0f, ((randomNonNegative() >> 0xF) % 30 + nodeZ) - 15.0f);
         sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
         roll = (randomNonNegative() >> 0xF) % 2048;
         if (roll < 0x2A8) {
