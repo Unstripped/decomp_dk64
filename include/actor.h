@@ -379,31 +379,16 @@ typedef struct Actor {
 // Fields are named by offset; sizes are the largest offset seen so far.
 typedef struct Struct807FDC90 {
     /* 0x00 */ u8 pad0[0xA];
-    union {
-        /* 0x0A */ s16 unkA;
-        /* 0x0A */ s16 targetX;
-    };
-    union {
-        /* 0x0C */ s16 unkC;
-        /* 0x0C */ s16 targetY;
-    };
-    union {
-        /* 0x0E */ s16 unkE;
-        /* 0x0E */ s16 targetZ;
-    };
+    /* 0x0A */ s16 targetX;
+    /* 0x0C */ s16 targetY;
+    /* 0x0E */ s16 targetZ;
     /* 0x10 */ u8 pad10[8];
     /* 0x18 */ u16 unk18;
     /* 0x1A */ u8 pad1A[0xE];
     /* 0x28 */ u8 unk28[4];
-    union {
-        /* 0x2C */ s16 unk2C;
-        /* 0x2C */ s16 timer;
-    };
+    /* 0x2C */ s16 timer;
     /* 0x2E */ u8 pad2E[2];
-    union {
-        /* 0x30 */ f32 unk30;
-        /* 0x30 */ f32 scale;
-    };
+    /* 0x30 */ f32 scale;
 } Struct807FDC90;
 typedef struct Struct807FDC98 {
     /* 0x00 */ u8 pad0[0x26];
