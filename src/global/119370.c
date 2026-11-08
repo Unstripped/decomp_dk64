@@ -238,7 +238,7 @@ void func_80714A68(s16 minX, s16 minY, s16 maxX, s16 maxY) {
     D_807FDB42 = maxY;
 }
 
-extern u8 D_8074450C;
+extern u8 gHiResScale;
 
 void effectResetState(void) {
     s32 temp;
@@ -252,7 +252,7 @@ void effectResetState(void) {
     D_807FDB1A = 0;
     D_807FDB1D = 0;
     D_807FDB28 = 0;
-    temp = D_8074450C * 0xA;
+    temp = gHiResScale * 0xA;
     new_var = 0;
     D_807FDB2C = new_var;
     D_807FDB30 = new_var;
@@ -260,8 +260,8 @@ void effectResetState(void) {
     D_807FDB38 = -1;
     D_807FDB3C = temp;
     D_807FDB3E = temp;
-    D_807FDB40 = D_8074450C * 0x135;
-    D_807FDB42 = D_8074450C * 0xE5;
+    D_807FDB40 = gHiResScale * 0x135;
+    D_807FDB42 = gHiResScale * 0xE5;
     D_807FDB3A = 0x258;
 }
 
@@ -908,7 +908,7 @@ typedef struct EffectDrawView {
 
 #define EFFECT_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 extern s32 gGlobalPauseFlags;
 extern u8 D_807F6009;
 extern s32 D_807F600C;
@@ -937,7 +937,7 @@ Gfx *effectGridBuildDisplayList(EffectDrawView *drawView, Gfx *inGlist, s16 alph
     if (drawView->unk38C & 0x50) {
         return inGlist;
     }
-    if ((((D_807FBB4C->state == 0x83) || (D_807FBB4C->state == 0x67)) && !(drawView->unk38C & 0x20)) || (((gGlobalPauseFlags & 0x100002) == 0x100002) && !(drawView->unk38C & 0x100))) {
+    if ((((gPrimaryPlayerActor->state == 0x83) || (gPrimaryPlayerActor->state == 0x67)) && !(drawView->unk38C & 0x20)) || (((gGlobalPauseFlags & 0x100002) == 0x100002) && !(drawView->unk38C & 0x100))) {
         return inGlist;
     }
     if (alpha == -1) {

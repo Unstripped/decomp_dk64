@@ -34,9 +34,9 @@ typedef struct BossC_A7A0_BB70 {
     u8 unk200;
 } BossC_A7A0_BB70;
 
-extern BossC_A7A0_BB70 D_807FBB70;
+extern BossC_A7A0_BB70 gActorGlobalState;
 extern BossC_A7A0_Actor *gCurrentActor;
-extern BossC_A7A0_Actor *D_807FBB4C;
+extern BossC_A7A0_Actor *gPrimaryPlayerActor;
 void actorDespawn(BossC_A7A0_Actor *);
 void actorUpdateModelMatrix(BossC_A7A0_Actor *, s32);
 
@@ -71,7 +71,7 @@ void bossPhaseTick(void) {
         gCurrentActor->unk168 = 0x258;
         gCurrentActor->unk144 = 2;
     }
-    if (D_807FBB4C->unk154 != 0x67) {
+    if (gPrimaryPlayerActor->unk154 != 0x67) {
         timer = gCurrentActor->unk168;
         if (timer != 0) {
             gCurrentActor->unk168 = timer - 1;
@@ -81,8 +81,8 @@ void bossPhaseTick(void) {
             gCurrentActor->unk155 = 0;
         }
     }
-    if (((D_807FBB70.unk15 != 0) || (D_807FBB70.unk200 == 9)) &&
-        ((other = D_807FBB70.unk1FC)->unk154 == 0x2B) &&
+    if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.unk200 == 9)) &&
+        ((other = gActorGlobalState.unk1FC)->unk154 == 0x2B) &&
         (other->unk155 == 3)) {
         gCurrentActor->unk154 = 1;
         gCurrentActor->unk155 = 0;
@@ -214,8 +214,8 @@ void func_8072A450(void);
 s32 func_8072881C(s32, void *);
 
 #define ACTOR40 ((BossActor *)gCurrentActor)
-#define ACTOR4C ((BossActor *)D_807FBB4C)
-#define BB70 (*(BossStageInfo *)&D_807FBB70)
+#define ACTOR4C ((BossActor *)gPrimaryPlayerActor)
+#define BB70 (*(BossStageInfo *)&gActorGlobalState)
 #define DC9C ((BossConfig *)gBehaviourExtraState)
 
 void bossKRoolLankyStep(void) {

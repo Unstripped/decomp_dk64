@@ -44,8 +44,8 @@ extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB48;
-extern ActorGlobalState D_807FBB70;
+extern Actor *gActivePlayerActor;
+extern ActorGlobalState gActorGlobalState;
 extern u8 D_807FBE08;
 extern u8 D_807FBE09;
 extern Actor *D_807FBE10[];
@@ -149,10 +149,10 @@ extern Struct807FB630 D_807FB630[32];
 extern Struct807FB7B0 D_807FB7B0[32];
 extern s16 D_807FBB30;
 extern s16 D_807FBB32;
-extern ActorAssetHeader *D_807FBB50;
-extern void *D_807FBB54;
-extern void *D_807FBB58;
-extern void *D_807FBB5C;
+extern ActorAssetHeader *gActorScriptAsset;
+extern void *gActorScriptIndexTable;
+extern void *gActorScriptAnimTable;
+extern void *gActorScriptSoundTable;
 extern s32 D_807FBB38;
 
 void *assetLoad(s32, s32, s32, s32);
@@ -174,10 +174,10 @@ void actorInit(void) {
     }
     D_807FBB32 = 0;
 
-    D_807FBB50 = (ActorAssetHeader *)assetLoad(0xD, 0, 1, 1);
-    D_807FBB54 = (void *)(D_807FBB50->unkC + (s32)D_807FBB50);
-    D_807FBB58 = (void *)(D_807FBB50->unk8 + (s32)D_807FBB50);
-    D_807FBB5C = (void *)(D_807FBB50->unk4 + (s32)D_807FBB50);
+    gActorScriptAsset = (ActorAssetHeader *)assetLoad(0xD, 0, 1, 1);
+    gActorScriptIndexTable = (void *)(gActorScriptAsset->unkC + (s32)gActorScriptAsset);
+    gActorScriptAnimTable = (void *)(gActorScriptAsset->unk8 + (s32)gActorScriptAsset);
+    gActorScriptSoundTable = (void *)(gActorScriptAsset->unk4 + (s32)gActorScriptAsset);
 
     for (i = 0; i < 64; i++) {
         gActiveActors[i].actor = NULL;
@@ -190,7 +190,7 @@ void actorInit(void) {
     D_807FBB38 = 0;
     D_807FBE09 = 0;
     D_807FBFD8 = 0;
-    D_807FBB48 = NULL;
+    gActivePlayerActor = NULL;
 }
 
 void func_80677EC8(s32 arg0) {
@@ -669,13 +669,13 @@ void actorPreTick(Actor *arg0) {
         arg0->unk140->unk68 = 0;
     }
     actorRiderListFree(arg0);
-    if (arg0 == D_807FBB48) {
+    if (arg0 == gActivePlayerActor) {
         actorCollisionCheckBoundingBoxes(arg0);
     } else {
         actorInitDamage(arg0);
     }
     actorDispatchCallbacks(arg0);
-    if (arg0 == D_807FBB48) {
+    if (arg0 == gActivePlayerActor) {
         playerStateDispatchQueuedCallback();
     }
     if (arg0->unk144 & 4) {
@@ -766,7 +766,7 @@ void func_80678E6C(Actor *actor) {
         if (sp27 != 0) {
             if (!(actor->contactFlags & 0x10)) {
                 actor->contactFlags |= 0x10;
-                if (actor == D_807FBB48) {
+                if (actor == gActivePlayerActor) {
                     playerStateQueueCallback(4, 0, gCurrentPlayerIndex);
                 }
             }
@@ -1056,7 +1056,7 @@ typedef struct ActorDispatchState {
     void *unk278[8];
 } ActorDispatchState;
 
-#define GSTATE (*(ActorDispatchState *)&D_807FBB70)
+#define GSTATE (*(ActorDispatchState *)&gActorGlobalState)
 
 
 typedef struct ActorPayload10000 {
@@ -1122,37 +1122,37 @@ void actorDispatchCallbacks(Actor *arg0) {
                     switch (var_s2->unk4) {
                     case 0:
                         GSTATE.unk16 = 1;
-                        if (arg0 == D_807FBB48) {
+                        if (arg0 == gActivePlayerActor) {
                             playerStateQueueCallback(0x10, NULL, gCurrentPlayerIndex);
                         }
                         break;
                     case 1:
                         GSTATE.unk17 = 1;
-                        if (arg0 == D_807FBB48) {
+                        if (arg0 == gActivePlayerActor) {
                             playerStateQueueCallback(0xE, var_s2->unk8, gCurrentPlayerIndex);
                         }
                         break;
                     case 2:
                         GSTATE.unk18 = 1;
-                        if (arg0 == D_807FBB48) {
+                        if (arg0 == gActivePlayerActor) {
                             playerStateQueueCallback(0x12, NULL, gCurrentPlayerIndex);
                         }
                         break;
                     case 3:
                         GSTATE.unk19 = 1;
-                        if (arg0 == D_807FBB48) {
+                        if (arg0 == gActivePlayerActor) {
                             playerStateQueueCallback(0x13, NULL, gCurrentPlayerIndex);
                         }
                         break;
                     case 6:
                         GSTATE.unk1B = 1;
-                        if (arg0 == D_807FBB48) {
+                        if (arg0 == gActivePlayerActor) {
                             playerStateQueueCallback(0x36, var_s2->unk8, gCurrentPlayerIndex);
                         }
                         break;
                     case 4:
                     case 5:
-                        if (arg0 == D_807FBB48) {
+                        if (arg0 == gActivePlayerActor) {
                             if (var_s2->unk4 == 4) {
                                 playerStateQueueCallback(0x2B, var_s2->unk8, gCurrentPlayerIndex);
                             } else {
@@ -1183,7 +1183,7 @@ void actorDispatchCallbacks(Actor *arg0) {
                     PLAYER_STATE_VIEW->unk74 = temp_v0_4->unk4;
                     PLAYER_STATE_VIEW->unk6C = (f32)temp_v0_4->unk8;
                     GSTATE.unk1A = 1;
-                    if (arg0 == D_807FBB48) {
+                    if (arg0 == gActivePlayerActor) {
                         playerStateQueueCallback(0x17, var_s2->unk8, gCurrentPlayerIndex);
                     }
                     break;
@@ -1239,7 +1239,7 @@ void actorDispatchCallbacks(Actor *arg0) {
                     break;
                 case 0x80:
                     arg0->flags = (s32)(arg0->flags | 8);
-                    if (arg0 == D_807FBB48) {
+                    if (arg0 == gActivePlayerActor) {
                         playerStateQueueCallback(0x16, var_s2->unk8, gCurrentPlayerIndex);
                     }
                     break;
@@ -1385,7 +1385,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
     s32 var_v0;
 
     D_807FBB85 = 1;
-    if (arg0 == D_807FBB48) {
+    if (arg0 == gActivePlayerActor) {
         if (!(((DamageReactionPlayerEntry *)gPlayerSlots)[gActivePlayerState->playerIndex].unk2C0 == 2 && arg1 != NULL && (arg1->collisionFlags & 2))) {
             sp3C = 0x2E;
             var_a2 = 1;
@@ -1497,9 +1497,9 @@ ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
 void actorCollisionEventsCancel(s32 arg0, u8 arg1) {
     s32 i;
 
-    for (i = 0; i < D_807FBB70.unk201; i++) {
-        if ((D_807FBB70.unk244[i] == arg1) && (D_807FBB70.unk204[i] == arg0)) {
-            D_807FBB70.unk244[i] = 0;
+    for (i = 0; i < gActorGlobalState.unk201; i++) {
+        if ((gActorGlobalState.unk244[i] == arg1) && (gActorGlobalState.unk204[i] == arg0)) {
+            gActorGlobalState.unk244[i] = 0;
         }
     }
 }
@@ -1538,7 +1538,7 @@ typedef struct ActorCollisionState {
     ActorCollisionSlot unk128[1];
 } ActorCollisionState;
 
-#define COLLISION_STATE ((ActorCollisionState *)&D_807FBB70)
+#define COLLISION_STATE ((ActorCollisionState *)&gActorGlobalState)
 
 s32 actorCollisionGetNodeHitPoint(Actor *, s32, f32 *, f32 *);
 void collisionTransformPointByActorMtx(Actor *, u32, f32 *, f32, f32 *);
@@ -1553,65 +1553,65 @@ void actorDispatchCollisionResults(Actor *arg0) {
     f32 sp5C;
     f32 sp58;
 
-    for (i = 0; i < D_807FBB70.unk201; i++) {
-        switch (D_807FBB70.unk244[i]) {
+    for (i = 0; i < gActorGlobalState.unk201; i++) {
+        switch (gActorGlobalState.unk244[i]) {
         case 0:
             break;
         case 1:
-            if (actorCollisionGetNodeHitPoint(arg0, D_807FBB70.unk204[i], &sp68, &sp64) != 0) {
-                actorAppendCallbackPayloadA69C((s32)arg0, (Actor *)D_807FBB70.unk204[i], sp68, sp64, 0, 1);
+            if (actorCollisionGetNodeHitPoint(arg0, gActorGlobalState.unk204[i], &sp68, &sp64) != 0) {
+                actorAppendCallbackPayloadA69C((s32)arg0, (Actor *)gActorGlobalState.unk204[i], sp68, sp64, 0, 1);
             }
             break;
         case 2:
-            actorCollisionGetNodeHitPoint(arg0, D_807FBB70.unk204[i], &sp5C, &sp58);
+            actorCollisionGetNodeHitPoint(arg0, gActorGlobalState.unk204[i], &sp5C, &sp58);
             break;
         case 4:
-            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 1, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 1, 0, 0);
             break;
         case 3:
-            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 0, 0, 0);
             break;
         case 8:
-            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 2, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 2, 0, 0);
             break;
         case 10:
-            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 3, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 3, 0, 0);
             break;
         case 13:
-            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 6, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 6, 0, 0);
             break;
         case 11:
-            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 4, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 4, 0, 0);
             break;
         case 12:
-            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 2, 5, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 5, 0, 0);
             break;
         case 6:
         case 7:
-            if (D_807FBB70.unk244[i] == 6) {
-                actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x40, 0, 0, 0);
+            if (gActorGlobalState.unk244[i] == 6) {
+                actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 0x40, 0, 0, 0);
             }
-            actorAppendCallbackPayloadA70C((s32)arg0, (Actor *)D_807FBB70.unk204[i], arg0->x, arg0->y, arg0->z, 2, 1);
-            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x80, 0, 0, 0);
+            actorAppendCallbackPayloadA70C((s32)arg0, (Actor *)gActorGlobalState.unk204[i], arg0->x, arg0->y, arg0->z, 2, 1);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 0x80, 0, 0, 0);
             playerDropHeldActor(arg0);
             break;
         case 5:
-            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 8, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 8, 0, 0, 0);
             break;
         case 15:
-            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 4, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 4, 0, 0, 0);
             break;
         case 9:
-            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x1000, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 0x1000, 0, 0, 0);
             break;
         case 14:
-            actorAppendCallback((Actor *)D_807FBB70.unk204[i], (s32)arg0, 0x02000000, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 0x02000000, 0, 0, 0);
             break;
         }
     }
 
-    if (D_807FBB70.unk39) {
-        for (i = 0; i < D_807FBB70.unk39; i++) {
+    if (gActorGlobalState.unk39) {
+        for (i = 0; i < gActorGlobalState.unk39; i++) {
             if (COLLISION_STATE->unk8C[i] == 0) {
                 collisionTransformPointByActorMtx(arg0, COLLISION_STATE->unk6C[i], &COLLISION_STATE->unk3C[i].x, COLLISION_STATE->unk3C[i].y, &COLLISION_STATE->unk3C[i].z);
                 actorAppendCallbackPayloadA69C((s32)arg0, (Actor *)COLLISION_STATE->unk7C[i], COLLISION_STATE->unk3C[i].x, COLLISION_STATE->unk3C[i].z, 1, 1);
@@ -1619,11 +1619,11 @@ void actorDispatchCollisionResults(Actor *arg0) {
         }
     }
 
-    if (D_807FBB70.unk91 != 0) {
+    if (gActorGlobalState.unk91 != 0) {
         actorCollisionResolveSurfaceHit(arg0, COLLISION_STATE->unkCC, &D_807FBC08, &D_807FBC14, COLLISION_STATE->unkC8, COLLISION_STATE->unkD0, COLLISION_STATE->unkD4, 1);
     }
 
-    for (i = 0; i < D_807FBB70.unk1F8; i++) {
+    for (i = 0; i < gActorGlobalState.unk1F8; i++) {
         actorCollisionResolveSurfaceHit(arg0, COLLISION_STATE->unk128[i].unkC, D_807FBC68[i], D_807FBC74[i], COLLISION_STATE->unk128[i].unk0, COLLISION_STATE->unk128[i].unk4, COLLISION_STATE->unk128[i].unk8, 0);
     }
 }
@@ -1755,33 +1755,33 @@ void func_8067ABC0(s32 arg0, Actor *arg1, u8 arg2, s16 arg3, s16 arg4, f32 arg5,
 }
 
 void actorGlobalStateClearEvents(void) {
-    D_807FBB70.unkE5 = 0;
-    D_807FBB70.unk15 = 0;
-    D_807FBB70.unk16 = 0;
-    D_807FBB70.unk17 = 0;
-    D_807FBB70.unk18 = 0;
-    D_807FBB70.unk19 = 0;
-    D_807FBB70.unk1B = 0;
-    D_807FBB70.unk1A = 0;
-    D_807FBB70.unk1C = 0;
-    D_807FBB70.unk24 = 0;
-    D_807FBB70.unk25 = 0;
-    D_807FBB70.unk2C = 0;
-    D_807FBB70.unk38 = 0;
-    D_807FBB70.unkE4 = 0;
-    D_807FBB70.unk90 = 0;
-    D_807FBB70.unk39 = 0;
-    D_807FBB70.unk91 = 0;
-    D_807FBB70.unk1F8 = 0;
-    D_807FBB70.unk1FC = 0;
-    D_807FBB70.unk200 = 0;
-    D_807FBB70.unk201 = 0;
-    D_807FBB70.unk254 = 0;
-    D_807FBB70.unk2 = 0;
-    D_807FBB70.unk0 = 0;
-    D_807FBB70.unkE8 = 0.0f;
-    D_807FBB70.unkF0 = 0.0f;
-    D_807FBB70.unkF4 = 0.0f;
+    gActorGlobalState.unkE5 = 0;
+    gActorGlobalState.unk15 = 0;
+    gActorGlobalState.unk16 = 0;
+    gActorGlobalState.unk17 = 0;
+    gActorGlobalState.unk18 = 0;
+    gActorGlobalState.unk19 = 0;
+    gActorGlobalState.unk1B = 0;
+    gActorGlobalState.unk1A = 0;
+    gActorGlobalState.unk1C = 0;
+    gActorGlobalState.unk24 = 0;
+    gActorGlobalState.unk25 = 0;
+    gActorGlobalState.unk2C = 0;
+    gActorGlobalState.unk38 = 0;
+    gActorGlobalState.unkE4 = 0;
+    gActorGlobalState.unk90 = 0;
+    gActorGlobalState.unk39 = 0;
+    gActorGlobalState.unk91 = 0;
+    gActorGlobalState.unk1F8 = 0;
+    gActorGlobalState.unk1FC = 0;
+    gActorGlobalState.unk200 = 0;
+    gActorGlobalState.unk201 = 0;
+    gActorGlobalState.unk254 = 0;
+    gActorGlobalState.unk2 = 0;
+    gActorGlobalState.unk0 = 0;
+    gActorGlobalState.unkE8 = 0.0f;
+    gActorGlobalState.unkF0 = 0.0f;
+    gActorGlobalState.unkF4 = 0.0f;
 }
 
 void func_8067ACB4(Actor *arg0) {
@@ -1957,12 +1957,12 @@ typedef struct PlayerContext5C414 {
 } PlayerContext5C414;
 
 extern u8 gPlayerCharacterId[];
-extern PlayerContextArray950 D_807FC950[];
+extern PlayerContextArray950 gPlayerInventoryTable[];
 extern void *D_807FD568;
 extern s32 D_807ECDEC;
 extern u16 D_807ECDF0;
 extern PlayerContext5C414 D_8075C414[];
-extern s16 D_807FD584;
+extern s16 gCurrentCharacterIndex;
 
 void playerSetActiveGlobals(Actor *arg0) {
     u8 temp_v0;
@@ -1972,11 +1972,11 @@ void playerSetActiveGlobals(Actor *arg0) {
     gCurrentPlayerIndex = ((PlayerContextSub174 *)gActivePlayerState)->playerIndex;
     temp_v0 = gPlayerCharacterId[gCurrentPlayerIndex];
     player = (PlayerContextEntry *)gPlayerSlots + gCurrentPlayerIndex;
-    D_807FBB48 = player->actor;
-    D_807FD568 = &D_807FC950[gCurrentPlayerIndex].sub[temp_v0];
+    gActivePlayerActor = player->actor;
+    D_807FD568 = &gPlayerInventoryTable[gCurrentPlayerIndex].sub[temp_v0];
     D_807ECDEC = player->unk294;
     D_807ECDF0 = *player->unk298;
-    D_807FD584 = D_8075C414[temp_v0].unk0;
+    gCurrentCharacterIndex = D_8075C414[temp_v0].unk0;
     player->unk2C1 = 0;
 }
 

@@ -95,12 +95,12 @@ typedef struct ModelAnimEntryRaw {
     u8 unk13;
 } ModelAnimEntryRaw;
 
-extern ModelSlot *D_807F6000;
+extern ModelSlot *gModelSlots;
 
 u32 modelSlotDataSize(arg0)
 s16 arg0;
 {
-    u8 *p = D_807F6000[arg0].unk24;
+    u8 *p = gModelSlots[arg0].unk24;
 
     return *(u32 *)(p + *(s32 *)(p + 0x68));
 }
@@ -129,8 +129,8 @@ u8 *arg0;
     f32 d;
     f32 e;
 
-    obj = D_807F6000[arg1].unk24;
-    dst = (u8 **)D_807F6000[arg1].unk78;
+    obj = gModelSlots[arg1].unk24;
+    dst = (u8 **)gModelSlots[arg1].unk78;
     n = *(s32 *)(obj + *(s32 *)(obj + 0x68));
     memcpy(dst[0], arg0, n);
     memcpy(dst[1], arg0, n);
@@ -167,7 +167,7 @@ s16 arg0;
     u8 *p;
     s32 i;
 
-    base = (u32 *)D_807F6000[hashTableLookup(arg0)].unk78;
+    base = (u32 *)gModelSlots[hashTableLookup(arg0)].unk78;
     D_807F6BEC = 0;
     if (base != NULL) {
         D_807F6BE0 = base[gGfxBufferIndex];
@@ -611,7 +611,7 @@ void modelAnimEntrySetUnk13(s16 arg0, s16 arg1, u8 arg2, f32 arg3) {
     u32 value;
     s32 level;
 
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         value = (u32)(8.0f * arg3);
@@ -627,7 +627,7 @@ void modelAnimEntryStart(s16 arg0, s16 arg1, s16 arg2) {
     ModelAnimGroup *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unkA = arg2;
@@ -640,7 +640,7 @@ void modelAnimEntryStop(s16 arg0, s16 arg1) {
     ModelAnimGroup *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unkE = 0;
@@ -652,7 +652,7 @@ void modelAnimEntryClearTime(s16 arg0, s16 arg1) {
     ModelAnimGroup *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unk11 = 0;
@@ -664,7 +664,7 @@ void modelAnimEntrySetUnkC(s16 arg0, s16 arg1, s16 arg2) {
     ModelAnimGroup *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unkC = arg2;
@@ -674,7 +674,7 @@ void modelAnimEntrySetUnkC(s16 arg0, s16 arg1, s16 arg2) {
 s16 modelAnimEntryGetUnkC(s16 arg0, s16 arg1) {
     ModelAnimGroup *group;
 
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         return group->entries[arg1].unkC;
     }
@@ -685,7 +685,7 @@ void modelAnimEntrySetTime(s16 arg0, s16 arg1, s16 arg2, f32 arg3) {
     ModelAnimGroup *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unk4 = arg3;
@@ -697,7 +697,7 @@ void modelAnimEntrySetUnkF(s16 arg0, s16 arg1, s16 arg2) {
     ModelAnimGroup *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unkF = arg2;
@@ -708,7 +708,7 @@ void modelAnimEntrySetUnk10(s16 arg0, s16 arg1, s16 arg2) {
     ModelAnimGroup *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unk10 = arg2;
@@ -719,7 +719,7 @@ void modelAnimEntryResetFrame(s16 arg0, s16 arg1, s16 arg2) {
     ModelAnimGroup *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unk8 = 0;
@@ -731,7 +731,7 @@ void modelAnimEntrySetUnk12(s16 arg0, s16 arg1, s16 arg2) {
     ModelAnimGroup *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         entry->unk12 = arg2;
@@ -744,7 +744,7 @@ u8 modelAnimEntryIsActive(s16 arg0, s16 arg1) {
     u8 result;
 
     result = 0;
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         flag = 0;
         if (group->entries[arg1].unkE == 1) {
@@ -762,7 +762,7 @@ void modelAnimEntryGetState(s16 arg0, s16 arg1, s16 *arg2, f32 *arg3, u8 *arg4) 
     ModelAnimGroup *group;
     ModelAnimEntry *entry;
 
-    group = (ModelAnimGroup *)D_807F6000[hashTableLookup(arg0)].unk78;
+    group = (ModelAnimGroup *)gModelSlots[hashTableLookup(arg0)].unk78;
     if (group != NULL) {
         entry = &group->entries[arg1];
         *arg3 = entry->unk4;

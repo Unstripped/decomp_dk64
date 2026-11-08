@@ -192,10 +192,10 @@ typedef struct BossConfig {
     u8 unkD;
 } BossConfig;
 
-extern BossPlayerActor *D_807FBB4C;
-extern u8 D_807444EC;
-extern u8 D_8076A0B1;
-extern s8 D_8076A0B3;
+extern BossPlayerActor *gPrimaryPlayerActor;
+extern u8 gGameMode;
+extern u8 gScreenRenderFlags;
+extern s8 sHudDisabled;
 
 void camEndPath(s32);
 void currentActorClearFlag();
@@ -218,7 +218,7 @@ u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
     u8 didLoop;
     u8 tmp;
 
-    playerData = D_807FBB4C->unk174;
+    playerData = gPrimaryPlayerActor->unk174;
     s0 = BA40->unk178;
     didLoop = 0;
     advanceScript = 1;
@@ -238,12 +238,12 @@ u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
         camStartPath(gCurrentActor, script[s0->unk15++], 1);
         break;
     case 0x5E:
-        if (D_807444EC == 1) {
+        if (gGameMode == 1) {
             camEndPath(playerData->unk104);
         }
-        D_8076A0B3 = 0;
+        sHudDisabled = 0;
         BA40->unk60 &= ~4;
-        D_8076A0B1 |= 0x10;
+        gScreenRenderFlags |= 0x10;
         s0->unk4 = script[s0->unk15++] * 30;
         break;
     case 0x5D:
@@ -558,7 +558,7 @@ typedef struct BossSoundState {
     s16 unk10;
 } BossSoundState;
 
-extern BossPlayerActor *D_807FBB48;
+extern BossPlayerActor *gActivePlayerActor;
 extern s16 D_800359A0[];
 extern s16 D_800359AC[];
 extern s16 D_800359B8[];
@@ -593,11 +593,11 @@ void bossRoundFrame(u8 *script) {
     scriptState = BA40->unk178;
     mapOffset = gCurrentMap - 0xCB;
     s0 = (BossSoundState *)BA40->unk17C;
-    if (D_807FBB4C->unk80 < 30.0f) {
-        D_807FBB4C->unk7C = 780.0f;
-        D_807FBB4C->unk80 = 50.0f;
-        D_807FBB4C->unk84 = 750.0f;
-        func_80714CC0((s32)D_8071FE08, 1.0f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84);
+    if (gPrimaryPlayerActor->unk80 < 30.0f) {
+        gPrimaryPlayerActor->unk7C = 780.0f;
+        gPrimaryPlayerActor->unk80 = 50.0f;
+        gPrimaryPlayerActor->unk84 = 750.0f;
+        func_80714CC0((s32)D_8071FE08, 1.0f, gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk80, gPrimaryPlayerActor->unk84);
     }
     if (!(BA40->unk60 & 0x10)) {
         slotQueueSetDisplayMode(5, 0, 1);
@@ -691,7 +691,7 @@ void bossRoundFrame(u8 *script) {
             }
         }
     }
-    if ((D_807FBB48->unk154 == 0x67) || (sfxGetChannelVolume(0xF) > 0.1)) {
+    if ((gActivePlayerActor->unk154 == 0x67) || (sfxGetChannelVolume(0xF) > 0.1)) {
         s0->unkE = 0x1D4C;
         if (s0->unk10 - 0x3E8 < 0x1D4C) {
             s0->unk10 = 0x1D4C;

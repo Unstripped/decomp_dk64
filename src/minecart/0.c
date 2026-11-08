@@ -134,7 +134,7 @@ typedef struct Struct_807FBB4C {
 } Struct_807FBB4C;
 
 extern Struct_807FBB40 *gCurrentActor;
-extern Struct_807FBB4C *D_807FBB4C;
+extern Struct_807FBB4C *gPrimaryPlayerActor;
 
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 s32 textTableGetString();
@@ -151,7 +151,7 @@ void minecartTriggerLoss(u8 useCutsceneCam, u8 textIndex) {
     playerStateQueueCallback(0x44, 0, 0);
     gCurrentActor->unk154++;
     if (useCutsceneCam != 0) {
-        camStartPath(D_807FBB4C, 5, 5);
+        camStartPath(gPrimaryPlayerActor, 5, 5);
     }
 }
 
@@ -163,7 +163,7 @@ void minecartTriggerWin(u8 useCutsceneCam, u8 textIndex) {
     playerStateQueueCallback(0x43, 0, 0);
     gCurrentActor->unk154++;
     if (useCutsceneCam != 0) {
-        camStartPath(D_807FBB4C, 5, 5);
+        camStartPath(gPrimaryPlayerActor, 5, 5);
     }
 }
 
@@ -370,7 +370,7 @@ void minecartUpdatePhysics(void) {
         }
     }
     minecartPlayerCartUpdate(3, (s32)&D_80028C40, cart->unk2, 0x19);
-    if (D_807FBB4C->unk12C != 0x12 && D_807FBB4C->unk12C != 0xB) {
+    if (gPrimaryPlayerActor->unk12C != 0x12 && gPrimaryPlayerActor->unk12C != 0xB) {
         minecartUpdateHeadlight();
     }
     if (gCurrentActor->unk154 != 0) {
@@ -404,7 +404,7 @@ void minecartReverseTrackBehaviour(void) {
     s0 = gCurrentActor->unk174;
     prevVertPos = s0->unk0;
     if (!(gCurrentActor->unk60 & 0x10)) {
-        actorSetUniformScale(D_807FBB4C, 0.12f);
+        actorSetUniformScale(gPrimaryPlayerActor, 0.12f);
         gCurrentActor->unkC4 = D_807502F8;
         gCurrentActor->unkC8 = D_807502D0;
         s0->unk24 = 0.1f;
@@ -418,8 +418,8 @@ void minecartReverseTrackBehaviour(void) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8B, 0xFF, 0x7F, 0x1E);
         }
     }
-    if (((MinecartPlayerActorFlags *)D_807FBB4C)->unk6A & 0x100) {
-        ((MinecartPlayerActorFlags *)D_807FBB4C)->unk6A &= ~0x100;
+    if (((MinecartPlayerActorFlags *)gPrimaryPlayerActor)->unk6A & 0x100) {
+        ((MinecartPlayerActorFlags *)gPrimaryPlayerActor)->unk6A &= ~0x100;
         gCurrentActor->unk168 = 2;
     }
     minecartPlayerCartUpdate(1, (s32)&D_80028C48, 0x7FFF, 0x23);
@@ -495,7 +495,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
     f32 scale;
 
     cart = gCurrentActor->unk174;
-    playerState = D_807FBB4C->unk174;
+    playerState = gPrimaryPlayerActor->unk174;
     if (!(gCurrentActor->unk60 & 0x10)) {
         cart->unk30 = heapAlloc(3);
         cart->unk30[0] = 0x10;
@@ -511,7 +511,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
         diff = (gPlayerSlots->unk214 - gCurrentActor->unk80) - 100.0f;
         scale = (f32)(((f64)diff / 650.0 * 0.15) + .15);
         actorSetUniformScale(gCurrentActor, scale);
-        actorSetUniformScale(D_807FBB4C, scale);
+        actorSetUniformScale(gPrimaryPlayerActor, scale);
     }
     if (playerState->stateFlags & 8) {
         cart->unk3E = 3;
@@ -544,7 +544,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
         break;
     case 5:
         actorSetUniformScale(gCurrentActor, 0.15f);
-        actorSetUniformScale(D_807FBB4C, 0.225f);
+        actorSetUniformScale(gPrimaryPlayerActor, 0.225f);
         gCurrentActor->unkE4 = 0;
         gCurrentActor->unk154++;
         break;
@@ -707,7 +707,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
         if (*cart->unk34 == 0xFF) {
             gCurrentActor->unk154++;
         }
-        if (gActivePlayerState->unk1FC != 0 && cart->unk4 == (void *)D_807FBB4C) {
+        if (gActivePlayerState->unk1FC != 0 && cart->unk4 == (void *)gPrimaryPlayerActor) {
             cart->unk3F = gActivePlayerState->unk1FC;
             gActivePlayerState->unk1FC = 0;
         } else if (gCurrentMap == 0x6A) {

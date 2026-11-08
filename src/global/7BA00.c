@@ -8,7 +8,7 @@ typedef struct PlayerData {
 } PlayerData;
 
 extern PlayerData *gPlayerSlots;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 playerCanTakeHit(Actor*);
 
@@ -16,15 +16,15 @@ void actorTriggerPlayerKnockbackSound(Actor* attacker, Actor* target, s32 unused
     u8 kong;
     u8* beh;
 
-    if (target == D_807FBB4C) {
+    if (target == gPrimaryPlayerActor) {
         beh = target->unk174;
         kong = beh[0x1A4];
         *(s32*)(beh + 0x1F0) |= 0x80000;
         if (*(s16*)(beh + 0xD4) == (beh[0x1A4] * 0)) { // FAKE: keeps kong live across check
-            if (D_807FBB4C->state != 0x36) {
-                if (playerCanTakeHit(D_807FBB4C)) {
-                    if (D_807FBB4C->actorType == 6 && gPlayerSlots[kong].unk2C0 == 2) {
-                        if (D_807FBB4C->state != 0x31) {
+            if (gPrimaryPlayerActor->state != 0x36) {
+                if (playerCanTakeHit(gPrimaryPlayerActor)) {
+                    if (gPrimaryPlayerActor->actorType == 6 && gPlayerSlots[kong].unk2C0 == 2) {
+                        if (gPrimaryPlayerActor->state != 0x31) {
                             if (attacker->collisionFlags & 0x80) {
                                 sfxPlayAtPositionPooled(target->x, target->y, target->z, 0x1E0, 0xFF, 0x64, 0x1E, 0, 0.3f, 0);
                             }

@@ -38,7 +38,7 @@ typedef struct BossD_Actor {
 } BossD_Actor;
 
 extern BossD_Actor *gCurrentActor;
-extern BossD_Actor *D_807FBB4C;
+extern BossD_Actor *gPrimaryPlayerActor;
 
 void camStartPath(void *, s32, u8);
 s32 camIsCutsceneActive(void);
@@ -138,7 +138,7 @@ void lightSetColor(f32, f32, f32, s32);
 void enemyAggroEnable(void);
 
 #define SPAWNER_ACTOR ((BossSpawnerActor *)gCurrentActor)
-#define SPAWNER_PLAYER ((BossSpawnerActor *)D_807FBB4C)
+#define SPAWNER_PLAYER ((BossSpawnerActor *)gPrimaryPlayerActor)
 
 void bossSpawnerUpdate(void) {
     f32 dx;
@@ -189,7 +189,7 @@ void bossSpawnerUpdate(void) {
         }
         D_80036DC4 = 160000.0f;
         D_80036DC0 = 0;
-        if (D_807FBB4C != NULL) {
+        if (gPrimaryPlayerActor != NULL) {
             SPAWNER_PLAYER->unk154 = 0x77;
             SPAWNER_PLAYER->unk155 = 0;
         }
@@ -217,10 +217,10 @@ void bossSpawnerUpdate(void) {
             D_80036DC0++;
             cutsceneId = D_80035B4C[cutsceneId];
             playerSetKongByActorType(cutsceneId);
-            func_806F09F0(D_807FBB4C, cutsceneId);
+            func_806F09F0(gPrimaryPlayerActor, cutsceneId);
             SPAWNER_PLAYER->unk154 = 0xC;
             SPAWNER_PLAYER->unk155 = 0;
-            func_8067AAB8(gCurrentActor, D_807FBB4C, 0, 180.0f, 0x46);
+            func_8067AAB8(gCurrentActor, gPrimaryPlayerActor, 0, 180.0f, 0x46);
             SPAWNER_ACTOR->unk154 = 1;
             SPAWNER_PLAYER->unk144 = D_80035B38;
         }
@@ -244,7 +244,7 @@ void bossSpawnerUpdate(void) {
         if (s->unkE < 0) {
             SPAWNER_ACTOR->unk154 = 0;
             playerSetKongByActorType(4);
-            func_806F09F0(D_807FBB4C, 4);
+            func_806F09F0(gPrimaryPlayerActor, 4);
             s->unk13 = 1;
         }
         break;
@@ -586,8 +586,8 @@ void bossFollowerActorUpdate(void) {
     static s16 D_80035B74 = 0x78; // function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
 
     if (sub174->unk5 == 0) {
-        f32 dx = D_807FBB4C->unk7C - ACTOR->unk7C;
-        f32 dz = D_807FBB4C->unk84 - ACTOR->unk84;
+        f32 dx = gPrimaryPlayerActor->unk7C - ACTOR->unk7C;
+        f32 dz = gPrimaryPlayerActor->unk84 - ACTOR->unk84;
         D_80036DC4 = dx * dx + dz * dz;
     }
     if (!(ACTOR->unk60 & 0x10)) {
@@ -647,7 +647,7 @@ void bossFollowerActorUpdate(void) {
                     f32 xo = D_80035B18[parentState->unk14];
                     D_80035B74 = 0xA;
                     projectileSetTargetCoords(ACTOR->unk7C + xo, ACTOR->unk80 + 270.0f, ACTOR->unk84 + zo);
-                    projectileAimAndSpawn(0x2C, 1, 0.25f, D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, 2400.0f, ACTOR);
+                    projectileAimAndSpawn(0x2C, 1, 0.25f, gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk80, gPrimaryPlayerActor->unk84, 2400.0f, ACTOR);
                 }
             } else {
                 D_80035B74 = 0;

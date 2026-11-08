@@ -49,7 +49,7 @@ typedef struct {
 } BossE_F0D0_FDCA0;
 
 extern BossE_F0D0_Actor *gCurrentActor;
-extern BossE_F0D0_Actor *D_807FBB4C;
+extern BossE_F0D0_Actor *gPrimaryPlayerActor;
 extern BossE_F0D0_FDCA0 *D_807FDCA0;
 void actorScriptStart(void *, s32);
 void actorScriptExecute(void *);
@@ -83,14 +83,14 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *sub14, u8 *waypointIndices) {
     min_dist = 0x98967F;
     start_val = val;
     for (i = 0; i < 16; i++) {
-        dists[i] = (s32)(((f32)D_807FDCA0->unk14[i].unk0 - D_807FBB4C->unk7C) * ((f32)D_807FDCA0->unk14[i].unk0 - D_807FBB4C->unk7C) + ((f32)D_807FDCA0->unk14[i].unk4 - D_807FBB4C->unk84) * ((f32)D_807FDCA0->unk14[i].unk4 - D_807FBB4C->unk84));
+        dists[i] = (s32)(((f32)D_807FDCA0->unk14[i].unk0 - gPrimaryPlayerActor->unk7C) * ((f32)D_807FDCA0->unk14[i].unk0 - gPrimaryPlayerActor->unk7C) + ((f32)D_807FDCA0->unk14[i].unk4 - gPrimaryPlayerActor->unk84) * ((f32)D_807FDCA0->unk14[i].unk4 - gPrimaryPlayerActor->unk84));
         if (dists[i] < min_dist) {
             min_dist = dists[i];
             waypointIndices[3] = i;
         }
     }
 
-    if (D_807FBB4C->unk80 < gCurrentActor->unk80 - 10.0f) {
+    if (gPrimaryPlayerActor->unk80 < gCurrentActor->unk80 - 10.0f) {
         BossWaypointPick center = D_80035B80;
         return center.b[(randomNonNegative() >> 15) % 4];
     }
@@ -229,7 +229,7 @@ void bossSpawnObjectAtWaypoint(u8 *waypointIndex) {
 }
 
 s32 bossCheckPlayerBelow(BossE_F0D0_Sub14 *sub14, u8 *scriptOpcodes) {
-    if ((D_807FBB4C->unk80 < (gCurrentActor->unk80 - 10.0f)) && (sub14->unk14 < 5)) {
+    if ((gPrimaryPlayerActor->unk80 < (gCurrentActor->unk80 - 10.0f)) && (sub14->unk14 < 5)) {
         sub14->unk15 = sub14->unk16;
         gCurrentActor->unk154 = scriptOpcodes[sub14->unk15];
         sub14->unk15++;
@@ -344,7 +344,7 @@ typedef struct BossF_Pts {
 } BossF_Pts;
 
 #define BF ((BossF_Actor *)gCurrentActor)
-#define BP ((BossF_Actor *)D_807FBB4C)
+#define BP ((BossF_Actor *)gPrimaryPlayerActor)
 #define BX ((BossF_Extra *)gBehaviourWorkState)
 #define BPTS ((BossF_Pts *)D_807FDCA0)
 
@@ -590,7 +590,7 @@ void bossMainStep(void) {
             }
             break;
         case 6:
-            actorTurnTowardActorYaw(0xA, D_807FBB4C);
+            actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
             break;
         case 7:
             actorScriptStart(gCurrentActor, 0x222);
@@ -700,7 +700,7 @@ void bossMainStep(void) {
         break;
     case 0x25:
     case 0x28:
-        actorTurnTowardActorYaw(0xA, D_807FBB4C);
+        actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
         if (bossCheckPlayerBelow((BossE_F0D0_Sub14 *)st, tbl) != 0) {
             bossSetRandomObjectPair(sub, 0);
         } else if (func_80724A20() == 0) {
@@ -957,10 +957,10 @@ void bossShockwaveTriggerDamage(void) {
     switch (gCurrentActor->unk155) {
     case 1:
         if (gCurrentActor->unk154 == 0) {
-            dx = D_807FBB4C->unk7C - gCurrentActor->unk7C;
-            dz = D_807FBB4C->unk84 - gCurrentActor->unk84;
+            dx = gPrimaryPlayerActor->unk7C - gCurrentActor->unk7C;
+            dz = gPrimaryPlayerActor->unk84 - gCurrentActor->unk84;
             if (dx * dx + dz * dz < 4225.0f) {
-                if (D_807FBB4C->unk154 != 0x31) {
+                if (gPrimaryPlayerActor->unk154 != 0x31) {
                     playerStateQueueCallback(0x2E, gCurrentActor, 0);
                 }
                 gCurrentActor->unk154++;

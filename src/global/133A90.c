@@ -2,7 +2,7 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB48;
+extern Actor *gActivePlayerActor;
 extern void *gPlayerSlots;
 
 typedef struct ProxPathSegment {
@@ -301,7 +301,7 @@ typedef struct H1SlotEntry {
     /* 0x86 */ u8 pad86[0xA];
 } H1SlotEntry; // size = 0x90
 
-extern H1SlotEntry *D_807F6000;
+extern H1SlotEntry *gModelSlots;
 s32 hashTableLookup();
 
 u8 proxPathGetActorPosition(Actor *actor, u8 mode, f32 *outX, f32 *outY, f32 *outZ) {
@@ -318,10 +318,10 @@ u8 proxPathGetActorPosition(Actor *actor, u8 mode, f32 *outX, f32 *outY, f32 *ou
     case 1:
     case 2:
         slot = hashTableLookup(actor);
-        *outX = D_807F6000[slot].unk0;
-        *outY = D_807F6000[slot].unk4;
-        *outZ = D_807F6000[slot].unk8;
-        if (*D_807F6000[slot].unk24 & 1) {
+        *outX = gModelSlots[slot].unk0;
+        *outY = gModelSlots[slot].unk4;
+        *outZ = gModelSlots[slot].unk8;
+        if (*gModelSlots[slot].unk24 & 1) {
             ret = 1;
         }
         break;
@@ -332,7 +332,7 @@ u8 proxPathGetActorPosition(Actor *actor, u8 mode, f32 *outX, f32 *outY, f32 *ou
 void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void modelSlotGetNodePos(void *, s32, s32, f32 *, f32 *, f32 *);
-extern s16 D_807FD584;
+extern s16 gCurrentCharacterIndex;
 extern s16 D_80753B74[];
 s32 mathAngleDistance(s16, s16);
 f32 mathAtan2(f32, f32);
@@ -364,7 +364,7 @@ s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *o
         r2 = path->unk20 * path->unk20;
     }
     if (path->unk6 == 1) {
-        r2 += D_80753B74[D_807FD584];
+        r2 += D_80753B74[gCurrentCharacterIndex];
     }
     for (i = 0; i < path->unk7; i++) {
         if (path->unk34[i].unk18 == 0) {
@@ -409,10 +409,10 @@ s32 proxPathSegmentAngleCheck(ProxPath *path, s32 segmentIndex, s16 angle) {
         return 1;
     }
     slot = hashTableLookup(path->unk0);
-    if (!(D_807F6000[slot].unk84 == 0xC9 || D_807F6000[slot].unk84 == 0xCA || D_807F6000[slot].unk84 == 0x1CB || D_807F6000[slot].unk84 == 0x1F7 || D_807F6000[slot].unk84 == 0x1F8)) {
+    if (!(gModelSlots[slot].unk84 == 0xC9 || gModelSlots[slot].unk84 == 0xCA || gModelSlots[slot].unk84 == 0x1CB || gModelSlots[slot].unk84 == 0x1F7 || gModelSlots[slot].unk84 == 0x1F8)) {
         return 1;
     }
-    delta = D_807F6000[slot].unk14 * 4096.0f / 360.0f;
+    delta = gModelSlots[slot].unk14 * 4096.0f / 360.0f;
     if (mathAngleInArcWithMargin((s16)((path->unk34[segmentIndex].unk10 + delta) & 0xFFF), (s16)((path->unk34[segmentIndex].unk14 + delta) & 0xFFF), angle, 0)) {
         return 1;
     }
@@ -526,7 +526,7 @@ typedef struct H1ActorView {
     /* 0xEE */ s16 unkEE;
 } H1ActorView;
 
-#define H1BB48 ((H1ActorView *)D_807FBB48)
+#define H1BB48 ((H1ActorView *)gActivePlayerActor)
 
 extern H1CamState *gActivePlayerState;
 extern u32 gFrameDelta;
@@ -566,7 +566,7 @@ void proxPathAdvance(f32 speedMultiplier) {
     if (gActivePlayerState->unk138 < node->unk8) {
         if (node->unk18 == 2 || node->unk18 == 3) {
             H1BB48->unkEE = H1BB48->unkE6;
-            playerResumeLocomotion(D_807FBB48);
+            playerResumeLocomotion(gActivePlayerActor);
         }
         gActivePlayerState->unk138 = node->unk8;
     }
@@ -781,8 +781,8 @@ void proxPathActorFollowSpline(H1ActorB *actor, H1ActorState *state, ProxPath *p
     case 1:
     case 2:
         slot = hashTableLookup(path->unk0);
-        state->unk19C = ((s32)(D_807F6000[slot].unk14 * 4096.0f / 360.0f) + state->unk19C) & 0xFFF;
-        state->unk19E = ((s32)(D_807F6000[slot].unk14 * 4096.0f / 360.0f) + state->unk19E) & 0xFFF;
+        state->unk19C = ((s32)(gModelSlots[slot].unk14 * 4096.0f / 360.0f) + state->unk19C) & 0xFFF;
+        state->unk19E = ((s32)(gModelSlots[slot].unk14 * 4096.0f / 360.0f) + state->unk19E) & 0xFFF;
         break;
     case 0:
         state->unk19C = (state->unk19C + path->unk0->yaw) & 0xFFF;

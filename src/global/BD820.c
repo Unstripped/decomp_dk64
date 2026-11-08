@@ -2,9 +2,9 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
-extern u8 D_807FBD70;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
+extern u8 gBossFightPhase;
 
 typedef struct BD820Actor {
     /* 0x000 */ u8 pad0[0xC0];
@@ -25,7 +25,7 @@ typedef struct BD820View9C {
 #define BD820S9C ((BD820View9C *)gBehaviourExtraState)
 
 extern void *D_8074E880[];
-extern u8 D_8071FFA0[];
+extern u8 sEffectSparkConfig[];
 extern void effectWispWanderUpdate(void);
 extern void func_80717D4C(void);
 
@@ -59,7 +59,7 @@ void func_806B8BDC(s16 x, s16 y, s16 z) {
     func_80714950(-0x28);
     func_807149B8(1);
     func_807149C8(0xFF, 0xFF, 0xFF, 0xC8);
-    func_80714CC0(D_8071FFA0, 2.0f, x, y, z);
+    func_80714CC0(sEffectSparkConfig, 2.0f, x, y, z);
 }
 
 extern s16 gCsModelIds[];
@@ -161,9 +161,9 @@ void func_806B904C(void) {
         modelSlotOrFlags(5, 0x10);
         modelSlotOrFlags(7, 0x10);
     }
-    for (i = 0; i < D_807FBB70.unk254; i++) {
-        if (D_807FBB70.unk258[i] == 3) {
-            gCurrentActor->state = D_807FBB70.unk278[i][1];
+    for (i = 0; i < gActorGlobalState.unk254; i++) {
+        if (gActorGlobalState.unk258[i] == 3) {
+            gCurrentActor->state = gActorGlobalState.unk278[i][1];
             gCurrentActor->unk155[0] = 0;
         }
     }

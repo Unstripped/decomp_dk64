@@ -13,7 +13,7 @@ extern s32 __osMotorAccess(OSPfs *, s32);
 
 extern s32 gRumblePaused;
 extern u8 gRumbleResetPending;
-extern u8 D_8076A0B1;
+extern u8 gScreenRenderFlags;
 extern u32 gFrameCounter;
 extern u8 D_807ECD09;
 extern OSMesgQueue D_807ECCF0;
@@ -154,7 +154,7 @@ void rumbleInit(void) {
 
 int rumbleShouldPause(void) {
     return ((gGlobalPauseFlags & 0x4002) != 0) ||
-           ((D_8076A0B1 & 1) != 0) ||
+           ((gScreenRenderFlags & 1) != 0) ||
            (screenWipeGetState() != 0) ||
            (camIsCutsceneActive() != 0) ||
            (menuIsTransitionType6() == 0 && menuIsTransitionTypeC() == 0 && menuIsTransitionTypeD() == 0);

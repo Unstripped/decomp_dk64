@@ -37,7 +37,7 @@ typedef struct BonusEObj {
 s32 actorSpawn(s32, s32);
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 
 Gfx *bonusRenderReelHud(Gfx *gdl, Actor *actor) {
     LB3Obj *reelObj = actor->unk174;
@@ -94,8 +94,8 @@ void bonusSpawnEffectBurst(s16 x, s16 y, s16 z, s16 count) {
 void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
 void bonusReelNextRound(LB3Obj *obj) {
-    LB3Player *player = D_807FBB4C->unk174;
-    camSetTarget(player->unk104, D_807FBB4C, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
+    LB3Player *player = gPrimaryPlayerActor->unk174;
+    camSetTarget(player->unk104, gPrimaryPlayerActor, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
     gCurrentActor->state = 3;
     gCurrentActor->unk155[0] = 1;
     gCurrentActor->yawSpeed = 0;
@@ -118,8 +118,8 @@ void bonusInitActors(LB3Obj *obj, u8 timerVal) {
 #pragma GLOBAL_ASM("asm/bonus/nonmatchings/12A0/D_8002DCA8.s")
 
 extern s32 gCurrentMap;
-extern Actor *D_807FBB48;
-extern u8 D_807444EC;
+extern Actor *gActivePlayerActor;
+extern u8 gGameMode;
 extern s32 D_807457E4[];
 extern u8 D_80720CF0;
 s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
@@ -153,7 +153,7 @@ void bonusReelGameUpdate(void) {
     s32 two;
 
     two = 2;
-    player = D_807FBB4C->unk174;
+    player = gPrimaryPlayerActor->unk174;
     obj = gCurrentActor->unk174;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->x = 52.0f;
@@ -167,7 +167,7 @@ void bonusReelGameUpdate(void) {
         obj->act[2] = bonusSpawnReel(0x92, 7, 1, 0x12);
         obj->act[3] = bonusSpawnReel(0x93, 0x15, 1, 0x12);
         playerStateQueueCallback(0x49, 0, 0);
-        camSetTargetScaled(player->unk104, D_807FBB4C, 6, 0, 0xAA, 0, 0, 0, 0, 0, 1.0f);
+        camSetTargetScaled(player->unk104, gPrimaryPlayerActor, 6, 0, 0xAA, 0, 0, 0, 0, 0, 1.0f);
         camStartPath(0, 1, 1);
         switch (gCurrentMap) {
         case 0x20:
@@ -200,7 +200,7 @@ void bonusReelGameUpdate(void) {
     case 0:
         switch (gCurrentActor->unk155[0]) {
         case 0:
-            if (D_807444EC != 1) {
+            if (gGameMode != 1) {
                 func_8070D8C0(gCurrentActor, 0, 3);
                 gCurrentActor->unk155[0] += 1;
             }
@@ -249,7 +249,7 @@ void bonusReelGameUpdate(void) {
                 obj->unk12 = -0x40;
                 bonusInitActors(obj, (u32)((f32)obj->unk1E + (f32)(obj->unk1D - obj->unk1E) * ((f32)(obj->unk16 - 1) / (f32)two)));
                 gCurrentActor->soundSlot = sfxPlayOnFreeSlot(0x24D, 0x7FFF, 64.0f, 1.0f, 0, 0);
-                camSetTarget(player->unk104, D_807FBB48, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
+                camSetTarget(player->unk104, gActivePlayerActor, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
             } else if (obj->unk10 < 0x400) {
                 gCurrentActor->state = 5;
                 gCurrentActor->unk155[0] = 0;
@@ -281,7 +281,7 @@ void bonusReelGameUpdate(void) {
                 func_806FDAB8(obj->unk19, 3.1415927f);
                 obj->unk16 -= 1;
                 if (obj->unk16 == 0) {
-                    D_807FBB4C->unk155[0] = 1;
+                    gPrimaryPlayerActor->unk155[0] = 1;
                     bonusEndWin(0, 0);
                     gCurrentActor->state = 8;
                     obj->unk10 = 0;
@@ -296,7 +296,7 @@ void bonusReelGameUpdate(void) {
                 bonusReelNextRound(obj);
             }
         } else {
-            D_807FBB4C->unk155[0] = 2;
+            gPrimaryPlayerActor->unk155[0] = 2;
             bonusEndLose(0, 1);
             gCurrentActor->state = 9;
             obj->unk10 = 0;
@@ -391,7 +391,7 @@ void bonusEndWin(u8 useCutsceneCam, u8 textIndex) {
     playerStateQueueCallback(0x44, 0, 0);
     gCurrentActor->state += 1;
     if (useCutsceneCam != 0) {
-        camStartPathNearWall(D_807FBB4C, 5, 0x21, 5);
+        camStartPathNearWall(gPrimaryPlayerActor, 5, 0x21, 5);
     }
 }
 
@@ -402,6 +402,6 @@ void bonusEndLose(u8 useCutsceneCam, u8 textIndex) {
     playerStateQueueCallback(0x43, 0, 0);
     gCurrentActor->state += 1;
     if (useCutsceneCam != 0) {
-        camStartPathNearWall(D_807FBB4C, 5, 0x21, 5);
+        camStartPathNearWall(gPrimaryPlayerActor, 5, 0x21, 5);
     }
 }

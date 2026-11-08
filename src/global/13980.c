@@ -30,8 +30,8 @@ s8 D_80746848 = 0;
 u32 D_8074684C[3] = { 0xF, 2, 0x1E };
 s16 D_80746858 = 0;
 
-extern u8 D_807444EC;
-extern u8 D_8076A0B1;
+extern u8 gGameMode;
+extern u8 gScreenRenderFlags;
 
 void schedCreate(SchedStruct *, void *, s32, u8, u8);
 void schedAddClient(SchedStruct *, TaskNode *, s32, s32, s32);
@@ -272,8 +272,8 @@ void schedHandleRetrace(SchedStruct *sc) {
         osViSwapBuffer((void *)gFramebuffers[0]);
     }
     if (D_807F04E0 != NULL) {
-        if (D_8076A0B1 & 2) {
-            D_8076A0B1 ^= 2;
+        if (gScreenRenderFlags & 2) {
+            gScreenRenderFlags ^= 2;
             osViBlack(0);
         }
         osViSwapBuffer(D_807F04E0->framebuffer);
@@ -357,14 +357,14 @@ void schedHandleRDP(SchedStruct *sc) {
     sc->curRDPTask = NULL;
     task->flags |= 8;
 
-    if (D_807444EC == 3 || D_807444EC == 4) {
+    if (gGameMode == 3 || gGameMode == 4) {
         cond = 1;
     }
 
     if (cond || D_80746820 != sc->unk284) {
         D_807F04E0 = NULL;
-        if (D_8076A0B1 & 2) {
-            D_8076A0B1 ^= 2;
+        if (gScreenRenderFlags & 2) {
+            gScreenRenderFlags ^= 2;
             osViBlack(0);
         }
         osViSwapBuffer(task->framebuffer);

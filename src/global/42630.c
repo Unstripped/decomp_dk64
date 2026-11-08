@@ -3,9 +3,9 @@
 #include "cutscene.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
-extern u8 D_807FBD70;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
+extern u8 gBossFightPhase;
 
 typedef struct CsTimer {
     /* 0x0 */ s16 unk0;
@@ -72,7 +72,7 @@ void csModelIdTableReset(void) {
 }
 
 struct CsModelSlot;
-extern struct CsModelSlot *D_807F6000;
+extern struct CsModelSlot *gModelSlots;
 s32 hashTableLookup();
 
 typedef struct CsLoadNode {
@@ -101,7 +101,7 @@ typedef struct CsLoadSlot {
 } CsLoadSlot; /* 0x90 */
 
 s16 csModelSlotGetTableIndex(s16 modelId) {
-    return ((CsLoadSlot *)D_807F6000)[hashTableLookup(modelId)].unk8A;
+    return ((CsLoadSlot *)gModelSlots)[hashTableLookup(modelId)].unk8A;
 }
 
 s16 csModelIdTableAlloc(s16 modelId, u8 isLowTable) {
@@ -130,8 +130,8 @@ void csModelStateSetByte(s16 modelIndex, s16 val, s16 byteOffset) {
 
     slot = hashTableLookup(gCsModelIds[modelIndex]);
     if (slot != -1) {
-        ((CsLoadSlot *)D_807F6000)[slot].unk7C->unk0[byteOffset + 0x48] = val;
-        ((CsLoadSlot *)D_807F6000)[slot].unk7C->unk0[0x54] = 1;
+        ((CsLoadSlot *)gModelSlots)[slot].unk7C->unk0[byteOffset + 0x48] = val;
+        ((CsLoadSlot *)gModelSlots)[slot].unk7C->unk0[0x54] = 1;
     }
 }
 
@@ -213,12 +213,12 @@ void csScriptLoad(s16 *scriptData) {
             p++;
             slot = hashTableLookup(gCsModelIds[id]);
             if (slot != -1) {
-                ((CsLoadSlot *)D_807F6000)[slot].unk7C = heapAlloc(0xA4);
-                csStateInit(((CsLoadSlot *)D_807F6000)[slot].unk7C);
-                ((CsLoadSlot *)D_807F6000)[slot].unk7C->unkA0 = NULL;
+                ((CsLoadSlot *)gModelSlots)[slot].unk7C = heapAlloc(0xA4);
+                csStateInit(((CsLoadSlot *)gModelSlots)[slot].unk7C);
+                ((CsLoadSlot *)gModelSlots)[slot].unk7C->unkA0 = NULL;
                 m = p[0];
-                tail = &((CsLoadSlot *)D_807F6000)[slot].unk7C->unkA0;
-                ((CsLoadSlot *)D_807F6000)[slot].unk7C->unk9C = p[1];
+                tail = &((CsLoadSlot *)gModelSlots)[slot].unk7C->unkA0;
+                ((CsLoadSlot *)gModelSlots)[slot].unk7C->unk9C = p[1];
                 p += 2;
                 while (m != 0) {
                     node = heapAlloc(0x50);
@@ -424,7 +424,7 @@ void csModelStateSetVars(s32 modelIndex, u8 *varsData) {
 
     slot = hashTableLookup(gCsModelIds[modelIndex]);
     if (slot != -1) {
-        memcpy(((CsStateSlot *)D_807F6000)[slot].unk7C + 0x14, varsData, 0x20);
+        memcpy(((CsStateSlot *)gModelSlots)[slot].unk7C + 0x14, varsData, 0x20);
         gCsVarsDirty[modelIndex] = 1;
     }
 }
@@ -748,8 +748,8 @@ extern CsPlayer *gPlayerSlots;
 extern u8 *D_807FD568;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern u8 D_807FC950[];
-extern u8 D_807444EC;
+extern u8 gPlayerInventoryTable[];
+extern u8 gGameMode;
 extern u8 gPlayerCharacterId;
 extern s16 D_8076AEF2;
 extern s32 (*gCsCondTable[])(CsState *, s16, s16, s16);
@@ -824,7 +824,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x39:
-        if (cmd->a & D_807FBB4C->unk132) {
+        if (cmd->a & gPrimaryPlayerActor->unk132) {
             ret = 1;
         } else {
             ret = 0;
@@ -845,14 +845,14 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = cmd->a == D_8076AEF2;
         break;
     case 0x30:
-        if (cmd->a == ((CsCondActorData *)D_807FBB4C)->unkD1) {
+        if (cmd->a == ((CsCondActorData *)gPrimaryPlayerActor)->unkD1) {
             ret = 1;
         } else {
             ret = 0;
         }
         break;
     case 0x35:
-        if (cmd->a == ((CsCondActorData *)D_807FBB4C)->unkD0) {
+        if (cmd->a == ((CsCondActorData *)gPrimaryPlayerActor)->unkD0) {
             ret = 1;
         } else {
             ret = 0;
@@ -913,7 +913,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x34:
         h = playerLookupKongByActorType(cmd->a) * 0x5E;
-        q = &D_807FC950[gCurrentPlayerIndex * 0x306 + h];
+        q = &gPlayerInventoryTable[gCurrentPlayerIndex * 0x306 + h];
         if (*q >= cmd->b) {
             ret = 1;
         } else {
@@ -929,7 +929,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x23:
-        if (D_807444EC == 1) {
+        if (gGameMode == 1) {
             ret = 1;
         } else {
             ret = 0;
@@ -984,7 +984,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = csCompareVar(CS_COND_STATE->unk14, cmd->a, cmd->b);
         break;
     case 0x31:
-        if (((CsCondSlot *)D_807F6000)[hashTableLookup(gCsModelIds[cmd->a])].unk7C[cmd->c + 0x48] == ((s16 *)cmd)[2]) {
+        if (((CsCondSlot *)gModelSlots)[hashTableLookup(gCsModelIds[cmd->a])].unk7C[cmd->c + 0x48] == ((s16 *)cmd)[2]) {
             ret = 1;
         } else {
             ret = 0;
@@ -1122,7 +1122,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x10:
         if (CS_COND_STATE->unk5C != 0 && (cmd->b == -1 || CS_COND_STATE->unk5C == ((s16 *)cmd)[2]) &&
             (func_8067ACC0(CS_COND_STATE->unk5E) & cmd->a) && func_806419F8() != 0) {
-            func_80641724(((CsCondSlot *)D_807F6000)[hashTableLookup(csId)].unk84);
+            func_80641724(((CsCondSlot *)gModelSlots)[hashTableLookup(csId)].unk84);
             ret = 1;
         } else {
             ret = 0;
@@ -1131,7 +1131,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x18:
         if (CS_COND_STATE->unk5C != 0 && (cmd->b == -1 || CS_COND_STATE->unk5C == ((s16 *)cmd)[2]) && cmd->a == CS_COND_STATE->unk5E &&
             func_806419F8() != 0) {
-            func_80641724(((CsCondSlot *)D_807F6000)[hashTableLookup(csId)].unk84);
+            func_80641724(((CsCondSlot *)gModelSlots)[hashTableLookup(csId)].unk84);
             ret = 1;
         } else {
             ret = 0;
@@ -1165,7 +1165,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x19:
-        if (cmd->a == D_807FBB4C->actorType) {
+        if (cmd->a == gPrimaryPlayerActor->actorType) {
             ret = 1;
         } else {
             ret = 0;
@@ -1204,7 +1204,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = ((CsCondSpawn *)&D_807F61F0)->unk8;
         break;
     case 0x33:
-        height = actorGetAnimProgress(D_807FBB4C);
+        height = actorGetAnimProgress(gPrimaryPlayerActor);
         ret = 0;
         if (cmd->a == 0 && cmd->b < (s16)height) {
             ret = 1;
@@ -1261,15 +1261,15 @@ extern s16 D_8074809C[];
 extern s16 D_807480AC[];
 extern s16 D_807480BC[];
 extern s32 gCurrentMap;
-extern CsModelSlot *D_807F6000;
+extern CsModelSlot *gModelSlots;
 extern CsSpawnReq D_807F61F0;
 extern Actor *D_807F61F4;
 extern s16 gCsTrackedModels[16];
 extern u8 gCsTrackedModelCount;
 extern s16 D_807F693A;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB48;
-extern u32 D_807FBB68;
+extern Actor *gActivePlayerActor;
+extern u32 gGlobalCutsceneFlags;
 
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void actorSetStateTwo(Actor *);
@@ -1423,7 +1423,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F0 |= 0x40000800;
         break;
     case 0x91:
-        D_807FBB4C->speedXZ = cmd->a;
+        gPrimaryPlayerActor->speedXZ = cmd->a;
         break;
     case 0x93:
         camSetZoneWeight(CMDB(cmd)->a, CMDB(cmd)->b);
@@ -1438,10 +1438,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         D_807F6903 = cmd->a;
         break;
     case 0x8E:
-        dynamicBufferFree(&D_807F6000[hashTableLookup(csId)].unk28);
+        dynamicBufferFree(&gModelSlots[hashTableLookup(csId)].unk28);
         break;
     case 0x8F:
-        modelSlotTriBufferRelease(&D_807F6000[hashTableLookup(csId)].unk48);
+        modelSlotTriBufferRelease(&gModelSlots[hashTableLookup(csId)].unk48);
         break;
     case 0x85:
         func_8062D1A8();
@@ -1598,7 +1598,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
                 gCsTrackedModels[gCsTrackedModelCount] = cmd->a;
                 gCsTrackedModelCount++;
             } else {
-                gCsTrackedModels[gCsTrackedModelCount] = D_807F6000[hashTableLookup(csId)].unk8A;
+                gCsTrackedModels[gCsTrackedModelCount] = gModelSlots[hashTableLookup(csId)].unk8A;
                 gCsTrackedModelCount++;
             }
         }
@@ -1641,10 +1641,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         gGlobalPauseFlags |= ((u16)cmd->a << 16) + (u16)cmd->b;
         break;
     case 0x88:
-        D_807FBB68 |= ((u16)cmd->a << 16) + (u16)cmd->b;
+        gGlobalCutsceneFlags |= ((u16)cmd->a << 16) + (u16)cmd->b;
         break;
     case 0x89:
-        D_807FBB68 &= ~(((u16)cmd->a << 16) + (u16)cmd->b);
+        gGlobalCutsceneFlags &= ~(((u16)cmd->a << 16) + (u16)cmd->b);
         break;
     case 0x3F:
         cs->unk6E = cmd->a;
@@ -1685,7 +1685,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     case 0x54:
         slot = hashTableLookup(gCsModelIds[cmd->a]);
         if (slot != -1) {
-            func_8064199C(D_807F6000[slot].unk7C, cmd->b, cmd->c);
+            func_8064199C(gModelSlots[slot].unk7C, cmd->b, cmd->c);
         }
         break;
     case 0x25:
@@ -1701,7 +1701,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         mapRequestTransition(cmd->a, 0);
         break;
     case 0x86:
-        playerThrowHeldActor(D_807FBB48);
+        playerThrowHeldActor(gActivePlayerActor);
         func_805FF9AC(0x2A, 0, cmd->a, 2);
         break;
     case 0x87:
@@ -1709,7 +1709,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x8D:
         D_80744824 = 2;
-        playerThrowHeldActor(D_807FBB48);
+        playerThrowHeldActor(gActivePlayerActor);
         slot = mapGetHubWorldIndex(gCurrentMap, 0);
         if (func_805FEF74(gCurrentMap) != 0) {
             map = D_8074809C[slot];
@@ -1751,7 +1751,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         mapTransitionExitCurrent(cmd->a, cmd->b);
         break;
     case 0x2F:
-        func_8060B49C(D_807FBB48, cmd->a);
+        func_8060B49C(gActivePlayerActor, cmd->a);
         break;
     case 0x11:
         modelAnimEntryStart(csId, cmd->a, cmd->b);
@@ -1959,9 +1959,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         if (gCsModelIds[cmd->a] != -1) {
             idx = hashTableLookup(gCsModelIds[cmd->a]);
             if (idx != -1) {
-                if (D_807F6000[idx].unk7C != NULL) {
+                if (gModelSlots[idx].unk7C != NULL) {
                     found = 1;
-                    D_807F6000[idx].unk7C[cmd->b + 0x48] += cmd->c;
+                    gModelSlots[idx].unk7C[cmd->b + 0x48] += cmd->c;
                 }
             }
         }
@@ -2013,7 +2013,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         D_807F6908 = cmd->b;
         break;
     case 0x2A:
-        ((CsModelSlot2 *)D_807F6000)[hashTableLookup(csId)].unk3C = cmd->a;
+        ((CsModelSlot2 *)gModelSlots)[hashTableLookup(csId)].unk3C = cmd->a;
         break;
     case 0x2E:
         mapByteArraySet(cmd->a, CMDB(cmd)->b);
@@ -2150,8 +2150,8 @@ s32 csModelStateTrySetByte(s16 a, s16 b, s16 c) {
 
     if (t != -1) {
         slot = hashTableLookup(t);
-        if (slot != -1 && D_807F6000[slot].unk7C != NULL) {
-            D_807F6000[slot].unk7C[c + 0x48] = b;
+        if (slot != -1 && gModelSlots[slot].unk7C != NULL) {
+            gModelSlots[slot].unk7C[c + 0x48] = b;
             return 1;
         }
     }
@@ -2195,8 +2195,8 @@ typedef struct CsCamStateView {
 s32 func_806419F8(void) {
     CsCamStateView *cam = gPlayerSlots->unk4->unk174;
 
-    if ((D_807FBB4C->state == 0x42 && (cam->unkBC == 0x62 || cam->unkBC == 0x88 || cam->unkBC == 0x17)) || D_807FBB4C->state == 0x52 ||
-        D_807FBB4C->state == 0x67 || ((CsPlayerView *)gPlayerSlots)->unk29C == 0x1C || ((CsPlayerView *)gPlayerSlots)->unk29C == 0x53) {
+    if ((gPrimaryPlayerActor->state == 0x42 && (cam->unkBC == 0x62 || cam->unkBC == 0x88 || cam->unkBC == 0x17)) || gPrimaryPlayerActor->state == 0x52 ||
+        gPrimaryPlayerActor->state == 0x67 || ((CsPlayerView *)gPlayerSlots)->unk29C == 0x1C || ((CsPlayerView *)gPlayerSlots)->unk29C == 0x53) {
         return 0;
     }
     return 1;
@@ -2222,10 +2222,10 @@ typedef struct CsAuxView {
 void csStateShareScript(s16 a, s16 b, s16 c) {
     a = hashTableLookup(a);
     b = hashTableLookup(b);
-    D_807F6000[a].unk7C = heapAlloc(0xA4);
-    csStateInit(D_807F6000[a].unk7C);
-    ((CsAuxView *)D_807F6000[a].unk7C)->unk48 = c;
-    ((CsAuxView *)D_807F6000[a].unk7C)->unkA0 = ((CsAuxView *)D_807F6000[b].unk7C)->unkA0;
+    gModelSlots[a].unk7C = heapAlloc(0xA4);
+    csStateInit(gModelSlots[a].unk7C);
+    ((CsAuxView *)gModelSlots[a].unk7C)->unk48 = c;
+    ((CsAuxView *)gModelSlots[a].unk7C)->unkA0 = ((CsAuxView *)gModelSlots[b].unk7C)->unkA0;
 }
 
 void func_80641BCC(s16 a, s16 b, s16 csId) {

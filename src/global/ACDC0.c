@@ -67,7 +67,7 @@ extern s8 D_807FC7F8[2];
 extern u32 gGlobalPauseFlags;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 extern char **D_807FC7E0;
 extern void **D_807FC7E8;
 extern s8 D_807FC80F;
@@ -84,7 +84,7 @@ extern s16 D_807FC832;
 extern s16 D_807FC834;
 extern s16 D_807FC836;
 extern s16 D_807FC838;
-extern HudCountEntry D_807FC950[];
+extern HudCountEntry gPlayerInventoryTable[];
 extern HudCountEntry D_807FCB26[];
 extern s16 D_80744710[];
 extern s16 D_80744720[];
@@ -182,7 +182,7 @@ typedef struct HudPauseCamera {
 extern HudPauseAxis *D_807ECDEC;
 extern u8 D_807467E4;
 extern s32 D_8076A098;
-extern u8 D_8076A0AB;
+extern u8 gCurrentWorldId;
 extern s32 gGlobalOverlayFlags;
 extern f32 D_807FC7FC;
 extern s8 D_807505D4;
@@ -277,7 +277,7 @@ void hudPauseMenuUpdate(void) {
         hud->unk0 = 1.0f;
         hud->unk4 = 0.0f;
         hud->unk14 = playerGetResolvedKongId(0);
-        hud->unk8[0] = hudFindItemIndex(mapGetHubWorldIndex(D_8076A0AB, 1));
+        hud->unk8[0] = hudFindItemIndex(mapGetHubWorldIndex(gCurrentWorldId, 1));
         if (D_807505D0 < hud->unk8[0]) {
             hud->unk8[0] = 0;
         }
@@ -387,7 +387,7 @@ void hudPauseMenuUpdate(void) {
                         }
                     }
                 } else if (buttons & 0x8000) {
-                    i = (a2 = mapGetHubWorldIndex(D_8076A0AB, 1)) == 8;
+                    i = (a2 = mapGetHubWorldIndex(gCurrentWorldId, 1)) == 8;
                     if (D_807FC8B8 && D_807FC8B8) {} // FAKE: steers seq temp register (a0 not v1)
                     if (i) {
                         i = menuGetTimerFlag() != 0;
@@ -571,7 +571,7 @@ void hudFreeBuffers(void) {
     s32 i;
     u8 *sub;
 
-    sub = D_807FBB4C->unk174;
+    sub = gPrimaryPlayerActor->unk174;
     gGlobalPauseFlags |= 0x40;
     if (!(*(s32 *)(sub + 0x1F0) & 0x20000000)) {
         gGlobalPauseFlags |= 0x10030;
@@ -651,7 +651,7 @@ extern s16 D_807FC992[];
 extern u8 D_807FCC4C;
 extern s8 D_807FCC4B;
 extern s32 gFrameCounter;
-extern u8 D_8076A0AB;
+extern u8 gCurrentWorldId;
 extern s8 D_80750538;
 extern s16 D_8075056C[];
 extern s8 D_807FC80C;
@@ -684,7 +684,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
 
     hud = actor->unk174;
     tab = (HudCountEntry *)((u8 *)D_807FC7F8 + 0x158);
-    sp138 = mapGetHubWorldIndex(D_8076A0AB, 1);
+    sp138 = mapGetHubWorldIndex(gCurrentWorldId, 1);
     list = heapAlloc(0x1F40);
     heapFreeDeferred(list);
     gSPDisplayList(dl++, list);
@@ -874,7 +874,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 if (!D_807FC868) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 t0 = 0;
                 for (j = 0; j < 5; j++) {
-                    t0 += D_807FC950[j].unk42[D_80750560[hud->unk8[i]]];
+                    t0 += gPlayerInventoryTable[j].unk42[D_80750560[hud->unk8[i]]];
                 }
                 if (hud->unk8[i] != 8) {
                     f32 fa;
@@ -993,7 +993,7 @@ typedef struct {
 } HudPauseFlagEntry;
 
 extern u8 gPlayerCharacterId;
-#define HUD_PAUSE_COUNT(i) ((HudPauseCountEntry *)((u8 *)D_807FC950 + (i) * 0x5E))
+#define HUD_PAUSE_COUNT(i) ((HudPauseCountEntry *)((u8 *)gPlayerInventoryTable + (i) * 0x5E))
 extern HudPauseFlagEntry D_80755DA8[];
 extern s8 D_807FC800;
 extern f32 D_807FC804;
@@ -1073,7 +1073,7 @@ void hudPauseMenuBuildPage(iconObj, arg1)
     switch (hud->unk12) {
     case 0:
         gPlayerCharacterId = saved;
-        idx = mapGetHubWorldIndex(D_8076A0AB, 1);
+        idx = mapGetHubWorldIndex(gCurrentWorldId, 1);
         if (idx >= 9) {
             idx = 7;
         }
@@ -1528,13 +1528,13 @@ void hudPauseMenuRefreshTotals(void) {
         *p0++ = 0;
     } while (p0 < (s16 *)((u8 *)&D_807FC82A + 12));
     n = 0;
-    k = 0; e = D_807FC950; do { n += D_807FC950[k].unk42[0]; n += D_807FC950[k].unk42[1];
+    k = 0; e = gPlayerInventoryTable; do { n += gPlayerInventoryTable[k].unk42[0]; n += gPlayerInventoryTable[k].unk42[1];
         for (i = 2; i < 14; i++) {
             n += e->unk42[i];
         }
         e++;
         k++;
-    } while (&D_807FC950[k] < D_807FCB26);
+    } while (&gPlayerInventoryTable[k] < D_807FCB26);
     D_807FC828 = n;
     n = 0;
     p = D_80744710; do {

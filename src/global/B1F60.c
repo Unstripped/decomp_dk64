@@ -51,7 +51,7 @@ typedef struct B1F60Global924 {
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 extern s32 gCurrentMap;
 extern B1F60Global924 *gPlayerSlots;
 
@@ -88,11 +88,11 @@ u16 movementFlags;
 {
     Actor *actor;
 
-    if (targetId != 0 && (D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0)) {
+    if (targetId != 0 && (gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0)) {
         actor = gCurrentActor;
         if (actor->state != 0x37) {
             ((B1F60Actor *)actor)->unkC0 = 200.0f;
-            func_8072D714(D_807FBB70.unk1FC, targetId, actor);
+            func_8072D714(gActorGlobalState.unk1FC, targetId, actor);
         }
     }
     if (gCurrentActor->state) {}  // FAKE: raises the actor-type expression's priority so the switch-selector copy colours v0
@@ -251,13 +251,13 @@ void func_806AD9F4(void) {
             actorSpawnLinkedFollower();
         }
     }
-    if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && gCurrentActor->state != 0x37) {
-        func_8072D714(D_807FBB70.unk1FC, 0x2F7);
+    if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+        func_8072D714(gActorGlobalState.unk1FC, 0x2F7);
         actorSetTargetSpeed(gCurrentActor, 0);
         gCurrentActor->speedXZ = -200.0f;
-    } else if (D_807FBB70.unk200 == 4) {
+    } else if (gActorGlobalState.unk200 == 4) {
         gCurrentActor->unk132 = 2;
-        func_8072DEA8(0x2F6, 0x27, D_807FBB70.unk1FC);
+        func_8072DEA8(0x2F6, 0x27, gActorGlobalState.unk1FC);
         gCurrentActor->speedXZ = gCurrentActor->speedXZ * 2;
         gBehaviourWorkState->timer = 0x1F4;
     }

@@ -140,7 +140,7 @@ typedef struct Boss2F_9C60_Sub1C {
 
 extern u8 *D_80035A60[];
 extern s32 gCamActor;
-extern Boss2F_9C60_BB4C *D_807FBB4C;
+extern Boss2F_9C60_BB4C *gPrimaryPlayerActor;
 extern Boss2F_9C60_DC90 *gBehaviourWorkState;
 extern Boss2F_9C60_DC9C *gBehaviourExtraState;
 extern Boss2F_9C60_DCA0 *D_807FDCA0;
@@ -178,7 +178,7 @@ void bossKRoolDiddyStep(void) {
 
     scriptState = gCurrentActor->unk178;
     scriptOpcodes = D_80035A60[scriptState->unk14];
-    projectileScale = (D_807FBB4C->unk6A & 1) ? 0.7 : 1.0;
+    projectileScale = (gPrimaryPlayerActor->unk6A & 1) ? 0.7 : 1.0;
     behaviourFrameBegin();
     bossRoundFrame(scriptOpcodes);
     if (!(gCurrentActor->unk60 & 0x10)) {
@@ -213,7 +213,7 @@ void bossKRoolDiddyStep(void) {
             gCurrentActor->unk155++;
             break;
         case 1:
-            actorTurnTowardActorYaw(0xA, D_807FBB4C);
+            actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
             if (gBehaviourWorkState->unk2C != 0) {
                 gBehaviourWorkState->unk2C--;
             } else {
@@ -232,7 +232,7 @@ void bossKRoolDiddyStep(void) {
             gCurrentActor->unk155++;
             break;
         case 1:
-            actorTurnTowardActorYaw(0xA, D_807FBB4C);
+            actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
             break;
         case 2:
             gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
@@ -273,9 +273,9 @@ void bossKRoolDiddyStep(void) {
             if (((Boss2F_9C60_Sub1C *)gCurrentActor->unk4->unk1C)->unk2 < 0x7FFF) {
                 ((Boss2F_9C60_Sub1C *)gCurrentActor->unk4->unk1C)->unk2 = 0xFFFF;
             }
-            actorTurnTowardActorYaw(0xA, D_807FBB4C);
+            actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
             if (gBehaviourWorkState->unk2C != 0) {
-                if ((D_807FBB4C->unk6A & 1) && (gBehaviourWorkState->unk2C >= 0xB)) {
+                if ((gPrimaryPlayerActor->unk6A & 1) && (gBehaviourWorkState->unk2C >= 0xB)) {
                     gBehaviourWorkState->unk2C = 0xA;
                 }
                 gBehaviourWorkState->unk2C--;

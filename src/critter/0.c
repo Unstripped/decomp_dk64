@@ -692,7 +692,7 @@ typedef struct CritterPlayer {
     /* 0x84 */ f32 z;
 } CritterPlayer;
 
-extern CritterPlayer *D_807FBB48;
+extern CritterPlayer *gActivePlayerActor;
 extern CritterZone *critterPlayerZone;
 
 void critterUpdateZoneProximity(CritterObj *obj) {
@@ -707,7 +707,7 @@ void critterUpdateZoneProximity(CritterObj *obj) {
     lim = (f32)(obj->homeZone->shape.unk10 + 0x1DE84);
     if (obj->homeZone->frame != gGfxBufferIndex) {
         half = (obj->homeZone->shape.unk4 + obj->homeZone->shape.unk8) >> 1;
-        dist = ((f32)obj->homeZone->x - D_807FBB48->x) * ((f32)obj->homeZone->x - D_807FBB48->x) + ((f32)obj->homeZone->z - D_807FBB48->z) * ((f32)obj->homeZone->z - D_807FBB48->z);
+        dist = ((f32)obj->homeZone->x - gActivePlayerActor->x) * ((f32)obj->homeZone->x - gActivePlayerActor->x) + ((f32)obj->homeZone->z - gActivePlayerActor->z) * ((f32)obj->homeZone->z - gActivePlayerActor->z);
         fv0 = 0.0f;
         f = critterPlayerZone->y < obj->homeZone->y + half;
         if (f) {
@@ -792,8 +792,8 @@ void critterCalcDistToPlayer(CritterObj *obj) {
     f32 dz;
 
     if (obj->frame != gGfxBufferIndex) {
-        dx = obj->x - D_807FBB48->x;
-        dz = obj->z - D_807FBB48->z;
+        dx = obj->x - gActivePlayerActor->x;
+        dz = obj->z - gActivePlayerActor->z;
         obj->distSq = (dx * dx) + (dz * dz);
         obj->frame = gGfxBufferIndex;
     }
@@ -933,7 +933,7 @@ void critterUpdateFollowTarget(CritterObj *obj, CritterGroup *grp) {
                 return;
             }
             if (obj->state == 2 && obj->distSq < (f32)critterPlayerZone->shape.unk2) {
-                angleDiff = mathAngleBetweenPoints2D(obj->x, obj->z, D_807FBB48->x, D_807FBB48->z);
+                angleDiff = mathAngleBetweenPoints2D(obj->x, obj->z, gActivePlayerActor->x, gActivePlayerActor->z);
                 angleDiff += (randomLcgNext() & 0x7FF) - 0x400;
                 obj->state = 1;
                 critterSetOffsetAtAngle(obj->zone, obj, 0, angleDiff, 1);
@@ -1039,16 +1039,16 @@ void critterUpdateGroups(CritterGroups *groups) {
 
     if (groups != NULL) {
         p = groups->groups;
-        critterPlayerZone->x = (s16)D_807FBB48->x;
+        critterPlayerZone->x = (s16)gActivePlayerActor->x;
         tbl = D_80029BAC[sel];
-        critterPlayerZone->z = (s16)D_807FBB48->z;
+        critterPlayerZone->z = (s16)gActivePlayerActor->z;
         for (i = 0; i < groups->count; i++, p++) {
             idx = p->type;
             if (idx > 0) {
                 idx = idx - 1;
             }
             e = &tbl[idx];
-            critterPlayerZone->y = (s16)(D_807FBB48->y + (f32)e->unk14);
+            critterPlayerZone->y = (s16)(gActivePlayerActor->y + (f32)e->unk14);
             critterPlayerZone->shape = e->shape;
             critterDispatchAll(p);
         }

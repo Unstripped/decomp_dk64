@@ -33,8 +33,8 @@ typedef struct {
 } Struct8074475C;
 
 /* Extern variables */
-extern u8 D_807444EC;
-extern u8 D_807444F8;
+extern u8 gGameMode;
+extern u8 gNextGameMode;
 extern s32 D_807444E4;
 extern s32 D_807444E8;
 extern u8 D_807445E0[];
@@ -66,19 +66,19 @@ const u8 D_80756630[80] = {
 };
 extern s32 D_80767CC4;
 extern s32 gCurrentMap;
-extern u8 D_8076A0AB;
-extern u8 D_8076A0B1;
+extern u8 gCurrentWorldId;
+extern u8 gScreenRenderFlags;
 extern s8 D_8076A0B2;
 extern s16 D_8076A172;
 extern u8 D_8076A220;
 extern s16 D_8076A232;
 extern Struct8076A160 D_8076A2E0[];
 extern s32 D_807F6010;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 extern s32 gGlobalPauseFlags;
 extern s32 gGlobalOverlayFlags;
-extern s32 D_807FBB68;
-extern u16 D_807FC930[];
+extern s32 gGlobalCutsceneFlags;
+extern u16 gLevelCollectibleCounts[];
 extern f32 gScreenFadeRate;
 
 /* Function declarations */
@@ -166,7 +166,7 @@ s32 func_805FEF10(s32 *outValue) {
 
     found = 0;
     for (i = 0; (u32)i < 4 && !found; i++) {
-        found = D_807FBB4C->actorType == D_80744800[i].unk0;
+        found = gPrimaryPlayerActor->actorType == D_80744800[i].unk0;
         if (found) {
             *outValue = D_80744800[i].unk4;
         }
@@ -219,8 +219,8 @@ u8 mapGetHubWorldIndex(u8 map, u8 checkBossMap) {
 }
 
 u8 mapHasCollectedSufficientItems(void) {
-    s32 index = mapGetHubWorldIndex(D_8076A0AB, 0);
-    return D_807FC930[index] >= D_807446C0[index];
+    s32 index = mapGetHubWorldIndex(gCurrentWorldId, 0);
+    return gLevelCollectibleCounts[index] >= D_807446C0[index];
 }
 
 void mapSlotArrayInit(void) {
@@ -289,7 +289,7 @@ void mapExecuteVoidTransition(void) {
 
     if (gCurrentMap != 0x22) {
         mapSlotArrayResetAll();
-        targetMap = D_80744734[mapGetHubWorldIndex(D_8076A0AB, 0)];
+        targetMap = D_80744734[mapGetHubWorldIndex(gCurrentWorldId, 0)];
         exitIndex = 1;
     } else {
         targetMap = gCurrentMap;
@@ -301,20 +301,20 @@ void mapExecuteVoidTransition(void) {
 
 void mapRequestTransition(s32 map, s32 exitIndex) {
     func_806F5378();
-    if ((D_807444EC == 6) || (menuIsTransitionActive() == 0)) {
+    if ((gGameMode == 6) || (menuIsTransitionActive() == 0)) {
         func_80712F10(&map, &exitIndex);
         if (map != -1) {
             if ((s32) gPlayerCharacterId >= 6) {
                 gPlayerCharacterId = playerGetResolvedKongId(0);
             }
-            D_8076A0B1 |= 1;
+            gScreenRenderFlags |= 1;
             D_8076AEF2 = (s16) gCurrentMap;
             D_807444E4 = map;
             D_807444E8 = exitIndex;
             D_8076A0B2 = 3;
             screenApplyTransitionFadeType();
             gScreenFadeRate = 1.0f;
-            if ((D_807444F8 != 1) && (D_8076AEE0 == 1) && !(D_807FBB68 & 2) && (gCurrentMap != 0x4C)) {
+            if ((gNextGameMode != 1) && (D_8076AEE0 == 1) && !(gGlobalCutsceneFlags & 2) && (gCurrentMap != 0x4C)) {
                 sfxAllocateChannel(0x2C, 1.0f);
             }
             func_807313BC();
@@ -379,7 +379,7 @@ void func_805FF670(void) {
     s16 spawnZ;
 
     if (D_80744820 != 0) {
-        camStartPath(D_807FBB4C, 2, 5);
+        camStartPath(gPrimaryPlayerActor, 2, 5);
         slotQueueUpdate(1, 0, 0);
         i = 0;
         if ((s32) D_80744820 > 0) {
@@ -387,14 +387,14 @@ void func_805FF670(void) {
             step = 5;
             do {
                 dist = (i * 2) + 30;
-                spawnX = D_807FBB4C->x - mathSinF(D_807FBB4C->yaw) * dist;
-                spawnZ = D_807FBB4C->z - mathCosF(D_807FBB4C->yaw) * dist;
+                spawnX = gPrimaryPlayerActor->x - mathSinF(gPrimaryPlayerActor->yaw) * dist;
+                spawnZ = gPrimaryPlayerActor->z - mathCosF(gPrimaryPlayerActor->yaw) * dist;
                 actorSpawnNodeEntryScaled(
                     0x35,
                     spawnX,
-                    D_807FBB4C->y + offset + (f32)(i * step),
+                    gPrimaryPlayerActor->y + offset + (f32)(i * step),
                     spawnZ,
-                    D_807FBB4C->yaw,
+                    gPrimaryPlayerActor->yaw,
                     1,
                     -1,
                     0
@@ -522,7 +522,7 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     }
     D_8076A160[i].unk2 = flags;
     if (flags & 1) {
-        cam = D_807FBB4C;
+        cam = gPrimaryPlayerActor;
         D_8076A160[i].unk4 = cam->x;
         D_8076A160[i].unk8 = cam->y;
         D_8076A160[i].unkC = cam->z;
@@ -540,7 +540,7 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     }
     k = 1;
     D_80750ACC = k;
-    obj = (PlayerState *)D_807FBB4C->unk174;
+    obj = (PlayerState *)gPrimaryPlayerActor->unk174;
     D_807FD56C = obj->stateFlags;
     if (obj->heldActor != NULL) {
         D_807FD570 = obj->heldActor->actorType;
@@ -686,7 +686,7 @@ s32 func_80600340(s32 actorType, u8 flags, s32 *outMap) {
 
 void func_806003EC(s16 index) {
     gGlobalOverlayFlags = D_8074482C[index].unk0;
-    D_807FBB68 = D_8074482C[index].unk4;
+    gGlobalCutsceneFlags = D_8074482C[index].unk4;
 }
 
 s32 func_8060042C(s16 index) {

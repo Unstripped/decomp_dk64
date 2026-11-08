@@ -24,7 +24,7 @@ void faultFontSetColorMode(s32 a0) {
     }
 }
 
-extern u8 D_8074450C;
+extern u8 gHiResScale;
 extern s16 gScreenWidth;
 extern u8 D_80756130[];
 
@@ -37,11 +37,11 @@ void faultDrawGlyph(u8 c) {
     s32 j;
 
     glyph = D_80756130 + (c - 33) * 6;
-    dst = (D_807FEF70 + 3) * D_8074450C * 4 + (u16 *)D_807FEF80 + gScreenWidth * (D_807FEF74 + 3) * D_8074450C * 6;
+    dst = (D_807FEF70 + 3) * gHiResScale * 4 + (u16 *)D_807FEF80 + gScreenWidth * (D_807FEF74 + 3) * gHiResScale * 6;
     for (row = 0; row != 6; row++, glyph++) {
-        for (i = 0; i < D_8074450C * D_807FEF78; i++) {
+        for (i = 0; i < gHiResScale * D_807FEF78; i++) {
             for (bit = 3; bit >= 0; bit--) {
-                for (j = 0; j < D_8074450C * D_807FEF78; j++) {
+                for (j = 0; j < gHiResScale * D_807FEF78; j++) {
                     if (*glyph & (1 << bit)) {
                         *dst = D_807FEF84;
                     } else {
@@ -50,7 +50,7 @@ void faultDrawGlyph(u8 c) {
                     dst++;
                 }
             }
-            dst += gScreenWidth - D_807FEF78 * 4 * D_8074450C;
+            dst += gScreenWidth - D_807FEF78 * 4 * gHiResScale;
         }
     }
 }

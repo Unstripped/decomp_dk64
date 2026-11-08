@@ -3,18 +3,18 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB48;
-extern Actor *D_807FBB4C;
+extern Actor *gActivePlayerActor;
+extern Actor *gPrimaryPlayerActor;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern u8 D_807FC950[][0x5E];
+extern u8 gPlayerInventoryTable[][0x5E];
 extern s32 gCurrentMap;
-extern u8 D_8076A0AB;
-extern u8 D_8076A0B1;
+extern u8 gCurrentWorldId;
+extern u8 gScreenRenderFlags;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
-extern u8 D_807444F8;
+extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 
 typedef struct {
@@ -31,7 +31,7 @@ typedef struct {
 extern FillRectEntry D_80750840[];
 extern u8 gSplitScreenMode;
 extern u8 D_80750ABC;
-extern u8 D_8074450C;
+extern u8 gHiResScale;
 
 Gfx *gfxDrawSplitScreenDividers(Gfx *dl) {
     s32 i;
@@ -44,8 +44,8 @@ Gfx *gfxDrawSplitScreenDividers(Gfx *dl) {
     for (; D_80750840[i].unk0 != -1; i++) {
         if (((D_80750840[i].unk0 == 2) && ((s32)gPlayerCount >= 2) && (D_80750840[i].unk2 & D_80750ABC)) || ((gPlayerCount == D_80750840[i].unk0) && (gSplitScreenMode == D_80750840[i].unk1) && (D_80750840[i].unk2 & D_80750ABC))) {
             Gfx *_g = (Gfx *)(dl++);
-            _g->words.w0 = 0xF6000000 | (((((D_80750840[i].unk8 + 1) * D_8074450C) - 1) & 0x3FF) << 14) | (((((D_80750840[i].unkA + 1) * D_8074450C) - 1) & 0x3FF) << 2);
-            _g->words.w1 = ((((D_80750840[i].unk4 * D_8074450C) & 0x3FF)) << 14) | ((((D_80750840[i].unk6 * D_8074450C) & 0x3FF)) << 2);
+            _g->words.w0 = 0xF6000000 | (((((D_80750840[i].unk8 + 1) * gHiResScale) - 1) & 0x3FF) << 14) | (((((D_80750840[i].unkA + 1) * gHiResScale) - 1) & 0x3FF) << 2);
+            _g->words.w1 = ((((D_80750840[i].unk4 * gHiResScale) & 0x3FF)) << 14) | ((((D_80750840[i].unk6 * gHiResScale) & 0x3FF)) << 2);
         }
     }
     gDPPipeSync(dl++);
@@ -137,7 +137,7 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, void *tex, f32 angle, void *mtx, u8 skyType
             blue = D_807FD970;
         } else {
             if (lightIndex == -1) {
-                lightIndex = *((s8 *)D_807FBB4C + 0x12D);
+                lightIndex = *((s8 *)gPrimaryPlayerActor + 0x12D);
             }
             lightGetColor(&red, &green, &blue, lightIndex);
         }
@@ -242,7 +242,7 @@ void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
     adjPitch = (s16)(s32)((f64)elevationAngle - (8.0 * (f64)((PlayerViewCamRoll *)gPlayerSlots)->unk2CA));
     if (colorMode != 0) {
         if (colorMode == 1) {
-            lightGetColor(&lightR, &lightG, &lightB, D_807FBB4C->chunkIndex);
+            lightGetColor(&lightR, &lightG, &lightB, gPrimaryPlayerActor->chunkIndex);
             if ((f64)lightR > 0.5) {
                 lensFlareAddSource((f32)cosAngle, (f32)adjPitch, (f32)sinAngle, 0.0f, 0.0f, 0.0f, 0.0f, (u32)(lightR * 255.0f), (u32)(lightG * 255.0f), (u32)(lightB * 255.0f));
             }
@@ -269,7 +269,7 @@ Gfx *gfxDrawSkySprite(Gfx *dl, s16 azimuthAngle, s16 elevationAngle, u8 mode) {
 
     alpha = 0xFF;
     if (mode == 1) {
-        lightGetColor(&lightR, &lightG, &lightB, D_807FBB4C->chunkIndex);
+        lightGetColor(&lightR, &lightG, &lightB, gPrimaryPlayerActor->chunkIndex);
         lightR = (f32)(1.0 < ((1.0 - (f64)lightG) / 0.7) ? 1.0 : ((1.0 - (f64)lightG) / 0.7));
         alpha = (u32)((f64)lightR * 255.0);
     } else if (mode == 2) {
@@ -672,7 +672,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *bgTex, void *rotAngle, void *mtx, s32 p
         break;
     case 0x1E:
         if (((PLAYER_VIEW_MODE != 7) && (PLAYER_VIEW_MODE != 6) && (PLAYER_VIEW_MODE != 8) && (PLAYER_VIEW_MODE != 0)) || (D_807FD800 != 0)) {
-            dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 0, 0, ((D_807FBB4C->chunkIndex == 9) || (D_807FBB4C->chunkIndex == 0xB) || (D_807FBB4C->chunkIndex == 3)) ? 1 : 0, 9, 0.0f);
+            dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 0, 0, ((gPrimaryPlayerActor->chunkIndex == 9) || (gPrimaryPlayerActor->chunkIndex == 0xB) || (gPrimaryPlayerActor->chunkIndex == 3)) ? 1 : 0, 9, 0.0f);
         }
         break;
     case 0x27:
@@ -723,8 +723,8 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *bgTex, void *rotAngle, void *mtx, s32 p
             x = ((PlayerViewBackdrop *)gPlayerSlots)->unk210;
             z = ((PlayerViewBackdrop *)gPlayerSlots)->unk218;
         } else {
-            x = D_807FBB4C->x;
-            z = D_807FBB4C->z;
+            x = gPrimaryPlayerActor->x;
+            z = gPrimaryPlayerActor->z;
         }
         x = sqrtf(((x - 3000.0f) * (x - 3000.0f)) + ((z - 5000.0f) * (z - 5000.0f)));
         if (x < 2500.0f) {

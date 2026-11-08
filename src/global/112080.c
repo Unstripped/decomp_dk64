@@ -3,7 +3,7 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB48;
+extern Actor *gActivePlayerActor;
 
 void func_8070D380(s32 size, void *dst, s32 *src) {
     memcpy(dst, *src, size);
@@ -677,7 +677,7 @@ s32 textLayoutAppendRows(s32 owner, s32 textBytes, u16 length) {
             text = textBuffer;
             switch (((u8 *)textBytes)[i]) {
             case 0x7E:
-                _sprintf(textBuffer, "%s", D_8074E778[D_807FBB48->actorType]);
+                _sprintf(textBuffer, "%s", D_8074E778[gActivePlayerActor->actorType]);
                 break;
             case 0x40:
                 _sprintf(textBuffer, "%d", D_80750AC8);

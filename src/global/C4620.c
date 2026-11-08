@@ -2,8 +2,8 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
 extern u8 D_807FBDC4;
 
 typedef struct R1C46aInner {
@@ -306,14 +306,14 @@ typedef struct LgBFDCA0 {
 #define LgBS98 ((LgBFS98 *)gBehaviourAnimState)
 #define LgBS9C ((LgBFS9C *)gBehaviourExtraState)
 
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern s32 gCurrentMap;
 extern f32 D_807502E8;
 extern u16 D_80747750[];
 extern u16 D_80747904[];
 extern u8 D_807478F4[];
 extern u8 D_80747B00[];
-extern void *D_80746B80[];
+extern void *sScriptEffectSprites[];
 extern LgBFDCA0 *D_807FDCA0;
 
 void func_806F09F0(Actor *, u16);
@@ -382,7 +382,7 @@ void actorScriptedCommandUpdate(void) {
         }
         LgBV->unkC4 = D_807502E8;
     }
-    if (D_807444EC != 1 && gCurrentMap != 0x4C && gCurrentActor->actorType != 0xFEU) { // FAKE: unsigned literal keeps the early 254 const out of the loop-spanning 254 live range
+    if (gGameMode != 1 && gCurrentMap != 0x4C && gCurrentActor->actorType != 0xFEU) { // FAKE: unsigned literal keeps the early 254 const out of the loop-spanning 254 live range
         LgBV->unk60 &= 0xEFFFFFFF;
         return;
     }
@@ -390,8 +390,8 @@ void actorScriptedCommandUpdate(void) {
         lightUpdateFromActorLighting(&LgBV->unk16A, &LgBV->unk16B, &LgBV->unk16C);
     }
     for (i = 0; i < D_807FBDC4; i++) {
-        if (D_807FBB70.unk258[i] == 3) {
-        cmd = (LgBFCmd *)D_807FBB70.unk278[i];
+        if (gActorGlobalState.unk258[i] == 3) {
+        cmd = (LgBFCmd *)gActorGlobalState.unk278[i];
         switch (cmd->unk2) {
             case 25:
                 state->unk33 = cmd->unk4;
@@ -603,7 +603,7 @@ void actorScriptedCommandUpdate(void) {
                 func_807149C8(col[0], col[1], col[2], 0xFF);
                 func_8071498C(func_80717D4C);
                 func_80714950(-10 - (randomNonNegative() >> 15) % 30);
-                func_80714CC0(D_80746B80[state->unk33], (f32)state->unk22 * 0.01 * particleScale, posX, posY, posZ);
+                func_80714CC0(sScriptEffectSprites[state->unk33], (f32)state->unk22 * 0.01 * particleScale, posX, posY, posZ);
             }
         }
     }
@@ -809,9 +809,9 @@ void func_806C151C(u16 actionId, u8 actionParam, s16 flagId) {
     f32 dz;
     s32 near;
 
-    dx = D_807FBB4C->x - R1V->unk7C;
-    dy = D_807FBB4C->y - R1V->unk80;
-    dz = D_807FBB4C->z - R1V->unk84;
+    dx = gPrimaryPlayerActor->x - R1V->unk7C;
+    dy = gPrimaryPlayerActor->y - R1V->unk80;
+    dz = gPrimaryPlayerActor->z - R1V->unk84;
     near = 0;
     if (dx * dx + dy * dy + dz * dz < 4900.0f) {
         near = 1;
@@ -949,7 +949,7 @@ void func_806C19F4(void) {
             func_807149C8(0x96, 0xFF, 0xFF, 0xFF);
             func_80714C08(&D_8071FBA0, 0.7f, gCurrentActor, 5, 0);
         }
-        func_80724E48(gBehaviourTargetActor == D_807FBB4C ? 5 : 7);
+        func_80724E48(gBehaviourTargetActor == gPrimaryPlayerActor ? 5 : 7);
     } else {
         func_806C10A0(2, 6, 0x3D9);
         func_80724E48(0);
@@ -1025,7 +1025,7 @@ void func_806C1CCC(void) {
                 renderCallbacksRegister(gfxBuildScanlineNoise, 0, 3);
             }
         }
-        func_80724E48(gBehaviourTargetActor == D_807FBB4C ? 5 : 7);
+        func_80724E48(gBehaviourTargetActor == gPrimaryPlayerActor ? 5 : 7);
     } else {
         func_806C10A0(2, 5, 0x3DA);
         func_80724E48(0);
@@ -1370,13 +1370,13 @@ void actorSpawnParticlesAlongNodeLoop(u8 startNode, u8 endNode, u8 colorIndex, v
     }
 }
 
-extern u8 D_8071FFA0[];
+extern u8 sEffectSparkConfig[];
 
 void actorSpawnParticlesAlongNodeRanges(void) {
-    actorSpawnParticlesAlongNodeLoop(1, 0xB, 6, D_8071FFA0);
-    actorSpawnParticlesAlongNodeLoop(0x20, 0x30, 6, D_8071FFA0);
-    actorSpawnParticlesAlongNodeLoop(0xC, 0x16, 2, D_8071FFA0);
-    actorSpawnParticlesAlongNodeLoop(0x17, 0x1F, 2, D_8071FFA0);
+    actorSpawnParticlesAlongNodeLoop(1, 0xB, 6, sEffectSparkConfig);
+    actorSpawnParticlesAlongNodeLoop(0x20, 0x30, 6, sEffectSparkConfig);
+    actorSpawnParticlesAlongNodeLoop(0xC, 0x16, 2, sEffectSparkConfig);
+    actorSpawnParticlesAlongNodeLoop(0x17, 0x1F, 2, sEffectSparkConfig);
 }
 
 typedef struct LgC2DF4Inner {
@@ -1458,7 +1458,7 @@ void actorSetGroupState(u8, u8);
 void commandQueuePush(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
 void effectSpawnJointBeam(s32, s32, s32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-extern s32 D_807FBB68;
+extern s32 gGlobalCutsceneFlags;
 
 void func_806C2DF4(void) {
     LgC2DF4State *state;
@@ -1521,7 +1521,7 @@ void func_806C2DF4(void) {
                 LgV->unk60 |= 0x400;
                 break;
             case 0x31:
-                if (D_807FBB68 & 2) {
+                if (gGlobalCutsceneFlags & 2) {
                     animSetLoopLimit(gCurrentActor, 1, 1);
                     animSetFinished(gCurrentActor, 1, 1);
                     animSetFrameAndSubframe(gCurrentActor, 1, 1, 0);
@@ -1532,7 +1532,7 @@ void func_806C2DF4(void) {
                 break;
             case 0x12:
                 LgV->unkCC = 1;
-                if (!(D_807FBB68 & 2)) {
+                if (!(gGlobalCutsceneFlags & 2)) {
                     LgV->unk146 = 1;
                 }
                 break;
@@ -1609,7 +1609,7 @@ void func_806C2DF4(void) {
     actorScriptedCommandUpdate();
     LgV->unk6A = 0;
     LgV->unk6C = 0;
-    if (gBehaviourTargetActor != D_807FBB4C) {
+    if (gBehaviourTargetActor != gPrimaryPlayerActor) {
         func_80724E48(7);
     }
     switch (LgV->unk4->unk0->unk10) {
@@ -1755,7 +1755,7 @@ void func_806C3A8C(void) {
     u8 flag3;
     u8 flag4;
 
-    dist = (D_807FBB4C->x - gCurrentActor->x) * (D_807FBB4C->x - gCurrentActor->x) + (D_807FBB4C->y - gCurrentActor->y) * (D_807FBB4C->y - gCurrentActor->y) + (D_807FBB4C->z - gCurrentActor->z) * (D_807FBB4C->z - gCurrentActor->z);
+    dist = (gPrimaryPlayerActor->x - gCurrentActor->x) * (gPrimaryPlayerActor->x - gCurrentActor->x) + (gPrimaryPlayerActor->y - gCurrentActor->y) * (gPrimaryPlayerActor->y - gCurrentActor->y) + (gPrimaryPlayerActor->z - gCurrentActor->z) * (gPrimaryPlayerActor->z - gCurrentActor->z);
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unk15E = 0x19;

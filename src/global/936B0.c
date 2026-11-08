@@ -218,7 +218,7 @@ typedef struct ActorSub4BufView {
 
 extern u32 gFrameCounter;
 extern s32 gCurrentMap;
-extern Actor *D_807FBB48;
+extern Actor *gActivePlayerActor;
 void sfxStopChannel(s32, s32);
 void slotQueueCancel(s32, s32);
 void func_806F0C18(void *);
@@ -286,7 +286,7 @@ void func_8068EF54(void) {
             sp78->unk1A3 = 0;
             actorDespawn(gCurrentActor);
             sfxStopChannel(0x48, 0);
-            sfxStopSlotSound(D_807FBB48, 0);
+            sfxStopSlotSound(gActivePlayerActor, 0);
             slotQueueCancel(5, 0);
             sp78->unk240 = 0;
             if (!(sp78->unk1F4 & 4)) {
@@ -835,9 +835,9 @@ typedef struct ActorPlayerInteraction {
 #define G_PLAYER_INTERACT_ACTOR ((ActorPlayerInteraction *)gCurrentActor)
 
 struct PlayerTrackEntry;
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern f32 D_80750300;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 void camSetTargetScaled(void *, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_8068F72C();
 void func_80690190();
@@ -863,7 +863,7 @@ void actorUpdatePlayerInteraction(void) {
     sp4B = G_PLAYER_INTERACT_ACTOR->unk6A & 1;
     sp5C->unk34 = 2;
     func_80690190(sp5C, sp50, sp54);
-    if (D_807444EC == 0 && sp4C->unkF3 != 4) {
+    if (gGameMode == 0 && sp4C->unkF3 != 4) {
         camSetTargetScaled(sp54->unk104, gCurrentActor, 4, 0x800, 0xA0, 0, 6, 0x12C, 0x8F, 0, 0.2f);
     }
     func_8068F72C(sp5C, sp50, 1, 1);
@@ -873,16 +873,16 @@ void actorUpdatePlayerInteraction(void) {
         G_PLAYER_INTERACT_ACTOR->unk144 = 0x3C;
         playerStateQueueCallback(0x4C, gCurrentActor, sp54->unk1A4);
     }
-    if (camIsCutsceneActive() == 0 || (camIsCutsceneActive() != 0 && (D_807FBB4C->contactFlags & 0x100))) {
+    if (camIsCutsceneActive() == 0 || (camIsCutsceneActive() != 0 && (gPrimaryPlayerActor->contactFlags & 0x100))) {
         actorGetNodePos(gCurrentActor, 1, &sp44, &sp40, (f32 *)&sp3C);
         lightAdd(sp44, sp40, sp3C, 0.0f, 0.0f, 0.0f, 300.0f, 0, 0xFF, 0xFF, 0xFF);
         if (flagGet(0x6B, 2) == 0) {
-            if (camIsCutsceneActive() != 0 && (D_807FBB4C->contactFlags & 0x100)) {
+            if (camIsCutsceneActive() != 0 && (gPrimaryPlayerActor->contactFlags & 0x100)) {
                 actorGetNodePos(gCurrentActor, 2, &sp44, &sp40, (f32 *)&sp3C);
                 lensFlareAddSource(sp44, sp40, sp3C, 0.0f, 0.0f, 0.0f, 0.0f, 0xFF, 0xFF, 0xFF);
             }
             if (camIsCutsceneActive() == 0) {
-                D_807FBB4C->contactFlags &= ~0x100;
+                gPrimaryPlayerActor->contactFlags &= ~0x100;
             }
         }
     }
@@ -1112,7 +1112,7 @@ typedef struct PlayerAimView {
     u8 pad234[0x2F0 - 0x234];
 } PlayerAimView;
 
-extern ModelSlotPosTypeView *D_807F6000;
+extern ModelSlotPosTypeView *gModelSlots;
 extern s32 D_80747D70;
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
@@ -1247,15 +1247,15 @@ f32 *arg8;
     if (arg5 != 0) {
         if (D_80747D70 > 0) {
             j = 0; do { // LAYOUT: init and do on one line (one as1 line) steers the loop-limit candidate priority
-                switch (((ModelSlotPosTypeView *)((u8 *)D_807F6000 + j))->unk84) {
+                switch (((ModelSlotPosTypeView *)((u8 *)gModelSlots + j))->unk84) {
                     case 0x125:
                     case 0x126:
                     case 0x127:
                     case 0x128:
                     case 0x129:
-                        px = ((ModelSlotPosTypeView *)((u8 *)D_807F6000 + j))->unk0;
-                        py = ((ModelSlotPosTypeView *)((u8 *)D_807F6000 + j))->unk4 + 10.0;
-                        pz = ((ModelSlotPosTypeView *)((u8 *)D_807F6000 + j))->unk8;
+                        px = ((ModelSlotPosTypeView *)((u8 *)gModelSlots + j))->unk0;
+                        py = ((ModelSlotPosTypeView *)((u8 *)gModelSlots + j))->unk4 + 10.0;
+                        pz = ((ModelSlotPosTypeView *)((u8 *)gModelSlots + j))->unk8;
                         dx = px - ox;
                         dy = py - oy;
                         dz = pz - oz;
@@ -1293,7 +1293,7 @@ f32 *arg8;
 }
 
 void func_807149C8(s32, s32, s32, s32);
-extern s32 D_8071FFA0;
+extern s32 sEffectSparkConfig;
 void func_80717D4C(void);
 void actorSpawnSparkleBurst(void) {
     s32 count;
@@ -1316,7 +1316,7 @@ void actorSpawnSparkleBurst(void) {
         func_80714950(i * -0x14);
         func_80714998(3);
         func_8071498C(func_80717D4C);
-        func_80714CC0(&D_8071FFA0, 2.0f, gCurrentActor->x + dx, gCurrentActor->y + 42.0f + dy, gCurrentActor->z + dz);
+        func_80714CC0(&sEffectSparkConfig, 2.0f, gCurrentActor->x + dx, gCurrentActor->y + 42.0f + dy, gCurrentActor->z + dz);
     }
 }
 
@@ -1740,7 +1740,7 @@ extern u8 D_80720020;
 extern u8 D_807202D0;
 extern s16 D_807502D0;
 extern f32 D_807502E4;
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 extern u8 D_807200EC;
 extern PlayerTrackEntry *gPlayerSlots;
 extern u8 gPlayerCount;
@@ -1807,7 +1807,7 @@ void projectileDespawnOrExplode(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 10, 10, 1, 0x96, 0x78, 0, 1.0f);
     unkFC = G_PROJECTILE_ACTOR->hasArcBounds;
-    if (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1) || D_807FBB70.unk15 != 0 || D_807FBB70.unk200 == 9) {
+    if (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1) || gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9) {
         other = G_PROJECTILE_ACTOR->unk11C;
         if (other == NULL || other->actorType != 0x2E || (other->actorType == 0x2E && (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1)))) {
             func_807149B8(0);
@@ -2177,15 +2177,15 @@ void projectileBounceExplodeScaledUpdate(void) {
         sp64->unk20 = 0;
     }
     if (sp64->unk20 == 4) {
-        D_807FBB70.unk15 = 1;
+        gActorGlobalState.unk15 = 1;
     }
     if (BOUNCE_EXPLODE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp64->unk0 + 1) < gGameFrameCounter) {
-        D_807FBB70.unk15 = 1;
+        gActorGlobalState.unk15 = 1;
     }
     if ((BOUNCE_EXPLODE_ACTOR->unk64 & 0x100) || flag != 0) {
-        D_807FBB70.unk15 = 1;
+        gActorGlobalState.unk15 = 1;
     }
-    if ((((BOUNCE_EXPLODE_ACTOR->unk6A & 1) && sp64->unk4 == 4) || D_807FBB70.unk15 != 0) && BOUNCE_EXPLODE_ACTOR->unk154 == 0) {
+    if ((((BOUNCE_EXPLODE_ACTOR->unk6A & 1) && sp64->unk4 == 4) || gActorGlobalState.unk15 != 0) && BOUNCE_EXPLODE_ACTOR->unk154 == 0) {
         sp3C = 250.0f * sp5C;
         if (sp64->unk13 != 0xCA) {
             func_807149B8(1);
@@ -2929,7 +2929,7 @@ void projectileParticleSpawnerTick(void) {
             func_80714950(0x100D2);
             func_8071498C(effectLightPulseOscillate);
             func_80714CC0(&D_80720120, 2.0f, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z);
-            camStartShakeFromPoint(((PlayerTrackActor *)D_807FBB4C)->unk174->unk104, 7, 0x16, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 200.0f, 400.0f);
+            camStartShakeFromPoint(((PlayerTrackActor *)gPrimaryPlayerActor)->unk174->unk104, 7, 0x16, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 200.0f, 400.0f);
             actorSpawnSparkleBurst();
             for (var_s0 = 0; var_s0 != 12; var_s0 += 2) {
                 func_807149B8(1);
@@ -3102,17 +3102,17 @@ void projectileFallBounceUpdate(void) {
         gCurrentActor->accelY = D_807502F8 - (f32)(((randomNonNegative() >> 15) % 32767) % 10);
         gCurrentActor->contactFlags &= 0xFFFE;
     }
-    if (D_807FBB70.unk200 == 5) {
-        sub = ((PlayerActorTrackView *)D_807FBB70.unk1FC)->unk174;
+    if (gActorGlobalState.unk200 == 5) {
+        sub = ((PlayerActorTrackView *)gActorGlobalState.unk1FC)->unk174;
         if (sub->unk88 != NULL && (sub->unk88->actorType == 0x1D || sub->unk88->actorType == 0x50)) {
             camStartShake(sub->unk104, 0xA, 0x14);
             playerStateQueueCallback(0x34, gCurrentActor, 0);
-            effectSpawnScatterRandom(&D_8071FFA0, 0, 1.0f, 4, 0x14, 0x96, (s32)gCurrentActor->x, (s32)gCurrentActor->y, (s32)gCurrentActor->z);
+            effectSpawnScatterRandom(&sEffectSparkConfig, 0, 1.0f, 4, 0x14, 0x96, (s32)gCurrentActor->x, (s32)gCurrentActor->y, (s32)gCurrentActor->z);
             actorDespawn(gCurrentActor);
         }
     } else {
-        for (i = 0; i < D_807FBB70.unk254; i++) {
-            if (D_807FBB70.unk258[i] == 1) {
+        for (i = 0; i < gActorGlobalState.unk254; i++) {
+            if (gActorGlobalState.unk258[i] == 1) {
                 gCurrentActor->state = 1;
             }
         }
@@ -3129,7 +3129,7 @@ void projectileFallBounceUpdate(void) {
                     gCurrentActor->speedY = (f32)((f64)(gCurrentActor->prevPeakY - gCurrentActor->y) * 1.5);
                     camStartShake(((CameraShakeTargetView *)gActivePlayerState)->unk104, 0xA, 0x14);
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C1, 0xFF, 0x7F, 0x1E);
-                    effectSpawnScatterRandom(&D_8071FFA0, 0, 1.0f, 4, 0x14, 0x96, (s32)gCurrentActor->x, (s32)gCurrentActor->y, (s32)gCurrentActor->z);
+                    effectSpawnScatterRandom(&sEffectSparkConfig, 0, 1.0f, 4, 0x14, 0x96, (s32)gCurrentActor->x, (s32)gCurrentActor->y, (s32)gCurrentActor->z);
                     flag = gCurrentActor->contactFlags & 1;
                 }
             }
@@ -3211,7 +3211,7 @@ typedef struct ProjectileChaseActor {
 } ProjectileChaseActor;
 
 #define CHASE_ACTOR ((ProjectileChaseActor *)gCurrentActor)
-#define CHASE_TARGET ((ProjectileChaseActor *)D_807FBB4C)
+#define CHASE_TARGET ((ProjectileChaseActor *)gPrimaryPlayerActor)
 
 void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void actorSetUniformScale(Actor *, f32);

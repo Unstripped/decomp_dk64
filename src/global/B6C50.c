@@ -37,7 +37,7 @@ typedef struct B6C50View90 {
 
 extern B6C50Actor *gCurrentActor;
 extern B6C50Actor *gSpawnedActor;
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 extern s32 D_8072030C;
 extern u32 gFrameCounter;
 
@@ -97,13 +97,13 @@ void func_806B1F50(void) {
         actorScriptStart(gCurrentActor, 0x300);
         sfxPlayActorSound(gCurrentActor, 0x135, 0x64, 0, 0, 0x78, 1.0f, 0);
     }
-    if (D_807FBB70.unk15 != 0 || D_807FBB70.unk200 == 9) {
+    if (gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9) {
         gCurrentActor->unk11C->unk154 = 0;
         camStartPath(gCurrentActor, 6, 5);
         gCurrentActor->unk144 = 1;
         gCurrentActor->unk154 = 0x37;
         gCurrentActor->unk155 = 0;
-    } else if (D_807FBB70.unk200 == 4) {
+    } else if (gActorGlobalState.unk200 == 4) {
         gCurrentActor->unk155++;
     }
     switch (gCurrentActor->unk154) {
@@ -161,7 +161,7 @@ void func_806B1F50(void) {
     actorUpdateModelMatrix((B6C50Actor *)*(s32 *)&gCurrentActor, 0);
 }
 
-extern B6C50Actor *D_807FBB4C;
+extern B6C50Actor *gPrimaryPlayerActor;
 extern s32 D_80720340;
 
 B6C50Actor *actorFindByType(s32);
@@ -192,10 +192,10 @@ void func_806B24B8(void) {
         func_80714C08(&D_80720340, gCurrentActor->unk4->unk38 * 6.66666667 * 0.9, gCurrentActor, 1, 2);
     }
     if (actorTableContains(gBehaviourTargetActor) == 0) {
-        ((B6C50View90 *)gBehaviourWorkState)->unk4 = D_807FBB4C;
+        ((B6C50View90 *)gBehaviourWorkState)->unk4 = gPrimaryPlayerActor;
         gBehaviourTargetActor = (Actor *)((B6C50View90 *)gBehaviourWorkState)->unk4;
     }
-    if (D_807FBB70.unk15 != 0 || D_807FBB70.unk200 == 9) {
+    if (gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9) {
         gCurrentActor->unk144 = 1;
         gCurrentActor->unk154 = 0x40;
         tagBarrelSpawnSmokeAndPuffs(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->unk38 / 0.15, 0, 1);

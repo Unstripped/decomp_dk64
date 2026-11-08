@@ -15,7 +15,7 @@ struct BossA_Struct_807FBB40;
 extern struct BossA_Struct_807FBB40 *gCurrentActor;
 extern BossByteTable6 D_8003598C;
 extern u8 effectDecelDriftFadeUpdate;
-extern u8 D_8071FFA0;
+extern u8 sEffectSparkConfig;
 
 void tagBarrelSpawnNodeSmokePuffs(void *, s32, f32);
 void func_80714950();
@@ -40,7 +40,7 @@ void bossArmydilloSpawnSmoke(void) {
         func_807149B8(1);
         func_807149C8(0x8C, 0x8C, 0x8C, 0xFF);
         func_80714998(3);
-        func_80714CC0(&D_8071FFA0, 2.5f, ((BossActorPos *)gCurrentActor)->unk7C, ((BossActorPos *)gCurrentActor)->unk80 + 40.0f, ((BossActorPos *)gCurrentActor)->unk84);
+        func_80714CC0(&sEffectSparkConfig, 2.5f, ((BossActorPos *)gCurrentActor)->unk7C, ((BossActorPos *)gCurrentActor)->unk80 + 40.0f, ((BossActorPos *)gCurrentActor)->unk84);
     }
 }
 
@@ -693,8 +693,8 @@ typedef struct Boss3B_DCA0 {
 } Boss3B_DCA0;
 
 extern Boss3B_Actor *gSpawnedActor;
-extern Boss3B_Actor *D_807FBB4C;
-extern u8 D_807FBB70[];
+extern Boss3B_Actor *gPrimaryPlayerActor;
+extern u8 gActorGlobalState[];
 extern Boss3B_DC98 *gBehaviourAnimState;
 extern Boss3B_DCA0 *D_807FDCA0;
 
@@ -707,7 +707,7 @@ extern u8 D_80035CC0[];
 extern s32 camPathCommandDispatch;
 void effectUpdateAndDispatch(void);
 void effectNodeSetSubVal(s32, u8);
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern s8 D_80750190;
 extern s16 D_807502D8;
 extern f32 D_807502F4;
@@ -806,7 +806,7 @@ void bossArmydilloStep(void) {
         }
     }
     func_8072881C(0, gBehaviourWorkState->unk28);
-    if ((D_807FBB70[0x200] == 9) || (D_807FBB70[0x15] != 0)) {
+    if ((gActorGlobalState[0x200] == 9) || (gActorGlobalState[0x15] != 0)) {
         tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 0xC, 2.0f);
         gCurrentActor->unk138 = 0;
         gCurrentActor->unk144 = 1;
@@ -815,7 +815,7 @@ void bossArmydilloStep(void) {
         camStartPath(gCurrentActor, 9, 1);
         gCurrentActor->unk154 = 0x37;
         gCurrentActor->unk155 = 0;
-    } else if (D_807FBB70[0x200] == 4) {
+    } else if (gActorGlobalState[0x200] == 4) {
         bossArmydilloHideCannons();
         gCurrentActor->unk154 = 0x4D;
         gCurrentActor->unk155 = 0;
@@ -910,7 +910,7 @@ void bossArmydilloStep(void) {
         case 0x2E:                                  /* switch 1 */
             switch (gCurrentActor->unk155) {                      /* switch 3 */
             case 0:                                 /* switch 3 */
-                if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
+                if ((gGameMode != 1) || (currentActorTestClearFlag() != 0)) {
                     animSetLoopLimit(gCurrentActor, 1, 1);
                     state17C->unk0 = 0;
                     gCurrentActor->unk155 = 1;
@@ -922,7 +922,7 @@ void bossArmydilloStep(void) {
                     sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x174, 0xC8, 0x7F, 1, 0x1E, 0.3f, 0);
                     state17C->unk0 = 1;
                 }
-                if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
+                if ((gGameMode != 1) || (currentActorTestClearFlag() != 0)) {
                     gCurrentActor->unk155 = 2;
                 }
                 break;
@@ -937,7 +937,7 @@ void bossArmydilloStep(void) {
                 }
                 break;
             case 4:                                 /* switch 3 */
-                if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
+                if ((gGameMode != 1) || (currentActorTestClearFlag() != 0)) {
                     gCurrentActor->unk154 = scriptData[state->unk15++];
                     gCurrentActor->unk155 = 0;
                 }
@@ -1026,7 +1026,7 @@ void bossArmydilloStep(void) {
                 playSfx = 1;
                 gCurrentActor->unkC0 = 100.0f;
             }
-            if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
+            if ((gGameMode != 1) || (currentActorTestClearFlag() != 0)) {
                 if (gCurrentActor->unk154 == 0x2F) {
                     gCurrentActor->unk154 = scriptData[state->unk15++];
                     gCurrentActor->unk155 = 0;
@@ -1341,7 +1341,7 @@ void bossArmydilloStep(void) {
             break;
         case 3:                                     /* switch 15 */
             projectileGetTargetCoords(gCurrentActor, 5);
-            projectileAimAndSpawn(0x59, 1, 1.5f, D_807FBB4C->unk7C, D_807FBB4C->unk80 + 2.0f, D_807FBB4C->unk84, 300.0f, gCurrentActor);
+            projectileAimAndSpawn(0x59, 1, 1.5f, gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk80 + 2.0f, gPrimaryPlayerActor->unk84, 300.0f, gCurrentActor);
             sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x128, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x188, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             gCurrentActor->unk155 = 4;

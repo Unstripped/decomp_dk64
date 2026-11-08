@@ -2,12 +2,12 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
 extern void *gPlayerSlots;
 
 u8 func_8072E5B0(void) {
-    Actor *a = D_807FBB4C;
+    Actor *a = gPrimaryPlayerActor;
 
     return !(a->contactFlags & 1) && !(a->attachMode == 1) && !(a->state == 0x63);
 }
@@ -156,8 +156,8 @@ void volumeTriggerUpdateAll(void) {
     VolumeTriggerSubView *sub;
 
     for (k = 0; k < D_807FBDC4; k++) {
-        ptr = D_807FBB70.unk278[k];
-        switch (D_807FBB70.unk258[k]) {
+        ptr = gActorGlobalState.unk278[k];
+        switch (gActorGlobalState.unk258[k]) {
             case 1:
                 volumeTriggerSetEnabled(*ptr, 1);
                 break;
@@ -190,7 +190,7 @@ typedef struct {
 } PlayerSlot; // size = 0x2F0
 
 extern u8 gPlayerCount;
-extern s16 D_8076A0AA;
+extern s16 gCurrentLevelIndex;
 s32 flagTryTriggerOnce(s16, s16);
 
 s32 volumeTriggerUpdate(VolumeTrigger *trigger) {
@@ -229,7 +229,7 @@ s32 volumeTriggerUpdate(VolumeTrigger *trigger) {
             break;
     }
     if (result) {
-        if (!flagTryTriggerOnce(D_8076A0AA, trigger->unkA)) {
+        if (!flagTryTriggerOnce(gCurrentLevelIndex, trigger->unkA)) {
             result = 0;
         }
     }

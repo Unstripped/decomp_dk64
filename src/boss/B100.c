@@ -47,7 +47,7 @@ typedef struct BossE_B100_Actor {
 
 extern BossE_B100_Actor *gCurrentActor;
 extern BossE_B100_Actor *gSpawnedActor;
-extern u8 D_807FBD70;
+extern u8 gBossFightPhase;
 extern s32 gFrameCounter;
 
 void animSetLoopLimit(s32, s32, s32);
@@ -86,7 +86,7 @@ typedef struct {
     s16 *unk14;
 } BossWaypointListS16;
 
-extern BossPlayerActor *D_807FBB4C;
+extern BossPlayerActor *gPrimaryPlayerActor;
 extern BossWorkState *gBehaviourWorkState;
 extern BossWaypointListS16 *D_807FDCA0;
 s32 flagGet(s16, u8);
@@ -190,7 +190,7 @@ void func_8072A450(void);
 s32 func_8072881C(s32, void *);
 
 #define MAIN_ACTOR ((BossMainActor *)gCurrentActor)
-#define PLAYER_ACTOR ((BossMainActor *)D_807FBB4C)
+#define PLAYER_ACTOR ((BossMainActor *)gPrimaryPlayerActor)
 #define SECOND_ACTOR ((BossMainActor *)gSpawnedActor)
 #define TIMER_STATE ((BossTimerState *)gBehaviourWorkState)
 
@@ -232,7 +232,7 @@ void bossDogadonStep(void) {
     bossRoundFrame(scriptOpcodes);
     switch (MAIN_ACTOR->unk154) {
     case 0x28:
-        if (D_807FBD70 == 5 && gPlayerSlots->unk2C0 != 1) {
+        if (gBossFightPhase == 5 && gPlayerSlots->unk2C0 != 1) {
             MAIN_ACTOR->unk144 = 1;
             PLAYER_ACTOR->unk144 = 1;
             camStartPath(0, 2, 1);
@@ -462,13 +462,13 @@ u8 scaleVal;
         finalScale = scaleVal;
     }
     func_8002FB7C(finalScale & 0xFF);
-    if (D_807FBD70 == 4) {
+    if (gBossFightPhase == 4) {
         bossActorGroupCommand(actorObj, 0xF, 0, 0);
         animFrame = (0xA - gCurrentActor->unk134) & 0xFF;
         func_8002FC48(gCurrentActor, animFrame);
         actorScriptStart(gCurrentActor, 0x415);
     }
-    if (D_807FBD70 == 5 || D_807FBD70 == 4) {
+    if (gBossFightPhase == 5 || gBossFightPhase == 4) {
         sfxPlayAtFBD6CPosition();
     }
 }
@@ -548,9 +548,9 @@ void bossKRoolTinyStep(void) {
     if (!(BOSS_ACTOR->unk60 & 0x10)) {
         transitionSetState(0);
         slotQueueSetDisplayMode(2, 0, 1);
-        D_807FBB4C->unk154 = 0x5F;
-        D_807FBB4C->unk155 = 0;
-        actorScriptStartByIndex(D_807FBB4C, 0x4B);
+        gPrimaryPlayerActor->unk154 = 0x5F;
+        gPrimaryPlayerActor->unk155 = 0;
+        actorScriptStartByIndex(gPrimaryPlayerActor, 0x4B);
         BOSS_ACTOR->unk154 = 0;
         BOSS_ACTOR->unk155 = 0;
         func_80724DB0(2, 1);
@@ -582,8 +582,8 @@ void bossKRoolTinyStep(void) {
     tbl = D_80035AA4[st->unk14];
     if (BOSS_ACTOR->unk154) {
         s16 *p = D_807FDCA0->unk14;
-        camClosestPointOnSegment(D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, p[0], p[1], p[2], p[5], p[6], p[7], &D_807FBB4C->unk7C, &dummyY, &D_807FBB4C->unk84);
-        D_807FBB4C->unkE6 = 0xFD2;
+        camClosestPointOnSegment(gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk80, gPrimaryPlayerActor->unk84, p[0], p[1], p[2], p[5], p[6], p[7], &gPrimaryPlayerActor->unk7C, &dummyY, &gPrimaryPlayerActor->unk84);
+        gPrimaryPlayerActor->unkE6 = 0xFD2;
         gActivePlayerState->unk38 = 150.0f;
     }
     func_8002FDF8((s32)BOSS_ACTOR, st->unk14);
@@ -606,9 +606,9 @@ void bossKRoolTinyStep(void) {
         break;
     case 0x37:
         if (BOSS_ACTOR->unk155 == 0) {
-            D_807FBB4C->unk154 = 0x5F;
-            D_807FBB4C->unk155 = 0;
-            actorScriptStartByIndex(D_807FBB4C, 0x4A);
+            gPrimaryPlayerActor->unk154 = 0x5F;
+            gPrimaryPlayerActor->unk155 = 0;
+            actorScriptStartByIndex(gPrimaryPlayerActor, 0x4A);
             screenSetTransitionFadeType(1);
             transitionSetState(1);
             mapRequestTransition(0xCE, 0);
@@ -633,7 +633,7 @@ void bossKRoolTinyStep(void) {
             st->unk19 = tbl[st->unk15++] + st->unk12 * 10;
             st->unk8 = tbl[st->unk15++];
             if (st->unk18 == 0xFF) {
-                st->unk18 = 8 >> (s32)((D_807FBB4C->unk7C - 117.0f) / 50.0f);
+                st->unk18 = 8 >> (s32)((gPrimaryPlayerActor->unk7C - 117.0f) / 50.0f);
             }
             bossActorGroupCommand(BOSS_ACTOR, st->unk18, 0x413, 0);
             gBehaviourWorkState->unk2C = 0x14;

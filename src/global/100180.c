@@ -3,18 +3,18 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB48;
-extern Actor *D_807FBB4C;
+extern Actor *gActivePlayerActor;
+extern Actor *gPrimaryPlayerActor;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern u8 D_807FC950[][0x5E];
+extern u8 gPlayerInventoryTable[][0x5E];
 extern s32 gCurrentMap;
-extern u8 D_8076A0AB;
-extern u8 D_8076A0B1;
+extern u8 gCurrentWorldId;
+extern u8 gScreenRenderFlags;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
-extern u8 D_807444F8;
+extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 
 void func_806FB480(void) {

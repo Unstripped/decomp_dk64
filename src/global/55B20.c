@@ -1398,7 +1398,7 @@ void mapChunkSetFlagBit3(s16 arg0) {
     gMapChunks[arg0].unk7 |= 8;
 }
 
-extern u32 D_807FBB68;
+extern u32 gGlobalCutsceneFlags;
 extern s32 gFrameCounter;
 s16 mapObjectCollectIdsByType();
 
@@ -1410,7 +1410,7 @@ void mapChunkUpdateAssetStreaming(void) {
     s8 idx;
     s16 n;
 
-    if (!(D_807FBB68 & 0x100)) {
+    if (!(gGlobalCutsceneFlags & 0x100)) {
         for (i = 0; i < gMapChunkCount; i++) {
             flags[i] = 0;
         }

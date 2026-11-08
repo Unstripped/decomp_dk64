@@ -59,14 +59,14 @@ typedef struct LB3bTbl {
 } LB3bTbl;
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB48;
-extern Actor *D_807FBB4C;
+extern Actor *gActivePlayerActor;
+extern Actor *gPrimaryPlayerActor;
 extern s32 gCurrentMap;
 extern s16 D_8076AEF2;
 extern u16 D_80744508;
 extern s16 D_80750AC4;
 extern u8 D_807FBDC4;
-extern LB3bTbl D_807FBB70;
+extern LB3bTbl gActorGlobalState;
 extern u8 D_8002D863[];
 
 void behaviourFrameBegin(void);
@@ -127,7 +127,7 @@ void bonusControllerUpdate(void) {
     behaviourFrameBegin();
     challengeType = gBehaviourExtraState->unk14;
     targetCount = gBehaviourExtraState->unkA;
-    commandQueuePush(D_807FBB4C, D_807FBB4C->x, D_807FBB4C->y + 30.0f, D_807FBB4C->z, 0xFF, 0xFF, 0xFF, 0xFF, 0);
+    commandQueuePush(gPrimaryPlayerActor, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y + 30.0f, gPrimaryPlayerActor->z, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     if (!(gCurrentActor->flags & 0x10)) {
         hasMessage = 0;
         currentActorClearFlag();
@@ -149,10 +149,10 @@ tail:
             break;
         case 15:
             playerSetKongByActorType(8);
-            D_807FBB48->state = 0xC;
-            D_807FBB48->unk155[0] = 0;
-            actorScriptStartByIndex(D_807FBB48, 9);
-            D_807FBB48->speedXZ = 0.0f;
+            gActivePlayerActor->state = 0xC;
+            gActivePlayerActor->unk155[0] = 0;
+            actorScriptStartByIndex(gActivePlayerActor, 9);
+            gActivePlayerActor->speedXZ = 0.0f;
             playerInitMoveParams();
             goto tail;
         case 1:
@@ -190,9 +190,9 @@ tail:
         i = 0;
         if (D_807FBDC4 > 0) {
             do {
-                if (D_807FBB70.unk258[i] == 3) {
+                if (gActorGlobalState.unk258[i] == 3) {
                     a2v = 1;
-                    v3 = D_807FBB70.unk278[i][3];
+                    v3 = gActorGlobalState.unk278[i][3];
                     switch (challengeType) {
                     case 0:
                         if (s->unk4 != 0) {
@@ -362,17 +362,17 @@ render:
     }
     switch (gCurrentActor->state) {
     case 0:
-        if ((challengeType == 1 || challengeType == 0 || challengeType == 2 || challengeType == 0x10) && D_807FBB4C->y < 0.0f) {
+        if ((challengeType == 1 || challengeType == 0 || challengeType == 2 || challengeType == 0x10) && gPrimaryPlayerActor->y < 0.0f) {
             bonusEndLose(1, 1);
             return;
         }
-        if (challengeType == 4 && D_807FBB4C->y < -20.0f) {
+        if (challengeType == 4 && gPrimaryPlayerActor->y < -20.0f) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x362, 0xFF, 0x7F, 0);
             bonusEndLose(0, 1);
             camStartPath(gCurrentActor, 1, 1);
             return;
         }
-        if (D_807FBB4C->state == 0x73) {
+        if (gPrimaryPlayerActor->state == 0x73) {
             if (challengeType == 1) {
                 bonusEndLose(1, 0x13);
                 return;
@@ -380,7 +380,7 @@ render:
             bonusEndLose(1, 1);
             return;
         }
-        if (challengeType == 3 && D_807FBB4C->state == 0x31) {
+        if (challengeType == 3 && gPrimaryPlayerActor->state == 0x31) {
             bonusEndLose(1, 0x14);
             return;
         }
@@ -509,7 +509,7 @@ void bonusMazeChallengeUpdate(void) {
             actorSpawnNodeEntryScaled(0x56, 588.0f, 240.0f, 582.0f, 0, 0, bonusGetSoundForMap(), 0);
             gCurrentActor->state = 2;
         }
-        if (D_807FBB4C->state == 0x39) {
+        if (gPrimaryPlayerActor->state == 0x39) {
             mapTransitionToPreviousOrExit();
             func_806C9974(0, 0x40);
             gCurrentActor->state = 2;

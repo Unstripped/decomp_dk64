@@ -3,12 +3,12 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB48;
+extern Actor *gActivePlayerActor;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
-extern s16 D_807FD584;
+extern s16 gCurrentCharacterIndex;
 extern s32 gCurrentMap;
 extern u8 gPlayerCharacterId[];
 
@@ -599,7 +599,7 @@ void slotQueueAddValue(s32, u8, s32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 extern s8 D_80029FA0;
 extern s8 D_80753EF2[];
-extern u8 D_8076A0AB;
+extern u8 gCurrentWorldId;
 
 typedef struct {
     u8 pad0[6];
@@ -612,7 +612,7 @@ typedef struct {
     u8 pad2F0[0x306 - 8 * 0x5E];
 } F9L3_PlayerData;
 
-extern F9L3_PlayerData D_807FC950[];
+extern F9L3_PlayerData gPlayerInventoryTable[];
 
 void func_806F54E0(arg0, arg1, arg2)
 s32 arg0;
@@ -633,7 +633,7 @@ u8 arg2;
         temp_v0 = func_806F544C(D_80753EF2[temp_v0 * 0x14], arg1, arg2);
         switch (arg1) {
         case 0xDD: case 0xDE: case 0xDF: case 0xE0: case 0xE1:
-            flagSet((s16) flagGridIndex(0x1D5, mapGetHubWorldIndex(D_8076A0AB, 1), gPlayerCharacterId[(u8)arg0]), 1, 0);
+            flagSet((s16) flagGridIndex(0x1D5, mapGetHubWorldIndex(gCurrentWorldId, 1), gPlayerCharacterId[(u8)arg0]), 1, 0);
         case 0x74: case 0x288:
             slotQueueAddValue(temp_v0, arg0, 1);
             shouldComplete = 1;
@@ -657,7 +657,7 @@ u8 arg2;
             break;
         case 0xB7:
             for (i = 0; i < 5; i++) {
-                D_807FC950[(u8)arg0].sub[i].unk6 += 5;
+                gPlayerInventoryTable[(u8)arg0].sub[i].unk6 += 5;
             }
             func_806F5498();
             break;
@@ -937,7 +937,7 @@ void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
                 arg0->unkE = 1;
                 modelSlotFreeNestedBuffer(arg0->unk0, 1);
                 if (arg0->unk6 != -1) {
-                    func_8060E430((u16) arg0->unk6, 1, mapGetHubWorldIndex(D_8076A0AB, 1));
+                    func_8060E430((u16) arg0->unk6, 1, mapGetHubWorldIndex(gCurrentWorldId, 1));
                 }
                 if (gPlayerCount == 1) {
                     if (D_807FD734 == NULL) {
@@ -1042,7 +1042,7 @@ typedef struct F9N7_Slot {
     u8 pad8D[3];
 } F9N7_Slot;
 
-extern F9N7_Slot *D_807F6000;
+extern F9N7_Slot *gModelSlots;
 typedef struct F9N7_Kong {
     u8 unk0;
     u8 pad1[0x5D];
@@ -1087,13 +1087,13 @@ s32 gridCheckNodeCondition(s16 arg0, u8 arg1, u16 arg2) {
         }
         break;
     case 0x90:
-        slot = &D_807F6000[hashTableLookup(arg0)];
+        slot = &gModelSlots[hashTableLookup(arg0)];
         if (*(s16 *)(slot->unk7C + 0x64) != 0xFF) {
             return 0;
         }
         break;
     }
-    flags = D_807F6000[hashTableLookup(arg0)].unk8C;
+    flags = gModelSlots[hashTableLookup(arg0)].unk8C;
     if ((flags & 8) && (F9N7_PLAYER[gCurrentPlayerIndex].unk4->unk58 != 2)) {
         return 0;
     }
@@ -1144,7 +1144,7 @@ typedef struct F9N8_Type {
 
 extern s16 D_807FD790;
 extern u8 gGfxBufferIndex;
-extern s16 D_8076A0AA;
+extern s16 gCurrentLevelIndex;
 void gridCollectActorsInRange(u8);
 void effectSpawnRandomSpread(f32, f32, f32, f32, f32, s32);
 void modelSlotTransformBoundsAndNodes(s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8, u8);
@@ -1246,7 +1246,7 @@ void gridUpdatePlayerNodes(u8 arg0) {
                             tbl = csModelSlotGetTableIndex(node->unk0);
                             (&D_807FD790)[D_807FD798] = tbl;
                             D_807FD798 += 1;
-                            func_807314F4(D_8076A0AA, tbl);
+                            func_807314F4(gCurrentLevelIndex, tbl);
                         }
                     }
                     slotQueueGetPosition(slot, &px, &py, &pz);
@@ -1284,7 +1284,7 @@ s32 func_806F6E58(s16 arg0) {
 
     var_v1 = 0;
     if (arg0 < 5) {
-        var_v1 = ((u8 *)D_807FC950)[arg0 * 0x5E] >= D_80754238[arg0];
+        var_v1 = ((u8 *)gPlayerInventoryTable)[arg0 * 0x5E] >= D_80754238[arg0];
     }
     var_v1 |= flagGet(0x179, 0);
     return var_v1;
@@ -1570,9 +1570,9 @@ void gridCollectActorsInRange(u8 arg0) {
                                         }
                                         slot = modelSlotAppend(F94D_ENTRY->unk0, actor->x, func_806F7378(actor->actorType) + actor->y, actor->z, 0.0f, 0);
                                         tblIdx = csModelSlotGetTableIndex(slot);
-                                        func_80731410(D_8076A0AA, tblIdx, sub->unkA, func_8073198C(sub->unkA));
+                                        func_80731410(gCurrentLevelIndex, tblIdx, sub->unkA, func_8073198C(sub->unkA));
                                         tblIdx = csModelSlotGetTableIndex(slot);
-                                        modelFlagsApplyState(D_8076A0AA, tblIdx, &D_807F6000[hashTableLookup(slot)].unk8C);
+                                        modelFlagsApplyState(gCurrentLevelIndex, tblIdx, &gModelSlots[hashTableLookup(slot)].unk8C);
                                         gridAddModelNode(slot, F94D_ENTRY->unk0, 0, 1, 0, flag);
                                         actor->unk11C = 0;
                                     }
@@ -1596,7 +1596,7 @@ typedef struct {
 
 #define F9L2_PS ((F9L2_PlayerState *)gActivePlayerState)
 
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 extern u8 D_80745838;
 
 void func_80687C48(void);
@@ -1641,8 +1641,8 @@ void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
     case 0x90:
         sfxAllocateChannel(0x12, 1.0f);
         func_80687C48();
-        temp_fv0 = D_807FBB4C->y;
-        if (((temp_fv0 - D_807FBB4C->floorY) < 100.0f) && (D_807FBB4C->state != 0x63) && (!(D_807FBB4C->contactFlags & 4) || !((D_807FBB4C->waterY - temp_fv0) > 20.0f))) {
+        temp_fv0 = gPrimaryPlayerActor->y;
+        if (((temp_fv0 - gPrimaryPlayerActor->floorY) < 100.0f) && (gPrimaryPlayerActor->state != 0x63) && (!(gPrimaryPlayerActor->contactFlags & 4) || !((gPrimaryPlayerActor->waterY - temp_fv0) > 20.0f))) {
             playerStateQueueCallback(0x29, 0, F9L2_PS->unk1A4);
             return;
         }
@@ -1650,8 +1650,8 @@ void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
     case 0x74:
     case 0x288:
         sfxAllocateChannel(0x12, 1.0f);
-        temp_fv0_2 = D_807FBB4C->y;
-        if (((temp_fv0_2 - D_807FBB4C->floorY) < 100.0f) && (D_807FBB4C->state != 0x63) && (!(D_807FBB4C->contactFlags & 4) || !((D_807FBB4C->waterY - temp_fv0_2) > 20.0f))) {
+        temp_fv0_2 = gPrimaryPlayerActor->y;
+        if (((temp_fv0_2 - gPrimaryPlayerActor->floorY) < 100.0f) && (gPrimaryPlayerActor->state != 0x63) && (!(gPrimaryPlayerActor->contactFlags & 4) || !((gPrimaryPlayerActor->waterY - temp_fv0_2) > 20.0f))) {
             playerStateQueueCallback(0x29, 0, F9L2_PS->unk1A4);
             return;
         }

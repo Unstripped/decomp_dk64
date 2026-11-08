@@ -81,8 +81,8 @@ u8 actorListSpawnIfNear(ActorListNode *);
 u8 actorListDespawnIfFar(ActorListNode *);
 void actorListClearForcedIds(void);
 
-extern s16 D_8076A0AA;
-extern u8 D_8076A0AB;
+extern s16 gCurrentLevelIndex;
+extern u8 gCurrentWorldId;
 extern s32 D_807F6010;
 extern s32 gMapChunkCount;
 
@@ -128,7 +128,7 @@ void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
         switch (loadMode) {
         case 0:
             D_807F6010 = modelAsset;
-            preMapModelCount = modelTypeCountBeforeMap(D_8076A0AB);
+            preMapModelCount = modelTypeCountBeforeMap(gCurrentWorldId);
             flag = 1;
             break;
         case 1:
@@ -145,8 +145,8 @@ void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
     } else {
         modelAsset = playerGetModelAssetId();
     }
-    modelSlotsLoadMap(subtableCount, modelAsset, (u8)flag, preMapModelCount, mapGetHubWorldIndex(D_8076A0AB, 1));
-    csTimerQueueFire(D_8076A0AA);
+    modelSlotsLoadMap(subtableCount, modelAsset, (u8)flag, preMapModelCount, mapGetHubWorldIndex(gCurrentWorldId, 1));
+    csTimerQueueFire(gCurrentLevelIndex);
     actorListSpawnFromRecords(records);
     if (mapIndex != -1) {
         if (D_8076A160[mapIndex].unk20 != NULL) {

@@ -28,7 +28,7 @@ typedef struct {
     s16 unk2;
 } MenuStruct_30A2;
 
-extern u8 D_8076A0AB;
+extern u8 gCurrentWorldId;
 extern s32 D_80032F48[][6];
 extern MenuStruct_30A2 D_800330A2[];
 
@@ -37,7 +37,7 @@ void csModelStateSetFirstByte(s16, s32);
 void camStartPath(s32, s32, s32);
 
 void menuPlaySoundFromTable(MenuStruct_80024000 *menu) {
-    s32 soundId = D_80032F48[mapGetHubWorldIndex(D_8076A0AB, 0)][menu->unk1];
+    s32 soundId = D_80032F48[mapGetHubWorldIndex(gCurrentWorldId, 0)][menu->unk1];
 
     if (soundId == 0) {
         csModelStateSetFirstByte(D_800330A2[menu->unk1A].unk0, 9);
@@ -87,12 +87,12 @@ void menuUpdateFallingActor(MenuStruct_80024000 *menu) {
     }
 }
 
-extern void *D_807FBB4C;
+extern void *gPrimaryPlayerActor;
 void playerResumeLocomotion(void *);
 void mapTransitionToPreviousOrExit(void);
 
 void menuResetAudioState(void) {
-    playerResumeLocomotion(D_807FBB4C);
+    playerResumeLocomotion(gPrimaryPlayerActor);
     mapTransitionToPreviousOrExit();
     camStartPath(0, 7, 1);
 }
@@ -290,7 +290,7 @@ typedef struct {
 extern MenuControllerPad gPlayerPadState[];
 extern MenuStickAxis *D_807ECDEC;
 extern u8 gCurrentPlayerIndex;
-extern u8 D_807FC950[][0x5E];
+extern u8 gPlayerInventoryTable[][0x5E];
 extern u8 gPlayerCharacterId;
 extern u8 D_800330C0[];
 extern u8 D_80032F50;
@@ -322,7 +322,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
         break;
     case 0:
         if (listContainsS16(4, &D_800330D8) != 0) {
-            playerSaveData = D_807FC950[gPlayerCharacterId];
+            playerSaveData = gPlayerInventoryTable[gPlayerCharacterId];
             for (i = 0; i < 8; i++) {
                 if (flagGet((s16)flagGridIndex(0x1D5, i, gPlayerCharacterId), 0) != 0) {
                     temp = flagGridIndex(0x1FD, i, gPlayerCharacterId);
@@ -462,7 +462,7 @@ void menuDispatchAction(void) {
                 menu->unk0 = 0;
                 menu->unk1 = 0;
                 camPathIndex = 0;
-                playerWaypointPathStartPacked(D_807FBB4C, 0, 0, 0);
+                playerWaypointPathStartPacked(gPrimaryPlayerActor, 0, 0, 0);
                 flagSet(0x174, 1, 0);
             } else {
                 if (menu->unk2 == 0x28) {

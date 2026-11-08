@@ -507,8 +507,8 @@ void raceVehicleRenderCallback(void *glist, RaceActor *actor) {
     raceRenderHud(glist, actor, actor->unk174);
 }
 
-extern u8 D_807FBD70;
-extern void *D_807FBB4C;
+extern u8 gBossFightPhase;
+extern void *gPrimaryPlayerActor;
 s32 raceGetPrevWaypointIndex(s32, s32);
 void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, u8 spawnSparks);
 void actorUpdateModelMatrix(void *, s32);
@@ -552,12 +552,12 @@ void raceVehicleBehaviorUpdate(void) {
         if (func_807142D8() != 0 || flagGet(0x12, 2) != 0) {
             playerStateQueueCallback(0x4B, gCurrentActor, s1->unk28);
         } else {
-            playerWaypointPathStartPacked(D_807FBB4C, gCurrentActor, 0, 0x4B);
+            playerWaypointPathStartPacked(gPrimaryPlayerActor, gCurrentActor, 0, 0x4B);
         }
         actorClearNodeFlag(gCurrentActor, 2);
         racePlayEngineSfx();
     }
-    if (D_807FBD70 == 5 && pathState->unk39 == 0) {
+    if (gBossFightPhase == 5 && pathState->unk39 == 0) {
         if (s1->unk34 == 2) {
             func_8072DB68(3);
         }
@@ -648,10 +648,10 @@ typedef struct {
     u8 pad16[0x200 - 0x16];
     u8 unk200;
 } StructBB70_Race;
-extern StructBB70_Race D_807FBB70;
+extern StructBB70_Race gActorGlobalState;
 
 extern u8 D_80720340[];
-extern u8 D_8071FFA0[];
+extern u8 sEffectSparkConfig[];
 
 void func_807149B8(s32);
 void raceDespawnProjectile(void *, void *);
@@ -674,7 +674,7 @@ void raceProjectileBehaviorUpdate(void) {
         gCurrentActor->unk144 = 0x3C;
         participant->unk4 = 5.0f;
     }
-    if ((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0) || (D_807FBB70.unk200 == 5)) {
+    if ((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0) || (gActorGlobalState.unk200 == 5)) {
         func_807149B8(1);
         func_80714CC0(D_80720340, 3.0f, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84);
         sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0xF6, 0xFF, 0x7F, 0x14, 0x32, 0.3f, 0);
@@ -684,7 +684,7 @@ void raceProjectileBehaviorUpdate(void) {
     gCurrentActor->unk80 += 5.0f;
     if (s1->unk0 != 0) {
         func_807149B8(1);
-        func_80714CC0(D_8071FFA0, 1.0f, gCurrentActor->unk7C, gCurrentActor->unk80 + 10.0f, gCurrentActor->unk84);
+        func_80714CC0(sEffectSparkConfig, 1.0f, gCurrentActor->unk7C, gCurrentActor->unk80 + 10.0f, gCurrentActor->unk84);
         if (--s1->unk0 == 0) {
             hasCollided = 1;
         }

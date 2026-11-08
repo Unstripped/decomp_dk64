@@ -2,8 +2,8 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
 extern void *gPlayerSlots;
 
 typedef struct D1S10 {
@@ -51,7 +51,7 @@ typedef struct D1ActorViewE {
 #define D1AE ((D1ActorViewE *)gCurrentActor)
 
 extern void *D_807FDCA0;
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern s32 gCurrentMap;
 extern u8 D_807FBB85;
 void actorScriptStart(Actor *, s32);
@@ -74,17 +74,17 @@ void behaviourFrameBegin(void) {
         }
     }
     if (gCurrentActor->collisionFlags & 2) {
-        if ((D_807444EC == 1 && (D1DC98D->unk46 & 8)) || (gBehaviourTargetActor != NULL && gBehaviourTargetActor->state == 0x42)) {
+        if ((gGameMode == 1 && (D1DC98D->unk46 & 8)) || (gBehaviourTargetActor != NULL && gBehaviourTargetActor->state == 0x42)) {
             if (gCurrentActor->state >= 0x23 && gCurrentActor->state < 0x36) {
                 gCurrentActor->unk144 = 1;
                 gCurrentActor->state = 0x3A;
                 gCurrentActor->unk155[0] = 0;
             }
         }
-        if (D_807FBB70.unk1B) {
+        if (gActorGlobalState.unk1B) {
             if (gCurrentActor->state != 0x39) {
                 if (D1DC98D->unk46 & 0x800) {
-                    D_807FBB70.unk15 = 1;
+                    gActorGlobalState.unk15 = 1;
                 } else {
                     actorGlobalStateClearEvents();
                     gCurrentActor->callbackMask = 0;
@@ -100,7 +100,7 @@ void behaviourFrameBegin(void) {
         }
         if ((D1DC98D->unk46 & 0x4000) && (gCurrentActor->contactFlags & 4)) {
             if (gCurrentActor->y + (f32)(u32)gCurrentActor->unk15E < D1AE->unkAC) {
-                D_807FBB70.unk15 = 1;
+                gActorGlobalState.unk15 = 1;
             }
         }
         if (gCurrentMap == 0x30) {
@@ -116,7 +116,7 @@ void behaviourFrameBegin(void) {
     }
     if (gCurrentActor->actorType != 0xAF && gCurrentActor->state == 0x37 && gCurrentActor->callbackMask != 0) {
         gCurrentActor->callbackMask = 0;
-        if (!D_807FBB70.unk1B) {
+        if (!gActorGlobalState.unk1B) {
         }
     }
     collisionClearFlags();
@@ -997,7 +997,7 @@ void func_8072B7CC(s32 arg0) {
                     actorSetTargetSpeed(gCurrentActor, 0);
                 }
                 F1A->unk155 = F1A->unk155 + 1;
-            } else if ((D_807444EC == 0) && (gBehaviourTargetActor->state != 0x42)) {
+            } else if ((gGameMode == 0) && (gBehaviourTargetActor->state != 0x42)) {
                 F1A->unk132 = 1;
                 F1A->unk144 = 0x24;
                 F1A->unk154 = F1S9C->unk10;
@@ -1015,7 +1015,7 @@ void func_8072B7CC(s32 arg0) {
                 if (gFrameCounter & 1) {
                     F1A->unk80 += 1.0f;
                 }
-                if (D_807FBB4C->state != 0x67) {
+                if (gPrimaryPlayerActor->state != 0x67) {
                     actorQueueDelayedCallback(gCurrentActor, 0, 8, 0, 0, 0, 1);
                 }
             }
@@ -1776,7 +1776,7 @@ void func_8072DB68(s32 arg0) {
     slotQueueUpdate(0xB, 0, 0);
     sfxAllocateChannel(0x41, 1.0f);
     for (i = 0; i < cnt; i++) {
-        actorSpawnNodeEntryScaled(0x36, D_807FBB4C->x, D_807FBB4C->y, D_807FBB4C->z, D_807FBB4C->yaw + i * 200 - 200, 1, -1, 0);
+        actorSpawnNodeEntryScaled(0x36, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, gPrimaryPlayerActor->yaw + i * 200 - 200, 1, -1, 0);
     }
 }
 

@@ -33,7 +33,7 @@ typedef struct Actor_3340 {
 } Actor_3340;
 
 extern Actor_3340 *gCurrentActor;
-extern Actor_3340 *D_807FBB4C;
+extern Actor_3340 *gPrimaryPlayerActor;
 extern Actor_3340 *gActivePlayerState;
 extern s32 gFrameCounter;
 
@@ -76,13 +76,13 @@ void critterSetDigitFrames(s32 val) {
 
 
 extern s32 gCurrentMap;
-extern u8 D_8076A0AB;
+extern u8 gCurrentWorldId;
 extern u8 gPlayerCharacterId;
 extern u16 D_807446C0[];
 extern s16 D_807446D0[];
 extern s8 D_807446E0[];
 extern s8 D_807446EE;
-extern u16 D_807FC930[];
+extern u16 gLevelCollectibleCounts[];
 extern u16 D_807ECD48;
 extern u16 D_80029F90[];
 extern s8 D_80029F80;
@@ -124,7 +124,7 @@ void critterBananaFairyUpdate(void) {
     timerPtr = gCurrentActor->unk174;
     canSecretUnlock = 0;
     hasSecretDiscount = 0;
-    worldIndex = mapGetHubWorldIndex(D_8076A0AB, 0);
+    worldIndex = mapGetHubWorldIndex(gCurrentWorldId, 0);
     if (worldIndex >= 8) {
         worldIndex = 7;
     }
@@ -138,7 +138,7 @@ void critterBananaFairyUpdate(void) {
         if (gCurrentMap == 0x2A) {
             actorScriptStart(gCurrentActor, 0x39F);
             gCurrentActor->unk155 = 4;
-            if (D_807FC930[worldIndex] < requiredCount) {
+            if (gLevelCollectibleCounts[worldIndex] < requiredCount) {
                 slotQueueUpdate(0, 1, 0);
             }
         } else {
@@ -173,17 +173,17 @@ void critterBananaFairyUpdate(void) {
     }
     gCurrentActor->unk15E = 0x23;
     if (gCurrentMap != 0x2A) {
-        dx = D_807FBB4C->unk7C - gCurrentActor->unk7C;
-        dy = (f32)(2.0 * (f64)(D_807FBB4C->unk80 - gCurrentActor->unk80));
-        dz = D_807FBB4C->unk84 - gCurrentActor->unk84;
+        dx = gPrimaryPlayerActor->unk7C - gCurrentActor->unk7C;
+        dy = (f32)(2.0 * (f64)(gPrimaryPlayerActor->unk80 - gCurrentActor->unk80));
+        dz = gPrimaryPlayerActor->unk84 - gCurrentActor->unk84;
         dist = sqrtf(dx * dx + dy * dy + dz * dz);
         if ((f64)dist < 300.0 && flagGet(0x17E, 0) == 0) {
             func_8070E8DC(1);
             func_8070D8C0(gCurrentActor, 0x1D, 0);
             camStartPath(gCurrentActor, 1, 1);
             flagSet(0x17E, 1, 0);
-        } else if (canSecretUnlock != 0 && (f64)dist < 200.0 && camIsCutsceneActive() == 0 && D_807FBB4C->unk154 == 0x24 && D_807FBB4C->unk155 == 2 && (f64)dz > -35.0) {
-            if ((f64)dx > -27.0 && (f64)dx < 27.0 && (D_807FBB4C->unkE6 < 0x200 || D_807FBB4C->unkE6 >= 0xE01)) {
+        } else if (canSecretUnlock != 0 && (f64)dist < 200.0 && camIsCutsceneActive() == 0 && gPrimaryPlayerActor->unk154 == 0x24 && gPrimaryPlayerActor->unk155 == 2 && (f64)dz > -35.0) {
+            if ((f64)dx > -27.0 && (f64)dx < 27.0 && (gPrimaryPlayerActor->unkE6 < 0x200 || gPrimaryPlayerActor->unkE6 >= 0xE01)) {
                 D_80029F84 = 2;
                 sfxPlayOnFreeSlot(0x145, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
                 camStartShake(gCamActor, 0xA, 0xA);
@@ -315,14 +315,14 @@ void critterBananaFairyRewardUpdate(void) {
             gCurrentActor->unk154 = 3;
         }
     }
-    dx = gCurrentActor->unk7C - D_807FBB4C->unk7C;
-    dz = gCurrentActor->unk84 - D_807FBB4C->unk84;
+    dx = gCurrentActor->unk7C - gPrimaryPlayerActor->unk7C;
+    dz = gCurrentActor->unk84 - gPrimaryPlayerActor->unk84;
     switch (gCurrentActor->unk154) {
     case 1:
         inRangeIntro = ((dx * dx + dz * dz) < 10000.0f) != 0;
         if (inRangeIntro) {
             flagSet(0x179, 1, 0);
-            camStartPath(D_807FBB4C, 0, 1);
+            camStartPath(gPrimaryPlayerActor, 0, 1);
             currentActorClearFlag();
             gCurrentActor->unk154 = 2;
         }
@@ -332,24 +332,24 @@ void critterBananaFairyRewardUpdate(void) {
         if (gCurrentActor->unk155 != 0) {
             gCurrentActor->unk155++;
             if (gCurrentActor->unk155 < 0x4B) {
-                gCurrentActor = D_807FBB4C;
+                gCurrentActor = gPrimaryPlayerActor;
                 if (!(gFrameCounter & 3)) {
                     effectSpawnBurst(0);
                 }
                 gCurrentActor = savedActor;
             } else {
-                gCurrentActor = D_807FBB4C;
-                D_807FBB4C->unk154 = 0x2D;
-                D_807FBB4C->unk155 = 0;
-                actorScriptStartByIndex(D_807FBB4C, 0x42);
-                sfxPlayFromActorWithAltitudeCheck(D_807FBB4C, 0xF2, 0xFF, 0x7F, 0);
+                gCurrentActor = gPrimaryPlayerActor;
+                gPrimaryPlayerActor->unk154 = 0x2D;
+                gPrimaryPlayerActor->unk155 = 0;
+                actorScriptStartByIndex(gPrimaryPlayerActor, 0x42);
+                sfxPlayFromActorWithAltitudeCheck(gPrimaryPlayerActor, 0xF2, 0xFF, 0x7F, 0);
                 gCurrentActor = savedActor;
                 gCurrentActor->unk155 = 0;
-                sfxStopSlotSound(D_807FBB4C, 1);
+                sfxStopSlotSound(gPrimaryPlayerActor, 1);
             }
         } else if (currentActorTestClearFlag(gCurrentActor) != 0) {
             gCurrentActor->unk155 = 1;
-            sfxPlayActorSound(D_807FBB4C, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
+            sfxPlayActorSound(gPrimaryPlayerActor, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
             slotQueueUpdate(6, 0, 0);
             slotQueueAddValue(6, gActivePlayerState->playerIndex, 0x3E7);
         }
@@ -412,7 +412,7 @@ typedef struct FlutterActorView {
 
 #define FLUTTER_ACTOR ((FlutterActorView *)gCurrentActor)
 
-extern u8 D_807FBD70;
+extern u8 gBossFightPhase;
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -459,10 +459,10 @@ void critterFlutterFlyUpdate(void) {
         d->unk14 = d->unk20;
         d->unk1C = d->unk28;
     }
-    dx = FLUTTER_ACTOR->unk7C - ((FlutterActorView *)D_807FBB4C)->unk7C;
-    dz = FLUTTER_ACTOR->unk84 - ((FlutterActorView *)D_807FBB4C)->unk84;
+    dx = FLUTTER_ACTOR->unk7C - ((FlutterActorView *)gPrimaryPlayerActor)->unk7C;
+    dz = FLUTTER_ACTOR->unk84 - ((FlutterActorView *)gPrimaryPlayerActor)->unk84;
     if (FLUTTER_ACTOR->unk154 != 1) {
-        FLUTTER_ACTOR->unkE6 = FLUTTER_ACTOR->unkE6 - (mathAngleSignedDistance(mathAngleBetweenPoints2D(((FlutterActorView *)D_807FBB4C)->unk7C, ((FlutterActorView *)D_807FBB4C)->unk84, FLUTTER_ACTOR->unk7C, FLUTTER_ACTOR->unk84), FLUTTER_ACTOR->unkE6) >> 3);
+        FLUTTER_ACTOR->unkE6 = FLUTTER_ACTOR->unkE6 - (mathAngleSignedDistance(mathAngleBetweenPoints2D(((FlutterActorView *)gPrimaryPlayerActor)->unk7C, ((FlutterActorView *)gPrimaryPlayerActor)->unk84, FLUTTER_ACTOR->unk7C, FLUTTER_ACTOR->unk84), FLUTTER_ACTOR->unkE6) >> 3);
     }
     FLUTTER_ACTOR->unk15E = 0xF;
     switch (FLUTTER_ACTOR->unk154) {
@@ -510,7 +510,7 @@ void critterFlutterFlyUpdate(void) {
         }
         FLUTTER_ACTOR->unk7C = d->unk8 + (t * (d->unk14 - d->unk8));
         FLUTTER_ACTOR->unk84 = d->unk10 + (t * (d->unk1C - d->unk10));
-        if (D_807FBD70 == 4) {
+        if (gBossFightPhase == 4) {
             actorScriptStart(gCurrentActor, 0x43C);
             FLUTTER_ACTOR->unk154 = 2;
             d->unk0 = 0.0f;

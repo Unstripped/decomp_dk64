@@ -32,7 +32,7 @@ typedef struct {
 } SegmentTableEntry;
 
 extern SegmentTableEntry gSegmentTable[];
-extern u8 D_8074450C;
+extern u8 gHiResScale;
 extern s32 gFramebuffers;
 extern s32 D_80744474;
 extern s32 gFrameDelta;
@@ -81,7 +81,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     s32 i;
     s32 cur;
 
-    lo = D_8074450C * 0x25800 * D_8074450C;
+    lo = gHiResScale * 0x25800 * gHiResScale;
     gHeapPoolCount = 0;
     size = 0;
     gHeapBlockPoolCount = 0;
@@ -252,7 +252,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     }
     for (id = 0; id < 2; id++) {
         q = (u8 *)(&gFramebuffers)[id];
-        p = (u32 *)(q + (D_8074450C * 0x12C00 * D_8074450C) / 2 * 4);
+        p = (u32 *)(q + (gHiResScale * 0x12C00 * gHiResScale) / 2 * 4);
         if (q < (u8 *)p) {
             do {
                 *(u32 *)q = 0x10001;

@@ -3,21 +3,21 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB48;
-extern Actor *D_807FBB4C;
+extern Actor *gActivePlayerActor;
+extern Actor *gPrimaryPlayerActor;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern u8 D_807FC950[][0x5E];
+extern u8 gPlayerInventoryTable[][0x5E];
 extern s32 gCurrentMap;
-extern u8 D_8076A0AB;
-extern u8 D_8076A0B1;
+extern u8 gCurrentWorldId;
+extern u8 gScreenRenderFlags;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
-extern u8 D_807444F8;
+extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern u8 D_807444F4;
 extern s32 D_8076D1F8;
 extern s32 gGlobalOverlayFlags;
@@ -31,19 +31,19 @@ void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
 void func_807094D0(arg0)
 u8 arg0;
 {
-    D_807444F4 = D_807444EC;
+    D_807444F4 = gGameMode;
     switch (arg0) {
     case 2:
         D_807FD9C4 = 1.0f;
         D_807FD9BC = 0;
-        D_807444F8 = 1;
-        D_807444EC = 6;
+        gNextGameMode = 1;
+        gGameMode = 6;
         break;
     case 3:
         D_807FD9C4 = 0.5f;
         D_807FD9BC = 0;
-        D_807444F8 = 2;
-        D_807444EC = 6;
+        gNextGameMode = 2;
+        gGameMode = 6;
         D_807FD9BD = 2;
         if ((D_807444F4 == 1) && (gGlobalOverlayFlags & 1)) {
             timerQueueCancel(0);
@@ -475,20 +475,20 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
         transitionInit();
         break;
     }
-    if ((D_8076A0B1 & 1) && (gScreenFadeProgress == 31.0f)) {
+    if ((gScreenRenderFlags & 1) && (gScreenFadeProgress == 31.0f)) {
         sp34 = gGfxTaskBuffers[gGfxBufferIndex];
         if (D_8076A0B2 == 1) {
-            D_807444EC = D_807444F4;
+            gGameMode = D_807444F4;
         }
     } else {
-        transitionBeginDisplayList(gGfxCurrentFrameBuffer, &sp34, &D_8076A0B1);
+        transitionBeginDisplayList(gGfxCurrentFrameBuffer, &sp34, &gScreenRenderFlags);
         if (transitionRender(&sp34, D_807FD9B8, D_807FD9B0) != 0) {
-            switch (D_807444F8) {
+            switch (gNextGameMode) {
             case 1:
                 osViBlack(1);
                 mapRequestTransition(arg0, arg1);
                 gScreenFadeProgress = 31.0f;
-                D_807444F8 = 2;
+                gNextGameMode = 2;
                 break;
             case 2:
                 heapFreeDeferred((void *)D_807FD9B0);
@@ -497,10 +497,10 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
                 heapFreeDeferred(D_807FD9A8->unk10);
                 heapFreeDeferred(D_807FD9A8->unk14);
                 assetFreeBuffer(D_807FD9B8, 0x24B, 0x4A);
-                if (((D_807444EC = D_807444F4) == 1) && (gGlobalOverlayFlags & 1)) {
+                if (((gGameMode = D_807444F4) == 1) && (gGlobalOverlayFlags & 1)) {
                     camRestartPath();
                 }
-                D_807444F8 = 3;
+                gNextGameMode = 3;
                 gScreenFadeProgress = 0.0f;
                 break;
             }
@@ -509,10 +509,10 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
     if (D_807FD9BD != 0) {
         D_807FD9BD--;
         if (D_807FD9BD == 0) {
-            D_8076A0B1 |= 2;
+            gScreenRenderFlags |= 2;
         }
     }
-    if ((D_8076A0A4 != 0) && (D_807444EC != 6)) {
+    if ((D_8076A0A4 != 0) && (gGameMode != 6)) {
         gfxEndDisplayList(sp34, gGfxBufferIndex, &D_8076A088, 0);
         gfxEndSubDisplayList(sp30, (s32)gGfxCurrentFrameBuffer, &D_8076A08C, 1);
         return;
@@ -567,7 +567,7 @@ s32 func_80709890();
 s32 meshComputeVertexRanges();
 
 void transitionInit(void) {
-    switch (D_807444F8) {
+    switch (gNextGameMode) {
     case 1:
         gTransitionProgress = 0;
         D_8075506C = 0;
@@ -649,7 +649,7 @@ void transitionSetAudioVolume(f32 volumeScale, s32 isGroupActive, s32 *channels)
     if (isGroupActive != 0) {
         D_807550A4 = 1;
         n_alSndpSetGroupVol(2, scaledVol);
-        if ((sTransitionState == 0) && ((D_8076A0B1 & 1) || !(D_8076A0B1 & 0x40))) {
+        if ((sTransitionState == 0) && ((gScreenRenderFlags & 1) || !(gScreenRenderFlags & 0x40))) {
             seqSetChannelVolumeScale(0, volumeScale);
         }
     } else {
@@ -703,7 +703,7 @@ u8 transitionRender(Gfx **gdl, s32 frameIndex, s32 mode) {
     TransitionChannels channels;
 
     out = *gdl;
-    if (D_807444F8 == 1) {
+    if (gNextGameMode == 1) {
         delta = 3;
     } else {
         delta = -4;
@@ -713,7 +713,7 @@ u8 transitionRender(Gfx **gdl, s32 frameIndex, s32 mode) {
     heapFreeDeferred(glist);
     start = glist;
     if (D_807FD9C8 != 0) {
-        if (D_807444F8 == 1) {
+        if (gNextGameMode == 1) {
             value = (f64)gTransitionProgress - 20.0;
             D_807FD9C4 = (f32)((0.9 / ((value * 0.001 * value) + 1.0)) + 0.6);
             if (gTransitionProgress < 60) {
@@ -734,7 +734,7 @@ u8 transitionRender(Gfx **gdl, s32 frameIndex, s32 mode) {
     }
     {
         f32 progress = (f64)gTransitionProgress / 120.0;
-        transitionSetAudioVolume(1.0f - progress, D_807444F8 == 1, channels.a);
+        transitionSetAudioVolume(1.0f - progress, gNextGameMode == 1, channels.a);
     }
     gDPSetCycleType(glist++, G_CYC_1CYCLE);
     gSPClearGeometryMode(glist++, 0xFFFFFF);

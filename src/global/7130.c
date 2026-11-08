@@ -1267,7 +1267,7 @@ typedef struct SoundTargetSlot {
     SoundTargetSlotNode *unk7C;
     char pad80[0x10];
 } SoundTargetSlot;
-extern SoundTargetSlot *D_807F6000;
+extern SoundTargetSlot *gModelSlots;
 
 typedef struct SoundWaterState {
     char pad0[0x90];
@@ -1339,10 +1339,10 @@ void sfxUpdateSourceGroups(void) {
             fxFlags = 0;
             for (j = D_80770740[i] - 1; j >= 0; j--) {
                 slot = hashTableLookup(D_807705F8[D_807707A0[i][j]]);
-                sfxUpdateDistanceVolumeAndPan(D_807F6000[slot].unk0, D_807F6000[slot].unk4, D_807F6000[slot].unk8, 0xFF, 0x50, 0.5f);
+                sfxUpdateDistanceVolumeAndPan(gModelSlots[slot].unk0, gModelSlots[slot].unk4, gModelSlots[slot].unk8, 0xFF, 0x50, 0.5f);
                 dist[j] = D_80770DE4;
                 sfxSlotFreeSource(D_807707A0[i][j]);
-                D_807F6000[slot].unk7C->unk12 = -1;
+                gModelSlots[slot].unk7C->unk12 = -1;
             }
             if (D_80770DE8 > 32767.0f) {
                 D_80770DE8 = 32767.0f;
@@ -1415,7 +1415,7 @@ void sfxUpdateSourceGroups(void) {
                                 actor = NULL;
                                 if (D_80770710[i] == 0x12B) {
                                     slot = hashTableLookup(D_807705F8[D_807707A0[i][j]]);
-                                    sfxUpdateDistanceVolumeAndPan(D_807F6000[slot].unk0, D_807F6000[slot].unk4 + 320.0f, D_807F6000[slot].unk8, 0xFF, D_80770788[D_807707A0[i][j]], factor);
+                                    sfxUpdateDistanceVolumeAndPan(gModelSlots[slot].unk0, gModelSlots[slot].unk4 + 320.0f, gModelSlots[slot].unk8, 0xFF, D_80770788[D_807707A0[i][j]], factor);
                                 } else if (D_80770CF8[i] > 0) {
                                     modelSlotGetNodePos(D_807705F8[D_807707A0[i][j]], 1, D_80770CF8[i], &posX, &posY, &posZ);
                                     sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, D_80770788[D_807707A0[i][j]], factor);
@@ -1426,7 +1426,7 @@ void sfxUpdateSourceGroups(void) {
                                     D_80770DF4 = 32767.0f;
                                 } else {
                                     slot = hashTableLookup(D_807705F8[D_807707A0[i][j]]);
-                                    sfxUpdateDistanceVolumeAndPan(D_807F6000[slot].unk0, D_807F6000[slot].unk4, D_807F6000[slot].unk8, 0xFF, D_80770788[D_807707A0[i][j]], factor);
+                                    sfxUpdateDistanceVolumeAndPan(gModelSlots[slot].unk0, gModelSlots[slot].unk4, gModelSlots[slot].unk8, 0xFF, D_80770788[D_807707A0[i][j]], factor);
                                 }
                             } else {
                                 actor = D_807705A0[D_807707A0[i][j]];
@@ -1510,7 +1510,7 @@ void sfxUpdateSourceGroups(void) {
                             }
                             if (D_80770BC0[i] == 40.0f) {
                                 sfxSlotFreeSource(D_807707A0[i][0]);
-                                D_807F6000[slot].unk7C->unk10 = -1;
+                                gModelSlots[slot].unk7C->unk10 = -1;
                             }
                             break;
                         case 0x11F:
@@ -1538,7 +1538,7 @@ void sfxUpdateSourceGroups(void) {
                                 if (D_80770BC0[i] == 110.0f) {
                                     if (D_807705F8[D_807707A0[i][0]] != -1) {
                                         sfxSlotFreeSource(D_807707A0[i][0]);
-                                        D_807F6000[slot].unk7C->unk10 = -1;
+                                        gModelSlots[slot].unk7C->unk10 = -1;
                                     } else {
                                         sfxStopSlotSound((Actor *)actor, 0);
                                         sfxStopChannel(0x3B, 0);
@@ -1926,7 +1926,7 @@ void sfxPlayFromActorWithAltitudeCheck(Actor *arg0, s16 arg1, u8 arg2, s16 arg3,
 }
 
 void sfxPlayFromTargetSlot(s16 arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 arg6) {
-    sfxPlayAtPositionPooled(D_807F6000[arg0].unk0, D_807F6000[arg0].unk4, D_807F6000[arg0].unk8, arg1, arg2, arg3, arg4, arg5, arg6, 0);
+    sfxPlayAtPositionPooled(gModelSlots[arg0].unk0, gModelSlots[arg0].unk4, gModelSlots[arg0].unk8, arg1, arg2, arg3, arg4, arg5, arg6, 0);
 }
 
 void sfxPlayAtPosition(f32, f32, f32, s16, u8, f32, u8, u8);

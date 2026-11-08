@@ -1392,7 +1392,7 @@ typedef struct RaceFE644Arg {
     char pad10[4];
     f32 unk14;
 } RaceFE644Arg;
-extern u8 D_807FBD70;
+extern u8 gBossFightPhase;
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 mathAngleDistance(s16, s16);
 f32 mathAtan2(f32, f32);
@@ -1414,7 +1414,7 @@ void raceHandleRacerCollision(RaceFE644Arg *collision) {
 
     actor = collision->unk0;
     distSq = (actor->unk7C - gCurrentActor->unk7C) * (actor->unk7C - gCurrentActor->unk7C) + (actor->unk84 - gCurrentActor->unk84) * (actor->unk84 - gCurrentActor->unk84);
-    if (D_807FBD70 == 4 && distSq < collision->unk14 && (collision->unkF == 1 || collision->unkF == 0 || collision->unkF == 4 || (gCurrentActor->unk58 == 0x143 && collision->unkF == 5))) {
+    if (gBossFightPhase == 4 && distSq < collision->unk14 && (collision->unkF == 1 || collision->unkF == 0 || collision->unkF == 4 || (gCurrentActor->unk58 == 0x143 && collision->unkF == 5))) {
         targetAngle = mathAngleBetweenPoints2D(gCurrentActor->unk7C, gCurrentActor->unk84, actor->unk7C, actor->unk84);
         bounceScale = 1.0f;
         if (mathAngleDistance(actor->unkEE, targetAngle) < 0x200) {

@@ -4,7 +4,7 @@
 extern u8 gGfxBufferIndex;
 
 extern u8 D_807444F0;
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern s8 D_807444C0;
 extern s32 gCurrentMap;
 
@@ -15,12 +15,12 @@ f32 cameraStepAspectScale(void) {
     s32 flag;
 
     target = 1.0f;
-    if (D_807444F0 != 1 && D_807444EC == 1) {
+    if (D_807444F0 != 1 && gGameMode == 1) {
         step = 999.0f;
     } else {
         step = 0.02f;
     }
-    flag = D_807444EC == 1;
+    flag = gGameMode == 1;
     if (flag) {
         flag = gCurrentMap != 0x50;
     }

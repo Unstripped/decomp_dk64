@@ -3,13 +3,13 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB48;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
+extern Actor *gActivePlayerActor;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
-extern s16 D_807FD584;
+extern s16 gCurrentCharacterIndex;
 extern u16 D_807FD63C;
 
 typedef struct G08Slot {
@@ -85,7 +85,7 @@ typedef struct G08Actor {
 } G08Actor;
 
 #define G08_P ((G08Player *)gActivePlayerState)
-#define G08_A48 ((G08Actor *)D_807FBB48)
+#define G08_A48 ((G08Actor *)gActivePlayerActor)
 #define G08_A40 ((G08Actor *)gCurrentActor)
 
 extern u32 gGlobalPauseFlags;
@@ -205,7 +205,7 @@ void playerStateUnderwaterSwimming(void) {
     f32 temp2;
 
     G08_P->unk24++;
-    G08_P->unk2C = D_80753AFC[D_807FD584];
+    G08_P->unk2C = D_80753AFC[gCurrentCharacterIndex];
     switch (G08_A40->unk155) {
         case 0:
             playerInputUpdate(0x4C);
@@ -258,7 +258,7 @@ void playerStateUnderwaterSwimming(void) {
             temp1 = G08_A40->unkC0 / 200.0;
             scriptSetActorRampTarget(gCurrentActor, sqrtf(temp0 * temp0 + temp1 * temp1), 5.0f);
             if ((G08_A40->unkB8 == 0.0f) || (G08_P->unk18 != 0)) {
-                G08_P->unk50 = D_80753A78[D_807FD584];
+                G08_P->unk50 = D_80753A78[gCurrentCharacterIndex];
                 scriptSetActorRampTarget(gCurrentActor, 0.5f, G08_P->unk50);
                 G08_A40->unk155 = 2;
             }
@@ -417,7 +417,7 @@ void playerStateGameOver(void) {
     } else {
         func_806D850C();
         if (!(G08_A40->unk6C & 4)) {
-            actorScriptStartByIndex(D_807FBB4C, 0x34);
+            actorScriptStartByIndex(gPrimaryPlayerActor, 0x34);
         }
         G08_A40->unkC0 = G08_A40->unkC0 * 0.25;
         playerApplyFullPhysics();
@@ -452,7 +452,7 @@ void playerStateSquishDeath(void) {
     } else {
         func_806D850C();
         if (!(G08_A40->unk6C & 4)) {
-            actorScriptStartByIndex(D_807FBB4C, 0x34);
+            actorScriptStartByIndex(gPrimaryPlayerActor, 0x34);
         }
         G08_A40->unkC0 = G08_A40->unkC0 * 0.25;
         playerApplyMotionWithHorizontalVelocity();
@@ -542,7 +542,7 @@ void actorRegisterCurrentActorGlobalCallback(void *arg0) {
 
     node = heapAlloc(0x14);
     node->callback = arg0;
-    node->unk8 = (s32)D_807FBB48;
+    node->unk8 = (s32)gActivePlayerActor;
     node->unk4 = 1;
     actorRegisterGlobalCallback(node);
 }
@@ -921,9 +921,9 @@ extern f32 D_80753A5C[];
 void func_806EAB44();
 
 void playerInputUpdateCaseD(void) {
-    G10_P->unk2C = D_80753AFC[D_807FD584];
+    G10_P->unk2C = D_80753AFC[gCurrentCharacterIndex];
     func_806D2954(0xD);
-    func_806CC638(D_80753A5C[D_807FD584]);
+    func_806CC638(D_80753A5C[gCurrentCharacterIndex]);
     if (func_806D850C() != 0) {
         func_806EAB44(gCurrentActor, 1);
     }
@@ -931,9 +931,9 @@ void playerInputUpdateCaseD(void) {
 }
 
 void playerInputUpdateCase11(void) {
-    G10_P->unk2C = D_80753AFC[D_807FD584];
+    G10_P->unk2C = D_80753AFC[gCurrentCharacterIndex];
     func_806D2A14(0x11);
-    func_806CC638(D_80753A5C[D_807FD584]);
+    func_806CC638(D_80753A5C[gCurrentCharacterIndex]);
     if (func_806D850C() != 0) {
         func_806EAB44(gCurrentActor, 1);
     }
@@ -966,7 +966,7 @@ void playerStateClimbTree(void) {
 }
 
 extern f32 D_807536E4[];
-extern s32 D_807FBB68;
+extern s32 gGlobalCutsceneFlags;
 void func_80687400();
 s32 slotQueueGetValue();
 void slotQueueAddValue();
@@ -983,7 +983,7 @@ void playerStateVineSwing(void) {
     f32 r;
     s32 sel;
 
-    if (D_807FBB68 & 2) {
+    if (gGlobalCutsceneFlags & 2) {
         f64 t = (G10_A->unk80 - 120.0f) * 0.5;
 
         v = (t > 0.0) ? t : 0.0;
@@ -1002,10 +1002,10 @@ void playerStateVineSwing(void) {
         G10_A->unk144 &= 0xFFF7;
     }
     playerInputUpdate(0x1B);
-    r = mapGetVoidHeightForCharacter(((G10Actor4C *)D_807FBB4C)->unk12C);
+    r = mapGetVoidHeightForCharacter(((G10Actor4C *)gPrimaryPlayerActor)->unk12C);
     sel = 0x7E;
     if (r < G10_A->unk80) {
-        G10_A->unkC4 = D_807536E4[D_807FD584];
+        G10_A->unkC4 = D_807536E4[gCurrentCharacterIndex];
         if (G10_A->unkC0 > 0.0f) {
             G10_A->unkC0 = G10_A->unkC0 * 0.7;
         }
@@ -1038,7 +1038,7 @@ void playerStateVineSwing(void) {
         G10_P->unk240--;
     }
     if ((G10_A->unk6A & 1) || (G10_P->unk240 == 1)) {
-        if (D_807FBB68 & 2) {
+        if (gGlobalCutsceneFlags & 2) {
             G10_A->unk144 |= 8;
         }
         playerResumeLocomotion(gCurrentActor);
@@ -1096,7 +1096,7 @@ void playerStateClimbLadder(void) {
             G10_A->unk155 = 0;
         }
     }
-    if ((camIsCutsceneActive() == 0) && ((f = D_807531E0[D_807FD584]) < G10_A->unkB8) && (f < G10_P->unk4) &&
+    if ((camIsCutsceneActive() == 0) && ((f = D_807531E0[gCurrentCharacterIndex]) < G10_A->unkB8) && (f < G10_P->unk4) &&
         (G10_P->unkC >= 0) && (mathAngleDistance(G10_P->unkC, G10_P->unkA) >= 0x401) &&
         (mathAngleDistance(G10_A->unkEE, G10_P->unkA) >= 0x539)) {
         G10_A->unk154 = 0xE;
@@ -1398,7 +1398,7 @@ void playerStateSkidTurn(void) {
         case 0:
             playerInputUpdate(0x41);
             actorScriptStartByIndex(gCurrentActor, 5);
-            G11_P->unk30 = D_8075327C[D_807FD584];
+            G11_P->unk30 = D_8075327C[gCurrentCharacterIndex];
             playerApplyDeceleration();
             playerApplyGravityAndMotion();
             G11_A->unk155++;
@@ -1411,12 +1411,12 @@ void playerStateSkidTurn(void) {
         case 2:
             playerInputUpdate(0x41);
             playerApplyDeceleration();
-            mathAngleStepTowardThreshold(&G11_A->unkE6, G11_P->unkA, D_80753298[D_807FD584], 0xC00);
+            mathAngleStepTowardThreshold(&G11_A->unkE6, G11_P->unkA, D_80753298[gCurrentCharacterIndex], 0xC00);
             playerApplyGravityAndMotion();
             break;
         case 3:
             playerInputUpdate(0x41);
-            mathAngleStepTowardThreshold(&G11_A->unkE6, G11_P->unkA, D_80753298[D_807FD584], 0xC00);
+            mathAngleStepTowardThreshold(&G11_A->unkE6, G11_P->unkA, D_80753298[gCurrentCharacterIndex], 0xC00);
             if (G11_P->unk4 == 0.0f) {
                 playerResumeLocomotion(gCurrentActor);
             }
@@ -1469,7 +1469,7 @@ void playerStateDoubleJump(void) {
             if ((u32)(D_80767CC0 - G11_P->unk58) < 0xA && gPlayerCharacterId[gCurrentPlayerIndex] == 1 && G11_A->unkE0 == 0.0f) {
                 G11_A->unk154 = 0x1A;
                 G11_A->unk155 = 0;
-                G11_P->unk54 = D_80753604[D_807FD584];
+                G11_P->unk54 = D_80753604[gCurrentCharacterIndex];
                 G11_P->unk50 = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x13);
             }
@@ -1522,7 +1522,7 @@ void playerStateLongJump(void) {
                 playerApplyFullPhysics();
                 G11_P->unk3C--;
             } else {
-                G11_P->unk2C = D_80753234[D_807FD584];
+                G11_P->unk2C = D_80753234[gCurrentCharacterIndex];
                 playerApplyFullPhysics();
             }
             if (G11_A->unk58 == 5) {
@@ -1541,7 +1541,7 @@ void playerStateLongJump(void) {
             if ((u32)(D_80767CC0 - G11_P->unk58) < 0xA && gPlayerCharacterId[gCurrentPlayerIndex] == 1 && G11_A->unkE0 == 0.0f) {
                 G11_A->unk154 = 0x1A;
                 G11_A->unk155 = 0;
-                G11_P->unk54 = D_80753604[D_807FD584];
+                G11_P->unk54 = D_80753604[gCurrentCharacterIndex];
                 G11_P->unk50 = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x13);
             }
@@ -1747,11 +1747,11 @@ void playerStateFlapGlide(void) {
         break;
     case 1:
         G08_A40->unkC0 = G12_P->unk54;
-        G08_A40->unkC4 = D_8075363C[D_807FD584];
+        G08_A40->unkC4 = D_8075363C[gCurrentCharacterIndex];
         G08_A40->unk155++;
         func_806D3FA0();
         playerInputUpdate(0x2B);
-        G12_P->unk38 = D_80753620[D_807FD584];
+        G12_P->unk38 = D_80753620[gCurrentCharacterIndex];
         playerApplyFullPhysics();
         break;
     case 2:
@@ -1790,8 +1790,8 @@ void playerStateHover(void) {
         playerApplyFullPhysics();
         break;
     case 1:
-        G08_A40->unkC0 = D_80753674[D_807FD584];
-        G08_A40->unkC4 = D_80753690[D_807FD584];
+        G08_A40->unkC0 = D_80753674[gCurrentCharacterIndex];
+        G08_A40->unkC4 = D_80753690[gCurrentCharacterIndex];
         func_806D3FA0();
         G08_A40->unk155++;
         playerInputUpdate(0x2B);
@@ -1812,10 +1812,10 @@ void playerStateHover(void) {
         break;
     case 5:
         G08_A40->unkC0 = G12_P->unk54;
-        G08_A40->unkC4 = D_807536E4[D_807FD584];
+        G08_A40->unkC4 = D_807536E4[gCurrentCharacterIndex];
         G08_A40->unk155++;
         playerInputUpdate(0x2B);
-        G12_P->unk38 = D_807536C8[D_807FD584];
+        G12_P->unk38 = D_807536C8[gCurrentCharacterIndex];
         playerApplyFullPhysics();
         break;
     case 6:
@@ -1955,11 +1955,11 @@ void func_806D5300(void) {
         break;
     case 2:
         if (gCurrentActor->hasArcBounds != 0) {
-            f32 t = D_8075352C[D_807FD584];
+            f32 t = D_8075352C[gCurrentCharacterIndex];
 
             if (t < G08_A40->unkB8 && !(G12_P->unk1F4 & 8)) {
                 G08_A40->unkB8 = t;
-                G12_P->unk68 = D_8075352C[D_807FD584];
+                G12_P->unk68 = D_8075352C[gCurrentCharacterIndex];
             }
         }
         playerInputUpdate(5);
@@ -2132,9 +2132,9 @@ void func_806D5CCC(void) {
                     playerApplyFullPhysics();
                     break;
                 case 1:
-                    G13_A->unkB8 = D_807531FC[D_807FD584];
+                    G13_A->unkB8 = D_807531FC[gCurrentCharacterIndex];
                     G13_P->unk2C = 20.0f;
-                    G13_P->unk38 = D_807531FC[D_807FD584];
+                    G13_P->unk38 = D_807531FC[gCurrentCharacterIndex];
                     playerInputUpdate(0x15);
                     playerApplyGravityAndMotion();
                     break;
@@ -2169,7 +2169,7 @@ void func_806D5CCC(void) {
                 case 1:
                     G13_P->unk30 = 20.0f;
                     G13_P->unk2C = 20.0f;
-                    G13_P->unk38 = D_807531FC[D_807FD584];
+                    G13_P->unk38 = D_807531FC[gCurrentCharacterIndex];
                     playerInputUpdate(0x15);
                     playerApplyGravityAndMotion();
                     break;
@@ -2198,7 +2198,7 @@ void func_806D5CCC(void) {
                     break;
                 case 1:
                     G13_P->unk2C = 30.0f;
-                    G13_P->unk68 = D_807531FC[D_807FD584];
+                    G13_P->unk68 = D_807531FC[gCurrentCharacterIndex];
                     playerApproachVelocity(G13_A->unkE6, G13_P->unk68, G13_P->unk68);
                     playerInputUpdate(0x15);
                     playerApplyGravityAndMotion();
@@ -2227,7 +2227,7 @@ void func_806D61B8(void) {
             G13_P->unk30 = 0.2f;
             G13_P->unk2C = 10.0f;
             G13_P->unk48 = 0x32;
-            G13_P->unk68 = D_80753568[D_807FD584];
+            G13_P->unk68 = D_80753568[gCurrentCharacterIndex];
             playerInputUpdate(0x18);
             if (G13_A->unkE0 != 0.0f) {
                 G13_P->unk30 = 20.0f;
@@ -2255,7 +2255,7 @@ void func_806D61B8(void) {
             mathAngleStepToward(&G13_A->unkEE, G13_A->unkE6, G13_P->unk48);
             break;
         case 3:
-            G13_P->unk30 = D_80753558[D_807FD584];
+            G13_P->unk30 = D_80753558[gCurrentCharacterIndex];
             if (gPlayerCharacterId[gCurrentPlayerIndex] == 0) {
                 playerInputUpdate(0x19);
             } else {
@@ -2264,7 +2264,7 @@ void func_806D61B8(void) {
             playerApplyFullPhysics();
             break;
         case 4:
-            G13_P->unk30 = D_80753558[D_807FD584];
+            G13_P->unk30 = D_80753558[gCurrentCharacterIndex];
             if (gPlayerCharacterId[gCurrentPlayerIndex] == 0) {
                 playerInputUpdate(0x19);
             } else {
@@ -2303,17 +2303,17 @@ void func_806D6558(void) {
                 G13_P->unk68 = G13_A->unkB8;
             }
             if (G13_A->unkFC != 0) {
-                if (D_8075352C[D_807FD584] < G13_A->unkB8) {
-                    G13_A->unkB8 = D_8075352C[D_807FD584];
-                    G13_P->unk68 = D_8075352C[D_807FD584];
+                if (D_8075352C[gCurrentCharacterIndex] < G13_A->unkB8) {
+                    G13_A->unkB8 = D_8075352C[gCurrentCharacterIndex];
+                    G13_P->unk68 = D_8075352C[gCurrentCharacterIndex];
                 }
             }
             if (G13_A->unkFC != 0 && actorAngleInArc(gCurrentActor, G13_A->unkE6) == 0) {
                 actorScriptStartByIndex(gCurrentActor, 0x49);
                 G13_A->unkEE = (G13_A->unkE6 + 0x800) % 4096;
                 G13_A->unk155 = 3;
-                G13_A->unkB8 = D_8075352C[D_807FD584];
-                G13_P->unk68 = D_8075352C[D_807FD584];
+                G13_A->unkB8 = D_8075352C[gCurrentCharacterIndex];
+                G13_P->unk68 = D_8075352C[gCurrentCharacterIndex];
                 break;
             }
             playerCheckLandingSfx();
@@ -2331,15 +2331,15 @@ void func_806D6558(void) {
                 actorScriptStartByIndex(gCurrentActor, 0x49);
                 G13_A->unkEE = (G13_A->unkE6 + 0x800) % 4096;
                 G13_A->unk155++;
-                G13_A->unkB8 = D_8075352C[D_807FD584];
-                G13_P->unk68 = D_8075352C[D_807FD584];
+                G13_A->unkB8 = D_8075352C[gCurrentCharacterIndex];
+                G13_P->unk68 = D_8075352C[gCurrentCharacterIndex];
                 break;
             }
             mathAngleStepToward(&G13_A->unkE6, G13_A->unkEE, G13_P->unk48);
             playerCheckLandingSfx();
             playerApplyDeceleration();
             playerApplyGravityAndMotion();
-            G13_P->unk30 = D_80753548[D_807FD584];
+            G13_P->unk30 = D_80753548[gCurrentCharacterIndex];
             break;
         case 3:
             playerInputUpdate(5);
@@ -2440,8 +2440,8 @@ s32 func_806D69A4(void) {
                 actorScriptStartByIndex(gCurrentActor, 0x49);
                 G14_A->unkEE = (G14_A->unkE6 + 0x800) % 4096;
                 G14_A->unk155 = 2;
-                G14_A->unkB8 = D_8075352C[D_807FD584];
-                G14_P->unk68 = D_8075352C[D_807FD584];
+                G14_A->unkB8 = D_8075352C[gCurrentCharacterIndex];
+                G14_P->unk68 = D_8075352C[gCurrentCharacterIndex];
                 if (!G14_A->unkEE) {
                 }
                 return 1;
@@ -2488,7 +2488,7 @@ void func_806D6B00(void) {
         playerCheckLandingSfx();
         playerApplyDeceleration();
         playerApplyGravityAndMotion();
-        G14_P->unk30 = D_80753548[D_807FD584];
+        G14_P->unk30 = D_80753548[gCurrentCharacterIndex];
         if (G14_A->unkB8 > 20.0f) {
             if (randomLcgNext() % 3U == 0) {
                 func_8071498C(&effectSineHorizontalDriftUpdate);
@@ -2549,7 +2549,7 @@ void func_806D6F64(void) {
     switch (G14_A->unk155) {
     case 0:
         playerInputUpdate(3);
-        G14_P->unk4 = D_8075305C[D_807FD584];
+        G14_P->unk4 = D_8075305C[gCurrentCharacterIndex];
         G14_P->unkA = G14_A->unkEE;
         mathAngleStepToward(&G14_A->unkE6, (s16)((G14_A->unkEE + 0x800) & 0xFFF), (s16)(G14_P->unk48 * 2));
         break;
@@ -2621,7 +2621,7 @@ void func_806D72D4(void) {
     switch (G14_A->unk155) {
     case 0:
         playerInputUpdate(3);
-        G14_P->unk4 = D_807530F0[D_807FD584];
+        G14_P->unk4 = D_807530F0[gCurrentCharacterIndex];
         G14_P->unkA = G14_A->unkEE;
         G14_A->unkE6 = mathAngleEaseToward(G14_A->unkE6, (s16)(G14_P->unkDC->unkE6 + 0x800), 8.0f);
         playerApplyFullPhysics();
@@ -2679,8 +2679,8 @@ void func_806D7510(void) {
         playerStateQueueCallback(0x18, 0, gCurrentPlayerIndex);
         break;
     }
-    if (G14_A->unkAC < D_807538C8[D_807FD584] + G14_A->unk80) {
-        G14_A->unk80 = G14_A->unkAC - D_807538C8[D_807FD584];
+    if (G14_A->unkAC < D_807538C8[gCurrentCharacterIndex] + G14_A->unk80) {
+        G14_A->unk80 = G14_A->unkAC - D_807538C8[gCurrentCharacterIndex];
     }
     G14_P->unk4 = 0.0f;
     G14_P->unk30 = 2.0f;
@@ -2693,9 +2693,9 @@ void func_806D7704(void) {
     G14_A->unk64 |= 0x200;
     switch (G14_A->unk155) {
     case 0:
-        G14_A->unkB8 = D_80753144[D_807FD584];
+        G14_A->unkB8 = D_80753144[gCurrentCharacterIndex];
         playerInputUpdate(5);
-        G14_P->unk4 = D_80753144[D_807FD584];
+        G14_P->unk4 = D_80753144[gCurrentCharacterIndex];
         if (G14_P->unk1A3 != 0) {
             sfxStopSlotSound(gCurrentActor, 0);
             G14_P->unk1A3 = 0;
@@ -2769,7 +2769,7 @@ typedef struct G15PlayerB {
 
 #define G15_PB ((G15PlayerB *)gActivePlayerState)
 
-extern s32 D_807FBB68;
+extern s32 gGlobalCutsceneFlags;
 extern f32 D_80753024[];
 extern f32 D_80753094[];
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
@@ -2787,16 +2787,16 @@ void func_806D7A28(void) {
     playerInputUpdate(1);
     switch (G08_A40->unk155) {
         case 0:
-            G08_A40->unkC4 = D_80753024[D_807FD584];
-            if (D_807FBB68 & 2) {
+            G08_A40->unkC4 = D_80753024[gCurrentCharacterIndex];
+            if (gGlobalCutsceneFlags & 2) {
                 sfxPlayOnFreeSlot(0x424, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
             if (gPlayerCount == 1) {
-                camStartPathNearWall(D_807FBB4C, 0xC, 0x25, 0x85);
+                camStartPathNearWall(gPrimaryPlayerActor, 0xC, 0x25, 0x85);
             }
             G08_A40->unk155++;
         case 1:
-            G08_P->unk4 = D_80753094[D_807FD584];
+            G08_P->unk4 = D_80753094[gCurrentCharacterIndex];
             G15_PB->unkA = G08_A40->unkEE;
             mathAngleStepToward(&G08_A40->unkE6, (s16)((G08_A40->unkEE + 0x800) & 0xFFF), (s16)(G15_PB->unk48 * 2));
             playerApplyFullPhysics();
@@ -2940,14 +2940,14 @@ void func_806D80A8(void) {
             playerInputUpdate(0x47);
             playerApplyGravityAndMotion();
             playerApplyDeceleration();
-            G08_P->unk2C = D_80753470[D_807FD584];
-            G08_P->unk30 = D_8075348C[D_807FD584];
-            G08_P->unk38 = D_80753454[D_807FD584];
-            G08_P->unk48 = D_807534A8[D_807FD584];
+            G08_P->unk2C = D_80753470[gCurrentCharacterIndex];
+            G08_P->unk30 = D_8075348C[gCurrentCharacterIndex];
+            G08_P->unk38 = D_80753454[gCurrentCharacterIndex];
+            G08_P->unk48 = D_807534A8[gCurrentCharacterIndex];
             break;
         case 1:
             G08_A40->unkC0 = *(f32 *)((u8 *)gActivePlayerState + 0x54);
-            G08_A40->unkC4 = D_80753738[D_807FD584];
+            G08_A40->unkC4 = D_80753738[gCurrentCharacterIndex];
             G08_A40->unkB8 = 0.0f;
             G08_A40->unk155++;
             playerInputUpdate(0x47);
@@ -2990,8 +2990,8 @@ void playerStateDive(void) {
             break;
         case 1:
             G08_A40->unkC0 = *(f32 *)((u8 *)gActivePlayerState + 0x54);
-            G08_A40->unkC4 = D_807537A8[D_807FD584];
-            G08_A40->unkB8 = D_80753770[D_807FD584];
+            G08_A40->unkC4 = D_807537A8[gCurrentCharacterIndex];
+            G08_A40->unkB8 = D_80753770[gCurrentCharacterIndex];
             G15_EA(gCurrentActor) = G08_A40->unkEE;
             G08_A40->unk155++;
             playerInputUpdate(0x48);
@@ -3005,7 +3005,7 @@ void playerStateDive(void) {
             playerInputUpdate(0x48);
             break;
         case 3:
-            G08_P->unk30 = D_807537C4[D_807FD584];
+            G08_P->unk30 = D_807537C4[gCurrentCharacterIndex];
             playerInputUpdate(0x33);
             playerSetBaseGravity();
             playerApplyFullPhysics();
@@ -3014,7 +3014,7 @@ void playerStateDive(void) {
             if (G08_P->unk4 > 10.0f) {
                 playerResumeLocomotion(gCurrentActor);
             }
-            G08_P->unk30 = D_807537C4[D_807FD584];
+            G08_P->unk30 = D_807537C4[gCurrentCharacterIndex];
             playerInputUpdate(0x33);
             playerSetBaseGravity();
             playerApplyFullPhysics();
@@ -3062,15 +3062,15 @@ s32 func_806D850C(void) {
     s32 idx;
 
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
-        sp2C = D_8075388C[D_807FD584];
+        sp2C = D_8075388C[gCurrentCharacterIndex];
     } else {
-        sp2C = D_807538C8[D_807FD584];
+        sp2C = D_807538C8[gCurrentCharacterIndex];
     }
     if (G15_A->unk154 == 0x4E && func_806E770C() != 0 && G15_A->unk155 != 0 &&
         G15_A->unk80 + sp2C < G15_A->unkAC - 10.0f) {
-        G08_P->unk12 = D_807539EC[D_807FD584];
+        G08_P->unk12 = D_807539EC[gCurrentCharacterIndex];
         G08_P->unk14 = G15_A->unkE6;
-        G08_P->unk10 = (s32)(D_807539DC[D_807FD584] * 0.5);
+        G08_P->unk10 = (s32)(D_807539DC[gCurrentCharacterIndex] * 0.5);
         G15_A->unk154 = 0x4F;
         G15_A->unk155 = 1;
         if (G15_A->unkC0 > 0.0f) {
@@ -3085,7 +3085,7 @@ s32 func_806D850C(void) {
         G15_A->unk80 = G15_A->unkAC - sp2C;
     }
     idx = gCurrentPlayerIndex;
-    lim = (gPlayerSlots[idx].unk2C0 == 1) ? D_8075387C[D_807FD584] : D_807538B8[D_807FD584];
+    lim = (gPlayerSlots[idx].unk2C0 == 1) ? D_8075387C[gCurrentCharacterIndex] : D_807538B8[gCurrentCharacterIndex];
     if (G15_A->unkAC - G15_A->unkA4 < lim) {
         playerStateQueueCallback(2, 0, idx);
         return 1;
@@ -3124,8 +3124,8 @@ void playerStateSurfaceSwim(void) {
     f32 fa1;
 
     fa0 = G15_B->unkC0;
-    fv1 = D_807539A4[D_807FD584];
-    fa1 = D_80753988[D_807FD584];
+    fv1 = D_807539A4[gCurrentCharacterIndex];
+    fa1 = D_80753988[gCurrentCharacterIndex];
     if (fa0 < 0.0f) {
         fv0 = -fa0 / 3.0f;
         if (!(fv0 < fv1)) {
@@ -3284,11 +3284,11 @@ void playerStateSurfaceTreadWater(void) {
     s16 v;
 
     G16_P->unk24 = G16_P->unk24 + 1;
-    G16_P->unk2C = D_80753AFC[D_807FD584];
+    G16_P->unk2C = D_80753AFC[gCurrentCharacterIndex];
     switch (G16_A->unk155) {
         case 0:
             playerInputUpdate(0x4C);
-            t = D_80753A5C[D_807FD584];
+            t = D_80753A5C[gCurrentCharacterIndex];
             G16_A->unkC0 = mathApproachF32(G16_A->unkC0, t, G16_P->unk1C);
             if (t <= G16_A->unkC0) {
                 if (G16_A->unkB8 != 0.0f || G16_P->unk10 != 0) {
@@ -3315,13 +3315,13 @@ void playerStateSurfaceTreadWater(void) {
             }
             effectSpawnAuraBurst(2);
             fv0 = G16_A->unkAC;
-            if (fv0 < (f32)D_807538C8[D_807FD584] + G16_A->unk80) {
-                G16_A->unk80 = fv0 - (f32)D_807538C8[D_807FD584];
+            if (fv0 < (f32)D_807538C8[gCurrentCharacterIndex] + G16_A->unk80) {
+                G16_A->unk80 = fv0 - (f32)D_807538C8[gCurrentCharacterIndex];
             }
             goto end;
         default:
             playerInputUpdate(0x54);
-            func_806CC638(D_80753A5C[D_807FD584]);
+            func_806CC638(D_80753A5C[gCurrentCharacterIndex]);
             if (G16_A->unkB8 != 0.0f) {
                 G16_P->unk18 = 0;
                 G16_A->unk155 = 3;
@@ -3343,8 +3343,8 @@ void playerStateSurfaceTreadWater(void) {
             playerInputUpdate(0x51);
             G16_P->unk12 = G16_A->unkE8;
             G16_P->unk14 = G16_A->unkE6;
-            G16_P->unk38 = D_80753AE0[D_807FD584];
-            G16_P->unk10 = D_80753A88[D_807FD584];
+            G16_P->unk38 = D_80753AE0[gCurrentCharacterIndex];
+            G16_P->unk10 = D_80753A88[gCurrentCharacterIndex];
             func_806CC638(0.0f);
             G16_A->unk155 = G16_A->unk155 + 1;
             break;
@@ -3366,7 +3366,7 @@ void playerStateSurfaceTreadWater(void) {
             break;
     }
     if (G16_A->unkB8 == 0.0f || G16_P->unk18 != 0) {
-        G16_P->unk50 = D_80753A78[D_807FD584];
+        G16_P->unk50 = D_80753A78[gCurrentCharacterIndex];
         scriptSetActorRampTarget(gCurrentActor, 0.5f, (f32)G16_P->unk50);
         G16_A->unk155 = 2;
     }
@@ -3470,7 +3470,7 @@ s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void sfxPlayScriptActorSoundForPlayer(void *, s32, s32);
 extern f32 D_80753CD0[];
 extern f32 D_80753250[];
-#define G16_E ((G16Actor *)D_807FBB4C)
+#define G16_E ((G16Actor *)gPrimaryPlayerActor)
 
 void func_806D9320(void) {
     f32 pad;
@@ -3526,7 +3526,7 @@ void func_806D9320(void) {
             if (fv0 < 1.0f) {
                 fv0 = 1.0f;
             }
-            G16_E->unkC0 = (0.0 - (D_80753CD0[D_807FD584] * 0.5 * (fv0 * fv0) - temp_fa1)) / fv0;
+            G16_E->unkC0 = (0.0 - (D_80753CD0[gCurrentCharacterIndex] * 0.5 * (fv0 * fv0) - temp_fa1)) / fv0;
             G16_E->unkC4 = -0.001f;
             if (fv0 < 2.0f || fa0 < 2.0) {
                 playerSetBaseGravity();
@@ -3551,7 +3551,7 @@ void func_806D9320(void) {
             break;
         case 3:
             sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x10, 0);
-            G16_P->unk30 = D_80753250[D_807FD584];
+            G16_P->unk30 = D_80753250[gCurrentCharacterIndex];
             G16_A->unk155 = G16_A->unk155 + 1;
         case 4:
             playerApplyDeceleration();
@@ -3618,7 +3618,7 @@ void func_806D9940(void) {
     }
     switch (G16_A->unk155) {
         case 0:
-            if (!(D_807FBB68 & 2)) {
+            if (!(gGlobalCutsceneFlags & 2)) {
                 G16_A->unk144 = 1;
             }
             break;
@@ -3634,7 +3634,7 @@ void func_806D9940(void) {
                     break;
                 case 4:
                     ch = 0xC;
-                    if (!(D_807FBB68 & 2)) {
+                    if (!(gGlobalCutsceneFlags & 2)) {
                         vol = 0.82f;
                     }
                     break;
@@ -3733,7 +3733,7 @@ void actorAppendCallback(void *, void *, s32, s32, s32, s32);
 void actorAppendCallback4000(void *, void *, s16, f32, s32);
 void playerStartPickupApproach(void *);
 extern f32 D_807533B8[];
-#define G17_B48 ((G17Actor *)D_807FBB48)
+#define G17_B48 ((G17Actor *)gActivePlayerActor)
 void playerRegisterHeldActorFollow(f32);
 void playerRegisterHeldActorAlign(void);
 void playerComputePickupHoldPitch(void);
@@ -3967,7 +3967,7 @@ void func_806DA4D8(void) {
         break;
     case 4:
         playerInputUpdate(5);
-        actorAppendCallback4000(gCurrentActor, G17_P->unk1AC, G17_B48->unkE6, G17_A->unk4->unk34 * (D_807533B8[D_807FD584] * 3.0) / (new_var = 0.15), 0);
+        actorAppendCallback4000(gCurrentActor, G17_P->unk1AC, G17_B48->unkE6, G17_A->unk4->unk34 * (D_807533B8[gCurrentCharacterIndex] * 3.0) / (new_var = 0.15), 0);
         G17_A->unk155++;
         break;
     case 5:
@@ -4112,7 +4112,7 @@ typedef struct G18State {
 
 #define G18_P ((G18Player *)gActivePlayerState)
 #define G18_A ((G18Actor *)gCurrentActor)
-#define G18_S ((G18State *)&D_807FBB70)
+#define G18_S ((G18State *)&gActorGlobalState)
 
 
 void func_806DAADC(void) {
@@ -4150,17 +4150,17 @@ void func_806DABE4(void) {
             G18_A->unkB8 = 0.0f;
             break;
         case 1:
-            actorAppendCallback4000(gCurrentActor, G18_P->unk1AC, D_807FBB48->yaw, D_807533B8[D_807FD584], (s32)D_8075339C[D_807FD584]);
+            actorAppendCallback4000(gCurrentActor, G18_P->unk1AC, gActivePlayerActor->yaw, D_807533B8[gCurrentCharacterIndex], (s32)D_8075339C[gCurrentCharacterIndex]);
             G18_P->unk1AC = NULL;
             G18_P->unk1B0 = 0;
             G18_A->unk155++;
-            G18_A->unkB8 = D_80753364[D_807FD584];
+            G18_A->unkB8 = D_80753364[gCurrentCharacterIndex];
             G18_A->unkEE = G18_A->unkE6;
             break;
         default:
             if (G18_A->unkB8 != 0.0f) {
                 G18_A->unkEE = G18_A->unkE6;
-                G18_A->unkB8 -= D_80753380[D_807FD584];
+                G18_A->unkB8 -= D_80753380[gCurrentCharacterIndex];
                 if (G18_A->unkB8 < 0.0f) {
                     G18_A->unkB8 = 0.0f;
                 }
@@ -4183,17 +4183,17 @@ void func_806DADA0(void) {
             G18_A->unkB8 = 0.0f;
             break;
         case 1:
-            actorAppendCallback4000(gCurrentActor, G18_P->unk1AC, D_807FBB48->yaw, D_807533F0[D_807FD584], (s32)D_807533D4[D_807FD584]);
+            actorAppendCallback4000(gCurrentActor, G18_P->unk1AC, gActivePlayerActor->yaw, D_807533F0[gCurrentCharacterIndex], (s32)D_807533D4[gCurrentCharacterIndex]);
             G18_P->unk1AC = NULL;
             G18_P->unk1B0 = 0;
             G18_A->unk155++;
-            G18_A->unkB8 = D_80753364[D_807FD584];
+            G18_A->unkB8 = D_80753364[gCurrentCharacterIndex];
             G18_A->unkEE = G18_A->unkE6;
             break;
         default:
             if (G18_A->unkB8 != 0.0f) {
                 G18_A->unkEE = G18_A->unkE6;
-                G18_A->unkB8 -= D_80753380[D_807FD584];
+                G18_A->unkB8 -= D_80753380[gCurrentCharacterIndex];
                 if (G18_A->unkB8 < 0.0f) {
                     G18_A->unkB8 = 0.0f;
                 }
@@ -4276,7 +4276,7 @@ void func_806DB0C4(void) {
     G18_A->unk84 = G18_P->unkA0 + (G18_P->unkA8 - G18_P->unkA0) * G18_P->unkAC;
     playerApplyMotion();
     func_806CDD24(gCurrentActor, G18_P->unk94, G18_P->unk94, 0);
-    mathAngleStepToward(&G18_A->unkE6, (s16)(s32)G18_P->unk98, (s16)(D_8075326C[D_807FD584] / 2));
+    mathAngleStepToward(&G18_A->unkE6, (s16)(s32)G18_P->unk98, (s16)(D_8075326C[gCurrentCharacterIndex] / 2));
     G18_A->unkEE = G18_A->unkE6;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -4774,10 +4774,10 @@ void func_806DC410(void) {
         playerStateFallDamageLand();
         return;
     }
-    LD5_P->unk100 = D_80753C84[D_807FD584];
+    LD5_P->unk100 = D_80753C84[gCurrentCharacterIndex];
     node = heapAlloc(0x14);
     node->callback = &proxPathFollowerStep;
-    node->unk8 = (s32)D_807FBB48;
+    node->unk8 = (s32)gActivePlayerActor;
     node->unk4 = 1;
     actorRegisterGlobalCallback(node);
     mathAngleStepToward(&LD5_A->unkE6, LD5_A->unkEE, 0xC8);
@@ -4795,17 +4795,17 @@ void func_806DC410(void) {
         if (playerInputUpdate(0x58) == 0) {
             switch (LD5_P->unk8) {
             case 1:
-                sp1C = D_80753C30[D_807FD584];
+                sp1C = D_80753C30[gCurrentCharacterIndex];
                 LD5_A->unk155 = 3;
-                actorScriptStartByIndex(D_807FBB48, 0x6A);
+                actorScriptStartByIndex(gActivePlayerActor, 0x6A);
                 break;
             case 0:
-                sp1C = D_80753C68[D_807FD584];
+                sp1C = D_80753C68[gCurrentCharacterIndex];
                 break;
             case -1:
-                sp1C = D_80753C4C[D_807FD584];
+                sp1C = D_80753C4C[gCurrentCharacterIndex];
                 LD5_A->unk155 = 4;
-                actorScriptStartByIndex(D_807FBB48, 0x6B);
+                actorScriptStartByIndex(gActivePlayerActor, 0x6B);
                 break;
             }
             func_806DC3A4(sp1C);
@@ -4816,15 +4816,15 @@ void func_806DC410(void) {
         if (playerInputUpdate(0x58) == 0) {
             if (LD5_P->unk94 == 0.0f && LD5_P->unk4 == 0.0f) {
                 LD5_A->unk155 = 1;
-                actorScriptStartByIndex(D_807FBB48, 0x6C);
+                actorScriptStartByIndex(gActivePlayerActor, 0x6C);
             } else if (LD5_P->unk94 > 0.0f && LD5_P->unk4 > 0.0f) {
                 LD5_A->unk155 = 3;
-                actorScriptStartByIndex(D_807FBB48, 0x6A);
+                actorScriptStartByIndex(gActivePlayerActor, 0x6A);
             } else if (LD5_P->unk94 < 0.0f && LD5_P->unk4 < 0.0f) {
                 LD5_A->unk155 = 4;
-                actorScriptStartByIndex(D_807FBB48, 0x6B);
+                actorScriptStartByIndex(gActivePlayerActor, 0x6B);
             }
-            func_806DC3A4(D_80753C68[D_807FD584]);
+            func_806DC3A4(D_80753C68[gCurrentCharacterIndex]);
             d = LD5_P->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
@@ -4841,13 +4841,13 @@ void func_806DC410(void) {
             }
             switch (LD5_P->unk8) {
             case -1:
-                sp1C = D_80753C4C[D_807FD584] * 2;
+                sp1C = D_80753C4C[gCurrentCharacterIndex] * 2;
                 break;
             case 0:
-                sp1C = D_80753C68[D_807FD584];
+                sp1C = D_80753C68[gCurrentCharacterIndex];
                 break;
             case 1:
-                sp1C = D_80753C30[D_807FD584];
+                sp1C = D_80753C30[gCurrentCharacterIndex];
                 break;
             }
             func_806DC3A4(sp1C);
@@ -4867,13 +4867,13 @@ void func_806DC410(void) {
             }
             switch (LD5_P->unk8) {
             case -1:
-                sp1C = D_80753C4C[D_807FD584];
+                sp1C = D_80753C4C[gCurrentCharacterIndex];
                 break;
             case 0:
-                sp1C = D_80753C68[D_807FD584];
+                sp1C = D_80753C68[gCurrentCharacterIndex];
                 break;
             case 1:
-                sp1C = D_80753C30[D_807FD584];
+                sp1C = D_80753C30[gCurrentCharacterIndex];
                 break;
             }
             func_806DC3A4(sp1C);
@@ -4891,7 +4891,7 @@ void func_806DC410(void) {
 }
 
 void func_806DCF60(void);
-#define G19_B ((G19Actor *)D_807FBB48)
+#define G19_B ((G19Actor *)gActivePlayerActor)
 
 void func_806DCA7C(void) {
     f32 dist;
@@ -4940,7 +4940,7 @@ void func_806DCA7C(void) {
         break;
     case 2:
         if (G19_P->unk158 == 0) {
-            actorScriptStartByIndex(D_807FBB48, 0x6F);
+            actorScriptStartByIndex(gActivePlayerActor, 0x6F);
             G19_A->unk155 = 3;
             break;
         }
@@ -4959,9 +4959,9 @@ void func_806DCA7C(void) {
         G19_P->unk38 = 150.0f;
         if (G19_P->unk158 != 0) {
             actorGetNodePos((Actor *)G19_P->unk158, 1, &sp44, &sp40, &sp3C);
-            sp4C = sp40 - D_807FBB48->y;
-            sp4C = (f64)sp4C / ((f64)D_807FBB48->unk4->unk38 * 0.16666666675);
-            dist = (f32)((f64)sqrtf((sp44 - D_807FBB48->x) * (sp44 - D_807FBB48->x) + (sp3C - D_807FBB48->z) * (sp3C - D_807FBB48->z)) / ((f64)D_807FBB48->unk4->unk38 * 0.16666666675));
+            sp4C = sp40 - gActivePlayerActor->y;
+            sp4C = (f64)sp4C / ((f64)gActivePlayerActor->unk4->unk38 * 0.16666666675);
+            dist = (f32)((f64)sqrtf((sp44 - gActivePlayerActor->x) * (sp44 - gActivePlayerActor->x) + (sp3C - gActivePlayerActor->z) * (sp3C - gActivePlayerActor->z)) / ((f64)gActivePlayerActor->unk4->unk38 * 0.16666666675));
             spd = G19_B->unkB8;
             sp50 = dist / spd - 1.0f;
             if (sp50 < 1.0f) {
@@ -4969,7 +4969,7 @@ void func_806DCA7C(void) {
             }
         }
         if ((G19_P->unk158 != 0) && (sp50 < 30.0f)) {
-            G19_B->unkC0 = (0.0 - ((D_80753CD0[D_807FD584] * 0.5 * (f64)(sp50 * sp50)) - (f64)sp4C)) / (f64)sp50;
+            G19_B->unkC0 = (0.0 - ((D_80753CD0[gCurrentCharacterIndex] * 0.5 * (f64)(sp50 * sp50)) - (f64)sp4C)) / (f64)sp50;
             G19_B->unkC4 = -0.001f;
         } else {
             G19_P->unk158 = 0;
@@ -5007,17 +5007,17 @@ void func_806DCF60(void) {
         if (cur == NULL) {
             for (i = 0; i < gActiveActorCount; i++) {
                 a = (G19Actor *)gActiveActors[i].actor;
-                if (!(a->unk60 & 0x2000) && (a->unk60 & 0x04000000) && ((void *)a != G19_P->unk130) && ((void *)a != (void *)D_807FBB48)) {
-                    ang = (s32)(((f64)(mathAngleBetweenPointsRad(a->unk7C, a->unk84, D_807FBB48->x, D_807FBB48->z) * 57.295776f) / 360.0) * 4095.0);
+                if (!(a->unk60 & 0x2000) && (a->unk60 & 0x04000000) && ((void *)a != G19_P->unk130) && ((void *)a != (void *)gActivePlayerActor)) {
+                    ang = (s32)(((f64)(mathAngleBetweenPointsRad(a->unk7C, a->unk84, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f) / 360.0) * 4095.0);
                     d = mathAngleDistance(ang, G19_P->unk154);
-                    dx = a->unk7C - D_807FBB48->x;
-                    dz = a->unk84 - D_807FBB48->z;
+                    dx = a->unk7C - gActivePlayerActor->x;
+                    dz = a->unk84 - gActivePlayerActor->z;
                     dist = sqrtf(dx * dx + dz * dz);
                     if ((d < 0x258) && (dist < best)) {
-                        if (D_807FBB48->y < a->unk80) {
-                            v = a->unk80 - D_807FBB48->y;
+                        if (gActivePlayerActor->y < a->unk80) {
+                            v = a->unk80 - gActivePlayerActor->y;
                         } else {
-                            v = -(a->unk80 - D_807FBB48->y);
+                            v = -(a->unk80 - gActivePlayerActor->y);
                         }
                         if (v < 100.0) {
                             best = dist;
@@ -5028,7 +5028,7 @@ void func_806DCF60(void) {
                 }
             }
         } else {
-            ang = (s32)(((f64)(mathAngleBetweenPointsRad(cur->unk7C, cur->unk84, D_807FBB48->x, D_807FBB48->z) * 57.295776f) / 360.0) * 4095.0);
+            ang = (s32)(((f64)(mathAngleBetweenPointsRad(cur->unk7C, cur->unk84, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f) / 360.0) * 4095.0);
             if (mathAngleDistance(ang, G19_P->unk154) < 0x258) {
                 G19_P->unk154 = ang;
             }
@@ -5081,10 +5081,10 @@ void func_806DD24C(void) {
         playerStateFallDamageLand();
         return;
     }
-    L6_P->unk100 = D_80753CA4[D_807FD584];
+    L6_P->unk100 = D_80753CA4[gCurrentCharacterIndex];
     node = heapAlloc(0x14);
     node->callback = &proxPathFollowerStep;
-    node->unk8 = (s32)D_807FBB48;
+    node->unk8 = (s32)gActivePlayerActor;
     node->unk4 = 1;
     actorRegisterGlobalCallback(node);
     switch (L6_A->unk155) {
@@ -5096,17 +5096,17 @@ void func_806DD24C(void) {
         if (playerInputUpdate(0x59) == 0) {
             switch (L6_P->unk8) {
             case 1:
-                sp1C = D_80753C30[D_807FD584];
+                sp1C = D_80753C30[gCurrentCharacterIndex];
                 L6_A->unk155 = 3;
-                actorScriptStartByIndex(D_807FBB48, 0x71);
+                actorScriptStartByIndex(gActivePlayerActor, 0x71);
                 break;
             case 0:
-                sp1C = D_80753C68[D_807FD584];
+                sp1C = D_80753C68[gCurrentCharacterIndex];
                 break;
             case -1:
-                sp1C = D_80753C4C[D_807FD584];
+                sp1C = D_80753C4C[gCurrentCharacterIndex];
                 L6_A->unk155 = 4;
-                actorScriptStartByIndex(D_807FBB48, 0x72);
+                actorScriptStartByIndex(gActivePlayerActor, 0x72);
                 break;
             }
             func_806DC3A4(sp1C);
@@ -5117,15 +5117,15 @@ void func_806DD24C(void) {
         if (playerInputUpdate(0x59) == 0) {
             if (L6_P->unk94 == 0.0f && L6_P->unk4 == 0.0f) {
                 L6_A->unk155 = 1;
-                actorScriptStartByIndex(D_807FBB48, 0x73);
+                actorScriptStartByIndex(gActivePlayerActor, 0x73);
             } else if (L6_P->unk94 > 0.0f && L6_P->unk4 > 0.0f) {
                 L6_A->unk155 = 3;
-                actorScriptStartByIndex(D_807FBB48, 0x71);
+                actorScriptStartByIndex(gActivePlayerActor, 0x71);
             } else if (L6_P->unk94 < 0.0f && L6_P->unk4 < 0.0f) {
                 L6_A->unk155 = 4;
-                actorScriptStartByIndex(D_807FBB48, 0x72);
+                actorScriptStartByIndex(gActivePlayerActor, 0x72);
             }
-            func_806DC3A4(D_80753C68[D_807FD584]);
+            func_806DC3A4(D_80753C68[gCurrentCharacterIndex]);
             d = L6_P->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
@@ -5142,13 +5142,13 @@ void func_806DD24C(void) {
             }
             switch (L6_P->unk8) {
             case -1:
-                sp1C = D_80753C4C[D_807FD584] * 2;
+                sp1C = D_80753C4C[gCurrentCharacterIndex] * 2;
                 break;
             case 0:
-                sp1C = D_80753C68[D_807FD584];
+                sp1C = D_80753C68[gCurrentCharacterIndex];
                 break;
             case 1:
-                sp1C = D_80753C30[D_807FD584];
+                sp1C = D_80753C30[gCurrentCharacterIndex];
                 break;
             }
             func_806DC3A4(sp1C);
@@ -5168,13 +5168,13 @@ void func_806DD24C(void) {
             }
             switch (L6_P->unk8) {
             case -1:
-                sp1C = D_80753C4C[D_807FD584];
+                sp1C = D_80753C4C[gCurrentCharacterIndex];
                 break;
             case 0:
-                sp1C = D_80753C68[D_807FD584];
+                sp1C = D_80753C68[gCurrentCharacterIndex];
                 break;
             case 1:
-                sp1C = D_80753C30[D_807FD584];
+                sp1C = D_80753C30[gCurrentCharacterIndex];
                 break;
             }
             func_806DC3A4(sp1C);
@@ -5200,7 +5200,7 @@ void func_806DD874(void) {
     switch (G19_A->unk155) {
     case 1:
         G19_A->unkEE = (G19_A->unkE6 + 0x800) & 0xFFF;
-        G19_A->unkC0 = D_80753CB4[D_807FD584];
+        G19_A->unkC0 = D_80753CB4[gCurrentCharacterIndex];
         G19_A->unkB8 = 100.0f;
         playerSetTerminalVelocity5B0();
         G19_A->unk155++;
@@ -5332,9 +5332,9 @@ void func_806DDAB0(void) {
 
     sp49 = 0;
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
-        sp50 = D_80753D70[D_807FD584];
+        sp50 = D_80753D70[gCurrentCharacterIndex];
     } else {
-        sp50 = D_80753D8C[D_807FD584];
+        sp50 = D_80753D8C[gCurrentCharacterIndex];
     }
     switch (LD5C_A->unk155) {
     case 0:
@@ -5357,13 +5357,13 @@ void func_806DDAB0(void) {
                     f = t > 0.1 ? t : 0.1;
                     scriptSetActorRampTarget(gCurrentActor, f, 1.0f);
                 } else {
-                    actorScriptStartByIndex(D_807FBB48, 0x77);
+                    actorScriptStartByIndex(gActivePlayerActor, 0x77);
                     LD5C_A->unk155 = 1;
                 }
                 break;
             case 0:
                 if (LD5C_A->unk155 != 2) {
-                    actorScriptStartByIndex(D_807FBB48, 0x76);
+                    actorScriptStartByIndex(gActivePlayerActor, 0x76);
                     LD5C_A->unk155 = 2;
                 }
                 break;
@@ -5373,7 +5373,7 @@ void func_806DDAB0(void) {
                     f = t > 0.1 ? t : 0.1;
                     scriptSetActorRampTarget(gCurrentActor, f, 0.0f);
                 } else {
-                    actorScriptStartByIndex(D_807FBB48, 0x78);
+                    actorScriptStartByIndex(gActivePlayerActor, 0x78);
                     LD5C_A->unk155 = 3;
                 }
                 break;
@@ -5420,10 +5420,10 @@ void func_806DDAB0(void) {
     flag = gPlayerPadState[gCurrentPlayerIndex].unk2F < -0x32 && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x2000);
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
         a = flag;
-        a |= LD5C_A->unk80 - LD5C_A->unkA4 < D_80753DA8[D_807FD584];
+        a |= LD5C_A->unk80 - LD5C_A->unkA4 < D_80753DA8[gCurrentCharacterIndex];
     } else {
         a = flag;
-        a |= LD5C_A->unk80 - LD5C_A->unkA4 < D_80753DB8[D_807FD584];
+        a |= LD5C_A->unk80 - LD5C_A->unkA4 < D_80753DB8[gCurrentCharacterIndex];
     }
     v = 0;
     if (LD5C_P->unkF8 == 0) {
@@ -5443,7 +5443,7 @@ void func_806DDAB0(void) {
         LD5C_A->unk60 &= ~0x800;
     }
     if (*(s8 *)((u8 *)&D_807FD63F + gCurrentPlayerIndex * 0x34) >= 0x33 && LD5C_P->unkF8 == 0 && v == 0) {
-        actorScriptStartByIndex(D_807FBB48, 0x79);
+        actorScriptStartByIndex(gActivePlayerActor, 0x79);
         LD5C_A->unk154 = 0x5C;
         LD5C_A->unk155 = 0;
         LD5C_P->unkF0 = LD5C_A->unk80 + sp50;
@@ -5654,7 +5654,7 @@ void func_806DE930(void) {
         func_806CDD24(gCurrentActor, G19_A->unkB8, 0, 1);
     }
     if (gCurrentMap == 0x52) {
-        G19_P->unk30 = D_80753250[D_807FD584] * 5.0;
+        G19_P->unk30 = D_80753250[gCurrentCharacterIndex] * 5.0;
     }
     playerApplyFullPhysics();
     actorUpdateModelMatrix(gCurrentActor, 0);

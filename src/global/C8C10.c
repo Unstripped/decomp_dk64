@@ -2,8 +2,8 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
 extern PlayerState *gActivePlayerState;
 
 typedef struct R1C8aSub174 {
@@ -139,7 +139,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
                     if (!camPathId) {
                         camSetFollowMode(gCamActor);
                     }
-                    camStartPath(D_807FBB4C, 3, 5);
+                    camStartPath(gPrimaryPlayerActor, 3, 5);
                     gCurrentActor->state = 0x28;
                     gCurrentActor->unk155[0] = 0;
                     gBehaviourExtraState->unk10 = 0x28;
@@ -147,14 +147,14 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
                     R1C8aS->unk1A &= 0x7FFF;
                 } else {
                     if (!camPathId) {
-                        camSetTarget(gCamActor, D_807FBB4C, 4, (s16)(gFrameCounter * 20), 0x1E, 0, 0xA, 0x1E, 0xC, 0, 0.2f);
+                        camSetTarget(gCamActor, gPrimaryPlayerActor, 4, (s16)(gFrameCounter * 20), 0x1E, 0, 0xA, 0x1E, 0xC, 0, 0.2f);
                     }
-                    D_807FBB4C->yaw = gCurrentActor->yaw;
-                    D_807FBB4C->x = gCurrentActor->x;
-                    D_807FBB4C->y = gCurrentActor->y - 2.0f;
-                    D_807FBB4C->z = gCurrentActor->z;
-                    D_807FBB4C->contactFlags &= 0xFFFE;
-                    D_807FBB4C->attachMode = 0;
+                    gPrimaryPlayerActor->yaw = gCurrentActor->yaw;
+                    gPrimaryPlayerActor->x = gCurrentActor->x;
+                    gPrimaryPlayerActor->y = gCurrentActor->y - 2.0f;
+                    gPrimaryPlayerActor->z = gCurrentActor->z;
+                    gPrimaryPlayerActor->contactFlags &= 0xFFFE;
+                    gPrimaryPlayerActor->attachMode = 0;
                 }
             }
             actorAirPatrolStep((gCurrentActor->state == 0x26) ? 0x26 : 2, 0x23D, 0x23E);
@@ -370,12 +370,12 @@ u8 func_806C4AC4(u16 spawnCooldown, u16 maxSpawns) {
         case 2:
         case 0x26:
             R1C8aD->unk1F4 |= 0x40;
-            ang = mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)D_807FBB4C->x, (s32)D_807FBB4C->z);
+            ang = mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z);
             R1C8aA->unkEC = (s16)(ang - mathAngleBetweenPointsDeg((s32)gPlayerSlots->unk228, (s32)gPlayerSlots->unk230, (s32)gPlayerSlots->unk210, (s32)gPlayerSlots->unk218));
             actorAirPatrolStep(gCurrentActor->state, R1C8aV98->unk28, R1C8aV98->unk2A);
             gCurrentActor->unk15F = maxSpawns - gBehaviourWorkState->timer + 1;
-            if (D_807FBB70.unk0 != 0) {
-                if (gCurrentActor->unk15F != D_807FBB70.unk1[0]) {
+            if (gActorGlobalState.unk0 != 0) {
+                if (gCurrentActor->unk15F != gActorGlobalState.unk1[0]) {
                     ret = 1;
                 } else {
                     gBehaviourWorkState->timer--;
@@ -476,7 +476,7 @@ typedef struct LgC4F5CS90 {
 } LgC4F5CS90;
 
 #define LgA ((LgC4F5CA *)gCurrentActor)
-#define LgB ((LgC4F5CA *)D_807FBB4C)
+#define LgB ((LgC4F5CA *)gPrimaryPlayerActor)
 #define LgG ((LgC4F5CG *)gActivePlayerState)
 #define LgS ((LgC4F5CS90 *)gBehaviourWorkState)
 
@@ -606,7 +606,7 @@ void func_806C4F5C(void) {
             LgA->unkE6 = 0xA82;
             LgB->unkE6 = 0xA82;
             zoneEntryGetPosition(8, 2, &LgA->unk7C, &LgA->unk80, &LgA->unk84);
-            actorClearMovementFlags(D_807FBB4C);
+            actorClearMovementFlags(gPrimaryPlayerActor);
             zoneEntryGetPosition(8, 2, &LgB->unk7C, &LgB->unk80, &LgB->unk84);
             LgB->unk80 -= 25.0f;
             LgA->unk154 = 0x28;
@@ -674,7 +674,7 @@ typedef struct LgC55E0S90 {
 } LgC55E0S90;
 
 #define LA ((LgC55E0A *)gCurrentActor)
-#define LA4C ((LgC55E0A *)D_807FBB4C)
+#define LA4C ((LgC55E0A *)gPrimaryPlayerActor)
 #define LG ((LgC55E0G *)gActivePlayerState)
 #define LS90 ((LgC55E0S90 *)gBehaviourWorkState)
 
@@ -801,7 +801,7 @@ void func_806C55E0(void) {
             actorSetPositionFromPoint(gCurrentActor, gBehaviourExtraState);
             LS90->unk25 = 0;
             LA->unk168 = 0;
-            actorClearMovementFlags(D_807FBB4C);
+            actorClearMovementFlags(gPrimaryPlayerActor);
             LA4C->unk80 = LA->unk80;
             LA4C->unk7C = mathSinF(LA->unkE6) * 50.0f + LA->unk7C;
             LA4C->unk84 = mathCosF(LA->unkE6) * 50.0f + LA->unk84;
@@ -898,10 +898,10 @@ typedef struct R1C8CB580 {
 } R1C8CB580;
 
 #define R1A ((R1C8CBA *)gCurrentActor)
-#define R1A4C ((R1C8CBA *)D_807FBB4C)
+#define R1A4C ((R1C8CBA *)gPrimaryPlayerActor)
 #define R1D580 ((R1C8CB580 *)gActivePlayerState)
 
-extern s16 D_8076A0AA;
+extern s16 gCurrentLevelIndex;
 extern s32 D_8071FB08;
 extern u32 gGlobalPauseFlags;
 #define R1C8CBP ((R1C8CBPlayer *)gPlayerSlots)
@@ -970,7 +970,7 @@ void func_806C5C20(void) {
     }
     if ((gActivePlayerState->stateFlags & 0x8000) && R1D580->unk1EC == 1) {
         if (gCurrentActor->state != 0x40) {
-            flagSet(spawnFlagLookup(D_8076A0AA, spawnNodeIdForActor(gCurrentActor), outFlag), 1, 0);
+            flagSet(spawnFlagLookup(gCurrentLevelIndex, spawnNodeIdForActor(gCurrentActor), outFlag), 1, 0);
             eepromSavePlayerData();
         }
         gCurrentActor->state = 0x40;
@@ -1040,7 +1040,7 @@ void func_806C61C8(void) {
         R1A->unkEC = 0x3C;
         actorScriptStart(gCurrentActor, 0x23D);
         if (R1A4C->unk154 == 0xC) {
-            actorScriptStartByIndex((Actor *)D_807FBB4C, 0x87);
+            actorScriptStartByIndex((Actor *)gPrimaryPlayerActor, 0x87);
         }
     }
     x = mathSinF(R1A4C->unkE6) * 50.0f + R1A4C->unk7C;
@@ -1077,7 +1077,7 @@ void func_806C61C8(void) {
             actorDespawn(gCurrentActor);
             camResumePath();
             if (R1A4C->unk154 == 0xC) {
-                actorScriptStartByIndex((Actor *)D_807FBB4C, 9);
+                actorScriptStartByIndex((Actor *)gPrimaryPlayerActor, 9);
             }
         }
     } else if (R1A->unkEC >= 0x10) {

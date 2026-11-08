@@ -122,7 +122,7 @@ typedef struct ModelSlot {
 } ModelSlot; // size = 0x90
 
 extern u8 gGfxBufferIndex;
-extern ModelSlot *D_807F6000;
+extern ModelSlot *gModelSlots;
 
 void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, s32 *, u8);
 void modelBuildBoneChainMatrix();
@@ -171,9 +171,9 @@ void collisionBuildSlotBoxes(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f
     s8 bone;
 
     off = arg0 * sizeof(ModelSlot);
-    anim = ((ModelSlot *)((u8 *)D_807F6000 + off))->unk78;
+    anim = ((ModelSlot *)((u8 *)gModelSlots + off))->unk78;
     lastBone = -1;
-    buf = (CollisionSlotBuffer *)&D_807F6000[arg0].unk28;
+    buf = (CollisionSlotBuffer *)&gModelSlots[arg0].unk28;
     if (anim != NULL) {
         sp58 = anim[gGfxBufferIndex];
     } else {
@@ -248,7 +248,7 @@ void modelSlotBuildTransformMatrix(s16 arg0, s8 arg1, f32 (*arg2)[4]) {
     void *sp44;
     ModelSlot *entry;
 
-    entry = (ModelSlot *)((u8 *)D_807F6000 + arg0 * sizeof(ModelSlot));
+    entry = (ModelSlot *)((u8 *)gModelSlots + arg0 * sizeof(ModelSlot));
     if (entry->unk78 != NULL) {
         sp48 = entry->unk78[gGfxBufferIndex];
     } else {
@@ -441,11 +441,11 @@ void modelSlotExpireNextBuffers(void) {
         if (D_80748E40 >= D_80747D70) {
             D_80748E40 = 0;
         }
-        a0 = &D_807F6000[D_80748E40].unk28;
+        a0 = &gModelSlots[D_80748E40].unk28;
         if ((a0->unk15 & 1) && ((u32)(gFrameCounter - a0->unk10) >= 0x1F)) {
             dynamicBufferFree(a0);
         }
-        a1 = &D_807F6000[D_80748E40].unk48;
+        a1 = &gModelSlots[D_80748E40].unk48;
         if ((a1->unk24 & 1) && ((u32)(gFrameCounter - a1->unk8) >= 0x1F)) {
             modelSlotTriBufferRelease(a1);
         }
@@ -1742,7 +1742,7 @@ extern u8 D_807FB600;
 extern u8 D_807FB601;
 extern u8 D_807FB61C;
 
-#define SLOT ((ModelSlot *)((u8 *)D_807F6000 + i * sizeof(ModelSlot)))
+#define SLOT ((ModelSlot *)((u8 *)gModelSlots + i * sizeof(ModelSlot)))
 u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
     u8 sp77;
     ActorSphereNodeHit *node;
@@ -1759,7 +1759,7 @@ u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
     sub->unk6C = 0;
     D_807FB548 = 0;
     for (i = 0; i < D_80747D70; i++) {
-        buf = &D_807F6000[i].unk28;
+        buf = &gModelSlots[i].unk28;
         if (buf->unk15 & 2) {
             if (collisionSpheresOverlap(sub->unk0, sub->unk4, sub->unk8, sub->unkC, ((s32 *)buf)[0], ((s32 *)buf)[1], ((s32 *)buf)[2], ((s32 *)buf)[3]) != 0) {
                 if (!(buf->unk15 & 1)) {
@@ -1900,7 +1900,7 @@ CollisionBox *arg2;
         modelSlotBuildTransformMatrix(arg0, D_807FB5D8->unk4E, mtx);
         matrix4Invert(inv, mtx);
         off = arg0 * 0x90;
-        if (D_807F6000[arg0].unk7C != NULL && (D_807F6000[arg0].unk7C->unk9B & 0x24)) {
+        if (gModelSlots[arg0].unk7C != NULL && (gModelSlots[arg0].unk7C->unk9B & 0x24)) {
             hit = 1;
         }
         if (hit != 0) {
@@ -1927,7 +1927,7 @@ CollisionBox *arg2;
         for (i = 0; i < 3; i++) {
             guMtxXFMF(inv, x[i], y[i], z[i], &sub->unk28[i], &sub->unk34[i], &sub->unk40[i]);
         }
-        sub->unk26 = *(s16 *)((u8 *)D_807F6000 + off + 0x88);
+        sub->unk26 = *(s16 *)((u8 *)gModelSlots + off + 0x88);
         sub->unk5C = D_807FB5D0;
         if (sub->unk5C < 0x14) {
             sub->unk5C = 0x14;
@@ -2042,8 +2042,8 @@ void func_8066FE08(s32 arg0) {
     f32 sp44;
 
     var_a3 = 0;
-    if (D_807F6000[arg0].unk7C != NULL && D_807FB5D8->unk4D != 0) {
-        sub = (ModelSlotHitRecord *)D_807F6000[arg0].unk7C;
+    if (gModelSlots[arg0].unk7C != NULL && D_807FB5D8->unk4D != 0) {
+        sub = (ModelSlotHitRecord *)gModelSlots[arg0].unk7C;
         temp_v0 = sub->unk50;
         if (temp_v0 != 0)
         switch (temp_v0) {
@@ -2259,7 +2259,7 @@ Actor *arg0;
         ret = 0;
         slot = hashTableLookup(sub->unk26);
         if (slot != -1) {
-            buf = &D_807F6000[slot].unk28;
+            buf = &gModelSlots[slot].unk28;
             if (!(buf->unk15 & 1)) {
                 return 0;
             }
@@ -2269,7 +2269,7 @@ Actor *arg0;
             D_807FB602 = 0;
             func_80672E90(sub->unk0, sub->unk4, sub->unk8);
             actorSetCameraBoundaryMode(arg0->actorType);
-            hit = (ModelSlotHitView *)D_807F6000[slot].unk7C;
+            hit = (ModelSlotHitView *)gModelSlots[slot].unk7C;
             if (hit != NULL) {
                 if (hit->unk9B & 4) {
                     kind = 1;
@@ -2304,10 +2304,10 @@ Actor *arg0;
                 }
             }
             if (D_807FB601 != 0 && hit != NULL) {
-                ((ModelSlotHitView *)D_807F6000[slot].unk7C)->unk5C = D_807FB601;
-                ((ModelSlotHitView *)D_807F6000[slot].unk7C)->unk5E = arg0->actorType;
+                ((ModelSlotHitView *)gModelSlots[slot].unk7C)->unk5C = D_807FB601;
+                ((ModelSlotHitView *)gModelSlots[slot].unk7C)->unk5E = arg0->actorType;
             }
-            if (D_807F6000[slot].unk7C != NULL && ((ModelSlotHitView *)D_807F6000[slot].unk7C)->unk6E != 0) {
+            if (gModelSlots[slot].unk7C != NULL && ((ModelSlotHitView *)gModelSlots[slot].unk7C)->unk6E != 0) {
                 actorQueueCollisionCallbacks((CollisionActor *)arg0);
             }
             if (hit != NULL && hit->unk53 != 0 && D_807FD614[playerFindIndexByActor(arg0)].unk0 > 30.0) {
@@ -2407,7 +2407,7 @@ typedef struct ActorPlaneContactView {
 extern s16 D_80753D50[];
 extern s16 D_80753D60[];
 extern u8 gCurrentPlayerIndex;
-extern s16 D_807FD584;
+extern s16 gCurrentCharacterIndex;
 
 void actorCalcPlaneContactPoint(ActorPlaneContactView *arg0, s16 arg1, ActorHitPlane *arg2) {
     f32 mtx[4][4];
@@ -2430,9 +2430,9 @@ void actorCalcPlaneContactPoint(ActorPlaneContactView *arg0, s16 arg1, ActorHitP
 
     sub = arg0->unk174;
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
-        sp54 = D_80753D50[D_807FD584];
+        sp54 = D_80753D50[gCurrentCharacterIndex];
     } else {
-        sp54 = D_80753D60[D_807FD584];
+        sp54 = D_80753D60[gCurrentCharacterIndex];
     }
 
     modelSlotBuildTransformMatrix(arg1, arg2->unk5A, mtx);
@@ -2670,9 +2670,9 @@ void actorUpdateCollisionExtents(ActorTargetWork *arg0) {
     f32 sp38;
 
     if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
-        sp44 = D_80753D50[D_807FD584];
+        sp44 = D_80753D50[gCurrentCharacterIndex];
     } else {
-        sp44 = D_80753D60[D_807FD584];
+        sp44 = D_80753D60[gCurrentCharacterIndex];
     }
     if (((ActorFacingWork *)arg0)->unk5C & 1) {
         f32 scale;
@@ -3090,9 +3090,9 @@ u8 collisionTestSphereSlots(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s
     var_s6 = 0;
     if (D_80747D70 > 0) {
         do {
-            temp_s0 = (ModelSlotBufferView *)&D_807F6000[var_s6].unk28;
+            temp_s0 = (ModelSlotBufferView *)&gModelSlots[var_s6].unk28;
             if (temp_s0->unk18 != 0 &&
-                (D_807FB53C != 0xBC || (D_807F6000[var_s6].unk48.unk24 & 2))) {
+                (D_807FB53C != 0xBC || (gModelSlots[var_s6].unk48.unk24 & 2))) {
                 temp_ft0 = arg0;
                 temp_ft1 = arg1;
                 temp_ft2 = arg2;
@@ -3103,7 +3103,7 @@ u8 collisionTestSphereSlots(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s
                                   *(s32 *)((u8 *)temp_s0 + 0x8),
                                   *(s32 *)((u8 *)temp_s0 + 0xC)) != 0 &&
                     (*(u8 *)((u8 *)temp_s0 + 0x15) & 1) &&
-                    ((temp_v0 = *(ModelSlotHitEnableView **)((u8 *)D_807F6000 + var_s6 * 0x90 + 0x7C)) == NULL || temp_v0->unk70 != 0)) {
+                    ((temp_v0 = *(ModelSlotHitEnableView **)((u8 *)gModelSlots + var_s6 * 0x90 + 0x7C)) == NULL || temp_v0->unk70 != 0)) {
                     var_fp |= func_80673708(temp_ft0, temp_ft1, temp_ft2, temp_ft3, *(s32 *)((u8 *)temp_s0 + 0x18), *(s32 *)((u8 *)temp_s0 + 0x1C), arg4, arg5);
                 }
             }
@@ -3522,7 +3522,7 @@ void actorSetCameraBoundaryMode(s32 arg0) {
     }
 }
 
-extern ActorMotionWork *D_807FBB4C;
+extern ActorMotionWork *gPrimaryPlayerActor;
 
 s32 actorCheckCameraBoundaryCondition(s8 arg0) {
     ActorMotionSub174 *temp_v0;
@@ -3557,13 +3557,13 @@ s32 actorCheckCameraBoundaryCondition(s8 arg0) {
         D_807FB548 = 1;
         return 1;
     case 6:
-        temp_v0 = D_807FBB4C->unk174;
+        temp_v0 = gPrimaryPlayerActor->unk174;
         if (D_807FB53C == 3 && temp_v0->unk1A3 != 0) {
             return 1;
         }
         goto ret_0;
     case 7:
-        temp_v0 = D_807FBB4C->unk174;
+        temp_v0 = gPrimaryPlayerActor->unk174;
         if (D_807FB53C == 6 && (gPlayerSlots->unk2C0 != 1 || temp_v0->unk1CC != temp_v0->unk1C0)) {
             return 1;
         }

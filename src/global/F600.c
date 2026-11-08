@@ -120,7 +120,7 @@ void controllerGetReadData(OSContPad *pad) {
 
 extern u8 D_807463B8;
 extern s32 gFrameCounter;
-extern u8 D_8076A0B1;
+extern u8 gScreenRenderFlags;
 void heapTickDeferredFrees(void);
 void heapCodeEnd(void);
 s32 menuIsTransitionType6(void);
@@ -224,7 +224,7 @@ void controllerUpdate(void) {
             (*(u16 *)((u8 *)CtrlAHeld + sum)) = pad->button;
             buttons = padOffset;
             if (D_807463B8 == 0) {
-                if (D_8076A0B1 & 0x11) {
+                if (gScreenRenderFlags & 0x11) {
                     pad->button &= 0x1000;
                     pad->stick_x = 0;
                     pad->stick_y = 0;

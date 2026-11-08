@@ -25,7 +25,7 @@ typedef struct ActorTargetEntry {
     } u;
 } ActorTargetEntry;
 
-extern ActorTargetSource *D_807F6000;
+extern ActorTargetSource *gModelSlots;
 extern ActorTargetEntry *D_807F9420;
 extern s16 D_807F9424;
 extern s32 D_80747D70;
@@ -55,11 +55,11 @@ void actorInitTargetEntries(void) {
             u8 res = cond;
             if (cond) {
                 s32 temp;
-                D_807F9420[k].unk0 = D_807F6000[i].unk0;
-                D_807F9420[k].unk2 = D_807F6000[i].unk4;
-                D_807F9420[k].unk4 = D_807F6000[i].unk8;
+                D_807F9420[k].unk0 = gModelSlots[i].unk0;
+                D_807F9420[k].unk2 = gModelSlots[i].unk4;
+                D_807F9420[k].unk4 = gModelSlots[i].unk8;
                 D_807F9420[k].unk6 = res;
-                D_807F9420[k].u.s.unk7 = mapChunkFindByPosition(D_807F6000[i].unk0, D_807F6000[i].unk4, D_807F6000[i].unk8, 0);
+                D_807F9420[k].u.s.unk7 = mapChunkFindByPosition(gModelSlots[i].unk0, gModelSlots[i].unk4, gModelSlots[i].unk8, 0);
                 temp = mapObjectCollectIdsByType(D_807F9420[k].u.s.unk7, &D_807F9420[k].u.s.pad8, 4);
                 if (temp != 4) {
                     D_807F9420[k].u.s.pad8[temp] = -1;
@@ -77,7 +77,7 @@ typedef struct ActorTargetType {
 } ActorTargetType;
 
 u8 mapObjectIsTargetType(s16 objIndex) {
-    s16 val = ((ActorTargetType *)D_807F6000)[objIndex].unk84;
+    s16 val = ((ActorTargetType *)gModelSlots)[objIndex].unk84;
 
     if (val == 1 || val == 0xC || val == 0x10 || val == 0xF3 || val == 0x134 || val == 0x135 || val == 0x138) {
         return 1;

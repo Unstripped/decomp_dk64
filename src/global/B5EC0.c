@@ -2,7 +2,7 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern s32 D_8071FFA0;
+extern s32 sEffectSparkConfig;
 
 s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void effectSpawnScatterRandom(void *, s32, f32, s32, s32, s32, s32, s32, s32);
@@ -71,7 +71,7 @@ void actorSpawnGroundEffectAtNode(u8 nodeIndex) {
     f32 z;
 
     actorGetNodePos(gCurrentActor, nodeIndex, &x, &y, &z);
-    effectSpawnScatterRandom(&D_8071FFA0, 0, 1.0f, 3, 5, 0x28, x, gCurrentActor->floorY, z);
+    effectSpawnScatterRandom(&sEffectSparkConfig, 0, 1.0f, 3, 5, 0x28, x, gCurrentActor->floorY, z);
     actorSpawnEffectChild(x, gCurrentActor->floorY, z, 0.05f, 0.04f, gCurrentActor, 0);
 }
 
@@ -86,18 +86,18 @@ void func_806B1290(void) {
     }
 }
 
-extern u8 D_807FBD70;
+extern u8 gBossFightPhase;
 
 s32 func_8072DE10(s32);
 
 void func_806B1348(void) {
-    if (((B5EC0View90 *)gBehaviourWorkState)->unk18 >= 0x65 && D_807FBD70 == 2 && func_8072DE10(0x2710) != 0) {
+    if (((B5EC0View90 *)gBehaviourWorkState)->unk18 >= 0x65 && gBossFightPhase == 2 && func_8072DE10(0x2710) != 0) {
         ((B5EC0Actor *)gCurrentActor)->unk154 = 0x27;
         ((B5EC0Actor *)gCurrentActor)->unk155 = 0;
     }
 }
 
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 extern s32 gCurrentMap;
 
 void behaviourFrameBegin(void);
@@ -145,23 +145,23 @@ void func_806B13B4(u8 arg0) {
         ((B5EC0Actor *)gCurrentActor)->unk132 = 1;
         sel = gCurrentActor->state;
     }
-    if (sel != 0x32 || D_807FBB70.unk15 != 0) {
-        if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && sel != 0x37) {
+    if (sel != 0x32 || gActorGlobalState.unk15 != 0) {
+        if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && sel != 0x37) {
             if (((B5EC0Actor *)gCurrentActor)->unk134 < -1) {
-                func_8072D714(D_807FBB70.unk1FC, 0x20C);
+                func_8072D714(gActorGlobalState.unk1FC, 0x20C);
                 ((B5EC0Actor *)gCurrentActor)->unkC0 = 250.0f;
             } else {
-                func_8072D714(D_807FBB70.unk1FC, 0x20B);
+                func_8072D714(gActorGlobalState.unk1FC, 0x20B);
                 ((B5EC0Actor *)gCurrentActor)->unkC0 = 200.0f;
             }
             ((B5EC0View90 *)gBehaviourWorkState)->unk35 = 2;
             gCurrentActor->callbackMask &= 0xFFFF7FFF;
             sel = gCurrentActor->state;
-        } else if (D_807FBB70.unk200 == 4) {
-            func_8072DEA8(0x209, 0x31, D_807FBB70.unk1FC);
+        } else if (gActorGlobalState.unk200 == 4) {
+            func_8072DEA8(0x209, 0x31, gActorGlobalState.unk1FC);
             sel = gCurrentActor->state;
-        } else if (D_807FBB70.unk200 == 5) {
-            func_8072DEA8(0x20A, 0x32, D_807FBB70.unk1FC);
+        } else if (gActorGlobalState.unk200 == 5) {
+            func_8072DEA8(0x20A, 0x32, gActorGlobalState.unk1FC);
             ((B5EC0Actor *)gCurrentActor)->unkC0 = 220.0f;
             gCurrentActor->unk132 = 8;
             sel = gCurrentActor->state;
@@ -342,7 +342,7 @@ void actorSetAnimStartFrame(u8 frame) {
     animSetFrameAndSubframe(gCurrentActor, 0, frame, 0.0f);
 }
 
-extern u8 D_8076A0AB;
+extern u8 gCurrentWorldId;
 extern s32 D_80750600[];
 
 s32 mapGetWorldIndex(u8);
@@ -356,9 +356,9 @@ void func_806B1DD4(u8 mode) {
 
     if (!(gCurrentActor->flags & 0x10)) {
         flag = 0;
-        temp = mapGetWorldIndex(D_8076A0AB);
+        temp = mapGetWorldIndex(gCurrentWorldId);
         if (temp != 9 && temp != 0xA) {
-            temp = mapGetHubWorldIndex(D_8076A0AB, 1);
+            temp = mapGetHubWorldIndex(gCurrentWorldId, 1);
             flag = flagGridSumRows(0x1D5, temp, temp, D_80750600[mode]) == 0;
         }
         actorSetAnimStartFrame(flag != 0 ? mode : 5);

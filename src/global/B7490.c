@@ -36,9 +36,9 @@ typedef struct {
 #define B7490MAXD(a, b) ((a) < (b) ? (b) : (a))
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
-extern u8 D_807FBD70;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
+extern u8 gBossFightPhase;
 extern PlayerState *gActivePlayerState;
 extern s32 D_807FDCA0;
 extern u32 gFrameCounter;
@@ -108,8 +108,8 @@ void func_806B2790(void) {
     s32 st;
 
     behaviourFrameBegin();
-    if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
-        func_8072D714(D_807FBB70.unk1FC, 0x2E1);
+    if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
+        func_8072D714(gActorGlobalState.unk1FC, 0x2E1);
         gBehaviourAnimState->unk46 |= 8;
     }
     effectSpawnSparks(0x1F, 0);
@@ -151,7 +151,7 @@ void func_806B2790(void) {
         case 0x23:
             B7490A->unkE4 += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 15);
             actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, ((gCurrentActor->waterY - gCurrentActor->unk15E) < gBehaviourTargetActor->y) ? (gCurrentActor->waterY - gCurrentActor->unk15E) : gBehaviourTargetActor->y, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
-            if (D_807FBD70 == 2) {
+            if (gBossFightPhase == 2) {
                 gCurrentActor->state = 0x27;
                 gCurrentActor->unk155[0] = 0;
             }
@@ -218,11 +218,11 @@ void func_806B2D64(void) {
 
     behaviourFrameBegin();
     effectSpawnSparks(0x1F, 2);
-    if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
+    if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
         gBehaviourAnimState->unk46 |= 8;
-        func_8072D714(D_807FBB70.unk1FC, 0x2E7);
-    } else if (D_807FBB70.unk200 == 4) {
-        func_8072DEA8(0x2E5, 0x31, D_807FBB70.unk1FC, &D_807FBB70);
+        func_8072D714(gActorGlobalState.unk1FC, 0x2E7);
+    } else if (gActorGlobalState.unk200 == 4) {
+        func_8072DEA8(0x2E5, 0x31, gActorGlobalState.unk1FC, &gActorGlobalState);
         gCurrentActor->speedXZ = 0.0f;
     }
     st = gCurrentActor->state;
@@ -278,7 +278,7 @@ void func_806B2D64(void) {
         case 0x23:
             actorEmptyStub();
             actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, ((gCurrentActor->waterY - gCurrentActor->unk15E) < gBehaviourTargetActor->y) ? (gCurrentActor->waterY - gCurrentActor->unk15E) : gBehaviourTargetActor->y, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
-            if (D_807FBD70 == 2) {
+            if (gBossFightPhase == 2) {
                 gCurrentActor->state = 0x27;
                 gCurrentActor->unk155[0] = 0;
             }
@@ -399,7 +399,7 @@ void actorSwellBurstUpdate(void) {
     var = gCurrentActor->unk4->unk38 * 800.0f;
     scaleMultiplier = 1.1f;
     if (gCurrentMap == 0xC7) {
-        if (!(D_807FBB4C->contactFlags & 4)) {
+        if (!(gPrimaryPlayerActor->contactFlags & 4)) {
             var = 0.0f;
             scaleMultiplier = 0.4f;
         } else {
@@ -413,7 +413,7 @@ void actorSwellBurstUpdate(void) {
         gCurrentActor->renderFlags |= 4;
         func_8067ACB4(gCurrentActor);
     }
-    if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (gCurrentActor->state != 0x27)) {
+    if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x27)) {
         gCurrentActor->state = 0x27;
         gCurrentActor->unk155[0] = 0;
     } else if (gCurrentActor->state != 0x27) {
@@ -626,8 +626,8 @@ void func_806B42A8(void (*callback)(), u16 animId1, u16 animId2, s16 sfxId) {
         }
     }
     st = gCurrentActor->state;
-    if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (st != 0x37)) {
-        func_8072D714(D_807FBB70.unk1FC, animId1);
+    if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (st != 0x37)) {
+        func_8072D714(gActorGlobalState.unk1FC, animId1);
         B7490A->unkC0 = 300.0f;
         *heightTarget = 0;
         gBehaviourWorkState->timer = 0x2BC;
@@ -766,7 +766,7 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
         B7490A->unkC4 = D_807502EC;
     }
     targetHeight = gBehaviourExtraState->unk6 - (0 - *heightPtr);  // FAKE: negated subtrahend flips the commutative + operand order
-    if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (action != 0x37)) {
+    if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (action != 0x37)) {
         gCurrentActor->state = 0x37;
         gCurrentActor->unk155[0] = 0;
     }
@@ -846,7 +846,7 @@ void func_806B4DCC(void) {
     }
     deltaHeight = gBehaviourWorkState->targetY - gBehaviourExtraState->unk6;
     *heightPtr = (deltaHeight < 0) ? 0 : deltaHeight;
-    if ((D_807FBD70 == 9) && (gCurrentActor->state != 0x37)) {
+    if ((gBossFightPhase == 9) && (gCurrentActor->state != 0x37)) {
         gCurrentActor->state = 0x37;
         gCurrentActor->unk155[0] = 0;
         actorScriptStart(gCurrentActor, 0x248);
@@ -872,7 +872,7 @@ void func_806B4DCC(void) {
     } else {
         gCurrentActor->unk132 = 1;
         gCurrentActor->flags = gCurrentActor->flags & 0xFF7FFFFF;
-        if (D_807FBD70 == 4) {
+        if (gBossFightPhase == 4) {
             gCurrentActor->unk132 = 2;
             gBehaviourWorkState->timer = 0x1E;
             gBehaviourWorkState->scale = (f32) ((f64) gBehaviourWorkState->scale * 0.7);
@@ -998,12 +998,12 @@ void func_806B54BC(void) {
     state = (B7490St178 *) B7490A->unk178;
     behaviourFrameBegin();
     dead = state->unk0; // dead store: reserves the extra frame slot above zoneX
-    if ((gCurrentActor->state != 0x40) && (gCurrentActor->state != 0x37) && ((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0))) {
+    if ((gCurrentActor->state != 0x40) && (gCurrentActor->state != 0x37) && ((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0))) {
         sfxStopSlotSound(gCurrentActor, 0);
         actorScriptStart(gCurrentActor, 0x331);
         gCurrentActor->state = 0x37;
         gCurrentActor->unk155[0] = 0;
-        sfxPlayFromActorWithAltitudeCheck(D_807FBB4C, 0x16, 0xFF, 0x7F, 0x1E);
+        sfxPlayFromActorWithAltitudeCheck(gPrimaryPlayerActor, 0x16, 0xFF, 0x7F, 0x1E);
     }
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->unk46 = gBehaviourAnimState->unk46 | 0x20;
@@ -1024,9 +1024,9 @@ void func_806B54BC(void) {
     }
     switch (gCurrentActor->state) {
         case 0x26:
-            state->unk0 = D_807FBB4C->x;
-            state->unk4 = D_807FBB4C->y;
-            state->unk8 = D_807FBB4C->z;
+            state->unk0 = gPrimaryPlayerActor->x;
+            state->unk4 = gPrimaryPlayerActor->y;
+            state->unk8 = gPrimaryPlayerActor->z;
             state->unk12 = (randomLcgNext() & 0xFF) + 0x78;
         case 0x23:
             gCurrentActor->yaw = gCurrentActor->yaw - (mathAngleSignedDistance(mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, state->unk0, state->unk8) + 0x800, gCurrentActor->yaw) >> 4);

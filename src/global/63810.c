@@ -108,9 +108,9 @@ void lightQueueKeyframed(u8 keyframeSetIndex, s16 lightId, f32 x, f32 y, f32 z, 
 
 
 extern s32 gCurrentMap;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 extern s32 gGlobalPauseFlags;
-extern s32 D_807FBB68;
+extern s32 gGlobalCutsceneFlags;
 
 void lightSetFlags(u8);
 void lightSetTargetId(s16);
@@ -120,14 +120,14 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 void lightFlushQueued(void) {
     s32 i;
 
-    if (gCurrentMap == 0x30 && !(((PlayerState *)D_807FBB4C->unk174)->stateFlags & 0x100000)) {
+    if (gCurrentMap == 0x30 && !(((PlayerState *)gPrimaryPlayerActor->unk174)->stateFlags & 0x100000)) {
         gLightQueueCount = 0;
         return;
     }
 
     if (!(gGlobalPauseFlags & 2)) {
         for (i = 0; i < gLightQueueCount; i++) {
-            if (!(D_807FBB68 & 4)) {
+            if (!(gGlobalCutsceneFlags & 4)) {
                 lightSetFlags(2);
             }
             lightSetTargetId(gLightQueue[i].unk12);
@@ -146,7 +146,7 @@ typedef struct ActorSlotEntry {
     u8 pad88[0x8];
 } ActorSlotEntry;
 
-extern ActorSlotEntry *D_807F6000;
+extern ActorSlotEntry *gModelSlots;
 s32 hashTableLookup(s32);
 
 void actorSetTargetSlotByte(s32 key, u8 val) {
@@ -157,7 +157,7 @@ void actorSetTargetSlotByte(s32 key, u8 val) {
 
     slotIdx = hashTableLookup(key);
     if (slotIdx != -1) {
-        slotBase = (u8 *)D_807F6000 + (slotIdx * 0x90);
+        slotBase = (u8 *)gModelSlots + (slotIdx * 0x90);
         slotType = *(s16 *)(slotBase + 0x86);
         if (slotType != 1) {
             if (slotType == 2) {

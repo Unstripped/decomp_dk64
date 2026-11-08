@@ -3,8 +3,8 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
 extern void *gPlayerSlots;
 
 void actorSetUniformScale(Actor *actor, f32 scale) {
@@ -42,15 +42,15 @@ s32 func_80724A20(void) {
 
     found = 0;
     i = 0;
-    if (D_807FBB70.unk254 > 0) {
+    if (gActorGlobalState.unk254 > 0) {
         do {
-            if (D_807FBB70.unk258[i] == 3) {
+            if (gActorGlobalState.unk258[i] == 3) {
                 found = 1;
-                gCurrentActor->state = D_807FBB70.unk278[i][1];
+                gCurrentActor->state = gActorGlobalState.unk278[i][1];
                 gCurrentActor->unk155[0] = 0;
             }
             i++;
-        } while (found == 0 && i < D_807FBB70.unk254);
+        } while (found == 0 && i < gActorGlobalState.unk254);
     }
     return found;
 }
@@ -258,7 +258,7 @@ typedef struct A1S98 {
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 s16 mathAngleEaseToward(s16, s16, f32);
-extern u8 D_807444EC;
+extern u8 gGameMode;
 #define A1PLR ((A1Plr *)gPlayerSlots)
 #define A1DC90 ((A1S90 *)gBehaviourWorkState)
 #define A1DC98 ((A1S98 *)gBehaviourAnimState)
@@ -278,8 +278,8 @@ void func_80724E48(u8 arg0) {
     angle = 0.0f;
     if (arg0 == 8) {
         pitchArg = 0x46;
-        sp34 = D_807FBB4C->yaw * 3.1415927f * (1.0 / 2048.0);
-        sp30 = A1CAM(D_807FBB4C);
+        sp34 = gPrimaryPlayerActor->yaw * 3.1415927f * (1.0 / 2048.0);
+        sp30 = A1CAM(gPrimaryPlayerActor);
         sp28 = 1.0431069f;
     } else {
         sp34 = gCurrentActor->yaw * 3.1415927f * (1.0 / 2048.0);
@@ -292,13 +292,13 @@ void func_80724E48(u8 arg0) {
     }
     if ((s32)sp30 != 0) {
         sp2C = (f64)(u32)sp30->unk4 / 65535.0 * 6.2831854820251465;
-        if (D_807444EC == 1 && arg0 != 5 && arg0 != 7) {
+        if (gGameMode == 1 && arg0 != 5 && arg0 != 7) {
             arg0 = 6;
         }
         switch (arg0) {
             case 8:
-                sp38 = mathCalculatePitchAngle(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, D_807FBB4C->x, D_807FBB4C->y, D_807FBB4C->z, pitchArg);
-                angle = mathAngleBetweenPointsRad(gCurrentActor->x, gCurrentActor->z, D_807FBB4C->x, D_807FBB4C->z) - sp34;
+                sp38 = mathCalculatePitchAngle(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->y, gPrimaryPlayerActor->z, pitchArg);
+                angle = mathAngleBetweenPointsRad(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z) - sp34;
                 break;
             case 7:
                 sp38 = mathCalculatePitchAngle(gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, pitchArg);
@@ -881,7 +881,7 @@ typedef struct A4St174 {
 extern f32 D_807502E8;
 extern s16 D_807502E0;
 extern s16 D_8075570C[];
-extern s32 D_807FBB68;
+extern s32 gGlobalCutsceneFlags;
 extern u8 gPlayerCount;
 extern u8 D_80755698[];
 extern s32 gCurrentMap;
@@ -1055,13 +1055,13 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     if (gPlayerCount >= 2) {
         st->unk4 = A4P4[(randomNonNegative() >> 0xF) % gPlayerCount].unk4;
     } else {
-        st->unk4 = (void *)D_807FBB4C;
+        st->unk4 = (void *)gPrimaryPlayerActor;
     }
     node->unk34 = 0.75f;
     act->unkA4 = node->unk6;
     if (type != 8) {
         actorUpdateFloorContactAndTilt(act, 0.0f);
-        if (D_807FBB68 & 2) {
+        if (gGlobalCutsceneFlags & 2) {
             act->unk110 = 0;
         } else if ((type == 4) || (act->unk58 == 0xF8)) {
             node->unk46 |= 0x800;
@@ -1297,10 +1297,10 @@ void func_80727678(void) {
 
     node = D_80755694->nodes;
     for (sp4A = 0; sp4A < D_80755694->count; sp4A++, node++) {
-        for (j = 0; j < D_807FBB70.unk254; j++) {
-            ptr = D_807FBB70.unk278[j];
+        for (j = 0; j < gActorGlobalState.unk254; j++) {
+            ptr = gActorGlobalState.unk278[j];
             if (node->unk13 == *ptr) {
-                switch (D_807FBB70.unk258[j]) {
+                switch (gActorGlobalState.unk258[j]) {
                     case 1:
                         if ((node->unk42 == 0) && (spawnFlagConditionMet(((s16 *)&gCurrentMap)[1], node->unk13) != 0) && (entry = &D_8075EB80[node->unk44], actorSpawn(entry->unk0, entry->unk2) != 0)) {
                             spawnNodeInitActorFromEntry(gSpawnedActor, node);
@@ -1320,7 +1320,7 @@ void func_80727678(void) {
                     case 3:
                     case 4:
                         if (node->unk42 == 5) {
-                            func_8067AB20(gCurrentActor, node->unk18, 0x01000000, D_807FBB70.unk258[j] & 0xFF, ptr, 0);
+                            func_8067AB20(gCurrentActor, node->unk18, 0x01000000, gActorGlobalState.unk258[j] & 0xFF, ptr, 0);
                         }
                         break;
                 }
@@ -1378,7 +1378,7 @@ typedef struct C1PlayerView {
 #define C1PLAYERS ((C1PlayerView *)gPlayerSlots)
 #define C1ACT40 ((C1ActorView *)gCurrentActor)
 
-extern s16 D_8076A0AA;
+extern s16 gCurrentLevelIndex;
 extern s32 gGlobalOverlayFlags;
 extern u8 gPlayerCount;
 void actorDeregisterActive(void *);
@@ -1444,7 +1444,7 @@ void spawnNodesUpdate(void) {
                 }
             }
         } else if (node->unk42 == 2) {
-            if ((spawnNodeInRangeAndVisible(node, dist) != 0) && (spawnFlagConditionMet(D_8076A0AA, node->unk13) != 0)) {
+            if ((spawnNodeInRangeAndVisible(node, dist) != 0) && (spawnFlagConditionMet(gCurrentLevelIndex, node->unk13) != 0)) {
                 spawnNodeSelectEntry(node);
                 entry = &D_8075EB80[node->unk44];
                 if (actorSpawn(entry->unk0, entry->unk2) != 0) {
@@ -1900,7 +1900,7 @@ extern u8 D_8071FB54[];
 extern u8 D_8071FC0C[];
 extern u8 D_8071FC40[];
 extern u8 D_8071FC58[];
-extern u8 D_8071FFA0[];
+extern u8 sEffectSparkConfig[];
 extern void *D_8074E880[];
 extern s32 gCamActor;
 #define A2B44V ((A2B44 *)gSpawnedActor)
@@ -1974,7 +1974,7 @@ void zoneEntrySpawnEffect(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                 func_80714950(-(i * 20));
                 func_807149B8(1);
                 func_80714998(arg2);
-                func_80714CC0(D_8071FFA0, 1.5f, (f32)x + ox0, (f32)y + oy0, (f32)z + oz0);
+                func_80714CC0(sEffectSparkConfig, 1.5f, (f32)x + ox0, (f32)y + oy0, (f32)z + oz0);
             }
             return;
         case 7:
@@ -2141,7 +2141,7 @@ void func_80729AA4(u8 arg0) {
 
     a = spawnNodeActivate(arg0, 0);
     if (a == 0) {
-        a = D_807FBB4C;
+        a = gPrimaryPlayerActor;
     }
     a->contactFlags |= 0x100;
 }

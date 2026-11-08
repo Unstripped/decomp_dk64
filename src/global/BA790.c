@@ -2,9 +2,9 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
-extern u8 D_807FBD70;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
+extern u8 gBossFightPhase;
 
 // View of the current actor (gCurrentActor) with the fields func_806B5A90 and func_806B640C need typed.
 typedef struct BA790Actor {
@@ -48,7 +48,7 @@ typedef struct BA790View9C {
 #define BA790S9C ((BA790View9C *)gBehaviourExtraState)
 
 extern u8 D_807FBB85;
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern s32 gFrameCounter;
 extern s16 D_80770628[];
 extern s16 D_80770710[];
@@ -100,11 +100,11 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     } else {
         diff = BA790A->unkEE - BA790A->unkE6;
     }
-    if (D_807FBD70 == 9 || D_807FBB85 != 0) {
+    if (gBossFightPhase == 9 || D_807FBB85 != 0) {
         if (gCurrentActor->state != 0x37 && gCurrentActor->state != 0x38) {
             switch (gCurrentActor->actorType) {
             case 0xAF:
-                if (D_807444EC == 1) {
+                if (gGameMode == 1) {
                     if (gCurrentActor->flags & 4) {
                         gCurrentActor->state = 0x38;
                         BA790A->unk155 = 0;
@@ -137,7 +137,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     }
     switch (gCurrentActor->state) {
     case 0x33:
-        if (D_807FBD70 == 2) {
+        if (gBossFightPhase == 2) {
             BA790A->unkC0 = 150.0f;
             BA790A->unkEE = D_807FBD6C->unkEE;
         }
@@ -158,7 +158,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             actorUpdateFloorContactAndTilt(gCurrentActor, 6.0f);
             BA790A->unk155 = 1;
         }
-        if (D_807444EC != 1) {
+        if (gGameMode != 1) {
             if (gCurrentActor->actorType == 0xB6) {
                 x = 0x24D;
             } else {
@@ -278,7 +278,7 @@ void func_806B63E0(void) {
     func_806B5A90(0x2710, 0);
 }
 
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern s32 gCurrentMap;
 
 void actorClearNodeFlag(Actor *, s32);
@@ -297,9 +297,9 @@ void func_806B640C(void) {
         actorClearNodeFlag(gCurrentActor, 3);
         *p = -BA790S9C->unkA;
     }
-    if (D_807444EC == 1) {
-        for (i = 0; i < D_807FBB70.unk254; i++) {
-            if (D_807FBB70.unk258[i] == 3) {
+    if (gGameMode == 1) {
+        for (i = 0; i < gActorGlobalState.unk254; i++) {
+            if (gActorGlobalState.unk258[i] == 3) {
                 gCurrentActor->unk144 = 0x24;
                 actorScriptStart(gCurrentActor, 0x24F);
             }
@@ -314,7 +314,7 @@ void func_806B640C(void) {
                 sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x150, 0xFF, 0x7F, 0x1E, 0x32, 0.3f, 0);
             }
             if (*p == 0) {
-                D_807FBB70.unk200 = 9;
+                gActorGlobalState.unk200 = 9;
             }
         }
     }

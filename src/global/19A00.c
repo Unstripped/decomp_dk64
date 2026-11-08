@@ -94,7 +94,7 @@ typedef struct ActorTypeView {
     s32 unk58;
 } ActorTypeView;
 
-extern u16 *D_807FBB54;
+extern u16 *gActorScriptIndexTable;
 
 void actorScriptStart(Actor *arg0, s32 arg1);
 
@@ -102,10 +102,10 @@ void actorScriptStartByIndex(Actor *arg0, s32 arg1) {
     s32 index;
 
     index = ((arg1 * 7) + ((ActorTypeView *)arg0)->unk58) - 2;
-    actorScriptStart(arg0, *(D_807FBB54 + index));
+    actorScriptStart(arg0, *(gActorScriptIndexTable + index));
 }
 
-extern u8 *D_807FBB50;
+extern u8 *gActorScriptAsset;
 
 typedef struct ScriptLoadState {
     u8 pad0[0x64];
@@ -140,7 +140,7 @@ void actorScriptStart(Actor *arg0, s32 arg1) {
         return;
     }
     state->unk64 = arg1;
-    base = (s32)D_807FBB50;
+    base = (s32)gActorScriptAsset;
     script = (long long)(*(s32 *)(base + (arg1 * 4)) + base);
     state->unk68 = (u8 *)script;
     state->unk6C = (u8 *)script;
@@ -684,7 +684,7 @@ s32 scriptOpReadRampInterpolation(Actor *arg0) {
     return 1;
 }
 
-extern u8 D_80746D5C;
+extern u8 sMotionWindowProgress;
 
 s32 func_80615CE4(Actor *arg0) {
     u8 sp27;
@@ -699,11 +699,11 @@ s32 func_80615CE4(Actor *arg0) {
     }
     sScriptPc++;
     scriptReadU8(&sp27);
-    controllerApplyMotionWindow(arg0, var_a1, (f32)D_80746D5C);
-    if (D_80746D5C != 0) {
-        D_80746D5C += sp27;
+    controllerApplyMotionWindow(arg0, var_a1, (f32)sMotionWindowProgress);
+    if (sMotionWindowProgress != 0) {
+        sMotionWindowProgress += sp27;
     } else {
-        D_80746D5C = 0;
+        sMotionWindowProgress = 0;
     }
     return 1;
 }
@@ -1622,7 +1622,7 @@ typedef struct ScriptSoundState {
     u8 unk1A4;
 } ScriptSoundState;
 
-extern s16 *D_807FBB5C;
+extern s16 *gActorScriptSoundTable;
 void sfxPlayAtPositionForPlayer(f32, f32, f32, s16, u8, u8, u8, u8, f32);
 
 void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
@@ -1631,7 +1631,7 @@ void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
     s32 pitch;
     s32 temp_v0;
     temp_v0 = (arg1 * 7 + arg0->actorType - 2) & 0xFFFF;
-    arg1 = D_807FBB5C[temp_v0];
+    arg1 = gActorScriptSoundTable[temp_v0];
     var_v1 = 0xFF;
     if (arg1 == 0) {
         if (((ScriptSoundState *)gActivePlayerState)->unkC4 != 0) {
@@ -1957,10 +1957,10 @@ typedef struct { u8 pad0[0x210]; f32 unk210; u8 pad214[4]; f32 unk218; u8 pad21C
 typedef struct { u8 pad0[2]; u8 unk2; } ProjectileDataView;
 extern f32 D_80753E48[];
 extern s16 D_80753E64[];
-extern Actor *D_807FBB48;
+extern Actor *gActivePlayerActor;
 extern u8 gCurrentPlayerIndex;
 extern ProjectileDataView *D_807FD568;
-extern s16 D_807FD584;
+extern s16 gCurrentCharacterIndex;
 void slotQueueUpdate(s32, s32, s32);
 s32 slotQueueGetValue(s32, u8);
 void slotQueueAddValue(s32, u8, s32);
@@ -1986,7 +1986,7 @@ void projectileTrySpawnFromSlot(Actor *arg0) {
 
     sp44 = arg0->unk174;
     slotQueueUpdate(4, 0, 0);
-    if ((slotQueueGetValue(4, sp44->unk1A4) != 0) && (actorCountOwnedByClass(arg0, 4, 0) < D_80753E64[D_807FD584])) {
+    if ((slotQueueGetValue(4, sp44->unk1A4) != 0) && (actorCountOwnedByClass(arg0, 4, 0) < D_80753E64[gCurrentCharacterIndex])) {
         slotQueueAddValue(4, sp44->unk1A4, -1);
         sp50 = (f32)((f64)arg0->unk4->unk38 * 2.6666667064030967);
         switch (arg0->actorType) {
@@ -2007,15 +2007,15 @@ void projectileTrySpawnFromSlot(Actor *arg0) {
             if (mathAngleInArcWithMargin(sp40, sp3E, var_a2, 0) == 0) projectileSetSpawnFlag();
         }
         if (arg0->state == 2) {
-            projectileGetTargetCoords(D_807FBB48, 6);
+            projectileGetTargetCoords(gActivePlayerActor, 6);
             temp_fv0 = ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk230 - ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk218;
             temp_fv1 = ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk228 - ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk210;
             sqrtf((temp_fv0 * temp_fv0) + (temp_fv1 * temp_fv1));
-            projectileSpawnNodeEntry(0x29, D_807FD568->unk2, sp50, mathAngleBetweenPoints2D(((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk228, ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk230, ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk210, ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk218), D_80753E48[D_807FD584], 0.0f, arg0);
+            projectileSpawnNodeEntry(0x29, D_807FD568->unk2, sp50, mathAngleBetweenPoints2D(((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk228, ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk230, ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk210, ((ProjectilePlayerView *)gPlayerSlots)[gCurrentPlayerIndex].unk218), D_80753E48[gCurrentCharacterIndex], 0.0f, arg0);
             return;
         }
         projectileGetTargetCoords(arg0, 7);
-        projectileSpawnNodeEntry(0x29, D_807FD568->unk2, sp50, arg0->yaw, D_80753E48[D_807FD584], 0.0f, arg0);
+        projectileSpawnNodeEntry(0x29, D_807FD568->unk2, sp50, arg0->yaw, D_80753E48[gCurrentCharacterIndex], 0.0f, arg0);
     }
 }
 
@@ -2037,9 +2037,9 @@ extern u8 D_8071FE08[];
 extern u8 D_8071FF18[];
 extern void effectOrbitSourceUpdate(void);
 extern s32 gGlobalPauseFlags;
-extern f32 D_807F5AF8;
-extern f32 D_807F5AFC;
-extern f32 D_807F5B00;
+extern f32 sSavedLightColorR;
+extern f32 sSavedLightColorG;
+extern f32 sSavedLightColorB;
 void actorSpawn(s32, s32);
 void actorDespawn(void *);
 void actorCopyPoseAndScale(Actor *, Actor *, s32);
@@ -2119,7 +2119,7 @@ void scriptCmdSetActorInteractionTimer(Actor *arg0) {
     func_80714C08(D_8071FF18, 0.4f, arg0, sp27, 0);
 }
 
-extern s32 D_807FBB68;
+extern s32 gGlobalCutsceneFlags;
 extern u8 D_8072006C;
 extern u8 D_80720B58;
 void effectTimedLightIntensityFade(void);
@@ -2131,7 +2131,7 @@ void scriptCmdSpawnAttachedActor(Actor *arg0) {
     s16 var_s0;
 
     scriptReadU8(&sp3F);
-    if (D_807FBB68 & 2) {
+    if (gGlobalCutsceneFlags & 2) {
         for (var_s0 = 0; var_s0 < 0x14; var_s0++) {
             func_807149B8(1);
             func_807149FC(-1);
@@ -2254,7 +2254,7 @@ void scriptCmdSetActorUnkC4(Actor *arg0) {
     ((ActorScriptView *)arg0)->unkC4 = value;
 }
 
-extern u8 D_807444EC;
+extern u8 gGameMode;
 
 void scriptCmdActorCamShake(Actor *arg0) {
     s32 sp4C;
@@ -2274,7 +2274,7 @@ void scriptCmdActorCamShake(Actor *arg0) {
     scriptReadU16((u8 *)&sp40);
     sp3F = (u32)((f64)sp3F * ((f64)arg0->unk4->unk38 / 0.15));
     temp_v0 = arg0->actorType;
-    if ((temp_v0 == 0xCC) || ((arg0->contactFlags & 1) && ((arg0->flags & 4) || (temp_v0 == 0xE4)) && (D_807444EC != 1))) {
+    if ((temp_v0 == 0xCC) || ((arg0->contactFlags & 1) && ((arg0->flags & 4) || (temp_v0 == 0xE4)) && (gGameMode != 1))) {
         var_v1 = (sp3F >= 21) ? 20 : sp3F;
         camStartShakeFromPoint(((GlobalSpawnView *)gActivePlayerState)->unk104, sp3E, var_v1, sp4C, sp48, sp44, (f32)sp42, (f32)sp40);
     }
@@ -2353,7 +2353,7 @@ void scriptCmdClearActorNodeFlag(Actor *arg0) {
     actorClearNodeFlag(arg0, sp1F);
 }
 
-extern void *D_80746B80[];
+extern void *sScriptEffectSprites[];
 void func_8071496C(s32);
 
 void scriptCmdSpawnOrbitEffects(Actor *arg0) {
@@ -2370,7 +2370,7 @@ void scriptCmdSpawnOrbitEffects(Actor *arg0) {
         func_8071496C(1);
         func_80714950(1);
         func_80714A28(0x20);
-        func_80714C08(D_80746B80[i], 0.2f, arg0, 7, 0);
+        func_80714C08(sScriptEffectSprites[i], 0.2f, arg0, 7, 0);
     }
 }
 
@@ -2388,12 +2388,12 @@ void scriptCmdToggleActorVisibility(Actor *arg0) {
     }
 }
 
-extern s16 D_80746E10[];
+extern s16 sCharacterBehaviorMap[];
 
 void scriptCmdSpawnCharacterCompanion(Actor *arg0) {
     u8 *script;
 
-    actorSpawn(0x135, D_80746E10[((ActorEffectView *)arg0)->unk58]);
+    actorSpawn(0x135, sCharacterBehaviorMap[((ActorEffectView *)arg0)->unk58]);
     actorCopyPoseAndScale(gSpawnedActor, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
     ((ActorEffectView *)gSpawnedActor)->unkE8 = ((ActorEffectView *)arg0)->unkE8;
     ((ActorEffectView *)gSpawnedActor)->unkE4 = ((ActorEffectView *)arg0)->unkE4;
@@ -2425,11 +2425,11 @@ void scriptCmdSpawnSplashPuff(Actor *arg0) {
     scriptReadU8(&sp1F);
     if (sp1F != 0) {
         if (((ActorEffectView *)arg0)->unk12C != -1) {
-            lightGetColor(&D_807F5AF8, &D_807F5AFC, &D_807F5B00, ((ActorEffectView *)arg0)->unk12C);
+            lightGetColor(&sSavedLightColorR, &sSavedLightColorG, &sSavedLightColorB, ((ActorEffectView *)arg0)->unk12C);
             lightSetColor(107.0f, 48.0f, 80.0f, ((ActorEffectView *)arg0)->unk12C);
         }
     } else if (((ActorEffectView *)arg0)->unk12C != -1) {
-        lightSetColor(((f32 *)&D_807F5AF8)[0], ((f32 *)&D_807F5AF8)[1], ((f32 *)&D_807F5AF8)[2], ((ActorEffectView *)arg0)->unk12C);
+        lightSetColor(((f32 *)&sSavedLightColorR)[0], ((f32 *)&sSavedLightColorR)[1], ((f32 *)&sSavedLightColorR)[2], ((ActorEffectView *)arg0)->unk12C);
     }
 }
 
@@ -2439,7 +2439,7 @@ typedef struct FallingEffectView {
 } FallingEffectView;
 
 extern u8 D_80750AD0;
-extern void (*D_80746BD4[])(void);
+extern void (*sScriptEffectCallbacks[])(void);
 s32 effectFallStateInit(Actor *, void *, u8 *);
 void effectFreeAndUnlink(void *);
 
@@ -2480,9 +2480,9 @@ void scriptCmdSpawnFallingEffect(Actor *arg0) {
         }
         sp38 += (f32)sp49 * sp40;
         if (sp48 != 0) {
-            func_8071498C(D_80746BD4[sp48]);
+            func_8071498C(sScriptEffectCallbacks[sp48]);
         }
-        effect = func_80714CC0(D_80746B80[sp4E], sp40, sp3C, sp38, sp34);
+        effect = func_80714CC0(sScriptEffectSprites[sp4E], sp40, sp3C, sp38, sp34);
         sp2F = 0;
         switch (sp48) {
             case 1:
@@ -2569,7 +2569,7 @@ void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
     }
     gSpawnedActor->y -= var_v1->unk10;
     if (sp46 != 0xFFFF) {
-        func_80714C08(D_80746B80[sp46], var_fs0, gSpawnedActor, 1, 2);
+        func_80714C08(sScriptEffectSprites[sp46], var_fs0, gSpawnedActor, 1, 2);
     }
     var_v1->unk0 = sp44;
     var_v1->unk4 = arg0;

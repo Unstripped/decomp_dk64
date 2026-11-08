@@ -43,7 +43,7 @@ typedef struct BossD_DC90 {
 } BossD_DC90;
 
 extern BossD_Actor *gCurrentActor;
-extern BossD_Actor *D_807FBB4C;
+extern BossD_Actor *gPrimaryPlayerActor;
 extern BossD_D580 *gActivePlayerState;
 extern BossD_DC90 *gBehaviourWorkState;
 extern void *gCamActor;
@@ -74,24 +74,24 @@ void bossKRoolChunkySetupFight(s32 unused) {
     gBehaviourWorkState->unkA = gCurrentActor->unk7C;
     gBehaviourWorkState->unkC = gCurrentActor->unk80;
     gBehaviourWorkState->unkE = gCurrentActor->unk84;
-    zoneEntryGetPosition(1, 0x20, &D_807FBB4C->unk7C, &D_807FBB4C->unk80, &D_807FBB4C->unk84);
-    D_807FBB4C->unkE6 = mathAngleBetweenPoints2D(gCurrentActor->unk7C, gCurrentActor->unk84, D_807FBB4C->unk7C, D_807FBB4C->unk84);
-    targetYaw = D_807FBB4C->unkE6 + 0x800;
+    zoneEntryGetPosition(1, 0x20, &gPrimaryPlayerActor->unk7C, &gPrimaryPlayerActor->unk80, &gPrimaryPlayerActor->unk84);
+    gPrimaryPlayerActor->unkE6 = mathAngleBetweenPoints2D(gCurrentActor->unk7C, gCurrentActor->unk84, gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk84);
+    targetYaw = gPrimaryPlayerActor->unkE6 + 0x800;
     gCurrentActor->unkE6 = targetYaw;
     gCurrentActor->unkEE = targetYaw;
     actorScriptStart(gCurrentActor, 0x3F9);
     if (camIsCutsceneActive() != 0) {
         camEndPath(gCamActor);
     }
-    camSetTarget(gCamActor, D_807FBB4C, 4, 0x800, 0x5A, 0, 0x46, 0x64, 0x3A, 0, 0.3f);
+    camSetTarget(gCamActor, gPrimaryPlayerActor, 4, 0x800, 0x5A, 0, 0x46, 0x64, 0x3A, 0, 0.3f);
 }
 void bossKRoolChunkyResetPhase(BossD_Sub178 *sub178) {
     bossSetCannonsVisible(0);
     gActivePlayerState->unk1F4 = 0;
-    if (D_807FBB4C->unk154 != 0x36) {
-        playerResumeLocomotion(D_807FBB4C);
+    if (gPrimaryPlayerActor->unk154 != 0x36) {
+        playerResumeLocomotion(gPrimaryPlayerActor);
     }
-    camReturnToFollow(gCamActor, D_807FBB4C);
+    camReturnToFollow(gCamActor, gPrimaryPlayerActor);
     gActivePlayerState->unk1D8 = 0.01f;
     csModelStateSetFirstByte(0xB, (sub178->unk14 <= 0) ? 0 : 4);
     csModelStateSetFirstByte(0xC, (sub178->unk14 < 2) ? 0 : 4);
@@ -101,9 +101,9 @@ void bossKRoolChunkyResetPhase(BossD_Sub178 *sub178) {
 }
 
 void bossKRoolChunkyInterpolatePosition(f32 stepRate) {
-    gCurrentActor->unk7C = (f32) (((f64) (D_807FBB4C->unk7C - (f32) gBehaviourWorkState->unkA) * gCurrentActor->unk160) + (f64) gBehaviourWorkState->unkA);
-    gCurrentActor->unk80 = (f32) (((f64) (D_807FBB4C->unk80 - (f32) gBehaviourWorkState->unkC) * gCurrentActor->unk160) + (f64) gBehaviourWorkState->unkC);
-    gCurrentActor->unk84 = (f32) (((f64) (D_807FBB4C->unk84 - (f32) gBehaviourWorkState->unkE) * gCurrentActor->unk160) + (f64) gBehaviourWorkState->unkE);
+    gCurrentActor->unk7C = (f32) (((f64) (gPrimaryPlayerActor->unk7C - (f32) gBehaviourWorkState->unkA) * gCurrentActor->unk160) + (f64) gBehaviourWorkState->unkA);
+    gCurrentActor->unk80 = (f32) (((f64) (gPrimaryPlayerActor->unk80 - (f32) gBehaviourWorkState->unkC) * gCurrentActor->unk160) + (f64) gBehaviourWorkState->unkC);
+    gCurrentActor->unk84 = (f32) (((f64) (gPrimaryPlayerActor->unk84 - (f32) gBehaviourWorkState->unkE) * gCurrentActor->unk160) + (f64) gBehaviourWorkState->unkE);
     gCurrentActor->unk160 += stepRate;
     if (gCurrentActor->unk160 > 0.8) {
         gCurrentActor->unk160 = 0.8;
@@ -207,7 +207,7 @@ u8 *D_80035AC0[4] = { D_80036A90, D_80036AA8, D_80036AA8, D_80036AA8 };
 u8 D_80035AD0[4] = { 3, 0, 2, 1 };
 f32 D_80035AD4[4] = { 0.015f, 0.025f, 0.03f, 0.01f };
 f32 D_80035AE4[4] = { 1.0f, 1.3f, 1.8f, 0.7f };
-extern u8 D_807FBD70;
+extern u8 gBossFightPhase;
 extern BossGlobalC924 *gPlayerSlots;
 extern BossLayoutData *gBehaviourAnimState;
 extern BossConfig *gBehaviourExtraState;
@@ -238,7 +238,7 @@ s32 func_8072881C(s32, void *);
 void actorUpdateModelMatrix(void *, s32);
 
 #define BOSS_ACTOR ((BossActor *)gCurrentActor)
-#define PLAYER_ACTOR ((BossActor *)D_807FBB4C)
+#define PLAYER_ACTOR ((BossActor *)gPrimaryPlayerActor)
 #define WORK_STATE ((BossWorkState *)gBehaviourWorkState)
 #define PLAYER_DATA ((BossPlayerData *)gActivePlayerState)
 
@@ -318,7 +318,7 @@ void bossKRoolChunkyStep(void) {
             BOSS_ACTOR->unk155++;
             break;
         case 6:
-            if (D_807FBD70 == 5 && PLAYER_ACTOR->unk154 == 0x24 && BOSS_ACTOR->unk160 > 0.79) {
+            if (gBossFightPhase == 5 && PLAYER_ACTOR->unk154 == 0x24 && BOSS_ACTOR->unk160 > 0.79) {
                 if (scriptState->unk14 == 3) {
                     BOSS_ACTOR->unk154 = 0x37;
                     BOSS_ACTOR->unk155 = 0;

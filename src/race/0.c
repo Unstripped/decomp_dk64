@@ -55,13 +55,13 @@ typedef struct {
 
 extern s32 gCurrentMap;
 extern void *gCurrentActor;
-extern void *D_807FBB48;
+extern void *gActivePlayerActor;
 extern RaceC_DC90 *gBehaviourWorkState;
 extern RaceC_DCA0 *D_807FDCA0;
 extern RaceC_Row D_8002FB10[];
 extern RaceC_Row D_8002FB70[];
 #define RC_A ((RaceC_Act *)gCurrentActor)
-#define RC_B ((RaceC_Act *)D_807FBB48)
+#define RC_B ((RaceC_Act *)gActivePlayerActor)
 f32 mathAtan2(f32, f32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
@@ -290,8 +290,8 @@ typedef struct {
     u8 pad9[3];
 } LargeR4_Row;
 
-extern LargeR4_Act *D_807FBB4C;
-extern u8 D_807FBD70;
+extern LargeR4_Act *gPrimaryPlayerActor;
+extern u8 gBossFightPhase;
 extern u16 D_80750AC8;
 extern s32 D_8002FB94[];
 
@@ -394,10 +394,10 @@ void raceOpponentBehaviourUpdate(void) {
         }
     }
     rowIdx = L4_S->unk24;
-    if (child != NULL && controller->unk34 < 3 && D_807FBD70 == 4) {
+    if (child != NULL && controller->unk34 < 3 && gBossFightPhase == 4) {
         playerStateQueueCallback(0x33, gCurrentActor, 0);
     }
-    if (controller->unk34 < 3 && L4_D->unk154 == 2 && D_807FBD70 == 5) {
+    if (controller->unk34 < 3 && L4_D->unk154 == 2 && gBossFightPhase == 5) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CA, 0xFF, 0x7F, 0xA);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x209, 0xFF, 0x7F, 0xA);
         L4_D->unkB8 = 0.0f;
@@ -617,7 +617,7 @@ void raceOpponentBehaviourUpdate(void) {
     case 3:
         if (controller->unk35 == 0) {
             flag = 0x55;
-            if (D_807FBB4C->unk6A & 0x200) {
+            if (gPrimaryPlayerActor->unk6A & 0x200) {
                 flag = 0x56;
             }
             playerStateQueueCallback(flag, NULL, 0);
@@ -643,7 +643,7 @@ void raceOpponentBehaviourUpdate(void) {
         switch (tmp) {
         case 0:
             if (flagGet(config->unk18.h.lo, 0) == 0) {
-                sfxStopSlotSound(D_807FBB48, 0);
+                sfxStopSlotSound(gActivePlayerActor, 0);
                 playerStateQueueCallback(0x55, NULL, 0);
                 L4_D->unkB8 = 0.0f;
                 if (raceCheckCoinRequirement((void *)controller, (void *)config) != 0) {

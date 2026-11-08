@@ -9,9 +9,9 @@ typedef struct SfxTableEntry {
 } SfxTableEntry; /* size = 6 */
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 extern s32 gGlobalOverlayFlags;
-extern u32 D_807FBB68;
+extern u32 gGlobalCutsceneFlags;
 extern u8 gPlayerCount;
 extern SfxTableEntry D_80750400[];
 
@@ -86,7 +86,7 @@ void actorSpawnNodeEntryScaled(s16 actorType, f32 x, f32 y, f32 z, s32 yaw, s32 
     f32 scale;
 
     scale = 0.15f;
-    if (D_807FBB68 & 0x10) {
+    if (gGlobalCutsceneFlags & 0x10) {
         scale = scale + scale;
     }
     vec[0] = (f32)(u8)pitch;
@@ -96,7 +96,7 @@ void actorSpawnNodeEntryScaled(s16 actorType, f32 x, f32 y, f32 z, s32 yaw, s32 
 }
 
 void effectSpawnAttachedSprite(void *targetState, void *spriteAsset, f32 scale) {
-    if (D_807FBB68 & 0x10) {
+    if (gGlobalCutsceneFlags & 0x10) {
         scale = scale + scale;
     }
     func_807149FC(-1);
@@ -128,7 +128,7 @@ void effectSpawnAttachedSpriteColored(void *spriteAsset, s32 characterId) {
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        if (characterId != D_807FBB4C->actorType) {
+        if (characterId != gPrimaryPlayerActor->actorType) {
             func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
         }
         effectSpawnAttachedSprite(temp, spriteAsset, 1.0f);
@@ -240,7 +240,7 @@ void func_806A6468(void) {
     state = gCurrentActor->unk174;
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        switch (D_807FBB4C->actorType) {
+        switch (gPrimaryPlayerActor->actorType) {
         case 3:
             anim = &D_807203B0;
             break;
@@ -278,7 +278,7 @@ void func_806A6574(void) {
     state = gCurrentActor->unk174;
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        switch (D_807FBB4C->actorType) {
+        switch (gPrimaryPlayerActor->actorType) {
         case 3:
             anim = &D_80720EE8;
             break;
@@ -314,7 +314,7 @@ typedef struct BehaviourConfig {
     /* 0x8 */ f32 unk8;
 } BehaviourConfig;
 
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 extern s16 D_8075038C;
 void func_8067ACB4(Actor *);
 s32 actorAngleInArc(Actor *, s16);
@@ -336,7 +336,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
     s32 v;
 
     state = (BehaviourState *)gCurrentActor->unk174;
-    if (D_807FBB68 & 0x10) {
+    if (gGlobalCutsceneFlags & 0x10) {
         floorOffset *= 2.0f;
     }
     if (!(gCurrentActor->flags & 0x10)) {
@@ -349,8 +349,8 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         state->unkA = (s16)(s32)((BehaviourConfig *)gCurrentActor->unk124)->unk8;
         *(s16 *)((u8 *)gCurrentActor + 0xFA) = 0x270F;
     }
-    if (D_807FBB70.unk0 != 0) {
-        gCurrentActor->state = D_807FBB70.unk1[0];
+    if (gActorGlobalState.unk0 != 0) {
+        gCurrentActor->state = gActorGlobalState.unk1[0];
     }
     func_8067ACB4(gCurrentActor);
     if (gCurrentActor->hasArcBounds != 0) {
@@ -471,7 +471,7 @@ typedef struct EffectState {
     s16 unkA;
 } EffectState;
 
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 extern s16 D_80750384;
 extern s16 D_8075038C;
 extern f32 D_80750388;
@@ -524,8 +524,8 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
         state->unk8++;
     }
     gCurrentActor->unk128 = state->unk8 * 0.033333335f * 255.0f;
-    if (D_807FBB70.unk0 != 0) {
-        gCurrentActor->state = D_807FBB70.unk1[0];
+    if (gActorGlobalState.unk0 != 0) {
+        gCurrentActor->state = gActorGlobalState.unk1[0];
     }
     func_8067ACB4(gCurrentActor);
     if (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, AA960_PHY->unkEE) == 0) {
@@ -688,7 +688,7 @@ typedef struct AA960ConfigInt {
     s32 unk4;
 } AA960ConfigInt;
 
-extern u8 D_807FBD70;
+extern u8 gBossFightPhase;
 extern u32 gGameFrameCounter;
 s32 actorListFindIdByActor(Actor *);
 s32 actorListLookupEntry(s32);
@@ -766,15 +766,15 @@ void actorPathCollectibleUpdate(void *unused) {
                 cond = 1;
                 if (gCurrentActor->actorType == 0x93) {
                     cond = 0;
-                } else if (D_807FBB4C->actorType == 3 && gCurrentActor->actorType == 0x5B) {
+                } else if (gPrimaryPlayerActor->actorType == 3 && gCurrentActor->actorType == 0x5B) {
                     cond = 0;
-                } else if (D_807FBB4C->actorType == 6 && gCurrentActor->actorType == 0x6F) {
+                } else if (gPrimaryPlayerActor->actorType == 6 && gCurrentActor->actorType == 0x6F) {
                     cond = 0;
-                } else if (D_807FBB4C->actorType == 5 && gCurrentActor->actorType == 0x70) {
+                } else if (gPrimaryPlayerActor->actorType == 5 && gCurrentActor->actorType == 0x70) {
                     cond = 0;
-                } else if (D_807FBB4C->actorType == 4 && gCurrentActor->actorType == 0x71) {
+                } else if (gPrimaryPlayerActor->actorType == 4 && gCurrentActor->actorType == 0x71) {
                     cond = 0;
-                } else if (D_807FBB4C->actorType == 2 && gCurrentActor->actorType == 0x72) {
+                } else if (gPrimaryPlayerActor->actorType == 2 && gCurrentActor->actorType == 0x72) {
                     cond = 0;
                 }
                 if (cond != 0) {
@@ -791,7 +791,7 @@ void actorPathCollectibleUpdate(void *unused) {
                 gCurrentActor->unk144 = 1;
             }
         }
-        if (D_807FBD70 == 4) {
+        if (gBossFightPhase == 4) {
             effectSpawnBurstParticleCluster(gCurrentActor);
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2BF, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
             actorDespawn(gCurrentActor);
@@ -847,7 +847,7 @@ typedef struct SfxTable {
 } SfxTable;
 
 extern u8 gPlayerCharacterId;
-extern u8 D_807FBD70;
+extern u8 gBossFightPhase;
 extern u8 D_807FC954[];
 extern u32 gFrameCounter;
 extern u8 D_80721170;
@@ -870,7 +870,7 @@ void effectActorSparkleTick(void) {
     }
     func_8067ACB4(gCurrentActor);
     if (flag != 0) {
-        if (D_807FBD70 == 4) {
+        if (gBossFightPhase == 4) {
             if (gFrameCounter % 5 == 0) {
                 idx = (randomNonNegative() >> 15) % 0xFF % 7;
                 table = D_807504A4;

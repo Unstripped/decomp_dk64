@@ -145,12 +145,12 @@ typedef struct MinecartPlayerPosition {
 
 extern Actor_25F0 *gCurrentActor;
 extern Actor_25F0 *gSpawnedActor;
-extern Actor_25F0 *D_807FBB4C;
+extern Actor_25F0 *gPrimaryPlayerActor;
 extern PlayerState_25F0 *gActivePlayerState;
 extern Actor_25F0 *gBehaviourTargetActor;
 extern Struct_DC90 *gBehaviourWorkState;
 extern Struct_DC9C *gBehaviourExtraState;
-extern StructBB70 D_807FBB70;
+extern StructBB70 gActorGlobalState;
 extern MinecartTrackPoint **D_807F5FD4;
 extern MinecartPlayerPosition *gPlayerSlots;
 extern u8 D_807FBB85;
@@ -279,9 +279,9 @@ void minecartFollowerBehaviour(void) {
         }
         /* fallthrough */
     case 1:
-        gCurrentActor->unkE6 = mathAngleEaseToward(gCurrentActor->unkE6, (D_807FBB4C->unkE6 + 0x800) & 0xFFF, 8.0f);
-        gCurrentActor->unk7C = (mathSinF(D_807FBB4C->unkE6) * followDist + D_807FBB4C->unk7C - gCurrentActor->unk7C) * 0.3 + gCurrentActor->unk7C;
-        gCurrentActor->unk84 = (mathCosF(D_807FBB4C->unkE6) * followDist + D_807FBB4C->unk84 - gCurrentActor->unk84) * 0.3 + gCurrentActor->unk84;
+        gCurrentActor->unkE6 = mathAngleEaseToward(gCurrentActor->unkE6, (gPrimaryPlayerActor->unkE6 + 0x800) & 0xFFF, 8.0f);
+        gCurrentActor->unk7C = (mathSinF(gPrimaryPlayerActor->unkE6) * followDist + gPrimaryPlayerActor->unk7C - gCurrentActor->unk7C) * 0.3 + gCurrentActor->unk7C;
+        gCurrentActor->unk84 = (mathCosF(gPrimaryPlayerActor->unkE6) * followDist + gPrimaryPlayerActor->unk84 - gCurrentActor->unk84) * 0.3 + gCurrentActor->unk84;
         gCurrentActor->unk7C += 4.0f * mathSinF(gFrameCounter * 0x35);
         gCurrentActor->unk84 += 4.0f * mathCosF(gFrameCounter * 0x3E);
         gCurrentActor->unk80 = (mathSinF(gFrameCounter * 0x32) * 10.0f) + (gActivePlayerState->actor->unkA4 + 30.0f);
@@ -291,9 +291,9 @@ void minecartFollowerBehaviour(void) {
 }
 
 s32 minecartSetTargetAheadOfPlayer(MinecartTargetState *targetState, f32 distanceFactor) {
-    targetState->unkA = ((mathSinF(D_807FBB4C->unkE6) * (gActivePlayerState->actor->unkB8 * distanceFactor)) + D_807FBB4C->unk7C);
+    targetState->unkA = ((mathSinF(gPrimaryPlayerActor->unkE6) * (gActivePlayerState->actor->unkB8 * distanceFactor)) + gPrimaryPlayerActor->unk7C);
     targetState->unkC = gActivePlayerState->actor->unkA4;
-    targetState->unkE = ((mathCosF(D_807FBB4C->unkE6) * (gActivePlayerState->actor->unkB8 * distanceFactor)) + D_807FBB4C->unk84);
+    targetState->unkE = ((mathCosF(gPrimaryPlayerActor->unkE6) * (gActivePlayerState->actor->unkB8 * distanceFactor)) + gPrimaryPlayerActor->unk84);
 }
 
 void minecartSpawnRandomParticle(void) {
@@ -365,7 +365,7 @@ void minecartFollowerChildBehaviour(void) {
                 gCurrentActor->unk7C = (targetState->unkA - gCurrentActor->unk7C) * x + gCurrentActor->unk7C;
                 gCurrentActor->unk80 = (gCurrentActor->unk80 + 10.0f) + ((gActivePlayerState->actor->unkA4 - (gCurrentActor->unk80 + 10.0f)) * x);
                 gCurrentActor->unk84 = (targetState->unkE - gCurrentActor->unk84) * x + gCurrentActor->unk84;
-                if (D_807FBB4C->unk4->unk64 == 0x294 || (gCurrentActor->unk4->unk0[1] > 16.0f && gCurrentActor->unk4->unk0[1] < 18.0f)) {
+                if (gPrimaryPlayerActor->unk4->unk64 == 0x294 || (gCurrentActor->unk4->unk0[1] > 16.0f && gCurrentActor->unk4->unk0[1] < 18.0f)) {
                     gCurrentActor->unk132 = 1;
                 } else {
                     gCurrentActor->unk132 = 0;
@@ -396,9 +396,9 @@ void minecartFollowerChildBehaviour(void) {
                     sinT = mathSinF(2048.0f * interpT);
                     lateralOffset = mathSinF(interpT * 1536.0f + 1024.0f) * (gCurrentActor->unk168 * -110);
                     vertOffset = (mathCosF(interpT * 4096.0f) * 0.5 + 0.5) * 50.0 + -30.0;
-                    gCurrentActor->unk7C = ((mathSinF(D_807FBB4C->unkE6 - 0x400) * lateralOffset + targetState->unkA) - gCurrentActor->unk7C) * sinT + gCurrentActor->unk7C;
+                    gCurrentActor->unk7C = ((mathSinF(gPrimaryPlayerActor->unkE6 - 0x400) * lateralOffset + targetState->unkA) - gCurrentActor->unk7C) * sinT + gCurrentActor->unk7C;
                     gCurrentActor->unk80 += (gActivePlayerState->actor->unkA4 + vertOffset - gCurrentActor->unk80) * sinT;
-                    gCurrentActor->unk84 = ((mathCosF(D_807FBB4C->unkE6 - 0x400) * lateralOffset + targetState->unkE) - gCurrentActor->unk84) * sinT + gCurrentActor->unk84;
+                    gCurrentActor->unk84 = ((mathCosF(gPrimaryPlayerActor->unkE6 - 0x400) * lateralOffset + targetState->unkE) - gCurrentActor->unk84) * sinT + gCurrentActor->unk84;
                     if (targetState->unk2C < 0x10) {
                         gCurrentActor->unk132 = 0;
                     }
@@ -626,7 +626,7 @@ void minecartUpdateObstacleType1(void) {
         func_80724CA4(2, 1);
         gBehaviourWorkState->unk35 = 6;
     }
-    if (D_807FBB70.unk15 != 0) {
+    if (gActorGlobalState.unk15 != 0) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x7F, 0x1E);
         camStartShake(gCamActor, 0xA, 0x14);
         gCurrentActor->unk154 = 0x40;
@@ -634,8 +634,8 @@ void minecartUpdateObstacleType1(void) {
     }
     switch (gCurrentActor->unk154) {
     case 0:
-        if (D_807FBB70.unk254 != 0) {
-            sub = D_807FBB70.unk278;
+        if (gActorGlobalState.unk254 != 0) {
+            sub = gActorGlobalState.unk278;
             alloc = heapAlloc(2);
             alloc[0] = sub->unk2;
             alloc[1] = 0xFF;
@@ -694,15 +694,15 @@ void minecartUpdateObstacleType2(void) {
         func_80714C08(&D_8072030C, 0.14f, gCurrentActor, 0xB, 2);
         gCurrentActor->unk154 = 0;
     }
-    if ((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) {
+    if ((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) {
         tagBarrelSpawnActorSmokePuffs(0, 1);
         gCurrentActor->unk154 = 0x40;
         camStartShake(gCamActor, 0xA, 0x14);
     }
     switch (gCurrentActor->unk154) {
     case 0:
-        if (D_807FBB70.unk254 != 0) {
-            sub = D_807FBB70.unk278;
+        if (gActorGlobalState.unk254 != 0) {
+            sub = gActorGlobalState.unk278;
             alloc = heapAlloc(4);
             alloc[0] = sub->unk2;
             alloc[1] = 0xFF;
@@ -763,7 +763,7 @@ void minecartUpdateObstacleType3(void) {
         func_807149FC(-1);
         func_80714C08(&D_8072030C, 0.14f, gCurrentActor, 0xB, 2);
     }
-    if (D_807FBB70.unk200 == 4) {
+    if (gActorGlobalState.unk200 == 4) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x7F, 0x1E);
         camStartShake(gCamActor, 0xA, 0x14);
         t1 = gCurrentActor->unkB8 * 1.2;
@@ -773,7 +773,7 @@ void minecartUpdateObstacleType3(void) {
     func_80724A20();
     switch (gCurrentActor->unk154) {
     case 0:
-        if (D_807FBB70.unk254 != 0) {
+        if (gActorGlobalState.unk254 != 0) {
             switch (gCurrentMap) {
             case 0x37:
                 cart->unk34 = D_80028C40;
@@ -794,8 +794,8 @@ void minecartUpdateObstacleType3(void) {
         }
 case_1:
     case 1:
-        if (mathAngleDistance(mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, gCurrentActor->unk7C, gCurrentActor->unk84), gCurrentActor->unkE6) >= 0x201 &&
-            (gCurrentActor->unk7C - D_807FBB4C->unk7C) * (gCurrentActor->unk7C - D_807FBB4C->unk7C) + (gCurrentActor->unk84 - D_807FBB4C->unk84) * (gCurrentActor->unk84 - D_807FBB4C->unk84) < 22500.0f) {
+        if (mathAngleDistance(mathAngleBetweenPoints2D(gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk84, gCurrentActor->unk7C, gCurrentActor->unk84), gCurrentActor->unkE6) >= 0x201 &&
+            (gCurrentActor->unk7C - gPrimaryPlayerActor->unk7C) * (gCurrentActor->unk7C - gPrimaryPlayerActor->unk7C) + (gCurrentActor->unk84 - gPrimaryPlayerActor->unk84) * (gCurrentActor->unk84 - gPrimaryPlayerActor->unk84) < 22500.0f) {
             gBehaviourWorkState->unk26 = 0;
         } else {
             t2 = playerState->actor->unkB8 * 1.4;
@@ -806,7 +806,7 @@ case_1:
         minecartFollowTrack(cart, 0x7FFF, 0x23);
         actorGetNodePos(gCurrentActor, 5, &nodePosX, &nodePosY, &nodePosZ);
         commandQueuePush(gCurrentActor, nodePosX, nodePosY, nodePosZ, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-        if (D_807FBB4C->unk154 == 0x70 || cart->unk10 == 0x90) {
+        if (gPrimaryPlayerActor->unk154 == 0x70 || cart->unk10 == 0x90) {
             gCurrentActor->unk154++;
         }
         return;

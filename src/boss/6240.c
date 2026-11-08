@@ -269,13 +269,13 @@ typedef struct BossC_6240_Actor {
     u8 unk154;
 } BossC_6240_Actor;
 
-extern BossC_6240_Actor *D_807FBB4C;
+extern BossC_6240_Actor *gPrimaryPlayerActor;
 s32 polygonContainsPoint2D(s16, s16, s32);
 
 void bossClampPosition(s32 radius) {
-    if (!polygonContainsPoint2D((s32)D_807FBB4C->unk7C, (s32)D_807FBB4C->unk84, radius)) {
-        D_807FBB4C->unk7C = D_807FBB4C->unk88;
-        D_807FBB4C->unk84 = D_807FBB4C->unk90;
+    if (!polygonContainsPoint2D((s32)gPrimaryPlayerActor->unk7C, (s32)gPrimaryPlayerActor->unk84, radius)) {
+        gPrimaryPlayerActor->unk7C = gPrimaryPlayerActor->unk88;
+        gPrimaryPlayerActor->unk84 = gPrimaryPlayerActor->unk90;
     }
 }
 
@@ -290,7 +290,7 @@ extern s32 gCurrentMap;
 extern s32 D_8076D1F8;
 extern s32 gCamActor;
 extern void *gSpawnedActor;
-extern BossC_6240_BB70 D_807FBB70;
+extern BossC_6240_BB70 gActorGlobalState;
 extern BossC_6240_C924 *gPlayerSlots;
 extern BossC_6240_D580 *gActivePlayerState;
 extern BossC_6240_DC90 *gBehaviourWorkState;
@@ -398,7 +398,7 @@ void bossPufftossStep(void) {
         gCurrentActor->unk132 = 1;
     }
     gCurrentActor->unk144 = 0x24;
-    if (D_807FBB70.unk200 == 4) {
+    if (gActorGlobalState.unk200 == 4) {
         if (state->unk14 == 3) {
             actorGetOrSetNodeScale(gCurrentActor, 1, 200.0f);
             bossPufftossNotifyLaser(0);
@@ -423,7 +423,7 @@ void bossPufftossStep(void) {
                 camStartPath(gCurrentActor, 2, 1);
             }
         }
-    } else if ((D_807FBB70.unk200 == 5) && (gPlayerSlots->unk2C0 != 1)) {
+    } else if ((gActorGlobalState.unk200 == 5) && (gPlayerSlots->unk2C0 != 1)) {
         sndId = 0x14B;
         actorScriptStart(gCurrentActor, 0x2D2);
         actorGetNodePos(gCurrentActor, 2, &nodeX, &nodeY, &nodeZ);
@@ -444,8 +444,8 @@ void bossPufftossStep(void) {
             n_alSndpStop(state->unk1C);
         }
         n_alSndpPlay(D_8076D1F8, sndId, 0x7FFF, 0x3F, 1.0f, 0, &state->unk1C);
-    } else if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (actorTableContains(D_807FBB70.unk1FC) != 0) && (D_807FBB70.unk1FC->unk5C == 1)) {
-        playerSetSizeMode(D_807FBB4C, 2);
+    } else if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (actorTableContains(gActorGlobalState.unk1FC) != 0) && (gActorGlobalState.unk1FC->unk5C == 1)) {
+        playerSetSizeMode(gPrimaryPlayerActor, 2);
         bossPufftossNotifyLaser(1);
         csModelStateSetFirstByte(0, 0xA);
         camSetFollowMode(gCamActor);
@@ -454,9 +454,9 @@ void bossPufftossStep(void) {
         gCurrentActor->unk155 = 0;
         gCurrentActor->unk60 &= ~4;
     }
-    if (!(state->unk12 & 1) && (effectNodeGetValue(1) > 640.0f) && (D_807FBB4C->unk154 != 0x42)) {
+    if (!(state->unk12 & 1) && (effectNodeGetValue(1) > 640.0f) && (gPrimaryPlayerActor->unk154 != 0x42)) {
         if (gPlayerSlots->unk2C0 != 1) {
-            playerSetSizeMode(D_807FBB4C, 1);
+            playerSetSizeMode(gPrimaryPlayerActor, 1);
             gActivePlayerState->unk1D8 = 0.1f;
         }
         camStartPath(gCurrentActor, 0xA, 1);
@@ -478,10 +478,10 @@ void bossPufftossStep(void) {
         if (gCurrentActor->unk155 == 1) {
             bossClampPosition((s32)D_807FDCA0->unk24);
         }
-        if ((gCurrentActor->unk155 == 0) && (D_807FBB4C->unk154 == 0x42)) {
+        if ((gCurrentActor->unk155 == 0) && (gPrimaryPlayerActor->unk154 == 0x42)) {
             gCurrentActor->unk155 = 1;
             camSetTarget(gCamActor, gCurrentActor, 4, 0xD48, 0x320, 0, 0, 0xC8, 0x64, 0, 0.03f);
-            camSetTargetFocusActor(gCamActor, D_807FBB4C);
+            camSetTargetFocusActor(gCamActor, gPrimaryPlayerActor);
         }
         if (!(gBehaviourWorkState->unk1A & 0x8000)) {
             if (gBehaviourWorkState->unk2C != 0) {
@@ -495,8 +495,8 @@ void bossPufftossStep(void) {
                     if (gPlayerSlots->unk2C0 != 1) {
                         gActivePlayerState->unkD4 = 0x64;
                     }
-                    camReturnToFollow(gCamActor, D_807FBB4C);
-                    playerSetSizeMode(D_807FBB4C, 1);
+                    camReturnToFollow(gCamActor, gPrimaryPlayerActor);
+                    playerSetSizeMode(gPrimaryPlayerActor, 1);
                     gActivePlayerState->unk1D8 = 0.04f;
                 }
                 gBehaviourWorkState->unk2C--;

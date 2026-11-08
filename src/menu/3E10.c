@@ -97,15 +97,15 @@ typedef struct MenuActor {
 
 extern MenuActor *gCurrentActor;
 extern MenuActor *gSpawnedActor;
-extern MenuActor *D_807FBB4C;
+extern MenuActor *gPrimaryPlayerActor;
 extern s8 D_80033734;
 extern s32 gGlobalPauseFlags;
 
 void menuResetCameraAndFlags(MenuScreenActor *actor, s32 unused) {
     f32 *stateVal = actor->unk174;
-    D_807FBB4C->unk7C = 109.0f;
-    D_807FBB4C->unk80 = 6.0f;
-    D_807FBB4C->unk84 = 55.0f;
+    gPrimaryPlayerActor->unk7C = 109.0f;
+    gPrimaryPlayerActor->unk80 = 6.0f;
+    gPrimaryPlayerActor->unk84 = 55.0f;
     *stateVal = 0.0f;
     D_80033734 = 0;
     gGlobalPauseFlags |= 0x10000;
@@ -249,7 +249,7 @@ void menuUpdateMainScreen(void *actor, s32 buttons) {
         if (D_800336A4[D_80033F54] < -5) {
             sel = -6 - D_800336A4[D_80033F54];
             if (D_800337F4 == 0) {
-                actorScriptStart(D_807FBB4C, D_80033724[(s16)sel]);
+                actorScriptStart(gPrimaryPlayerActor, D_80033724[(s16)sel]);
             }
             D_80033F52 = D_800336A4[D_80033F54 + 1];
             D_80033F54 += 2;
@@ -376,8 +376,8 @@ void menuInitMainScreen(MenuScreenActor *actor, s32 unused) {
 
     D_800337F8 = 0;
     D_800337F4 = 0;
-    D_807FBB4C->unk154 = 0x85;
-    D_807FBB4C->unk155 = 0;
+    gPrimaryPlayerActor->unk154 = 0x85;
+    gPrimaryPlayerActor->unk155 = 0;
     gAudioOutputMode = eepromGetField(0x1E, 0, 0, 0);
     menuSetAudioMode();
     state->unk17 = D_8076A0D1[0];
@@ -399,9 +399,9 @@ void menuInitMainScreen(MenuScreenActor *actor, s32 unused) {
     menuSpawnUiElementEffect(state, &D_807210EC, 3, 0, 0.6f, 2, 6);
     menuSpawnUiElementEffect(state, &D_80721170, 4, 0, 0.6f, 2, 6);
     menuSpawnUiElementEffect(state, &D_80720CF0, 0x122, 0xD2, 0.75f, 2, 0);
-    D_807FBB4C->unk7C = 700.0f;
-    D_807FBB4C->unk80 = 100.0f;
-    D_807FBB4C->unk84 = 70.0f;
+    gPrimaryPlayerActor->unk7C = 700.0f;
+    gPrimaryPlayerActor->unk80 = 100.0f;
+    gPrimaryPlayerActor->unk84 = 70.0f;
     D_80033F54 = 0;
     while (D_800336A4[D_80033F54] != -1) {
         D_80033F54++;
@@ -636,7 +636,7 @@ extern u8 D_80720C34;
 extern void *D_80750518[];
 extern s16 D_807505B2;
 extern u32 D_80750AB0;
-extern u8 D_807FC950[][0x5E];
+extern u8 gPlayerInventoryTable[][0x5E];
 extern s8 D_80033804;
 extern s8 D_80033805;
 extern s32 D_8003380C;
@@ -651,7 +651,7 @@ s32 menuCalculateGamePercentage(void);
 extern s8 D_80033809;
 void menuInitFileSummary(void *actor, s32 unused) {
     MenuScreenState *state = *(MenuScreenState **)((u8 *)actor + 0x174);
-    u8 *row = D_807FC950[0];
+    u8 *row = gPlayerInventoryTable[0];
     s8 *p;
     s16 *q;
     s32 pad;
@@ -1695,9 +1695,9 @@ void menuCharacterSelectUpdateActor(void) {
         }
         row = &D_80033894[Menu6B_A->unk154];
         menuComputeElementPosition((MenuScreenState *)parentStateVal, row->a, row->b, &posX, &posY, 2, 0, 1.8f);
-        Menu6B_A->unk7C = D_807FBB4C->unk7C + (posX - 160.0f);
-        Menu6B_A->unk80 = (D_807FBB4C->unk80 - (posY - 120.0f)) - 20.0f;
-        Menu6B_A->unk84 = D_807FBB4C->unk84 - 300.0f;
+        Menu6B_A->unk7C = gPrimaryPlayerActor->unk7C + (posX - 160.0f);
+        Menu6B_A->unk80 = (gPrimaryPlayerActor->unk80 - (posY - 120.0f)) - 20.0f;
+        Menu6B_A->unk84 = gPrimaryPlayerActor->unk84 - 300.0f;
         if (D_8076A0E4[Menu6B_A->unk154] & 0x80) {
             Menu6B_A->unk60 &= ~4;
         } else {
@@ -1709,9 +1709,9 @@ void menuCharacterSelectUpdateActor(void) {
         menuComputeElementPosition((MenuScreenState *)parentStateVal, 160.0f, 150.0f, &posX, &posY, 2, 0, 1.8f);
         posX = (idx * step + (step >> 1)) - 0xA0;
         posX = posX * 0.78;
-        Menu6B_A->unk7C = D_807FBB4C->unk7C + posX;
-        Menu6B_A->unk80 = (D_807FBB4C->unk80 - (posY - 120.0f)) + 16.0f;
-        Menu6B_A->unk84 = D_807FBB4C->unk84 - 300.0f;
+        Menu6B_A->unk7C = gPrimaryPlayerActor->unk7C + posX;
+        Menu6B_A->unk80 = (gPrimaryPlayerActor->unk80 - (posY - 120.0f)) + 16.0f;
+        Menu6B_A->unk84 = gPrimaryPlayerActor->unk84 - 300.0f;
     }
     if (*parentStateVal > 1.0f) {
         shouldDespawn = 1;
@@ -2619,12 +2619,12 @@ typedef struct Menu3B_Struct_C924 {
 extern Menu3B_Struct_C924 *gPlayerSlots;
 
 void menuUpdateCameraPositions(void) {
-    gPlayerSlots->unk210 = D_807FBB4C->unk7C;
-    gPlayerSlots->unk214 = D_807FBB4C->unk80 + 13.1f;
-    gPlayerSlots->unk218 = D_807FBB4C->unk84 - 50.0f;
-    gPlayerSlots->unk228 = D_807FBB4C->unk7C;
+    gPlayerSlots->unk210 = gPrimaryPlayerActor->unk7C;
+    gPlayerSlots->unk214 = gPrimaryPlayerActor->unk80 + 13.1f;
+    gPlayerSlots->unk218 = gPrimaryPlayerActor->unk84 - 50.0f;
+    gPlayerSlots->unk228 = gPrimaryPlayerActor->unk7C;
     gPlayerSlots->unk22C = gPlayerSlots->unk214;
-    gPlayerSlots->unk230 = D_807FBB4C->unk84 - 100.0f;
+    gPlayerSlots->unk230 = gPrimaryPlayerActor->unk84 - 100.0f;
 }
 
 extern char D_800339C4[];
@@ -2768,7 +2768,7 @@ void menuInitGfxState(Gfx *, s32);
 
 void menuInit(void) {
     MenuScreenState *sub = gCurrentActor->unk174;
-    Menu10_Sub174 *actorState = D_807FBB4C->unk174;
+    Menu10_Sub174 *actorState = gPrimaryPlayerActor->unk174;
     s32 i;
 
     if (!(gCurrentActor->unk60 & 0x10)) {
@@ -2783,25 +2783,25 @@ void menuInit(void) {
                 D_8076A0D1[i + 3] = 0;
             }
         } else {
-            D_807FBB4C->unk7C = 700.0f;
-            D_807FBB4C->unk80 = 0.0f;
-            D_807FBB4C->unk84 = 70.0f;
+            gPrimaryPlayerActor->unk7C = 700.0f;
+            gPrimaryPlayerActor->unk80 = 0.0f;
+            gPrimaryPlayerActor->unk84 = 70.0f;
         }
         D_80033F50 = 0;
         D_80033738 = 0;
         D_80033F60 = -1;
         D_8003369C = 0.0f;
         actorSpawn(0x14D, 0xD7);
-        gSpawnedActor->unk7C = D_807FBB4C->unk7C;
-        gSpawnedActor->unk80 = D_807FBB4C->unk80;
-        gSpawnedActor->unk84 = D_807FBB4C->unk84;
-        gSpawnedActor->unkE6 = D_807FBB4C->unkE6;
+        gSpawnedActor->unk7C = gPrimaryPlayerActor->unk7C;
+        gSpawnedActor->unk80 = gPrimaryPlayerActor->unk80;
+        gSpawnedActor->unk84 = gPrimaryPlayerActor->unk84;
+        gSpawnedActor->unkE6 = gPrimaryPlayerActor->unkE6;
         if (D_80744514 != 0) {
             D_80033738 = 0x15;
-            D_807FBB4C->unk154 = 0x85;
-            D_807FBB4C->unk155 = 0;
-            actorScriptStart(D_807FBB4C, 0x347);
-            D_807FBB4C->unk155 = 6;
+            gPrimaryPlayerActor->unk154 = 0x85;
+            gPrimaryPlayerActor->unk155 = 0;
+            actorScriptStart(gPrimaryPlayerActor, 0x347);
+            gPrimaryPlayerActor->unk155 = 6;
             func_8061B650(gCamActor);
             D_80033F3C = 1.0f;
             actorState->unk23C = 0x50;
@@ -2826,14 +2826,14 @@ void menuInit(void) {
             break;
         default:
             actorScriptStart(gSpawnedActor, 0x349);
-            D_807FBB4C->unk154 = 0x86;
-            D_807FBB4C->unk155 = 0;
+            gPrimaryPlayerActor->unk154 = 0x86;
+            gPrimaryPlayerActor->unk155 = 0;
             sub->unk12 = 0;
             break;
         }
-        D_807FBB4C->unk4->unk34 = D_807FBB4C->unk4->unk34 * 0.8;
-        D_807FBB4C->unk4->unk38 = D_807FBB4C->unk4->unk38 * 0.8;
-        D_807FBB4C->unk4->unk3C = D_807FBB4C->unk4->unk3C * 0.8;
+        gPrimaryPlayerActor->unk4->unk34 = gPrimaryPlayerActor->unk4->unk34 * 0.8;
+        gPrimaryPlayerActor->unk4->unk38 = gPrimaryPlayerActor->unk4->unk38 * 0.8;
+        gPrimaryPlayerActor->unk4->unk3C = gPrimaryPlayerActor->unk4->unk3C * 0.8;
         sub->unk17 = 0;
         sub->unkC = 0;
         sub->unkE = 0;
@@ -3760,7 +3760,7 @@ void menuUpdateKioskPodActor(void) {
     s32 pad2;
 
     pos = gCurrentActor->unk174;
-    if (D_807FBB4C->unk155 < 6) {
+    if (gPrimaryPlayerActor->unk155 < 6) {
         if (D_80033738 == 0x14) {
             actorDespawn(gCurrentActor);
             D_80033738 += 1;
@@ -3769,8 +3769,8 @@ void menuUpdateKioskPodActor(void) {
             gSpawnedActor->unk4->unk38 = 0.14f;
             gSpawnedActor->unk4->unk3C = 0.14f;
         } else if (D_80033738 == 0x15) {
-            actorGetNodePos(D_807FBB4C, 2, &x[0], &y[0], &z[0]);
-            actorGetNodePos(D_807FBB4C, 3, &x[1], &y[1], &z[1]);
+            actorGetNodePos(gPrimaryPlayerActor, 2, &x[0], &y[0], &z[0]);
+            actorGetNodePos(gPrimaryPlayerActor, 3, &x[1], &y[1], &z[1]);
             cx = (x[0] + x[1]) * 0.5f;
             cy = y[0];
             cz = (z[0] + z[1]) * 0.5f;

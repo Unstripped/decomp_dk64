@@ -247,7 +247,7 @@ typedef struct WaveState {
 } WaveState;
 
 extern u8 D_807FBBEC;
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
 Mtx *heapAlloc(s32);
@@ -307,12 +307,12 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         nodeForces[i] = 0.0f;
     }
     i = 0;
-    if ((s32)D_807FBB70.unk39 > 0) {
+    if ((s32)gActorGlobalState.unk39 > 0) {
         do {
             found = 0;
             j = 0;
             while (j < (s32)state->unk94 && found == 0) {
-                if (state->unk74[j] == ((ProximityGlobals *)&D_807FBB70)->unk7C[i]) {
+                if (state->unk74[j] == ((ProximityGlobals *)&gActorGlobalState)->unk7C[i]) {
                     found = 1;
                 } else {
                     j++;
@@ -321,23 +321,23 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
             if (!found) {
                 switch (waveType) {
                 case 0:
-                    actorAddNodeForceSlot(((ProximityGlobals *)&D_807FBB70)->entries[i].unk8, waveType);
+                    actorAddNodeForceSlot(((ProximityGlobals *)&gActorGlobalState)->entries[i].unk8, waveType);
                     break;
                 case 1:
-                    actorAddNodeForceSlot(((ProximityGlobals *)&D_807FBB70)->entries[i].unk0, waveType);
+                    actorAddNodeForceSlot(((ProximityGlobals *)&gActorGlobalState)->entries[i].unk0, waveType);
                     break;
                 }
             }
             i++;
-        } while (i < (s32)D_807FBB70.unk39);
+        } while (i < (s32)gActorGlobalState.unk39);
         i = 0;
     }
     if ((s32)state->unk94 > 0) {
         do {
             found = 0;
             j = 0;
-            while (j < (s32)D_807FBB70.unk39 && found == 0) {
-                if (state->unk74[i] == ((ProximityGlobals *)&D_807FBB70)->unk7C[j]) {
+            while (j < (s32)gActorGlobalState.unk39 && found == 0) {
+                if (state->unk74[i] == ((ProximityGlobals *)&gActorGlobalState)->unk7C[j]) {
                     found = 1;
                 } else {
                     j++;
@@ -351,36 +351,36 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         i = 0;
     }
     memcpy(state->unk74, &D_807FBBEC, 0x10);
-    state->unk94 = D_807FBB70.unk39;
+    state->unk94 = gActorGlobalState.unk39;
     if ((s32)state->unk94 > 0) {
         do {
             switch (waveType) {
             case 0:
-                state->unk84[i] = ((ProximityGlobals *)&D_807FBB70)->entries[i].unk8;
+                state->unk84[i] = ((ProximityGlobals *)&gActorGlobalState)->entries[i].unk8;
                 break;
             case 1:
-                state->unk84[i] = ((ProximityGlobals *)&D_807FBB70)->entries[i].unk8;
+                state->unk84[i] = ((ProximityGlobals *)&gActorGlobalState)->entries[i].unk8;
                 break;
             }
             i++;
         } while (i < (s32)state->unk94);
         i = 0;
     }
-    if ((s32)D_807FBB70.unk39 > 0) {
+    if ((s32)gActorGlobalState.unk39 > 0) {
         do {
             switch (waveType) {
             case 0:
-                if ((f64)((ProximityGlobals *)&D_807FBB70)->entries[i].unk8 / 843.0 > 0) {
-                    waveForce = (f32)((f64)((ProximityGlobals *)&D_807FBB70)->entries[i].unk8 / 843.0);
+                if ((f64)((ProximityGlobals *)&gActorGlobalState)->entries[i].unk8 / 843.0 > 0) {
+                    waveForce = (f32)((f64)((ProximityGlobals *)&gActorGlobalState)->entries[i].unk8 / 843.0);
                 } else {
-                    waveForce = (f32)-((f64)((ProximityGlobals *)&D_807FBB70)->entries[i].unk8 / 843.0);
+                    waveForce = (f32)-((f64)((ProximityGlobals *)&gActorGlobalState)->entries[i].unk8 / 843.0);
                 }
                 break;
             case 1:
-                if ((f64)((ProximityGlobals *)&D_807FBB70)->entries[i].unk0 / 480.0 > 0) {
-                    waveForce = (f32)((f64)((ProximityGlobals *)&D_807FBB70)->entries[i].unk0 / 480.0);
+                if ((f64)((ProximityGlobals *)&gActorGlobalState)->entries[i].unk0 / 480.0 > 0) {
+                    waveForce = (f32)((f64)((ProximityGlobals *)&gActorGlobalState)->entries[i].unk0 / 480.0);
                 } else {
-                    waveForce = (f32)-((f64)((ProximityGlobals *)&D_807FBB70)->entries[i].unk0 / 480.0);
+                    waveForce = (f32)-((f64)((ProximityGlobals *)&gActorGlobalState)->entries[i].unk0 / 480.0);
                 }
                 break;
             }
@@ -408,7 +408,7 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
                     break;
                 }
             }
-        } while (i < (s32)D_807FBB70.unk39);
+        } while (i < (s32)gActorGlobalState.unk39);
         i = 0;
     }
     for (i = 0; i < 4; i++) {
@@ -518,7 +518,7 @@ void actorAddNodeForceSlot(f32 forceMagnitude, u8 slotMode) {
     }
 }
 
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 
 extern u8 D_807FBBA9;
 
@@ -532,7 +532,7 @@ s32 actorCheckAlwaysFalse(void) {
     s32 v;
 
     for (i = 0; i < D_807FBBA9; i++) {
-        v = ((TextActorList *)&D_807FBB70)->unk7C[i]->actorType;
+        v = ((TextActorList *)&gActorGlobalState)->unk7C[i]->actorType;
         if (v != 2 && v != 3) { // FAKE: keeps both state tests as beq-to-latch (dead carrier v)
             v = 0;
         }
@@ -592,7 +592,7 @@ typedef struct {
 f32 sinApprox(f32);
 void actorUpdateModelMatrix(Actor *, s32);
 
-#define PROX_SRC ((ProximitySource *)&D_807FBB70)
+#define PROX_SRC ((ProximitySource *)&gActorGlobalState)
 
 void actorSagSingleUpdate(void) {
     ProximityState *state;
@@ -620,7 +620,7 @@ void actorSagSingleUpdate(void) {
         state->unk0 = 0.0f;
         state->unk8 = 0.0f;
     }
-    for (i = 0; i < (s32)D_807FBB70.unk39; i++) {
+    for (i = 0; i < (s32)gActorGlobalState.unk39; i++) {
         dist = sqrtf((PROX_SRC->entries[i].unk0 * PROX_SRC->entries[i].unk0) + (PROX_SRC->entries[i].unk8 * PROX_SRC->entries[i].unk8));
         if (dist > 1347.0f) {
             dist = 1347.0f;
@@ -653,7 +653,7 @@ void actorSagSingleUpdate(void) {
     if ((f64)state->unk8 == 0.0) {
         state->unkC = 0;
     }
-    if (state->unk4 != D_807FBB70.unk39) {
+    if (state->unk4 != gActorGlobalState.unk39) {
         state->unk8 = 12.0f;
     }
     state->unk8 = (f32)((f64)state->unk8 - ((f64)state->unk8 / 40.0));
@@ -661,7 +661,7 @@ void actorSagSingleUpdate(void) {
         state->unk8 = 0.0f;
     }
     ((ModelNodeList *)gCurrentActor->unk4)->unk24->unk8 = 0.0 - (sinApprox((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
-    state->unk4 = D_807FBB70.unk39;
+    state->unk4 = gActorGlobalState.unk39;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 #undef PROX_SRC
@@ -684,7 +684,7 @@ typedef struct {
 void actorScriptStart(Actor *, s32);
 void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 void actorUpdateModelMatrix(Actor *, s32);
-extern u8 D_807FBD70;
+extern u8 gBossFightPhase;
 extern s32 gCurrentMap;
 extern s16 D_807503A0;
 void lightSetFovAngles(f32, f32);
@@ -712,7 +712,7 @@ void actorSpotLightUpdate(void) {
         lightState->unk4 = 1.0f;
     }
     scriptSetActorRampTarget(gCurrentActor, ((SpotLightConfig *)gCurrentActor->unk124)->unk0, 1.0f);
-    if (D_807FBD70 == 4) {
+    if (gBossFightPhase == 4) {
         lightState->unk0 = D_807503A0;
         lightState->unk4 = 0.0f;
     }
@@ -768,7 +768,7 @@ typedef struct LinkedActorView {
     u8 unk15F;
 } LinkedActorView;
 
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 extern s16 D_80750378;
 extern s32 gGameFrameCounter;
 extern u8 D_8071FE08[];
@@ -817,12 +817,12 @@ void func_8069B010(void) {
             return;
         }
         if (gCurrentActor->unk15F == link->unk15F) {
-            if ((gCurrentActor->x - D_807FBB4C->x) * (gCurrentActor->x - D_807FBB4C->x) + (gCurrentActor->z - D_807FBB4C->z) * (gCurrentActor->z - D_807FBB4C->z) > 900.0f) {
-                ((LinkedActorView *)gCurrentActor->unk11C)->unkEC = (s16)(mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)D_807FBB4C->x, (s32)D_807FBB4C->z) - mathAngleBetweenPointsDeg((s32)((CameraPoseView *)gPlayerSlots)->unk228, (s32)((CameraPoseView *)gPlayerSlots)->unk230, (s32)((CameraPoseView *)gPlayerSlots)->unk210, (s32)((CameraPoseView *)gPlayerSlots)->unk218));
+            if ((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z) > 900.0f) {
+                ((LinkedActorView *)gCurrentActor->unk11C)->unkEC = (s16)(mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z) - mathAngleBetweenPointsDeg((s32)((CameraPoseView *)gPlayerSlots)->unk228, (s32)((CameraPoseView *)gPlayerSlots)->unk230, (s32)((CameraPoseView *)gPlayerSlots)->unk210, (s32)((CameraPoseView *)gPlayerSlots)->unk218));
             }
             lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 100.0f, 0, 0xFF, 0xFF, 0);
         }
-        if (D_807FBD70 == 9) {
+        if (gBossFightPhase == 9) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CE, 0xFF, 0x7F, 0x1E);
             func_80714CC0(D_8071FE08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             actorAppendCallback((Actor *)gCurrentActor->unk11C, gCurrentActor, 0x02000000, gCurrentActor->unk15F, 0, 0);
@@ -847,7 +847,7 @@ void sfxStopChannel(s32, s32);
 
 void func_8069B3FC(void) {
     s16 *p = gCurrentActor->unk174;
-    CameraPoseView *cam = D_807FBB4C->unk174;
+    CameraPoseView *cam = gPrimaryPlayerActor->unk174;
     s32 i;
     f32 x;
     f32 y;
@@ -892,7 +892,7 @@ void func_8069B3FC(void) {
                 *p += 0x1E;
                 break;
             case 1:
-                D_807FBB4C->unk155[0]++;
+                gPrimaryPlayerActor->unk155[0]++;
                 gCurrentActor->unk155[0]++;
                 break;
             case 2:
@@ -906,7 +906,7 @@ void func_8069B3FC(void) {
                 if (*p < 0) {
                     *p = 0;
                 }
-                D_807FBB4C->unk155[0]++;
+                gPrimaryPlayerActor->unk155[0]++;
                 gCurrentActor->flags &= ~0x8000;
                 gCurrentActor->unk128 = 0xFF;
                 gCurrentActor->unk155[0]++;
@@ -918,7 +918,7 @@ void func_8069B3FC(void) {
                 }
                 gCurrentActor->unk128 -= 0x28;
                 if (gCurrentActor->unk128 < 0x28) {
-                    D_807FBB4C->unk155[0]++;
+                    gPrimaryPlayerActor->unk155[0]++;
                     sfxStopChannel(0x3B, 0);
                     actorDespawn(gCurrentActor);
                 }
@@ -1113,7 +1113,7 @@ void textMarkerUpdateMatrix(void) {
             gCurrentActor->state = 4;
         }
     }
-    if (D_807FBB85 != 0 || D_807FBD70 == 9) {
+    if (D_807FBB85 != 0 || gBossFightPhase == 9) {
         gCurrentActor->state = 4;
         actorReleaseFromPlayerHold(gCurrentActor);
     }
@@ -1121,10 +1121,10 @@ void textMarkerUpdateMatrix(void) {
         gCurrentActor->state = 3;
         gCurrentActor->unk144 = 0x3C;
         actorCallbackMaskEnable(gCurrentActor, 0x8000);
-        gCurrentActor->yaw = *(s16 *)((u8 *)&D_807FBB70 + 0x36);
-        *(s16 *)((u8 *)gCurrentActor + 0xEE) = *(s16 *)((u8 *)&D_807FBB70 + 0x36);
-        *(f32 *)((u8 *)gCurrentActor + 0xC0) = *(f32 *)((u8 *)&D_807FBB70 + 0x30);
-        gCurrentActor->speedXZ = (f32)*(s16 *)((u8 *)&D_807FBB70 + 0x34);
+        gCurrentActor->yaw = *(s16 *)((u8 *)&gActorGlobalState + 0x36);
+        *(s16 *)((u8 *)gCurrentActor + 0xEE) = *(s16 *)((u8 *)&gActorGlobalState + 0x36);
+        *(f32 *)((u8 *)gCurrentActor + 0xC0) = *(f32 *)((u8 *)&gActorGlobalState + 0x30);
+        gCurrentActor->speedXZ = (f32)*(s16 *)((u8 *)&gActorGlobalState + 0x34);
         actorCollisionEventsCancel(markerView->unk14, 1);
         if (gCurrentActor->actorType == 0x43 && gCurrentMap == 0x1E) {
             gCurrentActor->flags |= 0x200000;
@@ -1145,7 +1145,7 @@ void textMarkerUpdateMatrix(void) {
     case 0x41:
     case 0x42:
         for (i = 0; i < D_807FBDC4; i++) {
-            if (D_807FBB70.unk258[i] == 1) {
+            if (gActorGlobalState.unk258[i] == 1) {
                 markerView->unk2A = 0;
                 gCurrentActor->state = 5;
             }
@@ -1236,7 +1236,7 @@ void textMarkerUpdateMatrix(void) {
         if (markerView->unk28 == 0) {
             actorDespawn(gCurrentActor);
         }
-        if (D_807FBB70.unk0 == 0) {
+        if (gActorGlobalState.unk0 == 0) {
             namePair = D_807503A4;
             for (particleLoopIdx = 0; particleLoopIdx != 0x10; particleLoopIdx += 2) {
                 offsetX = (f32)(((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0);
@@ -1276,7 +1276,7 @@ void textMarkerUpdateMatrix(void) {
                                   gCurrentActor->z + offsetZ);
                 }
             }
-            camStartShake(*(s32 *)((u8 *)D_807FBB4C->unk174 + 0x104), 0x14, 0xF);
+            camStartShake(*(s32 *)((u8 *)gPrimaryPlayerActor->unk174 + 0x104), 0x14, 0xF);
         }
         if (markerView->unk28 != 0) {
             gCurrentActor->state = 0xA;
@@ -1305,9 +1305,9 @@ void textMarkerUpdateMatrix(void) {
         gCurrentActor->y = gCurrentActor->floorY;
         break;
     case 10:
-        dz = D_807FBB4C->z - markerView->unkC;
-        dx = D_807FBB4C->x - markerView->unk4;
-        dy = D_807FBB4C->y - markerView->unk8;
+        dz = gPrimaryPlayerActor->z - markerView->unkC;
+        dx = gPrimaryPlayerActor->x - markerView->unk4;
+        dy = gPrimaryPlayerActor->y - markerView->unk8;
         if ((dz * dz) + ((dx * dx) + (dy * dy)) > 2500.0f) {
             spawnArgs[0] = markerView->unk28;
             if (gCurrentActor->unk132 == 2) {
@@ -1766,8 +1766,8 @@ s32 textBuildDigitNode(u8 baseFont, void *nodeBuffer, u8 nodeSlot, u8 digit, u8 
     return (s32)nodeBuffer;
 }
 
-extern u8 D_8076A0AB;
-extern u16 D_807FC930[];
+extern u8 gCurrentWorldId;
+extern u16 gLevelCollectibleCounts[];
 extern u16 D_807446C0[];
 u8 mapGetHubWorldIndex(u8, u8);
 void csModelStateSetFirstByte(s32, s32);
@@ -1783,12 +1783,12 @@ void textUpdateThreeDigitCounter(void) {
 
     model = (s32 *)gCurrentActor->unk174;
     if (!(gCurrentActor->flags & 0x10) || (*(u32 *)((u8 *)gActivePlayerState + 0x1F0) & 0x20000)) {
-        t = mapGetHubWorldIndex(D_8076A0AB, 0);
+        t = mapGetHubWorldIndex(gCurrentWorldId, 0);
         if (t >= 8) {
             t = 0;
         }
         unk = t << 1;
-        val = *(u16 *)((u8 *)D_807FC930 + unk);
+        val = *(u16 *)((u8 *)gLevelCollectibleCounts + unk);
         model[0] = textBuildDigitNode(0x21, (void *)model[0], 0, val / 100, 0x20);
         model[1] = textBuildDigitNode(0x21, (void *)model[1], 1, val % 100 / 10, 0x20);
         model[2] = textBuildDigitNode(0x21, (void *)model[2], 2, val % 10, 0x20);

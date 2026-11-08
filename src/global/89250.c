@@ -27,7 +27,7 @@ extern s32 D_8071FE08;
 extern s32 D_8071FED0;
 extern s32 D_8071FF18;
 extern s32 D_8071FF40;
-extern s32 D_8071FFA0;
+extern s32 sEffectSparkConfig;
 extern s32 D_8072006C;
 extern s32 D_80720120;
 extern s32 D_80720558;
@@ -306,7 +306,7 @@ void effectSpawnOctagonRing(f32 scale, f32 posX, f32 posY, f32 posZ) {
         func_80714950(sector);
         func_807149B8(1);
         func_807149C8(0xFF, 0xFF, 0xFF, 0xC8);
-        func_80714CC0(&D_8071FFA0, scale, posX, posY, posZ);
+        func_80714CC0(&sEffectSparkConfig, scale, posX, posY, posZ);
     }
 }
 
@@ -412,7 +412,7 @@ void effectSpawnBone(Actor *actor, s16 bone, f32 scale, f32 posX, f32 posY, f32 
     }
     func_8071498C(effectShrinkAndVelocityUpdate);
     func_80714950(moveSpeed);
-    temp = func_80714CC0(&D_8071FFA0, scale, posX, posY + 5.0f, posZ);
+    temp = func_80714CC0(&sEffectSparkConfig, scale, posX, posY + 5.0f, posZ);
     temp->unk338 = actor;
 }
 
@@ -430,7 +430,7 @@ void effectSpawnScatter(f32 scale, f32 posX, f32 posY, f32 posZ) {
         randVal = randomNonNegative();
         mod100k = 100000;
         mod10 = 10;
-        func_80714CC0(&D_8071FFA0, scale, (f32)(((randVal >> 15) % mod100k) % mod10) + (posX - 5.0f), posY, (f32)(((randomNonNegative() >> 15) % mod100k) % mod10) + (posZ - 5.0f));
+        func_80714CC0(&sEffectSparkConfig, scale, (f32)(((randVal >> 15) % mod100k) % mod10) + (posX - 5.0f), posY, (f32)(((randomNonNegative() >> 15) % mod100k) % mod10) + (posZ - 5.0f));
     }
 }
 void func_807180F4(void);

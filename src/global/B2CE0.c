@@ -100,7 +100,7 @@ void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void actorDespawn(B2CE0Actor *);
 extern u8 D_8071FBC8[];
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 void behaviourSetAnimIds(s32, s32, s32);
 void func_80724CA4(s32, s32);
 void actorScriptStart(B2CE0Actor *, s32);
@@ -254,21 +254,21 @@ void func_806AE588(void) {
     }
     func_8072881C(0, gBehaviourWorkState->unk28);
     sel = gCurrentActor->unk154;
-    if ((sel != 0x32) || (D_807FBB70.unk15 != 0)) {
-        if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (sel != 0x37)) {
+    if ((sel != 0x32) || (gActorGlobalState.unk15 != 0)) {
+        if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (sel != 0x37)) {
             if (((B2CE0ActorView134 *)gCurrentActor)->unk134 < -1) {
-                func_8072D714(D_807FBB70.unk1FC, 0x202);
+                func_8072D714(gActorGlobalState.unk1FC, 0x202);
                 gCurrentActor->unkC0 = 250.0f;
             } else {
-                func_8072D714(D_807FBB70.unk1FC, 0x201);
+                func_8072D714(gActorGlobalState.unk1FC, 0x201);
                 gCurrentActor->unkC0 = 200.0f;
             }
             ((B2CE0View90 *)gBehaviourWorkState)->unk35 = 2;
             gCurrentActor->unk138 &= 0xFFFF7FFF;
-        } else if (D_807FBB70.unk200 == 4) {
-            func_8072DEA8(0x1FF, 0x31, D_807FBB70.unk1FC);
-        } else if (D_807FBB70.unk200 == 5) {
-            func_8072DEA8(0x200, 0x32, D_807FBB70.unk1FC);
+        } else if (gActorGlobalState.unk200 == 4) {
+            func_8072DEA8(0x1FF, 0x31, gActorGlobalState.unk1FC);
+        } else if (gActorGlobalState.unk200 == 5) {
+            func_8072DEA8(0x200, 0x32, gActorGlobalState.unk1FC);
             gCurrentActor->unkC0 = 220.0f;
         }
     }
@@ -345,7 +345,7 @@ void func_806AE588(void) {
             gCurrentActor->unk155 = 0;
         }
     case 0x23:
-        if ((D_807FBB70.unk200 == 2) && (func_8072DE10(0x2710) != 0)) {
+        if ((gActorGlobalState.unk200 == 2) && (func_8072DE10(0x2710) != 0)) {
             gCurrentActor->unk154 = 0x27;
             gCurrentActor->unk155 = 0;
         }
@@ -424,15 +424,15 @@ void func_806AEE84(void) {
         behaviourSetAnimIds(0x2AD, 0x2AB, 0x2AC);
         func_80724CA4(2, 1);
     }
-    if (gCurrentActor->unk154 != 0x32 || D_807FBB70.unk15 != 0) {
-        if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && gCurrentActor->unk154 != 0x37) {
-            func_8072D714(D_807FBB70.unk1FC, 0x2AE);
+    if (gCurrentActor->unk154 != 0x32 || gActorGlobalState.unk15 != 0) {
+        if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->unk154 != 0x37) {
+            func_8072D714(gActorGlobalState.unk1FC, 0x2AE);
             gBehaviourWorkState->timer = 0x1C2;
-        } else if (D_807FBB70.unk200 == 4) {
-            func_8072DEA8(0x2B2, 0x31, D_807FBB70.unk1FC, &D_807FBB70);
+        } else if (gActorGlobalState.unk200 == 4) {
+            func_8072DEA8(0x2B2, 0x31, gActorGlobalState.unk1FC, &gActorGlobalState);
             gCurrentActor->unkB8 = 0.0f;
-        } else if (D_807FBB70.unk200 == 5) {
-            func_8072DEA8(0x2B1, 0x31, D_807FBB70.unk1FC, &D_807FBB70);
+        } else if (gActorGlobalState.unk200 == 5) {
+            func_8072DEA8(0x2B1, 0x31, gActorGlobalState.unk1FC, &gActorGlobalState);
             gCurrentActor->unkB8 = 0.0f;
         }
     }
@@ -507,7 +507,7 @@ void func_806AEE84(void) {
                 gCurrentActor->unk155 = 0;
             }
         case 0x23:
-            if (D_807FBB70.unk200 == 2 && func_8072DE10(0x1388) != 0) {
+            if (gActorGlobalState.unk200 == 2 && func_8072DE10(0x1388) != 0) {
                 gCurrentActor->unk154 = 0x27;
                 gCurrentActor->unk155 = 0;
             }
@@ -573,7 +573,7 @@ void func_806AF688(void) {
         gCurrentActor->unk60 |= 0x400;
     }
     func_806AE394(40.0f, 70.0f);
-    if (D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) {
+    if (gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) {
         gCurrentActor->unk154 = 0x3A;
         gCurrentActor->unk155 = 0;
     }
@@ -668,11 +668,11 @@ void func_806AFB58(void) {
         func_80724CA4(2, 1);
         gCurrentActor->unkEC = 0x1770;
     }
-    if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (gCurrentActor->unk154 != 0x37)) {
-        func_8072D714(D_807FBB70.unk1FC, 0x2DD);
+    if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->unk154 != 0x37)) {
+        func_8072D714(gActorGlobalState.unk1FC, 0x2DD);
         ((B2CE0View90 *)gBehaviourWorkState)->unk35 = 2;
         gCurrentActor->unk138 &= 0xFFFF7FFF;
-    } else if ((D_807FBB70.unk200 == 4) || (D_807FBB70.unk200 == 5)) {
+    } else if ((gActorGlobalState.unk200 == 4) || (gActorGlobalState.unk200 == 5)) {
         if (gCurrentActor->unk146 & 1) {
             ((B2CE0View90 *)gBehaviourWorkState)->unk1E = 0xF;
             ((B2CE0View90 *)gBehaviourWorkState)->unk1F = 0xF;
@@ -684,7 +684,7 @@ void func_806AFB58(void) {
             effectSpawnActorParticleBurst(2);
         }
         gCurrentActor->unk146 = gCurrentActor->unk146 * 2;
-        func_8072DEA8(0x2DC, 0x31, D_807FBB70.unk1FC);
+        func_8072DEA8(0x2DC, 0x31, gActorGlobalState.unk1FC);
         ((B2CE0View90 *)gBehaviourWorkState)->unk26 = 0;
         gCurrentActor->unkB8 = 0.0f;
     }
@@ -749,7 +749,7 @@ void func_806AFB58(void) {
             gCurrentActor->unk155 = 0;
         }
     case 0x23:
-        if ((D_807FBB70.unk200 == 2) && (func_8072DE10(gCurrentActor->unkEC) != 0)) {
+        if ((gActorGlobalState.unk200 == 2) && (func_8072DE10(gCurrentActor->unkEC) != 0)) {
             gCurrentActor->unk154 = 0x27;
             gCurrentActor->unk155 = 0;
         }
@@ -815,8 +815,8 @@ void func_806B02EC(void) {
 
 void func_806B0354(void) {
     behaviourFrameBegin();
-    if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && gCurrentActor->unk154 != 0x37) {
-        func_8072D714(D_807FBB70.unk1FC, 0x37A);
+    if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->unk154 != 0x37) {
+        func_8072D714(gActorGlobalState.unk1FC, 0x37A);
         gCurrentActor->unk138 &= ~0x8000;
     }
     switch (gCurrentActor->unk154) {
@@ -941,7 +941,7 @@ typedef struct B2CE0View90Ptr {
 s32 func_806B0770();
 void func_8072DEA8(s32, s32, s32);
 extern s32 gFrameCounter;
-extern s32 D_807FBB4C;
+extern s32 gPrimaryPlayerActor;
 
 void func_806B0848(void) {
     s32 sel;
@@ -957,13 +957,13 @@ void func_806B0848(void) {
         if (d > m) ((B2CE0ActorTail *)gCurrentActor)->unk131 = m; else ((B2CE0ActorTail *)gCurrentActor)->unk131 = d;
         behaviourSetAnimIds(0x35E, 0x35F, 0x360);
     }
-    if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && gCurrentActor->unk154 != 0x37) {
-        func_8072D714(D_807FBB70.unk1FC, 0x367);
+    if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->unk154 != 0x37) {
+        func_8072D714(gActorGlobalState.unk1FC, 0x367);
         ((B2CE0ActorTail *)gCurrentActor)->unk138 &= 0xFFFF7FFF;
-    } else if (D_807FBB70.unk200 == 4) {
-        func_8072DEA8(0x365, 0x31, D_807FBB70.unk1FC);
-    } else if (D_807FBB70.unk200 == 5) {
-        func_8072DEA8(0x366, 0x31, D_807FBB70.unk1FC);
+    } else if (gActorGlobalState.unk200 == 4) {
+        func_8072DEA8(0x365, 0x31, gActorGlobalState.unk1FC);
+    } else if (gActorGlobalState.unk200 == 5) {
+        func_8072DEA8(0x366, 0x31, gActorGlobalState.unk1FC);
     }
     sel = gCurrentActor->unk154;
     if (sel == 4) {
@@ -1027,7 +1027,7 @@ void func_806B0848(void) {
                     gCurrentActor->unk155++;
                     break;
                 case 4:
-                    ((B2CE0View90Ptr *)gBehaviourWorkState)->unk4 = D_807FBB4C;
+                    ((B2CE0View90Ptr *)gBehaviourWorkState)->unk4 = gPrimaryPlayerActor;
                     actorSetDefaultState(0x35F);
                     break;
             }

@@ -2,9 +2,9 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
-extern u8 D_807FBD70;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
+extern u8 gBossFightPhase;
 
 typedef struct BC3B0CursorSub174 {
     /* 0x00 */ u8 pad0[0x2C];
@@ -152,7 +152,7 @@ typedef struct BC3B0CursorCfg {
 #define BC3B0CCfg ((BC3B0CursorCfg *)gBehaviourExtraState)
 
 extern s32 gGlobalOverlayFlags;
-extern s32 D_807FBB68;
+extern s32 gGlobalCutsceneFlags;
 
 void behaviourFrameBegin(void);
 void hudSpawnCountdownTimer(s32, s32, u8, s32 *);
@@ -193,7 +193,7 @@ void func_806B7EA0(void) {
         gCurrentActor->unk155[0] = 0;
         sfxPlayOnFreeSlot(0x1A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
         actorSetStateTwo(gCurrentActor->unk11C);
-        D_807FBB68 |= 1;
+        gGlobalCutsceneFlags |= 1;
         gGlobalOverlayFlags |= 2;
     }
     if (((Actor *)gCurrentActor->unk11C)->state == 5 && gCurrentActor->state != 0x11) {

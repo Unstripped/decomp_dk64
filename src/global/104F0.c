@@ -790,7 +790,7 @@ void eepromSaveRecordsOffset(void) {
 extern s32 flagGet(s32, s32);
 extern s32 func_806F6EDC(void);
 extern s32 slotQueueGetMaxValue(s32, s32);
-extern u8 D_807FC950[];
+extern u8 gPlayerInventoryTable[];
 extern u8 D_807FC952;
 extern u8 gPlayerCharacterId;
 
@@ -799,25 +799,25 @@ void eepromHalveRecords(void) {
 
     if (func_806F6EDC() != 0) {
         s32 v = slotQueueGetMaxValue(5, 0);
-        *(s16 *)(D_807FC950 + 0x2F6) = (s16)(u32)((f64)(u32)v * 0.5);
+        *(s16 *)(gPlayerInventoryTable + 0x2F6) = (s16)(u32)((f64)(u32)v * 0.5);
     }
     if (flagGet(0x184, 0) != 0) {
         s32 v = slotQueueGetMaxValue(4, 0);
-        *(s16 *)(D_807FC950 + 0x2F4) = (s16)(u32)((f64)(u32)v * 0.5);
+        *(s16 *)(gPlayerInventoryTable + 0x2F4) = (s16)(u32)((f64)(u32)v * 0.5);
     }
     if (flagGet(0x179, 0) != 0) {
         s32 v = slotQueueGetMaxValue(6, 0);
-        *(s16 *)(D_807FC950 + 0x2F8) = (s16)(u32)((f64)(u32)v * 0.5);
+        *(s16 *)(gPlayerInventoryTable + 0x2F8) = (s16)(u32)((f64)(u32)v * 0.5);
     }
     if (D_807FC952 != 0) {
         s32 v = slotQueueGetMaxValue(2, 0);
-        *(s16 *)(D_807FC950 + 0x2F0) = (s16)(u32)((f64)(u32)v * 0.5);
+        *(s16 *)(gPlayerInventoryTable + 0x2F0) = (s16)(u32)((f64)(u32)v * 0.5);
     }
     for (i = 0; i != 5; i++) {
         gPlayerCharacterId = i;
-        if (D_807FC950[i * 0x5E + 4] != 0) {
+        if (gPlayerInventoryTable[i * 0x5E + 4] != 0) {
             s32 v = slotQueueGetMaxValue(7, 0);
-            *(s16 *)(&D_807FC950[i * 0x5E + 8]) = (s16)(u32)((f64)(u32)v * 0.5);
+            *(s16 *)(&gPlayerInventoryTable[i * 0x5E + 8]) = (s16)(u32)((f64)(u32)v * 0.5);
         }
     }
     gPlayerCharacterId = 0;
@@ -829,10 +829,10 @@ extern void func_806C9AE0(void);
 extern void healthRefill(s32);
 extern u8 gActivePlayerCount;
 extern s32 D_80750AB0;
-extern u16 D_807FC930[];
+extern u16 gLevelCollectibleCounts[];
 extern u8 gPlayerCount;
 
-void eepromLoadPlayerData(u8 arg0, s32 arg1) { u8 *base; s32 i; u8 *entry; s32 j; s32 k; base = (u8 *)((u32)D_807FC950 | 0); if (base) {} // LAYOUT: entry stmts on { line schedule addiu after lui; FAKE: `| 0` blocks address copy-propagation, dead if (base)
+void eepromLoadPlayerData(u8 arg0, s32 arg1) { u8 *base; s32 i; u8 *entry; s32 j; s32 k; base = (u8 *)((u32)gPlayerInventoryTable | 0); if (base) {} // LAYOUT: entry stmts on { line schedule addiu after lui; FAKE: `| 0` blocks address copy-propagation, dead if (base)
     entry = base;
     gActivePlayerCount = 1;
     func_806C9AE0();
@@ -861,7 +861,7 @@ void eepromLoadPlayerData(u8 arg0, s32 arg1) { u8 *base; s32 i; u8 *entry; s32 j
         }
         for (k = 0; k != 8; k++) {
             ((u16 *)(entry + 0xA))[k] = eepromGetField(1, (u8)i, (u8)k, arg0);
-            D_807FC930[k] += ((u16 *)(entry + 0x26))[k] = eepromGetField(2, (u8)i, (u8)k, arg0);
+            gLevelCollectibleCounts[k] += ((u16 *)(entry + 0x26))[k] = eepromGetField(2, (u8)i, (u8)k, arg0);
             ((u16 *)(entry + 0x42))[k] = eepromGetField(3, (u8)i, (u8)k, arg0);
         }
         i++;
@@ -892,7 +892,7 @@ void eepromSavePlayerData(void) {
 
     if (gPlayerCount == 1) {
         if (menuIsTransitionType7Or9() != 0 || menuIsTransitionType6() != 0) {
-            base = (u8 *)((u32)D_807FC950);
+            base = (u8 *)((u32)gPlayerInventoryTable);
             entry = base;
             total = func_805FC98C();
             value = func_8060C724(D_807467C8);

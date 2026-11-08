@@ -124,19 +124,19 @@ typedef struct Struct807FC924 {
     /* 0x280 */ u8 pad280[0x70];
 } Struct807FC924; // size = 0x2F0
 
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern u8 D_807463B8;
 extern u8 gSplitScreenMode;
 extern s32 gFrameCounter;
 extern s32 gCurrentMap;
-extern u8 D_8076A0B1;
-extern u8 D_8076A0B3;
+extern u8 gScreenRenderFlags;
+extern u8 sHudDisabled;
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 extern s32 gGlobalPauseFlags;
 extern s32 gGlobalOverlayFlags;
-extern s32 D_807FBB68;
+extern s32 gGlobalCutsceneFlags;
 extern Struct807FC924 *gPlayerSlots;
 extern u8 gPlayerCount;
 
@@ -507,7 +507,7 @@ u8 camFloorSnap(void *camActor, void *camState, f32 targetDist, f32 *outHeight, 
             ((CamFloorState *)camState)->unkAC &= ~0x800;
         }
     } else {
-        if (!(D_807FBB68 & 0x80)) {
+        if (!(gGlobalCutsceneFlags & 0x80)) {
             sp78 = 32767.0f;
         }
     }
@@ -519,7 +519,7 @@ u8 camFloorSnap(void *camActor, void *camState, f32 targetDist, f32 *outHeight, 
         } else {
             ((CamFloorState *)camState)->unk8 = 0;
         }
-        if (!(D_807FBB68 & 0x20) && ((CamFloorState *)camState)->unkF5 == 0) {
+        if (!(gGlobalCutsceneFlags & 0x20) && ((CamFloorState *)camState)->unkF5 == 0) {
             u8 v1;
 
             if (X->unk154 == 0x63) {
@@ -628,10 +628,10 @@ void camEndPath();
 void camSetFixedView(CamActor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7) {
     CamTargetState *s = (CamTargetState *)arg0->unk174;
 
-    if (D_807444EC == 1 && arg7) {
+    if (gGameMode == 1 && arg7) {
         camEndPath(arg0);
     }
-    if (D_807444EC != 1 || arg7) {
+    if (gGameMode != 1 || arg7) {
         s->unkAC |= 0x80000000;
     }
     s->unk20 = arg1;
@@ -676,7 +676,7 @@ void camSetTarget(CamActor *arg0, CamActor *arg1, u8 arg2, s16 arg3, s16 arg4, s
         p->unk14 = arg9;
         p->unk18 = arg10;
         if (s->unkF3 == 3) {
-            func_806EAB44(D_807FBB4C, 0);
+            func_806EAB44(gPrimaryPlayerActor, 0);
         }
         s->unkF3 = arg2;
     } else {
@@ -699,11 +699,11 @@ void camSetTargetScaled(CamActor *, CamActor *, u8, s16, s16, s16, s16, s16, s16
 void camSetTargetCutsceneUnscaled(CamActor *camActor, CamActor *targetActor, u8 mode, s16 angleY, s16 dist, s16 angleX, s16 offsetX, s16 offsetY, s16 offsetZ, s16 duration, f32 stepRatio) {
     f32 saved = ((CamActorModelRef *)targetActor)->unk4->unk38;
 
-    if (D_807444EC == 1) {
+    if (gGameMode == 1) {
         camEndPath(camActor);
     }
-    D_8076A0B3 = 0;
-    D_8076A0B1 |= 0x10;
+    sHudDisabled = 0;
+    gScreenRenderFlags |= 0x10;
     ((CamActorModelRef *)targetActor)->unk4->unk38 = 0.15f;
     camSetTargetScaled(camActor, targetActor, mode, angleY, dist, angleX, offsetX, offsetY, offsetZ, duration, stepRatio);
     ((CamActorModelRef *)targetActor)->unk4->unk38 = saved;
@@ -711,11 +711,11 @@ void camSetTargetCutsceneUnscaled(CamActor *camActor, CamActor *targetActor, u8 
 }
 
 void camSetTargetCutscene(CamActor *camActor, CamActor *targetActor, u8 mode, s16 angleY, s16 dist, s16 angleX, s16 offsetX, s16 offsetY, s16 offsetZ, s16 duration, f32 stepRatio) {
-    if (D_807444EC == 1) {
+    if (gGameMode == 1) {
         camEndPath(camActor);
     }
-    D_8076A0B3 = 0;
-    D_8076A0B1 |= 0x10;
+    sHudDisabled = 0;
+    gScreenRenderFlags |= 0x10;
     camSetTarget(camActor, targetActor, mode, angleY, dist, angleX, offsetX, offsetY, offsetZ, duration, stepRatio);
 }
 
@@ -739,7 +739,7 @@ void camSetTargetScaled(CamActor *camActor, CamActor *targetActor, u8 mode, s16 
         p->unk14 = duration;
         p->unk18 = stepRatio;
         if (s->unkF3 == 3) {
-            func_806EAB44(D_807FBB4C, 0);
+            func_806EAB44(gPrimaryPlayerActor, 0);
         }
         s->unkF3 = mode;
         gGlobalPauseFlags |= 0x2000;
@@ -868,7 +868,7 @@ u8 camIsPathPaused(void) {
 }
 
 u8 camIsCutsceneActive(void) {
-    return D_807444EC == 1 || (D_8076A0B1 & 0x10) != 0;
+    return gGameMode == 1 || (gScreenRenderFlags & 0x10) != 0;
 }
 
 u8 func_8061CB80(void) {
@@ -878,7 +878,7 @@ u8 func_8061CB80(void) {
 extern s16 gCamPathStartIndex;
 
 u8 camIsPlayingPath(u8 arg0) {
-    return D_807444EC == 1 && arg0 == gCamPathStartIndex;
+    return gGameMode == 1 && arg0 == gCamPathStartIndex;
 }
 
 void camLoadPathPoint();
@@ -928,7 +928,7 @@ s32 transitionGetState(void);
 u16 camStartPath(void *arg0, s16 arg1, u8 arg2) {
     u16 ret = 0;
 
-    if (D_807444EC == 1 && (gCamPathFlags & 0x80)) {
+    if (gGameMode == 1 && (gCamPathFlags & 0x80)) {
         return 0;
     }
     if ((arg2 & 4) && gCurrentMap != 0) {
@@ -952,10 +952,10 @@ u16 camStartPath(void *arg0, s16 arg1, u8 arg2) {
     } else {
         gCamPathLookActor = *(void **)((u8 *)gPlayerSlots + 4);
     }
-    D_807444EC = 1;
+    gGameMode = 1;
     if (!(arg2 & 8)) {
-        D_8076A0B1 |= 0x10;
-        D_8076A0B3 = 0;
+        gScreenRenderFlags |= 0x10;
+        sHudDisabled = 0;
     }
     gCamPathLastTime = osGetTime();
     gCamPathIndex = arg1;
@@ -972,11 +972,11 @@ u16 camStartPath(void *arg0, s16 arg1, u8 arg2) {
     D_807F5CF6 = D_80770DC9;
     gGlobalPauseFlags |= 0x2000;
     gGlobalPauseFlags &= ~0x1001;
-    D_807FBB4C->speedXZ = 0.0f;
+    gPrimaryPlayerActor->speedXZ = 0.0f;
     if (gPlayerCharacterId[0] == 7) {
-        D_807FBB4C->speedY = 0.0f;
+        gPrimaryPlayerActor->speedY = 0.0f;
     }
-    D_807FBB4C->flags |= 0x400;
+    gPrimaryPlayerActor->flags |= 0x400;
     gActivePlayerState->unk10 = 0;
     gCamActor->unkE4 = 0;
     currentActorClearFlag();
@@ -1094,7 +1094,7 @@ void camClearActorRefs(void *arg0) {
         cam->unkAC &= ~0x10004;
     }
     if (arg0 == cam->unk0) {
-        cam->unk0 = (CamFollowActor *)D_807FBB4C;
+        cam->unk0 = (CamFollowActor *)gPrimaryPlayerActor;
     }
 }
 
@@ -1226,15 +1226,15 @@ void timerQueuePurgeFlagged(void);
 void camEndPath(CamFollowActor *arg0) {
     CamFollowState *cam = arg0->unk174;
 
-    if (D_807444EC == 1) {
+    if (gGameMode == 1) {
         if (gCamPathFlags & 4) {
             gCamActivePaths = &gCamMapPaths;
         }
         sfxSetMode(0);
-        D_807444EC = 0;
-        D_8076A0B1 &= 0xFFEF;
+        gGameMode = 0;
+        gScreenRenderFlags &= 0xFFEF;
         if (!(gCamPathFlags & 8)) {
-            D_8076A0B3 = 0xFF;
+            sHudDisabled = 0xFF;
         }
         actorDespawn(gCamPathActor);
         gGlobalPauseFlags |= 0x1000;
@@ -1252,7 +1252,7 @@ void camEndPath(CamFollowActor *arg0) {
         gGameFrameCounter += 0xFFFE7961;
         gCamPathFlags = 0;
         gCamPathTimeDelta = 0;
-        D_807FBB4C->flags &= ~0x400;
+        gPrimaryPlayerActor->flags &= ~0x400;
     }
 }
 
@@ -1340,7 +1340,7 @@ void func_8061D9EC(s32 arg0, s32 arg1, s32 arg2) {
 void timerQueueAdd(void *, s32, s32, s32, s32);
 
 void func_8061DA14(s32 arg0, s32 arg1, s32 arg2) {
-    D_8076A0B1 |= 0x40;
+    gScreenRenderFlags |= 0x40;
     D_8076AEE0 = 0;
     gScreenFadeRate = 0.8f;
     timerQueueAdd(func_8061D9EC, 0x8000003C, 0, 0, 0);
@@ -1567,7 +1567,7 @@ void camUpdate(struct CamResetCam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
     func_8061D1FC((CamFollowActor *)arg0);
     CAM_UPDATE_CAM->unkE8 = mathAngleEaseToward(CAM_UPDATE_CAM->unkE8, X->unkE8, 20.0f);
     camUpdatePlayerYaw((CamStateViewAngle *)st);
-    switch (D_807444EC) {
+    switch (gGameMode) {
     case 0:
         if (!(st->unkAC & 0x100)) {
             if (0.0f < gScreenFadeRate) {
@@ -1648,8 +1648,8 @@ void camUpdate(struct CamResetCam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
                     gCamPathStep++;
                     if (CAM_PATH_STEP_LIST.unk0 < gCamPathStep) {
                         if (gCamPathFlags & 0x10) {
-                            if (!(D_807FBB4C->contactFlags & 0x100)) {
-                                D_807FBB4C->contactFlags |= 0x100;
+                            if (!(gPrimaryPlayerActor->contactFlags & 0x100)) {
+                                gPrimaryPlayerActor->contactFlags |= 0x100;
                             }
                         } else {
                             camEndPath((CamFollowActor *)arg0);
@@ -1679,12 +1679,12 @@ void camUpdate(struct CamResetCam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
                                 camEndPath((CamFollowActor *)arg0);
                                 st->unkAC &= ~0x40000;
                                 if (st->unkF3 != 0xB && st->unkF3 != 3) {
-                                    st->unk6C = st->unk70 = D_807FBB4C->y;
-                                    len = sqrtf((*arg1 - D_807FBB4C->x) * (*arg1 - D_807FBB4C->x) +
-                                                (*arg3 - D_807FBB4C->z) * (*arg3 - D_807FBB4C->z));
+                                    st->unk6C = st->unk70 = gPrimaryPlayerActor->y;
+                                    len = sqrtf((*arg1 - gPrimaryPlayerActor->x) * (*arg1 - gPrimaryPlayerActor->x) +
+                                                (*arg3 - gPrimaryPlayerActor->z) * (*arg3 - gPrimaryPlayerActor->z));
                                     st->unkA4 = st->unkA0 = len;
-                                    st->unkB2 = mathAngleBetweenPoints2D(D_807FBB4C->x, D_807FBB4C->z, *arg1, *arg3);
-                                    CAM_UPDATE_CAM->unkB4 = st->unkB8 = *arg2 - D_807FBB4C->y;
+                                    st->unkB2 = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, *arg1, *arg3);
+                                    CAM_UPDATE_CAM->unkB4 = st->unkB8 = *arg2 - gPrimaryPlayerActor->y;
                                     st->unk84 = *arg1;
                                     st->unk88 = *arg2;
                                     st->unk8C = *arg3;
@@ -1732,7 +1732,7 @@ void camUpdate(struct CamResetCam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
                     }
                 }
             } while (done != 0);
-            if (D_807444EC != 0) {
+            if (gGameMode != 0) {
                 D_807F5CFC = ((s16 *)CAM_PATH_STEP_LIST.unk8)[gCamPathStep - 1];
                 if (D_807F5CFC != 1.0f) {
                     D_807F5D00 = (f32)(gCamPathFramesLeft - 1) / (D_807F5CFC - 1.0f);
@@ -1875,7 +1875,7 @@ void camResetPlayer(Actor *arg0, u8 arg1) {
     st->unk0 = (CamActor *)arg0;
     st->unkFB = arg1;
     st->unk60 = 5.0f;
-    if (D_807444EC == 1) {
+    if (gGameMode == 1) {
         camEndPath((CamFollowActor *)cam);
     }
     if (cam->unk15F != 0) {
@@ -1949,7 +1949,7 @@ void camStartShake(CamActor *arg0, u8 arg1, u16 arg2) {
     CamState *cam;
 
     cam = arg0->unk174;
-    if (D_807444EC == 1) {
+    if (gGameMode == 1) {
         arg2 = (u32)arg2 >> 2;
     }
     if (arg1 >= cam->unkF2) {
@@ -2568,7 +2568,7 @@ void camFindClearYaw(CamActor *arg0, f32 arg1, s16 arg2, u8 arg3) {
     if (cam->unkF3 != 1 && cam->unkF3 != 5) {
         return;
     }
-    if (D_807FBB68 & 2) {
+    if (gGlobalCutsceneFlags & 2) {
         return;
     }
     if (cam->unkFF >= 4) {
@@ -3015,7 +3015,7 @@ u8 camComputeFollowPos(CamActor *arg0, CamActor *arg1, f32 *arg2, f32 *arg3, f32
                 if (TGT->unk58 != 8 && TGT->unk58 != 9 && ((u8 *)gPlayerSlots)[0x2C0] != 2) {
                     if (TGT->unk154 != 0xE && TGT->unk154 != 0x42 && TGT->unk154 != 0x57 && TGT->unk154 != 0x48 &&
                         TGT->unk154 != 0x49 && TGT->unk154 != 0x4C && TGT->unk154 != 0x47 && TGT->unk154 != 0x3E &&
-                        !(cam->unkAC & 0x12000) && !(D_807FBB68 & 2) && TGT->unk154 != 0x58 && TGT->unk154 != 0x63 &&
+                        !(cam->unkAC & 0x12000) && !(gGlobalCutsceneFlags & 2) && TGT->unk154 != 0x58 && TGT->unk154 != 0x63 &&
                         TGT->unk154 != 0x52 && TGT->unk154 != 0x54 && TGT->unk154 != 0x53 && TGT->unk154 != 0x40 &&
                         TGT->unk154 != 0x4F) {
                         func_80620F00(arg0, var_v0 = (TGT->unkB8 != 0.0f ? 1 : 0), 0);
@@ -3024,7 +3024,7 @@ u8 camComputeFollowPos(CamActor *arg0, CamActor *arg1, f32 *arg2, f32 *arg3, f32
             }
         }
         if (!(cam->unkAC & 0x100) && gScreenFadeProgress == 0.0f && 2.0 * cam->unkA0 < D_807476AC && cam->unkE8 == 0 &&
-            cam->unkF3 != 5 && !(D_807FBB68 & 2) && !(gGlobalOverlayFlags & 0x2001)) {
+            cam->unkF3 != 5 && !(gGlobalCutsceneFlags & 2) && !(gGlobalOverlayFlags & 0x2001)) {
             camFindClearYaw(arg0, -1.0f, cam->unkB2, 0);
         } else {
             if (cam->unkFC != 0 && cam->unkA0 * 1.2 < D_807476AC) {
@@ -3044,7 +3044,7 @@ u8 camComputeFollowPos(CamActor *arg0, CamActor *arg1, f32 *arg2, f32 *arg3, f32
     }
     switch (TGT->unk154) {
         case 0x63:
-            if (D_807FBB68 & 2) {
+            if (gGlobalCutsceneFlags & 2) {
                 sp68 = 100.0f;
                 y = y + ((TGT->unk80 + 30.0f) + (TGT->unk80 - TGT->unkA4) * 0.5);
             } else {
@@ -3067,7 +3067,7 @@ u8 camComputeFollowPos(CamActor *arg0, CamActor *arg1, f32 *arg2, f32 *arg3, f32
             }
             break;
         case 0x59:
-            if (D_807FBB68 & 2) {
+            if (gGlobalCutsceneFlags & 2) {
                 y += cam->unk6C + CA->unkB4;
             } else if ((cam->unkAC & 0x2000) && !(TGT->unk6A & 0x80)) {
                 y += TGT->unk80 - cam->unk98;
@@ -3232,7 +3232,7 @@ u8 camSetZoomLevel(CamActor *arg0, s16 arg1) {
     }
     if (gCurrentMap == 0x9A) {
         v = 0;
-    } else if (D_807FBB68 & 2) {
+    } else if (gGlobalCutsceneFlags & 2) {
         v = 2;
     } else if ((gGlobalOverlayFlags & 1) && gCurrentMap != 0x6F) {
         v = 3;
@@ -3261,7 +3261,7 @@ void camSetZoomForDistance(CamActor *arg0, s16 arg1) {
     best = 1;
     if (gCurrentMap == 0x9A) {
         idx = 0;
-    } else if (D_807FBB68 & 2) {
+    } else if (gGlobalCutsceneFlags & 2) {
         idx = 2;
     } else if ((gGlobalOverlayFlags & 1) && gCurrentMap != 0x6F) {
         idx = 3;
@@ -3301,7 +3301,7 @@ typedef struct CamReturnState {
     /* 0xF3 */ u8 unkF3;
 } CamReturnState;
 
-extern CamPlayerActorSlot *D_807FBB48;
+extern CamPlayerActorSlot *gActivePlayerActor;
 void sfxStopSlotSound(void *, s32);
 void camReturnToFollow(CamActor *camActor, CamActor *targetActor) {
     CamReturnState *s;
@@ -3313,8 +3313,8 @@ void camReturnToFollow(CamActor *camActor, CamActor *targetActor) {
     s = (CamReturnState *)camActor->unk174;
     prev = s->unkF3;
 
-    if (D_807FBB48->unk6E != -1) {
-        sfxStopSlotSound(D_807FBB48, 0);
+    if (gActivePlayerActor->unk6E != -1) {
+        sfxStopSlotSound(gActivePlayerActor, 0);
     }
     s->unk44 = 0;
     s->unkB0 = 0;
@@ -3416,9 +3416,9 @@ void camComputeTargetEyePos(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
             p->unk0 = 0;
             camResetPlayer((Actor *)st->unk0, st->unkFB);
             gGlobalPauseFlags |= 0x2000;
-            if (D_8076A0B1 & 0x10) {
-                D_8076A0B1 &= ~0x10;
-                D_8076A0B3 = 0xFF;
+            if (gScreenRenderFlags & 0x10) {
+                gScreenRenderFlags &= ~0x10;
+                sHudDisabled = 0xFF;
             }
         }
     }
@@ -3573,7 +3573,7 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
     savedX = *arg1;
     savedY = *arg2;
     savedZ = *arg3;
-    if (D_807444EC == 1 && (p->unk1 == 4 || p->unk1 == 5)) {
+    if (gGameMode == 1 && (p->unk1 == 4 || p->unk1 == 5)) {
         count = (p->u.spline.unk0 - 1 < 0) ? 0 : p->u.spline.unk0 - 1;
         arg7->unk160 = CAM_LERP(count, 0, D_807F5D00);
         arg7->unk168 = arg7->unk160;
@@ -3585,7 +3585,7 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
     idx[1] = arg7->unk168;
     idx[2] = (arg7->unk168 + 1 >= count) ? count : arg7->unk168 + 1;
     idx[3] = (arg7->unk168 + 2 >= count) ? count : arg7->unk168 + 2;
-    if (D_807444EC != 1U) {
+    if (gGameMode != 1U) {
         if (cam->unkF3 == 3 || cam->unkF3 == 0xB) {
             if (arg7->unk154 != 2 && arg7->unk154 != 3 && arg7->unk154 != 4 && arg7->unk154 != 5 &&
                 arg7->unk154 != 0x64 && arg7->unk154 != 0x65) {
@@ -3639,7 +3639,7 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
                     break;
             }
         }
-        if (cam->unkF3 != 6 && cam->unkF3 != 9 && (!(D_8076A0B1 & 0x10) || D_807463B8 == 3) &&
+        if (cam->unkF3 != 6 && cam->unkF3 != 9 && (!(gScreenRenderFlags & 0x10) || D_807463B8 == 3) &&
             cam->unkF3 != 8 && cam->unkF3 != 7 && cam->unkEF != 0) {
             if (camEvaluateZones(arg0, arg1, arg2, arg3, arg4, arg5, arg6) != 0) {
                 cam->unkF3 = 2;
@@ -3669,8 +3669,8 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
         }
         cam->unkAC &= ~0x40000;
     }
-    if (D_807444EC != 0) {
-        if (D_807444EC == 1) {
+    if (gGameMode != 0) {
+        if (gGameMode == 1) {
             type = p->unk1;
             if (type == 7) {
                 list = gCamActivePaths->unkD0[gCamPathIndex].unk4;
@@ -3905,7 +3905,7 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
                         yOffset = gCurrentActor->unk15E;
                         break;
                     case 0x59:
-                        if (D_807FBB68 & 2) {
+                        if (gGlobalCutsceneFlags & 2) {
                             goto check_target;
                         }
                         if ((cam->unkAC & 0x2000) && !(arg7->unk6A & 0x80)) {
@@ -4343,7 +4343,7 @@ void camUpdateEyePos(CamEyeActor *arg0, f32 arg1, f32 *arg2, f32 *arg3, f32 *arg
             st->unk84 += gCamEyeBlendRate * arg0->unkB8 * mathSinF(ang);
             st->unk8C += gCamEyeBlendRate * arg0->unkB8 * mathCosF(ang);
             st->unk88 = (arg0->unk80 - st->unk88) * arg1 + st->unk88;
-            if (st->unkF3 != 12 && !(D_807FBB68 & 2)) {
+            if (st->unkF3 != 12 && !(gGlobalCutsceneFlags & 2)) {
                 camResolveWallCollision((CamActor *)arg0, savedX, savedZ, &st->unk84, st->unk88, &st->unk8C, gCamEyeBlendRate * arg0->unkB8);
             }
             *arg2 = *arg2 + (st->unk84 - *arg2) * 0.3;

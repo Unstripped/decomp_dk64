@@ -66,13 +66,13 @@ typedef struct BoneChainSub4 {
 } BoneChainSub4;
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 extern void *gPlayerSlots;
 extern s32 gGlobalOverlayFlags;
 extern u32 gFrameDelta;
 extern s16 D_8075037C;
 extern s16 D_80750380;
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 void actorUpdateModelMatrix(Actor *, s32);
@@ -122,15 +122,15 @@ u8 nodeCount;
         data->unk15 = 0;
         data->unk28 = flagGet(0x183, 0) != 0 || (gGlobalOverlayFlags & 0x10000000) != 0 || func_807142D8() != 0;
     }
-    if (D_807FBB4C->state == 0x63 || data->unk28 == 0 ||
+    if (gPrimaryPlayerActor->state == 0x63 || data->unk28 == 0 ||
         (*(s32 *)gCurrentActor->unk124 == 1 && !(player->unk1F0 & 0x40))) {
         gCurrentActor->flags &= 0xFBFFFFFB;
     } else {
         gCurrentActor->flags |= 0x04000004;
     }
-    if (D_807FBB70.unk254 == 0) {}
-    for (i = 0; i < D_807FBB70.unk254; i++) {
-        p = D_807FBB70.unk278[i];
+    if (gActorGlobalState.unk254 == 0) {}
+    for (i = 0; i < gActorGlobalState.unk254; i++) {
+        p = gActorGlobalState.unk278[i];
         if (!*p) {
             data->unk16 = 0x50;
         }
@@ -198,14 +198,14 @@ u8 nodeCount;
         }
     }
     node[i].unk0 = 0;
-    if (D_807FBB4C->state == 0x58) {
+    if (gPrimaryPlayerActor->state == 0x58) {
         data->unk15 = 5;
     } else if (data->unk15 != 0) {
         data->unk15--;
     }
-    if ((D_807FBB4C->contactFlags & 0x40) && data->unk14 == 0 && gCurrentActor == player->unk130) {
+    if ((gPrimaryPlayerActor->contactFlags & 0x40) && data->unk14 == 0 && gCurrentActor == player->unk130) {
         data->unk0 = 15.0f;
-        if (mathAngleDistance(D_807FBB4C->yaw, gCurrentActor->yaw) < 0x400) {
+        if (mathAngleDistance(gPrimaryPlayerActor->yaw, gCurrentActor->yaw) < 0x400) {
             data->unkC = 3.1415927f;
         } else {
             data->unkC = 0.0f;
@@ -217,7 +217,7 @@ u8 nodeCount;
     if (data->unkC < 0.0f) {
         data->unkC += 6.2831855f;
     }
-    if ((D_807FBB4C->contactFlags & 0x40) && gCurrentActor == player->unk130) {
+    if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->unk130) {
         data->unk14 = 1;
         data->unk0 += 0.2;
         if (data->unk0 > 15.0f) {
@@ -230,7 +230,7 @@ u8 nodeCount;
             data->unk0 = 0.0f;
         }
     }
-    if ((D_807FBB4C->contactFlags & 0x40) && gCurrentActor == player->unk130) {
+    if ((gPrimaryPlayerActor->contactFlags & 0x40) && gCurrentActor == player->unk130) {
         if (player->unk138 < 1.5 && (((f64)data->unkC > 4.0 && (f64)data->unkC < 4.712389f) ||
                                      ((f64)data->unkC < 1.5707964f && (f64)data->unkC > 0.9))) {
             player->unk14C = (f32)D_8075037C * (data->unk0 / 15.0f);

@@ -232,7 +232,7 @@ typedef struct {
     void *unk174;
 } LightActorView;
 
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 extern s32 gGlobalPauseFlags;
 extern u32 gFrameCounter;
 extern f32 *D_8076A0B4;
@@ -280,7 +280,7 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     f32 color[3];
 
     actor = (LightActorView *)targetActor;
-    if (targetActor == D_807FBB4C) {
+    if (targetActor == gPrimaryPlayerActor) {
         is_player = 1;
     } else {
         is_player = 0;

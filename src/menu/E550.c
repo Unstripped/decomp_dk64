@@ -135,7 +135,7 @@ extern Gfx D_1000118[];
 extern Mtx D_20000C0;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
-extern u8 D_8074450C;
+extern u8 gHiResScale;
 char *textTableGetString(s32, s32, s32);
 s32 textGetFontHeight(s32);
 s32 texCacheFindOrLoad(s32);
@@ -208,7 +208,7 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), headerStr, 0);
     x = (s32)((f32)gScreenWidth * 0.5f);
     actor = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
-    off = D_8074450C * 0xC8;
+    off = gHiResScale * 0xC8;
     xx = x * 4;
     xx = xx | 0;  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
     dl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)actor * 4), .5f, descStr1);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).

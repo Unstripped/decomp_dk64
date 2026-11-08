@@ -64,9 +64,9 @@ extern s32 D_8076A08C;
 extern s32 gFrameCounter;
 extern u8 *gGfxCurrentFrameBuffer;
 extern u8 D_80767CE8;
-extern u8 D_8076A0B1;
+extern u8 gScreenRenderFlags;
 extern f32 gScreenFadeProgress;
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern void *D_8076A080;
 extern Gfx D_1000090;
 extern Gfx D_1000040;
@@ -81,13 +81,13 @@ void arcadeRunFrame(void) {
     gFrameCounter++;
     gGfxCurrentFrameBuffer = (u8 *)&D_80767CE8 + gGfxBufferIndex * 0x11B0;
     controllerUpdate();
-    if ((D_8076A0B1 & 1) && gScreenFadeProgress == 31.0f) {
+    if ((gScreenRenderFlags & 1) && gScreenFadeProgress == 31.0f) {
         glist = gGfxTaskBuffers[gGfxBufferIndex];
     } else {
         arcadeBuildDisplayList(gGfxCurrentFrameBuffer, &glist);
     }
     glist = screenFadeUpdate(glist, 0);
-    if (D_807444EC != 3) {
+    if (gGameMode != 3) {
         frameBuf = gGfxCurrentFrameBuffer + 0xDB0;
         gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 0);
         gfxEndSubDisplayList((Gfx *)frameBuf, gGfxCurrentFrameBuffer, &D_8076A08C, 1);

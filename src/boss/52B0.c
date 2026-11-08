@@ -128,7 +128,7 @@ typedef struct Boss3F_52B0_DC98 {
 
 extern u8 *D_80035A00[];
 extern s32 gFrameCounter;
-extern Boss3F_52B0_BB4C *D_807FBB4C;
+extern Boss3F_52B0_BB4C *gPrimaryPlayerActor;
 extern Boss3F_52B0_D580 *gActivePlayerState;
 extern Boss3F_52B0_DC90 *gBehaviourWorkState;
 extern Boss3F_52B0_DC94 *gBehaviourTargetActor;
@@ -172,7 +172,7 @@ void bossMadJackStep(void) {
 
     scriptState = ACTOR->unk178;
     scriptOpcodes = D_80035A00[scriptState->unk14];
-    targetAngle = mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84);
+    targetAngle = mathAngleBetweenPoints2D(gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk84, ACTOR->unk7C, ACTOR->unk84);
     behaviourFrameBegin();
     if (!(ACTOR->unk60 & 0x10)) {
         ACTOR->unkCE = 0x64;
@@ -217,21 +217,21 @@ void bossMadJackStep(void) {
         switch (ACTOR->unk155) {
         case 0:
             if (currentActorTestClearFlag() != 0) {
-                actorScriptStart(D_807FBB4C, 0x3B1);
+                actorScriptStart(gPrimaryPlayerActor, 0x3B1);
                 actorScriptStart(gActivePlayerState->actor, 0x3B7);
                 ACTOR->unk155++;
             }
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
-                actorScriptStart(D_807FBB4C, 0x3B2);
+                actorScriptStart(gPrimaryPlayerActor, 0x3B2);
                 actorScriptStart(gActivePlayerState->actor, 0x3B8);
                 ACTOR->unk155++;
             }
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
-                actorScriptStart(D_807FBB4C, 0x3B3);
+                actorScriptStart(gPrimaryPlayerActor, 0x3B3);
                 actorScriptStart(gActivePlayerState->actor, 0x3B9);
                 ACTOR->unk155++;
             }
@@ -244,14 +244,14 @@ void bossMadJackStep(void) {
             break;
         case 4:
             if (currentActorTestClearFlag() != 0) {
-                actorScriptStart(D_807FBB4C, 0x3B4);
+                actorScriptStart(gPrimaryPlayerActor, 0x3B4);
                 actorScriptStart(gActivePlayerState->actor, 0x3BA);
                 ACTOR->unk155++;
             }
             break;
         case 5:
             if (currentActorTestClearFlag() != 0) {
-                controllerAnimSetStateIfChanged(D_807FBB4C, 0x1C7, 0.0f, 0.0f);
+                controllerAnimSetStateIfChanged(gPrimaryPlayerActor, 0x1C7, 0.0f, 0.0f);
                 ACTOR->unk154 = scriptOpcodes[scriptState->unk15++];
                 ACTOR->unk155 = 0;
             }
@@ -350,7 +350,7 @@ block_28:
         case 2:
             if (camIsCutsceneActive() == 0) {
                 if (ACTOR->unk154 == 0x46) {
-                    if (mathAngleDistance(ACTOR->unkE6, mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84)) < 0x320) {
+                    if (mathAngleDistance(ACTOR->unkE6, mathAngleBetweenPoints2D(gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk84, ACTOR->unk7C, ACTOR->unk84)) < 0x320) {
                         actorScriptStart(ACTOR, 0x218);
                         ACTOR->unk155++;
                     }
@@ -365,7 +365,7 @@ block_28:
             projectileGetTargetCoords(ACTOR, 2);
             switch (ACTOR->unk154) {
             case 0x2A:
-                projectileAimAndSpawn(0xA9, 1, 1.0f, D_807FBB4C->unk7C, D_807FBB4C->unk80 + 2.0f, D_807FBB4C->unk84, 450.0f, ACTOR);
+                projectileAimAndSpawn(0xA9, 1, 1.0f, gPrimaryPlayerActor->unk7C, gPrimaryPlayerActor->unk80 + 2.0f, gPrimaryPlayerActor->unk84, 450.0f, ACTOR);
                 actorScriptStart(ACTOR, 0x213);
                 ACTOR->unk154 = scriptOpcodes[scriptState->unk15++];
                 ACTOR->unk155 = 0;

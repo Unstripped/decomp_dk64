@@ -669,7 +669,7 @@ typedef struct {
     s32 unk58;
 } ControllerStateParamView;
 
-extern u16 *D_807FBB58;
+extern u16 *gActorScriptAnimTable;
 struct ControllerStateView;
 void controllerAnimSetStateIfChanged(struct ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend);
 
@@ -681,7 +681,7 @@ void controllerAnimSetStateRemap(struct ControllerStateView *stateView, s16 anim
         animIndex -= flag;
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
         sum = (animIndex * 7 + ((ControllerStateParamView *)stateView)->unk58 - 2) & 0xFFFF;
-        animIndex = D_807FBB58[sum] + flag;
+        animIndex = gActorScriptAnimTable[sum] + flag;
     } else {
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
     }
@@ -698,7 +698,7 @@ void controllerAnimSetStateRemapDirect(struct ControllerStateView *stateView, s1
         animIndex -= flag;
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
         sum = (animIndex * 7 + ((ControllerStateParamView *)stateView)->unk58 - 2) & 0xFFFF;
-        animIndex = D_807FBB58[sum] + flag;
+        animIndex = gActorScriptAnimTable[sum] + flag;
     } else {
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
     }
@@ -894,7 +894,7 @@ typedef struct {
     u8 pad0[0x58];
     s32 unk58;
 } ControllerActorTypeView;
-extern u16 *D_807FBB58;
+extern u16 *gActorScriptAnimTable;
 struct AnimControllerRef;
 void controllerAnimSetDirect(struct AnimControllerRef *controller, u16 animId, f32 animSpeed, u8 flags);
 
@@ -902,7 +902,7 @@ void controllerAnimSetFromTable(ControllerActorTypeView *actorView, u16 animInde
     u16 x = animIndex;
     u16 idx = (u16)(7 * x + actorView->unk58 - 2);
     if (x) {} // FAKE: dead test makes the copy of animIndex a ring temp (move t6,a1) and the sum v0
-    controllerAnimSetDirect((struct AnimControllerRef *)actorView, D_807FBB58[idx], animSpeed, flags);
+    controllerAnimSetDirect((struct AnimControllerRef *)actorView, gActorScriptAnimTable[idx], animSpeed, flags);
 }
 
 typedef struct {

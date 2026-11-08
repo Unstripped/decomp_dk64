@@ -58,8 +58,8 @@ extern u8 *D_80035A50[];
 extern s32 gCamActor;
 extern Boss2F_9230_Actor *gCurrentActor;
 extern void *gSpawnedActor;
-extern Boss2F_9230_BB4C *D_807FBB4C;
-extern u8 D_807FBD70;
+extern Boss2F_9230_BB4C *gPrimaryPlayerActor;
+extern u8 gBossFightPhase;
 extern Boss2F_9230_D580 *gActivePlayerState;
 extern Boss2F_9230_DC90 *gBehaviourWorkState;
 extern Boss2F_9230_DC9C *gBehaviourExtraState;
@@ -133,23 +133,23 @@ void bossKRoolDkStep(void) {
         break;
     case 0x29:
     case 0x2A:
-        actorTurnTowardActorYaw(0xA, D_807FBB4C);
-        if (D_807FBD70 == 4) {
+        actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
+        if (gBossFightPhase == 4) {
             func_80641874(gActivePlayerState->unkBE, 1);
             if (scriptState->unk14 == 3) {
                 gCurrentActor->unk154 = 0x37;
                 gCurrentActor->unk155 = 0;
             } else {
-                func_8072DEA8(0x3EE, 0x31, D_807FBB4C);
+                func_8072DEA8(0x3EE, 0x31, gPrimaryPlayerActor);
                 camStartPath(gCurrentActor, 1, 1);
                 gCurrentActor->unkB8 *= 0.7;
             }
-        } else if (D_807FBD70 == 2 && gCurrentActor->unk155 > 0) {
+        } else if (gBossFightPhase == 2 && gCurrentActor->unk155 > 0) {
             actorScriptStart(gCurrentActor, 0);
             gCurrentActor->unk154 = 0;
             gCurrentActor->unk155 = 0;
         } else
-            if (D_807FBB4C->unk154 != 0x42 && D_807FBB4C->unk154 != 0x44 && gCurrentActor->unk155 > 0) {
+            if (gPrimaryPlayerActor->unk154 != 0x42 && gPrimaryPlayerActor->unk154 != 0x44 && gCurrentActor->unk155 > 0) {
                 actorScriptStart(gCurrentActor, 0);
                 gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
                 gCurrentActor->unk155 = 0;
@@ -195,8 +195,8 @@ void bossKRoolDkStep(void) {
         break;
     case 0x28:
     case 0x2C:
-        actorTurnTowardActorYaw(0xA, D_807FBB4C);
-        if (D_807FBB4C->unk154 == 0x42 && gCurrentActor->unk155 > 0) {
+        actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
+        if (gPrimaryPlayerActor->unk154 == 0x42 && gCurrentActor->unk155 > 0) {
             actorScriptStart(gCurrentActor, 0);
             gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
             gCurrentActor->unk155 = 0;

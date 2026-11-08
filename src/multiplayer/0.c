@@ -98,7 +98,7 @@ typedef struct MpPlayer {
     char pad2EB[0x2F0 - 0x2EB];
 } MpPlayer;
 
-// D_807FC950: per-player score array, stride 0x306.
+// gPlayerInventoryTable: per-player score array, stride 0x306.
 typedef struct MpScore {
     char pad0[0x2F0];
     s16 unk2F0;
@@ -135,7 +135,7 @@ Gfx *gfxInit2DDisplayList(Gfx *);
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 Gfx *renderTimerMinutesSecondsHUD(Gfx *, f32, f32, s32);
 extern s32 D_807552E8;
-extern MpScore D_807FC950[];
+extern MpScore gPlayerInventoryTable[];
 s32 slotQueueGetValue(s32, u8);
 extern s32 D_807552EC;
 extern u8 gPlayerCount;
@@ -228,7 +228,7 @@ s32 mpGetPlayerScore(s32 playerIndex) {
         break;
     case 0:
     case 1:
-        score = mpCalcKillScore(&D_807FC950[playerIndex], playerIndex);
+        score = mpCalcKillScore(&gPlayerInventoryTable[playerIndex], playerIndex);
         break;
     }
     return score;
@@ -362,7 +362,7 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
                 nxt = i + 1;
             } else {
                 gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, alpha);
-                scp = &D_807FC950[i];
+                scp = &gPlayerInventoryTable[i];
                 if (scp != 0) {}  // FAKE: dead use makes scp a cross-block temp (steers uopt)
                 if (gSplitScreenMode == 0) {
                     nxt = i + 1;
@@ -577,7 +577,7 @@ s32 mpUpdateScoreEffects(void) {
     if (gPlayerCount > 0) {
         do {
             ac = gPlayerSlots[i].unk4->unk174;
-            sc = &D_807FC950[i];
+            sc = &gPlayerInventoryTable[i];
             if (slotQueueGetValue(1, i) != 0) {
                 totalScore = sc->unk2FD + sc->unk2FB;
                 if (ac->unk260 == 0) {
@@ -610,7 +610,7 @@ s32 mpUpdateScoreEffects(void) {
                 if (ac->unk260 != 0) {
                     effectFreeAndUnlink(ac->unk260);
                     ac->unk260 = 0;
-                    sc = &D_807FC950[i];
+                    sc = &gPlayerInventoryTable[i];
                     sc->unk2FA = 0;
                 }
             }
@@ -1136,7 +1136,7 @@ void mpDropItemsOnHit(u8 playerIndex, s8 dropCount) {
     MpScore *s1;
 
     s0 = gPlayerSlots[playerIndex].unk4;
-    s1 = &D_807FC950[playerIndex];
+    s1 = &gPlayerInventoryTable[playerIndex];
     ammoCount = s1->unk2FB + s1->unk2FD + dropCount;
     orangeCount = s1->unk2FA - ammoCount;
     if (slotQueueGetValue(1, playerIndex) != 0 && (ammoCount <= 0 || orangeCount >= 2)) {
@@ -1223,7 +1223,7 @@ void playerResumeLocomotion(void *);
 
 void mpRespawnPlayer(MpActor *playerIndex, s32 isTeamSpawn) {
     if (D_807552E8 == 4 && mpGetPlayerScore(isTeamSpawn) == 0) {
-        D_807FC950[isTeamSpawn].unk2FB = 0;
+        gPlayerInventoryTable[isTeamSpawn].unk2FB = 0;
         playerIndex->unk155++;
         playerStateQueueCallback(0x5B, 0, isTeamSpawn);
         playerIndex->unk144 = 1;
@@ -1245,7 +1245,7 @@ void mpCreditKill(u8 victimIndex, s8 killerIndex) {
     MpActor *killerPlayer;
     MpKongState *killerScore;
 
-    killerActor = &D_807FC950[victimIndex];
+    killerActor = &gPlayerInventoryTable[victimIndex];
     victimPlayer = &gPlayerSlots[victimIndex];
     if (killerActor->unk2FB + killerActor->unk2FD > 0) {
         if (victimPlayer->unk2A0 != NULL) {
@@ -1253,7 +1253,7 @@ void mpCreditKill(u8 victimIndex, s8 killerIndex) {
             if (killerPlayer != NULL && killerPlayer->unk5C == 1) {
                 killerScore = killerPlayer->unk174;
                 if (killerActor->unk2FB + killerActor->unk2FD + killerIndex <= 0) {
-                    D_807FC950[killerScore->unk1A4].unk2FE[victimIndex]++;
+                    gPlayerInventoryTable[killerScore->unk1A4].unk2FE[victimIndex]++;
                 }
             }
         }

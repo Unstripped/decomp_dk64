@@ -3,13 +3,13 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB48;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
+extern Actor *gActivePlayerActor;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
-extern s16 D_807FD584;
+extern s16 gCurrentCharacterIndex;
 extern u16 D_807FD63C;
 
 typedef struct G21Actor1A0 {
@@ -200,7 +200,7 @@ s32 playerInputUpdate(s32 arg0) {
     s32 old;
     s16 ang;
 
-    old = D_807FBB48->state;
+    old = gActivePlayerActor->state;
     INPUT_BUTTONS = inputRemapButtons(D_807ECDEC->unk0, D_80750FF0);
     INPUT_STATE.unk2C = inputRemapButtons(D_807ECDF0, D_80750FF0);
     if (INPUT_PLAYER->unk1F4 & 0x20) {
@@ -324,7 +324,7 @@ s32 playerInputUpdate(s32 arg0) {
     }
     if (gPlayerPadState) {} // FAKE: keeps &gPlayerPadState live to the tail (const-hoist register order)
     gPlayerInputHandlers[arg0].fn[16]();
-    return D_807FBB48->state - old;
+    return gActivePlayerActor->state - old;
 }
 
 u16 inputRemapButtons(u16 arg0, u16 *arg1) {
@@ -661,7 +661,7 @@ extern f32 D_80753BDC[];
 extern f32 D_80753BF8[];
 extern f32 D_80753DC8[];
 extern f32 D_80753DE4[];
-extern u16 *D_807FBB54;
+extern u16 *gActorScriptIndexTable;
 void actorScriptStart(void *, s32);
 void scriptSetActorRampTarget(void *, f32, f32);
 void proxPathAdvance(f32);
@@ -859,14 +859,14 @@ void func_806E0FAC(void) {
         if (var_fv0 != 0.0f) {
             if (G22_A->unk154 != 0x3C) {
                 if (G22_A->unk154 == 0x62) {
-                    temp_a1_2 = D_807FBB54[G22_A->unk58 + 0x23C];
+                    temp_a1_2 = gActorScriptIndexTable[G22_A->unk58 + 0x23C];
                     if (G22_A->unk4->unk64 != temp_a1_2) {
                         actorScriptStart(gCurrentActor, temp_a1_2);
                     }
                     scriptSetActorRampTarget(gCurrentActor, (f32)((f64)var_fv0 / 80.0), 0.0f);
                 }
             } else {
-                temp_a1_2 = D_807FBB54[G22_A->unk58 + 0x52];
+                temp_a1_2 = gActorScriptIndexTable[G22_A->unk58 + 0x52];
                 if (G22_A->unk4->unk64 != temp_a1_2) {
                     actorScriptStart(gCurrentActor, temp_a1_2);
                 }
@@ -876,13 +876,13 @@ void func_806E0FAC(void) {
     } else {
         if (G22_A->unk154 != 0x3C) {
             if (G22_A->unk154 == 0x62) {
-                temp_a1_2 = D_807FBB54[G22_A->unk58 + 0x243];
+                temp_a1_2 = gActorScriptIndexTable[G22_A->unk58 + 0x243];
                 if (G22_A->unk4->unk64 != temp_a1_2) {
                     actorScriptStart(gCurrentActor, temp_a1_2);
                 }
             }
         } else if (G22_A->unk155 == 1) {
-            temp_a1_2 = D_807FBB54[G22_A->unk58 + 0x4B];
+            temp_a1_2 = gActorScriptIndexTable[G22_A->unk58 + 0x4B];
             if (G22_A->unk4->unk64 != temp_a1_2) {
                 actorScriptStart(gCurrentActor, temp_a1_2);
             }
@@ -893,9 +893,9 @@ void func_806E0FAC(void) {
 
 void playerPathMoveByStickYAndTurn(void) {
     if (((s8 *)&D_807FD63F)[gCurrentPlayerIndex * 0x34] < 0) {
-        G22_M->unk4 = inputLerpByStickAbsY(D_80753BDC[D_807FD584], D_80753BF8[D_807FD584]);
+        G22_M->unk4 = inputLerpByStickAbsY(D_80753BDC[gCurrentCharacterIndex], D_80753BF8[gCurrentCharacterIndex]);
     } else {
-        G22_M->unk4 = inputLerpByStickAbsY(D_80753BA4[D_807FD584], D_80753BC0[D_807FD584]);
+        G22_M->unk4 = inputLerpByStickAbsY(D_80753BA4[gCurrentCharacterIndex], D_80753BC0[gCurrentCharacterIndex]);
     }
     if (G22_M->unk4 != 0.0f) {
         G22_M->unk8 = G22_M->unk4 > 0.0f ? 1 : -1;
@@ -910,9 +910,9 @@ void playerPathMoveByStickYAndTurn(void) {
 
 void playerPathMoveByStickY(void) {
     if (((s8 *)&D_807FD63F)[gCurrentPlayerIndex * 0x34] < 0) {
-        G22_M->unk4 = inputLerpByStickAbsY(D_80753BDC[D_807FD584], D_80753BF8[D_807FD584]);
+        G22_M->unk4 = inputLerpByStickAbsY(D_80753BDC[gCurrentCharacterIndex], D_80753BF8[gCurrentCharacterIndex]);
     } else {
-        G22_M->unk4 = inputLerpByStickAbsY(D_80753BA4[D_807FD584], D_80753BC0[D_807FD584]);
+        G22_M->unk4 = inputLerpByStickAbsY(D_80753BA4[gCurrentCharacterIndex], D_80753BC0[gCurrentCharacterIndex]);
     }
     if (G22_M->unk4 != 0.0f) {
         G22_M->unk8 = G22_M->unk4 > 0.0f ? 1 : -1;
@@ -953,7 +953,7 @@ void playerClampYawToArc(void) {
 }
 
 void playerSetMoveSpeedFromStickX(void) {
-    f32 v = inputLerpByStickAbsX(D_80753DC8[D_807FD584], D_80753DE4[D_807FD584]);
+    f32 v = inputLerpByStickAbsX(D_80753DC8[gCurrentCharacterIndex], D_80753DE4[gCurrentCharacterIndex]);
 
     if (D_807FD63E[gCurrentPlayerIndex].unk0 < 0) {
         G22_M->unk4 = -v;
@@ -1041,13 +1041,13 @@ void playerInputCheckBButton(void) {
             G23_A->unkB8 = 200.0f;
             G23_P->unk3E = 0x1E;
             G23_P->unk40 = G23_A->unkDC;
-            G23_P->unk54 = D_807535CC[D_807FD584] * 0.5;
+            G23_P->unk54 = D_807535CC[gCurrentCharacterIndex] * 0.5;
         } else {
             G23_P->unk3C = 0;
-            G23_P->unk54 = D_807535CC[D_807FD584];
+            G23_P->unk54 = D_807535CC[gCurrentCharacterIndex];
         }
-        G23_P->unk38 = D_807531FC[D_807FD584];
-        G23_P->unk30 = D_80753250[D_807FD584];
+        G23_P->unk38 = D_807531FC[gCurrentCharacterIndex];
+        G23_P->unk30 = D_80753250[gCurrentCharacterIndex];
         G23_A->unk154 = 0x17;
         G23_A->unk155 = 0;
         G23_P->unk50 = 0;
@@ -1061,11 +1061,11 @@ void playerInputHandleAButtonState0(void) {
         G23_P->unk58 = D_80767CC0;
     }
     if ((D_80767CC0 - G23_P->unk58 < 0xF) && (!(G23_A->unk6A & 1) || (G23_A->unkE0 == 0.0f))) {
-        G23_P->unk38 = D_807531FC[D_807FD584];
-        G23_P->unk30 = D_80753250[D_807FD584];
+        G23_P->unk38 = D_807531FC[gCurrentCharacterIndex];
+        G23_P->unk30 = D_80753250[gCurrentCharacterIndex];
         G23_A->unk154 = 0x17;
         G23_A->unk155 = 0;
-        G23_P->unk54 = D_807535CC[D_807FD584];
+        G23_P->unk54 = D_807535CC[gCurrentCharacterIndex];
         G23_P->unk50 = 0;
         actorScriptStart(gCurrentActor, 0xB0);
         G23_P->unk58 = D_80767CC0 - 0x1E;
@@ -1080,17 +1080,17 @@ void func_806E1BA4(void) {
         G23_P->unk58 = D_80767CC0;
     }
     if ((D_80767CC0 - G23_P->unk58 < 0xF) && (!(G23_A->unk6A & 1) || (G23_A->unkE0 == 0.0f))) {
-        G23_P->unk38 = D_807531FC[D_807FD584];
+        G23_P->unk38 = D_807531FC[gCurrentCharacterIndex];
         if (G23_P->unk38 > (temp_fv0 = G23_A->unkB8)) {
             G23_A->unkB8 = temp_fv0;
         } else {
             G23_A->unkB8 = G23_P->unk38;
         }
-        G23_P->unk30 = D_80753250[D_807FD584];
+        G23_P->unk30 = D_80753250[gCurrentCharacterIndex];
         G23_P->unk2C = 20.0f;
         G23_A->unk154 = 0x17;
         G23_A->unk155 = 0;
-        G23_P->unk54 = D_807535CC[D_807FD584];
+        G23_P->unk54 = D_807535CC[gCurrentCharacterIndex];
         G23_P->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x10);
         G23_P->unk58 = D_80767CC0 - 0x1E;
@@ -1106,7 +1106,7 @@ void playerInputHandleAButtonState17(void) {
     if ((D_80767CC0 - G23_P->unk58 < 0xF) && (!(G23_A->unk6A & 1) || (G23_A->unkE0 == 0.0f))) {
         G23_A->unk154 = 0x17;
         G23_A->unk155 = 0;
-        G23_P->unk54 = D_807535CC[D_807FD584];
+        G23_P->unk54 = D_807535CC[gCurrentCharacterIndex];
         G23_P->unk50 = 0;
         actorScriptStart(gCurrentActor, 0xAF);
         G23_P->unk58 = D_80767CC0 - 0x1E;
@@ -1127,7 +1127,7 @@ void playerInputHandleAButtonGravity(void) {
         }
         G23_A->unk154 = 0x14;
         G23_A->unk155 = 0;
-        G23_P->unk54 = D_807535CC[D_807FD584];
+        G23_P->unk54 = D_807535CC[gCurrentCharacterIndex];
         G23_P->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x67);
         G23_P->unk58 = D_80767CC0 - 0x1E;
@@ -1141,7 +1141,7 @@ void playerInputHandleAButtonState41(void) {
     if ((D_80767CC0 - G23_P->unk58 < 0xF) && (G23_P->unk8D == 0)) {
         G23_A->unk154 = 0x41;
         G23_A->unk155 = 0;
-        G23_P->unk54 = D_807535CC[D_807FD584];
+        G23_P->unk54 = D_807535CC[gCurrentCharacterIndex];
         G23_P->unk50 = 0;
         actorScriptStart(gCurrentActor, 0x156);
         G23_P->unk58 = D_80767CC0 - 0x1E;
@@ -1166,7 +1166,7 @@ void playerInputHandleAButtonState61(void) {
     if ((D_80767CC0 - G23_P->unk58 < 0xF) && (!(G23_A->unk6A & 1) || (G23_A->unkE0 == 0.0f))) {
         G23_A->unk154 = 0x61;
         G23_A->unk155 = 0;
-        G23_P->unk54 = D_807535CC[D_807FD584];
+        G23_P->unk54 = D_807535CC[gCurrentCharacterIndex];
         G23_P->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x50);
         G23_P->unk58 = D_80767CC0 - 0x1E;
@@ -1267,7 +1267,7 @@ u8 arg1;
         }
         slotQueueUpdate(sel, 0, 0);
         if (slotQueueGetValue((u8)sel, gCurrentPlayerIndex)) {
-            if (actorCountOwnedByClass(gCurrentActor, 4, (s32)actorIsActiveType2B) < D_80753E64[D_807FD584]) {
+            if (actorCountOwnedByClass(gCurrentActor, 4, (s32)actorIsActiveType2B) < D_80753E64[gCurrentCharacterIndex]) {
                 hasFlag = flags & 2;
                 slotQueueAddValue(sel, gCurrentPlayerIndex, -1);
                 if (!arg0) {
@@ -1359,26 +1359,26 @@ u8 arg1;
                     dz = LE40B_OBJ->unk230 - LE40B_OBJ->unk218;
                     dx = LE40B_OBJ->unk228 - LE40B_OBJ->unk210;
                     ang2 = mathAtan2(LE40B_OBJ->unk22C - LE40B_OBJ->unk214, sqrtf(dz * dz + dx * dx));
-                    sp50 = D_80753E2C[D_807FD584] * sinApprox(ang2);
-                    sp54 = D_80753E2C[D_807FD584] * cosApprox(ang2);
+                    sp50 = D_80753E2C[gCurrentCharacterIndex] * sinApprox(ang2);
+                    sp54 = D_80753E2C[gCurrentCharacterIndex] * cosApprox(ang2);
                     projectileSpawnNodeEntry(spawnId, (s16)flags, scale,
                                              mathAngleBetweenPoints2D(LE40B_OBJ->unk228, LE40B_OBJ->unk230, LE40B_OBJ->unk210, LE40B_OBJ->unk218),
-                                             sp54, sp50, D_807FBB48);
+                                             sp54, sp50, gActivePlayerActor);
                 } else {
                     if ((gCurrentActor->actorType == 2 || gCurrentActor->actorType == 3 || gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7)) {
                         func_807149B8(1);
                         func_80714950(0x50);
                         func_8071498C(effectLightPulseOscillate);
-                        func_80714C08(&D_807200D4, 0.5f, D_807FBB48, LE40B_S->unk90 + 9, 2);
+                        func_80714C08(&D_807200D4, 0.5f, gActivePlayerActor, LE40B_S->unk90 + 9, 2);
                         if (gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7) {
                             func_807149B8(1);
                             func_80714950(0x50);
                             func_8071498C(effectLightPulseOscillate);
-                            func_80714C08(&D_8071FBC8, 0.5f, D_807FBB48, 9, 2);
+                            func_80714C08(&D_8071FBC8, 0.5f, gActivePlayerActor, 9, 2);
                         }
                     }
-                    projectileGetTargetCoords(D_807FBB48, LE40B_S->unk90 + 9);
-                    projectileSpawnNodeEntry(spawnId, (s16)flags, scale, D_807FBB48->yaw, D_80753E2C[D_807FD584], 0.0f, D_807FBB48);
+                    projectileGetTargetCoords(gActivePlayerActor, LE40B_S->unk90 + 9);
+                    projectileSpawnNodeEntry(spawnId, (s16)flags, scale, gActivePlayerActor->yaw, D_80753E2C[gCurrentCharacterIndex], 0.0f, gActivePlayerActor);
                 }
                 if ((func_80714608(0) != 0) && (slotQueueGetValue((u8)sel, gCurrentPlayerIndex) == 0)) {
                     func_806F0C18(gCurrentActor);
@@ -1489,7 +1489,7 @@ s32 func_806E2CC4(void) {
             if (var_v1 != 0) {
                 var_v1 = gPlayerCharacterId[gCurrentPlayerIndex] < 6;
                 if (var_v1 != 0) {
-                    var_v1 = actorCountOwnedByClass(gCurrentActor, 4, 0) < D_80753E64[D_807FD584];
+                    var_v1 = actorCountOwnedByClass(gCurrentActor, 4, 0) < D_80753E64[gCurrentCharacterIndex];
                     if (var_v1 != 0) {
                         var_v1 = flagGet(0x184, 0) != 0;
                         if (var_v1 == 0) {
@@ -1552,7 +1552,7 @@ void func_806E2F3C(void) {
         var_v1 = func_806E56EC() == 0;
     }
     if (var_v1 && (gCurrentActor->state != 0x62) && (gCurrentActor->contactFlags & 1)) {
-        G21_PLAYER->unk48 = D_80753354[D_807FD584];
+        G21_PLAYER->unk48 = D_80753354[gCurrentCharacterIndex];
         gCurrentActor->state = 0x62;
         gCurrentActor->unk155[0] = 0;
         actorScriptStartByIndex(gCurrentActor, 0x52);
@@ -1578,7 +1578,7 @@ void playerInputHandleAButtonKong(void) {
         if (G23_P->unk20 > 70.0f) {
             G23_A->unk154 = 0x1D;
             G23_A->unk155 = 0;
-            G23_P->unk54 = D_8075378C[D_807FD584];
+            G23_P->unk54 = D_8075378C[gCurrentCharacterIndex];
             G23_P->unk50 = 0;
             actorScriptStartByIndex(gCurrentActor, 0x1A);
             if (!gCurrentActor) {
@@ -1588,7 +1588,7 @@ void playerInputHandleAButtonKong(void) {
         }
         G23_A->unk154 = 0x3E;
         G23_A->unk155 = 0;
-        G23_P->unk54 = D_8075371C[D_807FD584];
+        G23_P->unk54 = D_8075371C[gCurrentCharacterIndex];
         G23_P->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0xE);
         G23_P->unk58 = D_80767CC0 - 0x1E;
@@ -1656,7 +1656,7 @@ void playerInputHandleAButtonSub17(void) {
     if (((D_80767CC0 - G24_M->unk58) < 0xF) && (G24_A->unk154 == 0x17) && (!(G24_A->unk6A & 1) || (G24_A->unkE0 == 0.0f))) {
         G24_A->unk154 = 0x17;
         G24_A->unk155 = 0;
-        G24_M->unk54 = D_807535CC[D_807FD584];
+        G24_M->unk54 = D_807535CC[gCurrentCharacterIndex];
         G24_M->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x10);
     }
@@ -1670,7 +1670,7 @@ void playerInputHandleAButtonSub61(void) {
     if (((D_80767CC0 - G24_M->unk58) < 0xF) && (G24_A->unk154 == 0x61) && (!(G24_A->unk6A & 1) || (G24_A->unkE0 == 0.0f))) {
         G24_A->unk154 = 0x61;
         G24_A->unk155 = 0;
-        G24_M->unk54 = D_807535CC[D_807FD584];
+        G24_M->unk54 = D_807535CC[gCurrentCharacterIndex];
         G24_M->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x50);
     }
@@ -1707,11 +1707,11 @@ extern f32 D_80753D08[];
 
 void func_806E352C(void) {
     G24_A->unk6A &= 0xFFBF;
-    G24_M->unk100 = D_80753C94[D_807FD584];
+    G24_M->unk100 = D_80753C94[gCurrentCharacterIndex];
     G24_A->unk154 = 0x17;
     G24_A->unk155 = 0;
     G24_A->unkB8 = 0.0f;
-    G24_M->unk54 = D_80753D08[D_807FD584];
+    G24_M->unk54 = D_80753D08[gCurrentCharacterIndex];
     G24_M->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x10);
 }
@@ -1746,7 +1746,7 @@ void func_806E36B4(void) {
         p = (G24Act *)gCurrentActor;
         p->unk154 = 0x4C;
         G24_A->unk155 = 0;
-        G24_M->unk54 = D_807535CC[D_807FD584];
+        G24_M->unk54 = D_807535CC[gCurrentCharacterIndex];
         G24_M->unk50 = 0;
         sel = G24_M->unk1AC->unk58;
         sel ^= 0;
@@ -1804,13 +1804,13 @@ void func_806E384C(void) {
     }
     t = (s16)(s32)a;
     c = mathCosF(t);
-    b = D_807536E4[D_807FD584];
-    G24_A->unkC4 = D_807536E4[D_807FD584] + (-2.0f * b * c);
+    b = D_807536E4[gCurrentCharacterIndex];
+    G24_A->unkC4 = D_807536E4[gCurrentCharacterIndex] + (-2.0f * b * c);
     if (G24_A->unkC0 < 0.0f) {
         G24_A->unkC4 = G24_A->unkC4 - G24_A->unkC0 / 100.0;
     }
     if (G24_A->unk6A & 1) {
-        G24_M->unk30 = D_80753250[D_807FD584];
+        G24_M->unk30 = D_80753250[gCurrentCharacterIndex];
     } else {
         c = mathSinF(t) * 8.0f;
         if (c >= 0.0f) {
@@ -1846,12 +1846,12 @@ void func_806E3B00(void) {
             func_806E384C();
         } else {
             sfxStopSlotSound(gCurrentActor, 0);
-            G24_A->unkC4 = D_807536E4[D_807FD584];
+            G24_A->unkC4 = D_807536E4[gCurrentCharacterIndex];
             temp = G24_A->unkB8;
             G24_M->unk30 = (temp * temp) / 10000.0f + 1.0f;
         }
     } else {
-        G24_A->unkC4 = D_807536E4[D_807FD584];
+        G24_A->unkC4 = D_807536E4[gCurrentCharacterIndex];
     }
     playerApplyDeceleration();
 }
@@ -1870,7 +1870,7 @@ void playerInputStopSoundOnZRelease(void) {
     if (!(G24_PAD(D_807FD63A, u16) & 0x2000)) {
         sfxStopSlotSound(gCurrentActor, 0);
     }
-    G24_A->unkC4 = D_807536E4[D_807FD584];
+    G24_A->unkC4 = D_807536E4[gCurrentCharacterIndex];
     temp = G24_A->unkB8;
     G24_M->unk30 = (temp * temp) / 10000.0f + 1.0f;
     playerApplyDeceleration();
@@ -1878,7 +1878,7 @@ void playerInputStopSoundOnZRelease(void) {
 
 
 void func_806E3CEC(void) {
-    G24_M->unk30 = D_80753250[D_807FD584];
+    G24_M->unk30 = D_80753250[gCurrentCharacterIndex];
 }
 
 
@@ -2073,7 +2073,7 @@ typedef struct G25Global {
 
 #define G25_A ((G25Actor *)gCurrentActor)
 #define G25_P ((G25Player *)gActivePlayerState)
-#define G25_GS ((G25Global *)&D_807FBB70)
+#define G25_GS ((G25Global *)&gActorGlobalState)
 #define G25_PAD(sym, T) (*(T *)((u8 *)&(sym) + gCurrentPlayerIndex * 0x34))
 
 extern u8 D_807FBB8C;
@@ -2123,20 +2123,20 @@ void playerInputHandleBButtonGun(void) {
             G25_A->unk154 = 0x2F;
             G25_A->unk155 = 0;
             actorScriptStartByIndex(gCurrentActor, 0x48);
-            G25_P->unk68 = D_8075380C[D_807FD584];
-            G25_P->unk38 = D_8075381C[D_807FD584];
-            G25_P->unk30 = D_8075382C[D_807FD584];
-            G25_P->unk48 = D_8075385C[D_807FD584];
+            G25_P->unk68 = D_8075380C[gCurrentCharacterIndex];
+            G25_P->unk38 = D_8075381C[gCurrentCharacterIndex];
+            G25_P->unk30 = D_8075382C[gCurrentCharacterIndex];
+            G25_P->unk48 = D_8075385C[gCurrentCharacterIndex];
             G25_A->unkEE = G25_A->unkE6;
         } else {
             G25_A->unk154 = 0x29;
             G25_A->unk155 = 0;
             actorScriptStart(gCurrentActor, 0x1DF);
             G25_P->unk64 = 0;
-            G25_P->unk68 = D_8075380C[D_807FD584];
+            G25_P->unk68 = D_8075380C[gCurrentCharacterIndex];
         }
     } else {
-        if (!func_80714608(0) && (D_807531E0[D_807FD584] <= G25_P->unk20) && (G25_A->unkE0 == 0.0f)) {
+        if (!func_80714608(0) && (D_807531E0[gCurrentCharacterIndex] <= G25_P->unk20) && (G25_A->unkE0 == 0.0f)) {
             actorScriptStartByIndex(gCurrentActor, 0x44);
             G25_A->unk154 = 0x29;
             G25_A->unk155 = 0;
@@ -2190,7 +2190,7 @@ void playerInputHandleBButtonSpecial(void) {
 
     idx = gCurrentPlayerIndex;
     if (*(u16 *)((u8 *)&D_807FD63C + idx * 0x34) & 0x4000) {
-        if ((D_8075318C[D_807FD584] < G25_P->unk20) &&
+        if ((D_8075318C[gCurrentCharacterIndex] < G25_P->unk20) &&
             ((gPlayerCharacterId[gCurrentPlayerIndex] == 3) || (gPlayerCharacterId[gCurrentPlayerIndex] == 0) || (gPlayerCharacterId[gCurrentPlayerIndex] == 5))) {
             if (gPlayerCharacterId[gCurrentPlayerIndex] == 3) {
                 G25_A->unkC0 = 200.0f;
@@ -2218,19 +2218,19 @@ void playerInputHandleBButtonSpecial(void) {
                         G25_A->unk154 = 0x2E;
                         G25_A->unk155 = 0;
                         actorScriptStartByIndex(gCurrentActor, 0x48);
-                        G25_P->unk68 = D_8075380C[D_807FD584] * 4;
-                        G25_P->unk38 = D_8075381C[D_807FD584] * 2;
-                        G25_P->unk30 = D_8075382C[D_807FD584];
+                        G25_P->unk68 = D_8075380C[gCurrentCharacterIndex] * 4;
+                        G25_P->unk38 = D_8075381C[gCurrentCharacterIndex] * 2;
+                        G25_P->unk30 = D_8075382C[gCurrentCharacterIndex];
                     }
                     break;
                 case 6:
                     G25_A->unk154 = 0x2F;
                     G25_A->unk155 = 0;
                     actorScriptStartByIndex(gCurrentActor, 0x48);
-                    G25_P->unk68 = D_8075380C[D_807FD584];
-                    G25_P->unk38 = D_8075381C[D_807FD584];
-                    G25_P->unk30 = D_8075382C[D_807FD584];
-                    G25_P->unk48 = D_8075385C[D_807FD584];
+                    G25_P->unk68 = D_8075380C[gCurrentCharacterIndex];
+                    G25_P->unk38 = D_8075381C[gCurrentCharacterIndex];
+                    G25_P->unk30 = D_8075382C[gCurrentCharacterIndex];
+                    G25_P->unk48 = D_8075385C[gCurrentCharacterIndex];
                     G25_A->unkEE = G25_A->unkE6;
                     break;
             }
@@ -2306,13 +2306,13 @@ void func_806E4D14(void) {
 
 void func_806E4D84(void) {
     if ((func_806E56EC() == 0) && (G25_P->unkC8 == -1)) {
-        if ((gPlayerCharacterId[gCurrentPlayerIndex] != 6) || (G25_A->unkB8 < D_807531E0[D_807FD584])) {
+        if ((gPlayerCharacterId[gCurrentPlayerIndex] != 6) || (G25_A->unkB8 < D_807531E0[gCurrentCharacterIndex])) {
             G25_A->unk154 = 0x3C;
             G25_A->unk155 = 0;
             actorScriptStartByIndex(gCurrentActor, 0xA);
-            G25_P->unk48 = D_807534D4[D_807FD584];
+            G25_P->unk48 = D_807534D4[gCurrentCharacterIndex];
         }
-        G25_P->unk30 = D_807534B8[D_807FD584];
+        G25_P->unk30 = D_807534B8[gCurrentCharacterIndex];
     }
 }
 
@@ -2403,7 +2403,7 @@ typedef struct G26Mob {
 } G26Mob;
 
 extern u32 gFrameCounter;
-extern s32 D_807FBB68;
+extern s32 gGlobalCutsceneFlags;
 u8 func_806E5488(G26Mob *arg0);
 int func_806E560C(G26Mob *arg0);
 
@@ -2412,7 +2412,7 @@ void func_806E52D0(void) {
     u32 n;
 
     if ((G25_PAD(D_807FD63C, u16) & 8) && (gFrameCounter >= 3) && (D_807FD568[4] & 1) &&
-        !(gGlobalOverlayFlags & 0x4000) && !(D_807FBB68 & 1) &&
+        !(gGlobalOverlayFlags & 0x4000) && !(gGlobalCutsceneFlags & 1) &&
         (*((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + 0x2C0) != 2) &&
         (func_806E5488((G26Mob *)gCurrentActor) == 0) && (actorAnyActiveHasFlag2000000() == 0) &&
         (*((u8 *)gActivePlayerState + 0x245) == 0)) {
@@ -2421,7 +2421,7 @@ void func_806E52D0(void) {
             n = r;
             if ((slotQueueGetValue(7, gCurrentPlayerIndex) != 0) || (n != 0)) {
                 playerStateQueueCallback(0x53, 0, *((u8 *)gActivePlayerState + 0x1A4));
-                if (!(D_807FBB68 & 2)) {
+                if (!(gGlobalCutsceneFlags & 2)) {
                     gCurrentActor->unk144 = 1;
                 }
                 if (n == 0) {
@@ -2555,7 +2555,7 @@ typedef struct G26Act {
     /* 0x155 */ u8 unk155;
 } G26Act;
 
-#define G26_GS ((G26Gs *)&D_807FBB70)
+#define G26_GS ((G26Gs *)&gActorGlobalState)
 #define G26_PL ((G26Plr *)gActivePlayerState)
 #define G26_AC ((G26Act *)gCurrentActor)
 
@@ -2626,7 +2626,7 @@ s32 func_806E56EC() {
                 return 1;
             case 4:
                 if (!(G26_PL->unk1F0 & 0x40)) {
-                    playerTransformAnimalStartSfx(D_807FBB4C);
+                    playerTransformAnimalStartSfx(gPrimaryPlayerActor);
                     G26_PL->unk1FE = G26_GS->unk10;
                 }
                 return 1;
@@ -2637,7 +2637,7 @@ s32 func_806E56EC() {
                     G26_AC->unk154 = 0x18;
                     G26_AC->unk155 = 0;
                     G26_AC->unk144 = 1;
-                    G26_PL->unk54 = D_807535CC[D_807FD584] * 2.5;
+                    G26_PL->unk54 = D_807535CC[gCurrentCharacterIndex] * 2.5;
                     G26_PL->unk50 = 0x28;
                     actorScriptStartByIndex(gCurrentActor, 0x22);
                     timerQueueAdd(func_806E5C2C, 0x14, G26_GS->unk10, G26_GS->unk12, 0);
@@ -2647,14 +2647,14 @@ s32 func_806E56EC() {
                         func_8071496C(i);
                         func_80714CC0(D_8072014C, 0.8f, G26_AC->unk7C, G26_AC->unk80, G26_AC->unk84);
                     }
-                    effectSpawnBurstParticleCluster(D_807FBB4C);
+                    effectSpawnBurstParticleCluster(gPrimaryPlayerActor);
                     return 1;
                 }
                 break;
             case 2:
                 G26_AC->unk154 = 0x1B;
                 G26_AC->unk155 = 0;
-                G26_PL->unk54 = D_807536AC[D_807FD584];
+                G26_PL->unk54 = D_807536AC[gCurrentCharacterIndex];
                 G26_PL->unk50 = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x14);
                 return 1;
@@ -2928,14 +2928,14 @@ void func_806E64D0(void) {
     s16 var_a1;
 
     if (gPlayerPadState[gCurrentPlayerIndex].unk30 != 0) {
-        var_a1 = D_80753B34[D_807FD584] * ((gPlayerPadState[gCurrentPlayerIndex].unk2E >= 0) ? 1 : -1);
+        var_a1 = D_80753B34[gCurrentCharacterIndex] * ((gPlayerPadState[gCurrentPlayerIndex].unk2E >= 0) ? 1 : -1);
         var_a1 &= 0xFFF;
     } else {
         var_a1 = 0;
     }
     mathAngleStepToward(&G27_A->unkE4, var_a1, 0x10);
     mathAngleStepToward(&G27_A->unkE8, G27_P->unk12, 0x10);
-    G27_P->unk38 = D_80753988[D_807FD584];
+    G27_P->unk38 = D_80753988[gCurrentCharacterIndex];
 }
 
 extern s16 D_80753B54[];
@@ -2954,19 +2954,19 @@ void func_806E65BC(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].unk30 != 0) {
         ang ^= 0;
         G27_A->unkE6 = (u16)(ang - (gPlayerPadState[gCurrentPlayerIndex].unk2E / 2)) & 0xFFF;
-        var_a1 = D_80753B54[D_807FD584] * ((gPlayerPadState[gCurrentPlayerIndex].unk2E >= 0) ? 1 : -1);
+        var_a1 = D_80753B54[gCurrentCharacterIndex] * ((gPlayerPadState[gCurrentPlayerIndex].unk2E >= 0) ? 1 : -1);
         var_a1 &= 0xFFF;
     } else {
         var_a1 = 0;
     }
     mathAngleStepToward(&G27_A->unkE4, var_a1, 0x10);
     if (gPlayerPadState[gCurrentPlayerIndex].unk2F != 0) {
-        var_a1 = (D_80753B44[D_807FD584] * gPlayerPadState[gCurrentPlayerIndex].unk2F) / 70;
+        var_a1 = (D_80753B44[gCurrentCharacterIndex] * gPlayerPadState[gCurrentPlayerIndex].unk2F) / 70;
         var_a1 = var_a1 & 0xFFF;
         mathAngleStepToward(&G27_A->unkE8, var_a1, (s16)(s32)((((f64)gPlayerPadState[gCurrentPlayerIndex].unk2F * 0.125) > 0.0 ? ((f64)gPlayerPadState[gCurrentPlayerIndex].unk2F * 0.125) : -((f64)gPlayerPadState[gCurrentPlayerIndex].unk2F * 0.125)) + (f64)var_t1));
         return;
     }
-    mathAngleStepToward(&G27_A->unkE8, D_80753B64[D_807FD584], 0x10);
+    mathAngleStepToward(&G27_A->unkE8, D_80753B64[gCurrentCharacterIndex], 0x10);
 }
 
 void func_806E67D8(void) {
@@ -2998,8 +2998,8 @@ void func_806E67D8(void) {
     mathAngleStepToward(&G27_A->unkE4, 0, 0x10);
     G27_P->unk12 = 0;
     G27_P->unk14 = G27_A->unkE6;
-    G27_P->unk10 = D_8075395C[D_807FD584];
-    G27_P->unk38 = D_80753988[D_807FD584] * *(f32 *)(D_807FD618 + gCurrentPlayerIndex * 0x34);
+    G27_P->unk10 = D_8075395C[gCurrentCharacterIndex];
+    G27_P->unk38 = D_80753988[gCurrentCharacterIndex] * *(f32 *)(D_807FD618 + gCurrentPlayerIndex * 0x34);
     if (D_807FD63A[gCurrentPlayerIndex].unk0 & 0x4000) {
         G27_P->unk38 = G27_P->unk38 * 1.33;
     }
@@ -3049,13 +3049,13 @@ void func_806E6B98(void) {
             ang = (s16)(s32)((f64)ang - ((f64)gPlayerPadState[gCurrentPlayerIndex].unk2E * 0.5));
         }
         G27_A->unkE6 = ang & 0xFFF;
-        var_a1 = D_80753B34[D_807FD584] * ((gPlayerPadState[gCurrentPlayerIndex].unk2E >= 0) ? 1 : -1);
+        var_a1 = D_80753B34[gCurrentCharacterIndex] * ((gPlayerPadState[gCurrentPlayerIndex].unk2E >= 0) ? 1 : -1);
         var_a1 &= 0xFFF;
     } else {
         var_a1 = 0;
     }
     mathAngleStepToward(&G27_A->unkE4, var_a1, 0x10);
-    var_a1 = (D_80753B44[D_807FD584] * gPlayerPadState[gCurrentPlayerIndex].unk2F) / 70;
+    var_a1 = (D_80753B44[gCurrentCharacterIndex] * gPlayerPadState[gCurrentPlayerIndex].unk2F) / 70;
     var_a1 = var_a1 & 0xFFF;
     if (gPlayerCharacterId[gCurrentPlayerIndex] == 7) {
         var_a2 = (s16)(s32)((((f64)gPlayerPadState[gCurrentPlayerIndex].unk2F * 0.5) > 0.0 ? ((f64)gPlayerPadState[gCurrentPlayerIndex].unk2F * 0.5) : -((f64)gPlayerPadState[gCurrentPlayerIndex].unk2F * 0.5)) + 16.0);
@@ -3077,7 +3077,7 @@ void func_806E6E7C(void) {
     G27_P->unk14 = G27_A->unkE6;
     if (G27_P->unk10 == 0) {
         G27_P->unk10 = 1;
-        G27_P->unk38 = D_8075396C[D_807FD584];
+        G27_P->unk38 = D_8075396C[gCurrentCharacterIndex];
     }
 }
 
@@ -3120,19 +3120,19 @@ void func_806E709C(void) {
             G27_P->unk12 = G27_A->unkE8;
             G27_P->unk14 = G27_A->unkE6;
             if (G27_P->unk10 == 0) {
-                G27_P->unk38 = D_80753AC4[D_807FD584];
+                G27_P->unk38 = D_80753AC4[gCurrentCharacterIndex];
                 actorScriptStartByIndex(gCurrentActor, 0x36);
             } else {
-                G27_P->unk38 = D_80753AA8[D_807FD584];
+                G27_P->unk38 = D_80753AA8[gCurrentCharacterIndex];
             }
-            G27_P->unk10 = D_80753A98[D_807FD584];
+            G27_P->unk10 = D_80753A98[gCurrentCharacterIndex];
             G27_P->unk5C = D_80767CC0;
         } else if (!(gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000)) {
             G27_P->unk12 = G27_A->unkE8;
             G27_P->unk14 = G27_A->unkE6;
             if (G27_P->unk10 == 0) {
                 G27_P->unk10 = 1;
-                G27_P->unk38 = D_80753AA8[D_807FD584];
+                G27_P->unk38 = D_80753AA8[gCurrentCharacterIndex];
             }
         }
     }
@@ -3143,12 +3143,12 @@ void func_806E7230(void) {
         G27_P->unk12 = G27_A->unkE8;
         G27_P->unk14 = G27_A->unkE6;
         if (G27_P->unk10 == 0) {
-            G27_P->unk38 = D_80753AC4[D_807FD584];
+            G27_P->unk38 = D_80753AC4[gCurrentCharacterIndex];
             actorScriptStartByIndex(gCurrentActor, 0x36);
         } else {
-            G27_P->unk38 = D_80753AA8[D_807FD584];
+            G27_P->unk38 = D_80753AA8[gCurrentCharacterIndex];
         }
-        G27_P->unk10 = D_80753A98[D_807FD584];
+        G27_P->unk10 = D_80753A98[gCurrentCharacterIndex];
         G27_P->unk5C = D_80767CC0;
     }
 }
@@ -3269,10 +3269,10 @@ void func_806E7568(void) {
     if (G28_PAD(D_807FD63C, u16) & 0x4000) {
         G28_P->unk12 = G28_A->unkE8;
         G28_P->unk14 = G28_A->unkE6;
-        G28_P->unk38 = D_80753AC4[D_807FD584];
+        G28_P->unk38 = D_80753AC4[gCurrentCharacterIndex];
         actorScriptStartByIndex(gCurrentActor, 0x36);
         G28_A->unk155 = 3;
-        G28_P->unk10 = D_80753A98[D_807FD584];
+        G28_P->unk10 = D_80753A98[gCurrentCharacterIndex];
         G28_P->unk5C = D_80767CC0;
     }
 }
@@ -3320,9 +3320,9 @@ void func_806E7780(void) {
         return;
     }
     if (*((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + 0x2C0) == 1) {
-        var_fv0 = D_8075386C[D_807FD584];
+        var_fv0 = D_8075386C[gCurrentCharacterIndex];
     } else {
-        var_fv0 = D_8075389C[D_807FD584];
+        var_fv0 = D_8075389C[gCurrentCharacterIndex];
     }
     if ((btn & 0x2000) && (var_fv0 < G28_A->unkB4) && func_806E770C()) {
         playerStateQueueCallback(0x3E, 0, gCurrentPlayerIndex);
@@ -3331,7 +3331,7 @@ void func_806E7780(void) {
 }
 
 void func_806E78B8(void) {
-    G28_P->unk30 = D_80753B18[D_807FD584];
+    G28_P->unk30 = D_80753B18[gCurrentCharacterIndex];
 }
 
 void func_806E78E0(void) {
@@ -3560,7 +3560,7 @@ typedef PadInputState G29Stick;
 
 
 #define G29_M ((G29Main *)gActivePlayerState)
-#define G29_BB48 ((G29AnimActor *)D_807FBB48)
+#define G29_BB48 ((G29AnimActor *)gActivePlayerActor)
 #define G29_BB40 ((G29AnimActor *)gCurrentActor)
 #define G29_PAR ((G29Parent *)gCurrentActor)
 
@@ -3655,14 +3655,14 @@ void func_806E854C(G29State *arg0, s32 arg1, s32 arg2) {
     sub = G29_BB48->unk4->unk0;
     if (arg2 != sub->unk10) {
         if (arg1 == sub->unk10) {
-            controllerAnimSetStateIfChanged(D_807FBB48, arg2, 0.0f, 5.0f);
+            controllerAnimSetStateIfChanged(gActivePlayerActor, arg2, 0.0f, 5.0f);
             return;
         }
         if (G29_BB40->unk4->unk0->unk24 >= 0.0f && sub->unk4 > 0.0f) {
-            scriptSetRampValue(D_807FBB48, -1.0f, 0.0f);
+            scriptSetRampValue(gActivePlayerActor, -1.0f, 0.0f);
         }
         if (G29_BB40->unk4->unk0->unk4 == 0.0f) {
-            controllerAnimSetStateIfChanged(D_807FBB48, arg2, 0.0f, 5.0f);
+            controllerAnimSetStateIfChanged(gActivePlayerActor, arg2, 0.0f, 5.0f);
         }
     } else {
         cur = arg0->unkC;
@@ -3676,7 +3676,7 @@ void func_806E854C(G29State *arg0, s32 arg1, s32 arg2) {
         } else {
             n = f <= cur ? -1 : 1;
         }
-        scriptSetRampValue(D_807FBB48, n, 5.0f);
+        scriptSetRampValue(gActivePlayerActor, n, 5.0f);
     }
 }
 
@@ -3766,11 +3766,11 @@ void func_806E88D8(void) {
         if (camIsCutsceneActive() == 0 && G29_BB48->unk4->unk64 != 0x3B5) {
             if (st->unkC < 0.2f && st->unkC > -0.2f && sp24 != G29_BB48->unk4->unk0->unk10) {
                 if (G29_BB48->unk4->unk0->unk24 >= 0.0f && G29_BB48->unk4->unk0->unk4 > 0.0f) {
-                    scriptSetRampValue(D_807FBB48, -1.0f, 5.0f);
+                    scriptSetRampValue(gActivePlayerActor, -1.0f, 5.0f);
                     return;
                 }
                 if (G29_BB40->unk4->unk0->unk4 == 0.0f) {
-                    controllerAnimSetStateIfChanged(D_807FBB48, sp24, 0.0f, 5.0f);
+                    controllerAnimSetStateIfChanged(gActivePlayerActor, sp24, 0.0f, 5.0f);
                 }
             } else {
                 if (st->unkC < -0.2f) {
@@ -3868,7 +3868,7 @@ void func_806E8C2C(void) {
     a = G29_M->unk88;
     if (a != NULL) {
         if (G29_BB48->unk4->unk0->unk10 != 0x22A) {
-            controllerAnimSetStateIfChanged(D_807FBB48, 0x22A, 0.0f, 0.0f);
+            controllerAnimSetStateIfChanged(gActivePlayerActor, 0x22A, 0.0f, 0.0f);
         }
         if (a->unk174->unk45 == 0 && a->unk174->unk30->unk154 == 2) {
             o = a->unk178;
@@ -4013,7 +4013,7 @@ void func_806E8F68(void) {
     if (D_80767CC0 - G30_M->unk58 < 0xF) {
         G29_PAR->unk154 = 9;
         G29_PAR->unk155 = 0;
-        G30_M->unk54 = D_807537E0[D_807FD584];
+        G30_M->unk54 = D_807537E0[gCurrentCharacterIndex];
         G30_M->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x7C);
         G30_M->unk58 = D_80767CC0 - 0x1E;
@@ -4088,9 +4088,9 @@ void func_806E93F8(void) {
 
 void func_806E9468(void) {
     if (G30_PAD(D_807FD63C, u16) & 0xA000) {
-        G30_M->unk12 = D_807539EC[D_807FD584];
+        G30_M->unk12 = D_807539EC[gCurrentCharacterIndex];
         G30_M->unk14 = gCurrentActor->yaw;
-        G30_M->unk10 = D_807539DC[D_807FD584];
+        G30_M->unk10 = D_807539DC[gCurrentCharacterIndex];
         G29_PAR->unk154 = 0x7F;
         G29_PAR->unk155 = 0;
         G29_PAR->unk155 = 1;
@@ -4134,9 +4134,9 @@ s32 func_806E9580(void) {
                 playerClearCarriedItemState();
             } else if (gCurrentActor->contactFlags & 1) {
                 if (*((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + 0x2C0) == 1) {
-                    lim = D_8075386C[D_807FD584];
+                    lim = D_8075386C[gCurrentCharacterIndex];
                 } else {
-                    lim = D_8075389C[D_807FD584];
+                    lim = D_8075389C[gCurrentCharacterIndex];
                 }
                 if (lim < diff) {
                     playerStateQueueCallback(0x3D, 0, gCurrentPlayerIndex);
@@ -4145,9 +4145,9 @@ s32 func_806E9580(void) {
                 }
             } else {
                 if (*((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + 0x2C0) == 1) {
-                    lim = D_8075388C[D_807FD584];
+                    lim = D_8075388C[gCurrentCharacterIndex];
                 } else {
-                    lim = D_807538C8[D_807FD584];
+                    lim = D_807538C8[gCurrentCharacterIndex];
                 }
                 if (lim < G30_A->unkB4 + diff) {
                     playerStateQueueCallback(0x3D, 0, gCurrentPlayerIndex);
@@ -4380,7 +4380,7 @@ void playerInputCycleCameraZoom(void) {
     s32 cur;
 
     state = G31_PLAYER->unk104->unk174;
-    if ((gGlobalOverlayFlags & 1) && !(D_807FBB68 & 2)) {
+    if ((gGlobalOverlayFlags & 1) && !(gGlobalCutsceneFlags & 2)) {
         max = 2;
     } else {
         max = 3;
@@ -4705,7 +4705,7 @@ void func_806EACEC(void) {
     if (gCurrentActor->contactFlags & 1) {
         if ((D_80767CC0 - G32_P->unk58) < 0xF) {
             playerSetTerminalVelocity5B0();
-            ((G32Act *)gCurrentActor)->unkC0 = D_807535CC[D_807FD584];
+            ((G32Act *)gCurrentActor)->unkC0 = D_807535CC[gCurrentCharacterIndex];
             G32_P->unk50 = 0;
             G32_P->unk3C = 0;
             G32_P->unk58 = D_80767CC0 - 0x1E;

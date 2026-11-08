@@ -508,7 +508,7 @@ typedef struct {
 
 extern CollisionPlayerPosition *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
-extern s16 D_807FD584;
+extern s16 gCurrentCharacterIndex;
 extern f32 D_80752F7C[];
 extern f32 D_80752F98[];
 extern f32 D_80752FB4[];
@@ -545,8 +545,8 @@ void func_80666D88(f32 arg0, f32 arg1, u8 arg2, Actor *arg3, u8 arg4) {
                 var_v0 = D_80752FD0;
                 var_v1 = D_80752FB4;
             }
-            var_fv0 = var_v0[D_807FD584];
-            var_fv1 = var_v1[D_807FD584];
+            var_fv0 = var_v0[gCurrentCharacterIndex];
+            var_fv1 = var_v1[gCurrentCharacterIndex];
         } else {
             var_fv0 = 10.0f;
             var_fv1 = 20.0f;
@@ -1463,7 +1463,7 @@ struct CollisionModelEntry;
 struct CollisionBoundingBox;
 struct CollisionTriF;
 
-extern struct CollisionModelEntry *D_807F6000;
+extern struct CollisionModelEntry *gModelSlots;
 extern u8 D_807F946D;
 extern u8 D_807F94AC;
 s32 hashTableLookup();
@@ -1480,7 +1480,7 @@ void collisionStoreTriangleNormalAnglesF32();
 struct CollisionActorWork;
 void collisionAttachActorToObjectNode(struct CollisionActorWork *, s16, s8, u8, f32, f32, f32);
 
-#define MODEL_SLOT_ENTRIES ((ModelSlotCollisionView *)D_807F6000)
+#define MODEL_SLOT_ENTRIES ((ModelSlotCollisionView *)gModelSlots)
 
 u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 *arg5) {
     s32 pad;
@@ -1668,7 +1668,7 @@ typedef struct CollisionModelEntry {
     u8 pad8A[6];
 } CollisionModelEntry;
 
-extern CollisionModelEntry *D_807F6000;
+extern CollisionModelEntry *gModelSlots;
 
 typedef struct CollisionActorWork {
     u8 pad0[0x7C];
@@ -1782,7 +1782,7 @@ void collisionAttachActorToObjectNode(CollisionActorWork *arg0, s16 arg1, s8 arg
     float pad[4][4];
     float sp30[4][4];
 
-    arg0->unk10C = D_807F6000[arg1].unk88;
+    arg0->unk10C = gModelSlots[arg1].unk88;
     arg0->unk10E = arg3;
     arg0->unk10F = arg2;
     modelSlotBuildTransformMatrix(arg1, arg2, spB0);
@@ -1804,7 +1804,7 @@ void actorUpdateSubnodeRotationAndMtx(CollisionActorWork *arg0) {
     sp42 = hashTableLookup(arg0->unk10C);
     if (sp42 != -1) {
         modelSlotBuildTransformMatrix(sp42, arg0->unk10F, sp90);
-        sub = D_807F6000[sp42].unk7C;
+        sub = gModelSlots[sp42].unk7C;
         if (sub != NULL) {
             if (arg0->unkFC == 0) {
                 arg0->unkE6 += (sub->unk34 * 4095.0f) / 360.0f;
@@ -1815,8 +1815,8 @@ void actorUpdateSubnodeRotationAndMtx(CollisionActorWork *arg0) {
                     arg0->unkE6 += 0xFFF;
                 }
             }
-            arg0->unk100 += D_807F6000[sp42].unk7C->unk8;
-            arg0->unk108 += D_807F6000[sp42].unk7C->unkC;
+            arg0->unk100 += gModelSlots[sp42].unk7C->unk8;
+            arg0->unk108 += gModelSlots[sp42].unk7C->unkC;
         }
         guMtxXFMF(sp90, arg0->unk100, arg0->unk104, arg0->unk108, &sp4C, &sp48, &sp44);
         arg0->unk94 = sp4C;

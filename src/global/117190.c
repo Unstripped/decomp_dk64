@@ -4,7 +4,7 @@
 extern Actor *gCurrentActor;
 extern void *gPlayerSlots;
 extern s32 gCurrentMap;
-extern u32 D_807FBB68;
+extern u32 gGlobalCutsceneFlags;
 extern u8 D_80755314;
 extern u8 D_80755318;
 
@@ -102,19 +102,19 @@ void menuSetTransitionTypeBFlag(void) {
     }
 }
 
-extern u8 D_807FC950[][0x5E];
+extern u8 gPlayerInventoryTable[][0x5E];
 extern s8 gPlayerCharacterId;
 
 void func_807126B0(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4, s8 arg5, s8 arg6) {
     s32 i;
 
     gPlayerCharacterId = arg2;
-    D_807FC950[8][0xC] = arg6;
-    D_807FC950[8][0xB] = arg6 * 4;
+    gPlayerInventoryTable[8][0xC] = arg6;
+    gPlayerInventoryTable[8][0xB] = arg6 * 4;
     for (i = 0; i < 5; i++) {
-        D_807FC950[i][0] = arg3;
-        D_807FC950[i][1] = arg4;
-        D_807FC950[i][4] = arg5;
+        gPlayerInventoryTable[i][0] = arg3;
+        gPlayerInventoryTable[i][1] = arg4;
+        gPlayerInventoryTable[i][4] = arg5;
     }
     menuTransitionWithState(arg0, arg1, 12);
 }
@@ -171,7 +171,7 @@ void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
     if (arg1 == 0) {} // FAKE: keeps arg1 in a1 with an eager restore after healthRefill
     if (gGlobalOverlayFlags & 1) {
         arg0->unk155++;
-        if (D_807FBB68 & 2) {
+        if (gGlobalCutsceneFlags & 2) {
             flagSet(0x5C, 1, 2);
             var_a0 = 0x22;
             var_a1 = 0xC;
@@ -275,7 +275,7 @@ typedef struct R117iPlayerView {
 extern u16 D_8075E5C2[];
 
 extern u8 D_807467CC;
-extern u8 D_8076A0AB;
+extern u8 gCurrentWorldId;
 extern u8 D_8075532C;
 extern s32 D_80755334;
 extern s32 D_807552EC;
@@ -297,8 +297,8 @@ void func_80712BD4(void) {
     if (D_807467CC == 0) {
         eepromInit();
     }
-    if (mapGetHubWorldIndex(D_8076A0AB, 1) == 8) {
-        if ((D_807FBB68 & 2) == 0) {
+    if (mapGetHubWorldIndex(gCurrentWorldId, 1) == 8) {
+        if ((gGlobalCutsceneFlags & 2) == 0) {
             if (gCurrentMap != 0xD6) {
                 if (menuGetTimerFlag() == 0) {
                     if (blocked == 0) {
@@ -379,7 +379,7 @@ void menuReturnToTitle(void) {
 
 void func_80712F10(s32 *arg0, s32 *arg1) {
     if (D_80755314 == 0xC) {
-        if (((D_807FBB68 & 2) == 0) || (gCurrentMap == 0xCF) || (*arg0 == 0x22)) {
+        if (((gGlobalCutsceneFlags & 2) == 0) || (gCurrentMap == 0xCF) || (*arg0 == 0x22)) {
             *arg0 = 0x50;
             *arg1 = 0;
             D_80755318 = 5;
@@ -561,7 +561,7 @@ typedef struct {
     s32 unk4;
 } R117fPair;
 
-extern u8 D_8074450C;
+extern u8 gHiResScale;
 extern R117fPair D_80755370;
 extern s32 gFrameCounter;
 extern u8 D_807ECD09;
@@ -588,7 +588,7 @@ Gfx *func_807135B4(Gfx *arg0) {
         if (&D_80755370 && &D_80755370 && &D_80755370) {}  // FAKE: dead address test, steers as1 delay-slot fill (bne+nop instead of bnel)
         sp34 = (f32) ((f64) sp34 * 0.5);
         R117D_WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFCF279);
-        arg0 = hudDrawScaledText(arg0, (s16) (s32) (sp34 * 4.0f), (s16) (s32) ((f32) D_8074450C * sp30 * 4.0f), 0.7f, textTableGetString(0xC, (s32) (&sp38.unk0)[var_v1], 1));
+        arg0 = hudDrawScaledText(arg0, (s16) (s32) (sp34 * 4.0f), (s16) (s32) ((f32) gHiResScale * sp30 * 4.0f), 0.7f, textTableGetString(0xC, (s32) (&sp38.unk0)[var_v1], 1));
     }
     return arg0;
 }

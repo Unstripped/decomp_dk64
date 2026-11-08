@@ -2,8 +2,8 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
-extern u8 D_807FBD70;
+extern Actor *gPrimaryPlayerActor;
+extern u8 gBossFightPhase;
 
 typedef struct R1C8CBSub178 {
     /* 0x0 */ s16 unk0;
@@ -78,9 +78,9 @@ void actorUpdateNearestSpotlight(void) {
     for (i = 0; i < gActiveActorCount; i++) {
         e = gActiveActors[i].actor;
         if (e->actorType == 0xF0 || e->actorType == 0xF9) {
-            dx = e->x - D_807FBB4C->x;
-            dy = e->y - D_807FBB4C->y;
-            dz = e->z - D_807FBB4C->z;
+            dx = e->x - gPrimaryPlayerActor->x;
+            dy = e->y - gPrimaryPlayerActor->y;
+            dz = e->z - gPrimaryPlayerActor->z;
             d = dx * dx + dy * dy + dz * dz;
             if (d < best) {
                 best = d;
@@ -101,15 +101,15 @@ void actorUpdateNearestSpotlight(void) {
                 A[1] = gCurrentActor->y;
                 A[2] = gCurrentActor->z;
             }
-            dx = gCurrentActor->x - D_807FBB4C->x;
-            dy = gCurrentActor->y - D_807FBB4C->y;
-            dz = gCurrentActor->z - D_807FBB4C->z;
+            dx = gCurrentActor->x - gPrimaryPlayerActor->x;
+            dy = gCurrentActor->y - gPrimaryPlayerActor->y;
+            dz = gCurrentActor->z - gPrimaryPlayerActor->z;
             if (dx * dx + dy * dy + dz * dz > 40000.0f && (gCurrentActor->flags & 0x100)) {
                 actorGetNodePos(gCurrentActor, 2, B, &B[1], &B[2]);
             } else {
-                B[0] = D_807FBB4C->x;
-                B[1] = D_807FBB4C->y;
-                B[2] = D_807FBB4C->z;
+                B[0] = gPrimaryPlayerActor->x;
+                B[1] = gPrimaryPlayerActor->y;
+                B[2] = gPrimaryPlayerActor->z;
             }
             lightSetFovAngles(30.0f, 80.0f);
             break;
@@ -222,10 +222,10 @@ void func_806C6BC8(void) {
             if (R1S->unk2C != 0) {
                 ratio = (f32)R1S->unk2C / (f32)R1S->unk2E;
                 actorGetNodePos(gCurrentActor, 2, &x, &y, &z);
-                actorSetUniformScale(D_807FBB4C, ratio * 0.13 + 0.02);
-                D_807FBB4C->x += (x - D_807FBB4C->x) * 0.05;
-                D_807FBB4C->y += (y - D_807FBB4C->y) * 0.05;
-                D_807FBB4C->z += (z - D_807FBB4C->z) * 0.05;
+                actorSetUniformScale(gPrimaryPlayerActor, ratio * 0.13 + 0.02);
+                gPrimaryPlayerActor->x += (x - gPrimaryPlayerActor->x) * 0.05;
+                gPrimaryPlayerActor->y += (y - gPrimaryPlayerActor->y) * 0.05;
+                gPrimaryPlayerActor->z += (z - gPrimaryPlayerActor->z) * 0.05;
                 R1S->unk2C--;
                 if (R1S->unk2C == 0) {
                     func_805FF9AC(0x33, 0, 0, 1);
@@ -243,7 +243,7 @@ void func_806C6BC8(void) {
             }
             break;
         case 2:
-            if (D_807FBD70 == 4) {
+            if (gBossFightPhase == 4) {
                 actorScriptStart(gCurrentActor, 0);
                 scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
                 R1V->unk154 = 0;
@@ -270,7 +270,7 @@ void func_806C6BC8(void) {
                                 R1V->unk155 = 3;
                             }
                         }
-                        if (R1V->unk11C->unk154 == 5 || D_807FBB4C->actorType != 3) {
+                        if (R1V->unk11C->unk154 == 5 || gPrimaryPlayerActor->actorType != 3) {
                             actorScriptStart(gCurrentActor, 0x2BA);
                             scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
                             csModelStateSetFirstByte(0x33, 0);

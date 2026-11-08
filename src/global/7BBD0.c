@@ -317,7 +317,7 @@ extern void *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern s16 D_80753D50[];
 extern s16 D_80753D60[];
-extern s16 D_807FD584;
+extern s16 gCurrentCharacterIndex;
 
 void func_80672E90(s32, s32, s32);
 void actorSetCameraBoundaryMode(s32);
@@ -408,7 +408,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
             normal[1] = cross[1] / norm;
             normal[2] = cross[2] / norm;
             if (other->collisionFlags & 1) {
-                scale = (*(u8 *)(*(s32 *)&gPlayerSlots + (gCurrentPlayerIndex * 0x2F0) + 0x2C0) == 1 ? (f32)D_80753D50[D_807FD584] : (f32)D_80753D60[D_807FD584]) / 8;
+                scale = (*(u8 *)(*(s32 *)&gPlayerSlots + (gCurrentPlayerIndex * 0x2F0) + 0x2C0) == 1 ? (f32)D_80753D50[gCurrentCharacterIndex] : (f32)D_80753D60[gCurrentCharacterIndex]) / 8;
                 p174 = other->unk174;
                 scaledNormal[0] = normal[0] * scale;
                 scaledNormal[1] = normal[1] * scale;

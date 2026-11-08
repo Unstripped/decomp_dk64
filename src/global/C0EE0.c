@@ -2,7 +2,7 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 
 typedef struct BC1E0_Obj {
     /* 0x00 */ u8 pad0[0x10];
@@ -128,7 +128,7 @@ void enemyGridStateStep(void) {
     switch (st->unk38) {
     case 0:
         if (flagGet(0x10F, 0) == 0) {
-            if ((BC1E0_LGB->unk7C - D_807FBB4C->x) * (BC1E0_LGB->unk7C - D_807FBB4C->x) + (BC1E0_LGB->unk84 - D_807FBB4C->z) * (BC1E0_LGB->unk84 - D_807FBB4C->z) < 14400.0) {
+            if ((BC1E0_LGB->unk7C - gPrimaryPlayerActor->x) * (BC1E0_LGB->unk7C - gPrimaryPlayerActor->x) + (BC1E0_LGB->unk84 - gPrimaryPlayerActor->z) * (BC1E0_LGB->unk84 - gPrimaryPlayerActor->z) < 14400.0) {
                 camStartPath(gCurrentActor, 0, 1);
                 st->unk39 = 0;
                 st->unk38 = 1;
@@ -147,16 +147,16 @@ void enemyGridStateStep(void) {
             if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
                 camResumePath();
                 st->unk39 = 1;
-                D_807FBB4C->state = 0xC;
-                D_807FBB4C->unk155[0] = 0;
-                playerResumeLocomotion(D_807FBB4C);
+                gPrimaryPlayerActor->state = 0xC;
+                gPrimaryPlayerActor->unk155[0] = 0;
+                playerResumeLocomotion(gPrimaryPlayerActor);
             }
             if ((D_807ECD58 & 0x4000) && !(D_807ECD60 & 0x4000)) {
                 camResumePath();
                 st->unk39 = 2;
-                D_807FBB4C->state = 0xC;
-                D_807FBB4C->unk155[0] = 0;
-                playerResumeLocomotion(D_807FBB4C);
+                gPrimaryPlayerActor->state = 0xC;
+                gPrimaryPlayerActor->unk155[0] = 0;
+                playerResumeLocomotion(gPrimaryPlayerActor);
             }
             break;
         case 1:
@@ -187,7 +187,7 @@ void enemyGridStateStep(void) {
             break;
         case 2:
             if (camIsCutsceneActive() == 0) {
-                if ((BC1E0_LGB->unk7C - D_807FBB4C->x) * (BC1E0_LGB->unk7C - D_807FBB4C->x) + (BC1E0_LGB->unk84 - D_807FBB4C->z) * (BC1E0_LGB->unk84 - D_807FBB4C->z) > 25600.0) {
+                if ((BC1E0_LGB->unk7C - gPrimaryPlayerActor->x) * (BC1E0_LGB->unk7C - gPrimaryPlayerActor->x) + (BC1E0_LGB->unk84 - gPrimaryPlayerActor->z) * (BC1E0_LGB->unk84 - gPrimaryPlayerActor->z) > 25600.0) {
                     st->unk39 = 0;
                     st->unk38 = 0;
                 }

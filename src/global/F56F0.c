@@ -3,12 +3,12 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB48;
+extern Actor *gActivePlayerActor;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
-extern s16 D_807FD584;
+extern s16 gCurrentCharacterIndex;
 extern s32 gCurrentMap;
 extern u8 gPlayerCharacterId[];
 
@@ -293,7 +293,7 @@ typedef struct F5N3ActorExtra {
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, s32);
-extern s32 D_807FBB68;
+extern s32 gGlobalCutsceneFlags;
 
 void playerTransformAnimalStartSfx(Actor *arg0) {
     F5N3ActorExtra *extra = arg0->unk174;
@@ -301,7 +301,7 @@ void playerTransformAnimalStartSfx(Actor *arg0) {
     if (arg0->actorType == 6) {
         controllerAnimLoadStateAsset(arg0, 0x10);
         sfxPlayAtPositionPooled(arg0->x, arg0->y, arg0->z, 0x2E2, 0xFF, 0xA0, 0, 0x32, 0.0f, 0);
-        if (!(D_807FBB68 & 2)) {
+        if (!(gGlobalCutsceneFlags & 2)) {
             sfxAllocateChannel(0x6C, 1.0f);
         }
     }
@@ -355,7 +355,7 @@ void scriptCmdCompareMoveTier(Actor *arg0) {
 
     scriptReadU8(&temp);
     ((F5AActorSub4 *)arg0->unk4)->unk88 =
-        playerSelectMoveTier(arg0, arg0->speedXZ, arg0->speedXZ, F5A_PS->unk4C, D_807FD584) - temp;
+        playerSelectMoveTier(arg0, arg0->speedXZ, arg0->speedXZ, F5A_PS->unk4C, gCurrentCharacterIndex) - temp;
 }
 
 typedef struct F5APlayerCoefficient {
@@ -1486,7 +1486,7 @@ typedef struct {
 
 extern u8 D_807463B8;
 extern F5N4List *gWaypointPaths;
-extern u8 D_8076A0B1;
+extern u8 gScreenRenderFlags;
 extern F5N4ListEntry *gWaypointPathEntry;
 extern F5N4Coord *gWaypointCursor;
 extern s32 gWaypointActor;
@@ -1500,7 +1500,7 @@ void playerWaypointPathStart(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4) {
     temp_v0 = (F5N4ActorExtra *)((Actor *)arg1)->unk174;
     if (gWaypointPaths->unk0 >= arg0) {
         D_807463B8 = 3;
-        D_8076A0B1 |= 0x10;
+        gScreenRenderFlags |= 0x10;
         gWaypointActor = arg1;
         temp_v0->unk1F0 &= ~1;
         gWaypointIndex = 0;
@@ -1700,8 +1700,8 @@ void playerInitMoveParams(void);
 s32 playerStateQueueCallback();
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
-extern u8 D_807444EC;
-extern u8 D_8076A0B3;
+extern u8 gGameMode;
+extern u8 sHudDisabled;
 #define F5L1_B8 (*(s8 *)&D_807463B8)
 #define F5L1_WP (*(F5L1Waypoint **)&gWaypointCursor)
 #define F5L1_TGTA (*(Actor **)&gWaypointActor)
@@ -1746,9 +1746,9 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
         if (flags == 0) {}  // FAKE: dead test
         if (eq) {
             F5L1_B8 = 0;
-            if (D_807444EC == 0) {
-                D_8076A0B1 &= 0xFFEF;
-                D_8076A0B3 = 0xFF;
+            if (gGameMode == 0) {
+                gScreenRenderFlags &= 0xFFEF;
+                sHudDisabled = 0xFF;
             }
             if (gWaypointCallbackId != 0) {
                 if (gWaypointFlags != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)

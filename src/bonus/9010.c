@@ -74,11 +74,11 @@ Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *actor) {
     return gdl;
 }
 
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern s16 D_80744518;
 extern u16 D_807ECD58;
 extern u16 D_807ECD60;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 extern s8 D_8002D920;
 extern s8 D_8002D924;
 extern s8 D_8002D928;
@@ -112,7 +112,7 @@ void bonusScoreHudUpdate(void) {
     }
     switch (gCurrentActor->state) {
     case 0:
-        if (D_807444EC == 1) {
+        if (gGameMode == 1) {
             if (camIsPathPaused()) {
                 switch (gCurrentMap) {
                 case 0xBF:
@@ -126,7 +126,7 @@ void bonusScoreHudUpdate(void) {
                 gCurrentActor->state = 1;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
             } else if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
-                camStartPath(D_807FBB4C, 1, 1);
+                camStartPath(gPrimaryPlayerActor, 1, 1);
                 gCurrentActor->state = 2;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
                 actorSetStateTwo((void *)gCurrentActor->unk11C);

@@ -3,18 +3,18 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB48;
-extern Actor *D_807FBB4C;
+extern Actor *gActivePlayerActor;
+extern Actor *gPrimaryPlayerActor;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern u8 D_807FC950[][0x5E];
+extern u8 gPlayerInventoryTable[][0x5E];
 extern s32 gCurrentMap;
-extern u8 D_8076A0AB;
-extern u8 D_8076A0B1;
+extern u8 gCurrentWorldId;
+extern u8 gScreenRenderFlags;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
-extern u8 D_807444F8;
+extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 
 extern Gfx D_1000118;
@@ -1148,7 +1148,7 @@ Gfx *screenFadeDrawGradient(Gfx *arg0, u8 arg1) {
 }
 
 
-extern u8 D_8074450C;
+extern u8 gHiResScale;
 extern u8 D_80754C08[];
 void assetFreeBuffer(s32, s32, s32);
 f32 sinApprox(f32);
@@ -1176,7 +1176,7 @@ Gfx *screenFadeDrawSpinTexture(Gfx *arg0, u8 arg1) {
         gDPLoadTextureBlock_4b(arg0++, h + 0x80000000, G_IM_FMT_I, 64, 64, 0, G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         gSPMatrix(arg0++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
         q = (f32)(sinApprox((f32)((u32)arg1 / 255.0 * 1.57079637050628662 + 3.14159274101257324)) + 1.0);
-        s = (f32)(q * 40.0f + 1.4) * (u32)D_8074450C;
+        s = (f32)(q * 40.0f + 1.4) * (u32)gHiResScale;
         guScaleF(sp_bc, s, s, s);
         matrixMakeRotationZ(sp_7c, (f32)((u32)arg1 / 255.0 * 360.0 * 1.5));
         guMtxCatF(sp_bc, sp_7c, sp_bc);
@@ -1290,7 +1290,7 @@ typedef struct {
 
 extern f32 gScreenFadeProgress;
 extern f32 gScreenFadeRate;
-extern s16 D_8076A0AA;
+extern s16 gCurrentLevelIndex;
 extern u8 gActivePlayerCount;
 extern ScreenFadeChannels D_80754CC8;
 
@@ -1317,10 +1317,10 @@ Gfx *screenFadeUpdate(Gfx *arg0, u8 arg1) {
     if (gScreenFadeRate != 0.0f) {
         gScreenFadeProgress += gScreenFadeRate * (arg1 == 2 ? 2 : 1);
         if (gScreenFadeProgress < 0.0f) {
-            mapGetWorldIndex(D_8076A0AB);
-            if (!(D_8076A0B1 & 0x20) && func_80600454(D_8076A0AA, &sp5B)) {
+            mapGetWorldIndex(gCurrentWorldId);
+            if (!(gScreenRenderFlags & 0x20) && func_80600454(gCurrentLevelIndex, &sp5B)) {
                 textSpawnMarkerChecked(1, 0, 0x64, textTableGetString(0x23, sp5B, 1), 0, 0x28, 6, 8);
-                D_8076A0B1 |= 0x20;
+                gScreenRenderFlags |= 0x20;
             }
             sfxStopChannel(0x2B, 0);
             if (transitionGetState() == 2) {
@@ -1328,15 +1328,15 @@ Gfx *screenFadeUpdate(Gfx *arg0, u8 arg1) {
             }
             gScreenFadeRate = 0.0f;
             gScreenFadeProgress = 0.0f;
-            D_8076A0B1 &= 0xFFBF;
+            gScreenRenderFlags &= 0xFFBF;
         } else if (gScreenFadeProgress > 31.0f) {
-            if (D_8076A0B1 & 1) {
+            if (gScreenRenderFlags & 1) {
                 sfxStopChannel(0x2C, 0);
             }
             gScreenFadeRate = 0.0f;
             gScreenFadeProgress = 31.0f;
             osViBlack(1);
-            D_8076A0B1 |= 0xC;
+            gScreenRenderFlags |= 0xC;
         } else {
             sp54 = gScreenFadeProgress * 0.03225806355f;
             val = gScreenFadeProgress * 255.0f / 28.0f;
@@ -1351,8 +1351,8 @@ Gfx *screenFadeUpdate(Gfx *arg0, u8 arg1) {
                 }
                 alpha = (u32)x;
             }
-            if (gScreenFadeProgress < gScreenFadeRate * 2 + 31.0f && (D_8076A0B1 & 4)) {
-                D_8076A0B1 ^= 6;
+            if (gScreenFadeProgress < gScreenFadeRate * 2 + 31.0f && (gScreenRenderFlags & 4)) {
+                gScreenRenderFlags ^= 6;
             }
             if (gScreenFadeProgress > 28.0f && arg1 != 3) {
                 arg0 = gfxFillScreenColor(arg0, 0, 0, 0, 0xFF);
@@ -1374,7 +1374,7 @@ Gfx *screenFadeUpdate(Gfx *arg0, u8 arg1) {
                         break;
                 }
             }
-            if ((D_8076A0B1 & 0x41) || !(D_8076A0B1 & 0x20)) {
+            if ((gScreenRenderFlags & 0x41) || !(gScreenRenderFlags & 0x20)) {
                 sp44 = D_80754CC8;
                 transitionSetAudioVolume(1.0f - sp54, gScreenFadeRate >= 0.0f, &sp44);
             }

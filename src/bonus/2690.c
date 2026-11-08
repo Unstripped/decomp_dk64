@@ -529,7 +529,7 @@ typedef struct {
 #define BCAM ((BonusB_Cam *)gActivePlayerState)
 
 extern BonusB_Ctrl gPlayerPadState;
-extern u8 D_807444EC;
+extern u8 gGameMode;
 s32 playerStateQueueCallback(s32, s32, s32);
 void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 u16 camStartPath(s32, s32, s32);
@@ -646,7 +646,7 @@ void bonusTargetGameUpdate(void) {
     } else {
         switch (t3c->unk0) {
         case -2:
-            if (D_807444EC != 1) {
+            if (gGameMode != 1) {
                 t3c->unk0++;
                 hudSpawnCountdownTimer(0xDC, 0x2A, t0->unk29);
                 func_8070D8C0(gCurrentActor, 0, 1);
@@ -796,7 +796,7 @@ void bonusPopupGameUpdate(void) {
     } else {
         switch (t0->unk0) {
         case -2:
-            if (D_807444EC != 1) {
+            if (gGameMode != 1) {
                 t0->unk0++;
                 hudSpawnCountdownTimer(0xDC, 0x2A, s38->unk1A);
                 func_8070D8C0(gCurrentActor, 0, 2);
@@ -955,7 +955,7 @@ typedef struct {
 } BonusVtxLink;
 #define BONUS_VTX_ACTOR ((BonusVtxActor *)gCurrentActor)
 
-extern u8 D_807FBD70;
+extern u8 gBossFightPhase;
 void *heapAlloc(s32);
 void heapClearBlock(void *);
 
@@ -981,7 +981,7 @@ void bonusActorUpdateVertexPositions(void) {
         heapClearBlock(BONUS_VTX_ACTOR->unk4->unk1C);
     }
     sub = link->unk4->unk174;
-    if (D_807FBD70 == 4 && sub->unk4 == 0 && link->unk10 == -1) {
+    if (gBossFightPhase == 4 && sub->unk4 == 0 && link->unk10 == -1) {
         link->unk8 = 275.0f;
         link->unk10 = link->unk11;
         sub->unk5 = 0;
@@ -1364,7 +1364,7 @@ void bonusLightFlashGameUpdate(void) {
     } else {
         switch (t1->unk0) {
         case -2:
-            if (D_807444EC != 1) {
+            if (gGameMode != 1) {
                 t1->unk0++;
                 hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)t0)[0xF]);
                 func_8070D8C0(gCurrentActor, 0, 9);
@@ -1728,7 +1728,7 @@ void bonusPerilPathPanicGameUpdate(void) {
     } else {
         switch (t3c->unk0) {
         case -2:
-            if (D_807444EC != 1) {
+            if (gGameMode != 1) {
                 t3c->unk0++;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)t0->unk4);
                 func_8070D8C0(gCurrentActor, 0, 0xB);
@@ -1868,7 +1868,7 @@ typedef struct {
     s8 unk3;
 } LargeB4Ctrl;
 
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 extern LargeB4Player *gPlayerSlots;
 extern LargeB4Ctrl *D_807ECDEC;
 void lightSetColor(f32, f32, f32, s32);
@@ -1955,8 +1955,8 @@ void bonusBigBugBashGameUpdate(void) {
     s16 spawnAngle;
 
     if (!(LB5->unk60 & 0x10)) {
-        D_807FBB4C->state = 0x77;
-        D_807FBB4C->unk155[0] = 0;
+        gPrimaryPlayerActor->state = 0x77;
+        gPrimaryPlayerActor->unk155[0] = 0;
         t->unk0 = LB5->unk7C + 10.0;
         t->unk4 = LB5->unk84 + 8.0;
         LB5->unk80 = LB5->unk80 + 50.0;
@@ -2102,7 +2102,7 @@ void bonusBigBugBashGameUpdate(void) {
         }
         break;
     case 3:
-        if (D_807444EC != 1) {
+        if (gGameMode != 1) {
             LB5->unk154 = 4;
             hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)&t->unk22)[1]);
             func_8070D8C0(gCurrentActor, 0, 0xA);
@@ -2142,9 +2142,9 @@ void bonusBigBugBashGameUpdate(void) {
     }
     LB5->unk7C = mathSinF(t->unk18) * 5.0 + (t->unk0 + t->unk8 * 0.8);
     LB5->unk84 = 2.0 * mathCosF((s16)(t->unk18 * 2)) + (t->unk4 + t->unkC * 0.9);
-    D_807FBB4C->x = t->unk0 + t->unk8 * 0.5f;
-    D_807FBB4C->y = LB5->unk80;
-    D_807FBB4C->z = t->unk4 + t->unkC * 0.5f;
+    gPrimaryPlayerActor->x = t->unk0 + t->unk8 * 0.5f;
+    gPrimaryPlayerActor->y = LB5->unk80;
+    gPrimaryPlayerActor->z = t->unk4 + t->unkC * 0.5f;
     renderCallbacksRegister(func_80029B9C, gCurrentActor, 3);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -2362,9 +2362,9 @@ void bonusSearchlightSeekGameUpdate(void) {
     s32 pad;
     s16 spawnAngle;
     if (!(gCurrentActor->flags & 0x10)) {
-        D_807FBB4C->state = 0x77;
-        D_807FBB4C->unk155[0] = 0;
-        D_807FBB4C->unk144 = 1;
+        gPrimaryPlayerActor->state = 0x77;
+        gPrimaryPlayerActor->unk155[0] = 0;
+        gPrimaryPlayerActor->unk144 = 1;
         subExt->unk0 = 1.0f;
         subExt->unk4 = gCurrentActor->x;
         subExt->unk8 = gCurrentActor->z;
@@ -2472,7 +2472,7 @@ void bonusSearchlightSeekGameUpdate(void) {
             break;
         }
         case 3:
-            if (D_807444EC != 1) {
+            if (gGameMode != 1) {
                 gCurrentActor->state = 4;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)subExt->unk20);
                 func_8070D8C0(gCurrentActor, 0, 0xC);
@@ -2506,9 +2506,9 @@ void bonusSearchlightSeekGameUpdate(void) {
     }
     gCurrentActor->x = mathSinF(subExt->unk1C) * 5.0 + (subExt->unk4 + subExt->unkC);
     gCurrentActor->z = mathCosF(subExt->unk1C * 2) * 2.0 + (subExt->unk8 + subExt->unk10);
-    D_807FBB4C->x = subExt->unk4 + subExt->unkC * 0.5f;
-    D_807FBB4C->y = gCurrentActor->y;
-    D_807FBB4C->z = subExt->unk8 + subExt->unk10 * 0.5f;
+    gPrimaryPlayerActor->x = subExt->unk4 + subExt->unkC * 0.5f;
+    gPrimaryPlayerActor->y = gCurrentActor->y;
+    gPrimaryPlayerActor->z = subExt->unk8 + subExt->unk10 * 0.5f;
     renderCallbacksRegister(func_8002CC08, gCurrentActor, 3);
     lightAdd(gCurrentActor->x, gCurrentActor->y + 25.0, gCurrentActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 25.0f, 1, 0xFF, 0xFF, 0xFF);
 }

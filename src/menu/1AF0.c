@@ -16,7 +16,7 @@ typedef struct {
     u8 unk12;
 } Struct_80025D14;
 
-extern u8 D_807FC950[][0x5E];
+extern u8 gPlayerInventoryTable[][0x5E];
 extern u8 gPlayerCharacterId;
 
 s32 menuCheckBitgridOtherSlots(Struct_80025D14 *state, s32 bitOffset) {
@@ -25,7 +25,7 @@ s32 menuCheckBitgridOtherSlots(Struct_80025D14 *state, s32 bitOffset) {
 
     for (i = 0; found == 0 && i != 5; i++) {
         if (i != gPlayerCharacterId) {
-            found |= D_807FC950[i][state->unkB] & (1 << (bitOffset + 0x1F));
+            found |= gPlayerInventoryTable[i][state->unkB] & (1 << (bitOffset + 0x1F));
         }
     }
     return found;
@@ -102,14 +102,14 @@ typedef struct Struct_BB40_58 {
 } Struct_BB40_58;
 extern Struct_BB40_58 *gCurrentActor;
 
-extern u8 D_807FC950[][0x5E];
+extern u8 gPlayerInventoryTable[][0x5E];
 
 void menuSetBitgridValue(Struct_80025D14 *state, s32 slot) {
-    D_807FC950[slot][state->unkB] = state->unk11;
+    gPlayerInventoryTable[slot][state->unkB] = state->unk11;
 }
 
 void menuSetBitgridBit(Struct_80025D14 *state, s32 slot) {
-    u8 *ptr = &D_807FC950[slot][state->unkB];
+    u8 *ptr = &gPlayerInventoryTable[slot][state->unkB];
     *ptr |= 1 << (state->unk11 - 1);
 }
 
@@ -162,8 +162,8 @@ void menuApplyPurchase(Struct_80025D14 *state, u8 *inventory) {
     }
     if (state->unkB == 4) {
         u8 v = D_800334DC[state->unk11];
-        if (D_807FC950[8][0xC] < v) {
-            D_807FC950[8][0xC] = v;
+        if (gPlayerInventoryTable[8][0xC] < v) {
+            gPlayerInventoryTable[8][0xC] = v;
             healthRefill(0);
             gPlayerSlots->unk2E2 |= 0x11;
         }
@@ -201,7 +201,7 @@ typedef struct {
 extern MenuM1_Entry D_80033260[][7];
 extern MenuM1_Entry D_80033334[][7];
 extern MenuM1_Entry D_80033408[][7];
-extern u8 D_8076A0AB;
+extern u8 gCurrentWorldId;
 s32 mapGetHubWorldIndex(s32, s32);
 
 void menuCheckInventoryItemPurchased(Struct_80025D14 *state, u8 *inventory, s32 isExiting) {
@@ -219,7 +219,7 @@ void menuCheckInventoryItemPurchased(Struct_80025D14 *state, u8 *inventory, s32 
         } while (flagGet(count + 0x1C5, 0) == 0);
     }
     count++;
-    state->unkC = mapGetHubWorldIndex(D_8076A0AB, 0);
+    state->unkC = mapGetHubWorldIndex(gCurrentWorldId, 0);
     switch (gCurrentActor->unk58) {
     case 0xBD:
         tbl = D_80033260[0];
@@ -461,7 +461,7 @@ void menuDispatchSubmenuAction(Struct_80025D14 *state, u8 *inventory, s32 flag) 
 }
 
 
-extern void *D_807FBB4C;
+extern void *gPrimaryPlayerActor;
 void playerWaypointPathStartPacked(void *, void *, s32, s32);
 void camStartPath(void *, s32, s32);
 void menuCheckInventoryItemPurchased(Struct_80025D14 *, u8 *, s32);
@@ -475,7 +475,7 @@ s32 menuExitSubmenu(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
     state->unkE = 0;
     if (flagGet(0x61, 2) == 0) {
         if (flag != 0) {
-            playerWaypointPathStartPacked(D_807FBB4C, gCurrentActor, 0, 0x1B);
+            playerWaypointPathStartPacked(gPrimaryPlayerActor, gCurrentActor, 0, 0x1B);
             camStartPath(0, 0, 1);
         } else {
             camStartPath(0, 4, 1);
@@ -707,7 +707,7 @@ void menuUpdateShopExitingStep(Struct_80025D14 *state, u8 *inventory, s32 flagId
             queueItemId = -1;
             v = -1;
             currentActorClearFlag();
-            playerResumeLocomotion(D_807FBB4C);
+            playerResumeLocomotion(gPrimaryPlayerActor);
             switch (gCurrentActor->unk58) {
             case 0xBE:
                 textParam1 = 7;
@@ -787,7 +787,7 @@ void menuUpdateCrankyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 5) {
         st = gCurrentActor->unk178;
-        p = D_807FC950[gPlayerCharacterId];
+        p = gPlayerInventoryTable[gPlayerCharacterId];
         if (!(gCurrentActor->unk60 & 0x10)) {
             if (flagGet(0x180, 0) != 0) {
                 gCurrentActor->unk155 = 0;
@@ -797,7 +797,7 @@ void menuUpdateCrankyShopActor(void) {
         }
         if (gCurrentActor->unk155 != 0xFF) {
             flag = 0x17F;
-            if (mapGetHubWorldIndex(D_8076A0AB, 0) != 7) {
+            if (mapGetHubWorldIndex(gCurrentWorldId, 0) != 7) {
                 flag = 0x177;
             }
             a3 = 0x26E;
@@ -835,7 +835,7 @@ void menuUpdateCrankyShopActor(void) {
                         menuApplyPurchase(st, p);
                         flagSet(0x180, 1, 0);
                     }
-                    playerWaypointPathStartPacked(D_807FBB4C, gCurrentActor, 0, 0x1B);
+                    playerWaypointPathStartPacked(gPrimaryPlayerActor, gCurrentActor, 0, 0x1B);
                     camStartPath(0, (s16)camPathId, 1);
                     currentActorClearFlag();
                     actorScriptStart(gCurrentActor, 0x26E);
@@ -850,7 +850,7 @@ void menuUpdateCrankyShopActor(void) {
                 break;
             case 1:
                 if (!(gCurrentActor->unk60 & 0x02000000)) {
-                    playerResumeLocomotion(D_807FBB4C);
+                    playerResumeLocomotion(gPrimaryPlayerActor);
                     currentActorClearFlag();
                     camStartPath(0, 1, 1);
                     mapTransitionToPreviousOrExit();
@@ -922,7 +922,7 @@ void menuCheckControllerAntiPiracy(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 0x19) {
         temp = gCurrentActor->unk178;
-        ptr = D_807FC950[gPlayerCharacterId];
+        ptr = gPlayerInventoryTable[gPlayerCharacterId];
 
         if (!(gCurrentActor->unk60 & 0x10)) {
 
@@ -955,7 +955,7 @@ void menuUpdateFunkyShopActor(void) {
     behaviourFrameBegin();
     if (gCurrentMap == 1) {
         Struct_80025D14 *temp = gCurrentActor->unk178;
-        u8 *ptr = D_807FC950[gPlayerCharacterId];
+        u8 *ptr = gPlayerInventoryTable[gPlayerCharacterId];
 
         if (!(gCurrentActor->unk60 & 0x10)) {
             menuExitSubmenu(temp, ptr, 0x176);

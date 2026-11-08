@@ -4,7 +4,7 @@
 extern u8 gGfxBufferIndex;
 extern u32 gFrameCounter;
 extern s32 gCurrentMap;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 
 void *heapAlloc(s32);
 u32 randomLcgNext(void);
@@ -301,8 +301,8 @@ void func_80717930(OrbitEffectActorView *effect, void *unused) {
     }
     state = effect->unk384;
     if (effect->unk38C & 2) {
-        effect->unk340 = mathSinF(state->unk0) * effect->unk35C + D_807FBB4C->x;
-        effect->unk348 = mathCosF(state->unk0) * effect->unk35C + D_807FBB4C->z;
+        effect->unk340 = mathSinF(state->unk0) * effect->unk35C + gPrimaryPlayerActor->x;
+        effect->unk348 = mathCosF(state->unk0) * effect->unk35C + gPrimaryPlayerActor->z;
     } else {
         effect->unk340 = mathSinF(state->unk0) * effect->unk35C + state->unk2;
         effect->unk348 = mathCosF(state->unk0) * effect->unk35C + state->unk4;
@@ -336,7 +336,7 @@ typedef struct {
 
 void func_80714998(s32);
 void effectRandomYRotDecalUpdate();
-extern u8 D_8071FEF4;
+extern u8 sEffectImpactPuffConfig;
 
 typedef struct {
     u8 pad0[0x210];
@@ -523,7 +523,7 @@ void effectSpawnImpactPuff(f32 scale, f32 x, f32 y, f32 z) {
     func_807149B8(1);
     func_80714998(3);
     func_8071498C(&effectRandomYRotDecalUpdate);
-    func_80714CC0((s32)&D_8071FEF4, scale, x, y, z);
+    func_80714CC0((s32)&sEffectImpactPuffConfig, scale, x, y, z);
 }
 
 extern s16 D_807502D0;
@@ -1673,7 +1673,7 @@ typedef struct {
 } SparkSpawnActorView;
 
 void func_807149C8(s32, s32, s32, s32);
-extern u8 D_8071FFA0;
+extern u8 sEffectSparkConfig;
 
 void effectSparkSpawnUpdate(SparkSpawnActorView *arg0, s8 *arg1) {
     s32 pad;
@@ -1704,7 +1704,7 @@ void effectSparkSpawnUpdate(SparkSpawnActorView *arg0, s8 *arg1) {
         func_807149B8(1);
         func_807149C8(0x9B, 0x9B, 0x9B, 0x96);
         random = randomNonNegative();
-        func_80714CC0((s32)&D_8071FFA0, 0.8f,
+        func_80714CC0((s32)&sEffectSparkConfig, 0.8f,
             (f32)(((random >> 15) % 65535) & 7) + arg0->x,
             arg0->y + 10.0f,
             (f32)(((randomNonNegative() >> 15) % 65535) & 7) + arg0->z);
@@ -2073,7 +2073,7 @@ void effectWispWanderUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         state->y = (s16)arg0->unk344;
     }
     state = arg0->unk384;
-    if (*(f32 *)((u8 *)D_807FBB4C + 0x84) < 340.0f) {
+    if (*(f32 *)((u8 *)gPrimaryPlayerActor + 0x84) < 340.0f) {
         state->x = 0x12C;
         state->z = 0x96;
         state->target_y = 0x64;
@@ -2175,8 +2175,8 @@ typedef struct {
 
 s32 actorGetNodePos(s32, s32, f32 *, f32 *, f32 *);
 u8 mapGetHubWorldIndex(u8, u8);
-extern u8 D_8076A0AB;
-extern u16 D_807FC930[];
+extern u8 gCurrentWorldId;
+extern u16 gLevelCollectibleCounts[];
 
 void effectConvergeOnNodeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     LightApproachMotionState *motion;
@@ -2192,13 +2192,13 @@ void effectConvergeOnNodeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     motion = arg0->unk384;
     actorGetNodePos(node, 1, &motion->unk4, &motion->unk8, &motion->unkC);
     factor = (f32)((f64)motion->unk0 / 30.0);
-    arg0->unk340 = (D_807FBB4C->x - motion->unk4) * factor + motion->unk4;
-    arg0->unk344 = (D_807FBB4C->y - motion->unk8) * factor + motion->unk8;
-    arg0->unk348 = (D_807FBB4C->z - motion->unkC) * factor + motion->unkC;
+    arg0->unk340 = (gPrimaryPlayerActor->x - motion->unk4) * factor + motion->unk4;
+    arg0->unk344 = (gPrimaryPlayerActor->y - motion->unk8) * factor + motion->unk8;
+    arg0->unk348 = (gPrimaryPlayerActor->z - motion->unkC) * factor + motion->unkC;
     motion->unk0 -= 1.0f;
     if (motion->unk0 == 0.0f) {
         *(s32 *)((u8 *)gActivePlayerState + 0x1F0) |= 0x20000;
-        D_807FC930[mapGetHubWorldIndex(D_8076A0AB, 0)]++;
+        gLevelCollectibleCounts[mapGetHubWorldIndex(gCurrentWorldId, 0)]++;
         *arg1 = 1;
     }
 }
@@ -2319,7 +2319,7 @@ void effectShockwaveRingUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     s32 radius;
 
     radius = (s32) (arg0->unk360 * 20.0f);
-    player = (ShockwavePlayerView *) D_807FBB4C;
+    player = (ShockwavePlayerView *) gPrimaryPlayerActor;
     if ((player->unk80 <= arg0->unk344) && (arg0->unk344 < player->unk80 + (f32) player->unk15E)) {
         if ((((player->unk7C - arg0->unk340) * (player->unk7C - arg0->unk340)) + ((player->unk84 - arg0->unk348) * (player->unk84 - arg0->unk348))) < (f32) (radius * radius)) {
             playerStateQueueCallback(0x2E, 0, 0);
@@ -2366,7 +2366,7 @@ void effectBallisticUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->unk344 = arg0->unk344 + ((BallisticVelocityState *) arg0->unk384)->unk4;
     ((BallisticVelocityState *) arg0->unk384)->unk4 = ((BallisticVelocityState *) arg0->unk384)->unk4 + D_80755674;
     arg0->unk348 = arg0->unk348 + ((BallisticVelocityState *) arg0->unk384)->unk8;
-    if (arg0->unk344 <= ((ShockwavePlayerView *) D_807FBB4C)->unk80) {
+    if (arg0->unk344 <= ((ShockwavePlayerView *) gPrimaryPlayerActor)->unk80) {
         *arg1 = 1;
     }
 }
@@ -2847,9 +2847,9 @@ typedef struct {
 
 void func_8071F034(TimedEffectActorView *arg0, s32 arg1) {
     if (*(s16 *) ((u8 *) arg0 + 0x34E) == 0) {
-        arg0->unk340 = ((PositionSource *) D_807FBB4C)->unk7C;
-        arg0->unk344 = ((PositionSource *) D_807FBB4C)->unk80;
-        arg0->unk348 = ((PositionSource *) D_807FBB4C)->unk84;
+        arg0->unk340 = ((PositionSource *) gPrimaryPlayerActor)->unk7C;
+        arg0->unk344 = ((PositionSource *) gPrimaryPlayerActor)->unk80;
+        arg0->unk348 = ((PositionSource *) gPrimaryPlayerActor)->unk84;
     }
 }
 

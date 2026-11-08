@@ -255,10 +255,10 @@ typedef struct AngAFcccView {
 } AngAFcccView;
 
 extern Actor *gCamActor;
-extern Actor *D_807FBB4C;
-extern u32 D_807FBB68;
+extern Actor *gPrimaryPlayerActor;
+extern u32 gGlobalCutsceneFlags;
 extern f32 D_807FD9EC;
-extern u8 D_8071FEF4;
+extern u8 sEffectImpactPuffConfig;
 f32 cosApprox(f32);
 void func_807149B8(s32);
 void func_8071498C(void *);
@@ -268,7 +268,7 @@ void func_80714CC0(s32, f32, f32, f32, f32);
 void effectRandomYRotDecalUpdate();
 
 #define ANGA_CAM ((AngACamState *)gCamActor->unk174)
-#define ANGA_A8 (*(f32 *)&D_807FBB4C->unkA8)
+#define ANGA_A8 (*(f32 *)&gPrimaryPlayerActor->unkA8)
 #define ANGA_DIST(x) ((x) < ANGA_PLAYER->unk214 ? ANGA_PLAYER->unk214 - (x) : -(ANGA_PLAYER->unk214 - (x)))
 
 s32 func_8070FCCC(AngAFcccView *particle) {
@@ -280,9 +280,9 @@ s32 func_8070FCCC(AngAFcccView *particle) {
     f32 jitter;
 
     if (ANGA_CAM->unkFA != 0 && ANGA_PLAYER->unk214 < ANGA_CAM->unk90 + 3.0f) {
-        bound = D_807FBB4C->waterY;
+        bound = gPrimaryPlayerActor->waterY;
     } else {
-        bound = ANGA_DIST(ANGA_A8) < ANGA_DIST(D_807FBB4C->waterY) ? ANGA_A8 : D_807FBB4C->waterY;
+        bound = ANGA_DIST(ANGA_A8) < ANGA_DIST(gPrimaryPlayerActor->waterY) ? ANGA_A8 : gPrimaryPlayerActor->waterY;
     }
     effectSpriteParticleTrackCamera((M114aAngle *)particle);
     effectSpriteParticleWrapX((M114aAngle *)particle);
@@ -303,12 +303,12 @@ s32 func_8070FCCC(AngAFcccView *particle) {
             if (ANGA_DIST(bound) < 50.0f) {
                 angle = ((randomNonNegative() >> 15) % 60 - 30) * 0.017453292f + ANGA_PLAYER->unk2C4;
                 jitter = (randomNonNegative() >> 15) % 0x82;
-                if ((D_807FBB68 & 8) == 0) {
+                if ((gGlobalCutsceneFlags & 8) == 0) {
                     func_807149B8(1);
                     func_8071498C(&effectRandomYRotDecalUpdate);
                     func_80714A58(particle->unk0);
                     func_80714A28(4);
-                    func_80714CC0((s32)&D_8071FEF4, 0.3f, ANGA_PLAYER->unk210 - sinApprox(angle) * jitter, (f32)((f64)bound + 1.0), ANGA_PLAYER->unk218 - cosApprox(angle) * jitter);
+                    func_80714CC0((s32)&sEffectImpactPuffConfig, 0.3f, ANGA_PLAYER->unk210 - sinApprox(angle) * jitter, (f32)((f64)bound + 1.0), ANGA_PLAYER->unk218 - cosApprox(angle) * jitter);
                 }
                 return 1;
             }
@@ -544,14 +544,14 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     skipTimer = 0;
     skipNearPlayer = 0;
 
-    if ((D_807FBB4C->state == 3) || (D_807FBB4C->state == 5)) {
+    if ((gPrimaryPlayerActor->state == 3) || (gPrimaryPlayerActor->state == 5)) {
         f32 rem = (((L10CA0CamView *)gCamActor)->unkB4 > 180.0f) ? 0.0f : 180.0f - ((L10CA0CamView *)gCamActor)->unkB4;
         if (count == 0) {}  // FAKE: deadsweep dead statement (steers uopt: count's temp slot)
         D_807FD9EC = (f32)((f64)rem * 0.02 * 240.0);
     } else {
         D_807FD9EC = 240.0f;
     }
-    if ((D_807FBB4C->state == 0x42) && ((((L10CA0TimerView *)gActivePlayerState)->unkBC == 0x62) || (((L10CA0TimerView *)gActivePlayerState)->unkBC == 0x88))) {
+    if ((gPrimaryPlayerActor->state == 0x42) && ((((L10CA0TimerView *)gActivePlayerState)->unkBC == 0x62) || (((L10CA0TimerView *)gActivePlayerState)->unkBC == 0x88))) {
         skipTimer = 1;
     }
     if ((player->unkFA != 0) && (((L10CA0PlayerView *)gPlayerSlots)->unk214 < player->unk90 + 3.0f)) {

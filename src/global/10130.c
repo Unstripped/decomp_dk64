@@ -20,14 +20,14 @@ typedef struct {
     u8 unk12[];
 } PositionRecord;
 
-extern u8 D_807FC950[];
+extern u8 gPlayerInventoryTable[];
 
 void func_8060B430(RecordTargetView *target, PositionRecord *record) {
     target->unk7C = record->unk0;
     target->unk80 = record->unk4;
     target->unk84 = record->unk8;
     target->unkE6 = record->unkC;
-    memcpy(&D_807FC950[record->unk10 * 0x5E], record->unk12, 0x5E);
+    memcpy(&gPlayerInventoryTable[record->unk10 * 0x5E], record->unk12, 0x5E);
 }
 
 extern s16 D_807463B0;

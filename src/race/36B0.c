@@ -435,7 +435,7 @@ void raceUpdateOpponentEnginePitch(f32 moveSpeed) {
     D_80770BC0[idx] = 1.0f;
 }
 
-extern u8 D_807FBD70;
+extern u8 gBossFightPhase;
 extern s16 D_80750AC8;
 extern s32 D_8002FC0C[];
 s32 raceGetPrevWaypointIndex(s32, s32);
@@ -506,9 +506,9 @@ void raceOpponentCarBehaviorUpdate(void) {
         D_80750AC8 = 0xA;
         actorClearNodeFlag(gCurrentActor, 4);
     }
-    if (D_807FBD70 == 4) {
+    if (gBossFightPhase == 4) {
         raceHandleCollisionRumble(cursor);
-    } else if (D_807FBD70 == 5) {
+    } else if (gBossFightPhase == 5) {
         cursor->unk39 = 0x1E;
         cursor->unk20 = 0.0f;
     }
@@ -772,7 +772,7 @@ typedef struct {
     u8 pad0[0x14];
     u8 unk14;
 } RaceDC9C;
-extern StructBB70_Race D_807FBB70;
+extern StructBB70_Race gActorGlobalState;
 extern RaceDC9C *gBehaviourExtraState;
 void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
@@ -800,7 +800,7 @@ void raceObstacleCarBehaviorUpdate(void) {
     }
     targetActor = cursor->unk30;
     targetState = targetActor->view.a.unk178;
-    if ((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) {
+    if ((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) {
         tagBarrelSpawnActorSmokePuffs(0, 1);
         gCurrentActor->unk154 = 0x40;
     }

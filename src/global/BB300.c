@@ -2,9 +2,9 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
-extern u8 D_807FBD70;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
+extern u8 gBossFightPhase;
 
 typedef struct BB300Quad {
     /* 0x0 */ u8 unk0;
@@ -145,10 +145,10 @@ void func_806B6958(void) {
         BB300S90->unk1F = BB300S90->unk1F - 1;
         BB300S90->unk1E = BB300S90->unk1E - 1;
     }
-    if (D_807FBB70.unk200 == 4) {
+    if (gActorGlobalState.unk200 == 4) {
         func_80724C2C(-0x96);
     }
-    if (BB300S90->unk2C == 0 || D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) {
+    if (BB300S90->unk2C == 0 || gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3B2, 0xFF, 0x7F, 0x1E);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3B7, 0xFF, 0x7F, 0x1E);
         effectSpawnRing();
@@ -248,8 +248,8 @@ void func_806B6DB0(s32 aggroRange) {
         func_80724CA4(2, 2);
         gCurrentActor->speedXZ = ((BB300View9C *)gBehaviourExtraState)->unkC;
     }
-    if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && gCurrentActor->state != 0x37) {
-        tgt = D_807FBB70.unk1FC;
+    if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
+        tgt = gActorGlobalState.unk1FC;
         ((BB300ActorAlt *)gCurrentActor)->unkC0 = 200.0f;
         func_8072D714(tgt, 0x236);
         if ((tgt != 0 && ((Actor *)tgt)->actorType == 0x29) || (gCurrentMap == 0x10 && ((BB300View9C *)gBehaviourExtraState)->unk13 < 0x11)) {
@@ -390,7 +390,7 @@ void func_806B75F4(void) {
 
 void func_806B761C(void) {
     behaviourFrameBegin();
-    if (D_807FBD70 == 4) {
+    if (gBossFightPhase == 4) {
         func_80724C2C(-0x64);
     }
     func_806B6DB0(0x2710);
@@ -398,7 +398,7 @@ void func_806B761C(void) {
 
 void func_806B7660(void) {
     behaviourFrameBegin();
-    if (D_807FBD70 == 4) {
+    if (gBossFightPhase == 4) {
         func_80724C2C(-0x64);
     }
     func_806B6DB0(0x2710);

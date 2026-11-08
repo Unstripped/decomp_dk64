@@ -25,7 +25,7 @@ typedef struct ActorProximitySource {
     u8 pad8A[0x90 - 0x8A];
 } ActorProximitySource;
 
-extern ActorProximitySource *D_807F6000;
+extern ActorProximitySource *gModelSlots;
 extern s32 D_80747D70;
 extern ActorProximityEntry *D_807F9430;
 extern s16 D_807F9434;
@@ -39,7 +39,7 @@ void actorInitEntryPoints(void) {
 
     count = 0;
     for (i = 0; i < D_80747D70; i++) {
-        if (actorEntryTypeIsEmitter(D_807F6000[i].unk84)) {
+        if (actorEntryTypeIsEmitter(gModelSlots[i].unk84)) {
             count++;
         }
     }
@@ -49,14 +49,14 @@ void actorInitEntryPoints(void) {
         D_807F9430 = heapAlloc(count * sizeof(ActorProximityEntry));
         count = 0;
         for (i = 0; i < D_80747D70; i++) {
-            if (actorEntryTypeIsEmitter(D_807F6000[i].unk84)) {
-                D_807F9430[count].unk0 = D_807F6000[i].unk84;
-                D_807F9430[count].unk2 = D_807F6000[i].unk0;
-                D_807F9430[count].unk4 = D_807F6000[i].unk4;
-                D_807F9430[count].unk6 = D_807F6000[i].unk8;
-                actorApplyRotatedOffset(count, D_807F6000[i].unk84, D_807F6000[i].unk14);
-                D_807F9430[count].unk8 = D_807F6000[i].unkC * 100.0;
-                D_807F9430[count].unkA = D_807F6000[i].unk88;
+            if (actorEntryTypeIsEmitter(gModelSlots[i].unk84)) {
+                D_807F9430[count].unk0 = gModelSlots[i].unk84;
+                D_807F9430[count].unk2 = gModelSlots[i].unk0;
+                D_807F9430[count].unk4 = gModelSlots[i].unk4;
+                D_807F9430[count].unk6 = gModelSlots[i].unk8;
+                actorApplyRotatedOffset(count, gModelSlots[i].unk84, gModelSlots[i].unk14);
+                D_807F9430[count].unk8 = gModelSlots[i].unkC * 100.0;
+                D_807F9430[count].unkA = gModelSlots[i].unk88;
                 count++;
             }
         }

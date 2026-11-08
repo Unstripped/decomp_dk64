@@ -246,17 +246,17 @@ void particleSpawnPathTrail(void);
 
 extern Actor *gCurrentActor;
 extern u8 D_807FBDC4;
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 extern s16 D_807FDCBC;
 extern s16 D_807FDCB8;
 extern s32 gGlobalPauseFlags;
-extern void *D_807FBB4C;
+extern void *gPrimaryPlayerActor;
 extern CutscenePlayerContext *gActivePlayerState;
 extern struct ActorPlayerPos *gPlayerSlots;
 extern u16 D_80744700[];
-extern u8 D_8076A0AB;
+extern u8 gCurrentWorldId;
 extern s32 D_8076A0AC;
-extern Actor *D_807FBB48;
+extern Actor *gActivePlayerActor;
 extern u8 D_807FC621;
 extern u8 D_807FC622;
 extern u16 D_807ECD48;
@@ -283,8 +283,8 @@ void actorCutsceneDispatchEvents(void) {
     }
 
     for (i = 0; i < D_807FBDC4; i++) {
-        eventData = D_807FBB70.unk278[i];
-        switch (D_807FBB70.unk258[i]) {
+        eventData = gActorGlobalState.unk278[i];
+        switch (gActorGlobalState.unk258[i]) {
         case 0xFF:
             csState->unk1E = 0;
             csState->unk0 = 0xFF;
@@ -329,7 +329,7 @@ void actorCutsceneDispatchEvents(void) {
                 } else {
                     mapRequestTransition(paramA, eventData[1]);
                 }
-                playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x15:
@@ -347,13 +347,13 @@ void actorCutsceneDispatchEvents(void) {
                     screenSetTransitionFadeType(0);
                 }
                 func_805FF9AC(eventData[0], eventData[1], 0, 0);
-                playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x5:
             if (!(gGlobalPauseFlags & 0x400)) {
                 mapTransitionExitCurrent(eventData[0], eventData[1]);
-                playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x6:
@@ -363,13 +363,13 @@ void actorCutsceneDispatchEvents(void) {
         case 0x7:
             if (!(gGlobalPauseFlags & 0x400)) {
                 func_805FF9AC(eventData[0], eventData[1], eventData[2], 2);
-                playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x8:
             if (!(gGlobalPauseFlags & 0x400)) {
                 mapTransitionToPreviousOrExit();
-                playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
+                playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x19:
@@ -382,8 +382,8 @@ void actorCutsceneDispatchEvents(void) {
             ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->unk174)->stateFlags |= 0x40000800;
             break;
         case 0xB:
-            mapRequestTransition(D_80744700[mapGetHubWorldIndex(D_8076A0AB, 0)], D_8076A0AC);
-            playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
+            mapRequestTransition(D_80744700[mapGetHubWorldIndex(gCurrentWorldId, 0)], D_8076A0AC);
+            playerWaypointPathStartLineFromActor(gPrimaryPlayerActor, D_807FDCB8, D_807FDCBC, 0x46);
             break;
         case 0xC:
             if (eventData[1] != 0) {
@@ -391,11 +391,11 @@ void actorCutsceneDispatchEvents(void) {
             } else {
                 pathFlag = 0x8000;
             }
-            playerWaypointPathStartPacked(D_807FBB4C, 0, eventData[0] + pathFlag, 0);
+            playerWaypointPathStartPacked(gPrimaryPlayerActor, 0, eventData[0] + pathFlag, 0);
             break;
         case 0xD:
-            if (((Actor *)D_807FBB4C)->speedXZ > 250.0f) {
-                sfxPlayFromActorWithAltitudeCheck(D_807FBB4C, eventData[0], 0xFF, 0x7F, 0x1E);
+            if (((Actor *)gPrimaryPlayerActor)->speedXZ > 250.0f) {
+                sfxPlayFromActorWithAltitudeCheck(gPrimaryPlayerActor, eventData[0], 0xFF, 0x7F, 0x1E);
             }
             break;
         case 0x16:
@@ -405,13 +405,13 @@ void actorCutsceneDispatchEvents(void) {
             sfxStopChannel(eventData[0], 0);
             break;
         case 0x11:
-            ((PlayerActorC4 *)D_807FBB48)->unkC4 = (f64)eventData[0] / 10.0;
+            ((PlayerActorC4 *)gActivePlayerActor)->unkC4 = (f64)eventData[0] / 10.0;
             break;
         case 0x12:
-            D_807FBB48->contactFlags |= 0x200;
+            gActivePlayerActor->contactFlags |= 0x200;
             break;
         case 0x13:
-            D_807FBB48->contactFlags &= ~0x200;
+            gActivePlayerActor->contactFlags &= ~0x200;
             break;
         case 0x14:
             D_807FC621 = eventData[0];
@@ -422,7 +422,7 @@ void actorCutsceneDispatchEvents(void) {
             }
             break;
         case 0x18:
-            mapTransitionToWorldHub(mapGetHubWorldIndex(D_8076A0AB, 0));
+            mapTransitionToWorldHub(mapGetHubWorldIndex(gCurrentWorldId, 0));
             break;
         case 0x1C:
             if (D_80744700 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -579,8 +579,8 @@ void func_8068B930(void) {
     s16 *ptr;
 
     for (i = 0; i < D_807FBDC4; i++) {
-        ptr = D_807FBB70.unk278[i];
-        if (D_807FBB70.unk258[i] == 1) {
+        ptr = gActorGlobalState.unk278[i];
+        if (gActorGlobalState.unk258[i] == 1) {
             csModelStateSetFirstByte(ptr[0], ptr[1]);
         }
     }
@@ -592,8 +592,8 @@ void func_8068B9B4(void) {
     s16 *ptr;
 
     for (i = 0; i < D_807FBDC4; i++) {
-        ptr = D_807FBB70.unk278[i];
-        if (D_807FBB70.unk258[i] == 1) {
+        ptr = gActorGlobalState.unk278[i];
+        if (gActorGlobalState.unk258[i] == 1) {
             actorListDispatchEvent(ptr[1], ptr);
         }
     }
@@ -636,12 +636,12 @@ void func_8068BA2C(void) {
     s16 *ptr;
     s32 flags;
 
-    s1 = D_807FBB48->unk174;
+    s1 = gActivePlayerActor->unk174;
     hasEvent3 = 0;
     sub174 = ((Actor *)s1->unk104)->unk174;
-    for (i = 0; i < D_807FBB70.unk254; i++) {
-        ptr = D_807FBB70.unk278[i];
-        switch ((u32)D_807FBB70.unk258[i]) {
+    for (i = 0; i < gActorGlobalState.unk254; i++) {
+        ptr = gActorGlobalState.unk278[i];
+        switch ((u32)gActorGlobalState.unk258[i]) {
         case 1:
             flags = (ptr[1] != 0) ? 4 : 0;
             camStartPath(0, ptr[0], flags | 1);
@@ -679,7 +679,7 @@ void camUpdate(void *, void *, void *, void *, void *, void *, void *, void *, v
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 void func_806C9D20(u8);
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern s16 D_807FC624;
 
 void playerCameraUpdateFromTarget(void) {
@@ -733,7 +733,7 @@ void playerCameraUpdateFromTarget(void) {
     angleA = mathAngleBetweenPoints2D(*(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x228), *(f32 *)((u8 *)player + 0x230));
     camUpdate(gCurrentActor, (u8 *)player + 0x210, (u8 *)player + 0x214, (u8 *)player + 0x218, (u8 *)player + 0x228, (u8 *)player + 0x22C, (u8 *)player + 0x230, (u8 *)player + 0x240, (u8 *)player + 0x244, (u8 *)player + 0x248);
     angleB = mathAngleBetweenPoints2D(*(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x228), *(f32 *)((u8 *)player + 0x230));
-    if (D_807FBB4C != *(Actor **)targetState) {
+    if (gPrimaryPlayerActor != *(Actor **)targetState) {
         return;
     }
     if ((gCurrentMap == 0x1F) || (gCurrentMap == 0x33)) {
@@ -747,13 +747,13 @@ void playerCameraUpdateFromTarget(void) {
                 sfxPlayOnFreeSlot(0x14, 0x7FFF, 64.0f, 1.0f, 10, 128);
             }
         }
-        if (D_807444EC && D_807444EC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (gGameMode && gGameMode) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         tmpd = D_807FC624 + 0x1E;
         tmpd &= 0xFFF;
         D_807FC624 = tmpd;
         return;
     }
-    if (D_807444EC != 1) {
+    if (gGameMode != 1) {
             dd = 0;  // FAKE: lengthens dd's live range so its priority drops below the B variable (angleB gets a1)
             stateVal = (*(Actor **)targetState)->state;
             switch (stateVal) {

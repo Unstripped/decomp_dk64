@@ -21,8 +21,8 @@ typedef struct ActorTail {
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB4C;
-extern ActorGlobalState D_807FBB70;
+extern Actor *gPrimaryPlayerActor;
+extern ActorGlobalState gActorGlobalState;
 extern u16 gActiveActorCount;
 extern ActorEntry gActiveActors[];
 
@@ -79,8 +79,8 @@ void actorTriggerRampWithSfx(void) {
         scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
         actor = gCurrentActor;
     }
-    for (i = 0; i < D_807FBB70.unk254; i++) {
-        event = D_807FBB70.unk278[i];
+    for (i = 0; i < gActorGlobalState.unk254; i++) {
+        event = gActorGlobalState.unk278[i];
         if (*event == 0) {
             flags = actor->flags;
             actor->flags = flags | 4;
@@ -256,11 +256,11 @@ void func_8069E774(void) {
         sp78 = temp_v0;
         sp7F[3] = 1;
     } else {
-        sp78 = D_807FBB4C;
+        sp78 = gPrimaryPlayerActor;
     }
     sp80 = (ActorState174 *)sp78->unk174;
     if (gPlayerCount >= 2 && gSplitScreenMode == 1) {
-        temp_v0 = (Actor *)D_807FBB4C->unk174;
+        temp_v0 = (Actor *)gPrimaryPlayerActor->unk174;
         sp74 = &((ActorState174 *)temp_v0)->unk1F0;
     } else {
         sp74 = &sp80->unk1F0;
@@ -389,7 +389,7 @@ s32 actorIsTargetInCylinder(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4) {
     f32 dx;
     f32 dz;
 
-    actor = D_807FBB4C;
+    actor = gPrimaryPlayerActor;
     dx = actor->x - arg0;
     dz = actor->z - arg2;
     if (dx * dx + dz * dz < arg4 * arg4 && arg1 <= actor->y &&
@@ -452,8 +452,8 @@ void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
 void actorCopyPoseAndScale(void *, void *, f32);
 void actorUpdateModelMatrix(void *, s32);
-extern u8 D_807444EC;
-extern s32 D_807FBB68;
+extern u8 gGameMode;
+extern s32 gGlobalCutsceneFlags;
 
 #define CUR_ACTOR ((ActorView *)gCurrentActor)
 #define SPAWNED_ACTOR ((ActorView *)gSpawnedActor)
@@ -469,7 +469,7 @@ void actorShockwaveUpdate(void) {
 
     sp67 = (CUR_ACTOR->unkF0 == 0xBB) ? 0x28 : 0x23;
     sp64 = (CUR_ACTOR->unkF0 == 0x6A) ? 0x78 : 0x190;
-    if (D_807444EC == 1) {
+    if (gGameMode == 1) {
         actorDespawn((Actor *)gCurrentActor);
     }
     if (!(CUR_ACTOR->unk60 & 0x10)) {
@@ -543,7 +543,7 @@ void actorShockwaveUpdate(void) {
             break;
         }
     }
-    if (CUR_ACTOR->unkF0 != 0x6A && !(D_807FBB68 & 2)) {
+    if (CUR_ACTOR->unkF0 != 0x6A && !(gGlobalCutsceneFlags & 2)) {
         if ((CUR_ACTOR->unk60 & 4) && (CUR_ACTOR->unk60 & 0x10)) {
             sp50 = CUR_ACTOR->unk80;
             actorGetNodePos((Actor *)CUR_ACTOR, 1, &sp5C, &sp58, &sp54);
@@ -948,7 +948,7 @@ void func_807149C8(s32, s32, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void effectSpinBillboardingUpdate(void);
 extern void *gCamActor;
-extern u8 D_807FBD70;
+extern u8 gBossFightPhase;
 extern f32 D_80750398;
 extern u8 D_80720BE8;
 
@@ -978,7 +978,7 @@ void actorFallAndBurstUpdate(void) {
     } else {
         actorDespawn(gCurrentActor);
     }
-    if (D_807FBD70 == 4 || ATTACHED_ACTOR->unkFC != 0
+    if (gBossFightPhase == 4 || ATTACHED_ACTOR->unkFC != 0
         || ((ATTACHED_ACTOR->unk6A & 1) && !(ATTACHED_ACTOR->unk6C & 1))) {
         camStartShake(gCamActor, 0xF, 0xF);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x162, 0xE1, 0x3C, 1);

@@ -62,7 +62,7 @@ typedef struct CollisionTableSlot {
 extern CollisionTableSlot D_8074C604[];
 struct Beh798_8074C608;
 extern struct Beh798_8074C608 D_8074C608[];
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 
 s32 actorTableContains(void *);
 void func_80675D70(s32);
@@ -115,22 +115,22 @@ void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackA
                         }
                         if (entryAllowed) {
                             tv0 = entry->unk8;
-                            tv1 = D_807FBB70.unk200;
+                            tv1 = gActorGlobalState.unk200;
                             if (tv1 < tv0) {
-                                D_807FBB70.unk1FC = (s32)attacker;
-                                D_807FBB70.unk200 = ((u8 *)res)[i * 12 + 8];
+                                gActorGlobalState.unk1FC = (s32)attacker;
+                                gActorGlobalState.unk200 = ((u8 *)res)[i * 12 + 8];
                             }
-                            if (D_807FBB70.unk201 < 0xF) {
-                                D_807FBB70.unk204[D_807FBB70.unk201] = (s32)attacker;
-                                D_807FBB70.unk244[D_807FBB70.unk201] = entry->unk9;
-                                D_807FBB70.unk201++;
+                            if (gActorGlobalState.unk201 < 0xF) {
+                                gActorGlobalState.unk204[gActorGlobalState.unk201] = (s32)attacker;
+                                gActorGlobalState.unk244[gActorGlobalState.unk201] = entry->unk9;
+                                gActorGlobalState.unk201++;
                                 if (attacker->unk5C & 1) {
                                     sub = attacker->unk174;
                                     if (sub->unkD4 != 0) {
                                         if (((u8 *)D_8074C608)[targetActor->unk58 * 8] != 0) {
-                                            u8 t = D_807FBB70.unk244[D_807FBB70.unk201 - 1];
+                                            u8 t = gActorGlobalState.unk244[gActorGlobalState.unk201 - 1];
                                             if (t == 5 || t == 0xF) {
-                                                D_807FBB70.unk201--;
+                                                gActorGlobalState.unk201--;
                                             }
                                         }
                                     }
@@ -139,7 +139,7 @@ void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackA
                                     }
                                 }
                             }
-                            if (D_807FBB70.unk200) {}  // FAKE: dead read steers s0/s1 colouring
+                            if (gActorGlobalState.unk200) {}  // FAKE: dead read steers s0/s1 colouring
                             if (entry->unkA == 0 || entry->unkA == 2) {
                                 done = 1;
                             }
@@ -151,9 +151,9 @@ void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackA
                     i++;
                 }
                 if (targetActor->unk60 & 0x20000000) {
-                    D_807FBB70.unk200 = 1;
+                    gActorGlobalState.unk200 = 1;
                 }
-                if (D_807FBB70.unk200 == 6 || D_807FBB70.unk200 == 7) {
+                if (gActorGlobalState.unk200 == 6 || gActorGlobalState.unk200 == 7) {
                     actorApplyDamage((struct Beh798_Actor *)targetActor, (struct Beh798_Actor *)attacker);
                 }
                 actorCollisionRunInteractionTable((void *)targetActor, (void *)attacker);
@@ -178,7 +178,7 @@ typedef struct InteractionEntry {
 } InteractionEntry;
 
 s32 actorCollisionPatternMatches(s16 actorType, s16 actorFlags, s16 pattern);
-extern ActorGlobalState D_807FBB70;
+extern ActorGlobalState gActorGlobalState;
 extern InteractionEntry D_8074ABCC[];
 
 void actorCollisionRunInteractionTable(InteractionActor *actorA, InteractionActor *actorB) {
@@ -192,13 +192,13 @@ void actorCollisionRunInteractionTable(InteractionActor *actorA, InteractionActo
     entry = D_8074ABCC; do {
         if (actorCollisionPatternMatches(actorA->unk5A, actorA->unk5C, entry->unk0) &&
             actorCollisionPatternMatches(actorB->unk5A, actorB->unk5C, entry->unk2) &&
-            ((entry->unk4 == -1) || entry->unk4 == D_807FBB70.unk200)) {
+            ((entry->unk4 == -1) || entry->unk4 == gActorGlobalState.unk200)) {
             if (entry->unk5 != -1) {
-                if (1) {  // FAKE: extra block lowers D_807FBB70 const priority vs actorB (s0/s1 swap)
+                if (1) {  // FAKE: extra block lowers gActorGlobalState const priority vs actorB (s0/s1 swap)
                     found = 0;
                 }
-                for (j = 0; !found && j < D_807FBB70.unk201;) {
-                    if (actorB == (InteractionActor *)D_807FBB70.unk204[j] && D_807FBB70.unk244[j] == ((s8 *)entry)[5]) {  // FAKE: byte-indexed unk5 read makes IDO emit the load operand first (bnel t2,t0)
+                for (j = 0; !found && j < gActorGlobalState.unk201;) {
+                    if (actorB == (InteractionActor *)gActorGlobalState.unk204[j] && gActorGlobalState.unk244[j] == ((s8 *)entry)[5]) {  // FAKE: byte-indexed unk5 read makes IDO emit the load operand first (bnel t2,t0)
                         found = 1;
                     } else {
                         j++;
@@ -273,14 +273,14 @@ s32 actorCollisionPatternMatches(s16 actorType, s16 actorFlags, s16 pattern) {
 
 
 void func_80675D70(s32 actor) {
-    if (D_807FBB70.unk200 < 2) {
-        D_807FBB70.unk1FC = actor;
-        D_807FBB70.unk200 = 1;
+    if (gActorGlobalState.unk200 < 2) {
+        gActorGlobalState.unk1FC = actor;
+        gActorGlobalState.unk200 = 1;
     }
-    if (D_807FBB70.unk201 < 0xF) {
-        D_807FBB70.unk204[D_807FBB70.unk201] = actor;
-        D_807FBB70.unk244[D_807FBB70.unk201] = 2;
-        D_807FBB70.unk201++;
+    if (gActorGlobalState.unk201 < 0xF) {
+        gActorGlobalState.unk204[gActorGlobalState.unk201] = actor;
+        gActorGlobalState.unk244[gActorGlobalState.unk201] = 2;
+        gActorGlobalState.unk201++;
     }
 }
 
@@ -295,15 +295,15 @@ void actorApplyDamage(Beh798_Actor *target, Beh798_Actor *attacker) {
     s32 currentAction;
 
     if ((target->unk134 -= attacker->unk136) <= 0) {
-        D_807FBB70.unk200 = 9;
+        gActorGlobalState.unk200 = 9;
         return;
     }
-    currentAction = D_807FBB70.unk200;
+    currentAction = gActorGlobalState.unk200;
     if (currentAction == 6) {
-        currentAction = D_807FBB70.unk200 = 4;
+        currentAction = gActorGlobalState.unk200 = 4;
     }
     if (currentAction == 7) {
-        D_807FBB70.unk200 = 5;
+        gActorGlobalState.unk200 = 5;
     }
 }
 

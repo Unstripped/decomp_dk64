@@ -2,7 +2,7 @@
 #include "actor.h"
 
 extern Actor *gCurrentActor;
-extern Actor *D_807FBB4C;
+extern Actor *gPrimaryPlayerActor;
 
 extern Actor *gSpawnedActor;
 extern s16 D_80744710[];
@@ -154,15 +154,15 @@ void actorNodeRingUpdate(void) {
             idx++;
         }
     }
-    dx = gCurrentActor->x - D_807FBB4C->x;
-    dz = gCurrentActor->z - D_807FBB4C->z;
+    dx = gCurrentActor->x - gPrimaryPlayerActor->x;
+    dz = gCurrentActor->z - gPrimaryPlayerActor->z;
     shakeDuration = 0;
     D_807FC8D4 = dx * dx + dz * dz;
     switch (gCurrentActor->state) {
         case 1:
             actorScriptStart(gCurrentActor, 0x2EF);
             gCurrentActor->state = 2;
-            camStartPath(D_807FBB4C, 2, 1);
+            camStartPath(gPrimaryPlayerActor, 2, 1);
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {

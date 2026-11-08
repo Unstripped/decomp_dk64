@@ -3,18 +3,18 @@
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
-extern Actor *D_807FBB48;
-extern Actor *D_807FBB4C;
+extern Actor *gActivePlayerActor;
+extern Actor *gPrimaryPlayerActor;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern u8 D_807FC950[][0x5E];
+extern u8 gPlayerInventoryTable[][0x5E];
 extern s32 gCurrentMap;
-extern u8 D_8076A0AB;
-extern u8 D_8076A0B1;
+extern u8 gCurrentWorldId;
+extern u8 gScreenRenderFlags;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
-extern u8 D_807444F8;
+extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 
 extern void *gSlotQueue;
@@ -104,7 +104,7 @@ void func_806F8278(u8 arg0) {
     s32 j;
     s8 n;
     sum = 0;
-    p = (u16 (*)[0x2F])((u8 *)D_807FC950 + (u32)arg0 * 0x306);
+    p = (u16 (*)[0x2F])((u8 *)gPlayerInventoryTable + (u32)arg0 * 0x306);
     n = 14;
     for (i = 0; i < n; i++) {
         for (j = 0; j < 5; j++) {
@@ -164,7 +164,7 @@ void slotQueueInit(s32 arg0) {
     u8 player;
 
     sp96 = D_80744544;
-    sp8F = mapGetHubWorldIndex(D_8076A0AB, 1);
+    sp8F = mapGetHubWorldIndex(gCurrentWorldId, 1);
     if (gPlayerCount >= 2) {
         sp96 = 0;
     }
@@ -174,7 +174,7 @@ void slotQueueInit(s32 arg0) {
         gSlotQueueMaskList = 0;
     }
     if (gPlayerCount > 0) {
-        fp = (u8 *)D_807FC950;
+        fp = (u8 *)gPlayerInventoryTable;
         i = 0;
         do {
             sp84 = (u8 *)(playerGetResolvedKongId(i) * 0x5E);
@@ -343,11 +343,11 @@ u16 slotQueueGetValue(u8 arg0, u8 arg1) {
         break;
     case 0:
         if ((u16 *)slot->unk0 != NULL) {
-            if (D_8076A0AB && D_8076A0AB) {}
+            if (gCurrentWorldId && gCurrentWorldId) {}
             var_a2 = *(u16 *)slot->unk0;
         } else {
             sp1C = playerGetResolvedKongId(arg1);
-            temp_v0 = mapGetHubWorldIndex(D_8076A0AB, 1);
+            temp_v0 = mapGetHubWorldIndex(gCurrentWorldId, 1);
             if (arg0 != 0xA) {
                 if (arg0 == 0xC) {
                     var_a2 = flagGridSumRows(0x1D5, temp_v0, temp_v0, sp1C);
@@ -447,7 +447,7 @@ void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
     s32 temp_a3;
     s32 temp_v0;
 
-    sp1C = mapGetHubWorldIndex(D_8076A0AB, 1);
+    sp1C = mapGetHubWorldIndex(gCurrentWorldId, 1);
     temp_v0 = playerGetResolvedKongId(0);
     temp_a3 = temp_v0;
     *arg0 = 0x7F;
@@ -459,7 +459,7 @@ void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
         } else if (flagGridSumRows(0x225, sp1C, sp1C, temp_a3) != 0) {
             *(u8 *)arg0 = 0xFF;
         }
-    } else if (arg1 < ((u16 *)&D_807FC950[temp_v0][0x42])[sp1C]) {
+    } else if (arg1 < ((u16 *)&gPlayerInventoryTable[temp_v0][0x42])[sp1C]) {
         *(u8 *)arg0 = 0xFF;
     }
 }
@@ -580,7 +580,7 @@ s16 arg2;
     pa = &arg1;  // FAKE: keeps arg1 memory-resident (plain lbu per use)
     sp28 = arg1;
     temp_v0_2 = playerGetResolvedKongId(arg1);
-    sp48 = (u8 *)D_807FC950 + (arg1 * 0x306 + temp_v0_2 * 0x5E);
+    sp48 = (u8 *)gPlayerInventoryTable + (arg1 * 0x306 + temp_v0_2 * 0x5E);
     temp_v0 = slotQueueGetAddress(arg1);
     temp_a0 = (SlotQueueStatSlot *)temp_v0 + arg0;
     if (((temp_a0->unk2D == 0) || (arg2 >= 0)) && (temp_a0->unk2C == 0)) {
@@ -595,7 +595,7 @@ s16 arg2;
                 *temp_v1 += arg2;
                 temp_v0_2 = slotQueueGetMaxValue(arg0, sp28);
                 temp_v1 = ((SlotQueueStatSlot *)temp_v0)[arg0].unk0;
-                if (D_8076A0AB && D_8076A0AB) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
+                if (gCurrentWorldId && gCurrentWorldId) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
                 if (temp_v0_2 < *temp_v1) {
                     *temp_v1 = temp_v0_2;
                 }
@@ -603,9 +603,9 @@ s16 arg2;
                     flagSet(sp3C, 1, 0);
                 }
                 if ((arg2 > 0) && ((arg0 * 0x30) == 0)) {
-                    temp_v0_2 = mapGetHubWorldIndex(D_8076A0AB, 1);
+                    temp_v0_2 = mapGetHubWorldIndex(gCurrentWorldId, 1);
                     temp_a3 = *(u16 *)(sp48 + 0xA + (temp_v0_2 * 2)) + *(u16 *)(sp48 + 0x26 + (temp_v0_2 * 2));
-                    if (D_8076A0AB == 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
+                    if (gCurrentWorldId == 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
                     if ((temp_a3 >= 0x4B) && ((temp_a3 - arg2) < 0x4B)) {
                         temp_v0 = flagGridIndex(0x225, temp_v0_2, (&gPlayerCharacterId)[arg1]);
                         flagSet(temp_v0, 1, 0);
@@ -1087,7 +1087,7 @@ Gfx *slotQueueDrawPlayerLabels(s32 arg0, SlotQueueDrawNode *arg1, Gfx *arg2) {
     f64 u;
 
     cursor = arg1->unk14;
-    player = mapGetHubWorldIndex(D_8076A0AB, 1);
+    player = mapGetHubWorldIndex(gCurrentWorldId, 1);
     active = playerGetResolvedKongId(0);
     off = arg0 * 0x30;
     savedU16 = *(u16 *)((u8 *)gSlotQueue + off + 4);
@@ -1390,8 +1390,8 @@ extern s32 D_80754288;
 void slotQueueSelectPlayerResource(u8 arg0) {
     s32 resource;
 
-    resource = mapGetHubWorldIndex(D_8076A0AB, 0);
-    *(u8 **)((u8 *)gSlotQueue + 0x270) = &D_807FC950[arg0][resource * 2 + 0x26];
+    resource = mapGetHubWorldIndex(gCurrentWorldId, 0);
+    *(u8 **)((u8 *)gSlotQueue + 0x270) = &gPlayerInventoryTable[arg0][resource * 2 + 0x26];
     *(u16 *)((u8 *)gSlotQueue + 0x274) = **(u16 **)((u8 *)gSlotQueue + 0x270);
     D_80754288 = arg0;
 }
@@ -1659,7 +1659,7 @@ s32 func_806FB418(void) {
     sum = 0;
     for (j = 0; j < 5; j++) {
         for (i = 0; i < 8; i++) {
-            sum += ((u16 *)D_807FC950[j])[0x21 + i];
+            sum += ((u16 *)gPlayerInventoryTable[j])[0x21 + i];
         }
     }
     return sum;

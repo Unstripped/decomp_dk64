@@ -25,7 +25,7 @@ s32 critterBitwiseNot(s32 val) {
 extern s8 D_80029FA0;
 extern u16 D_80029FA4;
 extern s8 D_80029FA8;
-extern u8 D_807444EC;
+extern u8 gGameMode;
 extern u8 D_807655F0[];
 extern s32 gCurrentMap;
 extern u8 D_807ECE00[];
@@ -95,7 +95,7 @@ void critterBattleArenaUpdate(void) {
 
     switch (gCurrentActor->unk154) {
     case 0x0:
-        if ((D_807444EC == 1) && (camIsPathPaused() != 0)) {
+        if ((gGameMode == 1) && (camIsPathPaused() != 0)) {
             switch (gCurrentMap) {
             case 0xB1:
                 mapChallengeIdx = 0;
