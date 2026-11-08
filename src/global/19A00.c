@@ -14,19 +14,19 @@ typedef struct ActorRampState {
     f32 unk58;
 } ActorRampState;
 
-void scriptSetActorRampTarget(Actor *arg0, f32 arg1, f32 arg2) {
-    ActorRampState *temp_v0;
+void scriptSetActorRampTarget(Actor *actor, f32 targetVal, f32 rampTime) {
+    ActorRampState *ramp;
 
-    temp_v0 = (ActorRampState *)arg0->unk4;
-    if (arg2 > 0.0f) {
-        temp_v0->unk58 = arg2;
-        temp_v0->unk50 = arg1;
-        temp_v0->unk54 = 0.0f;
-        temp_v0->unk4C = temp_v0->unk48;
+    ramp = (ActorRampState *)actor->unk4;
+    if (rampTime > 0.0f) {
+        ramp->unk58 = rampTime;
+        ramp->unk50 = targetVal;
+        ramp->unk54 = 0.0f;
+        ramp->unk4C = ramp->unk48;
         return;
     }
-    temp_v0->unk48 = arg1;
-    temp_v0->unk58 = 0.0f;
+    ramp->unk48 = targetVal;
+    ramp->unk58 = 0.0f;
 }
 
 typedef struct RampValue {
@@ -70,20 +70,20 @@ typedef struct ActorScriptState {
     s32 unk78;
 } ActorScriptState;
 
-void actorScriptExecute(Actor *arg0) {
+void actorScriptExecute(Actor *actor) {
     ActorScriptState *state;
 
-    state = (ActorScriptState *)arg0->unk4;
+    state = (ActorScriptState *)actor->unk4;
     if (state->unk68 != NULL) {
         D_807F5AF4 = 1;
         D_807F5AF0 = state->unk6C;
         while ((state->unk78 == 0) && (D_807F5AF4 != 0)) {
-            D_807F5AF4 = D_80746BEC[*D_807F5AF0](arg0);
+            D_807F5AF4 = D_80746BEC[*D_807F5AF0](actor);
         }
         state->unk6C = D_807F5AF0;
         if (state->unk70 != NULL) {
             D_807F5AF0 = state->unk74;
-            state->unk70(arg0);
+            state->unk70(actor);
         }
     }
 }
@@ -149,29 +149,29 @@ void actorScriptStart(Actor *arg0, s32 arg1) {
     }
 }
 
-void scriptReadU8(u8 *arg0) {
-    *arg0 = *D_807F5AF0++;
+void scriptReadU8(u8 *dst) {
+    *dst = *D_807F5AF0++;
 }
 
-void scriptReadU16(u8 *arg0) {
-    arg0++;
-    arg0[-1] = *D_807F5AF0++;
-    arg0[0] = *D_807F5AF0++;
+void scriptReadU16(u8 *dst) {
+    dst++;
+    dst[-1] = *D_807F5AF0++;
+    dst[0] = *D_807F5AF0++;
 }
 
-void scriptReadU24(u8 *arg0) {
-    arg0 += 2;
-    arg0[-2] = *D_807F5AF0++;
-    arg0[-1] = *D_807F5AF0++;
-    arg0[0] = *D_807F5AF0++;
+void scriptReadU24(u8 *dst) {
+    dst += 2;
+    dst[-2] = *D_807F5AF0++;
+    dst[-1] = *D_807F5AF0++;
+    dst[0] = *D_807F5AF0++;
 }
 
-void scriptReadU32(u8 *arg0) {
-    arg0 += 3;
-    arg0[-3] = *D_807F5AF0++;
-    arg0[-2] = *D_807F5AF0++;
-    arg0[-1] = *D_807F5AF0++;
-    arg0[0] = *D_807F5AF0++;
+void scriptReadU32(u8 *dst) {
+    dst += 3;
+    dst[-3] = *D_807F5AF0++;
+    dst[-2] = *D_807F5AF0++;
+    dst[-1] = *D_807F5AF0++;
+    dst[0] = *D_807F5AF0++;
 }
 
 s32 scriptOpNop(s32 arg0) {
