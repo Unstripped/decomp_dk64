@@ -210,7 +210,7 @@ void screenSetTransitionFadeType(s32);
 void mapRequestTransition(s32, s32);
 void bossScriptStep(u8 *, s32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
-void func_8072A450(void);
+void behaviourUpdateShadowAlpha(void);
 s32 func_8072881C(s32, void *);
 
 #define ACTOR40 ((BossActor *)gCurrentActor)
@@ -352,7 +352,7 @@ void bossKRoolLankyStep(void) {
     } else if (ACTOR40->unk4->unk64 == 0x406) {
         scriptSetActorRampTarget(ACTOR40, 0.0f, 0.0f);
     }
-    func_8072A450();
+    behaviourUpdateShadowAlpha();
     if (func_8072881C(0, gBehaviourWorkState->unk28) != 0) {
         func_8072881C(0x81, gBehaviourWorkState->unk28);
     }

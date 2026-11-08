@@ -128,7 +128,7 @@ void effectSpawnRing();
 void actorDespawn(Actor *);
 void actorUpdateModelMatrix(void *, s32);
 s32 actorMoveWithinZone(s32, f32, f32, s32, f32);
-void func_8072B7CC();
+void behaviourUpdateContactAndState();
 
 void func_806B6958(void) {
     behaviourFrameBegin();
@@ -157,7 +157,7 @@ void func_806B6958(void) {
     if (gCurrentActor->state == 0x23) {
         actorMoveWithinZone(0x23, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
     } else {
-        func_8072B7CC(0x237);
+        behaviourUpdateContactAndState(0x237);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -222,9 +222,9 @@ void func_8072881C(s32, void *);
 void actorSetBehaviourState();
 void enemyAggroStateUpdate(s32, s32, s32);
 void patrolPathStep(s32, s32);
-void func_8072D714(s32, s32);
-void func_8072DAA4();
-void func_8072DC7C(s32);
+void behaviourCalculateDamageForce(s32, s32);
+void behaviourSpawnDropParticle();
+void behaviourFadeOutWithinZone(s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void sfxSpawnTableNodes(Actor *);
 void sfxStopSlotSound(Actor *, s32);
@@ -251,7 +251,7 @@ void func_806B6DB0(s32 aggroRange) {
     if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
         tgt = gActorGlobalState.unk1FC;
         ((BB300ActorAlt *)gCurrentActor)->unkC0 = 200.0f;
-        func_8072D714(tgt, 0x236);
+        behaviourCalculateDamageForce(tgt, 0x236);
         if ((tgt != 0 && ((Actor *)tgt)->actorType == 0x29) || (gCurrentMap == 0x10 && ((BB300View9C *)gBehaviourExtraState)->unk13 < 0x11)) {
             BB300S90->unk1A |= 1;
         }
@@ -280,7 +280,7 @@ void func_806B6DB0(s32 aggroRange) {
                 p->unk2 += -p->unk2 * 0.01;
                 BB300S90->unk2C -= 1;
                 if (!(gFrameCounter & 3)) {
-                    func_8072DAA4();
+                    behaviourSpawnDropParticle();
                 }
             } else {
                 ((BB300ActorAlt *)gCurrentActor)->unk155 = 2;
@@ -355,7 +355,7 @@ void func_806B6DB0(s32 aggroRange) {
             }
             break;
         case 4:
-            func_8072DC7C(5);
+            behaviourFadeOutWithinZone(5);
             break;
         case 5:
             gCurrentActor->state = 0x40;
@@ -365,7 +365,7 @@ void func_806B6DB0(s32 aggroRange) {
     case 0x16:
         BB300S90->unk1A |= 1;
     default:
-        func_8072B7CC(0x232, sel);
+        behaviourUpdateContactAndState(0x232, sel);
         break;
     }
     sel = gCurrentActor->state;

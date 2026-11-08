@@ -453,7 +453,7 @@ typedef struct EfBCamera {
 #define EFB_P ((EfBPlayer *)gActivePlayerState)
 
 void playerDropHeldActor(Actor *);
-void func_8072DB68(s32);
+void behaviourAddSlotQueueValueB(s32);
 void func_80026004();
 void playerTransformAnimalStartSfx(Actor *);
 
@@ -503,7 +503,7 @@ void playerStateAdjustUpwardVelocity200(void) {
     if (actor->unkC0 > 200.0f) {
         actor->unkC0 = 200.0f;
     }
-    func_8072DB68(3);
+    behaviourAddSlotQueueValueB(3);
 }
 
 void playerStateAdjustUpwardVelocity300(void) {
@@ -511,7 +511,7 @@ void playerStateAdjustUpwardVelocity300(void) {
 
     actor = EFB_P->unk88;
     actor->unkC0 += 300.0f;
-    func_8072DB68(3);
+    behaviourAddSlotQueueValueB(3);
 }
 
 void playerStateInitAnimalTransformation(void) {
@@ -1099,7 +1099,7 @@ void playerStateDamageTargetCheck(void) {
     target = ((EfdAPlayer *)gActivePlayerState)->unk88;
     zero = 0.0f;
     if (target->speedXZ >= zero) {
-        func_8072DB68(3);
+        behaviourAddSlotQueueValueB(3);
         target = ((EfdAPlayer *)gActivePlayerState)->unk88;
     }
     camTarget = ((EfAQueuedCall *)gPlayerSlots)[gCurrentPlayerIndex].unk2A0;
@@ -1129,7 +1129,7 @@ void playerStateDamageCheck4(void) {
 
     if (((EfN8PlayerD4 *)gActivePlayerState)->unkD4 == 0) {
         playerClearCarriedItemState();
-        func_8072DB68(3);
+        behaviourAddSlotQueueValueB(3);
         character = gPlayerCharacterId[gCurrentPlayerIndex];
         divisor = 2.0f;
         if (character != 2) {
@@ -1861,7 +1861,7 @@ void playerTakeDamage(s16 arg0) {
                 actorScriptStart(EfL2PS->unk88, 0x292);
                 sfxPlayScriptActorSoundForPlayer(gActivePlayerActor, 0x11, 0);
                 if (EfL2PS->unk88->actorType != 0x57) {
-                    func_8072DB68(3);
+                    behaviourAddSlotQueueValueB(3);
                 }
             } else {
                 sp2C = 0;

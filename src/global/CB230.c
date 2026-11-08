@@ -187,7 +187,7 @@ s32 randomNonNegative(void);
 void csModelStateSetFirstByte(s32, s32);
 void actorDespawn(Actor *);
 void patrolPathStep(s32, s32);
-void func_8072DC7C(s32);
+void behaviourFadeOutWithinZone(s32);
 
 #define R1S ((R1C8CBState *)gBehaviourWorkState)
 
@@ -281,7 +281,7 @@ void func_806C6BC8(void) {
                         patrolPathStep(2, 0);
                         break;
                     case 1:
-                        func_8072DC7C(5);
+                        behaviourFadeOutWithinZone(5);
                         break;
                     case 2:
                         R1V->unk154 = 0x3B;

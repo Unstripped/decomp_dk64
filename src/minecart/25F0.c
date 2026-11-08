@@ -193,7 +193,7 @@ void sfxPlayFromActorWithAltitudeCheck(Actor_25F0 *, s16, u8, s16, u8);
 void camStartShake(s32, s32, s32);
 void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void func_80724E48(s32);
-s32 func_8072DE10(s32);
+s32 behaviourIsTargetWithinAngle(s32);
 void minecartStartScriptNearPlayer(void);
 void actorSpawnNodeEffectFacingCamera(s32, s32);
 void actorApproachTargetSpeed(s32);
@@ -560,7 +560,7 @@ void minecartStartScriptNearPlayer(void) {
     if (gCurrentActor->unk155 != 0) {
         return;
     }
-    if (func_8072DE10(10000) != 0 ||
+    if (behaviourIsTargetWithinAngle(10000) != 0 ||
         (gBehaviourTargetActor->unk7C - gCurrentActor->unk7C) * (gBehaviourTargetActor->unk7C - gCurrentActor->unk7C) +
         (gBehaviourTargetActor->unk80 - gCurrentActor->unk80) * (gBehaviourTargetActor->unk80 - gCurrentActor->unk80) +
         (gBehaviourTargetActor->unk84 - gCurrentActor->unk84) * (gBehaviourTargetActor->unk84 - gCurrentActor->unk84) < 2500.0f) {

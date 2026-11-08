@@ -331,8 +331,8 @@ void actorSetUniformScale(Actor *, f32);
 void *spawnNodeActivate(s32, s32);
 s32 func_8072881C(s32, void *);
 void actorApplyGravity(void);
-void func_8072A450(void);
-void func_8072DC7C(s32);
+void behaviourUpdateShadowAlpha(void);
+void behaviourFadeOutWithinZone(s32);
 void func_8072E320(f32);
 s32 mathAngleLerp(s16, s16, f32);
 void lightUpdateFromActorLighting(void *, void *, void *);
@@ -663,11 +663,11 @@ void actorScriptedCommandUpdate(void) {
             if (LgBV->unk155 != 0) {
                 LgBV->unk154 = 0x40;
             } else {
-                func_8072DC7C(0xA);
+                behaviourFadeOutWithinZone(0xA);
             }
             break;
     }
-    func_8072A450();
+    behaviourUpdateShadowAlpha();
     if ((LgBS98->unk46 & 0x1000) && func_8072881C(0, LgBS90->unk28) != 0 && (state->unk0 == 1 || state->unk0 == 9 || state->unk0 == 0x68)) {
         func_8072881C(0x81, LgBS90->unk28);
     }

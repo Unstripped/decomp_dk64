@@ -186,7 +186,7 @@ void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 s32 currentActorTestClearFlag(void);
-void func_8072A450(void);
+void behaviourUpdateShadowAlpha(void);
 s32 func_8072881C(s32, void *);
 
 #define MAIN_ACTOR ((BossMainActor *)gCurrentActor)
@@ -380,7 +380,7 @@ void bossDogadonStep(void) {
         bossScriptStep(scriptOpcodes, 0x10, 0.0f);
         break;
     }
-    func_8072A450();
+    behaviourUpdateShadowAlpha();
     if (func_8072881C(0, (u8 *)gBehaviourWorkState + 0x28) != 0) {
         func_8072881C(0x81, (u8 *)gBehaviourWorkState + 0x28);
     }

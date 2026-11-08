@@ -293,7 +293,7 @@ typedef struct D1Dc98ViewC {
 extern D1Tbl8075EB80 D_8075EB80[];
 void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
-void func_8072A450(void) {
+void behaviourUpdateShadowAlpha(void) {
     u8 a;
     u8 b;
     u8 c;
@@ -341,7 +341,7 @@ s32 func_80666A94();
 s32 func_80666AA0();
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 
-void func_8072A714(void) {
+void behaviourCheckGroundImpactEffects(void) {
     if (D1A3->unk5C & 2) {
         if (func_80666A94() || func_80666AA0()) {
             if (func_80666AA0()) {
@@ -561,10 +561,10 @@ u32 actorMoveWithinZone(u8 arg0, f32 arg1, f32 arg2, u16 arg3, f32 arg4) {
         }
         actorUpdateFloorContactAndTilt(gCurrentActor, arg4);
         if (!(arg3 & 0x2000)) {
-            func_8072A714();
+            behaviourCheckGroundImpactEffects();
         }
         if (!(arg3 & 0x10)) {
-            func_8072A450();
+            behaviourUpdateShadowAlpha();
         }
         return 0;
     }
@@ -584,10 +584,10 @@ u32 actorMoveWithinZone(u8 arg0, f32 arg1, f32 arg2, u16 arg3, f32 arg4) {
         collisionCheckActorFloor(gCurrentActor, E3A->unk7C, E3A->unk8C, E3A->unk84, &E3A->unkA4);
     }
     if (!(arg3 & 0x2000)) {
-        func_8072A714();
+        behaviourCheckGroundImpactEffects();
     }
     if (!(arg3 & 0x10)) {
-        func_8072A450();
+        behaviourUpdateShadowAlpha();
     }
     E3A->unkFC = 0;
     E3A->unkFD = 0;
@@ -697,7 +697,7 @@ typedef struct D1Dc90ViewB {
 #define D1DC90B ((D1Dc90ViewB *)gBehaviourWorkState)
 
 extern u32 gFrameCounter;
-void func_8072DAA4();
+void behaviourSpawnDropParticle();
 
 void actorApproachTargetSpeed(u16 arg0) {
     s32 spd;
@@ -706,7 +706,7 @@ void actorApproachTargetSpeed(u16 arg0) {
     spd = D1DC90B->unk26;
     if (D1AB->unkB8 < -60.0f) {
         if ((D1AB->unk6A & 1) && (gFrameCounter % 5) == 0) {
-            func_8072DAA4();
+            behaviourSpawnDropParticle();
         }
     }
     tgt = spd;
@@ -855,7 +855,7 @@ void pathPlaybackSetActive(s32, s32);
 void pathPlaybackAdvance(s32);
 void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 void func_80724E48(u8);
-void func_8072DC7C(u8);
+void behaviourFadeOutWithinZone(u8);
 void actorSetDefaultState(s32);
 void func_8072E320(f32);
 u8 sfxSlotAllocateActor(Actor *, s16, u8, u8, u8, f32, s8);
@@ -866,7 +866,7 @@ void effectSetDepth(s32);
 void func_80717D4C(void);
 extern u8 D_8071FC58[];
 
-void func_8072B7CC(s32 arg0) {
+void behaviourUpdateContactAndState(s32 arg0) {
     actorUpdatePrevContactFlags(gCurrentActor);
     switch (F1A->unk154) {
         case 9:
@@ -939,7 +939,7 @@ void func_8072B7CC(s32 arg0) {
                     }
                     break;
                 case 1:
-                    func_8072DC7C(0xA);
+                    behaviourFadeOutWithinZone(0xA);
                     break;
                 case 2:
                     F1A->unk154 = 0x40;
@@ -1104,7 +1104,7 @@ typedef struct D1PlayerView {
 extern u8 gPlayerCount;
 extern u32 gGlobalOverlayFlags;
 
-u8 func_8072C670(u8 checkMode, u8 *outTarget) {
+u8 behaviourCheckTargetCollisionMode(u8 checkMode, u8 *outTarget) {
     D1S174b *st = gBehaviourTargetActor->customState;
     u8 ret;
     u8 t;
@@ -1253,7 +1253,7 @@ typedef struct C1Dc9c {
 #define C1D9C ((C1Dc9c *)gBehaviourExtraState)
 
 s32 zoneCanReachPoint(Actor *, s16, s16, s16, void *);
-s32 func_8072DE10(u16);
+s32 behaviourIsTargetWithinAngle(u16);
 
 void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
     D1S174 *st;
@@ -1284,7 +1284,7 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
     } else {
         C1D90->unk1A &= 0xFBFF;
     }
-    ret = func_8072C670(dist < 0x1388, &sp4D);
+    ret = behaviourCheckTargetCollisionMode(dist < 0x1388, &sp4D);
     type = ret;
     if (ang != 0) {
     }
@@ -1307,7 +1307,7 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
         case 0x19:
             if ((near & 0xFF) && (C1B40->unk60 & 0x100) && (sp4D != 0) && (C1D90->unk1A & 0x400)) {
                 if (C1D90->unk1A & 0x800) {
-                    if (func_8072DE10(0x2710) != 0) {
+                    if (behaviourIsTargetWithinAngle(0x2710) != 0) {
                         actorSetBehaviourState(type, C1D9C->unkD, arg2);
                         return;
                     }
@@ -1655,9 +1655,9 @@ typedef struct D1ActorViewI {
 
 void actorSetBehaviourState(u8, s16, s32);
 void func_8002D7E8(s16);
-void func_8072D9D4(void);
+void behaviourSpawnPuffParticle(void);
 
-void func_8072D714(D1ActorViewI *arg0, s32 arg1) {
+void behaviourCalculateDamageForce(D1ActorViewI *arg0, s32 arg1) {
     f64 unused;
     f64 f;
     s32 mask;
@@ -1691,7 +1691,7 @@ void func_8072D714(D1ActorViewI *arg0, s32 arg1) {
     D1AI->unk138 &= mask;
     gCurrentActor->flags &= 0xFFFF7FFF;
     if (arg0 == NULL || (Actor *)arg0 == gBehaviourTargetActor || arg0->unk58 == 0x2B) {
-        func_8072D9D4();
+        behaviourSpawnPuffParticle();
     }
     D_80744508++;
     if (gCurrentMap == 0xBF) {
@@ -1699,7 +1699,7 @@ void func_8072D714(D1ActorViewI *arg0, s32 arg1) {
     }
 }
 
-void func_8072D99C(void) {
+void behaviourSetFloorAndState40(void) {
     gCurrentActor->unk144 = 1;
     gCurrentActor->state = 0x40;
     D_80744508++;
@@ -1707,7 +1707,7 @@ void func_8072D99C(void) {
 
 extern u8 D_8071FB34[];
 
-void func_8072D9D4(void) {
+void behaviourSpawnPuffParticle(void) {
     effectCreateAtPosition(&D_8071FB34, 0.55f, D1A3->unk7C, D1A3->unk80 + (u32)D1A3->unk15E * 0.5, D1A3->unk84);
 }
 
@@ -1748,7 +1748,7 @@ void effectSetMode(s32);
 extern u8 D_8071FF18;
 extern void func_80717D4C(void);
 
-void func_8072DAA4(void) {
+void behaviourSpawnDropParticle(void) {
     effectSetMode(2);
     effectSetDepth(1);
     effectSetCallback(func_80717D4C);
@@ -1763,7 +1763,7 @@ void slotQueueUpdate(s32, s32, s32);
 void sfxAllocateChannel(s32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 
-void func_8072DB68(s32 arg0) {
+void behaviourAddSlotQueueValueB(s32 arg0) {
     u8 cnt;
     s16 i;
 
@@ -1780,7 +1780,7 @@ void func_8072DB68(s32 arg0) {
     }
 }
 
-void func_8072DC7C(u8 arg0) {
+void behaviourFadeOutWithinZone(u8 arg0) {
     actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x32, 0.0f);
     E2A->unk128 -= arg0;
     if (E2A->unk128 < 0) {
@@ -1792,7 +1792,7 @@ void func_8072DC7C(u8 arg0) {
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 s32 camIsCutsceneActive(void);
 
-s32 func_8072DCF4(Actor *arg0, Actor *arg1, u16 arg2) {
+s32 actorIsTargetWithinAngleDeg(Actor *arg0, Actor *arg1, u16 arg2) {
     f32 deg = mathAngleBetweenPointsDeg((s32)arg1->x, (s32)arg1->z, (s32)arg0->x, (s32)arg0->z);
     s16 a = (f64)arg0->yaw / 4095.0 * 65536.0;
     f32 t = 360.0 - deg;
@@ -1812,8 +1812,8 @@ s32 func_8072DCF4(Actor *arg0, Actor *arg1, u16 arg2) {
     return 0;
 }
 
-s32 func_8072DE10(u16 arg0) {
-    return func_8072DCF4(gCurrentActor, gBehaviourTargetActor, arg0);
+s32 behaviourIsTargetWithinAngle(u16 arg0) {
+    return actorIsTargetWithinAngleDeg(gCurrentActor, gBehaviourTargetActor, arg0);
 }
 
 void actorSetTargetSpeed(Actor *, s32);
@@ -1840,10 +1840,10 @@ typedef struct E2D90View {
 } E2D90View;
 
 
-void func_8072DEA8(void *arg0, u8 arg1, Actor *arg2) {
+void behaviourSpawnExplosionAndSound(void *arg0, u8 arg1, Actor *arg2) {
     f32 b8;
 
-    func_8072D9D4();
+    behaviourSpawnPuffParticle();
     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CA, 0xFF, 0x7F, 0x14);
     if (arg2 != NULL) {
         if (arg2->collisionFlags & 4) {
@@ -1869,7 +1869,7 @@ void actorRollEaseZero(void) {
     E2A->unkE4 = E2A->unkE4 + (-E2A->unkE4) * 0.1;
 }
 
-u8 func_8072E0A8(s32 arg0, s16 arg1) {
+u8 behaviourIsTargetWithinRadiusAndAngle(s32 arg0, s16 arg1) {
     u8 close;
     s16 ang;
     s16 diff;
@@ -1925,6 +1925,6 @@ void func_8072E320(f32 arg0) {
     E2A->unkE8 = mathAngleEaseToward(E2A->unkE8, mathCalculatePitchAngle(E2A->unk7C, E2A->unk80, E2A->unk84, E2A->unk88, E2A->unk8C, E2A->unk90, 0x1E) * 2048.0 / 3.1415927f, 3.3f);
 }
 
-u8 func_8072E54C(void) {
+u8 behaviourCheckRandomAnimTrigger(void) {
     return !(gBehaviourAnimState->unk46 & 0x2000) && (((randomNonNegative() >> 15) % 1000) >= 0x3E4);
 }

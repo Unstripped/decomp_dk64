@@ -47,7 +47,7 @@ extern u8 D_8072073C[];
 extern s16 D_80750340;
 
 void actorScriptStart(void *, s32);
-s32 func_8072E0A8(s32, s32);
+s32 behaviourIsTargetWithinRadiusAndAngle(s32, s32);
 void behaviourFrameBegin(void);
 void actorUpdatePrevContactFlags(Actor *);
 void actorUpdateModelMatrix(void *, s32);
@@ -55,11 +55,11 @@ void effectSpawnSparks(s32, s32);
 s32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void actorPitchEaseTowardPoint(s16, s32, f32, f32, f32, s32, f32, f32, s32);
 void actorSetPitchVelocity(s16, f32, f32, f32, s32);
-void func_8072B7CC(s32);
+void behaviourUpdateContactAndState(s32);
 s32 patrolPathStep(u8, s32);
-void func_8072D714(s32, s32);
+void behaviourCalculateDamageForce(s32, s32);
 void actorSetDefaultState();
-void func_8072DC7C();
+void behaviourFadeOutWithinZone();
 void func_8072AA80(void);
 void enemyAggroStateUpdate(s32, s32, s32);
 s32 randomNonNegative(void);
@@ -90,14 +90,14 @@ f32 sqrtf(f32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 void func_8072881C();
 void actorSpawnPeriodicBoneEffect(void);
-void func_806B42A8(void (*)(), u16, u16, s16);
+void behaviourFlyPatrolWithCallback(void (*)(), u16, u16, s16);
 void actorAirPatrolStep(u8, s16, s16);
 void actorSpawnNodeEntryAtActor(s32, s32);
 void actorAttachChildCallbacks(void);
 void sfxAllocateChannel(s32, f32);
 void csModelStateSetFirstByte(s32, s32);
 void actorPlaceAttachedChildren(s32);
-void func_8072D9D4(void);
+void behaviourSpawnPuffParticle(void);
 void camStartPath(void *, s32, s32);
 void behaviourSetAnimIds(s32, s32, s32);
 void actorApplyVelocityCustom(void *, f32, f32);
@@ -109,7 +109,7 @@ void func_806B2790(void) {
 
     behaviourFrameBegin();
     if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
-        func_8072D714(gActorGlobalState.unk1FC, 0x2E1);
+        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x2E1);
         gBehaviourAnimState->unk46 |= 8;
     }
     effectSpawnSparks(0x1F, 0);
@@ -168,7 +168,7 @@ void func_806B2790(void) {
                     B7490A->unkE4 = mathAngleEaseToward(B7490A->unkE4, 0, 7.0f);
                     break;
                 case 1:
-                    func_8072DC7C(0x14);
+                    behaviourFadeOutWithinZone(0x14);
                     break;
                 case 2:
                     gCurrentActor->state = 0x40;
@@ -176,7 +176,7 @@ void func_806B2790(void) {
             }
             break;
         default:
-            func_8072B7CC(0x2DE);
+            behaviourUpdateContactAndState(0x2DE);
             break;
     }
     st = gCurrentActor->state;
@@ -207,7 +207,7 @@ typedef struct {
     /* 0x00 */ B7490Node *unk0;
 } B7490Sub4Ptr;
 
-void func_8072DEA8(s32, s32, s32, void *);
+void behaviourSpawnExplosionAndSound(s32, s32, s32, void *);
 void func_8072881C(s32, void *);
 
 void func_806B2D64(void) {
@@ -220,9 +220,9 @@ void func_806B2D64(void) {
     effectSpawnSparks(0x1F, 2);
     if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
         gBehaviourAnimState->unk46 |= 8;
-        func_8072D714(gActorGlobalState.unk1FC, 0x2E7);
+        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x2E7);
     } else if (gActorGlobalState.unk200 == 4) {
-        func_8072DEA8(0x2E5, 0x31, gActorGlobalState.unk1FC, &gActorGlobalState);
+        behaviourSpawnExplosionAndSound(0x2E5, 0x31, gActorGlobalState.unk1FC, &gActorGlobalState);
         gCurrentActor->speedXZ = 0.0f;
     }
     st = gCurrentActor->state;
@@ -297,7 +297,7 @@ void func_806B2D64(void) {
                     B7490A->unkE4 = mathAngleEaseToward(B7490A->unkE4, 0, 7.0f);
                     break;
                 case 1:
-                    func_8072DC7C(0x14);
+                    behaviourFadeOutWithinZone(0x14);
                     break;
                 case 2:
                     gCurrentActor->state = 0x40;
@@ -305,7 +305,7 @@ void func_806B2D64(void) {
             }
             break;
         default:
-            func_8072B7CC(0x2E2);
+            behaviourUpdateContactAndState(0x2E2);
             break;
     }
     st = gCurrentActor->state;
@@ -474,7 +474,7 @@ void actorSwellBurstUpdate(void) {
             actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourWorkState->targetX, (dx < (gCurrentActor->waterY - gCurrentActor->eyeHeight)) ? dx : (gCurrentActor->waterY - gCurrentActor->eyeHeight), gBehaviourWorkState->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
         default:
-            func_8072B7CC(0x32E);
+            behaviourUpdateContactAndState(0x32E);
             break;
     }
     st = gCurrentActor->state;
@@ -498,7 +498,7 @@ void projectileAimAtTargetFromActor(void) {
 void func_806B3D18(void) {
     switch (gCurrentActor->unk155[0]) {
         case 0:
-            if (func_8072E0A8(0x96, 0x96)) {
+            if (behaviourIsTargetWithinRadiusAndAngle(0x96, 0x96)) {
                 actorScriptStart(gCurrentActor, 0x253);
                 gCurrentActor->unk155[0] = 1;
             }
@@ -510,34 +510,34 @@ void func_806B3D18(void) {
     }
 }
 
-void func_806B3DA4(void) {
+void projectileSpawnWithTimer(void) {
     if (gBehaviourWorkState->timer != 0) {
         gBehaviourWorkState->timer--;
         return;
     }
-    if (func_8072E0A8(0x96, 0x96)) {
+    if (behaviourIsTargetWithinRadiusAndAngle(0x96, 0x96)) {
         projectileSpawnFromActorNode(1);
         gBehaviourWorkState->timer = D_80750340;
     }
 }
 
-void func_806B3E08(void) {
+void projectileAimAndSpawnWithTimer(void) {
     if (gBehaviourWorkState->timer != 0) {
         gBehaviourWorkState->timer--;
         if (gFrameCounter & 1) {
             projectileAimAtTargetFromActor();
         }
-    } else if (func_8072E0A8(0x96, 0x96)) {
+    } else if (behaviourIsTargetWithinRadiusAndAngle(0x96, 0x96)) {
         gBehaviourWorkState->timer = 0x14;
     }
 }
 
-void func_806B3E7C(void) {
+void behaviourCheckZoneReachAndSpawn(void) {
     if (gBehaviourWorkState->timer != 0) {
         gBehaviourWorkState->timer--;
         return;
     }
-    if (zoneCanReachPoint(gCurrentActor, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, D_807FDCA0) && func_8072E0A8(0x96, 0x96)) {
+    if (zoneCanReachPoint(gCurrentActor, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, D_807FDCA0) && behaviourIsTargetWithinRadiusAndAngle(0x96, 0x96)) {
         gCurrentActor->state = 0x26;
         gCurrentActor->unk155[0] = 0;
     }
@@ -609,7 +609,7 @@ void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 void sfxSpawnTableNodes(Actor *);
 
-void func_806B42A8(void (*callback)(), u16 animId1, u16 animId2, s16 sfxId) {
+void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2, s16 sfxId) {
     s16 *heightTarget;
     s16 targetX;
     s16 targetZ;
@@ -627,7 +627,7 @@ void func_806B42A8(void (*callback)(), u16 animId1, u16 animId2, s16 sfxId) {
     }
     st = gCurrentActor->state;
     if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (st != 0x37)) {
-        func_8072D714(gActorGlobalState.unk1FC, animId1);
+        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, animId1);
         B7490A->unkC0 = 300.0f;
         *heightTarget = 0;
         gBehaviourWorkState->timer = 0x2BC;
@@ -693,7 +693,7 @@ void func_806B42A8(void (*callback)(), u16 animId1, u16 animId2, s16 sfxId) {
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x222, 0.0f);
                     break;
                 case 3:
-                    func_8072DC7C(0xA);
+                    behaviourFadeOutWithinZone(0xA);
                     break;
                 case 4:
                     gCurrentActor->state = 0x40;
@@ -703,7 +703,7 @@ void func_806B42A8(void (*callback)(), u16 animId1, u16 animId2, s16 sfxId) {
         case 0x40:
             break;
         default:
-            func_8072B7CC(animId2);
+            behaviourUpdateContactAndState(animId2);
             break;
     }
     st = gCurrentActor->state;
@@ -721,30 +721,30 @@ void func_806B42A8(void (*callback)(), u16 animId1, u16 animId2, s16 sfxId) {
     }
 }
 
-void func_806B486C(void) {
+void behaviourFlyPatrolState(void) {
     behaviourFrameBegin();
-    func_806B42A8(func_806B3E7C, 0x251, 0x250, 0x10E);
+    behaviourFlyPatrolWithCallback(behaviourCheckZoneReachAndSpawn, 0x251, 0x250, 0x10E);
     func_8072881C(0, gBehaviourWorkState->unk28);
 }
 
-void func_806B48B8(void) {
+void behaviourFlyPatrolState2(void) {
     behaviourFrameBegin();
-    func_806B42A8(func_806B3DA4, 0x251, 0x250, 0x10E);
+    behaviourFlyPatrolWithCallback(projectileSpawnWithTimer, 0x251, 0x250, 0x10E);
     func_8072881C(0, gBehaviourWorkState->unk28);
 }
 
-void func_806B4904(void) {
+void behaviourFlyPatrolState3(void) {
     behaviourFrameBegin();
-    func_806B42A8(func_806B3D18, 0x254, 0x252, 0x108);
+    behaviourFlyPatrolWithCallback(func_806B3D18, 0x254, 0x252, 0x108);
     actorSpawnPeriodicBoneEffect();
     func_8072881C(0, gBehaviourWorkState->unk28);
 }
 
-void func_806B4958(void) {
+void behaviourFlyPatrolState4(void) {
     behaviourFrameBegin();
-    func_806B42A8(func_806B3E7C, 0x251, 0x250, 0x10E);
+    behaviourFlyPatrolWithCallback(behaviourCheckZoneReachAndSpawn, 0x251, 0x250, 0x10E);
     if (gCurrentActor->state != 0x37) {
-        func_806B3E08();
+        projectileAimAndSpawnWithTimer();
     }
 }
 
@@ -808,7 +808,7 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
         case 0x40:
             break;
         default:
-            func_8072B7CC(animId1);
+            behaviourUpdateContactAndState(animId1);
             break;
     }
     switch (action) {
@@ -825,7 +825,7 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
     }
 }
 
-void func_806B4DCC(void) {
+void behaviourEnemyBatUpdate(void) {
     f64 curScale;
     s16 *heightPtr;
     f32 origScale;
@@ -876,7 +876,7 @@ void func_806B4DCC(void) {
             gCurrentActor->interactionType = 2;
             gBehaviourWorkState->timer = 0x1E;
             gBehaviourWorkState->scale = (f32) ((f64) gBehaviourWorkState->scale * 0.7);
-            func_8072D9D4();
+            behaviourSpawnPuffParticle();
             camStartPath(gCurrentActor, 3, 5);
             if (((B7490Actor *) gCurrentActor)->unk134 & 1) {
                 actorScriptStart(gCurrentActor, 0x24A);
@@ -890,13 +890,13 @@ void func_806B4DCC(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806B50F4(void) {
+void behaviourEnemyFlyStep(void) {
     behaviourFrameBegin();
     actorAirPatrolStep(gCurrentActor->state, 0x23D, 0x23E);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806B513C(void) {
+void behaviourEnemyFlyIdle(void) {
     s32 inWaterFlag;
     s16 alphaDelta;
 
@@ -926,10 +926,10 @@ void func_806B513C(void) {
             }
         }
     }
-    func_806B42A8((gFrameCounter & 1) ? func_806B3E7C : func_806B3F3C, 0x30E, 0x30B, 0);
+    behaviourFlyPatrolWithCallback((gFrameCounter & 1) ? behaviourCheckZoneReachAndSpawn : func_806B3F3C, 0x30E, 0x30B, 0);
 }
 
-void func_806B52DC(void) {
+void behaviourEnemyFlySwoop(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->unk46 = gBehaviourAnimState->unk46 | 0x60;
@@ -959,7 +959,7 @@ void func_806B52DC(void) {
         }
         break;
     default:
-        func_8072B7CC(0x333);
+        behaviourUpdateContactAndState(0x333);
         break;
     }
     func_8072881C(0, gBehaviourWorkState->unk28);
@@ -986,7 +986,7 @@ s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 
-void func_806B54BC(void) {
+void behaviourEnemyFlyReturn(void) {
     f32 dead;
     f32 zoneX;
     f32 zoneY;
@@ -1078,7 +1078,7 @@ void func_806B54BC(void) {
             }
             break;
         default:
-            func_8072B7CC(0x32F);
+            behaviourUpdateContactAndState(0x32F);
             break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);

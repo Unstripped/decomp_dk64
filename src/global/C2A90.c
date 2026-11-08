@@ -394,11 +394,11 @@ void resQueueSetValue(s32);
 void func_80726EE0(s32);
 void func_80728950(s32);
 void currentActorAnimSetFrame(s32, s32);
-void func_8072A450(void);
+void behaviourUpdateShadowAlpha(void);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(Actor *, s32);
 s32 patrolPathStep(u8, s32);
-void func_8072DC7C(s32);
+void behaviourFadeOutWithinZone(s32);
 void volumeTriggerSetEnabled(s32, s32);
 s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
@@ -544,7 +544,7 @@ void func_806BE8BC(void) {
             break;
         case 0x37:
             if (!(LgBA->unk60 & 0x2000000)) {
-                func_8072DC7C(2);
+                behaviourFadeOutWithinZone(2);
                 if (LgBA->unk155 != 0) {
                     gGlobalOverlayFlags &= ~4;
                     LgBG->unk23F = 2;
@@ -609,7 +609,7 @@ void func_806BE8BC(void) {
     if (LgBA->unk4->unk64 == 0x301 || LgBA->unk4->unk64 == 0x302) {
         func_80724E48(0);
     }
-    func_8072A450();
+    behaviourUpdateShadowAlpha();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

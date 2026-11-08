@@ -488,7 +488,7 @@ void actorScriptStart(Actor *, s32);
 void resQueueSetValue(s32);
 s32 camIsCutsceneActive(void);
 void slotQueueSetDisplayMode(s32, s32, s32);
-void func_8072A450(void);
+void behaviourUpdateShadowAlpha(void);
 void func_806C4EB4(void);
 s32 func_80724A20(void);
 void zoneEntryGetPosition(s32, s32, f32 *, f32 *, f32 *);
@@ -573,7 +573,7 @@ void func_806C4F5C(void) {
                     }
                     break;
             }
-            func_8072A450();
+            behaviourUpdateShadowAlpha();
             break;
         case 41:
             if (LgA->unkF0 == 0) {
@@ -597,7 +597,7 @@ void func_806C4F5C(void) {
                     LgA->unk154 = 0x3C;
                 }
             }
-            func_8072A450();
+            behaviourUpdateShadowAlpha();
             break;
         case 42:
             func_80724A20();
@@ -683,7 +683,7 @@ void currentActorAnimSetFrame(s32, s32);
 void camResumePath(void);
 void slotQueueUpdate(s32, s32, s32);
 void func_806C4E8C(void);
-void func_8072DC7C(s32);
+void behaviourFadeOutWithinZone(s32);
 void actorSetPositionFromPoint(Actor *, BehaviourExtraState *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void effectSpawnSmoke(u8);
@@ -786,7 +786,7 @@ void func_806C55E0(void) {
                     }
                     break;
                 case 1:
-                    func_8072DC7C(5);
+                    behaviourFadeOutWithinZone(5);
                     break;
                 case 2:
                     LA->unk154 = 0x3C;
@@ -917,7 +917,7 @@ void effectShrinkFadeMatrixUpdate(void);
 void effectSetCallback(void (*)(void));
 void effectCreateAtPosition(void *, f32, f32, f32, f32);
 f32 sqrtf(f32);
-s32 func_8072DE10(u16);
+s32 behaviourIsTargetWithinAngle(u16);
 s32 spawnNodeIdForActor(Actor *);
 s32 spawnFlagLookup(s16, s16, s32 *);
 void flagSet(s16, s32, s32);
@@ -956,7 +956,7 @@ void func_806C5C20(void) {
                R1C8CBP->unk284;
         if (D_807FD804 >= 0x8A && D_807FD804 < 0xB1 && D_807FD806 >= 0x61 && D_807FD806 < 0x88 && dist < D_807FD802) {
             if (R1D580->unk1EC != 1) {
-                if (func_8072DE10(0x1388) != 0) {
+                if (behaviourIsTargetWithinAngle(0x1388) != 0) {
                     actorScriptStart(gCurrentActor, 0x2B6);
                 }
             }

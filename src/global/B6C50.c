@@ -167,7 +167,7 @@ extern s32 D_80720340;
 B6C50Actor *actorFindByType(s32);
 void controllerAnimSetStateIfChanged(B6C50Actor *, s16, f32, f32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
-void func_8072B7CC(s32);
+void behaviourUpdateContactAndState(s32);
 f32 sqrtf(f32);
 
 void func_806B24B8(void) {
@@ -211,7 +211,7 @@ void func_806B24B8(void) {
         }
         actorMoveWithinZone(0x23, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
     } else {
-        func_8072B7CC(0x1F8);
+        behaviourUpdateContactAndState(0x1F8);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

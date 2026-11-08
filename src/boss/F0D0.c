@@ -374,7 +374,7 @@ void actorUpdatePrevContactFlags(void *);
 void actorSetUniformScale(void *, f32);
 void actorUpdateModelMatrix(void *, s32);
 void actorApplyGravity(void);
-void func_8072A450(void);
+void behaviourUpdateShadowAlpha(void);
 void scriptSetActorRampTarget(void *, f32, f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
@@ -534,7 +534,7 @@ void bossMainStep(void) {
         }
         break;
     case 0x20:
-        func_8072A450();
+        behaviourUpdateShadowAlpha();
         switch (BF->unk155) {
         case 0:
             effectSpawnBoneDebris(4, 1);
@@ -649,7 +649,7 @@ void bossMainStep(void) {
         }
         break;
     case 0x23:
-        func_8072A450();
+        behaviourUpdateShadowAlpha();
         switch (BF->unk155) {
         case 0:
             st->unk18 = tbl[st->unk15++];

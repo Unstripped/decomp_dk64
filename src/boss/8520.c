@@ -219,7 +219,7 @@ extern void *gCamActor;
 void behaviourFrameBegin(void);
 s32 flagGet(s32, s32);
 void tagBarrelSpawnActorSmokePuffs(s32, s32);
-void func_8072D714(s32, s32);
+void behaviourCalculateDamageForce(s32, s32);
 void actorSetUniformScale(void *, f32);
 void actorSpawnLinkedFollower(void);
 void actorScriptStart(void *, s32);
@@ -232,7 +232,7 @@ s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 mathAngleEaseToward(s16, s16, s32);
 s32 spawnNodeHasActor(s32);
 s32 camIsCutsceneActive(void);
-void func_8072D9D4(void);
+void behaviourSpawnPuffParticle(void);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorPatrolFollowerUpdate(s32, s32, s32);
 void bossAnimFrameBounceStep(void);
@@ -267,7 +267,7 @@ void bossKutOutStep(void) {
         } else {
             camStartPath(gCurrentActor, 6, 1);
             A40->unkC0 = 200.0f;
-            func_8072D714(D_807FBD6C, 0x2F7);
+            behaviourCalculateDamageForce(D_807FBD6C, 0x2F7);
         }
     }
     switch (A40->unk154) {
@@ -369,7 +369,7 @@ void bossKutOutStep(void) {
             } else {
                 if (gBossFightPhase == 4) {
                     actorScriptStart(gCurrentActor, 0x2FC);
-                    func_8072D9D4();
+                    behaviourSpawnPuffParticle();
                     swayState->unk2 = 0x96;
                     swayState->unk4 = 0x800;
                     A40->unkEE = A40->unkE6;

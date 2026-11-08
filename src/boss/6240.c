@@ -341,7 +341,7 @@ void func_8072881C(s32, void *);
 void behaviourFrameBegin(void);
 void actorApplyGravity(void);
 void actorTurnTowardTarget(s32, f32, f32, s32);
-void func_8072A450(void);
+void behaviourUpdateShadowAlpha(void);
 s32 actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(void *, u8);
 s32 patrolPathStep(s32, s32);
@@ -823,7 +823,7 @@ void bossPufftossStep(void) {
     if (checkFloor != 0) {
         actorGetNodePos(gCurrentActor, gCurrentActor->unkCC, &floorCheckX, &floorCheckY, &floorCheckZ);
         collisionCheckActorFloor(gCurrentActor, floorCheckX, floorCheckY, floorCheckZ, &gCurrentActor->unkA4);
-        func_8072A450();
+        behaviourUpdateShadowAlpha();
     }
     if (camIsCutsceneActive() != 0) {
         gCurrentActor->unk144 = 1;

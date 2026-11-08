@@ -165,7 +165,7 @@ void func_80724CA4(s32, s32);
 void func_80724E48(s32);
 s32 func_8072881C(s32, void *);
 void behaviourFrameBegin(void);
-void func_8072A450(void);
+void behaviourUpdateShadowAlpha(void);
 void actorSetTargetSpeed(BossC_9C60_Actor *, s32);
 void actorTurnTowardActorYaw(s32, void *);
 
@@ -371,7 +371,7 @@ void bossKRoolDiddyStep(void) {
         bossScriptStep(scriptOpcodes, 0x10, 0.0f);
         break;
     }
-    func_8072A450();
+    behaviourUpdateShadowAlpha();
     if (func_8072881C(0, gBehaviourWorkState->unk28) != 0) {
         func_8072881C(0x81, gBehaviourWorkState->unk28);
     }

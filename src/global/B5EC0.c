@@ -88,10 +88,10 @@ void func_806B1290(void) {
 
 extern u8 gBossFightPhase;
 
-s32 func_8072DE10(s32);
+s32 behaviourIsTargetWithinAngle(s32);
 
 void func_806B1348(void) {
-    if (((B5EC0View90 *)gBehaviourWorkState)->unk18 >= 0x65 && gBossFightPhase == 2 && func_8072DE10(0x2710) != 0) {
+    if (((B5EC0View90 *)gBehaviourWorkState)->unk18 >= 0x65 && gBossFightPhase == 2 && behaviourIsTargetWithinAngle(0x2710) != 0) {
         ((B5EC0Actor *)gCurrentActor)->unk154 = 0x27;
         ((B5EC0Actor *)gCurrentActor)->unk155 = 0;
     }
@@ -103,8 +103,8 @@ extern s32 gCurrentMap;
 void behaviourFrameBegin(void);
 void behaviourSetAnimIds(s32, s32, s32);
 void func_80724CA4(s32, s32);
-void func_8072D714(s32, s32);
-void func_8072DEA8(s32, s32, s32);
+void behaviourCalculateDamageForce(s32, s32);
+void behaviourSpawnExplosionAndSound(s32, s32, s32);
 void actorSetDefaultState();
 void actorScriptStart(void *, s32);
 s32 camIsCutsceneActive(void);
@@ -113,16 +113,16 @@ s16 mathAngleEaseToward(s16, s16, f32);
 void func_80724E48();
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(Actor *, s32);
-void func_8072A450(void);
+void behaviourUpdateShadowAlpha(void);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void sfxSpawnTableNodes(Actor *);
 void actorClearNodeFlag(Actor *, s32);
-void func_8072DC7C(s32);
-s32 func_8072E54C();
+void behaviourFadeOutWithinZone(s32);
+s32 behaviourCheckRandomAnimTrigger();
 void patrolPathStep(s32, s32);
 void enemyAggroStateUpdate(s32, s32, s32);
 void actorUpdateModelMatrix(Actor *, s32);
-void func_8072B7CC();
+void behaviourUpdateContactAndState();
 
 void func_806B13B4(u8 arg0) {
     s32 v;
@@ -148,20 +148,20 @@ void func_806B13B4(u8 arg0) {
     if (sel != 0x32 || gActorGlobalState.unk15 != 0) {
         if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && sel != 0x37) {
             if (((B5EC0Actor *)gCurrentActor)->unk134 < -1) {
-                func_8072D714(gActorGlobalState.unk1FC, 0x20C);
+                behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x20C);
                 ((B5EC0Actor *)gCurrentActor)->unkC0 = 250.0f;
             } else {
-                func_8072D714(gActorGlobalState.unk1FC, 0x20B);
+                behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x20B);
                 ((B5EC0Actor *)gCurrentActor)->unkC0 = 200.0f;
             }
             ((B5EC0View90 *)gBehaviourWorkState)->unk35 = 2;
             gCurrentActor->callbackMask &= 0xFFFF7FFF;
             sel = gCurrentActor->state;
         } else if (gActorGlobalState.unk200 == 4) {
-            func_8072DEA8(0x209, 0x31, gActorGlobalState.unk1FC);
+            behaviourSpawnExplosionAndSound(0x209, 0x31, gActorGlobalState.unk1FC);
             sel = gCurrentActor->state;
         } else if (gActorGlobalState.unk200 == 5) {
-            func_8072DEA8(0x20A, 0x32, gActorGlobalState.unk1FC);
+            behaviourSpawnExplosionAndSound(0x20A, 0x32, gActorGlobalState.unk1FC);
             ((B5EC0Actor *)gCurrentActor)->unkC0 = 220.0f;
             gCurrentActor->interactionType = 8;
             sel = gCurrentActor->state;
@@ -219,7 +219,7 @@ void func_806B13B4(u8 arg0) {
             }
             break;
         case 2:
-            func_8072A450();
+            behaviourUpdateShadowAlpha();
             if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {
                 actorSetDefaultState(0x203);
             }
@@ -270,7 +270,7 @@ void func_806B13B4(u8 arg0) {
         }
         break;
     case 1:
-        if (func_8072E54C() != 0) {
+        if (behaviourCheckRandomAnimTrigger() != 0) {
             gCurrentActor->state = 0x11;
             ((B5EC0Actor *)gCurrentActor)->unk155 = 0;
         }
@@ -303,7 +303,7 @@ void func_806B13B4(u8 arg0) {
             ((B5EC0Actor *)gCurrentActor)->unk155 += 1;
         case 2:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
-            func_8072DC7C(8);
+            behaviourFadeOutWithinZone(8);
             break;
         case 3:
             ((B5EC0Actor *)gCurrentActor)->unk154 = 0x40;
@@ -313,7 +313,7 @@ void func_806B13B4(u8 arg0) {
     case 0x40:
         break;
     default:
-        func_8072B7CC(0x203);
+        behaviourUpdateContactAndState(0x203);
         break;
     }
     sel = gCurrentActor->state;

@@ -70,11 +70,11 @@ void func_8072881C(s32, void *);
 u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void actorSetTargetSpeed(Actor *, s32);
 void behaviourSetAnimIds(s32, s32, s32);
-void func_8072B7CC(s32);
-void func_8072D714();
-void func_8072DC7C(s32);
+void behaviourUpdateContactAndState(s32);
+void behaviourCalculateDamageForce();
+void behaviourFadeOutWithinZone(s32);
 void actorSetDefaultState(s32);
-void func_8072DEA8(s32, s32, s32);
+void behaviourSpawnExplosionAndSound(s32, s32, s32);
 s32 actorIsTargetWithinDistance(s32);
 void actorPatrolFollowerUpdate();
 
@@ -92,7 +92,7 @@ u16 movementFlags;
         actor = gCurrentActor;
         if (actor->state != 0x37) {
             ((B1F60Actor *)actor)->unkC0 = 200.0f;
-            func_8072D714(gActorGlobalState.unk1FC, targetId, actor);
+            behaviourCalculateDamageForce(gActorGlobalState.unk1FC, targetId, actor);
         }
     }
     if (gCurrentActor->state) {}  // FAKE: raises the actor-type expression's priority so the switch-selector copy colours v0
@@ -128,7 +128,7 @@ u16 movementFlags;
                     actorMoveWithinZone(0x37, 0.0f, 0.0f, movementFlags | 0x4200, 0.0f);
                     break;
                 case 3:
-                    func_8072DC7C(0xA);
+                    behaviourFadeOutWithinZone(0xA);
                     break;
                 case 4:
                     actor->state = 0x40;
@@ -136,7 +136,7 @@ u16 movementFlags;
             }
             break;
         default:
-            func_8072B7CC(((B1F60View98 *)gBehaviourAnimState)->unk28);
+            behaviourUpdateContactAndState(((B1F60View98 *)gBehaviourAnimState)->unk28);
             break;
     }
     switch (gCurrentActor->state) {
@@ -252,12 +252,12 @@ void func_806AD9F4(void) {
         }
     }
     if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
-        func_8072D714(gActorGlobalState.unk1FC, 0x2F7);
+        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x2F7);
         actorSetTargetSpeed(gCurrentActor, 0);
         gCurrentActor->speedXZ = -200.0f;
     } else if (gActorGlobalState.unk200 == 4) {
         gCurrentActor->interactionType = 2;
-        func_8072DEA8(0x2F6, 0x27, gActorGlobalState.unk1FC);
+        behaviourSpawnExplosionAndSound(0x2F6, 0x27, gActorGlobalState.unk1FC);
         gCurrentActor->speedXZ = gCurrentActor->speedXZ * 2;
         gBehaviourWorkState->timer = 0x1F4;
     }
@@ -356,7 +356,7 @@ void func_806ADDD8(void) {
             }
             break;
         default:
-            func_8072B7CC(0x31A);
+            behaviourUpdateContactAndState(0x31A);
             break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);

@@ -750,7 +750,7 @@ void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f
 void actorSetUniformScale(void *, f32);
 s32 func_8072881C();
 void behaviourFrameBegin();
-void func_8072A450();
+void behaviourUpdateShadowAlpha();
 s32 patrolPathStep();
 
 #define gCurrentActor ((Boss3B_Actor *)gCurrentActor)
@@ -1374,7 +1374,7 @@ void bossArmydilloStep(void) {
             sfxStopSlotSound(gCurrentActor, 1);
         }
     }
-    func_8072A450();
+    behaviourUpdateShadowAlpha();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

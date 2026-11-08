@@ -56,7 +56,7 @@ extern s32 gCamActor;
 extern BA790Actor *D_807FBD6C;
 extern u8 D_80720630;
 
-void func_8072D99C();
+void behaviourSetFloorAndState40();
 void sfxSpawnTableNodes(void *);
 void tagBarrelDespawnEffects(void);
 void func_80685210(f32, s16, s16);
@@ -70,7 +70,7 @@ void actorScriptStart(void *, s32);
 void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-void func_8072B7CC(s32);
+void behaviourUpdateContactAndState(s32);
 void actorSetNodeFlag(Actor *, s32);
 void actorClearNodeFlag(Actor *, s32);
 void camStartShakeFromPoint(s32, s32, s32, f32, f32, f32, f32, f32);
@@ -109,7 +109,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
                         gCurrentActor->state = 0x38;
                         BA790A->unk155 = 0;
                     } else {
-                        func_8072D99C();
+                        behaviourSetFloorAndState40();
                     }
                 } else {
                     gCurrentActor->state = 0x37;
@@ -119,7 +119,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             case 0xB6:
                 sfxSpawnTableNodes(gCurrentActor);
                 tagBarrelDespawnEffects();
-                func_8072D99C();
+                behaviourSetFloorAndState40();
                 break;
             }
         }
@@ -184,7 +184,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             break;
         case 2:
             tagBarrelSpawnActorSmokePuffs(0, 1);
-            func_8072D99C();
+            behaviourSetFloorAndState40();
             break;
         }
         break;
@@ -206,7 +206,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             if (t != 0) {
                 billboardSubmit(gCurrentActor, 0x3C3, 0x40, 0x40, q, q, 1, 0x96, t, 0, 1.0f);
             } else {
-                func_8072D99C();
+                behaviourSetFloorAndState40();
             }
             sel = BA790A->unk155;
             if (sel >= 0x17) {
@@ -263,7 +263,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         }
         break;
     default:
-        func_8072B7CC(0x24E);
+        behaviourUpdateContactAndState(0x24E);
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);

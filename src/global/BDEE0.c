@@ -82,19 +82,19 @@ extern f32 D_80770BC0[];
 void behaviourSetAnimIds(s32, s32, s32);
 void func_80724CA4(s32, s32);
 void actorClearNodeFlag(void *, s32);
-void func_8072D714(s32, s32);
-void func_8072DEA8();
+void behaviourCalculateDamageForce(s32, s32);
+void behaviourSpawnExplosionAndSound();
 void actorSetDefaultState();
 void actorSetTargetSpeed(Actor *, s32);
 void actorScriptStart(void *, s32);
 s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
-void func_8072A450();
+void behaviourUpdateShadowAlpha();
 s32 randomNonNegative(void);
 void actorUpdateAnimSpeedFromSpeed();
-s32 func_8072E54C();
-s32 func_8072DE10(u16);
-void func_8072DC7C(s32);
-void func_8072B7CC();
+s32 behaviourCheckRandomAnimTrigger();
+s32 behaviourIsTargetWithinAngle(u16);
+void behaviourFadeOutWithinZone(s32);
+void behaviourUpdateContactAndState();
 void behaviourFrameBegin(void);
 void enemyAggroStateUpdate(s32, s32, s32);
 void patrolPathStep(u32, s32);
@@ -117,12 +117,12 @@ void func_806B91E0(void) {
     }
     if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
         gBehaviourWorkState->timer = 0x1388;
-        func_8072D714(gActorGlobalState.unk1FC, 0x327);
+        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x327);
         gCurrentActor->callbackMask &= 0xFFFF7FFF;
     } else if (gActorGlobalState.unk200 == 4) {
-        func_8072DEA8(0x325, 0x31, gActorGlobalState.unk1FC);
+        behaviourSpawnExplosionAndSound(0x325, 0x31, gActorGlobalState.unk1FC);
     } else if (gActorGlobalState.unk200 == 5) {
-        func_8072DEA8(0x326, 0x31, gActorGlobalState.unk1FC);
+        behaviourSpawnExplosionAndSound(0x326, 0x31, gActorGlobalState.unk1FC);
     }
     switch (gCurrentActor->state) {
     case 0x18:
@@ -171,7 +171,7 @@ void func_806B91E0(void) {
             }
             break;
         case 2:
-            func_8072A450();
+            behaviourUpdateShadowAlpha();
             if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {
                 actorSetDefaultState(0x322);
             }
@@ -199,13 +199,13 @@ void func_806B91E0(void) {
         }
         break;
     case 1:
-        if (func_8072E54C() != 0) {
+        if (behaviourCheckRandomAnimTrigger() != 0) {
             gCurrentActor->state = 0x11;
             gCurrentActor->unk155[0] = 0;
         }
     case 0x23:
         if (gActorGlobalState.unk200 == 2) {
-            if (func_8072DE10(0x2710) != 0) {
+            if (behaviourIsTargetWithinAngle(0x2710) != 0) {
                 gCurrentActor->state = 0x27;
                 gCurrentActor->unk155[0] = 0;
             }
@@ -255,7 +255,7 @@ void func_806B91E0(void) {
             gCurrentActor->unk155[0]++;
         case 2:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x200, 0.0f);
-            func_8072DC7C(8);
+            behaviourFadeOutWithinZone(8);
             break;
         case 3:
             gCurrentActor->state = 0x40;
@@ -265,7 +265,7 @@ void func_806B91E0(void) {
     case 0x40:
         break;
     default:
-        func_8072B7CC(0x322);
+        behaviourUpdateContactAndState(0x322);
         break;
     }
     if (gCurrentActor->speedXZ != 0.0f) {
@@ -413,7 +413,7 @@ extern u8 D_8071FB34[];
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 s32 playerStateQueueCallback(s32, void *, s32);
-s32 func_8072DCF4(void *, void *, s32);
+s32 actorIsTargetWithinAngleDeg(void *, void *, s32);
 
 s32 func_806BA240(u8 action, s16 animId) {
     s16 *p;
@@ -456,7 +456,7 @@ s32 func_806BA240(u8 action, s16 animId) {
             BDEE0AA->unkF0 = BDEE0AA->unkF0 - 1;
         }
         if (tgt->unk155[0] != 0) {
-            if (tgt->unk155[0] == 1 && gBossFightPhase == 2 && func_8072DCF4(tgt, gPrimaryPlayerActor, 0x1F40) != 0) {
+            if (tgt->unk155[0] == 1 && gBossFightPhase == 2 && actorIsTargetWithinAngleDeg(tgt, gPrimaryPlayerActor, 0x1F40) != 0) {
                 if (gPlayerSlots->unk2C0 == 1) {
                     playerStateQueueCallback(0x32, gCurrentActor, 0);
                 } else {
@@ -514,7 +514,7 @@ s32 func_806BA240(u8 action, s16 animId) {
     return 0;
 }
 
-void func_8072B7CC(s32);
+void behaviourUpdateContactAndState(s32);
 
 void func_806BA76C(f32 speedMultiplier) {
     s16 *p;
@@ -550,7 +550,7 @@ void func_806BA76C(f32 speedMultiplier) {
         case 0x37:
             switch (gCurrentActor->unk155[0]) {
                 case 2:
-                    func_8072DC7C(10);
+                    behaviourFadeOutWithinZone(10);
                     break;
                 case 3:
                     gCurrentActor->state = 0x40;
@@ -561,7 +561,7 @@ void func_806BA76C(f32 speedMultiplier) {
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x12, 0.0f);
             break;
         default:
-            func_8072B7CC(0);
+            behaviourUpdateContactAndState(0);
             break;
     }
 }
@@ -634,7 +634,7 @@ u8 pivotZ;
     {
         if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CA, 0xFF, 0x7F, 0x32);
-            func_8072D714(gActorGlobalState.unk1FC, 0);
+            behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0);
             gBehaviourWorkState->timer = 0xA6;
             s1->unk4 = 0x32;
         }

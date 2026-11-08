@@ -81,10 +81,10 @@ void csSendActorMessagePayload();
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 s32 func_8072881C(s32, void *);
 void behaviourFrameBegin(void);
-void func_8072A450(void);
+void behaviourUpdateShadowAlpha(void);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(Boss2F_9230_Actor *, s32);
-void func_8072DEA8(s32, s32, void *);
+void behaviourSpawnExplosionAndSound(s32, s32, void *);
 void actorTurnTowardActorYaw(s32, void *);
 
 void bossKRoolDkStep(void) {
@@ -140,7 +140,7 @@ void bossKRoolDkStep(void) {
                 gCurrentActor->unk154 = 0x37;
                 gCurrentActor->unk155 = 0;
             } else {
-                func_8072DEA8(0x3EE, 0x31, gPrimaryPlayerActor);
+                behaviourSpawnExplosionAndSound(0x3EE, 0x31, gPrimaryPlayerActor);
                 camStartPath(gCurrentActor, 1, 1);
                 gCurrentActor->unkB8 *= 0.7;
             }
@@ -285,7 +285,7 @@ void bossKRoolDkStep(void) {
         bossScriptStep(scriptOpcodes, 0x10, 0.0f);
         break;
     }
-    func_8072A450();
+    behaviourUpdateShadowAlpha();
     if (func_8072881C(0, gBehaviourWorkState->unk28) != 0) {
         func_8072881C(0x81, gBehaviourWorkState->unk28);
     }

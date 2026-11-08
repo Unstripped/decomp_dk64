@@ -517,7 +517,7 @@ s32 flagGet(s32, s32);
 void playerStateQueueCallback(s32, void *, u8);
 void playerWaypointPathStartPacked(void *, void *, s32, s32);
 void actorClearNodeFlag(void *, s32);
-void func_8072DB68(s32);
+void behaviourAddSlotQueueValueB(s32);
 void slotQueueUpdate(s32, s32, s32);
 void slotQueueCancel(s32, s32);
 f32 raceGetHandicapSpeedBonus(void *);
@@ -559,7 +559,7 @@ void raceVehicleBehaviorUpdate(void) {
     }
     if (gBossFightPhase == 5 && pathState->unk39 == 0) {
         if (s1->unk34 == 2) {
-            func_8072DB68(3);
+            behaviourAddSlotQueueValueB(3);
         }
         pathState->unk39 = 0x1E;
     }
