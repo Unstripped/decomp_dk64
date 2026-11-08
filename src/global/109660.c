@@ -242,7 +242,7 @@ void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
     adjPitch = (s16)(s32)((f64)elevationAngle - (8.0 * (f64)((PlayerViewCamRoll *)gPlayerSlots)->unk2CA));
     if (colorMode != 0) {
         if (colorMode == 1) {
-            lightGetColor(&lightR, &lightG, &lightB, *(s16 *)D_807FBB4C->unk12C);
+            lightGetColor(&lightR, &lightG, &lightB, D_807FBB4C->chunkIndex);
             if ((f64)lightR > 0.5) {
                 lensFlareAddSource((f32)cosAngle, (f32)adjPitch, (f32)sinAngle, 0.0f, 0.0f, 0.0f, 0.0f, (u32)(lightR * 255.0f), (u32)(lightG * 255.0f), (u32)(lightB * 255.0f));
             }
@@ -269,7 +269,7 @@ Gfx *gfxDrawSkySprite(Gfx *dl, s16 azimuthAngle, s16 elevationAngle, u8 mode) {
 
     alpha = 0xFF;
     if (mode == 1) {
-        lightGetColor(&lightR, &lightG, &lightB, *(s16 *)D_807FBB4C->unk12C);
+        lightGetColor(&lightR, &lightG, &lightB, D_807FBB4C->chunkIndex);
         lightR = (f32)(1.0 < ((1.0 - (f64)lightG) / 0.7) ? 1.0 : ((1.0 - (f64)lightG) / 0.7));
         alpha = (u32)((f64)lightR * 255.0);
     } else if (mode == 2) {
@@ -672,7 +672,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *bgTex, void *rotAngle, void *mtx, s32 p
         break;
     case 0x1E:
         if (((PLAYER_VIEW_MODE != 7) && (PLAYER_VIEW_MODE != 6) && (PLAYER_VIEW_MODE != 8) && (PLAYER_VIEW_MODE != 0)) || (D_807FD800 != 0)) {
-            dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 0, 0, ((*(s16 *)D_807FBB4C->unk12C == 9) || (*(s16 *)D_807FBB4C->unk12C == 0xB) || (*(s16 *)D_807FBB4C->unk12C == 3)) ? 1 : 0, 9, 0.0f);
+            dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 0, 0, ((D_807FBB4C->chunkIndex == 9) || (D_807FBB4C->chunkIndex == 0xB) || (D_807FBB4C->chunkIndex == 3)) ? 1 : 0, 9, 0.0f);
         }
         break;
     case 0x27:

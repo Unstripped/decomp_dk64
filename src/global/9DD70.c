@@ -732,7 +732,7 @@ void actorSpotLightUpdate(void) {
                 lightSetFovAngles(((SpotLightConfig *)gCurrentActor->unk124)->unk10, ((SpotLightConfig *)gCurrentActor->unk124)->unk14);
             }
             lightSetFlags(2);
-            lightSetTargetId(*(s16 *)gCurrentActor->unk12C);
+            lightSetTargetId(gCurrentActor->chunkIndex);
             actorGetNodePos(gCurrentActor, 2, &targetPos[0], &targetPos[1], &targetPos[2]);
             lightAdd((f32)((f64)gCurrentActor->x + 0.3), gCurrentActor->y, gCurrentActor->z, targetPos[0], targetPos[1], targetPos[2], 0.0f, 1, red, green, blue);
         }
@@ -1206,7 +1206,7 @@ void textMarkerUpdateMatrix(void) {
             (u32)(D_8076A068 - markerView->unk0) >= 0x5B) {
             stateActive = 1;
         }
-        if (stateActive != 0 || (gCurrentActor->unkFC != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0)) {
+        if (stateActive != 0 || (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0)) {
             gCurrentActor->state = 4;
         }
         gCurrentActor->unk68 &= 0xFFFE;
@@ -1411,8 +1411,8 @@ void actorUpdateTimerBarAndRange(void) {
             frac = 0.0f;
         }
         val = (u32)(80.0f * frac);
-        gCurrentActor->unk12C[4] = val;
-        gCurrentActor->unk12C[5] = val;
+        gCurrentActor->unk130 = val;
+        gCurrentActor->unk131 = val;
         gCurrentActor->unk12A = 0x2BC;
     }
     /* dz is computed before dx into a temp: this is what makes IDO emit the
@@ -1432,8 +1432,8 @@ void actorUpdateTimerBarAndRange(void) {
 
 void actorSpawnEffectAndTick(void) {
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk12C[4] = 0x3C;
-        gCurrentActor->unk12C[5] = 0x3C;
+        gCurrentActor->unk130 = 0x3C;
+        gCurrentActor->unk131 = 0x3C;
         actorListSpawnNodeEntryDefault(0x83, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z,
                       0, 1.0f, (s32)gCurrentActor);
     }

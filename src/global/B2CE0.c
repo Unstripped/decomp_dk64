@@ -359,7 +359,7 @@ void func_806AE588(void) {
     case 7:
     case 0x35:
         func_80724E48((sw == 0x35) ? 2 : 3);
-        actorMoveWithinZone(gCurrentActor->unk154, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0, 0.0f);
+        actorMoveWithinZone(gCurrentActor->unk154, (f32)D_807FDC90->targetX, (f32)D_807FDC90->targetZ, 0, 0.0f);
         break;
     case 0x37:
         gCurrentActor->unkE6 = mathAngleEaseToward(gCurrentActor->unkE6, gCurrentActor->unkEE, 7.0f);
@@ -427,7 +427,7 @@ void func_806AEE84(void) {
     if (gCurrentActor->unk154 != 0x32 || D_807FBB70.unk15 != 0) {
         if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && gCurrentActor->unk154 != 0x37) {
             func_8072D714(D_807FBB70.unk1FC, 0x2AE);
-            D_807FDC90->unk2C = 0x1C2;
+            D_807FDC90->timer = 0x1C2;
         } else if (D_807FBB70.unk200 == 4) {
             func_8072DEA8(0x2B2, 0x31, D_807FBB70.unk1FC, &D_807FBB70);
             gCurrentActor->unkB8 = 0.0f;
@@ -521,13 +521,13 @@ void func_806AEE84(void) {
         case 7:
         case 0x35:
             func_80724E48(gCurrentActor->unk154 == 0x35 ? 2 : 3);
-            actorMoveWithinZone(gCurrentActor->unk154, D_807FDC90->unkA, D_807FDC90->unkE, 0, 0.0f);
+            actorMoveWithinZone(gCurrentActor->unk154, D_807FDC90->targetX, D_807FDC90->targetZ, 0, 0.0f);
             break;
         case 0x37:
             switch (gCurrentActor->unk155) {
                 case 0:
-                    gCurrentActor->unkE6 += D_807FDC90->unk2C;
-                    D_807FDC90->unk2C = D_807FDC90->unk2C * 0.95;
+                    gCurrentActor->unkE6 += D_807FDC90->timer;
+                    D_807FDC90->timer = D_807FDC90->timer * 0.95;
                     break;
                 case 1:
                     sfxSpawnTableNodes(gCurrentActor);
@@ -612,7 +612,7 @@ void func_806AF688(void) {
         case 7:
         case 0x35:
             func_80724E48(gCurrentActor->unk154 == 0x35 ? 2 : 3);
-            actorMoveWithinZone(gCurrentActor->unk154, D_807FDC90->unkA, D_807FDC90->unkE, 0, 0.0f);
+            actorMoveWithinZone(gCurrentActor->unk154, D_807FDC90->targetX, D_807FDC90->targetZ, 0, 0.0f);
             break;
         case 0x37:
             gCurrentActor->unk154 = 0x40;
@@ -763,7 +763,7 @@ void func_806AFB58(void) {
     case 7:
     case 0x35:
         func_80724E48((sel == 0x35) ? 2 : 3);
-        actorMoveWithinZone(gCurrentActor->unk154, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0, 0.0f);
+        actorMoveWithinZone(gCurrentActor->unk154, (f32)D_807FDC90->targetX, (f32)D_807FDC90->targetZ, 0, 0.0f);
         break;
     case 0x37:
         gCurrentActor->unkE6 = mathAngleEaseToward(gCurrentActor->unkE6, gCurrentActor->unkEE, 7.0f);
@@ -1072,7 +1072,7 @@ void func_806B0848(void) {
         case 3:
         case 7:
         case 0x35:
-            actorMoveWithinZone(gCurrentActor->unk154, D_807FDC90->unkA, D_807FDC90->unkE, 0, 0.0f);
+            actorMoveWithinZone(gCurrentActor->unk154, D_807FDC90->targetX, D_807FDC90->targetZ, 0, 0.0f);
             break;
         default:
             func_8072B7CC(0x2D7);

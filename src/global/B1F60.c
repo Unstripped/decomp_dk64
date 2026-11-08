@@ -108,7 +108,7 @@ u16 movementFlags;
         case 3:
         case 7:
         case 0x35:
-            actorMoveWithinZone(gCurrentActor->state, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, movementFlags, 0.0f);
+            actorMoveWithinZone(gCurrentActor->state, (f32)D_807FDC90->targetX, (f32)D_807FDC90->targetZ, movementFlags, 0.0f);
             break;
         case 0x37:
             switch (((B1F60Actor *)actor)->unk155) {
@@ -259,7 +259,7 @@ void func_806AD9F4(void) {
         gCurrentActor->unk132 = 2;
         func_8072DEA8(0x2F6, 0x27, D_807FBB70.unk1FC);
         gCurrentActor->speedXZ = gCurrentActor->speedXZ * 2;
-        D_807FDC90->unk2C = 0x1F4;
+        D_807FDC90->timer = 0x1F4;
     }
     switch (gCurrentActor->state) {
         case 0x1E:
@@ -270,14 +270,14 @@ void func_806AD9F4(void) {
             break;
         case 0x27:
             actorMoveWithinZone(0, D_807FDC94->x, D_807FDC94->z, 0x4300, 0.0f);
-            gCurrentActor->yaw += D_807FDC90->unk2C;
-            if (D_807FDC90->unk2C >= 0x15) {
-                D_807FDC90->unk2C -= 0x14;
+            gCurrentActor->yaw += D_807FDC90->timer;
+            if (D_807FDC90->timer >= 0x15) {
+                D_807FDC90->timer -= 0x14;
             } else {
-                D_807FDC90->unk2C = 0;
+                D_807FDC90->timer = 0;
                 B1F60A->unkEE = gCurrentActor->yaw;
             }
-            if (B1F60A->unk155 != 0 && D_807FDC90->unk2C == 0) {
+            if (B1F60A->unk155 != 0 && D_807FDC90->timer == 0) {
                 gCurrentActor->unk132 = 1;
                 actorSetDefaultState(0x2F4);
             }

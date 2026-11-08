@@ -205,7 +205,7 @@ void func_806C6BC8(void) {
         gCurrentActor->flags &= ~0x8000;
         R1V->unk154 = 0x27;
         R1V->unk155 = 0;
-        D_807FDC90->unk30 = gCurrentActor->unk4->unk38;
+        D_807FDC90->scale = gCurrentActor->unk4->unk38;
         R1S->unk2E = 0x96;
         D_807FDC98->unk46 |= 0x60;
         hudSpawnCountdownTimer(0xDC, 0x2A, 0x64);
@@ -277,7 +277,7 @@ void func_806C6BC8(void) {
                             actorDespawn((Actor *)R1V->unk11C);
                             R1V->unk155 = 1;
                         }
-                        func_8072A920(2, 0, D_807FDC90->unkA, D_807FDC90->unkC, D_807FDC90->unkE, 0x46, 30.0f, 100.0f, 0x200);
+                        func_8072A920(2, 0, D_807FDC90->targetX, D_807FDC90->targetY, D_807FDC90->targetZ, 0x46, 30.0f, 100.0f, 0x200);
                         patrolPathStep(2, 0);
                         break;
                     case 1:

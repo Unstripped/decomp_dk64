@@ -1052,8 +1052,8 @@ void func_806C1E44(void) {
         animSetFinished(gCurrentActor, 0, 1);
         switch (gCurrentMap) {
             case 0x14:
-                gCurrentActor->unk12C[4] = 0xFF;
-                gCurrentActor->unk12C[5] = 0xFF;
+                gCurrentActor->unk130 = 0xFF;
+                gCurrentActor->unk131 = 0xFF;
                 if (flagGet(0x4C, 0) == 0) {
                     animSetFrameAndSubframe(gCurrentActor, 0, 1, 0);
                     actorScriptStart(gCurrentActor, 0x2BD);
@@ -1077,13 +1077,13 @@ void func_806C1E44(void) {
             func_80724A20();
             switch (gCurrentActor->unk155[0]) {
                 case 1:
-                    D_807FDC90->unk2C = 3;
+                    D_807FDC90->timer = 3;
                     gCurrentActor->unk155[0] = 2;
                 case 2:
                     if (!(gFrameCounter & 7)) {
-                        if (D_807FDC90->unk2C != 0) {
-                            D_807FDC90->unk2C--;
-                            if (D_807FDC90->unk2C == 0) {
+                        if (D_807FDC90->timer != 0) {
+                            D_807FDC90->timer--;
+                            if (D_807FDC90->timer == 0) {
                                 gCurrentActor->unk155[0] = 0;
                             }
                             func_80714998(2);
@@ -1134,7 +1134,7 @@ void func_806C1E44(void) {
                     gCurrentActor->unk155[0] = 1;
                     break;
                 case 2:
-                    actorMoveWithinZone(2, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0, 0.0f);
+                    actorMoveWithinZone(2, (f32)D_807FDC90->targetX, (f32)D_807FDC90->targetZ, 0, 0.0f);
                     patrolPathStep(2, 0);
                     break;
             }
@@ -1205,7 +1205,7 @@ void func_806C226C(void) {
     switch (gCurrentActor->state) {
         case 0x27:
             if (gCurrentActor->unk6A & 4) {
-                func_8072A920(2, 0, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkC, (f32)D_807FDC90->unkE, 0x46, 30.0f, 100.0f, 0);
+                func_8072A920(2, 0, (f32)D_807FDC90->targetX, (f32)D_807FDC90->targetY, (f32)D_807FDC90->targetZ, 0x46, 30.0f, 100.0f, 0);
                 if (((randomNonNegative() >> 15) % 1000) >= 0x3A3) {
                     func_8071498C(effectWobbleRiseUpdate);
                     func_807149B8(1);
@@ -1216,7 +1216,7 @@ void func_806C226C(void) {
                 if ((gCurrentActor->unk6A ^ gCurrentActor->unk6C) & 1) {
                     actorScriptStart(gCurrentActor, 0x2A4);
                 }
-                actorMoveWithinZone(2, (f32)D_807FDC90->unkA, (f32)D_807FDC90->unkE, 0x200, 0.0f);
+                actorMoveWithinZone(2, (f32)D_807FDC90->targetX, (f32)D_807FDC90->targetZ, 0x200, 0.0f);
                 if (((R1C46bActor *)gCurrentActor)->unkC0 < -10.0f) {
                     ((R1C46bActor *)gCurrentActor)->unkE8 = mathAngleEaseToward(((R1C46bActor *)gCurrentActor)->unkE8, 0x400, 10.0f);
                 }

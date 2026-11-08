@@ -39,7 +39,7 @@ u8 func_806BDD90(void) {
             R1C2CBA->unk131 = 0x3C;
             R1C2CBA->unk12A = 0x3E8;
             func_80724CA4(2, 1);
-            D_807FDC90->unk30 = gCurrentActor->unk4->unk38;
+            D_807FDC90->scale = gCurrentActor->unk4->unk38;
             R1C2CBA->unkC4 = (f64)R1C2CBA->unkC4 / 1.5;
         }
     }
@@ -84,21 +84,21 @@ void func_806BDEC8(void) {
             R1C2CBC0->unkC0 = 150.0f;
             actorScriptStart(gCurrentActor, 0x28E);
             camSetTargetCutscene(sub->unk104, gCurrentActor, 4, 0xE77, 0xFA, 2, 0x32, 0x20, 0x3F, 0x4A, 0.16f);
-            D_807FDC90->unk2C = 0x32;
+            D_807FDC90->timer = 0x32;
             gCurrentActor->unk155[0]++;
             break;
         case 2:
-            if (D_807FDC90->unk2C != 0) {
-                D_807FDC90->unk2C--;
+            if (D_807FDC90->timer != 0) {
+                D_807FDC90->timer--;
             } else {
                 actorScriptStart(gCurrentActor, 0x28F);
                 gCurrentActor->unk155[0]++;
-                D_807FDC90->unk2C = 0x78;
+                D_807FDC90->timer = 0x78;
             }
             break;
         case 3:
-            if (D_807FDC90->unk2C != 0) {
-                D_807FDC90->unk2C--;
+            if (D_807FDC90->timer != 0) {
+                D_807FDC90->timer--;
             } else if (mapHasCollectedSufficientItems() == 0) {
                 gCurrentActor->state = 0;
                 gCurrentActor->unk155[0] = 0;
@@ -180,7 +180,7 @@ void func_806BE09C(void) {
     if (ratio > 1.0f) {
         ratio = 1.0f;
     }
-    target = D_807FDC90->unk30 + (0.44 - D_807FDC90->unk30) * ratio;
+    target = D_807FDC90->scale + (0.44 - D_807FDC90->scale) * ratio;
     if (!(gCurrentActor->flags & 0x10)) {
         actorSetUniformScale(gCurrentActor, target);
     }
