@@ -228,10 +228,10 @@ s32 actorSpawn(s32, s32);
 void actorScriptStart();
 void scriptSetActorRampTarget(void *, f32, f32);
 
-Gfx *bonusRenderCrosshair(Gfx *gdl, Actor *arg1) {
-    Struct_7548 *temp_v0 = arg1->unk174;
-    s16 sp6A = temp_v0->unk1E;
-    s16 sp68 = temp_v0->unk20;
+Gfx *bonusRenderCrosshair(Gfx *gdl, Actor *actor) {
+    Struct_7548 *bonusExt = actor->unk174;
+    s16 crosshairX = bonusExt->unk1E;
+    s16 crosshairY = bonusExt->unk20;
     s32 pad;
 
     gDPPipeSync(gdl++);
@@ -239,10 +239,10 @@ Gfx *bonusRenderCrosshair(Gfx *gdl, Actor *arg1) {
     gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
     gSPDisplayList(gdl++, D_1000118);
     gSPMatrix(gdl++, D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-    gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A - 0x34, sp68 - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
-    gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A + 0x34, sp68 - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
-    gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A + 0x34, sp68 + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
-    gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp6A - 0x34, sp68 + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
+    gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, crosshairX - 0x34, crosshairY - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
+    gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, crosshairX + 0x34, crosshairY - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
+    gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, crosshairX + 0x34, crosshairY + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
+    gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, crosshairX - 0x34, crosshairY + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
     return gdl;
 }
 
@@ -254,19 +254,19 @@ typedef struct {
     u8 unk24;
     u8 unk25;
 } BonusA_6940_178;
-Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *arg1) {
-    Struct_7548 *temp_s1 = arg1->unk174;
-    BonusA_6940_178 *temp_t0 = ((BonusActorExt *)arg1)->unk178;
+Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *actor) {
+    Struct_7548 *bonusExt = actor->unk174;
+    BonusA_6940_178 *targetExt = ((BonusActorExt *)actor)->unk178;
     s32 pad1[4];
-    s32 sp64;
+    s32 textStr;
     s32 pad2[6];
-    s32 sp48;
+    s32 textX;
     s32 pad3[4];
-    s32 sp34;
+    s32 textX2;
 
-    if (arg1->state == 0) {
-        if (temp_s1->unk26 != 0) {
-            gdl = bonusRenderCrosshair(gdl, arg1);
+    if (actor->state == 0) {
+        if (bonusExt->unk26 != 0) {
+            gdl = bonusRenderCrosshair(gdl, actor);
         }
     }
     gSPDisplayList(gdl++, D_1000118);
@@ -275,29 +275,29 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *arg1) {
     gDPSetCombineMode(gdl++, G_CC_MODULATEIDECALA_PRIM, G_CC_MODULATEIDECALA_PRIM);
     gDPSetRenderMode(gdl++, G_RM_TEX_EDGE, G_RM_TEX_EDGE2);
     gSPMatrix(gdl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    if (arg1->state != 1) {
-        gdl = hudDrawRollingCounter(textDrawAnimated(gdl, temp_t0->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &temp_t0->unk20, temp_t0->unk22, &temp_t0->unk24);
+    if (actor->state != 1) {
+        gdl = hudDrawRollingCounter(textDrawAnimated(gdl, targetExt->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &targetExt->unk20, targetExt->unk22, &targetExt->unk24);
     }
-    if (temp_s1->unk25 != 0) {
-        sp48 = D_80744490 >> 1;
-        sp64 = textTableGetString(0x1A, 6, 1);
+    if (bonusExt->unk25 != 0) {
+        textX = D_80744490 >> 1;
+        textStr = textTableGetString(0x1A, 6, 1);
         gDPPipeSync(gdl++);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s1->unk25);
+        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->unk25);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
-        sp48 -= textGetStringWidth(1, sp64) >> 1;
-        gdl = textDrawStringVtx(gdl, 1, sp48 << 2, (D_80744494 - textGetFontHeight(1)) * 2, sp64, 1);
-        temp_s1->unk25 -= (temp_s1->unk25 < 8) ? temp_s1->unk25 : 8;
+        textX -= textGetStringWidth(1, textStr) >> 1;
+        gdl = textDrawStringVtx(gdl, 1, textX << 2, (D_80744494 - textGetFontHeight(1)) * 2, textStr, 1);
+        bonusExt->unk25 -= (bonusExt->unk25 < 8) ? bonusExt->unk25 : 8;
     }
-    if (temp_s1->unk24 != 0) {
-        sp34 = D_80744490 >> 1;
-        sp64 = textTableGetString(0x1A, 8, 1);
+    if (bonusExt->unk24 != 0) {
+        textX2 = D_80744490 >> 1;
+        textStr = textTableGetString(0x1A, 8, 1);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s1->unk24);
+        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->unk24);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
-        sp34 -= textGetStringWidth(1, sp64) >> 1;
-        gdl = textDrawStringVtx(gdl, 1, sp34 << 2, (textGetFontHeight(1) + D_80744494) * 2, sp64, 1);
-        temp_s1->unk24 -= (temp_s1->unk24 < 8) ? temp_s1->unk24 : 8;
+        textX2 -= textGetStringWidth(1, textStr) >> 1;
+        gdl = textDrawStringVtx(gdl, 1, textX2 << 2, (textGetFontHeight(1) + D_80744494) * 2, textStr, 1);
+        bonusExt->unk24 -= (bonusExt->unk24 < 8) ? bonusExt->unk24 : 8;
     }
     return gdl;
 }
@@ -330,55 +330,55 @@ typedef struct {
 s32 gfxResourceCreate(s32, s32, s32, f32, f32, f32);
 void gfxResourceFree(s16);
 
-Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *arg1) {
-    Struct_7548 *temp_s2 = arg1->unk174;
-    BonusA_CF0_List *temp_list = ((BonusActorExt *)arg1)->unk178;
-    s32 var_s5 = 0;
-    s32 var_s1;
-    s32 var_s3;
+Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *actor) {
+    Struct_7548 *bonusExt = actor->unk174;
+    BonusA_CF0_List *popupList = ((BonusActorExt *)actor)->unk178;
+    s32 hasSetupGfx = 0;
+    s32 textX;
+    s32 textStr;
     s32 i;
-    BonusA_CF0_S1 *temp_s1;
-    BonusA_CF0_Inner *temp_inner;
-    BonusA_CF0_Actor *temp_v0;
-    BonusA_CF0_Link *temp_v1;
+    BonusA_CF0_S1 *targetActor;
+    BonusA_CF0_Inner *targetInner;
+    BonusA_CF0_Actor *popupActor;
+    BonusA_CF0_Link *popupLink;
 
-    if (arg1->state == 0) {
-        if (temp_s2->unk26 != 0) {
-            gdl = bonusRenderCrosshair(gdl, arg1);
+    if (actor->state == 0) {
+        if (bonusExt->unk26 != 0) {
+            gdl = bonusRenderCrosshair(gdl, actor);
         }
     }
-    if (temp_s2->unk25 != 0) {
-        var_s1 = D_80744490 >> 1;
-        var_s3 = textTableGetString(0x1A, 6, 1);
+    if (bonusExt->unk25 != 0) {
+        textX = D_80744490 >> 1;
+        textStr = textTableGetString(0x1A, 6, 1);
         gDPPipeSync(gdl++);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s2->unk25);
+        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->unk25);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
-        var_s1 -= textGetStringWidth(1, var_s3) >> 1;
-        gdl = textDrawStringVtx(gdl, 1, var_s1 << 2, (D_80744494 - textGetFontHeight(1)) * 2, var_s3, 1);
-        temp_s2->unk25 -= (temp_s2->unk25 < 8) ? temp_s2->unk25 : 8;
+        textX -= textGetStringWidth(1, textStr) >> 1;
+        gdl = textDrawStringVtx(gdl, 1, textX << 2, (D_80744494 - textGetFontHeight(1)) * 2, textStr, 1);
+        bonusExt->unk25 -= (bonusExt->unk25 < 8) ? bonusExt->unk25 : 8;
     }
-    if (temp_s2->unk24 != 0) {
-        var_s1 = D_80744490 >> 1;
-        var_s3 = textTableGetString(0x1A, 7, 1);
+    if (bonusExt->unk24 != 0) {
+        textX = D_80744490 >> 1;
+        textStr = textTableGetString(0x1A, 7, 1);
         gDPPipeSync(gdl++);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, temp_s2->unk24);
+        gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->unk24);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
-        var_s1 -= textGetStringWidth(1, var_s3) >> 1;
-        gdl = textDrawStringVtx(gdl, 1, var_s1 << 2, (textGetFontHeight(1) + D_80744494) * 2, var_s3, 1);
-        temp_s2->unk24 -= (temp_s2->unk24 < 8) ? temp_s2->unk24 : 8;
+        textX -= textGetStringWidth(1, textStr) >> 1;
+        gdl = textDrawStringVtx(gdl, 1, textX << 2, (textGetFontHeight(1) + D_80744494) * 2, textStr, 1);
+        bonusExt->unk24 -= (bonusExt->unk24 < 8) ? bonusExt->unk24 : 8;
     }
     for (i = 0; i < 6; i++) {
-        temp_v0 = temp_list->unk0[i];
-        temp_v1 = temp_v0->unk174;
-        temp_s1 = temp_v1->unk4;
-        temp_inner = temp_s1->unk174;
-        if (temp_inner->unk5 != 0 && arg1->state == 0) {
-            if (temp_inner->unk8 < 0) {
-                temp_inner->unk8 = gfxResourceCreate(1, textTableGetString(0x1A, 9, 1), 9, temp_s1->unk7C * 0.25, temp_s1->unk80 * 0.25, temp_s1->unk84 * 0.25);
+        popupActor = popupList->unk0[i];
+        popupLink = popupActor->unk174;
+        targetActor = popupLink->unk4;
+        targetInner = targetActor->unk174;
+        if (targetInner->unk5 != 0 && actor->state == 0) {
+            if (targetInner->unk8 < 0) {
+                targetInner->unk8 = gfxResourceCreate(1, textTableGetString(0x1A, 9, 1), 9, targetActor->unk7C * 0.25, targetActor->unk80 * 0.25, targetActor->unk84 * 0.25);
             }
-            if (var_s5 == 0) {
+            if (hasSetupGfx == 0) {
                 gSPDisplayList(gdl++, D_1000118);
                 gDPPipeSync(gdl++);
                 gDPSetCombineMode(gdl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
@@ -387,122 +387,122 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *arg1) {
                 gSPSetGeometryMode(gdl++, G_SHADE | G_SHADING_SMOOTH);
                 gDPSetCycleType(gdl++, G_CYC_1CYCLE);
                 gSPMatrix(gdl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                var_s5 = 1;
+                hasSetupGfx = 1;
             }
-            gdl = textDrawAnimated(gdl, temp_inner->unk8, 9, temp_s1->unk7C, temp_s1->unk80 + 20.0f, temp_s1->unk84, 0.1f);
-        } else if (temp_inner->unk8 >= 0) {
-            gfxResourceFree(temp_inner->unk8);
-            temp_inner->unk8 = -1;
+            gdl = textDrawAnimated(gdl, targetInner->unk8, 9, targetActor->unk7C, targetActor->unk80 + 20.0f, targetActor->unk84, 0.1f);
+        } else if (targetInner->unk8 >= 0) {
+            gfxResourceFree(targetInner->unk8);
+            targetInner->unk8 = -1;
         }
     }
     return gdl;
 }
 
-void bonusSpawnTarget(s16 arg0, s16 arg1, s16 arg2, u8 arg3, Struct_71B4 *arg4) {
-    u8 var_a3;
-    Struct_174 *temp_v1;
+void bonusSpawnTarget(s16 x, s16 y, s16 z, u8 slotIndex, Struct_71B4 *gameCtx) {
+    u8 targetType;
+    Struct_174 *targetExt;
 
-    if (arg4->unk28 < ((randomNonNegative() >> 0xF) % 100)) {
-        var_a3 = 1;
+    if (gameCtx->unk28 < ((randomNonNegative() >> 0xF) % 100)) {
+        targetType = 1;
     } else {
-        var_a3 = 0;
+        targetType = 0;
     }
-    if (actorSpawn(0xBA, var_a3 ? 0x32 : 0x33) != 0) {
-        temp_v1 = D_807FBB44->unk174;
-        actorScriptStart(D_807FBB44, var_a3 ? 0x211 : 0x20F);
-        scriptSetActorRampTarget(D_807FBB44, arg4->unk2C, 0.0f);
-        D_807FBB44->x = arg0;
-        D_807FBB44->y = arg1 - 0x19;
-        D_807FBB44->z = arg2;
+    if (actorSpawn(0xBA, targetType ? 0x32 : 0x33) != 0) {
+        targetExt = D_807FBB44->unk174;
+        actorScriptStart(D_807FBB44, targetType ? 0x211 : 0x20F);
+        scriptSetActorRampTarget(D_807FBB44, gameCtx->unk2C, 0.0f);
+        D_807FBB44->x = x;
+        D_807FBB44->y = y - 0x19;
+        D_807FBB44->z = z;
         D_807FBB44->yaw = 0xC00;
-        temp_v1->unk9 = arg3;
-        temp_v1->unk8 = var_a3;
-        temp_v1->unk0 = arg4;
-        arg4->unk0[arg3] = D_807FBB44;
+        targetExt->unk9 = slotIndex;
+        targetExt->unk8 = targetType;
+        targetExt->unk0 = gameCtx;
+        gameCtx->unk0[slotIndex] = D_807FBB44;
     }
 }
 
-void bonusDespawnTarget(Struct_174 *arg0, Struct_71B4 *arg1) {
-    arg1->unk0[arg0->unk9] = 0;
+void bonusDespawnTarget(Struct_174 *targetExt, Struct_71B4 *gameCtx) {
+    gameCtx->unk0[targetExt->unk9] = 0;
     actorDespawn(D_807FBB40);
 }
 
-void bonusResetAmmo(void *arg0) {
+void bonusResetAmmo(void *ammoData) {
     s16 i;
     s16 y;
-    u8 *temp_s1;
-    s32 *temp_s3;
+    u8 *ammoFlag;
+    s32 *ammoSlot;
     s32 p;
     y = 0x118;
     for (i = 0; i < 5; i++) {
         p = (s32)effectSpriteMatrixUpdate;
-        temp_s3 = (s32 *)arg0 + i;
-        if (temp_s3[1] != 0) {
-            effectFreeAndUnlink(temp_s3[1]);
+        ammoSlot = (s32 *)ammoData + i;
+        if (ammoSlot[1] != 0) {
+            effectFreeAndUnlink(ammoSlot[1]);
         }
-        temp_s1 = (u8 *)arg0 + i;
-        temp_s1[0x18] = 0;
+        ammoFlag = (u8 *)ammoData + i;
+        ammoFlag[0x18] = 0;
         func_8071495C();
         func_807149FC(-1);
         func_80714998(2);
         func_80714944(i * 3);
         func_8071498C((void *)p);
-        func_80714950(temp_s1 + 0x18);
-        temp_s3[1] = func_80714CC0(D_8071FFD4, 1.0f, (f32) y, 210.0f, -10.0f);
+        func_80714950(ammoFlag + 0x18);
+        ammoSlot[1] = func_80714CC0(D_8071FFD4, 1.0f, (f32) y, 210.0f, -10.0f);
         y -= 0x1E;
     }
     sfxPlayOnFreeSlot(0x3E4, 0x7FFF, 63.0f, 1.0f, 5, 0);
 }
 
-void bonusFireProjectile(f32 arg0, f32 arg1, f32 arg2) {
+void bonusFireProjectile(f32 targetX, f32 targetY, f32 targetZ) {
     sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0f, 0x1E, 0);
     projectileSetTargetCoords(D_807FBB40->x, D_807FBB40->y - 10.0f, D_807FBB40->z);
-    projectileAimAndSpawn(0x23, 1, 0.6f, arg0, arg1, arg2, 385.0f, D_807FBB40);
+    projectileAimAndSpawn(0x23, 1, 0.6f, targetX, targetY, targetZ, 385.0f, D_807FBB40);
 }
 
-u8 bonusAimAndFire(f32 arg0, f32 arg1, f32 arg2) {
-    Struct_7548 *temp_s0 = D_807FBB40->unk174;
-    f32 sp50;
-    f32 sp4C;
-    s16 var_v0;
-    f32 temp_fv0;
-    u8 sp40[1];
+u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
+    Struct_7548 *bonusExt = D_807FBB40->unk174;
+    f32 screenX;
+    f32 screenY;
+    s16 ammoIndex;
+    f32 distance;
+    u8 fireStatus[1];
 
-    sp40[0] = 0;
-    temp_s0->unk26 = 1;
-    camProjectToScreen(arg0, arg1, arg2, &sp50, &sp4C, 0, 4.0f, 0);
-    temp_s0->unk1E = sp50;
-    temp_s0->unk20 = sp4C;
-    D_807FBB40->yaw = mathAngleEaseToward(D_807FBB40->yaw, mathAngleBetweenPoints2D(arg0, arg2, D_807FBB40->x, D_807FBB40->z), 10.0f);
-    temp_fv0 = sqrtf((D_807FBB40->x - arg0) * (D_807FBB40->x - arg0) + (D_807FBB40->z - arg2) * (D_807FBB40->z - arg2));
-    D_807FBB40->roll = mathAngleEaseToward(D_807FBB40->roll, (s32)(func_80611BB4(D_807FBB40->y - arg1, temp_fv0) * 2048.0 / 3.1415927f + 150.0), 5.0f);
+    fireStatus[0] = 0;
+    bonusExt->unk26 = 1;
+    camProjectToScreen(aimX, aimY, aimZ, &screenX, &screenY, 0, 4.0f, 0);
+    bonusExt->unk1E = screenX;
+    bonusExt->unk20 = screenY;
+    D_807FBB40->yaw = mathAngleEaseToward(D_807FBB40->yaw, mathAngleBetweenPoints2D(aimX, aimZ, D_807FBB40->x, D_807FBB40->z), 10.0f);
+    distance = sqrtf((D_807FBB40->x - aimX) * (D_807FBB40->x - aimX) + (D_807FBB40->z - aimZ) * (D_807FBB40->z - aimZ));
+    D_807FBB40->roll = mathAngleEaseToward(D_807FBB40->roll, (s32)(func_80611BB4(D_807FBB40->y - aimY, distance) * 2048.0 / 3.1415927f + 150.0), 5.0f);
     if ((D_807FD63C & 0xE000) != 0) {
         if (D_807FBB40->state == 0) {
-            sp40[0] = 1;
-            if (temp_s0->unk22 != 0) {
-                if (temp_s0->unk23 != 0 && temp_s0->unk18[0] == 0) {
-                    bonusFireProjectile(arg0, arg1, arg2);
-                    temp_s0->unk23--;
-                    effectFreeAndUnlink(temp_s0->unk4[temp_s0->unk23]);
+            fireStatus[0] = 1;
+            if (bonusExt->unk22 != 0) {
+                if (bonusExt->unk23 != 0 && bonusExt->unk18[0] == 0) {
+                    bonusFireProjectile(aimX, aimY, aimZ);
+                    bonusExt->unk23--;
+                    effectFreeAndUnlink(bonusExt->unk4[bonusExt->unk23]);
                     rumbleRequest(0, 0xFF, 3);
-                    temp_s0->unk4[temp_s0->unk23] = 0;
-                    for (var_v0 = 0; var_v0 < temp_s0->unk23; var_v0++) {
-                        temp_s0->unk18[var_v0] = 10;
+                    bonusExt->unk4[bonusExt->unk23] = 0;
+                    for (ammoIndex = 0; ammoIndex < bonusExt->unk23; ammoIndex++) {
+                        bonusExt->unk18[ammoIndex] = 10;
                     }
-                } else if (temp_s0->unk23 == 0) {
+                } else if (bonusExt->unk23 == 0) {
                     if (D_807FBB40->unk155[0] == 0) {
-                        sp40[0] = 2;
+                        fireStatus[0] = 2;
                         D_807FBB40->unk155[0] = 1;
                     }
                 }
-            } else if (temp_s0->unk23 < 5) {
-                temp_s0->unk23 = 5;
-                bonusResetAmmo(temp_s0);
+            } else if (bonusExt->unk23 < 5) {
+                bonusExt->unk23 = 5;
+                bonusResetAmmo(bonusExt);
                 D_807FBB40->unk155[0] = 0;
             }
         }
     }
-    return sp40[0];
+    return fireStatus[0];
 }
 
 typedef struct {
@@ -868,7 +868,7 @@ typedef struct {
     s16 unk8;
 } BonusB_Sub8648b;
 
-void bonusPopupSpawnActors(BonusB_Sub178 *arg0) {
+void bonusPopupSpawnActors(BonusB_Sub178 *popupState) {
     s32 i;
     BonusB_Sub8648 *s2;
     Actor *s5;
@@ -878,7 +878,7 @@ void bonusPopupSpawnActors(BonusB_Sub178 *arg0) {
         if (actorSpawn(0x12C, 0x15) != 0) {
             s2 = (BonusB_Sub8648 *)D_807FBB44->unk174;
             s2->unk0 = D_807FBB40;
-            s2->unk11 = (((randomNonNegative() >> 0xF) % 0x7FFF) % (arg0->unk1C - arg0->unk1B + 1)) + arg0->unk1B;
+            s2->unk11 = (((randomNonNegative() >> 0xF) % 0x7FFF) % (popupState->unk1C - popupState->unk1B + 1)) + popupState->unk1B;
             s3 = *D_807F5FD4 + i;
             actorScriptStart(D_807FBB44, 0x1F5);
             D_807FBB44->x = s3->x;
@@ -886,7 +886,7 @@ void bonusPopupSpawnActors(BonusB_Sub178 *arg0) {
             D_807FBB44->z = s3->z;
             D_807FBB44->unk60 |= 0x1000;
             D_807FBB44->yaw = 0x800;
-            arg0->unk0[i - 1] = D_807FBB44;
+            popupState->unk0[i - 1] = D_807FBB44;
             s5 = D_807FBB44;
             if (actorSpawn(0x12D, 0x16) != 0) {
                 BonusB_Sub8648b *v0 = (BonusB_Sub8648b *)D_807FBB44->unk174;
@@ -961,18 +961,17 @@ void heapClearBlock(void *);
 
 void bonusActorUpdateVertexPositions(void) {
     BonusVtxLink *link = BONUS_VTX_ACTOR->unk174;
-    s16 *sp50 = link->unk0->unk174;
-    BonusVtxInfo *sp4C = link->unk0->unk178;
+    s16 *timerPtr = link->unk0->unk174;
+    BonusVtxInfo *vtxInfo = link->unk0->unk178;
     BonusVtxSub *sub;
     BonusVtxEntry *chk;
     s32 vb[2];
-    f32 sp38;
+    f32 invScale;
     BonusVtxEntry *p;
     f32 fx;
     f32 fy;
-    f32 sp28;
+    f32 zOffset;
     s32 i;
-
     if (!(BONUS_VTX_ACTOR->unk60 & 0x10)) {
         BONUS_VTX_ACTOR->unk144 = 0x24;
         link->unkC = 275.0f;
@@ -987,13 +986,13 @@ void bonusActorUpdateVertexPositions(void) {
         link->unk10 = link->unk11;
         sub->unk5 = 0;
     }
-    if (*sp50 > 0 && link->unk0->unk154 == 0) {
+    if (*timerPtr > 0 && link->unk0->unk154 == 0) {
         if (sub->unk4 == 0) {
             if (link->unk10 >= 0) {
                 link->unk10--;
             }
             if (link->unk10 < 0) {
-                link->unk8 -= sp4C->unk20;
+                link->unk8 -= vtxInfo->unk20;
             }
         } else {
             link->unk8 += 40.0f;
@@ -1017,10 +1016,10 @@ void bonusActorUpdateVertexPositions(void) {
     if (chk != 0) {
         vb[1] = 0;
         vb[0] = (s32)chk;
-        sp38 = 1.0f - ((link->unkC - 40.0f) / 235.0f);
-        fx = func_80612794(link->unk4->unkE6) * (5000.0f * sp38 + 150.0f);
-        fy = func_80612790(link->unk4->unkE6) * (5000.0f * sp38 + 150.0f);
-        sp28 = link->unk14 * 128.0f + -128.0f;
+        invScale = 1.0f - ((link->unkC - 40.0f) / 235.0f);
+        fx = func_80612794(link->unk4->unkE6) * (5000.0f * invScale + 150.0f);
+        fy = func_80612790(link->unk4->unkE6) * (5000.0f * invScale + 150.0f);
+        zOffset = link->unk14 * 128.0f + -128.0f;
         if (fx < 0.0f) {
             fx = 65535.0f + fx;
         }
@@ -1031,7 +1030,7 @@ void bonusActorUpdateVertexPositions(void) {
         p = (BonusVtxEntry *)(vb[1] * 8 + vb[0]);
         for (; i < 7; i++) {
             p->unk1 = i;
-            p->unk0 = (s32)sp28;
+            p->unk0 = (s32)zOffset;
             p->unk2 = (u32)fx;
             p->unk4 = 0;
             p->unk6 = (u32)fy;
@@ -1049,7 +1048,7 @@ void bonusActorUpdateVertexPositions(void) {
         }
         switch (BONUS_VTX_ACTOR->unk155) {
         case 0:
-            link->unk18 = link->unk18 + (sp38 - link->unk18) * 0.1;
+            link->unk18 = link->unk18 + (invScale - link->unk18) * 0.1;
             break;
         case 1:
         case 2:
@@ -1410,21 +1409,21 @@ typedef struct {
     s16 unk2A;
 } BonusC_9B9C_C;
 
-Gfx *func_80029B9C(Gfx *gdl, Actor *arg1) {
+Gfx *func_80029B9C(Gfx *gdl, Actor *srcActor) {
     Actor *actor;
     BonusC_9B9C_B *p0;
     BonusC_9B9C_A *p1;
     BonusC_9B9C_C *p2;
 
-    p2 = (void *)arg1->unk174;
-    p0 = ((BonusActorExt *)arg1)->unk178;
+    p2 = (void *)srcActor->unk174;
+    p0 = ((BonusActorExt *)srcActor)->unk178;
     if (p2) { // FAKE: empty guard steers regalloc
     }
-    p1 = ((BonusActorExt *)arg1)->unk178;
-    actor = arg1;
+    p1 = ((BonusActorExt *)srcActor)->unk178;
+    actor = srcActor;
 
     if (actor->actorType != 0x7E && actor->state == 0 && ((Struct_7548 *)actor->unk174)->unk26 != 0) {
-        gdl = bonusRenderCrosshair(gdl, (void *)arg1);
+        gdl = bonusRenderCrosshair(gdl, (void *)srcActor);
     }
     gSPDisplayList(gdl++, &D_1000118);
     gDPPipeSync(gdl++);
@@ -1463,23 +1462,23 @@ typedef struct {
     u8 unk4;
 } BonusC_9E54_S;
 
-void func_80029E54(void *arg0) {
-    Actor *a = arg0;
+void func_80029E54(void *ownerActor) {
+    Actor *a = ownerActor;
     s32 i;
     s16 *X = &D_8002D8CA - 1;
     Struct_T0 *base = ((BonusActorExt *)a)->unk178;
 
     for (i = 1; i != 7; i++) {
         if (actorSpawn(0x147, X[i - 1]) != 0) {
-            BonusC_9E54_S *temp_v1 = (BonusC_9E54_S *)D_807FBB44->unk174;
-            s16 *temp_a1 = ((BonusActorExt *)D_807FBB44)->unk17C;
+            BonusC_9E54_S *subExt = (BonusC_9E54_S *)D_807FBB44->unk174;
+            s16 *actorProp = ((BonusActorExt *)D_807FBB44)->unk17C;
             Point3f *pt;
             f32 scale;
 
-            *temp_a1 = X[i - 1];
-            temp_v1->unk0 = a;
-            temp_v1->unk4 = i - 1;
-            pt = *D_807F5FD4 + (base->unk8[temp_v1->unk4] & 0x7F) + 1;
+            *actorProp = X[i - 1];
+            subExt->unk0 = a;
+            subExt->unk4 = i - 1;
+            pt = *D_807F5FD4 + (base->unk8[subExt->unk4] & 0x7F) + 1;
             D_807FBB44->x = pt->x;
             D_807FBB44->y = pt->y;
             D_807FBB44->z = pt->z;
@@ -1487,7 +1486,7 @@ void func_80029E54(void *arg0) {
             D_807FBB44->unk60 |= 0x1000;
             D_807FBB44->yaw = 0x800;
             if (i != 6) {
-                func_806F0C18(D_807FBB44, temp_a1);
+                func_806F0C18(D_807FBB44, actorProp);
                 actorScriptStart(D_807FBB44, D_8002D8D4[i - 1]);
             }
             scale = (i != 6) ? 0.25f : 0.04f;
@@ -1500,60 +1499,60 @@ void func_80029E54(void *arg0) {
 
 void func_8002A010(void) {
     f32 scale;
-    Struct_Sp50 *sp50;
-    Actor *v;
-    Struct_T0 *sp48;
-    f32 sp44;
-    f32 sp40;
-    f32 sp3C;
+    Struct_Sp50 *subExt;
+    Actor *owner;
+    Struct_T0 *base;
+    f32 lightR;
+    f32 lightG;
+    f32 lightB;
     Point3f *p;
-    s8 var_a3;
+    s8 isHit;
     s8 flags;
 
-    sp50 = (Struct_Sp50 *)D_807FBB40->unk174;
-    v = sp50->unk0;
-    sp48 = (Struct_T0 *)((BonusActorExt *)v)->unk178;
+    subExt = (Struct_Sp50 *)D_807FBB40->unk174;
+    owner = subExt->unk0;
+    base = (Struct_T0 *)((BonusActorExt *)owner)->unk178;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        if (sp50->unk4 != 5) {
+        if (subExt->unk4 != 5) {
             actorClearAllNodeFlags(D_807FBB40);
             actorAppendModelNode(D_807FBB40, 0.0f, 50.0f, 0.0f, 80.0f, -1);
         }
         D_807FBB40->unk144 = 0x24;
     }
-    p = *D_807F5FD4 + (sp48->unk8[sp50->unk4] & 0x7F) + 1;
+    p = *D_807F5FD4 + (base->unk8[subExt->unk4] & 0x7F) + 1;
     D_807FBB40->x = p->x;
     D_807FBB40->y = p->y;
     D_807FBB40->z = p->z;
-    lightGetColor(&sp44, &sp40, &sp3C, 0);
-    if (sp44 < 0.1f) {
+    lightGetColor(&lightR, &lightG, &lightB, 0);
+    if (lightR < 0.1f) {
         D_807FBB40->unk144 = 0;
     } else {
         D_807FBB40->unk144 = 0x24;
     }
-    var_a3 = 0;
-    if (D_807FBB85 == 1 && sp48->unk0 >= -9) {
-        var_a3 = 1;
+    isHit = 0;
+    if (D_807FBB85 == 1 && base->unk0 >= -9) {
+        isHit = 1;
     }
-    if (sp50->unk4 != 5) {
-        flags = sp48->unk8[sp50->unk4];
+    if (subExt->unk4 != 5) {
+        flags = base->unk8[subExt->unk4];
         if (flags & 0x80) {
-            sp48->unk8[sp50->unk4] = flags & 0x7F;
-            actorScriptStart(D_807FBB40, D_8002D8D4[sp50->unk4]);
-        } else if (sp44 < 0.05f && ((Struct_4 *)D_807FBB40->unk4)->unk68 != 0) {
+            base->unk8[subExt->unk4] = flags & 0x7F;
+            actorScriptStart(D_807FBB40, D_8002D8D4[subExt->unk4]);
+        } else if (lightR < 0.05f && ((Struct_4 *)D_807FBB40->unk4)->unk68 != 0) {
             actorScriptStart(D_807FBB40, 0);
         }
-        if (var_a3 != 0) {
-            actorScriptStart(D_807FBB40, D_8002D8E0[sp50->unk4]);
+        if (isHit != 0) {
+            actorScriptStart(D_807FBB40, D_8002D8E0[subExt->unk4]);
             sfxPlayOnFreeSlot(0x2A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            if (sp48->unk16 != 0) {
-                sp48->unk16 += 1;
+            if (base->unk16 != 0) {
+                base->unk16 += 1;
             }
         }
         func_806BF920();
     } else {
         D_807FBB40->unk60 |= 0x1000;
         D_807FBB40->yaw += 0x12C;
-        if (sp48->unk0 < -0x1C) {
+        if (base->unk0 < -0x1C) {
             D_807FBB40->state = 0;
         }
         scale = D_807FBB40->unk4->unk34;
@@ -1568,10 +1567,10 @@ void func_8002A010(void) {
         D_807FBB40->unk4->unk34 = scale;
         D_807FBB40->unk4->unk38 = scale;
         D_807FBB40->unk4->unk3C = scale;
-        if (var_a3 != 0) {
+        if (isHit != 0) {
             sfxPlayOnFreeSlot(0x2A1, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            sp48->unk0 = 0;
-            sp48->unk16 -= 1;
+            base->unk0 = 0;
+            base->unk16 -= 1;
             D_807FBB40->state = 1;
         }
     }
@@ -1755,46 +1754,46 @@ typedef struct {
 } BonusC_AAA4_T;
 
 void func_8002AAA4(void) {
-    Struct_AAA4_174 *sp64;
-    Actor_AAA4_Target *temp_v1;
+    Struct_AAA4_174 *actorExt;
+    Actor_AAA4_Target *targetActor;
     f32 dx;
     f32 dz;
-    s32 sp54;
-    Struct_4_Unk0 *sp50;
-    Struct_4 *temp_v0;
-    BonusC_AAA4_T *new_var;
+    s32 animScript;
+    Struct_4_Unk0 *animSub;
+    Struct_4 *modelData;
+    BonusC_AAA4_T *targetExt;
     s32 i;
 
-    sp64 = (Struct_AAA4_174 *)D_807FBB40->unk174;
-    temp_v0 = (Struct_4 *)D_807FBB40->unk4;
-    sp50 = temp_v0->unk0;
+    actorExt = (Struct_AAA4_174 *)D_807FBB40->unk174;
+    modelData = (Struct_4 *)D_807FBB40->unk4;
+    animSub = modelData->unk0;
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorScriptStart(D_807FBB40, 0x239);
         D_807FBB40->unk144 = 0x24;
-        temp_v0 = (Struct_4 *)D_807FBB40->unk4;
+        modelData = (Struct_4 *)D_807FBB40->unk4;
     }
-    sp54 = temp_v0->unk64;
-    if (sp54 == 0x239) {
+    animScript = modelData->unk64;
+    if (animScript == 0x239) {
         for (i = 0; i < gActiveActorCount; i++) {
-            temp_v1 = gActiveActors[i].actor;
-            if (temp_v1->unk58 == 0x149) {
-                dx = temp_v1->unk7C - D_807FBB40->x;
-                dz = temp_v1->unk80 - D_807FBB40->y;
+            targetActor = gActiveActors[i].actor;
+            if (targetActor->unk58 == 0x149) {
+                dx = targetActor->unk7C - D_807FBB40->x;
+                dz = targetActor->unk80 - D_807FBB40->y;
                 if (dx < 5.0 && dx > -5.0 && dz < 20.0f && dz > -20.0) {
-                    new_var = (BonusC_AAA4_T *)temp_v1->unk174;
-                    new_var->unk4 = 8;
+                    targetExt = (BonusC_AAA4_T *)targetActor->unk174;
+                    targetExt->unk4 = 8;
                     actorScriptStart(D_807FBB40, 0x23B);
                 }
             }
         }
     }
-    if ((sp54 == 0x239 || sp54 == 0x23B || (sp54 == 0x238 && sp50 != NULL && sp50->unk4 > 48.0f)) && D_807FBB85 == 1) {
+    if ((animScript == 0x239 || animScript == 0x23B || (animScript == 0x238 && animSub != NULL && animSub->unk4 > 48.0f)) && D_807FBB85 == 1) {
         actorScriptStart(D_807FBB40, 0x23C);
-        sp64->unk6 = ((randomLcgNext() & 7) + 6) * D_8002D900;
+        actorExt->unk6 = ((randomLcgNext() & 7) + 6) * D_8002D900;
     }
-    if (sp54 == 0x23A) {
-        sp64->unk6 -= 1;
-        if (sp64->unk6 == 0) {
+    if (animScript == 0x23A) {
+        actorExt->unk6 -= 1;
+        if (actorExt->unk6 == 0) {
             actorScriptStart(D_807FBB40, 0x238);
         }
     }
@@ -1813,38 +1812,38 @@ typedef struct {
 
 void func_8002AD10(void) {
     s32 pad;
-    BonusC_AD10_S *sp28;
-    Actor *v;
-    BonusC_AD10_B *sp20;
+    BonusC_AD10_S *subExt;
+    Actor *owner;
+    BonusC_AD10_B *ownerExt;
     Point3f *p;
 
-    sp28 = (BonusC_AD10_S *)D_807FBB40->unk174;
-    v = sp28->unk0;
-    sp20 = ((BonusActorExt *)v)->unk178;
+    subExt = (BonusC_AD10_S *)D_807FBB40->unk174;
+    owner = subExt->unk0;
+    ownerExt = ((BonusActorExt *)owner)->unk178;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        actorScriptStart(D_807FBB40, 0x2B5, sp20);
+        actorScriptStart(D_807FBB40, 0x2B5, ownerExt);
     }
-    if (sp28->unk4 == 0 || sp28->unk4 >= 5) {
+    if (subExt->unk4 == 0 || subExt->unk4 >= 5) {
         D_807FBB40->x = D_807FBB40->x - 1.5;
     }
     p = *D_807F5FD4 + 3;
     if (D_807FBB40->x < p->x - 50.0) {
-        if (sp20->unkA > 0) {
-            sp20->unkA -= 1;
+        if (ownerExt->unkA > 0) {
+            ownerExt->unkA -= 1;
         }
         actorDespawn(D_807FBB40);
     }
-    if (sp28->unk4 != 0) {
-        sp28->unk4 -= 1;
-        if (sp28->unk4 < 4) {
-            if (sp28->unk4 == 3) {
+    if (subExt->unk4 != 0) {
+        subExt->unk4 -= 1;
+        if (subExt->unk4 < 4) {
+            if (subExt->unk4 == 3) {
                 sfxPlayOnFreeSlot(0x2D2, 0x7FFF, 63.0f, 7.12f, 0, 1);
             }
             D_807FBB40->unk4->unk34 *= 0.8f;
             D_807FBB40->unk4->unk38 *= 0.8f;
             D_807FBB40->unk4->unk3C *= 0.8f;
         }
-        if (sp28->unk4 == 0) {
+        if (subExt->unk4 == 0) {
             actorDespawn(D_807FBB40);
         }
     }
@@ -1946,14 +1945,14 @@ void func_8002AED8(void) {
     s32 pad0[4];
     f32 fs0;
     f32 fs1;
-    f32 sp6C;
-    LargeB5Anim *sp68 = LB5->unk4->unk0;
+    f32 diffDelta;
+    LargeB5Anim *animData = LB5->unk4->unk0;
     LargeB5State *t = LB5->unk174;
     s32 i;
     u8 c;
     s32 padz;
     LargeB5Proj *p0;
-    s16 sp52;
+    s16 spawnAngle;
 
     if (!(LB5->unk60 & 0x10)) {
         D_807FBB4C->state = 0x77;
@@ -2016,9 +2015,9 @@ void func_8002AED8(void) {
                 s0->unk4 = D_807FBB44->x;
                 s0->unk8 = D_807FBB44->z;
                 s0->unkE = 2;
-                sp52 = mathAngleBetweenPoints2D(t->unk0, t->unk4, LB5->unk7C, LB5->unk84) + 0x800;
-                s0->unk4 = func_80612794(sp52) * 70.0 + t->unk0;
-                s0->unk8 = func_80612790(sp52) * 70.0 + t->unk4;
+                spawnAngle = mathAngleBetweenPoints2D(t->unk0, t->unk4, LB5->unk7C, LB5->unk84) + 0x800;
+                s0->unk4 = func_80612794(spawnAngle) * 70.0 + t->unk0;
+                s0->unk8 = func_80612790(spawnAngle) * 70.0 + t->unk4;
                 if (t->unk2C == 0) {
                     D_807FBB44->x = s0->unk4;
                     D_807FBB44->y = LB5->unk80 - 30.0;
@@ -2044,8 +2043,8 @@ void func_8002AED8(void) {
         fs0 = D_807ECDEC->unk2 * 0.04f;
         fv1 = D_807ECDEC->unk3 * 0.04f;
 
-        sp6C = (fs0 * fv0 - fv1 * fs1) - t->unk10;
-        t->unk10 += sp6C * 0.125f;
+        diffDelta = (fs0 * fv0 - fv1 * fs1) - t->unk10;
+        t->unk10 += diffDelta * 0.125f;
         t->unk14 += ((fs0 * fs1 + fv1 * fv0) - t->unk14) * 0.25f;
         t->unk8 += t->unk10;
         t->unkC -= t->unk14;
@@ -2054,7 +2053,7 @@ void func_8002AED8(void) {
     case 0: {
         f32 prev = t->unk1C;
 
-        t->unk1C += (-sp6C * 4.0f - t->unk1C) * 0.125f;
+        t->unk1C += (-diffDelta * 4.0f - t->unk1C) * 0.125f;
         if (t->unk1C < 0.0f) {
             if (t->unk1C < -8.0f) {
                 t->unk1C = -8.0f;
@@ -2062,8 +2061,8 @@ void func_8002AED8(void) {
             if (prev >= 0.0f) {
                 func_80613C48(D_807FBB40, 0x5FC, 0.0f, 0.0f);
             }
-            if (sp68 != NULL) {
-                controllerApplyMotionWindow(D_807FBB40, sp68, -t->unk1C);
+            if (animData != NULL) {
+                controllerApplyMotionWindow(D_807FBB40, animData, -t->unk1C);
             }
         } else {
             if (t->unk1C > 8.0f) {
@@ -2072,8 +2071,8 @@ void func_8002AED8(void) {
             if (prev < 0.0f) {
                 func_80613C48(D_807FBB40, 0x5FB, 0.0f, 0.0f);
             }
-            if (sp68 != NULL) {
-                controllerApplyMotionWindow(D_807FBB40, sp68, t->unk1C);
+            if (animData != NULL) {
+                controllerApplyMotionWindow(D_807FBB40, animData, t->unk1C);
             }
         }
         if (t->unk28 == 0) {
@@ -2091,12 +2090,12 @@ void func_8002AED8(void) {
     }
     case 1:
     case 2:
-        if (sp68->unk4 > 10.0f && sp68->unk4 < 14.0f) {
+        if (animData->unk4 > 10.0f && animData->unk4 < 14.0f) {
             LB5->unk154 = 2;
         } else {
             LB5->unk154 = 1;
         }
-        if (sp68->unk24 == 0.0f) {
+        if (animData->unk24 == 0.0f) {
             func_80613C48(D_807FBB40, 0x5FC, 0.0f, 1.0f);
             LB5->unk154 = 0;
             t->unk1C = 0.0f;
@@ -2135,10 +2134,10 @@ void func_8002AED8(void) {
         d = sqrtf(fs0 * fs0 + fs1 * fs1);
 
         if (d > 80.0f) {
-            sp6C = 80.0f / d;
-            d = 0.0f;  // FAKE: kills uopt store-forwarding of the 80/d value so it stays the sp6C web
-            t->unk8 = (fs0 * sp6C) / 0.85;
-            t->unkC = (fs1 * sp6C) + 40.0;
+            diffDelta = 80.0f / d;
+            d = 0.0f;  // FAKE: kills uopt store-forwarding of the 80/d value so it stays in stack slot
+            t->unk8 = (fs0 * diffDelta) / 0.85;
+            t->unkC = (fs1 * diffDelta) + 40.0;
         }
     }
     LB5->unk7C = func_80612794(t->unk18) * 5.0 + (t->unk0 + t->unk8 * 0.8);
@@ -2177,11 +2176,11 @@ typedef struct {
 } BonusDB920Tgt;
 
 void func_8002B920(void) {
-    BonusDB920Link *temp_s1 = D_807FBB40->unk174;
-    Actor *sp48 = temp_s1->unk0;
-    BonusDB920Tgt *temp_s2 = sp48->unk174;
-    f32 sp40;
-    f32 sp3C;
+    BonusDB920Link *flyExt = D_807FBB40->unk174;
+    Actor *targetActor = flyExt->unk0;
+    BonusDB920Tgt *targetExt = targetActor->unk174;
+    f32 flySpeed;
+    f32 wanderRadius;
     f32 dx;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -2192,39 +2191,39 @@ void func_8002B920(void) {
         sfxPlayActorSound(D_807FBB40, 0x10E, 0x3C, 1, 0, 0xFF, 1.0f, 0);
     }
     if (D_807FBB40->state == 0) {
-        if (temp_s2->unk2C == 0) {
-            if (temp_s1->unkC > 0) {
-                if (temp_s1->unkC == 0x28) {
+        if (targetExt->unk2C == 0) {
+            if (flyExt->unkC > 0) {
+                if (flyExt->unkC == 0x28) {
                     sfxPlayFromActorDirect(D_807FBB40, 0x801, 0xFF, 3.0f, 2, 0);
                 }
-                temp_s1->unkC--;
-                sp40 = 5.0f;
+                flyExt->unkC--;
+                flySpeed = 5.0f;
             } else {
-                sp40 = 3.0f;
+                flySpeed = 3.0f;
             }
-            D_807FBB40->yaw -= mathAngleSignedDistance(mathAngleBetweenPoints2D(D_807FBB40->x, D_807FBB40->z, temp_s1->unk4, temp_s1->unk8) + 0x800, D_807FBB40->yaw) >> 3;
-            D_807FBB40->x += func_80612794(D_807FBB40->yaw) * sp40;
-            D_807FBB40->z += func_80612790(D_807FBB40->yaw) * sp40;
-            temp_s1->unkE--;
-            if (temp_s1->unkE <= 0) {
+            D_807FBB40->yaw -= mathAngleSignedDistance(mathAngleBetweenPoints2D(D_807FBB40->x, D_807FBB40->z, flyExt->unk4, flyExt->unk8) + 0x800, D_807FBB40->yaw) >> 3;
+            D_807FBB40->x += func_80612794(D_807FBB40->yaw) * flySpeed;
+            D_807FBB40->z += func_80612790(D_807FBB40->yaw) * flySpeed;
+            flyExt->unkE--;
+            if (flyExt->unkE <= 0) {
                 s16 angle;
 
-                if (temp_s1->unkC > 0) {
-                    temp_s1->unkE = (randomLcgNext() & 7) + 0xA;
+                if (flyExt->unkC > 0) {
+                    flyExt->unkE = (randomLcgNext() & 7) + 0xA;
                 } else {
-                    temp_s1->unkE = (randomLcgNext() & 0x3F) + 0xF;
+                    flyExt->unkE = (randomLcgNext() & 0x3F) + 0xF;
                 }
-                angle = mathAngleBetweenPoints2D(temp_s2->unk0, temp_s2->unk4, temp_s1->unk4, temp_s1->unk8);
+                angle = mathAngleBetweenPoints2D(targetExt->unk0, targetExt->unk4, flyExt->unk4, flyExt->unk8);
                 angle += ((randomLcgNext() & 7) << 8) + 0x400;
-                sp3C = randomFloat() * 70.0;
-                temp_s1->unk4 = func_80612794(angle) * sp3C + temp_s2->unk0;
-                temp_s1->unk8 = func_80612790(angle) * sp3C + temp_s2->unk4;
+                wanderRadius = randomFloat() * 70.0;
+                flyExt->unk4 = func_80612794(angle) * wanderRadius + targetExt->unk0;
+                flyExt->unk8 = func_80612790(angle) * wanderRadius + targetExt->unk4;
             }
         } else {
-            if (temp_s2->unk2C == 0x28) {
+            if (targetExt->unk2C == 0x28) {
                 sfxPlayFromActorDirect(D_807FBB40, 0x801, 0xFF, 3.0f, 2, 0);
             }
-            D_807FBB40->y = func_80612794(temp_s2->unk18) * 5.0 + (sp48->y - 30.0);
+            D_807FBB40->y = func_80612794(targetExt->unk18) * 5.0 + (targetActor->y - 30.0);
         }
     } else {
         D_807FBB40->unk128 -= 4;
@@ -2233,25 +2232,25 @@ void func_8002B920(void) {
             actorDespawn(D_807FBB40);
         }
     }
-    if (sp48->state == 2) {
+    if (targetActor->state == 2) {
         f32 dz;
-        dx = func_80612794(sp48->yaw) * 65.0f + sp48->x;
-        dz = func_80612790(sp48->yaw) * 65.0f + sp48->z;
+        dx = func_80612794(targetActor->yaw) * 65.0f + targetActor->x;
+        dz = func_80612790(targetActor->yaw) * 65.0f + targetActor->z;
         dx -= D_807FBB40->x;
         dz -= D_807FBB40->z;
         if (D_807FBB40->state == 0) {
             if (dx < 12.0 && dx > -12.0 && dz < 12.0 && dz > -12.0) {
-                s32 var_v0;
+                s32 i;
 
                 sfxStopSlotSound(D_807FBB40, 0);
                 actorScriptStart(D_807FBB40, 0x331);
-                if (temp_s2->unk2A != 0) {
-                    temp_s2->unk2A--;
+                if (targetExt->unk2A != 0) {
+                    targetExt->unk2A--;
                 }
-                for (var_v0 = 0; var_v0 < 1; var_v0++) {
-                    if (temp_s2->unk2D[var_v0] == 0) {
-                        temp_s2->unk2D[var_v0] = 0x1E;
-                        var_v0 = 1;
+                for (i = 0; i < 1; i++) {
+                    if (targetExt->unk2D[i] == 0) {
+                        targetExt->unk2D[i] = 0x1E;
+                        i = 1;
                     }
                 }
                 D_807FBB40->state = 1;
@@ -2259,8 +2258,8 @@ void func_8002B920(void) {
                 D_807FBB40->unk128 = 0xFF;
                 D_807FBB40->unk60 &= ~0x8000;
             } else if (dx * dx + dz * dz < 900.0f) {
-                temp_s1->unkC = 0x3C;
-                temp_s1->unkE = 1;
+                flyExt->unkC = 0x3C;
+                flyExt->unkE = 1;
             }
         }
     }
@@ -2288,10 +2287,10 @@ typedef struct {
 
 void func_8002BE44(void) {
     BonusDBE44Link *link = D_807FBB40->unk174;
-    Actor *temp_v1 = link->unk0;
-    BonusDBE44Anim *sp24 = ((BonusDBE44Model *)D_807FBB40->unk4)->unk0;
-    BonusDBE44Anim *var_t0 = ((BonusDBE44Model *)temp_v1->unk4)->unk0;
-    s16 var_a1;
+    Actor *targetActor = link->unk0;
+    BonusDBE44Anim *selfAnim = ((BonusDBE44Model *)D_807FBB40->unk4)->unk0;
+    BonusDBE44Anim *targetAnim = ((BonusDBE44Model *)targetActor->unk4)->unk0;
+    s16 animId;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->roll = 0;
@@ -2301,19 +2300,19 @@ void func_8002BE44(void) {
         D_807FBB40->unk4->unk38 = 0.2f;
         D_807FBB40->unk4->unk3C = 0.2f;
     }
-    D_807FBB40->x = temp_v1->x;
-    D_807FBB40->y = temp_v1->y - 35.0;
-    D_807FBB40->z = temp_v1->z;
-    if (sp24 != NULL) {
-        if (var_t0 != NULL) {
-            var_a1 = var_t0->unk10;
-            if (var_a1 == 0x5FD) {
-                var_a1 = 0x5FE;
+    D_807FBB40->x = targetActor->x;
+    D_807FBB40->y = targetActor->y - 35.0;
+    D_807FBB40->z = targetActor->z;
+    if (selfAnim != NULL) {
+        if (targetAnim != NULL) {
+            animId = targetAnim->unk10;
+            if (animId == 0x5FD) {
+                animId = 0x5FE;
             }
-            if (var_a1 != sp24->unk10) {
-                func_80613C48(D_807FBB40, var_a1, 0, 0);
+            if (animId != selfAnim->unk10) {
+                func_80613C48(D_807FBB40, animId, 0, 0);
             }
-            controllerApplyMotionWindow(D_807FBB40, sp24, var_t0->unk4);
+            controllerApplyMotionWindow(D_807FBB40, selfAnim, targetAnim->unk4);
         }
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -2347,136 +2346,135 @@ typedef struct {
     s16 unkC;
 } LargeB4Spawn;
 
-Gfx *func_8002CC08(Gfx *, Actor *);
+Gfx *func_8002CC08(Gfx *gdl, Actor *actor);
 
 void func_8002BF98(void) {
-    f32 sp84;
-    f32 fv0;
-    f32 sp7C;
-    f32 sp78;
-    f32 sp74;
-    f32 fv1;
-    f32 ft5;
-    LargeB4Sub *temp_s5 = D_807FBB40->unk174;
-    LargeB4Spawn *temp_s0;
+    f32 cosAngle;
+    f32 sinAngle;
+    f32 targetOffsetZ;
+    f32 scale;
+    f32 targetOffsetX;
+    f32 velX;
+    f32 stickY;
+    LargeB4Sub *subExt = D_807FBB40->unk174;
+    LargeB4Spawn *spawnExt;
     s32 i;
     s32 pad;
-    s16 sp5A;
-
+    s16 spawnAngle;
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB4C->state = 0x77;
         D_807FBB4C->unk155[0] = 0;
         D_807FBB4C->unk144 = 1;
-        temp_s5->unk0 = 1.0f;
-        temp_s5->unk4 = D_807FBB40->x;
-        temp_s5->unk8 = D_807FBB40->z;
+        subExt->unk0 = 1.0f;
+        subExt->unk4 = D_807FBB40->x;
+        subExt->unk8 = D_807FBB40->z;
         switch (gCurrentMap) {
             case 0x67:
-                temp_s5->unk28 = 4;
+                subExt->unk28 = 4;
                 D_8002D90C = 1.0f;
                 break;
             case 0x8A:
-                temp_s5->unk28 = 6;
+                subExt->unk28 = 6;
                 D_8002D90C = 1.3f;
                 break;
             case 0x8B:
-                temp_s5->unk28 = 8;
+                subExt->unk28 = 8;
                 D_8002D90C = 1.6f;
                 break;
             case 0x8C:
-                temp_s5->unk28 = 0xA;
+                subExt->unk28 = 0xA;
                 D_8002D90C = 1.9f;
                 break;
         }
-        temp_s5->unk24 = 0;
-        temp_s5->unk26 = temp_s5->unk28;
-        temp_s5->unk20 = 0x3C;
-        temp_s5->unk23 = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
-        func_806FDAB8(temp_s5->unk23, 0.0f);
+        subExt->unk24 = 0;
+        subExt->unk26 = subExt->unk28;
+        subExt->unk20 = 0x3C;
+        subExt->unk23 = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
+        func_806FDAB8(subExt->unk23, 0.0f);
         D_807FBB40->unk4->unk34 = 0.33f;
         D_807FBB40->unk4->unk38 = 0.33f;
         D_807FBB40->unk4->unk3C = 0.33f;
         camSetTarget(BCAM->unk104, D_807FBB40, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
         D_807FBB40->state = 3;
-        temp_s5->unk14 = 0.0;
-        temp_s5->unk18 = 0.0;
-        temp_s5->unkC = 0.0;
-        temp_s5->unk10 = 0.0;
-        temp_s5->unk0 = 1.0;
+        subExt->unk14 = 0.0;
+        subExt->unk18 = 0.0;
+        subExt->unkC = 0.0;
+        subExt->unk10 = 0.0;
+        subExt->unk0 = 1.0;
         i = 0;
         do {
-            temp_s5->unk2A[i] = 1;
+            subExt->unk2A[i] = 1;
             i++;
         } while (i != 1);
     }
     for (i = 0; i < 1; i++) {
-        if (temp_s5->unk2A[i] > 0) {
-            temp_s5->unk2A[i] -= 1;
-            if (temp_s5->unk2A[i] == 0 && actorSpawn(0x14B, 0x21) != 0) {
-                temp_s0 = (LargeB4Spawn *)D_807FBB44->unk174;
-                temp_s0->unk0 = D_807FBB40;
-                temp_s0->unkC = 2;
-                temp_s0->unkC = (randomLcgNext() & 0x3F) + 0xF;
-                temp_s0->unk4 = randomLcgNext() & 0xF;
-                temp_s0->unk8 = randomFloat() * 40.0 + 15.0;
-                sp5A = temp_s0->unk4 * 0xC8 - 0x578;
-                D_807FBB44->x = func_80612794(sp5A) * temp_s0->unk8 + temp_s5->unk4;
+        if (subExt->unk2A[i] > 0) {
+            subExt->unk2A[i] -= 1;
+            if (subExt->unk2A[i] == 0 && actorSpawn(0x14B, 0x21) != 0) {
+                spawnExt = (LargeB4Spawn *)D_807FBB44->unk174;
+                spawnExt->unk0 = D_807FBB40;
+                spawnExt->unkC = 2;
+                spawnExt->unkC = (randomLcgNext() & 0x3F) + 0xF;
+                spawnExt->unk4 = randomLcgNext() & 0xF;
+                spawnExt->unk8 = randomFloat() * 40.0 + 15.0;
+                spawnAngle = spawnExt->unk4 * 0xC8 - 0x578;
+                D_807FBB44->x = func_80612794(spawnAngle) * spawnExt->unk8 + subExt->unk4;
                 D_807FBB44->y = D_807FBB40->y;
-                D_807FBB44->z = func_80612790(sp5A) * temp_s0->unk8 + temp_s5->unk8;
+                D_807FBB44->z = func_80612790(spawnAngle) * spawnExt->unk8 + subExt->unk8;
             }
         }
     }
-    temp_s5->unk1C += 0x19;
+    subExt->unk1C += 0x19;
     if (D_807FBB40->state == 0 || D_807FBB40->state == 1) {
-        temp_s5->unk0 = temp_s5->unk0 - 0.03333333333333333;
-        if (temp_s5->unk0 < 0.0) {
-            temp_s5->unk0 = 0.0;
+        subExt->unk0 = subExt->unk0 - 0.03333333333333333;
+        if (subExt->unk0 < 0.0) {
+            subExt->unk0 = 0.0;
         }
     } else {
-        temp_s5->unk0 = temp_s5->unk0 + 0.03333333333333333;
-        if (temp_s5->unk0 > 1.0) {
-            temp_s5->unk0 = 1.0;
+        subExt->unk0 = subExt->unk0 + 0.03333333333333333;
+        if (subExt->unk0 > 1.0) {
+            subExt->unk0 = 1.0;
         }
     }
-    lightSetColor(temp_s5->unk0, temp_s5->unk0, temp_s5->unk0, -1);
+    lightSetColor(subExt->unk0, subExt->unk0, subExt->unk0, -1);
     switch (D_807FBB40->state) {
         case 0: {
-            sp84 = func_80612794(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
-            fv0 = func_80612790(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
-            fv1 = temp_s5->unk14;
-            sp7C = temp_s5->unk18;
-            sp74 = D_807ECDEC->unk2 * 0.06f;
-            ft5 = D_807ECDEC->unk3 * 0.06f;
-            fv1 = ((sp74 * fv0) - (ft5 * sp84)) - fv1;
-            temp_s5->unk14 = temp_s5->unk14 + fv1 * 0.155f;
-            temp_s5->unk18 = temp_s5->unk18 + ((sp74 * sp84 + ft5 * fv0) - sp7C) * 0.25f;
-            temp_s5->unkC = temp_s5->unkC + temp_s5->unk14;
-            temp_s5->unk10 = temp_s5->unk10 - temp_s5->unk18;
-            if (temp_s5->unk26 == 0) {
+            cosAngle = func_80612794(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+            sinAngle = func_80612790(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+            velX = subExt->unk14;
+            targetOffsetZ = subExt->unk18;
+            targetOffsetX = D_807ECDEC->unk2 * 0.06f;
+            stickY = D_807ECDEC->unk3 * 0.06f;
+            velX = ((targetOffsetX * sinAngle) - (stickY * cosAngle)) - velX;
+            subExt->unk14 = subExt->unk14 + velX * 0.155f;
+            subExt->unk18 = subExt->unk18 + ((targetOffsetX * cosAngle + stickY * sinAngle) - targetOffsetZ) * 0.25f;
+            subExt->unkC = subExt->unkC + subExt->unk14;
+            subExt->unk10 = subExt->unk10 - subExt->unk18;
+            if (subExt->unk26 == 0) {
                 D_807FBB40->state = 5;
             }
             if (((Actor *)D_807FBB40->unk11C)->state == 5) {
                 D_807FBB40->state = 6;
             }
-            if (temp_s5->unk1E > 0) {
-                temp_s5->unk1E = temp_s5->unk1E - 1;
+            if (subExt->unk1E > 0) {
+                subExt->unk1E = subExt->unk1E - 1;
             }
-            if (temp_s5->unk1E <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].unk298 & 0xE000)) {
+            if (subExt->unk1E <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].unk298 & 0xE000)) {
                 sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0, 0x1E, 0);
-                sp7C = func_80612794(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->unk210;
-                sp78 = gPlayerSlots->unk214 - 25.0f;
-                sp74 = func_80612790(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->unk218;
-                projectileSetTargetCoords(sp7C, sp78, sp74);
+                targetOffsetZ = func_80612794(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->unk210;
+                scale = gPlayerSlots->unk214 - 25.0f;
+                targetOffsetX = func_80612790(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->unk218;
+                projectileSetTargetCoords(targetOffsetZ, scale, targetOffsetX);
                 projectileAimAndSpawn(0x23, 1, 0.8f, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, 625.0f, D_807FBB40);
-                temp_s5->unk1E = 0x1E;
+                subExt->unk1E = 0x1E;
             }
             break;
         }
         case 3:
             if (D_807444EC != 1) {
                 D_807FBB40->state = 4;
-                hudSpawnCountdownTimer(0xDC, 0x2A, (u8)temp_s5->unk20);
+                hudSpawnCountdownTimer(0xDC, 0x2A, (u8)subExt->unk20);
                 func_8070D8C0(D_807FBB40, 0, 0xC);
             }
             break;
@@ -2498,19 +2496,19 @@ void func_8002BF98(void) {
             D_807FBB40->state = 7;
             break;
     }
-    sp7C = temp_s5->unkC;
-    sp74 = temp_s5->unk10;
-    fv0 = sqrtf(sp7C * sp7C + sp74 * sp74);
-    if (fv0 > 110.0f) {
-        sp78 = 110.0f / fv0;
-        temp_s5->unkC = sp7C * sp78;
-        temp_s5->unk10 = sp74 * sp78;
+    targetOffsetZ = subExt->unkC;
+    targetOffsetX = subExt->unk10;
+    sinAngle = sqrtf(targetOffsetZ * targetOffsetZ + targetOffsetX * targetOffsetX);
+    if (sinAngle > 110.0f) {
+        scale = 110.0f / sinAngle;
+        subExt->unkC = targetOffsetZ * scale;
+        subExt->unk10 = targetOffsetX * scale;
     }
-    D_807FBB40->x = func_80612794(temp_s5->unk1C) * 5.0 + (temp_s5->unk4 + temp_s5->unkC);
-    D_807FBB40->z = func_80612790(temp_s5->unk1C * 2) * 2.0 + (temp_s5->unk8 + temp_s5->unk10);
-    D_807FBB4C->x = temp_s5->unk4 + temp_s5->unkC * 0.5f;
+    D_807FBB40->x = func_80612794(subExt->unk1C) * 5.0 + (subExt->unk4 + subExt->unkC);
+    D_807FBB40->z = func_80612790(subExt->unk1C * 2) * 2.0 + (subExt->unk8 + subExt->unk10);
+    D_807FBB4C->x = subExt->unk4 + subExt->unkC * 0.5f;
     D_807FBB4C->y = D_807FBB40->y;
-    D_807FBB4C->z = temp_s5->unk8 + temp_s5->unk10 * 0.5f;
+    D_807FBB4C->z = subExt->unk8 + subExt->unk10 * 0.5f;
     renderCallbacksRegister(func_8002CC08, D_807FBB40, 3);
     lightAdd(D_807FBB40->x, D_807FBB40->y + 25.0, D_807FBB40->z, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, 25.0f, 1, 0xFF, 0xFF, 0xFF);
 }
@@ -2535,17 +2533,17 @@ typedef struct {
 
 void func_8002C8EC(void) {
     s32 e1, e2, e3;
-    f32 sp40;
+    f32 speed;
     s32 d1, d2, d3;
-    f32 sp30, sp34;
-    s16 temp_s0_2;
-    s32 var_v0;
-    Actor *temp_v0;
-    BonusDC8ECLink *temp_s2 = D_807FBB40->unk174;
-    BonusDC8ECTgt *temp_s3;
+    f32 targetX, targetZ;
+    s16 angle;
+    s32 i;
+    Actor *targetOwner;
+    BonusDC8ECLink *spawnLink = D_807FBB40->unk174;
+    BonusDC8ECTgt *targetExt;
 
-    temp_v0 = temp_s2->unk0;
-    temp_s3 = temp_v0->unk174;
+    targetOwner = spawnLink->unk0;
+    targetExt = targetOwner->unk174;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
         actorScriptStart(D_807FBB40, 0x232);
@@ -2555,18 +2553,18 @@ void func_8002C8EC(void) {
         D_807FBB40->unk4->unk3C = 0.25f;
     }
     if (D_807FBB40->state == 0) {
-        sp40 = D_8002D90C;
-        temp_s0_2 = temp_s2->unk4 * 0xC8 - 0x578;
-        sp30 = func_80612794(temp_s0_2) * temp_s2->unk8 + temp_s3->unk4;
-        sp34 = func_80612790(temp_s0_2) * temp_s2->unk8 + temp_s3->unk8;
-        D_807FBB40->yaw -= mathAngleSignedDistance(mathAngleBetweenPoints2D(D_807FBB40->x, D_807FBB40->z, sp30, sp34) + 0x800, D_807FBB40->yaw) >> 5;
-        D_807FBB40->x += func_80612794(D_807FBB40->yaw) * sp40;
-        D_807FBB40->z += func_80612790(D_807FBB40->yaw) * sp40;
-        temp_s2->unkC--;
-        if (temp_s2->unkC <= 0) {
-            temp_s2->unkC = (randomLcgNext() & 0x3F) + 0xF;
-            temp_s2->unk4 += (randomLcgNext() & 0xF) + 3;
-            temp_s2->unk8 = 40.0 * randomFloat() + 10.0;
+        speed = D_8002D90C;
+        angle = spawnLink->unk4 * 0xC8 - 0x578;
+        targetX = func_80612794(angle) * spawnLink->unk8 + targetExt->unk4;
+        targetZ = func_80612790(angle) * spawnLink->unk8 + targetExt->unk8;
+        D_807FBB40->yaw -= mathAngleSignedDistance(mathAngleBetweenPoints2D(D_807FBB40->x, D_807FBB40->z, targetX, targetZ) + 0x800, D_807FBB40->yaw) >> 5;
+        D_807FBB40->x += func_80612794(D_807FBB40->yaw) * speed;
+        D_807FBB40->z += func_80612790(D_807FBB40->yaw) * speed;
+        spawnLink->unkC--;
+        if (spawnLink->unkC <= 0) {
+            spawnLink->unkC = (randomLcgNext() & 0x3F) + 0xF;
+            spawnLink->unk4 += (randomLcgNext() & 0xF) + 3;
+            spawnLink->unk8 = 40.0 * randomFloat() + 10.0;
         }
         if (D_807FBB85 == 1) {
             D_807FBB40->unk128 = 0xFF;
@@ -2574,14 +2572,14 @@ void func_8002C8EC(void) {
             actorScriptStart(D_807FBB40, 0x332);
             D_807FBB40->state = 1;
             sfxPlayOnFreeSlot(0x16, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            var_v0 = 0;
-            if (temp_s3->unk28 != 0) {
-                temp_s3->unk28--;
+            i = 0;
+            if (targetExt->unk28 != 0) {
+                targetExt->unk28--;
             }
-            for (; var_v0 < 1; var_v0++) {
-                if (temp_s3->unk2A[var_v0] == 0) {
-                    temp_s3->unk2A[var_v0] = 0x1E;
-                    var_v0 = 1;
+            for (; i < 1; i++) {
+                if (targetExt->unk2A[i] == 0) {
+                    targetExt->unk2A[i] = 0x1E;
+                    i = 1;
                 }
             }
         }
@@ -2595,40 +2593,40 @@ void func_8002C8EC(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-Gfx *func_8002CC08(Gfx *arg0, Actor *arg1) {
-    Struct_CC08_174 *sp84;
-    f32 sp80;
-    f32 sp7C;
-    s32 temp_v0;
-    s16 sp76;
-    s16 sp74;
+Gfx *func_8002CC08(Gfx *gdl, Actor *actor) {
+    Struct_CC08_174 *subExt;
+    f32 projX;
+    f32 projY;
+    s32 state;
+    s16 screenX;
+    s16 screenY;
 
-    sp84 = (Struct_CC08_174 *)arg1->unk174;
-    camProjectToScreen(arg1->x, arg1->y, arg1->z, &sp80, &sp7C, 0, 1.0f, gCurrentPlayerIndex);
-    sp76 = (f32)(sp80 * 4.0);
-    sp74 = (f32)(sp7C * 4.0);
-    gDPPipeSync(arg0++);
-    gDPSetCombineMode(arg0++, G_CC_DECALRGBA, G_CC_DECALRGBA);
-    gDPSetRenderMode(arg0++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-    gSPDisplayList(arg0++, D_1000118);
-    gSPMatrix(arg0++, D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-    temp_v0 = arg1->state;
-    if (temp_v0 == 0 || temp_v0 == 1) {
-        arg0 = renderRotatedSprite(arg0, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 - 0x34, sp74 - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
-        arg0 = renderRotatedSprite(arg0, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 + 0x34, sp74 - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
-        arg0 = renderRotatedSprite(arg0, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 + 0x34, sp74 + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
-        arg0 = renderRotatedSprite(arg0, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, sp76 - 0x34, sp74 + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
+    subExt = (Struct_CC08_174 *)actor->unk174;
+    camProjectToScreen(actor->x, actor->y, actor->z, &projX, &projY, 0, 1.0f, gCurrentPlayerIndex);
+    screenX = (f32)(projX * 4.0);
+    screenY = (f32)(projY * 4.0);
+    gDPPipeSync(gdl++);
+    gDPSetCombineMode(gdl++, G_CC_DECALRGBA, G_CC_DECALRGBA);
+    gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gSPDisplayList(gdl++, D_1000118);
+    gSPMatrix(gdl++, D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+    state = actor->state;
+    if (state == 0 || state == 1) {
+        gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, screenX - 0x34, screenY - 0x34, 3.2f, 3.2f, 0xE1, 0.0f);
+        gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, screenX + 0x34, screenY - 0x34, 3.2f, 3.2f, 0x13B, 0.0f);
+        gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, screenX + 0x34, screenY + 0x34, 3.2f, 3.2f, 0x2D, 0.0f);
+        gdl = renderRotatedSprite(gdl, (gFrameCounter >> 1) % 12 + 0x83, 0, 2, 0x20, 0x10, screenX - 0x34, screenY + 0x34, 3.2f, 3.2f, 0x87, 0.0f);
     }
-    gSPMatrix(arg0++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    switch (arg1->state) {
+    gSPMatrix(gdl++, D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    switch (actor->state) {
     case 7:
         do {
         } while (0); // FAKE: empty do/while(0) steers branch codegen
         break;
     case 0:
     case 1:
-        arg0 = hudDrawRollingCounter(textDrawAnimated(arg0, sp84->unk23, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &sp84->unk26, sp84->unk28, &sp84->unk24);
+        gdl = hudDrawRollingCounter(textDrawAnimated(gdl, subExt->unk23, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &subExt->unk26, subExt->unk28, &subExt->unk24);
         break;
     }
-    return arg0;
+    return gdl;
 }
