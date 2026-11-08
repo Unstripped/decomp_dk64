@@ -175,7 +175,7 @@ void screenSetTransitionFadeType(s32);
 void mapRequestTransition(s32, s32);
 f32 mathCosF(s16);
 void playerWaypointPathStartLineFromActor(void *, s16, s16, s32);
-void func_80641874(s32, s32);
+void csSendActorMessagePayload(s32, s32);
 void playerSetSizeMode(void *, s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(void *, s32);
@@ -249,7 +249,7 @@ void bossDogadonStep(void) {
             switch (MAIN_ACTOR->unk155) {
             case 0:
                 if (phaseState->unk16 != 0) {
-                    func_80641874(0, 0);
+                    csSendActorMessagePayload(0, 0);
                 }
                 actorScriptStart(MAIN_ACTOR, 0x3FF);
                 TIMER_STATE->unk2C = scriptOpcodes[phaseState->unk15] * 0x1E;
@@ -268,7 +268,7 @@ void bossDogadonStep(void) {
                 if (gPlayerSlots->unk2C0 != 1) {
                     playerSetSizeMode(PLAYER_ACTOR, 1);
                 }
-                func_80641874(0, 0xFF);
+                csSendActorMessagePayload(0, 0xFF);
                 actorScriptStart(MAIN_ACTOR, 0x3E4);
                 MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
                 phaseState->unk15++;

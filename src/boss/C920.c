@@ -219,7 +219,7 @@ void func_80724CA4(s32, s32);
 void playerSetLargeModeScale(f32);
 void flagSet(s32, s32, s32);
 void camStartPath(void *, s32, u8);
-void func_80641874(s32, s32);
+void csSendActorMessagePayload(s32, s32);
 void actorSetTargetSpeed(void *, s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
@@ -275,7 +275,7 @@ void bossKRoolChunkyStep(void) {
             camStartPath(BOSS_ACTOR, 2, 1);
             WORK_STATE->unk1A |= 0x8000;
         } else {
-            func_80641874(2, 0);
+            csSendActorMessagePayload(2, 0);
         }
         BOSS_ACTOR->unk128 += 5;
         if (BOSS_ACTOR->unk128 >= 0x100) {
@@ -333,7 +333,7 @@ void bossKRoolChunkyStep(void) {
                     camStartPath(BOSS_ACTOR, 0x17, 1);
                     actorScriptStart(BOSS_ACTOR, 0);
                 }
-                func_80641874(2, 0xFF);
+                csSendActorMessagePayload(2, 0xFF);
             }
             bossKRoolChunkyInterpolatePosition(D_80035AD4[scriptState->unk14]);
             if (scriptState->unk14 == 3) {
@@ -344,7 +344,7 @@ void bossKRoolChunkyStep(void) {
             BOSS_ACTOR->unk128 = 0xFF;
             PLAYER_DATA->unkD4 = 0x12C;
             camStartPath(BOSS_ACTOR, 0x18, 1);
-            func_80641874(2, 0xFF);
+            csSendActorMessagePayload(2, 0xFF);
             scriptSetActorRampTarget(BOSS_ACTOR, 1.0f, 0.0f);
             actorScriptStart(BOSS_ACTOR, 0);
             BOSS_ACTOR->unk155 = 0xA;

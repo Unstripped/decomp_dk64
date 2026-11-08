@@ -2361,7 +2361,7 @@ extern s16 gCsModelIds[];
 extern s16 D_807481F4[];
 extern s16 D_807481F6[];
 extern u8 D_80748212[];
-void func_8064199C(void *, s16, s16);
+void csSetObjectTrackParam(void *, s16, s16);
 
 typedef struct CsPairState {
     /* 0x0 */ s32 unk0;
@@ -2401,7 +2401,7 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c)
     if (&D_807481F4[i] < (s16 *)D_80748212)
     {
       csModelStateTrySetByte(D_807481F4[i + 1], 0xA, 0);
-      func_8064199C(((CsModelSlotView *) gModelSlots)[hashTableLookup(gCsModelIds[D_807481F4[i + 1]])].unk7C, 0, 0);
+      csSetObjectTrackParam(((CsModelSlotView *) gModelSlots)[hashTableLookup(gCsModelIds[D_807481F4[i + 1]])].unk7C, 0, 0);
     }
     if (&D_807481F4[i] >= D_807481F6)
     {
@@ -2711,7 +2711,7 @@ void csCmdUpdateSlotIdView8A(CsState *cs, s16 csId, s16 b, s16 c) {
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 void modelAnimEntryStart(s16, s16, s16);
-void func_80641874(s16, s16);
+void csSendActorMessagePayload(s16, s16);
 
 s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -2722,7 +2722,7 @@ s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
         if (!(actor->flags & 0x2000) && actor->actorType == 4 && actor->attachMode == 1 && csId == actor->cutsceneId) {
             if (b != actor->unk10E[0] && actor->unk10E[0] != 0) {
                 modelAnimEntryStart(csId, actor->unk10E[0], 2);
-                func_80641874(actor->unk10E[0] + 4, 0);
+                csSendActorMessagePayload(actor->unk10E[0] + 4, 0);
                 return 1;
             }
         }
@@ -3029,7 +3029,7 @@ void csCmdModelApplyTranslation(CsState *cs, s16 csId, s16 b, s16 c) {
     p[0x1FC] = b;
 }
 
-void func_8064B7C0(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdNoop(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdAllocSlotPointer(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -4268,7 +4268,7 @@ s32 camIsCutsceneActive(void);
 extern s8 D_807F6950;
 extern s8 D_807F6951;
 
-void func_8064EE08(CsEffView *e, u8 *flag) {
+void csEffectUpdateAlphaState(CsEffView *e, u8 *flag) {
     CsEffState *s;
 
     if (e->unk384 == NULL) {
@@ -4322,7 +4322,7 @@ extern u8 D_80721530[];
 
 void csCmdSpawnActorAtPoint(CsState *cs, s16 csId, s16 b, s16 c) {
     effectSetColor(0xFF, 0xFF, 0xFF, 0x80);
-    effectSetCallback(func_8064EE08);
+    effectSetCallback(csEffectUpdateAlphaState);
     effectSetDuration(-1);
     effectSetDepth(1);
     effectSetMode(2);

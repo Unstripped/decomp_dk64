@@ -565,7 +565,7 @@ void csStateEndUpdate(CsStateFull *cs) {
 
 extern u32 gFrameCounter;
 
-void func_8063E6B4(CsStateFull *cs) {
+void csUpdateStepAndInterpolation(CsStateFull *cs) {
     s16 a;
     s16 b;
 
@@ -760,8 +760,8 @@ s32 actorListGetOrSetState(s16, u8, u8);
 s32 flagGet();
 s32 actorListIsIdActive(s16);
 u16 actorLookupClass(u16);
-s32 func_806419F8(void);
-void func_80641724(s16);
+s32 csIsPlayerInCutsceneState(void);
+void csSetCameraFollowModel(s16);
 s16 modelAnimEntryGetUnkC(s16, s16);
 Actor *spawnNodeActivate(s16, u16);
 u8 spawnNodeHasActor(u8);
@@ -775,7 +775,7 @@ s32 csPlayerNearPos(s16);
 s32 csPlayerSavedPosNearPos(s16);
 s32 csSpawnNodeNearPos(s16, s16, s16);
 s32 csCompareVar(f32 *, s16, s16);
-s32 func_806425FC(s16, s16);
+s32 csEvaluateParamCondition(s16, s16);
 
 #define CS_COND_STATE ((CsCondState *)cs)
 #define CS_COND_PLAYER ((CsCondPlayer *)gPlayerSlots)
@@ -999,7 +999,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x5:
-        ret = func_806425FC(cmd->a, cmd->b);
+        ret = csEvaluateParamCondition(cmd->a, cmd->b);
         break;
     case 0x4:
         if (CS_COND_STATE->unk44[cmd->b] == ((s16 *)cmd)[1]) {
@@ -1121,8 +1121,8 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x10:
         if (CS_COND_STATE->unk5C != 0 && (cmd->b == -1 || CS_COND_STATE->unk5C == ((s16 *)cmd)[2]) &&
-            (actorLookupClass(CS_COND_STATE->unk5E) & cmd->a) && func_806419F8() != 0) {
-            func_80641724(((CsCondSlot *)gModelSlots)[hashTableLookup(csId)].unk84);
+            (actorLookupClass(CS_COND_STATE->unk5E) & cmd->a) && csIsPlayerInCutsceneState() != 0) {
+            csSetCameraFollowModel(((CsCondSlot *)gModelSlots)[hashTableLookup(csId)].unk84);
             ret = 1;
         } else {
             ret = 0;
@@ -1130,8 +1130,8 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x18:
         if (CS_COND_STATE->unk5C != 0 && (cmd->b == -1 || CS_COND_STATE->unk5C == ((s16 *)cmd)[2]) && cmd->a == CS_COND_STATE->unk5E &&
-            func_806419F8() != 0) {
-            func_80641724(((CsCondSlot *)gModelSlots)[hashTableLookup(csId)].unk84);
+            csIsPlayerInCutsceneState() != 0) {
+            csSetCameraFollowModel(((CsCondSlot *)gModelSlots)[hashTableLookup(csId)].unk84);
             ret = 1;
         } else {
             ret = 0;
@@ -1311,12 +1311,12 @@ void func_80636014(s16, s32, u8);
 void func_8063A8C4(s16, s32, f32);
 void csTimerQueueAdd(s16, s16, s16);
 void csSendMsgByActorType(s16, s16);
-void func_80641874(s16, s16);
+void csSendActorMessagePayload(s16, s16);
 s32 csModelStateTrySetByte(s16, s16, s16);
-void func_8064199C(void *, s16, s16);
+void csSetObjectTrackParam(void *, s16, s16);
 void csStateShareScript(s16, s16, s16);
-void func_80641BCC(s16, s16, s16);
-void func_80641C98(s16, s16, s16);
+void csSetActorAlphaByType(s16, s16, s16);
+void csSetActorScaleFadeByType(s16, s16, s16);
 void csStartCamPath(void *, s16, s16, s16);
 void csSnapToGround(s16, s16);
 void csSetRot(s16, s16, void *, s16, u8);
@@ -1659,10 +1659,10 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->unk4F = cmd->a;
         break;
     case 0x36:
-        func_80641BCC(cmd->a, cmd->b, csId);
+        csSetActorAlphaByType(cmd->a, cmd->b, csId);
         break;
     case 0x35:
-        func_80641C98(cmd->a, cmd->b, csId);
+        csSetActorScaleFadeByType(cmd->a, cmd->b, csId);
         break;
     case 0x33:
         mapOffsetSlotSetTarget(cmd->a, cmd->b, cmd->c / 100.0f);
@@ -1680,12 +1680,12 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         effectNodeSetTargetAndStep(cmd->a, cmd->b, cmd->c / 100.0f);
         break;
     case 0x26:
-        func_8064199C(cs, cmd->a, cmd->b);
+        csSetObjectTrackParam(cs, cmd->a, cmd->b);
         break;
     case 0x54:
         slot = hashTableLookup(gCsModelIds[cmd->a]);
         if (slot != -1) {
-            func_8064199C(gModelSlots[slot].unk7C, cmd->b, cmd->c);
+            csSetObjectTrackParam(gModelSlots[slot].unk7C, cmd->b, cmd->c);
         }
         break;
     case 0x25:
@@ -2059,7 +2059,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         gridMoveNode(csId, gCsPosX, gCsPosY, gCsPosZ);
         break;
     case 0x5E:
-        func_80641874(cmd->a, cmd->b);
+        csSendActorMessagePayload(cmd->a, cmd->b);
         break;
     case 0x8A:
         csSendMsgByActorType(cmd->a, cmd->b);
@@ -2092,7 +2092,7 @@ typedef struct CsCamView {
     /* 0x245 */ u8 unk245;
 } CsCamView;
 
-void func_80641724(s16 modelId) {
+void csSetCameraFollowModel(s16 modelId) {
     CsCamView *cam;
 
     cam = gPlayerSlots->unk4->customState;
@@ -2132,7 +2132,7 @@ void csSendMsgByActorType(s16 actorType, s16 msgParam) {
 void heapFreeDeferred(void *);
 void actorFindActiveByType(s32, void *);
 
-void func_80641874(s16 paramA, s16 paramB) {
+void csSendActorMessagePayload(s16 paramA, s16 paramB) {
     s16 *msgPayload;
     void *targetActor;
 
@@ -2165,7 +2165,7 @@ typedef struct CsObjView {
     /* 0x58 */ s32 unk58;
 } CsObjView;
 
-void func_8064199C(void *obj, s16 b, s16 c) {
+void csSetObjectTrackParam(void *obj, s16 b, s16 c) {
     CsObjView *o = obj;
 
     o->unk54 = b;
@@ -2192,7 +2192,7 @@ typedef struct CsCamStateView {
     /* 0xBC */ s16 unkBC;
 } CsCamStateView;
 
-s32 func_806419F8(void) {
+s32 csIsPlayerInCutsceneState(void) {
     CsCamStateView *cam = gPlayerSlots->unk4->customState;
 
     if ((gPrimaryPlayerActor->state == 0x42 && (cam->unkBC == 0x62 || cam->unkBC == 0x88 || cam->unkBC == 0x17)) || gPrimaryPlayerActor->state == 0x52 ||
@@ -2228,7 +2228,7 @@ void csStateShareScript(s16 a, s16 b, s16 c) {
     ((CsAuxView *)gModelSlots[a].unk7C)->unkA0 = ((CsAuxView *)gModelSlots[b].unk7C)->unkA0;
 }
 
-void func_80641BCC(s16 a, s16 b, s16 csId) {
+void csSetActorAlphaByType(s16 a, s16 b, s16 csId) {
     s32 i;
     Actor *actor;
 
@@ -2244,7 +2244,7 @@ void func_80641BCC(s16 a, s16 b, s16 csId) {
     }
 }
 
-void func_80641C98(s16 a, s16 b, s16 csId) {
+void csSetActorScaleFadeByType(s16 a, s16 b, s16 csId) {
     s32 x;
     s32 i;
     Actor *actor;
@@ -2476,7 +2476,7 @@ s32 csCompareVar(f32 *varsArray, s16 packedParam, s16 compareValue) {
 }
 
 
-s32 func_806425FC(s16 packedParam, s16 compareValue) {
+s32 csEvaluateParamCondition(s16 packedParam, s16 compareValue) {
     f32 v;
     f32 th;
     s32 ret;

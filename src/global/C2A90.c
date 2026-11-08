@@ -387,7 +387,7 @@ void camSetZoneWeight(s32, s32);
 void camSetZoomLevel(void *, s32);
 s32 currentActorTestClearFlag();
 void csModelStateSetFirstByte(s32, s32);
-void func_80641874(s32, s32);
+void csSendActorMessagePayload(s32, s32);
 void actorDrawAnimatedEffect(void);
 void resQueueAttachActor(void *, s32, s32);
 void resQueueSetValue(s32);
@@ -450,7 +450,7 @@ void func_806BE8BC(void) {
                 func_806BE674(1);
                 currentActorAnimSetFrame(0, 0);
                 if (sp37 != 0) {
-                    func_80641874(0x17, 0x14);
+                    csSendActorMessagePayload(0x17, 0x14);
                     resQueueAttachActor(gCurrentActor, 0x14, 1);
                 } else {
                     resQueueAttachActor(gCurrentActor, 0x14, 0);

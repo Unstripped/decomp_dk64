@@ -95,7 +95,7 @@ void bonusEndWin(u8, u8);
 void bonusEndLose(u8, u8);
 void func_80726EE0(s32);
 void func_80724A20(void);
-void func_80641874(s32, s32);
+void csSendActorMessagePayload(s32, s32);
 void camResumePath(void *);
 void actorSetStateTwo(void *);
 void resQueueSetValue(s32);
@@ -286,9 +286,9 @@ tail:
             if (gCurrentMap == 0x85 && s->unk4 == 1) {
                 if (gCurrentActor->unk155[0] == 0) {
                     gCurrentActor->unk155[0] += 1;
-                    func_80641874(0, 0);
-                    func_80641874(1, 0);
-                    func_80641874(2, 0);
+                    csSendActorMessagePayload(0, 0);
+                    csSendActorMessagePayload(1, 0);
+                    csSendActorMessagePayload(2, 0);
                 }
             }
         case 6:

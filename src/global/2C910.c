@@ -134,7 +134,7 @@ void camStartShake(s32, u8, u16);
 void screenWipeStart();
 void actorUpdateModelMatrix(void *, u8);
 void csModelStateSetFirstByte();
-void func_80641874(s16, s16);
+void csSendActorMessagePayload(s16, s16);
 void actorAppendCallbackPayloadA69C(s32, void *, f32, f32, u8, u8);
 void actorAppendCallbackMemcpy8(s32, void *, s32, u8, void *, u8);
 void actorCopyPoseAndScale(void *, void *, f32);
@@ -286,7 +286,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             playerWaypointPathStartPacked((s32)gPrimaryPlayerActor, 0, a, 0);
             return;
         case 0x26:
-            func_80641874(a, b);
+            csSendActorMessagePayload(a, b);
             return;
         case 0x27:
             node = a;

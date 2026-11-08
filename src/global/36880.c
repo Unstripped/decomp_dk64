@@ -2979,7 +2979,7 @@ typedef struct {
 } ModelRenderAnimObj;
 
 void texAnimUpdateNodes(ModelSegmentData *);
-void func_8063E6B4(void *);
+void csUpdateStepAndInterpolation(void *);
 void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
 void lightQueueKeyframed(u8, s16, f32, f32, f32, s32, f32, s32);
 s32 func_806D0964(s32, u8, s32);
@@ -3010,7 +3010,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *arg0, Gfx *arg1, f32 arg2, f32 
     f32 sp84;
 
     if (0) {
-        func_8063E6B4((void *)&arg5);
+        csUpdateStepAndInterpolation((void *)&arg5);
     }
     if (arg5 != 0) {
         dx = MODEL_RENDER_PLAYER(gCurrentPlayerIndex).unk21C - arg0->unk0;
@@ -3103,7 +3103,7 @@ gSPClearGeometryMode(arg1++, G_FOG | G_CULL_BOTH);
     gDPSetPrimColor(arg1++, 0, 0xFF, sp97, sp96, sp95, 0xFF);
     if (arg5 != 0) {
         if (arg0->unkB6 != -1 && (model = gModelSlots[sp90].unk7C) != NULL && model->unk60 == 1) {
-            func_8063E6B4(model);
+            csUpdateStepAndInterpolation(model);
             sp92 = ((ModelRenderSlot *)gModelSlots[sp90].unk7C)->unk64;
         } else {
             renderCalcPlayerDistanceAlpha(arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC0, arg0->unkB4, &sp92);
@@ -3116,7 +3116,7 @@ gSPClearGeometryMode(arg1++, G_FOG | G_CULL_BOTH);
             if (arg0->unkB6 != -1) {
                 model = gModelSlots[sp90].unk7C;
                 if (model != NULL) {
-                    func_8063E6B4(model);
+                    csUpdateStepAndInterpolation(model);
                 }
             }
             if (arg0->unkB6 != -1) {

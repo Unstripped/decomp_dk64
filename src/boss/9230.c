@@ -66,7 +66,7 @@ extern Boss2F_9230_DC9C *gBehaviourExtraState;
 
 void bossScriptStep(u8 *, s32, f32);
 void bossRoundFrame(u8 *);
-void func_80641874(s32, s32);
+void csSendActorMessagePayload(s32, s32);
 void mapRequestTransition(s32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
@@ -77,7 +77,7 @@ void camStartPath(Boss2F_9230_Actor *, s32, s32);
 void camSetSecondTarget(s32, s32, s32);
 s32 currentActorTestClearFlag();
 void actorUpdateModelMatrix(Boss2F_9230_Actor *, s32);
-void func_80641874();
+void csSendActorMessagePayload();
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 s32 func_8072881C(s32, void *);
 void behaviourFrameBegin(void);
@@ -105,10 +105,10 @@ void bossKRoolDkStep(void) {
     }
     switch (gCurrentActor->unk154) {
     case 0x2B:
-        func_80641874(1, 0);
-        func_80641874(2, 0);
-        func_80641874(3, 0);
-        func_80641874(4, 0);
+        csSendActorMessagePayload(1, 0);
+        csSendActorMessagePayload(2, 0);
+        csSendActorMessagePayload(3, 0);
+        csSendActorMessagePayload(4, 0);
         gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
         gCurrentActor->unk155 = 0;
         break;
@@ -135,7 +135,7 @@ void bossKRoolDkStep(void) {
     case 0x2A:
         actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
         if (gBossFightPhase == 4) {
-            func_80641874(gActivePlayerState->unkBE, 1);
+            csSendActorMessagePayload(gActivePlayerState->unkBE, 1);
             if (scriptState->unk14 == 3) {
                 gCurrentActor->unk154 = 0x37;
                 gCurrentActor->unk155 = 0;

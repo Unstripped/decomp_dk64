@@ -870,7 +870,7 @@ extern BDEE0Tbl D_80750638;
 
 void func_806BB81C();
 s32 spawnNodeHasActor(s32);
-void func_80641874(s32, s32);
+void csSendActorMessagePayload(s32, s32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 void camStartPath(void *, s32, s32);
@@ -967,7 +967,7 @@ void func_806BB874(void) {
         break;
     case 7:
         if (spawnNodeHasActor(0x2B) == 0 && spawnNodeHasActor(0x2C) == 0) {
-            func_80641874(0x11, 1);
+            csSendActorMessagePayload(0x11, 1);
             spawnNodeSpawnById(0x2D, mathSinF(gCurrentActor->yaw) * 80.0f + gCurrentActor->x, gCurrentActor->y, mathCosF(gCurrentActor->yaw) * 80.0f + gCurrentActor->z, gCurrentActor->yaw, 0, 0);
             D_807FDCA0->unk1C = (s32)gSpawnedActor;
             camStartPath(gCurrentActor, 0x1F, 1);
@@ -1005,7 +1005,7 @@ void func_806BB874(void) {
             gCurrentActor->alpha = w;
         }
         if (spawnNodeHasActor(0x2D) == 0) {
-            func_80641874(0x11, 0xFF);
+            csSendActorMessagePayload(0x11, 0xFF);
             camReturnToFollow(gCamActor, gPrimaryPlayerActor);
             func_80726EE0(0);
             gGlobalCutsceneFlags &= ~1;

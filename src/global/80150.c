@@ -73,8 +73,8 @@ void actorUpdateModelMatrix(Actor *, s32);
 s32 actorUpdateFloorContactAndTilt(Actor *, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 s32 actorDespawn(Actor *);
-void func_8067B4C8(void);
-void func_8067BA7C(s32);
+void tagBarrelInitPeerState(void);
+void tagBarrelAnimSetSpeed(s32);
 s32 tagBarrelCheckProximityAndFall(s32, u8 *, u8 *, u8 *);
 void actorTransformCameraUpdate(void);
 void tagBarrelDespawnEffects(void);
@@ -106,7 +106,7 @@ void effectSpinBillboardingUpdate(void);
 s32 flagGet(s16, s32);
 void flagSet(s16, s32, s32);
 
-s32 func_8067B450(void *actor) {
+s32 tagBarrelIsSpecial(void *actor) {
     s32 count = 4;
     s32 val = actorListFindIdByActor(actor);
     s32 i;
@@ -170,7 +170,7 @@ void actorQueueDelayedCallback(Actor *, Actor *, s32, s32, s32, s32, s32);
 void actorAppendCallbackPayloadAAB8(s32, Actor *, s16, f32, s16);
 void effectCreateAtActorBone(void *, f32, void *, s32, s32);
 
-void func_8067B4C8(void) {
+void tagBarrelInitPeerState(void) {
     ActorB4C8State *sub = gCurrentActor->customState;
     ActorB4C8PeerState *peer;
     s32 i;
@@ -189,7 +189,7 @@ void func_8067B4C8(void) {
         sub->unk10 = ((ActorB4C8Spawn *)gCurrentActor->spawnData)->unk10;
         sub->unk15 = ((ActorB4C8Spawn *)gCurrentActor->spawnData)->unk14;
         if (1 == ((ActorB4C8Spawn *)gCurrentActor->spawnData)->unk18) {
-            if (func_8067B450(gCurrentActor) == 0) {
+            if (tagBarrelIsSpecial(gCurrentActor) == 0) {
                 gCurrentActor->state = 0x14;
                 gCurrentActor->unk144 = 1;
                 gCurrentActor->flags &= ~0x8000;
@@ -267,7 +267,7 @@ void func_8067B4C8(void) {
                     gCurrentActor->state = 0x15;
                 }
             }
-            if (func_8067B450(gCurrentActor) != 0) {
+            if (tagBarrelIsSpecial(gCurrentActor) != 0) {
                 gCurrentActor->alpha = 0xFF;
                 gCurrentActor->flags |= 0x8000;
                 gCurrentActor->state = 0;
@@ -285,11 +285,11 @@ void func_8067B4C8(void) {
     if (sub) {} // FAKE: extends sub across the final call so it takes a saved register
 }
 
-void func_8067BA3C(void) {
+void tagBarrelPeerUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->drawDistance = 0x7D0;
     }
-    func_8067B4C8();
+    tagBarrelInitPeerState();
 }
 
 void animSetSpeed(Actor *, s32, f32);
@@ -300,7 +300,7 @@ void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s16, f32, void *);
 extern u8 D_807FBBA8;
 
 
-void func_8067BA7C(s32 arg0) {
+void tagBarrelAnimSetSpeed(s32 arg0) {
     if (!(gCurrentActor->flags & 0x10) && (arg0 == 0x13)) {
         animSetSpeed(gCurrentActor, 0, 0.5f);
         animSetLoopMode(gCurrentActor, 0, 0);
@@ -343,31 +343,31 @@ void func_8067BA7C(s32 arg0) {
 }
 
 void tagBarrelSpawnType13A(void) {
-    func_8067BA7C(0x13);
+    tagBarrelAnimSetSpeed(0x13);
 }
 
 void tagBarrelSpawnType13B(void) {
-    func_8067BA7C(0x13);
+    tagBarrelAnimSetSpeed(0x13);
 }
 
 void tagBarrelSpawnType13C(void) {
-    func_8067BA7C(0x13);
+    tagBarrelAnimSetSpeed(0x13);
 }
 
 void tagBarrelSpawnType13D(void) {
-    func_8067BA7C(0x13);
+    tagBarrelAnimSetSpeed(0x13);
 }
 
 void tagBarrelSpawnType13E(void) {
-    func_8067BA7C(0x13);
+    tagBarrelAnimSetSpeed(0x13);
 }
 
 void tagBarrelSpawnType13F(void) {
-    func_8067BA7C(0x13);
+    tagBarrelAnimSetSpeed(0x13);
 }
 
 
-void func_8067BD28(void) {
+void tagBarrelCheckPlayerState(void) {
     char *extra;
     s32 var_v1 = 0;
 
@@ -381,12 +381,12 @@ void func_8067BD28(void) {
 }
 
 void tagBarrelSpawnType95(void) {
-    func_8067BA7C(0x95);
+    tagBarrelAnimSetSpeed(0x95);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     gCurrentActor->y = gCurrentActor->floorY;
 }
 
-void func_8067BDF8(void) {
+void tagBarrelCheckProximity(void) {
     u8 sp1F;
     u8 *ptr;
 
@@ -395,7 +395,7 @@ void func_8067BDF8(void) {
     tagBarrelCheckProximityAndFall(0x13, ptr, ptr + 1, &sp1F);
 }
 
-void func_8067BE30(void) {
+void tagBarrelInitDrawDistanceAndState(void) {
     u8 *t0 = gCurrentActor->customState;
     s16 i;
 
@@ -559,7 +559,7 @@ void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 void actorStepPhysics(Actor *, s16, s16);
 
-void func_8067C2B8(void) {
+void tagBarrelRotateUpdate(void) {
     ActorC2B8State *temp_v0;
     f32 temp_fv1;
     f32 temp_fv0;
@@ -1330,7 +1330,7 @@ void tagBarrelUpdateRecoilState0(void) {
     }
 }
 
-void func_8067E510(void) {
+void transformBarrelInitScale(void) {
     s16 i;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -1369,7 +1369,7 @@ void transformBarrelWrapperUpdateC(void) {
     transformBarrelUpdate();
 }
 
-void func_8067E724(void) {
+void transformBarrelUpdateNear(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->drawDistance = 0x320;
     }
@@ -1474,7 +1474,7 @@ void transformBarrelUpdate(void) {
         } while (!sp89 && sp8C < sp8A);
 
         if (*(s32 *)gCurrentActor->spawnData == 1) {
-            if (func_8067B450(gCurrentActor) == 0) {
+            if (tagBarrelIsSpecial(gCurrentActor) == 0) {
                 gCurrentActor->state = 0x14;
                 gCurrentActor->unk144 = 1;
                 gCurrentActor->flags &= ~0x8000;
@@ -1905,7 +1905,7 @@ s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 void actorAppendCallbackPayloadA70C(Actor *, Actor *, f32, f32, f32, u8, u8);
 void renderCallbacksRegister(void *, void *, s32);
 
-void func_8067FB6C(void) {
+void tagBarrelParticleUpdate(void) {
     f64 pad;
     f32 sp5C;
     f32 sp58;
@@ -2505,7 +2505,7 @@ void tagBarrelActorUpdate(void) {
 }
 
 
-void func_80681B14(void) {
+void tagBarrelCheckDespawn(void) {
     TagBarrelState *sub = gCurrentActor->customState;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -2522,7 +2522,7 @@ void func_80681B14(void) {
     }
 }
 
-void func_80681BD8(void) {
+void tagBarrelUpdateStateCheck(void) {
     TagBarrelState *sub = gCurrentActor->customState;
     s32 sp28;
     s32 count;
@@ -2609,7 +2609,7 @@ void rocketbarrelUpdate(void) {
         gCurrentActor->floorY = 99999.0f;
         collisionCheckGroundAtPoint(gCurrentActor->x, gCurrentActor->z, &gCurrentActor->floorY);
         if (1 == *(s32 *)gCurrentActor->spawnData) {
-            if (func_8067B450(gCurrentActor) == 0) {
+            if (tagBarrelIsSpecial(gCurrentActor) == 0) {
                 gCurrentActor->state = 0x14;
                 gCurrentActor->unk144 = 1;
                 gCurrentActor->flags &= ~0x8000;
@@ -3078,7 +3078,7 @@ void func_806F1EB0(Actor *, void *, s32 *);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_8072881C(s32, void *);
 
-void func_80683158(void) {
+void tagBarrelInteractiveUpdate(void) {
     s32 sp3C;
     ActorExtra3158 *extra;
     u8 *extra8;
