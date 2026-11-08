@@ -823,7 +823,7 @@ void func_805FF9AC(s32, s32, s32, s32);
 extern u8 D_80720BC4[];
 void effectLightGrowShrinkUpdate(void);
 
-void func_80645700(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdInterpolateFloatPair(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 idx;
     CsFloatPair *p;
     CsFloatPair *q;
@@ -859,7 +859,7 @@ void func_80645700(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern f32 gCsRotY;
 
-void func_806458C8(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdPeriodicIntervalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 angle;
     s16 dist;
     s32 r1;
@@ -950,7 +950,7 @@ typedef struct CsPlayerHeightView {
 
 void mapChunkEffectSetFlag(s16, s16, u8, u8);
 
-void func_80645D14(s32 **slot, s16 csId, s16 b, s16 c) {
+void csCmdExtraObjectAttach(s32 **slot, s16 csId, s16 b, s16 c) {
     s32 *p;
     CsExtraObj1 *a;
     CsExtraObj2 *b2;
@@ -1248,7 +1248,7 @@ typedef struct CsPlayerXYZ {
 extern f32 D_807480F0;
 f32 sqrtf(f32);
 
-void func_80646770(s32 **slot, s16 csId, s16 b, s16 c) {
+void csCmdPlayerProximityPointCheck(s32 **slot, s16 csId, s16 b, s16 c) {
     s32 *p;
     s32 cnt;
     s32 start;
@@ -1320,7 +1320,7 @@ void effectSpinBillboardingUpdate(void);
 void effectDecelDriftFadeUpdate(void);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
 
-void func_80646978(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnDirectionalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
     f32 fx;
     f32 fy;
@@ -1372,7 +1372,7 @@ void func_80646978(CsState *cs, s16 csId, s16 b, s16 c) {
 
 f32 randomFloat(void);
 
-void func_80646DC4(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnScaledSphereEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 pad0;
     f32 x;
     f32 y;
@@ -1454,7 +1454,7 @@ void csCmdGetModelNodeAndProject(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-void func_80647218(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnRandomJitterEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
     f32 dx;
     f32 dy;
@@ -1675,7 +1675,7 @@ typedef struct CsMatrixState {
     /* 0x9A */ u8 unk9A;
 } CsMatrixState;
 
-void func_80648000(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 pad[20];
     void *dm = &cs;
     f32 rx;
@@ -2056,7 +2056,7 @@ s32 flagGet(s32, s32);
 u8 mapGetHubWorldIndex(u8, u8);
 u8 mapHasCollectedSufficientItems(void);
 
-void func_806491F4(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdHubWorldItemsAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 idx;
     s32 base;
     s8 v;
@@ -2174,7 +2174,7 @@ typedef struct CsPartF32 {
     /* 0x24 */ f32 unk24;
 } CsPartF32;
 
-void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     CsCamVecView *p;
     CsObjStateView *obj;
     CsPartF32 *q;
@@ -2264,7 +2264,7 @@ typedef struct CsStepState {
     /* 0x4 */ s32 prev;
 } CsStepState;
 
-void func_80649BF0(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
     CsStepState *st;
     u8 found;
     s32 eq;
@@ -2335,7 +2335,7 @@ typedef struct CsModelSlotView {
 
 extern s16 D_807481C0[][2];
 
-void func_80649D74(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdLookupSlotKey(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 key;
     s32 found;
     s16 (*p)[2];
@@ -2465,7 +2465,7 @@ typedef struct CsSlotIdView {
 extern u8 D_80748214[];
 void func_806BD094(s16, s8);
 
-void func_8064A194(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdFindSlotIdMatch(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 found;
     s32 i;
     s16 id;
@@ -2535,7 +2535,7 @@ void modelAnimEntrySetUnkC(s16, s16, s16);
 void modelAnimEntrySetTime(s16, s16, s16, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 
-void func_8064A258(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 u1; /* unused: reserves frame slots */
     s32 sixth;
     u8 ok;
@@ -3375,7 +3375,7 @@ void csCmdAllocAnimTracking(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-void func_8064C814(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdCameraShakeOnModelAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x;
     f32 y;
     f32 z;
@@ -3410,7 +3410,7 @@ void func_8064C814(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void func_8064C9F8(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnSparksOnModelAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x;
     f32 y;
     f32 z;
@@ -3435,7 +3435,7 @@ void func_8064C9F8(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void func_8064CB3C(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnPuffsOnModelAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x;
     f32 y;
     f32 z;
@@ -3917,7 +3917,7 @@ typedef struct CsAnimSlotView {
     u8 pad8C[4];
 } CsAnimSlotView;
 
-void func_8064DF5C(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdPatternBufferMatch(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 *p;
     u8 full;
     u8 pat[4];
@@ -4026,7 +4026,7 @@ void csSeqMatch(CsState *cs, s16 csId, s16 val, u8 *pat, s32 len, s16 okId, s16 
 typedef struct { u8 b[4]; } CsPat4;
 extern CsPat4 D_807482DC;
 
-void func_8064E428(CsState *cs, s16 csId, s16 val, s16 c) {
+void csCmdSeqMatchPattern4(CsState *cs, s16 csId, s16 val, s16 c) {
     CsPat4 pat = D_807482DC;
 
     csSeqMatch(cs, csId, val, (u8 *)&pat, 4, 5, 0x14);
@@ -4035,7 +4035,7 @@ void func_8064E428(CsState *cs, s16 csId, s16 val, s16 c) {
 typedef struct { u8 b[5]; } CsPat5;
 extern CsPat5 D_807482E0;
 
-void func_8064E48C(CsState *cs, s16 csId, s16 val, s16 c) {
+void csCmdSeqMatchPattern5(CsState *cs, s16 csId, s16 val, s16 c) {
     CsPat5 pat = D_807482E0;
 
     csSeqMatch(cs, csId, val, (u8 *)&pat, 5, 4, 0x14);
@@ -4044,7 +4044,7 @@ void func_8064E48C(CsState *cs, s16 csId, s16 val, s16 c) {
 typedef struct { u8 b[3]; } CsPat3;
 extern CsPat3 D_807482E8;
 
-void func_8064E4F8(CsState *cs, s16 csId, s16 val, s16 c) {
+void csCmdSeqMatchPattern3(CsState *cs, s16 csId, s16 val, s16 c) {
     CsPat3 pat = D_807482E8;
 
     csSeqMatch(cs, csId, val, (u8 *)&pat, 3, 7, 0x14);
@@ -4052,13 +4052,13 @@ void func_8064E4F8(CsState *cs, s16 csId, s16 val, s16 c) {
 
 extern CsPat4 D_807482EC;
 
-void func_8064E55C(CsState *cs, s16 csId, s16 val, s16 c) {
+void csCmdSeqMatchPattern4B(CsState *cs, s16 csId, s16 val, s16 c) {
     CsPat4 pat = D_807482EC;
 
     csSeqMatch(cs, csId, val, (u8 *)&pat, 3, 7, 0x14);
 }
 
-void func_8064E5C0(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdRandomizeCutsceneTimer(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 old;
 
     old = cs->unk62;

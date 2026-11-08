@@ -98,7 +98,7 @@ void playerApplyFullPhysics();
 void playerApplyMotionWithHorizontalVelocity();
 void actorSetInteractionTimer();
 
-void func_806D1110(void) {
+void playerStateCarried(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     playerInputUpdate(0xB);
     G08_A48->unkB8 = G08_P->unk4;
@@ -944,7 +944,7 @@ extern u32 gFrameCounter;
 s8 func_806CDD24(void *, f32, f32, s32);
 s8 func_806CE174(void *, f32, f32, s32);
 
-void func_806D2DC4(void) {
+void playerStateClimbTree(void) {
     s32 sel = 0x13;
 
     G10_A->unkEE = G10_A->unkE6;
@@ -978,7 +978,7 @@ typedef struct G10Actor4C {
     /* 0x12C */ s16 unk12C;
 } G10Actor4C;
 
-void func_806D2E9C(void) {
+void playerStateVineSwing(void) {
     f32 v;
     f32 r;
     s32 sel;
@@ -1053,7 +1053,7 @@ void func_806D2E9C(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D3224(void) {
+void playerStateClimbTop(void) {
     G10_A->unkEE = G10_A->unkE6;
     if (playerInputUpdate(0x1D) == 0) {
         s8 temp = func_806CE174(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
@@ -1067,7 +1067,7 @@ void func_806D3224(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D32C0(void) {
+void playerStateMinecart(void) {
     if ((gCurrentMap == 0x4E) || (gCurrentMap == 0x4F) || (gCurrentMap == 0x83)) {
         playerInputUpdate(0x1F);
     } else {
@@ -1080,7 +1080,7 @@ void func_806D32C0(void) {
 extern f32 D_807531E0[];
 s32 mathAngleDistance(s16, s16);
 
-void func_806D332C(void) {
+void playerStateClimbLadder(void) {
     f32 f;
 
     if (G10_A->unk155 == 0) {
@@ -1110,7 +1110,7 @@ void func_806D332C(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D34B4(void) {
+void playerStateSlideDownLadder(void) {
     if (playerInputUpdate(0x1C) == 0) {
         s8 temp = func_806CE174(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
 
@@ -1393,7 +1393,7 @@ extern f32 D_8075327C[];
 extern s16 D_80753298[];
 void mathAngleStepTowardThreshold(s16 *, s16, s16, s16);
 
-void func_806D3DE4(void) {
+void playerStateSkidTurn(void) {
     switch (G11_A->unk155) {
         case 0:
             playerInputUpdate(0x41);
@@ -1629,7 +1629,7 @@ void func_806D4758(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D491C(void) {
+void playerStateCrouchJump(void) {
     switch (G11_A->unk155) {
         case 0:
             playerInputUpdate(0x26);
@@ -3986,7 +3986,7 @@ void func_806DA4D8(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806DA7EC(void) {
+void playerStateCrouch(void) {
     playerInputUpdate(6);
     if (D_807FD618[gCurrentPlayerIndex].unk0 != 0.0f) {
         scriptSetActorRampTarget(gCurrentActor, 3.0f, 0.0f);
@@ -3997,7 +3997,7 @@ void func_806DA7EC(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806DA89C(void) {
+void playerStateCrawl(void) {
     playerInputUpdate(7);
     if (D_807FD618[gCurrentPlayerIndex].unk0 != 0.0f) {
         scriptSetActorRampTarget(gCurrentActor, 2.0f, 0.0f);
@@ -5672,7 +5672,7 @@ void func_806DE9F4(void) {
 }
 
 
-void func_806DEAA4(void) {
+void playerStateBarrelBlast(void) {
     switch (G19_A->unk155) {
     case 0:
         camSetTargetScaled((void *)G19_P->unk104, gCurrentActor, 4, 0, 0x19, 0, 5, -3, 0xA, 0, 0.15f);
