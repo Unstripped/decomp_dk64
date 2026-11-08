@@ -109,10 +109,10 @@ s32 playerStateQueueCallback(s16 priority, void *actor, u8 player) {
     return 0;
 }
 
-void playerStateSetCallbackParameters(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    gPlayerStateCallbackParams.unk0 = arg1;
-    gPlayerStateCallbackParams.unk4 = arg2;
-    gPlayerStateCallbackParams.unk8 = arg3;
+void playerStateSetCallbackParameters(s32 unused, s32 param0, s32 param1, s32 param2) {
+    gPlayerStateCallbackParams.unk0 = param0;
+    gPlayerStateCallbackParams.unk4 = param1;
+    gPlayerStateCallbackParams.unk8 = param2;
 }
 
 #define EfN9_Q ((EfAQueuedCall *)gPlayerSlots)
