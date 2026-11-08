@@ -647,8 +647,7 @@ s32 func_806F1B58(F5BActor *arg0, F5N1Predicate *arg1, s32 arg2) {
         if (ret != 0) {
             return arg2 == arg1->unk18;
         }
-    }
-    return;
+    } // FAKE: no final return keeps ret in $v0 (same idiom as func_80026250)
 }
 
 f32 mathAngleRadDeltaTurns(f32 *arg0, f32 arg1) {

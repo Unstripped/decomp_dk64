@@ -830,6 +830,6 @@ s32 effectSpritePoolFadeOut(void) {
         D_807FDA28 = 0;
         return 1;
     }
-    return;
+    // FAKE: no final return; fall-through path (*queue == 0 && D_807FDA1C == 6) returns queue (D_807550E0) in v0 implicitly
 }
 
