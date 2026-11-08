@@ -112,7 +112,7 @@ void critterSetTargetSpeed(CritterObj *obj, CritterGroup *grp, f32 baseSpeed) {
     }
 }
 
-void func_8002409C(CritterGroup *grp) {
+void critterInitGroupType4(CritterGroup *grp) {
     s32 i;
     CritterObj *obj;
 
@@ -129,7 +129,7 @@ void func_8002409C(CritterGroup *grp) {
     }
 }
 
-void func_800240EC(CritterGroup *grp) {
+void critterInitGroupType01(CritterGroup *grp) {
     s32 tex0;
     s32 tex1;
     s32 i;
@@ -157,7 +157,7 @@ void func_800240EC(CritterGroup *grp) {
 typedef struct { s16 v[3]; } C0aTbl;
 extern C0aTbl D_80029F6C;
 
-void func_80024154(CritterGroup *grp) {
+void critterInitGroupType3(CritterGroup *grp) {
     CritterObj *obj;
     s32 i;
     C0aTbl tbl;
@@ -183,7 +183,7 @@ void func_80024154(CritterGroup *grp) {
 typedef struct { s16 v[4]; } C0aTbl2;
 extern C0aTbl2 D_80029F74;
 
-void func_8002427C(CritterGroup *grp) {
+void critterInitGroupType2(CritterGroup *grp) {
     CritterObj *obj;
     s32 i;
     C0aTbl2 tbl;
@@ -248,7 +248,7 @@ void sfxPlayAtPosition(f32, f32, f32, s16, u8, f32, u8, u8);
 f32 func_80612790(s16);
 extern u8 D_80770DC9;
 
-void func_800245B8(CritterObj *obj) {
+void critterUpdateObjType1(CritterObj *obj) {
     s16 r;
     f32 temp;
     f32 speedScaled;
@@ -320,7 +320,7 @@ Gfx *func_800247F4(Gfx *gdl, CritterObj *obj) {
 
 f32 func_80612794(s32);
 
-void func_80024B78(CritterObj *obj) {
+void critterUpdateObjType3(CritterObj *obj) {
     f32 sinVal;
     f32 speedScaled;
 
@@ -374,7 +374,7 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 extern u8 effectWobbleRiseUpdate;
 extern u8 D_8071FC40;
 
-void func_80024F28(CritterObj *obj) {
+void critterUpdateObjType2(CritterObj *obj) {
     s16 randVal;
     f32 temp;
     f32 finWave;
@@ -463,7 +463,7 @@ Gfx *func_8002516C(Gfx *gdl, CritterObj *obj) {
 
 s32 randomLcgNext(void);
 
-void func_80025500(CritterObj *obj) {
+void critterUpdateObjType4(CritterObj *obj) {
     if (obj->state != 0 && (obj->flags & 1) && (s16)(randomLcgNext() % 255U) < 6) {
         sfxPlayAtPositionPooled(obj->x, obj->y, obj->z,
                       (s16)((randomLcgNext() & 3) + 0x1A9),
@@ -818,7 +818,7 @@ void critterFollowLeader(CritterObj *obj, CritterObj *leader) {
 }
 
 
-s32 func_80026530(CritterObj *obj, CritterGroup *grp) {
+s32 critterSteerToTargetCallback(CritterObj *obj, CritterGroup *grp) {
     critterSetTargetSpeed(obj, grp, (f32)((f64)obj->scale * 0.5));
     critterSetRandomOffset(obj->zone, obj, 1, 1);
     return 0;
@@ -902,7 +902,7 @@ void critterUpdateIdle(CritterObj *obj, CritterGroup *grp) {
 
     flags = obj->flags;
     if ((flags & 1) && (flags & 4)) {
-        critterSteerToTarget(obj, grp, NULL, func_80026530);
+        critterSteerToTarget(obj, grp, NULL, critterSteerToTargetCallback);
     }
     if (obj->role == 2) {
         critterFollowLeader(obj, grp->objs);
@@ -916,7 +916,7 @@ void critterUpdateIdle(CritterObj *obj, CritterGroup *grp) {
 
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
-void func_80026904(CritterObj *obj, CritterGroup *grp) {
+void critterUpdateFollowTarget(CritterObj *obj, CritterGroup *grp) {
     s16 angleDiff;
     CritterZone *targetZone;
 
@@ -946,7 +946,7 @@ void func_80026904(CritterObj *obj, CritterGroup *grp) {
     }
 }
 
-s32 func_80026A5C(CritterObj *obj, CritterGroup *grp) {
+s32 critterCheckZoneState(CritterObj *obj, CritterGroup *grp) {
     CritterZone *zone;
 
     if (obj->role == 1) {
@@ -978,8 +978,8 @@ s32 func_80026A5C(CritterObj *obj, CritterGroup *grp) {
     }
     return 0;
 }
-void func_800245B8(CritterObj *);
-void func_80024F28(CritterObj *);
+void critterUpdateObjType1(CritterObj *);
+void critterUpdateObjType2(CritterObj *);
 void critterUpdateZoneProximity(CritterObj *);
 
 void critterDispatchAll(CritterGroup *grp) {
@@ -991,28 +991,28 @@ void critterDispatchAll(CritterGroup *grp) {
     switch (grp->type) {
     case 0:
     case 1:
-        obj = func_800245B8;
+        obj = critterUpdateObjType1;
         break;
     case 2:
-        obj = func_80024F28;
+        obj = critterUpdateObjType2;
         break;
     case 3:
-        obj = func_80024B78;
+        obj = critterUpdateObjType3;
         break;
     case 4:
-        obj = func_80025500;
+        obj = critterUpdateObjType4;
         break;
     default:
         obj = NULL;
         break;
     }
-    cb = func_80026A5C;
+    cb = critterCheckZoneState;
     for (objIdx = 0; objIdx < grp->count; objIdx++, groupIdx++) {
         critterUpdateZoneProximity(groupIdx);
         if (groupIdx->state == 0) {
             critterUpdateIdle(groupIdx, grp);
         } else {
-            critterSteerToTarget(groupIdx, grp, func_80026904, cb);
+            critterSteerToTarget(groupIdx, grp, critterUpdateFollowTarget, cb);
         }
         groupIdx->prevAnim = groupIdx->anim;
         if (obj != NULL) {
@@ -1168,16 +1168,16 @@ void critterInitGroup(CritterGroup *grp) {
     switch (grp->type) {
     case 0:
     case 1:
-        cb = func_800240EC;
+        cb = critterInitGroupType01;
         break;
     case 3:
-        cb = func_80024154;
+        cb = critterInitGroupType3;
         break;
     case 4:
-        cb = func_8002409C;
+        cb = critterInitGroupType4;
         break;
     case 2:
-        cb = func_8002427C;
+        cb = critterInitGroupType2;
         break;
     }
     heapClearBlock(grp->objs = heapAlloc(grp->count * 0x1F0));

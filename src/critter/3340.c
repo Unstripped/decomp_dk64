@@ -107,7 +107,7 @@ void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 f32 sqrtf(f32);
 void critterSetDigitFrames(s32 val);
 
-void func_80027448(void) {
+void critterBananaFairyUpdate(void) {
     s32 worldIndex;
     s32 pad;
     s32 requiredCount;
@@ -295,7 +295,7 @@ void func_80027448(void) {
 }
 
 
-void func_80027DC0(void) {
+void critterBananaFairyRewardUpdate(void) {
     f32 dx;
     f32 dz;
     Actor_3340 *savedActor;
@@ -421,7 +421,7 @@ void billboardSubmit(Actor_3340 *, s32, s32, s32, s32, s32, s32, s32, s32, s32, 
 void actorUpdateFloorContactAndTilt(Actor_3340 *, f32);
 u8 func_8072881C(u8, u32 *);
 
-void func_80028120(void) {
+void critterFlutterFlyUpdate(void) {
     f32 dx;
     f32 dz;
     f32 k;
