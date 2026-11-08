@@ -197,7 +197,7 @@ f32 sqrtf(f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 void playerDecelerateAndApplyMotion();
-void func_806CC638(f32);
+void playerApplyDecelVelocityVector(f32);
 
 void playerStateUnderwaterSwimming(void) {
     f64 temp0;
@@ -225,14 +225,14 @@ void playerStateUnderwaterSwimming(void) {
             mathAngleStepToward(&G08_A40->unkE8, (s16)mathAngleFromVector2D(G08_A40->unkB8, G08_A40->unkC0), 0x32);
             G08_P->unk38 = 500.0f;
             playerInputUpdate(0x57);
-            func_806CC638(0.0f);
+            playerApplyDecelVelocityVector(0.0f);
             if (G08_P->unk10 == 0) {
                 G08_A40->unk155 = 3;
             }
             break;
         case 2:
             playerInputUpdate(0x55);
-            func_806CC638(0.0f);
+            playerApplyDecelVelocityVector(0.0f);
             if (G08_A40->unk154 == 0x7F) {
                 if (G08_A40->unkB8 != 0.0f) {
                     G08_P->unk18 = 0;
@@ -253,7 +253,7 @@ void playerStateUnderwaterSwimming(void) {
             break;
         case 3:
             playerInputUpdate(0x56);
-            func_806CC638(0.0f);
+            playerApplyDecelVelocityVector(0.0f);
             temp0 = G08_A40->unkB8 / 200.0;
             temp1 = G08_A40->unkC0 / 200.0;
             scriptSetActorRampTarget(gCurrentActor, sqrtf(temp0 * temp0 + temp1 * temp1), 5.0f);
@@ -335,7 +335,7 @@ void playerStateUnderwaterCharge(void) {
             G08_P->unk10 = 0xA;
             G08_P->unk38 = 200.0f;
             playerInputUpdate(0x69);
-            func_806CC638(0.0f);
+            playerApplyDecelVelocityVector(0.0f);
             break;
         case 2:
             playerInputUpdate(0x69);
@@ -405,7 +405,7 @@ void playerStateExitTransition(void) {
 }
 
 void hudSpawnTextScreen(s32);
-s32 func_806D850C();
+s32 playerCanPerformActionCheck();
 void actorScriptStartByIndex(Actor *, s32);
 
 void playerStateGameOver(void) {
@@ -415,7 +415,7 @@ void playerStateGameOver(void) {
     if (!(G08_A40->unk6A & 4)) {
         playerApplyFullPhysics();
     } else {
-        func_806D850C();
+        playerCanPerformActionCheck();
         if (!(G08_A40->unk6C & 4)) {
             actorScriptStartByIndex(gPrimaryPlayerActor, 0x34);
         }
@@ -450,7 +450,7 @@ void playerStateSquishDeath(void) {
     if (!(G08_A40->unk6A & 4)) {
         playerApplyFullPhysics();
     } else {
-        func_806D850C();
+        playerCanPerformActionCheck();
         if (!(G08_A40->unk6C & 4)) {
             actorScriptStartByIndex(gPrimaryPlayerActor, 0x34);
         }
@@ -923,8 +923,8 @@ void func_806EAB44();
 void playerInputUpdateCaseD(void) {
     G10_P->unk2C = D_80753AFC[gCurrentCharacterIndex];
     playerRegisterWeaponHudRenderCallback(0xD);
-    func_806CC638(D_80753A5C[gCurrentCharacterIndex]);
-    if (func_806D850C() != 0) {
+    playerApplyDecelVelocityVector(D_80753A5C[gCurrentCharacterIndex]);
+    if (playerCanPerformActionCheck() != 0) {
         func_806EAB44(gCurrentActor, 1);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -933,16 +933,16 @@ void playerInputUpdateCaseD(void) {
 void playerInputUpdateCase11(void) {
     G10_P->unk2C = D_80753AFC[gCurrentCharacterIndex];
     playerRegisterInstrumentHudRenderCallback(0x11);
-    func_806CC638(D_80753A5C[gCurrentCharacterIndex]);
-    if (func_806D850C() != 0) {
+    playerApplyDecelVelocityVector(D_80753A5C[gCurrentCharacterIndex]);
+    if (playerCanPerformActionCheck() != 0) {
         func_806EAB44(gCurrentActor, 1);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 extern u32 gFrameCounter;
-s8 func_806CDD24(void *, f32, f32, s32);
-s8 func_806CE174(void *, f32, f32, s32);
+s8 playerSelectWalkRunState(void *, f32, f32, s32);
+s8 playerSelectCarryState(void *, f32, f32, s32);
 
 void playerStateClimbTree(void) {
     s32 sel = 0x13;
@@ -954,7 +954,7 @@ void playerStateClimbTree(void) {
         sel = 0x14;
     }
     if ((gFrameCounter >= 2) && (playerInputUpdate(sel) == 0)) {
-        s8 temp = func_806CDD24(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
+        s8 temp = playerSelectWalkRunState(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
 
         if (temp != 0xC) {
             G10_A->unk154 = temp ^ 0;
@@ -1056,7 +1056,7 @@ void playerStateVineSwing(void) {
 void playerStateClimbTop(void) {
     G10_A->unkEE = G10_A->unkE6;
     if (playerInputUpdate(0x1D) == 0) {
-        s8 temp = func_806CE174(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
+        s8 temp = playerSelectCarryState(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
 
         if (temp != 0x5D) {
             G10_A->unk154 = temp ^ 0;
@@ -1089,7 +1089,7 @@ void playerStateClimbLadder(void) {
         G10_P->unkE = -1;
     }
     if (playerInputUpdate(0x13) == 0) {
-        s8 temp = func_806CDD24(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
+        s8 temp = playerSelectWalkRunState(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
 
         if (temp != 0xD) {
             G10_A->unk154 = temp ^ 0;
@@ -1112,7 +1112,7 @@ void playerStateClimbLadder(void) {
 
 void playerStateSlideDownLadder(void) {
     if (playerInputUpdate(0x1C) == 0) {
-        s8 temp = func_806CE174(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
+        s8 temp = playerSelectCarryState(gCurrentActor, G10_A->unkB8, G10_P->unk4, 1);
 
         if (temp != 0x5E) {
             G10_A->unk154 = temp ^ 0;
@@ -1123,7 +1123,7 @@ void playerStateSlideDownLadder(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D3530(void) {
+void playerUpdateFallTimer(void) {
     if (((G10_A->unk9C - G10_A->unk80) > 50.0f) && (G10_A->unkB4 > 250.0f)) {
         G10_P->unk42++;
     } else {
@@ -1136,12 +1136,12 @@ void func_806D3530(void) {
 
 extern s32 gGlobalOverlayFlags;
 
-void func_806D3608(void) {
+void playerUpdateFallAndStepSounds(void) {
     f32 temp = G10_A->unk4->unk38 / 0.15;
 
     if (!(gGlobalOverlayFlags & 0x40000) && (camIsCutsceneActive() == 0)) {
         if (gCurrentMap == 0xE) {
-            func_806D3530();
+            playerUpdateFallTimer();
             return;
         }
         if ((290.0f * temp) < (G10_A->unk9C - G10_A->unk80)) {
@@ -1151,13 +1151,13 @@ void func_806D3608(void) {
 }
 
 void playerSetBaseGravity();
-void func_806D3608();
+void playerUpdateFallAndStepSounds();
 
 void playerStateFallDamageLand(void) {
     switch (G10_A->unk155) {
         case 0:
             playerInputUpdate(0x20);
-            func_806D3608();
+            playerUpdateFallAndStepSounds();
             break;
         case 1:
             playerInputUpdate(0x31);
@@ -1172,7 +1172,7 @@ void playerStateFallDamageHard(void) {
     switch (G10_A->unk155) {
         case 0:
             playerInputUpdate(0x20);
-            func_806D3608();
+            playerUpdateFallAndStepSounds();
             break;
         case 1:
             playerInputUpdate(0x32);
@@ -1338,7 +1338,7 @@ void playerStateSlideRecover(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D3530();
+void playerUpdateFallTimer();
 
 void playerStateSlideFall(void) {
     playerInputUpdate(0x3E);
@@ -1350,7 +1350,7 @@ void playerStateSlideFall(void) {
             break;
         case 1:
             if (gCurrentMap == 0xE) {
-                func_806D3530();
+                playerUpdateFallTimer();
             }
             break;
         case 2:
@@ -1361,7 +1361,7 @@ void playerStateSlideFall(void) {
                 G11_A->unk155 = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x5E);
             } else {
-                func_806D3530();
+                playerUpdateFallTimer();
             }
             break;
     }
@@ -1426,7 +1426,7 @@ void playerStateSkidTurn(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D3FA0(void) {
+void playerUpdateTargetYawFromStick(void) {
     if (D_807FD618[gCurrentPlayerIndex].unk0 != 0.0f) {
         G11_A->unkEA = G11_P->unkA;
     } else {
@@ -1447,7 +1447,7 @@ void playerStateDoubleJump(void) {
         case 1:
             G11_A->unkC0 = G11_P->unk54;
             playerSetTerminalVelocity5B0();
-            func_806D3FA0();
+            playerUpdateTargetYawFromStick();
             G11_A->unk155++;
             playerInputUpdate(0x21);
             playerSetBaseGravityIfFalling();
@@ -1507,7 +1507,7 @@ void playerStateLongJump(void) {
                 G11_P->unk3C--;
                 G11_A->unkEA = G11_A->unkE6;
             } else {
-                func_806D3FA0();
+                playerUpdateTargetYawFromStick();
                 playerApplyFullPhysics();
             }
             G11_A->unkC0 = G11_P->unk54;
@@ -1530,7 +1530,7 @@ void playerStateLongJump(void) {
             } else {
                 playerInputUpdate(0x21);
             }
-            func_806D3608();
+            playerUpdateFallAndStepSounds();
             playerSetBaseGravityIfFalling();
             break;
         case 3:
@@ -1552,7 +1552,7 @@ void playerStateLongJump(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-u8 func_806CE4E4(Actor *, f32, f32, s32);
+u8 playerSelectSurfaceState(Actor *, f32, f32, s32);
 
 void playerStateLaunchAir(void) {
     switch (G11_A->unk155) {
@@ -1563,7 +1563,7 @@ void playerStateLaunchAir(void) {
         case 1:
             G11_A->unkC0 = G11_P->unk54;
             playerSetTerminalVelocity5B0();
-            func_806D3FA0();
+            playerUpdateTargetYawFromStick();
             G11_A->unk155++;
             playerInputUpdate(0x21);
             playerSetBaseGravityIfFalling();
@@ -1576,12 +1576,12 @@ void playerStateLaunchAir(void) {
             } else {
                 playerInputUpdate(0x21);
             }
-            func_806D3608();
+            playerUpdateFallAndStepSounds();
             playerSetBaseGravityIfFalling();
             break;
         case 3:
             G11_P->unk4C = -1;
-            G11_A->unk154 = func_806CE4E4(gCurrentActor, G11_A->unkB8, G11_P->unk4, 1);
+            G11_A->unk154 = playerSelectSurfaceState(gCurrentActor, G11_A->unkB8, G11_P->unk4, 1);
             G11_A->unk155 = 0;
             if (G11_A->unk154 == 0x3F) {
                 G11_A->unk155 = 1;
@@ -1616,7 +1616,7 @@ void playerStateApproachVelocity(void) {
                 G11_P->unk4 = G11_P->unk4 * 0.63;
             }
             playerSetBaseGravity();
-            func_806D3608();
+            playerUpdateFallAndStepSounds();
             playerApplyFullPhysics();
             break;
         case 2:
@@ -1638,7 +1638,7 @@ void playerStateCrouchJump(void) {
         case 1:
             G11_A->unkC0 = G11_P->unk54;
             playerSetTerminalVelocity5B0();
-            func_806D3FA0();
+            playerUpdateTargetYawFromStick();
             G11_A->unk155++;
             playerInputUpdate(0x25);
             playerSetBaseGravityIfFalling();
@@ -1648,7 +1648,7 @@ void playerStateCrouchJump(void) {
             playerApplyFullPhysics();
             playerInputUpdate(0x25);
             playerSetBaseGravityIfFalling();
-            func_806D3608();
+            playerUpdateFallAndStepSounds();
             break;
         case 3:
             if (*(u16 *)((u8 *)&D_807FD63C + gCurrentPlayerIndex * 0x34) & 0x8000) {
@@ -1735,7 +1735,7 @@ void playerStateBackflip(void) {
 
 extern f32 D_80753620[];
 extern f32 D_8075363C[];
-void func_806D3FA0(void);
+void playerUpdateTargetYawFromStick(void);
 void playerSetTerminalVelocity658();
 
 void playerStateFlapGlide(void) {
@@ -1749,7 +1749,7 @@ void playerStateFlapGlide(void) {
         G08_A40->unkC0 = G12_P->unk54;
         G08_A40->unkC4 = D_8075363C[gCurrentCharacterIndex];
         G08_A40->unk155++;
-        func_806D3FA0();
+        playerUpdateTargetYawFromStick();
         playerInputUpdate(0x2B);
         G12_P->unk38 = D_80753620[gCurrentCharacterIndex];
         playerApplyFullPhysics();
@@ -1758,7 +1758,7 @@ void playerStateFlapGlide(void) {
         playerApplyFullPhysics();
         playerInputUpdate(0x2B);
         playerSetTerminalVelocity658();
-        func_806D3608();
+        playerUpdateFallAndStepSounds();
         break;
     case 3:
         playerInputUpdate(0x2B);
@@ -1778,11 +1778,11 @@ extern f32 D_80753674[];
 extern f32 D_80753690[];
 extern f32 D_807536C8[];
 extern f32 D_807536E4[];
-void func_806CF878();
+void playerSpawnJumpTrailEffects();
 void playerSetTerminalVelocity700();
 
 void playerStateHover(void) {
-    func_806CF878();
+    playerSpawnJumpTrailEffects();
     switch (G08_A40->unk155) {
     case 0:
         scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
@@ -1792,7 +1792,7 @@ void playerStateHover(void) {
     case 1:
         G08_A40->unkC0 = D_80753674[gCurrentCharacterIndex];
         G08_A40->unkC4 = D_80753690[gCurrentCharacterIndex];
-        func_806D3FA0();
+        playerUpdateTargetYawFromStick();
         G08_A40->unk155++;
         playerInputUpdate(0x2B);
         playerApplyFullPhysics();
@@ -1800,7 +1800,7 @@ void playerStateHover(void) {
     case 2:
         playerApplyFullPhysics();
         playerInputUpdate(0x2D);
-        func_806D3608();
+        playerUpdateFallAndStepSounds();
         break;
     case 3:
         playerInputUpdate(0x36);
@@ -1822,7 +1822,7 @@ void playerStateHover(void) {
         playerApplyFullPhysics();
         playerInputUpdate(0x2C);
         playerSetTerminalVelocity700();
-        func_806D3608();
+        playerUpdateFallAndStepSounds();
         break;
     case 7:
         playerInputUpdate(0x30);
@@ -1854,7 +1854,7 @@ void playerStateGroundPound(void) {
         break;
     case 2:
         playerInputUpdate(0x2E);
-        func_806D3608();
+        playerUpdateFallAndStepSounds();
         playerApplyGravityAndMotion();
         break;
     case 3:
@@ -2105,7 +2105,7 @@ extern f32 gKongTurnDecelRates[];
 
 void playerStateSlopeSlideByCharacter(void) {
     mathAngleStepToward(&G13_A->unkE6, G13_A->unkEE, G13_P->unk48);
-    func_806D3608();
+    playerUpdateFallAndStepSounds();
     switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
         case 1:
             switch (G13_A->unk155) {
@@ -2221,7 +2221,7 @@ void playerSetUnk586Flag();
 
 void playerStateSteepSlide(void) {
     mathAngleStepToward(&G13_A->unkE6, G13_A->unkEE, G13_P->unk48);
-    func_806D3608();
+    playerUpdateFallAndStepSounds();
     switch (G13_A->unk155) {
         case 0:
             G13_P->unk30 = 0.2f;
@@ -2290,7 +2290,7 @@ extern s16 D_80753548[];
 s32 actorAngleInArc();
 
 void playerStateDecelMotion(void) {
-    func_806D3608();
+    playerUpdateFallAndStepSounds();
     switch (G13_A->unk155) {
         case 0:
             G13_P->unk30 = 20.0f;
@@ -2433,7 +2433,7 @@ void playerRefillHealth(Actor *, u8);
 s32 randomLcgNext(void);
 void effectSetMode(s32);
 
-s32 func_806D69A4(void) {
+s32 playerCheckSlopeLaunchArc(void) {
     if (G14_A->hasArcBounds != 0) {
         if (mathAngleDistance(G14_A->unkE6, ((((G14_A->arcYawMax - G14_A->arcYawMin) & 0xFFF) / 2) + G14_A->arcYawMin + 0x800) & 0xFFF) < 0x2BC) {
             if (G14_A->unkB8 > 150.0f) {
@@ -2459,7 +2459,7 @@ void effectSineHorizontalDriftUpdate();
 extern u8 D_8071FF18;
 
 void playerStateSlopeSlideArc(void) {
-    func_806D3608();
+    playerUpdateFallAndStepSounds();
     switch (G14_A->unk155) {
     case 0:
         G14_P->unk28 = 0;
@@ -2467,7 +2467,7 @@ void playerStateSlopeSlideArc(void) {
         if (G14_P->unk68 < G14_A->unkB8) {
             G14_P->unk68 = G14_A->unkB8;
         }
-        if (func_806D69A4() != 0) {
+        if (playerCheckSlopeLaunchArc() != 0) {
             break;
         }
         playerCheckLandingSfx();
@@ -2481,7 +2481,7 @@ void playerStateSlopeSlideArc(void) {
         break;
     case 1:
         playerInputUpdate(0x1A);
-        if (func_806D69A4() != 0) {
+        if (playerCheckSlopeLaunchArc() != 0) {
             break;
         }
         mathAngleStepToward(&G14_A->unkE6, G14_A->unkEE, G14_P->unk48);
@@ -2688,7 +2688,7 @@ void playerStateSwimBackwards(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D7704(void) {
+void playerStateSurfaceSwimSprint(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     G14_A->unk64 |= 0x200;
     switch (G14_A->unk155) {
@@ -2774,7 +2774,7 @@ extern f32 gKongSwimStrokeSpeeds[];
 extern f32 D_80753094[];
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void camStartPathNearWall(void *, s32, s32, s32);
-void func_806CF918();
+void playerSpawnSpiralDriftEffects();
 s32 func_80714608(s32);
 void effectSetColor(s32, s32, s32, s32);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
@@ -2812,7 +2812,7 @@ void playerStateSwimStroke(void) {
             flag = func_80714608(0);
             if (G15_PB->unk11C == 0 && G15_PB->unk11D == 0) {
                 if (!flag) {
-                    func_806CF918(G15_PB->unk11C, (u32)flag);
+                    playerSpawnSpiralDriftEffects(G15_PB->unk11C, (u32)flag);
                 }
                 G15_PB->unk11D = 1;
             } else {
@@ -2872,7 +2872,7 @@ void playerStateUnderwaterSink(void) {
             break;
         case 1:
             if (playerInputUpdate(0x46) == 0) {
-                v = func_806CE4E4(gCurrentActor, G08_A40->unkB8, G08_P->unk4, 1);
+                v = playerSelectSurfaceState(gCurrentActor, G08_A40->unkB8, G08_P->unk4, 1);
                 new_var = v;
                 if (v != 0x3F) {
                     G08_A40->unk154 = new_var;
@@ -2891,7 +2891,7 @@ void playerStateUnderwaterLand(void) {
 
     playerCheckLandingSfx();
     if (playerInputUpdate(0x46) == 0) {
-        r = func_806CE4E4(gCurrentActor, G08_A40->unkB8, G08_P->unk4, 1);
+        r = playerSelectSurfaceState(gCurrentActor, G08_A40->unkB8, G08_P->unk4, 1);
         if (r != 0x40) {
             v = r;
             G08_A40->unk154 = v;
@@ -2957,7 +2957,7 @@ void playerStateUnderwaterRamp(void) {
         case 2:
             mathAngleStepToward(&G08_A40->unkE6, G08_A40->unkEE, 0x32);
             playerSetTerminalVelocity754();
-            func_806D3608();
+            playerUpdateFallAndStepSounds();
             playerApplyFullPhysics();
             mathAngleStepToward(&G08_A40->unkE6, G08_A40->unkEE, 0x32);
             playerInputUpdate(0x47);
@@ -3000,7 +3000,7 @@ void playerStateDive(void) {
             break;
         case 2:
             playerSetTerminalVelocity754();
-            func_806D3608();
+            playerUpdateFallAndStepSounds();
             playerApplyGravityAndMotion();
             playerInputUpdate(0x48);
             break;
@@ -3056,7 +3056,7 @@ extern s16 D_807539EC[];
 s32 func_806E770C();
 void controllerAnimSetStateRemap(Actor *, s32, f32, f32);
 
-s32 func_806D850C(void) {
+s32 playerCanPerformActionCheck(void) {
     f32 sp2C;
     f32 lim;
     s32 idx;
@@ -3168,7 +3168,7 @@ void playerStateSurfaceSwim(void) {
             }
             break;
     }
-    func_806D850C();
+    playerCanPerformActionCheck();
     G15_B->unk60 &= ~1;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -3276,7 +3276,7 @@ typedef struct G16Actor {
 extern s16 D_80753A88[];
 extern f32 D_80753AE0[];
 void effectSpawnAuraBurst(u8);
-void func_806D0EBC(void *);
+void playerClampWaterSurfaceHeight(void *);
 
 void playerStateSurfaceTreadWater(void) {
     f32 t;
@@ -3303,7 +3303,7 @@ void playerStateSurfaceTreadWater(void) {
             goto end;
         case 1:
             playerInputUpdate(0x4F);
-            func_806CC638(0.0f);
+            playerApplyDecelVelocityVector(0.0f);
             if (G16_P->unk10 == 0) {
                 G16_A->unk155 = 3;
             }
@@ -3321,7 +3321,7 @@ void playerStateSurfaceTreadWater(void) {
             goto end;
         default:
             playerInputUpdate(0x54);
-            func_806CC638(D_80753A5C[gCurrentCharacterIndex]);
+            playerApplyDecelVelocityVector(D_80753A5C[gCurrentCharacterIndex]);
             if (G16_A->unkB8 != 0.0f) {
                 G16_P->unk18 = 0;
                 G16_A->unk155 = 3;
@@ -3333,11 +3333,11 @@ void playerStateSurfaceTreadWater(void) {
                     }
                 }
             }
-            func_806D0EBC(gCurrentActor);
+            playerClampWaterSurfaceHeight(gCurrentActor);
             goto end;
         case 3:
             playerInputUpdate(0x50);
-            func_806CC638(0.0f);
+            playerApplyDecelVelocityVector(0.0f);
             break;
         case 4:
             playerInputUpdate(0x51);
@@ -3345,24 +3345,24 @@ void playerStateSurfaceTreadWater(void) {
             G16_P->unk14 = G16_A->unkE6;
             G16_P->unk38 = D_80753AE0[gCurrentCharacterIndex];
             G16_P->unk10 = D_80753A88[gCurrentCharacterIndex];
-            func_806CC638(0.0f);
+            playerApplyDecelVelocityVector(0.0f);
             G16_A->unk155 = G16_A->unk155 + 1;
             break;
         case 5:
             playerInputUpdate(0x51);
-            func_806CC638(0.0f);
+            playerApplyDecelVelocityVector(0.0f);
             break;
         case 6:
             playerInputUpdate(0x52);
-            func_806CC638(0.0f);
+            playerApplyDecelVelocityVector(0.0f);
             break;
         case 7:
             playerInputUpdate(0x51);
-            func_806CC638(0.0f);
+            playerApplyDecelVelocityVector(0.0f);
             break;
         case 8:
             playerInputUpdate(0x53);
-            func_806CC638(0.0f);
+            playerApplyDecelVelocityVector(0.0f);
             break;
     }
     if (G16_A->unkB8 == 0.0f || G16_P->unk18 != 0) {
@@ -3370,7 +3370,7 @@ void playerStateSurfaceTreadWater(void) {
         scriptSetActorRampTarget(gCurrentActor, 0.5f, (f32)G16_P->unk50);
         G16_A->unk155 = 2;
     }
-    func_806D0EBC(gCurrentActor);
+    playerClampWaterSurfaceHeight(gCurrentActor);
 end:
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -3381,7 +3381,7 @@ void playerStateSurfacePaddleTurn(void) {
     G16_A->unkE8 = 0;
     switch (G16_A->unk155) {
         case 0:
-            func_806D3FA0();
+            playerUpdateTargetYawFromStick();
             playerInputUpdate(0x21);
             playerApplyMotionWithHorizontalVelocity();
             break;
@@ -3562,7 +3562,7 @@ void playerStateDamageFallTumble(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D97A4(void) {
+void playerApproachAirVelocity(void) {
     playerInputUpdate(5);
     if (G16_A->unkC0 < 0.0f) {
         G16_P->unk6C = 0.0f;
@@ -3572,7 +3572,7 @@ void func_806D97A4(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D9820(void) {
+void playerUpdateAirTumble(void) {
     f32 t;
     f32 v;
 
@@ -3606,7 +3606,7 @@ s32 func_8061CB80();
 void mapChunkSetIndexOverride(s32);
 void sfxAllocateChannel(s32, f32);
 
-void func_806D9940(void) {
+void playerStateCutsceneIdle(void) {
     s32 ch;
     f32 vol;
 
@@ -4017,7 +4017,7 @@ void playerStateHoldWalk(void) {
     G17_A->unk155 = 0;
     playerInputUpdate(0x37);
     if (!(G17_A->unk6A & 1)) {
-        func_806D3608();
+        playerUpdateFallAndStepSounds();
     }
     playerApplyFullPhysics();
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -4032,7 +4032,7 @@ void playerStateHoldRun(void) {
     G17_A->unk155 = 0;
     playerInputUpdate(0x37);
     if (!(G17_A->unk6A & 1)) {
-        func_806D3608();
+        playerUpdateFallAndStepSounds();
     }
     playerApplyFullPhysics();
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -4216,13 +4216,13 @@ void playerStateHoldJump(void) {
         case 1:
             G18_A->unkC0 = G18_P->unk54;
             playerSetTerminalVelocity5B0();
-            func_806D3FA0();
+            playerUpdateTargetYawFromStick();
             G18_A->unk155++;
             playerInputUpdate(0x21);
             playerSetBaseGravityIfFalling();
             break;
         case 2:
-            func_806D3608();
+            playerUpdateFallAndStepSounds();
             playerInputUpdate(0x39);
             playerSetBaseGravityIfFalling();
             break;
@@ -4244,7 +4244,7 @@ void playerInputUpdate12(void) {
 extern s16 D_8075326C[];
 
 
-void func_806DB0C4(void) {
+void playerStateTransformHold(void) {
     f32 dx;
     f32 dz;
 
@@ -4275,7 +4275,7 @@ void func_806DB0C4(void) {
     G18_A->unk7C = G18_P->unk9C + (G18_P->unkA4 - G18_P->unk9C) * dx;
     G18_A->unk84 = G18_P->unkA0 + (G18_P->unkA8 - G18_P->unkA0) * G18_P->unkAC;
     playerApplyMotion();
-    func_806CDD24(gCurrentActor, G18_P->unk94, G18_P->unk94, 0);
+    playerSelectWalkRunState(gCurrentActor, G18_P->unk94, G18_P->unk94, 0);
     mathAngleStepToward(&G18_A->unkE6, (s16)(s32)G18_P->unk98, (s16)(D_8075326C[gCurrentCharacterIndex] / 2));
     G18_A->unkEE = G18_A->unkE6;
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -4485,7 +4485,7 @@ void effectPuffRiseUpdate();
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
-void func_806DBB04(void) {
+void playerStateKnockbackTumble(void) {
     f32 sp6C;
     f32 sp68;
     f32 sp64;
@@ -4890,7 +4890,7 @@ void playerStateAttachedCallbackFall(void) {
     playerApplyMotion();
 }
 
-void func_806DCF60(void);
+void playerFindClosestTargetActor(void);
 #define G19_B ((G19Actor *)gActivePlayerActor)
 
 void func_806DCA7C(void) {
@@ -4911,7 +4911,7 @@ void func_806DCA7C(void) {
     G19_A->unkE8 = (f64)t + (f64)-t * 0.1;
     switch (G19_A->unk155) {
     case 0:
-        func_806DCF60();
+        playerFindClosestTargetActor();
         G19_A->unkB8 = G19_P->unk14C / 2;
         G19_A->unkEE = G19_P->unk154;
         diff = G19_A->unkEE - G19_A->unkE6;
@@ -4945,7 +4945,7 @@ void func_806DCA7C(void) {
             break;
         }
     case 1:
-        func_806DCF60();
+        playerFindClosestTargetActor();
         if (G19_A->unk58 == 5) {
             playerInputUpdate(0x28);
         } else {
@@ -4991,7 +4991,7 @@ extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 
-void func_806DCF60(void) {
+void playerFindClosestTargetActor(void) {
     f32 best = 100.0f;
     G19Actor *cur = G19_P->unk158;
     G19Actor *a;
@@ -5219,7 +5219,7 @@ void playerStateKnockbackBounce(void) {
             playerInputUpdate(0x29);
         }
         G19_P->unk38 = 150.0f;
-        func_806D3608();
+        playerUpdateFallAndStepSounds();
         playerSetBaseGravityIfFalling();
         if (D_807FD618[gCurrentPlayerIndex].unk0 != 0.0f) {
             mathAngleStepToward(&G19_A->unkE6, G19_P->unkA, G19_P->unk48);
@@ -5313,7 +5313,7 @@ void actorApplyVelocity(Actor *);
 void actorSkipFloorSnap(void);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 
-void func_806DDAB0(void) {
+void playerStateBounceRecover(void) {
     f32 sp64;
     u8 k;
     u8 sp62;
@@ -5503,7 +5503,7 @@ typedef struct LD5BPlayer {
 void actorCheckBoundsAndMotion(Actor *);
 void actorCheckWorldBounds(Actor *);
 
-void func_806DE264(void) {
+void playerStateLandRecover(void) {
     f32 sp4C;
     f32 sp48;
     f32 sp44;
@@ -5648,10 +5648,10 @@ void func_806DE264(void) {
     actorCheckWorldBounds(gCurrentActor);
 }
 
-void func_806DE930(void) {
+void playerStateCutsceneTransition(void) {
     G19_P->unk4 = 0.0f;
     if ((playerInputUpdate(1) == 0) && (G19_A->unk6A & 1)) {
-        func_806CDD24(gCurrentActor, G19_A->unkB8, 0, 1);
+        playerSelectWalkRunState(gCurrentActor, G19_A->unkB8, 0, 1);
     }
     if (gCurrentMap == 0x52) {
         G19_P->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex] * 5.0;
@@ -5662,7 +5662,7 @@ void func_806DE930(void) {
 
 extern s32 D_80750FDC;
 
-void func_806DE9F4(void) {
+void playerStateCutscenePause(void) {
     if (G19_A->unk155 == 0) {
         camSetTarget(G19_P->unk104, gCurrentActor, 4, 0x800, 0x32, 0, 5, 0x32, 0x14, 0, 0.2f);
         G19_A->unk155++;
@@ -5775,7 +5775,7 @@ void slotQueueUpdate(s32, s32, s32);
 extern s32 D_80750FE0;
 extern s32 D_80750FF0;
 
-void func_806DED44(void) {
+void playerStateDialogueWait(void) {
     G20Light *light;
     G20Sub174 *owner;
     s32 col;
@@ -5870,7 +5870,7 @@ typedef struct G20ActorC {
 #define G20_BLK ((G20Block *)gPlayerSlots)
 extern u8 gSplitScreenMode;
 
-void func_806DF050(void) {
+void playerStateDialogueHold(void) {
     G20Sub174 *sub = G20_C->unk174;
     s32 step;
     s16 cur;

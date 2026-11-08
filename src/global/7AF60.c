@@ -12,7 +12,7 @@ extern u8 gPlayerCount;
 extern PlayerData *gPlayerSlots;
 
 void playerIsSmallerThanAttacker(s32, s32);
-s32 func_806D10D0(s32);
+s32 playerCanCollideWithActor(s32);
 s32 func_806767E0();
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 void actorGetNodePos();
@@ -29,7 +29,7 @@ void actorCheckPlayerSmallerThanAttacker(s32 actor, s32 attacker, s32 unused) {
 u8 actorTargetIsVulnerable(s32 actor, s32 target, s32 list) {
     s32 ret;
 
-    ret = func_806D10D0(target) != 0;
+    ret = playerCanCollideWithActor(target) != 0;
     if (ret) {
         ret = D_807F6902 == 0;
     }

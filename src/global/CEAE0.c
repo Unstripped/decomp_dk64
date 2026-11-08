@@ -304,7 +304,7 @@ void playerCheckAndClearCarriedItem(void) {
     }
 }
 
-void func_806CA540(void) {
+void playerUpdateSlopeSlidePhysics(void) {
     if ((G02_A->unk6A & 0x221) == 1) {
         if (G02_A->unkE0 != 0.0f) {
             if (!(G02_A->unk6C & 1) || G02_A->unkDE < 0x226 || (G02_A->unk78 == 0xC && G02_A->unkB8 > 40.0f)) {
@@ -433,7 +433,7 @@ extern s16 D_807F5FE8;
 extern s16 D_807F5FEA;
 extern s32 D_80720020;
 
-void func_806CB53C();
+void playerUpdateScaleAndPhysics();
 void playerCheckQueueDropCallback(void);
 void func_806CF580(void);
 void playerCheckLedgeGrab(void);
@@ -532,9 +532,9 @@ void playerUpdateCommon(s32 arg0) {
     if (PLAYER_STATE->damageCooldown != 0) {
         PLAYER_STATE->damageCooldown = PLAYER_STATE->damageCooldown - 1;
     }
-    func_806CB53C();
+    playerUpdateScaleAndPhysics();
     playerCheckAndClearCarriedItem();
-    func_806CA540();
+    playerUpdateSlopeSlidePhysics();
     if (D_80770561 == 0x6B && gCurrentActor->state != 0x6E) {
         sfxStopChannel(0x6B, 0);
     }
@@ -792,7 +792,7 @@ void playerTransformAnimalEndSfx(Actor *);
 void playerResumeLocomotion(Actor *);
 void playerCheckAndResetCarriedActor(Actor *);
 
-void func_806CB53C(void) {
+void playerUpdateScaleAndPhysics(void) {
     s32 a0;
     s32 v0;
     s32 flag;
@@ -1191,7 +1191,7 @@ void actorStepPhysics(Actor *, s16, s16);
 void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 
-void func_806CC638(f32 arg0) {
+void playerApplyDecelVelocityVector(f32 arg0) {
     f32 vx;
     f32 vz;
     f32 adj;
@@ -1312,7 +1312,7 @@ f32 mathScaleByAngleDeltaCos(f32, s16, s16);
 void playerApproachVelocity(s16, f32, f32);
 void playerApplyDeceleration(void);
 
-void func_806CCB94(void) {
+void playerApproachOrApplyMotion(void) {
     f32 temp = mathScaleByAngleDeltaCos(G03_P->unk4, G03_P->unkA, G03_A->unkE6);
 
     if (temp > 0.0f) {
@@ -1748,7 +1748,7 @@ typedef struct G04ActorView {
     /* 0xC0 */ f32 unkC0;
 } G04ActorView;
 
-s16 func_806CE7A0(Actor *, f32, f32, s16, s16);
+s16 playerSelectSurfaceMoveTier(Actor *, f32, f32, s16, s16);
 void scriptSetActorRampTarget(Actor *, f32, f32);
 void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void controllerAnimScaleInterpolate(Actor *, s32);
@@ -1757,7 +1757,7 @@ extern u8 gPlayerCharacterId[];
 void controllerAnimSetStateRemap(void *, s32, f32, f32);
 void playerInitMoveParams(void);
 
-s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
+s16 playerSelectWalkRunState(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
     s16 sp36;
     f32 scale;
     s16 sp2E;
@@ -1872,7 +1872,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
     return sp36;
 }
 
-s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
+s16 playerSelectCarryState(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
     s16 sp36;
     f32 scale;
     s16 sp2E;
@@ -1966,7 +1966,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
     return sp36;
 }
 
-s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
+s16 playerSelectSurfaceState(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
     s16 sp36;
     f32 scale;
     s16 sp2E;
@@ -1974,7 +1974,7 @@ s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
 
     sp36 = arg0->state;
     sp2E = G04_P->unk4C;
-    sp2C = func_806CE7A0(arg0, arg1, arg2, G04_P->unk4C, gCurrentCharacterIndex);
+    sp2C = playerSelectSurfaceMoveTier(arg0, arg1, arg2, G04_P->unk4C, gCurrentCharacterIndex);
     ((G04ActorView *)arg0)->unkC0 = 0.0f;
     if (sp2E < 0) {
         playerInitNormalMoveParams();
@@ -2040,7 +2040,7 @@ s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
     return sp36;
 }
 
-s16 func_806CE7A0(Actor *arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4) {
+s16 playerSelectSurfaceMoveTier(Actor *arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4) {
     f32 max;
 
     if (arg2 < arg1) {
@@ -2550,7 +2550,7 @@ void func_806CF580(void) {
 
 void effectSetMode(s32);
 
-void func_806CF878(void) {
+void playerSpawnJumpTrailEffects(void) {
     if (!(gFrameCounter & 3) && G02_A->unk155 >= 5 && G03_A->unkC0 > 30.0f) {
         effectSetMode(2);
         effectSetDepth(1);
@@ -2562,7 +2562,7 @@ void func_806CF878(void) {
 extern s32 D_8071FF40;
 extern s32 effectSpiralDriftMatrixUpdate;
 
-void func_806CF918(void) {
+void playerSpawnSpiralDriftEffects(void) {
     s32 i;
 
     for (i = 0; i != 0xC8; i += 0x28) {
@@ -2744,11 +2744,11 @@ void playerEnterFall(Actor *arg0) {
     }
 }
 
-s16 func_806CDD24(Actor *, f32, f32, s32);
-s16 func_806CE174(Actor *, f32, f32, s32);
-s16 func_806CE4E4(Actor *, f32, f32, s32);
+s16 playerSelectWalkRunState(Actor *, f32, f32, s32);
+s16 playerSelectCarryState(Actor *, f32, f32, s32);
+s16 playerSelectSurfaceState(Actor *, f32, f32, s32);
 void actorSetInteractionTimer(Actor *);
-void func_806D0150(Actor *);
+void playerEnterBarrelTransition(Actor *);
 
 void playerResumeLocomotion(Actor *arg0) {
     G06PlayerView *p = arg0->customState;
@@ -2762,7 +2762,7 @@ void playerResumeLocomotion(Actor *arg0) {
     }
     if (gGlobalOverlayFlags & 0x80000) {
         if (p->unk88 != NULL && p->unk88->actorType == 0x1D) {
-            func_806D0150(arg0);
+            playerEnterBarrelTransition(arg0);
             return;
         }
     }
@@ -2772,7 +2772,7 @@ void playerResumeLocomotion(Actor *arg0) {
         return;
     }
     if ((p->unk1F0 & 0x20) && gPlayerCount == 1) {
-        temp = func_806CE4E4(arg0, arg0->speedXZ, p->unk4, 1);
+        temp = playerSelectSurfaceState(arg0, arg0->speedXZ, p->unk4, 1);
         arg0->state = temp;
         arg0->unk155[0] = 0;
         if (temp == 0x3F) {
@@ -2782,13 +2782,13 @@ void playerResumeLocomotion(Actor *arg0) {
         arg0->state = playerSelectCarryMoveState(arg0, arg0->speedXZ, p->unk4, 1);
         arg0->unk155[0] = 0;
     } else if (p->unk8C != 0) {
-        temp = func_806CE174(arg0, arg0->speedXZ, p->unk4, 1);
+        temp = playerSelectCarryState(arg0, arg0->speedXZ, p->unk4, 1);
         if (arg0->state != 2) {
             arg0->state = temp;
             arg0->unk155[0] = 0;
         }
     } else {
-        temp = func_806CDD24(arg0, arg0->speedXZ, p->unk4, 1);
+        temp = playerSelectWalkRunState(arg0, arg0->speedXZ, p->unk4, 1);
         if (arg0->state != 2) {
             arg0->state = temp;
             arg0->unk155[0] = 0;
@@ -2796,7 +2796,7 @@ void playerResumeLocomotion(Actor *arg0) {
     }
 }
 
-void func_806D0150(Actor *arg0) {
+void playerEnterBarrelTransition(Actor *arg0) {
     arg0->contactFlags &= ~0x20;
     G06_P->unk4C = -1;
     G06_P->unk10C = 0;
@@ -3034,7 +3034,7 @@ void func_806D09E8(Actor *arg0) {
     }
 }
 
-void func_806D0A54(Actor *arg0, s32 arg1, s32 arg2) {
+void playerSetRenderFlag4(Actor *arg0, s32 arg1, s32 arg2) {
     if (arg1) {
         arg0->flags |= 4;
     } else {
@@ -3185,7 +3185,7 @@ extern s16 D_807538C8[];
 extern s16 D_8075387C[];
 extern s16 D_807538B8[];
 
-void func_806D0EBC(s32 arg0) {
+void playerClampWaterSurfaceHeight(s32 arg0) {
     f32 height;
     f32 limit;
     s32 pad[1];
@@ -3224,7 +3224,7 @@ s16 mathAngleFromVector2D(f32 arg0, f32 arg1) {
     return angle & 0xFFF;
 }
 
-s32 func_806D10D0(Actor *arg0) {
+s32 playerCanCollideWithActor(Actor *arg0) {
     s32 ret = 1;
 
     if (arg0->collisionFlags & 1) {

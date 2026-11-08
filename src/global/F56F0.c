@@ -375,10 +375,10 @@ void playerResumeLocomotionDecel(void) {
         D_807FD618[gCurrentPlayerIndex].value * (value - (value / 2)) + (value / 2);
 }
 
-void func_806D0150(Actor *);
+void playerEnterBarrelTransition(Actor *);
 
 void playerD0150Wrapper(Actor *arg0) {
-    func_806D0150(arg0);
+    playerEnterBarrelTransition(arg0);
 }
 
 typedef struct F5N3ActorMeta14BC {
