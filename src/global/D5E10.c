@@ -3053,7 +3053,7 @@ extern s16 D_8075388C[];
 extern s16 D_807538B8[];
 extern s16 D_807539DC[];
 extern s16 D_807539EC[];
-s32 func_806E770C();
+s32 playerInputCanPerformFairySnap();
 void controllerAnimSetStateRemap(Actor *, s32, f32, f32);
 
 s32 playerCanPerformActionCheck(void) {
@@ -3066,7 +3066,7 @@ s32 playerCanPerformActionCheck(void) {
     } else {
         sp2C = D_807538C8[gCurrentCharacterIndex];
     }
-    if (G15_A->unk154 == 0x4E && func_806E770C() != 0 && G15_A->unk155 != 0 &&
+    if (G15_A->unk154 == 0x4E && playerInputCanPerformFairySnap() != 0 && G15_A->unk155 != 0 &&
         G15_A->unk80 + sp2C < G15_A->unkAC - 10.0f) {
         G08_P->unk12 = D_807539EC[gCurrentCharacterIndex];
         G08_P->unk14 = G15_A->unkE6;

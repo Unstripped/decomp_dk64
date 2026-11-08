@@ -1705,7 +1705,7 @@ void playerFlipHeading180(void) {
 extern s16 gKongCannonLaunchSpeeds[];
 extern f32 gKongCannonLaunchTimers[];
 
-void func_806E352C(void) {
+void playerInputInitCannonLaunch(void) {
     G24_A->unk6A &= 0xFFBF;
     G24_M->unk100 = gKongCannonLaunchSpeeds[gCurrentCharacterIndex];
     G24_A->unk154 = 0x17;
@@ -1732,7 +1732,7 @@ void playerInputHandleAButtonSub5A(void) {
 }
 
 
-void func_806E36B4(void) {
+void playerInputUpdateCannonAim(void) {
     u32 sel;
     G24Act *p;
 
@@ -1788,7 +1788,7 @@ void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 f32 mathSinF(s16);
 void playerApproachVelocity(s16, f32, f32);
 
-void func_806E384C(void) {
+void playerInputStepCannonPitch(void) {
     f32 b;
     f32 c;
     f32 a;
@@ -1838,12 +1838,12 @@ void sfxStopSlotSound();
 void playerApplyDeceleration(void);
 extern struct G29BtnA D_807FD63A[];
 
-void func_806E3B00(void) {
+void playerInputHandleCannonBButton(void) {
     f32 temp;
 
     if (!(G24_PAD(D_807FD63A, u16) & 0x2000)) {
         if (slotQueueGetValue(5, gCurrentPlayerIndex) && G24_M->unk1A3) {
-            func_806E384C();
+            playerInputStepCannonPitch();
         } else {
             sfxStopSlotSound(gCurrentActor, 0);
             G24_A->unkC4 = D_807536E4[gCurrentCharacterIndex];
@@ -1877,7 +1877,7 @@ void playerInputStopSoundOnZRelease(void) {
 }
 
 
-void func_806E3CEC(void) {
+void playerInputResetCannonPitch(void) {
     G24_M->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
 }
 
@@ -1981,7 +1981,7 @@ void playerInputHandleStickAction(void) {
             if (D_807FD6E0 == 0) {
                 D_807FD6E1 = 8;
             }
-            func_806E384C();
+            playerInputStepCannonPitch();
         } else {
             sfxStopSlotSound(gCurrentActor, 0);
         }
@@ -2407,7 +2407,7 @@ extern s32 gGlobalCutsceneFlags;
 u8 playerInputCheckTargetMoved(G26Mob *arg0);
 int func_806E560C(G26Mob *arg0);
 
-void func_806E52D0(void) {
+void playerInputCheckInstrumentPlayback(void) {
     u8 r;
     u32 n;
 
@@ -2941,7 +2941,7 @@ void playerInputCalculateStickTurnRate(void) {
 extern s16 D_80753B54[];
 extern s16 D_80753B64[];
 
-void func_806E65BC(void) {
+void playerInputStepTurnFacingAngle(void) {
     s32 ang;
     s16 var_a1;
     s16 var_t1;
@@ -2969,7 +2969,7 @@ void func_806E65BC(void) {
     mathAngleStepToward(&G27_A->unkE8, D_80753B64[gCurrentCharacterIndex], 0x10);
 }
 
-void func_806E67D8(void) {
+void playerInputUpdateStickTurnYaw(void) {
     f32 var_fv0;
     f32 var_fv1;
     s16 temp_a1;
@@ -3005,7 +3005,7 @@ void func_806E67D8(void) {
     }
 }
 
-void func_806E6A38(void) {
+void playerInputUpdateStickTurnYawFast(void) {
     f32 var_fv0;
     f32 var_fv1;
     s16 temp_a1;
@@ -3034,7 +3034,7 @@ void func_806E6A38(void) {
     mathAngleStepToward(&G27_A->unkE4, 0, 0x10);
 }
 
-void func_806E6B98(void) {
+void playerInputCalculateTurnStep(void) {
     s16 pad;
     s16 var_a1;
     s16 ang;
@@ -3063,7 +3063,7 @@ void func_806E6B98(void) {
     mathAngleStepToward(&G27_A->unkE8, var_a1, var_a2);
 }
 
-void func_806E6DE8(void) {
+void playerInputHandleAButtonJumpQueue(void) {
     if (G25_PAD(D_807FD63C, u16) & 0x8000) {
         G27_P->unk58 = D_80767CC0;
     }
@@ -3072,7 +3072,7 @@ void func_806E6DE8(void) {
     }
 }
 
-void func_806E6E7C(void) {
+void playerInputInitDashParams(void) {
     G27_P->unk12 = 0;
     G27_P->unk14 = G27_A->unkE6;
     if (G27_P->unk10 == 0) {
@@ -3081,7 +3081,7 @@ void func_806E6E7C(void) {
     }
 }
 
-void func_806E6EE0(void) {
+void playerInputCheckAButtonScriptTrigger(void) {
     if (!(gPlayerPadState[gCurrentPlayerIndex].unk2A & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000)) {
         actorScriptStartByIndex(gCurrentActor, 0x37);
         G27_A->unk155 = 4;
@@ -3089,7 +3089,7 @@ void func_806E6EE0(void) {
     }
 }
 
-void func_806E6F74(void) {
+void playerInputHandleBButtonDiveAttack(void) {
     if (!(D_807FD63A[gCurrentPlayerIndex].unk0 & 0x2000)) {
         actorScriptStartByIndex(gCurrentActor, 0x37);
         G27_A->unk155 = 4;
@@ -3097,23 +3097,23 @@ void func_806E6F74(void) {
     }
 }
 
-void func_806E6FF0(void) {
+void playerInputHandleBButtonRollingAttack(void) {
     G27_P->unk58 = D_80767CC0;
     scriptSetActorRampTarget(gCurrentActor, 2.0f, 0.0f);
     actorScriptStartByIndex(gCurrentActor, 0x38);
     G27_A->unk155 = 7;
 }
 
-void func_806E7050(void) {
+void playerInputHandleBButtonSlideAttack(void) {
     actorScriptStartByIndex(gCurrentActor, 0x39);
     G27_A->unk155 = 7;
 }
 
-void func_806E7088(void) {
+void playerInputSetSubstate6(void) {
     G27_A->unk155 = 6;
 }
 
-void func_806E709C(void) {
+void playerInputHandleBButtonComboPunch(void) {
 
     if (!(gPlayerPadState[gCurrentPlayerIndex].unk2A & 0x2000)) {
         if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x4000) {
@@ -3138,7 +3138,7 @@ void func_806E709C(void) {
     }
 }
 
-void func_806E7230(void) {
+void playerInputHandleBButtonAttack(void) {
     if (!(D_807FD63A[gCurrentPlayerIndex].unk0 & 0x2000)) {
         G27_P->unk12 = G27_A->unkE8;
         G27_P->unk14 = G27_A->unkE6;
@@ -3218,7 +3218,7 @@ typedef struct G28Player {
 #define G28_PAD(sym, T) (*(T *)((u8 *)&(sym) + gCurrentPlayerIndex * 0x34))
 #define G28_PADS ((PadInputState *)((u8 *)gPlayerPadState + gCurrentPlayerIndex * 0x34))
 
-void func_806E7338(void) {
+void playerInputHandleAButtonSuperJump(void) {
     s32 btn;
 
     btn = G28_PAD(D_807FD63C, u16);
@@ -3248,7 +3248,7 @@ void func_806E7338(void) {
 
 extern f32 D_80753B18[];
 
-void func_806E7484(void) {
+void playerInputHandleAButtonSuperJump2(void) {
     if (G28_PAD(D_807FD63C, u16) & 0x8000) {
         G28_A->unk155 = 3;
         G28_P->unk12 = G28_A->unkE8;
@@ -3265,7 +3265,7 @@ void func_806E7484(void) {
 }
 
 
-void func_806E7568(void) {
+void playerInputHandleBButtonDashAttack(void) {
     if (G28_PAD(D_807FD63C, u16) & 0x4000) {
         G28_P->unk12 = G28_A->unkE8;
         G28_P->unk14 = G28_A->unkE6;
@@ -3279,7 +3279,7 @@ void func_806E7568(void) {
 
 void func_806E9804();
 
-void func_806E7658(void) {
+void playerInputHandleCDownFairyCheck(void) {
     if ((G28_PAD(D_807FD63C, u16) & 4) && !(gGlobalOverlayFlags & 2)) {
         func_806E9804(8);
         return;
@@ -3290,7 +3290,7 @@ void func_806E7658(void) {
     G28_P->unk30 = 8.0f;
 }
 
-s32 func_806E770C(void) {
+s32 playerInputCanPerformFairySnap(void) {
     s32 var_v1;
 
     var_v1 = flagGet(0x182, 0) != 0;
@@ -3310,7 +3310,7 @@ s32 func_806E770C(void) {
 extern s16 D_8075386C[];
 extern f32 D_8075389C[];
 
-void func_806E7780(void) {
+void playerInputHandleCDownCameraSnap(void) {
     f32 var_fv0;
     s32 btn;
 
@@ -3324,24 +3324,24 @@ void func_806E7780(void) {
     } else {
         var_fv0 = D_8075389C[gCurrentCharacterIndex];
     }
-    if ((btn & 0x2000) && (var_fv0 < G28_A->unkB4) && func_806E770C()) {
+    if ((btn & 0x2000) && (var_fv0 < G28_A->unkB4) && playerInputCanPerformFairySnap()) {
         playerStateQueueCallback(0x3E, 0, gCurrentPlayerIndex);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x10, 0xFF, 0x7F, 1);
     }
 }
 
-void func_806E78B8(void) {
+void playerInputSetCharacterDecelRate(void) {
     G28_P->unk30 = D_80753B18[gCurrentCharacterIndex];
 }
 
-void func_806E78E0(void) {
+void playerInputResetDecelRate(void) {
     G28_P->unk30 = 1.0f;
 }
 
 void func_806E78F8(void) {
 }
 
-void func_806E7900(void) {
+void playerInputHandleLadderClimb(void) {
     G28State *st;
     PadInputState *pad;
     s8 stick;
@@ -3391,7 +3391,7 @@ void func_806E7900(void) {
     }
 }
 
-void func_806E7B48(void) {
+void playerInputUpdateLadderState(void) {
     G28State *st;
 
     st = G28_P->unk88->unk174;
@@ -3400,10 +3400,10 @@ void func_806E7B48(void) {
     } else {
         st->unk3E = (G28_PAD(D_807FD63F, s8) * 0.5) + 60.0;
     }
-    func_806E7900();
+    playerInputHandleLadderClimb();
 }
 
-void func_806E7C70(void) {
+void playerInputStepLadderClimb(void) {
     G28State *st;
 
     st = G28_P->unk88->unk174;
@@ -3412,7 +3412,7 @@ void func_806E7C70(void) {
     if (st->unk0 != 0) {
         G28_PAD(D_807FD63E, s8) = 0;
     }
-    func_806E7900();
+    playerInputHandleLadderClimb();
     if (G28_P->unk1F0 & 8) {
         st->unk3E = 3;
     } else {
@@ -3423,7 +3423,7 @@ void func_806E7C70(void) {
 
 extern s16 D_80750338;
 
-void func_806E7DF4(void) {
+void playerInputCheckLadderTopOrBottom(void) {
     G28State *st;
     u8 flag;
     s32 a1;
@@ -3573,7 +3573,7 @@ void actorDrawAnimatedEffect(s32, void *);
 void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void scriptSetRampValue(void *, f32, f32);
 
-void func_806E8244(void) {
+void playerInputRegisterAnimatedEffect(void) {
     G29State *st;
     G29Stick *c;
     s16 v;
@@ -3619,14 +3619,14 @@ void func_806E8244(void) {
     }
 }
 
-void func_806E84A4(void) {
+void playerInputSetClimbTimer20(void) {
     G29State *st;
 
     st = G29_M->unk88->unk174;
     st->unk3E = 0x14;
 }
 
-void func_806E84C0(void) {
+void playerInputSetClimbTimer100(void) {
     G29State *st;
 
     st = G29_M->unk88->unk174;
@@ -3636,7 +3636,7 @@ void func_806E84C0(void) {
     }
 }
 
-void func_806E84F8(void) {
+void playerInputSetClimbTimer50(void) {
     G29State *st;
 
     if (!(D_807FD63A[gCurrentPlayerIndex].unk0 & 0xE000)) {
@@ -3712,7 +3712,7 @@ void func_806E8724(G29Act *arg0, G29State *arg1) {
     }
 }
 
-void func_806E884C(void) {
+void playerInputUpdateHeldActorVineClimb(void) {
     G29Act *a;
 
     a = G29_M->unk88;
@@ -3721,7 +3721,7 @@ void func_806E884C(void) {
     }
 }
 
-void func_806E8880(void) {
+void playerInputSetHeldActorVineSpeed(void) {
     G29Act *a;
     G29State *st;
 
@@ -3732,7 +3732,7 @@ void func_806E8880(void) {
     }
 }
 
-void func_806E88AC(void) {
+void playerInputClearHeldActorVineSpeed(void) {
     G29Act *a;
     G29State *st;
 
@@ -3743,7 +3743,7 @@ void func_806E88AC(void) {
     }
 }
 
-void func_806E88D8(void) {
+void playerInputPlayHeldActorClimbSfx(void) {
     G29Act *a;
     G29State *st;
     s32 sp24;
@@ -3785,7 +3785,7 @@ void func_806E88D8(void) {
     }
 }
 
-void func_806E8A8C(void) {
+void playerInputScaleHeldActorVineClimb(void) {
     G29Act *a;
     G29State *st;
 
@@ -4129,7 +4129,7 @@ s32 playerInputPostUpdate(void) {
             if (*((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + 0x2C0) == 2) {
                 n = 0x3C;
             }
-            if (((f32)n < diff) && func_806E770C()) {
+            if (((f32)n < diff) && playerInputCanPerformFairySnap()) {
                 playerStateQueueCallback(0x3E, 0, gCurrentPlayerIndex);
                 playerClearCarriedItemState();
             } else if (gCurrentActor->contactFlags & 1) {
