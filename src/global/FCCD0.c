@@ -586,7 +586,6 @@ s16 arg2;
     if (((temp_a0->unk2D == 0) || (arg2 >= 0)) && (temp_a0->unk2C == 0)) {
         if ((arg0 != 0xA) && (arg0 != 0xC)) {
             temp_v1 = temp_a0->unk0;
-            if (temp_a0 && temp_a0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
             if (temp_v0 > 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
             if ((*temp_v1 + arg2) < 0) {
                 *temp_v1 = 0;
@@ -605,13 +604,11 @@ s16 arg2;
                 if ((arg2 > 0) && ((arg0 * 0x30) == 0)) {
                     temp_v0_2 = mapGetHubWorldIndex(gCurrentWorldId, 1);
                     temp_a3 = *(u16 *)(sp48 + 0xA + (temp_v0_2 * 2)) + *(u16 *)(sp48 + 0x26 + (temp_v0_2 * 2));
-                    if (gCurrentWorldId == 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
                     if ((temp_a3 >= 0x4B) && ((temp_a3 - arg2) < 0x4B)) {
                         temp_v0 = flagGridIndex(0x225, temp_v0_2, (&gPlayerCharacterId)[arg1]);
                         flagSet(temp_v0, 1, 0);
                         func_80687C48();
                     }
-                    if (temp_a3 == 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
                     if ((temp_a3 == 0x64) && ((temp_a3 - arg2) < 0x64)) {
                         sfxAllocateChannel(0xAC, 1.0f);
                     }
