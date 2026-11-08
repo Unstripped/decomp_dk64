@@ -112,51 +112,51 @@ typedef struct {
 void _init_lpfilter(SynLPFilter *filter) {
     s32 i;
     s32 scaledCoeff;
-    s16 spE;
-    f32 sp8;
-    f32 sp4;
-    f32 sp0;
+    s16 firstCoeff;
+    f32 scale;
+    f32 coeff;
+    f32 base;
 
     scaledCoeff = (s32)((f32)filter->unk0 * 16384.0f);
-    spE = (s16)(scaledCoeff >> 0xF);
-    filter->unk2 = (s16)(s32)(16384.0f - (f32)spE);
+    firstCoeff = (s16)(scaledCoeff >> 0xF);
+    filter->unk2 = (s16)(s32)(16384.0f - (f32)firstCoeff);
     filter->state = 0;
     i = 0;
     do {
         filter->coeff[i] = 0;
     } while (++i < 8);
-    filter->coeff[i++] = spE;
-    sp0 = 16384.0f;
-    sp4 = sp8 = (f32)spE / sp0;
+    filter->coeff[i++] = firstCoeff;
+    base = 16384.0f;
+    coeff = scale = (f32)firstCoeff / base;
     if (i < 0x10) {
         do {
-            sp4 *= sp8;
-            filter->coeff[i] = (s16)(s32)(sp4 * sp0);
+            coeff *= scale;
+            filter->coeff[i] = (s16)(s32)(coeff * base);
         } while (++i < 0x10);
     }
 }
 
 f32 n_alSemitonesToPitchRatio(s32 semitones) {
-    f32 sp4;
-    f32 sp0;
+    f32 step;
+    f32 ratio;
 
-    sp0 = 1.0f;
+    ratio = 1.0f;
     if (semitones >= 0) {
-        sp4 = 1.0594631f;
+        step = 1.0594631f;
     } else {
-        sp4 = 0.9438743f;
+        step = 0.9438743f;
         semitones = -semitones;
     }
     if (semitones != 0) {
         do {
             if (semitones & 1) {
-                sp0 *= sp4;
+                ratio *= step;
             }
-            sp4 *= sp4;
+            step *= step;
             semitones = semitones >> 1;
         } while (semitones != 0);
     }
-    return sp0;
+    return ratio;
 }
 
 void computeBiquadCoefficients(f32, f32, f32, LpfNMBiquad *, LpfNMBiquad *);
