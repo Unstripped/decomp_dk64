@@ -19,13 +19,13 @@ typedef struct {
 extern u8 D_807FC950[][0x5E];
 extern u8 gPlayerCharacterId;
 
-s32 menuCheckBitgridOtherSlots(Struct_80025D14 *arg0, s32 arg1) {
+s32 menuCheckBitgridOtherSlots(Struct_80025D14 *state, s32 bitOffset) {
     s32 found = 0;
     s32 i;
 
     for (i = 0; found == 0 && i != 5; i++) {
         if (i != gPlayerCharacterId) {
-            found |= D_807FC950[i][arg0->unkB] & (1 << (arg1 + 0x1F));
+            found |= D_807FC950[i][state->unkB] & (1 << (bitOffset + 0x1F));
         }
     }
     return found;
@@ -47,8 +47,8 @@ Gfx *textDrawStringVtx();
 char *textTableGetString(s32, s32, s32);
 s32 _sprintf(char *, const char *, ...);
 
-Gfx *func_80025B64(Gfx *dl, MenuShopPromptActor *arg1) {
-    Struct_80025D14 *st = arg1->unk178;
+Gfx *func_80025B64(Gfx *dl, MenuShopPromptActor *actor) {
+    Struct_80025D14 *st = actor->unk178;
     char buf[0x28];
 
     if (st->unkD == 1) {
@@ -58,13 +58,13 @@ Gfx *func_80025B64(Gfx *dl, MenuShopPromptActor *arg1) {
         gDPSetCombineLERP(dl++, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
         switch (st->unkE) {
         case 1:
-            arg1->unk15F = 0;
+            actor->unk15F = 0;
             st->unkE = 5;
         case 5: {
-            s32 diff = 0xFF - arg1->unk15F;
+            s32 diff = 0xFF - actor->unk15F;
 
-            arg1->unk15F += diff >= 9 ? 8 : diff;
-            gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, arg1->unk15F);
+            actor->unk15F += diff >= 9 ? 8 : diff;
+            gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, actor->unk15F);
             _sprintf(buf, "q %s", textTableGetString(0x24, 0x10, 1));
             dl = textDrawStringVtx(dl, 1, 0x1F4, 0x190, buf, 1);
             _sprintf(buf, "b %s", textTableGetString(0x24, 0x11, 1));
@@ -104,23 +104,23 @@ extern Struct_BB40_58 *D_807FBB40;
 
 extern u8 D_807FC950[][0x5E];
 
-void menuSetBitgridValue(Struct_80025D14 *arg0, s32 arg1) {
-    D_807FC950[arg1][arg0->unkB] = arg0->unk11;
+void menuSetBitgridValue(Struct_80025D14 *state, s32 slot) {
+    D_807FC950[slot][state->unkB] = state->unk11;
 }
 
-void menuSetBitgridBit(Struct_80025D14 *arg0, s32 arg1) {
-    u8 *ptr = &D_807FC950[arg1][arg0->unkB];
-    *ptr |= 1 << (arg0->unk11 - 1);
+void menuSetBitgridBit(Struct_80025D14 *state, s32 slot) {
+    u8 *ptr = &D_807FC950[slot][state->unkB];
+    *ptr |= 1 << (state->unk11 - 1);
 }
 
-void menuUpdateAllBitgridSlots(Struct_80025D14 *arg0, u8 arg1) {
+void menuUpdateAllBitgridSlots(Struct_80025D14 *state, u8 asBit) {
     s32 i = 0;
 
     do {
-        if (arg1) {
-            menuSetBitgridBit(arg0, i);
+        if (asBit) {
+            menuSetBitgridBit(state, i);
         } else {
-            menuSetBitgridValue(arg0, i);
+            menuSetBitgridValue(state, i);
         }
         i++;
     } while (i < 5);
@@ -139,52 +139,52 @@ void slotQueueAddValue(s32, s32, s16);
 void healthRefill(s32);
 void eepromSavePlayerData(void);
 
-void menuApplyPurchase(Struct_80025D14 *arg0, u8 *arg1) {
-    s16 sp1E = -1;
-    u8 sp1D = func_806F6E58(gPlayerCharacterId);
+void menuApplyPurchase(Struct_80025D14 *state, u8 *inventory) {
+    s16 queueItemId = -1;
+    u8 hasItem = func_806F6E58(gPlayerCharacterId);
 
-    switch (arg0->unkB) {
+    switch (state->unkB) {
     case 2:
     case 4:
-        if (arg0->unk11 >= 2) {
-            menuUpdateAllBitgridSlots(arg0, 1);
+        if (state->unk11 >= 2) {
+            menuUpdateAllBitgridSlots(state, 1);
         } else {
-            menuSetBitgridBit(arg0, gPlayerCharacterId);
+            menuSetBitgridBit(state, gPlayerCharacterId);
         }
         break;
     case 1:
     case 3:
-        menuUpdateAllBitgridSlots(arg0, 0);
+        menuUpdateAllBitgridSlots(state, 0);
         break;
     default:
-        menuSetBitgridValue(arg0, gPlayerCharacterId);
+        menuSetBitgridValue(state, gPlayerCharacterId);
         break;
     }
-    if (arg0->unkB == 4) {
-        u8 v = D_800334DC[arg0->unk11];
+    if (state->unkB == 4) {
+        u8 v = D_800334DC[state->unk11];
         if (D_807FC950[8][0xC] < v) {
             D_807FC950[8][0xC] = v;
             healthRefill(0);
             gPlayerSlots->unk2E2 |= 0x11;
         }
     }
-    switch (arg0->unkB) {
+    switch (state->unkB) {
     case 2:
     case 3:
-        sp1E = 2;
+        queueItemId = 2;
         break;
     case 4:
-        sp1E = 7;
+        queueItemId = 7;
         break;
     case 0:
-        if (sp1D == 0 && func_806F6E58(gPlayerCharacterId) != 0) {
-            sp1E = 5;
+        if (hasItem == 0 && func_806F6E58(gPlayerCharacterId) != 0) {
+            queueItemId = 5;
         }
         break;
     }
-    slotQueueAddValue(1, 0, -arg0->unk4);
-    if (sp1E >= 0) {
-        slotQueueAddValue(sp1E, 0, 0x270F);
+    slotQueueAddValue(1, 0, -state->unk4);
+    if (queueItemId >= 0) {
+        slotQueueAddValue(queueItemId, 0, 0x270F);
     }
     eepromSavePlayerData();
 }
@@ -204,7 +204,7 @@ extern MenuM1_Entry D_80033408[][7];
 extern u8 D_8076A0AB;
 s32 func_805FF030(s32, s32);
 
-void func_80025FB4(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
+void func_80025FB4(Struct_80025D14 *state, u8 *inventory, s32 isExiting) {
     MenuM1_Entry *tbl;
     s32 found = 0;
     s32 count = 6;
@@ -219,7 +219,7 @@ void func_80025FB4(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
         } while (flagGet(count + 0x1C5, 0) == 0);
     }
     count++;
-    arg0->unkC = func_805FF030(D_8076A0AB, 0);
+    state->unkC = func_805FF030(D_8076A0AB, 0);
     switch (D_807FBB40->unk58) {
     case 0xBD:
         tbl = D_80033260[0];
@@ -237,74 +237,74 @@ void func_80025FB4(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
             switch (tbl[i].unk0) {
             case 2:
             case 4:
-                if (!(arg1[tbl[i].unk0] & (1 << (tbl[i].unk2 + 0x1F)))) {
+                if (!(inventory[tbl[i].unk0] & (1 << (tbl[i].unk2 + 0x1F)))) {
                     found = 1;
                 }
                 break;
             default:
-                if (arg1[tbl[i].unk0] < tbl[i].unk2) {
+                if (inventory[tbl[i].unk0] < tbl[i].unk2) {
                     found = 1;
                 }
                 break;
             }
             if (found != 0) {
-                arg0->unkB = tbl[i].unk0;
-                D_80750AC8 = (arg0->unk4 = tbl[i].unk4);
-                arg0->unk11 = tbl[i].unk2;
+                state->unkB = tbl[i].unk0;
+                D_80750AC8 = (state->unk4 = tbl[i].unk4);
+                state->unk11 = tbl[i].unk2;
             }
         }
     }
     if (found == 0) {
-        arg0->unk4 = 0;
-        arg0->unkB = -1;
-        D_80750AC8 = arg0->unk4;
+        state->unk4 = 0;
+        state->unkB = -1;
+        D_80750AC8 = state->unk4;
         if (count >= 7) {
-            arg0->unkB = -2;
+            state->unkB = -2;
         }
     }
-    arg0->unk10 = D_807FCC4C;
+    state->unk10 = D_807FCC4C;
 }
 
 s32 slotQueueGetValue(s32, s32);
 
-s32 menuGetOptionAvailability(Struct_80025D14 *arg0, s32 arg1) {
+s32 menuGetOptionAvailability(Struct_80025D14 *state, s32 optionIdx) {
     s32 ret = 0;
 
-    arg0->unkF = 3;
-    if (arg0->unkB >= 0) {
+    state->unkF = 3;
+    if (state->unkB >= 0) {
         s32 val = slotQueueGetValue(1, 0);
         ret = 2;
-        if (val >= arg0->unk4) {
-            arg0->unkF = 1;
+        if (val >= state->unk4) {
+            state->unkF = 1;
         } else {
             ret = 3;
         }
-    } else if (arg0->unkB == -2) {
+    } else if (state->unkB == -2) {
         ret = 1;
     }
 
-    if (arg0->unkA != 0) {
+    if (state->unkA != 0) {
         ret += 4;
     }
 
     return ret;
 }
 
-s32 func_80026250(Struct_80025D14 *arg0) {
+s32 func_80026250(Struct_80025D14 *state) {
     s32 ret = D_807FBB40->unk58 == 0xBD;
 
     if (ret != 0) {
-        ret = arg0->unkA == 0;
+        ret = state->unkA == 0;
         if (ret != 0) {
-            return arg0->unkB < 0;
+            return state->unkB < 0;
         }
     }
 }
 
-void menuResetSubmenuState(Struct_80025D14 *arg0, s32 *arg1) {
-    *arg1 = 0;
-    arg0->unkF = 1;
-    arg0->unkB = -1;
+void menuResetSubmenuState(Struct_80025D14 *state, s32 *outAvailability) {
+    *outAvailability = 0;
+    state->unkF = 1;
+    state->unkB = -1;
 }
 
 extern u16 D_800334EC[];
@@ -324,41 +324,41 @@ typedef struct {
     u8 lo;
 } MenuM1_Pair;
 
-void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
-    MenuM1_Pair *sp44;
-    u16 sp42;
-    s32 sp3C;
+void func_800262A8(Struct_80025D14 *state, void *inventory, s32 hasSecondAction) {
+    MenuM1_Pair *pairs;
+    u16 textParam1;
+    s32 availability;
     u16 a;
     u16 b;
     u16 c;
     u16 d;
     s32 avail;
     u16 v;
-    u16 sp2C;
+    u16 priceOrCount;
     s32 cnt;
     s16 f;
 
     if (currentActorTestClearFlag() != 0) {
-        sp44 = NULL;
-        sp3C = menuGetOptionAvailability(arg0, arg2);
+        pairs = NULL;
+        availability = menuGetOptionAvailability(state, hasSecondAction);
         currentActorClearFlag();
-        arg0->unk12 = 0;
-        arg0->unkE++;
+        state->unk12 = 0;
+        state->unkE++;
         switch (D_807FBB40->unk58) {
         case 0xBF:
             a = 3;
             b = 7;
             c = 0xC;
             d = 0xE;
-            if (arg0->unkB >= 0) {
-                avail = menuCheckBitgridOtherSlots(arg0, 1);
-                if (((u8 *)arg1)[arg0->unkB] & 1) {
+            if (state->unkB >= 0) {
+                avail = menuCheckBitgridOtherSlots(state, 1);
+                if (((u8 *)inventory)[state->unkB] & 1) {
                     b = 9;
-                    if (D_807FCC4C < D_800334DD[((u8 *)arg1)[arg0->unkB]]) {
+                    if (D_807FCC4C < D_800334DD[((u8 *)inventory)[state->unkB]]) {
                         a = 6;
                         c = 0xD;
                         d = 0xF;
-                        arg0->unk12 = 1;
+                        state->unk12 = 1;
                     } else {
                         a = 5;
                         b = 8;
@@ -371,24 +371,24 @@ void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
             D_80033500[3] = b;
             D_80033500[6] = c;
             D_80033500[7] = d;
-            sp44 = (MenuM1_Pair *)D_80033500;
-            sp42 = 9;
+            pairs = (MenuM1_Pair *)D_80033500;
+            textParam1 = 9;
             break;
         case 0xBD:
             v = 0;
-            arg2 = 0;
-            sp2C = D_80750AC8;
-            sp3C = menuGetOptionAvailability(arg0, arg2);
-            if (sp3C == 0 || sp3C == 1) {
-                sp3C = 0;
-                sp2C = 0xF;
+            hasSecondAction = 0;
+            priceOrCount = D_80750AC8;
+            availability = menuGetOptionAvailability(state, hasSecondAction);
+            if (availability == 0 || availability == 1) {
+                availability = 0;
+                priceOrCount = 0xF;
             }
-            sp42 = 8;
-            sp44 = (MenuM1_Pair *)D_800334EC;
-            if (arg0->unkA == 0) {
+            textParam1 = 8;
+            pairs = (MenuM1_Pair *)D_800334EC;
+            if (state->unkA == 0) {
                 if (flagGet(0x61, 2) != 0) {
                     flagSet(0x61, 0, 2);
-                    menuResetSubmenuState(arg0, &sp3C);
+                    menuResetSubmenuState(state, &availability);
                     if (flagGet(0x17B, 0) != 0) {
                         v = 0x20;
                     } else if (flagGet(0x62, 2) != 0) {
@@ -400,41 +400,41 @@ void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
                 } else {
                     cnt = flagCountRange(0x225, 0x28, 0);
                     if (cnt >= 0xF) {
-                        menuResetSubmenuState(arg0, &sp3C);
+                        menuResetSubmenuState(state, &availability);
                         if (flagGet(0x17B, 0) != 0) {
                             v = 0x20;
                         } else {
                             v = 2;
-                            sp2C = cnt;
+                            priceOrCount = cnt;
                         }
                     }
                 }
             }
-            D_80750AC8 = sp2C;
+            D_80750AC8 = priceOrCount;
             D_800334EC[0] = v;
             break;
         case 0xBE:
-            sp44 = (MenuM1_Pair *)D_80033514;
-            if (arg0->unkB == 3) {
-                sp44 = (MenuM1_Pair *)D_80033528;
+            pairs = (MenuM1_Pair *)D_80033514;
+            if (state->unkB == 3) {
+                pairs = (MenuM1_Pair *)D_80033528;
             } else {
                 a = 3;
                 f = 4;
-                if (arg0->unkB >= 0 && (((u8 *)arg1)[arg0->unkB] & 1)) {
+                if (state->unkB >= 0 && (((u8 *)inventory)[state->unkB] & 1)) {
                     a = 5;
                     f = 6;
                 }
                 D_80033514[2] = a;
                 D_80033514[3] = f;
             }
-            sp42 = 7;
+            textParam1 = 7;
             break;
         }
-        if (arg2 != 0) {
-            func_8070D8C0(D_807FBB40, sp42, sp44[8].lo);
+        if (hasSecondAction != 0) {
+            func_8070D8C0(D_807FBB40, textParam1, pairs[8].lo);
         }
-        func_8070D8C0(D_807FBB40, sp42, sp44[sp3C].lo);
-        if (sp3C == 2 || sp3C == 3 || sp3C == 6 || sp3C == 7) {
+        func_8070D8C0(D_807FBB40, textParam1, pairs[availability].lo);
+        if (availability == 2 || availability == 3 || availability == 6 || availability == 7) {
             slotQueueInit(0);
             slotQueueUpdate(1, 1, 0);
             slotQueueUpdate(0xE, 1, 0);
@@ -445,15 +445,15 @@ void func_800262A8(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 void func_800262A8(Struct_80025D14 *, void *, s32);
 void camResumePath(void);
 
-void menuDispatchSubmenuAction(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
-    switch (arg0->unkE) {
+void menuDispatchSubmenuAction(Struct_80025D14 *state, u8 *inventory, s32 flag) {
+    switch (state->unkE) {
     case 0:
-        func_800262A8(arg0, arg1, arg2);
+        func_800262A8(state, inventory, flag);
         break;
     case 1:
         if (!(D_807FBB40->unk60 & 0x02000000)) {
-            arg0->unkE = 0;
-            arg0->unkD = arg0->unkF;
+            state->unkE = 0;
+            state->unkD = state->unkF;
             camResumePath();
         }
         break;
@@ -467,12 +467,12 @@ void camStartPath(void *, s32, s32);
 void func_80025FB4(Struct_80025D14 *, u8 *, s32);
 s32 playerStateQueueCallback(s32, void *, s32);
 
-s32 menuExitSubmenu(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
-    s32 flag = flagGet((s16)arg2, 0) == 0;
+s32 menuExitSubmenu(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
+    s32 flag = flagGet((s16)flagId, 0) == 0;
 
-    func_80025FB4(arg0, arg1, flag);
-    arg0->unkD = 0;
-    arg0->unkE = 0;
+    func_80025FB4(state, inventory, flag);
+    state->unkD = 0;
+    state->unkE = 0;
     if (flagGet(0x61, 2) == 0) {
         if (flag != 0) {
             playerWaypointPathStartPacked(D_807FBB4C, D_807FBB40, 0, 0x1B);
@@ -492,13 +492,13 @@ s32 menuExitSubmenu(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
 
 
 
-void menuTransitionToSubmenu(Struct_80025D14 *arg0, u8 *arg1) {
-    arg0->unkA = 1;
+void menuTransitionToSubmenu(Struct_80025D14 *state, u8 *inventory) {
+    state->unkA = 1;
     camStartPath(0, 0xF, 1);
     currentActorClearFlag();
-    func_80025FB4(arg0, arg1, 0);
-    arg0->unkD = 0;
-    arg0->unkE = 0;
+    func_80025FB4(state, inventory, 0);
+    state->unkD = 0;
+    state->unkE = 0;
     playerStateQueueCallback(0x1B, D_807FBB40, 0);
 }
 
@@ -510,15 +510,15 @@ void slotQueueCancel(s32, s32);
 s32 actorSpawn(s32, s32);
 void func_80614E78(void *, s32);
 
-void func_80026874(Struct_80025D14 *arg0, u8 *arg1) {
-    s32 sp24;
-    s32 sp20;
+void func_80026874(Struct_80025D14 *state, u8 *inventory) {
+    s32 textParam1;
+    s32 textParam2;
 
-    switch (arg0->unkE) {
+    switch (state->unkE) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            arg0->unkE++;
+            state->unkE++;
         }
         break;
     case 1:
@@ -526,11 +526,11 @@ void func_80026874(Struct_80025D14 *arg0, u8 *arg1) {
         renderCallbacksRegister(func_80025B64, D_807FBB40, 3);
         break;
     case 10:
-        if (func_80026250(arg0) == 0) {
+        if (func_80026250(state) == 0) {
             slotQueueCancel(1, 0);
             slotQueueCancel(0xE, 0);
-            menuApplyPurchase(arg0, arg1);
-            switch (arg0->unkB) {
+            menuApplyPurchase(state, inventory);
+            switch (state->unkB) {
             case 0:
             case 1:
                 playerStateQueueCallback(0x52, 0, 0);
@@ -548,41 +548,41 @@ void func_80026874(Struct_80025D14 *arg0, u8 *arg1) {
                 break;
             }
             camStartPath(gPlayerSlots->unk4, 2, 1);
-            arg0->unkD = 2;
-            arg0->unkE = 0;
+            state->unkD = 2;
+            state->unkE = 0;
         } else {
             camStartPath(0, 0xA, 1);
             flagSet(0x61, 1, 2);
-            arg0->unkE++;
+            state->unkE++;
         }
         break;
     case 15:
-        sp24 = -1;
+        textParam1 = -1;
         switch (D_807FBB40->unk58) {
         case 0xBD:
-            sp24 = 8;
-            if (func_80026250(arg0) != 0) {
-                arg0->unkA = 1;
-                menuTransitionToSubmenu(arg0, arg1);
+            textParam1 = 8;
+            if (func_80026250(state) != 0) {
+                state->unkA = 1;
+                menuTransitionToSubmenu(state, inventory);
                 return;
             }
-            sp20 = 0xA;
+            textParam2 = 0xA;
             break;
         case 0xBF:
-            sp24 = 9;
-            sp20 = 0x11;
+            textParam1 = 9;
+            textParam2 = 0x11;
             break;
         case 0xBE:
-            sp24 = 7;
-            sp20 = 0x10;
+            textParam1 = 7;
+            textParam2 = 0x10;
             break;
         }
         slotQueueCancel(1, 0);
         slotQueueCancel(0xE, 0);
         camStartPath(gPlayerSlots->unk4, 3, 1);
-        arg0->unkD = 3;
-        arg0->unkE = 0;
-        func_8070D8C0(D_807FBB40, sp24, sp20);
+        state->unkD = 3;
+        state->unkE = 0;
+        func_8070D8C0(D_807FBB40, textParam1, textParam2);
         break;
     }
 }
@@ -591,75 +591,75 @@ extern u16 D_80033A50[][4];
 extern u16 D_80033A78[];
 extern u16 D_800334E4[];
 
-void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
-    s32 sp2C;
-    s32 sp28;
-    s32 sp24;
+void func_80026B28(Struct_80025D14 *state, void *inventory, s32 flagId) {
+    s32 textParam2;
+    s32 textParam1;
+    s32 extraTextParam;
 
-    switch (arg0->unkE) {
+    switch (state->unkE) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
-            sp24 = -1;
+            extraTextParam = -1;
             D_807FBB60 |= 0x10030;
             gPlayerSlots->unk4->unk60 &= ~0x40000000;
-            sp28 = 0;
-            sp2C = -1;
-            if (sp2C) { // FAKE: empty guard steers regalloc
+            textParam1 = 0;
+            textParam2 = -1;
+            if (textParam2) { // FAKE: empty guard steers regalloc
             }
             currentActorClearFlag();
-            switch (arg0->unkB) {
+            switch (state->unkB) {
             case 0:
-                sp2C = D_80033A50[gPlayerCharacterId][((u8 *)arg1)[arg0->unkB]];
+                textParam2 = D_80033A50[gPlayerCharacterId][((u8 *)inventory)[state->unkB]];
             case 1:
-                if (sp2C == -1) {
-                    sp2C = D_80033A78[((u8 *)arg1)[arg0->unkB]];
+                if (textParam2 == -1) {
+                    textParam2 = D_80033A78[((u8 *)inventory)[state->unkB]];
                 }
-                sp28 = 8;
+                textParam1 = 8;
                 break;
             case 4:
-                if (arg0->unk11 == 1) {
-                    if (menuCheckBitgridOtherSlots(arg0, 1) == 0) {
-                        sp24 = 0x15;
+                if (state->unk11 == 1) {
+                    if (menuCheckBitgridOtherSlots(state, 1) == 0) {
+                        extraTextParam = 0x15;
                     }
-                    sp2C = 0x12;
-                    sp28 = 9;
+                    textParam2 = 0x12;
+                    textParam1 = 9;
                 } else {
-                    sp2C = 0x13;
-                    if (D_807FCC4C == arg0->unk10 + 1) {
-                        sp2C = 0x14;
-                        sp28 = 9;
+                    textParam2 = 0x13;
+                    if (D_807FCC4C == state->unk10 + 1) {
+                        textParam2 = 0x14;
+                        textParam1 = 9;
                     } else {
-                        sp28 = 9;
+                        textParam1 = 9;
                     }
                 }
                 break;
             case 2:
-                sp2C = D_800334E4[arg0->unk11];
+                textParam2 = D_800334E4[state->unk11];
             case 3:
-                if (sp2C == -1) {
+                if (textParam2 == -1) {
                     D_80750AC8 = slotQueueGetMaxValue(2, 0);
-                    sp2C = 0x15;
+                    textParam2 = 0x15;
                 }
-                sp28 = 7;
+                textParam1 = 7;
                 break;
             }
-            func_8070D8C0(D_807FBB40, sp28, sp2C);
-            if (sp24 >= 0) {
-                func_8070D8C0(D_807FBB40, sp28, sp24);
+            func_8070D8C0(D_807FBB40, textParam1, textParam2);
+            if (extraTextParam >= 0) {
+                func_8070D8C0(D_807FBB40, textParam1, extraTextParam);
             }
-            arg0->unkE++;
+            state->unkE++;
         }
         break;
     case 1:
         if (!(D_807FBB40->unk60 & 0x02000000)) {
-            flagSet(arg2, 1, 0);
+            flagSet(flagId, 1, 0);
             camResumePath();
-            arg0->unkE++;
+            state->unkE++;
         }
         break;
     case 2:
         if (currentActorTestClearFlag() != 0) {
-            menuTransitionToSubmenu(arg0, arg1);
+            menuTransitionToSubmenu(state, inventory);
         }
         break;
     }
@@ -668,27 +668,27 @@ void func_80026B28(Struct_80025D14 *arg0, void *arg1, s32 arg2) {
 void func_805FF898(void);
 void playerResumeLocomotion(void *);
 
-void func_80026DAC(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
+void func_80026DAC(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
     s32 x;
-    s32 sp30;
-    s32 sp2C;
-    s32 sp28;
-    s32 sp24;
+    s32 camPathId;
+    s32 textParam1;
+    s32 textParam2;
+    s32 queueItemId;
     s32 v;
 
-    switch (arg0->unkE) {
+    switch (state->unkE) {
     case 0:
         if (!(D_807FBB40->unk60 & 0x02000000)) {
             camResumePath();
-            arg0->unkE++;
-            flagSet(arg2, 1, 0);
+            state->unkE++;
+            flagSet(flagId, 1, 0);
         }
         break;
     case 2:
         if (!(D_807FBB40->unk60 & 0x02000000)) {
             x = -1;
             camResumePath();
-            arg0->unkE = 4;
+            state->unkE = 4;
             switch (D_807FBB40->unk58) {
             case 0xBE:
                 x = 2;
@@ -703,36 +703,36 @@ void func_80026DAC(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
         break;
     case 1:
         if (currentActorTestClearFlag() != 0) {
-            sp30 = 1;
-            sp24 = -1;
+            camPathId = 1;
+            queueItemId = -1;
             v = -1;
             currentActorClearFlag();
             playerResumeLocomotion(D_807FBB4C);
             switch (D_807FBB40->unk58) {
             case 0xBE:
-                sp2C = 7;
-                sp28 = 0x11;
-                sp24 = 2;
+                textParam1 = 7;
+                textParam2 = 0x11;
+                queueItemId = 2;
                 v = 2;
             case 0xBF:
-                if (sp24 < 0) {
-                    sp2C = 9;
-                    sp28 = 0x10;
-                    sp24 = 7;
+                if (queueItemId < 0) {
+                    textParam1 = 9;
+                    textParam2 = 0x10;
+                    queueItemId = 7;
                     v = 4;
                 }
-                if (v >= 0 && (arg1[v] & 1)) {
-                    if (slotQueueGetValue((u8)sp24, 0) < slotQueueGetMaxValue(sp24, 0)) {
-                        func_8070D8C0(D_807FBB40, sp2C, sp28);
-                        slotQueueAddValue(sp24, 0, 0x3E7);
-                        arg0->unkE = 0;
-                        sp30 = 5;
+                if (v >= 0 && (inventory[v] & 1)) {
+                    if (slotQueueGetValue((u8)queueItemId, 0) < slotQueueGetMaxValue(queueItemId, 0)) {
+                        func_8070D8C0(D_807FBB40, textParam1, textParam2);
+                        slotQueueAddValue(queueItemId, 0, 0x3E7);
+                        state->unkE = 0;
+                        camPathId = 5;
                     }
                 }
                 break;
             }
-            arg0->unkE += 2;
-            camStartPath(0, (s16)sp30, 1);
+            state->unkE += 2;
+            camStartPath(0, (s16)camPathId, 1);
         }
         break;
     case 4:
@@ -740,7 +740,7 @@ void func_80026DAC(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
             currentActorClearFlag();
     case 3:
             func_805FF898();
-            arg0->unkE = 0xA;
+            state->unkE = 0xA;
         }
         break;
     }
@@ -749,21 +749,21 @@ void func_80026DAC(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
 void func_80026B28(Struct_80025D14 *, void *, s32);
 void func_80026DAC(Struct_80025D14 *, u8 *, s32);
 
-void menuDispatchCurrentMenuAction(Struct_80025D14 *arg0, u8 *arg1, s32 arg2) {
-    s32 flag = flagGet((s16)arg2, 0) == 0;
+void menuDispatchCurrentMenuAction(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
+    s32 flag = flagGet((s16)flagId, 0) == 0;
 
-    switch (arg0->unkD) {
+    switch (state->unkD) {
     case 0:
-        menuDispatchSubmenuAction(arg0, arg1, flag);
+        menuDispatchSubmenuAction(state, inventory, flag);
         break;
     case 1:
-        func_80026874(arg0, arg1);
+        func_80026874(state, inventory);
         break;
     case 2:
-        func_80026B28(arg0, arg1, arg2);
+        func_80026B28(state, inventory, flagId);
         break;
     case 3:
-        func_80026DAC(arg0, arg1, arg2);
+        func_80026DAC(state, inventory, flagId);
         break;
     }
 }
@@ -777,7 +777,7 @@ void actorScriptStart(void *, s32);
 void func_800270E0(void) {
     s32 i;
     s32 n;
-    s32 sp2C;
+    s32 camPathId;
     Struct_80025D14 *st;
     s32 pad;
     u8 *p;
@@ -824,10 +824,10 @@ void func_800270E0(void) {
                         i++;
                     } while (i != 4);
                     if (n != 4) {
-                        sp2C = 0;
+                        camPathId = 0;
                         D_807FBB40->unk154 = 3;
                     } else {
-                        sp2C = 6;
+                        camPathId = 6;
                         D_807FBB40->unk154 = 4;
                         st->unkB = 1;
                         st->unk4 = 0;
@@ -836,7 +836,7 @@ void func_800270E0(void) {
                         flagSet(0x180, 1, 0);
                     }
                     playerWaypointPathStartPacked(D_807FBB4C, D_807FBB40, 0, 0x1B);
-                    camStartPath(0, (s16)sp2C, 1);
+                    camStartPath(0, (s16)camPathId, 1);
                     currentActorClearFlag();
                     actorScriptStart(D_807FBB40, 0x26E);
                 }
@@ -903,8 +903,8 @@ void func_800270E0(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-s32 menuDecodeAddressConstant(s32 arg0) {
-    return arg0 + 0x21F44F;
+s32 menuDecodeAddressConstant(s32 val) {
+    return val + 0x21F44F;
 }
 
 
@@ -974,8 +974,8 @@ extern Mtx D_2000180;
 typedef struct { s16 unk0; s16 unk2; } Struct_8003353C;
 extern Struct_8003353C D_8003353C[];
 
-Gfx *menuDrawTransformedWidgets(Gfx *dl, Struct_BB40_58 *arg1) {
-    MenuWidgetState *fp = arg1->unk174;
+Gfx *menuDrawTransformedWidgets(Gfx *dl, Struct_BB40_58 *widgetActor) {
+    MenuWidgetState *fp = widgetActor->unk174;
     s32 i;
 
     gSPDisplayList(dl++, D_1000118);
@@ -1018,7 +1018,7 @@ void menuUpdateTransformedWidgets(void) {
     Struct_80025D14 *st = NULL;
     f32 mA[4][4];
     f32 mB[4][4];
-    MenuTextIdPair sp34;
+    MenuTextIdPair textIds;
     s32 i;
     s32 cnt;
     s32 d;
@@ -1031,7 +1031,7 @@ void menuUpdateTransformedWidgets(void) {
     }
     if (st != NULL) {
         if (!(D_807FBB40->unk60 & 0x10)) {
-            sp34 = D_8003365C[0];
+            textIds = D_8003365C[0];
             guScaleF(mA, 0.6f, 0.6f, 1.0f);
             guTranslateF(mB, 640.0f, 800.0f, 0.0f);
             guMtxCatF(mA, mB, mA);
@@ -1042,35 +1042,35 @@ void menuUpdateTransformedWidgets(void) {
             guMtxF2L(mA, &fp->unk10[1]);
             if (st->unkB == 0) {
                 for (i = 0; i < 2; i++) {
-                    sp34.a[i] = D_80033544[gPlayerCharacterId][st->unk11][i];
+                    textIds.a[i] = D_80033544[gPlayerCharacterId][st->unk11][i];
                 }
             } else if (st->unkB == 1) {
                 for (i = 0; i < 2; i++) {
-                    sp34.a[i] = D_800335E4[st->unk11][i];
+                    textIds.a[i] = D_800335E4[st->unk11][i];
                 }
             } else if (st->unkB == 2) {
                 fp->unk90 = 0x82;
                 if (st->unk11 >= 2) {
-                    sp34.a[0] = D_80033618[st->unk11];
+                    textIds.a[0] = D_80033618[st->unk11];
                 } else {
-                    sp34.a[0] = D_80033604[gPlayerCharacterId];
+                    textIds.a[0] = D_80033604[gPlayerCharacterId];
                 }
             } else if (st->unkB == 3) {
                 fp->unk90 = 0x82;
-                sp34.a[0] = D_80033628[st->unk11];
+                textIds.a[0] = D_80033628[st->unk11];
             } else if (st->unkB == 4) {
                 fp->unk90 = 0x82;
                 if (st->unk11 == 1) {
-                    sp34.a[0] = D_80033634[gPlayerCharacterId];
+                    textIds.a[0] = D_80033634[gPlayerCharacterId];
                 } else if (st->unk12 == 0) {
-                    sp34.a[0] = D_80033648[st->unk11];
+                    textIds.a[0] = D_80033648[st->unk11];
                 } else {
-                    sp34.a[0] = 0x32;
+                    textIds.a[0] = 0x32;
                 }
             }
             for (i = 0; i < 2; i++) {
-                if (sp34.a[i] >= 0) {
-                    fp->unk0[i] = textTableGetString(0x27, sp34.a[i], 0);
+                if (textIds.a[i] >= 0) {
+                    fp->unk0[i] = textTableGetString(0x27, textIds.a[i], 0);
                 } else {
                     fp->unk0[i] = 0;
                 }
