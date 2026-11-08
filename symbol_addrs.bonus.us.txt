@@ -1,7 +1,9 @@
 // Overlay bonus (ovl04, segment table entry 4)
 D_8002DDD4 = 0x8002DDD4; // segment:bonus force_migration:True function_owner:func_8002A398
 bonusInitSounds = 0x800240F0; // type:func
+bonusSetupHudGdl = 0x80024D3C; // type:func
 bonusGetSoundForMap = 0x80024D8C; // type:func
+bonusMazeChallengeUpdate = 0x80024E38; // type:func
 bonusInitActors = 0x800256C4; // type:func
 bonusRegisterHit = 0x8002D7E8; // type:func
 bonusRenderCounterHud = 0x80024000; // type:func

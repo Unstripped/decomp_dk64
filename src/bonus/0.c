@@ -420,7 +420,7 @@ render:
     }
 }
 
-Gfx *func_80024D3C(Gfx *gdl, u8 unused) {
+Gfx *bonusSetupHudGdl(Gfx *gdl, u8 unused) {
     gSPDisplayList(gdl++, &D_1000118);
     gDPSetCombineMode(gdl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetPrimColor(gdl++, 0, 0, 255, 255, 255, 255);
@@ -472,7 +472,7 @@ typedef struct LB3bInput {
 
 #define LD ((LB3bInput *)gActivePlayerState)
 
-void func_80024E38(void) {
+void bonusMazeChallengeUpdate(void) {
     LB3bSnd *snd;
 
     snd = *(LB3bSnd **)((u8 *)D_807FBB40 + 0x178);
