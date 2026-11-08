@@ -157,13 +157,13 @@ s32 pathPlaybackStart(s32 owner, s32 pathId, u8 prependStartPoint, f32 x, f32 y,
 }
 
 
-void pathPlaybackSetSpeed(s32 slot, u8 speed) {
+void pathPlaybackSetSpeed(s32 slot, u8 stepSpeed) {
     PathPlayback *playback;
 
     if (slot != -1) {
         playback = D_807FDBF8[slot];
         if (playback != NULL) {
-            playback->unk20 = speed;
+            playback->unk20 = stepSpeed;
         }
     }
 }

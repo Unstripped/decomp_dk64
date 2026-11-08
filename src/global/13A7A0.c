@@ -5,7 +5,7 @@ typedef u32 OSHWIntr;
 
 #include "common.h"
 
-extern s32 osGetIntMask(s32 arg0);
+extern s32 osGetIntMask(s32 unused);
 
 struct GeSndState;
 
@@ -433,7 +433,7 @@ typedef struct {
     u16 type;
     GfSndState *state;
     s32 arg;
-    s32 arg2;
+    s32 param2;
 } GfSndEvt;
 
 typedef struct {
@@ -671,7 +671,7 @@ GfSndState *n_alSndpPlay(void *a0, s16 sndId, u16 vol, u8 pan, f32 pitch, u8 fxM
                 ev2.type = 0x200;
                 ev2.state = ret;
                 ev2.arg = lastId;
-                ev2.arg2 = (s32)a0;
+                ev2.param2 = (s32)a0;
                 alEvtqPostEvent(&((GfSndp *)D_807563CC)->evtq, (ALEvent *)&ev2, delay48);
             }
         }

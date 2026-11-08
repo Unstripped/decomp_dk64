@@ -1117,18 +1117,18 @@ typedef struct D1PlayerView {
 extern u8 gPlayerCount;
 extern u32 D_807FBB64;
 
-u8 func_8072C670(u8 arg0, u8 *arg1) {
+u8 func_8072C670(u8 checkMode, u8 *outTarget) {
     D1S174b *st = D_807FDC94->unk174;
     u8 ret;
     u8 t;
 
-    *arg1 = 1;
+    *outTarget = 1;
     if (D_807FBB40->unk5C & 2) {
         if (D_807FBB40->state != 0x15 &&
             ((D_807FDC94->actorType == 6 && ((D1PlayerView *)gPlayerSlots)->unk2C0 == 2 && gPlayerCount == 1) ||
              ((D_807FDC94->unk5C & 1) && (st->unk1F0 & 0x10)))) {
             ret = 7;
-        } else if (D1DC90H->unk37 == 7 && arg0 != 0 && !(D1DC90H->unk1A & 0x200) && D1DC90H->unk20 == 0) {
+        } else if (D1DC90H->unk37 == 7 && checkMode != 0 && !(D1DC90H->unk1A & 0x200) && D1DC90H->unk20 == 0) {
             D1DC90H->unk20 = 0x10;
             if (zoneFindBestReachablePoint(0x81, D_807FBB40, D_807FDCA0, &D1DC90H->unkA, &D1DC90H->unkC, &D1DC90H->unkE) == 0) {
                 ret = 0x10;
@@ -1141,7 +1141,7 @@ u8 func_8072C670(u8 arg0, u8 *arg1) {
             }
             if ((D_807FDC94->unk5C & 1) && st->unkD4 != 0 && !(D_807FBB64 & 0x100000)) {
                 ret = 1;
-                *arg1 = 0;
+                *outTarget = 0;
             } else if (D1DC90H->unk1A & 0x400) {
                 ret = D1DC90H->unk37;
             } else {
@@ -1189,15 +1189,15 @@ typedef struct D1Dc98ViewG {
 #define D1DC9CG ((D1Dc9cViewG *)D_807FDC9C)
 #define D1DC98G ((D1Dc98ViewG *)D_807FDC98)
 
-void func_8072C870(u8 arg0, u8 arg1, s32 arg2) {
-    if (arg0 == 7) {
+void func_8072C870(u8 state, u8 subState, s32 param) {
+    if (state == 7) {
         if (zoneFindBestReachablePoint(1, D_807FBB40, D_807FDCA0, &D1DC90G->unkA, &D1DC90G->unkC, &D1DC90G->unkE) == 0) {
-            arg0 = 0x10;
+            state = 0x10;
             actorSetTargetSpeed(D_807FBB40, D1DC9CG->unkD);
         }
     }
-    D1DC90G->unk36 = arg0;
-    actorSetBehaviourState(arg0, arg1, arg2);
+    D1DC90G->unk36 = state;
+    actorSetBehaviourState(state, subState, param);
 }
 
 typedef struct C1Sub4 {

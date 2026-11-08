@@ -5,7 +5,7 @@ typedef u32 OSIntMask;
 typedef u32 OSHWIntr;
 #include "common.h"
 
-extern s32 osGetIntMask(s32 arg0);
+extern s32 osGetIntMask(s32 unused);
 
 typedef struct GcChanState {
     /* 0x00 */ u8 unk0[8];
@@ -466,7 +466,7 @@ u8 __n_vsPan(GcVoiceState *vs, GcCSPlayer *seqp);
 void func_8073CF00(ALVoice *voice, u8 arg);
 void func_8073CFB0(ALVoice *voice, u8 arg);
 void n_alSynAllocVoice(ALVoice *voice, ALVoiceConfig *config);
-void n_alSynStartVoiceParams(ALVoice *voice, ALWaveTable *w, f32 pitch, s16 vol, u8 pan, u8 fxmix, u8 unityPitch, f32 arg7, u8 arg8, s32 arg9);
+void n_alSynStartVoiceParams(ALVoice *voice, ALWaveTable *w, f32 pitch, s16 vol, u8 pan, u8 fxmix, u8 unityPitch, f32 fxVolume, u8 fxDelay, s32 samples);
 
 #define GdCH(seqp, c) (((GdChanState *)(seqp)->chanState)[c])
 

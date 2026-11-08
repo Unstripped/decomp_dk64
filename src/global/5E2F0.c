@@ -5,16 +5,16 @@ extern u8 D_807F7EF8;
 extern s16 D_807F7EFA;
 extern s16 D_807F7EFC;
 
-void lightSetFlags(u8 arg0) {
-    D_807F7EF8 = arg0;
+void lightSetFlags(u8 flags) {
+    D_807F7EF8 = flags;
 }
 
-void lightSetTargetId(s16 arg0) {
-    D_807F7EFA = arg0;
+void lightSetTargetId(s16 targetId) {
+    D_807F7EFA = targetId;
 }
 
-void lightSetRadius(s16 arg0) {
-    D_807F7EFC = arg0;
+void lightSetRadius(s16 radius) {
+    D_807F7EFC = radius;
 }
 
 extern f32 *D_8076A0B4;
@@ -191,16 +191,16 @@ void lightClearActiveCount(void) {
     D_807F7EC8 = 0;
 }
 
-void lightSetFovAngles(f32 arg0, f32 arg1) {
-    D_807F7EE4 = arg0;
-    D_807F7EE8 = arg1;
-    D_807F7ED8 = cosApprox(arg0 * 0.017453292f);
-    D_807F7EDC = cosApprox(arg1 * 0.017453292f);
+void lightSetFovAngles(f32 angleA, f32 angleB) {
+    D_807F7EE4 = angleA;
+    D_807F7EE8 = angleB;
+    D_807F7ED8 = cosApprox(angleA * 0.017453292f);
+    D_807F7EDC = cosApprox(angleB * 0.017453292f);
     D_807F7EE0 = 1.0f / (D_807F7ED8 - D_807F7EDC);
 }
 
-void lightSetDistanceThreshold(s16 arg0) {
-    D_807F7EFE = arg0;
+void lightSetDistanceThreshold(s16 dist) {
+    D_807F7EFE = dist;
 }
 
 typedef struct LightVolume {

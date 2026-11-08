@@ -266,10 +266,10 @@ void animSetNodeItem(void *actor, s32 index, s16 itemIndex, s32 value) {
     }
 }
 
-void animSetSpeed(void *actor, s32 index, f32 speed) {
+void animSetSpeed(void *actor, s32 index, f32 animSpeed) {
     AnimNode *node = animGetNodeByIndex(actor, index);
     if (node != NULL) {
-        node->unk10 = speed;
+        node->unk10 = animSpeed;
     }
 }
 
