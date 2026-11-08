@@ -8,9 +8,18 @@ struct Actor;
 typedef struct ActorSub4 {
     /* 0x00 */ void *model;
     /* 0x04 */ u8 pad04[0x30];
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ f32 unk3C;
+    union {
+        /* 0x34 */ f32 unk34;
+        /* 0x34 */ f32 scaleX;
+    };
+    union {
+        /* 0x38 */ f32 unk38;
+        /* 0x38 */ f32 scaleY;
+    };
+    union {
+        /* 0x3C */ f32 unk3C;
+        /* 0x3C */ f32 scaleZ;
+    };
     /* 0x40 */ u8 pad40[0x24];
     /* 0x64 */ u16 animId;
 } ActorSub4;
@@ -176,7 +185,10 @@ typedef struct ActorGlobalState {
 
 typedef struct Actor {
     /* 0x000 */ u8 unk00[4];
-    /* 0x004 */ ActorSub4 *unk4;
+    union {
+        /* 0x004 */ ActorSub4 *unk4;
+        /* 0x004 */ ActorSub4 *sub4;
+    };
     /* 0x008 */ u8 unk08[0x50];
     /* 0x058 */ s32 actorType;
     /* 0x05C */ u16 unk5C;
@@ -277,7 +289,13 @@ typedef struct Actor {
     /* 0x124 */ s32 unk124;
     /* 0x128 */ s16 unk128;
     /* 0x12A */ s16 unk12A;
-    /* 0x12C */ u8 unk12C[6];
+    union {
+        /* 0x12C */ u8 unk12C[6];
+        struct {
+            /* 0x12C */ s16 chunkIndex;
+            /* 0x12E */ u8 pad12E[4];
+        };
+    };
     /* 0x132 */ s16 unk132;
     union {
         /* 0x134 */ u8 unk134[4];
@@ -291,7 +309,10 @@ typedef struct Actor {
         /* 0x138 */ s32 callbackMask;
     };
     /* 0x13C */ ActorCallbackNode *callbacks;
-    /* 0x140 */ ActorSub140 *unk140;
+    union {
+        /* 0x140 */ ActorSub140 *unk140;
+        /* 0x140 */ ActorSub140 *sub140;
+    };
     /* 0x144 */ u8 unk144;
     /* 0x145 */ u8 unk145[0xB];
     /* 0x150 */ s32 unk150;
