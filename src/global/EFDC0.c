@@ -1461,7 +1461,7 @@ void playerRevertToSavedKong(void) {
 }
 
 
-void playerStateEnterState56(void) {
+void playerStateThrowHeldActorAndResume(void) {
     playerThrowHeldActor(gActivePlayerActor);
     gActivePlayerActor->state = 0x55;
     gActivePlayerActor->unk155[0] = 0;
@@ -1484,7 +1484,7 @@ typedef struct EfCCamBlock {
 
 #define EfCCam ((EfCCamBlock *)gPlayerSlots)
 
-void playerStateEnterState56WithScript(void) {
+void playerStateThrowHeldActorWithScript(void) {
     playerThrowHeldActor(gActivePlayerActor);
     gActivePlayerActor->state = 0x56;
     gActivePlayerActor->unk155[0] = 0;
@@ -1525,7 +1525,7 @@ typedef struct EfCActorC0S32 {
 
 void actorAppendCallback4000(Actor *, s32, s16, s32, s32);
 
-void playerStateAppendCallback4000(void) {
+void playerStateAttachHeldActorToPlayer(void) {
     s32 value = (s32)gActivePlayerState->heldActor;
 
     if (value != 0) {
@@ -1541,7 +1541,7 @@ void playerStateAppendCallback4000(void) {
 }
 
 
-void playerStateEnterState21(void) {
+void playerStateEnterSlideRecover(void) {
     playerClearCarriedItemState();
     actorScriptStartByIndex(gCurrentActor, 0x1C);
     gActivePlayerActor->state = 0x21;
@@ -1643,14 +1643,14 @@ void playerStateEnterFallAndSetGravity(void) {
 extern void playerThrowHeldActor(Actor *);
 extern void playerResumeLocomotion(Actor *);
 
-void playerStateEnterState32WithScript(void) {
+void playerStateSwimTreadWithScript(void) {
     playerThrowHeldActor(gActivePlayerActor);
     actorScriptStartByIndex(gActivePlayerActor, 0x32);
     gActivePlayerActor->state = 0x52;
     gActivePlayerActor->unk155[0] = 0;
 }
 
-void playerStateEnterState54(void) {
+void func_806EE6B0(void) {
     playerThrowHeldActor(gActivePlayerActor);
     actorScriptStartByIndex(gActivePlayerActor, 0x86);
     gActivePlayerActor->state = 0x53;
@@ -2097,7 +2097,7 @@ void playerStateSetCartDamage(void) {
     ((u8 *)gActivePlayerState)[0x1FC] = 1;
 }
 
-void playerStateEnterState6A(void) {
+void playerStateEnterBarrelBlast(void) {
     gCurrentActor->state = 0x6A;
     gCurrentActor->unk155[0] = 0;
 }
@@ -2296,7 +2296,7 @@ void playerStateNoop2(void) {
 }
 
 
-void playerStateEnterState84(void) {
+void func_806F007C(void) {
     gCurrentActor->state = 0x84;
     gCurrentActor->unk155[0] = 0;
     actorScriptStart(gCurrentActor, 0);
@@ -2315,13 +2315,13 @@ void playerStateClearCarriedSetFlags(void) {
 
 
 
-void playerStateEnterState55(void) {
+void func_806F014C(void) {
     EfEPS->unk1F4 |= 8;
     playerResumeLocomotion(gActivePlayerActor);
 }
 
 
-void playerStateEnterState7B(void) {
+void func_806F0184(void) {
     playerClearCarriedItemState();
     EfEPS->unk1F0 &= ~0x20;
     gActivePlayerActor->state = 0x7B;
@@ -2336,7 +2336,7 @@ void playerStateClearCarriedAndCallF00BC(void) {
 }
 
 
-void playerStateEnterState0C(void) {
+void playerStateEnterClimbTree(void) {
     actorScriptStartByIndex(gActivePlayerActor, 9);
     gActivePlayerActor->state = 0xC;
     gActivePlayerActor->unk155[0] = 0;
@@ -2361,7 +2361,7 @@ void playerStateEnterKnockbackState(void) {
 }
 
 
-void playerStateEnterState7D(void) {
+void func_806F0344(void) {
     playerSetBaseGravity();
     gActivePlayerActor->state = 0x7D;
     gActivePlayerActor->unk155[0] = 0;
@@ -2423,7 +2423,7 @@ void playerStateSetFlagsByActorType(void) {
 
 void func_806E9964(EfEPlayerState *);
 
-void playerStateEnterState83(void) {
+void func_806F0624(void) {
     EfEPS->unk1F4 |= 0x10;
     func_806E9964(EfEPS);
     gActivePlayerActor->state = 0x83;
@@ -2432,7 +2432,7 @@ void playerStateEnterState83(void) {
     gActivePlayerActor->flags &= ~1;
 }
 
-void playerStateEnterState87(void) {
+void func_806F06A4(void) {
     gActivePlayerActor->state = 0x87;
     gActivePlayerActor->unk155[0] = 0;
     actorScriptStart(gActivePlayerActor, 0);
@@ -2445,7 +2445,7 @@ typedef struct EfEActorE4 {
     /* 0x0E4 */ s16 unkE4;
 } EfEActorE4;
 
-void playerStateEnterState88(void) {
+void func_806F0700(void) {
     gActivePlayerActor->state = 0x88;
     gActivePlayerActor->unk155[0] = 0;
     actorScriptStart(gActivePlayerActor, 0);
@@ -2461,7 +2461,7 @@ void playerStateEnterState88(void) {
 }
 
 
-void playerStateEnterState19(void) {
+void playerStateEnterDoubleJumpWithSfx(void) {
     sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0xF3, 0xFF, 0x7F, 0x19);
     gActivePlayerActor->state = 0x19;
     gActivePlayerActor->unk155[0] = 0;
@@ -2478,7 +2478,7 @@ typedef struct EfEActor78 {
 #define EfEActor ((EfEActor78 *)gActivePlayerActor)
 
 
-void playerStatePlaySfx76(void) {
+void func_806F0878(void) {
     if (EfEActor->unk78 == 0xC) {
         sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0x76, 0x64, 0x7F, 0);
     }
@@ -2491,7 +2491,7 @@ void playerStatePlaySfx76(void) {
     actorScriptExecute(gActivePlayerActor);
 }
 
-void playerStatePlaySfx78(void) {
+void func_806F0930(void) {
     if (EfEActor->unk78 == 0xC) {
         sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0x76, 0xFF, 0x7F, 0);
     }

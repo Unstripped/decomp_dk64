@@ -506,7 +506,7 @@ extern Actor *gCamActor;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
 extern G00Slot34 gPlayerPadState[];
-void playerInputSetState90(Actor *);
+void playerInputToggleActiveState(Actor *);
 s32 flagGet(s32, s32);
 void func_806F09F0(Actor *, u16);
 void playerResumeLocomotion(Actor *);
@@ -552,7 +552,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     G00_P->unk120 = -0x64;
     gCurrentCharacterIndex = row->unk4;
     G00_P->unk1EE = gSpawnedActor->actorType;
-    playerInputSetState90(gActivePlayerActor);
+    playerInputToggleActiveState(gActivePlayerActor);
     actorSpawn(0xBC, 0);
     G00_P->unk104 = gSpawnedActor;
     if (sel == 0) {

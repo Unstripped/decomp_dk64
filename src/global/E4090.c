@@ -1210,7 +1210,7 @@ s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
 f32 cosApprox(f32);
 f32 sinApprox(f32);
 u8 actorTestNodeSegmentCollision(void *);
-void playerInputSetState90(Actor *);
+void playerInputToggleActiveState(Actor *);
 s32 actorIsActiveType2B(Actor *);
 s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
@@ -1384,7 +1384,7 @@ u8 arg1;
                     func_806F0C18(gCurrentActor);
                     playerResumeLocomotion(gCurrentActor);
                 }
-                playerInputSetState90(gCurrentActor);
+                playerInputToggleActiveState(gCurrentActor);
             }
         } else {
             switch (gCurrentActor->actorType) {
@@ -1456,7 +1456,7 @@ typedef struct G23State90 {
     /* 0x90 */ u8 unk90;
 } G23State90;
 
-void playerInputSetState90(Actor *arg0) {
+void playerInputToggleActiveState(Actor *arg0) {
     G23State90 *state = arg0->customState;
 
     switch (arg0->actorType) {
@@ -1838,7 +1838,7 @@ void sfxStopSlotSound();
 void playerApplyDeceleration(void);
 extern struct G29BtnA D_807FD63A[];
 
-void playerInputHandleZButtonState27(void) {
+void func_806E3B00(void) {
     f32 temp;
 
     if (!(G24_PAD(D_807FD63A, u16) & 0x2000)) {
@@ -2739,7 +2739,7 @@ int func_806E5C74(void) {
 
 void controllerAnimSetStateRemap(void *, s32, f32, f32);
 
-void playerInputCheckEnterState17(void) {
+void playerInputCheckEnterLongJump(void) {
     if (func_806E5C74() != 0) {
         switch (D_807FD568[1]) {
             case 2:
@@ -2767,13 +2767,13 @@ void playerInputHandlerNoop1(void) {
 void playerInputHandlerNoop2(void) {
 }
 
-void playerInputHandleZButtonQueueCallback24(void) {
+void playerInputQueueCrouchCallback(void) {
     if (!(G25_P->unk1F0 & 0x20)) {
         playerStateQueueCallback(0x24, 0, gCurrentPlayerIndex);
     }
 }
 
-void playerInputQueueCallback24Direct(void) {
+void playerInputQueueCrouchCallbackDirect(void) {
     playerStateQueueCallback(0x24, 0, gCurrentPlayerIndex);
 }
 
@@ -4205,19 +4205,19 @@ void func_806E9964(arg0) PlayerState *arg0; {
     arg0->stateFlags &= ~0x8000;
 }
 
-void playerInputHandleCRightMode16(void) {
+void func_806E9A5C(void) {
     if (!(gActivePlayerState->stateFlags & 0x8000) && ((G30_PAD(D_807FD63C, u16) & 0xC) == 8)) {
         func_806E9964(gActivePlayerState);
     }
 }
 
-void playerInputHandleCLeftMode16(void) {
+void func_806E9ACC(void) {
     if (!(gActivePlayerState->stateFlags & 0x8000) && ((G30_PAD(D_807FD63C, u16) & 0xC) == 4)) {
         func_806E9964(gActivePlayerState);
     }
 }
 
-void playerInputHandleZButtonMode17(void) {
+void func_806E9B3C(void) {
     if (!(gActivePlayerState->stateFlags & 0x8000) && (G30_PAD(D_807FD63C, u16) & 4)) {
         func_806E9964(gActivePlayerState);
     }
@@ -4253,11 +4253,11 @@ void func_806E9BA8(arg0) s32 arg0; {
     }
 }
 
-void playerInputHandleZButtonMode18(void) {
+void func_806E9CDC(void) {
     func_806E9BA8(0x64);
 }
 
-void playerInputPostUpdateMode18(void) {
+void func_806E9CFC(void) {
     func_806E9BA8(0x65);
 }
 
@@ -4344,7 +4344,7 @@ typedef struct G31Link {
 
 s32 func_80714608();
 
-void playerInputHandleCUpMode16(void) {
+void func_806E9ECC(void) {
     G31State *state;
 
     if ((G31_PAD(D_807FD63C, u16) & 2) && (gCurrentActor->contactFlags & 1)) {
@@ -4545,7 +4545,7 @@ void playerInputHandleBButtonAimDown(void) {
     }
 }
 
-void playerInputPostUpdateMode12(void) {
+void func_806EA958(void) {
     if ((G31_PAD(D_807FD63C, u16) & 0xC) == 8) {
         func_806EAB44(gCurrentActor, 0);
     }
@@ -4553,7 +4553,7 @@ void playerInputPostUpdateMode12(void) {
 
 void func_806E9874();
 
-void playerInputHandleCDownMode14(void) {
+void func_806EA9B4(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2A & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 4)) {
         func_806E9874();
         return;
@@ -4563,7 +4563,7 @@ void playerInputHandleCDownMode14(void) {
     }
 }
 
-void playerInputHandleCUpMode13(void) {
+void func_806EAA44(void) {
     if ((G31_PAD(D_807FD63C, u16) & 0xC) == 8) {
         func_806EAB44(gCurrentActor, 1);
     }
@@ -4596,7 +4596,7 @@ typedef struct G32State {
     /* 0x1F4 */ u32 unk1F4;
 } G32State;
 
-void playerInputHandleCDownMode15(void) {
+void func_806EAAA0(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2A & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 4) && !(gGlobalOverlayFlags & 2)) {
         func_806E9804(8);
         return;
@@ -4680,7 +4680,7 @@ typedef struct G32Plr {
 
 #define G32_P ((G32Plr *)gActivePlayerState)
 
-void playerInputUpdateStickMode18(void) {
+void func_806EAC8C(void) {
     G32Inner *inner;
 
     inner = G32_P->unk88->unk178;
@@ -4689,7 +4689,7 @@ void playerInputUpdateStickMode18(void) {
     }
 }
 
-void playerInputHandleAButtonMode18(void) {
+void func_806EACBC(void) {
     G32Inner *inner;
 
     inner = G32_P->unk88->unk178;
