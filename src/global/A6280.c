@@ -20,7 +20,7 @@ typedef struct ActorSubView {
     u8 unk15F;
 } ActorSubView;
 
-typedef struct PlayerState {
+typedef struct PlayerSlot_A6280 {
     u8 unk0;
     u8 pad1[0x20F];
     f32 unk210;
@@ -30,10 +30,10 @@ typedef struct PlayerState {
     f32 unk228;
     f32 unk22C;
     f32 unk230;
-} PlayerState;
+} PlayerSlot_A6280;
 
 extern Actor *D_807FBB4C;
-extern PlayerState *gPlayerSlots;
+extern PlayerSlot_A6280 *gPlayerSlots;
 extern u8 D_807506C0[];
 extern u8 D_807FBD70;
 
