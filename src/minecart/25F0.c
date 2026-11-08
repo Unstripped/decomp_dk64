@@ -70,7 +70,7 @@ typedef struct PlayerState_25F0 {
     u8 pad0[0x88];
     Actor_25F0 *actor;
     u8 pad8C[0x104 - 0x8C];
-    void *unk104;
+    void *camActor;
     u8 pad108[0x1F0 - 0x108];
     s32 stateFlags;
 } PlayerState_25F0;
@@ -446,7 +446,7 @@ void minecartFollowerChildBehaviour(void) {
     if (s2->unk154 == 6) {
         if (gCurrentActor->unk15F != 0) {
             gCurrentActor->unk15F -= 0xC;
-            camSetTarget(gActivePlayerState->unk104, gActivePlayerState->actor, 4, (gCurrentActor->unk15F << 12) / 360, 0x64, 0, 5, 0x23, 0x14, 0, 0.2f);
+            camSetTarget(gActivePlayerState->camActor, gActivePlayerState->actor, 4, (gCurrentActor->unk15F << 12) / 360, 0x64, 0, 5, 0x23, 0x14, 0, 0.2f);
         }
     }
     if (s2->unk154 != 6) {
@@ -527,7 +527,7 @@ void minecartUpdateFollower(void) {
         if (gCurrentActor->unk11C == NULL || gCurrentActor->unk11C->unk15F == 0) {
             if (gActivePlayerState->stateFlags & 0x10000000) {
                 gActivePlayerState->stateFlags &= ~0x10000000;
-                camSetTargetScaled(gActivePlayerState->unk104, gActivePlayerState->actor, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
+                camSetTargetScaled(gActivePlayerState->camActor, gActivePlayerState->actor, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
             }
         }
         tagBarrelSpawnActorSmokePuffs(0, 1);

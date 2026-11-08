@@ -283,34 +283,68 @@ typedef struct BehaviourExtraState {
 } BehaviourExtraState;
 
 // gActivePlayerState: typedef only; other files still declare gActivePlayerState with their own types.
-typedef struct Struct807FD580 {
-    /* 0x000 */ u8 pad0[0x88];
+typedef struct PlayerState {
+    /* 0x000 */ s16 unk0;
+    /* 0x002 */ u8 pad2[2];
+    /* 0x004 */ f32 maxSpeed;
+    /* 0x008 */ s16 unk8;
+    /* 0x00A */ s16 targetYaw;
+    /* 0x00C */ u8 padC[4];
+    /* 0x010 */ s16 actionTimer;
+    /* 0x012 */ s16 subTimer;
+    /* 0x014 */ s16 unk14;
+    /* 0x016 */ u8 pad16[0x10];
+    /* 0x026 */ s16 unk26;
+    /* 0x028 */ s16 unk28;
+    /* 0x02A */ u8 pad2A[2];
+    /* 0x02C */ f32 unk2C;
+    /* 0x030 */ f32 unk30;
+    /* 0x034 */ u8 pad34[4];
+    /* 0x038 */ f32 targetSpeed;
+    /* 0x03C */ s16 unk3C;
+    /* 0x03E */ s16 approachTimer;
+    /* 0x040 */ s16 unk40;
+    /* 0x042 */ u8 pad42[6];
+    /* 0x048 */ s16 turnRate;
+    /* 0x04A */ u8 pad4A[0xA];
+    /* 0x054 */ f32 jumpVelocityY;
+    /* 0x058 */ u8 pad58[0x30];
     /* 0x088 */ Actor *actor;
-    /* 0x08C */ u8 pad8C[0x104 - 0x8C];
+    /* 0x08C */ u8 gunDrawn;
+    /* 0x08D */ u8 unk8D;
+    /* 0x08E */ u8 pad8E[0x6E];
+    /* 0x0FC */ s32 unkFC;
+    /* 0x100 */ s32 respawnTimer;
     /* 0x104 */ Actor *camActor;
-    /* 0x108 */ u8 pad108[0x1A4 - 0x108];
+    /* 0x108 */ u8 pad108[0x9B];
+    /* 0x1A3 */ u8 isHoldingObject;
     /* 0x1A4 */ u8 playerIndex;
-    /* 0x1A5 */ u8 pad1A5[0x1AC - 0x1A5];
+    /* 0x1A5 */ u8 pad1A5[7];
     /* 0x1AC */ Actor *heldActor;
     /* 0x1B0 */ Actor *queuedHeldActor;
-    /* 0x1B4 */ u8 pad1B4[0x1B8 - 0x1B4];
+    /* 0x1B4 */ u8 pad1B4[4];
     /* 0x1B8 */ u16 heldActorType;
-    /* 0x1BA */ u8 pad1BA[0x1C0 - 0x1BA];
+    /* 0x1BA */ u8 pad1BA[6];
     /* 0x1C0 */ f32 targetScale[3];
     /* 0x1CC */ f32 currentScale[3];
     /* 0x1D8 */ f32 scaleChangeRate;
     /* 0x1DC */ f32 targetScaleFactor;
     /* 0x1E0 */ f32 scaleStep;
     /* 0x1E4 */ s32 scaleMode;
-    /* 0x1E8 */ u8 pad1E8[0x1F0 - 0x1E8];
+    /* 0x1E8 */ u8 pad1E8[8];
     /* 0x1F0 */ s32 stateFlags;
-} Struct807FD580;
-#define unk104 camActor
-#define unk1AC heldActor
-#define unk1B0 queuedHeldActor
-#define unk1B8 heldActorType
-#define unk1F0 stateFlags
-#define unk1D8 scaleChangeRate
+    /* 0x1F4 */ s32 unk1F4;
+    /* 0x1F8 */ s32 unk1F8;
+    /* 0x1FC */ s32 cartDamage;
+    /* 0x200 */ s16 unk200;
+    /* 0x202 */ u8 pad202[0x44];
+    /* 0x246 */ s8 attackerValid;
+    /* 0x247 */ s8 attackerType;
+    /* 0x248 */ s8 attackerPlayerIndex;
+    /* 0x249 */ u8 attackerSpawnNodeId;
+} PlayerState;
+
+typedef PlayerState Struct807FD580;
 extern BehaviourWorkState *gBehaviourWorkState;
 extern Actor *gBehaviourTargetActor;
 extern BehaviourAnimState *gBehaviourAnimState;

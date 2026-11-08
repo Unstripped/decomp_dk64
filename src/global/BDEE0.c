@@ -860,7 +860,7 @@ typedef struct BDEE0Tbl {
 
 typedef struct BDEE0DD580 {
     u8 pad0[0x1D8];
-    f32 unk1D8;
+    f32 scaleChangeRate;
 } BDEE0DD580;
 
 extern BDEE0DD580 *gActivePlayerState;
@@ -1011,7 +1011,7 @@ void func_806BB874(void) {
             D_807FBB68 &= ~1;
             if (gPlayerSlots->unk2C0 != 1) {
                 playerSetSizeMode(D_807FBB4C, 1);
-                gActivePlayerState->unk1D8 = 0.05f;
+                gActivePlayerState->scaleChangeRate = 0.05f;
             }
             gCurrentActor->state++;
             sfxStopChannel(0x68, 0);

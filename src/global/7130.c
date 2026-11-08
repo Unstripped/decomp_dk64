@@ -469,7 +469,7 @@ typedef struct {
 
 typedef struct {
     char pad[0x104];
-    struct SoundCtxSub104 *unk104;
+    struct SoundCtxSub104 *camActor;
     char pad108[0xE8];
     u32 stateFlags;
 } SoundContextD580;
@@ -1898,7 +1898,7 @@ void sfxUpdateSourceGroups(void) {
     }
 
     gActivePlayerState = gPlayerSlots->unk4->unk174;
-    ctx104 = gActivePlayerState->unk104;
+    ctx104 = gActivePlayerState->camActor;
     water = ctx104->unk174;
     if (water->unkFA != 0 && gPlayerSlots->unk214 < (water->unk90 + 3.0f) && D_80745838 == 0 && gPlayerCount < 2) {
         D_80745838 = 1;
