@@ -1543,7 +1543,7 @@ void transformBarrelUpdate(void) {
         var_t0->unk4 = (Actor *)D_807FBB70.unk1FC;
         gCurrentActor->flags |= 0x200000;
         if (!(D_807FBB64 & 0x2000)) {
-            if (var_t0->unk4->unk5C & 1) {
+            if (var_t0->unk4->collisionFlags & 1) {
                 ps3 = var_t0->unk4->unk174;
 
                 if (ps3->unk88 != NULL) {
@@ -3633,10 +3633,10 @@ void tagBarrelUpdate(void) {
         }
         actor = gCurrentActor;
         if (actor->unk155[0] == 0xA) {
-            if (((Actor *)D_807FBB4C)->unk6A & 4 || func_806C9D7C() != 0) {
+            if (((Actor *)D_807FBB4C)->contactFlags & 4 || func_806C9D7C() != 0) {
                 actor = gCurrentActor;
                 actor->unk155[0] = 0;
-            } else if (((Actor *)D_807FBB4C)->unk110 != 1 && (((Actor *)D_807FBB4C)->unk6A & ((Actor *)D_807FBB4C)->unk6C & 1)) {
+            } else if (((Actor *)D_807FBB4C)->unk110 != 1 && (((Actor *)D_807FBB4C)->contactFlags & ((Actor *)D_807FBB4C)->prevContactFlags & 1)) {
                 tagBarrelCheckKongFlag(((Actor *)D_807FBB4C)->actorType, 1);
             }
         }

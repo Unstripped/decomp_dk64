@@ -333,7 +333,7 @@ void func_806B3420(void) {
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk64 |= 0x24;
+        gCurrentActor->renderFlags |= 0x24;
         gCurrentActor->flags |= 0x400;
         D_807FDC90->timer = 0x5A;
         gCurrentActor->state = 0;
@@ -399,7 +399,7 @@ void actorSwellBurstUpdate(void) {
     var = gCurrentActor->unk4->unk38 * 800.0f;
     scaleMultiplier = 1.1f;
     if (gCurrentMap == 0xC7) {
-        if (!(D_807FBB4C->unk6A & 4)) {
+        if (!(D_807FBB4C->contactFlags & 4)) {
             var = 0.0f;
             scaleMultiplier = 0.4f;
         } else {
@@ -410,7 +410,7 @@ void actorSwellBurstUpdate(void) {
     var = var * var;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk64 |= 4;
+        gCurrentActor->renderFlags |= 4;
         func_8067ACB4(gCurrentActor);
     }
     if (((D_807FBB70.unk200 == 9) || (D_807FBB70.unk15 != 0)) && (gCurrentActor->state != 0x27)) {
@@ -801,7 +801,7 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
             break;
         case 0x37:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x22, 0.0f);
-            if (gCurrentActor->unk6A & 1) {
+            if (gCurrentActor->contactFlags & 1) {
                 gCurrentActor->state = 0x40;
             }
             break;

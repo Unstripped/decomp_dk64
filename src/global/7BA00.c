@@ -25,7 +25,7 @@ void actorTriggerPlayerKnockbackSound(Actor* attacker, Actor* target, s32 unused
                 if (playerCanTakeHit(D_807FBB4C)) {
                     if (D_807FBB4C->actorType == 6 && gPlayerSlots[kong].unk2C0 == 2) {
                         if (D_807FBB4C->state != 0x31) {
-                            if (attacker->unk5C & 0x80) {
+                            if (attacker->collisionFlags & 0x80) {
                                 sfxPlayAtPositionPooled(target->x, target->y, target->z, 0x1E0, 0xFF, 0x64, 0x1E, 0, 0.3f, 0);
                             }
                         }

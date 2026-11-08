@@ -385,7 +385,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         if (*(f32 *)((u8 *)gCurrentActor + 0xC0) < (f32)D_8075038C) {
             *(f32 *)((u8 *)gCurrentActor + 0xC0) = (f32)D_8075038C;
         }
-        if ((gCurrentActor->unk6A & 1) && !(gCurrentActor->unk6C & 1)) {
+        if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
             switch (state->unk0) {
             case 0:
                 if (gCurrentActor->unk15F != 1) {
@@ -576,7 +576,7 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
         if (AA960_PHY->unkC0 < (f32)D_8075038C) {
             AA960_PHY->unkC0 = (f32)D_8075038C;
         }
-        if ((gCurrentActor->unk6A & 1) && !(gCurrentActor->unk6C & 1)) {
+        if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
             temp = 0xC8;
             switch (state->unk0) {
             case 0:
@@ -639,7 +639,7 @@ void actorUpdateSfxAndGround(void) {
 
     counter = gCurrentActor->unk174;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk64 |= 4;
+        gCurrentActor->renderFlags |= 4;
         gCurrentActor->flags |= 0x400;
         effectSpawnBurstParticleCluster(gCurrentActor);
     }

@@ -321,7 +321,7 @@ void func_806EB744(void) {
     subactor->unkB8 = speed;
     subactor->unkB2 = D_807FBB48->yaw + 0x800;
     D_807FBB48->speedXZ = 0.0f;
-    D_807FBB48->unk6A |= 0x2000;
+    D_807FBB48->contactFlags |= 0x2000;
 }
 
 void func_806EB8CC(void) {
@@ -875,8 +875,8 @@ void func_806ECAC4(void) {
 
 
 void func_806ECBD4(void) {
-    D_807FBB48->unk6A |= 0x40;
-    D_807FBB48->unk64 &= ~0x2000;
+    D_807FBB48->contactFlags |= 0x40;
+    D_807FBB48->renderFlags &= ~0x2000;
     D_807FBB48->state = 0x57;
     D_807FBB48->unk155[0] = 0;
     actorScriptStartByIndex(D_807FBB48, 0x69);
@@ -937,8 +937,8 @@ void func_806ECC48(void) {
     void *callback;
 
     callback = EfN4PS->unk104->unk174;
-    D_807FBB48->unk6A |= 0x40;
-    D_807FBB48->unk64 &= ~0x2000;
+    D_807FBB48->contactFlags |= 0x40;
+    D_807FBB48->renderFlags &= ~0x2000;
     D_807FBB48->state = 0x59;
     D_807FBB48->unk155[0] = 0;
     actorScriptStartByIndex(D_807FBB48, 0x70);
@@ -1069,7 +1069,7 @@ void func_806ED0FC(void) {
         EfN4PS->unkBC = 0;
         EfN4PS->unkBE = -1;
     }
-    if (gCurrentActor->unk6A & 4) {
+    if (gCurrentActor->contactFlags & 4) {
         D_807FBB48->state = 0x43;
         D_807FBB48->unk155[0] = 0;
         return;
@@ -1505,7 +1505,7 @@ void func_806EE10C(void) {
     if (playerCanTakeHit(D_807FBB48) != 0) {
         playerClearCarriedItemState();
         if (func_806C9974(gCurrentPlayerIndex, -1) != 0) {
-            if (D_807FBB48->unk6A & 4) {
+            if (D_807FBB48->contactFlags & 4) {
                 actorScriptStartByIndex(D_807FBB48, 0x29);
             } else {
                 actorScriptStartByIndex(D_807FBB48, 0x27);
@@ -1573,7 +1573,7 @@ void func_806EE2B8(void) {
         }
         if (func_806C9974(gCurrentPlayerIndex, selector) != 0) {
             value = 0;
-            if (D_807FBB48->unk6A & 4) {
+            if (D_807FBB48->contactFlags & 4) {
                 actorScriptStartByIndex(D_807FBB48, 0x29);
             } else {
                 actorScriptStartByIndex(D_807FBB48, 0x27);
@@ -1601,7 +1601,7 @@ void playerTakeFallDamage(void) {
     playerClearCarriedItemState();
     if ((playerCanTakeHit(D_807FBB48) != 0) && (func_806C9974(gCurrentPlayerIndex, -1) != 0)) {
         shouldNotify = 0;
-        if ((D_807FBB48->unk6A & 4) != 0) {
+        if ((D_807FBB48->contactFlags & 4) != 0) {
             actorScriptStartByIndex(D_807FBB48, 0x29);
         } else {
             actorScriptStartByIndex(D_807FBB48, 0x27);
@@ -1845,7 +1845,7 @@ void playerTakeDamage(s16 arg0) {
     s8 temp_v0;
 
     sp33 = 0;
-    if (D_807FBB48->unk6A & 4) {
+    if (D_807FBB48->contactFlags & 4) {
         temp_fv1 = gCurrentActor->unkAC - gCurrentActor->unkA4;
         if (EfL2Player[gCurrentPlayerIndex].unk2C0 == 1) {
             var_fv0 = D_8075386C[D_807FD584];
@@ -1858,7 +1858,7 @@ void playerTakeDamage(s16 arg0) {
         sfxStopChannel(0x6B, 0);
         D_807FBB48->flags |= 4;
         EfL2PS->unk38 = D_807531FC[D_807FD584];
-        D_807FBB48->unk6A &= 0xFFBF;
+        D_807FBB48->contactFlags &= 0xFFBF;
         slotQueueCancel(6, 1);
         if (EfL2PS->unkD4 == 0) {
             playerClearCarriedItemState();
@@ -1899,7 +1899,7 @@ void playerTakeDamage(s16 arg0) {
                     }
                 }
                 if (sp2C != 0) {
-                    if (D_807FBB48->unk6A & 4) {
+                    if (D_807FBB48->contactFlags & 4) {
                         actorScriptStartByIndex(D_807FBB48, 0x29);
                     } else {
                         actorScriptStartByIndex(D_807FBB48, 0x27);
@@ -1994,7 +1994,7 @@ void playerTakeDamage(s16 arg0) {
                 switch (EfL2Player[gCurrentPlayerIndex].unk29C) {
                 case 0x2E:
                 case 0x2F:
-                    if (D_807FBB48->unk6A & 4) {
+                    if (D_807FBB48->contactFlags & 4) {
                         D_807FBB48->speedXZ = D_8075305C[D_807FD584];
                         EfL2PS->unkD4 = D_807530B0[D_807FD584];
                     } else {
@@ -2047,7 +2047,7 @@ void playerTakeDamage(s16 arg0) {
                     EfL2PS->unkD4 = 0x3C;
                 }
                 if (D_807FBB48->state == 0x36) {
-                    if (D_807FBB48->unk6A & 4) {
+                    if (D_807FBB48->contactFlags & 4) {
                         D_807FBB48->speedY = D_80753078[D_807FD584] / 4;
                     } else {
                         D_807FBB48->speedY = D_80753078[D_807FD584];
@@ -2258,9 +2258,9 @@ void func_806EFDFC(void) {
     playerClearCarriedItemState();
     D_807FBB48->unk144 = 1;
     if (D_807FBB48->state != 0x7D) {
-        if (D_807FBB48->unk6A & 4) {
+        if (D_807FBB48->contactFlags & 4) {
             actorScriptStartByIndex(D_807FBB48, 0x34);
-        } else if (!(D_807FBB48->unk6A & 2)) {
+        } else if (!(D_807FBB48->contactFlags & 2)) {
             actorScriptStartByIndex(D_807FBB48, 0x5D);
         }
     }
@@ -2281,9 +2281,9 @@ void func_806EFF34(void) {
     playerClearCarriedItemState();
     D_807FBB48->unk144 = 1;
     if (D_807FBB48->state != 0x7D) {
-        if (D_807FBB48->unk6A & 4) {
+        if (D_807FBB48->contactFlags & 4) {
             actorScriptStartByIndex(D_807FBB48, 0x34);
-        } else if (!(D_807FBB48->unk6A & 2)) {
+        } else if (!(D_807FBB48->contactFlags & 2)) {
             actorScriptStartByIndex(D_807FBB48, 0x5C);
         }
     }
@@ -2496,7 +2496,7 @@ void func_806F0878(void) {
     D_807FBB48->state = 0x15;
     D_807FBB48->unk155[0] = 0;
     actorScriptStartByIndex(D_807FBB48, 6);
-    D_807FBB48->unk6A |= 0x20;
+    D_807FBB48->contactFlags |= 0x20;
     actorScriptExecute(D_807FBB48);
 }
 
@@ -2509,7 +2509,7 @@ void func_806F0930(void) {
     D_807FBB48->state = 0x16;
     D_807FBB48->unk155[0] = 0;
     actorScriptStartByIndex(D_807FBB48, 7);
-    D_807FBB48->unk6A |= 0x20;
+    D_807FBB48->contactFlags |= 0x20;
     actorScriptExecute(D_807FBB48);
 }
 

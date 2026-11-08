@@ -2274,7 +2274,7 @@ void scriptCmdActorCamShake(Actor *arg0) {
     scriptReadU16((u8 *)&sp40);
     sp3F = (u32)((f64)sp3F * ((f64)arg0->unk4->unk38 / 0.15));
     temp_v0 = arg0->actorType;
-    if ((temp_v0 == 0xCC) || ((arg0->unk6A & 1) && ((arg0->flags & 4) || (temp_v0 == 0xE4)) && (D_807444EC != 1))) {
+    if ((temp_v0 == 0xCC) || ((arg0->contactFlags & 1) && ((arg0->flags & 4) || (temp_v0 == 0xE4)) && (D_807444EC != 1))) {
         var_v1 = (sp3F >= 21) ? 20 : sp3F;
         camStartShakeFromPoint(((GlobalSpawnView *)gActivePlayerState)->unk104, sp3E, var_v1, sp4C, sp48, sp44, (f32)sp42, (f32)sp40);
     }

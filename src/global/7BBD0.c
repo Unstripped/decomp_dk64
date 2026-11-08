@@ -367,7 +367,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
         hit = func_80673708(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8, hitRadius, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->arcYawMin, (s32)&other->arcYawMax);
     } else {
         actorSetTargetAngleBounds(selfBounds->unkA4 + otherBounds->unk58 * 0x58);
-        if (!(self->unk64 & 0x10)) {
+        if (!(self->renderFlags & 0x10)) {
             hit = func_806738D0(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8, hitRadius, selfBounds->unkA4, selfBounds->unkA8);
         } else {
             hit = func_80673708(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8, hitRadius, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->arcYawMin, (s32)&other->arcYawMax);
@@ -384,7 +384,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
         pTriX = triX;
         pTriY = triY;
         ptr3 = triZ;
-        if (self->unk64 & 0x10) {
+        if (self->renderFlags & 0x10) {
             pushZ = worldZ;
         } else {
             do {
@@ -407,7 +407,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
             normal[0] = cross[0] / norm;
             normal[1] = cross[1] / norm;
             normal[2] = cross[2] / norm;
-            if (other->unk5C & 1) {
+            if (other->collisionFlags & 1) {
                 scale = (*(u8 *)(*(s32 *)&gPlayerSlots + (gCurrentPlayerIndex * 0x2F0) + 0x2C0) == 1 ? (f32)D_80753D50[D_807FD584] : (f32)D_80753D60[D_807FD584]) / 8;
                 p174 = other->unk174;
                 scaledNormal[0] = normal[0] * scale;

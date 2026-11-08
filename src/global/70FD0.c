@@ -1399,7 +1399,7 @@ ActorSub140 *actorSetCollisionRadius(Actor *arg0, f32 arg1) {
 void actorSub140SetVectors(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     ActorSub140 *sub = arg0->unk140;
 
-    if (arg0->unk64 & 0x800) {
+    if (arg0->renderFlags & 0x800) {
         arg4 = *(f32 *)arg0->unk120;
     }
     sub->unk0 = (s32)(arg1 * 8.0f);
@@ -1419,7 +1419,7 @@ void actorUpdateModelMatrices(Actor *arg0) {
         if (!(temp_v0 & 0x80000000) || !(temp_v0 & 0x10)) {
             actorSub140BuildBoxes(sub);
         }
-        if (!(arg0->unk64 & 8) || !(arg0->flags & 0x10)) {
+        if (!(arg0->renderFlags & 8) || !(arg0->flags & 0x10)) {
             actorSub140TransformTriangles(arg0->unk140);
         }
     }
@@ -2313,7 +2313,7 @@ Actor *arg0;
             if (hit != NULL && hit->unk53 != 0 && D_807FD614[playerFindIndexByActor(arg0)].unk0 > 30.0) {
                 ret = 1;
             }
-            if (arg0->unk5C & 1) {
+            if (arg0->collisionFlags & 1) {
                 actorCalcPlaneContactPoint((struct ActorPlaneContactView *)arg0, slot, (struct ActorHitPlane *)sub);
             }
             if (ret != 0) {

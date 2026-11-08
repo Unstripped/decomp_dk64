@@ -132,7 +132,7 @@ void actorNodeRingUpdate(void) {
         v3 = 0;
         D_807506B4 = 0; actorSpawn(0x73, 0xC4, &gCurrentActor);
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->unk4->unk38);
-        gSpawnedActor->unk64 |= 0x20;
+        gSpawnedActor->renderFlags |= 0x20;
         gSpawnedActor->flags |= 0x400;
         gSpawnedActor->unk12A = 0x7D0;
         nodePtr->unk0 = gSpawnedActor;

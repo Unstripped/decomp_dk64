@@ -61,10 +61,10 @@ void actorSeekTargetUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         ((ActorView *)gCurrentActor)->unk130 = 0x46;
         ((ActorView *)gCurrentActor)->unk131 = 0x32;
-        gCurrentActor->unk6A &= ~1;
+        gCurrentActor->contactFlags &= ~1;
         gCurrentActor->unk144 = 2;
         gCurrentActor->flags |= 0x80000000;
-        gCurrentActor->unk64 |= 0x28;
+        gCurrentActor->renderFlags |= 0x28;
         animSetStartFrame(gCurrentActor, 0, 1);
     }
     dx = D_807FBB4C->x - gCurrentActor->x;
@@ -99,7 +99,7 @@ void actorSeekTargetUpdate(void) {
                 gCurrentActor->unk132 *= 2;
             }
         }
-        if ((D_807FBB4C->unk6A & 1) && D_807FBB4C->unk110 == 0) {
+        if ((D_807FBB4C->contactFlags & 1) && D_807FBB4C->unk110 == 0) {
             gCurrentActor->unk132 = 1;
         }
     }
@@ -319,7 +319,7 @@ void actorSinkAndDespawn(void) {
 
     sub = gCurrentActor->unk174;
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk64 |= 8;
+        gCurrentActor->renderFlags |= 8;
         sub->unk0 = 0;
         sub->unk4 = 0.0f;
         sub->unk8 = gCurrentActor->y;

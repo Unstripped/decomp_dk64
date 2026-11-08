@@ -735,7 +735,7 @@ s32 pauseStateUpdate(void) {
                         } else {
                             actorSpawn(0x157, 0);
                         }
-                        gSpawnedActor->unk64 |= 2;
+                        gSpawnedActor->renderFlags |= 2;
                     }
                     D_807445C0 = osGetTime();
                     D_807FBB60 ^= 1;

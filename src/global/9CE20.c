@@ -203,7 +203,7 @@ u8 nodeCount;
     } else if (data->unk15 != 0) {
         data->unk15--;
     }
-    if ((D_807FBB4C->unk6A & 0x40) && data->unk14 == 0 && gCurrentActor == player->unk130) {
+    if ((D_807FBB4C->contactFlags & 0x40) && data->unk14 == 0 && gCurrentActor == player->unk130) {
         data->unk0 = 15.0f;
         if (mathAngleDistance(D_807FBB4C->yaw, gCurrentActor->yaw) < 0x400) {
             data->unkC = 3.1415927f;
@@ -217,7 +217,7 @@ u8 nodeCount;
     if (data->unkC < 0.0f) {
         data->unkC += 6.2831855f;
     }
-    if ((D_807FBB4C->unk6A & 0x40) && gCurrentActor == player->unk130) {
+    if ((D_807FBB4C->contactFlags & 0x40) && gCurrentActor == player->unk130) {
         data->unk14 = 1;
         data->unk0 += 0.2;
         if (data->unk0 > 15.0f) {
@@ -230,7 +230,7 @@ u8 nodeCount;
             data->unk0 = 0.0f;
         }
     }
-    if ((D_807FBB4C->unk6A & 0x40) && gCurrentActor == player->unk130) {
+    if ((D_807FBB4C->contactFlags & 0x40) && gCurrentActor == player->unk130) {
         if (player->unk138 < 1.5 && (((f64)data->unkC > 4.0 && (f64)data->unkC < 4.712389f) ||
                                      ((f64)data->unkC < 1.5707964f && (f64)data->unkC > 0.9))) {
             player->unk14C = (f32)D_8075037C * (data->unk0 / 15.0f);

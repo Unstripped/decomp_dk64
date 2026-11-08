@@ -252,7 +252,7 @@ void func_8069E774(void) {
     sp7F[3] = 0;
     temp_v0 = (Actor *)gCurrentActor->unk11C;
     node = (ActorState174 *)gCurrentActor->unk174;
-    if (temp_v0 != NULL && (temp_v0->unk5C & 1)) {
+    if (temp_v0 != NULL && (temp_v0->collisionFlags & 1)) {
         sp78 = temp_v0;
         sp7F[3] = 1;
     } else {
@@ -1043,7 +1043,7 @@ void actorShadowFollowUpdate(void) {
 void actorSpawnAttachedTo(Actor *arg0) {
     actorSpawn(0x6A, controllerLookupStateByHash(arg0));
     gSpawnedActor->unk11C = (s32) arg0;
-    arg0->unk6A |= 0x800;
+    arg0->contactFlags |= 0x800;
 }
 
 u8 func_80665AAC(Actor *);

@@ -795,7 +795,7 @@ void func_8069B010(void) {
     LinkedActorView *link;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk6A &= 0xFFFE;
+        gCurrentActor->contactFlags &= 0xFFFE;
         gCurrentActor->unk144 = 2;
         actorSetCollisionRadius(gCurrentActor, 60.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 60.0f, -1);
@@ -944,7 +944,7 @@ s32 actorHasCallbackTargetThisFrame(void) {
             void *sub;
             if (actorTableContains(node->unk8) != 0) {
                 actor = (Actor *)node->unk8;
-                if (actor->unk5C & 1) {
+                if (actor->collisionFlags & 1) {
                     sub = actor->unk174;
                     if ((u32)(D_8076A068 - *(s32 *)((u8 *)sub + 0x120)) < 2) {
                         return 1;
@@ -1046,7 +1046,7 @@ void textMarkerUpdateMatrix(void) {
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
         if (actorHasActiveMovementFlags(gCurrentActor) != 0) {
             gCurrentActor->unk144 = 2;
-            gCurrentActor->unk68 |= 1;
+            gCurrentActor->flags2 |= 1;
             gCurrentActor->state = 2;
             *(u8 *)((u8 *)gCurrentActor + 0x155) = 1;
             markerView->unk1C = 0x1E;
@@ -1076,7 +1076,7 @@ void textMarkerUpdateMatrix(void) {
                 }
             }
             if (gCurrentMap == 0x26) {
-                gCurrentActor->unk64 |= 0x400;
+                gCurrentActor->renderFlags |= 0x400;
             }
             break;
         }
@@ -1085,7 +1085,7 @@ void textMarkerUpdateMatrix(void) {
         case 0x40:
         case 0x41:
         case 0x42:
-            gCurrentActor->unk64 |= 0x420;
+            gCurrentActor->renderFlags |= 0x420;
             break;
         }
     }
@@ -1155,31 +1155,31 @@ void textMarkerUpdateMatrix(void) {
     switch (gCurrentActor->state) {
     case 0:
         gCurrentActor->unk144 = 2;
-        gCurrentActor->unk64 |= 8;
+        gCurrentActor->renderFlags |= 8;
         gCurrentActor->flags |= 0x80000000;
-        gCurrentActor->unk68 |= 1;
+        gCurrentActor->flags2 |= 1;
         if (actorHasCallbackTargetThisFrame() != 0) {
             gCurrentActor->state = 4;
         }
         break;
     case 1:
-        gCurrentActor->unk68 &= 0xFFFE;
-        gCurrentActor->unk64 &= ~8;
+        gCurrentActor->flags2 &= 0xFFFE;
+        gCurrentActor->renderFlags &= ~8;
         gCurrentActor->flags &= 0x7FFFFFFF;
         markerView->unk20 = (f32)(((f64)markerView->unk14->yaw / 4095.0) * 360.0);
         break;
     case 2:
-        gCurrentActor->unk64 &= ~8;
+        gCurrentActor->renderFlags &= ~8;
         gCurrentActor->flags &= 0x7FFFFFFF;
         if (markerView->unk1C != 0) {
             markerView->unk1C--;
         }
-        if (markerView->unk1C == 0 && (gCurrentActor->unk6A & 1)) {
+        if (markerView->unk1C == 0 && (gCurrentActor->contactFlags & 1)) {
             gCurrentActor->state = 0;
         } else if (actorHasActiveMovementFlags(gCurrentActor) != 0) {
             markerView->unk1C = 0x1E;
         }
-        if ((gCurrentActor->unk6A & 1) && *(u8 *)((u8 *)gCurrentActor + 0x155) == 0) {
+        if ((gCurrentActor->contactFlags & 1) && *(u8 *)((u8 *)gCurrentActor + 0x155) == 0) {
             if (gCurrentActor->actorType == 0x55) {
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8B, 0x64, 0x7F, 0x14);
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x97, 0x64, 0x7F, 0x14);
@@ -1190,7 +1190,7 @@ void textMarkerUpdateMatrix(void) {
         }
         *(f32 *)((u8 *)gCurrentActor + 0xC0) = -200.0f;
         gCurrentActor->speedXZ = 0.0f;
-        gCurrentActor->unk68 |= 1;
+        gCurrentActor->flags2 |= 1;
         if (actorHasCallbackTargetThisFrame() != 0) {
             gCurrentActor->state = 4;
         }
@@ -1209,8 +1209,8 @@ void textMarkerUpdateMatrix(void) {
         if (stateActive != 0 || (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0)) {
             gCurrentActor->state = 4;
         }
-        gCurrentActor->unk68 &= 0xFFFE;
-        gCurrentActor->unk64 &= ~8;
+        gCurrentActor->flags2 &= 0xFFFE;
+        gCurrentActor->renderFlags &= ~8;
         gCurrentActor->flags &= 0x7FFFFFFF;
         break;
     case 4:
@@ -1286,9 +1286,9 @@ void textMarkerUpdateMatrix(void) {
         }
         break;
     case 5:
-        gCurrentActor->unk64 &= ~8;
+        gCurrentActor->renderFlags &= ~8;
         gCurrentActor->flags &= 0x7FFFFFFF;
-        gCurrentActor->unk68 &= 0xFFFE;
+        gCurrentActor->flags2 &= 0xFFFE;
         markerView->unk2A = markerView->unk2A + 2;
         if (markerView->unk2A >= 0xFB) {
             markerView->unk2A = 0xFA;
@@ -1327,17 +1327,17 @@ void textMarkerUpdateMatrix(void) {
         *(s16 *)((u8 *)gCurrentActor + 0xEE) = gCurrentActor->yaw;
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
-        if (gCurrentActor->state == 3 && (gCurrentActor->unk6A & 1) && !(gCurrentActor->unk6C & 1)) {
+        if (gCurrentActor->state == 3 && (gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
             gCurrentActor->state = 4;
         }
-        if (gCurrentActor->state == 2 && (gCurrentActor->unk6A & 4)) {
+        if (gCurrentActor->state == 2 && (gCurrentActor->contactFlags & 4)) {
             gCurrentActor->state = 4;
         }
         *(s16 *)((u8 *)gCurrentActor + 0xDC) = 0x3FF;
         *(s16 *)((u8 *)gCurrentActor + 0xDE) = 0x3FF;
     } else {
         gCurrentActor->unk110 = 0;
-        gCurrentActor->unk6A &= 0xFBF7;
+        gCurrentActor->contactFlags &= 0xFBF7;
     }
     if (D_807FBB94) {}  // FAKE: ghost candidate, extends the D_807FBB94 web over the gCurrentMap switch temp
     switch (gCurrentMap) {

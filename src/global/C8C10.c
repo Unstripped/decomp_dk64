@@ -153,7 +153,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
                     D_807FBB4C->x = gCurrentActor->x;
                     D_807FBB4C->y = gCurrentActor->y - 2.0f;
                     D_807FBB4C->z = gCurrentActor->z;
-                    D_807FBB4C->unk6A &= 0xFFFE;
+                    D_807FBB4C->contactFlags &= 0xFFFE;
                     D_807FBB4C->unk110 = 0;
                 }
             }

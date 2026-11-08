@@ -1648,8 +1648,8 @@ void camUpdate(struct CamResetCam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
                     gCamPathStep++;
                     if (CAM_PATH_STEP_LIST.unk0 < gCamPathStep) {
                         if (gCamPathFlags & 0x10) {
-                            if (!(D_807FBB4C->unk6A & 0x100)) {
-                                D_807FBB4C->unk6A |= 0x100;
+                            if (!(D_807FBB4C->contactFlags & 0x100)) {
+                                D_807FBB4C->contactFlags |= 0x100;
                             }
                         } else {
                             camEndPath((CamFollowActor *)arg0);

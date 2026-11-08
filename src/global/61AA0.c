@@ -216,7 +216,7 @@ block_21:
     gBillboardCache[i * 1].unk0 = gFrameCounter; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
     gBillboardQueue[gBillboardQueueCount].unk102 = i;
     gBillboardQueue[gBillboardQueueCount].unk106 = flags;
-    if (actor->unk64 & 0x40) {
+    if (actor->renderFlags & 0x40) {
         *(u16 *)&gBillboardFlags |= 1;
     }
     gBillboardQueue[gBillboardQueueCount].unk100 = *(u16 *)&gBillboardFlags;
@@ -228,7 +228,7 @@ block_21:
     billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][3], halfWidth, halfHeight, texWidth - 1, texHeight - 1);
 
     groundY = actor->unkA4;
-    if ((*(u16 *)&gBillboardFlags & 2) && (actor->unk6A & 2) && (actor->unkAC <= actor->y)) {
+    if ((*(u16 *)&gBillboardFlags & 2) && (actor->contactFlags & 2) && (actor->unkAC <= actor->y)) {
         f32 diff1 = (actor->y > actor->unkAC) ? (actor->y - actor->unkAC) : -(actor->y - actor->unkAC);
         f32 diff2 = (actor->y > actor->unkA4) ? (actor->y - actor->unkA4) : -(actor->y - actor->unkA4);
         if (diff1 < diff2) {

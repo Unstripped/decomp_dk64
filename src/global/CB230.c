@@ -138,7 +138,7 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
     dist = (u16)sqrtf(dx * dx + dz * dz);
     if (!(gCurrentActor->flags & 0x10)) {
         R1C8CBSub178 *p = R1V->unk178;
-        gCurrentActor->unk64 |= 4;
+        gCurrentActor->renderFlags |= 4;
         gCurrentActor->flags |= 0x800000;
         gCurrentActor->unk16A = 0xFF;
         gCurrentActor->unk16B = 0xFF;

@@ -73,7 +73,7 @@ void behaviourFrameBegin(void) {
             }
         }
     }
-    if (gCurrentActor->unk5C & 2) {
+    if (gCurrentActor->collisionFlags & 2) {
         if ((D_807444EC == 1 && (D1DC98D->unk46 & 8)) || (D_807FDC94 != NULL && D_807FDC94->state == 0x42)) {
             if (gCurrentActor->state >= 0x23 && gCurrentActor->state < 0x36) {
                 gCurrentActor->unk144 = 1;
@@ -98,13 +98,13 @@ void behaviourFrameBegin(void) {
                 }
             }
         }
-        if ((D1DC98D->unk46 & 0x4000) && (gCurrentActor->unk6A & 4)) {
+        if ((D1DC98D->unk46 & 0x4000) && (gCurrentActor->contactFlags & 4)) {
             if (gCurrentActor->y + (f32)(u32)gCurrentActor->unk15E < D1AE->unkAC) {
                 D_807FBB70.unk15 = 1;
             }
         }
         if (gCurrentMap == 0x30) {
-            if (D_807FDC94->unk5C & 1) {
+            if (D_807FDC94->collisionFlags & 1) {
                 if ((((D1S174 *)D_807FDC94->unk174)->unk1F0 ^ ((D1S174 *)D_807FDC94->unk174)->unk1F8) & 0x100000) {
                     sfxStopSlotSound(gCurrentActor, 0);
                     gCurrentActor->state = 0;
@@ -1110,10 +1110,10 @@ u8 func_8072C670(u8 checkMode, u8 *outTarget) {
     u8 t;
 
     *outTarget = 1;
-    if (gCurrentActor->unk5C & 2) {
+    if (gCurrentActor->collisionFlags & 2) {
         if (gCurrentActor->state != 0x15 &&
             ((D_807FDC94->actorType == 6 && ((D1PlayerView *)gPlayerSlots)->unk2C0 == 2 && gPlayerCount == 1) ||
-             ((D_807FDC94->unk5C & 1) && (st->unk1F0 & 0x10)))) {
+             ((D_807FDC94->collisionFlags & 1) && (st->unk1F0 & 0x10)))) {
             ret = 7;
         } else if (D1DC90H->unk37 == 7 && checkMode != 0 && !(D1DC90H->unk1A & 0x200) && D1DC90H->unk20 == 0) {
             D1DC90H->unk20 = 0x10;
@@ -1126,7 +1126,7 @@ u8 func_8072C670(u8 checkMode, u8 *outTarget) {
             if (D1DC90H->unk20 != 0) {
                 D1DC90H->unk20 = D1DC90H->unk20 - 1;
             }
-            if ((D_807FDC94->unk5C & 1) && st->unkD4 != 0 && !(D_807FBB64 & 0x100000)) {
+            if ((D_807FDC94->collisionFlags & 1) && st->unkD4 != 0 && !(D_807FBB64 & 0x100000)) {
                 ret = 1;
                 *outTarget = 0;
             } else if (D1DC90H->unk1A & 0x400) {
@@ -1846,7 +1846,7 @@ void func_8072DEA8(void *arg0, u8 arg1, Actor *arg2) {
     func_8072D9D4();
     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CA, 0xFF, 0x7F, 0x14);
     if (arg2 != NULL) {
-        if (arg2->unk5C & 4) {
+        if (arg2->collisionFlags & 4) {
             E2A->unkEE = (((E2ActorView *)arg2)->unkEE + 0x800) & 0xFFF;
         } else {
             E2A->unkEE = (arg2->yaw + 0x800) & 0xFFF;

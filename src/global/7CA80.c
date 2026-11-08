@@ -631,7 +631,7 @@ void actorUpdateWhilePaused(void) {
     }
     for (i = D_807FBB3C = 0; i < gActiveActorCount; i = ++D_807FBB3C) {
         gCurrentActor = gActiveActors[i].actor;
-        if (gCurrentActor->unk64 & 2) {
+        if (gCurrentActor->renderFlags & 2) {
             actorPreTick(gCurrentActor);
             D_8074C0A0[gCurrentActor->actorType]();
             actorPostTick(gCurrentActor);
@@ -657,7 +657,7 @@ void func_80678B04(void) {
 
 void actorPreTick(Actor *arg0) {
     collisionClearFlags(arg0);
-    if (arg0->unk5C & 1) {
+    if (arg0->collisionFlags & 1) {
         playerSetActiveGlobals(arg0);
     }
     arg0->prevX = arg0->x;
@@ -739,8 +739,8 @@ void func_80678E14(Actor *actor) {
         actor->unk9C = temp_fv0;
         return;
     }
-    if (actor->unk6A & 5) {
-        if (actor->unk6C & 5) {
+    if (actor->contactFlags & 5) {
+        if (actor->prevContactFlags & 5) {
             actor->unk9C = temp_fv0;
             return;
         }
@@ -764,20 +764,20 @@ void func_80678E6C(Actor *actor) {
         actor->hasArcBounds |= actorClearTargetAngle(actor, &actor->arcYawMin, &actor->arcYawMax, &sp27);
         sp27 |= D_807FBC55;
         if (sp27 != 0) {
-            if (!(actor->unk6A & 0x10)) {
-                actor->unk6A |= 0x10;
+            if (!(actor->contactFlags & 0x10)) {
+                actor->contactFlags |= 0x10;
                 if (actor == D_807FBB48) {
                     playerStateQueueCallback(4, 0, gCurrentPlayerIndex);
                 }
             }
         }
         if (sp27 == 0) {
-            actor->unk6A &= ~0x10;
+            actor->contactFlags &= ~0x10;
         }
     } else {
         actor->hasArcBounds = 0;
         actor->unkFD = 0;
-        actor->unk6A &= ~0x10;
+        actor->contactFlags &= ~0x10;
     }
 }
 
@@ -1114,7 +1114,7 @@ void actorDispatchCallbacks(Actor *arg0) {
                 switch ((s32)var_s2->callback) {
                 case 0x8000:
                     actorCollisionProcessHit(arg0, var_s2);
-                    if (((GSTATE.unk200 == 9) || (GSTATE.unk200 == 0xA)) && (arg0->unk5C & 1)) {
+                    if (((GSTATE.unk200 == 9) || (GSTATE.unk200 == 0xA)) && (arg0->collisionFlags & 1)) {
                         playerHandleDamageReaction(arg0, GSTATE.unk1FC, (GSTATE.unk200 == 0xA));
                     }
                     break;
@@ -1159,7 +1159,7 @@ void actorDispatchCallbacks(Actor *arg0) {
                                 playerStateQueueCallback(0x32, var_s2->unk8, gCurrentPlayerIndex);
                             }
                             temp_v1 = (Actor *)var_s2->unk8;
-                            if ((temp_v1 != NULL) && (temp_v1->unk5C & 2)) {
+                            if ((temp_v1 != NULL) && (temp_v1->collisionFlags & 2)) {
                                 temp_v0_3 = (ActorPlayerState *)temp_v1->unk174;
                                 temp_v0_3->unk1A = (u16)(temp_v0_3->unk1A | 0x100);
                             }
@@ -1386,7 +1386,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
 
     D_807FBB85 = 1;
     if (arg0 == D_807FBB48) {
-        if (!(((DamageReactionPlayerEntry *)gPlayerSlots)[gActivePlayerState->playerIndex].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2))) {
+        if (!(((DamageReactionPlayerEntry *)gPlayerSlots)[gActivePlayerState->playerIndex].unk2C0 == 2 && arg1 != NULL && (arg1->collisionFlags & 2))) {
             sp3C = 0x2E;
             var_a2 = 1;
             if (arg2 != 0) {
@@ -1421,13 +1421,13 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
                     break;
                 }
                 gActivePlayerState->unk200 = 0xF0;
-            } else if (arg1 != NULL && ((arg1->unk5C & 1) || (arg1->unk5C & 4) || (arg1->unk5C & 2))) {
+            } else if (arg1 != NULL && ((arg1->collisionFlags & 1) || (arg1->collisionFlags & 4) || (arg1->collisionFlags & 2))) {
                 if (func_80714608(0) != 0) {
                     if (playerIsSmallerThanAttacker(arg0, arg1) != 0) {
                         sp3C = 0x31;
                     } else {
                         var_v0 = 1;
-                        if (arg1->unk5C & 4) {
+                        if (arg1->collisionFlags & 4) {
                             var_v0 = 3;
                         }
                         if (arg1->state != 0x28 && var_v0 < 3) {
@@ -1785,7 +1785,7 @@ void actorGlobalStateClearEvents(void) {
 }
 
 void func_8067ACB4(Actor *arg0) {
-    arg0->unk6C = arg0->unk6A;
+    arg0->prevContactFlags = arg0->contactFlags;
 }
 
 u16 func_8067ACC0(u16 arg0) {
@@ -1802,7 +1802,7 @@ s32 (*arg2)(Actor *);
 
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
-        if (arg0 == actor->unk11C && actor->unk5C == arg1) {
+        if (arg0 == actor->unk11C && actor->collisionFlags == arg1) {
             if (arg2 == NULL || arg2(actor)) {
                 count++;
             }

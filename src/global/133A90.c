@@ -658,7 +658,7 @@ void proxPathFollowerStep(H1ActorB **pActor) {
         actorGetNodePos(actor, 8, &actor->unk7C, &actor->unk80, &actor->unk84);
         state->unk19C = 0;
         state->unk19E = 0xFFF;
-        if (gCurrentActor->unk6A & 0x40) {
+        if (gCurrentActor->contactFlags & 0x40) {
             switch (actor->unk58) {
             case 2:
             case 5:

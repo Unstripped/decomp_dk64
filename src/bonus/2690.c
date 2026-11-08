@@ -1115,7 +1115,7 @@ void bonusTurtleTroubleTurtleUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->yaw = (randomNonNegative() >> 0xF) % 4096;
         gCurrentActor->unkC4 = -10.0f;
-        gCurrentActor->unk6A &= 0xFFFE;
+        gCurrentActor->contactFlags &= 0xFFFE;
         func_80613C48(gCurrentActor, 0x688, 0.0f, 0.0f);
         scriptSetActorRampTarget(gCurrentActor, 1.0, 0.0f);
     }
@@ -1145,7 +1145,7 @@ void bonusTurtleTroubleTurtleUpdate(void) {
     if (t0->unk4 == 0) {
         actorGetNodePos(t0->unk0, 1, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
     } else {
-        if ((gCurrentActor->unk6A & 1) && !(gCurrentActor->unk6C & 1)) {
+        if ((gCurrentActor->contactFlags & 1) && !(gCurrentActor->prevContactFlags & 1)) {
             gCurrentActor->speedY = t0->unkC * -0.8f;
             v = -t0->unkC * 1.5;
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, (u8)((255.0 < v) ? 255.0 : v), 0x7F, 0xA);

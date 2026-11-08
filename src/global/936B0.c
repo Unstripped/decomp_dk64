@@ -277,11 +277,11 @@ void func_8068EF54(void) {
         sp7C->unk8 = 0;
     }
     buf = ((ActorSub4BufView *)gCurrentActor->unk4)->unk1C;
-    switch (sp74->unk5C) {
+    switch (sp74->collisionFlags) {
     case 1:
         sp78 = sp74->unk174;
         buf->unk2 = sp78->unk1A0;
-        if ((sp74->unk6A & 5) || sp78->unk240 == 1 || (sp74->state == 0x42 && sp78->unkBC != 0x31) || sp74->state == 0x87) {
+        if ((sp74->contactFlags & 5) || sp78->unk240 == 1 || (sp74->state == 0x42 && sp78->unkBC != 0x31) || sp74->state == 0x87) {
             actorAppendCallback(sp7C->unk4, (s32)gCurrentActor, 0x2000000, 0, 0, 0);
             sp78->unk1A3 = 0;
             actorDespawn(gCurrentActor);
@@ -352,7 +352,7 @@ void func_8068EF54(void) {
     actorGetNodePos(sp74, 0xB, &sp11C, &sp118, &sp114);
     mathNudgeCoords(gCurrentActor->x, gCurrentActor->z, &sp11C, &sp114);
     sp90 = mathAtan2(sp11C - gCurrentActor->x, sp114 - gCurrentActor->z);
-    if (sp74->unk5C == 0x40) {
+    if (sp74->collisionFlags == 0x40) {
         actorGetNodePos(sp74, 0xC, &sp6C, &sp68, &sp64);
         sp74->moveYaw = mathAngleBetweenPoints2D(sp6C, sp64, gCurrentActor->x, gCurrentActor->z);
         matrixMakeRotationY(spD4, (sp74->moveYaw * 360) / 4096);
@@ -714,7 +714,7 @@ s16 arg1;
 {
     s16 idx;
 
-    idx = D_80770628[gCurrentActor->unk6E];
+    idx = D_80770628[gCurrentActor->soundSlot];
     if (gCurrentActor->y < gCurrentActor->unkAC + 4.0f) {
         D_80770B68[idx] = ((f64)gCurrentActor->speedXZ / 300.0) + 1.0;
         D_80770BC0[idx] = 1.0f;
@@ -873,16 +873,16 @@ void actorUpdatePlayerInteraction(void) {
         G_PLAYER_INTERACT_ACTOR->unk144 = 0x3C;
         playerStateQueueCallback(0x4C, gCurrentActor, sp54->unk1A4);
     }
-    if (camIsCutsceneActive() == 0 || (camIsCutsceneActive() != 0 && (D_807FBB4C->unk6A & 0x100))) {
+    if (camIsCutsceneActive() == 0 || (camIsCutsceneActive() != 0 && (D_807FBB4C->contactFlags & 0x100))) {
         actorGetNodePos(gCurrentActor, 1, &sp44, &sp40, (f32 *)&sp3C);
         lightAdd(sp44, sp40, sp3C, 0.0f, 0.0f, 0.0f, 300.0f, 0, 0xFF, 0xFF, 0xFF);
         if (flagGet(0x6B, 2) == 0) {
-            if (camIsCutsceneActive() != 0 && (D_807FBB4C->unk6A & 0x100)) {
+            if (camIsCutsceneActive() != 0 && (D_807FBB4C->contactFlags & 0x100)) {
                 actorGetNodePos(gCurrentActor, 2, &sp44, &sp40, (f32 *)&sp3C);
                 lensFlareAddSource(sp44, sp40, sp3C, 0.0f, 0.0f, 0.0f, 0.0f, 0xFF, 0xFF, 0xFF);
             }
             if (camIsCutsceneActive() == 0) {
-                D_807FBB4C->unk6A &= ~0x100;
+                D_807FBB4C->contactFlags &= ~0x100;
             }
         }
     }
@@ -1204,10 +1204,10 @@ f32 *arg8;
     dirZ = d[2] / len;
     for (i = 0; i < gActiveActorCount; i++) {
         a = gActiveActors[i].actor;
-        if (arg2 != a && (!(a->unk5C & 2) || a->state != 0x37) && (a->unk5C & arg0)) {
+        if (arg2 != a && (!(a->collisionFlags & 2) || a->state != 0x37) && (a->collisionFlags & arg0)) {
             if (arg4 == 0 || ((oy < a->y) ? (a->y - oy) : -(a->y - oy)) < 30.0f) {
                 v1 = 1;
-                if (a->unk5C & 1) {
+                if (a->collisionFlags & 1) {
                     sub = a->unk174;
                     v1 = *(u8 *)&((PlayerAimView *)gPlayerSlots)[sub->unk1A4];
                 }
@@ -3100,7 +3100,7 @@ void projectileFallBounceUpdate(void) {
         gCurrentActor->flags |= 0x80000;
         collisionQueryActorFloor(gCurrentActor, &sp79, &sp70, &sp78, &sp6C, sp77);
         gCurrentActor->unkC4 = D_807502F8 - (f32)(((randomNonNegative() >> 15) % 32767) % 10);
-        gCurrentActor->unk6A &= 0xFFFE;
+        gCurrentActor->contactFlags &= 0xFFFE;
     }
     if (D_807FBB70.unk200 == 5) {
         sub = ((PlayerActorTrackView *)D_807FBB70.unk1FC)->unk174;
@@ -3121,8 +3121,8 @@ void projectileFallBounceUpdate(void) {
             func_8067ACB4(gCurrentActor);
             actorApplyVelocity(gCurrentActor);
             actorUpdateFloorContactAndTilt(gCurrentActor, (f32)(((f64)func_80612790((s16)(gCurrentActor->roll + 0x800)) * 0.5 + 0.5) * 15.0));
-            flag = gCurrentActor->unk6A & 1;
-            if (flag != 0 && !(gCurrentActor->unk6C & 1)) {
+            flag = gCurrentActor->contactFlags & 1;
+            if (flag != 0 && !(gCurrentActor->prevContactFlags & 1)) {
                 temp_v1_2 = gCurrentActor->unk155[0];
                 if (temp_v1_2 < 2) {
                     gCurrentActor->unk155[0] = temp_v1_2 + 1;
@@ -3130,7 +3130,7 @@ void projectileFallBounceUpdate(void) {
                     camStartShake(((CameraShakeTargetView *)gActivePlayerState)->unk104, 0xA, 0x14);
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C1, 0xFF, 0x7F, 0x1E);
                     effectSpawnScatterRandom(&D_8071FFA0, 0, 1.0f, 4, 0x14, 0x96, (s32)gCurrentActor->x, (s32)gCurrentActor->y, (s32)gCurrentActor->z);
-                    flag = gCurrentActor->unk6A & 1;
+                    flag = gCurrentActor->contactFlags & 1;
                 }
             }
             if (flag == 0) {
@@ -3352,7 +3352,7 @@ void actorAppendActiveCallback8(void) {
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
 
-        if (actor->unk5C & 4) {
+        if (actor->collisionFlags & 4) {
             actorAppendCallback(actor, (s32)gCurrentActor, 8, 0, 0, NULL);
         }
     }

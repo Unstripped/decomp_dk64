@@ -534,9 +534,9 @@ void func_806C850C(s32 arg0, u8 arg1) {
     gSpawnedActor->unk16E[1] = 0x42;
     gSpawnedActor->flags |= 0x01000000;
     if (gPlayerCount >= 2) {
-        gSpawnedActor->unk64 |= 0x200;
+        gSpawnedActor->renderFlags |= 0x200;
     }
-    gSpawnedActor->unk68 |= 0xC0;
+    gSpawnedActor->flags2 |= 0xC0;
     ((G00Sub4 *)gSpawnedActor->unk4)->unk1C = heapAlloc(0x100);
     *((G00Sub4 *)gSpawnedActor->unk4)->unk1C = 0;
     ((G00Sub4 *)gSpawnedActor->unk4)->unk20 = heapAlloc(0x200);
@@ -1168,12 +1168,12 @@ s8 func_806C9830(arg0, arg1)
         c = ((G01Act *)arg1)->unk174; pl = c->unk1A4 + (G01Player *)gPlayerSlots;
         if (pl->unk2A0 != NULL) {
             q = pl->unk2A0;
-            if (q->unk5C & 1) {
+            if (q->collisionFlags & 1) {
                 v = -1;
                 if (D_807FBB64 & 0x04000000) {
                     func_800268C0(1, arg1);
                 }
-            } else if (q->unk5C & 4) {
+            } else if (q->collisionFlags & 4) {
                 if (q->actorType == 0x29 || q->actorType == 0xAB) {
                     v = -3;
                     if (D_807FBB64 & 0x04000000) {

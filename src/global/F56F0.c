@@ -121,7 +121,7 @@ void func_806F0C18(Actor *arg0) {
         func_8068A784(arg0, 1);
         break;
     }
-    if (arg0->unk5C & 1) {
+    if (arg0->collisionFlags & 1) {
         extra = arg0->unk174;
         if (extra->unk8C != 0) {
             playerPlayKongSpecificSfx(arg0);
@@ -172,7 +172,7 @@ void func_806F0D68(Actor *arg0) {
         func_8068A764(arg0, 1);
         break;
     }
-    if (arg0->unk5C & 1) {
+    if (arg0->collisionFlags & 1) {
         extra = arg0->unk174;
         if (extra->unk8C == 0) {
             switch (gPlayerCharacterId[gCurrentPlayerIndex]) {

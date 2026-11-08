@@ -2143,7 +2143,7 @@ void func_80729AA4(u8 arg0) {
     if (a == 0) {
         a = D_807FBB4C;
     }
-    a->unk6A |= 0x100;
+    a->contactFlags |= 0x100;
 }
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/1295B0/D_8075EB80.s")

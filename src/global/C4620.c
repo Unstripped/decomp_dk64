@@ -1204,7 +1204,7 @@ void func_806C226C(void) {
     }
     switch (gCurrentActor->state) {
         case 0x27:
-            if (gCurrentActor->unk6A & 4) {
+            if (gCurrentActor->contactFlags & 4) {
                 func_8072A920(2, 0, (f32)D_807FDC90->targetX, (f32)D_807FDC90->targetY, (f32)D_807FDC90->targetZ, 0x46, 30.0f, 100.0f, 0);
                 if (((randomNonNegative() >> 15) % 1000) >= 0x3A3) {
                     func_8071498C(effectWobbleRiseUpdate);
@@ -1213,7 +1213,7 @@ void func_806C226C(void) {
                     func_80714CC0(&D_8071FC40, 0, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                 }
             } else {
-                if ((gCurrentActor->unk6A ^ gCurrentActor->unk6C) & 1) {
+                if ((gCurrentActor->contactFlags ^ gCurrentActor->prevContactFlags) & 1) {
                     actorScriptStart(gCurrentActor, 0x2A4);
                 }
                 actorMoveWithinZone(2, (f32)D_807FDC90->targetX, (f32)D_807FDC90->targetZ, 0x200, 0.0f);

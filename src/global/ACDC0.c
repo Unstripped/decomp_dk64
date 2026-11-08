@@ -1816,7 +1816,7 @@ Gfx *hudDrawTextScreen(Gfx *dl, Actor *actor) {
 void hudSpawnTextScreen(u8 textId) {
     actorSpawn(0x156, 0);
     gSpawnedActor->unk15F = textId;
-    gSpawnedActor->unk64 |= 2;
+    gSpawnedActor->renderFlags |= 2;
     D_807FBB60 |= 0x40001;
 }
 

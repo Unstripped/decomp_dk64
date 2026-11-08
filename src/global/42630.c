@@ -1927,9 +1927,9 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
             actor = gActiveActors[i].actor;
             if (!(actor->flags & 0x2000) && actor->unk110 == 1 && csId == actor->unk10C) {
                 if (cmd->a != 0) {
-                    actor->unk68 |= 4;
+                    actor->flags2 |= 4;
                 } else {
-                    actor->unk68 &= ~4;
+                    actor->flags2 &= ~4;
                 }
             }
         }
@@ -2236,9 +2236,9 @@ void func_80641BCC(s16 a, s16 b, s16 csId) {
         actor = gActiveActors[i].actor;
         if (!(actor->flags & 0x2000) && actor->actorType == a && csId == actor->unk10C) {
             if (b != 0) {
-                actor->unk68 |= 4;
+                actor->flags2 |= 4;
             } else {
-                actor->unk68 &= ~4;
+                actor->flags2 &= ~4;
             }
         }
     }

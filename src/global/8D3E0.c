@@ -737,7 +737,7 @@ s32 actorListGetSerializedSize(void) {
     count = 0;
     if (node != NULL) {
         do {
-            if (node->unk4C == 0 || (node->unk44 != NULL && (node->unk44->unk64 & 0x400))) {
+            if (node->unk4C == 0 || (node->unk44 != NULL && (node->unk44->renderFlags & 0x400))) {
                 count++;
             }
             node = node->next;
@@ -755,7 +755,7 @@ void actorListSerialize(s32 *outBuf) {
     count = 0;
     if (node != NULL) {
         do {
-            if (node->unk4C == 0 || (node->unk44 != NULL && (node->unk44->unk64 & 0x400))) {
+            if (node->unk4C == 0 || (node->unk44 != NULL && (node->unk44->renderFlags & 0x400))) {
                 count++;
             }
             node = node->next;
@@ -766,7 +766,7 @@ void actorListSerialize(s32 *outBuf) {
     dst = (u8 *)(outBuf + 1);
     if (node != NULL) {
         do {
-            if (node->unk4C == 0 || (node->unk44 != NULL && (node->unk44->unk64 & 0x400))) {
+            if (node->unk4C == 0 || (node->unk44 != NULL && (node->unk44->renderFlags & 0x400))) {
                 item.unk32 = node->unk00;
                 item.unk0C = node->unk20;
                 item.unk30 = node->unk1C;

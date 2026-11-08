@@ -408,10 +408,10 @@ void actorCutsceneDispatchEvents(void) {
             ((PlayerActorC4 *)D_807FBB48)->unkC4 = (f64)eventData[0] / 10.0;
             break;
         case 0x12:
-            D_807FBB48->unk6A |= 0x200;
+            D_807FBB48->contactFlags |= 0x200;
             break;
         case 0x13:
-            D_807FBB48->unk6A &= ~0x200;
+            D_807FBB48->contactFlags &= ~0x200;
             break;
         case 0x14:
             D_807FC621 = eventData[0];

@@ -140,7 +140,7 @@ void actorSpawnEffectChild(f32 posX, f32 posY, f32 posZ, f32 scaleXZ, f32 scaleY
     gSpawnedActor->x = posX;
     gSpawnedActor->y = posY;
     gSpawnedActor->z = posZ;
-    if ((parent != NULL) && (parent->unk5C & 1)) {
+    if ((parent != NULL) && (parent->collisionFlags & 1)) {
         if (fastGrow != 0) {
             gSpawnedActor->unk168 = 0xF;
             *(f64*)&gSpawnedActor->unk160 = 1.11;
@@ -459,18 +459,18 @@ void effectSpawnScatterRandom(void *texture, u8 colorMode, f32 scale, u8 count, 
 }
 
 void actorUpdateEffects(Actor *actor) {
-    if (!(actor->unk64 & 4)) {
-        if ((actor->flags & 0x10) && ((actor->unk6A ^ actor->unk6C) & 4)) {
+    if (!(actor->renderFlags & 4)) {
+        if ((actor->flags & 0x10) && ((actor->contactFlags ^ actor->prevContactFlags) & 4)) {
             effectSpawnDebrisParticles(actor, 0.0f, actor->x, actor->unkAC, actor->z);
         }
-        if (actor->unk6A & 4) {
+        if (actor->contactFlags & 4) {
             effectActorCheckGroundScaleSpawn(actor);
         }
     }
-    if ((actor->unk68 & 0x40) && func_80665AAC(actor) && !(actor->unk6A & 0x800) && (actor->unkA4 <= actor->y)) {
+    if ((actor->flags2 & 0x40) && func_80665AAC(actor) && !(actor->contactFlags & 0x800) && (actor->unkA4 <= actor->y)) {
         actorSpawnAttachedTo(actor);
     }
-    if (actor->unk68 & 0x80) {
+    if (actor->flags2 & 0x80) {
         triggerZoneCheckEntry(actor);
     }
 }
@@ -510,7 +510,7 @@ void effectActorCheckGroundScaleSpawn(Actor *actor) {
     u8 shouldSpawn;
     shouldSpawn = 0;
     if (*(void **)actor->unk00 != NULL && actor->unk4 != NULL) {
-        if (actor->unk5C == 1) {
+        if (actor->collisionFlags == 1) {
             if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
                 floorYOffset = D_80753A08[actor->actorType];
             } else {
@@ -588,10 +588,10 @@ void effectSpawnDebrisParticles(Actor *actor, f32 scaleParam, f32 posX, f32 posY
 
     if (actor != NULL) {
         scale = (actor->unk4 != NULL) ? (f64)actor->unk4->unk38 / 0.15 : 1.0;
-        if (actor->unk6A & 4) {
+        if (actor->contactFlags & 4) {
             f32 limit;
 
-            if (actor->speedY > -10.0f || (actor->unk6A & actor->unk6C & 1)) {
+            if (actor->speedY > -10.0f || (actor->contactFlags & actor->prevContactFlags & 1)) {
                 f = 0.0f;
             } else {
                 f = actor->unkA0 - actor->y;

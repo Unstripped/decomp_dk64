@@ -1551,7 +1551,7 @@ void func_806E2F3C(void) {
     if (gPlayerCount >= 2) {
         var_v1 = func_806E56EC() == 0;
     }
-    if (var_v1 && (gCurrentActor->state != 0x62) && (gCurrentActor->unk6A & 1)) {
+    if (var_v1 && (gCurrentActor->state != 0x62) && (gCurrentActor->contactFlags & 1)) {
         G21_PLAYER->unk48 = D_80753354[D_807FD584];
         gCurrentActor->state = 0x62;
         gCurrentActor->unk155[0] = 0;
@@ -4117,7 +4117,7 @@ s32 func_806E9580(void) {
     ret = 0;
     G30_M->unk24 = 0;
     n = 0x1E;
-    if (gCurrentActor->unk6A & 4) {
+    if (gCurrentActor->contactFlags & 4) {
         t = G30_A->unkC0;
         if (t <= 0.0f) {
             if (-150.0f < t) {
@@ -4132,7 +4132,7 @@ s32 func_806E9580(void) {
             if (((f32)n < diff) && func_806E770C()) {
                 playerStateQueueCallback(0x3E, 0, gCurrentPlayerIndex);
                 playerClearCarriedItemState();
-            } else if (gCurrentActor->unk6A & 1) {
+            } else if (gCurrentActor->contactFlags & 1) {
                 if (*((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + 0x2C0) == 1) {
                     lim = D_8075386C[D_807FD584];
                 } else {
@@ -4347,7 +4347,7 @@ s32 func_80714608();
 void func_806E9ECC(void) {
     G31State *state;
 
-    if ((G31_PAD(D_807FD63C, u16) & 2) && (gCurrentActor->unk6A & 1)) {
+    if ((G31_PAD(D_807FD63C, u16) & 2) && (gCurrentActor->contactFlags & 1)) {
         state = G31_PLAYER->unk104->unk174;
         if ((func_80714608(0) == 0) && !(state->unkAC & 0x80000000) && !(D_807FBB64 & 0x80000000)) {
             func_806E9D1C(5, 3, 1);
@@ -4358,7 +4358,7 @@ void func_806E9ECC(void) {
 void func_806E9F8C(void) {
     G31State *state;
 
-    if ((G31_PAD(D_807FD63C, u16) & 8) && (gCurrentActor->unk6A & 1)) {
+    if ((G31_PAD(D_807FD63C, u16) & 8) && (gCurrentActor->contactFlags & 1)) {
         state = G31_PLAYER->unk104->unk174;
         if ((func_80714608(0) == 0) && !(state->unkAC & 0x80000000) && !(D_807FBB64 & 0x80000000)) {
             func_806E9D1C(5, 3, 1);
@@ -4702,7 +4702,7 @@ void func_806EACEC(void) {
     if (G31_PAD(D_807FD63C, u16) & 0x8000) {
         G32_P->unk58 = D_80767CC0;
     }
-    if (gCurrentActor->unk6A & 1) {
+    if (gCurrentActor->contactFlags & 1) {
         if ((D_80767CC0 - G32_P->unk58) < 0xF) {
             func_806CFECC();
             ((G32Act *)gCurrentActor)->unkC0 = D_807535CC[D_807FD584];

@@ -241,7 +241,7 @@ void actorUpdateFloorContactAndTilt(ActorFloorContactView *actor, f32 floorYOffs
     actor->unk6A &= ~1;
     actor->unkB4 = heightAboveFloor - floorYOffset;
     if ((heightAboveFloor <= floorYOffset) || ((actor->unk6C & 1) && (actor->unkC0 < 0.0f))) {
-        if ((gCurrentActor->unk6A & 0x200) || ((u32)gCurrentMap == 0x27) || ((u32)gCurrentMap == 0x6F) || ((u32)gCurrentMap == 0xB9)) {
+        if ((gCurrentActor->contactFlags & 0x200) || ((u32)gCurrentMap == 0x27) || ((u32)gCurrentMap == 0x6F) || ((u32)gCurrentMap == 0xB9)) {
             if ((f64)actor->unkB4 < 0.5) {
                 if (actor->unk4 != NULL) {
                     scale = actor->unk4->unk38;

@@ -532,7 +532,7 @@ void func_80666D88(f32 arg0, f32 arg1, u8 arg2, Actor *arg3, u8 arg4) {
 
     flag = 1;
     if (arg0 < arg1) {
-        if ((arg3 != NULL) && (arg3->unk5C & 1)) {
+        if ((arg3 != NULL) && (arg3->collisionFlags & 1)) {
             temp_v0 = gPlayerSlots[gCurrentPlayerIndex].unk2C0;
             if (temp_v0 != 0) {
                 if (temp_v0 != 2) {
@@ -842,14 +842,14 @@ s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
                 case 1:
                     if (arg3 != 0) {
                         if (((Actor *)arg3)->y < var_fs0) {
-                            ((Actor *)arg3)->unk6A |= 4;
+                            ((Actor *)arg3)->contactFlags |= 4;
                             ((Actor *)arg3)->unkB0[0] = -1;
                             if (var_s3->unk4A & 1) {
                                 D_807F94B0 = 1;
                             }
                         }
                         ((Actor *)arg3)->unkAC = var_fs0;
-                        ((Actor *)arg3)->unk6A |= 2;
+                        ((Actor *)arg3)->contactFlags |= 2;
                     }
                     D_807F9484 = 1;
                     D_807F9488 = var_fs0;
@@ -1000,18 +1000,18 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                         h2 = (f64)(mapOffsetSlotGetValue(tri->unk17) * 6.0f); // FAKE: assigning M first fixes add.d operand order
                         h2 = ((2000.0 * (0.0 - ((((arg0 * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * arg1) + d) / (ny * 2000.0)))) - 1000.0) + h2;
                     }
-                    if ((tri->unk12 & 0x4000) && arg3 != NULL && (arg3->unk5C & 1)) {
+                    if ((tri->unk12 & 0x4000) && arg3 != NULL && (arg3->collisionFlags & 1)) {
                         D_807F94B7 = 1;
                     }
                     if ((tri->unk12 & 0x80) && (f64)(*arg2 * 6.0f) < h2) {
                         D_807F94B0 = 1;
                     }
-                    if ((tri->unk12 & 0x100) && arg3 != NULL && (arg3->unk5C & 1)) {
+                    if ((tri->unk12 & 0x100) && arg3 != NULL && (arg3->collisionFlags & 1)) {
                         if ((f64)(*arg2 * 6.0f) < h2 && ((diff = h2 - (f64)(*arg2 * 6.0f)) < 600.0f)) {
                             ((CollisionHitPlayerState *)D_807F94B8)->unk1F0 |= 0x2000;
                         }
                     }
-                    if ((tri->unk12 & 0xA00) && arg3 != NULL && (arg3->unk5C & 1)) {
+                    if ((tri->unk12 & 0xA00) && arg3 != NULL && (arg3->collisionFlags & 1)) {
                         if ((f64)(*arg2 * 6.0f) < h2 && ((diff = h2 - (f64)(*arg2 * 6.0f)) < 800.0f)) {
                             ((CollisionHitPlayerState *)D_807F94B8)->unk1F0 |= 0x4000;
                         }
@@ -1071,7 +1071,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                                         D_807F946E = 1;
                                     }
                                     if (arg3 != NULL && (tri->unk12 & 0x1000)) {
-                                        arg3->unk64 |= 0x40;
+                                        arg3->renderFlags |= 0x40;
                                     }
                                     if (arg3 != NULL) {
                                         arg3->unk150 = (s32)tri;
@@ -1082,13 +1082,13 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                         } else {
                             if (arg3 != NULL) {
                                 if ((f64)(arg3->y * 6.0f) < h2) {
-                                    arg3->unk6A |= 4;
+                                    arg3->contactFlags |= 4;
                                     arg3->unkB0[0] = tri->unk16 >> 4;
                                     if (*(s8 *)&arg3->unkB0[0] == 0xF) {
                                         *(s8 *)&arg3->unkB0[0] = -1;
                                     }
                                 }
-                                arg3->unk6A |= 2;
+                                arg3->contactFlags |= 2;
                                 arg3->unkAC = h2 / 6.0;
                             }
                             if (tri->unk12 & 0x20) {
@@ -1112,7 +1112,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
             D_807F946E = 1;
         }
         if (arg3 != NULL && (sp14C->unk12 & 0x1000)) {
-            arg3->unk64 |= 0x40;
+            arg3->renderFlags |= 0x40;
         }
     }
     if (gCurrentMap == 0x57 && arg3 != NULL) {
@@ -2107,7 +2107,7 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
     if (hit != 0 && mathCheckCloserFloatThreshold(*arg4, hit_y, (f32)((f64)arg3 + 4.0), 0) != 0) {
         *arg4 = hit_y;
         collisionStoreBoxTriangleNormalAngles(arg0, hit_tri, 1);
-        if (hit_actor->unk68 & 8) {
+        if (hit_actor->flags2 & 8) {
             D_807F94AD = 1;
         }
         if (arg0 != NULL) {

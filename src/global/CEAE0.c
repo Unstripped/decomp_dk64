@@ -79,7 +79,7 @@ Actor *actorResolveKillCreditOwner(Actor *arg0) {
     if (arg0 == NULL) {
         return arg0;
     }
-    switch (arg0->unk5C) {
+    switch (arg0->collisionFlags) {
         case 4:
             arg0 = (Actor *)arg0->unk11C;
             break;
@@ -87,7 +87,7 @@ Actor *actorResolveKillCreditOwner(Actor *arg0) {
             arg0 = (Actor *)arg0->unk11C;
             break;
     }
-    if (arg0 != NULL && (arg0->unk5C == 1 || arg0->unk5C == 2)) {
+    if (arg0 != NULL && (arg0->collisionFlags == 1 || arg0->collisionFlags == 2)) {
         return arg0;
     }
     return temp_v1;
@@ -134,11 +134,11 @@ void playerSetRecentAttacker(Actor *arg0, G02PlayerState *arg1) {
 
     if (arg0 == NULL) {
         flag = 1;
-    } else if (arg0->unk5C & 1) {
+    } else if (arg0->collisionFlags & 1) {
         p = G02_ACTOR_P(arg0);
         arg1->unk248 = p->unk1A4;
         arg1->unk249 = 0;
-    } else if (arg0->unk5C & 2) {
+    } else if (arg0->collisionFlags & 2) {
         arg1->unk248 = -1;
         arg1->unk249 = spawnNodeIdForActor(arg0);
     } else {
@@ -161,12 +161,12 @@ void playerRecordHitSource(Actor *arg0, Actor *arg1, s32 arg2) {
     bad = 0;
     if (arg1 == NULL) {
         bad = 1;
-    } else if (arg1->unk5C == 1) {
+    } else if (arg1->collisionFlags == 1) {
         ok = 1;
         p = G02_ACTOR_P(arg1);
         temp_v1->unk247 = p->unk1A4;
         temp_v1->unk246 = 0;
-    } else if (arg1->unk5C == 2) {
+    } else if (arg1->collisionFlags == 2) {
         temp_v1->unk246 = spawnNodeIdForActor(arg1);
         ok = 1;
         temp_v1->unk247 = -1;
@@ -492,7 +492,7 @@ void playerUpdateCommon(s32 arg0) {
     }
     gCurrentActor->flags &= 0xF7FFFFFF;
     PLAYER_SLOT(gCurrentPlayerIndex).unk28C = PLAYER_SLOT(gCurrentPlayerIndex).unk27C;
-    if (gCurrentActor->unk64 & 0x100) {
+    if (gCurrentActor->renderFlags & 0x100) {
         PLAYER_STATE->unk120 = D_8076A068;
     }
     if (PLAYER_STATE->unk1CC == PLAYER_STATE->unk1C0 && gCurrentActor->state != 0x54) {
@@ -505,14 +505,14 @@ void playerUpdateCommon(s32 arg0) {
     playerCheckQueueDropCallback();
     flags = D_80750B54[gCurrentActor->state][0];
     if (flags & 8) {
-        gCurrentActor->unk68 |= 2;
+        gCurrentActor->flags2 |= 2;
     } else {
-        gCurrentActor->unk68 &= 0xFFFD;
+        gCurrentActor->flags2 &= 0xFFFD;
     }
     if ((flags & 0x20) && PLAYER_STATE->unkFC == 0 && gCurrentActor->actorType != 8 && gCurrentActor->actorType != 9) {
-        gCurrentActor->unk68 |= 0x10;
+        gCurrentActor->flags2 |= 0x10;
     } else {
-        gCurrentActor->unk68 &= 0xFFEF;
+        gCurrentActor->flags2 &= 0xFFEF;
         gCurrentActor->flags &= ~0x800;
     }
     if (PLAYER_STATE->unkFC != 0) {
@@ -524,9 +524,9 @@ void playerUpdateCommon(s32 arg0) {
         gCurrentActor->flags &= ~0x4000;
     }
     if ((flags & 0x80) && PLAYER_STATE->unk100 == 0 && gCurrentActor->actorType != 8 && gCurrentActor->actorType != 9) {
-        gCurrentActor->unk68 |= 0x20;
+        gCurrentActor->flags2 |= 0x20;
     } else {
-        gCurrentActor->unk68 &= 0xFFDF;
+        gCurrentActor->flags2 &= 0xFFDF;
     }
     if (PLAYER_STATE->unk100 != 0) {
         PLAYER_STATE->unk100 = PLAYER_STATE->unk100 - 1;
@@ -543,20 +543,20 @@ void playerUpdateCommon(s32 arg0) {
     if (PLAYER_STATE->unkCA != 0) {
         PLAYER_STATE->unkCA = PLAYER_STATE->unkCA - 1;
     }
-    if (gCurrentActor->unk68 & 0x20) {
+    if (gCurrentActor->flags2 & 0x20) {
         proxPathUpdateAllPlayers();
     }
     func_806F4D70(gCurrentPlayerIndex, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gCurrentActor->unk4->unk38 / 0.15 * 20.0);
     if (gPlayerCount == 1) {
-        if (gCurrentActor->unk64 & 0x1000) {
-            gCurrentActor->unk64 |= 0x200;
+        if (gCurrentActor->renderFlags & 0x1000) {
+            gCurrentActor->renderFlags |= 0x200;
         }
     }
-    gCurrentActor->unk64 &= ~0x1000;
+    gCurrentActor->renderFlags &= ~0x1000;
     D_80750B50[gCurrentActor->state].fn();
     PLAYER_STATE->unk8D = collisionGetHitStatus();
     if (gPlayerCount == 1) {
-        gCurrentActor->unk64 &= ~0x200;
+        gCurrentActor->renderFlags &= ~0x200;
     }
     if ((gActivePlayerState->stateFlags & 0x01000000) && D_807FBB8C != 0 && gCurrentActor->state != 0x47) {
         playerStateQueueCallback(3, NULL, gCurrentPlayerIndex);
@@ -565,7 +565,7 @@ void playerUpdateCommon(s32 arg0) {
     sp6A = func_80666A94();
     sp69 = func_80666AAC();
     sp68 = func_80666AB8();
-    if (gCurrentActor->unk68 & 0x10) {
+    if (gCurrentActor->flags2 & 0x10) {
         playerCheckLedgeGrab();
     }
     PLAYER_STATE->unkE8 = 0;
@@ -573,7 +573,7 @@ void playerUpdateCommon(s32 arg0) {
     func_806CF580();
     PLAYER_STATE->unk0 = D_807FBB48->state;
     if (gPlayerCount >= 2) {
-        if (gCurrentActor->unk6A & 1) {
+        if (gCurrentActor->contactFlags & 1) {
             if (PLAYER_STATE->unk24A != 0) {
                 PLAYER_STATE->unk24A = PLAYER_STATE->unk24A - 1;
             } else {
@@ -882,7 +882,7 @@ void func_806CB53C(void) {
         LB_P->unkD4 = 2;
     }
     if (LB_P->unk1CC != LB_P->unk1C0) {
-        gCurrentActor->unk64 |= 0x800;
+        gCurrentActor->renderFlags |= 0x800;
         switch (gCurrentActor->actorType) {
             default:
                 LB_UNK120 = 0.15f;
@@ -896,7 +896,7 @@ void func_806CB53C(void) {
         }
         playerScaleTransitionStep();
     } else {
-        gCurrentActor->unk64 &= ~0x800;
+        gCurrentActor->renderFlags &= ~0x800;
     }
     if (LB_P->unk1F0 & 0x40) {
         if (gCurrentActor->actorType != 6) {
@@ -1641,7 +1641,7 @@ s16 playerSelectMoveTier(Actor *arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4) {
     } else {
         max = arg2;
     }
-    if ((arg0->unk6A | arg0->unk6C) & 1) {
+    if ((arg0->contactFlags | arg0->prevContactFlags) & 1) {
         switch (arg3) {
             case 0:
             case 1:
@@ -2050,7 +2050,7 @@ s16 func_806CE7A0(Actor *arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4) {
     } else {
         max = arg2;
     }
-    if ((arg0->unk6A | arg0->unk6C) & 1) {
+    if ((arg0->contactFlags | arg0->prevContactFlags) & 1) {
         switch (arg3) {
             case 0:
             case 1:
@@ -2441,7 +2441,7 @@ void func_8067A784(Actor *, Actor *, s16, s32, s32);
 void playerThrowHeldActor(Actor *arg0) {
     G05PlayerView *p;
 
-    if (arg0->unk5C & 1) {
+    if (arg0->collisionFlags & 1) {
         p = arg0->unk174;
         if (p->unk1AC != NULL) {
             func_8067A784(gCurrentActor, p->unk1AC, D_807FBB48->yaw, D_80753428[D_807FD584], (s32)D_8075340C[D_807FD584]);
@@ -2456,7 +2456,7 @@ void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void playerDropHeldActor(Actor *arg0) {
     G05PlayerView *p;
 
-    if (arg0->unk5C & 1) {
+    if (arg0->collisionFlags & 1) {
         p = arg0->unk174;
         if (p->unk1AC != NULL) {
             actorAppendCallback(p->unk1AC, (s32)arg0, 8, 0, 0, NULL);
@@ -2626,7 +2626,7 @@ void playerCheckLedgeGrab(void) {
     u8 flag;
     s32 pad[2];
 
-    if (!(D_807FBB64 & 0x20000) && gCurrentActor->hasArcBounds != 0 && G06_P->unk8C == 0 && !(gCurrentActor->unk6A & 1) && G06_P->unkE8 != 0) {
+    if (!(D_807FBB64 & 0x20000) && gCurrentActor->hasArcBounds != 0 && G06_P->unk8C == 0 && !(gCurrentActor->contactFlags & 1) && G06_P->unkE8 != 0) {
         flag = (gCurrentMap == 0x53 || gCurrentMap == 0xC5) ? 1 : 0;
         notWall = actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0;
         if (notWall || !(D_80753E10[D_807FD584] < gCurrentActor->speedXZ) || flag != 0) {
@@ -2756,7 +2756,7 @@ void playerResumeLocomotion(Actor *arg0) {
     G06PlayerView *p = arg0->unk174;
     u8 temp;
 
-    arg0->unk6A &= ~0x20;
+    arg0->contactFlags &= ~0x20;
     p->unk4C = -1;
     p->unk10C = 0;
     if (arg0->unk144 == 1) {
@@ -2799,7 +2799,7 @@ void playerResumeLocomotion(Actor *arg0) {
 }
 
 void func_806D0150(Actor *arg0) {
-    arg0->unk6A &= ~0x20;
+    arg0->contactFlags &= ~0x20;
     G06_P->unk4C = -1;
     G06_P->unk10C = 0;
     actorScriptStartByIndex(arg0, 0x7A);
@@ -3163,14 +3163,14 @@ u8 playerIsSmallerThanAttacker(Actor *arg0, Actor *arg1) {
     var_v0 = 1;
     var_v1 = 1;
     var_a2 = 1;
-    if ((gPlayerCount < 2) || ((arg0->unk5C & 4) != 0) || ((arg1->unk5C & 4) != 0)) {
+    if ((gPlayerCount < 2) || ((arg0->collisionFlags & 4) != 0) || ((arg1->collisionFlags & 4) != 0)) {
         return 0;
     }
-    if (arg0->unk5C & 1) {
+    if (arg0->collisionFlags & 1) {
         st0 = (G07StateView *)arg0->unk174;
         var_v0 = ((G07PlayerSlot *)gPlayerSlots)[st0->unk1A4].unk2C0;
     }
-    if (arg1->unk5C & 1) {
+    if (arg1->collisionFlags & 1) {
         st1 = (G07StateView *)arg1->unk174;
         var_v1 = ((G07PlayerSlot *)gPlayerSlots)[st1->unk1A4].unk2C0;
         var_a2 = arg1->state != 0x7C;
@@ -3229,7 +3229,7 @@ s16 mathAngleFromVector2D(f32 arg0, f32 arg1) {
 s32 func_806D10D0(Actor *arg0) {
     s32 ret = 1;
 
-    if (arg0->unk5C & 1) {
+    if (arg0->collisionFlags & 1) {
         if (D_80750B54[arg0->state][0] & 0x400) {
             ret = 0;
         }

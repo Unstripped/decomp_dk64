@@ -576,13 +576,13 @@ extern Actor *gCurrentActor;
 s32 currentActorTestClearFlag(void) {
     s32 r = 0;
 
-    if (gCurrentActor->unk6A & 0x100) {
-        gCurrentActor->unk6A &= 0xFEFF;
+    if (gCurrentActor->contactFlags & 0x100) {
+        gCurrentActor->contactFlags &= 0xFEFF;
         r = 1;
     }
     return r;
 }
 
 void currentActorClearFlag(void) {
-    gCurrentActor->unk6A &= 0xFEFF;
+    gCurrentActor->contactFlags &= 0xFEFF;
 }

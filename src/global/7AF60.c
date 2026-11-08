@@ -178,7 +178,7 @@ s32 list;
     f32 threshold;
     u32 type;
 
-    if (player->unk5C & 1) {
+    if (player->collisionFlags & 1) {
         u8* beh = player->unk174;
         if (*(s32*)(beh + 0x1F0) & 0x01000000) {
             return 1;
@@ -229,7 +229,7 @@ s32 list;
         return 0;
     }
 
-    if (!(actor->unk68 & 1)) {
+    if (!(actor->flags2 & 1)) {
         return 0;
     }
     return 1;
@@ -269,7 +269,7 @@ u8 func_80676AB8(Actor* actor, Actor* target, s32 arg2) {
     u8 kong = ((u8*)actor->unk174)[0x1A4];
     u8 ret = 0;
 
-    if (target->unk5C & 2) {
+    if (target->collisionFlags & 2) {
         ret = gPlayerSlots[kong].unk2C0 == 2;
         if (ret && gPlayerCount == 1) {
             ret = actor->actorType == 6;

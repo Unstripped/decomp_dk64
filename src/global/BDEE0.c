@@ -381,7 +381,7 @@ s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 
 
 
 void func_806BA130(void) {
-    gCurrentActor->unk5C = 2;
+    gCurrentActor->collisionFlags = 2;
     gCurrentActor->state = 0x23;
     gCurrentActor->unk155[0] = 0;
     BDEE0AA->unk134 = 1;
@@ -428,7 +428,7 @@ s32 func_806BA240(u8 action, s16 animId) {
     tgt = BDEE0DCA0T->unk1C;
     if (tgt != NULL && tgt->state == 0x23 && BDEE0DCA0T->unk20 < 10) {
         if (gCurrentActor->state != 0x15 && gCurrentActor->state != 0x17) {
-            gCurrentActor->unk5C = 0x80;
+            gCurrentActor->collisionFlags = 0x80;
             gCurrentActor->state = 0x15;
             gCurrentActor->unk155[0] = 0;
             actorScriptStart(gCurrentActor, 0);
@@ -902,7 +902,7 @@ void func_806BB874(void) {
         BDEE0A->unk155 = 0;
         actorScriptStart(gCurrentActor, 0x3DC);
         D_807FDC90->timer = 0x78;
-        gCurrentActor->unk64 |= 0x20;
+        gCurrentActor->renderFlags |= 0x20;
     }
     switch (gCurrentActor->state) {
     case 0: {

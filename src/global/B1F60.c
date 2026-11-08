@@ -102,7 +102,7 @@ u16 movementFlags;
         case 0x10:
         case 0x15:
         case 0x23:
-            actorMoveWithinZone(gCurrentActor->state, D_807FDC94->x, D_807FDC94->z, (actor->unk6A & 1) ? movementFlags : (movementFlags | 2), 0.0f);
+            actorMoveWithinZone(gCurrentActor->state, D_807FDC94->x, D_807FDC94->z, (actor->contactFlags & 1) ? movementFlags : (movementFlags | 2), 0.0f);
             break;
         case 2:
         case 3:
@@ -214,7 +214,7 @@ void actorFollowLinkedNodeFadeUpdate(void) {
     switch (gCurrentActor->state) {
         case 0:
             linked = (Actor *)gCurrentActor->unk11C;
-            if (linked == NULL || (linked->unk6A & 1)) {
+            if (linked == NULL || (linked->contactFlags & 1)) {
                 gCurrentActor->state = 1;
                 gCurrentActor->flags &= ~0x8000;
             } else {
@@ -301,7 +301,7 @@ void func_806AD9F4(void) {
             break;
         case 1:
             if ((randomNonNegative() >> 15) % 1000 >= 0x3E4) {
-                if (gCurrentActor->unk6A & 1) {
+                if (gCurrentActor->contactFlags & 1) {
                     gCurrentActor->state = 0x28;
                     B1F60A->unk155 = 0;
                 }
