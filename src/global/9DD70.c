@@ -1015,7 +1015,7 @@ f32 randomFloat(void);
 void func_8071496C(s16);
 void func_80714998(s32);
 void camStartShake(s32, s32, s32);
-void func_8071A8B0(void);
+void effectLightPulseOscillate(void);
 void effectTumbleBounceUpdate(void);
 
 void textMarkerUpdateMatrix(void) {
@@ -1246,7 +1246,7 @@ void textMarkerUpdateMatrix(void) {
                 if (D_807FBB94 && D_807FBB94) {}  // FAKE: ghost candidate: two reads in the particleLoopIdx loop make D_807FBB94 a high-priority v0 web (with the two tests below) that forces the shared switch temp to v1 / early markerView piece to v0
                 func_807149B8(1);
                 if (particleLoopIdx == 0) {
-                    callback = func_8071A8B0; func_80714950(0x100FA);  // LAYOUT: keep the callback store in the call's delay slot
+                    callback = effectLightPulseOscillate; func_80714950(0x100FA);  // LAYOUT: keep the callback store in the call's delay slot
                     func_8071498C(callback);
                 } else {
                     func_8071498C(func_80717D4C);
@@ -1526,14 +1526,14 @@ extern u8 gPlayerCount;
 s32 func_80714450();
 s32 func_807142D8();
 s32 func_8071432C();
-s32 func_80712658();
+s32 menuIsStateBActive();
 void textSpawnMarker(u8, s16, s16, s32, u16, u16, u8, u8);
 
 void textSpawnMarkerChecked(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 delay, u8 colorMode, u8 extraFlags) {
     if (gPlayerCount < 2) {
         if (func_80714450() == 0) {
             if (func_807142D8() == 0) {
-                if (func_8071432C() != 0 || func_80712658() != 0) {
+                if (func_8071432C() != 0 || menuIsStateBActive() != 0) {
                     textSpawnMarker(fontStyle, x, y, textStr, duration, delay, colorMode, extraFlags);
                 }
             }
@@ -1570,7 +1570,7 @@ extern Gfx D_1000118;
 #define TEXT_MARKER_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern s32 D_8074E880[];
-void func_80717404(void);
+void effectConfettiPhysicsUpdate(void);
 void func_8071495C(void);
 void vtxGradientSetPosition(s16);
 extern Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, char *, u8);
@@ -1601,7 +1601,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
 
                 w2 = (s16)(s32)((((f64)actor->unk15F * 0.0078125 > 1.0 ? 1.0 : (f64)actor->unk15F * 0.0078125) * 0.9) * (f64)textGetStringWidth((s16)(s32)actor->z, (s32)*sub) + (f64)actor->x * 0.25);
                 func_807149B8(1);
-                func_8071498C(func_80717404);
+                func_8071498C(effectConfettiPhysicsUpdate);
                 func_80714950(0xA);
                 func_8071495C();
                 func_80714CC0((void *)D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 1.0f, (f32)w2, (f32)((f64)actor->y * 0.25 + 12.0), -5.0f);
@@ -1769,7 +1769,7 @@ s32 textBuildDigitNode(u8 baseFont, void *nodeBuffer, u8 nodeSlot, u8 digit, u8 
 extern u8 D_8076A0AB;
 extern u16 D_807FC930[];
 extern u16 D_807446C0[];
-u8 func_805FF030(u8, u8);
+u8 mapGetHubWorldIndex(u8, u8);
 void csModelStateSetFirstByte(s32, s32);
 s32 textBuildDigitNode(u8, void *, u8, u8, u8);
 
@@ -1783,7 +1783,7 @@ void textUpdateThreeDigitCounter(void) {
 
     model = (s32 *)gCurrentActor->unk174;
     if (!(gCurrentActor->flags & 0x10) || (*(u32 *)((u8 *)gActivePlayerState + 0x1F0) & 0x20000)) {
-        t = func_805FF030(D_8076A0AB, 0);
+        t = mapGetHubWorldIndex(D_8076A0AB, 0);
         if (t >= 8) {
             t = 0;
         }

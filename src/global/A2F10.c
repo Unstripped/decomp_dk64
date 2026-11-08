@@ -946,7 +946,7 @@ void func_807149B8(s32);
 void func_8071498C(void *);
 void func_807149C8(s32, s32, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void func_8071BB14(void);
+void effectSpinBillboardingUpdate(void);
 extern void *gCamActor;
 extern u8 D_807FBD70;
 extern f32 D_80750398;
@@ -986,7 +986,7 @@ void actorFallAndBurstUpdate(void) {
             actorGetNodePos(gCurrentActor, i, &pos.unk8, &pos.unk4, &pos.unk0);
             func_8071496C(i);
             func_807149B8(1);
-            func_8071498C(func_8071BB14);
+            func_8071498C(effectSpinBillboardingUpdate);
             func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
             func_80714CC0(&D_80720BE8, 1.5f, pos.unk8, pos.unk4, pos.unk0);
         }

@@ -92,7 +92,7 @@ extern u8 D_8071FE08[];
 extern u8 D_80720A7C[];
 extern void *gCamActor;
 
-s32 func_805FF030(u8, s32);
+s32 mapGetHubWorldIndex(u8, s32);
 s32 camIsCutsceneActive(void);
 s32 camIsPathPaused(void);
 void camStartShake(void *, s32, s32);
@@ -124,7 +124,7 @@ void critterBananaFairyUpdate(void) {
     timerPtr = gCurrentActor->unk174;
     canSecretUnlock = 0;
     hasSecretDiscount = 0;
-    worldIndex = func_805FF030(D_8076A0AB, 0);
+    worldIndex = mapGetHubWorldIndex(D_8076A0AB, 0);
     if (worldIndex >= 8) {
         worldIndex = 7;
     }

@@ -315,7 +315,7 @@ void jetpacSaveHighScore(void) {
 }
 
 s32 flagGet(s32, s32);
-void func_805FF378(s32, s32);
+void mapRequestTransition(s32, s32);
 s32 eepromGetField(s32, s32, s32, s32);
 void eepromInitConfigs(s32);
 void jetpacNextPlayerOrGameOver(JetpacPlayer *);
@@ -331,7 +331,7 @@ void jetpacStatePause(s32 glist) {
         switch (jetpacGame.unkC) {
         default:
         case 0:
-            func_805FF378(jetpacGame.unk798 != 0 ? 5 : 0x50, 0);
+            mapRequestTransition(jetpacGame.unk798 != 0 ? 5 : 0x50, 0);
             break;
         case 1:
             jetpacGame.unk78C = 2;
@@ -394,7 +394,7 @@ void jetpacStateGameOver(s32 glist) {
         if (jetpacGame.unk798 != 0) {
             if (jetpacGame.unk799 == 0) {
                 jetpacGame.unk799 = 1;
-                func_805FF378(5, 0);
+                mapRequestTransition(5, 0);
             }
         } else {
             jetpacNextPlayerOrGameOver(&jetpacGame.players[jetpacGame.active_player]);

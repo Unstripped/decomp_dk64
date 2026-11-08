@@ -202,7 +202,7 @@ extern MenuM1_Entry D_80033260[][7];
 extern MenuM1_Entry D_80033334[][7];
 extern MenuM1_Entry D_80033408[][7];
 extern u8 D_8076A0AB;
-s32 func_805FF030(s32, s32);
+s32 mapGetHubWorldIndex(s32, s32);
 
 void menuCheckInventoryItemPurchased(Struct_80025D14 *state, u8 *inventory, s32 isExiting) {
     MenuM1_Entry *tbl;
@@ -219,7 +219,7 @@ void menuCheckInventoryItemPurchased(Struct_80025D14 *state, u8 *inventory, s32 
         } while (flagGet(count + 0x1C5, 0) == 0);
     }
     count++;
-    state->unkC = func_805FF030(D_8076A0AB, 0);
+    state->unkC = mapGetHubWorldIndex(D_8076A0AB, 0);
     switch (gCurrentActor->unk58) {
     case 0xBD:
         tbl = D_80033260[0];
@@ -665,7 +665,7 @@ void menuUpdateShopDialogueStep(Struct_80025D14 *state, void *inventory, s32 fla
     }
 }
 
-void func_805FF898(void);
+void mapTransitionToPreviousOrExit(void);
 void playerResumeLocomotion(void *);
 
 void menuUpdateShopExitingStep(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
@@ -739,7 +739,7 @@ void menuUpdateShopExitingStep(Struct_80025D14 *state, u8 *inventory, s32 flagId
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
     case 3:
-            func_805FF898();
+            mapTransitionToPreviousOrExit();
             state->unkE = 0xA;
         }
         break;
@@ -797,7 +797,7 @@ void menuUpdateCrankyShopActor(void) {
         }
         if (gCurrentActor->unk155 != 0xFF) {
             flag = 0x17F;
-            if (func_805FF030(D_8076A0AB, 0) != 7) {
+            if (mapGetHubWorldIndex(D_8076A0AB, 0) != 7) {
                 flag = 0x177;
             }
             a3 = 0x26E;
@@ -853,7 +853,7 @@ void menuUpdateCrankyShopActor(void) {
                     playerResumeLocomotion(D_807FBB4C);
                     currentActorClearFlag();
                     camStartPath(0, 1, 1);
-                    func_805FF898();
+                    mapTransitionToPreviousOrExit();
                     gCurrentActor->unk154 = 2;
                 }
                 break;

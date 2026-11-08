@@ -587,7 +587,7 @@ s32 raceGetFinishCameraId(void *racerState, void *aux) {
 s32 flagGet(s32, s32);
 void camStartPath(void *, s32, s32);
 void currentActorClearFlag(void);
-void func_805FF544(void);
+void mapCheckAutoTransition(void);
 
 void raceFinishCameraCutscene(Struct_sp58 *racerState, void *aux) {
     if (racerState->unk35 == 0) {
@@ -595,7 +595,7 @@ void raceFinishCameraCutscene(Struct_sp58 *racerState, void *aux) {
             camStartPath(gCurrentActor, 1, 1);
             currentActorClearFlag();
         } else {
-            func_805FF544();
+            mapCheckAutoTransition();
         }
         racerState->unk35++;
     }
@@ -649,7 +649,7 @@ void raceHandlePostRaceFinished(Struct_sp58 *racerState, void *aux) {
         case 4:
             if (currentActorTestClearFlag()) {
                 currentActorClearFlag();
-                func_805FF544();
+                mapCheckAutoTransition();
                 racerState->unk35++;
             }
             break;

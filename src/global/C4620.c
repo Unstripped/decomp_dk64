@@ -858,9 +858,9 @@ extern u8 D_807200D4;
 void func_80714998(s32);
 void func_807149B8(s32);
 void func_8071498C(void *);
-void func_8071C818(void);
+void effectShrinkFadeMatrixUpdate(void);
 void func_80714950(s32);
-void func_8071A8B0(void);
+void effectLightPulseOscillate(void);
 void func_80714C08(void *, f32, void *, s32, s32);
 void func_806F1048();
 s32 randomNonNegative(void);
@@ -890,7 +890,7 @@ void func_806C1734(void) {
                     if (30.0f < R1V->unkC0 && !(gFrameCounter & 3)) {
                         func_80714998(2);
                         func_807149B8(1);
-                        func_8071498C(func_8071C818);
+                        func_8071498C(effectShrinkFadeMatrixUpdate);
                         func_80714C08(&D_8071FB08, 0.8f, gCurrentActor, 5, 0);
                     }
                     break;
@@ -912,7 +912,7 @@ void func_806C1734(void) {
                         nodeIndex = (rnd % 0x7FFF) % 2;
                         func_807149B8(1);
                         func_80714950(0x50);
-                        func_8071498C(func_8071A8B0);
+                        func_8071498C(effectLightPulseOscillate);
                         func_80714C08(&D_807200D4, 0.5f, gCurrentActor, nodeIndex + 9, 2);
                     }
                     break;
@@ -1328,14 +1328,14 @@ void actorSpawnOctagonRingsByTimer(void) {
 
 void func_807149A8(s32);
 void func_80714944(s32);
-void func_80717D84();
+void effectLinearFadeAlphaUpdate();
 
 void effectSpawnColoredParticleAtPoint(u8 r, u8 g, u8 b, f32 x, f32 y, f32 z, void *particleGfx, f32 scale) {
     func_807149A8(1000);
     func_80714998(0xFF);
     func_80714944(((randomNonNegative() >> 15) % 0x7FFF) % 11);
     func_807149C8(r, g, b, 0xFF);
-    func_8071498C(func_80717D84);
+    func_8071498C(effectLinearFadeAlphaUpdate);
     func_80714950(2);
     func_80714CC0(particleGfx, scale * 0.2, x, y, z);
 }
@@ -1666,7 +1666,7 @@ void func_806C2DF4(void) {
         case 0x4DE:
             if (!(gFrameCounter & 3)) {
                 func_807149B8(1);
-                func_8071498C(func_8071C818);
+                func_8071498C(effectShrinkFadeMatrixUpdate);
                 func_80714C08(&D_8071FB08, 0.6f, gCurrentActor, 2, 0);
             }
             break;

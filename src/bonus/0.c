@@ -458,7 +458,7 @@ s32 bonusGetSoundForMap(void) {
 void n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
 void camRequestPathLength(void);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
-void func_805FF898(void);
+void mapTransitionToPreviousOrExit(void);
 void func_806C9974(s32, s32);
 void n_alSndpPostEvent(void *, s32, s16);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
@@ -510,7 +510,7 @@ void bonusMazeChallengeUpdate(void) {
             gCurrentActor->state = 2;
         }
         if (D_807FBB4C->state == 0x39) {
-            func_805FF898();
+            mapTransitionToPreviousOrExit();
             func_806C9974(0, 0x40);
             gCurrentActor->state = 2;
         }

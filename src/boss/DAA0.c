@@ -119,7 +119,7 @@ extern f32 D_80036DC4;
 s32 actorSpawn(s32, s32);
 void *actorListFindActorById(s16);
 void actorDespawn(void *);
-s32 func_805FF378(s32, s32);
+s32 mapRequestTransition(s32, s32);
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 void func_8068A764(void *, u8);
 void func_806C8E58(s16);
@@ -234,7 +234,7 @@ void bossSpawnerUpdate(void) {
                 SPAWNER_ACTOR->unk154 = 0;
                 camStartPath(0, 2, 1);
             } else {
-                func_805FF378(0x2A, 2);
+                mapRequestTransition(0x2A, 2);
                 SPAWNER_ACTOR->unk154 = 3;
             }
         }

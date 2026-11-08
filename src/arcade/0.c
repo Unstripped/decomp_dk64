@@ -377,8 +377,8 @@ void arcadeCheckGameOver(void) {
 
 s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
-void func_805FF898(void);
-void func_805FF378(s32, s32);
+void mapTransitionToPreviousOrExit(void);
+void mapRequestTransition(s32, s32);
 extern u8 D_8004A73C;
 extern u8 D_8004A770;
 void arcadeExit(void) {
@@ -391,9 +391,9 @@ void arcadeExit(void) {
             }
         }
         if (D_8004A740 != 0) {
-            func_805FF898();
+            mapTransitionToPreviousOrExit();
         } else {
-            func_805FF378(0x50, 0);
+            mapRequestTransition(0x50, 0);
         }
         D_8004A73C = 1;
     }

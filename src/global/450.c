@@ -47,9 +47,9 @@ void func_805FE7B4(Gfx *, s32, s32 *, u8);
 void func_805FE7FC(void);
 void func_805FEE84(s8, s8, s8, s8);
 void func_805FEEB8(s32 *, s32);
-void func_805FF118(void);
+void mapSlotArrayInit(void);
 void func_805FF670(void);
-void func_805FFEF8(s32);
+void mapSlotFree(s32);
 void func_806003EC(s16);
 s32 func_8060042C(s16);
 void frameTimingReset(s32);
@@ -536,7 +536,7 @@ void func_805FBE04(void) {
     modelSkipListClear();
     func_806C9AE0();
     flagsClearAllBank2();
-    func_805FF118();
+    mapSlotArrayInit();
     csTimerQueueClear();
     aspectScale = cameraStepAspectScale();
     guTranslate(&D_80767E68, 0.0f, 0.0f, 0.0f);
@@ -1275,7 +1275,7 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         seqSetChannelVolumeScale(0, 1.0f);
         seqSetChannelVolumeScale(1, 1.0f);
         seqSetChannelVolumeScale(2, 1.0f);
-        func_805FFEF8(gCurrentMap);
+        mapSlotFree(gCurrentMap);
         actorInitEntryPoints();
     }
     func_80712BD4();

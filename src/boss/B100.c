@@ -171,8 +171,8 @@ void zoneEntryGetPosition(s32, s32, void *, void *, void *);
 void bossRoundFrame(u8 *);
 void camStartPath(void *, s32, u8);
 void hudCountdownTimerSaveElapsed(void *);
-void func_805FF158(s32);
-void func_805FF378(s32, s32);
+void screenSetTransitionFadeType(s32);
+void mapRequestTransition(s32, s32);
 f32 func_80612790(s16);
 void playerWaypointPathStartLineFromActor(void *, s16, s16, s32);
 void func_80641874(s32, s32);
@@ -238,9 +238,9 @@ void bossDogadonStep(void) {
             camStartPath(0, 2, 1);
             MAIN_ACTOR->unk154 = 0x29;
             hudCountdownTimerSaveElapsed(MAIN_ACTOR->unk11C);
-            func_805FF158(1);
+            screenSetTransitionFadeType(1);
             func_8070B308(1);
-            func_805FF378(0xD6, 0);
+            mapRequestTransition(0xD6, 0);
             PLAYER_ACTOR->unk7C = func_80612794(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk7C;
             PLAYER_ACTOR->unk84 = func_80612790(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk84;
             lineDist = func_80612794(MAIN_ACTOR->unkE6 + 0x384);
@@ -369,8 +369,8 @@ void bossDogadonStep(void) {
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
-                func_805FF158(0);
-                func_805FF378(0xCF, 0);
+                screenSetTransitionFadeType(0);
+                mapRequestTransition(0xCF, 0);
                 MAIN_ACTOR->unk155++;
             }
             break;
@@ -528,8 +528,8 @@ void flagSet(s16, s32, s32);
 void func_8070B308(s32);
 void slotQueueSetDisplayMode(s32, s32, s32);
 void actorScriptStartByIndex(void *, s32);
-void func_805FF158(s32);
-void func_805FF378(s32, s32);
+void screenSetTransitionFadeType(s32);
+void mapRequestTransition(s32, s32);
 void func_80724A20(void);
 void behaviourFrameBegin(void);
 void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
@@ -609,9 +609,9 @@ void bossKRoolTinyStep(void) {
             D_807FBB4C->unk154 = 0x5F;
             D_807FBB4C->unk155 = 0;
             actorScriptStartByIndex(D_807FBB4C, 0x4A);
-            func_805FF158(1);
+            screenSetTransitionFadeType(1);
             func_8070B308(1);
-            func_805FF378(0xCE, 0);
+            mapRequestTransition(0xCE, 0);
             flagSet(st->unk12 + 0x51, 1, 2);
             BOSS_ACTOR->unk155++;
         }

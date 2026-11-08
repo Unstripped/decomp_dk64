@@ -1280,14 +1280,14 @@ void effectNodeAddTargetAndStep(s32, f32, f32);
 void effectNodeSetSubVal(s32, u8);
 void effectNodeSetTargetAndStep(s32, f32, f32);
 s32 func_805FEF74(s32);
-u8 func_805FF030(u8, u8);
-void func_805FF158(u8);
-void func_805FF378(s32, s32);
-void func_805FF628(s16, s16);
-void func_805FF898(void);
+u8 mapGetHubWorldIndex(u8, u8);
+void screenSetTransitionFadeType(u8);
+void mapRequestTransition(s32, s32);
+void mapTransitionExitCurrent(s16, s16);
+void mapTransitionToPreviousOrExit(void);
 void func_805FF9AC(s16, s16, s16, s16);
 s32 func_805FFE50(s16, s16, s16);
-void func_80600044(s32);
+void mapTransitionToWorldHub(s32);
 void sfxSlotFreeSource(s16);
 void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 s16 sfxPlayOnFreeSlot(s16, s32, s32, f32, s32, s32);
@@ -1575,7 +1575,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F4 &= ~((cmd->a << 16) + cmd->b);
         break;
     case 0x5D:
-        func_805FF158(CMDB(cmd)->a);
+        screenSetTransitionFadeType(CMDB(cmd)->a);
         break;
     case 0x5C:
         zoneEntrySetDisabled(CMDB(cmd)->a, CMDB(cmd)->b, CMDB(cmd)->c);
@@ -1698,19 +1698,19 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x30:
-        func_805FF378(cmd->a, 0);
+        mapRequestTransition(cmd->a, 0);
         break;
     case 0x86:
         playerThrowHeldActor(D_807FBB48);
         func_805FF9AC(0x2A, 0, cmd->a, 2);
         break;
     case 0x87:
-        func_805FF898();
+        mapTransitionToPreviousOrExit();
         break;
     case 0x8D:
         D_80744824 = 2;
         playerThrowHeldActor(D_807FBB48);
-        slot = func_805FF030(gCurrentMap, 0);
+        slot = mapGetHubWorldIndex(gCurrentMap, 0);
         if (func_805FEF74(gCurrentMap) != 0) {
             map = D_8074809C[slot];
             exit = D_807480AC[slot];
@@ -1723,16 +1723,16 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
                 }
             }
             if (cutsceneTriggerCheck(map) == 0) {
-                func_805FF378(map, exit);
+                mapRequestTransition(map, exit);
             }
         } else {
-            func_80600044(slot);
+            mapTransitionToWorldHub(slot);
         }
         break;
     case 0x31:
         if (cmd->c & 0x100) {
             func_8070B308(2);
-            func_805FF158(0);
+            screenSetTransitionFadeType(0);
         }
         switch (cmd->c & 0xFF) {
         case 0:
@@ -1748,7 +1748,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         func_805FF9AC(cmd->a, cmd->b, 0, flag);
         break;
     case 0x32:
-        func_805FF628(cmd->a, cmd->b);
+        mapTransitionExitCurrent(cmd->a, cmd->b);
         break;
     case 0x2F:
         func_8060B49C(D_807FBB48, cmd->a);

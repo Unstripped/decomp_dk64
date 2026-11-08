@@ -64,7 +64,7 @@ s16 modelTypeCountGet(u8 arg0) {
     return D_807F6150[arg0];
 }
 
-u8 func_805FF030(u8, u8);
+u8 mapGetHubWorldIndex(u8, u8);
 void *assetLoad(s32, s32, s32, s32);
 void modelAssetGetSubtables(u8 *, u8 **, u8 **);
 s32 modelTypeIsCounted(u16);
@@ -91,7 +91,7 @@ void modelTypeCountsInit(void) {
         for (i = 0; i != 0xDD; i++) {
             asset = assetLoad(9, i, 1, 1);
             if (asset != NULL) {
-                slot = func_805FF030(i, 1);
+                slot = mapGetHubWorldIndex(i, 1);
                 modelAssetGetSubtables(asset, &entries, &sp54);
                 count = *(s32 *)entries;
                 entry = entries + 4;
@@ -120,10 +120,10 @@ u16 modelTypeCountBeforeMap(u8 arg0) {
     s32 count;
     u8 *entry;
 
-    slot = func_805FF030(arg0, 1);
+    slot = mapGetHubWorldIndex(arg0, 1);
     total = 0;
     for (i = 0; i < arg0; i++) {
-        if (slot == func_805FF030(i, 1)) {
+        if (slot == mapGetHubWorldIndex(i, 1)) {
             asset = assetLoad(9, i, 1, 1);
             if (asset != NULL) {
                 modelAssetGetSubtables(asset, &entries, &sp58);

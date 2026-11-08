@@ -1196,7 +1196,7 @@ extern u8 D_8071FBC8;
 extern u8 D_807200D4;
 extern f32 D_80753E2C[];
 extern u8 *D_807FD568;
-void func_8071A8B0(void);
+void effectLightPulseOscillate(void);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void projectileGetTargetCoords(void *, s32);
 void projectileSetSpawnFlag(void);
@@ -1368,12 +1368,12 @@ u8 arg1;
                     if ((gCurrentActor->actorType == 2 || gCurrentActor->actorType == 3 || gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7)) {
                         func_807149B8(1);
                         func_80714950(0x50);
-                        func_8071498C(func_8071A8B0);
+                        func_8071498C(effectLightPulseOscillate);
                         func_80714C08(&D_807200D4, 0.5f, D_807FBB48, LE40B_S->unk90 + 9, 2);
                         if (gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7) {
                             func_807149B8(1);
                             func_80714950(0x50);
-                            func_8071498C(func_8071A8B0);
+                            func_8071498C(effectLightPulseOscillate);
                             func_80714C08(&D_8071FBC8, 0.5f, D_807FBB48, 9, 2);
                         }
                     }
@@ -2565,7 +2565,7 @@ extern u8 D_8076A0B2;
 extern f32 D_807536AC[];
 extern u8 D_8072014C[];
 void func_8071F034(void);
-void func_805FF158(s32);
+void screenSetTransitionFadeType(s32);
 void func_805FF9AC(s32, s32, s32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_806C93E4(void *, void *);
@@ -2620,7 +2620,7 @@ s32 func_806E56EC() {
             case 10:
                 if (D_8076A0B2 == 0) {
                     sfxPlayAtPositionPooled(G26_AC->unk7C, G26_AC->unk80, G26_AC->unk84, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
-                    func_805FF158(0);
+                    screenSetTransitionFadeType(0);
                     func_805FF9AC(G26_GS->unk10, G26_GS->unk12, 0, 0);
                 }
                 return 1;
@@ -2683,7 +2683,7 @@ void func_8070B308(s32);
 void func_806E5C2C(s32 arg0, s32 arg1, s32 arg2) {
     if (arg1 != 0) {
         func_8070B308(2);
-        func_805FF158(0);
+        screenSetTransitionFadeType(0);
     }
     func_805FF9AC(arg0, 0, 0, 0);
 }

@@ -115,8 +115,8 @@ void commandSetFlags(s8, s8);
 void commandSetParameters(s16, s16, s16, u8, u8, u8);
 void effectNodeSetTargetPosition(s32, f32, f32, f32);
 void func_80028EE8(s32, s32, s32, s32, s32, s32, s32, s32);
-void func_805FF378(s32, s32);
-void func_805FF8F8(void);
+void mapRequestTransition(s32, s32);
+void mapTransitionToMenuOrPrevious(void);
 s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void controllerAnimSetState(void *, s16, f32, f32);
 void controllerStepMotionWindows(void *);
@@ -146,8 +146,8 @@ void playerWaypointPathStartPacked(s32, s32, s16, s16);
 void func_8070B308(u8);
 void func_8070D8C0(void *, s32, u8);
 void func_8070E8DC(s8);
-void func_80712524(s32, s32);
-void func_8071268C(void);
+void menuTransitionToMap(s32, s32);
+void menuSetStateBFlag(void);
 void func_807127F4(s32);
 void func_80712830(void *, s32);
 void func_80713EB0(s32, s32, s32);
@@ -207,13 +207,13 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             textSpawnSubtitle(a & 0xFF, (s16)(b != 0 ? b : 0x5A), (u8)c);
             return;
         case 0x41:
-            func_805FF8F8();
+            mapTransitionToMenuOrPrevious();
             return;
         case 0x3D:
-            func_805FF378(D_8076AEF2, 0);
+            mapRequestTransition(D_8076AEF2, 0);
             return;
         case 0x3E:
-            func_805FF378(0x22, 0xC);
+            mapRequestTransition(0x22, 0xC);
             return;
         case 0x40:
             func_807127F4(0);
@@ -290,7 +290,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             return;
         case 0x27:
             node = a;
-            sp72 = b; // FAKE: s16 copy keeps (s16)b out of PRE (target reloads lh per call)
+            sp72 = b;
             mapChunkEffectSetFlag(node, sp72, 0, (u8)c);
             mapChunkEffectSetFlag(node, sp72, 1, (u8)c);
             mapChunkEffectSetFlag(node, sp72, 2, (u8)c);
@@ -390,14 +390,14 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             break;
         case 0x29:
             if (camCueTimerIsRunning() == 0) {
-                func_80712524(a, b);
+                menuTransitionToMap(a, b);
                 return;
             }
             break;
         case 0x43:
             if (camCueTimerIsRunning() == 0) {
                 D_8075536C = c;
-                func_80712524(a, b);
+                menuTransitionToMap(a, b);
                 return;
             }
             break;
@@ -549,7 +549,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             return;
         case 0x22:
             if (a != 0) {
-                func_805FF378(a, b);
+                mapRequestTransition(a, b);
                 return;
             }
             func_80712830(D_807FBB4C, 0);
@@ -559,7 +559,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             gScreenFadeRate = b / 100.0;
             return;
         case 0x3A:
-            func_8071268C();
+            menuSetStateBFlag();
             return;
         case 0x35:
             if (a == 0) {

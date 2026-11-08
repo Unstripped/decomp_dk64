@@ -47,7 +47,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     f32 vz;
     f32 vy;
     f32 vscale;
-    Gfx *_g; // FAKE: three loop packets below share this one Gfx pointer; shrinks the block-local stack homes by 12 bytes
+    Gfx *_g;
 
     sub = actor->unk174;
     stepAngle = 0x1000 / sub->unk0;

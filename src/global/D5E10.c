@@ -377,7 +377,7 @@ void func_806D1D84(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_805FF8F8();
+void mapTransitionToMenuOrPrevious();
 s32 currentActorTestClearFlag();
 
 void func_806D1DEC(void) {
@@ -385,12 +385,12 @@ void func_806D1DEC(void) {
     G08_P->unk30 = 20.0f;
     func_806CC8B8();
     if ((currentActorTestClearFlag() != 0) || (G08_A40->unk155 == 1) || (G08_P->unk23C--, (G08_P->unk23C == 0))) {
-        func_805FF8F8();
+        mapTransitionToMenuOrPrevious();
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_805FF898();
+void mapTransitionToPreviousOrExit();
 
 void func_806D1E90(void) {
     G08_P->unk4 = 0.0f;
@@ -398,7 +398,7 @@ void func_806D1E90(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     func_806CC8B8();
     if (G08_A40->unk155 != 0) {
-        func_805FF898(gCurrentActor);
+        mapTransitionToPreviousOrExit(gCurrentActor);
         G08_A40->unk155++;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -463,7 +463,7 @@ void func_806D205C(void) {
             t = r;
             actorListSetCustomFloat(sp2C[1], t, 7, 2.0f);
         }
-        func_805FF898();
+        mapTransitionToPreviousOrExit();
         G08_A40->unk155++;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -694,7 +694,7 @@ void func_806D2784(void) {
     func_806D2744(0x61);
 }
 
-void func_805FF8F8(void);
+void mapTransitionToMenuOrPrevious(void);
 s32 camIsPlayingPath();
 
 void func_806D27A4(void) {
@@ -704,7 +704,7 @@ void func_806D27A4(void) {
             actorScriptStart(gCurrentActor, 0x3B0);
         }
         if ((currentActorTestClearFlag() != 0) || (G09_A->unk155 != 0)) {
-            func_805FF8F8();
+            mapTransitionToMenuOrPrevious();
         }
     }
 }
@@ -2455,7 +2455,7 @@ s32 func_806D69A4(void) {
 }
 
 void func_80714C08(void *, f32, void *, s32, s32);
-void func_8071B2EC();
+void effectSineHorizontalDriftUpdate();
 extern u8 D_8071FF18;
 
 void func_806D6B00(void) {
@@ -2491,25 +2491,25 @@ void func_806D6B00(void) {
         G14_P->unk30 = D_80753548[D_807FD584];
         if (G14_A->unkB8 > 20.0f) {
             if (randomLcgNext() % 3U == 0) {
-                func_8071498C(&func_8071B2EC);
+                func_8071498C(&effectSineHorizontalDriftUpdate);
                 func_80714998(2);
                 func_807149B8(1);
                 func_80714C08(&D_8071FF18, 0.2f, gCurrentActor, 2, 0);
             }
             if (randomLcgNext() % 3U == 0) {
-                func_8071498C(&func_8071B2EC);
+                func_8071498C(&effectSineHorizontalDriftUpdate);
                 func_80714998(2);
                 func_807149B8(1);
                 func_80714C08(&D_8071FF18, 0.2f, gCurrentActor, 3, 0);
             }
             if (randomLcgNext() % 3U == 0) {
-                func_8071498C(&func_8071B2EC);
+                func_8071498C(&effectSineHorizontalDriftUpdate);
                 func_80714998(2);
                 func_807149B8(1);
                 func_80714C08(&D_8071FF18, 0.2f, gCurrentActor, 9, 0);
             }
             if (randomLcgNext() % 3U == 0) {
-                func_8071498C(&func_8071B2EC);
+                func_8071498C(&effectSineHorizontalDriftUpdate);
                 func_80714998(2);
                 func_807149B8(1);
                 func_80714C08(&D_8071FF18, 0.2f, gCurrentActor, 0xA, 0);

@@ -528,7 +528,7 @@ s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
 f32 raceRacerSteerTowardWaypoint(void);
 void raceHandleRacerCollision(void *);
-void func_805FF544(void);
+void mapCheckAutoTransition(void);
 void csModelStateSetFirstByte(s32, s32);
 void func_8070D8C0(void *, s32, s32);
 void func_8072881C(s32, void *);
@@ -587,7 +587,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
                 camStartPath(targetView->unk0, 0, 1);
                 currentActorClearFlag();
             } else {
-                func_805FF544();
+                mapCheckAutoTransition();
             }
         }
         func_8068F72C(s0, racerData, 0, 0);
@@ -634,7 +634,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
         case 4:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
-                func_805FF544();
+                mapCheckAutoTransition();
                 s0->unk35 += 1;
             }
             break;

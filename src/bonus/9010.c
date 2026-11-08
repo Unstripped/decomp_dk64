@@ -87,7 +87,7 @@ void camStartPath(void *, s32, s32);
 s32 camIsPathPaused(void);
 void camResumePath(void);
 void actorSetStateTwo(void *);
-void func_805FF378(s32, s32);
+void mapRequestTransition(s32, s32);
 void hudSpawnCountdownTimer(s32, s32, s32);
 s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
 void func_8070D8C0(void *, s32, u8);
@@ -178,7 +178,7 @@ void bonusScoreHudUpdate(void) {
         ((Actor *)gCurrentActor->unk11C)->state = 1;
         hud->unk0 -= 1;
         if (hud->unk0 == 0) {
-            func_805FF378(0x50, 0);
+            mapRequestTransition(0x50, 0);
             gCurrentActor->state = 4;
         }
         break;

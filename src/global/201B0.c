@@ -258,13 +258,13 @@ u8 camCueTimerIsRunning(void) {
 
 extern u64 __ll_mul(u64, u64);
 extern u64 __ull_div(u64, u64);
-void func_80712524(s32, s32);
+void menuTransitionToMap(s32, s32);
 
 void camCueTimerTick(void) {
     u64 t = __ull_div(__ull_div(__ll_mul(osGetTime() - gCamCueStartTime, 0x40), 0xBB8), 0x2710);
 
     if ((u32)t >= gCamCueTable[gCamCueIndex].unk0) {
-        func_80712524(gCamCueTable[gCamCueIndex].unk4, gCamCueTable[gCamCueIndex].unk5);
+        menuTransitionToMap(gCamCueTable[gCamCueIndex].unk4, gCamCueTable[gCamCueIndex].unk5);
         if (++gCamCueIndex >= 6) {
             gCamCueStartTime = 0;
         }

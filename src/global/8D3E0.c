@@ -101,7 +101,7 @@ typedef struct {
 } ModelAssetEntry178;
 extern ModelAssetEntry178 D_8076A178[];
 
-s32 func_80600080(s32);
+s32 mapFindSlotIndex(s32);
 u16 modelTypeCountBeforeMap(u8);
 void modelAssetGetSubtables(s32, s32 *, s32 **);
 void modelSlotsLoadMap(s32, s32, u8, u16, s32);
@@ -109,7 +109,7 @@ void csTimerQueueFire(s16);
 void actorListSpawnFromRecords(s32 *);
 void modelSlotsApplyRecords(void *, void *);
 void lightSetColor(f32, f32, f32, s16);
-s32 func_805FF030(u8, s32);
+s32 mapGetHubWorldIndex(u8, s32);
 void actorListBuildLookupTable(void);
 s32 func_806C7B34(void);
 
@@ -123,7 +123,7 @@ void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
 
     flag = 0;
     actorListBuildLookupTable();
-    mapIndex = func_80600080(gCurrentMap);
+    mapIndex = mapFindSlotIndex(gCurrentMap);
     if (mapIndex == -1) {
         switch (loadMode) {
         case 0:
@@ -145,7 +145,7 @@ void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
     } else {
         modelAsset = func_806C7B34();
     }
-    modelSlotsLoadMap(subtableCount, modelAsset, (u8)flag, preMapModelCount, func_805FF030(D_8076A0AB, 1));
+    modelSlotsLoadMap(subtableCount, modelAsset, (u8)flag, preMapModelCount, mapGetHubWorldIndex(D_8076A0AB, 1));
     csTimerQueueFire(D_8076A0AA);
     actorListSpawnFromRecords(records);
     if (mapIndex != -1) {
@@ -319,7 +319,7 @@ void actorListSetCustomFloat(s16 mapIndex, s16 targetId, s16 index, f32 val) {
     ActorListRecord *item;
 
     found = 0;
-    modelIndex = func_80600080(mapIndex);
+    modelIndex = mapFindSlotIndex(mapIndex);
     if (modelIndex != -1) {
         modelAssetGetSubtables((s32)D_8076A178[modelIndex].ptr, (s32 *)&subtableA, (s32 **)&container);
         count = *(s32 *)container;

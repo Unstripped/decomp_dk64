@@ -1013,7 +1013,7 @@ typedef struct ProjectileHomingState {
 } ProjectileHomingState;
 extern u32 D_807FBB64;
 void func_800268C0(s32);
-void func_8071D260(void);
+void effectLifetimeCountdownUpdate(void);
 s32 projectileFindHomingTarget();
 
 void projectileSteerTowardTarget(arg0, arg1, arg2, arg3)
@@ -1048,7 +1048,7 @@ u8 arg3;
             temp_a = ((Actor *)arg1->unk11C)->unk174;
             temp_t4 = temp_a->unk104->unk174;
             if (temp_t4->unkF3 == 3) {
-                func_8071498C(func_8071D260);
+                func_8071498C(effectLifetimeCountdownUpdate);
                 func_80714950(0x32);
                 func_80714CC0(arg2, sp50->unk14, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
             }
@@ -1425,8 +1425,8 @@ extern u32 D_8076A068;
 extern s16 D_80750344;
 extern u8 D_807FBB85;
 void billboardSetFlags(s16);
-void func_8071A8B0(void);
-void func_8071BB14(void);
+void effectLightPulseOscillate(void);
+void effectSpinBillboardingUpdate(void);
 void func_8071BC80(void);
 void func_807149A8(s32);
 void func_807149FC(s32);
@@ -1523,7 +1523,7 @@ void projectileBounceParticleUpdate(void *arg0) {
         if (temp_s3->unk12 != 0) {
             func_807149B8(1);
             func_807149FC(1);
-            func_8071498C(func_8071BB14);
+            func_8071498C(effectSpinBillboardingUpdate);
             func_80714CC0(&D_80720340, PROJECTILE_BOUNCE_ACTOR->unk124->unkC, PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84);
             temp_s3->unk12 = temp_s3->unk12 - 1;
         }
@@ -1545,7 +1545,7 @@ void projectileBounceParticleUpdate(void *arg0) {
         func_807149FC(1);
         if (PROJECTILE_BOUNCE_ACTOR->unk58 != 0x3B && temp_s3->unk13 != 0x63) {
             func_80714950(0x100FA);
-            func_8071498C(func_8071A8B0);
+            func_8071498C(effectLightPulseOscillate);
         }
         func_80714CC0(&D_80720340, 2.0 * PROJECTILE_BOUNCE_ACTOR->unk124->unkC, PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84);
         if (temp_s3->unk13 < 0xA) {
@@ -1608,7 +1608,7 @@ typedef struct SparkleProjectileActor {
 
 extern u8 D_80720120;
 extern u8 D_80720BE8;
-void func_8071C914(void);
+void effectGrowExpandMatrixUpdate(void);
 s32 randomNonNegative(void);
 
 void projectileSparkleUpdate(s32 arg0) {
@@ -1627,7 +1627,7 @@ void projectileSparkleUpdate(s32 arg0) {
         func_807149FC(1);
         func_80714998(2);
         func_807149B8(1);
-        func_8071498C(func_8071C914);
+        func_8071498C(effectGrowExpandMatrixUpdate);
         func_80714950((s32)(randomNonNegative() >> 15) % 360);
         func_807149A8(2000);
         switch ((u8)arg0) {
@@ -1749,7 +1749,7 @@ extern u8 D_80720BA0;
 extern s16 D_8075035C;
 extern s16 D_80750370;
 
-void func_8071D260(void);
+void effectLifetimeCountdownUpdate(void);
 void effectRadialSprayUpdate(void);
 void camStartShakeFromPoint(s32, s32, s32, f32, f32, f32, f32, f32);
 void actorSpawnSparkleBurst(void);
@@ -1812,7 +1812,7 @@ void projectileDespawnOrExplode(void) {
         if (other == NULL || other->actorType != 0x2E || (other->actorType == 0x2E && (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1)))) {
             func_807149B8(0);
             func_807149FC(1);
-            func_8071498C(func_8071D260);
+            func_8071498C(effectLifetimeCountdownUpdate);
             func_80714950(0xC);
             func_80714CC0(&D_807202D0, 0.75f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
@@ -1886,7 +1886,7 @@ void projectileHomingUpdate(void) {
         (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
         func_807149B8(1);
         func_80714950(0x1006E);
-        func_8071498C(func_8071A8B0);
+        func_8071498C(effectLightPulseOscillate);
         func_80714CC0(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8D, 0xFF, 0x7F, 0x1E);
         actorDespawn(gCurrentActor);
@@ -1981,7 +1981,7 @@ void projectileSpawnExplosion(void) {
 
     func_807149B8(1);
     func_80714950(0x1006E);
-    func_8071498C(func_8071A8B0);
+    func_8071498C(effectLightPulseOscillate);
     func_80714CC0(&D_80720120, 2.0f, gCurrentActor->x, gCurrentActor->y + 22.0f, gCurrentActor->z);
 
     for (i = 0; i < gPlayerCount; i++) {
@@ -2095,7 +2095,7 @@ void projectileBounceExplodeScaledUpdate(void) {
         sp64->unk0 = D_8076A068;
         if (sp64->unk13 >= 0xCA) {
             func_80714950(0xA);
-            func_8071498C(func_8071A8B0);
+            func_8071498C(effectLightPulseOscillate);
         }
         if (sp64->unk13 >= 0xCB) {
             BOUNCE_EXPLODE_ACTOR->unkC0 = 250.0f * sp5C;
@@ -2190,7 +2190,7 @@ void projectileBounceExplodeScaledUpdate(void) {
         if (sp64->unk13 != 0xCA) {
             func_807149B8(1);
             func_80714950(0x100D2);
-            func_8071498C(func_8071A8B0);
+            func_8071498C(effectLightPulseOscillate);
             func_80714CC0(&D_80720120, 2.0f, gCurrentActor->x, gCurrentActor->y + 22.0f, gCurrentActor->z);
             actorSpawnSparkleBurst();
             if (D_80750AD0 == 0) {
@@ -2444,7 +2444,7 @@ void projectileBeamUpdate(void) {
         (G_PROJECTILE_BEAM_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
         func_807149B8(1);
         func_80714950(0x1006E);
-        func_8071498C(func_8071A8B0);
+        func_8071498C(effectLightPulseOscillate);
         func_80714CC0(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1E5, 0xFF, 0x7F, 0x1E);
         actorDespawn(gCurrentActor);
@@ -2650,7 +2650,7 @@ void projectileRotatingUpdate(void) {
         (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
         func_807149B8(1);
         func_80714950(0x1006E);
-        func_8071498C(func_8071A8B0);
+        func_8071498C(effectLightPulseOscillate);
         func_80714CC0(&D_8071FB34, 0.45f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xFF, 0xFF, 0x7F, 5);
         actorDespawn(gCurrentActor);
@@ -2825,7 +2825,7 @@ void projectileRotatingLightUpdate(f32 arg0, u8 arg1) {
     if (sp48 == 1) {
         if (!temp_s2->unk12 && ((G_PROJECTILE_ROT_ACTOR->unk6A & 1) || G_PROJECTILE_ROT_ACTOR->unkFD != 0 || D_807FBB85 != 0)) {
             func_80714950(0x1006E);
-            func_8071498C(func_8071A8B0);
+            func_8071498C(effectLightPulseOscillate);
             func_80714CC0(&D_8072006C, 1.2f, G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, G_PROJECTILE_ROT_ACTOR->unk84);
             effectSpawnBoneWhite(0, 0, 0.8f, G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, G_PROJECTILE_ROT_ACTOR->unk84, -0x50);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x3F, 0x14);
@@ -2927,7 +2927,7 @@ void projectileParticleSpawnerTick(void) {
         if ((D_807FBB85 != 0) && (sp54->unk13 != 0xA)) {
             func_807149B8(1);
             func_80714950(0x100D2);
-            func_8071498C(func_8071A8B0);
+            func_8071498C(effectLightPulseOscillate);
             func_80714CC0(&D_80720120, 2.0f, gCurrentActor->x, gCurrentActor->y + 10.0f, gCurrentActor->z);
             camStartShakeFromPoint(((PlayerTrackActor *)D_807FBB4C)->unk174->unk104, 7, 0x16, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 200.0f, 400.0f);
             actorSpawnSparkleBurst();
@@ -3026,7 +3026,7 @@ void projectileHomingParticleUpdate(void) {
             func_807149B8(1);
             if (var_s1 == 0) {
                 func_80714950(0x1006E);
-                func_8071498C(func_8071A8B0);
+                func_8071498C(effectLightPulseOscillate);
             } else {
                 func_8071498C(func_80717D4C);
                 func_80714950(-150 - ((randomNonNegative() >> 15) % 50));

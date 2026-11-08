@@ -452,7 +452,7 @@ s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
 void camStartPath(void *, s16, s32);
 void camResumePath(void);
-void func_805FF544(void);
+void mapCheckAutoTransition(void);
 void csModelStateSetFirstByte(s32, s32);
 s32 slotQueueGetValue(s32, s32);
 void hudSpawnTextScreen(s32);
@@ -579,7 +579,7 @@ void raceOpponentCarBehaviorUpdate(void) {
                 camStartPath(gCurrentActor, cam, 1);
                 currentActorClearFlag();
             } else {
-                func_805FF544();
+                mapCheckAutoTransition();
             }
             state->unk35++;
         }
@@ -628,7 +628,7 @@ void raceOpponentCarBehaviorUpdate(void) {
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
                 if (flagGet(0x8B, 0) != 0) {
-                    func_805FF544();
+                    mapCheckAutoTransition();
                 } else {
                     hudSpawnTextScreen(1);
                 }

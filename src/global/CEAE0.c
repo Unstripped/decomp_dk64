@@ -448,9 +448,9 @@ u8 func_80666AA0();
 u8 func_80666AAC();
 u8 func_80666AB8();
 void func_80026D40(void *, u8);
-void func_805FF188(s32, s32);
-void func_805FF1B0(u8);
-void func_805FF2F4();
+void mapSetPendingTransition(s32, s32);
+void mapExecuteDeathTransition(u8);
+void mapExecuteVoidTransition();
 void healthRefill(u8);
 void func_8071495C();
 void func_807149C8(s32, s32, s32, s32);
@@ -692,12 +692,12 @@ done:
     if ((gCurrentActor->x < (f32)D_807F5FE4 || gCurrentActor->z < (f32)D_807F5FE6 || (f32)D_807F5FE8 < gCurrentActor->x || (f32)D_807F5FEA < gCurrentActor->z || sp68 != 0) && PLAYER_STATE->unk244 == 0 && (u32)gFrameCounter >= 0x65 && !(D_807FBB64 & 0x4000) && gCurrentMap != 0xE) {
         if (gPlayerCount == 1) {
             if (flagGet(0x186, 0) == 0) {
-                func_805FF188(0xB0, 1);
+                mapSetPendingTransition(0xB0, 1);
             }
             if (!gCurrentPlayerIndex && !gCurrentPlayerIndex) { // FAKE: steers uopt candidate colouring
             }
             healthRefill(gCurrentPlayerIndex);
-            func_805FF1B0(gCurrentPlayerIndex);
+            mapExecuteDeathTransition(gCurrentPlayerIndex);
             PLAYER_STATE->unk244 = 1;
         } else {
             func_80026D40(gCurrentActor, gCurrentPlayerIndex);
@@ -714,16 +714,16 @@ done:
             case 0x48:
             case 0x57:
                 if (D_8076A094 >= 0x5DD && PLAYER_STATE->unk244 == 0) {
-                    func_805FF2F4();
+                    mapExecuteVoidTransition();
                     PLAYER_STATE->unk244 = 1;
                 }
                 if (D_8076A098 >= 0x5DD && !(D_807FBB60 & 2) && PLAYER_STATE->unk244 == 0) {
-                    func_805FF2F4();
+                    mapExecuteVoidTransition();
                     PLAYER_STATE->unk244 = 1;
                 }
                 if ((gCurrentActor->x != gCurrentActor->prevX || gCurrentActor->y != gCurrentActor->prevY || gCurrentActor->z != gCurrentActor->prevZ || gPlayerPadState[gCurrentPlayerIndex].unk2A != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2E != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2F != 0) && !(D_807FBB60 & 2)) {
                     if (++D_8076A090 == 0x69780) {
-                        func_805FF2F4();
+                        mapExecuteVoidTransition();
                         PLAYER_STATE->unk244 = 1;
                     }
                 }
@@ -772,7 +772,7 @@ extern s32 gCurrentMap;
 extern u8 D_807463B8;
 extern s32 D_8071FB08;
 extern s32 D_8071FFA0;
-extern s32 func_80716FB4;
+extern s32 effectZSpinMatrixUpdate;
 extern s32 func_80717930;
 s32 randomNonNegative();
 s32 camIsCutsceneActive();
@@ -909,7 +909,7 @@ void func_806CB53C(void) {
         if (LB_P->unk1FE != -1) {
             LB_P->unk1FE = LB_P->unk1FE - 1;
             if (!(LB_P->unk1FE & 7)) {
-                func_8071498C(&func_80716FB4);
+                func_8071498C(&effectZSpinMatrixUpdate);
                 func_807149B8(1);
                 func_807149FC(3);
                 func_80714CC0(&D_8071FB08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
@@ -2556,7 +2556,7 @@ void func_806CF878(void) {
     if (!(gFrameCounter & 3) && G02_A->unk155 >= 5 && G03_A->unkC0 > 30.0f) {
         func_80714998(2);
         func_807149B8(1);
-        func_8071498C(&func_80716FB4);
+        func_8071498C(&effectZSpinMatrixUpdate);
         func_80714CC0(&D_8071FB08, 0.8f, G03_A->unk7C, G03_A->unk80, G03_A->unk84);
     }
 }

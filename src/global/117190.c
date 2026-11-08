@@ -19,31 +19,31 @@ extern s8 D_80750754;
 
 
 
-void func_805FF378(s32, s32);
+void mapRequestTransition(s32, s32);
 
-void func_80712490(s32 arg0, s32 arg1, u8 arg2) {
-    func_805FF378(arg0, arg1);
+void menuTransitionWithState(s32 arg0, s32 arg1, u8 arg2) {
+    mapRequestTransition(arg0, arg1);
     D_80755318 = arg2;
 }
 
-void func_805FF158(s32);
-s32 func_80712798(void);
+void screenSetTransitionFadeType(s32);
+s32 menuIsTransitionActive(void);
 
-void func_807124B8(s32 arg0, s32 arg1, u8 arg2) {
-    if (func_80712798() == 0) {
-        func_805FF158(0);
-        func_80712490(arg0, D_8075536C, arg2);
+void menuTransitionRequest(s32 arg0, s32 arg1, u8 arg2) {
+    if (menuIsTransitionActive() == 0) {
+        screenSetTransitionFadeType(0);
+        menuTransitionWithState(arg0, D_8075536C, arg2);
         D_80755338 = 1;
         D_8075533C = arg1;
         D_8075536C = 0;
     }
 }
 
-void func_80712524(s32 arg0, s32 arg1) {
-    func_807124B8(arg0, arg1, D_80755318);
+void menuTransitionToMap(s32 arg0, s32 arg1) {
+    menuTransitionRequest(arg0, arg1, D_80755318);
 }
 
-s32 func_80712548(void) {
+s32 menuCalculateBonusDuration(void) {
     return flagCountRange(0x1FD, 0x28, 0) + 0xA;
 }
 
@@ -65,7 +65,7 @@ void func_80712574(void) {
     D_80755340.active = 1;
     D_80755340.index = 0;
     D_80755340.time = osGetTime();
-    D_80755340.duration = func_80712548() * 60;
+    D_80755340.duration = menuCalculateBonusDuration() * 60;
     for (i = 0; (i < 10) && (found == 0); i++) {
         if (D_80755358[i] < D_80755340.duration) {
             D_80755340.index = i;
@@ -74,20 +74,20 @@ void func_80712574(void) {
     }
 }
 
-void func_8071261C(void) {
+void menuClearTimerFlag(void) {
     D_80755350 = 0;
 }
 
-s32 func_80712628(void) {
+s32 menuGetTimerFlag(void) {
     return D_80755350;
 }
 
-void func_80712634(s32 arg0, s32 arg1) {
-    func_807124B8(arg0, arg1, 0xB);
+void menuTransitionStateB(s32 arg0, s32 arg1) {
+    menuTransitionRequest(arg0, arg1, 0xB);
     D_80755330 = 0;
 }
 
-s32 func_80712658(void) {
+s32 menuIsStateBActive(void) {
     s32 var_v0;
 
     var_v0 = D_80755314 == 0xB;
@@ -96,7 +96,7 @@ s32 func_80712658(void) {
     }
 }
 
-void func_8071268C(void) {
+void menuSetStateBFlag(void) {
     if (D_80755314 == 0xB) {
         D_80755330 = 1;
     }
@@ -116,24 +116,24 @@ void func_807126B0(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4, s8 arg5, s8 a
         D_807FC950[i][1] = arg4;
         D_807FC950[i][4] = arg5;
     }
-    func_80712490(arg0, arg1, 12);
+    menuTransitionWithState(arg0, arg1, 12);
 }
 
-void func_80712774(s32 arg0) {
-    func_80712490(arg0, 0, 0xD);
+void menuTransitionStateD(s32 arg0) {
+    menuTransitionWithState(arg0, 0, 0xD);
 }
 
-s32 func_80712798(void) {
+s32 menuIsTransitionActive(void) {
     return D_80755314 != D_80755318;
 
 }
-void func_805FFFC8(void);
+void mapSlotArrayResetAll(void);
 void flagSet(s32, s32, s32);
 
-void func_807127B4(void) {
-    func_805FFFC8();
+void menuTransitionState7(void) {
+    mapSlotArrayResetAll();
     flagSet(0x314, 1, 0);
-    func_807124B8(0x1C, 0x17, 7);
+    menuTransitionRequest(0x1C, 0x17, 7);
 }
 
 void func_807127F4(s32 arg0) {
@@ -144,7 +144,7 @@ void func_807127F4(s32 arg0) {
     } else {
         temp = 0xE;
     }
-    func_807124B8(0x99, 0xB, temp);
+    menuTransitionRequest(0x99, 0xB, temp);
     D_80750754 = -2;
 }
 
@@ -156,9 +156,9 @@ typedef struct R117d2MenuObject {
 extern s32 D_807FBB64;
 extern u8 gPlayerCount;
 void healthRefill(u8);
-s32 func_805FF800(s32 *, s32 *);
+s32 mapFindPreviousSavedMap(s32 *, s32 *);
 void func_80026D40(void *);
-void func_805FF1B0(s32);
+void mapExecuteDeathTransition(s32);
 
 void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
     s32 var_a0;
@@ -184,20 +184,20 @@ void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
                 var_a1 = 2;
             }
         }
-        func_805FF378(var_a0, var_a1);
+        mapRequestTransition(var_a0, var_a1);
         return;
     }
     if (D_807FBB64 & 0x400) {
         arg0->unk155++;
-        func_805FF800(&sp20, &sp1C);
-        func_805FF378(sp20, sp1C);
+        mapFindPreviousSavedMap(&sp20, &sp1C);
+        mapRequestTransition(sp20, sp1C);
         return;
     }
     if (gPlayerCount >= 2) {
         func_80026D40(arg0);
         return;
     }
-    func_805FF1B0(arg1);
+    mapExecuteDeathTransition(arg1);
 }
 
 extern u16 D_80755308;
@@ -281,7 +281,7 @@ extern s32 D_80755334;
 extern s32 D_807552EC;
 extern Mtx D_807FDAC0;
 s32 flagGet(s32, s32);
-s32 func_805FF030(u8, s32);
+s32 mapGetHubWorldIndex(u8, s32);
 s32 func_8060B49C(s32, s32);
 void eepromInit(void);
 void func_80712574(void);
@@ -297,10 +297,10 @@ void func_80712BD4(void) {
     if (D_807467CC == 0) {
         eepromInit();
     }
-    if (func_805FF030(D_8076A0AB, 1) == 8) {
+    if (mapGetHubWorldIndex(D_8076A0AB, 1) == 8) {
         if ((D_807FBB68 & 2) == 0) {
             if (gCurrentMap != 0xD6) {
-                if (func_80712628() == 0) {
+                if (menuGetTimerFlag() == 0) {
                     if (blocked == 0) {
                         func_80712574();
                     }
@@ -372,9 +372,9 @@ void func_80712BD4(void) {
     eepromSavePlayerData();
 }
 
-void func_80712EDC(void) {
+void menuReturnToTitle(void) {
     D_80750AC0 = 1;
-    func_80712490(0x50, 0, 5);
+    menuTransitionWithState(0x50, 0, 5);
 }
 
 void func_80712F10(s32 *arg0, s32 *arg1) {
@@ -405,15 +405,15 @@ void func_80712FC8(void) {
     s32 arg1;
 
     if ((D_80755334 >= 0x5A) && (D_807ECD48 & 0x1000)) {
-        func_80712EDC();
+        menuReturnToTitle();
     } else if (D_8075531C == 0) {
         if (D_8075532C >= 3) {
-            func_807124B8(0x28, 0, 1);
+            menuTransitionRequest(0x28, 0, 1);
         } else {
             func_8060B750(D_8075E5C0[D_80755328 * 4]);
             func_8060B7D0(&arg0, &arg1);
-            func_805FF158(1);
-            func_805FF378(arg0, arg1);
+            screenSetTransitionFadeType(1);
+            mapRequestTransition(arg0, arg1);
         }
     }
 }
@@ -424,7 +424,7 @@ void func_80713088(void) {
     D_8075531C = 0x1E;
     if (D_807ECD66 & 0x8000) {
         func_8070B308(0);
-        func_80712490(0x50, 0, 5);
+        menuTransitionWithState(0x50, 0, 5);
     }
 }
 
@@ -437,7 +437,7 @@ void func_807130D4(void) {
     if ((D_80755330 == 1) || (D_8075531C == 0) || (D_807ECD66 & 0x8000)) {
         func_8070B308(0);
         D_80755330 = 0;
-        func_80712490(0x50, 0, 5);
+        menuTransitionWithState(0x50, 0, 5);
         D_80755330 = 2;
     }
 }
@@ -451,7 +451,7 @@ void func_80713168(void) {
         return;
     }
 block_5:
-    func_807124B8(0x28, 0, 1);
+    menuTransitionRequest(0x28, 0, 1);
 }
 
 
@@ -462,8 +462,8 @@ void func_807131BC(void) {
     D_8075532C = 0;
     func_8060B750(D_8075E5C0[D_80755328 * 4]);
     func_8060B7D0(&arg0, &arg1);
-    func_805FF158(1);
-    func_80712490(arg0, arg1, 3);
+    screenSetTransitionFadeType(1);
+    menuTransitionWithState(arg0, arg1, 3);
 }
 void func_807131BC(void);
 
@@ -485,7 +485,7 @@ void func_80713270(void) {
             return;
         }
     }
-    func_807124B8(0x4C, 0, 2);
+    menuTransitionRequest(0x4C, 0, 2);
 }
 #define R117D_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 extern Gfx D_1000118;
@@ -694,7 +694,7 @@ void func_80713C8C(void) {
     D_8075531C = 1;
     if (D_80755340.active != 0) {
         if (flagGet(0x302, 0) != 0) {
-            func_8071261C();
+            menuClearTimerFlag();
             sfxAllocateChannel(0x74, 1.0f);
             return;
         }
@@ -707,7 +707,7 @@ void func_80713C8C(void) {
                 D_80755340.index++;
             }
             if (D_80755340.unk8 <= 0) {
-                func_807127B4();
+                menuTransitionState7();
             }
         }
     }
@@ -721,7 +721,7 @@ Gfx *hudDrawCountdownTimer(Gfx *dl) {
     f32 timerX;
     Gfx *dlCur;
 
-    if ((func_80712628() != 0) && !(D_807FBB60 & 3)) {
+    if ((menuGetTimerFlag() != 0) && !(D_807FBB60 & 3)) {
         timerX = (f32) D_80744490 * 0.5f;
         dlCur = func_807132DC(dl);
         R117D_WRITE_GFX(dlCur++, 0xFC119623, 0xFF2FFFFF);
@@ -773,16 +773,16 @@ void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
             }
         }
         if (arg0 >= 0) {
-            func_80712524(arg0, arg1);
+            menuTransitionToMap(arg0, arg1);
             return;
         }
     }
     if (D_80755314 == 0xE) {
         func_8070B308(0);
-        func_80712490(0x50, 0, 5);
+        menuTransitionWithState(0x50, 0, 5);
         return;
     }
-    func_807124B8(0x28, 0, 1);
+    menuTransitionRequest(0x28, 0, 1);
 }
 
 Gfx *func_807138CC(Gfx *);
@@ -809,8 +809,8 @@ Gfx *screenStateTickAndDraw(Gfx *dl) {
     if (D_80755334 < 0x5A) {
         D_80755334++;
     }
-    if ((func_80712628() != 0) && (D_80755314 != 6)) {
-        func_8071261C();
+    if ((menuGetTimerFlag() != 0) && (D_80755314 != 6)) {
+        menuClearTimerFlag();
     }
     if (D_8075531C != 0) {
         if (D_80755314 == D_80755318) {
@@ -951,7 +951,7 @@ void func_806C9AE0(void);
 void flagsClearAllBank2(void);
 void eepromLoadPlayerData(u8, s32);
 s32 eepromGetField(s32, s32, s32, u8);
-void func_805FF4D8(s32, s32);
+void mapRequestTransitionFast(s32, s32);
 
 void func_807144B8(u8 arg0) {
     s32 var_a0;
@@ -977,7 +977,7 @@ void func_807144B8(u8 arg0) {
         var_a0 = 0x99;
         var_a1 = 0;
     }
-    func_805FF4D8(var_a0, var_a1);
+    mapRequestTransitionFast(var_a0, var_a1);
     D_80755318 = 6;
 }
 
@@ -994,7 +994,7 @@ void func_8071458C(void) {
     } else {
         var_a0 = D_80755384[R117c_STATE->unk20];
     }
-    func_80712490(var_a0, 0, 6);
+    menuTransitionWithState(var_a0, 0, 6);
 }
 
 void func_807145F8(void) {
@@ -1012,7 +1012,7 @@ s32 func_80714608(s32 arg0) {
 }
 
 void func_80714638(void) {
-    func_80712EDC();
+    menuReturnToTitle();
     D_807552EC = 3;
 }
 

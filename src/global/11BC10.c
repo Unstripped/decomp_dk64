@@ -30,7 +30,7 @@ typedef struct {
     void *unk384;
 } RotatingEffectActorView;
 
-void func_80716F10(RotatingEffectActorView *effect, void *unused) {
+void effectZRotationMatrixUpdate(RotatingEffectActorView *effect, void *unused) {
     f32 scaleMtx[4][4];
     f32 rotMtx[4][4];
 
@@ -46,7 +46,7 @@ typedef struct {
     f32 unk4;
 } RotationState;
 
-void func_80716FB4(RotatingEffectActorView *effect, void *unused) {
+void effectZSpinMatrixUpdate(RotatingEffectActorView *effect, void *unused) {
     f32 scaleMtx[4][4];
     f32 rotMtx[4][4];
     RotationState *state;
@@ -153,7 +153,7 @@ typedef struct {
     ConfettiMotionState *unk384;
 } ConfettiActorView;
 
-void func_80717404(ConfettiActorView *effect, void *unused) {
+void effectConfettiPhysicsUpdate(ConfettiActorView *effect, void *unused) {
     ConfettiMotionState *motion;
     ConfettiParams *params = &effect->unk35C;
     f64 scale;
@@ -192,13 +192,13 @@ void func_80717404(ConfettiActorView *effect, void *unused) {
 
 
 void func_80714950(s32);
-void func_80717404();
+void effectConfettiPhysicsUpdate();
 void func_8071498C(void *);
 void func_807149B8(s32);
 void func_80714CC0(s32, f32, f32, f32, f32);
 extern s32 D_8074E880[];
 
-void func_80717760(RotatingEffectActorView *effect, u8 *isDone) {
+void effectTimerCountdownAlphaUpdate(RotatingEffectActorView *effect, u8 *isDone) {
     s32 timer;
 
     timer = effect->unk35C;
@@ -206,7 +206,7 @@ void func_80717760(RotatingEffectActorView *effect, u8 *isDone) {
     if (timer != 0) {
         effect->unk35C = timer - 1;
         func_807149B8(1);
-        func_8071498C(func_80717404);
+        func_8071498C(effectConfettiPhysicsUpdate);
         func_80714950(0xA);
         func_80714CC0(D_8074E880[((randomNonNegative() >> 0xF) % 1000) % 3], 0.8f, effect->unk340, effect->unk344, effect->unk348);
         return;
@@ -219,7 +219,7 @@ typedef struct {
     s16 unk2;
 } RandomDriftState;
 
-void func_80717814(RotatingEffectActorView *effect, void *unused) {
+void effectRandomDriftVelocityUpdate(RotatingEffectActorView *effect, void *unused) {
     RotatingEffectActorView *actor;
     RandomDriftState *motion;
 
@@ -335,7 +335,7 @@ typedef struct {
 
 
 void func_80714998(s32);
-void func_80718380();
+void effectRandomYRotDecalUpdate();
 extern u8 D_8071FEF4;
 
 typedef struct {
@@ -419,7 +419,7 @@ s8 *isDone;
     effect->unk344 = (f32) ((f64) effect->unk344 - ((f64) effect->unk35C / 100.0));
 }
 
-void func_80717D84(TimedEffectActorView *effect, s8 *isDone) {
+void effectLinearFadeAlphaUpdate(TimedEffectActorView *effect, s8 *isDone) {
     s32 alphaStep;
     u8 curAlpha;
 
@@ -500,7 +500,7 @@ s8 *isDone;
 }
 
 
-void func_80718080(TimedEffectActorView *effect) {
+void effectShrinkAndVelocityUpdate(TimedEffectActorView *effect) {
     f32 scaleFactor;
     VelocityMotionState *state;
 
@@ -516,13 +516,13 @@ void func_80718080(TimedEffectActorView *effect) {
 
 void func_807180F4(s32 effect, s32 unused) {
     func_80717D4C();
-    func_80716FB4((RotatingEffectActorView *)effect, (void *)unused);
+    effectZSpinMatrixUpdate((RotatingEffectActorView *)effect, (void *)unused);
 }
 
-void func_80718124(f32 scale, f32 x, f32 y, f32 z) {
+void effectSpawnImpactPuff(f32 scale, f32 x, f32 y, f32 z) {
     func_807149B8(1);
     func_80714998(3);
-    func_8071498C(&func_80718380);
+    func_8071498C(&effectRandomYRotDecalUpdate);
     func_80714CC0((s32)&D_8071FEF4, scale, x, y, z);
 }
 
@@ -547,13 +547,13 @@ void effectFallUpdate(TimedEffectActorView *effect, s8 *isDone) {
     }
     if (effect->unk344 < (f32) effect->unk35C) {
         *isDone = 1;
-        func_80718124((f32) ((f64) effect->unk360 * 1.5), effect->unk340, effect->unk35C, effect->unk348);
+        effectSpawnImpactPuff((f32) ((f64) effect->unk360 * 1.5), effect->unk340, effect->unk35C, effect->unk348);
     }
 }
 
 typedef f32 EffectMatrix[4][4];
 
-void func_8071827C(TimedEffectActorView *effect, s8 *isDone) {
+void effectFadeOutMatrixUpdate(TimedEffectActorView *effect, s8 *isDone) {
     EffectMatrix modelMtx;
     EffectMatrix tempMtx;
     u8 alpha;
@@ -575,7 +575,7 @@ void func_8071827C(TimedEffectActorView *effect, s8 *isDone) {
     ((u8 *) effect)[0x32C] = 3;
 }
 
-void func_80718380(TimedEffectActorView *effect, s8 *isDone) {
+void effectRandomYRotDecalUpdate(TimedEffectActorView *effect, s8 *isDone) {
     EffectMatrix modelMtx;
     EffectMatrix tempMtx;
     u32 rotAngle;
@@ -755,7 +755,7 @@ void effectProjectileDriftUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->unk344 = (f32)((f64)arg0->unk344 + ((f64)proj->unk4 / 500.0));
     if ((f32)proj->unk6 <= arg0->unk344) {
         *arg1 = 1;
-        func_80718124((f32)((f64)arg0->unk360 * 1.5), arg0->unk340, (f32)proj->unk6, arg0->unk348);
+        effectSpawnImpactPuff((f32)((f64)arg0->unk360 * 1.5), arg0->unk340, (f32)proj->unk6, arg0->unk348);
     }
     if ((s32)arg0->unk36D >= 0xC) {
         arg0->unk36D -= 0xA;
@@ -840,7 +840,7 @@ void effectWobbleRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     if ((WOBBLE_STATE->unk1C + 100.0f) < (f32)gFrameCounter) *arg1 = 1;
     if (WOBBLE_STATE->unk18 <= arg0->unk344) {
         *arg1 = 1;
-        func_80718124(0.3f, arg0->unk340, arg0->unk344, arg0->unk348);
+        effectSpawnImpactPuff(0.3f, arg0->unk340, arg0->unk344, arg0->unk348);
     }
 }
 #undef WOBBLE_STATE
@@ -1250,7 +1250,7 @@ typedef struct {
 extern LightOwnerView *gActivePlayerState;
 extern void *D_80028C30;
 
-void func_8071A440(TimedLightActorView *arg0, s8 *arg1) {
+void effectTimedLightIntensityFade(TimedLightActorView *arg0, s8 *arg1) {
     f32 var_fv0;
 
     var_fv0 = (f32)(arg0->unk330->unk16 - arg0->unk34E) / (f32)arg0->unk330->unk16;
@@ -1291,7 +1291,7 @@ void timedLightOrbitUpdate(TimedLightActorView *arg0, s8 *arg1) {
 }
 
 
-void func_8071A8B0(TimedLightActorView *arg0, s8 *arg1) {
+void effectLightPulseOscillate(TimedLightActorView *arg0, s8 *arg1) {
     f32 var_fv0;
     f32 var_ft4;
     s16 temp_v0;
@@ -1312,7 +1312,7 @@ void func_8071A8B0(TimedLightActorView *arg0, s8 *arg1) {
     lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, var_ft4, 0, 0xFF, (u32)((-80.0f * var_fv0) + 255.0f), (u32)((-205.0f * var_fv0) + 255.0f));
 }
 
-void func_8071AADC(TimedLightActorView *arg0, s8 *arg1) {
+void effectLightFlickerDecay(TimedLightActorView *arg0, s8 *arg1) {
     f32 var_fv0;
     f32 var_fv1;
     s16 temp_v0;
@@ -1516,7 +1516,7 @@ typedef struct {
     void *unk384;
 } MotionEffectActorView;
 
-void func_8071B1AC(MotionEffectActorView *arg0, s8 *arg1) {
+void effectDownwardDriftUpdate(MotionEffectActorView *arg0, s8 *arg1) {
     f32 new_var;
     f32 speed;
 
@@ -1528,7 +1528,7 @@ void func_8071B1AC(MotionEffectActorView *arg0, s8 *arg1) {
     arg0->unk348 = (f32)(arg0->unk348 + (0.35f * new_var));
 }
 
-void func_8071B24C(MotionEffectActorView *arg0, s8 *arg1) {
+void effectUpwardDriftUpdate(MotionEffectActorView *arg0, s8 *arg1) {
     f32 new_var;
     f32 speed;
 
@@ -1540,7 +1540,7 @@ void func_8071B24C(MotionEffectActorView *arg0, s8 *arg1) {
     arg0->unk348 = (f32)(arg0->unk348 + (0.35f * new_var));
 }
 
-void func_8071B2EC(MotionEffectActorView *arg0, s8 *arg1) {
+void effectSineHorizontalDriftUpdate(MotionEffectActorView *arg0, s8 *arg1) {
     f32 speed;
     f32 call_result;
 
@@ -1562,7 +1562,7 @@ void func_8071B2EC(MotionEffectActorView *arg0, s8 *arg1) {
     }
 }
 
-void func_8071B44C(MotionEffectActorView *arg0, s8 *arg1) {
+void effectSineDriftUpdate(MotionEffectActorView *arg0, s8 *arg1) {
     f32 speed;
     f32 call_result;
 
@@ -1631,7 +1631,7 @@ void effectGroundBounceUpdate(GroundBounceActorView *arg0, s8 *arg1) {
     arg0->state = 3;
 }
 
-void func_8071B758(TimedEffectActorView *arg0, s8 *arg1) {
+void effectFadeRatioStepUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 ratio;
     s32 intensity;
 
@@ -1643,7 +1643,7 @@ void func_8071B758(TimedEffectActorView *arg0, s8 *arg1) {
     lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, 50.0f, 0, intensity, intensity, intensity);
 }
 
-void func_8071B89C(TimedEffectActorView *arg0, s8 *arg1) {
+void effectPuffExpandFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 temp_fv0;
     f32 divisor;
     s16 var_v0;
@@ -1716,7 +1716,7 @@ typedef struct {
     f32 speed;
 } RandomRotationState;
 
-void func_8071BB14(TimedEffectActorView *arg0, s8 *arg1) {
+void effectSpinBillboardingUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp70[4][4];
     f32 sp30[4][4];
 
@@ -2001,7 +2001,7 @@ void func_8071C620(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->unk348 += var_v0->unk8;
 }
 
-void func_8071C818(TimedEffectActorView *arg0, s8 *arg1) {
+void effectShrinkFadeMatrixUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp70[4][4];
     f32 sp30[4][4];
 
@@ -2018,7 +2018,7 @@ void func_8071C818(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->pad0[0x32C] = 2;
 }
 
-void func_8071C914(TimedEffectActorView *arg0, s8 *arg1) {
+void effectGrowExpandMatrixUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f32 sp70[4][4];
     f32 sp30[4][4];
     f32 scale;
@@ -2094,7 +2094,7 @@ void effectWispWanderUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, 150.0f, 0, 0x96, 0x96, 0xFF);
     if (!(gFrameCounter & 3)) {
         func_807149B8(1);
-        func_8071498C(func_8071C818);
+        func_8071498C(effectShrinkFadeMatrixUpdate);
         func_80714CC0((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);
     }
     state->rotation += state->speed;
@@ -2154,7 +2154,7 @@ void effectWispHomeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, 150.0f, 0, 0x96, 0x96, 0xFF);
     if (!(gFrameCounter & 3)) {
         func_807149B8(1);
-        func_8071498C(func_8071C818);
+        func_8071498C(effectShrinkFadeMatrixUpdate);
         func_80714CC0((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);
     }
     state->rotation += state->speed;
@@ -2174,7 +2174,7 @@ typedef struct {
 } LightApproachMotionState;
 
 s32 actorGetNodePos(s32, s32, f32 *, f32 *, f32 *);
-u8 func_805FF030(u8, u8);
+u8 mapGetHubWorldIndex(u8, u8);
 extern u8 D_8076A0AB;
 extern u16 D_807FC930[];
 
@@ -2198,13 +2198,13 @@ void effectConvergeOnNodeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     motion->unk0 -= 1.0f;
     if (motion->unk0 == 0.0f) {
         *(s32 *)((u8 *)gActivePlayerState + 0x1F0) |= 0x20000;
-        D_807FC930[func_805FF030(D_8076A0AB, 0)]++;
+        D_807FC930[mapGetHubWorldIndex(D_8076A0AB, 0)]++;
         *arg1 = 1;
     }
 }
 
 
-void func_8071D260(TimedEffectActorView *arg0, s8 *arg1) {
+void effectLifetimeCountdownUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     u16 difference;
     s32 amount;
     u8 remaining;
@@ -2297,7 +2297,7 @@ void effectOrbitSourceUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         func_807149B8(1);
         func_807149FC(-1);
         func_80714950(0x2A);
-        func_8071498C(&func_8071D260);
+        func_8071498C(&effectLifetimeCountdownUpdate);
         func_80714A28(0x20);
         func_80714CC0(*(s32 *) arg0->unk330, arg0->unk360, arg0->unk340, arg0->unk344, arg0->unk348);
     }
@@ -2444,7 +2444,7 @@ void effectFloorFallUpdate(TimedEffectActorView *arg0, s8 *arg1) {
             }
         }
         if (state != 0) {
-            func_80718124(arg0->unk360 * 5.0f, arg0->unk340, arg0->unk344, arg0->unk348);
+            effectSpawnImpactPuff(arg0->unk360 * 5.0f, arg0->unk340, arg0->unk344, arg0->unk348);
         }
     }
 }
@@ -2709,9 +2709,9 @@ void effectDecelDriftFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         sp1C->unk0 = 0.8f;
     }
     sp24 = func_80612794((s16)(s32)sp1C->unk4);
-    sp24 = sp1C->unk0 * sp24; // FAKE: forces mul.s operand order (load first, call result second)
+    sp24 = sp1C->unk0 * sp24;
     temp_fa0 = func_80612790((s16)(s32)sp1C->unk4);
-    temp_fa0 = sp1C->unk0 * temp_fa0; // FAKE: forces mul.s operand order (load first, call result second)
+    temp_fa0 = sp1C->unk0 * temp_fa0;
     arg0->unk360 = (f32)((f64)arg0->unk360 * 1.08);
     arg0->unk364 = (f32)((f64)arg0->unk364 * 1.08);
     if ((f64)arg0->unk360 > 8.0) {
@@ -3087,7 +3087,7 @@ void effectLerpPathUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         arg0->unk348 = (state->unk1C * state->unk20) + state->unk10;
         if (!(gFrameCounter & 3)) {
             func_807149B8(1);
-            func_8071498C(func_8071C818);
+            func_8071498C(effectShrinkFadeMatrixUpdate);
             func_80714CC0((s32)&D_8071FB08, 1.6f, arg0->unk340, arg0->unk344, arg0->unk348);
         }
         state->unk4 = state->unk4 + state->unk0;

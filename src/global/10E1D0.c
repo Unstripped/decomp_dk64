@@ -449,7 +449,7 @@ extern s32 D_807FD9B8;
 
 void func_805FE71C(Gfx *, u8, s32 *, u8);
 void func_805FE7B4(Gfx *, s32, s32 *, u8);
-void func_805FF378(s32, s32);
+void mapRequestTransition(s32, s32);
 void schedSubmitGfxTask(Gfx *, s32, s32, u8, s32, s32);
 void transitionBeginDisplayList();
 void transitionInit(void);
@@ -486,7 +486,7 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
             switch (D_807444F8) {
             case 1:
                 osViBlack(1);
-                func_805FF378(arg0, arg1);
+                mapRequestTransition(arg0, arg1);
                 gScreenFadeProgress = 31.0f;
                 D_807444F8 = 2;
                 break;

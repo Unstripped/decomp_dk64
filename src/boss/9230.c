@@ -67,7 +67,7 @@ extern Boss2F_9230_DC9C *D_807FDC9C;
 void bossScriptStep(u8 *, s32, f32);
 void bossRoundFrame(u8 *);
 void func_80641874(s32, s32);
-void func_805FF378(s32, s32);
+void mapRequestTransition(s32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s32, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
@@ -274,8 +274,8 @@ void bossKRoolDkStep(void) {
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
-                func_805FF158(0);
-                func_805FF378(0xCC, 0);
+                screenSetTransitionFadeType(0);
+                mapRequestTransition(0xCC, 0);
                 gCurrentActor->unk155++;
             }
             break;

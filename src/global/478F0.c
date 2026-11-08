@@ -265,7 +265,7 @@ extern u8 D_8071FE88[];
 extern u8 D_8071FEAC[];
 void func_807149FC(s32);
 void effectTumbleBounceUpdate();
-void func_8071A8B0();
+void effectLightPulseOscillate();
 
 void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -285,7 +285,7 @@ void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
     func_807149B8(0);
     func_807149FC(1);
     func_80714950(0x100C8);
-    func_8071498C(func_8071A8B0);
+    func_8071498C(effectLightPulseOscillate);
     func_80714CC0(D_8071FE08, 1.5f, x, y, z);
     for (i = 0; i != 7; i++) {
         r = (s32)((u32)randomLcgNext() / 10000) % 3;
@@ -682,16 +682,16 @@ void csCmdNodeSpotLightFov(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     lightAdd(x1, y1, z1, x2, y2, z2, 0.0f, 1, D_807480D0, D_807480D4, D_807480D8);
 }
 
-void func_80717760(void);
+void effectTimerCountdownAlphaUpdate(void);
 
 void csCmdSpawnRandomEffectAtPos(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     func_807149FC(-1);
-    func_8071498C(func_80717760);
+    func_8071498C(effectTimerCountdownAlphaUpdate);
     func_80714950(0x50);
     func_80714CC0(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.5f, gCsPosX, gCsPosY, gCsPosZ);
 }
 
-void func_8071AADC(void);
+void effectLightFlickerDecay(void);
 extern u8 D_80720A7C[];
 
 void csCmdRandomPointEffects(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
@@ -701,7 +701,7 @@ void csCmdRandomPointEffects(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
         sel = (u32)randomLcgNext() / 10000 % arg3;
         func_80714998(2);
         func_80714950(0x10064);
-        func_8071498C(func_8071AADC);
+        func_8071498C(effectLightFlickerDecay);
         func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
         func_80714CC0(D_80720A7C, 1.2f, D_807F5FD4[0][sel].x, D_807F5FD4[0][sel].y, D_807F5FD4[0][sel].z);
     }
@@ -709,7 +709,7 @@ void csCmdRandomPointEffects(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
         sel = (u32)randomLcgNext() / 10000 % arg3;
         func_80714998(2);
         func_80714950(0x10064);
-        func_8071498C(func_8071AADC);
+        func_8071498C(effectLightFlickerDecay);
         func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
         func_80714CC0(D_80720A7C, 1.2f, D_807F5FD4[1][sel].x, D_807F5FD4[1][sel].y, D_807F5FD4[1][sel].z);
     }
@@ -744,7 +744,7 @@ extern u8 D_80720E5C[];
 extern u8 D_80720E74[];
 extern u8 D_80720E8C[];
 void effectTumbleBounceUpdate(void);
-void func_8071A8B0(void);
+void effectLightPulseOscillate(void);
 
 void func_80645238(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 r1;
@@ -786,7 +786,7 @@ void func_80645238(CsState *cs, s16 csId, s16 b, s16 c) {
         scale = (f32)((randomLcgNext() / 1000U) % 50U - 25.0) / 50.0;
         if (i == 0) {
             func_80714950(0x100FA);
-            func_8071498C((void *)func_8071A8B0);
+            func_8071498C((void *)effectLightPulseOscillate);
         } else {
             func_80714950(-0xAA);
             func_8071498C((void *)func_80717D4C);
@@ -806,7 +806,7 @@ void csCmdChanceNodeEffect(CsState *cs, s16 csId, s16 b, s16 c) {
         sp24 = (randomLcgNext() / 10000U) % (u32)c;
         func_80714998(2);
         func_80714950(0x10064);
-        func_8071498C(func_8071AADC);
+        func_8071498C(effectLightFlickerDecay);
         func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
         func_807149B8(1);
         func_80714B84(D_80720A7C, 0.5f, csId, sp24 + 1, 0);
@@ -1316,7 +1316,7 @@ extern f32 D_8074814C;
 extern s32 D_80748150;
 extern u8 D_80748154[];
 extern u8 D_80720BE8[];
-void func_8071BB14(void);
+void effectSpinBillboardingUpdate(void);
 void effectDecelDriftFadeUpdate(void);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
 
@@ -1343,10 +1343,10 @@ void func_80646978(CsState *cs, s16 csId, s16 b, s16 c) {
             func_807149B8(1);
             if (i == 0) {
                 func_80714950(D_80748150 + 0x10000);
-                func_8071498C(func_8071AADC);
+                func_8071498C(effectLightFlickerDecay);
                 func_80714998(D_80748154[3]);
             } else {
-                func_8071498C(func_8071BB14);
+                func_8071498C(effectSpinBillboardingUpdate);
             }
             func_80714CC0(D_80720BE8, D_80748140, gCsPosX + fx, gCsPosY + fy, gCsPosZ + fz);
             i++;
@@ -1393,7 +1393,7 @@ void func_80646DC4(CsState *cs, s16 csId, s16 b, s16 c) {
             modelSlotGetNodePos(csId, 1, i, &x, &y, &z);
             func_8071496C(i);
             func_807149B8(1);
-            func_8071498C(func_8071BB14);
+            func_8071498C(effectSpinBillboardingUpdate);
             func_807149C8(0xFF, 0xFF, 0xFF, 0x96);
             func_80714CC0(D_80720BE8, 1.5f, x, y, z);
         }
@@ -1725,7 +1725,7 @@ extern u8 D_80721238[];
 extern u8 D_80721250[];
 extern u8 D_8072126C[];
 extern u32 D_8076A068;
-void func_80716F10(void);
+void effectZRotationMatrixUpdate(void);
 void func_80714A08(f32, f32);
 void func_80714A28(s16);
 
@@ -1774,7 +1774,7 @@ void func_8064826C(CsState *cs, s16 csId, s16 b, s16 c) {
     if (D_8076A068 % 12U == 0) {
         func_807149B8(1);
         func_80714950(0x5A);
-        func_8071498C(func_80716F10);
+        func_8071498C(effectZRotationMatrixUpdate);
         func_807149A8(0x578);
         func_80714A28(4);
         func_80714CC0(D_8072126C, 2.0f, gCsPosX + sx, gCsPosY + 30.0, gCsPosZ + sz);
@@ -1899,7 +1899,7 @@ void csCmdSpawnPuffBurst(CsState *cs, s16 csId, s16 b, s16 c) {
             r = r / 50.0;
             if (i == 0) {
                 func_80714950(0x100FA);
-                func_8071498C(func_8071A8B0);
+                func_8071498C(effectLightPulseOscillate);
             } else {
                 func_80714950(-0xAA);
                 func_8071498C(func_80717D4C);
@@ -2053,8 +2053,8 @@ extern s8 D_80748170[];
 extern s8 D_80748178;
 extern s16 D_807505AE[];
 s32 flagGet(s32, s32);
-u8 func_805FF030(u8, u8);
-u8 func_805FF0C8(void);
+u8 mapGetHubWorldIndex(u8, u8);
+u8 mapHasCollectedSufficientItems(void);
 
 void func_806491F4(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 idx;
@@ -2064,7 +2064,7 @@ void func_806491F4(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 base2;
 
     if (b == 0) {
-        idx = func_805FF030(D_8076A0AB, 0);
+        idx = mapGetHubWorldIndex(D_8076A0AB, 0);
         if (idx >= 8) {
             idx = 0;
         }
@@ -2073,7 +2073,7 @@ void func_806491F4(CsState *cs, s16 csId, s16 b, s16 c) {
         if (flagGet(D_80744710[idx], 0)) {
             modelSlotSetNodeFrame(csId, 1, 0xB, 0);
             modelSlotSetNodeFrame(csId, 2, 0xB, 0);
-        } else if (func_805FF0C8()) {
+        } else if (mapHasCollectedSufficientItems()) {
             modelSlotSetNodeFrame(csId, 1, D_80748170[base], 0);
             modelSlotSetNodeFrame(csId, 2, D_80748170[base], 0);
         } else {
@@ -2129,7 +2129,7 @@ void csCmdShowRemainingDigits(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 n;
     s32 t;
 
-    n = func_805FF030(D_8076A0AB, 0);
+    n = mapGetHubWorldIndex(D_8076A0AB, 0);
     if (n >= 8) {
         n = 7;
     }
@@ -3114,11 +3114,11 @@ s32 csCondVarLess(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCondFlagGet82(CsState *cs, s16 csId, s16 b, s16 c) {
-    func_805FF0C8();
+    mapHasCollectedSufficientItems();
 }
 
 void func_8064BB78(CsState *cs, s16 csId, s16 b, s16 c) {
-    s32 idx = func_805FF030(D_8076A0AB, 0);
+    s32 idx = mapGetHubWorldIndex(D_8076A0AB, 0);
     if (idx >= 8) {
         idx = 0;
     }
@@ -3775,7 +3775,7 @@ void csCmdAnimProgressFromCounter(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 t;
     s32 idx;
 
-    idx = func_805FF030(D_8076A0AB, 0);
+    idx = mapGetHubWorldIndex(D_8076A0AB, 0);
     t = (f32)(u32)D_807FC930[idx] / (f32)(u32)D_807446C0[idx];
     if (t > 1.0) {
         t = 1.0f;
@@ -3795,7 +3795,7 @@ void func_8064D978(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 ratio;
     u8 idx;
 
-    idx = func_805FF030(D_8076A0AB, 0);
+    idx = mapGetHubWorldIndex(D_8076A0AB, 0);
     ratio = (f32)D_807FC930[idx] / (f32)D_807446C0[idx];
     if (ratio > 1.0) {
         ratio = 1.0f;
@@ -4174,7 +4174,7 @@ u8 csCondCheckSlotMapIndex(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 idx;
     u8 v;
 
-    idx = func_805FF030(D_8076A0AB, 0);
+    idx = mapGetHubWorldIndex(D_8076A0AB, 0);
     if (idx >= 8) {
         idx = 0;
     }
@@ -4400,7 +4400,7 @@ typedef struct {
 
 u8 func_8064F358(CsState *cs, s16 csId, s16 b, s16 c) {
     CsFlagTable *p = (CsFlagTable *)D_807FC950 + gCurrentPlayerIndex;
-    s32 idx = func_805FF030(D_8076A0AB, 0);
+    s32 idx = mapGetHubWorldIndex(D_8076A0AB, 0);
 
     return p->e[(&gPlayerCharacterId)[gCurrentPlayerIndex]].v[idx] > 0;
 }

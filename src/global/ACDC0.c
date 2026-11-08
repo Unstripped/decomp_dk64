@@ -132,9 +132,9 @@ void actorDespawn(Actor *);
 char *textTableGetString(s32, s32, s32);
 void camStartPath(s32, s32, s32);
 void func_80724994(s32, s32, s32, s32, s32);
-void func_805FF378(s32, s32);
-void func_805FF544(void);
-void func_805FF898(void);
+void mapRequestTransition(s32, s32);
+void mapCheckAutoTransition(void);
+void mapTransitionToPreviousOrExit(void);
 void screenWipeStart(s32);
 void func_80714638(void);
 void renderCallbacksRegister(void *, void *, s32);
@@ -198,16 +198,16 @@ extern s16 D_807FC83A;
 extern s8 D_807FC83C;
 extern s8 D_807FC8B8;
 
-s32 func_805FF000();
-s32 func_805FF030();
+s32 mapGetWorldIndex();
+s32 mapGetHubWorldIndex();
 s32 func_805FEF74();
-s32 func_80712628();
+s32 menuGetTimerFlag();
 void eepromSavePlayerData();
-void func_80712EDC();
-void func_807127B4();
+void menuReturnToTitle();
+void menuTransitionState7();
 s32 func_806C8DE0();
 s32 mathAngleSignedDistance(s16, s16);
-void func_80600044();
+void mapTransitionToWorldHub();
 void flagSet(s32, s32, s32);
 void hudPauseMenuRefreshTotals();
 s32 hudPauseMenuSlidePage();
@@ -245,7 +245,7 @@ void hudPauseMenuUpdate(void) {
             HUD_PAUSE_MODE = 1;
             break;
         default:
-            if (func_805FF000(gCurrentMap & 0xFF) == 9 || (D_807FBB64 & 0x10000000)) {
+            if (mapGetWorldIndex(gCurrentMap & 0xFF) == 9 || (D_807FBB64 & 0x10000000)) {
                 HUD_PAUSE_MODE = 2;
             } else {
                 HUD_PAUSE_MODE = 0;
@@ -277,7 +277,7 @@ void hudPauseMenuUpdate(void) {
         hud->unk0 = 1.0f;
         hud->unk4 = 0.0f;
         hud->unk14 = func_806C8DE0(0);
-        hud->unk8[0] = hudFindItemIndex(func_805FF030(D_8076A0AB, 1));
+        hud->unk8[0] = hudFindItemIndex(mapGetHubWorldIndex(D_8076A0AB, 1));
         if (D_807505D0 < hud->unk8[0]) {
             hud->unk8[0] = 0;
         }
@@ -373,7 +373,7 @@ void hudPauseMenuUpdate(void) {
                             hud->unk17 = 3;
                         } else if (hud->unk17 == 1) {
                             if (HUD_PAUSE_MODE != 0) {
-                                func_805FF378(gCurrentMap, 0);
+                                mapRequestTransition(gCurrentMap, 0);
                             } else if (hud->unk18 == 0) {
                                 eepromSavePlayerData();
                                 hud->unk18 = 1;
@@ -387,34 +387,34 @@ void hudPauseMenuUpdate(void) {
                         }
                     }
                 } else if (buttons & 0x8000) {
-                    i = (a2 = func_805FF030(D_8076A0AB, 1)) == 8;
+                    i = (a2 = mapGetHubWorldIndex(D_8076A0AB, 1)) == 8;
                     if (D_807FC8B8 && D_807FC8B8) {} // FAKE: steers seq temp register (a0 not v1)
                     if (i) {
-                        i = func_80712628() != 0;
+                        i = menuGetTimerFlag() != 0;
                     }
                     D_807FC8B8 = 1;
                     if (HUD_PAUSE_MODE == 0 && a2 != 7 && a2 != 0xD && a2 != 9 && i == 0) {
                         if (a2 == 0xA) {
-                            func_80712EDC();
+                            menuReturnToTitle();
                         } else if (func_805FEF74(gCurrentMap) == 0) {
                             x = D_807FBB64 & 1;
                             if (x != 0 && a2 == 8) {
                                 flagSet(0x5C, 1, 2);
-                                func_805FF378(0x22, 0xC);
+                                mapRequestTransition(0x22, 0xC);
                             } else if (x != 0 && gCurrentMap != 0x3C) {
-                                func_805FF378(0x2A, 2);
+                                mapRequestTransition(0x2A, 2);
                             } else {
-                                func_80600044(a2);
+                                mapTransitionToWorldHub(a2);
                             }
                         }
                     } else if (HUD_PAUSE_MODE != 0) {
                         if (HUD_PAUSE_MODE == 2) {
-                            func_805FF898();
+                            mapTransitionToPreviousOrExit();
                         } else {
-                            func_805FF544();
+                            mapCheckAutoTransition();
                         }
                     } else if (a2 == 7 || i != 0) {
-                        func_807127B4();
+                        menuTransitionState7();
                     }
                 }
                 break;
@@ -643,8 +643,8 @@ typedef struct {
 
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-s32 func_805FF030(s32, s32);
-s32 func_80712628(void);
+s32 mapGetHubWorldIndex(s32, s32);
+s32 menuGetTimerFlag(void);
 Gfx *hudDrawCountPair(s16, s16, s16, s16, Gfx *, s8, f32);
 Gfx *hudDrawItemLabel(Gfx *, HudEntry *, s32);
 extern s16 D_807FC992[];
@@ -684,7 +684,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
 
     hud = actor->unk174;
     tab = (HudCountEntry *)((u8 *)D_807FC7F8 + 0x158);
-    sp138 = func_805FF030(D_8076A0AB, 1);
+    sp138 = mapGetHubWorldIndex(D_8076A0AB, 1);
     list = heapAlloc(0x1F40);
     heapFreeDeferred(list);
     gSPDisplayList(dl++, list);
@@ -776,7 +776,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     } else {
                         gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, ang >> 1);
                     }
-                    if (j == 2 && (sp138 == 7 || (sp138 == 8 && func_80712628() != 0 && *(s8 *)D_807505CC == 0))) {
+                    if (j == 2 && (sp138 == 7 || (sp138 == 8 && menuGetTimerFlag() != 0 && *(s8 *)D_807505CC == 0))) {
                         j++;
                     }
                     i = j;
@@ -1020,7 +1020,7 @@ extern s32 D_807211D0;
 extern s32 D_80721474;
 extern s32 D_80721518;
 
-s32 func_805FF030(s32, s32);
+s32 mapGetHubWorldIndex(s32, s32);
 f32 floatCeil(f32);
 s32 func_806C8DE0(s32);
 s32 func_806F6E58(s32);
@@ -1073,7 +1073,7 @@ void hudPauseMenuBuildPage(iconObj, arg1)
     switch (hud->unk12) {
     case 0:
         gPlayerCharacterId = saved;
-        idx = func_805FF030(D_8076A0AB, 1);
+        idx = mapGetHubWorldIndex(D_8076A0AB, 1);
         if (idx >= 9) {
             idx = 7;
         }
@@ -1182,7 +1182,7 @@ void hudPauseMenuBuildPage(iconObj, arg1)
             found[i] = 0;
         }
         for (i = 0; D_80755DA8[i].unk0 != 0xFF; i++) {
-            j = func_805FF030(D_80755DA8[i].unk0, 1);
+            j = mapGetHubWorldIndex(D_80755DA8[i].unk0, 1);
             if (idx == j) {
                 xs = D_80755DA8[i].unk4;
                 if (xs >= 0x24D && xs < 0x261 && cnt8 < 4) {
@@ -1858,7 +1858,7 @@ void hudTextScreenUpdate(void) {
                     hudFreeTextAndDespawn();
                     break;
                 default:
-                    func_805FF378(gCurrentMap, 0);
+                    mapRequestTransition(gCurrentMap, 0);
                     break;
             }
             gCurrentActor->state = 1;
@@ -1871,10 +1871,10 @@ void hudTextScreenUpdate(void) {
                     hudFreeTextAndDespawn();
                     break;
                 case 1:
-                    func_805FF544();
+                    mapCheckAutoTransition();
                     break;
                 default:
-                    func_805FF898();
+                    mapTransitionToPreviousOrExit();
                     break;
             }
             gCurrentActor->state = 1;

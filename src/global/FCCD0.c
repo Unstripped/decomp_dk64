@@ -146,7 +146,7 @@ s32 func_807142D8();
 #ifndef NON_MATCHING
 void func_806F8278(u8);
 #endif
-extern s32 func_805FF030();
+extern s32 mapGetHubWorldIndex();
 
 /* Initialises the per-player slot queue (15 slots of 0x30 bytes per player): sets each slot's text pointer, size and
  * screen position (func_806F8004). Formatting is load-bearing: the unk8/unkC stores share one line and the dead
@@ -164,7 +164,7 @@ void slotQueueInit(s32 arg0) {
     u8 player;
 
     sp96 = D_80744544;
-    sp8F = func_805FF030(D_8076A0AB, 1);
+    sp8F = mapGetHubWorldIndex(D_8076A0AB, 1);
     if (gPlayerCount >= 2) {
         sp96 = 0;
     }
@@ -325,7 +325,7 @@ void slotQueueSetShownValue(u8 arg0, u8 arg1, s32 arg2) {
 
 s32 flagGridSumRows(s32, s32, s32, s32);
 
-extern s32 func_805FF030();
+extern s32 mapGetHubWorldIndex();
 u16 slotQueueGetValue(u8 arg0, u8 arg1) {
     u16 var_a2;
     u16 sp26;
@@ -347,7 +347,7 @@ u16 slotQueueGetValue(u8 arg0, u8 arg1) {
             var_a2 = *(u16 *)slot->unk0;
         } else {
             sp1C = func_806C8DE0(arg1);
-            temp_v0 = func_805FF030(D_8076A0AB, 1);
+            temp_v0 = mapGetHubWorldIndex(D_8076A0AB, 1);
             if (arg0 != 0xA) {
                 if (arg0 == 0xC) {
                     var_a2 = flagGridSumRows(0x1D5, temp_v0, temp_v0, sp1C);
@@ -440,14 +440,14 @@ s32 arg0;
     slotQueueClearFlags();
 }
 
-extern s32 func_805FF030();
+extern s32 mapGetHubWorldIndex();
 
 void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
     s32 sp1C;
     s32 temp_a3;
     s32 temp_v0;
 
-    sp1C = func_805FF030(D_8076A0AB, 1);
+    sp1C = mapGetHubWorldIndex(D_8076A0AB, 1);
     temp_v0 = func_806C8DE0(0);
     temp_a3 = temp_v0;
     *arg0 = 0x7F;
@@ -603,7 +603,7 @@ s16 arg2;
                     flagSet(sp3C, 1, 0);
                 }
                 if ((arg2 > 0) && ((arg0 * 0x30) == 0)) {
-                    temp_v0_2 = func_805FF030(D_8076A0AB, 1);
+                    temp_v0_2 = mapGetHubWorldIndex(D_8076A0AB, 1);
                     temp_a3 = *(u16 *)(sp48 + 0xA + (temp_v0_2 * 2)) + *(u16 *)(sp48 + 0x26 + (temp_v0_2 * 2));
                     if (D_8076A0AB == 0) {}  // FAKE: dead reference, steers uopt candidate priority (spill-slot order)
                     if ((temp_a3 >= 0x4B) && ((temp_a3 - arg2) < 0x4B)) {
@@ -628,16 +628,16 @@ s16 arg2;
 
 
 void bitfieldSetMappedFlag(u16 *arg0, s32 arg1) {
-    *arg0 |= 1 << func_805FF030(arg1 & 0xFF, 1);
+    *arg0 |= 1 << mapGetHubWorldIndex(arg1 & 0xFF, 1);
 }
 
 void bitfieldClearMappedFlag(u16 *arg0, s32 arg1) {
-    *arg0 &= ~(1 << func_805FF030(arg1 & 0xFF, 1));
+    *arg0 &= ~(1 << mapGetHubWorldIndex(arg1 & 0xFF, 1));
 }
 
 
 s32 bitfieldHasMappedFlag(u16 arg0, s32 arg1) {
-    return (1 << func_805FF030(arg1 & 0xFF, 1)) & arg0 & 0xFF;
+    return (1 << mapGetHubWorldIndex(arg1 & 0xFF, 1)) & arg0 & 0xFF;
 }
 
 typedef struct SpriteScaleInfo {
@@ -1087,7 +1087,7 @@ Gfx *slotQueueDrawPlayerLabels(s32 arg0, SlotQueueDrawNode *arg1, Gfx *arg2) {
     f64 u;
 
     cursor = arg1->unk14;
-    player = func_805FF030(D_8076A0AB, 1);
+    player = mapGetHubWorldIndex(D_8076A0AB, 1);
     active = func_806C8DE0(0);
     off = arg0 * 0x30;
     savedU16 = *(u16 *)((u8 *)gSlotQueue + off + 4);
@@ -1390,7 +1390,7 @@ extern s32 D_80754288;
 void slotQueueSelectPlayerResource(u8 arg0) {
     s32 resource;
 
-    resource = func_805FF030(D_8076A0AB, 0);
+    resource = mapGetHubWorldIndex(D_8076A0AB, 0);
     *(u8 **)((u8 *)gSlotQueue + 0x270) = &D_807FC950[arg0][resource * 2 + 0x26];
     *(u16 *)((u8 *)gSlotQueue + 0x274) = **(u16 **)((u8 *)gSlotQueue + 0x270);
     D_80754288 = arg0;

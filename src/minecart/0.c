@@ -168,7 +168,7 @@ void minecartTriggerWin(u8 useCutsceneCam, u8 textIndex) {
 }
 
 extern s32 D_80028C30;
-extern s32 D_8071A440;
+void effectTimedLightIntensityFade();
 extern s32 D_8072006C;
 
 s32 randomLcgNext();
@@ -182,7 +182,7 @@ void minecartSpawnWheelEffect(MinecartCart *cart, u8 side, u8 probabilityThresho
         if (cart->unk0 == 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x8A, 0x96, 0x7F, 0x32);
             func_80714950(gCurrentActor);
-            func_8071498C(&D_8071A440);
+            func_8071498C(&effectTimedLightIntensityFade);
             D_80028C30 = func_80714C08(&D_8072006C, 0x3ECCCCCD, gCurrentActor, side + 7, 2);
         }
     }

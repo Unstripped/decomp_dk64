@@ -229,10 +229,10 @@ extern u8 D_80720A7C;
 void sfxStopChannel(s32, s32);
 void csModelStateSetFirstByte(s32, s32);
 void camResumePath(void);
-void func_80712524(s32, s32);
+void menuTransitionToMap(s32, s32);
 void func_80714950(s32);
 void func_8071498C(void (*)(void));
-void func_8071AADC(void);
+void effectLightFlickerDecay(void);
 void func_807149C8(s32, s32, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 f32 randomFloat(void);
@@ -303,7 +303,7 @@ void func_806BD7B0(void) {
                 }
             } else {
                 func_80714950(0x10064);
-                func_8071498C(func_8071AADC);
+                func_8071498C(effectLightFlickerDecay);
                 func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
                 sparkX = randomFloat() * 30.0 + gCurrentActor->x;
                 sparkY = randomFloat() * 30.0 + (gCurrentActor->y + 20.0);
@@ -317,7 +317,7 @@ void func_806BD7B0(void) {
                 p->unk0->y += 5.0;
                 if (st->unk0 == 0x10E) {
                     flagSet(0x315, 1, 0);
-                    func_80712524(D_80750664[14], D_80750664[15]);
+                    menuTransitionToMap(D_80750664[14], D_80750664[15]);
                 }
             }
             limit = 0xB4;
@@ -336,7 +336,7 @@ void func_806BD7B0(void) {
                         D_807506A4 = 1;
                     }
                 } else {
-                    func_80712524(D_80750664[st->unk2 * 2], D_80750664[st->unk2 * 2 + 1]);
+                    menuTransitionToMap(D_80750664[st->unk2 * 2], D_80750664[st->unk2 * 2 + 1]);
                 }
             }
             break;

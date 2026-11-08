@@ -345,8 +345,8 @@ void actorSetAnimStartFrame(u8 frame) {
 extern u8 D_8076A0AB;
 extern s32 D_80750600[];
 
-s32 func_805FF000(u8);
-s32 func_805FF030(u8, s32);
+s32 mapGetWorldIndex(u8);
+s32 mapGetHubWorldIndex(u8, s32);
 void func_806B13B4(u8);
 s32 flagGridSumRows(s32, s32, s32, s32);
 
@@ -356,9 +356,9 @@ void func_806B1DD4(u8 mode) {
 
     if (!(gCurrentActor->flags & 0x10)) {
         flag = 0;
-        temp = func_805FF000(D_8076A0AB);
+        temp = mapGetWorldIndex(D_8076A0AB);
         if (temp != 9 && temp != 0xA) {
-            temp = func_805FF030(D_8076A0AB, 1);
+            temp = mapGetHubWorldIndex(D_8076A0AB, 1);
             flag = flagGridSumRows(0x1D5, temp, temp, D_80750600[mode]) == 0;
         }
         actorSetAnimStartFrame(flag != 0 ? mode : 5);

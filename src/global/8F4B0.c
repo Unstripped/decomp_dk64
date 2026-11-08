@@ -94,8 +94,8 @@ set_color:
 
 s32 flagGet(s16, s32);
 void flagSet(s16, s32, s32);
-void func_805FF378();
-void func_80712524(s32, s32);
+void mapRequestTransition();
+void menuTransitionToMap(s32, s32);
 extern s8 D_8074452C;
 extern u16 D_80744734[];
 extern s32 gCurrentMap;
@@ -161,10 +161,10 @@ s32 cutsceneTriggerCheck(s16 cutsceneId) {
             if (entryCutscene != -1) {
                 flagSet(flagId, 1, 0);
                 if (D_8074452C != 0) {
-                    func_805FF378(cutsceneId, extraParam);
+                    mapRequestTransition(cutsceneId, extraParam);
                     return 1;
                 }
-                func_80712524(spawnType, entryCutscene);
+                menuTransitionToMap(spawnType, entryCutscene);
                 return 1;
             }
         }
@@ -212,18 +212,18 @@ struct ActorPlayerPos;
 void lightGetColor(void *, void *, void *, s32);
 void lightSetOverrideColor(f32, f32, f32);
 void func_8070B308(s32);
-void func_805FF158(s32);
+void screenSetTransitionFadeType(s32);
 s32 cutsceneTriggerCheck(s16);
 void playerWaypointPathStartLineFromActor(void *, s16, s16, s32);
-void func_805FF4D8(s16, s16);
+void mapRequestTransitionFast(s16, s16);
 void func_805FF9AC(s16, s16, s16, s32);
-void func_805FF628(s16, s16);
+void mapTransitionExitCurrent(s16, s16);
 void func_806C92C4(s16);
-void func_805FF898(void);
-void func_805FF8F8(void);
-void func_805FF660(u8);
-s32 func_805FF030(u8, s32);
-void func_80600044(s32);
+void mapTransitionToPreviousOrExit(void);
+void mapTransitionToMenuOrPrevious(void);
+void mapSetTransitionExtraCounter(u8);
+s32 mapGetHubWorldIndex(u8, s32);
+void mapTransitionToWorldHub(s32);
 void playerWaypointPathStartPacked(void *, s32, s16, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s16, s32, s32, s32);
 void sfxAllocateChannel(s16, f32);
@@ -319,22 +319,22 @@ void actorCutsceneDispatchEvents(void) {
             if (!(D_807FBB60 & 0x400)) {
                 if (eventData[2] != 0) {
                     func_8070B308(2);
-                    func_805FF158(0);
+                    screenSetTransitionFadeType(0);
                 }
                 paramA = eventData[0];
                 if (paramA == 0x11) {
                     if (cutsceneTriggerCheck(paramA) == 0) {
-                        func_805FF378(eventData[0], eventData[1]);
+                        mapRequestTransition(eventData[0], eventData[1]);
                     }
                 } else {
-                    func_805FF378(paramA, eventData[1]);
+                    mapRequestTransition(paramA, eventData[1]);
                 }
                 playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x15:
             if (!(D_807FBB60 & 0x400)) {
-                func_805FF4D8(eventData[0], eventData[1]);
+                mapRequestTransitionFast(eventData[0], eventData[1]);
             }
             break;
         case 0x4:
@@ -344,7 +344,7 @@ void actorCutsceneDispatchEvents(void) {
                     if (mode == 1) {
                         func_8070B308(2);
                     }
-                    func_805FF158(0);
+                    screenSetTransitionFadeType(0);
                 }
                 func_805FF9AC(eventData[0], eventData[1], 0, 0);
                 playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
@@ -352,7 +352,7 @@ void actorCutsceneDispatchEvents(void) {
             break;
         case 0x5:
             if (!(D_807FBB60 & 0x400)) {
-                func_805FF628(eventData[0], eventData[1]);
+                mapTransitionExitCurrent(eventData[0], eventData[1]);
                 playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
@@ -368,21 +368,21 @@ void actorCutsceneDispatchEvents(void) {
             break;
         case 0x8:
             if (!(D_807FBB60 & 0x400)) {
-                func_805FF898();
+                mapTransitionToPreviousOrExit();
                 playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x19:
-            func_805FF8F8();
+            mapTransitionToMenuOrPrevious();
             break;
         case 0x9:
-            func_805FF660(((u8 *)eventData)[1]);
+            mapSetTransitionExtraCounter(((u8 *)eventData)[1]);
             break;
         case 0xA:
             ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->unk174)->stateFlags |= 0x40000800;
             break;
         case 0xB:
-            func_805FF378(D_80744700[func_805FF030(D_8076A0AB, 0)], D_8076A0AC);
+            mapRequestTransition(D_80744700[mapGetHubWorldIndex(D_8076A0AB, 0)], D_8076A0AC);
             playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             break;
         case 0xC:
@@ -422,7 +422,7 @@ void actorCutsceneDispatchEvents(void) {
             }
             break;
         case 0x18:
-            func_80600044(func_805FF030(D_8076A0AB, 0));
+            mapTransitionToWorldHub(mapGetHubWorldIndex(D_8076A0AB, 0));
             break;
         case 0x1C:
             if (D_80744700 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)

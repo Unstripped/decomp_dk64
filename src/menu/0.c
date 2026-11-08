@@ -32,12 +32,12 @@ extern u8 D_8076A0AB;
 extern s32 D_80032F48[][6];
 extern MenuStruct_30A2 D_800330A2[];
 
-s32 func_805FF030(s32, s32);
+s32 mapGetHubWorldIndex(s32, s32);
 void csModelStateSetFirstByte(s16, s32);
 void camStartPath(s32, s32, s32);
 
 void menuPlaySoundFromTable(MenuStruct_80024000 *menu) {
-    s32 soundId = D_80032F48[func_805FF030(D_8076A0AB, 0)][menu->unk1];
+    s32 soundId = D_80032F48[mapGetHubWorldIndex(D_8076A0AB, 0)][menu->unk1];
 
     if (soundId == 0) {
         csModelStateSetFirstByte(D_800330A2[menu->unk1A].unk0, 9);
@@ -89,11 +89,11 @@ void menuUpdateFallingActor(MenuStruct_80024000 *menu) {
 
 extern void *D_807FBB4C;
 void playerResumeLocomotion(void *);
-void func_805FF898(void);
+void mapTransitionToPreviousOrExit(void);
 
 void menuResetAudioState(void) {
     playerResumeLocomotion(D_807FBB4C);
-    func_805FF898();
+    mapTransitionToPreviousOrExit();
     camStartPath(0, 7, 1);
 }
 
@@ -304,7 +304,7 @@ void func_806F8278(s32);
 void eepromSavePlayerData(void);
 s32 camIsCutsceneActive(void);
 void playerStateQueueCallback(s32, void *, s32);
-void func_80712774(u8);
+void menuTransitionStateD(u8);
 s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
@@ -400,7 +400,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
             menu->unk1 = ((menu->unk1 - 4) & 7) + 4;
         }
         if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
-            func_80712774(D_800330C0[menu->unk1]);
+            menuTransitionStateD(D_800330C0[menu->unk1]);
             D_80032F50 = 1;
             menu->unk1 = 0x37;
         }
@@ -410,7 +410,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
     MenuM0_X18(menu) = D_807ECDEC->unk3;
 }
 
-s16 func_80712548(MenuStruct_80024000 *);
+s16 menuCalculateBonusDuration(MenuStruct_80024000 *);
 
 void menuProcessOptionInput(MenuStruct_80024000 *menu) {
     switch (menu->unk1) {
@@ -418,7 +418,7 @@ void menuProcessOptionInput(MenuStruct_80024000 *menu) {
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag(menu);
             menu->unk1++;
-            D_80750AC8 = func_80712548(menu);
+            D_80750AC8 = menuCalculateBonusDuration(menu);
             func_8070D8C0(gCurrentActor, 0xB, 8);
         }
         break;

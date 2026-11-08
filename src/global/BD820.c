@@ -41,7 +41,7 @@ void func_80714998(s32);
 void func_807149C8(s32, s32, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void func_80613C48(Actor *, s32, f32, f32);
-u8 func_805FF0C8(void);
+u8 mapHasCollectedSufficientItems(void);
 void modelSlotOrFlags(s32, s32);
 void func_806B8C78(void);
 
@@ -150,7 +150,7 @@ void func_806B904C(void) {
         gCurrentActor->unk4->unk34 = v;
         gCurrentActor->unk4->unk38 = v;
         gCurrentActor->unk4->unk3C = v;
-        if (func_805FF0C8() != 0) {
+        if (mapHasCollectedSufficientItems() != 0) {
             gCurrentActor->state = 0x40;
         } else {
             BD820A->unk12A = 0x3E8;

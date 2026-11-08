@@ -78,14 +78,14 @@ void func_80714950(s32);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
 s32 randomNonNegative();
 extern void *D_8074E880[];
-void D_80717404(void);
+void effectConfettiPhysicsUpdate(void);
 
 void bonusSpawnEffectBurst(s16 x, s16 y, s16 z, s16 count) {
     s16 i;
 
     for (i = 0; i < count; i++) {
         func_807149B8(1);
-        func_8071498C(D_80717404);
+        func_8071498C(effectConfettiPhysicsUpdate);
         func_80714950(1);
         func_80714CC0(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.3f, (f32)x, (f32)y, (f32)z);
     }

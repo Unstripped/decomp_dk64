@@ -72,8 +72,8 @@ void func_80714C08(void *, f32, Actor *, s32, s32);
 Actor338 *func_80714CC0(void *, f32, f32, f32, f32);
 void func_80717930(void);
 void func_80717D4C(void);
-void func_80718080(void);
-void func_8071827C(void);
+void effectShrinkAndVelocityUpdate(void);
+void effectFadeOutMatrixUpdate(void);
 void effectGroundDecalSpinUpdate(void);
 void effectTumbleBounceUpdate(void);
 void effectDecelerateDriftUpdate(void);
@@ -410,7 +410,7 @@ void effectSpawnBone(Actor *actor, s16 bone, f32 scale, f32 posX, f32 posY, f32 
     if (actor != NULL && bone != 0) {
         actorGetNodePos(actor, bone, &posX, &posY, &posZ);
     }
-    func_8071498C(func_80718080);
+    func_8071498C(effectShrinkAndVelocityUpdate);
     func_80714950(moveSpeed);
     temp = func_80714CC0(&D_8071FFA0, scale, posX, posY + 5.0f, posZ);
     temp->unk338 = actor;
@@ -575,7 +575,7 @@ void effectSpawnBurstParticles(Actor *actor) {
 void particleInitDefaultState(void) {
     func_807149B8(1);
     func_807149FC(0x14);
-    func_8071498C(func_8071827C);
+    func_8071498C(effectFadeOutMatrixUpdate);
     func_807149C8(0xFF, 0xFF, 0xFF, 0xC8);
     func_80714A28(4);
 }

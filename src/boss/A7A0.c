@@ -206,8 +206,8 @@ void playerStateQueueCallback(s32, void *, s32);
 void actorSetCollisionRadius(void *, f32);
 void actorOrNodeFlags(void *, s32, s32);
 s32 currentActorTestClearFlag(void);
-void func_805FF158(s32);
-void func_805FF378(s32, s32);
+void screenSetTransitionFadeType(s32);
+void mapRequestTransition(s32, s32);
 void bossScriptStep(u8 *, s32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 void func_8072A450(void);
@@ -338,8 +338,8 @@ void bossKRoolLankyStep(void) {
                 break;
             case 1:
                 if (currentActorTestClearFlag() != 0) {
-                    func_805FF158(0);
-                    func_805FF378(0xCE, 0);
+                    screenSetTransitionFadeType(0);
+                    mapRequestTransition(0xCE, 0);
                     ACTOR40->unk155++;
                 }
                 break;

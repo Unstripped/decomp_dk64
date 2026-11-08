@@ -83,31 +83,31 @@ extern f32 gScreenFadeRate;
 
 /* Function declarations */
 s32 func_805FEF74(s32 map);
-u8 func_805FF000(u8 map);
-s32 func_805FF018(u8 unused, s32 index);
-u8 func_805FF030(u8 map, u8 checkBossMap);
-u8 func_805FF0C8(void);
-void func_805FF118(void);
-void func_805FF158(u8 fadeType);
-void func_805FF168(void);
-void func_805FF188(s16 map, u8 exitIndex);
-void func_805FF1B0(s32 unused);
-void func_805FF2F4(void);
-void func_805FF378(s32 map, s32 exitIndex);
-void func_805FF4D8(s32 map, s32 exitIndex);
-void func_805FF544(void);
+u8 mapGetWorldIndex(u8 map);
+s32 mapGetConfigValue(u8 unused, s32 index);
+u8 mapGetHubWorldIndex(u8 map, u8 checkBossMap);
+u8 mapHasCollectedSufficientItems(void);
+void mapSlotArrayInit(void);
+void screenSetTransitionFadeType(u8 fadeType);
+void screenApplyTransitionFadeType(void);
+void mapSetPendingTransition(s16 map, u8 exitIndex);
+void mapExecuteDeathTransition(s32 unused);
+void mapExecuteVoidTransition(void);
+void mapRequestTransition(s32 map, s32 exitIndex);
+void mapRequestTransitionFast(s32 map, s32 exitIndex);
+void mapCheckAutoTransition(void);
 void func_805FF5A0();
-void func_805FF628(s32 map, s32 exitIndex);
-void func_805FF660(s8 count);
+void mapTransitionExitCurrent(s32 map, s32 exitIndex);
+void mapSetTransitionExtraCounter(s8 count);
 void func_805FF670(void);
-s32 func_805FF800(s32 *outMap, s32 *outExitIndex);
-void func_805FF898(void);
-void func_805FF8F8(void);
-s32 func_805FF938(s16 target);
+s32 mapFindPreviousSavedMap(s32 *outMap, s32 *outExitIndex);
+void mapTransitionToPreviousOrExit(void);
+void mapTransitionToMenuOrPrevious(void);
+s32 mapFindSlotByMap(s16 target);
 s32 func_805FFE50(s32 map, s16 recordId, s16 value);
-void func_805FFEF8(s32 map);
-void func_805FFFC8(void);
-s32 func_80600080();
+void mapSlotFree(s32 map);
+void mapSlotArrayResetAll(void);
+s32 mapFindSlotIndex();
 s16 func_80600174(f32 *, f32 *, f32 *);
 s32 func_80600340(s32 actorType, u8 flags, s32 *outMap);
 void modelAssetGetSubtables(s32, s32 *, s32 *);
@@ -128,7 +128,7 @@ void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 u8 func_806C8DE0(s32);
 void func_806F5378(void);
 void slotQueueUpdate(s32, s32, s32);
-s32 func_80712798(void);
+s32 menuIsTransitionActive(void);
 void func_80712F10(s32 *, s32 *);
 s32 func_807143E8(void);
 s32 func_8071441C(void);
@@ -188,16 +188,16 @@ s32 func_805FEF74(s32 map) {
     return 0;
 }
 
-u8 func_805FF000(u8 map) {
+u8 mapGetWorldIndex(u8 map) {
     return D_807445E0[map];
 }
 
-s32 func_805FF018(u8 unused, s32 index) {
+s32 mapGetConfigValue(u8 unused, s32 index) {
     s32 ret = D_80744720[index];
     return ret;
 }
 
-u8 func_805FF030(u8 map, u8 checkBossMap) {
+u8 mapGetHubWorldIndex(u8 map, u8 checkBossMap) {
     u8 val;
     s32 targetMap;
     s32 exitIndex;
@@ -206,7 +206,7 @@ u8 func_805FF030(u8 map, u8 checkBossMap) {
     targetMap = map;
     val = D_807445E0[targetMap];
     if (val == 0xD || val == 9) {
-        if (func_805FF800(&targetMap, &exitIndex)) {
+        if (mapFindPreviousSavedMap(&targetMap, &exitIndex)) {
             val = D_807445E0[targetMap];
         }
     }
@@ -218,34 +218,34 @@ u8 func_805FF030(u8 map, u8 checkBossMap) {
     return val;
 }
 
-u8 func_805FF0C8(void) {
-    s32 index = func_805FF030(D_8076A0AB, 0);
+u8 mapHasCollectedSufficientItems(void) {
+    s32 index = mapGetHubWorldIndex(D_8076A0AB, 0);
     return D_807FC930[index] >= D_807446C0[index];
 }
 
-void func_805FF118(void) {
+void mapSlotArrayInit(void) {
     s32 i;
     for (i = 0; i < 18; i++) {
         D_8076A160[i].unk0 = 0;
     }
 }
 
-void func_805FF158(u8 fadeType) {
+void screenSetTransitionFadeType(u8 fadeType) {
     D_80744824 = fadeType;
 }
 
-void func_805FF168(void) {
+void screenApplyTransitionFadeType(void) {
     D_8076AEE0 = D_80744824;
     D_80744824 = 1;
 }
 
-void func_805FF188(s16 map, u8 exitIndex) {
+void mapSetPendingTransition(s16 map, u8 exitIndex) {
     D_80744828 = 1;
     D_8076AEF4 = map;
     D_8076AEF6 = exitIndex;
 }
 
-void func_805FF1B0(s32 unused) {
+void mapExecuteDeathTransition(s32 unused) {
     u16 pad;
     u16 a3;
     s32 limit;
@@ -265,7 +265,7 @@ void func_805FF1B0(s32 unused) {
         if (func_805FEF74(gCurrentMap) != 0) {
             a3 = ((u16 *)&gCurrentMap)[1];
         } else {
-            unused = func_805FF030(((u8 *)&gCurrentMap)[3], 0);
+            unused = mapGetHubWorldIndex(((u8 *)&gCurrentMap)[3], 0);
             a3 = D_80744748[unused];
             for (; !found && (i < limit); i++) {
                 if (gCurrentMap == D_8074475C[i].unk0) {
@@ -277,31 +277,31 @@ void func_805FF1B0(s32 unused) {
         }
     }
     if (!found) {
-        func_805FFFC8();
+        mapSlotArrayResetAll();
     }
-    func_805FF378(a3, t1);
+    mapRequestTransition(a3, t1);
     D_80744828 = 0;
 }
 
-void func_805FF2F4(void) {
+void mapExecuteVoidTransition(void) {
     s32 targetMap;
     s32 exitIndex;
 
     if (gCurrentMap != 0x22) {
-        func_805FFFC8();
-        targetMap = D_80744734[func_805FF030(D_8076A0AB, 0)];
+        mapSlotArrayResetAll();
+        targetMap = D_80744734[mapGetHubWorldIndex(D_8076A0AB, 0)];
         exitIndex = 1;
     } else {
         targetMap = gCurrentMap;
         exitIndex = 0;
     }
     flagSet(0x6E, 1, 2, targetMap);
-    func_805FF378(targetMap, exitIndex);
+    mapRequestTransition(targetMap, exitIndex);
 }
 
-void func_805FF378(s32 map, s32 exitIndex) {
+void mapRequestTransition(s32 map, s32 exitIndex) {
     func_806F5378();
-    if ((D_807444EC == 6) || (func_80712798() == 0)) {
+    if ((D_807444EC == 6) || (menuIsTransitionActive() == 0)) {
         func_80712F10(&map, &exitIndex);
         if (map != -1) {
             if ((s32) gPlayerCharacterId >= 6) {
@@ -312,7 +312,7 @@ void func_805FF378(s32 map, s32 exitIndex) {
             D_807444E4 = map;
             D_807444E8 = exitIndex;
             D_8076A0B2 = 3;
-            func_805FF168();
+            screenApplyTransitionFadeType();
             gScreenFadeRate = 1.0f;
             if ((D_807444F8 != 1) && (D_8076AEE0 == 1) && !(D_807FBB68 & 2) && (gCurrentMap != 0x4C)) {
                 sfxAllocateChannel(0x2C, 1.0f);
@@ -326,7 +326,7 @@ void func_805FF378(s32 map, s32 exitIndex) {
     }
 }
 
-void func_805FF4D8(s32 map, s32 exitIndex) {
+void mapRequestTransitionFast(s32 map, s32 exitIndex) {
     func_806F5378();
     D_807FBB60 |= 0x100;
     D_807444E4 = map;
@@ -336,19 +336,19 @@ void func_805FF4D8(s32 map, s32 exitIndex) {
     func_805FF5A0(map);
 }
 
-void func_805FF544(void) {
+void mapCheckAutoTransition(void) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
         if (gCurrentMap == D_807447A0[i].unk0) {
-            func_805FF378(D_807447A0[i].unk4, D_807447A0[i].unk8);
+            mapRequestTransition(D_807447A0[i].unk4, D_807447A0[i].unk8);
             return;
         }
     }
 }
 
 void func_805FF5A0(void) {
-    s32 idx = func_80600080();
+    s32 idx = mapFindSlotIndex();
 
     if (idx != -1) {
         D_8076AEE2 = D_8076A160[idx].unk2;
@@ -361,12 +361,12 @@ void func_805FF5A0(void) {
     }
 }
 
-void func_805FF628(s32 map, s32 exitIndex) {
-    func_805FFEF8(gCurrentMap);
-    func_805FF378(map, exitIndex);
+void mapTransitionExitCurrent(s32 map, s32 exitIndex) {
+    mapSlotFree(gCurrentMap);
+    mapRequestTransition(map, exitIndex);
 }
 
-void func_805FF660(s8 count) {
+void mapSetTransitionExtraCounter(s8 count) {
     D_80744820 = count;
 }
 
@@ -406,7 +406,7 @@ void func_805FF670(void) {
     }
 }
 
-s32 func_805FF800(s32 *outMap, s32 *outExitIndex) {
+s32 mapFindPreviousSavedMap(s32 *outMap, s32 *outExitIndex) {
     s32 found = 0;
     s32 i = 0;
 
@@ -425,27 +425,27 @@ s32 func_805FF800(s32 *outMap, s32 *outExitIndex) {
     return found;
 }
 
-void func_805FF898(void) {
+void mapTransitionToPreviousOrExit(void) {
     s32 targetMap;
     s32 exitIndex;
 
-    if (func_805FF800(&targetMap, &exitIndex) != 0) {
-        func_805FFEF8(gCurrentMap);
-        func_805FF378(targetMap, exitIndex);
+    if (mapFindPreviousSavedMap(&targetMap, &exitIndex) != 0) {
+        mapSlotFree(gCurrentMap);
+        mapRequestTransition(targetMap, exitIndex);
     } else if (func_807143E8() != 0) {
-        func_805FF378(0xF, 0);
+        mapRequestTransition(0xF, 0);
     }
 }
 
-void func_805FF8F8(void) {
+void mapTransitionToMenuOrPrevious(void) {
     if (func_8071441C() != 0) {
-        func_805FF378(0x50, 0);
+        mapRequestTransition(0x50, 0);
     } else {
-        func_805FF898();
+        mapTransitionToPreviousOrExit();
     }
 }
 
-s32 func_805FF938(s16 target) {
+s32 mapFindSlotByMap(s16 target) {
     s32 i = 0;
     s32 found = 0;
     while (i < 18 && !found) {
@@ -498,7 +498,7 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
         }
     }
     if (found) {
-        func_805FFEF8(gCurrentMap);
+        mapSlotFree(gCurrentMap);
     } else {
         found = 0;
         i = 0;
@@ -548,7 +548,7 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
         D_807FD570 = 0;
     }
     D_8076A160[i].unk0 = k;
-    func_805FF378(map, exitIndex);
+    mapRequestTransition(map, exitIndex);
 }
 
 s32 func_805FFE50(s32 map, s16 recordId, s16 value) {
@@ -573,7 +573,7 @@ s32 func_805FFE50(s32 map, s16 recordId, s16 value) {
     return 1;
 }
 
-void func_805FFEF8(s32 map) {
+void mapSlotFree(s32 map) {
     s32 found = 0;
     s32 i = 0;
 
@@ -598,7 +598,7 @@ void func_805FFEF8(s32 map) {
     }
 }
 
-void func_805FFFC8(void) {
+void mapSlotArrayResetAll(void) {
     Struct8076A160 *ptr, *end;
     ptr = D_8076A160, end = (Struct8076A160 *)&D_8076AEE0;
     do {
@@ -615,12 +615,12 @@ void func_805FFFC8(void) {
     } while (ptr != end);
 }
 
-void func_80600044(s32 index) {
-    func_805FFFC8();
-    func_805FF378(D_80744734[index], 1);
+void mapTransitionToWorldHub(s32 index) {
+    mapSlotArrayResetAll();
+    mapRequestTransition(D_80744734[index], 1);
 }
 
-s32 func_80600080(s32 map) {
+s32 mapFindSlotIndex(s32 map) {
     Struct8076A160 *ptr;
     s32 i;
 

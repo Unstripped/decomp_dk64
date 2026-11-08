@@ -314,7 +314,7 @@ void flagSet(s16, s32, s32);
 void raceSetIntroCutscenePhase(void *);
 s32 raceCheckLapCompletionThreshold(void *, s32, s32);
 void raceUpdateLapAndWaypointTracker(void *);
-void func_805FF544(void);
+void mapCheckAutoTransition(void);
 void csModelStateSetFirstByte(s16, s16);
 f32 sqrtf(f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
@@ -633,7 +633,7 @@ void raceOpponentBehaviourUpdate(void) {
                 camStartPath(gCurrentActor, tmp, 1);
                 currentActorClearFlag();
             } else {
-                func_805FF544();
+                mapCheckAutoTransition();
             }
             controller->unk35 = controller->unk35 + 1;
         }
@@ -691,7 +691,7 @@ void raceOpponentBehaviourUpdate(void) {
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
                 if (flagGet(config->unk18.h.lo, 0) != 0) {
-                    func_805FF544();
+                    mapCheckAutoTransition();
                 } else {
                     hudSpawnTextScreen(1);
                 }

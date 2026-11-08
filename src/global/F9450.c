@@ -591,7 +591,7 @@ void func_806F5498(void) {
     }
 }
 
-s32 func_805FF030(u8, s32);
+s32 mapGetHubWorldIndex(u8, s32);
 s32 flagGridIndex(s32, s32, u8);
 s32 func_806C9974(u8, s8);
 void eepromSavePlayerData(void);
@@ -633,7 +633,7 @@ u8 arg2;
         temp_v0 = func_806F544C(D_80753EF2[temp_v0 * 0x14], arg1, arg2);
         switch (arg1) {
         case 0xDD: case 0xDE: case 0xDF: case 0xE0: case 0xE1:
-            flagSet((s16) flagGridIndex(0x1D5, func_805FF030(D_8076A0AB, 1), gPlayerCharacterId[(u8)arg0]), 1, 0);
+            flagSet((s16) flagGridIndex(0x1D5, mapGetHubWorldIndex(D_8076A0AB, 1), gPlayerCharacterId[(u8)arg0]), 1, 0);
         case 0x74: case 0x288:
             slotQueueAddValue(temp_v0, arg0, 1);
             shouldComplete = 1;
@@ -913,7 +913,7 @@ extern s32 camDistance3D(s32, s32, s32, s32, s32, s32);
 extern s32 func_8063C2A8(s16);
 extern s32 gridCheckNodeCondition(s16, u8, u16);
 extern void modelSlotFreeNestedBuffer(s32, u8);
-extern s32 func_805FF030(u8, s32);
+extern s32 mapGetHubWorldIndex(u8, s32);
 extern void func_8060E430(u16, u8, u8);
 extern void func_806F58A0(u8, s16, F9N2At58 *);
 extern void func_806F5A48(u8, s16, F9N2At58 *, u16);
@@ -937,7 +937,7 @@ void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
                 arg0->unkE = 1;
                 modelSlotFreeNestedBuffer(arg0->unk0, 1);
                 if (arg0->unk6 != -1) {
-                    func_8060E430((u16) arg0->unk6, 1, func_805FF030(D_8076A0AB, 1));
+                    func_8060E430((u16) arg0->unk6, 1, mapGetHubWorldIndex(D_8076A0AB, 1));
                 }
                 if (gPlayerCount == 1) {
                     if (D_807FD734 == NULL) {

@@ -141,13 +141,13 @@ void flagSet(s16 flag, u8 val, u8 bank) {
 }
 
 extern FlagTableEntry D_807FDCD0[];
-s32 func_805FF938(s16);
+s32 mapFindSlotByMap(s16);
 
 void func_807313BC(void) {
     s32 i;
 
     for (i = 0; i < 0x18; i++) {
-        if (func_805FF938(D_807FDCD0[i].unk0) == 0) {
+        if (mapFindSlotByMap(D_807FDCD0[i].unk0) == 0) {
             D_807FDCD0[i].unk7 = 0;
         }
     }

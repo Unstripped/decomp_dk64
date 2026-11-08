@@ -196,7 +196,7 @@ void actorSpawnNodeEntryAtActor(s32, s16);
 void actorPlaceAttachedChildren(s32);
 f32 func_80612794(s16);
 f32 func_80612790(s16);
-void func_805FF544(void);
+void mapCheckAutoTransition(void);
 void hudSpawnTextScreen(s32);
 
 void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 initialCutsceneId, s32 rewardCutsceneId, s32 targetCount, s32 rewardFlag) {
@@ -280,7 +280,7 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
             func_806C43A8();
             if (rewardCutsceneId == R1C8aC->unk13) {
                 if (flagGet(rewardFlag, 0) != 0 || slotQueueGetValue(0xB, 0) >= targetCount) {
-                    func_805FF544();
+                    mapCheckAutoTransition();
                 } else {
                     hudSpawnTextScreen(1);
                 }
@@ -913,7 +913,7 @@ void actorDespawn(Actor *);
 void actorScriptStartByIndex(Actor *, s32);
 s32 randomNonNegative(void);
 void func_807149B8(s32);
-void func_8071C818(void);
+void effectShrinkFadeMatrixUpdate(void);
 void func_8071498C(void (*)(void));
 void func_80714CC0(void *, f32, f32, f32, f32);
 f32 sqrtf(f32);
@@ -947,7 +947,7 @@ void func_806C5C20(void) {
     actorMoveWithinZone(1, D_807FDC94->x, D_807FDC94->z, 0x2C9, 0.0f);
     if (!(gFrameCounter & 3)) {
         func_807149B8(1);
-        func_8071498C(func_8071C818);
+        func_8071498C(effectShrinkFadeMatrixUpdate);
         func_80714CC0(&D_8071FB08, 1.6f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
     if (!(gActivePlayerState->stateFlags & 0x8000)) {

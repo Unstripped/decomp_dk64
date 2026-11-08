@@ -22,7 +22,7 @@ typedef struct R1C2CB_Actor {
 
 void behaviourFrameBegin(void);
 void actorApplyGravity(void);
-u8 func_805FF0C8(void);
+u8 mapHasCollectedSufficientItems(void);
 void func_80724CA4(s32, s32);
 void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
@@ -32,7 +32,7 @@ u8 func_806BDD90(void) {
 
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        if (func_805FF0C8() != 0) {
+        if (mapHasCollectedSufficientItems() != 0) {
             gCurrentActor->state = 0x40;
         } else {
             R1C2CBA->unk130 = 0x3C;
@@ -99,7 +99,7 @@ void func_806BDEC8(void) {
         case 3:
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
-            } else if (func_805FF0C8() == 0) {
+            } else if (mapHasCollectedSufficientItems() == 0) {
                 gCurrentActor->state = 0;
                 gCurrentActor->unk155[0] = 0;
             }
@@ -134,7 +134,7 @@ extern u16 D_807FC930[];
 extern u8 D_807FC950[][0x5E];
 extern void effectConvergeOnNodeUpdate(void);
 
-u8 func_805FF030(u8, s32);
+u8 mapGetHubWorldIndex(u8, s32);
 s32 slotQueueGetValue(s32, s32);
 void slotQueueCancel(s32, s32);
 void slotQueueAddValue(s32, s32, s32, void *);
@@ -161,7 +161,7 @@ void func_806BE09C(void) {
     s32 i;
 
     sub = D_807FBB4C->unk174;
-    idx = func_805FF030(D_8076A0AB, 0);
+    idx = mapGetHubWorldIndex(D_8076A0AB, 0);
     ratio = (f32)D_807FC930[idx] / (f32)D_807446C0[idx];
     if (func_806BDD90() == 1) {
         R1C2CBS->unk2C = slotQueueGetValue(0, 0);

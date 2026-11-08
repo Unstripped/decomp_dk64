@@ -1924,7 +1924,7 @@ void func_807149FC(s32);
 void func_80714A28(s32);
 s32 func_80714CC0(void *, f32, f32, f32, f32);
 void effectPuffRiseUpdate(void);
-void func_80717404(void);
+void effectConfettiPhysicsUpdate(void);
 void func_80717D4C(void);
 void effectWobbleRiseUpdate(void);
 void actorSpawnEffectChild(f32, f32, f32, f32, f32, void *, u8);
@@ -2061,7 +2061,7 @@ void zoneEntrySpawnEffect(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
                 ang6 = mathAngleBetweenPoints2D((f32)ex6, (f32)ez6, (f32)x, (f32)z);
                 func_807149B8(1);
                 func_807149FC(idx6[sel6]);
-                func_8071498C(func_80717404);
+                func_8071498C(effectConfettiPhysicsUpdate);
                 func_80714950((ang6 << 16) + 3);
                 func_80714CC0(((void **)&fx6)[sel6], (f32)((randomNonNegative() >> 0xF) % 1000 * 0.0005 + 0.2), (f32)x, (f32)(y + 10), (f32)z);
             }

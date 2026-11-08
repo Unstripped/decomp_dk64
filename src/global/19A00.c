@@ -2030,9 +2030,9 @@ void func_80714C08(void *, f32, Actor *, u8, s32);
 void *func_80714CC0(void *, f32, f32, f32, f32);
 void effectSpawnBone(Actor *, s32, f32, f32, f32, f32, s32);
 void actorGetNodePosOrPosition(Actor *, s32 *, f32 *, f32 *);
-extern void func_8071B1AC(void);
-extern void func_8071B24C(void);
-extern void func_8071B44C(void);
+extern void effectDownwardDriftUpdate(void);
+extern void effectUpwardDriftUpdate(void);
+extern void effectSineDriftUpdate(void);
 extern u8 D_8071FE08[];
 extern u8 D_8071FF18[];
 extern void effectOrbitSourceUpdate(void);
@@ -2079,7 +2079,7 @@ void func_80618430(Actor *arg0) {
     u8 sp27;
 
     scriptReadU8(&sp27);
-    func_8071498C(func_8071B1AC);
+    func_8071498C(effectDownwardDriftUpdate);
     func_80714998(2);
     func_80714950(((ActorEffectView *)arg0)->unkE6);
     func_807149B8(1);
@@ -2099,7 +2099,7 @@ void func_806184BC(Actor *arg0) {
         func_807149FC(1);
         func_80714CC0(D_8071FE08, 0.7f, arg0->x, arg0->y + 7.0f, arg0->z);
     } else {
-        func_8071498C(func_8071B24C);
+        func_8071498C(effectUpwardDriftUpdate);
         func_80714998(2);
         func_80714950((((ActorEffectView *)arg0)->unkE6 + 0x800) & 0xFFF);
         func_807149B8(1);
@@ -2112,7 +2112,7 @@ void func_8061859C(Actor *arg0) {
     u8 sp27;
 
     scriptReadU8(&sp27);
-    func_8071498C(func_8071B44C);
+    func_8071498C(effectSineDriftUpdate);
     func_80714998(2);
     func_80714950(((ActorEffectView *)arg0)->unkEE);
     func_807149B8(1);
@@ -2122,7 +2122,7 @@ void func_8061859C(Actor *arg0) {
 extern s32 D_807FBB68;
 extern u8 D_8072006C;
 extern u8 D_80720B58;
-void func_8071A440(void);
+void effectTimedLightIntensityFade(void);
 void effectFloorFallUpdate(void);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, s16, s16, s32);
 
@@ -2143,7 +2143,7 @@ void func_80618608(Actor *arg0) {
     }
     sfxPlayFromActorWithAltitudeCheck(arg0, 0x8A, 0x96, 0x7F, 0x32);
     func_80714950((s32)arg0);
-    func_8071498C(func_8071A440);
+    func_8071498C(effectTimedLightIntensityFade);
     func_80714C08(&D_8072006C, 0.4f, arg0, sp3F, 2);
 }
 

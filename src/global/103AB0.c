@@ -1294,7 +1294,7 @@ extern s16 D_8076A0AA;
 extern u8 D_80750AC0;
 extern ScreenFadeChannels D_80754CC8;
 
-u8 func_805FF000(u8);
+u8 mapGetWorldIndex(u8);
 u8 func_80600454(s16, u8 *);
 s32 textTableGetString(s32, s32, s32);
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
@@ -1317,7 +1317,7 @@ Gfx *screenFadeUpdate(Gfx *arg0, u8 arg1) {
     if (gScreenFadeRate != 0.0f) {
         gScreenFadeProgress += gScreenFadeRate * (arg1 == 2 ? 2 : 1);
         if (gScreenFadeProgress < 0.0f) {
-            func_805FF000(D_8076A0AB);
+            mapGetWorldIndex(D_8076A0AB);
             if (!(D_8076A0B1 & 0x20) && func_80600454(D_8076A0AA, &sp5B)) {
                 textSpawnMarkerChecked(1, 0, 0x64, textTableGetString(0x23, sp5B, 1), 0, 0x28, 6, 8);
                 D_8076A0B1 |= 0x20;

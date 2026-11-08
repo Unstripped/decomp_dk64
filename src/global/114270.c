@@ -265,7 +265,7 @@ void func_8071498C(void *);
 void func_80714A58(s16);
 void func_80714A28(s16);
 void func_80714CC0(s32, f32, f32, f32, f32);
-void func_80718380();
+void effectRandomYRotDecalUpdate();
 
 #define ANGA_CAM ((AngACamState *)gCamActor->unk174)
 #define ANGA_A8 (*(f32 *)&D_807FBB4C->unkA8)
@@ -280,9 +280,9 @@ s32 func_8070FCCC(AngAFcccView *particle) {
     f32 jitter;
 
     if (ANGA_CAM->unkFA != 0 && ANGA_PLAYER->unk214 < ANGA_CAM->unk90 + 3.0f) {
-        bound = D_807FBB4C->unkAC;
+        bound = D_807FBB4C->waterY;
     } else {
-        bound = ANGA_DIST(ANGA_A8) < ANGA_DIST(D_807FBB4C->unkAC) ? ANGA_A8 : D_807FBB4C->unkAC;
+        bound = ANGA_DIST(ANGA_A8) < ANGA_DIST(D_807FBB4C->waterY) ? ANGA_A8 : D_807FBB4C->waterY;
     }
     effectSpriteParticleTrackCamera((M114aAngle *)particle);
     effectSpriteParticleWrapX((M114aAngle *)particle);
@@ -305,7 +305,7 @@ s32 func_8070FCCC(AngAFcccView *particle) {
                 jitter = (randomNonNegative() >> 15) % 0x82;
                 if ((D_807FBB68 & 8) == 0) {
                     func_807149B8(1);
-                    func_8071498C(&func_80718380);
+                    func_8071498C(&effectRandomYRotDecalUpdate);
                     func_80714A58(particle->unk0);
                     func_80714A28(4);
                     func_80714CC0((s32)&D_8071FEF4, 0.3f, ANGA_PLAYER->unk210 - sinApprox(angle) * jitter, (f32)((f64)bound + 1.0), ANGA_PLAYER->unk218 - cosApprox(angle) * jitter);

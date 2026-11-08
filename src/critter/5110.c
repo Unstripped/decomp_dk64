@@ -44,8 +44,8 @@ void sfxAllocateChannel(s32, f32);
 void flagSet(s16, s32, s32);
 s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void func_805FF800(s32 *, s32 *);
-void func_805FF628(s32, s32);
+void mapFindPreviousSavedMap(s32 *, s32 *);
+void mapTransitionExitCurrent(s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 Gfx *critterRenderCenterImage(Gfx *, Struct_807FBB40 *);
 
@@ -183,8 +183,8 @@ void critterBattleArenaUpdate(void) {
                 tmp = D_80029FA4;
                 D_807FCC44 = tmp;
                 slotQueueSetShownValue(4, 0, tmp);
-                func_805FF800(&returnMap, &returnExit);
-                func_805FF628(returnMap, 0);
+                mapFindPreviousSavedMap(&returnMap, &returnExit);
+                mapTransitionExitCurrent(returnMap, 0);
             }
         }
         break;

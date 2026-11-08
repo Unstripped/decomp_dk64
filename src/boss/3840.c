@@ -437,10 +437,10 @@ block_16:
 }
 
 
-void func_805FF8F8(void);
+void mapTransitionToMenuOrPrevious(void);
 
 void bossClearMinigame(void) {
-    func_805FF8F8();
+    mapTransitionToMenuOrPrevious();
 }
 
 typedef struct {
@@ -571,7 +571,7 @@ extern s32 gCurrentMap;
 void slotQueueSetDisplayMode(s32, s32, s32);
 void healthRefill(u8);
 void sfxStopChannel(s32, s32);
-void func_80712524(s32, s32);
+void menuTransitionToMap(s32, s32);
 void n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
 void n_alSndpPostEvent(s32, s32, s16);
 void func_80724A20(void);
@@ -612,7 +612,7 @@ void bossRoundFrame(u8 *script) {
                 sfxStopChannel(0x2B, 0);
                 healthRefill(0);
                 flagSet(0x55, 0, 2);
-                func_80712524(0xD7, 0);
+                menuTransitionToMap(0xD7, 0);
                 D_80750AD4 = 0;
                 BA40->unk154 = 0x6A;
                 BA40->unk155 = 0;
@@ -683,7 +683,7 @@ void bossRoundFrame(u8 *script) {
                     BA40->unk154 = 0x6A;
                     BA40->unk155 = 0;
                     flagSet(0x5B, 1, 2);
-                    func_80712524(0xD7, 1);
+                    menuTransitionToMap(0xD7, 1);
                     D_80750AD4 -= 1;
                 }
             } else {

@@ -64,7 +64,7 @@ extern u8 D_80720120;
 extern u8 D_80720340;
 extern u8 D_8072038C;
 
-s32 func_805FF018(s32, s32);
+s32 mapGetConfigValue(s32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 randomNonNegative(void);
 void actorScriptStart();
@@ -101,8 +101,8 @@ void func_807149B8(u32);
 void func_807149FC(s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void effectRadialSprayUpdate(void);
-void func_8071B89C(void);
-void func_8071BB14(void);
+void effectPuffExpandFadeUpdate(void);
+void effectSpinBillboardingUpdate(void);
 s32 flagGet(s16, s32);
 void flagSet(s16, s32, s32);
 
@@ -1242,7 +1242,7 @@ void func_8067DF44(f32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
         sfxPlayAtPositionPooled(arg0, arg1, arg2, 0xF6, 0xFF, 0x7F, 0x19, 0x1E, 0.3f, 0);
     }
     func_807149B8(1);
-    func_8071498C(func_8071B89C);
+    func_8071498C(effectPuffExpandFadeUpdate);
     func_80714CC0(&D_80720120, 0.0f, arg0, arg1 + 5.0f, arg2);
     sp80 = (f64) arg3;
     sp7C = sp80 * 1.5;
@@ -1253,13 +1253,13 @@ void func_8067DF44(f32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
         func_8071496C(4);
         func_807149B8(1);
         func_807149FC(1);
-        func_8071498C(func_8071BB14);
+        func_8071498C(effectSpinBillboardingUpdate);
         func_80714CC0(&D_80720340, sp7C, arg0 + temp_fs1, arg1 + temp_fs2, arg2 + temp_fs0);
     }
     func_8071496C(4);
     func_807149B8(1);
     func_807149FC(1);
-    func_8071498C(func_8071BB14);
+    func_8071498C(effectSpinBillboardingUpdate);
     func_80714CC0(&D_80720340, sp7C, arg0, arg1, arg2);
     if (arg4 != 0) {
         for (var_s0 = 0; var_s0 != 12; var_s0++) {
@@ -2206,7 +2206,7 @@ extern u8 D_8076A0B1;
 extern u8 D_807FBD70;
 extern u8 D_807FBDC4;
 extern u8 D_8071FC58[];
-extern s32 func_80716FB4;
+extern s32 effectZSpinMatrixUpdate;
 void effectOrbitXZUpdate();
 
 s32 func_8073195C(s16);
@@ -2330,7 +2330,7 @@ void tagBarrelActorUpdate(void) {
             func_807149B8(1);
             func_80714A28(4);
             if (gCurrentActor->state == 0) {
-                func_8071498C(&func_80716FB4);
+                func_8071498C(&effectZSpinMatrixUpdate);
                 func_80714CC0(D_8071FC58, 0.5f, coord[2], coord[1], coord[0]);
             } else {
                 func_80714950((s32)(gCurrentActor->unk4->unk34 * 100.0f) + (sub->unk8 << 16));
@@ -3002,7 +3002,7 @@ void tagBarrelSpawnKongs(TagBarrelSpawnArgs *arg0) {
     gSpawnedActor->z = gCurrentActor->z + func_80612790(gCurrentActor->yaw) * 35.0f;
 
     for (i = 0; i < 5; i++) {
-        if (flagGet(func_805FF018(gCurrentActor->actorType, i), 0)) {
+        if (flagGet(mapGetConfigValue(gCurrentActor->actorType, i), 0)) {
             actorType = 0x13C;
             model = ((KongActionEntry *)D_8074E814)[i].unk0;
         } else {
@@ -3264,7 +3264,7 @@ void tagBarrelStartSelection(struct TagBarrelData *arg0_in) {
                 sfxAllocateChannel(0x65, 1.0f);
                 sfxSetChannelParam(0x65, 0x7E - D_8074E848[arg0->unk6], 1);
             }
-            flagSet(func_805FF018(gCurrentActor->actorType, arg0->unk6), 1, 0);
+            flagSet(mapGetConfigValue(gCurrentActor->actorType, arg0->unk6), 1, 0);
             tagBarrelSpawnKongs((TagBarrelSpawnArgs *)arg0);
             camSaveYaw(sp30->unk104);
             arg0->unk38 = sp34->yaw;
@@ -3551,7 +3551,7 @@ void tagBarrelInitUnlockedKongs(Actor *arg0) {
     s32 i;
 
     for (i = 0; i < 5; i++) {
-        if (flagGet(func_805FF018(arg0->actorType, i), 0)) {
+        if (flagGet(mapGetConfigValue(arg0->actorType, i), 0)) {
             func_8068A764(arg0, D_8074E814[i].unk4);
         }
     }
