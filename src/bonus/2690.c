@@ -229,7 +229,7 @@ void actorScriptStart();
 void scriptSetActorRampTarget(void *, f32, f32);
 
 Gfx *bonusRenderCrosshair(Gfx *gdl, Actor *actor) {
-    Struct_7548 *bonusExt = actor->unk174;
+    Struct_7548 *bonusExt = actor->customState;
     s16 crosshairX = bonusExt->unk1E;
     s16 crosshairY = bonusExt->unk20;
     s32 pad;
@@ -255,7 +255,7 @@ typedef struct {
     u8 unk25;
 } BonusA_6940_178;
 Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *actor) {
-    Struct_7548 *bonusExt = actor->unk174;
+    Struct_7548 *bonusExt = actor->customState;
     BonusA_6940_178 *targetExt = ((BonusActorExt *)actor)->unk178;
     s32 pad1[4];
     s32 textStr;
@@ -331,7 +331,7 @@ s32 gfxResourceCreate(s32, s32, s32, f32, f32, f32);
 void gfxResourceFree(s16);
 
 Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *actor) {
-    Struct_7548 *bonusExt = actor->unk174;
+    Struct_7548 *bonusExt = actor->customState;
     BonusA_CF0_List *popupList = ((BonusActorExt *)actor)->unk178;
     s32 hasSetupGfx = 0;
     s32 textX;
@@ -408,7 +408,7 @@ void bonusSpawnTarget(s16 x, s16 y, s16 z, u8 slotIndex, Struct_71B4 *gameCtx) {
         targetType = 0;
     }
     if (actorSpawn(0xBA, targetType ? 0x32 : 0x33) != 0) {
-        targetExt = gSpawnedActor->unk174;
+        targetExt = gSpawnedActor->customState;
         actorScriptStart(gSpawnedActor, targetType ? 0x211 : 0x20F);
         scriptSetActorRampTarget(gSpawnedActor, gameCtx->unk2C, 0.0f);
         gSpawnedActor->x = x;
@@ -461,7 +461,7 @@ void bonusFireProjectile(f32 targetX, f32 targetY, f32 targetZ) {
 }
 
 u8 bonusAimAndFire(f32 aimX, f32 aimY, f32 aimZ) {
-    Struct_7548 *bonusExt = gCurrentActor->unk174;
+    Struct_7548 *bonusExt = gCurrentActor->customState;
     f32 screenX;
     f32 screenY;
     s16 ammoIndex;
@@ -538,12 +538,12 @@ void bonusEndWin(u8, u8);
 void actorSetStateTwo(void *);
 void sfxAllocateChannel(s32, f32);
 void hudSpawnCountdownTimer(s32, s32, u8);
-void func_8070D8C0(void *, s32, s32);
+void resQueueAttachActor(void *, s32, s32);
 
 void renderCallbacksRegister(void *, void *, s32);
 
 void bonusTargetGameUpdate(void) {
-    Struct_7548 *t3c = gCurrentActor->unk174;
+    Struct_7548 *t3c = gCurrentActor->customState;
     Struct_71B4 *t0 = ((BonusActorExt *)gCurrentActor)->unk178;
     Point3f *p;
     f32 ang;
@@ -613,7 +613,7 @@ void bonusTargetGameUpdate(void) {
         }
         switch (gCurrentActor->state) {
         case 0:
-            if (((Actor *)gCurrentActor->unk11C)->state == 5) {
+            if ((gCurrentActor->parentActor)->state == 5) {
                 gCurrentActor->state = 0xFF;
             }
             if (t0->unk22 == 0) {
@@ -628,7 +628,7 @@ void bonusTargetGameUpdate(void) {
                     bonusSpawnTarget(p->x, p->y, p->z, idx, t0);
                 }
             }
-            if (((Actor *)gCurrentActor->unk11C)->state == 4 && ((Actor *)gCurrentActor->unk11C)->unk155[0] != 0xFF) {
+            if ((gCurrentActor->parentActor)->state == 4 && (gCurrentActor->parentActor)->unk155[0] != 0xFF) {
                 gCurrentActor->state = 0xFE;
             }
             break;
@@ -649,13 +649,13 @@ void bonusTargetGameUpdate(void) {
             if (gGameMode != 1) {
                 t3c->unk0++;
                 hudSpawnCountdownTimer(0xDC, 0x2A, t0->unk29);
-                func_8070D8C0(gCurrentActor, 0, 1);
+                resQueueAttachActor(gCurrentActor, 0, 1);
             }
             break;
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
                 t3c->unk0 = 1;
-                actorSetStateTwo((void *)gCurrentActor->unk11C);
+                actorSetStateTwo((void *)gCurrentActor->parentActor);
                 bonusResetAmmo(t3c);
                 sfxAllocateChannel(8, 1.0f);
             }
@@ -681,7 +681,7 @@ typedef struct {
 void bonusPopupSpawnActors(BonusB_Sub178 *);
 
 void bonusPopupGameUpdate(void) {
-    Struct_7548 *t0 = gCurrentActor->unk174;
+    Struct_7548 *t0 = gCurrentActor->customState;
     BonusB_Sub178 *s38 = ((BonusActorExt *)gCurrentActor)->unk178;
     Point3f *p;
     f32 y;
@@ -757,8 +757,8 @@ void bonusPopupGameUpdate(void) {
         case 1:
             if (t0->unk22) {
                 Actor *e = s38->unk0[t0->unk22 - 1];
-                if (((Struct_174 *)e->unk174)->unk1C == 0) {
-                    ((Struct_174 *)e->unk174)->unk1C = 6;
+                if (((Struct_174 *)e->customState)->unk1C == 0) {
+                    ((Struct_174 *)e->customState)->unk1C = 6;
                 }
             }
             break;
@@ -769,10 +769,10 @@ void bonusPopupGameUpdate(void) {
         }
         switch (gCurrentActor->state) {
         case 0:
-            if (((Actor *)gCurrentActor->unk11C)->state == 5) {
+            if ((gCurrentActor->parentActor)->state == 5) {
                 gCurrentActor->state = 0xFF;
             }
-            if (((Actor *)gCurrentActor->unk11C)->state == 4 && ((Actor *)gCurrentActor->unk11C)->unk155[0] != 0xFF) {
+            if ((gCurrentActor->parentActor)->state == 4 && (gCurrentActor->parentActor)->unk155[0] != 0xFF) {
                 gCurrentActor->state = 0xFE;
             }
             break;
@@ -799,13 +799,13 @@ void bonusPopupGameUpdate(void) {
             if (gGameMode != 1) {
                 t0->unk0++;
                 hudSpawnCountdownTimer(0xDC, 0x2A, s38->unk1A);
-                func_8070D8C0(gCurrentActor, 0, 2);
+                resQueueAttachActor(gCurrentActor, 0, 2);
             }
             break;
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
                 t0->unk0 = 1;
-                actorSetStateTwo((void *)gCurrentActor->unk11C);
+                actorSetStateTwo((void *)gCurrentActor->parentActor);
                 bonusResetAmmo(t0);
                 sfxAllocateChannel(8, 1.0f);
             }
@@ -819,7 +819,7 @@ void bonusPopupGameUpdate(void) {
 }
 
 void bonusTargetUpdate(void) {
-    Struct_174 *sub = gCurrentActor->unk174;
+    Struct_174 *sub = gCurrentActor->customState;
     Struct_71B4 *p = sub->unk0;
     s32 step;
 
@@ -876,7 +876,7 @@ void bonusPopupSpawnActors(BonusB_Sub178 *popupState) {
 
     for (i = 1; i != 7; i++) {
         if (actorSpawn(0x12C, 0x15) != 0) {
-            s2 = (BonusB_Sub8648 *)gSpawnedActor->unk174;
+            s2 = (BonusB_Sub8648 *)gSpawnedActor->customState;
             s2->unk0 = gCurrentActor;
             s2->unk11 = (((randomNonNegative() >> 0xF) % 0x7FFF) % (popupState->unk1C - popupState->unk1B + 1)) + popupState->unk1B;
             s3 = *D_807F5FD4 + i;
@@ -889,7 +889,7 @@ void bonusPopupSpawnActors(BonusB_Sub178 *popupState) {
             popupState->unk0[i - 1] = gSpawnedActor;
             s5 = gSpawnedActor;
             if (actorSpawn(0x12D, 0x16) != 0) {
-                BonusB_Sub8648b *v0 = (BonusB_Sub8648b *)gSpawnedActor->unk174;
+                BonusB_Sub8648b *v0 = (BonusB_Sub8648b *)gSpawnedActor->customState;
                 v0->unk0 = s5;
                 v0->unk6 = i - 1;
                 s2->unk4 = gSpawnedActor;
@@ -1105,7 +1105,7 @@ void actorApplyVelocity(void *);
 void actorUpdateFloorContactAndTilt(void *, f32);
 
 void bonusTurtleTroubleTurtleUpdate(void) {
-    BonusB_Sub8E3C *t0 = gCurrentActor->unk174;
+    BonusB_Sub8E3C *t0 = gCurrentActor->customState;
     BonusB_Par8E3C *p40 = t0->unk0->unk174;
     f32 temp;
     f64 v;
@@ -1192,7 +1192,7 @@ void bonusLightFlashSpawnTargets(void *);
 Gfx *func_80029B9C(Gfx *, Actor *);
 
 void bonusLightFlashGameUpdate(void) {
-    Struct_7548 *t1 = gCurrentActor->unk174;
+    Struct_7548 *t1 = gCurrentActor->customState;
     BonusLightFlashState *t0 = ((BonusActorExt *)gCurrentActor)->unk178;
     Point3f *p;
     f32 y;
@@ -1346,7 +1346,7 @@ void bonusLightFlashGameUpdate(void) {
             if (t0->unk14 == 0) {
                 gCurrentActor->state = 2;
             }
-            if (((Actor *)gCurrentActor->unk11C)->state == 5) {
+            if ((gCurrentActor->parentActor)->state == 5) {
                 gCurrentActor->state = 1;
             }
             break;
@@ -1367,13 +1367,13 @@ void bonusLightFlashGameUpdate(void) {
             if (gGameMode != 1) {
                 t1->unk0++;
                 hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)t0)[0xF]);
-                func_8070D8C0(gCurrentActor, 0, 9);
+                resQueueAttachActor(gCurrentActor, 0, 9);
             }
             break;
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
                 t1->unk0 = 1;
-                actorSetStateTwo((void *)gCurrentActor->unk11C);
+                actorSetStateTwo((void *)gCurrentActor->parentActor);
                 bonusResetAmmo(t1);
                 sfxAllocateChannel(8, 1.0f);
             }
@@ -1415,14 +1415,14 @@ Gfx *func_80029B9C(Gfx *gdl, Actor *srcActor) {
     BonusC_9B9C_A *p1;
     BonusC_9B9C_C *p2;
 
-    p2 = (void *)srcActor->unk174;
+    p2 = (void *)srcActor->customState;
     p0 = ((BonusActorExt *)srcActor)->unk178;
     if (p2) { // FAKE: empty guard steers regalloc
     }
     p1 = ((BonusActorExt *)srcActor)->unk178;
     actor = srcActor;
 
-    if (actor->actorType != 0x7E && actor->state == 0 && ((Struct_7548 *)actor->unk174)->unk26 != 0) {
+    if (actor->actorType != 0x7E && actor->state == 0 && ((Struct_7548 *)actor->customState)->unk26 != 0) {
         gdl = bonusRenderCrosshair(gdl, (void *)srcActor);
     }
     gSPDisplayList(gdl++, &D_1000118);
@@ -1470,7 +1470,7 @@ void bonusLightFlashSpawnTargets(void *ownerActor) {
 
     for (i = 1; i != 7; i++) {
         if (actorSpawn(0x147, X[i - 1]) != 0) {
-            BonusC_9E54_S *subExt = (BonusC_9E54_S *)gSpawnedActor->unk174;
+            BonusC_9E54_S *subExt = (BonusC_9E54_S *)gSpawnedActor->customState;
             s16 *actorProp = ((BonusActorExt *)gSpawnedActor)->unk17C;
             Point3f *pt;
             f32 scale;
@@ -1490,9 +1490,9 @@ void bonusLightFlashSpawnTargets(void *ownerActor) {
                 actorScriptStart(gSpawnedActor, D_8002D8D4[i - 1]);
             }
             scale = (i != 6) ? 0.25f : 0.04f;
-            gSpawnedActor->unk4->unk34 = scale;
-            gSpawnedActor->unk4->unk38 = scale;
-            gSpawnedActor->unk4->unk3C = scale;
+            gSpawnedActor->sub4->scaleX = scale;
+            gSpawnedActor->sub4->scaleY = scale;
+            gSpawnedActor->sub4->scaleZ = scale;
         }
     }
 }
@@ -1509,7 +1509,7 @@ void bonusLightFlashTargetUpdate(void) {
     s8 isHit;
     s8 flags;
 
-    subExt = (Struct_Sp50 *)gCurrentActor->unk174;
+    subExt = (Struct_Sp50 *)gCurrentActor->customState;
     owner = subExt->unk0;
     base = (Struct_T0 *)((BonusActorExt *)owner)->unk178;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -1538,7 +1538,7 @@ void bonusLightFlashTargetUpdate(void) {
         if (flags & 0x80) {
             base->unk8[subExt->unk4] = flags & 0x7F;
             actorScriptStart(gCurrentActor, D_8002D8D4[subExt->unk4]);
-        } else if (lightR < 0.05f && ((Struct_4 *)gCurrentActor->unk4)->unk68 != 0) {
+        } else if (lightR < 0.05f && ((Struct_4 *)gCurrentActor->sub4)->unk68 != 0) {
             actorScriptStart(gCurrentActor, 0);
         }
         if (isHit != 0) {
@@ -1555,7 +1555,7 @@ void bonusLightFlashTargetUpdate(void) {
         if (base->unk0 < -0x1C) {
             gCurrentActor->state = 0;
         }
-        scale = gCurrentActor->unk4->unk34;
+        scale = gCurrentActor->sub4->scaleX;
         if (gCurrentActor->state == 1) {
             scale = scale - 0.005;
             if (scale < 0.0) {
@@ -1564,9 +1564,9 @@ void bonusLightFlashTargetUpdate(void) {
         } else {
             scale = 0.04f;
         }
-        gCurrentActor->unk4->unk34 = scale;
-        gCurrentActor->unk4->unk38 = scale;
-        gCurrentActor->unk4->unk3C = scale;
+        gCurrentActor->sub4->scaleX = scale;
+        gCurrentActor->sub4->scaleY = scale;
+        gCurrentActor->sub4->scaleZ = scale;
         if (isHit != 0) {
             sfxPlayOnFreeSlot(0x2A1, 0x7FFF, 63.0f, 1.0f, 0, 0);
             base->unk0 = 0;
@@ -1591,7 +1591,7 @@ typedef struct {
 extern s8 D_8002D904;
 
 void bonusPerilPathPanicGameUpdate(void) {
-    Struct_7548 *t3c = gCurrentActor->unk174;
+    Struct_7548 *t3c = gCurrentActor->customState;
     LargeB1_Sub178 *t0 = ((BonusActorExt *)gCurrentActor)->unk178;
     Point3f *p;
     f32 y;
@@ -1633,7 +1633,7 @@ void bonusPerilPathPanicGameUpdate(void) {
         gCurrentActor->roll = 0x9A;
         for (i = 1; i != 7; i++) {
             if (actorSpawn(0x148, 0x21) != 0) {
-                BonusC_9E54_S *u = (BonusC_9E54_S *)gSpawnedActor->unk174;
+                BonusC_9E54_S *u = (BonusC_9E54_S *)gSpawnedActor->customState;
 
                 u->unk0 = gCurrentActor;
                 u->unk4 = i;
@@ -1643,9 +1643,9 @@ void bonusPerilPathPanicGameUpdate(void) {
                 gSpawnedActor->z = p->z + 45.0;
                 gSpawnedActor->state = 0;
                 gSpawnedActor->yaw = 0x800;
-                gSpawnedActor->unk4->unk34 = 0.45f;
-                gSpawnedActor->unk4->unk38 = 0.45f;
-                gSpawnedActor->unk4->unk3C = 0.45f;
+                gSpawnedActor->sub4->scaleX = 0.45f;
+                gSpawnedActor->sub4->scaleY = 0.45f;
+                gSpawnedActor->sub4->scaleZ = 0.45f;
             }
         }
     }
@@ -1654,7 +1654,7 @@ void bonusPerilPathPanicGameUpdate(void) {
             t0->unk0--;
         } else {
             if (actorSpawn(0x149, 0x3D) != 0) {
-                BonusC_9E54_S *u = (BonusC_9E54_S *)gSpawnedActor->unk174;
+                BonusC_9E54_S *u = (BonusC_9E54_S *)gSpawnedActor->customState;
 
                 n = D_8002D904;
                 u->unk0 = gCurrentActor;
@@ -1663,10 +1663,10 @@ void bonusPerilPathPanicGameUpdate(void) {
                 gSpawnedActor->y = p->y + 12.0;
                 gSpawnedActor->z = p->z - 5.0;
                 gSpawnedActor->yaw = -0x400;
-                gSpawnedActor->unk4->unk34 = 0.08f;
+                gSpawnedActor->sub4->scaleX = 0.08f;
                 if (u) {} // FAKE: empty guard steers regalloc
-                gSpawnedActor->unk4->unk38 = 0.08f;
-                gSpawnedActor->unk4->unk3C = 0.08f;
+                gSpawnedActor->sub4->scaleY = 0.08f;
+                gSpawnedActor->sub4->scaleZ = 0.08f;
             }
             n = D_8002D904;
             t0->unk0 = 0x5A;
@@ -1710,7 +1710,7 @@ void bonusPerilPathPanicGameUpdate(void) {
             if (t0->unk8 == 0) {
                 gCurrentActor->state = 2;
             }
-            if (((Actor *)gCurrentActor->unk11C)->state == 5) {
+            if ((gCurrentActor->parentActor)->state == 5) {
                 gCurrentActor->state = 1;
             }
             break;
@@ -1731,13 +1731,13 @@ void bonusPerilPathPanicGameUpdate(void) {
             if (gGameMode != 1) {
                 t3c->unk0++;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)t0->unk4);
-                func_8070D8C0(gCurrentActor, 0, 0xB);
+                resQueueAttachActor(gCurrentActor, 0, 0xB);
             }
             break;
         case -1:
             if (!(gCurrentActor->flags & 0x2000000)) {
                 t3c->unk0 = 1;
-                actorSetStateTwo((void *)gCurrentActor->unk11C);
+                actorSetStateTwo((void *)gCurrentActor->parentActor);
                 bonusResetAmmo(t3c);
                 sfxAllocateChannel(8, 1.0f);
             }
@@ -1764,13 +1764,13 @@ void bonusPerilPathPanicKlaptrapUpdate(void) {
     BonusC_AAA4_T *targetExt;
     s32 i;
 
-    actorExt = (Struct_AAA4_174 *)gCurrentActor->unk174;
-    modelData = (Struct_4 *)gCurrentActor->unk4;
+    actorExt = (Struct_AAA4_174 *)gCurrentActor->customState;
+    modelData = (Struct_4 *)gCurrentActor->sub4;
     animSub = modelData->unk0;
     if (!(gCurrentActor->flags & 0x10)) {
         actorScriptStart(gCurrentActor, 0x239);
         gCurrentActor->unk144 = 0x24;
-        modelData = (Struct_4 *)gCurrentActor->unk4;
+        modelData = (Struct_4 *)gCurrentActor->sub4;
     }
     animScript = modelData->unk64;
     if (animScript == 0x239) {
@@ -1817,7 +1817,7 @@ void bonusPerilPathPanicFairyUpdate(void) {
     BonusC_AD10_B *ownerExt;
     Point3f *p;
 
-    subExt = (BonusC_AD10_S *)gCurrentActor->unk174;
+    subExt = (BonusC_AD10_S *)gCurrentActor->customState;
     owner = subExt->unk0;
     ownerExt = ((BonusActorExt *)owner)->unk178;
     if (!(gCurrentActor->flags & 0x10)) {
@@ -1839,9 +1839,9 @@ void bonusPerilPathPanicFairyUpdate(void) {
             if (subExt->unk4 == 3) {
                 sfxPlayOnFreeSlot(0x2D2, 0x7FFF, 63.0f, 7.12f, 0, 1);
             }
-            gCurrentActor->unk4->unk34 *= 0.8f;
-            gCurrentActor->unk4->unk38 *= 0.8f;
-            gCurrentActor->unk4->unk3C *= 0.8f;
+            gCurrentActor->sub4->scaleX *= 0.8f;
+            gCurrentActor->sub4->scaleY *= 0.8f;
+            gCurrentActor->sub4->scaleZ *= 0.8f;
         }
         if (subExt->unk4 == 0) {
             actorDespawn(gCurrentActor);
@@ -1996,7 +1996,7 @@ void bonusBigBugBashGameUpdate(void) {
         t->unk8 = 0.0f;
         t->unkC = 0.0f;
         actorSpawn(0x14C, 0x55);
-        p0 = (LargeB5Proj *)gSpawnedActor->unk174;
+        p0 = (LargeB5Proj *)gSpawnedActor->customState;
         p0->unk0 = gCurrentActor;
         t->unk2C = 0x3C;
         i = 0;
@@ -2009,7 +2009,7 @@ void bonusBigBugBashGameUpdate(void) {
         if (t->unk2D[i] > 0) {
             t->unk2D[i] -= 1;
             if (t->unk2D[i] == 0 && actorSpawn(0x14A, 0x53) != 0) {
-                LargeB5Proj *s0 = (LargeB5Proj *)gSpawnedActor->unk174;
+                LargeB5Proj *s0 = (LargeB5Proj *)gSpawnedActor->customState;
 
                 s0->unk0 = gCurrentActor;
                 s0->unk4 = gSpawnedActor->x;
@@ -2105,7 +2105,7 @@ void bonusBigBugBashGameUpdate(void) {
         if (gGameMode != 1) {
             LB5->unk154 = 4;
             hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)&t->unk22)[1]);
-            func_8070D8C0(gCurrentActor, 0, 0xA);
+            resQueueAttachActor(gCurrentActor, 0, 0xA);
         }
         break;
     case 4:
@@ -2176,18 +2176,18 @@ typedef struct {
 } BonusDB920Tgt;
 
 void bonusBigBugBashFlyUpdate(void) {
-    BonusDB920Link *flyExt = gCurrentActor->unk174;
+    BonusDB920Link *flyExt = gCurrentActor->customState;
     Actor *targetActor = flyExt->unk0;
-    BonusDB920Tgt *targetExt = targetActor->unk174;
+    BonusDB920Tgt *targetExt = targetActor->customState;
     f32 flySpeed;
     f32 wanderRadius;
     f32 dx;
 
     if (!(gCurrentActor->flags & 0x10)) {
         actorScriptStart(gCurrentActor, 0x32F);
-        gCurrentActor->unk4->unk34 = 0.06f;
-        gCurrentActor->unk4->unk38 = 0.06f;
-        gCurrentActor->unk4->unk3C = 0.06f;
+        gCurrentActor->sub4->scaleX = 0.06f;
+        gCurrentActor->sub4->scaleY = 0.06f;
+        gCurrentActor->sub4->scaleZ = 0.06f;
         sfxPlayActorSound(gCurrentActor, 0x10E, 0x3C, 1, 0, 0xFF, 1.0f, 0);
     }
     if (gCurrentActor->state == 0) {
@@ -2226,9 +2226,9 @@ void bonusBigBugBashFlyUpdate(void) {
             gCurrentActor->y = mathSinF(targetExt->unk18) * 5.0 + (targetActor->y - 30.0);
         }
     } else {
-        gCurrentActor->unk128 -= 4;
-        if (gCurrentActor->unk128 < 5) {
-            gCurrentActor->unk128 = 0;
+        gCurrentActor->alpha -= 4;
+        if (gCurrentActor->alpha < 5) {
+            gCurrentActor->alpha = 0;
             actorDespawn(gCurrentActor);
         }
     }
@@ -2255,7 +2255,7 @@ void bonusBigBugBashFlyUpdate(void) {
                 }
                 gCurrentActor->state = 1;
                 sfxPlayFromActorDirect(gCurrentActor, 0x16, 0xFF, 1.0f, 0x14, 0);
-                gCurrentActor->unk128 = 0xFF;
+                gCurrentActor->alpha = 0xFF;
                 gCurrentActor->flags &= ~0x8000;
             } else if (dx * dx + dz * dz < 900.0f) {
                 flyExt->unkC = 0x3C;
@@ -2286,19 +2286,19 @@ typedef struct {
 } BonusDBE44Link;
 
 void bonusBigBugBashSwatterShadowUpdate(void) {
-    BonusDBE44Link *link = gCurrentActor->unk174;
+    BonusDBE44Link *link = gCurrentActor->customState;
     Actor *targetActor = link->unk0;
-    BonusDBE44Anim *selfAnim = ((BonusDBE44Model *)gCurrentActor->unk4)->unk0;
-    BonusDBE44Anim *targetAnim = ((BonusDBE44Model *)targetActor->unk4)->unk0;
+    BonusDBE44Anim *selfAnim = ((BonusDBE44Model *)gCurrentActor->sub4)->unk0;
+    BonusDBE44Anim *targetAnim = ((BonusDBE44Model *)targetActor->sub4)->unk0;
     s16 animId;
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->roll = 0;
         gCurrentActor->yaw = 0x800;
         controllerAnimSetStateIfChanged(gCurrentActor, 0x5FB, 0, 0);
-        gCurrentActor->unk4->unk34 = 0.2f;
-        gCurrentActor->unk4->unk38 = 0.2f;
-        gCurrentActor->unk4->unk3C = 0.2f;
+        gCurrentActor->sub4->scaleX = 0.2f;
+        gCurrentActor->sub4->scaleY = 0.2f;
+        gCurrentActor->sub4->scaleZ = 0.2f;
     }
     gCurrentActor->x = targetActor->x;
     gCurrentActor->y = targetActor->y - 35.0;
@@ -2356,7 +2356,7 @@ void bonusSearchlightSeekGameUpdate(void) {
     f32 targetOffsetX;
     f32 velX;
     f32 stickY;
-    LargeB4Sub *subExt = gCurrentActor->unk174;
+    LargeB4Sub *subExt = gCurrentActor->customState;
     LargeB4Spawn *spawnExt;
     s32 i;
     s32 pad;
@@ -2391,9 +2391,9 @@ void bonusSearchlightSeekGameUpdate(void) {
         subExt->unk20 = 0x3C;
         subExt->unk23 = gfxResourceCreate(1, textTableGetString(0x1A, 2, 1), 8, 0.0f, 0.0f, 0.0f);
         func_806FDAB8(subExt->unk23, 0.0f);
-        gCurrentActor->unk4->unk34 = 0.33f;
-        gCurrentActor->unk4->unk38 = 0.33f;
-        gCurrentActor->unk4->unk3C = 0.33f;
+        gCurrentActor->sub4->scaleX = 0.33f;
+        gCurrentActor->sub4->scaleY = 0.33f;
+        gCurrentActor->sub4->scaleZ = 0.33f;
         camSetTarget(BCAM->unk104, gCurrentActor, 4, 0x800, 0x1A, 0, 0x1F, 0x15, 0x10, 0, 0.05f);
         camStartPath(0, 0, 1);
         gCurrentActor->state = 3;
@@ -2412,7 +2412,7 @@ void bonusSearchlightSeekGameUpdate(void) {
         if (subExt->unk2A[i] > 0) {
             subExt->unk2A[i] -= 1;
             if (subExt->unk2A[i] == 0 && actorSpawn(0x14B, 0x21) != 0) {
-                spawnExt = (LargeB4Spawn *)gSpawnedActor->unk174;
+                spawnExt = (LargeB4Spawn *)gSpawnedActor->customState;
                 spawnExt->unk0 = gCurrentActor;
                 spawnExt->unkC = 2;
                 spawnExt->unkC = (randomLcgNext() & 0x3F) + 0xF;
@@ -2454,7 +2454,7 @@ void bonusSearchlightSeekGameUpdate(void) {
             if (subExt->unk26 == 0) {
                 gCurrentActor->state = 5;
             }
-            if (((Actor *)gCurrentActor->unk11C)->state == 5) {
+            if ((gCurrentActor->parentActor)->state == 5) {
                 gCurrentActor->state = 6;
             }
             if (subExt->unk1E > 0) {
@@ -2475,13 +2475,13 @@ void bonusSearchlightSeekGameUpdate(void) {
             if (gGameMode != 1) {
                 gCurrentActor->state = 4;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)subExt->unk20);
-                func_8070D8C0(gCurrentActor, 0, 0xC);
+                resQueueAttachActor(gCurrentActor, 0, 0xC);
             }
             break;
         case 4:
             if (!(gCurrentActor->flags & 0x02000000)) {
                 gCurrentActor->state = 0;
-                actorSetStateTwo((void *)gCurrentActor->unk11C);
+                actorSetStateTwo((void *)gCurrentActor->parentActor);
                 sfxAllocateChannel(8, 1.0);
             }
             break;
@@ -2539,18 +2539,18 @@ void bonusSearchlightSeekTargetUpdate(void) {
     s16 angle;
     s32 i;
     Actor *targetOwner;
-    BonusDC8ECLink *spawnLink = gCurrentActor->unk174;
+    BonusDC8ECLink *spawnLink = gCurrentActor->customState;
     BonusDC8ECTgt *targetExt;
 
     targetOwner = spawnLink->unk0;
-    targetExt = targetOwner->unk174;
+    targetExt = targetOwner->customState;
 
     if (!(gCurrentActor->flags & 0x10)) {
         actorScriptStart(gCurrentActor, 0x232);
         gCurrentActor->unk144 = 0x24;
-        gCurrentActor->unk4->unk34 = 0.25f;
-        gCurrentActor->unk4->unk38 = 0.25f;
-        gCurrentActor->unk4->unk3C = 0.25f;
+        gCurrentActor->sub4->scaleX = 0.25f;
+        gCurrentActor->sub4->scaleY = 0.25f;
+        gCurrentActor->sub4->scaleZ = 0.25f;
     }
     if (gCurrentActor->state == 0) {
         speed = D_8002D90C;
@@ -2567,7 +2567,7 @@ void bonusSearchlightSeekTargetUpdate(void) {
             spawnLink->unk8 = 40.0 * randomFloat() + 10.0;
         }
         if (D_807FBB85 == 1) {
-            gCurrentActor->unk128 = 0xFF;
+            gCurrentActor->alpha = 0xFF;
             gCurrentActor->flags &= ~0x8000;
             actorScriptStart(gCurrentActor, 0x332);
             gCurrentActor->state = 1;
@@ -2584,9 +2584,9 @@ void bonusSearchlightSeekTargetUpdate(void) {
             }
         }
     } else {
-        gCurrentActor->unk128 -= 4;
-        if (gCurrentActor->unk128 < 5) {
-            gCurrentActor->unk128 = 0;
+        gCurrentActor->alpha -= 4;
+        if (gCurrentActor->alpha < 5) {
+            gCurrentActor->alpha = 0;
             actorDespawn(gCurrentActor);
         }
     }
@@ -2601,7 +2601,7 @@ Gfx *func_8002CC08(Gfx *gdl, Actor *actor) {
     s16 screenX;
     s16 screenY;
 
-    subExt = (Struct_CC08_174 *)actor->unk174;
+    subExt = (Struct_CC08_174 *)actor->customState;
     camProjectToScreen(actor->x, actor->y, actor->z, &projX, &projY, 0, 1.0f, gCurrentPlayerIndex);
     screenX = (f32)(projX * 4.0);
     screenY = (f32)(projY * 4.0);

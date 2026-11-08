@@ -688,7 +688,7 @@ typedef struct R1C46aS90 {
 
 extern Actor *gSpawnedActor;
 void actorScriptStart(void *, s32);
-void func_8070D8C0(Actor *, s32, u8);
+void resQueueAttachActor(Actor *, s32, u8);
 void actorSetTargetSpeed(Actor *, s32);
 s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
 s32 patrolPathStep(u8, s32);
@@ -724,7 +724,7 @@ void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
         case 0x12:
             switch (R1V->unk155) {
                 case 0:
-                    func_8070D8C0(gCurrentActor, actionId, paramA);
+                    resQueueAttachActor(gCurrentActor, actionId, paramA);
                     actorScriptStart(gCurrentActor, scriptId);
                     R1V->unk155++;
                     break;
@@ -818,7 +818,7 @@ void func_806C151C(u16 actionId, u8 actionParam, s16 flagId) {
     }
     if ((u8)near) {
         if (!flagGet(flagId, 2)) {
-            func_8070D8C0(gCurrentActor, actionId, actionParam);
+            resQueueAttachActor(gCurrentActor, actionId, actionParam);
             flagSet(flagId, 1, 2);
         }
     }
@@ -938,7 +938,7 @@ void func_806C19F4(void) {
     behaviourFrameBegin();
     if (!(R1V->unk60 & 0x10)) {
         func_806C15E8();
-        R1V->unk140->unk14 = 180.0f;
+        R1V->unk140->radius = 180.0f;
         func_80724CA4(2, 1);
         func_806F09F0(gCurrentActor, R1V->unk5A);
     }
@@ -1052,8 +1052,8 @@ void func_806C1E44(void) {
         animSetFinished(gCurrentActor, 0, 1);
         switch (gCurrentMap) {
             case 0x14:
-                gCurrentActor->unk130 = 0xFF;
-                gCurrentActor->unk131 = 0xFF;
+                gCurrentActor->cullMarginX = 0xFF;
+                gCurrentActor->cullMarginY = 0xFF;
                 if (flagGet(0x4C, 0) == 0) {
                     animSetFrameAndSubframe(gCurrentActor, 0, 1, 0);
                     actorScriptStart(gCurrentActor, 0x2BD);
@@ -1159,7 +1159,7 @@ s32 func_8072881C(s32, void *);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void camStartPath(void *, s32, s32);
 s32 camIsCutsceneActive(void);
-void func_8070E8DC(s32);
+void resQueueSetValue(s32);
 
 typedef struct R1C46bActor {
     /* 0x00 */ u8 pad0[0xC0];
@@ -1181,7 +1181,7 @@ void func_806C226C(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         ((R1C46bActor *)gCurrentActor)->unkC4 = D_807502F4;
         gCurrentActor->y = gCurrentActor->floorY;
-        gCurrentActor->unk12A = 0x4B0;
+        gCurrentActor->drawDistance = 0x4B0;
         if (flagGet(0x9E, 0) != 0) {
             if (((R1C46bState9C *)gBehaviourExtraState)->unk13 == 0x16) {
                 gCurrentActor->state = 0x28;
@@ -1238,17 +1238,17 @@ void func_806C226C(void) {
                         gCurrentActor->unk155[0]++;
                         if (flagGet(0xC1, 0) != 0) {
                             if (gPlayerCharacterId == 0 && flagGet(0xA5, 0) == 0) {
-                                func_8070D8C0(gCurrentActor, 0x1C, 2);
+                                resQueueAttachActor(gCurrentActor, 0x1C, 2);
                             } else if (gPlayerCharacterId != 0) {
-                                func_8070D8C0(gCurrentActor, 0x1C, 0);
+                                resQueueAttachActor(gCurrentActor, 0x1C, 0);
                             }
                         } else if (gPlayerCharacterId == 0) {
                             camStartPath(gCurrentActor, 0x1E, 1);
-                            func_8070E8DC(1);
-                            func_8070D8C0(gCurrentActor, 0x1C, 1);
+                            resQueueSetValue(1);
+                            resQueueAttachActor(gCurrentActor, 0x1C, 1);
                             gCurrentActor->unk155[0] = 0x63;
                         } else {
-                            func_8070D8C0(gCurrentActor, 0x1C, 0);
+                            resQueueAttachActor(gCurrentActor, 0x1C, 0);
                         }
                     }
                     break;
@@ -1259,7 +1259,7 @@ void func_806C226C(void) {
                     break;
                 case 0x63:
                     if (camIsCutsceneActive() == 0 && !(gCurrentActor->flags & 0x2000000)) {
-                        func_8070D8C0(gCurrentActor, 0x1C, 2);
+                        resQueueAttachActor(gCurrentActor, 0x1C, 2);
                         gCurrentActor->unk155[0] = 3;
                     }
                     break;
@@ -1276,7 +1276,7 @@ void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void effectSpawnActorBone(Actor *, u8, f32);
 
 void actorPlaySoundSpawnBoneEffects(void) {
-    f32 scale = gCurrentActor->unk4->unk38 / 0.15;
+    f32 scale = gCurrentActor->sub4->scaleY / 0.15;
 
     sfxPlayActorSound(gCurrentActor, 0x114, 0x50, 0, 0, 0xFF, 0.5f, 0);
     if (gFrameCounter & 1) {
@@ -1308,10 +1308,10 @@ void actorSpawnOctagonRingsByTimer(void) {
     f32 pad;
     s16 i;
 
-    v = ((R1C46bSub4 *)gCurrentActor->unk4)->unk0->unk4;
+    v = ((R1C46bSub4 *)gCurrentActor->sub4)->unk0->unk4;
     if (v > 83.0f) {
         actorPlaySoundSpawnBoneEffects();
-        v = ((R1C46bSub4 *)gCurrentActor->unk4)->unk0->unk4;
+        v = ((R1C46bSub4 *)gCurrentActor->sub4)->unk0->unk4;
     }
     if (v > 2.0f && v < 90.0f) {
         i = 1;
@@ -1354,7 +1354,7 @@ void actorSpawnParticlesAlongNodeLoop(u8 startNode, u8 endNode, u8 colorIndex, v
     s16 i;
     s16 j;
 
-    scale = gCurrentActor->unk4->unk38 / 0.15;
+    scale = gCurrentActor->sub4->scaleY / 0.15;
     scale = scale / 1.5;
     for (i = startNode; i <= endNode; i++) {
         for (j = 0; j < 3.0; j++) {
@@ -1758,7 +1758,7 @@ void func_806C3A8C(void) {
     dist = (gPrimaryPlayerActor->x - gCurrentActor->x) * (gPrimaryPlayerActor->x - gCurrentActor->x) + (gPrimaryPlayerActor->y - gCurrentActor->y) * (gPrimaryPlayerActor->y - gCurrentActor->y) + (gPrimaryPlayerActor->z - gCurrentActor->z) * (gPrimaryPlayerActor->z - gCurrentActor->z);
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk15E = 0x19;
+        gCurrentActor->eyeHeight = 0x19;
         func_8067ACB4(gCurrentActor);
         if (flagGet(0x1E, 2) == 0) {
             camStartPath(gCurrentActor, 0x14, 1);
@@ -1792,7 +1792,7 @@ void func_806C3A8C(void) {
                 case 1:
                     if ((u8)(dist < 0x2710)) {
                         actorScriptStart(gCurrentActor, 0x3A4);
-                        func_8070D8C0(gCurrentActor, 0x17, 0);
+                        resQueueAttachActor(gCurrentActor, 0x17, 0);
                         gCurrentActor->unk155[0]++;
                     }
                     break;
@@ -1805,14 +1805,14 @@ void func_806C3A8C(void) {
                 flag2 = flagGet(0xBB, 0);
                 flag1 = flagGet(0xBA, 0);
                 D_80750AC8 = flagGet(0xBE, 0) + flag1 + flag2 + flag3 + flag4;
-                func_8070D8C0(gCurrentActor, 0x17, 2);
+                resQueueAttachActor(gCurrentActor, 0x17, 2);
                 gCurrentActor->unk155[0]++;
             }
             break;
         case 0x20:
             if ((u8)(dist < 0x2710) && gCurrentActor->unk155[0] == 0 && camIsCutsceneActive() == 0) {
                 camStartPath(gCurrentActor, 0x18, 1);
-                func_8070D8C0(gCurrentActor, 0x17, 3);
+                resQueueAttachActor(gCurrentActor, 0x17, 3);
                 gCurrentActor->unk155[0]++;
             }
             break;
@@ -1821,8 +1821,8 @@ void func_806C3A8C(void) {
                 switch (gCurrentActor->unk155[0]) {
                     case 0:
                         camStartPath(gCurrentActor, 0x17, 1);
-                        func_8070E8DC(1);
-                        func_8070D8C0(gCurrentActor, 0x17, 1);
+                        resQueueSetValue(1);
+                        resQueueAttachActor(gCurrentActor, 0x17, 1);
                         gCurrentActor->unk155[0]++;
                         break;
                     case 1:

@@ -30,7 +30,7 @@ void renderSetupSegmentsAndFog(Gfx *glistp, Actor *actor) {
     WRITE_GFX(glistp++, 0xE7000000, 0);
     WRITE_GFX(glistp++, 0xD9FDFFFF, 0);
     WRITE_GFX(glistp++, 0xFA0000FF, 0xFFFFFFFF);
-    renderActorDisplayList(renderSetSegment6AndFog(glistp, actor->unk128, 1), actor);
+    renderActorDisplayList(renderSetSegment6AndFog(glistp, actor->alpha, 1), actor);
 }
 
 extern void *gActivePlayerState;
@@ -100,12 +100,12 @@ void actorPhotoUpdate(void) {
     u8 pad;
     f32 t;
 
-    subState = gCurrentActor->unk174;
+    subState = gCurrentActor->customState;
     pad = 0;
     if (!(gCurrentActor->flags & 0x10)) {
         subState->unk10 = 0x5A;
         gCurrentActor->flags |= 0x400;
-        gCurrentActor->unk12A = 0x3E8;
+        gCurrentActor->drawDistance = 0x3E8;
         subState->unk4 = (s16 *)func_806FFF88();
         controllerAnimSetStateIfChanged(gCurrentActor, 0x40B, 0, 0);
         scriptSetActorRampTarget(gCurrentActor, 0.15f, 0);
@@ -152,8 +152,8 @@ void actorPhotoUpdate(void) {
         subState->unk10--;
     } else {
         gCurrentActor->flags &= ~0x8000;
-        gCurrentActor->unk128 -= 0xA;
-        if (gCurrentActor->unk128 <= 0) {
+        gCurrentActor->alpha -= 0xA;
+        if (gCurrentActor->alpha <= 0) {
             pad = 1;
         }
     }
@@ -199,7 +199,7 @@ extern Actor *gCurrentActor;
 
 void func_80699914(void) {
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk12A = 0x3E8;
+        gCurrentActor->drawDistance = 0x3E8;
     }
     actorSagWaveUpdate(0x1C, 1);
 }
@@ -267,21 +267,21 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
     u8 found;
     f32 dist;
 
-    state = (WaveState *)gCurrentActor->unk174;
+    state = (WaveState *)gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        ((NodeListHead *)gCurrentActor->unk4)->unk24 = (WaveNode *)heapAlloc((numNodes + 1) * 0x10);
+        ((NodeListHead *)gCurrentActor->sub4)->unk24 = (WaveNode *)heapAlloc((numNodes + 1) * 0x10);
         for (i = 0; i < numNodes; i++) {
-            ((WaveNode *)((NodeListHead *)gCurrentActor->unk4)->unk24)[i].unk0 = i;
+            ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unk0 = i;
             if (i != numNodes - 1) {
-                ((WaveNode *)((NodeListHead *)gCurrentActor->unk4)->unk24)[i].unk1 = i + 1;
+                ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unk1 = i + 1;
             } else {
-                ((WaveNode *)((NodeListHead *)gCurrentActor->unk4)->unk24)[i].unk1 = 0xFF;
+                ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unk1 = 0xFF;
             }
-            ((WaveNode *)((NodeListHead *)gCurrentActor->unk4)->unk24)[i].unk4 = 0.0f;
-            ((WaveNode *)((NodeListHead *)gCurrentActor->unk4)->unk24)[i].unkC = 0.0f;
-            ((WaveNode *)((NodeListHead *)gCurrentActor->unk4)->unk24)[i].unk8 = 0.0f;
+            ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unk4 = 0.0f;
+            ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unkC = 0.0f;
+            ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unk8 = 0.0f;
         }
-        ((WaveNode *)((NodeListHead *)gCurrentActor->unk4)->unk24)[numNodes].unk0 = 0xFF;
+        ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[numNodes].unk0 = 0xFF;
         for (i = 0; i < numNodes; i++) {
             state->unk4[i] = 0.0f;
         }
@@ -462,10 +462,10 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
                 state->unk4[i] = posOffsets[i];
             }
         }
-        ((WaveNode *)((NodeListHead *)gCurrentActor->unk4)->unk24)[i].unk8 = state->unk4[i] + nodeForces[i];
+        ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unk8 = state->unk4[i] + nodeForces[i];
     }
-    ((WaveNode *)((NodeListHead *)gCurrentActor->unk4)->unk24)[0].unk8 = 0.0f;
-    *(f32 *)((u8 *)((NodeListHead *)gCurrentActor->unk4)->unk24 + (numNodes << 4) - 8) = 0.0f;  // FAKE: byte-offset form stops the CSE of numNodes * 16 across the calls
+    ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[0].unk8 = 0.0f;
+    *(f32 *)((u8 *)((NodeListHead *)gCurrentActor->sub4)->unk24 + (numNodes << 4) - 8) = 0.0f;  // FAKE: byte-offset form stops the CSE of numNodes * 16 across the calls
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -479,7 +479,7 @@ typedef struct {
 /* arg1 is u8: IDO homes the raw incoming a1 to its caller slot (sw a1,4(sp))
    even in this leaf function and re-narrows it with andi before use. */
 void actorAddNodeForceSlot(f32 forceMagnitude, u8 slotMode) {
-    ActorMotionSlots *slots = (ActorMotionSlots *)gCurrentActor->unk174;
+    ActorMotionSlots *slots = (ActorMotionSlots *)gCurrentActor->customState;
     s16 i;
     s32 found;
     f64 temp;
@@ -604,17 +604,17 @@ void actorSagSingleUpdate(void) {
 
     flags = gCurrentActor->flags;
     acc = 0.0f;
-    state = (ProximityState *)gCurrentActor->unk174;
+    state = (ProximityState *)gCurrentActor->customState;
     if (!(flags & 0x10)) {
         gCurrentActor->flags = flags | 0x400;
-        ((ModelNodeList *)gCurrentActor->unk4)->unk24 = (ModelNodeRecord *)heapAlloc(0x20);
-        ((ModelNodeList *)gCurrentActor->unk4)->unk24->unk0 = 1;
-        ((ModelNodeList *)gCurrentActor->unk4)->unk24->unk1 = 0xFF;
-        ((ModelNodeList *)gCurrentActor->unk4)->unk24->unk4 = 0.0f;
-        ((ModelNodeList *)gCurrentActor->unk4)->unk24->unkC = 0.0f;
-        ((ModelNodeList *)gCurrentActor->unk4)->unk24->unk8 = 0.0f;
-        ((ModelNodeList *)gCurrentActor->unk4)->unk24->unk10 = 0xFF;
-        gCurrentActor->unk12A = 0x3E8;
+        ((ModelNodeList *)gCurrentActor->sub4)->unk24 = (ModelNodeRecord *)heapAlloc(0x20);
+        ((ModelNodeList *)gCurrentActor->sub4)->unk24->unk0 = 1;
+        ((ModelNodeList *)gCurrentActor->sub4)->unk24->unk1 = 0xFF;
+        ((ModelNodeList *)gCurrentActor->sub4)->unk24->unk4 = 0.0f;
+        ((ModelNodeList *)gCurrentActor->sub4)->unk24->unkC = 0.0f;
+        ((ModelNodeList *)gCurrentActor->sub4)->unk24->unk8 = 0.0f;
+        ((ModelNodeList *)gCurrentActor->sub4)->unk24->unk10 = 0xFF;
+        gCurrentActor->drawDistance = 0x3E8;
         state->unk4 = 0;
         state->unkC = 0;
         state->unk0 = 0.0f;
@@ -660,7 +660,7 @@ void actorSagSingleUpdate(void) {
     if ((f64)state->unk8 < 0.5) {
         state->unk8 = 0.0f;
     }
-    ((ModelNodeList *)gCurrentActor->unk4)->unk24->unk8 = 0.0 - (sinApprox((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
+    ((ModelNodeList *)gCurrentActor->sub4)->unk24->unk8 = 0.0 - (sinApprox((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
     state->unk4 = gActorGlobalState.unk39;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -701,7 +701,7 @@ void actorSpotLightUpdate(void) {
     u16 blue;
     SpotLightState *lightState;
 
-    lightState = (SpotLightState *)gCurrentActor->unk174;
+    lightState = (SpotLightState *)gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         controllerAnimSetStateIfChanged(gCurrentActor, 0x402, 0, 1.0f);
         if (gCurrentMap == 6) {
@@ -711,15 +711,15 @@ void actorSpotLightUpdate(void) {
         lightState->unk0 = 0;
         lightState->unk4 = 1.0f;
     }
-    scriptSetActorRampTarget(gCurrentActor, ((SpotLightConfig *)gCurrentActor->unk124)->unk0, 1.0f);
+    scriptSetActorRampTarget(gCurrentActor, ((SpotLightConfig *)gCurrentActor->spawnData)->unk0, 1.0f);
     if (gBossFightPhase == 4) {
         lightState->unk0 = D_807503A0;
         lightState->unk4 = 0.0f;
     }
     if (lightState->unk0 == 0) {
-        red = ((SpotLightConfig *)gCurrentActor->unk124)->unk4;
-        green = ((SpotLightConfig *)gCurrentActor->unk124)->unk8;
-        blue = ((SpotLightConfig *)gCurrentActor->unk124)->unkC;
+        red = ((SpotLightConfig *)gCurrentActor->spawnData)->unk4;
+        green = ((SpotLightConfig *)gCurrentActor->spawnData)->unk8;
+        blue = ((SpotLightConfig *)gCurrentActor->spawnData)->unkC;
         red = (u16)(u32)((f64)(u32)red * (f64)lightState->unk4);
         green = (u16)(u32)((f64)(u32)green * (f64)lightState->unk4);
         blue = (u16)(u32)((f64)(u32)blue * (f64)lightState->unk4);
@@ -728,8 +728,8 @@ void actorSpotLightUpdate(void) {
             lightState->unk4 = 1.0f;
         }
         if (gCurrentActor->flags & 0x10) {
-            if ((f64)((SpotLightConfig *)gCurrentActor->unk124)->unk10 != 0.0 || (f64)((SpotLightConfig *)gCurrentActor->unk124)->unk14 != 0.0) {
-                lightSetFovAngles(((SpotLightConfig *)gCurrentActor->unk124)->unk10, ((SpotLightConfig *)gCurrentActor->unk124)->unk14);
+            if ((f64)((SpotLightConfig *)gCurrentActor->spawnData)->unk10 != 0.0 || (f64)((SpotLightConfig *)gCurrentActor->spawnData)->unk14 != 0.0) {
+                lightSetFovAngles(((SpotLightConfig *)gCurrentActor->spawnData)->unk10, ((SpotLightConfig *)gCurrentActor->spawnData)->unk14);
             }
             lightSetFlags(2);
             lightSetTargetId(gCurrentActor->chunkIndex);
@@ -791,7 +791,7 @@ s32 func_80714CC0(void *, f32, f32, f32, f32);
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 
 void func_8069B010(void) {
-    s32 *p = gCurrentActor->unk174;
+    s32 *p = gCurrentActor->customState;
     LinkedActorView *link;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -810,7 +810,7 @@ void func_8069B010(void) {
     }
     func_8067ACB4(gCurrentActor);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x4B, 0x78, 0, 1.0f);
-    link = (LinkedActorView *)gCurrentActor->unk11C;
+    link = (LinkedActorView *)gCurrentActor->parentActor;
     if (link != NULL) {
         if (link->unk154 != 2 && link->unk154 != 0x26) {
             actorDespawn(gCurrentActor);
@@ -818,18 +818,18 @@ void func_8069B010(void) {
         }
         if (gCurrentActor->unk15F == link->unk15F) {
             if ((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z) > 900.0f) {
-                ((LinkedActorView *)gCurrentActor->unk11C)->unkEC = (s16)(mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z) - mathAngleBetweenPointsDeg((s32)((CameraPoseView *)gPlayerSlots)->unk228, (s32)((CameraPoseView *)gPlayerSlots)->unk230, (s32)((CameraPoseView *)gPlayerSlots)->unk210, (s32)((CameraPoseView *)gPlayerSlots)->unk218));
+                ((LinkedActorView *)gCurrentActor->parentActor)->unkEC = (s16)(mathAngleBetweenPointsDeg((s32)gCurrentActor->x, (s32)gCurrentActor->z, (s32)gPrimaryPlayerActor->x, (s32)gPrimaryPlayerActor->z) - mathAngleBetweenPointsDeg((s32)((CameraPoseView *)gPlayerSlots)->unk228, (s32)((CameraPoseView *)gPlayerSlots)->unk230, (s32)((CameraPoseView *)gPlayerSlots)->unk210, (s32)((CameraPoseView *)gPlayerSlots)->unk218));
             }
             lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 100.0f, 0, 0xFF, 0xFF, 0);
         }
         if (gBossFightPhase == 9) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CE, 0xFF, 0x7F, 0x1E);
             func_80714CC0(D_8071FE08, 1.0f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
-            actorAppendCallback((Actor *)gCurrentActor->unk11C, gCurrentActor, 0x02000000, gCurrentActor->unk15F, 0, 0);
+            actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, gCurrentActor->unk15F, 0, 0);
             actorDespawn(gCurrentActor);
         }
         if (gCurrentMap != 0x48 && gCurrentMap != 0x11 && (u32)(*p + D_80750378) < (u32)gGameFrameCounter) {
-            actorAppendCallback((Actor *)gCurrentActor->unk11C, gCurrentActor, 0x02000000, 0xFF, 0, 0);
+            actorAppendCallback(gCurrentActor->parentActor, gCurrentActor, 0x02000000, 0xFF, 0, 0);
             actorDespawn(gCurrentActor);
         }
     } else {
@@ -846,8 +846,8 @@ void func_80714950(s32);
 void sfxStopChannel(s32, s32);
 
 void func_8069B3FC(void) {
-    s16 *p = gCurrentActor->unk174;
-    CameraPoseView *cam = gPrimaryPlayerActor->unk174;
+    s16 *p = gCurrentActor->customState;
+    CameraPoseView *cam = gPrimaryPlayerActor->customState;
     s32 i;
     f32 x;
     f32 y;
@@ -908,7 +908,7 @@ void func_8069B3FC(void) {
                 }
                 gPrimaryPlayerActor->unk155[0]++;
                 gCurrentActor->flags &= ~0x8000;
-                gCurrentActor->unk128 = 0xFF;
+                gCurrentActor->alpha = 0xFF;
                 gCurrentActor->unk155[0]++;
                 break;
             case 4:
@@ -916,8 +916,8 @@ void func_8069B3FC(void) {
                 if (*p < 0) {
                     *p = 0;
                 }
-                gCurrentActor->unk128 -= 0x28;
-                if (gCurrentActor->unk128 < 0x28) {
+                gCurrentActor->alpha -= 0x28;
+                if (gCurrentActor->alpha < 0x28) {
                     gPrimaryPlayerActor->unk155[0]++;
                     sfxStopChannel(0x3B, 0);
                     actorDespawn(gCurrentActor);
@@ -945,7 +945,7 @@ s32 actorHasCallbackTargetThisFrame(void) {
             if (actorTableContains(node->unk8) != 0) {
                 actor = (Actor *)node->unk8;
                 if (actor->collisionFlags & 1) {
-                    sub = actor->unk174;
+                    sub = actor->customState;
                     if ((u32)(gGameFrameCounter - *(s32 *)((u8 *)sub + 0x120)) < 2) {
                         return 1;
                     }
@@ -1039,7 +1039,7 @@ void textMarkerUpdateMatrix(void) {
     s32 particleLoopIdx;
     void (*volatile callback)(void);  // FAKE: retain the callback's original stack home
 
-    markerView = gCurrentActor->unk174;
+    markerView = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         *(s16 *)((u8 *)gCurrentActor + 0xFA) = 0x270F;
         gCurrentActor->floorY = 99999.0f;
@@ -1051,17 +1051,17 @@ void textMarkerUpdateMatrix(void) {
             *(u8 *)((u8 *)gCurrentActor + 0x155) = 1;
             markerView->unk1C = 0x1E;
         }
-        markerView->unk28 = ((ActorSub124View *)gCurrentActor->unk124)->unk0;
+        markerView->unk28 = ((ActorSub124View *)gCurrentActor->spawnData)->unk0;
         if (markerView->unk28 != 0) {
             markerView->unk4 = gCurrentActor->x;
             markerView->unk8 = gCurrentActor->y;
             markerView->unkC = gCurrentActor->z;
-            markerView->unk10 = gCurrentActor->unk4->unk34 / 0.15;
+            markerView->unk10 = gCurrentActor->sub4->scaleX / 0.15;
         }
-        if (((ActorSub124View *)gCurrentActor->unk124)->unk4 == 1) {
-            gCurrentActor->unk132 = 2;
+        if (((ActorSub124View *)gCurrentActor->spawnData)->unk4 == 1) {
+            gCurrentActor->interactionType = 2;
         } else {
-            gCurrentActor->unk132 = 1;
+            gCurrentActor->interactionType = 1;
         }
         switch (gCurrentActor->actorType) {
         case 0x43:
@@ -1276,7 +1276,7 @@ void textMarkerUpdateMatrix(void) {
                                   gCurrentActor->z + offsetZ);
                 }
             }
-            camStartShake(*(s32 *)((u8 *)gPrimaryPlayerActor->unk174 + 0x104), 0x14, 0xF);
+            camStartShake(*(s32 *)((u8 *)gPrimaryPlayerActor->customState + 0x104), 0x14, 0xF);
         }
         if (markerView->unk28 != 0) {
             gCurrentActor->state = 0xA;
@@ -1310,7 +1310,7 @@ void textMarkerUpdateMatrix(void) {
         dy = gPrimaryPlayerActor->y - markerView->unk8;
         if ((dz * dz) + ((dx * dx) + (dy * dy)) > 2500.0f) {
             spawnArgs[0] = markerView->unk28;
-            if (gCurrentActor->unk132 == 2) {
+            if (gCurrentActor->interactionType == 2) {
                 spawnArgs[1] = 1;
             } else {
                 spawnArgs[1] = 0;
@@ -1357,7 +1357,7 @@ void textMarkerUpdateMatrix(void) {
     if (gCurrentActor->state != 0x63) {
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x64, 0x78, 0, 1.0f);
     }
-    guScaleF(mtxA, gCurrentActor->unk4->unk34, gCurrentActor->unk4->unk38, gCurrentActor->unk4->unk3C);
+    guScaleF(mtxA, gCurrentActor->sub4->scaleX, gCurrentActor->sub4->scaleY, gCurrentActor->sub4->scaleZ);
     guRotateF(mtxB, markerView->unk24, 0.0, 1.0f, 0.0);
     guMtxCatF(mtxA, mtxB, mtxA);
     guRotateF(mtxB, (f32)(((f64)gCurrentActor->yaw / 4095.0) * 360.0), 0.0, 1.0f, 0.0);
@@ -1405,15 +1405,15 @@ void actorUpdateTimerBarAndRange(void) {
     u32 val;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        frac = gCurrentActor->unk4->unk34 / 0.15;
+        frac = gCurrentActor->sub4->scaleX / 0.15;
         frac = frac - 1.0;
         if (frac < 0.0) {
             frac = 0.0f;
         }
         val = (u32)(80.0f * frac);
-        gCurrentActor->unk130 = val;
-        gCurrentActor->unk131 = val;
-        gCurrentActor->unk12A = 0x2BC;
+        gCurrentActor->cullMarginX = val;
+        gCurrentActor->cullMarginY = val;
+        gCurrentActor->drawDistance = 0x2BC;
     }
     /* dz is computed before dx into a temp: this is what makes IDO emit the
        target's dx, dz, dy float load/sub scheduling (dx, dy, dz otherwise). */
@@ -1432,16 +1432,16 @@ void actorUpdateTimerBarAndRange(void) {
 
 void actorSpawnEffectAndTick(void) {
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk130 = 0x3C;
-        gCurrentActor->unk131 = 0x3C;
+        gCurrentActor->cullMarginX = 0x3C;
+        gCurrentActor->cullMarginY = 0x3C;
         actorListSpawnNodeEntryDefault(0x83, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z,
                       0, 1.0f, (s32)gCurrentActor);
     }
     textMarkerUpdateMatrix();
     if (!(gCurrentActor->flags & 0x10)) {
-        if (*(s32 *)((u8 *)gCurrentActor->unk124 + 0x8) == 1) {
+        if (*(s32 *)((u8 *)gCurrentActor->spawnData + 0x8) == 1) {
             if (flagGet(0xFD, 0) != 0) {
-                gCurrentActor->unk132 = 4;
+                gCurrentActor->interactionType = 4;
             }
         }
     }
@@ -1451,7 +1451,7 @@ void func_8069D018(void) {
     Actor *actor = gCurrentActor;
 
     if (!(actor->flags & 0x10)) {
-        actor->unk12A = 0x2BC;
+        actor->drawDistance = 0x2BC;
     }
     textMarkerUpdateMatrix();
 }
@@ -1495,7 +1495,7 @@ void textSpawnMarker(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 
     TextMarkerState *sub;
 
     if (actorSpawn(0xE8, 0) != 0) {
-        sub = gSpawnedActor->unk174;
+        sub = gSpawnedActor->customState;
         if (fontStyle & 0x80) {
             sub->unkA = gfxResourceCreate((s16)(fontStyle & 0xFF7F), textStr, 2, 160.0f, (f32)y, 0.0f);
             *(s16 *)((u8 *)gSpawnedActor + 0xEE) = 1;
@@ -1584,7 +1584,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
     s16 width;
 
     if (&state == 0) {} // FAKE: keeps state/mode/width/x/y in spill-style home slots
-    sub = actor->unk174;
+    sub = actor->customState;
     state = 3;
     mode = (u8)actor->z;
     TEXT_MARKER_GFX(gfx++, 0xDE000000, &D_1000118);
@@ -1656,7 +1656,7 @@ Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
 Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
     void *model;
 
-    model = actor->unk174;
+    model = actor->customState;
     WRITE_GFX_U32(gfx++, 0xDE000000, &D_1000118);
     WRITE_GFX_U32(gfx++, 0xE7000000, 0);
     WRITE_GFX_U32(gfx++, 0xFA000000, 0xFFFFFFFF);
@@ -1677,7 +1677,7 @@ Gfx *textMarkerRenderString(Gfx *, Actor *);
 void textMarkerUpdate(void) {
     u8 *model;
 
-    model = (u8 *)gCurrentActor->unk174;
+    model = (u8 *)gCurrentActor->customState;
     if (gCurrentActor->moveYaw != 0) {
         renderCallbacksRegister(textMarkerRender, gCurrentActor, 3);
         return;
@@ -1781,7 +1781,7 @@ void textUpdateThreeDigitCounter(void) {
     s32 unk;
     u16 val;
 
-    model = (s32 *)gCurrentActor->unk174;
+    model = (s32 *)gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10) || (*(u32 *)((u8 *)gActivePlayerState + 0x1F0) & 0x20000)) {
         t = mapGetHubWorldIndex(gCurrentWorldId, 0);
         if (t >= 8) {
@@ -1799,7 +1799,7 @@ void textUpdateThreeDigitCounter(void) {
         *(u32 *)((u8 *)gActivePlayerState + 0x1F0) &= ~0x20000;
         if (val >= *(u16 *)((u8 *)D_807446C0 + unk)) {
             gCurrentActor->flags &= ~0x8000;
-            gCurrentActor->unk128 = 0;
+            gCurrentActor->alpha = 0;
             gCurrentActor->unk144 = 1;
             csModelStateSetFirstByte(8, 2);
             ten = 10;
@@ -1818,7 +1818,7 @@ void textUpdateTwoDigitCounter(void) {
     Actor *actor;
 
     actor = gCurrentActor;
-    model = (s32 *)actor->unk174;
+    model = (s32 *)actor->customState;
     if (!(actor->flags & 0x10)) {
         model[0] = textBuildDigitNode(0x14, (void *)model[0], 0, actor->unk155[0] / 10, 0x10);
         model[1] = textBuildDigitNode(0x14, (void *)model[1], 1, gCurrentActor->unk155[0] % 10, 0x10);
@@ -1839,9 +1839,9 @@ void actorPlaySoundAndFinish(void) {
 }
 
 void flagSet(s32, s32, s32);
-void func_8070E8DC(s32);
+void resQueueSetValue(s32);
 s32 frameTimingGetMapIndex(void);
-void func_8070D8C0(Actor *, s32, u8);
+void resQueueAttachActor(Actor *, s32, u8);
 
 extern s8 D_807F6951;
 extern s8 D_807F6950;
@@ -1852,26 +1852,26 @@ void func_8069E088(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         controllerAnimSetStateIfChanged(gCurrentActor, 0x5ED, 0.0f, 0.0f);
     }
-    gCurrentActor->unk15E = 0x14;
+    gCurrentActor->eyeHeight = 0x14;
     if (gCurrentActor->state < 0x1E) {
         gCurrentActor->state++;
     }
     if (gCurrentActor->state == 0x1E) {
         unk = 0;
         gCurrentActor->state = 0x64;
-        func_8070E8DC(1);
+        resQueueSetValue(1);
         if (flagGet(0x178, 0) == 0) {
             flagSet(0x178, 1, 0);
         } else {
             unk = frameTimingGetMapIndex() * 5 + D_807F6951 + 1;
         }
-        func_8070D8C0(gCurrentActor, 0x29, unk);
+        resQueueAttachActor(gCurrentActor, 0x29, unk);
     }
     if (D_807F6950 != 0) {
         actorDespawn(gCurrentActor);
     }
-    gCurrentActor->unk4->unk34 = 0.0f;
-    gCurrentActor->unk4->unk38 = 0.0f;
-    gCurrentActor->unk4->unk3C = 0.0f;
+    gCurrentActor->sub4->scaleX = 0.0f;
+    gCurrentActor->sub4->scaleY = 0.0f;
+    gCurrentActor->sub4->scaleZ = 0.0f;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

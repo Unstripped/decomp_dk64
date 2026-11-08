@@ -8,9 +8,9 @@ struct Actor;
 typedef struct ActorSub4 {
     /* 0x00 */ void *model;
     /* 0x04 */ u8 pad04[0x30];
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ f32 unk3C;
+    /* 0x34 */ f32 scaleX;
+    /* 0x38 */ f32 scaleY;
+    /* 0x3C */ f32 scaleZ;
     /* 0x40 */ u8 pad40[0x24];
     /* 0x64 */ u16 animId;
 } ActorSub4;
@@ -22,11 +22,11 @@ typedef struct ModelNode {
     /* 0x0C */ f32 scale;
     /* 0x10 */ s32 unk10;
     /* 0x14 */ s32 unk14;
-    /* 0x18 */ s32 unk18;
+    /* 0x18 */ s32 matrixIndex;
     /* 0x1C */ s32 unk1C;
     /* 0x20 */ s32 unk20;
     /* 0x24 */ u16 unk24;
-    /* 0x26 */ u8 unk26;
+    /* 0x26 */ u8 active;
     /* 0x27 */ u8 unk27;
     /* 0x28 */ struct ModelNode *next;
 } ModelNode; // size = 0x2C
@@ -43,13 +43,13 @@ typedef struct ModelSubNode {
 } ModelSubNode; // size = 0x20
 
 typedef struct ActorSub140 {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ f32 unk14;
-    /* 0x18 */ f32 unk18;
+    /* 0x00 */ s32 scaledX;
+    /* 0x04 */ s32 scaledY;
+    /* 0x08 */ s32 scaledZ;
+    /* 0x0C */ s32 scaledRadius;
+    /* 0x10 */ s32 scaledHeight;
+    /* 0x14 */ f32 radius;
+    /* 0x18 */ f32 height;
     /* 0x1C */ u8 pad1C[0x8];
     /* 0x24 */ u8 unk24;
     /* 0x25 */ u8 pad25[0x3B];
@@ -58,19 +58,19 @@ typedef struct ActorSub140 {
     /* 0x68 */ s32 unk68;
     /* 0x6C */ u8 unk6C;
     /* 0x6D */ u8 pad6D[3];
-    /* 0x70 */ s32 unk70;
+    /* 0x70 */ s32 boxBounds;
     /* 0x74 */ s32 unk74;
     /* 0x78 */ s32 unk78;
     /* 0x7C */ s32 unk7C;
     /* 0x80 */ s32 unk80;
     /* 0x84 */ s32 unk84;
     /* 0x88 */ s32 unk88;
-    /* 0x8C */ ModelNode *unk8C;
-    /* 0x90 */ ModelSubNode *unk90;
-    /* 0x94 */ s32 unk94;
-    /* 0x98 */ void *unk98;
-    /* 0x9C */ s32 unk9C;
-    /* 0xA0 */ void *unkA0;
+    /* 0x8C */ ModelNode *nodes;
+    /* 0x90 */ ModelSubNode *subNodes;
+    /* 0x94 */ s32 triangleCount;
+    /* 0x98 */ void *triangles;
+    /* 0x9C */ s32 boxCount;
+    /* 0xA0 */ void *boxes;
     /* 0xA4 */ s32 unkA4;
     /* 0xA8 */ s32 unkA8;
     /* 0xAC */ u8 unkAC;
@@ -152,7 +152,7 @@ typedef struct ActorGlobalState {
 
 typedef struct Actor {
     /* 0x000 */ u8 unk00[4];
-    /* 0x004 */ ActorSub4 *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 unk08[0x50];
     /* 0x058 */ s32 actorType;
     /* 0x05C */ u16 collisionFlags;
@@ -211,28 +211,28 @@ typedef struct Actor {
     /* 0x111 */ u8 unk111[3];
     /* 0x114 */ ActorList *riderList;
     /* 0x118 */ u8 unk118[4];
-    /* 0x11C */ s32 unk11C;
+    /* 0x11C */ struct Actor *parentActor;
     /* 0x120 */ u8 unk120[4];
-    /* 0x124 */ s32 unk124;
-    /* 0x128 */ s16 unk128;
-    /* 0x12A */ s16 unk12A;
+    /* 0x124 */ void *spawnData;
+    /* 0x128 */ s16 alpha;
+    /* 0x12A */ s16 drawDistance;
     /* 0x12C */ s16 chunkIndex;
     /* 0x12E */ u8 pad12E[2];
-    /* 0x130 */ u8 unk130;
-    /* 0x131 */ u8 unk131;
-    /* 0x132 */ s16 unk132;
+    /* 0x130 */ u8 cullMarginX;
+    /* 0x131 */ u8 cullMarginY;
+    /* 0x132 */ s16 interactionType;
     /* 0x134 */ s16 health;
     /* 0x136 */ s16 damage;
     /* 0x138 */ s32 callbackMask;
     /* 0x13C */ ActorCallbackNode *callbacks;
-    /* 0x140 */ ActorSub140 *unk140;
+    /* 0x140 */ ActorSub140 *collision;
     /* 0x144 */ u8 unk144;
     /* 0x145 */ u8 unk145[0xB];
     /* 0x150 */ s32 floorTriangle;
     /* 0x154 */ u8 state;
     /* 0x155 */ u8 unk155[7];
     /* 0x15C */ s16 spawnTimer;
-    /* 0x15E */ u8 unk15E;
+    /* 0x15E */ u8 eyeHeight;
     /* 0x15F */ u8 unk15F;
     /* 0x160 */ f64 splineT;
     /* 0x168 */ s16 yawSpeed;
@@ -241,7 +241,7 @@ typedef struct Actor {
     /* 0x16C */ u8 tintB;
     /* 0x16D */ u8 tintA;
     /* 0x16E */ u8 unk16E[6];
-    /* 0x174 */ void *unk174;
+    /* 0x174 */ void *customState;
 } Actor;
 
 // Per-behaviour state objects reached through gBehaviourWorkState..gBehaviourExtraState.

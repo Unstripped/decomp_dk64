@@ -40,7 +40,7 @@ extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
 
 Gfx *bonusRenderReelHud(Gfx *gdl, Actor *actor) {
-    LB3Obj *reelObj = actor->unk174;
+    LB3Obj *reelObj = actor->customState;
 
     gDPPipeSync(gdl++);
     gDPSetPrimColor(gdl++, 0, 0, 200, 200, 200, 255);
@@ -56,7 +56,7 @@ Gfx *bonusRenderReelHud(Gfx *gdl, Actor *actor) {
 
 void *bonusSpawnReel(s32 type, s16 x, s16 y, s16 z) {
     if (actorSpawn(0xDB, type) != 0) {
-        BonusEObj *obj = gSpawnedActor->unk174;
+        BonusEObj *obj = gSpawnedActor->customState;
         gSpawnedActor->x = (f32)x;
         gSpawnedActor->y = (f32)y;
         gSpawnedActor->z = (f32)z;
@@ -94,7 +94,7 @@ void bonusSpawnEffectBurst(s16 x, s16 y, s16 z, s16 count) {
 void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
 void bonusReelNextRound(LB3Obj *obj) {
-    LB3Player *player = gPrimaryPlayerActor->unk174;
+    LB3Player *player = gPrimaryPlayerActor->customState;
     camSetTarget(player->unk104, gPrimaryPlayerActor, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
     gCurrentActor->state = 3;
     gCurrentActor->unk155[0] = 1;
@@ -127,7 +127,7 @@ void func_806FDAB8(u8, f32);
 s32 playerStateQueueCallback(s32, s32, s32);
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 unsigned int camStartPath(s32, s32, s32);
-void func_8070D8C0(void *, s32, u8);
+void resQueueAttachActor(void *, s32, u8);
 void func_8071495C(void);
 void func_80714998(s32);
 void func_807149FC(s32);
@@ -153,8 +153,8 @@ void bonusReelGameUpdate(void) {
     s32 two;
 
     two = 2;
-    player = gPrimaryPlayerActor->unk174;
-    obj = gCurrentActor->unk174;
+    player = gPrimaryPlayerActor->customState;
+    obj = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->x = 52.0f;
         gCurrentActor->z = 18.0f;
@@ -192,7 +192,7 @@ void bonusReelGameUpdate(void) {
             break;
         }
     }
-    if (obj->unk1A != 0 && ((Actor *)gCurrentActor->unk11C)->state == 5) {
+    if (obj->unk1A != 0 && gCurrentActor->parentActor->state == 5) {
         gCurrentActor->state = 1;
         gCurrentActor->unk155[0] = 0;
     }
@@ -201,7 +201,7 @@ void bonusReelGameUpdate(void) {
         switch (gCurrentActor->unk155[0]) {
         case 0:
             if (gGameMode != 1) {
-                func_8070D8C0(gCurrentActor, 0, 3);
+                resQueueAttachActor(gCurrentActor, 0, 3);
                 gCurrentActor->unk155[0] += 1;
             }
             break;
@@ -238,7 +238,7 @@ void bonusReelGameUpdate(void) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x179, 0xFF, 0x7F, 1);
             if (obj->unk1A == 0) {
                 obj->unk1A = 1;
-                actorSetStateTwo((void *)gCurrentActor->unk11C);
+                actorSetStateTwo((void *)gCurrentActor->parentActor);
                 sfxAllocateChannel(8, 1.0f);
             }
             break;
@@ -276,7 +276,7 @@ void bonusReelGameUpdate(void) {
             n_alSndpStop(D_807457E4[gCurrentActor->soundSlot]);
         }
     case 1:
-        if (((Actor *)gCurrentActor->unk11C)->state != 5) {
+        if (gCurrentActor->parentActor->state != 5) {
             if (bonusGetReelSymbol(obj, 0) == 0 && bonusGetReelSymbol(obj, 0) == bonusGetReelSymbol(obj, 1) && bonusGetReelSymbol(obj, 1) == bonusGetReelSymbol(obj, 2) && bonusGetReelSymbol(obj, 2) == bonusGetReelSymbol(obj, 3)) {
                 func_806FDAB8(obj->unk19, 3.1415927f);
                 obj->unk16 -= 1;
@@ -334,7 +334,7 @@ void bonusReelUpdate(void) {
     BonusEObj *obj;
     s16 t;
 
-    obj = gCurrentActor->unk174;
+    obj = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->roll = ((randomNonNegative() >> 15) % 6 * 0x3C000) / 360;
     }
@@ -386,7 +386,7 @@ void camStartPathNearWall(void *, s32, s32, s32);
 void bonusEndWin(u8 useCutsceneCam, u8 textIndex) {
     sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
     textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, textIndex, 1), 0, 0x28, 8, 8);
-    ((Actor *)gCurrentActor->unk11C)->state = 0;
+    gCurrentActor->parentActor->state = 0;
     sfxAllocateChannel(0x28, 1.0f);
     playerStateQueueCallback(0x44, 0, 0);
     gCurrentActor->state += 1;
@@ -396,7 +396,7 @@ void bonusEndWin(u8 useCutsceneCam, u8 textIndex) {
 }
 
 void bonusEndLose(u8 useCutsceneCam, u8 textIndex) {
-    ((Actor *)gCurrentActor->unk11C)->state = 0;
+    gCurrentActor->parentActor->state = 0;
     textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, textIndex, 1), 0, 0x28, 8, 8);
     sfxAllocateChannel(0x57, 1.0f);
     playerStateQueueCallback(0x43, 0, 0);

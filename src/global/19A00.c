@@ -17,7 +17,7 @@ typedef struct ActorRampState {
 void scriptSetActorRampTarget(Actor *actor, f32 targetVal, f32 rampTime) {
     ActorRampState *ramp;
 
-    ramp = (ActorRampState *)actor->unk4;
+    ramp = (ActorRampState *)actor->sub4;
     if (rampTime > 0.0f) {
         ramp->unk58 = rampTime;
         ramp->unk50 = targetVal;
@@ -45,7 +45,7 @@ typedef struct RampValueHolder {
 void scriptSetRampValue(Actor *arg0, f32 arg1, f32 arg2) {
     RampValue *temp_v0;
 
-    temp_v0 = ((RampValueHolder *)arg0->unk4)->unk0;
+    temp_v0 = ((RampValueHolder *)arg0->sub4)->unk0;
     if (arg2 > 0.0f) {
         temp_v0->unk34 = arg2;
         temp_v0->unk2C = arg1;
@@ -73,7 +73,7 @@ typedef struct ActorScriptState {
 void actorScriptExecute(Actor *actor) {
     ActorScriptState *state;
 
-    state = (ActorScriptState *)actor->unk4;
+    state = (ActorScriptState *)actor->sub4;
     if (state->unk68 != NULL) {
         sScriptContinueRunning = 1;
         sScriptPc = state->unk6C;
@@ -127,7 +127,7 @@ void actorScriptStart(Actor *arg0, s32 arg1) {
     unsigned int base;
     s32 script;
 
-    state = (ScriptLoadState *)arg0->unk4;
+    state = (ScriptLoadState *)arg0->sub4;
     state->unk70 = 0;
     state->unk78 = 0;
     state->unk7C = 0;
@@ -198,7 +198,7 @@ s32 scriptOpSetRegister(Actor *arg0) {
 
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
-    ((ScriptState *)arg0->unk4)->unk88 = sp1E;
+    ((ScriptState *)arg0->sub4)->unk88 = sp1E;
     return 1;
 }
 
@@ -206,7 +206,7 @@ s32 scriptOpDecrementRegister(Actor *arg0) {
     ScriptState *temp_v0;
     s32 temp_v1;
 
-    temp_v0 = (ScriptState *)arg0->unk4;
+    temp_v0 = (ScriptState *)arg0->sub4;
     temp_v1 = temp_v0->unk88;
     if (temp_v1 != 0) {
         temp_v0->unk88 = temp_v1 - 1;
@@ -219,7 +219,7 @@ s32 scriptOpWaitRegisterCountdown(Actor *arg0) {
     ScriptState *temp_v1;
     s32 temp_a1;
 
-    temp_v1 = (ScriptState *)arg0->unk4;
+    temp_v1 = (ScriptState *)arg0->sub4;
     temp_a1 = temp_v1->unk88;
     if (temp_a1 != 0) {
         temp_v1->unk88 = temp_a1 - 1;
@@ -251,7 +251,7 @@ s32 scriptOpCheckSelectorActive(Actor *arg0) {
     ScriptSelectorState *state;
     ScriptSelectorValue *value;
 
-    state = (ScriptSelectorState *)arg0->unk4;
+    state = (ScriptSelectorState *)arg0->sub4;
     if (state->unk84 != 0) {
         value = state->unk4;
     } else {
@@ -259,7 +259,7 @@ s32 scriptOpCheckSelectorActive(Actor *arg0) {
     }
     sScriptPc++;
     if ((value->unk24 != 0.0f) || ((value->unk2C != 0.0f) && (value->unk34 != 0.0f))) {
-        ((ScriptSelectorState *)arg0->unk4)->unk78 |= 1;
+        ((ScriptSelectorState *)arg0->sub4)->unk78 |= 1;
     }
     return 0;
 }
@@ -270,8 +270,8 @@ s32 scriptOpSetCountdownFromByte(Actor *arg0) {
     sScriptPc++;
     scriptReadU8(&sp1F);
     if (sp1F) {
-        ((ScriptState *)arg0->unk4)->unk7C = sp1F - 1;
-        ((ScriptState *)arg0->unk4)->flags |= 2;
+        ((ScriptState *)arg0->sub4)->unk7C = sp1F - 1;
+        ((ScriptState *)arg0->sub4)->flags |= 2;
         return 0;
     }
     return 1;
@@ -288,8 +288,8 @@ s32 scriptOpSetRandomByteInRange(Actor *arg0) {
     scriptReadU8(&max);
     val = (((randomNonNegative() >> 15) % 32767) % ((max - min) + 1)) + min;
     if (val != 0) {
-        ((ScriptState *)arg0->unk4)->unk7C = val - 1;
-        ((ScriptState *)arg0->unk4)->flags |= 2;
+        ((ScriptState *)arg0->sub4)->unk7C = val - 1;
+        ((ScriptState *)arg0->sub4)->flags |= 2;
         return 0;
     }
     return 1;
@@ -297,7 +297,7 @@ s32 scriptOpSetRandomByteInRange(Actor *arg0) {
 
 s32 scriptOpEnableFlag4(Actor *arg0) {
     sScriptPc++;
-    ((ScriptState *)arg0->unk4)->flags |= 4;
+    ((ScriptState *)arg0->sub4)->flags |= 4;
     return 0;
 }
 
@@ -306,7 +306,7 @@ s32 scriptOpOrFlags(Actor *arg0) {
 
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
-    ((ScriptState *)arg0->unk4)->flags |= sp1E;
+    ((ScriptState *)arg0->sub4)->flags |= sp1E;
     return 0;
 }
 
@@ -327,10 +327,10 @@ s32 scriptOpSetRampTarget(Actor *arg0) {
     sScriptPc++;
     scriptReadU32((u8 *)&sp1C);
     if (sp1C < 0.0f) {
-        sp1C = (f32)((ScriptRateState *)actor->unk4)->unk88;
+        sp1C = (f32)((ScriptRateState *)actor->sub4)->unk88;
     }
-    ((ScriptRateState *)actor->unk4)->unk80 = sp1C;
-    ((ScriptRateState *)actor->unk4)->unk78 |= 8;
+    ((ScriptRateState *)actor->sub4)->unk80 = sp1C;
+    ((ScriptRateState *)actor->sub4)->unk78 |= 8;
     return 0;
 }
 
@@ -370,25 +370,25 @@ s32 scriptOpApproachRampTarget(Actor *arg0) {
     Actor *actor;
 
     actor = arg0;
-    if (((ScriptValueState *)actor->unk4)->unk84 != 0) {
-        sp20 = ((ScriptValueState *)actor->unk4)->unk4;
+    if (((ScriptValueState *)actor->sub4)->unk84 != 0) {
+        sp20 = ((ScriptValueState *)actor->sub4)->unk4;
     } else {
-        sp20 = ((ScriptValueState *)actor->unk4)->unk0;
+        sp20 = ((ScriptValueState *)actor->sub4)->unk0;
     }
     sScriptPc++;
     scriptReadU32((u8 *)&sp24);
     if (sp24 < 0.0f) {
-        sp24 = (f32)((ScriptValueState *)actor->unk4)->unk88;
+        sp24 = (f32)((ScriptValueState *)actor->sub4)->unk88;
     }
-    if ((((ScriptValueState *)actor->unk4)->unk48 * sp20->unk24) > 0.0f) {
+    if ((((ScriptValueState *)actor->sub4)->unk48 * sp20->unk24) > 0.0f) {
         if (sp24 <= sp20->unk4) {
             return 1;
         }
     } else if (sp20->unk4 <= sp24) {
         return 1;
     }
-    ((ScriptValueState *)actor->unk4)->unk80 = sp24;
-    ((ScriptValueState *)actor->unk4)->unk78 |= 8;
+    ((ScriptValueState *)actor->sub4)->unk80 = sp24;
+    ((ScriptValueState *)actor->sub4)->unk78 |= 8;
     return 0;
 }
 
@@ -396,7 +396,7 @@ s32 scriptOpEnableValueState10(Actor *arg0) {
     ScriptValueState *state;
 
     sScriptPc++;
-    state = (ScriptValueState *)arg0->unk4;
+    state = (ScriptValueState *)arg0->sub4;
     if (*state->unk8 != 0) {
         state->unk78 |= 0x10;
     }
@@ -407,7 +407,7 @@ s32 scriptOpStepRampValue(Actor *arg0) {
     f32 sp1C;
     ScriptValueState *state;
 
-    state = (ScriptValueState *)arg0->unk4;
+    state = (ScriptValueState *)arg0->sub4;
     sScriptPc++;
     scriptReadU32((u8 *)&sp1C);
     if (*state->unk8 != 0) {
@@ -415,13 +415,13 @@ s32 scriptOpStepRampValue(Actor *arg0) {
             state->unk44 = sp1C;
             state->unk40 = state->unk44 - (state->unk10 * state->unk44);
         }
-        ((ScriptValueState *)arg0->unk4)->unk78 |= 0x10;
+        ((ScriptValueState *)arg0->sub4)->unk78 |= 0x10;
     }
     return 0;
 }
 
 s32 scriptOpWaitRegisterNonZero(Actor *arg0) {
-    if (((ScriptValueState *)arg0->unk4)->unk88 != 0) {
+    if (((ScriptValueState *)arg0->sub4)->unk88 != 0) {
         sScriptPc++;
         return 1;
     }
@@ -429,7 +429,7 @@ s32 scriptOpWaitRegisterNonZero(Actor *arg0) {
 }
 
 s32 scriptOpWaitRegisterZero(Actor *arg0) {
-    if (((ScriptValueState *)arg0->unk4)->unk88 == 0) {
+    if (((ScriptValueState *)arg0->sub4)->unk88 == 0) {
         sScriptPc++;
         return 1;
     }
@@ -437,7 +437,7 @@ s32 scriptOpWaitRegisterZero(Actor *arg0) {
 }
 
 s32 scriptOpWaitValueZero(Actor *arg0) {
-    if (((ScriptValueState *)arg0->unk4)->unk4->unk0 == 0) {
+    if (((ScriptValueState *)arg0->sub4)->unk4->unk0 == 0) {
         sScriptPc++;
         return 1;
     }
@@ -447,7 +447,7 @@ s32 scriptOpWaitValueZero(Actor *arg0) {
 s32 scriptOpWaitValueEqual(Actor *arg0) {
     ScriptValueState *state;
 
-    state = (ScriptValueState *)arg0->unk4;
+    state = (ScriptValueState *)arg0->sub4;
     if (state->unk28 == state->unk2C) {
         sScriptPc++;
         return 1;
@@ -470,10 +470,10 @@ s32 scriptOpSetActionVelocity(Actor *arg0) {
     f32 sp24;
     ScriptActionView *sp20;
 
-    if (((ScriptValueState *)arg0->unk4)->unk84 != 0) {
-        sp20 = (ScriptActionView *)((ScriptValueState *)arg0->unk4)->unk4;
+    if (((ScriptValueState *)arg0->sub4)->unk84 != 0) {
+        sp20 = (ScriptActionView *)((ScriptValueState *)arg0->sub4)->unk4;
     } else {
-        sp20 = (ScriptActionView *)((ScriptValueState *)arg0->unk4)->unk0;
+        sp20 = (ScriptActionView *)((ScriptValueState *)arg0->sub4)->unk0;
     }
     sScriptPc++;
     scriptReadU32((u8 *)&sp24);
@@ -510,7 +510,7 @@ s32 scriptOpAccelerateAction(Actor *arg0) {
     ScriptActionInfo *action;
     ScriptActionInfoState *state;
 
-    state = (ScriptActionInfoState *)arg0->unk4;
+    state = (ScriptActionInfoState *)arg0->sub4;
     if (state->unk84 != 0) {
         action = state->unk4;
     } else {
@@ -529,10 +529,10 @@ s32 scriptOpApproachActionTarget(Actor *arg0) {
     f32 sp20;
     ScriptActionInfo *action;
 
-    if (((ScriptActionInfoState *)arg0->unk4)->unk84 != 0) {
-        action = ((ScriptActionInfoState *)arg0->unk4)->unk4;
+    if (((ScriptActionInfoState *)arg0->sub4)->unk84 != 0) {
+        action = ((ScriptActionInfoState *)arg0->sub4)->unk4;
     } else {
-        action = ((ScriptActionInfoState *)arg0->unk4)->unk0;
+        action = ((ScriptActionInfoState *)arg0->sub4)->unk0;
     }
     sScriptPc++;
     scriptReadU32((u8 *)&sp24);
@@ -551,7 +551,7 @@ s32 func_806158E8(Actor *arg0) {
     ScriptActionInfoState *state;
     ScriptActionResourceInfo *resource;
 
-    state = (ScriptActionInfoState *)arg0->unk4;
+    state = (ScriptActionInfoState *)arg0->sub4;
     if (state->unk84 != 0) {
         action = state->unk4;
     } else {
@@ -668,7 +668,7 @@ s32 scriptOpReadRampInterpolation(Actor *arg0) {
     ScriptValue *sp20;
     ScriptValueState *temp_v0;
 
-    temp_v0 = (ScriptValueState *)arg0->unk4;
+    temp_v0 = (ScriptValueState *)arg0->sub4;
     if (temp_v0->unk84 != 0) {
         var_a1 = temp_v0->unk4;
     } else {
@@ -678,7 +678,7 @@ s32 scriptOpReadRampInterpolation(Actor *arg0) {
     sScriptPc++;
     scriptReadU8(&sp27);
     if (sp27 == 0xFF) {
-        sp27 = ((ScriptValueState *)arg0->unk4)->unk88;
+        sp27 = ((ScriptValueState *)arg0->sub4)->unk88;
     }
     controllerApplyMotionWindow(arg0, sp20, (f32)sp27);
     return 1;
@@ -691,7 +691,7 @@ s32 func_80615CE4(Actor *arg0) {
     void *var_a1;
     ScriptValueState *temp_v0;
 
-    temp_v0 = (ScriptValueState *)arg0->unk4;
+    temp_v0 = (ScriptValueState *)arg0->sub4;
     if (temp_v0->unk84 != 0) {
         var_a1 = temp_v0->unk4;
     } else {
@@ -739,10 +739,10 @@ s32 scriptOpUpdateMotionDelta(Actor *arg0) {
     u8 sp27;
     ScriptMotion *sp20;
 
-    if (((ScriptMotionState *)arg0->unk4)->unk84 != 0) {
-        sp20 = ((ScriptMotionState *)arg0->unk4)->unk4;
+    if (((ScriptMotionState *)arg0->sub4)->unk84 != 0) {
+        sp20 = ((ScriptMotionState *)arg0->sub4)->unk4;
     } else {
-        sp20 = ((ScriptMotionState *)arg0->unk4)->unk0;
+        sp20 = ((ScriptMotionState *)arg0->sub4)->unk0;
     }
     sScriptPc++;
     scriptReadU8(&sp27);
@@ -755,7 +755,7 @@ s32 scriptOpUpdateMotionDelta(Actor *arg0) {
         sp20->unk8 = -(sp20->unk4 - (f32)sp20->unkC);
     }
     sp20->unkE = sp27;
-    ((ScriptMotionState *)arg0->unk4)->unk78 |= 0x20;
+    ((ScriptMotionState *)arg0->sub4)->unk78 |= 0x20;
     return 1;
 }
 
@@ -767,10 +767,10 @@ s32 scriptOpApplyMotionFriction(Actor *arg0) {
     f32 temp_fv0;
     s16 temp_v1_2;
 
-    if (((ScriptMotionState *)arg0->unk4)->unk84 != 0) {
-        sp28 = ((ScriptMotionState *)arg0->unk4)->unk4;
+    if (((ScriptMotionState *)arg0->sub4)->unk84 != 0) {
+        sp28 = ((ScriptMotionState *)arg0->sub4)->unk4;
     } else {
-        sp28 = ((ScriptMotionState *)arg0->unk4)->unk0;
+        sp28 = ((ScriptMotionState *)arg0->sub4)->unk0;
     }
     sScriptPc++;
     scriptReadU8(&sp2F);
@@ -788,7 +788,7 @@ s32 scriptOpApplyMotionFriction(Actor *arg0) {
             sp28->unk8 = -(temp_fv1 - temp_fv0);
         }
         sp28->unkE = sp2E;
-        ((ScriptMotionState *)arg0->unk4)->unk78 |= 0x20;
+        ((ScriptMotionState *)arg0->sub4)->unk78 |= 0x20;
     } else {
         sp28->unkC = (temp_v1_2 + sp2E) - sp2F;
         sp28->unkE = (sp28->unkE + sp2E) - sp2F;
@@ -815,7 +815,7 @@ s32 scriptOpSetMotionAngleFlags(Actor *arg0) {
     void *sp20;
     ScriptMotionFlagsState *temp_v0;
 
-    temp_v0 = (ScriptMotionFlagsState *)arg0->unk4;
+    temp_v0 = (ScriptMotionFlagsState *)arg0->sub4;
     if (temp_v0->unk84 != 0) {
         var_v1 = temp_v0->unk4;
     } else {
@@ -834,7 +834,7 @@ s32 scriptOpClearMotionAngleFlags(Actor *arg0) {
     void *sp20;
     ScriptMotionFlagsState *temp_v0;
 
-    temp_v0 = (ScriptMotionFlagsState *)arg0->unk4;
+    temp_v0 = (ScriptMotionFlagsState *)arg0->sub4;
     if (temp_v0->unk84 != 0) {
         var_v1 = temp_v0->unk4;
     } else {
@@ -852,9 +852,9 @@ s32 scriptOpScaleMotionVelocity(Actor *arg0) {
     f32 sp20;
     ScriptMotion *sp1C;
 
-    sp1C = ((ScriptMotionState *)arg0->unk4)->unk84 != 0
-        ? ((ScriptMotionState *)arg0->unk4)->unk4
-        : ((ScriptMotionState *)arg0->unk4)->unk0;
+    sp1C = ((ScriptMotionState *)arg0->sub4)->unk84 != 0
+        ? ((ScriptMotionState *)arg0->sub4)->unk4
+        : ((ScriptMotionState *)arg0->sub4)->unk0;
     sScriptPc++;
     scriptReadU32((u8 *)&sp20);
     if (sp1C->unk0 != NULL) {
@@ -880,7 +880,7 @@ s32 scriptOpAccelerateMotionVelocity(Actor *arg0) {
     ScriptMotion *sp1C;
     ScriptMotionState *temp_v1;
 
-    temp_v1 = (ScriptMotionState *)arg0->unk4;
+    temp_v1 = (ScriptMotionState *)arg0->sub4;
     if (temp_v1->unk84 != 0) {
         sp1C = temp_v1->unk4;
     } else {
@@ -906,7 +906,7 @@ s32 scriptOpCapMotionVelocityMax(Actor *arg0) {
     ScriptMotionState *temp_v0;
     ScriptMotion *var_v1;
 
-    temp_v0 = (ScriptMotionState *)arg0->unk4;
+    temp_v0 = (ScriptMotionState *)arg0->sub4;
     if (temp_v0->unk84 != 0) {
         var_v1 = temp_v0->unk4;
     } else {
@@ -929,7 +929,7 @@ s32 scriptOpCapMotionVelocityMin(Actor *arg0) {
     ScriptMotionState *temp_v0;
     ScriptMotion *var_v1;
 
-    temp_v0 = (ScriptMotionState *)arg0->unk4;
+    temp_v0 = (ScriptMotionState *)arg0->sub4;
     if (temp_v0->unk84 != 0) {
         var_v1 = temp_v0->unk4;
     } else {
@@ -971,7 +971,7 @@ s32 scriptOpCallScriptByIndex(Actor *arg0) {
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
     actorScriptStartByIndex(arg0, sp1E);
-    sScriptPc = ((ScriptCursorView *)arg0->unk4)->unk6C;
+    sScriptPc = ((ScriptCursorView *)arg0->sub4)->unk6C;
     return sScriptContinueRunning;
 }
 
@@ -981,7 +981,7 @@ s32 scriptOpGotoScript(Actor *arg0) {
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
     actorScriptStart(arg0, sp1E);
-    sScriptPc = ((ScriptCursorView *)arg0->unk4)->unk6C;
+    sScriptPc = ((ScriptCursorView *)arg0->sub4)->unk6C;
     return sScriptContinueRunning;
 }
 
@@ -993,7 +993,7 @@ typedef struct ScriptFlagState {
 s32 scriptOpEnableFlag8000(Actor *arg0) {
     ScriptFlagState *temp_v1;
 
-    temp_v1 = (ScriptFlagState *)arg0->unk4;
+    temp_v1 = (ScriptFlagState *)arg0->sub4;
     temp_v1->unk78 |= 0x8000;
     return 0;
 }
@@ -1004,7 +1004,7 @@ s32 scriptOpResetRampVelocity(Actor *arg0) {
     void *sp20;
     ScriptValueState *temp_v0;
 
-    temp_v0 = (ScriptValueState *)arg0->unk4;
+    temp_v0 = (ScriptValueState *)arg0->sub4;
     if (temp_v0->unk84 != 0) {
         var_v1 = temp_v0->unk4;
     } else {
@@ -1013,7 +1013,7 @@ s32 scriptOpResetRampVelocity(Actor *arg0) {
     sp20 = var_v1;
     sScriptPc++;
     scriptReadU32((u8 *)&sp24);
-    ((ScriptValueState *)arg0->unk4)->unk88 = ((ScriptValue *)sp20)->unk4 - sp24;
+    ((ScriptValueState *)arg0->sub4)->unk88 = ((ScriptValue *)sp20)->unk4 - sp24;
     return 1;
 }
 
@@ -1027,7 +1027,7 @@ s32 scriptOpCompareStateToU16(Actor *arg0) {
 
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
-    ((ScriptCountdownState *)arg0->unk4)->unk88 = arg0->state - sp1E;
+    ((ScriptCountdownState *)arg0->sub4)->unk88 = arg0->state - sp1E;
     return 1;
 }
 
@@ -1036,7 +1036,7 @@ s32 scriptOpCompareSubStateToU16(Actor *arg0) {
 
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
-    ((ScriptCountdownState *)arg0->unk4)->unk88 = arg0->unk155[0] - sp1E;
+    ((ScriptCountdownState *)arg0->sub4)->unk88 = arg0->unk155[0] - sp1E;
     return 1;
 }
 
@@ -1049,14 +1049,14 @@ s32 func_80616518(Actor *arg0) {
     u16 sp26;
     ScriptCommandView *sp20;
 
-    if (((ScriptValueState *)arg0->unk4)->unk84 != 0) {
-        sp20 = (ScriptCommandView *)((ScriptValueState *)arg0->unk4)->unk4;
+    if (((ScriptValueState *)arg0->sub4)->unk84 != 0) {
+        sp20 = (ScriptCommandView *)((ScriptValueState *)arg0->sub4)->unk4;
     } else {
-        sp20 = (ScriptCommandView *)((ScriptValueState *)arg0->unk4)->unk0;
+        sp20 = (ScriptCommandView *)((ScriptValueState *)arg0->sub4)->unk0;
     }
     sScriptPc++;
     scriptReadU16((u8 *)&sp26);
-    ((ScriptValueState *)arg0->unk4)->unk88 = sp20->unk10 - sp26;
+    ((ScriptValueState *)arg0->sub4)->unk88 = sp20->unk10 - sp26;
     return 1;
 }
 
@@ -1070,7 +1070,7 @@ s32 scriptOpCompareGlobalCountdown(Actor *arg0) {
 
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
-    ((ScriptCountdownState *)arg0->unk4)->unk88 =
+    ((ScriptCountdownState *)arg0->sub4)->unk88 =
         ((GlobalCountdownView *)gActivePlayerState)->unk4E - sp1E;
     return 1;
 }
@@ -1085,7 +1085,7 @@ s32 scriptOpJump(Actor *arg0) {
 
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
-    sScriptPc = ((ScriptBaseCursorState *)arg0->unk4)->unk68 + sp1E;
+    sScriptPc = ((ScriptBaseCursorState *)arg0->sub4)->unk68 + sp1E;
     return 1;
 }
 
@@ -1113,7 +1113,7 @@ s32 scriptOpJumpIfRegisterNonZero(Actor *arg0) {
 
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
-    temp_v0 = (ScriptJumpState *)arg0->unk4;
+    temp_v0 = (ScriptJumpState *)arg0->sub4;
     if (temp_v0->unk88 != 0) {
         sScriptPc = temp_v0->unk68 + sp1E;
     }
@@ -1126,7 +1126,7 @@ s32 scriptOpJumpIfRegisterZero(Actor *arg0) {
 
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
-    temp_v0 = (ScriptJumpState *)arg0->unk4;
+    temp_v0 = (ScriptJumpState *)arg0->sub4;
     if (temp_v0->unk88 == 0) {
         sScriptPc = temp_v0->unk68 + sp1E;
     }
@@ -1139,7 +1139,7 @@ s32 scriptOpJumpIfRegisterPositive(Actor *arg0) {
 
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
-    temp_v0 = (ScriptJumpState *)arg0->unk4;
+    temp_v0 = (ScriptJumpState *)arg0->sub4;
     if (temp_v0->unk88 > 0) {
         sScriptPc = temp_v0->unk68 + sp1E;
     }
@@ -1152,7 +1152,7 @@ s32 scriptOpJumpIfRegisterNegative(Actor *arg0) {
 
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
-    temp_v0 = (ScriptJumpState *)arg0->unk4;
+    temp_v0 = (ScriptJumpState *)arg0->sub4;
     if (temp_v0->unk88 < 0) {
         sScriptPc = temp_v0->unk68 + sp1E;
     }
@@ -1160,7 +1160,7 @@ s32 scriptOpJumpIfRegisterNegative(Actor *arg0) {
 }
 
 s32 scriptOpRestart(Actor *arg0) {
-    sScriptPc = ((ScriptJumpState *)arg0->unk4)->unk68;
+    sScriptPc = ((ScriptJumpState *)arg0->sub4)->unk68;
     return 1;
 }
 
@@ -1168,9 +1168,9 @@ s32 scriptOpJumpTable(Actor *arg0) {
     s16 sp1E;
 
     /* Preserve IDO's evaluation tree for its register allocation. */
-    sScriptPc = (0, 1) + (sScriptPc + (((ScriptJumpState *)arg0->unk4)->unk88 * 2));
+    sScriptPc = (0, 1) + (sScriptPc + (((ScriptJumpState *)arg0->sub4)->unk88 * 2));
     scriptReadU16((u8 *)&sp1E);
-    sScriptPc = ((ScriptJumpState *)arg0->unk4)->unk68 + sp1E;
+    sScriptPc = ((ScriptJumpState *)arg0->sub4)->unk68 + sp1E;
     return (sp1E = 1);
 }
 
@@ -1179,8 +1179,8 @@ s32 scriptOpCallSaveReturn(Actor *arg0) {
     u16 sp22;
     ScriptJumpState *sp1C;
 
-    sp24 = ((ScriptJumpState *)arg0->unk4)->unk88;
-    sp1C = (ScriptJumpState *)arg0->unk4;
+    sp24 = ((ScriptJumpState *)arg0->sub4)->unk88;
+    sp1C = (ScriptJumpState *)arg0->sub4;
     sScriptPc++;
     scriptReadU16((u8 *)&sp22);
     sp1C->unk5C = sp1C->unk64;
@@ -1195,7 +1195,7 @@ s32 scriptOpCall(Actor *arg0) {
     u16 sp1E;
     ScriptJumpState *sp18;
 
-    sp18 = (ScriptJumpState *)arg0->unk4;
+    sp18 = (ScriptJumpState *)arg0->sub4;
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
     sp18->unk5C = sp18->unk64;
@@ -1208,8 +1208,8 @@ s32 scriptOpReturn(Actor *arg0) {
     s32 sp1C;
     ScriptJumpState *sp18;
 
-    sp1C = ((ScriptJumpState *)arg0->unk4)->unk88;
-    sp18 = (ScriptJumpState *)arg0->unk4;
+    sp1C = ((ScriptJumpState *)arg0->sub4)->unk88;
+    sp18 = (ScriptJumpState *)arg0->sub4;
     actorScriptStart(arg0, sp18->unk5C);
     sScriptPc = sp18->unk68 + sp18->unk60;
     sp18->unk5C = 0;
@@ -1240,7 +1240,7 @@ typedef struct ScriptCommandState {
 s32 scriptOpSetCommandHandler(Actor *arg0) {
     s16 sp1E;
     ScriptCommandState *sp18;
-    sp18 = (ScriptCommandState *)arg0->unk4;
+    sp18 = (ScriptCommandState *)arg0->sub4;
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
     sp18->unk70 = sScriptCommandTable[sp1E];
@@ -1308,7 +1308,7 @@ s32 scriptOpIncrementChildActorSubState(Actor *arg0) {
     Actor *temp_v1;
 
     sScriptPc++;
-    temp_v1 = (Actor *)arg0->unk11C;
+    temp_v1 = arg0->parentActor;
     temp_v1->unk155[0]++;
     return 1;
 }
@@ -1321,19 +1321,19 @@ s32 scriptOpSetRegisterRandom(Actor *arg0) {
     sScriptPc++;
     scriptReadU8(&sp1F);
     scriptReadU8(&sp1E);
-    ((ScriptJumpState *)arg0->unk4)->unk88 = (s32)(((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % (s32)((sp1E - sp1F) + 1)) + sp1F);
+    ((ScriptJumpState *)arg0->sub4)->unk88 = (s32)(((s32)((s32)(randomNonNegative() >> 0xF) % 32767) % (s32)((sp1E - sp1F) + 1)) + sp1F);
     return 1;
 }
 
 s32 scriptOpEnableFlag84(Actor *arg0) {
     sScriptPc++;
-    ((ScriptJumpState *)arg0->unk4)->unk84 = 1;
+    ((ScriptJumpState *)arg0->sub4)->unk84 = 1;
     return 1;
 }
 
 s32 scriptOpDisableFlag84(Actor *arg0) {
     sScriptPc++;
-    ((ScriptJumpState *)arg0->unk4)->unk84 = 0;
+    ((ScriptJumpState *)arg0->sub4)->unk84 = 0;
     return 1;
 }
 
@@ -1609,7 +1609,7 @@ s32 scriptOpPlayDistanceVolumeSound(Actor *arg0) {
     scriptReadU8(&sp42);
     scriptReadU8(&sp45);
     scriptReadU8(&sp44);
-    val = (((((f64)((ActorSoundScaleState *)arg0->unk4)->unk34 / 0.4381361) * 200.0) + 55.0) * (f64)sp43) / 255;
+    val = (((((f64)((ActorSoundScaleState *)arg0->sub4)->unk34 / 0.4381361) * 200.0) + 55.0) * (f64)sp43) / 255;
     var_fv1 = (val > 255.0) ? 255.0 : val;
     sfxPlayAtPositionPooled(arg0->x, arg0->y, arg0->z, sp46, (u32)var_fv1, sp42, sp45, sp44, 0.3f, 0);
     return 1;
@@ -1661,7 +1661,7 @@ void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 void sfxSetVolumeAndPan(u8, f32, f32);
 void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, u8);
-void func_8070D8C0(Actor *, u16, u8);
+void resQueueAttachActor(Actor *, u16, u8);
 s32 scriptOpBranchOnCondition(Actor *, s16);
 extern u8 sScriptChannelIndexTable[];
 
@@ -1754,7 +1754,7 @@ s32 func_80617B38(Actor *arg0) {
     scriptReadU8(&sp2C);
     scriptReadU8((u8 *)&sp2B);
     sfxPlayActorSound(arg0, sp2E, sp2C, 1, sp2D, 0xFF, 1.0f, sp2B);
-    ((ActorStateSlotView *)arg0)->unk72 = ((ActorStateInnerView *)arg0->unk4)->unk0->unk10;
+    ((ActorStateSlotView *)arg0)->unk72 = ((ActorStateInnerView *)arg0->sub4)->unk0->unk10;
     return 1;
 }
 
@@ -1785,7 +1785,7 @@ s32 scriptOpSetActorTextState(Actor *arg0) {
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
     scriptReadU8(&sp1D);
-    func_8070D8C0(arg0, sp1E, sp1D);
+    resQueueAttachActor(arg0, sp1E, sp1D);
     return 1;
 }
 
@@ -1797,7 +1797,7 @@ void func_80617D20(Actor *arg0) {
     ScriptActionState *state;
     ScriptActionValue *value;
 
-    state = (ScriptActionState *)arg0->unk4;
+    state = (ScriptActionState *)arg0->sub4;
     if (state->unk84 != 0) {
         value = state->unk4;
     } else {
@@ -1830,7 +1830,7 @@ typedef struct GlobalFlagsView {
 } GlobalFlagsView;
 
 void scriptOpBranchByTimer8A(Actor *arg0) {
-    scriptOpBranchOnCondition(arg0, ((ScriptTimerSetState *)arg0->unk4)->unk8A);
+    scriptOpBranchOnCondition(arg0, ((ScriptTimerSetState *)arg0->sub4)->unk8A);
 }
 
 void func_80617D94(Actor *arg0) {
@@ -1868,28 +1868,28 @@ s32 scriptOpBranchOnCondition(Actor *arg0, s16 arg1) {
         case 1:
             if (arg1 == sp2C) {
                 scriptReadU16((u8 *)&sp2A);
-                sScriptPc = ((ScriptBranchState *)arg0->unk4)->unk68 + sp2A;
+                sScriptPc = ((ScriptBranchState *)arg0->sub4)->unk68 + sp2A;
                 return 1;
             }
             break;
         case 2:
             if (arg1 < sp2C) {
                 scriptReadU16((u8 *)&sp2A);
-                sScriptPc = ((ScriptBranchState *)arg0->unk4)->unk68 + sp2A;
+                sScriptPc = ((ScriptBranchState *)arg0->sub4)->unk68 + sp2A;
                 return 1;
             }
             break;
         case 3:
             if (sp2C < arg1) {
                 scriptReadU16((u8 *)&sp2A);
-                sScriptPc = ((ScriptBranchState *)arg0->unk4)->unk68 + sp2A;
+                sScriptPc = ((ScriptBranchState *)arg0->sub4)->unk68 + sp2A;
                 return 1;
             }
             break;
         case 4:
             if (arg1 == sp2C) {
                 scriptReadU16((u8 *)&sp2A);
-                ((ScriptBranchState *)arg0->unk4)->unk88 = sp2A;
+                ((ScriptBranchState *)arg0->sub4)->unk88 = sp2A;
                 func_80617D94(arg0);
                 return 1;
             }
@@ -1897,7 +1897,7 @@ s32 scriptOpBranchOnCondition(Actor *arg0, s16 arg1) {
         case 5:
             if (arg1 < sp2C) {
                 scriptReadU16((u8 *)&sp2A);
-                ((ScriptBranchState *)arg0->unk4)->unk88 = sp2A;
+                ((ScriptBranchState *)arg0->sub4)->unk88 = sp2A;
                 func_80617D94(arg0);
                 return 1;
             }
@@ -1905,14 +1905,14 @@ s32 scriptOpBranchOnCondition(Actor *arg0, s16 arg1) {
         case 6:
             if (sp2C < arg1) {
                 scriptReadU16((u8 *)&sp2A);
-                ((ScriptBranchState *)arg0->unk4)->unk88 = sp2A;
+                ((ScriptBranchState *)arg0->sub4)->unk88 = sp2A;
                 func_80617D94(arg0);
                 return 1;
             }
             break;
         case 7:
             scriptReadU16((u8 *)&sp2A);
-            ((ScriptBranchState *)arg0->unk4)->unk88 = sp2A;
+            ((ScriptBranchState *)arg0->sub4)->unk88 = sp2A;
             func_80617D94(arg0);
             return 1;
         }
@@ -1925,7 +1925,7 @@ s32 scriptOpSetTimer(Actor *arg0) {
 
     sScriptPc++;
     scriptReadU32((u8 *)&sp1C);
-    ((ScriptTimerSetState *)arg0->unk4)->unk8C = sp1C;
+    ((ScriptTimerSetState *)arg0->sub4)->unk8C = sp1C;
     return 1;
 }
 
@@ -1935,14 +1935,14 @@ s32 scriptOpWaitTimer(Actor *arg0) {
     f32 var_fv0;
     ScriptTimerState *state;
 
-    state = (ScriptTimerState *)arg0->unk4;
+    state = (ScriptTimerState *)arg0->sub4;
     if (state->unk30 & 1) {
         var_fv0 = (f32)gFrameDelta * 0.5f;
     } else {
         var_fv0 = 1.0f;
     }
     state->unk8C -= var_fv0;
-    if ((f64)((ScriptTimerState *)arg0->unk4)->unk8C <= 0.0) {
+    if ((f64)((ScriptTimerState *)arg0->sub4)->unk8C <= 0.0) {
         sScriptPc++;
         return 1;
     }
@@ -1984,11 +1984,11 @@ void projectileTrySpawnFromSlot(Actor *arg0) {
     s16 var_a2;
     ProjectilePlayerView *temp_v0;
 
-    sp44 = arg0->unk174;
+    sp44 = arg0->customState;
     slotQueueUpdate(4, 0, 0);
     if ((slotQueueGetValue(4, sp44->unk1A4) != 0) && (actorCountOwnedByClass(arg0, 4, 0) < D_80753E64[gCurrentCharacterIndex])) {
         slotQueueAddValue(4, sp44->unk1A4, -1);
-        sp50 = (f32)((f64)arg0->unk4->unk38 * 2.6666667064030967);
+        sp50 = (f32)((f64)arg0->sub4->scaleY * 2.6666667064030967);
         switch (arg0->actorType) {
             case 2:
             case 6:
@@ -2272,7 +2272,7 @@ void scriptCmdActorCamShake(Actor *arg0) {
     scriptReadU8(&sp3F);
     scriptReadU16((u8 *)&sp42);
     scriptReadU16((u8 *)&sp40);
-    sp3F = (u32)((f64)sp3F * ((f64)arg0->unk4->unk38 / 0.15));
+    sp3F = (u32)((f64)sp3F * ((f64)arg0->sub4->scaleY / 0.15));
     temp_v0 = arg0->actorType;
     if ((temp_v0 == 0xCC) || ((arg0->contactFlags & 1) && ((arg0->flags & 4) || (temp_v0 == 0xE4)) && (gGameMode != 1))) {
         var_v1 = (sp3F >= 21) ? 20 : sp3F;
@@ -2336,7 +2336,7 @@ void scriptCmdSetActorNodeFlag(Actor *arg0) {
 
     scriptReadU8(&sp1F);
     if (sp1F & 0x80) {
-        arg0->unk132 = (s16)(sp1F & 0x7F);
+        arg0->interactionType = (s16)(sp1F & 0x7F);
         return;
     }
     actorSetNodeFlag(arg0, sp1F);
@@ -2347,7 +2347,7 @@ void scriptCmdClearActorNodeFlag(Actor *arg0) {
 
     scriptReadU8(&sp1F);
     if (sp1F & 0x80) {
-        arg0->unk132 = (s16)(sp1F & 0x7F);
+        arg0->interactionType = (s16)(sp1F & 0x7F);
         return;
     }
     actorClearNodeFlag(arg0, sp1F);
@@ -2394,7 +2394,7 @@ void scriptCmdSpawnCharacterCompanion(Actor *arg0) {
     u8 *script;
 
     actorSpawn(0x135, sCharacterBehaviorMap[((ActorEffectView *)arg0)->unk58]);
-    actorCopyPoseAndScale(gSpawnedActor, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
+    actorCopyPoseAndScale(gSpawnedActor, arg0, ((ActorSpawnState *)arg0->sub4)->unk34);
     ((ActorEffectView *)gSpawnedActor)->unkE8 = ((ActorEffectView *)arg0)->unkE8;
     ((ActorEffectView *)gSpawnedActor)->unkE4 = ((ActorEffectView *)arg0)->unkE4;
     script = ((ActorEffectView *)gSpawnedActor)->unk174;
@@ -2408,7 +2408,7 @@ void scriptCmdSpawnSmokeRing(Actor *arg0) {
     scriptReadU8(&sp1F);
     if (sp1F != 0) {
         actorSpawn(0x136, 0xA8);
-        actorCopyPoseAndScale(gSpawnedActor, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
+        actorCopyPoseAndScale(gSpawnedActor, arg0, ((ActorSpawnState *)arg0->sub4)->unk34);
         ((GlobalSpawnView *)gActivePlayerState)->unk88 = gSpawnedActor;
     } else {
         actor = (ActorEffectView *)((GlobalSpawnView *)gActivePlayerState)->unk88;
@@ -2531,17 +2531,17 @@ void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
     f32 var_fs0;
     ChildEffectNodeState *var_v1;
 
-    var_fs0 = (f32)((f64)arg0->unk4->unk38 / 0.15);
+    var_fs0 = (f32)((f64)arg0->sub4->scaleY / 0.15);
     scriptReadU16((u8 *)&sp46);
     scriptReadU16((u8 *)&sp44);
     scriptReadU16((u8 *)&sp42);
     scriptReadU16((u8 *)&sp40);
     actorSpawn(0x139, sp42);
-    actorCopyPoseAndScale(gSpawnedActor, arg0, ((ActorSpawnState *)arg0->unk4)->unk34);
+    actorCopyPoseAndScale(gSpawnedActor, arg0, ((ActorSpawnState *)arg0->sub4)->unk34);
     gSpawnedActor->yaw = arg0->yaw;
     gSpawnedActor->roll = arg0->roll;
     gSpawnedActor->pitch = arg0->pitch;
-    var_v1 = (ChildEffectNodeState *)gSpawnedActor->unk174;
+    var_v1 = (ChildEffectNodeState *)gSpawnedActor->customState;
     var_v1->unk10 = 0.0f;
     if (sp46 != 0xFFFF) {
         func_807149FC(-1);
@@ -2574,7 +2574,7 @@ void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
     var_v1->unk0 = sp44;
     var_v1->unk4 = arg0;
     var_v1->unk8 = ((ChildEffectActorView *)arg0)->unk54;
-    var_v1->unkC = ((ChildEffectSub4View *)arg0->unk4)->unk64;
+    var_v1->unkC = ((ChildEffectSub4View *)arg0->sub4)->unk64;
     var_v1->unk2 = sp40;
 }
 

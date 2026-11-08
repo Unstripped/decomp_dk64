@@ -150,7 +150,7 @@ void transitionRunFrame(s32, s32);
 void transitionSetState(s32);
 s32 transitionGetState(void);
 void resListTick(void);
-void func_8070E8C8(void);
+void resListReset(void);
 void effectSpritePoolReset(void);
 void func_80712A40(void);
 void func_80712B80(void);
@@ -862,9 +862,9 @@ void playerViewsBuildMatrices(void *outMtx) {
                            0x20, 0x20);
             fov = PLAYER_VIEWS[i].unk280;
             cc = D_807445CC;
-            pl = (PlayerActorData *)PLAYER_VIEWS[i].unk4->unk174;
+            pl = (PlayerActorData *)PLAYER_VIEWS[i].unk4->customState;
             pa = pl->unk104;
-            held = (HeldActorData *)pa->unk174;
+            held = (HeldActorData *)pa->customState;
             if (pl->unk1F0 & 0x100) {
                 fov += 0.5 * sinApprox(cc[0] * 0.1);
             } else if (pl->unk1F0 & 0x2000000) {
@@ -1243,7 +1243,7 @@ if (((s32) gActivePlayerCount >= 2) && !(gGlobalOverlayFlags & 0x04000000)) {
         camResetAllPlayers();
         renderCallbacksReset();
         gridBuildNodeLists();
-        func_8070E8C8();
+        resListReset();
         timerQueueAdd(sfxPlayCurrent, 2, 0, 0, 0);
         if (gGlobalOverlayFlags & 0x1000) {
             loadedAsset = assetLoad(0x16, gCurrentMap, 1, 1);

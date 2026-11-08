@@ -98,8 +98,8 @@ void func_80724A20(void);
 void func_80641874(s32, s32);
 void camResumePath(void *);
 void actorSetStateTwo(void *);
-void func_8070E8DC(s32);
-void func_8070D8C0(void *, s32, u8);
+void resQueueSetValue(s32);
+void resQueueAttachActor(void *, s32, u8);
 void sfxAllocateChannel(s32, f32);
 u16 camStartPath(void *, s32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
@@ -318,16 +318,16 @@ render:
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
             if (D_8076AEF2 == 0x11) {
-                func_8070E8DC(2);
+                resQueueSetValue(2);
             }
-            func_8070D8C0(gCurrentActor, 0, D_8002D863[challengeType << 2]);
+            resQueueAttachActor(gCurrentActor, 0, D_8002D863[challengeType << 2]);
             s->unk0 += 1;
         }
         break;
     case 1:
         if (!(gCurrentActor->flags & 0x02000000)) {
             camResumePath(gCurrentActor);
-            actorSetStateTwo((void *)gCurrentActor->unk11C);
+            actorSetStateTwo((void *)gCurrentActor->parentActor);
             switch (gCurrentMap) {
             case 3:
             case 0x23:
@@ -385,7 +385,7 @@ render:
             return;
         }
         pv = &challengeType;
-        if (((Actor *)gCurrentActor->unk11C)->state == 5) {
+        if (gCurrentActor->parentActor->state == 5) {
             if (*pv == 3) {
                 bonusEndWin(1, 0x15);
                 return;
@@ -395,7 +395,7 @@ render:
         }
         break;
     case 1:
-        ((Actor *)gCurrentActor->unk11C)->state = 0;
+        gCurrentActor->parentActor->state = 0;
         gCurrentActor->state += 1;
         break;
     case 0x27:
@@ -497,12 +497,12 @@ void bonusMazeChallengeUpdate(void) {
         if (snd->unk18 != 0) {
             snd->unk18--;
         } else {
-            actorSetStateTwo((void *)gCurrentActor->unk11C);
+            actorSetStateTwo((void *)gCurrentActor->parentActor);
             gCurrentActor->state = 1;
         }
         break;
     case 1:
-        if (((Actor *)gCurrentActor->unk11C)->state == 5) {
+        if (gCurrentActor->parentActor->state == 5) {
             textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, 0x15, 1), 0, 0x28, 8, 8);
             func_80726EE0(0);
             sfxAllocateChannel(0x28, 1.0f);

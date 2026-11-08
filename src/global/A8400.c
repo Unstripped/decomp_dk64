@@ -295,7 +295,7 @@ Gfx *textBoxRender(Gfx *arg0, Actor *arg1) {
     UINode *node;
     s32 i;
 
-    state = arg1->unk174;
+    state = arg1->customState;
     node = state->unkC;
     stop = 0;
     dl = heapAlloc(0x4000);
@@ -557,8 +557,8 @@ struct ChainNode {
     /* 0x1C */ ChainNode *unk1C;
 };
 
-void func_8070D9AC(ChainNode *);
-void func_8070E808(Actor *, void *);
+void resNodeFree(ChainNode *);
+void resQueueProcessNext(Actor *, void *);
 
 
 void textBoxUpdateRows(Actor *actor) {
@@ -574,7 +574,7 @@ void textBoxUpdateRows(Actor *actor) {
     u8 last;
     s32 i;
 
-    state = actor->unk174;
+    state = actor->customState;
     node = state->unkC;
     stop = 0;
     lim = (f32) ((f64) (1.0f - state->unk20) * 1.47058823529411775);
@@ -608,7 +608,7 @@ void textBoxUpdateRows(Actor *actor) {
             acc = acc + dt;
             cur = node;
             node = node->unk1C;
-            func_8070D9AC(cur);
+            resNodeFree(cur);
         } else {
             textBoxRowUpdateNodes(acc, (ActorStateView *) actor, (SpriteChainState *) state, (SpriteHolder *) node, last, &stop);
             if (stop == 0) {
@@ -629,7 +629,7 @@ void textBoxUpdateRows(Actor *actor) {
         }
     }
     if ((mode == 1) && (node == NULL)) {
-        func_8070E808(actor, state->unk4);
+        resQueueProcessNext(actor, state->unk4);
     }
 }
 
@@ -887,7 +887,7 @@ void textBoxUpdate(void) {
     s32 v0;
     f32 f;
 
-    sub = gCurrentActor->unk174;
+    sub = gCurrentActor->customState;
     stepSize = 0.05f;
     if (!(gCurrentActor->flags & 0x10)) {
         stepSize = 1.0f;
@@ -930,7 +930,7 @@ void textBoxUpdate(void) {
         } else {
             gCurrentActor->state = 1;
             sub->unk1D = D_807503F0;
-            func_8070E808(gCurrentActor, sub->unk4);
+            resQueueProcessNext(gCurrentActor, sub->unk4);
             renderCalcChainCenterOffset((ChainRowHead *)sub);
         }
         break;

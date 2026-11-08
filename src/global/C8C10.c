@@ -82,7 +82,7 @@ void camSetTargetCutsceneUnscaled(s32, void *, s32, s32, s32, s32, s32, s32, s32
 void camStartPath(void *, s32, s32);
 void camSetFollowMode(s32);
 void actorAirPatrolStep(u8, s16, s16);
-void func_8070D8C0(Actor *, s32, u8);
+void resQueueAttachActor(Actor *, s32, u8);
 void playerStateQueueCallback();
 
 void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
@@ -112,7 +112,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
         case 0x27:
             if ((R1C8aS->unk1A & 4) && (R1C8aS->unk25 & 0x7F) == startActionId) {
                 if (gPlayerSlots->unk2C0 == 0) {
-                    func_8070D8C0(gCurrentActor, 0x10, 1);
+                    resQueueAttachActor(gCurrentActor, 0x10, 1);
                     gCurrentActor->state = 0x29;
                     gCurrentActor->unk155[0] = 0;
                     gBehaviourExtraState->unk10 = 0x29;
@@ -120,7 +120,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
                     playerStateQueueCallback(0x54, 0, 0);
                     R1C8aS->unk1A |= 0x8000;
                 } else {
-                    func_8070D8C0(gCurrentActor, 0x10, 0);
+                    resQueueAttachActor(gCurrentActor, 0x10, 0);
                     gCurrentActor->state = 0x28;
                     gCurrentActor->unk155[0] = 0;
                     gBehaviourExtraState->unk10 = 0x28;
@@ -398,7 +398,7 @@ u8 func_806C4AC4(u16 spawnCooldown, u16 maxSpawns) {
                 gSpawnedActor->y = gCurrentActor->y - 10.0f;
                 gSpawnedActor->z = gCurrentActor->z;
                 gSpawnedActor->yaw = gCurrentActor->yaw;
-                gSpawnedActor->unk11C = (s32)gCurrentActor;
+                gSpawnedActor->parentActor = gCurrentActor;
                 *cooldownPtr = spawnCooldown;
             }
             renderCallbacksRegister(actorDrawAnimatedEffect, gCurrentActor, 3);
@@ -421,12 +421,12 @@ void func_806C4EB4(void) {
     func_806C4E8C();
 }
 
-void func_8070E8DC();
+void resQueueSetValue();
 
 void func_806C4EE0(u8 subAction, u8 stateValue) {
     R1C8aS->unk2E = 0;
-    func_8070E8DC(1);
-    func_8070D8C0(gCurrentActor, 0xF, subAction);
+    resQueueSetValue(1);
+    resQueueAttachActor(gCurrentActor, 0xF, subAction);
     gCurrentActor->state = 0x29;
     gCurrentActor->unk155[0] = 0;
     gCurrentActor->yawSpeed = stateValue;
@@ -485,7 +485,7 @@ void actorScriptedCommandUpdate(void);
 s32 currentActorTestClearFlag(void);
 void csModelStateSetFirstByte(s32, s32);
 void actorScriptStart(Actor *, s32);
-void func_8070E8DC(s32);
+void resQueueSetValue(s32);
 s32 camIsCutsceneActive(void);
 void slotQueueSetDisplayMode(s32, s32, s32);
 void func_8072A450(void);
@@ -520,7 +520,7 @@ void func_806C4F5C(void) {
                 csModelStateSetFirstByte(0x2D, 0x14);
                 LgA->unk12A = 0x3E8;
                 gBehaviourAnimState->unk46 |= 0x24;
-                func_8070D8C0(gCurrentActor, 0xF, 0);
+                resQueueAttachActor(gCurrentActor, 0xF, 0);
                 actorScriptStart(gCurrentActor, 0x244);
                 LgA->unk154 = 0x27;
                 LgS->unk2E = 0xF0;
@@ -557,8 +557,8 @@ void func_806C4F5C(void) {
                         LgA->unk154 = 0x29;
                         LgA->unk155 = 0;
                         LgS->unk2E = 0;
-                        func_8070E8DC(1);
-                        func_8070D8C0(gCurrentActor, 0xF, 2);
+                        resQueueSetValue(1);
+                        resQueueAttachActor(gCurrentActor, 0xF, 2);
                     }
                     break;
                 case 3:
@@ -726,7 +726,7 @@ void func_806C55E0(void) {
                     }
                     break;
                 case 3:
-                    func_8070D8C0(gCurrentActor, 0x15, 0);
+                    resQueueAttachActor(gCurrentActor, 0x15, 0);
                     LA->unk155++;
                     break;
                 case 4:
@@ -741,7 +741,7 @@ void func_806C55E0(void) {
             if (LA4C->unk154 == 0x63) {
                 if ((LA->unk7C - LA4C->unk7C) * (LA->unk7C - LA4C->unk7C) + (LA->unk84 - LA4C->unk84) * (LA->unk84 - LA4C->unk84) < 10000.0f) {
                     camStartPath(gCurrentActor, 0x15, 1);
-                    func_8070D8C0(gCurrentActor, 0x15, 1);
+                    resQueueAttachActor(gCurrentActor, 0x15, 1);
                     LA->unk154 = 0x29;
                     LA->unk155 = 0;
                 }
@@ -807,7 +807,7 @@ void func_806C55E0(void) {
             LA4C->unk84 = mathCosF(LA->unkE6) * 50.0f + LA->unk84;
             LA4C->unkE6 = mathAngleBetweenPoints2D(LA->unk7C, LA->unk84, LA4C->unk7C, LA4C->unk84);
             camStartPath(gCurrentActor, 0x15, 1);
-            func_8070D8C0(gCurrentActor, 0x15, 1);
+            resQueueAttachActor(gCurrentActor, 0x15, 1);
             LA->unk154 = 0x29;
             LA->unk155 = 0;
             break;
@@ -816,7 +816,7 @@ void func_806C55E0(void) {
     switch (func_806C4AC4(0x78, 0x10)) {
         case 1:
             actorSetPositionFromPoint(gCurrentActor, gBehaviourExtraState);
-            func_8070D8C0(gCurrentActor, 0x15, 2);
+            resQueueAttachActor(gCurrentActor, 0x15, 2);
             actorScriptStart(gCurrentActor, 0x35A);
             LA->unk154 = 0x2A;
             LA->unk155 = 0;
@@ -824,7 +824,7 @@ void func_806C55E0(void) {
             break;
         case 2:
             actorSetPositionFromPoint(gCurrentActor, gBehaviourExtraState);
-            func_8070D8C0(gCurrentActor, 0x15, 3);
+            resQueueAttachActor(gCurrentActor, 0x15, 3);
             actorScriptStart(gCurrentActor, 0x35B);
             LA->unk154 = 0x2A;
             LA->unk155 = 0;
@@ -937,7 +937,7 @@ void func_806C5C20(void) {
     actorClearMovementFlags(gCurrentActor);
     if (!(gCurrentActor->flags & 0x10)) {
         gBehaviourAnimState->unk46 |= 0x40;
-        gCurrentActor->unk12A = 0xFA;
+        gCurrentActor->drawDistance = 0xFA;
         func_80724CA4(2, 1);
     }
     if ((randomNonNegative() >> 15) % 1000 >= 0x3CB) {
@@ -990,7 +990,7 @@ void func_806C5C20(void) {
 void func_806C5FEC(void) {
     R1C8CBCfg *p;
 
-    p = (R1C8CBCfg *)gCurrentActor->unk174;
+    p = (R1C8CBCfg *)gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         p->unk1C = 0;
         gCurrentActor->flags |= 0x400;
@@ -999,7 +999,7 @@ void func_806C5FEC(void) {
     switch (p->unk1E) {
         case 1:
             if (R1A4C->unk155 == 3) {
-                func_8070D8C0(gCurrentActor, 0x1E, 3);
+                resQueueAttachActor(gCurrentActor, 0x1E, 3);
                 p->unk1E = 2;
             } else if (p->unk10->unk154 != 0x83) {
                 p->unk1E = 3;

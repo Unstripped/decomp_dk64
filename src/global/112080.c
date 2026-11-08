@@ -5,7 +5,7 @@ extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
 
-void func_8070D380(s32 size, void *dst, s32 *src) {
+void streamReadBytes(s32 size, void *dst, s32 *src) {
     memcpy(dst, *src, size);
     *src += size;
 }
@@ -18,14 +18,14 @@ typedef struct S112a2Record {
 
 extern void *heapAlloc(s32);
 
-void func_8070D3CC(S112a2Record *rec, s32 *src) {
+void resParseRecord(S112a2Record *rec, s32 *src) {
     s32 i;
     u8 *data;
 
-    func_8070D380(1, rec, src);
+    streamReadBytes(1, rec, src);
     data = rec->data = heapAlloc(rec->count * 8);
     for (i = 0; i < rec->count; i++) {
-        func_8070D380(8, data, src);
+        streamReadBytes(8, data, src);
         data += 8;
     }
 }
@@ -42,7 +42,7 @@ typedef struct S112bVariant {
     void *data;
 } S112bVariant;
 
-void func_8070D464(void *variant, s32 *src) {
+void resParseVariant(void *variant, s32 *src) {
 #define V ((S112bVariant *)variant)
     s32 i;
     u8 *p;
@@ -51,15 +51,15 @@ void func_8070D464(void *variant, s32 *src) {
     if (V->flags & 1) {
         p = V->data = heapAlloc(8);
         for (i = 0; i != 1; i++) {
-            func_8070D3CC((S112a2Record *)p, src);
+            resParseRecord((S112a2Record *)p, src);
             p += 8;
         }
     } else if (V->flags & 2) {
         rec = V->data = heapAlloc(8);
-        func_8070D380(1, rec, src);
+        streamReadBytes(1, rec, src);
         p = rec->data = heapAlloc(rec->count * 4);
         for (i = 0; i < rec->count; i++) {
-            func_8070D380(4, p, src);
+            streamReadBytes(4, p, src);
             p += 4;
         }
     }
@@ -80,26 +80,26 @@ typedef struct S112a2Item {
     u8 tail[4];
 } S112a2Item;
 
-void func_8070D568(S112a2ItemList *list, s32 *src) {
+void resParseItem(S112a2ItemList *list, s32 *src) {
     s32 i;
     S112a2Item *item;
 
-    func_8070D380(1, list, src);
+    streamReadBytes(1, list, src);
     item = list->items = heapAlloc(list->count * 16);
     for (i = 0; i < list->count; i++, item++) {
-        func_8070D380(1, item, src);
+        streamReadBytes(1, item, src);
         if (item->flags & 4) {
             item->data = heapAlloc(4);
-            func_8070D380(4, item->data, src);
+            streamReadBytes(4, item->data, src);
         } else {
             item->data = NULL;
         }
-        func_8070D464(item, src);
-        func_8070D380(4, item->tail, src);
+        resParseVariant(item, src);
+        streamReadBytes(4, item->tail, src);
     }
 }
 
-extern s32 D_807550C0;
+extern s32 sResNodeListHead;
 
 typedef struct S112aListNode {
     u16 id;
@@ -108,7 +108,7 @@ typedef struct S112aListNode {
     struct S112aListNode *next;
 } S112aListNode;
 
-#define S112aListHead ((S112aListNode *)D_807550C0)
+#define S112aListHead ((S112aListNode *)sResNodeListHead)
 
 typedef struct S112aItemList {
     u8 count;
@@ -116,15 +116,15 @@ typedef struct S112aItemList {
     void *items;
 } S112aItemList;
 
-void func_8070D568(S112a2ItemList *, s32 *);
+void resParseItem(S112a2ItemList *, s32 *);
 
-void func_8070D654(S112aItemList *list, s32 *src) {
+void resParseItemList(S112aItemList *list, s32 *src) {
     s32 i;
     S112aItemList *item;
 
     item = list->items = heapAlloc(list->count * 8);
     for (i = 0; i < list->count; i++) {
-        func_8070D568((S112a2ItemList *)item, src);
+        resParseItem((S112a2ItemList *)item, src);
         item = (S112aItemList *)((u8 *)item + 8);
     }
 }
@@ -138,15 +138,15 @@ typedef struct S112aParsedList {
     void *payload;
 } S112aParsedList;
 
-S112aParsedList *func_8070D6D8(s32 src) {
+S112aParsedList *resParseList(s32 src) {
     void *payload;
     s32 length;
     S112aParsedList *header;
 
     header = heapAlloc(0x10);
-    func_8070D380(1, header, &src);
-    func_8070D654((S112aItemList *)header, &src);
-    func_8070D380(2, (u8 *)header + 8, &src);
+    streamReadBytes(1, header, &src);
+    resParseItemList((S112aItemList *)header, &src);
+    streamReadBytes(2, (u8 *)header + 8, &src);
     length = header->length;
     payload = heapAlloc(length);
     header->payload = payload;
@@ -166,15 +166,15 @@ typedef struct S112dActorKeyState {
     void *key;
 } S112dActorKeyState;
 
-extern void *D_807550C4;
-extern s8 D_807550CC;
+extern void *sResQueueHead;
+extern s8 sResQueueValue;
 extern void heapClearBlock(void *);
 extern unsigned long actorSpawn(s32, s32, void *);
 
-void *func_8070D754(void *key) {
+void *resQueueGetOrCreate(void *key) {
     S112dLink **link;
     S112dActorKeyState *state;
-    link = (S112dLink **)&D_807550C4;
+    link = (S112dLink **)&sResQueueHead;
     if ((*link != NULL) && ((*link)->key != key)) {
         do {
             link = &(*link)->next;
@@ -187,7 +187,7 @@ void *func_8070D754(void *key) {
         actorSpawn(0x12B, 0, key);
         gSpawnedActor->state = 0;
         (*link)->actor = gSpawnedActor;
-        state = (S112dActorKeyState *)gSpawnedActor->unk174;
+        state = (S112dActorKeyState *)gSpawnedActor->customState;
         state->key = key;
     }
     return *link;
@@ -206,7 +206,7 @@ typedef struct S112dContainer {
     S112dEntry *entries;
 } S112dContainer;
 
-void func_8070D82C(S112dContainer *container, u16 id, u8 count) {
+void resQueueAddEntry(S112dContainer *container, u16 id, u8 count) {
     S112dEntry **entry;
 
     entry = &container->entries;
@@ -227,27 +227,27 @@ typedef struct S112dActorValueState {
     u8 value;
 } S112dActorValueState;
 
-void func_8070D8C0(Actor *targetActor, s32 id, u8 count) {
+void resQueueAttachActor(Actor *targetActor, s32 id, u8 count) {
     S112dActorValueState *state;
     Actor *actor;
     S112dLink *node;
     u8 value;
 
-    node = func_8070D754(targetActor);
+    node = resQueueGetOrCreate(targetActor);
     if (1) {
-        value = D_807550CC;
+        value = sResQueueValue;
     }
-    state = (S112dActorValueState *)node->actor->unk174;
+    state = (S112dActorValueState *)node->actor->customState;
     state->value = value & 0xFFu;
     if (1) {
-        D_807550CC = 0;
+        sResQueueValue = 0;
         actor = targetActor;
-        func_8070D82C((S112dContainer *)node, id, count);
+        resQueueAddEntry((S112dContainer *)node, id, count);
         actor->flags |= 0x2000000;
     }
 }
 
-S112aListNode *func_8070D928(u16 id) {
+S112aListNode *resNodeFindById(u16 id) {
     S112aListNode *node;
 
     node = S112aListHead;
@@ -259,12 +259,12 @@ S112aListNode *func_8070D928(u16 id) {
     return node;
 }
 
-void func_8070D970(id)
+void resNodeDecRef(id)
 u16 id;
 {
     S112aListNode *node;
 
-    node = func_8070D928(id);
+    node = resNodeFindById(id);
     if (node != NULL) {
         node->count--;
     }
@@ -288,7 +288,7 @@ typedef struct S112aFreeNode {
 void effectFreeAndUnlink(s32);
 extern void heapFreeDeferred();
 
-void func_8070D9AC(S112aFreeNode *freeNode) {
+void resNodeFree(S112aFreeNode *freeNode) {
     s32 handle;
     s32 flags;
     S112aChildNode *current;
@@ -328,7 +328,7 @@ void resNodeListFree(S112bNodeList *list) {
         do {
             current = node;
             node = node->next;
-            func_8070D9AC(current);
+            resNodeFree(current);
         } while (node != NULL);
     }
     list->first = NULL;
@@ -364,7 +364,7 @@ void resQueueRemove(Actor *targetActor) {
     S112bFreeLink *node;
     S112bFreeLink *current;
 
-    link = (S112bQueueEntry **)&D_807550C4;
+    link = (S112bQueueEntry **)&sResQueueHead;
     found = NULL;
     if ((*link != NULL) && ((*link)->key != targetActor)) {
         do {
@@ -377,9 +377,9 @@ void resQueueRemove(Actor *targetActor) {
     }
     if (found != NULL) {
         actor = found->actor;
-        state = actor->unk174;
+        state = actor->customState;
         resNodeListFree((S112bNodeList *)state);
-        func_8070D970(state->id);
+        resNodeDecRef(state->id);
         node = found->entries;
         if (node != NULL) {
             do {
@@ -401,7 +401,7 @@ typedef struct M112bFreeEntry {
 } M112bFreeEntry;
 
 
-void func_8070DB7C(M112bFreeEntry *entry) {
+void resFreeEntry(M112bFreeEntry *entry) {
     heapFreeDeferred(entry->unk4);
 }
 
@@ -427,7 +427,7 @@ typedef struct M112bRecordListArray {
     void *unkC;
 } M112bRecordListArray;
 
-void func_8070DB9C(M112bRecord *record) {
+void resFreeRecord(M112bRecord *record) {
     s32 i;
     s32 flags;
     void *temp;
@@ -440,7 +440,7 @@ void func_8070DB9C(M112bRecord *record) {
     i = 0;
     if (flags & 1) {
         do {
-            func_8070DB7C(&record->unk8[i]);
+            resFreeEntry(&record->unk8[i]);
             i++;
         } while (i != 1);
         heapFreeDeferred(record->unk8);
@@ -453,13 +453,13 @@ void func_8070DB9C(M112bRecord *record) {
 }
 
 
-void func_8070DC40(M112bRecordList *list) {
+void resFreeRecordList(M112bRecordList *list) {
     s32 i;
 
     i = 0;
     if (list->count > 0) {
         do {
-            func_8070DB9C(&list->entries[i]);
+            resFreeRecord(&list->entries[i]);
             i++;
         } while (i < list->count);
     }
@@ -467,13 +467,13 @@ void func_8070DC40(M112bRecordList *list) {
 }
 
 
-void func_8070DCA4(M112bRecordListArray *array) {
+void resFreeRecordListArray(M112bRecordListArray *array) {
     s32 i;
 
     i = 0;
     if (array->count > 0) {
         do {
-            func_8070DC40(&array->entries[i]);
+            resFreeRecordList(&array->entries[i]);
             i++;
         } while (i < array->count);
     }
@@ -487,8 +487,8 @@ typedef struct M112bRecordListHolder {
     M112bRecordListArray *unk4;
 } M112bRecordListHolder;
 
-void func_8070DD18(M112bRecordListHolder *holder) {
-    func_8070DCA4(holder->unk4);
+void resFreeRecordListHolder(M112bRecordListHolder *holder) {
+    resFreeRecordListArray(holder->unk4);
     heapFreeDeferred(holder);
 }
 
@@ -505,7 +505,7 @@ void resListTick(void) {
     S112bSlotNode **link;
     S112bSlotNode *node;
 
-    link = (S112bSlotNode **)&D_807550C0;
+    link = (S112bSlotNode **)&sResNodeListHead;
     if (*link != NULL) {
         do {
             if ((*link)->kind == 1) {
@@ -516,7 +516,7 @@ void resListTick(void) {
             if ((*link)->count == 0) {
                 node = *link;
                 *link = node->next;
-                func_8070DD18((M112bRecordListHolder *)node);
+                resFreeRecordListHolder((M112bRecordListHolder *)node);
             } else {
                 link = &(*link)->next;
             }
@@ -543,16 +543,16 @@ S112aParsedList *resNodeGetOrLoad(u16 id, s32 kind) {
     void *asset;
     S112bResNode **link;
 
-    node = (S112bResNode *)func_8070D928(id);
+    node = (S112bResNode *)resNodeFindById(id);
     if (node == NULL) {
         asset = assetLoad(0xC, id, 1, 1);
-        link = (S112bResNode **)&D_807550C0;
+        link = (S112bResNode **)&sResNodeListHead;
         if (*link != NULL) {
             do {
                 link = &(*link)->next;
             } while (*link != NULL);
         }
-        parsed = func_8070D6D8((s32)asset);
+        parsed = resParseList((s32)asset);
         assetFreeBuffer(asset, 0x1F1, 0x50);
         node = heapAlloc(0x10);
         *link = node;
@@ -704,7 +704,7 @@ s32 textLayoutAppendRows(s32 owner, s32 textBytes, u16 length) {
 }
 
 extern s32 textLayoutAppendRows(s32 owner, s32 textBytes, u16 length);
-extern u8 D_807550C8;
+extern u8 sLanguageIndex;
 
 typedef struct R112cDrawCommand {
     s32 unk0;
@@ -727,7 +727,7 @@ typedef struct R112cDrawContext {
     s32 unkC;
 } R112cDrawContext;
 
-void func_8070E2AC(s32 owner, void *container, void *context) {
+void textLayoutAppendCommandList(s32 owner, void *container, void *context) {
     s32 i;
     s32 offset;
     R112cDrawList *drawList;
@@ -735,7 +735,7 @@ void func_8070E2AC(s32 owner, void *container, void *context) {
     R112cDrawContext *drawContext;
     s32 ownerObj;
 
-    drawList = (R112cDrawList *) ((u8 *) ((R112cDrawListContainer *) container)->list + (D_807550C8 * 8));
+    drawList = (R112cDrawList *) ((u8 *) ((R112cDrawListContainer *) container)->list + (sLanguageIndex * 8));
     drawContext = context;
     ownerObj = owner;
     i = 0;
@@ -794,7 +794,7 @@ typedef struct S112bGridRequest {
 extern void *D_80755390[];
 extern void effectGridGetScaledDimensions(void *, s16 *, s16 *);
 
-void func_8070E34C(S112bGridOwner *owner, S112bGridRequest *req, void *unused) {
+void resGridBuildGroups(S112bGridOwner *owner, S112bGridRequest *req, void *unused) {
     S112bGridGroup **link;
     S112bGridEntry **entry;
     S112bGridSource *source;
@@ -883,9 +883,9 @@ void resApplyKind(Actor *actor, u16 resId, u8 kindIndex) {
     S112bResItem *item;
     s32 i;
 
-    state = actor->unk174;
+    state = actor->customState;
     if (actor->flags & 0x10) {
-        func_8070D970(state->id);
+        resNodeDecRef(state->id);
     }
     parsed = (S112bResParsed *)resNodeGetOrLoad(resId, 0);
     link = &state->links;
@@ -898,9 +898,9 @@ void resApplyKind(Actor *actor, u16 resId, u8 kindIndex) {
             } while (*link != NULL);
         }
         if (item->flags & 1) {
-            func_8070E2AC((s32)state, item, parsed);
+            textLayoutAppendCommandList((s32)state, item, parsed);
         } else if (item->flags & 2) {
-            func_8070E34C((S112bGridOwner *)state, (S112bGridRequest *)item, parsed);
+            resGridBuildGroups((S112bGridOwner *)state, (S112bGridRequest *)item, parsed);
         }
         if (*link != NULL) {
             (*link)->unk8 = item->unk4;
@@ -951,7 +951,7 @@ char *textTableGetString(s32 tableId, s32 rowIndex, s32 flags) {
 
     table = (S112bTextTable *)resNodeGetOrLoad(tableId, 1);
     group = table->rows[rowIndex].group;
-    choice = group->choices + D_807550C8;
+    choice = group->choices + sLanguageIndex;
     entry = choice->entry;
     source = entry->text + table->base;
     length = entry->length;
@@ -964,7 +964,7 @@ char *textTableGetString(s32 tableId, s32 rowIndex, s32 flags) {
     return dest;
 }
 
-extern void *func_8070D754(void *);
+extern void *resQueueGetOrCreate(void *);
 extern void timerQueueAdd();
 extern void camResumePathCallback(void);
 
@@ -990,13 +990,13 @@ typedef struct R112cE808Arg1 {
     s32 unk60;
 } R112cE808Arg1;
 
-void func_8070E808(Actor *actor, void *key) {
+void resQueueProcessNext(Actor *actor, void *key) {
     R112cE808State *state;
     R112cE808Node *link;
     
 
-    state = actor->unk174;
-    link = func_8070D754(key);
+    state = actor->customState;
+    link = resQueueGetOrCreate(key);
     if (link->unk8 == NULL) {
         ((R112cE808Arg1 *) key)->unk60 &= 0xFDFFFFFF;
         if (state->unk54 & 1) {
@@ -1013,11 +1013,11 @@ void func_8070E808(Actor *actor, void *key) {
 
 
 
-void func_8070E8C8(void) {
-    D_807550C0 = 0;
-    D_807550C4 = 0;
+void resListReset(void) {
+    sResNodeListHead = 0;
+    sResQueueHead = 0;
 }
 
-void func_8070E8DC(s8 val) {
-    D_807550CC = val;
+void resQueueSetValue(s8 val) {
+    sResQueueValue = val;
 }

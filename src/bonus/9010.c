@@ -29,7 +29,7 @@ typedef struct BonusEHud {
 } BonusEHud;
 
 Gfx *bonusRenderScoreHud(Gfx *gdl, Actor *actor) {
-    BonusEHud *hud = actor->unk174;
+    BonusEHud *hud = actor->customState;
     s16 i;
     s16 y;
     char buf[24];
@@ -90,11 +90,11 @@ void actorSetStateTwo(void *);
 void mapRequestTransition(s32, s32);
 void hudSpawnCountdownTimer(s32, s32, s32);
 s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
-void func_8070D8C0(void *, s32, u8);
+void resQueueAttachActor(void *, s32, u8);
 void renderCallbacksRegister(void *, void *, s32);
 
 void bonusScoreHudUpdate(void) {
-    BonusEHud *hud = gCurrentActor->unk174;
+    BonusEHud *hud = gCurrentActor->customState;
     s32 actionParam;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -122,14 +122,14 @@ void bonusScoreHudUpdate(void) {
                     actionParam = 0x20;
                     break;
                 }
-                func_8070D8C0(gCurrentActor, 0, actionParam);
+                resQueueAttachActor(gCurrentActor, 0, actionParam);
                 gCurrentActor->state = 1;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
             } else if ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000)) {
                 camStartPath(gPrimaryPlayerActor, 1, 1);
                 gCurrentActor->state = 2;
                 hudSpawnCountdownTimer(0xDC, 0x2A, (u8)hud->unk4);
-                actorSetStateTwo((void *)gCurrentActor->unk11C);
+                actorSetStateTwo((void *)gCurrentActor->parentActor);
             }
         }
         break;
@@ -137,11 +137,11 @@ void bonusScoreHudUpdate(void) {
         if (!(gCurrentActor->flags & 0x02000000) || ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000))) {
             camResumePath();
             gCurrentActor->state = 2;
-            actorSetStateTwo((void *)gCurrentActor->unk11C);
+            actorSetStateTwo((void *)gCurrentActor->parentActor);
         }
         break;
     case 2:
-        if (((Actor *)gCurrentActor->unk11C)->state == 5) {
+        if (gCurrentActor->parentActor->state == 5) {
             D_8002D930 = 0;
             gCurrentActor->state = 3;
             hud->unk0 = 0x78;
@@ -175,7 +175,7 @@ void bonusScoreHudUpdate(void) {
         }
         break;
     case 3:
-        ((Actor *)gCurrentActor->unk11C)->state = 1;
+        gCurrentActor->parentActor->state = 1;
         hud->unk0 -= 1;
         if (hud->unk0 == 0) {
             mapRequestTransition(0x50, 0);

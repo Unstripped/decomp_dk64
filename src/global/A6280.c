@@ -91,16 +91,16 @@ void actorSeekTargetUpdate(void) {
             animSetFrameAndSubframe(gCurrentActor, 0, 0, 0);
         }
         if (gBossFightPhase == 4) {
-            if (gCurrentActor->unk132 == 4) {
-                gCurrentActor->unk132 = 8;
+            if (gCurrentActor->interactionType == 4) {
+                gCurrentActor->interactionType = 8;
                 sfxAllocateChannel(0x43, 1.0f);
                 actorAppendCallback(targetNode, (s32)gCurrentActor, 0x02000000, (u8)actorId, 0, NULL);
             } else {
-                gCurrentActor->unk132 *= 2;
+                gCurrentActor->interactionType *= 2;
             }
         }
         if ((gPrimaryPlayerActor->contactFlags & 1) && gPrimaryPlayerActor->attachMode == 0) {
-            gCurrentActor->unk132 = 1;
+            gCurrentActor->interactionType = 1;
         }
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -134,7 +134,7 @@ void actorUpdateRampTarget(void) {
     ActorParentRamp *parentRamp;
 
     rampState = ((ActorView *)gCurrentActor)->unk178;
-    parentRamp = (ActorParentRamp *)gCurrentActor->unk11C;
+    parentRamp = (ActorParentRamp *)gCurrentActor->parentActor;
     if (!(gCurrentActor->flags & 0x10)) {
         func_80724CA4(2, 2);
     }
@@ -146,16 +146,16 @@ void actorUpdateRampTarget(void) {
         }
     }
     if (0.0f != parentRamp->unkB8) {
-        if (parentRamp->unkB8 > 50.0f && ((ActorModelScript *)gCurrentActor->unk4)->unk64 != 0x233) {
+        if (parentRamp->unkB8 > 50.0f && ((ActorModelScript *)gCurrentActor->sub4)->unk64 != 0x233) {
             actorScriptStart(gCurrentActor, 0x233);
         } else if (50.0f >= parentRamp->unkB8) {
-            if (((ActorModelScript *)gCurrentActor->unk4)->unk64 != 0x232) {
+            if (((ActorModelScript *)gCurrentActor->sub4)->unk64 != 0x232) {
                 actorScriptStart(gCurrentActor, 0x232);
             }
         }
         scriptSetActorRampTarget(gCurrentActor, parentRamp->unkB8 * 0.01, 4.0f);
     } else {
-        if (((ActorModelScript *)gCurrentActor->unk4)->unk64 != 0x234) {
+        if (((ActorModelScript *)gCurrentActor->sub4)->unk64 != 0x234) {
             actorScriptStart(gCurrentActor, 0x234);
         }
     }
@@ -176,7 +176,7 @@ void func_80728950(s32);
 void actorSetUniformScale(Actor *, f32);
 void currentActorAnimSetFrame(s32, s32);
 void resQueueRemove(Actor *);
-void func_8070D8C0(Actor *, s32, s32);
+void resQueueAttachActor(Actor *, s32, s32);
 void camStartPath(Actor *, s32, s32);
 void flagSet(s32, s32, s32);
 s32 randomNonNegative(void);
@@ -198,7 +198,7 @@ void func_806A1AC4(void) {
         func_80728950(0);
         actorSetUniformScale(gCurrentActor, 1.2f);
         gCurrentActor->flags |= 0x400;
-        gCurrentActor->unk12A = 0x3E8;
+        gCurrentActor->drawDistance = 0x3E8;
         if (flagGet(0xFB, 0) != 0) {
             controllerAnimSetStateIfChanged(gCurrentActor, 0x597, 0.0f, 0.0f);
             currentActorAnimSetFrame(0, 0);
@@ -214,13 +214,13 @@ void func_806A1AC4(void) {
     case 0:
         if (gActorGlobalState.unk254 != 0 && gActorGlobalState.unk258[0] == 1) {
             resQueueRemove(gCurrentActor);
-            func_8070D8C0(gCurrentActor, 0x1F, 1);
+            resQueueAttachActor(gCurrentActor, 0x1F, 1);
             camStartPath(gCurrentActor, 0x12, 1);
             flagSet(0xFB, 1, 0);
             gCurrentActor->state = 1;
         } else if (flagGet(0xFB, 0) == 0 && flagGet(0x21, 2) == 0) {
             if ((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z) < 19600.0f) {
-                func_8070D8C0(gPrimaryPlayerActor, 0x1F, 0);
+                resQueueAttachActor(gPrimaryPlayerActor, 0x1F, 0);
                 flagSet(0x21, 1, 2);
             }
         }
@@ -317,7 +317,7 @@ void actorSinkAndDespawn(void) {
     ActorSinkState *sub;
     Actor *act;
 
-    sub = gCurrentActor->unk174;
+    sub = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->renderFlags |= 8;
         sub->unk0 = 0;
@@ -423,19 +423,19 @@ void actorMidpointOrbitUpdate(void) {
     f32 ratio;
     Actor *p;
 
-    sub = gCurrentActor->unk174;
+    sub = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x1000;
-        actorSetUniformScale(gCurrentActor, ((MidpointOrbitConfig *)gCurrentActor->unk124)->unkC);
+        actorSetUniformScale(gCurrentActor, ((MidpointOrbitConfig *)gCurrentActor->spawnData)->unkC);
         gCurrentActor->yawSpeed = mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gPrimaryPlayerActor->x, gPrimaryPlayerActor->z);
-        gCurrentActor->movePitch = (gPrimaryPlayerActor->y + (f32)gPrimaryPlayerActor->unk15E - gCurrentActor->y) * 0.5;
+        gCurrentActor->movePitch = (gPrimaryPlayerActor->y + (f32)gPrimaryPlayerActor->eyeHeight - gCurrentActor->y) * 0.5;
         ORBIT_ACTOR->unkEC = sqrtf((gCurrentActor->x - gPrimaryPlayerActor->x) * (gCurrentActor->x - gPrimaryPlayerActor->x) + (gCurrentActor->z - gPrimaryPlayerActor->z) * (gCurrentActor->z - gPrimaryPlayerActor->z)) * 0.5;
         sub->unk0 = gCurrentActor->x + (gPrimaryPlayerActor->x - gCurrentActor->x) * 0.5;
         sub->unk2 = gCurrentActor->y + (gPrimaryPlayerActor->y - gCurrentActor->y) * 0.5;
         sub->unk4 = gCurrentActor->z + (gPrimaryPlayerActor->z - gCurrentActor->z) * 0.5;
         gCurrentActor->unk144 = 0x24;
         ORBIT_ACTOR->unkFA = 0x2328;
-        gCurrentActor->splineT = ((MidpointOrbitConfig *)gCurrentActor->unk124)->unk4;
+        gCurrentActor->splineT = ((MidpointOrbitConfig *)gCurrentActor->spawnData)->unk4;
         {
             f64 v = gCurrentActor->splineT * (ORBIT_ACTOR->unkEC * 0.01);
             gCurrentActor->splineT = (v > 15.0 ? v : 15.0) < 150.0 ? (v > 15.0 ? v : 15.0) : 150.0;
@@ -456,7 +456,7 @@ void actorMidpointOrbitUpdate(void) {
     if (sub->unk8 != 0) {
         sub->unk8 = sub->unk8 - 1;
         if (sub->unk8 == 0xB) {
-            p = (Actor *)gCurrentActor->unk11C;
+            p = gCurrentActor->parentActor;
             if (p != NULL) {
                 p->unk155[0]++;
             }
