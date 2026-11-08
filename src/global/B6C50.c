@@ -123,7 +123,7 @@ void func_806B1F50(void) {
                     gCurrentActor->unk60 &= ~4;
                     gCurrentActor->unk68 &= 0xFFBF;
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xED, 0xFF, 0x7F, 0x14);
-                    tagBarrelSpawnSmokeAndPuffs(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->unk38 * 2 / 0.15, 0, 1);
+                    tagBarrelSpawnSmokeAndPuffs(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->scaleY * 2 / 0.15, 0, 1);
                     actorDespawn((B6C50Actor *)gBehaviourTargetActor);
                     gCurrentActor->unk155++;
                     break;
@@ -189,7 +189,7 @@ void func_806B24B8(void) {
     }
     if (gFrameCounter % 10 == 0) {
         func_807149B8(1);
-        func_80714C08(&D_80720340, gCurrentActor->unk4->unk38 * 6.66666667 * 0.9, gCurrentActor, 1, 2);
+        func_80714C08(&D_80720340, gCurrentActor->unk4->scaleY * 6.66666667 * 0.9, gCurrentActor, 1, 2);
     }
     if (actorTableContains(gBehaviourTargetActor) == 0) {
         ((B6C50View90 *)gBehaviourWorkState)->unk4 = gPrimaryPlayerActor;
@@ -198,7 +198,7 @@ void func_806B24B8(void) {
     if (gActorGlobalState.unk15 != 0 || gActorGlobalState.unk200 == 9) {
         gCurrentActor->unk144 = 1;
         gCurrentActor->unk154 = 0x40;
-        tagBarrelSpawnSmokeAndPuffs(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->unk38 / 0.15, 0, 1);
+        tagBarrelSpawnSmokeAndPuffs(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->scaleY / 0.15, 0, 1);
     }
     if (gCurrentActor->unk154 == 0x23) {
         if (gCurrentActor->unkF0 == 0) {

@@ -161,10 +161,10 @@ void func_806AD54C(void) {
         func_80724CA4(2, 1);
         behaviourSetAnimIds(0x1F8, 0x1F8, 0x1F9);
         if (gCurrentMap == 0x68 || gCurrentMap == 0x88 || gCurrentMap == 0x89) {
-            gCurrentActor->unk132 = 2;
+            gCurrentActor->interactionType = 2;
         }
     }
-    if (gCurrentActor->unk132 == 2 && gCurrentActor->state != 0x36) {
+    if (gCurrentActor->interactionType == 2 && gCurrentActor->state != 0x36) {
         found = actorFindByType(0x11A);
         if (found != NULL) {
             if (found->state != 0) {
@@ -206,25 +206,25 @@ void actorFollowLinkedNodeFadeUpdate(void) {
     Actor *linked;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->unk4->unk34 = 0.05f;
-        gCurrentActor->unk4->unk3C = 0.05f;
-        gCurrentActor->unk4->unk38 = 2.0f;
+        gCurrentActor->sub4->scaleX = 0.05f;
+        gCurrentActor->sub4->scaleZ = 0.05f;
+        gCurrentActor->sub4->scaleY = 2.0f;
         gCurrentActor->flags |= 0x400;
     }
     switch (gCurrentActor->state) {
         case 0:
-            linked = (Actor *)gCurrentActor->unk11C;
+            linked = (Actor *)gCurrentActor->parentActor;
             if (linked == NULL || (linked->contactFlags & 1)) {
                 gCurrentActor->state = 1;
                 gCurrentActor->flags &= ~0x8000;
             } else {
                 actorGetNodePos(linked, 2, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
-                B1F60A->unkE8 = ((B1F60Actor *)gCurrentActor->unk11C)->unkE8;
+                B1F60A->unkE8 = ((B1F60Actor *)gCurrentActor->parentActor)->unkE8;
             }
             break;
         case 1:
-            if (gCurrentActor->unk128 >= 0xB) {
-                gCurrentActor->unk128 -= 0xA;
+            if (gCurrentActor->alpha >= 0xB) {
+                gCurrentActor->alpha -= 0xA;
             } else {
                 actorDespawn(gCurrentActor);
             }
@@ -236,8 +236,8 @@ void actorFollowLinkedNodeFadeUpdate(void) {
 
 void actorSpawnLinkedFollower(void) {
     actorSpawn(0x118, 0xC0);
-    gSpawnedActor->unk11C = (s32)gCurrentActor;
-    gSpawnedActor->unk12A = 0x7D0;
+    gSpawnedActor->parentActor = (s32)gCurrentActor;
+    gSpawnedActor->drawDistance = 0x7D0;
 }
 
 void func_806AD9F4(void) {
@@ -256,7 +256,7 @@ void func_806AD9F4(void) {
         actorSetTargetSpeed(gCurrentActor, 0);
         gCurrentActor->speedXZ = -200.0f;
     } else if (gActorGlobalState.unk200 == 4) {
-        gCurrentActor->unk132 = 2;
+        gCurrentActor->interactionType = 2;
         func_8072DEA8(0x2F6, 0x27, gActorGlobalState.unk1FC);
         gCurrentActor->speedXZ = gCurrentActor->speedXZ * 2;
         gBehaviourWorkState->timer = 0x1F4;
@@ -278,7 +278,7 @@ void func_806AD9F4(void) {
                 B1F60A->unkEE = gCurrentActor->yaw;
             }
             if (B1F60A->unk155 != 0 && gBehaviourWorkState->timer == 0) {
-                gCurrentActor->unk132 = 1;
+                gCurrentActor->interactionType = 1;
                 actorSetDefaultState(0x2F4);
             }
             break;

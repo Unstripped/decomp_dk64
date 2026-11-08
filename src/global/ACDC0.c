@@ -231,7 +231,7 @@ void hudPauseMenuUpdate(void) {
     s16 half;
     if (D_807505D4) {} // FAKE: dead read, splits the D_807505D4 address web
 
-    hud = gCurrentActor->unk174;
+    hud = gCurrentActor->customState;
     i = gCurrentMap;
     switch (i) {
         case 0x6:
@@ -571,7 +571,7 @@ void hudFreeBuffers(void) {
     s32 i;
     u8 *sub;
 
-    sub = gPrimaryPlayerActor->unk174;
+    sub = gPrimaryPlayerActor->customState;
     gGlobalPauseFlags |= 0x40;
     if (!(*(s32 *)(sub + 0x1F0) & 0x20000000)) {
         gGlobalPauseFlags |= 0x10030;
@@ -1789,22 +1789,22 @@ Gfx *hudDrawTextScreen(Gfx *dl, Actor *actor) {
     s32 remaining;
     s32 val;
 
-    remaining = 0xFF - actor->unk128;
+    remaining = 0xFF - actor->alpha;
     if (remaining >= 9) {
         val = 8;
     } else {
         val = remaining;
     }
-    actor->unk128 += val;
-    if (actor->unk128 >= 0x80) {
+    actor->alpha += val;
+    if (actor->alpha >= 0x80) {
         val = 0x7F;
     } else {
-        val = actor->unk128;
+        val = actor->alpha;
     }
     dl = hudSetupTextState(gfxFillScreenColor(dl, 0, 0, 0, val));
     gDPSetCombineLERP(dl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
     dl->words.w0 = 0xFA000000;
-    dl->words.w1 = (actor->unk128 & 0xFF) | 0xFFFFFF00;
+    dl->words.w1 = (actor->alpha & 0xFF) | 0xFFFFFF00;
     dl++;
     dl = textDrawStringVtx(dl, 1, 0x168, 0x104, D_807FC7E0[0], 1);
     _sprintf(buf, "q %s", D_807FC7E0[1]);
@@ -1836,7 +1836,7 @@ void hudTextScreenUpdate(void) {
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->yawSpeed = 0x1E;
-        gCurrentActor->unk128 = 0;
+        gCurrentActor->alpha = 0;
         gCurrentActor->flags &= ~0x8000;
         D_807FC7E0 = heapAlloc(0xC);
         for (i = 0; i < 3; i++) {

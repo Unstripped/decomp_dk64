@@ -192,11 +192,11 @@ void func_806B7EA0(void) {
         gCurrentActor->state = 0x23;
         gCurrentActor->unk155[0] = 0;
         sfxPlayOnFreeSlot(0x1A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
-        actorSetStateTwo(gCurrentActor->unk11C);
+        actorSetStateTwo(gCurrentActor->parentActor);
         gGlobalCutsceneFlags |= 1;
         gGlobalOverlayFlags |= 2;
     }
-    if (((Actor *)gCurrentActor->unk11C)->state == 5 && gCurrentActor->state != 0x11) {
+    if (((Actor *)gCurrentActor->parentActor)->state == 5 && gCurrentActor->state != 0x11) {
         if (gBehaviourTargetActor->hasArcBounds != 0) {
             gBehaviourTargetActor->yaw = mathAngleArcMidpoint(gBehaviourTargetActor->arcYawMin, gBehaviourTargetActor->arcYawMax);
         }
@@ -204,7 +204,7 @@ void func_806B7EA0(void) {
         gCurrentActor->state = 0x11;
         gCurrentActor->unk155[0] = 0;
         c->unk10 = (s32)gBehaviourTargetActor->x;
-        c->unk12 = (s32)(gBehaviourTargetActor->y + (u32)gBehaviourTargetActor->unk15E);
+        c->unk12 = (s32)(gBehaviourTargetActor->y + (u32)gBehaviourTargetActor->eyeHeight);
         c->unk14 = (s32)gBehaviourTargetActor->z;
         BC3B0S90->unk2C = 0x14;
     }
@@ -218,7 +218,7 @@ void func_806B7EA0(void) {
     }
     if (gCurrentActor->state != 0x11) {
         if (gCurrentActor->state == 0x23 && func_8061CC00() == 0) {
-            camProjectToScreen(gBehaviourTargetActor->x, gBehaviourTargetActor->y + (u32)gBehaviourTargetActor->unk15E, gBehaviourTargetActor->z, &screenX, &screenY, 0, 1.0f, 0);
+            camProjectToScreen(gBehaviourTargetActor->x, gBehaviourTargetActor->y + (u32)gBehaviourTargetActor->eyeHeight, gBehaviourTargetActor->z, &screenX, &screenY, 0, 1.0f, 0);
             actorCursorSteer(c, screenX, screenY);
         }
     } else {

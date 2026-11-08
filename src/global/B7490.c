@@ -125,10 +125,10 @@ void func_806B2790(void) {
                 case 2:
                     flag = 1;
                     gCurrentActor->speedXZ = 150.0f;
-                    gCurrentActor->unk132 = 2;
+                    gCurrentActor->interactionType = 2;
                     break;
                 case 3:
-                    gCurrentActor->unk132 = 1;
+                    gCurrentActor->interactionType = 1;
                     flag = 1;
                     break;
                 case 4:
@@ -150,7 +150,7 @@ void func_806B2790(void) {
         case 0x10:
         case 0x23:
             B7490A->unkE4 += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 15);
-            actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, ((gCurrentActor->waterY - gCurrentActor->unk15E) < gBehaviourTargetActor->y) ? (gCurrentActor->waterY - gCurrentActor->unk15E) : gBehaviourTargetActor->y, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
+            actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, ((gCurrentActor->waterY - gCurrentActor->eyeHeight) < gBehaviourTargetActor->y) ? (gCurrentActor->waterY - gCurrentActor->eyeHeight) : gBehaviourTargetActor->y, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
             if (gBossFightPhase == 2) {
                 gCurrentActor->state = 0x27;
                 gCurrentActor->unk155[0] = 0;
@@ -160,7 +160,7 @@ void func_806B2790(void) {
         case 3:
         case 7:
         case 0x35:
-            actorPitchEaseTowardPoint(st, 0, gBehaviourWorkState->targetX, (gBehaviourWorkState->targetY < (gCurrentActor->waterY - gCurrentActor->unk15E)) ? gBehaviourWorkState->targetY : (gCurrentActor->waterY - gCurrentActor->unk15E), gBehaviourWorkState->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
+            actorPitchEaseTowardPoint(st, 0, gBehaviourWorkState->targetX, (gBehaviourWorkState->targetY < (gCurrentActor->waterY - gCurrentActor->eyeHeight)) ? gBehaviourWorkState->targetY : (gCurrentActor->waterY - gCurrentActor->eyeHeight), gBehaviourWorkState->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
         case 0x37:
             switch (gCurrentActor->unk155[0]) {
@@ -229,7 +229,7 @@ void func_806B2D64(void) {
     switch (st) {
         case 0x31:
             effectSpawnSparks(0x1F, 2);
-            if ((gCurrentActor->unk155[0] != 0) || (((B7490Sub4Ptr *)gCurrentActor->unk4)->unk0->unk24 == 0.0f)) {
+            if ((gCurrentActor->unk155[0] != 0) || (((B7490Sub4Ptr *)gCurrentActor->sub4)->unk0->unk24 == 0.0f)) {
                 actorSetDefaultState(0x2E2);
             }
             break;
@@ -240,10 +240,10 @@ void func_806B2D64(void) {
                     gCurrentActor->unk155[0] = 1;
                     break;
                 case 2:
-                    gCurrentActor->unk132 = 2;
+                    gCurrentActor->interactionType = 2;
                     break;
                 case 3:
-                    gCurrentActor->unk132 = 1;
+                    gCurrentActor->interactionType = 1;
                     break;
                 case 4:
                     actorSetDefaultState(0x2E2);
@@ -277,7 +277,7 @@ void func_806B2D64(void) {
         case 0x10:
         case 0x23:
             actorEmptyStub();
-            actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, ((gCurrentActor->waterY - gCurrentActor->unk15E) < gBehaviourTargetActor->y) ? (gCurrentActor->waterY - gCurrentActor->unk15E) : gBehaviourTargetActor->y, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
+            actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, ((gCurrentActor->waterY - gCurrentActor->eyeHeight) < gBehaviourTargetActor->y) ? (gCurrentActor->waterY - gCurrentActor->eyeHeight) : gBehaviourTargetActor->y, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
             if (gBossFightPhase == 2) {
                 gCurrentActor->state = 0x27;
                 gCurrentActor->unk155[0] = 0;
@@ -285,11 +285,11 @@ void func_806B2D64(void) {
             break;
         case 2:
         case 3:
-            gCurrentActor->unk132 = 2;
+            gCurrentActor->interactionType = 2;
         case 7:
         case 0x35:
             actorEmptyStub();
-            actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourWorkState->targetX, (gBehaviourWorkState->targetY < (gCurrentActor->waterY - gCurrentActor->unk15E)) ? gBehaviourWorkState->targetY : (gCurrentActor->waterY - gCurrentActor->unk15E), gBehaviourWorkState->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
+            actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourWorkState->targetX, (gBehaviourWorkState->targetY < (gCurrentActor->waterY - gCurrentActor->eyeHeight)) ? gBehaviourWorkState->targetY : (gCurrentActor->waterY - gCurrentActor->eyeHeight), gBehaviourWorkState->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
         case 0x37:
             switch (gCurrentActor->unk155[0]) {
@@ -371,7 +371,7 @@ void func_806B3420(void) {
             if (gBehaviourWorkState->timer != 0) {
                 gBehaviourWorkState->timer--;
             } else {
-                gCurrentActor->unk132 = 2;
+                gCurrentActor->interactionType = 2;
                 scriptSetActorRampTarget(gCurrentActor, 0.5f, 0.0f);
                 gCurrentActor->state = 3;
                 gCurrentActor->unk155[0] = 0;
@@ -379,7 +379,7 @@ void func_806B3420(void) {
             break;
         case 3:
             if (gCurrentActor->unk155[0] != 0) {
-                gCurrentActor->unk132 = 1;
+                gCurrentActor->interactionType = 1;
                 gCurrentActor->state = 0;
                 gCurrentActor->unk155[0] = 0;
                 gBehaviourWorkState->timer = 0x5A;
@@ -396,7 +396,7 @@ void actorSwellBurstUpdate(void) {
     u8 st;
     s16 i;
 
-    var = gCurrentActor->unk4->unk38 * 800.0f;
+    var = gCurrentActor->sub4->scaleY * 800.0f;
     scaleMultiplier = 1.1f;
     if (gCurrentMap == 0xC7) {
         if (!(gPrimaryPlayerActor->contactFlags & 4)) {
@@ -438,10 +438,10 @@ void actorSwellBurstUpdate(void) {
             switch (gCurrentActor->unk155[0]) {
                 case 0:
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1C2, 0xFF, 0x7F, 0);
-                    gBehaviourWorkState->scale = 2.0 * gCurrentActor->unk4->unk38;
+                    gBehaviourWorkState->scale = 2.0 * gCurrentActor->sub4->scaleY;
                     gCurrentActor->unk155[0]++;
                 case 1:
-                    if (gBehaviourWorkState->scale > (dx = gCurrentActor->unk4->unk38)) {
+                    if (gBehaviourWorkState->scale > (dx = gCurrentActor->sub4->scaleY)) {
                         actorSetUniformScale(gCurrentActor, dx * 1.01);
                     } else {
                         for (i = 0; i < 0xC; i++) {
@@ -450,13 +450,13 @@ void actorSwellBurstUpdate(void) {
                             func_80714950(i + 0x0B020000);
                             func_8071498C(effectRadialSprayUpdate);
                             func_80714998(1);
-                            func_80714CC0(D_8072073C, 2.0 * gCurrentActor->unk4->unk38, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
+                            func_80714CC0(D_8072073C, 2.0 * gCurrentActor->sub4->scaleY, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
                         }
                         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3D, 0xFF, 0x7F, 0);
                         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x35C, 0xFF, 0x7F, 0, 0x32, 0.3f, 0);
                         tagBarrelSpawnActorSmokePuffs(0, 1);
-                        actorGetOrSetNodeScale(gCurrentActor, 1, gCurrentActor->unk140->unkC * scaleMultiplier);
-                        actorSetCollisionRadius(gCurrentActor, gCurrentActor->unk140->unkC * scaleMultiplier);
+                        actorGetOrSetNodeScale(gCurrentActor, 1, gCurrentActor->collision->scaledRadius * scaleMultiplier);
+                        actorSetCollisionRadius(gCurrentActor, gCurrentActor->collision->scaledRadius * scaleMultiplier);
                         gCurrentActor->flags &= ~4;
                         gCurrentActor->unk155[0]++;
                     }
@@ -471,7 +471,7 @@ void actorSwellBurstUpdate(void) {
         case 2:
         case 3:
             dx = gBehaviourWorkState->targetY;
-            actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourWorkState->targetX, (dx < (gCurrentActor->waterY - gCurrentActor->unk15E)) ? dx : (gCurrentActor->waterY - gCurrentActor->unk15E), gBehaviourWorkState->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
+            actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourWorkState->targetX, (dx < (gCurrentActor->waterY - gCurrentActor->eyeHeight)) ? dx : (gCurrentActor->waterY - gCurrentActor->eyeHeight), gBehaviourWorkState->targetZ, 0x1E, 3.3f, 100.0f, 0x2040);
             break;
         default:
             func_8072B7CC(0x32E);
@@ -760,7 +760,7 @@ void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
     heightPtr = B7490A->unk178;
     if (!(gCurrentActor->flags & 0x10)) {
         func_80724CA4(1, 1);
-        gBehaviourWorkState->scale = gCurrentActor->unk4->unk38;
+        gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
         gCurrentActor->speedXZ = (f32) (u32) gBehaviourExtraState->unkC;
         *heightPtr = gBehaviourExtraState->unkA;
         B7490A->unkC4 = D_807502EC;
@@ -858,8 +858,8 @@ void func_806B4DCC(void) {
     if ((action != 0x37) && (action != 0x40)) {
         actorPlaceAttachedChildren(-0x1E);
     }
-    curScale = gCurrentActor->unk4->unk34;
-    origScale = gCurrentActor->unk4->unk34;
+    curScale = gCurrentActor->sub4->scaleX;
+    origScale = gCurrentActor->sub4->scaleX;
     actorSetUniformScale(gCurrentActor, (f32) (((f64) (gBehaviourWorkState->scale - origScale) * 0.05) + (f64) origScale));
     timer = gBehaviourWorkState->timer;
     if (timer != 0) {
@@ -870,10 +870,10 @@ void func_806B4DCC(void) {
             gCurrentActor->flags = gCurrentActor->flags & 0xFF7FFFFF;
         }
     } else {
-        gCurrentActor->unk132 = 1;
+        gCurrentActor->interactionType = 1;
         gCurrentActor->flags = gCurrentActor->flags & 0xFF7FFFFF;
         if (gBossFightPhase == 4) {
-            gCurrentActor->unk132 = 2;
+            gCurrentActor->interactionType = 2;
             gBehaviourWorkState->timer = 0x1E;
             gBehaviourWorkState->scale = (f32) ((f64) gBehaviourWorkState->scale * 0.7);
             func_8072D9D4();
@@ -907,21 +907,21 @@ void func_806B513C(void) {
     }
     if (gCurrentMap == 0xA6) {
         inWaterFlag = gActivePlayerState->stateFlags & 0x40;
-        if ((inWaterFlag != 0) && (gCurrentActor->unk128 == 0)) {
+        if ((inWaterFlag != 0) && (gCurrentActor->alpha == 0)) {
             gBehaviourWorkState->timer = 0xA;
             gCurrentActor->unk144 = 0x24;
-        } else if ((inWaterFlag == 0) && (gCurrentActor->unk128 == 0xFF)) {
+        } else if ((inWaterFlag == 0) && (gCurrentActor->alpha == 0xFF)) {
             gBehaviourWorkState->timer = -0xA;
             gCurrentActor->unk144 = 1;
         }
         alphaDelta = gBehaviourWorkState->timer;
         if (alphaDelta != 0) {
-            gCurrentActor->unk128 = gCurrentActor->unk128 + alphaDelta;
-            if (gCurrentActor->unk128 >= 0x100) {
-                gCurrentActor->unk128 = 0xFF;
+            gCurrentActor->alpha = gCurrentActor->alpha + alphaDelta;
+            if (gCurrentActor->alpha >= 0x100) {
+                gCurrentActor->alpha = 0xFF;
                 gBehaviourWorkState->timer = 0;
-            } else if (gCurrentActor->unk128 < 0) {
-                gCurrentActor->unk128 = 0;
+            } else if (gCurrentActor->alpha < 0) {
+                gCurrentActor->alpha = 0;
                 gBehaviourWorkState->timer = 0;
             }
         }
@@ -937,7 +937,7 @@ void func_806B52DC(void) {
         gCurrentActor->speedXZ = (f32) (((randomNonNegative() >> 15) % 100) + 0x12C);
         gCurrentActor->y += (f32) ((randomNonNegative() >> 15) % 30);
         gCurrentActor->flags = gCurrentActor->flags & 0xFFFF7FFF;
-        gCurrentActor->unk128 = 0;
+        gCurrentActor->alpha = 0;
         ((B7490Actor *) gCurrentActor)->unkEC = ((randomNonNegative() >> 15) % 7) + 0xF;
     }
     func_8067ACB4(gCurrentActor);
@@ -945,17 +945,17 @@ void func_806B52DC(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     switch (gCurrentActor->state) {
     case 6:
-        gCurrentActor->unk128 = gCurrentActor->unk128 + ((B7490Actor *) gCurrentActor)->unkEC;
-        if (gCurrentActor->unk128 >= 0xFF) {
-            gCurrentActor->unk128 = 0xFF;
+        gCurrentActor->alpha = gCurrentActor->alpha + ((B7490Actor *) gCurrentActor)->unkEC;
+        if (gCurrentActor->alpha >= 0xFF) {
+            gCurrentActor->alpha = 0xFF;
             gCurrentActor->state = 0x37;
         }
         break;
     case 0x37:
-        gCurrentActor->unk128 = gCurrentActor->unk128 - ((B7490Actor *) gCurrentActor)->unkEC;
-        if (gCurrentActor->unk128 < 0) {
+        gCurrentActor->alpha = gCurrentActor->alpha - ((B7490Actor *) gCurrentActor)->unkEC;
+        if (gCurrentActor->alpha < 0) {
             gCurrentActor->state = 0x3C;
-            gCurrentActor->unk128 = 0;
+            gCurrentActor->alpha = 0;
         }
         break;
     default:
@@ -1062,10 +1062,10 @@ void func_806B54BC(void) {
             break;
         case 0x37:
             gCurrentActor->flags = gCurrentActor->flags & 0xFFFF7FFF;
-            gCurrentActor->unk128 = gCurrentActor->unk128 - 8;
+            gCurrentActor->alpha = gCurrentActor->alpha - 8;
             gCurrentActor->y = (f32) ((f64) gCurrentActor->y - 10.0);
-            if (gCurrentActor->unk128 < 0) {
-                gCurrentActor->unk128 = 0;
+            if (gCurrentActor->alpha < 0) {
+                gCurrentActor->alpha = 0;
                 gCurrentActor->state = 0x40;
                 gCurrentActor->unk155[0] = 0;
                 gCurrentActor->unk144 = 1;

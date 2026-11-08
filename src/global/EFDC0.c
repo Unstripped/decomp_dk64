@@ -178,7 +178,7 @@ s32 playerCanTakeHit(Actor *arg0) {
     s32 pred;
     EfASubActor *sub;
 
-    sub = (EfASubActor *)arg0->unk174;
+    sub = (EfASubActor *)arg0->customState;
     pred = (sub->unkD4 == 0) || (EfA_Q[gCurrentPlayerIndex].unk29C == 0x3F);
     if ((gPlayerCharacterId[gCurrentPlayerIndex] == 7) || (sub->unk1F0 & 0x8000)) {
         return 0;
@@ -296,7 +296,7 @@ void playerStateTakeDamagePrep(void) {
     u8 type;
 
     actor = EfA_P->unk104;
-    subactor = actor->unk174;
+    subactor = actor->customState;
     if (gPlayerSlots && gPlayerSlots) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     type = subactor->unkEF;
     speed = subactor->unkB8;
@@ -581,7 +581,7 @@ void playerStateEnterFlattened(void) {
 void playerStateEnterSlideSlope(void) {
     s32 animation;
 
-    *(u32 *)((u8 *)EfA_P->unk104->unk174 + 0xAC) |= 4;
+    *(u32 *)((u8 *)EfA_P->unk104->customState + 0xAC) |= 4;
     gActivePlayerActor->state = 0x6D;
     gActivePlayerActor->unk155[0] = 0;
     actorScriptStart(gActivePlayerActor, 0);
@@ -606,7 +606,7 @@ void playerStateEnterFrozen(void) {
     gActivePlayerActor->flags &= ~1;
     EFB_P->unk88 = (EfBActor *)EFB_C[gCurrentPlayerIndex].unk2A0;
     actor = (Actor *)EFB_P->unk88;
-    actorCopyPoseAndScale(gActivePlayerActor, actor, actor->unk4->unk34);
+    actorCopyPoseAndScale(gActivePlayerActor, actor, actor->sub4->scaleX);
     gActivePlayerActor->unk144 = 1;
     controllerAnimSetStateIfChanged(gActivePlayerActor, 0x22A, 0.0f, 0.0f);
 }
@@ -936,7 +936,7 @@ void playerClearCarriedItemState(void);
 void playerStateEnterState59(void) {
     void *callback;
 
-    callback = EfN4PS->unk104->unk174;
+    callback = EfN4PS->unk104->customState;
     gActivePlayerActor->contactFlags |= 0x40;
     gActivePlayerActor->renderFlags &= ~0x2000;
     gActivePlayerActor->state = 0x59;
@@ -949,7 +949,7 @@ void playerStateEnterState59(void) {
 void playerStateEnterState17(void) {
     void *callback;
 
-    callback = EfN4PS->unk104->unk174;
+    callback = EfN4PS->unk104->customState;
     gCurrentActor->state = 0x17;
     gCurrentActor->unk155[0] = 0;
     if (gGlobalCutsceneFlags & 2) {
@@ -1680,7 +1680,7 @@ void func_806EE74C(void) {
             playerTakeDamage(0x40);
             return;
         }
-        new_var = ((EfN7TransitionState *)gActivePlayerState)->unk88->unk174;
+        new_var = ((EfN7TransitionState *)gActivePlayerState)->unk88->customState;
         ((u8 *)new_var)[0x45] = 1;
     }
 }
@@ -2067,7 +2067,7 @@ void func_806EF830(void) {
     if ((gCurrentMap != 0x52) && (gCurrentMap != 0xE)) {
         func_806C9974(gCurrentPlayerIndex, -0x40);
     } else {
-        new_var = ((EfN7TransitionState *)gActivePlayerState)->unk88->unk174;
+        new_var = ((EfN7TransitionState *)gActivePlayerState)->unk88->customState;
         ((u8 *)new_var)[0x45] = 1;
     }
 }
@@ -2115,7 +2115,7 @@ void func_806EFA3C(void) {
     f32 height;
 
     spawnParams = D_8075D380;
-    height = gActivePlayerActor->unk4->unk34;
+    height = gActivePlayerActor->sub4->scaleX;
     actorSpawn(0x140, 0xB9);
     if (gActivePlayerActor->actorType == 2) {
         height *= 1.25;
@@ -2306,7 +2306,7 @@ void func_806F007C(void) {
 void func_806F00BC(void) {
     playerClearCarriedItemState();
     EfEPS->unk1F0 &= ~0x20;
-    gActivePlayerActor->unk132 = 2;
+    gActivePlayerActor->interactionType = 2;
     EfEPS->unk4C = -1;
     EfEPS->unk30 = D_80753250[gCurrentCharacterIndex];
     gActivePlayerActor->state = 0x7A;
@@ -2355,7 +2355,7 @@ void func_806F027C(void) {
         gActivePlayerActor->unk155[0] = 0;
         actorScriptStart(gActivePlayerActor, 0x13);
         actorSpawn(0x117, 0xC5);
-        gSpawnedActor->unk11C = (s32)gActivePlayerActor;
+        gSpawnedActor->parentActor = (s32)gActivePlayerActor;
         actorSetInteractionTimer(gActivePlayerActor);
     }
 }
@@ -2368,7 +2368,7 @@ void func_806F0344(void) {
     gActivePlayerActor->flags &= ~4;
     actorSpawn(0x11A, 0x21);
     actorScriptStart(gSpawnedActor, 0x232);
-    gSpawnedActor->unk11C = (s32)gActivePlayerActor;
+    gSpawnedActor->parentActor = (s32)gActivePlayerActor;
 }
 
 void func_806F03C4(void) {
@@ -2453,9 +2453,9 @@ void func_806F0700(void) {
     gActivePlayerActor->y = EfEPS->unk230;
     gActivePlayerActor->z = EfEPS->unk234;
     ((EfEActorE4 *)gActivePlayerActor)->unkE4 = -0x3E6;
-    gActivePlayerActor->unk4->unk34 = 0.01f;
-    gActivePlayerActor->unk4->unk38 = 0.01f;
-    gActivePlayerActor->unk4->unk3C = 0.01f;
+    gActivePlayerActor->sub4->scaleX = 0.01f;
+    gActivePlayerActor->sub4->scaleY = 0.01f;
+    gActivePlayerActor->sub4->scaleZ = 0.01f;
     EfEPS->unk50 = 0;
     EfEPS->unk4C = -1;
 }

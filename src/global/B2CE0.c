@@ -193,7 +193,7 @@ void actorSpawnChildAtNode(s32 actorType, s16 angleOffset, s16 nodeIndex, s16 ex
         gSpawnedActor->unk7C = nodeX;
         gSpawnedActor->unk80 = nodeY;
         gSpawnedActor->unk84 = nodeZ;
-        actorSetUniformScale(gSpawnedActor, *(s32 *)&gCurrentActor->unk4->unk38);
+        actorSetUniformScale(gSpawnedActor, *(s32 *)&gCurrentActor->unk4->scaleY);
     }
 }
 
@@ -416,7 +416,7 @@ void func_806AEE84(void) {
     f32 scaleFactor;
 
     patrolState = gCurrentActor->unk178;
-    scaleFactor = gCurrentActor->unk4->unk38 / 0.15;
+    scaleFactor = gCurrentActor->unk4->scaleY / 0.15;
     behaviourFrameBegin();
     if (!(gCurrentActor->unk60 & 0x10)) {
         patrolState->unk0 = 0x2710;
@@ -648,7 +648,7 @@ void effectSpawnActorParticleBurst(u8 nodeIndex) {
     f32 temp;
 
     for (i = 0; i < 7; i++) {
-        temp = gCurrentActor->unk4->unk38 / 0.15;
+        temp = gCurrentActor->unk4->scaleY / 0.15;
         func_807149B8(1);
         func_807149FC(10);
         func_8071498C(effectTumbleBounceUpdate);
@@ -725,7 +725,7 @@ void func_806AFB58(void) {
         switch (gCurrentActor->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
-            if (((f64)gCurrentActor->unk4->unk38 > 0.18) && ((randomNonNegative() >> 0xF) % 1000 >= 0x1F5)) {
+            if (((f64)gCurrentActor->unk4->scaleY > 0.18) && ((randomNonNegative() >> 0xF) % 1000 >= 0x1F5)) {
                 actorScriptStart(gCurrentActor, 0x2DB);
             } else {
                 actorScriptStart(gCurrentActor, 0x2DA);
@@ -951,9 +951,9 @@ void func_806B0848(void) {
         f64 d;
         f64 m = 255.0;
 
-        d = (f64)gCurrentActor->unk4->unk38 / 0.15 * 100.0;
+        d = (f64)gCurrentActor->unk4->scaleY / 0.15 * 100.0;
         if (d > m) ((B2CE0ActorTail *)gCurrentActor)->unk130 = m; else ((B2CE0ActorTail *)gCurrentActor)->unk130 = d;
-        d = (f64)gCurrentActor->unk4->unk38 / 0.15 * 100.0;
+        d = (f64)gCurrentActor->unk4->scaleY / 0.15 * 100.0;
         if (d > m) ((B2CE0ActorTail *)gCurrentActor)->unk131 = m; else ((B2CE0ActorTail *)gCurrentActor)->unk131 = d;
         behaviourSetAnimIds(0x35E, 0x35F, 0x360);
     }

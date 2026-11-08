@@ -188,10 +188,10 @@ void func_806B91E0(void) {
             gCurrentActor->unk155[0] = 1;
             break;
         case 2:
-            gCurrentActor->unk132 = 2;
+            gCurrentActor->interactionType = 2;
             break;
         case 3:
-            gCurrentActor->unk132 = 1;
+            gCurrentActor->interactionType = 1;
             break;
         case 4:
             actorSetDefaultState(0x322);
@@ -370,7 +370,7 @@ s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 
         guMtxCatF(spA, spB, spA);
         guTranslateF(spB, 0.0f, yOffset, 0.0f);
         guMtxCatF(spA, spB, spA);
-        guScaleF(spB, gCurrentActor->unk4->unk34, gCurrentActor->unk4->unk38, gCurrentActor->unk4->unk3C);
+        guScaleF(spB, gCurrentActor->sub4->scaleX, gCurrentActor->sub4->scaleY, gCurrentActor->sub4->scaleZ);
         guMtxCatF(spA, spB, spA);
         guTranslateF(spB, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         guMtxCatF(spA, spB, (f32 (*)[4])((u8 *)gCurrentActor + 0xC));
@@ -385,7 +385,7 @@ void func_806BA130(void) {
     gCurrentActor->state = 0x23;
     gCurrentActor->unk155[0] = 0;
     BDEE0AA->unk134 = 1;
-    gCurrentActor->unk132 = 1;
+    gCurrentActor->interactionType = 1;
     BDEE0S90->unk4 = gPrimaryPlayerActor;
     actorScriptStart(gCurrentActor, BDEE0S98->unk2A);
     gCurrentActor->yaw = ((randomNonNegative() >> 15) % 1024) + gPrimaryPlayerActor->yaw - 0x200;
@@ -432,7 +432,7 @@ s32 func_806BA240(u8 action, s16 animId) {
             gCurrentActor->state = 0x15;
             gCurrentActor->unk155[0] = 0;
             actorScriptStart(gCurrentActor, 0);
-            gCurrentActor->unk132 = 2;
+            gCurrentActor->interactionType = 2;
             p[3] = gCurrentActor->x;
             p[4] = gCurrentActor->z;
         }
@@ -443,14 +443,14 @@ s32 func_806BA240(u8 action, s16 animId) {
     if (gCurrentActor->state == 0x15) {
         node = gBehaviourExtraState->unkA;
         if (node == 5 || node == 7) {
-            if ((((BDEE0Sub4 *)tgt->unk4)->unk64 == 0x21E || ((BDEE0Sub4 *)tgt->unk4)->unk64 == 0x21F) && ((BDEE0Sub4 *)tgt->unk4)->unk0->unk4 >= 4.0f && ((BDEE0Sub4 *)tgt->unk4)->unk0->unk4 <= 12.0f) {
-                gCurrentActor->unk132 = 4;
+            if ((((BDEE0Sub4 *)tgt->sub4)->unk64 == 0x21E || ((BDEE0Sub4 *)tgt->sub4)->unk64 == 0x21F) && ((BDEE0Sub4 *)tgt->sub4)->unk0->unk4 >= 4.0f && ((BDEE0Sub4 *)tgt->sub4)->unk0->unk4 <= 12.0f) {
+                gCurrentActor->interactionType = 4;
             } else {
-                gCurrentActor->unk132 = 2;
+                gCurrentActor->interactionType = 2;
             }
         }
         if (node == 1) {
-            gCurrentActor->unk132 = 8;
+            gCurrentActor->interactionType = 8;
         }
         if (BDEE0AA->unkF0 != 0) {
             BDEE0AA->unkF0 = BDEE0AA->unkF0 - 1;
@@ -469,7 +469,7 @@ s32 func_806BA240(u8 action, s16 animId) {
                     tgt->unk155[0] = 2;
                 }
             } else if (gBossFightPhase == 4) {
-                BDEE0S90->unk16 = ((BDEE0Sub4 *)gBehaviourTargetActor->unk4)->unk0->unk10;
+                BDEE0S90->unk16 = ((BDEE0Sub4 *)gBehaviourTargetActor->sub4)->unk0->unk10;
                 gCurrentActor->flags |= 0x20000000;
                 if (BDEE0AA->unkF0 == 0) {
                     BDEE0AA->unkF0 = 0x28;
@@ -670,8 +670,8 @@ u8 pivotZ;
             s1->unk0 -= 0x800;
             s1->unk2 ^= 1;
             a = dir << 8;
-            gCurrentActor->x += gCurrentActor->unk4->unk38 * stepDist * mathSinF(gCurrentActor->yaw + a);
-            gCurrentActor->z += gCurrentActor->unk4->unk38 * stepDist * mathCosF(gCurrentActor->yaw + a);
+            gCurrentActor->x += gCurrentActor->sub4->scaleY * stepDist * mathSinF(gCurrentActor->yaw + a);
+            gCurrentActor->z += gCurrentActor->sub4->scaleY * stepDist * mathCosF(gCurrentActor->yaw + a);
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x1B1, 0xFF, 0x7F, 0xA, 0x3C, 0.3f, 0);
         }
         func_806BA8C8();
@@ -755,7 +755,7 @@ void func_806BB400(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         playerSetLargeModeScale(0.525f);
         gPrimaryPlayerActor->flags |= 0x400;
-        gPrimaryPlayerActor->unk12A = 0x7D0;
+        gPrimaryPlayerActor->drawDistance = 0x7D0;
         gCurrentActor->flags &= ~4;
         actorSetUniformScale(gCurrentActor, 1.0f);
         gCurrentActor->unk15F = 0;
@@ -778,7 +778,7 @@ void func_806BB400(void) {
                     goto join;
                 join:
                 case 1:
-                    if (((BDEE0Sub4 *)gCurrentActor->unk4)->unk64 != 0x21C) {
+                    if (((BDEE0Sub4 *)gCurrentActor->sub4)->unk64 != 0x21C) {
                         actorScriptStart(gCurrentActor, 0x21C);
                     }
                     actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
@@ -834,14 +834,14 @@ s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, s32 extraParam)
                       animId, subId) != 0) {
         gSpawnedActor->state = 0x17;
         gSpawnedActor->unk155[0] = 0;
-        v = gSpawnedActor->unk174;
+        v = gSpawnedActor->customState;
         v->unk2E = 0x1E;
         if (extraParam != 0) {
             v->unk0->unk46 &= ~8;
             v->unk4 = extraParam;
         }
         gSpawnedActor->unk144 = 1;
-        gSpawnedActor->unk12A = 0x3E8;
+        gSpawnedActor->drawDistance = 0x3E8;
         return 1;
     }
     return 0;
@@ -897,7 +897,7 @@ void func_806BB874(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         BDEE0A->unk130 = 0x3C;
         BDEE0A->unk131 = 0x3C;
-        gCurrentActor->unk12A = 0x3E8;
+        gCurrentActor->drawDistance = 0x3E8;
         gCurrentActor->state = 0;
         BDEE0A->unk155 = 0;
         actorScriptStart(gCurrentActor, 0x3DC);
@@ -998,11 +998,11 @@ void func_806BB874(void) {
         }
         break;
     case 9: {
-        w = gCurrentActor->unk128 - 0xA;
+        w = gCurrentActor->alpha - 0xA;
         if (w < 0) {
-            gCurrentActor->unk128 = 0;
+            gCurrentActor->alpha = 0;
         } else {
-            gCurrentActor->unk128 = w;
+            gCurrentActor->alpha = w;
         }
         if (spawnNodeHasActor(0x2D) == 0) {
             func_80641874(0x11, 0xFF);
@@ -1016,7 +1016,7 @@ void func_806BB874(void) {
             gCurrentActor->state++;
             sfxStopChannel(0x68, 0);
             csModelStateSetFirstByte(0x7C, 0xA);
-            gPrimaryPlayerActor->unk12A = 0x1F4;
+            gPrimaryPlayerActor->drawDistance = 0x1F4;
             gPrimaryPlayerActor->flags &= ~0x400;
             gCurrentActor->unk144 = 0x24;
             camStartPath(gCurrentActor, 0x1F, 5);
@@ -1024,11 +1024,11 @@ void func_806BB874(void) {
         break;
     }
     case 10: {
-        w = gCurrentActor->unk128 + 0xA;
+        w = gCurrentActor->alpha + 0xA;
         if (w >= 0x100) {
-            gCurrentActor->unk128 = 0xFF;
+            gCurrentActor->alpha = 0xFF;
         } else {
-            gCurrentActor->unk128 = w;
+            gCurrentActor->alpha = w;
         }
         break;
     }

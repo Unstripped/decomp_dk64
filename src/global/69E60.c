@@ -80,7 +80,7 @@ void actorApplyVelocity(ActorVelocityWork *actor) {
             moveSpeed = actor->unkFA;
         }
     }
-    scaleFactor = (f64)((actor->unk4 != NULL) ? actor->unk4->unk38 : 0.15f) * 0.16666666675;
+    scaleFactor = (f64)((actor->unk4 != NULL) ? actor->unk4->scaleY : 0.15f) * 0.16666666675;
     if ((actor->unk5C & 4) && (actor->unk6A & 4)) {
         scaleFactor = (f64)scaleFactor * 0.5;
     }
@@ -132,7 +132,7 @@ void actorApplyVelocityCustom(ActorVelocityCustomWork *actor, f32 speedXZ, f32 s
         }
     }
     if (actor->unk4 != NULL) {
-        scale = actor->unk4->unk38;
+        scale = actor->unk4->scaleY;
     } else {
         scale = 0.15f;
     }
@@ -214,8 +214,8 @@ void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
     if ((heightAboveFloor <= floorYOffset) || ((actor->prevContactFlags & 1) && (actor->speedY < 0.0f))) {
         if ((gCurrentActor->contactFlags & 0x200) || ((u32)gCurrentMap == 0x27) || ((u32)gCurrentMap == 0x6F) || ((u32)gCurrentMap == 0xB9)) {
             if ((f64)actor->distToFloor < 0.5) {
-                if (actor->unk4 != NULL) {
-                    scale = actor->unk4->unk38;
+                if (actor->sub4 != NULL) {
+                    scale = actor->sub4->scaleY;
                 } else {
                     scale = 0.15f;
                 }
@@ -442,16 +442,16 @@ void actorUpdatePositionAndSub140(Actor *actor) {
     x = actor->x;
     y = actor->y;
     z = actor->z;
-    if (actor->unk4 != NULL) {
-        renderEntryAddOrUpdate(0, 0, actor, x, y, z, actor->unk12A, 0, 1, -1, 1);
+    if (actor->sub4 != NULL) {
+        renderEntryAddOrUpdate(0, 0, actor, x, y, z, actor->drawDistance, 0, 1, -1, 1);
     }
-    if (actor->unk140 != NULL) {
-        if (actor->unk4 != NULL) {
-            scale = actor->unk4->unk38;
+    if (actor->collision != NULL) {
+        if (actor->sub4 != NULL) {
+            scale = actor->sub4->scaleY;
         } else {
             scale = 0.15f;
         }
         actorSub140SetVectors(actor, x, y, z, scale);
-        actor->unk140->unk80 = gFrameCounter;
+        actor->collision->unk80 = gFrameCounter;
     }
 }

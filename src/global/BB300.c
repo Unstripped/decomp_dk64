@@ -168,7 +168,7 @@ void func_806B6C88(s16 speed, s16 angle) {
         actorScriptStart(gSpawnedActor, 0x237);
         BB300A44->unkE6 = angle;
         BB300A44->unkEE = BB300A44->unkE6;
-        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->unk4->unk38);
+        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
         BB300A44->unkA4 = BB300A->unkA4;
         BB300A44->unkC4 = D_807502E8;
         BB300A44->unkC8 = D_807502E0;

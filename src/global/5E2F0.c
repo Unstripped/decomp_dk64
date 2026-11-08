@@ -359,17 +359,17 @@ void lightApplyToActors(void) {
                             if (scale == 0.0f) {
                                 scale = 0.1f;
                             }
-                            scale = ((f32)actor->unk15E * 0.4f) / scale;
+                            scale = ((f32)actor->eyeHeight * 0.4f) / scale;
                             angle = mathAngleBetweenPoints2D(D_807F7500[i].x, D_807F7500[i].z, actor->x,
                                                              actor->z);
-                            if (actor->unk4 != NULL) {
-                                shadowScale[0] = actor->unk4->unk34;
-                                shadowScale[1] = actor->unk4->unk3C;
+                            if (actor->sub4 != NULL) {
+                                shadowScale[0] = actor->sub4->scaleX;
+                                shadowScale[1] = actor->sub4->scaleZ;
                             } else {
                                 shadowScale[0] = 0.15f;
                                 shadowScale[1] = 0.15f;
                             }
-                            alpha = actor->unk128 / 255.0;
+                            alpha = actor->alpha / 255.0;
                             billboardSubmit(actor, 0x3C9, 0x40, 0x40, (s32)((f32)actor->unk16E[0] * shadowScale[0]),
                                             (s32)((f32)actor->unk16E[1] * shadowScale[1]), 1, 0x64,
                                             (u32)((f32)D_80748304 * dot * alpha), angle + 0xC00, scale * dot);
@@ -399,15 +399,15 @@ void lightApplyToActors(void) {
                         if (scale == 0.0f) {
                             scale = 0.1f;
                         }
-                        scale = ((f32)actor->unk15E * 0.4f) / scale;
+                        scale = ((f32)actor->eyeHeight * 0.4f) / scale;
                         angle = mathAngleBetweenPoints2D(D_807F7500[i].x, D_807F7500[i].z, actor->x,
                                                          actor->z);
                         if (scale > 10.0f) {
                             scale = 10.0f;
                         }
-                        if (actor->unk4 != NULL) {
-                            shadowScale[0] = actor->unk4->unk34;
-                            shadowScale[1] = actor->unk4->unk3C;
+                        if (actor->sub4 != NULL) {
+                            shadowScale[0] = actor->sub4->scaleX;
+                            shadowScale[1] = actor->sub4->scaleZ;
                         } else {
                             shadowScale[0] = 0.15f;
                             shadowScale[1] = 0.15f;
@@ -420,7 +420,7 @@ void lightApplyToActors(void) {
                                          (s16)(s32)D_807F7500[i].z, 0xFF, D_807F7500[i].unk36, D_807F7500[i].unk37,
                                          D_807F7500[i].unk38, 0);
                         if ((actor->flags & 0x01000000) && (actor->flags & 4)) {
-                            alpha = actor->unk128 / 255.0;
+                            alpha = actor->alpha / 255.0;
                             billboardSubmit(actor, 0x3C9, 0x40, 0x40, (s32)((f32)actor->unk16E[0] * shadowScale[0]),
                                             (s32)((f32)actor->unk16E[1] * shadowScale[1]), 1, 0x64,
                                             (u32)((f32)D_80748304 * alpha), angle + 0xC00, scale);
@@ -435,7 +435,7 @@ void lightApplyToActors(void) {
                                              (u32)((f32)D_807F7500[i].unk37 * factor),
                                              (u32)((f32)D_807F7500[i].unk38 * factor), 0);
                             if ((actor->flags & 0x01000000) && (actor->flags & 4)) {
-                                alpha = actor->unk128 / 255.0;
+                                alpha = actor->alpha / 255.0;
                                 billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                                                 (s32)((f32)actor->unk16E[0] * shadowScale[0]),
                                                 (s32)((f32)actor->unk16E[1] * shadowScale[1]), 1, 0x64,
@@ -453,14 +453,14 @@ void lightApplyToActors(void) {
         if (litActors[i] == 0) {
             actor = gActiveActors[i].actor;
             if ((actor->flags & 0x01000000) && (actor->flags & 4)) {
-                if (actor->unk4 != NULL) {
-                    shadowScale[0] = actor->unk4->unk34;
-                    shadowScale[1] = actor->unk4->unk3C;
+                if (actor->sub4 != NULL) {
+                    shadowScale[0] = actor->sub4->scaleX;
+                    shadowScale[1] = actor->sub4->scaleZ;
                 } else {
                     shadowScale[0] = 0.15f;
                     shadowScale[1] = 0.15f;
                 }
-                alpha = actor->unk128 / 255.0;
+                alpha = actor->alpha / 255.0;
                 billboardSubmit(actor, 0x3C9, 0x40, 0x40, (s32)((f32)actor->unk16E[0] * shadowScale[0]),
                                 (s32)((f32)actor->unk16E[1] * shadowScale[1]), 1, 0x64,
                                 (u32)((f32)D_80748308 * alpha), 0, 1);

@@ -179,7 +179,7 @@ s32 list;
     u32 type;
 
     if (player->collisionFlags & 1) {
-        u8* beh = player->unk174;
+        u8* beh = player->customState;
         if (*(s32*)(beh + 0x1F0) & 0x01000000) {
             return 1;
         }
@@ -189,7 +189,7 @@ s32 list;
         return 0;
     }
 
-    x = ((ActorProximityActor*)actor)->unk4->unk38 * (f32)((ActorProximityActor*)actor)->unk0->unk1C;
+    x = ((ActorProximityActor*)actor)->unk4->scaleY * (f32)((ActorProximityActor*)actor)->unk0->unk1C;
     y = ((ActorProximityActor*)actor)->unk80 + x;
     if (player->y < y) {
         diff = y - player->y;
@@ -237,7 +237,7 @@ s32 list;
 
 u8 func_806769A8(s32 arg0, Actor* player, s32 arg2) {
     if (player->actorType == 6) {
-        u8 kong = ((u8*)player->unk174)[0x1A4];
+        u8 kong = ((u8*)player->customState)[0x1A4];
         if (gPlayerSlots[kong].unk2C0 != 1) {
             return 1;
         }
@@ -247,7 +247,7 @@ u8 func_806769A8(s32 arg0, Actor* player, s32 arg2) {
 
 u8 func_80676A0C(s32 arg0, Actor* player, s32 arg2) {
     if (player->actorType == 5) {
-        u8 kong = ((u8*)player->unk174)[0x1A4];
+        u8 kong = ((u8*)player->customState)[0x1A4];
         if (gPlayerSlots[kong].unk2C0 != 1) {
             return 1;
         }
@@ -266,7 +266,7 @@ u8 func_80676A70(s32 actor, Actor* player, s32 list) {
 }
 
 u8 func_80676AB8(Actor* actor, Actor* target, s32 arg2) {
-    u8 kong = ((u8*)actor->unk174)[0x1A4];
+    u8 kong = ((u8*)actor->customState)[0x1A4];
     u8 ret = 0;
 
     if (target->collisionFlags & 2) {
@@ -301,12 +301,12 @@ u8 func_80676B70(Actor* actor, Actor* target, s32 list) {
     return ret;
 }
 u8 func_80676BCC(s32 arg0, Actor* target, s32 arg2) {
-    u8 kong = ((u8*)target->unk174)[0x1A4];
+    u8 kong = ((u8*)target->customState)[0x1A4];
     return gPlayerSlots[kong].unk2C0 == 2;
 }
 
 u8 func_80676C10(s32 actor, Actor* target, s32 list) {
-    u8* beh = target->unk174;
+    u8* beh = target->customState;
     s32 ret;
     s32 hasCustomOffset = *(s16*)(beh + 0xD4) != 0 ? 1 : 0;
 

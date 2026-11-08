@@ -163,7 +163,7 @@ void func_806B13B4(u8 arg0) {
         } else if (gActorGlobalState.unk200 == 5) {
             func_8072DEA8(0x20A, 0x32, gActorGlobalState.unk1FC);
             ((B5EC0Actor *)gCurrentActor)->unkC0 = 220.0f;
-            gCurrentActor->unk132 = 8;
+            gCurrentActor->interactionType = 8;
             sel = gCurrentActor->state;
         }
     }

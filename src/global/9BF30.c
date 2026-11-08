@@ -279,13 +279,13 @@ extern void *D_807502C0[];
 extern u8 D_8071FBA0;
 extern u32 gGameFrameCounter;
 extern u8 D_807FBB85;
-void effectSetDuration(s32);
-void effectSetMode(s32);
-void effectSetDepth(s32);
-void effectSetMaxDistance(s32);
-void effectSetColor(s32, s32, s32, s32);
-void effectSetCallback(void (*)(void));
-void effectSetSpeed();
+void func_807149FC(s32);
+void func_80714998(s32);
+void func_807149B8(s32);
+void func_807149A8(s32);
+void func_807149C8(s32, s32, s32, s32);
+void func_8071498C(void (*)(void));
+void func_80714950();
 s32 randomNonNegative(void);
 void actorSetCollisionRadius(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
@@ -295,8 +295,8 @@ void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-void effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
+void func_80714C08(void *, f32, Actor *, s32, s32);
+void func_80714CC0(void *, f32, f32, f32, f32);
 void effectPulseSpinUpdate(void);
 void effectRadialSprayUpdate(void);
 
@@ -319,19 +319,19 @@ void projectileActorUpdate(void) {
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 30.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         sub->unk13 = (u8)(u32)G_ACTOR->unk124->unk10;
-        effectSetDuration(-1);
-        effectSetMode(2);
-        effectSetDepth(1);
-        effectSetMaxDistance(0x7D0);
+        func_807149FC(-1);
+        func_80714998(2);
+        func_807149B8(1);
+        func_807149A8(0x7D0);
         if (sub->unk13 == 1) {
-            effectSetColor(0, 0xFF, 0, 0xC8);
+            func_807149C8(0, 0xFF, 0, 0xC8);
         } else {
-            effectSetColor(0xFF, 0xFF, 0xFF, 0xFF);
+            func_807149C8(0xFF, 0xFF, 0xFF, 0xFF);
         }
         if (sub->unk13 == 3) {
-            effectSetCallback(effectPulseSpinUpdate);
+            func_8071498C(effectPulseSpinUpdate);
         }
-        effectCreateAtActorBone(((void **)&spriteTriple)[sub->unk13 - 1], G_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
+        func_80714C08(((void **)&spriteTriple)[sub->unk13 - 1], G_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sub->unk0 = gGameFrameCounter;
         sub->unk12 = 0;
         G_ACTOR->unk60 |= 0x80000;
@@ -347,10 +347,10 @@ void projectileActorUpdate(void) {
         }
         if (D_807FBB85 == 0) {
             for (particleIdx = 0; particleIdx < 0xC; particleIdx += 2) {
-                effectSetDepth(1);
-                effectSetSpeed(particleIdx + 0xB000000);
-                effectSetCallback(effectRadialSprayUpdate);
-                effectCreateAtPosition(&D_8071FBA0, (f32)(((f64)((s32)(randomNonNegative() >> 15) % 10) * 0.05) + 0.2),
+                func_807149B8(1);
+                func_80714950(particleIdx + 0xB000000);
+                func_8071498C(effectRadialSprayUpdate);
+                func_80714CC0(&D_8071FBA0, (f32)(((f64)((s32)(randomNonNegative() >> 15) % 10) * 0.05) + 0.2),
                     G_ACTOR->unk7C, G_ACTOR->unk80, G_ACTOR->unk84);
             }
         }

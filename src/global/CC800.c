@@ -51,7 +51,7 @@ void func_806C7B50(s32 arg0, u8 arg1, Actor *arg2) {
 
     actorSpawn(arg0, 0x82);
     actorCopyPoseAndScale(gSpawnedActor, arg2, 0.15f);
-    sub = gSpawnedActor->unk174;
+    sub = gSpawnedActor->customState;
     sub->unk4 = arg2;
     sub->unk8 = arg1;
 }
@@ -61,7 +61,7 @@ void func_806C7BAC(s32 arg0, Actor *arg1) {
 
     actorSpawn(0x25, 0x8C);
     actorCopyPoseAndScale(gSpawnedActor, gActivePlayerActor, 0.15f);
-    sub = gSpawnedActor->unk174;
+    sub = gSpawnedActor->customState;
     sub->unk0 = arg0;
     sub->unk4 = arg1;
 }
@@ -297,7 +297,7 @@ void func_806C80E4(void) {
     var2 = mathCosF(gPrimaryPlayerActor->yaw) * sp28;
     actorListSpawnNodeEntryDefault((s16)D_807FD570, gPrimaryPlayerActor->x + sp30, (f32)((f64)gPrimaryPlayerActor->y + 7.0),
                   gPrimaryPlayerActor->z + var2, 0, 1.0f, gPrimaryPlayerActor);
-    ((G00View1F0 *)gPrimaryPlayerActor->unk174)->unk1F0 |= 0x01000000;
+    ((G00View1F0 *)gPrimaryPlayerActor->customState)->unk1F0 |= 0x01000000;
 }
 
 void cameraSetViewportYRange(s16 arg0, s16 arg1) {
@@ -537,14 +537,14 @@ void func_806C850C(s32 arg0, u8 arg1) {
         gSpawnedActor->renderFlags |= 0x200;
     }
     gSpawnedActor->flags2 |= 0xC0;
-    ((G00Sub4 *)gSpawnedActor->unk4)->unk1C = heapAlloc(0x100);
-    *((G00Sub4 *)gSpawnedActor->unk4)->unk1C = 0;
-    ((G00Sub4 *)gSpawnedActor->unk4)->unk20 = heapAlloc(0x200);
-    *((G00Sub4 *)gSpawnedActor->unk4)->unk20 = 0xFF;
-    ((G00Sub4 *)gSpawnedActor->unk4)->unk24 = heapAlloc(0x200);
-    *((G00Sub4 *)gSpawnedActor->unk4)->unk24 = 0xFF;
+    ((G00Sub4 *)gSpawnedActor->sub4)->unk1C = heapAlloc(0x100);
+    *((G00Sub4 *)gSpawnedActor->sub4)->unk1C = 0;
+    ((G00Sub4 *)gSpawnedActor->sub4)->unk20 = heapAlloc(0x200);
+    *((G00Sub4 *)gSpawnedActor->sub4)->unk20 = 0xFF;
+    ((G00Sub4 *)gSpawnedActor->sub4)->unk24 = heapAlloc(0x200);
+    *((G00Sub4 *)gSpawnedActor->sub4)->unk24 = 0xFF;
     gActivePlayerActor = gSpawnedActor;
-    gActivePlayerState = gActivePlayerActor->unk174;
+    gActivePlayerState = gActivePlayerActor->customState;
     G00_P->unk247 = -1;
     G00_P->unk1A4 = sel;
     G00_P->unk11E = -1;
@@ -660,9 +660,9 @@ void func_806C8984(void) {
         if (scale < 0.0f) {
             scale = 1.6f;
         }
-        gActivePlayerActor->unk4->unk34 = gActivePlayerActor->unk4->unk34 * scale;
-        gActivePlayerActor->unk4->unk38 = gActivePlayerActor->unk4->unk38 * scale;
-        gActivePlayerActor->unk4->unk3C = gActivePlayerActor->unk4->unk3C * scale;
+        gActivePlayerActor->sub4->scaleX = gActivePlayerActor->sub4->scaleX * scale;
+        gActivePlayerActor->sub4->scaleY = gActivePlayerActor->sub4->scaleY * scale;
+        gActivePlayerActor->sub4->scaleZ = gActivePlayerActor->sub4->scaleZ * scale;
         return;
     case 0x68:
     case 0x88:
@@ -673,10 +673,10 @@ void func_806C8984(void) {
         gActivePlayerActor->state = 0x7D;
         gActivePlayerActor->unk155[0] = 0;
         gActivePlayerActor->flags &= 0xFFFF7FFF;
-        gActivePlayerActor->unk128 = 0;
+        gActivePlayerActor->alpha = 0;
         actorSpawn(0x11A, 0x21);
         actorScriptStart(gSpawnedActor, 0x232);
-        gSpawnedActor->unk11C = (s32)gActivePlayerActor;
+        gSpawnedActor->parentActor = (s32)gActivePlayerActor;
         L6V->unk88 = gSpawnedActor;
         return;
     case 0x6:
@@ -780,7 +780,7 @@ s32 playerGetResolvedKongId(s32 arg0) {
     var_v1 = gPlayerCharacterId[arg0];
     if (var_v1 == 6 || var_v1 == 7) {
         p = gPlayerSlots[arg0].unk4;
-        q = ((G00View1EE **)&p->unk174)[arg0];
+        q = ((G00View1EE **)&p->customState)[arg0];
         var_v1 = playerLookupKongByActorType(q->unk1EE);
     }
     return var_v1;
@@ -1027,10 +1027,10 @@ void func_806C9304(Actor *arg0, G01Ctl *arg1) {
     if (((G01Player *)gPlayerSlots)[arg1->unk1A4].unk2C0 != 1) {
         playerSetSizeMode(gActivePlayerActor, 1, arg0, arg1);
     }
-    if (((G01Sub4f *)arg0->unk4)->unk34[0] != arg1->unk1C0[0]) {
+    if (((G01Sub4f *)arg0->sub4)->unk34[0] != arg1->unk1C0[0]) {
         for (i = 0; i < 3; i++) {
             arg1->unk1CC[i] = arg1->unk1C0[i];
-            ((G01Sub4f *)arg0->unk4)->unk34[i] = arg1->unk1C0[i];
+            ((G01Sub4f *)arg0->sub4)->unk34[i] = arg1->unk1C0[i];
         }
     }
 }
@@ -1041,7 +1041,7 @@ void func_806C93E4(Actor *arg0, PlayerState *arg1) {
     playerTransformAnimalEndSfx();
     arg1->stateFlags &= ~0x30;
     arg0->flags |= 0x8000;
-    arg0->unk128 = 0xFF;
+    arg0->alpha = 0xFF;
 }
 
 void func_800268DC(Actor *, void *, void *); /* mpResetPlayerOnRespawn (multiplayer) */

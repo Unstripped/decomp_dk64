@@ -101,7 +101,7 @@ void effectSpawnRandomBoneDebris(u8 minBone, u8 maxBone) {
     u8 bone;
 
     if (!(gFrameCounter & 3)) {
-        scale = (f32)(gCurrentActor->unk4->unk38 / 0.15);
+        scale = (f32)(gCurrentActor->sub4->scaleY / 0.15);
         bone = ((randomNonNegative() >> 15) % 0x7FFF) % ((maxBone - minBone) + 1) + minBone;
         func_80714998(3);
         func_807149C8(0xE6, 0xE6, 0xE6, 0xE6);
@@ -133,10 +133,10 @@ void actorSpawnEffectChild(f32 posX, f32 posY, f32 posZ, f32 scaleXZ, f32 scaleY
         }
     }
     actorSpawn(0xFF, actorType, parent);
-    gSpawnedActor->unk11C = (s32)parent;
-    gSpawnedActor->unk4->unk34 = scaleXZ;
-    gSpawnedActor->unk4->unk3C = scaleXZ;
-    gSpawnedActor->unk4->unk38 = scaleY;
+    gSpawnedActor->parentActor = (s32)parent;
+    gSpawnedActor->sub4->scaleX = scaleXZ;
+    gSpawnedActor->sub4->scaleZ = scaleXZ;
+    gSpawnedActor->sub4->scaleY = scaleY;
     gSpawnedActor->x = posX;
     gSpawnedActor->y = posY;
     gSpawnedActor->z = posZ;
@@ -192,7 +192,7 @@ void effectSpawnBoneDebris(s16 bone, s8 direction) {
     f32 nodeZ;
     f32 scale;
 
-    scale = (f32)(gCurrentActor->unk4->unk38 / 0.15);
+    scale = (f32)(gCurrentActor->sub4->scaleY / 0.15);
     actorGetNodePos(gCurrentActor, bone, &nodeX, &nodeY, &nodeZ);
     func_80714950((((s32)(randomNonNegative() >> 15) % 100) + 0x190) * direction);
     func_8071498C(func_80717D4C);
@@ -213,7 +213,7 @@ void effectSpawnBoneDebrisScaled(s16 bone, s16 baseSpeed, s16 lifetime) {
     f32 scale;
     f64 duration;
 
-    scale = (f32)((f64)gCurrentActor->unk4->unk38 / 0.15);
+    scale = (f32)((f64)gCurrentActor->sub4->scaleY / 0.15);
     actorGetNodePos(gCurrentActor, bone, &nodeX, &nodeY, &nodeZ);
     func_80714950(baseSpeed + (lifetime << 16));
     func_8071498C(func_8071F2F8);
@@ -273,7 +273,7 @@ void effectSpawnRing(void) {
     f32 temp;
     s32 i;
 
-    temp = (f32)(gCurrentActor->unk4->unk38 / 0.15);
+    temp = (f32)(gCurrentActor->sub4->scaleY / 0.15);
     func_807149B8(0);
     func_807149FC(1);
     func_80714CC0(&D_8071FE08, (f32)((f64)temp * 0.75), gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
@@ -311,16 +311,16 @@ void effectSpawnOctagonRing(f32 scale, f32 posX, f32 posY, f32 posZ) {
 }
 
 void actorScaleGrowthUpdate(void) {
-    Actor174_5390 *extraData = gCurrentActor->unk174;
+    Actor174_5390 *extraData = gCurrentActor->customState;
     Struct_5390 scales = D_8074E88C;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        extraData->unk0 = gCurrentActor->unk4->unk38;
+        extraData->unk0 = gCurrentActor->sub4->scaleY;
     }
     extraData->unk4++;
     switch (gCurrentActor->state) {
     case 0:
-        gCurrentActor->unk4->unk38 = scales.arr[extraData->unk6] * (extraData->unk0 * (f32)(u32)extraData->unk4 * 0.33333334f);
+        gCurrentActor->sub4->scaleY = scales.arr[extraData->unk6] * (extraData->unk0 * (f32)(u32)extraData->unk4 * 0.33333334f);
         if ((f32)(u32)extraData->unk4 > 3.0f) {
             gCurrentActor->state = 1;
             extraData->unk4 = 0;
@@ -382,13 +382,13 @@ void effectSpawnMultiTierRingWithActor(Actor *actor, u8 tier) {
     void *sub;
     s32 pad1[1];
 
-    actorScale = (f32)((f64)actor->unk4->unk38 / 0.15);
+    actorScale = (f32)((f64)actor->sub4->scaleY / 0.15);
     params = D_8074E898;
     if (tier) {
         effectSpawnMultiTierRing((f32)((f64)actorScale * 0.36), tier, actor->x, actor->y + 4.0f, actor->z);
         actorSpawn(0x145, params.a[tier]);
-        actorCopyPoseAndScale(gSpawnedActor, actor, actor->unk4->unk38 * 0.5f);
-        sub = gSpawnedActor->unk174;
+        actorCopyPoseAndScale(gSpawnedActor, actor, actor->sub4->scaleY * 0.5f);
+        sub = gSpawnedActor->customState;
         ((Actor174_5390 *)sub)->unk6 = tier - 1;
     }
 }
@@ -479,7 +479,7 @@ void effectSpawnActorScale(Actor *actor) {
     s32 pad;
     f32 scale;
 
-    scale = (actor->unk4 != NULL) ? (f64)actor->unk4->unk38 / 0.15 : 1.0;
+    scale = (actor->sub4 != NULL) ? (f64)actor->sub4->scaleY / 0.15 : 1.0;
     func_80714998(3);
     func_807149B8(1);
     func_807149FC(1);
@@ -509,7 +509,7 @@ void effectActorCheckGroundScaleSpawn(Actor *actor) {
     register f32 floorYOffset;
     u8 shouldSpawn;
     shouldSpawn = 0;
-    if (*(void **)actor->unk00 != NULL && actor->unk4 != NULL) {
+    if (*(void **)actor->unk00 != NULL && actor->sub4 != NULL) {
         if (actor->collisionFlags == 1) {
             if (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1) {
                 floorYOffset = D_80753A08[actor->actorType];
@@ -517,7 +517,7 @@ void effectActorCheckGroundScaleSpawn(Actor *actor) {
                 floorYOffset = D_80753A18[actor->actorType];
             }
         } else {
-            floorYOffset = (f32)(u32)actor->unk15E;
+            floorYOffset = (f32)(u32)actor->eyeHeight;
         }
         if ((actor->waterY - floorYOffset) <= actor->y) {
             if (!(gFrameCounter & 3)) {
@@ -544,7 +544,7 @@ void effectSpawnBurstParticles(Actor *actor) {
     u8 count;
     u8 i;
 
-    scale = (actor->unk4 != NULL) ? (f64)actor->unk4->unk38 / 0.15 : 1.0;
+    scale = (actor->sub4 != NULL) ? (f64)actor->sub4->scaleY / 0.15 : 1.0;
     if (actor->actorType == 0x1E) {
         scale *= 2;
         effectSpawnBoneDefault(actor, 0, 4.0f, actor->x, actor->y, actor->z, -0x96);
@@ -587,7 +587,7 @@ void effectSpawnDebrisParticles(Actor *actor, f32 scaleParam, f32 posX, f32 posY
     f32 scale;
 
     if (actor != NULL) {
-        scale = (actor->unk4 != NULL) ? (f64)actor->unk4->unk38 / 0.15 : 1.0;
+        scale = (actor->sub4 != NULL) ? (f64)actor->sub4->scaleY / 0.15 : 1.0;
         if (actor->contactFlags & 4) {
             f32 limit;
 
@@ -703,7 +703,7 @@ void effectSpawnChildAtNode(u8 node, s16 rotY, s16 rotZ) {
     }
     gSpawnedActor->yaw = rotY;
     gSpawnedActor->roll = rotZ;
-    gSpawnedActor->unk4->unk38 = (f32)(gSpawnedActor->unk4->unk38 * 0.01);
+    gSpawnedActor->sub4->scaleY = (f32)(gSpawnedActor->sub4->scaleY * 0.01);
 }
 
 void effectActorGrowthTick(void) {
@@ -713,17 +713,17 @@ void effectActorGrowthTick(void) {
         gCurrentActor->tintR = 0xFF;
         gCurrentActor->tintG = ((randomNonNegative() >> 15) % 75) + 0xB4;
         gCurrentActor->tintB = 0x28;
-        gCurrentActor->unk128 = 0xFF;
+        gCurrentActor->alpha = 0xFF;
     }
-    if ((f64)gCurrentActor->unk4->unk38 > 1.0) {
-        gCurrentActor->unk128 -= 0x28;
-        if (gCurrentActor->unk128 < 0) {
+    if ((f64)gCurrentActor->sub4->scaleY > 1.0) {
+        gCurrentActor->alpha -= 0x28;
+        if (gCurrentActor->alpha < 0) {
             actorDespawn(gCurrentActor);
         }
     } else {
-        gCurrentActor->unk4->unk38 = (f32)(gCurrentActor->unk4->unk38 * 1.8);
-        gCurrentActor->unk4->unk34 = (f32)(gCurrentActor->unk4->unk34 * 1.1);
-        gCurrentActor->unk4->unk3C = (f32)(gCurrentActor->unk4->unk3C * 1.1);
+        gCurrentActor->sub4->scaleY = (f32)(gCurrentActor->sub4->scaleY * 1.8);
+        gCurrentActor->sub4->scaleX = (f32)(gCurrentActor->sub4->scaleX * 1.1);
+        gCurrentActor->sub4->scaleZ = (f32)(gCurrentActor->sub4->scaleZ * 1.1);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -785,7 +785,7 @@ void actorSpawnAttachment(Actor *parent, f32 scaleMultiplier) {
     actorSpawn(0xB3, 0x5D);
     gSpawnedActor->flags |= 0x400;
     actorScriptStart(gSpawnedActor, 0x334);
-    actorCopyPoseAndScale(gSpawnedActor, parent, parent->unk4->unk38 * scaleMultiplier);
+    actorCopyPoseAndScale(gSpawnedActor, parent, parent->sub4->scaleY * scaleMultiplier);
 }
 
 f32 mathCosF(s16);
@@ -802,7 +802,7 @@ void effectSpawnKongRing(void) {
     s32 i;
 
     angle = (randomNonNegative() >> 15) % 4096;
-    baseScale = (f32)(gCurrentActor->unk4->unk38 * (20.0 / 3.0));
+    baseScale = (f32)(gCurrentActor->sub4->scaleY * (20.0 / 3.0));
     switch (gCurrentActor->actorType) {
     case 2:
     case 5:

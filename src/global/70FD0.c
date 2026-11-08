@@ -939,7 +939,7 @@ void actorSub140Free(ActorSub140 *arg0) {
     ModelSubNode *next90;
 
     if (arg0 != NULL) {
-        curr8C = arg0->unk8C;
+        curr8C = arg0->nodes;
         if (curr8C != NULL) {
             do {
                 next8C = curr8C->next;
@@ -947,7 +947,7 @@ void actorSub140Free(ActorSub140 *arg0) {
                 curr8C = next8C;
             } while (next8C != NULL);
         }
-        curr90 = arg0->unk90;
+        curr90 = arg0->subNodes;
         if (curr90 != NULL) {
             do {
                 next90 = curr90->next;
@@ -955,11 +955,11 @@ void actorSub140Free(ActorSub140 *arg0) {
                 curr90 = next90;
             } while (next90 != NULL);
         }
-        temp = arg0->unkA0;
+        temp = arg0->boxes;
         if (temp != NULL) {
             heapFree(temp);
         }
-        temp = arg0->unk98;
+        temp = arg0->triangles;
         if (temp != NULL) {
             heapFree(temp);
         }
@@ -1026,7 +1026,7 @@ ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f
     if (arg9 != NULL) {
         s3 = *(s32 *)arg9;
         arg9 += 4;
-        s2 = &sub140->unk8C;
+        s2 = &sub140->nodes;
         i = 0;
         if (s3 > 0) {
             one = 1;
@@ -1053,7 +1053,7 @@ ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f
         one = 1;
         arg9 += 4;
         if (s3 > 0) {
-            s2 = &sub140->unk90;
+            s2 = &sub140->subNodes;
             do {
                 subnode = (ActorPointNode *)heapAlloc(sizeof(ActorPointNode));
                 subnode->next = NULL;
@@ -1071,9 +1071,9 @@ ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f
 
         s2 = (void *)*(s32 *)arg9;
         arg9 += 4;
-        sub140->unk9C = (s32)s2;
+        sub140->boxCount = (s32)s2;
         if (s2 != NULL) {
-            sub140->unkA0 = (a3 = heapAlloc((s32)s2 * sizeof(ActorSub140SrcTri)));
+            sub140->boxes = (a3 = heapAlloc((s32)s2 * sizeof(ActorSub140SrcTri)));
             sub140->unkA4 = (s32)heapAlloc((s32)s2 * sizeof(ActorSub140Tri));
             sub140->unkA8 = sub140->unkA4;
         }
@@ -1107,10 +1107,10 @@ ActorSub140 *actorSub140CreateFromData(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f
 
         s2 = (void *)*(s32 *)arg9;
         arg9 += 4;
-        sub140->unk94 = (s32)s2;
+        sub140->triangleCount = (s32)s2;
         if (s2 != NULL) {
             tmp = heapAlloc((s32)s2 * sizeof(ActorSub140Tri));
-            sub140->unk98 = tmp;
+            sub140->triangles = tmp;
             sp54 = tmp;
         }
         if ((s32)s2 > 0) {
@@ -1178,10 +1178,10 @@ void func_8066E664(Actor *arg0, s32 arg1, u8 arg2) {
     ActorSub140SrcTri *ent;
     s32 i;
 
-    sub = arg0->unk140;
-    if (arg0->unk140 != NULL) { // FAKE: second read of unk140 keeps the sub copy in $v0
-        ent = sub->unkA0;
-        for (i = 0; i < sub->unk9C; i++) {
+    sub = arg0->collision;
+    if (arg0->collision != NULL) { // FAKE: second read of unk140 keeps the sub copy in $v0
+        ent = sub->boxes;
+        for (i = 0; i < sub->boxCount; i++) {
             if (arg1 == ent[i].unk28) {
                 ent[i].unk2A = arg2;
             }
@@ -1194,10 +1194,10 @@ void func_8066E6C8(Actor *arg0, s32 arg1, u8 arg2) {
     ActorSub140Tri *ent;
     s32 i;
 
-    sub = arg0->unk140;
-    if (arg0->unk140 != NULL) { // FAKE: second read of unk140 keeps the sub copy in $v0
-        ent = sub->unk98;
-        for (i = 0; i < sub->unk94; i++) {
+    sub = arg0->collision;
+    if (arg0->collision != NULL) { // FAKE: second read of unk140 keeps the sub copy in $v0
+        ent = sub->triangles;
+        for (i = 0; i < sub->triangleCount; i++) {
             if (arg1 == ent[i].unk54) {
                 ent[i].unk56 = arg2;
             }
@@ -1209,14 +1209,14 @@ ActorSub140 *actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, 
     ActorSub140 *temp_v0;
 
     temp_v0 = (ActorSub140 *)heapAlloc(sizeof(ActorSub140));
-    temp_v0->unk0 = (s32) (arg0 * 8.0f);
-    temp_v0->unk4 = (s32) (arg1 * 8.0f);
-    temp_v0->unk8 = (s32) (arg2 * 8.0f);
-    temp_v0->unk14 = arg4;
-    temp_v0->unk18 = arg5;
-    temp_v0->unkC = (s32) (arg4 * arg3 * 8.0f);
-    temp_v0->unk10 = (s32) (arg5 * arg3 * 8.0f);
-    temp_v0->unk70 = arg6;
+    temp_v0->scaledX = (s32) (arg0 * 8.0f);
+    temp_v0->scaledY = (s32) (arg1 * 8.0f);
+    temp_v0->scaledZ = (s32) (arg2 * 8.0f);
+    temp_v0->radius = arg4;
+    temp_v0->height = arg5;
+    temp_v0->scaledRadius = (s32) (arg4 * arg3 * 8.0f);
+    temp_v0->scaledHeight = (s32) (arg5 * arg3 * 8.0f);
+    temp_v0->boxBounds = arg6;
     temp_v0->unk74 = arg7;
     temp_v0->unk78 = arg8;
     temp_v0->unk7C = -1;
@@ -1226,12 +1226,12 @@ ActorSub140 *actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, 
     temp_v0->unk60 = 0;
     temp_v0->unk6C = 0;
     temp_v0->unk24 = 0;
-    temp_v0->unk8C = NULL;
-    temp_v0->unk90 = NULL;
-    temp_v0->unk94 = 0;
-    temp_v0->unk98 = NULL;
-    temp_v0->unk9C = 0;
-    temp_v0->unkA0 = NULL;
+    temp_v0->nodes = NULL;
+    temp_v0->subNodes = NULL;
+    temp_v0->triangleCount = 0;
+    temp_v0->triangles = NULL;
+    temp_v0->boxCount = 0;
+    temp_v0->boxes = NULL;
     temp_v0->unkA4 = 0;
     temp_v0->unkA8 = 0;
     temp_v0->unkAC = 0;
@@ -1247,10 +1247,10 @@ void actorAppendModelSubNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4
     ModelSubNode **head;
     ModelSubNode *curr;
 
-    sub = arg0->unk140;
+    sub = arg0->collision;
     node = (ModelSubNode *)heapAlloc(sizeof(ModelSubNode));
     node->next = NULL;
-    head = (ModelSubNode **)&sub->unk90;
+    head = (ModelSubNode **)&sub->subNodes;
     node->x = arg1;
     node->y = arg2;
     node->z = arg3;
@@ -1258,7 +1258,7 @@ void actorAppendModelSubNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4
     node->unkC = 0;
     node->unk10 = 0;
     node->unk14 = 0;
-    curr = (ModelSubNode *)sub->unk90;
+    curr = (ModelSubNode *)sub->subNodes;
     if (curr != NULL) {
         do {
             head = &curr->next;
@@ -1275,10 +1275,10 @@ void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
     ModelNode **head;
     ModelNode *curr;
 
-    sub = arg0->unk140;
+    sub = arg0->collision;
     node = (ModelNode *)heapAlloc(sizeof(ModelNode));
     node->next = NULL;
-    head = (ModelNode **)&sub->unk8C;
+    head = (ModelNode **)&sub->nodes;
     node->x = arg1;
     node->y = arg2;
     node->z = arg3;
@@ -1286,12 +1286,12 @@ void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
     node->unk20 = arg5;
     node->unk10 = 0;
     node->unk14 = 0;
-    node->unk18 = 0;
+    node->matrixIndex = 0;
     node->unk1C = 0;
-    node->unk26 = 1;
+    node->active = 1;
     node->unk24 = 0;
     node->unk27 = 0;
-    curr = (ModelNode *)sub->unk8C;
+    curr = (ModelNode *)sub->nodes;
     if (curr != NULL) {
         do {
             head = &curr->next;
@@ -1307,9 +1307,9 @@ void actorFreeModelNodeList(Actor *arg0) {
     ModelNode *node;
     ModelNode *next;
 
-    sub = arg0->unk140;
+    sub = arg0->collision;
     if (sub != NULL) {
-        node = sub->unk8C;
+        node = sub->nodes;
         if (node != NULL) {
             do {
                 next = node->next;
@@ -1317,16 +1317,16 @@ void actorFreeModelNodeList(Actor *arg0) {
                 node = next;
             } while (node != NULL);
         }
-        sub->unk8C = NULL;
+        sub->nodes = NULL;
     }
 }
 
 f32 actorGetOrSetNodeScale(Actor *arg0, s32 arg1, f32 arg2) {
-    ActorSub140 *sub = arg0->unk140;
+    ActorSub140 *sub = arg0->collision;
     ModelNode *node;
 
     arg1--;
-    node = sub->unk8C;
+    node = sub->nodes;
     while (arg1-- && node != NULL) {
         node = node->next;
     }
@@ -1343,7 +1343,7 @@ void actorSetNodeFlag(Actor *actor, s32 nodeIndex) {
     ModelNode *node = actorGetModelNodeByIndex(actor, nodeIndex);
 
     if (node != NULL) {
-        node->unk26 = 1;
+        node->active = 1;
     }
 }
 
@@ -1351,19 +1351,19 @@ void actorClearNodeFlag(Actor *actor, s32 nodeIndex) {
     ModelNode *node = actorGetModelNodeByIndex(actor, nodeIndex);
 
     if (node != NULL) {
-        node->unk26 = 0;
+        node->active = 0;
     }
 }
 
 void actorClearAllNodeFlags(Actor *actor) {
-    ActorSub140 *sub = actor->unk140;
+    ActorSub140 *sub = actor->collision;
     ModelNode *node;
 
     if (sub != NULL) {
-        node = sub->unk8C;
+        node = sub->nodes;
         if (node != NULL) {
             do {
-                node->unk26 = 0;
+                node->active = 0;
                 node = node->next;
             } while (node != NULL);
         }
@@ -1374,10 +1374,10 @@ ModelNode *actorGetModelNodeByIndex(Actor *arg0, s32 arg1) {
     ActorSub140 *sub;
     ModelNode *node;
 
-    sub = arg0->unk140;
+    sub = arg0->collision;
     arg1--;
     if (sub != NULL) {
-        node = sub->unk8C;
+        node = sub->nodes;
         while (arg1 != 0 && node != NULL) {
             arg1--;
             node = node->next;
@@ -1391,36 +1391,36 @@ ModelNode *actorGetModelNodeByIndex(Actor *arg0, s32 arg1) {
 }
 
 ActorSub140 *actorSetCollisionRadius(Actor *arg0, f32 arg1) {
-    ActorSub140 *sub = arg0->unk140;
-    sub->unk14 = arg1;
+    ActorSub140 *sub = arg0->collision;
+    sub->radius = arg1;
     return sub;
 }
 
 void actorSub140SetVectors(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
-    ActorSub140 *sub = arg0->unk140;
+    ActorSub140 *sub = arg0->collision;
 
     if (arg0->renderFlags & 0x800) {
         arg4 = *(f32 *)arg0->unk120;
     }
-    sub->unk0 = (s32)(arg1 * 8.0f);
-    sub->unk4 = (s32)(arg2 * 8.0f);
-    sub->unk8 = (s32)(arg3 * 8.0f);
-    sub->unkC = (s32)(sub->unk14 * arg4 * 8.0f);
-    sub->unk10 = (s32)(sub->unk18 * arg4 * 8.0f);
+    sub->scaledX = (s32)(arg1 * 8.0f);
+    sub->scaledY = (s32)(arg2 * 8.0f);
+    sub->scaledZ = (s32)(arg3 * 8.0f);
+    sub->scaledRadius = (s32)(sub->radius * arg4 * 8.0f);
+    sub->scaledHeight = (s32)(sub->height * arg4 * 8.0f);
 }
 
 void actorUpdateModelMatrices(Actor *arg0) {
     ActorSub140 *sub;
     s32 temp_v0;
 
-    sub = arg0->unk140;
+    sub = arg0->collision;
     if (sub != NULL) {
         temp_v0 = arg0->flags;
         if (!(temp_v0 & 0x80000000) || !(temp_v0 & 0x10)) {
             actorSub140BuildBoxes(sub);
         }
         if (!(arg0->renderFlags & 8) || !(arg0->flags & 0x10)) {
-            actorSub140TransformTriangles(arg0->unk140);
+            actorSub140TransformTriangles(arg0->collision);
         }
     }
 }
@@ -1445,17 +1445,17 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
     s32 padE[5];
 
     neg1 = -1;
-    if (arg0->unkA0 != NULL) {
+    if (arg0->boxes != NULL) {
         if (gFrameCounter == arg0->unk88) {
             var_v1 = gGfxBufferIndex;
         } else {
             var_v1 = (gGfxBufferIndex ^ 1);
         }
         mtx = ((Mtx **)&arg0->unk74)[var_v1];
-        ent = arg0->unkA0;
+        ent = arg0->boxes;
         box = (CollisionBox *)arg0->unkA4;
         i = 0;
-        if (arg0->unk9C > 0) {
+        if (arg0->boxCount > 0) {
             do {
                 if (arg0 == 0) {} // FAKE
                 var_s0 = ent->x;
@@ -1465,7 +1465,7 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
                 do {
                     unk24 = ent->boneOffset;
                     if (neg1 == unk24) {
-                        memcpy(spCC, (void *)arg0->unk70, 0x40);
+                        memcpy(spCC, (void *)arg0->boxBounds, 0x40);
                         guMtxXFMF(spCC, var_s0[0], var_s0[3], var_s0[6], var_s2, var_s3, var_s1);
                     } else {
                         guMtxXFML((Mtx *)(((unk24 >> 6) << 6) + (u8 *)mtx), var_s0[0], var_s0[3], var_s0[6], var_s2, var_s3, var_s1);
@@ -1488,7 +1488,7 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
                 }
                 ent++;
                 i++;
-            } while (i < arg0->unk9C);
+            } while (i < arg0->boxCount);
         }
         arg0->unkA8 = (s32)box;
     }
@@ -1545,7 +1545,7 @@ void actorSub140TransformTriangles(ActorSub140 *arg0) {
     s32 j;
     u32 unk48;
 
-    first = arg0->unk98;
+    first = arg0->triangles;
     if (first != NULL) {
         if (gFrameCounter == arg0->unk88) {
             var_v1 = gGfxBufferIndex;
@@ -1554,11 +1554,11 @@ void actorSub140TransformTriangles(ActorSub140 *arg0) {
         }
         mtx = ((Mtx **)&arg0->unk74)[var_v1];
         curr = first;
-        for (i = 0; i < arg0->unk94; i++) {
+        for (i = 0; i < arg0->triangleCount; i++) {
             for (j = 0; j < 3; j++) {
                 unk48 = (&curr->unk48)[j];
                 if ((unk48 ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
-                    memcpy(sp6C, (void *)arg0->unk70, 0x40);
+                    memcpy(sp6C, (void *)arg0->boxBounds, 0x40);
                     guMtxXFMF(sp6C, curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
                 } else {
                     guMtxXFML((Mtx *)((((unk48 >> 6) << 6)) + (u8 *)mtx), curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
@@ -1761,7 +1761,7 @@ u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
     for (i = 0; i < D_80747D70; i++) {
         buf = &gModelSlots[i].unk28;
         if (buf->unk15 & 2) {
-            if (collisionSpheresOverlap(sub->unk0, sub->unk4, sub->unk8, sub->unkC, ((s32 *)buf)[0], ((s32 *)buf)[1], ((s32 *)buf)[2], ((s32 *)buf)[3]) != 0) {
+            if (collisionSpheresOverlap(sub->scaledX, sub->scaledY, sub->scaledZ, sub->scaledRadius, ((s32 *)buf)[0], ((s32 *)buf)[1], ((s32 *)buf)[2], ((s32 *)buf)[3]) != 0) {
                 if (!(buf->unk15 & 1)) {
                     collisionTransformNode(i, (s32)(*SLOT).unk24, ((f32 *)&(*SLOT))[0], ((f32 *)&(*SLOT))[1], ((f32 *)&(*SLOT))[2], ((f32 *)&(*SLOT))[4], ((f32 *)&(*SLOT))[5], ((f32 *)&(*SLOT))[6], ((f32 *)&(*SLOT))[3]);
                 } else {
@@ -1770,7 +1770,7 @@ u8 actorCollideModelSlots(CollisionActor *arg0, s16 *arg1, s16 *arg2) {
                 if (!(arg0->unk5C & 1) || func_806D0964(*(s32 *)(*SLOT).unk24, arg0->unk174->unk1A4) == 0) {
                     actorUpdateCollisionSpheres(arg0, 0);
                     flag = 1;
-                    node = (ActorSphereNodeHit *)sub->unk8C;
+                    node = (ActorSphereNodeHit *)sub->nodes;
                     D_807FB5FD = 0;
                     sp5F = D_807FB602;
                     hit = (u8 *)(*SLOT).unk7C;
@@ -2255,7 +2255,7 @@ Actor *arg0;
         u8 kind;
 
         kind = 0;
-        sub = (ActorHitSubView *)arg0->unk140;
+        sub = (ActorHitSubView *)arg0->collision;
         ret = 0;
         slot = hashTableLookup(sub->unk26);
         if (slot != -1) {

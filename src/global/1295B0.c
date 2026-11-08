@@ -8,11 +8,11 @@ extern ActorGlobalState gActorGlobalState;
 extern void *gPlayerSlots;
 
 void actorSetUniformScale(Actor *actor, f32 scale) {
-    actor->unk4->unk34 = scale;
-    actor->unk4->unk38 = scale;
-    actor->unk4->unk3C = scale;
-    if (actor->unk140 != NULL) {
-        actor->unk15E = (u32)((f32)actor->unk140->unkC * scale * 0.5);
+    actor->sub4->scaleX = scale;
+    actor->sub4->scaleY = scale;
+    actor->sub4->scaleZ = scale;
+    if (actor->collision != NULL) {
+        actor->eyeHeight = (u32)((f32)actor->collision->scaledRadius * scale * 0.5);
     }
 }
 
@@ -168,7 +168,7 @@ typedef struct A1Entry10 {
     /* 0xC */ f32 unkC;
 } A1Entry10;
 
-#define A1SUB4 ((A1Sub4 *)gCurrentActor->unk4)
+#define A1SUB4 ((A1Sub4 *)gCurrentActor->sub4)
 
 void func_80724CA4(s16 arg0, s16 arg1) {
     u8 *table;
@@ -262,7 +262,7 @@ extern u8 gGameMode;
 #define A1PLR ((A1Plr *)gPlayerSlots)
 #define A1DC90 ((A1S90 *)gBehaviourWorkState)
 #define A1DC98 ((A1S98 *)gBehaviourAnimState)
-#define A1CAM(a) ((A1Cam *)((A1Sub4 *)(a)->unk4)->unk1C)
+#define A1CAM(a) ((A1Cam *)((A1Sub4 *)(a)->sub4)->unk1C)
 
 void func_80724E48(u8 arg0) {
     f32 angle;
@@ -305,11 +305,11 @@ void func_80724E48(u8 arg0) {
                 angle = mathAngleBetweenPointsRad(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z) - sp34;
                 break;
             case 6:
-                sp38 = mathCalculatePitchAngle(A1PLR->unk210, A1PLR->unk214, A1PLR->unk218, gCurrentActor->x, gCurrentActor->y + (u32)gCurrentActor->unk15E, gCurrentActor->z, pitchArg);
+                sp38 = mathCalculatePitchAngle(A1PLR->unk210, A1PLR->unk214, A1PLR->unk218, gCurrentActor->x, gCurrentActor->y + (u32)gCurrentActor->eyeHeight, gCurrentActor->z, pitchArg);
                 angle = mathAngleBetweenPointsRad(A1PLR->unk210, A1PLR->unk218, gCurrentActor->x, gCurrentActor->z) - sp34;
                 break;
             case 0:
-                sp38 = mathCalculatePitchAngle(A1PLR->unk2B4, A1PLR->unk2B8, A1PLR->unk2BC, gCurrentActor->x, gCurrentActor->y + (u32)gCurrentActor->unk15E, gCurrentActor->z, pitchArg);
+                sp38 = mathCalculatePitchAngle(A1PLR->unk2B4, A1PLR->unk2B8, A1PLR->unk2BC, gCurrentActor->x, gCurrentActor->y + (u32)gCurrentActor->eyeHeight, gCurrentActor->z, pitchArg);
             case 1:
                 angle = mathAngleBetweenPointsRad(A1PLR->unk2B4, A1PLR->unk2BC, gCurrentActor->x, gCurrentActor->z) - sp34;
                 break;
@@ -658,7 +658,7 @@ s32 zoneCanReachPoint(Actor *arg0, s16 arg1, s16 arg2, s16 arg3, F1Tbl *arg4) {
     cross = 0;
     edges = 0;
     x = arg0->x;
-    y = arg0->y + (f32)(u32)arg0->unk15E;
+    y = arg0->y + (f32)(u32)arg0->eyeHeight;
     z = arg0->z;
     for (i = 1; i < arg4->count8; i++) {
         if ((i + 1) != arg4->count8) {

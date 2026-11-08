@@ -120,7 +120,7 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 void lightFlushQueued(void) {
     s32 i;
 
-    if (gCurrentMap == 0x30 && !(((PlayerState *)gPrimaryPlayerActor->unk174)->stateFlags & 0x100000)) {
+    if (gCurrentMap == 0x30 && !(((PlayerState *)gPrimaryPlayerActor->customState)->stateFlags & 0x100000)) {
         gLightQueueCount = 0;
         return;
     }

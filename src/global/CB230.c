@@ -205,7 +205,7 @@ void func_806C6BC8(void) {
         gCurrentActor->flags &= ~0x8000;
         R1V->unk154 = 0x27;
         R1V->unk155 = 0;
-        gBehaviourWorkState->scale = gCurrentActor->unk4->unk38;
+        gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
         R1S->unk2E = 0x96;
         gBehaviourAnimState->unk46 |= 0x60;
         hudSpawnCountdownTimer(0xDC, 0x2A, 0x64);

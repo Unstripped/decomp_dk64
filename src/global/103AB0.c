@@ -57,7 +57,7 @@ typedef struct {
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
 Gfx *func_806FEF7C(Gfx *arg0, Actor *arg1) {
-    arg0 = playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->unk174)->unk1A4);
+    arg0 = playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->customState)->unk1A4);
     gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gDPSetPrimColor(arg0++, 0, 0, 0, 0, 0, 0xFF);
     return renderRotatedSprite(arg0, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, 0.001f);
@@ -75,7 +75,7 @@ Gfx *func_806FF01C(Gfx *arg0, Actor *arg1) {
     s32 sp4C;
     Gfx *dl;
 
-    player = ((ActorPlayerState *)arg1->unk174)->unk1A4;
+    player = ((ActorPlayerState *)arg1->customState)->unk1A4;
     dl = playerViewGfxSetup(arg0, player);
     if ((D_807FD568[2] & 2) && slotQueueGetValue(3, player) &&
         projectileFindHomingTarget(2, &sp58, arg1, 1, 0, 0, &sp54, &sp50, &sp4C)) {
@@ -98,7 +98,7 @@ Gfx *func_806FF144(Gfx *arg0) {
 }
 
 void func_806FF32C(s32 arg0, Actor *arg1) {
-    func_806FF144(playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->unk174)->unk1A4));
+    func_806FF144(playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->customState)->unk1A4));
 }
 
 typedef struct {
@@ -111,7 +111,7 @@ typedef struct {
 Gfx *func_806FF358(Gfx *arg0, Actor *arg1) {
     ActorHudState *state;
 
-    state = (ActorHudState *)((Actor **)gPlayerSlots)[1]->unk174;
+    state = (ActorHudState *)((Actor **)gPlayerSlots)[1]->customState;
     gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0xFF, 0xFF, 0xC8);
     arg0 = renderRotatedSprite(arg0, 0x39, 3, 1, 0x40, 0x40, 0x50, 0x50, 0.5f, 0.5f, 0, 0.0f);
     arg0 = renderRotatedSprite(arg0, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0x50, 0.5f, 0.5f, 0x5A, 0.0f);
@@ -134,7 +134,7 @@ Gfx *func_806FF358(Gfx *arg0, Actor *arg1) {
 Gfx *func_806FF628(Gfx *arg0, Actor *arg1) {
     ActorHudState *state;
 
-    state = (ActorHudState *)((Actor **)gPlayerSlots)[1]->unk174;
+    state = (ActorHudState *)((Actor **)gPlayerSlots)[1]->customState;
     arg0 = playerViewGfxSetup(arg0, ((ActorPlayerState *)state)->unk1A4);
     if (state->unk1EC == 2) {
         gDPSetPrimColor(arg0++, 0, 0, 0xFF, 0, 0, 0x64);
@@ -156,7 +156,7 @@ Gfx *func_806FF75C(Gfx *dl, Actor *arg1) {
     s32 sp60;
 
     sp6C = 2;
-    sp77 = ((ActorPlayerState *)arg1->unk174)->unk1A4;
+    sp77 = ((ActorPlayerState *)arg1->customState)->unk1A4;
     if (gPlayerCount >= 2) {
         sp6C = 3;
     }
@@ -184,7 +184,7 @@ void func_806FFB2C(s32 arg0, Actor *arg1) {
     Gfx *dl;
 
     sp3C = arg1->unk155[0] * 1.4;
-    dl = (Gfx *)playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->unk174)->unk1A4);
+    dl = (Gfx *)playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->customState)->unk1A4);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gDPSetPrimColor(dl++, 0, 0, 0, 0, 0, 0xFF);
     renderRotatedSprite(dl, 0x3C, 3, 1, 0x40, 0x40, 0xA0, 0x78, 5.0f, 5.0f, 0, sp3C);
@@ -799,10 +799,10 @@ Gfx *func_80701CA0(Gfx *dl) {
     }
     for (i = 0; i < gPlayerCount; i++) {
         if (PLAYER_VIEW_BLOCK(i)->unk0 != 0) {
-            a = (PlayerOverlayState *)PLAYER_VIEW_BLOCK(i)->unk4->unk174;
+            a = (PlayerOverlayState *)PLAYER_VIEW_BLOCK(i)->unk4->customState;
             /* dead check: makes a->unk104 a shared load candidate (temp register order) */
             if (a->unk104 == 0) {}
-            b = (CameraActorState *)a->unk104->unk174;
+            b = (CameraActorState *)a->unk104->customState;
             if (force != 0 || (PLAYER_VIEW_BLOCK(i)->unk2E8 != 0 && PLAYER_VIEW_BLOCK(i)->unk220 < PLAYER_VIEW_BLOCK(i)->unk24C + 3.0f)) {
                 vtx = (Vtx *)heapAlloc(0x40);
                 heapFreeDeferred(vtx);

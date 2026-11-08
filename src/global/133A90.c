@@ -239,7 +239,7 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
     f32 dz;
     f32 dist;
 
-    state = playerActor->unk174;
+    state = playerActor->customState;
     isPlayer = playerActor->actorType == 6;
     node = D_807FDCC0;
     bestDist = 9999.0f;
@@ -748,7 +748,7 @@ void proxPathActorFollowSpline(H1ActorB *actor, H1ActorState *state, ProxPath *p
     mathNudgeCoords(p0[0], p0[2], &p1[0], &p1[2]);
     yaw = mathAtan2(p1[0] - p0[0], p1[2] - p0[2]) * 57.29577637f + 180.0f;
     guTranslateF(m1, 0.0f, state->unk148 * -80.0f, 0.0f);
-    guScaleF(m2, actor->unk4->unk34, actor->unk4->unk38, actor->unk4->unk3C);
+    guScaleF(m2, actor->unk4->scaleX, actor->unk4->scaleY, actor->unk4->scaleZ);
     guMtxCatF(m1, m2, m1);
     guRotateF(m2, actor->unkE6 / 4095.0 * 360.0, 0.0f, one, 0.0f);
     guMtxCatF(m1, m2, m1);

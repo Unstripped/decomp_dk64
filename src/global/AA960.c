@@ -106,7 +106,7 @@ void effectSpawnAttachedSprite(void *targetState, void *spriteAsset, f32 scale) 
 }
 
 void func_806A5F44(void) {
-    void *temp = gCurrentActor->unk174;
+    void *temp = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -115,7 +115,7 @@ void func_806A5F44(void) {
 }
 
 void func_806A5FA4(void) {
-    void *temp = gCurrentActor->unk174;
+    void *temp = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -124,7 +124,7 @@ void func_806A5FA4(void) {
 }
 
 void effectSpawnAttachedSpriteColored(void *spriteAsset, s32 characterId) {
-    void *temp = gCurrentActor->unk174;
+    void *temp = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -156,7 +156,7 @@ void effectSpawnAttachedSpriteColoredType5(void) {
 }
 
 void func_806A615C(void) {
-    void *temp = gCurrentActor->unk174;
+    void *temp = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -166,7 +166,7 @@ void func_806A615C(void) {
 }
 
 void func_806A61D0(void) {
-    void *temp = gCurrentActor->unk174;
+    void *temp = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -175,7 +175,7 @@ void func_806A61D0(void) {
 }
 
 void func_806A6230(void) {
-    void *temp = gCurrentActor->unk174;
+    void *temp = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -191,7 +191,7 @@ void effectSpawnA6230Wrapper(void) {
 }
 
 void func_806A62D4(void) {
-    void *temp = gCurrentActor->unk174;
+    void *temp = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -201,7 +201,7 @@ void func_806A62D4(void) {
 }
 
 void func_806A6348(void) {
-    void *temp = gCurrentActor->unk174;
+    void *temp = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -210,7 +210,7 @@ void func_806A6348(void) {
 }
 
 void func_806A63A8(void) {
-    void *temp = gCurrentActor->unk174;
+    void *temp = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -219,7 +219,7 @@ void func_806A63A8(void) {
 }
 
 void func_806A6408(void) {
-    void *temp = gCurrentActor->unk174;
+    void *temp = gCurrentActor->customState;
 
     actorDropBounceExpireUpdate(12.0f);
     if (!(gCurrentActor->flags & 0x10)) {
@@ -237,7 +237,7 @@ void func_806A6468(void) {
     void *state;
     void *anim;
 
-    state = gCurrentActor->unk174;
+    state = gCurrentActor->customState;
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
         switch (gPrimaryPlayerActor->actorType) {
@@ -275,7 +275,7 @@ void func_806A6574(void) {
     void *state;
     void *anim;
 
-    state = gCurrentActor->unk174;
+    state = gCurrentActor->customState;
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
         switch (gPrimaryPlayerActor->actorType) {
@@ -335,18 +335,18 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
     BehaviourState *state;
     s32 v;
 
-    state = (BehaviourState *)gCurrentActor->unk174;
+    state = (BehaviourState *)gCurrentActor->customState;
     if (gGlobalCutsceneFlags & 0x10) {
         floorOffset *= 2.0f;
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        gCurrentActor->state = (u8)(s32)((BehaviourConfig *)gCurrentActor->unk124)->unk0;
-        *(s16 *)((u8 *)gCurrentActor + 0xEE) = (s16)(s32)((BehaviourConfig *)gCurrentActor->unk124)->unk4;
+        gCurrentActor->state = (u8)(s32)((BehaviourConfig *)gCurrentActor->spawnData)->unk0;
+        *(s16 *)((u8 *)gCurrentActor + 0xEE) = (s16)(s32)((BehaviourConfig *)gCurrentActor->spawnData)->unk4;
         gCurrentActor->yaw = *(s16 *)((u8 *)gCurrentActor + 0xEE);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         state->unk0 = 0;
         state->unk1 = 0;
-        state->unkA = (s16)(s32)((BehaviourConfig *)gCurrentActor->unk124)->unk8;
+        state->unkA = (s16)(s32)((BehaviourConfig *)gCurrentActor->spawnData)->unk8;
         *(s16 *)((u8 *)gCurrentActor + 0xFA) = 0x270F;
     }
     if (gActorGlobalState.unk0 != 0) {
@@ -504,26 +504,26 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
     EffectState *state;
     s16 temp;
 
-    state = gCurrentActor->unk174;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags |= 0x801000;
         gCurrentActor->tintR = 0xFF;
         gCurrentActor->tintG = 0xFF;
         gCurrentActor->tintB = 0xFF;
         gCurrentActor->flags &= ~0x8000;
-        gCurrentActor->state = (s32)((ActorConfig *)gCurrentActor->unk124)->unk0;
-        AA960_PHY->unkEE = ((ActorConfig *)gCurrentActor->unk124)->unk4;
+        gCurrentActor->state = (s32)((ActorConfig *)gCurrentActor->spawnData)->unk0;
+        AA960_PHY->unkEE = ((ActorConfig *)gCurrentActor->spawnData)->unk4;
         gCurrentActor->yaw = AA960_PHY->unkEE;
         state->unk0 = 0;
         state->unk1 = 1;
-        state->unkA = ((ActorConfig *)gCurrentActor->unk124)->unk8;
+        state->unkA = ((ActorConfig *)gCurrentActor->spawnData)->unk8;
         AA960_PHY->unkFA = 0x270F;
         func_806C9974(0, 0x40);
     }
     if ((f32)state->unk8 < 30.0f) {
         state->unk8++;
     }
-    gCurrentActor->unk128 = state->unk8 * 0.033333335f * 255.0f;
+    gCurrentActor->alpha = state->unk8 * 0.033333335f * 255.0f;
     if (gActorGlobalState.unk0 != 0) {
         gCurrentActor->state = gActorGlobalState.unk1[0];
     }
@@ -637,7 +637,7 @@ void effectSpawnBurstParticleCluster(Actor *);
 void actorUpdateSfxAndGround(void) {
     EffectCounter *counter;
 
-    counter = gCurrentActor->unk174;
+    counter = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->renderFlags |= 4;
         gCurrentActor->flags |= 0x400;
@@ -711,7 +711,7 @@ void actorPathCollectibleUpdate(void *unused) {
     s32 cond;
     s32 flag;
 
-    state = gCurrentActor->unk174;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         if (gCurrentActor->actorType == 0x93) {
             state->unk6 = -1;
@@ -725,8 +725,8 @@ void actorPathCollectibleUpdate(void *unused) {
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         actorSetCollisionRadius(gCurrentActor, 175.0f);
         actorAppendModelNode(gCurrentActor, 0.0f, 12.0f, 0.0f, 80.0f, -1);
-        state->unk0 = ((AA960ConfigInt *)gCurrentActor->unk124)->unk0;
-        state->unk1 = ((AA960ConfigInt *)gCurrentActor->unk124)->unk4;
+        state->unk0 = ((AA960ConfigInt *)gCurrentActor->spawnData)->unk0;
+        state->unk1 = ((AA960ConfigInt *)gCurrentActor->spawnData)->unk4;
         state->unk2 = pathPlaybackStart(gCurrentActor, state->unk0, 0, 0.0f, 0.0f, 0.0f, 0);
         if (state->unk2 != -1) {
             pathPlaybackSetLooping(state->unk2, 1);
@@ -930,25 +930,25 @@ void effectActorShrinkTick(void) {
     SparkleState *state;
     SparkleBuffer *drawBuf;
 
-    state = gCurrentActor->unk174;
+    state = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        ((ActorDrawBuffer *)gCurrentActor->unk4)->unk20 = heapAlloc(0x20);
-        heapClearBlock(((ActorDrawBuffer *)gCurrentActor->unk4)->unk20);
+        ((ActorDrawBuffer *)gCurrentActor->sub4)->unk20 = heapAlloc(0x20);
+        heapClearBlock(((ActorDrawBuffer *)gCurrentActor->sub4)->unk20);
         state->unk4 = 0;
         state->unk0 = 1.0f;
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->flags |= 0x40000000;
-        gCurrentActor->unk128 = D_807504CC;
+        gCurrentActor->alpha = D_807504CC;
     }
-    if (D_807504D0 < gCurrentActor->unk128) {
-        gCurrentActor->unk128 -= D_807504D0;
+    if (D_807504D0 < gCurrentActor->alpha) {
+        gCurrentActor->alpha -= D_807504D0;
     }
     state->unk4 += 1;
     if (D_807504C4 < (f32)state->unk4) {
         actorDespawn(gCurrentActor);
     } else {
         state->unk0 *= D_807504C0;
-        drawBuf = ((ActorDrawBuffer *)gCurrentActor->unk4)->unk20;
+        drawBuf = ((ActorDrawBuffer *)gCurrentActor->sub4)->unk20;
         drawBuf->unk0 = D_807504C8;
         drawBuf->unk1 = 0xFF;
         drawBuf->unk4 = state->unk0;

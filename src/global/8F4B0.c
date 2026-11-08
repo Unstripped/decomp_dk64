@@ -274,7 +274,7 @@ void actorCutsceneDispatchEvents(void) {
     s16 paramA;
     s16 mode;
 
-    csState = (CutsceneActorState *)gCurrentActor->unk174;
+    csState = (CutsceneActorState *)gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         csState->unk0 = 0;
         csState->unk1A = -1;
@@ -379,7 +379,7 @@ void actorCutsceneDispatchEvents(void) {
             mapSetTransitionExtraCounter(((u8 *)eventData)[1]);
             break;
         case 0xA:
-            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->unk174)->stateFlags |= 0x40000800;
+            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->customState)->stateFlags |= 0x40000800;
             break;
         case 0xB:
             mapRequestTransition(D_80744700[mapGetHubWorldIndex(gCurrentWorldId, 0)], D_8076A0AC);
@@ -429,7 +429,7 @@ void actorCutsceneDispatchEvents(void) {
             D_8076A0A6 = D_807ECD48;
             break;
         case 0x1A:
-            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->unk174)->stateFlags |= 0x80000000;
+            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->customState)->stateFlags |= 0x80000000;
             break;
         case 0x1B:
             mapChunkSetFlagBit3(eventData[1]);
@@ -540,7 +540,7 @@ void func_8068B830(s16 stateVal, s16 pct, s16 timer) {
     Actor174 *actorState;
 
     actorFindActiveByType(0xC, &actor);
-    actorState = (Actor174 *)actor->unk174;
+    actorState = (Actor174 *)actor->customState;
     actorState->unk0 = stateVal;
     actorState->unk4 = (f64)(f32)pct / 100.0;
     actorState->unk8 = timer;
@@ -551,7 +551,7 @@ void enemyAggroSetIntensityBB(f32 intensity) {
     Actor174 *actorState;
 
     actorFindActiveByType(0xC, &actor);
-    actorState = (Actor174 *)actor->unk174;
+    actorState = (Actor174 *)actor->customState;
     actorState->unkC = intensity;
     actorState->unk10 = intensity;
     actorState->unk14 = intensity;
@@ -566,7 +566,7 @@ void enemyAggroDespawnBB(void) {
     u8 *ptr;
 
     actorFindActiveByType(0xC, &actor);
-    ptr = actor->unk174;
+    ptr = actor->customState;
     *ptr = 0xFF;
 }
 
@@ -636,9 +636,9 @@ void func_8068BA2C(void) {
     s16 *ptr;
     s32 flags;
 
-    s1 = gActivePlayerActor->unk174;
+    s1 = gActivePlayerActor->customState;
     hasEvent3 = 0;
-    sub174 = ((Actor *)s1->unk104)->unk174;
+    sub174 = ((Actor *)s1->unk104)->customState;
     for (i = 0; i < gActorGlobalState.unk254; i++) {
         ptr = gActorGlobalState.unk278[i];
         switch ((u32)gActorGlobalState.unk258[i]) {
@@ -707,7 +707,7 @@ void playerCameraUpdateFromTarget(void) {
     s32 dd;
     s16 tmpd;
     u8 pad_v1;
-    targetState = gCurrentActor->unk174;
+    targetState = gCurrentActor->customState;
     angleDiff = 0;
     maxDiff = 0x1E;
     stepFactor = 0.08f;

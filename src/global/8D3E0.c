@@ -299,13 +299,13 @@ s32 actorListGetTypeIdCount(u16 typeId) {
 
 void actorSetCustomFloat(Actor *actor, s16 index, f32 val) {
     if (index < 8) {
-        ((f32 *)actor->unk124)[index] = val;
+        ((f32 *)actor->spawnData)[index] = val;
     }
 }
 
 void actorSetCustomInt(Actor *actor, s16 index, s32 val) {
     if (index < 8) {
-        ((s32 *)actor->unk124)[index] = val;
+        ((s32 *)actor->spawnData)[index] = val;
     }
 }
 
@@ -620,11 +620,11 @@ void actorListUpdateSpawns(void) {
                     if (actorSpawnFromInfo(&spawnInfo) != 0) {
                         node->unk44 = gSpawnedActor;
                         node->unk48 = 1;
-                        gSpawnedActor->unk11C = node->unk50;
-                        if (gSpawnedActor->unk4 != NULL) {
-                            gSpawnedActor->unk4->unk34 = (f32)(node->unk20 * 0.15);
-                            gSpawnedActor->unk4->unk38 = (f32)(node->unk20 * 0.15);
-                            gSpawnedActor->unk4->unk3C = (f32)(node->unk20 * 0.15);
+                        gSpawnedActor->parentActor = node->unk50;
+                        if (gSpawnedActor->sub4 != NULL) {
+                            gSpawnedActor->sub4->scaleX = (f32)(node->unk20 * 0.15);
+                            gSpawnedActor->sub4->scaleY = (f32)(node->unk20 * 0.15);
+                            gSpawnedActor->sub4->scaleZ = (f32)(node->unk20 * 0.15);
                         }
                     }
                 } else if (node->unk48 == 0) {
@@ -1018,7 +1018,7 @@ s32 actorListDespawnIfForced(ActorListNode *node) {
 }
 
 void func_8068A2FC(Actor *actor) {
-    actor->unk128 = 0;
+    actor->alpha = 0;
     actor->flags &= ~0x8000;
     actor->unk144 = 1;
     actor->callbackMask = 0;

@@ -17,7 +17,7 @@ void actorTriggerPlayerKnockbackSound(Actor* attacker, Actor* target, s32 unused
     u8* beh;
 
     if (target == gPrimaryPlayerActor) {
-        beh = target->unk174;
+        beh = target->customState;
         kong = beh[0x1A4];
         *(s32*)(beh + 0x1F0) |= 0x80000;
         if (*(s16*)(beh + 0xD4) == (beh[0x1A4] * 0)) { // FAKE: keeps kong live across check

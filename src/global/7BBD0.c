@@ -185,8 +185,8 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
     ActorCollisionBoundsFull *otherBounds;
 
     hitMode = 0;
-    selfBounds = (ActorCollisionBoundsFull *)self->unk140;
-    otherBounds = (ActorCollisionBoundsFull *)other->unk140;
+    selfBounds = (ActorCollisionBoundsFull *)self->collision;
+    otherBounds = (ActorCollisionBoundsFull *)other->collision;
     if (func_806744A8((CollisionTarget *)D_807FB5D8, selfBounds->unk0, selfBounds->unk4, selfBounds->unk8, selfBounds->unkC) == 0) {
         return 0;
     }
@@ -355,8 +355,8 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
     f32 *pVerts;
     u8 hit;
 
-    selfBounds = (ActorCollisionSub140 *)self->unk140;
-    otherBounds = (ActorCollisionSub140 *)other->unk140;
+    selfBounds = (ActorCollisionSub140 *)self->collision;
+    otherBounds = (ActorCollisionSub140 *)other->collision;
     D_807FB603 = selfBounds->unkAC;
     D_807FB5FD = 1;
     D_807FB600 = 1;
@@ -409,7 +409,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
             normal[2] = cross[2] / norm;
             if (other->collisionFlags & 1) {
                 scale = (*(u8 *)(*(s32 *)&gPlayerSlots + (gCurrentPlayerIndex * 0x2F0) + 0x2C0) == 1 ? (f32)D_80753D50[gCurrentCharacterIndex] : (f32)D_80753D60[gCurrentCharacterIndex]) / 8;
-                p174 = other->unk174;
+                p174 = other->customState;
                 scaledNormal[0] = normal[0] * scale;
                 scaledNormal[1] = normal[1] * scale;
                 scaledNormal[2] = normal[2] * scale;

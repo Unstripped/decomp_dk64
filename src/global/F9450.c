@@ -1499,7 +1499,7 @@ void gridCollectActorsInRange(u8 arg0) {
     s16 tblIdx;
 
     player = ((F94D_Block *) gPlayerSlots)[arg0].unk4;
-    playerSub = player->unk174;
+    playerSub = player->customState;
     if (D_807FCC4B[arg0 * 0x306] > 0) {
         for (k = 0; k < 0x2A; k++) {
             if (F94D_ENTRY->unkE != 0) {
@@ -1517,7 +1517,7 @@ void gridCollectActorsInRange(u8 arg0) {
                                 if ((gGlobalOverlayFlags & 0x10000) && (actorTypeIsRespawnPickup(actor->actorType) != 0)) {
                                     func_806F5F2C(actor->actorType, 0x258, (s16) (s32) actor->x, (s16) (s32) actor->y, (s32) actor->z);
                                 }
-                                sub = actor->unk174;
+                                sub = actor->customState;
                                 if (sub->unk1 != 0) {
                                     if (gPlayerCount >= 2) {
                                         switch ((u32) actor->actorType) {
@@ -1543,7 +1543,7 @@ void gridCollectActorsInRange(u8 arg0) {
                                             break;
                                         case 0x33:
                                             playerStateHandleSoundEffects(0x8F, arg0);
-                                            if ((func_80714608(0) != 0) && ((ps = player->unk174)->unk8C == 0)) {  // FAKE: named ps local puts the player->unk174 reload in v0
+                                            if ((func_80714608(0) != 0) && ((ps = player->customState)->unk8C == 0)) {  // FAKE: named ps local puts the player->customState reload in v0
                                                 func_806F0D68(player);
                                                 playerResumeLocomotion(player);
                                             }
@@ -1574,7 +1574,7 @@ void gridCollectActorsInRange(u8 arg0) {
                                         tblIdx = csModelSlotGetTableIndex(slot);
                                         modelFlagsApplyState(gCurrentLevelIndex, tblIdx, &gModelSlots[hashTableLookup(slot)].unk8C);
                                         gridAddModelNode(slot, F94D_ENTRY->unk0, 0, 1, 0, flag);
-                                        actor->unk11C = 0;
+                                        actor->parentActor = 0;
                                     }
                                     actorDespawn(actor);
                                 }

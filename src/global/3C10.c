@@ -540,7 +540,7 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     }
     k = 1;
     D_80750ACC = k;
-    obj = (PlayerState *)gPrimaryPlayerActor->unk174;
+    obj = (PlayerState *)gPrimaryPlayerActor->customState;
     D_807FD56C = obj->stateFlags;
     if (obj->heldActor != NULL) {
         D_807FD570 = obj->heldActor->actorType;

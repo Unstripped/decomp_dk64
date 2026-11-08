@@ -98,7 +98,7 @@ u8 nodeCount;
     u8 dir;
     f32 limit = 15.0f;
 
-    data = gCurrentActor->unk174;
+    data = gCurrentActor->customState;
     player = ((BoneChainMain *)gPlayerSlots)->unk4->unk174;
     if (!(gCurrentActor->flags & 0x10)) {
         data->unk0 = 0.0f;
@@ -110,7 +110,7 @@ u8 nodeCount;
         data->unk20 = 0.000f;
         data->unk24 = (f32)((f64)(s32)((randomNonNegative() >> 15) % 100) / 1000.0 + 0.1);
         data->unk18 = 0.0f;
-        ((BoneChainSub4 *)gCurrentActor->unk4)->unk1C = heapAlloc(0x80);
+        ((BoneChainSub4 *)gCurrentActor->sub4)->unk1C = heapAlloc(0x80);
         proxPathAdd(gCurrentActor, 0, 0, 0, nodeCount, 0.0f, (f32)((f64)nodeCount * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
         if (gFrameDelta == 0x50) {}  // FAKE: deadsweep; keeps the 0x50 store constant out of a register (a0 stays unk254, p takes v0)
         for (i = 1; i <= nodeCount; i++) {
@@ -123,7 +123,7 @@ u8 nodeCount;
         data->unk28 = flagGet(0x183, 0) != 0 || (gGlobalOverlayFlags & 0x10000000) != 0 || func_807142D8() != 0;
     }
     if (gPrimaryPlayerActor->state == 0x63 || data->unk28 == 0 ||
-        (*(s32 *)gCurrentActor->unk124 == 1 && !(player->unk1F0 & 0x40))) {
+        (*(s32 *)gCurrentActor->spawnData == 1 && !(player->unk1F0 & 0x40))) {
         gCurrentActor->flags &= 0xFBFFFFFB;
     } else {
         gCurrentActor->flags |= 0x04000004;
@@ -140,7 +140,7 @@ u8 nodeCount;
         data->unk16--;
         data->unk1C -= 1.0;
     }
-    node = ((BoneChainSub4 *)gCurrentActor->unk4)->unk1C;
+    node = ((BoneChainSub4 *)gCurrentActor->sub4)->unk1C;
     if (data->unk0 > 2.0f) {
         if (data->unkC < 3.926991f && data->unkC + data->unk4 >= 3.926991f) {
             if (gCurrentActor->actorType == 0x74) {

@@ -1867,7 +1867,7 @@ s16 mapChunkFindByPosition(f32, f32, f32, s32);
 #define CAM_PLAYER_REC(i) ((CamPlayerRecUp *)&gPlayerSlots[i])
 
 void camResetPlayer(Actor *arg0, u8 arg1) {
-    CamPlayerCamLink *ps = arg0->unk174;
+    CamPlayerCamLink *ps = arg0->customState;
     CamResetState *st = ps->unk104->unk174;
     CamResetCam *cam = ps->unk104;
 
@@ -3898,11 +3898,11 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
                         break;
                     case 0x6E:
                     case 0x6F:
-                        yOffset = gCurrentActor->unk15E;
+                        yOffset = gCurrentActor->eyeHeight;
                         break;
                     case 0x52:
                     case 0x54:
-                        yOffset = gCurrentActor->unk15E;
+                        yOffset = gCurrentActor->eyeHeight;
                         break;
                     case 0x59:
                         if (gGlobalCutsceneFlags & 2) {

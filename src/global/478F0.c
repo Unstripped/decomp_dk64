@@ -535,7 +535,7 @@ void csCmdStormLightningRain(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     CsFlicker *n;
     CsCamFlagsView *cam;
 
-    cam = gPrimaryPlayerActor->unk174;
+    cam = gPrimaryPlayerActor->customState;
     if (!(cam->unk1F0 & 0x20000000)) {
         if (*(CsFlicker **)arg0 == NULL) {
             n = heapAlloc(0x10);
@@ -962,7 +962,7 @@ void csCmdExtraObjectAttach(s32 **slot, s16 csId, s16 b, s16 c) {
         **slot = 1;
     }
     p = *slot;
-    a = ((CsPlayerHeightView *)gPlayerSlots)->unk4->unk174;
+    a = ((CsPlayerHeightView *)gPlayerSlots)->unk4->customState;
     b2 = a->unk104;
     o = b2->unk174;
     if (o->unkFA != 0 && ((CsPlayerHeightView *)gPlayerSlots)->unk214 < o->unk90 + 3.0f) {
@@ -2206,7 +2206,7 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         func_80714CC0(D_80720A7C, 0.5f, randomFloat() * 35.0 + gCsPosX - 15.0, randomFloat() * 35.0 + gCsPosY, randomFloat() * 35.0 + gCsPosZ - 15.0);
         return;
     }
-    p = (CsCamVecView *)gPlayerSlots->unk4->unk174;
+    p = (CsCamVecView *)gPlayerSlots->unk4->customState;
     p->unk22C = gCsPosX;
     p->unk230 = gCsPosY + 15.0;
     p->unk234 = gCsPosZ;
@@ -3025,7 +3025,7 @@ void csCmdStepLightColor(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdModelApplyTranslation(CsState *cs, s16 csId, s16 b, s16 c) {
-    u8 *p = gPlayerSlots->unk4->unk174;
+    u8 *p = gPlayerSlots->unk4->customState;
     p[0x1FC] = b;
 }
 
@@ -3292,7 +3292,7 @@ void csCmdCamShakeOnAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     CsShake *p;
     CsCamObjView *cam;
 
-    cam = gPlayerSlots->unk4->unk174;
+    cam = gPlayerSlots->unk4->customState;
     if (*(CsShake **)cs == NULL) {
         p = heapAlloc(8);
         *(CsShake **)cs = p;
@@ -3886,7 +3886,7 @@ void csCmdFindNearestActorToCamera(CsState *cs, s16 csId, s16 b, s16 c) {
 
     best = NULL;
     bestDist = 99999.0f;
-    cam = gPrimaryPlayerActor->unk174;
+    cam = gPrimaryPlayerActor->customState;
     if (((CsStateFlagView *)cs)->unk5C != 0) {
         id = ((CsStateFlagView *)cs)->unk5E;
         for (i = 0; i < gActiveActorCount; i++) {
@@ -4102,9 +4102,9 @@ void csCmdSpawnBurstColoredLights(CsState *cs, s16 csId, s16 b, s16 c) {
         case 11:
             sfxPlayAtPositionPooled(x, y, z, 0x305, 0x64, 0x7F, 0, 0, 0.0f, 0);
             actorSpawn(0xB3, 0x5D);
-            gSpawnedActor->unk4->unk34 = gSpawnedActor->unk4->unk34 * 3.2;
-            gSpawnedActor->unk4->unk38 = gSpawnedActor->unk4->unk38 * 3.2;
-            gSpawnedActor->unk4->unk3C = gSpawnedActor->unk4->unk3C * 3.2;
+            gSpawnedActor->sub4->scaleX = gSpawnedActor->sub4->scaleX * 3.2;
+            gSpawnedActor->sub4->scaleY = gSpawnedActor->sub4->scaleY * 3.2;
+            gSpawnedActor->sub4->scaleZ = gSpawnedActor->sub4->scaleZ * 3.2;
             gSpawnedActor->flags |= 0x400;
             actorScriptStart(gSpawnedActor, 0x335);
             if (b == 11) {

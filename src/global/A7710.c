@@ -18,19 +18,19 @@ void hudSpawnCountdownTimer(s16 x, s16 y, u8 seconds) {
         gSpawnedActor->unk15F = 6;
     }
     x &= 0x7FFF;
-    gCurrentActor->unk11C = (s32)gSpawnedActor;
+    gCurrentActor->parentActor = (s32)gSpawnedActor;
     *(s32 *)((u8 *)gActivePlayerState + 0x1A8) = (s32)gSpawnedActor;
-    *(s32 *)((u8 *)gSpawnedActor->unk174 + 0xC) = seconds;
+    *(s32 *)((u8 *)gSpawnedActor->customState + 0xC) = seconds;
     gSpawnedActor->x = (f32)x;
     gSpawnedActor->y = (f32)y;
     gSpawnedActor->state = 1;
-    gSpawnedActor->unk128 = 0;
+    gSpawnedActor->alpha = 0;
 }
 
 void actorSetStateTwo(Actor *actor) {
     actor->state = 2;
     actor->unk155[0] = 0;
-    actor->unk128 = 0xFF;
+    actor->alpha = 0xFF;
 }
 
 void actorSetStateOne(Actor *actor) {
@@ -41,7 +41,7 @@ void actorSetStateOne(Actor *actor) {
 }
 
 void hudCountdownTimerSaveElapsed(Actor *actor) {
-    D_807FC7D0 = osGetTime() - *(u64 *)actor->unk174;
+    D_807FC7D0 = osGetTime() - *(u64 *)actor->customState;
 }
 
 void actorSetStateThree(Actor *actor) {
@@ -90,11 +90,11 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
     s32 unk15F;
     s32 offset;
 
-    sub = actor->unk174;
+    sub = actor->customState;
     if (hudCanRender() != 0) {
         WRITE_GFX(gfx++, 0xDE000000, (u32)&D_1000118);
         WRITE_GFX(gfx++, 0xFC119623, 0xFF2FFFFF);
-        WRITE_GFX(gfx++, 0xFA000000, (actor->unk128 & 0xFF) | 0xFFFFFF00);
+        WRITE_GFX(gfx++, 0xFA000000, (actor->alpha & 0xFF) | 0xFFFFFF00);
         WRITE_GFX(gfx++, 0xDA380003, (u32)&D_2000180);
         WRITE_GFX(gfx++, 0xE200001C, 0x00504240);
         unk15F = actor->unk15F;
@@ -158,7 +158,7 @@ void hudCountdownTimerUpdate(void) {
     u64 usec;
     s32 secsLeft;
 
-    timer = gCurrentActor->unk174;
+    timer = gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
         if (gCurrentActor->unk15F == 6) {
             _sprintf(text, "%.2d", timer->unkC);
@@ -187,11 +187,11 @@ void hudCountdownTimerUpdate(void) {
     secsLeft = timer->unkC - timer->unk8;
     switch (gCurrentActor->state) {
     case 1:
-        if (gCurrentActor->unk128 < 0xFF) {
-            if (gCurrentActor->unk128 + 3 >= 0x100) {
-                gCurrentActor->unk128 = 0xFF;
+        if (gCurrentActor->alpha < 0xFF) {
+            if (gCurrentActor->alpha + 3 >= 0x100) {
+                gCurrentActor->alpha = 0xFF;
             } else {
-                gCurrentActor->unk128 = gCurrentActor->unk128 + 3;
+                gCurrentActor->alpha = gCurrentActor->alpha + 3;
             }
         }
         func_806FDAB8(timer->unk10, 1.5707964f);

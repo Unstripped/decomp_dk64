@@ -41,21 +41,21 @@ void func_806BD170(void) {
     for (; i < 8; i++) {
         if (flagGet(i + 0x1BC, 0) == 0) {
             actorSpawn(0x14E, 0xCD);
-            gSpawnedActor->unk12A = 0x7D0;
+            gSpawnedActor->drawDistance = 0x7D0;
             gSpawnedActor->flags |= 0x800400;
             pos = i * 0x200 + 0x104;
             gSpawnedActor->flags &= 0xFFFF7FFF;
             gSpawnedActor->tintR = 0xFF;
             gSpawnedActor->tintG = 0xFF;
             gSpawnedActor->tintB = 0xFF;
-            gSpawnedActor->unk128 = 0xFF;
+            gSpawnedActor->alpha = 0xFF;
             gSpawnedActor->x = mathSinF(pos) * 270.0f + gCurrentActor->x;
             gSpawnedActor->z = mathCosF(pos) * 270.0f + gCurrentActor->z;
             gSpawnedActor->y = 100.0f;
             gSpawnedActor->yaw = pos;
             R1C0C1_SPAWNED_146 = 0;
             gSpawnedActor->state = 0;
-            sub = gSpawnedActor->unk174;
+            sub = gSpawnedActor->customState;
             sub->unk0 = 0;
             sub->unk4 = gCurrentActor;
             sub->unk2 = i;
@@ -127,14 +127,14 @@ void actorNodeRingUpdate(void) {
             gCurrentActor->state = 0x40;
             return;
         }
-        gCurrentActor->unk12A = 0x7D0;
+        gCurrentActor->drawDistance = 0x7D0;
         gCurrentActor->flags |= 0x400;
         v3 = 0;
         D_807506B4 = 0; actorSpawn(0x73, 0xC4, &gCurrentActor);
-        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->unk4->unk38);
+        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->sub4->scaleY);
         gSpawnedActor->renderFlags |= 0x20;
         gSpawnedActor->flags |= 0x400;
-        gSpawnedActor->unk12A = 0x7D0;
+        gSpawnedActor->drawDistance = 0x7D0;
         nodePtr->unk0 = gSpawnedActor;
         D_807FC8D4 = 1000.0f;
         func_806BD170();
@@ -180,7 +180,7 @@ void actorNodeRingUpdate(void) {
             break;
     }
     if (camIsCutsceneActive() == 0) {
-        if (((RingNodeSub4 *)gCurrentActor->unk4)->unk64 != 0x2F0) {
+        if (((RingNodeSub4 *)gCurrentActor->sub4)->unk64 != 0x2F0) {
             actorScriptStart(gCurrentActor, 0x2F0);
         }
     }
@@ -238,7 +238,7 @@ void func_80714CC0(void *, f32, f32, f32, f32);
 f32 randomFloat(void);
 
 void func_806BD7B0(void) {
-    R1C0C1Sub174 *st = gCurrentActor->unk174;
+    R1C0C1Sub174 *st = gCurrentActor->customState;
     f32 sparkX;
     f32 sparkY;
     f32 sparkZ;
@@ -279,9 +279,9 @@ void func_806BD7B0(void) {
                 gCurrentActor->unk155[0]++;
             } else if (gCurrentActor->unk155[0] == 2) {
                 sfxStopChannel(0x3B, 1);
-                gCurrentActor->unk128 -= 8;
-                if (gCurrentActor->unk128 <= 0) {
-                    gCurrentActor->unk128 = 0;
+                gCurrentActor->alpha -= 8;
+                if (gCurrentActor->alpha <= 0) {
+                    gCurrentActor->alpha = 0;
                     st->unk0++;
                     if (st->unk0 == 1) {
                         sfxPlayOnFreeSlot(0x1F6, 0x7FFF, 63.0f, 1.0f, 5, 0);
@@ -298,7 +298,7 @@ void func_806BD7B0(void) {
                         csModelStateSetFirstByte(cutsceneModelIds.b[st->unk2], 2);
                     }
                 }
-                if (gCurrentActor->unk128 < 0x80) {
+                if (gCurrentActor->alpha < 0x80) {
                     gCurrentActor->y -= 6.0;
                 }
             } else {
@@ -343,7 +343,7 @@ void func_806BD7B0(void) {
         case 0:
             break;
     }
-    gCurrentActor->unk15E = 0x28;
+    gCurrentActor->eyeHeight = 0x28;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

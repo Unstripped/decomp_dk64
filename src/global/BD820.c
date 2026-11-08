@@ -147,9 +147,9 @@ void func_806B904C(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         v = ((f64)BD820S9C->unkF / 255.0) * 0.75;
-        gCurrentActor->unk4->unk34 = v;
-        gCurrentActor->unk4->unk38 = v;
-        gCurrentActor->unk4->unk3C = v;
+        gCurrentActor->sub4->scaleX = v;
+        gCurrentActor->sub4->scaleY = v;
+        gCurrentActor->sub4->scaleZ = v;
         if (mapHasCollectedSufficientItems() != 0) {
             gCurrentActor->state = 0x40;
         } else {

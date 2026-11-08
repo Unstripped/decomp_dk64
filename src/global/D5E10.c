@@ -1927,7 +1927,7 @@ void func_806D5300(void) {
     s32 i;
 
     if (G08_A40->unk155 < 2 || D_80750FD8 < G08_A40->unkB8) {
-        scale = gCurrentActor->unk4->unk38 / 0.15;
+        scale = gCurrentActor->sub4->scaleY / 0.15;
         actorGetNodePos(gCurrentActor, 7, &sp90, &sp8C, &sp88);
         for (i = 0; i < D_80750FD4; i++) {
             x = (randomNonNegative() >> 15) % 10000 % D_80750FC8 - D_80750FC8 / 2;
@@ -2630,7 +2630,7 @@ void func_806D72D4(void) {
         playerInputUpdate(3);
         G14_P->unk4 = 0.0f;
         if (gPlayerCharacterId[gCurrentPlayerIndex] == 4) {
-            f32 t = ((G14Anim **)gCurrentActor->unk4)[0]->unk4;
+            f32 t = ((G14Anim **)gCurrentActor->sub4)[0]->unk4;
 
             if (t >= 29.0f && t < 33.0f) {
                 G14_A->unkEE = (G14_A->unkE6 + 0x800) & 0xFFF;
@@ -2719,7 +2719,7 @@ void func_806D7704(void) {
 void actorSetUniformScale(Actor *, f32);
 
 void func_806D7878(void) {
-    f64 t = gCurrentActor->unk4->unk38;
+    f64 t = gCurrentActor->sub4->scaleY;
 
     actorSetUniformScale(gCurrentActor, (0.001 - t) * 0.01 + t);
     G14_A->unk128 -= 0x14;
@@ -4960,8 +4960,8 @@ void func_806DCA7C(void) {
         if (G19_P->unk158 != 0) {
             actorGetNodePos((Actor *)G19_P->unk158, 1, &sp44, &sp40, &sp3C);
             sp4C = sp40 - gActivePlayerActor->y;
-            sp4C = (f64)sp4C / ((f64)gActivePlayerActor->unk4->unk38 * 0.16666666675);
-            dist = (f32)((f64)sqrtf((sp44 - gActivePlayerActor->x) * (sp44 - gActivePlayerActor->x) + (sp3C - gActivePlayerActor->z) * (sp3C - gActivePlayerActor->z)) / ((f64)gActivePlayerActor->unk4->unk38 * 0.16666666675));
+            sp4C = (f64)sp4C / ((f64)gActivePlayerActor->sub4->scaleY * 0.16666666675);
+            dist = (f32)((f64)sqrtf((sp44 - gActivePlayerActor->x) * (sp44 - gActivePlayerActor->x) + (sp3C - gActivePlayerActor->z) * (sp3C - gActivePlayerActor->z)) / ((f64)gActivePlayerActor->sub4->scaleY * 0.16666666675));
             spd = G19_B->unkB8;
             sp50 = dist / spd - 1.0f;
             if (sp50 < 1.0f) {

@@ -294,7 +294,7 @@ void func_80717930(OrbitEffectActorView *effect, void *unused) {
         }
         temp_v0_2 = effect->unk338;
         if (temp_v0_2 != NULL) {
-            scaleFactor = temp_v0_2->unk4->unk38 / 0.15;
+            scaleFactor = temp_v0_2->unk4->scaleY / 0.15;
             ((OrbitMotionState *)allocatedState)->unk8 = ((OrbitMotionState *)allocatedState)->unk8 * scaleFactor;
             effect->unk35C = effect->unk35C * scaleFactor;
         }

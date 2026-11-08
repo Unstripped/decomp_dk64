@@ -1457,7 +1457,7 @@ typedef struct G23State90 {
 } G23State90;
 
 void func_806E2C74(Actor *arg0) {
-    G23State90 *state = arg0->unk174;
+    G23State90 *state = arg0->customState;
 
     switch (arg0->actorType) {
     case 2:

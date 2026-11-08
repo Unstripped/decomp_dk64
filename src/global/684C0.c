@@ -121,8 +121,8 @@ void triggerZoneSpawnTrigger(TriggerZoneActor *actor, TriggerZoneData *zone) {
     TriggerSpawnSub174 *spawnState;
 
     actorSpawn(0x7B, controllerLookupStateByHash(actor));
-    gSpawnedActor->unk11C = (s32)actor;
-    spawnState = gSpawnedActor->unk174;
+    gSpawnedActor->parentActor = (s32)actor;
+    spawnState = gSpawnedActor->customState;
     spawnState->unkE = zone->unkE;
     spawnState->unkC = zone->unkC;
     spawnState->unkF = zone->unkF;

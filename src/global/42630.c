@@ -824,7 +824,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x39:
-        if (cmd->a & gPrimaryPlayerActor->unk132) {
+        if (cmd->a & gPrimaryPlayerActor->interactionType) {
             ret = 1;
         } else {
             ret = 0;
@@ -889,7 +889,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x26:
-        cam = gPlayerSlots->unk4->unk174;
+        cam = gPlayerSlots->unk4->customState;
         if ((cmd->b + (cmd->a << 16)) & cam->unk1F0) {
             ret = 1;
         } else {
@@ -897,7 +897,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x27:
-        cam = gPlayerSlots->unk4->unk174;
+        cam = gPlayerSlots->unk4->customState;
         if ((cmd->b + (cmd->a << 16)) & cam->unk1F8) {
             ret = 1;
         } else {
@@ -1420,7 +1420,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         D_807F693C = 0x80;
         break;
     case 0x92:
-        ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F0 |= 0x40000800;
+        ((CsCamState *)gPlayerSlots->unk4->customState)->unk1F0 |= 0x40000800;
         break;
     case 0x91:
         gPrimaryPlayerActor->speedXZ = cmd->a;
@@ -1499,7 +1499,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x78:
         modelSlotGetNodePos(csId, 1, cmd->a, &px, &py, &pz);
-        cam = gPlayerSlots->unk4->unk174;
+        cam = gPlayerSlots->unk4->customState;
         cam->unk22C = px;
         cam->unk230 = py;
         cam->unk234 = pz;
@@ -1563,16 +1563,16 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         actorSetTargetSlotByte(csId, CMDB(cmd)->a);
         break;
     case 0x5F:
-        ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F0 |= (cmd->a << 16) + cmd->b;
+        ((CsCamState *)gPlayerSlots->unk4->customState)->unk1F0 |= (cmd->a << 16) + cmd->b;
         break;
     case 0x3B:
-        ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F0 &= ~((cmd->a << 16) + cmd->b);
+        ((CsCamState *)gPlayerSlots->unk4->customState)->unk1F0 &= ~((cmd->a << 16) + cmd->b);
         break;
     case 0x8C:
-        ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F4 |= (cmd->a << 16) + cmd->b;
+        ((CsCamState *)gPlayerSlots->unk4->customState)->unk1F4 |= (cmd->a << 16) + cmd->b;
         break;
     case 0x8B:
-        ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F4 &= ~((cmd->a << 16) + cmd->b);
+        ((CsCamState *)gPlayerSlots->unk4->customState)->unk1F4 &= ~((cmd->a << 16) + cmd->b);
         break;
     case 0x5D:
         screenSetTransitionFadeType(CMDB(cmd)->a);
@@ -2005,7 +2005,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         modelSlotSetNodeScrollSpeed(csId, cmd->a, cmd->b, cmd->c);
         break;
     case 0x29:
-        cam = gPlayerSlots->unk4->unk174;
+        cam = gPlayerSlots->unk4->customState;
         camStartShakeFromPoint(cam->unk104, CMDB(cmd)->a, cmd->b, gCsPosX, gCsPosY, gCsPosZ, D_807F6906, D_807F6908);
         break;
     case 0x44:
@@ -2095,7 +2095,7 @@ typedef struct CsCamView {
 void func_80641724(s16 modelId) {
     CsCamView *cam;
 
-    cam = gPlayerSlots->unk4->unk174;
+    cam = gPlayerSlots->unk4->customState;
     switch (modelId) {
         case 0x33:
         case 0xBC:
@@ -2193,7 +2193,7 @@ typedef struct CsCamStateView {
 } CsCamStateView;
 
 s32 func_806419F8(void) {
-    CsCamStateView *cam = gPlayerSlots->unk4->unk174;
+    CsCamStateView *cam = gPlayerSlots->unk4->customState;
 
     if ((gPrimaryPlayerActor->state == 0x42 && (cam->unkBC == 0x62 || cam->unkBC == 0x88 || cam->unkBC == 0x17)) || gPrimaryPlayerActor->state == 0x52 ||
         gPrimaryPlayerActor->state == 0x67 || ((CsPlayerView *)gPlayerSlots)->unk29C == 0x1C || ((CsPlayerView *)gPlayerSlots)->unk29C == 0x53) {
@@ -2282,7 +2282,7 @@ void csStartCamPath(void *cs, s16 camIdx, s16 mode, s16 c) {
         gSpawnedActor->z = gCsPosZ;
         gSpawnedActor->yaw = gCsRotY * 4096.0f / 360.0f;
         if (*(u8 *)&D_807F693F != 0) {
-            gSpawnedActor->unk15E = c;
+            gSpawnedActor->eyeHeight = c;
         }
         if (*(u8 *)&D_807F693F != 0) {
             flag = 4;

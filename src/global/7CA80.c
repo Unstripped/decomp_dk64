@@ -219,7 +219,7 @@ s32 actorSpawnFromInfo(ActorSpawnInfo *arg0) {
             gSpawnedActor->x = arg0->unkC;
             gSpawnedActor->y = arg0->unk10;
             gSpawnedActor->z = arg0->unk14;
-            gSpawnedActor->unk124 = arg0->unk1C;
+            gSpawnedActor->spawnData = arg0->unk1C;
             gSpawnedActor->yaw = arg0->unk18;
             gSpawnedActor->spawnTimer = arg0->unk1A;
             if (arg0->unk8 != 0) {
@@ -479,9 +479,9 @@ void actorDespawnByOwner(s32 arg0) {
     D_807FBF10 = 0;
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
-        if (arg0 == actor->unk11C) {
+        if (arg0 == (s32)actor->parentActor) {
             actorDespawn(actor);
-            actor->unk11C = 0;
+            actor->parentActor = 0;
         }
     }
     D_807FBE09 = 0;
@@ -517,13 +517,13 @@ void actorFreeImmediate(Actor *arg0) {
     if (((ActorBufferView *)arg0)->unk0 != 0) {
         controllerAnimFree();
     }
-    temp = (Actor *)arg0->unk11C;
+    temp = (Actor *)arg0->parentActor;
     if (temp != NULL) {
         actorAppendCallback(temp, (s32)arg0, 0x80000, 0, 0, NULL);
     }
     for (i = 0; i < gActiveActorCount; i++) {
-        if ((s32)arg0 == gActiveActors[i].actor->unk11C) {
-            gActiveActors[i].actor->unk11C = 0;
+        if ((s32)arg0 == (s32)gActiveActors[i].actor->parentActor) {
+            gActiveActors[i].actor->parentActor = 0;
         }
     }
     i = 0;
@@ -547,7 +547,7 @@ void actorFreeImmediate(Actor *arg0) {
             gActiveActors[i].unk4 = gActiveActors[gActiveActorCount].unk4;
         }
     }
-    actorSub140Free(arg0->unk140);
+    actorSub140Free(arg0->collision);
     proxPathRemoveActor(arg0);
     if (((ActorBufferView *)arg0)->unk118 != NULL) {
         heapFree(((ActorBufferView *)arg0)->unk118);
@@ -636,7 +636,7 @@ void actorUpdateWhilePaused(void) {
             D_8074C0A0[gCurrentActor->actorType]();
             actorPostTick(gCurrentActor);
         }
-        if (gCurrentActor->unk4 != NULL) {
+        if (gCurrentActor->sub4 != NULL) {
             actorCheckWorldBounds(gCurrentActor);
         }
     }
@@ -665,8 +665,8 @@ void actorPreTick(Actor *arg0) {
     arg0->prevZ = arg0->z;
     arg0->prevSpeedXZ = arg0->speedXZ;
     D_807F94B4 = 0;
-    if (arg0->unk140 != NULL) {
-        arg0->unk140->unk68 = 0;
+    if (arg0->collision != NULL) {
+        arg0->collision->unk68 = 0;
     }
     actorRiderListFree(arg0);
     if (arg0 == gActivePlayerActor) {
@@ -680,8 +680,8 @@ void actorPreTick(Actor *arg0) {
     }
     if (arg0->unk144 & 4) {
         actorUpdateMovementFlags(arg0);
-    } else if (arg0->unk140 != NULL) {
-        arg0->unk140->unk6C = 0;
+    } else if (arg0->collision != NULL) {
+        arg0->collision->unk6C = 0;
     }
     if (arg0->attachMode != 0) {
         actorUpdateSubnodeRotationAndMtx(arg0);
@@ -708,7 +708,7 @@ void actorPostTick(Actor *actor) {
     func_80678E6C(actor);
     if (!(actor->flags & 0x08000000)) {
         actor->flags &= ~0x200;
-        if (actor->unk4 != NULL) {
+        if (actor->sub4 != NULL) {
             controllerStepMotionWindows(actor);
             if (((actor->flags & 0x500) || ((ActorUnk156View *)actor)->unk156 != 0) && !(actor->flags & 0x4000)) {
                 actorCheckWorldBounds(actor);
@@ -1160,7 +1160,7 @@ void actorDispatchCallbacks(Actor *arg0) {
                             }
                             temp_v1 = (Actor *)var_s2->unk8;
                             if ((temp_v1 != NULL) && (temp_v1->collisionFlags & 2)) {
-                                temp_v0_3 = (ActorPlayerState *)temp_v1->unk174;
+                                temp_v0_3 = (ActorPlayerState *)temp_v1->customState;
                                 temp_v0_3->unk1A = (u16)(temp_v0_3->unk1A | 0x100);
                             }
                         }
@@ -1289,7 +1289,7 @@ void actorDispatchCallbacks(Actor *arg0) {
                     break;
                 case 0x40000:
                     temp_v1_4 = var_s2->unk10;
-                    temp_v0_9 = arg0->unk140;
+                    temp_v0_9 = arg0->collision;
                     if (temp_v0_9 != NULL) {
                         temp_v0_9->unk68 = *temp_v1_4;
                     }
@@ -1802,7 +1802,7 @@ s32 (*arg2)(Actor *);
 
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
-        if (arg0 == actor->unk11C && actor->collisionFlags == arg1) {
+        if (arg0 == (s32)actor->parentActor && actor->collisionFlags == arg1) {
             if (arg2 == NULL || arg2(actor)) {
                 count++;
             }
@@ -1968,7 +1968,7 @@ void playerSetActiveGlobals(Actor *arg0) {
     u8 temp_v0;
     PlayerContextEntry *player;
 
-    gActivePlayerState = arg0->unk174;
+    gActivePlayerState = arg0->customState;
     gCurrentPlayerIndex = ((PlayerContextSub174 *)gActivePlayerState)->playerIndex;
     temp_v0 = gPlayerCharacterId[gCurrentPlayerIndex];
     player = (PlayerContextEntry *)gPlayerSlots + gCurrentPlayerIndex;
@@ -1995,10 +1995,10 @@ void actorCopyPoseAndScale(Actor *arg0, Actor *arg1, f32 arg2) {
     arg0->y = arg1->y;
     arg0->z = arg1->z;
     arg0->yaw = arg1->yaw;
-    if (arg0->unk4 != NULL) {
-        arg0->unk4->unk34 = arg2;
-        arg0->unk4->unk38 = arg2;
-        arg0->unk4->unk3C = arg2;
+    if (arg0->sub4 != NULL) {
+        arg0->sub4->scaleX = arg2;
+        arg0->sub4->scaleY = arg2;
+        arg0->sub4->scaleZ = arg2;
     }
 }
 
@@ -2034,15 +2034,15 @@ typedef struct ActorInitArg {
 
 s32 func_8067B2DC(ActorInitArg *arg0) {
     if (controllerAnimInit(gSpawnedActor, arg0->unk2, arg0) != 0) {
-        gSpawnedActor->unk140 = actorSub140CreateFromModel(gSpawnedActor);
-        gSpawnedActor->unk15E = (u32)(((f64)((ActorSub140View *)gSpawnedActor->unk140)->unkC * 0.15) * 0.5);
+        gSpawnedActor->collision = actorSub140CreateFromModel(gSpawnedActor);
+        gSpawnedActor->eyeHeight = (u32)(((f64)((ActorSub140View *)gSpawnedActor->collision)->unkC * 0.15) * 0.5);
         return 1;
     }
     return 0;
 }
 
 s32 func_8067B3F4(s32 arg0) {
-    gSpawnedActor->unk140 = actorSub140CreateFromModel(gSpawnedActor);
+    gSpawnedActor->collision = actorSub140CreateFromModel(gSpawnedActor);
     return 1;
 }
 

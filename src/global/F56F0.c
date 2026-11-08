@@ -122,7 +122,7 @@ void func_806F0C18(Actor *arg0) {
         break;
     }
     if (arg0->collisionFlags & 1) {
-        extra = arg0->unk174;
+        extra = arg0->customState;
         if (extra->unk8C != 0) {
             playerPlayKongSpecificSfx(arg0);
             extra->unk8C = 0;
@@ -173,7 +173,7 @@ void func_806F0D68(Actor *arg0) {
         break;
     }
     if (arg0->collisionFlags & 1) {
-        extra = arg0->unk174;
+        extra = arg0->customState;
         if (extra->unk8C == 0) {
             switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
             case 0:
@@ -212,7 +212,7 @@ void controllerAnimFreeStateAsset(void);
 void actorSetInteractionTimer(Actor *);
 
 void func_806F1048(Actor *arg0) {
-    F5N2ActorState *state = arg0->unk174;
+    F5N2ActorState *state = arg0->customState;
 
     switch (arg0->actorType) {
     case 4:
@@ -257,7 +257,7 @@ void func_806F10E8(Actor *arg0) {
         case 0xC4:
             func_806F0C18(arg0);
             actorSpawn(0xEF, 0xA6);
-            actorCopyPoseAndScale(gSpawnedActor, arg0, ((F5N3ActorSub10E8 *) arg0->unk4)->unk38 * 1.25);
+            actorCopyPoseAndScale(gSpawnedActor, arg0, ((F5N3ActorSub10E8 *) arg0->sub4)->unk38 * 1.25);
             ((F5N3ActorState *) gSpawnedActor)->unkE4 = ((F5N3ActorState *) arg0)->unkE4;
             ((F5N3ActorState *) gSpawnedActor)->unkE8 = ((F5N3ActorState *) arg0)->unkE8;
             gSpawnedActor->flags |= 0x40000000;
@@ -296,7 +296,7 @@ void sfxStopChannel(s32, s32);
 extern s32 gGlobalCutsceneFlags;
 
 void playerTransformAnimalStartSfx(Actor *arg0) {
-    F5N3ActorExtra *extra = arg0->unk174;
+    F5N3ActorExtra *extra = arg0->customState;
 
     if (arg0->actorType == 6) {
         controllerAnimLoadStateAsset(arg0, 0x10);
@@ -309,7 +309,7 @@ void playerTransformAnimalStartSfx(Actor *arg0) {
 }
 
 void playerTransformAnimalEndSfx(Actor *arg0) {
-    F5N3ActorExtra *extra = arg0->unk174;
+    F5N3ActorExtra *extra = arg0->customState;
 
     if (arg0->actorType == 6) {
         controllerAnimFreeStateAsset();
@@ -337,7 +337,7 @@ void scriptCmdCompareSpeedXZ(Actor *arg0) {
     f32 temp;
 
     scriptReadU32(&temp);
-    ((F5AActorSub4 *)arg0->unk4)->unk88 = (s32)(arg0->speedXZ - temp);
+    ((F5AActorSub4 *)arg0->sub4)->unk88 = (s32)(arg0->speedXZ - temp);
 }
 
 typedef struct F5APlayerState {
@@ -354,7 +354,7 @@ void scriptCmdCompareMoveTier(Actor *arg0) {
     u8 temp;
 
     scriptReadU8(&temp);
-    ((F5AActorSub4 *)arg0->unk4)->unk88 =
+    ((F5AActorSub4 *)arg0->sub4)->unk88 =
         playerSelectMoveTier(arg0, arg0->speedXZ, arg0->speedXZ, F5A_PS->unk4C, gCurrentCharacterIndex) - temp;
 }
 
@@ -804,7 +804,7 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
             state->unk14 -= 1;
         }
     } else {
-        s16 idx = ((F56AIdxSub *) arg0->unk4)->unk0->unk10;
+        s16 idx = ((F56AIdxSub *) arg0->sub4)->unk0->unk10;
 
         if (idx >= 0) {
             newvel = D_80752CBF[idx];
@@ -915,8 +915,8 @@ void func_806F22A8(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
         fs2 = y - state->unk4;
         dz = fs2 - state->unk8;
         fs0 = state->unk0 - (f32) arg0->yaw;
-        if (((F56AIdxSub *) arg0->unk4)->unk0->unk10 >= 0) {
-            target = (f32) D_80752D4E[((F56AIdxSub *) arg0->unk4)->unk0->unk10];
+        if (((F56AIdxSub *) arg0->sub4)->unk0->unk10 >= 0) {
+            target = (f32) D_80752D4E[((F56AIdxSub *) arg0->sub4)->unk0->unk10];
         } else {
             target = -128.0f;
         }
@@ -1296,9 +1296,9 @@ void func_806F3190(Actor *arg0, u16 arg1) {
     f32 t;
     f32 v;
 
-    sp74 = arg0->unk174;
+    sp74 = arg0->customState;
     if ((arg0->state != 0x77) && (arg0->flags & 4)) {
-        sub = (F56CSub *)arg0->unk4;
+        sub = (F56CSub *)arg0->sub4;
         sp64 = sub->unk1C;
         sp60 = sub->unk20;
         sp5C = sub->unk24;
@@ -1343,7 +1343,7 @@ void func_806F3190(Actor *arg0, u16 arg1) {
             switch (arg0->state) {
             case 0x26:
                 if (arg0->unk155[0] != 0) {
-                    t = (*(F56CHead **)arg0->unk4)->unk4;
+                    t = (*(F56CHead **)arg0->sub4)->unk4;
                     if (t < 6.0f) {
                         v = 0.0f;
                     } else {
@@ -1354,7 +1354,7 @@ void func_806F3190(Actor *arg0, u16 arg1) {
                 }
                 break;
             case 0x27: {
-                t = (*(F56CHead **)arg0->unk4)->unk4;
+                t = (*(F56CHead **)arg0->sub4)->unk4;
                 if (t < 6.0f) {
                     v = 0.0f;
                 } else {
@@ -1365,7 +1365,7 @@ void func_806F3190(Actor *arg0, u16 arg1) {
                 break;
             }
             case 0x28: {
-                t = (*(F56CHead **)arg0->unk4)->unk4;
+                t = (*(F56CHead **)arg0->sub4)->unk4;
                 if (t < 7.0f) {
                     v = 0.0f;
                 } else {
@@ -1377,7 +1377,7 @@ void func_806F3190(Actor *arg0, u16 arg1) {
                 break;
             }
             case 0x29: {
-                t = (*(F56CHead **)arg0->unk4)->unk4;
+                t = (*(F56CHead **)arg0->sub4)->unk4;
                 if (t < 4.0f) {
                     v = 0.0f;
                 } else {
@@ -1497,7 +1497,7 @@ extern s32 gWaypointCallbackParam;
 void playerWaypointPathStart(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4) {
     F5N4ActorExtra *temp_v0;
 
-    temp_v0 = (F5N4ActorExtra *)((Actor *)arg1)->unk174;
+    temp_v0 = (F5N4ActorExtra *)((Actor *)arg1)->customState;
     if (gWaypointPaths->unk0 >= arg0) {
         D_807463B8 = 3;
         gScreenRenderFlags |= 0x10;
@@ -1724,7 +1724,7 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
     s16 pitchT;
 
     cur = F5L1_WP;
-    tgt = F5L1_TGTA->unk174;
+    tgt = F5L1_TGTA->customState;
     blend = 0.2f;
     next = F5L1_WP + 1;
     speed = (u32)cur->speed * 0.7;
