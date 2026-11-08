@@ -1892,7 +1892,7 @@ extern s8 D_800338FC;
 extern s8 D_807444C0;
 extern s8 D_8074452C;
 extern u8 D_80744530;
-extern u8 D_807550C8;
+extern u8 sLanguageIndex;
 extern u16 D_807ECD66;
 void heapFreeDeferred(void *);
 void eepromInitConfigs(s32);
@@ -1932,14 +1932,14 @@ void menuHandleGameOptionsInput(MenuScreenActor *actor, s32 buttons) {
                 break;
             case 4:
                 if ((buttons & 0x10) && !(D_80033670 & 0x10)) {
-                    D_807550C8 += 1;
+                    sLanguageIndex += 1;
                     flag = 1;
                 }
                 if ((buttons & 0x20) && !(D_80033670 & 0x20)) {
-                    D_807550C8 -= 1;
+                    sLanguageIndex -= 1;
                     flag = 1;
                 }
-                D_807550C8 &= 3;
+                sLanguageIndex &= 3;
                 if (flag != 0) {
                     for (i = 0; i != 0x65; i++) {
                         heapFreeDeferred(D_80033F28[i]);
@@ -1951,7 +1951,7 @@ void menuHandleGameOptionsInput(MenuScreenActor *actor, s32 buttons) {
             }
             if (buttons & 2) {
 
-                eepromSetField(0x1F, 0, 0, 0, D_807550C8);
+                eepromSetField(0x1F, 0, 0, 0, sLanguageIndex);
                 eepromSetField(0x20, 0, 0, 0, D_80744530);
                 func_8060DEA8();
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);

@@ -115,7 +115,7 @@ extern Actor_BB40 *gCurrentActor;
 
 void playerStateQueueCallback();
 s32 sfxStopSlotSound(Actor_BB40 *, u8);
-void func_8070D8C0(Actor_BB40 *, s32, s32);
+void resQueueAttachActor(Actor_BB40 *, s32, s32);
 void csModelStateSetFirstByte(s32, s32);
 void flagSet(s32, s32, s32);
 void hudSpawnTextScreen(s32);
@@ -622,7 +622,7 @@ void raceHandlePostRaceFinished(Struct_sp58 *racerState, void *aux) {
         case 1:
             if (currentActorTestClearFlag()) {
                 currentActorClearFlag();
-                func_8070D8C0(gCurrentActor, 0x22, (u8)raceGetFinishCameraId(racerState, aux));
+                resQueueAttachActor(gCurrentActor, 0x22, (u8)raceGetFinishCameraId(racerState, aux));
                 racerState->unk35++;
             }
             break;

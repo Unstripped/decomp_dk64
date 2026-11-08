@@ -119,7 +119,7 @@ typedef struct {
 extern MenuRenderActor *gCurrentActor;
 extern s16 D_80750AC8;
 s32 currentActorTestClearFlag(void);
-void func_8070D8C0(void *, s32, u8);
+void resQueueAttachActor(void *, s32, u8);
 void camResumePath(void);
 void currentActorClearFlag();
 
@@ -134,7 +134,7 @@ void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
         if (currentActorTestClearFlag() != 0) {
             if (playVoice != 0) {
                 currentActorClearFlag();
-                func_8070D8C0(gCurrentActor, 0xB, 0);
+                resQueueAttachActor(gCurrentActor, 0xB, 0);
                 if ((mode = menu->unk1A) == 1) {
                     mode = 1;
                 } else if (mode >= 2) {
@@ -143,7 +143,7 @@ void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
                     mode = 3;
                 }
                 D_80750AC8 = menu->unk1A;
-                func_8070D8C0(gCurrentActor, 0xB, mode);
+                resQueueAttachActor(gCurrentActor, 0xB, mode);
             } else {
                 if (menu->unk1A == 1) {
                     mode = 5;
@@ -151,7 +151,7 @@ void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
                     mode = 6;
                 }
                 D_80750AC8 = menu->unk1A;
-                func_8070D8C0(gCurrentActor, 0xB, mode);
+                resQueueAttachActor(gCurrentActor, 0xB, mode);
             }
             menu->unk1++;
         }
@@ -205,7 +205,7 @@ u8 targetState;
     switch (menu->unk1) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
-            func_8070D8C0(gCurrentActor, 0xB, targetState);
+            resQueueAttachActor(gCurrentActor, 0xB, targetState);
             menu->unk1++;
         }
         break;
@@ -419,7 +419,7 @@ void menuProcessOptionInput(MenuStruct_80024000 *menu) {
             currentActorClearFlag(menu);
             menu->unk1++;
             D_80750AC8 = menuCalculateBonusDuration(menu);
-            func_8070D8C0(gCurrentActor, 0xB, 8);
+            resQueueAttachActor(gCurrentActor, 0xB, 8);
         }
         break;
     case 1:

@@ -201,7 +201,7 @@ void camEndPath(s32);
 void currentActorClearFlag();
 s32 currentActorTestClearFlag(void);
 void actorSetTargetSpeed(void *, s32);
-void func_8070D8C0(void *, s32, s32);
+void resQueueAttachActor(void *, s32, s32);
 s32 patrolPathStep(s32, s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorScriptStart(void *, s32);
@@ -257,7 +257,7 @@ u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
         }
         break;
     case 0x5A:
-        func_8070D8C0(gCurrentActor, script[s0->unk15], script[s0->unk15 + 1]);
+        resQueueAttachActor(gCurrentActor, script[s0->unk15], script[s0->unk15 + 1]);
         s0->unk15 += 2;
         break;
     case 0x42:

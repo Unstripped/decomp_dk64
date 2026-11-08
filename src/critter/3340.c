@@ -97,8 +97,8 @@ s32 camIsCutsceneActive(void);
 s32 camIsPathPaused(void);
 void camStartShake(void *, s32, s32);
 s32 func_806FB418(void);
-void func_8070E8DC(s32);
-void func_8070D8C0(void *, s32, s32);
+void resQueueSetValue(s32);
+void resQueueAttachActor(void *, s32, s32);
 void func_807149B8(s32);
 void func_807149FC(s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
@@ -178,8 +178,8 @@ void critterBananaFairyUpdate(void) {
         dz = gPrimaryPlayerActor->unk84 - gCurrentActor->unk84;
         dist = sqrtf(dx * dx + dy * dy + dz * dz);
         if ((f64)dist < 300.0 && flagGet(0x17E, 0) == 0) {
-            func_8070E8DC(1);
-            func_8070D8C0(gCurrentActor, 0x1D, 0);
+            resQueueSetValue(1);
+            resQueueAttachActor(gCurrentActor, 0x1D, 0);
             camStartPath(gCurrentActor, 1, 1);
             flagSet(0x17E, 1, 0);
         } else if (canSecretUnlock != 0 && (f64)dist < 200.0 && camIsCutsceneActive() == 0 && gPrimaryPlayerActor->unk154 == 0x24 && gPrimaryPlayerActor->unk155 == 2 && (f64)dz > -35.0) {
@@ -212,16 +212,16 @@ void critterBananaFairyUpdate(void) {
             if ((f64)dist < 70.0 && (f64)D_8002A1B0 >= 70.0) {
                 s16 var;
 
-                func_8070E8DC(1);
+                resQueueSetValue(1);
                 camStartPath(gCurrentActor, 0x1B, 5);
                 if (func_806FB418() < requiredCount) {
-                    func_8070D8C0(gCurrentActor, 0x1D, 1);
+                    resQueueAttachActor(gCurrentActor, 0x1D, 1);
                     actorScriptStart(gCurrentActor, 0x3A1);
                     gCurrentActor->unk155 = 1;
                 } else {
                     flagSet((s16)(worldIndex + 0x1CD), 1, 0);
                     var = hasSecretDiscount != 0 ? worldIndex + 2 : 2;
-                    func_8070D8C0(gCurrentActor, 0x1D, (u8)var);
+                    resQueueAttachActor(gCurrentActor, 0x1D, (u8)var);
                     actorScriptStart(gCurrentActor, 0x3A0);
                     gCurrentActor->unk155 = 2;
                     *timerPtr = 0;

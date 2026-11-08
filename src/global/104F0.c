@@ -521,7 +521,7 @@ void func_8060CB9C(void) {
 extern void eepromClearSlotData();
 extern s32 eepromGetField(s32, u8, u8, u8);
 extern void func_8060CB74(void);
-extern u8 D_807550C8;
+extern u8 sLanguageIndex;
 extern u8 D_80744530;
 
 
@@ -613,12 +613,12 @@ void eepromValidateSaveSlots(void) {
         func_8060CB74();
     }
     failed |= (ok == 0);
-    D_807550C8 = eepromGetField(0x1F, 0, 0, 0);
+    sLanguageIndex = eepromGetField(0x1F, 0, 0, 0);
     if (i && i) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     D_80744530 = eepromGetField(0x20, 0, 0, 0);
-    if (D_807550C8 > 0) {
-        D_807550C8 = 0;
-        eepromSetField(0x1F, 0, 0, 0, D_807550C8);
+    if (sLanguageIndex > 0) {
+        sLanguageIndex = 0;
+        eepromSetField(0x1F, 0, 0, 0, sLanguageIndex);
     }
     if (failed != 0) eepromDispatchCommand(1);
 }

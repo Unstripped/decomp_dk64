@@ -316,7 +316,7 @@ void currentActorClearFlag(void);
 s32 currentActorTestClearFlag();
 s32 flagSet(s16, s32, s32);
 s32 flagCountRange(s16, s32, s32);
-void func_8070D8C0(void *, u16, u8);
+void resQueueAttachActor(void *, u16, u8);
 void slotQueueInit(s32);
 void slotQueueUpdate(s32, s32, s32);
 typedef struct {
@@ -431,9 +431,9 @@ void menuFormatShopPurchaseText(Struct_80025D14 *state, void *inventory, s32 has
             break;
         }
         if (hasSecondAction != 0) {
-            func_8070D8C0(gCurrentActor, textParam1, pairs[8].lo);
+            resQueueAttachActor(gCurrentActor, textParam1, pairs[8].lo);
         }
-        func_8070D8C0(gCurrentActor, textParam1, pairs[availability].lo);
+        resQueueAttachActor(gCurrentActor, textParam1, pairs[availability].lo);
         if (availability == 2 || availability == 3 || availability == 6 || availability == 7) {
             slotQueueInit(0);
             slotQueueUpdate(1, 1, 0);
@@ -582,7 +582,7 @@ void menuUpdateShopPurchaseStep(Struct_80025D14 *state, u8 *inventory) {
         camStartPath(gPlayerSlots->unk4, 3, 1);
         state->unkD = 3;
         state->unkE = 0;
-        func_8070D8C0(gCurrentActor, textParam1, textParam2);
+        resQueueAttachActor(gCurrentActor, textParam1, textParam2);
         break;
     }
 }
@@ -643,9 +643,9 @@ void menuUpdateShopDialogueStep(Struct_80025D14 *state, void *inventory, s32 fla
                 textParam1 = 7;
                 break;
             }
-            func_8070D8C0(gCurrentActor, textParam1, textParam2);
+            resQueueAttachActor(gCurrentActor, textParam1, textParam2);
             if (extraTextParam >= 0) {
-                func_8070D8C0(gCurrentActor, textParam1, extraTextParam);
+                resQueueAttachActor(gCurrentActor, textParam1, extraTextParam);
             }
             state->unkE++;
         }
@@ -723,7 +723,7 @@ void menuUpdateShopExitingStep(Struct_80025D14 *state, u8 *inventory, s32 flagId
                 }
                 if (v >= 0 && (inventory[v] & 1)) {
                     if (slotQueueGetValue((u8)queueItemId, 0) < slotQueueGetMaxValue(queueItemId, 0)) {
-                        func_8070D8C0(gCurrentActor, textParam1, textParam2);
+                        resQueueAttachActor(gCurrentActor, textParam1, textParam2);
                         slotQueueAddValue(queueItemId, 0, 0x3E7);
                         state->unkE = 0;
                         camPathId = 5;
@@ -844,7 +844,7 @@ void menuUpdateCrankyShopActor(void) {
             switch (gCurrentActor->unk154) {
             case 0:
                 if (currentActorTestClearFlag() != 0) {
-                    func_8070D8C0(gCurrentActor, 8, 0x1C);
+                    resQueueAttachActor(gCurrentActor, 8, 0x1C);
                     gCurrentActor->unk154 = 1;
                 }
                 break;
@@ -859,13 +859,13 @@ void menuUpdateCrankyShopActor(void) {
                 break;
             case 3:
                 if (currentActorTestClearFlag() != 0) {
-                    func_8070D8C0(gCurrentActor, 8, 0x1D);
+                    resQueueAttachActor(gCurrentActor, 8, 0x1D);
                     gCurrentActor->unk154 = 1;
                 }
                 break;
             case 4:
                 if (currentActorTestClearFlag() != 0) {
-                    func_8070D8C0(gCurrentActor, 8, 0x1E);
+                    resQueueAttachActor(gCurrentActor, 8, 0x1E);
                     gCurrentActor->unk154 = 5;
                 }
                 break;
@@ -889,7 +889,7 @@ void menuUpdateCrankyShopActor(void) {
                 if (currentActorTestClearFlag() != 0) {
                     gGlobalPauseFlags |= 0x10030;
                     D_80750AC8 = 0xF;
-                    func_8070D8C0(gCurrentActor, 8, 0x1F);
+                    resQueueAttachActor(gCurrentActor, 8, 0x1F);
                     gCurrentActor->unk154 = 1;
                 }
                 break;

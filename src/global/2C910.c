@@ -144,8 +144,8 @@ void playerResumeLocomotion(void *);
 void func_806F0C18(void *);
 void playerWaypointPathStartPacked(s32, s32, s16, s16);
 void transitionSetState(u8);
-void func_8070D8C0(void *, s32, u8);
-void func_8070E8DC(s8);
+void resQueueAttachActor(void *, s32, u8);
+void resQueueSetValue(s8);
 void menuTransitionToMap(s32, s32);
 void menuSetTransitionTypeBFlag(void);
 void menuTransitionToCreditsOrMap28(s32);
@@ -531,15 +531,15 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             sfxAllocateChannel(a, b != 0 ? (f64)b / 255.0 : 1.0);
             return;
         case 0x18:
-            func_8070E8DC(1);
+            resQueueSetValue(1);
             /* fallthrough */
         case 0x39:
-            func_8070D8C0(actorFromSpawnNodeOrDefault(a), (u16)b, (u8)c);
+            resQueueAttachActor(actorFromSpawnNodeOrDefault(a), (u16)b, (u8)c);
             return;
         case 0x1E:
             actorSpawn(0x108, 0x1D);
             Matcher14_OFF(gSpawnedActor, s16, 0xF0) = c;
-            func_8070D8C0(gSpawnedActor, a & 0xFFFF, (u8)b);
+            resQueueAttachActor(gSpawnedActor, a & 0xFFFF, (u8)b);
             return;
         case 0x1D:
             camPausePath();

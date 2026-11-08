@@ -530,7 +530,7 @@ f32 raceRacerSteerTowardWaypoint(void);
 void raceHandleRacerCollision(void *);
 void mapCheckAutoTransition(void);
 void csModelStateSetFirstByte(s32, s32);
-void func_8070D8C0(void *, s32, s32);
+void resQueueAttachActor(void *, s32, s32);
 void func_8072881C(s32, void *);
 void hudSpawnTextScreen(s32);
 void playerStateQueueCallback(s32, s32, s32);
@@ -606,7 +606,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
             if (currentActorTestClearFlag() != 0) {
                 finishPlacement = targetView->unk4;
                 currentActorClearFlag();
-                func_8070D8C0(gCurrentActor, 0x12, raceGetFinishCutsceneCam((s32)s0, finishPlacement) & 0xFF);
+                resQueueAttachActor(gCurrentActor, 0x12, raceGetFinishCutsceneCam((s32)s0, finishPlacement) & 0xFF);
                 s0->unk35 += 1;
             }
             break;

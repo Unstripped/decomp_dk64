@@ -36,7 +36,7 @@ extern u8 D_807FCC40[];
 u16 camStartPath(s32, s32, s32);
 void slotQueueSetShownValue(s32, s32, s32);
 s32 camIsPathPaused(void);
-void func_8070D8C0(void *, s32, s32);
+void resQueueAttachActor(void *, s32, s32);
 void hudSpawnCountdownTimer(s32, s32, s32);
 void camResumePath(void);
 void actorSetStateTwo(void *);
@@ -110,7 +110,7 @@ void critterBattleArenaUpdate(void) {
                 mapChallengeIdx = 3;
                 break;
             }
-            func_8070D8C0(gCurrentActor, 0x19, *(u8 *)((char *)&mapChallengeIdx + 3));
+            resQueueAttachActor(gCurrentActor, 0x19, *(u8 *)((char *)&mapChallengeIdx + 3));
             gCurrentActor->unk154 = 1;
             hudSpawnCountdownTimer(0xDC, 0x2A, ((u8 *)challengeState)[5]);
         }
