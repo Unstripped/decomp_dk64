@@ -348,7 +348,6 @@ typedef struct PlayerState {
     /* 0x24E */ u16 hitCounter;
 } PlayerState;
 
-typedef PlayerState Struct807FD580;
 extern BehaviourWorkState *gBehaviourWorkState;
 extern Actor *gBehaviourTargetActor;
 extern BehaviourAnimState *gBehaviourAnimState;

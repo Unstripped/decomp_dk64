@@ -8,7 +8,7 @@ extern Actor *D_807FBB48;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern Struct807FD580 *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 extern s16 D_807FD584;
 extern s32 gCurrentMap;
 extern u8 gPlayerCharacterId[];
@@ -552,7 +552,7 @@ void func_806F0C18(void *);
 void actorClearMovementFlags(void *);
 s32 hashTableLookup(s32);
 void camStartPath(Actor *, s32, s32);
-void func_80613C48(Actor *, s32, f32, f32);
+void controllerAnimSetStateIfChanged(Actor *, s32, f32, f32);
 void actorCopyPoseAndScale(Actor *, Actor *, f32);
 void controllerAnimSetStateRemap(Actor *, s32, f32, f32);
 
@@ -592,7 +592,7 @@ void playerStateEnterSlideSlope(void) {
         D_807FBB48->unk144 = 1;
     }
     EFB_P->unk88 = (EfBActor *)EFB_C[gCurrentPlayerIndex].unk2A0;
-    if (D_807FBB48->actorType == 2) { animation = 0x53; } else { animation = 0x1C7; } func_80613C48(D_807FBB48, (s16)animation, 0.0f, 0.0f); // LAYOUT: one source line steers the scheduler (li at,2 after mfc1)
+    if (D_807FBB48->actorType == 2) { animation = 0x53; } else { animation = 0x1C7; } controllerAnimSetStateIfChanged(D_807FBB48, (s16)animation, 0.0f, 0.0f); // LAYOUT: one source line steers the scheduler (li at,2 after mfc1)
 }
 
 void playerStateEnterFrozen(void) {
@@ -608,7 +608,7 @@ void playerStateEnterFrozen(void) {
     actor = (Actor *)EFB_P->unk88;
     actorCopyPoseAndScale(D_807FBB48, actor, actor->unk4->unk34);
     D_807FBB48->unk144 = 1;
-    func_80613C48(D_807FBB48, 0x22A, 0.0f, 0.0f);
+    controllerAnimSetStateIfChanged(D_807FBB48, 0x22A, 0.0f, 0.0f);
 }
 
 void playerStateEnterState3C(void) {
@@ -1821,7 +1821,7 @@ void slotQueueCancel(s32, s32);
 extern void sfxPlayScriptActorSoundForPlayer(Actor *, s16, u8);
 extern s8 func_806C9830(s8, Actor *);
 extern Actor *actorResolveKillCreditOwner(Actor *);
-extern void playerSetRecentAttacker(Actor *, Struct807FD580 *);
+extern void playerSetRecentAttacker(Actor *, PlayerState *);
 extern void playerRecordHitSource(Actor *, Actor *, s32);
 extern s32 playerHitSourceIsStale(s32);
 extern s32 func_807142D8(void);

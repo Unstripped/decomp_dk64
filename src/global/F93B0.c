@@ -7,7 +7,7 @@ extern Actor *D_807FBB48;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern Struct807FD580 *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 extern s16 D_807FD584;
 extern s32 gCurrentMap;
 extern u8 gPlayerCharacterId[];

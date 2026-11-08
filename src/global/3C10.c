@@ -486,7 +486,7 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     f32 g;
     f32 b;
     s32 pad;
-    Struct807FD580 *obj;
+    PlayerState *obj;
 
     found = 0;
     i = 0;
@@ -540,7 +540,7 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     }
     k = 1;
     D_80750ACC = k;
-    obj = (Struct807FD580 *)D_807FBB4C->unk174;
+    obj = (PlayerState *)D_807FBB4C->unk174;
     D_807FD56C = obj->stateFlags;
     if (obj->heldActor != NULL) {
         D_807FD570 = obj->heldActor->actorType;

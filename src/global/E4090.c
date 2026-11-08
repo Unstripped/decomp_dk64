@@ -8,7 +8,7 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern Struct807FD580 *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 extern s16 D_807FD584;
 extern u16 D_807FD63C;
 
@@ -3570,7 +3570,7 @@ extern f32 D_80751000;
 s32 hudCanRender(void);
 void renderCallbacksRegister(void *, void *, s32);
 void actorDrawAnimatedEffect(s32, void *);
-void func_80613C48(void *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void scriptSetRampValue(void *, f32, f32);
 
 void func_806E8244(void) {
@@ -3655,14 +3655,14 @@ void func_806E854C(G29State *arg0, s32 arg1, s32 arg2) {
     sub = G29_BB48->unk4->unk0;
     if (arg2 != sub->unk10) {
         if (arg1 == sub->unk10) {
-            func_80613C48(D_807FBB48, arg2, 0.0f, 5.0f);
+            controllerAnimSetStateIfChanged(D_807FBB48, arg2, 0.0f, 5.0f);
             return;
         }
         if (G29_BB40->unk4->unk0->unk24 >= 0.0f && sub->unk4 > 0.0f) {
             scriptSetRampValue(D_807FBB48, -1.0f, 0.0f);
         }
         if (G29_BB40->unk4->unk0->unk4 == 0.0f) {
-            func_80613C48(D_807FBB48, arg2, 0.0f, 5.0f);
+            controllerAnimSetStateIfChanged(D_807FBB48, arg2, 0.0f, 5.0f);
         }
     } else {
         cur = arg0->unkC;
@@ -3770,7 +3770,7 @@ void func_806E88D8(void) {
                     return;
                 }
                 if (G29_BB40->unk4->unk0->unk4 == 0.0f) {
-                    func_80613C48(D_807FBB48, sp24, 0.0f, 5.0f);
+                    controllerAnimSetStateIfChanged(D_807FBB48, sp24, 0.0f, 5.0f);
                 }
             } else {
                 if (st->unkC < -0.2f) {
@@ -3868,7 +3868,7 @@ void func_806E8C2C(void) {
     a = G29_M->unk88;
     if (a != NULL) {
         if (G29_BB48->unk4->unk0->unk10 != 0x22A) {
-            func_80613C48(D_807FBB48, 0x22A, 0.0f, 0.0f);
+            controllerAnimSetStateIfChanged(D_807FBB48, 0x22A, 0.0f, 0.0f);
         }
         if (a->unk174->unk45 == 0 && a->unk174->unk30->unk154 == 2) {
             o = a->unk178;
@@ -4185,7 +4185,7 @@ void func_806E98F8(void) {
     }
 }
 
-void func_806E9964(arg0) Struct807FD580 *arg0; {
+void func_806E9964(arg0) PlayerState *arg0; {
     Actor *a;
     s32 flag;
 

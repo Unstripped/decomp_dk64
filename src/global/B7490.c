@@ -39,7 +39,7 @@ extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 D_807FBD70;
-extern Struct807FD580 *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 extern s32 D_807FDCA0;
 extern u32 gFrameCounter;
 extern s32 gCurrentMap;

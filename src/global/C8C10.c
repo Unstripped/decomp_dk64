@@ -4,7 +4,7 @@
 extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
-extern Struct807FD580 *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 
 typedef struct R1C8aSub174 {
     /* 0x00 */ u8 pad0[0x88];

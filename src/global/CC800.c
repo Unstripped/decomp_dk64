@@ -8,7 +8,7 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern Struct807FD580 *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 extern s16 D_807FD584;
 extern u16 D_807FD63C;
 
@@ -617,7 +617,7 @@ typedef struct L6C8984View {
 
 void actorScriptStart(Actor *, s32);
 void actorScriptStartByIndex(Actor *, s32);
-void func_80613C48(Actor *, s32, f32, f32);
+void controllerAnimSetStateIfChanged(Actor *, s32, f32, f32);
 void playerSetBaseGravity(void);
 void func_806F0D68(Actor *);
 void commandSetFlags(s32, s32);
@@ -669,7 +669,7 @@ void func_806C8984(void) {
     case 0x89:
         playerSetBaseGravity();
         actorScriptStart(D_807FBB48, 0);
-        func_80613C48(D_807FBB48, 0, 0.0f, 0.0f);
+        controllerAnimSetStateIfChanged(D_807FBB48, 0, 0.0f, 0.0f);
         D_807FBB48->state = 0x7D;
         D_807FBB48->unk155[0] = 0;
         D_807FBB48->flags &= 0xFFFF7FFF;
@@ -1037,7 +1037,7 @@ void func_806C9304(Actor *arg0, G01Ctl *arg1) {
 
 void playerTransformAnimalEndSfx(void);
 
-void func_806C93E4(Actor *arg0, Struct807FD580 *arg1) {
+void func_806C93E4(Actor *arg0, PlayerState *arg1) {
     playerTransformAnimalEndSfx();
     arg1->stateFlags &= ~0x30;
     arg0->flags |= 0x8000;

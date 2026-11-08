@@ -8,7 +8,7 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern Struct807FD580 *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 extern s16 D_807FD584;
 extern u16 D_807FD63C;
 

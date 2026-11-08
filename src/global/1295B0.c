@@ -1330,7 +1330,7 @@ void func_80727678(void) {
 }
 
 extern u8 D_80755698[];
-extern Struct807FD580 *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 
 void spawnNodeSelectEntry(SpawnNode *arg0) {
     u8 temp_v0;

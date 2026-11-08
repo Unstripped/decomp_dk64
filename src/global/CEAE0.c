@@ -8,7 +8,7 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
-extern Struct807FD580 *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 extern s16 D_807FD584;
 extern u16 D_807FD63C;
 
@@ -60,7 +60,7 @@ void playerUpdateSoundEffect5(void) {
 extern s16 gPlayerStateFlags[][4];
 void func_806EAB44(Actor *, u8);
 
-void func_806E9964(Struct807FD580 *);
+void func_806E9964(PlayerState *);
 
 void playerCheckAndResetCarriedActor(Actor *arg0) {
     u8 temp_v0 = arg0->state;
@@ -1752,7 +1752,7 @@ typedef struct G04ActorView {
 
 s16 func_806CE7A0(Actor *, f32, f32, s16, s16);
 void scriptSetActorRampTarget(Actor *, f32, f32);
-void func_80613C48(void *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void controllerAnimScaleInterpolate(Actor *, s32);
 
 extern u8 gPlayerCharacterId[];
@@ -1802,7 +1802,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
             case 3:
                 if (G04_P->unk1F0 & 0x100) {
                     actorScriptStart(arg0, 0x76);
-                    func_80613C48(arg0, 0x2AC, 0.0f, 6.0f);
+                    controllerAnimSetStateIfChanged(arg0, 0x2AC, 0.0f, 6.0f);
                 } else {
                     controllerAnimSetStateRemap(arg0, 2, 0.0f, 6.0f);
                     actorScriptStartByIndex(arg0, 1);
@@ -1992,7 +1992,7 @@ s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 break;
             case 4:
                 actorScriptStart(arg0, 0x151);
-                func_80613C48(arg0, 0x163, 0.0f, 6.0f);
+                controllerAnimSetStateIfChanged(arg0, 0x163, 0.0f, 6.0f);
                 if (sp2E == 5) {
                     controllerAnimScaleInterpolate(arg0, 4);
                 }
@@ -2000,7 +2000,7 @@ s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 break;
             case 5:
                 actorScriptStart(arg0, 0x152);
-                func_80613C48(arg0, 0x162, 0.0f, 6.0f);
+                controllerAnimSetStateIfChanged(arg0, 0x162, 0.0f, 6.0f);
                 if (sp2E == 4) {
                     controllerAnimScaleInterpolate(arg0, 0xC);
                 }

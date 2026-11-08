@@ -3,7 +3,7 @@
 
 extern s16 D_807FBB30;
 extern s16 D_807FBB32;
-extern Struct807FD580 *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 
 typedef struct {
     u8 unk0[0x50];
@@ -671,7 +671,7 @@ typedef struct {
 
 extern u16 *D_807FBB58;
 struct ControllerStateView;
-void func_80613C48(struct ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend);
+void controllerAnimSetStateIfChanged(struct ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend);
 
 void controllerAnimSetStateRemap(struct ControllerStateView *stateView, s16 animIndex, f32 animSpeed, f32 blend) {
     s16 flag;
@@ -685,7 +685,7 @@ void controllerAnimSetStateRemap(struct ControllerStateView *stateView, s16 anim
     } else {
         ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
     }
-    func_80613C48(stateView, animIndex, animSpeed, blend);
+    controllerAnimSetStateIfChanged(stateView, animIndex, animSpeed, blend);
 }
 
 void controllerAnimSetState(struct ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend);
@@ -725,7 +725,7 @@ typedef struct ControllerStateView {
 
 void controllerAnimSetState(ControllerStateView *, s16, f32, f32);
 
-void func_80613C48(ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend) {
+void controllerAnimSetStateIfChanged(ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend) {
     ControllerState *state;
 
     state = stateView->unk4->unk0;

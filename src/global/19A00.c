@@ -2,7 +2,7 @@
 #include "actor.h"
 
 extern u8 *sScriptPc;
-extern Struct807FD580 *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 extern Actor *gSpawnedActor;
 
 typedef struct ActorRampState {
@@ -319,7 +319,7 @@ typedef struct ScriptRateState {
     s32 unk88;
 } ScriptRateState;
 
-s32 func_8061537C(Actor *arg0) {
+s32 scriptOpSetRampTarget(Actor *arg0) {
     f32 sp1C;
     Actor *actor;
 
@@ -364,7 +364,7 @@ typedef struct ScriptValueState {
     s32 unk88;
 } ScriptValueState;
 
-s32 func_8061540C(Actor *arg0) {
+s32 scriptOpApproachRampTarget(Actor *arg0) {
     f32 sp24;
     ScriptValue *sp20;
     Actor *actor;
@@ -403,7 +403,7 @@ s32 scriptOpEnableValueState10(Actor *arg0) {
     return 0;
 }
 
-s32 func_80615558(Actor *arg0) {
+s32 scriptOpStepRampValue(Actor *arg0) {
     f32 sp1C;
     ScriptValueState *state;
 
@@ -466,7 +466,7 @@ typedef struct ScriptActionView {
     f32 unk14;
 } ScriptActionView;
 
-s32 func_806156DC(Actor *arg0) {
+s32 scriptOpSetActionVelocity(Actor *arg0) {
     f32 sp24;
     ScriptActionView *sp20;
 
@@ -505,7 +505,7 @@ typedef struct ScriptActionInfoState {
     s32 unk84;
 } ScriptActionInfoState;
 
-s32 func_80615774(Actor *arg0) {
+s32 scriptOpAccelerateAction(Actor *arg0) {
     f32 sp24;
     ScriptActionInfo *action;
     ScriptActionInfoState *state;
@@ -524,7 +524,7 @@ s32 func_80615774(Actor *arg0) {
     return 1;
 }
 
-s32 func_8061580C(Actor *arg0) {
+s32 scriptOpApproachActionTarget(Actor *arg0) {
     f32 sp24;
     f32 sp20;
     ScriptActionInfo *action;
@@ -566,7 +566,7 @@ s32 func_806158E8(Actor *arg0) {
 }
 
 
-void func_80613C48(s32, s16, f32, f32);
+void controllerAnimSetStateIfChanged(s32, s16, f32, f32);
 void controllerAnimSetStateRemap(s32, s16, f32, f32);
 void controllerAnimSetStateRemapDirect(s32, s16, f32, f32);
 void controllerAnimScaleInterpolate(s32, s8);
@@ -577,7 +577,7 @@ s32 scriptOpAnimSetRemapDefault(s32 arg0) {
     s16 sp1E;
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
-    func_80613C48(arg0, sp1E, 0.0f, 1.0f);
+    controllerAnimSetStateIfChanged(arg0, sp1E, 0.0f, 1.0f);
     return 1;
 }
 
@@ -606,7 +606,7 @@ s32 scriptOpAnimSetRemapBlend(s32 arg0) {
     sScriptPc++;
     scriptReadU16((u8 *)&sp1E);
     scriptReadU32((u8 *)&sp18);
-    func_80613C48(arg0, sp1E, 0.0f, sp18);
+    controllerAnimSetStateIfChanged(arg0, sp1E, 0.0f, sp18);
     return 1;
 }
 
@@ -662,7 +662,7 @@ s32 scriptOpAnimSetFromTable(s32 arg0) {
 
 void controllerApplyMotionWindow(Actor *, ScriptValue *, f32);
 
-s32 func_80615C34(Actor *arg0) {
+s32 scriptOpReadRampInterpolation(Actor *arg0) {
     u8 sp27;
     ScriptValue *var_a1;
     ScriptValue *sp20;
@@ -759,7 +759,7 @@ s32 scriptOpUpdateMotionDelta(Actor *arg0) {
     return 1;
 }
 
-s32 func_80615E74(Actor *arg0) {
+s32 scriptOpApplyMotionFriction(Actor *arg0) {
     u8 sp2F;
     u8 sp2E;
     ScriptMotion *sp28;
@@ -809,7 +809,7 @@ typedef struct ScriptMotionFlagsState {
     s32 unk84;
 } ScriptMotionFlagsState;
 
-s32 func_80615FA0(Actor *arg0) {
+s32 scriptOpSetMotionAngleFlags(Actor *arg0) {
     s16 sp26;
     ScriptMotionFlagsView *var_v1;
     void *sp20;
@@ -828,7 +828,7 @@ s32 func_80615FA0(Actor *arg0) {
     return 1;
 }
 
-s32 func_8061600C(Actor *arg0) {
+s32 scriptOpClearMotionAngleFlags(Actor *arg0) {
     s16 sp26;
     ScriptMotionFlagsView *var_v1;
     void *sp20;
@@ -847,7 +847,7 @@ s32 func_8061600C(Actor *arg0) {
     return 1;
 }
 
-s32 func_8061607C(Actor *arg0) {
+s32 scriptOpScaleMotionVelocity(Actor *arg0) {
     f32 var_fv0;
     f32 sp20;
     ScriptMotion *sp1C;
@@ -874,7 +874,7 @@ s32 func_8061607C(Actor *arg0) {
     return 1;
 }
 
-s32 func_8061612C(Actor *arg0) {
+s32 scriptOpAccelerateMotionVelocity(Actor *arg0) {
     f32 sp24;
     f32 sp20;
     ScriptMotion *sp1C;
@@ -901,7 +901,7 @@ s32 func_8061612C(Actor *arg0) {
     return 1;
 }
 
-s32 func_806161D0(Actor *arg0) {
+s32 scriptOpCapMotionVelocityMax(Actor *arg0) {
     f32 temp_fv0;
     ScriptMotionState *temp_v0;
     ScriptMotion *var_v1;
@@ -924,7 +924,7 @@ s32 func_806161D0(Actor *arg0) {
     return 1;
 }
 
-s32 func_80616254(Actor *arg0) {
+s32 scriptOpCapMotionVelocityMin(Actor *arg0) {
     f32 temp_fv0 = 0.0f;
     ScriptMotionState *temp_v0;
     ScriptMotion *var_v1;
@@ -998,7 +998,7 @@ s32 scriptOpEnableFlag8000(Actor *arg0) {
     return 0;
 }
 
-s32 func_806163E8(Actor *arg0) {
+s32 scriptOpResetRampVelocity(Actor *arg0) {
     f32 sp24;
     ScriptValue *var_v1;
     void *sp20;
@@ -2075,7 +2075,7 @@ typedef struct ActorEffectView {
     u8 *unk174;
 } ActorEffectView;
 
-void func_80618430(Actor *arg0) {
+void scriptCmdAttachToParentNode(Actor *arg0) {
     u8 sp27;
 
     scriptReadU8(&sp27);
@@ -2090,7 +2090,7 @@ void scriptCmdEnablePlayerFlag40000(Actor *arg0) {
     ((GlobalFlagsView *)gActivePlayerState)->unk1F0 |= 0x40000;
 }
 
-void func_806184BC(Actor *arg0) {
+void scriptCmdDetachFromParent(Actor *arg0) {
     u8 sp2F;
 
     scriptReadU8(&sp2F);
@@ -2108,7 +2108,7 @@ void func_806184BC(Actor *arg0) {
     }
 }
 
-void func_8061859C(Actor *arg0) {
+void scriptCmdSetActorInteractionTimer(Actor *arg0) {
     u8 sp27;
 
     scriptReadU8(&sp27);
@@ -2126,7 +2126,7 @@ void effectTimedLightIntensityFade(void);
 void effectFloorFallUpdate(void);
 void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, s16, s16, s32);
 
-void func_80618608(Actor *arg0) {
+void scriptCmdSpawnAttachedActor(Actor *arg0) {
     u8 sp3F;
     s16 var_s0;
 
@@ -2156,7 +2156,7 @@ void scriptCmdSpawnBoneEffects(Actor *arg0) {
     effectSpawnBone(arg0, 0x17, 0.8f, 0.0f, 0.0f, 0.0f, -0x78);
 }
 
-void func_806187BC(Actor *arg0) {
+void scriptCmdSetActorShadowScale(Actor *arg0) {
     s16 sp1E;
     s16 sp1C;
 
@@ -2178,7 +2178,7 @@ void scriptCmdClearActorFlag146(Actor *arg0) {
     ((ActorFlagsView *)arg0)->unk146 &= ~sp1E;
 }
 
-void func_8061885C(Actor *arg0) {
+void scriptCmdPlayActorSound(Actor *arg0) {
     f32 sp1C;
 
     scriptReadU32((u8 *)&sp1C);
@@ -2229,7 +2229,7 @@ void scriptCmdCheckNegativeUnkC0(Actor *arg0) {
     actor->unk4->unk88 = 0;
 }
 
-void func_806188F4(Actor *arg0) {
+void scriptCmdResetActorScale(Actor *arg0) {
     ActorScriptView *actor;
 
     actor = (ActorScriptView *)arg0;
@@ -2279,7 +2279,7 @@ void scriptCmdActorCamShake(Actor *arg0) {
         camStartShakeFromPoint(((GlobalSpawnView *)gActivePlayerState)->unk104, sp3E, var_v1, sp4C, sp48, sp44, (f32)sp42, (f32)sp40);
     }
 }
-void func_80618B6C(Actor *arg0) {
+void scriptCmdSetActorAlpha(Actor *arg0) {
     s32 sp3C;
     f32 sp38;
     f32 sp34;
@@ -2319,7 +2319,7 @@ void func_80618C00(Actor *arg0, u8 arg1) {
     actorSpawnEffectChild(sp3C, arg0->floorY, sp34, 0.03f, scale, arg0, 0);
 }
 
-void func_80618C8C(Actor *arg0) {
+void scriptCmdSpawnActorParticleBurst(Actor *arg0) {
     u8 node;
 
     if (arg0->actorType == 2) {
@@ -2390,7 +2390,7 @@ void scriptCmdToggleActorVisibility(Actor *arg0) {
 
 extern s16 D_80746E10[];
 
-void func_80618EE8(Actor *arg0) {
+void scriptCmdSpawnCharacterCompanion(Actor *arg0) {
     u8 *script;
 
     actorSpawn(0x135, D_80746E10[((ActorEffectView *)arg0)->unk58]);
@@ -2401,7 +2401,7 @@ void func_80618EE8(Actor *arg0) {
     scriptReadU8(script + 6);
 }
 
-void func_80618F74(Actor *arg0) {
+void scriptCmdSpawnSmokeRing(Actor *arg0) {
     u8 sp1F;
     ActorEffectView *actor;
 
@@ -2419,7 +2419,7 @@ void func_80618F74(Actor *arg0) {
     }
 }
 
-void func_80619018(Actor *arg0) {
+void scriptCmdSpawnSplashPuff(Actor *arg0) {
     u8 sp1F;
 
     scriptReadU8(&sp1F);
