@@ -295,7 +295,7 @@ typedef struct ActorAllocBlock {
     /* 0x124 */ s32 unk124;
     /* 0x128 */ s16 unk128;
     /* 0x12A */ s16 unk12A;
-    /* 0x12C */ s16 unk12C;
+    /* 0x12C */ s16 chunkIndex;
     u8 pad12E[2];
     /* 0x130 */ u8 unk130;
     /* 0x131 */ u8 unk131;
@@ -377,7 +377,7 @@ u16 arg0;
         actor->unk6E = -1;
         actor->unk70 = -1;
         actor->unk150 = 0;
-        actor->unk12C = -1;
+        actor->chunkIndex = -1;
         actor->unk124 = 0;
         actor->unk148 = NULL;
         actor->unk14C = NULL;

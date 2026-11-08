@@ -152,38 +152,17 @@ typedef struct ActorGlobalState {
 
 typedef struct Actor {
     /* 0x000 */ u8 unk00[4];
-    union {
-        /* 0x004 */ ActorSub4 *unk4;
-        /* 0x004 */ ActorSub4 *sub4;
-    };
+    /* 0x004 */ ActorSub4 *unk4;
     /* 0x008 */ u8 unk08[0x50];
     /* 0x058 */ s32 actorType;
-    union {
-        /* 0x05C */ u16 unk5C;
-        /* 0x05C */ u16 collisionFlags;
-    };
+    /* 0x05C */ u16 unk5C;
     /* 0x05E */ u8 unk5E[2];
     /* 0x060 */ u32 flags;
-    union {
-        /* 0x064 */ u32 unk64;
-        /* 0x064 */ u32 renderFlags;
-    };
-    union {
-        /* 0x068 */ u16 unk68;
-        /* 0x068 */ u16 flags2;
-    };
-    union {
-        /* 0x06A */ u16 unk6A;
-        /* 0x06A */ u16 contactFlags;
-    };
-    union {
-        /* 0x06C */ u16 unk6C;
-        /* 0x06C */ u16 prevContactFlags;
-    };
-    union {
-        /* 0x06E */ s16 unk6E;
-        /* 0x06E */ s16 soundSlot;
-    };
+    /* 0x064 */ u32 unk64;
+    /* 0x068 */ u16 unk68;
+    /* 0x06A */ u16 unk6A;
+    /* 0x06C */ u16 unk6C;
+    /* 0x06E */ s16 unk6E;
     /* 0x070 */ u8 unk70[0xC];
     /* 0x07C */ f32 x;
     /* 0x080 */ f32 y;
@@ -192,118 +171,58 @@ typedef struct Actor {
     /* 0x08C */ f32 prevY;
     /* 0x090 */ f32 prevZ;
     /* 0x094 */ u8 unk94[8];
-    union {
-        /* 0x09C */ f32 unk9C;
-        /* 0x09C */ f32 peakY;
-    };
-    union {
-        /* 0x0A0 */ f32 unkA0;
-        /* 0x0A0 */ f32 prevPeakY;
-    };
-    union {
-        /* 0x0A4 */ f32 unkA4;
-        /* 0x0A4 */ f32 floorY;
-    };
+    /* 0x09C */ f32 unk9C;
+    /* 0x0A0 */ f32 unkA0;
+    /* 0x0A4 */ f32 unkA4;
     /* 0x0A8 */ u8 unkA8[4];
-    union {
-        /* 0x0AC */ f32 unkAC;
-        /* 0x0AC */ f32 waterY;
-    };
+    /* 0x0AC */ f32 unkAC;
     /* 0x0B0 */ s8 unkB0[8];
     /* 0x0B8 */ f32 speedXZ;
     /* 0x0BC */ f32 prevSpeedXZ;
     /* 0x0C0 */ f32 speedY;
-    union {
-        /* 0x0C4 */ f32 unkC4;
-        /* 0x0C4 */ f32 accelY;
-    };
-    union {
-        /* 0x0C8 */ u8 unkC8[0x1C];
-        struct {
-            /* 0x0C8 */ f32 terminalSpeedY;
-            /* 0x0CC */ u8 padCC[4];
-            /* 0x0D0 */ u8 floorSurfaceType;
-            /* 0x0D1 */ u8 unkD1;
-            /* 0x0D2 */ u8 padD2[6];
-            /* 0x0D8 */ s16 floorTiltYaw;
-            /* 0x0DA */ s16 floorTiltPitch;
-            /* 0x0DC */ s16 unkDC;
-            /* 0x0DE */ s16 unkDE;
-            /* 0x0E0 */ f32 unkE0;
-        };
-    };
+    /* 0x0C4 */ f32 unkC4;
+    /* 0x0C8 */ f32 terminalSpeedY;
+    /* 0x0CC */ u8 padCC[4];
+    /* 0x0D0 */ u8 floorSurfaceType;
+    /* 0x0D1 */ u8 unkD1;
+    /* 0x0D2 */ u8 padD2[6];
+    /* 0x0D8 */ s16 floorTiltYaw;
+    /* 0x0DA */ s16 floorTiltPitch;
+    /* 0x0DC */ s16 unkDC;
+    /* 0x0DE */ s16 unkDE;
+    /* 0x0E0 */ f32 unkE0;
     /* 0x0E4 */ s16 pitch;
     /* 0x0E6 */ s16 yaw;
     /* 0x0E8 */ s16 roll;
     /* 0x0EA */ u8 unkEA[4];
     /* 0x0EE */ s16 moveYaw;
-    union {
-        /* 0x0F0 */ s16 unkF0;
-        /* 0x0F0 */ s16 movePitch;
-    };
+    /* 0x0F0 */ s16 unkF0;
     /* 0x0F2 */ u8 unkF2[2];
-    union {
-        /* 0x0F4 */ s16 unkF4;
-        /* 0x0F4 */ s16 arcYawMin;
-    };
-    union {
-        /* 0x0F6 */ s16 unkF6;
-        /* 0x0F6 */ s16 arcYawMax;
-    };
+    /* 0x0F4 */ s16 unkF4;
+    /* 0x0F6 */ s16 unkF6;
     /* 0x0F8 */ u8 unkF8[4];
-    union {
-        /* 0x0FC */ u8 unkFC;
-        /* 0x0FC */ u8 hasArcBounds;
-    };
+    /* 0x0FC */ u8 unkFC;
     /* 0x0FD */ u8 unkFD;
     /* 0x0FE */ u8 unkFE[0xE];
-    union {
-        /* 0x10C */ s16 unk10C;
-        /* 0x10C */ s16 cutsceneId;
-    };
-    union {
-        /* 0x10E */ u8 unk10E[2];
-        /* 0x10E */ s16 cutsceneSubId;
-    };
-    union {
-        /* 0x110 */ u8 unk110;
-        /* 0x110 */ u8 attachMode;
-    };
+    /* 0x10C */ s16 unk10C;
+    /* 0x10E */ u8 unk10E[2];
+    /* 0x110 */ u8 unk110;
     /* 0x111 */ u8 unk111[3];
     /* 0x114 */ ActorList *riderList;
     /* 0x118 */ u8 unk118[4];
-    union {
-        /* 0x11C */ s32 unk11C;
-        /* 0x11C */ struct Actor *owner;
-    };
+    /* 0x11C */ s32 unk11C;
     /* 0x120 */ u8 unk120[4];
     /* 0x124 */ s32 unk124;
     /* 0x128 */ s16 unk128;
     /* 0x12A */ s16 unk12A;
-    union {
-        /* 0x12C */ u8 unk12C[6];
-        struct {
-            /* 0x12C */ s16 chunkIndex;
-            /* 0x12E */ u8 pad12E[4];
-        };
-    };
+    /* 0x12C */ s16 chunkIndex;
+    /* 0x12E */ u8 pad12E[4];
     /* 0x132 */ s16 unk132;
-    union {
-        /* 0x134 */ u8 unk134[4];
-        struct {
-            /* 0x134 */ s16 health;
-            /* 0x136 */ s16 damage;
-        };
-    };
-    union {
-        /* 0x138 */ s32 unk138;
-        /* 0x138 */ s32 callbackMask;
-    };
+    /* 0x134 */ s16 health;
+    /* 0x136 */ s16 damage;
+    /* 0x138 */ s32 unk138;
     /* 0x13C */ ActorCallbackNode *callbacks;
-    union {
-        /* 0x140 */ ActorSub140 *unk140;
-        /* 0x140 */ ActorSub140 *sub140;
-    };
+    /* 0x140 */ ActorSub140 *unk140;
     /* 0x144 */ u8 unk144;
     /* 0x145 */ u8 unk145[0xB];
     /* 0x150 */ s32 unk150;
@@ -312,34 +231,14 @@ typedef struct Actor {
     /* 0x15C */ s16 unk15C;
     /* 0x15E */ u8 unk15E;
     /* 0x15F */ u8 unk15F;
-    union {
-        /* 0x160 */ f64 unk160;
-        /* 0x160 */ f64 splineT;
-    };
-    union {
-        /* 0x168 */ s16 unk168;
-        /* 0x168 */ s16 yawSpeed;
-    };
-    union {
-        struct {
-            /* 0x16A */ u8 unk16A;
-            /* 0x16B */ u8 unk16B;
-            /* 0x16C */ u8 unk16C;
-            /* 0x16D */ u8 unk16D;
-        };
-        struct {
-            /* 0x16A */ u8 tintR;
-            /* 0x16B */ u8 tintG;
-            /* 0x16C */ u8 tintB;
-            /* 0x16D */ u8 tintA;
-        };
-        /* 0x16A */ u8 tint[4];
-    };
+    /* 0x160 */ f64 unk160;
+    /* 0x168 */ s16 unk168;
+    /* 0x16A */ u8 unk16A;
+    /* 0x16B */ u8 unk16B;
+    /* 0x16C */ u8 unk16C;
+    /* 0x16D */ u8 unk16D;
     /* 0x16E */ u8 unk16E[6];
-    union {
-        /* 0x174 */ void *unk174;
-        /* 0x174 */ void *customState;
-    };
+    /* 0x174 */ void *unk174;
 } Actor;
 
 // Per-behaviour state objects reached through D_807FDC90..D_807FDC9C.

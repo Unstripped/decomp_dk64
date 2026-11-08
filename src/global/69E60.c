@@ -331,7 +331,7 @@ void actorUpdateFloorContactAndTilt(ActorFloorContactView *actor, f32 floorYOffs
 extern u8 D_80748D48[][10];
 
 u8 func_80665AAC(Actor *actor) {
-    return D_80748D48[actor->unkC8[8]][0];
+    return D_80748D48[actor->floorSurfaceType][0];
 }
 
 void func_80665ACC(Actor *actor) {

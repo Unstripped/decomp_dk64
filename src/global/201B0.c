@@ -1898,7 +1898,7 @@ void camResetPlayer(Actor *arg0, u8 arg1) {
     st->unk6C = 123456.0f;
     st->unk70 = 123456.0f;
     st->unkC = -32768.0f;
-    *(s16 *)arg0->unk12C = mapChunkFindByPosition(arg0->x, arg0->y, arg0->z, 0);
+    arg0->chunkIndex = mapChunkFindByPosition(arg0->x, arg0->y, arg0->z, 0);
     camUpdate(cam, &CAM_PLAYER_REC(arg1)->unk210, &CAM_PLAYER_REC(arg1)->unk214, &CAM_PLAYER_REC(arg1)->unk218,
                   &CAM_PLAYER_REC(arg1)->unk228, &CAM_PLAYER_REC(arg1)->unk22C, &CAM_PLAYER_REC(arg1)->unk230,
                   &CAM_PLAYER_REC(arg1)->unk240, &CAM_PLAYER_REC(arg1)->unk244, &CAM_PLAYER_REC(arg1)->unk248);

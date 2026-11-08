@@ -111,7 +111,7 @@ void modelSlotsApplyRecords(void *, void *);
 void lightSetColor(f32, f32, f32, s16);
 s32 mapGetHubWorldIndex(u8, s32);
 void actorListBuildLookupTable(void);
-s32 func_806C7B34(void);
+s32 playerGetModelAssetId(void);
 
 void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
     s32 subtableCount;
@@ -143,7 +143,7 @@ void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
     if (skipExtra != 0) {
         modelAsset = 0;
     } else {
-        modelAsset = func_806C7B34();
+        modelAsset = playerGetModelAssetId();
     }
     modelSlotsLoadMap(subtableCount, modelAsset, (u8)flag, preMapModelCount, mapGetHubWorldIndex(D_8076A0AB, 1));
     csTimerQueueFire(D_8076A0AA);
@@ -588,7 +588,7 @@ void actorListUpdateSpawns(void) {
                         node->unk10 = actor->x;
                         node->unk14 = actor->y;
                         node->unk18 = actor->z;
-                        node->unk4A = *(s16 *)&actor->unk12C[0];
+                        node->unk4A = actor->chunkIndex;
                         controllerAnimFreeSub(actor, 0);
                         controllerAnimFreeSub(node->unk44, 1);
                         controllerAnimFreeSub(node->unk44, 2);
@@ -919,7 +919,7 @@ void func_80689EA4(ActorListNode *node) {
 
 u8 func_80689EE4(ActorListNode *node) {
     if (mapIsBossArena()) {
-        return mapChunkIsVisible(*(s16 *)&node->unk44->unk12C, node) == 0;
+        return mapChunkIsVisible(node->unk44->chunkIndex, node) == 0;
     }
     return actorListDespawnIfFar(node);
 }
@@ -955,11 +955,11 @@ u8 actorListSpawnIfNear(ActorListNode *node) {
 }
 
 u8 actorListDespawnIfFar(ActorListNode *node) {
-    return (mapChunkIsVisible(*(s16 *)&node->unk44->unk12C, node) == 0 || !(playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18) < node->unk54)) && (node->unk44->riderList == NULL);
+    return (mapChunkIsVisible(node->unk44->chunkIndex, node) == 0 || !(playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18) < node->unk54)) && (node->unk44->riderList == NULL);
 }
 
 u8 actorListDespawnIfFarAndIdle(ActorListNode *node) {
-    return (mapChunkIsVisible(*(s16 *)&node->unk44->unk12C, node) == 0 || !(playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18) < node->unk54)) && (node->unk44->riderList == NULL) && (node->unk44->state == 0);
+    return (mapChunkIsVisible(node->unk44->chunkIndex, node) == 0 || !(playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18) < node->unk54)) && (node->unk44->riderList == NULL) && (node->unk44->state == 0);
 }
 
 s32 actorListDespawnNever(s32 node) {
