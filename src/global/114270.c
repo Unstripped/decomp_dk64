@@ -260,14 +260,14 @@ extern u32 gGlobalCutsceneFlags;
 extern f32 D_807FD9EC;
 extern u8 sEffectImpactPuffConfig;
 f32 cosApprox(f32);
-void func_807149B8(s32);
-void func_8071498C(void *);
-void func_80714A58(s16);
-void func_80714A28(s16);
-void func_80714CC0(s32, f32, f32, f32, f32);
+void effectSetDepth(s32);
+void effectSetCallback(void *);
+void effectSetLifetime(s16);
+void effectSetFlags(s16);
+void effectCreateAtPosition(s32, f32, f32, f32, f32);
 void effectRandomYRotDecalUpdate();
 
-#define ANGA_CAM ((AngACamState *)gCamActor->unk174)
+#define ANGA_CAM ((AngACamState *)gCamActor->customState)
 #define ANGA_A8 (*(f32 *)&gPrimaryPlayerActor->unkA8)
 #define ANGA_DIST(x) ((x) < ANGA_PLAYER->unk214 ? ANGA_PLAYER->unk214 - (x) : -(ANGA_PLAYER->unk214 - (x)))
 
@@ -304,11 +304,11 @@ s32 func_8070FCCC(AngAFcccView *particle) {
                 angle = ((randomNonNegative() >> 15) % 60 - 30) * 0.017453292f + ANGA_PLAYER->unk2C4;
                 jitter = (randomNonNegative() >> 15) % 0x82;
                 if ((gGlobalCutsceneFlags & 8) == 0) {
-                    func_807149B8(1);
-                    func_8071498C(&effectRandomYRotDecalUpdate);
-                    func_80714A58(particle->unk0);
-                    func_80714A28(4);
-                    func_80714CC0((s32)&sEffectImpactPuffConfig, 0.3f, ANGA_PLAYER->unk210 - sinApprox(angle) * jitter, (f32)((f64)bound + 1.0), ANGA_PLAYER->unk218 - cosApprox(angle) * jitter);
+                    effectSetDepth(1);
+                    effectSetCallback(&effectRandomYRotDecalUpdate);
+                    effectSetLifetime(particle->unk0);
+                    effectSetFlags(4);
+                    effectCreateAtPosition((s32)&sEffectImpactPuffConfig, 0.3f, ANGA_PLAYER->unk210 - sinApprox(angle) * jitter, (f32)((f64)bound + 1.0), ANGA_PLAYER->unk218 - cosApprox(angle) * jitter);
                 }
                 return 1;
             }
@@ -539,7 +539,7 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
     u16 count = L10CA0_POOL->count;
     u16 processed = 0;
     L10CA0Entry *entry;
-    L10CA0PlayerView *player = (L10CA0PlayerView *)gCamActor->unk174;
+    L10CA0PlayerView *player = (L10CA0PlayerView *)gCamActor->customState;
 
     skipTimer = 0;
     skipNearPlayer = 0;
@@ -721,8 +721,8 @@ void func_80711950(f32 density, s16 windAngle, s16 mapChunk) {
 
 
 extern u8 D_807212E0;
-s32 func_807149FC(s32);
-void func_8071495C(void);
+s32 effectSetDuration(s32);
+void effectEnableFade(void);
 void effectSwayRiseUpdate(void);
 
 void func_80711BD0(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
@@ -735,11 +735,11 @@ void func_80711BD0(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
 
     if (gGlobalPauseFlags & 0x10) {
         if ((poolType == 3) && (((s32)(randomNonNegative() >> 0xF) % 1000) >= 0x3DA)) {
-            func_807149FC(-1);
-            func_8071498C(&effectSwayRiseUpdate);
-            func_8071495C();
+            effectSetDuration(-1);
+            effectSetCallback(&effectSwayRiseUpdate);
+            effectEnableFade();
             randSeed = randomNonNegative();
-            func_80714CC0((s32)&D_807212E0, (f32)(((f64)((s32)(randSeed >> 0xF) % 100) * 0.01) + 0.4), (f32)((s32)(randomNonNegative() >> 0xF) % 320), 0.0f, -5.0f);
+            effectCreateAtPosition((s32)&D_807212E0, (f32)(((f64)((s32)(randSeed >> 0xF) % 100) * 0.01) + 0.4), (f32)((s32)(randomNonNegative() >> 0xF) % 320), 0.0f, -5.0f);
         }
         D_807FDA1E = (s16)(s32)(cosApprox(((R114cPlayerView *)gPlayerSlots)->unk2C4) * (f32)windAngle);
         if ((f64)density < 1.0) {
