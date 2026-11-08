@@ -2536,17 +2536,17 @@ typedef struct {
     f32 unk14;
 } TimedMotionState;
 
-void func_8071E110(TimedEffectActorView *arg0, u8 arg1, u16 arg2, f32 arg3, f32 arg4, s32 arg5) {
-    TimedMotionState *temp_v0;
+void func_8071E110(TimedEffectActorView *actorView, u8 duration, u16 maxVal, f32 startVal, f32 endVal, s32 steps) {
+    TimedMotionState *motion;
 
-    temp_v0 = heapAlloc(0x18);
-    arg0->unk384 = temp_v0;
-    temp_v0->unk0 = (f32)(u32)arg1;
-    temp_v0->unk4 = arg4;
-    temp_v0->unk8 = arg3;
-    temp_v0->unkC = 1.0f / (f32)arg5;
-    temp_v0->unk10 = 0.0f;
-    temp_v0->unk14 = (f32)(u32)arg2;
+    motion = heapAlloc(0x18);
+    actorView->unk384 = motion;
+    motion->unk0 = (f32)(u32)duration;
+    motion->unk4 = endVal;
+    motion->unk8 = startVal;
+    motion->unkC = 1.0f / (f32)steps;
+    motion->unk10 = 0.0f;
+    motion->unk14 = (f32)(u32)maxVal;
 }
 
 typedef struct {
