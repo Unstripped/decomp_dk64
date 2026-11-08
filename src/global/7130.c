@@ -1950,7 +1950,7 @@ s16 sfxPlayAtPositionPooled(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, s16
     f32 sp74;
     u8 closest_idx;
     u8 i;
-    s32 pad0;  // FAKE: unused locals reserve 12 bytes of frame
+    s32 pad0;
     s32 pad1;
     s32 pad2;
     s16 pos[4];

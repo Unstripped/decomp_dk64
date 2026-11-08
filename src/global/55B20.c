@@ -1592,7 +1592,7 @@ s32 mapTriangleContainsPoint(void *, f32, f32);
 f32 mapTriangleHeightAtPoint(MapTriangle *, f32, f32);
 
 void mapTriggerCollectZonesAtPoint(f32 arg0, f32 arg1, f32 arg2) {
-    s32 pad[10]; // FAKE: frame size
+    s32 pad[10];
     MapZone **p;
     MapZone *zone;
     MapTriangle *node;
