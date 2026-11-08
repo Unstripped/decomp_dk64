@@ -1,12 +1,12 @@
 #include "common.h"
 
-f32 floatCeil(f32 arg0) {
-    s32 var_v0;
+f32 floatCeil(f32 val) {
+    s32 intVal;
 
-    var_v0 = (s32)arg0;
-    var_v0 = var_v0;
-    if ((arg0 - (f32)var_v0) > 0.00001f) {
-        var_v0 = var_v0 + 1;
+    intVal = (s32)val;
+    intVal = intVal;
+    if ((val - (f32)intVal) > 0.00001f) {
+        intVal = intVal + 1;
     }
-    return (f32)var_v0;
+    return (f32)intVal;
 }

@@ -65,12 +65,12 @@ typedef struct B5EC0View94 {
     /* 0x84 */ f32 unk84;
 } B5EC0View94;
 
-void actorSpawnGroundEffectAtNode(u8 arg0) {
+void actorSpawnGroundEffectAtNode(u8 nodeIndex) {
     f32 x;
     f32 y;
     f32 z;
 
-    actorGetNodePos(D_807FBB40, arg0, &x, &y, &z);
+    actorGetNodePos(D_807FBB40, nodeIndex, &x, &y, &z);
     effectSpawnScatterRandom(&D_8071FFA0, 0, 1.0f, 3, 5, 0x28, x, D_807FBB40->unkA4, z);
     actorSpawnEffectChild(x, D_807FBB40->unkA4, z, 0.05f, 0.04f, D_807FBB40, 0);
 }
@@ -336,10 +336,10 @@ void animSetLoopLimit(Actor *, s32, s32);
 void animSetFinished(Actor *, s32, s32);
 void animSetFrameAndSubframe(Actor *, s32, u8, f32);
 
-void actorSetAnimStartFrame(u8 arg0) {
+void actorSetAnimStartFrame(u8 frame) {
     animSetLoopLimit(D_807FBB40, 0, 1);
     animSetFinished(D_807FBB40, 0, 1);
-    animSetFrameAndSubframe(D_807FBB40, 0, arg0, 0.0f);
+    animSetFrameAndSubframe(D_807FBB40, 0, frame, 0.0f);
 }
 
 extern u8 D_8076A0AB;
@@ -350,7 +350,7 @@ s32 func_805FF030(u8, s32);
 void func_806B13B4(u8);
 s32 flagGridSumRows(s32, s32, s32, s32);
 
-void func_806B1DD4(u8 arg0) {
+void func_806B1DD4(u8 mode) {
     u8 flag;
     s32 temp;
 
@@ -359,9 +359,9 @@ void func_806B1DD4(u8 arg0) {
         temp = func_805FF000(D_8076A0AB);
         if (temp != 9 && temp != 0xA) {
             temp = func_805FF030(D_8076A0AB, 1);
-            flag = flagGridSumRows(0x1D5, temp, temp, D_80750600[arg0]) == 0;
+            flag = flagGridSumRows(0x1D5, temp, temp, D_80750600[mode]) == 0;
         }
-        actorSetAnimStartFrame(flag != 0 ? arg0 : 5);
+        actorSetAnimStartFrame(flag != 0 ? mode : 5);
         ((B5EC0Actor *)D_807FBB40)->unk15F = flag;
     }
     func_806B13B4(((B5EC0Actor *)D_807FBB40)->unk15F);

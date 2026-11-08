@@ -9,20 +9,20 @@ s32 actorSpawn(s32, s32);
 u64 D_807FC7D0;
 u8 D_807FC7D8;
 
-void hudSpawnCountdownTimer(s16 arg0, s16 arg1, u8 arg2) {
+void hudSpawnCountdownTimer(s16 x, s16 y, u8 seconds) {
     actorSpawn(0xB0, 0);
-    if (arg0 & 0x8000) {
-        arg2--;
+    if (x & 0x8000) {
+        seconds--;
         D_807FBB44->unk15F = 0xB;
     } else {
         D_807FBB44->unk15F = 6;
     }
-    arg0 &= 0x7FFF;
+    x &= 0x7FFF;
     D_807FBB40->unk11C = (s32)D_807FBB44;
     *(s32 *)((u8 *)gActivePlayerState + 0x1A8) = (s32)D_807FBB44;
-    *(s32 *)((u8 *)D_807FBB44->unk174 + 0xC) = arg2;
-    D_807FBB44->unk7C = (f32)arg0;
-    D_807FBB44->unk80 = (f32)arg1;
+    *(s32 *)((u8 *)D_807FBB44->unk174 + 0xC) = seconds;
+    D_807FBB44->unk7C = (f32)x;
+    D_807FBB44->unk80 = (f32)y;
     D_807FBB44->unk154 = 1;
     D_807FBB44->unk128 = 0;
 }

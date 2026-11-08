@@ -4,9 +4,9 @@ typedef struct QueuedFunction {
     struct QueuedFunction *next;
     void (*callback)(s32, s32, s32);
     u32 time;
-    s32 arg0;
-    s32 arg1;
-    s32 arg2;
+    s32 param0;
+    s32 param1;
+    s32 param2;
 } QueuedFunction;
 
 extern s32 D_8076A068;
@@ -45,9 +45,9 @@ void timerQueueAdd(void *callback, s32 delay, s32 param0, s32 param1, s32 param2
         delay *= 2;
     }
     node->callback = callback;
-    node->arg0 = param0;
-    node->arg1 = param1;
-    node->arg2 = param2;
+    node->param0 = param0;
+    node->param1 = param1;
+    node->param2 = param2;
     node->time = D_8076A068 + delay;
     node->next = NULL;
     curr = gTimerQueue;
@@ -78,7 +78,7 @@ void timerQueueUpdate(void) {
     if (node != NULL) {
         do {
             if (D_8076A068 >= (node->time & 0x7FFFFFFF)) {
-                node->callback(node->arg0, node->arg1, node->arg2);
+                node->callback(node->param0, node->param1, node->param2);
                 heapFree(node);
                 node = node->next;
             } else {
