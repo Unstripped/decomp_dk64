@@ -647,6 +647,7 @@ void transitionSetAudioVolume(f32 volumeScale, s32 isGroupActive, s32 *channels)
     osSetThreadPri(0, 0x1A);
     n_alSndpSetGroupVol(0, scaledVol);
     if (isGroupActive != 0) {
+        D_807550A4 = 1;
         n_alSndpSetGroupVol(2, scaledVol);
         if ((D_80755070 == 0) && ((D_8076A0B1 & 1) || !(D_8076A0B1 & 0x40))) {
             seqSetChannelVolumeScale(0, volumeScale);
