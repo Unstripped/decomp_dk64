@@ -48,36 +48,36 @@ void *D_807F5DEC;
 f32 D_807F5DF0[12];
 
 
-void frustumCalculateCornerRays(f32 fovY, f32 aspect, f32 nearDist) {
+void frustumCalculateCornerRays(f32 arg0, f32 arg1, f32 arg2) {
     f32 scale;
-    f32 halfAngleX;
-    f32 mtxPitch[4][4];
-    f32 mtxYaw[4][4];
-    f32 rayZ;
-    f32 rayY;
-    f32 rayX;
-    f32 halfAngleY;
+    f32 sp54;
+    f32 spB0[4][4];
+    f32 sp70[4][4];
+    f32 sp6C;
+    f32 sp68;
+    f32 sp64;
+    f32 sp58;
     s32 i;
 
-    halfAngleY = fovY * 0.5;
-    halfAngleX = halfAngleY * aspect;
-    guRotateF(mtxPitch, halfAngleY, 1.0f, 0.0f, 0.0f);
-    guMtxXFMF(mtxPitch, 0.0f, 0.0f, (-nearDist), &rayX, &rayY, &rayZ);
-    guRotateF(mtxYaw, halfAngleX, 0.0f, 1.0f, 0.0f);
-    guMtxXFMF(mtxYaw, rayX, rayY, rayZ, &D_807F5DF0[0], &D_807F5DF0[1], &D_807F5DF0[2]);
-    guRotateF(mtxYaw, -halfAngleX, 0.0f, 1.0f, 0.0f);
-    guMtxXFMF(mtxYaw, rayX, rayY, rayZ, &D_807F5DF0[3], &D_807F5DF0[4], &D_807F5DF0[5]);
-    guRotateF(mtxPitch, -halfAngleY, 1.0f, 0.0f, 0.0f);
-    guMtxXFMF(mtxPitch, 0.0f, 0.0f, (-nearDist), &rayX, &rayY, &rayZ);
-    guRotateF(mtxYaw, halfAngleX, 0.0f, 1.0f, 0.0f);
-    guMtxXFMF(mtxYaw, rayX, rayY, rayZ, &D_807F5DF0[6], &D_807F5DF0[7], &D_807F5DF0[8]);
-    guRotateF(mtxYaw, -halfAngleX, 0.0f, 1.0f, 0.0f);
-    guMtxXFMF(mtxYaw, rayX, rayY, rayZ, &D_807F5DF0[9], &D_807F5DF0[10], &D_807F5DF0[11]);
+    sp58 = arg0 * 0.5;
+    sp54 = sp58 * arg1;
+    guRotateF(spB0, sp58, 1.0f, 0.0f, 0.0f);
+    guMtxXFMF(spB0, 0.0f, 0.0f, (-arg2), &sp64, &sp68, &sp6C);
+    guRotateF(sp70, sp54, 0.0f, 1.0f, 0.0f);
+    guMtxXFMF(sp70, sp64, sp68, sp6C, &D_807F5DF0[0], &D_807F5DF0[1], &D_807F5DF0[2]);
+    guRotateF(sp70, -sp54, 0.0f, 1.0f, 0.0f);
+    guMtxXFMF(sp70, sp64, sp68, sp6C, &D_807F5DF0[3], &D_807F5DF0[4], &D_807F5DF0[5]);
+    guRotateF(spB0, -sp58, 1.0f, 0.0f, 0.0f);
+    guMtxXFMF(spB0, 0.0f, 0.0f, (-arg2), &sp64, &sp68, &sp6C);
+    guRotateF(sp70, sp54, 0.0f, 1.0f, 0.0f);
+    guMtxXFMF(sp70, sp64, sp68, sp6C, &D_807F5DF0[6], &D_807F5DF0[7], &D_807F5DF0[8]);
+    guRotateF(sp70, -sp54, 0.0f, 1.0f, 0.0f);
+    guMtxXFMF(sp70, sp64, sp68, sp6C, &D_807F5DF0[9], &D_807F5DF0[10], &D_807F5DF0[11]);
     for (i = 0; i < 4; i++) {
-        scale = (-nearDist) / D_807F5DF0[i * 3 + 2];
+        scale = (-arg2) / D_807F5DF0[i * 3 + 2];
         D_807F5DF0[i * 3] *= scale;
         D_807F5DF0[i * 3 + 1] *= scale;
-        D_807F5DF0[i * 3 + 2] = (-nearDist);
+        D_807F5DF0[i * 3 + 2] = (-arg2);
     }
 }
 
@@ -87,15 +87,15 @@ extern f32 D_807F5E28[];
 
 s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
 
-void frustumCornersTransformByInverse(Mtx *invMtx) {
-    f32 mtxL[4][4];
-    f32 mtxInv[4][4];
+void frustumCornersTransformByInverse(Mtx *arg0) {
+    f32 sp98[4][4];
+    f32 sp58[4][4];
     s32 i;
 
-    guMtxL2F(mtxL, invMtx);
-    matrix4Invert(mtxInv, mtxL);
+    guMtxL2F(sp98, arg0);
+    matrix4Invert(sp58, sp98);
     for (i = 0; i < 4; i++) {
-        guMtxXFMF(mtxInv, D_807F5DF0[i * 3], D_807F5DF0[i * 3 + 1], D_807F5DF0[i * 3 + 2], &D_807F5E20[i * 3], &D_807F5E24[i * 3], &D_807F5E28[i * 3]);
+        guMtxXFMF(sp58, D_807F5DF0[i * 3], D_807F5DF0[i * 3 + 1], D_807F5DF0[i * 3 + 2], &D_807F5E20[i * 3], &D_807F5E24[i * 3], &D_807F5E28[i * 3]);
     }
 }
 
