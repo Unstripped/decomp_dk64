@@ -1056,7 +1056,7 @@ void playerInputCheckBButton(void) {
     }
 }
 
-void func_806E1A50(void) {
+void playerInputHandleAButtonState0(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
         G23_P->unk58 = D_80767CC0;
     }
@@ -1099,7 +1099,7 @@ void func_806E1BA4(void) {
     }
 }
 
-void func_806E1D38(void) {
+void playerInputHandleAButtonState17(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
         G23_P->unk58 = D_80767CC0;
     }
@@ -1115,7 +1115,7 @@ void func_806E1D38(void) {
 
 void playerSetBaseGravity();
 
-void func_806E1E54(void) {
+void playerInputHandleAButtonGravity(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
         G23_P->unk58 = D_80767CC0;
     }
@@ -1134,7 +1134,7 @@ void func_806E1E54(void) {
     }
 }
 
-void func_806E1F8C(void) {
+void playerInputHandleAButtonState41(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
         G23_P->unk58 = D_80767CC0;
     }
@@ -1159,7 +1159,7 @@ void playerInputCheckBButtonChargeCallback(void) {
     }
 }
 
-void func_806E2140(void) {
+void playerInputHandleAButtonState61(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
         G23_P->unk58 = D_80767CC0;
     }
@@ -1569,7 +1569,7 @@ void playerInputCheckZButtonResume(void) {
 extern f32 D_8075371C[];
 extern f32 D_8075378C[];
 
-void func_806E3040(void) {
+void playerInputHandleAButtonKong(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
         G23_P->unk58 = D_80767CC0;
     }
@@ -1649,7 +1649,7 @@ typedef struct G24Act {
 #define G24_PAD(sym, T) (*(T *)((u8 *)&(sym) + gCurrentPlayerIndex * 0x34))
 
 
-void func_806E31FC(void) {
+void playerInputHandleAButtonSub17(void) {
     if (G24_PAD(D_807FD63C, u16) & 0x8000) {
         G24_M->unk58 = D_80767CC0;
     }
@@ -1663,7 +1663,7 @@ void func_806E31FC(void) {
 }
 
 
-void func_806E330C(void) {
+void playerInputHandleAButtonSub61(void) {
     if (G24_PAD(D_807FD63C, u16) & 0x8000) {
         G24_M->unk58 = D_80767CC0;
     }
@@ -1681,7 +1681,7 @@ void func_806E330C(void) {
 
 extern u8 gScheduler[];
 
-void func_806E341C(void) {
+void playerInputHandleAButtonSub58(void) {
     if (G24_PAD(D_807FD63C, u16) & 0x8000) {
         G24_M->unk58 = G24_SCHED280;
     }
@@ -1717,7 +1717,7 @@ void func_806E352C(void) {
 }
 
 
-void func_806E35D8(void) {
+void playerInputHandleAButtonSub5A(void) {
     if (G24_PAD(D_807FD63C, u16) & 0x8000) {
         G24_M->unk58 = D_80767CC0;
     }
@@ -2089,7 +2089,7 @@ extern f32 D_80750FF4;
 extern u8 D_807FC9AE[];
 extern u8 D_807FCA0C[];
 extern u8 D_807FCAC8[];
-s32 func_806E4580(void);
+s32 playerInputCheckBButtonTarget(void);
 s32 mathAngleInArcWithMargin();
 s32 collisionTestSphere(f32, f32, f32, f32, void *, void *, s32, s32);
 void projectileTrySpawnFromSlot(void *);
@@ -2097,7 +2097,7 @@ void sfxPlayScriptActorSoundForPlayer(void *, s32, s32);
 void playerPlayKongSpecificSfx(void *);
 void func_806EAB44();
 
-void func_806E41EC(void) {
+void playerInputHandleBButtonGun(void) {
     PadInputState *pad;
 
     if (G25_PAD(D_807FD63C, u16) & 0x4000) {
@@ -2108,7 +2108,7 @@ void func_806E41EC(void) {
         playerStateQueueCallback(3, 0, gCurrentPlayerIndex);
         return;
     }
-    if (func_806E4580()) {
+    if (playerInputCheckBButtonTarget()) {
         return;
     }
     pad = &gPlayerPadState[gCurrentPlayerIndex];
@@ -2153,7 +2153,7 @@ void func_806E41EC(void) {
     }
 }
 
-s32 func_806E4580(void) {
+s32 playerInputCheckBButtonTarget(void) {
     if ((G25_PAD(D_807FD63C, u16) & 0x4000) && G25_GS->unk2 && (G25_GS->unk14 == 8)) {
         G25_P->unk220 = G25_GS->unk4;
         G25_P->unk224 = G25_GS->unk8;
@@ -2164,7 +2164,7 @@ s32 func_806E4580(void) {
     return 0;
 }
 
-void func_806E4634(void) {
+void playerInputHandleBButtonPunch(void) {
     f32 v;
     f32 w;
 
@@ -2185,7 +2185,7 @@ void func_806E4634(void) {
     }
 }
 
-void func_806E4740(void) {
+void playerInputHandleBButtonSpecial(void) {
     u8 idx;
 
     idx = gCurrentPlayerIndex;
@@ -2238,7 +2238,7 @@ void func_806E4740(void) {
     }
 }
 
-void func_806E4AD8(void) {
+void playerInputHandleZButtonInteract(void) {
     s16 sp3E;
     s16 sp3C;
     u8 dead;
@@ -2276,7 +2276,7 @@ void func_806E4AD8(void) {
     }
 }
 
-void func_806E4C6C(void) {
+void playerInputHandleZButtonState4B(void) {
     if ((G25_P->unk1AC->unk58 != 0x55) && (G25_P->unk1AC->unk58 != 0x82)) {
         G25_A->unk154 = 0x4B;
         G25_A->unk155 = 0;

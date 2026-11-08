@@ -20,7 +20,7 @@ extern u8 D_807444FC;
 void func_806FB480(void) {
 }
 
-void func_806FB488(void) {
+void textBlitNoop100180(void) {
 }
 
 s32 textBlitGlyph(u8, s32, s32, s16, u8, s8 *, u8);
