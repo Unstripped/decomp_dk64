@@ -45,7 +45,8 @@ def decode(s):
             dst = int(m.group(1))
     srcs = []
     for a in (args if store_like else args[1:]):
-        srcs += [int(x) for x in re.findall(r'\$(\d+)(?!\d)', a)]
+        # `$$24` is a local string/jump-table label, not register 24; `$848` in `lw $25, $848($25)` is a table label
+        srcs += [int(x) for x in re.findall(r'(?<!\$)\$(\d+)(?!\d)', a) if int(x) <= 31]
     scratch = None
     if op.startswith('trunc') and len(args) == 3:
         m = re.match(r'^\$(\d+)$', args[2])
