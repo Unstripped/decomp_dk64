@@ -458,7 +458,7 @@ void minecartFollowerChildBehaviour(void) {
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
-void func_80027778(void) {
+void minecartUpdateFollower(void) {
     f32 d;
     f32 dist;
     MinecartCart *playerCart;
@@ -613,7 +613,7 @@ void minecartPlayPassBySfx(MinecartCart *cart) {
     cart->unk3C = dist;
 }
 
-void func_800280BC(void) {
+void minecartUpdateObstacleType1(void) {
     MinecartCart *cart;
     StructBB70_Sub *sub;
     f32 nodePosZ;
@@ -671,7 +671,7 @@ void func_800280BC(void) {
     }
 }
 
-void func_8002835C(void) {
+void minecartUpdateObstacleType2(void) {
     MinecartCart *cart;
     StructBB70_Sub *sub;
     f32 node2Z;
@@ -743,7 +743,7 @@ void func_8002835C(void) {
     }
 }
 
-void func_800286EC(void) {
+void minecartUpdateObstacleType3(void) {
     MinecartCart *cart;
     s32 pad;
     f32 nodePosZ;

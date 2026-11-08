@@ -319,7 +319,7 @@ void minecartUpdateHeadlight(void) {
 extern s32 D_80028C34;
 extern s32 D_80028C3C;
 
-void func_80024890(void) {
+void minecartUpdateHeadlightAndSpeed(void) {
     MinecartCart *cart = D_807FBB40->unk174;
 
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -338,7 +338,7 @@ extern s32 D_80028C40;
 void actorApplyGravity(void);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 
-void func_80024914(void) {
+void minecartUpdatePhysics(void) {
     s32 pad0;
     s32 pad1;
     s16 prevVertPos;
