@@ -4182,14 +4182,14 @@ u8 func_8064EB9C(CsState *cs, s16 csId, s16 b, s16 c) {
     return gPlayerCharacterId == v;
 }
 
-s32 func_80600530(void);
+s32 frameTimingGetMapIndex(void);
 s32 func_806FB418(void);
 extern s16 D_807446D0[];
 
 s32 func_8064EC04(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 idx;
 
-    idx = func_80600530();
+    idx = frameTimingGetMapIndex();
     return (u8)((s16)func_806FB418() >= D_807446D0[idx]);
 }
 
@@ -4220,7 +4220,7 @@ u8 func_8064EC60(CsState *cs, s16 csId, s16 b, s16 c) {
             idx = 4;
             break;
     }
-    cur = func_80600530();
+    cur = frameTimingGetMapIndex();
     row = D_807FC950[idx];
     lim = row[5] & 0x7F;
     if (lim == cur) {

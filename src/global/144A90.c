@@ -38,7 +38,7 @@ extern u8 D_807FF0F4[];
 extern u8 D_807FF0F6[];
 extern void rebuildLowPassCoefficients(AdpcmNMFX *, f32);
 
-AdpcmNMAcmd *n_alMainBusPull(s32 arg0, AdpcmNMAcmd *ptr) {
+AdpcmNMAcmd *n_alMainBusPull(s32 sampleCount, AdpcmNMAcmd *ptr) {
     AdpcmNMAcmd *result;
     s32 i;
     s32 unused;
@@ -52,7 +52,7 @@ AdpcmNMAcmd *n_alMainBusPull(s32 arg0, AdpcmNMAcmd *ptr) {
     }
     if (n_syn->maxAuxBusses > (i = 0)) {
         do {
-            result = n_syn->mainBus->pull(arg0, result, i);
+            result = n_syn->mainBus->pull(sampleCount, result, i);
             if (D_807FF0F4[i] != 0) {
                 if (D_807FF0F6[i] != 0) {
                     AdpcmNMAcmd *cmd;

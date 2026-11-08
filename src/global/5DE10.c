@@ -10,8 +10,8 @@ extern u8 D_807F7364;
 extern s16 D_807F7366;
 extern s16 D_807F7368;
 
-void fogSetParams(u8 arg0) {
-    D_807F7360 = arg0;
+void fogSetParams(u8 enable) {
+    D_807F7360 = enable;
     if (gCurrentMap == 0x26) {
         D_807F7361 = 0x8A;
         D_807F7362 = 0x52;

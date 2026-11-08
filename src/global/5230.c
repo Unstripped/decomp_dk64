@@ -13,7 +13,7 @@ u8 D_8076AF15;
 u16 D_8076AF16;
 u8 D_8076AF18[8];
 
-s32 func_80600530(void) {
+s32 frameTimingGetMapIndex(void) {
     s32 i;
     s32 found;
 
@@ -32,7 +32,7 @@ s32 func_80600530(void) {
     return i;
 }
 
-void frameTimingReset(s32 arg0) {
+void frameTimingReset(s32 mapId) {
     s32 i;
 
     for (i = 0; i < 8; i++) {
@@ -40,7 +40,7 @@ void frameTimingReset(s32 arg0) {
     }
 
     D_8076AF10 = D_80767CC4;
-    switch (arg0) {
+    switch (mapId) {
     case 0x6:
     case 0x1B:
     case 0x27:

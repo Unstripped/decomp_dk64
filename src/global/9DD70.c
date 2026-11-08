@@ -1840,7 +1840,7 @@ void actorPlaySoundAndFinish(void) {
 
 void flagSet(s32, s32, s32);
 void func_8070E8DC(s32);
-s32 func_80600530(void);
+s32 frameTimingGetMapIndex(void);
 void func_8070D8C0(Actor *, s32, u8);
 
 extern s8 D_807F6951;
@@ -1863,7 +1863,7 @@ void func_8069E088(void) {
         if (flagGet(0x178, 0) == 0) {
             flagSet(0x178, 1, 0);
         } else {
-            unk = func_80600530() * 5 + D_807F6951 + 1;
+            unk = frameTimingGetMapIndex() * 5 + D_807F6951 + 1;
         }
         func_8070D8C0(D_807FBB40, 0x29, unk);
     }

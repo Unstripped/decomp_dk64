@@ -80,6 +80,7 @@ pauseStateUpdate = 0x805FC668; // type:func
 playerViewsBuildMatrices = 0x805FCA94; // type:func
 gfxInit2DDisplayList = 0x805FD030; // type:func
 loadOverlay = 0x80610350; // type:func
+frameTimingGetMapIndex = 0x80600530; // type:func
 frameTimingReset = 0x80600590; // type:func
 frameTimingUpdate = 0x80600674; // type:func
 timerQueueInit = 0x80600950; // type:func
