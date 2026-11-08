@@ -156,9 +156,9 @@ typedef struct {
 } Struct_FDCA0;
 
 
-extern Struct_DC90 *D_807FDC90;
-extern Struct_DC98 *D_807FDC98;
-extern Struct_DC9C *D_807FDC9C;
+extern Struct_DC90 *gBehaviourWorkState;
+extern Struct_DC98 *gBehaviourAnimState;
+extern Struct_DC9C *gBehaviourExtraState;
 extern Struct_FDCA0 *D_807FDCA0;
 
 s32 raceGetRoute(u8);
@@ -167,7 +167,7 @@ s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 s16 mathAngleSignedDistance(s16, s16);
 f32 raceGetProgressPercent(s32, Struct_sp58 *, Struct_sp5C *);
 f32 raceEvaluateCurveTargetSpeed(void *, f32, void *, void *);
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 f32 func_80612794(s16);
 f32 func_80612790(s16);
 f32 mathAtan2(f32, f32);
@@ -395,7 +395,7 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
     actorStepPhysics(gCurrentActor, a0, a0);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-    if (D_807FBB64 & 0x2000) {
+    if (gGlobalOverlayFlags & 0x2000) {
         raceUpdateLapAndWaypointTracker(racerState);
     }
 }
@@ -499,7 +499,7 @@ void raceSteerTowardTargetWaypoint(Struct_sp58 *racerState, Struct_8002B180_Arg1
     cursor = pad->unk174;
     routeIndex = raceGetRoute(cursor->unk26);
     targetSpeed = raceGetPathDistanceBetweenTrackers(routeIndex, racerState, aux->unk4);
-    idx = D_807FDC98->unk20[D_807FDC90->unk25 * 2];
+    idx = gBehaviourAnimState->unk20[gBehaviourWorkState->unk25 * 2];
     waypoint = &D_807FDCA0->unk14[idx];
     dx = (f32)waypoint->unk0 - gCurrentActor->unk7C;
     dz = (f32)waypoint->unk4 - gCurrentActor->unk84;
@@ -508,8 +508,8 @@ void raceSteerTowardTargetWaypoint(Struct_sp58 *racerState, Struct_8002B180_Arg1
     if (distToWaypoint < (f32)waypoint->unk7) {
         if (gCurrentActor->unk7C) { // FAKE: empty guard steers float regalloc
         }
-        D_807FDC90->unk25++;
-        D_807FDC90->unk25 = D_807FDC90->unk25 % D_807FDC9C->unk11;
+        gBehaviourWorkState->unk25++;
+        gBehaviourWorkState->unk25 = gBehaviourWorkState->unk25 % gBehaviourExtraState->unk11;
     }
     waypoint = &D_807FDCA0->unk14[idx];
     sp_angle = mathAngleDiscrete((f32)waypoint->unk0, (f32)waypoint->unk4, gCurrentActor->unk7C, gCurrentActor->unk84, distToWaypoint);

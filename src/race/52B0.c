@@ -266,9 +266,9 @@ typedef struct {
     RaceC_Waypoint *unk14;
 } RaceC_DCA0;
 
-extern RaceC_DC90 *D_807FDC90;
-extern RaceC_DC98 *D_807FDC98;
-extern RaceC_DC9C *D_807FDC9C;
+extern RaceC_DC90 *gBehaviourWorkState;
+extern RaceC_DC98 *gBehaviourAnimState;
+extern RaceC_DC9C *gBehaviourExtraState;
 extern RaceC_DCA0 *D_807FDCA0;
 extern s16 D_80750AC8;
 extern u8 D_8002FC20[];
@@ -356,13 +356,13 @@ f32 raceRacerSteerTowardWaypoint(void) {
     targetSpeed = 0.0f;
     subFlag = RC_A->unk6A & 1;
     prevSubPhase = s0->unk35;
-    idx = D_807FDC98->unk20[D_807FDC90->unk25 * 2];
+    idx = gBehaviourAnimState->unk20[gBehaviourWorkState->unk25 * 2];
     dx = (f32)G2_WP->x - RC_A->unk7C;
     dz = (f32)G2_WP->z - RC_A->unk84;
     distToWaypoint = sqrtf(dx * dx + dz * dz);
     if (distToWaypoint < (f32)G2_WP->unk7) {
-        D_807FDC90->unk25 += 1;
-        D_807FDC90->unk25 = D_807FDC90->unk25 % D_807FDC9C->unk11;
+        gBehaviourWorkState->unk25 += 1;
+        gBehaviourWorkState->unk25 = gBehaviourWorkState->unk25 % gBehaviourExtraState->unk11;
         targetView->unk10 = (G2_WP->unk8 == 0) && (targetView->unkF != 0);
         switch (G2_WP->unk8) {
             case 2:
@@ -567,8 +567,8 @@ void raceOpponentRacerBehaviorUpdate(void) {
         managerState->unk1C = v;
         targetView->unkA = v;
         s0->unk4 = 1.0f;
-        D_807FDC90->unk25 = D_807FDC9C->unk11 - 5;
-        idx = D_807FDC98->unk20[D_807FDC90->unk25 * 2];
+        gBehaviourWorkState->unk25 = gBehaviourExtraState->unk11 - 5;
+        idx = gBehaviourAnimState->unk20[gBehaviourWorkState->unk25 * 2];
         RC_A->unk7C = D_807FDCA0->unk14[idx].unk0;
         RC_A->unk80 = D_807FDCA0->unk14[idx].unk2;
         RC_A->unk84 = D_807FDCA0->unk14[idx].unk4;
@@ -659,5 +659,5 @@ void raceOpponentRacerBehaviorUpdate(void) {
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
-    func_8072881C(0, &D_807FDC90->unk28);
+    func_8072881C(0, &gBehaviourWorkState->unk28);
 }

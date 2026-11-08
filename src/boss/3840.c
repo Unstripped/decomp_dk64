@@ -10,8 +10,8 @@ typedef struct {
     u8 unk11;
 } BossB_Struct_DC9C;
 
-extern BossB_Struct_DC98 *D_807FDC98;
-extern BossB_Struct_DC9C *D_807FDC9C;
+extern BossB_Struct_DC98 *gBehaviourAnimState;
+extern BossB_Struct_DC9C *gBehaviourExtraState;
 
 void heapFree(void *);
 void *heapAlloc(s32);
@@ -20,12 +20,12 @@ void bossInitScriptData(u8 *data) {
     s16 i;
     u8 *dst;
 
-    if (D_807FDC98->unk20 != NULL) {
-        heapFree(D_807FDC98->unk20);
+    if (gBehaviourAnimState->unk20 != NULL) {
+        heapFree(gBehaviourAnimState->unk20);
     }
-    D_807FDC9C->unk11 = *data;
-    D_807FDC98->unk20 = heapAlloc(*data * 2);
-    dst = D_807FDC98->unk20;
+    gBehaviourExtraState->unk11 = *data;
+    gBehaviourAnimState->unk20 = heapAlloc(*data * 2);
+    dst = gBehaviourAnimState->unk20;
     for (i = 0; i < *data; i++) {
         dst[0] = data[i + 1];
         dst[1] = 0;
@@ -54,17 +54,17 @@ typedef struct {
     u8 unk25;
 } BossB_Struct_DC90;
 
-extern BossB_Struct_DC90 *D_807FDC90;
+extern BossB_Struct_DC90 *gBehaviourWorkState;
 
 s32 randomNonNegative(void);
 
 void bossPickRandomWaypoint(BossB_Struct_80027950 *state, u8 *waypointRanges) {
-    u8 prev = D_807FDC90->unk25;
+    u8 prev = gBehaviourWorkState->unk25;
     do {
         s32 rand = randomNonNegative() >> 15;
         u8 offset = state->unk15;
-        D_807FDC90->unk25 = waypointRanges[offset] + ((rand % 65536) % (waypointRanges[offset + 1] - waypointRanges[offset] + 1));
-    } while (D_807FDC90->unk25 == prev);
+        gBehaviourWorkState->unk25 = waypointRanges[offset] + ((rand % 65536) % (waypointRanges[offset + 1] - waypointRanges[offset] + 1));
+    } while (gBehaviourWorkState->unk25 == prev);
     state->unk15 += 2;
 }
 
@@ -100,7 +100,7 @@ void bossPickFarthestWaypoint(void *state, u8 *waypointRanges) {
     s32 max_dist = 0;
 
     for (i = waypointRanges[((BossB_Struct_80027950 *)state)->unk15]; i <= waypointRanges[((BossB_Struct_80027950 *)state)->unk15 + 1]; i++) {
-        u8 idx = D_807FDC98->unk20[i * 2];
+        u8 idx = gBehaviourAnimState->unk20[i * 2];
         BossActorPos *actor = (BossActorPos *)gCurrentActor;
         BossWaypoint *pt = &D_807FDCA0->points[idx];
         f32 dz = actor->z - (f32)pt->z;
@@ -110,7 +110,7 @@ void bossPickFarthestWaypoint(void *state, u8 *waypointRanges) {
 
         if (dist > max_dist) {
             max_dist = dist;
-            D_807FDC90->unk25 = i;
+            gBehaviourWorkState->unk25 = i;
         }
     }
     ((BossB_Struct_80027950 *)state)->unk15 += 2;
@@ -208,8 +208,8 @@ void actorScriptStart(void *, s32);
 void bossPickFarthestWaypoint(void *, u8 *);
 
 #define BA40 ((BossActor *)gCurrentActor)
-#define DC90 ((BossWorkState *)D_807FDC90)
-#define DC9C ((BossConfig *)D_807FDC9C)
+#define DC90 ((BossWorkState *)gBehaviourWorkState)
+#define DC9C ((BossConfig *)gBehaviourExtraState)
 
 u8 bossScriptStep(u8 *script, u16 turnSpeed, f32 fwdSpeed) {
     BossPlayerData *playerData;
@@ -463,7 +463,7 @@ s32 flagGet(s16, s32);
 void effectWispHomeUpdate(void);
 
 extern s32 D_8074E880[];
-extern Boss3C_Struct_8478 *D_807FDC94;
+extern Boss3C_Struct_8478 *gBehaviourTargetActor;
 
 void bossSpawnParticleRing(flag, x, y, z, unkRot, unkScale)
 u16 flag;
@@ -484,8 +484,8 @@ u8 unkScale;
         func_8071498C(effectWispHomeUpdate);
         func_807149FC(-1);
         func_807149B8(1);
-        func_80714950(D_807FDC94);
-        func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, D_807FDC94->unk7C, D_807FDC94->unk80 + (f32)D_807FDC94->unk15E, D_807FDC94->unk84);
+        func_80714950(gBehaviourTargetActor);
+        func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], 1.8f, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk80 + (f32)gBehaviourTargetActor->unk15E, gBehaviourTargetActor->unk84);
     }
     actorSpawnNodeEntryScaled(0x48, (f32)x, (f32)y, (f32)z, (s32)unkRot, (s32)unkScale, (s16)flag, 0);
 }

@@ -1,20 +1,20 @@
 #include "common.h"
 #include "heap.h"
 
-extern s32 D_80746A30;
-extern u8 D_80746A37;
-extern HeapPool D_807F0988[];
-extern HeapBlock *D_807F0990; // D_807F0988[0].freeList
-extern s32 D_807F0A28;
-extern u16 D_807F0A30[];
-extern u16 D_807F0A40[];
-extern s32 D_807F0A50;
-extern DeferredFree D_807F0A58[];
-extern s32 D_807F5A58;
-extern s32 D_807F5A5C;
-extern u8 *D_807F5A64;
-extern s32 D_807F5A68;
-extern void *D_807F5A70[];
+extern s32 sHeapReclaimFlag;
+extern u8 sHeapFlags;
+extern HeapPool gHeapPools[];
+extern HeapBlock *gHeapMainFreeList; // gHeapPools[0].freeList
+extern s32 gHeapPoolCount;
+extern u16 gHeapPoolSizes[];
+extern u16 gHeapPoolIndices[];
+extern s32 gHeapBlockPoolCount;
+extern DeferredFree gHeapDeferredFrees[];
+extern s32 gHeapDeferredFreeCount;
+extern s32 gHeapDeferredFreeDelay;
+extern u8 *gHeapGuardBlock;
+extern s32 gHeapSurvivorCount;
+extern void *gHeapSurvivorList[];
 
 s32 matrixCacheDecayLimit(void);
 void heapQueueDeferredFree(void *ptr);
@@ -33,9 +33,9 @@ typedef struct {
 
 extern SegmentTableEntry gSegmentTable[];
 extern u8 D_8074450C;
-extern s32 D_80744470;
+extern s32 gFramebuffers;
 extern s32 D_80744474;
-extern s32 D_80744478;
+extern s32 gFrameDelta;
 extern u8 *D_8076A060;
 extern u8 *D_807F05A4;
 extern s32 D_807F0974;
@@ -43,7 +43,7 @@ extern s32 D_807F0978;
 extern s32 D_807F097C;
 extern s32 D_807F0980;
 extern s32 D_807F0984;
-extern s32 D_807F5A60;
+extern s32 gHeapUnused5A60;
 
 void dmaReadAssetDecompress(s32, void *, void *, s32, s32, s32, s32);
 void heapSortSurvivors(void);
@@ -82,17 +82,17 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     s32 cur;
 
     lo = D_8074450C * 0x25800 * D_8074450C;
-    D_807F0A28 = 0;
+    gHeapPoolCount = 0;
     size = 0;
-    D_807F0A50 = 0;
-    D_807F0A30[0] = 0;
+    gHeapBlockPoolCount = 0;
+    gHeapPoolSizes[0] = 0;
     romStart = 0;
     vram = 0;
-    D_807F0A40[0] = 0;
+    gHeapPoolIndices[0] = 0;
     bssStart = 0;
-    D_807F5A60 = 0;
-    D_807F5A58 = 0;
-    D_807F5A5C = 2;
+    gHeapUnused5A60 = 0;
+    gHeapDeferredFreeCount = 0;
+    gHeapDeferredFreeDelay = 2;
     bssSize = 0;
     id = -1;
     switch (arg1) {
@@ -146,7 +146,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         bssSize = gSegmentTable[id].bssEnd - gSegmentTable[id].bssStart;
         size = (s32)gSegmentTable[id].bssStart - (s32)vram;
     }
-    D_80744470 = (size + (bssSize + 0x8002403F)) & ~0x3F;
+    gFramebuffers = (size + (bssSize + 0x8002403F)) & ~0x3F;
     fb1 = ((size + (bssSize + 0x8002403F)) & ~0x3F) + lo;
     D_80744474 = fb1;
     D_8076A060 = (u8 *)(0x805FAE00 - cur);
@@ -175,13 +175,13 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         addr[i + 1] = h;
         sizes[i + 1] = sz;
     }
-#define HL(k) (*(u8 **)D_807F5A70[k])
-    if (arg0 && D_807F5A68) {
+#define HL(k) (*(u8 **)gHeapSurvivorList[k])
+    if (arg0 && gHeapSurvivorCount) {
         heapSortSurvivors();
-        for (i = 1; i < D_807F5A68; i++) {
+        for (i = 1; i < gHeapSurvivorCount; i++) {
             q = HL(i - 1);
             dst = q + ((HeapBlock *)q - 1)->size;
-            hp = (u8 **)D_807F5A70[i];
+            hp = (u8 **)gHeapSurvivorList[i];
             q = *hp;
             *hp = dst + 0x10;
             total = 0x10 + ((HeapBlock *)((u32)q - 0x10))->size;
@@ -191,8 +191,8 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         dst = (u8 *)addr[0];
         total = 0;
         first = (HeapBlock *)(HL(0) - 0x10);
-        for (i = 0; i < D_807F5A68; i++) {
-            hp = (u8 **)D_807F5A70[i];
+        for (i = 0; i < gHeapSurvivorCount; i++) {
+            hp = (u8 **)gHeapSurvivorList[i];
             p = (u32 *)*hp;
             total += ((HeapBlock *)(u8 *)p - 1)->size + 0x10;
             *hp = (u8 *)p + (s32)dst - (s32)first;
@@ -203,42 +203,42 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         saved[0] = ((u64 *)q)[0];
         saved[1] = ((u64 *)q)[1];
     } else {
-        D_807F5A68 = 0;
-        D_807F5A70[0] = NULL;
+        gHeapSurvivorCount = 0;
+        gHeapSurvivorList[0] = NULL;
     }
     heapInitGeneralPool(0, addr[0], sizes[0]);
     D_807F0974 = heapInitBlockPool(&D_807F0974, addr[1], sizes[1], 0x10);
     D_807F0978 = heapInitBlockPool(&D_807F0978, addr[2], sizes[2], 0x20);
     D_807F097C = heapInitBlockPool(&D_807F097C, addr[3], sizes[3], 0x30);
     D_807F0980 = heapInitBlockPool(&D_807F0980, addr[4], sizes[4], 0x1000);
-    if (D_807F5A68 != 0) {
+    if (gHeapSurvivorCount != 0) {
         q = NULL;
         i = 0;
-        if (D_807F5A68 > 0) {
+        if (gHeapSurvivorCount > 0) {
             do {
                 blk = (HeapBlock *)HL(i);
-                if (D_807F0988[0].start == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (gHeapPools[0].start == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 i++;
                 blk[-1].physPrev = (HeapBlock *)q;
                 blk = blk - 1;
                 q = (u8 *)blk;
-            } while (i < D_807F5A68);
+            } while (i < gHeapSurvivorCount);
         }
-        ((u64 *)D_807F0988[0].start)[0] = saved[0];
-        ((u64 *)D_807F0988[0].start)[1] = saved[1];
-        ((HeapBlock *)D_807F0988[0].start)->physPrev = NULL;
-        sz = D_807F0988[0].size - 0x20;
-        D_807F0988[0].freeList = (HeapBlock *)((u32)blk + blk->size + 0x10);
-        sz = (u32)D_807F0988[0].start + (sz - (u32)D_807F0988[0].freeList);
-        D_807F0988[0].freeList->physPrev = blk;
-        D_807F0988[0].freeList->size = sz;
-        D_807F0988[0].freeList->next = NULL;
-        D_807F0988[0].freeList->prev = NULL;
-        blk = (HeapBlock *)(D_807F0988[0].start + D_807F0988[0].size) - 1;
-        blk->physPrev = D_807F0988[0].freeList;
+        ((u64 *)gHeapPools[0].start)[0] = saved[0];
+        ((u64 *)gHeapPools[0].start)[1] = saved[1];
+        ((HeapBlock *)gHeapPools[0].start)->physPrev = NULL;
+        sz = gHeapPools[0].size - 0x20;
+        gHeapPools[0].freeList = (HeapBlock *)((u32)blk + blk->size + 0x10);
+        sz = (u32)gHeapPools[0].start + (sz - (u32)gHeapPools[0].freeList);
+        gHeapPools[0].freeList->physPrev = blk;
+        gHeapPools[0].freeList->size = sz;
+        gHeapPools[0].freeList->next = NULL;
+        gHeapPools[0].freeList->prev = NULL;
+        blk = (HeapBlock *)(gHeapPools[0].start + gHeapPools[0].size) - 1;
+        blk->physPrev = gHeapPools[0].freeList;
     }
-    D_807F5A64 = heapAlloc(0x10);
-    heapLockBlock(D_807F5A64);
+    gHeapGuardBlock = heapAlloc(0x10);
+    heapLockBlock(gHeapGuardBlock);
     D_807F0984 = (arg2 == 0) ? 0x28000 : arg2;
     D_807F05A4 = heapAlloc(D_807F0984 + 0x80);
     heapLockBlock(D_807F05A4);
@@ -251,7 +251,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
         osInvalICache((void *)vram, size);
     }
     for (id = 0; id < 2; id++) {
-        q = (u8 *)(&D_80744470)[id];
+        q = (u8 *)(&gFramebuffers)[id];
         p = (u32 *)(q + (D_8074450C * 0x12C00 * D_8074450C) / 2 * 4);
         if (q < (u8 *)p) {
             do {
@@ -268,11 +268,11 @@ void heapSortSurvivors(void) {
     s32 i;
     s32 j;
     s32 swapped;
-    u32 **list = (u32 **)D_807F5A70;
+    u32 **list = (u32 **)gHeapSurvivorList;
 
-    for (i = 1; i < D_807F5A68; i++) {
+    for (i = 1; i < gHeapSurvivorCount; i++) {
         swapped = 0;
-        for (j = D_807F5A68 - 1; j >= i; j--) {
+        for (j = gHeapSurvivorCount - 1; j >= i; j--) {
             if (*list[j] < *list[j - 1]) {
                 u32 *a = list[j];
                 list[j] = list[j - 1];
@@ -306,10 +306,10 @@ void heapMoveWords(u32 src, u32 dst, u32 size) {
 
 void heapRebaseHandles(u32 oldBase, u32 newBase, u32 size) {
     s32 i;
-    for (i = 0; i < D_807F5A68; i++) {
-        s32 offset = (s32)D_807F5A70[i] - (s32)oldBase;
+    for (i = 0; i < gHeapSurvivorCount; i++) {
+        s32 offset = (s32)gHeapSurvivorList[i] - (s32)oldBase;
         if (offset >= 0 && (u32)offset < size) {
-            D_807F5A70[i] = (void *)(offset + newBase);
+            gHeapSurvivorList[i] = (void *)(offset + newBase);
         }
     }
 }
@@ -318,11 +318,11 @@ s32 heapInitGeneralPool(s32 owner, s32 start, s32 size) {
     HeapBlock *blk;
     HeapBlock *end;
 
-    D_807F0988[D_807F0A28].owner = (void *)owner;
-    D_807F0988[D_807F0A28].start = (u8 *)start;
-    D_807F0988[D_807F0A28].freeList = (HeapBlock *)start;
-    D_807F0988[D_807F0A28].size = size;
-    D_807F0988[D_807F0A28].blockSize = 0;
+    gHeapPools[gHeapPoolCount].owner = (void *)owner;
+    gHeapPools[gHeapPoolCount].start = (u8 *)start;
+    gHeapPools[gHeapPoolCount].freeList = (HeapBlock *)start;
+    gHeapPools[gHeapPoolCount].size = size;
+    gHeapPools[gHeapPoolCount].blockSize = 0;
     blk = (HeapBlock *)start;
     *(u64 *)blk = 0;
     *(u64 *)&blk->next = 0;
@@ -333,7 +333,7 @@ s32 heapInitGeneralPool(s32 owner, s32 start, s32 size) {
     *(u64 *)&end->next = 0;
     end->physPrev = blk;
     ((u8 *)end)[0xB] = 2;
-    return D_807F0A28++;
+    return gHeapPoolCount++;
 }
 
 void heapSortPools(void);
@@ -355,11 +355,11 @@ s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
         rem = stride;
     }
     size = size - rem + 0x10;
-    D_807F0988[D_807F0A28].size = size;
-    D_807F0988[D_807F0A28].blockSize = bs;
-    D_807F0988[D_807F0A28].owner = owner;
-    D_807F0988[D_807F0A28].start = start;
-    D_807F0988[D_807F0A28].freeList = (HeapBlock *)start;
+    gHeapPools[gHeapPoolCount].size = size;
+    gHeapPools[gHeapPoolCount].blockSize = bs;
+    gHeapPools[gHeapPoolCount].owner = owner;
+    gHeapPools[gHeapPoolCount].start = start;
+    gHeapPools[gHeapPoolCount].freeList = (HeapBlock *)start;
     cur = (HeapBlock *)start;
     end = (HeapBlock *)(start + size - 0x10);
     prev = NULL;
@@ -378,10 +378,10 @@ s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
     end->size = rem - 0x10;
     ((u8 *)end)[0xB] = 2;
     end->physPrev = prev;
-    D_807F0A28++;
-    D_807F0A50++;
+    gHeapPoolCount++;
+    gHeapBlockPoolCount++;
     heapSortPools();
-    return D_807F0A28 - 1;
+    return gHeapPoolCount - 1;
 }
 
 void heapSortPools(void) {
@@ -389,13 +389,13 @@ void heapSortPools(void) {
     u32 j;
     u32 prev;
 
-    for (i = 1; i <= D_807F0A50; i++) {
-        prev = D_807F0A30[i - 1];
-        D_807F0A30[i] = 0xFFFF;
-        for (j = 0; j < D_807F0A28; j++) {
-            if (prev < D_807F0988[j].blockSize && D_807F0988[j].blockSize < D_807F0A30[i]) {
-                D_807F0A30[i] = D_807F0988[j].blockSize;
-                D_807F0A40[i] = j;
+    for (i = 1; i <= gHeapBlockPoolCount; i++) {
+        prev = gHeapPoolSizes[i - 1];
+        gHeapPoolSizes[i] = 0xFFFF;
+        for (j = 0; j < gHeapPoolCount; j++) {
+            if (prev < gHeapPools[j].blockSize && gHeapPools[j].blockSize < gHeapPoolSizes[i]) {
+                gHeapPoolSizes[i] = gHeapPools[j].blockSize;
+                gHeapPoolIndices[i] = j;
             }
         }
     }
@@ -412,14 +412,14 @@ s32 heapReleasePool(s32 idx) {
     s32 y;
 
     ok = 1;
-    start = D_807F0988[idx].start;
+    start = gHeapPools[idx].start;
     if (idx != 0) {
         if (start && start) {} // FAKE: steers uopt coloring (start live range / x as a candidate)
-        count = D_807F0A28;
+        count = gHeapPoolCount;
         if (count >= 2) {
-            bs = D_807F0988[idx].blockSize;
+            bs = gHeapPools[idx].blockSize;
             if (bs != 0) {
-                tail = D_807F0988[idx].freeList;
+                tail = gHeapPools[idx].freeList;
                 blk = tail->next;
                 if (blk != NULL) {
                     do {
@@ -434,36 +434,36 @@ s32 heapReleasePool(s32 idx) {
                 x = bs + (s32)tail;
                 x += 0x20;
                 if (x == 0) {} // FAKE: steers uopt coloring (start live range / x as a candidate)
-                y = D_807F0988[idx].size + (s32)start;
+                y = gHeapPools[idx].size + (s32)start;
                 if (x != y) {
                     ok = 0;
                 }
             } else {
                 ok = 0;
             }
-            if (ok != 0 && start == (u8 *)D_807F0988[idx].freeList) {
-                D_807F0A28 = count - 1;
+            if (ok != 0 && start == (u8 *)gHeapPools[idx].freeList) {
+                gHeapPoolCount = count - 1;
                 if (bs != 0) {
-                    D_807F0A50--;
+                    gHeapBlockPoolCount--;
                 }
-                *(u32 *)D_807F0988[D_807F0A28].owner = *(u32 *)D_807F0988[idx].owner;
-                D_807F0988[idx].owner = D_807F0988[D_807F0A28].owner;
-                D_807F0988[idx].start = D_807F0988[D_807F0A28].start;
-                D_807F0988[idx].freeList = D_807F0988[D_807F0A28].freeList;
-                D_807F0988[idx].size = D_807F0988[D_807F0A28].size;
-                D_807F0988[idx].blockSize = D_807F0988[D_807F0A28].blockSize;
+                *(u32 *)gHeapPools[gHeapPoolCount].owner = *(u32 *)gHeapPools[idx].owner;
+                gHeapPools[idx].owner = gHeapPools[gHeapPoolCount].owner;
+                gHeapPools[idx].start = gHeapPools[gHeapPoolCount].start;
+                gHeapPools[idx].freeList = gHeapPools[gHeapPoolCount].freeList;
+                gHeapPools[idx].size = gHeapPools[gHeapPoolCount].size;
+                gHeapPools[idx].blockSize = gHeapPools[gHeapPoolCount].blockSize;
                 heapSortPools();
                 return 0;
             }
             return idx;
         }
-        if (D_807F0988[idx].owner) {} // FAKE: steers uopt coloring (permuter-found)
+        if (gHeapPools[idx].owner) {} // FAKE: steers uopt coloring (permuter-found)
     }
     return 0;
 }
 
 s32 heapReclaimMatrixCache(void);
-extern s32 D_80746A34;
+extern s32 sHeapReclaimMatrixFlag;
 
 void *heapAlloc(u32 size) { while (1) { // LAYOUT: loop header on the function line; a later .loc line makes as1 schedule the prologue differently
         s32 n;
@@ -472,14 +472,14 @@ void *heapAlloc(u32 size) { while (1) { // LAYOUT: loop header on the function l
         HeapBlock *res;
 
         size = (size + 0xF) & ~0xF;
-        n = D_807F0A50;
+        n = gHeapBlockPoolCount;
         if (n != 0) {
-            while (size < D_807F0A30[n]) {
+            while (size < gHeapPoolSizes[n]) {
                 n--;
             }
-            if (size == D_807F0A30[n] && n != 0) {
-                n = D_807F0A40[n];
-                pool = &D_807F0988[n];
+            if (size == gHeapPoolSizes[n] && n != 0) {
+                n = gHeapPoolIndices[n];
+                pool = &gHeapPools[n];
                 blk = pool->freeList;
                 if (blk != NULL) {
                     pool->freeList = blk->next;
@@ -487,7 +487,7 @@ void *heapAlloc(u32 size) { while (1) { // LAYOUT: loop header on the function l
                         pool->freeList->prev = NULL;
                     }
                     ((u8 *)blk)[0xB] = 0;
-                    D_80746A30 = 1;
+                    sHeapReclaimFlag = 1;
                     return blk + 1;
                 }
             }
@@ -495,24 +495,24 @@ void *heapAlloc(u32 size) { while (1) { // LAYOUT: loop header on the function l
         blk = heapBestFitAlloc(0, size);
         res = blk + 1;
         if (blk != NULL) {
-            D_80746A30 = 1;
+            sHeapReclaimFlag = 1;
             return res;
         }
-        if (D_80746A30 != 0 && heapReclaimMatrixCache() != 0) {
-            D_80746A34 = 1;
+        if (sHeapReclaimFlag != 0 && heapReclaimMatrixCache() != 0) {
+            sHeapReclaimMatrixFlag = 1;
             continue;
         }
-        D_80746A30 = 1;
+        sHeapReclaimFlag = 1;
         return NULL;
     }
 }
 
 u8 heapGetFlags(void) {
-    return D_80746A37;
+    return sHeapFlags;
 }
 
 void heapClearReclaimFlag(void) {
-    D_80746A30 = 0;
+    sHeapReclaimFlag = 0;
 }
 
 s32 heapReclaimMatrixCache(void) {
@@ -521,7 +521,7 @@ s32 heapReclaimMatrixCache(void) {
 
 s32 heapFreeBytes(void) {
     s32 total = 0;
-    HeapBlock *block = D_807F0990;
+    HeapBlock *block = gHeapMainFreeList;
 
     if (block != NULL) {
         do {
@@ -552,11 +552,11 @@ HeapBlock *heapBestFitAlloc(s32 pool, u32 size) {
     u32 rem;
 
     if (size == 0) {
-        return (HeapBlock *)(D_807F5A64 - 0x10);
+        return (HeapBlock *)(gHeapGuardBlock - 0x10);
     }
     best = NULL;
     bestSize = -1;
-    blk = D_807F0988[pool].freeList;
+    blk = gHeapPools[pool].freeList;
     if (blk == NULL) {
         return NULL;
     }
@@ -585,7 +585,7 @@ HeapBlock *heapBestFitAlloc(s32 pool, u32 size) {
         if (prev != NULL) {
             prev->next = next;
         } else {
-            D_807F0988[pool].freeList = next;
+            gHeapPools[pool].freeList = next;
         }
         if (next != NULL) {
             next->prev = prev;
@@ -596,7 +596,7 @@ HeapBlock *heapBestFitAlloc(s32 pool, u32 size) {
 }
 
 void heapFree(u8 *ptr) {
-    if (ptr != D_807F5A64) {
+    if (ptr != gHeapGuardBlock) {
         if ((ptr -= 0x10)[0xB] == 0) {
             heapFreeToPool((HeapBlock *)ptr);
         }
@@ -604,7 +604,7 @@ void heapFree(u8 *ptr) {
 }
 
 void heapFreeDeferred(u8 *ptr) {
-    if (ptr != D_807F5A64) {
+    if (ptr != gHeapGuardBlock) {
         if ((ptr -= 0x10)[0xB] == 0) {
             heapQueueDeferredFree(ptr);
         }
@@ -613,16 +613,16 @@ void heapFreeDeferred(u8 *ptr) {
 
 void heapQueueDeferredFree(void *ptr) {
     DeferredFree *entry;
-    s32 count = D_807F5A58;
+    s32 count = gHeapDeferredFreeCount;
 
     while (count >= 0xA00) {
         heapTickDeferredFrees();
-        count = D_807F5A58;
+        count = gHeapDeferredFreeCount;
     }
-    entry = &D_807F0A58[count];
+    entry = &gHeapDeferredFrees[count];
     entry->ptr = ptr;
-    entry->delay = D_807F5A5C;
-    D_807F5A58 = count + 1;
+    entry->delay = gHeapDeferredFreeDelay;
+    gHeapDeferredFreeCount = count + 1;
 }
 
 void heapCoalesce(HeapBlock *block);
@@ -634,16 +634,16 @@ void heapFreeToPool(HeapBlock *block) {
     HeapBlock *cur;
 
     i = 0;
-    if (D_807F0A28 > 0) {
+    if (gHeapPoolCount > 0) {
         do {
-            off = (s32)block - (s32)D_807F0988[i].start;
-            if (off >= 0 && (u32)off < (u32)D_807F0988[i].size) {
+            off = (s32)block - (s32)gHeapPools[i].start;
+            if (off >= 0 && (u32)off < (u32)gHeapPools[i].size) {
                 break;
             }
             i++;
-        } while (i < D_807F0A28);
+        } while (i < gHeapPoolCount);
     }
-    pool = &D_807F0988[i];
+    pool = &gHeapPools[i];
     cur = pool->freeList;
     if (cur != NULL) {
         while (cur->next != NULL && cur->next < block) {
@@ -707,9 +707,9 @@ void heapRegisterSurvivor(u8 **handle) {
     b = b - 1;
     if (1) { // FAKE: steers uopt candidate order (address web before the handle param)
         ((u8 *)b)[0xB] = 2;
-        D_807F5A70[D_807F5A68] = handle;
-        D_807F5A68++;
-        if (D_807F5A68 == 0x20) {
+        gHeapSurvivorList[gHeapSurvivorCount] = handle;
+        gHeapSurvivorCount++;
+        if (gHeapSurvivorCount == 0x20) {
             faultSetMessage(0xD, 0, 0, 0);
         }
     }
@@ -723,15 +723,15 @@ void heapUnregisterSurvivor(u8 **handle) {
     b = b - 1;
     ((u8 *)b)[0xB] = 0;
     i = 0;
-    while (i < D_807F5A68) {
-        if (D_807F5A70[i] == handle) {
+    while (i < gHeapSurvivorCount) {
+        if (gHeapSurvivorList[i] == handle) {
             break;
         }
         i++;
     }
-    D_807F5A68--;
-    D_807F5A70[i] = D_807F5A70[D_807F5A68];
-    D_807F5A70[D_807F5A68] = NULL;
+    gHeapSurvivorCount--;
+    gHeapSurvivorList[i] = gHeapSurvivorList[gHeapSurvivorCount];
+    gHeapSurvivorList[gHeapSurvivorCount] = NULL;
 }
 
 s32 heapBlockSize(void *ptr) {
@@ -773,17 +773,17 @@ void heapTickDeferredFrees(void) {
     if (~a != *(s32 *)(b + 0x54002C80)) {
         flag = 1;
     }
-    count = D_807F5A58;
-    if (D_807F5A58 && D_807F5A58) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    count = gHeapDeferredFreeCount;
+    if (gHeapDeferredFreeCount && gHeapDeferredFreeCount) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (count > 0) {
         do {
-            entry = &D_807F0A58[i];
+            entry = &gHeapDeferredFrees[i];
             if (--entry->delay == 0 && flag == 0) {
                 heapFreeToPool(entry->ptr);
-                D_807F5A58 = D_807F5A58 - 1;
-                count = D_807F5A58;
-                entry->ptr = D_807F0A58[count].ptr;
-                entry->delay = D_807F0A58[count].delay;
+                gHeapDeferredFreeCount = gHeapDeferredFreeCount - 1;
+                count = gHeapDeferredFreeCount;
+                entry->ptr = gHeapDeferredFrees[count].ptr;
+                entry->delay = gHeapDeferredFrees[count].delay;
             } else {
                 i++;
             }

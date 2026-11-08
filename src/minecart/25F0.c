@@ -147,9 +147,9 @@ extern Actor_25F0 *gCurrentActor;
 extern Actor_25F0 *gSpawnedActor;
 extern Actor_25F0 *D_807FBB4C;
 extern PlayerState_25F0 *gActivePlayerState;
-extern Actor_25F0 *D_807FDC94;
-extern Struct_DC90 *D_807FDC90;
-extern Struct_DC9C *D_807FDC9C;
+extern Actor_25F0 *gBehaviourTargetActor;
+extern Struct_DC90 *gBehaviourWorkState;
+extern Struct_DC9C *gBehaviourExtraState;
 extern StructBB70 D_807FBB70;
 extern MinecartTrackPoint **D_807F5FD4;
 extern MinecartPlayerPosition *gPlayerSlots;
@@ -261,7 +261,7 @@ void minecartFollowerBehaviour(void) {
         break;
     case 6:
         followDist = 0xFA;
-        if ((gFrameCounter % D_807FDC9C->unkA) == 0) {
+        if ((gFrameCounter % gBehaviourExtraState->unkA) == 0) {
             sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x182, 0xFF, 0x7F, 0, 0, 0.3f, 0);
             actorSpawn(0x11F, 0x50);
             gSpawnedActor->unk11C = gCurrentActor;
@@ -416,7 +416,7 @@ void minecartFollowerChildBehaviour(void) {
         break;
     case 6:
         if (s2->unk155 == 0) {
-            targetState->unk2C = D_807FDC9C->unkB;
+            targetState->unk2C = gBehaviourExtraState->unkB;
             s2->unk155 = 1;
         }
         if (gCurrentActor->unk168 == 1) {
@@ -561,15 +561,15 @@ void minecartStartScriptNearPlayer(void) {
         return;
     }
     if (func_8072DE10(10000) != 0 ||
-        (D_807FDC94->unk7C - gCurrentActor->unk7C) * (D_807FDC94->unk7C - gCurrentActor->unk7C) +
-        (D_807FDC94->unk80 - gCurrentActor->unk80) * (D_807FDC94->unk80 - gCurrentActor->unk80) +
-        (D_807FDC94->unk84 - gCurrentActor->unk84) * (D_807FDC94->unk84 - gCurrentActor->unk84) < 2500.0f) {
+        (gBehaviourTargetActor->unk7C - gCurrentActor->unk7C) * (gBehaviourTargetActor->unk7C - gCurrentActor->unk7C) +
+        (gBehaviourTargetActor->unk80 - gCurrentActor->unk80) * (gBehaviourTargetActor->unk80 - gCurrentActor->unk80) +
+        (gBehaviourTargetActor->unk84 - gCurrentActor->unk84) * (gBehaviourTargetActor->unk84 - gCurrentActor->unk84) < 2500.0f) {
         actorScriptStart(gCurrentActor, 0x280);
     }
 }
 
 void minecartChooseBranchSide(MinecartCart *cart) {
-    PlayerState_25F0 *c = D_807FDC94->unk174;
+    PlayerState_25F0 *c = gBehaviourTargetActor->unk174;
     MinecartCart *d = c->actor->unk174;
     u8 b = *d->unk34 - 0x10;
 
@@ -584,25 +584,25 @@ void minecartChooseBranchSide(MinecartCart *cart) {
 
 void minecartAdjustTargetSpeed(void) {
     u16 targetAngle;
-    PlayerState_25F0 *comp = D_807FDC94->unk174;
+    PlayerState_25F0 *comp = gBehaviourTargetActor->unk174;
 
     targetAngle = gCurrentActor->unk4->unk1C->unk4;
     if (targetAngle >= 0x47D1 && targetAngle < 0xB830) {
-        D_807FDC90->unk26 = MAX(9, D_807FDC90->unk26 - 5);
+        gBehaviourWorkState->unk26 = MAX(9, gBehaviourWorkState->unk26 - 5);
     } else if (targetAngle < 0x3830 || targetAngle >= 0xC7D1) {
-        D_807FDC90->unk26 = MIN(D_807FDC9C->unkD, D_807FDC90->unk26 + 5);
+        gBehaviourWorkState->unk26 = MIN(gBehaviourExtraState->unkD, gBehaviourWorkState->unk26 + 5);
     } else {
-        D_807FDC90->unk26 = comp->actor->unkB8;
+        gBehaviourWorkState->unk26 = comp->actor->unkB8;
     }
 }
 
 void minecartPlayPassBySfx(MinecartCart *cart) {
     f32 d;
-    f32 dist = gCurrentActor->unk7C - D_807FDC94->unk7C;
+    f32 dist = gCurrentActor->unk7C - gBehaviourTargetActor->unk7C;
     dist = dist * dist;
-    d = gCurrentActor->unk80 - D_807FDC94->unk80;
+    d = gCurrentActor->unk80 - gBehaviourTargetActor->unk80;
     dist = d * d + dist;
-    d = gCurrentActor->unk84 - D_807FDC94->unk84;
+    d = gCurrentActor->unk84 - gBehaviourTargetActor->unk84;
     dist = sqrtf(dist + d * d);
     if (dist < 200.0f) {
         if (++cart->unk3A >= 9) {
@@ -624,7 +624,7 @@ void minecartUpdateObstacleType1(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->unk60 & 0x10)) {
         func_80724CA4(2, 1);
-        D_807FDC90->unk35 = 6;
+        gBehaviourWorkState->unk35 = 6;
     }
     if (D_807FBB70.unk15 != 0) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF6, 0xFF, 0x7F, 0x1E);
@@ -641,7 +641,7 @@ void minecartUpdateObstacleType1(void) {
             alloc[1] = 0xFF;
             cart->unk34 = alloc;
             cart->unk10 = sub->unk4;
-            D_807FDC90->unk26 = 0x46;
+            gBehaviourWorkState->unk26 = 0x46;
             gCurrentActor->unkB8 = 0.0f;
             gCurrentActor->unk154++;
         } else {
@@ -709,7 +709,7 @@ void minecartUpdateObstacleType2(void) {
             cart->unk30 = alloc;
             cart->unk34 = alloc;
             cart->unk10 = 1;
-            D_807FDC90->unk26 = sub->unk4;
+            gBehaviourWorkState->unk26 = sub->unk4;
             gCurrentActor->unkB8 = 0.0f;
             gCurrentActor->unk154++;
         } else {
@@ -755,10 +755,10 @@ void minecartUpdateObstacleType3(void) {
 
     cart = gCurrentActor->unk178;
     behaviourFrameBegin();
-    playerState = D_807FDC94->unk174;
+    playerState = gBehaviourTargetActor->unk174;
     if (!(gCurrentActor->unk60 & 0x10)) {
         gCurrentActor->unk144 = 0x3C;
-        D_807FDC90->unk35 = 2;
+        gBehaviourWorkState->unk35 = 2;
         func_807149B8(1);
         func_807149FC(-1);
         func_80714C08(&D_8072030C, 0.14f, gCurrentActor, 0xB, 2);
@@ -796,10 +796,10 @@ case_1:
     case 1:
         if (mathAngleDistance(mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, gCurrentActor->unk7C, gCurrentActor->unk84), gCurrentActor->unkE6) >= 0x201 &&
             (gCurrentActor->unk7C - D_807FBB4C->unk7C) * (gCurrentActor->unk7C - D_807FBB4C->unk7C) + (gCurrentActor->unk84 - D_807FBB4C->unk84) * (gCurrentActor->unk84 - D_807FBB4C->unk84) < 22500.0f) {
-            D_807FDC90->unk26 = 0;
+            gBehaviourWorkState->unk26 = 0;
         } else {
             t2 = playerState->actor->unkB8 * 1.4;
-            D_807FDC90->unk26 = MIN(MAX(t2, 45.0), 90.0);
+            gBehaviourWorkState->unk26 = MIN(MAX(t2, 45.0), 90.0);
         }
         actorApproachTargetSpeed(0x200);
         actorSpawnNodeEffectFacingCamera(6, 0xFF);

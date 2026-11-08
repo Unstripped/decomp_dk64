@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern u32 gFrameCounter;
 extern s32 gCurrentMap;
 extern Actor *D_807FBB4C;
@@ -37,7 +37,7 @@ void effectZRotationMatrixUpdate(RotatingEffectActorView *effect, void *unused) 
     guScaleF(scaleMtx, effect->unk360, effect->unk364, 0.0f);
     guRotateF(rotMtx, (f32)effect->unk35C, 0.0f, 0.0f, 1.0f);
     guMtxCatF(scaleMtx, rotMtx, scaleMtx);
-    guMtxF2L(scaleMtx, (Mtx *)((u8 *)effect + (D_807444FC << 6) + 0x128));
+    guMtxF2L(scaleMtx, (Mtx *)((u8 *)effect + (gGfxBufferIndex << 6) + 0x128));
     effect->unk32C = 2;
 }
 
@@ -62,7 +62,7 @@ void effectZSpinMatrixUpdate(RotatingEffectActorView *effect, void *unused) {
     guScaleF(scaleMtx, effect->unk360, effect->unk364, 0.0f);
     guRotateF(rotMtx, ((RotationState *)effect->unk384)->unk0, 0.0f, 0.0f, 1.0f);
     guMtxCatF(scaleMtx, rotMtx, scaleMtx);
-    guMtxF2L(scaleMtx, (Mtx *)((u8 *)effect + (D_807444FC << 6) + 0x128));
+    guMtxF2L(scaleMtx, (Mtx *)((u8 *)effect + (gGfxBufferIndex << 6) + 0x128));
     effect->unk32C = 2;
 }
 
@@ -571,7 +571,7 @@ void effectFadeOutMatrixUpdate(TimedEffectActorView *effect, s8 *isDone) {
     } else {
         effect->unk36D = 0U;
     }
-    guMtxF2L(modelMtx, (Mtx *) ((u8 *) effect + (D_807444FC << 6) + 0x128));
+    guMtxF2L(modelMtx, (Mtx *) ((u8 *) effect + (gGfxBufferIndex << 6) + 0x128));
     ((u8 *) effect)[0x32C] = 3;
 }
 
@@ -597,7 +597,7 @@ void effectRandomYRotDecalUpdate(TimedEffectActorView *effect, s8 *isDone) {
     } else {
         effect->unk36D = 0U;
     }
-    guMtxF2L(modelMtx, (Mtx *) ((u8 *) effect + (D_807444FC << 6) + 0x128));
+    guMtxF2L(modelMtx, (Mtx *) ((u8 *) effect + (gGfxBufferIndex << 6) + 0x128));
     ((u8 *) effect)[0x32C] = 3;
     if (effect->unk36D == 0) {
         *isDone = 1;
@@ -633,7 +633,7 @@ void effectGroundDecalSpinUpdate(TimedEffectActorView *effect, s8 *isDone) {
     }
     guTranslateF(tempMtx, effect->unk340, effect->unk344, effect->unk348);
     guMtxCatF(modelMtx, tempMtx, modelMtx);
-    guMtxF2L(modelMtx, (Mtx *) ((u8 *) effect + (D_807444FC << 6) + 0x128));
+    guMtxF2L(modelMtx, (Mtx *) ((u8 *) effect + (gGfxBufferIndex << 6) + 0x128));
     if (effect->unk35C != 0) {
         ((GroundSpinState *) effect->unk384)->unk0 += ((GroundSpinState *) effect->unk384)->unk4;
         effect->unk360 = (f32) ((f64) effect->unk360 - 0.02);
@@ -706,7 +706,7 @@ void effectInterpolationUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     guScaleF(spA0, arg0->unk360, arg0->unk364, 0.0f);
     guRotateF(sp60, ((EffectInterpolationState *)arg0->unk384)->angle, 0.0f, 0.0f, 1.0f);
     guMtxCatF(spA0, sp60, spA0);
-    guMtxF2L(spA0, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(spA0, (Mtx *)((u8 *)arg0 + (gGfxBufferIndex << 6) + 0x128));
     ((u8 *)arg0)[0x32C] = 2;
 }
 
@@ -920,7 +920,7 @@ void effectTumbleBounceUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     guScaleF(sp98, arg0->unk360, arg0->unk364, 0.0f);
     guRotateF(sp58, TUMBLE_STATE->unkC, 0.0f, 0.0f, 1.0f);
     guMtxCatF(sp98, sp58, sp98);
-    guMtxF2L(sp98, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp98, (Mtx *) ((u8 *) arg0 + (gGfxBufferIndex << 6) + 0x128));
     ((u8 *) arg0)[0x32C] = 2;
 }
 
@@ -961,7 +961,7 @@ void effectSpiralDriftMatrixUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     guScaleF(sp6C, arg0->unk360, arg0->unk364, 0.0f);
     guRotateF(sp2C, ((SpiralDriftState *) arg0->unk384)->unk4, 0.0f, 0.0f, 1.0f);
     guMtxCatF(sp6C, sp2C, sp6C);
-    guMtxF2L(sp6C, (Mtx *) (((u8 *) arg0) + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp6C, (Mtx *) (((u8 *) arg0) + (gGfxBufferIndex << 6) + 0x128));
     ((u8 *) arg0)[0x32C] = 2;
 }
 
@@ -1008,7 +1008,7 @@ void effectWobbleScaleUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         }
     }
     guScaleF(sp78[1], arg0->unk360, arg0->unk364, 0.0f);
-    guMtxF2L(sp78[1], (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp78[1], (Mtx *) ((u8 *) arg0 + (gGfxBufferIndex << 6) + 0x128));
     ((u8 *) arg0)[0x32C] = 2;
 }
 
@@ -1162,7 +1162,7 @@ void effectSpriteMatrixUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     guScaleF(sp78, arg0->unk360, arg0->unk364, 0.0f);
     guTranslateF(sp38, (f32)((f64)arg0->unk340 + ((f64)sp34 * 0.5)), arg0->unk344 - (sp24 * 15.0f), arg0->unk348);
     guMtxCatF(sp78, sp38, sp78);
-    guMtxF2L(sp78, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp78, (Mtx *)((u8 *)arg0 + (gGfxBufferIndex << 6) + 0x128));
     ((u8 *)arg0)[0x32C] = 3;
 }
 
@@ -1482,7 +1482,7 @@ void effectFollowParentUpdate(FollowParentActorView *arg0, s8 *arg1) {
         if (parent->mode == 0xFE) {
             arg0->y = (f32) ((f64) arg0->y - 0.6);
         }
-        memcpy((u8 *) arg0 + (D_807444FC << 6) + 0x128, arg0->matrix, 0x40);
+        memcpy((u8 *) arg0 + (gGfxBufferIndex << 6) + 0x128, arg0->matrix, 0x40);
         arg0->state = 2;
         return;
     }
@@ -1624,7 +1624,7 @@ void effectGroundBounceUpdate(GroundBounceActorView *arg0, s8 *arg1) {
     guMtxCatF(mtx0, mtx1, mtx0);
     guTranslateF(mtx1, arg0->x, arg0->y, arg0->z);
     guMtxCatF(mtx0, mtx1, mtx0);
-    guMtxF2L(mtx0, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(mtx0, (Mtx *) ((u8 *) arg0 + (gGfxBufferIndex << 6) + 0x128));
     if (arg0->timer >= 0x13) {
         arg0->brightness -= 0x14;
     }
@@ -1729,7 +1729,7 @@ void effectSpinBillboardingUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     guScaleF(sp70, arg0->unk360, arg0->unk364, 0.0f);
     guRotateF(sp30, ((RandomRotationState *)arg0->unk384)->angle, 0.0f, 0.0f, 1.0f);
     guMtxCatF(sp70, sp30, sp70);
-    guMtxF2L(sp70, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp70, (Mtx *)((u8 *)arg0 + (gGfxBufferIndex << 6) + 0x128));
     arg0->pad0[0x32C] = 2;
 }
 
@@ -1819,7 +1819,7 @@ void effectWaveMotionUpdate(WaveMotionActorView *arg0, s8 *arg1) {
     guScaleF(sp70, arg0->unk360, scale, 0.0f);
     guTranslateF(sp30, arg0->unk340 + (sp28->unk4 * sp20), arg0->unk344 + (sp28->unk8 * sp20), arg0->unk348);
     guMtxCatF(sp70, sp30, sp70);
-    guMtxF2L(sp70, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp70, (Mtx *) ((u8 *) arg0 + (gGfxBufferIndex << 6) + 0x128));
     arg0->unk32C = 3;
 }
 
@@ -2014,7 +2014,7 @@ void effectShrinkFadeMatrixUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     guScaleF(sp70, arg0->unk360, arg0->unk364, 0.0f);
     guRotateF(sp30, (f32)arg0->unk35C, 0.0f, 0.0f, 1.0f);
     guMtxCatF(sp70, sp30, sp70);
-    guMtxF2L(sp70, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp70, (Mtx *)((u8 *)arg0 + (gGfxBufferIndex << 6) + 0x128));
     arg0->pad0[0x32C] = 2;
 }
 
@@ -2030,7 +2030,7 @@ void effectGrowExpandMatrixUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     guScaleF(sp70, scale, scale, 0.0f);
     guRotateF(sp30, (f32)arg0->unk35C, 0.0f, 0.0f, 1.0f);
     guMtxCatF(sp70, sp30, sp70);
-    guMtxF2L(sp70, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp70, (Mtx *)((u8 *)arg0 + (gGfxBufferIndex << 6) + 0x128));
     arg0->pad0[0x32C] = 2;
 }
 
@@ -2101,7 +2101,7 @@ void effectWispWanderUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     guScaleF(spA0, arg0->unk360, arg0->unk364, 0.0f);
     guRotateF(sp60, (f32)state->rotation, 0.0f, 0.0f, 1.0f);
     guMtxCatF(spA0, sp60, spA0);
-    guMtxF2L(spA0, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(spA0, (Mtx *)((u8 *)arg0 + (gGfxBufferIndex << 6) + 0x128));
     arg0->pad0[0x32C] = 2;
 }
 
@@ -2161,7 +2161,7 @@ void effectWispHomeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     guScaleF(sp98, arg0->unk360, arg0->unk364, 0.0f);
     guRotateF(sp58, (f32)state->rotation, 0.0f, 0.0f, 1.0f);
     guMtxCatF(sp98, sp58, sp98);
-    guMtxF2L(sp98, (Mtx *)((((u8 *)arg0) + (D_807444FC << 6)) + 0x128));
+    guMtxF2L(sp98, (Mtx *)((((u8 *)arg0) + (gGfxBufferIndex << 6)) + 0x128));
     arg0->pad0[0x32C] = 2;
 }
 
@@ -2337,7 +2337,7 @@ void effectShockwaveRingUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     }
     arg0->unk360 = (f32) ((f64) arg0->unk360 * 1.08);
     arg0->unk364 = arg0->unk360;
-    guMtxF2L(sp80, (Mtx *) ((u8 *) arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp80, (Mtx *) ((u8 *) arg0 + (gGfxBufferIndex << 6) + 0x128));
     ((u8 *) arg0)[0x32C] = 3;
 }
 
@@ -2523,7 +2523,7 @@ void func_8071E028(TimedEffectActorView *arg0, s8 *arg1) {
     guMtxCatF(sp68, sp28, sp68);
     guRotateF(sp28, (f32)arg0->unk35C, 0.0f, 0.0f, 1.0f);
     guMtxCatF(sp68, sp28, sp68);
-    guMtxF2L(sp68, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp68, (Mtx *)((u8 *)arg0 + (gGfxBufferIndex << 6) + 0x128));
     arg0->pad0[0x32C] = 2;
 }
 
@@ -2822,7 +2822,7 @@ void effectScaleSpinUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     guScaleF(sp6C, arg0->unk360, arg0->unk364, 0.0f);
     matrixMakeRotationZ(sp2C, var_v1->unk8);
     guMtxCatF(sp6C, sp2C, sp6C);
-    guMtxF2L(sp6C, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp6C, (Mtx *)((u8 *)arg0 + (gGfxBufferIndex << 6) + 0x128));
     arg0->pad0[0x32C] = 2;
 }
 
@@ -3026,7 +3026,7 @@ void func_8071F660(SineScaleActorView *arg0, void *arg1) {
     guScaleF(sp68, arg0->unk360, arg0->unk360, 0.0f);
     matrixMakeRotationZ(sp28, sp24 * 180.0f);
     guMtxCatF(sp68, sp28, sp68);
-    guMtxF2L(sp68, (Mtx *) ((s32) arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp68, (Mtx *) ((s32) arg0 + (gGfxBufferIndex << 6) + 0x128));
     arg0->unk32C = 2;
 }
 
@@ -3050,7 +3050,7 @@ void effectPulseSpinUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     guScaleF(sp6C, arg0->unk360, arg0->unk364, 0.0f);
     matrixMakeRotationZ(sp2C, var_v1->unk8);
     guMtxCatF(sp6C, sp2C, sp6C);
-    guMtxF2L(sp6C, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+    guMtxF2L(sp6C, (Mtx *)((u8 *)arg0 + (gGfxBufferIndex << 6) + 0x128));
     arg0->pad0[0x32C] = 2;
 }
 
@@ -3094,7 +3094,7 @@ void effectLerpPathUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         guScaleF(sp78, arg0->unk360, arg0->unk364, 0.0f);
         guRotateF(sp38, state->unk4, 0.0f, 0.0f, 1.0f);
         guMtxCatF(sp78, sp38, sp78);
-        guMtxF2L(sp78, (Mtx *)((u8 *)arg0 + (D_807444FC << 6) + 0x128));
+        guMtxF2L(sp78, (Mtx *)((u8 *)arg0 + (gGfxBufferIndex << 6) + 0x128));
         arg0->pad0[0x32C] = 2;
     }
 }

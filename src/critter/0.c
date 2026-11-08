@@ -283,7 +283,7 @@ void critterUpdateObjType1(CritterObj *obj) {
 
 void critterBuildMatrix(CritterObj *obj);
 void matrixMakeRotationZ(f32 (*)[4], f32);
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern Vtx D_80029870;
 extern Vtx D_800298D0;
 extern Vtx D_800298E0;
@@ -298,19 +298,19 @@ Gfx *func_800247F4(Gfx *gdl, CritterObj *obj) {
     gSPSetGeometryMode(gdl++, G_CULL_BACK);
     gDPLoadTextureBlock(gdl++, obj->tex[0], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 16, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 4, G_TX_NOLOD, G_TX_NOLOD);
     critterBuildMatrix(obj);
-    gSPMatrix(gdl++, &obj->mtx[0][D_807444FC], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gdl++, &obj->mtx[0][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPVertex(gdl++, &D_80029870, 6, 0);
     gSPDisplayList(gdl++, &D_80029B40);
     gDPLoadTextureBlock(gdl++, obj->tex[1], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 48, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 6, G_TX_NOLOD, G_TX_NOLOD);
     matrixMakeRotationZ(rotMtx, -flapAngle);
-    guMtxF2L(rotMtx, &obj->mtx[1][D_807444FC]);
-    gSPMatrix(gdl++, &obj->mtx[1][D_807444FC], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    guMtxF2L(rotMtx, &obj->mtx[1][gGfxBufferIndex]);
+    gSPMatrix(gdl++, &obj->mtx[1][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, &D_800298D0, 4, 6);
     gSP2Triangles(gdl++, 6, 7, 8, 0, 6, 8, 9, 0);
     gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
     matrixMakeRotationZ(rotMtx, flapAngle);
-    guMtxF2L(rotMtx, &obj->mtx[2][D_807444FC]);
-    gSPMatrix(gdl++, &obj->mtx[2][D_807444FC], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    guMtxF2L(rotMtx, &obj->mtx[2][gGfxBufferIndex]);
+    gSPMatrix(gdl++, &obj->mtx[2][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, &D_800298E0, 6, 7);
     gSP2Triangles(gdl++, 10, 11, 7, 0, 10, 7, 12, 0);
     critterCurrentTexture = 0;
@@ -348,16 +348,16 @@ Gfx *func_80024C88(Gfx *gdl, CritterObj *obj) {
         gDPLoadTextureBlock(gdl++, critterCurrentTexture, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_CLAMP, G_TX_CLAMP, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
     }
     critterBuildMatrix(obj);
-    gSPMatrix(gdl++, &obj->mtx[0][D_807444FC], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gdl++, &obj->mtx[0][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     matrixMakeRotationZ(rotMtx, flapAngle);
-    guMtxF2L(rotMtx, &obj->mtx[1][D_807444FC]);
-    gSPMatrix(gdl++, &obj->mtx[1][D_807444FC], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    guMtxF2L(rotMtx, &obj->mtx[1][gGfxBufferIndex]);
+    gSPMatrix(gdl++, &obj->mtx[1][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, &D_800297F0, 4, 0);
     gSP2Triangles(gdl++, 0, 1, 2, 0, 0, 2, 3, 0);
     gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
     matrixMakeRotationZ(rotMtx, -flapAngle);
-    guMtxF2L(rotMtx, &obj->mtx[2][D_807444FC]);
-    gSPMatrix(gdl++, &obj->mtx[2][D_807444FC], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    guMtxF2L(rotMtx, &obj->mtx[2][gGfxBufferIndex]);
+    gSPMatrix(gdl++, &obj->mtx[2][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, &D_80029830, 4, 0);
     gSP2Triangles(gdl++, 0, 1, 2, 0, 0, 2, 3, 0);
     gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
@@ -418,7 +418,7 @@ void critterUpdateObjType2(CritterObj *obj) {
 }
 
 extern s32 critterCurrentTexture;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 void critterBuildMatrix(CritterObj *);
 extern Vtx D_80029940[];
 extern Vtx D_80029980[];
@@ -434,16 +434,16 @@ Gfx *func_8002516C(Gfx *gdl, CritterObj *obj) {
                             G_TX_CLAMP, G_TX_CLAMP, 6, 5, G_TX_NOLOD, G_TX_NOLOD);
     }
     critterBuildMatrix(obj);
-    gSPMatrix(gdl++, &obj->mtx[0][D_807444FC], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gdl++, &obj->mtx[0][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     matrixMakeRotationY(tailMtx, obj->flapB);
-    guMtxF2L(tailMtx, &obj->mtx[2][D_807444FC]);
-    gSPMatrix(gdl++, &obj->mtx[2][D_807444FC], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
+    guMtxF2L(tailMtx, &obj->mtx[2][gGfxBufferIndex]);
+    gSPMatrix(gdl++, &obj->mtx[2][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_NOPUSH);
     gSPClearGeometryMode(gdl++, G_CULL_BOTH);
     guTranslateF(finTransMtx, 0.0f, 0.0f, -27.0f);
     matrixMakeRotationY(tailMtx, obj->flapA);
     guMtxCatF(tailMtx, finTransMtx, tailMtx);
-    guMtxF2L(tailMtx, &obj->mtx[1][D_807444FC]);
-    gSPMatrix(gdl++, &obj->mtx[1][D_807444FC], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    guMtxF2L(tailMtx, &obj->mtx[1][gGfxBufferIndex]);
+    gSPMatrix(gdl++, &obj->mtx[1][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gSPVertex(gdl++, D_80029940, 4, 0);
     gSP2Triangles(gdl++, 0, 1, 2, 0, 2, 3, 0, 0);
     gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
@@ -481,7 +481,7 @@ Gfx *func_800255C4(Gfx *gdl, CritterObj *obj) {
                             G_TX_CLAMP, G_TX_CLAMP, 5, 4, G_TX_NOLOD, G_TX_NOLOD);
     }
     critterBuildMatrix(obj);
-    gSPMatrix(gdl++, &obj->mtx[0][D_807444FC], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gdl++, &obj->mtx[0][gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPVertex(gdl++, &D_80029A10, 11, 0);
     gSP2Triangles(gdl++, 0, 1, 2, 0, 0, 3, 1, 0);
     gSP2Triangles(gdl++, 0, 2, 4, 0, 0, 5, 6, 0);
@@ -498,7 +498,7 @@ extern Gfx D_1000118;
 extern u8 gCurrentPlayerIndex;
 extern CritterViewer *gPlayerSlots;
 extern Mtx D_2000200;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern Mtx D_2000180;
 
 Gfx *critterRenderSetup(Gfx *gdl) {
@@ -506,7 +506,7 @@ Gfx *critterRenderSetup(Gfx *gdl) {
     gDPPipeSync(gdl++);
     gDPSetCycleType(gdl++, G_CYC_1CYCLE);
     gSPLoadGeometryMode(gdl++, 0);
-    gSPMatrix(gdl++, &gPlayerSlots[gCurrentPlayerIndex].projection[D_807444FC], G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gdl++, &gPlayerSlots[gCurrentPlayerIndex].projection[gGfxBufferIndex], G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(gdl++, &D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(gdl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     return gdl;
@@ -558,7 +558,7 @@ void critterBuildMatrix(CritterObj *obj) {
                   obj->x,
                   obj->y + obj->yBob,
                   obj->z);
-    guMtxF2L(transMtx, &obj->mtx[0][D_807444FC]);
+    guMtxF2L(transMtx, &obj->mtx[0][gGfxBufferIndex]);
 }
 
 extern Gfx D_80029B18;
@@ -705,7 +705,7 @@ void critterUpdateZoneProximity(CritterObj *obj) {
 
     fv0 = 0.0f;
     lim = (f32)(obj->homeZone->shape.unk10 + 0x1DE84);
-    if (obj->homeZone->frame != D_807444FC) {
+    if (obj->homeZone->frame != gGfxBufferIndex) {
         half = (obj->homeZone->shape.unk4 + obj->homeZone->shape.unk8) >> 1;
         dist = ((f32)obj->homeZone->x - D_807FBB48->x) * ((f32)obj->homeZone->x - D_807FBB48->x) + ((f32)obj->homeZone->z - D_807FBB48->z) * ((f32)obj->homeZone->z - D_807FBB48->z);
         fv0 = 0.0f;
@@ -721,7 +721,7 @@ void critterUpdateZoneProximity(CritterObj *obj) {
             }
         }
         obj->homeZone->near = f;
-        obj->homeZone->frame = D_807444FC;
+        obj->homeZone->frame = gGfxBufferIndex;
         m = &gPlayerSlots[0] + gCurrentPlayerIndex;
         dist = ((f32)obj->homeZone->z - m->z) * ((f32)obj->homeZone->z - m->z) + (((f32)obj->homeZone->x - m->x) * ((f32)obj->homeZone->x - m->x) + ((f32)obj->homeZone->y - m->y) * ((f32)obj->homeZone->y - m->y));
         obj->homeZone->distSq = dist;
@@ -791,11 +791,11 @@ void critterCalcDistToPlayer(CritterObj *obj) {
     f32 dx;
     f32 dz;
 
-    if (obj->frame != D_807444FC) {
+    if (obj->frame != gGfxBufferIndex) {
         dx = obj->x - D_807FBB48->x;
         dz = obj->z - D_807FBB48->z;
         obj->distSq = (dx * dx) + (dz * dz);
-        obj->frame = D_807444FC;
+        obj->frame = gGfxBufferIndex;
     }
 }
 
@@ -1115,12 +1115,12 @@ void critterInit(void *groups) {
     heapClearBlock(critterPlayerZone);
 }
 
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 void critterUpdateGroups(CritterGroups *);
 
 Gfx *critterRender(Gfx *glist) {
-    if (D_807FBB60 & 0x10) {
-        if (!(D_807FBB60 & 2)) {
+    if (gGlobalPauseFlags & 0x10) {
+        if (!(gGlobalPauseFlags & 2)) {
             critterUpdateGroups(critterGroups);
         }
         glist = critterRenderGroups(glist, critterGroups);

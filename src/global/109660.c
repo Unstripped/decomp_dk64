@@ -12,10 +12,10 @@ extern u8 D_807FC950[][0x5E];
 extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 extern u8 D_807444F8;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 typedef struct {
     s8 unk0;
@@ -29,7 +29,7 @@ typedef struct {
 } FillRectEntry;
 
 extern FillRectEntry D_80750840[];
-extern u8 D_80750AB8;
+extern u8 gSplitScreenMode;
 extern u8 D_80750ABC;
 extern u8 D_8074450C;
 
@@ -42,7 +42,7 @@ Gfx *func_80704960(Gfx *dl) {
     gDPSetCycleType(dl++, G_CYC_FILL);
     gDPSetFillColor(dl++, 0x10001);
     for (; D_80750840[i].unk0 != -1; i++) {
-        if (((D_80750840[i].unk0 == 2) && ((s32)gPlayerCount >= 2) && (D_80750840[i].unk2 & D_80750ABC)) || ((gPlayerCount == D_80750840[i].unk0) && (D_80750AB8 == D_80750840[i].unk1) && (D_80750840[i].unk2 & D_80750ABC))) {
+        if (((D_80750840[i].unk0 == 2) && ((s32)gPlayerCount >= 2) && (D_80750840[i].unk2 & D_80750ABC)) || ((gPlayerCount == D_80750840[i].unk0) && (gSplitScreenMode == D_80750840[i].unk1) && (D_80750840[i].unk2 & D_80750ABC))) {
             Gfx *_g = (Gfx *)(dl++);
             _g->words.w0 = 0xF6000000 | (((((D_80750840[i].unk8 + 1) * D_8074450C) - 1) & 0x3FF) << 14) | (((((D_80750840[i].unkA + 1) * D_8074450C) - 1) & 0x3FF) << 2);
             _g->words.w1 = ((((D_80750840[i].unk4 * D_8074450C) & 0x3FF)) << 14) | ((((D_80750840[i].unk6 * D_8074450C) & 0x3FF)) << 2);
@@ -162,7 +162,7 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, void *tex, f32 angle, void *mtx, u8 skyType
     gSPSetGeometryMode(gdl++, 0x200004);
     gSPMatrix(gdl++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(gdl++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0xDC080008; _g->words.w1 = osVirtualToPhysical((u8 *)BG_PLAYER_VIEW + (D_807444FC << 4) + 0x250); }
+    { Gfx *_g = (Gfx *)(gdl++); _g->words.w0 = 0xDC080008; _g->words.w1 = osVirtualToPhysical((u8 *)BG_PLAYER_VIEW + (gGfxBufferIndex << 4) + 0x250); }
     {
         Gfx *_g = (Gfx *)(gdl++);
         _g->words.w0 = ((s32)((f32)BG_PLAYER_VIEW->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)BG_PLAYER_VIEW->unk270 * 4.0f) & 0xFFF) << 12);
@@ -214,7 +214,7 @@ extern s32 D_807FD978;
 
 void gfxBackgroundReset(void) {
     D_807FD8A0 = 0;
-    guOrtho(&D_807FD928, 0.0f, (f32)((f64)((f32)D_80744490 * 16.0f) - 1.0), (f32)((f64)((f32)D_80744494 * 16.0f) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&D_807FD928, 0.0f, (f32)((f64)((f32)gScreenWidth * 16.0f) - 1.0), (f32)((f64)((f32)gScreenHeight * 16.0f) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
     D_807FD968 = -1.0f;
     D_807FD978 = 0;
 }
@@ -448,13 +448,13 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     guMtxCatF(mtxA, mtxB, mtxA);
     guTranslateF(mtxB, 2560.0f, 1920.0f, 0.0f);
     guMtxCatF(mtxA, mtxB, mtxA);
-    guMtxF2L(mtxA, &D_807FD8A8[D_807444FC]);
+    guMtxF2L(mtxA, &D_807FD8A8[gGfxBufferIndex]);
     rotX = 6.2831855f - rotX;
     rotY = (width / height) * (6.2831855f - rotY);
     if (D_807FD8A0 == 0) {
         D_807FD8A0 = assetLoad(0xE, assetId, 0, 0);
     }
-    gSPMatrix(glist++, &D_807FD8A8[D_807444FC], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(glist++, &D_807FD8A8[gGfxBufferIndex], G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(glist++, &D_807FD928, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gDPPipeSync(glist++);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0x404240);
@@ -599,8 +599,8 @@ Gfx *gfxClearScreenSetViewportScissor(Gfx *glist) {
 
 s32 camIsCutsceneActive(void);
 void func_8068B830(s16, s16, s16);
-void func_8068B8A4(f32);
-void func_8068B8FC(void);
+void enemyAggroSetIntensityBB(f32);
+void enemyAggroDespawnBB(void);
 extern f32 gScreenFadeRate;
 extern u8 D_8076AEE0;
 extern s16 D_807FD800;
@@ -730,10 +730,10 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *bgTex, void *rotAngle, void *mtx, s32 p
         if (x < 2500.0f) {
             r = (f32)((f64)((2500.0f - x) / 1000.0f) > 1.0 ? 1.0 : (f64)((2500.0f - x) / 1000.0f));
             func_8068B830((s16)(s32)(2.0f + r), (s16)(s32)(r * 400.0f), (s16)(s32)(r * 30.0f));
-            func_8068B8A4((f32)(((f64)r * -0.6) + 1.0));
+            enemyAggroSetIntensityBB((f32)(((f64)r * -0.6) + 1.0));
         } else {
-            func_8068B8FC();
-            func_8068B8A4(1.0f);
+            enemyAggroDespawnBB();
+            enemyAggroSetIntensityBB(1.0f);
         }
         lensFlareAddFromAngle(0xBB8, 0x4E20, 0);
         dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 5, 6, 1, -1, 0.0f);
@@ -796,20 +796,20 @@ typedef struct {
 
 Gfx *gfxBuildScrollingBackground(Gfx *);
 Gfx *gfxDrawMapBackground(Gfx *, void *, void *, void *, s32);
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern s32 D_807552EC;
 
 Gfx *gfxDrawPlayerViewBackground(Gfx *glist, s16 player) {
     s32 draw_black;
 
-    if ((gPlayerCount >= 2) || !(D_807FBB60 & 0x10)) {
+    if ((gPlayerCount >= 2) || !(gGlobalPauseFlags & 0x10)) {
         if (gCurrentMap == 0x50) {
             glist = gfxBuildScrollingBackground(glist);
         } else {
-            draw_black = !(D_807FBB60 & 2);
+            draw_black = !(gGlobalPauseFlags & 2);
             if (gPlayerCount >= 2) {
                 s32 tmp;
-                if (D_807444FC == 0) {}
+                if (gGfxBufferIndex == 0) {}
                 if (gCurrentMap == 0xBE) {
                     tmp = 0;
                 } else {
@@ -831,7 +831,7 @@ Gfx *gfxDrawPlayerViewBackground(Gfx *glist, s16 player) {
         }
     } else {
         glist = gfxDrawMapBackground(glist, ((PlayerViewWithBg *)gPlayerSlots + player)->unk2D4, ((PlayerViewWithBg *)gPlayerSlots + player)->unk2D8,
-            (u8 *)((PlayerViewWithBg *)gPlayerSlots + player) + (D_807444FC << 6) + 0x108, player);
+            (u8 *)((PlayerViewWithBg *)gPlayerSlots + player) + (gGfxBufferIndex << 6) + 0x108, player);
     }
     return glist;
 }

@@ -46,7 +46,7 @@ f32 sqrtf(f32);
 void behaviourFrameBegin(void);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void actorSetTargetSpeed(Actor *, s32);
-void func_8072A920(s32, s32, f32, f32, f32, s32, f32, f32, s32);
+void actorPitchEaseTowardPoint(s32, s32, f32, f32, f32, s32, f32, f32, s32);
 s32 func_8072881C(s32, void *);
 void actorUpdateModelMatrix(Actor *, s32);
 
@@ -133,8 +133,8 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
     f32 dz;
 
     behaviourFrameBegin();
-    dx = gCurrentActor->x - D_807FDC94->x;
-    dz = gCurrentActor->z - D_807FDC94->z;
+    dx = gCurrentActor->x - gBehaviourTargetActor->x;
+    dz = gCurrentActor->z - gBehaviourTargetActor->z;
     dist = (u16)sqrtf(dx * dx + dz * dz);
     if (!(gCurrentActor->flags & 0x10)) {
         R1C8CBSub178 *p = R1V->unk178;
@@ -145,7 +145,7 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
         gCurrentActor->tintB = 0xFF;
         p->unk2 = 0;
         p->unk0 = 0xFF;
-        ((R1C8CBView98 *)D_807FDC98)->unk3C = 1.0f;
+        ((R1C8CBView98 *)gBehaviourAnimState)->unk3C = 1.0f;
         if (gCurrentActor->actorType == 0xF0) {
             sfxPlayActorSound(gCurrentActor, 0x132, 0, 0, 0, 0xA0, 1.0f, 0);
         }
@@ -156,7 +156,7 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
         dist = dist - stopDist;
     }
     actorSetTargetSpeed(gCurrentActor, (s32)((u32)dist * 2.0));
-    func_8072A920(0x23, yOffset, D_807FDC94->x, D_807FDC94->y + yOffset * 3.0, D_807FDC94->z, 0x1E, 3.3f, 100.0f, flags | 0x2000);
+    actorPitchEaseTowardPoint(0x23, yOffset, gBehaviourTargetActor->x, gBehaviourTargetActor->y + yOffset * 3.0, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, flags | 0x2000);
     gCurrentActor->y += 0.5 * func_80612794(gFrameCounter * 40);
     actorUpdateNearestSpotlight();
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -166,7 +166,7 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
 void func_806C6B50(void) {
     gCurrentActor->waterY = 99999.0f;
     func_806C6884(0, 0xA, 0x44);
-    func_8072881C(0, D_807FDC90->unk28);
+    func_8072881C(0, gBehaviourWorkState->unk28);
 }
 
 void func_806C6BA0(void) {
@@ -189,7 +189,7 @@ void actorDespawn(Actor *);
 void patrolPathStep(s32, s32);
 void func_8072DC7C(s32);
 
-#define R1S ((R1C8CBState *)D_807FDC90)
+#define R1S ((R1C8CBState *)gBehaviourWorkState)
 
 void func_806C6BC8(void) {
     f32 ratio;
@@ -205,9 +205,9 @@ void func_806C6BC8(void) {
         gCurrentActor->flags &= ~0x8000;
         R1V->unk154 = 0x27;
         R1V->unk155 = 0;
-        D_807FDC90->scale = gCurrentActor->unk4->unk38;
+        gBehaviourWorkState->scale = gCurrentActor->unk4->unk38;
         R1S->unk2E = 0x96;
-        D_807FDC98->unk46 |= 0x60;
+        gBehaviourAnimState->unk46 |= 0x60;
         hudSpawnCountdownTimer(0xDC, 0x2A, 0x64);
         actorSetStateTwo(gSpawnedActor);
     }
@@ -255,7 +255,7 @@ void func_806C6BC8(void) {
             } else {
                 switch (R1V->unk155) {
                     case 5:
-                        actorSetTargetSpeed(gCurrentActor, D_807FDC9C->unkC);
+                        actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
                         R1V->unk155 = 0;
                         break;
                     case 3:
@@ -277,7 +277,7 @@ void func_806C6BC8(void) {
                             actorDespawn((Actor *)R1V->unk11C);
                             R1V->unk155 = 1;
                         }
-                        func_8072A920(2, 0, D_807FDC90->targetX, D_807FDC90->targetY, D_807FDC90->targetZ, 0x46, 30.0f, 100.0f, 0x200);
+                        actorPitchEaseTowardPoint(2, 0, gBehaviourWorkState->targetX, gBehaviourWorkState->targetY, gBehaviourWorkState->targetZ, 0x46, 30.0f, 100.0f, 0x200);
                         patrolPathStep(2, 0);
                         break;
                     case 1:

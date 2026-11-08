@@ -280,7 +280,7 @@ typedef struct CollisionMtxNode {
     s32 unk20;
 } CollisionMtxNode;
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 void matrix4Invert(float [4][4], float [4][4]);
 
 void collisionWorldToNodeLocal(CollisionMtxOwner *owner, f32 worldX, f32 worldY, f32 worldZ, CollisionMtxNode *node, f32 *outX, f32 *outY, f32 *outZ) {
@@ -289,7 +289,7 @@ void collisionWorldToNodeLocal(CollisionMtxOwner *owner, f32 worldX, f32 worldY,
     u32 mtxIndex;
     Mtx *mtx;
 
-    mtx = owner->unk74[D_807444FC];
+    mtx = owner->unk74[gGfxBufferIndex];
     mtxIndex = node->unk20;
     if (mtxIndex == -1) {
         memcpy(worldMtx, owner->unk70, sizeof(worldMtx));
@@ -434,7 +434,7 @@ void collisionNodeLocalToWorldXZ(CollisionLocalOwner *owner, CollisionHitRecordR
     for (i = recordRef->unk14 - 1; i != 0; i--) {
         node = node->next;
     }
-    mtx = owner->unk140->unk74[D_807444FC ^ 1];
+    mtx = owner->unk140->unk74[gGfxBufferIndex ^ 1];
     mtxIndex = node->unk20;
     if (mtxIndex == -1) {
         memcpy(modelMtx, owner->unk140->unk70, sizeof(modelMtx));

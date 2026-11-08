@@ -502,7 +502,7 @@ void menuTransitionToSubmenu(Struct_80025D14 *state, u8 *inventory) {
     playerStateQueueCallback(0x1B, gCurrentActor, 0);
 }
 
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 s32 slotQueueGetMaxValue(s32, s32);
 
 void renderCallbacksRegister(void *, void *, s32);
@@ -534,7 +534,7 @@ void menuUpdateShopPurchaseStep(Struct_80025D14 *state, u8 *inventory) {
             case 0:
             case 1:
                 playerStateQueueCallback(0x52, 0, 0);
-                D_807FBB60 &= ~0x10030;
+                gGlobalPauseFlags &= ~0x10030;
                 gPlayerSlots->unk4->unk60 |= 0x40000000;
                 break;
             case 4:
@@ -600,7 +600,7 @@ void menuUpdateShopDialogueStep(Struct_80025D14 *state, void *inventory, s32 fla
     case 0:
         if (currentActorTestClearFlag() != 0) {
             extraTextParam = -1;
-            D_807FBB60 |= 0x10030;
+            gGlobalPauseFlags |= 0x10030;
             gPlayerSlots->unk4->unk60 &= ~0x40000000;
             textParam1 = 0;
             textParam2 = -1;
@@ -878,7 +878,7 @@ void menuUpdateCrankyShopActor(void) {
             case 6:
                 if (currentActorTestClearFlag() != 0) {
                     playerStateQueueCallback(0x52, 0, 0);
-                    D_807FBB60 &= 0xFFFEFFCF;
+                    gGlobalPauseFlags &= 0xFFFEFFCF;
                     gPlayerSlots->unk4->unk60 |= 0x40000000;
                     gCurrentActor->unk154 = 7;
                     currentActorClearFlag();
@@ -887,7 +887,7 @@ void menuUpdateCrankyShopActor(void) {
                 break;
             case 7:
                 if (currentActorTestClearFlag() != 0) {
-                    D_807FBB60 |= 0x10030;
+                    gGlobalPauseFlags |= 0x10030;
                     D_80750AC8 = 0xF;
                     func_8070D8C0(gCurrentActor, 8, 0x1F);
                     gCurrentActor->unk154 = 1;

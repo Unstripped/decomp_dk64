@@ -12,15 +12,15 @@ extern u8 D_807FC950[][0x5E];
 extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 extern u8 D_807444F8;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 extern u8 D_807444EC;
 extern u8 D_807444F4;
 extern s32 D_8076D1F8;
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern s8 D_807FD9BC;
 extern u8 D_807FD9BD;
 extern f32 D_807FD9C4;
@@ -45,7 +45,7 @@ u8 arg0;
         D_807444F8 = 2;
         D_807444EC = 6;
         D_807FD9BD = 2;
-        if ((D_807444F4 == 1) && (D_807FBB64 & 1)) {
+        if ((D_807444F4 == 1) && (gGlobalOverlayFlags & 1)) {
             timerQueueCancel(0);
         }
         break;
@@ -72,10 +72,10 @@ void fbBuildTileTable(s32 arg0, s32 arg1) {
     s32 col;
     s32 x;
 
-    cols = D_80744490 / arg0;
-    rows = D_80744494 / arg1;
-    remW = D_80744490 - arg0 * cols;
-    remH = D_80744494 - arg1 * rows;
+    cols = gScreenWidth / arg0;
+    rows = gScreenHeight / arg1;
+    remW = gScreenWidth - arg0 * cols;
+    remH = gScreenHeight - arg1 * rows;
     if (remW > 0) {
         cols++;
     }
@@ -84,14 +84,14 @@ void fbBuildTileTable(s32 arg0, s32 arg1) {
     }
     idx = 0;
     if (remH != 0) {
-        y = D_80744494 - remH;
+        y = gScreenHeight - remH;
     } else {
-        y = D_80744494 - arg1;
+        y = gScreenHeight - arg1;
     }
     for (row = 0; row < rows; row++) {
         x = 0;
         for (col = 0; col < cols; col++) {
-            gFbTileTable[idx].offset = D_80744490 * y + x;
+            gFbTileTable[idx].offset = gScreenWidth * y + x;
             if (remW != 0 && col == cols - 1) {
                 gFbTileTable[idx].width = remW;
             } else {
@@ -253,16 +253,16 @@ void meshDrawTextured(Gfx **arg0, MeshInfo *arg1, u8 *arg2) {
     s32 j, k, row, texture, prev, base, count;
 
     for (j = 0; j < arg1->vertex_count; j++) {
-        ((s16 *)(arg1->screen_vertices[D_807444FC] + j * 0x10))[0] = func_8070C200(arg1->vertices[j * 3]);
-        ((s16 *)(arg1->screen_vertices[D_807444FC] + j * 0x10))[1] = func_8070C200(arg1->vertices[j * 3 + 1]);
-        ((s16 *)(arg1->screen_vertices[D_807444FC] + j * 0x10))[2] = func_8070C200(arg1->vertices[j * 3 + 2]);
+        ((s16 *)(arg1->screen_vertices[gGfxBufferIndex] + j * 0x10))[0] = func_8070C200(arg1->vertices[j * 3]);
+        ((s16 *)(arg1->screen_vertices[gGfxBufferIndex] + j * 0x10))[1] = func_8070C200(arg1->vertices[j * 3 + 1]);
+        ((s16 *)(arg1->screen_vertices[gGfxBufferIndex] + j * 0x10))[2] = func_8070C200(arg1->vertices[j * 3 + 2]);
     }
     k = 0;
     for (row = 0; arg1->column_counts[row] != 0; row++) {
         prev = -0x63;
         base = arg1->column_starts[row];
         count = arg1->column_ends[row] - base + 1;
-        gSPVertex(glist++, osVirtualToPhysical(arg1->screen_vertices[D_807444FC] + base * 0x10), count, 0);
+        gSPVertex(glist++, osVirtualToPhysical(arg1->screen_vertices[gGfxBufferIndex] + base * 0x10), count, 0);
         for (j = 0; j < arg1->column_counts[row]; j++) {
             texture = arg1->cells[k].texture;
             if (texture != prev) {
@@ -406,7 +406,7 @@ void fbCopySetAlpha(s32 *arg0, s32 *arg1) {
     s32 *src = arg1;
     s32 *dst = arg0;
 
-    for (i = 0; i < (D_80744490 * D_80744494) / 16; i++) {
+    for (i = 0; i < (gScreenWidth * gScreenHeight) / 16; i++) {
         dst[0] = src[0] | 0x10001;
         dst[1] = src[1] | 0x10001;
         dst[2] = src[2] | 0x10001;
@@ -434,8 +434,8 @@ typedef struct TransitionBuffers {
     s32 unk28;
 } TransitionBuffers;
 
-extern u8 *D_8076A048;
-extern Gfx *D_8076A050[];
+extern u8 *gGfxCurrentFrameBuffer;
+extern Gfx *gGfxTaskBuffers[];
 extern s32 gFrameCounter;
 extern s32 D_8076A088;
 extern s32 D_8076A08C;
@@ -462,11 +462,11 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
     Gfx *sp34;
     Gfx *sp30;
 
-    schedSubmitGfxTask(D_8076A050[D_807444FC], D_8076A088, 3, 1, 0x4D2, 1);
-    D_807444FC ^= 1;
+    schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 0x4D2, 1);
+    gGfxBufferIndex ^= 1;
     gFrameCounter += 1;
-    D_8076A048 = (D_807444FC * 0x11B0) + (u8 *)&D_80767CE8;
-    sp30 = (Gfx *)(D_8076A048 + 0xDB0);
+    gGfxCurrentFrameBuffer = (gGfxBufferIndex * 0x11B0) + (u8 *)&D_80767CE8;
+    sp30 = (Gfx *)(gGfxCurrentFrameBuffer + 0xDB0);
     switch (*(u8 *)&D_807FD9BC) {
     case 1:
         break;
@@ -476,12 +476,12 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
         break;
     }
     if ((D_8076A0B1 & 1) && (gScreenFadeProgress == 31.0f)) {
-        sp34 = D_8076A050[D_807444FC];
+        sp34 = gGfxTaskBuffers[gGfxBufferIndex];
         if (D_8076A0B2 == 1) {
             D_807444EC = D_807444F4;
         }
     } else {
-        transitionBeginDisplayList(D_8076A048, &sp34, &D_8076A0B1);
+        transitionBeginDisplayList(gGfxCurrentFrameBuffer, &sp34, &D_8076A0B1);
         if (transitionRender(&sp34, D_807FD9B8, D_807FD9B0) != 0) {
             switch (D_807444F8) {
             case 1:
@@ -497,7 +497,7 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
                 heapFreeDeferred(D_807FD9A8->unk10);
                 heapFreeDeferred(D_807FD9A8->unk14);
                 assetFreeBuffer(D_807FD9B8, 0x24B, 0x4A);
-                if (((D_807444EC = D_807444F4) == 1) && (D_807FBB64 & 1)) {
+                if (((D_807444EC = D_807444F4) == 1) && (gGlobalOverlayFlags & 1)) {
                     camRestartPath();
                 }
                 D_807444F8 = 3;
@@ -513,11 +513,11 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
         }
     }
     if ((D_8076A0A4 != 0) && (D_807444EC != 6)) {
-        func_805FE71C(sp34, D_807444FC, &D_8076A088, 0);
-        func_805FE7B4(sp30, (s32)D_8076A048, &D_8076A08C, 1);
+        func_805FE71C(sp34, gGfxBufferIndex, &D_8076A088, 0);
+        func_805FE7B4(sp30, (s32)gGfxCurrentFrameBuffer, &D_8076A08C, 1);
         return;
     }
-    func_805FE71C(sp34, D_807444FC, &D_8076A088, 1);
+    func_805FE71C(sp34, gGfxBufferIndex, &D_8076A088, 1);
 }
 
 extern void *D_8076A080;
@@ -529,7 +529,7 @@ Gfx *func_805FE398();
 Gfx *func_805FE4D4();
 
 void transitionBeginDisplayList(void *arg0, Gfx **arg1) {
-    Gfx *dl = D_8076A050[D_807444FC];
+    Gfx *dl = gGfxTaskBuffers[gGfxBufferIndex];
 
     gSPSegment(dl++, 0, 0);
     gSPSegment(dl++, 2, osVirtualToPhysical(arg0));
@@ -549,7 +549,7 @@ void transitionBeginDisplayList(void *arg0, Gfx **arg1) {
     gDPSetFillColor(dl++, 0xFFC1FFC1);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0);
     gSPClearGeometryMode(dl++, G_ZBUFFER);
-    gDPFillRectangle(dl++, 0, 0, D_80744490 - 1, D_80744494 - 1);
+    gDPFillRectangle(dl++, 0, 0, gScreenWidth - 1, gScreenHeight - 1);
     gSPPerspNormalize(dl++, D_8076A09C);
     gSPClipRatio(dl++, FRUSTRATIO_2);
     *arg1 = dl;
@@ -559,7 +559,7 @@ extern s32 gTransitionProgress;
 extern s32 D_8075506C;
 extern void *D_807FD9A4;
 extern s32 D_807FD9AC;
-extern s32 *D_80744470[];
+extern s32 *gFramebuffers[];
 
 void *heapAlloc(s32);
 s32 assetLoad();
@@ -577,8 +577,8 @@ void transitionInit(void) {
         break;
     }
     D_807FD9B8 = assetLoad(0x13, 1, 1, 1);
-    D_807FD9B0 = (s32)heapAlloc(D_80744490 * D_80744494 * 2);
-    fbCopySetAlpha((s32 *)D_807FD9B0, D_80744470[D_807444FC]);
+    D_807FD9B0 = (s32)heapAlloc(gScreenWidth * gScreenHeight * 2);
+    fbCopySetAlpha((s32 *)D_807FD9B0, gFramebuffers[gGfxBufferIndex]);
     func_80709890((void *)D_807FD9B8, (void *)&D_807FD9A8, (void *)&D_807FD9AC, 0);
     meshComputeVertexRanges((void *)D_807FD9A8);
     D_807FD9A4 = D_807FD9A8->unk8;

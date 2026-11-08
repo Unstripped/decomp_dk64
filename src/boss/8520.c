@@ -20,7 +20,7 @@ typedef struct BossA_Struct_807FBB44 {
 } BossA_Struct_807FBB44;
 
 extern BossA_Struct_807FBB40 *gCurrentActor;
-extern BossA_Struct_807FDC9C *D_807FDC9C;
+extern BossA_Struct_807FDC9C *gBehaviourExtraState;
 extern BossA_Struct_807FBB44 *gSpawnedActor;
 
 f32 func_80612790(s16);
@@ -37,7 +37,7 @@ void bossKutOutSpawnGhost(s16 actorType, s16 distance, s16 angle) {
     spawnNodeSpawnById(
         actorType,
         sinVal * fArg1 + gCurrentActor->unk7C,
-        D_807FDC9C->unk6,
+        gBehaviourExtraState->unk6,
         func_80612790(angle) * fArg1 + gCurrentActor->unk84,
         0, 0, 0
     );
@@ -52,7 +52,7 @@ typedef struct BossA_Struct_807FDC90 {
     s32 unk28;
 } BossA_Struct_807FDC90;
 
-extern BossA_Struct_807FDC90 *D_807FDC90;
+extern BossA_Struct_807FDC90 *gBehaviourWorkState;
 
 s32 randomNonNegative(void);
 void camStartPath(void *, s32, s32);
@@ -62,8 +62,8 @@ void bossKutOutSpawnGhosts(void) {
     bossKutOutSpawnGhost(3, ((randomNonNegative() >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
     bossKutOutSpawnGhost(4, ((randomNonNegative() >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
 
-    if (!(D_807FDC90->unk1A & 0x8000)) {
-        D_807FDC90->unk1A |= 0x8000;
+    if (!(gBehaviourWorkState->unk1A & 0x8000)) {
+        gBehaviourWorkState->unk1A |= 0x8000;
         camStartPath(gSpawnedActor, 2, 1);
     }
 }
@@ -75,18 +75,18 @@ void animSetFrameAndSubframe(void *, s32, s16, f32);
 void func_8002C748(animSlot)
 u8 animSlot;
 {
-    D_807FDC90->unk28 = 2;
+    gBehaviourWorkState->unk28 = 2;
     animSetLoopLimit(gCurrentActor, animSlot, 1);
     animSetFinished(gCurrentActor, animSlot, 1);
-    animSetFrameAndSubframe(gCurrentActor, animSlot, D_807FDC90->unk28 & 0xF, 0.0f);
+    animSetFrameAndSubframe(gCurrentActor, animSlot, gBehaviourWorkState->unk28 & 0xF, 0.0f);
 }
 
 void bossAnimFrameBounceStep(void) {
     u16 directionBit = 0;
     u8 directionFlag;
     u8 val;
-    directionFlag = D_807FDC90->unk28 & 0x80;
-    val = D_807FDC90->unk28 & 0xF;
+    directionFlag = gBehaviourWorkState->unk28 & 0x80;
+    val = gBehaviourWorkState->unk28 & 0xF;
     if (directionFlag) {
         val += 1;
         if (val >= 2) {
@@ -104,7 +104,7 @@ void bossAnimFrameBounceStep(void) {
     }
     animSetFrameAndSubframe(gCurrentActor, 0, (s16)val, 0.0f);
     animSetFrameAndSubframe(gCurrentActor, 1, (s16)val, 0.0f);
-    D_807FDC90->unk28 = directionBit | val | directionFlag;
+    gBehaviourWorkState->unk28 = directionBit | val | directionFlag;
 }
 
 typedef struct BossA_Struct_807FDC94 {
@@ -116,7 +116,7 @@ typedef struct BossA_Struct_807FDC94 {
     u8 unk15E;
 } BossA_Struct_807FDC94;
 
-extern BossA_Struct_807FDC94 *D_807FDC94;
+extern BossA_Struct_807FDC94 *gBehaviourTargetActor;
 
 s32 randomNonNegative(void);
 void projectileGetTargetCoords(void *, s32);
@@ -128,9 +128,9 @@ void bossKutOutFireLaser(void) {
         0x116,
         ((randomNonNegative() >> 15) % 3) + 1,
         1.0f,
-        D_807FDC94->unk7C,
-        D_807FDC94->unk80 + (f32)D_807FDC94->unk15E,
-        D_807FDC94->unk84,
+        gBehaviourTargetActor->unk7C,
+        gBehaviourTargetActor->unk80 + (f32)gBehaviourTargetActor->unk15E,
+        gBehaviourTargetActor->unk84,
         300.0f,
         gCurrentActor
     );
@@ -210,7 +210,7 @@ typedef struct BossActorPos {
     f32 unk84;
 } BossActorPos;
 
-extern BossLayoutData *D_807FDC98;
+extern BossLayoutData *gBehaviourAnimState;
 extern u8 D_807FBD70;
 extern u8 D_807FBB85;
 extern s32 D_807FBD6C;
@@ -239,9 +239,9 @@ void bossAnimFrameBounceStep(void);
 void actorUpdateModelMatrix(void *, s32);
 
 #define A40 ((BossActor *)gCurrentActor)
-#define DC90 ((BossWorkState *)D_807FDC90)
-#define DC94 ((BossActorPos *)D_807FDC94)
-#define DC9C ((BossConfig *)D_807FDC9C)
+#define DC90 ((BossWorkState *)gBehaviourWorkState)
+#define DC94 ((BossActorPos *)gBehaviourTargetActor)
+#define DC9C ((BossConfig *)gBehaviourExtraState)
 
 void bossKutOutStep(void) {
     BossSwayState *swayState;
@@ -251,9 +251,9 @@ void bossKutOutStep(void) {
     if (!(A40->unk60 & 0x10)) {
         func_8002C748(0);
         func_8002C748(1);
-        D_807FDC98->unk30 = 2.5f;
-        D_807FDC98->unk46 &= 0xFFF7;
-        D_807FDC98->unk46 |= 0x200;
+        gBehaviourAnimState->unk30 = 2.5f;
+        gBehaviourAnimState->unk46 &= 0xFFF7;
+        gBehaviourAnimState->unk46 |= 0x200;
         A40->unk60 |= 0x400;
         A40->unk132 = 4;
         A40->unk154 = 0x1E;

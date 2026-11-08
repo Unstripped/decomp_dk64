@@ -9,7 +9,7 @@ typedef struct QueuedFunction {
     s32 param2;
 } QueuedFunction;
 
-extern s32 D_8076A068;
+extern s32 gGameFrameCounter;
 extern QueuedFunction *gTimerQueue;
 void heapFree(void *);
 void *heapAlloc(s32);
@@ -48,7 +48,7 @@ void timerQueueAdd(void *callback, s32 delay, s32 param0, s32 param1, s32 param2
     node->param0 = param0;
     node->param1 = param1;
     node->param2 = param2;
-    node->time = D_8076A068 + delay;
+    node->time = gGameFrameCounter + delay;
     node->next = NULL;
     curr = gTimerQueue;
     if (curr != NULL) {
@@ -77,7 +77,7 @@ void timerQueueUpdate(void) {
 
     if (node != NULL) {
         do {
-            if (D_8076A068 >= (node->time & 0x7FFFFFFF)) {
+            if (gGameFrameCounter >= (node->time & 0x7FFFFFFF)) {
                 node->callback(node->param0, node->param1, node->param2);
                 heapFree(node);
                 node = node->next;
@@ -120,7 +120,7 @@ void timerQueuePurgeFlagged(void) {
         do {
             s32 time = node->time;
 
-            if ((u32)(time & 0x7FFFFFFF) < D_8076A068) {
+            if ((u32)(time & 0x7FFFFFFF) < gGameFrameCounter) {
                 if (time & 0x80000000) {
                     if (prev != NULL) {
                         prev->next = node->next;

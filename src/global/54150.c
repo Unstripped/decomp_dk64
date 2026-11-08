@@ -155,7 +155,7 @@ extern u32 D_807F6BE0;
 extern u32 D_807F6BE4;
 extern u32 D_807F6BE8;
 extern u8 D_807F6BEC;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 s32 hashTableLookup();
 void mtxCopyQueueFlush();
 void modelAnimEntryStep(void *);
@@ -170,8 +170,8 @@ s16 arg0;
     base = (u32 *)D_807F6000[hashTableLookup(arg0)].unk78;
     D_807F6BEC = 0;
     if (base != NULL) {
-        D_807F6BE0 = base[D_807444FC];
-        D_807F6BE4 = base[D_807444FC ^ 1];
+        D_807F6BE0 = base[gGfxBufferIndex];
+        D_807F6BE4 = base[gGfxBufferIndex ^ 1];
         D_807F6BE8 = (u32)base;
         i = 0;
         p = (u8 *)base;
@@ -257,9 +257,9 @@ void modelAnimEntryQueueMatrixCopies(u32 *arg0, u32 *arg1) {
 
     node = (u8 *)*arg1;
     stride = *(u8 *)node * 0x24 + 8;
-    a = D_807F6BE0 = arg0[D_807444FC ^ 1];
-    b = D_807F6BE4 = arg0[D_807444FC];
-    if (D_807444FC == 0) {}  // FAKE: deadsweep dead statement (extends D_807444FC live range: v1 not v0, address temps a2/a3)
+    a = D_807F6BE0 = arg0[gGfxBufferIndex ^ 1];
+    b = D_807F6BE4 = arg0[gGfxBufferIndex];
+    if (gGfxBufferIndex == 0) {}  // FAKE: deadsweep dead statement (extends gGfxBufferIndex live range: v1 not v0, address temps a2/a3)
     p = node + 0x3C;
     i = 0;
     while (i < *(u8 *)(node + 0x39)) {
@@ -268,7 +268,7 @@ void modelAnimEntryQueueMatrixCopies(u32 *arg0, u32 *arg1) {
         i++;
         p += stride;
     }
-    if (D_807444FC && D_807444FC) {}  // FAKE: deadsweep dead statement (extends D_807444FC live range: v1 not v0, address temps a2/a3)
+    if (gGfxBufferIndex && gGfxBufferIndex) {}  // FAKE: deadsweep dead statement (extends gGfxBufferIndex live range: v1 not v0, address temps a2/a3)
 }
 
 void matrixMakeRotationX(f32 (*)[4], f32);
@@ -407,7 +407,7 @@ typedef struct ModelAnimEntryView {
     u8 unk13;
 } ModelAnimEntryView;
 
-extern u32 D_80744478;
+extern u32 gFrameDelta;
 
 typedef struct ModelAnimNodeHeader {
     u8 keyCount;
@@ -427,8 +427,8 @@ void modelAnimEntryAdvance(ModelAnimEntryView *arg0) {
     node = (ModelAnimNodeHeader *)arg0->unk0;
     qq = (f32)((f64)((f32)(node->times[arg0->unk11 + 1] - node->times[arg0->unk11]) * arg0->unk4 + (f32)(u32)node->times[arg0->unk11]) / 300.0);
     out = (f32)arg0->unkC * qq;
-    if (D_80744478 < 4) {
-        limit = D_80744478;
+    if (gFrameDelta < 4) {
+        limit = gFrameDelta;
     } else {
         limit = 4;
     }
@@ -566,7 +566,7 @@ void mtxCopyQueuePush(s32 arg0, s32 arg1, s32 arg2) {
         D_807F6960[i].unk0 = arg0;
         D_807F6960[i].unk4 = arg1;
         D_807F6960[i].unk8 = arg2;
-        D_807F6960[i].unkC = D_807444FC ^ 1;
+        D_807F6960[i].unkC = gGfxBufferIndex ^ 1;
         return;
     }
     faultSetMessage(0xB, 0, 0, 0);
@@ -597,7 +597,7 @@ void mtxCopyQueueCancelGroup(s32 arg0) {
 void mtxCopyQueueFlush(s32 arg0) {
     s32 i;
     for (i = 0; i < 0x28; i++) {
-        if (D_807F6960[i].unk0 == arg0 && D_807F6960[i].unkC == D_807444FC) {
+        if (D_807F6960[i].unk0 == arg0 && D_807F6960[i].unkC == gGfxBufferIndex) {
             memcpy((void *)D_807F6960[i].unk8, (void *)D_807F6960[i].unk4, 0x40);
             D_807F6960[i].unk0 = 0;
             D_807F6BEC = 1;

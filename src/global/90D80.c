@@ -253,7 +253,7 @@ typedef struct PlayerRect {
     s16 rect[4];
 } PlayerRect;
 extern PlayerRect *gPlayerSlots;
-extern u32 D_80744478;
+extern u32 gFrameDelta;
 extern f32 D_8075022C, D_80750228;
 extern u32 D_80750230;
 extern s32 gCurrentMap;
@@ -266,7 +266,7 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *alpha) {
     f32 scrollStep;
 
     alphaVal = *alpha;
-    scrollStep = D_80744478 * 0.5;
+    scrollStep = gFrameDelta * 0.5;
     texBuf = assetLoad(0x19, 0x173C, 1, 0);
     assetFreeBuffer(texBuf, 0x1B2, 0x46);
 
@@ -292,7 +292,7 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *alpha) {
     gDPSetTile(glist++, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 0, 1, 0, G_TX_WRAP, 6, 0, G_TX_WRAP, 6, 0);
 
     WRITE_GFX(glist++, 0xDA380007, (u32)&D_2000080);
-    if (D_80744478 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (gFrameDelta == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     WRITE_GFX(glist++, 0xDA380003, (u32)&D_2000180);
     WRITE_GFX(glist++, 0x01004008, osVirtualToPhysical(&D_80750230));
     WRITE_GFX(glist++, 0x06000204, 0x00000406);
@@ -471,7 +471,7 @@ Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal,
 
 
 extern Mtx D_20000C0;
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 
 
 typedef struct ActorEffect174 {
@@ -497,7 +497,7 @@ Gfx *actorDrawAnimatedEffect(Gfx *glist, ActorEffect *effect) {
     WRITE_GFX(glist++, 0xE200001C, 0x00504240);
     WRITE_GFX(glist++, 0xDA380007, (u32)&D_20000C0);
 
-    if (D_807FBB64 & 0x80000) {
+    if (gGlobalOverlayFlags & 0x80000) {
         s16 yaw = effect->unkE6;
         ActorEffect174 *unk174 = effect->unk174;
         if (yaw < 0x200 || yaw >= 0xE01 || (yaw >= 0x601 && yaw < 0xA00)) {

@@ -12,10 +12,10 @@ extern u8 D_807FC950[][0x5E];
 extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 extern u8 D_807444F8;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 extern void *gSlotQueue;
 
@@ -855,7 +855,7 @@ void slotQueueSpawnNodes(s32 arg0) {
     var_s1 = -1;
     sp30 = arg0 * 0x30;
     var_s0 = (u8 *)((s32)gSlotQueue + (0, sp30)) + 0x28;
-    if (((f64)D_80744490 * 0.5) < (f64)((SlotQueueSpawnSlot *)((u8 *)gSlotQueue + sp30))->unk8) {
+    if (((f64)gScreenWidth * 0.5) < (f64)((SlotQueueSpawnSlot *)((u8 *)gSlotQueue + sp30))->unk8) {
         var_a1 = -1;
     }
     sp3C = var_a1;
@@ -1036,7 +1036,7 @@ Gfx *slotQueueDrawLabel(s32 arg0, SlotQueueDrawNode *arg1, Gfx *arg2) {
     alpha = (u8)(u32)((f64)scale * 255.0);
     width = 0;
     gSPMatrix(arg2++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    guTranslate((Mtx *)((u8 *)matrix + (D_807444FC << 6) + 8), arg1->unk4 * (1.0f - scale), arg1->unk8 * (1.0f - scale), 0.0f);
+    guTranslate((Mtx *)((u8 *)matrix + (gGfxBufferIndex << 6) + 8), arg1->unk4 * (1.0f - scale), arg1->unk8 * (1.0f - scale), 0.0f);
     switch (SLOT_QUEUE_DRAW_SLOT->unk2C) {
     case 1:
         _sprintf(text, "o");
@@ -1050,7 +1050,7 @@ Gfx *slotQueueDrawLabel(s32 arg0, SlotQueueDrawNode *arg1, Gfx *arg2) {
         _sprintf(text, "%d", (arg0 * 0x30 == 0xF0) ? (s32)floatCeil((f32)(u32)SLOT_QUEUE_DRAW_SLOT->unk4 * 0.006666667f) : SLOT_QUEUE_DRAW_SLOT->unk4);
         break;
     }
-    gSPMatrix(arg2++, (u8 *)matrix + (D_807444FC << 6) + 8, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    gSPMatrix(arg2++, (u8 *)matrix + (gGfxBufferIndex << 6) + 8, G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     gDPPipeSync(arg2++);
     gDPSetPrimColor(arg2++, 0, 0, 0, 0, 0, alpha);
     D_807FD7E4 = alpha;
@@ -1058,7 +1058,7 @@ Gfx *slotQueueDrawLabel(s32 arg0, SlotQueueDrawNode *arg1, Gfx *arg2) {
     gDPSetCombineLERP(arg2++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
     viewport = cameraFindViewportEntry(0);
     gDPSetScissor(arg2++, G_SC_NON_INTERLACE, viewport->unk4, viewport->unk6, viewport->unk8, viewport->unkA);
-    if ((f64)D_80744490 * 0.5 < (f64)SLOT_QUEUE_DRAW_SLOT->unk8) {
+    if ((f64)gScreenWidth * 0.5 < (f64)SLOT_QUEUE_DRAW_SLOT->unk8) {
         width = textGetStringWidth(0x81, text);
     }
     arg2 = textDrawStringVtx(arg2, 0x81, (s16)((matrix[0] - width) * 4), (s16)(matrix[1] * 4), text, 0);

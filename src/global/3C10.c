@@ -75,8 +75,8 @@ extern s16 D_8076A232;
 extern Struct8076A160 D_8076A2E0[];
 extern s32 D_807F6010;
 extern Actor *D_807FBB4C;
-extern s32 D_807FBB60;
-extern s32 D_807FBB64;
+extern s32 gGlobalPauseFlags;
+extern s32 gGlobalOverlayFlags;
 extern s32 D_807FBB68;
 extern u16 D_807FC930[];
 extern f32 gScreenFadeRate;
@@ -319,7 +319,7 @@ void mapRequestTransition(s32 map, s32 exitIndex) {
             }
             func_807313BC();
             func_805FF5A0(map);
-            if (D_807FBB64 & 1) {
+            if (gGlobalOverlayFlags & 1) {
                 func_8002920C();
             }
         }
@@ -328,7 +328,7 @@ void mapRequestTransition(s32 map, s32 exitIndex) {
 
 void mapRequestTransitionFast(s32 map, s32 exitIndex) {
     func_806F5378();
-    D_807FBB60 |= 0x100;
+    gGlobalPauseFlags |= 0x100;
     D_807444E4 = map;
     D_807444E8 = exitIndex;
     D_8076AEF2 = gCurrentMap;
@@ -685,7 +685,7 @@ s32 func_80600340(s32 actorType, u8 flags, s32 *outMap) {
 }
 
 void func_806003EC(s16 index) {
-    D_807FBB64 = D_8074482C[index].unk0;
+    gGlobalOverlayFlags = D_8074482C[index].unk0;
     D_807FBB68 = D_8074482C[index].unk4;
 }
 

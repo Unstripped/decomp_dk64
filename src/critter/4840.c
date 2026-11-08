@@ -34,7 +34,7 @@ typedef struct Actor_4840 {
 s32 textGetStringWidth(s16, s32);
 void heapFree(void *);
 void actorSpawn(s32, s32);
-extern s16 D_80744490;
+extern s16 gScreenWidth;
 extern Actor_4840 *gSpawnedActor;
 
 extern Actor_4840 *gCurrentActor;
@@ -88,7 +88,7 @@ s16 critterLayoutWords(TextData *textData, char *text, s16 xOffset) {
 
 f32 func_80612794(s16);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, s32, s32);
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 Gfx *critterDrawWord(Gfx *glistp, TextData *textData, char *word, u8 wordIndex) {
     f32 modelMtx[4][4];
@@ -112,8 +112,8 @@ Gfx *critterDrawWord(Gfx *glistp, TextData *textData, char *word, u8 wordIndex) 
     }
     guTranslateF(tempMtx, textData->unk4[wordIndex], textData->unk0, 0.0f);
     guMtxCatF(modelMtx, tempMtx, modelMtx);
-    guMtxF2L(modelMtx, &textData->mtx[wordIndex][D_807444FC]);
-    gSPMatrix(glistp++, &textData->mtx[wordIndex][D_807444FC], G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    guMtxF2L(modelMtx, &textData->mtx[wordIndex][gGfxBufferIndex]);
+    gSPMatrix(glistp++, &textData->mtx[wordIndex][gGfxBufferIndex], G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, alpha);
     return textDrawStringVtx(glistp, 6, 0, 0, (s32)word, 0);
 }
@@ -141,7 +141,7 @@ void critterShowText(u8 fontIndex, s32 unused, s16 yPos, u8 textIndex, s16 unuse
     s16 startX;
     s16 i;
 
-    startX = (D_80744490 - textGetStringWidth(fontIndex, (s32)D_8002A1C0 + (textIndex << 5))) * 2;
+    startX = (gScreenWidth - textGetStringWidth(fontIndex, (s32)D_8002A1C0 + (textIndex << 5))) * 2;
     if (D_8002A1C4 != NULL) {
         s0 = D_8002A1C4->unk174;
         heapFree(s0->unk8);

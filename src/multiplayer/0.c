@@ -125,9 +125,9 @@ typedef struct MpFlagState {
     s16 unk21E;
 } MpFlagState;
 
-extern u8 D_80750AB8;
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern u8 gSplitScreenMode;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 extern u8 D_1000118[];
 extern u8 D_20000C0[];
 
@@ -139,7 +139,7 @@ extern MpScore D_807FC950[];
 s32 slotQueueGetValue(s32, u8);
 extern s32 D_807552EC;
 extern u8 gPlayerCount;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern s8 D_8076A105;
 void menuReturnToTitleWithMode3(void);
 s32 randomNonNegative(void);
@@ -173,18 +173,18 @@ Gfx *mpDrawTimer(Gfx *glistp, MpControllerActor *controller) {
     f32 posY;
 
     state = controller->unk174;
-    if (D_80750AB8 == 1) {
+    if (gSplitScreenMode == 1) {
         posX = 278.0f;
         posY = 210.0f;
     } else {
-        posX = (f32) (D_80744490 * 0.5);
-        posY = (f32) (D_80744494 * 0.5);
+        posX = (f32) (gScreenWidth * 0.5);
+        posY = (f32) (gScreenHeight * 0.5);
     }
     glistp = gfxInit2DDisplayList(glistp);
     gSPDisplayList(glistp++, &D_1000118);
     gSPMatrix(glistp++, &D_20000C0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gDPPipeSync(glistp++);
-    if (D_80750AB8 == 1) {
+    if (gSplitScreenMode == 1) {
         gDPSetCombineMode(glistp++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor(glistp++, 0, 0, 0, 120, 255, 80);
         glistp = renderRotatedSprite(glistp, 0x60, 4, 0, 0x40, 0x40, (s32) (posX * 4.0f), (s32) (posY * 4.0f), 3.7f, 2.0f, 0xB4, 0.0f);
@@ -256,7 +256,7 @@ void mpDetermineWinner(MpControllerState *controllerState) {
             i += 1;
         } while (i < gPlayerCount);
     }
-    D_807FBB60 |= 0x40001;
+    gGlobalPauseFlags |= 0x40001;
     menuReturnToTitleWithMode3();
     D_8076A105 = winnerIndex;
 }
@@ -267,7 +267,7 @@ void mpUpdateMatchTimer(void) {
 
     state = gCurrentActor->unk174;
     x = __ull_div(__ll_mul(osGetTime() - state->unk0, 0x40), 0xBB8);
-    if (!(D_807FBB60 & 2)) {
+    if (!(gGlobalPauseFlags & 2)) {
         x = __ull_div(x, 0xF4240);
         state->unk8 = state->unkC - x;
     }
@@ -364,7 +364,7 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
                 gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, alpha);
                 scp = &D_807FC950[i];
                 if (scp != 0) {}  // FAKE: dead use makes scp a cross-block temp (steers uopt)
-                if (D_80750AB8 == 0) {
+                if (gSplitScreenMode == 0) {
                     nxt = i + 1;
                     glyphX = sub->unk8 - 0x30;
                 } else {
@@ -413,9 +413,9 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, MpControllerActor *controller) {
 
     state = controller->unk174;
     temp = state->unk20[0];
-    posXStep = (f32) D_80744490 / (f32) (gPlayerCount + 1);
+    posXStep = (f32) gScreenWidth / (f32) (gPlayerCount + 1);
     posY = (f32) (((MpViewport *)temp)->unk6 + 8);
-    gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, D_80744490, D_80744494);
+    gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
     glistp = mpDrawScoreGlyphs(glistp, state, posXStep);
     if (D_807552E8 != 3) {
         gDPSetPrimColor(glistp++, 0, 0, 255, 255, 255, 180);
@@ -521,10 +521,10 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, MpControllerActor *controller);
 
 Gfx *mpDrawHud(Gfx *glistp, MpControllerActor *controller) {
     s32 t0 = D_807552E4.unk8 >= 2;
-    s32 cond = D_807FBB60 & 3;
+    s32 cond = gGlobalPauseFlags & 3;
 
     gDPPipeSync(glistp++);
-    gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, D_80744490, D_80744494);
+    gDPSetScissor(glistp++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
     if (!cond) {
         if (D_807552E4.unk0 == 0) {
             if ((D_807552E4.unk8 == 1) || t0) {
@@ -648,7 +648,7 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
     MpSpawnPoint * volatile spawnPoint; // FAKE: volatile forces stack home
 
     spawnPoint = mpFindCurrentMapEntry()->items;
-    if (menuIsTransitionType6() != 0 && !(D_807FBB60 & 2)) {
+    if (menuIsTransitionType6() != 0 && !(gGlobalPauseFlags & 2)) {
         if (D_807552E8 == 3) {
             mpUpdateMatchTimer();
         }
@@ -697,7 +697,7 @@ void mpUpdateItemSpawns(void) {
     mapEntry = mpFindCurrentMapEntry();
     items = mapEntry->items;
     mpUpdateMatchTimer();
-    if (menuIsTransitionType6() != 0 && !(D_807FBB60 & 2)) {
+    if (menuIsTransitionType6() != 0 && !(gGlobalPauseFlags & 2)) {
         itemIndex = 0;
         item = items;
         if (mapEntry->count > 0) {
@@ -1013,7 +1013,7 @@ void mpUpdate(void) {
         if (gPlayerCount == 2) {
             mpUpdateRandomSpawner(s7);
         }
-    } else if ((D_807FBB60 & 2) || ((s16)((f32)s7->unk10 * 0.033333335f) & 1)) {
+    } else if ((gGlobalPauseFlags & 2) || ((s16)((f32)s7->unk10 * 0.033333335f) & 1)) {
         mpFreeHudIcons(s7);
     } else if (s7->unk70 == 0) {
         for (j = 0; j != 2; j++) {

@@ -345,7 +345,7 @@ typedef struct BossF_Pts {
 
 #define BF ((BossF_Actor *)gCurrentActor)
 #define BP ((BossF_Actor *)D_807FBB4C)
-#define BX ((BossF_Extra *)D_807FDC90)
+#define BX ((BossF_Extra *)gBehaviourWorkState)
 #define BPTS ((BossF_Pts *)D_807FDCA0)
 
 extern u8 *D_80035B84[];
@@ -354,7 +354,7 @@ extern u8 D_80035BD8[];
 extern u8 D_80035BEC[];
 extern u8 D_80036DD0[];
 extern f32 D_80036C40[];
-extern void *D_807FDC90;
+extern void *gBehaviourWorkState;
 extern u8 D_807FBB85;
 extern u8 D_807FBDC4;
 extern s32 gFrameCounter;
@@ -387,7 +387,7 @@ void bossSetAnimationByWaypoint(u8 *);
 void bossSpawnPuffDebris(void);
 void bossInterpolateWaypoints(u8 *, f32);
 void bossSpawnObjectAtWaypoint(u8 *);
-void func_8072E1A4(s32, void *);
+void actorTurnTowardActorYaw(s32, void *);
 void actorApplyVelocityCustom(void *, f32, f32);
 s32 bossCheckPlayerBelow(BossE_F0D0_Sub14 *, u8 *);
 void bossAdjustHealth(s8);
@@ -590,7 +590,7 @@ void bossMainStep(void) {
             }
             break;
         case 6:
-            func_8072E1A4(0xA, D_807FBB4C);
+            actorTurnTowardActorYaw(0xA, D_807FBB4C);
             break;
         case 7:
             actorScriptStart(gCurrentActor, 0x222);
@@ -700,7 +700,7 @@ void bossMainStep(void) {
         break;
     case 0x25:
     case 0x28:
-        func_8072E1A4(0xA, D_807FBB4C);
+        actorTurnTowardActorYaw(0xA, D_807FBB4C);
         if (bossCheckPlayerBelow((BossE_F0D0_Sub14 *)st, tbl) != 0) {
             bossSetRandomObjectPair(sub, 0);
         } else if (func_80724A20() == 0) {

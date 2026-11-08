@@ -141,8 +141,8 @@ typedef struct Boss2F_9C60_Sub1C {
 extern u8 *D_80035A60[];
 extern s32 gCamActor;
 extern Boss2F_9C60_BB4C *D_807FBB4C;
-extern Boss2F_9C60_DC90 *D_807FDC90;
-extern Boss2F_9C60_DC9C *D_807FDC9C;
+extern Boss2F_9C60_DC90 *gBehaviourWorkState;
+extern Boss2F_9C60_DC9C *gBehaviourExtraState;
 extern Boss2F_9C60_DCA0 *D_807FDCA0;
 
 void bossScriptStep(u8 *, s32, f32);
@@ -167,7 +167,7 @@ s32 func_8072881C(s32, void *);
 void behaviourFrameBegin(void);
 void func_8072A450(void);
 void actorSetTargetSpeed(BossC_9C60_Actor *, s32);
-void func_8072E1A4(s32, void *);
+void actorTurnTowardActorYaw(s32, void *);
 
 void bossKRoolDiddyStep(void) {
     Boss2F_9C60_178 *scriptState;
@@ -199,7 +199,7 @@ void bossKRoolDiddyStep(void) {
         scriptState->unk15 = 0;
         gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
         gCurrentActor->unk155 = 0;
-        gCurrentActor->unkB8 = D_807FDC9C->unkC;
+        gCurrentActor->unkB8 = gBehaviourExtraState->unkC;
         break;
     case 0x27:
         actorScriptStart(gCurrentActor, 0x3E1);
@@ -209,13 +209,13 @@ void bossKRoolDiddyStep(void) {
     case 0x2C:
         switch (gCurrentActor->unk155) {
         case 0:
-            D_807FDC90->unk2C = 0x14;
+            gBehaviourWorkState->unk2C = 0x14;
             gCurrentActor->unk155++;
             break;
         case 1:
-            func_8072E1A4(0xA, D_807FBB4C);
-            if (D_807FDC90->unk2C != 0) {
-                D_807FDC90->unk2C--;
+            actorTurnTowardActorYaw(0xA, D_807FBB4C);
+            if (gBehaviourWorkState->unk2C != 0) {
+                gBehaviourWorkState->unk2C--;
             } else {
                 csModelStateSetFirstByte((scriptState->unk14 * 2) + 8, 0xA);
                 csModelStateSetFirstByte((scriptState->unk14 * 2) + 9, 0xA);
@@ -232,7 +232,7 @@ void bossKRoolDiddyStep(void) {
             gCurrentActor->unk155++;
             break;
         case 1:
-            func_8072E1A4(0xA, D_807FBB4C);
+            actorTurnTowardActorYaw(0xA, D_807FBB4C);
             break;
         case 2:
             gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
@@ -249,7 +249,7 @@ void bossKRoolDiddyStep(void) {
             /* fallthrough */
         case 1:
             if (camIsCutsceneActive() == 0) {
-                D_807FDC90->unk2C = scriptState->unk18;
+                gBehaviourWorkState->unk2C = scriptState->unk18;
                 actorScriptStart(gCurrentActor, 0x3EF);
                 gCurrentActor->unk155++;
             }
@@ -273,12 +273,12 @@ void bossKRoolDiddyStep(void) {
             if (((Boss2F_9C60_Sub1C *)gCurrentActor->unk4->unk1C)->unk2 < 0x7FFF) {
                 ((Boss2F_9C60_Sub1C *)gCurrentActor->unk4->unk1C)->unk2 = 0xFFFF;
             }
-            func_8072E1A4(0xA, D_807FBB4C);
-            if (D_807FDC90->unk2C != 0) {
-                if ((D_807FBB4C->unk6A & 1) && (D_807FDC90->unk2C >= 0xB)) {
-                    D_807FDC90->unk2C = 0xA;
+            actorTurnTowardActorYaw(0xA, D_807FBB4C);
+            if (gBehaviourWorkState->unk2C != 0) {
+                if ((D_807FBB4C->unk6A & 1) && (gBehaviourWorkState->unk2C >= 0xB)) {
+                    gBehaviourWorkState->unk2C = 0xA;
                 }
-                D_807FDC90->unk2C--;
+                gBehaviourWorkState->unk2C--;
             } else {
                 gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
                 gCurrentActor->unk155 = 0;
@@ -338,7 +338,7 @@ void bossKRoolDiddyStep(void) {
             }
             break;
         case 4:
-            actorSetTargetSpeed(gCurrentActor, D_807FDC9C->unkC);
+            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
             scriptState->unk15 = 0;
             scriptState->unk14++;
             scriptOpcodes = D_80035A60[scriptState->unk14];
@@ -372,8 +372,8 @@ void bossKRoolDiddyStep(void) {
         break;
     }
     func_8072A450();
-    if (func_8072881C(0, D_807FDC90->unk28) != 0) {
-        func_8072881C(0x81, D_807FDC90->unk28);
+    if (func_8072881C(0, gBehaviourWorkState->unk28) != 0) {
+        func_8072881C(0x81, gBehaviourWorkState->unk28);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

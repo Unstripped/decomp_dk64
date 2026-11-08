@@ -324,7 +324,7 @@ void playerFireWeaponPrimary(s32 arg0) {
     playerFireWeapon(0, 1);
 }
 
-void func_806F1378(s32 arg0) {}
+void f56f0Noop1378(s32 arg0) {}
 
 typedef struct F5AActorSub4 {
     u8 pad0[0x88];
@@ -377,7 +377,7 @@ void playerResumeLocomotionDecel(void) {
 
 void func_806D0150(Actor *);
 
-void func_806F149C(Actor *arg0) {
+void playerD0150Wrapper(Actor *arg0) {
     func_806D0150(arg0);
 }
 
@@ -1561,7 +1561,7 @@ typedef struct {
 
 extern void *heapAlloc(s32);
 extern void heapClearBlock(void *);
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 
 
 typedef struct {
@@ -1596,7 +1596,7 @@ u8 arg2;
     q->unk9 = 0x32;
     playerWaypointPathStart(*((u8 *)gWaypointPaths + 1), (s32)arg0, 0, 0, 0);
     gWaypointFlags = 0;
-    D_807FBB60 |= 0x400;
+    gGlobalPauseFlags |= 0x400;
 }
 
 
@@ -1629,7 +1629,7 @@ u8 arg3;
         q->unk9 = 0x28;
         playerWaypointPathStart(*((u8 *)gWaypointPaths + 1), (s32)arg0, 0, 0, 0);
         gWaypointFlags = 0;
-        D_807FBB60 |= 0x400;
+        gGlobalPauseFlags |= 0x400;
     }
 }
 
@@ -1756,7 +1756,7 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
                 if (gWaypointCursor == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             tgt->flags |= 1;
-            D_807FBB60 &= ~0x400;
+            gGlobalPauseFlags &= ~0x400;
             playerInitMoveParams();
         } else {
             gWaypointIndex += 1;

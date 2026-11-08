@@ -26,7 +26,7 @@ extern void *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern s32 gFrameCounter;
 extern s32 gCurrentMap;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 s32 hashTableLookup(s32);
 void heapFree(void *);
@@ -575,7 +575,7 @@ typedef struct ModelSlotSubNode {
     /* 0x34 */ s32 unk34;
 } ModelSlotSubNode;
 
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern s32 D_807FBB68;
 
 void modelSlotInitFromAsset();
@@ -629,9 +629,9 @@ s16 modelSlotInit(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f3
         s0->unk0 &= ~0x10;
     }
     modelApplyMapOverrideValue(arg1, (u8 *)s0);
-    if (D_807FBB64 & 0x100) {
+    if (gGlobalOverlayFlags & 0x100) {
         s0->unk1E = 0x7D0;
-    } else if (D_807FBB64 & 0x400000) {
+    } else if (gGlobalOverlayFlags & 0x400000) {
         s0->unk1E = 0x1F4;
     }
     modelSlotAllocAnimBuffers(MODEL_SLOT_PTR->unk78, s0);
@@ -1183,7 +1183,7 @@ void modelSlotBuildTriangleBuffer(s32 arg0, ModelAssetData *arg1, f32 arg2, f32 
     lastBone = -1;
     buf = (ModelTriBuffer *)((u8 *)buf + 0x48);
     if (anim != NULL) {
-        sp64 = ((void **)anim)[D_807444FC];
+        sp64 = ((void **)anim)[gGfxBufferIndex];
     } else {
         sp64 = NULL;
     }
@@ -1456,7 +1456,7 @@ void modelSlotInitTexAnimNodes(u8 *arg0, ModelSlot *arg1, s32 arg2) {
             node->unk60[j] = entry[4 + j];
         }
         node->unkD0 = entry[0x20];
-        if (D_807FBB64 & 0x2000000) {
+        if (gGlobalOverlayFlags & 0x2000000) {
             node->unkD0 = 0;
         }
         node->unk3C = 0;
@@ -2643,7 +2643,7 @@ typedef struct ModelType2Obj {
     /* 0x5B */ u8 unk5B;
 } ModelType2Obj;
 
-extern u8 D_80750AB4;
+extern u8 gViewportCount;
 u8 func_80636A8C(s32);
 
 void modelSlotInitFromAsset(ModelSlot *arg0, s32 arg1) {
@@ -2672,8 +2672,8 @@ void modelSlotInitFromAsset(ModelSlot *arg0, s32 arg1) {
             obj->unk4C = -1;
             obj->unk4E = 0;
             obj->unk5B = 0;
-            obj->unk14 = heapAlloc(D_80750AB4 << 6);
-            obj->unk18 = heapAlloc(D_80750AB4 << 6);
+            obj->unk14 = heapAlloc(gViewportCount << 6);
+            obj->unk18 = heapAlloc(gViewportCount << 6);
         }
     } else {
         seg = heapAlloc(0xC8);
@@ -3058,7 +3058,7 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *arg0, Gfx *arg1, f32 arg2, f32 
     if (arg0 && arg0 && arg0) {} // FAKE: same
     guTranslateF(spB8, arg0->unk0, arg0->unk4, arg0->unk8);
     guMtxCatF(spF8, spB8, spF8);
-    guMtxF2L(spF8, &arg0->unk20[D_807444FC]);
+    guMtxF2L(spF8, &arg0->unk20[gGfxBufferIndex]);
     gDPPipeSync(arg1++);
     gSPSegment(arg1++, 8, osVirtualToPhysical((void *)arg0->unkB0));
     sel78 = NULL;
@@ -3071,11 +3071,11 @@ Gfx *renderModelAnimatedSlot(ModelRenderAnimObj *arg0, Gfx *arg1, f32 arg2, f32 
         }
     }
     if (sel78 != NULL) {
-        gSPSegment(arg1++, 9, osVirtualToPhysical((void *)((u32 *)sel78)[D_807444FC]));
+        gSPSegment(arg1++, 9, osVirtualToPhysical((void *)((u32 *)sel78)[gGfxBufferIndex]));
     }
-    gSPMatrix(arg1++, osVirtualToPhysical(&arg0->unk20[D_807444FC]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
+    gSPMatrix(arg1++, osVirtualToPhysical(&arg0->unk20[gGfxBufferIndex]), G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
     if (arg0->unkB8 != 0) {
-        sel = D_807444FC;
+        sel = gGfxBufferIndex;
         texAnimUpdateNodes((ModelSegmentData *)arg0);
     } else {
         sel = 0;
@@ -3109,7 +3109,7 @@ gSPClearGeometryMode(arg1++, G_FOG | G_CULL_BOTH);
             renderCalcPlayerDistanceAlpha(arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC0, arg0->unkB4, &sp92);
             if (arg0->unkB6 != -1) {
                 model = D_807F6000[sp90].unk7C;
-                if (model != NULL && D_80750AB4 == 1) {
+                if (model != NULL && gViewportCount == 1) {
                     model->unk62 = sp92;
                 }
             }
@@ -3121,7 +3121,7 @@ gSPClearGeometryMode(arg1++, G_FOG | G_CULL_BOTH);
             }
             if (arg0->unkB6 != -1) {
                 model = D_807F6000[sp90].unk7C;
-                if (model != NULL && D_80750AB4 == 1) {
+                if (model != NULL && gViewportCount == 1) {
                     sp92 = model->unk64;
                 }
             }
@@ -3299,7 +3299,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *arg0, Gfx *arg1, f32 arg2, f32 arg3,
     }
     guTranslateF(sp1F8, arg0->unk0, arg0->unk4 + arg0->unk48 * arg0->unkC, arg0->unk8);
     guMtxCatF(sp238, sp1F8, sp238);
-    switch (D_807444FC) {
+    switch (gGfxBufferIndex) {
     case 0:
         mtx = arg0->unk14 + gCurrentPlayerIndex;
         break;
@@ -3607,17 +3607,17 @@ void texAnimUpdateNodes(ModelSegmentData *arg0) {
     if (node != NULL) {
         do {
             texAnimNodeUpdateBuffers(node, &sp60, &sp5C, &sp5B, &sp58);
-            if (node->unk0[D_807444FC].unk0 != NULL) {
-                node->unk0[D_807444FC].unk0->unk4 = sp60;
+            if (node->unk0[gGfxBufferIndex].unk0 != NULL) {
+                node->unk0[gGfxBufferIndex].unk0->unk4 = sp60;
                 if (sp5B == 0) {
-                    dst = &node->unk0[D_807444FC].unk0->unk30;
+                    dst = &node->unk0[gGfxBufferIndex].unk0->unk30;
                     *dst = (node->unk34 << 12) | 0xF2000000 | node->unk36;
                 }
             }
-            if (node->unk18[D_807444FC].unk0 != NULL) {
-                node->unk18[D_807444FC].unk0->unk4 = sp60;
+            if (node->unk18[gGfxBufferIndex].unk0 != NULL) {
+                node->unk18[gGfxBufferIndex].unk0->unk4 = sp60;
                 if (sp5B == 0) {
-                    dst = &node->unk18[D_807444FC].unk0->unk30;
+                    dst = &node->unk18[gGfxBufferIndex].unk0->unk30;
                     *dst = (node->unk34 << 12) | 0xF2000000 | node->unk36;
                 }
             }
@@ -3638,17 +3638,17 @@ void texAnimUpdateNodes(ModelSegmentData *arg0) {
                 }
             }
             if (sp5B != 0) {
-                if (node->unk0[D_807444FC].unk4 != NULL) {
-                    node->unk0[D_807444FC].unk4->unk4 = sp5C;
+                if (node->unk0[gGfxBufferIndex].unk4 != NULL) {
+                    node->unk0[gGfxBufferIndex].unk4->unk4 = sp5C;
                 }
-                if (node->unk18[D_807444FC].unk4 != NULL) {
-                    node->unk18[D_807444FC].unk4->unk4 = sp5C;
+                if (node->unk18[gGfxBufferIndex].unk4 != NULL) {
+                    node->unk18[gGfxBufferIndex].unk4->unk4 = sp5C;
                 }
-                if (node->unk0[D_807444FC].unk8 != NULL) {
-                    *node->unk0[D_807444FC].unk8 = sp58 + 0xFA000000;
+                if (node->unk0[gGfxBufferIndex].unk8 != NULL) {
+                    *node->unk0[gGfxBufferIndex].unk8 = sp58 + 0xFA000000;
                 }
-                if (node->unk18[D_807444FC].unk8 != NULL) {
-                    *node->unk18[D_807444FC].unk8 = sp58 + 0xFA000000;
+                if (node->unk18[gGfxBufferIndex].unk8 != NULL) {
+                    *node->unk18[gGfxBufferIndex].unk8 = sp58 + 0xFA000000;
                 }
             }
             node->unk30 = gFrameCounter;
@@ -4286,7 +4286,7 @@ void modelPendingQueueInsert(ModelPendingEntry *arg0, u8 arg1) {
             case 3:
             case 6:
                 best = 1e8f;
-                for (i = 0; i < D_80750AB4; i = (u8)(i + 1)) {
+                for (i = 0; i < gViewportCount; i = (u8)(i + 1)) {
                     
                     if (((ModelPendingPlayerView *)gPlayerSlots)[i].u0 != 0) {
                         if (arg0 && arg0) {}  // FAKE: dead test steers register colouring

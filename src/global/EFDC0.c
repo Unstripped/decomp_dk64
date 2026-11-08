@@ -151,7 +151,7 @@ void playerStateInitApproachVelocity(void) {
     actorScriptStart(gCurrentActor, 0x17B);
 }
 
-void func_806EB364(void) {
+void playerStateEnterState3D(void) {
     if (gPlayerCharacterId[gCurrentPlayerIndex] == 6) {
         playerResumeLocomotion(D_807FBB48);
         return;
@@ -371,7 +371,7 @@ void playerStateEnterKnockbackState5(void) {
     slotQueueUpdate(6, 1, 0);
 }
 
-void func_806EBAF4(void) {
+void playerStateEnterState4F(void) {
     gCurrentActor->state = 0x4F;
     gCurrentActor->unk155[0] = 2;
     actorScriptStartByIndex(gCurrentActor, 0x34);
@@ -379,9 +379,9 @@ void func_806EBAF4(void) {
 }
 
 void playerStateEnterStunState1(void) {
-    extern u32 D_807FBB60;
+    extern u32 gGlobalPauseFlags;
 
-    D_807FBB60 |= 0x4000;
+    gGlobalPauseFlags |= 0x4000;
     D_807FBB48->state = 1;
     D_807FBB48->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0);
@@ -611,7 +611,7 @@ void playerStateEnterFrozen(void) {
     func_80613C48(D_807FBB48, 0x22A, 0.0f, 0.0f);
 }
 
-void func_806EC3BC(void) {
+void playerStateEnterState3C(void) {
     ((EfN2PlayerState *)gActivePlayerState)->unk12 = D_807539EC[D_807FD584];
     ((EfN2PlayerState *)gActivePlayerState)->unk14 = gCurrentActor->yaw;
     ((EfN2PlayerState *)gActivePlayerState)->unk10 = D_807539DC[D_807FD584];
@@ -846,7 +846,7 @@ void playerStateEnterGroundImpact(void) {
     EFN3_P->unk4C = -1;
 }
 
-void func_806ECA74(void) {
+void playerStateEnterAction24(void) {
     ((EfBActor *)gCurrentActor)->unk154 = 0x24;
     ((EfBActor *)gCurrentActor)->unk155 = 0;
     actorScriptStart(gCurrentActor, 0x1B2);
@@ -874,7 +874,7 @@ void func_806ECAC4(void) {
 }
 
 
-void func_806ECBD4(void) {
+void playerStateEnterState57(void) {
     D_807FBB48->contactFlags |= 0x40;
     D_807FBB48->renderFlags &= ~0x2000;
     D_807FBB48->state = 0x57;
@@ -933,7 +933,7 @@ void playerClearCarriedItemState(void);
 
 
 
-void func_806ECC48(void) {
+void playerStateEnterState59(void) {
     void *callback;
 
     callback = EfN4PS->unk104->unk174;
@@ -946,7 +946,7 @@ void func_806ECC48(void) {
     camStartBlendRamp(callback, 0x14);
 }
 
-void func_806ECCDC(void) {
+void playerStateEnterState17(void) {
     void *callback;
 
     callback = EfN4PS->unk104->unk174;
@@ -968,7 +968,7 @@ void func_806ECCDC(void) {
 s32 playerCanTakeHit(Actor *);
 void playerTakeDamage(s16);
 
-void func_806ECDD4(void) {
+void playerStateTakeHitAndDamage(void) {
     s32 value;
 
     if (playerCanTakeHit(D_807FBB48) != 0) {
@@ -982,7 +982,7 @@ void func_806ECDD4(void) {
     }
 }
 
-void func_806ECE2C(void) {
+void playerStateEnterState10(void) {
     if ((gPlayerCount >= 2) || (D_807FBB48->actorType != 6) || (EfN4CamBlocks[gCurrentPlayerIndex].unk2C0 == 1)) {
         ((EfN4ActorC0 *)D_807FBB48)->unkC0 = 260.0f;
         playerSetBaseGravity();
@@ -1008,7 +1008,7 @@ typedef struct EfCPlayer48 {
 } EfCPlayer48;
 
 
-void func_806ECF1C(void) {
+void playerStateEnterState11(void) {
     ((EfCActorC0 *)D_807FBB48)->unkC0 = 260.0f;
     playerSetBaseGravity();
     ((EfCPlayer48 *)gActivePlayerState)->unk50 = 0;
@@ -1030,7 +1030,7 @@ extern s16 D_807537FC[];
 extern s16 D_8075383C[];
 extern s16 D_8075384C[];
 
-void func_806ECF9C(void) {
+void playerStateEnterState12(void) {
     ((EfCPlayer68 *)gActivePlayerState)->unk50 = D_807537FC[D_807FD584];
     ((EfCPlayer68 *)gActivePlayerState)->unk68 += D_8075383C[D_807FD584];
     if (D_8075384C[D_807FD584] < ((EfCPlayer68 *)gActivePlayerState)->unk68) {
@@ -1040,7 +1040,7 @@ void func_806ECF9C(void) {
     ((EfCPlayer68 *)gActivePlayerState)->unk50 = 0;
 }
 
-void func_806ED050(void) {
+void playerStateEnterState29(void) {
     if ((gCurrentActor->state != 2) && (gPlayerCharacterId[gCurrentPlayerIndex] == 6)) {
         gCurrentActor->state = 0x29;
         gCurrentActor->unk155[0] = 0;
@@ -1051,7 +1051,7 @@ void func_806ED050(void) {
 }
 
 
-void func_806ED0FC(void) {
+void playerStateEnterState15ThrowHeldActor(void) {
     Actor *target;
 
     playerClearCarriedItemState();

@@ -261,8 +261,8 @@ Gfx *raceRenderMinimapIcon(Gfx *dl, RaceUnknownActor *actor, f32 posX, f32 posZ,
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern Mtx D_2000180;
-extern u8 D_807444FC;
-extern s16 D_80744490;
+extern u8 gGfxBufferIndex;
+extern s16 gScreenWidth;
 Gfx *gfxInit2DDisplayList(Gfx *);
 s32 _sprintf(char *, const char *, ...);
 void *heapFreeDeferred(void *);
@@ -280,7 +280,7 @@ Gfx *raceRenderCountdownText(Gfx *dl, RaceUnknownActor *actor) {
     f32 fadeFactor;
 
     alpha = 0xFF;
-    textX = D_80744490 / 2;
+    textX = gScreenWidth / 2;
     race174 = actor->unk174;
     if (actor->unk154 == 2 || actor->unk154 == 1) {
         if (race174->unk1C < 0x78) {
@@ -372,7 +372,7 @@ Gfx *raceRenderCoinHud(Gfx *dl, RaceUnknown174 *race174) {
     WRITE_GFX(dl++, 0xFA000000, 0xFFFFFFFF);
     dl = textDrawStringVtx(dl, 1, (s16)(s32)(2.0f * (posX * 4.0f)), (s16)(s32)(2.0f * (posY * 4.0f)), labelStr, 4);
     WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
-    WRITE_GFX(dl++, 0xDA380005, (u32)((u8 *)race174 + (D_807444FC << 6) + 0x50));
+    WRITE_GFX(dl++, 0xDA380005, (u32)((u8 *)race174 + (gGfxBufferIndex << 6) + 0x50));
     halfWidthMult = 0.5f;
     posX += halfWidthMult * (f32)textGetStringWidth(1, labelStr);
     posX = (f32)((f64)posX + 8.0);
@@ -411,8 +411,8 @@ Gfx *raceInitHudDisplayList(Gfx *dl, RaceUnknown174 *race174) {
     dl = gfxInit2DDisplayList(dl);
     WRITE_GFX(dl++, 0xDE000000, (u32)&D_1000118);
     WRITE_GFX(dl++, 0xDA380007, (u32)&D_20000C0);
-    guScale((Mtx *)((u8 *)race174 + (D_807444FC << 6) + 0x50), 0.5f, 0.5f, 1.0f);
-    WRITE_GFX(dl++, 0xDA380005, (u32)((u8 *)race174 + (D_807444FC << 6) + 0x50));
+    guScale((Mtx *)((u8 *)race174 + (gGfxBufferIndex << 6) + 0x50), 0.5f, 0.5f, 1.0f);
+    WRITE_GFX(dl++, 0xDA380005, (u32)((u8 *)race174 + (gGfxBufferIndex << 6) + 0x50));
     WRITE_GFX(dl++, 0xDA380003, (u32)&D_2000180);
     return dl;
 }
@@ -473,7 +473,7 @@ Gfx *raceDrawHudText(Gfx *dl, RaceUnknown174 *race174) {
         g0->words.w0 = 0xDA380007; g0->words.w1 = (u32)&D_20000C0; // LAYOUT: same-line stores steer the ori/addiu schedule
         g0 = dl++;
         g0->words.w0 = 0xDA380005;
-        g0->words.w1 = (u32)((u8 *)race174 + (D_807444FC << 6) + 0x50);
+        g0->words.w1 = (u32)((u8 *)race174 + (gGfxBufferIndex << 6) + 0x50);
         fontHeight = textGetFontHeight(1);
         textY = (s32)((f32)textY - (0.5f * (f32)fontHeight));
         hudFlags = parent174->unk0;

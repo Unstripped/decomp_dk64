@@ -432,7 +432,7 @@ typedef struct ActorMoveView {
 #define ACTOR_MOVE_VIEW ((ActorMoveView *)gCurrentActor)
 
 extern s16 D_8075033C;
-extern u32 D_807FBB64;
+extern u32 gGlobalOverlayFlags;
 extern struct PlayerTrackEntry *gPlayerSlots;
 f32 func_80612790(s16);
 f32 func_80612794(s16);
@@ -604,7 +604,7 @@ u8 arg3;
             if (S->unk4 && S->unk4) {}  // FAKE: dead test steers the FP colouring of the unkAC load in the !arg2 block
         }
     }
-    if (D_807FBB64 & 0x2000) {
+    if (gGlobalOverlayFlags & 0x2000) {
         func_8002F490(arg0);
     }
     if (fl[2] != 0 && !(ACTOR_MOVE_VIEW->unk6C & 1)) {
@@ -1011,7 +1011,7 @@ typedef struct ProjectileHomingState {
     u8 pad18[4];
     Actor *unk1C;
 } ProjectileHomingState;
-extern u32 D_807FBB64;
+extern u32 gGlobalOverlayFlags;
 void func_800268C0(s32);
 void effectLifetimeCountdownUpdate(void);
 s32 projectileFindHomingTarget();
@@ -1070,7 +1070,7 @@ u8 arg3;
                 dist = sqrtf((temp_fv0 * temp_fv0) + (temp_fv1 * temp_fv1));
                 if (dist < 100.0f) {
                     sp50->unk1C = sp78;
-                    if ((sp78 != NULL) && (D_807FBB64 & 0x04000000)) {
+                    if ((sp78 != NULL) && (gGlobalOverlayFlags & 0x04000000)) {
                         func_800268C0(0x80);
                     }
                 }
@@ -1083,7 +1083,7 @@ u8 arg3;
                 arg1->speedY = (((sp48 + var_fv0) - arg1->y) / ratio) / 0.025f;
             }
         } else if (sp50->unk1C != NULL) {
-            if (D_807FBB64 & 0x04000000) {
+            if (gGlobalOverlayFlags & 0x04000000) {
                 func_800268C0(4);
             }
             sp50->unk1C = NULL;
@@ -1421,7 +1421,7 @@ typedef struct PlayerCameraPosView {
 
 extern u8 D_80720340;
 extern u8 D_8072038C;
-extern u32 D_8076A068;
+extern u32 gGameFrameCounter;
 extern s16 D_80750344;
 extern u8 D_807FBB85;
 void billboardSetFlags(s16);
@@ -1481,7 +1481,7 @@ void projectileBounceParticleUpdate(void *arg0) {
         if (temp_s3->unk13 >= 0xB) {
             PROJECTILE_BOUNCE_ACTOR->unk132 = 2;
         }
-        temp_s3->unk0 = D_8076A068;
+        temp_s3->unk0 = gGameFrameCounter;
         if (temp_s3->unk13 == 5) {
             temp_s3->unk0 = temp_s3->unk0 - D_80750344 + 0x1E;
         }
@@ -1560,7 +1560,7 @@ void projectileBounceParticleUpdate(void *arg0) {
         sfxPlayAtPositionPooled(PROJECTILE_BOUNCE_ACTOR->unk7C, PROJECTILE_BOUNCE_ACTOR->unk80, PROJECTILE_BOUNCE_ACTOR->unk84, 0xF6, 0xFF, 0x7F, 0x1E, 0x1E, 0.7f, 0);
         actorDespawn(gCurrentActor);
     }
-    if (temp_s3->unk0 + D_80750344 < D_8076A068) {
+    if (temp_s3->unk0 + D_80750344 < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -1641,14 +1641,14 @@ void projectileSparkleUpdate(s32 arg0) {
             break;
         }
         sp2C->unk13 = (u8)(u32)G_SPARKLE_ACTOR->unk124->unk10;
-        sp2C->unk0 = D_8076A068;
+        sp2C->unk0 = gGameFrameCounter;
         sp2C->unk12 = 0;
         G_SPARKLE_ACTOR->unk60 |= 0x80000;
     }
     func_8067ACB4(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
-    if ((G_SPARKLE_ACTOR->unk6A & 1) || (G_SPARKLE_ACTOR->unkFC != 0) || (D_807FBB85 != 0) || ((u32)(sp2C->unk0 + 24) < D_8076A068)) {
+    if ((G_SPARKLE_ACTOR->unk6A & 1) || (G_SPARKLE_ACTOR->unkFC != 0) || (D_807FBB85 != 0) || ((u32)(sp2C->unk0 + 24) < gGameFrameCounter)) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -1800,7 +1800,7 @@ void projectileDespawnOrExplode(void) {
         func_807149FC(-1);
         func_807149B8(1);
         func_80714C08(&D_80720020, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
-        *sp44 = D_8076A068;
+        *sp44 = gGameFrameCounter;
     }
     func_8067ACB4(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
@@ -1819,7 +1819,7 @@ void projectileDespawnOrExplode(void) {
         sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x61, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
         actorDespawn(gCurrentActor);
     }
-    if ((u32)(*sp44 + D_80750344) < D_8076A068) {
+    if ((u32)(*sp44 + D_80750344) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -1852,7 +1852,7 @@ void projectileHomingUpdate(void) {
         func_80714A28(4);
         func_80714C08(&D_807200A0, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp44->unk14 = G_PROJECTILE_ACTOR->unk124->unkC;
-        sp44->unk0 = D_8076A068;
+        sp44->unk0 = gGameFrameCounter;
         G_PROJECTILE_ACTOR->unk60 |= 0x01080000;
         G_PROJECTILE_ACTOR->unk16E = 0x3C;
         G_PROJECTILE_ACTOR->unk16F = 0x3C;
@@ -1883,7 +1883,7 @@ void projectileHomingUpdate(void) {
         actorGetFloorSnapped() != 0 ||
         ((G_PROJECTILE_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
         D_807FBB85 != 0 ||
-        (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
+        (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < gGameFrameCounter)) {
         func_807149B8(1);
         func_80714950(0x1006E);
         func_8071498C(effectLightPulseOscillate);
@@ -1905,7 +1905,7 @@ void projectileHomingUpdate(void) {
     if (gCurrentMap == 0x10) {
         sp3C = (s32)((f64)sp3C * 1.2);
     }
-    if ((u32)(sp44->unk0 + sp3C) < D_8076A068) {
+    if ((u32)(sp44->unk0 + sp3C) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -1930,7 +1930,7 @@ void projectileMultiplayerUpdate(void) {
         func_80714A28(4);
         func_80714C08(&D_8072029C, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp44->unk14 = G_PROJECTILE_ACTOR->unk124->unkC;
-        sp44->unk0 = D_8076A068;
+        sp44->unk0 = gGameFrameCounter;
         G_PROJECTILE_ACTOR->unk60 |= 0x01080000;
         G_PROJECTILE_ACTOR->unk16E = 0x3C;
         G_PROJECTILE_ACTOR->unk16F = 0x3C;
@@ -1955,7 +1955,7 @@ void projectileMultiplayerUpdate(void) {
         actorGetFloorSnapped() != 0 ||
         ((G_PROJECTILE_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
         D_807FBB85 != 0 ||
-        (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
+        (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < gGameFrameCounter)) {
         if (D_80750AD0 == 0) {
             for (var_s1 = 0; var_s1 != 0xC; var_s1 += 2) {
                 func_807149B8(1);
@@ -1971,7 +1971,7 @@ void projectileMultiplayerUpdate(void) {
     if (gPlayerCount >= 2) {
         sp3C = (s32)((f32)sp3C * 1.4f);
     }
-    if ((u32)(sp44->unk0 + sp3C) < D_8076A068) {
+    if ((u32)(sp44->unk0 + sp3C) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -2092,7 +2092,7 @@ void projectileBounceExplodeScaledUpdate(void) {
         sp64->unk13 = (u8)(u32)BOUNCE_EXPLODE_ACTOR->unk124->unk10;
         func_807149FC(-1);
         func_807149B8(1);
-        sp64->unk0 = D_8076A068;
+        sp64->unk0 = gGameFrameCounter;
         if (sp64->unk13 >= 0xCA) {
             func_80714950(0xA);
             func_8071498C(effectLightPulseOscillate);
@@ -2113,7 +2113,7 @@ void projectileBounceExplodeScaledUpdate(void) {
         sp64->unk1C = 0;
         sp64->unk20 = 0;
     }
-    if ((u32)(sp64->unk0 + 5) < D_8076A068) {
+    if ((u32)(sp64->unk0 + 5) < gGameFrameCounter) {
         BOUNCE_EXPLODE_ACTOR->unk60 &= ~0x00080000;
     }
     var_a0 = 2;
@@ -2179,7 +2179,7 @@ void projectileBounceExplodeScaledUpdate(void) {
     if (sp64->unk20 == 4) {
         D_807FBB70.unk15 = 1;
     }
-    if (BOUNCE_EXPLODE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp64->unk0 + 1) < D_8076A068) {
+    if (BOUNCE_EXPLODE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp64->unk0 + 1) < gGameFrameCounter) {
         D_807FBB70.unk15 = 1;
     }
     if ((BOUNCE_EXPLODE_ACTOR->unk64 & 0x100) || flag != 0) {
@@ -2221,7 +2221,7 @@ void projectileBounceExplodeScaledUpdate(void) {
             D_80029FA0--;
         }
     }
-    if ((u32)(sp64->unk0 + D_80750348) < D_8076A068) {
+    if ((u32)(sp64->unk0 + D_80750348) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
         D_80029FA0--;
     }
@@ -2321,7 +2321,7 @@ void projectileBounceExplodeGreenUpdate(void) {
         func_807149B8(1);
         func_807149C8(0, 0xFF, 0, 0xFF);
         func_80714C08(&D_80720268, G_PROJECTILE_BEAM_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
-        sp4C->unk0 = D_8076A068;
+        sp4C->unk0 = gGameFrameCounter;
         sp4C->unk4 = 0;
         G_PROJECTILE_BEAM_ACTOR->unk60 |= 0x80000;
         G_PROJECTILE_BEAM_ACTOR->unkFA = 0x2328;
@@ -2331,7 +2331,7 @@ void projectileBounceExplodeGreenUpdate(void) {
         }
         sp4C->unk1C = 0;
     }
-    if ((u32)(sp4C->unk0 + 10) < D_8076A068) {
+    if ((u32)(sp4C->unk0 + 10) < gGameFrameCounter) {
         G_PROJECTILE_BEAM_ACTOR->unk60 &= 0xFFF7FFFF;
     }
     projectileSteerTowardTarget(1, gCurrentActor, 0, 1);
@@ -2391,7 +2391,7 @@ void projectileBounceExplodeGreenUpdate(void) {
         projectileSpawnExplosion();
         actorDespawn(gCurrentActor);
     }
-    if ((u32)(sp4C->unk0 + D_80750344) < D_8076A068) {
+    if ((u32)(sp4C->unk0 + D_80750344) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -2416,7 +2416,7 @@ void projectileBeamUpdate(void) {
         func_80714A28(4);
         func_80714C08(&D_807201A0, G_PROJECTILE_BEAM_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp44->unk14 = G_PROJECTILE_BEAM_ACTOR->unk124->unkC;
-        sp44->unk0 = D_8076A068;
+        sp44->unk0 = gGameFrameCounter;
         G_PROJECTILE_BEAM_ACTOR->unk60 |= 0x01080000;
         G_PROJECTILE_BEAM_ACTOR->unk16E = 0x3C;
         G_PROJECTILE_BEAM_ACTOR->unk16F = 0x3C;
@@ -2441,7 +2441,7 @@ void projectileBeamUpdate(void) {
         G_PROJECTILE_BEAM_ACTOR->unkFD != 0 ||
         ((G_PROJECTILE_BEAM_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
         D_807FBB85 != 0 ||
-        (G_PROJECTILE_BEAM_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
+        (G_PROJECTILE_BEAM_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < gGameFrameCounter)) {
         func_807149B8(1);
         func_80714950(0x1006E);
         func_8071498C(effectLightPulseOscillate);
@@ -2460,7 +2460,7 @@ void projectileBeamUpdate(void) {
     if (gPlayerCount >= 2) {
         sp3C = (s32)((f32)sp3C * 1.4f);
     }
-    if ((u32)(sp44->unk0 + sp3C) < D_8076A068) {
+    if ((u32)(sp44->unk0 + sp3C) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -2488,7 +2488,7 @@ void projectileImpactExplosionUpdate(void) {
         func_80714A28(4);
         func_80714C08(&D_80720268, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp34->unk14 = G_PROJECTILE_ACTOR->unk124->unkC;
-        sp34->unk0 = D_8076A068;
+        sp34->unk0 = gGameFrameCounter;
         G_PROJECTILE_ACTOR->unk60 |= 0x01080000;
         G_PROJECTILE_ACTOR->unk16E = 0x3C;
         G_PROJECTILE_ACTOR->unk16F = 0x3C;
@@ -2519,7 +2519,7 @@ void projectileImpactExplosionUpdate(void) {
     if (gPlayerCount >= 2) {
         sp2C = (s32)((f32)sp2C * 1.4f);
     }
-    if ((u32)(sp34->unk0 + sp2C) < D_8076A068) {
+    if ((u32)(sp34->unk0 + sp2C) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
     if (sp2B != 0) {
@@ -2622,7 +2622,7 @@ void projectileRotatingUpdate(void) {
         func_80714A28(4);
         func_80714C08(&D_807206A8, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         sp44->unk14 = G_PROJECTILE_ACTOR->unk124->unkC;
-        sp44->unk0 = D_8076A068;
+        sp44->unk0 = gGameFrameCounter;
         G_PROJECTILE_ACTOR->unk60 |= 0x01080000;
         G_PROJECTILE_ACTOR->unk16E = 0x3C;
         G_PROJECTILE_ACTOR->unk16F = 0x3C;
@@ -2647,7 +2647,7 @@ void projectileRotatingUpdate(void) {
         actorGetFloorSnapped() != 0 ||
         ((G_PROJECTILE_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
         D_807FBB85 != 0 ||
-        (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < D_8076A068)) {
+        (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(sp44->unk0 + 1) < gGameFrameCounter)) {
         func_807149B8(1);
         func_80714950(0x1006E);
         func_8071498C(effectLightPulseOscillate);
@@ -2667,7 +2667,7 @@ void projectileRotatingUpdate(void) {
     if (gPlayerCount >= 2) {
         sp3C = (s32)((f32)sp3C * 1.4f);
     }
-    if ((u32)(sp44->unk0 + sp3C) < D_8076A068) {
+    if ((u32)(sp44->unk0 + sp3C) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -2695,7 +2695,7 @@ void projectileMatrixRotationUpdate(void) {
         G_PROJECTILE_ROT_ACTOR->unkB8 = G_PROJECTILE_ROT_ACTOR->unk124->unk4;
         G_PROJECTILE_ROT_ACTOR->unkC0 = G_PROJECTILE_ROT_ACTOR->unk124->unk8;
         G_PROJECTILE_ROT_ACTOR->unk144 = 0x3C;
-        temp_s2->unk0 = D_8076A068;
+        temp_s2->unk0 = gGameFrameCounter;
         G_PROJECTILE_ROT_ACTOR->unk60 |= 0x01080000;
         G_PROJECTILE_ROT_ACTOR->unk16E = 0x3C;
         G_PROJECTILE_ROT_ACTOR->unk16F = 0x3C;
@@ -2722,7 +2722,7 @@ void projectileMatrixRotationUpdate(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     switch (G_PROJECTILE_ROT_ACTOR->unk154) {
     case 0:
-        if (G_PROJECTILE_ROT_ACTOR->unkFD != 0 || (G_PROJECTILE_ROT_ACTOR->unk124->unk14 != 0.0f && (u32)(temp_s2->unk0 + 1) < D_8076A068)) {
+        if (G_PROJECTILE_ROT_ACTOR->unkFD != 0 || (G_PROJECTILE_ROT_ACTOR->unk124->unk14 != 0.0f && (u32)(temp_s2->unk0 + 1) < gGameFrameCounter)) {
             scriptSetActorRampTarget(gCurrentActor, 0.5f, 0);
             func_80613C48(gCurrentActor, 0x406, 0, 0.0f);
             G_PROJECTILE_ROT_ACTOR->unkB8 = 0.0f;
@@ -2739,7 +2739,7 @@ void projectileMatrixRotationUpdate(void) {
     case 1:
         G_PROJECTILE_ROT_ACTOR->unk138 = 0;
         G_PROJECTILE_ROT_ACTOR->unk144 = 1;
-        temp_s2->unk0 = D_8076A068;
+        temp_s2->unk0 = gGameFrameCounter;
         if (!--temp_s2->unk10) {
             scriptSetActorRampTarget(gCurrentActor, 0.5f, 0);
             func_80613C48(gCurrentActor, 0x405, 0, 10.0f);
@@ -2759,7 +2759,7 @@ void projectileMatrixRotationUpdate(void) {
     if (gPlayerCount >= 2) {
         sp84 = (s32)((f32)sp84 * 1.4f);
     }
-    if ((u32)(temp_s2->unk0 + sp84) < D_8076A068) {
+    if ((u32)(temp_s2->unk0 + sp84) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
     guRotateF((void *)((u8 *)gCurrentActor + 0xC), temp_s2->unkC, 0.0f, 0.0f, 1.0f);
@@ -2800,7 +2800,7 @@ void projectileRotatingLightUpdate(f32 arg0, u8 arg1) {
         temp_v0->unk3C = 2.0 * temp_v0->unk3C;
         temp_s2->unk8 = -(mathAtan2(G_PROJECTILE_ROT_ACTOR->unkC0, G_PROJECTILE_ROT_ACTOR->unkB8) * 57.295776f);
         G_PROJECTILE_ROT_ACTOR->unk144 = 0x3C;
-        temp_s2->unk0 = D_8076A068;
+        temp_s2->unk0 = gGameFrameCounter;
         temp_s2->unk12 = 0;
         G_PROJECTILE_ROT_ACTOR->unk60 |= 0x80000;
         temp_s2->unk10 = 0;
@@ -2835,7 +2835,7 @@ void projectileRotatingLightUpdate(f32 arg0, u8 arg1) {
                 actorDespawn(gCurrentActor);
             }
         }
-        if ((u32)(temp_s2->unk0 + D_80750344) < D_8076A068) {
+        if ((u32)(temp_s2->unk0 + D_80750344) < gGameFrameCounter) {
             actorDespawn(gCurrentActor);
         }
     }
@@ -2904,7 +2904,7 @@ void projectileParticleSpawnerTick(void) {
         func_807149FC(-1);
         func_807149B8(1);
         func_80714C08(&D_80720804, G_PROJECTILE_PARTICLE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
-        sp54->unk0 = D_8076A068;
+        sp54->unk0 = gGameFrameCounter;
         G_PROJECTILE_PARTICLE_ACTOR->unk60 |= 0x80000;
         if (sp54->unk13 != 0xA) {
             func_80714998(2);
@@ -2923,7 +2923,7 @@ void projectileParticleSpawnerTick(void) {
         func_80714950((s32)gCurrentActor);
         func_80714CC0(&D_8071FC40, 0.3f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
-    if (((G_PROJECTILE_PARTICLE_ACTOR->hasArcBounds != 0) && ((u32)(D_8076A068 - sp54->unk0) >= 6)) || D_807FBB85 != 0) {
+    if (((G_PROJECTILE_PARTICLE_ACTOR->hasArcBounds != 0) && ((u32)(gGameFrameCounter - sp54->unk0) >= 6)) || D_807FBB85 != 0) {
         if ((D_807FBB85 != 0) && (sp54->unk13 != 0xA)) {
             func_807149B8(1);
             func_80714950(0x100D2);
@@ -2943,7 +2943,7 @@ void projectileParticleSpawnerTick(void) {
         }
         actorDespawn(gCurrentActor);
     }
-    if ((u32)(sp54->unk0 + D_80750344) < D_8076A068) {
+    if ((u32)(sp54->unk0 + D_80750344) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -3004,7 +3004,7 @@ void projectileHomingParticleUpdate(void) {
         func_807149FC(-1);
         func_807149B8(1);
         func_80714C08(&D_80720804, G_PROJECTILE_HOMING_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
-        *sp74 = D_8076A068;
+        *sp74 = gGameFrameCounter;
         G_PROJECTILE_HOMING_ACTOR->unk60 |= 0x80000;
     }
     func_8067ACB4(gCurrentActor);
@@ -3017,7 +3017,7 @@ void projectileHomingParticleUpdate(void) {
     }
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
     var_s1 = 0;
-    if ((G_PROJECTILE_HOMING_ACTOR->unk6A & 1) || ((G_PROJECTILE_HOMING_ACTOR->hasArcBounds != 0) && ((u32)(D_8076A068 - *sp74) >= 6)) || D_807FBB85 != 0) {
+    if ((G_PROJECTILE_HOMING_ACTOR->unk6A & 1) || ((G_PROJECTILE_HOMING_ACTOR->hasArcBounds != 0) && ((u32)(gGameFrameCounter - *sp74) >= 6)) || D_807FBB85 != 0) {
         do {
             temp_fs2 = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
             temp_fs3 = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
@@ -3038,7 +3038,7 @@ void projectileHomingParticleUpdate(void) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x3C, 0xFF, 0x7F, 0x1E);
         actorDespawn(gCurrentActor);
     }
-    if ((u32)(*sp74 + D_80750344) < D_8076A068) {
+    if ((u32)(*sp74 + D_80750344) < gGameFrameCounter) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -3091,12 +3091,12 @@ void projectileFallBounceUpdate(void) {
         temp_fv0 = gCurrentActor->y;
         gCurrentActor->peakY = temp_fv0;
         gCurrentActor->prevPeakY = temp_fv0;
-        if (D_807FBB64 & 0x80000) {
+        if (gGlobalOverlayFlags & 0x80000) {
             gCurrentActor->unk144 = 0x3C;
         } else {
             gCurrentActor->unk144 = 0x1C;
         }
-        *temp_v0 = D_8076A068;
+        *temp_v0 = gGameFrameCounter;
         gCurrentActor->flags |= 0x80000;
         collisionQueryActorFloor(gCurrentActor, &sp79, &sp70, &sp78, &sp6C, sp77);
         gCurrentActor->accelY = D_807502F8 - (f32)(((randomNonNegative() >> 15) % 32767) % 10);
@@ -3255,10 +3255,10 @@ void projectileChaseTargetUpdate(void) {
             if (gCurrentMap && gCurrentMap) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }
-    if ((u32)(sp44->unk0 - 100) < D_8076A068) {
+    if ((u32)(sp44->unk0 - 100) < gGameFrameCounter) {
         CHASE_ACTOR->unk60 &= ~0x80000;
     }
-    if (((u32)(sp44->unk0 + D_80750344) < D_8076A068) || ((CHASE_ACTOR->unkFD != 0) && (CHASE_ACTOR->unk58 != 0xA9)) || (D_807FBB85 != 0)) {
+    if (((u32)(sp44->unk0 + D_80750344) < gGameFrameCounter) || ((CHASE_ACTOR->unkFD != 0) && (CHASE_ACTOR->unk58 != 0xA9)) || (D_807FBB85 != 0)) {
         tagBarrelSpawnActorSmokePuffs(0, 1);
         sfxStopSlotSound(gCurrentActor, 0);
         actorDespawn(gCurrentActor);

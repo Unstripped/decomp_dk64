@@ -2131,7 +2131,7 @@ void collisionRecordBoxTriangle(void *arg0, f32 arg1) {
     }
 }
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern Actor *D_807F9470;
 extern f32 D_807F9474;
 extern f32 D_807F9478;
@@ -2151,9 +2151,9 @@ void collisionTransformPointToActorLocal(s32 arg0, Actor *arg1, CollisionVertexB
     D_807F9470 = arg1;
     sub = arg1->unk140;
     if (gFrameCounter == sub->unk88) {
-        idx = D_807444FC;
+        idx = gGfxBufferIndex;
     } else {
-        idx = (D_807444FC ^ 1) & 0xFF;
+        idx = (gGfxBufferIndex ^ 1) & 0xFF;
     }
     mtx = (Mtx *)((Mtx **)&sub->unk74)[idx];
     if ((arg2->unk4C != arg2->unk48) || (arg2->unk50 != arg2->unk48)) {
@@ -2183,9 +2183,9 @@ void collisionTransformPointByActorMtx(Actor *actor, u32 arg1, f32 *arg2, f32 ar
         sp74 = *arg4;
         sub = actor->unk140;
         if (gFrameCounter == sub->unk88) {
-            idx = D_807444FC;
+            idx = gGfxBufferIndex;
         } else {
-            idx = D_807444FC ^ 1;
+            idx = gGfxBufferIndex ^ 1;
             idx = idx & 0xFF; // FAKE: split mask steers sub/idx v0/v1 allocation
         }
         mtx = ((Mtx **)&sub->unk74)[idx];

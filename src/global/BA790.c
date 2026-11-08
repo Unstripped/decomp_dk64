@@ -45,7 +45,7 @@ typedef struct BA790View9C {
 } BA790View9C;
 
 #define BA790A ((BA790Actor *)gCurrentActor)
-#define BA790S9C ((BA790View9C *)D_807FDC9C)
+#define BA790S9C ((BA790View9C *)gBehaviourExtraState)
 
 extern u8 D_807FBB85;
 extern u8 D_807444EC;
@@ -146,7 +146,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         } else {
             x = 2;
         }
-        actorMoveWithinZone(0x33, D_807FDC94->x, D_807FDC94->z, x, 6.0f);
+        actorMoveWithinZone(0x33, gBehaviourTargetActor->x, gBehaviourTargetActor->z, x, 6.0f);
         if (gCurrentActor->actorType == 0xB6) {
             enemyAggroStateUpdate(aggroRange, 0x24E, 0x24D);
         }
@@ -168,8 +168,8 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
         }
         if (gCurrentActor->state == 0x33) {
             ret = 1;
-            BA790A->unkB8 = ((BA790View9C *)D_807FDC9C)->unkD;
-            q = mathAngleBetweenPoints2D(D_807FDC94->x, D_807FDC94->z, gCurrentActor->x, gCurrentActor->z);
+            BA790A->unkB8 = ((BA790View9C *)gBehaviourExtraState)->unkD;
+            q = mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z);
             BA790A->unkE6 = q;
             BA790A->unkEE = q;
         }
@@ -222,7 +222,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             sel = BA790A->unk155;
         }
         if (sel < 4) {
-            actorMoveWithinZone(0x33, D_807FDC94->x, D_807FDC94->z, 0x20, 6.0f);
+            actorMoveWithinZone(0x33, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x20, 6.0f);
             sel = BA790A->unk155;
         }
         switch (sel) {

@@ -121,7 +121,7 @@ typedef struct ModelSlot {
     /* 0x8A */ u8 pad8A[6];
 } ModelSlot; // size = 0x90
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern ModelSlot *D_807F6000;
 
 void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, s32 *, u8);
@@ -175,7 +175,7 @@ void collisionBuildSlotBoxes(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f
     lastBone = -1;
     buf = (CollisionSlotBuffer *)&D_807F6000[arg0].unk28;
     if (anim != NULL) {
-        sp58 = anim[D_807444FC];
+        sp58 = anim[gGfxBufferIndex];
     } else {
         sp58 = 0;
     }
@@ -250,7 +250,7 @@ void modelSlotBuildTransformMatrix(s16 arg0, s8 arg1, f32 (*arg2)[4]) {
 
     entry = (ModelSlot *)((u8 *)D_807F6000 + arg0 * sizeof(ModelSlot));
     if (entry->unk78 != NULL) {
-        sp48 = entry->unk78[D_807444FC];
+        sp48 = entry->unk78[gGfxBufferIndex];
     } else {
         sp48 = 0;
     }
@@ -1447,9 +1447,9 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
     neg1 = -1;
     if (arg0->unkA0 != NULL) {
         if (gFrameCounter == arg0->unk88) {
-            var_v1 = D_807444FC;
+            var_v1 = gGfxBufferIndex;
         } else {
-            var_v1 = (D_807444FC ^ 1);
+            var_v1 = (gGfxBufferIndex ^ 1);
         }
         mtx = ((Mtx **)&arg0->unk74)[var_v1];
         ent = arg0->unkA0;
@@ -1548,9 +1548,9 @@ void actorSub140TransformTriangles(ActorSub140 *arg0) {
     first = arg0->unk98;
     if (first != NULL) {
         if (gFrameCounter == arg0->unk88) {
-            var_v1 = D_807444FC;
+            var_v1 = gGfxBufferIndex;
         } else {
-            var_v1 = (D_807444FC ^ 1);
+            var_v1 = (gGfxBufferIndex ^ 1);
         }
         mtx = ((Mtx **)&arg0->unk74)[var_v1];
         curr = first;
@@ -2885,9 +2885,9 @@ u8 arg1;
             scale = arg0->unk120;
         }
         if (gFrameCounter == sub->unk88) {
-            idx = D_807444FC;
+            idx = gGfxBufferIndex;
         } else {
-            idx = D_807444FC ^ 1;
+            idx = gGfxBufferIndex ^ 1;
         }
         node = sub->unk8C;
         base = sub->unk74[idx];
@@ -2939,9 +2939,9 @@ void actorUpdateNodePositions(ActorSub140PointView *arg0, u8 arg1) {
 
     if (arg1 || (gFrameCounter != arg0->unk84)) {
         if (gFrameCounter == arg0->unk88) {
-            var_v0 = D_807444FC;
+            var_v0 = gGfxBufferIndex;
         } else {
-            var_v0 = D_807444FC ^ 1;
+            var_v0 = gGfxBufferIndex ^ 1;
         }
         node = arg0->unk90;
         mtx_base = arg0->unk74[var_v0];
@@ -3014,9 +3014,9 @@ s32 actorStepSubNodeList(ActorTargetWork *arg0, s32 arg1) {
     ActorTargetNode *node;
 
     if (gFrameCounter == sub->unk88) {
-        val = D_807444FC;
+        val = gGfxBufferIndex;
     } else {
-        val = D_807444FC ^ 1;
+        val = gGfxBufferIndex ^ 1;
     }
     base = sub->unk74[val];
 

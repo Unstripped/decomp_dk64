@@ -60,7 +60,7 @@ void frameTimingReset(s32 mapId) {
     }
 }
 
-extern u32 D_80744478;
+extern u32 gFrameDelta;
 extern u8 D_80745290;
 extern s32 gFrameCounter;
 extern u8 gScheduler[];
@@ -89,9 +89,9 @@ void frameTimingUpdate(void) {
         if (D_80745290 == 8) {
             D_80745290 = 0;
         }
-        if (D_80744478 >= 4) {
+        if (gFrameDelta >= 4) {
             n = 1;
-        } else if (D_80744478 < sample) {
+        } else if (gFrameDelta < sample) {
             n = 2;
         } else {
             n = 4;
@@ -99,7 +99,7 @@ void frameTimingUpdate(void) {
         idx = D_80745290;
         flag = 0;
         for (i = 0; i < n; i++) {
-            if (D_80744478 && D_80744478) {}  // FAKE: dead read splits the hoisted D_80744478 address web (lui/%lo per access, less max/min interference)
+            if (gFrameDelta && gFrameDelta) {}  // FAKE: dead read splits the hoisted gFrameDelta address web (lui/%lo per access, less max/min interference)
             idx--;
             if (idx < 0) {
                 idx = 7;
@@ -111,17 +111,17 @@ void frameTimingUpdate(void) {
                 min = D_8076AF00[idx];
             }
         }
-        if (D_80744478 < sample && D_80744478 < min) {
+        if (gFrameDelta < sample && gFrameDelta < min) {
             flag = 1;
-        } else if (sample < D_80744478 && max < D_80744478) {
+        } else if (sample < gFrameDelta && max < gFrameDelta) {
             flag = 1;
         }
         if (flag != 0) {
-            D_80744478 = sample;
+            gFrameDelta = sample;
         }
         if ((u32)gFrameCounter >= 0xB) {
             p = &D_80767CC4;
-            limit = D_8076AF10 + D_80744478;
+            limit = D_8076AF10 + gFrameDelta;
             if (SCHED284 < limit) {
                 do {
                 } while (*(volatile s32 *)p < limit);
@@ -129,7 +129,7 @@ void frameTimingUpdate(void) {
         }
         D_8076AF10 = SCHED284;
     } else {
-        D_80744478 = SCHED284 - D_8076AF10;
+        gFrameDelta = SCHED284 - D_8076AF10;
         D_8076AF10 = SCHED284;
     }
 }

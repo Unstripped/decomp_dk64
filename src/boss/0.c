@@ -189,7 +189,7 @@ typedef struct Boss2A_Struct_807FDC90_4300 {
     s16 unk2C;
 } Boss2A_Struct_807FDC90_4300;
 struct BossA_Struct_80024EAC_DC90;
-extern struct BossA_Struct_80024EAC_DC90 *D_807FDC90;
+extern struct BossA_Struct_80024EAC_DC90 *gBehaviourWorkState;
 s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 f32 func_80612794(s16);
 f32 func_80612790(s16);
@@ -204,7 +204,7 @@ void bossArmydilloDebrisUpdate(void) {
     debris = gCurrentActor->sub->arr1;
     soundId = 0;
     soundVol = 0xFF;
-    switch (((Boss2A_Struct_807FDC90_4300 *)D_807FDC90)->unk2C) {
+    switch (((Boss2A_Struct_807FDC90_4300 *)gBehaviourWorkState)->unk2C) {
     case 19:
         soundId = 0x22;
         break;
@@ -438,8 +438,8 @@ typedef struct BossA_Struct_80024EAC_DC94 {
     f32 unk84;
 } BossA_Struct_80024EAC_DC94;
 
-extern BossA_Struct_80024EAC_DC90 *D_807FDC90;
-extern BossA_Struct_80024EAC_DC94 *D_807FDC94;
+extern BossA_Struct_80024EAC_DC90 *gBehaviourWorkState;
+extern BossA_Struct_80024EAC_DC94 *gBehaviourTargetActor;
 
 void scriptSetActorRampTarget(void *, f32, f32);
 s32 mathAngleSignedDistance(s16, s16);
@@ -450,9 +450,9 @@ void bossArmydilloAimTowardTarget(void) {
     u16 animState;
 
     animState = gCurrentActor->sub->unk64;
-    mathAngleSignedDistance(D_807FDC90->unk8, gCurrentActor->unkE6);
-    actorMoveWithinZone(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x16, 0.0f);
-    res = mathAngleSignedDistance(D_807FDC90->unk8, gCurrentActor->unkE6);
+    mathAngleSignedDistance(gBehaviourWorkState->unk8, gCurrentActor->unkE6);
+    actorMoveWithinZone(0x45, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk84, 0x16, 0.0f);
+    res = mathAngleSignedDistance(gBehaviourWorkState->unk8, gCurrentActor->unkE6);
     if (res > 0) {
         if (animState != 0x260) {
             actorScriptStart(gCurrentActor, 0x260);
@@ -695,7 +695,7 @@ typedef struct Boss3B_DCA0 {
 extern Boss3B_Actor *gSpawnedActor;
 extern Boss3B_Actor *D_807FBB4C;
 extern u8 D_807FBB70[];
-extern Boss3B_DC98 *D_807FDC98;
+extern Boss3B_DC98 *gBehaviourAnimState;
 extern Boss3B_DCA0 *D_807FDCA0;
 
 extern u8 *D_800358B0[][5];
@@ -754,8 +754,8 @@ void func_8072A450();
 s32 patrolPathStep();
 
 #define gCurrentActor ((Boss3B_Actor *)gCurrentActor)
-#define D_807FDC90 ((Boss3B_DC90 *)D_807FDC90)
-#define D_807FDC94 ((Boss3B_DC94 *)D_807FDC94)
+#define gBehaviourWorkState ((Boss3B_DC90 *)gBehaviourWorkState)
+#define gBehaviourTargetActor ((Boss3B_DC94 *)gBehaviourTargetActor)
 
 void bossArmydilloStep(void) {
     s32 pad_top[1];
@@ -775,14 +775,14 @@ void bossArmydilloStep(void) {
     playSfx = 0;
     behaviourFrameBegin();
     if (!(gCurrentActor->unk60 & 0x10)) {
-        D_807FDC98->unk38 = 0.002f;
+        gBehaviourAnimState->unk38 = 0.002f;
         camSetSecondTarget(gCamActor, 0, 0);
         bossInitScriptData(&D_80035CC0);
         gCurrentActor->unkC4 = (f32) D_807502F4;
         gCurrentActor->unkC8 = (f32) D_807502D8;
         bossArmydilloHideCannons();
-        D_807FDC98->unk2C = 0.01f;
-        D_807FDC98->unk30 = 3.0f;
+        gBehaviourAnimState->unk2C = 0.01f;
+        gBehaviourAnimState->unk30 = 3.0f;
         gCurrentActor->unk12A = 0x3E8;
         animSetSpeed(gCurrentActor, 1, 0.2f);
         animSetLoopMode(gCurrentActor, 1, 1);
@@ -805,7 +805,7 @@ void bossArmydilloStep(void) {
             }
         }
     }
-    func_8072881C(0, D_807FDC90->unk28);
+    func_8072881C(0, gBehaviourWorkState->unk28);
     if ((D_807FBB70[0x200] == 9) || (D_807FBB70[0x15] != 0)) {
         tagBarrelSpawnNodeSmokePuffs(gCurrentActor, 0xC, 2.0f);
         gCurrentActor->unk138 = 0;
@@ -854,7 +854,7 @@ void bossArmydilloStep(void) {
             if (currentActorTestClearFlag() != 0) {
                 bossArmydilloSpawnSmoke();
                 actorScriptStart(gCurrentActor, 0x263);
-                D_807FDC90->unk2C = 0x14;
+                gBehaviourWorkState->unk2C = 0x14;
                 gCurrentActor->unk155 = 3;
                 gCurrentActor->unk60 = (s32) (gCurrentActor->unk60 | 0x800000);
                 gCurrentActor->unk16A = 0x1E;
@@ -863,8 +863,8 @@ void bossArmydilloStep(void) {
             }
             break;
         case 3:                                     /* switch 2 */
-            if (D_807FDC90->unk2C != 0) {
-                D_807FDC90->unk2C--;
+            if (gBehaviourWorkState->unk2C != 0) {
+                gBehaviourWorkState->unk2C--;
                 bossArmydilloDebrisUpdate();
             } else if (currentActorTestClearFlag() != 0) {
                 if (gCurrentActor->unk70 == -1) {
@@ -992,7 +992,7 @@ void bossArmydilloStep(void) {
                 }
                 sfxStopSlotSound(gCurrentActor, 1);
                 gCurrentActor->unk155 = 1;
-                D_807FDC90->unk2E = 0;
+                gBehaviourWorkState->unk2E = 0;
                 gCurrentActor->unkB8 = 0.0f;
             }
             {
@@ -1004,11 +1004,11 @@ void bossArmydilloStep(void) {
             bossPieceSetAngle(3, state17C->unk12);
             break;
         case 1:                                     /* switch 5 */
-            D_807FDC90->unk2E += (gCurrentActor->unk154 == 0x2F) ? 10 : 4;
-            if (D_807FDC90->unk2E >= 0x12D) {
-                D_807FDC90->unk2E = 0x12C;
+            gBehaviourWorkState->unk2E += (gCurrentActor->unk154 == 0x2F) ? 10 : 4;
+            if (gBehaviourWorkState->unk2E >= 0x12D) {
+                gBehaviourWorkState->unk2E = 0x12C;
             }
-            gCurrentActor->unkC0 = (f32) D_807FDC90->unk2E;
+            gCurrentActor->unkC0 = (f32) gBehaviourWorkState->unk2E;
             bossArmydilloSpawnExhaustSmoke();
             playSfx = 1;
             actorMoveWithinZone(0x45, 510.0f, 480.0f, 0x292, 0.0f);
@@ -1045,15 +1045,15 @@ void bossArmydilloStep(void) {
                 sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x24A, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x36, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 gCurrentActor->unk155 = 4;
-                D_807FDC90->unk2C = 0x3C;
+                gBehaviourWorkState->unk2C = 0x3C;
             }
             break;
         case 4:                                     /* switch 5 */
-            if ((D_807FDC90->unk2C == 0x28) || (D_807FDC90->unk2C == 0x32)) {
+            if ((gBehaviourWorkState->unk2C == 0x28) || (gBehaviourWorkState->unk2C == 0x32)) {
                 sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x1C1, 0xB4, 0x7F, 1, 0x1E, 0.3f, 0);
             }
-            if (D_807FDC90->unk2C != 0) {
-                D_807FDC90->unk2C--;
+            if (gBehaviourWorkState->unk2C != 0) {
+                gBehaviourWorkState->unk2C--;
             } else {
                 gCurrentActor->unk154 = scriptData[state->unk15++];
                 gCurrentActor->unk155 = 0;
@@ -1107,10 +1107,10 @@ void bossArmydilloStep(void) {
             gCurrentActor->unk155 = 1;
             /* fallthrough */
         case 1:                                     /* switch 8 */
-            actorMoveWithinZone(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, (gCurrentActor->unk154 == 0x57) ? 0x210 : 0x212, 0.0f);
+            actorMoveWithinZone(0x45, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk84, (gCurrentActor->unk154 == 0x57) ? 0x210 : 0x212, 0.0f);
             break;
         case 2:                                     /* switch 8 */
-            actorMoveWithinZone(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x212, 0.0f);
+            actorMoveWithinZone(0x45, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk84, 0x212, 0.0f);
             break;
         case 3:                                     /* switch 8 */
             if (gCurrentActor->unk154 == 0x11) {
@@ -1151,28 +1151,28 @@ void bossArmydilloStep(void) {
                 actorScriptStart(gCurrentActor, 0);
                 func_80613C48(gCurrentActor, 0x3A8, 0.0f, 10.0f);
                 gCurrentActor->unk155 = 3;
-                D_807FDC90->unk2C = 0x1E;
+                gBehaviourWorkState->unk2C = 0x1E;
             }
             break;
         case 3:                                     /* switch 9 */
-            if (D_807FDC90->unk2C != 0) {
-                D_807FDC90->unk2C--;
+            if (gBehaviourWorkState->unk2C != 0) {
+                gBehaviourWorkState->unk2C--;
             } else {
                 gCurrentActor->unk155 = 4;
             }
             break;
         case 4:                                     /* switch 9 */
-            projectileSetTargetCoords((f32) (((s32) (randomNonNegative() >> 15) % 20)) + D_807FDC94->unk7C, D_807FDC94->unk80 + 400.0f, (f32) (((s32) (randomNonNegative() >> 15) % 20)) + D_807FDC94->unk84);
-            projectileAimAndSpawn(0x1E, 0xA, 1.2f, D_807FDC94->unk7C, D_807FDC94->unk80, D_807FDC94->unk84, 600.0f, gCurrentActor);
-            D_807FDC90->unk2C = 0x14;
+            projectileSetTargetCoords((f32) (((s32) (randomNonNegative() >> 15) % 20)) + gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk80 + 400.0f, (f32) (((s32) (randomNonNegative() >> 15) % 20)) + gBehaviourTargetActor->unk84);
+            projectileAimAndSpawn(0x1E, 0xA, 1.2f, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk80, gBehaviourTargetActor->unk84, 600.0f, gCurrentActor);
+            gBehaviourWorkState->unk2C = 0x14;
             gCurrentActor->unk155 = 5;
             /* fallthrough */
         case 5:                                     /* switch 9 */
-            if (D_807FDC90->unk2C == 0xF) {
+            if (gBehaviourWorkState->unk2C == 0xF) {
                 sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0xF4, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             }
-            if (D_807FDC90->unk2C != 0) {
-                D_807FDC90->unk2C--;
+            if (gBehaviourWorkState->unk2C != 0) {
+                gBehaviourWorkState->unk2C--;
             } else {
                 state->unk18--;
                 if (state->unk18 != 0) {
@@ -1194,17 +1194,17 @@ void bossArmydilloStep(void) {
             gCurrentActor->unk155 = 1;
             /* fallthrough */
         case 1:                                     /* switch 10 */
-            D_807FDC90->unk2C = (s16) state->unk19;
+            gBehaviourWorkState->unk2C = (s16) state->unk19;
             if (!(state->unk12 & 1) && (state->unk14 != 0)) {
-                D_807FDC90->unk2C = 0;
+                gBehaviourWorkState->unk2C = 0;
                 state->unk18 = (u8) (state->unk18 + 1);
             }
             gCurrentActor->unk155 = 2;
             /* fallthrough */
         case 2:                                     /* switch 10 */
-            if (D_807FDC90->unk2C != 0) {
+            if (gBehaviourWorkState->unk2C != 0) {
                 bossArmydilloAimTowardTarget();
-                D_807FDC90->unk2C = (s16) (D_807FDC90->unk2C - 1);
+                gBehaviourWorkState->unk2C = (s16) (gBehaviourWorkState->unk2C - 1);
             } else {
                 actorScriptStart(gCurrentActor, (cannonBone == 1) ? 0x25D : 0x25E);
                 gCurrentActor->unk155 = 3;
@@ -1212,7 +1212,7 @@ void bossArmydilloStep(void) {
             break;
         case 4:                                     /* switch 10 */
             projectileGetTargetCoords(gCurrentActor, cannonBone);
-            projectileClampAngleAndSpawn(gCurrentActor->unkE6, 0x320, 0x1E, 1, 0.7f, D_807FDC94->unk7C, D_807FDC94->unk80 + 5.0f, D_807FDC94->unk84, (f32) ((state->unk14 * 0x50) + 0x1F4), gCurrentActor);
+            projectileClampAngleAndSpawn(gCurrentActor->unkE6, 0x320, 0x1E, 1, 0.7f, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk80 + 5.0f, gBehaviourTargetActor->unk84, (f32) ((state->unk14 * 0x50) + 0x1F4), gCurrentActor);
             sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x18, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             effectSpawnBoneWhite(gCurrentActor, cannonBone, 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
             state->unk12 = (u16) (state->unk12 ^ 1);
@@ -1234,7 +1234,7 @@ void bossArmydilloStep(void) {
         case 0:                                     /* switch 11 */
             gCurrentActor->unk138 = -1;
             bossArmydilloShowCannons();
-            D_807FDC90->unk2C = (s16) *(state->unk15 + scriptData);
+            gBehaviourWorkState->unk2C = (s16) *(state->unk15 + scriptData);
             state->unk15 = state->unk15 + 1;
             if (camIsCutsceneActive() != 0) {
                 actorScriptStart(gCurrentActor, 0x267);
@@ -1244,8 +1244,8 @@ void bossArmydilloStep(void) {
             gCurrentActor->unk155 = 1;
             /* fallthrough */
         case 1:                                     /* switch 11 */
-            if (D_807FDC90->unk2C != 0) {
-                D_807FDC90->unk2C--;
+            if (gBehaviourWorkState->unk2C != 0) {
+                gBehaviourWorkState->unk2C--;
                 break;
             }
             bossArmydilloHideCannons();
@@ -1290,7 +1290,7 @@ void bossArmydilloStep(void) {
             gCurrentActor->unk155 = 1;
             /* fallthrough */
         case 1:                                     /* switch 13 */
-            actorMoveWithinZone(0x42, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, 0x290, 0.0f);
+            actorMoveWithinZone(0x42, (f32) gBehaviourWorkState->unkA, (f32) gBehaviourWorkState->unkE, 0x290, 0.0f);
             if (gFrameCounter & 8) {
                 bossArmydilloSpawnExhaustSmoke();
                 playSfx = 1;
@@ -1333,7 +1333,7 @@ void bossArmydilloStep(void) {
             gCurrentActor->unk155 = 1;
             /* fallthrough */
         case 1:                                     /* switch 15 */
-            actorMoveWithinZone(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x292, 0.0f);
+            actorMoveWithinZone(0x45, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk84, 0x292, 0.0f);
             if (gCurrentActor->unk6A & 1) {
                 actorScriptStart(gCurrentActor, 0x26B);
                 gCurrentActor->unk155 = 2;
@@ -1379,8 +1379,8 @@ void bossArmydilloStep(void) {
 }
 
 #undef gCurrentActor
-#undef D_807FDC90
-#undef D_807FDC94
+#undef gBehaviourWorkState
+#undef gBehaviourTargetActor
 
 s32 randomNonNegative(void);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);

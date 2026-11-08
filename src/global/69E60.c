@@ -66,7 +66,7 @@ typedef struct ActorVelocityWork {
 
 f32 func_80612790(s16);
 f32 func_80612794(s16);
-extern u32 D_80744478;
+extern u32 gFrameDelta;
 
 void actorApplyVelocity(ActorVelocityWork *actor) {
     f32 pad;
@@ -94,7 +94,7 @@ void actorApplyVelocity(ActorVelocityWork *actor) {
         moveSpeed *= fv1;
     }
     if (actor->unk60 & 0x400000) {
-        moveSpeed = (f64)moveSpeed * ((f64)(u32)D_80744478 * 0.5);
+        moveSpeed = (f64)moveSpeed * ((f64)(u32)gFrameDelta * 0.5);
     }
     actor->unk7C += moveSpeed * func_80612794(actor->unkEE);
     actor->unk84 += moveSpeed * func_80612790(actor->unkEE);
@@ -142,7 +142,7 @@ void actorApplyVelocityCustom(ActorVelocityCustomWork *actor, f32 speedXZ, f32 s
         speedXZ *= (func_80612794(actor->unkDA) > 0.0f) ? func_80612794(actor->unkDA) : -func_80612794(actor->unkDA);
     }
     if (actor->unk60 & 0x400000) {
-        speedXZ = (f64)speedXZ * ((f64)(u32)D_80744478 * 0.5);
+        speedXZ = (f64)speedXZ * ((f64)(u32)gFrameDelta * 0.5);
     }
     actor->unk7C += speedXZ * func_80612794(actor->unkEE);
     actor->unk84 += speedXZ * func_80612790(actor->unkEE);

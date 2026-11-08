@@ -12,10 +12,10 @@ extern u8 D_807FC950[][0x5E];
 extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 extern u8 D_807444F8;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 void func_806FB480(void) {
 }

@@ -61,8 +61,8 @@ extern void *gSpawnedActor;
 extern Boss2F_9230_BB4C *D_807FBB4C;
 extern u8 D_807FBD70;
 extern Boss2F_9230_D580 *gActivePlayerState;
-extern Boss2F_9230_DC90 *D_807FDC90;
-extern Boss2F_9230_DC9C *D_807FDC9C;
+extern Boss2F_9230_DC90 *gBehaviourWorkState;
+extern Boss2F_9230_DC9C *gBehaviourExtraState;
 
 void bossScriptStep(u8 *, s32, f32);
 void bossRoundFrame(u8 *);
@@ -85,7 +85,7 @@ void func_8072A450(void);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(Boss2F_9230_Actor *, s32);
 void func_8072DEA8(s32, s32, void *);
-void func_8072E1A4(s32, void *);
+void actorTurnTowardActorYaw(s32, void *);
 
 void bossKRoolDkStep(void) {
     Boss2F_9230_178 *scriptState;
@@ -117,7 +117,7 @@ void bossKRoolDkStep(void) {
         scriptState->unk15 = 0;
         gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
         gCurrentActor->unk155 = 0;
-        gCurrentActor->unkB8 = D_807FDC9C->unkC;
+        gCurrentActor->unkB8 = gBehaviourExtraState->unkC;
         break;
     case 0:
         switch (gCurrentActor->unk155) {
@@ -133,7 +133,7 @@ void bossKRoolDkStep(void) {
         break;
     case 0x29:
     case 0x2A:
-        func_8072E1A4(0xA, D_807FBB4C);
+        actorTurnTowardActorYaw(0xA, D_807FBB4C);
         if (D_807FBD70 == 4) {
             func_80641874(gActivePlayerState->unkBE, 1);
             if (scriptState->unk14 == 3) {
@@ -161,7 +161,7 @@ void bossKRoolDkStep(void) {
                 gCurrentActor->unk155++;
                 /* fallthrough */
             case 1:
-                D_807FDC90->unk2C = scriptState->unk18;
+                gBehaviourWorkState->unk2C = scriptState->unk18;
                 gCurrentActor->unk155++;
                 /* fallthrough */
             case 2:
@@ -170,19 +170,19 @@ void bossKRoolDkStep(void) {
                 gCurrentActor->unk155++;
                 break;
             case 4:
-                if (D_807FDC90->unk2C != 0) {
-                    D_807FDC90->unk2C--;
+                if (gBehaviourWorkState->unk2C != 0) {
+                    gBehaviourWorkState->unk2C--;
                     gCurrentActor->unk155 = 2;
                 } else {
                     gCurrentActor->unk132 = 2;
                     actorScriptStart(gCurrentActor, 0x3E9);
-                    D_807FDC90->unk2C = scriptState->unk19;
+                    gBehaviourWorkState->unk2C = scriptState->unk19;
                     gCurrentActor->unk155++;
                 }
                 break;
             case 5:
-                if (D_807FDC90->unk2C != 0) {
-                    D_807FDC90->unk2C--;
+                if (gBehaviourWorkState->unk2C != 0) {
+                    gBehaviourWorkState->unk2C--;
                 } else if (gCurrentActor->unk154 == 0x2A) {
                     gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
                     gCurrentActor->unk155 = 0;
@@ -195,7 +195,7 @@ void bossKRoolDkStep(void) {
         break;
     case 0x28:
     case 0x2C:
-        func_8072E1A4(0xA, D_807FBB4C);
+        actorTurnTowardActorYaw(0xA, D_807FBB4C);
         if (D_807FBB4C->unk154 == 0x42 && gCurrentActor->unk155 > 0) {
             actorScriptStart(gCurrentActor, 0);
             gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
@@ -208,29 +208,29 @@ void bossKRoolDkStep(void) {
                 /* fallthrough */
             case 1:
                 if (camIsCutsceneActive() == 0) {
-                    D_807FDC90->unk2C = scriptState->unk18;
-                    D_807FDC90->unk2E = 9;
+                    gBehaviourWorkState->unk2C = scriptState->unk18;
+                    gBehaviourWorkState->unk2E = 9;
                     actorScriptStart(gCurrentActor, 0x3E7);
                     gCurrentActor->unk155++;
                 }
                 break;
             case 3:
-                if (gCurrentActor->unk154 == 0x28 || (gCurrentActor->unk154 == 0x2C && (D_807FDC90->unk2E % 3) == 0)) {
+                if (gCurrentActor->unk154 == 0x28 || (gCurrentActor->unk154 == 0x2C && (gBehaviourWorkState->unk2E % 3) == 0)) {
                     projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 0x96, 3, (f32)(((f64)scriptState->unk14 * 0.01) + 1.04), 0.0f, 0.0f, 0.0f);
                     sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
                     func_80613C48(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
                     scriptSetActorRampTarget(gSpawnedActor, 0.5f, 0.0f);
                 }
-                if (gCurrentActor->unk154 == 0x28 || (gCurrentActor->unk154 == 0x2C && D_807FDC90->unk2E == 0)) {
+                if (gCurrentActor->unk154 == 0x28 || (gCurrentActor->unk154 == 0x2C && gBehaviourWorkState->unk2E == 0)) {
                     gCurrentActor->unk155++;
                 } else {
-                    D_807FDC90->unk2E--;
+                    gBehaviourWorkState->unk2E--;
                     break;
                 }
                 /* fallthrough */
             case 4:
-                if (D_807FDC90->unk2C != 0) {
-                    D_807FDC90->unk2C--;
+                if (gBehaviourWorkState->unk2C != 0) {
+                    gBehaviourWorkState->unk2C--;
                 } else if (scriptState->unk16 != 0) {
                     gCurrentActor->unk155 = 1;
                 } else {
@@ -254,7 +254,7 @@ void bossKRoolDkStep(void) {
             actorMoveWithinZone(0, 0.0f, 0.0f, 0x4310, 0.0f);
             break;
         case 3:
-            actorSetTargetSpeed(gCurrentActor, D_807FDC9C->unkC);
+            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
             scriptState->unk15 = 0;
             scriptState->unk16 = 0;
             scriptState->unk14++;
@@ -286,8 +286,8 @@ void bossKRoolDkStep(void) {
         break;
     }
     func_8072A450();
-    if (func_8072881C(0, D_807FDC90->unk28) != 0) {
-        func_8072881C(0x81, D_807FDC90->unk28);
+    if (func_8072881C(0, gBehaviourWorkState->unk28) != 0) {
+        func_8072881C(0x81, gBehaviourWorkState->unk28);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

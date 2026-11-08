@@ -58,7 +58,7 @@ typedef struct BDEE0View90 {
     /* 0x2E */ s16 unk2E;
 } BDEE0View90;
 
-#define BDEE0S90 ((BDEE0View90 *)D_807FDC90)
+#define BDEE0S90 ((BDEE0View90 *)gBehaviourWorkState)
 
 typedef struct BDEE0View98 {
     /* 0x00 */ u8 pad0[0x28];
@@ -66,14 +66,14 @@ typedef struct BDEE0View98 {
     /* 0x2A */ s16 unk2A;
 } BDEE0View98;
 
-#define BDEE0S98 ((BDEE0View98 *)D_807FDC98)
+#define BDEE0S98 ((BDEE0View98 *)gBehaviourAnimState)
 
 typedef struct BDEE0View9C {
     /* 0x00 */ u8 pad0[0xA];
     /* 0x0A */ s16 unkA;
 } BDEE0View9C;
 
-#define BDEE0S9C ((BDEE0View9C *)D_807FDC9C)
+#define BDEE0S9C ((BDEE0View9C *)gBehaviourExtraState)
 
 extern u8 D_80770629[];
 extern f32 D_80770B68[];
@@ -116,7 +116,7 @@ void func_806B91E0(void) {
         *heightTarget = BDEE0S9C->unkA * 10;
     }
     if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && gCurrentActor->state != 0x37) {
-        D_807FDC90->timer = 0x1388;
+        gBehaviourWorkState->timer = 0x1388;
         func_8072D714(D_807FBB70.unk1FC, 0x327);
         gCurrentActor->callbackMask &= 0xFFFF7FFF;
     } else if (D_807FBB70.unk200 == 4) {
@@ -128,23 +128,23 @@ void func_806B91E0(void) {
     case 0x18:
         switch (gCurrentActor->unk155[0]) {
         case 0:
-            if (D_807FDC90->timer != 0) {
-                D_807FDC90->timer--;
+            if (gBehaviourWorkState->timer != 0) {
+                gBehaviourWorkState->timer--;
             } else {
                 gCurrentActor->unk155[0]++;
-                D_807FDC90->timer = 0xD;
+                gBehaviourWorkState->timer = 0xD;
             }
             BDEE0AA->unk4->unk1C->unk6 += 0x7D0;
             break;
         case 1:
-            if (D_807FDC90->timer != 0) {
-                D_807FDC90->timer--;
+            if (gBehaviourWorkState->timer != 0) {
+                gBehaviourWorkState->timer--;
                 break;
             }
             if (BDEE0S90->unk2E != 0) {
                 gCurrentActor->unk155[0] = 0;
                 BDEE0S90->unk2E--;
-                D_807FDC90->timer = 0xA;
+                gBehaviourWorkState->timer = 0xA;
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1BA, 0x96, 0x7F, 0);
                 break;
             }
@@ -165,7 +165,7 @@ void func_806B91E0(void) {
             actorScriptStart(gCurrentActor, 0x321);
             gCurrentActor->unk155[0]++;
         case 1:
-            actorMoveWithinZone(gCurrentActor->state, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
+            actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
             if (gCurrentActor->speedXZ < 1.0f) {
                 gCurrentActor->unk155[0]++;
             }
@@ -180,7 +180,7 @@ void func_806B91E0(void) {
         break;
     case 0x27:
         BDEE0AA->unk4->unk1C->unk6 -= gCurrentActor->speedXZ * 50.0f;
-        actorMoveWithinZone(0x23, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
+        actorMoveWithinZone(0x23, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
         switch (gCurrentActor->unk155[0]) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
@@ -227,24 +227,24 @@ void func_806B91E0(void) {
                     gCurrentActor->state = 0x18;
                     gCurrentActor->unk155[0] = 0;
                     gCurrentActor->unk155[0] = 1;
-                    D_807FDC90->timer = 0;
+                    gBehaviourWorkState->timer = 0;
                     BDEE0S90->unk2E = 4;
                 }
             }
         }
         BDEE0AA->unk4->unk1C->unk6 -= gCurrentActor->speedXZ * 50.0f;
-        actorMoveWithinZone(gCurrentActor->state, D_807FDC94->x, D_807FDC94->z, animFlags, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, animFlags, 0.0f);
         break;
     case 2:
     case 3:
     case 7:
     case 0x35:
-        actorMoveWithinZone(gCurrentActor->state, (f32)D_807FDC90->targetX, (f32)D_807FDC90->targetZ, 0, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:
-        BDEE0AA->unk4->unk1C->unk6 -= D_807FDC90->timer;
-        if (D_807FDC90->timer != 0) {
-            D_807FDC90->timer -= 0x32;
+        BDEE0AA->unk4->unk1C->unk6 -= gBehaviourWorkState->timer;
+        if (gBehaviourWorkState->timer != 0) {
+            gBehaviourWorkState->timer -= 0x32;
         }
         switch (gCurrentActor->unk155[0]) {
         case 0:
@@ -441,7 +441,7 @@ s32 func_806BA240(u8 action, s16 animId) {
         func_806BA130();
     }
     if (gCurrentActor->state == 0x15) {
-        node = D_807FDC9C->unkA;
+        node = gBehaviourExtraState->unkA;
         if (node == 5 || node == 7) {
             if ((((BDEE0Sub4 *)tgt->unk4)->unk64 == 0x21E || ((BDEE0Sub4 *)tgt->unk4)->unk64 == 0x21F) && ((BDEE0Sub4 *)tgt->unk4)->unk0->unk4 >= 4.0f && ((BDEE0Sub4 *)tgt->unk4)->unk0->unk4 <= 12.0f) {
                 gCurrentActor->unk132 = 4;
@@ -469,7 +469,7 @@ s32 func_806BA240(u8 action, s16 animId) {
                     tgt->unk155[0] = 2;
                 }
             } else if (D_807FBD70 == 4) {
-                BDEE0S90->unk16 = ((BDEE0Sub4 *)D_807FDC94->unk4)->unk0->unk10;
+                BDEE0S90->unk16 = ((BDEE0Sub4 *)gBehaviourTargetActor->unk4)->unk0->unk10;
                 gCurrentActor->flags |= 0x20000000;
                 if (BDEE0AA->unkF0 == 0) {
                     BDEE0AA->unkF0 = 0x28;
@@ -525,15 +525,15 @@ void func_806BA76C(f32 speedMultiplier) {
 
     sel = gCurrentActor->state;
     p = BDEE0AA->unk178;
-    x = D_807FDC90->targetX;
-    z = D_807FDC90->targetZ;
+    x = gBehaviourWorkState->targetX;
+    z = gBehaviourWorkState->targetZ;
     switch (sel) {
         case 1:
         case 0x10:
         case 0x15:
         case 0x23:
-            x = D_807FDC94->x;
-            z = D_807FDC94->z;
+            x = gBehaviourTargetActor->x;
+            z = gBehaviourTargetActor->z;
         case 2:
         case 3:
         case 7:
@@ -628,14 +628,14 @@ u8 pivotZ;
     s16 a;
 
     s1 = BDEE0A->unk178;
-    if (D_807FDC9C->unkA && func_806BA240(0x64, 0)) {
+    if (gBehaviourExtraState->unkA && func_806BA240(0x64, 0)) {
         return;
     }
     {
         if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && gCurrentActor->state != 0x37) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CA, 0xFF, 0x7F, 0x32);
             func_8072D714(D_807FBB70.unk1FC, 0);
-            D_807FDC90->timer = 0xA6;
+            gBehaviourWorkState->timer = 0xA6;
             s1->unk4 = 0x32;
         }
         func_806BA76C(gCurrentActor->speedXZ * 5.0f);
@@ -646,8 +646,8 @@ u8 pivotZ;
         case 0x37:
             actorMoveWithinZone(0x37, 0.0f, 0.0f, 0x12, 0.0f);
             if (BDEE0A->unk155 == 0) {
-                D_807FDC90->timer += s1->unk4;
-                if (D_807FDC90->timer == 0x196 || D_807FDC90->timer == 0x244 || D_807FDC90->timer == 0x307 || D_807FDC90->timer == 0x3B1 || D_807FDC90->timer == 0x45C || D_807FDC90->timer == 0x508) {
+                gBehaviourWorkState->timer += s1->unk4;
+                if (gBehaviourWorkState->timer == 0x196 || gBehaviourWorkState->timer == 0x244 || gBehaviourWorkState->timer == 0x307 || gBehaviourWorkState->timer == 0x3B1 || gBehaviourWorkState->timer == 0x45C || gBehaviourWorkState->timer == 0x508) {
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17D, 0x9B, (s16)(s1->unk4 + 0x5A), 0);
                 }
                 s1->unk4--;
@@ -655,7 +655,7 @@ u8 pivotZ;
                     BDEE0A->unk155++;
                     dir = s1->unk4;
                     s1->unk4 = 0;
-                    D_807FDC90->scale = 0.0f;
+                    gBehaviourWorkState->scale = 0.0f;
                 }
             }
             break;
@@ -684,7 +684,7 @@ u8 pivotZ;
         matrixMakeRotationZ(rotMtx, func_80612794(s1->unk0) * (f32)(sgn * rollAmount));
         guMtxCatF(modelMtx, rotMtx, modelMtx);
         if (gCurrentActor->state == 0x37) {
-            matrixMakeRotationY(rotMtx, (f32)(sgn * D_807FDC90->timer));
+            matrixMakeRotationY(rotMtx, (f32)(sgn * gBehaviourWorkState->timer));
         } else {
             matrixMakeRotationY(rotMtx, func_80612794(s1->unk0 - 0x400) * (f32)(-sgn * 0x2D));
         }
@@ -692,22 +692,22 @@ u8 pivotZ;
         if (gCurrentActor->state == 0x37) {
             switch (BDEE0A->unk155) {
             case 1:
-                D_807FDC90->timer = mathAngleEaseToward((D_807FDC90->timer << 12) / 0x168, 0, 3.0f) * 0x168 / 4096;
+                gBehaviourWorkState->timer = mathAngleEaseToward((gBehaviourWorkState->timer << 12) / 0x168, 0, 3.0f) * 0x168 / 4096;
                 s1->unk0 = s1->unk0 + (-s1->unk0) * 0.3;
                 guTranslateF(rotMtx, 0.0f, 0.0f, (f32)-pivotZ);
                 guMtxCatF(modelMtx, rotMtx, modelMtx);
                 matrixMakeRotationX(rotMtx, (f32)s1->unk4);
                 guMtxCatF(modelMtx, rotMtx, modelMtx);
                 guTranslateF(rotMtx, 0.0f, 0.0f, (f32)pivotZ);
-                D_807FDC90->scale += 2.0f;
-                s1->unk4 = (f32)s1->unk4 + D_807FDC90->scale;
+                gBehaviourWorkState->scale += 2.0f;
+                s1->unk4 = (f32)s1->unk4 + gBehaviourWorkState->scale;
                 if (s1->unk4 >= 0x5B) {
                     s1->unk4 = 0x5A;
-                    if (D_807FDC90->scale < 3.0f) {
+                    if (gBehaviourWorkState->scale < 3.0f) {
                         BDEE0A->unk155++;
                     } else {
-                        sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x1B1, (u32)(D_807FDC90->scale * 255.0f / 20.0f), (s32)(D_807FDC90->scale + 100.0f), 0, 0x3C, 0.3f, 0);
-                        D_807FDC90->scale = -(D_807FDC90->scale * 0.5);
+                        sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x1B1, (u32)(gBehaviourWorkState->scale * 255.0f / 20.0f), (s32)(gBehaviourWorkState->scale + 100.0f), 0, 0x3C, 0.3f, 0);
+                        gBehaviourWorkState->scale = -(gBehaviourWorkState->scale * 0.5);
                     }
                 }
                 break;
@@ -740,7 +740,7 @@ void func_806BB32C(void) {
     if (BDEE0S90->unk2E != 0) {
         BDEE0S90->unk2E--;
         gCurrentActor->hasArcBounds = 0;
-        if (BDEE0S90->unk2E == 0 && D_807FDC94 == D_807FBB4C) {
+        if (BDEE0S90->unk2E == 0 && gBehaviourTargetActor == D_807FBB4C) {
             gCurrentActor->unk144 = 0x24;
         }
     }
@@ -761,8 +761,8 @@ void func_806BB400(void) {
         gCurrentActor->unk15F = 0;
         gCurrentActor->yaw = mathAngleBetweenPoints2D(D_807FBB4C->x, D_807FBB4C->z, gCurrentActor->x, gCurrentActor->z);
         actorScriptStart(gCurrentActor, 0x21B);
-        D_807FDC98->unk46 |= 8;
-        ((BDEE0View98 *)D_807FDC98)->unk28 = 0x21C;
+        gBehaviourAnimState->unk46 |= 8;
+        ((BDEE0View98 *)gBehaviourAnimState)->unk28 = 0x21C;
     }
     switch (gCurrentActor->state) {
         case 4:
@@ -781,7 +781,7 @@ void func_806BB400(void) {
                     if (((BDEE0Sub4 *)gCurrentActor->unk4)->unk64 != 0x21C) {
                         actorScriptStart(gCurrentActor, 0x21C);
                     }
-                    actorMoveWithinZone(gCurrentActor->state, D_807FDC94->x, D_807FDC94->z, 0, 0.0f);
+                    actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
                     break;
                 case 2:
                     break;
@@ -818,9 +818,9 @@ s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, s32 extraParam)
     s32 r2;
     s32 r1;
 
-    if (D_807FDC90->timer != 0) {
+    if (gBehaviourWorkState->timer != 0) {
         actorSpawnRandomParticleNearActor(0, 0xA);
-        D_807FDC90->timer--;
+        gBehaviourWorkState->timer--;
         return 0;
     }
     r1 = randomNonNegative();
@@ -901,7 +901,7 @@ void func_806BB874(void) {
         gCurrentActor->state = 0;
         BDEE0A->unk155 = 0;
         actorScriptStart(gCurrentActor, 0x3DC);
-        D_807FDC90->timer = 0x78;
+        gBehaviourWorkState->timer = 0x78;
         gCurrentActor->renderFlags |= 0x20;
     }
     switch (gCurrentActor->state) {
@@ -916,7 +916,7 @@ void func_806BB874(void) {
     case 1:
         switch (BDEE0A->unk155) {
         case 0:
-            if (D_807FDC90->timer-- < 0x3C) {
+            if (gBehaviourWorkState->timer-- < 0x3C) {
                 gCurrentActor->flags |= 0x400;
                 actorScriptStart(gCurrentActor, 0x3DD);
                 BDEE0A->unk155++;
@@ -928,7 +928,7 @@ void func_806BB874(void) {
         case 3:
             D_807FBB68 |= 1;
             sfxAllocateChannel(0x68, 1.0f);
-            D_807FDC90->timer = 0x32;
+            gBehaviourWorkState->timer = 0x32;
             func_806BB81C();
             gCurrentActor->state++;
             break;
@@ -941,7 +941,7 @@ void func_806BB874(void) {
         break;
     case 3:
         if (spawnNodeHasActor(0x2A) == 0) {
-            D_807FDC90->timer = 0xA;
+            gBehaviourWorkState->timer = 0xA;
             gCurrentActor->state++;
         }
         break;
@@ -954,7 +954,7 @@ void func_806BB874(void) {
         break;
     case 5:
         if (spawnNodeHasActor(0x28) == 0 && spawnNodeHasActor(0x29) == 0) {
-            D_807FDC90->timer = 0xA;
+            gBehaviourWorkState->timer = 0xA;
             gCurrentActor->state++;
         }
         break;
@@ -972,13 +972,13 @@ void func_806BB874(void) {
             D_807FDCA0->unk1C = (s32)gSpawnedActor;
             camStartPath(gCurrentActor, 0x1F, 1);
             gCurrentActor->state++;
-            D_807FDC90->timer = 0x1E;
+            gBehaviourWorkState->timer = 0x1E;
             BDEE0A->unk155 = 0xA;
         }
         break;
     case 8:
-        if (D_807FDC90->timer != 0) {
-            D_807FDC90->timer--;
+        if (gBehaviourWorkState->timer != 0) {
+            gBehaviourWorkState->timer--;
         } else {
             tbl = D_80750638;
             t = 0xA - BDEE0A->unk155;
@@ -994,7 +994,7 @@ void func_806BB874(void) {
                 camSetTarget(gCamActor, gCurrentActor, 4, 0x1129, 0x264, 0, 0, 0xAF, 0, 0, 1.0f);
                 camSetTargetFocusActor(gCamActor, D_807FBB4C);
             }
-            D_807FDC90->timer = 0xF;
+            gBehaviourWorkState->timer = 0xF;
         }
         break;
     case 9: {
@@ -1040,7 +1040,7 @@ void actorPatrolFollowerUpdate();
 
 void func_806BC080(void) {
     func_806BB32C();
-    if (D_807FDC9C->unkA == 0 || func_806BA240(0, 0x446) == 0) {
+    if (gBehaviourExtraState->unkA == 0 || func_806BA240(0, 0x446) == 0) {
         actorPatrolFollowerUpdate(0x2ED, 1, 0);
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
@@ -1048,7 +1048,7 @@ void func_806BC080(void) {
 
 void func_806BC0E4(void) {
     func_806BB32C();
-    if (D_807FDC9C->unkA == 0 || func_806BA240(0x32, 0x44E) == 0) {
+    if (gBehaviourExtraState->unkA == 0 || func_806BA240(0x32, 0x44E) == 0) {
         actorPatrolFollowerUpdate(0x2EC, 1, 0);
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
@@ -1056,7 +1056,7 @@ void func_806BC0E4(void) {
 
 void func_806BC148(void) {
     func_806BB32C();
-    if (D_807FDC9C->unkA == 0 || func_806BA240(0x14, 0x44A) == 0) {
+    if (gBehaviourExtraState->unkA == 0 || func_806BA240(0x14, 0x44A) == 0) {
         actorPatrolFollowerUpdate(0x2EE, 1, 0);
         actorUpdateModelMatrix(gCurrentActor, 0);
     }

@@ -16,10 +16,10 @@ u8 screenWipeGetCooldown(void) {
     return D_80747B20;
 }
 
-extern s32 D_80744470[];
-extern s16 D_80744490;
-extern s16 D_80744494;
-extern u8 D_807444FC;
+extern s32 gFramebuffers[];
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
+extern u8 gGfxBufferIndex;
 extern u8 D_807F5D85;
 extern s16 D_807F5D86;
 extern s16 D_807F5D88;
@@ -37,9 +37,9 @@ u8 type;
 
     if ((D_807F5D84 == 0) || (type == 7)) {
         if (D_807F5D84 == 0) {
-            D_807F5D80 = heapAlloc(D_80744490 * D_80744494 * 2);
+            D_807F5D80 = heapAlloc(gScreenWidth * gScreenHeight * 2);
         }
-        fbCopySetAlpha(D_807F5D80, D_80744470[D_807444FC]);
+        fbCopySetAlpha(D_807F5D80, gFramebuffers[gGfxBufferIndex]);
         D_807F5D84 = 1;
         D_80747B20 = 5;
         switch (sel) {
@@ -75,7 +75,7 @@ u8 type;
 
 extern u8 D_1000118;
 extern u8 D_2000140;
-extern u32 D_80744478;
+extern u32 gFrameDelta;
 extern s16 D_80744498;
 extern s16 D_8074449C;
 extern s16 D_807444A0;
@@ -83,7 +83,7 @@ extern s16 D_807444A4;
 extern s32 D_80747B24;
 extern f32 D_807F5D90;
 extern Mtx D_807F5D98;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 Gfx *gfxInit2DDisplayList(Gfx *);
 void heapFreeDeferred(void *);
 void screenBlurApply(void);
@@ -96,7 +96,7 @@ void gfxDrawTexturedTileGrid(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, 
 Gfx *screenWipeDraw(Gfx *glist) {
     s32 stepScale;
 
-    stepScale = (s32)((f32)D_80744478 * 0.5f);
+    stepScale = (s32)((f32)gFrameDelta * 0.5f);
     if (D_80747B24 == 0) {
         guScale(&D_807F5D98, 2.0f, 2.0f, 1.0f);
         D_80747B24 = 1;
@@ -125,7 +125,7 @@ Gfx *screenWipeDraw(Gfx *glist) {
                 WIPE_GFX(0xFC119623, 0xFF2FFFFF);
                 WIPE_GFX(0xFA000000, -1);
                 gfxDrawTexturedTileGridDefault(&glist, D_807F5D80, 0, 0x140, 0xF0, 0x20, 0x20, 0.0f, 0.0f, 319.0f, 239.0f, 0.0f, 0.0f);
-                if (D_807FBB60 & 0x40) {
+                if (gGlobalPauseFlags & 0x40) {
                     D_807F5D84 = -2;
                 }
                 break;

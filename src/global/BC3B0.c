@@ -86,8 +86,8 @@ void actorCursorFireProjectile(void *unused) {
     } else {
         id = 0x63;
     }
-    projectileSetTargetCoords(D_807FDC94->x, D_807FDC94->y + 100.0f, D_807FDC94->z);
-    projectileAimAndSpawn(id, 1, 0.5f, D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, 285.0f, gCurrentActor);
+    projectileSetTargetCoords(gBehaviourTargetActor->x, gBehaviourTargetActor->y + 100.0f, gBehaviourTargetActor->z);
+    projectileAimAndSpawn(id, 1, 0.5f, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, 285.0f, gCurrentActor);
 }
 
 typedef struct BC3B0Cursor {
@@ -105,8 +105,8 @@ typedef struct BC3B0Cursor {
 #define BC3B0MAX(a, b) ((a) > (b) ? (a) : (b))
 #define BC3B0MIN(a, b) ((a) < (b) ? (a) : (b))
 
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 
 void actorCursorSteer(BC3B0Cursor *c, f32 tx, f32 ty) {
     if (tx < c->x) {
@@ -131,8 +131,8 @@ void actorCursorSteer(BC3B0Cursor *c, f32 tx, f32 ty) {
             c->vy = 5.0f;
         }
     }
-    c->x = BC3B0MIN(BC3B0MAX(c->x + c->vx, 0.0f), D_80744490);
-    c->y = BC3B0MIN(BC3B0MAX(c->y + c->vy, 0.0f), D_80744494);
+    c->x = BC3B0MIN(BC3B0MAX(c->x + c->vx, 0.0f), gScreenWidth);
+    c->y = BC3B0MIN(BC3B0MAX(c->y + c->vy, 0.0f), gScreenHeight);
 }
 
 typedef struct BC3B0View90 {
@@ -148,10 +148,10 @@ typedef struct BC3B0CursorCfg {
 } BC3B0CursorCfg;
 
 #define BC3B0CA ((BC3B0CursorActor *)gCurrentActor)
-#define BC3B0S90 ((BC3B0View90 *)D_807FDC90)
-#define BC3B0CCfg ((BC3B0CursorCfg *)D_807FDC9C)
+#define BC3B0S90 ((BC3B0View90 *)gBehaviourWorkState)
+#define BC3B0CCfg ((BC3B0CursorCfg *)gBehaviourExtraState)
 
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern s32 D_807FBB68;
 
 void behaviourFrameBegin(void);
@@ -172,9 +172,9 @@ void func_806B7EA0(void) {
     c = (BC3B0Cursor *)BC3B0CA->unk178;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        D_807FDC98->unk46 |= 0x60;
-        D_807FBB64 |= 2;
-        hudSpawnCountdownTimer(0xDC, 0x2A, BC3B0CCfg->unkA ? BC3B0CCfg->unkA : 10, &D_807FBB64);
+        gBehaviourAnimState->unk46 |= 0x60;
+        gGlobalOverlayFlags |= 2;
+        hudSpawnCountdownTimer(0xDC, 0x2A, BC3B0CCfg->unkA ? BC3B0CCfg->unkA : 10, &gGlobalOverlayFlags);
         BC3B0S90->unk2E = BC3B0CCfg->unkA != 0 ? 0xF : 0x78;
         if (BC3B0CCfg->unkA != 0) {
             c->unk18 = BC3B0CCfg->unkA;
@@ -194,18 +194,18 @@ void func_806B7EA0(void) {
         sfxPlayOnFreeSlot(0x1A2, 0x7FFF, 63.0f, 1.0f, 0, 0);
         actorSetStateTwo(gCurrentActor->unk11C);
         D_807FBB68 |= 1;
-        D_807FBB64 |= 2;
+        gGlobalOverlayFlags |= 2;
     }
     if (((Actor *)gCurrentActor->unk11C)->state == 5 && gCurrentActor->state != 0x11) {
-        if (D_807FDC94->hasArcBounds != 0) {
-            D_807FDC94->yaw = mathAngleArcMidpoint(D_807FDC94->arcYawMin, D_807FDC94->arcYawMax);
+        if (gBehaviourTargetActor->hasArcBounds != 0) {
+            gBehaviourTargetActor->yaw = mathAngleArcMidpoint(gBehaviourTargetActor->arcYawMin, gBehaviourTargetActor->arcYawMax);
         }
         camStartPath(0, 6, 5);
         gCurrentActor->state = 0x11;
         gCurrentActor->unk155[0] = 0;
-        c->unk10 = (s32)D_807FDC94->x;
-        c->unk12 = (s32)(D_807FDC94->y + (u32)D_807FDC94->unk15E);
-        c->unk14 = (s32)D_807FDC94->z;
+        c->unk10 = (s32)gBehaviourTargetActor->x;
+        c->unk12 = (s32)(gBehaviourTargetActor->y + (u32)gBehaviourTargetActor->unk15E);
+        c->unk14 = (s32)gBehaviourTargetActor->z;
         BC3B0S90->unk2C = 0x14;
     }
     BC3B0CA->unk6E = BC3B0CA->unk6E + 1;
@@ -218,7 +218,7 @@ void func_806B7EA0(void) {
     }
     if (gCurrentActor->state != 0x11) {
         if (gCurrentActor->state == 0x23 && func_8061CC00() == 0) {
-            camProjectToScreen(D_807FDC94->x, D_807FDC94->y + (u32)D_807FDC94->unk15E, D_807FDC94->z, &screenX, &screenY, 0, 1.0f, 0);
+            camProjectToScreen(gBehaviourTargetActor->x, gBehaviourTargetActor->y + (u32)gBehaviourTargetActor->unk15E, gBehaviourTargetActor->z, &screenX, &screenY, 0, 1.0f, 0);
             actorCursorSteer(c, screenX, screenY);
         }
     } else {
@@ -269,8 +269,8 @@ typedef struct BC3B0View9C {
 } BC3B0View9C;
 
 #define BC3B0EA ((BC3B0EmitterActor *)gCurrentActor)
-#define BC3B0S98 ((BC3B0View98 *)D_807FDC98)
-#define BC3B0S9C ((BC3B0View9C *)D_807FDC9C)
+#define BC3B0S98 ((BC3B0View98 *)gBehaviourAnimState)
+#define BC3B0S9C ((BC3B0View9C *)gBehaviourExtraState)
 
 extern u32 gFrameCounter;
 extern u8 D_807201D4[];
@@ -336,7 +336,7 @@ void actorUpdateAimedProjectileEmitter(void) {
     BC3B0S90->unk2E--;
     if (BC3B0S90->unk2C != 0 && gFrameCounter % 5 == 0) {
         projectileSetTargetCoords(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
-        projectileAimAndSpawn(0x51, 1, 0.3f, D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, 80.0f, gCurrentActor);
+        projectileAimAndSpawn(0x51, 1, 0.3f, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, 80.0f, gCurrentActor);
     }
     if (BC3B0S90->unk2C != 0) {
         lightAdd(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 0.0f, 0.0f, 200.0f, 0, 0xFF, 0xC8, 0);

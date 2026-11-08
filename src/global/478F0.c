@@ -1053,7 +1053,7 @@ typedef struct CsActorView {
     /* 0x155 */ u8 unk155;
 } CsActorView;
 
-extern u32 D_807FBB60;
+extern u32 gGlobalPauseFlags;
 extern u8 D_80748108;
 extern s32 D_807480F4;
 extern s32 D_807480F8;
@@ -1138,7 +1138,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         return;
     }
-    if ((~D_807FBB60 & 0x10) || CS_ACTOR->unk154 == 0x63) {
+    if ((~gGlobalPauseFlags & 0x10) || CS_ACTOR->unk154 == 0x63) {
         if (p->timer < 200) {
             p->timer = D_807480F4;
         }
@@ -1724,7 +1724,7 @@ extern u8 D_8072121C[];
 extern u8 D_80721238[];
 extern u8 D_80721250[];
 extern u8 D_8072126C[];
-extern u32 D_8076A068;
+extern u32 gGameFrameCounter;
 void effectZRotationMatrixUpdate(void);
 void func_80714A08(f32, f32);
 void func_80714A28(s16);
@@ -1771,7 +1771,7 @@ void func_8064826C(CsState *cs, s16 csId, s16 b, s16 c) {
     func_80714A28(4);
     func_80714CC0(tex, 0.0f, gCsPosX + sx, func_80612794(*(s16 *)((u8 *)p + 0xA)) * 10.0 + (gCsPosY + 80.0), gCsPosZ + sz);
     p->unk8 += 0x64;
-    if (D_8076A068 % 12U == 0) {
+    if (gGameFrameCounter % 12U == 0) {
         func_807149B8(1);
         func_80714950(0x5A);
         func_8071498C(effectZRotationMatrixUpdate);

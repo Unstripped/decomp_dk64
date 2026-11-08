@@ -342,27 +342,27 @@ void func_8067BA7C(s32 arg0) {
     }
 }
 
-void func_8067BC68(void) {
+void tagBarrelSpawnType13A(void) {
     func_8067BA7C(0x13);
 }
 
-void func_8067BC88(void) {
+void tagBarrelSpawnType13B(void) {
     func_8067BA7C(0x13);
 }
 
-void func_8067BCA8(void) {
+void tagBarrelSpawnType13C(void) {
     func_8067BA7C(0x13);
 }
 
-void func_8067BCC8(void) {
+void tagBarrelSpawnType13D(void) {
     func_8067BA7C(0x13);
 }
 
-void func_8067BCE8(void) {
+void tagBarrelSpawnType13E(void) {
     func_8067BA7C(0x13);
 }
 
-void func_8067BD08(void) {
+void tagBarrelSpawnType13F(void) {
     func_8067BA7C(0x13);
 }
 
@@ -380,7 +380,7 @@ void func_8067BD28(void) {
     }
 }
 
-void func_8067BDB8(void) {
+void tagBarrelSpawnType95(void) {
     func_8067BA7C(0x95);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     gCurrentActor->y = gCurrentActor->floorY;
@@ -428,7 +428,7 @@ void func_8067BE30(void) {
     }
 }
 
-void func_8067BF4C(void) {
+void tagBarrelCheckProximity1A(void) {
     u8 *ptr = gCurrentActor->unk174;
     tagBarrelCheckProximityAndFall(0x1A, ptr + 2, ptr + 3, ptr + 4);
 }
@@ -656,7 +656,7 @@ void actorTransformCameraUpdateC(void) {
     actorTransformCameraUpdate();
 }
 
-void func_8067C6DC(void) {
+void textMarkerUpdateMatrixWrapper(void) {
     textMarkerUpdateMatrix();
 }
 
@@ -780,7 +780,7 @@ typedef struct ActorC71CGlobalState {
 #define ACTOR44_C71C ((ActorC71C *)gSpawnedActor)
 #define ACTOR4C_C71C ((ActorC71C *)D_807FBB4C)
 
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern u8 D_807FBBA9;
 extern f32 D_807FBC60;
 extern f32 D_807FBC64;
@@ -1046,7 +1046,7 @@ void actorTransformCameraUpdate(void) {
         ACTOR_C71C->unk68 &= ~1;
         break;
     case 8:
-        if ((D_807FBB64 & 1) && camIsCutsceneActive()) {
+        if ((gGlobalOverlayFlags & 1) && camIsCutsceneActive()) {
             actorDespawn(gCurrentActor);
         } else {
             switch (ACTOR_C71C->unk58) {
@@ -1056,7 +1056,7 @@ void actorTransformCameraUpdate(void) {
                 ACTOR_C71C->unk128 = 0;
                 ACTOR_C71C->unk154 = 9;
                 temp_s1->unk3A = 0x14;
-                if (!(D_807FBB64 & 1)) {
+                if (!(gGlobalOverlayFlags & 1)) {
                     actorSetNodeFlag(gCurrentActor, 3);
                 }
                 actorClearNodeFlag(gCurrentActor, 1);
@@ -1100,7 +1100,7 @@ void actorTransformCameraUpdate(void) {
         }
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 7.0f);
-        if (ACTOR_C71C->unk154 == 2 && temp_s1->unk8 == 360.0f && (ACTOR_C71C->unk80 - ACTOR_C71C->unk8C) < -2.0f && (D_807FBB64 & 1)) {
+        if (ACTOR_C71C->unk154 == 2 && temp_s1->unk8 == 360.0f && (ACTOR_C71C->unk80 - ACTOR_C71C->unk8C) < -2.0f && (gGlobalOverlayFlags & 1)) {
             actorReleaseFromPlayerHold(gCurrentActor);
             ACTOR_C71C->unk154 = 4;
             temp_s1->unk39 = 1;
@@ -1424,7 +1424,7 @@ typedef struct TransformBarrelState {
 extern TransformBarrelEntry D_8074E7BC[];
 extern u8 D_807FC950[][0x5E];
 
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern s32 D_807FBB68;
 
 void sfxAllocateChannel(s32, f32);
@@ -1542,7 +1542,7 @@ void transformBarrelUpdate(void) {
         gCurrentActor->unk144 = 1;
         var_t0->unk4 = (Actor *)D_807FBB70.unk1FC;
         gCurrentActor->flags |= 0x200000;
-        if (!(D_807FBB64 & 0x2000)) {
+        if (!(gGlobalOverlayFlags & 0x2000)) {
             if (var_t0->unk4->collisionFlags & 1) {
                 ps3 = var_t0->unk4->unk174;
 
@@ -1654,7 +1654,7 @@ void transformBarrelUpdate(void) {
         if (var_t0->unk0 == 0) {
             var_t0->unk0 = 0xC;
             gCurrentActor->state = 2;
-            if (((u32)gCurrentActor->actorType) != 0x12 && ((u32)gCurrentActor->actorType) != 0x81 && gCurrentMap != 0x52 && !(D_807FBB64 & 1)) {
+            if (((u32)gCurrentActor->actorType) != 0x12 && ((u32)gCurrentActor->actorType) != 0x81 && gCurrentMap != 0x52 && !(gGlobalOverlayFlags & 1)) {
                 slotQueueUpdate(5, 1, 0);
             }
         }
@@ -1682,7 +1682,7 @@ void transformBarrelUpdate(void) {
         case 0x12:
             sp62 = 0x24;
             sfxPlayOnFreeSlot(0x2EC, 0x7FFF, 63.0f, 1.0f, 0, 0);
-            D_807FBB60 |= 0x400;
+            gGlobalPauseFlags |= 0x400;
             break;
         case 0x39:
             sp62 = 0x47;
@@ -1692,7 +1692,7 @@ void transformBarrelUpdate(void) {
             break;
         case 0x81:
             sp62 = 0x7C;
-            D_807FBB60 |= 0x400;
+            gGlobalPauseFlags |= 0x400;
             break;
         }
         if (sp62 != 0 && !(D_807FBB68 & 2) && gCurrentMap != 3 && gCurrentMap != 0x11 && gCurrentMap != 0x52 && gCurrentMap != 0xD1) {
@@ -1771,7 +1771,7 @@ void transformBarrelUpdate(void) {
             gCurrentActor->flags &= ~0x8000;
             gCurrentActor->unk128 = 0;
         } else {
-            D_807FBB60 &= ~0x400;
+            gGlobalPauseFlags &= ~0x400;
             if (((u32)gCurrentActor->actorType) != 0x60) {
                 var_a0c = 0;
                 switch (((u32)gCurrentActor->actorType)) {
@@ -3195,7 +3195,7 @@ typedef struct TagBarrelActorKong {
 
 struct TagBarrelData;
 extern s32 D_8074E848[];
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 
 void func_806C93E4(Actor *, void *);
 void func_806C9304(Actor *, void *);
@@ -3252,7 +3252,7 @@ void tagBarrelStartSelection(struct TagBarrelData *arg0_in) {
             gCurrentActor->yaw = arg0->unk22;
             gCurrentActor->unk144 = 1;
             sp28 = kong->unk5A;
-            D_807FBB60 &= 0xFFFCFFCF;
+            gGlobalPauseFlags &= 0xFFFCFFCF;
             arg0->unk6 = 0;
             if (sp28 != ((KongActionEntry *)D_8074E814)[arg0->unk6].unk2) {
                 do {
@@ -3397,7 +3397,7 @@ void tagBarrelUpdateSelection(struct TagBarrelData *arg0_in) {
                         light = 0;
                     }
                     lightSetColor(arg0->unk2C, arg0->unk30, arg0->unk34, (s16)light);
-                    D_807FBB60 |= 0x30030;
+                    gGlobalPauseFlags |= 0x30030;
                     sfxStopChannel(0x48, 0);
                     sfxStopChannel(0x6B, 0);
                     sfxStopChannel(0x49, 0);
@@ -3444,8 +3444,8 @@ s32 tagBarrelIsKongUnlocked(ActorGroup5 *arg0, s32 arg1) {
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern Mtx D_2000180;
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 
 Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, s32);
@@ -3479,7 +3479,7 @@ Gfx *tagBarrelRenderSelectionHud(Gfx *arg0, Actor *arg1) {
     s16 sp44;
 
     temp_s1 = (TagBarrelDataN3 *)arg1->unk174;
-    spF0 = (f32)((f64)(D_80744494 - 0x1E) * 4.0);
+    spF0 = (f32)((f64)(gScreenHeight - 0x1E) * 4.0);
     if (arg1->state != 1) {
         return arg0;
     }
@@ -3489,7 +3489,7 @@ Gfx *tagBarrelRenderSelectionHud(Gfx *arg0, Actor *arg1) {
     gSPMatrix(arg0++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     sp44 = (s16)(s32)spF0;
     arg0 = renderRotatedSprite(arg0, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, 0xA0, sp44, 5.0f, 5.0f, 0, 0.0f);
-    arg0 = renderRotatedSprite(arg0, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, (s32)((f64)(D_80744490 - 0x28) * 4.0), sp44, 5.0f, 5.0f, 0xB4, 0.0f);
+    arg0 = renderRotatedSprite(arg0, (u16)(((u32)(gFrameCounter >> 1) % 12) + 0x83), 0, 2, 0x20, 0x10, (s32)((f64)(gScreenWidth - 0x28) * 4.0), sp44, 5.0f, 5.0f, 0xB4, 0.0f);
     spF8 = (f32)(u32)temp_s1->unk4 * 0.05f;
     sp6C = tagBarrelIsKongUnlocked((ActorGroup5 *)temp_s1, temp_s1->unk6);
     spF0 -= (f32) textGetFontHeight(1) * 1.2f;
@@ -3502,7 +3502,7 @@ Gfx *tagBarrelRenderSelectionHud(Gfx *arg0, Actor *arg1) {
             var_fa0 = 1.0f - temp_fv1;
         }
         temp_fv1_2 = 2.0f * temp_fv0;
-        var_fa0 *= (f32)D_80744490 * 4.0f;
+        var_fa0 *= (f32)gScreenWidth * 4.0f;
         if (temp_fv1_2 < 1.0f) {
             var_fv0 = 0.0f;
         } else {
@@ -3527,7 +3527,7 @@ Gfx *tagBarrelRenderSelectionHud(Gfx *arg0, Actor *arg1) {
                 var_fa0_2 = 1.0f - temp_fv0_3;
             }
             temp_fv0_4 = 2.0f * spF8;
-            var_fa0_2 *= (f32)D_80744490 * 4.0f;
+            var_fa0_2 *= (f32)gScreenWidth * 4.0f;
             if (temp_fv0_4 < 1.0f) {
                 var_fv0_2 = 0.0f;
             } else {

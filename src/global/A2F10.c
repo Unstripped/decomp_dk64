@@ -35,7 +35,7 @@ extern Gfx D_1000118;
 extern Mtx D_20000C0;
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32,
                    f32);
-extern u32 D_80744478;
+extern u32 gFrameDelta;
 extern u8 D_80750AD4;
 void renderCallbacksRegister(void *, void *, s32);
 s32 actorSpawn(s32, s32);
@@ -208,7 +208,7 @@ typedef struct ActorF64View160 {
     /* 0x160 */ f64 unk160;
 } ActorF64View160;
 
-extern u8 D_80750AB8;
+extern u8 gSplitScreenMode;
 extern s32 gCurrentMap;
 extern u8 gPlayerCount;
 extern PlayerSlotView *gPlayerSlots;
@@ -259,7 +259,7 @@ void func_8069E774(void) {
         sp78 = D_807FBB4C;
     }
     sp80 = (ActorState174 *)sp78->unk174;
-    if (gPlayerCount >= 2 && D_80750AB8 == 1) {
+    if (gPlayerCount >= 2 && gSplitScreenMode == 1) {
         temp_v0 = (Actor *)D_807FBB4C->unk174;
         sp74 = &((ActorState174 *)temp_v0)->unk1F0;
     } else {
@@ -690,9 +690,9 @@ void actorUpdateBannerFade(void) {
         ((ActorTail *)gCurrentActor)->unkEE =
             (s16)((ActorTail *)gCurrentActor)->unk160;
     }
-    if ((f64)(u32)D_80744478 * 0.5 < ((ActorTail *)gCurrentActor)->unk160) {
+    if ((f64)(u32)gFrameDelta * 0.5 < ((ActorTail *)gCurrentActor)->unk160) {
         ((ActorTail *)gCurrentActor)->unk160 -=
-            (f64)(u32)D_80744478 * 0.5;
+            (f64)(u32)gFrameDelta * 0.5;
         ratio = (f32)(((ActorTail *)gCurrentActor)->unk160 /
                       (f64)(f32)((ActorTail *)gCurrentActor)->unkEE);
         ((ActorTail *)gCurrentActor)->unkE0 =
@@ -922,11 +922,11 @@ void actorUpdateSpinAndVelocity(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806A02F0(void) {
+void actorUpdateSpinAndVelocityWrapperA(void) {
     actorUpdateSpinAndVelocity();
 }
 
-void func_806A0310(void) {
+void actorUpdateSpinAndVelocityWrapperB(void) {
     actorUpdateSpinAndVelocity();
 }
 
@@ -996,7 +996,7 @@ void actorFallAndBurstUpdate(void) {
 }
 
 
-void func_806A05D4(void) {
+void actorUpdateModelMatrixCurrent(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -1050,7 +1050,7 @@ u8 func_80665AAC(Actor *);
 s32 actorIsActive(Actor *);
 s32 actorTableContains(Actor *);
 void controllerAnimLoadStateAsset1(void *, s16);
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 void actorMirrorParentModelY(void) {
     Mtx mtxL;
@@ -1088,7 +1088,7 @@ void actorMirrorParentModelY(void) {
         ATTACHED_ACTOR->unkA8 = ((ParentActor *) sub->unk0)->unkA8;
         ATTACHED_ACTOR->unk84 = ((ParentActor *) sub->unk0)->unk84;
         ATTACHED_ACTOR->unk60 |= 0x200;
-        ATTACHED_ACTOR->unk8 = ((void **) ((u8 *) ATTACHED_ACTOR->unk4 + 0x14))[D_807444FC];
+        ATTACHED_ACTOR->unk8 = ((void **) ((u8 *) ATTACHED_ACTOR->unk4 + 0x14))[gGfxBufferIndex];
         memcpy(ATTACHED_ACTOR->unk8, ATTACHED_ACTOR->unk11C->unk8, ATTACHED_ACTOR->unk0->unk20 << 6);
         guMtxIdentF(mtx1);
         mtx1[1][1] = -1.0f;
@@ -1147,7 +1147,7 @@ void actorMirrorParentModelAxis(void) {
     ATTACHED_ACTOR->unkA8 = ATTACHED_ACTOR->unk11C->unkA8;
     ATTACHED_ACTOR->unk84 = ATTACHED_ACTOR->unk11C->unk84;
     ATTACHED_ACTOR->unk60 |= 0x200;
-    ATTACHED_ACTOR->unk8 = ((void **) ((u8 *) ATTACHED_ACTOR->unk4 + 0x14))[D_807444FC];
+    ATTACHED_ACTOR->unk8 = ((void **) ((u8 *) ATTACHED_ACTOR->unk4 + 0x14))[gGfxBufferIndex];
     memcpy(ATTACHED_ACTOR->unk8, ATTACHED_ACTOR->unk11C->unk8, ATTACHED_ACTOR->unk0->unk20 << 6);
     guMtxIdentF(mtx1);
     if (sub->unkE & 1) {

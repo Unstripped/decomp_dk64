@@ -509,7 +509,7 @@ u32 D_80770E38[16];
 f32 D_80770E78[16];
 f32 D_80770EB8[16];
 f32 D_80770EF8[16];
-extern u32 D_807FBB60;
+extern u32 gGlobalPauseFlags;
 extern SoundContextD580 *gActivePlayerState;
 
 s32 func_8062F388(LevelSoundEmitter **);
@@ -749,7 +749,7 @@ void sfxUpdateLevelAmbient(void) {
         D_80770DEC = 0.0f;
         D_80770DF0 = 0.0f;
         D_80770DF4 = 0.0f;
-        if ((D_807FBB60 & 2) || !(D_807FBB60 & 0x10)) {
+        if ((gGlobalPauseFlags & 2) || !(gGlobalPauseFlags & 0x10)) {
             var_fs1 = 0.0f;
         } else {
             if (s2 == 11 && flagGet(0x302, 0)) {
@@ -861,7 +861,7 @@ void sfxUpdateLevelAmbient(void) {
         }
     }
 
-    if ((D_807FBB60 & 2) || !(D_807FBB60 & 0x10)) {
+    if ((gGlobalPauseFlags & 2) || !(gGlobalPauseFlags & 0x10)) {
         if (D_80770DC8) {}  // FAKE: dead statement steers uopt colouring
         D_8077058C[0] = 0;
     }
@@ -1481,7 +1481,7 @@ void sfxUpdateSourceGroups(void) {
                         volume = 0.0f;
                     }
                     volume *= D_80770CE0[i] / 255.0;
-                    if ((D_807FBB60 & 2) || !(D_807FBB60 & 0x10)) {
+                    if ((gGlobalPauseFlags & 2) || !(gGlobalPauseFlags & 0x10)) {
                         volume = 0.0f;
                     } else {
                         switch (D_80770710[i]) {

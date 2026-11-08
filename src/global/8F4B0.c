@@ -249,7 +249,7 @@ extern u8 D_807FBDC4;
 extern ActorGlobalState D_807FBB70;
 extern s16 D_807FDCBC;
 extern s16 D_807FDCB8;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern void *D_807FBB4C;
 extern CutscenePlayerContext *gActivePlayerState;
 extern struct ActorPlayerPos *gPlayerSlots;
@@ -316,7 +316,7 @@ void actorCutsceneDispatchEvents(void) {
             }
             break;
         case 0x3:
-            if (!(D_807FBB60 & 0x400)) {
+            if (!(gGlobalPauseFlags & 0x400)) {
                 if (eventData[2] != 0) {
                     func_8070B308(2);
                     screenSetTransitionFadeType(0);
@@ -333,12 +333,12 @@ void actorCutsceneDispatchEvents(void) {
             }
             break;
         case 0x15:
-            if (!(D_807FBB60 & 0x400)) {
+            if (!(gGlobalPauseFlags & 0x400)) {
                 mapRequestTransitionFast(eventData[0], eventData[1]);
             }
             break;
         case 0x4:
-            if (!(D_807FBB60 & 0x400)) {
+            if (!(gGlobalPauseFlags & 0x400)) {
                 mode = eventData[2];
                 if (mode != 0) {
                     if (mode == 1) {
@@ -351,7 +351,7 @@ void actorCutsceneDispatchEvents(void) {
             }
             break;
         case 0x5:
-            if (!(D_807FBB60 & 0x400)) {
+            if (!(gGlobalPauseFlags & 0x400)) {
                 mapTransitionExitCurrent(eventData[0], eventData[1]);
                 playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
@@ -361,13 +361,13 @@ void actorCutsceneDispatchEvents(void) {
             playerRespawnResetPhysics(eventData[0]);
             break;
         case 0x7:
-            if (!(D_807FBB60 & 0x400)) {
+            if (!(gGlobalPauseFlags & 0x400)) {
                 func_805FF9AC(eventData[0], eventData[1], eventData[2], 2);
                 playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
             break;
         case 0x8:
-            if (!(D_807FBB60 & 0x400)) {
+            if (!(gGlobalPauseFlags & 0x400)) {
                 mapTransitionToPreviousOrExit();
                 playerWaypointPathStartLineFromActor(D_807FBB4C, D_807FDCB8, D_807FDCBC, 0x46);
             }
@@ -510,11 +510,11 @@ void actorCutsceneDispatchEvents(void) {
 }
 
 
-void func_8068B80C(void) {
+void enemyAggroEnable(void) {
     D_807FC620 = 1;
 }
 
-void func_8068B81C(void) {
+void enemyAggroResetUnk21(void) {
     D_807FC621 = 0;
     D_807FC622 = 0;
 }
@@ -546,7 +546,7 @@ void func_8068B830(s16 stateVal, s16 pct, s16 timer) {
     actorState->unk8 = timer;
 }
 
-void func_8068B8A4(f32 intensity) {
+void enemyAggroSetIntensityBB(f32 intensity) {
     Actor *actor;
     Actor174 *actorState;
 
@@ -561,7 +561,7 @@ void func_8068B8A4(f32 intensity) {
     }
 }
 
-void func_8068B8FC(void) {
+void enemyAggroDespawnBB(void) {
     Actor *actor;
     u8 *ptr;
 

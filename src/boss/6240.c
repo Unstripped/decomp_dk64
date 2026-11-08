@@ -293,10 +293,10 @@ extern void *gSpawnedActor;
 extern BossC_6240_BB70 D_807FBB70;
 extern BossC_6240_C924 *gPlayerSlots;
 extern BossC_6240_D580 *gActivePlayerState;
-extern BossC_6240_DC90 *D_807FDC90;
-extern BossC_6240_DC94 *D_807FDC94;
-extern BossC_6240_DC98 *D_807FDC98;
-extern BossC_6240_DC9C *D_807FDC9C;
+extern BossC_6240_DC90 *gBehaviourWorkState;
+extern BossC_6240_DC94 *gBehaviourTargetActor;
+extern BossC_6240_DC98 *gBehaviourAnimState;
+extern BossC_6240_DC9C *gBehaviourExtraState;
 extern BossC_6240_DCA0 *D_807FDCA0;
 
 void bossInitScriptData(void *);
@@ -380,10 +380,10 @@ void bossPufftossStep(void) {
         loadModelAssetTable();
         gCurrentActor->unkCC = 2;
         bossInitScriptData(&D_800362F0);
-        D_807FDC98->unk30 = 3.0f;
+        gBehaviourAnimState->unk30 = 3.0f;
         gCurrentActor->unkB8 = 0.0f;
         gCurrentActor->unk60 |= 0x800000;
-        D_807FDC98->unk46 |= 0x20;
+        gBehaviourAnimState->unk46 |= 0x20;
         state->unk1C = 0;
         gCurrentActor->unk154 = scriptData[state->unk15++];
         gCurrentActor->unk155 = 0;
@@ -405,7 +405,7 @@ void bossPufftossStep(void) {
             gCurrentActor->unk154 = 0x56;
             gCurrentActor->unk155 = 0;
             actorScriptStart(gCurrentActor, 0x2D1);
-            D_807FDC90->unk2C = 0x12C;
+            gBehaviourWorkState->unk2C = 0x12C;
         } else {
             effectFreeAll();
             waterRippleStop();
@@ -413,7 +413,7 @@ void bossPufftossStep(void) {
             gCurrentActor->unk155 = 0;
             gCurrentActor->unkC4 = (f32) D_807502FC;
             actorScriptStart(gCurrentActor, 0x2CD);
-            D_807FDC90->unkC = -0x2BC;
+            gBehaviourWorkState->unkC = -0x2BC;
             state->unk15 = 0;
             state->unk14++;
             scriptData = D_80035A34[state->unk14];
@@ -428,9 +428,9 @@ void bossPufftossStep(void) {
         actorScriptStart(gCurrentActor, 0x2D2);
         actorGetNodePos(gCurrentActor, 2, &nodeX, &nodeY, &nodeZ);
         if (gCurrentActor->unk134 == 1) {
-            D_807FDC90->unk1A |= 0x8000;
+            gBehaviourWorkState->unk1A |= 0x8000;
         }
-        D_807FDC90->unk16 = (s16) (*D_807FDC94->unk4)->unk10;
+        gBehaviourWorkState->unk16 = (s16) (*gBehaviourTargetActor->unk4)->unk10;
         gCurrentActor->unk60 |= 0x20000000;
         func_80714CC0(&D_8071FB34, 2.0f, ((randomNonNegative() >> 0xF) % 30 + nodeX) - 15.0f, ((randomNonNegative() >> 0xF) % 30 + nodeY) - 15.0f, ((randomNonNegative() >> 0xF) % 30 + nodeZ) - 15.0f);
         sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -483,15 +483,15 @@ void bossPufftossStep(void) {
             camSetTarget(gCamActor, gCurrentActor, 4, 0xD48, 0x320, 0, 0, 0xC8, 0x64, 0, 0.03f);
             camSetTargetFocusActor(gCamActor, D_807FBB4C);
         }
-        if (!(D_807FDC90->unk1A & 0x8000)) {
-            if (D_807FDC90->unk2C != 0) {
-                if (D_807FDC90->unk2C == 100) {
+        if (!(gBehaviourWorkState->unk1A & 0x8000)) {
+            if (gBehaviourWorkState->unk2C != 0) {
+                if (gBehaviourWorkState->unk2C == 100) {
                     bossPufftossNotifyLaser(2);
                 }
-                if (D_807FDC90->unk2C < 21) {
+                if (gBehaviourWorkState->unk2C < 21) {
                     gCurrentActor->unk60 |= 0x20000000;
                 }
-                if (D_807FDC90->unk2C == 20) {
+                if (gBehaviourWorkState->unk2C == 20) {
                     if (gPlayerSlots->unk2C0 != 1) {
                         gActivePlayerState->unkD4 = 0x64;
                     }
@@ -499,7 +499,7 @@ void bossPufftossStep(void) {
                     playerSetSizeMode(D_807FBB4C, 1);
                     gActivePlayerState->unk1D8 = 0.04f;
                 }
-                D_807FDC90->unk2C--;
+                gBehaviourWorkState->unk2C--;
             } else {
                 gCurrentActor->unk60 &= 0xDFFFFFFF;
                 actorGetOrSetNodeScale(gCurrentActor, 1, 64.0f);
@@ -546,7 +546,7 @@ void bossPufftossStep(void) {
             break;
         case 3:
             if (currentActorTestClearFlag() != 0) {
-                D_807FDC90->unkC = 0x1F4;
+                gBehaviourWorkState->unkC = 0x1F4;
                 actorScriptStart(gCurrentActor, 0x2C5);
                 gCurrentActor->unk155 = 4;
             }
@@ -604,12 +604,12 @@ void bossPufftossStep(void) {
         actorTurnTowardTarget(0x23, 606.0f, 566.0f, 0);
         switch (gCurrentActor->unk155) {
         case 0:
-            D_807FDC90->unk25 += 4;
+            gBehaviourWorkState->unk25 += 4;
             patrolPathStep(0x42, 0);
-            D_807FDC90->unk25 -= 4;
+            gBehaviourWorkState->unk25 -= 4;
             actorScriptStart(gCurrentActor, 0x2CB);
             gCurrentActor->unk155 = 1;
-            D_807FDC90->unk2C = 0;
+            gBehaviourWorkState->unk2C = 0;
             break;
         case 2:
             effectSpawnChildAtNode(2, (s16) ((((s32) (randomNonNegative() >> 0xF) % 2048) + gCurrentActor->unkE6) - 0x400), (s16) ((s32) (randomNonNegative() >> 0xF) % 2048));
@@ -619,12 +619,12 @@ void bossPufftossStep(void) {
             break;
         case 5:
             projectileGetTargetCoords(gCurrentActor, 1);
-            if (D_807FDC90->unk2C != 0) {
-                projectileAimAndSpawn(0x51, 1, (f32) (((f64) ((s32) (randomNonNegative() >> 0xF) % 10) / 20.0) + 0.8), (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkC, (f32) D_807FDC90->unkE, 500.0f, gCurrentActor);
+            if (gBehaviourWorkState->unk2C != 0) {
+                projectileAimAndSpawn(0x51, 1, (f32) (((f64) ((s32) (randomNonNegative() >> 0xF) % 10) / 20.0) + 0.8), (f32) gBehaviourWorkState->unkA, (f32) gBehaviourWorkState->unkC, (f32) gBehaviourWorkState->unkE, 500.0f, gCurrentActor);
             } else {
-                projectileAimAndSpawn(0x1E, 0x14, 0.2f, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkC, (f32) D_807FDC90->unkE, 500.0f, gCurrentActor);
+                projectileAimAndSpawn(0x1E, 0x14, 0.2f, (f32) gBehaviourWorkState->unkA, (f32) gBehaviourWorkState->unkC, (f32) gBehaviourWorkState->unkE, 500.0f, gCurrentActor);
             }
-            D_807FDC90->unk2C = 1;
+            gBehaviourWorkState->unk2C = 1;
             break;
         case 7:
             gCurrentActor->unk154 = scriptData[state->unk15++];
@@ -638,16 +638,16 @@ void bossPufftossStep(void) {
         gCurrentActor->unk132 = 2;
         switch (gCurrentActor->unk155) {
         case 0:
-            D_807FDC90->unk25 += 4;
+            gBehaviourWorkState->unk25 += 4;
             gCurrentActor->unk155 = 1;
             /* fallthrough */
         case 1:
-            actorMoveWithinZone(0x42, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, 0x291, 0.0f);
+            actorMoveWithinZone(0x42, (f32) gBehaviourWorkState->unkA, (f32) gBehaviourWorkState->unkE, 0x291, 0.0f);
             if (patrolPathStep(0x42, 0) != 0) {
                 gCurrentActor->unkC0 = 100.0f;
                 actorScriptStart(gCurrentActor, 0x2C8);
                 gCurrentActor->unk155 = 2;
-                D_807FDC90->unk25 -= 4;
+                gBehaviourWorkState->unk25 -= 4;
                 if (gCurrentActor->unk154 == 0x2C) {
                     camStartPath(gCurrentActor, 6, 1);
                 }
@@ -667,13 +667,13 @@ void bossPufftossStep(void) {
         switch (gCurrentActor->unk155) {
         case 0:
             actorScriptStart(gCurrentActor, 0x2C9);
-            D_807FDC90->unk2C = (s16) *(state->unk15 + scriptData);
+            gBehaviourWorkState->unk2C = (s16) *(state->unk15 + scriptData);
             state->unk15 += 1;
             gCurrentActor->unk155 = 1;
             /* fallthrough */
         case 1:
-            if (D_807FDC90->unk2C != 0) {
-                D_807FDC90->unk2C--;
+            if (gBehaviourWorkState->unk2C != 0) {
+                gBehaviourWorkState->unk2C--;
             } else {
                 gCurrentActor->unk154 = scriptData[state->unk15++];
                 gCurrentActor->unk155 = 0;
@@ -690,7 +690,7 @@ void bossPufftossStep(void) {
             break;
         case 2:
             if ((gCurrentActor->unkA4 + 180.0f) < gCurrentActor->unk80) {
-                actorSetTargetSpeed(gCurrentActor, D_807FDC9C->unkC);
+                actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
                 gCurrentActor->unk154 = scriptData[state->unk15++];
                 gCurrentActor->unk155 = 0;
             }
@@ -700,14 +700,14 @@ void bossPufftossStep(void) {
         }
         break;
     case 0x11:
-        actorMoveWithinZone(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x293, 0.0f);
+        actorMoveWithinZone(0x45, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk84, 0x293, 0.0f);
         if (currentActorTestClearFlag() != 0) {
             gCurrentActor->unk154 = scriptData[state->unk15++];
             gCurrentActor->unk155 = 0;
         }
         break;
     case 0x46:
-        actorMoveWithinZone(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x293, 0.0f);
+        actorMoveWithinZone(0x45, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk84, 0x293, 0.0f);
         switch (gCurrentActor->unk155) {
         case 0:
             state->unk18 = scriptData[state->unk15++];
@@ -723,7 +723,7 @@ void bossPufftossStep(void) {
             break;
         case 3:
             projectileGetTargetCoords(gCurrentActor, 1);
-            projectileClampAngleAndSpawn(gCurrentActor->unkE6, 0x320, 0x1E, 0xB, 1.2f, D_807FDC94->unk7C, D_807FDC94->unk80 + 30.0f, D_807FDC94->unk84, (f32) ((state->unk14 * 0x50) + 0x2BC), gCurrentActor);
+            projectileClampAngleAndSpawn(gCurrentActor->unkE6, 0x320, 0x1E, 0xB, 1.2f, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk80 + 30.0f, gBehaviourTargetActor->unk84, (f32) ((state->unk14 * 0x50) + 0x2BC), gCurrentActor);
             gCurrentActor->unk155 = 4;
             break;
         case 5:
@@ -747,7 +747,7 @@ void bossPufftossStep(void) {
             checkFloor = 0;
             actorApplyGravity();
             gCurrentActor->unk80 = (f32) (gCurrentActor->unk80 + gCurrentActor->unkC0);
-            if (gCurrentActor->unk80 < (f32) D_807FDC90->unkC) {
+            if (gCurrentActor->unk80 < (f32) gBehaviourWorkState->unkC) {
                 gCurrentActor->unk155 = 3;
                 sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0xC, 0xFF, 0x50, 0, 0, 0, 0);
             }
@@ -765,22 +765,22 @@ void bossPufftossStep(void) {
                     gCurrentActor->unkC4 = (f32) D_807502E8;
                     actorScriptStart(gCurrentActor, 0x2CC);
                     gCurrentActor->unk155 = 4;
-                    D_807FDC90->unkC = 0xC8;
+                    gBehaviourWorkState->unkC = 0xC8;
                 }
             }
             break;
         case 4:
             effectSpawnActorBoneEffects(0);
             checkFloor = 0;
-            gCurrentActor->unk80 = ((D_807FDC90->unkC + 5) - gCurrentActor->unk80) * 0.12 + gCurrentActor->unk80;
-            actorTurnTowardTarget(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0);
-            if ((D_807FDC90->unkC - 300) < gCurrentActor->unk80) {
+            gCurrentActor->unk80 = ((gBehaviourWorkState->unkC + 5) - gCurrentActor->unk80) * 0.12 + gCurrentActor->unk80;
+            actorTurnTowardTarget(0x23, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk84, 0);
+            if ((gBehaviourWorkState->unkC - 300) < gCurrentActor->unk80) {
                 if (gCurrentActor->unk6E == -1) {
                     sfxPlayActorSound(gCurrentActor, 0x10F, 0, 1, 0, 0xFF, 0.8f, 0);
                 }
                 func_80613C48(gCurrentActor, 0x53D, 0, 24.0f);
             }
-            if (D_807FDC90->unkC < gCurrentActor->unk80) {
+            if (gBehaviourWorkState->unkC < gCurrentActor->unk80) {
                 actorScriptStart(gCurrentActor, 0x2D0);
                 gCurrentActor->unk155 = 5;
             }
@@ -792,7 +792,7 @@ void bossPufftossStep(void) {
             effectSpawnActorBoneEffects(1);
             break;
         case 7:
-            actorSetTargetSpeed(gCurrentActor, D_807FDC9C->unkC);
+            actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
             gCurrentActor->unk154 = 0x11;
             gCurrentActor->unk155 = 0;
             break;
@@ -809,17 +809,17 @@ void bossPufftossStep(void) {
         break;
     }
     if (updateY != 0) {
-        if (gCurrentActor->unk80 < D_807FDC90->unkC) {
-            gCurrentActor->unk80 = (D_807FDC90->unkC - prevY) * 0.03 + prevY;
+        if (gCurrentActor->unk80 < gBehaviourWorkState->unkC) {
+            gCurrentActor->unk80 = (gBehaviourWorkState->unkC - prevY) * 0.03 + prevY;
             gCurrentActor->unkC0 = 0.0f;
         } else {
             actorApplyGravity();
-            if ((f32) D_807FDC90->unkC < gCurrentActor->unk80) {
+            if ((f32) gBehaviourWorkState->unkC < gCurrentActor->unk80) {
                 actorApplyVelocityCustom(gCurrentActor, 0, gCurrentActor->unkC0);
             }
         }
     }
-    func_8072881C(0, D_807FDC90->unk28);
+    func_8072881C(0, gBehaviourWorkState->unk28);
     if (checkFloor != 0) {
         actorGetNodePos(gCurrentActor, gCurrentActor->unkCC, &floorCheckX, &floorCheckY, &floorCheckZ);
         collisionCheckActorFloor(gCurrentActor, floorCheckX, floorCheckY, floorCheckZ, &gCurrentActor->unkA4);

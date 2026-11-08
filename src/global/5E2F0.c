@@ -633,14 +633,14 @@ typedef struct LightPlayer {
 
 
 extern LightPlayer *gPlayerSlots;
-extern u8 D_80750AB4;
+extern u8 gViewportCount;
 #define SQ(x) ((x) * (x))
 
 s32 lightCheckPlayerDistance(LightVolume *arg0) {
     s32 i;
     LightPlayer *player;
 
-    for (i = 0; i < D_80750AB4; i++) {
+    for (i = 0; i < gViewportCount; i++) {
         player = (LightPlayer *)((u8 *)gPlayerSlots + (i * sizeof(LightPlayer)));
         if (player->unk0 != 0) {
             if (sqrtf(SQ(arg0->z - player->z) + (SQ(arg0->x - player->x) + SQ(arg0->y - player->y))) < (f32)arg0->unk32) {

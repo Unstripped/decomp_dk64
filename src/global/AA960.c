@@ -10,7 +10,7 @@ typedef struct SfxTableEntry {
 
 extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern u32 D_807FBB68;
 extern u8 gPlayerCount;
 extern SfxTableEntry D_80750400[];
@@ -57,7 +57,7 @@ void sfxSpawnTableNodes(Actor *actor) {
     if (gPlayerCount >= 2) {
         return;
     }
-    if (D_807FBB64 & 0x4000) {
+    if (gGlobalOverlayFlags & 0x4000) {
         return;
     }
     while (found == 0 && D_80750400[i].unk0 != 0) {
@@ -135,23 +135,23 @@ void effectSpawnAttachedSpriteColored(void *spriteAsset, s32 characterId) {
     }
 }
 
-void func_806A6094(void) {
+void effectSpawnAttachedSpriteColoredType3(void) {
     effectSpawnAttachedSpriteColored(D_807209EC, 3);
 }
 
-void func_806A60BC(void) {
+void effectSpawnAttachedSpriteColoredType6(void) {
     effectSpawnAttachedSpriteColored(D_80720A10, 6);
 }
 
-void func_806A60E4(void) {
+void effectSpawnAttachedSpriteColoredType4(void) {
     effectSpawnAttachedSpriteColored(D_807207E0, 4);
 }
 
-void func_806A610C(void) {
+void effectSpawnAttachedSpriteColoredType2(void) {
     effectSpawnAttachedSpriteColored(D_80720A34, 2);
 }
 
-void func_806A6134(void) {
+void effectSpawnAttachedSpriteColoredType5(void) {
     effectSpawnAttachedSpriteColored(D_80720A58, 5);
 }
 
@@ -179,14 +179,14 @@ void func_806A6230(void) {
 
     actorDropBounceExpireUpdate(4.5f);
     if (!(gCurrentActor->flags & 0x10)) {
-        if ((D_807FBB64 & 0x80000) || (D_807FBB64 & 0x2000)) {
+        if ((gGlobalOverlayFlags & 0x80000) || (gGlobalOverlayFlags & 0x2000)) {
             gCurrentActor->unk15F = 1;
         }
         effectSpawnAttachedSprite(temp, D_807207BC, 1.0f);
     }
 }
 
-void func_806A62B4(void) {
+void effectSpawnA6230Wrapper(void) {
     func_806A6230();
 }
 
@@ -374,7 +374,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         actorAppendModelNode(gCurrentActor, 0.0f, 0.0f, 0.0f, 50.0f, -1);
         actorAppendModelSubNode(gCurrentActor, 0.0f, 0.0f, 0.0f, -1);
         *(f32 *)((u8 *)gCurrentActor + 0xC0) = (f32)((f64)((randomLcgNext() / 10000) % 200) * 0.5 + 220.0 - 50.0);
-        if (!(D_807FBB64 & 0x4000) && (((u32)gCurrentActor->actorType < 0x4B) || ((u32)gCurrentActor->actorType >= 0x50))) {
+        if (!(gGlobalOverlayFlags & 0x4000) && (((u32)gCurrentActor->actorType < 0x4B) || ((u32)gCurrentActor->actorType >= 0x50))) {
             gCurrentActor->speedXZ = 30.0f;
         }
         gCurrentActor->state++;
@@ -405,7 +405,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
                 if (gCurrentActor->actorType == 0x8C) {
                     state->unk1 = 1;
                 }
-                if (gCurrentActor->actorType != 0x6E && gCurrentActor->actorType != 0x8C && !(D_807FBB64 & 0x4000) && gCurrentActor->unk15F != 2) {
+                if (gCurrentActor->actorType != 0x6E && gCurrentActor->actorType != 0x8C && !(gGlobalOverlayFlags & 0x4000) && gCurrentActor->unk15F != 2) {
                     state->unk8 = 0x64;
                     gCurrentActor->state = 3;
                 } else {
@@ -440,7 +440,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
     case 4:
         state->unk4[0x36D] -= 5;
         if ((s32)state->unk4[0x36D] < 0xA) {
-            if ((D_807FBB64 & 0x10000) && actorTypeIsRespawnPickup(gCurrentActor->actorType) != 0) {
+            if ((gGlobalOverlayFlags & 0x10000) && actorTypeIsRespawnPickup(gCurrentActor->actorType) != 0) {
                 func_806F5F2C(gCurrentActor->actorType, 0x258, (s16)(s32)gCurrentActor->x, (s16)(s32)gCurrentActor->y, (s32)gCurrentActor->z);
             }
             actorDespawn(gCurrentActor);
@@ -616,7 +616,7 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806A734C(void) {
+void actorBounceFadeInSpinUpdateType1(void) {
     actorBounceFadeInSpinUpdate(1);
 }
 
@@ -689,7 +689,7 @@ typedef struct AA960ConfigInt {
 } AA960ConfigInt;
 
 extern u8 D_807FBD70;
-extern u32 D_8076A068;
+extern u32 gGameFrameCounter;
 s32 actorListFindIdByActor(Actor *);
 s32 actorListLookupEntry(s32);
 s32 flagGet(s32, s32);
@@ -742,7 +742,7 @@ void actorPathCollectibleUpdate(void *unused) {
         }
         gCurrentActor->y += 5.0 * func_80612794(state->unk4);
         state->unk4 = (state->unk4 + 0x50) & 0xFFF;
-        if (D_8076A068 % 0x18 == 0) {
+        if (gGameFrameCounter % 0x18 == 0) {
             switch (gCurrentActor->actorType) {
             case 0x5B:
                 temp = 6;
@@ -809,35 +809,35 @@ void actorPathCollectibleUpdate(void *unused) {
 }
 
 extern u8 D_80720FBC;
-void func_806A7B04(void) {
+void actorPathCollectibleUpdateFBC(void) {
     actorPathCollectibleUpdate(&D_80720FBC);
 }
 
 extern u8 D_80720F98;
 
-void func_806A7B28(void) {
+void actorPathCollectibleUpdateF98(void) {
     actorPathCollectibleUpdate(&D_80720F98);
 }
 
 extern u8 D_80721028;
 
-void func_806A7B4C(void) {
+void actorPathCollectibleUpdate1028(void) {
     actorPathCollectibleUpdate(&D_80721028);
 }
 
 extern u8 D_80721004;
 
-void func_806A7B70(void) {
+void actorPathCollectibleUpdate1004A(void) {
     actorPathCollectibleUpdate(&D_80721004);
 }
 
 extern u8 D_80720FE0;
 
-void func_806A7B94(void) {
+void actorPathCollectibleUpdateFE0(void) {
     actorPathCollectibleUpdate(&D_80720FE0);
 }
 
-void func_806A7BB8(void) {
+void actorPathCollectibleUpdate1004B(void) {
     actorPathCollectibleUpdate(&D_80721004);
 }
 

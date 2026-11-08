@@ -133,7 +133,7 @@ extern s16 D_8074682C;
 extern s8 D_80746844;
 extern s8 D_80746848;
 extern u32 D_8076154C;
-extern u32 D_80744470[];
+extern u32 gFramebuffers[];
 extern void faultFontInit(s32, s32, s32);
 extern void faultPrintf(const char *, ...);
 
@@ -156,12 +156,12 @@ void schedMain(void *arg0) {
             if (D_8074682C <= 0) {
                 D_807F0518[0]++;
                 fbIdx = D_807F0518[0];
-                osViSwapBuffer((void *)D_80744470[(fbIdx >> 5) & 1]);
+                osViSwapBuffer((void *)gFramebuffers[(fbIdx >> 5) & 1]);
                 osViBlack(0);
                 D_807F0518[0]++;
                 if (D_8074682C < -0x9F && D_8074682C >= -0x100) {
                     for (i = 0; i < 2; i++) {
-                        faultFontInit(D_80744470[i & 1], 2, 2);
+                        faultFontInit(gFramebuffers[i & 1], 2, 2);
                         faultPrintf("CURRENT=%x\n", IO_READ(DPC_CURRENT_REG));
                         faultPrintf("START=%x\n", IO_READ(DPC_START_REG));
                         faultPrintf("END=%x\n", IO_READ(DPC_END_REG));
@@ -265,11 +265,11 @@ void schedHandleRetrace(SchedStruct *sc) {
                 osViSetSpecialFeatures(0x42);
                 osViBlack(0);
                 D_80744510 = 2;
-                if (D_80744470 && D_80744470) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+                if (gFramebuffers && gFramebuffers) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             D_80746858++;
         }
-        osViSwapBuffer((void *)D_80744470[0]);
+        osViSwapBuffer((void *)gFramebuffers[0]);
     }
     if (D_807F04E0 != NULL) {
         if (D_8076A0B1 & 2) {
@@ -525,7 +525,7 @@ extern char D_80757188[];
 char *D_80746A0C[2] = { D_80757184, D_80757188 };
 extern u32 D_807F05A4;
 extern u32 D_807F0984;
-extern u32 D_80744478;
+extern u32 gFrameDelta;
 extern void faultFontSetColorMode(s32);
 extern void controllerStartRead(void);
 
@@ -602,7 +602,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
     }
     p = 0;
     do {
-        faultFontInit(D_80744470[p], 0, 1);
+        faultFontInit(gFramebuffers[p], 0, 1);
         line = 0;
         mode = D_80746A24;
         cur = *(u32 *)&D_80746A20;
@@ -704,7 +704,7 @@ s32 schedDlDebugDump(s32 arg0, s32 arg1) {
             cur += size * 4U;
         }
         p += 1;
-    } while (&D_80744478 != &D_80744470[p]);
+    } while (&gFrameDelta != &gFramebuffers[p]);
     controllerStartRead();
     return ret;
 }

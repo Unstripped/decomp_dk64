@@ -39,7 +39,7 @@ u8 func_806BDD90(void) {
             R1C2CBA->unk131 = 0x3C;
             R1C2CBA->unk12A = 0x3E8;
             func_80724CA4(2, 1);
-            D_807FDC90->scale = gCurrentActor->unk4->unk38;
+            gBehaviourWorkState->scale = gCurrentActor->unk4->unk38;
             R1C2CBA->unkC4 = (f64)R1C2CBA->unkC4 / 1.5;
         }
     }
@@ -84,21 +84,21 @@ void func_806BDEC8(void) {
             R1C2CBC0->unkC0 = 150.0f;
             actorScriptStart(gCurrentActor, 0x28E);
             camSetTargetCutscene(sub->unk104, gCurrentActor, 4, 0xE77, 0xFA, 2, 0x32, 0x20, 0x3F, 0x4A, 0.16f);
-            D_807FDC90->timer = 0x32;
+            gBehaviourWorkState->timer = 0x32;
             gCurrentActor->unk155[0]++;
             break;
         case 2:
-            if (D_807FDC90->timer != 0) {
-                D_807FDC90->timer--;
+            if (gBehaviourWorkState->timer != 0) {
+                gBehaviourWorkState->timer--;
             } else {
                 actorScriptStart(gCurrentActor, 0x28F);
                 gCurrentActor->unk155[0]++;
-                D_807FDC90->timer = 0x78;
+                gBehaviourWorkState->timer = 0x78;
             }
             break;
         case 3:
-            if (D_807FDC90->timer != 0) {
-                D_807FDC90->timer--;
+            if (gBehaviourWorkState->timer != 0) {
+                gBehaviourWorkState->timer--;
             } else if (mapHasCollectedSufficientItems() == 0) {
                 gCurrentActor->state = 0;
                 gCurrentActor->unk155[0] = 0;
@@ -106,7 +106,7 @@ void func_806BDEC8(void) {
             break;
         }
     }
-    func_8072881C(0, D_807FDC90->unk28);
+    func_8072881C(0, gBehaviourWorkState->unk28);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -122,7 +122,7 @@ typedef struct R1C2CB_ActorEE {
     /* 0xEE */ s16 unkEE;
 } R1C2CB_ActorEE;
 
-#define R1C2CBS ((R1C2CB_S90 *)D_807FDC90)
+#define R1C2CBS ((R1C2CB_S90 *)gBehaviourWorkState)
 #define R1C2CBE ((R1C2CB_ActorEE *)D_807FBB4C)
 
 extern s32 gFrameCounter;
@@ -180,7 +180,7 @@ void func_806BE09C(void) {
     if (ratio > 1.0f) {
         ratio = 1.0f;
     }
-    target = D_807FDC90->scale + (0.44 - D_807FDC90->scale) * ratio;
+    target = gBehaviourWorkState->scale + (0.44 - gBehaviourWorkState->scale) * ratio;
     if (!(gCurrentActor->flags & 0x10)) {
         actorSetUniformScale(gCurrentActor, target);
     }
@@ -247,7 +247,7 @@ void func_806BE09C(void) {
 
         break;
     }
-    func_8072881C(0, D_807FDC90->unk28);
+    func_8072881C(0, gBehaviourWorkState->unk28);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -371,11 +371,11 @@ typedef struct LgBE8S9C {
 #define LgBA ((LgBE8A *)gCurrentActor)
 #define LgBB ((LgBE8A *)D_807FBB4C)
 #define LgBG ((LgBE8G *)gActivePlayerState)
-#define LgBS ((LgBE8S90 *)D_807FDC90)
-#define LgB9C ((LgBE8S9C *)D_807FDC9C)
+#define LgBS ((LgBE8S90 *)gBehaviourWorkState)
+#define LgB9C ((LgBE8S9C *)gBehaviourExtraState)
 
 extern void *gCamActor;
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 
 void effectSpawnSmoke(s32);
 void actorClearMovementFlags(void *);
@@ -424,7 +424,7 @@ void func_806BE8BC(void) {
     }
     if (!(LgBA->unk60 & 0x10)) {
         func_80724CA4(2, 1);
-        D_807FDC98->unk46 |= 0x20;
+        gBehaviourAnimState->unk46 |= 0x20;
         actorScriptStart(gCurrentActor, 0x306);
         func_80728950(0);
         LgBA->unk154 = 0x1E;
@@ -446,7 +446,7 @@ void func_806BE8BC(void) {
                 csModelStateSetFirstByte(0x1F, 3);
                 actorClearMovementFlags(D_807FBB4C);
                 func_80726EE0(1);
-                D_807FDC98->unk46 |= 4;
+                gBehaviourAnimState->unk46 |= 4;
                 func_806BE674(1);
                 currentActorAnimSetFrame(0, 0);
                 if (sp37 != 0) {
@@ -476,7 +476,7 @@ void func_806BE8BC(void) {
                     break;
                 case 2:
                     sfxAllocateChannel(0xA9, 1.0f);
-                    D_807FBB64 |= 4;
+                    gGlobalOverlayFlags |= 4;
                     camResumePath();
                     camSetZoomLevel(gCamActor, 3);
                     actorScriptStart(gCurrentActor, 0x302);
@@ -546,7 +546,7 @@ void func_806BE8BC(void) {
             if (!(LgBA->unk60 & 0x2000000)) {
                 func_8072DC7C(2);
                 if (LgBA->unk155 != 0) {
-                    D_807FBB64 &= ~4;
+                    gGlobalOverlayFlags &= ~4;
                     LgBG->unk23F = 2;
                     camSetZoneWeight(1, 0);
                     LgBG->unk1F4 &= ~0x40;

@@ -12,10 +12,10 @@ extern u8 D_807FC950[][0x5E];
 extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 extern u8 D_807444F8;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 typedef struct HealthHudState {
     u8 pad0[0x2E0];
@@ -39,7 +39,7 @@ Gfx *healthHudDraw();
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern s32 gFrameCounter;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 f32 func_80612794(s16);
 s32 menuIsTransitionTypeAOrE();
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
@@ -63,7 +63,7 @@ Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *h
     if (pips - 1 > 3) {} /* dead: stops IDO hoisting pips - 1 above the PrimColor select */
     fs0 = (f32)((f64)(u32)hudState->unk2E0 / 65535.0);
     amp = ((stats->unk2FC * 0x46) - 0x46) & 0xFF;
-    if ((D_807FBB60 & 3) || (menuIsTransitionTypeAOrE() != 0)) {
+    if ((gGlobalPauseFlags & 3) || (menuIsTransitionTypeAOrE() != 0)) {
         return glist;
     }
     gSPDisplayList(glist++, &D_1000118);
@@ -112,11 +112,11 @@ typedef struct HealthHudInit {
     u8 unkA;
 } HealthHudInit;
 
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern s32 func_807142D8();
 
 void func_80708BB8(HealthHudInit *hudInit) {
-    if (D_807FBB64 & 0x800) {
+    if (gGlobalOverlayFlags & 0x800) {
         hudInit->unk6 = 0x20;
     } else {
         hudInit->unk6 = 1;
@@ -185,7 +185,7 @@ void healthApplyPendingDelta(s32 playerIndex, HealthPlayerState *hudState, Healt
         }
         playerState->unk2FD = 0;
     }
-    if ((!(D_807FBB60 & 2) && (func_805FCA64() != 0)) || (state & 0x80)) {
+    if ((!(gGlobalPauseFlags & 2) && (func_805FCA64() != 0)) || (state & 0x80)) {
         hudState->unk2E5--;
         if (!hudState->unk2E5) {
             hudState->unk2E5 = 0x11;

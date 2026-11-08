@@ -35,7 +35,7 @@ typedef struct DrawPos {
     /* 0x48 */ f32 unk48;
 } DrawPos;
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern u16 D_8075A740;
 
 f32 sinApprox(f32);
@@ -96,8 +96,8 @@ void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     guMtxCatF(spA8, sp68, spA8);
     guTranslateF(sp68, (f32) (((f64) ((DrawPos *) arg1)->unk44 + (f64) ((SpriteDrawNode *) arg3)->unk4) * 4.0), (f32) (((f64) ((DrawPos *) arg1)->unk48 + (f64) ((SpriteDrawNode *) arg3)->unk8) * 4.0), 0.0f);
     guMtxCatF(spA8, sp68, spA8);
-    guMtxF2L(spA8, (Mtx *) ((u8 *) mdl + (D_807444FC << 6) + 8));
-    gSPMatrix(dl++, (u8 *) mdl + (D_807444FC << 6) + 8, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    guMtxF2L(spA8, (Mtx *) ((u8 *) mdl + (gGfxBufferIndex << 6) + 8));
+    gSPMatrix(dl++, (u8 *) mdl + (gGfxBufferIndex << 6) + 8, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPPipeSync(dl++);
     gDPSetPrimColor(dl++, 0, 0, 0x28, 0x28, 0xFF, ((SpriteDrawNode *) arg3)->unk3);
     spE8.b = mdl->unk2;
@@ -175,7 +175,7 @@ void mathAddWaveOffset(f32 *arg0, f32 *arg1, f32 arg2, f32 arg3, MotionAngles *a
     *arg1 += (arg2 * arg3) * 16.0f * func_80612790((s16) ((s16) ((s32) ((f32) arg4->unk3A + (arg2 * 3000.0f))) & 0xFFF));
 }
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 typedef struct SpriteAnim {
     /* 0x00 */ u8 pad0[0x20];
@@ -201,7 +201,7 @@ s32 textBoxRenderTail(s32 arg0, SpriteAnim *arg1, s32 arg2) {
     cnt = (u8) (u32) ((((f64) arg1->unk20 < 0.320000000000000007) ? (f64) arg1->unk20 : 0.320000000000000007) * 12.5);
     if (arg0 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     i = 1;
-    if (D_807444FC == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+    if (gGfxBufferIndex == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     idx = 1;
     if (cnt > 0) {
         do {
@@ -213,12 +213,12 @@ s32 textBoxRenderTail(s32 arg0, SpriteAnim *arg1, s32 arg2) {
             mathAddWaveOffset(&spA4, &spA0, (f32) ((f64) i * 0.0800000000000000017), 1.0f, (MotionAngles *) arg1);
             guTranslateF(spA8, spA4 * 4.0f, spA0 * 4.0f, 0.0f);
             guMtxCatF(spE8, spA8, spE8);
-            guMtxF2L(spE8, (Mtx *) (arg1->unk34 + ((idx * 2 + D_807444FC) << 6)));
-            tmp = (s32) renderTextureSprite((Gfx *) arg0, (s32) (arg1->unk34 + ((idx * 2 + D_807444FC) << 6)), (u32) ((((f64) (idx * 300) * 0.0800000000000000017) > 150.0) ? 150.0 : ((f64) (idx * 300) * 0.0800000000000000017)), arg2);
+            guMtxF2L(spE8, (Mtx *) (arg1->unk34 + ((idx * 2 + gGfxBufferIndex) << 6)));
+            tmp = (s32) renderTextureSprite((Gfx *) arg0, (s32) (arg1->unk34 + ((idx * 2 + gGfxBufferIndex) << 6)), (u32) ((((f64) (idx * 300) * 0.0800000000000000017) > 150.0) ? 150.0 : ((f64) (idx * 300) * 0.0800000000000000017)), arg2);
             i = (i + 1) & 0xFF;
             idx = i;
             arg0 = tmp;
-            if (D_807444FC && D_807444FC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+            if (gGfxBufferIndex && gGfxBufferIndex) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         } while (cnt >= idx);
     }
     return arg0;
@@ -235,7 +235,7 @@ typedef struct ScreenBounds {
 
 extern ScreenBounds *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 
@@ -316,13 +316,13 @@ Gfx *textBoxRender(Gfx *arg0, Actor *arg1) {
     guMtxCatF(spE0, spA0, spE0);
     guTranslateF(spA0, arg1->x * 4.0f, arg1->y * 4.0f, 0.0f);
     guMtxCatF(spE0, spA0, spE0);
-    guMtxF2L(spE0, (Mtx *) (state->unk34 + (D_807444FC << 6)));
+    guMtxF2L(spE0, (Mtx *) (state->unk34 + (gGfxBufferIndex << 6)));
     WRITE_GFX(dl++, 0xE7000000, 0);
     WRITE_GFX(dl++, ((s32) ((f32) gPlayerSlots->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32) ((f32) gPlayerSlots->unk270 * 4.0f) & 0xFFF) << 12),
               ((s32) ((f32) gPlayerSlots->unk276 * 4.0f) & 0xFFF) | (((s32) ((f32) gPlayerSlots->unk274 * 4.0f) & 0xFFF) << 12));
     dl = (Gfx *) textBoxRenderTail((s32) dl, (SpriteAnim *) state, half);
     alpha = (state->unk20 * 150.0f * 2 > 150.0f) ? 150.0f : state->unk20 * 150.0f * 2;
-    dl = renderTextureSprite(dl, (s32) (state->unk34 + (D_807444FC << 6)), (u8) alpha, half);
+    dl = renderTextureSprite(dl, (s32) (state->unk34 + (gGfxBufferIndex << 6)), (u8) alpha, half);
     if (state->unk1D != 0) {
         WRITE_GFX(dl++, 0xE7000000, 0);
         WRITE_GFX(dl++, ((s32) (state->unk48 * 4.0f) & 0xFFF) | 0xED000000 | (((s32) (state->unk44 * 4.0f) & 0xFFF) << 12),
@@ -681,7 +681,7 @@ typedef struct MapBounds {
 
 extern struct ScreenBounds *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
-extern s16 D_80744490;
+extern s16 gScreenWidth;
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 s32 controllerLookupStateByHash(void *);
@@ -790,7 +790,7 @@ void textBoxUpdatePosition(Actor *arg0, struct SpriteBehaviour *arg1, f32 arg2) 
     }
     sp7C = SPRITE_SUB->unk24;
     sp78 = SPRITE_SUB->unk28;
-    if (((f32) D_80744490 * 0.5f) < sp7C) {
+    if (((f32) gScreenWidth * 0.5f) < sp7C) {
         sp7C = sp7C - 131.1999969482421875;
     } else {
         sp7C = sp7C + 131.1999969482421875;

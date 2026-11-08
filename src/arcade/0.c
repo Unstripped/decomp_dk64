@@ -57,12 +57,12 @@ Gfx *func_805FE4D4(Gfx *);
 void arcadeDispatchState(Gfx **);
 void arcadeBuildDisplayList(u8 *, Gfx **);
 
-extern u8 D_807444FC;
-extern Gfx *D_8076A050[];
+extern u8 gGfxBufferIndex;
+extern Gfx *gGfxTaskBuffers[];
 extern s32 D_8076A088;
 extern s32 D_8076A08C;
 extern s32 gFrameCounter;
-extern u8 *D_8076A048;
+extern u8 *gGfxCurrentFrameBuffer;
 extern u8 D_80767CE8;
 extern u8 D_8076A0B1;
 extern f32 gScreenFadeProgress;
@@ -76,28 +76,28 @@ void arcadeRunFrame(void) {
     u8 *frameBuf;
 
     controllerStartRead();
-    schedSubmitGfxTask(D_8076A050[D_807444FC], D_8076A088, 3, 1, 0x4D2, 1);
-    D_807444FC ^= 1;
+    schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 0x4D2, 1);
+    gGfxBufferIndex ^= 1;
     gFrameCounter++;
-    D_8076A048 = (u8 *)&D_80767CE8 + D_807444FC * 0x11B0;
+    gGfxCurrentFrameBuffer = (u8 *)&D_80767CE8 + gGfxBufferIndex * 0x11B0;
     controllerUpdate();
     if ((D_8076A0B1 & 1) && gScreenFadeProgress == 31.0f) {
-        glist = D_8076A050[D_807444FC];
+        glist = gGfxTaskBuffers[gGfxBufferIndex];
     } else {
-        arcadeBuildDisplayList(D_8076A048, &glist);
+        arcadeBuildDisplayList(gGfxCurrentFrameBuffer, &glist);
     }
     glist = screenFadeUpdate(glist, 0);
     if (D_807444EC != 3) {
-        frameBuf = D_8076A048 + 0xDB0;
-        func_805FE71C(glist, D_807444FC, &D_8076A088, 0);
-        func_805FE7B4((Gfx *)frameBuf, D_8076A048, &D_8076A08C, 1);
+        frameBuf = gGfxCurrentFrameBuffer + 0xDB0;
+        func_805FE71C(glist, gGfxBufferIndex, &D_8076A088, 0);
+        func_805FE7B4((Gfx *)frameBuf, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
     } else {
-        func_805FE71C(glist, D_807444FC, &D_8076A088, 1);
+        func_805FE71C(glist, gGfxBufferIndex, &D_8076A088, 1);
     }
 }
 
 void arcadeBuildDisplayList(u8 *frameBuf, Gfx **glistp) {
-    Gfx *glist = D_8076A050[D_807444FC];
+    Gfx *glist = gGfxTaskBuffers[gGfxBufferIndex];
 
     gSPSegment(glist++, 0, 0);
     gSPSegment(glist++, 2, osVirtualToPhysical(frameBuf));
@@ -721,7 +721,7 @@ typedef struct ArcadeTitleBitmap {
 extern ArcadeTitleBitmap D_8004A798;
 extern u8 D_8004C719;
 extern u8 D_8004C71A;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern u8 D_8004BB00[];
 extern u8 D_80032C20[];
 extern u8 D_80032DF8[];
@@ -787,12 +787,12 @@ void arcadeDrawLadder(Gfx **glistp, s32 x, s32 y, s32 height) {
     if (D_8004C722 == 2) ArcA1_D6D0 = D_80032B90;
     else if (D_8004C722 == 4) ArcA1_D6D0 = D_80032BD8;
     else ArcA1_D6D0 = D_80032B48;
-    dlInitTextureDescriptor(D_8004BB30 + D_807444FC * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlInitTextureDescriptor(D_8004BB60 + D_807444FC * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 1, 0, 2, 0, 0);
-    dlInitTextureDescriptor(D_8004BB90 + D_807444FC * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 2, 0, 2, 0, 0);
-    dlInitTextureDescriptor(D_8004BBC0 + D_807444FC * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 3, 0, 2, 0, 0);
+    dlInitTextureDescriptor(D_8004BB30 + gGfxBufferIndex * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlInitTextureDescriptor(D_8004BB60 + gGfxBufferIndex * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 1, 0, 2, 0, 0);
+    dlInitTextureDescriptor(D_8004BB90 + gGfxBufferIndex * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 2, 0, 2, 0, 0);
+    dlInitTextureDescriptor(D_8004BBC0 + gGfxBufferIndex * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 3, 0, 2, 0, 0);
     glist = *glistp;
-    dlAppendTextureLoad(&glist, D_8004BB30 + D_807444FC * 0x18);
+    dlAppendTextureLoad(&glist, D_8004BB30 + gGfxBufferIndex * 0x18);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     for (i = 0; i < height / 4; i++) {
         dlAppendTextureRectangle(&glist, x * 4, (s32)((f64)(i * 4 + y + 8) * 4.0));
@@ -801,13 +801,13 @@ void arcadeDrawLadder(Gfx **glistp, s32 x, s32 y, s32 height) {
     if (D_8004C71A != 0) {
         switch (D_8004C71A) {
         case 1:
-            dlAppendTextureLoad(&glist, D_8004BB60 + D_807444FC * 0x18);
+            dlAppendTextureLoad(&glist, D_8004BB60 + gGfxBufferIndex * 0x18);
             break;
         case 2:
-            dlAppendTextureLoad(&glist, D_8004BB90 + D_807444FC * 0x18);
+            dlAppendTextureLoad(&glist, D_8004BB90 + gGfxBufferIndex * 0x18);
             break;
         case 3:
-            dlAppendTextureLoad(&glist, D_8004BBC0 + D_807444FC * 0x18);
+            dlAppendTextureLoad(&glist, D_8004BBC0 + gGfxBufferIndex * 0x18);
             break;
         }
         dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
@@ -936,8 +936,8 @@ void arcadeDrawTitleText(Gfx **glistp) {
     D_8004C6D4 = 0x400;
     if (D_8004C6DC & 0x182) ArcA1_P6D0 = D_80032C20;
     else ArcA1_P6D0 = D_80032DF8;
-    dlInitTextureDescriptor(D_8004BB00 + D_807444FC * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BB00 + D_807444FC * 0x18);
+    dlInitTextureDescriptor(D_8004BB00 + gGfxBufferIndex * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, D_8004BB00 + gGfxBufferIndex * 0x18);
     dlSetTextureScaleAndFlip(0x400, ((s16 *)&D_8004C6D4)[1], 0, 0);
     for (i = 0; i < 12; i++) {
         row = titleBitmap.words[i];
@@ -960,9 +960,9 @@ void arcadeDrawStage1Background(Gfx **glistp) {
     D_8004C71A = 0xA;
     D_8004C6D4 = 0x492;
     ArcL1_P6D0 = D_80034568;
-    dlInitTextureDescriptor(D_8004BB00 + D_807444FC * 0x18, ArcL1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlInitTextureDescriptor(D_8004BB00 + gGfxBufferIndex * 0x18, ArcL1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     glist = *glistp;
-    dlAppendTextureLoad(&glist, D_8004BB00 + D_807444FC * 0x18);
+    dlAppendTextureLoad(&glist, D_8004BB00 + gGfxBufferIndex * 0x18);
     dlSetTextureScaleAndFlip(0x400, ((s16 *)&D_8004C6D4)[1], 0, 0);
     for (i = 0; i < 6; i++) {
         dlAppendTextureRectangle(&glist, i * 0x20 + 0x220, 0xE0);
@@ -1044,8 +1044,8 @@ void arcadeDrawStage2Background(Gfx **glistp) {
         D_8004C71A = 8;
         D_8004C6D4 = 0x400;
         ArcA1_P6D0 = D_80032F18;
-        dlInitTextureDescriptor(D_8004BC50 + (D_807444FC * 3 * 8), ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-        dlAppendTextureLoad(&glist, D_8004BC50 + (D_807444FC * 3 * 8));
+        dlInitTextureDescriptor(D_8004BC50 + (gGfxBufferIndex * 3 * 8), ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+        dlAppendTextureLoad(&glist, D_8004BC50 + (gGfxBufferIndex * 3 * 8));
         dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
         for (i = 0; i < 4; i++) {
             dlAppendTextureRectangle(&glist, 0x1DC, (s32)((f64)(s32)((f64)(i * 8) + 51.625 + 8.0) * 4.0));
@@ -1058,8 +1058,8 @@ void arcadeDrawStage2Background(Gfx **glistp) {
     D_8004C71A = 8;
     D_8004C6D4 = 0x400;
     ArcA1_P6D0 = D_80032C20;
-    dlInitTextureDescriptor(D_8004BB00 + (D_807444FC * 3 * 8), ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BB00 + (D_807444FC * 3 * 8));
+    dlInitTextureDescriptor(D_8004BB00 + (gGfxBufferIndex * 3 * 8), ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, D_8004BB00 + (gGfxBufferIndex * 3 * 8));
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     for (i = 0; i < 0x1C; i++) {
         dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x380);
@@ -1161,8 +1161,8 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     D_8004C71A = 8;
     D_8004C6D4 = 0x400;
     ArcA1_P6D0 = D_80032F40;
-    dlInitTextureDescriptor(D_8004BC50 + D_807444FC * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BC50 + D_807444FC * 0x18);
+    dlInitTextureDescriptor(D_8004BC50 + gGfxBufferIndex * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, D_8004BC50 + gGfxBufferIndex * 0x18);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     for (j = 5; j < 0x14; j++) {
         dlAppendTextureRectangle(&glist, 0x15C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
@@ -1174,8 +1174,8 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     D_8004C71A = 0xA;
     D_8004C6D4 = 0x492;
     ArcA1_P6D0 = D_80034568;
-    dlInitTextureDescriptor(D_8004BB00 + D_807444FC * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BB00 + D_807444FC * 0x18);
+    dlInitTextureDescriptor(D_8004BB00 + gGfxBufferIndex * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, D_8004BB00 + gGfxBufferIndex * 0x18);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     pt = D_8004A7C8;
     do {
@@ -1221,8 +1221,8 @@ void arcadeDrawStage4Background(Gfx **glistp) {
     D_8004C71A = 0xA;
     D_8004C6D4 = 0x492;
     ArcA3_P6D0 = D_80032D50;
-    dlInitTextureDescriptor(D_8004BB00 + D_807444FC * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BB00 + D_807444FC * 0x18);
+    dlInitTextureDescriptor(D_8004BB00 + gGfxBufferIndex * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, D_8004BB00 + gGfxBufferIndex * 0x18);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     x = 0x220;
     do {
@@ -1242,8 +1242,8 @@ void arcadeDrawStage4Background(Gfx **glistp) {
         i += one;
     } while (i < 0x1B);
     ArcA3_P6D0 = D_80032CA8;
-    dlInitTextureDescriptor(D_8004BC20 + D_807444FC * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BC20 + D_807444FC * 0x18);
+    dlInitTextureDescriptor(D_8004BC20 + gGfxBufferIndex * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, D_8004BC20 + gGfxBufferIndex * 0x18);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     x = 0xE0;
     do {
@@ -1263,8 +1263,8 @@ void arcadeDrawStage4Background(Gfx **glistp) {
         x += step;
     } while (x < 0x420);
     ArcA3_P6D0 = D_800342B8;
-    dlInitTextureDescriptor(D_8004BC50 + D_807444FC * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BC50 + D_807444FC * 0x18);
+    dlInitTextureDescriptor(D_8004BC50 + gGfxBufferIndex * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, D_8004BC50 + gGfxBufferIndex * 0x18);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     x = 0x240;
     do {
@@ -1418,7 +1418,7 @@ extern u8 D_8004A338[];
 extern u8 D_8004A358[];
 extern u8 D_8004A378[];
 extern u8 D_8004AC00[];
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 extern f32 D_8004BCF4;
 
@@ -2157,9 +2157,9 @@ void arcadeRenderEntity(Gfx **glistp, s32 entIndex) {
         scale = 1170.2858f;
     }
     off = entIndex * 0x18;
-    dlInitTextureDescriptor(D_8004AC00 + D_807444FC * 0x780 + off, D_8004BCD0[entIndex].unk14, 0, D_8004BCD0[entIndex].unk1E, D_8004BCD0[entIndex].unk1E, D_8004BCD0[entIndex].unk1F, 0, 2, 0, 0);
+    dlInitTextureDescriptor(D_8004AC00 + gGfxBufferIndex * 0x780 + off, D_8004BCD0[entIndex].unk14, 0, D_8004BCD0[entIndex].unk1E, D_8004BCD0[entIndex].unk1E, D_8004BCD0[entIndex].unk1F, 0, 2, 0, 0);
     glist = *glistp;
-    dlAppendTextureLoad(&glist, D_8004AC00 + D_807444FC * 0x780 + off);
+    dlAppendTextureLoad(&glist, D_8004AC00 + gGfxBufferIndex * 0x780 + off);
     dlSetTextureScaleAndFlip(0x400, (s32)scale, (u8)(D_8004BCD0[entIndex].unk1A & 1), D_8004BCD0[entIndex].unk1B);
     if (D_8004A338[D_8004BCD0[entIndex].unk18] & 2) {
         dlAppendTextureRectangle(&glist, (s32)(D_8004BCD0[entIndex].unk0 - (f32)(u32)D_8004A358[D_8004BCD0[entIndex].unk18]) * 4, (s32)((f64)(D_8004BCD0[entIndex].unk4 - (f32)(u32)D_8004A378[D_8004BCD0[entIndex].unk18]) * 0.875 + 8.0) * 4);
@@ -4108,8 +4108,8 @@ void arcadeDrawHud(Gfx **glistp) {
     D_8004C719 = 8;
     ArcL8_P6D0 = D_8003DA90;
     D_8004C71A = 8;
-    dlInitTextureDescriptor(&D_8004BBF0[D_807444FC], ArcL8_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&g, &D_8004BBF0[D_807444FC]);
+    dlInitTextureDescriptor(&D_8004BBF0[gGfxBufferIndex], ArcL8_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&g, &D_8004BBF0[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     if (D_8004A83C == 0) { // FAKE: empty guard steers regalloc
     }

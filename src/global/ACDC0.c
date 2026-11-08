@@ -64,7 +64,7 @@ extern Mtx D_20000C0;
 extern s8 D_80750560[9];
 extern HudTextEntry *D_807FC7F0[2];
 extern s8 D_807FC7F8[2];
-extern u32 D_807FBB60;
+extern u32 gGlobalPauseFlags;
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *D_807FBB4C;
@@ -183,7 +183,7 @@ extern HudPauseAxis *D_807ECDEC;
 extern u8 D_807467E4;
 extern s32 D_8076A098;
 extern u8 D_8076A0AB;
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern f32 D_807FC7FC;
 extern s8 D_807505D4;
 extern s8 D_80750580;
@@ -245,7 +245,7 @@ void hudPauseMenuUpdate(void) {
             HUD_PAUSE_MODE = 1;
             break;
         default:
-            if (mapGetWorldIndex(gCurrentMap & 0xFF) == 9 || (D_807FBB64 & 0x10000000)) {
+            if (mapGetWorldIndex(gCurrentMap & 0xFF) == 9 || (gGlobalOverlayFlags & 0x10000000)) {
                 HUD_PAUSE_MODE = 2;
             } else {
                 HUD_PAUSE_MODE = 0;
@@ -300,7 +300,7 @@ void hudPauseMenuUpdate(void) {
         D_807FC80E = 1;
         hudPauseMenuRefreshTotals(D_807FC7F8);
         hudPauseMenuBuildPage(hud, 0);
-        D_807FBB60 &= 0xFFFEFFCF;
+        gGlobalPauseFlags &= 0xFFFEFFCF;
         screenWipeStart(7);
     }
     if (hud->unk0 == 0.0f && D_807FC8B8 == 0) {
@@ -397,7 +397,7 @@ void hudPauseMenuUpdate(void) {
                         if (a2 == 0xA) {
                             menuReturnToTitle();
                         } else if (func_805FEF74(gCurrentMap) == 0) {
-                            x = D_807FBB64 & 1;
+                            x = gGlobalOverlayFlags & 1;
                             if (x != 0 && a2 == 8) {
                                 flagSet(0x5C, 1, 2);
                                 mapRequestTransition(0x22, 0xC);
@@ -572,9 +572,9 @@ void hudFreeBuffers(void) {
     u8 *sub;
 
     sub = D_807FBB4C->unk174;
-    D_807FBB60 |= 0x40;
+    gGlobalPauseFlags |= 0x40;
     if (!(*(s32 *)(sub + 0x1F0) & 0x20000000)) {
-        D_807FBB60 |= 0x10030;
+        gGlobalPauseFlags |= 0x10030;
     }
     heapFree(D_807FC7F0[0]);
     D_807FC7F8[1] = D_807FC7F8[0] = (s32)(D_807FC7F0[1] = D_807FC7F0[0] = 0);
@@ -1817,13 +1817,13 @@ void hudSpawnTextScreen(u8 textId) {
     actorSpawn(0x156, 0);
     gSpawnedActor->unk15F = textId;
     gSpawnedActor->renderFlags |= 2;
-    D_807FBB60 |= 0x40001;
+    gGlobalPauseFlags |= 0x40001;
 }
 
 void hudFreeTextAndDespawn(void) {
     s16 i;
 
-    D_807FBB60 |= 0x40;
+    gGlobalPauseFlags |= 0x40;
     for (i = 0; i < 3; i++) {
         heapFreeDeferred(D_807FC7E0[i]);
     }
@@ -1909,7 +1909,7 @@ void hudTwoOptionMenuUpdate(void) {
             D_807FC7E0[i] = textTableGetString(0x24, i, 0);
             i++;
         } while (i != 4);
-        D_807FBB60 &= ~0x10030;
+        gGlobalPauseFlags &= ~0x10030;
         screenWipeStart(7);
         D_807FC80E = 0;
         gCurrentActor->unk155[0] = 0;
@@ -1928,7 +1928,7 @@ void hudTwoOptionMenuUpdate(void) {
     btn = *((HudPlayerView *)((u8 *)gPlayerSlots + off))->unk298;
     if (btn & 0x8000) {
         if (gCurrentActor->unk155[0] == 0) {
-            D_807FBB60 |= 0x10070;
+            gGlobalPauseFlags |= 0x10070;
             for (i = 0; i < 4; i++) {
                 heapFreeDeferred(D_807FC7E0[i]);
             }

@@ -56,7 +56,7 @@ typedef struct {
 extern s32 gCurrentMap;
 extern void *gCurrentActor;
 extern void *D_807FBB48;
-extern RaceC_DC90 *D_807FDC90;
+extern RaceC_DC90 *gBehaviourWorkState;
 extern RaceC_DCA0 *D_807FDCA0;
 extern RaceC_Row D_8002FB10[];
 extern RaceC_Row D_8002FB70[];
@@ -82,8 +82,8 @@ void raceOpponentFollowWaypoints(void) {
     RaceC_DC90 **pp;
     s16 v1;
 
-    pp = &D_807FDC90;
-    routeRowIdx = D_807FDC90->unk24;
+    pp = &gBehaviourWorkState;
+    routeRowIdx = gBehaviourWorkState->unk24;
     if (gCurrentMap == 0x52) {
         routeRows = D_8002FB10;
     } else {
@@ -91,13 +91,13 @@ void raceOpponentFollowWaypoints(void) {
     }
     curSpeed = RC_A->unkB8;
     oscSpeed = func_80612794((s16)(s32)(RC_A->unkE0 * 11.4)) * 20.0f;
-    a0 = &D_807FDCA0->unk14[D_807FDC90->unk25];
+    a0 = &D_807FDCA0->unk14[gBehaviourWorkState->unk25];
     fs0 = RC_A->unk7C - a0->x;
     fs1 = RC_A->unk84 - a0->z;
-    if (sqrtf(fs1 * fs1 + fs0 * fs0) < (a0 = &D_807FDCA0->unk14[D_807FDC90->unk25])->radius) {
-        if ((a0->y < RC_A->unk80 ? RC_A->unk80 - a0->y : -(RC_A->unk80 - a0->y)) < 80.0f && D_807FDC90->unk25 < D_807FDCA0->unk10 - 1) {
+    if (sqrtf(fs1 * fs1 + fs0 * fs0) < (a0 = &D_807FDCA0->unk14[gBehaviourWorkState->unk25])->radius) {
+        if ((a0->y < RC_A->unk80 ? RC_A->unk80 - a0->y : -(RC_A->unk80 - a0->y)) < 80.0f && gBehaviourWorkState->unk25 < D_807FDCA0->unk10 - 1) {
             RaceC_Row *row = (RaceC_Row *)((u8 *)routeRows + routeRowIdx * 12);
-            if (row->unk0 == D_807FDC90->unk25) {
+            if (row->unk0 == gBehaviourWorkState->unk25) {
                 if (row) {}  // FAKE: dead test steers uopt FP callee-saved colouring (fs0/fs1)
                 RC_A->unkC4 = row->unk4;
                 if (row->unk8 == 1) {
@@ -105,12 +105,12 @@ void raceOpponentFollowWaypoints(void) {
                     RC_A->unkC0 = 200.0f;
                     RC_A->unk154 += 1;
                 }
-                D_807FDC90->unk24 += 1;
+                gBehaviourWorkState->unk24 += 1;
             }
-            D_807FDC90->unk25++;
+            gBehaviourWorkState->unk25++;
             a0 = &D_807FDCA0->unk14[(*pp)->unk25];
         }
-        a0 = &D_807FDCA0->unk14[D_807FDC90->unk25];
+        a0 = &D_807FDCA0->unk14[gBehaviourWorkState->unk25];
     }
     speedDelta = (f64)(a0->targetSpeed - RC_A->unkB8 / 10.0f) * 0.8;
     fv0 = (f64)(RC_A->unk80 - RC_B->unk80) * 0.25;
@@ -143,7 +143,7 @@ void raceOpponentFollowWaypoints(void) {
     curSpeed = sqrtf(fs0 * fs0 + fs1 * fs1);
     fv0 = mathAtan2(fs0, fs1);
     if (RC_A->unkC4 != -20.0f && RC_A->unkC4 != -360.0f) {
-        RC_A->unkB8 = D_807FDCA0->unk14[D_807FDC90->unk25].targetSpeed * 10.0;
+        RC_A->unkB8 = D_807FDCA0->unk14[gBehaviourWorkState->unk25].targetSpeed * 10.0;
     } else {
         RC_A->unkB8 = curSpeed;
     }
@@ -296,7 +296,7 @@ extern u16 D_80750AC8;
 extern s32 D_8002FB94[];
 
 #define L4_D ((LargeR4_Act *)gCurrentActor)
-#define L4_S ((LargeR4_State *)D_807FDC90)
+#define L4_S ((LargeR4_State *)gBehaviourWorkState)
 #define L4_P ((LargeR4_Path *)D_807FDCA0)
 
 void actorApplyGravity(void);

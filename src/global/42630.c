@@ -531,7 +531,7 @@ void csStateUpdate(CsStateFull *cs, s16 csId) {
     }
 }
 
-extern u32 D_807FBB60;
+extern u32 gGlobalPauseFlags;
 void actorDespawn(Actor *);
 
 void csStateEndUpdate(CsStateFull *cs) {
@@ -553,9 +553,9 @@ void csStateEndUpdate(CsStateFull *cs) {
         actor->y = gCsPosY;
         actor->z = gCsPosZ;
         actor->yaw = gCsRotY * 4096.0f / 360.0f;
-        flags = D_807FBB60;
+        flags = gGlobalPauseFlags;
         if (flags & 0x1000) {
-            D_807FBB60 = flags & ~0x1000;
+            gGlobalPauseFlags = flags & ~0x1000;
             actorDespawn(cs->unk94);
             cs->unk94 = NULL;
         }
@@ -952,7 +952,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x16:
         mask = cmd->b + (cmd->a << 16);
-        if (D_807FBB60 & mask) {
+        if (gGlobalPauseFlags & mask) {
             ret = 1;
         } else {
             ret = 0;
@@ -1326,7 +1326,7 @@ void func_8067A9F0(s32, Actor *, f32, f32, f32);
 void func_8067ABC0(s32, Actor *, u8, s16, s32, f32, f32, f32);
 s32 cutsceneTriggerCheck(s16);
 void func_8068B830(s16, s16, s16);
-void func_8068B8FC(void);
+void enemyAggroDespawnBB(void);
 void hudSpawnCountdownTimer(s32, s32, u8, void *);
 void playerRespawnResetPhysics(s16);
 void playerThrowHeldActor(Actor *);
@@ -1638,7 +1638,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         cs->unk66 = cmd->c;
         break;
     case 0x40:
-        D_807FBB60 |= ((u16)cmd->a << 16) + (u16)cmd->b;
+        gGlobalPauseFlags |= ((u16)cmd->a << 16) + (u16)cmd->b;
         break;
     case 0x88:
         D_807FBB68 |= ((u16)cmd->a << 16) + (u16)cmd->b;
@@ -2068,7 +2068,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         func_8068B830(cmd->a, cmd->b, cmd->c);
         break;
     case 0x64:
-        func_8068B8FC();
+        enemyAggroDespawnBB();
         break;
     case 0x56:
         func_80724994(1, cmd->a, 0, 0, 0);
@@ -2306,7 +2306,7 @@ void csStartCamPath(void *cs, s16 camIdx, s16 mode, s16 c) {
 void func_80641F68(void) {
 }
 
-extern u8 D_80750AB4;
+extern u8 gViewportCount;
 f32 sqrtf(f32);
 s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
@@ -2333,7 +2333,7 @@ u8 csPosOnScreenOfNearPlayer(s16 radius) {
     f32 dz;
     u8 ret = 0;
 
-    for (i = 0; i < D_80750AB4; i++) {
+    for (i = 0; i < gViewportCount; i++) {
         if (CS_PLAYERS_SCREEN[i].unk0 != 0) {
             a = CS_PLAYERS_SCREEN[i].unk4;
             dx = gCsPosX - a->x;
@@ -2382,7 +2382,7 @@ s32 csPlayerNearPos(s16 targetPosIndex) {
     u8 i;
     CsPlayerPosView *p;
 
-    for (i = 0; i < D_80750AB4; i++) {
+    for (i = 0; i < gViewportCount; i++) {
         p = (CsPlayerPosView *)gPlayerSlots + i;
         if (p->unk0 != 0) {
             Actor *a = p->unk4;
@@ -2398,7 +2398,7 @@ s32 csPlayerSavedPosNearPos(s16 targetPosIndex) {
     u8 i;
     CsPlayerPosView *p;
 
-    for (i = 0; i < D_80750AB4; i++) {
+    for (i = 0; i < gViewportCount; i++) {
         p = (CsPlayerPosView *)gPlayerSlots + i;
         if (p->unk0 != 0 && csPosWithinRadius(targetPosIndex, p->unk210, p->unk214, p->unk218)) {
             return 1;

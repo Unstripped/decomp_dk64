@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern s32 D_8076A048;
+extern s32 gGfxCurrentFrameBuffer;
 extern u8 D_807FDB74;
 extern u8 D_807FDB75;
 extern s16 D_807FDB76;
@@ -125,11 +125,11 @@ s32 commandApplyToLight(u8 lightIndex, Command *cmd, f32 actorX, f32 actorY, f32
     u8 c;
     f32 base;
 
-    lights = (Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x278);
-    ambient = (Ambient *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x270);
-    slot_light = &((Light *)((u8 *)D_8076A048 + (D_807FDB75 * 0x78) + 0x278))[lightIndex];
+    lights = (Light *)((u8 *)gGfxCurrentFrameBuffer + (D_807FDB75 * 0x78) + 0x278);
+    ambient = (Ambient *)((u8 *)gGfxCurrentFrameBuffer + (D_807FDB75 * 0x78) + 0x270);
+    slot_light = &((Light *)((u8 *)gGfxCurrentFrameBuffer + (D_807FDB75 * 0x78) + 0x278))[lightIndex];
 
-    if (D_8076A048 == 0) {} // FAKE: makes the base load a uopt candidate (v1)
+    if (gGfxCurrentFrameBuffer == 0) {} // FAKE: makes the base load a uopt candidate (v1)
     if (lightIndex >= 7) {
         return 0;
     }
@@ -233,7 +233,7 @@ typedef struct {
 } LightActorView;
 
 extern Actor *D_807FBB4C;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern u32 gFrameCounter;
 extern f32 *D_8076A0B4;
 extern f32 *D_8076A0B8;
@@ -286,7 +286,7 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
         is_player = 0;
     }
     command = 1;
-    color_base = (u8 *)D_8076A048;
+    color_base = (u8 *)gGfxCurrentFrameBuffer;
     primary = &((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].a;
     secondary = &((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].l[0];
 
@@ -370,7 +370,7 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
         }
     }
 
-    if (!(D_807FBB60 & 2) && (actor->unk5C & 1)) {
+    if (!(gGlobalPauseFlags & 2) && (actor->unk5C & 1)) {
         FakesLightHitState *hit = actor->unk174;
         if (hit->unkD4 != 0 && (gFrameCounter & 2)) {
             secondary->l.col[0] = 0;

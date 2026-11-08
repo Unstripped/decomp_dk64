@@ -243,7 +243,7 @@ typedef struct Actor {
     /* 0x174 */ void *unk174;
 } Actor;
 
-// Per-behaviour state objects reached through D_807FDC90..D_807FDC9C.
+// Per-behaviour state objects reached through gBehaviourWorkState..gBehaviourExtraState.
 // Fields are named by offset; sizes are the largest offset seen so far.
 typedef struct Struct807FDC90 {
     /* 0x00 */ u8 pad0[0xA];
@@ -325,9 +325,9 @@ typedef struct Struct807FD580 {
 #define unk1F0 stateFlags
 #define unk1D8 scaleChangeRate
 
-extern Struct807FDC90 *D_807FDC90;
-extern Actor *D_807FDC94;
-extern Struct807FDC98 *D_807FDC98;
-extern Struct807FDC9C *D_807FDC9C;
+extern Struct807FDC90 *gBehaviourWorkState;
+extern Actor *gBehaviourTargetActor;
+extern Struct807FDC98 *gBehaviourAnimState;
+extern Struct807FDC9C *gBehaviourExtraState;
 
 #endif

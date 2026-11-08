@@ -66,9 +66,9 @@ void func_806C7BAC(s32 arg0, Actor *arg1) {
     sub->unk4 = arg1;
 }
 
-extern u8 D_80750AB4;
-extern u8 D_80750AB8;
-extern u8 D_80750AC0;
+extern u8 gViewportCount;
+extern u8 gSplitScreenMode;
+extern u8 gActivePlayerCount;
 
 typedef struct G00Sub6 {
     /* 0x0 */ s16 unk0;
@@ -124,20 +124,20 @@ typedef struct G00Block {
 extern G00Block *gPlayerSlots;
 
 void func_806C7C10(void) {
-    gPlayerCount = D_80750AC0;
+    gPlayerCount = gActivePlayerCount;
     gPlayerSlots = 0;
     if (gPlayerCount >= 2) {
-        switch (D_80750AB8) {
+        switch (gSplitScreenMode) {
         case 0:
-            D_80750AB4 = gPlayerCount;
+            gViewportCount = gPlayerCount;
             break;
         case 1:
-            D_80750AB4 = 1;
+            gViewportCount = 1;
             break;
         }
     } else {
-        D_80750AB4 = 1;
-        D_80750AB8 = 0;
+        gViewportCount = 1;
+        gSplitScreenMode = 0;
     }
 }
 
@@ -162,7 +162,7 @@ G00Entry *cameraFindViewportEntry(u8 arg0) {
     i = 0;
     found = 0;
     do {
-        if (gPlayerCount == D_80750948[i].unk0 && D_80750AB8 == D_80750948[i].unk1 && arg0 == D_80750948[i].unk3 &&
+        if (gPlayerCount == D_80750948[i].unk0 && gSplitScreenMode == D_80750948[i].unk1 && arg0 == D_80750948[i].unk3 &&
             (D_80750948[i].unk2 & D_80750ABC)) {
             found = 1;
         } else {
@@ -192,7 +192,7 @@ extern s16 D_807ECD48[];
 extern u32 D_8074458C[];
 extern f32 D_807444C4;
 extern u8 D_80750AD0;
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern u32 D_807FBB68;
 extern u16 D_807FD570;
 
@@ -256,7 +256,7 @@ void func_806C7D40(s32 arg0) {
         blk->unk2EA = 0;
         blk->unk2EB = 0;
         func_80708BB8(blk->unk2DC);
-        if (((D_807FBB64 & 1) && !(D_807FBB68 & 2)) ||
+        if (((gGlobalOverlayFlags & 1) && !(D_807FBB68 & 2)) ||
             (((G00Player306 *)D_807FC950)[i].unk2FB + ((G00Player306 *)D_807FC950)[i].unk2FD <= 0)) {
             healthRefill(sel);
         }
@@ -268,7 +268,7 @@ void func_806C7D40(s32 arg0) {
     if (gPlayerCount >= 2) {
         actorSpawn(0x13E, 0);
     }
-    D_80750AD0 = (D_80750AB8 == 0) && (gPlayerCount >= 2);
+    D_80750AD0 = (gSplitScreenMode == 0) && (gPlayerCount >= 2);
 }
 
 
@@ -942,7 +942,7 @@ void func_806C8F8C(void *arg) {
 }
 
 extern s16 D_8076AEE2;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern s8 D_80770DC9;
 G01Pos *func_806C96C4(s32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
@@ -954,7 +954,7 @@ void func_806C90C4(s32 arg0) {
     G01Pos *p = func_806C96C4(arg0);
 
     D_8076AEE2 = 0;
-    D_807FBB60 &= ~0x400;
+    gGlobalPauseFlags &= ~0x400;
     switch (p->unk8) {
     case 2:
         G01A->unk154 = 0x4F;
@@ -1081,7 +1081,7 @@ void func_806C9434(s32 arg0) {
     }
     func_806C9304(D_807FBB48, ctl);
     if (camIsCutsceneActive() == 0) {
-        if (gPlayerCount >= 2 && D_80750AB8 == 1) {
+        if (gPlayerCount >= 2 && gSplitScreenMode == 1) {
             camResetAllPlayers();
         } else {
             camResetPlayer(D_807FBB48, ctl->unk1A4);
@@ -1170,22 +1170,22 @@ s8 func_806C9830(arg0, arg1)
             q = pl->unk2A0;
             if (q->collisionFlags & 1) {
                 v = -1;
-                if (D_807FBB64 & 0x04000000) {
+                if (gGlobalOverlayFlags & 0x04000000) {
                     func_800268C0(1, arg1);
                 }
             } else if (q->collisionFlags & 4) {
                 if (q->actorType == 0x29 || q->actorType == 0xAB) {
                     v = -3;
-                    if (D_807FBB64 & 0x04000000) {
+                    if (gGlobalOverlayFlags & 0x04000000) {
                         func_800268C0(2, arg1);
                     }
                 } else {
                     v = -2;
-                    if (D_807FBB64 & 0x04000000) {
+                    if (gGlobalOverlayFlags & 0x04000000) {
                         func_800268C0(1, arg1);
                     }
                 }
-            } else if (D_807FBB64 & 0x04000000) {
+            } else if (gGlobalOverlayFlags & 0x04000000) {
                 func_800268C0(1, arg1);
             }
         }
@@ -1232,7 +1232,7 @@ s8 arg1;
     if (arg1 < 0) {
         rumbleRequest(arg0, 0xFF, 5, arg1);
     }
-    if (!(D_807FBB64 & 0x800)) {
+    if (!(gGlobalOverlayFlags & 0x800)) {
         ((G01Slot *)D_807FC950)[arg0].unk2FD += arg1;
     }
     if (((G01Slot *)D_807FC950)[arg0].unk2FD + ((G01Slot *)D_807FC950)[arg0].unk2FB <= 0) {
@@ -1254,7 +1254,7 @@ void func_806C9AE0(void) {
 
     for (i = 0; i < 4; i++) {
         bzero(p, 0x306);
-        if (D_80750AC0 >= 2) {
+        if (gActivePlayerCount >= 2) {
             if (D_807552E4 == 1) {
                 for (j = 0; j < 6; j++) {
                     p->ent[j].unk2 = 7;

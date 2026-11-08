@@ -16,7 +16,7 @@ void mathAngleBetweenPoints3D(s16 *pitch, s16 *yaw, f32 x1, f32 y1, f32 z1, f32 
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern s32 gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern Gfx D_2000180;
@@ -24,8 +24,8 @@ Gfx *renderSetSegment6AndFog(Gfx *, s16, u8);
 Gfx *renderActorDisplayList(Gfx *, Actor *);
 
 void renderSetupSegmentsAndFog(Gfx *glistp, Actor *actor) {
-    WRITE_GFX(glistp++, 0xDA380007, osVirtualToPhysical((void *)((u8 *)gPlayerSlots + (gCurrentPlayerIndex * 0x2F0) + (D_807444FC << 6) + 0x88)));
-    WRITE_GFX(glistp++, 0xDA380005, osVirtualToPhysical((void *)((u8 *)gPlayerSlots + (gCurrentPlayerIndex * 0x2F0) + (D_807444FC << 6) + 8)));
+    WRITE_GFX(glistp++, 0xDA380007, osVirtualToPhysical((void *)((u8 *)gPlayerSlots + (gCurrentPlayerIndex * 0x2F0) + (gGfxBufferIndex << 6) + 0x88)));
+    WRITE_GFX(glistp++, 0xDA380005, osVirtualToPhysical((void *)((u8 *)gPlayerSlots + (gCurrentPlayerIndex * 0x2F0) + (gGfxBufferIndex << 6) + 8)));
     WRITE_GFX(glistp++, 0xDA380003, (u32)&D_2000180);
     WRITE_GFX(glistp++, 0xE7000000, 0);
     WRITE_GFX(glistp++, 0xD9FDFFFF, 0);
@@ -120,8 +120,8 @@ void actorPhotoUpdate(void) {
     }
     t = PAN_MIN(1.0, ((frameElapsed - 0x1E) < 0 ? 0 : (frameElapsed - 0x1E)) / 60.0f * 5.0);
     if (t < 1.0 && gCurrentActor->actorType != 0xD9) {
-        color5551CopyLerpToWhite((s16 *)subState->unk4, &(&subState->unk8)[D_807444FC], t);
-        animSetNodeItem(gCurrentActor, 0, 0, (&subState->unk8)[D_807444FC]);
+        color5551CopyLerpToWhite((s16 *)subState->unk4, &(&subState->unk8)[gGfxBufferIndex], t);
+        animSetNodeItem(gCurrentActor, 0, 0, (&subState->unk8)[gGfxBufferIndex]);
     } else {
         animSetNodeItem(gCurrentActor, 0, 0, (s32)subState->unk4);
         if (gCurrentActor->unk155[0] == 0) {
@@ -770,7 +770,7 @@ typedef struct LinkedActorView {
 
 extern Actor *D_807FBB4C;
 extern s16 D_80750378;
-extern s32 D_8076A068;
+extern s32 gGameFrameCounter;
 extern u8 D_8071FE08[];
 extern u8 D_80720E14[];
 void effectScaleSpinUpdate();
@@ -804,7 +804,7 @@ void func_8069B010(void) {
         func_807149B8(1);
         func_8071498C(effectScaleSpinUpdate);
         func_80714C08(D_80720E14, 0.9f, gCurrentActor, 1, 2);
-        *p = D_8076A068;
+        *p = gGameFrameCounter;
         gCurrentActor->flags |= 0x80000;
         collisionCheckActorFloor(gCurrentActor, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, &gCurrentActor->floorY);
     }
@@ -828,7 +828,7 @@ void func_8069B010(void) {
             actorAppendCallback((Actor *)gCurrentActor->unk11C, gCurrentActor, 0x02000000, gCurrentActor->unk15F, 0, 0);
             actorDespawn(gCurrentActor);
         }
-        if (gCurrentMap != 0x48 && gCurrentMap != 0x11 && (u32)(*p + D_80750378) < (u32)D_8076A068) {
+        if (gCurrentMap != 0x48 && gCurrentMap != 0x11 && (u32)(*p + D_80750378) < (u32)gGameFrameCounter) {
             actorAppendCallback((Actor *)gCurrentActor->unk11C, gCurrentActor, 0x02000000, 0xFF, 0, 0);
             actorDespawn(gCurrentActor);
         }
@@ -929,7 +929,7 @@ void func_8069B3FC(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern s16 D_80744490;
+extern s16 gScreenWidth;
 s32 actorTableContains();
 void textMarkerUpdateMatrix(void);
 void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s16, f32, s32);
@@ -946,7 +946,7 @@ s32 actorHasCallbackTargetThisFrame(void) {
                 actor = (Actor *)node->unk8;
                 if (actor->collisionFlags & 1) {
                     sub = actor->unk174;
-                    if ((u32)(D_8076A068 - *(s32 *)((u8 *)sub + 0x120)) < 2) {
+                    if ((u32)(gGameFrameCounter - *(s32 *)((u8 *)sub + 0x120)) < 2) {
                         return 1;
                     }
                 }
@@ -1128,7 +1128,7 @@ void textMarkerUpdateMatrix(void) {
         actorCollisionEventsCancel(markerView->unk14, 1);
         if (gCurrentActor->actorType == 0x43 && gCurrentMap == 0x1E) {
             gCurrentActor->flags |= 0x200000;
-            markerView->unk0 = D_8076A068;
+            markerView->unk0 = gGameFrameCounter;
         }
     }
     if (gCurrentActor->actorType == 0x55) {
@@ -1203,7 +1203,7 @@ void textMarkerUpdateMatrix(void) {
         stateActive = 0;
         markerView->unk24 = markerView->unk24 - 10.0f;
         if (gCurrentActor->actorType == 0x43 && gCurrentMap == 0x1E &&
-            (u32)(D_8076A068 - markerView->unk0) >= 0x5B) {
+            (u32)(gGameFrameCounter - markerView->unk0) >= 0x5B) {
             stateActive = 1;
         }
         if (stateActive != 0 || (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0)) {
@@ -1503,7 +1503,7 @@ void textSpawnMarker(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 
             return;
         }
         if (x == 0) {
-            gSpawnedActor->x = (f32)((D_80744490 - textGetStringWidth((s16)fontStyle, textStr)) * 2);
+            gSpawnedActor->x = (f32)((gScreenWidth - textGetStringWidth((s16)fontStyle, textStr)) * 2);
         } else {
             gSpawnedActor->x = (f32)(x * 4);
         }
@@ -1630,7 +1630,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
         case 0:
             mode = 6;
             width = textGetStringWidth(6, (s32)*sub);
-            actor->x = (f32)((D_80744490 - width) * 2);
+            actor->x = (f32)((gScreenWidth - width) * 2);
             gfx = renderAppendScaledMatrix(gfx, (ActorPositionView *)actor, width, 0.8f);
             state = 0;
             x = -(width * 2);

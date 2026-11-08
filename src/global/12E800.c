@@ -39,8 +39,8 @@ typedef struct D1Dc98ViewD {
     /* 0x46 */ u16 unk46;
 } D1Dc98ViewD;
 
-#define D1DC90D ((D1Dc90ViewD *)D_807FDC90)
-#define D1DC98D ((D1Dc98ViewD *)D_807FDC98)
+#define D1DC90D ((D1Dc90ViewD *)gBehaviourWorkState)
+#define D1DC98D ((D1Dc98ViewD *)gBehaviourAnimState)
 typedef struct D1ActorViewE {
     /* 0x00 */ u8 pad0[0xAC];
     /* 0xAC */ f32 unkAC;
@@ -61,20 +61,20 @@ void sfxStopSlotSound(Actor *, s32);
 void collisionClearFlags(void);
 
 void behaviourFrameBegin(void) {
-    D_807FDC90 = gCurrentActor->unk174;
-    D_807FDC94 = D1DC90D->unk4;
-    D_807FDC9C = (Struct807FDC9C *)(D_807FDC98 = D1DC90D->unk0);
+    gBehaviourWorkState = gCurrentActor->unk174;
+    gBehaviourTargetActor = D1DC90D->unk4;
+    gBehaviourExtraState = (Struct807FDC9C *)(gBehaviourAnimState = D1DC90D->unk0);
     D_807FDCA0 = D1DC98D->unk1C;
-    D_807FDC90->unk18++;
+    gBehaviourWorkState->unk18++;
     if (gCurrentActor->flags & 0x20000000) {
         if (gCurrentActor->state != 0x37 && gCurrentActor->state != 0x36) {
-            if (((D1S4 *)D_807FDC94->unk4)->unk0->unk10 != D1DC90D->unk16) {
+            if (((D1S4 *)gBehaviourTargetActor->unk4)->unk0->unk10 != D1DC90D->unk16) {
                 gCurrentActor->flags &= ~0x20000000;
             }
         }
     }
     if (gCurrentActor->collisionFlags & 2) {
-        if ((D_807444EC == 1 && (D1DC98D->unk46 & 8)) || (D_807FDC94 != NULL && D_807FDC94->state == 0x42)) {
+        if ((D_807444EC == 1 && (D1DC98D->unk46 & 8)) || (gBehaviourTargetActor != NULL && gBehaviourTargetActor->state == 0x42)) {
             if (gCurrentActor->state >= 0x23 && gCurrentActor->state < 0x36) {
                 gCurrentActor->unk144 = 1;
                 gCurrentActor->state = 0x3A;
@@ -104,8 +104,8 @@ void behaviourFrameBegin(void) {
             }
         }
         if (gCurrentMap == 0x30) {
-            if (D_807FDC94->collisionFlags & 1) {
-                if ((((D1S174 *)D_807FDC94->unk174)->unk1F0 ^ ((D1S174 *)D_807FDC94->unk174)->unk1F8) & 0x100000) {
+            if (gBehaviourTargetActor->collisionFlags & 1) {
+                if ((((D1S174 *)gBehaviourTargetActor->unk174)->unk1F0 ^ ((D1S174 *)gBehaviourTargetActor->unk174)->unk1F8) & 0x100000) {
                     sfxStopSlotSound(gCurrentActor, 0);
                     gCurrentActor->state = 0;
                     gCurrentActor->unk155[0] = 0;
@@ -182,8 +182,8 @@ typedef struct D1ActorViewJ {
 } D1ActorViewJ;
 
 #define D1AJ ((D1ActorViewJ *)gCurrentActor)
-#define D1DC90J ((D1Dc90ViewJ *)D_807FDC90)
-#define D1DC98J ((D1Dc98ViewJ *)D_807FDC98)
+#define D1DC90J ((D1Dc90ViewJ *)gBehaviourWorkState)
+#define D1DC98J ((D1Dc98ViewJ *)gBehaviourAnimState)
 
 s32 randomNonNegative(void);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -288,7 +288,7 @@ typedef struct D1Dc98ViewC {
     /* 0x46 */ u16 unk46;
 } D1Dc98ViewC;
 
-#define D1DC98C ((D1Dc98ViewC *)D_807FDC98)
+#define D1DC98C ((D1Dc98ViewC *)gBehaviourAnimState)
 
 extern D1Tbl8075EB80 D_8075EB80[];
 void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
@@ -362,7 +362,7 @@ typedef struct D1Dc90View {
     /* 0x38 */ u8 unk38;
 } D1Dc90View;
 
-#define D1DC90 ((D1Dc90View *)D_807FDC90)
+#define D1DC90 ((D1Dc90View *)gBehaviourWorkState)
 
 typedef struct D1ActorView2 {
     /* 0x00 */ u8 pad0[0x7C];
@@ -392,7 +392,7 @@ void actorUpdateStationaryTimer(void) {
 f32 func_80612794(s16);
 u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 
-void func_8072A86C(s16 arg0, f32 arg1, f32 arg2, f32 arg3, u16 arg4) {
+void actorSetPitchVelocity(s16 arg0, f32 arg1, f32 arg2, f32 arg3, u16 arg4) {
     D1A3->unkC0 = func_80612794(D1A3->unkF0) * -arg3;
     actorMoveWithinZone(arg0, arg1, arg2, (arg4 & 0xFFFF) | 0x1080, 0.5 * (u32)D1A3->unk15E);
 }
@@ -412,10 +412,10 @@ typedef struct D1ActorView4 {
 
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 
-void func_8072A920(s16 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, f32 arg6, f32 arg7, u16 arg8) {
+void actorPitchEaseTowardPoint(s16 arg0, s16 arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, f32 arg6, f32 arg7, u16 arg8) {
     D1A4->unkE8 = mathAngleEaseToward(D1A4->unkE8, (s16)(s32)(mathCalculatePitchAngle(arg2, arg3, arg4, D1A4->unk7C, D1A4->unk80, D1A4->unk84, arg5) * 2048.0 / 3.14159274101257324), arg6);
     D1A4->unkF0 = mathAngleEaseToward(D1A4->unkF0, (s16)(s32)(mathCalculatePitchAngle(arg2, (f32)arg1 + arg3, arg4, D1A4->unk7C, D1A4->unk80, D1A4->unk84, arg5) * 2048.0 / 3.14159274101257324), arg6);
-    func_8072A86C(arg0, arg2, arg4, arg7, arg8);
+    actorSetPitchVelocity(arg0, arg2, arg4, arg7, arg8);
 }
 
 typedef struct D1Dc9cView {
@@ -425,7 +425,7 @@ typedef struct D1Dc9cView {
     /* 0x0A */ s16 unkA;
 } D1Dc9cView;
 
-#define D1DC9C ((D1Dc9cView *)D_807FDC9C)
+#define D1DC9C ((D1Dc9cView *)gBehaviourExtraState)
 
 
 void func_8072AA80(void) {
@@ -499,8 +499,8 @@ typedef struct E3DcA0 {
 } E3DcA0;
 
 #define E3A ((E3Actor *)gCurrentActor)
-#define E3C90 ((E3Dc90 *)D_807FDC90)
-#define E3C98 ((E3Dc98 *)D_807FDC98)
+#define E3C90 ((E3Dc90 *)gBehaviourWorkState)
+#define E3C98 ((E3Dc98 *)gBehaviourAnimState)
 #define E3CA0 ((E3DcA0 *)D_807FDCA0)
 
 s32 mathAngleDistance(s16, s16);
@@ -667,7 +667,7 @@ typedef struct D1ActorViewB {
 } D1ActorViewB;
 
 #define D1AB ((D1ActorViewB *)gCurrentActor)
-#define D1DC98B ((D1Dc98ViewB *)D_807FDC98)
+#define D1DC98B ((D1Dc98ViewB *)gBehaviourAnimState)
 
 
 void actorUpdateAnimSpeedFromSpeed(u16 arg0) {
@@ -694,7 +694,7 @@ typedef struct D1Dc90ViewB {
     /* 0x35 */ u8 unk35;
 } D1Dc90ViewB;
 
-#define D1DC90B ((D1Dc90ViewB *)D_807FDC90)
+#define D1DC90B ((D1Dc90ViewB *)gBehaviourWorkState)
 
 extern u32 gFrameCounter;
 void func_8072DAA4();
@@ -751,9 +751,9 @@ void actorAddPulsingLight(void) {
 
 
 void behaviourSetAnimIds(s16 arg0, s16 arg1, s16 arg2) {
-    D_807FDC98->animId0 = arg0;
-    D_807FDC98->animId1 = arg1;
-    D_807FDC98->animId2 = arg2;
+    gBehaviourAnimState->animId0 = arg0;
+    gBehaviourAnimState->animId1 = arg1;
+    gBehaviourAnimState->animId2 = arg2;
 }
 
 typedef struct F1Dc90 {
@@ -842,9 +842,9 @@ typedef struct F1Act {
 } F1Act;
 
 #define F1A ((F1Act *)gCurrentActor)
-#define F1S90 ((F1Dc90 *)D_807FDC90)
-#define F1S98 ((F1Dc98 *)D_807FDC98)
-#define F1S9C ((F1Dc9c *)D_807FDC9C)
+#define F1S90 ((F1Dc90 *)gBehaviourWorkState)
+#define F1S98 ((F1Dc98 *)gBehaviourAnimState)
+#define F1S9C ((F1Dc9c *)gBehaviourExtraState)
 
 s32 zoneFindBestReachablePoint(s32, Actor *, void *, s16 *, s16 *, s16 *);
 s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
@@ -909,7 +909,7 @@ void func_8072B7CC(s32 arg0) {
                     }
                     F1A->unk155 = 1;
                 case 1:
-                    func_8072A920(2, 0, (f32)F1S90->unkA, (f32)F1S90->unkC, (f32)F1S90->unkE, 0x1E, 3.3f, 100.0f, 0x2240);
+                    actorPitchEaseTowardPoint(2, 0, (f32)F1S90->unkA, (f32)F1S90->unkC, (f32)F1S90->unkE, 0x1E, 3.3f, 100.0f, 0x2240);
                     if (((F1A->unk84 - (f32)F1S90->unkE) * (F1A->unk84 - (f32)F1S90->unkE)) + (((F1A->unk7C - (f32)F1S90->unkA) * (F1A->unk7C - (f32)F1S90->unkA)) + ((F1A->unk80 - (f32)F1S90->unkC) * (F1A->unk80 - (f32)F1S90->unkC))) < 225.0f) {
                         actorScriptStart(gCurrentActor, F1S98->unk26);
                         F1A->unk155 = 2;
@@ -997,7 +997,7 @@ void func_8072B7CC(s32 arg0) {
                     actorSetTargetSpeed(gCurrentActor, 0);
                 }
                 F1A->unk155 = F1A->unk155 + 1;
-            } else if ((D_807444EC == 0) && (D_807FDC94->state != 0x42)) {
+            } else if ((D_807444EC == 0) && (gBehaviourTargetActor->state != 0x42)) {
                 F1A->unk132 = 1;
                 F1A->unk144 = 0x24;
                 F1A->unk154 = F1S9C->unk10;
@@ -1099,21 +1099,21 @@ typedef struct D1PlayerView {
     /* 0x2C0 */ u8 unk2C0;
 } D1PlayerView;
 
-#define D1DC90H ((D1Dc90ViewH *)D_807FDC90)
+#define D1DC90H ((D1Dc90ViewH *)gBehaviourWorkState)
 
 extern u8 gPlayerCount;
-extern u32 D_807FBB64;
+extern u32 gGlobalOverlayFlags;
 
 u8 func_8072C670(u8 checkMode, u8 *outTarget) {
-    D1S174b *st = D_807FDC94->unk174;
+    D1S174b *st = gBehaviourTargetActor->unk174;
     u8 ret;
     u8 t;
 
     *outTarget = 1;
     if (gCurrentActor->collisionFlags & 2) {
         if (gCurrentActor->state != 0x15 &&
-            ((D_807FDC94->actorType == 6 && ((D1PlayerView *)gPlayerSlots)->unk2C0 == 2 && gPlayerCount == 1) ||
-             ((D_807FDC94->collisionFlags & 1) && (st->unk1F0 & 0x10)))) {
+            ((gBehaviourTargetActor->actorType == 6 && ((D1PlayerView *)gPlayerSlots)->unk2C0 == 2 && gPlayerCount == 1) ||
+             ((gBehaviourTargetActor->collisionFlags & 1) && (st->unk1F0 & 0x10)))) {
             ret = 7;
         } else if (D1DC90H->unk37 == 7 && checkMode != 0 && !(D1DC90H->unk1A & 0x200) && D1DC90H->unk20 == 0) {
             D1DC90H->unk20 = 0x10;
@@ -1126,13 +1126,13 @@ u8 func_8072C670(u8 checkMode, u8 *outTarget) {
             if (D1DC90H->unk20 != 0) {
                 D1DC90H->unk20 = D1DC90H->unk20 - 1;
             }
-            if ((D_807FDC94->collisionFlags & 1) && st->unkD4 != 0 && !(D_807FBB64 & 0x100000)) {
+            if ((gBehaviourTargetActor->collisionFlags & 1) && st->unkD4 != 0 && !(gGlobalOverlayFlags & 0x100000)) {
                 ret = 1;
                 *outTarget = 0;
             } else if (D1DC90H->unk1A & 0x400) {
                 ret = D1DC90H->unk37;
             } else {
-                t = D_807FDC9C->unk10;
+                t = gBehaviourExtraState->unk10;
                 if (t == 7) {
                     ret = 1;
                 } else {
@@ -1141,7 +1141,7 @@ u8 func_8072C670(u8 checkMode, u8 *outTarget) {
             }
         }
     } else {
-        ret = D_807FDC9C->unk10;
+        ret = gBehaviourExtraState->unk10;
     }
     if (ret == 9) {
         ret = 1;
@@ -1172,9 +1172,9 @@ typedef struct D1Dc98ViewG {
     /* 0x20 */ void *unk20;
 } D1Dc98ViewG;
 
-#define D1DC90G ((D1Dc90ViewG *)D_807FDC90)
-#define D1DC9CG ((D1Dc9cViewG *)D_807FDC9C)
-#define D1DC98G ((D1Dc98ViewG *)D_807FDC98)
+#define D1DC90G ((D1Dc90ViewG *)gBehaviourWorkState)
+#define D1DC9CG ((D1Dc9cViewG *)gBehaviourExtraState)
+#define D1DC98G ((D1Dc98ViewG *)gBehaviourAnimState)
 
 void func_8072C870(u8 state, u8 subState, s32 param) {
     if (state == 7) {
@@ -1248,9 +1248,9 @@ typedef struct C1Dc9c {
 } C1Dc9c;
 
 #define C1B40 ((C1Act *)gCurrentActor)
-#define C1D90 ((C1Dc90 *)D_807FDC90)
-#define C1D98 ((C1Dc98 *)D_807FDC98)
-#define C1D9C ((C1Dc9c *)D_807FDC9C)
+#define C1D90 ((C1Dc90 *)gBehaviourWorkState)
+#define C1D98 ((C1Dc98 *)gBehaviourAnimState)
+#define C1D9C ((C1Dc9c *)gBehaviourExtraState)
 
 s32 zoneCanReachPoint(Actor *, s16, s16, s16, void *);
 s32 func_8072DE10(u16);
@@ -1266,10 +1266,10 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
     s32 near;
     C1Act *me;
 
-    st = D_807FDC94->unk174;
+    st = gBehaviourTargetActor->unk174;
     me = C1B40;
 #define SQ(x) ((x) * (x))
-    dist = (s32)(SQ(me->unk7C - D_807FDC94->x) + SQ(me->unk80 - D_807FDC94->y) + SQ(me->unk84 - D_807FDC94->z));
+    dist = (s32)(SQ(me->unk7C - gBehaviourTargetActor->x) + SQ(me->unk80 - gBehaviourTargetActor->y) + SQ(me->unk84 - gBehaviourTargetActor->z));
     near = dist < arg0;
     if (near == 0) {
         near = (C1D98->unk46 & 4) != 0;
@@ -1279,7 +1279,7 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
     } else {
         ang = C1D90->unk8 - me->unkEE;
     }
-    if ((zoneCanReachPoint((Actor *)me, D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, D_807FDCA0) != 0) && !(C1D98->unk46 & 0x2000) && !(st->unk1F0 & 0x8000)) {
+    if ((zoneCanReachPoint((Actor *)me, gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, D_807FDCA0) != 0) && !(C1D98->unk46 & 0x2000) && !(st->unk1F0 & 0x8000)) {
         C1D90->unk1A |= 0x400;
     } else {
         C1D90->unk1A &= 0xFBFF;
@@ -1334,9 +1334,9 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
                 if (!(C1D90->unk1A & 0x400)) {
                     actorSetBehaviourState(0x35, (s16)(s32)(C1D9C->unkC * 0.667), arg1);
                     C1D90->unk20 = 0x3C;
-                    C1D90->unkA = D_807FDC94->prevX;
-                    C1D90->unkC = D_807FDC94->prevY;
-                    C1D90->unkE = D_807FDC94->prevZ;
+                    C1D90->unkA = gBehaviourTargetActor->prevX;
+                    C1D90->unkC = gBehaviourTargetActor->prevY;
+                    C1D90->unkE = gBehaviourTargetActor->prevZ;
                     return;
                 }
                 if (C1D90->unk26 < C1D9C->unkD) {
@@ -1489,7 +1489,7 @@ typedef struct MiscBPatrolActorView {
     /* 0x155 */ u8 unk155;
 } MiscBPatrolActorView;
 
-#define MISCB_PATROL_STATE ((MiscBPatrolState *)D_807FDC90)
+#define MISCB_PATROL_STATE ((MiscBPatrolState *)gBehaviourWorkState)
 #define MISCB_PATROL_PATH_DATA ((MiscBPatrolPathData *)D_807FDCA0)
 #define MISCB_PATROL_ACTOR ((MiscBPatrolActorView *)gCurrentActor)
 #define MISCB_PATROL_PAIRS ((D1Pair *)D1DC98G->unk20)
@@ -1520,7 +1520,7 @@ u8 patrolPathStep(u8 arg0, u8 arg1) {
     moved = ((MISCB_PATROL_ACTOR->unk7C - x) * (MISCB_PATROL_ACTOR->unk7C - x)) + ((MISCB_PATROL_ACTOR->unk84 - z) * (MISCB_PATROL_ACTOR->unk84 - z)) <
             (f32)(MISCB_PATROL_PATH_DATA->unk14[key].r * MISCB_PATROL_PATH_DATA->unk14[key].r);
     if ((arg1 & 1) && MISCB_PATROL_ACTOR->unk7C == MISCB_PATROL_ACTOR->unk88 && MISCB_PATROL_ACTOR->unk84 == MISCB_PATROL_ACTOR->unk90) {
-        if (D_807FDC90) {} // FAKE: two uopt blocks in idx's live range drop its priority below key's (key t2, idx t3)
+        if (gBehaviourWorkState) {} // FAKE: two uopt blocks in idx's live range drop its priority below key's (key t2, idx t3)
         MISCB_PATROL_STATE->unk20++;
         if (MISCB_PATROL_STATE->unk20++ > 0x10) {
             moved = 1;
@@ -1671,7 +1671,7 @@ void func_8072D714(D1ActorViewI *arg0, s32 arg1) {
         raw = (D1AI->unk134 - 1) * -0.6;
         f = (2.0 < raw) ? 2.0 : raw;
         D1AI->unkEE = (arg0->unkEE + 0x800) & 0xFFF;
-        if ((Actor *)arg0 == D_807FDC94) {
+        if ((Actor *)arg0 == gBehaviourTargetActor) {
             if (mathAngleDistance(arg0->unkEE, arg0->unkE6) > 0x400) {
                 D1AI->unkEE += 0x800;
             }
@@ -1690,7 +1690,7 @@ void func_8072D714(D1ActorViewI *arg0, s32 arg1) {
     }
     D1AI->unk138 &= mask;
     gCurrentActor->flags &= 0xFFFF7FFF;
-    if (arg0 == NULL || (Actor *)arg0 == D_807FDC94 || arg0->unk58 == 0x2B) {
+    if (arg0 == NULL || (Actor *)arg0 == gBehaviourTargetActor || arg0->unk58 == 0x2B) {
         func_8072D9D4();
     }
     D_80744508++;
@@ -1740,7 +1740,7 @@ typedef struct E2ActorView {
 
 extern Actor *D_807FBD6C;
 
-void func_8072DA60(void) {
+void sfxPlayAtFBD6CPosition(void) {
     func_80714CC0(&D_8071FB34, 0.55f, D_807FBD6C->x, D_807FBD6C->y, D_807FBD6C->z);
 }
 
@@ -1813,16 +1813,16 @@ s32 func_8072DCF4(Actor *arg0, Actor *arg1, u16 arg2) {
 }
 
 s32 func_8072DE10(u16 arg0) {
-    return func_8072DCF4(gCurrentActor, D_807FDC94, arg0);
+    return func_8072DCF4(gCurrentActor, gBehaviourTargetActor, arg0);
 }
 
 void actorSetTargetSpeed(Actor *, s32);
 
 void actorSetDefaultState(s32 arg0) {
-    gCurrentActor->state = D_807FDC9C->unk10;
+    gCurrentActor->state = gBehaviourExtraState->unk10;
     gCurrentActor->unk155[0] = 0;
     actorScriptStart(gCurrentActor, arg0);
-    actorSetTargetSpeed(gCurrentActor, D_807FDC9C->unkC);
+    actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
 }
 
 typedef struct E2Model {
@@ -1857,14 +1857,14 @@ void func_8072DEA8(void *arg0, u8 arg1, Actor *arg2) {
     } else {
         actorSetBehaviourState(arg1, 0, (s32)arg0);
     }
-    if (arg2 == D_807FDC94) {
-        ((E2D90View *)D_807FDC90)->unk16 = ((E2Sub4 *)D_807FDC94->unk4)->model->unk10;
+    if (arg2 == gBehaviourTargetActor) {
+        ((E2D90View *)gBehaviourWorkState)->unk16 = ((E2Sub4 *)gBehaviourTargetActor->unk4)->model->unk10;
         gCurrentActor->flags |= 0x20000000;
     }
 }
 
 
-void func_8072E02C(void) {
+void actorRollEaseZero(void) {
     E2A->unkE8 = mathAngleEaseToward(E2A->unkE8, 0, 5.0f);
     E2A->unkE4 = E2A->unkE4 + (-E2A->unkE4) * 0.1;
 }
@@ -1874,8 +1874,8 @@ u8 func_8072E0A8(s32 arg0, s16 arg1) {
     s16 ang;
     s16 diff;
 
-    close = (((D_807FDC94->x - gCurrentActor->x) * (D_807FDC94->x - gCurrentActor->x) + (D_807FDC94->z - gCurrentActor->z) * (D_807FDC94->z - gCurrentActor->z)) < (f32)(arg0 * arg0));
-    ang = mathAngleBetweenPoints2D(D_807FDC94->x, D_807FDC94->z, gCurrentActor->x, gCurrentActor->z);
+    close = (((gBehaviourTargetActor->x - gCurrentActor->x) * (gBehaviourTargetActor->x - gCurrentActor->x) + (gBehaviourTargetActor->z - gCurrentActor->z) * (gBehaviourTargetActor->z - gCurrentActor->z)) < (f32)(arg0 * arg0));
+    ang = mathAngleBetweenPoints2D(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z);
     if (ang < gCurrentActor->yaw) {
         diff = gCurrentActor->yaw - ang;
     } else {
@@ -1884,17 +1884,17 @@ u8 func_8072E0A8(s32 arg0, s16 arg1) {
     if (diff > 0x800) {
         diff = 0x1000 - diff;
     }
-    return diff < arg1 && close && D_807FDC94->state != 0x42;
+    return diff < arg1 && close && gBehaviourTargetActor->state != 0x42;
 }
 
-void func_8072E1A4(u8 arg0, Actor *arg1) {
+void actorTurnTowardActorYaw(u8 arg0, Actor *arg1) {
     gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(arg1->x, arg1->z, gCurrentActor->x, gCurrentActor->z), (u32)arg0);
 }
 
 u8 actorIsTargetWithinDistance(u16 arg0) {
-    f32 dx = gCurrentActor->x - D_807FDC94->x;
-    f32 dy = gCurrentActor->y - D_807FDC94->y;
-    f32 dz = gCurrentActor->z - D_807FDC94->z;
+    f32 dx = gCurrentActor->x - gBehaviourTargetActor->x;
+    f32 dy = gCurrentActor->y - gBehaviourTargetActor->y;
+    f32 dz = gCurrentActor->z - gBehaviourTargetActor->z;
 
     return (dx * dx + dy * dy + dz * dz) < (f32)(arg0 * arg0);
 }
@@ -1926,5 +1926,5 @@ void func_8072E320(f32 arg0) {
 }
 
 u8 func_8072E54C(void) {
-    return !(D_807FDC98->unk46 & 0x2000) && (((randomNonNegative() >> 15) % 1000) >= 0x3E4);
+    return !(gBehaviourAnimState->unk46 & 0x2000) && (((randomNonNegative() >> 15) % 1000) >= 0x3E4);
 }

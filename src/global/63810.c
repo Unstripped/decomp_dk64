@@ -109,7 +109,7 @@ void lightQueueKeyframed(u8 keyframeSetIndex, s16 lightId, f32 x, f32 y, f32 z, 
 
 extern s32 gCurrentMap;
 extern Actor *D_807FBB4C;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern s32 D_807FBB68;
 
 void lightSetFlags(u8);
@@ -125,7 +125,7 @@ void lightFlushQueued(void) {
         return;
     }
 
-    if (!(D_807FBB60 & 2)) {
+    if (!(gGlobalPauseFlags & 2)) {
         for (i = 0; i < gLightQueueCount; i++) {
             if (!(D_807FBB68 & 4)) {
                 lightSetFlags(2);

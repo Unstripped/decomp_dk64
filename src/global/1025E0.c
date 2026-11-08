@@ -12,10 +12,10 @@ extern u8 D_807FC950[][0x5E];
 extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 extern u8 D_807444F8;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 extern s32 textGetStringWidth(s16, s32);
 void textDrawStringVtx(s32, s16, s16, s16, s32, u8);
@@ -24,7 +24,7 @@ void textDrawStringCentered(s32 glist, s16 font, s32 str, s16 y, u8 flags) {
     s16 width;
     s16 height;
 
-    width = (D_80744490 - textGetStringWidth(font, str)) * 2;
+    width = (gScreenWidth - textGetStringWidth(font, str)) * 2;
     height = y * 4;
     textDrawStringVtx(glist, font, width, height, str, flags);
 }
@@ -246,8 +246,8 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
     curX = baseX;
     node = (GfxResourceNodeView *)gfxResourceFindById(resourceId);
     charIndex = 0;
-    centeredX = ((f32)D_80744490 - ((f32)textGetStringWidth(node->unkC, (s32)node->unk4) * scale)) / 2 + -3;
-    waveRadius = (f32)(D_80744490 >> 3);
+    centeredX = ((f32)gScreenWidth - ((f32)textGetStringWidth(node->unkC, (s32)node->unk4) * scale)) / 2 + -3;
+    waveRadius = (f32)(gScreenWidth >> 3);
     phase = node->unk10;
     phaseStep = 6.2831855f / (f32)node->unkD;
     interpolatePos = 1;

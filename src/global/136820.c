@@ -25,7 +25,7 @@ void faultFontSetColorMode(s32 a0) {
 }
 
 extern u8 D_8074450C;
-extern s16 D_80744490;
+extern s16 gScreenWidth;
 extern u8 D_80756130[];
 
 void faultDrawGlyph(u8 c) {
@@ -37,7 +37,7 @@ void faultDrawGlyph(u8 c) {
     s32 j;
 
     glyph = D_80756130 + (c - 33) * 6;
-    dst = (D_807FEF70 + 3) * D_8074450C * 4 + (u16 *)D_807FEF80 + D_80744490 * (D_807FEF74 + 3) * D_8074450C * 6;
+    dst = (D_807FEF70 + 3) * D_8074450C * 4 + (u16 *)D_807FEF80 + gScreenWidth * (D_807FEF74 + 3) * D_8074450C * 6;
     for (row = 0; row != 6; row++, glyph++) {
         for (i = 0; i < D_8074450C * D_807FEF78; i++) {
             for (bit = 3; bit >= 0; bit--) {
@@ -50,7 +50,7 @@ void faultDrawGlyph(u8 c) {
                     dst++;
                 }
             }
-            dst += D_80744490 - D_807FEF78 * 4 * D_8074450C;
+            dst += gScreenWidth - D_807FEF78 * 4 * D_8074450C;
         }
     }
 }
@@ -244,7 +244,7 @@ void faultUnwindStack(OSThread *a0) {
 
 extern OSMesgQueue D_807FEF58;
 
-extern s32 D_80744470[];
+extern s32 gFramebuffers[];
 extern u8 D_807563B4;
 void faultDrawRegs(OSThread *a0);
 
@@ -267,7 +267,7 @@ void faultThreadMain(void *arg) {
             for (;;) {
                 for (i = 0; i < 2; i++) {
                     osViBlack(0);
-                    D_807FEF80 = D_80744470[i];
+                    D_807FEF80 = gFramebuffers[i];
                     faultDrawRegs(thread);
                     faultDrawRegs(thread);
                 }

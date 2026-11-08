@@ -198,8 +198,8 @@ extern u8 D_807467E4;
 extern s8 D_80746830;
 extern s8 gPlayerCharacterId;
 extern s32 D_80750AB0;
-extern u8 D_80750AB8;
-extern u8 D_80750AC0;
+extern u8 gSplitScreenMode;
+extern u8 gActivePlayerCount;
 extern s16 D_80750AC4;
 
 extern s32 D_8076A054;
@@ -211,8 +211,8 @@ extern OSIoMesg D_807ECE00;
 extern s16 *D_807ECDF4;
 extern s8 D_807F6008;
 extern s32 D_807F6010;
-extern u32 D_807FBB60;
-extern u32 D_807FBB64;
+extern u32 gGlobalPauseFlags;
+extern u32 gGlobalOverlayFlags;
 extern PlayerStruct *gPlayerSlots;
 extern u8 gPlayerCount;
 extern f32 gScreenFadeProgress;
@@ -224,15 +224,15 @@ extern u64 D_80761680;
 extern OSMesgQueue *D_807655E0;
 
 // .data 0x80744470-0x807445E0
-u32 D_80744470[2] = { 0 };
-u32 D_80744478 = 2;
+u32 gFramebuffers[2] = { 0 };
+u32 gFrameDelta = 2;
 u8 D_8074447C = 0;
 u8 D_80744480 = 0;
 u8 D_80744484 = 0;
 u8 D_80744488 = 0;
 u8 D_8074448C = 0;
-s16 D_80744490 = 0x140;
-s16 D_80744494 = 0xF0;
+s16 gScreenWidth = 0x140;
+s16 gScreenHeight = 0xF0;
 s16 D_80744498 = 0xA;
 s16 D_8074449C = 0xA;
 s16 D_807444A0 = 0x135;
@@ -258,7 +258,7 @@ u8 D_807444EC = 0;
 u8 D_807444F0 = 0;
 u8 D_807444F4 = 0;
 u8 D_807444F8 = 0;
-u8 D_807444FC = 0;
+u8 gGfxBufferIndex = 0;
 s8 D_80744500 = 0;
 s8 D_80744504 = 0;
 s16 D_80744508 = 0;
@@ -304,12 +304,12 @@ Mtx D_80768E98;
 u8 D_80768ED8[320];
 Mtx D_80769018;
 u8 D_80769058[4080];
-u8 *D_8076A048;
+u8 *gGfxCurrentFrameBuffer;
 u32 D_8076A04C;
-Gfx *D_8076A050[4];
+Gfx *gGfxTaskBuffers[4];
 u8 *D_8076A060;
 s32 gFrameCounter;
-s32 D_8076A068;
+s32 gGameFrameCounter;
 s32 D_8076A06C;
 s32 D_8076A070[3];
 s32 D_8076A07C;
@@ -377,24 +377,24 @@ void func_805FB7E4(void) {
     s32 i;
     s32 j;
 
-    fb = (u16 *)D_80744470[0];
+    fb = (u16 *)gFramebuffers[0];
     end = (u16 *)((u8 *)fb + 0x25800);
     while (fb < end) {
         *fb++ = 1;
     }
     osWritebackDCacheAll();
 
-    compressedBuf = (u8 *)D_80744470[1] + 0xC800;
+    compressedBuf = (u8 *)gFramebuffers[1] + 0xC800;
     seg11DmaRead(0x38, 0x10, compressedBuf);
     seg11DmaRead(*(s32 *)compressedBuf + 0x178, 0x10, compressedBuf);
     seg11DmaRead(*(s32 *)compressedBuf, *(s32 *)(compressedBuf + 4) - *(s32 *)compressedBuf, compressedBuf);
 
     gzipSrc = compressedBuf;
-    gzipDst = (u8 *)D_80744470[1];
-    src = (u16 *)D_80744470[1];
-    gunzip(&gzipSrc, &gzipDst, (u8 *)D_80744470[1] + 0x15E00);
+    gzipDst = (u8 *)gFramebuffers[1];
+    src = (u16 *)gFramebuffers[1];
+    gunzip(&gzipSrc, &gzipDst, (u8 *)gFramebuffers[1] + 0x15E00);
 
-    fb = (u16 *)((u8 *)D_80744470[0] + 0xF080);
+    fb = (u16 *)((u8 *)gFramebuffers[0] + 0xF080);
     i = 0;
     do {
         j = 0;
@@ -409,7 +409,7 @@ loop_5:
         i++;
     } while (i < 0x30);
 
-    fb = (u16 *)D_80744470[1];
+    fb = (u16 *)gFramebuffers[1];
     end = (u16 *)((u8 *)fb + 0x25800);
     while (fb < end) {
         *fb++ = 1;
@@ -449,19 +449,19 @@ u8 overlaySlot;
         break;
     default:
         overlayParam = func_8060042C(gCurrentMap);
-        if (D_807FBB64 & 1) {
+        if (gGlobalOverlayFlags & 1) {
             overlayId = 7;
-        } else if (D_807FBB64 & 0x1000) {
+        } else if (gGlobalOverlayFlags & 0x1000) {
             overlayId = 6;
-        } else if (D_807FBB64 & 0x104000) {
+        } else if (gGlobalOverlayFlags & 0x104000) {
             overlayId = 8;
-        } else if (D_807FBB64 & 0x80000) {
+        } else if (gGlobalOverlayFlags & 0x80000) {
             overlayId = 4;
-        } else if (D_807FBB64 & 0x2000) {
+        } else if (gGlobalOverlayFlags & 0x2000) {
             overlayId = 5;
-        } else if (D_807FBB64 & 0x4000000) {
+        } else if (gGlobalOverlayFlags & 0x4000000) {
             overlayId = 3;
-        } else if (D_807FBB64 & 0x40000000) {
+        } else if (gGlobalOverlayFlags & 0x40000000) {
             overlayId = 2;
         }
         D_80744498 = D_8074450C * 10;
@@ -485,8 +485,8 @@ u8 overlaySlot;
         func_805FB7E4();
     }
     osViSetSpecialFeatures(0x42);
-    D_80744490 = D_8074450C * 0x140;
-    D_80744494 = D_8074450C * 0xF0;
+    gScreenWidth = D_8074450C * 0x140;
+    gScreenHeight = D_8074450C * 0xF0;
     D_807444AC = D_8074449C + D_8074450C * 0x1E;
     D_807444B0 = D_807444A4 - D_8074450C * 0x1E;
     D_807444A8 = D_8074449C;
@@ -525,10 +525,10 @@ void func_805FBE04(void) {
     D_8076A0A4 = 0;
     controllerWaitRead();
     gFrameCounter = 0;
-    D_8076A068 = 0;
+    gGameFrameCounter = 0;
     D_807467CC = 0;
     D_8076A0AC = 4;
-    D_807FBB60 = 0x30030;
+    gGlobalPauseFlags = 0x30030;
     D_8076A0B1 |= 1;
     D_8076A0B2 = 0;
     gScreenFadeProgress = 31.0f;
@@ -568,7 +568,7 @@ void mainThreadLoop(s32 unused) {
         if ((D_8076A0B1 & 1) && D_8076A0B2 == 0) {
             func_805FE7FC();
             if (D_807444F8 == 2) {
-                D_807FBB60 |= 0x200;
+                gGlobalPauseFlags |= 0x200;
                 D_80744504 = 8;
             }
         }
@@ -619,16 +619,16 @@ void func_805FC2B0(void) {
     Gfx *gfxEnd;
 
     controllerStartRead();
-    schedSubmitGfxTask(D_8076A050[D_807444FC], D_8076A088, 3, (D_8076A0A4 != 0) ? 0 : 1, 0x4D2, 1);
+    schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, (D_8076A0A4 != 0) ? 0 : 1, 0x4D2, 1);
     if (D_8076A0A4 != 0) {
-        schedSubmitGfxTask((u8 *)&D_80767CE8 + D_807444FC * 0x11B0 + 0xDB0, D_8076A08C, 0, 1, 0x929, 1);
+        schedSubmitGfxTask((u8 *)&D_80767CE8 + gGfxBufferIndex * 0x11B0 + 0xDB0, D_8076A08C, 0, 1, 0x929, 1);
     }
-    D_807444FC ^= 1;
+    gGfxBufferIndex ^= 1;
     gFrameCounter++;
-    if (!(D_807FBB60 & 2)) {
-        D_8076A068++;
+    if (!(gGlobalPauseFlags & 2)) {
+        gGameFrameCounter++;
     }
-    D_8076A048 = (u8 *)&D_80767CE8 + D_807444FC * 0x11B0;
+    gGfxCurrentFrameBuffer = (u8 *)&D_80767CE8 + gGfxBufferIndex * 0x11B0;
     controllerUpdate();
     if (pauseStateUpdate() != 0) {
         billboardCacheEvictStale();
@@ -637,11 +637,11 @@ void func_805FC2B0(void) {
         sfxUpdateLevelAmbient();
         sfxUpdateSourceGroups();
         sfxUpdateChannels();
-        playerViewsBuildMatrices(D_8076A048);
+        playerViewsBuildMatrices(gGfxCurrentFrameBuffer);
     } else {
         lightClearCount();
         actorUpdateSpawnsWrapper();
-        playerViewsBuildMatrices(D_8076A048);
+        playerViewsBuildMatrices(gGfxCurrentFrameBuffer);
         billboardCacheEvictStale();
         actorProximityUpdate();
         collisionBufferCacheUpdate();
@@ -656,31 +656,31 @@ void func_805FC2B0(void) {
         gridTickPlayers();
     }
     resListTick();
-    D_8076A150 = D_8076A050[D_807444FC];
+    D_8076A150 = gGfxTaskBuffers[gGfxBufferIndex];
     if ((D_8076A0B1 & 1) && gScreenFadeProgress == 31.0f) {
-        glist = D_8076A050[D_807444FC];
-        gfxEnd = D_8076A048 + 0xDB0;
+        glist = gGfxTaskBuffers[gGfxBufferIndex];
+        gfxEnd = gGfxCurrentFrameBuffer + 0xDB0;
         renderCallbacksReset();
     } else {
-        func_805FD088((Struct_8076A048 *)D_8076A048, &glist, &gfxEnd);
+        func_805FD088((Struct_8076A048 *)gGfxCurrentFrameBuffer, &glist, &gfxEnd);
     }
-    if (D_807FBB60 & 0x100) {
-        D_807FBB60 &= ~0x100;
-        func_807094D0(2, &D_807FBB60);
-    } else if (D_807FBB60 & 0x200) {
+    if (gGlobalPauseFlags & 0x100) {
+        gGlobalPauseFlags &= ~0x100;
+        func_807094D0(2, &gGlobalPauseFlags);
+    } else if (gGlobalPauseFlags & 0x200) {
         D_80744504--;
         if (D_80744504 == 0) {
-            D_807FBB60 &= ~0x200;
-            func_807094D0(3, &D_807FBB60);
+            gGlobalPauseFlags &= ~0x200;
+            func_807094D0(3, &gGlobalPauseFlags);
         }
     } else {
         glist = screenFadeUpdate(glist, D_8076AEE0);
     }
     if (D_8076A0A4 != 0 && D_807444EC != 6) {
-        func_805FE71C(glist, D_807444FC, &D_8076A088, 0);
-        func_805FE7B4(gfxEnd, (s32)D_8076A048, &D_8076A08C, 1);
+        func_805FE71C(glist, gGfxBufferIndex, &D_8076A088, 0);
+        func_805FE7B4(gfxEnd, (s32)gGfxCurrentFrameBuffer, &D_8076A08C, 1);
     } else {
-        func_805FE71C(glist, D_807444FC, &D_8076A088, 1);
+        func_805FE71C(glist, gGfxBufferIndex, &D_8076A088, 1);
     }
 }
 
@@ -703,12 +703,12 @@ s32 pauseStateUpdate(void) {
     Actor *actor;
 
     if ((gCurrentMap == 0x50) || (menuIsTransitionType8() == 0 && menuIsTransitionType6() == 0 && menuIsTransitionTypeC() == 0 && menuIsTransitionTypeD() == 0)) {
-        D_807FBB60 &= ~1;
+        gGlobalPauseFlags &= ~1;
     }
-    if (D_807FBB60 & 2) {
-        if ((D_807FBB60 & 0x40) && (menuIsTransitionType6() != 0 || menuIsTransitionTypeC() != 0)) {
+    if (gGlobalPauseFlags & 2) {
+        if ((gGlobalPauseFlags & 0x40) && (menuIsTransitionType6() != 0 || menuIsTransitionTypeC() != 0)) {
             sfxStopChannel(0x22, 0);
-            D_807FBB60 &= 0xFFEBFFBD;
+            gGlobalPauseFlags &= 0xFFEBFFBD;
             actor = actorFindByType((gPlayerCount < 2 && menuIsTransitionTypeC() == 0) ? 0x5F : 0x157);
             if (actor != NULL) {
                 actorDespawn(actor);
@@ -721,34 +721,34 @@ s32 pauseStateUpdate(void) {
         D_807445B0 = 0;
         D_807445C0 = 0;
         if (D_807445C8 > 0) {
-            if (!(D_807FBB60 & 1)) {
+            if (!(gGlobalPauseFlags & 1)) {
                 D_807445C8 = 0;
             } else {
                 D_807445C8 -= 1;
                 if (D_807445C8 <= 0) {
-                    if ((menuIsTransitionType6() != 0 || menuIsTransitionTypeC() != 0) && !(D_807FBB60 & 0x40000)) {
+                    if ((menuIsTransitionType6() != 0 || menuIsTransitionTypeC() != 0) && !(gGlobalPauseFlags & 0x40000)) {
                         sfxAllocateChannel(0x22, 1.0f);
                         sfxAllocateChannel(0x29, 1.0f);
                         if (gPlayerCount < 2 && menuIsTransitionTypeC() == 0) {
                             actorSpawn(0x5F, 0);
-                            D_807FBB60 |= 0x100000;
+                            gGlobalPauseFlags |= 0x100000;
                         } else {
                             actorSpawn(0x157, 0);
                         }
                         gSpawnedActor->renderFlags |= 2;
                     }
                     D_807445C0 = osGetTime();
-                    D_807FBB60 ^= 1;
-                    D_807FBB60 |= 2;
+                    gGlobalPauseFlags ^= 1;
+                    gGlobalPauseFlags |= 2;
                 }
             }
         }
-        if ((D_807FBB60 & 1) && D_807445C8 <= 0) {
+        if ((gGlobalPauseFlags & 1) && D_807445C8 <= 0) {
             slotQueueReset();
             D_807445C8 = 2;
         }
     }
-    return D_807FBB60 & 2;
+    return gGlobalPauseFlags & 2;
 }
 
 s32 func_805FC98C(void) {
@@ -757,7 +757,7 @@ s32 func_805FC98C(void) {
 
     t = osGetTime();
     x = t - D_807445B8;
-    if (D_807FBB60 & 2) {
+    if (gGlobalPauseFlags & 2) {
         x = x - t + D_807445C0;
     }
     x = __ll_mul(x, 0x40);
@@ -776,7 +776,7 @@ s32 func_805FCA64(void) {
     return canRenderHud & 0xFF;
 }
 
-extern u8 D_80750AB4;
+extern u8 gViewportCount;
 f32 func_806276AC(void);
 void func_8062754C(f32);
 f32 sinApprox(f32);
@@ -843,17 +843,17 @@ void playerViewsBuildMatrices(void *outMtx) {
 
     aspect = cameraStepAspectScale();
     if (D_807445CC && D_807445CC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-    if (gPlayerCount >= 2 && D_80750AB8 == 1) {
+    if (gPlayerCount >= 2 && gSplitScreenMode == 1) {
         func_8062754C(func_806276AC());
     }
-    for (i = 0; i < D_80750AB4; i++) {
+    for (i = 0; i < gViewportCount; i++) {
         if (PLAYER_VIEWS[i].unk0 != 0) {
             if (ABS_DIFF(PLAYER_VIEWS[i].unk210, PLAYER_VIEWS[i].unk228) < 0.5 && ABS_DIFF(PLAYER_VIEWS[i].unk218, PLAYER_VIEWS[i].unk230) < 0.5) {
                 offs = 1.0f;
             } else {
                 offs = 0.0f;
             }
-            guLookAtHilite(&PLAYER_VIEWS[i].unk8[D_807444FC], &PLAYER_VIEWS[i].unk190[D_807444FC], &PLAYER_VIEWS[i].unk1D0[D_807444FC],
+            guLookAtHilite(&PLAYER_VIEWS[i].unk8[gGfxBufferIndex], &PLAYER_VIEWS[i].unk190[gGfxBufferIndex], &PLAYER_VIEWS[i].unk1D0[gGfxBufferIndex],
                            PLAYER_VIEWS[i].unk210 + offs, PLAYER_VIEWS[i].unk214, PLAYER_VIEWS[i].unk218 + offs,
                            PLAYER_VIEWS[i].unk228, PLAYER_VIEWS[i].unk22C, PLAYER_VIEWS[i].unk230,
                            PLAYER_VIEWS[i].unk240, PLAYER_VIEWS[i].unk244, PLAYER_VIEWS[i].unk248,
@@ -872,7 +872,7 @@ void playerViewsBuildMatrices(void *outMtx) {
             } else if (held->unkFA != 0 && PLAYER_VIEWS[i].unk220 < held->unk90 + 3.0f) {
                 fov += 0.04 * sinApprox(cc[0] * 0.1);
             }
-            guPerspective(&PLAYER_VIEWS[i].unk88[D_807444FC], &(i + PLAYER_VIEWS)->unk188, PLAYER_VIEWS[i].unk27C, fov * aspect, PLAYER_VIEWS[i].unk284, PLAYER_VIEWS[i].unk288, 1.0f);  // FAKE: i + base operand order avoids CSE with PLAYER_VIEWS[i]
+            guPerspective(&PLAYER_VIEWS[i].unk88[gGfxBufferIndex], &(i + PLAYER_VIEWS)->unk188, PLAYER_VIEWS[i].unk27C, fov * aspect, PLAYER_VIEWS[i].unk284, PLAYER_VIEWS[i].unk288, 1.0f);  // FAKE: i + base operand order avoids CSE with PLAYER_VIEWS[i]
         }
     }
     if (ABS_DIFF(PLAYER_VIEWS->unk210, PLAYER_VIEWS->unk228) < 0.5 && ABS_DIFF(PLAYER_VIEWS->unk218, PLAYER_VIEWS->unk230) < 0.5) {
@@ -911,7 +911,7 @@ void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
     Gfx *glist;
     Gfx *glist2;
 
-    glist = D_8076A050[D_807444FC];
+    glist = gGfxTaskBuffers[gGfxBufferIndex];
     gSPPerspNormalize(&frameGfx->unkDB0[0], D_8076A09C);
     glist2 = &frameGfx->unkDB0[1];
     gSPClipRatio(glist2++, FRUSTRATIO_3);
@@ -930,13 +930,13 @@ void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
     glist = func_805FCFD8(glist);
     glist2 = func_805FCFD8(glist2);
 
-    gDPSetScissor(glist++, G_SC_NON_INTERLACE, 0, 0, D_80744490, D_80744494);
-    gDPSetScissor(glist2++, G_SC_NON_INTERLACE, 0, 0, D_80744490, D_80744494);
+    gDPSetScissor(glist++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
+    gDPSetScissor(glist2++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
 
     guTranslate(&frameGfx->unk180, 0.0f, 0.0f, 0.0f);
-    guOrtho(&frameGfx->unk80, 0.0f, (f32)((f64)(f32)D_80744490 - 1.0), (f32)((f64)(f32)D_80744494 - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
-    guOrtho(&frameGfx->unkC0, 0.0f, (f32)(((f64)(f32)D_80744490 * 4.0) - 1.0), (f32)(((f64)(f32)D_80744494 * 4.0) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
-    guOrtho(&frameGfx->unk140, 0.0f, (f32)((2.0 * (f64)(f32)D_80744490) - 1.0), (f32)((2.0 * (f64)(f32)D_80744494) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&frameGfx->unk80, 0.0f, (f32)((f64)(f32)gScreenWidth - 1.0), (f32)((f64)(f32)gScreenHeight - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&frameGfx->unkC0, 0.0f, (f32)(((f64)(f32)gScreenWidth * 4.0) - 1.0), (f32)(((f64)(f32)gScreenHeight * 4.0) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
+    guOrtho(&frameGfx->unk140, 0.0f, (f32)((2.0 * (f64)(f32)gScreenWidth) - 1.0), (f32)((2.0 * (f64)(f32)gScreenHeight) - 1.0), 0.0f, -20000.0f, 20000.0f, 1.0f);
     guOrtho(&frameGfx->unk100, (f32)((f64)(f32)gPlayerSlots->rect[0] * 4.0), (f32)(((f64)(f32)gPlayerSlots->rect[2] * 4.0) - 1.0), (f32)(((f64)(f32)gPlayerSlots->rect[3] * 4.0) - 1.0), (f32)((f64)(f32)gPlayerSlots->rect[1] * 4.0), -20000.0f, 20000.0f, 1.0f);
     guPerspective(&frameGfx->unk0, &D_8076A09C, D_807444B8, cameraStepAspectScale() * D_807444BC, D_807444C8, D_807444C4, 1.0f);
 
@@ -970,7 +970,7 @@ void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
         D_8076A0B3 = 0;
     }
 
-    if (((D_8076A0B1 & 0x10) || (D_8076A0B3 != 0)) && ((gPlayerCount == 1) || (D_80750AB8 == 1))) {
+    if (((D_8076A0B1 & 0x10) || (D_8076A0B3 != 0)) && ((gPlayerCount == 1) || (gSplitScreenMode == 1))) {
         f32 fadeAlpha;
         f32 fadeScale;
         gDPPipeSync(glist++);
@@ -986,14 +986,14 @@ void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
             fadeAlpha = (f32)(D_807444AC - D_807444A8) * fadeScale;
             gDPFillRectangle(glist++, 0,
                 (fadeAlpha < (f32)D_807444A8) ? (f32)D_807444A8 - fadeAlpha : 0.0f,
-                (D_80744490 > 0) ? D_80744490 : 0,
+                (gScreenWidth > 0) ? gScreenWidth : 0,
                 (fadeAlpha < (f32)D_807444AC) ? (f32)D_807444AC - fadeAlpha : 0.0f);
-            gDPFillRectangle(glist++, 0, D_807444B0 + fadeAlpha, D_80744490, D_807444B4 + fadeAlpha);
+            gDPFillRectangle(glist++, 0, D_807444B0 + fadeAlpha, gScreenWidth, D_807444B4 + fadeAlpha);
             gPlayerSlots->rect[1] = (s16)(s32)((f32)D_807444AC - fadeAlpha);
             gPlayerSlots->rect[3] = (s16)(s32)((f32)D_807444B0 + fadeAlpha);
         } else {
-            gDPFillRectangle(glist++, 0, D_807444A8, D_80744490, D_807444AC);
-            gDPFillRectangle(glist++, 0, D_807444B0, D_80744490, D_807444B4);
+            gDPFillRectangle(glist++, 0, D_807444A8, gScreenWidth, D_807444AC);
+            gDPFillRectangle(glist++, 0, D_807444B0, gScreenWidth, D_807444B4);
             gPlayerSlots->rect[1] = (s16)D_807444AC;
             gPlayerSlots->rect[3] = (s16)D_807444B0;
         }
@@ -1067,29 +1067,29 @@ Gfx *func_805FE398(Gfx *glistp) {
     gDPSetCycleType(glistp++, G_CYC_FILL);
     gSPClearGeometryMode(glistp++, G_ZBUFFER);
     gDPSetDepthImage(glistp++, osVirtualToPhysical(D_8076A060));
-    gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, D_80744490, osVirtualToPhysical(D_8076A060));
+    gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gScreenWidth, osVirtualToPhysical(D_8076A060));
     gDPSetFillColor(glistp++, 0xFFFCFFFC);
-    gDPFillRectangle(glistp++, 0, 0, D_80744490 - 1, D_80744494 - 1);
+    gDPFillRectangle(glistp++, 0, 0, gScreenWidth - 1, gScreenHeight - 1);
     gDPPipeSync(glistp++);
     return glistp;
 }
 
 
 Gfx *func_805FE4D4(Gfx *glistp) {
-    gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, D_80744490, osVirtualToPhysical((void *)D_80744470[D_807444FC]));
+    gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gScreenWidth, osVirtualToPhysical((void *)gFramebuffers[gGfxBufferIndex]));
     return glistp;
 }
 
 
 void func_805FE544(u8 numScreens) {
-    if (D_807FBB64 & 1) {
+    if (gGlobalOverlayFlags & 1) {
         D_8076A058 = 0x1770;
     } else {
         D_8076A058 = numScreens * 3000;
     }
-    D_8076A050[0] = heapAlloc(D_8076A058 * sizeof(Gfx));
-    D_8076A050[1] = heapAlloc(D_8076A058 * sizeof(Gfx));
-    func_805FE71C(func_805FE634(D_8076A050[0], 0), 0, &D_8076A088, 1);
+    gGfxTaskBuffers[0] = heapAlloc(D_8076A058 * sizeof(Gfx));
+    gGfxTaskBuffers[1] = heapAlloc(D_8076A058 * sizeof(Gfx));
+    func_805FE71C(func_805FE634(gGfxTaskBuffers[0], 0), 0, &D_8076A088, 1);
     func_805FE71C(func_805FE634((void *)D_8076A054, 1), 1, &D_8076A088, 1);
 }
 
@@ -1098,10 +1098,10 @@ Gfx *func_805FE634(Gfx *glistp, u8 fbIndex) {
     gDPPipeSync(glistp++);
     gDPSetRenderMode(glistp++, 0, 0);
     gDPSetCycleType(glistp++, G_CYC_FILL);
-    gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, D_80744490, D_80744470[fbIndex]);
+    gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gScreenWidth, gFramebuffers[fbIndex]);
     gDPSetFillColor(glistp++, 0x10001);
     gDPPipeSync(glistp++);
-    gDPFillRectangle(glistp++, 0, 0, D_80744490 - 1, D_80744494 - 1);
+    gDPFillRectangle(glistp++, 0, 0, gScreenWidth - 1, gScreenHeight - 1);
     return glistp;
 }
 
@@ -1113,7 +1113,7 @@ void func_805FE71C(Gfx *inGlist, u8 bufIdx, s32 *outSize, u8 fullSync) {
         gDPFullSync(glistp++);
     }
     gSPEndDisplayList(glistp++);
-    *outSize = glistp - (Gfx *)D_8076A050[bufIdx];
+    *outSize = glistp - (Gfx *)gGfxTaskBuffers[bufIdx];
     if (*outSize >= D_8076A058) {
         faultSetMessage(0x12, 0, 0, 0);
     }
@@ -1142,13 +1142,13 @@ void func_805FE7FC(void) {
     D_8076A090 = 0;
     D_8076A094 = 0;
     D_8076A098 = 0;
-    D_807FBB60 &= 0xFFEB3FFC;
+    gGlobalPauseFlags &= 0xFFEB3FFC;
     func_80712A40();
     D_80750AC4 = 0;
     D_8076A0A4 = 0;
-    D_807444FC = 0;
+    gGfxBufferIndex = 0;
     gFrameCounter = 0;
-    D_8076A068 = 0;
+    gGameFrameCounter = 0;
     audioResetAll();
     D_80744508 = 0;
     *D_807ECDF4 = 0;
@@ -1167,12 +1167,12 @@ void func_805FE7FC(void) {
     activeMap = gCurrentMap;
     if (gCurrentMap != 0x50) {
         if (gCurrentMap != 0x51) {
-            D_807FBB60 |= 0x30030;
+            gGlobalPauseFlags |= 0x30030;
         } else {
-            D_807FBB60 &= 0xFFFCFFCF;
+            gGlobalPauseFlags &= 0xFFFCFFCF;
         }
     } else {
-        D_807FBB60 &= 0xFFFEFFCF;
+        gGlobalPauseFlags &= 0xFFFEFFCF;
     }
     if (activeMap == 2) {
         D_807444EC = 3;
@@ -1183,12 +1183,12 @@ void func_805FE7FC(void) {
     }
     viModeSetup(1, &gCurrentMap);
     
-if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
-        D_80750AC0 = 1;
+if (((s32) gActivePlayerCount >= 2) && !(gGlobalOverlayFlags & 0x04000000)) {
+        gActivePlayerCount = 1;
     }
     func_806C7C10();
     playerSetLargeModeScale(0.0f);
-    func_805FE544(D_80750AC0);
+    func_805FE544(gActivePlayerCount);
     if (gCurrentMap != 0xB8) {
         if (gCurrentMap == 0xBF) {
             gPlayerCharacterId = 6;
@@ -1245,14 +1245,14 @@ if (((s32) D_80750AC0 >= 2) && !(D_807FBB64 & 0x04000000)) {
         gridBuildNodeLists();
         func_8070E8C8();
         timerQueueAdd(sfxPlayCurrent, 2, 0, 0, 0);
-        if (D_807FBB64 & 0x1000) {
+        if (gGlobalOverlayFlags & 0x1000) {
             loadedAsset = assetLoad(0x16, gCurrentMap, 1, 1);
             func_80026FD0(loadedAsset);
             if (loadedAsset != 0) {
                 assetFreeBuffer(loadedAsset, 0x8ED, 2);
             }
         }
-        if (D_807FBB64 & 0x2000) {
+        if (gGlobalOverlayFlags & 0x2000) {
             func_8002EC08(gCurrentMap);
         }
         collisionBstRebalanceAll();

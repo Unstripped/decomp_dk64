@@ -519,7 +519,7 @@ typedef struct L10CA0TimerView { u8 pad0[0xBC]; s16 unkBC; } L10CA0TimerView;
 extern void *gActivePlayerState;
 extern void *D_807FDAB0;
 extern s16 D_807FDAB4;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern u8 D_807FDA1B;
 extern u8 D_1000020, D_1000118, D_20000C0;
 void matrixMakeRotationZ(f32 (*)[4], f32);
@@ -601,8 +601,8 @@ Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor) {
             guMtxCatF(mtxScale, mtxTemp, mtxScale);
             guTranslateF(mtxTemp, (f32)((f64)entry->unk8 * 4.0), (f32)((f64)entry->unkC * 4.0), -50.0f);
             guMtxCatF(mtxScale, mtxTemp, mtxScale);
-            guMtxF2L(mtxScale, (Mtx *)((u8 *)entry + (D_807444FC << 6) + 0x30));
-            gSPMatrix(glist++, (u8 *)entry + (D_807444FC << 6) + 0x30, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+            guMtxF2L(mtxScale, (Mtx *)((u8 *)entry + (gGfxBufferIndex << 6) + 0x30));
+            gSPMatrix(glist++, (u8 *)entry + (gGfxBufferIndex << 6) + 0x30, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
             gSPVertex(glist++, osVirtualToPhysical((void *)D_807FDA20), 4, 0);
             gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(glist++);
@@ -627,7 +627,7 @@ typedef struct AngBPlayerView {
     f32 unk2C4;
 } AngBPlayerView;
 
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern u8 D_807FDA1B;
 extern f32 *D_8076A0B4;
 extern u8 D_8077058C[];
@@ -644,7 +644,7 @@ void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scal
     s32 idx;
     s32 count;
 
-    if (D_807FBB60 & 0x10) {
+    if (gGlobalPauseFlags & 0x10) {
         densityVal = (f64)density;
         alphaVal = (f64)alpha;
         D_807FDA1E = (s16)(s32)(cosApprox(((AngBPlayerView *)gPlayerSlots)->unk2C4) * (f32)windAngle);
@@ -691,7 +691,7 @@ void func_80711950(f32 density, s16 windAngle, s16 mapChunk) {
     s32 i;
     f32 value;
 
-    if (D_807FBB60 & 0x10) {
+    if (gGlobalPauseFlags & 0x10) {
         D_807FDA1E = (s16)(cosApprox(((R114cPlayerView *)gPlayerSlots)->unk2C4) * windAngle);
         if (density < 1.0) {
             density *= 100.0f;
@@ -733,7 +733,7 @@ void func_80711BD0(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
     s32 idx;
     s32 count;
 
-    if (D_807FBB60 & 0x10) {
+    if (gGlobalPauseFlags & 0x10) {
         if ((poolType == 3) && (((s32)(randomNonNegative() >> 0xF) % 1000) >= 0x3DA)) {
             func_807149FC(-1);
             func_8071498C(&effectSwayRiseUpdate);

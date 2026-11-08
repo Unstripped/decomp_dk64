@@ -88,7 +88,7 @@ typedef struct G08Actor {
 #define G08_A48 ((G08Actor *)D_807FBB48)
 #define G08_A40 ((G08Actor *)gCurrentActor)
 
-extern u32 D_807FBB60;
+extern u32 gGlobalPauseFlags;
 extern G08Slot D_807FD63A[];
 s32 playerInputUpdate();
 void actorUpdateModelMatrix();
@@ -129,7 +129,7 @@ void playerInputUpdate66(void) {
 void playerInputUpdateNoop(void) {
 }
 
-void func_806D1278(void) {
+void playerInputUpdate1AndCheckLocomotion(void) {
     playerInputUpdate(1);
     if (!(gActivePlayerState->stateFlags & 0x10000)) {
         playerResumeLocomotion(gCurrentActor);
@@ -472,7 +472,7 @@ void func_806D205C(void) {
 
 void playerInputUpdate0(void) {
     playerInputUpdate(0);
-    if (!(D_807FBB60 & 0x4000) && !(D_807FBB60 & 0x8000)) {
+    if (!(gGlobalPauseFlags & 0x4000) && !(gGlobalPauseFlags & 0x8000)) {
         playerResumeLocomotion(gCurrentActor);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -505,7 +505,7 @@ typedef struct G09ActorSub4 {
 #define G09_A ((G09Actor *)gCurrentActor)
 
 
-void func_806D2238(void) {
+void playerInputUpdate1InitScript0(void) {
     playerInputUpdate(1);
     if (G09_A->unk155 == 0) {
         actorScriptStartByIndex(gCurrentActor, 0);
@@ -518,7 +518,7 @@ void playerInputUpdate1(void) {
     playerInputUpdate(1);
 }
 
-void func_806D22C0(void) {
+void playerInputUpdate62(void) {
     playerInputUpdate(0x62);
     switch (G09_A->unk155) {
         case 1:
@@ -569,7 +569,7 @@ typedef struct G09Player {
 
 extern s32 gCurrentMap;
 
-void func_806D239C(void) {
+void playerInputUpdateByMap(void) {
     actorRegisterSnapToBoneCallback();
     switch (gCurrentMap) {
         case 0x37:
@@ -608,7 +608,7 @@ void playerInputUpdate5D(void) {
 void playerSetBaseGravityIfFalling();
 void playerSetTerminalVelocity5B0();
 
-void func_806D24E4(void) {
+void playerInputUpdate5E(void) {
     actorRegisterSnapToBoneCallback();
     switch (G09_A->unk155) {
         case 0:
@@ -635,7 +635,7 @@ void func_806D24E4(void) {
     }
 }
 
-void func_806D25CC(void) {
+void playerInputUpdateByMapDirect(void) {
     switch (gCurrentMap) {
         case 0x6A:
             playerInputUpdate(0x60);
@@ -660,24 +660,24 @@ void func_806D25CC(void) {
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void func_806F4D70(u8, f32, f32, f32, f32);
 
-void func_806D266C(void) {
+void playerInputUpdateNode3(void) {
     f32 sp2C;
     f32 sp28;
     f32 sp24;
 
     actorRegisterSnapToBoneCallback();
-    func_806D25CC();
+    playerInputUpdateByMapDirect();
     actorGetNodePos(gCurrentActor, 3, &sp2C, &sp28, &sp24);
     func_806F4D70(gCurrentPlayerIndex, sp2C, sp28, sp24, 25.0f);
 }
 
-void func_806D26D8(void) {
+void playerInputUpdateNode2(void) {
     f32 sp2C;
     f32 sp28;
     f32 sp24;
 
     actorRegisterSnapToBoneCallback();
-    func_806D25CC();
+    playerInputUpdateByMapDirect();
     actorGetNodePos(gCurrentActor, 2, &sp2C, &sp28, &sp24);
     func_806F4D70(gCurrentPlayerIndex, sp2C, sp28, sp24, 25.0f);
 }
@@ -690,14 +690,14 @@ void func_806D2744(s32 arg0) {
     G09_A->unk6C = G09_A->unk6A;
 }
 
-void func_806D2784(void) {
+void playerInputUpdate61(void) {
     func_806D2744(0x61);
 }
 
 void mapTransitionToMenuOrPrevious(void);
 s32 camIsPlayingPath();
 
-void func_806D27A4(void) {
+void playerInputUpdate63(void) {
     func_806D2744(0x63);
     if (camIsPlayingPath(5) != 0) {
         if (G09_A->unk4->unk64 != 0x3B0) {
@@ -731,12 +731,12 @@ void func_806D281C(void) {
     func_806D2744(1);
 }
 
-void func_806D28E4(void) {
+void playerInputUpdate64(void) {
     func_806D2744(0x64);
 }
 
 
-void func_806D2904(void) {
+void playerInputUpdateWaitC9(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
     if (G09_A->unk155++ >= 0xC9) {
         playerResumeLocomotion(gCurrentActor);
@@ -808,11 +808,11 @@ void func_806D2AA0(s16 arg0) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D2B90(void) {
+void playerInputUpdateCase4(void) {
     func_806D2AA0(4);
 }
 
-void func_806D2BB0(void) {
+void playerInputUpdateCase5(void) {
     func_806D2AA0(5);
 }
 
@@ -868,7 +868,7 @@ s32 camIsCutsceneActive();
 void playerCheckAndResetCarriedActor();
 void sfxStopSlotSound();
 
-void func_806D2BD0(void) {
+void playerInputUpdateCaseC(void) {
     func_806D2954(0xC);
     playerApplyFullPhysics();
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -880,7 +880,7 @@ void func_806D2BD0(void) {
     }
 }
 
-void func_806D2C54(void) {
+void playerInputUpdateCase10(void) {
     func_806D2A14(0x10);
     playerApplyFullPhysics();
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -920,7 +920,7 @@ typedef struct G10Player {
 extern f32 D_80753A5C[];
 void func_806EAB44();
 
-void func_806D2CAC(void) {
+void playerInputUpdateCaseD(void) {
     G10_P->unk2C = D_80753AFC[D_807FD584];
     func_806D2954(0xD);
     func_806CC638(D_80753A5C[D_807FD584]);
@@ -930,7 +930,7 @@ void func_806D2CAC(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D2D38(void) {
+void playerInputUpdateCase11(void) {
     G10_P->unk2C = D_80753AFC[D_807FD584];
     func_806D2A14(0x11);
     func_806CC638(D_80753A5C[D_807FD584]);
@@ -1134,12 +1134,12 @@ void func_806D3530(void) {
     }
 }
 
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 
 void func_806D3608(void) {
     f32 temp = G10_A->unk4->unk38 / 0.15;
 
-    if (!(D_807FBB64 & 0x40000) && (camIsCutsceneActive() == 0)) {
+    if (!(gGlobalOverlayFlags & 0x40000) && (camIsCutsceneActive() == 0)) {
         if (gCurrentMap == 0xE) {
             func_806D3530();
             return;
@@ -4391,7 +4391,7 @@ void func_806DB670(void) {
             }
             break;
         case 7:
-            D_807FBB60 &= 0xFFFCFFDF;
+            gGlobalPauseFlags &= 0xFFFCFFDF;
             actorClearMovementFlags(gCurrentActor);
             G18_A->unk7C = G18_P->unk204;
             G18_A->unk80 = G18_P->unk208;
@@ -4404,7 +4404,7 @@ void func_806DB670(void) {
             G18_A->unk155++;
             break;
         case 8:
-            D_807FBB60 |= 0x30020;
+            gGlobalPauseFlags |= 0x30020;
             G18_P->unk23C--;
             if (G18_P->unk23C == 0) {
                 sfxStartAreaAmbient();
@@ -5797,7 +5797,7 @@ void func_806DED44(void) {
         G20_E40->unk155 = 1;
         break;
     case 1:
-        D_807FBB60 &= 0xFFFEFFCF;
+        gGlobalPauseFlags &= 0xFFFEFFCF;
         actorSpawn(0x141, 0x3D);
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, G20_E40->unk4->unk38 * 2);
         G20_E44->unk60 |= 0x40000000;
@@ -5868,7 +5868,7 @@ typedef struct G20ActorC {
 #define G20_C ((G20ActorC *)gCurrentActor)
 
 #define G20_BLK ((G20Block *)gPlayerSlots)
-extern u8 D_80750AB8;
+extern u8 gSplitScreenMode;
 
 void func_806DF050(void) {
     G20Sub174 *sub = G20_C->unk174;
@@ -5876,7 +5876,7 @@ void func_806DF050(void) {
     s16 cur;
 
     playerStateQueueCallback(0x5C, 0, gCurrentPlayerIndex);
-    if (D_80750AB8 == 0) {
+    if (gSplitScreenMode == 0) {
         G20_BLK[sub->unk1A4].unk2EA = 1;
     }
     G20_BLK[sub->unk1A4].unk2EB = 1;
@@ -5885,7 +5885,7 @@ void func_806DF050(void) {
     step = (cur < 4) ? cur : 4;
     G20_C->unk128 = cur - step;
     if (G20_C->unk128 == 0) {
-        if (D_80750AB8 == 0) {
+        if (gSplitScreenMode == 0) {
             G20_BLK[sub->unk1A4].unk0 = 0;
         }
         G20_C->unk60 &= ~4;

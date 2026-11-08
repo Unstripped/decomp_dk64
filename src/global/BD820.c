@@ -22,7 +22,7 @@ typedef struct BD820View9C {
 } BD820View9C;
 
 #define BD820A ((BD820Actor *)gCurrentActor)
-#define BD820S9C ((BD820View9C *)D_807FDC9C)
+#define BD820S9C ((BD820View9C *)gBehaviourExtraState)
 
 extern void *D_8074E880[];
 extern u8 D_8071FFA0[];
@@ -101,20 +101,20 @@ void func_806B8C78(void) {
             effectSpawnRandomParticleAtPoint(0x258, 0x190, 0x1E5, 0x73);
             effectSpawnRandomParticleAtPoint(0x258, 0x1C2, 0x1E5, 0x74);
             gCurrentActor->state++;
-            D_807FDC90->timer = 0x46;
+            gBehaviourWorkState->timer = 0x46;
             break;
         case 3:
-            if (D_807FDC90->timer != 0) {
-                D_807FDC90->timer--;
+            if (gBehaviourWorkState->timer != 0) {
+                gBehaviourWorkState->timer--;
             } else {
                 gCurrentActor->state = 0x40;
             }
-            if (D_807FDC90->timer < 0x28) {
+            if (gBehaviourWorkState->timer < 0x28) {
                 modelSlotOrFlags(4, 0x10);
                 modelSlotOrFlags(6, 0x10);
                 modelSlotClearFlags(5, 0x10);
                 modelSlotClearFlags(7, 0x10);
-                if ((D_807FDC90->timer < 0x15 && (randomNonNegative() >> 15) % 1000 < 0x12C) || gCurrentActor->state == 0x40) {
+                if ((gBehaviourWorkState->timer < 0x15 && (randomNonNegative() >> 15) % 1000 < 0x12C) || gCurrentActor->state == 0x40) {
                     if (gCurrentActor->state == 0x40) {
                         modelSlotOrFlags(5, 0x10);
                         modelSlotOrFlags(7, 0x10);
@@ -126,7 +126,7 @@ void func_806B8C78(void) {
                     actorSetTargetSlotByte(gCsModelIds[4], 0);
                     actorSetTargetSlotByte(gCsModelIds[6], 0);
                     lightSetColor(0.15f, 0.15f, 0.15f, 0);
-                } else if (D_807FDC90->timer >= 0x15) {
+                } else if (gBehaviourWorkState->timer >= 0x15) {
                     actorSetTargetSlotByte(gCsModelIds[4], 9);
                     actorSetTargetSlotByte(gCsModelIds[6], 9);
                     lightSetColor(0.2f, 0.2f, 0.2f, 0);

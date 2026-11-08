@@ -274,16 +274,16 @@ typedef struct ActorMtxOwner {
     s32 unk88;
 } ActorMtxOwner;
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern s32 gFrameCounter;
 void actorGetMatrix(ActorMtxOwner *owner, ActorMtxF dst, s8 mtxIndex) {
     u8 bufIdx;
     Mtx *mtx;
 
     if (gFrameCounter == owner->unk88) {
-        bufIdx = D_807444FC;
+        bufIdx = gGfxBufferIndex;
     } else {
-        bufIdx = D_807444FC ^ 1;
+        bufIdx = gGfxBufferIndex ^ 1;
     }
     mtx = owner->unk74[bufIdx];
     if (mtxIndex == -1) {

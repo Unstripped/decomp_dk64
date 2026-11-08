@@ -153,7 +153,7 @@ typedef struct R117d2MenuObject {
     u8 unk155;
 } R117d2MenuObject;
 
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern u8 gPlayerCount;
 void healthRefill(u8);
 s32 mapFindPreviousSavedMap(s32 *, s32 *);
@@ -169,7 +169,7 @@ void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
 
     healthRefill((u8) arg1);
     if (arg1 == 0) {} // FAKE: keeps arg1 in a1 with an eager restore after healthRefill
-    if (D_807FBB64 & 1) {
+    if (gGlobalOverlayFlags & 1) {
         arg0->unk155++;
         if (D_807FBB68 & 2) {
             flagSet(0x5C, 1, 2);
@@ -187,7 +187,7 @@ void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
         mapRequestTransition(var_a0, var_a1);
         return;
     }
-    if (D_807FBB64 & 0x400) {
+    if (gGlobalOverlayFlags & 0x400) {
         arg0->unk155++;
         mapFindPreviousSavedMap(&sp20, &sp1C);
         mapRequestTransition(sp20, sp1C);
@@ -220,7 +220,7 @@ extern u8 D_80755324;
 extern u64 D_807445B8;
 extern u64 D_807445C0;
 extern s8 D_80746B60;
-extern u32 D_807FBB60;
+extern u32 gGlobalPauseFlags;
 extern s32 D_80755320;
 
 void func_8060B6CC(void);
@@ -242,7 +242,7 @@ void func_80712A40(void) {
     D_80755314 = D_80755318;
     D_80755324 = 0;
     D_80755320 = 0;
-    if (D_807FBB60 & 2) {
+    if (gGlobalPauseFlags & 2) {
         elapsed = osGetTime() - D_807445C0;
         D_807445B8 += elapsed;
         if (D_80755340.active != 0) {
@@ -252,7 +252,7 @@ void func_80712A40(void) {
 }
 
 extern u8 D_80755328;
-extern u8 D_80750AC0;
+extern u8 gActivePlayerCount;
 extern u16 D_8075531C;
 extern u16 D_807ECD66;
 extern u8 D_8075E5C0[];
@@ -373,7 +373,7 @@ void func_80712BD4(void) {
 }
 
 void menuReturnToTitle(void) {
-    D_80750AC0 = 1;
+    gActivePlayerCount = 1;
     menuTransitionWithState(0x50, 0, 5);
 }
 
@@ -521,7 +521,7 @@ Gfx *func_8071338C(Gfx *arg0) {
 
 #pragma GLOBAL_ASM("asm/global/nonmatchings/117190/D_8075E5C0.s")
 
-extern s16 D_80744490;
+extern s16 gScreenWidth;
 
 s32 heapAlloc(s32);
 void heapFreeDeferred(void *);
@@ -540,7 +540,7 @@ Gfx *func_80713438(Gfx *arg0, u8 arg1) {
 
     sp30 = (s32) textTableGetString(0xC, 1, 1);
     temp_a0 = strlen((char *) sp30) + 2;
-    sp28 = (f32) ((f64) D_80744490 * 0.5 * 2.0f);
+    sp28 = (f32) ((f64) gScreenWidth * 0.5 * 2.0f);
     y = 418.0f;
     sp34 = heapAlloc(temp_a0);
     heapFreeDeferred((void *) sp34);
@@ -580,7 +580,7 @@ Gfx *func_807135B4(Gfx *arg0) {
     if ((temp_v0 >= 0) && !(temp_v0 & 0x10)) {
         sp38 = D_80755370;
         var_v1 = 0;
-        sp34 = (f32) D_80744490;
+        sp34 = (f32) gScreenWidth;
         sp30 = (f32) (0xBD - textGetFontHeight(6));
         if ((D_807ECD09 != 0) && ((func_807142D8() == 0) || (var_v1 = 1, (gCurrentMap == 0x4C)))) {
             return arg0;
@@ -596,15 +596,15 @@ Gfx *func_807135B4(Gfx *arg0) {
 s32 mathIdentityS32(s32 arg0) {
     return arg0;
 }
-extern s16 D_80744494;
+extern s16 gScreenHeight;
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
 Gfx *func_80713764(Gfx *arg0, u8 arg1, f32 arg2) {
     f32 x;
     f32 y;
 
-    x = (f32) ((f64) D_80744490 * 0.5);
-    y = (f32) (((f64) D_80744494 * 0.5) + -20.0 + (f64) arg2);
+    x = (f32) ((f64) gScreenWidth * 0.5);
+    y = (f32) (((f64) gScreenHeight * 0.5) + -20.0 + (f64) arg2);
     R117D_WRITE_GFX(arg0++, 0xE200001C, 0x504240);
     gDPSetPrimColor(arg0++, 0, 0, 255, 255, 255, arg1);
     R117D_WRITE_GFX(arg0++, 0xFCFF97FF, 0xFF2CFE7F);
@@ -699,7 +699,7 @@ void func_80713C8C(void) {
             return;
         }
         D_80755340.time += D_807445B0;
-        if (!(D_807FBB60 & 2)) {
+        if (!(gGlobalPauseFlags & 2)) {
             elapsed = (osGetTime() - D_80755340.time) * 64;
             D_80755340.unk8 = D_80755340.duration - (u32)(elapsed / 3000 / 1000000);
             if (((u32)D_80755340.index < 0xA) && (D_80755340.unk8 == D_80755358[D_80755340.index])) {
@@ -721,8 +721,8 @@ Gfx *hudDrawCountdownTimer(Gfx *dl) {
     f32 timerX;
     Gfx *dlCur;
 
-    if ((menuGetTimerFlag() != 0) && !(D_807FBB60 & 3)) {
-        timerX = (f32) D_80744490 * 0.5f;
+    if ((menuGetTimerFlag() != 0) && !(gGlobalPauseFlags & 3)) {
+        timerX = (f32) gScreenWidth * 0.5f;
         dlCur = func_807132DC(dl);
         R117D_WRITE_GFX(dlCur++, 0xFC119623, 0xFF2FFFFF);
         R117D_WRITE_GFX(dlCur++, 0xFA000000, 0xFFFFFFFF);
@@ -856,7 +856,7 @@ typedef struct {
 
 extern s32 D_807552E4;
 extern s32 D_80755384[];
-extern s8 D_80750AB8;
+extern s8 gSplitScreenMode;
 #define R117c_STATE ((R117cState *) &D_807552E4)
 
 
@@ -987,9 +987,9 @@ void func_8071458C(void) {
     s32 var_a0;
 
     func_806C9AE0();
-    D_80750AB8 = 0;
+    gSplitScreenMode = 0;
     if (R117c_STATE->unk0 == 0) {
-        D_80750AB8 = 1;
+        gSplitScreenMode = 1;
         var_a0 = 0x6B;
     } else {
         var_a0 = D_80755384[R117c_STATE->unk20];

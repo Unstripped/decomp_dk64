@@ -119,14 +119,14 @@ typedef struct BossC_A7A0_DC9C {
     u8 unkC;
 } BossC_A7A0_DC9C;
 
-extern BossC_A7A0_DC9C *D_807FDC9C;
+extern BossC_A7A0_DC9C *gBehaviourExtraState;
 void actorSetTargetSpeed(BossC_A7A0_Actor *, s32);
 
 void bossKRoolLankyRunTowardPlayer(void) {
     BossC_A7A0_178 *link = gCurrentActor->unk178;
 
     bossKRoolLankySetAnim(0x406, 0x674);
-    actorSetTargetSpeed(gCurrentActor, D_807FDC9C->unkC + (link->unk14 * 10) + 15);
+    actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC + (link->unk14 * 10) + 15);
 }
 
 typedef struct BossScriptState {
@@ -193,8 +193,8 @@ typedef struct BossConfig {
 } BossConfig;
 
 extern u8 *D_80035A80[];
-extern BossWorkState *D_807FDC90;
-extern BossActorPos *D_807FDC94;
+extern BossWorkState *gBehaviourWorkState;
+extern BossActorPos *gBehaviourTargetActor;
 void behaviourFrameBegin(void);
 void bossRoundFrame(u8 *);
 void func_80724CA4(s32, s32);
@@ -216,7 +216,7 @@ s32 func_8072881C(s32, void *);
 #define ACTOR40 ((BossActor *)gCurrentActor)
 #define ACTOR4C ((BossActor *)D_807FBB4C)
 #define BB70 (*(BossStageInfo *)&D_807FBB70)
-#define DC9C ((BossConfig *)D_807FDC9C)
+#define DC9C ((BossConfig *)gBehaviourExtraState)
 
 void bossKRoolLankyStep(void) {
     BossScriptState *scriptState;
@@ -235,9 +235,9 @@ void bossKRoolLankyStep(void) {
         bossAttachActor();
         ACTOR40->unkC4 = 0.0f;
     }
-    if ((ACTOR4C->unk154 == 0x48) && !(D_807FDC90->unk1A & 0x8000)) {
+    if ((ACTOR4C->unk154 == 0x48) && !(gBehaviourWorkState->unk1A & 0x8000)) {
         camStartPath(ACTOR40, 0, 1);
-        D_807FDC90->unk1A |= 0x8000;
+        gBehaviourWorkState->unk1A |= 0x8000;
     }
     if ((camIsPlayingPath(0) == 0) && (camIsPlayingPath(1) == 0) && ((ACTOR4C->unk154 != 0x67) || (ACTOR40->unk154 != 0x42))) {
         switch (ACTOR40->unk154) {
@@ -263,7 +263,7 @@ void bossKRoolLankyStep(void) {
                     ACTOR40->unk154 = 0x2C;
                     ACTOR40->unk155 = 0;
                 }
-                actorMoveWithinZone(0x23, D_807FDC94->unk7C, D_807FDC94->unk84, 0, 0.0f);
+                actorMoveWithinZone(0x23, gBehaviourTargetActor->unk7C, gBehaviourTargetActor->unk84, 0, 0.0f);
                 break;
             }
             break;
@@ -353,8 +353,8 @@ void bossKRoolLankyStep(void) {
         scriptSetActorRampTarget(ACTOR40, 0.0f, 0.0f);
     }
     func_8072A450();
-    if (func_8072881C(0, D_807FDC90->unk28) != 0) {
-        func_8072881C(0x81, D_807FDC90->unk28);
+    if (func_8072881C(0, gBehaviourWorkState->unk28) != 0) {
+        func_8072881C(0x81, gBehaviourWorkState->unk28);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

@@ -18,7 +18,7 @@ extern u32 gFrameCounter;
 extern u8 D_807ECD09;
 extern OSMesgQueue D_807ECCF0;
 extern u8 D_807F0474[];
-extern u32 D_807FBB60;
+extern u32 gGlobalPauseFlags;
 extern PlayerStruct *gPlayerSlots;
 
 void rumbleInfoClear(RumbleInfo *info);
@@ -153,7 +153,7 @@ void rumbleInit(void) {
 }
 
 int rumbleShouldPause(void) {
-    return ((D_807FBB60 & 0x4002) != 0) ||
+    return ((gGlobalPauseFlags & 0x4002) != 0) ||
            ((D_8076A0B1 & 1) != 0) ||
            (screenWipeGetState() != 0) ||
            (camIsCutsceneActive() != 0) ||

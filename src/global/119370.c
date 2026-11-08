@@ -1,8 +1,8 @@
 #include "common.h"
 #include "actor.h"
 
-extern u8 D_807444FC;
-extern u8 D_80750AB4;
+extern u8 gGfxBufferIndex;
+extern u8 gViewportCount;
 extern s16 D_807FDB34;
 
 void *heapAlloc(s32);
@@ -297,7 +297,7 @@ void func_80714CC0(s32 asset, f32 scale, f32 x, f32 y, f32 z) {
     effectCreate(asset, scale, x, y, z, NULL, 0, 0, 0);
 }
 
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 void effectBuildGridVertices(EffectNode *);
 #define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 
@@ -375,7 +375,7 @@ EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, voi
     UA1_D08_FIELD(s32, effect, 0x354) = D_807FDB10;
     UA1_D08_FIELD(s32, effect, 0x358) = 0;
     UA1_D08_FIELD(s32, effect, 0x35C) = D_807FDB2C;
-    if (D_807FBB64 & 0x100) {
+    if (gGlobalOverlayFlags & 0x100) {
         UA1_D08_FIELD(s16, effect, 0x34C) = 0x7D0;
     } else {
         UA1_D08_FIELD(s16, effect, 0x34C) = D_807FDB3A;
@@ -391,11 +391,11 @@ EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, voi
     UA1_D08_FIELD(s16, effect, 0x390) = D_807FDB3E;
     UA1_D08_FIELD(s16, effect, 0x392) = D_807FDB40;
     UA1_D08_FIELD(s16, effect, 0x394) = D_807FDB42;
-    for (i = 0; i < D_80750AB4; i++) {
+    for (i = 0; i < gViewportCount; i++) {
         ((void **)effect)[i * 2] = heapAlloc(0x200);
         ((void **)effect)[i * 2 + 1] = heapAlloc(0x200);
     }
-    *((u8 *)effect + 0x20) = D_80750AB4;
+    *((u8 *)effect + 0x20) = gViewportCount;
     effectBuildGridVertices(effect);
     effectResetState();
     return effect;
@@ -536,17 +536,17 @@ void effectUpdateAll(u8 pGlist) {
                     ((void (*)(void *, u8 *))UA1_D08_FIELD(void *, effect, 0x328))(effect, &chunkFound);
                 }
             } else if (UA1_D08_FIELD(void *, effect, 0x328) != NULL) {
-                if (D_80750AB4 > 0) {
+                if (gViewportCount > 0) {
                     i = 0;
                     offset = 0;
                     do {
                         if (((u8 *)gPlayerSlots)[offset] != 0) {
-                            memcpy((u8 *)effect + i * 0x80 + D_807444FC * 0x40 + 0x128,
-                                   (u8 *)effect + i * 0x80 + (D_807444FC ^ 1) * 0x40 + 0x128, 0x40);
+                            memcpy((u8 *)effect + i * 0x80 + gGfxBufferIndex * 0x40 + 0x128,
+                                   (u8 *)effect + i * 0x80 + (gGfxBufferIndex ^ 1) * 0x40 + 0x128, 0x40);
                         }
                         i++;
                         offset += 0x2F0;
-                    } while (i < D_80750AB4);
+                    } while (i < gViewportCount);
                 }
                 UA1_D08_FIELD(u8, effect, 0x32C) = 3;
             }
@@ -565,25 +565,25 @@ void effectUpdateAll(u8 pGlist) {
             if (UA1_D08_FIELD(u8, effect, 0x32D) != 0) {
                 effectFreeAndUnlink(effect);
             } else {
-                if (D_80750AB4 >= 2) {
+                if (gViewportCount >= 2) {
                     i = 1;
                     offset = 0x2F0;
                     do {
                         if (((u8 *)gPlayerSlots)[offset] != 0) {
-                            memcpy((u8 *)effect + i * 0x80 + D_807444FC * 0x40 + 0x128,
-                                   (u8 *)effect + D_807444FC * 0x40 + 0x128, 0x40);
+                            memcpy((u8 *)effect + i * 0x80 + gGfxBufferIndex * 0x40 + 0x128,
+                                   (u8 *)effect + gGfxBufferIndex * 0x40 + 0x128, 0x40);
                         }
                         i++;
                         offset += 0x2F0;
-                    } while (i < D_80750AB4);
+                    } while (i < gViewportCount);
                 }
                 if (UA1_D08_FIELD(u8, effect, 0x32C) != 3) {
-                    if (D_80750AB4 > 0) {
+                    if (gViewportCount > 0) {
                         i = 0;
                         offset = 0;
                         do {
                             if (((u8 *)gPlayerSlots)[offset] != 0) {
-                                effectComputeTransformMatrix((Mtx *)((u8 *)effect + i * 0x80 + D_807444FC * 0x40 + 0x128),
+                                effectComputeTransformMatrix((Mtx *)((u8 *)effect + i * 0x80 + gGfxBufferIndex * 0x40 + 0x128),
                                               UA1_D08_FIELD(u8, effect, 0x32C),
                                               UA1_D08_FIELD(f32, effect, 0x360),
                                               UA1_D08_FIELD(f32, effect, 0x364),
@@ -596,7 +596,7 @@ void effectUpdateAll(u8 pGlist) {
                             }
                             i++;
                             offset += 0x2F0;
-                        } while (i < D_80750AB4);
+                        } while (i < gViewportCount);
                     }
                     UA1_D08_FIELD(u8, effect, 0x32C) = 3;
                 }
@@ -909,12 +909,12 @@ typedef struct EffectDrawView {
 #define EFFECT_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern Actor *D_807FBB4C;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern u8 D_807F6009;
 extern s32 D_807F600C;
 extern u8 gCurrentPlayerIndex;
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 extern Mtx D_2000000;
 extern Mtx D_20000C0;
 extern Mtx D_2000180;
@@ -937,7 +937,7 @@ Gfx *effectGridBuildDisplayList(EffectDrawView *drawView, Gfx *inGlist, s16 alph
     if (drawView->unk38C & 0x50) {
         return inGlist;
     }
-    if ((((D_807FBB4C->state == 0x83) || (D_807FBB4C->state == 0x67)) && !(drawView->unk38C & 0x20)) || (((D_807FBB60 & 0x100002) == 0x100002) && !(drawView->unk38C & 0x100))) {
+    if ((((D_807FBB4C->state == 0x83) || (D_807FBB4C->state == 0x67)) && !(drawView->unk38C & 0x20)) || (((gGlobalPauseFlags & 0x100002) == 0x100002) && !(drawView->unk38C & 0x100))) {
         return inGlist;
     }
     if (alpha == -1) {
@@ -952,7 +952,7 @@ Gfx *effectGridBuildDisplayList(EffectDrawView *drawView, Gfx *inGlist, s16 alph
             return inGlist;
         }
     }
-    glist = ((Gfx *(*)[2])drawView)[drawView->unk21][D_807444FC];
+    glist = ((Gfx *(*)[2])drawView)[drawView->unk21][gGfxBufferIndex];
     drawView->unk21++;
     EFFECT_WRITE_GFX(inGlist++, 0xDE000000, osVirtualToPhysical(glist));
     EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);
@@ -984,7 +984,7 @@ Gfx *effectGridBuildDisplayList(EffectDrawView *drawView, Gfx *inGlist, s16 alph
             EFFECT_WRITE_GFX(glist++, 0xED000000 | (((s32)((f32)drawView->unk38E * 4.0f) & 0xFFF) << 12) | ((s32)((f32)drawView->unk390 * 4.0f) & 0xFFF), (((s32)((f32)drawView->unk392 * 4.0f) & 0xFFF) << 12) | ((s32)((f32)drawView->unk394 * 4.0f) & 0xFFF));
         }
     }
-    EFFECT_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical((u8 *)drawView + (gCurrentPlayerIndex << 7) + (D_807444FC << 6) + 0x128));
+    EFFECT_WRITE_GFX(glist++, 0xDA380000, osVirtualToPhysical((u8 *)drawView + (gCurrentPlayerIndex << 7) + (gGfxBufferIndex << 6) + 0x128));
 
     for (i = 0; i < drawView->unk380; i++) {
         if (D_807F6009 != 5 || D_807F600C != (s32)drawView->unk370[i]) {
@@ -1015,7 +1015,7 @@ Gfx *effectGridBuildDisplayList(EffectDrawView *drawView, Gfx *inGlist, s16 alph
         EFFECT_WRITE_GFX(glist++, 0xDA380007, &D_2000000);
         EFFECT_WRITE_GFX(glist++, 0xDA380005, &D_2000200);
         if (drawView->unk388 == -1) {
-            EFFECT_WRITE_GFX(glist++, 0xED000000, ((((s32)((f32)D_80744490 * 4.0f) & 0xFFF) << 12) | ((s32)((f32)D_80744494 * 4.0f) & 0xFFF)));
+            EFFECT_WRITE_GFX(glist++, 0xED000000, ((((s32)((f32)gScreenWidth * 4.0f) & 0xFFF) << 12) | ((s32)((f32)gScreenHeight * 4.0f) & 0xFFF)));
         }
     }
     EFFECT_WRITE_GFX(glist++, 0xE7000000, 0);

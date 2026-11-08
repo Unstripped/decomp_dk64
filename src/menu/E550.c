@@ -56,7 +56,7 @@ void menuLightSpotlightActorUpdate(void) {
 }
 
 extern u8 D_800339D0;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 void lightSetFovAngles(f32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void menuSetFlag5324(void);
@@ -80,7 +80,7 @@ void menuUpdateLightFadeActor(void) {
             actorScriptStart(gCurrentActor, 0x2D6);
             gCurrentActor->unk154++;
             gCurrentActor->unk155 = 0;
-            D_807FBB60 &= ~0x30;
+            gGlobalPauseFlags &= ~0x30;
         }
         break;
     case 1:
@@ -133,8 +133,8 @@ void menuUpdateLightFadeActor(void) {
 
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 extern u8 D_8074450C;
 char *textTableGetString(s32, s32, s32);
 s32 textGetFontHeight(s32);
@@ -175,9 +175,9 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0);
     tex = texCacheFindOrLoad(0xB0);
-    yo = (s32)(((f32)D_80744494 - 82.0f) * 0.5f);
+    yo = (s32)(((f32)gScreenHeight - 82.0f) * 0.5f);
     y = 0; do {  // LAYOUT: one source line removes a scheduling barrier before the loop.
-        xo = (s32)(((f32)D_80744490 - 204.0f) * 0.5f);
+        xo = (s32)(((f32)gScreenWidth - 204.0f) * 0.5f);
         for (x = 0; x != 0xCC; x += 0x66) { // LAYOUT: keep the induction update on the loop-header line.
             if (x) {} // FAKE: shorten the full-width induction range and raise its colouring priority.
             { gDPSetTextureImage(dl++, G_IM_FMT_I, G_IM_SIZ_8b, 102, tex); \
@@ -200,13 +200,13 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     if ((s8)D_800339D0 && xo) {}  // FAKE: preserve xo's range length and the Combine packet's v0/v1 interference.
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
-    xo = (s32)((f32)(D_80744490 - textGetStringWidth(1, headerStr)) * 0.5f);
-    yo = (s32)((((f32)D_80744494 - 82.0f) * 0.5f) - (f32)fontHeight);
+    xo = (s32)((f32)(gScreenWidth - textGetStringWidth(1, headerStr)) * 0.5f);
+    yo = (s32)((((f32)gScreenHeight - 82.0f) * 0.5f) - (f32)fontHeight);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
     loadTilePacket = dl++; loadTilePacket->words.w0 = 0xE200001C; loadTilePacket->words.w1 = 0x504240; // FAKE: reuse the t1 load-tile range for this packet.
     actor = dl++; ((Gfx *)actor)->words.w0 = 0xFCFF97FF; ((Gfx *)actor)->words.w1 = 0xFF2CFE7F; // FAKE: reuse the consumed parameter's packet home.
     dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), headerStr, 0);
-    x = (s32)((f32)D_80744490 * 0.5f);
+    x = (s32)((f32)gScreenWidth * 0.5f);
     actor = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
     off = D_8074450C * 0xC8;
     xx = x * 4;

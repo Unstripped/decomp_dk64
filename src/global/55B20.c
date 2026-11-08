@@ -1315,7 +1315,7 @@ void actorCalculateTargetDistancesAndAngles(f32, f32, f32);
 void mapChunksApplyLights(f32, f32, f32);
 extern u8 D_807F5E20[];
 extern u8 D_807F5E68[];
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern f32 D_807F5FB4;
 extern f32 D_807F5FB0;
 extern u8 D_807F6C08;
@@ -1328,7 +1328,7 @@ void mapChunkFrameUpdate(f32 arg0, f32 arg1, f32 arg2) {
     mapUpdateFogDistance(&gPlayerSlots[gCurrentPlayerIndex].unk288, gPlayerSlots[gCurrentPlayerIndex].unk290);
     D_807F7138 = (s16)(s32)gPlayerSlots[gCurrentPlayerIndex].unk288;
     frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, (f32)D_807F7138);
-    frustumCornersTransformByInverse((Mtx *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + (D_807444FC << 6) + 8));
+    frustumCornersTransformByInverse((Mtx *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + (gGfxBufferIndex << 6) + 8));
     frustumOrientPolyNormals(arg0, arg1, arg2, &D_807F5E68, &D_807F5E20);
     mapChunkClearBounds();
     mapChunkActivate(gPlayerSlots[gCurrentPlayerIndex].unk290);
@@ -1501,7 +1501,7 @@ void mapChunkBuildClipFrusta(f32 arg0, f32 arg1, f32 arg2) {
     u8 sp84[0x30];
 
     frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, D_807F5FAC);
-    guMtxL2F(spF8, (Mtx *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + (D_807444FC << 6) + 8));
+    guMtxL2F(spF8, (Mtx *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + (gGfxBufferIndex << 6) + 8));
     matrix4Invert(spB8, spF8);
     for (i = 0; i < gMapChunkCount; i++) {
         if (gMapChunks[i].unk0 == 1) {
@@ -1901,7 +1901,7 @@ void effectWaterApplyLights(f32, f32, f32);
 extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern u8 D_807F78C0;
 
 #define MAP_CHUNK_LIGHT ((MapChunkLightView *)gMapChunks)
@@ -1948,7 +1948,7 @@ void mapChunksApplyLights(f32 arg0, f32 arg1, f32 arg2) {
                                         node += 1;
                                     }
                                 } while (found == 0);
-                                if (D_807FBB60 & 0x10) {
+                                if (gGlobalPauseFlags & 0x10) {
                                     q = j;
                                     MAP_CHUNK_LIGHT[i].unk4C[nodeIdx].unk14[j] = matrixCacheLookup(obj, i, boxIdx, q);
                                     if (MAP_CHUNK_LIGHT[i].unk4C[nodeIdx].unk14[j] == NULL) {
@@ -1971,18 +1971,18 @@ void mapChunksApplyLights(f32 arg0, f32 arg1, f32 arg2) {
                     obj = lightCollectVolumesInBounds(arg0, arg1, arg2, -0x8000, -0x8000, -0x8000, -0x8000, -0x8000, -0x8000, -1, &hit);
                     flag = 1;
                 }
-                if (MAP_CHUNK_LIGHT[i].unk60[D_807444FC] == NULL) {
-                    MAP_CHUNK_LIGHT[i].unk60[D_807444FC] = heapAlloc(MAP_CHUNK_LIGHT[i].unk5C);
+                if (MAP_CHUNK_LIGHT[i].unk60[gGfxBufferIndex] == NULL) {
+                    MAP_CHUNK_LIGHT[i].unk60[gGfxBufferIndex] = heapAlloc(MAP_CHUNK_LIGHT[i].unk5C);
                 }
-                memcpy(MAP_CHUNK_LIGHT[i].unk60[D_807444FC], MAP_CHUNK_LIGHT[i].unk54, MAP_CHUNK_LIGHT[i].unk5C);
+                memcpy(MAP_CHUNK_LIGHT[i].unk60[gGfxBufferIndex], MAP_CHUNK_LIGHT[i].unk54, MAP_CHUNK_LIGHT[i].unk5C);
                 D_807F7EEC = ((f32 *)D_8076A0B4)[i];
                 D_807F7EF0 = ((f32 *)D_8076A0B8)[i];
                 D_807F7EF4 = ((f32 *)D_8076A0BC)[i];
-                if (D_807FBB60 & 0x10) {
-                    func_8065C990((s32)MAP_CHUNK_LIGHT[i].unk60[D_807444FC], (s32)MAP_CHUNK_LIGHT[i].unk60[D_807444FC] + MAP_CHUNK_LIGHT[i].unk5C, 1, &D_807F78C0, obj, MAP_CHUNK_LIGHT[i].unk3 == 1);  // FAKE: s32 args steer the arg0 register (callee takes void * here)
+                if (gGlobalPauseFlags & 0x10) {
+                    func_8065C990((s32)MAP_CHUNK_LIGHT[i].unk60[gGfxBufferIndex], (s32)MAP_CHUNK_LIGHT[i].unk60[gGfxBufferIndex] + MAP_CHUNK_LIGHT[i].unk5C, 1, &D_807F78C0, obj, MAP_CHUNK_LIGHT[i].unk3 == 1);  // FAKE: s32 args steer the arg0 register (callee takes void * here)
                 }
             }
-            MAP_CHUNK_LIGHT[i].unk58 = MAP_CHUNK_LIGHT[i].unk60[D_807444FC];
+            MAP_CHUNK_LIGHT[i].unk58 = MAP_CHUNK_LIGHT[i].unk60[gGfxBufferIndex];
         }
     }
     effectWaterApplyLights(arg0, arg1, arg2);
@@ -2025,9 +2025,9 @@ void mapChunkFreeIdleBuffers(void) {
     while (i < gMapChunkCount) {
         eff = (MapChunkDraw *)((u8 *)gMapChunks + off);
         if (eff->unk3 != 0 && eff->unk5 != 2 && eff->unk4 == 0) {
-            if (((MapChunkDraw *)gMapChunks)[i].unk60[D_807444FC] != NULL) {
-                heapFree(((MapChunkDraw *)gMapChunks)[i].unk60[D_807444FC]);
-                ((MapChunkDraw *)gMapChunks)[i].unk60[D_807444FC] = NULL;
+            if (((MapChunkDraw *)gMapChunks)[i].unk60[gGfxBufferIndex] != NULL) {
+                heapFree(((MapChunkDraw *)gMapChunks)[i].unk60[gGfxBufferIndex]);
+                ((MapChunkDraw *)gMapChunks)[i].unk60[gGfxBufferIndex] = NULL;
             }
         }
         i++;
@@ -2135,7 +2135,7 @@ typedef struct {
 
 extern u8 D_807F5FEC;
 extern void *D_807F5DEC;
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern u8 D_807F6009;
 extern s32 D_807F600C;
 extern s32 D_807F5FFC;
@@ -2216,7 +2216,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
                 }
             }
             gDPPipeSync(gfx++);
-            if (!(D_807FBB64 & 0x01000000)) {
+            if (!(gGlobalOverlayFlags & 0x01000000)) {
                 gfx = billboardRenderQueued(gfx, idx);
             }
             gfx = spriteListRender(gfx, MAP_CHUNK_TILE_AT(idx).unk24);
@@ -2256,7 +2256,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
         gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
         gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
         gfx = mapViewDrawPass(gfx, arg1, 2);
-        if (D_807FBB64 & 0x1000) {
+        if (gGlobalOverlayFlags & 0x1000) {
             gDPPipeSync(gfx++);
             gfx = func_80027034(gfx);
             gSPMatrix(gfx++, osVirtualToPhysical(D_807F7074), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -2279,7 +2279,7 @@ void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg
                 dl = MAP_CHUNK_TILE_AT(idx).unk1C;
             }
             gfx = renderEntryListBuildDisplayList(gfx, dl, arg2, arg3, arg4, arg5, idx, flag);
-            if (D_807FBB64 & 0x01000000) {
+            if (gGlobalOverlayFlags & 0x01000000) {
                 gfx = billboardRenderQueued(gfx, idx);
             }
         }

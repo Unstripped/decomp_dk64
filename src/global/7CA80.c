@@ -251,7 +251,7 @@ s32 func_80678014(s32 arg0) {
 
 extern u16 *D_8074E218[];
 extern u16 D_8074DA58[];
-extern u32 D_807FBB64;
+extern u32 gGlobalOverlayFlags;
 extern u16 D_80748D4A;
 extern u16 D_807FBB3E;
 void heapClearBlock(void *);
@@ -361,7 +361,7 @@ u16 arg0;
         actor->unk64 = 0;
         actor->unk128 = 0xFF;
         actor->unk58 = arg0;
-        if (D_807FBB64 & 0x100) {
+        if (gGlobalOverlayFlags & 0x100) {
             actor->unk12A = 0x7D0;
         } else {
             actor->unk12A = 0x1F4;

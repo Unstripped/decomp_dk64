@@ -76,12 +76,12 @@ void func_806B1F50(void) {
 
     behaviourFrameBegin();
     if (!(gCurrentActor->unk60 & 0x10)) {
-        D_807FDC98->unk46 |= 0xA0;
+        gBehaviourAnimState->unk46 |= 0xA0;
         gCurrentActor->unk60 |= 0x400;
         gCurrentActor->unk154 = 0;
         gCurrentActor->unk155 = 0;
         actorSpawn(0x73, 0x7D);
-        ((B6C50View90 *)D_807FDC90)->unk4 = gSpawnedActor;
+        ((B6C50View90 *)gBehaviourWorkState)->unk4 = gSpawnedActor;
         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.3f);
         gSpawnedActor->unk7C = func_80612794(gCurrentActor->unkE6) * 14.0f + gCurrentActor->unk7C;
         gSpawnedActor->unk84 = func_80612790(gCurrentActor->unkE6) * 14.0f + gCurrentActor->unk84;
@@ -124,7 +124,7 @@ void func_806B1F50(void) {
                     gCurrentActor->unk68 &= 0xFFBF;
                     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xED, 0xFF, 0x7F, 0x14);
                     tagBarrelSpawnSmokeAndPuffs(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, gCurrentActor->unk4->unk38 * 2 / 0.15, 0, 1);
-                    actorDespawn((B6C50Actor *)D_807FDC94);
+                    actorDespawn((B6C50Actor *)gBehaviourTargetActor);
                     gCurrentActor->unk155++;
                     break;
                 case 0x64:
@@ -141,7 +141,7 @@ void func_806B1F50(void) {
                 gCurrentActor->unk138 &= ~0x8000;
                 sfxStopSlotSound(gCurrentActor, 0);
                 func_80726EE0(0);
-                effectFreeByResource((B6C50Actor *)D_807FDC94);
+                effectFreeByResource((B6C50Actor *)gBehaviourTargetActor);
                 actorDespawn(gCurrentActor->unk11C);
                 gCurrentActor->unk154 = 0x27;
                 gCurrentActor->unk155 = 0;
@@ -150,11 +150,11 @@ void func_806B1F50(void) {
                 gCurrentActor->unkE6 += 0x800;
                 gCurrentActor->unk84 += 5.0f;
             }
-            if (gCurrentActor->unk155 != 0 && actorTableContains(D_807FDC94) != 0 && gFrameCounter % 7 == 0) {
+            if (gCurrentActor->unk155 != 0 && actorTableContains(gBehaviourTargetActor) != 0 && gFrameCounter % 7 == 0) {
                 tint = -gCurrentActor->unk155 * 0x1E + 0xB4;
                 func_80714998(3);
                 func_807149C8(tint, tint, tint & 0xFF, gCurrentActor->unk129);
-                effectSpawnBoneDefault((B6C50Actor *)D_807FDC94, 1, 1.0f, 0.0f, 0.0f, 0.0f, -0x96);
+                effectSpawnBoneDefault((B6C50Actor *)gBehaviourTargetActor, 1, 1.0f, 0.0f, 0.0f, 0.0f, -0x96);
             }
             break;
     }
@@ -179,9 +179,9 @@ void func_806B24B8(void) {
     if (!(gCurrentActor->unk60 & 0x10)) {
         found = actorFindByType(0x110);
         if (found != NULL) {
-            ((B6C50View90 *)D_807FDC90)->unk4 = found;
+            ((B6C50View90 *)gBehaviourWorkState)->unk4 = found;
         }
-        D_807FDC9C->unk10 = 0x23;
+        gBehaviourExtraState->unk10 = 0x23;
         func_80613C48(gCurrentActor, 0x599, 0.0f, 0.0f);
         gCurrentActor->unk68 &= 0xFFBF;
         sfxPlayActorSound(gCurrentActor, 0x139, 0x78, 0, 1, 0x3C, 0.56f, 0);
@@ -191,9 +191,9 @@ void func_806B24B8(void) {
         func_807149B8(1);
         func_80714C08(&D_80720340, gCurrentActor->unk4->unk38 * 6.66666667 * 0.9, gCurrentActor, 1, 2);
     }
-    if (actorTableContains(D_807FDC94) == 0) {
-        ((B6C50View90 *)D_807FDC90)->unk4 = D_807FBB4C;
-        D_807FDC94 = (Actor *)((B6C50View90 *)D_807FDC90)->unk4;
+    if (actorTableContains(gBehaviourTargetActor) == 0) {
+        ((B6C50View90 *)gBehaviourWorkState)->unk4 = D_807FBB4C;
+        gBehaviourTargetActor = (Actor *)((B6C50View90 *)gBehaviourWorkState)->unk4;
     }
     if (D_807FBB70.unk15 != 0 || D_807FBB70.unk200 == 9) {
         gCurrentActor->unk144 = 1;
@@ -202,14 +202,14 @@ void func_806B24B8(void) {
     }
     if (gCurrentActor->unk154 == 0x23) {
         if (gCurrentActor->unkF0 == 0) {
-            dx = gCurrentActor->unk7C - D_807FDC94->x;
-            dz = gCurrentActor->unk84 - D_807FDC94->z;
+            dx = gCurrentActor->unk7C - gBehaviourTargetActor->x;
+            dz = gCurrentActor->unk84 - gBehaviourTargetActor->z;
             if (sqrtf(dx * dx + dz * dz) < 30.0f) {
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x2CA, 0xFF, 0x7F, 0x14);
                 gCurrentActor->unkF0 = 1;
             }
         }
-        actorMoveWithinZone(0x23, D_807FDC94->x, D_807FDC94->z, 0, 0.0f);
+        actorMoveWithinZone(0x23, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
     } else {
         func_8072B7CC(0x1F8);
     }

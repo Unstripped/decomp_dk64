@@ -142,7 +142,7 @@ typedef struct {
 } J1aSprite;
 
 extern J1aSprite D_80042BD0[][256];
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 void jetpacGridAddSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flipFlag);
 
 void jetpacGridAddTiledSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flipFlag) {
@@ -184,7 +184,7 @@ void jetpacGridAddTiledSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32
                         if (jetpacTiledSpriteCount >= 0x100) {
                             return;
                         }
-                        dst = &D_80042BD0[D_807444FC][jetpacTiledSpriteCount];
+                        dst = &D_80042BD0[gGfxBufferIndex][jetpacTiledSpriteCount];
                         *(s32 *)(u32)&jetpacTiledSpriteCount = jetpacTiledSpriteCount + 1; // FAKE: indirect store (a direct str gets a .noalias re-emit that lets as1 hoist the sp reload above the sw)
                         *dst = *(J1aSprite *)sprite;
                         xEnd += 8;

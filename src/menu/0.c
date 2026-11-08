@@ -621,7 +621,7 @@ void menuUpdateProgressGrid(void) {
     }
 }
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern s32 gFrameCounter;
 s32 texCacheFindOrLoad(s32);
 
@@ -646,8 +646,8 @@ Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     gDPSetCombine(g++, 0x121803, 0xFF0FFFFF);
     gSPMatrix(g++, D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     guTranslateF(mf, 8.0f, (f32) *pSlideY, 0.0f);
-    guMtxF2L(mf, (Mtx *)((D_807444FC << 6) + D_800330D0));
-    gSPMatrix(g++, (D_807444FC << 6) + D_800330D0, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    guMtxF2L(mf, (Mtx *)((gGfxBufferIndex << 6) + D_800330D0));
+    gSPMatrix(g++, (gGfxBufferIndex << 6) + D_800330D0, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPSetOtherMode(g++, G_SETOTHERMODE_H, 12, 2, 0);
     tex = texCacheFindOrLoad(0xA3);
     v = D_80033F10;

@@ -174,7 +174,7 @@ typedef struct PlayerSlot {
 } PlayerSlot; // size = 0x2F0
 
 extern u8 gPlayerCount;
-extern u32 D_807FBB64;
+extern u32 gGlobalOverlayFlags;
 s32 flagGet(s32, s32);
 s32 func_807142D8(void);
 void proxPathAttachNearestToPlayer(Actor *, u8, u8);
@@ -184,7 +184,7 @@ void proxPathUpdateAllPlayers(void) {
 
     for (i = 0; i < gPlayerCount; i++) {
         if (((PlayerSlot *)gPlayerSlots)[i].unk0 != 0) {
-            proxPathAttachNearestToPlayer(((PlayerSlot *)gPlayerSlots)[i].unk4, i, flagGet(0x183, 0) || (D_807FBB64 & 0x10000000) || gPlayerCount >= 2 || func_807142D8());
+            proxPathAttachNearestToPlayer(((PlayerSlot *)gPlayerSlots)[i].unk4, i, flagGet(0x183, 0) || (gGlobalOverlayFlags & 0x10000000) || gPlayerCount >= 2 || func_807142D8());
         }
     }
 }
@@ -529,7 +529,7 @@ typedef struct H1ActorView {
 #define H1BB48 ((H1ActorView *)D_807FBB48)
 
 extern H1CamState *gActivePlayerState;
-extern u32 D_80744478;
+extern u32 gFrameDelta;
 void playerResumeLocomotion(Actor *);
 
 void proxPathAdvance(f32 speedMultiplier) {
@@ -553,7 +553,7 @@ void proxPathAdvance(f32 speedMultiplier) {
     gActivePlayerState->unk124 = node->unk28;
     gActivePlayerState->unk128 = node->unk2C;
     gActivePlayerState->unk12C = node->unk30;
-    step = D_80744478 * 0.5;
+    step = gFrameDelta * 0.5;
     gActivePlayerState->unk138 = gActivePlayerState->unk138 + node->unk14 * step * speedMultiplier;
     H1BB48->unk6A &= ~0x80;
     if (node->unkC < gActivePlayerState->unk138) {

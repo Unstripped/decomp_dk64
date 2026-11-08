@@ -99,7 +99,7 @@ extern MenuActor *gCurrentActor;
 extern MenuActor *gSpawnedActor;
 extern MenuActor *D_807FBB4C;
 extern s8 D_80033734;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 
 void menuResetCameraAndFlags(MenuScreenActor *actor, s32 unused) {
     f32 *stateVal = actor->unk174;
@@ -108,7 +108,7 @@ void menuResetCameraAndFlags(MenuScreenActor *actor, s32 unused) {
     D_807FBB4C->unk84 = 55.0f;
     *stateVal = 0.0f;
     D_80033734 = 0;
-    D_807FBB60 |= 0x10000;
+    gGlobalPauseFlags |= 0x10000;
 }
 
 
@@ -344,7 +344,7 @@ Gfx *menuDrawMainScreenTitle(MenuScreenActor *actor, Gfx *dl) {
     Mtx *mtx;
     void *state = actor->unk174;
 
-    D_807FBB60 |= 0x10;
+    gGlobalPauseFlags |= 0x10;
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     strIdx = menuComputeElementPosition(state, 160.0f, 20.0f, &posX, &posY, 5, 1, 0.3f);
     mtx = heapAlloc(0x40);
@@ -411,7 +411,7 @@ void menuInitMainScreen(MenuScreenActor *actor, s32 unused) {
     D_80033F56 = 0;
     D_80033F5C = 0.0f;
     D_80033F58 = 1.0f;
-    D_807FBB60 &= 0xFFFEFFFF;
+    gGlobalPauseFlags &= 0xFFFEFFFF;
 }
 
 void menuMainScreenNoop(void) {
@@ -463,7 +463,7 @@ Gfx *menuDrawAdventureFileSelectTitle(MenuScreenActor *actor, Gfx *dl) {
     f32 posY;
     char strBuf[204];
 
-    D_807FBB60 &= ~0x10;
+    gGlobalPauseFlags &= ~0x10;
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     idx = menuComputeElementPosition(state, 160.0f, 15.0f, &posX, &posY, 4, 1, 0.3f);
     if (idx == 2) {
@@ -923,7 +923,7 @@ Gfx *menuDrawSubmenuRing(MenuScreenActor *actor, Gfx *dl) {
     f32 posY;
     char strBuf[0xD8];
 
-    D_807FBB60 &= ~0x10;
+    gGlobalPauseFlags &= ~0x10;
     gDPSetPrimColor(dl++, 0, 0, 255, 255, 255, 255);
     idx = menuComputeElementPosition(state, 160.0f, 20.0f, &posX, &posY, 2, 1, 0.7f);
     dl = textDrawStringVtx(dl, 1, posX * 4.0f, posY * 4.0f, D_80033F28[idx + 12], 0x81);
@@ -1082,7 +1082,7 @@ extern s32 D_80033858;
 extern s32 D_8003385C[];
 extern s8 gPlayerCharacterId[];
 extern u8 D_80750ABC;
-extern u8 D_80750AC0;
+extern u8 gActivePlayerCount;
 extern s32 D_807552E4[];
 extern u8 D_807ECD09;
 extern OSContPad D_807ECD10[];
@@ -1128,14 +1128,14 @@ void menuHandleControllerSlotInput(MenuScreenActor *actor, s32 buttons) {
         if (state->unk4 == 0.0f) {
             if ((buttons & 1) && D_80033FAD >= 2) {
                 mask = 0;
-                D_80750AC0 = 0;
+                gActivePlayerCount = 0;
                 for (j = 0; j != 4; j++) {
                     bits = 1 << j;
                     if (!(D_8076A0E4[j] & 0x80)) {
                         gPlayerCharacterId[j] = D_8076A0E4[j];
                         mask = (mask | bits) & 0xFF;
-                        D_807552E4[4 + D_80750AC0] = D_8076A100[j];
-                        D_80750AC0 += 1;
+                        D_807552E4[4 + gActivePlayerCount] = D_8076A100[j];
+                        gActivePlayerCount += 1;
                     }
                 }
                 controllerSetActiveMask(mask & 0xFF);
@@ -1283,7 +1283,7 @@ void menuHandleControllerSlotInput(MenuScreenActor *actor, s32 buttons) {
         }
     }
     menuUpdateItemTransition(actor, state, 1);
-    D_807FBB60 |= 0x10000;
+    gGlobalPauseFlags |= 0x10000;
     menuUpdateCameraPositions();
     D_80033FAD = 0;
     for (i = 0; i < 4; i++) {
@@ -1498,8 +1498,8 @@ void menuMultiplayerResultsHandleInput(MenuScreenActor *actor, s32 buttons) {
     }
     menuUpdateItemTransition(actor, state, 0);
     menuUpdateCameraPositions();
-    D_807FBB60 &= ~0x10;
-    D_807FBB60 |= 0x10000;
+    gGlobalPauseFlags &= ~0x10;
+    gGlobalPauseFlags |= 0x10000;
 }
 
 extern u8 D_80033878;
@@ -1841,7 +1841,7 @@ Gfx *menuFormatOptionValues(MenuScreenActor *actor, Gfx *dl) {
     char strBuf[12];
 
     state = actor->unk174;
-    D_807FBB60 &= ~0x10;
+    gGlobalPauseFlags &= ~0x10;
     menuComputeElementPosition(state, 160.0f, 20.0f, &posX, &posY, 2, 0, 1.5f);
     dl = menuDrawScrollSelector(
         textDrawStringVtx(dl, 1, 0x280, posY * 4.0f, D_80033F28[0x20], 0x81),
@@ -1989,7 +1989,7 @@ Gfx *menuDrawGameOptions(MenuScreenActor *actor, Gfx *dl) {
     s32 pad5;
     s16 y;
 
-    D_807FBB60 &= ~0x10;
+    gGlobalPauseFlags &= ~0x10;
     menuComputeElementPosition(state, 160.0f, 20.0f, &posX, &posY, D_800338FC, 0, 1.5f);
     dl = menuDrawScrollSelector(
         textDrawStringVtx(dl, 1, 0x280, posY * 4.0f, D_80033F28[0x29], 0x81),
@@ -2176,7 +2176,7 @@ Gfx *menuDrawCheats(MenuScreenActor *actor, Gfx *dl) {
     s16 y;
     char strBuf[0xC8];
 
-    D_807FBB60 &= ~0x10;
+    gGlobalPauseFlags &= ~0x10;
     menuComputeElementPosition(state, 160.0f, 20.0f, &posX, &posY, 2, 0, 1.5f);
     y = (s16)(posY * 4.0f);
     dl = menuDrawScrollSelector(
@@ -2509,7 +2509,7 @@ Gfx *menuDrawHighScoreTable(void *actor, Gfx *dl) {
     s16 i;
 
     state = *(void **)((u8 *)actor + 0x174);
-    D_807FBB60 &= ~0x10;
+    gGlobalPauseFlags &= ~0x10;
     menuComputeElementPosition(state, 160.0f, 20.0f, &posX, &posY, 2, 0, 1.0f);
     dl = textDrawStringVtx(dl, 1, 0x280, (s16)(posY * 4.0), ((void **)D_80033F28)[D_800339A8 + 0x5F], 0x81);
     menuComputeElementPosition(state, 160.0f, 205.0f, &posX, &posY, 2, 0, 1.0f);
@@ -2772,7 +2772,7 @@ void menuInit(void) {
     s32 i;
 
     if (!(gCurrentActor->unk60 & 0x10)) {
-        D_807FBB60 |= 0x10;
+        gGlobalPauseFlags |= 0x10;
         menuLoadTextTable();
         menuLoadHighScores();
         if (D_80744514 == 0) {
@@ -2936,7 +2936,7 @@ Gfx *menuUpdateStateDispatch(MenuScreenActor *actor, s32 opMode, Gfx *dl, s32 su
         D_80033F44 = 0.0f;
         D_80033F40 = 0.0f;
         D_80033F3C = 0.0f;
-        D_807FBB60 &= 0xFFFEFFFF;
+        gGlobalPauseFlags &= 0xFFFEFFFF;
         state->unkC = 0;
         state->unkE = 0;
         D_800337F8 = 1;
@@ -3199,7 +3199,7 @@ typedef struct Menu10_Spinner {
     Menu10_Spin *unk384;
 } Menu10_Spinner;
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 void menuSparkleParticleUpdate(Menu10_Spinner *spinner, s32 unused) {
     Menu10_Spin *p;
@@ -3224,7 +3224,7 @@ void menuSparkleParticleUpdate(Menu10_Spinner *spinner, s32 unused) {
     spinner->unk344 = spinner->unk344 + p->vy;
     p->ang = p->ang + p->dir;
     guRotateF(rotMatrix, p->ang, 0.0f, 0.0f, 1.0f);
-    guMtxF2L(rotMatrix, &spinner->mtx[D_807444FC]);
+    guMtxF2L(rotMatrix, &spinner->mtx[gGfxBufferIndex]);
 }
 
 typedef struct MenuUiRgba {
@@ -3715,7 +3715,7 @@ void menuUpdateKioskActor(void) {
             }
         }
         if (subState->unk23C >= 0xC) {
-            D_807FBB60 &= 0xFFFEFFFF;
+            gGlobalPauseFlags &= 0xFFFEFFFF;
         }
         break;
     }
@@ -3724,7 +3724,7 @@ void menuUpdateKioskActor(void) {
     }
     if (gCurrentActor->unk155 < 6) {
         if (D_8003369C > -30.0) {
-            D_807FBB60 |= 0x10000;
+            gGlobalPauseFlags |= 0x10000;
         } else {
             D_80033698 = 3;
         }

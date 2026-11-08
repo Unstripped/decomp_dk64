@@ -378,9 +378,9 @@ typedef struct EntryModel {
     /* 0x60 */ u32 unk60;
 } EntryModel;
 
-extern s32 D_8076A048;
+extern s32 gGfxCurrentFrameBuffer;
 extern u8 D_807F6009;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern u8 D_2000180[];
 
 void *renderActorEntryBuildDisplayList(s32, void *, GfxWords *, u8);
@@ -410,13 +410,13 @@ GfxWords *renderEntryListBuildDisplayList(GfxWords *glist, RenderEntry *list, f3
             if ((renderMask & 0x20000) == 0 && type == 5) {
                 ok = 0;
             }
-            if ((renderMask & 0x10000) == 0 && type == 0 && (!(model->unk60 & 0x40000000) || (D_807FBB60 & 2))) {
+            if ((renderMask & 0x10000) == 0 && type == 0 && (!(model->unk60 & 0x40000000) || (gGlobalPauseFlags & 2))) {
                 ok = 0;
             }
             if (ok != 0) {
                 switch (type) {
                 case 0:
-                    tmp = renderActorEntryBuildDisplayList(D_8076A048, model, glist, playerIndex);
+                    tmp = renderActorEntryBuildDisplayList(gGfxCurrentFrameBuffer, model, glist, playerIndex);
                     tmp->w0 = 0xDA380003;
                     tmp->w1 = (u32)D_2000180;
                     glist = tmp + 1;
@@ -499,7 +499,7 @@ typedef struct PlayerView {
     /* 0x228 */ u8 pad228[0x2F0 - 0x228];
 } PlayerView;
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern PlayerView *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
@@ -565,7 +565,7 @@ void *renderActorEntryBuildDisplayList(s32 context, void *actor, GfxWords *glist
     if (RENDER_ACT->unk58 == 0x135) {
         gSPClearGeometryMode((Gfx *)glist++, G_ZBUFFER);
     }
-    gSPSegment((Gfx *)glist++, 15, osVirtualToPhysical(RENDER_ACT->unk148[D_807444FC]));
+    gSPSegment((Gfx *)glist++, 15, osVirtualToPhysical(RENDER_ACT->unk148[gGfxBufferIndex]));
     if (RENDER_ACT->unk60 & 0x1000) {
         glist = actorBuildLightDisplayList(glist, actor, gCurrentPlayerIndex);
         gSPSetGeometryMode((Gfx *)glist++, G_LIGHTING);

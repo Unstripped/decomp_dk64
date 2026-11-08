@@ -192,8 +192,8 @@ void actorClearAllNodeFlags(void *);
 void actorAppendModelNode(void *, f32, f32, f32, f32, s32);
 void lightGetColor(f32 *, f32 *, f32 *, s32);
 void func_806BF920(void);
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 s32 textTableGetString(s32, s32, s32);
 s32 textGetStringWidth(s32, s32);
 s32 textGetFontHeight(s32);
@@ -279,24 +279,24 @@ Gfx *bonusRenderTargetGameHud(Gfx *gdl, Actor *actor) {
         gdl = hudDrawRollingCounter(textDrawAnimated(gdl, targetExt->unk25, 8, 30.0f, 36.0f, 0.0f, 1.5f), 0x26, 0x32, &targetExt->unk20, targetExt->unk22, &targetExt->unk24);
     }
     if (bonusExt->unk25 != 0) {
-        textX = D_80744490 >> 1;
+        textX = gScreenWidth >> 1;
         textStr = textTableGetString(0x1A, 6, 1);
         gDPPipeSync(gdl++);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->unk25);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
         textX -= textGetStringWidth(1, textStr) >> 1;
-        gdl = textDrawStringVtx(gdl, 1, textX << 2, (D_80744494 - textGetFontHeight(1)) * 2, textStr, 1);
+        gdl = textDrawStringVtx(gdl, 1, textX << 2, (gScreenHeight - textGetFontHeight(1)) * 2, textStr, 1);
         bonusExt->unk25 -= (bonusExt->unk25 < 8) ? bonusExt->unk25 : 8;
     }
     if (bonusExt->unk24 != 0) {
-        textX2 = D_80744490 >> 1;
+        textX2 = gScreenWidth >> 1;
         textStr = textTableGetString(0x1A, 8, 1);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->unk24);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
         textX2 -= textGetStringWidth(1, textStr) >> 1;
-        gdl = textDrawStringVtx(gdl, 1, textX2 << 2, (textGetFontHeight(1) + D_80744494) * 2, textStr, 1);
+        gdl = textDrawStringVtx(gdl, 1, textX2 << 2, (textGetFontHeight(1) + gScreenHeight) * 2, textStr, 1);
         bonusExt->unk24 -= (bonusExt->unk24 < 8) ? bonusExt->unk24 : 8;
     }
     return gdl;
@@ -348,25 +348,25 @@ Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *actor) {
         }
     }
     if (bonusExt->unk25 != 0) {
-        textX = D_80744490 >> 1;
+        textX = gScreenWidth >> 1;
         textStr = textTableGetString(0x1A, 6, 1);
         gDPPipeSync(gdl++);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->unk25);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
         textX -= textGetStringWidth(1, textStr) >> 1;
-        gdl = textDrawStringVtx(gdl, 1, textX << 2, (D_80744494 - textGetFontHeight(1)) * 2, textStr, 1);
+        gdl = textDrawStringVtx(gdl, 1, textX << 2, (gScreenHeight - textGetFontHeight(1)) * 2, textStr, 1);
         bonusExt->unk25 -= (bonusExt->unk25 < 8) ? bonusExt->unk25 : 8;
     }
     if (bonusExt->unk24 != 0) {
-        textX = D_80744490 >> 1;
+        textX = gScreenWidth >> 1;
         textStr = textTableGetString(0x1A, 7, 1);
         gDPPipeSync(gdl++);
         gDPSetRenderMode(gdl++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gdl++, 0, 0, 0, 0, 0, bonusExt->unk24);
         gDPSetCombineLERP(gdl++, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, TEXEL0, TEXEL0, 0, PRIMITIVE, 0);
         textX -= textGetStringWidth(1, textStr) >> 1;
-        gdl = textDrawStringVtx(gdl, 1, textX << 2, (textGetFontHeight(1) + D_80744494) * 2, textStr, 1);
+        gdl = textDrawStringVtx(gdl, 1, textX << 2, (textGetFontHeight(1) + gScreenHeight) * 2, textStr, 1);
         bonusExt->unk24 -= (bonusExt->unk24 < 8) ? bonusExt->unk24 : 8;
     }
     for (i = 0; i < 6; i++) {

@@ -46,11 +46,11 @@ typedef struct SchedGfxTask {
 } SchedGfxTask;
 
 extern s8 D_80744460;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern u32 D_807F05A4;
 extern u32 D_807F0984;
 extern SchedGfxTask D_807F05A8[][2];
-extern void *D_80744470[];
+extern void *gFramebuffers[];
 extern u8 D_805FB000[];
 extern u8 D_805FB0D0[];
 extern u8 D_8076AF20[];
@@ -68,7 +68,7 @@ void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers
     if (D_80744460 != 0) {
         return;
     }
-    msg = &D_807F05A8[taskIdx][D_807444FC];
+    msg = &D_807F05A8[taskIdx][gGfxBufferIndex];
     D_807F059C[taskIdx] = 1;
     msg->type = 1;
     msg->task_flags = 0;
@@ -93,7 +93,7 @@ void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers
     if (swapBuffers) {
         msg->flags |= 0x40;
     }
-    msg->framebuffer = D_80744470[D_807444FC];
+    msg->framebuffer = gFramebuffers[gGfxBufferIndex];
     msg->client = D_80767CD8;
     if (writebackAll) {
         osWritebackDCacheAll();
@@ -101,7 +101,7 @@ void schedSubmitGfxTask(void *glist, s32 numCommands, u8 taskIdx, u8 swapBuffers
         size = numCommands * 8;
         osWritebackDCache(msg, sizeof(SchedGfxTask));
         osWritebackDCache(glist, size);
-        osWritebackDCache(D_80767CE8 + D_807444FC * 0x11B0, 0x11B0);
+        osWritebackDCache(D_80767CE8 + gGfxBufferIndex * 0x11B0, 0x11B0);
     }
     osSendMesg(&gScheduler, msg, 1);
 }

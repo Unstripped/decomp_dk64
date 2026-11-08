@@ -20,7 +20,7 @@ extern Gfx D_1000118;
 extern Mtx D_2000000;
 extern Mtx D_2000200;
 extern Gfx D_80750280;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern u8 *gPlayerSlots;
 
 void actorFreeModelNodeList(Actor *);
@@ -108,8 +108,8 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
             guMtxCatF(mtx2, mtx1, mtx2);
             guTranslateF(mtx1, actor->x + vx, actor->y, actor->z + vy);
             guMtxCatF(mtx2, mtx1, mtx2);
-            guMtxF2L(mtx2, (Mtx *)(sub->unk4 + (((i * 2) + D_807444FC) << 6)));
-            _g = (Gfx *)(glist++); _g->words.w0 = 0xDA380003; _g->words.w1 = (u32)(sub->unk4 + (((i * 2) + D_807444FC) << 6)); // FAKE: shared Gfx pointer
+            guMtxF2L(mtx2, (Mtx *)(sub->unk4 + (((i * 2) + gGfxBufferIndex) << 6)));
+            _g = (Gfx *)(glist++); _g->words.w0 = 0xDA380003; _g->words.w1 = (u32)(sub->unk4 + (((i * 2) + gGfxBufferIndex) << 6)); // FAKE: shared Gfx pointer
             gSPVertex(glist++, osVirtualToPhysical(&D_80750280), 4, 0);
             gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(glist++);
@@ -275,7 +275,7 @@ typedef struct ProjectileActor {
 
 extern void *D_807502C0[];
 extern u8 D_8071FBA0;
-extern u32 D_8076A068;
+extern u32 gGameFrameCounter;
 extern u8 D_807FBB85;
 void func_807149FC(s32);
 void func_80714998(s32);
@@ -330,7 +330,7 @@ void projectileActorUpdate(void) {
             func_8071498C(effectPulseSpinUpdate);
         }
         func_80714C08(((void **)&spriteTriple)[sub->unk13 - 1], G_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
-        sub->unk0 = D_8076A068;
+        sub->unk0 = gGameFrameCounter;
         sub->unk12 = 0;
         G_ACTOR->unk60 |= 0x80000;
         G_ACTOR->unk155 = sub->unk13;

@@ -68,8 +68,8 @@ typedef struct BoneChainSub4 {
 extern Actor *gCurrentActor;
 extern Actor *D_807FBB4C;
 extern void *gPlayerSlots;
-extern s32 D_807FBB64;
-extern u32 D_80744478;
+extern s32 gGlobalOverlayFlags;
+extern u32 gFrameDelta;
 extern s16 D_8075037C;
 extern s16 D_80750380;
 extern ActorGlobalState D_807FBB70;
@@ -112,7 +112,7 @@ u8 nodeCount;
         data->unk18 = 0.0f;
         ((BoneChainSub4 *)gCurrentActor->unk4)->unk1C = heapAlloc(0x80);
         proxPathAdd(gCurrentActor, 0, 0, 0, nodeCount, 0.0f, (f32)((f64)nodeCount * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
-        if (D_80744478 == 0x50) {}  // FAKE: deadsweep; keeps the 0x50 store constant out of a register (a0 stays unk254, p takes v0)
+        if (gFrameDelta == 0x50) {}  // FAKE: deadsweep; keeps the 0x50 store constant out of a register (a0 stays unk254, p takes v0)
         for (i = 1; i <= nodeCount; i++) {
             proxPathSetSegment(gCurrentActor, 0, i - 1, i, i + 1, 0.333333f, 0.0f, 0.0f, 0, 0, 0, 0, 0);
         }
@@ -120,7 +120,7 @@ u8 nodeCount;
         ((u8 *)gCurrentActor)[0x131] = 0xC8;
         data->unk14 = 0;
         data->unk15 = 0;
-        data->unk28 = flagGet(0x183, 0) != 0 || (D_807FBB64 & 0x10000000) != 0 || func_807142D8() != 0;
+        data->unk28 = flagGet(0x183, 0) != 0 || (gGlobalOverlayFlags & 0x10000000) != 0 || func_807142D8() != 0;
     }
     if (D_807FBB4C->state == 0x63 || data->unk28 == 0 ||
         (*(s32 *)gCurrentActor->unk124 == 1 && !(player->unk1F0 & 0x40))) {
@@ -175,7 +175,7 @@ u8 nodeCount;
         dir = 2;
         break;
     }
-    data->unkC = data->unkC + data->unk4 * D_80744478 * 0.5;
+    data->unkC = data->unkC + data->unk4 * gFrameDelta * 0.5;
     data->unk10 = sinApprox(data->unkC) * data->unk0;
     for (i = 0; i < 0xE; i++) {
         node[i].unk0 = -0x80;

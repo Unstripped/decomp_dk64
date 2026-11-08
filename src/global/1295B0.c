@@ -260,8 +260,8 @@ f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 s16 mathAngleEaseToward(s16, s16, f32);
 extern u8 D_807444EC;
 #define A1PLR ((A1Plr *)gPlayerSlots)
-#define A1DC90 ((A1S90 *)D_807FDC90)
-#define A1DC98 ((A1S98 *)D_807FDC98)
+#define A1DC90 ((A1S90 *)gBehaviourWorkState)
+#define A1DC98 ((A1S98 *)gBehaviourAnimState)
 #define A1CAM(a) ((A1Cam *)((A1Sub4 *)(a)->unk4)->unk1C)
 
 void func_80724E48(u8 arg0) {
@@ -301,8 +301,8 @@ void func_80724E48(u8 arg0) {
                 angle = mathAngleBetweenPointsRad(gCurrentActor->x, gCurrentActor->z, D_807FBB4C->x, D_807FBB4C->z) - sp34;
                 break;
             case 7:
-                sp38 = mathCalculatePitchAngle(D_807FDC94->x, D_807FDC94->y, D_807FDC94->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, pitchArg);
-                angle = mathAngleBetweenPointsRad(D_807FDC94->x, D_807FDC94->z, gCurrentActor->x, gCurrentActor->z) - sp34;
+                sp38 = mathCalculatePitchAngle(gBehaviourTargetActor->x, gBehaviourTargetActor->y, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, pitchArg);
+                angle = mathAngleBetweenPointsRad(gBehaviourTargetActor->x, gBehaviourTargetActor->z, gCurrentActor->x, gCurrentActor->z) - sp34;
                 break;
             case 6:
                 sp38 = mathCalculatePitchAngle(A1PLR->unk210, A1PLR->unk214, A1PLR->unk218, gCurrentActor->x, gCurrentActor->y + (u32)gCurrentActor->unk15E, gCurrentActor->z, pitchArg);
@@ -615,9 +615,9 @@ s16 *arg5;
     for (i = 0; i < arg2->count10 && !stop; i++) {
         e = F1ENT(arg2, i);
         if (!(e->flags & 0x80) && ((e->flags & 0x7F) == 3)) {
-            if (segmentIntersectsCircle2D((s32)arg1->x, (s32)arg1->z, e->x, e->z, (s32)D_807FDC94->x, (s32)D_807FDC94->z, 0x14) == 0) {
+            if (segmentIntersectsCircle2D((s32)arg1->x, (s32)arg1->z, e->x, e->z, (s32)gBehaviourTargetActor->x, (s32)gBehaviourTargetActor->z, 0x14) == 0) {
                 if (zoneCanReachPoint(arg1, e->x, e->y, e->z, arg2) != 0) {
-                    if (((arg0 & 1) && (d = (s32)(((D_807FDC94->x - e->x) * (D_807FDC94->x - e->x)) + ((D_807FDC94->z - e->z) * (D_807FDC94->z - e->z))), best < d)) ||
+                    if (((arg0 & 1) && (d = (s32)(((gBehaviourTargetActor->x - e->x) * (gBehaviourTargetActor->x - e->x)) + ((gBehaviourTargetActor->z - e->z) * (gBehaviourTargetActor->z - e->z))), best < d)) ||
                         ((arg0 & 2) && (d = (s32)(((arg1->x - e->x) * (arg1->x - e->x)) + ((arg1->z - e->z) * (arg1->z - e->z))), d < best))) {
                         best = d;
                         *arg3 = e->x;
@@ -717,7 +717,7 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
         sel = e->flags & 0x7F;
         if (!(e->flags & 0x80)) {
             if ((sel == 0) || (sel == 1) ||
-                ((sel == 5) && ((f64)arg0->speedXZ < (f64)(u32)((u8 *)D_807FDC9C)[0xD] * 1.4))) {
+                ((sel == 5) && ((f64)arg0->speedXZ < (f64)(u32)((u8 *)gBehaviourExtraState)[0xD] * 1.4))) {
                 if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
                     if (e->flags != 0) {} // FAKE: live range steers flags/count10 colouring (a1/t0)
                     if (i == 5) {} // FAKE: steer s3 and s8 constant coloring
@@ -923,7 +923,7 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     if (ang != 0) {
         actorScriptStart(act, ang);
     }
-    D_807FDC98 = (Struct807FDC98 *)node;
+    gBehaviourAnimState = (Struct807FDC98 *)node;
     behaviourSetAnimIds(ang + 0, ang | 0, ang * 1, ang);
     if (act->unk4 != 0) {
         actorSetUniformScale((Actor *)act, ((node->unkF * 5) / 255.0) * 0.15);
@@ -1249,14 +1249,14 @@ f32 mathAngleBetweenPointsDeg(s32, s32, s16, s16);
 #define C1PTS ((C1Pt *)D_807FDCA0->unk14)
 #define C1PT(i) ((C1Pt *)(D_807FDCA0->unk14 + (i)))
 
-#define C1IDX (((C1Tbl98 *)D_807FDC98)->unk20[arg1][0] * 0xA)
+#define C1IDX (((C1Tbl98 *)gBehaviourAnimState)->unk20[arg1][0] * 0xA)
 
 void spawnNodeSpawnAtTablePoint(s16 arg0, u8 arg1) {
     u8 tbl;
     s16 sp34;
 
-    tbl = ((C1Tbl98 *)D_807FDC98)->unk20[arg1][0];
-    sp34 = (s16)(s32)((mathAngleBetweenPointsDeg((s32)D_807FDC94->x, (s32)D_807FDC94->z, C1PTS[tbl].x, C1PTS[tbl].z) * 4096.0f) / 360.0f);
+    tbl = ((C1Tbl98 *)gBehaviourAnimState)->unk20[arg1][0];
+    sp34 = (s16)(s32)((mathAngleBetweenPointsDeg((s32)gBehaviourTargetActor->x, (s32)gBehaviourTargetActor->z, C1PTS[tbl].x, C1PTS[tbl].z) * 4096.0f) / 360.0f);
     if (spawnNodeSpawnById(arg0, C1PTS[tbl].x, C1PTS[tbl].y, C1PTS[tbl].z, sp34, ((randomNonNegative() >> 0xF) % 100) + 0x64, ((randomNonNegative() >> 0xF) % 100) + 0xC8) != 0) {
         C1ACT44->unk154 = 0x17;
         C1ACT44->unk155 = 0;
@@ -1374,12 +1374,12 @@ typedef struct C1PlayerView {
     /* 0x21C */ u8 pad21C[0xD4];
 } C1PlayerView; // size = 0x2F0
 
-#define C1S90 ((C1State90 *)D_807FDC90)
+#define C1S90 ((C1State90 *)gBehaviourWorkState)
 #define C1PLAYERS ((C1PlayerView *)gPlayerSlots)
 #define C1ACT40 ((C1ActorView *)gCurrentActor)
 
 extern s16 D_8076A0AA;
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern u8 gPlayerCount;
 void actorDeregisterActive(void *);
 s16 mapChunkFindByPosition(f32, f32, f32, s32);
@@ -1408,14 +1408,14 @@ void spawnNodesUpdate(void) {
     for (i = 0; i < D_80755694->count; i++, node++) {
         active = (node->unk42 >= 5) && (node->unk42 < 7);
         if (active) {
-            D_807FDC90 = (Struct807FDC90 *)node->unk18->unk174;
+            gBehaviourWorkState = (Struct807FDC90 *)node->unk18->unk174;
         }
         dist = D_8075EB80[node->unk44].unkE * 0x64;
         dist = dist * dist;
         if (active) {
             node->unk40 = node->unk18->unk12C;
         }
-        if ((dist == 0) || (node->unk46 & 4) || (D_807FBB64 & 0x100)) {
+        if ((dist == 0) || (node->unk46 & 4) || (gGlobalOverlayFlags & 0x100)) {
             dist = 0x7FFFFFFF;
         }
         if (active && (node->unk18->unk154 == 0x3B)) {
@@ -1911,7 +1911,7 @@ void actorScriptStart(void *, s32);
 void camStartShake(s32, s32, s32);
 void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
 void effectSpawnDebrisParticles(void *, f32, f32, f32, f32);
-void func_8068B80C(void);
+void enemyAggroEnable(void);
 void func_8071495C(void);
 void func_80714950(s32);
 void func_8071496C(s16);
@@ -1984,7 +1984,7 @@ void zoneEntrySpawnEffect(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
             camStartShake(gCamActor, 0x14, 0xF);
             return;
         case 2:
-            func_8068B80C();
+            enemyAggroEnable();
             return;
         case 3:
             actorSpawnEffectChild((f32)x, (f32)y, (f32)z, arg2 * 0.01, arg3 * 0.01, NULL, 0);

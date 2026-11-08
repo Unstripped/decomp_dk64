@@ -135,7 +135,7 @@ s32 sfxAllocateChannel();
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 void lightSetColor(f32, f32, f32, s32);
-void func_8068B80C(void);
+void enemyAggroEnable(void);
 
 #define SPAWNER_ACTOR ((BossSpawnerActor *)gCurrentActor)
 #define SPAWNER_PLAYER ((BossSpawnerActor *)D_807FBB4C)
@@ -501,7 +501,7 @@ void bossSpawnerUpdate(void) {
     if (s->unkC < 0) {
         s->unkC = (randomLcgNext() & 0x7F) + 0x5A;
         lightSetColor(0.5f, 0.5f, 0.5f, -1);
-        func_8068B80C();
+        enemyAggroEnable();
     }
     D_80035B40 = bounceDir;
     actorUpdateModelMatrix(gCurrentActor, 0);

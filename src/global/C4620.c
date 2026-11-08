@@ -302,9 +302,9 @@ typedef struct LgBFDCA0 {
 } LgBFDCA0;
 
 #define LgBV ((LgBFActor *)gCurrentActor)
-#define LgBS90 ((LgBFS90 *)D_807FDC90)
-#define LgBS98 ((LgBFS98 *)D_807FDC98)
-#define LgBS9C ((LgBFS9C *)D_807FDC9C)
+#define LgBS90 ((LgBFS90 *)gBehaviourWorkState)
+#define LgBS98 ((LgBFS98 *)gBehaviourAnimState)
+#define LgBS9C ((LgBFS9C *)gBehaviourExtraState)
 
 extern u8 D_807444EC;
 extern s32 gCurrentMap;
@@ -613,9 +613,9 @@ void actorScriptedCommandUpdate(void) {
                 node = LgBV->unk15F;
                 actorGetNodePos(LgBS90->unk4, node, &LgBV->unk7C, &LgBV->unk80, &LgBV->unk84);
             } else {
-                LgBV->unk7C = D_807FDC94->x;
-                LgBV->unk80 = D_807FDC94->y;
-                LgBV->unk84 = D_807FDC94->z;
+                LgBV->unk7C = gBehaviourTargetActor->x;
+                LgBV->unk80 = gBehaviourTargetActor->y;
+                LgBV->unk84 = gBehaviourTargetActor->z;
             }
         LgBV->unkE6 = LgBS90->unk4->yaw;
             break;
@@ -684,7 +684,7 @@ typedef struct R1C46aS90 {
     /* 0x34 */ u8 unk34;
 } R1C46aS90;
 
-#define R1S90 ((R1C46aS90 *)D_807FDC90)
+#define R1S90 ((R1C46aS90 *)gBehaviourWorkState)
 
 extern Actor *gSpawnedActor;
 void actorScriptStart(void *, s32);
@@ -704,7 +704,7 @@ void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
 
     if (!(R1V->unk60 & 0x10)) {
         func_806F0C18(gCurrentActor);
-        D_807FDC98->unk46 |= 0x200;
+        gBehaviourAnimState->unk46 |= 0x200;
         actorSetTargetSpeed(gCurrentActor, 0);
     }
     func_80724A20();
@@ -825,7 +825,7 @@ void func_806C151C(u16 actionId, u8 actionParam, s16 flagId) {
 }
 
 void func_806C15E8(void) {
-    D_807FDC98->unk46 |= 0x1000;
+    gBehaviourAnimState->unk46 |= 0x1000;
     R1V->unk146 = 0;
     actorSetTargetSpeed(gCurrentActor, 0);
     R1V->unkCC = 1;
@@ -931,7 +931,7 @@ void func_80724CA4(s32, s32);
 void func_806F09F0(Actor *, u16);
 void func_807149C8(s32, s32, s32, s32);
 void func_80724E48(u8);
-extern Actor *D_807FDC94;
+extern Actor *gBehaviourTargetActor;
 extern u8 D_8071FBA0;
 
 void func_806C19F4(void) {
@@ -949,7 +949,7 @@ void func_806C19F4(void) {
             func_807149C8(0x96, 0xFF, 0xFF, 0xFF);
             func_80714C08(&D_8071FBA0, 0.7f, gCurrentActor, 5, 0);
         }
-        func_80724E48(D_807FDC94 == D_807FBB4C ? 5 : 7);
+        func_80724E48(gBehaviourTargetActor == D_807FBB4C ? 5 : 7);
     } else {
         func_806C10A0(2, 6, 0x3D9);
         func_80724E48(0);
@@ -1025,7 +1025,7 @@ void func_806C1CCC(void) {
                 renderCallbacksRegister(gfxBuildScanlineNoise, 0, 3);
             }
         }
-        func_80724E48(D_807FDC94 == D_807FBB4C ? 5 : 7);
+        func_80724E48(gBehaviourTargetActor == D_807FBB4C ? 5 : 7);
     } else {
         func_806C10A0(2, 5, 0x3DA);
         func_80724E48(0);
@@ -1077,13 +1077,13 @@ void func_806C1E44(void) {
             func_80724A20();
             switch (gCurrentActor->unk155[0]) {
                 case 1:
-                    D_807FDC90->timer = 3;
+                    gBehaviourWorkState->timer = 3;
                     gCurrentActor->unk155[0] = 2;
                 case 2:
                     if (!(gFrameCounter & 7)) {
-                        if (D_807FDC90->timer != 0) {
-                            D_807FDC90->timer--;
-                            if (D_807FDC90->timer == 0) {
+                        if (gBehaviourWorkState->timer != 0) {
+                            gBehaviourWorkState->timer--;
+                            if (gBehaviourWorkState->timer == 0) {
                                 gCurrentActor->unk155[0] = 0;
                             }
                             func_80714998(2);
@@ -1130,11 +1130,11 @@ void func_806C1E44(void) {
                 case 0:
                     actorScriptStart(gCurrentActor, 0x2BF);
                     animSetFrameAndSubframe(gCurrentActor, 0, 2, 0);
-                    actorSetTargetSpeed(gCurrentActor, D_807FDC9C->unkC);
+                    actorSetTargetSpeed(gCurrentActor, gBehaviourExtraState->unkC);
                     gCurrentActor->unk155[0] = 1;
                     break;
                 case 2:
-                    actorMoveWithinZone(2, (f32)D_807FDC90->targetX, (f32)D_807FDC90->targetZ, 0, 0.0f);
+                    actorMoveWithinZone(2, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0, 0.0f);
                     patrolPathStep(2, 0);
                     break;
             }
@@ -1149,11 +1149,11 @@ extern u8 gPlayerCharacterId;
 extern s32 D_807FBDC8[];
 extern u8 D_8071FC40;
 void effectWobbleRiseUpdate(void);
-void func_8072A920(s16, s32, f32, f32, f32, s32, f32, f32, s32);
+void actorPitchEaseTowardPoint(s16, s32, f32, f32, f32, s32, f32, f32, s32);
 void modelSlotGetNodePos(s16, s32, s32, f32 *, f32 *, f32 *);
 s16 mathAngleEaseToward(s16, s16, f32);
 void zoneEntryGetPosition(s32, s32, f32 *, f32 *, f32 *);
-void func_8072E1A4(s32, void *);
+void actorTurnTowardActorYaw(s32, void *);
 s32 actorIsTargetWithinDistance(s32);
 s32 func_8072881C(s32, void *);
 void func_80714CC0(void *, f32, f32, f32, f32);
@@ -1183,13 +1183,13 @@ void func_806C226C(void) {
         gCurrentActor->y = gCurrentActor->floorY;
         gCurrentActor->unk12A = 0x4B0;
         if (flagGet(0x9E, 0) != 0) {
-            if (((R1C46bState9C *)D_807FDC9C)->unk13 == 0x16) {
+            if (((R1C46bState9C *)gBehaviourExtraState)->unk13 == 0x16) {
                 gCurrentActor->state = 0x28;
                 gCurrentActor->unk155[0] = 0;
             } else {
                 gCurrentActor->state = 0x40;
             }
-        } else if (((R1C46bState9C *)D_807FDC9C)->unk13 == 0x16) {
+        } else if (((R1C46bState9C *)gBehaviourExtraState)->unk13 == 0x16) {
             gCurrentActor->state = 0x40;
         }
     }
@@ -1205,7 +1205,7 @@ void func_806C226C(void) {
     switch (gCurrentActor->state) {
         case 0x27:
             if (gCurrentActor->contactFlags & 4) {
-                func_8072A920(2, 0, (f32)D_807FDC90->targetX, (f32)D_807FDC90->targetY, (f32)D_807FDC90->targetZ, 0x46, 30.0f, 100.0f, 0);
+                actorPitchEaseTowardPoint(2, 0, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetY, (f32)gBehaviourWorkState->targetZ, 0x46, 30.0f, 100.0f, 0);
                 if (((randomNonNegative() >> 15) % 1000) >= 0x3A3) {
                     func_8071498C(effectWobbleRiseUpdate);
                     func_807149B8(1);
@@ -1216,7 +1216,7 @@ void func_806C226C(void) {
                 if ((gCurrentActor->contactFlags ^ gCurrentActor->prevContactFlags) & 1) {
                     actorScriptStart(gCurrentActor, 0x2A4);
                 }
-                actorMoveWithinZone(2, (f32)D_807FDC90->targetX, (f32)D_807FDC90->targetZ, 0x200, 0.0f);
+                actorMoveWithinZone(2, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0x200, 0.0f);
                 if (((R1C46bActor *)gCurrentActor)->unkC0 < -10.0f) {
                     ((R1C46bActor *)gCurrentActor)->unkE8 = mathAngleEaseToward(((R1C46bActor *)gCurrentActor)->unkE8, 0x400, 10.0f);
                 }
@@ -1265,10 +1265,10 @@ void func_806C226C(void) {
                     break;
             }
             modelSlotGetNodePos(gCsModelIds[58], 1, 1, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
-            func_8072E1A4(0xA, D_807FDC94);
+            actorTurnTowardActorYaw(0xA, gBehaviourTargetActor);
             break;
     }
-    func_8072881C(0, D_807FDC90->unk28);
+    func_8072881C(0, gBehaviourWorkState->unk28);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -1477,14 +1477,14 @@ void func_806C2DF4(void) {
         LgV->unk140 = actorSub140CreateFromModel(gCurrentActor);
         LgV->unk146 = 0;
         LgV->unk12A = 0xFA0;
-        D_807FDC98->unk46 |= 0x20;
+        gBehaviourAnimState->unk46 |= 0x20;
         LgV->unk60 &= 0xFEFFFFFF;
         LgV->unk144 = 1;
         switch (state->unk0) {
             case 0x21:
                 if (gCurrentMap == 0x98 || gCurrentMap == 0x1C) {
                     LgV->unk60 |= 0x400;
-                    D_807FDC98->unk46 |= 0x100;
+                    gBehaviourAnimState->unk46 |= 0x100;
                 }
             case 0x22:
             case 0x23:
@@ -1495,7 +1495,7 @@ void func_806C2DF4(void) {
             case 0x6:
             case 0x9:
             case 0xC:
-                D_807FDC98->unk46 |= 0x1000;
+                gBehaviourAnimState->unk46 |= 0x1000;
                 LgV->unk60 |= 0x400;
                 LgV->unkCC = 1;
                 LgV->unk60 |= 0x1000;
@@ -1514,7 +1514,7 @@ void func_806C2DF4(void) {
             case 0x3A:
             case 0x3C:
             case 0x58:
-                D_807FDC98->unk46 |= 0x100;
+                gBehaviourAnimState->unk46 |= 0x100;
             case 0x27:
             case 0x2D:
             case 0x66:
@@ -1526,8 +1526,8 @@ void func_806C2DF4(void) {
                     animSetFinished(gCurrentActor, 1, 1);
                     animSetFrameAndSubframe(gCurrentActor, 1, 1, 0);
                 }
-                D_807FDC98->unk46 |= 0x1000;
-                D_807FDC98->unk46 |= 0x100;
+                gBehaviourAnimState->unk46 |= 0x1000;
+                gBehaviourAnimState->unk46 |= 0x100;
                 LgV->unk60 |= 0x400;
                 break;
             case 0x12:
@@ -1538,14 +1538,14 @@ void func_806C2DF4(void) {
                 break;
             case 0x80:
                 LgV->unk60 |= 0x800000;
-                D_807FDC98->unk46 |= 0x100;
+                gBehaviourAnimState->unk46 |= 0x100;
                 LgV->unk60 |= 0x400;
                 break;
             case 0x37:
                 LgV->unk60 |= 0x400;
                 animSetLoopLimit(gCurrentActor, 0, 1);
                 animSetFinished(gCurrentActor, 0, 1);
-                animSetFrameAndSubframe(gCurrentActor, 0, ((LgC2DF4S9C *)D_807FDC9C)->unk14, 0);
+                animSetFrameAndSubframe(gCurrentActor, 0, ((LgC2DF4S9C *)gBehaviourExtraState)->unk14, 0);
                 break;
             case 0x45:
                 scale *= 10.0f;
@@ -1563,7 +1563,7 @@ void func_806C2DF4(void) {
                 LgV->unk146 = -1;
                 break;
             case 0x11:
-                D_807FDC98->unk46 |= 0x1000;
+                gBehaviourAnimState->unk46 |= 0x1000;
                 if (gCurrentMap == 0x4C) {
                     LgV->unk146 = 0;
                 } else {
@@ -1591,7 +1591,7 @@ void func_806C2DF4(void) {
                     LgV->unk146 = 5;
                 }
             case 0x70:
-                D_807FDC98->unk46 |= 0x1000;
+                gBehaviourAnimState->unk46 |= 0x1000;
                 LgV->unkCC = 1;
             case 0x69:
                 LgV->unk60 |= 0x400;
@@ -1600,7 +1600,7 @@ void func_806C2DF4(void) {
         }
         actorSetUniformScale(gCurrentActor, scale);
         if (gCurrentMap == 0xD0) {
-            D_807FDC98->unk46 |= 0x100;
+            gBehaviourAnimState->unk46 |= 0x100;
             LgV->unk60 &= 0xFEFFFFFF;
         }
     }
@@ -1609,7 +1609,7 @@ void func_806C2DF4(void) {
     actorScriptedCommandUpdate();
     LgV->unk6A = 0;
     LgV->unk6C = 0;
-    if (D_807FDC94 != D_807FBB4C) {
+    if (gBehaviourTargetActor != D_807FBB4C) {
         func_80724E48(7);
     }
     switch (LgV->unk4->unk0->unk10) {
@@ -1623,8 +1623,8 @@ void func_806C2DF4(void) {
         case 0x3CC:
         case 0x52F:
         case 0x63A:
-            if (D_807FDC98->unk46 & 0x1000) {
-                D_807FDC98->unk46 &= ~0x1000;
+            if (gBehaviourAnimState->unk46 & 0x1000) {
+                gBehaviourAnimState->unk46 &= ~0x1000;
                 func_80728950(0);
                 if (state->unk0 == 0x68) {
                     func_80728950(1);
@@ -1636,14 +1636,14 @@ void func_806C2DF4(void) {
             break;
         case 0x531:
         case 0x62C:
-            if (!(D_807FDC98->unk46 & 0x1000)) {
-                D_807FDC98->unk46 |= 0x1000;
+            if (!(gBehaviourAnimState->unk46 & 0x1000)) {
+                gBehaviourAnimState->unk46 |= 0x1000;
                 currentActorAnimSetFrame(0, 0);
             }
             break;
         case 0x92:
-            if (!(D_807FDC98->unk46 & 0x1000) && LgV->unk4->unk0->unk4 >= 127.0f) {
-                D_807FDC98->unk46 |= 0x1000;
+            if (!(gBehaviourAnimState->unk46 & 0x1000) && LgV->unk4->unk0->unk4 >= 127.0f) {
+                gBehaviourAnimState->unk46 |= 0x1000;
                 currentActorAnimSetFrame(0, 0);
             }
             break;

@@ -104,8 +104,8 @@ extern EffectTableEntry D_80748A90[];
 extern TextureCacheEntry D_80748A9C[];
 extern EffectTableFlags D_80748AA5[];
 extern EffectBufferEntry *gMapChunks;
-extern s32 D_807FBB60;
-extern u8 D_807444FC;
+extern s32 gGlobalPauseFlags;
+extern u8 gGfxBufferIndex;
 extern u8 gWaterRippleActive;
 extern f32 gWaterRippleCenter[2];
 extern f32 gWaterRippleMaxAmplitude;
@@ -314,7 +314,7 @@ void effectUpdateNodes(void) {
             node = node->next;
         } while (node != NULL);
     }
-    if (!(D_807FBB60 & 2)) {
+    if (!(gGlobalPauseFlags & 2)) {
         waterRippleStep();
     }
 }
@@ -369,7 +369,7 @@ void effectWaterUpdateMeshes(f32 camX, f32 camY, f32 camZ, u8 playerIndex) {
                     bspBounds = (u8 *)&gMapChunks[((WaterTargetUpdateView *)node->target)->unk50[0]] + 0x88;
                 } else {
                     if (hasInvertedMtx == 0) {
-                        guMtxL2F(playerMtx, (Mtx *)((u8 *)gPlayerSlots + (playerIndex * 0x2F0) + (D_807444FC << 6) + 8));
+                        guMtxL2F(playerMtx, (Mtx *)((u8 *)gPlayerSlots + (playerIndex * 0x2F0) + (gGfxBufferIndex << 6) + 8));
                         hasInvertedMtx = 1;
                         matrix4Invert(invPlayerMtx, playerMtx);
                     }
@@ -379,12 +379,12 @@ void effectWaterUpdateMeshes(f32 camX, f32 camY, f32 camZ, u8 playerIndex) {
                 if (mapBspBoxInFrustum(((WaterTargetUpdateView *)node->target)->unk46, (s16)(baseHeight - maxWaveHeight), ((WaterTargetUpdateView *)node->target)->unk48, ((WaterTargetUpdateView *)node->target)->unk4A,
                                   (s32)(baseHeight + maxWaveHeight), ((WaterTargetUpdateView *)node->target)->unk4C, camX, camY, camZ, D_807F5FAC, bspBounds) != 0 || node->pad4D[0] != 0) {
                     if ((f64)((WaterTargetUpdateView *)node->target)->unk24 != 0.0 || (f64)((WaterTargetUpdateView *)node->target)->unk28 != 0.0) {
-                        effectWaterSetMeshPositionsUV(node->dl[D_807444FC], node);
+                        effectWaterSetMeshPositionsUV(node->dl[gGfxBufferIndex], node);
                     }
                     if ((f64)((WaterTargetUpdateView *)node->target)->unkC != 0.0 || (f64)((WaterTargetUpdateView *)node->target)->unk10 != 0.0) {
-                        effectWaterSetMeshHeightsAlpha(node->dl[D_807444FC], node);
+                        effectWaterSetMeshHeightsAlpha(node->dl[gGfxBufferIndex], node);
                     }
-                    effectWaterSetMeshColors((Vtx *)node->dl[D_807444FC], node);
+                    effectWaterSetMeshColors((Vtx *)node->dl[gGfxBufferIndex], node);
                     node->unk4C |= 1;
                 }
             }
@@ -514,8 +514,8 @@ void effectWaterApplyLights(f32 camX, f32 camY, f32 camZ) {
                     D_807F7EEC = D_8076A0B4[s1];
                     D_807F7EF0 = D_8076A0B8[s1];
                     D_807F7EF4 = D_8076A0BC[s1];
-                    if (D_807FBB60 & 0x10) {
-                        vtxBuffer = node->unk1C[D_807444FC];
+                    if (gGlobalPauseFlags & 0x10) {
+                        vtxBuffer = node->unk1C[gGfxBufferIndex];
                         func_8065C990(vtxBuffer, vtxBuffer + node->unk48 * 16, 1, &D_807F78C0, v0, ((EffectBufferEntryView *)gMapChunks)[s1].unk3 == 1);
                     }
                     node->unk4C |= 2;
@@ -533,9 +533,9 @@ Gfx *effectWaterRenderSurfaces(Gfx *gdl, u8 viewMode, u8 waterType) {
     while (water != NULL) {
         if ((water->unk4C & 1) && (waterType == D_80748A90[water->unk0->unk66].unk16)) {
             gdl = effectWaterSetScissor(gdl, water);
-            gSPDisplayList(gdl++, osVirtualToPhysical(water->vtx[D_807444FC]));
+            gSPDisplayList(gdl++, osVirtualToPhysical(water->vtx[gGfxBufferIndex]));
             if (!(water->unk4C & 4)) {
-                effectWaterBuildMeshGdl(water->vtx[D_807444FC], water->dl[D_807444FC], water);
+                effectWaterBuildMeshGdl(water->vtx[gGfxBufferIndex], water->dl[gGfxBufferIndex], water);
                 water->unk4C |= 4;
             }
         }

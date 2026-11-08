@@ -12,10 +12,10 @@ extern u8 D_807FC950[][0x5E];
 extern s32 gCurrentMap;
 extern u8 D_8076A0AB;
 extern u8 D_8076A0B1;
-extern s16 D_80744490;
-extern s16 D_80744494;
+extern s16 gScreenWidth;
+extern s16 gScreenHeight;
 extern u8 D_807444F8;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 extern Gfx D_1000118;
 extern Mtx D_2000080;
@@ -34,7 +34,7 @@ typedef struct {
 
 Gfx *playerViewGfxSetup(Gfx *dl, u8 playerIndex) {
     gDPPipeSync(dl++);
-    gSPViewport(dl++, osVirtualToPhysical(((PlayerViewport *)gPlayerSlots)[playerIndex].unk250[D_807444FC]));
+    gSPViewport(dl++, osVirtualToPhysical(((PlayerViewport *)gPlayerSlots)[playerIndex].unk250[gGfxBufferIndex]));
     {
         Gfx *_g = (Gfx *)(dl++);
         _g->words.w0 = ((s32)((f32)PLAYER_VIEWPORT(playerIndex)->unk272 * 4.0f) & 0xFFF) | 0xED000000 |
@@ -92,9 +92,9 @@ Gfx *func_806FF144(Gfx *arg0) {
     gSPSetOtherMode(arg0++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
     gSPMatrix(arg0++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     arg0 = renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, 0x3E, 0x3E, 2.0f, 2.0f, 0, 0.0f);
-    arg0 = renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, D_80744490 - 0x3E, 0x3E, 2.0f, 2.0f, 0x5A, 0.0f);
-    arg0 = renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, D_80744490 - 0x3E, D_80744494 - 0x3E, 2.0f, 2.0f, 0xB4, 0.0f);
-    return renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, 0x3E, D_80744494 - 0x3E, 2.0f, 2.0f, 0x10E, 0.0f);
+    arg0 = renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, gScreenWidth - 0x3E, 0x3E, 2.0f, 2.0f, 0x5A, 0.0f);
+    arg0 = renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, gScreenWidth - 0x3E, gScreenHeight - 0x3E, 2.0f, 2.0f, 0xB4, 0.0f);
+    return renderRotatedSprite(arg0, 0x3A, 3, 1, 0x40, 0x40, 0x3E, gScreenHeight - 0x3E, 2.0f, 2.0f, 0x10E, 0.0f);
 }
 
 void func_806FF32C(s32 arg0, Actor *arg1) {
@@ -213,7 +213,7 @@ s16 *func_806FFEAC(s16 *arg0, s32 arg1) {
 
     for (i = 0; i < 0x40; i++) {
         for (j = 0; j < 0x20; j++) {
-            *arg0++ = color5551ToSepia(((u16 *)arg1)[j + i * D_80744490]);
+            *arg0++ = color5551ToSepia(((u16 *)arg1)[j + i * gScreenWidth]);
         }
     }
     return arg0;
@@ -225,7 +225,7 @@ void func_806FFF5C(void) {
     assetLoad(0x19, 0x138B, 1, 1);
 }
 
-extern void *D_80744470[];
+extern void *gFramebuffers[];
 s32 heapAlloc(s32);
 
 s32 func_806FFF88(void) {
@@ -241,7 +241,7 @@ s32 func_806FFF88(void) {
     }
     sp34 = heapAlloc(0xA000);
     var_s1 = sp34;
-    var_s2 = (s32)D_80744470[D_807444FC] + (D_80744490 * 7 << 4) + 0xA0;
+    var_s2 = (s32)gFramebuffers[gGfxBufferIndex] + (gScreenWidth * 7 << 4) + 0xA0;
     var_s3 = 0;
     do {
         var_s0 = 0;
@@ -249,7 +249,7 @@ s32 func_806FFF88(void) {
             var_s1 = (s32)func_806FFEAC((s16 *)var_s1, ((var_s0 << 2) << 4) + var_s2);
             var_s0++;
         } while (var_s0 < 5);
-        var_s2 += (D_80744490 << 3) << 4;
+        var_s2 += (gScreenWidth << 3) << 4;
         var_s3++;
     } while (var_s3 < 2);
     return sp34;
@@ -344,10 +344,10 @@ void lensFlareAddSource(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 ar
             }
         }
         if (var_v1 != 0) {
-            D_807FD848[D_807444FC][D_80754BC0][0] = sqrtf(LENS_FLARE_DIST2) > 995.0f ? 995.0f : sqrtf(LENS_FLARE_DIST2);
+            D_807FD848[gGfxBufferIndex][D_80754BC0][0] = sqrtf(LENS_FLARE_DIST2) > 995.0f ? 995.0f : sqrtf(LENS_FLARE_DIST2);
             camProjectToScreen(arg0, arg1, arg2, &sp84, &sp80, 0, 4.0f, 0);
-            D_807FD840[D_807444FC][D_80754BC0][0] = (f32)((f64)sp84 * 0.25);
-            D_807FD840[D_807444FC][D_80754BC0][1] = (f32)((f64)sp80 * 0.25);
+            D_807FD840[gGfxBufferIndex][D_80754BC0][0] = (f32)((f64)sp84 * 0.25);
+            D_807FD840[gGfxBufferIndex][D_80754BC0][1] = (f32)((f64)sp80 * 0.25);
             D_807FD808[D_80754BC0].unk0 = arg0;
             D_807FD808[D_80754BC0].unk4 = arg1;
             D_807FD808[D_80754BC0].unk8 = arg2;
@@ -374,7 +374,7 @@ typedef struct {
 
 Gfx *func_8070068C(Gfx *arg0) {
     GFX_PKT(arg0++, 0xDA380007, &D_2000100);
-    GFX_PKT(arg0++, 0xDC080008, osVirtualToPhysical((u8 *)gPlayerSlots + (D_807444FC * 0x10) + 0x250));
+    GFX_PKT(arg0++, 0xDC080008, osVirtualToPhysical((u8 *)gPlayerSlots + (gGfxBufferIndex * 0x10) + 0x250));
     GFX_PKT(arg0++, ((s32)((f32)((ViewportBounds *)gPlayerSlots)->unk272 * 4.0f) & 0xFFF) | 0xED000000 | (((s32)((f32)((ViewportBounds *)gPlayerSlots)->unk270 * 4.0f) & 0xFFF) << 12), ((s32)((f32)((ViewportBounds *)gPlayerSlots)->unk276 * 4.0f) & 0xFFF) | (((s32)((f32)((ViewportBounds *)gPlayerSlots)->unk274 * 4.0f) & 0xFFF) << 12));
     return arg0;
 }
@@ -402,8 +402,8 @@ Gfx *lensFlareBuildDisplayList(Gfx *arg0) {
         GFX_PKT(arg0++, 0xE3001801, 0xC0);
         GFX_PKT(arg0++, 0xE3001A01, 0x30);
         for (i = 0; i < D_80754BC0; i++) {
-            if (D_807FD838[D_807444FC ^ 1][i] != 0) {
-                arg0 = lensFlareDrawSource(arg0, D_807FD808[i], (u32)(D_807FD838[D_807444FC ^ 1][i]--));
+            if (D_807FD838[gGfxBufferIndex ^ 1][i] != 0) {
+                arg0 = lensFlareDrawSource(arg0, D_807FD808[i], (u32)(D_807FD838[gGfxBufferIndex ^ 1][i]--));
             }
         }
         GFX_PKT(arg0++, 0xE3001801, 0);
@@ -485,7 +485,7 @@ s32 zbufferReadDepth(s16 arg0, s16 arg1) {
     tileCopyPtr = &tileCopy;
     map = (u16 *)D_8076A060;
     if ((arg0 < ZBUFFER_VIEW->unk270) || (ZBUFFER_VIEW->unk274 < arg0) || (arg1 < ZBUFFER_VIEW->unk272) || (ZBUFFER_VIEW->unk276 < arg1)) return 0xFFFF;
-    map = (u16 *)((u8 *)map + (((D_80744490 * arg1) + arg0) * 2));
+    map = (u16 *)((u8 *)map + (((gScreenWidth * arg1) + arg0) * 2));
     tile = *map;
     tileInfo = (s32 *)tileCopyPtr + (((tile >> 0xD) & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 0xFFFF & 7) * 2);
     new_var = tile >> 2;
@@ -507,7 +507,7 @@ typedef struct {
 
 #define VIEWPORT_INFO ((ViewportRectInfo *)gPlayerSlots)
 
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern s16 D_807FD800;
 extern s16 D_807FD802;
 extern s16 D_807FD804;
@@ -571,15 +571,15 @@ void func_80700BF4(void) {
     if (D_80754BC0 != 0) {
         do {
             D_80754BC0--;
-            if ((f32)VIEWPORT_INFO->unk270 < FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk0 &&
-                FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk0 < (f32)VIEWPORT_INFO->unk274 &&
-                (f32)VIEWPORT_INFO->unk272 < FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk4 &&
-                FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk4 < (f32)VIEWPORT_INFO->unk276 &&
-                !(D_807FBB60 & 2)) {
-                if (FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk8 <
-                    (f32)zbufferDepthToDistance(zbufferReadDepth((s16)FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk0,
-                                                     (s16)FLARE_SCREEN_POINTS[D_807444FC][D_80754BC0].unk4))) {
-                    D_807FD838[D_807444FC][D_80754BC0] = 5;
+            if ((f32)VIEWPORT_INFO->unk270 < FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk0 &&
+                FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk0 < (f32)VIEWPORT_INFO->unk274 &&
+                (f32)VIEWPORT_INFO->unk272 < FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk4 &&
+                FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk4 < (f32)VIEWPORT_INFO->unk276 &&
+                !(gGlobalPauseFlags & 2)) {
+                if (FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk8 <
+                    (f32)zbufferDepthToDistance(zbufferReadDepth((s16)FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk0,
+                                                     (s16)FLARE_SCREEN_POINTS[gGfxBufferIndex][D_80754BC0].unk4))) {
+                    D_807FD838[gGfxBufferIndex][D_80754BC0] = 5;
                 }
             }
         } while (D_80754BC0 != 0);
@@ -1091,14 +1091,14 @@ void viewportShrinkToCenter(u8 arg0) {
 
     scale = (f32)((f64)(f32)(u32)arg0 / 255.0);
     if (func_805FCA64() != 0) {
-        VIEWPORT_INFO->unk272 = (s32)((f32)D_8074449C + ((f32)((D_80744494 >> 1) - D_8074449C - 1) * scale));
-        VIEWPORT_INFO->unk276 = (s32)((f32)D_807444A4 + ((f32)((D_80744494 >> 1) - D_807444A4) * scale));
+        VIEWPORT_INFO->unk272 = (s32)((f32)D_8074449C + ((f32)((gScreenHeight >> 1) - D_8074449C - 1) * scale));
+        VIEWPORT_INFO->unk276 = (s32)((f32)D_807444A4 + ((f32)((gScreenHeight >> 1) - D_807444A4) * scale));
     } else {
-        VIEWPORT_INFO->unk272 = (s32)((f32)D_807444AC + ((f32)((D_80744494 >> 1) - D_807444AC - 1) * scale));
-        VIEWPORT_INFO->unk276 = (s32)((f32)D_807444B0 + ((f32)((D_80744494 >> 1) - D_807444B0) * scale));
+        VIEWPORT_INFO->unk272 = (s32)((f32)D_807444AC + ((f32)((gScreenHeight >> 1) - D_807444AC - 1) * scale));
+        VIEWPORT_INFO->unk276 = (s32)((f32)D_807444B0 + ((f32)((gScreenHeight >> 1) - D_807444B0) * scale));
     }
-    VIEWPORT_INFO->unk270 = (s32)((f32)D_80744498 + ((f32)((D_80744490 >> 1) - D_80744498 - 1) * scale));
-    VIEWPORT_INFO->unk274 = (s32)((f32)D_807444A0 + ((f32)((D_80744490 >> 1) - D_807444A0) * scale));
+    VIEWPORT_INFO->unk270 = (s32)((f32)D_80744498 + ((f32)((gScreenWidth >> 1) - D_80744498 - 1) * scale));
+    VIEWPORT_INFO->unk274 = (s32)((f32)D_807444A0 + ((f32)((gScreenWidth >> 1) - D_807444A0) * scale));
     VIEWPORT_INFO->unk27A = VIEWPORT_INFO->unk276 - VIEWPORT_INFO->unk272;
     VIEWPORT_INFO->unk278 = VIEWPORT_INFO->unk274 - VIEWPORT_INFO->unk270;
     VIEWPORT_INFO->unk280 = (f32)VIEWPORT_INFO->unk278 / (f32)VIEWPORT_INFO->unk27A;
@@ -1133,15 +1133,15 @@ Gfx *screenFadeDrawGradient(Gfx *arg0, u8 arg1) {
     WRITE_GFX(arg0++, 0xE3000C00, 0);
     WRITE_GFX(arg0++, 0xE200001C, 0x504240);
     WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFE793C);
-    D_80754C48[D_807444FC].a0 = (arg1 * 2 >= 0x100) ? 0xFF : arg1 * 2;
-    D_80754C48[D_807444FC].a1 = arg1;
-    D_80754C48[D_807444FC].a2 = (arg1 * 2 >= 0x100) ? 0xFF : arg1 * 2;
-    D_80754C48[D_807444FC].a3 = arg1;
-    D_80754C48[D_807444FC].x1 = D_80744490;
-    D_80754C48[D_807444FC].x2 = D_80744490;
-    D_80754C48[D_807444FC].y2 = D_80744494;
-    D_80754C48[D_807444FC].y3 = D_80744494;
-    gSPVertex(arg0++, osVirtualToPhysical(&D_80754C48[D_807444FC]), 4, 0);
+    D_80754C48[gGfxBufferIndex].a0 = (arg1 * 2 >= 0x100) ? 0xFF : arg1 * 2;
+    D_80754C48[gGfxBufferIndex].a1 = arg1;
+    D_80754C48[gGfxBufferIndex].a2 = (arg1 * 2 >= 0x100) ? 0xFF : arg1 * 2;
+    D_80754C48[gGfxBufferIndex].a3 = arg1;
+    D_80754C48[gGfxBufferIndex].x1 = gScreenWidth;
+    D_80754C48[gGfxBufferIndex].x2 = gScreenWidth;
+    D_80754C48[gGfxBufferIndex].y2 = gScreenHeight;
+    D_80754C48[gGfxBufferIndex].y3 = gScreenHeight;
+    gSPVertex(arg0++, osVirtualToPhysical(&D_80754C48[gGfxBufferIndex]), 4, 0);
     gSP2Triangles(arg0++, 0, 1, 2, 0, 0, 2, 3, 0);
     gDPPipeSync(arg0++);
     return arg0;
@@ -1180,7 +1180,7 @@ Gfx *screenFadeDrawSpinTexture(Gfx *arg0, u8 arg1) {
         guScaleF(sp_bc, s, s, s);
         matrixMakeRotationZ(sp_7c, (f32)((u32)arg1 / 255.0 * 360.0 * 1.5));
         guMtxCatF(sp_bc, sp_7c, sp_bc);
-        guTranslateF(sp_7c, D_80744490 >> 1, D_80744494 >> 1, 0);
+        guTranslateF(sp_7c, gScreenWidth >> 1, gScreenHeight >> 1, 0);
         guMtxCatF(sp_bc, sp_7c, sp_bc);
         guMtxF2L(sp_bc, mtx);
         gSPMatrix(arg0++, mtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -1291,7 +1291,7 @@ typedef struct {
 extern f32 gScreenFadeProgress;
 extern f32 gScreenFadeRate;
 extern s16 D_8076A0AA;
-extern u8 D_80750AC0;
+extern u8 gActivePlayerCount;
 extern ScreenFadeChannels D_80754CC8;
 
 u8 mapGetWorldIndex(u8);
@@ -1359,7 +1359,7 @@ Gfx *screenFadeUpdate(Gfx *arg0, u8 arg1) {
             } else {
                 switch (arg1) {
                     case 3:
-                        if (D_80750AC0 == 1) {
+                        if (gActivePlayerCount == 1) {
                             viewportShrinkToCenter(alpha);
                             break;
                         }

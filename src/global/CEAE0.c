@@ -260,7 +260,7 @@ typedef struct G02ActorView {
 #define G02_A ((G02ActorView *)gCurrentActor)
 
 extern s32 gFrameCounter;
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern u16 D_807FD63A[][0x1A];
 s32 flagGet(s32, s32);
 s32 slotQueueGetValue(s32, u8);
@@ -273,7 +273,7 @@ void actorScriptStartByIndex(Actor *, s32);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 
 void playerCheckAndClearCarriedItem(void) {
-    if (G02_P->unkC8 != -1 && (flagGet(0x179, 0) == 0 || G02_A->unkE0 != 0.0f || (D_807FBB64 & 0x800000) || slotQueueGetValue(5, G02_P->unk1A4) == 0)) {
+    if (G02_P->unkC8 != -1 && (flagGet(0x179, 0) == 0 || G02_A->unkE0 != 0.0f || (gGlobalOverlayFlags & 0x800000) || slotQueueGetValue(5, G02_P->unk1A4) == 0)) {
         playerClearCarriedItemState();
         G02_P->unkC8 = -1;
         return;
@@ -419,12 +419,12 @@ typedef struct PlayerStateFn {
 #define PLAYER_SLOT(i) (((PlayerUpdateSlot *)gPlayerSlots)[i])
 
 extern PlayerStateFn D_80750B50[];
-extern s32 D_8076A068;
+extern s32 gGameFrameCounter;
 extern s32 D_8076A090;
 extern s32 D_8076A094;
 extern s32 D_8076A098;
 extern s32 D_807552E4;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern s32 gCurrentMap;
 extern u8 D_80770561;
 extern u8 D_807463B8;
@@ -493,7 +493,7 @@ void playerUpdateCommon(s32 arg0) {
     gCurrentActor->flags &= 0xF7FFFFFF;
     PLAYER_SLOT(gCurrentPlayerIndex).unk28C = PLAYER_SLOT(gCurrentPlayerIndex).unk27C;
     if (gCurrentActor->renderFlags & 0x100) {
-        PLAYER_STATE->unk120 = D_8076A068;
+        PLAYER_STATE->unk120 = gGameFrameCounter;
     }
     if (PLAYER_STATE->unk1CC == PLAYER_STATE->unk1C0 && gCurrentActor->state != 0x54) {
         if (gCurrentActor->actorType == 4) {
@@ -689,7 +689,7 @@ done:
     if (PLAYER_STATE->unk268 != 0) {
         PLAYER_STATE->unk268 = PLAYER_STATE->unk268 - 1;
     }
-    if ((gCurrentActor->x < (f32)D_807F5FE4 || gCurrentActor->z < (f32)D_807F5FE6 || (f32)D_807F5FE8 < gCurrentActor->x || (f32)D_807F5FEA < gCurrentActor->z || sp68 != 0) && PLAYER_STATE->unk244 == 0 && (u32)gFrameCounter >= 0x65 && !(D_807FBB64 & 0x4000) && gCurrentMap != 0xE) {
+    if ((gCurrentActor->x < (f32)D_807F5FE4 || gCurrentActor->z < (f32)D_807F5FE6 || (f32)D_807F5FE8 < gCurrentActor->x || (f32)D_807F5FEA < gCurrentActor->z || sp68 != 0) && PLAYER_STATE->unk244 == 0 && (u32)gFrameCounter >= 0x65 && !(gGlobalOverlayFlags & 0x4000) && gCurrentMap != 0xE) {
         if (gPlayerCount == 1) {
             if (flagGet(0x186, 0) == 0) {
                 mapSetPendingTransition(0xB0, 1);
@@ -717,11 +717,11 @@ done:
                     mapExecuteVoidTransition();
                     PLAYER_STATE->unk244 = 1;
                 }
-                if (D_8076A098 >= 0x5DD && !(D_807FBB60 & 2) && PLAYER_STATE->unk244 == 0) {
+                if (D_8076A098 >= 0x5DD && !(gGlobalPauseFlags & 2) && PLAYER_STATE->unk244 == 0) {
                     mapExecuteVoidTransition();
                     PLAYER_STATE->unk244 = 1;
                 }
-                if ((gCurrentActor->x != gCurrentActor->prevX || gCurrentActor->y != gCurrentActor->prevY || gCurrentActor->z != gCurrentActor->prevZ || gPlayerPadState[gCurrentPlayerIndex].unk2A != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2E != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2F != 0) && !(D_807FBB60 & 2)) {
+                if ((gCurrentActor->x != gCurrentActor->prevX || gCurrentActor->y != gCurrentActor->prevY || gCurrentActor->z != gCurrentActor->prevZ || gPlayerPadState[gCurrentPlayerIndex].unk2A != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2E != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2F != 0) && !(gGlobalPauseFlags & 2)) {
                     if (++D_8076A090 == 0x69780) {
                         mapExecuteVoidTransition();
                         PLAYER_STATE->unk244 = 1;
@@ -1272,7 +1272,7 @@ void playerApplyGravityAndMotion(void) {
 }
 
 f32 sqrtf(f32);
-extern u32 D_80744478;
+extern u32 gFrameDelta;
 
 #define G03_MAX(a, b) ((a) < (b) ? (b) : (a))
 
@@ -1293,7 +1293,7 @@ void playerApplyMotion(void) {
     G03_A->unk60 |= 1;
     dx = G03_A->unk7C - G03_A->unk88;
     dz = G03_A->unk84 - G03_A->unk90;
-    G03_P->unk20 = sqrtf(dx * dx + dz * dz) / D_80744478 * 80.0 * 0.15 / G03_A->unk4->unk34;
+    G03_P->unk20 = sqrtf(dx * dx + dz * dz) / gFrameDelta * 80.0 * 0.15 / G03_A->unk4->unk34;
 }
 
 void playerApplyGravity(void) {
@@ -2626,7 +2626,7 @@ void playerCheckLedgeGrab(void) {
     u8 flag;
     s32 pad[2];
 
-    if (!(D_807FBB64 & 0x20000) && gCurrentActor->hasArcBounds != 0 && G06_P->unk8C == 0 && !(gCurrentActor->contactFlags & 1) && G06_P->unkE8 != 0) {
+    if (!(gGlobalOverlayFlags & 0x20000) && gCurrentActor->hasArcBounds != 0 && G06_P->unk8C == 0 && !(gCurrentActor->contactFlags & 1) && G06_P->unkE8 != 0) {
         flag = (gCurrentMap == 0x53 || gCurrentMap == 0xC5) ? 1 : 0;
         notWall = actorAngleInArc(gCurrentActor, gCurrentActor->yaw) == 0;
         if (notWall || !(D_80753E10[D_807FD584] < gCurrentActor->speedXZ) || flag != 0) {
@@ -2762,7 +2762,7 @@ void playerResumeLocomotion(Actor *arg0) {
     if (arg0->unk144 == 1) {
         actorSetInteractionTimer(arg0);
     }
-    if (D_807FBB64 & 0x80000) {
+    if (gGlobalOverlayFlags & 0x80000) {
         if (p->unk88 != NULL && p->unk88->actorType == 0x1D) {
             func_806D0150(arg0);
             return;

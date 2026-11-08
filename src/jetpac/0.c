@@ -88,13 +88,13 @@ void heapFreeDeferred(void *);
 void jetpacUpdateStateAndInput();
 void jetpacBuildDisplayList(u8 *, Gfx **);
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern u8 D_807444EC;
-extern Gfx *D_8076A050[];
+extern Gfx *gGfxTaskBuffers[];
 extern s32 D_8076A088;
 extern s32 D_8076A08C;
 extern s32 gFrameCounter;
-extern u8 *D_8076A048;
+extern u8 *gGfxCurrentFrameBuffer;
 extern u8 D_80767CE8;
 extern u8 D_8076A0B1;
 extern f32 gScreenFadeProgress;
@@ -108,23 +108,23 @@ void jetpacRunFrame(void) {
     u8 *gfxEnd;
 
     controllerStartRead();
-    schedSubmitGfxTask(D_8076A050[D_807444FC], D_8076A088, 3, 1, 0x4D2, 1);
-    D_807444FC ^= 1;
+    schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 0x4D2, 1);
+    gGfxBufferIndex ^= 1;
     gFrameCounter++;
-    D_8076A048 = (u8 *)&D_80767CE8 + D_807444FC * 0x11B0;
+    gGfxCurrentFrameBuffer = (u8 *)&D_80767CE8 + gGfxBufferIndex * 0x11B0;
     controllerUpdate();
     if ((D_8076A0B1 & 1) && gScreenFadeProgress == 31.0f) {
-        glist = D_8076A050[D_807444FC];
+        glist = gGfxTaskBuffers[gGfxBufferIndex];
     } else {
-        jetpacBuildDisplayList(D_8076A048, &glist);
+        jetpacBuildDisplayList(gGfxCurrentFrameBuffer, &glist);
     }
     glist = screenFadeUpdate(glist, 0);
     if (D_807444EC != 4) {
-        gfxEnd = D_8076A048 + 0xDB0;
-        func_805FE71C(glist, D_807444FC, &D_8076A088, 0);
-        func_805FE7B4((Gfx *)gfxEnd, D_8076A048, &D_8076A08C, 1);
+        gfxEnd = gGfxCurrentFrameBuffer + 0xDB0;
+        func_805FE71C(glist, gGfxBufferIndex, &D_8076A088, 0);
+        func_805FE7B4((Gfx *)gfxEnd, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
     } else {
-        func_805FE71C(glist, D_807444FC, &D_8076A088, 1);
+        func_805FE71C(glist, gGfxBufferIndex, &D_8076A088, 1);
     }
 }
 
@@ -134,7 +134,7 @@ void jetpacBuildDisplayList(u8 *basePtr, Gfx **outGlist) {
     Gfx *cmdBuffer;
     Gfx *glist;
 
-    glist = D_8076A050[D_807444FC];
+    glist = gGfxTaskBuffers[gGfxBufferIndex];
     gSPSegment(glist++, 0, 0);
     gSPSegment(glist++, 2, osVirtualToPhysical(basePtr));
     gSPSegment(glist++, 1, osVirtualToPhysical(D_8076A080));

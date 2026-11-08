@@ -1023,7 +1023,7 @@ void *controllerAnimCacheGetOrLoad(s32 id) {
     return asset;
 }
 
-extern u32 D_80744478;
+extern u32 gFrameDelta;
 extern u8 D_80746B60;
 void actorScriptExecute(void *);
 
@@ -1096,7 +1096,7 @@ void controllerStepMotionWindows(MotionOwner *owner) {
     unkC = core->unkC;
     pos = win0->unk4;
     if (core->unk30 & 1) {
-        rate = (f32) ((f64) (u32) D_80744478 * 0.5);
+        rate = (f32) ((f64) (u32) gFrameDelta * 0.5);
     } else {
         rate = 1.0f;
     }
@@ -1334,7 +1334,7 @@ typedef struct {
     f32 unk84;
 } ControllerActorView;
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 void func_806195D0(f32, f32);
 void actorTouchSub140Timestamp();
 void actorCheckWorldBounds(ControllerActorView *actor) {
@@ -1344,7 +1344,7 @@ void actorCheckWorldBounds(ControllerActorView *actor) {
         if (y >= -8192.0f) {
             f32 z = actor->unk84;
             if ((z >= -8192.0f) && (x <= 8192.0f) && (y <= 8192.0f) && (z <= 8192.0f)) {
-                actor->unk8 = *(s32 *) ((u8 *) actor->unk4 + (D_807444FC * 4) + 0x14);
+                actor->unk8 = *(s32 *) ((u8 *) actor->unk4 + (gGfxBufferIndex * 4) + 0x14);
                 func_806195D0(z, 8192.0f);
                 actorTouchSub140Timestamp(actor);
                 actor->unk60 |= 0x200;

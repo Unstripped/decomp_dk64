@@ -59,7 +59,7 @@ void actorSpawn(s32, s32);
 void actorCopyPoseAndScale(void *, void *, f32);
 void actorScriptStart(void *, s32);
 void func_80724DB0();
-void func_8072DA60(void);
+void sfxPlayAtFBD6CPosition(void);
 void actorUpdateModelMatrix(void *, s32);
 
 f32 func_80612794(s16);
@@ -87,7 +87,7 @@ typedef struct {
 } BossWaypointListS16;
 
 extern BossPlayerActor *D_807FBB4C;
-extern BossWorkState *D_807FDC90;
+extern BossWorkState *gBehaviourWorkState;
 extern BossWaypointListS16 *D_807FDCA0;
 s32 flagGet(s16, u8);
 void bossScriptStep(u8 *, s32, f32);
@@ -160,7 +160,7 @@ typedef struct BossConfig {
 
 extern u8 *D_80035A90[];
 extern BossGlobalC924 *gPlayerSlots;
-extern BossConfig *D_807FDC9C;
+extern BossConfig *gBehaviourExtraState;
 extern void *gCamActor;
 
 void behaviourFrameBegin(void);
@@ -192,7 +192,7 @@ s32 func_8072881C(s32, void *);
 #define MAIN_ACTOR ((BossMainActor *)gCurrentActor)
 #define PLAYER_ACTOR ((BossMainActor *)D_807FBB4C)
 #define SECOND_ACTOR ((BossMainActor *)gSpawnedActor)
-#define TIMER_STATE ((BossTimerState *)D_807FDC90)
+#define TIMER_STATE ((BossTimerState *)gBehaviourWorkState)
 
 void bossDogadonStep(void) {
     BossPhaseState *phaseState;
@@ -313,7 +313,7 @@ void bossDogadonStep(void) {
             if (TIMER_STATE->unk2C != 0) {
                 TIMER_STATE->unk2C--;
             } else {
-                actorSetTargetSpeed(MAIN_ACTOR, D_807FDC9C->unkC);
+                actorSetTargetSpeed(MAIN_ACTOR, gBehaviourExtraState->unkC);
                 actorScriptStart(MAIN_ACTOR, 0x3E4);
                 MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
                 phaseState->unk15++;
@@ -328,7 +328,7 @@ void bossDogadonStep(void) {
         MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
         phaseState->unk15++;
         MAIN_ACTOR->unk155 = 0;
-        MAIN_ACTOR->unkB8 = (f32)(u32)D_807FDC9C->unkC;
+        MAIN_ACTOR->unkB8 = (f32)(u32)gBehaviourExtraState->unkC;
         break;
     case 0:
         switch (MAIN_ACTOR->unk155) {
@@ -381,8 +381,8 @@ void bossDogadonStep(void) {
         break;
     }
     func_8072A450();
-    if (func_8072881C(0, (u8 *)D_807FDC90 + 0x28) != 0) {
-        func_8072881C(0x81, (u8 *)D_807FDC90 + 0x28);
+    if (func_8072881C(0, (u8 *)gBehaviourWorkState + 0x28) != 0) {
+        func_8072881C(0x81, (u8 *)gBehaviourWorkState + 0x28);
     }
     actorUpdateModelMatrix(MAIN_ACTOR, 0);
 }
@@ -469,7 +469,7 @@ u8 scaleVal;
         actorScriptStart(gCurrentActor, 0x415);
     }
     if (D_807FBD70 == 5 || D_807FBD70 == 4) {
-        func_8072DA60();
+        sfxPlayAtFBD6CPosition();
     }
 }
 
@@ -592,11 +592,11 @@ void bossKRoolTinyStep(void) {
     case 0x1F:
         switch (BOSS_ACTOR->unk155) {
         case 0:
-            D_807FDC90->unk2C = tbl[st->unk15++];
+            gBehaviourWorkState->unk2C = tbl[st->unk15++];
             BOSS_ACTOR->unk155++;
         case 1:
-            if (D_807FDC90->unk2C) {
-                D_807FDC90->unk2C--;
+            if (gBehaviourWorkState->unk2C) {
+                gBehaviourWorkState->unk2C--;
             } else {
                 BOSS_ACTOR->unk154 = tbl[st->unk15++];
                 BOSS_ACTOR->unk155 = 0;
@@ -636,11 +636,11 @@ void bossKRoolTinyStep(void) {
                 st->unk18 = 8 >> (s32)((D_807FBB4C->unk7C - 117.0f) / 50.0f);
             }
             bossActorGroupCommand(BOSS_ACTOR, st->unk18, 0x413, 0);
-            D_807FDC90->unk2C = 0x14;
+            gBehaviourWorkState->unk2C = 0x14;
             break;
         case 1:
-            if (D_807FDC90->unk2C) {
-                D_807FDC90->unk2C--;
+            if (gBehaviourWorkState->unk2C) {
+                gBehaviourWorkState->unk2C--;
             } else {
                 BOSS_ACTOR->unk155++;
             }
@@ -648,10 +648,10 @@ void bossKRoolTinyStep(void) {
         case 2:
             BOSS_ACTOR->unk155++;
             bossActorGroupCommand(BOSS_ACTOR, st->unk18, 0x414, (st->unk19 + st->unk12 * 15) & 0xFF);
-            D_807FDC90->unk2C = st->unk8;
+            gBehaviourWorkState->unk2C = st->unk8;
         case 3:
-            if (D_807FDC90->unk2C) {
-                D_807FDC90->unk2C--;
+            if (gBehaviourWorkState->unk2C) {
+                gBehaviourWorkState->unk2C--;
             } else {
                 BOSS_ACTOR->unk154 = tbl[st->unk15++];
                 BOSS_ACTOR->unk155 = 0;
@@ -668,19 +668,19 @@ void bossKRoolTinyStep(void) {
         }
         switch (BOSS_ACTOR->unk155) {
         case 0:
-            D_807FDC90->unk2C = tbl[st->unk15++];
+            gBehaviourWorkState->unk2C = tbl[st->unk15++];
             bossActorGroupCommand(BOSS_ACTOR, (1 << st->unk12) & 0xFF, 0x411, 0);
             BOSS_ACTOR->unk155++;
             break;
         case 1:
         case 2:
-            if (D_807FDC90->unk2C) {
-                D_807FDC90->unk2C--;
+            if (gBehaviourWorkState->unk2C) {
+                gBehaviourWorkState->unk2C--;
             } else {
                 if (BOSS_ACTOR->unk155 == 1 && BOSS_ACTOR->unk138) {
                     bossActorGroupCommand(BOSS_ACTOR, (1 << st->unk12) & 0xFF, 0x412, 0);
                 }
-                D_807FDC90->unk2C = 10;
+                gBehaviourWorkState->unk2C = 10;
                 BOSS_ACTOR->unk155++;
             }
             break;

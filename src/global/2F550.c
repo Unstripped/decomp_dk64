@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 extern u8 D_807444F0;
 extern u8 D_807444EC;
@@ -311,7 +311,7 @@ void mapOffsetSlotsUpdate(void) {
     D_807F5FC0 = 0;
     for (i = 0; i < D_807F5FBC; i++) {
         if (D_807F5FB8[i].unk80 != 0.0) {
-            guTranslate(&D_807F5FB8[i].mtx[D_807444FC], 0.0f, gMapChunkCount != 0 ? D_807F5FB8[i].unk80 * 3.0f : D_807F5FB8[i].unk80, 0.0f);
+            guTranslate(&D_807F5FB8[i].mtx[gGfxBufferIndex], 0.0f, gMapChunkCount != 0 ? D_807F5FB8[i].unk80 * 3.0f : D_807F5FB8[i].unk80, 0.0f);
         }
         if (D_807F5FB8[i].unk80 != D_807F5FB8[i].unk84) {
             D_807F5FC0 = 1;
@@ -570,7 +570,7 @@ typedef struct PlayerViewState {
 #define PLAYER_VIEW(i) (((PlayerViewState *)gPlayerSlots)[i])
 
 extern Gfx D_1000118;
-extern u8 D_80750AB4;
+extern u8 gViewportCount;
 extern u8 D_807F5FEC;
 extern u8 D_807F5FED;
 extern u8 gCurrentPlayerIndex;
@@ -594,7 +594,7 @@ Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
     } else {
         gSPSetOtherMode(gfx++, G_SETOTHERMODE_H, G_MDSFT_PIPELINE, 1, G_PM_NPRIMITIVE);
     }
-    for (i = 0; i < D_80750AB4; i++) {
+    for (i = 0; i < gViewportCount; i++) {
         if (PLAYER_VIEW(i).unk0 != 0) {
             gCurrentPlayerIndex = i;
             gfx = mapRenderPlayerView(gfx, PLAYER_VIEW(i).unk21C, PLAYER_VIEW(i).unk220, PLAYER_VIEW(i).unk224,
@@ -698,7 +698,7 @@ extern f32 D_807F5FE0;
 extern f32 D_807F5FDC;
 extern u8 D_807F5E68[];
 extern struct MapDistributeEntry *D_807F5FF0;
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 extern Mtx D_2000180;
 
 f32 cosApprox(f32);
@@ -718,7 +718,7 @@ Gfx *mapRenderPlayerView(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 a
     s32 pad2[1];
     s32 pad[24];
 
-    dl = &L8062C29CP.unk1F0[D_807444FC][0];
+    dl = &L8062C29CP.unk1F0[gGfxBufferIndex][0];
     D_807F5E64 = 0;
     D_807F5FB4 = arg7;
     D_807F5FB0 = arg8;
@@ -728,28 +728,28 @@ Gfx *mapRenderPlayerView(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 a
     D_807F5FE0 = (D_807F5FE0 - D_807F5FDC) * 3.0 + D_807F5FDC;
     planeFromTwoPoints(L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), arg4, arg5, arg6);
     frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, D_807F5FA8);
-    frustumCornersTransformByInverse(&L8062C29CP.unk8[D_807444FC]);
+    frustumCornersTransformByInverse(&L8062C29CP.unk8[gGfxBufferIndex]);
     frustumOrientPolyNormals(L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), (PlanePoly *)D_807F5E68, D_807F5E20);
-    mapTreeFrameUpdate(D_807F5DE4, D_807F5E60, D_807F5FF0, L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), 0, !D_807F5FEC, D_80750AB4 >= 2);
+    mapTreeFrameUpdate(D_807F5DE4, D_807F5E60, D_807F5FF0, L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), 0, !D_807F5FEC, gViewportCount >= 2);
     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
     gfx = actorBuildLightDisplayList(gfx, L8062C29CP.unk4, gCurrentPlayerIndex);
     gSPSegment(gfx++, 5, osVirtualToPhysical(dl));
-    gDPSetTileSize(dl++, 0, L8062C29CP.unk1D0[D_807444FC][0] & 0xFFF, L8062C29CP.unk1D0[D_807444FC][1] & 0xFFF,
-                   (L8062C29CP.unk1D0[D_807444FC][0] + 0x7C) & 0xFFF, (L8062C29CP.unk1D0[D_807444FC][1] + 0x7C) & 0xFFF);
+    gDPSetTileSize(dl++, 0, L8062C29CP.unk1D0[gGfxBufferIndex][0] & 0xFFF, L8062C29CP.unk1D0[gGfxBufferIndex][1] & 0xFFF,
+                   (L8062C29CP.unk1D0[gGfxBufferIndex][0] + 0x7C) & 0xFFF, (L8062C29CP.unk1D0[gGfxBufferIndex][1] + 0x7C) & 0xFFF);
     gSPEndDisplayList(dl++);
-    viewportSetFromRect(L8062C29CP.unk250[D_807444FC], L8062C29CP.unk270, L8062C29CP.unk272, L8062C29CP.unk274, L8062C29CP.unk276);
+    viewportSetFromRect(L8062C29CP.unk250[gGfxBufferIndex], L8062C29CP.unk270, L8062C29CP.unk272, L8062C29CP.unk274, L8062C29CP.unk276);
     gSPPerspNormalize(gfx++, L8062C29CP.unk188);
-    gSPViewport(gfx++, osVirtualToPhysical(&L8062C29CP.unk250[D_807444FC]));
+    gSPViewport(gfx++, osVirtualToPhysical(&L8062C29CP.unk250[gGfxBufferIndex]));
     gDPSetScissor(gfx++, G_SC_NON_INTERLACE, L8062C29CP.unk270, L8062C29CP.unk272, L8062C29CP.unk274, L8062C29CP.unk276);
-    gSPLookAtX(gfx++, osVirtualToPhysical(&L8062C29CP.unk190[D_807444FC]));
-    gSPLookAtY(gfx++, osVirtualToPhysical(&L8062C29CP.unk190[D_807444FC]) + 0x10);
+    gSPLookAtX(gfx++, osVirtualToPhysical(&L8062C29CP.unk190[gGfxBufferIndex]));
+    gSPLookAtY(gfx++, osVirtualToPhysical(&L8062C29CP.unk190[gGfxBufferIndex]) + 0x10);
     mapSetClipBounds(L8062C29CP.unk270, L8062C29CP.unk272, L8062C29CP.unk274, L8062C29CP.unk276);
     gfx = gfxDrawPlayerViewBackground(fogApply(gfx), gCurrentPlayerIndex);
-    gSPMatrix(gfx++, osVirtualToPhysical(&L8062C29CP.unk88[D_807444FC]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPMatrix(gfx++, osVirtualToPhysical(&L8062C29CP.unk8[D_807444FC]), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPMatrix(gfx++, osVirtualToPhysical(&L8062C29CP.unk88[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gfx++, osVirtualToPhysical(&L8062C29CP.unk8[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(gfx++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gfx = mapTreeRender(gfx, D_807F5DE4, D_807F5E60, L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), D_807FBB60);
+    gfx = mapTreeRender(gfx, D_807F5DE4, D_807F5E60, L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), gGlobalPauseFlags);
     gDPPipeSync(gfx++);
     return gfx;
 }
@@ -898,7 +898,7 @@ Gfx *mapViewDrawPass(Gfx *gfx, MapViewEntries *arg1, u8 arg2) {
             gSPClearGeometryMode(gfx++, G_CULL_BACK);
             idx = arg1->unkAC[i];
             if (D_807F5FB8[idx].unk80 != 0.0 && D_807F5FB8[idx].unk8C != 0) {
-                gSPMatrix(gfx++, osVirtualToPhysical((u8 *)D_807F5FB8 + idx * 0x90 + (D_807444FC << 6)),
+                gSPMatrix(gfx++, osVirtualToPhysical((u8 *)D_807F5FB8 + idx * 0x90 + (gGfxBufferIndex << 6)),
                           G_MTX_MODELVIEW | G_MTX_MUL | G_MTX_PUSH);
                 gSPDisplayList(gfx++, osVirtualToPhysical(arg1->unk1C[i]));
                 gSPPopMatrix(gfx++, G_MTX_MODELVIEW);

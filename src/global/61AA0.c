@@ -156,7 +156,7 @@ typedef struct {
     s8 unk107;
 } BillboardData;
 extern BillboardData gBillboardQueue[16];
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 
 void billboardSetVertex(s16 *, s16, s16, s16, s16);
 void *assetLoad(s32, s32, s32, s32);
@@ -222,10 +222,10 @@ block_21:
     gBillboardQueue[gBillboardQueueCount].unk100 = *(u16 *)&gBillboardFlags;
     gBillboardQueue[gBillboardQueueCount].unk107 = ACTOR_FIELD(s16, 0x12C);
 
-    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][0], (s16)-((f32)halfWidth * xRatio), -halfHeight, 0, 0);
-    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][1], halfWidth, -halfHeight, texWidth - 1, 0);
-    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][2], (s16)-((f32)halfWidth * xRatio), halfHeight, 0, texHeight - 1);
-    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][3], halfWidth, halfHeight, texWidth - 1, texHeight - 1);
+    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][0], (s16)-((f32)halfWidth * xRatio), -halfHeight, 0, 0);
+    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][1], halfWidth, -halfHeight, texWidth - 1, 0);
+    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][2], (s16)-((f32)halfWidth * xRatio), halfHeight, 0, texHeight - 1);
+    billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[gGfxBufferIndex][3], halfWidth, halfHeight, texWidth - 1, texHeight - 1);
 
     groundY = actor->floorY;
     if ((*(u16 *)&gBillboardFlags & 2) && (actor->contactFlags & 2) && (actor->waterY <= actor->y)) {
@@ -264,7 +264,7 @@ block_21:
     }
     guMtxCatF(mtx1, mtx2, mtx1);
 
-    guMtxF2L(mtx1, &gBillboardQueue[gBillboardQueueCount].matrices[D_807444FC]);
+    guMtxF2L(mtx1, &gBillboardQueue[gBillboardQueueCount].matrices[gGfxBufferIndex]);
 
     gBillboardQueue[gBillboardQueueCount].unk103 = texWidth;
     gBillboardQueue[gBillboardQueueCount].unk104 = texHeight;
@@ -370,8 +370,8 @@ Gfx *billboardRenderQueued(Gfx *gdl, s16 layer) {
                         break;
                     }
                 }
-                gSPMatrix(gdl++, osVirtualToPhysical(&bb->matrices[D_807444FC]), G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
-                gSPVertex(gdl++, osVirtualToPhysical(&bb->verts[D_807444FC][0]), 4, 0);
+                gSPMatrix(gdl++, osVirtualToPhysical(&bb->matrices[gGfxBufferIndex]), G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+                gSPVertex(gdl++, osVirtualToPhysical(&bb->verts[gGfxBufferIndex][0]), 4, 0);
                 gSP2Triangles(gdl++, 0, 3, 1, 0, 0, 2, 3, 0);
                 gSPPopMatrix(gdl++, G_MTX_MODELVIEW);
             }

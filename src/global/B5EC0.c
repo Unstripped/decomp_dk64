@@ -78,8 +78,8 @@ void actorSpawnGroundEffectAtNode(u8 nodeIndex) {
 s32 randomNonNegative(void);
 
 void func_806B1290(void) {
-    if (((B5EC0View90 *)D_807FDC90)->unk18 >= 0x65
-        && (((((B5EC0View90 *)D_807FDC90)->unk1A & 0x80) && (randomNonNegative() >> 15) % 1000 >= 0x3D5)
+    if (((B5EC0View90 *)gBehaviourWorkState)->unk18 >= 0x65
+        && (((((B5EC0View90 *)gBehaviourWorkState)->unk1A & 0x80) && (randomNonNegative() >> 15) % 1000 >= 0x3D5)
             || ((randomNonNegative() >> 15) % 1000 >= 0x3DF && (gCurrentActor->flags & 0x100)))) {
         ((B5EC0Actor *)gCurrentActor)->unk154 = 0x28;
         ((B5EC0Actor *)gCurrentActor)->unk155 = 0;
@@ -91,7 +91,7 @@ extern u8 D_807FBD70;
 s32 func_8072DE10(s32);
 
 void func_806B1348(void) {
-    if (((B5EC0View90 *)D_807FDC90)->unk18 >= 0x65 && D_807FBD70 == 2 && func_8072DE10(0x2710) != 0) {
+    if (((B5EC0View90 *)gBehaviourWorkState)->unk18 >= 0x65 && D_807FBD70 == 2 && func_8072DE10(0x2710) != 0) {
         ((B5EC0Actor *)gCurrentActor)->unk154 = 0x27;
         ((B5EC0Actor *)gCurrentActor)->unk155 = 0;
     }
@@ -131,8 +131,8 @@ void func_806B13B4(u8 arg0) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         if (gCurrentMap == 0x43) {
-            ((B5EC0View9C *)D_807FDC9C)->unkD = 0x82;
-            D_807FDC98->unk46 |= 0x40;
+            ((B5EC0View9C *)gBehaviourExtraState)->unkD = 0x82;
+            gBehaviourAnimState->unk46 |= 0x40;
         }
         behaviourSetAnimIds(0x205, 0x203, 0x204);
         func_80724CA4(2, 1);
@@ -154,7 +154,7 @@ void func_806B13B4(u8 arg0) {
                 func_8072D714(D_807FBB70.unk1FC, 0x20B);
                 ((B5EC0Actor *)gCurrentActor)->unkC0 = 200.0f;
             }
-            ((B5EC0View90 *)D_807FDC90)->unk35 = 2;
+            ((B5EC0View90 *)gBehaviourWorkState)->unk35 = 2;
             gCurrentActor->callbackMask &= 0xFFFF7FFF;
             sel = gCurrentActor->state;
         } else if (D_807FBB70.unk200 == 4) {
@@ -213,7 +213,7 @@ void func_806B13B4(u8 arg0) {
             actorScriptStart(gCurrentActor, 0x205);
             ((B5EC0Actor *)gCurrentActor)->unk155 += 1;
         case 1:
-            actorMoveWithinZone(gCurrentActor->state, ((B5EC0View94 *)D_807FDC94)->unk7C, ((B5EC0View94 *)D_807FDC94)->unk84, 0x200, 0.0f);
+            actorMoveWithinZone(gCurrentActor->state, ((B5EC0View94 *)gBehaviourTargetActor)->unk7C, ((B5EC0View94 *)gBehaviourTargetActor)->unk84, 0x200, 0.0f);
             if (((B5EC0Actor *)gCurrentActor)->unkB8 < 1.0f) {
                 ((B5EC0Actor *)gCurrentActor)->unk155 += 1;
             }
@@ -227,7 +227,7 @@ void func_806B13B4(u8 arg0) {
         }
         break;
     case 0x27:
-        actorMoveWithinZone(gCurrentActor->state, ((B5EC0View94 *)D_807FDC94)->unk7C, ((B5EC0View94 *)D_807FDC94)->unk84, 0x200, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, ((B5EC0View94 *)gBehaviourTargetActor)->unk7C, ((B5EC0View94 *)gBehaviourTargetActor)->unk84, 0x200, 0.0f);
         switch (((B5EC0Actor *)gCurrentActor)->unk155) {
         case 0:
             actorSetTargetSpeed(gCurrentActor, 0);
@@ -240,14 +240,14 @@ void func_806B13B4(u8 arg0) {
             }
             break;
         case 1:
-            if (((B5EC0View90 *)D_807FDC90)->unk1A & 0x100) {
+            if (((B5EC0View90 *)gBehaviourWorkState)->unk1A & 0x100) {
                 actorClearNodeFlag(gCurrentActor, 2);
                 actorClearNodeFlag(gCurrentActor, 3);
             }
             break;
         case 2:
-            if (((B5EC0View90 *)D_807FDC90)->unk1A & 0x100) {
-                ((B5EC0View90 *)D_807FDC90)->unk1A &= 0xFEFF;
+            if (((B5EC0View90 *)gBehaviourWorkState)->unk1A & 0x100) {
+                ((B5EC0View90 *)gBehaviourWorkState)->unk1A &= 0xFEFF;
                 actorScriptStart(gCurrentActor, 0x207);
                 ((B5EC0Actor *)gCurrentActor)->unk155 = 3;
             } else {
@@ -255,8 +255,8 @@ void func_806B13B4(u8 arg0) {
             }
             break;
         case 3:
-            if (((B5EC0View90 *)D_807FDC90)->unk1A & 0x100) {
-                ((B5EC0View90 *)D_807FDC90)->unk1A &= 0xFEFF;
+            if (((B5EC0View90 *)gBehaviourWorkState)->unk1A & 0x100) {
+                ((B5EC0View90 *)gBehaviourWorkState)->unk1A &= 0xFEFF;
                 actorScriptStart(gCurrentActor, 0x208);
                 ((B5EC0Actor *)gCurrentActor)->unk155 = 5;
             }
@@ -281,14 +281,14 @@ void func_806B13B4(u8 arg0) {
             func_806B1348();
         }
         func_80724E48((u8)(gCurrentActor->state == 1 ? 2 : 0));
-        actorMoveWithinZone(gCurrentActor->state, ((B5EC0View94 *)D_807FDC94)->unk7C, ((B5EC0View94 *)D_807FDC94)->unk84, 0, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, ((B5EC0View94 *)gBehaviourTargetActor)->unk7C, ((B5EC0View94 *)gBehaviourTargetActor)->unk84, 0, 0.0f);
         break;
     case 2:
     case 3:
     case 7:
     case 0x35:
         func_80724E48((u8)(sel == 0x35 ? 2 : 3), sel);
-        actorMoveWithinZone(gCurrentActor->state, ((B5EC0View90 *)D_807FDC90)->unkA, ((B5EC0View90 *)D_807FDC90)->unkE, 0, 0.0f);
+        actorMoveWithinZone(gCurrentActor->state, ((B5EC0View90 *)gBehaviourWorkState)->unkA, ((B5EC0View90 *)gBehaviourWorkState)->unkE, 0, 0.0f);
         break;
     case 0x37:
         ((B5EC0Actor *)gCurrentActor)->unkE6 = mathAngleEaseToward(((B5EC0Actor *)gCurrentActor)->unkE6, ((B5EC0Actor *)gCurrentActor)->unkEE, 7.0f);
@@ -367,22 +367,22 @@ void func_806B1DD4(u8 mode) {
     func_806B13B4(((B5EC0Actor *)gCurrentActor)->unk15F);
 }
 
-void func_806B1EA8(void) {
+void b5ec0SetMode4(void) {
     func_806B1DD4(4);
 }
 
-void func_806B1EC8(void) {
+void b5ec0SetMode2(void) {
     func_806B1DD4(2);
 }
 
-void func_806B1EE8(void) {
+void b5ec0SetMode3(void) {
     func_806B1DD4(3);
 }
 
-void func_806B1F08(void) {
+void b5ec0SetMode0(void) {
     func_806B1DD4(0);
 }
 
-void func_806B1F28(void) {
+void b5ec0SetMode1(void) {
     func_806B1DD4(1);
 }

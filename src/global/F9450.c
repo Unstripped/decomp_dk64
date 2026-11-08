@@ -72,7 +72,7 @@ extern u16 D_807F9450;
 extern u16 D_807F9452;
 extern u16 D_807F9454;
 extern u16 D_807F9456;
-extern s32 D_807FBB64;
+extern s32 gGlobalOverlayFlags;
 extern s16 D_807FD720;
 extern s16 D_807FD722;
 extern s16 D_807FD724;
@@ -129,7 +129,7 @@ void gridBuildNodeLists(void) {
     head = NULL;
     entryCount = 0;
     D_807FD738 = 0;
-    if (D_807FBB64 & 0x10000) {
+    if (gGlobalOverlayFlags & 0x10000) {
         D_80754240 = heapAlloc(0x4B0);
         heapClearBlock(D_80754240);
     } else {
@@ -624,7 +624,7 @@ u8 arg2;
     u8 shouldComplete;
 
     shouldComplete = 0;
-    if ((D_807FBB64 & 0x10000000) && (arg1 != 0x56)) {
+    if ((gGlobalOverlayFlags & 0x10000000) && (arg1 != 0x56)) {
         D_80029FA0--;
         return;
     }
@@ -870,13 +870,13 @@ void func_806F5FE8(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s32 arg4) {
 extern void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
 extern void effectSpawnParticleRingAtPosition(f32, f32, f32, s32);
 extern s32 menuIsTransitionType6(void);
-extern s32 D_807FBB60;
+extern s32 gGlobalPauseFlags;
 
 void delayedSpawnQueueTick(void) {
     s32 i;
 
     if (menuIsTransitionType6() != 0) {
-        if (!(D_807FBB60 & 2)) {
+        if (!(gGlobalPauseFlags & 2)) {
             for (i = 0; i < 60; i++) {
                 if (D_80754240[i].unk10 != 0) {
                     D_80754240[i].unk10--;
@@ -982,7 +982,7 @@ void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
                     playerStateHandleSoundEffects(arg0->unk2, arg1);
                     modelSlotFreeByIndex(arg0->unk0, 1);
                 }
-                if (D_807FBB64 & 0x10000) {
+                if (gGlobalOverlayFlags & 0x10000) {
                     if (arg0->unk2 != 0x1D2) {
                         func_806F5FE8(arg0->unk2, arg0->unk8, arg0->unkA, arg0->unkC, 0x258);
                     }
@@ -1143,7 +1143,7 @@ typedef struct F9N8_Type {
 } F9N8_Type;
 
 extern s16 D_807FD790;
-extern u8 D_807444FC;
+extern u8 gGfxBufferIndex;
 extern s16 D_8076A0AA;
 void gridCollectActorsInRange(u8);
 void effectSpawnRandomSpread(f32, f32, f32, f32, f32, s32);
@@ -1208,7 +1208,7 @@ void gridUpdatePlayerNodes(u8 arg0) {
         } while (rect != NULL);
     }
     if ((D_807FD730 != NULL) && (gPlayerCount == 1)) {
-        mtx = &((F9N8_Player *)gPlayerSlots)[arg0].mtx[D_807444FC];
+        mtx = &((F9N8_Player *)gPlayerSlots)[arg0].mtx[gGfxBufferIndex];
         guMtxL2F(mf, mtx);
         matrix4Invert(inv, mf);
         node = (F9N8_Node *)D_807FD730;
@@ -1231,7 +1231,7 @@ void gridUpdatePlayerNodes(u8 arg0) {
                         if (node->unk19 != 0) {
                             playerStateHandleSoundEffects(node->unk2, arg0);
                         }
-                        if ((slot >= 0) && !(D_807FBB64 & 0x4000) && ((slot != 0xB) || !(D_807FBB64 & 0x10000000))) {
+                        if ((slot >= 0) && !(gGlobalOverlayFlags & 0x4000) && ((slot != 0xB) || !(gGlobalOverlayFlags & 0x10000000))) {
                             slotQueueUpdate(func_806F544C(slot, node->unk2, node->unk1A), 0, 0);
                         }
                         switch (node->unk2) {
@@ -1330,7 +1330,7 @@ void gridTickPlayers(void) {
     F9N6_FlagBlock *temp_v0;
     var_fp = 0;
     sp45 = 0;
-    if (D_807FBB64 & 0x10000) {
+    if (gGlobalOverlayFlags & 0x10000) {
         delayedSpawnQueueTick();
     }
     if (flagGet(0x179, 0) != 0) {
@@ -1506,7 +1506,7 @@ void gridCollectActorsInRange(u8 arg0) {
                 for (i = 0; i < gActiveActorCount; i++) {
                     {
                         actor = gActiveActors[i].unk0;
-                        if ((D_807FBB60 & 0x10000) && (F94D_ENTRY->unkE == actor->actorType) && ((F94D_ENTRY->unkC == 0) || (F94D_ENTRY->unkC == player->actorType))) {
+                        if ((gGlobalPauseFlags & 0x10000) && (F94D_ENTRY->unkE == actor->actorType) && ((F94D_ENTRY->unkC == 0) || (F94D_ENTRY->unkC == player->actorType))) {
                             node = (F94D_Node *) D_807FD780[arg0];
                             found = (f32) camDistance3D((s32) actor->x, (s32) ((f32) F94D_ENTRY->unk10 + actor->y), (s32) actor->z, (s32) ((F94D_Node *)&D_807FD740[arg0])->unk0, (s32) ((F94D_Node *)&D_807FD740[arg0])->unk4, (s32) ((F94D_Node *)&D_807FD740[arg0])->unk8) < ((f32) F94D_ENTRY->unk12 + ((F94D_Node *)&D_807FD740[arg0])->unkC) - 1.0f;
                             while ((found == 0) && (node != NULL)) {
@@ -1514,7 +1514,7 @@ void gridCollectActorsInRange(u8 arg0) {
                                 node = node->unk10;
                             }
                             if ((actor->state == 0x64) || (found != 0)) {
-                                if ((D_807FBB64 & 0x10000) && (actorTypeIsRespawnPickup(actor->actorType) != 0)) {
+                                if ((gGlobalOverlayFlags & 0x10000) && (actorTypeIsRespawnPickup(actor->actorType) != 0)) {
                                     func_806F5F2C(actor->actorType, 0x258, (s16) (s32) actor->x, (s16) (s32) actor->y, (s32) actor->z);
                                 }
                                 sub = actor->unk174;

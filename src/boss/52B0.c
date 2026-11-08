@@ -130,9 +130,9 @@ extern u8 *D_80035A00[];
 extern s32 gFrameCounter;
 extern Boss3F_52B0_BB4C *D_807FBB4C;
 extern Boss3F_52B0_D580 *gActivePlayerState;
-extern Boss3F_52B0_DC90 *D_807FDC90;
-extern Boss3F_52B0_DC94 *D_807FDC94;
-extern Boss3F_52B0_DC98 *D_807FDC98;
+extern Boss3F_52B0_DC90 *gBehaviourWorkState;
+extern Boss3F_52B0_DC94 *gBehaviourTargetActor;
+extern Boss3F_52B0_DC98 *gBehaviourAnimState;
 void bossScriptStep(u8 *, s32, f32);
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 f32 func_80612790(s16);
@@ -156,7 +156,7 @@ s32 mathAngleDistance(s16, s16);
 s32 func_80724A20(void);
 void behaviourFrameBegin(void);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
-void func_8072E1A4(s32, void *);
+void actorTurnTowardActorYaw(s32, void *);
 
 #define ACTOR ((Boss3F_52B0_Actor *)gCurrentActor)
 
@@ -177,7 +177,7 @@ void bossMadJackStep(void) {
     if (!(ACTOR->unk60 & 0x10)) {
         ACTOR->unkCE = 0x64;
         ACTOR->unk15F = 0;
-        D_807FDC98->unk46 |= 0x20;
+        gBehaviourAnimState->unk46 |= 0x20;
         ACTOR->unk64 |= 4;
         ACTOR->unk144 = 0x24;
         lightSetColor(0.0f, 0.0f, 0.0f, -1);
@@ -196,12 +196,12 @@ void bossMadJackStep(void) {
             break;
         case 2:
             bossMadJackSpawnShockwave(1.8f);
-            D_807FDC90->unk2C = 0x14;
+            gBehaviourWorkState->unk2C = 0x14;
             ACTOR->unk155++;
             break;
         case 3:
-            if (D_807FDC90->unk2C != 0) {
-                D_807FDC90->unk2C--;
+            if (gBehaviourWorkState->unk2C != 0) {
+                gBehaviourWorkState->unk2C--;
             } else {
                 bossMadJackSpawnShockwave(1.0f);
                 ACTOR->unk155++;
@@ -315,23 +315,23 @@ void bossMadJackStep(void) {
         break;
     case 0x28:
     case 0x2A:
-        func_8072E1A4(0x14, D_807FDC94);
+        actorTurnTowardActorYaw(0x14, gBehaviourTargetActor);
         goto block_28;
     case 0x46:
-        ACTOR->unkE6 += D_807FDC90->unk2E;
+        ACTOR->unkE6 += gBehaviourWorkState->unk2E;
         if (mathAngleSignedDistance(ACTOR->unkE6, targetAngle) > 0) {
-            pad48 = D_807FDC90->unk2E + 2;
+            pad48 = gBehaviourWorkState->unk2E + 2;
             if (pad48 < 0x32) {
-                D_807FDC90->unk2E = pad48;
+                gBehaviourWorkState->unk2E = pad48;
             } else {
-                D_807FDC90->unk2E = 0x32;
+                gBehaviourWorkState->unk2E = 0x32;
             }
         } else {
-            pad48 = D_807FDC90->unk2E - 2;
+            pad48 = gBehaviourWorkState->unk2E - 2;
             if (pad48 >= -0x31) {
-                D_807FDC90->unk2E = pad48;
+                gBehaviourWorkState->unk2E = pad48;
             } else {
-                D_807FDC90->unk2E = -0x32;
+                gBehaviourWorkState->unk2E = -0x32;
             }
         }
 block_28:
@@ -372,7 +372,7 @@ block_28:
                 break;
             case 0x46:
                 projectileSpawnNodeEntry(0x1E, 0x63, 0.7f, ACTOR->unkE6, 300.0f, 0.0f, ACTOR);
-                D_807FDC90->unk2C = scriptState->unk8;
+                gBehaviourWorkState->unk2C = scriptState->unk8;
                 ACTOR->unk155 = 8;
                 break;
             default:
@@ -388,17 +388,17 @@ block_28:
             break;
         case 7:
             angleOffset = ((randomNonNegative() >> 15) % 1024) - 0x200;
-            targetX = ((f64)func_80612794(D_807FDC94->unkE6 + angleOffset) * ((f64)D_807FDC94->unkB8 * 1.2)) + (f64)D_807FDC94->unk7C;
-            targetZ = ((f64)func_80612790(D_807FDC94->unkE6 + angleOffset) * ((f64)D_807FDC94->unkB8 * 1.2)) + (f64)D_807FDC94->unk84;
-            projectileSetTargetCoords(targetX, D_807FDC94->unk80 + 500.0f, targetZ);
-            projectileAimAndSpawn(0x1E, 0x1E, 1.0f, targetX, D_807FDC94->unk80, targetZ, 600.0f, ACTOR);
-            D_807FDC90->unk2C = scriptState->unk8;
+            targetX = ((f64)func_80612794(gBehaviourTargetActor->unkE6 + angleOffset) * ((f64)gBehaviourTargetActor->unkB8 * 1.2)) + (f64)gBehaviourTargetActor->unk7C;
+            targetZ = ((f64)func_80612790(gBehaviourTargetActor->unkE6 + angleOffset) * ((f64)gBehaviourTargetActor->unkB8 * 1.2)) + (f64)gBehaviourTargetActor->unk84;
+            projectileSetTargetCoords(targetX, gBehaviourTargetActor->unk80 + 500.0f, targetZ);
+            projectileAimAndSpawn(0x1E, 0x1E, 1.0f, targetX, gBehaviourTargetActor->unk80, targetZ, 600.0f, ACTOR);
+            gBehaviourWorkState->unk2C = scriptState->unk8;
             ACTOR->unk155 = 9;
             /* fallthrough */
         case 9:
         case 10:
-            if (D_807FDC90->unk2C != 0) {
-                D_807FDC90->unk2C--;
+            if (gBehaviourWorkState->unk2C != 0) {
+                gBehaviourWorkState->unk2C--;
             } else {
                 scriptState->unk18--;
                 if (scriptState->unk18 != 0) {
