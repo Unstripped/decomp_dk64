@@ -160,12 +160,12 @@ f32 func_80612794(s16);
 
 void func_8002A240(void) {
     BossC_6240_17C *s0 = D_807FBB40->unk17C;
-    f32 sp20;
+    f32 sinVal;
     if (s0->unk4 != 0) {
         s0->unk4--;
-        sp20 = (f32)(func_80612794((s16)(((f64)s0->unk4 / 10.0) * (s0->unk8 - (s0->unk8 + 0x400)) + (s0->unk8 + 0x400))) * 20.0);
-        D_807FBB40->unk7C += sp20 * func_80612794(s0->unk6);
-        D_807FBB40->unk84 += sp20 * func_80612790(s0->unk6);
+        sinVal = (f32)(func_80612794((s16)(((f64)s0->unk4 / 10.0) * (s0->unk8 - (s0->unk8 + 0x400)) + (s0->unk8 + 0x400))) * 20.0);
+        D_807FBB40->unk7C += sinVal * func_80612794(s0->unk6);
+        D_807FBB40->unk84 += sinVal * func_80612790(s0->unk6);
         if (s0->unk4 == 0) {
             s0->unk8 += 0x400;
         }
@@ -177,35 +177,35 @@ void func_8002A240(void) {
 void *actorFindByType(s32);
 void func_8067AB20(void *, void *, s32, s32, void *, s32);
 
-void func_8002A41C(u8 arg0) {
+void func_8002A41C(u8 targetIndex) {
     void *target;
-    f32 sp2C[2];
+    f32 targetPos[2];
 
-    switch (arg0) {
+    switch (targetIndex) {
     case 0:
         target = actorFindByType(0x61);
         if (target != NULL) {
-            func_8067AB20(D_807FBB40, target, 0x01000000, 1, sp2C, 0);
+            func_8067AB20(D_807FBB40, target, 0x01000000, 1, targetPos, 0);
         }
         break;
     case 1:
         target = actorFindByType(0x60);
         if (target != NULL) {
-            func_8067AB20(D_807FBB40, target, 0x01000000, 1, sp2C, 0);
+            func_8067AB20(D_807FBB40, target, 0x01000000, 1, targetPos, 0);
         }
         target = actorFindByType(0x61);
         if (target != NULL) {
-            func_8067AB20(D_807FBB40, target, 0x01000000, 3, sp2C, 0);
+            func_8067AB20(D_807FBB40, target, 0x01000000, 3, targetPos, 0);
         }
         break;
     case 2:
         target = actorFindByType(0x60);
         if (target != NULL) {
-            func_8067AB20(D_807FBB40, target, 0x01000000, 1, sp2C, 0);
+            func_8067AB20(D_807FBB40, target, 0x01000000, 1, targetPos, 0);
         }
         target = actorFindByType(0x61);
         if (target != NULL) {
-            func_8067AB20(D_807FBB40, target, 0x01000000, 2, sp2C, 0);
+            func_8067AB20(D_807FBB40, target, 0x01000000, 2, targetPos, 0);
         }
         break;
     }
@@ -217,11 +217,11 @@ void func_807149B8(s32);
 void func_807149C8(s32, s32, s32, s32);
 void func_80714C08(void *, f32, void *, s32, s32);
 
-void func_8002A55C(u8 arg0, f32 arg1) {
-    if (!(arg0 & gFrameCounter)) {
+void func_8002A55C(u8 sparkleInterval, f32 scale) {
+    if (!(sparkleInterval & gFrameCounter)) {
         func_807149B8(1);
         func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
-        func_80714C08(D_80720120, arg1, D_807FBB40, 1, 0);
+        func_80714C08(D_80720120, scale, D_807FBB40, 1, 0);
     }
 }
 
@@ -235,20 +235,20 @@ void effectPuffRiseUpdate(void);
 extern void *D_8074E880[];
 
 void bossSpawnSparkles(void) {
-    f32 sp6C;
-    f32 sp68;
-    f32 sp64;
+    f32 sparkX;
+    f32 sparkY;
+    f32 sparkZ;
     s16 i;
 
-    actorGetNodePos(D_807FBB40, 1, &sp6C, &sp68, &sp64);
-    sp6C += (f32)(((randomNonNegative() >> 15) % 80) - 40);
-    sp68 += (f32)(((randomNonNegative() >> 15) % 100) + 50);
-    sp64 += (f32)(((randomNonNegative() >> 15) % 80) - 40);
+    actorGetNodePos(D_807FBB40, 1, &sparkX, &sparkY, &sparkZ);
+    sparkX += (f32)(((randomNonNegative() >> 15) % 80) - 40);
+    sparkY += (f32)(((randomNonNegative() >> 15) % 100) + 50);
+    sparkZ += (f32)(((randomNonNegative() >> 15) % 80) - 40);
     func_807149B8(1);
     func_8071498C(func_8071EDEC);
     func_80714950(D_807FBB40);
     func_807149C8(0xFF, 0xD7, 0x58, 0xFF);
-    func_80714CC0(D_80720120, 1.5f, sp6C, sp68, sp64);
+    func_80714CC0(D_80720120, 1.5f, sparkX, sparkY, sparkZ);
     for (i = 0; i < 4; i++) {
         func_80714998(2);
         func_8071498C(effectPuffRiseUpdate);
@@ -272,8 +272,8 @@ typedef struct BossC_6240_Actor {
 extern BossC_6240_Actor *D_807FBB4C;
 s32 polygonContainsPoint2D(s16, s16, s32);
 
-void bossClampPosition(s32 arg0) {
-    if (!polygonContainsPoint2D((s32)D_807FBB4C->unk7C, (s32)D_807FBB4C->unk84, arg0)) {
+void bossClampPosition(s32 radius) {
+    if (!polygonContainsPoint2D((s32)D_807FBB4C->unk7C, (s32)D_807FBB4C->unk84, radius)) {
         D_807FBB4C->unk7C = D_807FBB4C->unk88;
         D_807FBB4C->unk84 = D_807FBB4C->unk90;
     }
