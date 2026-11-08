@@ -210,7 +210,6 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     actor = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
     off = gHiResScale * 0xC8;
     xx = x * 4;
-    xx = xx | 0;  // FAKE: deadsweep/hill-climb: steers uopt candidate priority
     dl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)actor * 4), .5f, descStr1);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
     xo = (s32)((f64)off + (f64)fontHeight * 0.5);
     fontHeight = xx; // FAKE: reuse the consumed font-height local to evaluate final y before the call arguments.
