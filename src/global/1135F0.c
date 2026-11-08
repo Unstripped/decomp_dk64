@@ -41,7 +41,7 @@ void dlAppendTextureLoad(Gfx **glistp, void *texture) {
     height = L8F0_TEXTURE->height + L8F0_TEXTURE->extraHeight;
     width = L8F0_TEXTURE->width;
     if (width && width) {}  // FAKE: raises width's uopt priority (width a3, D_807550D0 address t0)
-    uls = 0;  // FAKE: uls/ult/lrt only add three named frame homes and steer uopt (tile corner args)
+    uls = 0;
     ult = 0;
     lrt = height;
 
