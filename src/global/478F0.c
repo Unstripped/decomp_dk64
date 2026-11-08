@@ -2353,7 +2353,7 @@ void func_80649D74(CsState *cs, s16 csId, s16 b, s16 c) {
     csModelStateTrySetByte(0x3D, (*p)[1], 1);
 }
 
-void func_80649E00(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSetParam49(CsState *cs, s16 csId, s16 b, s16 c) {
     cs->unk14[0] = *((u8 *)cs + 0x49);
 }
 
@@ -2411,7 +2411,7 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c)
   }
 }
 
-void func_80649F64(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSetModelSlotByte5F(CsState *cs, s16 csId, s16 b, s16 c) {
     csModelStateTrySetByte(0x5F, ((CsModelSlotView *)D_807F6000)[hashTableLookup(csId)].unk8A, 1);
 }
 
@@ -2704,7 +2704,7 @@ void func_8064A804(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void func_8064AAC4(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdUpdateSlotIdView8A(CsState *cs, s16 csId, s16 b, s16 c) {
     func_806BD094(((CsSlotIdView *)D_807F6000)[hashTableLookup(csId)].unk8A, b);
 }
 
@@ -2973,7 +2973,7 @@ void csCmdSlotQueueSelectPlayer(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void func_80726EE0(u8);
-void func_8064B574(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSetAudioUnk3(CsState *cs, s16 csId, s16 b, s16 c) {
     func_80726EE0(3);
 }
 
@@ -3038,12 +3038,12 @@ void csCmdAllocSlotPointer(CsState *cs, s16 csId, s16 b, s16 c) {
 void effectNodeSetUnk4A(s32, u8);
 void effectNodeSetUnk4B(s32, u8);
 u8 effectNodeGetUnk4B(s32);
-void func_8064B7E8(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdEnableEffectNodes5And6(CsState *cs, s16 csId, s16 b, s16 c) {
     effectNodeSetUnk4A(5, 1);
     effectNodeSetUnk4A(6, 1);
 }
 
-void func_8064B828(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdResetEffectNodes5And6(CsState *cs, s16 csId, s16 b, s16 c) {
     effectNodeSetUnk4B(5, 0xFF);
     effectNodeSetUnk4B(6, 0xFF);
 }
@@ -3113,7 +3113,7 @@ s32 csCondVarLess(CsState *cs, s16 csId, s16 b, s16 c) {
     return (u8)(cs->unk14[b] < cs->unk14[c]);
 }
 
-void func_8064BB4C(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdCheckCollectedSufficientItems(CsState *cs, s16 csId, s16 b, s16 c) {
     mapHasCollectedSufficientItems();
 }
 
@@ -4147,7 +4147,7 @@ void csCmdSlotQueuePurchaseFlag(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void func_8064EAB4(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSumFlagsE6ThroughEA(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 sum;
 
     sum = flagGet(0xE6, 0);
@@ -4375,7 +4375,7 @@ u8 csCondTrue(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern s8 D_807FC8D0;
 
-void func_8064F308(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSetFlag1C1Or1C2(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 flag;
 
     if (D_807FC8D0 == 5) {

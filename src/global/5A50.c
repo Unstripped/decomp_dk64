@@ -26,11 +26,11 @@ extern Struct8076C328 D_8076C328[];
 s32 __n_alCSeqNextDelta(Struct8076BF48 *, Struct8076C328 *, u8, s32);
 
 extern ALCSPlayer *gSeqPlayers[];
-void func_80737E90(ALCSPlayer *, s32);
+void alCSPSetUnk84(ALCSPlayer *, s32);
 void setCSPChannelStateValue(ALCSPlayer *, s32, u8);
-void func_80737FD8(ALCSPlayer *, s32);
+void alCSPChannelResetControl(ALCSPlayer *, s32);
 void enableCSPChannel(ALCSPlayer *, s32);
-void func_80738080(ALCSPlayer *, s32, u8);
+void alCSPChannelSetControl(ALCSPlayer *, s32, u8);
 void setCSPChannelPortamento(ALCSPlayer *, s32, u8);
 void setCSPChannelStopControl(ALCSPlayer *, s32, u8);
 void dmaReadAssetDecompress(s32, s32 *, s32 *, s32, s32, s32, s32);
@@ -180,7 +180,7 @@ s32 seqPlayerGetState(u8 playerIndex) {
 }
 
 void func_806011A0(u8 playerIndex, s32 val) {
-    func_80737E90(gSeqPlayers[playerIndex], val);
+    alCSPSetUnk84(gSeqPlayers[playerIndex], val);
 }
 
 typedef struct {
@@ -195,7 +195,7 @@ void seqPlayerSetChannelState(u8 playerIndex, s32 channel, u8 value) {
 }
 
 void seqPlayerDisableChannel(u8 playerIndex, s32 channel) {
-    func_80737FD8(gSeqPlayers[playerIndex], channel);
+    alCSPChannelResetControl(gSeqPlayers[playerIndex], channel);
 }
 
 void seqPlayerEnableChannel(u8 playerIndex, s32 channel) {
@@ -203,7 +203,7 @@ void seqPlayerEnableChannel(u8 playerIndex, s32 channel) {
 }
 
 void func_8060128C(u8 playerIndex, u8 channel, u8 value) {
-    func_80738080(gSeqPlayers[playerIndex], channel, value);
+    alCSPChannelSetControl(gSeqPlayers[playerIndex], channel, value);
 }
 
 void seqPlayerSetChannelPortamento(u8 playerIndex, u8 channel, u8 portamento) {

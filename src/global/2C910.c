@@ -147,7 +147,7 @@ void func_8070B308(u8);
 void func_8070D8C0(void *, s32, u8);
 void func_8070E8DC(s8);
 void menuTransitionToMap(s32, s32);
-void func_8071268C(void);
+void menuSetTransitionTypeBFlag(void);
 void func_807127F4(s32);
 void func_80712830(void *, s32);
 void func_80713EB0(s32, s32, s32);
@@ -559,7 +559,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             gScreenFadeRate = b / 100.0;
             return;
         case 0x3A:
-            func_8071268C();
+            menuSetTransitionTypeBFlag();
             return;
         case 0x35:
             if (a == 0) {

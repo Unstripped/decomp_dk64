@@ -152,8 +152,8 @@ s32 n_alSynAllocVoice(void *, void *);
 void n_alSynSetVol(void *, s32, s32);
 void n_alSynStartVoiceParams(void *, void *, f32, s32, u8, s32, s32, f32, s32, s32);
 void n_alSynSetPitch(void *, f32);
-void func_8073CF00(void *, u8);
-void func_8073C820(void *, s32);
+void n_alSynAllocVoicePriorityA(void *, u8);
+void n_alSynSetVoiceUnkC(void *, s32);
 
 #define GE_STATE_VOL(st, km, snd) \
     (D_807FF0E4[(km)->volIndex & 0x1F] * (((st)->envVol * (st)->vol * (snd)->sampleVolume) / 0x3F01) / 0x7FFF)
@@ -320,7 +320,7 @@ void __n_handleEvent(GeSndEvt *event) {
                 if (state->state == 1) {
                     panTmp = state->pan + sound->samplePan - 0x40;
                     GE_CLAMP_PAN(pan, panTmp);
-                    func_8073CF00(&state->voice, pan);
+                    n_alSynAllocVoicePriorityA(&state->voice, pan);
                 }
                 break;
             case 0x10:
@@ -338,7 +338,7 @@ void __n_handleEvent(GeSndEvt *event) {
                     fx = (state->fxMix & 0x7F) + ((keyMap->panFx & 0xF) << 3);
                     GE_CLAMP_FX(fx);
                     fx |= state->fxMix & 0x80;
-                    func_8073C820(&state->voice, fx);
+                    n_alSynSetVoiceUnkC(&state->voice, fx);
                 }
                 break;
             case 8:

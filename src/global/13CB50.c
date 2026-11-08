@@ -29,7 +29,7 @@ void alCSPPlay(ALCSPlayer *seqp) {
     alEvtqPostEvent(&seqp->evtq, &evt, 0);
 }
 
-void func_80737E90(CspApiCSPlayer *seqp, s32 val) {
+void alCSPSetUnk84(CspApiCSPlayer *seqp, s32 val) {
     seqp->unk84 = val;
 }
 
@@ -64,7 +64,7 @@ void resetCSPChannelStates(CspApiCSPlayer *seqp) {
     }
 }
 
-void func_80737FD8(ALCSPlayer *seqp, s32 chan) {
+void alCSPChannelResetControl(ALCSPlayer *seqp, s32 chan) {
     alCSPSendMidi(seqp, 0, chan | AL_MIDI_ControlChange, 0xFF, 0);
 }
 
@@ -73,7 +73,7 @@ void enableCSPChannel(ALCSPlayer *seqp, s32 chan) {
     alCSPSendMidi(seqp, 0, chan | AL_MIDI_ControlChange, 0xFF, 0xFF);
 }
 
-void func_80738080(ALCSPlayer *seqp, s32 chan, u8 value) {
+void alCSPChannelSetControl(ALCSPlayer *seqp, s32 chan, u8 value) {
     alCSPSendMidi(seqp, 0, chan | AL_MIDI_ControlChange, 0xFF, (u8)(s32)value);
 }
 

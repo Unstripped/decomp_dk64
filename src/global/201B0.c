@@ -1098,7 +1098,7 @@ void camClearActorRefs(void *arg0) {
     }
 }
 
-void func_8061D058(void) {
+void camNoop201B0(void) {
 }
 
 void camUpdateFollowHeight(CamFollowState *cam) {

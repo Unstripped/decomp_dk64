@@ -82,12 +82,12 @@ s32 menuGetTimerFlag(void) {
     return D_80755350;
 }
 
-void func_80712634(s32 arg0, s32 arg1) {
+void menuTransitionRequestTypeB(s32 arg0, s32 arg1) {
     menuTransitionRequest(arg0, arg1, 0xB);
     D_80755330 = 0;
 }
 
-s32 func_80712658(void) {
+s32 menuIsTransitionTypeB(void) {
     s32 var_v0;
 
     var_v0 = D_80755314 == 0xB;
@@ -96,7 +96,7 @@ s32 func_80712658(void) {
     }
 }
 
-void func_8071268C(void) {
+void menuSetTransitionTypeBFlag(void) {
     if (D_80755314 == 0xB) {
         D_80755330 = 1;
     }
@@ -119,7 +119,7 @@ void func_807126B0(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4, s8 arg5, s8 a
     menuTransitionWithState(arg0, arg1, 12);
 }
 
-void func_80712774(s32 arg0) {
+void menuTransitionWithStateD(s32 arg0) {
     menuTransitionWithState(arg0, 0, 0xD);
 }
 
@@ -130,7 +130,7 @@ s32 menuIsTransitionActive(void) {
 void mapSlotArrayResetAll(void);
 void flagSet(s32, s32, s32);
 
-void func_807127B4(void) {
+void menuResetAndTransitionToCredits(void) {
     mapSlotArrayResetAll();
     flagSet(0x314, 1, 0);
     menuTransitionRequest(0x1C, 0x17, 7);
@@ -707,7 +707,7 @@ void func_80713C8C(void) {
                 D_80755340.index++;
             }
             if (D_80755340.unk8 <= 0) {
-                func_807127B4();
+                menuResetAndTransitionToCredits();
             }
         }
     }

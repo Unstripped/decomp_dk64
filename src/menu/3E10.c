@@ -2055,7 +2055,7 @@ extern s16 D_80033998[];
 extern s8 D_8074453C[];
 
 extern s8 D_80744540;
-void func_80712634(s32, s32);
+void menuTransitionRequestTypeB(s32, s32);
 void func_807127F4(s32);
 void func_807126B0(s16, s32, s16, s8, s32, s32, s32);
 
@@ -2095,7 +2095,7 @@ void menuHandleCheatsInput(MenuScreenActor *actor, s32 buttons) {
                     switch (idx) {
                     case 0:
                         if (sel != 0xD) {
-                            func_80712634(D_80033900[sel][0], D_80033900[sel][1]);
+                            menuTransitionRequestTypeB(D_80033900[sel][0], D_80033900[sel][1]);
                         } else {
                             func_807127F4(1);
                         }

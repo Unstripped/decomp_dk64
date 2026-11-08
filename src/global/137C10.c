@@ -170,7 +170,7 @@ void n_alSynStopVoice(ALVoice *);
 void n_alSynFreeVoice(ALVoice *);
 void n_alSynSetPitch(ALVoice *, f32);
 u8 n_alCSPClampVoiceFXMix(GcVoiceState *, GcCSPlayer *);
-void func_8073C820(ALVoice *, u8);
+void n_alSynSetVoiceUnkC(ALVoice *, u8);
 void *n_alSynGetFXDelay(u8);
 void n_alSynSetFXParam(void *, s32, void *);
 void *n_alSynGetFXFeedback(u8);
@@ -263,7 +263,7 @@ ALMicroTime __n_CSPVoiceHandler(void *node) {
                 seqp->unk7C = seqp->nextEvent.msg.fpair.f0;
                 seqp->unk80 = seqp->nextEvent.msg.fpair.f1;
                 for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
-                    func_8073C820(&vs->voice, n_alCSPClampVoiceFXMix(vs, seqp));
+                    n_alSynSetVoiceUnkC(&vs->voice, n_alCSPClampVoiceFXMix(vs, seqp));
                 }
                 break;
             case 25:
@@ -463,8 +463,8 @@ GcVoiceState *__n_mapVoice(GcCSPlayer *seqp, u8 key, u8 vel, u8 chan);
 GcVoiceState *__n_lookupVoice(GcCSPlayer *seqp, u8 key, u8 chan);
 void __n_setInstChanState(GcCSPlayer *seqp, ALInstrument *inst, u8 chan);
 u8 __n_vsPan(GcVoiceState *vs, GcCSPlayer *seqp);
-void func_8073CF00(ALVoice *voice, u8 arg);
-void func_8073CFB0(ALVoice *voice, u8 arg);
+void n_alSynAllocVoicePriorityA(ALVoice *voice, u8 arg);
+void n_alSynAllocVoicePriorityB(ALVoice *voice, u8 arg);
 void n_alSynAllocVoice(ALVoice *voice, ALVoiceConfig *config);
 void n_alSynStartVoiceParams(ALVoice *voice, ALWaveTable *w, f32 pitch, s16 vol, u8 pan, u8 fxmix, u8 unityPitch, f32 fxVolume, u8 fxDelay, s32 samples);
 
@@ -690,7 +690,7 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan) {
                             pan = __n_vsPan(vs, seqp);
-                            func_8073CF00(&vs->voice, pan);
+                            n_alSynAllocVoicePriorityA(&vs->voice, pan);
                         }
                     }
                     break;
@@ -764,7 +764,7 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     GdCH(seqp, chan).unk13 = byte2;
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan) {
-                            func_8073CFB0(&vs->voice, byte2);
+                            n_alSynAllocVoicePriorityB(&vs->voice, byte2);
                         }
                     }
                     break;
@@ -813,7 +813,7 @@ void __n_CSPHandleMIDIMsg(GcCSPlayer *seqp, ALEvent *event) {
                     GdCH(seqp, chan).fxmix = (GdCH(seqp, chan).fxmix & 0x7F) | (byte2 << 7);
                     for (vs = seqp->vAllocHead; vs != NULL; vs = vs->next) {
                         if (vs->channel == chan) {
-                            func_8073C820(&vs->voice, GdCH(seqp, chan).fxmix);
+                            n_alSynSetVoiceUnkC(&vs->voice, GdCH(seqp, chan).fxmix);
                         }
                     }
                     break;

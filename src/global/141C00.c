@@ -27,7 +27,7 @@ extern SynAllocSynth *n_syn;
 extern SynAllocParam *__n_allocParam(void);
 extern s32 n_alEnvmixerParam(void *, s32, void *);
 
-void func_8073CF00(SynAllocVoice *voice, u8 priority) {
+void n_alSynAllocVoicePriorityA(SynAllocVoice *voice, u8 priority) {
     SynAllocParam *param;
 
     if (voice->pvoice != NULL) {
@@ -43,7 +43,7 @@ void func_8073CF00(SynAllocVoice *voice, u8 priority) {
     }
 }
 
-void func_8073CFB0(SynAllocVoice *voice, u8 priority) {
+void n_alSynAllocVoicePriorityB(SynAllocVoice *voice, u8 priority) {
     SynAllocParam *param;
 
     if (voice->pvoice != NULL) {

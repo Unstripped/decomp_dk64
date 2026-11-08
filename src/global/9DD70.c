@@ -1526,14 +1526,14 @@ extern u8 gPlayerCount;
 s32 func_80714450();
 s32 func_807142D8();
 s32 func_8071432C();
-s32 func_80712658();
+s32 menuIsTransitionTypeB();
 void textSpawnMarker(u8, s16, s16, s32, u16, u16, u8, u8);
 
 void textSpawnMarkerChecked(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 delay, u8 colorMode, u8 extraFlags) {
     if (gPlayerCount < 2) {
         if (func_80714450() == 0) {
             if (func_807142D8() == 0) {
-                if (func_8071432C() != 0 || func_80712658() != 0) {
+                if (func_8071432C() != 0 || menuIsTransitionTypeB() != 0) {
                     textSpawnMarker(fontStyle, x, y, textStr, duration, delay, colorMode, extraFlags);
                 }
             }

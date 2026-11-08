@@ -49,7 +49,7 @@ void n_alFxPull(void);
 void n_alFxParamHdl(s32, s16, s32);
 void rebuildLowPassCoefficients(SynFXFilter *, f32);
 
-void func_8073C820(ALVoice *voice, u8 val) {
+void n_alSynSetVoiceUnkC(ALVoice *voice, u8 val) {
     SynVoiceParam *param;
 
     if (voice->pvoice != NULL) {

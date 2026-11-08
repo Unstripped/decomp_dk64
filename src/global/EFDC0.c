@@ -193,13 +193,13 @@ s32 playerCanTakeHit(Actor *arg0) {
     return pred;
 }
 
-void func_806EB4B4(void) {
+void playerStateInitState23(void) {
     gCurrentActor->state = 0x23;
     gCurrentActor->unk155[0] = 0;
     actorScriptStart(D_807FBB48, 0x3BC);
 }
 
-void func_806EB4F8(void) {
+void playerStateInitState5F(void) {
     gCurrentActor->state = 0x5F;
     gCurrentActor->unk155[0] = 0;
     EfA_P->unk1A3 = 0;
@@ -208,7 +208,7 @@ void func_806EB4F8(void) {
 
 extern s32 slotQueueGetValue(s32, u8);
 
-void func_806EB544(void) {
+void playerStateInitState60(void) {
     s32 selector;
     f32 unused;
 
@@ -472,7 +472,7 @@ void playerStateSetFlag8(void) {
     gActivePlayerState->stateFlags |= 8;
 }
 
-void func_806EBDC4(void) {
+void playerStateInitKongAction69(void) {
     ((EfBActor *)D_807FBB48)->unk154 = 0x69;
     ((EfBActor *)D_807FBB48)->unk155 = 0;
     actorScriptStart(D_807FBB48, 0);
@@ -519,7 +519,7 @@ void func_806EBF74(void) {
     EFB_P->unk1FE = EFB_C[gCurrentPlayerIndex].unk2A8;
 }
 
-void func_806EBFD0(void) {
+void playerStateInitKongAction78(void) {
     actorScriptStart(D_807FBB48, 0x1A);
     ((EfBActor *)D_807FBB48)->unk154 = 0x78;
     ((EfBActor *)D_807FBB48)->unk155 = 0;
@@ -2298,10 +2298,10 @@ void func_806EFF34(void) {
     playerSetBaseGravity();
 }
 
-void func_806F006C(void) {
+void playerStateNoop1(void) {
 }
 
-void func_806F0074(void) {
+void playerStateNoop2(void) {
 }
 
 

@@ -163,7 +163,7 @@ void actorUpdateRampTarget(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806A1ABC(void) {
+void actorNoopA6280(void) {
 }
 
 extern s32 gFrameCounter;

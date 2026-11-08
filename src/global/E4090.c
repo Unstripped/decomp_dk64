@@ -1513,7 +1513,7 @@ s32 func_806E2CC4(void) {
     return var_v1 & 0xFF;
 }
 
-void func_806E2DE8(void) {
+void playerInputHandlerCheckZAndTriggerState2C(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2C & 1) && func_806E2CC4()) {
         actorScriptStartByIndex(gCurrentActor, 0x47);
         gCurrentActor->state = 0x2C;
@@ -1533,7 +1533,7 @@ void playerFireWeaponFirstPerson(void) {
     playerFireWeapon(1, 0);
 }
 
-void func_806E2ECC(void) {
+void playerInputHandlerCheckBAndFireWeapon(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2C & 0xC000) == 0x4000) {
         actorScriptStartByIndex(gCurrentActor, 0x54);
         return;
@@ -1859,7 +1859,7 @@ void func_806E3B00(void) {
 
 void playerResumeLocomotionDecel(Actor *);
 
-void func_806E3C14(void) {
+void playerInputHandlerResumeDecel(void) {
     playerResumeLocomotionDecel(gCurrentActor);
 }
 
@@ -1992,7 +1992,7 @@ void func_806E3E40(void) {
 }
 
 
-void func_806E41B4(void) {
+void playerInputHandlerStartScript15(void) {
     actorScriptStartByIndex(gCurrentActor, 0x15);
     G24_A->unk155 = 7;
 }
@@ -2761,10 +2761,10 @@ void func_806E5D60(void) {
     }
 }
 
-void func_806E5E58(void) {
+void playerInputHandlerNoop1(void) {
 }
 
-void func_806E5E60(void) {
+void playerInputHandlerNoop2(void) {
 }
 
 void func_806E5E68(void) {
@@ -4772,7 +4772,7 @@ void func_806EAF6C(void) {
     }
 }
 
-void func_806EAFEC(void) {
+void playerInputHandlerNoop3(void) {
 }
 
 void func_806EAFF4(void) {
