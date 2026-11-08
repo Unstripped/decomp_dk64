@@ -1004,13 +1004,13 @@ void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
     }
 
     if ((D_8074447C != 0) || (D_80744480 != 0) || (D_80744484 != 0) || (D_80744488 != 0) || (D_8074448C != 0)) {
-        Struct806C7C94 *temp_v0_6;
+        Struct806C7C94 *vpEntry;
         s16 dx, dy;
-        temp_v0_6 = cameraFindViewportEntry(0);
-        gPlayerSlots->rect[0] = (s16)(temp_v0_6->unk4 + D_8074447C);
-        gPlayerSlots->rect[2] = (s16)(temp_v0_6->unk8 - D_80744480);
-        gPlayerSlots->rect[1] = (s16)(temp_v0_6->unk6 + D_80744484);
-        gPlayerSlots->rect[3] = (s16)(temp_v0_6->unkA - D_80744488);
+        vpEntry = cameraFindViewportEntry(0);
+        gPlayerSlots->rect[0] = (s16)(vpEntry->unk4 + D_8074447C);
+        gPlayerSlots->rect[2] = (s16)(vpEntry->unk8 - D_80744480);
+        gPlayerSlots->rect[1] = (s16)(vpEntry->unk6 + D_80744484);
+        gPlayerSlots->rect[3] = (s16)(vpEntry->unkA - D_80744488);
 
         gDPPipeSync(glist++);
         gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0x300000);
@@ -1020,16 +1020,16 @@ void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
         gDPSetScissor(glist++, G_SC_NON_INTERLACE, D_80744498, D_8074449C, D_807444A0, D_807444A4);
 
         if (D_8074447C != 0) {
-            gDPFillRectangle(glist++, temp_v0_6->unk4, temp_v0_6->unk6, gPlayerSlots->rect[0], temp_v0_6->unkA);
+            gDPFillRectangle(glist++, vpEntry->unk4, vpEntry->unk6, gPlayerSlots->rect[0], vpEntry->unkA);
         }
         if (D_80744480 != 0) {
-            gDPFillRectangle(glist++, gPlayerSlots->rect[2], temp_v0_6->unk6, temp_v0_6->unk8, temp_v0_6->unkA);
+            gDPFillRectangle(glist++, gPlayerSlots->rect[2], vpEntry->unk6, vpEntry->unk8, vpEntry->unkA);
         }
         if (D_80744484 != 0) {
-            gDPFillRectangle(glist++, gPlayerSlots->rect[0], temp_v0_6->unk6, gPlayerSlots->rect[2], gPlayerSlots->rect[1]);
+            gDPFillRectangle(glist++, gPlayerSlots->rect[0], vpEntry->unk6, gPlayerSlots->rect[2], gPlayerSlots->rect[1]);
         }
         if (D_80744488 != 0) {
-            gDPFillRectangle(glist++, gPlayerSlots->rect[0], gPlayerSlots->rect[3], gPlayerSlots->rect[2], temp_v0_6->unkA);
+            gDPFillRectangle(glist++, gPlayerSlots->rect[0], gPlayerSlots->rect[3], gPlayerSlots->rect[2], vpEntry->unkA);
         }
 
         gDPPipeSync(glist++);
@@ -1044,7 +1044,7 @@ void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
         D_80744480 = 0;
         D_80744484 = 0;
         D_80744488 = 0;
-        dx = temp_v0_6->unk8 - temp_v0_6->unk4; dy = temp_v0_6->unkA - temp_v0_6->unk6; gPlayerSlots->unk280 = (f32)dx / (f32)dy;
+        dx = vpEntry->unk8 - vpEntry->unk4; dy = vpEntry->unkA - vpEntry->unk6; gPlayerSlots->unk280 = (f32)dx / (f32)dy;
         gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0x0F0A4000);
     }
 

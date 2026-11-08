@@ -22,11 +22,11 @@ s32 mathAngleDistance(s16, s16);
 s32 actorCheckPlayerProximityVertical();
 s32 actorListContainsId();
 u8 func_80714608();
-void actorCheckPlayerSmallerThanAttacker(s32 actor, s32 attacker, s32 arg2) {
+void actorCheckPlayerSmallerThanAttacker(s32 actor, s32 attacker, s32 unused) {
     playerIsSmallerThanAttacker(actor, attacker);
 }
 
-u8 actorTargetIsVulnerable(s32 arg0, s32 target, s32 arg2) {
+u8 actorTargetIsVulnerable(s32 actor, s32 target, s32 list) {
     s32 ret;
 
     ret = func_806D10D0(target) != 0;
@@ -46,7 +46,7 @@ u8 func_806762C0(s32 actor, s32 target, s32 list) {
     return ret;
 }
 
-s32 actorIsDamageFatal(void* target, void* attacker, u8 arg2) {
+s32 actorIsDamageFatal(void* target, void* attacker, u8 damageScale) {
     s16 diff = *(s16*)((u8*)target + 0x134) - *(s16*)((u8*)attacker + 0x136);
 
     if (diff <= 0) {
@@ -308,9 +308,9 @@ u8 func_80676BCC(s32 arg0, Actor* target, s32 arg2) {
 u8 func_80676C10(s32 actor, Actor* target, s32 list) {
     u8* beh = target->unk174;
     s32 ret;
-    s32 var_v1 = *(s16*)(beh + 0xD4) != 0 ? 1 : 0;
+    s32 hasCustomOffset = *(s16*)(beh + 0xD4) != 0 ? 1 : 0;
 
-    ret = var_v1 != 0;
+    ret = hasCustomOffset != 0;
     if (!ret) {
         ret = func_806769A8(actor, target, list) != 0;
     }

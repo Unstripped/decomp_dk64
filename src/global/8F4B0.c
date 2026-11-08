@@ -105,8 +105,8 @@ s32 cutsceneTriggerCheck(s16 cutsceneId) {
     s32 found;
     s32 i;
     s16 flagId;
-    s32 sp24;
-    s32 sp20;
+    s32 spawnType;
+    s32 extraParam;
 
     entryCutscene = -1;
     i = 0;
@@ -122,49 +122,49 @@ s32 cutsceneTriggerCheck(s16 cutsceneId) {
     if (found) {
         flagId = i + 0x1C5;
         if (flagGet(flagId, 0) == 0) {
-            sp20 = 0;
+            extraParam = 0;
             switch (cutsceneId) {
             case 0x7:
-                sp24 = 0x1C;
+                spawnType = 0x1C;
                 entryCutscene = 0xF;
                 break;
             case 0x26:
-                sp24 = 0x1C;
+                spawnType = 0x1C;
                 entryCutscene = 0x10;
                 break;
             case 0x1A:
-                sp24 = 0x1C;
+                spawnType = 0x1C;
                 entryCutscene = 0x11;
                 break;
             case 0x1E:
-                sp24 = 0x1C;
+                spawnType = 0x1C;
                 entryCutscene = 0x12;
                 break;
             case 0x30:
-                sp24 = 0x1C;
+                spawnType = 0x1C;
                 entryCutscene = 0x13;
                 break;
             case 0x48:
-                sp24 = 0x1C;
+                spawnType = 0x1C;
                 entryCutscene = 0x14;
                 break;
             case 0x57:
-                sp24 = 0x1C;
+                spawnType = 0x1C;
                 entryCutscene = 0x15;
-                sp20 = 0x15;
+                extraParam = 0x15;
                 break;
             case 0x11:
-                sp24 = 0x1C;
+                spawnType = 0x1C;
                 entryCutscene = 0x16;
                 break;
             }
             if (entryCutscene != -1) {
                 flagSet(flagId, 1, 0);
                 if (D_8074452C != 0) {
-                    func_805FF378(cutsceneId, sp20);
+                    func_805FF378(cutsceneId, extraParam);
                     return 1;
                 }
-                func_80712524(sp24, entryCutscene);
+                func_80712524(spawnType, entryCutscene);
                 return 1;
             }
         }
@@ -706,7 +706,7 @@ void playerCameraUpdateFromTarget(void) {
     s32 stateVal;
     s32 dd;
     s16 tmpd;
-    u8 temp_v1_2;
+    u8 pad_v1;
     targetState = D_807FBB40->unk174;
     angleDiff = 0;
     maxDiff = 0x1E;

@@ -635,36 +635,35 @@ extern s32 D_807550A4;
 void n_alSndpSetGroupVol(u8, u16);
 void seqSetChannelVolumeScale(s32, f32);
 
-void transitionSetAudioVolume(f32 arg0, s32 arg1, s32 *arg2) {
-    s32 sp34;
-    u16 sp28;
-    u16 temp_s0;
+void transitionSetAudioVolume(f32 volumeScale, s32 isGroupActive, s32 *channels) {
+    s32 oldPri;
+    u16 rawVol;
+    u16 scaledVol;
     s32 i;
 
-    sp28 = 25000.0f * arg0;
-    temp_s0 = (f64)(sp28 * D_8074583C) / 40.0;
-    sp34 = osGetThreadPri(0);
+    rawVol = 25000.0f * volumeScale;
+    scaledVol = (f64)(rawVol * D_8074583C) / 40.0;
+    oldPri = osGetThreadPri(0);
     osSetThreadPri(0, 0x1A);
-    n_alSndpSetGroupVol(0, temp_s0);
-    if (arg1 != 0) {
-        D_807550A4 = 1;
-        n_alSndpSetGroupVol(2, temp_s0);
+    n_alSndpSetGroupVol(0, scaledVol);
+    if (isGroupActive != 0) {
+        n_alSndpSetGroupVol(2, scaledVol);
         if ((D_80755070 == 0) && ((D_8076A0B1 & 1) || !(D_8076A0B1 & 0x40))) {
-            seqSetChannelVolumeScale(0, arg0);
+            seqSetChannelVolumeScale(0, volumeScale);
         }
     } else {
-        n_alSndpSetGroupVol(3, (f64)(sp28 * D_8074583C) / 40);
+        n_alSndpSetGroupVol(3, (f64)(rawVol * D_8074583C) / 40);
         if (D_807550A4 != 0) {
             D_807550A4 = 0;
             n_alSndpSetGroupVol(2, (f64)(D_8074583C * 25000) / 40.0f);
             n_alSndpSetGroupVol(1, (f64)(D_8074583C * 25000) / 4e1);
         }
     }
-    for (i = 0; arg2 != 0 && arg2[i] != 0; i++) {
-        seqSetChannelVolumeScale(arg2[i], arg0);
+    for (i = 0; channels != 0 && channels[i] != 0; i++) {
+        seqSetChannelVolumeScale(channels[i], volumeScale);
     }
     if (D_807550A4 && D_807550A4) {}
-    osSetThreadPri(0, sp34);
+    osSetThreadPri(0, oldPri);
 }
 
 typedef struct TransitionChannels {
@@ -691,7 +690,7 @@ void n_alSndpStop(s32);
 #define TRANS_MAX(a, b) (((a) > (b)) ? (a) : (b))
 #define TRANS_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
-u8 transitionRender(Gfx **arg0, s32 arg1, s32 arg2) {
+u8 transitionRender(Gfx **gdl, s32 frameIndex, s32 mode) {
     Gfx *glist;
     Gfx *start;
     Gfx *out;
@@ -702,7 +701,7 @@ u8 transitionRender(Gfx **arg0, s32 arg1, s32 arg2) {
     s32 volume;
     TransitionChannels channels;
 
-    out = *arg0;
+    out = *gdl;
     if (D_807444F8 == 1) {
         delta = 3;
     } else {
@@ -757,7 +756,7 @@ u8 transitionRender(Gfx **arg0, s32 arg1, s32 arg2) {
         D_807FD9A0 = ((gTransitionProgress * 0xF0) - 0x4B0) / 80;
     }
     if (gTransitionProgress >= 5 && gTransitionProgress < 0x56) {
-        transitionMaskFramebuffer((u16 *)arg2);
+        transitionMaskFramebuffer((u16 *)mode);
     }
     if (gTransitionProgress >= 0x6D && (f64)gTransitionProgress <= 120.0) {
         D_8075506C = 0xDC - gTransitionProgress * 2;
@@ -771,7 +770,7 @@ u8 transitionRender(Gfx **arg0, s32 arg1, s32 arg2) {
     gSPMatrix(glist++, matrix, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gDPSetColorDither(glist++, G_CD_DISABLE);
     gDPSetAlphaDither(glist++, G_AD_DISABLE);
-    meshDrawTextured(&glist, (MeshInfo *)D_807FD9A8, (u8 *)arg2);
+    meshDrawTextured(&glist, (MeshInfo *)D_807FD9A8, (u8 *)mode);
     gTransitionProgress += delta;
     D_807FD9C0 = assetLoad(0xE, 0x6A - TRANS_MIN(TRANS_MAX((s16)(D_807FD9A0 / 26), 0), 9), 1, 1);
     assetFreeBuffer(D_807FD9C0, 0x381, 0x4A);
@@ -785,7 +784,7 @@ u8 transitionRender(Gfx **arg0, s32 arg1, s32 arg2) {
     gSPTextureRectangle(glist++, 0x260, TRANS_MAX((s16)(D_807FD9A0 << 2), 0), 0x2A0, TRANS_MAX((s16)((D_807FD9A0 + 0x1F) << 2), 0), 0, 0, -((D_807FD9A0 << 2 < 0) ? TRANS_MIN(((s16)(D_807FD9A0 << 2) << 10) >> 7, 0) : 0), 0x400, 0x400);
     gSPEndDisplayList(glist++);
     gSPDisplayList(out++, start);
-    *arg0 = out;
+    *gdl = out;
     if (gTransitionProgress < 0 || (f64)gTransitionProgress > 120.0) {
         n_alSndpStop(D_807FD9C8);
     }

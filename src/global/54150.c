@@ -24,7 +24,7 @@ typedef struct ModelData {
 void *heapAlloc(s32);
 void *memcpy(void *, const void *, unsigned int);
 
-void modelSlotAllocAnimBuffers(ModelData **arg0, u8 *arg1) {
+void modelSlotAllocAnimBuffers(ModelData **outModel, u8 *animAsset) {
     u8 *p2;
     u32 n;
     u8 *p1;
@@ -33,13 +33,13 @@ void modelSlotAllocAnimBuffers(ModelData **arg0, u8 *arg1) {
     ModelData *m;
     u32 i;
 
-    if (*(u32 *)(arg1 + 0x68) != *(u32 *)(arg1 + 0x64)) {
+    if (*(u32 *)(animAsset + 0x68) != *(u32 *)(animAsset + 0x64)) {
         m = heapAlloc(0xD0);
-        *arg0 = m;
-        n = *(u32 *)(arg1 + *(u32 *)(arg1 + 0x68));
+        *outModel = m;
+        n = *(u32 *)(animAsset + *(u32 *)(animAsset + 0x68));
         m->unk0 = heapAlloc(n);
         m->unk4 = heapAlloc(n);
-        src = arg1 + *(u32 *)(arg1 + 0x68);
+        src = animAsset + *(u32 *)(animAsset + 0x68);
         size = *(u32 *)(src + 4);
         memcpy(m->unk0, src + 8, size);
         memcpy(m->unk4, src + 8, size);
@@ -53,7 +53,7 @@ void modelSlotAllocAnimBuffers(ModelData **arg0, u8 *arg1) {
             p2 += 0x40;
         }
         {
-            u8 *q = arg1 + *(u32 *)(arg1 + 0x64);
+            u8 *q = animAsset + *(u32 *)(animAsset + 0x64);
             s32 j;
 
             for (j = 0; j < 10; j++) {
@@ -72,7 +72,7 @@ void modelSlotAllocAnimBuffers(ModelData **arg0, u8 *arg1) {
             }
         }
     } else {
-        *arg0 = NULL;
+        *outModel = NULL;
     }
 }
 

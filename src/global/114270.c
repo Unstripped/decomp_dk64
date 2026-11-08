@@ -328,7 +328,7 @@ s32 func_8071006C(M114aAngle *particle) {
     s32 isDone;
     f32 new_var;
     s32 age;
-    u8 temp_v0_2;
+    u8 curAlpha;
 
     effectSpriteParticleTrackCamera(particle);
     effectSpriteParticleWrapX(particle);
@@ -338,9 +338,9 @@ s32 func_8071006C(M114aAngle *particle) {
     particle->unk8 = (f32)particle->unk4;
     age = 0x50;
     if (isDone == 0) {
-        temp_v0_2 = particle->unkB1;
-        if ((s32)temp_v0_2 >= 0x50) {
-            particle->unkB1 = (u8)(temp_v0_2 - age);
+        curAlpha = particle->unkB1;
+        if ((s32)curAlpha >= 0x50) {
+            particle->unkB1 = (u8)(curAlpha - age);
         }
     }
     new_var = (f32)((1.0 / ((f64)particle->unk10 * 4.0)) * 60.0);
@@ -360,7 +360,7 @@ s32 func_80710174(M114aAngle *particle) {
     s32 isDone;
     f32 new_var;
     s32 age;
-    u8 temp_v0_2;
+    u8 curAlpha;
 
     effectSpriteParticleTrackCamera(particle);
     new_var2 = func_80612794(particle->unk20);
@@ -376,9 +376,9 @@ s32 func_80710174(M114aAngle *particle) {
     particle->unkC = (f32)((f64)particle->unkC + ((f64)((10.0f - (new_var - 10.0f)) + 10.0f) * 0.25));
     age = 0xA;
     if (isDone == 0) {
-        temp_v0_2 = particle->unkB1;
-        if ((s32)temp_v0_2 >= 0xA) {
-            particle->unkB1 = (u8)(temp_v0_2 - age);
+        curAlpha = particle->unkB1;
+        if ((s32)curAlpha >= 0xA) {
+            particle->unkB1 = (u8)(curAlpha - age);
         }
     }
     isDone = 0;
@@ -396,7 +396,7 @@ s32 func_807102AC(M114aAngle *particle) {
     s32 isDone;
     f32 new_var;
     s32 age;
-    u8 temp_v0_2;
+    u8 curAlpha;
 
     effectSpriteParticleTrackCamera(particle);
     new_var2 = func_80612794(particle->unk20);
@@ -412,9 +412,9 @@ s32 func_807102AC(M114aAngle *particle) {
     particle->unkB0 = (u8)(age + 1);
     age = 0xA;
     if (isDone == 0) {
-        temp_v0_2 = particle->unkB1;
-        if ((s32)temp_v0_2 >= 0xA) {
-            particle->unkB1 = (u8)(temp_v0_2 - age);
+        curAlpha = particle->unkB1;
+        if ((s32)curAlpha >= 0xA) {
+            particle->unkB1 = (u8)(curAlpha - age);
         }
     }
     isDone = 0;
@@ -777,7 +777,7 @@ void func_80711BD0(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
 }
 
 
-void func_80711F90(f32 density, s16 windAngle, s32 arg2, s16 mapChunk, f32 scale) {
+void func_80711F90(f32 density, s16 windAngle, s32 unused, s16 mapChunk, f32 scale) {
     f32 randX;
     s32 idx;
     s32 count;

@@ -21,9 +21,9 @@ typedef struct SynAllocStartParam {
     s16 volume;
     u8 pan;
     u8 fxmix;
-    u8 arg8;
-    u8 arg9;
-    f32 arg7;
+    u8 fxDelay;
+    u8 fxPitch;
+    f32 fxVolume;
     s32 samples;
     void *wave;
 } SynAllocStartParam;
@@ -38,7 +38,7 @@ extern SynAllocStartParam *__n_allocParam(void);
 extern s32 n_alEnvmixerParam(void *, s32, void *);
 extern s32 _n_timeToSamples(s32);
 
-void n_alSynStartVoiceParams(SynAllocStartVoice *voice, void *wave, f32 pitch, s16 volume, u8 pan, u8 fxmix, u8 unity, f32 arg7, u8 arg8, s32 samples) {
+void n_alSynStartVoiceParams(SynAllocStartVoice *voice, void *wave, f32 pitch, s16 volume, u8 pan, u8 fxmix, u8 unity, f32 fxVolume, u8 fxDelay, s32 samples) {
     SynAllocStartParam *param;
 
     if (voice->pvoice != NULL) {
@@ -54,9 +54,9 @@ void n_alSynStartVoiceParams(SynAllocStartVoice *voice, void *wave, f32 pitch, s
         param->volume = volume;
         param->fxmix = fxmix;
         param->pitch = pitch;
-        param->arg8 = arg8;
-        param->arg9 = unity;
-        param->arg7 = arg7;
+        param->fxDelay = fxDelay;
+        param->fxPitch = unity;
+        param->fxVolume = fxVolume;
         param->samples = _n_timeToSamples(samples);
         param->wave = wave;
         n_alEnvmixerParam(voice->pvoice, 3, param);

@@ -103,7 +103,7 @@ void lightGetColor(f32 *, f32 *, f32 *, s16);
     ((u32)((mul) * ((f32)D_80754EF8[skyTypeA * 12 + (off)] + (alpha * (f32)(D_80754EF8[skyTypeB * 12 + (off)] - D_80754EF8[skyTypeA * 12 + (off)])))))
 #define BG_PLAYER_VIEW ((BackgroundPlayerView *)gPlayerSlots)
 
-Gfx *gfxDrawBackgroundQuad(Gfx *gdl, void *arg1, f32 angle, void *mtx, u8 skyTypeA, u8 skyTypeB, u8 colorMode, s8 lightIndex, f32 alpha) {
+Gfx *gfxDrawBackgroundQuad(Gfx *gdl, void *tex, f32 angle, void *mtx, u8 skyTypeA, u8 skyTypeB, u8 colorMode, s8 lightIndex, f32 alpha) {
     f32 y;
     u32 color0;
     u32 color1;
@@ -621,7 +621,7 @@ typedef struct {
 
 #define PLAYER_VIEW_MODE (*(s16 *)&((PlayerViewBackdrop *)gPlayerSlots)->unk290)
 
-Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 player) {
+Gfx *gfxDrawMapBackground(Gfx *dl, void *bgTex, void *rotAngle, void *mtx, s32 player) {
     f32 x;
     f32 r;
     f32 z;
@@ -636,7 +636,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 playe
     case 0xC6:
         return dl;
     case 0xE:
-        dl = gfxDrawRotatedTiledBackground(dl, *(f32 *)&arg1, *(f32 *)&arg2, 0x2D, 320.0f, 240.0f);
+        dl = gfxDrawRotatedTiledBackground(dl, *(f32 *)&bgTex, *(f32 *)&rotAngle, 0x2D, 320.0f, 240.0f);
         break;
     case 0x3:
     case 0xB:
@@ -652,7 +652,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 playe
     case 0x7E:
     case 0x7F:
     case 0x80:
-        dl = gfxDrawRotatedTiledBackground(dl, *(f32 *)&arg1, *(f32 *)&arg2, 0x2E, 320.0f, 240.0f);
+        dl = gfxDrawRotatedTiledBackground(dl, *(f32 *)&bgTex, *(f32 *)&rotAngle, 0x2E, 320.0f, 240.0f);
         break;
     case 0x26:
         switch (((PlayerViewBackdrop *)gPlayerSlots)->unk290) {
@@ -666,18 +666,18 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 playe
             break;
         default:
             lensFlareAddFromAngle(0x3E8, 0x4E20, 0);
-            dl = gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 0, 0, 0, -1, 0.0f);
+            dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 0, 0, 0, -1, 0.0f);
             break;
         }
         break;
     case 0x1E:
         if (((PLAYER_VIEW_MODE != 7) && (PLAYER_VIEW_MODE != 6) && (PLAYER_VIEW_MODE != 8) && (PLAYER_VIEW_MODE != 0)) || (D_807FD800 != 0)) {
-            dl = gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 0, 0, ((*(s16 *)D_807FBB4C->unk12C == 9) || (*(s16 *)D_807FBB4C->unk12C == 0xB) || (*(s16 *)D_807FBB4C->unk12C == 3)) ? 1 : 0, 9, 0.0f);
+            dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 0, 0, ((*(s16 *)D_807FBB4C->unk12C == 9) || (*(s16 *)D_807FBB4C->unk12C == 0xB) || (*(s16 *)D_807FBB4C->unk12C == 3)) ? 1 : 0, 9, 0.0f);
         }
         break;
     case 0x27:
         lensFlareAddFromAngle(0xBB8, 0x2328, 0);
-        dl = gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 0, 0, 0, -1, 0.0f);
+        dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 0, 0, 0, -1, 0.0f);
         break;
     case 0x4:
         dl = gfxClearScreenSetViewportScissor(dl);
@@ -696,27 +696,27 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 playe
         case 11:
         case 14:
             lensFlareAddFromAngle(0, 0x7530, 1);
-            dl = gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 4, 4, 1, -1, 0.0f);
+            dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 4, 4, 1, -1, 0.0f);
             break;
         default:
             lensFlareAddFromAngle(0, 0x7530, 0);
-            dl = gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 4, 4, 0, -1, 0.0f);
+            dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 4, 4, 0, -1, 0.0f);
             break;
         }
         break;
     case 0x8:
-        dl = gfxDrawSkySprite(gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 3, 3, 1, -1, 0.0f), 0, 0x7D00, 0);
+        dl = gfxDrawSkySprite(gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 3, 3, 1, -1, 0.0f), 0, 0x7D00, 0);
         break;
     case 0x30:
         if ((PLAYER_VIEW_MODE >= 0xC) && (PLAYER_VIEW_MODE < 0x12)) {
             dl = gfxClearScreenSetViewportScissor(dl);
         } else {
             lensFlareAddFromAngle(0, 0x5DC0, 1);
-            dl = gfxDrawSkySprite(gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 2, 2, 1, -1, 0.0f), 0, 0x5DC0, 1);
+            dl = gfxDrawSkySprite(gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 2, 2, 1, -1, 0.0f), 0, 0x5DC0, 1);
         }
         break;
     case 0x37:
-        dl = gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 1, 1, 1, -1, 0.0f);
+        dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 1, 1, 1, -1, 0.0f);
         break;
     case 0x22:
         if (camIsCutsceneActive() != 0) {
@@ -736,22 +736,22 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 playe
             func_8068B8A4(1.0f);
         }
         lensFlareAddFromAngle(0xBB8, 0x4E20, 0);
-        dl = gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 5, 6, 1, -1, 0.0f);
+        dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 5, 6, 1, -1, 0.0f);
         break;
     case 0x99:
     case 0xAC:
         lensFlareAddFromAngle(0xBB8, 0x4E20, 0);
-        dl = gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 5, 5, 1, -1, 0.0f);
+        dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 5, 5, 1, -1, 0.0f);
         break;
     case 0x6F:
-        dl = gfxDrawSkySprite(gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 6, 6, 1, -1, 0.0f), 0xC8, 0x4268, 0);
+        dl = gfxDrawSkySprite(gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 6, 6, 1, -1, 0.0f), 0xC8, 0x4268, 0);
         break;
     case 0x57:
-        dl = gfxDrawSkySprite(gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 6, 6, 1, -1, 0.0f), 0x3E8, 0x2EE0, 0);
+        dl = gfxDrawSkySprite(gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 6, 6, 1, -1, 0.0f), 0x3E8, 0x2EE0, 0);
         break;
     case 0xD5:
         lensFlareAddFromAngle(0x8FC, 0x1388, 0);
-        dl = gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 7, 7, 0, -1, 0.0f);
+        dl = gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 7, 7, 0, -1, 0.0f);
         break;
     case 0xD0:
         gDPSetFillColor(dl++, 0xFFFFFFFF);
@@ -761,7 +761,7 @@ Gfx *gfxDrawMapBackground(Gfx *dl, void *arg1, void *arg2, void *arg3, s32 playe
         goto fill;
     case 0x50:
         lensFlareAddFromAngle(0x8FC, 0x1388, 1);
-        dl = gfxDrawSkySprite(gfxDrawBackgroundQuad(dl, arg1, *(f32 *)&arg2, arg3, 7, 6, 0, -1, gBackgroundBlend), 0xC8, 0x2EE0, 2);
+        dl = gfxDrawSkySprite(gfxDrawBackgroundQuad(dl, bgTex, *(f32 *)&rotAngle, mtx, 7, 6, 0, -1, gBackgroundBlend), 0xC8, 0x2EE0, 2);
         break;
     default:
         gDPSetFillColor(dl++, 0x10001);

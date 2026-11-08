@@ -255,11 +255,11 @@ extern u8 D_807506C0[];
 void actorListForceSpawnId(u8);
 void actorListForceDespawnId(u8);
 
-void func_806BE674(u8 arg0) {
+void func_806BE674(u8 spawn) {
     s16 i;
 
     for (i = 0; i < 0x10U; i++) {
-        if (arg0) {
+        if (spawn) {
             actorListForceSpawnId(D_807506C0[i]);
         } else {
             actorListForceDespawnId(D_807506C0[i]);
@@ -275,12 +275,12 @@ Gfx *func_8070068C(Gfx *);
 s32 textTableGetString(s32, s32, s32);
 extern Gfx D_1000118;
 
-Gfx *func_806BE6F0(Gfx *gdl, Actor *arg1) {
+Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
     u8 v;
     char buf[3];
     s32 n;
 
-    v = arg1->unk168 / 30;
+    v = actor->unk168 / 30;
     if (v) {
         if (v >= 4) {
             n = 3;
@@ -291,7 +291,7 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *arg1) {
     } else {
         _sprintf(buf, (char *)textTableGetString(0x26, 9, 1));
     }
-    if (arg1->unk168 % 30 == 0) {
+    if (actor->unk168 % 30 == 0) {
         if (v != 0) {
             if (v >= 2) {
                 n = 0x75;
@@ -307,9 +307,9 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *arg1) {
     gDPSetPrimColor(gdl++, 0, 0, 255, 255, 255, 255);
     gdl = func_8070068C(gdl);
     gdl = textDrawStringVtx(gdl, 1, (s16)((0x140 - textGetStringWidth(1, buf)) << 1), 0xAA, buf, 1);
-    n = arg1->unk168-- == 0;
+    n = actor->unk168-- == 0;
     if (n) {
-        arg1->unk155[0]++;
+        actor->unk155[0]++;
     }
     return gdl;
 }

@@ -1,6 +1,6 @@
 #include "common.h"
 
-s32 __n_alCSeqTrackEvent(ALCSeq *seq, s32 track, ALEvent *event, s32 arg3);
+s32 __n_alCSeqTrackEvent(ALCSeq *seq, s32 track, ALEvent *event, s32 flag);
 u8 __getTrackByte(ALCSeq *seq, s32 track);
 s32 __readVarLen(ALCSeq *seq, s32 track);
 
@@ -33,7 +33,7 @@ void n_alCSeqNew(ALCSeq *seq, ALCMidiHdr *base) {
     seq->qnpt = 1.0f / seq->base->division;
 }
 
-void n_alCSeqNextEvent(ALCSeq *seq, ALEvent *event, s32 arg2) {
+void n_alCSeqNextEvent(ALCSeq *seq, ALEvent *event, s32 flag) {
     u32 i;
     u32 delta;
     u32 track;
@@ -53,7 +53,7 @@ void n_alCSeqNextEvent(ALCSeq *seq, ALEvent *event, s32 arg2) {
             }
         }
     } while (++i < 16);
-    __n_alCSeqTrackEvent(seq, track, event, arg2);
+    __n_alCSeqTrackEvent(seq, track, event, flag);
     event->msg.midi.ticks = delta;
     seq->lastTicks += delta;
     seq->lastDeltaTicks = delta;
@@ -63,7 +63,7 @@ void n_alCSeqNextEvent(ALCSeq *seq, ALEvent *event, s32 arg2) {
     seq->deltaFlag = 1;
 }
 
-s32 __n_alCSeqTrackEvent(ALCSeq *seq, s32 track, ALEvent *event, s32 arg3) {
+s32 __n_alCSeqTrackEvent(ALCSeq *seq, s32 track, ALEvent *event, s32 flag) {
     s32 loopOffset;
     u8 status;
     u8 loopStart;
@@ -102,7 +102,7 @@ s32 __n_alCSeqTrackEvent(ALCSeq *seq, s32 track, ALEvent *event, s32 arg3) {
             ptr = seq->curLoc[track];
             loopStart = *ptr++;
             loopCount = *ptr;
-            if ((loopCount == 0) || (arg3 == 0)) {
+            if ((loopCount == 0) || (flag == 0)) {
                 *ptr = loopStart;
                 seq->curLoc[track] = ptr + 5;
             } else {
