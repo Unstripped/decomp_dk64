@@ -225,7 +225,7 @@ void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 void playerSetSizeMode(void *, s32);
 s32 func_806C9974(s32, s32);
-void func_80614E78(void *, s32);
+void actorScriptStartByIndex(void *, s32);
 void patrolGetNextWaypointPos(s16 *, s16 *, s16 *);
 void actorSetGroupState(u8, s32);
 s16 mathAngleSignedDistance(s16, s16);
@@ -367,7 +367,7 @@ void bossKRoolChunkyStep(void) {
                 actorSetTargetSpeed(BOSS_ACTOR, D_807FDC9C->unkC);
                 if (BOSS_ACTOR->unk132 != 1) {
                     if (func_806C9974(0, -1) != 0) {
-                        func_80614E78(PLAYER_ACTOR, 0x27);
+                        actorScriptStartByIndex(PLAYER_ACTOR, 0x27);
                         PLAYER_ACTOR->unk154 = 0x36;
                         PLAYER_ACTOR->unk155 = 0;
                     }

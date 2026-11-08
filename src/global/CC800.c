@@ -616,7 +616,7 @@ typedef struct L6C8984View {
 #define L6V ((L6C8984View *)gActivePlayerState)
 
 void actorScriptStart(Actor *, s32);
-void func_80614E78(Actor *, s32);
+void actorScriptStartByIndex(Actor *, s32);
 void func_80613C48(Actor *, s32, f32, f32);
 void playerSetBaseGravity(void);
 void func_806F0D68(Actor *);
@@ -706,12 +706,12 @@ void func_806C8984(void) {
         L6V->unk48 = D_80753354[D_807FD584];
         D_807FBB48->state = 0x62;
         D_807FBB48->unk155[0] = 0;
-        func_80614E78(D_807FBB48, 0x52);
+        actorScriptStartByIndex(D_807FBB48, 0x52);
         return;
     case 0xD3:
         D_807FBB48->state = 0x5F;
         D_807FBB48->unk155[0] = 0;
-        func_80614E78(D_807FBB48, 0x4B);
+        actorScriptStartByIndex(D_807FBB48, 0x4B);
         return;
     case 0x53:
     case 0x99:
@@ -963,7 +963,7 @@ void func_806C90C4(s32 arg0) {
         sp24->unk50 = 1;
         G01A->unk6A |= 4;
         func_8067ACB4(D_807FBB48);
-        func_80614E78(D_807FBB48, 0x34);
+        actorScriptStartByIndex(D_807FBB48, 0x34);
         /* fallthrough */
     case 0:
         G01A->unkAC = -10000.0f;

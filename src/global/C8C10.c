@@ -910,7 +910,7 @@ extern s16 D_807FD804;
 extern s16 D_807FD806;
 void actorAttachChildCallbacks(void);
 void actorDespawn(Actor *);
-void func_80614E78(Actor *, s32);
+void actorScriptStartByIndex(Actor *, s32);
 s32 randomNonNegative(void);
 void func_807149B8(s32);
 void func_8071C818(void);
@@ -1040,7 +1040,7 @@ void func_806C61C8(void) {
         R1A->unkEC = 0x3C;
         actorScriptStart(gCurrentActor, 0x23D);
         if (R1A4C->unk154 == 0xC) {
-            func_80614E78((Actor *)D_807FBB4C, 0x87);
+            actorScriptStartByIndex((Actor *)D_807FBB4C, 0x87);
         }
     }
     x = func_80612794(R1A4C->unkE6) * 50.0f + R1A4C->unk7C;
@@ -1077,7 +1077,7 @@ void func_806C61C8(void) {
             actorDespawn(gCurrentActor);
             camResumePath();
             if (R1A4C->unk154 == 0xC) {
-                func_80614E78((Actor *)D_807FBB4C, 9);
+                actorScriptStartByIndex((Actor *)D_807FBB4C, 9);
             }
         }
     } else if (R1A->unkEC >= 0x10) {

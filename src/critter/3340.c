@@ -47,7 +47,7 @@ void camStartPath(Actor_3340 *, s32, s32);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(Actor_3340 *);
 void effectSpawnBurst(s32);
-void func_80614E78(Actor_3340 *, s32);
+void actorScriptStartByIndex(Actor_3340 *, s32);
 void sfxPlayFromActorWithAltitudeCheck(Actor_3340 *, s32, s32, s32, s32);
 void sfxStopSlotSound(Actor_3340 *, s32);
 void slotQueueUpdate(s32, s32, s32);
@@ -341,7 +341,7 @@ void critterBananaFairyRewardUpdate(void) {
                 gCurrentActor = D_807FBB4C;
                 D_807FBB4C->unk154 = 0x2D;
                 D_807FBB4C->unk155 = 0;
-                func_80614E78(D_807FBB4C, 0x42);
+                actorScriptStartByIndex(D_807FBB4C, 0x42);
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB4C, 0xF2, 0xFF, 0x7F, 0);
                 gCurrentActor = savedActor;
                 gCurrentActor->unk155 = 0;

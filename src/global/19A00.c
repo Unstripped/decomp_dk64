@@ -42,7 +42,7 @@ typedef struct RampValueHolder {
     RampValue *unk0;
 } RampValueHolder;
 
-void func_80614D48(Actor *arg0, f32 arg1, f32 arg2) {
+void scriptSetRampValue(Actor *arg0, f32 arg1, f32 arg2) {
     RampValue *temp_v0;
 
     temp_v0 = ((RampValueHolder *)arg0->unk4)->unk0;
@@ -98,7 +98,7 @@ extern u16 *D_807FBB54;
 
 void actorScriptStart(Actor *arg0, s32 arg1);
 
-void func_80614E78(Actor *arg0, s32 arg1) {
+void actorScriptStartByIndex(Actor *arg0, s32 arg1) {
     s32 index;
 
     index = ((arg1 * 7) + ((ActorTypeView *)arg0)->unk58) - 2;
@@ -264,7 +264,7 @@ s32 func_80615134(Actor *arg0) {
     return 0;
 }
 
-s32 func_806151BC(Actor *arg0) {
+s32 scriptOpSetCountdownFromByte(Actor *arg0) {
     u8 sp1F;
 
     D_807F5AF0++;
@@ -295,7 +295,7 @@ s32 scriptOpSetRandomByteInRange(Actor *arg0) {
     return 1;
 }
 
-s32 func_806152FC(Actor *arg0) {
+s32 scriptOpSetFlag4(Actor *arg0) {
     D_807F5AF0++;
     ((ScriptState *)arg0->unk4)->flags |= 4;
     return 0;
@@ -573,7 +573,7 @@ void controllerAnimScaleInterpolate(s32, s8);
 void controllerAnimSetFromTable(s32, u16, f32, u8);
 
 
-s32 func_8061594C(s32 arg0) {
+s32 scriptOpAnimSetRemapDefault(s32 arg0) {
     s16 sp1E;
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
@@ -581,7 +581,7 @@ s32 func_8061594C(s32 arg0) {
     return 1;
 }
 
-s32 func_8061599C(s32 arg0) {
+s32 scriptOpAnimSetRemapDirectDefault(s32 arg0) {
     s16 sp1E;
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
@@ -591,7 +591,7 @@ s32 func_8061599C(s32 arg0) {
 
 void controllerAnimSetState(s32, s16, f32, f32);
 
-s32 func_806159EC(s32 arg0) {
+s32 scriptOpAnimSetStateDefault(s32 arg0) {
     s16 sp1E;
 
     D_807F5AF0++;
@@ -599,7 +599,7 @@ s32 func_806159EC(s32 arg0) {
     controllerAnimSetState(arg0, sp1E, 0.0f, 0);
     return 1;
 }
-s32 func_80615A3C(s32 arg0) {
+s32 scriptOpAnimSetRemapBlend(s32 arg0) {
     s16 sp1E;
     f32 sp18;
 
@@ -610,7 +610,7 @@ s32 func_80615A3C(s32 arg0) {
     return 1;
 }
 
-s32 func_80615A94(s32 arg0) {
+s32 scriptOpAnimScaleInterpolate(s32 arg0) {
     s8 sp1F;
     D_807F5AF0++;
     scriptReadU8((u8 *)&sp1F);
@@ -620,7 +620,7 @@ s32 func_80615A94(s32 arg0) {
 
 void controllerAnimSetDirect(s32, u16, f32, u8);
 
-s32 func_80615ADC(s32 arg0) {
+s32 scriptOpAnimSetDirect(s32 arg0) {
     u16 sp1E;
     u8 sp1D;
 
@@ -631,7 +631,7 @@ s32 func_80615ADC(s32 arg0) {
     return 1;
 }
 
-s32 func_80615B34(s32 arg0) {
+s32 scriptOpAnimSetStateRemap(s32 arg0) {
     s16 sp1E;
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
@@ -639,7 +639,7 @@ s32 func_80615B34(s32 arg0) {
     return 1;
 }
 
-s32 func_80615B84(s32 arg0) {
+s32 scriptOpAnimSetStateRemapBlend(s32 arg0) {
     s16 sp1E;
     f32 sp18;
 
@@ -650,7 +650,7 @@ s32 func_80615B84(s32 arg0) {
     return 1;
 }
 
-s32 func_80615BDC(s32 arg0) {
+s32 scriptOpAnimSetFromTable(s32 arg0) {
     u16 sp1E;
     u8 sp1D;
     D_807F5AF0++;
@@ -946,7 +946,7 @@ s32 func_80616254(Actor *arg0) {
 
 void scriptSetActorRampTarget(Actor *, f32, f32);
 
-s32 func_806162C4(Actor *arg0) {
+s32 scriptOpSetActorRampTarget(Actor *arg0) {
     f32 sp1C;
     f32 sp18;
 
@@ -962,15 +962,15 @@ typedef struct ScriptCursorView {
     u8 *unk6C;
 } ScriptCursorView;
 
-void func_80614E78(Actor *, s32);
+void actorScriptStartByIndex(Actor *, s32);
 void actorScriptStart(Actor *, s32);
 
-s32 func_80616318(Actor *arg0) {
+s32 scriptOpCallScriptByIndex(Actor *arg0) {
     u16 sp1E;
 
     D_807F5AF0++;
     scriptReadU16((u8 *)&sp1E);
-    func_80614E78(arg0, sp1E);
+    actorScriptStartByIndex(arg0, sp1E);
     D_807F5AF0 = ((ScriptCursorView *)arg0->unk4)->unk6C;
     return D_807F5AF4;
 }
@@ -1200,7 +1200,7 @@ s32 scriptOpCall(Actor *arg0) {
     scriptReadU16((u8 *)&sp1E);
     sp18->unk5C = sp18->unk64;
     sp18->unk60 = D_807F5AF0 - sp18->unk68;
-    func_80614E78(arg0, sp1E);
+    actorScriptStartByIndex(arg0, sp1E);
     D_807F5AF0 = sp18->unk6C;
     return D_807F5AF4;
 }
@@ -1271,7 +1271,7 @@ s32 func_80616A9C(s32 arg0) {
     return 1;
 }
 
-s32 func_80616BA4(Actor *arg0) {
+s32 scriptOpSetActorState(Actor *arg0) {
     u8 sp1F;
     u8 temp;
 
@@ -1282,14 +1282,14 @@ s32 func_80616BA4(Actor *arg0) {
     return 1;
 }
 
-s32 func_80616BF0(Actor *arg0) {
+s32 scriptOpIncrementActorState(Actor *arg0) {
     D_807F5AF0++;
     arg0->unk155[0] = 0;
     arg0->state++;
     return 1;
 }
 
-s32 func_80616C1C(Actor *arg0) {
+s32 scriptOpSetActorSubState(Actor *arg0) {
     u8 sp1F;
 
     D_807F5AF0++;
@@ -1298,13 +1298,13 @@ s32 func_80616C1C(Actor *arg0) {
     return 1;
 }
 
-s32 func_80616C64(Actor *arg0) {
+s32 scriptOpIncrementActorSubState(Actor *arg0) {
     D_807F5AF0++;
     arg0->unk155[0]++;
     return 1;
 }
 
-s32 func_80616C8C(Actor *arg0) {
+s32 scriptOpIncrementChildActorSubState(Actor *arg0) {
     Actor *temp_v1;
 
     D_807F5AF0++;
@@ -1325,13 +1325,13 @@ s32 scriptOpSetRegisterRandom(Actor *arg0) {
     return 1;
 }
 
-s32 func_80616D5C(Actor *arg0) {
+s32 scriptOpEnableFlag84(Actor *arg0) {
     D_807F5AF0++;
     ((ScriptJumpState *)arg0->unk4)->unk84 = 1;
     return 1;
 }
 
-s32 func_80616D84(Actor *arg0) {
+s32 scriptOpDisableFlag84(Actor *arg0) {
     D_807F5AF0++;
     ((ScriptJumpState *)arg0->unk4)->unk84 = 0;
     return 1;
@@ -1789,7 +1789,7 @@ s32 func_80617CC0(Actor *arg0) {
     return 1;
 }
 
-s32 func_80617D14(Actor *arg0) {
+s32 scriptOpNoopReturn1(Actor *arg0) {
     return 1;
 }
 
@@ -2164,14 +2164,14 @@ void func_806187BC(Actor *arg0) {
     scriptReadU16((u8 *)&sp1C);
 }
 
-void func_806187E8(Actor *arg0) {
+void scriptCmdSetActorFlag146(Actor *arg0) {
     s16 sp1E;
 
     scriptReadU16((u8 *)&sp1E);
     ((ActorFlagsView *)arg0)->unk146 |= sp1E;
 }
 
-void func_80618820(Actor *arg0) {
+void scriptCmdClearActorFlag146(Actor *arg0) {
     s16 sp1E;
 
     scriptReadU16((u8 *)&sp1E);
@@ -2206,7 +2206,7 @@ typedef struct {
     s16 unk64;
 } GlobalToggleView;
 
-void func_80618880(Actor *arg0) {
+void scriptCmdCheckGlobalToggle(Actor *arg0) {
     ActorScriptView *actor;
 
     actor = (ActorScriptView *)arg0;
@@ -2218,7 +2218,7 @@ void func_80618880(Actor *arg0) {
     actor->unk4->unk88 = 1;
 }
 
-void func_806188B8(Actor *arg0) {
+void scriptCmdCheckNegativeUnkC0(Actor *arg0) {
     ActorScriptView *actor;
 
     actor = (ActorScriptView *)arg0;
@@ -2240,14 +2240,14 @@ void func_806188F4(Actor *arg0) {
     actor->unk4->unk88 = 0;
 }
 
-void func_8061892C(Actor *arg0) {
+void scriptCmdSetActorUnkC0(Actor *arg0) {
     s16 value;
 
     scriptReadU16((u8 *)&value);
     ((ActorScriptView *)arg0)->unkC0 = (f32)value;
 }
 
-void func_80618968(Actor *arg0) {
+void scriptCmdSetActorUnkC4(Actor *arg0) {
     f32 value;
 
     scriptReadU32((u8 *)&value);
@@ -2331,7 +2331,7 @@ void func_80618C8C(Actor *arg0) {
     ((GlobalTimerView *)gActivePlayerState)->unkCA = 0x28;
 }
 
-void func_80618CD8(Actor *arg0) {
+void scriptCmdSetActorNodeFlag(Actor *arg0) {
     u8 sp1F;
 
     scriptReadU8(&sp1F);
@@ -2342,7 +2342,7 @@ void func_80618CD8(Actor *arg0) {
     actorSetNodeFlag(arg0, sp1F);
 }
 
-void func_80618D20(Actor *arg0) {
+void scriptCmdClearActorNodeFlag(Actor *arg0) {
     u8 sp1F;
 
     scriptReadU8(&sp1F);
@@ -2374,7 +2374,7 @@ void scriptCmdSpawnOrbitEffects(Actor *arg0) {
     }
 }
 
-void func_80618E4C(Actor *arg0) {
+void scriptCmdToggleActorVisibility(Actor *arg0) {
     u8 sp1F;
 
     scriptReadU8(&sp1F);
@@ -2594,7 +2594,7 @@ void *func_80619520(Actor *arg0) {
     return result;
 }
 
-void func_80619540(Actor *arg0) {
+void scriptCmdSetActor134Byte35(Actor *arg0) {
     u8 value;
     u8 *result;
 
@@ -2605,7 +2605,7 @@ void func_80619540(Actor *arg0) {
     }
 }
 
-void func_80619580(Actor *arg0) {
+void scriptCmdIncrementActor134Byte35(Actor *arg0) {
     u8 *result;
 
     result = func_80619520(arg0);
@@ -2614,7 +2614,7 @@ void func_80619580(Actor *arg0) {
     }
 }
 
-void func_806195B4(Actor *arg0) {
+void scriptCmdCheckActor134Threshold(Actor *arg0) {
     ActorScriptView *actor;
 
     actor = (ActorScriptView *)arg0;

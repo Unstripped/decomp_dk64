@@ -79,7 +79,7 @@ s32 randomNonNegative(void);
 void csModelStateSetByte(s16, s32, s32);
 void csModelStateSetFirstByte(s32, s32);
 void func_806C8E58(s32);
-void func_80614E78(void *, s32);
+void actorScriptStartByIndex(void *, s32);
 void playerInitMoveParams(void);
 char *textTableGetString(s32, s32, s32);
 s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
@@ -151,7 +151,7 @@ tail:
             func_806C8E58(8);
             D_807FBB48->state = 0xC;
             D_807FBB48->unk155[0] = 0;
-            func_80614E78(D_807FBB48, 9);
+            actorScriptStartByIndex(D_807FBB48, 9);
             D_807FBB48->speedXZ = 0.0f;
             playerInitMoveParams();
             goto tail;

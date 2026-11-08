@@ -527,7 +527,7 @@ extern u8 *D_80035AA4[];
 void flagSet(s16, s32, s32);
 void func_8070B308(s32);
 void slotQueueSetDisplayMode(s32, s32, s32);
-void func_80614E78(void *, s32);
+void actorScriptStartByIndex(void *, s32);
 void func_805FF158(s32);
 void func_805FF378(s32, s32);
 void func_80724A20(void);
@@ -550,7 +550,7 @@ void bossKRoolTinyStep(void) {
         slotQueueSetDisplayMode(2, 0, 1);
         D_807FBB4C->unk154 = 0x5F;
         D_807FBB4C->unk155 = 0;
-        func_80614E78(D_807FBB4C, 0x4B);
+        actorScriptStartByIndex(D_807FBB4C, 0x4B);
         BOSS_ACTOR->unk154 = 0;
         BOSS_ACTOR->unk155 = 0;
         func_80724DB0(2, 1);
@@ -608,7 +608,7 @@ void bossKRoolTinyStep(void) {
         if (BOSS_ACTOR->unk155 == 0) {
             D_807FBB4C->unk154 = 0x5F;
             D_807FBB4C->unk155 = 0;
-            func_80614E78(D_807FBB4C, 0x4A);
+            actorScriptStartByIndex(D_807FBB4C, 0x4A);
             func_805FF158(1);
             func_8070B308(1);
             func_805FF378(0xCE, 0);

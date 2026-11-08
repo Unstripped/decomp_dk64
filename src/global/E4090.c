@@ -20,7 +20,7 @@ typedef struct G21Actor1A0 {
     /* 0x1A4 */ u8 unk1A4;
 } G21Actor1A0;
 
-void func_80614E78(void *, s32);
+void actorScriptStartByIndex(void *, s32);
 s32 slotQueueGetValue(u8, u8);
 void slotQueueUpdate(s32, s32, s32);
 
@@ -32,7 +32,7 @@ void playerHolsterGun(s32 actor, G21Actor1A0 *state, u8 isFirstPerson) {
         id = 0x4C;
     }
     state->unk1A3 = 0;
-    func_80614E78((void *)actor, id);
+    actorScriptStartByIndex((void *)actor, id);
 }
 
 void playerDrawGun(s32 actor, G21Actor1A0 *state, u8 isFirstPerson) {
@@ -48,7 +48,7 @@ void playerDrawGun(s32 actor, G21Actor1A0 *state, u8 isFirstPerson) {
     if (isFirstPerson) {
         id = 0x4D;
     }
-    func_80614E78((void *)actor, id);
+    actorScriptStartByIndex((void *)actor, id);
 }
 
 void playerToggleGun(s32 arg0, G21Actor1A0 *arg1, u8 arg2) {
@@ -698,20 +698,20 @@ void func_806E07F8(void) {
         if (G22_A->unk154 == 0xF && (G22_A->unk4->unk0->unk10 == 0x1F2 || G22_A->unk4->unk0->unk10 == 0x1B3)) {
             temp_v1 = &gPlayerPadState[gCurrentPlayerIndex];
             if (temp_v1->unk2E < -0x1E) {
-                func_80614E78(gCurrentActor, 0x61);
+                actorScriptStartByIndex(gCurrentActor, 0x61);
                 G22_A->unk154 = 0x10;
                 G22_A->unk155 = 0;
             } else if (temp_v1->unk2E >= 0x1F) {
-                func_80614E78(gCurrentActor, 0x5F);
+                actorScriptStartByIndex(gCurrentActor, 0x5F);
                 G22_A->unk154 = 0x11;
                 G22_A->unk155 = 0;
             } else {
                 if (temp_v1->unk2F >= 0x1F) {
-                    func_80614E78(gCurrentActor, 0x63);
+                    actorScriptStartByIndex(gCurrentActor, 0x63);
                     G22_A->unk154 = 0x12;
                     G22_A->unk155 = 0;
                 } else if (temp_v1->unk2F < -0x1E) {
-                    func_80614E78(gCurrentActor, 0x65);
+                    actorScriptStartByIndex(gCurrentActor, 0x65);
                     G22_A->unk154 = 0x13;
                     G22_A->unk155 = 0;
                 }
@@ -724,20 +724,20 @@ void func_806E07F8(void) {
             } else if (G22_A->unk155 == 1) {
                 switch (G22_A->unk154) {
                     case 0x11:
-                        func_80614E78(gCurrentActor, 0x60);
+                        actorScriptStartByIndex(gCurrentActor, 0x60);
                         break;
                     case 0x10:
-                        func_80614E78(gCurrentActor, 0x62);
+                        actorScriptStartByIndex(gCurrentActor, 0x62);
                         break;
                     case 0x12:
-                        func_80614E78(gCurrentActor, 0x64);
+                        actorScriptStartByIndex(gCurrentActor, 0x64);
                         break;
                     case 0x13:
-                        func_80614E78(gCurrentActor, 0x66);
+                        actorScriptStartByIndex(gCurrentActor, 0x66);
                         break;
                 }
             } else {
-                func_80614E78(gCurrentActor, 0x68);
+                actorScriptStartByIndex(gCurrentActor, 0x68);
             }
             G22_A->unk154 = 0xF;
             G22_A->unk155 = 0;
@@ -1051,7 +1051,7 @@ void func_806E186C(void) {
         G23_A->unk154 = 0x17;
         G23_A->unk155 = 0;
         G23_P->unk50 = 0;
-        func_80614E78(gCurrentActor, 0x10);
+        actorScriptStartByIndex(gCurrentActor, 0x10);
         G23_P->unk58 = D_80767CC0 - 0x1E;
     }
 }
@@ -1092,7 +1092,7 @@ void func_806E1BA4(void) {
         G23_A->unk155 = 0;
         G23_P->unk54 = D_807535CC[D_807FD584];
         G23_P->unk50 = 0;
-        func_80614E78(gCurrentActor, 0x10);
+        actorScriptStartByIndex(gCurrentActor, 0x10);
         G23_P->unk58 = D_80767CC0 - 0x1E;
         if (!G23_P->unk38) {
         }
@@ -1129,7 +1129,7 @@ void func_806E1E54(void) {
         G23_A->unk155 = 0;
         G23_P->unk54 = D_807535CC[D_807FD584];
         G23_P->unk50 = 0;
-        func_80614E78(gCurrentActor, 0x67);
+        actorScriptStartByIndex(gCurrentActor, 0x67);
         G23_P->unk58 = D_80767CC0 - 0x1E;
     }
 }
@@ -1168,7 +1168,7 @@ void func_806E2140(void) {
         G23_A->unk155 = 0;
         G23_P->unk54 = D_807535CC[D_807FD584];
         G23_P->unk50 = 0;
-        func_80614E78(gCurrentActor, 0x50);
+        actorScriptStartByIndex(gCurrentActor, 0x50);
         G23_P->unk58 = D_80767CC0 - 0x1E;
     }
 }
@@ -1515,7 +1515,7 @@ s32 func_806E2CC4(void) {
 
 void func_806E2DE8(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2C & 1) && func_806E2CC4()) {
-        func_80614E78(gCurrentActor, 0x47);
+        actorScriptStartByIndex(gCurrentActor, 0x47);
         gCurrentActor->state = 0x2C;
         gCurrentActor->unk155[0] = 0;
     }
@@ -1535,7 +1535,7 @@ void playerFireWeaponFirstPerson(void) {
 
 void func_806E2ECC(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2C & 0xC000) == 0x4000) {
-        func_80614E78(gCurrentActor, 0x54);
+        actorScriptStartByIndex(gCurrentActor, 0x54);
         return;
     }
     playerFireWeapon(0, 0);
@@ -1555,7 +1555,7 @@ void func_806E2F3C(void) {
         G21_PLAYER->unk48 = D_80753354[D_807FD584];
         gCurrentActor->state = 0x62;
         gCurrentActor->unk155[0] = 0;
-        func_80614E78(gCurrentActor, 0x52);
+        actorScriptStartByIndex(gCurrentActor, 0x52);
     }
 }
 
@@ -1580,7 +1580,7 @@ void func_806E3040(void) {
             G23_A->unk155 = 0;
             G23_P->unk54 = D_8075378C[D_807FD584];
             G23_P->unk50 = 0;
-            func_80614E78(gCurrentActor, 0x1A);
+            actorScriptStartByIndex(gCurrentActor, 0x1A);
             if (!gCurrentActor) {
             }
             G23_P->unk58 = D_80767CC0 - 0x1E;
@@ -1590,7 +1590,7 @@ void func_806E3040(void) {
         G23_A->unk155 = 0;
         G23_P->unk54 = D_8075371C[D_807FD584];
         G23_P->unk50 = 0;
-        func_80614E78(gCurrentActor, 0xE);
+        actorScriptStartByIndex(gCurrentActor, 0xE);
         G23_P->unk58 = D_80767CC0 - 0x1E;
     }
 }
@@ -1658,7 +1658,7 @@ void func_806E31FC(void) {
         G24_A->unk155 = 0;
         G24_M->unk54 = D_807535CC[D_807FD584];
         G24_M->unk50 = 0;
-        func_80614E78(gCurrentActor, 0x10);
+        actorScriptStartByIndex(gCurrentActor, 0x10);
     }
 }
 
@@ -1672,7 +1672,7 @@ void func_806E330C(void) {
         G24_A->unk155 = 0;
         G24_M->unk54 = D_807535CC[D_807FD584];
         G24_M->unk50 = 0;
-        func_80614E78(gCurrentActor, 0x50);
+        actorScriptStartByIndex(gCurrentActor, 0x50);
     }
 }
 
@@ -1713,7 +1713,7 @@ void func_806E352C(void) {
     G24_A->unkB8 = 0.0f;
     G24_M->unk54 = D_80753D08[D_807FD584];
     G24_M->unk50 = 0;
-    func_80614E78(gCurrentActor, 0x10);
+    actorScriptStartByIndex(gCurrentActor, 0x10);
 }
 
 
@@ -1726,7 +1726,7 @@ void func_806E35D8(void) {
         G24_A->unk155 = 0;
         G24_M->unk3E = 0;
         G24_M->unk50 = 0;
-        func_80614E78(gCurrentActor, 0x74);
+        actorScriptStartByIndex(gCurrentActor, 0x74);
         G24_M->unk58 = D_80767CC0 - 0x1E;
     }
 }
@@ -1761,7 +1761,7 @@ void func_806E36B4(void) {
                 actorScriptStart(gCurrentActor, 0x1CB);
                 break;
             default:
-                func_80614E78(gCurrentActor, 0x30);
+                actorScriptStartByIndex(gCurrentActor, 0x30);
                 break;
         }
         G24_M->unk58 = D_80767CC0 - 0x1E;
@@ -1993,7 +1993,7 @@ void func_806E3E40(void) {
 
 
 void func_806E41B4(void) {
-    func_80614E78(gCurrentActor, 0x15);
+    actorScriptStartByIndex(gCurrentActor, 0x15);
     G24_A->unk155 = 7;
 }
 
@@ -2122,7 +2122,7 @@ void func_806E41EC(void) {
         if (pad->unk2A & 0x2000) {
             G25_A->unk154 = 0x2F;
             G25_A->unk155 = 0;
-            func_80614E78(gCurrentActor, 0x48);
+            actorScriptStartByIndex(gCurrentActor, 0x48);
             G25_P->unk68 = D_8075380C[D_807FD584];
             G25_P->unk38 = D_8075381C[D_807FD584];
             G25_P->unk30 = D_8075382C[D_807FD584];
@@ -2137,14 +2137,14 @@ void func_806E41EC(void) {
         }
     } else {
         if (!func_80714608(0) && (D_807531E0[D_807FD584] <= G25_P->unk20) && (G25_A->unkE0 == 0.0f)) {
-            func_80614E78(gCurrentActor, 0x44);
+            actorScriptStartByIndex(gCurrentActor, 0x44);
             G25_A->unk154 = 0x29;
             G25_A->unk155 = 0;
             G25_A->unkEA = G25_A->unkEE;
             G25_A->unkB8 = 150.0f;
             G25_P->unk38 = 150.0f;
         } else {
-            func_80614E78(gCurrentActor, 0x3F);
+            actorScriptStartByIndex(gCurrentActor, 0x3F);
             G25_A->unk154 = 0x26;
             G25_A->unk155 = 0;
         }
@@ -2198,7 +2198,7 @@ void func_806E4740(void) {
             playerSetBaseGravity();
             G25_A->unk154 = 0x2B;
             G25_A->unk155 = 0;
-            func_80614E78(gCurrentActor, 0x45);
+            actorScriptStartByIndex(gCurrentActor, 0x45);
             G25_P->unkC8 = 0x32;
         } else {
             switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
@@ -2217,7 +2217,7 @@ void func_806E4740(void) {
                         G25_P->unk48 = 0x64;
                         G25_A->unk154 = 0x2E;
                         G25_A->unk155 = 0;
-                        func_80614E78(gCurrentActor, 0x48);
+                        actorScriptStartByIndex(gCurrentActor, 0x48);
                         G25_P->unk68 = D_8075380C[D_807FD584] * 4;
                         G25_P->unk38 = D_8075381C[D_807FD584] * 2;
                         G25_P->unk30 = D_8075382C[D_807FD584];
@@ -2226,7 +2226,7 @@ void func_806E4740(void) {
                 case 6:
                     G25_A->unk154 = 0x2F;
                     G25_A->unk155 = 0;
-                    func_80614E78(gCurrentActor, 0x48);
+                    actorScriptStartByIndex(gCurrentActor, 0x48);
                     G25_P->unk68 = D_8075380C[D_807FD584];
                     G25_P->unk38 = D_8075381C[D_807FD584];
                     G25_P->unk30 = D_8075382C[D_807FD584];
@@ -2268,7 +2268,7 @@ void func_806E4AD8(void) {
                         actorScriptStart(gCurrentActor, 0x1CD);
                         break;
                     default:
-                        func_80614E78(gCurrentActor, 0x2C);
+                        actorScriptStartByIndex(gCurrentActor, 0x2C);
                         break;
                 }
             }
@@ -2289,7 +2289,7 @@ void func_806E4C6C(void) {
                 actorScriptStart(gCurrentActor, 0x1CC);
                 break;
             default:
-                func_80614E78(gCurrentActor, 0x2D);
+                actorScriptStartByIndex(gCurrentActor, 0x2D);
                 break;
         }
     }
@@ -2300,7 +2300,7 @@ void func_806E4D14(void) {
         G25_A->unkC0 = 200.0f;
         G25_A->unk154 = 0x4D;
         G25_A->unk155 = 0;
-        func_80614E78(gCurrentActor, 0x2D);
+        actorScriptStartByIndex(gCurrentActor, 0x2D);
     }
 }
 
@@ -2309,7 +2309,7 @@ void func_806E4D84(void) {
         if ((gPlayerCharacterId[gCurrentPlayerIndex] != 6) || (G25_A->unkB8 < D_807531E0[D_807FD584])) {
             G25_A->unk154 = 0x3C;
             G25_A->unk155 = 0;
-            func_80614E78(gCurrentActor, 0xA);
+            actorScriptStartByIndex(gCurrentActor, 0xA);
             G25_P->unk48 = D_807534D4[D_807FD584];
         }
         G25_P->unk30 = D_807534B8[D_807FD584];
@@ -2639,7 +2639,7 @@ s32 func_806E56EC() {
                     G26_AC->unk144 = 1;
                     G26_PL->unk54 = D_807535CC[D_807FD584] * 2.5;
                     G26_PL->unk50 = 0x28;
-                    func_80614E78(gCurrentActor, 0x22);
+                    actorScriptStartByIndex(gCurrentActor, 0x22);
                     timerQueueAdd(func_806E5C2C, 0x14, G26_GS->unk10, G26_GS->unk12, 0);
                     for (i = 0; i != 0x14; i++) {
                         func_807149B8(1);
@@ -2656,7 +2656,7 @@ s32 func_806E56EC() {
                 G26_AC->unk155 = 0;
                 G26_PL->unk54 = D_807536AC[D_807FD584];
                 G26_PL->unk50 = 0;
-                func_80614E78(gCurrentActor, 0x14);
+                actorScriptStartByIndex(gCurrentActor, 0x14);
                 return 1;
             case 6:
                 G26_AC->unk154 = 0x6E;
@@ -2671,7 +2671,7 @@ s32 func_806E56EC() {
                 G26_PL->unk242 = G26_GS->unk10;
                 G26_AC->unk154 = 0x76;
                 G26_AC->unk155 = 0;
-                func_80614E78(gCurrentActor, 0x86);
+                actorScriptStartByIndex(gCurrentActor, 0x86);
                 return 1;
         }
     }
@@ -2743,15 +2743,15 @@ void func_806E5D60(void) {
     if (func_806E5C74() != 0) {
         switch (D_807FD568[1]) {
             case 2:
-                func_80614E78(gCurrentActor, 0x17);
+                actorScriptStartByIndex(gCurrentActor, 0x17);
                 controllerAnimSetStateRemap(gCurrentActor, 0x18, 0.0f, 3.0f);
                 scriptSetActorRampTarget(gCurrentActor, 1.35f, 0.0f);
                 break;
             case 3:
-                func_80614E78(gCurrentActor, 0x19);
+                actorScriptStartByIndex(gCurrentActor, 0x19);
                 break;
             default:
-                func_80614E78(gCurrentActor, 0x16);
+                actorScriptStartByIndex(gCurrentActor, 0x16);
                 controllerAnimSetStateRemap(gCurrentActor, 0x17, 0.0f, 3.0f);
                 scriptSetActorRampTarget(gCurrentActor, 1.35f, 0.0f);
                 break;
@@ -3083,7 +3083,7 @@ void func_806E6E7C(void) {
 
 void func_806E6EE0(void) {
     if (!(gPlayerPadState[gCurrentPlayerIndex].unk2A & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000)) {
-        func_80614E78(gCurrentActor, 0x37);
+        actorScriptStartByIndex(gCurrentActor, 0x37);
         G27_A->unk155 = 4;
         G27_P->unk58 = D_80767CC0;
     }
@@ -3091,7 +3091,7 @@ void func_806E6EE0(void) {
 
 void func_806E6F74(void) {
     if (!(D_807FD63A[gCurrentPlayerIndex].unk0 & 0x2000)) {
-        func_80614E78(gCurrentActor, 0x37);
+        actorScriptStartByIndex(gCurrentActor, 0x37);
         G27_A->unk155 = 4;
         G27_P->unk58 = D_80767CC0;
     }
@@ -3100,12 +3100,12 @@ void func_806E6F74(void) {
 void func_806E6FF0(void) {
     G27_P->unk58 = D_80767CC0;
     scriptSetActorRampTarget(gCurrentActor, 2.0f, 0.0f);
-    func_80614E78(gCurrentActor, 0x38);
+    actorScriptStartByIndex(gCurrentActor, 0x38);
     G27_A->unk155 = 7;
 }
 
 void func_806E7050(void) {
-    func_80614E78(gCurrentActor, 0x39);
+    actorScriptStartByIndex(gCurrentActor, 0x39);
     G27_A->unk155 = 7;
 }
 
@@ -3121,7 +3121,7 @@ void func_806E709C(void) {
             G27_P->unk14 = G27_A->unkE6;
             if (G27_P->unk10 == 0) {
                 G27_P->unk38 = D_80753AC4[D_807FD584];
-                func_80614E78(gCurrentActor, 0x36);
+                actorScriptStartByIndex(gCurrentActor, 0x36);
             } else {
                 G27_P->unk38 = D_80753AA8[D_807FD584];
             }
@@ -3144,7 +3144,7 @@ void func_806E7230(void) {
         G27_P->unk14 = G27_A->unkE6;
         if (G27_P->unk10 == 0) {
             G27_P->unk38 = D_80753AC4[D_807FD584];
-            func_80614E78(gCurrentActor, 0x36);
+            actorScriptStartByIndex(gCurrentActor, 0x36);
         } else {
             G27_P->unk38 = D_80753AA8[D_807FD584];
         }
@@ -3270,7 +3270,7 @@ void func_806E7568(void) {
         G28_P->unk12 = G28_A->unkE8;
         G28_P->unk14 = G28_A->unkE6;
         G28_P->unk38 = D_80753AC4[D_807FD584];
-        func_80614E78(gCurrentActor, 0x36);
+        actorScriptStartByIndex(gCurrentActor, 0x36);
         G28_A->unk155 = 3;
         G28_P->unk10 = D_80753A98[D_807FD584];
         G28_P->unk5C = D_80767CC0;
@@ -3353,12 +3353,12 @@ void func_806E7900(void) {
         if (!(pad->unk2A & 0x10)) {
             stick = pad->unk2E;
             if (stick < -0x1E && G28_A->unk4->unk0->unk10 != 0xFB) {
-                func_80614E78(gCurrentActor, 0x81);
+                actorScriptStartByIndex(gCurrentActor, 0x81);
                 G28_A->unk154 = 0xA;
                 G28_A->unk155 = 0;
                 st->unk42 = 1;
             } else if (stick >= 0x1F && G28_A->unk4->unk0->unk10 != 0xFF) {
-                func_80614E78(gCurrentActor, 0x7D);
+                actorScriptStartByIndex(gCurrentActor, 0x7D);
                 G28_A->unk154 = 0xB;
                 G28_A->unk155 = 0;
                 st->unk42 = 2;
@@ -3372,18 +3372,18 @@ void func_806E7900(void) {
         if (state != 0xA) {
             if (state == 0xB) {
                 if (G28_A->unk155 == 1) {
-                    func_80614E78(gCurrentActor, 0x7E);
+                    actorScriptStartByIndex(gCurrentActor, 0x7E);
                 } else {
-                    func_80614E78(gCurrentActor, 0x80);
+                    actorScriptStartByIndex(gCurrentActor, 0x80);
                 }
                 G28_A->unk154 = 7;
                 G28_A->unk155 = 0;
             }
         } else {
             if (G28_A->unk155 == 1) {
-                func_80614E78(gCurrentActor, 0x82);
+                actorScriptStartByIndex(gCurrentActor, 0x82);
             } else {
-                func_80614E78(gCurrentActor, 0x80);
+                actorScriptStartByIndex(gCurrentActor, 0x80);
             }
             G28_A->unk154 = 7;
             G28_A->unk155 = 0;
@@ -3459,7 +3459,7 @@ void func_806E7DF4(void) {
                     st->unk3F = 0;
                 }
                 a1 = flag ? 0x81 : 0x7D;
-                func_80614E78(gCurrentActor, a1);
+                actorScriptStartByIndex(gCurrentActor, a1);
                 actorScriptStart(G28_P->unk88, flag ? 0x295 : 0x296);
             } else {
                 st->unk3F = cnt + 1;
@@ -3467,7 +3467,7 @@ void func_806E7DF4(void) {
                     st->unk3F = 2;
                 }
                 a1 = flag ? 0x7D : 0x81;
-                func_80614E78(gCurrentActor, a1);
+                actorScriptStartByIndex(gCurrentActor, a1);
                 actorScriptStart(G28_P->unk88, flag ? 0x296 : 0x295);
             }
         }
@@ -3571,7 +3571,7 @@ s32 func_805FCA64(void);
 void renderCallbacksRegister(void *, void *, s32);
 void actorDrawAnimatedEffect(s32, void *);
 void func_80613C48(void *, s16, f32, f32);
-void func_80614D48(void *, f32, f32);
+void scriptSetRampValue(void *, f32, f32);
 
 void func_806E8244(void) {
     G29State *st;
@@ -3659,7 +3659,7 @@ void func_806E854C(G29State *arg0, s32 arg1, s32 arg2) {
             return;
         }
         if (G29_BB40->unk4->unk0->unk24 >= 0.0f && sub->unk4 > 0.0f) {
-            func_80614D48(D_807FBB48, -1.0f, 0.0f);
+            scriptSetRampValue(D_807FBB48, -1.0f, 0.0f);
         }
         if (G29_BB40->unk4->unk0->unk4 == 0.0f) {
             func_80613C48(D_807FBB48, arg2, 0.0f, 5.0f);
@@ -3676,7 +3676,7 @@ void func_806E854C(G29State *arg0, s32 arg1, s32 arg2) {
         } else {
             n = f <= cur ? -1 : 1;
         }
-        func_80614D48(D_807FBB48, n, 5.0f);
+        scriptSetRampValue(D_807FBB48, n, 5.0f);
     }
 }
 
@@ -3766,7 +3766,7 @@ void func_806E88D8(void) {
         if (camIsCutsceneActive() == 0 && G29_BB48->unk4->unk64 != 0x3B5) {
             if (st->unkC < 0.2f && st->unkC > -0.2f && sp24 != G29_BB48->unk4->unk0->unk10) {
                 if (G29_BB48->unk4->unk0->unk24 >= 0.0f && G29_BB48->unk4->unk0->unk4 > 0.0f) {
-                    func_80614D48(D_807FBB48, -1.0f, 5.0f);
+                    scriptSetRampValue(D_807FBB48, -1.0f, 5.0f);
                     return;
                 }
                 if (G29_BB40->unk4->unk0->unk4 == 0.0f) {
@@ -3938,7 +3938,7 @@ void func_806E8E00(void) {
 
 void func_806E8E78(void) {
     if (G29_PAR->unk154 == 7 && !(D_807FD63A[gCurrentPlayerIndex].unk0 & 0x10)) {
-        func_80614E78(gCurrentActor, 0x7F);
+        actorScriptStartByIndex(gCurrentActor, 0x7F);
         G29_PAR->unk154 = 8;
         G29_PAR->unk155 = 0;
     }
@@ -3998,9 +3998,9 @@ void slotQueueCancel(s32, s32);
 
 void func_806E8F04(void) {
     if (G29_PAR->unk155 == 1) {
-        func_80614E78(gCurrentActor, 0x7B);
+        actorScriptStartByIndex(gCurrentActor, 0x7B);
     } else {
-        func_80614E78(gCurrentActor, 0x80);
+        actorScriptStartByIndex(gCurrentActor, 0x80);
     }
     G29_PAR->unk154 = 7;
     G29_PAR->unk155 = 0;
@@ -4015,7 +4015,7 @@ void func_806E8F68(void) {
         G29_PAR->unk155 = 0;
         G30_M->unk54 = D_807537E0[D_807FD584];
         G30_M->unk50 = 0;
-        func_80614E78(gCurrentActor, 0x7C);
+        actorScriptStartByIndex(gCurrentActor, 0x7C);
         G30_M->unk58 = D_80767CC0 - 0x1E;
     }
 }
@@ -4030,7 +4030,7 @@ void func_806E9070(void) {
     if ((G24_SCHED280 - G30_M->unk58 < 0xF) && (st->unk0 == 0)) {
         G30_M->unk88->unkC0 = D_80750338;
         G30_M->unk58 = G24_SCHED280 - 0x1E;
-        func_80614E78(gCurrentActor, 0x7C);
+        actorScriptStartByIndex(gCurrentActor, 0x7C);
         if (gCurrentActor->actorType == 2) {
             actorScriptStart(G30_M->unk88, 0x294);
         } else {
@@ -4062,7 +4062,7 @@ void func_806E918C(void) {
                 gActivePlayerState->stateFlags &= ~2;
                 camSetTargetScaled(G30_M->unk104, G30_M->unk88, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
                 if (G29_PAR->unk154 == 7) {
-                    func_80614E78(gCurrentActor, 0x84);
+                    actorScriptStartByIndex(gCurrentActor, 0x84);
                 }
             }
             gCurrentActor->flags &= ~0x400;

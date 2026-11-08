@@ -508,7 +508,7 @@ s32 slotQueueGetMaxValue(s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 void slotQueueCancel(s32, s32);
 s32 actorSpawn(s32, s32);
-void func_80614E78(void *, s32);
+void actorScriptStartByIndex(void *, s32);
 
 void menuUpdateShopPurchaseStep(Struct_80025D14 *state, u8 *inventory) {
     s32 textParam1;
@@ -544,7 +544,7 @@ void menuUpdateShopPurchaseStep(Struct_80025D14 *state, u8 *inventory) {
             case 2:
             case 3:
                 actorSpawn(0x144, 0);
-                func_80614E78(gPlayerSlots->unk4, 0x85);
+                actorScriptStartByIndex(gPlayerSlots->unk4, 0x85);
                 break;
             }
             camStartPath(gPlayerSlots->unk4, 2, 1);

@@ -269,7 +269,7 @@ void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void slotQueueUpdate(s32, s32, s32);
 s32 slotQueueGetCountStep(s32);
 void slotQueueAddValue(s32, u8, s16);
-void func_80614E78(Actor *, s32);
+void actorScriptStartByIndex(Actor *, s32);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 
 void func_806CA2E4(void) {
@@ -297,7 +297,7 @@ void func_806CA2E4(void) {
                 G02_A->unk155 = 0;
                 slotQueueUpdate(5, 0, 0);
                 slotQueueAddValue(5, G02_P->unk1A4, -slotQueueGetCountStep(5));
-                func_80614E78(gCurrentActor, 0x42);
+                actorScriptStartByIndex(gCurrentActor, 0x42);
                 sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF2, 0xFF, 0x7F, 0);
                 G02_A->unkB8 = 0.0f;
             }
@@ -976,7 +976,7 @@ void func_806CBE90(void) {
             G02_P->unk48 = D_8075326C[D_807FD584];
             G02_P->unk30 = D_80753250[D_807FD584];
             G02_P->unk2C = D_80753234[D_807FD584];
-            func_80614E78(gCurrentActor, 0x5E);
+            actorScriptStartByIndex(gCurrentActor, 0x5E);
             G02_A->unk6A |= 0x20;
             actorScriptExecute(gCurrentActor);
             return;
@@ -1780,7 +1780,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 if (G04_P->unk1F0 & 0x100) {
                     actorScriptStart(arg0, 0x1AD);
                 } else {
-                    func_80614E78(arg0, 9);
+                    actorScriptStartByIndex(arg0, 9);
                 }
                 scriptSetActorRampTarget(arg0, 1.0f, 0.0f);
                 sp36 = 0xC;
@@ -1795,7 +1795,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 sp36 = 0xC;
                 break;
             case 2:
-                func_80614E78(arg0, 0x87);
+                actorScriptStartByIndex(arg0, 0x87);
                 scriptSetActorRampTarget(arg0, 1.0f, 0.0f);
                 sp36 = 0xC;
                 break;
@@ -1805,7 +1805,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                     func_80613C48(arg0, 0x2AC, 0.0f, 6.0f);
                 } else {
                     controllerAnimSetStateRemap(arg0, 2, 0.0f, 6.0f);
-                    func_80614E78(arg0, 1);
+                    actorScriptStartByIndex(arg0, 1);
                 }
                 if (sp2E == 4 || sp2E == 5) {
                     controllerAnimScaleInterpolate(arg0, 2);
@@ -1813,7 +1813,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 sp36 = 0xD;
                 break;
             case 4:
-                func_80614E78(arg0, 2);
+                actorScriptStartByIndex(arg0, 2);
                 controllerAnimSetStateRemap(arg0, 3, 0.0f, 6.0f);
                 if (sp2E == 3) {
                     switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
@@ -1831,7 +1831,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 sp36 = 0xD;
                 break;
             case 5:
-                func_80614E78(arg0, 3);
+                actorScriptStartByIndex(arg0, 3);
                 controllerAnimSetStateRemap(arg0, 4, 0.0f, 6.0f);
                 if (sp2E == 3 || sp2E == 4) {
                     controllerAnimScaleInterpolate(arg0, 4);
@@ -1839,7 +1839,7 @@ s16 func_806CDD24(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 sp36 = 0xD;
                 break;
             case 6:
-                func_80614E78(arg0, 0x1B);
+                actorScriptStartByIndex(arg0, 0x1B);
                 actorScriptExecute(arg0);
                 gCurrentActor->unk9C = gCurrentActor->y;
                 sp36 = 0x1E;
@@ -1890,7 +1890,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
     if (sp2E != sp2C) {
         switch (sp2C) {
             case 0:
-                func_80614E78(arg0, 0x51);
+                actorScriptStartByIndex(arg0, 0x51);
                 scriptSetActorRampTarget(arg0, 1.0f, 0.0f);
                 sp36 = 0x5D;
                 break;
@@ -1900,7 +1900,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 sp36 = 0x5D;
                 break;
             case 3:
-                func_80614E78(arg0, 0x57);
+                actorScriptStartByIndex(arg0, 0x57);
                 controllerAnimSetStateRemap(arg0, 0x5C, 0.0f, 6.0f);
                 if (sp2E == 4 || sp2E == 5) {
                     controllerAnimScaleInterpolate(arg0, 2);
@@ -1908,7 +1908,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 sp36 = 0x5E;
                 break;
             case 4:
-                func_80614E78(arg0, 0x56);
+                actorScriptStartByIndex(arg0, 0x56);
                 controllerAnimSetStateRemap(arg0, 0x58, 0.0f, 6.0f);
                 if (sp2E == 3) {
                     switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
@@ -1926,7 +1926,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 sp36 = 0x5E;
                 break;
             case 5:
-                func_80614E78(arg0, 0x55);
+                actorScriptStartByIndex(arg0, 0x55);
                 controllerAnimSetStateRemap(arg0, 0x60, 0.0f, 6.0f);
                 switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
                     case 4:
@@ -1944,7 +1944,7 @@ s16 func_806CE174(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 sp36 = 0x5E;
                 break;
             case 6:
-                func_80614E78(arg0, 0x58);
+                actorScriptStartByIndex(arg0, 0x58);
                 actorScriptExecute(arg0);
                 gCurrentActor->unk9C = gCurrentActor->y;
                 sp36 = 0x1F;
@@ -2007,7 +2007,7 @@ s16 func_806CE4E4(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                 sp36 = 0x40;
                 break;
             case 6:
-                func_80614E78(arg0, 0x1B);
+                actorScriptStartByIndex(arg0, 0x1B);
                 actorScriptExecute(arg0);
                 gCurrentActor->unk9C = gCurrentActor->y;
                 sp36 = 0x1E;
@@ -2148,7 +2148,7 @@ s16 playerSelectCarryMoveState(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                         actorScriptStart(D_807FBB48, 0x1C9);
                         break;
                     default:
-                        func_80614E78(arg0, 0x2E);
+                        actorScriptStartByIndex(arg0, 0x2E);
                         break;
                 }
                 G05_P->unk4C = 0;
@@ -2167,7 +2167,7 @@ s16 playerSelectCarryMoveState(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
                         actorScriptStart(D_807FBB48, 0x1CA);
                         break;
                     default:
-                        func_80614E78(arg0, 0x2F);
+                        actorScriptStartByIndex(arg0, 0x2F);
                         break;
                 }
                 G05_P->unk4C = 1;
@@ -2734,7 +2734,7 @@ void func_806CFEF4(void) {
 
 void playerEnterFall(Actor *arg0) {
     G03_A->unkC0 = 0.0f;
-    func_80614E78(arg0, 0x1B);
+    actorScriptStartByIndex(arg0, 0x1B);
     actorScriptExecute(arg0);
     gCurrentActor->unk9C = gCurrentActor->y;
     if (G06_P->unk8C) {
@@ -2802,7 +2802,7 @@ void func_806D0150(Actor *arg0) {
     arg0->unk6A &= ~0x20;
     G06_P->unk4C = -1;
     G06_P->unk10C = 0;
-    func_80614E78(arg0, 0x7A);
+    actorScriptStartByIndex(arg0, 0x7A);
     arg0->state = 7;
     arg0->unk155[0] = 0;
 }
@@ -3212,7 +3212,7 @@ void func_806D0EBC(s32 arg0) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x10, 0xFF, 0x7F, 1);
         G03_A->unk80 = G03_A->unkAC - height;
         G03_A->unkC0 = 0.0f;
-        func_80614E78(gCurrentActor, 0x3D);
+        actorScriptStartByIndex(gCurrentActor, 0x3D);
         G06_P->unk30 = D_80753250[D_807FD584];
         gCurrentActor->state = 0x4E;
         G02_A->unk155 = 0;
