@@ -578,7 +578,7 @@ void playerStepYawTowardAngle(void) {
     G21_PLAYER->unk4 = 0.0f;
 }
 
-void func_806E06E8(void) {
+void playerInputUpdateFacingYawNormal(void) {
     s16 var_a1;
 
     if (G21_ACTOR_EE->unkDA < 0x3C7) {
@@ -590,7 +590,7 @@ void func_806E06E8(void) {
     G21_PLAYER->unk4 = 0.0f;
 }
 
-void func_806E077C(void) {
+void playerInputUpdateFacingYawOffset(void) {
     s16 var_a1;
 
     if (G21_ACTOR_EE->unkDA < 0x3C7) {
@@ -670,7 +670,7 @@ void playerClampYawToArc(void);
 
 extern u8 gPlayerCharacterId[];
 
-void func_806E07F8(void) {
+void playerInputUpdateMoveTargetClamped(void) {
     f32 var_fv0;
     s16 temp_a1;
     s32 temp_v0;
@@ -745,7 +745,7 @@ void func_806E07F8(void) {
     }
 }
 
-void func_806E0BEC(void) {
+void playerInputUpdateMoveTargetWithDeadzone(void) {
     f32 var_fv0;
     f32 var_fv1;
     s32 temp_v0;
@@ -821,7 +821,7 @@ void playerTurnByStickX(void) {
     }
 }
 
-void func_806E0FAC(void) {
+void playerInputUpdateMoveTargetWithDeadzone2(void) {
     f32 var_fv0;
     f32 var_fv1;
     s16 temp_a1;
@@ -1542,14 +1542,14 @@ void playerInputHandlerCheckBAndFireWeapon(void) {
 }
 
 extern s16 D_80753354[];
-s32 func_806E56EC();
+s32 playerInputCheckMultiplayerPlayerTarget();
 
 void playerInputHandleZButtonCrouch(void) {
     s32 var_v1;
 
     var_v1 = 1;
     if (gPlayerCount >= 2) {
-        var_v1 = func_806E56EC() == 0;
+        var_v1 = playerInputCheckMultiplayerPlayerTarget() == 0;
     }
     if (var_v1 && (gCurrentActor->state != 0x62) && (gCurrentActor->contactFlags & 1)) {
         G21_PLAYER->unk48 = D_80753354[gCurrentCharacterIndex];
@@ -2305,7 +2305,7 @@ void playerInputThrowHeldActor(void) {
 }
 
 void playerInputHandleAButtonFire(void) {
-    if ((func_806E56EC() == 0) && (G25_P->unkC8 == -1)) {
+    if ((playerInputCheckMultiplayerPlayerTarget() == 0) && (G25_P->unkC8 == -1)) {
         if ((gPlayerCharacterId[gCurrentPlayerIndex] != 6) || (G25_A->unkB8 < D_807531E0[gCurrentCharacterIndex])) {
             G25_A->unk154 = 0x3C;
             G25_A->unk155 = 0;
@@ -2404,7 +2404,7 @@ typedef struct G26Mob {
 
 extern u32 gFrameCounter;
 extern s32 gGlobalCutsceneFlags;
-u8 func_806E5488(G26Mob *arg0);
+u8 playerInputCheckTargetMoved(G26Mob *arg0);
 int func_806E560C(G26Mob *arg0);
 
 void func_806E52D0(void) {
@@ -2414,7 +2414,7 @@ void func_806E52D0(void) {
     if ((G25_PAD(D_807FD63C, u16) & 8) && (gFrameCounter >= 3) && (D_807FD568[4] & 1) &&
         !(gGlobalOverlayFlags & 0x4000) && !(gGlobalCutsceneFlags & 1) &&
         (*((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0 + 0x2C0) != 2) &&
-        (func_806E5488((G26Mob *)gCurrentActor) == 0) && (actorAnyActiveHasFlag2000000() == 0) &&
+        (playerInputCheckTargetMoved((G26Mob *)gCurrentActor) == 0) && (actorAnyActiveHasFlag2000000() == 0) &&
         (*((u8 *)gActivePlayerState + 0x245) == 0)) {
         r = func_806E560C((G26Mob *)gCurrentActor);
         if ((gCurrentMap != 0xCD) || (r != 0)) {
@@ -2437,7 +2437,7 @@ void func_806E52D0(void) {
 
 s32 modelSlotGetType();
 
-u8 func_806E5488(G26Mob *arg0) {
+u8 playerInputCheckTargetMoved(G26Mob *arg0) {
     f32 dx;
     f32 dy;
     f32 dz;
@@ -2577,7 +2577,7 @@ void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectSpawnBurstParticleCluster(Actor *);
 void playerInputStartTransitionToMap(s32, s32, s32);
 
-s32 func_806E56EC() {
+s32 playerInputCheckMultiplayerPlayerTarget() {
     s32 i;
 
     if (G26_GS->unk2 != 0) {
@@ -2739,7 +2739,7 @@ int func_806E5C74(void) {
 
 void controllerAnimSetStateRemap(void *, s32, f32, f32);
 
-void func_806E5D60(void) {
+void playerInputCheckEnterState17(void) {
     if (func_806E5C74() != 0) {
         switch (D_807FD568[1]) {
             case 2:

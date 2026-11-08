@@ -483,7 +483,7 @@ void playerStateInitKongAction69(void) {
     EFB_P->unk88 = (EfBActor *)EFB_C[gCurrentPlayerIndex].unk2A0;
 }
 
-void func_806EBE8C(void) {
+void playerStateAdjustUpwardVelocity(void) {
     EfBActor *actor;
     s32 arg;
 
@@ -494,7 +494,7 @@ void func_806EBE8C(void) {
     }
 }
 
-void func_806EBED0(void) {
+void playerStateAdjustUpwardVelocity200(void) {
     EfBActor *actor;
 
     actor = EFB_P->unk88;
@@ -506,7 +506,7 @@ void func_806EBED0(void) {
     func_8072DB68(3);
 }
 
-void func_806EBF34(void) {
+void playerStateAdjustUpwardVelocity300(void) {
     EfBActor *actor;
 
     actor = EFB_P->unk88;
@@ -514,7 +514,7 @@ void func_806EBF34(void) {
     func_8072DB68(3);
 }
 
-void func_806EBF74(void) {
+void playerStateInitAnimalTransformation(void) {
     playerTransformAnimalStartSfx(gActivePlayerActor);
     EFB_P->unk1FE = EFB_C[gCurrentPlayerIndex].unk2A8;
 }
@@ -706,7 +706,7 @@ extern s16 D_807539FC[];
 extern f32 D_80753A5C[];
 void playerThrowHeldActor(Actor *);
 
-void func_806EC4AC(void) {
+void playerStateCheckLandingAir(void) {
     f32 temp_fa0;
     f32 temp_ft4;
     f32 temp_fv0;
@@ -855,7 +855,7 @@ void playerStateEnterAction24(void) {
 
 void actorScriptExecute(Actor *);
 
-void func_806ECAC4(void) {
+void playerStateEnterHoldThrow(void) {
     f32 value;
 
     if (EFN3_C[gCurrentPlayerIndex].unk2C0 == 1) {
@@ -1090,7 +1090,7 @@ typedef struct EfdAPlayer {
     Actor *unk88;
 } EfdAPlayer;
 
-void func_806ED244(void) {
+void playerStateDamageTargetCheck(void) {
     Actor *camTarget;
     Actor *target;
     f32 zero;
@@ -1123,7 +1123,7 @@ void func_806ED244(void) {
 }
 
 
-void func_806ED420(void) {
+void playerStateDamageCheck4(void) {
     f32 divisor;
     u8 character;
 
@@ -1147,7 +1147,7 @@ void func_806ED420(void) {
 s32 flagGet(s16, s32);
 void flagSet(s16, s32, s32);
 
-void func_806ED508(u16 arg0) {
+void playerStatePlayAnimationByDamageType(u16 arg0) {
     u16 ev;
     s16 anim;
 
@@ -1170,7 +1170,7 @@ void func_806ED508(u16 arg0) {
     }
 }
 
-void func_806ED5C0(Actor *arg0) {
+void playerStateApplyAttackerDamage(Actor *arg0) {
     s16 id;
     u16 state;
     s32 ev;
@@ -1285,10 +1285,10 @@ s32 playerGetResolvedKongId(s32);
 void playerSetKongByActorType(s16);
 void playerEnterFall(Actor *);
 void playerSetSizeMode(Actor *, s32);
-void func_806ED508(u16);
-void func_806ED5C0(Actor *);
+void playerStatePlayAnimationByDamageType(u16);
+void playerStateApplyAttackerDamage(Actor *);
 
-void func_806ED6B0(void) {
+void playerStateSetLaunchVelocity(void) {
     u8 flag;
     s32 selector;
     s32 value;
@@ -1405,7 +1405,7 @@ void func_806ED6B0(void) {
             }
             EfL1PS->unk50 = 4;
             playerSetTerminalVelocity5B0();
-            func_806ED508(*(u16 *)((u8 *)EfL1Cam[gCurrentPlayerIndex].unk2A0 + 0x5A));
+            playerStatePlayAnimationByDamageType(*(u16 *)((u8 *)EfL1Cam[gCurrentPlayerIndex].unk2A0 + 0x5A));
             break;
         case 0x84:
             value = playerGetResolvedKongId(gCurrentPlayerIndex);
@@ -1430,7 +1430,7 @@ void func_806ED6B0(void) {
         func_806F0C18(gCurrentActor);
     }
     if (EfL1Cam[gCurrentPlayerIndex].unk2A0 != NULL) {
-        func_806ED5C0((Actor *)EfL1Cam[gCurrentPlayerIndex].unk2A0);
+        playerStateApplyAttackerDamage((Actor *)EfL1Cam[gCurrentPlayerIndex].unk2A0);
     }
     if ((EfL1A48->unk6A & 4) && (EfL1Cam[gCurrentPlayerIndex].unk2A0->unk58 != 0x81)) {
         EfL1PS->unk12 = D_807539EC[gCurrentCharacterIndex];
@@ -1461,7 +1461,7 @@ void playerRevertToSavedKong(void) {
 }
 
 
-void func_806EE02C(void) {
+void playerStateEnterState56(void) {
     playerThrowHeldActor(gActivePlayerActor);
     gActivePlayerActor->state = 0x55;
     gActivePlayerActor->unk155[0] = 0;
@@ -1484,7 +1484,7 @@ typedef struct EfCCamBlock {
 
 #define EfCCam ((EfCCamBlock *)gPlayerSlots)
 
-void func_806EE06C(void) {
+void playerStateEnterState56WithScript(void) {
     playerThrowHeldActor(gActivePlayerActor);
     gActivePlayerActor->state = 0x56;
     gActivePlayerActor->unk155[0] = 0;
@@ -1501,7 +1501,7 @@ typedef struct EfCPlayerD4 {
 
 s32 func_806C9974(u8, s8);
 
-void func_806EE10C(void) {
+void playerStateEnterDamageTake(void) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
         playerClearCarriedItemState();
         if (func_806C9974(gCurrentPlayerIndex, -1) != 0) {
@@ -1525,7 +1525,7 @@ typedef struct EfCActorC0S32 {
 
 void actorAppendCallback4000(Actor *, s32, s16, s32, s32);
 
-void func_806EE1C4(void) {
+void playerStateAppendCallback4000(void) {
     s32 value = (s32)gActivePlayerState->heldActor;
 
     if (value != 0) {
@@ -1541,7 +1541,7 @@ void func_806EE1C4(void) {
 }
 
 
-void func_806EE26C(void) {
+void playerStateEnterState21(void) {
     playerClearCarriedItemState();
     actorScriptStartByIndex(gCurrentActor, 0x1C);
     gActivePlayerActor->state = 0x21;
@@ -1550,7 +1550,7 @@ void func_806EE26C(void) {
 
 
 
-void func_806EE2B8(void) {
+void playerStateDamageSelector(void) {
     s32 value = 1;
     s8 selector;
     Actor *target;
@@ -1623,7 +1623,7 @@ extern void playerClearCarriedItemState(void);
 extern void actorScriptStartByIndex(Actor *, s32);
 extern void sfxStopChannel(s32, s32);
 
-void func_806EE5A4(void) {
+void playerStateStopSfxAndClearCarried(void) {
     playerClearCarriedItemState();
     sfxStopChannel(0x6B, 0);
     gCurrentActor->yawSpeed = ((EfDE5Player *)gPlayerSlots)[gCurrentPlayerIndex].unk2A8;
@@ -1635,7 +1635,7 @@ void func_806EE5A4(void) {
 extern void playerSetBaseGravity(void);
 extern void playerEnterFall(Actor *);
 
-void func_806EE634(void) {
+void playerStateEnterFallAndSetGravity(void) {
     playerSetBaseGravity();
     playerEnterFall(gCurrentActor);
 }
@@ -1643,21 +1643,21 @@ void func_806EE634(void) {
 extern void playerThrowHeldActor(Actor *);
 extern void playerResumeLocomotion(Actor *);
 
-void func_806EE660(void) {
+void playerStateEnterState32WithScript(void) {
     playerThrowHeldActor(gActivePlayerActor);
     actorScriptStartByIndex(gActivePlayerActor, 0x32);
     gActivePlayerActor->state = 0x52;
     gActivePlayerActor->unk155[0] = 0;
 }
 
-void func_806EE6B0(void) {
+void playerStateEnterState54(void) {
     playerThrowHeldActor(gActivePlayerActor);
     actorScriptStartByIndex(gActivePlayerActor, 0x86);
     gActivePlayerActor->state = 0x53;
     gActivePlayerActor->unk155[0] = 0;
 }
 
-void func_806EE700(void) {
+void playerResumeLocomotionAndThrow(void) {
     playerThrowHeldActor(gActivePlayerActor);
     playerResumeLocomotion(gActivePlayerActor);
     gActivePlayerActor->state = 0x54;
@@ -1672,7 +1672,7 @@ typedef struct EfN7TransitionState {
     u8 pad0[0x88];
     Actor *unk88;
 } EfN7TransitionState;
-void func_806EE74C(void) {
+void playerStateDamageCheck(void) {
     void *new_var;
 
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
@@ -1695,7 +1695,7 @@ void playerTakeQueuedDamage(void) {
 extern void func_806F1048(Actor *);
 extern s32 camIsCutsceneActive(void);
 
-void func_806EE7F4(void) {
+void playerStateCutsceneDamageCheck(void) {
     if ((gGlobalCutsceneFlags & 2) != 0) {
         func_806F1048(gActivePlayerActor);
         sfxStopChannel(0xC, 0);
@@ -1725,7 +1725,7 @@ typedef struct {
 extern void actorSpawnAttachment(Actor *, f32);
 extern void actorAppendActiveCallback8(void);
 
-void func_806EE878(void) {
+void playerStateDamageCheck5(void) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
         EfDStateDc->unkDC = EfDPlayer[gCurrentPlayerIndex].unk2A0;
         if (EfDPlayer[gCurrentPlayerIndex].unk2A0 == 0) {
@@ -1738,7 +1738,7 @@ void func_806EE878(void) {
 }
 
 
-void func_806EE924(void) {
+void playerStateTakeDamageAndDrop(void) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
         EfDStateDc->unkDC = EfDPlayer[gCurrentPlayerIndex].unk2A0;
         playerTakeDamage(1);
@@ -1749,7 +1749,7 @@ void func_806EE924(void) {
 extern void actorScriptStart(Actor *, s32);
 extern void scriptSetActorRampTarget(Actor *, f32, f32);
 
-void func_806EE994(void) {
+void playerStateDamageCheck2(void) {
     if (playerCanTakeHit(gCurrentActor) != 0) {
         EfDStateDc->unkDC = EfDPlayer[gCurrentPlayerIndex].unk2A0;
         gCurrentActor->unk144 = 1;
@@ -1772,7 +1772,7 @@ typedef struct EfN7ActionState {
     EfN7ActionObject *unkDC;
 } EfN7ActionState;
 
-void func_806EEA5C(void) {
+void playerStateDamageCheck3(void) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
         s32 action = 1;
 
@@ -2050,7 +2050,7 @@ void playerTakeDamage(s16 arg0) {
     }
 }
 
-void func_806EF830(void) {
+void playerStateEnterDamageReaction(void) {
     void *new_var;
     if ((gActivePlayerActor->state == 0x36) || (gActivePlayerActor->state == 0x39) ||
         (gActivePlayerActor->state == 0x3A) || (gActivePlayerActor->state == 0x71) ||
@@ -2075,7 +2075,7 @@ void func_806EF830(void) {
 extern void playerDropHeldActor(Actor *);
 extern void camStartPath(Actor *, s32, s32);
 
-void func_806EF944(void) {
+void playerStateEnterDamageReaction2(void) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
         if (gActivePlayerActor->state != 0x3B) {
             if (camIsCutsceneActive() == 0) {
@@ -2093,11 +2093,11 @@ void func_806EF944(void) {
     }
 }
 
-void func_806EFA08(void) {
+void playerStateSetCartDamage(void) {
     ((u8 *)gActivePlayerState)[0x1FC] = 1;
 }
 
-void func_806EFA1C(void) {
+void playerStateEnterState6A(void) {
     gCurrentActor->state = 0x6A;
     gCurrentActor->unk155[0] = 0;
 }
@@ -2109,7 +2109,7 @@ typedef struct EfN7SpawnParams {
 extern EfN7SpawnParams D_8075D380;
 extern void actorSpawn(s32, s32);
 
-void func_806EFA3C(void) {
+void playerStateSpawnParticles(void) {
     EfN7SpawnParams spawnParams;
     s32 pad;
     f32 height;
@@ -2142,7 +2142,7 @@ extern s16 mathAngleArcMidpoint(s16, s16);
 extern s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 extern void camStartPathNearWall(Actor *, s32, s32, s32);
 
-void func_806EFB4C(void) {
+void playerStateStopChannelAndClearCarried(void) {
     sfxStopChannel(0x6B, 0);
     playerClearCarriedItemState();
     playerCheckAndResetCarriedActor(gActivePlayerActor);
@@ -2162,7 +2162,7 @@ void func_806EFB4C(void) {
     camStartPathNearWall(gActivePlayerActor, 0x15, 0x1F, 5);
 }
 
-void func_806EFC38(void) {
+void playerStateDropHeldActor(void) {
     playerClearCarriedItemState();
     playerDropHeldActor(gActivePlayerActor);
     playerCheckAndResetCarriedActor(gActivePlayerActor);
@@ -2227,7 +2227,7 @@ typedef struct EfECamBlock {
 #define EfECam ((EfECamBlock *)gPlayerSlots)
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
-void func_806EFD50(void) {
+void playerStateDropHeldActorAndScript(void) {
     playerClearCarriedItemState();
     playerDropHeldActor(gActivePlayerActor);
     actorScriptStartByIndex(gActivePlayerActor, 0x5B);
@@ -2243,7 +2243,7 @@ typedef struct EfEActorC0 {
     f32 unkC0;
 } EfEActorC0;
 
-void func_806EFDFC(void) {
+void playerStateDropHeldActorSetKong(void) {
     playerSetKongByActorType(EfEPS->unk1EE);
     playerDropHeldActor(gActivePlayerActor);
     playerClearCarriedItemState();
@@ -2266,7 +2266,7 @@ void func_806EFDFC(void) {
     playerSetBaseGravity();
 }
 
-void func_806EFF34(void) {
+void playerStateDropHeldActorSetKong2(void) {
     playerSetKongByActorType(EfEPS->unk1EE);
     playerDropHeldActor(gActivePlayerActor);
     playerClearCarriedItemState();
@@ -2296,14 +2296,14 @@ void playerStateNoop2(void) {
 }
 
 
-void func_806F007C(void) {
+void playerStateEnterState84(void) {
     gCurrentActor->state = 0x84;
     gCurrentActor->unk155[0] = 0;
     actorScriptStart(gCurrentActor, 0);
 }
 
 
-void func_806F00BC(void) {
+void playerStateClearCarriedSetFlags(void) {
     playerClearCarriedItemState();
     EfEPS->unk1F0 &= ~0x20;
     gActivePlayerActor->interactionType = 2;
@@ -2315,13 +2315,13 @@ void func_806F00BC(void) {
 
 
 
-void func_806F014C(void) {
+void playerStateEnterState55(void) {
     EfEPS->unk1F4 |= 8;
     playerResumeLocomotion(gActivePlayerActor);
 }
 
 
-void func_806F0184(void) {
+void playerStateEnterState7B(void) {
     playerClearCarriedItemState();
     EfEPS->unk1F0 &= ~0x20;
     gActivePlayerActor->state = 0x7B;
@@ -2329,14 +2329,14 @@ void func_806F0184(void) {
 }
 
 
-void func_806F01D8(void) {
+void playerStateClearCarriedAndCallF00BC(void) {
     playerClearCarriedItemState();
-    func_806F00BC();
+    playerStateClearCarriedSetFlags();
     EfEPS->unk88 = EfECam[gCurrentPlayerIndex].unk2A0;
 }
 
 
-void func_806F0238(void) {
+void playerStateEnterState0C(void) {
     actorScriptStartByIndex(gActivePlayerActor, 9);
     gActivePlayerActor->state = 0xC;
     gActivePlayerActor->unk155[0] = 0;
@@ -2345,7 +2345,7 @@ void func_806F0238(void) {
 void actorSpawn(s32, s32);
 void actorSetInteractionTimer(Actor *);
 
-void func_806F027C(void) {
+void playerStateEnterKnockbackState(void) {
     EfEPS->unk4C = -1;
     EfEPS->unk30 = D_80753250[gCurrentCharacterIndex];
     playerSetBaseGravity();
@@ -2361,7 +2361,7 @@ void func_806F027C(void) {
 }
 
 
-void func_806F0344(void) {
+void playerStateEnterState7D(void) {
     playerSetBaseGravity();
     gActivePlayerActor->state = 0x7D;
     gActivePlayerActor->unk155[0] = 0;
@@ -2371,7 +2371,7 @@ void func_806F0344(void) {
     gSpawnedActor->parentActor = (s32)gActivePlayerActor;
 }
 
-void func_806F03C4(void) {
+void playerStateSetFlagsByActorType(void) {
     s32 ev;
 
     switch (gActivePlayerActor->actorType) {
@@ -2423,7 +2423,7 @@ void func_806F03C4(void) {
 
 void func_806E9964(EfEPlayerState *);
 
-void func_806F0624(void) {
+void playerStateEnterState83(void) {
     EfEPS->unk1F4 |= 0x10;
     func_806E9964(EfEPS);
     gActivePlayerActor->state = 0x83;
@@ -2432,7 +2432,7 @@ void func_806F0624(void) {
     gActivePlayerActor->flags &= ~1;
 }
 
-void func_806F06A4(void) {
+void playerStateEnterState87(void) {
     gActivePlayerActor->state = 0x87;
     gActivePlayerActor->unk155[0] = 0;
     actorScriptStart(gActivePlayerActor, 0);
@@ -2445,7 +2445,7 @@ typedef struct EfEActorE4 {
     /* 0x0E4 */ s16 unkE4;
 } EfEActorE4;
 
-void func_806F0700(void) {
+void playerStateEnterState88(void) {
     gActivePlayerActor->state = 0x88;
     gActivePlayerActor->unk155[0] = 0;
     actorScriptStart(gActivePlayerActor, 0);
@@ -2461,7 +2461,7 @@ void func_806F0700(void) {
 }
 
 
-void func_806F07CC(void) {
+void playerStateEnterState19(void) {
     sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0xF3, 0xFF, 0x7F, 0x19);
     gActivePlayerActor->state = 0x19;
     gActivePlayerActor->unk155[0] = 0;
@@ -2478,7 +2478,7 @@ typedef struct EfEActor78 {
 #define EfEActor ((EfEActor78 *)gActivePlayerActor)
 
 
-void func_806F0878(void) {
+void playerStatePlaySfx76(void) {
     if (EfEActor->unk78 == 0xC) {
         sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0x76, 0x64, 0x7F, 0);
     }
@@ -2491,7 +2491,7 @@ void func_806F0878(void) {
     actorScriptExecute(gActivePlayerActor);
 }
 
-void func_806F0930(void) {
+void playerStatePlaySfx78(void) {
     if (EfEActor->unk78 == 0xC) {
         sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0x76, 0xFF, 0x7F, 0);
     }
