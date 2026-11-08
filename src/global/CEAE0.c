@@ -113,7 +113,7 @@ typedef struct G02PlayerState {
     /* 0x247 */ s8 unk247;
     /* 0x248 */ s8 unk248;
     /* 0x249 */ u8 unk249;
-    /* 0x24A */ u8 unk24A;
+    /* 0x24A */ u8 attackTimer;
     /* 0x24B */ u8 pad24B;
     /* 0x24C */ u16 unk24C;
     /* 0x24E */ u16 unk24E;
@@ -146,7 +146,7 @@ void playerSetRecentAttacker(Actor *arg0, G02PlayerState *arg1) {
         G02_P->unk246 = 0;
         G02_P->unk247 = -1;
     }
-    arg1->unk24A = 5;
+    arg1->attackTimer = 5;
 }
 
 void playerRecordHitSource(Actor *arg0, Actor *arg1, s32 arg2) {
@@ -338,25 +338,25 @@ typedef struct PlayerEffectObj {
 } PlayerEffectObj;
 
 typedef struct PlayerUpdateState {
-    /* 0x000 */ s16 unk0;
+    /* 0x000 */ s16 prevState;
     /* 0x002 */ u8 pad2[0x8D - 2];
     /* 0x08D */ u8 hitStatus;
     /* 0x08E */ u8 pad8E[0xCA - 0x8E];
     /* 0x0CA */ u8 unkCA;
     /* 0x0CB */ u8 padCB[0xD4 - 0xCB];
-    /* 0x0D4 */ s16 unkD4;
-    /* 0x0D6 */ s16 unkD6;
+    /* 0x0D4 */ s16 surfaceTimer;
+    /* 0x0D6 */ s16 breathTimer;
     /* 0x0D8 */ u8 padD8[0xE8 - 0xD8];
-    /* 0x0E8 */ u8 unkE8;
+    /* 0x0E8 */ u8 stateStep;
     /* 0x0E9 */ u8 padE9[0xFC - 0xE9];
-    /* 0x0FC */ s32 unkFC;
+    /* 0x0FC */ s32 invulnTimer;
     /* 0x100 */ s32 unk100;
     /* 0x104 */ u8 pad104[0x10E - 0x104];
-    /* 0x10E */ s16 unk10E;
-    /* 0x110 */ s16 unk110;
-    /* 0x112 */ s16 unk112;
+    /* 0x10E */ s16 targetPitch;
+    /* 0x110 */ s16 targetRoll;
+    /* 0x112 */ s16 targetYawAngle;
     /* 0x114 */ u8 pad114[0x120 - 0x114];
-    /* 0x120 */ s32 unk120;
+    /* 0x120 */ s32 lastFrame;
     /* 0x124 */ u8 pad124[0x1A4 - 0x124];
     /* 0x1A4 */ u8 unk1A4;
     /* 0x1A5 */ u8 pad1A5[0x1C0 - 0x1A5];
@@ -366,19 +366,19 @@ typedef struct PlayerUpdateState {
     /* 0x1D0 */ u8 pad1D0[0x1F0 - 0x1D0];
     /* 0x1F0 */ s32 unk1F0;
     /* 0x1F4 */ u8 pad1F4[4];
-    /* 0x1F8 */ s32 unk1F8;
+    /* 0x1F8 */ s32 prevStateFlags;
     /* 0x1FC */ u8 pad1FC[0x244 - 0x1FC];
-    /* 0x244 */ u8 unk244;
-    /* 0x245 */ u8 unk245;
+    /* 0x244 */ u8 idleTimeoutFlag;
+    /* 0x245 */ u8 damageCooldown;
     /* 0x246 */ u8 pad246[2];
     /* 0x248 */ s8 unk248;
     /* 0x249 */ s8 unk249;
-    /* 0x24A */ u8 unk24A;
+    /* 0x24A */ u8 attackTimer;
     /* 0x24B */ u8 pad24B[0x250 - 0x24B];
-    /* 0x250 */ s32 unk250;
-    /* 0x254 */ PlayerEffectObj *unk254;
+    /* 0x250 */ s32 effectTimer;
+    /* 0x254 */ PlayerEffectObj *effectObj;
     /* 0x258 */ u8 pad258[0x268 - 0x258];
-    /* 0x268 */ u8 unk268;
+    /* 0x268 */ u8 transitionTimer;
 } PlayerUpdateState;
 
 typedef struct PlayerUpdateSlot {
@@ -491,7 +491,7 @@ void playerUpdateCommon(s32 arg0) {
     gCurrentActor->flags &= 0xF7FFFFFF;
     PLAYER_SLOT(gCurrentPlayerIndex).unk28C = PLAYER_SLOT(gCurrentPlayerIndex).unk27C;
     if (gCurrentActor->renderFlags & 0x100) {
-        PLAYER_STATE->unk120 = gGameFrameCounter;
+        PLAYER_STATE->lastFrame = gGameFrameCounter;
     }
     if (PLAYER_STATE->unk1CC == PLAYER_STATE->unk1C0 && gCurrentActor->state != 0x54) {
         if (gCurrentActor->actorType == 4) {
@@ -507,14 +507,14 @@ void playerUpdateCommon(s32 arg0) {
     } else {
         gCurrentActor->flags2 &= 0xFFFD;
     }
-    if ((flags & 0x20) && PLAYER_STATE->unkFC == 0 && gCurrentActor->actorType != 8 && gCurrentActor->actorType != 9) {
+    if ((flags & 0x20) && PLAYER_STATE->invulnTimer == 0 && gCurrentActor->actorType != 8 && gCurrentActor->actorType != 9) {
         gCurrentActor->flags2 |= 0x10;
     } else {
         gCurrentActor->flags2 &= 0xFFEF;
         gCurrentActor->flags &= ~0x800;
     }
-    if (PLAYER_STATE->unkFC != 0) {
-        PLAYER_STATE->unkFC = PLAYER_STATE->unkFC - 1;
+    if (PLAYER_STATE->invulnTimer != 0) {
+        PLAYER_STATE->invulnTimer = PLAYER_STATE->invulnTimer - 1;
     }
     if (flags & 0x40) {
         gCurrentActor->flags |= 0x4000;
@@ -529,8 +529,8 @@ void playerUpdateCommon(s32 arg0) {
     if (PLAYER_STATE->unk100 != 0) {
         PLAYER_STATE->unk100 = PLAYER_STATE->unk100 - 1;
     }
-    if (PLAYER_STATE->unk245 != 0) {
-        PLAYER_STATE->unk245 = PLAYER_STATE->unk245 - 1;
+    if (PLAYER_STATE->damageCooldown != 0) {
+        PLAYER_STATE->damageCooldown = PLAYER_STATE->damageCooldown - 1;
     }
     func_806CB53C();
     playerCheckAndClearCarriedItem();
@@ -566,14 +566,14 @@ void playerUpdateCommon(s32 arg0) {
     if (gCurrentActor->flags2 & 0x10) {
         playerCheckLedgeGrab();
     }
-    PLAYER_STATE->unkE8 = 0;
+    PLAYER_STATE->stateStep = 0;
     gActivePlayerState->stateFlags &= 0xBFFFFFFF;
     func_806CF580();
-    PLAYER_STATE->unk0 = gActivePlayerActor->state;
+    PLAYER_STATE->prevState = gActivePlayerActor->state;
     if (gPlayerCount >= 2) {
         if (gCurrentActor->contactFlags & 1) {
-            if (PLAYER_STATE->unk24A != 0) {
-                PLAYER_STATE->unk24A = PLAYER_STATE->unk24A - 1;
+            if (PLAYER_STATE->attackTimer != 0) {
+                PLAYER_STATE->attackTimer = PLAYER_STATE->attackTimer - 1;
             } else {
                 PLAYER_STATE->unk248 = -1;
                 PLAYER_STATE->unk249 = 0;
@@ -593,27 +593,27 @@ void playerUpdateCommon(s32 arg0) {
         }
         if (D_807552E4 == 0) {
             if (gActivePlayerActor->state == 0x3C) {
-                if (PLAYER_STATE->unk250 != 0) {
-                    PLAYER_STATE->unk250 = PLAYER_STATE->unk250 - 1;
+                if (PLAYER_STATE->effectTimer != 0) {
+                    PLAYER_STATE->effectTimer = PLAYER_STATE->effectTimer - 1;
                 }
-                if (PLAYER_STATE->unk254 == NULL) {
+                if (PLAYER_STATE->effectObj == NULL) {
                     effectSetDuration(-1);
                     effectSetMode(0);
                     effectSetColor(0xFF, 0xFF, 0xFF, 0x78);
                     effectEnableFade();
-                    PLAYER_STATE->unk254 = (PlayerEffectObj *)effectCreateAtPosition(&D_80720020, 0.7f, gActivePlayerActor->x, gActivePlayerActor->y, gActivePlayerActor->z);
+                    PLAYER_STATE->effectObj = (PlayerEffectObj *)effectCreateAtPosition(&D_80720020, 0.7f, gActivePlayerActor->x, gActivePlayerActor->y, gActivePlayerActor->z);
                 }
             } else {
-                if (PLAYER_STATE->unk250 < 0x78) {
-                    PLAYER_STATE->unk250 = PLAYER_STATE->unk250 + 1;
+                if (PLAYER_STATE->effectTimer < 0x78) {
+                    PLAYER_STATE->effectTimer = PLAYER_STATE->effectTimer + 1;
                 }
-                if (PLAYER_STATE->unk254 != NULL) {
-                    fx = PLAYER_STATE->unk254;
-                    PLAYER_STATE->unk254 = NULL;
+                if (PLAYER_STATE->effectObj != NULL) {
+                    fx = PLAYER_STATE->effectObj;
+                    PLAYER_STATE->effectObj = NULL;
                     effectFreeAndUnlink(fx);
                 }
             }
-            fx = PLAYER_STATE->unk254;
+            fx = PLAYER_STATE->effectObj;
             if (fx != NULL) {
                 actorGetNodePos(gActivePlayerActor, 1, &sp5C, &sp58, &sp54);
                 camProjectToScreen(sp5C, sp58, sp54, &sp4C, &sp48, NULL, 1.0f, 0);
@@ -624,13 +624,13 @@ void playerUpdateCommon(s32 arg0) {
                 dx = PLAYER_SLOT(0).unk210 - sp5C;
                 dy = PLAYER_SLOT(0).unk214 - sp58;
                 dz = sqrtf(dz * dz + (dx * dx + dy * dy));
-                fx->unk360 = gCurrentActor->sub4->scaleX * (1000.0f / dz) * 6.666666666666667 * 0.7 * 0.008333334f * (f32)PLAYER_STATE->unk250;
+                fx->unk360 = gCurrentActor->sub4->scaleX * (1000.0f / dz) * 6.666666666666667 * 0.7 * 0.008333334f * (f32)PLAYER_STATE->effectTimer;
                 fx->unk364 = fx->unk360;
             }
         }
     }
-    if (PLAYER_STATE->unkD4 != 0) {
-        PLAYER_STATE->unkD4 = PLAYER_STATE->unkD4 - 1;
+    if (PLAYER_STATE->surfaceTimer != 0) {
+        PLAYER_STATE->surfaceTimer = PLAYER_STATE->surfaceTimer - 1;
     }
     if (sp6A != 0) {
         playerStateQueueCallback(0x3F, sp64, gCurrentPlayerIndex);
@@ -641,15 +641,15 @@ void playerUpdateCommon(s32 arg0) {
     if (sp6B == 2) {
         goto case2;
     }
-    PLAYER_STATE->unkD6 = 0;
+    PLAYER_STATE->breathTimer = 0;
     goto done;
 case1:
     if (PLAYER_STATE->unk1F0 & 0x10) {
-        PLAYER_STATE->unkD6 = 0;
+        PLAYER_STATE->breathTimer = 0;
     } else {
-        PLAYER_STATE->unkD6 = PLAYER_STATE->unkD6 + 1;
+        PLAYER_STATE->breathTimer = PLAYER_STATE->breathTimer + 1;
         playerStateQueueCallback(0x2E, sp64, gCurrentPlayerIndex);
-        if (gCurrentActor->state != 0x36 && gCurrentActor->state != 0x3B && PLAYER_STATE->unkD4 == 0) {
+        if (gCurrentActor->state != 0x36 && gCurrentActor->state != 0x3B && PLAYER_STATE->surfaceTimer == 0) {
             s32 snd = 0x2C0;
             if (gCurrentMap == 0x30) {
                 snd = 0x3B0;
@@ -661,7 +661,7 @@ case1:
 case2:
     PLAYER_STATE->unk1F0 |= 0x1000;
     if (!(PLAYER_STATE->unk1F0 & 0x10)) {
-        if (gCurrentActor->state != 0x36 && gCurrentActor->state != 0x3B && PLAYER_STATE->unkD4 == 0) {
+        if (gCurrentActor->state != 0x36 && gCurrentActor->state != 0x3B && PLAYER_STATE->surfaceTimer == 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x2C0, 0xFF, 0x7F, 0);
         }
         if (gCurrentMap == 0x53 || gCurrentMap == 0xC5) {
@@ -673,21 +673,21 @@ case2:
 done:
     if (sp69 != 0) {
         playerStateQueueCallback(0, sp64, gCurrentPlayerIndex);
-        if (PLAYER_STATE->unkD4 == 0) {
+        if (PLAYER_STATE->surfaceTimer == 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x2C0, 0xFF, 0x7F, 0);
         }
     }
     actorGetNodePos(gActivePlayerActor, 6, &PLAYER_SLOT(gCurrentPlayerIndex).unk2B4, &PLAYER_SLOT(gCurrentPlayerIndex).unk2B8, &PLAYER_SLOT(gCurrentPlayerIndex).unk2BC);
     camProjectToScreen(gActivePlayerActor->x, PLAYER_SLOT(gCurrentPlayerIndex).unk2B8, gActivePlayerActor->z, &sp70, &sp6C, NULL, 1.0f, gCurrentPlayerIndex);
-    PLAYER_STATE->unk10E = sp70;
-    PLAYER_STATE->unk110 = sp6C;
+    PLAYER_STATE->targetPitch = sp70;
+    PLAYER_STATE->targetRoll = sp6C;
     camProjectToScreen(gActivePlayerActor->x, gActivePlayerActor->y, gActivePlayerActor->z, &sp70, &sp6C, NULL, 1.0f, gCurrentPlayerIndex);
-    PLAYER_STATE->unk112 = sp6C;
-    PLAYER_STATE->unk1F8 = PLAYER_STATE->unk1F0;
-    if (PLAYER_STATE->unk268 != 0) {
-        PLAYER_STATE->unk268 = PLAYER_STATE->unk268 - 1;
+    PLAYER_STATE->targetYawAngle = sp6C;
+    PLAYER_STATE->prevStateFlags = PLAYER_STATE->unk1F0;
+    if (PLAYER_STATE->transitionTimer != 0) {
+        PLAYER_STATE->transitionTimer = PLAYER_STATE->transitionTimer - 1;
     }
-    if ((gCurrentActor->x < (f32)D_807F5FE4 || gCurrentActor->z < (f32)D_807F5FE6 || (f32)D_807F5FE8 < gCurrentActor->x || (f32)D_807F5FEA < gCurrentActor->z || sp68 != 0) && PLAYER_STATE->unk244 == 0 && (u32)gFrameCounter >= 0x65 && !(gGlobalOverlayFlags & 0x4000) && gCurrentMap != 0xE) {
+    if ((gCurrentActor->x < (f32)D_807F5FE4 || gCurrentActor->z < (f32)D_807F5FE6 || (f32)D_807F5FE8 < gCurrentActor->x || (f32)D_807F5FEA < gCurrentActor->z || sp68 != 0) && PLAYER_STATE->idleTimeoutFlag == 0 && (u32)gFrameCounter >= 0x65 && !(gGlobalOverlayFlags & 0x4000) && gCurrentMap != 0xE) {
         if (gPlayerCount == 1) {
             if (flagGet(0x186, 0) == 0) {
                 mapSetPendingTransition(0xB0, 1);
@@ -696,7 +696,7 @@ done:
             }
             healthRefill(gCurrentPlayerIndex);
             mapExecuteDeathTransition(gCurrentPlayerIndex);
-            PLAYER_STATE->unk244 = 1;
+            PLAYER_STATE->idleTimeoutFlag = 1;
         } else {
             func_80026D40(gCurrentActor, gCurrentPlayerIndex);
         }
@@ -711,18 +711,18 @@ done:
             case 0x30:
             case 0x48:
             case 0x57:
-                if (D_8076A094 >= 0x5DD && PLAYER_STATE->unk244 == 0) {
+                if (D_8076A094 >= 0x5DD && PLAYER_STATE->idleTimeoutFlag == 0) {
                     mapExecuteVoidTransition();
-                    PLAYER_STATE->unk244 = 1;
+                    PLAYER_STATE->idleTimeoutFlag = 1;
                 }
-                if (D_8076A098 >= 0x5DD && !(gGlobalPauseFlags & 2) && PLAYER_STATE->unk244 == 0) {
+                if (D_8076A098 >= 0x5DD && !(gGlobalPauseFlags & 2) && PLAYER_STATE->idleTimeoutFlag == 0) {
                     mapExecuteVoidTransition();
-                    PLAYER_STATE->unk244 = 1;
+                    PLAYER_STATE->idleTimeoutFlag = 1;
                 }
                 if ((gCurrentActor->x != gCurrentActor->prevX || gCurrentActor->y != gCurrentActor->prevY || gCurrentActor->z != gCurrentActor->prevZ || gPlayerPadState[gCurrentPlayerIndex].unk2A != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2E != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2F != 0) && !(gGlobalPauseFlags & 2)) {
                     if (++D_8076A090 == 0x69780) {
                         mapExecuteVoidTransition();
-                        PLAYER_STATE->unk244 = 1;
+                        PLAYER_STATE->idleTimeoutFlag = 1;
                     }
                 }
                 break;
@@ -738,7 +738,7 @@ typedef struct LCEAE0bPlayer {
     /* 0x03C */ u8 pad3C[0xC];
     /* 0x048 */ s16 unk48;
     /* 0x04A */ u8 pad4A[0x8A];
-    /* 0x0D4 */ s16 unkD4;
+    /* 0x0D4 */ s16 surfaceTimer;
     /* 0x0D6 */ u8 padD6[0xCE];
     /* 0x1A4 */ u8 unk1A4;
     /* 0x1A5 */ u8 pad1A5[7];
@@ -877,7 +877,7 @@ void func_806CB53C(void) {
         }
     }
     if (LB_P->unk1F0 & 0x10) {
-        LB_P->unkD4 = 2;
+        LB_P->surfaceTimer = 2;
     }
     if (LB_P->unk1CC != LB_P->unk1C0) {
         gCurrentActor->renderFlags |= 0x800;
@@ -2090,7 +2090,7 @@ s16 func_806CE7A0(Actor *arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4) {
 }
 
 typedef struct G05PlayerView {
-    /* 0x000 */ s16 unk0;
+    /* 0x000 */ s16 prevState;
     /* 0x002 */ u8 pad2[0x4C - 2];
     /* 0x04C */ s16 unk4C;
     /* 0x04E */ u8 pad4E[0x78 - 0x4E];
@@ -2511,7 +2511,7 @@ void func_806CF580(void) {
         G05_P->unkD0 = gFrameCounter;
     }
     if (gPlayerCharacterId[gCurrentPlayerIndex] == 1) {
-        if (gCurrentActor->state == 0x36 && G05_P->unk0 != 0x36) {
+        if (gCurrentActor->state == 0x36 && G05_P->prevState != 0x36) {
             animSetFrameAndSubframe(gCurrentActor, 1, 0, 6.0f);
         }
         if (gCurrentActor->state == 0x36) {
@@ -2529,7 +2529,7 @@ void func_806CF580(void) {
             animSetLoopLimit(gCurrentActor, 1, 2);
         }
         if (gCurrentActor->state != 0x36) {
-            if (G05_P->unk0 == 0x36) {
+            if (G05_P->prevState == 0x36) {
                 G05_P->unk84 = 0;
             }
         }

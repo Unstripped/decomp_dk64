@@ -90,7 +90,7 @@ typedef struct BossC_6240_C924 {
 
 typedef struct BossC_6240_D580 {
     char pad0[0xD4];
-    s16 unkD4;
+    s16 surfaceTimer;
     char padD6[0x1D8 - 0xD6];
     f32 unk1D8;
 } BossC_6240_D580;
@@ -388,7 +388,7 @@ void bossPufftossStep(void) {
         gCurrentActor->unk154 = scriptData[state->unk15++];
         gCurrentActor->unk155 = 0;
     }
-    gActivePlayerState->unkD4 = (gActivePlayerState->unkD4 < 50) ? gActivePlayerState->unkD4 : 50;
+    gActivePlayerState->surfaceTimer = (gActivePlayerState->surfaceTimer < 50) ? gActivePlayerState->surfaceTimer : 50;
     gCurrentActor->unk16A = (u8) (((f64) mathSinF((s16) (gFrameCounter * 0x64)) * 50.0) + 200.0);
     gCurrentActor->unk16B = gCurrentActor->unk16A;
     gCurrentActor->unk16C = gCurrentActor->unk16A;
@@ -493,7 +493,7 @@ void bossPufftossStep(void) {
                 }
                 if (gBehaviourWorkState->unk2C == 20) {
                     if (gPlayerSlots->unk2C0 != 1) {
-                        gActivePlayerState->unkD4 = 0x64;
+                        gActivePlayerState->surfaceTimer = 0x64;
                     }
                     camReturnToFollow(gCamActor, gPrimaryPlayerActor);
                     playerSetSizeMode(gPrimaryPlayerActor, 1);
