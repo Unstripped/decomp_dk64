@@ -380,7 +380,7 @@ void mapFaceBuildTriangleFan(s32 arg0) {
             } while (var_a2 < var_v1->unk4);
         }
     }
-    var_v1->unk10 = 0x7FFF; var_v1->unk12 = -0x8000;  // FAKE: same-line stores flip the store scheduling order
+    var_v1->unk10 = 0x7FFF; var_v1->unk12 = -0x8000;  // LAYOUT: same-line stores flip the store scheduling order
     var_a2 = 0;
     if (var_v1->unk4 > 0) {
         var_a0_2 = var_v1->unk0;
@@ -1830,7 +1830,7 @@ void mapCellUpdateVisibility(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
 
     i = 0;
     if (D_807F70AC > 0) {
-        off = 0; do { // FAKE: scheduling (joins the loop preheader store)
+        off = 0; do { // LAYOUT: scheduling (joins the loop preheader store)
             if (arg3 == ((MapCell *)((u8 *)D_807F70B0 + off))->unk4) {
                 if (gMapChunks[((MapCell *)((u8 *)D_807F70B0 + off))->unk0].unk0 == 1) {
                     idx = ((MapCell *)((u8 *)D_807F70B0 + off))->unk2;
@@ -1939,7 +1939,7 @@ void mapChunksApplyLights(f32 arg0, f32 arg1, f32 arg2) {
                                 obj = lightCollectVolumesInBounds(arg0, arg1, arg2, D_807F70B4[boxIdx].unk0, D_807F70B4[boxIdx].unk2, D_807F70B4[boxIdx].unk4, D_807F70B4[boxIdx].unk6, D_807F70B4[boxIdx].unk8, D_807F70B4[boxIdx].unkA, i, &hit);
                                 nodeIdx = 0;
                                 found = 0;
-                                key = MAP_CELL_VIEW[k].unk2; node = MAP_CHUNK_LIGHT[i].unk4C;  // FAKE: same-line statements steer scheduling
+                                key = MAP_CELL_VIEW[k].unk2; node = MAP_CHUNK_LIGHT[i].unk4C;  // LAYOUT: same-line statements steer scheduling
                                 do {
                                     if (key == node->unk0) {
                                         found = 1;
@@ -2920,7 +2920,7 @@ void mapPolyProjectToScreenRect(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *
     *arg4 = gPlayerSlots[gCurrentPlayerIndex].unk272;
     flag = 0;
     for (i = 0; i < arg0; i++) {
-        flag |= camProjectToScreen(((MapPolyVertex *)D_807F6D78)[i].unk0, ((MapPolyVertex *)D_807F6D78)[i].unk4, ((MapPolyVertex *)D_807F6D78)[i].unk8, &sp7C, &sp78, 0, 1.0f, gCurrentPlayerIndex); x = (s16)sp7C; y = (s16)sp78; // FAKE: same-line statements steer sra scheduling
+        flag |= camProjectToScreen(((MapPolyVertex *)D_807F6D78)[i].unk0, ((MapPolyVertex *)D_807F6D78)[i].unk4, ((MapPolyVertex *)D_807F6D78)[i].unk8, &sp7C, &sp78, 0, 1.0f, gCurrentPlayerIndex); x = (s16)sp7C; y = (s16)sp78; // LAYOUT: same-line statements steer sra scheduling
         if (x < gPlayerSlots[gCurrentPlayerIndex].unk270) {
             x = gPlayerSlots[gCurrentPlayerIndex].unk270;
         }
