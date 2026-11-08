@@ -165,7 +165,7 @@ extern B6C50Actor *D_807FBB4C;
 extern s32 D_80720340;
 
 B6C50Actor *actorFindByType(s32);
-void func_80613C48(B6C50Actor *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(B6C50Actor *, s16, f32, f32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void func_8072B7CC(s32);
 f32 sqrtf(f32);
@@ -182,7 +182,7 @@ void func_806B24B8(void) {
             ((B6C50View90 *)gBehaviourWorkState)->unk4 = found;
         }
         gBehaviourExtraState->unk10 = 0x23;
-        func_80613C48(gCurrentActor, 0x599, 0.0f, 0.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x599, 0.0f, 0.0f);
         gCurrentActor->unk68 &= 0xFFBF;
         sfxPlayActorSound(gCurrentActor, 0x139, 0x78, 0, 1, 0x3C, 0.56f, 0);
         gCurrentActor->unk60 |= 0x400;

@@ -199,7 +199,7 @@ s32 textGetStringWidth(s32, s32);
 s32 textGetFontHeight(s32);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, s32, s32);
 void func_806F0C18(void *, s16 *);
-void func_80613C48(void *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void controllerApplyMotionWindow(void *, void *, f32);
 extern f32 D_8002D90C;
 f32 mathCosF(s16);
@@ -1116,7 +1116,7 @@ void bonusTurtleTroubleTurtleUpdate(void) {
         gCurrentActor->yaw = (randomNonNegative() >> 0xF) % 4096;
         gCurrentActor->accelY = -10.0f;
         gCurrentActor->contactFlags &= 0xFFFE;
-        func_80613C48(gCurrentActor, 0x688, 0.0f, 0.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x688, 0.0f, 0.0f);
         scriptSetActorRampTarget(gCurrentActor, 1.0, 0.0f);
     }
     if (p40->unk10 == -1 && t0->unk4 == 0) {
@@ -1984,7 +1984,7 @@ void bonusBigBugBashGameUpdate(void) {
         lightSetColor(1.0f, 1.0f, 1.0f, -1);
         LB5->unkE8 = 0;
         LB5->unkE6 = 0x800;
-        func_80613C48(gCurrentActor, 0x5FB, 0.0f, 0.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x5FB, 0.0f, 0.0f);
         LB5->unk4->unk34 = 0.2f;
         LB5->unk4->unk38 = 0.2f;
         LB5->unk4->unk3C = 0.2f;
@@ -2059,7 +2059,7 @@ void bonusBigBugBashGameUpdate(void) {
                 t->unk1C = -8.0f;
             }
             if (prev >= 0.0f) {
-                func_80613C48(gCurrentActor, 0x5FC, 0.0f, 0.0f);
+                controllerAnimSetStateIfChanged(gCurrentActor, 0x5FC, 0.0f, 0.0f);
             }
             if (animData != NULL) {
                 controllerApplyMotionWindow(gCurrentActor, animData, -t->unk1C);
@@ -2069,7 +2069,7 @@ void bonusBigBugBashGameUpdate(void) {
                 t->unk1C = 8.0f;
             }
             if (prev < 0.0f) {
-                func_80613C48(gCurrentActor, 0x5FB, 0.0f, 0.0f);
+                controllerAnimSetStateIfChanged(gCurrentActor, 0x5FB, 0.0f, 0.0f);
             }
             if (animData != NULL) {
                 controllerApplyMotionWindow(gCurrentActor, animData, t->unk1C);
@@ -2083,7 +2083,7 @@ void bonusBigBugBashGameUpdate(void) {
         }
         if (LB5->unk154 == 0 && (*gPlayerSlots[gCurrentPlayerIndex].unk298 & 0xE000)) {
             sfxPlayOnFreeSlot(0x25, 0x7FFF, 63.0f, 0.51f, 0, 0);
-            func_80613C48(gCurrentActor, 0x5FD, 0.0f, 1.0f);
+            controllerAnimSetStateIfChanged(gCurrentActor, 0x5FD, 0.0f, 1.0f);
             LB5->unk154 = 1;
         }
         break;
@@ -2096,7 +2096,7 @@ void bonusBigBugBashGameUpdate(void) {
             LB5->unk154 = 1;
         }
         if (animData->unk24 == 0.0f) {
-            func_80613C48(gCurrentActor, 0x5FC, 0.0f, 1.0f);
+            controllerAnimSetStateIfChanged(gCurrentActor, 0x5FC, 0.0f, 1.0f);
             LB5->unk154 = 0;
             t->unk1C = 0.0f;
         }
@@ -2295,7 +2295,7 @@ void bonusBigBugBashSwatterShadowUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->roll = 0;
         gCurrentActor->yaw = 0x800;
-        func_80613C48(gCurrentActor, 0x5FB, 0, 0);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x5FB, 0, 0);
         gCurrentActor->unk4->unk34 = 0.2f;
         gCurrentActor->unk4->unk38 = 0.2f;
         gCurrentActor->unk4->unk3C = 0.2f;
@@ -2310,7 +2310,7 @@ void bonusBigBugBashSwatterShadowUpdate(void) {
                 animId = 0x5FE;
             }
             if (animId != selfAnim->unk10) {
-                func_80613C48(gCurrentActor, animId, 0, 0);
+                controllerAnimSetStateIfChanged(gCurrentActor, animId, 0, 0);
             }
             controllerApplyMotionWindow(gCurrentActor, selfAnim, targetAnim->unk4);
         }

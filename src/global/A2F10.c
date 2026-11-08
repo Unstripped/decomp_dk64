@@ -58,7 +58,7 @@ typedef struct ActorSub4Node {
     /* 0x24 */ f32 unk24;
 } ActorSub4Node;
 
-void func_80613C48(Actor *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 void controllerAnimSetState(Actor *, s16, f32, f32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
 s32 actorListFindIdByActor(Actor *);
@@ -75,7 +75,7 @@ void actorTriggerRampWithSfx(void) {
     p = &gCurrentActor;
     if (!(actor->flags & 0x10)) {
         actor->flags &= ~4;
-        func_80613C48(gCurrentActor, 0x407, 0.0f, 0.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x407, 0.0f, 0.0f);
         scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
         actor = gCurrentActor;
     }
@@ -448,7 +448,7 @@ void animSetFinished(void *, s32, s32);
 ModelNodeView *animGetNodeByIndex(void *, s32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
-void func_80613C48(Actor *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
 void actorCopyPoseAndScale(void *, void *, f32);
 void actorUpdateModelMatrix(void *, s32);
@@ -514,7 +514,7 @@ void actorShockwaveUpdate(void) {
             CUR_ACTOR->unk154 = 2;
             if (CUR_ACTOR->unk15F != 0 && actorSpawn(0x102, CUR_ACTOR->unkF0) != 0) {
                 if (CUR_ACTOR->unk4->unk0->unk4 > 9.0f) {
-                    func_80613C48(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
+                    controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
                     scriptSetActorRampTarget(gSpawnedActor, CUR_ACTOR->unk4->unk48, 0.0f);
                 }
                 actorCopyPoseAndScale(gSpawnedActor, CUR_ACTOR, CUR_ACTOR->unk4->unk38);

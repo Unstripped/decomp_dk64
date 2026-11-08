@@ -223,7 +223,7 @@ void func_8072D714(s32, s32);
 void actorSetUniformScale(void *, f32);
 void actorSpawnLinkedFollower(void);
 void actorScriptStart(void *, s32);
-void func_80613C48(void *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 currentActorTestClearFlag(void);
 void actorSetTargetSpeed(void *, s32);
@@ -276,7 +276,7 @@ void bossKutOutStep(void) {
         case 0:
             camStartPath(gCurrentActor, 8, 1);
             actorScriptStart(gCurrentActor, 0);
-            func_80613C48(gCurrentActor, 0x589, 0.0f, 0.0f);
+            controllerAnimSetStateIfChanged(gCurrentActor, 0x589, 0.0f, 0.0f);
             DC90->unk2C = 0;
             A40->unk155 = 1;
             A40->unk144 = 1;

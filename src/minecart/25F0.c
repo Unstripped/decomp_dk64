@@ -208,7 +208,7 @@ u32 randomLcgNext(void);
 void camSetTarget(void *, void *, s32, s16, s32, s32, s32, s32, s32, s32, f32);
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void actorDespawn(void *);
-void func_80613C48(void *, s32, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
 void animSetSpeed(void *, s32, f32);
 void animSetLoopMode(void *, s32, s32);
 void animSetLoopLimit(void *, s32, s32);
@@ -331,7 +331,7 @@ void minecartFollowerChildBehaviour(void) {
     targetState = s2->unk174;
     angleOffset = gCurrentActor->unk168 * gCurrentActor->unkEC;
     if (!(gCurrentActor->unk60 & 0x10)) {
-        func_80613C48(gCurrentActor, 0x59C, 0.0f, 0.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x59C, 0.0f, 0.0f);
         gCurrentActor->unk60 |= 0x800000;
         gCurrentActor->unk16A = 0xFF;
         gCurrentActor->unk16B = 0xFF;
@@ -470,7 +470,7 @@ void minecartUpdateFollower(void) {
     pointX = D_807F5FD4[gCurrentActor->unk15F][gCurrentActor->unk168].x;
     pointZ = D_807F5FD4[gCurrentActor->unk15F][gCurrentActor->unk168].z;
     if (!(gCurrentActor->unk60 & 0x10)) {
-        func_80613C48(gCurrentActor, 0x5FF, 0.0f, 0.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x5FF, 0.0f, 0.0f);
         animSetSpeed(gCurrentActor, 0, 1.0f);
         animSetLoopMode(gCurrentActor, 0, 0);
         animSetLoopLimit(gCurrentActor, 0, -1);

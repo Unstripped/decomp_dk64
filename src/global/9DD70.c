@@ -71,7 +71,7 @@ typedef struct CameraView {
 extern Actor *gCurrentActor;
 
 s32 func_806FFF88(void);
-void func_80613C48(Actor *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
@@ -107,7 +107,7 @@ void actorPhotoUpdate(void) {
         gCurrentActor->flags |= 0x400;
         gCurrentActor->unk12A = 0x3E8;
         subState->unk4 = (s16 *)func_806FFF88();
-        func_80613C48(gCurrentActor, 0x40B, 0, 0);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x40B, 0, 0);
         scriptSetActorRampTarget(gCurrentActor, 0.15f, 0);
     }
     gCurrentActor->flags &= ~4;
@@ -248,7 +248,7 @@ typedef struct WaveState {
 
 extern u8 D_807FBBEC;
 extern ActorGlobalState D_807FBB70;
-void func_80613C48(Actor *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
 Mtx *heapAlloc(s32);
 void actorUpdateModelMatrix(Actor *, s32);
@@ -298,7 +298,7 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
         state->unk0--;
     }
     if (state->unk0 == 0) {
-        func_80613C48(gCurrentActor, 0x403, 0, 1.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x403, 0, 1.0f);
         scriptSetActorRampTarget(gCurrentActor, 4.0f, 1.0f);
         state->unk0 = -2;
     }
@@ -682,7 +682,7 @@ typedef struct {
 } SpotLightConfig;
 
 void actorScriptStart(Actor *, s32);
-void func_80613C48(Actor *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 void actorUpdateModelMatrix(Actor *, s32);
 extern u8 D_807FBD70;
 extern s32 gCurrentMap;
@@ -703,7 +703,7 @@ void actorSpotLightUpdate(void) {
 
     lightState = (SpotLightState *)gCurrentActor->unk174;
     if (!(gCurrentActor->flags & 0x10)) {
-        func_80613C48(gCurrentActor, 0x402, 0, 1.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x402, 0, 1.0f);
         if (gCurrentMap == 6) {
             actorScriptStart(gCurrentActor, 0x297);
         }
@@ -1850,7 +1850,7 @@ void func_8069E088(void) {
     s16 unk;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        func_80613C48(gCurrentActor, 0x5ED, 0.0f, 0.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x5ED, 0.0f, 0.0f);
     }
     gCurrentActor->unk15E = 0x14;
     if (gCurrentActor->state < 0x1E) {

@@ -2536,7 +2536,7 @@ extern s16 D_80750360;
 extern s16 D_80750374;
 extern s16 D_80750354;
 extern s16 D_80750368;
-void func_80613C48(Actor *, s32, f32, f32);
+void controllerAnimSetStateIfChanged(Actor *, s32, f32, f32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
 
 
@@ -2699,7 +2699,7 @@ void projectileMatrixRotationUpdate(void) {
         G_PROJECTILE_ROT_ACTOR->unk60 |= 0x01080000;
         G_PROJECTILE_ROT_ACTOR->unk16E = 0x3C;
         G_PROJECTILE_ROT_ACTOR->unk16F = 0x3C;
-        func_80613C48(gCurrentActor, 0x404, 0.0f, 1.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x404, 0.0f, 1.0f);
         temp_s2->unk8 = -(mathAtan2(G_PROJECTILE_ROT_ACTOR->unkC0, G_PROJECTILE_ROT_ACTOR->unkB8) * 57.295776f);
         temp_s2->unk10 = 0;
         temp_s2->unkC = (f32)((u32)(randomLcgNext() % 3600U) / 10U);
@@ -2724,7 +2724,7 @@ void projectileMatrixRotationUpdate(void) {
     case 0:
         if (G_PROJECTILE_ROT_ACTOR->unkFD != 0 || (G_PROJECTILE_ROT_ACTOR->unk124->unk14 != 0.0f && (u32)(temp_s2->unk0 + 1) < gGameFrameCounter)) {
             scriptSetActorRampTarget(gCurrentActor, 0.5f, 0);
-            func_80613C48(gCurrentActor, 0x406, 0, 0.0f);
+            controllerAnimSetStateIfChanged(gCurrentActor, 0x406, 0, 0.0f);
             G_PROJECTILE_ROT_ACTOR->unkB8 = 0.0f;
             G_PROJECTILE_ROT_ACTOR->unkC0 = 0.0f;
             G_PROJECTILE_ROT_ACTOR->unk154 = 1;
@@ -2742,7 +2742,7 @@ void projectileMatrixRotationUpdate(void) {
         temp_s2->unk0 = gGameFrameCounter;
         if (!--temp_s2->unk10) {
             scriptSetActorRampTarget(gCurrentActor, 0.5f, 0);
-            func_80613C48(gCurrentActor, 0x405, 0, 10.0f);
+            controllerAnimSetStateIfChanged(gCurrentActor, 0x405, 0, 10.0f);
             G_PROJECTILE_ROT_ACTOR->unk154++;
         }
         break;

@@ -695,7 +695,7 @@ s32 patrolPathStep(u8, s32);
 s32 func_80724A20(void);
 s32 currentActorTestClearFlag(void);
 s32 actorSpawn(s32, s32);
-void func_80613C48(Actor *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 void actorCopyPoseAndScale(void *, void *, f32);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 
@@ -730,7 +730,7 @@ void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
                     break;
                 case 2:
                     if (!(R1V->unk60 & 0x2000000)) {
-                        func_80613C48(gCurrentActor, 0xE4, 0.0f, 2.0f);
+                        controllerAnimSetStateIfChanged(gCurrentActor, 0xE4, 0.0f, 2.0f);
                         actorSpawn(0xE1, 0x98);
                         actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.21f);
                         actorGetNodePos(gCurrentActor, 1, &gSpawnedActor->x, &nodeY, &gSpawnedActor->z);
@@ -784,16 +784,16 @@ void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 an
             case 0:
             case 1:
             case 2:
-                func_80613C48(gCurrentActor, animLow, 0.0f, 6.0f);
+                controllerAnimSetStateIfChanged(gCurrentActor, animLow, 0.0f, 6.0f);
                 break;
             case 3:
-                func_80613C48(gCurrentActor, animMid, 0.0f, 6.0f);
+                controllerAnimSetStateIfChanged(gCurrentActor, animMid, 0.0f, 6.0f);
                 break;
             case 4:
-                func_80613C48(gCurrentActor, animHigh, 0.0f, 6.0f);
+                controllerAnimSetStateIfChanged(gCurrentActor, animHigh, 0.0f, 6.0f);
                 break;
             case 5:
-                func_80613C48(gCurrentActor, animMax, 0.0f, 6.0f);
+                controllerAnimSetStateIfChanged(gCurrentActor, animMax, 0.0f, 6.0f);
                 break;
         }
         R1S90->unk34 = val;

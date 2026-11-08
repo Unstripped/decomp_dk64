@@ -24,7 +24,7 @@ extern BossB_ActorBB44 *gSpawnedActor;
 
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void func_80613C48(void *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 
 void bossMadJackSpawnShockwave(f32 scale) {
@@ -32,7 +32,7 @@ void bossMadJackSpawnShockwave(f32 scale) {
     sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x221, 0x80, 0x7F, 1, 0, 0.3f, 0);
     gSpawnedActor->unk80 = gCurrentActor->unk80;
     gSpawnedActor->unk4->unk38 *= scale;
-    func_80613C48(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
+    controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
     scriptSetActorRampTarget(gSpawnedActor, 1.5f, 0.0f);
 }
 
@@ -251,7 +251,7 @@ void bossMadJackStep(void) {
             break;
         case 5:
             if (currentActorTestClearFlag() != 0) {
-                func_80613C48(D_807FBB4C, 0x1C7, 0.0f, 0.0f);
+                controllerAnimSetStateIfChanged(D_807FBB4C, 0x1C7, 0.0f, 0.0f);
                 ACTOR->unk154 = scriptOpcodes[scriptState->unk15++];
                 ACTOR->unk155 = 0;
             }

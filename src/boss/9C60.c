@@ -149,7 +149,7 @@ void bossScriptStep(u8 *, s32, f32);
 void bossRoundFrame(u8 *);
 void screenSetTransitionFadeType(s32);
 void mapRequestTransition(s32, s32);
-void func_80613C48(void *, s32, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
 void actorScriptExecute(BossC_9C60_Actor *);
 void actorScriptStart(BossC_9C60_Actor *, s32);
 s32 camIsCutsceneActive(void);
@@ -292,7 +292,7 @@ void bossKRoolDiddyStep(void) {
             gCurrentActor->unk146 = 5;
             actorScriptStart(gCurrentActor, scriptState->unk14 ? 0x409 : 0x408);
             actorScriptExecute(gCurrentActor);
-            func_80613C48(scriptState->unk0, 0x675, 0.0f, 0.0f);
+            controllerAnimSetStateIfChanged(scriptState->unk0, 0x675, 0.0f, 0.0f);
             gCurrentActor->unk155++;
             break;
         case 2:
@@ -327,7 +327,7 @@ void bossKRoolDiddyStep(void) {
                     gCurrentActor->unk146 = 1;
                     actorScriptStart(gCurrentActor, 0x404);
                     actorScriptExecute(gCurrentActor);
-                    func_80613C48(scriptState->unk0, 0x673, 0.0f, 0.0f);
+                    controllerAnimSetStateIfChanged(scriptState->unk0, 0x673, 0.0f, 0.0f);
                     gCurrentActor->unk155++;
                 }
             }
@@ -344,7 +344,7 @@ void bossKRoolDiddyStep(void) {
             scriptOpcodes = D_80035A60[scriptState->unk14];
             actorScriptStart(gCurrentActor, 0x406);
             actorScriptExecute(gCurrentActor);
-            func_80613C48(scriptState->unk0, 0x674, 0.0f, 0.0f);
+            controllerAnimSetStateIfChanged(scriptState->unk0, 0x674, 0.0f, 0.0f);
             gCurrentActor->unk154 = scriptOpcodes[scriptState->unk15++];
             gCurrentActor->unk155 = 0;
             break;

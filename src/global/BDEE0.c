@@ -411,7 +411,7 @@ typedef struct BDEE0DCA0Tgt {
 
 extern u8 D_8071FB34[];
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void func_80613C48(void *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 s32 playerStateQueueCallback(s32, void *, s32);
 s32 func_8072DCF4(void *, void *, s32);
 
@@ -496,7 +496,7 @@ s32 func_806BA240(u8 action, s16 animId) {
             }
             gCurrentActor->unk144 = 0x24;
             if (animId != 0) {
-                func_80613C48(gCurrentActor, animId, 0.0f, 4.0f);
+                controllerAnimSetStateIfChanged(gCurrentActor, animId, 0.0f, 4.0f);
             }
             p[0] = (-p[0]) * 0.1 + p[0];
             p[1] = (-p[1]) * 0.1 + p[1];

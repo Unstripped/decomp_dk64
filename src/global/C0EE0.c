@@ -83,7 +83,7 @@ void csModelStateSetFirstByte(s16, s32);
 void csModelStateSetByte(s16, s32, s32);
 f32 randomFloat(void);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-void func_80613C48(void *, s32, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
 void controllerApplyMotionWindow(void *, void *, f32);
 void actorUpdateModelMatrix(void *, s32);
 
@@ -397,7 +397,7 @@ void enemyGridStateStep(void) {
         }
         if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {
             if (obj->unk10 != 0x5C3) {
-                func_80613C48(gCurrentActor, 0x5C3, 0.0f, 0.0f);
+                controllerAnimSetStateIfChanged(gCurrentActor, 0x5C3, 0.0f, 0.0f);
             }
             controllerApplyMotionWindow(gCurrentActor, obj, st->unk0 * 40.0f);
         }

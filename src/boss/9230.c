@@ -69,7 +69,7 @@ void bossRoundFrame(u8 *);
 void func_80641874(s32, s32);
 void mapRequestTransition(s32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void func_80613C48(void *, s32, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 void actorScriptStart(Boss2F_9230_Actor *, s32);
 s32 camIsCutsceneActive(void);
@@ -218,7 +218,7 @@ void bossKRoolDkStep(void) {
                 if (gCurrentActor->unk154 == 0x28 || (gCurrentActor->unk154 == 0x2C && (gBehaviourWorkState->unk2E % 3) == 0)) {
                     projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 0x96, 3, (f32)(((f64)scriptState->unk14 * 0.01) + 1.04), 0.0f, 0.0f, 0.0f);
                     sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
-                    func_80613C48(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
+                    controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
                     scriptSetActorRampTarget(gSpawnedActor, 0.5f, 0.0f);
                 }
                 if (gCurrentActor->unk154 == 0x28 || (gCurrentActor->unk154 == 0x2C && gBehaviourWorkState->unk2E == 0)) {

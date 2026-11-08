@@ -183,7 +183,7 @@ s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32);
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void func_80613C48(void *, s32, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 s32 currentActorTestClearFlag(void);
 void func_8072A450(void);
@@ -302,7 +302,7 @@ void bossDogadonStep(void) {
                 } else {
                     sfxPlayAtPositionPooled(MAIN_ACTOR->unk7C, MAIN_ACTOR->unk80, MAIN_ACTOR->unk84, 0x25A, 0xFF, 0x7F, 1, 0, 0.3f, 0);
                 }
-                func_80613C48(SECOND_ACTOR, 0x4F9, 0.0f, 0.0f);
+                controllerAnimSetStateIfChanged(SECOND_ACTOR, 0x4F9, 0.0f, 0.0f);
                 scriptSetActorRampTarget(SECOND_ACTOR, 0.5f, 0.0f);
             } else if (TIMER_STATE->unk2C == 0) {
                 TIMER_STATE->unk2C = phaseState->unk18;

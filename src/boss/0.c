@@ -724,7 +724,7 @@ void bossInitScriptData();
 void bossScriptStep(u8 *, s32, f32);
 void bossSpawnParticleRing();
 s32 randomNonNegative();
-void func_80613C48(void *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void controllerAnimSetState(s32, s16, f32, f32);
 s32 camIsCutsceneActive();
 void camStartPath(void *, s32, s32);
@@ -830,7 +830,7 @@ void bossArmydilloStep(void) {
     }
     switch (gCurrentActor->unk154) {                     /* switch 1 */
     case 0x1F:                                      /* switch 1 */
-        func_80613C48(gCurrentActor, 0x39A, 0.0f, 0.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x39A, 0.0f, 0.0f);
         scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
         gCurrentActor->unk146 = 3;
         gCurrentActor->unk154 = scriptData[state->unk15++];
@@ -948,7 +948,7 @@ void bossArmydilloStep(void) {
         switch (gCurrentActor->unk155) {                          /* switch 4; irregular */
         case 0:                                     /* switch 4 */
             currentActorClearFlag();
-            func_80613C48(gCurrentActor, 0x3AF, 0.0f, 4.0f);
+            controllerAnimSetStateIfChanged(gCurrentActor, 0x3AF, 0.0f, 4.0f);
             gCurrentActor->unk155 = 1;
             /* fallthrough */
         case 1:                                     /* switch 4 */
@@ -1040,7 +1040,7 @@ void bossArmydilloStep(void) {
             if (gCurrentActor->unk6A & 1) {
                 projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 0x96, 7, 1.04f, 40.0f, 8.0f, 600.0f);
                 sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x221, 0xC8, 0x7F, 1, 0, 0.3f, 0);
-                func_80613C48(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
+                controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
                 scriptSetActorRampTarget(gSpawnedActor, 0.5f, 0.0f);
                 sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x24A, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x36, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
@@ -1149,7 +1149,7 @@ void bossArmydilloStep(void) {
                 gCurrentActor->unk155 = 1;
             } else {
                 actorScriptStart(gCurrentActor, 0);
-                func_80613C48(gCurrentActor, 0x3A8, 0.0f, 10.0f);
+                controllerAnimSetStateIfChanged(gCurrentActor, 0x3A8, 0.0f, 10.0f);
                 gCurrentActor->unk155 = 3;
                 gBehaviourWorkState->unk2C = 0x1E;
             }

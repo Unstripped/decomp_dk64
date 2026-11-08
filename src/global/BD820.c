@@ -40,7 +40,7 @@ void func_80714950(s32);
 void func_80714998(s32);
 void func_807149C8(s32, s32, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
-void func_80613C48(Actor *, s32, f32, f32);
+void controllerAnimSetStateIfChanged(Actor *, s32, f32, f32);
 u8 mapHasCollectedSufficientItems(void);
 void modelSlotOrFlags(s32, s32);
 void func_806B8C78(void);
@@ -156,7 +156,7 @@ void func_806B904C(void) {
             BD820A->unk12A = 0x3E8;
             BD820A->unk130 = 0x3C;
             BD820A->unk131 = 0x3C;
-            func_80613C48(gCurrentActor, 0x482, 0.0f, 0.0f);
+            controllerAnimSetStateIfChanged(gCurrentActor, 0x482, 0.0f, 0.0f);
         }
         modelSlotOrFlags(5, 0x10);
         modelSlotOrFlags(7, 0x10);

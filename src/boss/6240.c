@@ -305,7 +305,7 @@ void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void func_80613C48(void *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 void actorScriptStart(void *, s32);
 void camSetTargetFocusActor(s32, void *);
@@ -532,7 +532,7 @@ void bossPufftossStep(void) {
                 }
                 gCurrentActor->unk155 = 6;
             } else {
-                func_80613C48(gCurrentActor, 0x539, 0, 0);
+                controllerAnimSetStateIfChanged(gCurrentActor, 0x539, 0, 0);
                 scriptSetActorRampTarget(gCurrentActor, 0, 0);
                 gCurrentActor->unk155 = 1;
             }
@@ -593,7 +593,7 @@ void bossPufftossStep(void) {
             sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x14A, 0xFF, 0x7F, 0, 0, 0, 0);
             sfxPlayAtPositionPooled(gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0x221, 0xFF, 0x7F, 0, 0, 0, 0);
             projectileSpawnWithShockwave(0xBB, 0.14f, 0xFF, 0x96, 0x64, 6, 1.04f, 40.0f, 8.0f, 600.0f);
-            func_80613C48(gSpawnedActor, 0x4F9, 0, 0);
+            controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0, 0);
             scriptSetActorRampTarget(gSpawnedActor, 0.5f, 0);
             gCurrentActor->unk154 = scriptData[state->unk15++];
             gCurrentActor->unk155 = 0;
@@ -778,7 +778,7 @@ void bossPufftossStep(void) {
                 if (gCurrentActor->unk6E == -1) {
                     sfxPlayActorSound(gCurrentActor, 0x10F, 0, 1, 0, 0xFF, 0.8f, 0);
                 }
-                func_80613C48(gCurrentActor, 0x53D, 0, 24.0f);
+                controllerAnimSetStateIfChanged(gCurrentActor, 0x53D, 0, 24.0f);
             }
             if (gBehaviourWorkState->unkC < gCurrentActor->unk80) {
                 actorScriptStart(gCurrentActor, 0x2D0);

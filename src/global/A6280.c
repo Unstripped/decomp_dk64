@@ -171,7 +171,7 @@ extern s32 D_8071FFA0;
 extern ActorGlobalState D_807FBB70;
 
 s32 flagGet(s16, s32);
-void func_80613C48(Actor *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 void func_80728950(s32);
 void actorSetUniformScale(Actor *, f32);
 void currentActorAnimSetFrame(s32, s32);
@@ -200,11 +200,11 @@ void func_806A1AC4(void) {
         gCurrentActor->flags |= 0x400;
         gCurrentActor->unk12A = 0x3E8;
         if (flagGet(0xFB, 0) != 0) {
-            func_80613C48(gCurrentActor, 0x597, 0.0f, 0.0f);
+            controllerAnimSetStateIfChanged(gCurrentActor, 0x597, 0.0f, 0.0f);
             currentActorAnimSetFrame(0, 0);
             gCurrentActor->state = 3;
         } else {
-            func_80613C48(gCurrentActor, 0x598, 0.0f, 0.0f);
+            controllerAnimSetStateIfChanged(gCurrentActor, 0x598, 0.0f, 0.0f);
             scriptSetActorRampTarget(gCurrentActor, 0.0f, 0.0f);
             gCurrentActor->unk144 = 1;
             gCurrentActor->flags &= ~4;
@@ -278,9 +278,9 @@ s32 camIsCutsceneActive(void);
 
 void actorPlaySoundVariantAndFinish(void) {
     if (camIsCutsceneActive() != 0) {
-        func_80613C48(gCurrentActor, 0x640, 0, 8.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x640, 0, 8.0f);
     } else {
-        func_80613C48(gCurrentActor, 0x63F, 0, 8.0f);
+        controllerAnimSetStateIfChanged(gCurrentActor, 0x63F, 0, 8.0f);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
