@@ -191,7 +191,7 @@ typedef struct BossLayoutData {
     char pad0[0x30];
     f32 unk30;
     char pad34[0x12];
-    u16 unk46;
+    u16 stateFlags;
 } BossLayoutData;
 
 typedef struct BossConfig {
@@ -252,8 +252,8 @@ void bossKutOutStep(void) {
         func_8002C748(0);
         func_8002C748(1);
         gBehaviourAnimState->unk30 = 2.5f;
-        gBehaviourAnimState->unk46 &= 0xFFF7;
-        gBehaviourAnimState->unk46 |= 0x200;
+        gBehaviourAnimState->stateFlags &= 0xFFF7;
+        gBehaviourAnimState->stateFlags |= 0x200;
         A40->unk60 |= 0x400;
         A40->unk132 = 4;
         A40->unk154 = 0x1E;

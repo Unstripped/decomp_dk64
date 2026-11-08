@@ -116,7 +116,7 @@ void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackA
                             tv0 = entry->unk8;
                             tv1 = gActorGlobalState.unk200;
                             if (tv1 < tv0) {
-                                gActorGlobalState.unk1FC = (s32)attacker;
+                                gActorGlobalState.targetActor = (s32)attacker;
                                 gActorGlobalState.unk200 = ((u8 *)res)[i * 12 + 8];
                             }
                             if (gActorGlobalState.unk201 < 0xF) {
@@ -273,7 +273,7 @@ s32 actorCollisionPatternMatches(s16 actorType, s16 actorFlags, s16 pattern) {
 
 void func_80675D70(s32 actor) {
     if (gActorGlobalState.unk200 < 2) {
-        gActorGlobalState.unk1FC = actor;
+        gActorGlobalState.targetActor = actor;
         gActorGlobalState.unk200 = 1;
     }
     if (gActorGlobalState.unk201 < 0xF) {

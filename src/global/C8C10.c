@@ -89,7 +89,7 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
     s16 *durationPtr = R1C8aA->unk178;
 
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->unk46 |= 0x20;
+        gBehaviourAnimState->stateFlags |= 0x20;
         if (camPathId) {
             camStartPath(gCurrentActor, camPathId, 1);
         } else {
@@ -351,7 +351,7 @@ u8 func_806C4AC4(u16 spawnCooldown, u16 maxSpawns) {
     durationPtr = R1C8aA->unk178;
     cooldownPtr = R1C8aA->unk180;
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->unk46 |= 0x20;
+        gBehaviourAnimState->stateFlags |= 0x20;
         gCurrentActor->speedXZ = (f32)(u32)gBehaviourExtraState->unkC;
     }
     {
@@ -519,7 +519,7 @@ void func_806C4F5C(void) {
             if (currentActorTestClearFlag() != 0) {
                 csModelStateSetFirstByte(0x2D, 0x14);
                 LgA->unk12A = 0x3E8;
-                gBehaviourAnimState->unk46 |= 0x24;
+                gBehaviourAnimState->stateFlags |= 0x24;
                 resQueueAttachActor(gCurrentActor, 0xF, 0);
                 actorScriptStart(gCurrentActor, 0x244);
                 LgA->unk154 = 0x27;
@@ -592,7 +592,7 @@ void func_806C4F5C(void) {
                 LgA->unk80 += 3.0f;
                 LgS->unk2E++;
                 if (LgS->unk2E >= 0x83) {
-                    gBehaviourAnimState->unk46 &= 0xFFFB;
+                    gBehaviourAnimState->stateFlags &= 0xFFFB;
                     func_806C4EB4();
                     LgA->unk154 = 0x3C;
                 }
@@ -700,7 +700,7 @@ void func_806C55E0(void) {
     }
     if (!(LA->unk60 & 0x10)) {
         behaviourSetAnimIds(0x357, 0x357, 0x359);
-        gBehaviourAnimState->unk46 |= 0x20;
+        gBehaviourAnimState->stateFlags |= 0x20;
         LA->unk154 = 0x1E;
         LA->unk12A = 0x3E8;
         func_80728950(0);
@@ -757,7 +757,7 @@ void func_806C55E0(void) {
                     break;
                 case 2:
                     camResumePath();
-                    gBehaviourAnimState->unk46 |= 0x24;
+                    gBehaviourAnimState->stateFlags |= 0x24;
                     LA->unk154 = 2;
                     slotQueueSetDisplayMode(5, 0, 1);
                     slotQueueUpdate(5, 1, 0);
@@ -936,7 +936,7 @@ void func_806C5C20(void) {
     behaviourFrameBegin();
     actorClearMovementFlags(gCurrentActor);
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->unk46 |= 0x40;
+        gBehaviourAnimState->stateFlags |= 0x40;
         gCurrentActor->drawDistance = 0xFA;
         func_80724CA4(2, 1);
     }

@@ -3103,7 +3103,7 @@ void projectileFallBounceUpdate(void) {
         gCurrentActor->contactFlags &= 0xFFFE;
     }
     if (gActorGlobalState.unk200 == 5) {
-        sub = ((PlayerActorTrackView *)gActorGlobalState.unk1FC)->unk174;
+        sub = ((PlayerActorTrackView *)gActorGlobalState.targetActor)->unk174;
         if (sub->unk88 != NULL && (sub->unk88->actorType == 0x1D || sub->unk88->actorType == 0x50)) {
             camStartShake(sub->unk104, 0xA, 0x14);
             playerStateQueueCallback(0x34, gCurrentActor, 0);

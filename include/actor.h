@@ -139,7 +139,7 @@ typedef struct ActorGlobalState {
     /* 0x0F4 */ f32 unkF4;
     /* 0x0F8 */ u8 unkF8[0x100];
     /* 0x1F8 */ s32 unk1F8;
-    /* 0x1FC */ s32 unk1FC;
+    /* 0x1FC */ struct Actor *targetActor;
     /* 0x200 */ u8 unk200;
     /* 0x201 */ u8 unk201;
     /* 0x202 */ u8 unk202[2];
@@ -268,7 +268,7 @@ typedef struct BehaviourAnimState {
     /* 0x28 */ s16 animId1;
     /* 0x2A */ s16 animId2;
     /* 0x2C */ u8 pad2C[0x46 - 0x2C];
-    /* 0x46 */ u16 unk46;
+    /* 0x46 */ u16 stateFlags;
 } BehaviourAnimState;
 
 typedef struct BehaviourExtraState {

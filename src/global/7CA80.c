@@ -1773,7 +1773,7 @@ void actorGlobalStateClearEvents(void) {
     gActorGlobalState.unk39 = 0;
     gActorGlobalState.unk91 = 0;
     gActorGlobalState.unk1F8 = 0;
-    gActorGlobalState.unk1FC = 0;
+    gActorGlobalState.targetActor = 0;
     gActorGlobalState.unk200 = 0;
     gActorGlobalState.unk201 = 0;
     gActorGlobalState.unk254 = 0;

@@ -123,7 +123,7 @@ typedef struct Boss3F_52B0_DC94 {
 
 typedef struct Boss3F_52B0_DC98 {
     char pad0[0x46];
-    u16 unk46;
+    u16 stateFlags;
 } Boss3F_52B0_DC98;
 
 extern u8 *D_80035A00[];
@@ -177,7 +177,7 @@ void bossMadJackStep(void) {
     if (!(ACTOR->unk60 & 0x10)) {
         ACTOR->unkCE = 0x64;
         ACTOR->unk15F = 0;
-        gBehaviourAnimState->unk46 |= 0x20;
+        gBehaviourAnimState->stateFlags |= 0x20;
         ACTOR->unk64 |= 4;
         ACTOR->unk144 = 0x24;
         lightSetColor(0.0f, 0.0f, 0.0f, -1);

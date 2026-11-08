@@ -257,18 +257,18 @@ void func_806AE588(void) {
     if ((sel != 0x32) || (gActorGlobalState.unk15 != 0)) {
         if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (sel != 0x37)) {
             if (((B2CE0ActorView134 *)gCurrentActor)->unk134 < -1) {
-                behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x202);
+                behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x202);
                 gCurrentActor->unkC0 = 250.0f;
             } else {
-                behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x201);
+                behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x201);
                 gCurrentActor->unkC0 = 200.0f;
             }
             ((B2CE0View90 *)gBehaviourWorkState)->unk35 = 2;
             gCurrentActor->unk138 &= 0xFFFF7FFF;
         } else if (gActorGlobalState.unk200 == 4) {
-            behaviourSpawnExplosionAndSound(0x1FF, 0x31, gActorGlobalState.unk1FC);
+            behaviourSpawnExplosionAndSound(0x1FF, 0x31, gActorGlobalState.targetActor);
         } else if (gActorGlobalState.unk200 == 5) {
-            behaviourSpawnExplosionAndSound(0x200, 0x32, gActorGlobalState.unk1FC);
+            behaviourSpawnExplosionAndSound(0x200, 0x32, gActorGlobalState.targetActor);
             gCurrentActor->unkC0 = 220.0f;
         }
     }
@@ -426,13 +426,13 @@ void func_806AEE84(void) {
     }
     if (gCurrentActor->unk154 != 0x32 || gActorGlobalState.unk15 != 0) {
         if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->unk154 != 0x37) {
-            behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x2AE);
+            behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2AE);
             gBehaviourWorkState->timer = 0x1C2;
         } else if (gActorGlobalState.unk200 == 4) {
-            behaviourSpawnExplosionAndSound(0x2B2, 0x31, gActorGlobalState.unk1FC, &gActorGlobalState);
+            behaviourSpawnExplosionAndSound(0x2B2, 0x31, gActorGlobalState.targetActor, &gActorGlobalState);
             gCurrentActor->unkB8 = 0.0f;
         } else if (gActorGlobalState.unk200 == 5) {
-            behaviourSpawnExplosionAndSound(0x2B1, 0x31, gActorGlobalState.unk1FC, &gActorGlobalState);
+            behaviourSpawnExplosionAndSound(0x2B1, 0x31, gActorGlobalState.targetActor, &gActorGlobalState);
             gCurrentActor->unkB8 = 0.0f;
         }
     }
@@ -669,7 +669,7 @@ void func_806AFB58(void) {
         gCurrentActor->unkEC = 0x1770;
     }
     if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->unk154 != 0x37)) {
-        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x2DD);
+        behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2DD);
         ((B2CE0View90 *)gBehaviourWorkState)->unk35 = 2;
         gCurrentActor->unk138 &= 0xFFFF7FFF;
     } else if ((gActorGlobalState.unk200 == 4) || (gActorGlobalState.unk200 == 5)) {
@@ -684,7 +684,7 @@ void func_806AFB58(void) {
             effectSpawnActorParticleBurst(2);
         }
         gCurrentActor->unk146 = gCurrentActor->unk146 * 2;
-        behaviourSpawnExplosionAndSound(0x2DC, 0x31, gActorGlobalState.unk1FC);
+        behaviourSpawnExplosionAndSound(0x2DC, 0x31, gActorGlobalState.targetActor);
         ((B2CE0View90 *)gBehaviourWorkState)->unk26 = 0;
         gCurrentActor->unkB8 = 0.0f;
     }
@@ -816,7 +816,7 @@ void func_806B02EC(void) {
 void func_806B0354(void) {
     behaviourFrameBegin();
     if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->unk154 != 0x37) {
-        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x37A);
+        behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x37A);
         gCurrentActor->unk138 &= ~0x8000;
     }
     switch (gCurrentActor->unk154) {
@@ -958,12 +958,12 @@ void func_806B0848(void) {
         behaviourSetAnimIds(0x35E, 0x35F, 0x360);
     }
     if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->unk154 != 0x37) {
-        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x367);
+        behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x367);
         ((B2CE0ActorTail *)gCurrentActor)->unk138 &= 0xFFFF7FFF;
     } else if (gActorGlobalState.unk200 == 4) {
-        behaviourSpawnExplosionAndSound(0x365, 0x31, gActorGlobalState.unk1FC);
+        behaviourSpawnExplosionAndSound(0x365, 0x31, gActorGlobalState.targetActor);
     } else if (gActorGlobalState.unk200 == 5) {
-        behaviourSpawnExplosionAndSound(0x366, 0x31, gActorGlobalState.unk1FC);
+        behaviourSpawnExplosionAndSound(0x366, 0x31, gActorGlobalState.targetActor);
     }
     sel = gCurrentActor->unk154;
     if (sel == 4) {

@@ -204,7 +204,7 @@ void tagBarrelInitPeerState(void) {
         }
     }
     if (gActorGlobalState.unk200 == 4) {
-        sub->unk0 = (Actor *)gActorGlobalState.unk1FC;
+        sub->unk0 = (Actor *)gActorGlobalState.targetActor;
         gCurrentActor->state = 1;
         if (0) {} // FAKE: empty branch steers uopt web colouring (gActorGlobalState address takes v1 not v0)
         sub->unk14 = 0xA;
@@ -1540,7 +1540,7 @@ void transformBarrelUpdate(void) {
         }
         gCurrentActor->state = 1;
         gCurrentActor->unk144 = 1;
-        var_t0->unk4 = (Actor *)gActorGlobalState.unk1FC;
+        var_t0->unk4 = (Actor *)gActorGlobalState.targetActor;
         gCurrentActor->flags |= 0x200000;
         if (!(gGlobalOverlayFlags & 0x2000)) {
             if (var_t0->unk4->collisionFlags & 1) {
@@ -1944,7 +1944,7 @@ void tagBarrelParticleUpdate(void) {
         }
     }
     if (gActorGlobalState.unk200 == 4) {
-        sub->unk0 = (Actor *)gActorGlobalState.unk1FC;
+        sub->unk0 = (Actor *)gActorGlobalState.targetActor;
         gCurrentActor->state = 1;
         gCurrentActor->unk144 = 1;
         gCurrentActor->flags |= 0x400;
@@ -2621,7 +2621,7 @@ void rocketbarrelUpdate(void) {
         var_v1->unk0 = 0xA;
         gCurrentActor->state = 1;
         gCurrentActor->unk144 = 1;
-        var_v1->unk4 = (Actor *)gActorGlobalState.unk1FC;
+        var_v1->unk4 = (Actor *)gActorGlobalState.targetActor;
         gCurrentActor->flags |= 0x200000;
         if ((gCurrentMap == 0x11) || (gCurrentMap == 0xC9) || (gCurrentMap == 0xCC)) {
         } else {
@@ -2854,7 +2854,7 @@ void cannonUpdate(void) {
         if (gActorGlobalState.unk200 == 4) {
             gCurrentActor->state = 2;
             sub->unk0 = 6;
-            sub->unk4 = (Actor *)gActorGlobalState.unk1FC;
+            sub->unk4 = (Actor *)gActorGlobalState.targetActor;
             if (sub->unk2 == 0) {
                 csModelStateSetFirstByte(0x30, 0xA);
                 sub->unk2 = 1;
@@ -3226,7 +3226,7 @@ void tagBarrelStartSelection(struct TagBarrelData *arg0_in) {
     case 0:
     case 0xA:
         if (gActorGlobalState.unk200 == 4) {
-            arg0->unk0 = (Actor *)gActorGlobalState.unk1FC;
+            arg0->unk0 = (Actor *)gActorGlobalState.targetActor;
             arg0->unk0->unk144 = 1;
             ((TagBarrelKongSub *)arg0->unk0->customState)->unk1F0 |= 0x20000000;
             gCurrentActor->unk155[0] = 1;

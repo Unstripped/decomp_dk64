@@ -207,7 +207,7 @@ void func_806C6BC8(void) {
         R1V->unk155 = 0;
         gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
         R1S->unk2E = 0x96;
-        gBehaviourAnimState->unk46 |= 0x60;
+        gBehaviourAnimState->stateFlags |= 0x60;
         hudSpawnCountdownTimer(0xDC, 0x2A, 0x64);
         actorSetStateTwo(gSpawnedActor);
     }

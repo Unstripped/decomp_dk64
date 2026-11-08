@@ -76,7 +76,7 @@ void func_806B1F50(void) {
 
     behaviourFrameBegin();
     if (!(gCurrentActor->unk60 & 0x10)) {
-        gBehaviourAnimState->unk46 |= 0xA0;
+        gBehaviourAnimState->stateFlags |= 0xA0;
         gCurrentActor->unk60 |= 0x400;
         gCurrentActor->unk154 = 0;
         gCurrentActor->unk155 = 0;

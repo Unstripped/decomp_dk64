@@ -79,7 +79,7 @@ typedef struct BossC_6240_BB70 {
     char pad0[0x15];
     u8 unk15;
     char pad16[0x1FC - 0x16];
-    BossC_6240_Sub1FC *unk1FC;
+    BossC_6240_Sub1FC *targetActor;
     u8 unk200;
 } BossC_6240_BB70;
 
@@ -129,7 +129,7 @@ typedef struct BossC_6240_DC98 {
     char pad0[0x30];
     f32 unk30;
     char pad34[0x46 - 0x34];
-    u16 unk46;
+    u16 stateFlags;
 } BossC_6240_DC98;
 
 typedef struct BossC_6240_DC9C {
@@ -383,7 +383,7 @@ void bossPufftossStep(void) {
         gBehaviourAnimState->unk30 = 3.0f;
         gCurrentActor->unkB8 = 0.0f;
         gCurrentActor->unk60 |= 0x800000;
-        gBehaviourAnimState->unk46 |= 0x20;
+        gBehaviourAnimState->stateFlags |= 0x20;
         state->unk1C = 0;
         gCurrentActor->unk154 = scriptData[state->unk15++];
         gCurrentActor->unk155 = 0;
@@ -444,7 +444,7 @@ void bossPufftossStep(void) {
             n_alSndpStop(state->unk1C);
         }
         n_alSndpPlay(D_8076D1F8, sndId, 0x7FFF, 0x3F, 1.0f, 0, &state->unk1C);
-    } else if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (actorTableContains(gActorGlobalState.unk1FC) != 0) && (gActorGlobalState.unk1FC->unk5C == 1)) {
+    } else if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (actorTableContains(gActorGlobalState.targetActor) != 0) && (gActorGlobalState.targetActor->unk5C == 1)) {
         playerSetSizeMode(gPrimaryPlayerActor, 2);
         bossPufftossNotifyLaser(1);
         csModelStateSetFirstByte(0, 0xA);

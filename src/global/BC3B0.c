@@ -172,7 +172,7 @@ void func_806B7EA0(void) {
     c = (BC3B0Cursor *)BC3B0CA->unk178;
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->unk46 |= 0x60;
+        gBehaviourAnimState->stateFlags |= 0x60;
         gGlobalOverlayFlags |= 2;
         hudSpawnCountdownTimer(0xDC, 0x2A, BC3B0CCfg->unkA ? BC3B0CCfg->unkA : 10, &gGlobalOverlayFlags);
         BC3B0S90->unk2E = BC3B0CCfg->unkA != 0 ? 0xF : 0x78;

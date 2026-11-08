@@ -424,7 +424,7 @@ void func_806BE8BC(void) {
     }
     if (!(LgBA->unk60 & 0x10)) {
         func_80724CA4(2, 1);
-        gBehaviourAnimState->unk46 |= 0x20;
+        gBehaviourAnimState->stateFlags |= 0x20;
         actorScriptStart(gCurrentActor, 0x306);
         func_80728950(0);
         LgBA->unk154 = 0x1E;
@@ -446,7 +446,7 @@ void func_806BE8BC(void) {
                 csModelStateSetFirstByte(0x1F, 3);
                 actorClearMovementFlags(gPrimaryPlayerActor);
                 func_80726EE0(1);
-                gBehaviourAnimState->unk46 |= 4;
+                gBehaviourAnimState->stateFlags |= 4;
                 func_806BE674(1);
                 currentActorAnimSetFrame(0, 0);
                 if (sp37 != 0) {

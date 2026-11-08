@@ -249,7 +249,7 @@ void func_806B6DB0(s32 aggroRange) {
         gCurrentActor->speedXZ = ((BB300View9C *)gBehaviourExtraState)->unkC;
     }
     if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
-        tgt = gActorGlobalState.unk1FC;
+        tgt = gActorGlobalState.targetActor;
         ((BB300ActorAlt *)gCurrentActor)->unkC0 = 200.0f;
         behaviourCalculateDamageForce(tgt, 0x236);
         if ((tgt != 0 && ((Actor *)tgt)->actorType == 0x29) || (gCurrentMap == 0x10 && ((BB300View9C *)gBehaviourExtraState)->unk13 < 0x11)) {

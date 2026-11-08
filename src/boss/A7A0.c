@@ -30,7 +30,7 @@ typedef struct BossC_A7A0_BB70 {
     char pad[0x15];
     u8 unk15;
     char pad16[0x1E6];
-    BossC_A7A0_Actor *unk1FC;
+    BossC_A7A0_Actor *targetActor;
     u8 unk200;
 } BossC_A7A0_BB70;
 
@@ -82,7 +82,7 @@ void bossPhaseTick(void) {
         }
     }
     if (((gActorGlobalState.unk15 != 0) || (gActorGlobalState.unk200 == 9)) &&
-        ((other = gActorGlobalState.unk1FC)->unk154 == 0x2B) &&
+        ((other = gActorGlobalState.targetActor)->unk154 == 0x2B) &&
         (other->unk155 == 3)) {
         gCurrentActor->unk154 = 1;
         gCurrentActor->unk155 = 0;

@@ -92,7 +92,7 @@ u16 movementFlags;
         actor = gCurrentActor;
         if (actor->state != 0x37) {
             ((B1F60Actor *)actor)->unkC0 = 200.0f;
-            behaviourCalculateDamageForce(gActorGlobalState.unk1FC, targetId, actor);
+            behaviourCalculateDamageForce(gActorGlobalState.targetActor, targetId, actor);
         }
     }
     if (gCurrentActor->state) {}  // FAKE: raises the actor-type expression's priority so the switch-selector copy colours v0
@@ -243,7 +243,7 @@ void actorSpawnLinkedFollower(void) {
 void func_806AD9F4(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->unk46 |= 0x200;
+        gBehaviourAnimState->stateFlags |= 0x200;
         behaviourSetAnimIds(0x2F4, 0x2F4, 0x2F4);
         if (gCurrentActor->y != gCurrentActor->floorY) {
             gCurrentActor->state = 0x1E;
@@ -252,12 +252,12 @@ void func_806AD9F4(void) {
         }
     }
     if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
-        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x2F7);
+        behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2F7);
         actorSetTargetSpeed(gCurrentActor, 0);
         gCurrentActor->speedXZ = -200.0f;
     } else if (gActorGlobalState.unk200 == 4) {
         gCurrentActor->interactionType = 2;
-        behaviourSpawnExplosionAndSound(0x2F6, 0x27, gActorGlobalState.unk1FC);
+        behaviourSpawnExplosionAndSound(0x2F6, 0x27, gActorGlobalState.targetActor);
         gCurrentActor->speedXZ = gCurrentActor->speedXZ * 2;
         gBehaviourWorkState->timer = 0x1F4;
     }
@@ -317,7 +317,7 @@ void func_806AD9F4(void) {
 void func_806ADDD8(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->unk46 |= 0x40;
+        gBehaviourAnimState->stateFlags |= 0x40;
         ((B1F60View98 *)gBehaviourAnimState)->unk28 = 0x31A;
     }
     switch (gCurrentActor->state) {

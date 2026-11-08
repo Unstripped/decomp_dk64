@@ -117,12 +117,12 @@ void behaviourArmadilloPatrol(void) {
     }
     if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
         gBehaviourWorkState->timer = 0x1388;
-        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x327);
+        behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x327);
         gCurrentActor->callbackMask &= 0xFFFF7FFF;
     } else if (gActorGlobalState.unk200 == 4) {
-        behaviourSpawnExplosionAndSound(0x325, 0x31, gActorGlobalState.unk1FC);
+        behaviourSpawnExplosionAndSound(0x325, 0x31, gActorGlobalState.targetActor);
     } else if (gActorGlobalState.unk200 == 5) {
-        behaviourSpawnExplosionAndSound(0x326, 0x31, gActorGlobalState.unk1FC);
+        behaviourSpawnExplosionAndSound(0x326, 0x31, gActorGlobalState.targetActor);
     }
     switch (gCurrentActor->state) {
     case 0x18:
@@ -634,7 +634,7 @@ u8 pivotZ;
     {
         if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && gCurrentActor->state != 0x37) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1CA, 0xFF, 0x7F, 0x32);
-            behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0);
+            behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0);
             gBehaviourWorkState->timer = 0xA6;
             s1->unk4 = 0x32;
         }
@@ -761,7 +761,7 @@ void behaviourFairyInitPlayerScale(void) {
         gCurrentActor->unk15F = 0;
         gCurrentActor->yaw = mathAngleBetweenPoints2D(gPrimaryPlayerActor->x, gPrimaryPlayerActor->z, gCurrentActor->x, gCurrentActor->z);
         actorScriptStart(gCurrentActor, 0x21B);
-        gBehaviourAnimState->unk46 |= 8;
+        gBehaviourAnimState->stateFlags |= 8;
         ((BDEE0View98 *)gBehaviourAnimState)->unk28 = 0x21C;
     }
     switch (gCurrentActor->state) {

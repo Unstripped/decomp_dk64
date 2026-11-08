@@ -132,7 +132,7 @@ void func_806B13B4(u8 arg0) {
     if (!(gCurrentActor->flags & 0x10)) {
         if (gCurrentMap == 0x43) {
             ((B5EC0View9C *)gBehaviourExtraState)->unkD = 0x82;
-            gBehaviourAnimState->unk46 |= 0x40;
+            gBehaviourAnimState->stateFlags |= 0x40;
         }
         behaviourSetAnimIds(0x205, 0x203, 0x204);
         func_80724CA4(2, 1);
@@ -148,20 +148,20 @@ void func_806B13B4(u8 arg0) {
     if (sel != 0x32 || gActorGlobalState.unk15 != 0) {
         if ((gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) && sel != 0x37) {
             if (((B5EC0Actor *)gCurrentActor)->unk134 < -1) {
-                behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x20C);
+                behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x20C);
                 ((B5EC0Actor *)gCurrentActor)->unkC0 = 250.0f;
             } else {
-                behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x20B);
+                behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x20B);
                 ((B5EC0Actor *)gCurrentActor)->unkC0 = 200.0f;
             }
             ((B5EC0View90 *)gBehaviourWorkState)->unk35 = 2;
             gCurrentActor->callbackMask &= 0xFFFF7FFF;
             sel = gCurrentActor->state;
         } else if (gActorGlobalState.unk200 == 4) {
-            behaviourSpawnExplosionAndSound(0x209, 0x31, gActorGlobalState.unk1FC);
+            behaviourSpawnExplosionAndSound(0x209, 0x31, gActorGlobalState.targetActor);
             sel = gCurrentActor->state;
         } else if (gActorGlobalState.unk200 == 5) {
-            behaviourSpawnExplosionAndSound(0x20A, 0x32, gActorGlobalState.unk1FC);
+            behaviourSpawnExplosionAndSound(0x20A, 0x32, gActorGlobalState.targetActor);
             ((B5EC0Actor *)gCurrentActor)->unkC0 = 220.0f;
             gCurrentActor->interactionType = 8;
             sel = gCurrentActor->state;

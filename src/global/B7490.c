@@ -109,8 +109,8 @@ void func_806B2790(void) {
 
     behaviourFrameBegin();
     if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
-        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x2E1);
-        gBehaviourAnimState->unk46 |= 8;
+        behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2E1);
+        gBehaviourAnimState->stateFlags |= 8;
     }
     effectSpawnSparks(0x1F, 0);
     st = gCurrentActor->state;
@@ -219,10 +219,10 @@ void func_806B2D64(void) {
     behaviourFrameBegin();
     effectSpawnSparks(0x1F, 2);
     if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x37)) {
-        gBehaviourAnimState->unk46 |= 8;
-        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, 0x2E7);
+        gBehaviourAnimState->stateFlags |= 8;
+        behaviourCalculateDamageForce(gActorGlobalState.targetActor, 0x2E7);
     } else if (gActorGlobalState.unk200 == 4) {
-        behaviourSpawnExplosionAndSound(0x2E5, 0x31, gActorGlobalState.unk1FC, &gActorGlobalState);
+        behaviourSpawnExplosionAndSound(0x2E5, 0x31, gActorGlobalState.targetActor, &gActorGlobalState);
         gCurrentActor->speedXZ = 0.0f;
     }
     st = gCurrentActor->state;
@@ -627,7 +627,7 @@ void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2
     }
     st = gCurrentActor->state;
     if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (st != 0x37)) {
-        behaviourCalculateDamageForce(gActorGlobalState.unk1FC, animId1);
+        behaviourCalculateDamageForce(gActorGlobalState.targetActor, animId1);
         B7490A->unkC0 = 300.0f;
         *heightTarget = 0;
         gBehaviourWorkState->timer = 0x2BC;
@@ -837,7 +837,7 @@ void behaviourEnemyBatUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->flags = gCurrentActor->flags | 0x400;
-        gBehaviourAnimState->unk46 = gBehaviourAnimState->unk46 | 0x40;
+        gBehaviourAnimState->stateFlags = gBehaviourAnimState->stateFlags | 0x40;
         gCurrentActor->tintR = 0xFA;
         gCurrentActor->tintG = 0xFA;
         gCurrentActor->tintB = 0xFA;
@@ -932,8 +932,8 @@ void behaviourEnemyFlyIdle(void) {
 void behaviourEnemyFlySwoop(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->unk46 = gBehaviourAnimState->unk46 | 0x60;
-        gBehaviourAnimState->unk46 = gBehaviourAnimState->unk46 & 0xFFF7;
+        gBehaviourAnimState->stateFlags = gBehaviourAnimState->stateFlags | 0x60;
+        gBehaviourAnimState->stateFlags = gBehaviourAnimState->stateFlags & 0xFFF7;
         gCurrentActor->speedXZ = (f32) (((randomNonNegative() >> 15) % 100) + 0x12C);
         gCurrentActor->y += (f32) ((randomNonNegative() >> 15) % 30);
         gCurrentActor->flags = gCurrentActor->flags & 0xFFFF7FFF;
@@ -1006,8 +1006,8 @@ void behaviourEnemyFlyReturn(void) {
         sfxPlayFromActorWithAltitudeCheck(gPrimaryPlayerActor, 0x16, 0xFF, 0x7F, 0x1E);
     }
     if (!(gCurrentActor->flags & 0x10)) {
-        gBehaviourAnimState->unk46 = gBehaviourAnimState->unk46 | 0x20;
-        gBehaviourAnimState->unk46 = gBehaviourAnimState->unk46 & 0xFFF7;
+        gBehaviourAnimState->stateFlags = gBehaviourAnimState->stateFlags | 0x20;
+        gBehaviourAnimState->stateFlags = gBehaviourAnimState->stateFlags & 0xFFF7;
         gCurrentActor->speedXZ = 40.0f;
         gCurrentActor->state = 0x23;
         gCurrentActor->unk155[0] = 0;

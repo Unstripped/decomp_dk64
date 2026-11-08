@@ -131,7 +131,7 @@ void bonusControllerUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
         hasMessage = 0;
         currentActorClearFlag();
-        gBehaviourAnimState->unk46 |= 0x80;
+        gBehaviourAnimState->stateFlags |= 0x80;
         slotQueueSetDisplayMode(2, 0, 1);
         slotQueueSetDisplayMode(5, 0, 1);
         slotQueueSetDisplayMode(4, 0, 2);

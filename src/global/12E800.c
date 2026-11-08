@@ -285,7 +285,7 @@ typedef struct D1Dc98ViewC {
     /* 0x34 */ u8 pad34[0x10];
     /* 0x44 */ u8 unk44;
     /* 0x45 */ u8 pad45;
-    /* 0x46 */ u16 unk46;
+    /* 0x46 */ u16 stateFlags;
 } D1Dc98ViewC;
 
 #define D1DC98C ((D1Dc98ViewC *)gBehaviourAnimState)
@@ -301,7 +301,7 @@ void behaviourUpdateShadowAlpha(void) {
     ActorSub4 *sub;
 
     if (!(gCurrentActor->flags & 0x1000000) && (gCurrentActor->flags & 4)) {
-        if (!(D1DC98C->unk46 & 0x100)) {
+        if (!(D1DC98C->stateFlags & 0x100)) {
             a = (u32)((f64)gCurrentActor->alpha * 0.7);
             sub = gCurrentActor->sub4;
             e = &D_8075EB80[D1DC98C->unk44];
@@ -784,7 +784,7 @@ typedef struct F1Dc98 {
     /* 0x2C */ u8 pad2C[0xC];
     /* 0x38 */ f32 unk38;
     /* 0x3C */ u8 pad3C[0xA];
-    /* 0x46 */ u16 unk46;
+    /* 0x46 */ u16 stateFlags;
 } F1Dc98;
 
 typedef struct F1Dc9c {
@@ -870,8 +870,8 @@ void behaviourUpdateContactAndState(s32 arg0) {
     actorUpdatePrevContactFlags(gCurrentActor);
     switch (F1A->unk154) {
         case 9:
-            F1S98->unk46 |= 0x2040;
-            F1S98->unk46 &= 0xFFF7;
+            F1S98->stateFlags |= 0x2040;
+            F1S98->stateFlags &= 0xFFF7;
             F1S90->unk22 = 0x64;
             F1A->unk154 = 1;
             F1A->unk155 = 0;
@@ -1926,5 +1926,5 @@ void func_8072E320(f32 arg0) {
 }
 
 u8 behaviourCheckRandomAnimTrigger(void) {
-    return !(gBehaviourAnimState->unk46 & 0x2000) && (((randomNonNegative() >> 15) % 1000) >= 0x3E4);
+    return !(gBehaviourAnimState->stateFlags & 0x2000) && (((randomNonNegative() >> 15) % 1000) >= 0x3E4);
 }
