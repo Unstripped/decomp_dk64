@@ -139,14 +139,14 @@ void screenWipeStart(s32);
 void func_80714638(void);
 void renderCallbacksRegister(void *, void *, s32);
 
-s32 hudFindItemIndex(s8 arg0) {
+s32 hudFindItemIndex(s8 itemId) {
     s32 i;
 
-    if (arg0 == D_80750560[0]) {
+    if (itemId == D_80750560[0]) {
         return 0;
     }
     for (i = 1; i < 9; i++) {
-        if (arg0 == D_80750560[i]) {
+        if (itemId == D_80750560[i]) {
             return i;
         }
     }
@@ -1030,8 +1030,8 @@ s32 flagGridSumRows(s32, s32, s32, s32);
 void hudPauseMenuSpawnIcon(HudEntry *, s32, s32, s32, f32, u8, s32);
 void hudPauseMenuAddCounter(HudEntry *, s16, s16, s16, s16, s32, s32, s32);
 
-void hudPauseMenuBuildPage(arg0, arg1)
-    HudEntry *arg0;
+void hudPauseMenuBuildPage(iconObj, arg1)
+    HudEntry *iconObj;
     s32 arg1;
 {
     s32 saved;
@@ -1054,7 +1054,7 @@ void hudPauseMenuBuildPage(arg0, arg1)
     s32 cnt;
     HudPausePage *hud;
 
-    hud = (HudPausePage *)arg0;
+    hud = (HudPausePage *)iconObj;
     saved = gPlayerCharacterId;
     e2 = HUD_PAUSE_COUNT(func_806C8DE0(0));
     gPlayerCharacterId = hud->unk14;
@@ -1078,37 +1078,37 @@ void hudPauseMenuBuildPage(arg0, arg1)
             idx = 7;
         }
         if (idx != 7 && flagGet(0x18B, 0)) {
-            hudPauseMenuAddCounter(arg0, 0x1E, 0x1E, 0xC, -0xA, e2->unkA[idx], 1, 0);
-            hudPauseMenuSpawnIcon(arg0, 0, 0x1E, 0x1E, 0.75f, 2, 1);
+            hudPauseMenuAddCounter(iconObj, 0x1E, 0x1E, 0xC, -0xA, e2->unkA[idx], 1, 0);
+            hudPauseMenuSpawnIcon(iconObj, 0, 0x1E, 0x1E, 0.75f, 2, 1);
         }
         if (flagGet(0x184, 0)) {
-            hudPauseMenuAddCounter(arg0, 0x1E, 0x5A, 0xC, -0xA, D_807FCC44, 1, 1);
-            hudPauseMenuSpawnIcon(arg0, 4, 0x1E, 0x5A, 0.75f, 2, 1);
+            hudPauseMenuAddCounter(iconObj, 0x1E, 0x5A, 0xC, -0xA, D_807FCC44, 1, 1);
+            hudPauseMenuSpawnIcon(iconObj, 4, 0x1E, 0x5A, 0.75f, 2, 1);
         }
         if (e2->unk2 != 0) {
-            hudPauseMenuAddCounter(arg0, 0x1E, 0x7D, 0xC, -0xA, D_807FCC40, 1, 1);
-            hudPauseMenuSpawnIcon(arg0, 2, 0x1E, 0x7D, 0.65f, 2, 1);
+            hudPauseMenuAddCounter(iconObj, 0x1E, 0x7D, 0xC, -0xA, D_807FCC40, 1, 1);
+            hudPauseMenuSpawnIcon(iconObj, 2, 0x1E, 0x7D, 0.65f, 2, 1);
         }
         if (func_806F6E58(gPlayerCharacterId)) {
             f = slotQueueGetCountStep(5);
-            hudPauseMenuAddCounter(arg0, 0x1E, 0xA0, 0xC, -0xA, (s32)floatCeil((f32)(u32)D_807FCC46 / f), 1, 1);
-            hudPauseMenuSpawnIcon(arg0, 5, 0x1E, 0xA0, 0.65f, 2, 1);
+            hudPauseMenuAddCounter(iconObj, 0x1E, 0xA0, 0xC, -0xA, (s32)floatCeil((f32)(u32)D_807FCC46 / f), 1, 1);
+            hudPauseMenuSpawnIcon(iconObj, 5, 0x1E, 0xA0, 0.65f, 2, 1);
         }
         if (flagGet(0x18C, 0)) {
-            hudPauseMenuAddCounter(arg0, 0x122, 0x5A, -0xF, -0xA, e2->unk6, 1, 0x80);
-            hudPauseMenuSpawnIcon(arg0, 1, 0x122, 0x5A, 0.75f, 2, 1);
+            hudPauseMenuAddCounter(iconObj, 0x122, 0x5A, -0xF, -0xA, e2->unk6, 1, 0x80);
+            hudPauseMenuSpawnIcon(iconObj, 1, 0x122, 0x5A, 0.75f, 2, 1);
         }
         if (ent->unk4 & 1) {
-            hudPauseMenuAddCounter(arg0, 0x122, 0x7D, -0xC, -0xA, ent->unk8, 2, 0x81);
-            hudPauseMenuSpawnIcon(arg0, 7, 0x122, 0x7D, 0.75f, 2, 7);
+            hudPauseMenuAddCounter(iconObj, 0x122, 0x7D, -0xC, -0xA, ent->unk8, 2, 0x81);
+            hudPauseMenuSpawnIcon(iconObj, 7, 0x122, 0x7D, 0.75f, 2, 7);
         }
         if (flagGet(0x179, 0)) {
-            hudPauseMenuAddCounter(arg0, 0x122, 0xA0, -0xC, -0xA, D_807FCC48, 1, 0x81);
-            hudPauseMenuSpawnIcon(arg0, 6, 0x122, 0xA0, 0.65f, 2, 1);
+            hudPauseMenuAddCounter(iconObj, 0x122, 0xA0, -0xC, -0xA, D_807FCC48, 1, 0x81);
+            hudPauseMenuSpawnIcon(iconObj, 6, 0x122, 0xA0, 0.65f, 2, 1);
         }
         if (D_807FC828 > 0) {
-            hudPauseMenuAddCounter(arg0, 0x91, 0xBE, 0xF, -0xA, D_807FC828, 1, 0);
-            hudPauseMenuSpawnIcon(arg0, 9, 0x91, 0xBE, 1.0f, 2, 1);
+            hudPauseMenuAddCounter(iconObj, 0x91, 0xBE, 0xF, -0xA, D_807FC828, 1, 0);
+            hudPauseMenuSpawnIcon(iconObj, 9, 0x91, 0xBE, 1.0f, 2, 1);
         }
         gPlayerCharacterId = hud->unk14;
         break;
@@ -1116,8 +1116,8 @@ void hudPauseMenuBuildPage(arg0, arg1)
         if (idx != 7) {
             i = idx;
             if (idx != 8) {
-                hudPauseMenuAddCounter(arg0, 0x1E, 0x2A, 0xC, -0xA, ent->unkA[idx] + ent->unk26[idx], 2, 0);
-                hudPauseMenuSpawnIcon(arg0, 0, 0x1E, 0x2A, 0.75f, 2, 2);
+                hudPauseMenuAddCounter(iconObj, 0x1E, 0x2A, 0xC, -0xA, ent->unkA[idx] + ent->unk26[idx], 2, 0);
+                hudPauseMenuSpawnIcon(iconObj, 0, 0x1E, 0x2A, 0.75f, 2, 2);
             } else {
                 i = 7;
             }
@@ -1127,9 +1127,9 @@ void hudPauseMenuBuildPage(arg0, arg1)
                 } else {
                     D_807FC80F = flagGridSumRows(0x225, i, i, gPlayerCharacterId);
                 }
-                hudPauseMenuSpawnIcon(arg0, 0xA, 0x113, 0x7D, 0.75f, 2, 2);
+                hudPauseMenuSpawnIcon(iconObj, 0xA, 0x113, 0x7D, 0.75f, 2, 2);
                 if (flagGridSumRows(0x225, i, i, gPlayerCharacterId)) {
-                    hudPauseMenuSpawnIcon(arg0, (s32)&D_80721518, 0x113, 0x7D, 0.35f, 2, 0xD);
+                    hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721518, 0x113, 0x7D, 0.35f, 2, 0xD);
                 }
             }
         }
@@ -1140,12 +1140,12 @@ void hudPauseMenuBuildPage(arg0, arg1)
                 } else {
                     s = &D_807211D0;
                 }
-                hudPauseMenuSpawnIcon(arg0, (s32)s, i, i, 0.75f, 2, 0xA);
-                hudPauseMenuSpawnIcon(arg0, (s32)s, i + 5, i + 5, 0.75f, 2, 0xA);
+                hudPauseMenuSpawnIcon(iconObj, (s32)s, i, i, 0.75f, 2, 0xA);
+                hudPauseMenuSpawnIcon(iconObj, (s32)s, i + 5, i + 5, 0.75f, 2, 0xA);
             }
         }
         if (idx != 8) {
-            hudPauseMenuSpawnIcon(arg0, 9, 0x91, 0xCB, 1.0f, 2, 2);
+            hudPauseMenuSpawnIcon(iconObj, 9, 0x91, 0xCB, 1.0f, 2, 2);
             sum = 0;
             for (i = 0; i < 5; i++) {
                 if (flagGridSumRows(0x1D5, 0, 7, i)) {
@@ -1155,18 +1155,18 @@ void hudPauseMenuBuildPage(arg0, arg1)
             if (sum) {
                 D_807FC80F = flagGet(flagGridIndex(0x1D5, idx, gPlayerCharacterId), 0);
                 i = 0;
-                hudPauseMenuSpawnIcon(arg0, 0xC, 0x26, 0x7D, 0.75f, 2, 2);
+                hudPauseMenuSpawnIcon(iconObj, 0xC, 0x26, 0x7D, 0.75f, 2, 2);
                 if (flagGet(flagGridIndex(0x1FD, idx, gPlayerCharacterId), 0)) {
-                    hudPauseMenuSpawnIcon(arg0, (s32)&D_80721518, 0x26, 0x7D, 0.35f, 2, 0xD);
+                    hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721518, 0x26, 0x7D, 0.35f, 2, 0xD);
                 }
             }
         }
         if (arg1 == 0) {
             hud->unk10 = D_807505A4[hud->unk14];
-            hudPauseMenuSpawnIcon(arg0, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
+            hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
             if (D_807505D0 > 0) {
-                hudPauseMenuSpawnIcon(arg0, (s32)&D_80720D80, 0xA0, 0x19, 0.5f, 2, 0xB);
-                hudPauseMenuSpawnIcon(arg0, (s32)&D_80720D5C, 0xA0, 0x19, 0.5f, 2, 0xC);
+                hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D80, 0xA0, 0x19, 0.5f, 2, 0xB);
+                hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D5C, 0xA0, 0x19, 0.5f, 2, 0xC);
             }
         }
         break;
@@ -1193,8 +1193,8 @@ void hudPauseMenuBuildPage(arg0, arg1)
         if (idx != 7) {
             j = idx;
             if (idx != 8) {
-                hudPauseMenuAddCounter(arg0, 0x24, 0x2A, 0xC, -0xA, sum, 1, 0);
-                hudPauseMenuSpawnIcon(arg0, (s32)&D_80721474, 0x24, 0x2A, 0.75f, 2, 1);
+                hudPauseMenuAddCounter(iconObj, 0x24, 0x2A, 0xC, -0xA, sum, 1, 0);
+                hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721474, 0x24, 0x2A, 0.75f, 2, 1);
             } else {
                 j = 7;
             }
@@ -1205,46 +1205,46 @@ void hudPauseMenuBuildPage(arg0, arg1)
                 } else {
                     D_807FC80F = flagGridSumRows(0x225, j, j, i);
                 }
-                hudPauseMenuSpawnIcon(arg0, 0xA, D_807505A4[i], 0, 0.75f, 2, 3);
+                hudPauseMenuSpawnIcon(iconObj, 0xA, D_807505A4[i], 0, 0.75f, 2, 3);
                 if (flagGridSumRows(0x225, j, j, i)) {
-                    hudPauseMenuSpawnIcon(arg0, (s32)&D_80721518, D_807505A4[i], 0, 0.35f, 2, 0xE);
+                    hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721518, D_807505A4[i], 0, 0.35f, 2, 0xE);
                 }
                 i++;
             } while (i != 5);
             if (D_807FC82A > 0) {
                 D_807FC80F = flagGet(D_807505B8[idx], 0);
-                hudPauseMenuSpawnIcon(arg0, (s32)&D_807210EC, 0xA0, 0x78, 1.0f, 2, 4);
+                hudPauseMenuSpawnIcon(iconObj, (s32)&D_807210EC, 0xA0, 0x78, 1.0f, 2, 4);
             }
             if (flagGet(0x179, 0)) {
                 D_807FC80F = found[0];
-                hudPauseMenuSpawnIcon(arg0, (s32)&D_80721094, 0x3C, 0x78, 1.0f, 2, 6);
+                hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721094, 0x3C, 0x78, 1.0f, 2, 6);
                 D_807FC80F = found[1];
-                hudPauseMenuSpawnIcon(arg0, (s32)&D_80721094, 0x104, 0x78, 1.0f, 2, 6);
+                hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721094, 0x104, 0x78, 1.0f, 2, 6);
             }
         } else {
             if (D_807FC82A > 0) {
                 D_807FC80F = flagGet(D_807505B8[idx], 0);
-                hudPauseMenuSpawnIcon(arg0, (s32)&D_807210EC, 0xA0, 0x55, 1.0f, 2, 4);
+                hudPauseMenuSpawnIcon(iconObj, (s32)&D_807210EC, 0xA0, 0x55, 1.0f, 2, 4);
                 D_807FC80F = flagGet(D_807505CA, 0);
-                hudPauseMenuSpawnIcon(arg0, (s32)&D_807210EC, 0xA0, 0x91, 1.0f, 2, 4);
+                hudPauseMenuSpawnIcon(iconObj, (s32)&D_807210EC, 0xA0, 0x91, 1.0f, 2, 4);
             }
             if (flagGet(0x179, 0)) {
                 D_807FC80F = found[0];
-                hudPauseMenuSpawnIcon(arg0, (s32)&D_80721094, 0x3C, 0x5A, 1.0f, 2, 6);
+                hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721094, 0x3C, 0x5A, 1.0f, 2, 6);
                 D_807FC80F = found[1];
-                hudPauseMenuSpawnIcon(arg0, (s32)&D_80721094, 0x46, 0x96, 1.0f, 2, 6);
+                hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721094, 0x46, 0x96, 1.0f, 2, 6);
                 D_807FC80F = found[2];
-                hudPauseMenuSpawnIcon(arg0, (s32)&D_80721094, 0x104, 0x5A, 1.0f, 2, 6);
+                hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721094, 0x104, 0x5A, 1.0f, 2, 6);
                 D_807FC80F = found[3];
-                hudPauseMenuSpawnIcon(arg0, (s32)&D_80721094, 0xFA, 0x96, 1.0f, 2, 6);
+                hudPauseMenuSpawnIcon(iconObj, (s32)&D_80721094, 0xFA, 0x96, 1.0f, 2, 6);
             }
         }
         if (idx != 8) {
-            hudPauseMenuSpawnIcon(arg0, 9, 0x91, 0xCB, 1.0f, 2, 2);
+            hudPauseMenuSpawnIcon(iconObj, 9, 0x91, 0xCB, 1.0f, 2, 2);
         }
         if (arg1 == 0 && D_807505D0 > 0) {
-            hudPauseMenuSpawnIcon(arg0, (s32)&D_80720D80, 0xA0, 0x19, 0.5f, 2, 0xB);
-            hudPauseMenuSpawnIcon(arg0, (s32)&D_80720D5C, 0xA0, 0x19, 0.5f, 2, 0xC);
+            hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D80, 0xA0, 0x19, 0.5f, 2, 0xB);
+            hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D5C, 0xA0, 0x19, 0.5f, 2, 0xC);
         }
         break;
     case 3:
@@ -1266,24 +1266,24 @@ void hudPauseMenuBuildPage(arg0, arg1)
                     f = 1.0f;
                     flag = 8;
                 }
-                hudPauseMenuSpawnIcon(arg0, (s32)D_807505D8[i], x, 0, f, 2, flag);
+                hudPauseMenuSpawnIcon(iconObj, (s32)D_807505D8[i], x, 0, f, 2, flag);
                 x += D_807FC83A;
                 D_807FC818[cnt] = i;
                 cnt++;
             }
         }
         hud->unk10 = D_807FC83A * D_807FC80C;
-        hudPauseMenuSpawnIcon(arg0, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
+        hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720C34, 0xA0, 0x78, 0.75f, 2, 0);
         break;
     }
     if (arg1 == 0 && D_807FC828 > 0) {
-        hudPauseMenuSpawnIcon(arg0, (s32)&D_80720D38, 0x2D, 0xC8, 1.0f, 2, 1);
-        hudPauseMenuSpawnIcon(arg0, (s32)&D_8072104C, 0x113, 0xC8, 1.0f, 2, 1);
+        hudPauseMenuSpawnIcon(iconObj, (s32)&D_80720D38, 0x2D, 0xC8, 1.0f, 2, 1);
+        hudPauseMenuSpawnIcon(iconObj, (s32)&D_8072104C, 0x113, 0xC8, 1.0f, 2, 1);
     }
     gPlayerCharacterId = saved;
 }
 
-void hudPauseMenuSpawnIcon(HudEntry *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, u8 arg5, s32 arg6) {
+void hudPauseMenuSpawnIcon(HudEntry *iconObj, s32 arg1, s32 arg2, s32 arg3, f32 arg4, u8 arg5, s32 arg6) {
     HudTextObj *obj;
     f32 *buf;
     f32 dx;
@@ -1294,7 +1294,7 @@ void hudPauseMenuSpawnIcon(HudEntry *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg
     func_80714998(arg5);
     func_8071495C();
     func_807149FC(-1);
-    func_80714950(arg0);
+    func_80714950(iconObj);
     func_8071498C(hudPauseMenuIconUpdate);
     func_80714A28(0x101);
     if (arg1 < 0) {
@@ -1315,7 +1315,7 @@ void hudPauseMenuSpawnIcon(HudEntry *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg
         obj->unk360 = -obj->unk360;
     }
     buf[0] = arg6;
-    buf[1] = arg0->unk15;
+    buf[1] = iconObj->unk15;
     buf[2] = obj->unk340;
     buf[3] = obj->unk344;
     switch (arg6) {
@@ -1368,7 +1368,7 @@ void hudPauseMenuSpawnIcon(HudEntry *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg
     D_807FC80F = 1;
 }
 
-void hudPauseMenuAddCounter(HudEntry *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s32 arg5, s32 arg6, s32 arg7) {
+void hudPauseMenuAddCounter(HudEntry *iconObj, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s32 arg5, s32 arg6, s32 arg7) {
     s32 pad;
     s32 idx;
     s32 pad2;
@@ -1401,8 +1401,8 @@ void hudPauseMenuAddCounter(HudEntry *arg0, s16 arg1, s16 arg2, s16 arg3, s16 ar
         arg3 -= textGetStringWidth(1, buf);
     }
     D_807FC810 = textGetStringWidth(1, buf);
-    idx = D_807FC7F8[arg0->unk15];
-    list = D_807FC7F0[arg0->unk15];
+    idx = D_807FC7F8[iconObj->unk15];
+    list = D_807FC7F0[iconObj->unk15];
     len = sqrtf((640.0f - (f32)(arg1 * 4)) * (640.0f - (f32)(arg1 * 4)) + (480.0f - (f32)(arg2 * 4)) * (480.0f - (f32)(arg2 * 4)));
     list[idx].unk0 = -((640.0f - (f32)(arg1 * 4)) / len) * (1040.0f - len);
     list[idx].unk4 = -((480.0f - (f32)(arg2 * 4)) / len) * (1040.0f - len);
@@ -1415,10 +1415,10 @@ void hudPauseMenuAddCounter(HudEntry *arg0, s16 arg1, s16 arg2, s16 arg3, s16 ar
         list[idx].unk11[i] = buf[i];
     }
     list[idx].unk11[i] = 0;
-    D_807FC7F8[arg0->unk15]++;
+    D_807FC7F8[iconObj->unk15]++;
 }
 
-Gfx *hudDrawItemLabel(Gfx *dl, HudEntry *arg1, s32 arg2) {
+Gfx *hudDrawItemLabel(Gfx *dl, HudEntry *entry, s32 itemIndex) {
     u8 padHi[0xC];
     s32 col;
     void *tex;
@@ -1426,10 +1426,10 @@ Gfx *hudDrawItemLabel(Gfx *dl, HudEntry *arg1, s32 arg2) {
     s32 y2;
     s32 y;
 
-    y = arg1->unkC[arg2] * 4;
-    tex = D_807FC7E8[D_80750560[arg1->unk8[arg2]]];
-    if (arg1->unk12 == 1) {
-        col = arg1->unk14;
+    y = entry->unkC[itemIndex] * 4;
+    tex = D_807FC7E8[D_80750560[entry->unk8[itemIndex]]];
+    if (entry->unk12 == 1) {
+        col = entry->unk14;
     } else {
         col = 5;
     }
@@ -1440,7 +1440,7 @@ Gfx *hudDrawItemLabel(Gfx *dl, HudEntry *arg1, s32 arg2) {
     return dl;
 }
 
-Gfx *hudDrawScaledText(Gfx *dl, s16 arg1, s16 arg2, f32 scale, void *arg4) {
+Gfx *hudDrawScaledText(Gfx *dl, s16 x, s16 y, f32 scale, void *text) {
     f32 m1[4][4];
     f32 m2[4][4];
     Mtx *mtx;
@@ -1448,18 +1448,18 @@ Gfx *hudDrawScaledText(Gfx *dl, s16 arg1, s16 arg2, f32 scale, void *arg4) {
     mtx = heapAlloc(0x40);
     heapFreeDeferred(mtx);
     guScaleF(m1, scale, scale, 1.0f);
-    guTranslateF(m2, arg1, arg2, 0.0f);
+    guTranslateF(m2, x, y, 0.0f);
     guMtxCatF(m1, m2, m1);
     guMtxF2L(m1, mtx);
     HUD_WRITE_GFX(dl++, 0xDA380002, (u32)mtx);
-    dl = textDrawStringVtx(dl, 1, 0, 0, arg4, 0x80);
+    dl = textDrawStringVtx(dl, 1, 0, 0, text, 0x80);
     HUD_WRITE_GFX(dl++, 0xD8380002, 0x40);
     return dl;
 }
 
 extern s8 D_807FC7F9;
 
-s32 hudPauseMenuSlidePage(HudEntry *arg0, s32 arg1, s32 arg2) {
+s32 hudPauseMenuSlidePage(HudEntry *iconObj, s32 arg1, s32 arg2) {
     s32 dir;
     s32 idx;
     s32 v;
@@ -1473,39 +1473,39 @@ s32 hudPauseMenuSlidePage(HudEntry *arg0, s32 arg1, s32 arg2) {
             dir = -1;
         }
         if (dir != 0) {
-            idx = arg0->unk15;
-            v = arg0->unk8[idx] + dir;
+            idx = iconObj->unk15;
+            v = iconObj->unk8[idx] + dir;
             if (v < 0) {
                 v = D_807505D0;
             }
             if (D_807505D0 < v) {
                 v = 0;
             }
-            if (v != arg0->unk8[idx]) {
-                arg0->unk15 = 1 - idx;
-                arg0->unk8[arg0->unk15] = v;
-                arg0->unkC[arg0->unk15] = dir * 0xFA;
-                hudPauseMenuBuildPage(arg0, 0, idx);
+            if (v != iconObj->unk8[idx]) {
+                iconObj->unk15 = 1 - idx;
+                iconObj->unk8[iconObj->unk15] = v;
+                iconObj->unkC[iconObj->unk15] = dir * 0xFA;
+                hudPauseMenuBuildPage(iconObj, 0, idx);
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
         }
     }
     if (arg1 != 0) {
-        d = arg0->unkC[arg0->unk15];
-        if (arg0->unk8[arg0->unk15]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        d = iconObj->unkC[iconObj->unk15];
+        if (iconObj->unk8[iconObj->unk15]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (d >= 0x15) {
             d = 0x14;
         }
         if (d < -0x14) {
             d = -0x14;
         }
-        arg0->unkC[0] -= d;
-        if (arg0->unk8[arg0->unk15]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        if (arg0->unkC[arg0->unk15]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        arg0->unkC[1] -= d;
-        if (arg0->unkC[arg0->unk15] == 0) {
-            arg0->unk8[1 - arg0->unk15] = arg0->unk8[arg0->unk15];
-            (&D_807FC7F9)[-arg0->unk15] = 0;
+        iconObj->unkC[0] -= d;
+        if (iconObj->unk8[iconObj->unk15]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        if (iconObj->unkC[iconObj->unk15]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
+        iconObj->unkC[1] -= d;
+        if (iconObj->unkC[iconObj->unk15] == 0) {
+            iconObj->unk8[1 - iconObj->unk15] = iconObj->unk8[iconObj->unk15];
+            (&D_807FC7F9)[-iconObj->unk15] = 0;
             arg1 = 0;
             sfxPlayOnFreeSlot(0x97, 0x4650, 63.0f, 1.0f, 0, 0);
             D_8075052C = 3;
@@ -1615,22 +1615,22 @@ extern f32 D_807FC890[];
 extern u8 D_8075054C[][4];
 extern s32 gFrameCounter;
 
-void hudPauseMenuIconUpdate(HudIconObj *arg0, s8 *arg1) {
+void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *param) {
     HudIconSource *src;
     HudIconState *item;
     f32 t;
     f32 sc;
     s32 type;
-    s32 sp40;
+    s32 bounceStep;
     s32 ang;
     s32 i;
     s16 five;
 
-    src = arg0->unk35C;
-    if (arg0->unk384 != NULL) {
+    src = iconObj->unk35C;
+    if (iconObj->unk384 != NULL) {
         t = src->unk0;
-        item = arg0->unk384;
-        sp40 = (f64)src->tbl[(s32)item->unk4] * 4.0;
+        item = iconObj->unk384;
+        bounceStep = (f64)src->tbl[(s32)item->unk4] * 4.0;
         type = (s32)item->unk0;
         switch (type) {
         case 0:
@@ -1644,18 +1644,18 @@ void hudPauseMenuIconUpdate(HudIconObj *arg0, s8 *arg1) {
             if (t > 1.0f) {
                 t = 1.0f;
             }
-            arg0->unk36D = (s32)(t * 255.0f);
+            iconObj->unk36D = (s32)(t * 255.0f);
             if (type == 4) {
-                arg0->unk360 = (f64)(item->unk10 * t) * 4.0;
-                arg0->unk364 = arg0->unk360;
+                iconObj->unk360 = (f64)(item->unk10 * t) * 4.0;
+                iconObj->unk364 = iconObj->unk360;
             }
-            arg0->unk340 = item->unk8;
-            arg0->unk344 = item->unkC + (f32)sp40;
+            iconObj->unk340 = item->unk8;
+            iconObj->unk344 = item->unkC + (f32)bounceStep;
             if (type == 0xB) {
-                arg0->unk340 = 600.0 - D_807FC808;
+                iconObj->unk340 = 600.0 - D_807FC808;
             }
             if (type == 0xC) {
-                arg0->unk340 = D_807FC808 + 680.0;
+                iconObj->unk340 = D_807FC808 + 680.0;
             }
             t = 0.0f;
             break;
@@ -1667,10 +1667,10 @@ void hudPauseMenuIconUpdate(HudIconObj *arg0, s8 *arg1) {
             }
             if (type == 7) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
-                arg0->unk364 = (f64)func_80612794(ang) * 0.35 + item->unk18;
+                iconObj->unk364 = (f64)func_80612794(ang) * 0.35 + item->unk18;
             }
-            arg0->unk340 = item->unk10 * t + item->unk8;
-            arg0->unk344 = item->unk14 * t + item->unkC + (f32)sp40;
+            iconObj->unk340 = item->unk10 * t + item->unk8;
+            iconObj->unk344 = item->unk14 * t + item->unkC + (f32)bounceStep;
             break;
         case 3:
         case 5:
@@ -1689,32 +1689,32 @@ void hudPauseMenuIconUpdate(HudIconObj *arg0, s8 *arg1) {
                 sc = 240.0f;
             }
             sc = sc * t;
-            arg0->unk360 = (f64)(item->unk10 * t) * 4.0;
-            arg0->unk364 = arg0->unk360;
+            iconObj->unk360 = (f64)(item->unk10 * t) * 4.0;
+            iconObj->unk364 = iconObj->unk360;
             t = 0.0;
-            arg0->unk340 = (f64)(func_80612794(ang) * sc) + 640.0;
-            arg0->unk344 = (480.0 - (f64)(func_80612790(ang) * sc)) + (f64)sp40;
+            iconObj->unk340 = (f64)(func_80612794(ang) * sc) + 640.0;
+            iconObj->unk344 = (480.0 - (f64)(func_80612790(ang) * sc)) + (f64)bounceStep;
             if (type == 8) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
                 sc = func_80612794(ang);
-                arg0->unk344 = arg0->unk344 + sc * 10.0f;
+                iconObj->unk344 = iconObj->unk344 + sc * 10.0f;
             }
             if (type == 0xF) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
                 sc = func_80612794(ang);
-                arg0->unk364 = arg0->unk364 * (1.0 + (f64)sc * 0.2);
+                iconObj->unk364 = iconObj->unk364 * (1.0 + (f64)sc * 0.2);
             }
             if (type == 5 || type == 8 || type == 0xF) {
-                i = 0xFF - (s32)(((f64)arg0->unk344 - 240.0) * 1.5);
+                i = 0xFF - (s32)(((f64)iconObj->unk344 - 240.0) * 1.5);
                 if (i < 0x5F) {
                     i = 0x5F;
                 }
                 if (i >= 0x100) {
                     i = 0xFF;
                 }
-                arg0->unk36A = i;
-                arg0->unk36B = i;
-                arg0->unk36C = i;
+                iconObj->unk36A = i;
+                iconObj->unk36B = i;
+                iconObj->unk36C = i;
             }
             break;
         case 6:
@@ -1751,17 +1751,17 @@ void hudPauseMenuIconUpdate(HudIconObj *arg0, s8 *arg1) {
             }
             item->unk14 = item->unk14 + sc;
             ang = (gFrameCounter * 0x78) & 0xFFF;
-            arg0->unk340 = item->unk10 + item->unk8;
+            iconObj->unk340 = item->unk10 + item->unk8;
             sc = func_80612794(ang);
-            arg0->unk344 = sc * 10.0f + (item->unkC + item->unk14 + (f32)sp40 + 960.0f * t);
+            iconObj->unk344 = sc * 10.0f + (item->unkC + item->unk14 + (f32)bounceStep + 960.0f * t);
             t = 0.0f;
             break;
         case 10:
             i = (s32)item->unk8;
-            arg0->unk340 = D_807FC840[i];
-            arg0->unk344 = D_807FC868[i];
-            arg0->unk360 = D_807FC890[i];
-            arg0->unk364 = D_807FC890[i];
+            iconObj->unk340 = D_807FC840[i];
+            iconObj->unk344 = D_807FC868[i];
+            iconObj->unk360 = D_807FC890[i];
+            iconObj->unk364 = D_807FC890[i];
             D_807FC840[i] = -200.0f;
             D_807FC868[i] = -200.0f;
             five = 5;
@@ -1769,17 +1769,17 @@ void hudPauseMenuIconUpdate(HudIconObj *arg0, s8 *arg1) {
                 i -= five;
             }
             if (((s8 *)&D_80750530)[i] == 0) {
-                arg0->unk36A = D_8075054C[i][0];
-                arg0->unk36B = D_8075054C[i][1];
-                arg0->unk36C = D_8075054C[i][2];
+                iconObj->unk36A = D_8075054C[i][0];
+                iconObj->unk36B = D_8075054C[i][1];
+                iconObj->unk36C = D_8075054C[i][2];
             }
             break;
         }
-        if ((s32)item->unk4 != src->unk15 && (sp40 < -0x3C0 || sp40 >= 0x3C1)) {
-            *arg1 = 1;
+        if ((s32)item->unk4 != src->unk15 && (bounceStep < -0x3C0 || bounceStep >= 0x3C1)) {
+            *param = 1;
         }
         if (t > 1.0f || src->unk0 > 1.0f) {
-            *arg1 = 1;
+            *param = 1;
         }
     }
 }
@@ -1813,9 +1813,9 @@ Gfx *hudDrawTextScreen(Gfx *dl, Actor *actor) {
     return textDrawStringVtx(dl, 1, 0x208, 0x21C, buf, 1);
 }
 
-void hudSpawnTextScreen(u8 arg0) {
+void hudSpawnTextScreen(u8 textId) {
     actorSpawn(0x156, 0);
-    gSpawnedActor->unk15F = arg0;
+    gSpawnedActor->unk15F = textId;
     gSpawnedActor->unk64 |= 2;
     D_807FBB60 |= 0x40001;
 }

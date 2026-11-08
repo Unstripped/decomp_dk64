@@ -1,3 +1,18 @@
+// hudPauseMenuRender (src/global/ACDC0.c): stage 4: full=270 text=261 reloc=6 shape=58 n=996. HudFinal: refined the older full=289 candidate with double 1.0 text-scale literals, case-1 input-load order, a case-2 for loop, case-3 local fb/outer fc maximum/fd scale, and a hud guard in the case-0 minimum's else arm. This preserves the target's case-2 D_807FC950 address in t2. Unparked whole-file fdiff still FAILS; normalized whole-file and reduced-TU functions are identical. Raw counts: 891 instructions + 105 relocations versus target 890 + 103. The intermediate full=299 candidate had 892 + 101, despite n=993 equalling the target. No matching src change.
+// Separate structural lead, starting from the PREVIOUS 301 baseline (NOT this body's score): first-loop prefix 33 -> 7, prefix shape 7 -> 2, whole full=318/text=304/reloc=10/shape=73/n=996. Replace just the coordinate statements with the sequence below; E abbreviates the existing repeated ((HudTextEntry *)((u8 *)it + j * 0x18)) expression, NOT a new local:
+// off = E->unk8;
+// y = E->unkA;
+// if (off) {} // FAKE: diagnostic local priority
+// off = (u16)(off * 4);
+// off += (s32)(fa * E->unk0);
+// y *= 4;
+// y += (s32)(fa * E->unk4);
+// off = (s16)((u32)off + E->unkC * 4);
+// y += E->unkE * 4;
+// y += hud->unkC[i] * 4;
+// Remaining prefix differences: y-scale t8 vs t7; first mfc1 t9 vs t5; x-offset shift hoisting; pre-dispatch li-320 temporary. The unsigned sum preserves variable-first addu without making off a narrow local (Q0374 correction). Later pages regress; do not mistake the prefix improvement for a function match.
+// Whole-file/reduced equality rules out a reduced-TU-only mismatch. All 16,383 original FAKE-guard removal subsets failed to improve full=301; the changed coordinate graph's subset search was interrupted (best observed full=309, separate shape=68 candidate full=331). IDO 7.1 -O2 is worse; 5.3 -O3 is identical for the tested baseline/coordinate bodies. No match from byte-row table views, call-width corrections, local FP merges, coordinate shifts, or scoped volatile loads. ugen uses a free-register FIFO, not an LRU-by-use model; inspect raw records before inferring scratch order from final instructions.
+// Previous baseline and historical experiments follow. Their "count-exact" claim is superseded by the raw counts above. Their finite FIFO models do not prove that matching C is unreachable; hidden scratch allocations and as1 rewrites must be verified from actual compiler records.
 // hudPauseMenuRender (src/global/ACDC0.c): stage 4: full=301 text=289 reloc=10 shape=78 n=993 (count-exact; 322 -> 301). R13_opus_13: natural changes (Q0354 literal spelling): q/b hudDrawScaledText calls pass 1.0 (double literal = its own uopt constant web, coloured in f20 + mfc1 a3 like the target; c0menu shape 27->21); m = MIN ternary drops the D_807FC80C==0 FAKE so case 3 pointerises &D_807FC80C in s1 (c3 shape 8->0); case 1/2 inner loops as for (c2 15->13); s2 clamp ternary; 'y += 0x44; j++;' and 'fb = hud->unk0; fa = hud->unk4;' (statement swaps, -5); ONE added guard 'if (gFrameCounter && gFrameCounter) {}' right after the case-0 loop's second gDPPipeSync (any symbol/form there gives 301: the c0 loop wants extra uopt blocks at that point, next to the existing D_80750538 guard). Lower-shape alternative: + 'ang = (s32)((1.0f - hud->unk0) * 255.0f);' + 'if (D_807FC950 && D_807FC950) {}' after the tab init and after case-1's count j = ..., + 'if (D_80750538 && D_80750538) {}' before D_80750538++: shape 66 but full 339 (.scratch/R13_opus_13/o14/ang_g123.c). Loop 1 is NOT reachable by statement order: a FIFO ring solver (.scratch/R13_opus_13/fifo3*.py: any statement order, any call-arg evaluation order, narrowed or plain y/off stores, any entry queue, up to 3 hidden alloc/free pairs) finds NO ugen order giving the target's loop-1 names (it reproduces our own build); relaxing two values' registers only admits unnatural orders (trunc1/y*4 first, args reversed). Global indexing D_807FC7F0[i][j] reloads the pointer every iteration (target keeps it in s2) and local arrays cannot be coloured beside pointer loads, so Q0562 does not apply (the target has no local-array stack traffic at all). do { } while (0) gDP macros, double literals elsewhere, for-loop c0menu, inline-y call arg: worse. Search tools: .scratch/R13_opus_13/{subs,nat2,climb3,l1gen,fifo3}.py (deadsweep scoring is ~30 ms per variant). | Prior: stage 4: full=322 text=308 reloc=12 shape=93 n=993 (count-exact) on the REAL s16-y prototype (95d4eb8c; the src park scores 405 under it, its 321 was under the old wrong prototype). R13_opus_8: R13_opus_7 climb_p1proto_329 body + guard if (D_807FC80C && D_807FC80C) {} after the case-0 loop + case-3 local f32 fd + case-1 inner block uses the outer fd (Q0560 per-chain variables). LOWER NON-EXACT PATH (start here): .scratch/R13_opus_8/w/ad289.c full=289 shape=74 but 889/890 insns, relocs +2 D_807FC80C +2 D_80750538: natural 'ang = (s32)((1.0f - hud->unk0) * 255.0f);' (drop the off intermediary; reproduces target mfc1 s4/sll/sra/bgezl exactly) + re-climb (.scratch/R13_opus_8/climb2.py, still improving ~5-10/round). Remaining structural diffs: case-0 loop end bnezl+lw t5,0(s6) (target pointerises gFrameCounter into s6; ours D_80750538 via FAKE guards; removing the final gFrameCounter guard costs +110: t2 joins the ring), 1.0f held in f20 for the two 'q/b %s' hudDrawScaledText calls (variable spelling is constant-propagated, no effect), case-3 &D_807FC80C pointerised in s1 (blocked by D_807FC80C guards), hud reload (lw 348(sp)) placement in cases 1/2. FINDINGS: (1) target loop-1 'addu t8,s0,t7 ... move s0,t8' = a narrowing of the off+=unkC*4 result deleted by as1 (and->rename into the mask register; corpus has no plain addu->temp->move): (u16)/(s16)/& 0xFFFF on that statement reproduce the move, but ugen then orders the add as unkC*4 first (addu t7,t6,s0); only 'narrowvar += X' keeps the var first (corpus 7CA80 totalDataSize). (2) it[j].unk0 (ixa) makes ugen evaluate the trunc operand first but with an immediate mfc1 (target needs scratch, off*4, then mfc1). (3) FIFO end-of-loop constraint: target queue at the call args is [t5,t9,t6,t7,t8,t3,t4]; case-0 prologue registers are not FIFO-consistent with ours' event model (hidden events/renames there). Scope moves (drop/add block-local decls) and statement reorders in the case-0 prologue: no gain. | Prior: stage 4: park full=321 text=300 reloc=12 shape=106 kept (no full improvement). R13_opus_7: loop-1 structure work, ring-masked diff (t3-t9 renamed to T) is the useful metric: park 155 masked lines; '.scratch/R13_opus_7/out/g8_u_o2_y3_oy.c' with textDrawStringVtx declared (Gfx *, s32, s16, s16, void *, s32) (its real y is s16) reaches masked 143 (loop-1 masked 21->9) but full 383 (ring cascade); FAKE re-climb of it (.scratch/R13_opus_7/climb.py, del/insert guards) reached full 329 (.scratch/R13_opus_7/climb_p1proto_329.c), still above 321. FINDINGS: (1) target a3 'addu t4,t6,t8; sll a3,t4,16; sra t9,a3,16; move a3,t9' = s16 y var assigned the sum + s16 y PARAM: as1 deletes the var narrowing (demanded bits) and renames the sum into a ring temp; needs the s16 prototype. (2) cfe operand order: 'x += e' keeps x first ('y += hud->unkC[i]*4' gives Y2 first; 'y = y + hud->unkC[i]*4' puts H4 first); access through '((HudTextEntry *)((u8 *)it + j * 0x18))->' or a pointer local instead of it[j] (no ixa) keeps 'off*4 + (s32)(fa * unk0)' and 'fa * unk0' in source order (target mul.s fa first); an s16 leaf stays first in 'y + E4' but an ixa operand (hud->unkC[i]) still goes first. uopt flattens nested int adds left-deep in cfe leaf order. (3) ugen: mul-by-constant into a var whose operand was load-targeted into that var gives 'lh s0; sll t9,s0,2; move s0,t9' (case 2/case 1 target pattern); add does not (no C found for loop-1 'addu t8,s0,t7; move s0,t8'). (4) loop-1 FIFO: target off*4=t4 and T1 mfc1=t5 are adjacent, so T1's trunc scratch (t3) precedes off*4 while its mfc1 follows it: no sequential ugen order with natural statements and <=3 hidden pairs fits (.scratch/R13_opus_7/fifo_seq.py, fifo_nar.py, fifo_l1b.py); hypothesis: ugen evaluates the heavier cvt operand first with a lazy mfc1, not reproduced. The R13_opus_3 '$35 queue' is not the queue at the i++ label (target i++ needs [t5,t9,t6,t7,t3,...]). Next: find C for the lazy-mfc1 order, then re-climb on the p1 prototype. | Prior: stage 4: full=321 text=300 reloc=12 shape=106 n=993 (was 339/323/12/102); R13_opus_3: ONE natural change: loop-1 y sum written 'y = it[j].unkE * 4 + y + hud->unkC[i] * 4;' (3-term sum operand order changes uopt candidate creation order; commutative 2-term swaps and mul.s operand order are canonicalised = no effect) fixed case 1/2 colours (region 450-499 21->8). FINDINGS: (1) ring: pool is t3-t9 (t0-t2 uopt-coloured), initial queue [t6,t7,t8,t9,t3,t4,t5]; generalized FIFO model (.scratch/R13_opus_3/fifo7b.py --trunc-alloc: trunc.w.s third operand = ring scratch alloc+free) reproduces our t.s with 2 mismatches/900 insns. (2) ~170 of the diff lines are ring/ring only and follow ONE queue permutation from the end of loop 1 (target queue at $35 = [t7,t8,t3,t5,t4,t9,t6] vs ours [t5,t9,t7,t6,t8,t3,t4]; applying it to ring webs after loop 1 via t.G rename (.scratch/R13_opus_3/pi_test.py, qsearch.py) gives 321->274 for webs in [118,300), then later regions need further permutations). Target loop-1 body leaves the queue = loop-head queue with t4/t5 swapped. (3) Cause is in loop 1 structure: target y chain is NOT an s16 var: lh s1,10(v0) loaded into s1, y*4+trunc+unkE*4+hud*4 stays in ring temps (t9/t6/t4) and (s16)y is a call-arg narrowing (sll a3,t4,16; sra t9,a3,16; move a3,t9) exactly like (s16)off; ours writes the narrow s16 y var (hidden sll/sra ring events). off: A1 writes s0 directly, A2 is addu t8,s0,t7 + move s0,t8. s32 y / inline-y / ya variants fix loop-1 shape but shift s-reg colours globally (full 396-498). (4) gFrameCounter: without the dead gFrameCounter/D_807FC80C guards uopt naturally emits the target's lui/addiu s6,&gFrameCounter + lw t9,0(s6) + shift-add *200 in case 0 (single-reference lda pointerisation) but j/it then swap s2/s3 (j's range loses blocks: priority=savings/length): the guards act as extra blocks in j's range, so the real source has more blocks in the case-0 loop; keep them until that is reproduced naturally. | Prior (R12_fable_5): stage 4: park full=341 text=325 reloc=12 shape=104 ... 
 typedef struct {
     f32 unk0;
@@ -61,6 +76,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     gSPDisplayList(dl++, list);
     ret = dl;
     dl = hudSetupTextState(list);
+    if (D_807FC950 && D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     for (i = 0; i < 2; i++) {
         it = D_807FC7F0[i];
         if (it != 0) {
@@ -113,17 +129,26 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     fh = -fc;
                     dl = renderRotatedSprite(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)(s32)fe, fa, fh, 0, 0.0f);
                     gDPPipeSync(dl++);
-                    if (gFrameCounter && gFrameCounter) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     if (D_80750538 && D_80750538) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     dl->words.w1 = 0xFFFFFFFF;
                     dl->words.w0 = 0xFA000000;
                     dl++;
                     if (s2 > 0) {
                         s32 m;
-                        m = (s2 - 1 < 3) ? s2 - 1 : 3;
+                        off = s2 - 1;
+                        if (off < 3) {
+                            m = off;
+                        } else {
+                            m = 3;
+                            if (hud) {} // FAKE: diagnostic global address lifetime
+                        }
                         dl = renderRotatedSprite(dl, (u16)(m + 0x5A), 0, 2, 0x30, 0x2A, y, (s32)((f32)y0 + fe), fa, fh, 0, 0.0f);
                     }
-                    s2 = (s2 - 4 < 0) ? 0 : s2 - 4;
+                    if (s2 - 4 < 0) {
+                        s2 = 0;
+                    } else {
+                        s2 = s2 - 4;
+                    }
                     j++;
                 } while (j < ((u8 *)tab)[0x2FC]);
                 if (D_807FC80C && D_807FC80C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -131,13 +156,11 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             gDPPipeSync(dl++);
             y = 0x198;
             j = 0;
-            off = (s32)((1.0f - hud->unk0) * 255.0f);
-            ang = off;
+            ang = (s32)((1.0f - hud->unk0) * 255.0f);
             if (ang < 0) {
                 ang = 0;
             }
             if (ang >= 0x100) {
-                if (D_807505CC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 ang = 0xFF;
             }
             if (hud->unk17 != 3) {
@@ -158,8 +181,8 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         i = 5;
                     }
                     dl = hudDrawScaledText(dl, 0x280, y, 0.7f, D_807FC7E0[i]);
-                    y += 0x44;
                     j++;
+                    y += 0x44;
                 } while (j < 3);
             } else {
                 gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, ang);
@@ -171,6 +194,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             }
             break;
         case 1:
+            if (D_807FC80C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             for (i = 0; i < 2; i++) {
                 s32 angv;
                 actor = (Actor *)(hud->unkC[i] * 4); // FAKE: reuse the consumed parameter to remove off1's stack home.
@@ -191,7 +215,8 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         fe = 30.0f * fa;
                         fc = 480.0f + fc;
                         ff = (f32)((f64)fa * 1.33);
-                        for (j = 0; j < 5; j++) {
+                        j = 0;
+                        do {
                             sa = angv;
                             yy = (s32)(func_80612794(sa) * fb) + 0x280;
                             y0 = (s32)(func_80612790(sa) * fb);
@@ -203,8 +228,9 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                             if (((s8 *)&D_80750530)[j] != 0) {
                                 D_807FC890[off] = (f32)((f64)D_807FC890[off] * 0.75);
                             }
+                            j++;
                             angv += 0x333;
-                        }
+                        } while (j < 5);
                         gDPPipeSync(dl++);
                     }
                     dl = hudDrawItemLabel(dl, (HudEntry *)hud, i);
@@ -227,9 +253,11 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         fc = fc + fd * 400.0;
                     }
                     j = *(s16 *)((u8 *)D_807FC992 + hud->unk14 * 0x5E + D_80750560[hud->unk8[i]] * 2);
+                    if (D_807FC950 && D_807FC950) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     dl = hudDrawCountPair(0x2A8, (s32)((f32)(s32)actor + fc), j, 5, dl, 0, 0.8f);
                 }
             }
+            if (D_80750538 && D_80750538) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             D_80750538++;
             if (D_80750538 >= 0xE) {
                 D_80750538 = 0;
@@ -271,20 +299,20 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
         case 3:
             dl = hudDrawScaledText(hudDrawScaledText(dl, 0x280, 0x74, 0.5f, D_807FC7E0[D_807FC818[D_807FC80C] + 18]), 0x280, 0x3C, 0.65, D_807FC7E0[6]);
             {
-                f32 fd;
+                f32 fb;
                 fa = hud->unk4;
                 fb = hud->unk0;
                 if (fa < fb) {
-                    fd = fb;
+                    fc = fb;
                 } else {
-                    fd = fa;
+                    fc = fa;
                 }
-                fc = (1.0f - fd) * 0.65f;
-                if (fc < 0.01f) {
-                    fc = 0.01f;
+                fd = (1.0f - fc) * 0.65f;
+                if (fd < 0.01f) {
+                    fd = 0.01f;
                 }
             }
-            dl = hudDrawCountPair(0x280, 0x33C, (&D_807FC828)[D_807FC818[D_807FC80C]], D_8075056C[D_807FC818[D_807FC80C]], dl, 1, fc);
+            dl = hudDrawCountPair(0x280, 0x33C, (&D_807FC828)[D_807FC818[D_807FC80C]], D_8075056C[D_807FC818[D_807FC80C]], dl, 1, fd);
             break;
     }
     dl->words.w0 = 0xDF000000;

@@ -23,7 +23,7 @@ tools/merge_gate.sh --commit "<Seg>: match N/T <file> functions" [--stage <path>
 - The copy argument is a DIRECTORY holding `<f>.c`. An agent's HEAD-based file
   (`<f>_head.c`, built against current `src`) goes to `.scratch/<A>H/<f>.c` with its base,
   or, when `src` is unchanged since, `cp` it over `src` and gate `- - src/<seg>/<f>.c`.
-- Track full and shape scores together; do not discard a structural improvement solely because its full score grows.
+- Track full and shape scores: retain structural gains despite a worse full score, but reject backend-scan gains from deleting required definitions. Count instructions separately from relocations; `deadsweep`'s combined `n` is not a code-length check.
 - After a reduced-TU zero, confirm the C is UNPARKED and run whole-file `fdiff.sh`; normalized text may erase wrong branch targets, and reduced TUs omit later data definitions.
 - `vanished` counts both park branches: after unparking, compare old/new object text symbols before treating a count drop as deletion.
 - Never pipe a merge or gate into `tail`/`grep` and chain `&& git commit`: the pipe hides the
