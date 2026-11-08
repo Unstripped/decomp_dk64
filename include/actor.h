@@ -191,11 +191,20 @@ typedef struct Actor {
     };
     /* 0x008 */ u8 unk08[0x50];
     /* 0x058 */ s32 actorType;
-    /* 0x05C */ u16 unk5C;
+    union {
+        /* 0x05C */ u16 unk5C;
+        /* 0x05C */ u16 collisionFlags;
+    };
     /* 0x05E */ u8 unk5E[2];
     /* 0x060 */ u32 flags;
-    /* 0x064 */ u32 unk64;
-    /* 0x068 */ u16 unk68;
+    union {
+        /* 0x064 */ u32 unk64;
+        /* 0x064 */ u32 renderFlags;
+    };
+    union {
+        /* 0x068 */ u16 unk68;
+        /* 0x068 */ u16 flags2;
+    };
     union {
         /* 0x06A */ u16 unk6A;
         /* 0x06A */ u16 contactFlags;
@@ -216,8 +225,14 @@ typedef struct Actor {
     /* 0x08C */ f32 prevY;
     /* 0x090 */ f32 prevZ;
     /* 0x094 */ u8 unk94[8];
-    /* 0x09C */ f32 unk9C;
-    /* 0x0A0 */ f32 unkA0;
+    union {
+        /* 0x09C */ f32 unk9C;
+        /* 0x09C */ f32 peakY;
+    };
+    union {
+        /* 0x0A0 */ f32 unkA0;
+        /* 0x0A0 */ f32 prevPeakY;
+    };
     union {
         /* 0x0A4 */ f32 unkA4;
         /* 0x0A4 */ f32 floorY;
@@ -275,9 +290,18 @@ typedef struct Actor {
     };
     /* 0x0FD */ u8 unkFD;
     /* 0x0FE */ u8 unkFE[0xE];
-    /* 0x10C */ s16 unk10C;
-    /* 0x10E */ u8 unk10E[2];
-    /* 0x110 */ u8 unk110;
+    union {
+        /* 0x10C */ s16 unk10C;
+        /* 0x10C */ s16 cutsceneId;
+    };
+    union {
+        /* 0x10E */ u8 unk10E[2];
+        /* 0x10E */ s16 cutsceneSubId;
+    };
+    union {
+        /* 0x110 */ u8 unk110;
+        /* 0x110 */ u8 attachMode;
+    };
     /* 0x111 */ u8 unk111[3];
     /* 0x114 */ ActorList *riderList;
     /* 0x118 */ u8 unk118[4];
@@ -321,12 +345,29 @@ typedef struct Actor {
     /* 0x15C */ s16 unk15C;
     /* 0x15E */ u8 unk15E;
     /* 0x15F */ u8 unk15F;
-    /* 0x160 */ f64 unk160;
-    /* 0x168 */ s16 unk168;
-    /* 0x16A */ u8 unk16A;
-    /* 0x16B */ u8 unk16B;
-    /* 0x16C */ u8 unk16C;
-    /* 0x16D */ u8 unk16D;
+    union {
+        /* 0x160 */ f64 unk160;
+        /* 0x160 */ f64 splineT;
+    };
+    union {
+        /* 0x168 */ s16 unk168;
+        /* 0x168 */ s16 yawSpeed;
+    };
+    union {
+        struct {
+            /* 0x16A */ u8 unk16A;
+            /* 0x16B */ u8 unk16B;
+            /* 0x16C */ u8 unk16C;
+            /* 0x16D */ u8 unk16D;
+        };
+        struct {
+            /* 0x16A */ u8 tintR;
+            /* 0x16B */ u8 tintG;
+            /* 0x16C */ u8 tintB;
+            /* 0x16D */ u8 tintA;
+        };
+        /* 0x16A */ u8 tint[4];
+    };
     /* 0x16E */ u8 unk16E[6];
     union {
         /* 0x174 */ void *unk174;
@@ -338,18 +379,32 @@ typedef struct Actor {
 // Fields are named by offset; sizes are the largest offset seen so far.
 typedef struct Struct807FDC90 {
     /* 0x00 */ u8 pad0[0xA];
-    /* 0x0A */ s16 unkA;
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ s16 unkE;
+    union {
+        /* 0x0A */ s16 unkA;
+        /* 0x0A */ s16 targetX;
+    };
+    union {
+        /* 0x0C */ s16 unkC;
+        /* 0x0C */ s16 targetY;
+    };
+    union {
+        /* 0x0E */ s16 unkE;
+        /* 0x0E */ s16 targetZ;
+    };
     /* 0x10 */ u8 pad10[8];
     /* 0x18 */ u16 unk18;
     /* 0x1A */ u8 pad1A[0xE];
     /* 0x28 */ u8 unk28[4];
-    /* 0x2C */ s16 unk2C;
+    union {
+        /* 0x2C */ s16 unk2C;
+        /* 0x2C */ s16 timer;
+    };
     /* 0x2E */ u8 pad2E[2];
-    /* 0x30 */ f32 unk30;
+    union {
+        /* 0x30 */ f32 unk30;
+        /* 0x30 */ f32 scale;
+    };
 } Struct807FDC90;
-
 typedef struct Struct807FDC98 {
     /* 0x00 */ u8 pad0[0x26];
     /* 0x26 */ s16 animId0;
