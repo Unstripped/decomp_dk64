@@ -42,7 +42,7 @@ if __name__ == "__main__" and not os.path.exists("/opt/decomp-permuter"):
 # ---------------------------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------------------------
-def locate_asm(seg: str, func: str) -> Path:
+def locate_asm(seg: str, func: str) -> Optional[Path]:
     """Find asm file for func in segment."""
     patterns = []
     if seg == "boot":
@@ -58,7 +58,7 @@ def locate_asm(seg: str, func: str) -> Path:
         hits = list(ROOT.glob(pat))
         if hits:
             return hits[0]
-    sys.exit(f"error: assembly file for '{func}' in segment '{seg}' not found")
+    return None
 
 
 def deduce_src(asm_path: Path, seg: str, func: str) -> Path:
@@ -412,6 +412,8 @@ def cmd_setup(args: argparse.Namespace) -> None:
         if not src_path.is_absolute():
             src_path = ROOT / src_path
     else:
+        if asm_path is None:
+            sys.exit(f"error: assembly file for '{func}' in segment '{seg}' not found (pass --src src/...)")
         src_path = deduce_src(asm_path, seg, func)
 
     if not src_path.exists():
@@ -421,26 +423,34 @@ def cmd_setup(args: argparse.Namespace) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # 2. Build target.o
-    # Assemble with project prelude and VR4300 flags
     target_o = out_dir / "target.o"
-    as_bin = shutil.which("mips-linux-gnu-as") or "mips-linux-gnu-as"
-    as_cmd = [
-        as_bin,
-        "-EB",
-        "-march=vr4300",
-        "-mabi=32",
-        "-mgp32",
-        "-mfp32",
-        "-I",
-        "include",
-        "include/asm_prelude.inc",
-        str(asm_path),
-        "-o",
-        str(target_o),
-    ]
-    res_as = subprocess.run(as_cmd, cwd=ROOT, capture_output=True, text=True)
-    if res_as.returncode != 0:
-        sys.exit(f"error assembling target.o:\n{res_as.stderr}")
+    if asm_path is None:
+        # Matched function: copy from expected/
+        rel_src = src_path.relative_to(ROOT) if src_path.is_absolute() else src_path
+        expected_o = ROOT / "expected" / "build" / rel_src.with_suffix(".o")
+        if not expected_o.exists():
+            sys.exit(f"error: expected object '{expected_o}' not found (run make expected)")
+        shutil.copy(expected_o, target_o)
+    else:
+        # Assemble with project prelude and VR4300 flags
+        as_bin = shutil.which("mips-linux-gnu-as") or "mips-linux-gnu-as"
+        as_cmd = [
+            as_bin,
+            "-EB",
+            "-march=vr4300",
+            "-mabi=32",
+            "-mgp32",
+            "-mfp32",
+            "-I",
+            "include",
+            "include/asm_prelude.inc",
+            str(asm_path),
+            "-o",
+            str(target_o),
+        ]
+        res_as = subprocess.run(as_cmd, cwd=ROOT, capture_output=True, text=True)
+        if res_as.returncode != 0:
+            sys.exit(f"error assembling target.o:\n{res_as.stderr}")
 
     # 3. Build compile.sh
     cc, cflags = get_compile_flags(src_file=src_path)
