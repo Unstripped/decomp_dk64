@@ -2394,7 +2394,7 @@ Actor *arg0;
                 node = sub->unk8C;
                 while (node != NULL) {
                     if (node->unk26 != 0) {
-                        i = func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->unkF4, &arg0->unkF6); ret = (ret | i) & 0xFF; // FAKE: i as call-result temp keeps 'or ret,ret,v0' operand order and no extra result var
+                        i = func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->unkF4, &arg0->unkF6); ret = (ret | i) & 0xFF; // LAYOUT: same-line call-result keeps 'or ret,ret,v0' operand order and no extra result var
                     }
                     node = node->unk28;
                 }
