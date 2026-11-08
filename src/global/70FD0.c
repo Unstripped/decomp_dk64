@@ -291,11 +291,11 @@ void collisionTransformNode(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f3
     collisionBuildSlotBoxes(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
 }
 
-void dynamicBufferFree(DynamicBuffer *arg0) {
-    if (arg0->unk18 != NULL && (arg0->unk15 & 1)) {
-        heapFree(arg0->unk18);
+void dynamicBufferFree(DynamicBuffer *buf) {
+    if (buf->unk18 != NULL && (buf->unk15 & 1)) {
+        heapFree(buf->unk18);
     }
-    arg0->unk15 &= ~1;
+    buf->unk15 &= ~1;
 }
 
 typedef struct CollisionStaticHeader {
@@ -1363,24 +1363,24 @@ f32 actorGetOrSetNodeScale(Actor *arg0, s32 arg1, f32 arg2) {
     return -1.0f;
 }
 
-void actorSetNodeFlag(Actor *arg0, s32 arg1) {
-    ModelNode *node = actorGetModelNodeByIndex(arg0, arg1);
+void actorSetNodeFlag(Actor *actor, s32 nodeIndex) {
+    ModelNode *node = actorGetModelNodeByIndex(actor, nodeIndex);
 
     if (node != NULL) {
         node->unk26 = 1;
     }
 }
 
-void actorClearNodeFlag(Actor *arg0, s32 arg1) {
-    ModelNode *node = actorGetModelNodeByIndex(arg0, arg1);
+void actorClearNodeFlag(Actor *actor, s32 nodeIndex) {
+    ModelNode *node = actorGetModelNodeByIndex(actor, nodeIndex);
 
     if (node != NULL) {
         node->unk26 = 0;
     }
 }
 
-void actorClearAllNodeFlags(Actor *arg0) {
-    ActorSub140 *sub = arg0->unk140;
+void actorClearAllNodeFlags(Actor *actor) {
+    ActorSub140 *sub = actor->unk140;
     ModelNode *node;
 
     if (sub != NULL) {
@@ -3474,10 +3474,10 @@ s16 arg1;
 
 
 
-void actorTouchSub140Timestamp(ActorMotionWork *arg0) {
-    ActorMotionSub140 *temp_v0 = arg0->unk140;
-    if (temp_v0 != NULL) {
-        temp_v0->unk88 = gFrameCounter;
+void actorTouchSub140Timestamp(ActorMotionWork *actor) {
+    ActorMotionSub140 *sub = actor->unk140;
+    if (sub != NULL) {
+        sub->unk88 = gFrameCounter;
     }
 }
 
