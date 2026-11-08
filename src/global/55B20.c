@@ -1533,7 +1533,7 @@ extern FrustumCorners D_807F5DF0;
 #define FrustPlayer ((MapPlayer *)((u8 *)gPlayerSlots + arg7 * 0x2F0))
 void mapScreenRectBuildFrustum(s32 arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, u8 arg7, void *arg8, void *arg9, void *arg10) {
     s32 i;
-    f32 q; // FAKE: named quotient (steers FP colouring: quotients take f0)
+    f32 q;
     f32 a;
     f32 uv2;
     f32 uv1;
