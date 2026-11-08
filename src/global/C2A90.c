@@ -418,7 +418,7 @@ void func_806BE8BC(void) {
 
     sp37 = flagGet(0xF8, 0);
     behaviourFrameBegin();
-    if (gActivePlayerState->unk1F0 & 0x100000) {
+    if (gActivePlayerState->stateFlags & 0x100000) {
         LgBA->unk154 = 0x40;
         return;
     }

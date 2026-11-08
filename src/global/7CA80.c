@@ -1359,9 +1359,9 @@ typedef struct DamageReactionPlayerEntry {
 
 typedef struct DamageReactionContext {
     u8 pad0[0x1A4];
-    u8 unk1A4;
+    u8 playerIndex;
     u8 pad1A5[0x1F0 - 0x1A5];
-    u32 unk1F0;
+    u32 stateFlags;
     u8 pad1F4[0x200 - 0x1F4];
     u16 unk200;
 } DamageReactionContext;
@@ -1386,7 +1386,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
 
     D_807FBB85 = 1;
     if (arg0 == D_807FBB48) {
-        if (!(((DamageReactionPlayerEntry *)gPlayerSlots)[gActivePlayerState->unk1A4].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2))) {
+        if (!(((DamageReactionPlayerEntry *)gPlayerSlots)[gActivePlayerState->playerIndex].unk2C0 == 2 && arg1 != NULL && (arg1->unk5C & 2))) {
             sp3C = 0x2E;
             var_a2 = 1;
             if (arg2 != 0) {
@@ -1397,7 +1397,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
                 switch (arg1->unk155[0]) {
                 case 1:
                     var_a2 = 0;
-                    gActivePlayerState->unk1F0 ^= 0x80;
+                    gActivePlayerState->stateFlags ^= 0x80;
                     break;
                 case 2:
                     sp3C = 0x27;
@@ -1417,7 +1417,7 @@ void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
                     func_8071498C(sp24);
                     func_80714C08(&D_80720E2C, 0x3E99999A, arg0, 6, 2);
                     var_a2 = 0;
-                    gActivePlayerState->unk1F0 |= 0x08000000;
+                    gActivePlayerState->stateFlags |= 0x08000000;
                     break;
                 }
                 gActivePlayerState->unk200 = 0xF0;
@@ -1928,7 +1928,7 @@ void actorTableSort(void) {
 
 typedef struct PlayerContextSub174 {
     u8 pad0[0x1A4];
-    u8 unk1A4;
+    u8 playerIndex;
 } PlayerContextSub174;
 
 typedef struct PlayerContextEntry {
@@ -1969,7 +1969,7 @@ void playerSetActiveGlobals(Actor *arg0) {
     PlayerContextEntry *player;
 
     gActivePlayerState = arg0->unk174;
-    gCurrentPlayerIndex = ((PlayerContextSub174 *)gActivePlayerState)->unk1A4;
+    gCurrentPlayerIndex = ((PlayerContextSub174 *)gActivePlayerState)->playerIndex;
     temp_v0 = gPlayerCharacterId[gCurrentPlayerIndex];
     player = (PlayerContextEntry *)gPlayerSlots + gCurrentPlayerIndex;
     D_807FBB48 = player->actor;

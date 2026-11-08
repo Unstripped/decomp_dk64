@@ -58,7 +58,7 @@ typedef struct Struct_807FC924_4_174 {
     char pad0[0x104];
     void *unk104;
     char pad108[0x1F0 - 0x108];
-    s32 unk1F0;
+    s32 stateFlags;
 } Struct_807FC924_4_174;
 
 typedef struct Struct_807FC924_4 {
@@ -270,10 +270,10 @@ void minecartPlayerCartUpdate(u8 initTrackSegment, s32 trackTable, s16 maxAngleD
         }
         if (gCurrentActor->unk168 == 1 && gCurrentActor->unk155 == 0) {
             if (camIsCutsceneActive() != 0) {
-                playerState->unk1F0 |= 8;
+                playerState->stateFlags |= 8;
             } else {
                 camSetTargetScaled(playerState->unk104, gCurrentActor, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
-                playerState->unk1F0 &= ~8;
+                playerState->stateFlags &= ~8;
                 s1->unk3E = 0x3C;
                 gCurrentActor->unk155++;
             }
@@ -293,7 +293,7 @@ void minecartPlayerCartUpdate(u8 initTrackSegment, s32 trackTable, s16 maxAngleD
 
 typedef struct Struct_807FD580 {
     char pad0[0x1F0];
-    s32 unk1F0;
+    s32 stateFlags;
     char pad1F4[0x1FC - 0x1F4];
     u8 unk1FC;
 } Struct_807FD580;
@@ -304,7 +304,7 @@ void minecartUpdateHeadlight(void) {
     f32 lightAim[3];
     f32 lightPos[3];
 
-    if (gActivePlayerState->unk1F0 & 0x10000002) {
+    if (gActivePlayerState->stateFlags & 0x10000002) {
         actorGetNodePos(gCurrentActor, 2, &lightPos[0], &lightPos[1], &lightPos[2]);
         actorGetNodePos(gCurrentActor, 1, &lightAim[0], &lightAim[1], &lightAim[2]);
     } else {
@@ -503,7 +503,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
         cart->unk24 = 3.0f;
         cart->unk28 = 12.0f;
         gCurrentActor->unk168 = 3;
-        playerState->unk1F0 |= 8;
+        playerState->stateFlags |= 8;
         camStartPath(gCurrentActor, 0, 1, cart);
         actorScriptStart(gCurrentActor, 0);
     }
@@ -513,7 +513,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
         actorSetUniformScale(gCurrentActor, scale);
         actorSetUniformScale(D_807FBB4C, scale);
     }
-    if (playerState->unk1F0 & 8) {
+    if (playerState->stateFlags & 8) {
         cart->unk3E = 3;
     }
     if (gCurrentActor->unk154 < 5) {
@@ -552,7 +552,7 @@ void minecartPlayerCartJunctionBehaviour(void) {
         sfxAllocateChannel(0x5A, 1.0f);
         hudSpawnCountdownTimer(0x78, 0x78, (gCurrentMap == 0x4D) ? 0x1E : (gCurrentMap == 0x81) ? 0x2D : 0x3C);
         actorSetStateTwo(gCurrentActor->unk11C);
-        playerState->unk1F0 &= ~8;
+        playerState->stateFlags &= ~8;
         gCurrentActor->unk154 = 3;
         break;
     }

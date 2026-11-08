@@ -1335,7 +1335,7 @@ extern Struct807FD580 *gActivePlayerState;
 void spawnNodeSelectEntry(SpawnNode *arg0) {
     u8 temp_v0;
 
-    if ((gCurrentMap == 0x30) && (gActivePlayerState->unk1F0 & 0x100000) && (temp_v0 = arg0->unk0, (D_80755698[temp_v0] != 0xA))) {
+    if ((gCurrentMap == 0x30) && (gActivePlayerState->stateFlags & 0x100000) && (temp_v0 = arg0->unk0, (D_80755698[temp_v0] != 0xA))) {
         switch (temp_v0) {
             case 28:
                 arg0->unk44 = 0x63;

@@ -193,11 +193,11 @@ typedef struct {
     char pad[0x100];
     u32 unk100;
     char pad104[0x1F0 - 0x104];
-    u32 unk1F0;
+    u32 stateFlags;
 } CutscenePlayerContext;
 typedef struct {
     char pad[0x1F0];
-    u32 unk1F0;
+    u32 stateFlags;
 } CutscenePlayerFlags;
 typedef struct {
     char pad[0x4];
@@ -303,7 +303,7 @@ void actorCutsceneDispatchEvents(void) {
             csState->unk1E = csState->unk1C;
             break;
         case 0x1:
-            if ((gCurrentMap != 0x30) || !(gActivePlayerState->unk1F0 & 0x200000)) {
+            if ((gCurrentMap != 0x30) || !(gActivePlayerState->stateFlags & 0x200000)) {
                 csState->unk0 = eventData[0];
                 csState->unk1A = eventData[1];
                 csState->unk4 = (f64)(f32)eventData[2] / 100.0;
@@ -311,7 +311,7 @@ void actorCutsceneDispatchEvents(void) {
             }
             break;
         case 0x2:
-            if ((gCurrentMap != 0x30) || !(gActivePlayerState->unk1F0 & 0x200000)) {
+            if ((gCurrentMap != 0x30) || !(gActivePlayerState->stateFlags & 0x200000)) {
                 csState->unk0 = 0xFF;
             }
             break;
@@ -379,7 +379,7 @@ void actorCutsceneDispatchEvents(void) {
             func_805FF660(((u8 *)eventData)[1]);
             break;
         case 0xA:
-            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->unk174)->unk1F0 |= 0x40000800;
+            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->unk174)->stateFlags |= 0x40000800;
             break;
         case 0xB:
             func_805FF378(D_80744700[func_805FF030(D_8076A0AB, 0)], D_8076A0AC);
@@ -429,7 +429,7 @@ void actorCutsceneDispatchEvents(void) {
             D_8076A0A6 = D_807ECD48;
             break;
         case 0x1A:
-            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->unk174)->unk1F0 |= 0x80000000;
+            ((CutscenePlayerFlags *)((CutscenePlayerEntry *)gPlayerSlots)->unk4->unk174)->stateFlags |= 0x80000000;
             break;
         case 0x1B:
             mapChunkSetFlagBit3(eventData[1]);
@@ -608,7 +608,7 @@ typedef struct {
     char pad[0x104];
     Actor *unk104;
     char pad108[0x1F0 - 0x108];
-    u32 unk1F0;
+    u32 stateFlags;
 } Actor174Player;
 
 typedef struct ActorPlayerPos {
@@ -651,14 +651,14 @@ void func_8068BA2C(void) {
             break;
         case 3:
             hasEvent3 = 1;
-            if (!(s1->unk1F0 & 0x04000000)) {
-                s1->unk1F0 |= 0x04000000;
+            if (!(s1->stateFlags & 0x04000000)) {
+                s1->stateFlags |= 0x04000000;
             }
             break;
         }
     }
     if (hasEvent3 == 0) {
-        s1->unk1F0 &= ~0x04000000;
+        s1->stateFlags &= ~0x04000000;
     }
     if (sub174->unkAC & 1) {
         lightAdd(gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218, gPlayerSlots->unk228, gPlayerSlots->unk22C, gPlayerSlots->unk230, 0.0f, 1, 0xFF, 0xFF, 0xFF);

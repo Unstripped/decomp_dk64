@@ -469,7 +469,7 @@ void func_806EBCF0(void) {
 }
 
 void func_806EBDAC(void) {
-    gActivePlayerState->unk1F0 |= 8;
+    gActivePlayerState->stateFlags |= 8;
 }
 
 void func_806EBDC4(void) {
@@ -592,7 +592,7 @@ void func_806EC1A8(void) {
         D_807FBB48->unk144 = 1;
     }
     EFB_P->unk88 = (EfBActor *)EFB_C[gCurrentPlayerIndex].unk2A0;
-    if (D_807FBB48->actorType == 2) { animation = 0x53; } else { animation = 0x1C7; } func_80613C48(D_807FBB48, (s16)animation, 0.0f, 0.0f); // FAKE: one source line steers the scheduler (li at,2 after mfc1)
+    if (D_807FBB48->actorType == 2) { animation = 0x53; } else { animation = 0x1C7; } func_80613C48(D_807FBB48, (s16)animation, 0.0f, 0.0f); // LAYOUT: one source line steers the scheduler (li at,2 after mfc1)
 }
 
 void func_806EC2CC(void) {

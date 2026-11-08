@@ -8,7 +8,7 @@ typedef struct {
 } MapActionEntry;
 
 typedef struct { u8 unk0[0x5C]; u16 unk5C; } PlayerStateContext;
-typedef struct { u8 unk0[0x1A4]; u8 unk1A4; } GlobalContextView;
+typedef struct { u8 unk0[0x1A4]; u8 playerIndex; } GlobalContextView;
 typedef struct { u8 unk0[0x2C0]; u8 unk2C0; u8 pad2C1[0x2F]; } PlayerRaceContext;
 
 extern MapActionEntry D_80746340[];
@@ -34,7 +34,7 @@ s16 mapActionLookupEntry(s16 actionId, void *actor, u8 subType) {
         }
     }
     if (found != 0) {
-        if ((gCurrentActor->unk5C & 1) && (gPlayerSlots[gActivePlayerState->unk1A4].unk2C0 == 2)) {
+        if ((gCurrentActor->unk5C & 1) && (gPlayerSlots[gActivePlayerState->playerIndex].unk2C0 == 2)) {
             return 0x97;
         }
         if (*((u16 *)((u8 *)actor + 0x6A)) & 4) {

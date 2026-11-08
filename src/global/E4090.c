@@ -4050,16 +4050,16 @@ void func_806E918C(void) {
     f32 x2;
     f32 y2;
     f32 z2;
-    if (!(gActivePlayerState->unk1F0 & 0x10000000)) {
+    if (!(gActivePlayerState->stateFlags & 0x10000000)) {
         if ((D_807FD63A[gCurrentPlayerIndex].unk0 & 0x10) && (G29_PAR->unk154 == 7)) {
             actorGetNodePos(G30_M->unk88, 3, &x1, &y1, &z1);
             actorGetNodePos(G30_M->unk88, 4, &x2, &y2, &z2);
             camSetFixedView(G30_M->unk104, x2, y2 + 8.0f, z2, (x2 - x1) + x2, (y2 - y1) + y2 + 5.0f, (z2 - z1) + z2, 1);
-            gActivePlayerState->unk1F0 |= 2;
+            gActivePlayerState->stateFlags |= 2;
             gCurrentActor->flags |= 0x400;
         } else {
-            if (gActivePlayerState->unk1F0 & 2) {
-                gActivePlayerState->unk1F0 &= ~2;
+            if (gActivePlayerState->stateFlags & 2) {
+                gActivePlayerState->stateFlags &= ~2;
                 camSetTargetScaled(G30_M->unk104, G30_M->unk88, 4, 0x800, 0x28, 0, 5, 0x19, 0x14, 0, 0.15f);
                 if (G29_PAR->unk154 == 7) {
                     func_80614E78(gCurrentActor, 0x84);
@@ -4202,23 +4202,23 @@ void func_806E9964(arg0) Struct807FD580 *arg0; {
     }
     slotQueueCancel(6, 1);
     slotQueueCancel(0xC, 1);
-    arg0->unk1F0 &= ~0x8000;
+    arg0->stateFlags &= ~0x8000;
 }
 
 void func_806E9A5C(void) {
-    if (!(gActivePlayerState->unk1F0 & 0x8000) && ((G30_PAD(D_807FD63C, u16) & 0xC) == 8)) {
+    if (!(gActivePlayerState->stateFlags & 0x8000) && ((G30_PAD(D_807FD63C, u16) & 0xC) == 8)) {
         func_806E9964(gActivePlayerState);
     }
 }
 
 void func_806E9ACC(void) {
-    if (!(gActivePlayerState->unk1F0 & 0x8000) && ((G30_PAD(D_807FD63C, u16) & 0xC) == 4)) {
+    if (!(gActivePlayerState->stateFlags & 0x8000) && ((G30_PAD(D_807FD63C, u16) & 0xC) == 4)) {
         func_806E9964(gActivePlayerState);
     }
 }
 
 void func_806E9B3C(void) {
-    if (!(gActivePlayerState->unk1F0 & 0x8000) && (G30_PAD(D_807FD63C, u16) & 4)) {
+    if (!(gActivePlayerState->stateFlags & 0x8000) && (G30_PAD(D_807FD63C, u16) & 4)) {
         func_806E9964(gActivePlayerState);
     }
 }
@@ -4240,7 +4240,7 @@ void func_806E9BA8(arg0) s32 arg0; {
     G30Cam *cam;
 
     if (G30_PAD(D_807FD63C, u16) & 0x4000) {
-        if (!(gActivePlayerState->unk1F0 & 0x8000)) {
+        if (!(gActivePlayerState->stateFlags & 0x8000)) {
             if (slotQueueGetValue(6, gCurrentPlayerIndex) > 0) {
                 sfxPlayOnFreeSlot(0x263, 0x7FFF, 63.0f, 1.0f, 0xA, 0);
                 G29_PAR->unk154 = arg0;
@@ -4504,7 +4504,7 @@ void aimUpdateFromStick(void) {
     f32 *dist;
     s32 unused;
 
-    if (!(gActivePlayerState->unk1F0 & 0x8000)) {
+    if (!(gActivePlayerState->stateFlags & 0x8000)) {
         state = G31_PLAYER->unk104->unk174;
         angle = &state->unkB2;
         *angle = (f64)*angle - (((f64)aimStickSpeedScale() * ((f64)G31_PAD(D_807FD63E, s8) * 0.08) * 4096.0) / 360.0);

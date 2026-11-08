@@ -29,7 +29,7 @@ typedef struct Actor_3340 {
     char pad15F[0x174 - 0x15F];
     s16 *unk174;
     char pad178[0x1A4 - 0x178];
-    u8 unk1A4;
+    u8 playerIndex;
 } Actor_3340;
 
 extern Actor_3340 *gCurrentActor;
@@ -351,7 +351,7 @@ void critterBananaFairyRewardUpdate(void) {
             gCurrentActor->unk155 = 1;
             sfxPlayActorSound(D_807FBB4C, 0x104, 0x3C, 1, 1, 0xFF, 1.0f, 0);
             slotQueueUpdate(6, 0, 0);
-            slotQueueAddValue(6, gActivePlayerState->unk1A4, 0x3E7);
+            slotQueueAddValue(6, gActivePlayerState->playerIndex, 0x3E7);
         }
         break;
     case 3:

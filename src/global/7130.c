@@ -471,7 +471,7 @@ typedef struct {
     char pad[0x104];
     struct SoundCtxSub104 *unk104;
     char pad108[0xE8];
-    u32 unk1F0;
+    u32 stateFlags;
 } SoundContextD580;
 
 extern AmbientEmitter D_80745F74[];
@@ -586,7 +586,7 @@ void sfxUpdateLevelAmbient(void) {
     case 0x30:
         spC0 = D_80746170;
         var_s1 = 8;
-        if (gActivePlayerState->unk1F0 & 0x100000) {
+        if (gActivePlayerState->stateFlags & 0x100000) {
             sfxStopChannel(0x44, 0);
             if (sfxGetChannelVolume(0x44) < 0.1) {
                 sfxAllocateChannel(0x46, 1.0f);

@@ -131,7 +131,7 @@ void func_806D1270(void) {
 
 void func_806D1278(void) {
     playerInputUpdate(1);
-    if (!(gActivePlayerState->unk1F0 & 0x10000)) {
+    if (!(gActivePlayerState->stateFlags & 0x10000)) {
         playerResumeLocomotion(gCurrentActor);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -3779,7 +3779,7 @@ void func_806D9AD4(void) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x264, 0xFF, 0x64, 0x19);
         }
         if (G17_P->unk23C >= 0x12D) {
-            gActivePlayerState->unk1F0 &= ~0x40;
+            gActivePlayerState->stateFlags &= ~0x40;
             G17_A->unk128 -= 5;
             if (G17_A->unk128 < 0xA) {
                 G17_A->unk155++;
@@ -4009,7 +4009,7 @@ void func_806DA89C(void) {
 }
 
 void func_806DA94C(void) {
-    gActivePlayerState->unk1F0 &= 0xFEFFFFFF;
+    gActivePlayerState->stateFlags &= 0xFEFFFFFF;
     playerRegisterHeldActorFollow(1.0f);
     playerRegisterHeldActorAlign();
     playerComputePickupHoldPitch();
@@ -4024,7 +4024,7 @@ void func_806DA94C(void) {
 }
 
 void func_806DAA14(void) {
-    gActivePlayerState->unk1F0 &= 0xFEFFFFFF;
+    gActivePlayerState->stateFlags &= 0xFEFFFFFF;
     playerRegisterHeldActorFollow(1.0f);
     playerRegisterHeldActorAlign();
     playerComputePickupHoldPitch();

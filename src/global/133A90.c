@@ -210,7 +210,7 @@ typedef struct H1ActorState {
     /* 0x19C */ s16 unk19C;
     /* 0x19E */ s16 unk19E;
     /* 0x1A0 */ u8 pad1A0[4];
-    /* 0x1A4 */ u8 unk1A4;
+    /* 0x1A4 */ u8 playerIndex;
 } H1ActorState;
 
 f32 sqrtf(f32);
@@ -245,7 +245,7 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
     bestDist = 9999.0f;
     best = NULL;
     if (isPlayer) {
-        isPlayer = ((H1PlayerBlock *)gPlayerSlots)[state->unk1A4].unk2C0 == 2;
+        isPlayer = ((H1PlayerBlock *)gPlayerSlots)[state->playerIndex].unk2C0 == 2;
     }
     while (node != NULL) {
         got = proxPathGetActorPosition(node->unk0, node->unk4, &x, &y, &z);
@@ -514,7 +514,7 @@ typedef struct H1CamState {
     /* 0x135 */ u8 pad135[3];
     /* 0x138 */ f32 unk138;
     /* 0x13C */ u8 pad13C[0x68];
-    /* 0x1A4 */ u8 unk1A4;
+    /* 0x1A4 */ u8 playerIndex;
 } H1CamState;
 
 typedef struct H1ActorView {
@@ -559,7 +559,7 @@ void proxPathAdvance(f32 speedMultiplier) {
     if (node->unkC < gActivePlayerState->unk138) {
         if (node->unk18 == 1 || node->unk18 == 3) {
             H1BB48->unkEE = H1BB48->unkE6;
-            playerStateQueueCallback(0xD, NULL, gActivePlayerState->unk1A4);
+            playerStateQueueCallback(0xD, NULL, gActivePlayerState->playerIndex);
         }
         gActivePlayerState->unk138 = node->unkC;
     }

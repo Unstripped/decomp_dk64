@@ -101,7 +101,7 @@ typedef struct Boss3F_52B0_BB4C {
 
 typedef struct Boss3F_52B0_D580 {
     char pad0[0x88];
-    void *unk88;
+    void *actor;
 } Boss3F_52B0_D580;
 
 typedef struct Boss3F_52B0_DC90 {
@@ -218,21 +218,21 @@ void bossMadJackStep(void) {
         case 0:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB4C, 0x3B1);
-                actorScriptStart(gActivePlayerState->unk88, 0x3B7);
+                actorScriptStart(gActivePlayerState->actor, 0x3B7);
                 ACTOR->unk155++;
             }
             break;
         case 1:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB4C, 0x3B2);
-                actorScriptStart(gActivePlayerState->unk88, 0x3B8);
+                actorScriptStart(gActivePlayerState->actor, 0x3B8);
                 ACTOR->unk155++;
             }
             break;
         case 2:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB4C, 0x3B3);
-                actorScriptStart(gActivePlayerState->unk88, 0x3B9);
+                actorScriptStart(gActivePlayerState->actor, 0x3B9);
                 ACTOR->unk155++;
             }
             break;
@@ -245,7 +245,7 @@ void bossMadJackStep(void) {
         case 4:
             if (currentActorTestClearFlag() != 0) {
                 actorScriptStart(D_807FBB4C, 0x3B4);
-                actorScriptStart(gActivePlayerState->unk88, 0x3BA);
+                actorScriptStart(gActivePlayerState->actor, 0x3BA);
                 ACTOR->unk155++;
             }
             break;

@@ -950,7 +950,7 @@ void func_806C5C20(void) {
         func_8071498C(func_8071C818);
         func_80714CC0(&D_8071FB08, 1.6f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
-    if (!(gActivePlayerState->unk1F0 & 0x8000)) {
+    if (!(gActivePlayerState->stateFlags & 0x8000)) {
         dist = sqrtf((R1C8CBP->unk218 - gCurrentActor->z) * (R1C8CBP->unk218 - gCurrentActor->z) +
                      (R1C8CBP->unk210 - gCurrentActor->x) * (R1C8CBP->unk210 - gCurrentActor->x)) -
                R1C8CBP->unk284;
@@ -968,7 +968,7 @@ void func_806C5C20(void) {
             R1D580->unk1EC = 2;
         }
     }
-    if ((gActivePlayerState->unk1F0 & 0x8000) && R1D580->unk1EC == 1) {
+    if ((gActivePlayerState->stateFlags & 0x8000) && R1D580->unk1EC == 1) {
         if (gCurrentActor->state != 0x40) {
             flagSet(spawnFlagLookup(D_8076A0AA, spawnNodeIdForActor(gCurrentActor), outFlag), 1, 0);
             eepromSavePlayerData();

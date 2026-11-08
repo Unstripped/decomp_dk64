@@ -558,7 +558,7 @@ void playerUpdateCommon(s32 arg0) {
     if (gPlayerCount == 1) {
         gCurrentActor->unk64 &= ~0x200;
     }
-    if ((gActivePlayerState->unk1F0 & 0x01000000) && D_807FBB8C != 0 && gCurrentActor->state != 0x47) {
+    if ((gActivePlayerState->stateFlags & 0x01000000) && D_807FBB8C != 0 && gCurrentActor->state != 0x47) {
         playerStateQueueCallback(3, NULL, gCurrentPlayerIndex);
     }
     sp6B = func_80666AA0();
@@ -569,7 +569,7 @@ void playerUpdateCommon(s32 arg0) {
         playerCheckLedgeGrab();
     }
     PLAYER_STATE->unkE8 = 0;
-    gActivePlayerState->unk1F0 &= 0xBFFFFFFF;
+    gActivePlayerState->stateFlags &= 0xBFFFFFFF;
     func_806CF580();
     PLAYER_STATE->unk0 = D_807FBB48->state;
     if (gPlayerCount >= 2) {
@@ -1695,7 +1695,7 @@ s16 playerSelectMoveTier(Actor *arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4) {
                 }
                 break;
         }
-        if (gActivePlayerState->unk1F0 & 0x100) {
+        if (gActivePlayerState->stateFlags & 0x100) {
             if (arg3 == 4 || arg3 == 5) {
                 arg3 = 3;
             }
@@ -1707,13 +1707,13 @@ s16 playerSelectMoveTier(Actor *arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4) {
             }
         }
         if (arg3 == 0) {
-            if (gPlayerCount >= 2 || (gActivePlayerState->unk1F0 & 0x40) || !(arg0->flags & 4) || D_807444EC == 1) {
+            if (gPlayerCount >= 2 || (gActivePlayerState->stateFlags & 0x40) || !(arg0->flags & 4) || D_807444EC == 1) {
                 arg3 = 1;
                 goto end;
             }
         }
         if (arg3 == 1) {
-            if (gPlayerCount < 2 && !(gActivePlayerState->unk1F0 & 0x40) && (arg0->flags & 4) && D_807444EC != 1) {
+            if (gPlayerCount < 2 && !(gActivePlayerState->stateFlags & 0x40) && (arg0->flags & 4) && D_807444EC != 1) {
                 arg3 = 0;
                 goto end;
             }
@@ -2239,7 +2239,7 @@ void playerStartPickupApproach(Actor *arg0) {
             radius = D_807532A8[D_807FD584];
             break;
     }
-    if (gActivePlayerState->unk1F0 & 0x01000000) {
+    if (gActivePlayerState->stateFlags & 0x01000000) {
         ang = gCurrentActor->yaw * 0x168 / 4096;
     } else {
         ang = mathAngleBetweenPointsDeg(arg0->x, arg0->z, gCurrentActor->x, gCurrentActor->z);
@@ -2832,7 +2832,7 @@ void playerSetNormalMoveParams(void) {
         G06_P->unk38 = D_80753338[D_807FD584];
         return;
     }
-    if ((gActivePlayerState->unk1F0 & 0x20) || D_807463B8 == 3) {
+    if ((gActivePlayerState->stateFlags & 0x20) || D_807463B8 == 3) {
         if (gCurrentMap == 0x30) {
             G06_P->unk38 = 200.0f;
             return;

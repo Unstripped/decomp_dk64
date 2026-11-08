@@ -906,7 +906,7 @@ void func_806B513C(void) {
         gCurrentActor->flags = gCurrentActor->flags & 0xFFFF7FFF;
     }
     if (gCurrentMap == 0xA6) {
-        inWaterFlag = gActivePlayerState->unk1F0 & 0x40;
+        inWaterFlag = gActivePlayerState->stateFlags & 0x40;
         if ((inWaterFlag != 0) && (gCurrentActor->unk128 == 0)) {
             D_807FDC90->unk2C = 0xA;
             gCurrentActor->unk144 = 0x24;
