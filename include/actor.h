@@ -166,9 +166,9 @@ typedef struct Actor {
     /* 0x060 */ u32 flags;
     /* 0x064 */ u32 unk64;
     /* 0x068 */ u16 unk68;
-    /* 0x06A */ u16 unk6A;
-    /* 0x06C */ u16 unk6C;
-    /* 0x06E */ s16 unk6E;
+    /* 0x06A */ u16 contactFlags;
+    /* 0x06C */ u16 prevContactFlags;
+    /* 0x06E */ s16 soundSlot;
     /* 0x070 */ u8 unk70[0xC];
     /* 0x07C */ f32 x;
     /* 0x080 */ f32 y;
@@ -179,26 +179,40 @@ typedef struct Actor {
     /* 0x094 */ u8 unk94[8];
     /* 0x09C */ f32 unk9C;
     /* 0x0A0 */ f32 unkA0;
-    /* 0x0A4 */ f32 unkA4;
+    /* 0x0A4 */ f32 floorY;
     /* 0x0A8 */ u8 unkA8[4];
-    /* 0x0AC */ f32 unkAC;
+    /* 0x0AC */ f32 waterY;
     /* 0x0B0 */ s8 unkB0[8];
     /* 0x0B8 */ f32 speedXZ;
     /* 0x0BC */ f32 prevSpeedXZ;
     /* 0x0C0 */ f32 speedY;
-    /* 0x0C4 */ f32 unkC4;
-    /* 0x0C8 */ u8 unkC8[0x1C];
+    /* 0x0C4 */ f32 accelY;
+    union {
+        /* 0x0C8 */ u8 unkC8[0x1C];
+        struct {
+            /* 0x0C8 */ f32 terminalSpeedY;
+            /* 0x0CC */ u8 padCC[4];
+            /* 0x0D0 */ u8 floorSurfaceType;
+            /* 0x0D1 */ u8 unkD1;
+            /* 0x0D2 */ u8 padD2[6];
+            /* 0x0D8 */ s16 floorTiltYaw;
+            /* 0x0DA */ s16 floorTiltPitch;
+            /* 0x0DC */ s16 unkDC;
+            /* 0x0DE */ s16 unkDE;
+            /* 0x0E0 */ f32 unkE0;
+        };
+    };
     /* 0x0E4 */ s16 pitch;
     /* 0x0E6 */ s16 yaw;
     /* 0x0E8 */ s16 roll;
     /* 0x0EA */ u8 unkEA[4];
     /* 0x0EE */ s16 moveYaw;
-    /* 0x0F0 */ s16 unkF0;
+    /* 0x0F0 */ s16 movePitch;
     /* 0x0F2 */ u8 unkF2[2];
-    /* 0x0F4 */ s16 unkF4;
-    /* 0x0F6 */ s16 unkF6;
+    /* 0x0F4 */ s16 arcYawMin;
+    /* 0x0F6 */ s16 arcYawMax;
     /* 0x0F8 */ u8 unkF8[4];
-    /* 0x0FC */ u8 unkFC;
+    /* 0x0FC */ u8 hasArcBounds;
     /* 0x0FD */ u8 unkFD;
     /* 0x0FE */ u8 unkFE[0xE];
     /* 0x10C */ s16 unk10C;
@@ -207,15 +221,16 @@ typedef struct Actor {
     /* 0x111 */ u8 unk111[3];
     /* 0x114 */ ActorList *riderList;
     /* 0x118 */ u8 unk118[4];
-    /* 0x11C */ s32 unk11C;
+    /* 0x11C */ struct Actor *owner;
     /* 0x120 */ u8 unk120[4];
     /* 0x124 */ s32 unk124;
     /* 0x128 */ s16 unk128;
     /* 0x12A */ s16 unk12A;
     /* 0x12C */ u8 unk12C[6];
     /* 0x132 */ s16 unk132;
-    /* 0x134 */ u8 unk134[4];
-    /* 0x138 */ s32 unk138;
+    /* 0x134 */ s16 health;
+    /* 0x136 */ s16 damage;
+    /* 0x138 */ s32 callbackMask;
     /* 0x13C */ ActorCallbackNode *callbacks;
     /* 0x140 */ ActorSub140 *unk140;
     /* 0x144 */ u8 unk144;
@@ -233,8 +248,23 @@ typedef struct Actor {
     /* 0x16C */ u8 unk16C;
     /* 0x16D */ u8 unk16D;
     /* 0x16E */ u8 unk16E[6];
-    /* 0x174 */ void *unk174;
+    /* 0x174 */ void *customState;
 } Actor;
+#define unk6A contactFlags
+#define unk6C prevContactFlags
+#define unk6E soundSlot
+#define unkA4 floorY
+#define unkAC waterY
+#define unkC4 accelY
+#define unkF0 movePitch
+#define unkF4 arcYawMin
+#define unkF6 arcYawMax
+#define unkFC hasArcBounds
+#define unk11C owner
+#define unk134 health
+#define unk136 damage
+#define unk138 callbackMask
+#define unk174 customState
 
 // Per-behaviour state objects reached through D_807FDC90..D_807FDC9C.
 // Fields are named by offset; sizes are the largest offset seen so far.
