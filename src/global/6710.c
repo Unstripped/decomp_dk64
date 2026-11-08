@@ -62,7 +62,7 @@ typedef struct AudioDmaContext {
     AudioDmaNode *unk8;
 } AudioDmaContext;
 
-extern s32 D_8000DCB4;
+extern s32 sAudioFreq;
 
 // .data 0x807452C0-0x807454F0
 u32 D_807452C0 = 0;
@@ -131,7 +131,7 @@ void audioThreadInit(AudioInitArgs *initArgs, s32 threadPriority, AudioTaskConfi
     u32 i;
 
     initArgs->dmaNew = audioDmaNew;
-    initArgs->unk18 = D_8000DCB4;
+    initArgs->unk18 = sAudioFreq;
     D_80770194 = 0x228;
     D_8077019C = 0x398;
     synConfig = D_807452D0;

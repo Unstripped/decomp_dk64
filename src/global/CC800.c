@@ -277,8 +277,8 @@ typedef struct G00View1F0 {
     /* 0x1F0 */ s32 unk1F0;
 } G00View1F0;
 
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s32, f32, Actor *);
 
 void func_806C80E4(void) {
@@ -293,8 +293,8 @@ void func_806C80E4(void) {
     } else {
         sp28 = 0.0f;
     }
-    sp30 = func_80612794(D_807FBB4C->yaw) * sp28;
-    var2 = func_80612790(D_807FBB4C->yaw) * sp28;
+    sp30 = mathSinF(D_807FBB4C->yaw) * sp28;
+    var2 = mathCosF(D_807FBB4C->yaw) * sp28;
     actorListSpawnNodeEntryDefault((s16)D_807FD570, D_807FBB4C->x + sp30, (f32)((f64)D_807FBB4C->y + 7.0),
                   D_807FBB4C->z + var2, 0, 1.0f, D_807FBB4C);
     ((G00View1F0 *)D_807FBB4C->unk174)->unk1F0 |= 0x01000000;

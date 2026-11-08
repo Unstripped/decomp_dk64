@@ -136,7 +136,7 @@ void actorSetStateTwo(void *);
 void n_alSndpStop(s32);
 void effectFreeAndUnlink(s32);
 void renderCallbacksRegister(void *, void *, s32);
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 s16 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void bonusEndWin(u8, u8);
 void bonusEndLose(u8, u8);
@@ -243,7 +243,7 @@ void bonusReelGameUpdate(void) {
             }
             break;
         case 1:
-            gCurrentActor->roll = func_80612794(obj->unk10) * -1024.0f + 1024.0f;
+            gCurrentActor->roll = mathSinF(obj->unk10) * -1024.0f + 1024.0f;
             obj->unk10 += obj->unk12;
             if (obj->unk10 >= 0x800) {
                 obj->unk12 = -0x40;

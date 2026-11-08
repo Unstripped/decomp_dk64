@@ -566,7 +566,7 @@ typedef struct {
 
 extern u16 D_80752F38[];
 extern u16 D_80752F40[];
-extern f32 func_80612790(s16);
+extern f32 mathCosF(s16);
 
 void func_806F18F4(s32 arg0, F5BSlot *arg1, s32 *arg2) {
     s32 tableIndex;
@@ -626,7 +626,7 @@ f32 func_806F1AE0(F5BActor *arg0, F5BAccel *arg1, f32 arg2) {
     f32 temp_fa0;
     f32 temp_fv1;
 
-    temp_fv1 = func_80612790((s16)(arg0->unkE6 - arg0->unkEE)) * (arg0->unkB8 * 0.0076923077f);
+    temp_fv1 = mathCosF((s16)(arg0->unkE6 - arg0->unkEE)) * (arg0->unkB8 * 0.0076923077f);
     temp_fa0 = temp_fv1 - arg1->unkC;
     arg1->unkC = temp_fv1;
     return (temp_fa0 + temp_fv1) * arg2;
@@ -1109,7 +1109,7 @@ typedef struct F5CTurnActor { u8 pad0[0x6A]; u16 unk6A; u8 pad6C[0xDC - 0x6C]; s
 typedef struct F5CTurnEntry { s8 unk0; u8 unk1; s16 unk2; s16 unk4; s16 unk6; } F5CTurnEntry;
 #define F5C_S16 ((F5CState16 *)gActivePlayerState)
 s16 mathAngleSignedDistance(s16, s16);
-extern f32 func_80612794(s16);
+extern f32 mathSinF(s16);
 void func_806F2C48(F5CTurnActor *arg0, F5CTurnEntry *arg1, s32 *arg2) {
     s32 entry_index;
     s8 v;
@@ -1132,8 +1132,8 @@ void func_806F2C48(F5CTurnActor *arg0, F5CTurnEntry *arg1, s32 *arg2) {
         if (scaled >= 0x156) scaled = 0x155;
         scaled = scaled * 0x10;
         angle = mathAngleSignedDistance(arg0->unkE6, yaw);
-        amplitude = func_80612790(angle) * (f32)scaled;
-        cosine = func_80612794(angle);
+        amplitude = mathCosF(angle) * (f32)scaled;
+        cosine = mathSinF(angle);
         v = (s8)((F5C_S16->unk16 * 6) / 10);
         if (v != 0) {
             arg1[entry_index].unk1 = 1;
@@ -1164,13 +1164,13 @@ typedef struct F5CEntry {
     f32 unkC;
 } F5CEntry;
 
-extern f32 func_80612794(s16);
+extern f32 mathSinF(s16);
 
 
 void func_806F2EDC(s32 arg0, F5CEntry *arg1, s32 *arg2, u8 arg3, u8 arg4, f32 arg5, f32 arg6) {
     f32 angle;
 
-    angle = func_80612794((s16)(arg5 * 2048.0f));
+    angle = mathSinF((s16)(arg5 * 2048.0f));
     arg1[*arg2].unk0 = arg3;
     arg1[*arg2].unk1 = arg4;
     arg1[*arg2].unk4 = 1.0f;
@@ -1590,9 +1590,9 @@ u8 arg2;
     p->y = arg1->y;
     p->z = arg1->z;
     p->unk9 = 0x32;
-    q->x = func_80612794((s16)((arg1->unk6 / 255.0) * 4095.0)) * arg2 + arg1->x;
+    q->x = mathSinF((s16)((arg1->unk6 / 255.0) * 4095.0)) * arg2 + arg1->x;
     q->y = arg1->y;
-    q->z = func_80612790((s16)((arg1->unk6 / 255.0) * 4095.0)) * arg2 + arg1->z;
+    q->z = mathCosF((s16)((arg1->unk6 / 255.0) * 4095.0)) * arg2 + arg1->z;
     q->unk9 = 0x32;
     playerWaypointPathStart(*((u8 *)gWaypointPaths + 1), (s32)arg0, 0, 0, 0);
     gWaypointFlags = 0;
@@ -1623,9 +1623,9 @@ u8 arg3;
         p->y = arg0->y;
         p->z = arg0->z;
         p->unk9 = 0x28;
-        q->x = func_80612794(angle) * arg3 + arg0->x;
+        q->x = mathSinF(angle) * arg3 + arg0->x;
         q->y = arg0->y;
-        q->z = func_80612790(angle) * arg3 + arg0->z;
+        q->z = mathCosF(angle) * arg3 + arg0->z;
         q->unk9 = 0x28;
         playerWaypointPathStart(*((u8 *)gWaypointPaths + 1), (s32)arg0, 0, 0, 0);
         gWaypointFlags = 0;

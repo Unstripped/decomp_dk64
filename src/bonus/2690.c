@@ -202,8 +202,8 @@ void func_806F0C18(void *, s16 *);
 void func_80613C48(void *, s16, f32, f32);
 void controllerApplyMotionWindow(void *, void *, f32);
 extern f32 D_8002D90C;
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxPlayFromActorDirect(void *, s32, s32, f32, s32, s32);
 void sfxStopSlotSound();
@@ -1017,8 +1017,8 @@ void bonusActorUpdateVertexPositions(void) {
         vb[1] = 0;
         vb[0] = (s32)chk;
         invScale = 1.0f - ((link->unkC - 40.0f) / 235.0f);
-        fx = func_80612794(link->unk4->unkE6) * (5000.0f * invScale + 150.0f);
-        fy = func_80612790(link->unk4->unkE6) * (5000.0f * invScale + 150.0f);
+        fx = mathSinF(link->unk4->unkE6) * (5000.0f * invScale + 150.0f);
+        fy = mathCosF(link->unk4->unkE6) * (5000.0f * invScale + 150.0f);
         zOffset = link->unk14 * 128.0f + -128.0f;
         if (fx < 0.0f) {
             fx = 65535.0f + fx;
@@ -1161,8 +1161,8 @@ void bonusTurtleTroubleTurtleUpdate(void) {
         gCurrentActor->yaw -= 0x1000;
     }
     temp = 30000.0f / p40->unkC;
-    gCurrentActor->pitch = func_80612794(gCurrentActor->yaw) * -temp;
-    gCurrentActor->roll = func_80612790(gCurrentActor->yaw) * temp;
+    gCurrentActor->pitch = mathSinF(gCurrentActor->yaw) * -temp;
+    gCurrentActor->roll = mathCosF(gCurrentActor->yaw) * temp;
     temp = temp * 0.006666667f;
     temp = (temp < 1.0f) ? 1.0f : ((temp > 2.5f) ? 2.5f : temp);
     scriptSetActorRampTarget(gCurrentActor, temp, 0.0f);
@@ -2016,8 +2016,8 @@ void bonusBigBugBashGameUpdate(void) {
                 s0->unk8 = gSpawnedActor->z;
                 s0->unkE = 2;
                 spawnAngle = mathAngleBetweenPoints2D(t->unk0, t->unk4, LB5->unk7C, LB5->unk84) + 0x800;
-                s0->unk4 = func_80612794(spawnAngle) * 70.0 + t->unk0;
-                s0->unk8 = func_80612790(spawnAngle) * 70.0 + t->unk4;
+                s0->unk4 = mathSinF(spawnAngle) * 70.0 + t->unk0;
+                s0->unk8 = mathCosF(spawnAngle) * 70.0 + t->unk4;
                 if (t->unk2C == 0) {
                     gSpawnedActor->x = s0->unk4;
                     gSpawnedActor->y = LB5->unk80 - 30.0;
@@ -2038,8 +2038,8 @@ void bonusBigBugBashGameUpdate(void) {
         f32 fv0;
         f32 fv1;
 
-        fs1 = func_80612794(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
-        fv0 = func_80612790(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+        fs1 = mathSinF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+        fv0 = mathCosF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
         fs0 = D_807ECDEC->unk2 * 0.04f;
         fv1 = D_807ECDEC->unk3 * 0.04f;
 
@@ -2140,8 +2140,8 @@ void bonusBigBugBashGameUpdate(void) {
             t->unkC = (fs1 * diffDelta) + 40.0;
         }
     }
-    LB5->unk7C = func_80612794(t->unk18) * 5.0 + (t->unk0 + t->unk8 * 0.8);
-    LB5->unk84 = 2.0 * func_80612790((s16)(t->unk18 * 2)) + (t->unk4 + t->unkC * 0.9);
+    LB5->unk7C = mathSinF(t->unk18) * 5.0 + (t->unk0 + t->unk8 * 0.8);
+    LB5->unk84 = 2.0 * mathCosF((s16)(t->unk18 * 2)) + (t->unk4 + t->unkC * 0.9);
     D_807FBB4C->x = t->unk0 + t->unk8 * 0.5f;
     D_807FBB4C->y = LB5->unk80;
     D_807FBB4C->z = t->unk4 + t->unkC * 0.5f;
@@ -2202,8 +2202,8 @@ void bonusBigBugBashFlyUpdate(void) {
                 flySpeed = 3.0f;
             }
             gCurrentActor->yaw -= mathAngleSignedDistance(mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, flyExt->unk4, flyExt->unk8) + 0x800, gCurrentActor->yaw) >> 3;
-            gCurrentActor->x += func_80612794(gCurrentActor->yaw) * flySpeed;
-            gCurrentActor->z += func_80612790(gCurrentActor->yaw) * flySpeed;
+            gCurrentActor->x += mathSinF(gCurrentActor->yaw) * flySpeed;
+            gCurrentActor->z += mathCosF(gCurrentActor->yaw) * flySpeed;
             flyExt->unkE--;
             if (flyExt->unkE <= 0) {
                 s16 angle;
@@ -2216,14 +2216,14 @@ void bonusBigBugBashFlyUpdate(void) {
                 angle = mathAngleBetweenPoints2D(targetExt->unk0, targetExt->unk4, flyExt->unk4, flyExt->unk8);
                 angle += ((randomLcgNext() & 7) << 8) + 0x400;
                 wanderRadius = randomFloat() * 70.0;
-                flyExt->unk4 = func_80612794(angle) * wanderRadius + targetExt->unk0;
-                flyExt->unk8 = func_80612790(angle) * wanderRadius + targetExt->unk4;
+                flyExt->unk4 = mathSinF(angle) * wanderRadius + targetExt->unk0;
+                flyExt->unk8 = mathCosF(angle) * wanderRadius + targetExt->unk4;
             }
         } else {
             if (targetExt->unk2C == 0x28) {
                 sfxPlayFromActorDirect(gCurrentActor, 0x801, 0xFF, 3.0f, 2, 0);
             }
-            gCurrentActor->y = func_80612794(targetExt->unk18) * 5.0 + (targetActor->y - 30.0);
+            gCurrentActor->y = mathSinF(targetExt->unk18) * 5.0 + (targetActor->y - 30.0);
         }
     } else {
         gCurrentActor->unk128 -= 4;
@@ -2234,8 +2234,8 @@ void bonusBigBugBashFlyUpdate(void) {
     }
     if (targetActor->state == 2) {
         f32 dz;
-        dx = func_80612794(targetActor->yaw) * 65.0f + targetActor->x;
-        dz = func_80612790(targetActor->yaw) * 65.0f + targetActor->z;
+        dx = mathSinF(targetActor->yaw) * 65.0f + targetActor->x;
+        dz = mathCosF(targetActor->yaw) * 65.0f + targetActor->z;
         dx -= gCurrentActor->x;
         dz -= gCurrentActor->z;
         if (gCurrentActor->state == 0) {
@@ -2419,9 +2419,9 @@ void bonusSearchlightSeekGameUpdate(void) {
                 spawnExt->unk4 = randomLcgNext() & 0xF;
                 spawnExt->unk8 = randomFloat() * 40.0 + 15.0;
                 spawnAngle = spawnExt->unk4 * 0xC8 - 0x578;
-                gSpawnedActor->x = func_80612794(spawnAngle) * spawnExt->unk8 + subExt->unk4;
+                gSpawnedActor->x = mathSinF(spawnAngle) * spawnExt->unk8 + subExt->unk4;
                 gSpawnedActor->y = gCurrentActor->y;
-                gSpawnedActor->z = func_80612790(spawnAngle) * spawnExt->unk8 + subExt->unk8;
+                gSpawnedActor->z = mathCosF(spawnAngle) * spawnExt->unk8 + subExt->unk8;
             }
         }
     }
@@ -2440,8 +2440,8 @@ void bonusSearchlightSeekGameUpdate(void) {
     lightSetColor(subExt->unk0, subExt->unk0, subExt->unk0, -1);
     switch (gCurrentActor->state) {
         case 0: {
-            cosAngle = func_80612794(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
-            sinAngle = func_80612790(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+            cosAngle = mathSinF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
+            sinAngle = mathCosF(gPlayerSlots[gCurrentPlayerIndex].unk2C8);
             velX = subExt->unk14;
             targetOffsetZ = subExt->unk18;
             targetOffsetX = D_807ECDEC->unk2 * 0.06f;
@@ -2462,9 +2462,9 @@ void bonusSearchlightSeekGameUpdate(void) {
             }
             if (subExt->unk1E <= 0 && (*gPlayerSlots[gCurrentPlayerIndex].unk298 & 0xE000)) {
                 sfxPlayOnFreeSlot(0x59, 0x7FFF, 63.0f, 1.0, 0x1E, 0);
-                targetOffsetZ = func_80612794(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->unk210;
+                targetOffsetZ = mathSinF(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->unk210;
                 scale = gPlayerSlots->unk214 - 25.0f;
-                targetOffsetX = func_80612790(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->unk218;
+                targetOffsetX = mathCosF(gPlayerSlots->unk2C8) * 30.0f + gPlayerSlots->unk218;
                 projectileSetTargetCoords(targetOffsetZ, scale, targetOffsetX);
                 projectileAimAndSpawn(0x23, 1, 0.8f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 625.0f, gCurrentActor);
                 subExt->unk1E = 0x1E;
@@ -2504,8 +2504,8 @@ void bonusSearchlightSeekGameUpdate(void) {
         subExt->unkC = targetOffsetZ * scale;
         subExt->unk10 = targetOffsetX * scale;
     }
-    gCurrentActor->x = func_80612794(subExt->unk1C) * 5.0 + (subExt->unk4 + subExt->unkC);
-    gCurrentActor->z = func_80612790(subExt->unk1C * 2) * 2.0 + (subExt->unk8 + subExt->unk10);
+    gCurrentActor->x = mathSinF(subExt->unk1C) * 5.0 + (subExt->unk4 + subExt->unkC);
+    gCurrentActor->z = mathCosF(subExt->unk1C * 2) * 2.0 + (subExt->unk8 + subExt->unk10);
     D_807FBB4C->x = subExt->unk4 + subExt->unkC * 0.5f;
     D_807FBB4C->y = gCurrentActor->y;
     D_807FBB4C->z = subExt->unk8 + subExt->unk10 * 0.5f;
@@ -2555,11 +2555,11 @@ void bonusSearchlightSeekTargetUpdate(void) {
     if (gCurrentActor->state == 0) {
         speed = D_8002D90C;
         angle = spawnLink->unk4 * 0xC8 - 0x578;
-        targetX = func_80612794(angle) * spawnLink->unk8 + targetExt->unk4;
-        targetZ = func_80612790(angle) * spawnLink->unk8 + targetExt->unk8;
+        targetX = mathSinF(angle) * spawnLink->unk8 + targetExt->unk4;
+        targetZ = mathCosF(angle) * spawnLink->unk8 + targetExt->unk8;
         gCurrentActor->yaw -= mathAngleSignedDistance(mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, targetX, targetZ) + 0x800, gCurrentActor->yaw) >> 5;
-        gCurrentActor->x += func_80612794(gCurrentActor->yaw) * speed;
-        gCurrentActor->z += func_80612790(gCurrentActor->yaw) * speed;
+        gCurrentActor->x += mathSinF(gCurrentActor->yaw) * speed;
+        gCurrentActor->z += mathCosF(gCurrentActor->yaw) * speed;
         spawnLink->unkC--;
         if (spawnLink->unkC <= 0) {
             spawnLink->unkC = (randomLcgNext() & 0x3F) + 0xF;

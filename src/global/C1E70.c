@@ -12,8 +12,8 @@ extern u8 D_807FC8D0;
 
 s32 flagGet(s16, s32);
 s32 actorSpawn();
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 
 typedef struct R1C0C1Sub174 {
     /* 0x00 */ s16 unk0;
@@ -49,8 +49,8 @@ void func_806BD170(void) {
             gSpawnedActor->tintG = 0xFF;
             gSpawnedActor->tintB = 0xFF;
             gSpawnedActor->unk128 = 0xFF;
-            gSpawnedActor->x = func_80612794(pos) * 270.0f + gCurrentActor->x;
-            gSpawnedActor->z = func_80612790(pos) * 270.0f + gCurrentActor->z;
+            gSpawnedActor->x = mathSinF(pos) * 270.0f + gCurrentActor->x;
+            gSpawnedActor->z = mathCosF(pos) * 270.0f + gCurrentActor->z;
             gSpawnedActor->y = 100.0f;
             gSpawnedActor->yaw = pos;
             R1C0C1_SPAWNED_146 = 0;

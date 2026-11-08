@@ -356,10 +356,10 @@ u16 inputRemapButtons(u16 arg0, u16 *arg1) {
     return var_a2 | (arg0 & ~var_v1);
 }
 
-f32 func_80612790(s16);
+f32 mathCosF(s16);
 
 f32 mathScaleByAngleDeltaCos(f32 arg0, s16 arg1, s16 arg2) {
-    return func_80612790(arg2 - arg1) * arg0;
+    return mathCosF(arg2 - arg1) * arg0;
 }
 
 typedef struct G21Player {
@@ -1785,7 +1785,7 @@ void playerInputSetBaseGravity(void) {
 
 extern f32 D_807536E4[];
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 void playerApproachVelocity(s16, f32, f32);
 
 void func_806E384C(void) {
@@ -1803,7 +1803,7 @@ void func_806E384C(void) {
         sfxPlayActorSound(gCurrentActor, 0x114, 0, 0, 0, 0xFF, 1.0f, 0);
     }
     t = (s16)(s32)a;
-    c = func_80612790(t);
+    c = mathCosF(t);
     b = D_807536E4[D_807FD584];
     G24_A->unkC4 = D_807536E4[D_807FD584] + (-2.0f * b * c);
     if (G24_A->unkC0 < 0.0f) {
@@ -1812,7 +1812,7 @@ void func_806E384C(void) {
     if (G24_A->unk6A & 1) {
         G24_M->unk30 = D_80753250[D_807FD584];
     } else {
-        c = func_80612794(t) * 8.0f;
+        c = mathSinF(t) * 8.0f;
         if (c >= 0.0f) {
             a = G24_A->unkE6;
         } else {
@@ -1928,7 +1928,7 @@ void func_806E3E40(void) {
             ang += 4096.0f;
         }
         t = (s32)ang;
-        ground = func_80612794(t) * G24_A->unkB8;
+        ground = mathSinF(t) * G24_A->unkB8;
         if (ground > 0.0f) {
             a = ground;
         } else {
@@ -1947,7 +1947,7 @@ void func_806E3E40(void) {
             G24_M->unk2C = 8.0f;
             playerApproachVelocity((s32)arg, 0.0f, G24_M->unk38);
         }
-        ang = func_80612790(t) * G24_A->unkB8;
+        ang = mathCosF(t) * G24_A->unkB8;
         ground = G24_A->unkC0;
         if (ground > 0.0f) {
             ground = 0.0f;

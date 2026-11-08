@@ -458,7 +458,7 @@ s32 slotQueueGetValue(s32, s32);
 void hudSpawnTextScreen(s32);
 s32 playerStateQueueCallback(s32, s32, s32);
 void spawnNodeSpawnById(s16, s32, s32, s32, s32, s32, s32);
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 s32 func_807142D8(void);
 
 void raceOpponentCarBehaviorUpdate(void) {
@@ -531,7 +531,7 @@ void raceOpponentCarBehaviorUpdate(void) {
     }
     if (state->unk34 < 5) {
         racePathFollowStep(cursor, state, 1);
-        gCurrentActor->unk80 += 50.0f * func_80612794((s16)(cursor->unk20 * 0.5f));
+        gCurrentActor->unk80 += 50.0f * mathSinF((s16)(cursor->unk20 * 0.5f));
     } else {
         gCurrentActor->unkB8 = 0.0f;
     }

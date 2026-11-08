@@ -413,8 +413,8 @@ typedef struct FlutterActorView {
 #define FLUTTER_ACTOR ((FlutterActorView *)gCurrentActor)
 
 extern u8 D_807FBD70;
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 mathAngleSignedDistance(s16, s16);
 void billboardSubmit(Actor_3340 *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
@@ -496,9 +496,9 @@ void critterFlutterFlyUpdate(void) {
             d->unk10 = FLUTTER_ACTOR->unk84;
             angleTmp = (s32)(randomFloat() * 4096.0);
             k = randomFloat() * 65.0;
-            d->unk14 = (func_80612790((s16)angleTmp) * k) + d->unk20;
+            d->unk14 = (mathCosF((s16)angleTmp) * k) + d->unk20;
             d->unk18 = d->unk24;
-            d->unk1C = (func_80612794((s16)angleTmp) * k) + d->unk28;
+            d->unk1C = (mathSinF((s16)angleTmp) * k) + d->unk28;
         }
         d->unk0 = t;
         t = (t - 0.5) * 2.5;

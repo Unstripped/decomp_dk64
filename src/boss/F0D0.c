@@ -149,7 +149,7 @@ void bossSetAnimationByWaypoint(u8 *waypointIndices) {
     }
 }
 
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32);
 
@@ -159,7 +159,7 @@ void bossInterpolateWaypoints(u8 *waypointPair, f32 progress) {
 
     val = (f64)(gCurrentActor->unk4->unk0->unk4 * progress);
 
-    factor = (f32)(1.0 + (f64)func_80612794((s16)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
+    factor = (f32)(1.0 + (f64)mathSinF((s16)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
 
     gCurrentActor->unk7C = (f32)D_807FDCA0->unk14[waypointPair[1]].unk0 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk0 - D_807FDCA0->unk14[waypointPair[1]].unk0) * factor;
     gCurrentActor->unk84 = (f32)D_807FDCA0->unk14[waypointPair[1]].unk4 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk4 - D_807FDCA0->unk14[waypointPair[1]].unk4) * factor;
@@ -524,7 +524,7 @@ void bossMainStep(void) {
         }
         break;
     case 0x1F:
-        i = (u8)(u32)(func_80612794((s16)(gFrameCounter * 0x7D)) * 100.0f + 155.0f);
+        i = (u8)(u32)(mathSinF((s16)(gFrameCounter * 0x7D)) * 100.0f + 155.0f);
         lightSetRadius(0x1388);
         lightAdd(BPTS->unk14[5].unk0, BPTS->unk14[5].unk2 - 0x28A, BPTS->unk14[5].unk4, 0.0f, 0.0f, 0.0f, 240.0f, 0, i, i, i);
         if (currentActorTestClearFlag() != 0) {

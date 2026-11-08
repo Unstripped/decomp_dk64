@@ -3810,7 +3810,7 @@ typedef struct SpriteDisplayNode {
     /* 0x34 */ struct SpriteDisplayNode *next;
 } SpriteDisplayNode;
 
-s32 func_80611E60(s32);
+s32 mathAsinFixed(s32);
 f32 distance3D(f32, f32, f32, f32, f32, f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 
@@ -3833,16 +3833,16 @@ void modelCalcFacingAngles(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
             len = 1.0f;
         }
         if (arg0 <= arg3 && arg2 <= arg5) {
-            angle = (s16)(func_80611E60((s32)(((f64)dx * 65535.9) / (f64)len)) >> 4);
+            angle = (s16)(mathAsinFixed((s32)(((f64)dx * 65535.9) / (f64)len)) >> 4);
         }
         if (arg0 <= arg3 && arg5 < arg2) {
-            angle = (s16)((func_80611E60((s32)(((f64)(arg2 - arg5) * 65535.9) / (f64)len)) >> 4) + 0x400);
+            angle = (s16)((mathAsinFixed((s32)(((f64)(arg2 - arg5) * 65535.9) / (f64)len)) >> 4) + 0x400);
         }
         if (arg3 < arg0 && arg5 < arg2) {
-            angle = (s16)((func_80611E60((s32)(((f64)(arg0 - arg3) * 65535.9) / (f64)len)) >> 4) + 0x800);
+            angle = (s16)((mathAsinFixed((s32)(((f64)(arg0 - arg3) * 65535.9) / (f64)len)) >> 4) + 0x800);
         }
         if (arg3 < arg0 && arg2 <= arg5) {
-            angle = (s16)((func_80611E60((s32)(((f64)dz * 65535.9) / (f64)len)) >> 4) + 0xC00);
+            angle = (s16)((mathAsinFixed((s32)(((f64)dz * 65535.9) / (f64)len)) >> 4) + 0xC00);
         }
         *arg8 = 0.0f;
         *arg6 = 0.0f;
@@ -3858,7 +3858,7 @@ void modelCalcFacingAngles(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32
         } else {
             dx = -dz;
         }
-        t = func_80611E60((s32)(f32)(s32)((f64)dx * 65536.0)) >> 4;
+        t = mathAsinFixed((s32)(f32)(s32)((f64)dx * 65536.0)) >> 4;
         angle2 = t;
         if (dz >= 0.0f) {
             angle2 = 0xFFF - angle2;

@@ -446,7 +446,7 @@ void collisionNodeLocalToWorldXZ(CollisionLocalOwner *owner, CollisionHitRecordR
     *outWorldZ = worldZ;
 }
 
-s32 func_80611E60(s32);
+s32 mathAsinFixed(s32);
 void func_806742C0(s16, s16, s32, s32);
 
 void func_806755A8(s32 x1, s32 y1, s32 x2, s32 y2, s32 outMinAngle, s32 outMaxAngle) {
@@ -475,16 +475,16 @@ void func_806755A8(s32 x1, s32 y1, s32 x2, s32 y2, s32 outMinAngle, s32 outMaxAn
             dist = sqrtf((f32)((dx * dx) + (dy * dy)));
             if ((f64)dist != 0.0) {
                 if (dx >= 0 && dy >= 0) {
-                    angle = (s16)(func_80611E60((s32)(((f64)dx * 65535.9) / (f64)dist)) >> 4);
+                    angle = (s16)(mathAsinFixed((s32)(((f64)dx * 65535.9) / (f64)dist)) >> 4);
                 }
                 if (dx >= 0 && dy < 0) {
-                    angle = (s16)((func_80611E60((s32)(((f64)(y1 - y2) * 65535.9) / (f64)dist)) >> 4) + 0x400);
+                    angle = (s16)((mathAsinFixed((s32)(((f64)(y1 - y2) * 65535.9) / (f64)dist)) >> 4) + 0x400);
                 }
                 if (dx < 0 && dy < 0) {
-                    angle = (s16)((func_80611E60((s32)(((f64)(x1 - x2) * 65535.9) / (f64)dist)) >> 4) + 0x800);
+                    angle = (s16)((mathAsinFixed((s32)(((f64)(x1 - x2) * 65535.9) / (f64)dist)) >> 4) + 0x800);
                 }
                 if (dx < 0 && dy >= 0) {
-                    angle = (s16)((func_80611E60((s32)(((f64)dy * 65535.9) / (f64)dist)) >> 4) + 0xC00);
+                    angle = (s16)((mathAsinFixed((s32)(((f64)dy * 65535.9) / (f64)dist)) >> 4) + 0xC00);
                 }
                 func_806742C0(angle + 0x400, angle - 0x400, outMinAngle, outMaxAngle);
             }

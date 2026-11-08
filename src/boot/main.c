@@ -14,13 +14,13 @@ typedef struct {
 } ViModeIdx;
 
 extern SegmentTableEntry gSegmentTable[18];
-extern s8 D_8000DCB0;
-extern u32 D_8000DCB4;
-extern ViModeIdx D_8000DE74;
-extern OSMesgQueue D_80011548;
-extern OSMesg D_80011520[10];
-extern OSThread D_80011560;
-extern OSThread D_80012710;
+extern s8 sBootResetState;
+extern u32 sAudioFreq;
+extern ViModeIdx sBootViMode;
+extern OSMesgQueue sResetMesgQueue;
+extern OSMesg sResetMesgBuf[10];
+extern OSThread sResetThread;
+extern OSThread sMainThread;
 extern u8 D_800138C0[];
 
 extern u8 boot_ROM_START[];
@@ -91,11 +91,11 @@ void bootResetThread(void *arg) {
     s32 msg;
     s32 pad;
 
-    osRecvMesg(&D_80011548, (OSMesg *)&msg, OS_MESG_BLOCK);
+    osRecvMesg(&sResetMesgQueue, (OSMesg *)&msg, OS_MESG_BLOCK);
     switch (msg) {
     case 0x29D:
-        if (D_8000DCB0 != 0) {
-            ((void (*)(OSMesgQueue *, s32))0x805FB300)(&D_80011548, 2);
+        if (sBootResetState != 0) {
+            ((void (*)(OSMesgQueue *, s32))0x805FB300)(&sResetMesgQueue, 2);
         } else {
             osViBlack(1);
             for (;;) {}
@@ -103,7 +103,7 @@ void bootResetThread(void *arg) {
         break;
     case 0x309:
         osSetThreadPri(NULL, 0x12);
-        ((void (*)(OSMesgQueue *, s32))0x805FB300)(&D_80011548, 1);
+        ((void (*)(OSMesgQueue *, s32))0x805FB300)(&sResetMesgQueue, 1);
         for (;;) {}
         break;
     }
@@ -115,12 +115,12 @@ void bootMainThread(void *arg) {
     void *src;
     void *dst;
     u32 pad;
-    ViModeIdx viModes = D_8000DE74;
+    ViModeIdx viModes = sBootViMode;
 
-    osCreateMesgQueue(&D_80011548, D_80011520, 10);
-    osSetEventMesg(OS_EVENT_PRENMI, &D_80011548, (OSMesg)0x29D);
-    osCreateThread(&D_80011560, 11, bootResetThread, NULL, &D_80012710, 100);
-    osStartThread(&D_80011560);
+    osCreateMesgQueue(&sResetMesgQueue, sResetMesgBuf, 10);
+    osSetEventMesg(OS_EVENT_PRENMI, &sResetMesgQueue, (OSMesg)0x29D);
+    osCreateThread(&sResetThread, 11, bootResetThread, NULL, &sMainThread, 100);
+    osStartThread(&sResetThread);
     osCreateViManager(OS_PRIORITY_VIMGR);
     osViSetMode(&osViModeTable[viModes.v[osTvType]]);
     osViBlack(1);
@@ -129,7 +129,7 @@ void bootMainThread(void *arg) {
         noExpPakScreen();
     } else {
         dmaCopy((u32)rspboot_ROM_START, (u32)rspboot_ROM_END, (void *)0x805FB000);
-        D_8000DCB4 = osAiSetFrequency(0x5622);
+        sAudioFreq = osAiSetFrequency(0x5622);
         bzero((void *)0x805FB300, 0x204D00);
         src = (void *)0x80020000;
         dst = (void *)0x805FB300;
@@ -156,15 +156,15 @@ void bootMainThread(void *arg) {
         SEG(16, seg16_ROM)
         SEG(17, seg17_ROM)
         osSetThreadPri(NULL, 0);
-        D_8000DCB0 = 1;
-        ((void (*)(OSMesgQueue *, s32))0x805FB300)(&D_80011548, 0);
+        sBootResetState = 1;
+        ((void (*)(OSMesgQueue *, s32))0x805FB300)(&sResetMesgQueue, 0);
     }
     for (;;) {}
 }
 
 void bootStartMainThread(void) {
-    osCreateThread(&D_80012710, 1, bootMainThread, NULL, D_800138C0, 0);
-    osStartThread(&D_80012710);
+    osCreateThread(&sMainThread, 1, bootMainThread, NULL, D_800138C0, 0);
+    osStartThread(&sMainThread);
 }
 
 void bootMain(void) {

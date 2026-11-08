@@ -2626,8 +2626,8 @@ extern s16 D_807FB5F6;
 
 s32 mathAngleDistance(s16, s16);
 s32 func_806744A8(ActorFacingWork *, s32, s32, s32, s32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 s32 func_806732A8(s32, s16);
 void actorUpdateSubActorOffsets(ActorTargetWork *, u8);
 void actorComputeBoxNormal(ActorTargetWork *, f32 *, f32 *, f32 *, s32);
@@ -2650,8 +2650,8 @@ void actorUpdateFacingAndOffset(ActorFacingWork *arg0, s32 arg1, s32 arg2, s32 a
         sub = ((ActorFacingWork *)D_807FB540)->unk140;
         func_806744A8(arg0, sub->unk0, sub->unk4, sub->unk8, sub->unkC);
         sp28 = D_807FB5D0;
-        sp30 = (s32)(func_80612794(D_807FB544) * 20.0f);
-        temp_f0 = func_80612790(D_807FB544);
+        sp30 = (s32)(mathSinF(D_807FB544) * 20.0f);
+        temp_f0 = mathCosF(D_807FB544);
         sub = ((ActorFacingWork *)D_807FB540)->unk140;
         func_806744A8(arg0, sub->unk0 + sp30, sub->unk4, sub->unk8 + (s32)(temp_f0 * 20.0f), sub->unkC);
         temp_v1 = D_807FB5D0;
@@ -3181,7 +3181,7 @@ typedef struct ActorPosXZView {
 } ActorPosXZView;
 
 struct ActorMotionWork;
-s32 func_80611E60(s32);
+s32 mathAsinFixed(s32);
 s32 actorAngleInArc(struct ActorMotionWork *, s16);
 
 s32 actorCheckPointInAngleArc(struct ActorMotionWork *arg0, f32 arg1, f32 arg2) {
@@ -3205,16 +3205,16 @@ s32 actorCheckPointInAngleArc(struct ActorMotionWork *arg0, f32 arg1, f32 arg2) 
         return 1;
     }
     if (sp20 >= 0 && sp1C >= 0) {
-        var_a2 = (s16)(func_80611E60((s32)(((f64)sp20 * 65535.9) / (f64)sp34)) >> 4);
+        var_a2 = (s16)(mathAsinFixed((s32)(((f64)sp20 * 65535.9) / (f64)sp34)) >> 4);
     }
     if (sp20 >= 0 && sp1C < 0) {
-        var_a2 = (func_80611E60((s32)(((f64)(sp40 - sp24) * 65535.9) / (f64)sp34)) >> 4) + 0x400;
+        var_a2 = (mathAsinFixed((s32)(((f64)(sp40 - sp24) * 65535.9) / (f64)sp34)) >> 4) + 0x400;
     }
     if (sp20 < 0 && sp1C < 0) {
-        var_a2 = (func_80611E60((s32)(((f64)(sp44 - sp28) * 65535.9) / (f64)sp34)) >> 4) + 0x800;
+        var_a2 = (mathAsinFixed((s32)(((f64)(sp44 - sp28) * 65535.9) / (f64)sp34)) >> 4) + 0x800;
     }
     if (sp20 < 0 && sp1C >= 0) {
-        var_a2 = (func_80611E60((s32)(((f64)sp1C * 65535.9) / (f64)sp34)) >> 4) + 0xC00;
+        var_a2 = (mathAsinFixed((s32)(((f64)sp1C * 65535.9) / (f64)sp34)) >> 4) + 0xC00;
     }
     return actorAngleInArc(arg0, var_a2) ? 1 : 0;
 }

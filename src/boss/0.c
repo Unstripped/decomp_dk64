@@ -191,8 +191,8 @@ typedef struct Boss2A_Struct_807FDC90_4300 {
 struct BossA_Struct_80024EAC_DC90;
 extern struct BossA_Struct_80024EAC_DC90 *gBehaviourWorkState;
 s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-f32 func_80612794(s16);
-f32 func_80612790(s16);
+f32 mathSinF(s16);
+f32 mathCosF(s16);
 
 void bossArmydilloDebrisUpdate(void) {
     s16 i;
@@ -254,8 +254,8 @@ void bossArmydilloDebrisUpdate(void) {
             debris++;
         } else {
             angle = i * 400;
-            debris->x += 200.0f * func_80612794(angle);
-            debris->z += 200.0f * func_80612790(angle);
+            debris->x += 200.0f * mathSinF(angle);
+            debris->z += 200.0f * mathCosF(angle);
             debris->y += 100.0f;
             debris++;
         }
@@ -319,8 +319,8 @@ u8 bossPieceStep(u8 *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 e
         OBJ->f2[pieceIdx] = 100.0f;
         OBJ->state[pieceIdx] = 6;
     case 6:
-        p1->x += OBJ->f1[pieceIdx] * func_80612794(OBJ->ang[pieceIdx]);
-        p1->z += OBJ->f1[pieceIdx] * func_80612790(OBJ->ang[pieceIdx]);
+        p1->x += OBJ->f1[pieceIdx] * mathSinF(OBJ->ang[pieceIdx]);
+        p1->z += OBJ->f1[pieceIdx] * mathCosF(OBJ->ang[pieceIdx]);
         p1->y += OBJ->f2[pieceIdx];
         OBJ->f2[pieceIdx] -= 10.0f;
         if (OBJ->f2[pieceIdx] < -200.0f) {

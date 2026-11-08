@@ -671,8 +671,8 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
 }
 
 f32 randomFloat(void);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void func_806F5F2C(s32, s32, s16, s16, s32);
 
 void mpUpdateItemSpawns(void) {
@@ -721,8 +721,8 @@ void mpUpdateItemSpawns(void) {
                             fs3 = (f32) item->x;
                             fs0 = (f32) (item->y - 23);
                             fs4 = (f32) item->z;
-                            fs3 += fs1 * func_80612794(angle);
-                            fs4 += fs1 * func_80612790(angle);
+                            fs3 += fs1 * mathSinF(angle);
+                            fs4 += fs1 * mathCosF(angle);
                             if (num_inner >= 2) {
                                 angle = (randomNonNegative() >> 15) % 4096;
                                 fs1 = 15.0f;
@@ -735,8 +735,8 @@ void mpUpdateItemSpawns(void) {
                             if (num_inner > 0) {
                                 s2_val = (s16) fs0;
                                 do {
-                                    f32 x = fs3 + func_80612794(angle) * fs1;
-                                    f32 z = fs4 + func_80612790(angle) * fs1;
+                                    f32 x = fs3 + mathSinF(angle) * fs1;
+                                    f32 z = fs4 + mathCosF(angle) * fs1;
                                     func_806F5F2C(0x7A, spawnDelay, (s16) x, s2_val, (s32) z);
                                     k++;
                                     angle += fs2;

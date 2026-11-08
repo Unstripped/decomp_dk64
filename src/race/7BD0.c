@@ -1010,7 +1010,7 @@ void raceManagerBehaviorUpdate(void) {
     }
 }
 
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 
 void raceUpdateFinishLineFlagBobbing(RaceUnknown174 *race174) {
     s16 angle;
@@ -1034,7 +1034,7 @@ void raceUpdateFinishLineFlagBobbing(RaceUnknown174 *race174) {
         break;
     }
     race174->unk2 = angle & 0xFFF;
-    scale = (((func_80612794(race174->unk2) + 1.0f) * 1.5) + 1.0) * race174->unk4;
+    scale = (((mathSinF(race174->unk2) + 1.0f) * 1.5) + 1.0) * race174->unk4;
     gCurrentActor->unk4->unk34[2] = scale;
     scaleCopy = gCurrentActor->unk4->unk34[2];
     gCurrentActor->unk4->unk34[1] = scaleCopy;
@@ -1396,7 +1396,7 @@ extern u8 D_807FBD70;
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 mathAngleDistance(s16, s16);
 f32 mathAtan2(f32, f32);
-f32 func_80612790(s16);
+f32 mathCosF(s16);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
 void raceHandleRacerCollision(RaceFE644Arg *collision) {
@@ -1423,9 +1423,9 @@ void raceHandleRacerCollision(RaceFE644Arg *collision) {
         diffAngleActor = (s16)(actor->unkEE - targetAngle) & 0xFFF;
         diffAnglePlayer = (s16)(gCurrentActor->unkEE - targetAngle);
         diffAnglePlayer = diffAnglePlayer & 0xFFF;
-        velX = func_80612794(diffAngleActor) * actor->unkB8;
-        velZ = func_80612790(diffAngleActor) * actor->unkB8;
-        playerVel = func_80612790(diffAnglePlayer) * gCurrentActor->unkB8;
+        velX = mathSinF(diffAngleActor) * actor->unkB8;
+        velZ = mathCosF(diffAngleActor) * actor->unkB8;
+        playerVel = mathCosF(diffAnglePlayer) * gCurrentActor->unkB8;
         velZ = (playerVel - velZ) * bounceScale + playerVel;
         actor->unkB8 = sqrtf(velX * velX + velZ * velZ);
         actor->unkEE = (s16)(s32)(((f64)mathAtan2(velX, velZ) * 4096.0) / 6.2831854820251465);

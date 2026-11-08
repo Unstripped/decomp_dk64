@@ -60,8 +60,8 @@ void playerResumeLocomotion(void *);
 void camReturnToFollow(void *, void *);
 void csModelStateSetFirstByte(s32, s16);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 
 void bossKRoolChunkySetupFight(s32 unused) {
     s16 targetYaw;
@@ -113,10 +113,10 @@ void bossKRoolChunkyInterpolatePosition(f32 stepRate) {
 void bossKRoolChunkyOscillateSway(void) {
     s32 pad[1];
     f32 sinOffset;
-    sinOffset = func_80612794((s16)(gCurrentActor->unk160 * 10240.0));
-    gCurrentActor->unk7C += (80.0f * func_80612794(gCurrentActor->unkE6 + 0x400)) * sinOffset;
-    sinOffset = func_80612794((s16)(gCurrentActor->unk160 * 10240.0));
-    gCurrentActor->unk84 += (80.0f * func_80612790(gCurrentActor->unkE6 + 0x400)) * sinOffset;
+    sinOffset = mathSinF((s16)(gCurrentActor->unk160 * 10240.0));
+    gCurrentActor->unk7C += (80.0f * mathSinF(gCurrentActor->unkE6 + 0x400)) * sinOffset;
+    sinOffset = mathSinF((s16)(gCurrentActor->unk160 * 10240.0));
+    gCurrentActor->unk84 += (80.0f * mathCosF(gCurrentActor->unkE6 + 0x400)) * sinOffset;
 }
 
 void bossKRoolChunkyPlayTauntSfx(void) {

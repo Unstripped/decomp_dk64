@@ -115,8 +115,8 @@ typedef struct {
 extern SfxSignedBytes4 D_80745B20;
 extern SfxUnsignedBytes4 D_80745B24;
 
-void func_8060131C(u8, s32, s32);
-void func_806013E8(u8, s32, s32);
+void seqPlayerSetChannelControlMask(u8, s32, s32);
+void seqPlayerSetChannelStopControlMask(u8, s32, s32);
 void sfxStopChannel();
 void seqSetTargetVolume(s32, f32);
 void seqLoadAndPlayWithReverb(s32, u8, f32);
@@ -159,9 +159,9 @@ void sfxUpdateChannels(void) {
                             sel = j & 2;
                             if (D_8074593C[j][s1] != 0) {
                                 if (sel) {
-                                    func_8060131C(s2, D_8074593C[j][s1], vol);
+                                    seqPlayerSetChannelControlMask(s2, D_8074593C[j][s1], vol);
                                 } else {
-                                    func_806013E8(s2, D_8074593C[j][s1], vol);
+                                    seqPlayerSetChannelStopControlMask(s2, D_8074593C[j][s1], vol);
                                 }
                                 D_8074593C[j][s1] = 0;
                             }
@@ -1297,8 +1297,8 @@ void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
 s32 hashTableLookup(s32);
 s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 u32 randomLcgNext(void);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 
 #define RAND_UNIT() (randomLcgNext() / 4294967295.0)
 #define SLOT_ACTOR(idx) ((AudioActor *)D_807705A0[idx])
@@ -1443,11 +1443,11 @@ void sfxUpdateSourceGroups(void) {
                                     posX = actor->unk7C;
                                     posZ = actor->unk84;
                                     sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, D_80770788[D_807707A0[i][j]], factor);
-                                    posX = (func_80612790(actor->unkE6) * 300.0) + actor->unk7C;
-                                    posZ = actor->unk84 - (func_80612794(actor->unkE6) * 300.0);
+                                    posX = (mathCosF(actor->unkE6) * 300.0) + actor->unk7C;
+                                    posZ = actor->unk84 - (mathSinF(actor->unkE6) * 300.0);
                                     sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, D_80770788[D_807707A0[i][j]], factor);
-                                    posX = actor->unk7C - (func_80612790(actor->unkE6) * 300.0);
-                                    posZ = (func_80612794(actor->unkE6) * 300.0) + actor->unk84;
+                                    posX = actor->unk7C - (mathCosF(actor->unkE6) * 300.0);
+                                    posZ = (mathSinF(actor->unkE6) * 300.0) + actor->unk84;
                                     sfxUpdateDistanceVolumeAndPan(posX, posY, posZ, 0xFF, D_80770788[D_807707A0[i][j]], factor);
                                 } else {
                                     sfxUpdateDistanceVolumeAndPan(actor->unk7C, actor->unk80, actor->unk84, 0xFF, D_80770788[D_807707A0[i][j]], factor);

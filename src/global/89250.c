@@ -788,8 +788,8 @@ void actorSpawnAttachment(Actor *parent, f32 scaleMultiplier) {
     actorCopyPoseAndScale(gSpawnedActor, parent, parent->unk4->unk38 * scaleMultiplier);
 }
 
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 
 void effectSpawnKongRing(void) {
     s32 boneIndex;
@@ -827,8 +827,8 @@ void effectSpawnKongRing(void) {
         func_80714950((void *)(s32)((f32)((((randomNonNegative() >> 15) % 0x7FFF) % 51) + 100) * baseScale));
         func_8071496C((s16)(s32)((f32)i * (1.0f / 3.0f)));
         func_80714A28(0x20);
-        spawnX = (func_80612794(angle) * (baseScale * 18.0f)) + nodeX;
-        func_80714CC0((void *)D_8074E880[i % 3], baseScale * 0.3f, spawnX, nodeY, (func_80612790(angle) * (baseScale * 18.0f)) + nodeZ);
+        spawnX = (mathSinF(angle) * (baseScale * 18.0f)) + nodeX;
+        func_80714CC0((void *)D_8074E880[i % 3], baseScale * 0.3f, spawnX, nodeY, (mathCosF(angle) * (baseScale * 18.0f)) + nodeZ);
     }
 }
 

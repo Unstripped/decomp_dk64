@@ -1147,8 +1147,8 @@ f32 mathApproachF32(f32, f32, f32);
 
 extern s16 D_80753A3C[];
 extern s16 D_80753A4C[];
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 
 #define G03_ABS(x) ((x) > 0.0f ? (x) : -(x))
 
@@ -1161,8 +1161,8 @@ void func_806CC364(u8 arg0) {
     } else {
         a = D_80753A4C[D_807FD584];
     }
-    sum = G03_ABS(func_80612794(G03_A->unkE8) * a) + 1.5;
-    sum += G03_ABS(func_80612790(G03_A->unkDA) * a);
+    sum = G03_ABS(mathSinF(G03_A->unkE8) * a) + 1.5;
+    sum += G03_ABS(mathCosF(G03_A->unkDA) * a);
     if (G03_A->unkB4 < sum) {
         if (G03_A->unkDA < 500) {
             G03_A->unkB8 = (G03_A->unkB8 < 50.0f) ? G03_A->unkB8 : 50.0f;
@@ -1203,8 +1203,8 @@ void func_806CC638(f32 arg0) {
 
     if (G03_P->unk10 != 0) {
         G03_P->unk10--;
-        sn = func_80612790(G03_P->unk12);
-        cs = func_80612794(G03_P->unk12);
+        sn = mathCosF(G03_P->unk12);
+        cs = mathSinF(G03_P->unk12);
         vx = G03_P->unk38 * sn;
         cs = G03_P->unk38 * -cs;
         vz = cs;
@@ -1215,7 +1215,7 @@ void func_806CC638(f32 arg0) {
             rate = G03_P->unk2C;
         }
     } else {
-        cs = func_80612794(G03_A->unkE8);
+        cs = mathSinF(G03_A->unkE8);
         vz = G03_A->unkB8 * -cs;
         G03_A->unkC0 = mathApproachF32(G03_A->unkC0, vz, 2.0f);
         vx = 0.0f;
@@ -1418,7 +1418,7 @@ void playerUpdateHorizontalVelocity(arg0) u8 arg0; {
             NMB_P->unkD8 = NMB_A->unkFC;
             if (D_807FD586) {}
             D_807FD586 = 0;
-            sp38 = func_80612794((s16)(s32)(NMB_A->unkE0 * 11.4)) * 10.0;
+            sp38 = mathSinF((s16)(s32)(NMB_A->unkE0 * 11.4)) * 10.0;
             fa1 = gPlayerPadState[gCurrentPlayerIndex].unk2F;
             if (fa1 < 0.0f) {
                 fa1 = fa1 * (NMB_A->unkB8 / 1600.0);
@@ -1441,19 +1441,19 @@ void playerUpdateHorizontalVelocity(arg0) u8 arg0; {
             if (sub->unk14 < sub->unk18) {
                 fa1 = 0.0f;
             }
-            sp44 = func_80612794(ang) * speed;
-            sp40 = func_80612790(ang) * speed;
+            sp44 = mathSinF(ang) * speed;
+            sp40 = mathCosF(ang) * speed;
             if (NMB_A->unk6A & 1) {
-                sp44 += func_80612794(NMB_A->unkDC) * sp38;
-                sp40 += func_80612790(NMB_A->unkDC) * sp38;
-                sp44 += func_80612794(NMB_A->unkEE) * fa1;
-                sp40 += func_80612790(NMB_A->unkEE) * fa1;
-                sp44 += func_80612790(NMB_A->unkEE) * fv1;
-                sp40 -= func_80612794(NMB_A->unkEE) * fv1;
+                sp44 += mathSinF(NMB_A->unkDC) * sp38;
+                sp40 += mathCosF(NMB_A->unkDC) * sp38;
+                sp44 += mathSinF(NMB_A->unkEE) * fa1;
+                sp40 += mathCosF(NMB_A->unkEE) * fa1;
+                sp44 += mathCosF(NMB_A->unkEE) * fv1;
+                sp40 -= mathSinF(NMB_A->unkEE) * fv1;
             } else if ((NMB_A->unkB4 > 30.0f || sp38 == 0.0f || m < 0x400 || m >= 0xC01) &&
                        sub->unk18 == sub->unk14) {
-                sp44 += (func_80612794(NMB_P->unkA) * NMB_P->unk4) / 40.0;
-                sp40 += (func_80612790(NMB_P->unkA) * NMB_P->unk4) / 40.0;
+                sp44 += (mathSinF(NMB_P->unkA) * NMB_P->unk4) / 40.0;
+                sp40 += (mathCosF(NMB_P->unkA) * NMB_P->unk4) / 40.0;
             }
             speed = sqrtf(sp44 * sp44 + sp40 * sp40);
             if (!(NMB_A->unk6A & 0x1000) && 700.0f < speed) {
@@ -1495,11 +1495,11 @@ void playerUpdateHorizontalVelocity(arg0) u8 arg0; {
             if (D_807FD586) {}
             if (D_807FD586) {}
             if (D_807FD586) {}
-            fa1 = func_80612794(ang) * speed;
-            sp44 = func_80612794(NMB_A->unkDC) * sp38;
+            fa1 = mathSinF(ang) * speed;
+            sp44 = mathSinF(NMB_A->unkDC) * sp38;
             sp44 = fa1 + sp44;
-            fa1 = func_80612790(ang) * speed;
-            sp40 = func_80612790(NMB_A->unkDC) * sp38;
+            fa1 = mathCosF(ang) * speed;
+            sp40 = mathCosF(NMB_A->unkDC) * sp38;
             sp40 = fa1 + sp40;
             speed = sqrtf(sp44 * sp44 + sp40 * sp40);
             ang = (s32)((mathAtan2(sp44, sp40) * 4096.0) / 6.2831855f);
@@ -1547,8 +1547,8 @@ void playerApproachVelocity(s16 arg0, f32 arg1, f32 arg2) {
     } else {
         rate = G03_P->unk2C;
     }
-    cur = func_80612794(prev) * G03_A->unkB8;
-    tgt = func_80612794(arg0) * arg1;
+    cur = mathSinF(prev) * G03_A->unkB8;
+    tgt = mathSinF(arg0) * arg1;
     if (f != 0.0f) {
         if (cur < tgt) {
             dist = tgt - cur;
@@ -1558,20 +1558,20 @@ void playerApproachVelocity(s16 arg0, f32 arg1, f32 arg2) {
         dist = dist * ((G03_P->unk26 * 63.0 + 100.0) / 6400.0);
         lim1 = (dist - rate) * f + rate;
     } else {
-        if (0.0f < func_80612794(arg0) * rate) {
-            lim1 = func_80612794(arg0) * rate;
+        if (0.0f < mathSinF(arg0) * rate) {
+            lim1 = mathSinF(arg0) * rate;
         } else {
-            lim1 = -(func_80612794(arg0) * rate);
+            lim1 = -(mathSinF(arg0) * rate);
         }
-        if (0.0f < func_80612790(arg0) * rate) {
-            lim2 = func_80612790(arg0) * rate;
+        if (0.0f < mathCosF(arg0) * rate) {
+            lim2 = mathCosF(arg0) * rate;
         } else {
-            lim2 = -(func_80612790(arg0) * rate);
+            lim2 = -(mathCosF(arg0) * rate);
         }
     }
     vA = mathApproachF32(cur, tgt, lim1);
-    cur = func_80612790(prev) * G03_A->unkB8;
-    tgt = func_80612790(arg0) * arg1;
+    cur = mathCosF(prev) * G03_A->unkB8;
+    tgt = mathCosF(arg0) * arg1;
     if (f != 0.0f) {
         if (cur < tgt) {
             dist = tgt - cur;
@@ -2394,8 +2394,8 @@ void func_806CF138(G05CbArg2 *arg0) {
     sp5C = sp6C - sp68;
     sp58 = sqrtf((sp64 - sp60) * (sp64 - sp60) + ((sp74 - sp70) * (sp74 - sp70) + sp5C * sp5C));
     sp54 = asinApprox(sp5C / sp58) * 57.29577637f;
-    dir[0] = func_80612794(arg0->unk0->yaw) * 50.0f;
-    dir[1] = func_80612790(arg0->unk0->yaw) * 50.0f;
+    dir[0] = mathSinF(arg0->unk0->yaw) * 50.0f;
+    dir[1] = mathCosF(arg0->unk0->yaw) * 50.0f;
     delta[0] = sp74 - sp70;
     delta[1] = sp64 - sp60;
     sp3C = dir[0] * delta[0] + dir[1] * delta[1];
@@ -2669,8 +2669,8 @@ u8 playerProbeLedgeAhead(Actor *arg0, f32 *arg1, u8 arg2, f32 arg3) {
     if (!arg2) {
         angle = (angle + 0x800) & 0xFFF;
     }
-    dx = func_80612794(angle) * arg3;
-    dz = func_80612790(angle) * arg3;
+    dx = mathSinF(angle) * arg3;
+    dz = mathCosF(angle) * arg3;
     ret = collisionCheckActorFloor(arg0, arg0->x + dx, arg0->y + 30.0f, arg0->z + dz, arg1);
     ((G02ActorView *)arg0)->unk78 = func_80666AE0();
     return ret;
@@ -3136,8 +3136,8 @@ void actorChildEffectUpdate(void) {
                 G07_A->unkB8 = G07_A->unkB8 + 0.15;
             }
             temp = G07_A->unkB8 * speed;
-            G07_A->unk7C += temp * func_80612794(G07_A->unk168);
-            G07_A->unk84 += temp * func_80612790(G07_A->unk168);
+            G07_A->unk7C += temp * mathSinF(G07_A->unk168);
+            G07_A->unk84 += temp * mathCosF(G07_A->unk168);
             if (G07_A->unkC0 < 2.5) {
                 G07_A->unkC0 = G07_A->unkC0 + 0.2;
             }

@@ -172,7 +172,7 @@ typedef struct AngAAngle {
 
 extern s16 D_807FDA1E;
 f32 sinApprox(f32);
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 mathAngleSignedDistance(s16, s16);
 
@@ -203,7 +203,7 @@ void effectSpriteParticleTrackCamera(struct M114aAngle *particle) {
     dz = ANGA_PLAYER->unk218 - ANGA_PLAYER->unk224;
     dx = ANGA_PLAYER->unk210 - ANGA_PLAYER->unk21C;
     dist2 = sqrtf(dz * dz + dx * dx);
-    p->unk4 -= 2.0 * dist2 * func_80612794(mathAngleSignedDistance(ANGA_PLAYER->unk2C8, ang));
+    p->unk4 -= 2.0 * dist2 * mathSinF(mathAngleSignedDistance(ANGA_PLAYER->unk2C8, ang));
     p->unk14 = ANGA_PLAYER->unk2C4;
 }
 #undef p
@@ -363,7 +363,7 @@ s32 func_80710174(M114aAngle *particle) {
     u8 curAlpha;
 
     effectSpriteParticleTrackCamera(particle);
-    new_var2 = func_80612794(particle->unk20);
+    new_var2 = mathSinF(particle->unk20);
     particle->unk4 = (f32)(particle->unk4 + (new_var2 * particle->unk28));
     effectSpriteParticleWrapX(particle);
     particle->unk8 = (f32)particle->unk4;
@@ -399,7 +399,7 @@ s32 func_807102AC(M114aAngle *particle) {
     u8 curAlpha;
 
     effectSpriteParticleTrackCamera(particle);
-    new_var2 = func_80612794(particle->unk20);
+    new_var2 = mathSinF(particle->unk20);
     particle->unk4 = (f32)(particle->unk4 + (new_var2 * particle->unk28));
     effectSpriteParticleWrapX(particle);
     particle->unk8 = (f32)particle->unk4;
@@ -452,12 +452,12 @@ s32 func_807103E0(AngAView *particle) {
     s32 isDone;
 
     effectSpriteParticleTrackCamera((M114aAngle *)particle);
-    particle->unk4 += func_80612794((s16)(s32)(particle->unk22 * 0.5)) * (f32)(particle->unk28 * 0.05);
+    particle->unk4 += mathSinF((s16)(s32)(particle->unk22 * 0.5)) * (f32)(particle->unk28 * 0.05);
     effectSpriteParticleWrapX((M114aAngle *)particle);
     particle->unk8 = particle->unk4;
-    particle->unkC += (1.0 + (f64)func_80612794(particle->unk22)) * (f64)(f32)(1.0 + particle->unk20 * 0.08);
+    particle->unkC += (1.0 + (f64)mathSinF(particle->unk22)) * (f64)(f32)(1.0 + particle->unk20 * 0.08);
     particle->unk22 += 0x64;
-    particle->unk24 = (s16)(s32)((func_80612794((s16)(s32)(particle->unk22 * 0.5)) * 0.5 + 0.5) * (f64)(particle->unkB3 * 4 - -particle->unkB3 * 4) + (f64)(-particle->unkB3 * 4));
+    particle->unk24 = (s16)(s32)((mathSinF((s16)(s32)(particle->unk22 * 0.5)) * 0.5 + 0.5) * (f64)(particle->unkB3 * 4 - -particle->unkB3 * 4) + (f64)(-particle->unkB3 * 4));
     scaleY = particle->unk10;
     if (scaleY > 0.0f) {
         absScaleY = scaleY;

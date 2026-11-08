@@ -62,7 +62,7 @@ void func_80724DB0();
 void sfxPlayAtFBD6CPosition(void);
 void actorUpdateModelMatrix(void *, s32);
 
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 
 typedef struct {
     u8 pad0[0x7C];
@@ -173,7 +173,7 @@ void camStartPath(void *, s32, u8);
 void hudCountdownTimerSaveElapsed(void *);
 void screenSetTransitionFadeType(s32);
 void mapRequestTransition(s32, s32);
-f32 func_80612790(s16);
+f32 mathCosF(s16);
 void playerWaypointPathStartLineFromActor(void *, s16, s16, s32);
 void func_80641874(s32, s32);
 void playerSetSizeMode(void *, s32);
@@ -241,10 +241,10 @@ void bossDogadonStep(void) {
             screenSetTransitionFadeType(1);
             func_8070B308(1);
             mapRequestTransition(0xD6, 0);
-            PLAYER_ACTOR->unk7C = func_80612794(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk7C;
-            PLAYER_ACTOR->unk84 = func_80612790(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk84;
-            lineDist = func_80612794(MAIN_ACTOR->unkE6 + 0x384);
-            playerWaypointPathStartLineFromActor(PLAYER_ACTOR, (s32)(lineDist * 15.0f + MAIN_ACTOR->unk7C), (s32)(func_80612790(MAIN_ACTOR->unkE6 + 0x384) * 15.0f + MAIN_ACTOR->unk84), 0x50);
+            PLAYER_ACTOR->unk7C = mathSinF(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk7C;
+            PLAYER_ACTOR->unk84 = mathCosF(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk84;
+            lineDist = mathSinF(MAIN_ACTOR->unkE6 + 0x384);
+            playerWaypointPathStartLineFromActor(PLAYER_ACTOR, (s32)(lineDist * 15.0f + MAIN_ACTOR->unk7C), (s32)(mathCosF(MAIN_ACTOR->unkE6 + 0x384) * 15.0f + MAIN_ACTOR->unk84), 0x50);
         } else {
             switch (MAIN_ACTOR->unk155) {
             case 0:
@@ -398,7 +398,7 @@ u8 scaleFactor;
     sub->unk0 = 2;
     sub->unk1 = 4;
     sub->unk4 = 1.0f;
-    sin_val = func_80612794((s16)(gFrameCounter << 7));
+    sin_val = mathSinF((s16)(gFrameCounter << 7));
     sub->unk4 += (f64)scaleFactor * (0.04 + 0.04 * (f64)sin_val);
     sub->unk8 = sub->unk4;
     sub->unkC = 1.0f;

@@ -14,8 +14,8 @@ extern u8 D_807FDB7F;
 extern u8 D_807FDB80;
 
 void *heapAlloc(s32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 
 typedef struct {
     s32 unk0;
@@ -343,9 +343,9 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     secondary->l.colc[2] = secondary->l.col[2];
 
     angle = mathAngleBetweenPoints2D(x, z, *(f32 *)((u8 *)gPlayerSlots + (playerSlotIndex * 0x2F0) + 0x21C), *(f32 *)((u8 *)gPlayerSlots + (playerSlotIndex * 0x2F0) + 0x224)) + D_807FDB76;
-    dx = (*(f32 *)((u8 *)gPlayerSlots + (playerSlotIndex * 0x2F0) + 0x21C) - (func_80612794(angle) * (f32)D_807FDB78)) - x;
+    dx = (*(f32 *)((u8 *)gPlayerSlots + (playerSlotIndex * 0x2F0) + 0x21C) - (mathSinF(angle) * (f32)D_807FDB78)) - x;
     dy = (f32)(camera_rotation + D_807FDB7A);
-    dz = (*(f32 *)((u8 *)gPlayerSlots + (playerSlotIndex * 0x2F0) + 0x224) - (func_80612790(angle) * (f32)D_807FDB78)) - z;
+    dz = (*(f32 *)((u8 *)gPlayerSlots + (playerSlotIndex * 0x2F0) + 0x224) - (mathCosF(angle) * (f32)D_807FDB78)) - z;
     inv_distance = 127.0f / sqrtf((dx * dx) + (dy * dy) + (dz * dz));
     secondary->l.dir[0] = (s8)(s32)(dx * inv_distance);
     secondary->l.dir[1] = (s8)(s32)(dy * inv_distance);

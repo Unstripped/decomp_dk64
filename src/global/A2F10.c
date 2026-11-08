@@ -220,7 +220,7 @@ s32 animIsPlaying(void *, s32);
 s32 controllerLookupStateByHash(Actor *);
 s32 camIsCutsceneActive(void);
 void camStartShake(void *, s32, s32);
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 void actorSetCollisionRadius(Actor *, f32);
 void playerStateQueueCallback(s32, void *, s32);
 s32 func_80714608(s32);
@@ -320,7 +320,7 @@ void func_8069E774(void) {
         gCurrentActor->unk4->unk34 * ((ActorF64View160 *)gCurrentActor)->unk160;
     gCurrentActor->unk4->unk3C = gCurrentActor->unk4->unk34;
     gCurrentActor->unk4->unk38 = gCurrentActor->unk4->unk38 * 1.04;
-    sp68 = func_80612794(((ActorHeadingView *)gCurrentActor)->unkEE);
+    sp68 = mathSinF(((ActorHeadingView *)gCurrentActor)->unkEE);
     gCurrentActor->unk4->unk38 = gCurrentActor->unk4->unk38 + 0.01 * (f64)sp68;
     ((ActorHeadingView *)gCurrentActor)->unkEE += 0x1F4;
     gCurrentActor->yaw += 0x32;
@@ -1224,7 +1224,7 @@ void actorSetNodeValuesForFrame(MatrixArray *arg0) {
 
 s32 assetLoad(s32, s32, s32, s32);
 void func_80724D28(s32, s32);
-f32 func_80612790(s16);
+f32 mathCosF(s16);
 void actorSetUniformScale(Actor *, f32);
 extern u8 D_807503D4[];
 extern u8 D_807503E0[];
@@ -1260,16 +1260,16 @@ void func_806A112C(void) {
                 ATTACHED_ACTOR_SPAWNED->unk15F = i;
                 ATTACHED_ACTOR_SPAWNED->unkE6 = ATTACHED_ACTOR->unkE6 + ((u16)(i / 3) << 10);
                 ATTACHED_ACTOR_SPAWNED->unk7C = ATTACHED_ACTOR->unk7C -
-                    func_80612794(ATTACHED_ACTOR_SPAWNED->unkE6) * d;
+                    mathSinF(ATTACHED_ACTOR_SPAWNED->unkE6) * d;
                 ATTACHED_ACTOR_SPAWNED->unk80 = ATTACHED_ACTOR->unk80 +
                     (f32) ((u8) (i % 3) * 17);
                 ATTACHED_ACTOR_SPAWNED->unk84 = ATTACHED_ACTOR->unk84 -
-                    func_80612790(ATTACHED_ACTOR_SPAWNED->unkE6) * d;
+                    mathCosF(ATTACHED_ACTOR_SPAWNED->unkE6) * d;
                 actorSetUniformScale(gSpawnedActor, ATTACHED_ACTOR->unk4->unk38);
                 animSetChannelFrames(gSpawnedActor, D_807503D4[n], D_807503E0[n++]);
             }
-            ATTACHED_ACTOR->unk7C -= d * func_80612794(ATTACHED_ACTOR->unkE6);
-            ATTACHED_ACTOR->unk84 -= d * func_80612790(ATTACHED_ACTOR->unkE6);
+            ATTACHED_ACTOR->unk7C -= d * mathSinF(ATTACHED_ACTOR->unkE6);
+            ATTACHED_ACTOR->unk84 -= d * mathCosF(ATTACHED_ACTOR->unkE6);
         }
     }
     switch (ATTACHED_ACTOR->unk154) {

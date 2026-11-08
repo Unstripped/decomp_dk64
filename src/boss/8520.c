@@ -23,8 +23,8 @@ extern BossA_Struct_807FBB40 *gCurrentActor;
 extern BossA_Struct_807FDC9C *gBehaviourExtraState;
 extern BossA_Struct_807FBB44 *gSpawnedActor;
 
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void spawnNodeSpawnById(s16, s16, s16, s16, s32, s32, s32);
 
 void bossKutOutSpawnGhost(s16 actorType, s16 distance, s16 angle) {
@@ -32,13 +32,13 @@ void bossKutOutSpawnGhost(s16 actorType, s16 distance, s16 angle) {
     f32 sinVal;
     f32 fArg1;
 
-    sinVal = func_80612794(angle);
+    sinVal = mathSinF(angle);
     fArg1 = distance;
     spawnNodeSpawnById(
         actorType,
         sinVal * fArg1 + gCurrentActor->unk7C,
         gBehaviourExtraState->unk6,
-        func_80612790(angle) * fArg1 + gCurrentActor->unk84,
+        mathCosF(angle) * fArg1 + gCurrentActor->unk84,
         0, 0, 0
     );
     gSpawnedActor->unkC8 *= 2;
@@ -397,12 +397,12 @@ void bossKutOutStep(void) {
         break;
     }
     if (swayState->unk2 > 0) {
-        swayState->unk0 = func_80612794(swayState->unk4) * swayState->unk2;
+        swayState->unk0 = mathSinF(swayState->unk4) * swayState->unk2;
         swayState->unk4 += 0x32;
         swayState->unk2 -= 1;
         A40->unkE8 = -swayState->unk0;
-        A40->unk7C = func_80612794(A40->unkEE) * swayState->unk0 + DC9C->unk4;
-        A40->unk84 = func_80612790(A40->unkEE) * swayState->unk0 + DC9C->unk8;
+        A40->unk7C = mathSinF(A40->unkEE) * swayState->unk0 + DC9C->unk4;
+        A40->unk84 = mathCosF(A40->unkEE) * swayState->unk0 + DC9C->unk8;
         A40->unk80 = DC9C->unk6 - sqrtf(0x1C390 - swayState->unk0 * swayState->unk0);
     }
     if (DC90->unk28 & 0x8000) {

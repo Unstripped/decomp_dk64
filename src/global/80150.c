@@ -1895,8 +1895,8 @@ extern s32 D_807FBB68;
 extern u16 D_807FD63C;
 void func_806FF01C();
 
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void controllerAnimLoadStateAsset(Actor *, s16);
 void controllerAnimFreeStateAsset(Actor *);
 void camSetFixedView(s32, f32, f32, f32, f32, f32, f32, u8);
@@ -1986,8 +1986,8 @@ void func_8067FB6C(void) {
             sp4E = gCurrentActor->yaw;
             break;
         }
-        sp5C = func_80612794(sp4E) * 50.0f;
-        sp58 = func_80612790(sp4E) * 50.0f;
+        sp5C = mathSinF(sp4E) * 50.0f;
+        sp58 = mathCosF(sp4E) * 50.0f;
         if (sub->unk1B == 1) {
             controllerAnimLoadStateAsset(gCurrentActor, 0x75);
         }
@@ -2498,7 +2498,7 @@ void tagBarrelActorUpdate(void) {
         billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0xC, 0xC, 1, 0x64, 0x78, 0, 1.0f);
     }
     gCurrentActor->yaw += 0x50;
-    gCurrentActor->y = (func_80612794(sub->unk4) * 5.0) + (f64)sub->unk0;
+    gCurrentActor->y = (mathSinF(sub->unk4) * 5.0) + (f64)sub->unk0;
     sub->unk4 += 0x3C;
     guTranslateF((f32 (*)[4])((u8 *)gCurrentActor + 0xC), sp90.x, sp90.y, sp90.z);
     actorUpdateModelMatrix(gCurrentActor, 1);
@@ -2782,8 +2782,8 @@ void cannonUpdate(void) {
         cam = ((CannonCamHolder *)sub->unk4->unk174)->unk104;
         sub->unk8 = sub->unk8 - (f64)D_807FD63E * 0.08 * D_8074E7F8 * 4096.0 / 360.0;
         sub->unk8 = sub->unk8 & 0xFFF;
-        sinOff = func_80612794(sub->unk8) * D_8074E7F4;
-        cosOff = func_80612790(sub->unk8) * D_8074E7F4;
+        sinOff = mathSinF(sub->unk8) * D_8074E7F4;
+        cosOff = mathCosF(sub->unk8) * D_8074E7F4;
         D_8074E804 = D_8074E804 - (f64)D_807FD63F * 0.04 * D_8074E800;
         if (D_8074E804 > 50.0) {
             D_8074E804 = 50.0f;
@@ -2936,8 +2936,8 @@ void tagBarrelOrbitKongs(void *arg0) {
     do {
         temp_s2 = *(Actor **)(var_s3 + 8);
         temp_t0 = (s16)((s32)(4096.0 - (var_s1 * 819.2)) + temp_s5) & 0xFFF;
-        temp_s2->x = (func_80612794(temp_t0) * 45.0f) + sp70;
-        temp_s2->z = (func_80612790(temp_t0) * 45.0f) + sp68;
+        temp_s2->x = (mathSinF(temp_t0) * 45.0f) + sp70;
+        temp_s2->z = (mathCosF(temp_t0) * 45.0f) + sp68;
         var_s3 += 4;
         temp_s2->y = sp6C;
         if (var_s1 == arg->unk6) {
@@ -2997,9 +2997,9 @@ void tagBarrelSpawnKongs(TagBarrelSpawnArgs *arg0) {
     s32 flag = 0x40000000;
     actorSpawn(0x136, 0xA8);
     arg0->unk1C = gSpawnedActor;
-    gSpawnedActor->x = gCurrentActor->x + func_80612794(gCurrentActor->yaw) * 35.0f;
+    gSpawnedActor->x = gCurrentActor->x + mathSinF(gCurrentActor->yaw) * 35.0f;
     gSpawnedActor->y = (gCurrentActor->y - 10.0f) - 2.0f;
-    gSpawnedActor->z = gCurrentActor->z + func_80612790(gCurrentActor->yaw) * 35.0f;
+    gSpawnedActor->z = gCurrentActor->z + mathCosF(gCurrentActor->yaw) * 35.0f;
 
     for (i = 0; i < 5; i++) {
         if (flagGet(mapGetConfigValue(gCurrentActor->actorType, i), 0)) {
@@ -3670,7 +3670,7 @@ void tagBarrelUpdate(void) {
         actor->yaw += 0x32;
         actor = gCurrentActor;
         actor->yaw &= 0xFFF;
-        gCurrentActor->y = func_80612794(sub->unk28) * 5.0f + sub->unk24;
+        gCurrentActor->y = mathSinF(sub->unk28) * 5.0f + sub->unk24;
         sub->unk28 += 0x32;
         sub->unk28 &= 0xFFF;
         actor = gCurrentActor;

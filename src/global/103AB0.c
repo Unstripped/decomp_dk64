@@ -1219,7 +1219,7 @@ void vtxGradientSetColorB(s8 arg0, s8 arg1, s8 arg2) {
 }
 
 
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 
 void vtxSetColor(VtxColorView *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5) {
     arg0->unkC = arg1;
@@ -1229,10 +1229,10 @@ void vtxSetColor(VtxColorView *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5
     if (arg5 & 0x10) {
         f32 s;
         if (arg5 & 0x40) {
-            s = func_80612794((s16)(s32)(((f64)arg4 * 12.05) + 1024.0));
+            s = mathSinF((s16)(s32)(((f64)arg4 * 12.05) + 1024.0));
             arg0->unk2 = (s16)(s32)((f32)arg0->unk2 + 64.0f * s);
         } else {
-            s = func_80612794((s16)(s32)(((f64)arg4 * 12.05) + 1024.0));
+            s = mathSinF((s16)(s32)(((f64)arg4 * 12.05) + 1024.0));
             arg0->unk2 = (s16)(s32)((f32)arg0->unk2 - 64.0f * s);
         }
     }

@@ -202,19 +202,19 @@ void seqPlayerEnableChannel(u8 playerIndex, s32 channel) {
     enableCSPChannel(gSeqPlayers[playerIndex], channel);
 }
 
-void func_8060128C(u8 playerIndex, u8 channel, u8 value) {
+void seqPlayerSetChannelControl(u8 playerIndex, u8 channel, u8 value) {
     alCSPChannelSetControl(gSeqPlayers[playerIndex], channel, value);
 }
 
 void seqPlayerSetChannelPortamento(u8 playerIndex, u8 channel, u8 portamento) {
     setCSPChannelPortamento(gSeqPlayers[playerIndex], channel, portamento);
 }
-void func_8060131C(u8 playerIndex, s32 chanMask, u8 value) {
+void seqPlayerSetChannelControlMask(u8 playerIndex, s32 chanMask, u8 value) {
     s32 i;
 
     for (i = 0; i < 16; i++) {
         if (chanMask & (1 << i)) {
-            func_8060128C(playerIndex, i, value);
+            seqPlayerSetChannelControl(playerIndex, i, value);
         }
     }
 }
@@ -223,7 +223,7 @@ void seqPlayerSetChannelStopControl(u8 playerIndex, u8 channel, u8 control) {
     setCSPChannelStopControl(gSeqPlayers[playerIndex], channel, control);
 }
 
-void func_806013E8(u8 playerIndex, s32 chanMask, u8 control) {
+void seqPlayerSetChannelStopControlMask(u8 playerIndex, s32 chanMask, u8 control) {
     s32 i;
 
     for (i = 0; i < 16; i++) {
@@ -233,7 +233,7 @@ void func_806013E8(u8 playerIndex, s32 chanMask, u8 control) {
     }
 }
 
-void func_80601484(u8 playerIndex, s32 chanMask, s32 enable) {
+void seqPlayerEnableChannelMask(u8 playerIndex, s32 chanMask, s32 enable) {
     s32 i;
 
     for (i = 0; i < 16; i++) {

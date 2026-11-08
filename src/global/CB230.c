@@ -54,8 +54,8 @@ extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 extern u32 gFrameCounter;
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void lightSetFovAngles(f32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
@@ -117,13 +117,13 @@ void actorUpdateNearestSpotlight(void) {
             A[0] = gCurrentActor->x;
             A[1] = gCurrentActor->y;
             A[2] = gCurrentActor->z;
-            B[0] = func_80612794(gCurrentActor->yaw) * 40.0f + gCurrentActor->x;
+            B[0] = mathSinF(gCurrentActor->yaw) * 40.0f + gCurrentActor->x;
             B[1] = gCurrentActor->y - 20.0f;
-            B[2] = func_80612790(gCurrentActor->yaw) * 40.0f + gCurrentActor->z;
+            B[2] = mathCosF(gCurrentActor->yaw) * 40.0f + gCurrentActor->z;
             lightSetFovAngles(20.0f, 40.0f);
             break;
     }
-    p->unk0 = func_80612794(gFrameCounter * 130) * 35.0 + 220.0;
+    p->unk0 = mathSinF(gFrameCounter * 130) * 35.0 + 220.0;
     lightAdd(A[0], A[1], A[2], B[0], B[1], B[2], 0.0f, 1, ((u8 *)p)[1], ((u8 *)p)[1], ((u8 *)p)[1]);
 }
 
@@ -157,7 +157,7 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
     }
     actorSetTargetSpeed(gCurrentActor, (s32)((u32)dist * 2.0));
     actorPitchEaseTowardPoint(0x23, yOffset, gBehaviourTargetActor->x, gBehaviourTargetActor->y + yOffset * 3.0, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, flags | 0x2000);
-    gCurrentActor->y += 0.5 * func_80612794(gFrameCounter * 40);
+    gCurrentActor->y += 0.5 * mathSinF(gFrameCounter * 40);
     actorUpdateNearestSpotlight();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

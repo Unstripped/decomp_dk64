@@ -63,8 +63,8 @@ extern RaceC_Row D_8002FB70[];
 #define RC_A ((RaceC_Act *)gCurrentActor)
 #define RC_B ((RaceC_Act *)D_807FBB48)
 f32 mathAtan2(f32, f32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void actorScriptStart(void *, s32);
 
 void raceOpponentFollowWaypoints(void) {
@@ -90,7 +90,7 @@ void raceOpponentFollowWaypoints(void) {
         routeRows = D_8002FB70;
     }
     curSpeed = RC_A->unkB8;
-    oscSpeed = func_80612794((s16)(s32)(RC_A->unkE0 * 11.4)) * 20.0f;
+    oscSpeed = mathSinF((s16)(s32)(RC_A->unkE0 * 11.4)) * 20.0f;
     a0 = &D_807FDCA0->unk14[gBehaviourWorkState->unk25];
     fs0 = RC_A->unk7C - a0->x;
     fs1 = RC_A->unk84 - a0->z;
@@ -130,16 +130,16 @@ void raceOpponentFollowWaypoints(void) {
         v1 = (f64)v1 + 4096.0;
     }
     turnDelta = (f64)(RC_A->unkB8 * v1) / 10000.0;
-    fs0 = func_80612794(RC_A->unkEE) * curSpeed;
-    fs1 = func_80612790(RC_A->unkEE) * curSpeed;
+    fs0 = mathSinF(RC_A->unkEE) * curSpeed;
+    fs1 = mathCosF(RC_A->unkEE) * curSpeed;
     if (RC_A->unk6A & 1) {
-        fs0 += func_80612794(RC_A->unkDC) * oscSpeed;
-        fs1 += func_80612790(RC_A->unkDC) * oscSpeed;
+        fs0 += mathSinF(RC_A->unkDC) * oscSpeed;
+        fs1 += mathCosF(RC_A->unkDC) * oscSpeed;
     }
-    fs0 += func_80612794(RC_A->unkEE) * speedDelta;
-    fs1 += func_80612790(RC_A->unkEE) * speedDelta;
-    fs0 += func_80612790(RC_A->unkEE) * turnDelta;
-    fs1 -= func_80612794(RC_A->unkEE) * turnDelta;
+    fs0 += mathSinF(RC_A->unkEE) * speedDelta;
+    fs1 += mathCosF(RC_A->unkEE) * speedDelta;
+    fs0 += mathCosF(RC_A->unkEE) * turnDelta;
+    fs1 -= mathSinF(RC_A->unkEE) * turnDelta;
     curSpeed = sqrtf(fs0 * fs0 + fs1 * fs1);
     fv0 = mathAtan2(fs0, fs1);
     if (RC_A->unkC4 != -20.0f && RC_A->unkC4 != -360.0f) {

@@ -194,8 +194,8 @@ void func_80724CA4(s32, s32);
 void func_80724E48(u8);
 void actorSpawnNodeEntryAtActor(s32, s16);
 void actorPlaceAttachedChildren(s32);
-f32 func_80612794(s16);
-f32 func_80612790(s16);
+f32 mathSinF(s16);
+f32 mathCosF(s16);
 void mapCheckAutoTransition(void);
 void hudSpawnTextScreen(s32);
 
@@ -246,9 +246,9 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
     actorPlaceAttachedChildren(-0x1E);
     func_80724E48(0);
     gCurrentActor->yaw = (gBehaviourTargetActor->yaw + 0x800) & 0xFFF;
-    gCurrentActor->x = func_80612794(R1C8aA->unkEE) * 12.0f + gBehaviourTargetActor->x;
-    gCurrentActor->z = func_80612790(R1C8aA->unkEE) * 15.0f + gBehaviourTargetActor->z;
-    gCurrentActor->y = gBehaviourTargetActor->y + (f32)*heightOffsetPtr + func_80612794(gFrameCounter * 100) * 5.0f;
+    gCurrentActor->x = mathSinF(R1C8aA->unkEE) * 12.0f + gBehaviourTargetActor->x;
+    gCurrentActor->z = mathCosF(R1C8aA->unkEE) * 15.0f + gBehaviourTargetActor->z;
+    gCurrentActor->y = gBehaviourTargetActor->y + (f32)*heightOffsetPtr + mathSinF(gFrameCounter * 100) * 5.0f;
     R1C8aA->unkEE += 0x3C;
     switch (gCurrentActor->unk15F & 0x7F) {
         case 0:
@@ -684,7 +684,7 @@ void camResumePath(void);
 void slotQueueUpdate(s32, s32, s32);
 void func_806C4E8C(void);
 void func_8072DC7C(s32);
-void actorSetPositionFromPoint(Actor *, Struct807FDC9C *);
+void actorSetPositionFromPoint(Actor *, BehaviourExtraState *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void effectSpawnSmoke(u8);
 
@@ -803,8 +803,8 @@ void func_806C55E0(void) {
             LA->unk168 = 0;
             actorClearMovementFlags(D_807FBB4C);
             LA4C->unk80 = LA->unk80;
-            LA4C->unk7C = func_80612794(LA->unkE6) * 50.0f + LA->unk7C;
-            LA4C->unk84 = func_80612790(LA->unkE6) * 50.0f + LA->unk84;
+            LA4C->unk7C = mathSinF(LA->unkE6) * 50.0f + LA->unk7C;
+            LA4C->unk84 = mathCosF(LA->unkE6) * 50.0f + LA->unk84;
             LA4C->unkE6 = mathAngleBetweenPoints2D(LA->unk7C, LA->unk84, LA4C->unk7C, LA4C->unk84);
             camStartPath(gCurrentActor, 0x15, 1);
             func_8070D8C0(gCurrentActor, 0x15, 1);
@@ -1043,14 +1043,14 @@ void func_806C61C8(void) {
             actorScriptStartByIndex((Actor *)D_807FBB4C, 0x87);
         }
     }
-    x = func_80612794(R1A4C->unkE6) * 50.0f + R1A4C->unk7C;
-    z = func_80612790(R1A4C->unkE6) * 50.0f + R1A4C->unk84;
+    x = mathSinF(R1A4C->unkE6) * 50.0f + R1A4C->unk7C;
+    z = mathCosF(R1A4C->unkE6) * 50.0f + R1A4C->unk84;
     R1A->unkE6 = (R1A4C->unkE6 + 0x800) & 0xFFF;
     if (R1A->unkEC == 0x3C) {
-        gCurrentActor->x = func_80612794(R1A->unkEE) * 10.0f + x;
-        gCurrentActor->z = func_80612790(R1A->unkEE) * 10.0f + z;
+        gCurrentActor->x = mathSinF(R1A->unkEE) * 10.0f + x;
+        gCurrentActor->z = mathCosF(R1A->unkEE) * 10.0f + z;
     }
-    R1A->unk80 = func_80612794(gFrameCounter * 100) * 5.0f + (R1A->unk15F + R1A4C->unk80 + 3.0f + R1A->unkEC);
+    R1A->unk80 = mathSinF(gFrameCounter * 100) * 5.0f + (R1A->unk15F + R1A4C->unk80 + 3.0f + R1A->unkEC);
     if (!(gCurrentActor->flags & 0x10)) {
         if (R1A->unkF0 != 0) {
             R1A->unk15F = 0x14;
@@ -1060,7 +1060,7 @@ void func_806C61C8(void) {
     if (R1A->unkF0 != 0) {
         actorPlaceAttachedChildren(-0x1E);
     }
-    sinv = func_80612794(gFrameCounter * 50);
+    sinv = mathSinF(gFrameCounter * 50);
     R1A->unkEE = R1A->unkEE + 60.0f * sinv;
     if (gCurrentActor->flags & 0x2000000) {
         R1A->unk168 = 0x14;

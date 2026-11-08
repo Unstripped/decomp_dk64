@@ -40,7 +40,7 @@ extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern s32 gFrameCounter;
 extern s32 gGlobalPauseFlags;
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 s32 menuIsTransitionTypeAOrE();
 Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
@@ -78,10 +78,10 @@ Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *h
         do {
             raw = (i << 10) + (gFrameCounter * 0xC8);
             phase = raw;
-            animParams[21] = (f32)(((f64)func_80612794(phase) * 0.3) + 3.0);
-            fs2 = (f32)(((f64)func_80612794((s16)(raw + 0x800)) * 0.3) + 3.0);
-            fs0b = (f32)((f64)func_80612794((s16)((raw >> 1) + 0x200)) * 10.0);
-            wv = (f32)(((f64)func_80612794(phase) * 0.5 + 0.5) * 30.0);
+            animParams[21] = (f32)(((f64)mathSinF(phase) * 0.3) + 3.0);
+            fs2 = (f32)(((f64)mathSinF((s16)(raw + 0x800)) * 0.3) + 3.0);
+            fs0b = (f32)((f64)mathSinF((s16)((raw >> 1) + 0x200)) * 10.0);
+            wv = (f32)(((f64)mathSinF(phase) * 0.5 + 0.5) * 30.0);
             gDPPipeSync(glist++);
             gDPSetPrimColor(glist++, 0, 0, 255, 255, 255, (u32)((animParams[4] > 80.0f) ? (f32)80 : animParams[4]));
             glist = renderRotatedSprite(glist, 0x5D, 0, (0, 2), 0x30, 0x2A, y = (s32)(((f32)((i * 0x8C) + 0x280) + fs0b) - animParams[3]), x = (s32)(animParams[0] + wv), animParams[21], fs1 = -fs2, 0, 0.0f);

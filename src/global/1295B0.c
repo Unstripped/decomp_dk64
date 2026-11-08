@@ -923,7 +923,7 @@ void spawnNodeInitActorFromEntry(void *arg0, void *arg1) {
     if (ang != 0) {
         actorScriptStart(act, ang);
     }
-    gBehaviourAnimState = (Struct807FDC98 *)node;
+    gBehaviourAnimState = (BehaviourAnimState *)node;
     behaviourSetAnimIds(ang + 0, ang | 0, ang * 1, ang);
     if (act->unk4 != 0) {
         actorSetUniformScale((Actor *)act, ((node->unkF * 5) / 255.0) * 0.15);
@@ -1408,7 +1408,7 @@ void spawnNodesUpdate(void) {
     for (i = 0; i < D_80755694->count; i++, node++) {
         active = (node->unk42 >= 5) && (node->unk42 < 7);
         if (active) {
-            gBehaviourWorkState = (Struct807FDC90 *)node->unk18->unk174;
+            gBehaviourWorkState = (BehaviourWorkState *)node->unk18->unk174;
         }
         dist = D_8075EB80[node->unk44].unkE * 0x64;
         dist = dist * dist;

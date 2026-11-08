@@ -199,8 +199,8 @@ void actorSpawnChildAtNode(s32 actorType, s16 angleOffset, s16 nodeIndex, s16 ex
 
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void lensFlareAddSource(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 void playerStateQueueCallback(s32, B2CE0Actor *, s32);
 
@@ -217,8 +217,8 @@ void func_806AE394(f32 distOffset, f32 radius) {
     actorGetNodePos(gCurrentActor, 2, &node2X, &node2Y, &node2Z);
     angle = mathAngleBetweenPoints2D(node2X, node2Z, node1X, node1Z);
     lensFlareAddSource(node1X, node1Y, node1Z, node2X, node2Y, node2Z, 0.6f, 0xFF, 0xFF, 0xFF);
-    node1X = func_80612794(angle) * distOffset + gCurrentActor->unk7C;
-    node1Z = func_80612790(angle) * distOffset + gCurrentActor->unk84;
+    node1X = mathSinF(angle) * distOffset + gCurrentActor->unk7C;
+    node1Z = mathCosF(angle) * distOffset + gCurrentActor->unk84;
     lightAdd(node1X, gCurrentActor->unk80, node1Z, 0.0f, 0.0f, 0.0f, radius, 0, 0xFF, 0xFF, 0xFF);
     if (gCurrentActor->unk154 != 0) {
         if ((gBehaviourTargetActor->x - node1X) * (gBehaviourTargetActor->x - node1X) + (gBehaviourTargetActor->y - gCurrentActor->unk80) * (gBehaviourTargetActor->y - gCurrentActor->unk80) + (gBehaviourTargetActor->z - node1Z) * (gBehaviourTargetActor->z - node1Z) < radius * radius) {

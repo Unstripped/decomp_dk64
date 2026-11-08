@@ -702,7 +702,7 @@ void pathPlaybackSetActive(s32, s32);
 void pathPlaybackAdvance(s32);
 void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 void func_80724994(s32, s32, s32, s32, s32);
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 void func_80714A28(s32);
 
 void actorPathCollectibleUpdate(void *unused) {
@@ -740,7 +740,7 @@ void actorPathCollectibleUpdate(void *unused) {
             pathPlaybackAdvance(state->unk2);
             pathPlaybackGetPosition(state->unk2, &gCurrentActor->x, &gCurrentActor->y, &gCurrentActor->z);
         }
-        gCurrentActor->y += 5.0 * func_80612794(state->unk4);
+        gCurrentActor->y += 5.0 * mathSinF(state->unk4);
         state->unk4 = (state->unk4 + 0x50) & 0xFFF;
         if (gGameFrameCounter % 0x18 == 0) {
             switch (gCurrentActor->actorType) {

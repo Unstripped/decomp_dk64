@@ -135,8 +135,8 @@ extern Boss3F_52B0_DC94 *gBehaviourTargetActor;
 extern Boss3F_52B0_DC98 *gBehaviourAnimState;
 void bossScriptStep(u8 *, s32, f32);
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void actorScriptStart(void *, s32);
 s32 camIsCutsceneActive(void);
 void camStartPath(void *, s32, s32);
@@ -388,8 +388,8 @@ block_28:
             break;
         case 7:
             angleOffset = ((randomNonNegative() >> 15) % 1024) - 0x200;
-            targetX = ((f64)func_80612794(gBehaviourTargetActor->unkE6 + angleOffset) * ((f64)gBehaviourTargetActor->unkB8 * 1.2)) + (f64)gBehaviourTargetActor->unk7C;
-            targetZ = ((f64)func_80612790(gBehaviourTargetActor->unkE6 + angleOffset) * ((f64)gBehaviourTargetActor->unkB8 * 1.2)) + (f64)gBehaviourTargetActor->unk84;
+            targetX = ((f64)mathSinF(gBehaviourTargetActor->unkE6 + angleOffset) * ((f64)gBehaviourTargetActor->unkB8 * 1.2)) + (f64)gBehaviourTargetActor->unk7C;
+            targetZ = ((f64)mathCosF(gBehaviourTargetActor->unkE6 + angleOffset) * ((f64)gBehaviourTargetActor->unkB8 * 1.2)) + (f64)gBehaviourTargetActor->unk84;
             projectileSetTargetCoords(targetX, gBehaviourTargetActor->unk80 + 500.0f, targetZ);
             projectileAimAndSpawn(0x1E, 0x1E, 1.0f, targetX, gBehaviourTargetActor->unk80, targetZ, 600.0f, ACTOR);
             gBehaviourWorkState->unk2C = scriptState->unk8;

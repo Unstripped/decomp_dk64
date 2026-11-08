@@ -577,8 +577,8 @@ s32 mathPickCloserTargetPoint3D(f32, f32, f32, MinecartTrackPoint *, MinecartTra
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 s16 mathAngleEaseToward(s16, s16, f32);
 f32 mathAtan2(f32, f32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void func_8067ACB4(void *);
 void matrixMakeRotationZ(f32 (*)[4], f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
@@ -646,10 +646,10 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     if (gCurrentMap == 0x4D || gCurrentMap == 0x81 || gCurrentMap == 0x82) {
         stepDist = (f64)stepDist * 1.8;
     } else {
-        if ((2.0 * (f64)func_80612794(gCurrentActor->unkE8)) + 1.0 < 0.6) {
+        if ((2.0 * (f64)mathSinF(gCurrentActor->unkE8)) + 1.0 < 0.6) {
             t = 0.6;
         } else {
-            t = (2.0 * (f64)func_80612794(gCurrentActor->unkE8)) + 1.0;
+            t = (2.0 * (f64)mathSinF(gCurrentActor->unkE8)) + 1.0;
         }
         stepDist = (f64)stepDist * (2.5 * t);
     }
@@ -689,8 +689,8 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x20, 0xFF, 0x7F, 0x14);
         }
     }
-    predX = func_80612794(waypointAngle) * stepDist + gCurrentActor->unk7C;
-    predZ = func_80612790(waypointAngle) * stepDist + gCurrentActor->unk84;
+    predX = mathSinF(waypointAngle) * stepDist + gCurrentActor->unk7C;
+    predZ = mathCosF(waypointAngle) * stepDist + gCurrentActor->unk84;
     predY = gCurrentActor->unkA4;
     if (mathPickCloserTargetPoint3D(predX, predY, predZ, targetPt - 1, targetPt, targetPt, targetPt + 1, &gCurrentActor->unk7C, &gCurrentActor->unk80, &gCurrentActor->unk84) != 0) {
         cart->unk10++;

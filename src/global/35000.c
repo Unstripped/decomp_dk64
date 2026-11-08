@@ -655,8 +655,8 @@ typedef struct MatrixActor {
     /* 0xE8 */ s16 unkE8;
 } MatrixActor;
 
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 
 void actorBuildModelMatrix(MatrixActor *actor, f32 *dst) {
     f32 sinA;
@@ -670,12 +670,12 @@ void actorBuildModelMatrix(MatrixActor *actor, f32 *dst) {
     f32 pad0;
     f32 t20;
 
-    sinA = func_80612790(actor->unkE4);
-    cosA = func_80612794(actor->unkE4);
-    sinB = func_80612790(actor->unkE8);
-    cosB = func_80612794(actor->unkE8);
-    sinC = func_80612790(actor->unkE6);
-    cosC = func_80612794(actor->unkE6);
+    sinA = mathCosF(actor->unkE4);
+    cosA = mathSinF(actor->unkE4);
+    sinB = mathCosF(actor->unkE8);
+    cosB = mathSinF(actor->unkE8);
+    sinC = mathCosF(actor->unkE6);
+    cosC = mathSinF(actor->unkE6);
     u = actor->unk4->unk34;
     us = u * sinA;
     u = u * cosA;
@@ -725,12 +725,12 @@ void actorBuildModelMatrixFromAngles(MatrixActor *actor, f32 *dst, f32 angleA, f
     f32 pad0;
     f32 t20;
 
-    sinA = func_80612790((s16)(s32)angleA);
-    cosA = func_80612794((s16)(s32)angleA);
-    sinB = func_80612790((s16)(s32)angleB);
-    cosB = func_80612794((s16)(s32)angleB);
-    sinC = func_80612790((s16)(s32)angleC);
-    cosC = func_80612794((s16)(s32)angleC);
+    sinA = mathCosF((s16)(s32)angleA);
+    cosA = mathSinF((s16)(s32)angleA);
+    sinB = mathCosF((s16)(s32)angleB);
+    cosB = mathSinF((s16)(s32)angleB);
+    sinC = mathCosF((s16)(s32)angleC);
+    cosC = mathSinF((s16)(s32)angleC);
     u = actor->unk4->unk34;
     us = u * sinA;
     u = u * cosA;
@@ -775,9 +775,9 @@ void actorUpdateModelMatrix(MatrixActor *actor, u8 concat) {
             angle -= 0x1000;
         }
         angDelta = (0x400 - actor->unkDE) & 0xFFF;
-        calcAngleB = (s32)(func_80612790(angle) * (f32)angDelta);
+        calcAngleB = (s32)(mathCosF(angle) * (f32)angDelta);
         calcAngleB = (calcAngleB + actor->unkE8) & 0xFFF;
-        x = (s32)(func_80612794(angle) * (f32)angDelta);
+        x = (s32)(mathSinF(angle) * (f32)angDelta);
         x = (x + actor->unkE4) & 0xFFF;
         calcAngleC = actor->unkE6;
         if (concat != 0) {

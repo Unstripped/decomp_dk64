@@ -24,8 +24,8 @@ s32 func_80714CC0(void *, f32, f32, f32, f32);
 void *heapAlloc(s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 u8 collisionCheckGroundAtPoint(f32, f32, f32 *);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 extern u32 gFrameCounter;
 typedef struct CsPoint3f {
     f32 x, y, z;
@@ -131,8 +131,8 @@ void csCmdBouncePos(CsState *cs, s16 csId, s16 b, s16 c) {
     groundY = gCsPosY;
     hit = collisionCheckGroundAtPoint(gCsPosX, gCsPosZ, &groundY);
     p->vy = p->vy + -0.64;
-    gCsPosX += p->speed * func_80612794(p->angle);
-    gCsPosZ += p->speed * func_80612790(p->angle);
+    gCsPosX += p->speed * mathSinF(p->angle);
+    gCsPosZ += p->speed * mathCosF(p->angle);
     if (p->vy < -10.0f) {
         p->vy = -10.0f;
     }
@@ -186,19 +186,19 @@ void csCmdBobbingLights(CsState *cs, s16 csId, s16 b, s16 c) {
         *ang = 0;
     }
     ang = *(s16 **)cs;
-    sn = func_80612794(*ang);
+    sn = mathSinF(*ang);
     p = D_807F5FD4[1];
     fy = p[0].y + (p[1].y - p[0].y) * (0, (sn * 0.5 + 0.5)); // FAKE: comma const keeps the M*D operand order
     lightSetRadius(0x5DC);
     p = D_807F5FD4[1];
     lightAdd(p[0].x, fy, p[0].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
-    sn = func_80612794(*ang + 0x514);
+    sn = mathSinF(*ang + 0x514);
     p = D_807F5FD4[1];
     fy = p[2].y + (p[3].y - p[2].y) * (0, (sn * 0.5 + 0.5)); // FAKE: comma const keeps the M*D operand order
     lightSetRadius(0x5DC);
     p = D_807F5FD4[1];
     lightAdd(p[2].x, fy, p[2].z, 0.0f, 0.0f, 0.0f, 500.0f, 0, 0xFF, 0xFF, 0xFF);
-    sn = func_80612794(*ang + 0xA28);
+    sn = mathSinF(*ang + 0xA28);
     p = D_807F5FD4[1];
     fy = p[4].y + (p[5].y - p[4].y) * (0, (sn * 0.5 + 0.5)); // FAKE: comma const keeps the M*D operand order
     lightSetRadius(0x5DC);
@@ -876,9 +876,9 @@ void func_806458C8(CsState *cs, s16 csId, s16 b, s16 c) {
         func_8071498C((void *)func_80717D4C);
         func_807149B8(1);
         func_80714998(2);
-        s = func_80612794(angle);
+        s = mathSinF(angle);
         d = dist;
-        func_80714CC0(D_8071FFA0, 1.0f, s * d + gCsPosX, gCsPosY + 50.0f, func_80612790(angle) * d + gCsPosZ);
+        func_80714CC0(D_8071FFA0, 1.0f, s * d + gCsPosX, gCsPosY + 50.0f, mathCosF(angle) * d + gCsPosZ);
     }
 }
 
@@ -1737,8 +1737,8 @@ void func_8064826C(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 sx;
     f32 sz;
 
-    sx = func_80612794((s16)((gCsRotY + 90.0f) * 4096.0f / 360.0f)) * 15.0f;
-    sz = func_80612790((s16)((gCsRotY + 90.0f) * 4096.0f / 360.0f)) * 15.0f;
+    sx = mathSinF((s16)((gCsRotY + 90.0f) * 4096.0f / 360.0f)) * 15.0f;
+    sz = mathCosF((s16)((gCsRotY + 90.0f) * 4096.0f / 360.0f)) * 15.0f;
     if (*(CsOrbitCounters **)cs == NULL) {
         p = heapAlloc(0xC);
         *(CsOrbitCounters **)cs = p;
@@ -1762,14 +1762,14 @@ void func_8064826C(CsState *cs, s16 csId, s16 b, s16 c) {
             tex = D_80721238;
             break;
     }
-    sa = func_80612794(*(s16 *)((u8 *)p + 2)) * 0.1;
-    sb = func_80612794(*(s16 *)((u8 *)p + 6)) * 0.1;
+    sa = mathSinF(*(s16 *)((u8 *)p + 2)) * 0.1;
+    sb = mathSinF(*(s16 *)((u8 *)p + 6)) * 0.1;
     p->unk0 += 0x32;
     p->unk4 += 0x64;
     func_80714A08(sa + 1.0, sb + 1.0);
     func_807149A8(0x578);
     func_80714A28(4);
-    func_80714CC0(tex, 0.0f, gCsPosX + sx, func_80612794(*(s16 *)((u8 *)p + 0xA)) * 10.0 + (gCsPosY + 80.0), gCsPosZ + sz);
+    func_80714CC0(tex, 0.0f, gCsPosX + sx, mathSinF(*(s16 *)((u8 *)p + 0xA)) * 10.0 + (gCsPosY + 80.0), gCsPosZ + sz);
     p->unk8 += 0x64;
     if (gGameFrameCounter % 12U == 0) {
         func_807149B8(1);
@@ -2210,9 +2210,9 @@ void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
     p->unk22C = gCsPosX;
     p->unk230 = gCsPosY + 15.0;
     p->unk234 = gCsPosZ;
-    p->unk220 = func_80612794(ang);
+    p->unk220 = mathSinF(ang);
     p->unk224 = ang;
-    p->unk228 = func_80612790(ang);
+    p->unk228 = mathCosF(ang);
     if (c == 0) {
         flag = 1;
         sfxPlayOnFreeSlot(0xF2, 0x5DC0, 63.0f, 1.0f, 0, 0);
@@ -2228,10 +2228,10 @@ void func_806496B0(CsState *cs, s16 csId, s16 b, s16 c) {
     cb = effectLerpPathUpdate;
     ez = p->unk228 * 50.0 + pz;
     for (i = 0; i != 4; i++) {
-        t = func_80612790(ang) * 100.0;
+        t = mathCosF(ang) * 100.0;
         xs = t * negCos + ex;
         xo = t * sinA + ez;
-        zo = func_80612794(ang) * 100.0 + py;
+        zo = mathSinF(ang) * 100.0 + py;
         ang += 0x400;
         func_807149FC(-1);
         func_807149B8(0);
@@ -3331,7 +3331,7 @@ void func_8064C544(CsState *cs, s16 csId, s16 b, s16 c) {
     if (cs->unk10[0] >= 0) {
         modelAnimEntryGetState(csId, b, &anim, &animT, &animFlag);
         slot = D_80770628[cs->unk10[0]];
-        D_80770B68[slot] = func_80612794((s16)(((f32)anim + animT) * 2048.0 - 1024.0)) * 0.3 + 1.3;
+        D_80770B68[slot] = mathSinF((s16)(((f32)anim + animT) * 2048.0 - 1024.0)) * 0.3 + 1.3;
         D_80770BC0[slot] = 1.0f;
     }
 }
@@ -3345,7 +3345,7 @@ void func_8064C644(CsState *cs, s16 csId, s16 b, s16 c) {
     if (cs->unk10[0] >= 0) {
         modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
         slot = D_80770628[cs->unk10[0]];
-        D_80770B68[slot] = func_80612794((s16)((anim << 11) / 27)) + 0.3;
+        D_80770B68[slot] = mathSinF((s16)((anim << 11) / 27)) + 0.3;
         D_80770BC0[slot] = 2.0f;
     }
 }
@@ -3617,7 +3617,7 @@ void func_8064D1E8(CsState *cs, s16 csId, s16 b, s16 c) {
         t->unk8 = 0xDAC;
     }
     p = *(CsSineState **)cs;
-    effectNodeSetTargetAndStep(0, func_80612794(p->unk8) * 60.0 + 40.0, 20.0f);
+    effectNodeSetTargetAndStep(0, mathSinF(p->unk8) * 60.0 + 40.0, 20.0f);
     if (p->unk0 == 0) {
         ang = p->unk8;
         if (ang >= 0x2BC && ang < 0x2C6) {
@@ -4311,7 +4311,7 @@ void func_8064EE08(CsEffView *e, u8 *flag) {
             break;
     }
     if (s->unk0 != 3) {
-        e->unk344 = func_80612794((gFrameCounter * 0x3C) & 0xFFF) * 2.75f + s->unk4;
+        e->unk344 = mathSinF((gFrameCounter * 0x3C) & 0xFFF) * 2.75f + s->unk4;
     }
     e->unk364 = e->unk360;
 }
@@ -4360,8 +4360,8 @@ u8 csCondActorInFront(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 angle;
 
     angle = gCsRotY * 4096.0f / 360.0f;
-    s = func_80612794(angle);
-    co = func_80612790(angle);
+    s = mathSinF(angle);
+    co = mathCosF(angle);
     d = gCsPosX * s + gCsPosZ * co;
     d = -d;
     r = (D_807FBB4C->x * s + co * D_807FBB4C->z) + d;

@@ -11,8 +11,8 @@ typedef struct {
 
 extern OSThread D_800138C0;
 extern u8 *D_80013A70;
-extern OSMesgQueue D_80013A78;
-extern OSMesg D_80013A90[];
+extern OSMesgQueue sNoExpPakViMesgQueue;
+extern OSMesg sNoExpPakViMesgBuf[];
 extern SegmentTableEntry gSegmentTable[];
 
 typedef struct {
@@ -28,15 +28,15 @@ typedef struct {
 } Words3;
 
 extern u8 D_8000DE88[];
-extern FbPair D_8000ED0C;
-extern VsyncDelays D_8000ED14;
-extern Words3 D_8000ED18;
-extern u8 D_8000ED24[];
-extern u8 D_8000ED40[];
-extern u8 D_8000ED58[];
-extern u8 D_8000ED78[];
-extern u8 D_8000ED9C[];
-extern u8 D_8000EDC0[];
+extern FbPair sNoExpPakFramebuffers;
+extern VsyncDelays sNoExpPakVsyncDelays;
+extern Words3 sNoExpPakUnusedWords;
+extern u8 sNoExpPakTextLine1[];
+extern u8 sNoExpPakTextLine2[];
+extern u8 sNoExpPakTextLine3[];
+extern u8 sNoExpPakTextLine4[];
+extern u8 sNoExpPakTextLine5[];
+extern u8 sNoExpPakTextLine6[];
 
 void gunzip(void *, void *, u32);
 void noExpPakThread(void *);
@@ -62,12 +62,12 @@ void noExpPakThread(void *arg) {
     u16 *a;
     u16 *b;
     s32 pad; /* unused: reserves its stack slot */
-    FbPair fb = D_8000ED0C;
-    VsyncDelays delay = D_8000ED14;
+    FbPair fb = sNoExpPakFramebuffers;
+    VsyncDelays delay = sNoExpPakVsyncDelays;
     s8 cur = 1;
     void *src = D_8000DE88;
     void *dst = (void *)0x80280000;
-    Words3 unused = D_8000ED18;
+    Words3 unused = sNoExpPakUnusedWords;
 
     gunzip(&src, &dst, 0x80180000);
     a = (u16 *)0x80200000;
@@ -83,8 +83,8 @@ void noExpPakThread(void *arg) {
         x = 0; /* dead store: keeps IDO from unrolling the copy loop */
     }
     osWritebackDCache((void *)0x80100000, 320 * 240 * 2);
-    osCreateMesgQueue(&D_80013A78, D_80013A90, 5);
-    osViSetEvent(&D_80013A78, NULL, 1);
+    osCreateMesgQueue(&sNoExpPakViMesgQueue, sNoExpPakViMesgBuf, 5);
+    osViSetEvent(&sNoExpPakViMesgQueue, NULL, 1);
     if (osTvType == 0) {
         while (1) {
         }
@@ -93,7 +93,7 @@ void noExpPakThread(void *arg) {
     noExpPakDrawText((u16 *)0x80200000);
     count = 0;
     while (1) {
-        osRecvMesg(&D_80013A78, NULL, OS_MESG_BLOCK);
+        osRecvMesg(&sNoExpPakViMesgQueue, NULL, OS_MESG_BLOCK);
         count++;
         if (count >= delay.ticks[cur]) {
             osViSwapBuffer(fb.buf[cur]);
@@ -131,12 +131,12 @@ void noExpPakDrawScreen(void) {
 
 void noExpPakDrawText(u16 *buf) {
     if (osTvType != 0) {
-        bootDrawString(buf, 0x15, 0x8C, D_8000ED24);
-        bootDrawString(buf, 0x15, 0x96, D_8000ED40);
-        bootDrawString(buf, 0x15, 0xAA, D_8000ED58);
-        bootDrawString(buf, 0x15, 0xB4, D_8000ED78);
-        bootDrawString(buf, 0x15, 0xBE, D_8000ED9C);
-        bootDrawString(buf, 0x15, 0xC8, D_8000EDC0);
+        bootDrawString(buf, 0x15, 0x8C, sNoExpPakTextLine1);
+        bootDrawString(buf, 0x15, 0x96, sNoExpPakTextLine2);
+        bootDrawString(buf, 0x15, 0xAA, sNoExpPakTextLine3);
+        bootDrawString(buf, 0x15, 0xB4, sNoExpPakTextLine4);
+        bootDrawString(buf, 0x15, 0xBE, sNoExpPakTextLine5);
+        bootDrawString(buf, 0x15, 0xC8, sNoExpPakTextLine6);
     }
 }
 

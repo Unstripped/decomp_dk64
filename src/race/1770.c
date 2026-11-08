@@ -128,7 +128,7 @@ typedef struct {
 
 extern RaceAPoint3f **D_807F5FD4;
 extern RaceActor *gCurrentActor;
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 s32 mathPickCloserTargetPoint3D(f32, f32, f32, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, f32 *, f32 *, f32 *);
 
 void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPos, s32 nextWaypoint, s32 nextNextWaypoint) {
@@ -150,7 +150,7 @@ void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPo
         pathState->unk8 = 1.0f;
         pathState->unk0 = pathState->unk1;
     }
-    pathState->unkC = func_80612794(pathState->unk8 * 2048.0f) * (laneDiff * 300);
+    pathState->unkC = mathSinF(pathState->unk8 * 2048.0f) * (laneDiff * 300);
     for (i = 0; i < 3; i++) {
         outPos[i] = outPos[i] + pathState->unk8 * (closerTarget[i] - outPos[i]);
     }
@@ -275,7 +275,7 @@ void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participan
     }
 }
 
-f32 func_80612790(s16);
+f32 mathCosF(s16);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 f32 mathAtan2(f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32);
@@ -296,8 +296,8 @@ void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
     dz = pos[2] - tgt[2];
     dx = pos[0] - tgt[0];
     offsetDist = sqrtf((dz * dz) + (dx * dx)) * (*(f32 *)&gCurrentActor->unkB8 * 0.03);
-    gCurrentActor->unk7C = pos[0] + (func_80612794(angle) * offsetDist);
-    gCurrentActor->unk84 = pos[2] + (func_80612790(angle) * offsetDist);
+    gCurrentActor->unk7C = pos[0] + (mathSinF(angle) * offsetDist);
+    gCurrentActor->unk84 = pos[2] + (mathCosF(angle) * offsetDist);
     gCurrentActor->unk80 = gCurrentActor->unk80 + (tgt[1] - gCurrentActor->unk80) * 0.8;
 }
 
@@ -314,8 +314,8 @@ void raceUpdateOrientation(RacePathState *pathState) {
     yawOffset = pathState->unk18 + pathState->unkC;
     rollOffset = mathAngleSignedDistance(0, (s16)pathState->unk1C, pathState);
     yawOffset &= 0xFFF;
-    sinVal = func_80612790(yawOffset);
-    cosVal = func_80612794(yawOffset);
+    sinVal = mathCosF(yawOffset);
+    cosVal = mathSinF(yawOffset);
     gCurrentActor->unkE6 = gCurrentActor->unkEE + yawOffset;
     gCurrentActor->unkE6 &= 0xFFF;
     rollScaled = rollOffset;
@@ -395,8 +395,8 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
         gCurrentActor->unkB8 = 0.0f;
     }
     ang = mathAngleBetweenPointsRad(nxt->x, nxt->z, cur->x, cur->z) * 2048.0 / 3.1415927f;
-    pos[0] = func_80612794(gCurrentActor->unkEE) * gCurrentActor->unkB8 + gCurrentActor->unk7C;
-    pos[2] = func_80612790(gCurrentActor->unkEE) * gCurrentActor->unkB8 + gCurrentActor->unk84;
+    pos[0] = mathSinF(gCurrentActor->unkEE) * gCurrentActor->unkB8 + gCurrentActor->unk7C;
+    pos[2] = mathCosF(gCurrentActor->unkEE) * gCurrentActor->unkB8 + gCurrentActor->unk84;
     pos[1] = gCurrentActor->unk80;
     dist = sqrtf((cur->x - nxt->x) * (cur->x - nxt->x) + (cur->z - nxt->z) * (cur->z - nxt->z));
     pathState->unk1C = mathAngleEaseToward(pathState->unk1C, mathAtan2(cur->y - nxt->y, dist) * 2048.0 / 3.1415927f, 3.0f);
@@ -417,8 +417,8 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     }
     raceApplyPositionOffset(tgt, pos);
     yawDelta = mathAngleSignedDistance(gCurrentActor->unkEE, (s16)oldAng);
-    pathState->unk28 += -0.04f * gCurrentActor->unkB8 * yawDelta * func_80612790(pathState->unk18);
-    pathState->unk28 -= 10.0f * gCurrentActor->unkB8 * func_80612794(pathState->unk18);
+    pathState->unk28 += -0.04f * gCurrentActor->unkB8 * yawDelta * mathCosF(pathState->unk18);
+    pathState->unk28 -= 10.0f * gCurrentActor->unkB8 * mathSinF(pathState->unk18);
     pathState->unk28 = pathState->unk28 * 0.7f;
     pathState->unk18 = pathState->unk18 + pathState->unk28;
     raceUpdateOrientation(pathState);
@@ -594,15 +594,15 @@ void raceVehicleBehaviorUpdate(void) {
             if (bumpX > 10.0f) {
                 sv = (bumpX - 10.0f) * 204.8f;
                 bumpX = 300.0f;
-                pathState->unk20 = func_80612794(sv) * bumpX;
-                pathState->unk24 = func_80612794(sv * 2) * bumpX;
+                pathState->unk20 = mathSinF(sv) * bumpX;
+                pathState->unk24 = mathSinF(sv * 2) * bumpX;
             } else {
                 pathState->unk20 = 0.0f;
                 pathState->unk24 = 0.0f;
             }
         }
         racePathFollowStep(pathState, s1, 1);
-        gCurrentActor->unk80 += 20.0f * func_80612794(sv * 0.5f);
+        gCurrentActor->unk80 += 20.0f * mathSinF(sv * 0.5f);
         raceUpdateEngineSoundPitch(gCurrentActor->unkB8);
     } else if (s1->unk34 == 5) {
         gCurrentActor->unk60 &= ~4;

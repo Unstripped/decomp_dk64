@@ -790,7 +790,7 @@ void func_80715A3C(s16 *effect, u8 inX, u8 *inY, s32 inZ, s32 screenX, s32 *scre
     }
 }
 
-s32 func_80611E60(s32);
+s32 mathAsinFixed(s32);
 void matrixMakeRotationZ(f32 (*)[4], f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 f32 distance3D(f32, f32, f32, f32, f32, f32);
@@ -818,7 +818,7 @@ void effectComputeTransformMatrix(Mtx *dst, u8 x, f32 y, f32 z, f32 scaleX, f32 
         } else {
             absValue = -distance;
         }
-        temp = func_80611E60((s32)((f64)absValue * 65536.0)) >> 4;
+        temp = mathAsinFixed((s32)((f64)absValue * 65536.0)) >> 4;
         angle = temp;
         if (distance >= 0.0f) {
             angle = 0xFFF - temp;

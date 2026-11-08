@@ -155,24 +155,24 @@ extern BossC_6240_Actor40 *gCurrentActor;
 extern u32 gFrameCounter;
 
 s32 randomNonNegative(void);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 
 void bossPufftossBobStep(void) {
     BossC_6240_17C *s0 = gCurrentActor->unk17C;
     f32 sinVal;
     if (s0->unk4 != 0) {
         s0->unk4--;
-        sinVal = (f32)(func_80612794((s16)(((f64)s0->unk4 / 10.0) * (s0->unk8 - (s0->unk8 + 0x400)) + (s0->unk8 + 0x400))) * 20.0);
-        gCurrentActor->unk7C += sinVal * func_80612794(s0->unk6);
-        gCurrentActor->unk84 += sinVal * func_80612790(s0->unk6);
+        sinVal = (f32)(mathSinF((s16)(((f64)s0->unk4 / 10.0) * (s0->unk8 - (s0->unk8 + 0x400)) + (s0->unk8 + 0x400))) * 20.0);
+        gCurrentActor->unk7C += sinVal * mathSinF(s0->unk6);
+        gCurrentActor->unk84 += sinVal * mathCosF(s0->unk6);
         if (s0->unk4 == 0) {
             s0->unk8 += 0x400;
         }
     } else if (((randomNonNegative() >> 15) % 1000) >= 941) {
         s0->unk4 = 10;
     }
-    gCurrentActor->unk80 += 8.0 * (f64)func_80612794((s16)((f64)gFrameCounter * 200.0));
+    gCurrentActor->unk80 += 8.0 * (f64)mathSinF((s16)((f64)gFrameCounter * 200.0));
 }
 void *actorFindByType(s32);
 void func_8067AB20(void *, void *, s32, s32, void *, s32);
@@ -389,7 +389,7 @@ void bossPufftossStep(void) {
         gCurrentActor->unk155 = 0;
     }
     gActivePlayerState->unkD4 = (gActivePlayerState->unkD4 < 50) ? gActivePlayerState->unkD4 : 50;
-    gCurrentActor->unk16A = (u8) (((f64) func_80612794((s16) (gFrameCounter * 0x64)) * 50.0) + 200.0);
+    gCurrentActor->unk16A = (u8) (((f64) mathSinF((s16) (gFrameCounter * 0x64)) * 50.0) + 200.0);
     gCurrentActor->unk16B = gCurrentActor->unk16A;
     gCurrentActor->unk16C = gCurrentActor->unk16A;
     if (gCurrentActor->unk154 == 0x55) {

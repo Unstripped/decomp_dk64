@@ -86,7 +86,7 @@ s16 critterLayoutWords(TextData *textData, char *text, s16 xOffset) {
     return wordMidXs[0];
 }
 
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, s32, s32);
 extern u8 gGfxBufferIndex;
 
@@ -104,11 +104,11 @@ Gfx *critterDrawWord(Gfx *glistp, TextData *textData, char *word, u8 wordIndex) 
         textData->timers[wordIndex]--;
         wordHalfWidth = textData->unk8[wordIndex] - textData->unk4[wordIndex];
         guTranslateF(modelMtx, -wordHalfWidth, -26.0f, 0.0f);
-        guScaleF(tempMtx, func_80612794((s16)(timerNorm * 2048.0f)) * 0.5 + 1.0, func_80612794((s16)(timerNorm * 2048.0f)) * 0.8 + 1.0, 1.0f);
+        guScaleF(tempMtx, mathSinF((s16)(timerNorm * 2048.0f)) * 0.5 + 1.0, mathSinF((s16)(timerNorm * 2048.0f)) * 0.8 + 1.0, 1.0f);
         guMtxCatF(modelMtx, tempMtx, modelMtx);
         guTranslateF(tempMtx, wordHalfWidth, 26.0f, 0.0f);
         guMtxCatF(modelMtx, tempMtx, modelMtx);
-        alpha = (u32)(func_80612794((s16)(timerNorm * 2048.0f)) * 127.0f + 128.0f);
+        alpha = (u32)(mathSinF((s16)(timerNorm * 2048.0f)) * 127.0f + 128.0f);
     }
     guTranslateF(tempMtx, textData->unk4[wordIndex], textData->unk0, 0.0f);
     guMtxCatF(modelMtx, tempMtx, modelMtx);

@@ -45,7 +45,7 @@ Gfx *actorCursorDrawSprite(Gfx *dl, Actor *actor) {
     return renderRotatedSprite(dl, 0x38, 3, 1, 0x40, 0x40, (s32)pos[0], (s32)pos[1], 0.5f, 0.5f, 0x2D, 0.0f);
 }
 
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 
 Gfx *actorCursorDrawBurst(Gfx *dl, Actor *actor) {
     BC3B0CursorSub174 *sub = ((BC3B0CursorActor *)actor)->unk174;
@@ -67,7 +67,7 @@ Gfx *actorCursorDrawBurst(Gfx *dl, Actor *actor) {
         y = (240.0f - pos[1]) * t + pos[1];
         gDPSetPrimColor(dl++, 0, 0, 0, 200, 0, (u32)(-255.0f * t + 255.0f));
         dl = renderRotatedSprite(renderRotatedSprite(dl, 0x42, 3, 1, 0x40, 0x40, (s32)x, 0x78, 0.5f, 4.0f, 0, 0.0f), 0x42, 3, 1, 0x40, 0x40, 0xA0, (s32)y, 0.5f, 5.0f, 0x5A, 0.0f);
-        t += 0.1 * func_80612794(angle);
+        t += 0.1 * mathSinF(angle);
         i++;
         t = (t > 1.0) ? 1.0 : t;
     } while (i < 5);

@@ -168,8 +168,8 @@ s16 mathAngleSignedDistance(s16, s16);
 f32 raceGetProgressPercent(s32, Struct_sp58 *, Struct_sp5C *);
 f32 raceEvaluateCurveTargetSpeed(void *, f32, void *, void *);
 extern s32 gGlobalOverlayFlags;
-f32 func_80612794(s16);
-f32 func_80612790(s16);
+f32 mathSinF(s16);
+f32 mathCosF(s16);
 f32 mathAtan2(f32, f32);
 s16 mathAngleFromVector2D(f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32, s16);
@@ -300,8 +300,8 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
         gCurrentActor->unkC8 = -900.0f;
         gCurrentActor->unkF8 = 0x12C;
     }
-    velX = func_80612794(gCurrentActor->unkEE) * gCurrentActor->unkB8;
-    velZ = func_80612790(gCurrentActor->unkEE) * gCurrentActor->unkB8;
+    velX = mathSinF(gCurrentActor->unkEE) * gCurrentActor->unkB8;
+    velZ = mathCosF(gCurrentActor->unkEE) * gCurrentActor->unkB8;
     if (racerState->unk20 != 0) {
         a1 = a1 + 0x800;
         a1 = a1 & 0xFFF;
@@ -318,16 +318,16 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
         forwardAccel = racerState->unk4 * 2;
         friction = (gCurrentActor->unkB8 * gCurrentActor->unkB8 * 0.00002f) + 2;
     }
-    velX += func_80612794(a1) * forwardAccel;
-    velZ += func_80612790(a1) * forwardAccel;
+    velX += mathSinF(a1) * forwardAccel;
+    velZ += mathCosF(a1) * forwardAccel;
     gCurrentActor->unkB8 = sqrtf((velX * velX) + (velZ * velZ));
     gCurrentActor->unkEE = (s16)(s32)(mathAtan2(velX, velZ) * 651.8986f);
     if (onGround != 0) {
         pitchAngle = 0x400 - gCurrentActor->unkDE;
         signedDist = mathAngleSignedDistance(gCurrentActor->unkDC, gCurrentActor->unkE6);
         tiltScale = (f32)pitchAngle;
-        targetTilt = (s16)(s32)(func_80612790(signedDist) * tiltScale);
-        fv0 = func_80612794(signedDist) * tiltScale;
+        targetTilt = (s16)(s32)(mathCosF(signedDist) * tiltScale);
+        fv0 = mathSinF(signedDist) * tiltScale;
         targetTilt = targetTilt & 0xFFF;
         a3 = (s32)fv0;
         a3 = a3 & 0xFFF;
@@ -341,8 +341,8 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
         }
         yawDelta = mathAngleSignedDistance(a0, gCurrentActor->unkE6);
         tiltScale = (f32)v1;
-        targetTilt = (s16)(s32)(func_80612790(yawDelta) * tiltScale);
-        a3 = (s32)(func_80612794(yawDelta) * tiltScale);
+        targetTilt = (s16)(s32)(mathCosF(yawDelta) * tiltScale);
+        a3 = (s32)(mathSinF(yawDelta) * tiltScale);
         targetTilt = targetTilt & 0xFFF;
         a3 = a3 & 0xFFF;
     }

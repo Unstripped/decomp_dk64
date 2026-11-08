@@ -221,8 +221,8 @@ CamCueStep gCamCueTable[9] = {
 
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 f32 sinApprox(f32);
 void camApplySway(CamState *, f32 *, f32 *, f32 *, f32, f32, f32, f32);
 void camSampleFloorHeight(CamActor *, CamState *, f32, f32);
@@ -329,11 +329,11 @@ void camApplySway(CamState *state, f32 *posX, f32 *posY, f32 *posZ, f32 ampXZ, f
     f32 sp1C;
     f32 sinYaw;
 
-    sinYaw = func_80612794(((CamStateYaw *)state)->unkB2 + 0x400);
-    *posX += ampXZ * func_80612794((u32)gFrameCounter * freqXZ) * sinYaw;
-    sinYaw = func_80612790(((CamStateYaw *)state)->unkB2 + 0x400);
-    *posZ += ampXZ * func_80612794((u32)gFrameCounter * freqXZ) * sinYaw;
-    *posY += ampY * func_80612794((u32)gFrameCounter * freqY);
+    sinYaw = mathSinF(((CamStateYaw *)state)->unkB2 + 0x400);
+    *posX += ampXZ * mathSinF((u32)gFrameCounter * freqXZ) * sinYaw;
+    sinYaw = mathCosF(((CamStateYaw *)state)->unkB2 + 0x400);
+    *posZ += ampXZ * mathSinF((u32)gFrameCounter * freqXZ) * sinYaw;
+    *posY += ampY * mathSinF((u32)gFrameCounter * freqY);
 }
 
 u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
@@ -482,7 +482,7 @@ u8 camFloorSnap(void *camActor, void *camState, f32 targetDist, f32 *outHeight, 
             bonus += 10.0 * new_var;
         }
         if ((gGlobalOverlayFlags & 8) && !(flags & 8)) {
-            lim = CAM_MAX((func_80612794(sp64 + 0x800) + 1.0f) * 100.0f, bonus);
+            lim = CAM_MAX((mathSinF(sp64 + 0x800) + 1.0f) * 100.0f, bonus);
         } else {
             lim = bonus;
         }
@@ -1265,10 +1265,10 @@ void func_8061D6A8(CamFollowState *cam) {
     gCamTargetDist = sqrtf((cam->unk8C - actor->unk84) * (cam->unk8C - actor->unk84) +
                        (cam->unk84 - actor->unk7C) * (cam->unk84 - actor->unk7C));
     D_807476AC = sqrtf(
-        (cam->unk84 - (actor->unk7C + cam->unk94 * func_80612794(actor->unkE6))) *
-            (cam->unk84 - (actor->unk7C + cam->unk94 * func_80612794(actor->unkE6))) +
-        (cam->unk8C - (actor->unk84 + cam->unk94 * func_80612790(actor->unkE6))) *
-            (cam->unk8C - (actor->unk84 + func_80612790(actor->unkE6) * cam->unk94)));
+        (cam->unk84 - (actor->unk7C + cam->unk94 * mathSinF(actor->unkE6))) *
+            (cam->unk84 - (actor->unk7C + cam->unk94 * mathSinF(actor->unkE6))) +
+        (cam->unk8C - (actor->unk84 + cam->unk94 * mathCosF(actor->unkE6))) *
+            (cam->unk8C - (actor->unk84 + mathCosF(actor->unkE6) * cam->unk94)));
     D_807476B0 = mathAtan2(actor->unk80 - cam->unk88,
                                sqrtf((cam->unk0->unk84 - cam->unk8C) * (cam->unk0->unk84 - cam->unk8C) +
                                      (actor->unk7C - cam->unk84) * (actor->unk7C - cam->unk84)));
@@ -1797,9 +1797,9 @@ void camUpdate(struct CamResetCam *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *a
     if (!(st->unkAC & 0x100)) {
         camPolarFromPoints(&sp84, &sp80, *arg4, *arg5, *arg6, *arg1, *arg2, *arg3);
         fs = cosApprox(sp80);
-        *arg8 = func_80612790(CAM_UPDATE_CAM->unkE4);
-        *arg7 = func_80612794(CAM_UPDATE_CAM->unkE4) * cosApprox(sp84) * fs;
-        *arg9 = func_80612794(CAM_UPDATE_CAM->unkE4) * sinApprox(sp84) * fs;
+        *arg8 = mathCosF(CAM_UPDATE_CAM->unkE4);
+        *arg7 = mathSinF(CAM_UPDATE_CAM->unkE4) * cosApprox(sp84) * fs;
+        *arg9 = mathSinF(CAM_UPDATE_CAM->unkE4) * sinApprox(sp84) * fs;
         CAM_UPDATE_CAM->unkEC = CAM_UPDATE_CAM->unkE4;
     }
     st->unkCC = X->unk7C;
@@ -2376,8 +2376,8 @@ s32 camEvaluateZones(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4,
             case 7:
                 if (tgt->unk154 != 0x20) {
                     ang1 = mathAngleBetweenPoints2D(best->unk10, best->unk14, tgt->unk7C, tgt->unk84);
-                    *arg1 = best->unk10 - func_80612794(ang1) * best->unk0;
-                    *arg3 = best->unk14 - func_80612790(ang1) * best->unk0;
+                    *arg1 = best->unk10 - mathSinF(ang1) * best->unk0;
+                    *arg3 = best->unk14 - mathCosF(ang1) * best->unk0;
                     *arg2 = st->unk6C + ((CamZoneActor *)arg0)->unkB4;
                     st->unkC8 = 0;
                     st->unkCA = 0;
@@ -2707,8 +2707,8 @@ u8 camResolveWallCollision(CamActor *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 ar
             s16 t;
 
             sp3A = mathAngleArcMidpoint(sp4A, sp48);
-            arg1 += 0.5 * func_80612794(sp3A);
-            arg2 += 0.5 * func_80612790(sp3A);
+            arg1 += 0.5 * mathSinF(sp3A);
+            arg2 += 0.5 * mathCosF(sp3A);
             st->unkFC = 1;
             mathAngleClampToArc(((CamWallActor *)arg0)->unkEE, ((CamWallActor *)arg0)->unkEE, sp4A, sp48, &sp44);
             t = func_80672134(sp4A, sp48, ((CamWallActor *)arg0)->unkE6, 100);
@@ -2719,8 +2719,8 @@ u8 camResolveWallCollision(CamActor *arg0, f32 arg1, f32 arg2, f32 *arg3, f32 ar
             }
         }
         ((CamWallActor *)arg0)->unkFC = 1;
-        *arg3 = func_80612794(sp44) * sp42 + arg1;
-        *arg5 = func_80612790(sp44) * sp42 + arg2;
+        *arg3 = mathSinF(sp44) * sp42 + arg1;
+        *arg5 = mathCosF(sp44) * sp42 + arg2;
         if (st->unkF5 != 0) {
             st->unkA0 -= 5.0f;
         } else {
@@ -3088,7 +3088,7 @@ u8 camComputeFollowPos(CamActor *arg0, CamActor *arg1, f32 *arg2, f32 *arg3, f32
         case 0x81:
             y += TGT->unk80;
             if ((gGlobalOverlayFlags & 0x20) && D_807F5CD0 >= 0xC9) {
-                y += 80.0f * func_80612794(CA->unkE8);
+                y += 80.0f * mathSinF(CA->unkE8);
             }
             break;
         case 0x21:
@@ -3130,11 +3130,11 @@ u8 camComputeFollowPos(CamActor *arg0, CamActor *arg1, f32 *arg2, f32 *arg3, f32
         cam->unk9C = cam->unk9C - 1;
         y += 130.0f;
     }
-    x = TGT->unk7C - func_80612794(cam->unkB2) * sp68;
-    z = TGT->unk84 - func_80612790(cam->unkB2) * sp68;
+    x = TGT->unk7C - mathSinF(cam->unkB2) * sp68;
+    z = TGT->unk84 - mathCosF(cam->unkB2) * sp68;
     if (arg5 > 0.0f) {
-        x += arg5 * func_80612794(cam->unk9E);
-        z += arg5 * func_80612790(cam->unk9E);
+        x += arg5 * mathSinF(cam->unk9E);
+        z += arg5 * mathCosF(cam->unk9E);
     }
     if (cam->unkF2 != 0) {
         camApplyShake((CamState *)cam, &x, &y, &z, cam->unkC0, 0);
@@ -3199,8 +3199,8 @@ typedef struct CamStateYawOffset {
 
 void camComputeFocusPosOffset(CamState *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 arg4) {
     camComputeFocusPos(arg0, arg1, arg2, arg3);
-    *arg1 += arg4 * func_80612794(((CamStateYawOffset *)arg0)->unk9E);
-    *arg3 += arg4 * func_80612790(((CamStateYawOffset *)arg0)->unk9E);
+    *arg1 += arg4 * mathSinF(((CamStateYawOffset *)arg0)->unk9E);
+    *arg3 += arg4 * mathCosF(((CamStateYawOffset *)arg0)->unk9E);
 }
 
 typedef struct CamZoomEntry {
@@ -3401,14 +3401,14 @@ void camComputeTargetEyePos(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
     if (st->unk0->unk154 == 0x21 || st->unk0->unk154 == 0x38) {
         return;
     }
-    *arg1 = func_80612794(angle) * p->unkA + p->unk0->unk7C;
-    *arg3 = func_80612790(angle) * p->unkA + p->unk0->unk84;
+    *arg1 = mathSinF(angle) * p->unkA + p->unk0->unk7C;
+    *arg3 = mathCosF(angle) * p->unkA + p->unk0->unk84;
     *arg2 = p->unk0->unk80 + p->unk10;
     if (gCurrentMap == 6 || gCurrentMap == 0xE || gCurrentMap == 0x37 || gCurrentMap == 0x6A) {
         if (tgtState->unk1F0 & 0x10000002) {
             mult = -1;
         }
-        *arg2 += (mult * p->unkA) * func_80612794(p->unk0->unkE8);
+        *arg2 += (mult * p->unkA) * mathSinF(p->unk0->unkE8);
     }
     if (p->unk14 != 0) {
         p->unk14--;
@@ -3445,8 +3445,8 @@ void camComputeTargetFocusPos(CamState *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
 
     p = &((CamFocusBlockState *)arg0)->s44;
     angle = (p->unk0->unkE6 + p->unkC) & 0xFFF;
-    *arg1 = func_80612794(angle) * p->unkE + p->unk4->unk7C;
-    *arg3 = func_80612790(angle) * p->unkE + p->unk4->unk84;
+    *arg1 = mathSinF(angle) * p->unkE + p->unk4->unk7C;
+    *arg3 = mathCosF(angle) * p->unkE + p->unk4->unk84;
     *arg2 = p->unk4->unk80 + p->unk12;
 }
 
@@ -3498,12 +3498,12 @@ void func_806228BC(CamActor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *foc
     *eyeZ = tgt->unk84;
     if (tgt->hasArcBounds != 0) {
         angle = mathAngleArcMidpoint(tgt->arcYawMin, tgt->arcYawMax);
-        *eyeX += 5.0 * func_80612794(angle);
-        *eyeZ += 5.0 * func_80612790(angle);
+        *eyeX += 5.0 * mathSinF(angle);
+        *eyeZ += 5.0 * mathCosF(angle);
     }
-    *focusX = tgt->unk7C - func_80612794(st->unkB2) * 50.0f;
+    *focusX = tgt->unk7C - mathSinF(st->unkB2) * 50.0f;
     *focusY = tgt->unk80 - (((CamActorHeight *)camActor)->unkB4 - 138.0f);
-    *focusZ = tgt->unk84 - func_80612790(st->unkB2) * 50.0f;
+    *focusZ = tgt->unk84 - mathCosF(st->unkB2) * 50.0f;
 }
 
 f32 camAngleLerpRad(f32 a, f32 b, f32 t) {
@@ -3710,8 +3710,8 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
                     dist = CAM_LERP(pos->unk6, pos->unk4, t);
                     height = CAM_LERP(pos->unkA, pos->unk8, t);
                     angle = mathAngleLerp(pos->unk2, pos->unk0, t);
-                    posX = func_80612794(arg7->unkE6 - angle) * dist + arg7->unk7C;
-                    posZ = func_80612790(arg7->unkE6 - angle) * dist + arg7->unk84;
+                    posX = mathSinF(arg7->unkE6 - angle) * dist + arg7->unk7C;
+                    posZ = mathCosF(arg7->unkE6 - angle) * dist + arg7->unk84;
                     posY = arg7->unk80 + height;
                     gPlayerSlots[cam->unkFB].unk27C = CAM_LERP(pos->unkD, pos->unkC, t);
                     if (p->unk1 == 16) {
@@ -3783,8 +3783,8 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
                     }
                 calc_look:
                     if (!gCamPathLookNode) {
-                        lookX = func_80612794(arg7->unkE6) * gCamPathLookAhead + arg7->unk7C;
-                        lookZ = func_80612790(arg7->unkE6) * gCamPathLookAhead + arg7->unk84;
+                        lookX = mathSinF(arg7->unkE6) * gCamPathLookAhead + arg7->unk7C;
+                        lookZ = mathCosF(arg7->unkE6) * gCamPathLookAhead + arg7->unk84;
                         if (arg7->unk15E != 0) {
                             lookY = arg7->unk80 + arg7->unk15E;
                         } else {
@@ -3798,7 +3798,7 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
         look_set: /* two consecutive labels: the empty block keeps uopt from colouring type across the switch */
         look_done:
             if (type == 7) {
-                blend = func_80612794(D_807F5D00 * 1024.0f + 3072.0f) + 1.0;
+                blend = mathSinF(D_807F5D00 * 1024.0f + 3072.0f) + 1.0;
                 angleD = mathAngleBetweenPoints2D(D_807F5D24, D_807F5D2C, D_807F5D18, D_807F5D20);
                 angleT = mathAngleBetweenPoints2D(lookX, lookZ, posX, posZ);
                 pitchD = mathCalculatePitchAngle(D_807F5D18, D_807F5D1C, D_807F5D20, D_807F5D24, D_807F5D28,
@@ -3819,8 +3819,8 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
                 *arg1 = CAM_LERP(posX, D_807F5D18, blend);
                 *arg2 = CAM_LERP(posY, D_807F5D1C, blend);
                 *arg3 = CAM_LERP(posZ, D_807F5D20, blend);
-                *arg4 = *arg1 + func_80612794(yaw) * dist2D;
-                *arg6 = *arg3 + func_80612790(yaw) * dist2D;
+                *arg4 = *arg1 + mathSinF(yaw) * dist2D;
+                *arg6 = *arg3 + mathCosF(yaw) * dist2D;
                 *arg5 = *arg2 + sinApprox(pitch) * dist3D;
                 return;
             }
@@ -3878,7 +3878,7 @@ void camComputeEyeFocus(CamActor *arg0, f32 *arg1, f32 *arg2, f32 *arg3, f32 *ar
                 if ((arg7->unk154 == 0x37 || arg7->unk154 == 0x43 || arg7->unk154 == 0x4F || arg7->unk154 == 0x7F ||
                      arg7->unk154 == 0x81) &&
                     (gGlobalOverlayFlags & 0x20) && D_807F5CD0 >= 0xC9) {
-                    *arg5 = func_80612794(arg0->unkE8) * -20.0f + arg7->unk80;
+                    *arg5 = mathSinF(arg0->unkE8) * -20.0f + arg7->unk80;
                 } else {
                     *arg5 = arg7->unk80;
                 }
@@ -3984,7 +3984,7 @@ void camTurnYawToward(arg0, arg1, arg2) CamYawState *arg0; s16 arg1; s16 arg2; {
             case 1:
             case 5:
                 if (569.0f <= dist && dist <= 3527.0f) {
-                    scale = func_80612790((s16)((dist - 569.0f) / 2958.0f * 4096.0f)) * 0.5f + 0.5f;
+                    scale = mathCosF((s16)((dist - 569.0f) / 2958.0f * 4096.0f)) * 0.5f + 0.5f;
                 } else if (dist < 0x14) {
                     scale = dist / 20.0f;
                 } else {
@@ -4193,10 +4193,10 @@ void camUpdateFollowBlend(struct CamEyeActor *arg0) {
             case 10:
             case 12:
             case 13:
-                scale = func_80612794((s16)((1.0 - (f32)st->unkE8 / (f32)st->unkEA) * 1024.0)) * 0.8 + 0.2;
+                scale = mathSinF((s16)((1.0 - (f32)st->unkE8 / (f32)st->unkEA) * 1024.0)) * 0.8 + 0.2;
                 break;
             case 2:
-                scale = func_80612794((s16)((1.0 - (f32)st->unkE8 / (f32)st->unkEA) * 1024.0)) * 0.9 + 0.1;
+                scale = mathSinF((s16)((1.0 - (f32)st->unkE8 / (f32)st->unkEA) * 1024.0)) * 0.9 + 0.1;
                 break;
         }
         st->unkE8--;
@@ -4340,8 +4340,8 @@ void camUpdateEyePos(CamEyeActor *arg0, f32 arg1, f32 *arg2, f32 *arg3, f32 *arg
         case 10:
         case 12:
         case 13:
-            st->unk84 += gCamEyeBlendRate * arg0->unkB8 * func_80612794(ang);
-            st->unk8C += gCamEyeBlendRate * arg0->unkB8 * func_80612790(ang);
+            st->unk84 += gCamEyeBlendRate * arg0->unkB8 * mathSinF(ang);
+            st->unk8C += gCamEyeBlendRate * arg0->unkB8 * mathCosF(ang);
             st->unk88 = (arg0->unk80 - st->unk88) * arg1 + st->unk88;
             if (st->unkF3 != 12 && !(D_807FBB68 & 2)) {
                 camResolveWallCollision((CamActor *)arg0, savedX, savedZ, &st->unk84, st->unk88, &st->unk8C, gCamEyeBlendRate * arg0->unkB8);
@@ -4895,8 +4895,8 @@ s16 camClampEyeAngle(CamState *camState, f32 *eyeX, f32 *eyeZ, f32 focusX, f32 f
         }
         camState->unkAC |= 0x80;
     }
-    *eyeX = func_80612794(ang) * dist + focusX;
-    *eyeZ = func_80612790(ang) * dist + focusZ;
+    *eyeX = mathSinF(ang) * dist + focusX;
+    *eyeZ = mathCosF(ang) * dist + focusZ;
     return ang;
 }
 

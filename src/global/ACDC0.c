@@ -641,8 +641,8 @@ typedef struct {
     s8 unk17;
 } HudPauseMenuState;
 
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 s32 mapGetHubWorldIndex(s32, s32);
 s32 menuGetTimerFlag(void);
 Gfx *hudDrawCountPair(s16, s16, s16, s16, Gfx *, s8, f32);
@@ -728,10 +728,10 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     s16 y;
                     off = (j << 10) + gFrameCounter * 200;
                     ang = off;
-                    fa = func_80612794(ang) * 0.3f + 3.0f;
-                    fc = func_80612794(off + 0x800) * 0.3f + 3.0f;
-                    fd = func_80612794((off >> 1) + 0x200) * 10.0f;
-                    fe = func_80612794(ang);
+                    fa = mathSinF(ang) * 0.3f + 3.0f;
+                    fc = mathSinF(off + 0x800) * 0.3f + 3.0f;
+                    fd = mathSinF((off >> 1) + 0x200) * 10.0f;
+                    fe = mathSinF(ang);
                     fa = fa * 0.75f;
                     fd = fd * 0.75f;
                     fc = fc * 0.75f;
@@ -822,8 +822,8 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         ff = (f32)((f64)fa * 1.33);
                         for (j = 0; j < 5; j++) {
                             sa = angv;
-                            yy = (s32)(func_80612794(sa) * fb) + 0x280;
-                            y0 = (s32)(func_80612790(sa) * fb);
+                            yy = (s32)(mathSinF(sa) * fb) + 0x280;
+                            y0 = (s32)(mathCosF(sa) * fb);
                             yy += 0x20;
                             off = j + i * 5;
                             D_807FC840[off] = (f32)yy - fd;
@@ -1607,8 +1607,8 @@ typedef struct {
     HudIconState *unk384;
 } HudIconObj;
 
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 extern f32 D_807FC840[];
 extern f32 D_807FC868[];
 extern f32 D_807FC890[];
@@ -1667,7 +1667,7 @@ void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *param) {
             }
             if (type == 7) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
-                iconObj->unk364 = (f64)func_80612794(ang) * 0.35 + item->unk18;
+                iconObj->unk364 = (f64)mathSinF(ang) * 0.35 + item->unk18;
             }
             iconObj->unk340 = item->unk10 * t + item->unk8;
             iconObj->unk344 = item->unk14 * t + item->unkC + (f32)bounceStep;
@@ -1692,16 +1692,16 @@ void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *param) {
             iconObj->unk360 = (f64)(item->unk10 * t) * 4.0;
             iconObj->unk364 = iconObj->unk360;
             t = 0.0;
-            iconObj->unk340 = (f64)(func_80612794(ang) * sc) + 640.0;
-            iconObj->unk344 = (480.0 - (f64)(func_80612790(ang) * sc)) + (f64)bounceStep;
+            iconObj->unk340 = (f64)(mathSinF(ang) * sc) + 640.0;
+            iconObj->unk344 = (480.0 - (f64)(mathCosF(ang) * sc)) + (f64)bounceStep;
             if (type == 8) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
-                sc = func_80612794(ang);
+                sc = mathSinF(ang);
                 iconObj->unk344 = iconObj->unk344 + sc * 10.0f;
             }
             if (type == 0xF) {
                 ang = (gFrameCounter * 0x78) & 0xFFF;
-                sc = func_80612794(ang);
+                sc = mathSinF(ang);
                 iconObj->unk364 = iconObj->unk364 * (1.0 + (f64)sc * 0.2);
             }
             if (type == 5 || type == 8 || type == 0xF) {
@@ -1727,8 +1727,8 @@ void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *param) {
                     ang = (s32)item->unk20 & 0xFFF;
                     item->unk20 = ang;
                     sc = ((f64)randomFloat() * 40.0 + 20.0) * 4.0;
-                    item->unk18 = (f64)func_80612794(ang) * ((f64)sc * 0.8);
-                    item->unk1C = func_80612790(ang) * sc;
+                    item->unk18 = (f64)mathSinF(ang) * ((f64)sc * 0.8);
+                    item->unk1C = mathCosF(ang) * sc;
                     if ((f64)randomFloat() < 0.25) {
                         item->unk24 = (f64)randomFloat() * 40.0 + 15.0;
                     } else {
@@ -1752,7 +1752,7 @@ void hudPauseMenuIconUpdate(HudIconObj *iconObj, s8 *param) {
             item->unk14 = item->unk14 + sc;
             ang = (gFrameCounter * 0x78) & 0xFFF;
             iconObj->unk340 = item->unk10 + item->unk8;
-            sc = func_80612794(ang);
+            sc = mathSinF(ang);
             iconObj->unk344 = sc * 10.0f + (item->unkC + item->unk14 + (f32)bounceStep + 960.0f * t);
             t = 0.0f;
             break;

@@ -555,7 +555,7 @@ extern s8 D_80033F51;
 extern u32 gFrameCounter;
 Gfx *menuSetElementCoordinates(Gfx *, s32, f32, f32, f32);
 Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, s32, s32, s16, s32, f32, f32, s32, f32);
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 
 s32 menuDrawFileSummary(void *actor, Gfx *dl) {
     f32 x = 66.0f;
@@ -599,7 +599,7 @@ s32 menuDrawFileSummary(void *actor, Gfx *dl) {
     dl = textDrawStringVtx(dl, 1, 0x280, py, strBuf, 0x81);
     x = 0.5f;
     ang = (gFrameCounter * 0x78) & 0xFFF;
-    fv1 = func_80612794(ang) * 0.1f + 0.5f;
+    fv1 = mathSinF(ang) * 0.1f + 0.5f;
     py = (s32)((f32)py + 40.0f);
     sc = py;
     posY = sc * 0.25f + 32.0f * fv1;
@@ -909,8 +909,8 @@ void menuBossReplayHandleInput(MenuScreenActor *actor, s32 buttons) {
 }
 
 Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, s32, s32, s16, s32, f32, f32, s32, f32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 
 Gfx *menuDrawSubmenuRing(MenuScreenActor *actor, Gfx *dl) {
     MenuScreenState *state = actor->unk174;
@@ -936,8 +936,8 @@ Gfx *menuDrawSubmenuRing(MenuScreenActor *actor, Gfx *dl) {
     for (i = 0; i != 0x1000; i += 0x800) {
         ang = i - (state->unk17 << 11);
         ang -= (s32)(state->unk4 * 2048.0);
-        posX = 160.0 - func_80612794((s16)ang) * 50.0;
-        posY = 120.0 - func_80612790((s16)ang) * 50.0;
+        posX = 160.0 - mathSinF((s16)ang) * 50.0;
+        posY = 120.0 - mathCosF((s16)ang) * 50.0;
         menuComputeElementPosition(state, posX, posY, &posX, &posY, 2, 0, 1.5f);
         posX += 12.0;
         posX *= 4.0f;
@@ -3208,8 +3208,8 @@ void menuSparkleParticleUpdate(Menu10_Spinner *spinner, s32 unused) {
     if (spinner->unk384 == NULL) {
         p = spinner->unk384 = heapAlloc(0x10);
         randAngle = randomLcgNext() * 0x10;
-        p->vx = func_80612794(randAngle) * 60.0f;
-        p->vy = func_80612790(randAngle) * 60.0f;
+        p->vx = mathSinF(randAngle) * 60.0f;
+        p->vy = mathCosF(randAngle) * 60.0f;
         p->ang = randomFloat() * 3.141f;
         spinner->unk340 = spinner->unk340 + p->vx * 3.0f;
         spinner->unk344 = spinner->unk344 + p->vy * 3.0f;
@@ -3306,7 +3306,7 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *elemActor, u8 *outFlag) {
             elemActor->unk364 = elemActor->unk360;
             if (type == 7) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
-                elemActor->unk344 += func_80612794(t) * 10.0f;
+                elemActor->unk344 += mathSinF(t) * 10.0f;
             }
             if (type == 0x12) {
                 elemActor->unk36A = colorComponent;
@@ -3422,7 +3422,7 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *elemActor, u8 *outFlag) {
             }
             if (type == 0xE) {
                 t = (gFrameCounter * 0x78) & 0xFFF;
-                elemActor->unk344 += func_80612794(t) * 10.0f;
+                elemActor->unk344 += mathSinF(t) * 10.0f;
             }
             if (type == 0x13 && (D_80033FAD == 4 || D_80033FAD == 1 || D_8076A104 == 1)) {
                 elemActor->unk340 = -400.0f;
@@ -3462,8 +3462,8 @@ void menuUpdateElementTargetAndColor(MenuUiElemActor *elemActor, u8 *outFlag) {
             idx -= (s32)(p->unk4 * stepOrScale);
             t = (s16)idx;
             if (D_80033804 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            elemActor->unk340 = 160.0f - func_80612794(t) * radius;
-            elemActor->unk344 = 120.0f - func_80612790(t) * radius;
+            elemActor->unk340 = 160.0f - mathSinF(t) * radius;
+            elemActor->unk344 = 120.0f - mathCosF(t) * radius;
             if (menuComputeElementPosition(p, elemActor->unk340, elemActor->unk344, &elemActor->unk340, &elemActor->unk344, splineStep, 0, 1.0f) == (s32)c->unk8) {
                 stepOrScale = 1.1f;
             } else {

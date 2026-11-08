@@ -10,8 +10,8 @@ void *heapAlloc(s32);
 u32 randomLcgNext(void);
 f32 randomFloat(void);
 s32 randomNonNegative(void);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 f32 cosApprox(f32);
 f32 sinApprox(f32);
 
@@ -88,8 +88,8 @@ void effectOrbitXZUpdate(RotatingEffectActorView *effect, void *unused) {
     }
     state = effect->unk384;
     state->unk0 = state->unk4 + state->unk0;
-    effect->unk340 = func_80612794(state->unk0) * state->unk2 + state->unk6;
-    effect->unk348 = func_80612790(state->unk0) * state->unk2 + state->unk8;
+    effect->unk340 = mathSinF(state->unk0) * state->unk2 + state->unk6;
+    effect->unk348 = mathCosF(state->unk0) * state->unk2 + state->unk8;
 }
 
 
@@ -117,8 +117,8 @@ void effectPuffRiseUpdate(RotatingEffectActorView *effect, void *unused) {
     state = effect->unk384;
     effect->unk344 = (f32) ((f64) effect->unk344 - (f64) state->unk6 / 100.0);
     state->unk6 += 0x14;
-    effect->unk340 += (0.04 * (f64) state->unk4) * (f64) func_80612794(state->unk0);
-    effect->unk348 += (0.04 * (f64) state->unk4) * (f64) func_80612790(state->unk0);
+    effect->unk340 += (0.04 * (f64) state->unk4) * (f64) mathSinF(state->unk0);
+    effect->unk348 += (0.04 * (f64) state->unk4) * (f64) mathCosF(state->unk0);
     state->unk0 += 0x50;
     state->unk4 += state->unk2;
     if (effect->unk35C != 0) {
@@ -175,11 +175,11 @@ void effectConfettiPhysicsUpdate(ConfettiActorView *effect, void *unused) {
     motion = effect->unk384;
     params = &effect->unk35C;
     if (effect->unk36F != 0) {
-        effect->unk340 += 4.0 * ((0.01 * (f64) params->unk2) * (f64) func_80612794((s16) motion->unk0));
-        effect->unk344 += 4.0 * ((0.01 * (f64) params->unk2) * (f64) func_80612790((s16) motion->unk0));
+        effect->unk340 += 4.0 * ((0.01 * (f64) params->unk2) * (f64) mathSinF((s16) motion->unk0));
+        effect->unk344 += 4.0 * ((0.01 * (f64) params->unk2) * (f64) mathCosF((s16) motion->unk0));
     } else {
-        effect->unk340 += (0.04 * (f64) params->unk2) * (f64) func_80612794((s16) motion->unk0);
-        effect->unk348 += (0.04 * (f64) params->unk2) * (f64) func_80612790((s16) motion->unk0);
+        effect->unk340 += (0.04 * (f64) params->unk2) * (f64) mathSinF((s16) motion->unk0);
+        effect->unk348 += (0.04 * (f64) params->unk2) * (f64) mathCosF((s16) motion->unk0);
         if (params->unk0 == 0) {
             effect->unk344 += motion->unk8;
             motion->unk8 = (f32) ((f64) motion->unk8 - 0.5);
@@ -231,8 +231,8 @@ void effectRandomDriftVelocityUpdate(RotatingEffectActorView *effect, void *unus
         motion->unk2 = ((randomNonNegative() >> 15) % 10) + 2;
     }
     motion = actor->unk384;
-    actor->unk340 += 0.2 * actor->unk35C * func_80612794(motion->unk0);
-    actor->unk344 += 0.2 * actor->unk35C * func_80612790(motion->unk0);
+    actor->unk340 += 0.2 * actor->unk35C * mathSinF(motion->unk0);
+    actor->unk344 += 0.2 * actor->unk35C * mathCosF(motion->unk0);
     motion->unk0 += 0x46;
     actor->unk35C += motion->unk2;
 }
@@ -301,11 +301,11 @@ void func_80717930(OrbitEffectActorView *effect, void *unused) {
     }
     state = effect->unk384;
     if (effect->unk38C & 2) {
-        effect->unk340 = func_80612794(state->unk0) * effect->unk35C + D_807FBB4C->x;
-        effect->unk348 = func_80612790(state->unk0) * effect->unk35C + D_807FBB4C->z;
+        effect->unk340 = mathSinF(state->unk0) * effect->unk35C + D_807FBB4C->x;
+        effect->unk348 = mathCosF(state->unk0) * effect->unk35C + D_807FBB4C->z;
     } else {
-        effect->unk340 = func_80612794(state->unk0) * effect->unk35C + state->unk2;
-        effect->unk348 = func_80612790(state->unk0) * effect->unk35C + state->unk4;
+        effect->unk340 = mathSinF(state->unk0) * effect->unk35C + state->unk2;
+        effect->unk348 = mathCosF(state->unk0) * effect->unk35C + state->unk4;
     }
     effect->unk344 += state->unk8 * 0.1;
     state->unk0 += state->unk6;
@@ -456,8 +456,8 @@ void effectDriftXZUpdate(RotatingEffectActorView *effect, void *unused) {
         state->unkE = (randomNonNegative() % 10000) % 150 - 75;
     }
     state = effect->unk384;
-    effect->unk340 = (f32) ((f64) func_80612794(state->unk8) * 6.0 + (f64) state->unk0);
-    effect->unk348 = (f32) ((f64) func_80612794(state->unkA) * 6.0 + (f64) state->unk4);
+    effect->unk340 = (f32) ((f64) mathSinF(state->unk8) * 6.0 + (f64) state->unk0);
+    effect->unk348 = (f32) ((f64) mathSinF(state->unkA) * 6.0 + (f64) state->unk4);
     state->unk8 += state->unkC;
     state->unkA += state->unkE;
     effect->unk344 = (f32) ((f64) effect->unk344 - (f64) effect->unk35C / 100.0);
@@ -482,8 +482,8 @@ s8 *isDone;
         effect->unk384 = heapAlloc(0x10);
         state = effect->unk384;
         if (parent != NULL) {
-            state->unk0 = (*(f32 *) ((u8 *) parent + 0xB8) * 0.025f) * func_80612794(*(s16 *) ((u8 *) parent + 0xEE));
-            state->unk4 = (*(f32 *) ((u8 *) parent + 0xB8) * 0.025f) * func_80612790(*(s16 *) ((u8 *) parent + 0xEE));
+            state->unk0 = (*(f32 *) ((u8 *) parent + 0xB8) * 0.025f) * mathSinF(*(s16 *) ((u8 *) parent + 0xEE));
+            state->unk4 = (*(f32 *) ((u8 *) parent + 0xB8) * 0.025f) * mathCosF(*(s16 *) ((u8 *) parent + 0xEE));
         } else {
             state->unk0 = 0.0f;
             state->unk4 = 0.0f;
@@ -750,8 +750,8 @@ void effectProjectileDriftUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         proj->unk6 = (s16)src->unkAC;
     }
     proj = arg0->unk384;
-    arg0->unk340 -= (f32)proj->unk0 * func_80612794(proj->unk2);
-    arg0->unk348 -= (f32)proj->unk0 * func_80612790(proj->unk2);
+    arg0->unk340 -= (f32)proj->unk0 * mathSinF(proj->unk2);
+    arg0->unk348 -= (f32)proj->unk0 * mathCosF(proj->unk2);
     arg0->unk344 = (f32)((f64)arg0->unk344 + ((f64)proj->unk4 / 500.0));
     if ((f32)proj->unk6 <= arg0->unk344) {
         *arg1 = 1;
@@ -1032,9 +1032,9 @@ void effectDecelerateDriftUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         var_v1->unk0 = 0.8f;
     }
     var_v1 = temp_v0;
-    sp24 = func_80612794((s16) (s32) var_v1->unk4);
+    sp24 = mathSinF((s16) (s32) var_v1->unk4);
     sp24 = var_v1->unk0 * sp24;
-    temp_fv1 = func_80612790((s16) (s32) var_v1->unk4);
+    temp_fv1 = mathCosF((s16) (s32) var_v1->unk4);
     temp_fv1 = var_v1->unk0 * temp_fv1;
     arg0->unk340 += sp24;
     arg0->unk348 += temp_fv1;
@@ -1104,8 +1104,8 @@ void effectSpiralRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     var_v1 = var_v0;
     var_v0->unk8 = (f32)((f64)var_v0->unk8 + 1.5);
     var_v1->unkC += var_v1->unk10;
-    var_a2->unk340 = (func_80612794((s16)(s32)var_v1->unkC) * var_v0->unk8) + var_v0->unk0;
-    var_a2->unk348 = (func_80612790((s16)(s32)var_v1->unkC) * var_v1->unk8) + var_v0->unk4;
+    var_a2->unk340 = (mathSinF((s16)(s32)var_v1->unkC) * var_v0->unk8) + var_v0->unk0;
+    var_a2->unk348 = (mathCosF((s16)(s32)var_v1->unkC) * var_v1->unk8) + var_v0->unk4;
     if (var_a2->unk36D == 0) {
         *arg1 = 1;
     }
@@ -1468,14 +1468,14 @@ void effectFollowParentUpdate(FollowParentActorView *arg0, s8 *arg1) {
             arg0->brightness = 0xC8;
         }
         if ((parent->mode == 0xC5) && ((f64) arg0->scaleX < 0.5)) {
-            trig = func_80612794(parent->angle);
+            trig = mathSinF(parent->angle);
             arg0->x = (f32) ((f64) arg0->x - ((10.0 * (f64) arg0->scaleX) * (f64) trig));
-            trig = func_80612790(parent->angle);
+            trig = mathCosF(parent->angle);
             arg0->z = (f32) ((f64) arg0->z - ((10.0 * (f64) arg0->scaleX) * (f64) trig));
         } else {
-            trig = func_80612794(parent->angle);
+            trig = mathSinF(parent->angle);
             arg0->x = (f32) ((f64) arg0->x + (((f64) parent->speed * 0.003) * (f64) trig));
-            trig = func_80612790(parent->angle);
+            trig = mathCosF(parent->angle);
             arg0->z = (f32) ((f64) arg0->z + (((f64) parent->speed * 0.003) * (f64) trig));
             arg0->y = (f32) ((f64) arg0->y - 0.1);
         }
@@ -1522,9 +1522,9 @@ void effectDownwardDriftUpdate(MotionEffectActorView *arg0, s8 *arg1) {
 
     speed = 0.35f;
     arg0->unk344 = (f32)((f64)arg0->unk344 - ((f64)speed * 0.5));
-    new_var = func_80612794(arg0->unk35E);
+    new_var = mathSinF(arg0->unk35E);
     arg0->unk340 = (f32)(arg0->unk340 + (0.35f * new_var));
-    new_var = func_80612790(arg0->unk35E);
+    new_var = mathCosF(arg0->unk35E);
     arg0->unk348 = (f32)(arg0->unk348 + (0.35f * new_var));
 }
 
@@ -1534,9 +1534,9 @@ void effectUpwardDriftUpdate(MotionEffectActorView *arg0, s8 *arg1) {
 
     speed = 0.35f;
     arg0->unk344 = (f32)((f64)arg0->unk344 + ((f64)speed * 0.5));
-    new_var = func_80612794(arg0->unk35E);
+    new_var = mathSinF(arg0->unk35E);
     arg0->unk340 = (f32)(arg0->unk340 + (0.35f * new_var));
-    new_var = func_80612790(arg0->unk35E);
+    new_var = mathCosF(arg0->unk35E);
     arg0->unk348 = (f32)(arg0->unk348 + (0.35f * new_var));
 }
 
@@ -1552,9 +1552,9 @@ void effectSineHorizontalDriftUpdate(MotionEffectActorView *arg0, s8 *arg1) {
     speed = 0.35f;
     arg0->unk344 = (f32)((f64)arg0->unk344 + ((f64)speed * 0.5));
     speed = (f32)((f64)((MotionState *)arg0->unk384)->unk4 * 0.02);
-    call_result = func_80612794((s16)(s32)((MotionState *)arg0->unk384)->unk0);
+    call_result = mathSinF((s16)(s32)((MotionState *)arg0->unk384)->unk0);
     arg0->unk340 = (f32)(arg0->unk340 + (speed * call_result));
-    call_result = func_80612790((s16)(s32)((MotionState *)arg0->unk384)->unk0);
+    call_result = mathCosF((s16)(s32)((MotionState *)arg0->unk384)->unk0);
     arg0->unk348 = (f32)(arg0->unk348 + (speed * call_result));
     ((MotionState *)arg0->unk384)->unk4 -= 15.0f;
     if (((MotionState *)arg0->unk384)->unk4 < 0.0f) {
@@ -1573,9 +1573,9 @@ void effectSineDriftUpdate(MotionEffectActorView *arg0, s8 *arg1) {
     speed = 0.35f;
     arg0->unk344 = (f32)((f64)arg0->unk344 + ((f64)speed * 0.5));
     speed = (f32)((f64)((MotionState *)arg0->unk384)->unk0 * 0.02);
-    call_result = func_80612794(arg0->unk35E);
+    call_result = mathSinF(arg0->unk35E);
     arg0->unk340 = (f32)(arg0->unk340 + (speed * call_result));
-    call_result = func_80612790(arg0->unk35E);
+    call_result = mathCosF(arg0->unk35E);
     arg0->unk348 = (f32)(arg0->unk348 + (speed * call_result));
 }
 
@@ -1807,12 +1807,12 @@ void effectWaveMotionUpdate(WaveMotionActorView *arg0, s8 *arg1) {
 
     sp28 = arg0->unk35C;
     sp24 = sp28->unk14;
-    sp20 = func_80612794(sp28->unk10);
+    sp20 = mathSinF(sp28->unk10);
     arg0->unk36D = (u32) ((f32) (u32) sp24->unk0 * sp20);
     sp20 = 1.0f - sp20;
     scale = arg0->unk364;
     if (sp24->unk4 != 0) {
-        scale = (f32) ((((f64) func_80612794(sp24->unk2) * 0.15) + 0.85) * (f64) arg0->unk364);
+        scale = (f32) ((((f64) mathSinF(sp24->unk2) * 0.15) + 0.85) * (f64) arg0->unk364);
         sp24->unk2 += 0xAA;
         sp24->unk2 &= 0xFFF;
     }
@@ -2081,9 +2081,9 @@ void effectWispWanderUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     sp58 = mathAngleBetweenPoints2D((f32)state->x, (f32)state->target_y, arg0->unk340, arg0->unk348);
     state->angle = mathAngleEaseToward(state->angle, sp58, (f32)(((randomNonNegative() >> 0xF) % 10) + 5));
     state->y = (s16)((f64)(state->z - state->y) * 0.1 + (f64)state->y);
-    arg0->unk340 += state->speed * func_80612794(state->angle);
-    arg0->unk348 += state->speed * func_80612790(state->angle);
-    arg0->unk344 = (f32)((((f64)func_80612794((state->speed + 0x32) * gFrameCounter)) * 40.0) + (state->y + 0x28));
+    arg0->unk340 += state->speed * mathSinF(state->angle);
+    arg0->unk348 += state->speed * mathCosF(state->angle);
+    arg0->unk344 = (f32)((((f64)mathSinF((state->speed + 0x32) * gFrameCounter)) * 40.0) + (state->y + 0x28));
     if (((randomNonNegative() >> 0xF) % 1000) >= 991) {
         sp5B = ((randomNonNegative() >> 0xF) % 1000) % 6;
         state->x = D_80755650[sp5B * 3];
@@ -2147,9 +2147,9 @@ void effectWispHomeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     currentAngle = state->angle;
     state->angle = mathAngleEaseToward(currentAngle, targetAngle, turnRate);
     state->y = (s16)((((f64)((actor->y + ((f32)((u32)actor->height))) - ((f32)state->y))) * 0.1) + ((f64)state->y));
-    arg0->unk340 += state->speed * func_80612794(state->angle);
-    arg0->unk348 += state->speed * func_80612790(state->angle);
-    arg0->unk344 = (f32)((((f64)func_80612794((state->speed + 0x32) * gFrameCounter)) * 40.0) + (state->y + 0x28));
+    arg0->unk340 += state->speed * mathSinF(state->angle);
+    arg0->unk348 += state->speed * mathCosF(state->angle);
+    arg0->unk344 = (f32)((((f64)mathSinF((state->speed + 0x32) * gFrameCounter)) * 40.0) + (state->y + 0x28));
     lightSetFlags(1);
     lightAdd(arg0->unk340, arg0->unk344, arg0->unk348, 0.0f, 0.0f, 0.0f, 150.0f, 0, 0x96, 0x96, 0xFF);
     if (!(gFrameCounter & 3)) {
@@ -2286,9 +2286,9 @@ void effectOrbitSourceUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     var_v1->unk14 = (f32) (((f64) (120.0f - var_v1->unk14) * 0.01) + (f64) var_v1->unk14);
     var_v1->unk10 = var_v1->unk10 + (var_v1->unk1C * var_v1->unk14);
     var_v1->unk8 = var_v1->unk8 + var_v1->unkC;
-    arg0->unk340 = (func_80612794((s16) var_v1->unk10) * var_v1->unk0) + source->unk7C;
-    arg0->unk348 = (func_80612790((s16) var_v1->unk10) * var_v1->unk0) + source->unk84;
-    arg0->unk344 += 0.6 * func_80612794((s16) var_v1->unk8);
+    arg0->unk340 = (mathSinF((s16) var_v1->unk10) * var_v1->unk0) + source->unk7C;
+    arg0->unk348 = (mathCosF((s16) var_v1->unk10) * var_v1->unk0) + source->unk84;
+    arg0->unk344 += 0.6 * mathSinF((s16) var_v1->unk8);
     var_v1->unk18 = var_v1->unk18 + 1.0f;
     if (45.0f < var_v1->unk18) {
         *arg1 = 1;
@@ -2412,8 +2412,8 @@ void effectFallStateInit(OrbitSourceActor *arg0, TimedEffectActorView *arg1, s8 
     arg1->unk36D = 0x82;
     arg1->unk364 = arg1->unk360;
     sp30 = randomFloat() * sp2C;
-    sp24->unk0 = func_80612794(sp34) * sp30;
-    sp24->unk4 = func_80612790(sp34) * sp30;
+    sp24->unk0 = mathSinF(sp34) * sp30;
+    sp24->unk4 = mathCosF(sp34) * sp30;
     sp24->unk8 = sp28;
     collisionGetFloorHeight(&sp24->unkC);
 }
@@ -2505,9 +2505,9 @@ void effectActorOrbitFollowUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     temp_v0->unk4 = (f32)((((s32)temp_v0->unk4 & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
     temp_v0->unkC = (f32)(temp_v0->unkC + temp_v0->unk10);
     temp_v0->unkC = (f32)((((s32)temp_v0->unkC & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
-    arg0->unk340 = (f32) (((((func_80612794((s16) (s32) temp_v0->unk4) * (15.0f * temp_v0->unk0)) + sp28->unk7C) - arg0->unk340) * sp20) + arg0->unk340);
-    arg0->unk348 = (f32) (((((func_80612790((s16) (s32) temp_v0->unk4) * (15.0f * temp_v0->unk0)) + sp28->unk84) - arg0->unk348) * sp20) + arg0->unk348);
-    arg0->unk344 = (f32) (((((((func_80612794((s16) (s32) temp_v0->unkC) * (temp_v0->unk14 * temp_v0->unk0)) + 1.0f) * 15.0f) + sp28->unk80) - arg0->unk344) * sp20) + arg0->unk344);
+    arg0->unk340 = (f32) (((((mathSinF((s16) (s32) temp_v0->unk4) * (15.0f * temp_v0->unk0)) + sp28->unk7C) - arg0->unk340) * sp20) + arg0->unk340);
+    arg0->unk348 = (f32) (((((mathCosF((s16) (s32) temp_v0->unk4) * (15.0f * temp_v0->unk0)) + sp28->unk84) - arg0->unk348) * sp20) + arg0->unk348);
+    arg0->unk344 = (f32) (((((((mathSinF((s16) (s32) temp_v0->unkC) * (temp_v0->unk14 * temp_v0->unk0)) + 1.0f) * 15.0f) + sp28->unk80) - arg0->unk344) * sp20) + arg0->unk344);
     temp_v1 = sp28->unk174;
     if (!(temp_v1->unk1F0 & 0x10)) {
         *arg1 = 1;
@@ -2585,11 +2585,11 @@ void effectArcAroundActorUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     }
     var_fv0 = temp_v0->unk10 * ((1.0f - (temp_v0->unk0 * 2)) * 2048.0f);
     var_fv0 = (f32)((((s32)var_fv0 & 0xFFFF) & 0xFFFF) & 0xFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
-    sp2C = func_80612794((s16)(s32)var_fv0) * temp_v0->unk8;
+    sp2C = mathSinF((s16)(s32)var_fv0) * temp_v0->unk8;
     temp_v0->unk14 = (f32)((f64)temp_v0->unk14 + (2.0 * (f64)((1.0f - (temp_v0->unk0 * 2)) * 4096.0f) * (f64)temp_v0->unkC));
     temp_v0->unk14 = (f32)((((s32)temp_v0->unk14 & 0xFFF) & 0xFFFF) & 0xFFFF); // FAKE: extra 0xFFFF masks steer the ugen int temp ring
-    sp3C = func_80612794((s16)(s32)temp_v0->unk14) * sp2C;
-    temp_fv0 = func_80612790((s16)(s32)temp_v0->unk14);
+    sp3C = mathSinF((s16)(s32)temp_v0->unk14) * sp2C;
+    temp_fv0 = mathCosF((s16)(s32)temp_v0->unk14);
     temp_fa0 = temp_v0->unk4;
     var_fv1 = temp_v0->unk10 * temp_fa0;
     if (temp_v0->unk0 == 0.0f) {
@@ -2708,9 +2708,9 @@ void effectDecelDriftFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     if ((f64)sp1C->unk0 < 0.8) {
         sp1C->unk0 = 0.8f;
     }
-    sp24 = func_80612794((s16)(s32)sp1C->unk4);
+    sp24 = mathSinF((s16)(s32)sp1C->unk4);
     sp24 = sp1C->unk0 * sp24;
-    temp_fa0 = func_80612790((s16)(s32)sp1C->unk4);
+    temp_fa0 = mathCosF((s16)(s32)sp1C->unk4);
     temp_fa0 = sp1C->unk0 * temp_fa0;
     arg0->unk360 = (f32)((f64)arg0->unk360 * 1.08);
     arg0->unk364 = (f32)((f64)arg0->unk364 * 1.08);
@@ -2737,8 +2737,8 @@ void effectBurstParticleUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     var_v1 = (TimedMotionState *)arg0->unk384;
     var_v1->unk4 = var_v1->unk4 - 1.0f;
     var_v1->unk8 = (f32)((f64)var_v1->unk8 * 0.95);
-    arg0->unk340 += var_v1->unk8 * func_80612794((s16)var_v1->unk0);
-    arg0->unk348 += var_v1->unk8 * func_80612790((s16)var_v1->unk0);
+    arg0->unk340 += var_v1->unk8 * mathSinF((s16)var_v1->unk0);
+    arg0->unk348 += var_v1->unk8 * mathCosF((s16)var_v1->unk0);
     arg0->unk344 = arg0->unk344 + var_v1->unk4;
 }
 
@@ -2865,8 +2865,8 @@ void effectScatterFallUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         arg0->unk35C = arg0->unk35C % 4095;
     }
     var_v1 = (TimedMotionState *)arg0->unk384;
-    arg0->unk340 += var_v1->unk0 * func_80612794(*(s16 *)((u8 *)arg0 + 0x35E));
-    arg0->unk348 += var_v1->unk0 * func_80612790(*(s16 *)((u8 *)arg0 + 0x35E));
+    arg0->unk340 += var_v1->unk0 * mathSinF(*(s16 *)((u8 *)arg0 + 0x35E));
+    arg0->unk348 += var_v1->unk0 * mathCosF(*(s16 *)((u8 *)arg0 + 0x35E));
     arg0->unk344 += var_v1->unk4;
 }
 
@@ -2887,8 +2887,8 @@ void effectCircleRiseFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
         sd = -sd;
     }
     var_v1 = (TimedMotionState *)arg0->unk384;
-    arg0->unk340 = (func_80612794(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk0;
-    arg0->unk348 = (func_80612790(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk4;
+    arg0->unk340 = (mathSinF(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk0;
+    arg0->unk348 = (mathCosF(*(s16 *)((u8 *)arg0 + 0x35E)) * 14.0f) + var_v1->unk4;
     arg0->unk344 = arg0->unk344 + 0.5f;
     if (arg0->unk36D >= 5) {
         arg0->unk36D = arg0->unk36D - 4;
@@ -2987,12 +2987,12 @@ void effectSwayRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     }
     var_s0 = (TimedMotionState *)arg0->unk384;
     {
-        f32 t = func_80612794((s16)var_s0->unk4);
+        f32 t = mathSinF((s16)var_s0->unk4);
         arg0->unk344 = (f32)((f64)arg0->unk344 + ((1.0 + (f64)t) * (f64)(f32)(1.0 + ((f64)var_s0->unk0 * 0.4))));
     }
-    arg0->unk340 += func_80612794((s16)var_s0->unkC) * (f32)((f64)var_s0->unk8 * 0.5);
+    arg0->unk340 += mathSinF((s16)var_s0->unkC) * (f32)((f64)var_s0->unk8 * 0.5);
     if (*(u8 *)((u8 *)arg0 + 0x350) == 0) {
-        *(s16 *)((u8 *)arg0 + 0x34E) = (s16)(s32)(((f64)func_80612794((s16)var_s0->unkC) * 2.5) + 2.5);
+        *(s16 *)((u8 *)arg0 + 0x34E) = (s16)(s32)(((f64)mathSinF((s16)var_s0->unkC) * 2.5) + 2.5);
     }
     var_s0->unk4 = var_s0->unk4 + 100.0f;
     var_s0->unkC = var_s0->unkC + 50.0f;
@@ -3021,7 +3021,7 @@ void func_8071F660(SineScaleActorView *arg0, void *arg1) {
     f32 sp24;
 
     sp24 = (f32) arg0->unk358 / (f32) (arg0->unk354 - 1);
-    arg0->unk360 = (f32) ((f64) func_80612794((s16) (s32) (sp24 * 2048.0f)) * 3.0);
+    arg0->unk360 = (f32) ((f64) mathSinF((s16) (s32) (sp24 * 2048.0f)) * 3.0);
     arg0->unk364 = arg0->unk360;
     guScaleF(sp68, arg0->unk360, arg0->unk360, 0.0f);
     matrixMakeRotationZ(sp28, sp24 * 180.0f);
@@ -3045,8 +3045,8 @@ void effectPulseSpinUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     var_v1 = (TimedMotionState *)arg0->unk384;
     var_v1->unk0 = (f32)(((f64)(var_v1->unk4 - var_v1->unk0) * 0.1) + (f64)var_v1->unk0);
     var_v1->unk8 += 5.0f;
-    arg0->unk360 = (f32)(((f64)func_80612794((s16)(gFrameCounter * 50)) * 0.1) + (f64)var_v1->unk0);
-    arg0->unk364 = (f32)(((f64)func_80612790((s16)(gFrameCounter * 25)) * 0.1) + (f64)var_v1->unk0);
+    arg0->unk360 = (f32)(((f64)mathSinF((s16)(gFrameCounter * 50)) * 0.1) + (f64)var_v1->unk0);
+    arg0->unk364 = (f32)(((f64)mathCosF((s16)(gFrameCounter * 25)) * 0.1) + (f64)var_v1->unk0);
     guScaleF(sp6C, arg0->unk360, arg0->unk364, 0.0f);
     matrixMakeRotationZ(sp2C, var_v1->unk8);
     guMtxCatF(sp6C, sp2C, sp6C);

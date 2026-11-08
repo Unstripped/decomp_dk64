@@ -5,9 +5,9 @@ extern s32 exit_code;
 extern s32 huftPool;
 extern u8 *inbuf;
 extern u8 *slide;
-extern s32 D_80013ACC;
-extern s32 D_80013AD8;
-extern s32 D_80013ADC;
+extern s32 header_bytes;
+extern s32 bytes_in;
+extern s32 bytes_out;
 extern s32 insize;
 extern s32 inptr;
 extern s32 outcnt;
@@ -39,7 +39,7 @@ s32 get_method(void) {
 
     inptr += 2;
     method = -1;
-    D_80013ACC = 0;
+    header_bytes = 0;
     c = method = inbuf[inptr++];
     if (c != 8) {
         exit_code = 1;
@@ -63,7 +63,7 @@ s32 get_method(void) {
         while (inbuf[inptr++] != 0) {
         }
     }
-    D_80013ACC = inptr + 8;
+    header_bytes = inptr + 8;
     return c;
 }
 
@@ -80,5 +80,5 @@ u32 bi_reverse(u32 code, s32 bitCount) {
 void clear_bufs(void) {
     outcnt = 0;
     insize = inptr = 0;
-    D_80013AD8 = D_80013ADC = 0;
+    bytes_in = bytes_out = 0;
 }

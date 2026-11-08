@@ -245,45 +245,31 @@ typedef struct Actor {
 } Actor;
 
 // Per-behaviour state objects reached through gBehaviourWorkState..gBehaviourExtraState.
-// Fields are named by offset; sizes are the largest offset seen so far.
-typedef struct Struct807FDC90 {
+typedef struct BehaviourWorkState {
     /* 0x00 */ u8 pad0[0xA];
-    union {
-        /* 0x0A */ s16 targetX;
-        /* 0x0A */ s16 unkA;
-    };
-    union {
-        /* 0x0C */ s16 targetY;
-        /* 0x0C */ s16 unkC;
-    };
-    union {
-        /* 0x0E */ s16 targetZ;
-        /* 0x0E */ s16 unkE;
-    };
+    /* 0x0A */ s16 targetX;
+    /* 0x0C */ s16 targetY;
+    /* 0x0E */ s16 targetZ;
     /* 0x10 */ u8 pad10[8];
-    /* 0x18 */ u16 unk18;
-    /* 0x1A */ u8 pad1A[0xE];
+    /* 0x18 */ u16 stepCount;
+    /* 0x1A */ u16 flags;
+    /* 0x1C */ u8 pad1C[0xC];
     /* 0x28 */ u8 unk28[4];
-    union {
-        /* 0x2C */ s16 timer;
-        /* 0x2C */ s16 unk2C;
-    };
+    /* 0x2C */ s16 timer;
     /* 0x2E */ u8 pad2E[2];
-    union {
-        /* 0x30 */ f32 scale;
-        /* 0x30 */ f32 unk30;
-    };
-} Struct807FDC90;
-typedef struct Struct807FDC98 {
+    /* 0x30 */ f32 scale;
+} BehaviourWorkState;
+
+typedef struct BehaviourAnimState {
     /* 0x00 */ u8 pad0[0x26];
     /* 0x26 */ s16 animId0;
     /* 0x28 */ s16 animId1;
     /* 0x2A */ s16 animId2;
     /* 0x2C */ u8 pad2C[0x46 - 0x2C];
     /* 0x46 */ u16 unk46;
-} Struct807FDC98;
+} BehaviourAnimState;
 
-typedef struct Struct807FDC9C {
+typedef struct BehaviourExtraState {
     /* 0x00 */ u8 pad0[6];
     /* 0x06 */ s16 unk6;
     /* 0x08 */ u8 pad8[2];
@@ -294,7 +280,7 @@ typedef struct Struct807FDC9C {
     /* 0x10 */ u8 unk10;
     /* 0x11 */ u8 pad11[3];
     /* 0x14 */ u8 unk14;
-} Struct807FDC9C;
+} BehaviourExtraState;
 
 // gActivePlayerState: typedef only; other files still declare gActivePlayerState with their own types.
 typedef struct Struct807FD580 {
@@ -325,10 +311,9 @@ typedef struct Struct807FD580 {
 #define unk1B8 heldActorType
 #define unk1F0 stateFlags
 #define unk1D8 scaleChangeRate
-
-extern Struct807FDC90 *gBehaviourWorkState;
+extern BehaviourWorkState *gBehaviourWorkState;
 extern Actor *gBehaviourTargetActor;
-extern Struct807FDC98 *gBehaviourAnimState;
-extern Struct807FDC9C *gBehaviourExtraState;
+extern BehaviourAnimState *gBehaviourAnimState;
+extern BehaviourExtraState *gBehaviourExtraState;
 
 #endif

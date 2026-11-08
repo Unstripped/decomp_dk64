@@ -224,8 +224,8 @@ typedef struct {
     s16 unk2CA;
 } PlayerViewCamRoll;
 
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void lensFlareAddSource(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
 
 void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
@@ -237,8 +237,8 @@ void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
     s16 sinAngle;
     s32 unused;
 
-    cosAngle = (s16)(s32)((f64)func_80612794(azimuthAngle) * 32767.0);
-    sinAngle = (s16)(s32)((f64)func_80612790(azimuthAngle) * 32767.0);
+    cosAngle = (s16)(s32)((f64)mathSinF(azimuthAngle) * 32767.0);
+    sinAngle = (s16)(s32)((f64)mathCosF(azimuthAngle) * 32767.0);
     adjPitch = (s16)(s32)((f64)elevationAngle - (8.0 * (f64)((PlayerViewCamRoll *)gPlayerSlots)->unk2CA));
     if (colorMode != 0) {
         if (colorMode == 1) {
@@ -284,8 +284,8 @@ Gfx *gfxDrawSkySprite(Gfx *dl, s16 azimuthAngle, s16 elevationAngle, u8 mode) {
         alpha = (u32)lightR;
     }
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
-    cosAngle = (s16)(s32)((f64)func_80612794(azimuthAngle) * 32767.0);
-    c = (s16)(s32)((f64)func_80612790(azimuthAngle) * 32767.0);
+    cosAngle = (s16)(s32)((f64)mathSinF(azimuthAngle) * 32767.0);
+    c = (s16)(s32)((f64)mathCosF(azimuthAngle) * 32767.0);
     b = (s16)(s32)((f64)elevationAngle - (8.0 * (f64)((PlayerViewCamRoll *)gPlayerSlots)->unk2CA));
     camProjectToScreen((f32)cosAngle, (f32)b, (f32)c, &screenX, &screenY, 0, 4.0f, 0);
     if ((screenX > -320.0f) && (screenX < 1600.0f) && (screenY > -240.0f) && (screenY < 1200.0f)) {

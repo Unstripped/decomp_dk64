@@ -42,7 +42,7 @@ extern BossD_Actor *D_807FBB4C;
 
 void camStartPath(void *, s32, u8);
 s32 camIsCutsceneActive(void);
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 void actorUpdateModelMatrix(void *, s32);
 
 typedef struct BossModelInfo {
@@ -253,7 +253,7 @@ void bossSpawnerUpdate(void) {
     }
     SPAWNER_ACTOR->unkE6 += 0x32;
     SPAWNER_ACTOR->unkE6 &= 0xFFF;
-    SPAWNER_ACTOR->unk80 = func_80612794(SPAWNER_ACTOR->unkE6) * 5.0 + s->unk0;
+    SPAWNER_ACTOR->unk80 = mathSinF(SPAWNER_ACTOR->unkE6) * 5.0 + s->unk0;
     if (SPAWNER_PLAYER->unk154 == 0x45 && SPAWNER_PLAYER->unk155 >= 2 && D_80036DC4 < 10000.0) {
         hitPlayer = 1;
     }
@@ -376,7 +376,7 @@ void bossSpawnerUpdate(void) {
         if (D_80035B3C > 24.0) {
             D_80035B3C = 24.0f;
             s->unk10++;
-            D_80035B2C = func_80612794(s->unk10 << 5) * 200.0f;
+            D_80035B2C = mathSinF(s->unk10 << 5) * 200.0f;
             if (s->unk10 == 0x3F) {
                 D_80035B3C = 0.0f;
                 D_80035B2C = 0;

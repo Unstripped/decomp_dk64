@@ -1015,7 +1015,7 @@ typedef struct ViewportRect {
 extern Gfx D_1000118;
 extern Mtx D_2000080;
 extern u8 D_807FD7E4;
-extern f32 func_80612794(s16);
+extern f32 mathSinF(s16);
 extern f32 floatCeil(f32);
 extern s32 _sprintf(char *, const char *, ...);
 extern s32 textGetStringWidth(s16, char *);
@@ -1032,7 +1032,7 @@ Gfx *slotQueueDrawLabel(s32 arg0, SlotQueueDrawNode *arg1, Gfx *arg2) {
     s32 width;
 
     matrix = arg1->unk14;
-    scale = func_80612794(arg1->unk10);
+    scale = mathSinF(arg1->unk10);
     alpha = (u8)(u32)((f64)scale * 255.0);
     width = 0;
     gSPMatrix(arg2++, &D_2000080, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
@@ -1094,7 +1094,7 @@ Gfx *slotQueueDrawPlayerLabels(s32 arg0, SlotQueueDrawNode *arg1, Gfx *arg2) {
     savedY = cursor[1];
     x = (f32)((f64)cursor[0] * 4.0);
     y = (f32)((f64)cursor[1] * 4.0);
-    u = 1.0 - (f64)func_80612794(arg1->unk10);
+    u = 1.0 - (f64)mathSinF(arg1->unk10);
     x = (f32)((f64)x - (4.0 * (6.0 - (u * (f64)arg1->unk4))));
     y = (f32)((f64)y + 92.0);
     for (i = 0; i != 5; i++) {

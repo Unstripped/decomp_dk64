@@ -41,8 +41,8 @@ extern u8 D_807FC622;
 extern u8 D_807501C0[][3];
 extern LightPosEntry D_80750194[];
 
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void lightSetFovAngles(f32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
@@ -69,7 +69,7 @@ void lightUpdateFromActorLighting(u8 *outR, u8 *outG, u8 *outB) {
         case 2:
             if (!(gFrameCounter & 3)) {
 set_color:
-                idx = (u32)(func_80612790(gFrameCounter * 200) * 4.0f + 4.0f);
+                idx = (u32)(mathCosF(gFrameCounter * 200) * 4.0f + 4.0f);
                 *outR = D_807501C0[idx][0];
                 *outG = D_807501C0[idx][1];
                 *outB = D_807501C0[idx][2];
@@ -83,8 +83,8 @@ set_color:
             dirY = (f32)D_80750194[D_807FC621 - 1].unkA;
             dirZ = (f32)D_80750194[D_807FC621 - 1].unkC;
             if (D_807FC622 != 0) {
-                dirX += 80.0f * func_80612794(gFrameCounter * 400);
-                dirZ += 80.0f * func_80612790(gFrameCounter * 200);
+                dirX += 80.0f * mathSinF(gFrameCounter * 400);
+                dirZ += 80.0f * mathCosF(gFrameCounter * 200);
             }
             lightSetFovAngles((f32)(u32)D_80750194[D_807FC621 - 1].unk0, (f32)(u32)D_80750194[D_807FC621 - 1].unk1);
             lightAdd((f32)D_80750194[D_807FC621 - 1].unk2, (f32)D_80750194[D_807FC621 - 1].unk4, (f32)D_80750194[D_807FC621 - 1].unk6, dirX, dirY, dirZ, 0.0f, 1, *outR, *outG, *outB);
@@ -674,7 +674,7 @@ typedef struct {
 } AimActorAngles;
 
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 void camUpdate(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
@@ -738,7 +738,7 @@ void playerCameraUpdateFromTarget(void) {
     }
     if ((gCurrentMap == 0x1F) || (gCurrentMap == 0x33)) {
         if (D_807FC624 && D_807FC624) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        ((AimActorAngles *)gCurrentActor)->unkE4 = (s16)(s32)(func_80612794(D_807FC624) * 100.0f);
+        ((AimActorAngles *)gCurrentActor)->unkE4 = (s16)(s32)(mathSinF(D_807FC624) * 100.0f);
         if (gCurrentMap == 0x1F) {
             if (D_807FC624 < 0x1E) {
                 sfxPlayOnFreeSlot(0x15, 0x7FFF, 64.0f, 1.0f, 10, 128);

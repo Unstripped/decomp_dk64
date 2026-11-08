@@ -245,7 +245,7 @@ void critterUpdateAudio(CritterObj *obj) {
 s32 randomLcgNext(void);
 void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 void sfxPlayAtPosition(f32, f32, f32, s16, u8, f32, u8, u8);
-f32 func_80612790(s16);
+f32 mathCosF(s16);
 extern u8 D_80770DC9;
 
 void critterUpdateObjType1(CritterObj *obj) {
@@ -274,7 +274,7 @@ void critterUpdateObjType1(CritterObj *obj) {
                                   D_80770DC9 * 100 + 0x73, 2.0f, 0x1E, 0x4B);
             }
         }
-        temp = 1.0f - func_80612790(obj->anim);
+        temp = 1.0f - mathCosF(obj->anim);
         obj->flapA = 60.0f * temp;
         obj->yBob = (f32)((f64)(obj->speed * temp) * 0.5);
     }
@@ -318,7 +318,7 @@ Gfx *func_800247F4(Gfx *gdl, CritterObj *obj) {
     return gdl;
 }
 
-f32 func_80612794(s32);
+f32 mathSinF(s32);
 
 void critterUpdateObjType3(CritterObj *obj) {
     f32 sinVal;
@@ -328,7 +328,7 @@ void critterUpdateObjType3(CritterObj *obj) {
         speedScaled = (f32)((f64)obj->speed * (1.0 / 1.1));
         obj->anim = (s16)((f64)obj->anim + (90.0 * (0.5 + (f64)(10.0f * speedScaled))));
         obj->anim &= 0xFFF;
-        sinVal = func_80612794(obj->anim);
+        sinVal = mathSinF(obj->anim);
         obj->flapA = (((-15.0f * speedScaled) + 45.0f) * sinVal) + (speedScaled * 30.0f);
         obj->yBob = (f32)((f64)(obj->speed * sinVal) * 0.4);
     }
@@ -409,9 +409,9 @@ void critterUpdateObjType2(CritterObj *obj) {
         }
         obj->anim = (s16)((f64)obj->anim + 200.0 * (1.5 + (f64)(150.0f * obj->accel)));
         obj->anim &= 0xFFF;
-        temp2 = func_80612794(obj->anim) * (10.0f + 200.0f * accelVal);
+        temp2 = mathSinF(obj->anim) * (10.0f + 200.0f * accelVal);
         finWave = temp2 * 1.0f + temp2 * ((f32)yawDelta * 0.00024414062f);
-        obj->flapB = func_80612794((s16)(obj->anim + 0xC8)) * 2;
+        obj->flapB = mathSinF((s16)(obj->anim + 0xC8)) * 2;
         obj->flapA = (f32)((f64)finWave + (f64)yawDelta * 0.2);
     }
     critterUpdateAudio(obj);
@@ -524,12 +524,12 @@ void critterMakeMatrix(f32 (*m)[4], s16 pitch, s16 yaw, s16 roll, f32 scale, f32
     f32 sinPitch;
     f32 sinRoll;
 
-    cosPitch = func_80612794(pitch);
-    sinPitch = func_80612790(pitch);
-    cosYaw = func_80612794(yaw);
-    sinYaw = func_80612790(yaw);
-    cosRoll = func_80612794(roll);
-    sinRoll = func_80612790(roll);
+    cosPitch = mathSinF(pitch);
+    sinPitch = mathCosF(pitch);
+    cosYaw = mathSinF(yaw);
+    sinYaw = mathCosF(yaw);
+    cosRoll = mathSinF(roll);
+    sinRoll = mathCosF(roll);
     m[0][0] = sinYaw * sinRoll * scale;
     m[0][1] = sinYaw * cosRoll * scale;
     m[0][2] = -cosYaw * scale;
@@ -670,8 +670,8 @@ void critterSetOffsetAtAngle(CritterZone *zone, CritterObj *obj, u8 angle, s16 r
         pz = &obj->z;
     }
     *py = v;
-    *px = func_80612794(radius) * cosVal;
-    *pz = func_80612790(radius) * cosVal;
+    *px = mathSinF(radius) * cosVal;
+    *pz = mathCosF(radius) * cosVal;
 }
 
 void critterSetRandomOffset(CritterZone *zone, CritterObj *obj, u8 radius, u8 heightOffset) {
@@ -890,8 +890,8 @@ void critterSteerToTarget(CritterObj *obj, CritterGroup *grp, void (*steerFunc)(
     obj->prevYaw = obj->yaw;
     obj->yaw = mathAngleEaseToward(obj->yaw, ang, obj->turnRate);
     spd = obj->speed;
-    obj->x += spd * func_80612794(obj->yaw);
-    obj->z += spd * func_80612790(obj->yaw);
+    obj->x += spd * mathSinF(obj->yaw);
+    obj->z += spd * mathCosF(obj->yaw);
     if ((u8)use_y) {
         obj->y += spd * func_80612800(obj->pitch);
     }

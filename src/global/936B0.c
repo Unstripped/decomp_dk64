@@ -434,8 +434,8 @@ typedef struct ActorMoveView {
 extern s16 D_8075033C;
 extern u32 gGlobalOverlayFlags;
 extern struct PlayerTrackEntry *gPlayerSlots;
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 s32 mathAngleSignedDistance(s16, s16);
 s16 mathAngleEaseToward(s16, s16, f32);
 void actorStepPhysics(Actor *, s16, s16);
@@ -489,8 +489,8 @@ u8 arg3;
         ACTOR_MOVE_VIEW->unkC8 = -900.0f;
         ACTOR_MOVE_VIEW->unkF8 = 0x12C;
     }
-    sp40 = func_80612794(ACTOR_MOVE_VIEW->unkEE) * ACTOR_MOVE_VIEW->unkB8;
-    sp3C = func_80612790(ACTOR_MOVE_VIEW->unkEE) * ACTOR_MOVE_VIEW->unkB8;
+    sp40 = mathSinF(ACTOR_MOVE_VIEW->unkEE) * ACTOR_MOVE_VIEW->unkB8;
+    sp3C = mathCosF(ACTOR_MOVE_VIEW->unkEE) * ACTOR_MOVE_VIEW->unkB8;
     if (fl[3] != 0) {
         sp38 = S->unk4 * 50.0f;
         if (sp58 == 2) {
@@ -514,16 +514,16 @@ u8 arg3;
             sp54 = S->unk8 + ACTOR_MOVE_VIEW->unkB8 * ACTOR_MOVE_VIEW->unkB8 * 0.00002f + fv0;
         }
     }
-    sp40 += func_80612794(S->unk0) * sp38;
-    sp3C += func_80612790(S->unk0) * sp38;
+    sp40 += mathSinF(S->unk0) * sp38;
+    sp3C += mathCosF(S->unk0) * sp38;
     ACTOR_MOVE_VIEW->unkB8 = sqrtf(sp40 * sp40 + sp3C * sp3C);
     ACTOR_MOVE_VIEW->unkEE = (s16)(s32)(mathAtan2(sp40, sp3C) * 4096.0 / 6.2831854820251465);
     if (fl[2] != 0) {
         sp34 = 0x400 - ACTOR_MOVE_VIEW->unkDE;
         temp_v0 = mathAngleSignedDistance(ACTOR_MOVE_VIEW->unkDC, S->unk0);
         fv0 = (f32)sp34;
-        sp4A = (s16)(s32)(func_80612790(temp_v0) * fv0);
-        sp48 = (s16)(s32)(func_80612794(temp_v0) * fv0);
+        sp4A = (s16)(s32)(mathCosF(temp_v0) * fv0);
+        sp48 = (s16)(s32)(mathSinF(temp_v0) * fv0);
     } else if (!arg3) {
         ACTOR_MOVE_VIEW->unkE8 = mathAngleEaseToward(ACTOR_MOVE_VIEW->unkE8, 0, 4.0f);
         ACTOR_MOVE_VIEW->unkE4 = mathAngleEaseToward(ACTOR_MOVE_VIEW->unkE4, 0, 5.0f);
@@ -1116,8 +1116,8 @@ extern ModelSlotPosTypeView *D_807F6000;
 extern s32 D_80747D70;
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 
 s32 projectileFindHomingTarget(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8)
 u16 arg0;
@@ -1185,8 +1185,8 @@ f32 *arg8;
         oz = pl->unk218;
     } else {
         scale = arg2->speedXZ * 0.025f;
-        x1 = func_80612794(arg2->moveYaw) * scale + arg2->x;
-        z1 = func_80612790(arg2->moveYaw) * scale + arg2->z;
+        x1 = mathSinF(arg2->moveYaw) * scale + arg2->x;
+        z1 = mathCosF(arg2->moveYaw) * scale + arg2->z;
         y1 = arg2->y + arg2->speedY * 0.025f;
         ox = arg2->x;
         oy = arg2->y;
@@ -3120,7 +3120,7 @@ void projectileFallBounceUpdate(void) {
             collisionSetQueryMode(1);
             func_8067ACB4(gCurrentActor);
             actorApplyVelocity(gCurrentActor);
-            actorUpdateFloorContactAndTilt(gCurrentActor, (f32)(((f64)func_80612790((s16)(gCurrentActor->roll + 0x800)) * 0.5 + 0.5) * 15.0));
+            actorUpdateFloorContactAndTilt(gCurrentActor, (f32)(((f64)mathCosF((s16)(gCurrentActor->roll + 0x800)) * 0.5 + 0.5) * 15.0));
             flag = gCurrentActor->contactFlags & 1;
             if (flag != 0 && !(gCurrentActor->prevContactFlags & 1)) {
                 temp_v1_2 = gCurrentActor->unk155[0];
@@ -3294,7 +3294,7 @@ void projectileChaseTargetUpdate(void) {
         }
         CHASE_ACTOR->unkEE = mathAngleEaseToward(CHASE_ACTOR->unkEE, CHASE_ACTOR->unkE6, 1.0f);
         CHASE_ACTOR->unkF0 = mathAngleEaseToward(CHASE_ACTOR->unkF0, (s16)(s32)(((f64)mathCalculatePitchAngle(CHASE_TARGET->unk7C, CHASE_TARGET->unk80 + (f32)(u32)CHASE_TARGET->unk15E, CHASE_TARGET->unk84, CHASE_ACTOR->unk7C, CHASE_ACTOR->unk80, CHASE_ACTOR->unk84, 20) * 2048.0) / 3.1415927410125732), 30.0f);
-        CHASE_ACTOR->unkC0 = func_80612794(CHASE_ACTOR->unkF0) * -CHASE_ACTOR->unkB8;
+        CHASE_ACTOR->unkC0 = mathSinF(CHASE_ACTOR->unkF0) * -CHASE_ACTOR->unkB8;
         sp44->unk8 = -(mathAtan2(CHASE_ACTOR->unkC0, CHASE_ACTOR->unkB8) * 57.295776f);
         break;
     case 1:

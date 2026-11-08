@@ -412,8 +412,8 @@ typedef struct MidpointOrbitState {
 
 void billboardSetFlags(s16);
 void func_8067ACB4(Actor *);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -445,9 +445,9 @@ void actorMidpointOrbitUpdate(void) {
     func_8067ACB4(gCurrentActor);
     ratio = (sub->unk8 / gCurrentActor->splineT) * -4096.0 + 4096.0;
     sub->unk6 = gCurrentActor->yawSpeed + ratio;
-    gCurrentActor->x = func_80612794(sub->unk6) * ORBIT_ACTOR->unkEC + sub->unk0;
-    gCurrentActor->z = func_80612790(sub->unk6) * ORBIT_ACTOR->unkEC + sub->unk4;
-    gCurrentActor->y = func_80612790(2048.0f + ratio) * gCurrentActor->movePitch + sub->unk2;
+    gCurrentActor->x = mathSinF(sub->unk6) * ORBIT_ACTOR->unkEC + sub->unk0;
+    gCurrentActor->z = mathCosF(sub->unk6) * ORBIT_ACTOR->unkEC + sub->unk4;
+    gCurrentActor->y = mathCosF(2048.0f + ratio) * gCurrentActor->movePitch + sub->unk2;
     actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     gCurrentActor->yaw += 0x12C;
     if ((gCurrentActor->yaw & 0x7FF) < 0x12C) {

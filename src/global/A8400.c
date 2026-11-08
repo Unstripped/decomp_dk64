@@ -161,8 +161,8 @@ Gfx *renderTextureSprite(Gfx *arg0, s32 arg1, u8 arg2, s32 arg3) {
     return arg0;
 }
 
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 
 typedef struct MotionAngles {
     /* 0x00 */ u8 pad0[0x38];
@@ -171,8 +171,8 @@ typedef struct MotionAngles {
 } MotionAngles;
 
 void mathAddWaveOffset(f32 *arg0, f32 *arg1, f32 arg2, f32 arg3, MotionAngles *arg4) {
-    *arg0 += (arg2 * arg3) * 24.0f * func_80612794((s16) ((s16) ((s32) ((f32) arg4->unk38 + (arg2 * 3000.0f))) & 0xFFF));
-    *arg1 += (arg2 * arg3) * 16.0f * func_80612790((s16) ((s16) ((s32) ((f32) arg4->unk3A + (arg2 * 3000.0f))) & 0xFFF));
+    *arg0 += (arg2 * arg3) * 24.0f * mathSinF((s16) ((s16) ((s32) ((f32) arg4->unk38 + (arg2 * 3000.0f))) & 0xFFF));
+    *arg1 += (arg2 * arg3) * 16.0f * mathCosF((s16) ((s16) ((s32) ((f32) arg4->unk3A + (arg2 * 3000.0f))) & 0xFFF));
 }
 
 extern u8 gGfxBufferIndex;

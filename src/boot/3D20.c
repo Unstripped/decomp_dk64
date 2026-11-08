@@ -8,9 +8,9 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap);
 unsigned char digitsLower[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 unsigned char digitsUpper[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-const unsigned char D_80010360[4] = "";
-const unsigned char D_80010364[8] = "(null)";
-const unsigned char D_8001036C[8] = "(nil)";
+const unsigned char sEmptyString[4] = "";
+const unsigned char sNullString[8] = "(null)";
+const unsigned char sNilString[8] = "(nil)";
 
 unsigned char *_itoa(unsigned long long val, unsigned char *end, unsigned int base, int upper) {
     unsigned char *table;
@@ -544,10 +544,10 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                     p = va_arg(ap, unsigned char *);
                     if (p == 0) {
                         if (prec == -1 || prec >= 6) {
-                            p = (unsigned char *)D_80010364;
+                            p = (unsigned char *)sNullString;
                             len = 6;
                         } else {
-                            p = (unsigned char *)D_80010360;
+                            p = (unsigned char *)sEmptyString;
                             len = 0;
                         }
                     } else {
@@ -593,7 +593,7 @@ int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
                                 *buf++ = ' ';
                             }
                         }
-                        s = (unsigned char *)D_8001036C;
+                        s = (unsigned char *)sNilString;
                         while (*s != 0) {
                             count++;
                             *buf++ = *s;

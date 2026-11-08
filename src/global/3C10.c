@@ -119,8 +119,8 @@ u8 func_80600454(s16 id, u8 *outVal);
 void func_8002920C(void);
 void sfxAllocateChannel(s32, f32);
 void heapUnregisterSurvivor(void *);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void camStartPath(void *, s32, s32);
 void modelRecordFindAndSet(void *, void *, s16, s16);
 s32 actorListFindClosestTargetIndex(s32, s32, u8, f32, f32, f32);
@@ -387,8 +387,8 @@ void func_805FF670(void) {
             step = 5;
             do {
                 dist = (i * 2) + 30;
-                spawnX = D_807FBB4C->x - func_80612794(D_807FBB4C->yaw) * dist;
-                spawnZ = D_807FBB4C->z - func_80612790(D_807FBB4C->yaw) * dist;
+                spawnX = D_807FBB4C->x - mathSinF(D_807FBB4C->yaw) * dist;
+                spawnZ = D_807FBB4C->z - mathCosF(D_807FBB4C->yaw) * dist;
                 actorSpawnNodeEntryScaled(
                     0x35,
                     spawnX,

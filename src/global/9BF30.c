@@ -26,8 +26,8 @@ extern u8 *gPlayerSlots;
 void actorFreeModelNodeList(Actor *);
 void actorSetCollisionRadius(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void matrixMakeRotationY(f32 (*)[4], f32);
 
 Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
@@ -82,8 +82,8 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
         do {
             switch (sub->unk11) {
             case 0:
-                vx = func_80612794(i * stepAngle) * sub->unk8;
-                vy = func_80612790(i * stepAngle) * sub->unk8;
+                vx = mathSinF(i * stepAngle) * sub->unk8;
+                vy = mathCosF(i * stepAngle) * sub->unk8;
                 vscale = 1.0f;
                 vz = 0.0f;
                 break;
@@ -93,8 +93,8 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
                 f = (f32)((q1 * 0.028999999999999998) + 0.001);
                 vscale = 130.0f * f;
                 vz = 1500.0f * f;
-                vx = func_80612794(actor->yaw + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
-                vy = func_80612790(actor->yaw + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
+                vx = mathSinF(actor->yaw + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
+                vy = mathCosF(actor->yaw + 0x400) * ((f * sub->unk8) * ((f32)(0x800 - ((s16)(i * stepAngle)))));
                 break;
             }
             if (actor->unk15F != 0) {
@@ -151,8 +151,8 @@ void actorDespawn(Actor *);
 void heapFree(void *);
 void projectileSpawnActor107(u8, u8, f32, f32, u8, u8);
 void renderCallbacksRegister(void *, void *, u8);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 
 void projectileSpriteRingUpdate(void) {
     ProjectileState *sub;
@@ -176,8 +176,8 @@ void projectileSpriteRingUpdate(void) {
     if (sub->unk11 != 0) {
         if (kind == 1) {
             if (gCurrentActor) {}  // FAKE: steers uopt: hoists &gCurrentActor into a1 for this block
-            gCurrentActor->x += sub->unkC * func_80612794(gCurrentActor->yaw);
-            gCurrentActor->z += sub->unkC * func_80612790(gCurrentActor->yaw);
+            gCurrentActor->x += sub->unkC * mathSinF(gCurrentActor->yaw);
+            gCurrentActor->z += sub->unkC * mathCosF(gCurrentActor->yaw);
             if (gCurrentActor->unk15F != 0) {
                 gCurrentActor->unk15F -= 1;
             } else if (gCurrentActor->yawSpeed == 0x20) {

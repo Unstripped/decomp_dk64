@@ -64,8 +64,8 @@ typedef struct ActorVelocityWork {
     u8 hasArcBounds;
 } ActorVelocityWork;
 
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 extern u32 gFrameDelta;
 
 void actorApplyVelocity(ActorVelocityWork *actor) {
@@ -86,18 +86,18 @@ void actorApplyVelocity(ActorVelocityWork *actor) {
     }
     moveSpeed *= scaleFactor;
     if (actor->unk6A & 1) {
-        if (func_80612794(actor->unkDA) > 0.0f) {
-            fv1 = func_80612794(actor->unkDA);
+        if (mathSinF(actor->unkDA) > 0.0f) {
+            fv1 = mathSinF(actor->unkDA);
         } else {
-            fv1 = -func_80612794(actor->unkDA);
+            fv1 = -mathSinF(actor->unkDA);
         }
         moveSpeed *= fv1;
     }
     if (actor->unk60 & 0x400000) {
         moveSpeed = (f64)moveSpeed * ((f64)(u32)gFrameDelta * 0.5);
     }
-    actor->unk7C += moveSpeed * func_80612794(actor->unkEE);
-    actor->unk84 += moveSpeed * func_80612790(actor->unkEE);
+    actor->unk7C += moveSpeed * mathSinF(actor->unkEE);
+    actor->unk84 += moveSpeed * mathCosF(actor->unkEE);
     actor->unk80 += actor->unkC0 * scaleFactor;
 }
 
@@ -139,13 +139,13 @@ void actorApplyVelocityCustom(ActorVelocityCustomWork *actor, f32 speedXZ, f32 s
     scaleFactor = (f64)scale * 0.16666666675;
     speedXZ *= scaleFactor;
     if (actor->unk6A & 1) {
-        speedXZ *= (func_80612794(actor->unkDA) > 0.0f) ? func_80612794(actor->unkDA) : -func_80612794(actor->unkDA);
+        speedXZ *= (mathSinF(actor->unkDA) > 0.0f) ? mathSinF(actor->unkDA) : -mathSinF(actor->unkDA);
     }
     if (actor->unk60 & 0x400000) {
         speedXZ = (f64)speedXZ * ((f64)(u32)gFrameDelta * 0.5);
     }
-    actor->unk7C += speedXZ * func_80612794(actor->unkEE);
-    actor->unk84 += speedXZ * func_80612790(actor->unkEE);
+    actor->unk7C += speedXZ * mathSinF(actor->unkEE);
+    actor->unk84 += speedXZ * mathCosF(actor->unkEE);
     actor->unk80 += speedY * scaleFactor;
 }
 
@@ -326,7 +326,7 @@ f32 mathAngleBetweenPointsDeg(s32 x1, s32 y1, s32 x2, s32 y2) {
     return angleRad * 57.29577637f;
 }
 
-s32 func_80611E60(s32);
+s32 mathAsinFixed(s32);
 
 s16 mathAngleDiscrete(f32 x1, f32 y1, f32 x2, f32 y2, f32 dist) {
     s16 angleDiscrete;
@@ -335,13 +335,13 @@ s16 mathAngleDiscrete(f32 x1, f32 y1, f32 x2, f32 y2, f32 dist) {
         dist = 1.0f;
     }
     if (x2 <= x1 && y2 <= y1) {
-        angleDiscrete = func_80611E60((s32)(((f64)(x1 - x2) * 65535.9) / (f64)dist)) >> 4;
+        angleDiscrete = mathAsinFixed((s32)(((f64)(x1 - x2) * 65535.9) / (f64)dist)) >> 4;
     } else if (x2 <= x1 && y1 < y2) {
-        angleDiscrete = (func_80611E60((s32)(((f64)(y2 - y1) * 65535.9) / (f64)dist)) >> 4) + 0x400;
+        angleDiscrete = (mathAsinFixed((s32)(((f64)(y2 - y1) * 65535.9) / (f64)dist)) >> 4) + 0x400;
     } else if (x1 < x2 && y1 < y2) {
-        angleDiscrete = (func_80611E60((s32)(((f64)(x2 - x1) * 65535.9) / (f64)dist)) >> 4) + 0x800;
+        angleDiscrete = (mathAsinFixed((s32)(((f64)(x2 - x1) * 65535.9) / (f64)dist)) >> 4) + 0x800;
     } else if (x1 < x2 && y2 <= y1) {
-        angleDiscrete = (func_80611E60((s32)(((f64)(y1 - y2) * 65535.9) / (f64)dist)) >> 4) + 0xC00;
+        angleDiscrete = (mathAsinFixed((s32)(((f64)(y1 - y2) * 65535.9) / (f64)dist)) >> 4) + 0xC00;
     }
     return angleDiscrete;
 }

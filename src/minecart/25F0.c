@@ -175,8 +175,8 @@ void controllerAnimLoadStateAsset1(void *, s16);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 func_80724A20(void);
 s16 mathAngleEaseToward(s16, s16, f32);
-f32 func_80612794(s16);
-f32 func_80612790(s16);
+f32 mathSinF(s16);
+f32 mathCosF(s16);
 void actorUpdateModelMatrix(Actor_25F0 *, s32);
 void actorGetOrSetNodeScale(Actor_25F0 *, s32, f32);
 void func_807149FC(s32);
@@ -280,20 +280,20 @@ void minecartFollowerBehaviour(void) {
         /* fallthrough */
     case 1:
         gCurrentActor->unkE6 = mathAngleEaseToward(gCurrentActor->unkE6, (D_807FBB4C->unkE6 + 0x800) & 0xFFF, 8.0f);
-        gCurrentActor->unk7C = (func_80612794(D_807FBB4C->unkE6) * followDist + D_807FBB4C->unk7C - gCurrentActor->unk7C) * 0.3 + gCurrentActor->unk7C;
-        gCurrentActor->unk84 = (func_80612790(D_807FBB4C->unkE6) * followDist + D_807FBB4C->unk84 - gCurrentActor->unk84) * 0.3 + gCurrentActor->unk84;
-        gCurrentActor->unk7C += 4.0f * func_80612794(gFrameCounter * 0x35);
-        gCurrentActor->unk84 += 4.0f * func_80612790(gFrameCounter * 0x3E);
-        gCurrentActor->unk80 = (func_80612794(gFrameCounter * 0x32) * 10.0f) + (gActivePlayerState->actor->unkA4 + 30.0f);
+        gCurrentActor->unk7C = (mathSinF(D_807FBB4C->unkE6) * followDist + D_807FBB4C->unk7C - gCurrentActor->unk7C) * 0.3 + gCurrentActor->unk7C;
+        gCurrentActor->unk84 = (mathCosF(D_807FBB4C->unkE6) * followDist + D_807FBB4C->unk84 - gCurrentActor->unk84) * 0.3 + gCurrentActor->unk84;
+        gCurrentActor->unk7C += 4.0f * mathSinF(gFrameCounter * 0x35);
+        gCurrentActor->unk84 += 4.0f * mathCosF(gFrameCounter * 0x3E);
+        gCurrentActor->unk80 = (mathSinF(gFrameCounter * 0x32) * 10.0f) + (gActivePlayerState->actor->unkA4 + 30.0f);
         break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
 s32 minecartSetTargetAheadOfPlayer(MinecartTargetState *targetState, f32 distanceFactor) {
-    targetState->unkA = ((func_80612794(D_807FBB4C->unkE6) * (gActivePlayerState->actor->unkB8 * distanceFactor)) + D_807FBB4C->unk7C);
+    targetState->unkA = ((mathSinF(D_807FBB4C->unkE6) * (gActivePlayerState->actor->unkB8 * distanceFactor)) + D_807FBB4C->unk7C);
     targetState->unkC = gActivePlayerState->actor->unkA4;
-    targetState->unkE = ((func_80612790(D_807FBB4C->unkE6) * (gActivePlayerState->actor->unkB8 * distanceFactor)) + D_807FBB4C->unk84);
+    targetState->unkE = ((mathCosF(D_807FBB4C->unkE6) * (gActivePlayerState->actor->unkB8 * distanceFactor)) + D_807FBB4C->unk84);
 }
 
 void minecartSpawnRandomParticle(void) {
@@ -340,8 +340,8 @@ void minecartFollowerChildBehaviour(void) {
         gCurrentActor->unk128 = 0x96;
     }
     gCurrentActor->unkE6 = s2->unkE6;
-    gCurrentActor->unk7C = (func_80612794(s2->unkE6 + angleOffset) * 47.0f + s2->unk7C - gCurrentActor->unk7C) * 0.3 + gCurrentActor->unk7C;
-    gCurrentActor->unk84 = (func_80612790(s2->unkE6 + angleOffset) * 47.0f + s2->unk84 - gCurrentActor->unk84) * 0.3 + gCurrentActor->unk84;
+    gCurrentActor->unk7C = (mathSinF(s2->unkE6 + angleOffset) * 47.0f + s2->unk7C - gCurrentActor->unk7C) * 0.3 + gCurrentActor->unk7C;
+    gCurrentActor->unk84 = (mathCosF(s2->unkE6 + angleOffset) * 47.0f + s2->unk84 - gCurrentActor->unk84) * 0.3 + gCurrentActor->unk84;
     gCurrentActor->unk80 += (s2->unk80 - 10.0f - gCurrentActor->unk80) * 0.3;
     switch (s2->unk154) {
     case 2:
@@ -361,7 +361,7 @@ void minecartFollowerChildBehaviour(void) {
             case 1:
                 d = gCurrentActor->unk4->unk0[1] / 17.0;
                 var = MIN(1.0, d);
-                x = func_80612790(var * 2048.0f + 2048.0f) * 0.5 + 0.5;
+                x = mathCosF(var * 2048.0f + 2048.0f) * 0.5 + 0.5;
                 gCurrentActor->unk7C = (targetState->unkA - gCurrentActor->unk7C) * x + gCurrentActor->unk7C;
                 gCurrentActor->unk80 = (gCurrentActor->unk80 + 10.0f) + ((gActivePlayerState->actor->unkA4 - (gCurrentActor->unk80 + 10.0f)) * x);
                 gCurrentActor->unk84 = (targetState->unkE - gCurrentActor->unk84) * x + gCurrentActor->unk84;
@@ -392,13 +392,13 @@ void minecartFollowerChildBehaviour(void) {
                 v = targetState->unk2C;
                 targetState->unk2C = v - 1;
                 if (v != 0) {
-                    interpT = func_80612790(targetState->unk2C / 70.0 * 2048.0 + 2048.0) * 0.5 + 0.5;
-                    sinT = func_80612794(2048.0f * interpT);
-                    lateralOffset = func_80612794(interpT * 1536.0f + 1024.0f) * (gCurrentActor->unk168 * -110);
-                    vertOffset = (func_80612790(interpT * 4096.0f) * 0.5 + 0.5) * 50.0 + -30.0;
-                    gCurrentActor->unk7C = ((func_80612794(D_807FBB4C->unkE6 - 0x400) * lateralOffset + targetState->unkA) - gCurrentActor->unk7C) * sinT + gCurrentActor->unk7C;
+                    interpT = mathCosF(targetState->unk2C / 70.0 * 2048.0 + 2048.0) * 0.5 + 0.5;
+                    sinT = mathSinF(2048.0f * interpT);
+                    lateralOffset = mathSinF(interpT * 1536.0f + 1024.0f) * (gCurrentActor->unk168 * -110);
+                    vertOffset = (mathCosF(interpT * 4096.0f) * 0.5 + 0.5) * 50.0 + -30.0;
+                    gCurrentActor->unk7C = ((mathSinF(D_807FBB4C->unkE6 - 0x400) * lateralOffset + targetState->unkA) - gCurrentActor->unk7C) * sinT + gCurrentActor->unk7C;
                     gCurrentActor->unk80 += (gActivePlayerState->actor->unkA4 + vertOffset - gCurrentActor->unk80) * sinT;
-                    gCurrentActor->unk84 = ((func_80612790(D_807FBB4C->unkE6 - 0x400) * lateralOffset + targetState->unkE) - gCurrentActor->unk84) * sinT + gCurrentActor->unk84;
+                    gCurrentActor->unk84 = ((mathCosF(D_807FBB4C->unkE6 - 0x400) * lateralOffset + targetState->unkE) - gCurrentActor->unk84) * sinT + gCurrentActor->unk84;
                     if (targetState->unk2C < 0x10) {
                         gCurrentActor->unk132 = 0;
                     }
@@ -516,7 +516,7 @@ void minecartUpdateFollower(void) {
     gCurrentActor->unkEE = gCurrentActor->unkE6;
     actorApplyGravity();
     actorApplyVelocity(gCurrentActor);
-    actorUpdateFloorContactAndTilt(gCurrentActor, 2.0 * func_80612794(gFrameCounter * 0x64) + 10.0);
+    actorUpdateFloorContactAndTilt(gCurrentActor, 2.0 * mathSinF(gFrameCounter * 0x64) + 10.0);
     if ((pointX - gCurrentActor->unk7C) * (pointX - gCurrentActor->unk7C) + (pointZ - gCurrentActor->unk84) * (pointZ - gCurrentActor->unk84) < 1600.0f) {
         gCurrentActor->unk168++;
     }

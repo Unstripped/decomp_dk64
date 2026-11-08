@@ -608,8 +608,8 @@ typedef struct BDEE0Actor {
 void func_806BA76C(f32);
 void func_806BA8C8(void);
 f32 cosApprox(f32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void matrixMakeRotationZ(f32 (*)[4], f32);
 s16 mathAngleEaseToward(s16, s16, f32);
@@ -670,8 +670,8 @@ u8 pivotZ;
             s1->unk0 -= 0x800;
             s1->unk2 ^= 1;
             a = dir << 8;
-            gCurrentActor->x += gCurrentActor->unk4->unk38 * stepDist * func_80612794(gCurrentActor->yaw + a);
-            gCurrentActor->z += gCurrentActor->unk4->unk38 * stepDist * func_80612790(gCurrentActor->yaw + a);
+            gCurrentActor->x += gCurrentActor->unk4->unk38 * stepDist * mathSinF(gCurrentActor->yaw + a);
+            gCurrentActor->z += gCurrentActor->unk4->unk38 * stepDist * mathCosF(gCurrentActor->yaw + a);
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x1B1, 0xFF, 0x7F, 0xA, 0x3C, 0.3f, 0);
         }
         func_806BA8C8();
@@ -681,12 +681,12 @@ u8 pivotZ;
             sgn = 1;
         }
         guTranslateF(modelMtx, sgn * sideOffset, 0.0f, 0.0f);
-        matrixMakeRotationZ(rotMtx, func_80612794(s1->unk0) * (f32)(sgn * rollAmount));
+        matrixMakeRotationZ(rotMtx, mathSinF(s1->unk0) * (f32)(sgn * rollAmount));
         guMtxCatF(modelMtx, rotMtx, modelMtx);
         if (gCurrentActor->state == 0x37) {
             matrixMakeRotationY(rotMtx, (f32)(sgn * gBehaviourWorkState->timer));
         } else {
-            matrixMakeRotationY(rotMtx, func_80612794(s1->unk0 - 0x400) * (f32)(-sgn * 0x2D));
+            matrixMakeRotationY(rotMtx, mathSinF(s1->unk0 - 0x400) * (f32)(-sgn * 0x2D));
         }
         guMtxCatF(modelMtx, rotMtx, modelMtx);
         if (gCurrentActor->state == 0x37) {
@@ -871,8 +871,8 @@ extern BDEE0Tbl D_80750638;
 void func_806BB81C();
 s32 spawnNodeHasActor(s32);
 void func_80641874(s32, s32);
-f32 func_80612790(s16);
-f32 func_80612794(s16);
+f32 mathCosF(s16);
+f32 mathSinF(s16);
 void camStartPath(void *, s32, s32);
 void camSetTarget(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void camSetTargetFocusActor(s32, void *);
@@ -968,7 +968,7 @@ void func_806BB874(void) {
     case 7:
         if (spawnNodeHasActor(0x2B) == 0 && spawnNodeHasActor(0x2C) == 0) {
             func_80641874(0x11, 1);
-            spawnNodeSpawnById(0x2D, func_80612794(gCurrentActor->yaw) * 80.0f + gCurrentActor->x, gCurrentActor->y, func_80612790(gCurrentActor->yaw) * 80.0f + gCurrentActor->z, gCurrentActor->yaw, 0, 0);
+            spawnNodeSpawnById(0x2D, mathSinF(gCurrentActor->yaw) * 80.0f + gCurrentActor->x, gCurrentActor->y, mathCosF(gCurrentActor->yaw) * 80.0f + gCurrentActor->z, gCurrentActor->yaw, 0, 0);
             D_807FDCA0->unk1C = (s32)gSpawnedActor;
             camStartPath(gCurrentActor, 0x1F, 1);
             gCurrentActor->state++;

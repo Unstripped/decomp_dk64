@@ -63,7 +63,7 @@ void func_8072DC7C();
 void func_8072AA80(void);
 void enemyAggroStateUpdate(s32, s32, s32);
 s32 randomNonNegative(void);
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 s16 mathAngleEaseToward(s16, s16, f32);
 void actorClearNodeFlag(Actor *, s32);
 void scriptSetActorRampTarget(void *, f32, f32);
@@ -141,7 +141,7 @@ void func_806B2790(void) {
             }
             break;
         case 1:
-            B7490A->unkE4 += 800.0f * func_80612794(gBehaviourWorkState->unk18 * 10);
+            B7490A->unkE4 += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 10);
             if (((randomNonNegative() >> 15) % 1000) >= 0x3D5) {
                 func_8072AA80();
             }
@@ -149,7 +149,7 @@ void func_806B2790(void) {
             break;
         case 0x10:
         case 0x23:
-            B7490A->unkE4 += 800.0f * func_80612794(gBehaviourWorkState->unk18 * 15);
+            B7490A->unkE4 += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 15);
             actorPitchEaseTowardPoint(gCurrentActor->state, 0, gBehaviourTargetActor->x, ((gCurrentActor->waterY - gCurrentActor->unk15E) < gBehaviourTargetActor->y) ? (gCurrentActor->waterY - gCurrentActor->unk15E) : gBehaviourTargetActor->y, gBehaviourTargetActor->z, 0x1E, 3.3f, 100.0f, 0x2040);
             if (D_807FBD70 == 2) {
                 gCurrentActor->state = 0x27;
@@ -258,7 +258,7 @@ void func_806B2D64(void) {
                     break;
                 case 2:
                     projectileGetTargetCoords(gCurrentActor, 1);
-                    projectileSpawnNodeEntry(0x112, 0, 0.3f, gCurrentActor->yaw, 300.0f, func_80612794(B7490A->unkE8) * 300.0f, gCurrentActor);
+                    projectileSpawnNodeEntry(0x112, 0, 0.3f, gCurrentActor->yaw, 300.0f, mathSinF(B7490A->unkE8) * 300.0f, gCurrentActor);
                     effectSpawnSparks(1, 1);
                     break;
                 case 3:
@@ -268,7 +268,7 @@ void func_806B2D64(void) {
             break;
         case 1:
             actorEmptyStub();
-            B7490A->unkE4 += 800.0f * func_80612794(gBehaviourWorkState->unk18 * 10);
+            B7490A->unkE4 += 800.0f * mathSinF(gBehaviourWorkState->stepCount * 10);
             if (((randomNonNegative() >> 15) % 1000) >= 0x3D5) {
                 func_8072AA80();
             }
@@ -978,7 +978,7 @@ typedef struct {
 extern u16 D_80744508;
 s32 randomLcgNext(void);
 f32 randomFloat(void);
-f32 func_80612790(s16);
+f32 mathCosF(s16);
 s32 mathAngleSignedDistance(s16, s16);
 void zoneEntryGetPosition(s32, s32, f32 *, f32 *, f32 *);
 s32 flagGet(s32, s32);
@@ -1037,9 +1037,9 @@ void func_806B54BC(void) {
                 D_807FBB40_3 = mathAngleBetweenPoints2D(zoneX, zoneZ, state->unk0, state->unk8);
                 D_807FBB40_3 += ((randomLcgNext() & 7) << 8) + 0x400;
                 dist = (f32) ((f64) randomFloat() * 180.0);
-                state->unk0 = (func_80612794(D_807FBB40_3) * dist) + zoneX;
+                state->unk0 = (mathSinF(D_807FBB40_3) * dist) + zoneX;
                 state->unk4 = state->unkC;
-                state->unk8 = (func_80612790(D_807FBB40_3) * dist) + zoneZ;
+                state->unk8 = (mathCosF(D_807FBB40_3) * dist) + zoneZ;
                 gCurrentActor->state = 0x23;
             }
             if (gCurrentActor->state == 0x23) {
@@ -1056,9 +1056,9 @@ void func_806B54BC(void) {
             if ((f64) zoneY < -8.0) {
                 zoneY = -8.0f;
             }
-            gCurrentActor->x += func_80612794(gCurrentActor->yaw) * 8.0;
+            gCurrentActor->x += mathSinF(gCurrentActor->yaw) * 8.0;
             gCurrentActor->y = gCurrentActor->y + zoneY;
-            gCurrentActor->z += func_80612790(gCurrentActor->yaw) * 8.0;
+            gCurrentActor->z += mathCosF(gCurrentActor->yaw) * 8.0;
             break;
         case 0x37:
             gCurrentActor->flags = gCurrentActor->flags & 0xFFFF7FFF;

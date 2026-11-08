@@ -758,7 +758,7 @@ void effectWaterSetMeshColors(Vtx *vtx, EffectNode *water) {
     }
 }
 
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 
 typedef struct WaterHeightView2 {
     u8 pad0[4];
@@ -795,7 +795,7 @@ f32 effectWaterGetHeightAt(EffectNode *water, s32 worldX, s32 worldZ, u8 type) {
     case 0:
         temp1 = (s32)(WATER_SUB->unk4 * (f32)worldX);
         temp = (s32)(WATER_SUB->unk8 * (f32)worldZ);
-        return ((f32)WATER_SUB->unk4E + water->unk4 + (WATER_SUB->unkC * func_80612794((s16)((water->unk30 + temp1) % 4095)))) + (func_80612794((s16)((water->unk34 + temp) % 4095)) * WATER_SUB->unk10);
+        return ((f32)WATER_SUB->unk4E + water->unk4 + (WATER_SUB->unkC * mathSinF((s16)((water->unk30 + temp1) % 4095)))) + (mathSinF((s16)((water->unk34 + temp) % 4095)) * WATER_SUB->unk10);
 
     case 1:
     case 2:
@@ -908,8 +908,8 @@ void effectWaterSetMeshPositionsUV(Vtx *vtx, EffectNode *water) {
             }
             offX = (s32)(WATER_WAVE->unk1C * (f32)x);
             offZ = (s32)(WATER_WAVE->unk20 * (f32)z);
-            posX = (func_80612794((water->unk38 + offX) & 0xFFF) * WATER_WAVE->unk24) + (f32)x;
-            posZ = (func_80612794((water->unk3C + offZ) & 0xFFF) * WATER_WAVE->unk28) + (f32)z;
+            posX = (mathSinF((water->unk38 + offX) & 0xFFF) * WATER_WAVE->unk24) + (f32)x;
+            posZ = (mathSinF((water->unk3C + offZ) & 0xFFF) * WATER_WAVE->unk28) + (f32)z;
             vtx->v.ob[0] = posX * 3;
             vtx->v.ob[2] = posZ * 3;
             tcX = (s32)((f32)x * WATER_WAVE->unk0);

@@ -3742,7 +3742,7 @@ s16 playerSelectCarryMoveState(Actor *, f32, f32, s32);
 void effectOrbitXZUpdate();
 extern u8 D_8071FC8C;
 void func_805FF9AC(u16, s16, s16, s16);
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 void sfxSetChannelTempo(s32, f32);
 void sfxStopChannel(s32, s32);
 
@@ -3817,7 +3817,7 @@ void func_806D9D58(void) {
             G17_A->unk80 -= 1.0;
         }
         G17_P->unk238 = G17_A->unk80;
-        G17_A->unk80 = func_80612794((s16)G17_P->unk23C) * 10.0 + G17_P->unk238;
+        G17_A->unk80 = mathSinF((s16)G17_P->unk23C) * 10.0 + G17_P->unk238;
         G17_P->unk23C += 0x64;
         if (G17_A->unk168 < G17_A->unk80) {
             v = G17_A->unk80 - G17_A->unk168;
@@ -3866,7 +3866,7 @@ void func_806D9FD0(void) {
         playerInputUpdate(0x43);
         mathAngleStepToward(&G17_A->unkE6, G17_A->unkEE, 0x32);
         G17_A->unk168++;
-        G17_A->unk80 += func_80612794(G17_A->unk168 << 5) * 0.25;
+        G17_A->unk80 += mathSinF(G17_A->unk168 << 5) * 0.25;
         playerApplyMotionWithHorizontalVelocity();
         sfxSetChannelTempo(0x6B, 0.995f);
         G17_P->unkC0--;
@@ -4518,7 +4518,7 @@ void func_806DBB04(void) {
             LB_P->unk108 = 150.0f;
             LB_A->unk155 = LB_A->unk155 + 1;
         }
-        var_fv1 = (func_80612794(LB_P->unkCC) > 0.0f) ? func_80612794(LB_P->unkCC) : -func_80612794(LB_P->unkCC);
+        var_fv1 = (mathSinF(LB_P->unkCC) > 0.0f) ? mathSinF(LB_P->unkCC) : -mathSinF(LB_P->unkCC);
         LB_A->unkE6 = (f64)LB_A->unkE6 + 120.0 * (0.5 + (f64)var_fv1);
         break;
     case 3:
@@ -4527,9 +4527,9 @@ void func_806DBB04(void) {
             LB_P->unk108 = 500.0f;
             LB_A->unk155 = LB_A->unk155 + 1;
         }
-        var_fv1 = (func_80612794(LB_P->unkCC) > 0.0f) ? func_80612794(LB_P->unkCC) : -func_80612794(LB_P->unkCC);
+        var_fv1 = (mathSinF(LB_P->unkCC) > 0.0f) ? mathSinF(LB_P->unkCC) : -mathSinF(LB_P->unkCC);
         LB_A->unkE6 = (f64)LB_A->unkE6 + 120.0 * (0.5 + (f64)var_fv1);
-        var_fv1 = func_80612794((s16)(LB_P->unkCC + 0x400));
+        var_fv1 = mathSinF((s16)(LB_P->unkCC + 0x400));
         LB_A->unkE4 = (f32)LB_A->unkE4 + 60.0f * var_fv1;
         break;
     case 4:

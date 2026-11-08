@@ -23,7 +23,7 @@ typedef struct D1S174 {
 } D1S174;
 
 typedef struct D1Dc90ViewD {
-    /* 0x00 */ Struct807FDC98 *unk0;
+    /* 0x00 */ BehaviourAnimState *unk0;
     /* 0x04 */ Actor *unk4;
     /* 0x08 */ u8 pad8[0xE];
     /* 0x16 */ s16 unk16;
@@ -63,9 +63,9 @@ void collisionClearFlags(void);
 void behaviourFrameBegin(void) {
     gBehaviourWorkState = gCurrentActor->unk174;
     gBehaviourTargetActor = D1DC90D->unk4;
-    gBehaviourExtraState = (Struct807FDC9C *)(gBehaviourAnimState = D1DC90D->unk0);
+    gBehaviourExtraState = (BehaviourExtraState *)(gBehaviourAnimState = D1DC90D->unk0);
     D_807FDCA0 = D1DC98D->unk1C;
-    gBehaviourWorkState->unk18++;
+    gBehaviourWorkState->stepCount++;
     if (gCurrentActor->flags & 0x20000000) {
         if (gCurrentActor->state != 0x37 && gCurrentActor->state != 0x36) {
             if (((D1S4 *)gBehaviourTargetActor->unk4)->unk0->unk10 != D1DC90D->unk16) {
@@ -389,11 +389,11 @@ void actorUpdateStationaryTimer(void) {
     }
 }
 
-f32 func_80612794(s16);
+f32 mathSinF(s16);
 u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 
 void actorSetPitchVelocity(s16 arg0, f32 arg1, f32 arg2, f32 arg3, u16 arg4) {
-    D1A3->unkC0 = func_80612794(D1A3->unkF0) * -arg3;
+    D1A3->unkC0 = mathSinF(D1A3->unkF0) * -arg3;
     actorMoveWithinZone(arg0, arg1, arg2, (arg4 & 0xFFFF) | 0x1080, 0.5 * (u32)D1A3->unk15E);
 }
 
@@ -515,7 +515,7 @@ void actorApplyVelocity(Actor *);
 u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
 s32 polygonContainsPoint2D(s16, s16, void *);
 s32 zoneCheckActorInside(Actor *, f32, f32, void *, s16 *);
-f32 func_80612790(s16);
+f32 mathCosF(s16);
 
 u32 actorMoveWithinZone(u8 arg0, f32 arg1, f32 arg2, u16 arg3, f32 arg4) {
     f32 area;
@@ -607,7 +607,7 @@ u32 actorMoveWithinZone(u8 arg0, f32 arg1, f32 arg2, u16 arg3, f32 arg4) {
     if (polygonContainsPoint2D(E3A->unk7C, E3A->unk84, D_807FDCA0) != 0) {
         E3C90->unk1A |= 0x4000;
         if (zoneCheckActorInside(gCurrentActor, E3A->unk88, E3A->unk90, D_807FDCA0, &sp52) == 0) {
-            if (polygonContainsPoint2D(func_80612794(E3A->unkEE) * E3A->unkB8 + E3A->unk7C, func_80612790(E3A->unkEE) * E3A->unkB8 + E3A->unk84, D_807FDCA0) == 0) {
+            if (polygonContainsPoint2D(mathSinF(E3A->unkEE) * E3A->unkB8 + E3A->unk7C, mathCosF(E3A->unkEE) * E3A->unkB8 + E3A->unk84, D_807FDCA0) == 0) {
                 if (E3C90->unk22-- == 0) {
                     *sp4C += 0x800;
                     *sp4C &= 0xFFF;
@@ -736,8 +736,8 @@ void actorAddPulsingLight(void) {
     f32 x;
     f32 base;
 
-    func_80612794((s16)(((gFrameCounter % 0xFFF) * 4) % 0xFFF));
-    func_80612790((s16)(((gFrameCounter % 0xFFF) * 4) % 0xFFF));
+    mathSinF((s16)(((gFrameCounter % 0xFFF) * 4) % 0xFFF));
+    mathCosF((s16)(((gFrameCounter % 0xFFF) * 4) % 0xFFF));
     phase = (gFrameCounter * 4) % 150;
     base = 100.0f;
     if (phase > 75) {
