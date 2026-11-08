@@ -2391,23 +2391,23 @@ void seqUpdateVolumeFades(void) {
 }
 
 
-void seqSetTargetVolume(s32 arg0, f32 arg1) {
-    D_80770578[arg0] = arg1;
-    D_80770598[arg0] = 1;
+void seqSetTargetVolume(s32 seqIndex, f32 targetVolume) {
+    D_80770578[seqIndex] = targetVolume;
+    D_80770598[seqIndex] = 1;
 }
 
 
-void seqSetVolumeInstant(s32 arg0, f32 arg1) {
-    D_80770578[arg0] = arg1;
-    D_80770568[arg0] = arg1;
-    seqUpdateVolume(arg0);
+void seqSetVolumeInstant(s32 seqIndex, f32 volume) {
+    D_80770578[seqIndex] = volume;
+    D_80770568[seqIndex] = volume;
+    seqUpdateVolume(seqIndex);
 }
 
 extern f32 D_80770588;
 void seqLoadAndPlay(s32, u8, f32);
 
-void seqPlayWithDefaultVolume(s32 arg0, u8 arg1) {
-    seqLoadAndPlay(arg0, arg1, D_80770588);
+void seqPlayWithDefaultVolume(s32 seqIndex, u8 seqId) {
+    seqLoadAndPlay(seqIndex, seqId, D_80770588);
 }
 
 void seqUpdateUnderwaterAudio(s32);
