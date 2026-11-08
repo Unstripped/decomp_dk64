@@ -26,14 +26,14 @@ void func_8060B7F0(void) {
 extern s8 D_80746834;
 extern OSMesgQueue D_807EE0D0;
 
-void sleepMilliseconds(f32 arg0) {
+void sleepMilliseconds(f32 ms) {
     OSTimer timer;
     u64 padding;
     OSMesg timerMsg;
     OSMesg received;
     u64 duration;
 
-    duration = (u64)(arg0 * 1000.0f);
+    duration = (u64)(ms * 1000.0f);
     duration = (duration * 3000) / 64;
     osSetTimer(&timer, duration, 0, &D_807EE0D0, timerMsg);
     D_80746834 = 1;
@@ -45,13 +45,13 @@ extern s8 D_80744460;
 extern void (*D_807467D0[])(void);
 extern OSMesgQueue D_807F02B8;
 
-void eepromDispatchCommand(s32 arg0) {
+void eepromDispatchCommand(s32 cmd) {
     if (osGetThreadId(NULL) == 9) {
-        D_807467D0[arg0]();
+        D_807467D0[cmd]();
         return;
     }
     if (D_80744460 == 0) {
-        osSendMesg(&D_807F02B8, (void *)arg0, 0);
+        osSendMesg(&D_807F02B8, (void *)cmd, 0);
     }
 }
 
@@ -60,21 +60,21 @@ void eepromDispatchCommand(s32 arg0) {
 
 extern u32 D_807463C0[];
 
-u32 eepromCalculateCrc32(u8 *arg0, u16 arg1) {
+u32 eepromCalculateCrc32(u8 *data, u16 length) {
     u32 crc = ~0;
 
-    while (arg1--) {
-        crc = D_807463C0[(*arg0++ ^ crc) & 0xFF] ^ (crc >> 8);
+    while (length--) {
+        crc = D_807463C0[(*data++ ^ crc) & 0xFF] ^ (crc >> 8);
     }
     return crc ^ -1;
 }
 
 
-u8 eepromGetSectorForSlot(s32 arg0) {
+u8 eepromGetSectorForSlot(s32 slot) {
     u8 i;
 
     for (i = 0; i < 4; i++) {
-        if (arg0 == D_807EDEA8[i]) {
+        if (slot == D_807EDEA8[i]) {
             return i;
         }
     }

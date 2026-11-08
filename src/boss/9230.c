@@ -87,7 +87,7 @@ void actorSetTargetSpeed(Boss2F_9230_Actor *, s32);
 void func_8072DEA8(s32, s32, void *);
 void func_8072E1A4(s32, void *);
 
-void func_8002D230(void) {
+void bossKRoolDkStep(void) {
     Boss2F_9230_178 *scriptState;
     s32 pad40;
     u8 *scriptOpcodes;

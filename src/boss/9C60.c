@@ -169,7 +169,7 @@ void func_8072A450(void);
 void actorSetTargetSpeed(BossC_9C60_Actor *, s32);
 void func_8072E1A4(s32, void *);
 
-void func_8002DE04(void) {
+void bossKRoolDiddyStep(void) {
     Boss2F_9C60_178 *scriptState;
     u8 *scriptOpcodes;
     s32 pad34;

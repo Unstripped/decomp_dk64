@@ -27,7 +27,7 @@ f32 func_80612790(s16);
 f32 func_80612794(s16);
 void spawnNodeSpawnById(s16, s16, s16, s16, s32, s32, s32);
 
-void func_8002C520(s16 actorType, s16 distance, s16 angle) {
+void bossKutOutSpawnGhost(s16 actorType, s16 distance, s16 angle) {
     f32 pad;
     f32 sinVal;
     f32 fArg1;
@@ -57,10 +57,10 @@ extern BossA_Struct_807FDC90 *D_807FDC90;
 s32 randomNonNegative(void);
 void camStartPath(void *, s32, s32);
 
-void func_8002C5F4(void) {
-    func_8002C520(2, ((randomNonNegative() >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
-    func_8002C520(3, ((randomNonNegative() >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
-    func_8002C520(4, ((randomNonNegative() >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
+void bossKutOutSpawnGhosts(void) {
+    bossKutOutSpawnGhost(2, ((randomNonNegative() >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
+    bossKutOutSpawnGhost(3, ((randomNonNegative() >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
+    bossKutOutSpawnGhost(4, ((randomNonNegative() >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
 
     if (!(D_807FDC90->unk1A & 0x8000)) {
         D_807FDC90->unk1A |= 0x8000;
@@ -122,7 +122,7 @@ s32 randomNonNegative(void);
 void projectileGetTargetCoords(void *, s32);
 void projectileAimAndSpawn(s32, s16, f32, f32, f32, f32, f32, void *);
 
-void func_8002C8B4(void) {
+void bossKutOutFireLaser(void) {
     projectileGetTargetCoords(gCurrentActor, 1);
     projectileAimAndSpawn(
         0x116,
@@ -243,7 +243,7 @@ void actorUpdateModelMatrix(void *, s32);
 #define DC94 ((BossActorPos *)D_807FDC94)
 #define DC9C ((BossConfig *)D_807FDC9C)
 
-void func_8002C964(void) {
+void bossKutOutStep(void) {
     BossSwayState *swayState;
 
     swayState = A40->unk178;
@@ -347,7 +347,7 @@ void func_8002C964(void) {
         A40->unkE6 = mathAngleEaseToward(A40->unkE6, mathAngleBetweenPoints2D(DC94->unk7C, DC94->unk84, A40->unk7C, A40->unk84), 0x41000000);
         switch (A40->unk155) {
         case 0:
-            func_8002C5F4();
+            bossKutOutSpawnGhosts();
             A40->unk155 = 1;
             break;
         case 1:
@@ -385,7 +385,7 @@ void func_8002C964(void) {
             break;
         case 4:
             A40->unk155 = 1;
-            func_8002C8B4();
+            bossKutOutFireLaser();
             break;
         }
         break;
