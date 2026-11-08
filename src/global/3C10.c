@@ -172,11 +172,11 @@ typedef struct {
 extern KeyValuePair D_80744800[];
 
 s32 func_805FEF10(s32 *outValue) {
-    u32 i;
+    s32 i;
     s32 found;
 
     found = 0;
-    for (i = 0; (i ^ 0) < 4 && !found; i++) { // FAKE: blocks loop-test replacement so i keeps its own compare
+    for (i = 0; (u32)i < 4 && !found; i++) {
         found = ((Unk58View *)D_807FBB4C)->unk58 == D_80744800[i].unk0;
         if (found) {
             *outValue = D_80744800[i].unk4;
