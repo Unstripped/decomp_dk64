@@ -141,7 +141,7 @@ void actorCopyPoseAndScale(void *, void *, f32);
 void func_80687C48(void);
 void playerSetKongByActorType(s16);
 void playerResumeLocomotion(void *);
-void func_806F0C18(void *);
+void playerKongStopSoundByState(void *);
 void playerWaypointPathStartPacked(s32, s32, s16, s16);
 void transitionSetState(u8);
 void resQueueAttachActor(void *, s32, u8);
@@ -220,7 +220,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             return;
         case 0x36:
             playerSetKongByActorType(a + 2);
-            func_806F0C18(gPrimaryPlayerActor);
+            playerKongStopSoundByState(gPrimaryPlayerActor);
             return;
         case 0x33:
             q = Matcher14_OFF(actorFromSpawnNodeOrDefault(a), void *, 0x17C);

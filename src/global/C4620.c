@@ -67,9 +67,9 @@ typedef struct R1C46aActor {
 
 void *heapAlloc(s32);
 void func_806C8220();
-void func_806F22A8(Actor *, void *, s32 *);
-void func_806F1EB0(Actor *, void *, s32 *);
-void func_806F1C04(Actor *, void *, s32 *);
+void playerWeaponInitCrosshair(Actor *, void *, s32 *);
+void playerWeaponSpawnProjectile(Actor *, void *, s32 *);
+void playerWeaponAimTarget(Actor *, void *, s32 *);
 
 void func_806BF920(void) {
     u16 *state;
@@ -105,16 +105,16 @@ void func_806BF920(void) {
         case 1:
         case 2:
         case 3:
-            func_806F22A8(gCurrentActor, R1V->unk4->unk1C, &outCount);
+            playerWeaponInitCrosshair(gCurrentActor, R1V->unk4->unk1C, &outCount);
             break;
         case 9:
         case 10:
         case 11:
-            func_806F1EB0(gCurrentActor, R1V->unk4->unk1C, &outCount);
+            playerWeaponSpawnProjectile(gCurrentActor, R1V->unk4->unk1C, &outCount);
             break;
         case 4:
         case 5:
-            func_806F1C04(gCurrentActor, R1V->unk4->unk1C, &outCount);
+            playerWeaponAimTarget(gCurrentActor, R1V->unk4->unk1C, &outCount);
             break;
     }
     if (outCount != 0) {
@@ -122,10 +122,10 @@ void func_806BF920(void) {
     }
 }
 
-void func_806F0D68();
+void playerKongPlaySoundByState();
 void func_806C7BAC();
-void func_806F0C18(void *);
-void func_806F10E8();
+void playerKongStopSoundByState(void *);
+void playerKongSpawnTransformationSmoke();
 void controllerAnimFreeStateAsset();
 void controllerAnimSetState(Actor *, s16, f32, f32);
 
@@ -139,7 +139,7 @@ void func_806BFA8C(u16 animId) {
             R1V->unk155 = 1;
             break;
         case 0x112:
-            func_806F0D68(gCurrentActor);
+            playerKongPlaySoundByState(gCurrentActor);
         case 0x113:
         case 0x128:
         case 0x129:
@@ -153,8 +153,8 @@ void func_806BFA8C(u16 animId) {
             func_806C7BAC(gCurrentActor, 0);
             break;
         case 0x114:
-            func_806F0C18(gCurrentActor);
-            func_806F10E8(gCurrentActor);
+            playerKongStopSoundByState(gCurrentActor);
+            playerKongSpawnTransformationSmoke(gCurrentActor);
             break;
         case 0x2CF:
             controllerAnimFreeStateAsset(gCurrentActor);
@@ -316,7 +316,7 @@ extern u8 D_80747B00[];
 extern void *sScriptEffectSprites[];
 extern LgBFDCA0 *D_807FDCA0;
 
-void func_806F09F0(Actor *, u16);
+void playerKongStopAudioChannels(Actor *, u16);
 void actorSetTargetSpeed(Actor *, s32);
 void actorScriptStart(void *, s32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
@@ -373,7 +373,7 @@ void actorScriptedCommandUpdate(void) {
         state->unk30 = 0xFF;
         state->unk33 = 0x12;
         state->unk22 = 0x64;
-        func_806F09F0(gCurrentActor, (u16)gCurrentActor->actorType);
+        playerKongStopAudioChannels(gCurrentActor, (u16)gCurrentActor->actorType);
         actorSetTargetSpeed(gCurrentActor, 0);
         LgBV->unk60 &= 0xFFFDFFFF;
         if (gCurrentMap == 0x4C) {
@@ -703,7 +703,7 @@ void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
     f32 nodeY;
 
     if (!(R1V->unk60 & 0x10)) {
-        func_806F0C18(gCurrentActor);
+        playerKongStopSoundByState(gCurrentActor);
         gBehaviourAnimState->unk46 |= 0x200;
         actorSetTargetSpeed(gCurrentActor, 0);
     }
@@ -862,7 +862,7 @@ void effectShrinkFadeMatrixUpdate(void);
 void effectSetSpeed(s32);
 void effectLightPulseOscillate(void);
 void effectCreateAtActorBone(void *, f32, void *, s32, s32);
-void func_806F1048();
+void playerKongClearFlagsByActorType();
 s32 randomNonNegative(void);
 void projectileGetTargetCoords(void *, s32);
 void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
@@ -896,7 +896,7 @@ void func_806C1734(void) {
                     break;
                 case 0x114:
                     if (0.0f == inner->unk24) {
-                        func_806F1048(gCurrentActor);
+                        playerKongClearFlagsByActorType(gCurrentActor);
                     }
                     break;
                 case 0xEA:
@@ -928,7 +928,7 @@ void func_806C1734(void) {
 }
 
 void func_80724CA4(s32, s32);
-void func_806F09F0(Actor *, u16);
+void playerKongStopAudioChannels(Actor *, u16);
 void effectSetColor(s32, s32, s32, s32);
 void func_80724E48(u8);
 extern Actor *gBehaviourTargetActor;
@@ -940,7 +940,7 @@ void func_806C19F4(void) {
         func_806C15E8();
         R1V->unk140->radius = 180.0f;
         func_80724CA4(2, 1);
-        func_806F09F0(gCurrentActor, R1V->unk5A);
+        playerKongStopAudioChannels(gCurrentActor, R1V->unk5A);
     }
     if (R1V->unk60 & 0x10000000) {
         actorScriptedCommandUpdate();
@@ -967,7 +967,7 @@ void func_806C1B50(void) {
     behaviourFrameBegin();
     if (!(R1V->unk60 & 0x10)) {
         func_806C15E8();
-        func_806F09F0(gCurrentActor, R1V->unk5A);
+        playerKongStopAudioChannels(gCurrentActor, R1V->unk5A);
     }
     func_806BF920();
     if (R1V->unk60 & 0x10000000) {
@@ -1016,7 +1016,7 @@ void func_806C1CCC(void) {
         if (gCurrentMap == 0x4C) {
             controllerAnimLoadStateAsset(gCurrentActor, 0xE);
         }
-        func_806F09F0(gCurrentActor, R1V->unk5A);
+        playerKongStopAudioChannels(gCurrentActor, R1V->unk5A);
     }
     if (R1V->unk60 & 0x10000000) {
         actorScriptedCommandUpdate();
@@ -1500,7 +1500,7 @@ void func_806C2DF4(void) {
                 LgV->unkCC = 1;
                 LgV->unk60 |= 0x1000;
                 func_80724CA4(2, 1);
-                func_806F0C18(gCurrentActor);
+                playerKongStopSoundByState(gCurrentActor);
                 break;
             case 0x17:
                 LgV->unkCC = 1;

@@ -521,7 +521,7 @@ void behaviourAddSlotQueueValueB(s32);
 void slotQueueUpdate(s32, s32, s32);
 void slotQueueCancel(s32, s32);
 f32 raceGetHandicapSpeedBonus(void *);
-void func_806F4D70(u8, f32, f32, f32, f32);
+void gridSetNodeBounds(u8, f32, f32, f32, f32);
 void gridAppendPositionNode(u8, f32, f32, f32, f32);
 void actorSpawnNodeEffectFacingCamera(s32, s32);
 void sfxStopSlotSound(void *, s32);
@@ -625,7 +625,7 @@ void raceVehicleBehaviorUpdate(void) {
         bumpX = gCurrentActor->unk7C;
         bumpZ = gCurrentActor->unk84;
         bumpY = gCurrentActor->unk80 + off;
-        func_806F4D70(s1->unk28, bumpX, bumpY, bumpZ, 12.0f);
+        gridSetNodeBounds(s1->unk28, bumpX, bumpY, bumpZ, 12.0f);
         bumpX += gCurrentActor->unk88;
         bumpX *= 0.5;
         bumpZ += gCurrentActor->unk90;

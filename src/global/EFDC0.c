@@ -284,7 +284,7 @@ typedef struct EfN2TargetActor {
 
 void camSaveYaw(void *);
 void camSetZoomLevel(void *, s32);
-void func_806F0D68(Actor *);
+void playerKongPlaySoundByState(Actor *);
 void sfxStopSlotSound(Actor *, u8);
 
 void playerStateTakeDamagePrep(void) {
@@ -313,7 +313,7 @@ void playerStateTakeDamagePrep(void) {
         sfxStopSlotSound(gActivePlayerActor, 0);
         sfxPlayOnFreeSlot(0x26, 0x7FFF, 63.0f, 1.0f, 0, 0);
         if (EfA_Q[gCurrentPlayerIndex].unk2AC != 0) {
-            func_806F0D68(gActivePlayerActor);
+            playerKongPlaySoundByState(gActivePlayerActor);
         }
     }
     subactor->unkBC = 0x80;
@@ -548,7 +548,7 @@ extern EfN2ModelSlot *gModelSlots;
 extern s16 D_807539DC[];
 extern s16 D_807539EC[];
 void scriptSetActorRampTarget(Actor *, f32, f32);
-void func_806F0C18(void *);
+void playerKongStopSoundByState(void *);
 void actorClearMovementFlags(void *);
 s32 hashTableLookup(s32);
 void camStartPath(Actor *, s32, s32);
@@ -560,7 +560,7 @@ void playerStateEnterFlattened(void) {
     f32 speed;
 
     speed = 1.0f;
-    func_806F0C18(gCurrentActor);
+    playerKongStopSoundByState(gCurrentActor);
     gActivePlayerActor->state = 0x6C;
     gActivePlayerActor->unk155[0] = 0;
     actorScriptStart(gActivePlayerActor, 0x3B);
@@ -1057,7 +1057,7 @@ void playerStateEnterState15ThrowHeldActor(void) {
     playerClearCarriedItemState();
     playerThrowHeldActor(gActivePlayerActor);
     EfN4PS->unk8C = 0;
-    func_806F0C18(gCurrentActor);
+    playerKongStopSoundByState(gCurrentActor);
     sfxStopSlotSound(gCurrentActor, 0);
     sfxStopSlotSound(gCurrentActor, 1);
     actorScriptStartByIndex(gActivePlayerActor, 0x21);
@@ -1424,10 +1424,10 @@ void playerStateSetLaunchVelocity(void) {
                 EfL1PS->unk1F4 &= ~4;
             }
             EfL1PS->unk8C = 1;
-            func_806F0D68(gActivePlayerActor);
+            playerKongPlaySoundByState(gActivePlayerActor);
         }
     } else {
-        func_806F0C18(gCurrentActor);
+        playerKongStopSoundByState(gCurrentActor);
     }
     if (EfL1Cam[gCurrentPlayerIndex].unk2A0 != NULL) {
         playerStateApplyAttackerDamage((Actor *)EfL1Cam[gCurrentPlayerIndex].unk2A0);
@@ -1692,12 +1692,12 @@ void playerTakeQueuedDamage(void) {
     }
 }
 
-extern void func_806F1048(Actor *);
+extern void playerKongClearFlagsByActorType(Actor *);
 extern s32 camIsCutsceneActive(void);
 
 void playerStateCutsceneDamageCheck(void) {
     if ((gGlobalCutsceneFlags & 2) != 0) {
-        func_806F1048(gActivePlayerActor);
+        playerKongClearFlagsByActorType(gActivePlayerActor);
         sfxStopChannel(0xC, 0);
     }
     if (playerCanTakeHit(gActivePlayerActor) != 0) {

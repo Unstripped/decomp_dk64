@@ -400,19 +400,19 @@ u8 collisionGetHitStatus(void) {
     return D_807F946E;
 }
 
-u8 func_80666A94(void) {
+u8 collisionIsGroundImpact(void) {
     return D_807F94AE;
 }
 
-u8 func_80666AA0(void) {
+u8 collisionIsHeavyGroundImpact(void) {
     return D_807F94AF;
 }
 
-u8 func_80666AAC(void) {
+u8 collisionGetFloorType(void) {
     return D_807F94B0;
 }
 
-u8 func_80666AB8(void) {
+u8 collisionGetMaterialType(void) {
     return D_807F94B7;
 }
 
@@ -421,11 +421,11 @@ void collisionGetCoords(s16 *outX, s16 *outZ) {
     *outZ = D_807F94A4;
 }
 
-u8 func_80666AE0(void) {
+u8 collisionGetSurfaceFlags(void) {
     return D_807F94B1;
 }
 
-u8 func_80666AEC(void) {
+u8 collisionGetHitFlags(void) {
     return D_807F94AA;
 }
 
@@ -518,7 +518,7 @@ extern f32 D_80753008[];
 extern f32 D_807F9460;
 extern s8 D_807F9464;
 
-void func_80666D88(f32 arg0, f32 arg1, u8 arg2, Actor *arg3, u8 arg4) {
+void collisionCheckSlopeAngle(f32 arg0, f32 arg1, u8 arg2, Actor *arg3, u8 arg4) {
     f32 *var_v1;
     f32 *var_v0;
     f32 var_fa0;
@@ -581,7 +581,7 @@ void func_80666D88(f32 arg0, f32 arg1, u8 arg2, Actor *arg3, u8 arg4) {
 extern f32 D_807F9468;
 extern u8 D_807F946C;
 
-s32 func_80666F04(f32 arg0, f32 arg1, u8 arg2, u8 arg3) {
+s32 collisionGetFloorTriangleNormal(f32 arg0, f32 arg1, u8 arg2, u8 arg3) {
     f32 var_fv0;
     s32 var_v1;
 
@@ -1035,8 +1035,8 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                             collisionRecordTriangleS((struct CollisionTriS *)tri, (f32)h2);
                         }
                         if (!(tri->unk12 & 1)) {
-                            func_80666D88(*arg2 * 6.0f, (f32)h2, 1, arg3, 0);
-                            func_80666F04(*arg2 * 6.0f, (f32)h2, 1, tri->unk14);
+                            collisionCheckSlopeAngle(*arg2 * 6.0f, (f32)h2, 1, arg3, 0);
+                            collisionGetFloorTriangleNormal(*arg2 * 6.0f, (f32)h2, 1, tri->unk14);
                             spBF = mathCheckCloserFloatThreshold(spS.cc, (f32)h2, spC4, 1);
                             if (collisionCheckTriangleWindingS16(tri) != 0 && spBF != 0) {
                                 spS.cb = 1;
@@ -1092,7 +1092,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                                 arg3->waterY = h2 / 6.0;
                             }
                             if (tri->unk12 & 0x20) {
-                                func_80666D88(*arg2 * 6.0f, (f32)h2, 1, arg3, 1);
+                                collisionCheckSlopeAngle(*arg2 * 6.0f, (f32)h2, 1, arg3, 1);
                             }
                             D_807F9484 = 1;
                             D_807F9488 = (f32)(h2 / 6.0);
@@ -1482,7 +1482,7 @@ void collisionAttachActorToObjectNode(struct CollisionActorWork *, s16, s8, u8, 
 
 #define MODEL_SLOT_ENTRIES ((ModelSlotCollisionView *)gModelSlots)
 
-u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 *arg5) {
+u8 collisionTestDynamicActorFloor(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 *arg5) {
     s32 pad;
     CollisionActorTri *tri_end;
     CollisionActorTri *hit_tri;
@@ -1567,8 +1567,8 @@ u8 func_80668E9C(CollisionSlotActorView *arg0, s32 arg1, f32 arg2, f32 arg3, f32
                 if (arg0 != NULL) {
                     val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * (f64)arg3) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
                     y = (f32)((2000.0 * val) - 1000.0);
-                    func_80666D88(arg4, y, 0, (Actor *)arg0, 0);
-                    if (func_80666F04(arg4, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
+                    collisionCheckSlopeAngle(arg4, y, 0, (Actor *)arg0, 0);
+                    if (collisionGetFloorTriangleNormal(arg4, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
                         collisionAttachActorToObjectNode((struct CollisionActorWork *)arg0, sp9A, -1, 0, arg2, y, arg3);
                         arg0->unk110 = 2;
                     }
@@ -2076,7 +2076,7 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
                                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
                                     if (arg0 != NULL) {
                                         val = (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
-                                        func_80666D88(arg3, (f32)((2000.0 * val) - 1000.0), 0, arg0, 0);
+                                        collisionCheckSlopeAngle(arg3, (f32)((2000.0 * val) - 1000.0), 0, arg0, 0);
                                     }
                                     if (D_807F94BC != 0) {
                                         val = (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
@@ -2447,7 +2447,7 @@ s32 assetGetCachedSizeOrResolve(s32 arg0, s32 arg1) {
     return sp18;
 }
 
-void func_8066B0DC(void) {
+void collisionResolveWallContact(void) {
     D_807F967C = 1;
 }
 

@@ -337,14 +337,14 @@ typedef struct D1ActorView3 {
 
 extern u8 D_80720120[];
 extern u16 D_80744508;
-s32 func_80666A94();
-s32 func_80666AA0();
+s32 collisionIsGroundImpact();
+s32 collisionIsHeavyGroundImpact();
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 void behaviourCheckGroundImpactEffects(void) {
     if (D1A3->unk5C & 2) {
-        if (func_80666A94() || func_80666AA0()) {
-            if (func_80666AA0()) {
+        if (collisionIsGroundImpact() || collisionIsHeavyGroundImpact()) {
+            if (collisionIsHeavyGroundImpact()) {
                 effectCreateAtPosition(&D_80720120, D1A3->unk4->scaleY * 6.66666666999999968, D1A3->unk7C, D1A3->unk80, D1A3->unk84);
             }
             D1A3_154 = 0x40;

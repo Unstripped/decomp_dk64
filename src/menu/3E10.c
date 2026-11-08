@@ -1638,7 +1638,7 @@ extern Menu6B_Pair D_80033894[];
 void actorDespawn(void *);
 void actorUpdateModelMatrix(void *, s32);
 void func_806BF920(void);
-void func_806F0C18(void *);
+void playerKongStopSoundByState(void *);
 void actorConfigApplyAnimFrameByType(void *, s32, s32);
 
 void menuCharacterSelectUpdateActor(void) {
@@ -1664,7 +1664,7 @@ void menuCharacterSelectUpdateActor(void) {
         Menu6B_A->unk4->unk3C = 2.0f * Menu6B_A->unk4->unk3C;
         m8 = sub174->unk8;
         actorScriptStart(Menu6B_A, D_800338B4[(s16)(m8 * 6) + (Menu6B_A->unk155 & 0xF)]);
-        func_806F0C18(Menu6B_A);
+        playerKongStopSoundByState(Menu6B_A);
         Menu6B_A->unk60 |= 0x1000;
         sub174->unk4 = D_8076A100[Menu6B_A->unk154 & 0xF];
         actorConfigApplyAnimFrameByType(Menu6B_A, Menu6B_A->unk155 + 2, D_8076A100[Menu6B_A->unk154 & 0xF]);

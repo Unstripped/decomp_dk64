@@ -823,7 +823,7 @@ void mapChunkUpdateModelNodes(void) {
 
 #define MAP_CHUNK_AT(o) ((MapChunk *)((u8 *)gMapChunks + (o)))
 
-extern s32 func_80668E9C(s32, s16, f32, f32, f32, s32);
+extern s32 collisionTestDynamicActorFloor(s32, s16, f32, f32, f32, s32);
 
 s32 mapChunkCheckActorCollision(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     MapNode *node;
@@ -855,7 +855,7 @@ s32 mapChunkCheckActorCollision(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4
                 if (node != NULL) {
                     do {
                         if (node->unk24 == 1) {
-                            result |= func_80668E9C(arg0, node->unk1E, arg1, arg2, arg3, arg4);
+                            result |= collisionTestDynamicActorFloor(arg0, node->unk1E, arg1, arg2, arg3, arg4);
                             result &= 0xFF;
                         }
                         node = node->unk14;

@@ -198,7 +198,7 @@ s32 textTableGetString(s32, s32, s32);
 s32 textGetStringWidth(s32, s32);
 s32 textGetFontHeight(s32);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, s32, s32);
-void func_806F0C18(void *, s16 *);
+void playerKongStopSoundByState(void *, s16 *);
 void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void controllerApplyMotionWindow(void *, void *, f32);
 extern f32 D_8002D90C;
@@ -1486,7 +1486,7 @@ void bonusLightFlashSpawnTargets(void *ownerActor) {
             gSpawnedActor->flags |= 0x1000;
             gSpawnedActor->yaw = 0x800;
             if (i != 6) {
-                func_806F0C18(gSpawnedActor, actorProp);
+                playerKongStopSoundByState(gSpawnedActor, actorProp);
                 actorScriptStart(gSpawnedActor, D_8002D8D4[i - 1]);
             }
             scale = (i != 6) ? 0.25f : 0.04f;

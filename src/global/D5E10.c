@@ -658,7 +658,7 @@ void playerInputUpdateByMapDirect(void) {
 }
 
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void func_806F4D70(u8, f32, f32, f32, f32);
+void gridSetNodeBounds(u8, f32, f32, f32, f32);
 
 void playerInputUpdateNode3(void) {
     f32 sp2C;
@@ -668,7 +668,7 @@ void playerInputUpdateNode3(void) {
     actorRegisterSnapToBoneCallback();
     playerInputUpdateByMapDirect();
     actorGetNodePos(gCurrentActor, 3, &sp2C, &sp28, &sp24);
-    func_806F4D70(gCurrentPlayerIndex, sp2C, sp28, sp24, 25.0f);
+    gridSetNodeBounds(gCurrentPlayerIndex, sp2C, sp28, sp24, 25.0f);
 }
 
 void playerInputUpdateNode2(void) {
@@ -679,7 +679,7 @@ void playerInputUpdateNode2(void) {
     actorRegisterSnapToBoneCallback();
     playerInputUpdateByMapDirect();
     actorGetNodePos(gCurrentActor, 2, &sp2C, &sp28, &sp24);
-    func_806F4D70(gCurrentPlayerIndex, sp2C, sp28, sp24, 25.0f);
+    gridSetNodeBounds(gCurrentPlayerIndex, sp2C, sp28, sp24, 25.0f);
 }
 
 void actorSyncTransformFromParent();
@@ -5306,7 +5306,7 @@ extern s16 D_80753DA8[];
 extern s16 D_80753DB8[];
 u8 actorSetTargetAngleAndCheck(Actor *, s16);
 s32 mathAngleArcMidpoint(s16, s16);
-s32 func_80666AEC(void);
+s32 collisionGetHitFlags(void);
 void collisionGetCoords(void *, s16 *);
 void actorStepPhysics(Actor *, s16, s16);
 void actorApplyVelocity(Actor *);
@@ -5382,7 +5382,7 @@ void playerStateBounceRecover(void) {
         LD5C_A->unkC0 = 0.0f;
         LD5C_A->unkB8 = LD5C_P->unk4;
         if (playerProbeLedgeAhead(gCurrentActor, &sp64, 1, 15.0f) != 0) {
-            if (LD5C_A->unk80 <= sp64 && sp64 - sp50 - LD5C_A->unk80 < 10.0f && func_80666AEC() != 0) {
+            if (LD5C_A->unk80 <= sp64 && sp64 - sp50 - LD5C_A->unk80 < 10.0f && collisionGetHitFlags() != 0) {
                 LD5C_A->unk80 = sp64 - sp50;
                 sp49 = 1;
             }

@@ -1217,7 +1217,7 @@ void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 extern s16 D_80753E64[];
 s32 func_80714608(s32);
 s32 actorCountOwnedByClass(void *, s32, s32);
-void func_806F0C18(void *);
+void playerKongStopSoundByState(void *);
 void playerResumeLocomotion(Actor *);
 void slotQueueAddValue(s32, s32, s32);
 void effectSetDepth(s32);
@@ -1381,7 +1381,7 @@ u8 arg1;
                     projectileSpawnNodeEntry(spawnId, (s16)flags, scale, gActivePlayerActor->yaw, D_80753E2C[gCurrentCharacterIndex], 0.0f, gActivePlayerActor);
                 }
                 if ((func_80714608(0) != 0) && (slotQueueGetValue((u8)sel, gCurrentPlayerIndex) == 0)) {
-                    func_806F0C18(gCurrentActor);
+                    playerKongStopSoundByState(gCurrentActor);
                     playerResumeLocomotion(gCurrentActor);
                 }
                 playerInputToggleActiveState(gCurrentActor);
@@ -4607,7 +4607,7 @@ void func_806EAAA0(void) {
 }
 
 void playerSetTerminalVelocity5B0(void);
-void func_806F0D68(void *);
+void playerKongPlaySoundByState(void *);
 s16 func_8062773C(void *);
 
 void func_806EAB44(arg0, arg1)
@@ -4642,9 +4642,9 @@ u8 arg1;
         }
     }
     if (state->unk8C) {
-        func_806F0D68(arg0);
+        playerKongPlaySoundByState(arg0);
     } else {
-        func_806F0C18(arg0);
+        playerKongStopSoundByState(arg0);
     }
     arg0->unkB8 = 0.0f;
     arg0->unkE6 = func_8062773C(state->unk104);

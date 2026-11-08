@@ -3657,7 +3657,7 @@ void texAnimUpdateNodes(ModelSegmentData *arg0) {
     }
 }
 
-void func_8066B0DC(void);
+void collisionResolveWallContact(void);
 
 void texAnimFindNodeFrame(ModelSegmentOwner *arg0, s32 arg1, s32 *arg2, s32 *arg3, u8 *arg4, s16 *arg5) {
     ModelSegmentNode *node;
@@ -3714,7 +3714,7 @@ void texAnimNodeUpdateBuffers(ModelSegmentNode *arg0, s32 *arg1, s32 *arg2, u8 *
                     assetFreeBuffer((void *)temp_a3, 0xFCB, 7);
                 }
                 if (arg0->unkD0 != 0) {
-                    func_8066B0DC();
+                    collisionResolveWallContact();
                 }
                 arg0->unk3C = (s32)assetLoad(7, arg0->unk5C[sp30], 0, 0);
                 temp_a0 = arg0->unk40;
@@ -3722,7 +3722,7 @@ void texAnimNodeUpdateBuffers(ModelSegmentNode *arg0, s32 *arg1, s32 *arg2, u8 *
                     assetFreeBuffer((void *)temp_a0, 0xFCE, 7);
                 }
                 if (arg0->unkD0 != 0) {
-                    func_8066B0DC();
+                    collisionResolveWallContact();
                 }
                 arg0->unk40 = (s32)assetLoad(7, arg0->unk5C[sp2C], 0, 0);
             } else {
@@ -3732,7 +3732,7 @@ void texAnimNodeUpdateBuffers(ModelSegmentNode *arg0, s32 *arg1, s32 *arg2, u8 *
                 temp_a0 = arg0->unk40;
                 arg0->unk3C = temp_a0;
                 if (arg0->unkD0 != 0) {
-                    func_8066B0DC();
+                    collisionResolveWallContact();
                 }
                 arg0->unk40 = (s32)assetLoad(7, arg0->unk5C[sp2C], 0, 0);
             }
@@ -3741,7 +3741,7 @@ void texAnimNodeUpdateBuffers(ModelSegmentNode *arg0, s32 *arg1, s32 *arg2, u8 *
                 assetFreeBuffer((void *)temp_a3, 0xFDF, 7);
             }
             if (arg0->unkD0 != 0) {
-                func_8066B0DC();
+                collisionResolveWallContact();
             }
             arg0->unk3C = (s32)assetLoad(7, arg0->unk5C[sp30], 0, 0);
         }

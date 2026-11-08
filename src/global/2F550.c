@@ -487,7 +487,7 @@ void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
 extern MapBspNode *D_807F5FF4;
 
 u8 func_8062BDB0(void *, MapBspNode *, MapVisNode *, f32, f32, f32, s32);
-s32 func_80668E9C(void *, s16, f32, f32, f32, s32);
+s32 collisionTestDynamicActorFloor(void *, s16, f32, f32, f32, s32);
 
 u8 func_8062BCC8(void *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     u8 result;
@@ -497,7 +497,7 @@ u8 func_8062BCC8(void *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     item = D_807F5FF4;
     while (item != NULL) {
         if (item->unk24 == 1) {
-            result |= func_80668E9C(arg0, item->unk1E, arg1, arg2, arg3, arg4);
+            result |= collisionTestDynamicActorFloor(arg0, item->unk1E, arg1, arg2, arg3, arg4);
         }
         item = item->unk14;
     }
@@ -519,7 +519,7 @@ u8 func_8062BDB0(void *arg0, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 a
             item = arg2->unk4;
             while (item != NULL) {
                 if (item->unk24 == 1) {
-                    result |= func_80668E9C(arg0, item->unk1E, arg3, arg4, arg5, arg6);
+                    result |= collisionTestDynamicActorFloor(arg0, item->unk1E, arg3, arg4, arg5, arg6);
                 }
                 item = item->unk14;
             }

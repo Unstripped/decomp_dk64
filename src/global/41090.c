@@ -48,7 +48,7 @@ void mapSurfaceEffectsUpdate(void) {
     }
 }
 
-void func_8063C4A8(void) {
+void envTextureInitWater(void) {
     D_807F6170 = 255.0f;
     D_807F6174 = 255.0f;
 }
@@ -79,7 +79,7 @@ Gfx *func_8063C4C4(Gfx *g) {
     return g;
 }
 
-void func_8063C6D8(void) {
+void envTextureUpdateWaterScroll(void) {
     D_807F6170 -= 1.0;
     if (D_807F6170 < 0.0) {
         D_807F6170 = 255.0f;
@@ -90,7 +90,7 @@ void func_8063C6D8(void) {
     }
 }
 
-void func_8063C784(void) {
+void envTextureInitAsset565(void) {
     D_807F6178 = 255.0f;
     D_807F617C = assetLoad(0x19, 0x565, 1, 0);
 }
@@ -136,7 +136,7 @@ Gfx *func_8063C7C4(Gfx *g) {
     return g;
 }
 
-void func_8063CA7C(void) {
+void envTextureUpdateScroll78(void) {
     D_807F6178 -= 1.0;
     if (D_807F6178 < 0.0) {
         D_807F6178 = 255.0f;
@@ -148,7 +148,7 @@ extern f32 D_807F6184;
 extern void *D_807F6188;
 extern void *D_807F618C;
 
-void func_8063CADC(void) {
+void envTextureInitAsset3B7(void) {
     D_807F6180 = 255.0f;
     D_807F6184 = 255.0f;
     D_807F6188 = assetLoad(7, 0x3B7, 0, 0);
@@ -206,7 +206,7 @@ Gfx *func_8063CB40(Gfx *g) {
     return g;
 }
 
-void func_8063CE64(void) {
+void envTextureUpdateScroll80(void) {
     D_807F6180 -= 1.234;
     if (D_807F6180 < 0.0) {
         D_807F6180 = 255.0f;
@@ -219,7 +219,7 @@ void func_8063CE64(void) {
 
 extern void *D_807F6190;
 
-void func_8063CF0C(void) {
+void envTextureInitAsset3B9(void) {
     D_807F6190 = assetLoad(7, 0x3E0, 1, 0);
 }
 
@@ -255,7 +255,7 @@ Gfx *func_8063CF3C(Gfx *g) {
     return g;
 }
 
-void func_8063D1D8(void) {
+void envTextureUpdateScroll8C(void) {
     D_80747E00 -= 5.0;
     if (D_80747E00 < 0.0) {
         D_80747E00 = 255.0f;
@@ -274,7 +274,7 @@ typedef struct {
 extern AssetRef D_80747E0C[11];
 extern u8 D_807F6194;
 
-void func_8063D288(void) {
+void envTextureInitAsset3BB(void) {
     s32 i;
 
     D_807F6194 = 0;
@@ -305,7 +305,7 @@ Gfx *func_8063D2E4(Gfx *g) {
     return g;
 }
 
-void func_8063D468(void) {
+void envTextureUpdateScroll98(void) {
     D_807F6194++;
     if (D_807F6194 == 11) {
         D_807F6194 = 0;
@@ -314,7 +314,7 @@ void func_8063D468(void) {
 
 extern f32 D_807F6198;
 
-void func_8063D494(void) {
+void envTextureInitAsset3BC(void) {
     D_807F6198 = 0.0f;
 }
 
@@ -332,7 +332,7 @@ Gfx *func_8063D4A4(Gfx *g) {
     return g;
 }
 
-void func_8063D5AC(void) {
+void envTextureUpdateScrollA0(void) {
     D_807F6198 -= 0.865;
     if (D_807F6198 < 0.0) {
         D_807F6198 = 255.0f;
@@ -342,7 +342,7 @@ void func_8063D5AC(void) {
 extern void *D_807F619C;
 extern f32 D_807F61A0;
 
-void func_8063D608(void) {
+void envTextureInitAsset3BD(void) {
     D_807F619C = assetLoad(0x19, 0x1765, 1, 0);
 }
 
@@ -380,7 +380,7 @@ Gfx *func_8063D638(Gfx *g) {
     return g;
 }
 
-void func_8063D854(void) {
+void envTextureUpdateScrollAC(void) {
     switch (gCurrentMap) {
         case 0xBB:
             D_807F61A0 -= 2.0;

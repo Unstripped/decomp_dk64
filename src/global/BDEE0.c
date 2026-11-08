@@ -28,7 +28,7 @@ typedef struct BDEE0Sub4 {
     /* 0x64 */ u16 unk64;
 } BDEE0Sub4;
 
-// Actor view whose unk178 is a s16 array (func_806B91E0, func_806BA130, func_806BA240).
+// Actor view whose unk178 is a s16 array (behaviourArmadilloPatrol, behaviourArmadilloInitRollState, behaviourArmadilloAimAndShoot).
 typedef struct BDEE0ActorAlt {
     /* 0x000 */ u8 pad0[4];
     /* 0x004 */ BDEE0Sub4 *unk4;
@@ -104,7 +104,7 @@ void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxSpawnTableNodes(void *);
 void sfxStopSlotSound(Actor *, s32);
 
-void func_806B91E0(void) {
+void behaviourArmadilloPatrol(void) {
     u16 animFlags = 0;
     s16 *heightTarget = BDEE0AA->unk178;
 
@@ -297,7 +297,7 @@ void func_806B91E0(void) {
 }
 
 
-void func_806B9CB0(void) {
+void behaviourArmadilloUpdateMatrix(void) {
     behaviourFrameBegin();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -380,7 +380,7 @@ s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 
 }
 
 
-void func_806BA130(void) {
+void behaviourArmadilloInitRollState(void) {
     gCurrentActor->collisionFlags = 2;
     gCurrentActor->state = 0x23;
     gCurrentActor->unk155[0] = 0;
@@ -399,7 +399,7 @@ typedef struct BDEE0DC924 {
 } BDEE0DC924;
 
 extern BDEE0DC924 *gPlayerSlots;
-s32 func_806BA240(u8 action, s16 animId);
+s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId);
 
 typedef struct BDEE0DCA0Tgt {
     /* 0x00 */ u8 pad0[0x1C];
@@ -415,7 +415,7 @@ void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 s32 playerStateQueueCallback(s32, void *, s32);
 s32 actorIsTargetWithinAngleDeg(void *, void *, s32);
 
-s32 func_806BA240(u8 action, s16 animId) {
+s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
     s16 *p;
     Actor *tgt;
     f32 nodeX;
@@ -438,7 +438,7 @@ s32 func_806BA240(u8 action, s16 animId) {
         }
     }
     if (gCurrentActor->state == 0x15 && (tgt == NULL || tgt->state != 0x23)) {
-        func_806BA130();
+        behaviourArmadilloInitRollState();
     }
     if (gCurrentActor->state == 0x15) {
         node = gBehaviourExtraState->unkA;
@@ -516,7 +516,7 @@ s32 func_806BA240(u8 action, s16 animId) {
 
 void behaviourUpdateContactAndState(s32);
 
-void func_806BA76C(f32 speedMultiplier) {
+void behaviourArmadilloMoveTowardTarget(f32 speedMultiplier) {
     s16 *p;
     f32 x;
     f32 z;
@@ -567,7 +567,7 @@ void func_806BA76C(f32 speedMultiplier) {
 }
 
 
-void func_806BA8C8(void) {
+void behaviourArmadilloStepPatrol(void) {
     u8 arg = gCurrentActor->state;
     s32 sel = arg;
 
@@ -590,7 +590,7 @@ typedef struct BDEE0Sub178 {
     /* 0x4 */ u16 unk4;
 } BDEE0Sub178;
 
-// Actor view whose unk178 is a BDEE0Sub178 (func_806BA93C, func_806BB874).
+// Actor view whose unk178 is a BDEE0Sub178 (func_806BA93C, behaviourFairyWanderUpdate).
 typedef struct BDEE0Actor {
     /* 0x000 */ u8 pad0[0xC];
     /* 0x00C */ f32 unkC[4][4];
@@ -605,8 +605,8 @@ typedef struct BDEE0Actor {
 } BDEE0Actor;
 #define BDEE0A ((BDEE0Actor *)gCurrentActor)
 
-void func_806BA76C(f32);
-void func_806BA8C8(void);
+void behaviourArmadilloMoveTowardTarget(f32);
+void behaviourArmadilloStepPatrol(void);
 f32 cosApprox(f32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
@@ -628,7 +628,7 @@ u8 pivotZ;
     s16 a;
 
     s1 = BDEE0A->unk178;
-    if (gBehaviourExtraState->unkA && func_806BA240(0x64, 0)) {
+    if (gBehaviourExtraState->unkA && behaviourArmadilloAimAndShoot(0x64, 0)) {
         return;
     }
     {
@@ -638,7 +638,7 @@ u8 pivotZ;
             gBehaviourWorkState->timer = 0xA6;
             s1->unk4 = 0x32;
         }
-        func_806BA76C(gCurrentActor->speedXZ * 5.0f);
+        behaviourArmadilloMoveTowardTarget(gCurrentActor->speedXZ * 5.0f);
         switch (gCurrentActor->state) {
         case 4:
             s1->unk0 = s1->unk0 + (-s1->unk0) * 0.3;
@@ -674,7 +674,7 @@ u8 pivotZ;
             gCurrentActor->z += gCurrentActor->sub4->scaleY * stepDist * mathCosF(gCurrentActor->yaw + a);
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x1B1, 0xFF, 0x7F, 0xA, 0x3C, 0.3f, 0);
         }
-        func_806BA8C8();
+        behaviourArmadilloStepPatrol();
         if (s1->unk2) {
             sgn = -1;
         } else {
@@ -727,7 +727,7 @@ u8 pivotZ;
     }
 }
 
-void func_806BB32C(void) {
+void behaviourFairyUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->tintR = 0xFA;
@@ -750,7 +750,7 @@ void playerSetLargeModeScale(f32);
 void actorSetUniformScale(Actor *, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
-void func_806BB400(void) {
+void behaviourFairyInitPlayerScale(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         playerSetLargeModeScale(0.525f);
@@ -849,7 +849,7 @@ s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, s32 extraParam)
 
 void sfxAllocateChannel(s32, f32);
 
-void func_806BB81C(void) {
+void behaviourFairyPlaySound(void) {
     sfxPlayActorSound(gCurrentActor, 0x11F, 0, 0, 0, 0xFF, 1.0f, 0);
     sfxAllocateChannel(0x3B, 1.0f);
 }
@@ -868,7 +868,7 @@ extern s32 gGlobalCutsceneFlags;
 extern s32 gCamActor;
 extern BDEE0Tbl D_80750638;
 
-void func_806BB81C();
+void behaviourFairyPlaySound();
 s32 spawnNodeHasActor(s32);
 void csSendActorMessagePayload(s32, s32);
 f32 mathCosF(s16);
@@ -883,7 +883,7 @@ void csModelStateSetFirstByte(s32, s32);
 void effectSpawnChildAtNode(s32, s16, s16);
 void sfxStopChannel();
 
-void func_806BB874(void) {
+void behaviourFairyWanderUpdate(void) {
     s16 i;
     s16 x;
     s16 y;
@@ -929,7 +929,7 @@ void func_806BB874(void) {
             gGlobalCutsceneFlags |= 1;
             sfxAllocateChannel(0x68, 1.0f);
             gBehaviourWorkState->timer = 0x32;
-            func_806BB81C();
+            behaviourFairyPlaySound();
             gCurrentActor->state++;
             break;
         }
@@ -946,7 +946,7 @@ void func_806BB874(void) {
         }
         break;
     case 4:
-        func_806BB81C();
+        behaviourFairyPlaySound();
         actorSpawnJitteredChild(0x28, x, y, 0);
         if (actorSpawnJitteredChild(0x29, (s16)(x + 0x28), (s16)(y + 0x50), 0) != 0) {
             gCurrentActor->state++;
@@ -959,7 +959,7 @@ void func_806BB874(void) {
         }
         break;
     case 6:
-        func_806BB81C();
+        behaviourFairyPlaySound();
         actorSpawnJitteredChild(0x2B, x, y, 0);
         if (actorSpawnJitteredChild(0x2C, (s16)(x + 0x28), (s16)(y + 0x50), 0) != 0) {
             gCurrentActor->state++;
@@ -983,7 +983,7 @@ void func_806BB874(void) {
             tbl = D_80750638;
             t = 0xA - BDEE0A->unk155;
             if (BDEE0A->unk155 == 0xA) {
-                func_806BB81C();
+                behaviourFairyPlaySound();
             }
             if (BDEE0A->unk155) {
                 actorSpawnJitteredChild((u8)(tbl.b[BDEE0A->unk155--] + 0x22), (s16)(t * 8 + 0x64), (s16)(t * 20 + 0xFA), D_807FDCA0->unk1C);
@@ -1038,25 +1038,25 @@ void func_806BB874(void) {
 
 void actorPatrolFollowerUpdate();
 
-void func_806BC080(void) {
-    func_806BB32C();
-    if (gBehaviourExtraState->unkA == 0 || func_806BA240(0, 0x446) == 0) {
+void behaviourFairyIdle1(void) {
+    behaviourFairyUpdate();
+    if (gBehaviourExtraState->unkA == 0 || behaviourArmadilloAimAndShoot(0, 0x446) == 0) {
         actorPatrolFollowerUpdate(0x2ED, 1, 0);
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
 }
 
-void func_806BC0E4(void) {
-    func_806BB32C();
-    if (gBehaviourExtraState->unkA == 0 || func_806BA240(0x32, 0x44E) == 0) {
+void behaviourFairyIdle2(void) {
+    behaviourFairyUpdate();
+    if (gBehaviourExtraState->unkA == 0 || behaviourArmadilloAimAndShoot(0x32, 0x44E) == 0) {
         actorPatrolFollowerUpdate(0x2EC, 1, 0);
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
 }
 
-void func_806BC148(void) {
-    func_806BB32C();
-    if (gBehaviourExtraState->unkA == 0 || func_806BA240(0x14, 0x44A) == 0) {
+void behaviourFairyIdle3(void) {
+    behaviourFairyUpdate();
+    if (gBehaviourExtraState->unkA == 0 || behaviourArmadilloAimAndShoot(0x14, 0x44A) == 0) {
         actorPatrolFollowerUpdate(0x2EE, 1, 0);
         actorUpdateModelMatrix(gCurrentActor, 0);
     }
@@ -1064,7 +1064,7 @@ void func_806BC148(void) {
 
 void func_806BA93C();
 
-void func_806BC1AC(void) {
-    func_806BB32C();
+void behaviourFairyIdle4(void) {
+    behaviourFairyUpdate();
     func_806BA93C(0x24, 0x14, 0x1E);
 }

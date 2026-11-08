@@ -123,7 +123,7 @@ s32 mapRequestTransition(s32, s32);
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 void func_8068A764(void *, u8);
 void playerSetKongByActorType(s16);
-void func_806F09F0(void *, u16);
+void playerKongStopAudioChannels(void *, u16);
 void actorAppendCallbackPayloadAAB8(void *, void *, s32, f32, s32);
 void sfxPlayOnFreeSlot();
 void camPausePath(void);
@@ -217,7 +217,7 @@ void bossSpawnerUpdate(void) {
             D_80036DC0++;
             cutsceneId = D_80035B4C[cutsceneId];
             playerSetKongByActorType(cutsceneId);
-            func_806F09F0(gPrimaryPlayerActor, cutsceneId);
+            playerKongStopAudioChannels(gPrimaryPlayerActor, cutsceneId);
             SPAWNER_PLAYER->unk154 = 0xC;
             SPAWNER_PLAYER->unk155 = 0;
             actorAppendCallbackPayloadAAB8(gCurrentActor, gPrimaryPlayerActor, 0, 180.0f, 0x46);
@@ -244,7 +244,7 @@ void bossSpawnerUpdate(void) {
         if (s->unkE < 0) {
             SPAWNER_ACTOR->unk154 = 0;
             playerSetKongByActorType(4);
-            func_806F09F0(gPrimaryPlayerActor, 4);
+            playerKongStopAudioChannels(gPrimaryPlayerActor, 4);
             s->unk13 = 1;
         }
         break;

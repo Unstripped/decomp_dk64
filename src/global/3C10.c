@@ -126,7 +126,7 @@ void modelRecordFindAndSet(void *, void *, s16, s16);
 s32 actorListFindClosestTargetIndex(s32, s32, u8, f32, f32, f32);
 void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 u8 playerGetResolvedKongId(s32);
-void func_806F5378(void);
+void gridFreeAllActiveNodes(void);
 void slotQueueUpdate(s32, s32, s32);
 s32 menuIsTransitionActive(void);
 void menuCheckCutsceneTransition(s32 *, s32 *);
@@ -300,7 +300,7 @@ void mapExecuteVoidTransition(void) {
 }
 
 void mapRequestTransition(s32 map, s32 exitIndex) {
-    func_806F5378();
+    gridFreeAllActiveNodes();
     if ((gGameMode == 6) || (menuIsTransitionActive() == 0)) {
         menuCheckCutsceneTransition(&map, &exitIndex);
         if (map != -1) {
@@ -327,7 +327,7 @@ void mapRequestTransition(s32 map, s32 exitIndex) {
 }
 
 void mapRequestTransitionFast(s32 map, s32 exitIndex) {
-    func_806F5378();
+    gridFreeAllActiveNodes();
     gGlobalPauseFlags |= 0x100;
     gInitialMap = map;
     gInitialExit = exitIndex;
@@ -469,7 +469,7 @@ extern s8 D_80750ACC;
 extern s32 gMapChunkCount;
 extern s32 D_807FD56C;
 extern s16 D_807FD570;
-void func_806F5378();
+void gridFreeAllActiveNodes();
 void heapRegisterSurvivor(u8 **);
 void modelSlotSerializeAll(u8 **, s32 *);
 void modelSlotsPackRecords(u8 **, s32 *);
@@ -513,7 +513,7 @@ void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
             faultSetMessage(0xA, 0, 0, 0);
         }
     }
-    func_806F5378();
+    gridFreeAllActiveNodes();
     modelSlotSerializeAll((u8 **)&D_8076A160[i].unk18, &serializedSize);
     heapRegisterSurvivor((u8 **)&D_8076A160[i].unk18);
     modelSlotsPackRecords((u8 **)&D_8076A160[i].unk20, (s32 *)&D_8076A160[i].unk1C);

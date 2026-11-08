@@ -14,7 +14,7 @@ extern u8 gPlayerCharacterId[];
 
 void func_8068A764(Actor *, u8);
 void func_8068A784(Actor *, u8);
-void func_806F09F0(Actor *arg0, u16 arg1) {
+void playerKongStopAudioChannels(Actor *arg0, u16 arg1) {
     switch (arg1) {
     case 0xC5:
     case 3:
@@ -80,7 +80,7 @@ typedef struct F5N2ActorExtra {
 
 s32 controllerLookupStateByHash(void);
 
-void func_806F0C18(Actor *arg0) {
+void playerKongStopSoundByState(Actor *arg0) {
     s32 pad;
     F5N2ActorExtra *extra;
 
@@ -135,7 +135,7 @@ s32 playerGetResolvedKongId(u8);
 s32 func_80714608(s32);
 void func_806F5A48(u8, s32, Actor *, s32);
 
-void func_806F0D68(Actor *arg0) {
+void playerKongPlaySoundByState(Actor *arg0) {
     s32 pad;
     F5N2ActorExtra *extra;
 
@@ -211,7 +211,7 @@ typedef struct F5N2ActorState {
 void controllerAnimFreeStateAsset(void);
 void actorSetInteractionTimer(Actor *);
 
-void func_806F1048(Actor *arg0) {
+void playerKongClearFlagsByActorType(Actor *arg0) {
     F5N2ActorState *state = arg0->customState;
 
     switch (arg0->actorType) {
@@ -246,16 +246,16 @@ typedef struct F5N3ActorSub10E8 {
     f32 unk38;
 } F5N3ActorSub10E8;
 
-void func_806F0C18(Actor *);
+void playerKongStopSoundByState(Actor *);
 s32 actorSpawn(s32, s32);
 void actorCopyPoseAndScale(Actor *, Actor *, f32);
 void controllerAnimLoadStateAsset(Actor *, s32);
 
-void func_806F10E8(Actor *arg0) {
+void playerKongSpawnTransformationSmoke(Actor *arg0) {
     switch (((F5N3ActorState *) arg0)->state) {
         case 2:
         case 0xC4:
-            func_806F0C18(arg0);
+            playerKongStopSoundByState(arg0);
             actorSpawn(0xEF, 0xA6);
             actorCopyPoseAndScale(gSpawnedActor, arg0, ((F5N3ActorSub10E8 *) arg0->sub4)->unk38 * 1.25);
             ((F5N3ActorState *) gSpawnedActor)->unkE4 = ((F5N3ActorState *) arg0)->unkE4;
@@ -264,22 +264,22 @@ void func_806F10E8(Actor *arg0) {
             break;
         case 3:
         case 0xC5:
-            func_806F0C18(arg0);
+            playerKongStopSoundByState(arg0);
             controllerAnimLoadStateAsset(arg0, 2);
             break;
         case 4:
         case 0xC6:
-            func_806F0C18(arg0);
+            playerKongStopSoundByState(arg0);
             controllerAnimLoadStateAsset(arg0, 7);
             break;
         case 5:
         case 0xC7:
-            func_806F0C18(arg0);
+            playerKongStopSoundByState(arg0);
             controllerAnimLoadStateAsset(arg0, 0xA);
             break;
         case 6:
         case 0xC8:
-            func_806F0C18(arg0);
+            playerKongStopSoundByState(arg0);
             controllerAnimLoadStateAsset(arg0, 0xD);
             break;
     }
@@ -413,12 +413,12 @@ typedef struct F5N3Actor14BC {
     f32 unkC8;
 } F5N3Actor14BC;
 
-s32 func_806F1668(f32, f32, f32, f32);
+s32 mathCalculateRatioClamped(f32, f32, f32, f32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
 
 #define F5N3_A ((F5N3Actor14BC *) arg0)
 
-void func_806F14BC(Actor *arg0) {
+void playerKongCalculateHealthScale(Actor *arg0) {
     f32 limit;
     u8 amount;
     f64 den;
@@ -441,7 +441,7 @@ void func_806F14BC(Actor *arg0) {
     } else {
         value = F5N3_A->unkB4;
     }
-    count = func_806F1668(value * 40.0f, F5N3_A->unkC0, F5N3_A->unkC8, F5N3_A->unkC4);
+    count = mathCalculateRatioClamped(value * 40.0f, F5N3_A->unkC0, F5N3_A->unkC8, F5N3_A->unkC4);
     if (count == 0) {
         F5N3_A->unk4->unk88 = 1;
         return;
@@ -460,7 +460,7 @@ void func_806F14BC(Actor *arg0) {
 
 extern f32 sqrtf(f32);
 
-s32 func_806F1668(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
+s32 mathCalculateRatioClamped(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     f32 quot;
     f32 val;
     f32 res;
@@ -498,7 +498,7 @@ typedef struct F5N3TableEntry1768 {
 
 extern u16 D_80752F20[];
 
-void func_806F1768(s32 arg0, F5N3TableEntry1768 *arg1, s32 *arg2) {
+void playerWeaponCalculateTrajectory7(s32 arg0, F5N3TableEntry1768 *arg1, s32 *arg2) {
     s32 temp_v1;
     u16 temp_v0;
     temp_v0 = 7U;
@@ -516,7 +516,7 @@ void func_806F1768(s32 arg0, F5N3TableEntry1768 *arg1, s32 *arg2) {
 
 extern u16 D_80752F30[];
 
-void func_806F1858(s32 arg0, F5N3TableEntry1768 *arg1, s32 *arg2) {
+void playerWeaponCalculateTrajectory4(s32 arg0, F5N3TableEntry1768 *arg1, s32 *arg2) {
     s32 temp_v1;
     u16 temp_v0;
     temp_v0 = 4U;
@@ -568,7 +568,7 @@ extern u16 D_80752F38[];
 extern u16 D_80752F40[];
 extern f32 mathCosF(s16);
 
-void func_806F18F4(s32 arg0, F5BSlot *arg1, s32 *arg2) {
+void playerWeaponCalculateTrajectory22(s32 arg0, F5BSlot *arg1, s32 *arg2) {
     s32 tableIndex;
     u16 angle;
     s32 zero;
@@ -589,7 +589,7 @@ void func_806F18F4(s32 arg0, F5BSlot *arg1, s32 *arg2) {
     }
 }
 
-void func_806F1990(s32 arg0, F5BSlot *arg1, s32 *arg2) {
+void playerWeaponCalculateTrajectory23(s32 arg0, F5BSlot *arg1, s32 *arg2) {
     u16 temp_v0;
 
     temp_v0 = D_80752F40[F5B_PLAYER_STATE->unk8E];
@@ -610,7 +610,7 @@ typedef struct {
 f32 cosApprox(f32);
 f32 sinApprox(f32);
 
-void func_806F1A18(f32 arg0, f32 arg1, F5N1Spring *arg2, f32 *arg3) {
+void playerWeaponCalculateTrajectory24(f32 arg0, f32 arg1, F5N1Spring *arg2, f32 *arg3) {
     s32 pad[1];
     f32 sp20;
 
@@ -622,7 +622,7 @@ void func_806F1A18(f32 arg0, f32 arg1, F5N1Spring *arg2, f32 *arg3) {
     *arg3 += arg2->unk4 + arg2->unk0;
 }
 
-f32 func_806F1AE0(F5BActor *arg0, F5BAccel *arg1, f32 arg2) {
+f32 playerWeaponCalculateTrajectory25(F5BActor *arg0, F5BAccel *arg1, f32 arg2) {
     f32 temp_fa0;
     f32 temp_fv1;
 
@@ -639,7 +639,7 @@ typedef struct {
     s32 unk18;
 } F5N1Predicate;
 
-s32 func_806F1B58(F5BActor *arg0, F5N1Predicate *arg1, s32 arg2) {
+s32 playerWeaponCalculateTrajectory26(F5BActor *arg0, F5N1Predicate *arg1, s32 arg2) {
     s32 ret = (arg0->unk60 & 0x100) != 0;
 
     if (ret != 0) {
@@ -701,7 +701,7 @@ typedef struct {
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 f32 mathAtan2(f32, f32);
 
-void func_806F1C04(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
+void playerWeaponAimTarget(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     F56AState *state = ((F56AActor *) arg0)->unk178;
     F56APair *pair;
     s32 pad5[1];
@@ -721,7 +721,7 @@ void func_806F1C04(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     s32 pad4[2];
 
     pair = state->unk1C;
-    active = func_806F1B58((F5BActor *) arg0, (F5N1Predicate *) state, 2);
+    active = playerWeaponCalculateTrajectory26((F5BActor *) arg0, (F5N1Predicate *) state, 2);
     sp80 = 0.0f;
     sp7C = 0.0f;
     index = *arg2;
@@ -740,12 +740,12 @@ void func_806F1C04(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
         state->unk10 = state->unk10 + ((-128.0f - state->unk10) * 0.3);
         value = (s8) (s32) state->unk10;
         accel1 = 0.4f * ret;
-        accel0 = func_806F1AE0((F5BActor *) arg0, (F5BAccel *) state, 0.02f);
+        accel0 = playerWeaponCalculateTrajectory25((F5BActor *) arg0, (F5BAccel *) state, 0.02f);
     }
     for (i = 0; i != 4; i++) {
         if (active != 0) {
-            func_806F1A18(accel0, 0.06f, &pair->unk0, &sp80);
-            func_806F1A18(accel1, 0.06f, &pair->unkC, &sp7C);
+            playerWeaponCalculateTrajectory24(accel0, 0.06f, &pair->unk0, &sp80);
+            playerWeaponCalculateTrajectory24(accel1, 0.06f, &pair->unkC, &sp7C);
         }
         arg1[index].unk0 = value;
         arg1[index].unk1 = kind;
@@ -761,7 +761,7 @@ void func_806F1C04(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
 
 extern s8 D_80752CBF[];
 
-void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
+void playerWeaponSpawnProjectile(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     F56AState *state = ((F56AActor *) arg0)->unk178;
     F56APair *pair;
     F5BSlot *slot;
@@ -789,7 +789,7 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     ret = 0;
     kind = 0x16;
     cur = state;
-    active = func_806F1B58((F5BActor *) arg0, (F5N1Predicate *) state, 5);
+    active = playerWeaponCalculateTrajectory26((F5BActor *) arg0, (F5N1Predicate *) state, 5);
     value = -0x80;
     actorGetNodePos(arg0, 0xD, &pos[0][0], &pos[0][1], &pos[0][2]);
     actorGetNodePos(arg0, 0xE, &pos[1][0], &pos[1][1], &pos[1][2]);
@@ -814,7 +814,7 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
         state->unk10 = state->unk10 + ((newvel - state->unk10) * 0.3);
         value = (s8) (s32) state->unk10;
         ret = mathAngleRadDeltaTurns(&state->unk0, angle);
-        spE0 = func_806F1AE0((F5BActor *) arg0, (F5BAccel *) state, 0.02f);
+        spE0 = playerWeaponCalculateTrajectory25((F5BActor *) arg0, (F5BAccel *) state, 0.02f);
     }
     slot = arg1; slot += index; k = 0; do { // LAYOUT: one source line lets as1 schedule the loop preheader
         accel1 = 0.0f;
@@ -842,8 +842,8 @@ void func_806F1EB0(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
         i = 0;
         do {
             if (active != 0) {
-                func_806F1A18(accel1, 0.06f, &pair->unk0, &spC8);
-                func_806F1A18(accel0, 0.06f, &pair->unkC, &spC4);
+                playerWeaponCalculateTrajectory24(accel1, 0.06f, &pair->unk0, &spC8);
+                playerWeaponCalculateTrajectory24(accel0, 0.06f, &pair->unkC, &spC4);
             }
             slot->unk0 = value;
             slot->unk1 = kind;
@@ -865,7 +865,7 @@ s32 randomNonNegative(void);
 extern s8 D_80752D4E[];
 extern f32 D_80752F4C;
 
-void func_806F22A8(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
+void playerWeaponInitCrosshair(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     F56AState *state;
     F56APair *pair;
     s32 index;
@@ -901,7 +901,7 @@ void func_806F22A8(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     spA8 = 0.0003f;
     spA4 = 1.0f;
     fs1 = 0.06f;
-    active = func_806F1B58((F5BActor *) arg0, (F5N1Predicate *) state, 3);
+    active = playerWeaponCalculateTrajectory26((F5BActor *) arg0, (F5N1Predicate *) state, 3);
     value[3] = -0x80;
     actorGetNodePos(arg0, 5, &x, &y, &z);
     if (active == 0) {
@@ -928,7 +928,7 @@ void func_806F22A8(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
             spA8 = 0.0001f;
             spA4 = 0.4f;
         }
-        result = func_806F1AE0((F5BActor *) arg0, (F5BAccel *) state, 0.011f);
+        result = playerWeaponCalculateTrajectory25((F5BActor *) arg0, (F5BAccel *) state, 0.011f);
         state->unk4 = y;
         state->unk8 = fs2;
         fs3 = (-result - ((0.005f * dz) + (0.0008f * fs2))) * spA4;
@@ -944,8 +944,8 @@ void func_806F22A8(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     }
     for (i = 0; i != 11; i++) {
         if (active != 0) {
-            func_806F1A18(fs3, fs1, &pair->unk0, &spB0);
-            func_806F1A18(fs2, fs1, &pair->unkC, &spAC);
+            playerWeaponCalculateTrajectory24(fs3, fs1, &pair->unk0, &spB0);
+            playerWeaponCalculateTrajectory24(fs2, fs1, &pair->unkC, &spAC);
         }
         arg1[index].unk0 = value[3];
         arg1[index].unk1 = kind;
@@ -1006,7 +1006,7 @@ typedef struct F5N5CameraEntry {
 extern f32 mathAtan2(f32, f32);
 #define F5N5_PATH_SAMPLE ((F5N5PathSample *)gPlayerSlots + gCurrentPlayerIndex)
 
-void func_806F2754(F5N5CameraActor *arg0, F5N5CameraEntry *arg1, s32 *arg2) {
+void playerWeaponCrosshairUpdate(F5N5CameraActor *arg0, F5N5CameraEntry *arg1, s32 *arg2) {
     f32 x;
     s16 delta;
     F5N5Chain3 *chain;
@@ -1058,7 +1058,7 @@ typedef struct F5COutput {
     f32 unkC;
 } F5COutput;
 #define F5C_PS ((F5CPlayerState *)gActivePlayerState)
-void func_806F2A40(F5CPlayerActor *arg0, F5COutput *arg1, s32 *arg2) {
+void playerWeaponCrosshairRender(F5CPlayerActor *arg0, F5COutput *arg1, s32 *arg2) {
     f32 temp_fv0;
     f32 var_fa0;
     f32 var_fv1;
@@ -1110,7 +1110,7 @@ typedef struct F5CTurnEntry { s8 unk0; u8 unk1; s16 unk2; s16 unk4; s16 unk6; } 
 #define F5C_S16 ((F5CState16 *)gActivePlayerState)
 s16 mathAngleSignedDistance(s16, s16);
 extern f32 mathSinF(s16);
-void func_806F2C48(F5CTurnActor *arg0, F5CTurnEntry *arg1, s32 *arg2) {
+void playerWeaponUpdateHomingTarget(F5CTurnActor *arg0, F5CTurnEntry *arg1, s32 *arg2) {
     s32 entry_index;
     s8 v;
     u16 angle;
@@ -1167,7 +1167,7 @@ typedef struct F5CEntry {
 extern f32 mathSinF(s16);
 
 
-void func_806F2EDC(s32 arg0, F5CEntry *arg1, s32 *arg2, u8 arg3, u8 arg4, f32 arg5, f32 arg6) {
+void playerWeaponFireGun(s32 arg0, F5CEntry *arg1, s32 *arg2, u8 arg3, u8 arg4, f32 arg5, f32 arg6) {
     f32 angle;
 
     angle = mathSinF((s16)(arg5 * 2048.0f));
@@ -1190,7 +1190,7 @@ typedef struct F5N5EffectState {
 
 void effectSpawnBoneWhite(Actor *, s16, f32, f32, f32, f32, s32);
 
-void func_806F2FC0(Actor *arg0, F5N5EffectState *arg1, u16 arg2) {
+void playerWeaponReload(Actor *arg0, F5N5EffectState *arg1, u16 arg2) {
     u8 state0;
     u8 state2;
     u16 bone;
@@ -1280,11 +1280,11 @@ typedef struct {
     u16 unk21E;
 } F56CExtra;
 
-void func_806F1EB0();
-void func_806F22A8();
-void func_806F2A40();
+void playerWeaponSpawnProjectile();
+void playerWeaponInitCrosshair();
+void playerWeaponCrosshairRender();
 
-void func_806F3190(Actor *arg0, u16 arg1) {
+void playerWeaponSpawnMuzzleFlash(Actor *arg0, u16 arg1) {
     F56CExtra *sp74;
     s32 sp70;
     s32 sp6C;
@@ -1305,14 +1305,14 @@ void func_806F3190(Actor *arg0, u16 arg1) {
         sp70 = 0;
         sp6C = 0;
         if ((func_80714608(0) != 0) && ((sp74->unk21E != 0x1E) || (arg0->state == 0x34))) {
-            func_806F2A40((s32)arg0, sp60, &sp6C);
+            playerWeaponCrosshairRender((s32)arg0, sp60, &sp6C);
         }
         switch (arg1) {
         case 0:
-            func_806F2C48((F5CTurnActor *)arg0, (F5CTurnEntry *)sp64, &sp70);
-            func_806F1C04(arg0, (F5BSlot *)sp64, &sp70);
+            playerWeaponUpdateHomingTarget((F5CTurnActor *)arg0, (F5CTurnEntry *)sp64, &sp70);
+            playerWeaponAimTarget(arg0, (F5BSlot *)sp64, &sp70);
             if (sp74->unk8E != 0) {
-                func_806F1858((s32)arg0, sp64, &sp70);
+                playerWeaponCalculateTrajectory4((s32)arg0, sp64, &sp70);
             }
             break;
         case 1:
@@ -1324,19 +1324,19 @@ void func_806F3190(Actor *arg0, u16 arg1) {
             case 11:
                 break;
             case 2:
-                func_806F2754((F5N5CameraActor *)arg0, (F5N5CameraEntry *)sp64, &sp70);
+                playerWeaponCrosshairUpdate((F5N5CameraActor *)arg0, (F5N5CameraEntry *)sp64, &sp70);
                 break;
             default:
             case 3:
             case 4:
             case 5:
             case 6:
-                func_806F2C48((F5CTurnActor *)arg0, (F5CTurnEntry *)sp64, &sp70);
+                playerWeaponUpdateHomingTarget((F5CTurnActor *)arg0, (F5CTurnEntry *)sp64, &sp70);
                 break;
             }
-            func_806F22A8((s32)arg0, sp64, &sp70);
+            playerWeaponInitCrosshair((s32)arg0, sp64, &sp70);
             if (sp74->unk8E != 0) {
-                func_806F1768((s32)arg0, sp64, &sp70);
+                playerWeaponCalculateTrajectory7((s32)arg0, sp64, &sp70);
             }
             break;
         case 2:
@@ -1350,7 +1350,7 @@ void func_806F3190(Actor *arg0, u16 arg1) {
                         v = t - 6.0f;
                     }
                     sp58 = (f64)v / 17.0 > 1.0 ? 1.0 : (f64)v / 17.0;
-                    func_806F2EDC((s32)arg0, sp60, &sp6C, 0xA, 0xB, sp58, (f32)(gCurrentMap == 0xCD ? 17.0 : 2.5));
+                    playerWeaponFireGun((s32)arg0, sp60, &sp6C, 0xA, 0xB, sp58, (f32)(gCurrentMap == 0xCD ? 17.0 : 2.5));
                 }
                 break;
             case 0x27: {
@@ -1361,7 +1361,7 @@ void func_806F3190(Actor *arg0, u16 arg1) {
                     v = t - 6.0f;
                 }
                 sp58 = (f64)v / 17.0 > 1.0 ? 1.0 : (f64)v / 17.0;
-                func_806F2EDC((s32)arg0, sp60, &sp6C, 5, 6, sp58, (f32)(gCurrentMap == 0xCD ? 17.0 : 2.5));
+                playerWeaponFireGun((s32)arg0, sp60, &sp6C, 5, 6, sp58, (f32)(gCurrentMap == 0xCD ? 17.0 : 2.5));
                 break;
             }
             case 0x28: {
@@ -1372,8 +1372,8 @@ void func_806F3190(Actor *arg0, u16 arg1) {
                     v = t - 7.0f;
                 }
                 sp58 = (f64)v / 14.0 > 1.0 ? 1.0 : (f64)v / 14.0;
-                func_806F2EDC((s32)arg0, sp60, &sp6C, 9, 0xB, sp58, 1.8f);
-                func_806F2EDC((s32)arg0, sp60, &sp6C, 4, 6, sp58, 1.8f);
+                playerWeaponFireGun((s32)arg0, sp60, &sp6C, 9, 0xB, sp58, 1.8f);
+                playerWeaponFireGun((s32)arg0, sp60, &sp6C, 4, 6, sp58, 1.8f);
                 break;
             }
             case 0x29: {
@@ -1384,22 +1384,22 @@ void func_806F3190(Actor *arg0, u16 arg1) {
                     v = t - 4.0f;
                 }
                 sp58 = (f64)v / 6.0 > 1.0 ? 1.0 : (f64)v / 6.0;
-                func_806F2EDC((s32)arg0, sp60, &sp6C, 9, 0xB, sp58, 1.3f);
-                func_806F2EDC((s32)arg0, sp60, &sp6C, 4, 6, sp58, 1.3f);
+                playerWeaponFireGun((s32)arg0, sp60, &sp6C, 9, 0xB, sp58, 1.3f);
+                playerWeaponFireGun((s32)arg0, sp60, &sp6C, 4, 6, sp58, 1.3f);
                 break;
             }
             }
             break;
         case 3:
-            func_806F1EB0((s32)arg0, sp64, &sp70);
+            playerWeaponSpawnProjectile((s32)arg0, sp64, &sp70);
             if (sp74->unk8E != 0) {
-                func_806F1990((s32)arg0, (F5BSlot *)sp64, &sp70);
+                playerWeaponCalculateTrajectory23((s32)arg0, (F5BSlot *)sp64, &sp70);
             }
             break;
         case 4:
         case 5:
             if (sp74->unk8E != 0) {
-                func_806F18F4((s32)arg0, (F5BSlot *)sp64, &sp70);
+                playerWeaponCalculateTrajectory22((s32)arg0, (F5BSlot *)sp64, &sp70);
             }
             break;
         case 6:
@@ -1411,7 +1411,7 @@ void func_806F3190(Actor *arg0, u16 arg1) {
         if (sp74->unk8E != 0) {
             sp74->unk8E -= 1;
             if (sp74->unk8C != 0) {
-                func_806F2FC0(arg0, (F5N5EffectState *)sp74, arg1);
+                playerWeaponReload(arg0, (F5N5EffectState *)sp74, arg1);
             }
         }
         if (sp74->unk8E == 0) {

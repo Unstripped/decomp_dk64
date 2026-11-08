@@ -1098,7 +1098,7 @@ void mpSetFlags(u8 flags) {
     D_80026F70 |= flags;
 }
 
-extern void func_806F0C18(void *);
+extern void playerKongStopSoundByState(void *);
 extern s32 func_80714608(s32);
 extern MpFlagState *gActivePlayerState;
 
@@ -1108,7 +1108,7 @@ void mpResetPlayerOnRespawn(MpActor *playerActor, MpKongState *kongState, MpScor
     playerScore->unk2F4 = 0;
     playerScore->unk2F2 = 0;
     kongState->unkD4 = 90;
-    func_806F0C18(playerActor);
+    playerKongStopSoundByState(playerActor);
     playerActor->unk60 &= ~0x20000000;
     kongState->unk247 = -1;
     kongState->unk246 = 0;

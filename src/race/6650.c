@@ -124,7 +124,7 @@ void raceUpdateEngineSoundPitch(f32);
 void actorSpawnNodeEffectFacingCamera(s32, u8);
 void slotQueueUpdate(s32, s32, s32);
 void slotQueueCancel(s32, s32);
-void func_806F4D70(u8, f32, f32, f32, f32);
+void gridSetNodeBounds(u8, f32, f32, f32, f32);
 void renderCallbacksRegister(void *, void *, s32);
 typedef struct {
     char pad[0x25];
@@ -471,7 +471,7 @@ void raceParticipantMotionUpdate(void) {
         actor = gCurrentActor;
     }
     if (racerState->unk34 > 0 && racerState->unk34 < 5) {
-        func_806F4D70(racerState->unk28, actor->unk7C, actor->unk80, actor->unk84, actor->unk4->unk34[1] / 0.15 * 40.0);
+        gridSetNodeBounds(racerState->unk28, actor->unk7C, actor->unk80, actor->unk84, actor->unk4->unk34[1] / 0.15 * 40.0);
         renderCallbacksRegister(raceParticleRenderCallback, gCurrentActor, 3);
     }
     actor = gCurrentActor;

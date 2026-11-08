@@ -221,7 +221,7 @@ extern s32 gCurrentMap;
 extern Actor *gActivePlayerActor;
 void sfxStopChannel(s32, s32);
 void slotQueueCancel(s32, s32);
-void func_806F0C18(void *);
+void playerKongStopSoundByState(void *);
 void effectSpawnActorBone(void *, s32, f32);
 s32 mathNudgeCoords(f32, f32, f32 *, f32 *);
 void matrixMakeRotationY(f32 (*)[4], f32);
@@ -290,7 +290,7 @@ void func_8068EF54(void) {
             slotQueueCancel(5, 0);
             sp78->unk240 = 0;
             if (!(sp78->unk1F4 & 4)) {
-                func_806F0C18(sp74);
+                playerKongStopSoundByState(sp74);
             }
         }
         if (sp78->unk1A2 != 0 || (camIsCutsceneActive() && gFrameCounter % 5 == 0)) {

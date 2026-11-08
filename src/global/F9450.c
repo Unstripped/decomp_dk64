@@ -15,7 +15,7 @@ extern u8 gPlayerCharacterId[];
 void gridFreeAllNodeLists(void);
 void gridBuildNodeLists(void);
 
-void func_806F4750(void) {
+void gridRebuildNodeLists(void) {
     gridFreeAllNodeLists();
     gridBuildNodeLists();
 }
@@ -247,7 +247,7 @@ void gridBuildNodeLists(void) {
     }
 }
 
-void func_806F4D70(u8 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
+void gridSetNodeBounds(u8 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     unsigned short temp_t6;
     F9N3_FloatTableEntry *temp_v0;
     f32 new_var;
@@ -292,7 +292,7 @@ void gridAppendPositionNode(u8 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
 }
 
 
-s32 func_806F4E74(s16 arg0) {
+s32 gridIsSpecialActorType(s16 arg0) {
     s16 *var_a1;
     s32 var_v0;
     s32 var_v1;
@@ -395,7 +395,7 @@ void gridMoveNode(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
 
 extern s16 D_80753EFC[];
 void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, u8);
-s32 func_806F4E74(s16);
+s32 gridIsSpecialActorType(s16);
 
 void gridAddModelNode(s16 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4, u8 arg5) {
     F9F1_Node *node;
@@ -419,7 +419,7 @@ void gridAddModelNode(s16 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4, u8 arg5) {
         node->unkA = (s16) y;
         node->unkC = (s16) z;
         node->unk0 = arg0;
-        type = func_806F4E74(arg1);
+        type = gridIsSpecialActorType(arg1);
         node->unk4 = *(s16 *) ((u8 *) D_80753EFC + type * 20);
         node->unk2 = arg1;
         node->unkE = 0;
@@ -519,7 +519,7 @@ typedef struct F9A_CleanupNode {
 void func_806F54E0(u8, s32, u8);
 void modelSlotFreeByIndex(s16, s32);
 
-void func_806F5378(void) {
+void gridFreeAllActiveNodes(void) {
     F9A_LinkedNode *var_s0;
     F9A_LinkedNode *var_s1;
 
@@ -571,7 +571,7 @@ F9A_DestinationNode *func_806F53EC(F9A_SourceNode *arg0) {
     return temp_v0;
 }
 
-s32 func_806F544C(s32 arg0, s32 arg1, u8 arg2) {
+s32 gridAdjustActorCollisionType(s32 arg0, s32 arg1, u8 arg2) {
     if ((arg1 == 0x91) || (arg1 == 0x15D) || (arg1 == 0x15E) || (arg1 == 0x15F) || (arg1 == 0x160)) {
         if (arg2 != 0) {
             arg0 = 3;
@@ -584,7 +584,7 @@ void camStartPath(Actor *, s32, s32);
 s32 flagGet(s32, s32);
 void flagSet(s32, s32, s32);
 
-void func_806F5498(void) {
+void cutsceneStartFlag16CPath(void) {
     if (flagGet(0x16C, 0) == 0) {
         camStartPath(NULL, 0x20, 5);
         flagSet(0x16C, 1, 0);
@@ -629,8 +629,8 @@ u8 arg2;
         return;
     }
     if (gCurrentMap != 0xF) {
-        temp_v0 = func_806F4E74(arg1);
-        temp_v0 = func_806F544C(D_80753EF2[temp_v0 * 0x14], arg1, arg2);
+        temp_v0 = gridIsSpecialActorType(arg1);
+        temp_v0 = gridAdjustActorCollisionType(D_80753EF2[temp_v0 * 0x14], arg1, arg2);
         switch (arg1) {
         case 0xDD: case 0xDE: case 0xDF: case 0xE0: case 0xE1:
             flagSet((s16) flagGridIndex(0x1D5, mapGetHubWorldIndex(gCurrentWorldId, 1), gPlayerCharacterId[(u8)arg0]), 1, 0);
@@ -659,7 +659,7 @@ u8 arg2;
             for (i = 0; i < 5; i++) {
                 gPlayerInventoryTable[(u8)arg0].sub[i].unk6 += 5;
             }
-            func_806F5498();
+            cutsceneStartFlag16CPath();
             break;
         case 0x8E:
             slotQueueAddValue(temp_v0, arg0, 0x96);
@@ -1220,7 +1220,7 @@ void gridUpdatePlayerNodes(u8 arg0) {
                     prev = node;
                     node = node->unk1C;
                 } else {
-                    idx = func_806F4E74(node->unk2);
+                    idx = gridIsSpecialActorType(node->unk2);
                     type = (F9N8_Type *)((u8 *)&D_80753EF0 + idx * 0x14);
                     slot = type->unk2;
                     if (node->unk10 == 0) {
@@ -1232,7 +1232,7 @@ void gridUpdatePlayerNodes(u8 arg0) {
                             playerStateHandleSoundEffects(node->unk2, arg0);
                         }
                         if ((slot >= 0) && !(gGlobalOverlayFlags & 0x4000) && ((slot != 0xB) || !(gGlobalOverlayFlags & 0x10000000))) {
-                            slotQueueUpdate(func_806F544C(slot, node->unk2, node->unk1A), 0, 0);
+                            slotQueueUpdate(gridAdjustActorCollisionType(slot, node->unk2, node->unk1A), 0, 0);
                         }
                         switch (node->unk2) {
                         case 0xEC:
@@ -1477,7 +1477,7 @@ extern u16 gActiveActorCount;
 extern F94D_ActiveEntry gActiveActors[];
 void actorDespawn(void *);
 void playerResumeLocomotion(void *);
-void func_806F0D68(void *);
+void playerKongPlaySoundByState(void *);
 void func_80731410(s16, s16, s16, u8);
 u8 func_8073198C(s16);
 void modelFlagsApplyState(s16, s16, u8 *);
@@ -1544,7 +1544,7 @@ void gridCollectActorsInRange(u8 arg0) {
                                         case 0x33:
                                             playerStateHandleSoundEffects(0x8F, arg0);
                                             if ((func_80714608(0) != 0) && ((ps = player->customState)->unk8C == 0)) {  // FAKE: named ps local puts the player->customState reload in v0
-                                                func_806F0D68(player);
+                                                playerKongPlaySoundByState(player);
                                                 playerResumeLocomotion(player);
                                             }
                                             break;

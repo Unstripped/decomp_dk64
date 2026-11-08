@@ -508,7 +508,7 @@ extern f32 D_807535E8[];
 extern G00Slot34 gPlayerPadState[];
 void playerInputToggleActiveState(Actor *);
 s32 flagGet(s32, s32);
-void func_806F09F0(Actor *, u16);
+void playerKongStopAudioChannels(Actor *, u16);
 void playerResumeLocomotion(Actor *);
 void playerWarpToSpawnPoint(s32);
 void playerSpawnMapHelpers(void);
@@ -590,7 +590,7 @@ void playerSetupCharacterForSlot(s32 arg0, u8 arg1) {
     }
     func_806C8220(1, G00_A48->unk178, gActivePlayerActor->actorType);
     G00_A48->unk146 = 0;
-    func_806F09F0(gActivePlayerActor, *(u16 *)((u8 *)gActivePlayerActor + 0x5A));
+    playerKongStopAudioChannels(gActivePlayerActor, *(u16 *)((u8 *)gActivePlayerActor + 0x5A));
     G00_A48->unkDE = 0x400;
     G00_P->unk1B0 = 0;
     G00_P->unk1AC = 0;
@@ -619,7 +619,7 @@ void actorScriptStart(Actor *, s32);
 void actorScriptStartByIndex(Actor *, s32);
 void controllerAnimSetStateIfChanged(Actor *, s32, f32, f32);
 void playerSetBaseGravity(void);
-void func_806F0D68(Actor *);
+void playerKongPlaySoundByState(Actor *);
 void commandSetFlags(s32, s32);
 void commandSetColor(s32, s32, s32);
 void commandSetParameters(s32, s32, s32, s32, s32, s32);
@@ -702,7 +702,7 @@ void playerSpawnMapHelpers(void) {
     case 0x4E:
     case 0x4F:
     case 0x83:
-        func_806F0D68(gActivePlayerActor);
+        playerKongPlaySoundByState(gActivePlayerActor);
         L6V->unk48 = D_80753354[gCurrentCharacterIndex];
         gActivePlayerActor->state = 0x62;
         gActivePlayerActor->unk155[0] = 0;

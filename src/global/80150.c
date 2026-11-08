@@ -2985,7 +2985,7 @@ typedef struct KongActionEntry {
     u8 unk5;
 } KongActionEntry;
 
-void func_806F09F0(Actor *, u16);
+void playerKongStopAudioChannels(Actor *, u16);
 void tagBarrelOrbitKongs(void *);
 
 void tagBarrelSpawnKongs(TagBarrelSpawnArgs *arg0) {
@@ -3016,7 +3016,7 @@ void tagBarrelSpawnKongs(TagBarrelSpawnArgs *arg0) {
         if (actorType == 0x13C) {
             temp_s0 = gSpawnedActor->customState;
             *temp_s0 = ((KongActionEntry *)D_8074E814)[i].unk2;
-            func_806F09F0(gSpawnedActor, *temp_s0);
+            playerKongStopAudioChannels(gSpawnedActor, *temp_s0);
             var_a2 = (i == arg0->unk6) ? 0x8B : 0x8A;
             actorScriptStartByKongIndex(gSpawnedActor, temp_s0, var_a2);
         } else {
@@ -3072,9 +3072,9 @@ typedef struct ActorView3158 {
 
 void heapClearBlock(void *);
 void func_806C8220(s32, void *, u16);
-void func_806F1C04(Actor *, void *, s32 *);
-void func_806F22A8(Actor *, void *, s32 *);
-void func_806F1EB0(Actor *, void *, s32 *);
+void playerWeaponAimTarget(Actor *, void *, s32 *);
+void playerWeaponInitCrosshair(Actor *, void *, s32 *);
+void playerWeaponSpawnProjectile(Actor *, void *, s32 *);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 func_8072881C(s32, void *);
 
@@ -3092,13 +3092,13 @@ void tagBarrelInteractiveUpdate(void) {
         func_806C8220(0, ((ActorView3158 *)gCurrentActor)->unk178, extra->unk0);
         switch (extra->unk0) {
         case 2:
-            extra->unk4 = func_806F1C04;
+            extra->unk4 = playerWeaponAimTarget;
             break;
         case 3:
-            extra->unk4 = func_806F22A8;
+            extra->unk4 = playerWeaponInitCrosshair;
             break;
         case 5:
-            extra->unk4 = func_806F1EB0;
+            extra->unk4 = playerWeaponSpawnProjectile;
             break;
         }
     } else {
@@ -3415,7 +3415,7 @@ void tagBarrelUpdateSelection(struct TagBarrelData *arg0_in) {
                     sp30->unk1F0 &= ~0x20000000;
                     var_s0 = ((KongActionEntry *)D_8074E814)[arg0->unk6].unk2;
                     playerSetKongByActorType(var_s0);
-                    func_806F09F0(sp34, var_s0);
+                    playerKongStopAudioChannels(sp34, var_s0);
                     *(u8 *)((u8 *)sp30 + 0x8C) = 0;
                     sp34->yaw = arg0->unk38;
                     camRestoreYaw(sp30->unk104);

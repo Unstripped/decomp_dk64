@@ -11,48 +11,48 @@ extern s16 gCurrentCharacterIndex;
 extern u16 D_807FD63C;
 
 void playerUpdateCommon(s32);
-void func_806F3190(Actor *, s32);
+void playerWeaponSpawnMuzzleFlash(Actor *, s32);
 void actorOrNodeFlags(Actor *, s32, s32);
 
 void playerUpdateSoundEffect0(void) {
     playerUpdateCommon(0);
-    func_806F3190(gCurrentActor, 0);
+    playerWeaponSpawnMuzzleFlash(gCurrentActor, 0);
 }
 
 void playerUpdateSoundEffect2(void) {
     playerUpdateCommon(0);
-    func_806F3190(gCurrentActor, 2);
+    playerWeaponSpawnMuzzleFlash(gCurrentActor, 2);
 }
 
 void playerUpdateSoundEffect3(void) {
     playerUpdateCommon(0);
-    func_806F3190(gCurrentActor, 3);
+    playerWeaponSpawnMuzzleFlash(gCurrentActor, 3);
 }
 
 void playerUpdateSoundEffect4(void) {
     playerUpdateCommon(0);
-    func_806F3190(gCurrentActor, 4);
+    playerWeaponSpawnMuzzleFlash(gCurrentActor, 4);
 }
 
 void playerUpdateSoundEffect6(void) {
     playerUpdateCommon(0);
-    func_806F3190(gCurrentActor, 6);
+    playerWeaponSpawnMuzzleFlash(gCurrentActor, 6);
 }
 
 void playerUpdateSoundEffect1(void) {
     playerUpdateCommon(0);
-    func_806F3190(gCurrentActor, 1);
+    playerWeaponSpawnMuzzleFlash(gCurrentActor, 1);
 }
 
 void playerUpdateSoundEffect7(void) {
     actorOrNodeFlags(gCurrentActor, 3, 8);
     playerUpdateCommon(0);
-    func_806F3190(gCurrentActor, 7);
+    playerWeaponSpawnMuzzleFlash(gCurrentActor, 7);
 }
 
 void playerUpdateSoundEffect5(void) {
     playerUpdateCommon(0);
-    func_806F3190(gCurrentActor, 5);
+    playerWeaponSpawnMuzzleFlash(gCurrentActor, 5);
 }
 
 extern s16 gPlayerStateFlags[][4];
@@ -438,13 +438,13 @@ void playerCheckQueueDropCallback(void);
 void func_806CF580(void);
 void playerCheckLedgeGrab(void);
 void sfxStopChannel(s32, s32);
-void func_806F4D70(u8, f32, f32, f32, f32);
+void gridSetNodeBounds(u8, f32, f32, f32, f32);
 void proxPathUpdateAllPlayers(void);
 s32 collisionGetHitStatus();
-u8 func_80666A94();
-u8 func_80666AA0();
-u8 func_80666AAC();
-u8 func_80666AB8();
+u8 collisionIsGroundImpact();
+u8 collisionIsHeavyGroundImpact();
+u8 collisionGetFloorType();
+u8 collisionGetMaterialType();
 void func_80026D40(void *, u8);
 void mapSetPendingTransition(s32, s32);
 void mapExecuteDeathTransition(u8);
@@ -544,7 +544,7 @@ void playerUpdateCommon(s32 arg0) {
     if (gCurrentActor->flags2 & 0x20) {
         proxPathUpdateAllPlayers();
     }
-    func_806F4D70(gCurrentPlayerIndex, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gCurrentActor->sub4->scaleY / 0.15 * 20.0);
+    gridSetNodeBounds(gCurrentPlayerIndex, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, gCurrentActor->sub4->scaleY / 0.15 * 20.0);
     if (gPlayerCount == 1) {
         if (gCurrentActor->renderFlags & 0x1000) {
             gCurrentActor->renderFlags |= 0x200;
@@ -559,10 +559,10 @@ void playerUpdateCommon(s32 arg0) {
     if ((gActivePlayerState->stateFlags & 0x01000000) && D_807FBB8C != 0 && gCurrentActor->state != 0x47) {
         playerStateQueueCallback(3, NULL, gCurrentPlayerIndex);
     }
-    sp6B = func_80666AA0();
-    sp6A = func_80666A94();
-    sp69 = func_80666AAC();
-    sp68 = func_80666AB8();
+    sp6B = collisionIsHeavyGroundImpact();
+    sp6A = collisionIsGroundImpact();
+    sp69 = collisionGetFloorType();
+    sp68 = collisionGetMaterialType();
     if (gCurrentActor->flags2 & 0x10) {
         playerCheckLedgeGrab();
     }
@@ -2609,7 +2609,7 @@ typedef struct G06PlayerView {
 
 u8 playerProbeLedgeAhead(Actor *, f32 *, u8, f32);
 s32 actorAngleInArc(Actor *, s16);
-s32 func_80666AEC(void);
+s32 collisionGetHitFlags(void);
 void collisionGetCoords(void *, s16 *);
 extern f32 D_80753E10[];
 extern s16 D_80753E00[];
@@ -2633,7 +2633,7 @@ void playerCheckLedgeGrab(void) {
             hit = 0;
             if (sp3B != 0 && G03_A->unkC0 < 0.0 && sp36 >= 0x385) {
                 hit = 0;
-                if (func_80666AEC() != 0) {
+                if (collisionGetHitFlags() != 0) {
                     if (gCurrentActor->y - gCurrentActor->floorY > 15.0f) {
                         if (flag != 0) {
                             if (D_80753E00[gCurrentCharacterIndex] + gCurrentActor->y < sp3C + 15.0f && sp3C - D_80753E00[gCurrentCharacterIndex] - gCurrentActor->y < 80.0f) {
@@ -2655,7 +2655,7 @@ void playerCheckLedgeGrab(void) {
 }
 
 u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
-u8 func_80666AE0(void);
+u8 collisionGetSurfaceFlags(void);
 
 u8 playerProbeLedgeAhead(Actor *arg0, f32 *arg1, u8 arg2, f32 arg3) {
     f32 dx;
@@ -2670,7 +2670,7 @@ u8 playerProbeLedgeAhead(Actor *arg0, f32 *arg1, u8 arg2, f32 arg3) {
     dx = mathSinF(angle) * arg3;
     dz = mathCosF(angle) * arg3;
     ret = collisionCheckActorFloor(arg0, arg0->x + dx, arg0->y + 30.0f, arg0->z + dz, arg1);
-    ((G02ActorView *)arg0)->unk78 = func_80666AE0();
+    ((G02ActorView *)arg0)->unk78 = collisionGetSurfaceFlags();
     return ret;
 }
 
