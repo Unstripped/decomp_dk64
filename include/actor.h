@@ -65,23 +65,17 @@ typedef struct ActorSub140 {
     /* 0x80 */ s32 unk80;
     /* 0x84 */ s32 unk84;
     /* 0x88 */ s32 unk88;
-    /* 0x8C */ ModelNode *nodes;
-    /* 0x90 */ ModelSubNode *subNodes;
+    /* 0x8C */ ModelNode *unk8C;
+    /* 0x90 */ ModelSubNode *unk90;
     /* 0x94 */ s32 unk94;
     /* 0x98 */ void *unk98;
-    /* 0x9C */ s32 boxCount;
-    /* 0xA0 */ void *srcBoxes;
-    /* 0xA4 */ s32 boxes;
-    /* 0xA8 */ s32 activeBoxesEnd;
+    /* 0x9C */ s32 unk9C;
+    /* 0xA0 */ void *unkA0;
+    /* 0xA4 */ s32 unkA4;
+    /* 0xA8 */ s32 unkA8;
     /* 0xAC */ u8 unkAC;
     /* 0xAD */ u8 padAD[0x17];
 } ActorSub140; // size = 0xC4
-#define unk8C nodes
-#define unk90 subNodes
-#define unk9C boxCount
-#define unkA0 srcBoxes
-#define unkA4 boxes
-#define unkA8 activeBoxesEnd
 
 typedef struct ActorList {
     /* 0x00 */ s32 items[4];
@@ -251,18 +245,12 @@ typedef struct Actor {
     /* 0x174 */ void *customState;
 } Actor;
 #define unk6A contactFlags
-#define unk6C prevContactFlags
 #define unk6E soundSlot
-#define unkA4 floorY
-#define unkAC waterY
-#define unkC4 accelY
 #define unkF0 movePitch
 #define unkF4 arcYawMin
 #define unkF6 arcYawMax
 #define unkFC hasArcBounds
 #define unk11C owner
-#define unk134 health
-#define unk136 damage
 #define unk138 callbackMask
 #define unk174 customState
 
@@ -313,7 +301,14 @@ typedef struct Struct807FD580 {
     /* 0x1B0 */ Actor *queuedHeldActor;
     /* 0x1B4 */ u8 pad1B4[0x1B8 - 0x1B4];
     /* 0x1B8 */ u16 heldActorType;
-    /* 0x1BA */ u8 pad1BA[0x1F0 - 0x1BA];
+    /* 0x1BA */ u8 pad1BA[0x1C0 - 0x1BA];
+    /* 0x1C0 */ f32 targetScale[3];
+    /* 0x1CC */ f32 currentScale[3];
+    /* 0x1D8 */ f32 scaleChangeRate;
+    /* 0x1DC */ f32 targetScaleFactor;
+    /* 0x1E0 */ f32 scaleStep;
+    /* 0x1E4 */ s32 scaleMode;
+    /* 0x1E8 */ u8 pad1E8[0x1F0 - 0x1E8];
     /* 0x1F0 */ s32 stateFlags;
 } Struct807FD580;
 #define unk104 camActor
@@ -321,6 +316,7 @@ typedef struct Struct807FD580 {
 #define unk1B0 queuedHeldActor
 #define unk1B8 heldActorType
 #define unk1F0 stateFlags
+#define unk1D8 scaleChangeRate
 
 extern Struct807FDC90 *D_807FDC90;
 extern Actor *D_807FDC94;

@@ -1250,7 +1250,7 @@ void actorAppendModelSubNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4
     sub = arg0->unk140;
     node = (ModelSubNode *)heapAlloc(sizeof(ModelSubNode));
     node->next = NULL;
-    head = (ModelSubNode **)&sub->subNodes;
+    head = (ModelSubNode **)&sub->unk90;
     node->x = arg1;
     node->y = arg2;
     node->z = arg3;
@@ -1258,7 +1258,7 @@ void actorAppendModelSubNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4
     node->unkC = 0;
     node->unk10 = 0;
     node->unk14 = 0;
-    curr = (ModelSubNode *)sub->subNodes;
+    curr = (ModelSubNode *)sub->unk90;
     if (curr != NULL) {
         do {
             head = &curr->next;
@@ -1278,7 +1278,7 @@ void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
     sub = arg0->unk140;
     node = (ModelNode *)heapAlloc(sizeof(ModelNode));
     node->next = NULL;
-    head = (ModelNode **)&sub->nodes;
+    head = (ModelNode **)&sub->unk8C;
     node->x = arg1;
     node->y = arg2;
     node->z = arg3;
@@ -1291,7 +1291,7 @@ void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
     node->unk26 = 1;
     node->unk24 = 0;
     node->unk27 = 0;
-    curr = (ModelNode *)sub->nodes;
+    curr = (ModelNode *)sub->unk8C;
     if (curr != NULL) {
         do {
             head = &curr->next;
