@@ -201,10 +201,7 @@ typedef struct Actor {
     /* 0x0F4 */ s16 arcYawMin;
     /* 0x0F6 */ s16 arcYawMax;
     /* 0x0F8 */ u8 unkF8[4];
-    union {
-        /* 0x0FC */ u8 hasArcBounds;
-        /* 0x0FC */ u8 unkFC;
-    };
+    /* 0x0FC */ u8 hasArcBounds;
     /* 0x0FD */ u8 unkFD;
     /* 0x0FE */ u8 unkFE[0xE];
     /* 0x10C */ s16 cutsceneId;
@@ -218,15 +215,10 @@ typedef struct Actor {
     /* 0x124 */ s32 unk124;
     /* 0x128 */ s16 unk128;
     /* 0x12A */ s16 unk12A;
-    union {
-        struct {
-            /* 0x12C */ s16 chunkIndex;
-            /* 0x12E */ u8 pad12E[2];
-            /* 0x130 */ u8 unk130;
-            /* 0x131 */ u8 unk131;
-        };
-        /* 0x12C */ u8 unk12C[6];
-    };
+    /* 0x12C */ s16 chunkIndex;
+    /* 0x12E */ u8 pad12E[2];
+    /* 0x130 */ u8 unk130;
+    /* 0x131 */ u8 unk131;
     /* 0x132 */ s16 unk132;
     /* 0x134 */ s16 health;
     /* 0x136 */ s16 damage;
