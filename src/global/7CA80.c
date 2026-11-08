@@ -288,7 +288,7 @@ typedef struct ActorAllocBlock {
     u8 padFA[0x16];
     /* 0x110 */ u8 unk110;
     u8 pad111[3];
-    /* 0x114 */ void *unk114;
+    /* 0x114 */ void *riderList;
     /* 0x118 */ void *unk118;
     /* 0x11C */ s32 unk11C;
     /* 0x120 */ u8 pad120[4];
@@ -302,7 +302,7 @@ typedef struct ActorAllocBlock {
     /* 0x132 */ s16 unk132;
     u8 pad134[4];
     /* 0x138 */ s32 unk138;
-    /* 0x13C */ void *unk13C;
+    /* 0x13C */ void *callbacks;
     u8 pad140[4];
     /* 0x144 */ u8 unk144;
     u8 pad145[1];
@@ -352,7 +352,7 @@ u16 arg0;
                 dataPtr += D_8074DA58[*types++];
             } while (*types != 0);
         }
-        actor->unk13C = NULL;
+        actor->callbacks = NULL;
         actor->unk138 = -1;
         actor->unk144 = 2;
         actor->unk110 = 0;
@@ -371,7 +371,7 @@ u16 arg0;
         actor->unk78 = 0;
         actor->unk6A = actor->unk6C = 1;
         actor->unk132 = 1;
-        actor->unk114 = NULL;
+        actor->riderList = NULL;
         actor->unk118 = NULL;
         actor->unk11C = 0;
         actor->unk6E = -1;
@@ -782,25 +782,25 @@ void func_80678E6C(Actor *actor) {
 }
 
 void actorRiderListFree(Actor *actor) {
-    if (actor->unk114 != NULL) {
-        heapFree(actor->unk114);
-        actor->unk114 = NULL;
+    if (actor->riderList != NULL) {
+        heapFree(actor->riderList);
+        actor->riderList = NULL;
     }
 }
 
 void actorRiderListAdd(Actor *actor, s32 item) {
-    if (actor->unk114 == NULL) {
-        actor->unk114 = heapAlloc(sizeof(ActorList));
-        actor->unk114->count = 0;
+    if (actor->riderList == NULL) {
+        actor->riderList = heapAlloc(sizeof(ActorList));
+        actor->riderList->count = 0;
     }
-    if (actor->unk114->count != 4) {
-        actor->unk114->items[actor->unk114->count] = item;
-        actor->unk114->count++;
+    if (actor->riderList->count != 4) {
+        actor->riderList->items[actor->riderList->count] = item;
+        actor->riderList->count++;
     }
 }
 
 s32 actorRiderListContains(Actor *actor, s32 item) {
-    ActorList *list = actor->unk114;
+    ActorList *list = actor->riderList;
     s32 i;
 
     if (list == NULL) {
@@ -839,11 +839,11 @@ u8 arg0;
 }
 
 void actorFreeCallbackList(Actor *actor) {
-    ActorCallbackNode *node = actor->unk13C;
+    ActorCallbackNode *node = actor->callbacks;
     ActorCallbackNode *next;
 
     if (node != NULL) {
-        actor->unk13C = NULL;
+        actor->callbacks = NULL;
     }
     while (node != NULL) {
         next = node->next;
@@ -872,8 +872,8 @@ void actorAppendCallback(Actor *actor, s32 arg1, s32 arg2, u8 arg3, s32 arg4, vo
 
     prev = NULL;
     if (actorTableContains(actor)) {
-        curr = actor->unk13C;
-        link = &actor->unk13C;
+        curr = actor->callbacks;
+        link = &actor->callbacks;
         if (curr != NULL) {
             do {
                 link = &curr->next;
@@ -911,8 +911,8 @@ void actorDelayedCallbacksTick(void) {
         if (D_807FBF18[i].arg6 == 0) {
             actor = (Actor *)D_807FBF18[i].arg0;
             if (actorTableContains(actor)) {
-                curr = actor->unk13C;
-                link = &actor->unk13C;
+                curr = actor->callbacks;
+                link = &actor->callbacks;
                 prev = NULL;
                 if (curr != NULL) {
                     do {
@@ -1103,8 +1103,8 @@ void actorDispatchCallbacks(Actor *arg0) {
 
     var_s7 = -1;
     actorGlobalStateClearEvents();
-    temp_v0 = actorCallbackListSort(arg0->unk13C);
-    arg0->unk13C = temp_v0;
+    temp_v0 = actorCallbackListSort(arg0->callbacks);
+    arg0->callbacks = temp_v0;
     var_s2 = temp_v0;
     sp50 = arg0->unk138;
     if (temp_v0 != NULL) {

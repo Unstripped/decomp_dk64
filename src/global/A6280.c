@@ -333,12 +333,12 @@ void actorSinkAndDespawn(void) {
     }
     if (D_807FBB4C->state == 0x2D && D_807FBB4C->unk155[0] != 0) {
         found = 0;
-        if (gCurrentActor->unk114 != NULL) {
-            count = gCurrentActor->unk114->count;
+        if (gCurrentActor->riderList != NULL) {
+            count = gCurrentActor->riderList->count;
             do { i = 0; } while (0);
             if (count != 0) {
                 do {
-                    act = (Actor *)gCurrentActor->unk114->items[i];
+                    act = (Actor *)gCurrentActor->riderList->items[i];
                     if (actorTableContains(act) != 0 && act == D_807FBB4C) {
                         found = 1;
                     }

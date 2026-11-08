@@ -936,7 +936,7 @@ void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s16, f32, s32);
 s32 flagGet(s32, s32);
 
 s32 actorHasCallbackTargetThisFrame(void) {
-    ActorCallbackNode *node = gCurrentActor->unk13C;
+    ActorCallbackNode *node = gCurrentActor->callbacks;
 
     while (node != NULL) {
         if ((u32)node->callback == 0x8000) {

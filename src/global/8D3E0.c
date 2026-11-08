@@ -955,11 +955,11 @@ u8 actorListSpawnIfNear(ActorListNode *node) {
 }
 
 u8 actorListDespawnIfFar(ActorListNode *node) {
-    return (mapChunkIsVisible(*(s16 *)&node->unk44->unk12C, node) == 0 || !(playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18) < node->unk54)) && (node->unk44->unk114 == NULL);
+    return (mapChunkIsVisible(*(s16 *)&node->unk44->unk12C, node) == 0 || !(playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18) < node->unk54)) && (node->unk44->riderList == NULL);
 }
 
 u8 actorListDespawnIfFarAndIdle(ActorListNode *node) {
-    return (mapChunkIsVisible(*(s16 *)&node->unk44->unk12C, node) == 0 || !(playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18) < node->unk54)) && (node->unk44->unk114 == NULL) && (node->unk44->state == 0);
+    return (mapChunkIsVisible(*(s16 *)&node->unk44->unk12C, node) == 0 || !(playerGetMinSquaredDist3D(node->unk10, node->unk14, node->unk18) < node->unk54)) && (node->unk44->riderList == NULL) && (node->unk44->state == 0);
 }
 
 s32 actorListDespawnNever(s32 node) {

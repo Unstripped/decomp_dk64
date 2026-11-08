@@ -48,7 +48,7 @@ typedef struct CollisionHitActor {
     u8 unkFC;
     u8 unkFD;
     u8 padFE[0x3E];
-    CollisionHitCallback *unk13C;
+    CollisionHitCallback *callbacks;
     CollisionHitSub140 *unk140;
 } CollisionHitActor;
 
@@ -77,7 +77,7 @@ u8 actorCollisionGetNodeHitPoint(CollisionHitActor *self, CollisionHitActor *oth
     s8 foundCb;
     u8 matched;
 
-    cb = self->unk13C;
+    cb = self->callbacks;
     matched = 0;
     foundCb = 0;
     D_807FB606 = 0;
@@ -156,7 +156,7 @@ typedef struct CollisionCheckActor {
     f32 unk80;
     f32 unk84;
     u8 pad88[0x8C];
-    void *unk114;
+    void *riderList;
     u8 pad118[0x28];
     CollisionSub140Full *unk140;
     u8 unk144;
@@ -223,7 +223,7 @@ void actorCollisionCheckNodeSpheres(CollisionCheckActor *self) {
             actor = entry->actor;
             s0 = 0;
             actor_sub140 = actor->unk140;
-            if (actor->unk114 != NULL && (actor->unk60 & 0x40) && actorRiderListContains(actor, self)) {
+            if (actor->riderList != NULL && (actor->unk60 & 0x40) && actorRiderListContains(actor, self)) {
                 s0 = 1;
             }
             if ((self->unk60 & 0x80) && actorRiderListContains(self, actor)) {

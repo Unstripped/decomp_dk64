@@ -184,7 +184,7 @@ typedef struct Actor {
     /* 0x10E */ u8 unk10E[2];
     /* 0x110 */ u8 unk110;
     /* 0x111 */ u8 unk111[3];
-    /* 0x114 */ ActorList *unk114;
+    /* 0x114 */ ActorList *riderList;
     /* 0x118 */ u8 unk118[4];
     /* 0x11C */ s32 unk11C;
     /* 0x120 */ u8 unk120[4];
@@ -195,7 +195,7 @@ typedef struct Actor {
     /* 0x132 */ s16 unk132;
     /* 0x134 */ u8 unk134[4];
     /* 0x138 */ s32 unk138;
-    /* 0x13C */ ActorCallbackNode *unk13C;
+    /* 0x13C */ ActorCallbackNode *callbacks;
     /* 0x140 */ ActorSub140 *unk140;
     /* 0x144 */ u8 unk144;
     /* 0x145 */ u8 unk145[0xB];
