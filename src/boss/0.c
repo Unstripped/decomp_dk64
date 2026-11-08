@@ -26,12 +26,12 @@ void func_807149C8(s32, s32, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 
 void bossArmydilloSpawnSmoke(void) {
-    BossByteTable6 sp48;
+    BossByteTable6 smokeBones;
     s16 i;
 
     for (i = 0; i < 6; i++) {
-        sp48 = D_8003598C;
-        func_8067E2E4(D_807FBB40, sp48.bytes[i], 3.0f);
+        smokeBones = D_8003598C;
+        func_8067E2E4(D_807FBB40, smokeBones.bytes[i], 3.0f);
     }
 
     for (i = 0; i < 12; i++) {
@@ -195,84 +195,84 @@ f32 func_80612794(s16);
 f32 func_80612790(s16);
 
 void bossArmydilloDebrisUpdate(void) {
-    s16 var_s2;
-    BossA_Struct_8002413C_1 *var_s0;
-    s32 var_a3;
-    s32 var_v1;
-    s16 temp_lo;
+    s16 i;
+    BossA_Struct_8002413C_1 *debris;
+    s32 soundId;
+    s32 soundVol;
+    s16 angle;
 
-    var_s0 = D_807FBB40->sub->arr1;
-    var_a3 = 0;
-    var_v1 = 0xFF;
+    debris = D_807FBB40->sub->arr1;
+    soundId = 0;
+    soundVol = 0xFF;
     switch (((Boss2A_Struct_807FDC90_4300 *)D_807FDC90)->unk2C) {
     case 19:
-        var_a3 = 0x22;
+        soundId = 0x22;
         break;
     case 17:
-        var_a3 = 0xF6;
+        soundId = 0xF6;
         break;
     case 15:
-        var_a3 = 0x17;
+        soundId = 0x17;
         break;
     case 13:
-        var_a3 = 0xED;
+        soundId = 0xED;
         break;
     case 11:
-        var_a3 = 0x18;
+        soundId = 0x18;
         break;
     case 9:
-        var_a3 = 0x22;
-        var_v1 = 0xC8;
+        soundId = 0x22;
+        soundVol = 0xC8;
         break;
     case 7:
-        var_a3 = 0xED;
-        var_v1 = 0x82;
+        soundId = 0xED;
+        soundVol = 0x82;
         break;
     case 5:
-        var_a3 = 0x18;
-        var_v1 = 0x46;
+        soundId = 0x18;
+        soundVol = 0x46;
         break;
     case 3:
-        var_a3 = 0x3C;
+        soundId = 0x3C;
         break;
     }
 
-    if (var_a3 != 0) {
+    if (soundId != 0) {
         sfxPlayAtPositionPooled(((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)->unk7C,
                       ((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)->unk80,
                       ((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)->unk84,
-                      var_a3, var_v1, 0x7F, 1, 0x1E, 0.3f, 0);
+                      soundId, soundVol, 0x7F, 1, 0x1E, 0.3f, 0);
     }
 
-    var_s2 = 0;
+    i = 0;
     D_807FBB40->sub->arr1[5].x = 99999.0f;
     do {
-        if (var_s0->y >= 1800.0f) {
-            var_s0->x = 99999.0f;
-            var_s0->y = 99999.0f;
-            var_s0->z = 99999.0f;
-            var_s0++;
+        if (debris->y >= 1800.0f) {
+            debris->x = 99999.0f;
+            debris->y = 99999.0f;
+            debris->z = 99999.0f;
+            debris++;
         } else {
-            temp_lo = var_s2 * 400;
-            var_s0->x += 200.0f * func_80612794(temp_lo);
-            var_s0->z += 200.0f * func_80612790(temp_lo);
-            var_s0->y += 100.0f;
-            var_s0++;
+            angle = i * 400;
+            debris->x += 200.0f * func_80612794(angle);
+            debris->z += 200.0f * func_80612790(angle);
+            debris->y += 100.0f;
+            debris++;
         }
-        var_s2++;
-    } while (var_s2 < 13);
+        i++;
+    } while (i < 13);
 }
 
-void bossPieceSetState(u8 *arg0, u8 arg1, u8 arg2) {
-    arg0[arg1 + 6] = arg2;
+void bossPieceSetState(u8 *pieceData, u8 index, u8 state) {
+    pieceData[index + 6] = state;
 }
 
-void bossPieceSetAngle(u8 arg0, s16 arg1) {
-    BossA_Struct_80024524_Entry *entry = &D_807FBB40->sub->u1C.entries[arg0];
-    if (arg0 == 3) {
+void bossPieceSetAngle(u8 index, s16 angle) {
+    BossA_Struct_80024524_Entry *entry = &D_807FBB40->sub->u1C.entries[index];
+    if (index == 3) {
         entry->unk1 = 0x2F;
     }
-    entry->unk2 = arg1;
+    entry->unk2 = angle;
 }
 
 
@@ -300,49 +300,49 @@ typedef struct BossActorState {
 
 #define A154 (((BossActorState *)D_807FBB40)->unk154)
 #define BB ((Boss2A_Struct_807FBB40_4300 *)D_807FBB40)
-#define OBJ ((BossPieceAnim *)arg0)
+#define OBJ ((BossPieceAnim *)animData)
 
-u8 bossPieceStep(u8 *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
+u8 bossPieceStep(u8 *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 endTimer) {
     u8 ret;
     BossA_Struct_8002413C_1 *p1;
     BossA_Struct_8002413C_1 *p2;
-    BossA_Struct_807FBB40 *sp3C;
+    BossA_Struct_807FBB40 *boss;
 
-    sp3C = D_807FBB40;
+    boss = D_807FBB40;
     ret = 0;
-    p1 = &sp3C->sub->arr1[arg1];
-    p2 = &sp3C->sub->arr2[arg1];
-    switch (OBJ->state[arg1]) {
+    p1 = &boss->sub->arr1[pieceIdx];
+    p2 = &boss->sub->arr2[pieceIdx];
+    switch (OBJ->state[pieceIdx]) {
     case 5:
-        OBJ->f1[arg1] = 30.0f;
-        OBJ->ang[arg1] = arg1 * 0x800 + 0x400;
-        OBJ->f2[arg1] = 100.0f;
-        OBJ->state[arg1] = 6;
+        OBJ->f1[pieceIdx] = 30.0f;
+        OBJ->ang[pieceIdx] = pieceIdx * 0x800 + 0x400;
+        OBJ->f2[pieceIdx] = 100.0f;
+        OBJ->state[pieceIdx] = 6;
     case 6:
-        p1->x += OBJ->f1[arg1] * func_80612794(OBJ->ang[arg1]);
-        p1->z += OBJ->f1[arg1] * func_80612790(OBJ->ang[arg1]);
-        p1->y += OBJ->f2[arg1];
-        OBJ->f2[arg1] -= 10.0f;
-        if (OBJ->f2[arg1] < -200.0f) {
-            OBJ->f2[arg1] = -200.0f;
+        p1->x += OBJ->f1[pieceIdx] * func_80612794(OBJ->ang[pieceIdx]);
+        p1->z += OBJ->f1[pieceIdx] * func_80612790(OBJ->ang[pieceIdx]);
+        p1->y += OBJ->f2[pieceIdx];
+        OBJ->f2[pieceIdx] -= 10.0f;
+        if (OBJ->f2[pieceIdx] < -200.0f) {
+            OBJ->f2[pieceIdx] = -200.0f;
         }
         if (p1->y < -300.0f) {
             p1->y = -300.0f;
-            if (-50.0f < OBJ->f2[arg1]) {
-                func_8067E2E4(D_807FBB40, (u8)(arg1 + 1), 1.5f);
-                func_8068A784(D_807FBB40, arg1);
-                OBJ->state[arg1] = 0;
+            if (-50.0f < OBJ->f2[pieceIdx]) {
+                func_8067E2E4(D_807FBB40, (u8)(pieceIdx + 1), 1.5f);
+                func_8068A784(D_807FBB40, pieceIdx);
+                OBJ->state[pieceIdx] = 0;
                 ret = 1;
                 break;
             }
-            if (!arg1) {
-                sfxPlayAtPositionPooled(BB->unk7C, BB->unk80, BB->unk84, 0x36, (u32)(120.0f - OBJ->f2[arg1] > 255.0f ? 255.0f : 120.0f - OBJ->f2[arg1]), 0x7F, 0x28, 0, 0.3f, 0);
+            if (!pieceIdx) {
+                sfxPlayAtPositionPooled(BB->unk7C, BB->unk80, BB->unk84, 0x36, (u32)(120.0f - OBJ->f2[pieceIdx] > 255.0f ? 255.0f : 120.0f - OBJ->f2[pieceIdx]), 0x7F, 0x28, 0, 0.3f, 0);
             }
-            OBJ->f2[arg1] *= -0.5;
+            OBJ->f2[pieceIdx] *= -0.5;
         }
         break;
     case 1:
-        switch (arg1) {
+        switch (pieceIdx) {
         case 0:
             sfxPlayActorSound(D_807FBB40, 0x127, 0, 1, 1, 0xFF, 1.0f, 0);
             break;
@@ -353,24 +353,24 @@ u8 bossPieceStep(u8 *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
             sfxPlayActorSound(D_807FBB40, 0x127, 0, 1, 1, 0xFF, 1.3f, 0);
             break;
         }
-        func_8068A764(D_807FBB40, arg1);
-        OBJ->state[arg1] = 2;
-        OBJ->cnt[arg1] = 0;
+        func_8068A764(D_807FBB40, pieceIdx);
+        OBJ->state[pieceIdx] = 2;
+        OBJ->cnt[pieceIdx] = 0;
     case 2:
-        if ((f32)++OBJ->cnt[arg1] < arg2) {
-            f32 t = (f32)OBJ->cnt[arg1] / arg2;
-            p1->x = D_800358E0[0][arg1].x + (-D_800358E0[0][arg1].x) * t;
-            p1->y = D_800358E0[0][arg1].y + (-D_800358E0[0][arg1].y) * t;
-            p1->z = D_800358E0[0][arg1].z + (-D_800358E0[0][arg1].z) * t;
-        } else if (arg2 == (f32)OBJ->cnt[arg1]) {
-            switch (arg1) {
+        if ((f32)++OBJ->cnt[pieceIdx] < maxTimer) {
+            f32 t = (f32)OBJ->cnt[pieceIdx] / maxTimer;
+            p1->x = D_800358E0[0][pieceIdx].x + (-D_800358E0[0][pieceIdx].x) * t;
+            p1->y = D_800358E0[0][pieceIdx].y + (-D_800358E0[0][pieceIdx].y) * t;
+            p1->z = D_800358E0[0][pieceIdx].z + (-D_800358E0[0][pieceIdx].z) * t;
+        } else if (maxTimer == (f32)OBJ->cnt[pieceIdx]) {
+            switch (pieceIdx) {
             case 0:
             case 2:
             case 4:
                 sfxStopSlotSound(D_807FBB40, 1);
                 break;
             }
-        } else if (arg3 == (f32)OBJ->cnt[arg1]) {
+        } else if (scriptTimer == (f32)OBJ->cnt[pieceIdx]) {
             switch (A154) {
             case 0x27:
                 actorScriptStart(D_807FBB40, 0x264);
@@ -382,17 +382,17 @@ u8 bossPieceStep(u8 *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
                 actorScriptStart(D_807FBB40, 0x266);
                 break;
             }
-        } else if (arg3 + 1.0f == (f32)OBJ->cnt[arg1]) {
+        } else if (scriptTimer + 1.0f == (f32)OBJ->cnt[pieceIdx]) {
             p2->x = 1.0f;
             p2->y = 1.0f;
             p2->z = 1.0f;
-        } else if (arg4 < (f32)OBJ->cnt[arg1]) {
+        } else if (endTimer < (f32)OBJ->cnt[pieceIdx]) {
             ret = 1;
-            OBJ->state[arg1] = 0;
+            OBJ->state[pieceIdx] = 0;
         }
         break;
     case 3:
-        switch (arg1) {
+        switch (pieceIdx) {
         case 0:
             sfxPlayActorSound(D_807FBB40, 0x127, 0, 1, 1, 0xFF, 1.0f, 0);
             break;
@@ -400,22 +400,22 @@ u8 bossPieceStep(u8 *arg0, u8 arg1, f32 arg2, f32 arg3, f32 arg4) {
             sfxPlayActorSound(D_807FBB40, 0x127, 0, 1, 1, 0xFF, 1.1f, 0);
             break;
         }
-        OBJ->state[arg1] = 4;
-        OBJ->cnt[arg1] = arg4;
+        OBJ->state[pieceIdx] = 4;
+        OBJ->cnt[pieceIdx] = endTimer;
     case 4:
-        if (arg2 < (f32)--OBJ->cnt[arg1]) {
-            p2->x = p2->x + (D_800358E0[0][arg1].rotX - p2->x) * 0.08;
-            p2->y = p2->y + (D_800358E0[0][arg1].rotY - p2->y) * 0.08;
-            p2->z = p2->z + (D_800358E0[0][arg1].rotZ - p2->z) * 0.09;
-        } else if (OBJ->cnt[arg1] > 0) {
-            f32 t = (f32)OBJ->cnt[arg1] / arg2;
-            p1->x = D_800358E0[0][arg1].x + (-D_800358E0[0][arg1].x) * t;
-            p1->y = D_800358E0[0][arg1].y + (-D_800358E0[0][arg1].y) * t;
-            p1->z = D_800358E0[0][arg1].z + (-D_800358E0[0][arg1].z) * t;
+        if (maxTimer < (f32)--OBJ->cnt[pieceIdx]) {
+            p2->x = p2->x + (D_800358E0[0][pieceIdx].rotX - p2->x) * 0.08;
+            p2->y = p2->y + (D_800358E0[0][pieceIdx].rotY - p2->y) * 0.08;
+            p2->z = p2->z + (D_800358E0[0][pieceIdx].rotZ - p2->z) * 0.09;
+        } else if (OBJ->cnt[pieceIdx] > 0) {
+            f32 t = (f32)OBJ->cnt[pieceIdx] / maxTimer;
+            p1->x = D_800358E0[0][pieceIdx].x + (-D_800358E0[0][pieceIdx].x) * t;
+            p1->y = D_800358E0[0][pieceIdx].y + (-D_800358E0[0][pieceIdx].y) * t;
+            p1->z = D_800358E0[0][pieceIdx].z + (-D_800358E0[0][pieceIdx].z) * t;
         } else {
-            func_8068A784(D_807FBB40, arg1);
-            OBJ->state[arg1] = 0;
-            if (arg1 == 0 || arg1 == 2) {
+            func_8068A784(D_807FBB40, pieceIdx);
+            OBJ->state[pieceIdx] = 0;
+            if (pieceIdx == 0 || pieceIdx == 2) {
                 sfxStopSlotSound(D_807FBB40, 1);
             }
             ret = 1;
@@ -447,21 +447,21 @@ void actorMoveWithinZone(s32, f32, f32, s32, f32);
 
 void func_80024EAC(void) {
     s32 res;
-    u16 sp2A;
+    u16 animState;
 
-    sp2A = D_807FBB40->sub->unk64;
+    animState = D_807FBB40->sub->unk64;
     mathAngleSignedDistance(D_807FDC90->unk8, D_807FBB40->unkE6);
     actorMoveWithinZone(0x45, D_807FDC94->unk7C, D_807FDC94->unk84, 0x16, 0.0f);
     res = mathAngleSignedDistance(D_807FDC90->unk8, D_807FBB40->unkE6);
     if (res > 0) {
-        if (sp2A != 0x260) {
+        if (animState != 0x260) {
             actorScriptStart(D_807FBB40, 0x260);
         }
     } else if (res < 0) {
-        if (sp2A != 0x25F) {
+        if (animState != 0x25F) {
             actorScriptStart(D_807FBB40, 0x25F);
         }
-    } else if (sp2A != 0x25A) {
+    } else if (animState != 0x25A) {
         actorScriptStart(D_807FBB40, 0x25A);
         scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
     }
@@ -476,7 +476,7 @@ typedef struct Boss2A_Struct_807FBB40_4FA8 {
 u8 bossPieceStep(u8 *, u8, f32, f32, f32);
 void animSetLoopLimit(void *, s32, s32);
 
-void func_80024FA8(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
+void func_80024FA8(void *boss, u8 *pieceData, s32 unused, u8 *pieceList) {
     u8 i;
     u8 res;
 
@@ -484,23 +484,23 @@ void func_80024FA8(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     res = 0;
     switch (((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155) {
     case 2:
-        if (*arg3 != 0xFF) {
+        if (*pieceList != 0xFF) {
             do {
-                bossPieceSetState(arg1, arg3[i++], 1);
-            } while (arg3[i] != 0xFF);
+                bossPieceSetState(pieceData, pieceList[i++], 1);
+            } while (pieceList[i] != 0xFF);
         }
         ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155 = 3;
         break;
     case 3:
-        if (*arg3 != 0xFF) {
+        if (*pieceList != 0xFF) {
             do {
                 if (((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk154 == 0x27 ||
                     ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk154 == 0x2E) {
-                    res = bossPieceStep(arg1, arg3[i++], 50.0f, 70.0f, 90.0f);
+                    res = bossPieceStep(pieceData, pieceList[i++], 50.0f, 70.0f, 90.0f);
                 } else {
-                    res = bossPieceStep(arg1, arg3[i++], 10.0f, 15.0f, 50.0f);
+                    res = bossPieceStep(pieceData, pieceList[i++], 10.0f, 15.0f, 50.0f);
                 }
-            } while (arg3[i] != 0xFF);
+            } while (pieceList[i] != 0xFF);
         }
         if (res != 0) {
             ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155 = 4;
@@ -510,7 +510,7 @@ void func_80024FA8(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     }
 }
 
-void bossPieceListStep(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
+void bossPieceListStep(void *boss, u8 *pieceData, s32 unused, u8 *pieceList) {
     u8 i;
     u8 res;
 
@@ -518,18 +518,18 @@ void bossPieceListStep(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     res = 0;
     switch (((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155) {
     case 2:
-        if (*arg3 != 0xFF) {
+        if (*pieceList != 0xFF) {
             do {
-                bossPieceSetState(arg1, arg3[i++], 3);
-            } while (arg3[i] != 0xFF);
+                bossPieceSetState(pieceData, pieceList[i++], 3);
+            } while (pieceList[i] != 0xFF);
         }
         ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155 = 3;
         break;
     case 3:
-        if (*arg3 != 0xFF) {
+        if (*pieceList != 0xFF) {
             do {
-                res = bossPieceStep(arg1, arg3[i++], 10.0f, 20.0f, 30.0f);
-            } while (arg3[i] != 0xFF);
+                res = bossPieceStep(pieceData, pieceList[i++], 10.0f, 20.0f, 30.0f);
+            } while (pieceList[i] != 0xFF);
         }
         if (res != 0) {
             ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155 = 4;
@@ -759,20 +759,20 @@ s32 patrolPathStep();
 
 void func_800254D0(void) {
     s32 pad_top[1];
-    Boss3B_Sp78 *sp78;
-    u8 *sp74;
+    Boss3B_Sp78 *state17C;
+    u8 *scriptData;
     f32 pad_mid;
-    u8 sp6F;
-    u8 sp6E;
+    u8 cannonBone;
+    u8 playSfx;
     s32 pad_bot[1];
-    Boss3B_178 *temp_s1;
+    Boss3B_178 *state;
 
 
-    temp_s1 = D_807FBB40->unk178;
-    sp78 = D_807FBB40->unk17C;
-    sp74 = D_800358B0[(gCurrentMap == 8) ? 0 : 1][temp_s1->unk14];
-    sp6F = (temp_s1->unk12 & 1) ? 1 : 2;
-    sp6E = 0;
+    state = D_807FBB40->unk178;
+    state17C = D_807FBB40->unk17C;
+    scriptData = D_800358B0[(gCurrentMap == 8) ? 0 : 1][state->unk14];
+    cannonBone = (state->unk12 & 1) ? 1 : 2;
+    playSfx = 0;
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FDC98->unk38 = 0.002f;
@@ -791,14 +791,14 @@ void func_800254D0(void) {
         D_807FBB40->unkB8 = 0.0f;
         scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
         {
-            u32 var_v0 = (u32) effectUpdateAndDispatch;
+            u32 checkPtr = (u32) effectUpdateAndDispatch;
             u32 end = (u32) effectNodeSetSubVal;
             s32 checksum = 0;
-            D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+            D_807FBB40->unk154 = scriptData[state->unk15++];
             D_807FBB40->unk155 = 0;
-            while (var_v0 < end) {
-                checksum += *(s32 *) var_v0;
-                var_v0 += 4;
+            while (checkPtr < end) {
+                checksum += *(s32 *) checkPtr;
+                checkPtr += 4;
             }
             if (checksum != 0x3D6E227F) {
                 *(s32 *)((u32)&camPathCommandDispatch) = 0x27BDFF38;
@@ -823,9 +823,9 @@ void func_800254D0(void) {
         D_80750190 = 1;
         func_8067E2E4(D_807FBB40, 0xC, 2.0f);
         actorScriptStart(D_807FBB40, 0x262);
-        temp_s1->unk15 = 0;
-        temp_s1->unk14++;
-        sp74 = D_800358B0[(gCurrentMap == 8) ? 0 : 1][temp_s1->unk14];
+        state->unk15 = 0;
+        state->unk14++;
+        scriptData = D_800358B0[(gCurrentMap == 8) ? 0 : 1][state->unk14];
         camStartPath(D_807FBB40, 4, 1);
     }
     switch (D_807FBB40->unk154) {                     /* switch 1 */
@@ -833,7 +833,7 @@ void func_800254D0(void) {
         func_80613C48(D_807FBB40, 0x39A, 0.0f, 0.0f);
         scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
         D_807FBB40->unk146 = 3;
-        D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+        D_807FBB40->unk154 = scriptData[state->unk15++];
         D_807FBB40->unk155 = 0;
         break;
     case 0x1E:                                      /* switch 1 */
@@ -901,7 +901,7 @@ void func_800254D0(void) {
         break;
     case 0x27:                                      /* switch 1 */
         if (flagGet(0x68, 2) != 0) {
-            D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+            D_807FBB40->unk154 = scriptData[state->unk15++];
             D_807FBB40->unk155 = 0;
             break;
         }
@@ -912,15 +912,15 @@ void func_800254D0(void) {
             case 0:                                 /* switch 3 */
                 if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
                     animSetLoopLimit(D_807FBB40, 1, 1);
-                    sp78->unk0 = 0;
+                    state17C->unk0 = 0;
                     D_807FBB40->unk155 = 1;
                     sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x3A, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 }
                 break;
             case 1:                                 /* switch 3 */
-                if ((animIsPlaying(D_807FBB40, 1) == 0) && (sp78->unk0 == 0)) {
+                if ((animIsPlaying(D_807FBB40, 1) == 0) && (state17C->unk0 == 0)) {
                     sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x174, 0xC8, 0x7F, 1, 0x1E, 0.3f, 0);
-                    sp78->unk0 = 1;
+                    state17C->unk0 = 1;
                 }
                 if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
                     D_807FBB40->unk155 = 2;
@@ -929,16 +929,16 @@ void func_800254D0(void) {
             case 2:                                 /* switch 3 */
             case 3:                                 /* switch 3 */
                 if (D_807FBB40->unk154 == 0x29) {
-                    func_80024FA8(temp_s1, sp78, sp74, &D_80035984);
+                    func_80024FA8(state, state17C, scriptData, &D_80035984);
                 } else if (D_807FBB40->unk154 == 0x2E) {
-                    func_80024FA8(temp_s1, sp78, sp74, &D_80035988);
+                    func_80024FA8(state, state17C, scriptData, &D_80035988);
                 } else {
-                    func_80024FA8(temp_s1, sp78, sp74, &D_80035980);
+                    func_80024FA8(state, state17C, scriptData, &D_80035980);
                 }
                 break;
             case 4:                                 /* switch 3 */
                 if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
-                    D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+                    D_807FBB40->unk154 = scriptData[state->unk15++];
                     D_807FBB40->unk155 = 0;
                 }
                 break;
@@ -959,17 +959,17 @@ void func_800254D0(void) {
                 func_8067E2E4(D_807FBB40, 6, 1.0f);
                 func_8067E2E4(D_807FBB40, 7, 1.0f);
                 actorScriptStart(D_807FBB40, 0x26C);
-                bossPieceSetState(sp78, 0, 5);
-                bossPieceSetState(sp78, 1, 5);
+                bossPieceSetState(state17C, 0, 5);
+                bossPieceSetState(state17C, 1, 5);
                 sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x22, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x3C, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 D_807FBB40->unk155 = 2;
             }
             break;
         case 2:                                     /* switch 4 */
-            bossPieceStep(sp78, 0, 50.0f, 70.0f, 90.0f);
-            if (bossPieceStep(sp78, 1, 50.0f, 70.0f, 90.0f) != 0) {
-                D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+            bossPieceStep(state17C, 0, 50.0f, 70.0f, 90.0f);
+            if (bossPieceStep(state17C, 1, 50.0f, 70.0f, 90.0f) != 0) {
+                D_807FBB40->unk154 = scriptData[state->unk15++];
                 D_807FBB40->unk155 = 0;
             }
             break;
@@ -981,8 +981,8 @@ void func_800254D0(void) {
     case 0x2F:                                      /* switch 1 */
         switch (D_807FBB40->unk155) {                        /* switch 5 */
         case 0:                                     /* switch 5 */
-            if (sp78->unk10 >= -0x3FFF) {
-                sp78->unk10 -= 0x190;
+            if (state17C->unk10 >= -0x3FFF) {
+                state17C->unk10 -= 0x190;
                 if (D_807FBB40->unk70 == -1) {
                     sfxPlayActorSound(D_807FBB40, 0x1F0, 1, 1, 1, 0xFF, 1.0f, 0);
                 }
@@ -996,12 +996,12 @@ void func_800254D0(void) {
                 D_807FBB40->unkB8 = 0.0f;
             }
             {
-                s16 val = sp78->unk10;
+                s16 val = state17C->unk10;
 
-                sp78->unk12 = sp78->unk10;
+                state17C->unk12 = state17C->unk10;
                 bossPieceSetAngle(2, val);
             }
-            bossPieceSetAngle(3, sp78->unk12);
+            bossPieceSetAngle(3, state17C->unk12);
             break;
         case 1:                                     /* switch 5 */
             D_807FDC90->unk2E += (D_807FBB40->unk154 == 0x2F) ? 10 : 4;
@@ -1010,7 +1010,7 @@ void func_800254D0(void) {
             }
             D_807FBB40->unkC0 = (f32) D_807FDC90->unk2E;
             func_800253AC();
-            sp6E = 1;
+            playSfx = 1;
             actorMoveWithinZone(0x45, 510.0f, 480.0f, 0x292, 0.0f);
             if (D_807FBB40->unkB4 > 30.0f) {
                 D_807FBB40->unkB8 = 100.0f;
@@ -1023,12 +1023,12 @@ void func_800254D0(void) {
             actorMoveWithinZone(0x45, 510.0f, 480.0f, 0x292, 0.0f);
             if (gFrameCounter & 8) {
                 func_800253AC();
-                sp6E = 1;
+                playSfx = 1;
                 D_807FBB40->unkC0 = 100.0f;
             }
             if ((D_807444EC != 1) || (currentActorTestClearFlag() != 0)) {
                 if (D_807FBB40->unk154 == 0x2F) {
-                    D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+                    D_807FBB40->unk154 = scriptData[state->unk15++];
                     D_807FBB40->unk155 = 0;
                 } else {
                     D_807FBB40->unk155 = 3;
@@ -1055,7 +1055,7 @@ void func_800254D0(void) {
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
             } else {
-                D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+                D_807FBB40->unk154 = scriptData[state->unk15++];
                 D_807FBB40->unk155 = 0;
             }
             break;
@@ -1064,10 +1064,10 @@ void func_800254D0(void) {
     case 0x2C:                                      /* switch 1 */
         {
             s32 pad;
-            sp78->unk10 = -sp78->unk10 * 0.1 + sp78->unk10;
-            sp78->unk12 = -sp78->unk12 * 0.1 + sp78->unk12;
-            bossPieceSetAngle(3, sp78->unk12);
-            bossPieceSetAngle(2, sp78->unk10);
+            state17C->unk10 = -state17C->unk10 * 0.1 + state17C->unk10;
+            state17C->unk12 = -state17C->unk12 * 0.1 + state17C->unk12;
+            bossPieceSetAngle(3, state17C->unk12);
+            bossPieceSetAngle(2, state17C->unk10);
         }
         /* fallthrough */
     case 0x2B:                                      /* switch 1 */
@@ -1079,10 +1079,10 @@ void func_800254D0(void) {
             break;
         case 2:                                     /* switch 6 */
         case 3:                                     /* switch 6 */
-            bossPieceListStep(temp_s1, sp78, sp74, (D_807FBB40->unk154 == 0x2B) ? &D_80035980 : &D_80035984);
+            bossPieceListStep(state, state17C, scriptData, (D_807FBB40->unk154 == 0x2B) ? &D_80035980 : &D_80035984);
             break;
         case 4:                                     /* switch 6 */
-            D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+            D_807FBB40->unk154 = scriptData[state->unk15++];
             D_807FBB40->unk155 = 0;
             break;
         }
@@ -1094,7 +1094,7 @@ void func_800254D0(void) {
             D_807FBB40->unk155 = 1;
             break;
         case 2:                                     /* switch 7 */
-            D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+            D_807FBB40->unk154 = scriptData[state->unk15++];
             D_807FBB40->unk155 = 0;
             break;
         }
@@ -1120,7 +1120,7 @@ void func_800254D0(void) {
             break;
         case 5:                                     /* switch 8 */
             D_807FBB40->unkB8 = 0.0f;
-            D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+            D_807FBB40->unk154 = scriptData[state->unk15++];
             D_807FBB40->unk155 = 0;
             break;
         }
@@ -1129,13 +1129,13 @@ void func_800254D0(void) {
         actorMoveWithinZone(0x45, 510.0f, 480.0f, 0x292, 0.0f);
         if (gFrameCounter & 8) {
             func_800253AC();
-            sp6E = 1;
+            playSfx = 1;
             D_807FBB40->unkC0 = 100.0f;
         }
         switch (D_807FBB40->unk155) {                        /* switch 9 */
         case 0:                                     /* switch 9 */
-            temp_s1->unk18 = sp74[temp_s1->unk15++];
-            temp_s1->unk19 = temp_s1->unk18;
+            state->unk18 = scriptData[state->unk15++];
+            state->unk19 = state->unk18;
             D_807FBB40->unk155 = 1;
             actorScriptStart(D_807FBB40, 0x269);
             break;
@@ -1144,8 +1144,8 @@ void func_800254D0(void) {
             projectileSpawnNodeEntry(0x1E, 5, 1.2f, D_807FBB40->unkE6, 600.0f, 300.0f, D_807FBB40);
             sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0xF6, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             effectSpawnBoneWhite(D_807FBB40, 5, 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
-            if (temp_s1->unk19 != 0) {
-                temp_s1->unk19--;
+            if (state->unk19 != 0) {
+                state->unk19--;
                 D_807FBB40->unk155 = 1;
             } else {
                 actorScriptStart(D_807FBB40, 0);
@@ -1174,11 +1174,11 @@ void func_800254D0(void) {
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
             } else {
-                temp_s1->unk18--;
-                if (temp_s1->unk18 != 0) {
+                state->unk18--;
+                if (state->unk18 != 0) {
                     D_807FBB40->unk155 = 4;
                 } else {
-                    D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+                    D_807FBB40->unk154 = scriptData[state->unk15++];
                     D_807FBB40->unk155 = 0;
                 }
             }
@@ -1188,16 +1188,16 @@ void func_800254D0(void) {
     case 0x46:                                      /* switch 1 */
         switch (D_807FBB40->unk155) {                        /* switch 10 */
         case 0:                                     /* switch 10 */
-            temp_s1->unk12 = (u16) (temp_s1->unk12 | 1);
-            temp_s1->unk18 = (u8) *(temp_s1->unk15++ + sp74);
-            temp_s1->unk19 = (u8) *(temp_s1->unk15++ + sp74);
+            state->unk12 = (u16) (state->unk12 | 1);
+            state->unk18 = (u8) *(state->unk15++ + scriptData);
+            state->unk19 = (u8) *(state->unk15++ + scriptData);
             D_807FBB40->unk155 = 1;
             /* fallthrough */
         case 1:                                     /* switch 10 */
-            D_807FDC90->unk2C = (s16) temp_s1->unk19;
-            if (!(temp_s1->unk12 & 1) && (temp_s1->unk14 != 0)) {
+            D_807FDC90->unk2C = (s16) state->unk19;
+            if (!(state->unk12 & 1) && (state->unk14 != 0)) {
                 D_807FDC90->unk2C = 0;
-                temp_s1->unk18 = (u8) (temp_s1->unk18 + 1);
+                state->unk18 = (u8) (state->unk18 + 1);
             }
             D_807FBB40->unk155 = 2;
             /* fallthrough */
@@ -1206,25 +1206,25 @@ void func_800254D0(void) {
                 func_80024EAC();
                 D_807FDC90->unk2C = (s16) (D_807FDC90->unk2C - 1);
             } else {
-                actorScriptStart(D_807FBB40, (sp6F == 1) ? 0x25D : 0x25E);
+                actorScriptStart(D_807FBB40, (cannonBone == 1) ? 0x25D : 0x25E);
                 D_807FBB40->unk155 = 3;
             }
             break;
         case 4:                                     /* switch 10 */
-            projectileGetTargetCoords(D_807FBB40, sp6F);
-            projectileClampAngleAndSpawn(D_807FBB40->unkE6, 0x320, 0x1E, 1, 0.7f, D_807FDC94->unk7C, D_807FDC94->unk80 + 5.0f, D_807FDC94->unk84, (f32) ((temp_s1->unk14 * 0x50) + 0x1F4), D_807FBB40);
+            projectileGetTargetCoords(D_807FBB40, cannonBone);
+            projectileClampAngleAndSpawn(D_807FBB40->unkE6, 0x320, 0x1E, 1, 0.7f, D_807FDC94->unk7C, D_807FDC94->unk80 + 5.0f, D_807FDC94->unk84, (f32) ((state->unk14 * 0x50) + 0x1F4), D_807FBB40);
             sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x18, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
-            effectSpawnBoneWhite(D_807FBB40, sp6F, 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
-            temp_s1->unk12 = (u16) (temp_s1->unk12 ^ 1);
+            effectSpawnBoneWhite(D_807FBB40, cannonBone, 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
+            state->unk12 = (u16) (state->unk12 ^ 1);
             D_807FBB40->unk155 = 5;
             break;
         case 6:                                     /* switch 10 */
-            if (temp_s1->unk18 != 0) {
-                temp_s1->unk18--;
+            if (state->unk18 != 0) {
+                state->unk18--;
                 D_807FBB40->unk155 = 1;
                 break;
             }
-            D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+            D_807FBB40->unk154 = scriptData[state->unk15++];
             D_807FBB40->unk155 = 0;
             break;
         }
@@ -1234,8 +1234,8 @@ void func_800254D0(void) {
         case 0:                                     /* switch 11 */
             D_807FBB40->unk138 = -1;
             func_80025364();
-            D_807FDC90->unk2C = (s16) *(temp_s1->unk15 + sp74);
-            temp_s1->unk15 = temp_s1->unk15 + 1;
+            D_807FDC90->unk2C = (s16) *(state->unk15 + scriptData);
+            state->unk15 = state->unk15 + 1;
             if (camIsCutsceneActive() != 0) {
                 actorScriptStart(D_807FBB40, 0x267);
             } else {
@@ -1249,7 +1249,7 @@ void func_800254D0(void) {
                 break;
             }
             func_8002531C();
-            D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+            D_807FBB40->unk154 = scriptData[state->unk15++];
             D_807FBB40->unk155 = 0;
             break;
         }
@@ -1276,7 +1276,7 @@ void func_800254D0(void) {
             effectSpawnBoneWhite(D_807FBB40, (s16) (((s32) ((s32) (randomNonNegative() >> 0xF) % 32767) % 20) + 9), 2.0f, 0.0f, 0.0f, 0.0f, -0x50);
             if (currentActorTestClearFlag() != 0) {
                 D_807FBB40->unk138 = -1;
-                D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+                D_807FBB40->unk154 = scriptData[state->unk15++];
                 D_807FBB40->unk155 = 0;
                 D_80750190 = 0;
             }
@@ -1293,7 +1293,7 @@ void func_800254D0(void) {
             actorMoveWithinZone(0x42, (f32) D_807FDC90->unkA, (f32) D_807FDC90->unkE, 0x290, 0.0f);
             if (gFrameCounter & 8) {
                 func_800253AC();
-                sp6E = 1;
+                playSfx = 1;
                 D_807FBB40->unkC0 = 100.0f;
             }
             if (patrolPathStep(D_807FBB40->unk154, 0) != 0) {
@@ -1301,7 +1301,7 @@ void func_800254D0(void) {
             }
             break;
         case 2:                                     /* switch 13 */
-            D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+            D_807FBB40->unk154 = scriptData[state->unk15++];
             D_807FBB40->unk155 = 0;
             break;
         }
@@ -1318,7 +1318,7 @@ void func_800254D0(void) {
                 waterRippleStart(D_807FBB40->unk7C, D_807FBB40->unk84, 20.0f, 2.0f, 8.0f, 400.0f);
                 sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x36, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
             }
-            D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+            D_807FBB40->unk154 = scriptData[state->unk15++];
             D_807FBB40->unk155 = 0;
             break;
         }
@@ -1347,7 +1347,7 @@ void func_800254D0(void) {
             D_807FBB40->unk155 = 4;
             break;
         default:                                    /* switch 15 */
-            D_807FBB40->unk154 = sp74[temp_s1->unk15++];
+            D_807FBB40->unk154 = scriptData[state->unk15++];
             D_807FBB40->unk155 = 0;
             break;
         }
@@ -1359,10 +1359,10 @@ void func_800254D0(void) {
         }
         /* fallthrough */
     default:                                        /* switch 1 */
-        bossScriptStep(sp74, 0x10, 0.0f);
+        bossScriptStep(scriptData, 0x10, 0.0f);
         break;
     }
-    if (sp6E != 0) {
+    if (playSfx != 0) {
         if ((D_807FBB40->unk70 != -1) && (D_80770710[D_80770628[D_807FBB40->unk70]] != 0x114)) {
             sfxStopSlotSound(D_807FBB40, 1);
         }
