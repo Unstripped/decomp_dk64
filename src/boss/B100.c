@@ -195,12 +195,12 @@ s32 func_8072881C(s32, void *);
 #define TIMER_STATE ((BossTimerState *)D_807FDC90)
 
 void bossDogadonStep(void) {
-    BossPhaseState *sp4C;
-    u8 *sp48;
+    BossPhaseState *phaseState;
+    u8 *scriptOpcodes;
     s32 pad[2];
-    f32 sp3C;
+    f32 lineDist;
 
-    sp4C = MAIN_ACTOR->unk178;
+    phaseState = MAIN_ACTOR->unk178;
     behaviourFrameBegin();
     if (!(MAIN_ACTOR->unk60 & 0x10)) {
         MAIN_ACTOR->unk132 = 8;
@@ -212,24 +212,24 @@ void bossDogadonStep(void) {
         MAIN_ACTOR->unk154 = 0x1E;
         MAIN_ACTOR->unk155 = 0;
         if (flagGet(0x54, 2) != 0) {
-            sp4C->unk14 = 4;
+            phaseState->unk14 = 4;
             MAIN_ACTOR->unk154 = 0x37;
             MAIN_ACTOR->unk155 = 0;
         } else if (flagGet(0x53, 2) != 0) {
-            sp4C->unk14 = 3;
+            phaseState->unk14 = 3;
         } else if (flagGet(0x52, 2) != 0) {
-            sp4C->unk14 = 2;
+            phaseState->unk14 = 2;
         } else if (flagGet(0x51, 2) != 0) {
-            sp4C->unk14 = 1;
+            phaseState->unk14 = 1;
         }
-        if (sp4C->unk14 != 0 && MAIN_ACTOR->unk154 != 0x37) {
+        if (phaseState->unk14 != 0 && MAIN_ACTOR->unk154 != 0x37) {
             MAIN_ACTOR->unk154 = 0x31;
             MAIN_ACTOR->unk155 = 0;
             zoneEntryGetPosition(1, 0, &MAIN_ACTOR->unk7C, &MAIN_ACTOR->unk80, &MAIN_ACTOR->unk84);
         }
     }
-    sp48 = D_80035A90[sp4C->unk14];
-    bossRoundFrame(sp48);
+    scriptOpcodes = D_80035A90[phaseState->unk14];
+    bossRoundFrame(scriptOpcodes);
     switch (MAIN_ACTOR->unk154) {
     case 0x28:
         if (D_807FBD70 == 5 && gPlayerSlots->unk2C0 != 1) {
@@ -243,17 +243,17 @@ void bossDogadonStep(void) {
             func_805FF378(0xD6, 0);
             PLAYER_ACTOR->unk7C = func_80612794(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk7C;
             PLAYER_ACTOR->unk84 = func_80612790(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk84;
-            sp3C = func_80612794(MAIN_ACTOR->unkE6 + 0x384);
-            playerWaypointPathStartLineFromActor(PLAYER_ACTOR, (s32)(sp3C * 15.0f + MAIN_ACTOR->unk7C), (s32)(func_80612790(MAIN_ACTOR->unkE6 + 0x384) * 15.0f + MAIN_ACTOR->unk84), 0x50);
+            lineDist = func_80612794(MAIN_ACTOR->unkE6 + 0x384);
+            playerWaypointPathStartLineFromActor(PLAYER_ACTOR, (s32)(lineDist * 15.0f + MAIN_ACTOR->unk7C), (s32)(func_80612790(MAIN_ACTOR->unkE6 + 0x384) * 15.0f + MAIN_ACTOR->unk84), 0x50);
         } else {
             switch (MAIN_ACTOR->unk155) {
             case 0:
-                if (sp4C->unk16 != 0) {
+                if (phaseState->unk16 != 0) {
                     func_80641874(0, 0);
                 }
                 actorScriptStart(MAIN_ACTOR, 0x3FF);
-                TIMER_STATE->unk2C = sp48[sp4C->unk15] * 0x1E;
-                sp4C->unk15++;
+                TIMER_STATE->unk2C = scriptOpcodes[phaseState->unk15] * 0x1E;
+                phaseState->unk15++;
                 MAIN_ACTOR->unk155++;
                 break;
             case 1:
@@ -270,8 +270,8 @@ void bossDogadonStep(void) {
                 }
                 func_80641874(0, 0xFF);
                 actorScriptStart(MAIN_ACTOR, 0x3E4);
-                MAIN_ACTOR->unk154 = sp48[sp4C->unk15];
-                sp4C->unk15++;
+                MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
+                phaseState->unk15++;
                 MAIN_ACTOR->unk155 = 0;
                 break;
             }
@@ -282,8 +282,8 @@ void bossDogadonStep(void) {
         switch (MAIN_ACTOR->unk155) {
         case 0:
             actorSetTargetSpeed(MAIN_ACTOR, 0);
-            sp4C->unk18 = sp48[sp4C->unk15];
-            sp4C->unk15++;
+            phaseState->unk18 = scriptOpcodes[phaseState->unk15];
+            phaseState->unk15++;
             MAIN_ACTOR->unk155++;
             /* fallthrough */
         case 1:
@@ -296,7 +296,7 @@ void bossDogadonStep(void) {
             break;
         case 3:
             if (TIMER_STATE->unk2C != 0 && (u32)gFrameCounter % 5 == 0) {
-                projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 150, 3, (f32)((f64)(u32)sp4C->unk14 * 0.01 + 1.04), 0.0f, 0.0f, 0.0f);
+                projectileSpawnWithShockwave(0xB8, 0.14f, 0x64, 0xFF, 150, 3, (f32)((f64)(u32)phaseState->unk14 * 0.01 + 1.04), 0.0f, 0.0f, 0.0f);
                 if (TIMER_STATE->unk2C-- < 4) {
                     SECOND_ACTOR->unk168 = 0;
                 } else {
@@ -305,7 +305,7 @@ void bossDogadonStep(void) {
                 func_80613C48(SECOND_ACTOR, 0x4F9, 0.0f, 0.0f);
                 scriptSetActorRampTarget(SECOND_ACTOR, 0.5f, 0.0f);
             } else if (TIMER_STATE->unk2C == 0) {
-                TIMER_STATE->unk2C = sp4C->unk18;
+                TIMER_STATE->unk2C = phaseState->unk18;
                 MAIN_ACTOR->unk155++;
             }
             break;
@@ -315,18 +315,18 @@ void bossDogadonStep(void) {
             } else {
                 actorSetTargetSpeed(MAIN_ACTOR, D_807FDC9C->unkC);
                 actorScriptStart(MAIN_ACTOR, 0x3E4);
-                MAIN_ACTOR->unk154 = sp48[sp4C->unk15];
-                sp4C->unk15++;
+                MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
+                phaseState->unk15++;
                 MAIN_ACTOR->unk155 = 0;
             }
             break;
         }
         break;
     case 0x1E:
-        sp4C->unk14 = 0;
-        sp4C->unk15 = 0;
-        MAIN_ACTOR->unk154 = sp48[sp4C->unk15];
-        sp4C->unk15++;
+        phaseState->unk14 = 0;
+        phaseState->unk15 = 0;
+        MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
+        phaseState->unk15++;
         MAIN_ACTOR->unk155 = 0;
         MAIN_ACTOR->unkB8 = (f32)(u32)D_807FDC9C->unkC;
         break;
@@ -337,8 +337,8 @@ void bossDogadonStep(void) {
             MAIN_ACTOR->unk155++;
             break;
         case 2:
-            MAIN_ACTOR->unk154 = sp48[sp4C->unk15];
-            sp4C->unk15++;
+            MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
+            phaseState->unk15++;
             MAIN_ACTOR->unk155 = 0;
             break;
         }
@@ -354,8 +354,8 @@ void bossDogadonStep(void) {
             break;
         case 2:
             actorScriptStart(MAIN_ACTOR, 0x3E4);
-            MAIN_ACTOR->unk154 = sp48[sp4C->unk15];
-            sp4C->unk15++;
+            MAIN_ACTOR->unk154 = scriptOpcodes[phaseState->unk15];
+            phaseState->unk15++;
             MAIN_ACTOR->unk155 = 0;
             break;
         }
@@ -377,7 +377,7 @@ void bossDogadonStep(void) {
         }
         break;
     default:
-        bossScriptStep(sp48, 0x10, 0.0f);
+        bossScriptStep(scriptOpcodes, 0x10, 0.0f);
         break;
     }
     func_8072A450();
@@ -388,8 +388,8 @@ void bossDogadonStep(void) {
 }
 
 
-void func_8002FB7C(arg0)
-u8 arg0;
+void func_8002FB7C(scaleFactor)
+u8 scaleFactor;
 {
     BossE_B100_Sub20 *sub;
     f32 sin_val;
@@ -399,48 +399,48 @@ u8 arg0;
     sub->unk1 = 4;
     sub->unk4 = 1.0f;
     sin_val = func_80612794((s16)(gFrameCounter << 7));
-    sub->unk4 += (f64)arg0 * (0.04 + 0.04 * (f64)sin_val);
+    sub->unk4 += (f64)scaleFactor * (0.04 + 0.04 * (f64)sin_val);
     sub->unk8 = sub->unk4;
     sub->unkC = 1.0f;
 }
-void func_8002FC48(arg0, arg1)
-s32 arg0;
-u8 arg1;
+void func_8002FC48(actorObj, frame)
+s32 actorObj;
+u8 frame;
 {
-    animSetLoopLimit(arg0, 0, 1);
-    animSetFinished(arg0, 0, 1);
-    animSetFrameAndSubframe(arg0, 0, arg1, 0.0f);
+    animSetLoopLimit(actorObj, 0, 1);
+    animSetFinished(actorObj, 0, 1);
+    animSetFrameAndSubframe(actorObj, 0, frame, 0.0f);
 }
 
 void scriptSetActorRampTarget(void *, f32, f32);
 
-void bossActorGroupCommand(arg0, arg1, arg2, arg3)
-BossE_B100_Actor *arg0;
-u8 arg1;
-s32 arg2;
-u8 arg3;
+void bossActorGroupCommand(groupLeader, mask, command, param)
+BossE_B100_Actor *groupLeader;
+u8 mask;
+s32 command;
+u8 param;
 {
     BossE_B100_Actor **actor_list;
     BossE_B100_Actor *actor;
     s16 i;
 
-    actor_list = arg0->unk17C;
+    actor_list = groupLeader->unk17C;
     for (i = 0; i < 4; i++) {
-        if (arg1 & (1 << i)) {
-            actor = i != 0 ? actor_list[i - 1] : arg0;
-            switch (arg2) {
+        if (mask & (1 << i)) {
+            actor = i != 0 ? actor_list[i - 1] : groupLeader;
+            switch (command) {
             case 1:
             case 2:
-                actor->unk132 = arg2;
+                actor->unk132 = command;
                 break;
             case -1:
             case 0:
-                actor->unk138 = arg2;
+                actor->unk138 = command;
                 break;
             default:
-                actorScriptStart(actor, arg2);
-                if (arg3) {
-                    scriptSetActorRampTarget(actor, (f64)arg3 * 0.01, 0.0f);
+                actorScriptStart(actor, command);
+                if (param) {
+                    scriptSetActorRampTarget(actor, (f64)param * 0.01, 0.0f);
                 }
                 break;
             }
@@ -449,23 +449,23 @@ u8 arg3;
 }
 
 
-void func_8002FDF8(arg0, arg1)
-s32 arg0;
-u8 arg1;
+void func_8002FDF8(actorObj, scaleVal)
+s32 actorObj;
+u8 scaleVal;
 {
-    s32 v0;
-    s32 temp_a1;
+    s32 finalScale;
+    s32 animFrame;
 
     if (D_807FBB40->unk15F == 2) {
-        v0 = 4;
+        finalScale = 4;
     } else {
-        v0 = arg1;
+        finalScale = scaleVal;
     }
-    func_8002FB7C(v0 & 0xFF);
+    func_8002FB7C(finalScale & 0xFF);
     if (D_807FBD70 == 4) {
-        bossActorGroupCommand(arg0, 0xF, 0, 0);
-        temp_a1 = (0xA - D_807FBB40->unk134) & 0xFF;
-        func_8002FC48(D_807FBB40, temp_a1);
+        bossActorGroupCommand(actorObj, 0xF, 0, 0);
+        animFrame = (0xA - D_807FBB40->unk134) & 0xFF;
+        func_8002FC48(D_807FBB40, animFrame);
         actorScriptStart(D_807FBB40, 0x415);
     }
     if (D_807FBD70 == 5 || D_807FBD70 == 4) {
@@ -473,18 +473,18 @@ u8 arg1;
     }
 }
 
-void func_8002FEC0(arg0, arg1, arg2)
-BossE_B100_Actor **arg0;
-u8 arg1;
-s32 arg2;
+void func_8002FEC0(actorList, slotIndex, modelId)
+BossE_B100_Actor **actorList;
+u8 slotIndex;
+s32 modelId;
 {
-    actorSpawn(0xE5, arg2);
+    actorSpawn(0xE5, modelId);
     actorCopyPoseAndScale(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
     D_807FBB44->unk60 |= 0x1400;
     D_807FBB44->unk11C = D_807FBB40;
     D_807FBB44->unk144 = D_807FBB40->unk144;
     D_807FBB44->unk60 = D_807FBB40->unk60;
-    arg0[arg1] = D_807FBB44;
+    actorList[slotIndex] = D_807FBB44;
 }
 
 typedef struct {
@@ -540,7 +540,7 @@ void func_8002FF74(void) {
     BossScriptState *st;
     BossActor **list;
     u8 *tbl;
-    f32 sp60;
+    f32 dummyY;
 
     st = BOSS_ACTOR->unk178;
     list = BOSS_ACTOR->unk17C;
@@ -582,7 +582,7 @@ void func_8002FF74(void) {
     tbl = D_80035AA4[st->unk14];
     if (BOSS_ACTOR->unk154) {
         s16 *p = D_807FDCA0->unk14;
-        camClosestPointOnSegment(D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, p[0], p[1], p[2], p[5], p[6], p[7], &D_807FBB4C->unk7C, &sp60, &D_807FBB4C->unk84);
+        camClosestPointOnSegment(D_807FBB4C->unk7C, D_807FBB4C->unk80, D_807FBB4C->unk84, p[0], p[1], p[2], p[5], p[6], p[7], &D_807FBB4C->unk7C, &dummyY, &D_807FBB4C->unk84);
         D_807FBB4C->unkE6 = 0xFD2;
         gActivePlayerState->unk38 = 150.0f;
     }
@@ -709,17 +709,17 @@ void func_8002FF74(void) {
 }
 
 void func_80030888(void) {
-    BossE_B100_Sub11C *sp1C;
-    BossE_B100_Sub178 *sp18;
-    s32 var_v0;
+    BossE_B100_Sub11C *sub11C;
+    BossE_B100_Sub178 *sub178;
+    s32 scaleVal;
 
-    sp1C = D_807FBB40->unk11C;
-    sp18 = sp1C->unk178;
+    sub11C = D_807FBB40->unk11C;
+    sub178 = sub11C->unk178;
     if (!(D_807FBB40->unk60 & 0x10)) {
-        func_80724DB0(2, 1, sp1C);
+        func_80724DB0(2, 1, sub11C);
     }
-    var_v0 = (D_807FBB40->unk15F == 1) ? sp18->unk14 : 0;
-    func_8002FDF8(sp1C, (u8)var_v0);
+    scaleVal = (D_807FBB40->unk15F == 1) ? sub178->unk14 : 0;
+    func_8002FDF8(sub11C, (u8)scaleVal);
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
