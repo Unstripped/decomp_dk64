@@ -111,8 +111,8 @@ void collisionQueryActorFloor(Actor *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg
 
     D_807F94BC = 0;
     D_807F94B3 = 0;
-    if (((u8 *)arg0)[0xCC] != 0 && arg0->attachMode == 0 && (arg0->flags & 0x10)) {
-        actorGetNodePos(arg0, ((u8 *)arg0)[0xCC] ^ 0, &sp3C, &sp38, &sp34); // FAKE: x ^ 0 keeps the node id in v0 (no spill)
+    if (((u8 *)arg0)[0xCC] && arg0->attachMode == 0 && (arg0->flags & 0x10)) {
+        actorGetNodePos(arg0, ((u8 *)arg0)[0xCC], &sp3C, &sp38, &sp34);
     } else {
         sp3C = arg0->x;
         sp38 = arg0->prevY;
