@@ -749,13 +749,13 @@ typedef struct G09Sub568 {
 } G09Sub568;
 
 extern G09Sub568 *D_807FD568;
-s32 func_805FCA64();
+s32 hudCanRender();
 void renderCallbacksRegister();
 void func_806FF01C();
 void func_806FF75C();
 
 void func_806D2954(s16 arg0) {
-    if ((G09_P->unk8C != 0) && (func_805FCA64() != 0)) {
+    if ((G09_P->unk8C != 0) && (hudCanRender() != 0)) {
         if (D_807FD568->unk2 == 7) {
             arg0 = 0xF;
             renderCallbacksRegister(&func_806FF75C, gCurrentActor, 5);
@@ -779,7 +779,7 @@ void func_806D2A14(s16 arg0) {
         arg0 = 5;
         G09_A->unk155--;
     }
-    if (func_805FCA64(arg0) != 0) {
+    if (hudCanRender(arg0) != 0) {
         if (playerInputUpdate(arg0) == 0) {
             renderCallbacksRegister(&func_806FF358, gCurrentActor, 3);
         }

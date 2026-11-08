@@ -70,7 +70,7 @@ extern Gfx D_1000118;
 extern Mtx D_2000180;
 extern Gfx D_8071FC58;
 extern RenderState *gPlayerSlots;
-s32 func_805FCA64(void);
+s32 hudCanRender(void);
 Gfx *func_8070068C(Gfx *);
 GfxResource *gfxResourceFindById(u8);
 Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
@@ -91,7 +91,7 @@ Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
     s32 offset;
 
     sub = actor->unk174;
-    if (func_805FCA64() != 0) {
+    if (hudCanRender() != 0) {
         WRITE_GFX(gfx++, 0xDE000000, (u32)&D_1000118);
         WRITE_GFX(gfx++, 0xFC119623, 0xFF2FFFFF);
         WRITE_GFX(gfx++, 0xFA000000, (actor->unk128 & 0xFF) | 0xFFFFFF00);

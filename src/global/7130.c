@@ -4,25 +4,25 @@
 void alCSPSetChlPanVolume(ALCSPlayer *, f32, f32);
 void alCSPSetChlFX1Mix(ALCSPlayer *, u8, u8);
 
-extern u16 D_80745658[];
+extern u16 sSfxFlagTable[];
 
 u8 sfxGetBankIndex(arg0)
 s16 arg0;
 {
-    return (D_80745658[arg0] & 6) >> 1;
+    return (sSfxFlagTable[arg0] & 6) >> 1;
 }
 
 u8 sfxGetChannelIndex(arg0)
 s16 arg0;
 {
-    return (D_80745658[arg0] & 0x78) >> 3;
+    return (sSfxFlagTable[arg0] & 0x78) >> 3;
 }
 
-extern u8 D_80745654;
+extern u8 sSfxMode;
 void sfxSetMode(arg0)
 u8 arg0;
 {
-    D_80745654 = arg0;
+    sSfxMode = arg0;
 }
 
 typedef struct {
@@ -51,12 +51,12 @@ typedef struct AudioPlayer {
     char pad2C8[0x28];
 } AudioPlayer;
 
-extern s8 D_80745650;
+extern s8 sSfxAreaAmbientActive;
 extern u8 D_80770DC9;
 extern u8 D_80770DD8[];
 extern AudioPlayer *gPlayerSlots;
 extern s32 gCurrentMap;
-extern AmbientSfxEntry D_807459FC[];
+extern AmbientSfxEntry sAmbientSfxTable[];
 
 s16 mapChunkFindByPosition(f32, f32, f32, s32);
 void sfxAllocateChannel(s32, f32);
@@ -65,8 +65,8 @@ void sfxStartAreaAmbient(void) {
     s16 count;
     s16 v0;
 
-    D_80745650 = 1;
-    if (D_80745654 != 0) {
+    sSfxAreaAmbientActive = 1;
+    if (sSfxMode != 0) {
         if (D_80770DD8[1] == 0xFF) {
             D_80770DD8[1] = 0;
         }
@@ -78,12 +78,12 @@ void sfxStartAreaAmbient(void) {
     v0 = mapChunkFindByPosition(gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218, 0);
 
     i = 0; do {
-        if (gCurrentMap == D_807459FC[i].unk0 && v0 == D_807459FC[i].unk2) {
-            D_80770DC9 = D_807459FC[i].unk8;
-            sfxAllocateChannel(D_807459FC[i].unk4, 1.0f);
-            if (D_807459FC[i].unk6 != 0) {
-                count = D_807459FC[i].unk6;
-                D_80770DD8[1] = D_807459FC[i].unk6;
+        if (gCurrentMap == sAmbientSfxTable[i].unk0 && v0 == sAmbientSfxTable[i].unk2) {
+            D_80770DC9 = sAmbientSfxTable[i].unk8;
+            sfxAllocateChannel(sAmbientSfxTable[i].unk4, 1.0f);
+            if (sAmbientSfxTable[i].unk6 != 0) {
+                count = sAmbientSfxTable[i].unk6;
+                D_80770DD8[1] = sAmbientSfxTable[i].unk6;
             }
             return;
         }
@@ -96,10 +96,10 @@ void sfxPlayCurrent(u8 arg0, u8 arg1, u8 arg2) {
     sfxStartAreaAmbient();
 }
 
-extern s16 D_807458DC[];
-extern f32 D_807458F4[];
-extern s16 D_80745924[];
-extern s32 D_8074593C[][12];
+extern s16 sSfxChannelSounds[];
+extern f32 sSfxChannelVolumes[];
+extern s16 sSfxChannelStates[];
+extern s32 sSfxChannelMasks[][12];
 extern u8 D_80770560[];
 extern f32 D_80770568[];
 extern ALCSPlayer *gSeqPlayers[];
@@ -121,7 +121,7 @@ void sfxStopChannel();
 void seqSetTargetVolume(s32, f32);
 void seqLoadAndPlayWithReverb(s32, u8, f32);
 
-// deadsweep round 3: full=62 text=62 inserted `if (D_8074593C && D_8074593C) {}` at line 18
+// deadsweep round 3: full=62 text=62 inserted `if (sSfxChannelMasks && sSfxChannelMasks) {}` at line 18
 void sfxUpdateChannels(void) {
     u8 i;
     u8 j;
@@ -136,39 +136,39 @@ void sfxUpdateChannels(void) {
     sp68 = D_80745B20;
     sp64 = D_80745B24;
 
-    if (*(u8 *)&D_80745650 != 0) {
+    if (*(u8 *)&sSfxAreaAmbientActive != 0) {
         i = 0;
         do {
             sp64.b[i] = alCSPGetState(gSeqPlayers[i]);
         } while (++i < 4);
 
         i = 0; do {
-            s5 = D_807458DC[i];
+            s5 = sSfxChannelSounds[i];
             if (s5 != 0) {
                 s1 = sfxGetChannelIndex((s16)s5);
                 s2 = sfxGetBankIndex((s16)(u16)s5);  // FAKE: (u16) keeps this conv from being CSE'd with the one above
                 if (s5 == D_80770560[s2] && sp64.b[s2] == 1) {
-                    if (D_80745924[i] == 1) {
-                        D_80745924[i] = 2;
+                    if (sSfxChannelStates[i] == 1) {
+                        sSfxChannelStates[i] = 2;
                     }
-                    if (D_80745924[i] == 2) {
+                    if (sSfxChannelStates[i] == 2) {
                         j = 0;
                         do {
                             if (!s2) {}  // FAKE: steers uopt register order (s7/s8)
                             vol = (j & 1) ? 0 : 0xFF;
                             sel = j & 2;
-                            if (D_8074593C[j][s1] != 0) {
+                            if (sSfxChannelMasks[j][s1] != 0) {
                                 if (sel) {
-                                    seqPlayerSetChannelControlMask(s2, D_8074593C[j][s1], vol);
+                                    seqPlayerSetChannelControlMask(s2, sSfxChannelMasks[j][s1], vol);
                                 } else {
-                                    seqPlayerSetChannelStopControlMask(s2, D_8074593C[j][s1], vol);
+                                    seqPlayerSetChannelStopControlMask(s2, sSfxChannelMasks[j][s1], vol);
                                 }
-                                D_8074593C[j][s1] = 0;
+                                sSfxChannelMasks[j][s1] = 0;
                             }
                         } while (++j < 4);
                     }
                 }
-                if (!(D_80745658[s5] & 0x100) && D_80745924[i] == 2) {
+                if (!(sSfxFlagTable[s5] & 0x100) && sSfxChannelStates[i] == 2) {
                     if (sp64.b[sfxGetBankIndex((s16)(s5 ^ 0))] == 0 || s5 != D_80770560[s2]) {  // FAKE: ^ 0 keeps this conv from being CSE'd with the earlier two
                         sfxStopChannel(s5, 0);
                     }
@@ -178,9 +178,9 @@ void sfxUpdateChannels(void) {
 
         i = 0;
         do {
-            s5 = D_807458DC[i];
+            s5 = sSfxChannelSounds[i];
             if (s5 != 0) {
-                if (D_80745658[s5] & 0x80) {
+                if (sSfxFlagTable[s5] & 0x80) {
                     j = 0;
                     do {
                         sp68.b[j] = -1;
@@ -201,21 +201,21 @@ void sfxUpdateChannels(void) {
                             alSeqpStop((ALSeqPlayer *)gSeqPlayers[i]);
                         }
                     } else {
-                                                if (D_80770560[i] != D_807458DC[idx] || (D_80745924[idx] == 0 && (D_80745658[D_807458DC[idx]] & 0x200))) {
+                                                if (D_80770560[i] != sSfxChannelSounds[idx] || (sSfxChannelStates[idx] == 0 && (sSfxFlagTable[sSfxChannelSounds[idx]] & 0x200))) {
                             alSeqpStop((ALSeqPlayer *)gSeqPlayers[i]);
                         } else if (D_80770568[i] == 0.0f) {
-                            seqSetTargetVolume(i, D_807458F4[idx]);
+                            seqSetTargetVolume(i, sSfxChannelVolumes[idx]);
                         }
                     }
                 }
             } else {
                 if (idx != -1) {
-                                        if (D_80770560[i] == D_807458DC[idx] && D_80745924[idx] == 2) {
-                        seqSetTargetVolume(i, D_807458F4[idx]);
+                                        if (D_80770560[i] == sSfxChannelSounds[idx] && sSfxChannelStates[idx] == 2) {
+                        seqSetTargetVolume(i, sSfxChannelVolumes[idx]);
                         alCSPPlay(gSeqPlayers[i]);
                     } else {
-                        seqLoadAndPlayWithReverb(i, (u8)D_807458DC[idx], D_807458F4[idx]);
-                        D_80745924[sfxGetChannelIndex(D_807458DC[idx])] = 1;
+                        seqLoadAndPlayWithReverb(i, (u8)sSfxChannelSounds[idx], sSfxChannelVolumes[idx]);
+                        sSfxChannelStates[sfxGetChannelIndex(sSfxChannelSounds[idx])] = 1;
                     }
                 }
             }
@@ -223,10 +223,10 @@ void sfxUpdateChannels(void) {
     }
 }
 
-extern s16 D_807458DC[];
-extern f32 D_807458F4[];
-extern s16 D_80745924[];
-extern s32 D_8074593C[][12];
+extern s16 sSfxChannelSounds[];
+extern f32 sSfxChannelVolumes[];
+extern s16 sSfxChannelStates[];
+extern s32 sSfxChannelMasks[][12];
 
 void sfxAllocateChannel(s32 arg0, f32 arg1) {
     u8 v0;
@@ -235,15 +235,15 @@ void sfxAllocateChannel(s32 arg0, f32 arg1) {
 
     v0 = sfxGetChannelIndex((s16)arg0);
     if (arg0 != 0) {
-        v1 = D_807458DC[v0];
-        if (arg0 == v1 && (D_80745658[arg0] & 0x200) == 0) {
+        v1 = sSfxChannelSounds[v0];
+        if (arg0 == v1 && (sSfxFlagTable[arg0] & 0x200) == 0) {
             return;
         }
-        D_807458DC[v0] = arg0;
-        D_807458F4[v0] = arg1;
-        D_80745924[v0] = 0;
+        sSfxChannelSounds[v0] = arg0;
+        sSfxChannelVolumes[v0] = arg1;
+        sSfxChannelStates[v0] = 0;
         for (i = 0; i < 4; i++) {
-            D_8074593C[i][v0] = 0;
+            sSfxChannelMasks[i][v0] = 0;
         }
     }
 }
@@ -256,9 +256,9 @@ u8 arg1;
 {
     u8 v1 = sfxGetChannelIndex((s16)arg0);
     u8 v0 = sfxGetBankIndex((s16)arg0);
-    if (arg0 != 0 && arg0 == D_807458DC[v1]) {
-        D_807458DC[v1] = 0;
-        D_80745924[v1] = 0;
+    if (arg0 != 0 && arg0 == sSfxChannelSounds[v1]) {
+        sSfxChannelSounds[v1] = 0;
+        sSfxChannelStates[v1] = 0;
         if (arg1 != 0) {
             if (arg0 == D_80770560[v0]) {
                 alSeqpStop((ALSeqPlayer *)gSeqPlayers[v0]);
@@ -270,8 +270,8 @@ u8 arg1;
 void sfxStopAllChannels(void) {
     u8 i;
     for (i = 0; i < 12; i++) {
-        if (D_807458DC[i] != 0) {
-            sfxStopChannel(D_807458DC[i], 1);
+        if (sSfxChannelSounds[i] != 0) {
+            sfxStopChannel(sSfxChannelSounds[i], 1);
         }
     }
 }
@@ -281,7 +281,7 @@ void seqSetTargetVolume(s32, f32);
 
 void seqRouteChannelVolume(s32 arg0, f32 arg1) {
     u8 v1 = sfxGetBankIndex((s16)arg0);
-    if ((arg0 == D_807458DC[sfxGetChannelIndex((s16)arg0)]) && (arg0 == D_80770560[v1])) {
+    if ((arg0 == sSfxChannelSounds[sfxGetChannelIndex((s16)arg0)]) && (arg0 == D_80770560[v1])) {
         seqSetTargetVolume(v1, arg1);
     }
 }
@@ -295,8 +295,8 @@ u8 arg2;
 {
     s16 a = arg0;
     s32 temp = sfxGetChannelIndex(a);
-    if (arg0 == D_807458DC[temp]) {
-        D_8074593C[arg2][temp] = arg1;
+    if (arg0 == sSfxChannelSounds[temp]) {
+        sSfxChannelMasks[arg2][temp] = arg1;
     }
 }
 
@@ -317,7 +317,7 @@ s32 arg0;
 
 void sfxSetChannelTempo(s32 arg0, f32 arg1) {
     u8 v1 = sfxGetBankIndex((s16)arg0);
-    if ((arg0 == D_807458DC[sfxGetChannelIndex((s16)arg0)]) && (arg0 == D_80770560[v1])) {
+    if ((arg0 == sSfxChannelSounds[sfxGetChannelIndex((s16)arg0)]) && (arg0 == D_80770560[v1])) {
         alCSPSetTempo(gSeqPlayers[v1], (s32)((s32)alCSPGetTempo(gSeqPlayers[v1]) * arg1));
     }
 }
@@ -512,7 +512,7 @@ f32 D_80770EF8[16];
 extern u32 gGlobalPauseFlags;
 extern SoundContextD580 *gActivePlayerState;
 
-s32 func_8062F388(LevelSoundEmitter **);
+s32 mapGetSoundEmitters(LevelSoundEmitter **);
 void actorTargetEntriesUpdateSfx(s32, s32, s32, f32);
 s32 flagGet(s32, s32);
 void n_alSndpPostEvent(s32, s32, ...);
@@ -603,7 +603,7 @@ void sfxUpdateLevelAmbient(void) {
         break;
     }
 
-    if (var_s1 != 0 && *(u8 *)&D_80745650 != 0 && D_80745654 == 0) {
+    if (var_s1 != 0 && *(u8 *)&sSfxAreaAmbientActive != 0 && sSfxMode == 0) {
         D_80770DD4 = 1000000.0f;
         var_fs1 = 0.0f;
         s0 = 0;
@@ -734,7 +734,7 @@ void sfxUpdateLevelAmbient(void) {
             alCSPSetChlPanVolume(gSeqPlayers[0], var_fs0, var_fs1);
         }
         for (s0 = 0; s0 < 4; s0++) {
-            if (D_80745658[D_80770560[s0]] & 1) {
+            if (sSfxFlagTable[D_80770560[s0]] & 1) {
                 alCSPSetChlPanVolume(gSeqPlayers[s0], var_fs0, var_fs1);
             } else {
                 alCSPSetChlPanVolume(gSeqPlayers[s0], 0.0f, 1.0f);
@@ -743,7 +743,7 @@ void sfxUpdateLevelAmbient(void) {
         D_8077058D = D_8077058E;
     }
 
-    spC8 = func_8062F388(&spBC);
+    spC8 = mapGetSoundEmitters(&spBC);
     for (s2 = 0; s2 < 15; s2++) {
         D_80770DE8 = 0.0f;
         D_80770DEC = 0.0f;
@@ -901,7 +901,7 @@ void sfxSetChannelParam();
 
 void seqUpdateUnderwaterAudio(s32 arg0) {
     if (D_80745838 != 0) {
-        if (arg0 == 0 && (D_80745658[D_80770560[arg0]] & 1)) {
+        if (arg0 == 0 && (sSfxFlagTable[D_80770560[arg0]] & 1)) {
             alCSPSetChlPanVolume(gSeqPlayers[0], 0.3f, 1.35f);
         }
         if (D_80770560[arg0] == 0x38) {
@@ -918,7 +918,7 @@ void seqUpdateUnderwaterAudio(s32 arg0) {
             sfxSetChannelParam(0x60, 0x10, 0);
         }
     } else {
-        if (arg0 == 0 && (D_80745658[D_80770560[arg0]] & 1)) {
+        if (arg0 == 0 && (sSfxFlagTable[D_80770560[arg0]] & 1)) {
             alCSPSetChlPanVolume(gSeqPlayers[0], 0.0f, 1.0f);
         }
         if (D_80770560[arg0] == 0x38) {
@@ -1016,7 +1016,7 @@ void sfxPlayActorSound(Actor *arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5
     }
     ((AudioActor *)arg0)->unk6E[arg4] = sfxSlotAllocateActor(arg0, arg1, arg2, arg3, arg5, arg6, arg7);
 }
-extern s32 D_80745848[];
+extern s32 sSoundSlotHandles[];
 extern u8 D_807460AE[][2];
 extern s16 D_80770658[];
 extern u8 D_807706E0[];
@@ -1057,7 +1057,7 @@ u8 sfxSlotAllocateActor(Actor *arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, f32 ar
 
     if (j == 22) {
         for (j = 0; j < 22; j++) {
-            if (D_80770710[j] == 0 && D_80745848[j] == 0) {
+            if (D_80770710[j] == 0 && sSoundSlotHandles[j] == 0) {
                 break;
             }
         }
@@ -1120,7 +1120,7 @@ u8 sfxSlotAllocateSource(s16 arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5
 
     if (j == 22) {
         for (j = 0; j < 22; j++) {
-            if (D_80770710[j] == 0 && D_80745848[j] == 0) {
+            if (D_80770710[j] == 0 && sSoundSlotHandles[j] == 0) {
                 break;
             }
         }
@@ -1190,7 +1190,7 @@ void sfxSlotFreeSource(s16 arg0) {
     D_80770658[arg0] = -1;
 }
 
-s32 func_8070B318(void);
+s32 transitionGetState(void);
 void n_alSndpStopAll(void);
 
 extern u8 D_80750190;
@@ -1201,11 +1201,11 @@ void audioResetAll(void) {
     u8 j;
 
     i = 0;
-    if (func_8070B318() == 0) {
+    if (transitionGetState() == 0) {
         n_alSndpStopAll();
     }
     D_80750190 = 0;
-    if (func_8070B318() != 0) {
+    if (transitionGetState() != 0) {
         i = 1;
     }
     for (; i < 4; i++) {
@@ -1218,22 +1218,22 @@ void audioResetAll(void) {
     D_8077058C[0] = 0;
     D_8077058C[1] = 0;
     D_8077058C[2] = 0;
-    if (func_8070B318() != 0) {
+    if (transitionGetState() != 0) {
         i = 1;
     } else {
         i = 0;
     }
     for (; i < 12; i++) {
-        if (D_807458DC[i] != 0x12) {
-            D_807458F4[i] = 0.0f;
+        if (sSfxChannelSounds[i] != 0x12) {
+            sSfxChannelVolumes[i] = 0.0f;
             for (j = 0; j < 4; j++) {
-                D_8074593C[j][i] = 0;
+                sSfxChannelMasks[j][i] = 0;
             }
-            D_807458DC[i] = 0;
-            D_80745924[i] = 0;
+            sSfxChannelSounds[i] = 0;
+            sSfxChannelStates[i] = 0;
         }
     }
-    D_80745650 = 0;
+    sSfxAreaAmbientActive = 0;
     D_80770DC9 = 0;
     D_80745838 = 0;
     D_80770DD9 = 0xFF;
@@ -1373,12 +1373,12 @@ void sfxUpdateSourceGroups(void) {
             }
             sfxPlayOnFreeSlot(0x88, volume, D_80770DDC, 1.0f, 5, fxFlags);
         } else {
-            if (D_80745848[i] != 0) {
+            if (sSoundSlotHandles[i] != 0) {
                 if (D_80770710[i] == 0) {
                     if (D_807706E0[i] != 0) {
                         D_807706E0[i]--;
                     } else {
-                        n_alSndpStop(D_80745848[i]);
+                        n_alSndpStop(sSoundSlotHandles[i]);
                         D_80770770[i] = 0;
                         D_807706E0[i] = 10;
                     }
@@ -1386,19 +1386,19 @@ void sfxUpdateSourceGroups(void) {
             } else if (D_80770710[i] != 0) {
                 if (D_80770710[i] == 0x128 || D_80770710[i] == 0x306) {
                     if (D_80770CC8[i] == 0) {
-                        n_alSndpPlay(D_8076D1F8, D_80770710[i], 0, 0x3F, D_80770C18[i], 0, &D_80745848[i]);
+                        n_alSndpPlay(D_8076D1F8, D_80770710[i], 0, 0x3F, D_80770C18[i], 0, &sSoundSlotHandles[i]);
                         D_80770CC8[i] = 1;
                     } else {
                         slotIdx = D_807707A0[i][0];
                         sfxStopSlotSound(D_807705A0[slotIdx], 0);
                     }
                 } else if (D_80770710[i] < 0x800) {
-                    n_alSndpPlay(D_8076D1F8, D_80770710[i], 0, 0x3F, D_80770C18[i], 0, &D_80745848[i]);
+                    n_alSndpPlay(D_8076D1F8, D_80770710[i], 0, 0x3F, D_80770C18[i], 0, &sSoundSlotHandles[i]);
                 } else {
-                    n_alSndpPlay(D_8076D1FC, D_80770710[i] - 0x7FF, 0, 0x3F, D_80770C18[i], 0, &D_80745848[i]);
+                    n_alSndpPlay(D_8076D1FC, D_80770710[i] - 0x7FF, 0, 0x3F, D_80770C18[i], 0, &sSoundSlotHandles[i]);
                 }
             }
-            if (D_80745848[i] != 0) {
+            if (sSoundSlotHandles[i] != 0) {
                 if (D_807707A0[i][0] != -1 && (D_807705A0[D_807707A0[i][0]] != NULL || D_807705F8[D_807707A0[i][0]] != -1)) {
                     D_80770DE8 = 0.0f;
                     D_80770DEC = 0.0f;
@@ -1860,7 +1860,7 @@ void sfxUpdateSourceGroups(void) {
                     if (D_80770F38 < 0.17) {
                         D_80770F38 = 0.17f;
                     }
-                    n_alSndpPostEvent(D_80745848[i], 0x100, fxFlags);
+                    n_alSndpPostEvent(sSoundSlotHandles[i], 0x100, fxFlags);
                     if (volume != D_80770D10[i]) {
                         if (D_80770D10[i] != -1) {
                             if (D_80770D10[i] < volume) {
@@ -1872,7 +1872,7 @@ void sfxUpdateSourceGroups(void) {
                             }
                         }
                         D_80770D10[i] = volume;
-                        n_alSndpPostEvent(D_80745848[i], 8, (s32)volume);
+                        n_alSndpPostEvent(sSoundSlotHandles[i], 8, (s32)volume);
                     }
                     pan = D_80770DDC;
                     if (pan != D_80770D40[i]) {
@@ -1886,11 +1886,11 @@ void sfxUpdateSourceGroups(void) {
                             }
                         }
                         D_80770D40[i] = pan;
-                        n_alSndpPostEvent(D_80745848[i], 4, pan);
+                        n_alSndpPostEvent(sSoundSlotHandles[i], 4, pan);
                     }
                     if (D_80770F38 != D_80770D70[i]) {
                         D_80770D70[i] = D_80770F38;
-                        n_alSndpPostEvent(D_80745848[i], 0x10, *(s32 *)&D_80770F38);
+                        n_alSndpPostEvent(sSoundSlotHandles[i], 0x10, *(s32 *)&D_80770F38);
                     }
                 }
             }
@@ -2337,22 +2337,22 @@ void seqLoadAndPlay(s32 arg0, u8 arg1, f32 arg2) {
     alCSPPlay(gSeqPlayers[arg0]);
 }
 
-extern s8 D_80745840;
-extern s8 D_8074583C;
+extern s8 gMusicVolume;
+extern s8 gSfxVolume;
 extern s16 D_807454F0[];
 extern f32 D_807457B8[];
 
 void seqUpdateVolume(s32 arg0) {
-    f32 var_fv0 = D_80745840;
+    f32 var_fv0 = gMusicVolume;
     s32 temp_t7 = D_80770560[arg0] * 2;
-    s32 temp_t8 = *(u16 *)((u8 *)D_80745658 + temp_t7) & 0xC00;
+    s32 temp_t8 = *(u16 *)((u8 *)sSfxFlagTable + temp_t7) & 0xC00;
     switch (temp_t8) {
     case 0x400:
-        var_fv0 = D_8074583C;
+        var_fv0 = gSfxVolume;
         break;
     case 0x800:
-        if (!((f32)D_8074583C < var_fv0)) {
-            var_fv0 = D_8074583C;
+        if (!((f32)gSfxVolume < var_fv0)) {
+            var_fv0 = gSfxVolume;
         }
         break;
     }
@@ -2420,7 +2420,7 @@ void seqLoadAndPlayWithReverb(s32 arg0, u8 arg1, f32 arg2) {
     pan = (var_fv0 * 0.3) / 255.0;
     vol = ((var_fv0 * 0.35) / 255.0) + 1.0;
     if (arg0 != 0) {
-        if (D_80745658[D_80770560[arg0]] & 1) {
+        if (sSfxFlagTable[D_80770560[arg0]] & 1) {
             var_fv0 = (f64)(u32)D_8077058E;  // FAKE: dead reload keeps pan/vol computed before the branch
             alCSPSetChlPanVolume(gSeqPlayers[arg0], pan, vol);
         } else {

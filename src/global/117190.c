@@ -418,12 +418,12 @@ void func_80712FC8(void) {
     }
 }
 
-void func_8070B308(s32);
+void transitionSetState(s32);
 
 void func_80713088(void) {
     D_8075531C = 0x1E;
     if (D_807ECD66 & 0x8000) {
-        func_8070B308(0);
+        transitionSetState(0);
         menuTransitionWithState(0x50, 0, 5);
     }
 }
@@ -435,7 +435,7 @@ void func_807130D4(void) {
         D_8075531C = 0x1E;
     }
     if ((D_80755330 == 1) || (D_8075531C == 0) || (D_807ECD66 & 0x8000)) {
-        func_8070B308(0);
+        transitionSetState(0);
         D_80755330 = 0;
         menuTransitionWithState(0x50, 0, 5);
         D_80755330 = 2;
@@ -778,7 +778,7 @@ void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
         }
     }
     if (D_80755314 == 0xE) {
-        func_8070B308(0);
+        transitionSetState(0);
         menuTransitionWithState(0x50, 0, 5);
         return;
     }

@@ -211,7 +211,7 @@ struct ActorPlayerPos;
 
 void lightGetColor(void *, void *, void *, s32);
 void lightSetOverrideColor(f32, f32, f32);
-void func_8070B308(s32);
+void transitionSetState(s32);
 void screenSetTransitionFadeType(s32);
 s32 cutsceneTriggerCheck(s16);
 void playerWaypointPathStartLineFromActor(void *, s16, s16, s32);
@@ -318,7 +318,7 @@ void actorCutsceneDispatchEvents(void) {
         case 0x3:
             if (!(gGlobalPauseFlags & 0x400)) {
                 if (eventData[2] != 0) {
-                    func_8070B308(2);
+                    transitionSetState(2);
                     screenSetTransitionFadeType(0);
                 }
                 paramA = eventData[0];
@@ -342,7 +342,7 @@ void actorCutsceneDispatchEvents(void) {
                 mode = eventData[2];
                 if (mode != 0) {
                     if (mode == 1) {
-                        func_8070B308(2);
+                        transitionSetState(2);
                     }
                     screenSetTransitionFadeType(0);
                 }

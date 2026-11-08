@@ -222,7 +222,7 @@ typedef struct GfxResourceNodeView {
 } GfxResourceNodeView;
 
 extern u8 D_80754A37[];
-extern s32 func_805FCA64();
+extern s32 hudCanRender();
 extern s16 textGetCharAdvance(s16, s32);
 extern Gfx *textObjectDrawFlat(Gfx *, GfxResourceNodeView *);
 extern Gfx *textObjectDrawRotated(Gfx *, GfxResourceNodeView *);
@@ -401,7 +401,7 @@ Gfx *textDrawAnimated(Gfx *glist, s16 resourceId, s32 animMode, f32 baseX, f32 b
             node->unk10 = (f32)((f64)node->unk10 + 0.04);
             return textObjectDrawRotated(glist, node);
         case 8:
-            if (func_805FCA64() == 0) {
+            if (hudCanRender() == 0) {
                 return glist;
             }
             break;

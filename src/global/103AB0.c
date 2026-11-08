@@ -469,7 +469,7 @@ typedef struct {
     s16 unk276;
 } ZbufferViewBounds;
 extern ZbufferDecodeTable D_80754BC4;
-extern s32 D_8076A060;
+extern s32 gGfxDepthBuffer;
 #define ZBUFFER_VIEW ((ZbufferViewBounds *)gPlayerSlots)
 
 s32 zbufferReadDepth(s16 arg0, s16 arg1) {
@@ -483,7 +483,7 @@ s32 zbufferReadDepth(s16 arg0, s16 arg1) {
 
     tileCopy = D_80754BC4;
     tileCopyPtr = &tileCopy;
-    map = (u16 *)D_8076A060;
+    map = (u16 *)gGfxDepthBuffer;
     if ((arg0 < ZBUFFER_VIEW->unk270) || (ZBUFFER_VIEW->unk274 < arg0) || (arg1 < ZBUFFER_VIEW->unk272) || (ZBUFFER_VIEW->unk276 < arg1)) return 0xFFFF;
     map = (u16 *)((u8 *)map + (((gScreenWidth * arg1) + arg0) * 2));
     tile = *map;
@@ -721,7 +721,7 @@ void func_80701C90(void) {
 
 extern Mtx D_2000000;
 extern Mtx D_2000200;
-Gfx *func_805FCFD8(Gfx *);
+Gfx *gfxSetViewportDisplayList(Gfx *);
 s32 flagGet(s32, s32);
 
 typedef struct {
@@ -819,7 +819,7 @@ Gfx *func_80701CA0(Gfx *dl) {
                 vtx[3].v.ob[1] = PLAYER_VIEW_BLOCK(i)->unk276;
                 vtx[3].v.ob[2] = -10;
                 gDPPipeSync(dl++);
-                dl = func_805FCFD8(dl);
+                dl = gfxSetViewportDisplayList(dl);
                 OVERLAY_GFX(dl++, (((s32)((f32)D_80744498 * 4.0f) & 0xFFF) << 0xC) | 0xED000000 | ((s32)((f32)D_8074449C * 4.0f) & 0xFFF),
                       (((s32)((f32)D_807444A0 * 4.0f) & 0xFFF) << 0xC) | ((s32)((f32)D_807444A4 * 4.0f) & 0xFFF));
                 gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
@@ -1084,13 +1084,13 @@ Gfx *gfxBuildScanlineNoise(Gfx *arg0, s32 arg1) {
 
 extern s16 D_807444AC;
 extern s16 D_807444B0;
-s32 func_805FCA64();
+s32 hudCanRender();
 
 void viewportShrinkToCenter(u8 arg0) {
     f32 scale;
 
     scale = (f32)((f64)(f32)(u32)arg0 / 255.0);
-    if (func_805FCA64() != 0) {
+    if (hudCanRender() != 0) {
         VIEWPORT_INFO->unk272 = (s32)((f32)D_8074449C + ((f32)((gScreenHeight >> 1) - D_8074449C - 1) * scale));
         VIEWPORT_INFO->unk276 = (s32)((f32)D_807444A4 + ((f32)((gScreenHeight >> 1) - D_807444A4) * scale));
     } else {
@@ -1299,8 +1299,8 @@ u8 func_80600454(s16, u8 *);
 s32 textTableGetString(s32, s32, s32);
 void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
 void sfxStopChannel(s32, s32);
-s32 func_8070B318(void);
-void func_8070B308(s32);
+s32 transitionGetState(void);
+void transitionSetState(s32);
 void osViBlack(u8);
 void transitionSetAudioVolume(f32, s32, void *);
 
@@ -1323,8 +1323,8 @@ Gfx *screenFadeUpdate(Gfx *arg0, u8 arg1) {
                 D_8076A0B1 |= 0x20;
             }
             sfxStopChannel(0x2B, 0);
-            if (func_8070B318() == 2) {
-                func_8070B308(0);
+            if (transitionGetState() == 2) {
+                transitionSetState(0);
             }
             gScreenFadeRate = 0.0f;
             gScreenFadeProgress = 0.0f;

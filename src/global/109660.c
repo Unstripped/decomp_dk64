@@ -33,7 +33,7 @@ extern u8 gSplitScreenMode;
 extern u8 D_80750ABC;
 extern u8 D_8074450C;
 
-Gfx *func_80704960(Gfx *dl) {
+Gfx *gfxDrawSplitScreenDividers(Gfx *dl) {
     s32 i;
 
     i = 0;
@@ -202,7 +202,7 @@ typedef struct {
     s8 unkE;
 } ColorBytesView;
 
-void func_80705B14(ColorBytesView *colorView, s8 r, s8 g, s8 b) {
+void gfxDrawSkybox(ColorBytesView *colorView, s8 r, s8 g, s8 b) {
     colorView->unkC = r;
     colorView->unkD = g;
     colorView->unkE = b;
@@ -300,7 +300,7 @@ typedef struct {
     f32 v[3][2];
 } RectSpan;
 
-void func_807063B8(RectSpan *spans, u8 *pCount, u8 axis, f32 maxCoord) {
+void gfxWrapRectSpan(RectSpan *spans, u8 *pCount, u8 axis, f32 maxCoord) {
     RectSpan temp[4];
     s32 i;
     u8 o;
@@ -416,7 +416,7 @@ typedef struct {
 extern Mtx D_807FD8A8[];
 extern f32 D_80754CE4;
 s32 assetLoad(s32, s32, s32, s32);
-void func_807063B8(RectSpan *spans, u8 *pCount, u8 axis, f32 maxCoord);
+void gfxWrapRectSpan(RectSpan *spans, u8 *pCount, u8 axis, f32 maxCoord);
 void gfxGetBackgroundTint(s16 yPos, u8 *outR, u8 *outG, u8 *outB);
 void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
 
@@ -482,8 +482,8 @@ Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, 
     rect[2] = 460.0f * inv * 0.5f + lo;
     rect[3] = 380.0f * inv * 0.5f + hi;
     rect[5] = rect[4] = -70.0f * inv;
-    func_807063B8((RectSpan *)rect, &count, 0, width);
-    func_807063B8((RectSpan *)rect, &count, 1, height);
+    gfxWrapRectSpan((RectSpan *)rect, &count, 0, width);
+    gfxWrapRectSpan((RectSpan *)rect, &count, 1, height);
     for (i = 0; i < count; i++) {
         gfxDrawTexturedTileGridSimple(&glist, D_807FD8A0, 0, (u32)width, (u32)height, 0x20, 0x20, rect[i * 6], rect[i * 6 + 1], rect[i * 6 + 2], rect[i * 6 + 3], rect[i * 6 + 4], rect[i * 6 + 5], 0x10, 0x10);
     }

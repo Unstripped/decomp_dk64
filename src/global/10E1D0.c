@@ -447,8 +447,8 @@ extern TransitionBuffers *D_807FD9A8;
 extern s32 D_807FD9B0;
 extern s32 D_807FD9B8;
 
-void func_805FE71C(Gfx *, u8, s32 *, u8);
-void func_805FE7B4(Gfx *, s32, s32 *, u8);
+void gfxEndDisplayList(Gfx *, u8, s32 *, u8);
+void gfxEndSubDisplayList(Gfx *, s32, s32 *, u8);
 void mapRequestTransition(s32, s32);
 void schedSubmitGfxTask(Gfx *, s32, s32, u8, s32, s32);
 void transitionBeginDisplayList();
@@ -513,20 +513,20 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
         }
     }
     if ((D_8076A0A4 != 0) && (D_807444EC != 6)) {
-        func_805FE71C(sp34, gGfxBufferIndex, &D_8076A088, 0);
-        func_805FE7B4(sp30, (s32)gGfxCurrentFrameBuffer, &D_8076A08C, 1);
+        gfxEndDisplayList(sp34, gGfxBufferIndex, &D_8076A088, 0);
+        gfxEndSubDisplayList(sp30, (s32)gGfxCurrentFrameBuffer, &D_8076A08C, 1);
         return;
     }
-    func_805FE71C(sp34, gGfxBufferIndex, &D_8076A088, 1);
+    gfxEndDisplayList(sp34, gGfxBufferIndex, &D_8076A088, 1);
 }
 
 extern void *D_8076A080;
 extern u16 D_8076A09C;
 extern Gfx D_1000090[];
 
-Gfx *func_805FCFD8();
-Gfx *func_805FE398();
-Gfx *func_805FE4D4();
+Gfx *gfxSetViewportDisplayList();
+Gfx *gfxClearZBuffer();
+Gfx *gfxSetFrameBufferColorImage();
 
 void transitionBeginDisplayList(void *arg0, Gfx **arg1) {
     Gfx *dl = gGfxTaskBuffers[gGfxBufferIndex];
@@ -535,14 +535,14 @@ void transitionBeginDisplayList(void *arg0, Gfx **arg1) {
     gSPSegment(dl++, 2, osVirtualToPhysical(arg0));
     gSPSegment(dl++, 1, osVirtualToPhysical(D_8076A080));
     gSPDisplayList(dl++, D_1000090);
-    dl = func_805FE398(func_805FCFD8(dl));
+    dl = gfxClearZBuffer(gfxSetViewportDisplayList(dl));
     gDPPipeSync(dl++);
     gDPSetCycleType(dl++, G_CYC_1CYCLE);
     guTranslate((Mtx *)arg0 + 6, 0.0f, 0.0f, 0.0f);
     guLookAt((Mtx *)arg0 + 8, 0.0f, 0.0f, 200.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
     guPerspective((Mtx *)arg0, &D_8076A09C, 61.9f, 1.3333334f, 10.0f, 1000.0f, 1.0f);
     gDPPipeSync(dl++);
-    dl = func_805FE4D4(dl);
+    dl = gfxSetFrameBufferColorImage(dl);
     gDPSetColorDither(dl++, G_CD_MAGICSQ);
     gDPSetAlphaDither(dl++, G_AD_PATTERN);
     gDPSetScissor(dl++, G_SC_NON_INTERLACE, 10, 10, 309, 229);
@@ -619,17 +619,17 @@ void transitionMaskFramebuffer(u16 *arg0) {
     }
 }
 
-extern u8 D_80755070;
+extern u8 sTransitionState;
 
-void func_8070B308(u8 arg0) {
-    D_80755070 = arg0;
+void transitionSetState(u8 arg0) {
+    sTransitionState = arg0;
 }
 
-u8 func_8070B318(void) {
-    return D_80755070;
+u8 transitionGetState(void) {
+    return sTransitionState;
 }
 
-extern s8 D_8074583C;
+extern s8 gSfxVolume;
 extern s32 D_807550A4;
 
 void n_alSndpSetGroupVol(u8, u16);
@@ -642,22 +642,22 @@ void transitionSetAudioVolume(f32 volumeScale, s32 isGroupActive, s32 *channels)
     s32 i;
 
     rawVol = 25000.0f * volumeScale;
-    scaledVol = (f64)(rawVol * D_8074583C) / 40.0;
+    scaledVol = (f64)(rawVol * gSfxVolume) / 40.0;
     oldPri = osGetThreadPri(0);
     osSetThreadPri(0, 0x1A);
     n_alSndpSetGroupVol(0, scaledVol);
     if (isGroupActive != 0) {
         D_807550A4 = 1;
         n_alSndpSetGroupVol(2, scaledVol);
-        if ((D_80755070 == 0) && ((D_8076A0B1 & 1) || !(D_8076A0B1 & 0x40))) {
+        if ((sTransitionState == 0) && ((D_8076A0B1 & 1) || !(D_8076A0B1 & 0x40))) {
             seqSetChannelVolumeScale(0, volumeScale);
         }
     } else {
-        n_alSndpSetGroupVol(3, (f64)(rawVol * D_8074583C) / 40);
+        n_alSndpSetGroupVol(3, (f64)(rawVol * gSfxVolume) / 40);
         if (D_807550A4 != 0) {
             D_807550A4 = 0;
-            n_alSndpSetGroupVol(2, (f64)(D_8074583C * 25000) / 40.0f);
-            n_alSndpSetGroupVol(1, (f64)(D_8074583C * 25000) / 4e1);
+            n_alSndpSetGroupVol(2, (f64)(gSfxVolume * 25000) / 40.0f);
+            n_alSndpSetGroupVol(1, (f64)(gSfxVolume * 25000) / 4e1);
         }
     }
     for (i = 0; channels != 0 && channels[i] != 0; i++) {

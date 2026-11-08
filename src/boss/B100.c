@@ -164,7 +164,7 @@ extern BossConfig *gBehaviourExtraState;
 extern void *gCamActor;
 
 void behaviourFrameBegin(void);
-void func_8070B308(s32);
+void transitionSetState(s32);
 void camSetSecondTarget(void *, s32, s32);
 void func_80724CA4(s32, s32);
 void zoneEntryGetPosition(s32, s32, void *, void *, void *);
@@ -204,7 +204,7 @@ void bossDogadonStep(void) {
     behaviourFrameBegin();
     if (!(MAIN_ACTOR->unk60 & 0x10)) {
         MAIN_ACTOR->unk132 = 8;
-        func_8070B308(0);
+        transitionSetState(0);
         camSetSecondTarget(gCamActor, 0, 0);
         MAIN_ACTOR->unk146 = 5;
         MAIN_ACTOR->unkCC = 1;
@@ -239,7 +239,7 @@ void bossDogadonStep(void) {
             MAIN_ACTOR->unk154 = 0x29;
             hudCountdownTimerSaveElapsed(MAIN_ACTOR->unk11C);
             screenSetTransitionFadeType(1);
-            func_8070B308(1);
+            transitionSetState(1);
             mapRequestTransition(0xD6, 0);
             PLAYER_ACTOR->unk7C = mathSinF(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk7C;
             PLAYER_ACTOR->unk84 = mathCosF(MAIN_ACTOR->unkE6 + 0x320) * 30.0 + MAIN_ACTOR->unk84;
@@ -525,7 +525,7 @@ extern BossPlayerData *gActivePlayerState;
 extern u8 *D_80035AA4[];
 
 void flagSet(s16, s32, s32);
-void func_8070B308(s32);
+void transitionSetState(s32);
 void slotQueueSetDisplayMode(s32, s32, s32);
 void actorScriptStartByIndex(void *, s32);
 void screenSetTransitionFadeType(s32);
@@ -546,7 +546,7 @@ void bossKRoolTinyStep(void) {
     list = BOSS_ACTOR->unk17C;
     behaviourFrameBegin();
     if (!(BOSS_ACTOR->unk60 & 0x10)) {
-        func_8070B308(0);
+        transitionSetState(0);
         slotQueueSetDisplayMode(2, 0, 1);
         D_807FBB4C->unk154 = 0x5F;
         D_807FBB4C->unk155 = 0;
@@ -610,7 +610,7 @@ void bossKRoolTinyStep(void) {
             D_807FBB4C->unk155 = 0;
             actorScriptStartByIndex(D_807FBB4C, 0x4A);
             screenSetTransitionFadeType(1);
-            func_8070B308(1);
+            transitionSetState(1);
             mapRequestTransition(0xCE, 0);
             flagSet(st->unk12 + 0x51, 1, 2);
             BOSS_ACTOR->unk155++;

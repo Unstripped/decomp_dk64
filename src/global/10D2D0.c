@@ -148,7 +148,7 @@ typedef struct HealthPlayerState {
 
 void func_80026B0C(s32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-s32 func_805FCA64(void);
+s32 hudCanRender(void);
 s32 menuIsTransitionType6(void);
 s32 menuIsTransitionTypeC(void);
 s32 healthGetPerMelon(void);
@@ -185,7 +185,7 @@ void healthApplyPendingDelta(s32 playerIndex, HealthPlayerState *hudState, Healt
         }
         playerState->unk2FD = 0;
     }
-    if ((!(gGlobalPauseFlags & 2) && (func_805FCA64() != 0)) || (state & 0x80)) {
+    if ((!(gGlobalPauseFlags & 2) && (hudCanRender() != 0)) || (state & 0x80)) {
         hudState->unk2E5--;
         if (!hudState->unk2E5) {
             hudState->unk2E5 = 0x11;
@@ -276,7 +276,7 @@ HealthHudState *hudState;
             break;
         }
     }
-    if (func_805FCA64() != 0 || (bits & 0x80)) {
+    if (hudCanRender() != 0 || (bits & 0x80)) {
         if (hudState->unk2E4 != 0 || HEALTH_HUD_FLAGS(hudState) != 0) {
             glist = (s32)healthHudDraw((Gfx *)glist, (HealthStats *)hud, elem, hudState);
         }

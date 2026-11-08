@@ -51,9 +51,9 @@ void controllerStartRead(void);
 void controllerUpdate(void);
 void schedSubmitGfxTask(Gfx *, s32, s32, s32, s32, s32);
 Gfx *screenFadeUpdate(Gfx *, s32);
-void func_805FE71C(Gfx *, u8, s32 *, s32);
-void func_805FE7B4(Gfx *, u8 *, s32 *, s32);
-Gfx *func_805FE4D4(Gfx *);
+void gfxEndDisplayList(Gfx *, u8, s32 *, s32);
+void gfxEndSubDisplayList(Gfx *, u8 *, s32 *, s32);
+Gfx *gfxSetFrameBufferColorImage(Gfx *);
 void arcadeDispatchState(Gfx **);
 void arcadeBuildDisplayList(u8 *, Gfx **);
 
@@ -89,10 +89,10 @@ void arcadeRunFrame(void) {
     glist = screenFadeUpdate(glist, 0);
     if (D_807444EC != 3) {
         frameBuf = gGfxCurrentFrameBuffer + 0xDB0;
-        func_805FE71C(glist, gGfxBufferIndex, &D_8076A088, 0);
-        func_805FE7B4((Gfx *)frameBuf, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
+        gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 0);
+        gfxEndSubDisplayList((Gfx *)frameBuf, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
     } else {
-        func_805FE71C(glist, gGfxBufferIndex, &D_8076A088, 1);
+        gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 1);
     }
 }
 
@@ -105,7 +105,7 @@ void arcadeBuildDisplayList(u8 *frameBuf, Gfx **glistp) {
     gSPDisplayList(glist++, &D_1000090);
     gSPDisplayList(glist++, &D_1000040);
     gDPPipeSync(glist++);
-    glist = func_805FE4D4(glist);
+    glist = gfxSetFrameBufferColorImage(glist);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 6, 2, 0);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 4, 2, 0);
     gDPSetFillColor(glist++, 0x00050005);

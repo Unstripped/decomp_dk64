@@ -143,7 +143,7 @@ void playerSetKongByActorType(s16);
 void playerResumeLocomotion(void *);
 void func_806F0C18(void *);
 void playerWaypointPathStartPacked(s32, s32, s16, s16);
-void func_8070B308(u8);
+void transitionSetState(u8);
 void func_8070D8C0(void *, s32, u8);
 void func_8070E8DC(s8);
 void menuTransitionToMap(s32, s32);
@@ -300,7 +300,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             camSetPath(a);
             return;
         case 0x2B:
-            func_8070B308(a);
+            transitionSetState(a);
             return;
         case 0x9:
             camSetRollBlend(a, b, c);

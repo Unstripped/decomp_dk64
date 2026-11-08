@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-s32 func_805FCA64(void);
+s32 hudCanRender(void);
 Gfx *hudDrawRollingCounter(Gfx *, s32, s32, void *, s16, void *);
 Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
 Gfx *func_8070068C(Gfx *);
@@ -20,7 +20,7 @@ typedef struct LB3bState {
 Gfx *bonusRenderCounterHud(Gfx *gdl, Actor *actor) {
     LB3bState *s = *(LB3bState **)((u8 *)actor + 0x178);
 
-    if (func_805FCA64()) {
+    if (hudCanRender()) {
         gSPDisplayList(gdl++, &D_1000118);
         gdl = func_8070068C(gdl);
         gDPSetCombineMode(gdl++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);

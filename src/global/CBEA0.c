@@ -189,7 +189,7 @@ extern R1C2CB_Col D_80750814;
 extern f32 D_80750818[];
 extern f32 D_80750828[];
 
-void func_805FEE84(u8, u8, u8, u8);
+void viewportSetMargins(u8, u8, u8, u8);
 void *heapAlloc(s32);
 void heapFreeDeferred(void *);
 s32 textGetStringWidth();
@@ -225,7 +225,7 @@ Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
         v = 0;
     }
     col.b[i] = v;
-    func_805FEE84(col.b[1], col.b[3], col.b[0], col.b[2]);
+    viewportSetMargins(col.b[1], col.b[3], col.b[0], col.b[2]);
     if (D_807FC8E8 == 0.0f) {
         return gdl;
     }

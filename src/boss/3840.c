@@ -579,7 +579,7 @@ void actorSetStateOne(void *);
 void actorSetStateThree(void *);
 s32 menuIsTransitionTypeC(void);
 f32 sfxGetChannelVolume(s32);
-s32 func_805FCA64(void);
+s32 hudCanRender(void);
 void renderCallbacksRegister(void *, void *, s32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 
@@ -758,7 +758,7 @@ void bossRoundFrame(u8 *script) {
             s0->unkE = s0->unkE + 0x4650;
         }
     }
-    if ((scriptState->unk12 & 1) && (func_805FCA64() != 0)) {
+    if ((scriptState->unk12 & 1) && (hudCanRender() != 0)) {
         renderCallbacksRegister(bossDrawRoundText, gCurrentActor, 3);
     }
 }

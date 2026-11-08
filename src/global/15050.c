@@ -36,7 +36,7 @@ extern u8 D_8074450C;
 extern s32 gFramebuffers;
 extern s32 D_80744474;
 extern s32 gFrameDelta;
-extern u8 *D_8076A060;
+extern u8 *gGfxDepthBuffer;
 extern u8 *D_807F05A4;
 extern s32 D_807F0974;
 extern s32 D_807F0978;
@@ -149,7 +149,7 @@ void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
     gFramebuffers = (size + (bssSize + 0x8002403F)) & ~0x3F;
     fb1 = ((size + (bssSize + 0x8002403F)) & ~0x3F) + lo;
     D_80744474 = fb1;
-    D_8076A060 = (u8 *)(0x805FAE00 - cur);
+    gGfxDepthBuffer = (u8 *)(0x805FAE00 - cur);
     h = 0x805FAE00 - cur;
     i = 4;
     for (; i >= 0;) {

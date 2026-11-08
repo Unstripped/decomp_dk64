@@ -2678,11 +2678,11 @@ s32 func_806E56EC() {
     return 0;
 }
 
-void func_8070B308(s32);
+void transitionSetState(s32);
 
 void func_806E5C2C(s32 arg0, s32 arg1, s32 arg2) {
     if (arg1 != 0) {
-        func_8070B308(2);
+        transitionSetState(2);
         screenSetTransitionFadeType(0);
     }
     func_805FF9AC(arg0, 0, 0, 0);
@@ -3567,7 +3567,7 @@ typedef PadInputState G29Stick;
 extern f32 D_80750FF8;
 extern f32 D_80750FFC;
 extern f32 D_80751000;
-s32 func_805FCA64(void);
+s32 hudCanRender(void);
 void renderCallbacksRegister(void *, void *, s32);
 void actorDrawAnimatedEffect(s32, void *);
 void func_80613C48(void *, s16, f32, f32);
@@ -3579,7 +3579,7 @@ void func_806E8244(void) {
     s16 v;
 
     st = G29_M->unk88->unk174;
-    if (func_805FCA64() != 0) {
+    if (hudCanRender() != 0) {
         renderCallbacksRegister(actorDrawAnimatedEffect, G29_M->unk88, 5);
     }
     v = gCurrentActor->yaw;

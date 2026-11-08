@@ -3331,7 +3331,7 @@ typedef struct TagBarrelOrbitActor {
 } TagBarrelOrbitActor;
 
 
-s32 func_805FCA64(void);
+s32 hudCanRender(void);
 s32 screenWipeGetState(void);
 void screenWipeStart(s32);
 void healthRefill(s32);
@@ -3361,7 +3361,7 @@ void tagBarrelUpdateSelection(struct TagBarrelData *arg0_in) {
         var_s0 = arg0->unk4;
     }
     arg0->unk3C++;
-    if (var_s0 == 0 && func_805FCA64() != 0) {
+    if (var_s0 == 0 && hudCanRender() != 0) {
         var_s0 = ((Actor *)arg0->unk8[arg0->unk6])->actorType == 0x13C;
         sp28 = arg0->unk3C >= 9001;
         if (((gPlayerPadState.unk30 >= 0x29) && !sp28) || !var_s0) {

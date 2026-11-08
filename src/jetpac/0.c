@@ -80,9 +80,9 @@ void controllerStartRead(void);
 void controllerUpdate(void);
 void schedSubmitGfxTask(Gfx *, s32, s32, s32, s32, s32);
 Gfx *screenFadeUpdate(Gfx *, s32);
-void func_805FE71C(Gfx *, u8, s32 *, s32);
-void func_805FE7B4(Gfx *, u8 *, s32 *, s32);
-Gfx *func_805FE4D4(Gfx *);
+void gfxEndDisplayList(Gfx *, u8, s32 *, s32);
+void gfxEndSubDisplayList(Gfx *, u8 *, s32 *, s32);
+Gfx *gfxSetFrameBufferColorImage(Gfx *);
 Gfx *heapAlloc(s32);
 void heapFreeDeferred(void *);
 void jetpacUpdateStateAndInput();
@@ -121,10 +121,10 @@ void jetpacRunFrame(void) {
     glist = screenFadeUpdate(glist, 0);
     if (D_807444EC != 4) {
         gfxEnd = gGfxCurrentFrameBuffer + 0xDB0;
-        func_805FE71C(glist, gGfxBufferIndex, &D_8076A088, 0);
-        func_805FE7B4((Gfx *)gfxEnd, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
+        gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 0);
+        gfxEndSubDisplayList((Gfx *)gfxEnd, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
     } else {
-        func_805FE71C(glist, gGfxBufferIndex, &D_8076A088, 1);
+        gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 1);
     }
 }
 
@@ -142,7 +142,7 @@ void jetpacBuildDisplayList(u8 *basePtr, Gfx **outGlist) {
     gSPDisplayList(glist++, &D_1000040);
     guOrtho((Mtx *)(basePtr + 0x80), 0.0f, 320.0f, 0.0f, 240.0f, 1.0f, 10.0f, 1.0f);
     gDPPipeSync(glist++);
-    glist = func_805FE4D4(glist);
+    glist = gfxSetFrameBufferColorImage(glist);
     J0a_WRITE_GFX(glist++, 0xE3001801, 0);
     J0a_WRITE_GFX(glist++, 0xE3001A01, 0);
     gDPSetFillColor(glist++, 0x00010001);

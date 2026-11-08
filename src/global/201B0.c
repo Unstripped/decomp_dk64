@@ -923,7 +923,7 @@ void func_80029140(s16 *);
 void currentActorClearFlag(void);
 s16 camPathGetLength(s16);
 void setRandomSeed(s32);
-s32 func_8070B318(void);
+s32 transitionGetState(void);
 
 u16 camStartPath(void *arg0, s16 arg1, u8 arg2) {
     u16 ret = 0;
@@ -988,7 +988,7 @@ u16 camStartPath(void *arg0, s16 arg1, u8 arg2) {
         setRandomSeed(0x8E32B6F7);
         gCamCueStartTime = osGetTime();
         gCamCueIndex = 0;
-    } else if (func_8070B318() == 0) {
+    } else if (transitionGetState() == 0) {
         gCamCueStartTime = 0;
     }
     return ret;
@@ -2918,7 +2918,7 @@ extern u8 gViewportCount;
 extern f32 gScreenFadeProgress;
 
 s32 actorTableContains(void *);
-s32 func_805FCA64(void);
+s32 hudCanRender(void);
 u8 camFloorSnap(void *, void *, f32, f32 *, f32, s32);
 void camTurnYawToward();
 
@@ -3011,7 +3011,7 @@ u8 camComputeFollowPos(CamActor *arg0, CamActor *arg1, f32 *arg2, f32 *arg3, f32
                 func_80620F00(arg0, 0, 1);
             } else if (TGT->unk154 == 0x59 || TGT->unk154 == 0x4E || TGT->unk154 == 0x6E) {
                 func_80620F00(arg0, 0, 0);
-            } else if (func_805FCA64() != 0 && cam->unkF1 == 0) {
+            } else if (hudCanRender() != 0 && cam->unkF1 == 0) {
                 if (TGT->unk58 != 8 && TGT->unk58 != 9 && ((u8 *)gPlayerSlots)[0x2C0] != 2) {
                     if (TGT->unk154 != 0xE && TGT->unk154 != 0x42 && TGT->unk154 != 0x57 && TGT->unk154 != 0x48 &&
                         TGT->unk154 != 0x49 && TGT->unk154 != 0x4C && TGT->unk154 != 0x47 && TGT->unk154 != 0x3E &&

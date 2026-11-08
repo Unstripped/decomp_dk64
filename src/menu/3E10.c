@@ -20,12 +20,12 @@ typedef struct MenuScreenState {
     s8 unk17;
 } MenuScreenState;
 
-extern s8 D_80745844;
+extern s8 gAudioOutputMode;
 void configureCSPOutputMode(s32);
 
 void menuSetAudioMode(void) {
     s32 val = 1;
-    switch (D_80745844) {
+    switch (gAudioOutputMode) {
     case 0:
         val = 2;
         break;
@@ -378,7 +378,7 @@ void menuInitMainScreen(MenuScreenActor *actor, s32 unused) {
     D_800337F4 = 0;
     D_807FBB4C->unk154 = 0x85;
     D_807FBB4C->unk155 = 0;
-    D_80745844 = eepromGetField(0x1E, 0, 0, 0);
+    gAudioOutputMode = eepromGetField(0x1E, 0, 0, 0);
     menuSetAudioMode();
     state->unk17 = D_8076A0D1[0];
     menuSpawnUiElementEffect(state, &D_80720C34, 0xA0, 0xD2, 0.75f, 2, 0);
@@ -1722,8 +1722,8 @@ void menuCharacterSelectUpdateActor(void) {
     actorUpdateModelMatrix(Menu6B_A, 0);
 }
 
-extern s8 D_8074583C;
-extern s8 D_80745840;
+extern s8 gSfxVolume;
+extern s8 gMusicVolume;
 void n_alSndpSetGroupVol(u8, u16);
 void seqUpdateVolume(s32);
 s32 eepromSetField(s32, s32, u8, s32, s32);
@@ -1739,15 +1739,15 @@ void menuHandleSoundOptionsInput(MenuScreenActor *actor, s32 buttons) {
             switch (state->unk17) {
             case 0:
                 if (!(D_80033670 & 0x10) && (buttons & 0x10)) {
-                    D_80745844++;
-                    if (D_80745844 >= 3) {
-                        D_80745844 = 0;
+                    gAudioOutputMode++;
+                    if (gAudioOutputMode >= 3) {
+                        gAudioOutputMode = 0;
                     }
                     flag = 1;
                 } else if (!(D_80033670 & 0x20) && (buttons & 0x20)) {
-                    D_80745844--;
-                    if (D_80745844 < 0) {
-                        D_80745844 = 2;
+                    gAudioOutputMode--;
+                    if (gAudioOutputMode < 0) {
+                        gAudioOutputMode = 2;
                     }
                     flag = 1;
                 }
@@ -1757,33 +1757,33 @@ void menuHandleSoundOptionsInput(MenuScreenActor *actor, s32 buttons) {
                 break;
             case 1:
                 if (buttons & 0x10) {
-                    D_8074583C++;
+                    gSfxVolume++;
                     sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                    if (D_8074583C > 0x28) {
-                        D_8074583C = 0x28;
+                    if (gSfxVolume > 0x28) {
+                        gSfxVolume = 0x28;
                     }
                 } else if (buttons & 0x20) {
-                    D_8074583C--;
+                    gSfxVolume--;
                     sfxPlayOnFreeSlot(0x2A0, 0x7FFF, 63.0f, 1.0f, 0, 0);
-                    if (D_8074583C < 0) {
-                        D_8074583C = 0;
+                    if (gSfxVolume < 0) {
+                        gSfxVolume = 0;
                     }
                 }
-                n_alSndpSetGroupVol(0, D_8074583C * 25000 / 40);
-                n_alSndpSetGroupVol(1, D_8074583C * 25000 / 40);
-                n_alSndpSetGroupVol(2, D_8074583C * 25000 / 40);
-                n_alSndpSetGroupVol(3, D_8074583C * 25000 / 40);
+                n_alSndpSetGroupVol(0, gSfxVolume * 25000 / 40);
+                n_alSndpSetGroupVol(1, gSfxVolume * 25000 / 40);
+                n_alSndpSetGroupVol(2, gSfxVolume * 25000 / 40);
+                n_alSndpSetGroupVol(3, gSfxVolume * 25000 / 40);
                 break;
             case 2:
                 if (buttons & 0x10) {
-                    D_80745840++;
-                    if (D_80745840 > 0x28) {
-                        D_80745840 = 0x28;
+                    gMusicVolume++;
+                    if (gMusicVolume > 0x28) {
+                        gMusicVolume = 0x28;
                     }
                 } else if (buttons & 0x20) {
-                    D_80745840--;
-                    if (D_80745840 < 0) {
-                        D_80745840 = 0;
+                    gMusicVolume--;
+                    if (gMusicVolume < 0) {
+                        gMusicVolume = 0;
                     }
                 }
                 seqUpdateVolume(0);
@@ -1791,13 +1791,13 @@ void menuHandleSoundOptionsInput(MenuScreenActor *actor, s32 buttons) {
                 break;
             case 3:
                 if (buttons & 0x100) {
-                    D_80745844 = 0;
-                    D_8074583C = 0x28;
-                    D_80745840 = 0x28;
-                    n_alSndpSetGroupVol(0, D_8074583C * 25000 / 40);
-                    n_alSndpSetGroupVol(1, D_8074583C * 25000 / 40);
-                    n_alSndpSetGroupVol(2, D_8074583C * 25000 / 40);
-                    n_alSndpSetGroupVol(3, D_8074583C * 25000 / 40);
+                    gAudioOutputMode = 0;
+                    gSfxVolume = 0x28;
+                    gMusicVolume = 0x28;
+                    n_alSndpSetGroupVol(0, gSfxVolume * 25000 / 40);
+                    n_alSndpSetGroupVol(1, gSfxVolume * 25000 / 40);
+                    n_alSndpSetGroupVol(2, gSfxVolume * 25000 / 40);
+                    n_alSndpSetGroupVol(3, gSfxVolume * 25000 / 40);
                     seqUpdateVolume(0);
                     seqUpdateVolume(2);
                     flag = 1;
@@ -1806,8 +1806,8 @@ void menuHandleSoundOptionsInput(MenuScreenActor *actor, s32 buttons) {
                 break;
             }
             if (buttons & 2) {
-                if (eepromGetField(0x1E, 0, 0, 0) != D_80745844) {
-                    eepromSetField(0x1E, 0, 0, 0, D_80745844);
+                if (eepromGetField(0x1E, 0, 0, 0) != gAudioOutputMode) {
+                    eepromSetField(0x1E, 0, 0, 0, gAudioOutputMode);
                     func_8060DEA8();
                 }
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -1826,7 +1826,7 @@ void menuHandleSoundOptionsInput(MenuScreenActor *actor, s32 buttons) {
 }
 
 extern s16 D_80033674;
-extern s8 D_80745844;
+extern s8 gAudioOutputMode;
 Gfx *menuDrawScrollSelector(Gfx *, MenuScreenState *, char **, s32, u32 *, s16, f32 *, f32, s16);
 
 Gfx *menuFormatOptionValues(MenuScreenActor *actor, Gfx *dl) {
@@ -1861,12 +1861,12 @@ Gfx *menuFormatOptionValues(MenuScreenActor *actor, Gfx *dl) {
 
     switch (selectedOption) {
     case 0:
-        dl = textDrawStringVtx(dl, 1, posX, posYShort, D_80033F28[D_80745844 + 0x25], 0x81);
+        dl = textDrawStringVtx(dl, 1, posX, posYShort, D_80033F28[gAudioOutputMode + 0x25], 0x81);
         break;
     case 1:
     case 2:
         dl = textDrawStringVtx(dl, 1, posX, posYShort, D_80033F28[0x28], 0x81);
-        _sprintf(strBuf, "%d", ((selectedOption == 1 ? D_8074583C : D_80745840) + 1) >> 1);
+        _sprintf(strBuf, "%d", ((selectedOption == 1 ? gSfxVolume : gMusicVolume) + 1) >> 1);
         dl = textDrawStringVtx(dl, 1, posX, posYShort + 0x78, strBuf, 0x81);
         break;
     case 3:

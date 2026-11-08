@@ -1591,8 +1591,8 @@ typedef struct MapChunkRecord {
     /* 0x0C */ u8 padC[0x70];
 } MapChunkRecord; /* 0x7C */
 
-extern u8 D_807F5FC1;
-extern MapChunkRecord *D_807F5FC4;
+extern u8 sMapChunkAnimCount;
+extern MapChunkRecord *sMapChunkAnims;
 
 typedef struct RawGfxCmd {
     u32 unk0;
@@ -1608,13 +1608,13 @@ u8 arg1;
     s32 i;
     s32 sel;
 
-    for (i = 0; i < D_807F5FC1; i++) {
+    for (i = 0; i < sMapChunkAnimCount; i++) {
         sel = arg1;
-        c = (MapChunkRecord *)((u8 *)D_807F5FC4 + i * 0x7C);
+        c = (MapChunkRecord *)((u8 *)sMapChunkAnims + i * 0x7C);
         if (sel == c->unk1) {
             q = arg0++;
             q->unk0 = ((c->unk0 * 4) & 0xFFFF) | 0xDB060000;
-            q->unk4 = D_807F5FC4[i].unk8;
+            q->unk4 = sMapChunkAnims[i].unk8;
         }
     }
     return arg0;
@@ -1636,13 +1636,13 @@ typedef struct MapChunkAnim {
 void assetFreeBuffer(s32, s32, s32);
 s32 assetLoad(s32, s32, s32, s32);
 
-#define MAP_CHUNK_ANIM ((MapChunkAnim *)D_807F5FC4)[i]
+#define MAP_CHUNK_ANIM ((MapChunkAnim *)sMapChunkAnims)[i]
 
 void mapChunkAnimateTextures(u8 arg0) {
     s32 i;
     s32 flag;
 
-    for (i = 0; i < D_807F5FC1; i++) {
+    for (i = 0; i < sMapChunkAnimCount; i++) {
         if (arg0 == MAP_CHUNK_ANIM.unk1) {
             flag = 0;
             MAP_CHUNK_ANIM.unk4++;
@@ -1675,11 +1675,11 @@ s32 mapChunkIsVisible(u8);
 void mapChunkFreeHiddenBuffers(void) {
     s32 i;
 
-    for (i = 0; i < D_807F5FC1; i++) {
-        if (mapChunkIsVisible(D_807F5FC4[i].unk1) == 0) {
-            if (D_807F5FC4[i].unk8 != 0) {
-                assetFreeBuffer(D_807F5FC4[i].unk8, 0x7FB, 5);
-                D_807F5FC4[i].unk8 = 0;
+    for (i = 0; i < sMapChunkAnimCount; i++) {
+        if (mapChunkIsVisible(sMapChunkAnims[i].unk1) == 0) {
+            if (sMapChunkAnims[i].unk8 != 0) {
+                assetFreeBuffer(sMapChunkAnims[i].unk8, 0x7FB, 5);
+                sMapChunkAnims[i].unk8 = 0;
             }
         }
     }
@@ -1737,8 +1737,8 @@ extern s16 D_807F5FE8;
 extern s16 D_807F5FEA;
 extern s32 D_807F5FD0;
 extern s32 *D_807F5FD4;
-extern s32 D_807F5FC8;
-extern s32 D_807F5FCC;
+extern s32 sMapSoundEmitterCount;
+extern s32 sMapSoundEmitters;
 
 void fogSetParams(u8);
 void renderSetSegment6Override(u8);
@@ -1797,10 +1797,10 @@ void mapHeaderLoad(s32 arg0) {
     off48 = MAP_HDR->unk48;
     D_807F5FD0 = *(s32 *)(D_807F5DE0 + off40) + 1;
     D_807F5FD4 = (s32 *)(D_807F5DE0 + off40 + 4);
-    D_807F5FC8 = *(s32 *)(D_807F5DE0 + off44);
-    D_807F5FCC = (s32)(D_807F5DE0 + off44 + 4);
-    D_807F5FC1 = *(s32 *)(D_807F5DE0 + off48);
-    D_807F5FC4 = (MapChunkRecord *)(D_807F5DE0 + off48 + 4);
+    sMapSoundEmitterCount = *(s32 *)(D_807F5DE0 + off44);
+    sMapSoundEmitters = (s32)(D_807F5DE0 + off44 + 4);
+    sMapChunkAnimCount = *(s32 *)(D_807F5DE0 + off48);
+    sMapChunkAnims = (MapChunkRecord *)(D_807F5DE0 + off48 + 4);
     D_807F5DE4 = (MapBspNode *)(D_807F5DE0 + off30);
     D_807F5DE8 = (s32)(D_807F5DE0 + off38);
     D_807F5DEC = D_807F5DE0 + off34;
@@ -1847,9 +1847,9 @@ void mapRelocateOffsetTable(s32 arg0) {
 }
 
 
-s32 func_8062F388(s32 *arg0) {
-    *arg0 = D_807F5FCC;
-    return D_807F5FC8;
+s32 mapGetSoundEmitters(s32 *arg0) {
+    *arg0 = sMapSoundEmitters;
+    return sMapSoundEmitterCount;
 }
 
 void displayListResolveTextureImages(RawGfxCmd *arg0, RawGfxCmd *arg1) {

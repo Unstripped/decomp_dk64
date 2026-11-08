@@ -30,23 +30,23 @@ void viModeSetup();
 void func_805FBC5C(void);
 void func_805FBE04(void);
 void mainThreadLoop(s32);
-void func_805FC2B0(void);
+void gfxSubmitFrame(void);
 s32 pauseStateUpdate(void);
 s32 func_805FC98C(void);
-s32 func_805FCA64(void);
+s32 hudCanRender(void);
 void playerViewsBuildMatrices(void *);
-Gfx *func_805FCFD8(Gfx *);
+Gfx *gfxSetViewportDisplayList(Gfx *);
 Gfx *gfxInit2DDisplayList(Gfx *);
-void func_805FD088(Struct_8076A048 *, Gfx **, Gfx **);
-Gfx *func_805FE398(Gfx *);
-Gfx *func_805FE4D4(Gfx *);
-void func_805FE544(u8);
-Gfx *func_805FE634(Gfx *, u8);
-void func_805FE71C(Gfx *, u8, s32 *, u8);
-void func_805FE7B4(Gfx *, s32, s32 *, u8);
-void func_805FE7FC(void);
-void func_805FEE84(s8, s8, s8, s8);
-void func_805FEEB8(s32 *, s32);
+void gfxBuildFrameDisplayLists(Struct_8076A048 *, Gfx **, Gfx **);
+Gfx *gfxClearZBuffer(Gfx *);
+Gfx *gfxSetFrameBufferColorImage(Gfx *);
+void gfxAllocateBuffers(u8);
+Gfx *gfxClearFramebuffer(Gfx *, u8);
+void gfxEndDisplayList(Gfx *, u8, s32 *, u8);
+void gfxEndSubDisplayList(Gfx *, s32, s32 *, u8);
+void mapLoadLevel(void);
+void viewportSetMargins(s8, s8, s8, s8);
+void alignInt(s32 *, s32);
 void mapSlotArrayInit(void);
 void func_805FF670(void);
 void mapSlotFree(s32);
@@ -140,15 +140,15 @@ void func_80700BF4(void);
 void func_80701C90(void);
 s32 func_80701CA0(s32);
 void *screenFadeUpdate(void *, u8);
-Gfx *func_80704960(Gfx *);
+Gfx *gfxDrawSplitScreenDividers(Gfx *);
 void vtxGradientSetColorA(s32, s32, s32);
 void vtxGradientSetColorB(s32, s32, s32);
 void gfxBackgroundReset(void);
 s32 healthHudDrawAll(s32);
 void func_807094D0(s32, u32 *);
 void transitionRunFrame(s32, s32);
-void func_8070B308(s32);
-s32 func_8070B318(void);
+void transitionSetState(s32);
+s32 transitionGetState(void);
 void resListTick(void);
 void func_8070E8C8(void);
 void effectSpritePoolReset(void);
@@ -307,7 +307,7 @@ u8 D_80769058[4080];
 u8 *gGfxCurrentFrameBuffer;
 u32 D_8076A04C;
 Gfx *gGfxTaskBuffers[4];
-u8 *D_8076A060;
+u8 *gGfxDepthBuffer;
 s32 gFrameCounter;
 s32 gGameFrameCounter;
 s32 D_8076A06C;
@@ -506,7 +506,7 @@ void func_805FBC5C(void) {
     func_8060FFF0();
     controllerInit();
     audioInit();
-    func_8070B308(0);
+    transitionSetState(0);
     faultThreadInit();
     osWritebackDCacheAll();
     osCreateMesgQueue(&D_8076A110, &D_8076A108, 2);
@@ -566,7 +566,7 @@ void mainThreadLoop(s32 unused) {
         while (D_80744460 != 0) {
         }
         if ((D_8076A0B1 & 1) && D_8076A0B2 == 0) {
-            func_805FE7FC();
+            mapLoadLevel();
             if (D_807444F8 == 2) {
                 gGlobalPauseFlags |= 0x200;
                 D_80744504 = 8;
@@ -585,7 +585,7 @@ void mainThreadLoop(s32 unused) {
             case 5:
                 break;
             default:
-                func_805FC2B0();
+                gfxSubmitFrame();
                 break;
         }
         timerQueueUpdate();
@@ -614,7 +614,7 @@ void mainThreadLoop(s32 unused) {
     }
 }
 
-void func_805FC2B0(void) {
+void gfxSubmitFrame(void) {
     Gfx *glist;
     Gfx *gfxEnd;
 
@@ -662,7 +662,7 @@ void func_805FC2B0(void) {
         gfxEnd = gGfxCurrentFrameBuffer + 0xDB0;
         renderCallbacksReset();
     } else {
-        func_805FD088((Struct_8076A048 *)gGfxCurrentFrameBuffer, &glist, &gfxEnd);
+        gfxBuildFrameDisplayLists((Struct_8076A048 *)gGfxCurrentFrameBuffer, &glist, &gfxEnd);
     }
     if (gGlobalPauseFlags & 0x100) {
         gGlobalPauseFlags &= ~0x100;
@@ -677,10 +677,10 @@ void func_805FC2B0(void) {
         glist = screenFadeUpdate(glist, D_8076AEE0);
     }
     if (D_8076A0A4 != 0 && D_807444EC != 6) {
-        func_805FE71C(glist, gGfxBufferIndex, &D_8076A088, 0);
-        func_805FE7B4(gfxEnd, (s32)gGfxCurrentFrameBuffer, &D_8076A08C, 1);
+        gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 0);
+        gfxEndSubDisplayList(gfxEnd, (s32)gGfxCurrentFrameBuffer, &D_8076A08C, 1);
     } else {
-        func_805FE71C(glist, gGfxBufferIndex, &D_8076A088, 1);
+        gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 1);
     }
 }
 
@@ -766,7 +766,7 @@ s32 func_805FC98C(void) {
     return (u32) x + D_80750AB0;
 }
 
-s32 func_805FCA64(void) {
+s32 hudCanRender(void) {
     s32 canRenderHud;
 
     canRenderHud = (D_8076A0B1 & 0x10) == 0;
@@ -887,7 +887,7 @@ void playerViewsBuildMatrices(void *outMtx) {
     D_807445CC[0]++;
 }
 
-Gfx *func_805FCFD8(Gfx *glistp) {
+Gfx *gfxSetViewportDisplayList(Gfx *glistp) {
     if (D_8074450C == 2) {
         gSPDisplayList(glistp++, D_1000068);
     } else {
@@ -907,7 +907,7 @@ Gfx *gfxInit2DDisplayList(Gfx *glistp) {
 }
 
 
-void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
+void gfxBuildFrameDisplayLists(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
     Gfx *glist;
     Gfx *glist2;
 
@@ -927,8 +927,8 @@ void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
     gSPDisplayList(glist++, &D_1000090);
     gSPDisplayList(glist2++, &D_1000090);
 
-    glist = func_805FCFD8(glist);
-    glist2 = func_805FCFD8(glist2);
+    glist = gfxSetViewportDisplayList(glist);
+    glist2 = gfxSetViewportDisplayList(glist2);
 
     gDPSetScissor(glist++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
     gDPSetScissor(glist2++, G_SC_NON_INTERLACE, 0, 0, gScreenWidth, gScreenHeight);
@@ -946,12 +946,12 @@ void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
 
     glist2 = gfxInit2DDisplayList(glist2);
 
-    glist = func_805FE398(glist);
+    glist = gfxClearZBuffer(glist);
     gDPPipeSync(glist++);
-    glist = func_805FE4D4(glist);
+    glist = gfxSetFrameBufferColorImage(glist);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 6, 2, 0);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 4, 2, 0);
-    glist = func_80704960(glist);
+    glist = gfxDrawSplitScreenDividers(glist);
 
     gSPClipRatio(glist++, FRUSTRATIO_3);
     gDPPipeSync(glist++);
@@ -1061,13 +1061,13 @@ void func_805FD088(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **outGlist2) {
 }
 
 
-Gfx *func_805FE398(Gfx *glistp) {
+Gfx *gfxClearZBuffer(Gfx *glistp) {
     gDPPipeSync(glistp++);
     gDPSetRenderMode(glistp++, 0, 0);
     gDPSetCycleType(glistp++, G_CYC_FILL);
     gSPClearGeometryMode(glistp++, G_ZBUFFER);
-    gDPSetDepthImage(glistp++, osVirtualToPhysical(D_8076A060));
-    gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gScreenWidth, osVirtualToPhysical(D_8076A060));
+    gDPSetDepthImage(glistp++, osVirtualToPhysical(gGfxDepthBuffer));
+    gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gScreenWidth, osVirtualToPhysical(gGfxDepthBuffer));
     gDPSetFillColor(glistp++, 0xFFFCFFFC);
     gDPFillRectangle(glistp++, 0, 0, gScreenWidth - 1, gScreenHeight - 1);
     gDPPipeSync(glistp++);
@@ -1075,13 +1075,13 @@ Gfx *func_805FE398(Gfx *glistp) {
 }
 
 
-Gfx *func_805FE4D4(Gfx *glistp) {
+Gfx *gfxSetFrameBufferColorImage(Gfx *glistp) {
     gDPSetColorImage(glistp++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gScreenWidth, osVirtualToPhysical((void *)gFramebuffers[gGfxBufferIndex]));
     return glistp;
 }
 
 
-void func_805FE544(u8 numScreens) {
+void gfxAllocateBuffers(u8 numScreens) {
     if (gGlobalOverlayFlags & 1) {
         D_8076A058 = 0x1770;
     } else {
@@ -1089,12 +1089,12 @@ void func_805FE544(u8 numScreens) {
     }
     gGfxTaskBuffers[0] = heapAlloc(D_8076A058 * sizeof(Gfx));
     gGfxTaskBuffers[1] = heapAlloc(D_8076A058 * sizeof(Gfx));
-    func_805FE71C(func_805FE634(gGfxTaskBuffers[0], 0), 0, &D_8076A088, 1);
-    func_805FE71C(func_805FE634((void *)D_8076A054, 1), 1, &D_8076A088, 1);
+    gfxEndDisplayList(gfxClearFramebuffer(gGfxTaskBuffers[0], 0), 0, &D_8076A088, 1);
+    gfxEndDisplayList(gfxClearFramebuffer((void *)D_8076A054, 1), 1, &D_8076A088, 1);
 }
 
 
-Gfx *func_805FE634(Gfx *glistp, u8 fbIndex) {
+Gfx *gfxClearFramebuffer(Gfx *glistp, u8 fbIndex) {
     gDPPipeSync(glistp++);
     gDPSetRenderMode(glistp++, 0, 0);
     gDPSetCycleType(glistp++, G_CYC_FILL);
@@ -1106,7 +1106,7 @@ Gfx *func_805FE634(Gfx *glistp, u8 fbIndex) {
 }
 
 
-void func_805FE71C(Gfx *inGlist, u8 bufIdx, s32 *outSize, u8 fullSync) {
+void gfxEndDisplayList(Gfx *inGlist, u8 bufIdx, s32 *outSize, u8 fullSync) {
     Gfx *glistp = inGlist;
 
     if (fullSync) {
@@ -1120,7 +1120,7 @@ void func_805FE71C(Gfx *inGlist, u8 bufIdx, s32 *outSize, u8 fullSync) {
 }
 
 
-void func_805FE7B4(Gfx *inGlist, s32 basePtr, s32 *outSize, u8 fullSync) {
+void gfxEndSubDisplayList(Gfx *inGlist, s32 basePtr, s32 *outSize, u8 fullSync) {
     Gfx *glistp = inGlist;
 
     if (fullSync) {
@@ -1131,7 +1131,7 @@ void func_805FE7B4(Gfx *inGlist, s32 basePtr, s32 *outSize, u8 fullSync) {
 }
 
 
-void func_805FE7FC(void) {
+void mapLoadLevel(void) {
     s32 mapChunkAsset;
     s32 loadedAsset;
     s32 modelAsset;
@@ -1188,7 +1188,7 @@ if (((s32) gActivePlayerCount >= 2) && !(gGlobalOverlayFlags & 0x04000000)) {
     }
     func_806C7C10();
     playerSetLargeModeScale(0.0f);
-    func_805FE544(gActivePlayerCount);
+    gfxAllocateBuffers(gActivePlayerCount);
     if (gCurrentMap != 0xB8) {
         if (gCurrentMap == 0xBF) {
             gPlayerCharacterId = 6;
@@ -1257,7 +1257,7 @@ if (((s32) gActivePlayerCount >= 2) && !(gGlobalOverlayFlags & 0x04000000)) {
         }
         collisionBstRebalanceAll();
         D_807F6008 = 0;
-        if ((func_8070B318() == 0) && (D_807444EC != 2)) {
+        if ((transitionGetState() == 0) && (D_807444EC != 2)) {
             if ((gCurrentMap == 0x11) && (flagGet(0x302, 0) != 0)) {
                 sfxAllocateChannel(0x74, 1.0f);
             } else {
@@ -1295,14 +1295,14 @@ if (((s32) gActivePlayerCount >= 2) && !(gGlobalOverlayFlags & 0x04000000)) {
 }
 
 
-void func_805FEE84(s8 val0, s8 val1, s8 val2, s8 val3) {
+void viewportSetMargins(s8 val0, s8 val1, s8 val2, s8 val3) {
     D_8074447C = val0;
     D_80744480 = val1;
     D_80744484 = val2;
     D_80744488 = val3;
 }
 
-void func_805FEEB8(s32 *val, s32 alignment) {
+void alignInt(s32 *val, s32 alignment) {
     s32 rem;
 
     rem = *val % alignment;
