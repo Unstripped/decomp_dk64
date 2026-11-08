@@ -3197,8 +3197,8 @@ struct TagBarrelData;
 extern s32 D_8074E848[];
 extern s32 gGlobalPauseFlags;
 
-void func_806C93E4(Actor *, void *);
-void func_806C9304(Actor *, void *);
+void playerRestoreKongState(Actor *, void *);
+void playerRevertAnimalTransformation(Actor *, void *);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s32);
 void sfxSetChannelParam(s32, s32, s32);
@@ -3244,8 +3244,8 @@ void tagBarrelStartSelection(struct TagBarrelData *arg0_in) {
             if (sp28 == -1) {
                 sp28 = 0;
             }
-            func_806C93E4(arg0->unk0, sp30);
-            func_806C9304(arg0->unk0, sp30);
+            playerRestoreKongState(arg0->unk0, sp30);
+            playerRevertAnimalTransformation(arg0->unk0, sp30);
             lightGetColor(&arg0->unk2C, &arg0->unk30, &arg0->unk34, (s16)sp28);
             kong = (TagBarrelActorKong *)sp34;
             lightSetColor(dummy = 1.0f, 1.0f, 1.0f, (s16)sp28);
@@ -3581,7 +3581,7 @@ typedef struct TagBarrelData {
 extern u8 D_8071FC8C[];
 void effectSetFlags(s32);
 s32 mapIsBossArena(void);
-s32 func_806C9D7C(void);
+s32 playerSpawnAllPlayers(void);
 s32 tagBarrelCheckKongFlag(s32, s32);
 void tagBarrelStartSelection(TagBarrelData *);
 void tagBarrelUpdateSelection(TagBarrelData *);
@@ -3633,7 +3633,7 @@ void tagBarrelUpdate(void) {
         }
         actor = gCurrentActor;
         if (actor->unk155[0] == 0xA) {
-            if (((Actor *)gPrimaryPlayerActor)->contactFlags & 4 || func_806C9D7C() != 0) {
+            if (((Actor *)gPrimaryPlayerActor)->contactFlags & 4 || playerSpawnAllPlayers() != 0) {
                 actor = gCurrentActor;
                 actor->unk155[0] = 0;
             } else if (((Actor *)gPrimaryPlayerActor)->attachMode != 1 && (((Actor *)gPrimaryPlayerActor)->contactFlags & ((Actor *)gPrimaryPlayerActor)->prevContactFlags & 1)) {

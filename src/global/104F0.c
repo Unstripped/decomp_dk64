@@ -825,7 +825,7 @@ void eepromHalveRecords(void) {
 
 extern void collectibleCountsClear(void);
 extern void eepromCopySlot(void);
-extern void func_806C9AE0(void);
+extern void playerResetSpawnGlobals(void);
 extern void healthRefill(s32);
 extern u8 gActivePlayerCount;
 extern s32 D_80750AB0;
@@ -835,7 +835,7 @@ extern u8 gPlayerCount;
 void eepromLoadPlayerData(u8 arg0, s32 arg1) { u8 *base; s32 i; u8 *entry; s32 j; s32 k; base = (u8 *)((u32)gPlayerInventoryTable | 0); if (base) {} // LAYOUT: entry stmts on { line schedule addiu after lui; FAKE: `| 0` blocks address copy-propagation, dead if (base)
     entry = base;
     gActivePlayerCount = 1;
-    func_806C9AE0();
+    playerResetSpawnGlobals();
     memcpy(D_807ECEA8, D_807ED6A8, 0x800);
     D_807467C8 = arg0;
     gPlayerCharacterId = 0;

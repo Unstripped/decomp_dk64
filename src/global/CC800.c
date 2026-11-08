@@ -123,7 +123,7 @@ typedef struct G00Block {
 
 extern G00Block *gPlayerSlots;
 
-void func_806C7C10(void) {
+void playerSetupViewports(void) {
     gPlayerCount = gActivePlayerCount;
     gPlayerSlots = 0;
     if (gPlayerCount >= 2) {
@@ -182,7 +182,7 @@ typedef struct G00Player306 {
 
 void *heapAlloc(s32);
 void heapClearBlock(void *);
-void func_806C850C(s32, u8);
+void playerSetupCharacterForSlot(s32, u8);
 void func_80708BB8(void *);
 void healthRefill(u8);
 void func_806C80E4(void);
@@ -196,7 +196,7 @@ extern s32 gGlobalOverlayFlags;
 extern u32 gGlobalCutsceneFlags;
 extern u16 D_807FD570;
 
-void func_806C7D40(s32 arg0) {
+void playerAllocSlots(s32 arg0) {
     G00Block *blk;
     s32 i;
     u8 sel;
@@ -209,7 +209,7 @@ void func_806C7D40(s32 arg0) {
         blk->unk0 = 1;
         sel = i;
         gCurrentPlayerIndex = i;
-        func_806C850C(arg0++, sel);
+        playerSetupCharacterForSlot(arg0++, sel);
         blk->unk4 = gActivePlayerActor;
         if (i == 0) {
             gPrimaryPlayerActor = gActivePlayerActor;
@@ -510,11 +510,11 @@ void playerInputToggleActiveState(Actor *);
 s32 flagGet(s32, s32);
 void func_806F09F0(Actor *, u16);
 void playerResumeLocomotion(Actor *);
-void func_806C90C4(s32);
-void func_806C8984(void);
+void playerWarpToSpawnPoint(s32);
+void playerSpawnMapHelpers(void);
 void actorSetInteractionTimer(Actor *);
 
-void func_806C850C(s32 arg0, u8 arg1) {
+void playerSetupCharacterForSlot(s32 arg0, u8 arg1) {
     G00Row *row;
     u32 sel;
     s32 i;
@@ -599,8 +599,8 @@ void func_806C850C(s32 arg0, u8 arg1) {
         gPlayerPadState[sel].unk10[i] = gPlayerPadState[sel].unk4;
     }
     playerResumeLocomotion(gActivePlayerActor);
-    func_806C90C4(arg0);
-    func_806C8984();
+    playerWarpToSpawnPoint(arg0);
+    playerSpawnMapHelpers();
 }
 
 extern s32 gCurrentMap;
@@ -627,7 +627,7 @@ void func_80028840(void);
 void actorSpawnChildActor(Actor *);
 void func_806C7B50(s32, u8, Actor *);
 
-void func_806C8984(void) {
+void playerSpawnMapHelpers(void) {
     f32 scale;
 
     scale = -1.0f;
@@ -786,7 +786,7 @@ s32 playerGetResolvedKongId(s32 arg0) {
     return var_v1;
 }
 
-void func_806C8F8C(void *);
+void playerApplyCharacterModel(void *);
 
 void playerSetKongByActorType(s16 arg0) {
     s32 found;
@@ -801,7 +801,7 @@ void playerSetKongByActorType(s16 arg0) {
             gPlayerCharacterId[gCurrentPlayerIndex] = i + 1; i = gPlayerCharacterId[gCurrentPlayerIndex];
         }
     } while (found == 0);
-    func_806C8F8C(&D_8075C410[i]);
+    playerApplyCharacterModel(&D_8075C410[i]);
 }
 
 typedef struct G00View8C {
@@ -809,15 +809,15 @@ typedef struct G00View8C {
     /* 0x8C */ u8 unk8C;
 } G00View8C;
 
-void func_806C9C80();
+void playerInitKongActor();
 void timerQueueAdd(void *, s32, s32, s32, s32);
 
-void func_806C8EE8(void) {
+void playerCycleKongDebug(void) {
     gPlayerCharacterId[gCurrentPlayerIndex]++;
     gPlayerCharacterId[gCurrentPlayerIndex] %= 8;
     ((G00View8C *)gActivePlayerState)->unk8C = 0;
-    func_806C8F8C(&D_8075C410[gPlayerCharacterId[gCurrentPlayerIndex]]);
-    timerQueueAdd(func_806C9C80, 0x14, gCurrentPlayerIndex, 0, 0);
+    playerApplyCharacterModel(&D_8075C410[gPlayerCharacterId[gCurrentPlayerIndex]]);
+    timerQueueAdd(playerInitKongActor, 0x14, gCurrentPlayerIndex, 0, 0);
 }
 
 typedef struct G01Sub4 {
@@ -915,7 +915,7 @@ void actorSub140Free(ActorSub140 *);
 void controllerAnimInit(Actor *, u16);
 ActorSub140 *actorSub140CreateFromModel(Actor *);
 
-void func_806C8F8C(void *arg) {
+void playerApplyCharacterModel(void *arg) {
     G01Arg8F8C *arg0 = arg;
 
     G01A->unk58 = arg0->unk0;
@@ -949,7 +949,7 @@ void scriptSetActorRampTarget(Actor *, f32, f32);
 void actorUpdatePrevContactFlags(Actor *);
 void playerWaypointPathStartLineFromPoint(Actor *, void *, s32);
 
-void func_806C90C4(s32 arg0) {
+void playerWarpToSpawnPoint(s32 arg0) {
     G01Ctl *sp24 = G01A->unk174;
     G01Pos *p = func_806C96C4(arg0);
 
@@ -984,12 +984,12 @@ void func_806C90C4(s32 arg0) {
     }
 }
 
-void func_806C9434(s32);
+void playerSyncInventoryOnSpawn(s32);
 void actorClearMovementFlags(void *);
 
 void playerRespawnResetPhysics(s32 arg0) {
     actorClearMovementFlags(gActivePlayerActor);
-    func_806C9434(arg0);
+    playerSyncInventoryOnSpawn(arg0);
     gActivePlayerActor->peakY = gActivePlayerActor->y;
 }
 
@@ -1021,7 +1021,7 @@ typedef struct G01Sub4f {
 
 void playerSetSizeMode(void *, s32, void *, void *);
 
-void func_806C9304(Actor *arg0, G01Ctl *arg1) {
+void playerRevertAnimalTransformation(Actor *arg0, G01Ctl *arg1) {
     s32 i;
 
     if (((G01Player *)gPlayerSlots)[arg1->unk1A4].unk2C0 != 1) {
@@ -1037,7 +1037,7 @@ void func_806C9304(Actor *arg0, G01Ctl *arg1) {
 
 void playerTransformAnimalEndSfx(void);
 
-void func_806C93E4(Actor *arg0, PlayerState *arg1) {
+void playerRestoreKongState(Actor *arg0, PlayerState *arg1) {
     playerTransformAnimalEndSfx();
     arg1->stateFlags &= ~0x30;
     arg0->flags |= 0x8000;
@@ -1051,9 +1051,9 @@ void camResetAllPlayers(void);
 void camResetPlayer(Actor *, u8);
 void actorSetInteractionTimer(Actor *);
 void playerResumeLocomotion(Actor *);
-void func_806C90C4(s32);
+void playerWarpToSpawnPoint(s32);
 
-void func_806C9434(s32 arg0) {
+void playerSyncInventoryOnSpawn(s32 arg0) {
     G01Ctl *ctl = G01A->unk174;
     s32 pad[1];
     void *sp34 = G01A->unk178;
@@ -1069,7 +1069,7 @@ void func_806C9434(s32 arg0) {
         sfxStopSlotSound(gActivePlayerActor, i);
         i++;
     } while (i < 2);
-    func_806C90C4(arg0);
+    playerWarpToSpawnPoint(arg0);
     func_806C8220(0, sp34, G01A->unk58);
     healthRefill(ctl->unk1A4);
     G01A->unkB8 = 0.0f;
@@ -1079,7 +1079,7 @@ void func_806C9434(s32 arg0) {
     if (gPlayerCount >= 2) {
         func_800268DC(gActivePlayerActor, ctl, sp2C); /* mpResetPlayerOnRespawn */
     }
-    func_806C9304(gActivePlayerActor, ctl);
+    playerRevertAnimalTransformation(gActivePlayerActor, ctl);
     if (camIsCutsceneActive() == 0) {
         if (gPlayerCount >= 2 && gSplitScreenMode == 1) {
             camResetAllPlayers();
@@ -1101,7 +1101,7 @@ void *assetLoad(s32, s32, s32, s32);
 u32 assetGetCachedSizeOrResolve(s32, s32);
 void playerCheckSpawnerFlagFixup(s32);
 
-void func_806C95D0(s32 arg0) {
+void playerLoadSpawnerAsset(s32 arg0) {
     D_807FC900 = assetLoad(0x17, arg0, 1, 1);
     D_807FC904 = assetGetCachedSizeOrResolve(0x17, arg0) / 10U;
     playerCheckSpawnerFlagFixup(arg0);
@@ -1247,7 +1247,7 @@ extern s8 D_80750ACC;
 extern s32 D_807FD56C;
 void collectibleCountsClear();
 
-void func_806C9AE0(void) {
+void playerResetSpawnGlobals(void) {
     G01Slot *p = (G01Slot *)gPlayerInventoryTable;
     s32 i;
     s32 j;
@@ -1275,12 +1275,12 @@ void func_806C9AE0(void) {
     D_807FD56C = 0;
 }
 
-void func_806C9C1C(s32);
+void playerSpawnMapActors(s32);
 
 extern s32 D_80750B34[];
 void slotQueueAddValue(s32, u8, s32);
 
-void func_806C9C1C(s32 arg0) {
+void playerSpawnMapActors(s32 arg0) {
     s32 i;
 
     for (i = 0; i < 5; i++) {
@@ -1291,7 +1291,7 @@ void func_806C9C1C(s32 arg0) {
 
 void flagSet(s32, s32, s32);
 
-void func_806C9C80(s32 arg0, s32 arg1, s32 arg2) {
+void playerInitKongActor(s32 arg0, s32 arg1, s32 arg2) {
     s32 idx = playerGetResolvedKongId(arg0);
     u8 *p = &gPlayerInventoryTable[0][arg0 * 0x306 + idx * 0x5E];
 
@@ -1300,10 +1300,10 @@ void func_806C9C80(s32 arg0, s32 arg1, s32 arg2) {
     p[1] = 3;
     p[0] = 3;
     flagSet(0x179, 1, 0);
-    func_806C9C1C(arg0);
+    playerSpawnMapActors(arg0);
 }
 
-void func_806C9D20(u8 arg0) {
+void playerGetCharacterIndex(u8 arg0) {
     G01Player *p = (G01Player *)&gPlayerSlots[arg0];
 
     p->unk21C = p->unk210;
@@ -1320,7 +1320,7 @@ typedef struct G01Row {
     /* 0x52 */ u8 pad52[0xC];
 } G01Row;
 
-s32 func_806C9D7C(void) {
+s32 playerSpawnAllPlayers(void) {
     G01Row *row = (G01Row *)gPlayerInventoryTable[gPlayerCharacterId[0]];
     s32 i;
     s32 v;

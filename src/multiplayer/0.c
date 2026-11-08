@@ -896,7 +896,7 @@ void mpFreeHudIcons(MpControllerState *controllerState) {
 
 void slotQueueAddValue(s32, u8, s32);
 MpViewport *cameraFindViewportEntry(u8);
-void func_806C9AE0(void);
+void playerResetSpawnGlobals(void);
 s32 n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
 void n_alSndpPostEvent(void *, s32, s16);
 void sfxPlayOnFreeSlot(s16, s32, f32, f32, s32, s32);
@@ -936,7 +936,7 @@ void mpUpdate(void) {
     s7 = gCurrentActor->unk174;
     if (!(gCurrentActor->unk60 & 0x10)) {
         flag = 0;
-        func_806C9AE0();
+        playerResetSpawnGlobals();
         for (i = 0; i < gPlayerCount; i++) {
             s7->unk20[i] = cameraFindViewportEntry(i);
         }
@@ -1218,7 +1218,7 @@ s32 mpFindFurthestSpawn(s32 pos) {
     return best_i;
 }
 
-void func_806C9434(s32);
+void playerSyncInventoryOnSpawn(s32);
 void playerResumeLocomotion(void *);
 
 void mpRespawnPlayer(MpActor *playerIndex, s32 isTeamSpawn) {
@@ -1229,7 +1229,7 @@ void mpRespawnPlayer(MpActor *playerIndex, s32 isTeamSpawn) {
         playerIndex->unk144 = 1;
         return;
     }
-    func_806C9434(mpFindFurthestSpawn(isTeamSpawn));
+    playerSyncInventoryOnSpawn(mpFindFurthestSpawn(isTeamSpawn));
     gPlayerSlots[isTeamSpawn].unk2E2 |= 1;
     playerResumeLocomotion(playerIndex);
 }

@@ -123,11 +123,11 @@ void texCacheReset(void);
 void texCacheUpdate(void);
 s32 renderCallbacksExecute(s32, s32);
 void renderCallbacksReset(void);
-void func_806C7C10(void);
+void playerSetupViewports(void);
 Struct806C7C94 *cameraFindViewportEntry(s32);
-void func_806C7D40(s32);
-void func_806C95D0(s32);
-void func_806C9AE0(void);
+void playerAllocSlots(s32);
+void playerLoadSpawnerAsset(s32);
+void playerResetSpawnGlobals(void);
 void playerSetLargeModeScale(f32);
 void playerWaypointPathsLoad(s16);
 void gridBuildNodeLists(void);
@@ -534,7 +534,7 @@ void mainResetEngineState(void) {
     gScreenFadeProgress = 31.0f;
     gScreenRenderFlags |= 4;
     modelSkipListClear();
-    func_806C9AE0();
+    playerResetSpawnGlobals();
     flagsClearAllBank2();
     mapSlotArrayInit();
     csTimerQueueClear();
@@ -1186,7 +1186,7 @@ void mapLoadLevel(void) {
 if (((s32) gActivePlayerCount >= 2) && !(gGlobalOverlayFlags & 0x04000000)) {
         gActivePlayerCount = 1;
     }
-    func_806C7C10();
+    playerSetupViewports();
     playerSetLargeModeScale(0.0f);
     gfxAllocateBuffers(gActivePlayerCount);
     if (gCurrentMap != 0xB8) {
@@ -1214,7 +1214,7 @@ if (((s32) gActivePlayerCount >= 2) && !(gGlobalOverlayFlags & 0x04000000)) {
         renderEntryListsReset();
         mapChunkAllocLists(mapChunkAsset);
         mapHeaderLoad(mapChunkAsset);
-        func_806C95D0(gCurrentMap);
+        playerLoadSpawnerAsset(gCurrentMap);
         billboardCacheInit();
         mapLoadNodeAsset(gCurrentMap);
         actorListInitOffsets();
@@ -1233,7 +1233,7 @@ if (((s32) gActivePlayerCount >= 2) && !(gGlobalOverlayFlags & 0x04000000)) {
             assetFreeBuffer(loadedAsset, 0x8D0, 2);
         }
         menuSetupBonusCharacter();
-        func_806C7D40(gInitialExit);
+        playerAllocSlots(gInitialExit);
         effectResetLists();
         loadedAsset = assetLoad(0x10, gCurrentMap, 1, 1);
         func_80724C78(loadedAsset);

@@ -947,7 +947,7 @@ s32 menuIsTransitionTypeAOrE(void) {
 
 extern s8 D_8074452C;
 extern u8 D_807467C8;
-void func_806C9AE0(void);
+void playerResetSpawnGlobals(void);
 void flagsClearAllBank2(void);
 void eepromLoadPlayerData(u8, s32);
 s32 eepromGetField(s32, s32, s32, u8);
@@ -959,7 +959,7 @@ void func_807144B8(u8 arg0) {
 
     D_807445B8 = osGetTime();
     D_80755350 = 0;
-    func_806C9AE0();
+    playerResetSpawnGlobals();
     flagsClearAllBank2();
     eepromLoadPlayerData(arg0, 1);
     gPlayerCharacterId = 0;
@@ -986,7 +986,7 @@ void func_807144B8(u8 arg0) {
 void func_8071458C(void) {
     s32 var_a0;
 
-    func_806C9AE0();
+    playerResetSpawnGlobals();
     gSplitScreenMode = 0;
     if (R117c_STATE->unk0 == 0) {
         gSplitScreenMode = 1;

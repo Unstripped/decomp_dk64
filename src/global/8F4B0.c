@@ -678,7 +678,7 @@ f32 mathSinF(s16);
 void camUpdate(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
-void func_806C9D20(u8);
+void playerGetCharacterIndex(u8);
 extern u8 gGameMode;
 extern s16 D_807FC624;
 
@@ -729,7 +729,7 @@ void playerCameraUpdateFromTarget(void) {
     }
     *(f32 *)((u8 *)player + 0x2D4) = 6.2831855f - angleRad;
     *(f32 *)((u8 *)player + 0x2D8) = 6.2831855f - clampedPitch;
-    func_806C9D20(*(u8 *)((u8 *)targetState + 0xFB));
+    playerGetCharacterIndex(*(u8 *)((u8 *)targetState + 0xFB));
     angleA = mathAngleBetweenPoints2D(*(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x228), *(f32 *)((u8 *)player + 0x230));
     camUpdate(gCurrentActor, (u8 *)player + 0x210, (u8 *)player + 0x214, (u8 *)player + 0x218, (u8 *)player + 0x228, (u8 *)player + 0x22C, (u8 *)player + 0x230, (u8 *)player + 0x240, (u8 *)player + 0x244, (u8 *)player + 0x248);
     angleB = mathAngleBetweenPoints2D(*(f32 *)((u8 *)player + 0x210), *(f32 *)((u8 *)player + 0x218), *(f32 *)((u8 *)player + 0x228), *(f32 *)((u8 *)player + 0x230));

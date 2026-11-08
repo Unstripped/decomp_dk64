@@ -2568,7 +2568,7 @@ void func_8071F034(void);
 void screenSetTransitionFadeType(s32);
 void func_805FF9AC(s32, s32, s32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void func_806C93E4(void *, void *);
+void playerRestoreKongState(void *, void *);
 s32 camStartPath(void *, s32, s32);
 void playerTransformAnimalStartSfx(Actor *);
 void timerQueueAdd(void *, s32, s32, s32, s32);
@@ -2589,7 +2589,7 @@ s32 playerInputCheckMultiplayerPlayerTarget() {
                     G26_PL->unk20C = G26_GS->unkC;
                     G26_PL->unk21C = G26_GS->unk10;
                     playerStateQueueCallback(0x1E, 0, gCurrentPlayerIndex);
-                    func_806C93E4(gCurrentActor, gActivePlayerState);
+                    playerRestoreKongState(gCurrentActor, gActivePlayerState);
                     return 1;
                 }
                 break;
@@ -2600,7 +2600,7 @@ s32 playerInputCheckMultiplayerPlayerTarget() {
                         G26_PL->unk208 = G26_GS->unk8;
                         G26_PL->unk20C = G26_GS->unkC;
                         playerStateQueueCallback(0x1C, 0, gCurrentPlayerIndex);
-                        func_806C93E4(gCurrentActor, gActivePlayerState);
+                        playerRestoreKongState(gCurrentActor, gActivePlayerState);
                         return 1;
                     }
                 }
@@ -2612,7 +2612,7 @@ s32 playerInputCheckMultiplayerPlayerTarget() {
                         G26_PL->unk208 = G26_GS->unk8;
                         G26_PL->unk20C = G26_GS->unkC;
                         playerStateQueueCallback(0x1D, 0, gCurrentPlayerIndex);
-                        func_806C93E4(gCurrentActor, gActivePlayerState);
+                        playerRestoreKongState(gCurrentActor, gActivePlayerState);
                         return 1;
                     }
                 }
