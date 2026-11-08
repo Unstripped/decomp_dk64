@@ -258,6 +258,7 @@ typedef struct Struct807FD580 {
     /* 0x1A5 */ u8 pad1A5[0x1F0 - 0x1A5];
     /* 0x1F0 */ s32 stateFlags;
 } Struct807FD580;
+#define unk1F0 stateFlags
 
 extern Struct807FDC90 *D_807FDC90;
 extern Actor *D_807FDC94;

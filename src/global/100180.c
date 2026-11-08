@@ -239,23 +239,23 @@ void textFontInitTables(void) {
 void *assetLoad(s32, s16, u8, s32);
 
 
-void *textFontLoadSheet(s16 arg0) {
-    s16 temp_a1;
-    s32 var_v1;
-    u8 *temp_v0;
+void *textFontLoadSheet(s16 sheetIndex) {
+    s16 sheet;
+    s32 offset;
+    u8 *agePtr;
 
-    temp_v0 = arg0 + gTextFontSheetAges;
-    temp_a1 = arg0;
-    var_v1 = temp_a1 * 4;
-    if (*temp_v0 == 0) {
-        arg0 = arg0;
-        var_v1 = arg0 * 4;
-        *(void **)((u8 *) gTextFontSheets + var_v1) = assetLoad(0xE, temp_a1, 1, 1);
-        *(gTextFontSheetAges + arg0) = 3;
+    agePtr = sheetIndex + gTextFontSheetAges;
+    sheet = sheetIndex;
+    offset = sheet * 4;
+    if (*agePtr == 0) {
+        sheetIndex = sheetIndex;
+        offset = sheetIndex * 4;
+        *(void **)((u8 *) gTextFontSheets + offset) = assetLoad(0xE, sheet, 1, 1);
+        *(gTextFontSheetAges + sheetIndex) = 3;
     } else {
-        *temp_v0 = 3;
+        *agePtr = 3;
     }
-    return *(void **)((u8 *) gTextFontSheets + var_v1);
+    return *(void **)((u8 *) gTextFontSheets + offset);
 }
 
 extern u8 D_80754A34[];
@@ -593,13 +593,13 @@ void heapFreeDeferred(void *);
 Gfx *func_8070068C(Gfx *);
 
 typedef struct { s16 unk0; u8 unk2; u8 unk3; } TextObjectGlyph;
-Gfx *textObjectDrawFlat(Gfx *dl, TextObject *arg1) {
+Gfx *textObjectDrawFlat(Gfx *dl, TextObject *textObj) {
     s32 line;
     u8 chr;
     u8 started;
     s32 idx;
     Vtx *vp;
-    Vtx *spB4;
+    Vtx *vtxBase;
     Mtx *mp;
     s32 i;
     s32 gw;
@@ -607,33 +607,33 @@ Gfx *textObjectDrawFlat(Gfx *dl, TextObject *arg1) {
     s32 gh;
 
     idx = 0;
-    vp = (Vtx *)heapAlloc(arg1->unkD << 6);
+    vp = (Vtx *)heapAlloc(textObj->unkD << 6);
     heapFreeDeferred(vp);
-    mp = (Mtx *)heapAlloc(arg1->unkD << 6);
+    mp = (Mtx *)heapAlloc(textObj->unkD << 6);
     heapFreeDeferred(mp);
-    spB4 = vp;
+    vtxBase = vp;
     gDPSetTextureFilter(dl++, G_TF_BILERP);
     dl = func_8070068C(dl);
     line = 1;
-    if (D_80754A35[arg1->unkC * 6] + 1 >= 2) {
+    if (D_80754A35[textObj->unkC * 6] + 1 >= 2) {
         do {
             started = 0;
             i = 1;
-            chr = arg1->unk4[0];
+            chr = textObj->unk4[0];
             if (chr) {
                 do {
                     if (chr != 0x20) {
-                        textMapCharToGlyph(arg1->unkC, &chr);
-                        if (chr >= (D_807549FC[arg1->unkC] + line)[-1] && chr < (D_807549FC[arg1->unkC] + line)[0]) {
-                            gw = ((TextObjectGlyph *)D_80754A18[arg1->unkC])[chr].unk2;
-                            gx = ((TextObjectGlyph *)D_80754A18[arg1->unkC])[chr].unk0;
-                            gh = D_80754A36[arg1->unkC * 6];
+                        textMapCharToGlyph(textObj->unkC, &chr);
+                        if (chr >= (D_807549FC[textObj->unkC] + line)[-1] && chr < (D_807549FC[textObj->unkC] + line)[0]) {
+                            gw = ((TextObjectGlyph *)D_80754A18[textObj->unkC])[chr].unk2;
+                            gx = ((TextObjectGlyph *)D_80754A18[textObj->unkC])[chr].unk0;
+                            gh = D_80754A36[textObj->unkC * 6];
                             if (started == 0) {
                                 started = 1;
-                                dl = textLoadFontSheetGfx(dl, arg1->unkC, (s16)line);
+                                dl = textLoadFontSheetGfx(dl, textObj->unkC, (s16)line);
                             }
-                            guPosition(mp + idx, 0.0f, 0.0f, arg1->unk8[idx].unk20 * 57.295776f, arg1->unk8[idx].unk30,
-                                       arg1->unk8[idx].unk0, arg1->unk8[idx].unk4, 0.0f);
+                            guPosition(mp + idx, 0.0f, 0.0f, textObj->unk8[idx].unk20 * 57.295776f, textObj->unk8[idx].unk30,
+                                       textObj->unk8[idx].unk0, textObj->unk8[idx].unk4, 0.0f);
                             gSPMatrix(dl++, mp + idx, G_MTX_PUSH | G_MTX_MUL | G_MTX_MODELVIEW);
                             gDPPipeSync(dl++);
                             vp[0].v.ob[0] = -(gw * 2); vp[0].v.ob[1] = gh * 2 - 1; vp[0].v.ob[2] = -5;
@@ -651,19 +651,19 @@ Gfx *textObjectDrawFlat(Gfx *dl, TextObject *arg1) {
                             vp[3].v.ob[0] = -(gw * 2); vp[3].v.ob[1] = -(gh * 2); vp[3].v.ob[2] = -5;
                             vp[3].v.tc[1] = 0; vp[3].v.tc[0] = gx << 6;
                             vp += 4;
-                            gSPVertex(dl++, osVirtualToPhysical(spB4), 4, 0);
+                            gSPVertex(dl++, osVirtualToPhysical(vtxBase), 4, 0);
                             gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
                             gSPPopMatrix(dl++, G_MTX_MODELVIEW);
-                            spB4 = vp;
+                            vtxBase = vp;
                         }
                         idx++;
                     }
-                    chr = arg1->unk4[i++];
+                    chr = textObj->unk4[i++];
                 } while (chr);
                 idx = 0;
             }
             line++;
-        } while (line < D_80754A35[arg1->unkC * 6] + 1);
+        } while (line < D_80754A35[textObj->unkC * 6] + 1);
     }
     gSPMatrix(dl++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(dl++, D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
@@ -671,13 +671,13 @@ Gfx *textObjectDrawFlat(Gfx *dl, TextObject *arg1) {
     return dl;
 }
 
-Gfx *textObjectDrawRotated(Gfx *dl, TextObject *arg1) {
+Gfx *textObjectDrawRotated(Gfx *dl, TextObject *textObj) {
     s32 line;
     u8 chr;
     u8 started;
     s32 idx;
     Vtx *vp;
-    Vtx *spB4;
+    Vtx *vtxBase;
     Mtx *mp;
     s32 i;
     s32 gw;
@@ -687,37 +687,37 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *arg1) {
     f32 fb;
 
     idx = 0;
-    vp = (Vtx *)heapAlloc(arg1->unkD << 6);
+    vp = (Vtx *)heapAlloc(textObj->unkD << 6);
     heapFreeDeferred(vp);
-    mp = (Mtx *)heapAlloc(arg1->unkD << 6);
+    mp = (Mtx *)heapAlloc(textObj->unkD << 6);
     heapFreeDeferred(mp);
-    spB4 = vp;
+    vtxBase = vp;
     gDPSetTextureFilter(dl++, G_TF_BILERP);
     gSPMatrix(dl++, &D_2000000, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(dl++, D_2000200, G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(dl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     line = 1;
-    if (D_80754A35[arg1->unkC * 6] + 1 >= 2) {
+    if (D_80754A35[textObj->unkC * 6] + 1 >= 2) {
         do {
             started = 0;
             i = 1;
-            chr = arg1->unk4[0];
+            chr = textObj->unk4[0];
             if (chr) {
                 do {
                     if (chr != 0x20) {
-                        textMapCharToGlyph(arg1->unkC, &chr);
-                        if (chr >= (D_807549FC[arg1->unkC] + line)[-1] && chr < (D_807549FC[arg1->unkC] + line)[0]) {
-                            gw = ((TextObjectGlyph *)D_80754A18[arg1->unkC])[chr].unk2;
-                            gx = ((TextObjectGlyph *)D_80754A18[arg1->unkC])[chr].unk0;
-                            gh = D_80754A36[arg1->unkC * 6];
+                        textMapCharToGlyph(textObj->unkC, &chr);
+                        if (chr >= (D_807549FC[textObj->unkC] + line)[-1] && chr < (D_807549FC[textObj->unkC] + line)[0]) {
+                            gw = ((TextObjectGlyph *)D_80754A18[textObj->unkC])[chr].unk2;
+                            gx = ((TextObjectGlyph *)D_80754A18[textObj->unkC])[chr].unk0;
+                            gh = D_80754A36[textObj->unkC * 6];
                             if (started == 0) {
                                 started = 1;
-                                dl = textLoadFontSheetGfx(dl, arg1->unkC, (s16)line);
+                                dl = textLoadFontSheetGfx(dl, textObj->unkC, (s16)line);
                             }
-                            guPosition(mp + idx, arg1->unk8[idx].unk18 * 57.295776f,
-                                       arg1->unk8[idx].unk1C * 57.295776f, arg1->unk8[idx].unk20 * 57.295776f,
-                                       arg1->unk8[idx].unk30, arg1->unk8[idx].unk0, arg1->unk8[idx].unk4,
-                                       arg1->unk8[idx].unk8);
+                            guPosition(mp + idx, textObj->unk8[idx].unk18 * 57.295776f,
+                                       textObj->unk8[idx].unk1C * 57.295776f, textObj->unk8[idx].unk20 * 57.295776f,
+                                       textObj->unk8[idx].unk30, textObj->unk8[idx].unk0, textObj->unk8[idx].unk4,
+                                       textObj->unk8[idx].unk8);
                             gSPMatrix(dl++, mp + idx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                             gDPPipeSync(dl++);
                             ((s16 *)vp)[0] = -(gw * 2); ((s16 *)vp)[1] = gh * 2 - 1; ((s16 *)vp)[2] = 0;
@@ -735,18 +735,18 @@ Gfx *textObjectDrawRotated(Gfx *dl, TextObject *arg1) {
                             ((s16 *)vp)[24] = -(gw * 2); ((s16 *)vp)[25] = -(gh * 2); ((s16 *)vp)[26] = 0;
                             ((s16 *)vp)[29] = 0; ((s16 *)vp)[28] = gx << 6;
                             vp += 4;
-                            gSPVertex(dl++, osVirtualToPhysical(spB4), 4, 0);
+                            gSPVertex(dl++, osVirtualToPhysical(vtxBase), 4, 0);
                             gSP1Quadrangle(dl++, 0, 1, 2, 3, 0);
-                            spB4 = vp;
+                            vtxBase = vp;
                         }
                         idx++;
                     }
-                    chr = arg1->unk4[i++];
+                    chr = textObj->unk4[i++];
                 } while (chr);
                 idx = 0;
             }
             line++;
-        } while (line < D_80754A35[arg1->unkC * 6] + 1);
+        } while (line < D_80754A35[textObj->unkC * 6] + 1);
     }
     gDPPipeSync(dl++);
     return dl;
