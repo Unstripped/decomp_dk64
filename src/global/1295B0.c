@@ -7,12 +7,12 @@ extern Actor *D_807FBB4C;
 extern ActorGlobalState D_807FBB70;
 extern void *gPlayerSlots;
 
-void actorSetUniformScale(Actor *arg0, f32 arg1) {
-    arg0->unk4->unk34 = arg1;
-    arg0->unk4->unk38 = arg1;
-    arg0->unk4->unk3C = arg1;
-    if (arg0->unk140 != NULL) {
-        arg0->unk15E = (u32)((f32)arg0->unk140->unkC * arg1 * 0.5);
+void actorSetUniformScale(Actor *actor, f32 scale) {
+    actor->unk4->unk34 = scale;
+    actor->unk4->unk38 = scale;
+    actor->unk4->unk3C = scale;
+    if (actor->unk140 != NULL) {
+        actor->unk15E = (u32)((f32)actor->unk140->unkC * scale * 0.5);
     }
 }
 
@@ -80,17 +80,17 @@ typedef struct ZoneTable {
 
 extern ZoneTable *D_80755690;
 
-void zoneEntrySetDisabled(u8 arg0, u8 arg1, u8 arg2) {
+void zoneEntrySetDisabled(u8 zoneId, u8 entryIndex, u8 disabled) {
     Zone *group;
     s16 i;
     u8 idx;
 
     group = D_80755690->unk4;
     for (i = 0; i < D_80755690->unk0;) {
-        idx = arg1;
-        if (group->unk18 == arg0) {
+        idx = entryIndex;
+        if (group->unk18 == zoneId) {
             if (idx < group->unk10) {
-                if (arg2 != 0) {
+                if (disabled != 0) {
                     group->unk14[idx].unk6 |= 0x80;
                 } else {
                     group->unk14[idx].unk6 &= 0xFF7F;
@@ -743,12 +743,12 @@ typedef struct F1Pt {
     /* 0x8 */ s16 unk8;
 } F1Pt;
 
-void actorSetPositionFromPoint(Actor *arg0, F1Pt *arg1) {
-    arg0->x = arg1->unk4;
-    arg0->y = arg1->unk6;
-    arg0->prevY = arg1->unk6;
-    arg0->z = arg1->unk8;
-    arg0->yaw = arg1->unk2;
+void actorSetPositionFromPoint(Actor *actor, F1Pt *pt) {
+    actor->x = pt->unk4;
+    actor->y = pt->unk6;
+    actor->prevY = pt->unk6;
+    actor->z = pt->unk8;
+    actor->yaw = pt->unk2;
 }
 
 typedef struct A4Act {
@@ -1872,8 +1872,8 @@ void func_80728950(u8 arg0) {
     animSetFrameAndSubframe(gCurrentActor, arg0, 2, 0.0f);
 }
 
-void currentActorAnimSetFrame(u8 arg0, u8 arg1) {
-    animSetFrameAndSubframe(gCurrentActor, arg0, arg1, 0.0f);
+void currentActorAnimSetFrame(u8 frame, u8 subframe) {
+    animSetFrameAndSubframe(gCurrentActor, frame, subframe, 0.0f);
 }
 
 typedef struct A2PtrPair {
