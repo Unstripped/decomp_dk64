@@ -138,40 +138,16 @@ typedef struct ActorGlobalState {
     /* 0x0F4 */ f32 unkF4;
     /* 0x0F8 */ u8 unkF8[0x100];
     /* 0x1F8 */ s32 unk1F8;
-    union {
-        /* 0x1FC */ s32 unk1FC;
-        /* 0x1FC */ s32 lastAttacker;
-    };
-    union {
-        /* 0x200 */ u8 unk200;
-        /* 0x200 */ u8 hitReaction;
-    };
-    union {
-        /* 0x201 */ u8 unk201;
-        /* 0x201 */ u8 hitCount;
-    };
+    /* 0x1FC */ s32 unk1FC;
+    /* 0x200 */ u8 unk200;
+    /* 0x201 */ u8 unk201;
     /* 0x202 */ u8 unk202[2];
-    union {
-        /* 0x204 */ s32 unk204[16];
-        /* 0x204 */ s32 targetActors[16];
-    };
-    union {
-        /* 0x244 */ u8 unk244[16];
-        /* 0x244 */ u8 targetBones[16];
-    };
-    union {
-        /* 0x254 */ u8 unk254;
-        /* 0x254 */ u8 eventCount;
-    };
+    /* 0x204 */ s32 unk204[16];
+    /* 0x244 */ u8 unk244[16];
+    /* 0x254 */ u8 unk254;
     /* 0x255 */ u8 unk255[3];
-    union {
-        /* 0x258 */ s32 unk258[8];
-        /* 0x258 */ s32 eventActorIds[8];
-    };
-    union {
-        /* 0x278 */ s16 *unk278[8];
-        /* 0x278 */ s16 *eventPointers[8];
-    };
+    /* 0x258 */ s32 unk258[8];
+    /* 0x278 */ s16 *unk278[8];
 } ActorGlobalState;
 
 typedef struct Actor {
