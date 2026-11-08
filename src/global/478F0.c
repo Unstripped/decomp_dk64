@@ -254,7 +254,7 @@ void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
 
 void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
 
-void func_8064384C(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdTagBarrelSpawnSmokeAndPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSlot *slot = &D_807F6000[hashTableLookup(csId)];
     tagBarrelSpawnSmokeAndPuffs(slot->x, slot->y, slot->z, slot->w, 0, 1);
 }
@@ -405,7 +405,7 @@ void modelSlotSetNodeFrame(s32, s16, s32, s32);
 void sfxPlayFromTargetSlot(s16, s32, s32, s32, s32, s32, f32);
 s16 sfxSlotAllocateSource(s16, s32, s32, u8, s32, f32, s32);
 
-void func_8064409C(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdPeriodicSfxAlloc(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSfxState *q;
     CsSfxState *t;
 
@@ -522,7 +522,7 @@ void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void func_80711410(f32, s32, f32, s32, f32);
 void lightSetColor(f32, f32, f32, s32);
 
-void func_806443E4(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
+void csCmdStormLightningRain(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     CsFlicker *f;
     f32 dist;
     f32 fade;
@@ -746,7 +746,7 @@ extern u8 D_80720E8C[];
 void effectTumbleBounceUpdate(void);
 void effectLightPulseOscillate(void);
 
-void func_80645238(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnMultiRingParticles(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 r1;
     u32 r2;
     u32 r3;
@@ -999,7 +999,7 @@ void func_80645D14(s32 **slot, s16 csId, s16 b, s16 c) {
 extern u8 D_80720B00;
 void effectProximityFadeUpdate(void);
 
-void func_80645F40(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdPeriodicProximityEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x = 0.0f;
     s32 i;
 
@@ -1529,7 +1529,7 @@ void csCmdPointListEffect(CsState *cs, s16 csId, s16 b, s16 c) {
 extern u8 D_80748168[];
 extern f32 D_8074816C;
 
-void func_8064774C(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnFallingSparkles(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
 
     for (i = 1; i != 0xF; i++) {
@@ -1570,7 +1570,7 @@ void csCmdSpawnTumbleBounceRing(CsState *cs, s16 csId, s16 b, s16 c) {
 extern u8 D_8071FC8C[];
 void effectCircleRiseFadeUpdate(void);
 
-void func_80647A14(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnOrbitingPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
     f32 y;
 
@@ -1729,7 +1729,7 @@ void effectZRotationMatrixUpdate(void);
 void func_80714A08(f32, f32);
 void func_80714A28(s16);
 
-void func_8064826C(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnOrbitingSparks(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 *tex;
     f32 sa;
     f32 sb;
@@ -2032,7 +2032,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-void func_8064911C(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnFallingWhiteSparks(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
 
     for (i = 1; i != 8; i++) {
@@ -2755,7 +2755,7 @@ typedef struct CsEntrySet {
     /* 0x4E */ u8 unk4E;
     /* 0x4F */ u8 unk4F;
 } CsEntrySet;
-void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
     CsEntrySet *p;
     CsEntryView *e;
     s16 j;
@@ -3087,7 +3087,7 @@ void csCmdSpawnActorNodeByCase(CsState *cs, s16 csId, s16 b, s16 c) {
 
 void actorListSetPosById(s16, f32, f32, f32);
 
-void func_8064B9E0(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSetPositionPreset(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 x, y, z;
     switch (b) {
         case 0:
@@ -3117,7 +3117,7 @@ void csCmdCheckCollectedSufficientItems(CsState *cs, s16 csId, s16 b, s16 c) {
     mapHasCollectedSufficientItems();
 }
 
-void func_8064BB78(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCondWorldHubFlagSet(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 idx = mapGetHubWorldIndex(D_8076A0AB, 0);
     if (idx >= 8) {
         idx = 0;
@@ -3187,7 +3187,7 @@ s32 csCondFindPlayerSlotByModel(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern s32 D_807552E8;
 
-s32 func_8064BE58(CsState *cs, s16 csId, s16 b, s16 c) {
+s32 csCondTransitionState5(CsState *cs, s16 csId, s16 b, s16 c) {
     return (D_807552E8 == 5) & 0xFF;
 }
 
@@ -3195,7 +3195,7 @@ extern s32 D_807552F0;
 s32 slotQueueGetValue(s32, u8);
 void slotQueueAddValue(s32, u8, s16);
 
-s32 func_8064BE80(CsState *cs, s16 csId, s16 b, s16 c) {
+s32 csCondDepositItem(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 q;
     s32 idx = csFindPlayerSlotByModel(csId, b);
     if (idx < 0) {
@@ -3246,7 +3246,7 @@ void csCmdDecayTargetPosCoord(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void func_8064C134(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdRotXAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
     if (gCsRotX > 1.2 || gCsRotX < -1.2) {
         if (gCsRotX > 0.0) {
             if (cs->unk14[b] > -1.0) {
@@ -3322,7 +3322,7 @@ void csCmdCamShakeOnAnim(CsState *cs, s16 csId, s16 b, s16 c) {
 extern s16 D_80770628[];
 extern f32 D_80770B68[];
 
-void func_8064C544(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdPlayAnimSlotB(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 anim;
     f32 animT;
     u8 animFlag;
@@ -3336,7 +3336,7 @@ void func_8064C544(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void func_8064C644(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdPlayAnimSlot1(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 anim;
     f32 animT;
     u8 animFlag;
@@ -3351,7 +3351,7 @@ void func_8064C644(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-void func_8064C708(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdAllocAnimTracking(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 anim;
     f32 animT;
     u8 animFlag;
@@ -3499,7 +3499,7 @@ extern s16 D_807482B0;
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 u8 collisionGetFloorHeight(f32 *);
 
-void func_8064CD3C(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnParticleTrail(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 pad0;
     u32 pad1;
     u32 pad2;
@@ -3602,7 +3602,7 @@ typedef struct {
 
 void effectNodeSetTargetAndStep(s32, f32, f32);
 
-void func_8064D1E8(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSineMotionUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSineState *p;
     CsSineState *t;
     s32 ang;
@@ -3680,7 +3680,7 @@ typedef struct {
     u8 unk4B;
 } CsStateByteView;
 
-void func_8064D418(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
     CsBeatState *p;
     s16 frame;
     s16 anim;
@@ -3788,7 +3788,7 @@ void csCmdAnimProgressFromCounter(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-void func_8064D978(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdAnimProgressFromHubItems(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 anim;
     f32 cur;
     u8 flag;
@@ -3829,7 +3829,7 @@ void func_8064D978(CsState *cs, s16 csId, s16 b, s16 c) {
     modelAnimEntryStart(csId, 1, 1);
 }
 
-void func_8064DB98(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdAnimStepInterpolate(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 anim;
     f32 t;
     u8 flag;
@@ -3872,7 +3872,7 @@ typedef struct CsStateFlagView {
 
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 
-void func_8064DE04(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdFindNearestActorToCamera(CsState *cs, s16 csId, s16 b, s16 c) {
     Actor *best;
     f32 bestDist;
     Actor *a;
@@ -4080,7 +4080,7 @@ typedef struct CsStateTailView {
 } CsStateTailView;
 s32 actorSpawn(s32, s32);
 
-void func_8064E65C(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSpawnBurstColoredLights(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *q;
     f32 x;
     f32 y;
@@ -4158,7 +4158,7 @@ void csCmdSumFlagsE6ThroughEA(CsState *cs, s16 csId, s16 b, s16 c) {
     ((u8 *)cs)[0x4B] = sum;
 }
 
-s32 func_8064EB3C(CsState *cs, s16 csId, s16 b, s16 c) {
+s32 csCondFlags82Or83(CsState *cs, s16 csId, s16 b, s16 c) {
     if (flagGet(0x82, 0) == 0) {
         return 1;
     }
@@ -4195,7 +4195,7 @@ s32 csCondCheckFrameTimingMap(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern u8 D_807FC950[][0x5E];
 
-u8 func_8064EC60(CsState *cs, s16 csId, s16 b, s16 c) {
+u8 csCondCheckKongItems(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 padA, padB;
     s32 idx;
     u8 res = 0;
@@ -4237,12 +4237,12 @@ u8 func_8064EC60(CsState *cs, s16 csId, s16 b, s16 c) {
     return res;
 }
 
-s32 func_8064ED68(CsState *cs, s16 csId, s16 b, s16 c) {
+s32 csCondCheckAllKongs(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 res = 0;
     u8 i;
 
     for (i = 2; i < 7; i++) {
-        if (func_8064EC60(cs, csId, i, 1) == 0) {
+        if (csCondCheckKongItems(cs, csId, i, 1) == 0) {
             res = 1;
         }
     }
@@ -4344,7 +4344,7 @@ void csCmdSpawnActorAtPoint(CsState *cs, s16 csId, s16 b, s16 c) {
 
 void sfxStopChannel(s32, s32);
 
-u8 func_8064F1C4(CsState *cs, s16 csId, s16 b, s16 c) {
+u8 csCondAudioFlag(CsState *cs, s16 csId, s16 b, s16 c) {
     if (D_807F6950) {
         sfxStopChannel(0xAB, 0);
     }
@@ -4398,7 +4398,7 @@ typedef struct {
     u8 pad[0x16];
 } CsFlagTable;
 
-u8 func_8064F358(CsState *cs, s16 csId, s16 b, s16 c) {
+u8 csCondKongHasHubItems(CsState *cs, s16 csId, s16 b, s16 c) {
     CsFlagTable *p = (CsFlagTable *)D_807FC950 + gCurrentPlayerIndex;
     s32 idx = mapGetHubWorldIndex(D_8076A0AB, 0);
 

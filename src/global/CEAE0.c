@@ -57,14 +57,14 @@ void playerUpdateSoundEffect5(void) {
     func_806F3190(gCurrentActor, 5);
 }
 
-extern s16 D_80750B54[][4];
+extern s16 gPlayerStateFlags[][4];
 void func_806EAB44(Actor *, u8);
 
 void func_806E9964(Struct807FD580 *);
 
 void playerCheckAndResetCarriedActor(Actor *arg0) {
     u8 temp_v0 = arg0->state;
-    s16 flags = D_80750B54[temp_v0][0];
+    s16 flags = gPlayerStateFlags[temp_v0][0];
 
     if (flags & 0x200) {
         func_806EAB44(arg0, temp_v0 != 2);
@@ -418,7 +418,7 @@ typedef struct PlayerStateFn {
 #define PLAYER_STATE ((PlayerUpdateState *)gActivePlayerState)
 #define PLAYER_SLOT(i) (((PlayerUpdateSlot *)gPlayerSlots)[i])
 
-extern PlayerStateFn D_80750B50[];
+extern PlayerStateFn gPlayerStateHandlers[];
 extern s32 gGameFrameCounter;
 extern s32 D_8076A090;
 extern s32 D_8076A094;
@@ -503,7 +503,7 @@ void playerUpdateCommon(s32 arg0) {
         }
     }
     playerCheckQueueDropCallback();
-    flags = D_80750B54[gCurrentActor->state][0];
+    flags = gPlayerStateFlags[gCurrentActor->state][0];
     if (flags & 8) {
         gCurrentActor->flags2 |= 2;
     } else {
@@ -553,7 +553,7 @@ void playerUpdateCommon(s32 arg0) {
         }
     }
     gCurrentActor->renderFlags &= ~0x1000;
-    D_80750B50[gCurrentActor->state].fn();
+    gPlayerStateHandlers[gCurrentActor->state].fn();
     PLAYER_STATE->unk8D = collisionGetHitStatus();
     if (gPlayerCount == 1) {
         gCurrentActor->renderFlags &= ~0x200;
@@ -843,7 +843,7 @@ void func_806CB53C(void) {
             gPlayerPadState[gCurrentPlayerIndex].unk2C |= 2;
             gPlayerPadState[gCurrentPlayerIndex].unk2A |= 0x2000;
         }
-        if (!(D_80750B54[gCurrentActor->state][0] & 0x300) && !(LB_P->unk1F0 & 0x14000) && camIsCutsceneActive() == 0 && !(LB_P->unk1F4 & 0x10)) {
+        if (!(gPlayerStateFlags[gCurrentActor->state][0] & 0x300) && !(LB_P->unk1F0 & 0x14000) && camIsCutsceneActive() == 0 && !(LB_P->unk1F4 & 0x10)) {
             slotQueueAddValue(5, LB_P->unk1A4, -1);
         }
     } else {
@@ -983,14 +983,14 @@ void playerCheckLandingSfx(void) {
         }
         if (G02_A->unkE0 != 0.0f && G02_P->unkC2 >= 0x15 && G02_A->unk154 != 0x17) {
             if (mathAngleDistance(G02_A->unkD8, G02_A->unkE6) < 0x200) {
-                if (D_80750B54[D_807FBB48->state][0] & 0x200) {
+                if (gPlayerStateFlags[D_807FBB48->state][0] & 0x200) {
                     func_806EAB44(gCurrentActor, 0);
                 }
                 playerStateQueueCallback(0x21, NULL, gCurrentPlayerIndex);
                 return;
             }
             if (mathAngleDistance(G02_A->unkD8, G02_A->unkEE) < 0x400 || G02_A->unkB8 < 15.0f) {
-                if (D_80750B54[D_807FBB48->state][0] & 0x200) {
+                if (gPlayerStateFlags[D_807FBB48->state][0] & 0x200) {
                     func_806EAB44(gCurrentActor, 0);
                 }
                 playerStateQueueCallback(0x22, NULL, gCurrentPlayerIndex);
@@ -1622,7 +1622,7 @@ void playerApplyDeceleration(void) {
 
 
 s16 actorGetStateFlags(Actor *arg0) {
-    s16 ret = D_80750B54[arg0->state][0];
+    s16 ret = gPlayerStateFlags[arg0->state][0];
     return ret;
 }
 
@@ -3230,7 +3230,7 @@ s32 func_806D10D0(Actor *arg0) {
     s32 ret = 1;
 
     if (arg0->collisionFlags & 1) {
-        if (D_80750B54[arg0->state][0] & 0x400) {
+        if (gPlayerStateFlags[arg0->state][0] & 0x400) {
             ret = 0;
         }
     }
