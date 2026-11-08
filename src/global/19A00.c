@@ -2043,7 +2043,7 @@ extern f32 sSavedLightColorB;
 void actorSpawn(s32, s32);
 void actorDespawn(void *);
 void actorCopyPoseAndScale(Actor *, Actor *, s32);
-void func_806D9924(Actor *);
+void playerClearPitchRollFlags(Actor *);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s16);
 
@@ -2384,7 +2384,7 @@ void scriptCmdToggleActorVisibility(Actor *arg0) {
     } else {
         arg0->flags |= 0x40000000;
         gGlobalPauseFlags &= 0xFFFEFFCF;
-        func_806D9924(arg0);
+        playerClearPitchRollFlags(arg0);
     }
 }
 

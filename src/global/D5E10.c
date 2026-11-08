@@ -684,21 +684,21 @@ void playerInputUpdateNode2(void) {
 
 void actorSyncTransformFromParent();
 
-void func_806D2744(s32 arg0) {
+void playerSyncParentAndInputUpdate(s32 arg0) {
     actorRegisterCurrentActorGlobalCallback(&actorSyncTransformFromParent);
     playerInputUpdate(arg0);
     G09_A->unk6C = G09_A->unk6A;
 }
 
 void playerInputUpdate61(void) {
-    func_806D2744(0x61);
+    playerSyncParentAndInputUpdate(0x61);
 }
 
 void mapTransitionToMenuOrPrevious(void);
 s32 camIsPlayingPath();
 
 void playerInputUpdate63(void) {
-    func_806D2744(0x63);
+    playerSyncParentAndInputUpdate(0x63);
     if (camIsPlayingPath(5) != 0) {
         if (G09_A->unk4->unk64 != 0x3B0) {
             actorScriptStart(gCurrentActor, 0x3B0);
@@ -710,7 +710,7 @@ void playerInputUpdate63(void) {
 }
 
 
-void func_806D281C(void) {
+void playerStateRidingActor(void) {
     s16 *sp;
 
     sp = G09_P->unk88->unk174;
@@ -728,11 +728,11 @@ void func_806D281C(void) {
     } else {
         G09_P->unkC2 = 0;
     }
-    func_806D2744(1);
+    playerSyncParentAndInputUpdate(1);
 }
 
 void playerInputUpdate64(void) {
-    func_806D2744(0x64);
+    playerSyncParentAndInputUpdate(0x64);
 }
 
 
@@ -754,7 +754,7 @@ void renderCallbacksRegister();
 void func_806FF01C();
 void func_806FF75C();
 
-void func_806D2954(s16 arg0) {
+void playerRegisterWeaponHudRenderCallback(s16 arg0) {
     if ((G09_P->unk8C != 0) && (hudCanRender() != 0)) {
         if (D_807FD568->unk2 == 7) {
             arg0 = 0xF;
@@ -774,7 +774,7 @@ void func_806D2954(s16 arg0) {
 void func_806FF32C();
 void func_806FF358();
 
-void func_806D2A14(s16 arg0) {
+void playerRegisterInstrumentHudRenderCallback(s16 arg0) {
     if (G09_A->unk155 != 0) {
         arg0 = 5;
         G09_A->unk155--;
@@ -790,7 +790,7 @@ void func_806D2A14(s16 arg0) {
 s32 actorSpawn();
 void func_806FFB2C();
 
-void func_806D2AA0(s16 arg0) {
+void playerRegisterCameraHudRenderCallback(s16 arg0) {
     playerInputUpdate(1);
     if (G09_A->unk155 < 6) {
         renderCallbacksRegister(&func_806FFB2C, gCurrentActor, 3);
@@ -809,11 +809,11 @@ void func_806D2AA0(s16 arg0) {
 }
 
 void playerInputUpdateCase4(void) {
-    func_806D2AA0(4);
+    playerRegisterCameraHudRenderCallback(4);
 }
 
 void playerInputUpdateCase5(void) {
-    func_806D2AA0(5);
+    playerRegisterCameraHudRenderCallback(5);
 }
 
 typedef struct G10Sub4 {
@@ -869,7 +869,7 @@ void playerCheckAndResetCarriedActor();
 void sfxStopSlotSound();
 
 void playerInputUpdateCaseC(void) {
-    func_806D2954(0xC);
+    playerRegisterWeaponHudRenderCallback(0xC);
     playerApplyFullPhysics();
     actorUpdateModelMatrix(gCurrentActor, 0);
     if ((camIsCutsceneActive() != 0) && (G10_A->unk6E != -1)) {
@@ -881,7 +881,7 @@ void playerInputUpdateCaseC(void) {
 }
 
 void playerInputUpdateCase10(void) {
-    func_806D2A14(0x10);
+    playerRegisterInstrumentHudRenderCallback(0x10);
     playerApplyFullPhysics();
     actorUpdateModelMatrix(gCurrentActor, 0);
     if (D_807463B8 == 3) {
@@ -922,7 +922,7 @@ void func_806EAB44();
 
 void playerInputUpdateCaseD(void) {
     G10_P->unk2C = D_80753AFC[gCurrentCharacterIndex];
-    func_806D2954(0xD);
+    playerRegisterWeaponHudRenderCallback(0xD);
     func_806CC638(D_80753A5C[gCurrentCharacterIndex]);
     if (func_806D850C() != 0) {
         func_806EAB44(gCurrentActor, 1);
@@ -932,7 +932,7 @@ void playerInputUpdateCaseD(void) {
 
 void playerInputUpdateCase11(void) {
     G10_P->unk2C = D_80753AFC[gCurrentCharacterIndex];
-    func_806D2A14(0x11);
+    playerRegisterInstrumentHudRenderCallback(0x11);
     func_806CC638(D_80753A5C[gCurrentCharacterIndex]);
     if (func_806D850C() != 0) {
         func_806EAB44(gCurrentActor, 1);
@@ -1207,7 +1207,7 @@ void playerStateFallDamageCrouch(void) {
 void func_80685210(f32, s32, s32);
 void camReturnToFollow(s32, void *);
 
-void func_806D38AC(s32 arg0) {
+void playerApplyImpactRumble(s32 arg0) {
     func_80685210(0.5f, 0x64, 5);
     G10_A->unkF8 = 0x12C;
     if ((G10_A->unk80 - G10_A->unkA4) > 5.0f) {
@@ -1247,11 +1247,11 @@ void playerStateSlideCameraInit(void) {
         camSetTarget(G10_P->unk104, gCurrentActor, 4, 0x800, 0x32, 0, 5, 0x32, 0x14, 0, 0.2f);
         G10_A->unk155++;
     }
-    func_806D38AC(0x3D);
+    playerApplyImpactRumble(0x3D);
 }
 
 void playerStateSlide(void) {
-    func_806D38AC(0x3D);
+    playerApplyImpactRumble(0x3D);
 }
 
 typedef struct G11Actor {
@@ -1313,18 +1313,18 @@ typedef struct G11Pad {
 #define G11_A ((G11Actor *)gCurrentActor)
 
 extern G11Pad D_807FD618[];
-void func_806D38AC();
+void playerApplyImpactRumble();
 
 void playerStateSlideSteep(void) {
-    func_806D38AC(0x3D);
+    playerApplyImpactRumble(0x3D);
 }
 
 void playerStateSlideMedium(void) {
-    func_806D38AC(0x3D);
+    playerApplyImpactRumble(0x3D);
 }
 
 void playerStateSlideGentle(void) {
-    func_806D38AC(0x3D);
+    playerApplyImpactRumble(0x3D);
 }
 
 void playerStateSlideRecover(void) {
@@ -1554,7 +1554,7 @@ void playerStateLongJump(void) {
 
 u8 func_806CE4E4(Actor *, f32, f32, s32);
 
-void func_806D45A4(void) {
+void playerStateLaunchAir(void) {
     switch (G11_A->unk155) {
         case 0:
             playerInputUpdate(0x2C);
@@ -1594,7 +1594,7 @@ void func_806D45A4(void) {
 }
 
 
-void func_806D4758(void) {
+void playerStateApproachVelocity(void) {
     s32 sel = G11_A->unk155;
     switch (sel) {
         case 0:
@@ -1885,7 +1885,7 @@ void playerStateGroundPound(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D5218(void) {
+void playerStateTurnDecel(void) {
     switch (G08_A40->unk155) {
     case 0:
         G08_P->unk30 = G08_P->unk30 / 1.8;
@@ -1915,7 +1915,7 @@ void effectSetDepth(s32);
 void effectCreateAtPosition(s32, f32, f32, f32, f32);
 void func_80717D4C();
 
-void func_806D5300(void) {
+void playerStateSlopeSlide(void) {
     f32 pad;
     f32 sp90;
     f32 sp8C;
@@ -1982,7 +1982,7 @@ void playerInputUpdate1WithZeroUnk4(void) {
 }
 
 
-void func_806D5834(void) {
+void playerStateRunDecel(void) {
     switch (G08_A40->unk155) {
     case 0:
         G12_P->unk30 = G12_P->unk30 / 1.8;
@@ -2054,7 +2054,7 @@ typedef struct G13Actor {
 #define G13_P ((G13Player *)gActivePlayerState)
 #define G13_A ((G13Actor *)gCurrentActor)
 
-void func_806D59E4(void) {
+void playerStateWalkDecel(void) {
     switch (G13_A->unk155) {
         case 0:
             G13_P->unk30 = G13_P->unk30 / 1.8;
@@ -2078,7 +2078,7 @@ void func_806D59E4(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D5B44(void) {
+void playerStateBrake(void) {
     switch (G13_A->unk155) {
         case 0:
             G13_P->unk30 = G13_P->unk30 / 1.8;
@@ -2103,7 +2103,7 @@ void func_806D5B44(void) {
 
 extern f32 D_807531FC[];
 
-void func_806D5CCC(void) {
+void playerStateSlopeSlideByCharacter(void) {
     mathAngleStepToward(&G13_A->unkE6, G13_A->unkEE, G13_P->unk48);
     func_806D3608();
     switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
@@ -2219,7 +2219,7 @@ extern s16 D_80753568[];
 void playerCheckLandingSfx();
 void playerSetUnk586Flag();
 
-void func_806D61B8(void) {
+void playerStateSteepSlide(void) {
     mathAngleStepToward(&G13_A->unkE6, G13_A->unkEE, G13_P->unk48);
     func_806D3608();
     switch (G13_A->unk155) {
@@ -2289,7 +2289,7 @@ void func_806D61B8(void) {
 extern s16 D_80753548[];
 s32 actorAngleInArc();
 
-void func_806D6558(void) {
+void playerStateDecelMotion(void) {
     func_806D3608();
     switch (G13_A->unk155) {
         case 0:
@@ -2458,7 +2458,7 @@ void effectCreateAtActorBone(void *, f32, void *, s32, s32);
 void effectSineHorizontalDriftUpdate();
 extern u8 D_8071FF18;
 
-void func_806D6B00(void) {
+void playerStateSlopeSlideArc(void) {
     func_806D3608();
     switch (G14_A->unk155) {
     case 0:
@@ -2543,7 +2543,7 @@ void playerInputUpdate8(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D6F64(void) {
+void playerStateSwimTurn(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     G14_A->unk64 |= 0x200;
     switch (G14_A->unk155) {
@@ -2566,7 +2566,7 @@ void func_806D6F64(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D7098(void) {
+void playerStateSwimTread(void) {
     playerInputUpdate(3);
     G14_A->unk64 |= 0x200;
     switch (G14_A->unk155) {
@@ -2583,7 +2583,7 @@ void func_806D7098(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D7170(void) {
+void playerStateSwimIdle(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     playerInputUpdate(3);
     switch (G14_A->unk155) {
@@ -2602,7 +2602,7 @@ void func_806D7170(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D7238(void) {
+void playerStateSwimDrown(void) {
     playerStateQueueCallback(0x5C, 0, gCurrentPlayerIndex);
     playerInputUpdate(3);
     G14_A->unk144 = 1;
@@ -2615,7 +2615,7 @@ void func_806D7238(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D72D4(void) {
+void playerStateSwimPaddle(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     G14_A->unk64 |= 0x200;
     switch (G14_A->unk155) {
@@ -2656,7 +2656,7 @@ void func_806D72D4(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D7510(void) {
+void playerStateSwimBackwards(void) {
     G14_A->unk64 |= 0x200;
     switch (G14_A->unk155) {
     case 0:
@@ -2718,7 +2718,7 @@ void func_806D7704(void) {
 
 void actorSetUniformScale(Actor *, f32);
 
-void func_806D7878(void) {
+void playerStateSwimSink(void) {
     f64 t = gCurrentActor->sub4->scaleY;
 
     actorSetUniformScale(gCurrentActor, (0.001 - t) * 0.01 + t);
@@ -2747,7 +2747,7 @@ void func_806D7878(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D79E4(void) {
+void playerStateSwimDrift(void) {
     playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
     playerApplyGravityAndMotion();
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -2779,7 +2779,7 @@ s32 func_80714608(s32);
 void effectSetColor(s32, s32, s32, s32);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
-void func_806D7A28(void) {
+void playerStateSwimStroke(void) {
     u8 flag;
     u8 v2;
 
@@ -2846,7 +2846,7 @@ void func_806D7A28(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D7DF8(void) {
+void playerStateUnderwaterPaddle(void) {
     switch (G08_A40->unk155) {
         case 0:
             playerInputUpdate(0x45);
@@ -2861,7 +2861,7 @@ void func_806D7DF8(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D7E88(void) {
+void playerStateUnderwaterSink(void) {
     s16 new_var;
     u8 v;
 
@@ -2885,7 +2885,7 @@ void func_806D7E88(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D7F48(void) {
+void playerStateUnderwaterLand(void) {
     u32 r;
     s16 v;
 
@@ -2905,7 +2905,7 @@ void func_806D7F48(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D7FE8(void) {
+void playerStateScriptTransition(void) {
     switch (G08_A40->unk155) {
         case 0:
             playerInputUpdate(1);
@@ -2933,7 +2933,7 @@ extern s16 D_807534A8[];
 extern f32 D_80753738[];
 void playerSetTerminalVelocity754();
 
-void func_806D80A8(void) {
+void playerStateUnderwaterRamp(void) {
     switch (G08_A40->unk155) {
         case 0:
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 0);
@@ -3412,7 +3412,7 @@ void playerStateSurfacePaddleTurn(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D9134(void) {
+void playerStateFreezeIdle(void) {
     playerInputUpdate(1);
     G08_A40->unkB8 = 0.0f;
     G08_A40->unkC0 = 0.0f;
@@ -3420,15 +3420,15 @@ void func_806D9134(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D9184(void) {
-    func_806D9134();
+void playerStateFreezeIdleCopy(void) {
+    playerStateFreezeIdle();
 }
 
 extern s32 D_8072014C;
 void playerEnterFall();
 void effectSetDuration(s32);
 
-void func_806D91A4(void) {
+void playerStateEnterFallOnCheck(void) {
     s32 n;
     u16 nv;
     u16 b;
@@ -3472,7 +3472,7 @@ extern f32 D_80753CD0[];
 extern f32 D_80753250[];
 #define G16_E ((G16Actor *)gPrimaryPlayerActor)
 
-void func_806D9320(void) {
+void playerStateDamageFallTumble(void) {
     f32 pad;
     f32 temp_fa1;
     f32 temp_ft4;
@@ -3596,7 +3596,7 @@ void func_806D9820(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D9924(Actor *arg0) {
+void playerClearPitchRollFlags(Actor *arg0) {
     ((G16Actor *)arg0)->unkE8 = 0;
     ((G16Actor *)arg0)->unkE4 = 0;
     arg0->flags &= ~1;
@@ -3899,7 +3899,7 @@ void playerStatePonytailTwirl(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806DA320(void) {
+void playerStateHoldMoveRamp(void) {
     f32 v;
     if ((f64)D_807FBC58 != 0.0) {
         v = D_807FBC58;
@@ -3926,7 +3926,7 @@ void playerStateThrowCarried(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806DA4D8(void) {
+void playerStateHoldPickup(void) {
     f64 new_var;
 
     if (actorTableContains(G17_P->unk1B0) == 0 || G17_P->unk1B0->unk54 != G17_P->unk1B4) {
@@ -4008,7 +4008,7 @@ void playerStateCrawl(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806DA94C(void) {
+void playerStateHoldWalk(void) {
     gActivePlayerState->stateFlags &= 0xFEFFFFFF;
     playerRegisterHeldActorFollow(1.0f);
     playerRegisterHeldActorAlign();
@@ -4023,7 +4023,7 @@ void func_806DA94C(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806DAA14(void) {
+void playerStateHoldRun(void) {
     gActivePlayerState->stateFlags &= 0xFEFFFFFF;
     playerRegisterHeldActorFollow(1.0f);
     playerRegisterHeldActorAlign();
@@ -4115,7 +4115,7 @@ typedef struct G18State {
 #define G18_S ((G18State *)&gActorGlobalState)
 
 
-void func_806DAADC(void) {
+void playerStateHoldIdle(void) {
     G18_P->unk1F0 &= 0xFEFFFFFF;
     playerInputUpdate(0x3A);
     playerComputePickupHoldPitch();
@@ -4141,7 +4141,7 @@ extern f32 D_80753364[];
 extern f32 D_80753380[];
 extern f32 D_8075339C[];
 
-void func_806DABE4(void) {
+void playerStateHoldPutDown(void) {
     G18_P->unk1F0 &= 0xFEFFFFFF;
     playerInputUpdate(1);
     switch (G18_A->unk155) {
@@ -4174,7 +4174,7 @@ void func_806DABE4(void) {
 extern f32 D_807533D4[];
 extern f32 D_807533F0[];
 
-void func_806DADA0(void) {
+void playerStateHoldThrow(void) {
     G18_P->unk1F0 &= 0xFEFFFFFF;
     playerInputUpdate(1);
     switch (G18_A->unk155) {
@@ -4204,7 +4204,7 @@ void func_806DADA0(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806DAF5C(void) {
+void playerStateHoldJump(void) {
     G18_P->unk1F0 &= 0xFEFFFFFF;
     playerRegisterHeldActorFollow(1.0f);
     playerComputePickupHoldPitch();
@@ -4647,7 +4647,7 @@ typedef struct G19Player {
 #define G19_P ((G19Player *)gActivePlayerState)
 
 
-void func_806DC170(void) {
+void playerStateStationaryInteraction(void) {
     s16 t;
     f32 f;
     s32 i;
@@ -4703,7 +4703,7 @@ void func_806DC170(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806DC3A4(f32 arg0) {
+void playerStepForwardSpeedTowardTarget(f32 arg0) {
     f32 cur = G19_P->unk94;
     f32 tgt = G19_P->unk4;
 
@@ -4756,9 +4756,9 @@ extern f32 D_80753C30[];
 extern f32 D_80753C4C[];
 extern f32 D_80753C68[];
 extern u8 proxPathFollowerStep;
-void func_806DC3A4(f32);
+void playerStepForwardSpeedTowardTarget(f32);
 
-void func_806DC410(void) {
+void playerStateAttachedCallbackFall(void) {
     ActorCallbackNode *node;
     s32 pad[1];
     f32 sp1C;
@@ -4808,7 +4808,7 @@ void func_806DC410(void) {
                 actorScriptStartByIndex(gActivePlayerActor, 0x6B);
                 break;
             }
-            func_806DC3A4(sp1C);
+            playerStepForwardSpeedTowardTarget(sp1C);
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
         }
         break;
@@ -4824,7 +4824,7 @@ void func_806DC410(void) {
                 LD5_A->unk155 = 4;
                 actorScriptStartByIndex(gActivePlayerActor, 0x6B);
             }
-            func_806DC3A4(D_80753C68[gCurrentCharacterIndex]);
+            playerStepForwardSpeedTowardTarget(D_80753C68[gCurrentCharacterIndex]);
             d = LD5_P->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
@@ -4850,7 +4850,7 @@ void func_806DC410(void) {
                 sp1C = D_80753C30[gCurrentCharacterIndex];
                 break;
             }
-            func_806DC3A4(sp1C);
+            playerStepForwardSpeedTowardTarget(sp1C);
             d = LD5_P->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
@@ -4876,7 +4876,7 @@ void func_806DC410(void) {
                 sp1C = D_80753C30[gCurrentCharacterIndex];
                 break;
             }
-            func_806DC3A4(sp1C);
+            playerStepForwardSpeedTowardTarget(sp1C);
             d = LD5_P->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
@@ -5065,7 +5065,7 @@ typedef struct L6Player {
 
 extern s16 D_80753CA4[];
 
-void func_806DD24C(void) {
+void playerStateAttachedCallbackFallCheck(void) {
     ActorCallbackNode *node;
     s32 pad[1];
     f32 sp1C;
@@ -5109,7 +5109,7 @@ void func_806DD24C(void) {
                 actorScriptStartByIndex(gActivePlayerActor, 0x72);
                 break;
             }
-            func_806DC3A4(sp1C);
+            playerStepForwardSpeedTowardTarget(sp1C);
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
         }
         break;
@@ -5125,7 +5125,7 @@ void func_806DD24C(void) {
                 L6_A->unk155 = 4;
                 actorScriptStartByIndex(gActivePlayerActor, 0x72);
             }
-            func_806DC3A4(D_80753C68[gCurrentCharacterIndex]);
+            playerStepForwardSpeedTowardTarget(D_80753C68[gCurrentCharacterIndex]);
             d = L6_P->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
@@ -5151,7 +5151,7 @@ void func_806DD24C(void) {
                 sp1C = D_80753C30[gCurrentCharacterIndex];
                 break;
             }
-            func_806DC3A4(sp1C);
+            playerStepForwardSpeedTowardTarget(sp1C);
             d = L6_P->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
@@ -5177,7 +5177,7 @@ void func_806DD24C(void) {
                 sp1C = D_80753C30[gCurrentCharacterIndex];
                 break;
             }
-            func_806DC3A4(sp1C);
+            playerStepForwardSpeedTowardTarget(sp1C);
             d = L6_P->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
@@ -5194,7 +5194,7 @@ void func_806DD24C(void) {
 
 extern f32 D_80753CB4[];
 
-void func_806DD874(void) {
+void playerStateKnockbackBounce(void) {
     G19_A->unkFA = 0x12C;
     playerSetUnk586Flag();
     switch (G19_A->unk155) {
@@ -5667,7 +5667,7 @@ void func_806DE9F4(void) {
         camSetTarget(G19_P->unk104, gCurrentActor, 4, 0x800, 0x32, 0, 5, 0x32, 0x14, 0, 0.2f);
         G19_A->unk155++;
     }
-    func_806D38AC(1);
+    playerApplyImpactRumble(1);
     G19_P->unk30 = D_80750FDC;
 }
 
@@ -5784,7 +5784,7 @@ void func_806DED44(void) {
     s32 a1;
 
     playerInputUpdate(1);
-    func_806D9924(gCurrentActor);
+    playerClearPitchRollFlags(gCurrentActor);
     sel = G20_E40->unk155;
     switch (sel) {
     case 0:
