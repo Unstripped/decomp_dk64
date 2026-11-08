@@ -526,7 +526,7 @@ extern u8 D_80744530;
 
 
 void eepromValidateSaveSlots(void) {
-    s32 height;  // FAKE: unused pad: shifts uopt variable numbering / colouring order
+    s32 pad;
     u8 found;
     u16 off;
     s32 i;
