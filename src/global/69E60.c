@@ -160,35 +160,6 @@ u8 actorGetFloorSnapped(void) {
     return D_80748E04;
 }
 
-typedef struct ActorFloorContactView {
-    char pad0[0x4];
-    ActorSub4 *unk4;
-    char pad8[0x54];
-    u16 unk5C;
-    char pad5E[2];
-    u32 unk60;
-    char pad64[0x6];
-    u16 unk6A;
-    u16 unk6C;
-    char pad6E[0x12];
-    f32 unk80;
-    char pad84[0x8];
-    f32 unk8C;
-    char pad90[0x14];
-    f32 unkA4;
-    char padA8[0xC];
-    f32 unkB4;
-    char padB8[0x8];
-    f32 unkC0;
-    char padC4[0xD];
-    u8 unkD1;
-    char padD2[6];
-    s16 unkD8;
-    s16 unkDA;
-    s16 unkDC;
-    s16 unkDE;
-    f32 unkE0;
-} ActorFloorContactView;
 
 typedef struct {
     s16 unk0;
@@ -218,7 +189,7 @@ extern s32 gCurrentMap;
 void collisionQueryActorFloor(Actor *, u8 *, f32 *, u8 *, void *, s32);
 void func_806D09E8(Actor *);
 s16 mathAngleSignedDistance(s16, s16);
-void actorUpdateFloorContactAndTilt(ActorFloorContactView *actor, f32 floorYOffset) {
+void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
     f32 floorY;
     u8 hasFloor;
     f32 waterY;
@@ -234,100 +205,99 @@ void actorUpdateFloorContactAndTilt(ActorFloorContactView *actor, f32 floorYOffs
     f32 easeRate;
 
     collisionQueryActorFloor((Actor *)actor, &hasFloor, &floorY, &hasWater, &waterY, 0);
-    if (actor->unk5C & 1) {
+    if (actor->collisionFlags & 1) {
         func_806D09E8((Actor *)actor);
     }
-    heightAboveFloor = actor->unk80 - actor->unkA4;
-    actor->unk6A &= ~1;
-    actor->unkB4 = heightAboveFloor - floorYOffset;
-    if ((heightAboveFloor <= floorYOffset) || ((actor->unk6C & 1) && (actor->unkC0 < 0.0f))) {
+    heightAboveFloor = actor->y - actor->floorY;
+    actor->contactFlags &= ~1;
+    actor->distToFloor = heightAboveFloor - floorYOffset;
+    if ((heightAboveFloor <= floorYOffset) || ((actor->prevContactFlags & 1) && (actor->speedY < 0.0f))) {
         if ((gCurrentActor->contactFlags & 0x200) || ((u32)gCurrentMap == 0x27) || ((u32)gCurrentMap == 0x6F) || ((u32)gCurrentMap == 0xB9)) {
-            if ((f64)actor->unkB4 < 0.5) {
+            if ((f64)actor->distToFloor < 0.5) {
                 if (actor->unk4 != NULL) {
                     scale = actor->unk4->unk38;
                 } else {
                     scale = 0.15f;
                 }
-                actor->unk80 = actor->unkA4 + floorYOffset;
-                actor->unkB4 = 0.0f;
-                actor->unk6A |= 1;
-                actor->unkC0 = (actor->unkA4 + floorYOffset - actor->unk8C) * (f32)(40.0 / ((f64)scale * 6.66666667));
+                actor->y = actor->floorY + floorYOffset;
+                actor->distToFloor = 0.0f;
+                actor->contactFlags |= 1;
+                actor->speedY = (actor->floorY + floorYOffset - actor->prevY) * (f32)(40.0 / ((f64)scale * 6.66666667));
             }
-        } else if (actor->unkB4 < 5.0f) {
-            actor->unkB4 = 0.0f;
-            actor->unk80 = actor->unkA4 + floorYOffset;
-            actor->unk6A |= 1;
-            if (actor->unkC0 < -10.0f) {
-                actor->unkC0 = -10.0f;
+        } else if (actor->distToFloor < 5.0f) {
+            actor->distToFloor = 0.0f;
+            actor->y = actor->floorY + floorYOffset;
+            actor->contactFlags |= 1;
+            if (actor->speedY < -10.0f) {
+                actor->speedY = -10.0f;
             }
         }
     }
     D_80748E04 = 0;
-    if (hasFloor && !(actor->unk6A & 1) && (D_80748E00 == 0)) {
-        if (actor->unkC0 > 0.0f) {
-            actor->unkC0 = 0.0f;
+    if (hasFloor && !(actor->contactFlags & 1) && (D_80748E00 == 0)) {
+        if (actor->speedY > 0.0f) {
+            actor->speedY = 0.0f;
         }
-        actor->unk80 = (f64)floorY + (f64)actor->unkC0 * 0.025;
+        actor->y = (f64)floorY + (f64)actor->speedY * 0.025;
         D_80748E04 = 1;
     }
     D_80748E00 = 0;
-    easeRate = (actor->unk60 & 0x40000) ? 0.2 : 1.0;
-    effectiveTilt = (actor->unk6A & 1) ? actor->unkDA : 0x400;
-    targetTiltYaw = actor->unkD8;
-    tiltEntry = &D_80748D40[actor->unkD1];
+    easeRate = (actor->flags & 0x40000) ? 0.2 : 1.0;
+    effectiveTilt = (actor->contactFlags & 1) ? actor->floorTiltPitch : 0x400;
+    targetTiltYaw = actor->floorTiltYaw;
+    tiltEntry = &D_80748D40[actor->floorSlopeType];
     switch ((u32)gCurrentMap) {
     case 0x52:
         gActivePlayerState->unk26 = 0x14;
         /* fallthrough */
     case 0xE:
-        if (actor->unk6A & 0x200) {
+        if (actor->contactFlags & 0x200) {
             tiltEntry = &D_80748DA4;
         }
         break;
     }
-    if (actor->unkDE >= 0x3F4) {
-        actor->unkDC = targetTiltYaw;
+    if (actor->floorSlopePitch >= 0x3F4) {
+        actor->floorSlopeYaw = targetTiltYaw;
     }
     if (effectiveTilt >= 0x3F4) {
-        targetTiltYaw = actor->unkDC;
+        targetTiltYaw = actor->floorSlopeYaw;
     }
     targetPitchLimit = (s16)((tiltEntry->unk6 << 12) / 360);
     if (targetPitchLimit < effectiveTilt) {
         targetPitchLimit = effectiveTilt;
     }
-    diff = tmpd = mathAngleSignedDistance(actor->unkDC, targetTiltYaw);
+    diff = tmpd = mathAngleSignedDistance(actor->floorSlopeYaw, targetTiltYaw);
     if (((tmpd > 0) ? tmpd : -tmpd) >= 0x6AB) {
-        if (actor->unkDE >= 0x3C8) {
-            actor->unkDE = 0x400;
-            actor->unkDC = targetTiltYaw;
+        if (actor->floorSlopePitch >= 0x3C8) {
+            actor->floorSlopePitch = 0x400;
+            actor->floorSlopeYaw = targetTiltYaw;
         } else {
-            diff = mathAngleSignedDistance(actor->unkDE, 0x400);
+            diff = mathAngleSignedDistance(actor->floorSlopePitch, 0x400);
             diff *= easeRate;
-            actor->unkDE += diff;
-            actor->unkDE &= 0xFFF;
+            actor->floorSlopePitch += diff;
+            actor->floorSlopePitch &= 0xFFF;
         }
     } else {
         diff *= easeRate;
-        actor->unkDC += diff;
-        actor->unkDC &= 0xFFF;
-        diff = mathAngleSignedDistance(actor->unkDE, targetPitchLimit);
+        actor->floorSlopeYaw += diff;
+        actor->floorSlopeYaw &= 0xFFF;
+        diff = mathAngleSignedDistance(actor->floorSlopePitch, targetPitchLimit);
         diff *= easeRate;
-        actor->unkDE += diff;
-        actor->unkDE &= 0xFFF;
+        actor->floorSlopePitch += diff;
+        actor->floorSlopePitch &= 0xFFF;
     }
-    if (!(actor->unk6A & 0x20)) {
+    if (!(actor->contactFlags & 0x20)) {
         targetPitchLimit = tiltEntry->unk3;
     } else {
         targetPitchLimit = tiltEntry->unk2;
     }
     targetPitchLimit = (s16)((targetPitchLimit << 12) / 360);
     if (targetPitchLimit < effectiveTilt) {
-        actor->unkE0 = 0.0f;
+        actor->floorSlopeFactor = 0.0f;
     } else {
-        actor->unkE0 = (f32)((0x400 - effectiveTilt) / tiltEntry->unk0);
+        actor->floorSlopeFactor = (f32)((0x400 - effectiveTilt) / tiltEntry->unk0);
     }
 }
-
 extern u8 D_80748D48[][10];
 
 u8 func_80665AAC(Actor *actor) {

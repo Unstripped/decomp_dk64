@@ -726,7 +726,7 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
                         found = 1;
                         arg0->hasArcBounds = 1;
                         if (arg3) {} // FAKE: steers ret temps
-                        arg0->unkFD = 1;
+                        arg0->collisionHit = 1;
                     }
                 }
             }

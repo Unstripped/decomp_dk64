@@ -451,7 +451,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
             }
         }
     }
-    other->unkFD = D_807FB547;
+    other->collisionHit = D_807FB547;
 }
 typedef struct CollisionTargetAngle {
     u8 pad0[0x48];

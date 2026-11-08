@@ -469,7 +469,7 @@ void actorDeregisterActive(Actor *arg0) {
         gActiveActors[i].unk4 = gActiveActors[gActiveActorCount].unk4;
     }
     func_8062D26C(arg0);
-    arg0->unk150 = 0;
+    arg0->floorTriangle = 0;
 }
 
 void actorDespawnByOwner(s32 arg0) {
@@ -759,7 +759,7 @@ void func_80678E6C(Actor *actor) {
     if ((actor->unk144 & 4) && (D_807FBE08 == 0)) {
         if (actor->flags & 0x10000) {
             actor->hasArcBounds = 0;
-            actor->unkFD = 0;
+            actor->collisionHit = 0;
         }
         actor->hasArcBounds |= actorClearTargetAngle(actor, &actor->arcYawMin, &actor->arcYawMax, &sp27);
         sp27 |= D_807FBC55;
@@ -776,7 +776,7 @@ void func_80678E6C(Actor *actor) {
         }
     } else {
         actor->hasArcBounds = 0;
-        actor->unkFD = 0;
+        actor->collisionHit = 0;
         actor->contactFlags &= ~0x10;
     }
 }

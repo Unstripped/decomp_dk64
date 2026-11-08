@@ -176,7 +176,8 @@ typedef struct Actor {
     /* 0x0A4 */ f32 floorY;
     /* 0x0A8 */ u8 unkA8[4];
     /* 0x0AC */ f32 waterY;
-    /* 0x0B0 */ s8 unkB0[8];
+    /* 0x0B0 */ s8 unkB0[4];
+    /* 0x0B4 */ f32 distToFloor;
     /* 0x0B8 */ f32 speedXZ;
     /* 0x0BC */ f32 prevSpeedXZ;
     /* 0x0C0 */ f32 speedY;
@@ -184,13 +185,13 @@ typedef struct Actor {
     /* 0x0C8 */ f32 terminalSpeedY;
     /* 0x0CC */ u8 padCC[4];
     /* 0x0D0 */ u8 floorSurfaceType;
-    /* 0x0D1 */ u8 unkD1;
+    /* 0x0D1 */ u8 floorSlopeType;
     /* 0x0D2 */ u8 padD2[6];
     /* 0x0D8 */ s16 floorTiltYaw;
     /* 0x0DA */ s16 floorTiltPitch;
-    /* 0x0DC */ s16 unkDC;
-    /* 0x0DE */ s16 unkDE;
-    /* 0x0E0 */ f32 unkE0;
+    /* 0x0DC */ s16 floorSlopeYaw;
+    /* 0x0DE */ s16 floorSlopePitch;
+    /* 0x0E0 */ f32 floorSlopeFactor;
     /* 0x0E4 */ s16 pitch;
     /* 0x0E6 */ s16 yaw;
     /* 0x0E8 */ s16 roll;
@@ -202,7 +203,7 @@ typedef struct Actor {
     /* 0x0F6 */ s16 arcYawMax;
     /* 0x0F8 */ u8 unkF8[4];
     /* 0x0FC */ u8 hasArcBounds;
-    /* 0x0FD */ u8 unkFD;
+    /* 0x0FD */ u8 collisionHit;
     /* 0x0FE */ u8 unkFE[0xE];
     /* 0x10C */ s16 cutsceneId;
     /* 0x10E */ u8 unk10E[2];
@@ -227,7 +228,7 @@ typedef struct Actor {
     /* 0x140 */ ActorSub140 *unk140;
     /* 0x144 */ u8 unk144;
     /* 0x145 */ u8 unk145[0xB];
-    /* 0x150 */ s32 unk150;
+    /* 0x150 */ s32 floorTriangle;
     /* 0x154 */ u8 state;
     /* 0x155 */ u8 unk155[7];
     /* 0x15C */ s16 unk15C;
