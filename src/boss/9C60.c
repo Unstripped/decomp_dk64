@@ -51,12 +51,12 @@ void actorCopyPoseAndScale(BossC_9C60_Actor *, BossC_9C60_Actor *, f32);
 void actorDespawn(void *);
 void actorUpdateModelMatrix(BossC_9C60_Actor *, s32);
 void bossAttachActor(void) {
-    BossC_9C60_Actor **sp1C = D_807FBB40->unk178;
+    BossC_9C60_Actor **attachedActorSlot = D_807FBB40->unk178;
 
     actorSpawn(0xDD, 0xE3);
     D_807FBB44->unk60 |= 0x400;
     D_807FBB44->unk11C = D_807FBB40;
-    *sp1C = D_807FBB44;
+    *attachedActorSlot = D_807FBB44;
     actorCopyPoseAndScale(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
 }
 
@@ -170,17 +170,17 @@ void actorSetTargetSpeed(BossC_9C60_Actor *, s32);
 void func_8072E1A4(s32, void *);
 
 void func_8002DE04(void) {
-    Boss2F_9C60_178 *sp3C;
-    u8 *sp38;
+    Boss2F_9C60_178 *scriptState;
+    u8 *scriptOpcodes;
     s32 pad34;
-    f32 sp30;
+    f32 projectileScale;
     u8 action;
 
-    sp3C = D_807FBB40->unk178;
-    sp38 = D_80035A60[sp3C->unk14];
-    sp30 = (D_807FBB4C->unk6A & 1) ? 0.7 : 1.0;
+    scriptState = D_807FBB40->unk178;
+    scriptOpcodes = D_80035A60[scriptState->unk14];
+    projectileScale = (D_807FBB4C->unk6A & 1) ? 0.7 : 1.0;
     behaviourFrameBegin();
-    bossRoundFrame(sp38);
+    bossRoundFrame(scriptOpcodes);
     if (!(D_807FBB40->unk60 & 0x10)) {
         camSetSecondTarget(gCamActor, 0, 0);
         D_807FBB40->unk146 = 5;
@@ -195,15 +195,15 @@ void func_8002DE04(void) {
     }
     switch (D_807FBB40->unk154) {
     case 0x1E:
-        sp3C->unk14 = 0;
-        sp3C->unk15 = 0;
-        D_807FBB40->unk154 = sp38[sp3C->unk15++];
+        scriptState->unk14 = 0;
+        scriptState->unk15 = 0;
+        D_807FBB40->unk154 = scriptOpcodes[scriptState->unk15++];
         D_807FBB40->unk155 = 0;
         D_807FBB40->unkB8 = D_807FDC9C->unkC;
         break;
     case 0x27:
         actorScriptStart(D_807FBB40, 0x3E1);
-        D_807FBB40->unk154 = sp38[sp3C->unk15++];
+        D_807FBB40->unk154 = scriptOpcodes[scriptState->unk15++];
         D_807FBB40->unk155 = 0;
         break;
     case 0x2C:
@@ -217,9 +217,9 @@ void func_8002DE04(void) {
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
             } else {
-                csModelStateSetFirstByte((sp3C->unk14 * 2) + 8, 0xA);
-                csModelStateSetFirstByte((sp3C->unk14 * 2) + 9, 0xA);
-                D_807FBB40->unk154 = sp38[sp3C->unk15++];
+                csModelStateSetFirstByte((scriptState->unk14 * 2) + 8, 0xA);
+                csModelStateSetFirstByte((scriptState->unk14 * 2) + 9, 0xA);
+                D_807FBB40->unk154 = scriptOpcodes[scriptState->unk15++];
                 D_807FBB40->unk155 = 0;
             }
             break;
@@ -235,7 +235,7 @@ void func_8002DE04(void) {
             func_8072E1A4(0xA, D_807FBB4C);
             break;
         case 2:
-            D_807FBB40->unk154 = sp38[sp3C->unk15++];
+            D_807FBB40->unk154 = scriptOpcodes[scriptState->unk15++];
             D_807FBB40->unk155 = 0;
             break;
         }
@@ -243,13 +243,13 @@ void func_8002DE04(void) {
     case 0x28:
         switch (D_807FBB40->unk155) {
         case 0:
-            sp3C->unk18 = sp38[sp3C->unk15++];
-            sp3C->unk19 = sp38[sp3C->unk15++];
+            scriptState->unk18 = scriptOpcodes[scriptState->unk15++];
+            scriptState->unk19 = scriptOpcodes[scriptState->unk15++];
             D_807FBB40->unk155++;
             /* fallthrough */
         case 1:
             if (camIsCutsceneActive() == 0) {
-                D_807FDC90->unk2C = sp3C->unk18;
+                D_807FDC90->unk2C = scriptState->unk18;
                 actorScriptStart(D_807FBB40, 0x3EF);
                 D_807FBB40->unk155++;
             }
@@ -257,7 +257,7 @@ void func_8002DE04(void) {
         case 3:
             D_807FBB40->unk146 = 6;
             projectileGetTargetCoords(D_807FBB40, 4);
-            projectileSpawnNodeEntry(0xAA, 1, D_807FBB40->unk4->unk38, 0, (f32)sp3C->unk19 * sp30, 0.0f, D_807FBB40);
+            projectileSpawnNodeEntry(0xAA, 1, D_807FBB40->unk4->unk38, 0, (f32)scriptState->unk19 * projectileScale, 0.0f, D_807FBB40);
             D_807FBB40->unk155++;
             break;
         case 5:
@@ -280,7 +280,7 @@ void func_8002DE04(void) {
                 }
                 D_807FDC90->unk2C--;
             } else {
-                D_807FBB40->unk154 = sp38[sp3C->unk15++];
+                D_807FBB40->unk154 = scriptOpcodes[scriptState->unk15++];
                 D_807FBB40->unk155 = 0;
             }
             break;
@@ -290,13 +290,13 @@ void func_8002DE04(void) {
         switch (D_807FBB40->unk155) {
         case 0:
             D_807FBB40->unk146 = 5;
-            actorScriptStart(D_807FBB40, sp3C->unk14 ? 0x409 : 0x408);
+            actorScriptStart(D_807FBB40, scriptState->unk14 ? 0x409 : 0x408);
             actorScriptExecute(D_807FBB40);
-            func_80613C48(sp3C->unk0, 0x675, 0.0f, 0.0f);
+            func_80613C48(scriptState->unk0, 0x675, 0.0f, 0.0f);
             D_807FBB40->unk155++;
             break;
         case 2:
-            D_807FBB40->unk154 = sp38[sp3C->unk15++];
+            D_807FBB40->unk154 = scriptOpcodes[scriptState->unk15++];
             D_807FBB40->unk155 = 0;
             break;
         }
@@ -319,7 +319,7 @@ void func_8002DE04(void) {
         case 2:
             if (currentActorTestClearFlag() != 0) {
                 camStartShake(gCamActor, 5, 0x14);
-                if (sp3C->unk14 == 3) {
+                if (scriptState->unk14 == 3) {
                     D_807FBB40->unk154 = 0x37;
                     D_807FBB40->unk155 = 0;
                 } else {
@@ -327,7 +327,7 @@ void func_8002DE04(void) {
                     D_807FBB40->unk146 = 1;
                     actorScriptStart(D_807FBB40, 0x404);
                     actorScriptExecute(D_807FBB40);
-                    func_80613C48(sp3C->unk0, 0x673, 0.0f, 0.0f);
+                    func_80613C48(scriptState->unk0, 0x673, 0.0f, 0.0f);
                     D_807FBB40->unk155++;
                 }
             }
@@ -339,13 +339,13 @@ void func_8002DE04(void) {
             break;
         case 4:
             actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC);
-            sp3C->unk15 = 0;
-            sp3C->unk14++;
-            sp38 = D_80035A60[sp3C->unk14];
+            scriptState->unk15 = 0;
+            scriptState->unk14++;
+            scriptOpcodes = D_80035A60[scriptState->unk14];
             actorScriptStart(D_807FBB40, 0x406);
             actorScriptExecute(D_807FBB40);
-            func_80613C48(sp3C->unk0, 0x674, 0.0f, 0.0f);
-            D_807FBB40->unk154 = sp38[sp3C->unk15++];
+            func_80613C48(scriptState->unk0, 0x674, 0.0f, 0.0f);
+            D_807FBB40->unk154 = scriptOpcodes[scriptState->unk15++];
             D_807FBB40->unk155 = 0;
             break;
         }
@@ -368,7 +368,7 @@ void func_8002DE04(void) {
         }
         break;
     default:
-        bossScriptStep(sp38, 0x10, 0.0f);
+        bossScriptStep(scriptOpcodes, 0x10, 0.0f);
         break;
     }
     func_8072A450();

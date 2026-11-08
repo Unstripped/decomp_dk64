@@ -48,13 +48,13 @@ typedef struct {
 extern BossC_A7A0_Entry gActiveActors[];
 extern u16 gActiveActorCount;
 
-void bossResetMinions(BossC_A7A0_Actor *arg0) {
+void bossResetMinions(BossC_A7A0_Actor *excludeActor) {
     s16 i;
     BossC_A7A0_Actor *actor;
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if ((arg0 == NULL || actor != arg0) && actor->unk58 == 0xDE) {
+        if ((excludeActor == NULL || actor != excludeActor) && actor->unk58 == 0xDE) {
             actor->unk60 &= ~0x8000;
             actor->unk154 = 1;
             actor->unk155 = 0;
@@ -106,15 +106,12 @@ void actorScriptStart(BossC_A7A0_Actor *, s32);
 void actorScriptExecute(BossC_A7A0_Actor *);
 void controllerAnimSetState(s32, s16, f32, f32);
 
-void func_8002E9B8(arg0, arg1)
-s32 arg0;
-s16 arg1;
-{
-    BossC_A7A0_178 *sp1C = D_807FBB40->unk178;
+void func_8002E9B8(s32 scriptId, s16 animId) {
+    BossC_A7A0_178 *link = D_807FBB40->unk178;
 
-    actorScriptStart(D_807FBB40, arg0);
+    actorScriptStart(D_807FBB40, scriptId);
     actorScriptExecute(D_807FBB40);
-    controllerAnimSetState(sp1C->unk0, arg1, 0.0f, 6.0f);
+    controllerAnimSetState(link->unk0, animId, 0.0f, 6.0f);
 }
 
 typedef struct BossC_A7A0_DC9C {
@@ -126,10 +123,10 @@ extern BossC_A7A0_DC9C *D_807FDC9C;
 void actorSetTargetSpeed(BossC_A7A0_Actor *, s32);
 
 void func_8002EA14(void) {
-    BossC_A7A0_178 *sp1C = D_807FBB40->unk178;
+    BossC_A7A0_178 *link = D_807FBB40->unk178;
 
     func_8002E9B8(0x406, 0x674);
-    actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC + (sp1C->unk14 * 10) + 15);
+    actorSetTargetSpeed(D_807FBB40, D_807FDC9C->unkC + (link->unk14 * 10) + 15);
 }
 
 typedef struct BossScriptState {
@@ -222,13 +219,13 @@ s32 func_8072881C(s32, void *);
 #define DC9C ((BossConfig *)D_807FDC9C)
 
 void func_8002EA7C(void) {
-    BossScriptState *sp178;
-    u8 *sp28;
+    BossScriptState *scriptState;
+    u8 *scriptOpcodes;
 
-    sp178 = (BossScriptState *)D_807FBB40->unk178;
-    sp28 = D_80035A80[sp178->unk14];
+    scriptState = (BossScriptState *)D_807FBB40->unk178;
+    scriptOpcodes = D_80035A80[scriptState->unk14];
     behaviourFrameBegin();
-    bossRoundFrame(sp28);
+    bossRoundFrame(scriptOpcodes);
     if (!(ACTOR40->unk60 & 0x10)) {
         ACTOR40->unk146 = 1;
         ACTOR40->unk154 = 0x1E;
@@ -279,9 +276,9 @@ void func_8002EA7C(void) {
             }
             break;
         case 0x1E:
-            sp178->unk14 = 0;
-            sp178->unk15 = 0;
-            ACTOR40->unk154 = sp28[sp178->unk15++];
+            scriptState->unk14 = 0;
+            scriptState->unk15 = 0;
+            ACTOR40->unk154 = scriptOpcodes[scriptState->unk15++];
             ACTOR40->unk155 = 0;
             break;
         case 0:
@@ -292,7 +289,7 @@ void func_8002EA7C(void) {
                 break;
             case 2:
                 func_8002EA14();
-                ACTOR40->unk154 = sp28[sp178->unk15++];
+                ACTOR40->unk154 = scriptOpcodes[scriptState->unk15++];
                 ACTOR40->unk155 = 0;
                 actorSetCollisionRadius(ACTOR4C, (f32)(ACTOR4C->unk140->unkC * 2));
                 actorOrNodeFlags(ACTOR4C, 6, 1);
@@ -307,12 +304,12 @@ void func_8002EA7C(void) {
         case 0x31:
             switch (ACTOR40->unk155) {
             case 0:
-                if (sp178->unk14 == 3) {
+                if (scriptState->unk14 == 3) {
                     ACTOR40->unk154 = 0x37;
                     ACTOR40->unk155 = 0;
                 } else {
                     actorScriptStart(D_807FBB40, 0x3F2);
-                    actorScriptStart(sp178->unk0, 0x3F1);
+                    actorScriptStart(scriptState->unk0, 0x3F1);
                     actorSetTargetSpeed(D_807FBB40, 0);
                     ACTOR40->unk155++;
                 }
@@ -323,10 +320,10 @@ void func_8002EA7C(void) {
             case 2:
                 bossResetMinions(NULL);
                 func_8002EA14();
-                sp178->unk15 = 0;
-                sp178->unk14++;
-                sp28 = D_80035A80[sp178->unk14];
-                ACTOR40->unk154 = sp28[sp178->unk15++];
+                scriptState->unk15 = 0;
+                scriptState->unk14++;
+                scriptOpcodes = D_80035A80[scriptState->unk14];
+                ACTOR40->unk154 = scriptOpcodes[scriptState->unk15++];
                 ACTOR40->unk155 = 0;
                 break;
             }
@@ -334,7 +331,7 @@ void func_8002EA7C(void) {
         case 0x37:
             switch (ACTOR40->unk155) {
             case 0:
-                actorDespawn(sp178->unk0);
+                actorDespawn(scriptState->unk0);
                 actorScriptStart(D_807FBB40, 0);
                 camStartPath(ACTOR40, 5, 1);
                 ACTOR40->unk155++;
@@ -349,7 +346,7 @@ void func_8002EA7C(void) {
             }
             break;
         default:
-            bossScriptStep(sp28, 0x10, 0.0f);
+            bossScriptStep(scriptOpcodes, 0x10, 0.0f);
             break;
         }
     } else if (ACTOR40->unk4->unk64 == 0x406) {

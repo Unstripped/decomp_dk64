@@ -517,20 +517,20 @@ void bonusMazeChallengeUpdate(void) {
         break;
     }
     {
-        s32 temp_v0_3 = snd->unk8 - 0x96;
+        s32 decayedPitch = snd->unk8 - 0x96;
         snd->unk0--;
-        if (temp_v0_3 < 0x1F40) {
+        if (decayedPitch < 0x1F40) {
             snd->unk8 = 0x1F40;
         } else {
-            snd->unk8 = temp_v0_3;
+            snd->unk8 = decayedPitch;
         }
     }
     {
-        s32 temp_v1_2 = snd->unkA + 0x3E8;
-        if (snd->unk8 < temp_v1_2) {
+        s32 steppedPitch = snd->unkA + 0x3E8;
+        if (snd->unk8 < steppedPitch) {
             snd->unkA = snd->unk8;
         } else {
-            snd->unkA = temp_v1_2;
+            snd->unkA = steppedPitch;
         }
     }
     n_alSndpPostEvent(snd->unk4, 8, snd->unkA);
@@ -548,11 +548,11 @@ void bonusMazeChallengeUpdate(void) {
             }
         }
         {
-            s32 temp_v0_5 = snd->unk8 + 0x4650;
-            if (temp_v0_5 >= 0x8000) {
+            s32 boostedPitch = snd->unk8 + 0x4650;
+            if (boostedPitch >= 0x8000) {
                 snd->unk8 = 0x7FFF;
             } else {
-                snd->unk8 = temp_v0_5;
+                snd->unk8 = boostedPitch;
             }
         }
         LD->unk1F0 &= ~0xC0000;

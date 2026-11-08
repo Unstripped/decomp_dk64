@@ -39,8 +39,8 @@ extern Actor *D_807FBB40;
 extern Actor *D_807FBB44;
 extern Actor *D_807FBB4C;
 
-Gfx *bonusRenderReelHud(Gfx *gdl, Actor *arg1) {
-    LB3Obj *temp_t0 = arg1->unk174;
+Gfx *bonusRenderReelHud(Gfx *gdl, Actor *actor) {
+    LB3Obj *reelObj = actor->unk174;
 
     gDPPipeSync(gdl++);
     gDPSetPrimColor(gdl++, 0, 0, 200, 200, 200, 255);
@@ -50,16 +50,16 @@ Gfx *bonusRenderReelHud(Gfx *gdl, Actor *arg1) {
     gSPMatrix(gdl++, &D_2000080, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
     gSPMatrix(gdl++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     return hudDrawRollingCounter(
-        textDrawAnimated(gdl, temp_t0->unk19, 8, 30.0f, 36.0f, 0.0f, 1.5f),
-        0x26, 0x32, &temp_t0->unk14, temp_t0->unk16, &temp_t0->unk18);
+        textDrawAnimated(gdl, reelObj->unk19, 8, 30.0f, 36.0f, 0.0f, 1.5f),
+        0x26, 0x32, &reelObj->unk14, reelObj->unk16, &reelObj->unk18);
 }
 
-void *bonusSpawnReel(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
-    if (actorSpawn(0xDB, arg0) != 0) {
+void *bonusSpawnReel(s32 type, s16 x, s16 y, s16 z) {
+    if (actorSpawn(0xDB, type) != 0) {
         BonusEObj *obj = D_807FBB44->unk174;
-        D_807FBB44->unk7C = (f32)arg1;
-        D_807FBB44->unk80 = (f32)arg2;
-        D_807FBB44->unk84 = (f32)arg3;
+        D_807FBB44->unk7C = (f32)x;
+        D_807FBB44->unk80 = (f32)y;
+        D_807FBB44->unk84 = (f32)z;
         obj->unk0 = D_807FBB40;
     }
     return D_807FBB44;
@@ -67,8 +67,8 @@ void *bonusSpawnReel(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
 
 extern u8 *D_8002D8B0[];
 
-u8 bonusGetReelSymbol(LB3Obj *obj, u8 arg1) {
-    s32 idx = arg1;
+u8 bonusGetReelSymbol(LB3Obj *obj, u8 reelIndex) {
+    s32 idx = reelIndex;
     return D_8002D8B0[idx][obj->act[idx]->unk15F];
 }
 
@@ -80,32 +80,32 @@ s32 randomNonNegative();
 extern void *D_8074E880[];
 void D_80717404(void);
 
-void bonusSpawnEffectBurst(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+void bonusSpawnEffectBurst(s16 x, s16 y, s16 z, s16 count) {
     s16 i;
 
-    for (i = 0; i < arg3; i++) {
+    for (i = 0; i < count; i++) {
         func_807149B8(1);
         func_8071498C(D_80717404);
         func_80714950(1);
-        func_80714CC0(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.3f, (f32)arg0, (f32)arg1, (f32)arg2);
+        func_80714CC0(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.3f, (f32)x, (f32)y, (f32)z);
     }
 }
 
 void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
-void bonusReelNextRound(LB3Obj *arg0) {
-    LB3Player *temp_v0 = D_807FBB4C->unk174;
-    camSetTarget(temp_v0->unk104, D_807FBB4C, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
+void bonusReelNextRound(LB3Obj *obj) {
+    LB3Player *player = D_807FBB4C->unk174;
+    camSetTarget(player->unk104, D_807FBB4C, 4, 0, 0xAA, 0, 0, 0, 0, 0, 0.09f);
     D_807FBB40->unk154 = 3;
     D_807FBB40->unk155[0] = 1;
     D_807FBB40->unk168 = 0;
 }
 
-void bonusInitActors(LB3Obj *obj, u8 arg1) {
+void bonusInitActors(LB3Obj *obj, u8 timerVal) {
     u8 i = 0;
     do {
         obj->act[i]->unk154++;
-        obj->act[i]->unkF0 = arg1;
+        obj->act[i]->unkF0 = timerVal;
     } while (++i < 4);
 }
 
@@ -147,13 +147,13 @@ void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 void actorUpdateModelMatrix(void *, s32);
 
 void bonusReelGameUpdate(void) {
-    LB3Player *sp4C;
+    LB3Player *player;
     LB3Obj *obj;
     u8 i;
     s32 two;
 
     two = 2;
-    sp4C = D_807FBB4C->unk174;
+    player = D_807FBB4C->unk174;
     obj = D_807FBB40->unk174;
     if (!(D_807FBB40->unk60 & 0x10)) {
         D_807FBB40->unk7C = 52.0f;
@@ -167,7 +167,7 @@ void bonusReelGameUpdate(void) {
         obj->act[2] = bonusSpawnReel(0x92, 7, 1, 0x12);
         obj->act[3] = bonusSpawnReel(0x93, 0x15, 1, 0x12);
         playerStateQueueCallback(0x49, 0, 0);
-        camSetTargetScaled(sp4C->unk104, D_807FBB4C, 6, 0, 0xAA, 0, 0, 0, 0, 0, 1.0f);
+        camSetTargetScaled(player->unk104, D_807FBB4C, 6, 0, 0xAA, 0, 0, 0, 0, 0, 1.0f);
         camStartPath(0, 1, 1);
         switch (gCurrentMap) {
         case 0x20:
@@ -249,7 +249,7 @@ void bonusReelGameUpdate(void) {
                 obj->unk12 = -0x40;
                 bonusInitActors(obj, (u32)((f32)obj->unk1E + (f32)(obj->unk1D - obj->unk1E) * ((f32)(obj->unk16 - 1) / (f32)two)));
                 D_807FBB40->unk6E = sfxPlayOnFreeSlot(0x24D, 0x7FFF, 64.0f, 1.0f, 0, 0);
-                camSetTarget(sp4C->unk104, D_807FBB48, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
+                camSetTarget(player->unk104, D_807FBB48, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
             } else if (obj->unk10 < 0x400) {
                 D_807FBB40->unk154 = 5;
                 D_807FBB40->unk155[0] = 0;
@@ -383,25 +383,25 @@ void bonusReelUpdate(void) {
 }
 void camStartPathNearWall(void *, s32, s32, s32);
 
-void bonusEndWin(u8 arg0, u8 arg1) {
+void bonusEndWin(u8 useCutsceneCam, u8 textIndex) {
     sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
-    textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, arg1, 1), 0, 0x28, 8, 8);
+    textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, textIndex, 1), 0, 0x28, 8, 8);
     ((Actor *)D_807FBB40->unk11C)->unk154 = 0;
     sfxAllocateChannel(0x28, 1.0f);
     playerStateQueueCallback(0x44, 0, 0);
     D_807FBB40->unk154 += 1;
-    if (arg0 != 0) {
+    if (useCutsceneCam != 0) {
         camStartPathNearWall(D_807FBB4C, 5, 0x21, 5);
     }
 }
 
-void bonusEndLose(u8 arg0, u8 arg1) {
+void bonusEndLose(u8 useCutsceneCam, u8 textIndex) {
     ((Actor *)D_807FBB40->unk11C)->unk154 = 0;
-    textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, arg1, 1), 0, 0x28, 8, 8);
+    textSpawnMarkerChecked(0x81, 0, 0x78, textTableGetString(0x1A, textIndex, 1), 0, 0x28, 8, 8);
     sfxAllocateChannel(0x57, 1.0f);
     playerStateQueueCallback(0x43, 0, 0);
     D_807FBB40->unk154 += 1;
-    if (arg0 != 0) {
+    if (useCutsceneCam != 0) {
         camStartPathNearWall(D_807FBB4C, 5, 0x21, 5);
     }
 }

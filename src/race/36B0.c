@@ -285,11 +285,11 @@ void func_80027CE8(void) {
     u32 randVal;
     s32 nodeIndex;
     s32 foundCompetitor;
-    RaceActor *temp_v0_3;
-    RaceActor *temp_v0_2;
-    RaceState *temp_v0_4;
-    RaceCursor *temp_a3_2;
-    f32 temp_fv0_2;
+    RaceActor *competitorActor;
+    RaceActor *leaderActor;
+    RaceState *targetState;
+    RaceCursor *competitorCursor;
+    f32 competitorDist;
 
     state = D_807FBB40->view.a.unk178;
     cursor = D_807FBB40->view.a.unk17C;
@@ -300,8 +300,8 @@ void func_80027CE8(void) {
     targetSpeed = func_8002E1C8(aux, distToTarget, D_8002FBD0, D_8002FC00);
     flag = (cursor->unk0 == cursor->unk1) && (cursor->unk4 == 0);
     if (aux->unkF != 0) {
-        temp_v0_2 = state->unk30;
-        if (raceGetCompletionFraction(cursor, state, temp_v0_2->view.b.unk174) > 0.8) {
+        leaderActor = state->unk30;
+        if (raceGetCompletionFraction(cursor, state, leaderActor->view.b.unk174) > 0.8) {
             func_8002DE78(aux, 0, D_8002FBD0, D_8002FC00);
         }
     }
@@ -324,11 +324,11 @@ void func_80027CE8(void) {
                     foundCompetitor = 0;
                     do {
                         if (spawnNodeHasActor(nodeIndex) != 0) {
-                            temp_v0_3 = spawnNodeActivate(nodeIndex, 0);
-                            temp_a3_2 = temp_v0_3->view.b.unk178;
-                            if (temp_a3_2->unk0 == cursor->unk0) {
-                                temp_fv0_2 = func_80027920(D_807FBB40, cursor, temp_v0_3, temp_a3_2);
-                                if ((temp_fv0_2 > 20.0f) && (temp_fv0_2 < 300.0f)) {
+                            competitorActor = spawnNodeActivate(nodeIndex, 0);
+                            competitorCursor = competitorActor->view.b.unk178;
+                            if (competitorCursor->unk0 == cursor->unk0) {
+                                competitorDist = func_80027920(D_807FBB40, cursor, competitorActor, competitorCursor);
+                                if ((competitorDist > 20.0f) && (competitorDist < 300.0f)) {
                                     foundCompetitor = 1;
                                     func_80027B30(cursor);
                                 }
@@ -354,8 +354,8 @@ void func_80027CE8(void) {
         sfxStopSlotSound(D_807FBB40, 1);
     }
     if (distToTarget < -7000.0f) {
-        temp_v0_4 = targetActor->view.b.unk174;
-        temp_v0_4->unk45 = 1;
+        targetState = targetActor->view.b.unk174;
+        targetState->unk45 = 1;
     }
     aux->unk14 = distToTarget;
 }
@@ -469,12 +469,12 @@ void func_80028440(void) {
     RaceActor *targetActor;
     RaceState *state;
     RaceCursor *cursor;
-    u32 temp_v0_2;
+    u32 cursorVal;
     f32 unclampedVal;
     s32 phase;
     s32 idx;
-    s32 temp_v1_2;
-    s32 temp_v1_3;
+    s32 statePhase;
+    s32 endPhase;
     s32 pad38[1];
     s32 cam;
     s32 audioSlot;
@@ -515,9 +515,9 @@ void func_80028440(void) {
     if (*flagPtr != 0) {
         (*flagPtr)--;
     }
-    temp_v0_2 = cursor->unk39;
-    if (temp_v0_2 != 0) {
-        unclampedVal = (f32)temp_v0_2;
+    cursorVal = cursor->unk39;
+    if (cursorVal != 0) {
+        unclampedVal = (f32)cursorVal;
         if (unclampedVal > 10.0f) {
             cursor->unk20 = (unclampedVal - 10.0f) * 204.8f;
         } else {
@@ -538,9 +538,9 @@ void func_80028440(void) {
     func_800283D4(D_807FBB40->unkB8);
     if (state->unk34 == 0) {
         phase = state->unk35;
-        temp_v1_2 = state->unk35;
-        temp_v0_2 = temp_v1_2;
-        switch (temp_v0_2) {
+        statePhase = state->unk35;
+        cursorVal = statePhase;
+        switch (cursorVal) {
         case 0:
             if (D_807FBB40->unk60 & 0x02000000) {
                 state->unk35 = state->unk35 + 1;
@@ -584,8 +584,8 @@ void func_80028440(void) {
             state->unk35++;
         }
     } else if (state->unk34 == 5) {
-        temp_v1_3 = state->unk35;
-        switch (temp_v1_3) {
+        endPhase = state->unk35;
+        switch (endPhase) {
         case 0:
             if (flagGet(0x8B, 0) == 0) {
                 playerStateQueueCallback(0x55, 0, 0);
@@ -661,10 +661,10 @@ void func_80028AD0(void) {
     f32 offsetSign;
     f32 dist;
     f32 camYOffset;
-    f32 temp_fv0_3;
+    f32 distNorm;
     int prevWaypoint;
-    u8 temp_v0_2;
-    u8 temp_v0_3;
+    u8 tgtStateMode;
+    u8 tgtCursorSub;
     RaceCursor *cursor;
     RaceState *state;
     RaceActor *playerActor;
@@ -685,16 +685,16 @@ void func_80028AD0(void) {
         cursor->unk0 = cursor->unk1 = 1;
         racePathFollowStep(cursor, state, 0);
     }
-    temp_v0_2 = targetState->unk34;
-    if (state->unk34 != temp_v0_2) {
-        state->unk34 = temp_v0_2;
+    tgtStateMode = targetState->unk34;
+    if (state->unk34 != tgtStateMode) {
+        state->unk34 = tgtStateMode;
         state->unk35 = 0;
     }
     dist = func_80027920(D_807FBB40, cursor, targetActor, targetCursor);
     distToTarget = dist;
-    temp_v0_3 = targetCursor->unk1;
-    if (cursor->unk1 != temp_v0_3) {
-        cursor->unk1 = temp_v0_3;
+    tgtCursorSub = targetCursor->unk1;
+    if (cursor->unk1 != tgtCursorSub) {
+        cursor->unk1 = tgtCursorSub;
         cursor->unk8 = 0.0f;
     }
     if ((state->unk34 >= 2) && (state->unk34 < 4)) {
@@ -714,14 +714,14 @@ void func_80028AD0(void) {
         racePathFollowStep(cursor, state, 0);
     }
     if ((state->unk34 < 4) && (state->unk34 > 0)) {
-        temp_fv0_3 = distToTarget / 90.0f;
-        if (temp_fv0_3 < 0.0f) {
+        distNorm = distToTarget / 90.0f;
+        if (distNorm < 0.0f) {
             camYOffset = 0.0f;
         } else {
-            if (temp_fv0_3 > 1.0f) {
+            if (distNorm > 1.0f) {
                 dist = 1.0f;
             } else {
-                dist = temp_fv0_3;
+                dist = distNorm;
             }
             camYOffset = dist;
         }

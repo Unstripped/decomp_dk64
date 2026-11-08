@@ -27,11 +27,11 @@ void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void func_80613C48(void *, s16, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 
-void func_800292B0(f32 arg0) {
+void func_800292B0(f32 scale) {
     projectileSpawnWithShockwave(0x6A, 1.2f, 0, 0x96, 0xFF, 0xB, 1.015f, 0.0f, 0.0f, 0.0f);
     sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x221, 0x80, 0x7F, 1, 0, 0.3f, 0);
     D_807FBB44->unk80 = D_807FBB40->unk80;
-    D_807FBB44->unk4->unk38 *= arg0;
+    D_807FBB44->unk4->unk38 *= scale;
     func_80613C48(D_807FBB44, 0x4F9, 0.0f, 0.0f);
     scriptSetActorRampTarget(D_807FBB44, 1.5f, 0.0f);
 }
@@ -162,17 +162,17 @@ void func_8072E1A4(s32, void *);
 
 void func_80029468(void) {
 
-    Boss3F_52B0_178 *sp4C;
+    Boss3F_52B0_178 *scriptState;
     s32 pad48;
-    u8 *sp44;
-    s16 sp42;
-    s16 sp40;
-    f32 sp3C;
-    f32 sp38;
+    u8 *scriptOpcodes;
+    s16 targetAngle;
+    s16 angleOffset;
+    f32 targetX;
+    f32 targetZ;
 
-    sp4C = ACTOR->unk178;
-    sp44 = D_80035A00[sp4C->unk14];
-    sp42 = mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84);
+    scriptState = ACTOR->unk178;
+    scriptOpcodes = D_80035A00[scriptState->unk14];
+    targetAngle = mathAngleBetweenPoints2D(D_807FBB4C->unk7C, D_807FBB4C->unk84, ACTOR->unk7C, ACTOR->unk84);
     behaviourFrameBegin();
     if (!(ACTOR->unk60 & 0x10)) {
         ACTOR->unkCE = 0x64;
@@ -181,8 +181,8 @@ void func_80029468(void) {
         ACTOR->unk64 |= 4;
         ACTOR->unk144 = 0x24;
         lightSetColor(0.0f, 0.0f, 0.0f, -1);
-        sp4C->unk14 = 0;
-        sp4C->unk15 = 0;
+        scriptState->unk14 = 0;
+        scriptState->unk15 = 0;
         ACTOR->unk154 = 0x1E;
         ACTOR->unk155 = 0;
     }
@@ -208,7 +208,7 @@ void func_80029468(void) {
             }
             break;
         case 5:
-            ACTOR->unk154 = sp44[sp4C->unk15++];
+            ACTOR->unk154 = scriptOpcodes[scriptState->unk15++];
             ACTOR->unk155 = 0;
             break;
         }
@@ -252,24 +252,24 @@ void func_80029468(void) {
         case 5:
             if (currentActorTestClearFlag() != 0) {
                 func_80613C48(D_807FBB4C, 0x1C7, 0.0f, 0.0f);
-                ACTOR->unk154 = sp44[sp4C->unk15++];
+                ACTOR->unk154 = scriptOpcodes[scriptState->unk15++];
                 ACTOR->unk155 = 0;
             }
             break;
         }
         break;
     case 0x2C:
-        csModelStateSetFirstByte(sp44[sp4C->unk15++], 0xA);
-        ACTOR->unk154 = sp44[sp4C->unk15++];
+        csModelStateSetFirstByte(scriptOpcodes[scriptState->unk15++], 0xA);
+        ACTOR->unk154 = scriptOpcodes[scriptState->unk15++];
         ACTOR->unk155 = 0;
         break;
     case 0x2B:
-        csModelStateSetFirstByte(sp44[sp4C->unk15++], 0);
-        ACTOR->unk154 = sp44[sp4C->unk15++];
+        csModelStateSetFirstByte(scriptOpcodes[scriptState->unk15++], 0);
+        ACTOR->unk154 = scriptOpcodes[scriptState->unk15++];
         ACTOR->unk155 = 0;
         break;
     case 0x4D:
-        if (sp4C->unk14 == 4) {
+        if (scriptState->unk14 == 4) {
             ACTOR->unk154 = 0x37;
             ACTOR->unk155 = 0;
             camStartPath(ACTOR, 4, 1);
@@ -304,10 +304,10 @@ void func_80029468(void) {
                 csModelStateSetFirstByte(7, 0);
                 csModelStateSetFirstByte(9, 0);
                 csModelStateSetFirstByte(0xB, 0);
-                sp4C->unk15 = 0;
-                sp4C->unk14++;
-                sp44 = D_80035A00[sp4C->unk14];
-                ACTOR->unk154 = sp44[sp4C->unk15++];
+                scriptState->unk15 = 0;
+                scriptState->unk14++;
+                scriptOpcodes = D_80035A00[scriptState->unk14];
+                ACTOR->unk154 = scriptOpcodes[scriptState->unk15++];
                 ACTOR->unk155 = 0;
                 break;
             }
@@ -319,7 +319,7 @@ void func_80029468(void) {
         goto block_28;
     case 0x46:
         ACTOR->unkE6 += D_807FDC90->unk2E;
-        if (mathAngleSignedDistance(ACTOR->unkE6, sp42) > 0) {
+        if (mathAngleSignedDistance(ACTOR->unkE6, targetAngle) > 0) {
             pad48 = D_807FDC90->unk2E + 2;
             if (pad48 < 0x32) {
                 D_807FDC90->unk2E = pad48;
@@ -337,9 +337,9 @@ void func_80029468(void) {
 block_28:
         switch (ACTOR->unk155) {
         case 0:
-            sp4C->unk18 = sp44[sp4C->unk15++];
-            sp4C->unk19 = sp4C->unk18;
-            sp4C->unk8 = sp44[sp4C->unk15++];
+            scriptState->unk18 = scriptOpcodes[scriptState->unk15++];
+            scriptState->unk19 = scriptState->unk18;
+            scriptState->unk8 = scriptOpcodes[scriptState->unk15++];
             if (ACTOR->unk154 == 0x46) {
                 ACTOR->unk155 = 2;
             } else {
@@ -367,12 +367,12 @@ block_28:
             case 0x2A:
                 projectileAimAndSpawn(0xA9, 1, 1.0f, D_807FBB4C->unk7C, D_807FBB4C->unk80 + 2.0f, D_807FBB4C->unk84, 450.0f, ACTOR);
                 actorScriptStart(ACTOR, 0x213);
-                ACTOR->unk154 = sp44[sp4C->unk15++];
+                ACTOR->unk154 = scriptOpcodes[scriptState->unk15++];
                 ACTOR->unk155 = 0;
                 break;
             case 0x46:
                 projectileSpawnNodeEntry(0x1E, 0x63, 0.7f, ACTOR->unkE6, 300.0f, 0.0f, ACTOR);
-                D_807FDC90->unk2C = sp4C->unk8;
+                D_807FDC90->unk2C = scriptState->unk8;
                 ACTOR->unk155 = 8;
                 break;
             default:
@@ -384,15 +384,15 @@ block_28:
         case 6:
             actorScriptStart(ACTOR, 0x213);
             ACTOR->unk155++;
-            sp4C->unk18 = sp4C->unk19;
+            scriptState->unk18 = scriptState->unk19;
             break;
         case 7:
-            sp40 = ((randomNonNegative() >> 15) % 1024) - 0x200;
-            sp3C = ((f64)func_80612794(D_807FDC94->unkE6 + sp40) * ((f64)D_807FDC94->unkB8 * 1.2)) + (f64)D_807FDC94->unk7C;
-            sp38 = ((f64)func_80612790(D_807FDC94->unkE6 + sp40) * ((f64)D_807FDC94->unkB8 * 1.2)) + (f64)D_807FDC94->unk84;
-            projectileSetTargetCoords(sp3C, D_807FDC94->unk80 + 500.0f, sp38);
-            projectileAimAndSpawn(0x1E, 0x1E, 1.0f, sp3C, D_807FDC94->unk80, sp38, 600.0f, ACTOR);
-            D_807FDC90->unk2C = sp4C->unk8;
+            angleOffset = ((randomNonNegative() >> 15) % 1024) - 0x200;
+            targetX = ((f64)func_80612794(D_807FDC94->unkE6 + angleOffset) * ((f64)D_807FDC94->unkB8 * 1.2)) + (f64)D_807FDC94->unk7C;
+            targetZ = ((f64)func_80612790(D_807FDC94->unkE6 + angleOffset) * ((f64)D_807FDC94->unkB8 * 1.2)) + (f64)D_807FDC94->unk84;
+            projectileSetTargetCoords(targetX, D_807FDC94->unk80 + 500.0f, targetZ);
+            projectileAimAndSpawn(0x1E, 0x1E, 1.0f, targetX, D_807FDC94->unk80, targetZ, 600.0f, ACTOR);
+            D_807FDC90->unk2C = scriptState->unk8;
             ACTOR->unk155 = 9;
             /* fallthrough */
         case 9:
@@ -400,8 +400,8 @@ block_28:
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
             } else {
-                sp4C->unk18--;
-                if (sp4C->unk18 != 0) {
+                scriptState->unk18--;
+                if (scriptState->unk18 != 0) {
                     if (ACTOR->unk154 == 0x46) {
                         ACTOR->unk155 = 2;
                     } else {
@@ -409,7 +409,7 @@ block_28:
                     }
                 } else {
                     actorScriptStart(ACTOR, 0x213);
-                    ACTOR->unk154 = sp44[sp4C->unk15++];
+                    ACTOR->unk154 = scriptOpcodes[scriptState->unk15++];
                     ACTOR->unk155 = 0;
                 }
             }
@@ -427,14 +427,14 @@ block_28:
         case 0:
         case 1:
             actorScriptStart(ACTOR, 0x213);
-            sp4C->unk8 = sp44[sp4C->unk15++];
+            scriptState->unk8 = scriptOpcodes[scriptState->unk15++];
             ACTOR->unk155 = 2;
             break;
         default:
-            if (sp4C->unk8 != 0) {
-                sp4C->unk8--;
+            if (scriptState->unk8 != 0) {
+                scriptState->unk8--;
             } else {
-                ACTOR->unk154 = sp44[sp4C->unk15++];
+                ACTOR->unk154 = scriptOpcodes[scriptState->unk15++];
                 ACTOR->unk155 = 0;
             }
             break;
@@ -442,7 +442,7 @@ block_28:
         actorMoveWithinZone(0x23, 0.0f, 0.0f, 0x202, 0.0f);
         break;
     default:
-        bossScriptStep(sp44, 0, 0.0f);
+        bossScriptStep(scriptOpcodes, 0, 0.0f);
         break;
     }
     if (ACTOR->unk80 < ACTOR->unkAC) {
