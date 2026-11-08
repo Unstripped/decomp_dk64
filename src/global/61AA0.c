@@ -228,11 +228,11 @@ block_21:
     billboardSetVertex((s16 *)&gBillboardQueue[gBillboardQueueCount].verts[D_807444FC][3], halfWidth, halfHeight, texWidth - 1, texHeight - 1);
 
     groundY = actor->unkA4;
-    if ((*(u16 *)&gBillboardFlags & 2) && (actor->unk6A & 2) && (actor->waterY <= actor->y)) {
-        f32 diff1 = (actor->y > actor->waterY) ? (actor->y - actor->waterY) : -(actor->y - actor->waterY);
+    if ((*(u16 *)&gBillboardFlags & 2) && (actor->unk6A & 2) && (actor->unkAC <= actor->y)) {
+        f32 diff1 = (actor->y > actor->unkAC) ? (actor->y - actor->unkAC) : -(actor->y - actor->unkAC);
         f32 diff2 = (actor->y > actor->unkA4) ? (actor->y - actor->unkA4) : -(actor->y - actor->unkA4);
         if (diff1 < diff2) {
-            groundY = actor->waterY;
+            groundY = actor->unkAC;
         }
     }
     scale = 1.0 - (f64)((actor->y - groundY) / (f32)fadeDistance);

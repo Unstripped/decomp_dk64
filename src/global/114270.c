@@ -280,9 +280,9 @@ s32 func_8070FCCC(AngAFcccView *particle) {
     f32 jitter;
 
     if (ANGA_CAM->unkFA != 0 && ANGA_PLAYER->unk214 < ANGA_CAM->unk90 + 3.0f) {
-        bound = D_807FBB4C->waterY;
+        bound = D_807FBB4C->unkAC;
     } else {
-        bound = ANGA_DIST(ANGA_A8) < ANGA_DIST(D_807FBB4C->waterY) ? ANGA_A8 : D_807FBB4C->waterY;
+        bound = ANGA_DIST(ANGA_A8) < ANGA_DIST(D_807FBB4C->unkAC) ? ANGA_A8 : D_807FBB4C->unkAC;
     }
     effectSpriteParticleTrackCamera((M114aAngle *)particle);
     effectSpriteParticleWrapX((M114aAngle *)particle);
