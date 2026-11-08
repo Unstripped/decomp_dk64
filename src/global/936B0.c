@@ -258,7 +258,7 @@ void func_8068EF54(void) {
 
     sp7C = D_807FBB40->unk174;
     sp74 = sp7C->unk0;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         ((ActorSub4BufView *)D_807FBB40->unk4)->unk1C = heapAlloc(0x10);
         buf = ((ActorSub4BufView *)D_807FBB40->unk4)->unk1C;
         buf->unk0 = -0x80;
@@ -272,7 +272,7 @@ void func_8068EF54(void) {
             D_807FBB40->unk16A = 0xFF;
             D_807FBB40->unk16B = 0xFF;
             D_807FBB40->unk16C = 0xFF;
-            D_807FBB40->unk60 |= 0x800000;
+            D_807FBB40->flags |= 0x800000;
         }
         sp7C->unk8 = 0;
     }
@@ -294,7 +294,7 @@ void func_8068EF54(void) {
             }
         }
         if (sp78->unk1A2 != 0 || (camIsCutsceneActive() && gFrameCounter % 5 == 0)) {
-            ratio = (0, sp74->unkC0 > 0.0 ? sp74->unkC0 : 0.0);  // FAKE: comma steers FP candidate order
+            ratio = (0, sp74->speedY > 0.0 ? sp74->speedY : 0.0);  // FAKE: comma steers FP candidate order
             if (gFrameCounter & 1) {
                 effectSpawnActorBone(sp74, 1, (f32)(ratio / 150.0 * 0.12) + 0.3);
             } else {
@@ -337,7 +337,7 @@ void func_8068EF54(void) {
             break;
         }
         buf->unk2 = 0;
-        if (!(sp74->unk60 & 4) || sp74->state == 0x3C) {
+        if (!(sp74->flags & 4) || sp74->state == 0x3C) {
             actorDespawn(D_807FBB40);
         } else if (var > 0.05) {
             if (gFrameCounter & 1) {
@@ -656,7 +656,7 @@ void actorInterpolateAngles(u8 arg0, ProjectileAngleTarget *arg1, ProjectileAngl
         var_fv1 = 0.0f;
     } else {
         var_fv0 = 0.0f;
-        var_fv1 = (f32)((f64)arg1->unkC * (400.0 - (0.7 * (f64)D_807FBB40->unkB8)));
+        var_fv1 = (f32)((f64)arg1->unkC * (400.0 - (0.7 * (f64)D_807FBB40->speedXZ)));
     }
     arg2->unk2 = mathAngleEaseToward(arg2->unk2, (s16)(s32)var_fv0, 5.0f);
     arg2->unk0 = mathAngleEaseToward(arg2->unk0, (s16)((s32)var_fv1 & 0xFFF), 3.0f);
@@ -716,7 +716,7 @@ s16 arg1;
 
     idx = D_80770628[D_807FBB40->unk6E];
     if (D_807FBB40->y < D_807FBB40->unkAC + 4.0f) {
-        D_80770B68[idx] = ((f64)D_807FBB40->unkB8 / 300.0) + 1.0;
+        D_80770B68[idx] = ((f64)D_807FBB40->speedXZ / 300.0) + 1.0;
         D_80770BC0[idx] = 1.0f;
     } else {
         D_80770B68[idx] = (f64)arg0->unk4 + 1.2;
@@ -726,7 +726,7 @@ s16 arg1;
     idx = D_80770628[*(s16 *)D_807FBB40->unk70];
     if (D_807FBB40->y < D_807FBB40->unkAC + 4.0f) {
         if (D_80770BC0[idx] == 0.0f) {
-            D_80770B68[idx] = (((f64)(u32)randomLcgNext() / 4294967295.0) * 0.05 + 0.975) * (0.2 + ((f64)D_807FBB40->unkB8 / 300.0));
+            D_80770B68[idx] = (((f64)(u32)randomLcgNext() / 4294967295.0) * 0.05 + 0.975) * (0.2 + ((f64)D_807FBB40->speedXZ / 300.0));
             D_80770BC0[idx] = 1.0f;
         }
     } else {
@@ -788,7 +788,7 @@ void actorSpawnChildActor(Actor *arg0) {
     temp_v0->unk27 = 0;
     temp_v0->unk0 = arg0->yaw;
     sp24->unk88 = temp_a0;
-    temp_a0->unk60 &= ~0x20000;
+    temp_a0->flags &= ~0x20000;
 }
 
 typedef struct PlayerInteractionState {
@@ -1043,7 +1043,7 @@ u8 arg3;
     f32 ratio;
 
     sp50 = arg1->unk174;
-    if (!((f64)arg1->unkB8 < 0.1)) {
+    if (!((f64)arg1->speedXZ < 0.1)) {
         if (arg2 != 0) {
             temp_a = ((Actor *)arg1->unk11C)->unk174;
             temp_t4 = temp_a->unk104->unk174;
@@ -1074,13 +1074,13 @@ u8 arg3;
                         func_800268C0(0x80);
                     }
                 }
-                ratio = dist / (arg1->unkB8 * 0.025f);
+                ratio = dist / (arg1->speedXZ * 0.025f);
                 if (sp78 != NULL) {
                     var_fv0 = (f64)sp78->unk15E * 0.5;
                 } else {
                     var_fv0 = 0.0f;
                 }
-                arg1->unkC0 = (((sp48 + var_fv0) - arg1->y) / ratio) / 0.025f;
+                arg1->speedY = (((sp48 + var_fv0) - arg1->y) / ratio) / 0.025f;
             }
         } else if (sp50->unk1C != NULL) {
             if (D_807FBB64 & 0x04000000) {
@@ -1184,10 +1184,10 @@ f32 *arg8;
         oy = pl->unk214;
         oz = pl->unk218;
     } else {
-        scale = arg2->unkB8 * 0.025f;
+        scale = arg2->speedXZ * 0.025f;
         x1 = func_80612794(arg2->moveYaw) * scale + arg2->x;
         z1 = func_80612790(arg2->moveYaw) * scale + arg2->z;
-        y1 = arg2->y + arg2->unkC0 * 0.025f;
+        y1 = arg2->y + arg2->speedY * 0.025f;
         ox = arg2->x;
         oy = arg2->y;
         oz = arg2->z;
@@ -3087,7 +3087,7 @@ void projectileFallBounceUpdate(void) {
     f32 temp_fv0;
 
     temp_v0 = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         temp_fv0 = D_807FBB40->y;
         D_807FBB40->unk9C = temp_fv0;
         D_807FBB40->unkA0 = temp_fv0;
@@ -3097,7 +3097,7 @@ void projectileFallBounceUpdate(void) {
             D_807FBB40->unk144 = 0x1C;
         }
         *temp_v0 = D_8076A068;
-        D_807FBB40->unk60 |= 0x80000;
+        D_807FBB40->flags |= 0x80000;
         collisionQueryActorFloor(D_807FBB40, &sp79, &sp70, &sp78, &sp6C, sp77);
         D_807FBB40->unkC4 = D_807502F8 - (f32)(((randomNonNegative() >> 15) % 32767) % 10);
         D_807FBB40->unk6A &= 0xFFFE;
@@ -3126,7 +3126,7 @@ void projectileFallBounceUpdate(void) {
                 temp_v1_2 = D_807FBB40->unk155[0];
                 if (temp_v1_2 < 2) {
                     D_807FBB40->unk155[0] = temp_v1_2 + 1;
-                    D_807FBB40->unkC0 = (f32)((f64)(D_807FBB40->unkA0 - D_807FBB40->y) * 1.5);
+                    D_807FBB40->speedY = (f32)((f64)(D_807FBB40->unkA0 - D_807FBB40->y) * 1.5);
                     camStartShake(((CameraShakeTargetView *)gActivePlayerState)->unk104, 0xA, 0x14);
                     sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x1C1, 0xFF, 0x7F, 0x1E);
                     effectSpawnScatterRandom(&D_8071FFA0, 0, 1.0f, 4, 0x14, 0x96, (s32)D_807FBB40->x, (s32)D_807FBB40->y, (s32)D_807FBB40->z);
@@ -3134,7 +3134,7 @@ void projectileFallBounceUpdate(void) {
                 }
             }
             if (flag == 0) {
-                temp_fv0_2 = (f64)D_807FBB40->unkC0 * 0.5;
+                temp_fv0_2 = (f64)D_807FBB40->speedY * 0.5;
                 if (temp_fv0_2 > 0.0) {
                     var_fv1 = temp_fv0_2;
                 } else {
@@ -3142,10 +3142,10 @@ void projectileFallBounceUpdate(void) {
                 }
                 D_807FBB40->roll = (s16)(s32)((f64)D_807FBB40->roll - var_fv1);
             }
-            D_807FBB40->unkC0 = D_807FBB40->unkC0 + D_807FBB40->unkC4;
+            D_807FBB40->speedY = D_807FBB40->speedY + D_807FBB40->unkC4;
             temp_fv0 = (f32)D_807502D0;
-            if (D_807FBB40->unkC0 < temp_fv0) {
-                D_807FBB40->unkC0 = temp_fv0;
+            if (D_807FBB40->speedY < temp_fv0) {
+                D_807FBB40->speedY = temp_fv0;
             }
         }
         temp_fv0 = D_807FBB40->unk4->unk38 * 300.0f;
@@ -3326,7 +3326,7 @@ void projectileChaseReflectUpdate(void) {
     s16 temp_v0;
     s16 t;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         G_PROJECTILE_ACTOR->unkFA = 0x2328;
     }
     projectileChaseTargetUpdate();

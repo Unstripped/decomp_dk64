@@ -2719,7 +2719,7 @@ s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (!(actor->unk60 & 0x2000) && actor->actorType == 4 && actor->unk110 == 1 && csId == actor->unk10C) {
+        if (!(actor->flags & 0x2000) && actor->actorType == 4 && actor->unk110 == 1 && csId == actor->unk10C) {
             if (b != actor->unk10E[0] && actor->unk10E[0] != 0) {
                 modelAnimEntryStart(csId, actor->unk10E[0], 2);
                 func_80641874(actor->unk10E[0] + 4, 0);
@@ -3066,12 +3066,12 @@ void func_8064B900(CsState *cs, s16 csId, s16 b, s16 c) {
     switch (b) {
         case 2:
             spawnNodeSpawnById(8, 0, 0, 0, 0, 0, 0);
-            D_807FBB44->unk60 &= ~4;
+            D_807FBB44->flags &= ~4;
             break;
         case 1:
             a = spawnNodeActivate(8, 0);
             if (a != NULL) {
-                a->unk60 |= 4;
+                a->flags |= 4;
                 actorScriptStart(a, 0x35C);
                 scriptSetActorRampTarget(a, 0.9f, 0.0f);
             }
@@ -4105,7 +4105,7 @@ void func_8064E65C(CsState *cs, s16 csId, s16 b, s16 c) {
             D_807FBB44->unk4->unk34 = D_807FBB44->unk4->unk34 * 3.2;
             D_807FBB44->unk4->unk38 = D_807FBB44->unk4->unk38 * 3.2;
             D_807FBB44->unk4->unk3C = D_807FBB44->unk4->unk3C * 3.2;
-            D_807FBB44->unk60 |= 0x400;
+            D_807FBB44->flags |= 0x400;
             actorScriptStart(D_807FBB44, 0x335);
             if (b == 11) {
                 D_807FBB44->x = gCsPosX;

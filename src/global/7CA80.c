@@ -613,7 +613,7 @@ void actorUpdateActiveList(u8 arg0) {
     for (i = D_807FBB3C = 0; i < gActiveActorCount; i = D_807FBB3C = i + 1) {
         D_807FBE08 = 0;
         D_807FBB40 = gActiveActors[i].actor;
-        if ((arg0 == 1 && !(D_807FBB40->unk60 & 0x100000)) || (arg0 == 2 && (D_807FBB40->unk60 & 0x100000))) {
+        if ((arg0 == 1 && !(D_807FBB40->flags & 0x100000)) || (arg0 == 2 && (D_807FBB40->flags & 0x100000))) {
             actorPreTick(D_807FBB40);
             D_8074C0A0[D_807FBB40->actorType]();
             actorPostTick(D_807FBB40);
@@ -648,10 +648,10 @@ void func_80678B04(void) {
     s32 i;
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
-        if (!(actor->unk60 & 0x08000000) && (actor->unk60 & 0x500) && (actor->unk60 & 0x4000)) {
+        if (!(actor->flags & 0x08000000) && (actor->flags & 0x500) && (actor->flags & 0x4000)) {
             actorCheckWorldBounds(actor);
         }
-        actor->unk60 &= ~0x100;
+        actor->flags &= ~0x100;
     }
 }
 
@@ -660,10 +660,10 @@ void actorPreTick(Actor *arg0) {
     if (arg0->unk5C & 1) {
         playerSetActiveGlobals(arg0);
     }
-    arg0->unk88 = arg0->x;
-    arg0->unk8C = arg0->y;
-    arg0->unk90 = arg0->z;
-    arg0->unkBC = arg0->unkB8;
+    arg0->prevX = arg0->x;
+    arg0->prevY = arg0->y;
+    arg0->prevZ = arg0->z;
+    arg0->prevSpeedXZ = arg0->speedXZ;
     D_807F94B4 = 0;
     if (arg0->unk140 != NULL) {
         arg0->unk140->unk68 = 0;
@@ -706,11 +706,11 @@ void actorPostTick(Actor *actor) {
     }
     actorUpdatePositionAndSub140(actor);
     func_80678E6C(actor);
-    if (!(actor->unk60 & 0x08000000)) {
-        actor->unk60 &= ~0x200;
+    if (!(actor->flags & 0x08000000)) {
+        actor->flags &= ~0x200;
         if (actor->unk4 != NULL) {
             controllerStepMotionWindows(actor);
-            if (((actor->unk60 & 0x500) || ((ActorUnk156View *)actor)->unk156 != 0) && !(actor->unk60 & 0x4000)) {
+            if (((actor->flags & 0x500) || ((ActorUnk156View *)actor)->unk156 != 0) && !(actor->flags & 0x4000)) {
                 actorCheckWorldBounds(actor);
             }
         }
@@ -722,12 +722,12 @@ void actorPostTick(Actor *actor) {
     actorFreeCallbackList(actor);
     actorUpdateEffects(actor);
     animListUpdate(actor);
-    actor->unk60 |= 0x10;
+    actor->flags |= 0x10;
 }
 
 void func_80678DD8(Actor *actor) {
     controllerStepMotionWindows();
-    if (actor->unk60 & 0x500) {
+    if (actor->flags & 0x500) {
         actorCheckWorldBounds(actor);
     }
 }
@@ -735,7 +735,7 @@ void func_80678DD8(Actor *actor) {
 void func_80678E14(Actor *actor) {
     f32 temp_fv0 = actor->y;
 
-    if (actor->unk8C < temp_fv0) {
+    if (actor->prevY < temp_fv0) {
         actor->unk9C = temp_fv0;
         return;
     }
@@ -757,7 +757,7 @@ void func_80678E6C(Actor *actor) {
     u8 sp27;
 
     if ((actor->unk144 & 4) && (D_807FBE08 == 0)) {
-        if (actor->unk60 & 0x10000) {
+        if (actor->flags & 0x10000) {
             actor->unkFC = 0;
             actor->unkFD = 0;
         }
@@ -1238,16 +1238,16 @@ void actorDispatchCallbacks(Actor *arg0) {
                     GSTATE.unk28 = (Actor *)var_s2->unk8;
                     break;
                 case 0x80:
-                    arg0->unk60 = (s32)(arg0->unk60 | 8);
+                    arg0->flags = (s32)(arg0->flags | 8);
                     if (arg0 == D_807FBB48) {
                         playerStateQueueCallback(0x16, var_s2->unk8, gCurrentPlayerIndex);
                     }
                     break;
                 case 0x40:
                     if (var_s2->unk4 != 0) {
-                        arg0->unk60 = (s32)(arg0->unk60 | 4);
+                        arg0->flags = (s32)(arg0->flags | 4);
                     } else {
-                        arg0->unk60 = (s32)(arg0->unk60 & ~4);
+                        arg0->flags = (s32)(arg0->flags & ~4);
                     }
                     break;
                 case 0x1:
@@ -2047,7 +2047,7 @@ s32 func_8067B3F4(s32 arg0) {
 }
 
 s32 func_8067B42C(s32 arg0) {
-    D_807FBB44->unk60 |= 0x2000;
+    D_807FBB44->flags |= 0x2000;
     return 1;
 }
 

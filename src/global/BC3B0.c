@@ -171,7 +171,7 @@ void func_806B7EA0(void) {
     f32 screenY;
     c = (BC3B0Cursor *)BC3B0CA->unk178;
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FDC98->unk46 |= 0x60;
         D_807FBB64 |= 2;
         hudSpawnCountdownTimer(0xDC, 0x2A, BC3B0CCfg->unkA ? BC3B0CCfg->unkA : 10, &D_807FBB64);
@@ -294,7 +294,7 @@ void actorUpdateBurstProjectileEmitter(void);
 
 void actorUpdatePeriodicParticleEmitter(void) {
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         BC3B0S90->unk30 = BC3B0S9C->unkB;
         actorSetCollisionRadius(D_807FBB40, 300.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 0.0f, 0.0f, 280.0f, -1);
@@ -325,7 +325,7 @@ void actorUpdatePeriodicParticleEmitter(void) {
 
 void actorUpdateAimedProjectileEmitter(void) {
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         BC3B0S90->unk2E = BC3B0S98->unkB;
     }
     if (BC3B0S90->unk2E == 0) {
@@ -358,7 +358,7 @@ void actorUpdateBurstProjectileEmitter(void) {
     s16 kind;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         BC3B0S90->unk30 = BC3B0S9C->unkB;
         *a = BC3B0S9C->unkD;
     }

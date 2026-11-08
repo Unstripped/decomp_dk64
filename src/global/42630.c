@@ -1423,7 +1423,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         ((CsCamState *)gPlayerSlots->unk4->unk174)->unk1F0 |= 0x40000800;
         break;
     case 0x91:
-        D_807FBB4C->unkB8 = cmd->a;
+        D_807FBB4C->speedXZ = cmd->a;
         break;
     case 0x93:
         camSetZoneWeight(CMDB(cmd)->a, CMDB(cmd)->b);
@@ -1489,7 +1489,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         i = 0;
         for (; i < gActiveActorCount; i++) {
             actor = gActiveActors[i].actor;
-            if (!(actor->unk60 & 0x2000) && actor->unk110 == 1 && csId == actor->unk10C) {
+            if (!(actor->flags & 0x2000) && actor->unk110 == 1 && csId == actor->unk10C) {
                 actorAppendCallback(actor, 0, 8, 0, 0, 0);
             }
         }
@@ -1925,7 +1925,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         i = 0;
         for (; i < gActiveActorCount; i++) {
             actor = gActiveActors[i].actor;
-            if (!(actor->unk60 & 0x2000) && actor->unk110 == 1 && csId == actor->unk10C) {
+            if (!(actor->flags & 0x2000) && actor->unk110 == 1 && csId == actor->unk10C) {
                 if (cmd->a != 0) {
                     actor->unk68 |= 4;
                 } else {
@@ -2234,7 +2234,7 @@ void func_80641BCC(s16 a, s16 b, s16 csId) {
 
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (!(actor->unk60 & 0x2000) && actor->actorType == a && csId == actor->unk10C) {
+        if (!(actor->flags & 0x2000) && actor->actorType == a && csId == actor->unk10C) {
             if (b != 0) {
                 actor->unk68 |= 4;
             } else {
@@ -2262,7 +2262,7 @@ void func_80641C98(s16 a, s16 b, s16 csId) {
     }
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
-        if (!(actor->unk60 & 0x2000) && actor->actorType == a && csId == actor->unk10C) {
+        if (!(actor->flags & 0x2000) && actor->actorType == a && csId == actor->unk10C) {
             actorAppendCallback(actor, 0, 0x800, x, 0, 0);
         }
     }

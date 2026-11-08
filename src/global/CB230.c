@@ -94,7 +94,7 @@ void actorUpdateNearestSpotlight(void) {
     }
     switch (D_807FBB40->actorType) {
         case 0xF0:
-            if (D_807FBB40->unk60 & 0x100) {
+            if (D_807FBB40->flags & 0x100) {
                 actorGetNodePos(D_807FBB40, 1, A, &A[1], &A[2]);
             } else {
                 A[0] = D_807FBB40->x;
@@ -104,7 +104,7 @@ void actorUpdateNearestSpotlight(void) {
             dx = D_807FBB40->x - D_807FBB4C->x;
             dy = D_807FBB40->y - D_807FBB4C->y;
             dz = D_807FBB40->z - D_807FBB4C->z;
-            if (dx * dx + dy * dy + dz * dz > 40000.0f && (D_807FBB40->unk60 & 0x100)) {
+            if (dx * dx + dy * dy + dz * dz > 40000.0f && (D_807FBB40->flags & 0x100)) {
                 actorGetNodePos(D_807FBB40, 2, B, &B[1], &B[2]);
             } else {
                 B[0] = D_807FBB4C->x;
@@ -136,10 +136,10 @@ void func_806C6884(s16 yOffset, s16 stopDist, u16 flags) {
     dx = D_807FBB40->x - D_807FDC94->x;
     dz = D_807FBB40->z - D_807FDC94->z;
     dist = (u16)sqrtf(dx * dx + dz * dz);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         R1C8CBSub178 *p = R1V->unk178;
         D_807FBB40->unk64 |= 4;
-        D_807FBB40->unk60 |= 0x800000;
+        D_807FBB40->flags |= 0x800000;
         D_807FBB40->unk16A = 0xFF;
         D_807FBB40->unk16B = 0xFF;
         D_807FBB40->unk16C = 0xFF;
@@ -198,11 +198,11 @@ void func_806C6BC8(void) {
     f32 z;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         R1V->unk12A = 0x7D0;
         R1V->unk130 = 0xFF;
         R1V->unk131 = 0xFF;
-        D_807FBB40->unk60 &= ~0x8000;
+        D_807FBB40->flags &= ~0x8000;
         R1V->unk154 = 0x27;
         R1V->unk155 = 0;
         D_807FDC90->unk30 = D_807FBB40->unk4->unk38;
@@ -212,9 +212,9 @@ void func_806C6BC8(void) {
         actorSetStateTwo(D_807FBB44);
     }
     if (R1S->unk1A & 0x80) {
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
     } else {
-        D_807FBB40->unk60 &= ~0x400;
+        D_807FBB40->flags &= ~0x400;
     }
     func_8072881C(0, R1S->unk28);
     switch (R1V->unk154) {

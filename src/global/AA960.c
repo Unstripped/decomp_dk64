@@ -109,7 +109,7 @@ void func_806A5F44(void) {
     void *temp = D_807FBB40->unk174;
 
     actorDropBounceExpireUpdate(4.5f);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         effectSpawnAttachedSprite(temp, D_80720710, 1.0f);
     }
 }
@@ -118,7 +118,7 @@ void func_806A5FA4(void) {
     void *temp = D_807FBB40->unk174;
 
     actorDropBounceExpireUpdate(4.5f);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         effectSpawnAttachedSprite(temp, D_80720508, 1.0f);
     }
 }
@@ -127,7 +127,7 @@ void effectSpawnAttachedSpriteColored(void *spriteAsset, s32 characterId) {
     void *temp = D_807FBB40->unk174;
 
     actorDropBounceExpireUpdate(4.5f);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         if (characterId != D_807FBB4C->actorType) {
             func_807149C8(0xFF, 0xFF, 0xFF, 0x64);
         }
@@ -159,7 +159,7 @@ void func_806A615C(void) {
     void *temp = D_807FBB40->unk174;
 
     actorDropBounceExpireUpdate(4.5f);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         func_80714A08(-0.35f, 0.35f);
         effectSpawnAttachedSprite(temp, D_80720768, 1.0f);
     }
@@ -169,7 +169,7 @@ void func_806A61D0(void) {
     void *temp = D_807FBB40->unk174;
 
     actorDropBounceExpireUpdate(4.5f);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         effectSpawnAttachedSprite(temp, D_807204BC, 1.0f);
     }
 }
@@ -178,7 +178,7 @@ void func_806A6230(void) {
     void *temp = D_807FBB40->unk174;
 
     actorDropBounceExpireUpdate(4.5f);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         if ((D_807FBB64 & 0x80000) || (D_807FBB64 & 0x2000)) {
             D_807FBB40->unk15F = 1;
         }
@@ -194,7 +194,7 @@ void func_806A62D4(void) {
     void *temp = D_807FBB40->unk174;
 
     actorDropBounceExpireUpdate(4.5f);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         func_807149C8(0xFF, 0xFF, 0, 0xFF);
         effectSpawnAttachedSprite(temp, D_807211D0, 1.5f);
     }
@@ -204,7 +204,7 @@ void func_806A6348(void) {
     void *temp = D_807FBB40->unk174;
 
     actorDropBounceExpireUpdate(4.5f);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         effectSpawnAttachedSprite(temp, D_807205C4, 1.0f);
     }
 }
@@ -213,7 +213,7 @@ void func_806A63A8(void) {
     void *temp = D_807FBB40->unk174;
 
     actorDropBounceExpireUpdate(4.5f);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         effectSpawnAttachedSprite(temp, D_807205E8, 1.0f);
     }
 }
@@ -222,7 +222,7 @@ void func_806A6408(void) {
     void *temp = D_807FBB40->unk174;
 
     actorDropBounceExpireUpdate(12.0f);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         effectSpawnAttachedSprite(temp, D_80721378, 2.0f);
     }
 }
@@ -239,7 +239,7 @@ void func_806A6468(void) {
 
     state = D_807FBB40->unk174;
     actorDropBounceExpireUpdate(4.5f);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         switch (D_807FBB4C->actorType) {
         case 3:
             anim = &D_807203B0;
@@ -277,7 +277,7 @@ void func_806A6574(void) {
 
     state = D_807FBB40->unk174;
     actorDropBounceExpireUpdate(4.5f);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         switch (D_807FBB4C->actorType) {
         case 3:
             anim = &D_80720EE8;
@@ -339,7 +339,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
     if (D_807FBB68 & 0x10) {
         floorOffset *= 2.0f;
     }
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->state = (u8)(s32)((BehaviourConfig *)D_807FBB40->unk124)->unk0;
         *(s16 *)((u8 *)D_807FBB40 + 0xEE) = (s16)(s32)((BehaviourConfig *)D_807FBB40->unk124)->unk4;
         D_807FBB40->yaw = *(s16 *)((u8 *)D_807FBB40 + 0xEE);
@@ -375,7 +375,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         *(f32 *)((u8 *)D_807FBB40 + 0xC0) = (f32)((f64)((randomLcgNext() / 10000) % 200) * 0.5 + 220.0 - 50.0);
         if (!(D_807FBB64 & 0x4000) && (((u32)D_807FBB40->actorType < 0x4B) || ((u32)D_807FBB40->actorType >= 0x50))) {
-            D_807FBB40->unkB8 = 30.0f;
+            D_807FBB40->speedXZ = 30.0f;
         }
         D_807FBB40->state++;
     case 2:
@@ -400,7 +400,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
                 *(f32 *)((u8 *)D_807FBB40 + 0xC0) = 50.0f;
                 break;
             case 3:
-                D_807FBB40->unkB8 = 0.0f;
+                D_807FBB40->speedXZ = 0.0f;
                 *(f32 *)((u8 *)D_807FBB40 + 0xC0) = 0.0f;
                 if (D_807FBB40->actorType == 0x8C) {
                     state->unk1 = 1;
@@ -505,12 +505,12 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
     s16 temp;
 
     state = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk60 |= 0x801000;
+    if (!(D_807FBB40->flags & 0x10)) {
+        D_807FBB40->flags |= 0x801000;
         D_807FBB40->unk16A = 0xFF;
         D_807FBB40->unk16B = 0xFF;
         D_807FBB40->unk16C = 0xFF;
-        D_807FBB40->unk60 &= ~0x8000;
+        D_807FBB40->flags &= ~0x8000;
         D_807FBB40->state = (s32)((ActorConfig *)D_807FBB40->unk124)->unk0;
         AA960_PHY->unkEE = ((ActorConfig *)D_807FBB40->unk124)->unk4;
         D_807FBB40->yaw = AA960_PHY->unkEE;
@@ -545,22 +545,22 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
         actorAppendModelSubNode(D_807FBB40, 0.0f, 0.0f, 0.0f, -1);
         switch (D_807FBB40->state) {
         case 1:
-            D_807FBB40->unkB8 = D_80750384;
+            D_807FBB40->speedXZ = D_80750384;
             AA960_PHY->unkC0 = 0.0f;
             break;
         case 2:
             AA960_PHY->unkC0 = 2000.0f;
             break;
         case 4:
-            D_807FBB40->unkB8 = 1500.0f;
+            D_807FBB40->speedXZ = 1500.0f;
             AA960_PHY->unkC0 = 4000.0f;
             break;
         case 5:
-            D_807FBB40->unkB8 = 200.0f;
+            D_807FBB40->speedXZ = 200.0f;
             AA960_PHY->unkC0 = 2000.0f;
             break;
         case 6:
-            D_807FBB40->unkB8 = 1000.0f;
+            D_807FBB40->speedXZ = 1000.0f;
             AA960_PHY->unkC0 = 2000.0f;
             break;
         }
@@ -581,21 +581,21 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
             switch (state->unk0) {
             case 0:
                 AA960_PHY->unkC0 = 1600.0f;
-                D_807FBB40->unkB8 = D_807FBB40->unkB8 / 2;
+                D_807FBB40->speedXZ = D_807FBB40->speedXZ / 2;
                 temp = 0xC8;
                 break;
             case 1:
                 AA960_PHY->unkC0 = 1200.0f;
-                D_807FBB40->unkB8 = D_807FBB40->unkB8 / 2;
+                D_807FBB40->speedXZ = D_807FBB40->speedXZ / 2;
                 temp = 0x64;
                 break;
             case 2:
                 AA960_PHY->unkC0 = 800.0f;
-                D_807FBB40->unkB8 = D_807FBB40->unkB8 / 2;
+                D_807FBB40->speedXZ = D_807FBB40->speedXZ / 2;
                 temp = 0x46;
                 break;
             case 3:
-                D_807FBB40->unkB8 = 0.0f;
+                D_807FBB40->speedXZ = 0.0f;
                 AA960_PHY->unkC0 = 0.0f;
                 temp = 0x1E;
                 if (fadeAlpha != 0) {
@@ -638,9 +638,9 @@ void actorUpdateSfxAndGround(void) {
     EffectCounter *counter;
 
     counter = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk64 |= 4;
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
         effectSpawnBurstParticleCluster(D_807FBB40);
     }
     if (counter->unk8 == 1) {
@@ -651,7 +651,7 @@ void actorUpdateSfxAndGround(void) {
     }
     actorBounceFadeInSpinUpdate(0);
     if (D_807FBB40->y < D_807FBB40->unkAC) {
-        D_807FBB40->unkB8 = 0.0f;
+        D_807FBB40->speedXZ = 0.0f;
         D_807FBB40->y = D_807FBB40->unkAC;
         ((ActorPhysics *)D_807FBB40)->unkC0 = ((ActorPhysics *)D_807FBB40)->unkC4;
     }
@@ -661,8 +661,8 @@ void actorUpdateSfxAndGround(void) {
 void effectSpawnRingBursts(Actor *, f32, f32, s32);
 
 void actorSpawnRingBurstAndUpdate(void) {
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk60 |= 0x400;
+    if (!(D_807FBB40->flags & 0x10)) {
+        D_807FBB40->flags |= 0x400;
         effectSpawnRingBursts(D_807FBB40, 20.0f, 40.0f, 0x1E);
         D_807FBB40->unkA4 = 99999.0f;
         actorUpdateFloorContactAndTilt(D_807FBB40, 0);
@@ -712,7 +712,7 @@ void actorPathCollectibleUpdate(void *unused) {
     s32 flag;
 
     state = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         if (D_807FBB40->actorType == 0x93) {
             state->unk6 = -1;
         } else {
@@ -861,7 +861,7 @@ void effectActorSparkleTick(void) {
     SfxTable table;
 
     flag = D_807FC954[gPlayerCharacterId * 94] & 1;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         actorAppendModelSubNode(D_807FBB40, 0.0f, 10.0f, 0.0f, -1);
         actorSetCollisionRadius(D_807FBB40, 175.0f);
         actorAppendModelNode(D_807FBB40, 0.0f, 10.0f, 0.0f, 80.0f, -1);
@@ -931,13 +931,13 @@ void effectActorShrinkTick(void) {
     SparkleBuffer *drawBuf;
 
     state = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         ((ActorDrawBuffer *)D_807FBB40->unk4)->unk20 = heapAlloc(0x20);
         heapClearBlock(((ActorDrawBuffer *)D_807FBB40->unk4)->unk20);
         state->unk4 = 0;
         state->unk0 = 1.0f;
-        D_807FBB40->unk60 &= ~0x8000;
-        D_807FBB40->unk60 |= 0x40000000;
+        D_807FBB40->flags &= ~0x8000;
+        D_807FBB40->flags |= 0x40000000;
         D_807FBB40->unk128 = D_807504CC;
     }
     if (D_807504D0 < D_807FBB40->unk128) {
@@ -961,8 +961,8 @@ void effectActorShrinkTick(void) {
 
 
 void func_806A8070(void) {
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk60 |= 0x40000000;
+    if (!(D_807FBB40->flags & 0x10)) {
+        D_807FBB40->flags |= 0x40000000;
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
 }

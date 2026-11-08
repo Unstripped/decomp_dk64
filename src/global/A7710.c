@@ -159,7 +159,7 @@ void hudCountdownTimerUpdate(void) {
     s32 secsLeft;
 
     timer = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         if (D_807FBB40->unk15F == 6) {
             _sprintf(text, "%.2d", timer->unkC);
         } else {

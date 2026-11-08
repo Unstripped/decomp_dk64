@@ -260,7 +260,7 @@ void func_806F10E8(Actor *arg0) {
             actorCopyPoseAndScale(D_807FBB44, arg0, ((F5N3ActorSub10E8 *) arg0->unk4)->unk38 * 1.25);
             ((F5N3ActorState *) D_807FBB44)->unkE4 = ((F5N3ActorState *) arg0)->unkE4;
             ((F5N3ActorState *) D_807FBB44)->unkE8 = ((F5N3ActorState *) arg0)->unkE8;
-            D_807FBB44->unk60 |= 0x40000000;
+            D_807FBB44->flags |= 0x40000000;
             break;
         case 3:
         case 0xC5:
@@ -337,7 +337,7 @@ void func_806F1380(Actor *arg0) {
     f32 temp;
 
     scriptReadU32(&temp);
-    ((F5AActorSub4 *)arg0->unk4)->unk88 = (s32)(arg0->unkB8 - temp);
+    ((F5AActorSub4 *)arg0->unk4)->unk88 = (s32)(arg0->speedXZ - temp);
 }
 
 typedef struct F5APlayerState {
@@ -355,7 +355,7 @@ void func_806F13C8(Actor *arg0) {
 
     scriptReadU8(&temp);
     ((F5AActorSub4 *)arg0->unk4)->unk88 =
-        playerSelectMoveTier(arg0, arg0->unkB8, arg0->unkB8, F5A_PS->unk4C, D_807FD584) - temp;
+        playerSelectMoveTier(arg0, arg0->speedXZ, arg0->speedXZ, F5A_PS->unk4C, D_807FD584) - temp;
 }
 
 typedef struct F5APlayerCoefficient {
@@ -370,8 +370,8 @@ void func_806F142C(void) {
     f32 value;
 
     playerResumeLocomotion();
-    value = D_807FBB40->unkB8;
-    D_807FBB40->unkB8 =
+    value = D_807FBB40->speedXZ;
+    D_807FBB40->speedXZ =
         D_807FD618[gCurrentPlayerIndex].value * (value - (value / 2)) + (value / 2);
 }
 
@@ -940,7 +940,7 @@ void func_806F22A8(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
         } else if (fs0 < -2048.0f) {
             fs0 = -(4096.0f + fs0);
         }
-        fs2 = (f32) ((f64) ((1.0f - (arg0->unkB8 / 130.0f)) * D_80752F4C) + (2e-05 * (f64) fs0));
+        fs2 = (f32) ((f64) ((1.0f - (arg0->speedXZ / 130.0f)) * D_80752F4C) + (2e-05 * (f64) fs0));
     }
     for (i = 0; i != 11; i++) {
         if (active != 0) {
@@ -1297,7 +1297,7 @@ void func_806F3190(Actor *arg0, u16 arg1) {
     f32 v;
 
     sp74 = arg0->unk174;
-    if ((arg0->state != 0x77) && (arg0->unk60 & 4)) {
+    if ((arg0->state != 0x77) && (arg0->flags & 4)) {
         sub = (F56CSub *)arg0->unk4;
         sp64 = sub->unk1C;
         sp60 = sub->unk20;

@@ -102,15 +102,15 @@ void actorPhotoUpdate(void) {
 
     subState = D_807FBB40->unk174;
     pad = 0;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         subState->unk10 = 0x5A;
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
         D_807FBB40->unk12A = 0x3E8;
         subState->unk4 = (s16 *)func_806FFF88();
         func_80613C48(D_807FBB40, 0x40B, 0, 0);
         scriptSetActorRampTarget(D_807FBB40, 0.15f, 0);
     }
-    D_807FBB40->unk60 &= ~4;
+    D_807FBB40->flags &= ~4;
     frameElapsed = 0x5A - subState->unk10;
     if (frameElapsed == 0xD) {
         sfxPlayActorSound(D_807FBB40, 0x222, 0, 0, 0, 0xFF, 1.0f, -1);
@@ -151,7 +151,7 @@ void actorPhotoUpdate(void) {
     if (subState->unk10 != 0) {
         subState->unk10--;
     } else {
-        D_807FBB40->unk60 &= ~0x8000;
+        D_807FBB40->flags &= ~0x8000;
         D_807FBB40->unk128 -= 0xA;
         if (D_807FBB40->unk128 <= 0) {
             pad = 1;
@@ -198,7 +198,7 @@ void func_806998F0(void) {
 extern Actor *D_807FBB40;
 
 void func_80699914(void) {
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk12A = 0x3E8;
     }
     actorSagWaveUpdate(0x1C, 1);
@@ -268,7 +268,7 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
     f32 dist;
 
     state = (WaveState *)D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         ((NodeListHead *)D_807FBB40->unk4)->unk24 = (WaveNode *)heapAlloc((numNodes + 1) * 0x10);
         for (i = 0; i < numNodes; i++) {
             ((WaveNode *)((NodeListHead *)D_807FBB40->unk4)->unk24)[i].unk0 = i;
@@ -602,11 +602,11 @@ void actorSagSingleUpdate(void) {
     s32 flags;
     s32 i;
 
-    flags = D_807FBB40->unk60;
+    flags = D_807FBB40->flags;
     acc = 0.0f;
     state = (ProximityState *)D_807FBB40->unk174;
     if (!(flags & 0x10)) {
-        D_807FBB40->unk60 = flags | 0x400;
+        D_807FBB40->flags = flags | 0x400;
         ((ModelNodeList *)D_807FBB40->unk4)->unk24 = (ModelNodeRecord *)heapAlloc(0x20);
         ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk0 = 1;
         ((ModelNodeList *)D_807FBB40->unk4)->unk24->unk1 = 0xFF;
@@ -702,12 +702,12 @@ void actorSpotLightUpdate(void) {
     SpotLightState *lightState;
 
     lightState = (SpotLightState *)D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         func_80613C48(D_807FBB40, 0x402, 0, 1.0f);
         if (gCurrentMap == 6) {
             actorScriptStart(D_807FBB40, 0x297);
         }
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
         lightState->unk0 = 0;
         lightState->unk4 = 1.0f;
     }
@@ -727,7 +727,7 @@ void actorSpotLightUpdate(void) {
         if (lightState->unk4 > 1.0) {
             lightState->unk4 = 1.0f;
         }
-        if (D_807FBB40->unk60 & 0x10) {
+        if (D_807FBB40->flags & 0x10) {
             if ((f64)((SpotLightConfig *)D_807FBB40->unk124)->unk10 != 0.0 || (f64)((SpotLightConfig *)D_807FBB40->unk124)->unk14 != 0.0) {
                 lightSetFovAngles(((SpotLightConfig *)D_807FBB40->unk124)->unk10, ((SpotLightConfig *)D_807FBB40->unk124)->unk14);
             }
@@ -794,7 +794,7 @@ void func_8069B010(void) {
     s32 *p = D_807FBB40->unk174;
     LinkedActorView *link;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk6A &= 0xFFFE;
         D_807FBB40->unk144 = 2;
         actorSetCollisionRadius(D_807FBB40, 60.0f);
@@ -805,7 +805,7 @@ void func_8069B010(void) {
         func_8071498C(effectScaleSpinUpdate);
         func_80714C08(D_80720E14, 0.9f, D_807FBB40, 1, 2);
         *p = D_8076A068;
-        D_807FBB40->unk60 |= 0x80000;
+        D_807FBB40->flags |= 0x80000;
         collisionCheckActorFloor(D_807FBB40, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, &D_807FBB40->unkA4);
     }
     func_8067ACB4(D_807FBB40);
@@ -855,9 +855,9 @@ void func_8069B3FC(void) {
     s32 j;
     void *sel;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk144 = 1;
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
         actorScriptStart(D_807FBB40, 0x298);
         *p = 0;
         sfxAllocateChannel(0x3B, 1.0f);
@@ -907,7 +907,7 @@ void func_8069B3FC(void) {
                     *p = 0;
                 }
                 D_807FBB4C->unk155[0]++;
-                D_807FBB40->unk60 &= ~0x8000;
+                D_807FBB40->flags &= ~0x8000;
                 D_807FBB40->unk128 = 0xFF;
                 D_807FBB40->unk155[0]++;
                 break;
@@ -1040,7 +1040,7 @@ void textMarkerUpdateMatrix(void) {
     void (*volatile callback)(void);  // FAKE: retain the callback's original stack home
 
     markerView = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         *(s16 *)((u8 *)D_807FBB40 + 0xFA) = 0x270F;
         D_807FBB40->unkA4 = 99999.0f;
         actorUpdateFloorContactAndTilt(D_807FBB40, 0);
@@ -1124,18 +1124,18 @@ void textMarkerUpdateMatrix(void) {
         D_807FBB40->yaw = *(s16 *)((u8 *)&D_807FBB70 + 0x36);
         *(s16 *)((u8 *)D_807FBB40 + 0xEE) = *(s16 *)((u8 *)&D_807FBB70 + 0x36);
         *(f32 *)((u8 *)D_807FBB40 + 0xC0) = *(f32 *)((u8 *)&D_807FBB70 + 0x30);
-        D_807FBB40->unkB8 = (f32)*(s16 *)((u8 *)&D_807FBB70 + 0x34);
+        D_807FBB40->speedXZ = (f32)*(s16 *)((u8 *)&D_807FBB70 + 0x34);
         actorCollisionEventsCancel(markerView->unk14, 1);
         if (D_807FBB40->actorType == 0x43 && gCurrentMap == 0x1E) {
-            D_807FBB40->unk60 |= 0x200000;
+            D_807FBB40->flags |= 0x200000;
             markerView->unk0 = D_8076A068;
         }
     }
     if (D_807FBB40->actorType == 0x55) {
         if (actorHasActiveMovementFlags(D_807FBB40) != 0) {
-            D_807FBB40->unk60 |= 0x400;
+            D_807FBB40->flags |= 0x400;
         } else {
-            D_807FBB40->unk60 &= ~0x400;
+            D_807FBB40->flags &= ~0x400;
         }
     }
     func_8067ACB4(D_807FBB40);
@@ -1156,7 +1156,7 @@ void textMarkerUpdateMatrix(void) {
     case 0:
         D_807FBB40->unk144 = 2;
         D_807FBB40->unk64 |= 8;
-        D_807FBB40->unk60 |= 0x80000000;
+        D_807FBB40->flags |= 0x80000000;
         D_807FBB40->unk68 |= 1;
         if (actorHasCallbackTargetThisFrame() != 0) {
             D_807FBB40->state = 4;
@@ -1165,12 +1165,12 @@ void textMarkerUpdateMatrix(void) {
     case 1:
         D_807FBB40->unk68 &= 0xFFFE;
         D_807FBB40->unk64 &= ~8;
-        D_807FBB40->unk60 &= 0x7FFFFFFF;
+        D_807FBB40->flags &= 0x7FFFFFFF;
         markerView->unk20 = (f32)(((f64)markerView->unk14->yaw / 4095.0) * 360.0);
         break;
     case 2:
         D_807FBB40->unk64 &= ~8;
-        D_807FBB40->unk60 &= 0x7FFFFFFF;
+        D_807FBB40->flags &= 0x7FFFFFFF;
         if (markerView->unk1C != 0) {
             markerView->unk1C--;
         }
@@ -1189,7 +1189,7 @@ void textMarkerUpdateMatrix(void) {
             (*(u8 *)((u8 *)D_807FBB40 + 0x155))++;
         }
         *(f32 *)((u8 *)D_807FBB40 + 0xC0) = -200.0f;
-        D_807FBB40->unkB8 = 0.0f;
+        D_807FBB40->speedXZ = 0.0f;
         D_807FBB40->unk68 |= 1;
         if (actorHasCallbackTargetThisFrame() != 0) {
             D_807FBB40->state = 4;
@@ -1211,7 +1211,7 @@ void textMarkerUpdateMatrix(void) {
         }
         D_807FBB40->unk68 &= 0xFFFE;
         D_807FBB40->unk64 &= ~8;
-        D_807FBB40->unk60 &= 0x7FFFFFFF;
+        D_807FBB40->flags &= 0x7FFFFFFF;
         break;
     case 4:
         if (D_807FBB40->actorType == 0x3D && markerView->unk28 == 0) {
@@ -1282,12 +1282,12 @@ void textMarkerUpdateMatrix(void) {
             D_807FBB40->state = 0xA;
             D_807FBB40->unk138 = 0;
             D_807FBB40->unk144 = 1;
-            D_807FBB40->unk60 &= ~4;
+            D_807FBB40->flags &= ~4;
         }
         break;
     case 5:
         D_807FBB40->unk64 &= ~8;
-        D_807FBB40->unk60 &= 0x7FFFFFFF;
+        D_807FBB40->flags &= 0x7FFFFFFF;
         D_807FBB40->unk68 &= 0xFFFE;
         markerView->unk2A = markerView->unk2A + 2;
         if (markerView->unk2A >= 0xFB) {
@@ -1347,9 +1347,9 @@ void textMarkerUpdateMatrix(void) {
         if (D_807FBB40->actorType == 0x3D) {
             if (D_807FBB40->unk110 == 1) {
                 if (D_807FBB94) {}  // FAKE: ghost candidate (see the particleLoopIdx loop), keeps the D_807FBB94 web live across the gCurrentMap switch
-                D_807FBB40->unk60 |= 0x200000;
+                D_807FBB40->flags |= 0x200000;
             } else {
-                D_807FBB40->unk60 &= ~0x200000;
+                D_807FBB40->flags &= ~0x200000;
             }
         }
         break;
@@ -1404,7 +1404,7 @@ void actorUpdateTimerBarAndRange(void) {
     f32 dist;
     u32 val;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         frac = D_807FBB40->unk4->unk34 / 0.15;
         frac = frac - 1.0;
         if (frac < 0.0) {
@@ -1423,22 +1423,22 @@ void actorUpdateTimerBarAndRange(void) {
     dy = D_807FBB40->y - ((CameraPos *)gPlayerSlots)->unk214;
     dist = dx * dx + dy * dy;
     if (dz * dz + dist < 18000.0) {
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
     } else {
-        D_807FBB40->unk60 &= ~0x400;
+        D_807FBB40->flags &= ~0x400;
     }
     textMarkerUpdateMatrix();
 }
 
 void actorSpawnEffectAndTick(void) {
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk12C[4] = 0x3C;
         D_807FBB40->unk12C[5] = 0x3C;
         actorListSpawnNodeEntryDefault(0x83, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z,
                       0, 1.0f, (s32)D_807FBB40);
     }
     textMarkerUpdateMatrix();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         if (*(s32 *)((u8 *)D_807FBB40->unk124 + 0x8) == 1) {
             if (flagGet(0xFD, 0) != 0) {
                 D_807FBB40->unk132 = 4;
@@ -1450,7 +1450,7 @@ void actorSpawnEffectAndTick(void) {
 void func_8069D018(void) {
     Actor *actor = D_807FBB40;
 
-    if (!(actor->unk60 & 0x10)) {
+    if (!(actor->flags & 0x10)) {
         actor->unk12A = 0x2BC;
     }
     textMarkerUpdateMatrix();
@@ -1682,7 +1682,7 @@ void textMarkerUpdate(void) {
         renderCallbacksRegister(textMarkerRender, D_807FBB40, 3);
         return;
     }
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk168 = *(u16 *)(model + 4);
     }
     switch (D_807FBB40->state) {
@@ -1782,7 +1782,7 @@ void textUpdateThreeDigitCounter(void) {
     u16 val;
 
     model = (s32 *)D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10) || (*(u32 *)((u8 *)gActivePlayerState + 0x1F0) & 0x20000)) {
+    if (!(D_807FBB40->flags & 0x10) || (*(u32 *)((u8 *)gActivePlayerState + 0x1F0) & 0x20000)) {
         t = func_805FF030(D_8076A0AB, 0);
         if (t >= 8) {
             t = 0;
@@ -1795,10 +1795,10 @@ void textUpdateThreeDigitCounter(void) {
         D_807FBB40->unk16A = 0xFF;
         D_807FBB40->unk16B = 0xFF;
         D_807FBB40->unk16C = 0xFF;
-        D_807FBB40->unk60 |= 0x800000;
+        D_807FBB40->flags |= 0x800000;
         *(u32 *)((u8 *)gActivePlayerState + 0x1F0) &= ~0x20000;
         if (val >= *(u16 *)((u8 *)D_807446C0 + unk)) {
-            D_807FBB40->unk60 &= ~0x8000;
+            D_807FBB40->flags &= ~0x8000;
             D_807FBB40->unk128 = 0;
             D_807FBB40->unk144 = 1;
             csModelStateSetFirstByte(8, 2);
@@ -1819,7 +1819,7 @@ void textUpdateTwoDigitCounter(void) {
 
     actor = D_807FBB40;
     model = (s32 *)actor->unk174;
-    if (!(actor->unk60 & 0x10)) {
+    if (!(actor->flags & 0x10)) {
         model[0] = textBuildDigitNode(0x14, (void *)model[0], 0, actor->unk155[0] / 10, 0x10);
         model[1] = textBuildDigitNode(0x14, (void *)model[1], 1, D_807FBB40->unk155[0] % 10, 0x10);
         actor = D_807FBB40;
@@ -1832,7 +1832,7 @@ void func_8069E018(void) {
 }
 
 void actorPlaySoundAndFinish(void) {
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         actorScriptStart(D_807FBB40, 0x299);
     }
     actorUpdateModelMatrix(D_807FBB40, 0);
@@ -1849,7 +1849,7 @@ extern s8 D_807F6950;
 void func_8069E088(void) {
     s16 unk;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         func_80613C48(D_807FBB40, 0x5ED, 0.0f, 0.0f);
     }
     D_807FBB40->unk15E = 0x14;

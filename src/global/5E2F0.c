@@ -308,7 +308,7 @@ void lightApplyToActors(void) {
             lightCount++;
             for (j = 0; j < gActiveActorCount; j++) {
                 actor = gActiveActors[j].actor;
-                if (actor->unk60 & 0x2000) {
+                if (actor->flags & 0x2000) {
                     continue;
                 }
                 switch (D_807F7500[i].unk39) {
@@ -348,7 +348,7 @@ void lightApplyToActors(void) {
                                          (s16)(s32)D_807F7500[i].z, 0xFF, (u32)((f32)D_807F7500[i].unk36 * dot),
                                          (u32)((f32)D_807F7500[i].unk37 * dot), (u32)((f32)D_807F7500[i].unk38 * dot),
                                          0);
-                        if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
+                        if ((actor->flags & 0x01000000) && (actor->flags & 4)) {
                             dist = sqrtf(((D_807F7500[i].x - actor->x) * (D_807F7500[i].x - actor->x)) +
                                          ((D_807F7500[i].z - actor->z) * (D_807F7500[i].z - actor->z)));
                             dist2d = (dist != 0) ? dist : 0.001f;
@@ -386,7 +386,7 @@ void lightApplyToActors(void) {
                         edgeDist = 0.1f;
                     }
                     maxDist = D_807F7500[i].unk14 * 1.3f;
-                    if ((actor->unk60 & 0x01000000) && (edgeDist < maxDist) && (actor->unk60 & 4)) {
+                    if ((actor->flags & 0x01000000) && (edgeDist < maxDist) && (actor->flags & 4)) {
                         dist2d = sqrtf(((D_807F7500[i].x - actor->x) * (D_807F7500[i].x - actor->x)) +
                                        ((D_807F7500[i].z - actor->z) * (D_807F7500[i].z - actor->z)));
                         if (dist2d == 0.0f) {
@@ -419,7 +419,7 @@ void lightApplyToActors(void) {
                         commandQueuePush(actor, (s16)(s32)D_807F7500[i].x, (s16)(s32)D_807F7500[i].y,
                                          (s16)(s32)D_807F7500[i].z, 0xFF, D_807F7500[i].unk36, D_807F7500[i].unk37,
                                          D_807F7500[i].unk38, 0);
-                        if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
+                        if ((actor->flags & 0x01000000) && (actor->flags & 4)) {
                             alpha = actor->unk128 / 255.0;
                             billboardSubmit(actor, 0x3C9, 0x40, 0x40, (s32)((f32)actor->unk16E[0] * shadowScale[0]),
                                             (s32)((f32)actor->unk16E[1] * shadowScale[1]), 1, 0x64,
@@ -434,7 +434,7 @@ void lightApplyToActors(void) {
                                              (s16)(s32)D_807F7500[i].z, 0xFF, (u32)((f32)D_807F7500[i].unk36 * factor),
                                              (u32)((f32)D_807F7500[i].unk37 * factor),
                                              (u32)((f32)D_807F7500[i].unk38 * factor), 0);
-                            if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
+                            if ((actor->flags & 0x01000000) && (actor->flags & 4)) {
                                 alpha = actor->unk128 / 255.0;
                                 billboardSubmit(actor, 0x3C9, 0x40, 0x40,
                                                 (s32)((f32)actor->unk16E[0] * shadowScale[0]),
@@ -452,7 +452,7 @@ void lightApplyToActors(void) {
     for (i = 0; i < gActiveActorCount; i++) {
         if (litActors[i] == 0) {
             actor = gActiveActors[i].actor;
-            if ((actor->unk60 & 0x01000000) && (actor->unk60 & 4)) {
+            if ((actor->flags & 0x01000000) && (actor->flags & 4)) {
                 if (actor->unk4 != NULL) {
                     shadowScale[0] = actor->unk4->unk34;
                     shadowScale[1] = actor->unk4->unk3C;

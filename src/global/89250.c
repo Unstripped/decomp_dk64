@@ -288,7 +288,7 @@ void effectSpawnRing(void) {
 }
 
 void func_80685210(f32 scale, s16 speedThreshold, s16 bone) {
-    if (((gFrameCounter % 3) == 0) && ((f32)speedThreshold < D_807FBB40->unkB8)) {
+    if (((gFrameCounter % 3) == 0) && ((f32)speedThreshold < D_807FBB40->speedXZ)) {
         func_80714998(2);
         func_807149B8(1);
         func_8071498C(func_80717D4C);
@@ -314,7 +314,7 @@ void actorScaleGrowthUpdate(void) {
     Actor174_5390 *extraData = D_807FBB40->unk174;
     Struct_5390 scales = D_8074E88C;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         extraData->unk0 = D_807FBB40->unk4->unk38;
     }
     extraData->unk4++;
@@ -460,7 +460,7 @@ void effectSpawnScatterRandom(void *texture, u8 colorMode, f32 scale, u8 count, 
 
 void actorUpdateEffects(Actor *actor) {
     if (!(actor->unk64 & 4)) {
-        if ((actor->unk60 & 0x10) && ((actor->unk6A ^ actor->unk6C) & 4)) {
+        if ((actor->flags & 0x10) && ((actor->unk6A ^ actor->unk6C) & 4)) {
             effectSpawnDebrisParticles(actor, 0.0f, actor->x, actor->unkAC, actor->z);
         }
         if (actor->unk6A & 4) {
@@ -521,14 +521,14 @@ void effectActorCheckGroundScaleSpawn(Actor *actor) {
         }
         if ((actor->unkAC - floorYOffset) <= actor->y) {
             if (!(gFrameCounter & 3)) {
-                shouldSpawn = (f64)actor->unkB8 != 0.0;
+                shouldSpawn = (f64)actor->speedXZ != 0.0;
                 if (*(ActorFloorContact **)actor->unk118 != NULL && (*(ActorFloorContact **)actor->unk118)->unk10 != 0) {
                     shouldSpawn = 1;
                 }
             }
             if (shouldSpawn) {
                 func_80714950(1);
-            } else if (((f64)actor->unkB8 == 0.0) && (((u32)gFrameCounter % 24 == 0) || ((f64)actor->unkBC != 0.0))) {
+            } else if (((f64)actor->speedXZ == 0.0) && (((u32)gFrameCounter % 24 == 0) || ((f64)actor->prevSpeedXZ != 0.0))) {
                 shouldSpawn = 1;
             }
             if (shouldSpawn) {
@@ -591,7 +591,7 @@ void effectSpawnDebrisParticles(Actor *actor, f32 scaleParam, f32 posX, f32 posY
         if (actor->unk6A & 4) {
             f32 limit;
 
-            if (actor->unkC0 > -10.0f || (actor->unk6A & actor->unk6C & 1)) {
+            if (actor->speedY > -10.0f || (actor->unk6A & actor->unk6C & 1)) {
                 f = 0.0f;
             } else {
                 f = actor->unkA0 - actor->y;
@@ -707,9 +707,9 @@ void effectSpawnChildAtNode(u8 node, s16 rotY, s16 rotZ) {
 }
 
 void effectActorGrowthTick(void) {
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk60 &= ~0x8000;
-        D_807FBB40->unk60 |= 0x800000;
+    if (!(D_807FBB40->flags & 0x10)) {
+        D_807FBB40->flags &= ~0x8000;
+        D_807FBB40->flags |= 0x800000;
         D_807FBB40->unk16A = 0xFF;
         D_807FBB40->unk16B = ((randomNonNegative() >> 15) % 75) + 0xB4;
         D_807FBB40->unk16C = 0x28;
@@ -783,7 +783,7 @@ void func_80687400(void) {
 
 void actorSpawnAttachment(Actor *parent, f32 scaleMultiplier) {
     actorSpawn(0xB3, 0x5D);
-    D_807FBB44->unk60 |= 0x400;
+    D_807FBB44->flags |= 0x400;
     actorScriptStart(D_807FBB44, 0x334);
     actorCopyPoseAndScale(D_807FBB44, parent, parent->unk4->unk38 * scaleMultiplier);
 }

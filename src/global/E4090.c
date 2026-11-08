@@ -2377,7 +2377,7 @@ s32 actorAnyActiveHasFlag2000000(void) {
     ret = 0;
     for (i = 0; i < gActiveActorCount && ret == 0; i++) {
         actor = gActiveActors[i].actor;
-        ret = actor->unk60 & 0x2000000;
+        ret = actor->flags & 0x2000000;
     }
     return ret;
 }
@@ -4056,7 +4056,7 @@ void func_806E918C(void) {
             actorGetNodePos(G30_M->unk88, 4, &x2, &y2, &z2);
             camSetFixedView(G30_M->unk104, x2, y2 + 8.0f, z2, (x2 - x1) + x2, (y2 - y1) + y2 + 5.0f, (z2 - z1) + z2, 1);
             gActivePlayerState->unk1F0 |= 2;
-            D_807FBB40->unk60 |= 0x400;
+            D_807FBB40->flags |= 0x400;
         } else {
             if (gActivePlayerState->unk1F0 & 2) {
                 gActivePlayerState->unk1F0 &= ~2;
@@ -4065,7 +4065,7 @@ void func_806E918C(void) {
                     func_80614E78(D_807FBB40, 0x84);
                 }
             }
-            D_807FBB40->unk60 &= ~0x400;
+            D_807FBB40->flags &= ~0x400;
         }
     }
 }

@@ -105,7 +105,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
             switch (D_807FBB40->actorType) {
             case 0xAF:
                 if (D_807444EC == 1) {
-                    if (D_807FBB40->unk60 & 4) {
+                    if (D_807FBB40->flags & 4) {
                         D_807FBB40->state = 0x38;
                         BA790A->unk155 = 0;
                     } else {
@@ -293,7 +293,7 @@ void func_806B640C(void) {
     s32 a;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         actorClearNodeFlag(D_807FBB40, 3);
         *p = -BA790S9C->unkA;
     }

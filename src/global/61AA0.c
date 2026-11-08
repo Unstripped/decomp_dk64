@@ -243,7 +243,7 @@ block_21:
 
     guRotateF(mtx2, (f32)((rotY * 360) / 4095), 0.0f, 1.0f, 0.0f);
     guMtxCatF(mtx1, mtx2, mtx1);
-    if (actor->unk60 & 2) {
+    if (actor->flags & 2) {
         if (ACTOR_FIELD(s16, 0xDA) < 1000) {
             guRotateF(mtx2, -((f64)ACTOR_FIELD(s16, 0xD8) / 4095.0 * 360.0), 0.0f, 1.0f, 0.0f);
             guMtxCatF(mtx1, mtx2, mtx1);

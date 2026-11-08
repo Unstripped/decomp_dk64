@@ -335,8 +335,8 @@ u8 func_80665AAC(Actor *actor) {
 }
 
 void func_80665ACC(Actor *actor) {
-    actor->unk60 |= 2;
-    actor->unk60 |= 0x20;
+    actor->flags |= 2;
+    actor->flags |= 0x20;
 }
 
 f32 func_80611BB4(f32, f32);

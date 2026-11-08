@@ -581,7 +581,7 @@ void actorListUpdateSpawns(void) {
             if (node->unk48 != 0) {
                 if (node->unk60(node) != 0) {
                     actor = node->unk44;
-                    if (!(actor->unk60 & 0x200000)) {
+                    if (!(actor->flags & 0x200000)) {
                         actorDeregisterActive(actor);
                         actor = node->unk44;
                         node->unk48 = 0;
@@ -1019,7 +1019,7 @@ s32 actorListDespawnIfForced(ActorListNode *node) {
 
 void func_8068A2FC(Actor *actor) {
     actor->unk128 = 0;
-    actor->unk60 &= ~0x8000;
+    actor->flags &= ~0x8000;
     actor->unk144 = 1;
     actor->unk138 = 0;
     actor->state = 0x63;

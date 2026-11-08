@@ -109,7 +109,7 @@ void func_806B91E0(void) {
     s16 *heightTarget = BDEE0AA->unk178;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         behaviourSetAnimIds(0x321, 0x322, 0x323);
         func_80724CA4(0x11, 1);
         actorClearNodeFlag(D_807FBB40, 4);
@@ -166,7 +166,7 @@ void func_806B91E0(void) {
             D_807FBB40->unk155[0]++;
         case 1:
             actorMoveWithinZone(D_807FBB40->state, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
-            if (D_807FBB40->unkB8 < 1.0f) {
+            if (D_807FBB40->speedXZ < 1.0f) {
                 D_807FBB40->unk155[0]++;
             }
             break;
@@ -179,7 +179,7 @@ void func_806B91E0(void) {
         }
         break;
     case 0x27:
-        BDEE0AA->unk4->unk1C->unk6 -= D_807FBB40->unkB8 * 50.0f;
+        BDEE0AA->unk4->unk1C->unk6 -= D_807FBB40->speedXZ * 50.0f;
         actorMoveWithinZone(0x23, D_807FDC94->x, D_807FDC94->z, 0x200, 0.0f);
         switch (D_807FBB40->unk155[0]) {
         case 0:
@@ -221,8 +221,8 @@ void func_806B91E0(void) {
             } else {
                 animFlags = 0x20;
                 actorUpdateAnimSpeedFromSpeed(0);
-                if (D_807FBB40->unkB8 != 0.0f) {
-                    D_807FBB40->unkB8 = D_807FBB40->unkB8 - 1.0f;
+                if (D_807FBB40->speedXZ != 0.0f) {
+                    D_807FBB40->speedXZ = D_807FBB40->speedXZ - 1.0f;
                 } else {
                     D_807FBB40->state = 0x18;
                     D_807FBB40->unk155[0] = 0;
@@ -232,7 +232,7 @@ void func_806B91E0(void) {
                 }
             }
         }
-        BDEE0AA->unk4->unk1C->unk6 -= D_807FBB40->unkB8 * 50.0f;
+        BDEE0AA->unk4->unk1C->unk6 -= D_807FBB40->speedXZ * 50.0f;
         actorMoveWithinZone(D_807FBB40->state, D_807FDC94->x, D_807FDC94->z, animFlags, 0.0f);
         break;
     case 2:
@@ -268,11 +268,11 @@ void func_806B91E0(void) {
         func_8072B7CC(0x322);
         break;
     }
-    if (D_807FBB40->unkB8 != 0.0f) {
+    if (D_807FBB40->speedXZ != 0.0f) {
         if (BDEE0AA->unk70 == -1) {
             sfxPlayActorSound(D_807FBB40, 0x10A, 0, 1, 1, 0xFF, 1.0f, 0);
         } else {
-            f64 t = ((f64)D_807FBB40->unkB8 * 0.6) / 40.0;
+            f64 t = ((f64)D_807FBB40->speedXZ * 0.6) / 40.0;
             u8 idx = D_80770629[BDEE0AA->unk70 * 2];
 
             D_80770B68[idx] = (t < 0.0 ? 0.0 : t) + 0.4;
@@ -389,7 +389,7 @@ void func_806BA130(void) {
     BDEE0S90->unk4 = D_807FBB4C;
     actorScriptStart(D_807FBB40, BDEE0S98->unk2A);
     D_807FBB40->yaw = ((randomNonNegative() >> 15) % 1024) + D_807FBB4C->yaw - 0x200;
-    D_807FBB40->unkB8 = ((randomNonNegative() >> 15) % 100) + 0x32;
+    D_807FBB40->speedXZ = ((randomNonNegative() >> 15) % 100) + 0x32;
     BDEE0AA->unkC0 = ((randomNonNegative() >> 15) % 150) + 0x64;
 }
 
@@ -470,7 +470,7 @@ s32 func_806BA240(u8 action, s16 animId) {
                 }
             } else if (D_807FBD70 == 4) {
                 BDEE0S90->unk16 = ((BDEE0Sub4 *)D_807FDC94->unk4)->unk0->unk10;
-                D_807FBB40->unk60 |= 0x20000000;
+                D_807FBB40->flags |= 0x20000000;
                 if (BDEE0AA->unkF0 == 0) {
                     BDEE0AA->unkF0 = 0x28;
                     func_80714CC0(D_8071FB34, 2.0f, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z);
@@ -638,7 +638,7 @@ u8 pivotZ;
             D_807FDC90->unk2C = 0xA6;
             s1->unk4 = 0x32;
         }
-        func_806BA76C(D_807FBB40->unkB8 * 5.0f);
+        func_806BA76C(D_807FBB40->speedXZ * 5.0f);
         switch (D_807FBB40->state) {
         case 4:
             s1->unk0 = s1->unk0 + (-s1->unk0) * 0.3;
@@ -729,7 +729,7 @@ u8 pivotZ;
 
 void func_806BB32C(void) {
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk16A = 0xFA;
         D_807FBB40->unk16B = 0xFA;
         D_807FBB40->unk16C = 0xFA;
@@ -752,11 +752,11 @@ s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void func_806BB400(void) {
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         playerSetLargeModeScale(0.525f);
-        D_807FBB4C->unk60 |= 0x400;
+        D_807FBB4C->flags |= 0x400;
         D_807FBB4C->unk12A = 0x7D0;
-        D_807FBB40->unk60 &= ~4;
+        D_807FBB40->flags &= ~4;
         actorSetUniformScale(D_807FBB40, 1.0f);
         D_807FBB40->unk15F = 0;
         D_807FBB40->yaw = mathAngleBetweenPoints2D(D_807FBB4C->x, D_807FBB4C->z, D_807FBB40->x, D_807FBB40->z);
@@ -894,7 +894,7 @@ void func_806BB874(void) {
     x = (randomNonNegative() >> 15) % 100 + 0x64;
     y = (randomNonNegative() >> 15) % 250 + 0xC8;
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         BDEE0A->unk130 = 0x3C;
         BDEE0A->unk131 = 0x3C;
         D_807FBB40->unk12A = 0x3E8;
@@ -917,7 +917,7 @@ void func_806BB874(void) {
         switch (BDEE0A->unk155) {
         case 0:
             if (D_807FDC90->unk2C-- < 0x3C) {
-                D_807FBB40->unk60 |= 0x400;
+                D_807FBB40->flags |= 0x400;
                 actorScriptStart(D_807FBB40, 0x3DD);
                 BDEE0A->unk155++;
             }
@@ -988,7 +988,7 @@ void func_806BB874(void) {
             if (BDEE0A->unk155) {
                 actorSpawnJitteredChild((u8)(tbl.b[BDEE0A->unk155--] + 0x22), (s16)(t * 8 + 0x64), (s16)(t * 20 + 0xFA), D_807FDCA0->unk1C);
             } else {
-                D_807FBB40->unk60 &= 0xFFFF7FFF;
+                D_807FBB40->flags &= 0xFFFF7FFF;
                 D_807FBB40->unk144 = 1;
                 D_807FBB40->state++;
                 camSetTarget(gCamActor, D_807FBB40, 4, 0x1129, 0x264, 0, 0, 0xAF, 0, 0, 1.0f);
@@ -1017,7 +1017,7 @@ void func_806BB874(void) {
             sfxStopChannel(0x68, 0);
             csModelStateSetFirstByte(0x7C, 0xA);
             D_807FBB4C->unk12A = 0x1F4;
-            D_807FBB4C->unk60 &= ~0x400;
+            D_807FBB4C->flags &= ~0x400;
             D_807FBB40->unk144 = 0x24;
             camStartPath(D_807FBB40, 0x1F, 5);
         }

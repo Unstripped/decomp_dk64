@@ -42,9 +42,9 @@ void func_806BD170(void) {
         if (flagGet(i + 0x1BC, 0) == 0) {
             actorSpawn(0x14E, 0xCD);
             D_807FBB44->unk12A = 0x7D0;
-            D_807FBB44->unk60 |= 0x800400;
+            D_807FBB44->flags |= 0x800400;
             pos = i * 0x200 + 0x104;
-            D_807FBB44->unk60 &= 0xFFFF7FFF;
+            D_807FBB44->flags &= 0xFFFF7FFF;
             D_807FBB44->unk16A = 0xFF;
             D_807FBB44->unk16B = 0xFF;
             D_807FBB44->unk16C = 0xFF;
@@ -122,18 +122,18 @@ void actorNodeRingUpdate(void) {
     s8 *cnt = &D_807506B4;
     s8 n;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         if (func_806BDD2C() != 0) {
             D_807FBB40->state = 0x40;
             return;
         }
         D_807FBB40->unk12A = 0x7D0;
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
         v3 = 0;
         D_807506B4 = 0; actorSpawn(0x73, 0xC4, &D_807FBB40);
         actorCopyPoseAndScale(D_807FBB44, D_807FBB40, D_807FBB40->unk4->unk38);
         D_807FBB44->unk64 |= 0x20;
-        D_807FBB44->unk60 |= 0x400;
+        D_807FBB44->flags |= 0x400;
         D_807FBB44->unk12A = 0x7D0;
         nodePtr->unk0 = D_807FBB44;
         D_807FC8D4 = 1000.0f;

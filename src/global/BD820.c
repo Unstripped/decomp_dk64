@@ -145,7 +145,7 @@ void func_806B904C(void) {
     f32 v;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         v = ((f64)BD820S9C->unkF / 255.0) * 0.75;
         D_807FBB40->unk4->unk34 = v;
         D_807FBB40->unk4->unk38 = v;

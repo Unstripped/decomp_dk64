@@ -88,7 +88,7 @@ void playerStateQueueCallback();
 void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
     s16 *durationPtr = R1C8aA->unk178;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FDC98->unk46 |= 0x20;
         if (camPathId) {
             camStartPath(D_807FBB40, camPathId, 1);
@@ -207,7 +207,7 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
 
     D_80750AC8 = targetCount;
     lightAdd(D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, 0.0f, 0.0f, 0.0f, 80.0f, 0, 0xFF, 0xFF, 0xFF);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         var = -1;
         if (flagGet(rewardFlag, 0) != 0 || func_807142D8() != 0) {
             if (initialCutsceneId == R1C8aC->unk13) {
@@ -252,14 +252,14 @@ void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 
     R1C8aA->unkEE += 0x3C;
     switch (D_807FBB40->unk15F & 0x7F) {
         case 0:
-            if (!(D_807FBB40->unk60 & 0x2000000)) {
+            if (!(D_807FBB40->flags & 0x2000000)) {
                 D_807FDC90->unk2C = 0x1E;
             } else {
                 D_807FBB40->unk15F++;
             }
             break;
         case 1:
-            if (D_807FBB40->unk60 & 0x2000000) {
+            if (D_807FBB40->flags & 0x2000000) {
                 D_807FDC90->unk2C = 0x1E;
             } else {
                 D_807FBB40->unk15F++;
@@ -350,9 +350,9 @@ u8 func_806C4AC4(u16 spawnCooldown, u16 maxSpawns) {
     pad = 0;
     durationPtr = R1C8aA->unk178;
     cooldownPtr = R1C8aA->unk180;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FDC98->unk46 |= 0x20;
-        D_807FBB40->unkB8 = (f32)(u32)D_807FDC9C->unkC;
+        D_807FBB40->speedXZ = (f32)(u32)D_807FDC9C->unkC;
     }
     {
         s32 d = D_807FDC90->unkC - D_807FDC9C->unk6;
@@ -935,13 +935,13 @@ void func_806C5C20(void) {
 
     behaviourFrameBegin();
     actorClearMovementFlags(D_807FBB40);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FDC98->unk46 |= 0x40;
         D_807FBB40->unk12A = 0xFA;
         func_80724CA4(2, 1);
     }
     if ((randomNonNegative() >> 15) % 1000 >= 0x3CB) {
-        D_807FBB40->unkB8 = D_807FDC9C->unkC << 2;
+        D_807FBB40->speedXZ = D_807FDC9C->unkC << 2;
     }
     func_80724E48(6);
     actorMoveWithinZone(1, D_807FDC94->x, D_807FDC94->z, 0x2C9, 0.0f);
@@ -991,9 +991,9 @@ void func_806C5FEC(void) {
     R1C8CBCfg *p;
 
     p = (R1C8CBCfg *)D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         p->unk1C = 0;
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
     }
     p->unk1C++;
     switch (p->unk1E) {
@@ -1006,7 +1006,7 @@ void func_806C5FEC(void) {
             }
             break;
         case 2:
-            if (!(D_807FBB40->unk60 & 0x2000000)) {
+            if (!(D_807FBB40->flags & 0x2000000)) {
                 p->unk1E = 3;
                 camResumePath();
             }
@@ -1036,7 +1036,7 @@ void func_806C61C8(void) {
     f32 z;
     f32 sinv;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         R1A->unkEC = 0x3C;
         actorScriptStart(D_807FBB40, 0x23D);
         if (R1A4C->unk154 == 0xC) {
@@ -1051,7 +1051,7 @@ void func_806C61C8(void) {
         D_807FBB40->z = func_80612790(R1A->unkEE) * 10.0f + z;
     }
     R1A->unk80 = func_80612794(gFrameCounter * 100) * 5.0f + (R1A->unk15F + R1A4C->unk80 + 3.0f + R1A->unkEC);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         if (R1A->unkF0 != 0) {
             R1A->unk15F = 0x14;
             actorSpawnNodeEntryAtActor(0x2D, func_8073195C(R1A->unkF0));
@@ -1062,7 +1062,7 @@ void func_806C61C8(void) {
     }
     sinv = func_80612794(gFrameCounter * 50);
     R1A->unkEE = R1A->unkEE + 60.0f * sinv;
-    if (D_807FBB40->unk60 & 0x2000000) {
+    if (D_807FBB40->flags & 0x2000000) {
         R1A->unk168 = 0x14;
     }
     if (R1A->unk168 != 0) {

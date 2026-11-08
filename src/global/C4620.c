@@ -1047,7 +1047,7 @@ void func_806C1E44(void) {
     s32 i;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         animSetLoopLimit(D_807FBB40, 0, 1);
         animSetFinished(D_807FBB40, 0, 1);
         switch (gCurrentMap) {
@@ -1178,7 +1178,7 @@ void func_806C226C(void) {
     s16 i;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         ((R1C46bActor *)D_807FBB40)->unkC4 = D_807502F4;
         D_807FBB40->y = D_807FBB40->unkA4;
         D_807FBB40->unk12A = 0x4B0;
@@ -1258,7 +1258,7 @@ void func_806C226C(void) {
                     }
                     break;
                 case 0x63:
-                    if (camIsCutsceneActive() == 0 && !(D_807FBB40->unk60 & 0x2000000)) {
+                    if (camIsCutsceneActive() == 0 && !(D_807FBB40->flags & 0x2000000)) {
                         func_8070D8C0(D_807FBB40, 0x1C, 2);
                         D_807FBB40->unk155[0] = 3;
                     }
@@ -1757,7 +1757,7 @@ void func_806C3A8C(void) {
 
     dist = (D_807FBB4C->x - D_807FBB40->x) * (D_807FBB4C->x - D_807FBB40->x) + (D_807FBB4C->y - D_807FBB40->y) * (D_807FBB4C->y - D_807FBB40->y) + (D_807FBB4C->z - D_807FBB40->z) * (D_807FBB4C->z - D_807FBB40->z);
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk15E = 0x19;
         func_8067ACB4(D_807FBB40);
         if (flagGet(0x1E, 2) == 0) {
@@ -1826,7 +1826,7 @@ void func_806C3A8C(void) {
                         D_807FBB40->unk155[0]++;
                         break;
                     case 1:
-                        if (!(D_807FBB40->unk60 & 0x2000000)) {
+                        if (!(D_807FBB40->flags & 0x2000000)) {
                             csModelStateSetFirstByte(0xE, 0xA);
                             D_807FBB40->state = 0x20;
                             D_807FBB40->unk155[0] = 0;

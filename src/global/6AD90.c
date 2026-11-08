@@ -111,11 +111,11 @@ void collisionQueryActorFloor(Actor *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg
 
     D_807F94BC = 0;
     D_807F94B3 = 0;
-    if (((u8 *)arg0)[0xCC] != 0 && arg0->unk110 == 0 && (arg0->unk60 & 0x10)) {
+    if (((u8 *)arg0)[0xCC] != 0 && arg0->unk110 == 0 && (arg0->flags & 0x10)) {
         actorGetNodePos(arg0, ((u8 *)arg0)[0xCC] ^ 0, &sp3C, &sp38, &sp34); // FAKE: x ^ 0 keeps the node id in v0 (no spill)
     } else {
         sp3C = arg0->x;
-        sp38 = arg0->unk8C;
+        sp38 = arg0->prevY;
         sp34 = arg0->z;
     }
     collisionFindFloorAtPoint(arg0, sp3C, sp38, sp34, arg1, arg2, arg3, arg4, arg5);
@@ -1237,7 +1237,7 @@ void actorClearBufferReferences(s32 arg0) {
         Actor *actor = gActiveActors[i].actor;
         u32 val = actor->unk150;
 
-        if (!(actor->unk60 & 0x2000) && val >= min && max >= val) {
+        if (!(actor->flags & 0x2000) && val >= min && max >= val) {
             actor->unk150 = 0;
         }
     }
@@ -2053,8 +2053,8 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
     if ((s32)actor_count > 0) {
         do {
             actor = gActiveActors[i].actor;
-            if (!(actor->unk60 & 0x2000)) {
-                if (actor->unk140 != NULL && arg0 != actor && (actor->unk60 & 0x10)) {
+            if (!(actor->flags & 0x2000)) {
+                if (actor->unk140 != NULL && arg0 != actor && (actor->flags & 0x10)) {
                     tri = actor->unk140->unk98;
                     j = 0;
                     if (actor->unk140->unk94 > 0) {

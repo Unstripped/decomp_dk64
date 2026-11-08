@@ -132,7 +132,7 @@ void func_8072B7CC();
 
 void func_806B6958(void) {
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         BB300S90->unk35 = BB300S90->unk35 * 2;
         BB300S90->unk2C = 0xD2;
         BB300S90->unk1F = (u32)BB300S90->unk1F * 1.5;
@@ -243,10 +243,10 @@ void func_806B6DB0(s32 aggroRange) {
         diff = ((BB300ActorAlt *)D_807FBB40)->unkEE - D_807FBB40->yaw;
     }
     near = ((D_807FBB40->x - D_807FDC94->x) * (D_807FBB40->x - D_807FDC94->x) + (D_807FBB40->z - D_807FDC94->z) * (D_807FBB40->z - D_807FDC94->z)) < 2500.0f;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         ((BB300View98 *)D_807FDC98)->unk34 = 1.0f;
         func_80724CA4(2, 2);
-        D_807FBB40->unkB8 = ((BB300View9C *)D_807FDC9C)->unkC;
+        D_807FBB40->speedXZ = ((BB300View9C *)D_807FDC9C)->unkC;
     }
     if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && D_807FBB40->state != 0x37) {
         tgt = D_807FBB70.unk1FC;
@@ -257,7 +257,7 @@ void func_806B6DB0(s32 aggroRange) {
         }
     }
     sel = D_807FBB40->state;
-    if (sel == 0x23 && D_807FBB40->unkB8 > 90.0f && diff >= 0x1F5 && diff < 0xE0C) {
+    if (sel == 0x23 && D_807FBB40->speedXZ > 90.0f && diff >= 0x1F5 && diff < 0xE0C) {
         diff = ((BB300ActorAlt *)D_807FBB40)->unkEE - D_807FBB40->yaw;
         if (diff < 0 || diff >= 0x801) {
             p->unk2 = 0x8C;

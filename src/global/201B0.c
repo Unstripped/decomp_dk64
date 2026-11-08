@@ -972,11 +972,11 @@ u16 camStartPath(void *arg0, s16 arg1, u8 arg2) {
     D_807F5CF6 = D_80770DC9;
     D_807FBB60 |= 0x2000;
     D_807FBB60 &= ~0x1001;
-    D_807FBB4C->unkB8 = 0.0f;
+    D_807FBB4C->speedXZ = 0.0f;
     if (gPlayerCharacterId[0] == 7) {
-        D_807FBB4C->unkC0 = 0.0f;
+        D_807FBB4C->speedY = 0.0f;
     }
-    D_807FBB4C->unk60 |= 0x400;
+    D_807FBB4C->flags |= 0x400;
     gActivePlayerState->unk10 = 0;
     gCamActor->unkE4 = 0;
     currentActorClearFlag();
@@ -1252,7 +1252,7 @@ void camEndPath(CamFollowActor *arg0) {
         D_8076A068 += 0xFFFE7961;
         gCamPathFlags = 0;
         gCamPathTimeDelta = 0;
-        D_807FBB4C->unk60 &= ~0x400;
+        D_807FBB4C->flags &= ~0x400;
     }
 }
 

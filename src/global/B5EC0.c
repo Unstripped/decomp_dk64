@@ -80,7 +80,7 @@ s32 randomNonNegative(void);
 void func_806B1290(void) {
     if (((B5EC0View90 *)D_807FDC90)->unk18 >= 0x65
         && (((((B5EC0View90 *)D_807FDC90)->unk1A & 0x80) && (randomNonNegative() >> 15) % 1000 >= 0x3D5)
-            || ((randomNonNegative() >> 15) % 1000 >= 0x3DF && (D_807FBB40->unk60 & 0x100)))) {
+            || ((randomNonNegative() >> 15) % 1000 >= 0x3DF && (D_807FBB40->flags & 0x100)))) {
         ((B5EC0Actor *)D_807FBB40)->unk154 = 0x28;
         ((B5EC0Actor *)D_807FBB40)->unk155 = 0;
     }
@@ -129,7 +129,7 @@ void func_806B13B4(u8 arg0) {
     s32 sel;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         if (gCurrentMap == 0x43) {
             ((B5EC0View9C *)D_807FDC9C)->unkD = 0x82;
             D_807FDC98->unk46 |= 0x40;
@@ -354,7 +354,7 @@ void func_806B1DD4(u8 mode) {
     u8 flag;
     s32 temp;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         flag = 0;
         temp = func_805FF000(D_8076A0AB);
         if (temp != 9 && temp != 0xA) {

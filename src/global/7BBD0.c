@@ -211,7 +211,7 @@ u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
         posY = (f32)D_807FB5C8 / 8;
         posZ = (f32)D_807FB5CC / 8;
     }
-    if (!(self->unk60 & 0x800)) {
+    if (!(self->flags & 0x800)) {
         guMtxXFMF(invMtx, posX, posY, posZ, &localPos[0], &localPos[1], &localPos[2]);
     } else {
         localPos[0] = selfBounds->unkB8;

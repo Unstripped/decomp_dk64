@@ -58,21 +58,21 @@ void actorSeekTargetUpdate(void) {
 
     actorId = actorListFindIdByActor(D_807FBB40);
     targetNode = spawnNodeActivate(2, 0);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         ((ActorView *)D_807FBB40)->unk130 = 0x46;
         ((ActorView *)D_807FBB40)->unk131 = 0x32;
         D_807FBB40->unk6A &= ~1;
         D_807FBB40->unk144 = 2;
-        D_807FBB40->unk60 |= 0x80000000;
+        D_807FBB40->flags |= 0x80000000;
         D_807FBB40->unk64 |= 0x28;
         animSetStartFrame(D_807FBB40, 0, 1);
     }
     dx = D_807FBB4C->x - D_807FBB40->x;
     dz = D_807FBB4C->z - D_807FBB40->z;
     if (dx * dx + dz * dz < 50000.0f) {
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
     } else {
-        D_807FBB40->unk60 &= ~0x400;
+        D_807FBB40->flags &= ~0x400;
     }
     if (targetNode != NULL) {
         if (actorId == D_807506C0[targetNode->unk15F]) {
@@ -135,7 +135,7 @@ void actorUpdateRampTarget(void) {
 
     rampState = ((ActorView *)D_807FBB40)->unk178;
     parentRamp = (ActorParentRamp *)D_807FBB40->unk11C;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         func_80724CA4(2, 2);
     }
     actorCopyPoseAndScale(D_807FBB40, parentRamp, 0.15f);
@@ -193,11 +193,11 @@ void func_806A1AC4(void) {
     f32 driftSpeed;
     s16 i;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk60 &= ~0x8000;
+    if (!(D_807FBB40->flags & 0x10)) {
+        D_807FBB40->flags &= ~0x8000;
         func_80728950(0);
         actorSetUniformScale(D_807FBB40, 1.2f);
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
         D_807FBB40->unk12A = 0x3E8;
         if (flagGet(0xFB, 0) != 0) {
             func_80613C48(D_807FBB40, 0x597, 0.0f, 0.0f);
@@ -207,7 +207,7 @@ void func_806A1AC4(void) {
             func_80613C48(D_807FBB40, 0x598, 0.0f, 0.0f);
             scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
             D_807FBB40->unk144 = 1;
-            D_807FBB40->unk60 &= ~4;
+            D_807FBB40->flags &= ~4;
         }
     }
     switch (D_807FBB40->state) {
@@ -230,7 +230,7 @@ void func_806A1AC4(void) {
             actorScriptStart(D_807FBB40, 0x328);
             D_807FBB40->state = 2;
             D_807FBB40->unk144 = 2;
-            D_807FBB40->unk60 |= 4;
+            D_807FBB40->flags |= 4;
         }
         break;
     case 2:
@@ -270,7 +270,7 @@ void func_806A1AC4(void) {
 }
 
 void actorFinishInRange(void) {
-    D_807FBB40->unk60 |= 0x400;
+    D_807FBB40->flags |= 0x400;
     actorUpdateModelMatrix(D_807FBB40, 0);
 }
 
@@ -318,7 +318,7 @@ void actorSinkAndDespawn(void) {
     Actor *act;
 
     sub = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk64 |= 8;
         sub->unk0 = 0;
         sub->unk4 = 0.0f;
@@ -424,8 +424,8 @@ void actorMidpointOrbitUpdate(void) {
     Actor *p;
 
     sub = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk60 |= 0x1000;
+    if (!(D_807FBB40->flags & 0x10)) {
+        D_807FBB40->flags |= 0x1000;
         actorSetUniformScale(D_807FBB40, ((MidpointOrbitConfig *)D_807FBB40->unk124)->unkC);
         D_807FBB40->unk168 = mathAngleBetweenPoints2D(D_807FBB40->x, D_807FBB40->z, D_807FBB4C->x, D_807FBB4C->z);
         D_807FBB40->unkF0 = (D_807FBB4C->y + (f32)D_807FBB4C->unk15E - D_807FBB40->y) * 0.5;

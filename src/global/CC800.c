@@ -528,11 +528,11 @@ void func_806C850C(s32 arg0, u8 arg1) {
     }
     row = &D_8075C410[gPlayerCharacterId[sel]];
     actorSpawn(row->unk0, row->unk8);
-    D_807FBB44->unk60 &= ~0x1000;
-    D_807FBB44->unk60 |= row->unkC;
+    D_807FBB44->flags &= ~0x1000;
+    D_807FBB44->flags |= row->unkC;
     D_807FBB44->unk16E[0] = 0x42;
     D_807FBB44->unk16E[1] = 0x42;
-    D_807FBB44->unk60 |= 0x01000000;
+    D_807FBB44->flags |= 0x01000000;
     if (gPlayerCount >= 2) {
         D_807FBB44->unk64 |= 0x200;
     }
@@ -558,7 +558,7 @@ void func_806C850C(s32 arg0, u8 arg1) {
     if (sel == 0) {
         gCamActor = D_807FBB44;
     }
-    D_807FBB44->unk60 |= 0x100000;
+    D_807FBB44->flags |= 0x100000;
     func_806C8D20(D_807FBB48);
     G00_P->unk26 = 0x64;
     G00_A48->unkC4 = D_80753578[D_807FD584];
@@ -672,7 +672,7 @@ void func_806C8984(void) {
         func_80613C48(D_807FBB48, 0, 0.0f, 0.0f);
         D_807FBB48->state = 0x7D;
         D_807FBB48->unk155[0] = 0;
-        D_807FBB48->unk60 &= 0xFFFF7FFF;
+        D_807FBB48->flags &= 0xFFFF7FFF;
         D_807FBB48->unk128 = 0;
         actorSpawn(0x11A, 0x21);
         actorScriptStart(D_807FBB44, 0x232);
@@ -1040,7 +1040,7 @@ void func_806F12FC(void);
 void func_806C93E4(Actor *arg0, Struct807FD580 *arg1) {
     func_806F12FC();
     arg1->unk1F0 &= ~0x30;
-    arg0->unk60 |= 0x8000;
+    arg0->flags |= 0x8000;
     arg0->unk128 = 0xFF;
 }
 

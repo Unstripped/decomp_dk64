@@ -717,7 +717,7 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
         sel = e->flags & 0x7F;
         if (!(e->flags & 0x80)) {
             if ((sel == 0) || (sel == 1) ||
-                ((sel == 5) && ((f64)arg0->unkB8 < (f64)(u32)((u8 *)D_807FDC9C)[0xD] * 1.4))) {
+                ((sel == 5) && ((f64)arg0->speedXZ < (f64)(u32)((u8 *)D_807FDC9C)[0xD] * 1.4))) {
                 if (((f32)e->y <= y) && (y <= (f32)(e->y + e->height))) {
                     if (e->flags != 0) {} // FAKE: live range steers flags/count10 colouring (a1/t0)
                     if (i == 5) {} // FAKE: steer s3 and s8 constant coloring
@@ -746,7 +746,7 @@ typedef struct F1Pt {
 void actorSetPositionFromPoint(Actor *arg0, F1Pt *arg1) {
     arg0->x = arg1->unk4;
     arg0->y = arg1->unk6;
-    arg0->unk8C = arg1->unk6;
+    arg0->prevY = arg1->unk6;
     arg0->z = arg1->unk8;
     arg0->yaw = arg1->unk2;
 }

@@ -142,7 +142,7 @@ typedef struct Actor {
     /* 0x058 */ s32 actorType;
     /* 0x05C */ u16 unk5C;
     /* 0x05E */ u8 unk5E[2];
-    /* 0x060 */ u32 unk60;
+    /* 0x060 */ u32 flags;
     /* 0x064 */ u32 unk64;
     /* 0x068 */ u16 unk68;
     /* 0x06A */ u16 unk6A;
@@ -152,9 +152,9 @@ typedef struct Actor {
     /* 0x07C */ f32 x;
     /* 0x080 */ f32 y;
     /* 0x084 */ f32 z;
-    /* 0x088 */ f32 unk88;
-    /* 0x08C */ f32 unk8C;
-    /* 0x090 */ f32 unk90;
+    /* 0x088 */ f32 prevX;
+    /* 0x08C */ f32 prevY;
+    /* 0x090 */ f32 prevZ;
     /* 0x094 */ u8 unk94[8];
     /* 0x09C */ f32 unk9C;
     /* 0x0A0 */ f32 unkA0;
@@ -162,9 +162,9 @@ typedef struct Actor {
     /* 0x0A8 */ u8 unkA8[4];
     /* 0x0AC */ f32 unkAC;
     /* 0x0B0 */ s8 unkB0[8];
-    /* 0x0B8 */ f32 unkB8;
-    /* 0x0BC */ f32 unkBC;
-    /* 0x0C0 */ f32 unkC0;
+    /* 0x0B8 */ f32 speedXZ;
+    /* 0x0BC */ f32 prevSpeedXZ;
+    /* 0x0C0 */ f32 speedY;
     /* 0x0C4 */ f32 unkC4;
     /* 0x0C8 */ u8 unkC8[0x1C];
     /* 0x0E4 */ s16 pitch;

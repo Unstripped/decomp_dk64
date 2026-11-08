@@ -175,7 +175,7 @@ void func_8067B4C8(void) {
     ActorB4C8PeerState *peer;
     s32 i;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         ((ActorB4C8Sub4 *)D_807FBB40->unk4)->unk1C = heapAlloc(0x10);
         ((ActorB4C8Sub4 *)D_807FBB40->unk4)->unk1C->unk0 = 0x7F;
         ((ActorB4C8Sub4 *)D_807FBB40->unk4)->unk1C->unk1 = 2;
@@ -192,12 +192,12 @@ void func_8067B4C8(void) {
             if (func_8067B450(D_807FBB40) == 0) {
                 D_807FBB40->state = 0x14;
                 D_807FBB40->unk144 = 1;
-                D_807FBB40->unk60 &= ~0x8000;
+                D_807FBB40->flags &= ~0x8000;
                 D_807FBB40->unk128 = 0;
             }
         }
         if (gCurrentMap == 0x22) {
-            D_807FBB40->unk60 |= 0x400;
+            D_807FBB40->flags |= 0x400;
         }
         if (gCurrentMap == 0xC7) {
             D_807FBB40->unk12A = 0x226;
@@ -269,14 +269,14 @@ void func_8067B4C8(void) {
             }
             if (func_8067B450(D_807FBB40) != 0) {
                 D_807FBB40->unk128 = 0xFF;
-                D_807FBB40->unk60 |= 0x8000;
+                D_807FBB40->flags |= 0x8000;
                 D_807FBB40->state = 0;
             }
             break;
         case 21:
             D_807FBB40->unk128 += 10;
             if (D_807FBB40->unk128 >= 0xF1) {
-                D_807FBB40->unk60 |= 0x8000;
+                D_807FBB40->flags |= 0x8000;
                 D_807FBB40->state = 0;
             }
             break;
@@ -286,7 +286,7 @@ void func_8067B4C8(void) {
 }
 
 void func_8067BA3C(void) {
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk12A = 0x7D0;
     }
     func_8067B4C8();
@@ -301,7 +301,7 @@ extern u8 D_807FBBA8;
 
 
 void func_8067BA7C(s32 arg0) {
-    if (!(D_807FBB40->unk60 & 0x10) && (arg0 == 0x13)) {
+    if (!(D_807FBB40->flags & 0x10) && (arg0 == 0x13)) {
         animSetSpeed(D_807FBB40, 0, 0.5f);
         animSetLoopMode(D_807FBB40, 0, 0);
         animSetDirection(D_807FBB40, 0, 0);
@@ -375,7 +375,7 @@ void func_8067BD28(void) {
     if ((D_807FBBA8 != 0) && (*(s32 *) (extra + 0x1F0) & 0x200000)) {
         var_v1 = 1;
     }
-    if (!(D_807FBB40->unk60 & 0x10) || var_v1) {
+    if (!(D_807FBB40->flags & 0x10) || var_v1) {
         actorListSpawnNodeEntryDefault(0x55, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z, 0, 1.0f, D_807FBB40);
     }
 }
@@ -399,7 +399,7 @@ void func_8067BE30(void) {
     u8 *t0 = D_807FBB40->unk174;
     s16 i;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk12A = 0x7D0;
         *(s16 *)t0 = 0x1A;
     }
@@ -454,7 +454,7 @@ s32 tagBarrelCheckProximityAndFall(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     f32 temp_f1;
     sp47 = 0;
     var_fs0 = 99999.0f;
-    if (D_807FBB40->unk60 & 0x10) {
+    if (D_807FBB40->flags & 0x10) {
         animSetSpeed(D_807FBB40, 0, 0.5f);
         animSetLoopMode(D_807FBB40, 0, 0);
         animSetDirection(D_807FBB40, 0, 0);
@@ -489,7 +489,7 @@ s32 tagBarrelCheckProximityAndFall(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     } else {
         sp47 = 1;
         *arg1 = 0;
-        D_807FBB40->unkC0 = -10.0f;
+        D_807FBB40->speedY = -10.0f;
         actorApplyVelocity(D_807FBB40);
         actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         if (actorHasActiveMovementFlags(D_807FBB40) != 0) {
@@ -500,7 +500,7 @@ s32 tagBarrelCheckProximityAndFall(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
     }
     if (sp47 != 0) {
         actorListSpawnNodeEntryDefault(arg0, D_807FBB40->x, (f32)((f64)D_807FBB40->y + 8.3), D_807FBB40->z, 0, 1.0f, D_807FBB40);
-        if (D_807FBB40->unk60 & 0x10) {
+        if (D_807FBB40->flags & 0x10) {
             sfxPlayFromActorWithAltitudeCheck(D_807FBB40, 0x31, 0xFF, 0x7F, 1);
             func_807149B8(0);
             func_807149FC(1);
@@ -508,7 +508,7 @@ s32 tagBarrelCheckProximityAndFall(s32 arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
         }
     }
     if (*arg2 != 0) {
-        D_807FBB40->unkC0 = -10.0f;
+        D_807FBB40->speedY = -10.0f;
         actorApplyVelocity(D_807FBB40);
         actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
     }
@@ -1301,14 +1301,14 @@ void tagBarrelResetMovement(void) {
     temp_v0->unk10 = temp_v0->unkC;
     D_807FBB40->state = 0;
     D_807FBB40->unk144 = 2;
-    D_807FBB40->unk60 &= ~0x200000;
+    D_807FBB40->flags &= ~0x200000;
 }
 
 void tagBarrelTriggerRecoil(void) {
     tagBarrelResetMovement();
     D_807FBB40->state = 0x14;
     D_807FBB40->unk144 = 1;
-    D_807FBB40->unk60 &= ~0x8000;
+    D_807FBB40->flags &= ~0x8000;
     D_807FBB40->unk128 = 0;
     slotQueueCancel(5, 0);
 }
@@ -1333,7 +1333,7 @@ void func_8067E4D4(void) {
 void func_8067E510(void) {
     s16 i;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk4->unk34 = (f32)(D_807FBB40->unk4->unk34 * 1.5);
         D_807FBB40->unk4->unk38 = (f32)(D_807FBB40->unk4->unk38 * 1.5);
         D_807FBB40->unk4->unk3C = (f32)(D_807FBB40->unk4->unk3C * 1.5);
@@ -1370,7 +1370,7 @@ void func_8067E704(void) {
 }
 
 void func_8067E724(void) {
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk12A = 0x320;
     }
     transformBarrelUpdate();
@@ -1458,7 +1458,7 @@ void transformBarrelUpdate(void) {
     TransformBarrelPlayerState *ps3;
 
     var_t0 = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         sp8C = 0;
         sp89 = 0;
         ret = actorListFindIdByActor(D_807FBB40);
@@ -1477,13 +1477,13 @@ void transformBarrelUpdate(void) {
             if (func_8067B450(D_807FBB40) == 0) {
                 D_807FBB40->state = 0x14;
                 D_807FBB40->unk144 = 1;
-                D_807FBB40->unk60 &= ~0x8000;
+                D_807FBB40->flags &= ~0x8000;
                 D_807FBB40->unk128 = 0;
             }
         }
         D_807FBB40->unkA4 = D_807FBB40->y;
         actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
-        D_807FBB40->unk60 |= 2;
+        D_807FBB40->flags |= 2;
         var_t0->unk10 = D_807FBB40->unk4->unk38;
         var_t0->unkC = D_807FBB40->unk4->unk38;
         var_t0->unk8 = 0;
@@ -1541,7 +1541,7 @@ void transformBarrelUpdate(void) {
         D_807FBB40->state = 1;
         D_807FBB40->unk144 = 1;
         var_t0->unk4 = (Actor *)D_807FBB70.unk1FC;
-        D_807FBB40->unk60 |= 0x200000;
+        D_807FBB40->flags |= 0x200000;
         if (!(D_807FBB64 & 0x2000)) {
             if (var_t0->unk4->unk5C & 1) {
                 ps3 = var_t0->unk4->unk174;
@@ -1589,10 +1589,10 @@ void transformBarrelUpdate(void) {
             var_a1 = 1;
         }
         if (var_a1 != 0) {
-            D_807FBB40->unk60 |= 0x8000;
+            D_807FBB40->flags |= 0x8000;
             *(u16 *)&D_807FBB40->unk132 = 1; // FAKE: unsigned u16 store keeps constant 1 out of the hoisted-constant web
         } else {
-            D_807FBB40->unk60 &= ~0x8000;
+            D_807FBB40->flags &= ~0x8000;
             D_807FBB40->unk128 = 0x78;
             D_807FBB40->unk132 = 2;
         }
@@ -1768,7 +1768,7 @@ void transformBarrelUpdate(void) {
         }
 
         if (var_v1_2 != 0) {
-            D_807FBB40->unk60 &= ~0x8000;
+            D_807FBB40->flags &= ~0x8000;
             D_807FBB40->unk128 = 0;
         } else {
             D_807FBB60 &= ~0x400;
@@ -1808,7 +1808,7 @@ void transformBarrelUpdate(void) {
     }
 
     case 5:
-        D_807FBB40->unk60 &= ~0x8000;
+        D_807FBB40->flags &= ~0x8000;
         D_807FBB40->unk128 = 0;
         var_t0->unk0--;
         if (var_t0->unk0 == 0) {
@@ -1838,7 +1838,7 @@ void transformBarrelUpdate(void) {
     case 21:
         D_807FBB40->unk128 += 10;
         if (D_807FBB40->unk128 >= 0xF1) {
-            D_807FBB40->unk60 |= 0x8000;
+            D_807FBB40->flags |= 0x8000;
             D_807FBB40->state = 0;
         }
         break;
@@ -1918,7 +1918,7 @@ void func_8067FB6C(void) {
     s16 i;
 
     sub = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk12A = 0x320;
         D_807FBB40->unk12C[4] = 0x14;
         D_807FBB40->unk12C[5] = 0x14;
@@ -1939,7 +1939,7 @@ void func_8067FB6C(void) {
         if (((ActorFB6CSpawnData *)D_807FBB40->unk124)->unkC == 1) {
             D_807FBB40->state = 0x14;
             D_807FBB40->unk144 = 1;
-            D_807FBB40->unk60 &= ~0x8000;
+            D_807FBB40->flags &= ~0x8000;
             D_807FBB40->unk128 = 0;
         }
     }
@@ -1947,7 +1947,7 @@ void func_8067FB6C(void) {
         sub->unk0 = (Actor *)D_807FBB70.unk1FC;
         D_807FBB40->state = 1;
         D_807FBB40->unk144 = 1;
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
         sub->unk1B = 2;
         if (sub->unk1C == 3) {
             sub->unk1A = 1;
@@ -1960,7 +1960,7 @@ void func_8067FB6C(void) {
         tagBarrelDespawnOnKongDeselect();
         break;
     case 1:
-        D_807FBB40->unk60 |= 0x8000;
+        D_807FBB40->flags |= 0x8000;
         switch (sub->unk1C) {
         case 0:
         case 4:
@@ -2022,7 +2022,7 @@ void func_8067FB6C(void) {
             actorQueueDelayedCallback(D_807FBB40, D_807FBB40, 0x800, 2, 0, 0, 0xA);
             func_80714998(2);
             func_80714C08(&D_8071FBC8, 1.6f, D_807FBB40, 1, 2);
-            D_807FBB40->unk60 &= ~0x400;
+            D_807FBB40->flags &= ~0x400;
             D_807FBB40->state = 2;
             D_807FBB40->unk155[0] = 0x1E;
         } else {
@@ -2079,13 +2079,13 @@ void func_8067FB6C(void) {
     case 21:
         D_807FBB40->unk128 += 10;
         if (D_807FBB40->unk128 >= 0xF1) {
-            D_807FBB40->unk60 |= 0x8000;
+            D_807FBB40->flags |= 0x8000;
             D_807FBB40->state = 0;
         }
         break;
     }
     if (gCurrentMap == 0xCB) {
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
     }
     guRotateF((float (*)[4])&D_807FBB40->unk08[4], sub->unkC, 1.0f, 0, 0.0f);
     actorUpdateModelMatrix(D_807FBB40, 1);
@@ -2115,10 +2115,10 @@ void tagBarrelUpdateInteractable(void) {
 
     if (one != gPlayerSlots->unk2C0 || (((PlayerStateD580 *)gActivePlayerState)->unk1F4 & 0x40) || gPlayerCharacterId >= 5) {
         D_807FBB40->unk132 = 4;
-        D_807FBB40->unk60 &= ~0x8000;
+        D_807FBB40->flags &= ~0x8000;
         D_807FBB40->unk128 = 0x7F;
     } else if (one == gPlayerSlots->unk2C0 && !(((PlayerStateD580 *)gActivePlayerState)->unk1F0 & 0x40) && gPlayerCharacterId < 5) {
-        D_807FBB40->unk60 |= 0x8000;
+        D_807FBB40->flags |= 0x8000;
         D_807FBB40->unk132 = one;
     }
     if (((PlayerStateD580 *)gActivePlayerState)->unkCA != 0) {
@@ -2129,10 +2129,10 @@ void tagBarrelUpdateInteractable(void) {
 void tagBarrelCheckPlayerCollision(void) {
     if (gPlayerCharacterId >= 5) {
         D_807FBB40->unk132 = 4;
-        D_807FBB40->unk60 &= ~0x8000;
+        D_807FBB40->flags &= ~0x8000;
         D_807FBB40->unk128 = 0x7F;
     } else {
-        D_807FBB40->unk60 |= 0x8000;
+        D_807FBB40->flags |= 0x8000;
         D_807FBB40->unk132 = 1;
     }
     if (gActivePlayerState->unkCA != 0) {
@@ -2243,12 +2243,12 @@ void tagBarrelActorUpdate(void) {
     if (gCurrentMap == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     sp90 = D_8074E7D4;
     sp83 = 0;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         temp_f = (f64)D_807FBB40->unk4->unk34 / 0.15;
         D_807FBB40->unkA4 = D_807FBB40->y;
         actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         D_807FBB40->unk110 = 0;
-        D_807FBB40->unk60 |= 2;
+        D_807FBB40->flags |= 2;
         sub->unk0 = D_807FBB40->y;
         sub->unk4 = 0;
         sub->unk6 = ((TagBarrelSpawnParams *)D_807FBB40->unk124)->unk0;
@@ -2274,7 +2274,7 @@ void tagBarrelActorUpdate(void) {
         } else if (((TagBarrelSpawnParams *)D_807FBB40->unk124)->unk4 == 1) {
             D_807FBB40->state = 0x14;
             D_807FBB40->unk144 = 1;
-            D_807FBB40->unk60 &= ~0x8000;
+            D_807FBB40->flags &= ~0x8000;
             D_807FBB40->unk128 = 0;
         } else {
             D_807FBB40->state = 0;
@@ -2309,16 +2309,16 @@ void tagBarrelActorUpdate(void) {
         if (D_807FBB40->state != 0xA && D_807FBB40->state != 0xB && D_807FBB40->state != 0xC && D_807FBB40->state != 0x1E) {
             if (((PlayerStateD580 *)gActivePlayerState)->unk1F0 & 0x40) {
                 D_807FBB40->unk144 = 2;
-                D_807FBB40->unk60 |= 0x8000;
+                D_807FBB40->flags |= 0x8000;
             } else {
                 sp83 = 1;
                 D_807FBB40->unk144 = 1;
-                D_807FBB40->unk60 &= ~0x8000;
+                D_807FBB40->flags &= ~0x8000;
                 D_807FBB40->unk128 = 0;
             }
         }
     }
-    if ((D_807FBB40->unk60 & 0x100) && (D_807FBB40->state == 0 || D_807FBB40->state == 1 || (D_807FBB40->state >= 0xA && D_807FBB40->state < 0xD)) && sp83 == 0) {
+    if ((D_807FBB40->flags & 0x100) && (D_807FBB40->state == 0 || D_807FBB40->state == 1 || (D_807FBB40->state >= 0xA && D_807FBB40->state < 0xD)) && sp83 == 0) {
         dist = (gPlayerSlots->unk218 - D_807FBB40->z) * (gPlayerSlots->unk218 - D_807FBB40->z) +
                ((gPlayerSlots->unk210 - D_807FBB40->x) * (gPlayerSlots->unk210 - D_807FBB40->x) +
                 (gPlayerSlots->unk214 - D_807FBB40->y) * (gPlayerSlots->unk214 - D_807FBB40->y));
@@ -2358,7 +2358,7 @@ void tagBarrelActorUpdate(void) {
                 if (D_807FBB70.unk258[i] == 1 && *D_807FBB70.unk278[i] == 1) {
                     D_807FBB40->state = 0x14;
                     D_807FBB40->unk144 = 1;
-                    D_807FBB40->unk60 &= ~0x8000;
+                    D_807FBB40->flags &= ~0x8000;
                     D_807FBB40->unk128 = 0;
                 }
             }
@@ -2482,7 +2482,7 @@ void tagBarrelActorUpdate(void) {
     case 21:
         D_807FBB40->unk128 += 0xA;
         if (D_807FBB40->unk128 >= 0xF1) {
-            D_807FBB40->unk60 |= 0x8000;
+            D_807FBB40->flags |= 0x8000;
             D_807FBB40->state = 0;
         }
         break;
@@ -2508,7 +2508,7 @@ void tagBarrelActorUpdate(void) {
 void func_80681B14(void) {
     TagBarrelState *sub = D_807FBB40->unk174;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         if (flagGet(0x302, 0) != 0) {
             actorDespawn(D_807FBB40);
             return;
@@ -2532,7 +2532,7 @@ void func_80681BD8(void) {
     if (flagGet(0x17F, 0) == 0) {
         D_807FBB40->state = 0x14;
         D_807FBB40->unk144 = 1;
-        D_807FBB40->unk60 &= ~0x8000;
+        D_807FBB40->flags &= ~0x8000;
         D_807FBB40->unk128 = 0;
     } else {
         if (flagGet(0x187, 0) == 0) {
@@ -2568,7 +2568,7 @@ void func_80681BD8(void) {
             if (D_807FBB40->state == 0) {
                 D_807FBB40->state = 0x14;
                 D_807FBB40->unk144 = 1;
-                D_807FBB40->unk60 &= ~0x8000;
+                D_807FBB40->flags &= ~0x8000;
                 D_807FBB40->unk128 = 0;
             }
         } else if (D_807FBB40->state == 0x14) {
@@ -2605,14 +2605,14 @@ void rocketbarrelUpdate(void) {
     s32 pad[3];
 
     var_v1 = (RocketbarrelState *)D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unkA4 = 99999.0f;
         collisionCheckGroundAtPoint(D_807FBB40->x, D_807FBB40->z, &D_807FBB40->unkA4);
         if (1 == *(s32 *)D_807FBB40->unk124) {
             if (func_8067B450(D_807FBB40) == 0) {
                 D_807FBB40->state = 0x14;
                 D_807FBB40->unk144 = 1;
-                D_807FBB40->unk60 &= ~0x8000;
+                D_807FBB40->flags &= ~0x8000;
                 D_807FBB40->unk128 = 0;
             }
         }
@@ -2622,7 +2622,7 @@ void rocketbarrelUpdate(void) {
         D_807FBB40->state = 1;
         D_807FBB40->unk144 = 1;
         var_v1->unk4 = (Actor *)D_807FBB70.unk1FC;
-        D_807FBB40->unk60 |= 0x200000;
+        D_807FBB40->flags |= 0x200000;
         if ((gCurrentMap == 0x11) || (gCurrentMap == 0xC9) || (gCurrentMap == 0xCC)) {
         } else {
             sfxAllocateChannel(0x48, 1.0f);
@@ -2635,10 +2635,10 @@ void rocketbarrelUpdate(void) {
             sp44 = D_807FC950[gPlayerCharacterId][0];
         }
         if (((Actor *)D_807FBB4C)->actorType == 3 && sp44 >= 2) {
-            D_807FBB40->unk60 |= 0x8000;
+            D_807FBB40->flags |= 0x8000;
             D_807FBB40->unk132 = 1;
         } else {
-            D_807FBB40->unk60 &= ~0x8000;
+            D_807FBB40->flags &= ~0x8000;
             D_807FBB40->unk128 = 0x78;
             D_807FBB40->unk132 = 2;
         }
@@ -2655,7 +2655,7 @@ void rocketbarrelUpdate(void) {
         break;
     case 2:
         tagBarrelDespawnEffects();
-        D_807FBB40->unk60 &= ~0x8000;
+        D_807FBB40->flags &= ~0x8000;
         D_807FBB40->unk128 = 0;
         actorAppendCallback(var_v1->unk4, (s32)D_807FBB40, 0x40, 1, 0, 0);
         func_8067AAB8((s32)D_807FBB40, var_v1->unk4, var_v1->unk4->yaw, (f32) D_80750390, 0);
@@ -2665,9 +2665,9 @@ void rocketbarrelUpdate(void) {
         break;
     case 3:
         if (D_807FBB70.unk0 != 0) {
-            D_807FBB40->unk60 |= 0x8000;
+            D_807FBB40->flags |= 0x8000;
             D_807FBB40->unk144 = 2;
-            D_807FBB40->unk60 &= ~0x200000;
+            D_807FBB40->flags &= ~0x200000;
             D_807FBB40->state = 0;
         }
         break;
@@ -2701,7 +2701,7 @@ void rocketbarrelUpdate(void) {
     case 21:
         D_807FBB40->unk128 += 10;
         if (D_807FBB40->unk128 >= 0xF1) {
-            D_807FBB40->unk60 |= 0x8000;
+            D_807FBB40->flags |= 0x8000;
             D_807FBB40->state = 0;
         }
         break;
@@ -2770,7 +2770,7 @@ void cannonUpdate(void) {
     f32 pitch;
     f32 sinV;
     f32 z;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk132 = 1;
         sub->unk2 = 0;
         sub->unk8 = 0;
@@ -2860,9 +2860,9 @@ void cannonUpdate(void) {
                 sub->unk2 = 1;
                 hudSpawnCountdownTimer(0xC8, 0x20, D_8074E810);
                 actorSetStateTwo(D_807FBB44);
-                D_807FBB40->unk60 |= 0x200000;
+                D_807FBB40->flags |= 0x200000;
             }
-            D_807FBB40->unk60 &= ~4;
+            D_807FBB40->flags &= ~4;
             D_807FBB40->unk144 = 1;
         }
         break;
@@ -2886,9 +2886,9 @@ void cannonUpdate(void) {
         if (actorCountOwnedByClass(D_807FBB40, 4, 0) == 0) {
             actorAppendCallback(sub->unk4, (s32)D_807FBB40, 0x40, 1, 0, 0);
             func_8067A70C(D_807FBB40, sub->unk4, D_807FBB40->x, D_807FBB40->y, D_807FBB40->z - 42.0f, 2, 1);
-            sub->unk4->unk60 &= ~8;
+            sub->unk4->flags &= ~8;
             playerResumeLocomotion(sub->unk4);
-            D_807FBB40->unk60 |= 4;
+            D_807FBB40->flags |= 4;
             D_807FBB40->state = 0;
             D_807FBB40->unk144 = 2;
         }
@@ -3012,7 +3012,7 @@ void tagBarrelSpawnKongs(TagBarrelSpawnArgs *arg0) {
         actorSpawn(actorType, model);
         arg0->unk8[i] = D_807FBB44;
         D_807FBB44->yaw = D_807FBB40->yaw;
-        D_807FBB44->unk60 |= flag;
+        D_807FBB44->flags |= flag;
         if (actorType == 0x13C) {
             temp_s0 = D_807FBB44->unk174;
             *temp_s0 = ((KongActionEntry *)D_8074E814)[i].unk2;
@@ -3031,10 +3031,10 @@ void tagBarrelUpdateSelectedKong(void) {
     ActorAnimLookup sp2C;
     u8 *sp28;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         sp2C = D_8074E834;
         sp28 = D_807FBB40->unk174;
-        D_807FBB40->unk60 |= 0x1000;
+        D_807FBB40->flags |= 0x1000;
         animSetLoopLimit(D_807FBB40, 0, 1);
         animSetFinished(D_807FBB40, 0, 1);
         animSetFrameAndSubframe(D_807FBB40, 0, sp2C.arr[*sp28].unk2, 0.0f);
@@ -3085,8 +3085,8 @@ void func_80683158(void) {
 
     sp3C = 0;
     extra = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
-        D_807FBB40->unk60 |= 0x1000;
+    if (!(D_807FBB40->flags & 0x10)) {
+        D_807FBB40->flags |= 0x1000;
         ((ActorSub4View3158 *)D_807FBB40->unk4)->unk1C = heapAlloc(0x100);
         heapClearBlock(((ActorSub4View3158 *)D_807FBB40->unk4)->unk1C);
         func_806C8220(0, ((ActorView3158 *)D_807FBB40)->unk178, extra->unk0);
@@ -3592,7 +3592,7 @@ void tagBarrelUpdate(void) {
     Actor *actor = D_807FBB40;
     TagBarrelData *sub = actor->unk174;
 
-    if (!(actor->unk60 & 0x10)) {
+    if (!(actor->flags & 0x10)) {
         sub->unk22 = actor->yaw;
         sub->unk24 = D_807FBB40->y;
         *(s16 *)&D_807FBB40->unk145[1] = 0;
@@ -3614,7 +3614,7 @@ void tagBarrelUpdate(void) {
         actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
         D_807FBB40->unk110 = 0;
         actor = D_807FBB40;
-        actor->unk60 |= 2;
+        actor->flags |= 2;
         actor = D_807FBB40;
     }
     tagBarrelInitUnlockedKongs(actor);

@@ -161,7 +161,7 @@ void projectileSpriteRingUpdate(void) {
     f64 max;
 
     sub = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         *(s16 *)((u8 *)D_807FBB40 + 0xEE) = D_807FBB40->unk15F;
         sub->unk4 = heapAlloc(0x1000);
         if (D_807FBB40->unk15F != 0) {

@@ -157,7 +157,7 @@ void func_806AD54C(void) {
     f32 dz;
     s32 dir;
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         func_80724CA4(2, 1);
         behaviourSetAnimIds(0x1F8, 0x1F8, 0x1F9);
         if (gCurrentMap == 0x68 || gCurrentMap == 0x88 || gCurrentMap == 0x89) {
@@ -173,7 +173,7 @@ void func_806AD54C(void) {
                     dz = found->z - D_807FBB40->z;
                     if ((dx * dx) + (dz * dz) < 1600.0f) {
                         dir = (((found->yaw - D_807FBB40->yaw) & 0xFFF) > 0x800) ? 1 : -1;
-                        D_807FBB40->unkB8 = (f64)(u32)((B1F60View9C *)D_807FDC9C)->unkD * 1.8;
+                        D_807FBB40->speedXZ = (f64)(u32)((B1F60View9C *)D_807FDC9C)->unkD * 1.8;
                         D_807FBB40->yaw += dir * 0x190;
                         B1F60A->unkEE = D_807FBB40->yaw;
                         ((B1F60View90 *)D_807FDC90)->unk1A |= 0x8000;
@@ -193,7 +193,7 @@ void func_806AD54C(void) {
 
 void func_806AD7AC(void) {
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         func_80724CA4(2, 1);
         behaviourSetAnimIds(0x1F8, 0x1F8, 0x1F9);
     }
@@ -205,18 +205,18 @@ void func_806AD7AC(void) {
 void actorFollowLinkedNodeFadeUpdate(void) {
     Actor *linked;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk4->unk34 = 0.05f;
         D_807FBB40->unk4->unk3C = 0.05f;
         D_807FBB40->unk4->unk38 = 2.0f;
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
     }
     switch (D_807FBB40->state) {
         case 0:
             linked = (Actor *)D_807FBB40->unk11C;
             if (linked == NULL || (linked->unk6A & 1)) {
                 D_807FBB40->state = 1;
-                D_807FBB40->unk60 &= ~0x8000;
+                D_807FBB40->flags &= ~0x8000;
             } else {
                 actorGetNodePos(linked, 2, &D_807FBB40->x, &D_807FBB40->y, &D_807FBB40->z);
                 B1F60A->unkE8 = ((B1F60Actor *)D_807FBB40->unk11C)->unkE8;
@@ -242,7 +242,7 @@ void actorSpawnLinkedFollower(void) {
 
 void func_806AD9F4(void) {
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FDC98->unk46 |= 0x200;
         behaviourSetAnimIds(0x2F4, 0x2F4, 0x2F4);
         if (D_807FBB40->y != D_807FBB40->unkA4) {
@@ -254,11 +254,11 @@ void func_806AD9F4(void) {
     if ((D_807FBB70.unk200 == 9 || D_807FBB70.unk15 != 0) && D_807FBB40->state != 0x37) {
         func_8072D714(D_807FBB70.unk1FC, 0x2F7);
         actorSetTargetSpeed(D_807FBB40, 0);
-        D_807FBB40->unkB8 = -200.0f;
+        D_807FBB40->speedXZ = -200.0f;
     } else if (D_807FBB70.unk200 == 4) {
         D_807FBB40->unk132 = 2;
         func_8072DEA8(0x2F6, 0x27, D_807FBB70.unk1FC);
-        D_807FBB40->unkB8 = D_807FBB40->unkB8 * 2;
+        D_807FBB40->speedXZ = D_807FBB40->speedXZ * 2;
         D_807FDC90->unk2C = 0x1F4;
     }
     switch (D_807FBB40->state) {
@@ -290,7 +290,7 @@ void func_806AD9F4(void) {
                     B1F60A->unk155++;
                 case 1:
                     actorMoveWithinZone(0, D_807FDC94->x, D_807FDC94->z, 0x4200, 0.0f);
-                    if (D_807FBB40->unkB8 < 1.0f) {
+                    if (D_807FBB40->speedXZ < 1.0f) {
                         B1F60A->unk155++;
                     }
                     break;
@@ -316,7 +316,7 @@ void func_806AD9F4(void) {
 
 void func_806ADDD8(void) {
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FDC98->unk46 |= 0x40;
         ((B1F60View98 *)D_807FDC98)->unk28 = 0x31A;
     }

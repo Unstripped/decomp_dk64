@@ -114,7 +114,7 @@ void spriteLinearInterpolateFrame(void) {
     s32 t;
     s32 k;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FC8F0 = assetLoad(0x13, 7, 1, 1);
         D_807FC8E0 = 0;
         for (i = 0; D_807FC8F0[i] != 0x2A; i++) {

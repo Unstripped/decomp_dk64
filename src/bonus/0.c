@@ -128,7 +128,7 @@ void bonusControllerUpdate(void) {
     challengeType = D_807FDC9C->unk14;
     targetCount = D_807FDC9C->unkA;
     commandQueuePush(D_807FBB4C, D_807FBB4C->x, D_807FBB4C->y + 30.0f, D_807FBB4C->z, 0xFF, 0xFF, 0xFF, 0xFF, 0);
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         hasMessage = 0;
         currentActorClearFlag();
         D_807FDC98->unk46 |= 0x80;
@@ -152,7 +152,7 @@ tail:
             D_807FBB48->state = 0xC;
             D_807FBB48->unk155[0] = 0;
             func_80614E78(D_807FBB48, 9);
-            D_807FBB48->unkB8 = 0.0f;
+            D_807FBB48->speedXZ = 0.0f;
             playerInitMoveParams();
             goto tail;
         case 1:
@@ -325,7 +325,7 @@ render:
         }
         break;
     case 1:
-        if (!(D_807FBB40->unk60 & 0x02000000)) {
+        if (!(D_807FBB40->flags & 0x02000000)) {
             camResumePath(D_807FBB40);
             actorSetStateTwo((void *)D_807FBB40->unk11C);
             switch (gCurrentMap) {
@@ -477,7 +477,7 @@ void bonusMazeChallengeUpdate(void) {
 
     snd = *(LB3bSnd **)((u8 *)D_807FBB40 + 0x178);
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         snd->unk0 = 0x12C;
         snd->unkA = 0;
         snd->unk8 = 0;

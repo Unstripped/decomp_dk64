@@ -286,7 +286,7 @@ void func_80714C08(s32 asset, f32 scale, void *actor, s32 boneIndex, u8 flags) {
     u16 new_var;
 
     actorGetNodePos(actor, boneIndex, &boneX, &boneY, &boneZ);
-    new_var = ((Actor *) actor)->unk60 & 0x200;
+    new_var = ((Actor *) actor)->flags & 0x200;
     if ((!new_var && (((Actor *) actor)->unk4 != NULL)) && (D_807FDB36 & 0x80)) {
         effectFlagsOr(0x40);
     }
@@ -521,7 +521,7 @@ void effectUpdateAll(u8 pGlist) {
                                     (f32 *)((u8 *)effect + 0x348));
                 break;
             case 2: {
-                if ((UA1_D08_FIELD(Actor *, effect, 0x338)->unk60 & 0x200) != 0 || UA1_D08_FIELD(Actor *, effect, 0x338)->unk4 == NULL) {
+                if ((UA1_D08_FIELD(Actor *, effect, 0x338)->flags & 0x200) != 0 || UA1_D08_FIELD(Actor *, effect, 0x338)->unk4 == NULL) {
                     actorGetNodePos(UA1_D08_FIELD(Actor *, effect, 0x338), UA1_D08_FIELD(u8, effect, 0x33E), (f32 *)((u8 *)effect + 0x340),
                                     (f32 *)((u8 *)effect + 0x344), (f32 *)((u8 *)effect + 0x348));
                 } else {

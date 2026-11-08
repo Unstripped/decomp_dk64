@@ -100,7 +100,7 @@ u8 nodeCount;
 
     data = D_807FBB40->unk174;
     player = ((BoneChainMain *)gPlayerSlots)->unk4->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         data->unk0 = 0.0f;
         data->unk4 = 0.10471976f;
         data->unk8 = 0.75f;
@@ -124,9 +124,9 @@ u8 nodeCount;
     }
     if (D_807FBB4C->state == 0x63 || data->unk28 == 0 ||
         (*(s32 *)D_807FBB40->unk124 == 1 && !(player->unk1F0 & 0x40))) {
-        D_807FBB40->unk60 &= 0xFBFFFFFB;
+        D_807FBB40->flags &= 0xFBFFFFFB;
     } else {
-        D_807FBB40->unk60 |= 0x04000004;
+        D_807FBB40->flags |= 0x04000004;
     }
     if (D_807FBB70.unk254 == 0) {}
     for (i = 0; i < D_807FBB70.unk254; i++) {

@@ -252,7 +252,7 @@ void hudPauseMenuUpdate(void) {
             }
             break;
     }
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FC7E0 = heapAlloc(0x6C);
         for (i = 0; i < 0x1B; i++) {
             D_807FC7E0[i] = textTableGetString(0x24, i, 0);
@@ -1834,10 +1834,10 @@ void hudFreeTextAndDespawn(void) {
 void hudTextScreenUpdate(void) {
     s32 i;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->unk168 = 0x1E;
         D_807FBB40->unk128 = 0;
-        D_807FBB40->unk60 &= ~0x8000;
+        D_807FBB40->flags &= ~0x8000;
         D_807FC7E0 = heapAlloc(0xC);
         for (i = 0; i < 3; i++) {
             D_807FC7E0[i] = textTableGetString(0x24, i + 0xF, 0);
@@ -1902,7 +1902,7 @@ void hudTwoOptionMenuUpdate(void) {
     s32 off;
     u16 btn;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FC7E0 = heapAlloc(0x10);
         i = 0;
         do {

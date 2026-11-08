@@ -243,7 +243,7 @@ void func_8070D8C0(Actor *targetActor, s32 id, u8 count) {
         D_807550CC = 0;
         actor = targetActor;
         func_8070D82C((S112dContainer *)node, id, count);
-        actor->unk60 |= 0x2000000;
+        actor->flags |= 0x2000000;
     }
 }
 
@@ -391,7 +391,7 @@ void resQueueRemove(Actor *targetActor) {
         heapFreeDeferred(found);
         heapFreeDeferred(state->unk34);
         actorDespawn(actor);
-        targetActor->unk60 &= 0xFDFFFFFF;
+        targetActor->flags &= 0xFDFFFFFF;
     }
 }
 
@@ -884,7 +884,7 @@ void resApplyKind(Actor *actor, u16 resId, u8 kindIndex) {
     s32 i;
 
     state = actor->unk174;
-    if (actor->unk60 & 0x10) {
+    if (actor->flags & 0x10) {
         func_8070D970(state->id);
     }
     parsed = (S112bResParsed *)resNodeGetOrLoad(resId, 0);

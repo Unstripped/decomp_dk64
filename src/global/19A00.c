@@ -1543,7 +1543,7 @@ s32 func_80617400(Actor *arg0) {
     scriptReadU8(&sp32);
     scriptReadU8(&sp35);
     scriptReadU8(&sp34);
-    if (arg0->unk60 & 4) {
+    if (arg0->flags & 4) {
         sfxPlayAtPositionPooled(arg0->x, arg0->y, arg0->z, sp36, sp33, sp32, sp35, sp34, 0.3f, 0);
     }
     return 1;
@@ -1574,7 +1574,7 @@ s32 func_806174B4(Actor *arg0) {
     scriptReadU32((u8 *)&sp38);
     scriptReadU8(&sp42);
     scriptReadU8(&sp41);
-    if (arg0->unk60 & 4) {
+    if (arg0->flags & 4) {
         if (sp42) {
             node_actor = arg0;
             actorGetNodePos(node_actor, sp42, &sp54, &sp50, &sp4C);
@@ -2274,7 +2274,7 @@ void scriptCmdActorCamShake(Actor *arg0) {
     scriptReadU16((u8 *)&sp40);
     sp3F = (u32)((f64)sp3F * ((f64)arg0->unk4->unk38 / 0.15));
     temp_v0 = arg0->actorType;
-    if ((temp_v0 == 0xCC) || ((arg0->unk6A & 1) && ((arg0->unk60 & 4) || (temp_v0 == 0xE4)) && (D_807444EC != 1))) {
+    if ((temp_v0 == 0xCC) || ((arg0->unk6A & 1) && ((arg0->flags & 4) || (temp_v0 == 0xE4)) && (D_807444EC != 1))) {
         var_v1 = (sp3F >= 21) ? 20 : sp3F;
         camStartShakeFromPoint(((GlobalSpawnView *)gActivePlayerState)->unk104, sp3E, var_v1, sp4C, sp48, sp44, (f32)sp42, (f32)sp40);
     }
@@ -2379,10 +2379,10 @@ void func_80618E4C(Actor *arg0) {
 
     scriptReadU8(&sp1F);
     if (sp1F != 0) {
-        arg0->unk60 &= 0xBFFFFFFF;
+        arg0->flags &= 0xBFFFFFFF;
         D_807FBB60 |= 0x10030;
     } else {
-        arg0->unk60 |= 0x40000000;
+        arg0->flags |= 0x40000000;
         D_807FBB60 &= 0xFFFEFFCF;
         func_806D9924(arg0);
     }

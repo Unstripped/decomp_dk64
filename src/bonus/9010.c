@@ -97,7 +97,7 @@ void bonusScoreHudUpdate(void) {
     BonusEHud *hud = D_807FBB40->unk174;
     s32 actionParam;
 
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         camStartPath(0, 0, 1);
         D_807FBB40->state = 0;
         hud->unk4 = 0x3C;
@@ -134,7 +134,7 @@ void bonusScoreHudUpdate(void) {
         }
         break;
     case 1:
-        if (!(D_807FBB40->unk60 & 0x02000000) || ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000))) {
+        if (!(D_807FBB40->flags & 0x02000000) || ((D_807ECD58 & 0x8000) && !(D_807ECD60 & 0x8000))) {
             camResumePath();
             D_807FBB40->state = 2;
             actorSetStateTwo((void *)D_807FBB40->unk11C);

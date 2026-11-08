@@ -155,7 +155,7 @@ void bonusReelGameUpdate(void) {
     two = 2;
     player = D_807FBB4C->unk174;
     obj = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->x = 52.0f;
         D_807FBB40->z = 18.0f;
         obj->unk19 = gfxResourceCreate(1, "HIT", 8, 0.0f, 0.0f, 0.0f);
@@ -206,7 +206,7 @@ void bonusReelGameUpdate(void) {
             }
             break;
         case 1:
-            if (!(D_807FBB40->unk60 & 0x02000000)) {
+            if (!(D_807FBB40->flags & 0x02000000)) {
                 D_807FBB40->state = 3;
                 D_807FBB40->unk155[0] = 0;
                 func_8071495C();
@@ -335,7 +335,7 @@ void bonusReelUpdate(void) {
     s16 t;
 
     obj = D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         D_807FBB40->roll = ((randomNonNegative() >> 15) % 6 * 0x3C000) / 360;
     }
     switch (D_807FBB40->state) {

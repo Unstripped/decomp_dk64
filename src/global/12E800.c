@@ -66,10 +66,10 @@ void behaviourFrameBegin(void) {
     D_807FDC9C = (Struct807FDC9C *)(D_807FDC98 = D1DC90D->unk0);
     D_807FDCA0 = D1DC98D->unk1C;
     D_807FDC90->unk18++;
-    if (D_807FBB40->unk60 & 0x20000000) {
+    if (D_807FBB40->flags & 0x20000000) {
         if (D_807FBB40->state != 0x37 && D_807FBB40->state != 0x36) {
             if (((D1S4 *)D_807FDC94->unk4)->unk0->unk10 != D1DC90D->unk16) {
-                D_807FBB40->unk60 &= ~0x20000000;
+                D_807FBB40->flags &= ~0x20000000;
             }
         }
     }
@@ -88,7 +88,7 @@ void behaviourFrameBegin(void) {
                 } else {
                     actorGlobalStateClearEvents();
                     D_807FBB40->unk138 = 0;
-                    D_807FBB40->unk60 &= 0xFFFD7FFF;
+                    D_807FBB40->flags &= 0xFFFD7FFF;
                     D_807FBB40->unk144 = 1;
                     D_807FBB40->state = 0x39;
                     D_807FBB40->unk155[0] = 0;
@@ -300,7 +300,7 @@ void func_8072A450(void) {
     D1Tbl8075EB80 *e;
     ActorSub4 *sub;
 
-    if (!(D_807FBB40->unk60 & 0x1000000) && (D_807FBB40->unk60 & 4)) {
+    if (!(D_807FBB40->flags & 0x1000000) && (D_807FBB40->flags & 4)) {
         if (!(D1DC98C->unk46 & 0x100)) {
             a = (u32)((f64)D_807FBB40->unk128 * 0.7);
             sub = D_807FBB40->unk4;
@@ -1347,9 +1347,9 @@ void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
                 if (!(C1D90->unk1A & 0x400)) {
                     actorSetBehaviourState(0x35, (s16)(s32)(C1D9C->unkC * 0.667), arg1);
                     C1D90->unk20 = 0x3C;
-                    C1D90->unkA = D_807FDC94->unk88;
-                    C1D90->unkC = D_807FDC94->unk8C;
-                    C1D90->unkE = D_807FDC94->unk90;
+                    C1D90->unkA = D_807FDC94->prevX;
+                    C1D90->unkC = D_807FDC94->prevY;
+                    C1D90->unkE = D_807FDC94->prevZ;
                     return;
                 }
                 if (C1D90->unk26 < C1D9C->unkD) {
@@ -1702,7 +1702,7 @@ void func_8072D714(D1ActorViewI *arg0, s32 arg1) {
         D1AI->unkB8 = -60.0f;
     }
     D1AI->unk138 &= mask;
-    D_807FBB40->unk60 &= 0xFFFF7FFF;
+    D_807FBB40->flags &= 0xFFFF7FFF;
     if (arg0 == NULL || (Actor *)arg0 == D_807FDC94 || arg0->unk58 == 0x2B) {
         func_8072D9D4();
     }
@@ -1865,14 +1865,14 @@ void func_8072DEA8(void *arg0, u8 arg1, Actor *arg2) {
             E2A->unkEE = (arg2->yaw + 0x800) & 0xFFF;
         }
         actorSetBehaviourState(arg1, 0, (s32)arg0);
-        b8 = arg2->unkB8;
+        b8 = arg2->speedXZ;
         E2A->unkB8 = -(((b8 > 60.0f ? b8 : 60.0f) < 150.0f) ? (b8 > 60.0f ? b8 : 60.0f) : 150.0f);
     } else {
         actorSetBehaviourState(arg1, 0, (s32)arg0);
     }
     if (arg2 == D_807FDC94) {
         ((E2D90View *)D_807FDC90)->unk16 = ((E2Sub4 *)D_807FDC94->unk4)->model->unk10;
-        D_807FBB40->unk60 |= 0x20000000;
+        D_807FBB40->flags |= 0x20000000;
     }
 }
 

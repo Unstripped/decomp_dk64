@@ -486,11 +486,11 @@ void playerUpdateCommon(s32 arg0) {
     sp64 = D_807FBB40;
     gActivePlayerState = D_807FBB40->unk174;
     if (D_807463B8 == 0) {
-        D_807FBB40->unk60 |= 0x400000;
+        D_807FBB40->flags |= 0x400000;
     } else {
-        D_807FBB40->unk60 &= 0xFFBFFFFF;
+        D_807FBB40->flags &= 0xFFBFFFFF;
     }
-    D_807FBB40->unk60 &= 0xF7FFFFFF;
+    D_807FBB40->flags &= 0xF7FFFFFF;
     PLAYER_SLOT(gCurrentPlayerIndex).unk28C = PLAYER_SLOT(gCurrentPlayerIndex).unk27C;
     if (D_807FBB40->unk64 & 0x100) {
         PLAYER_STATE->unk120 = D_8076A068;
@@ -513,15 +513,15 @@ void playerUpdateCommon(s32 arg0) {
         D_807FBB40->unk68 |= 0x10;
     } else {
         D_807FBB40->unk68 &= 0xFFEF;
-        D_807FBB40->unk60 &= ~0x800;
+        D_807FBB40->flags &= ~0x800;
     }
     if (PLAYER_STATE->unkFC != 0) {
         PLAYER_STATE->unkFC = PLAYER_STATE->unkFC - 1;
     }
     if (flags & 0x40) {
-        D_807FBB40->unk60 |= 0x4000;
+        D_807FBB40->flags |= 0x4000;
     } else {
-        D_807FBB40->unk60 &= ~0x4000;
+        D_807FBB40->flags &= ~0x4000;
     }
     if ((flags & 0x80) && PLAYER_STATE->unk100 == 0 && D_807FBB40->actorType != 8 && D_807FBB40->actorType != 9) {
         D_807FBB40->unk68 |= 0x20;
@@ -721,7 +721,7 @@ done:
                     func_805FF2F4();
                     PLAYER_STATE->unk244 = 1;
                 }
-                if ((D_807FBB40->x != D_807FBB40->unk88 || D_807FBB40->y != D_807FBB40->unk8C || D_807FBB40->z != D_807FBB40->unk90 || gPlayerPadState[gCurrentPlayerIndex].unk2A != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2E != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2F != 0) && !(D_807FBB60 & 2)) {
+                if ((D_807FBB40->x != D_807FBB40->prevX || D_807FBB40->y != D_807FBB40->prevY || D_807FBB40->z != D_807FBB40->prevZ || gPlayerPadState[gCurrentPlayerIndex].unk2A != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2E != 0 || gPlayerPadState[gCurrentPlayerIndex].unk2F != 0) && !(D_807FBB60 & 2)) {
                     if (++D_8076A090 == 0x69780) {
                         func_805FF2F4();
                         PLAYER_STATE->unk244 = 1;
@@ -865,7 +865,7 @@ void func_806CB53C(void) {
             if (LB_P->unk1F0 & 0x10) {
                 LB_P->unk1F0 &= ~0x10;
                 flag = 1;
-                D_807FBB48->unk60 |= 0x8000;
+                D_807FBB48->flags |= 0x8000;
                 D_807FBB48->unk128 = 0xFF;
             }
             if (LB_P->unk1F0 & 0x20) {
@@ -900,7 +900,7 @@ void func_806CB53C(void) {
     }
     if (LB_P->unk1F0 & 0x40) {
         if (D_807FBB40->actorType != 6) {
-            D_807FBB40->unk60 &= 0xFFFF7FFF;
+            D_807FBB40->flags &= 0xFFFF7FFF;
             D_807FBB40->unk128 -= 4;
             if (D_807FBB40->unk128 < 0x64) {
                 D_807FBB40->unk128 = 0x64;
@@ -916,7 +916,7 @@ void func_806CB53C(void) {
             }
             if (LB_P->unk1FE == 0) {
                 sfxStopChannel(0x6C, 0);
-                D_807FBB40->unk60 |= 0x8000;
+                D_807FBB40->flags |= 0x8000;
                 func_806F12FC(D_807FBB40);
             }
         }
@@ -1181,7 +1181,7 @@ void func_806CC364(u8 arg0) {
 extern f32 D_807539C0[];
 
 void func_806CC5DC(void) {
-    D_807FBB40->unkB8 = mathApproachF32(D_807FBB40->unkB8, 0.0f, D_807539C0[D_807FD584]);
+    D_807FBB40->speedXZ = mathApproachF32(D_807FBB40->speedXZ, 0.0f, D_807539C0[D_807FD584]);
     playerApplyMotion();
     func_806CC364(1);
 }
@@ -1707,13 +1707,13 @@ s16 playerSelectMoveTier(Actor *arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4) {
             }
         }
         if (arg3 == 0) {
-            if (gPlayerCount >= 2 || (gActivePlayerState->unk1F0 & 0x40) || !(arg0->unk60 & 4) || D_807444EC == 1) {
+            if (gPlayerCount >= 2 || (gActivePlayerState->unk1F0 & 0x40) || !(arg0->flags & 4) || D_807444EC == 1) {
                 arg3 = 1;
                 goto end;
             }
         }
         if (arg3 == 1) {
-            if (gPlayerCount < 2 && !(gActivePlayerState->unk1F0 & 0x40) && (arg0->unk60 & 4) && D_807444EC != 1) {
+            if (gPlayerCount < 2 && !(gActivePlayerState->unk1F0 & 0x40) && (arg0->flags & 4) && D_807444EC != 1) {
                 arg3 = 0;
                 goto end;
             }
@@ -2176,7 +2176,7 @@ s16 playerSelectCarryMoveState(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
         }
     }
     if (G05_P->unk4C > 0) {
-        scale = arg0->unkB8 * 0.025;
+        scale = arg0->speedXZ * 0.025;
         scale = scale * 0.75 + 0.25;
         if ((*(G05Model **)arg0->unk4)->unk24 != 0.0f) {
             scriptSetActorRampTarget(arg0, scale, 2.0f);
@@ -2508,7 +2508,7 @@ s32 func_8072881C(s32, void *);
 u32 randomLcgNext(void);
 
 void func_806CF580(void) {
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         G05_P->unk84 = gFrameCounter;
         G05_P->unkD0 = gFrameCounter;
     }
@@ -2629,7 +2629,7 @@ void playerCheckLedgeGrab(void) {
     if (!(D_807FBB64 & 0x20000) && D_807FBB40->unkFC != 0 && G06_P->unk8C == 0 && !(D_807FBB40->unk6A & 1) && G06_P->unkE8 != 0) {
         flag = (gCurrentMap == 0x53 || gCurrentMap == 0xC5) ? 1 : 0;
         notWall = actorAngleInArc(D_807FBB40, D_807FBB40->yaw) == 0;
-        if (notWall || !(D_80753E10[D_807FD584] < D_807FBB40->unkB8) || flag != 0) {
+        if (notWall || !(D_80753E10[D_807FD584] < D_807FBB40->speedXZ) || flag != 0) {
             sp3B = playerProbeLedgeAhead(D_807FBB40, &sp3C, notWall, flag ? 30.0 : 15.0);
             collisionGetCoords(&sp38, &sp36);
             hit = 0;
@@ -2774,23 +2774,23 @@ void playerResumeLocomotion(Actor *arg0) {
         return;
     }
     if ((p->unk1F0 & 0x20) && gPlayerCount == 1) {
-        temp = func_806CE4E4(arg0, arg0->unkB8, p->unk4, 1);
+        temp = func_806CE4E4(arg0, arg0->speedXZ, p->unk4, 1);
         arg0->state = temp;
         arg0->unk155[0] = 0;
         if (temp == 0x3F) {
             arg0->unk155[0] = 1;
         }
     } else if (p->unk1AC != 0) {
-        arg0->state = playerSelectCarryMoveState(arg0, arg0->unkB8, p->unk4, 1);
+        arg0->state = playerSelectCarryMoveState(arg0, arg0->speedXZ, p->unk4, 1);
         arg0->unk155[0] = 0;
     } else if (p->unk8C != 0) {
-        temp = func_806CE174(arg0, arg0->unkB8, p->unk4, 1);
+        temp = func_806CE174(arg0, arg0->speedXZ, p->unk4, 1);
         if (arg0->state != 2) {
             arg0->state = temp;
             arg0->unk155[0] = 0;
         }
     } else {
-        temp = func_806CDD24(arg0, arg0->unkB8, p->unk4, 1);
+        temp = func_806CDD24(arg0, arg0->speedXZ, p->unk4, 1);
         if (arg0->state != 2) {
             arg0->state = temp;
             arg0->unk155[0] = 0;
@@ -3038,9 +3038,9 @@ void func_806D09E8(Actor *arg0) {
 
 void func_806D0A54(Actor *arg0, s32 arg1, s32 arg2) {
     if (arg1) {
-        arg0->unk60 |= 4;
+        arg0->flags |= 4;
     } else {
-        arg0->unk60 &= ~4;
+        arg0->flags &= ~4;
     }
 }
 

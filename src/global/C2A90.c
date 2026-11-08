@@ -31,7 +31,7 @@ u8 func_806BDD90(void) {
     s16 i;
 
     behaviourFrameBegin();
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         if (func_805FF0C8() != 0) {
             D_807FBB40->state = 0x40;
         } else {
@@ -181,7 +181,7 @@ void func_806BE09C(void) {
         ratio = 1.0f;
     }
     target = D_807FDC90->unk30 + (0.44 - D_807FDC90->unk30) * ratio;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         actorSetUniformScale(D_807FBB40, target);
     }
     switch (D_807FBB40->state) {

@@ -73,8 +73,8 @@ void actorTriggerRampWithSfx(void) {
 
     actor = D_807FBB40;
     p = &D_807FBB40;
-    if (!(actor->unk60 & 0x10)) {
-        actor->unk60 &= ~4;
+    if (!(actor->flags & 0x10)) {
+        actor->flags &= ~4;
         func_80613C48(D_807FBB40, 0x407, 0.0f, 0.0f);
         scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
         actor = D_807FBB40;
@@ -82,8 +82,8 @@ void actorTriggerRampWithSfx(void) {
     for (i = 0; i < D_807FBB70.unk254; i++) {
         event = D_807FBB70.unk278[i];
         if (*event == 0) {
-            flags = actor->unk60;
-            actor->unk60 = flags | 4;
+            flags = actor->flags;
+            actor->flags = flags | 4;
             controllerAnimSetState(D_807FBB40, 0x407, 0.0f, 0.0f);
             scriptSetActorRampTarget(D_807FBB40, 1.0f, 0.0f);
             switch (actorListFindIdByActor(D_807FBB40)) {
@@ -110,7 +110,7 @@ void actorTriggerRampWithSfx(void) {
         }
     }
     if (0.0f == ((ActorSub4Node *)((ActorSub4Head *)actor->unk4)->unk0)->unk24) {
-        actor->unk60 &= ~4;
+        actor->flags &= ~4;
         actor = *p;
     }
     actorUpdateModelMatrix(actor, 0);
@@ -265,15 +265,15 @@ void func_8069E774(void) {
     } else {
         sp74 = &sp80->unk1F0;
     }
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         node->unkC = (u16)sp78->unk140->unk14;
         D_807FBB40->unk12A = 0x3E8;
-        D_807FBB40->unk60 |= 0x400;
+        D_807FBB40->flags |= 0x400;
         animSetLoopLimit(D_807FBB40, 0, 1);
         animSetSpeed(D_807FBB40, 0, 1.0f);
         animSetFinished(D_807FBB40, 0, 1);
         *sp74 |= 0x02000000;
-        D_807FBB40->unk60 |= 0x800000;
+        D_807FBB40->flags |= 0x800000;
         D_807FBB40->unk16A = 0xFF;
         D_807FBB40->unk16B = 0xFF;
         D_807FBB40->unk16C = 0xFF;

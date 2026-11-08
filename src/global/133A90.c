@@ -254,7 +254,7 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
                 dz = playerActor->z - z;
         dist = sqrtf(dx * dx + dy * dy + dz * dz);
         if (dist < node->unk1C && node->unk31 != 0) {
-            if (node->unk6 == 1 || (allowBoss != 0 && (node->unk0->unk60 & 0x04000000))) {
+            if (node->unk6 == 1 || (allowBoss != 0 && (node->unk0->flags & 0x04000000))) {
                 if (got == 0 || !(u8)isPlayer) {
                     if (proxPathFindNearestSegment(playerActor, node, &d, &sub)) {
                         if (d < bestDist) {
@@ -275,7 +275,7 @@ void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowB
         state->unk134 = best->unk5;
         state->unk19C = 0;
         state->unk19E = 0xFFF;
-        playerActor->unkB8 = 0.0f;
+        playerActor->speedXZ = 0.0f;
         isPlayer = best->unk6;
         switch (isPlayer) {
         case 0:

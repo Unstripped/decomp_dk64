@@ -1439,11 +1439,11 @@ void actorUpdateModelMatrices(Actor *arg0) {
 
     sub = arg0->unk140;
     if (sub != NULL) {
-        temp_v0 = arg0->unk60;
+        temp_v0 = arg0->flags;
         if (!(temp_v0 & 0x80000000) || !(temp_v0 & 0x10)) {
             actorSub140BuildBoxes(sub);
         }
-        if (!(arg0->unk64 & 8) || !(arg0->unk60 & 0x10)) {
+        if (!(arg0->unk64 & 8) || !(arg0->flags & 0x10)) {
             actorSub140TransformTriangles(arg0->unk140);
         }
     }

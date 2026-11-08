@@ -3599,7 +3599,7 @@ void func_806D9820(void) {
 void func_806D9924(Actor *arg0) {
     ((G16Actor *)arg0)->unkE8 = 0;
     ((G16Actor *)arg0)->unkE4 = 0;
-    arg0->unk60 &= ~1;
+    arg0->flags &= ~1;
 }
 
 s32 func_8061CB80();

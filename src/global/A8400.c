@@ -889,7 +889,7 @@ void textBoxUpdate(void) {
 
     sub = D_807FBB40->unk174;
     sp18 = 0.05f;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         sp18 = 1.0f;
         sub->unk34 = heapAlloc(0x280);
         sub->unk55 = 0;

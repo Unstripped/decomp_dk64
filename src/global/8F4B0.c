@@ -54,7 +54,7 @@ void lightUpdateFromActorLighting(u8 *outR, u8 *outG, u8 *outB) {
     s32 lightIndex;
     u8 idx;
 
-    if (D_807FBB40->unk60 & 4) {
+    if (D_807FBB40->flags & 4) {
         switch (D_807FC622) {
         case 0:
             *outR = 0xFF;
@@ -275,7 +275,7 @@ void actorCutsceneDispatchEvents(void) {
     s16 mode;
 
     csState = (CutsceneActorState *)D_807FBB40->unk174;
-    if (!(D_807FBB40->unk60 & 0x10)) {
+    if (!(D_807FBB40->flags & 0x10)) {
         csState->unk0 = 0;
         csState->unk1A = -1;
         csState->unk21 = 0;
@@ -394,7 +394,7 @@ void actorCutsceneDispatchEvents(void) {
             playerWaypointPathStartPacked(D_807FBB4C, 0, eventData[0] + pathFlag, 0);
             break;
         case 0xD:
-            if (((Actor *)D_807FBB4C)->unkB8 > 250.0f) {
+            if (((Actor *)D_807FBB4C)->speedXZ > 250.0f) {
                 sfxPlayFromActorWithAltitudeCheck(D_807FBB4C, eventData[0], 0xFF, 0x7F, 0x1E);
             }
             break;
