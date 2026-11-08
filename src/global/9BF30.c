@@ -29,6 +29,7 @@ void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 void matrixMakeRotationY(f32 (*)[4], f32);
+#define gSPMatrixShared(pkt, m, p) { _g = (Gfx *)(pkt); _g->words.w0 = (_SHIFTL(G_MTX, 24, 8) | _SHIFTL(((sizeof(Mtx) - 1) / 8), 19, 5) | _SHIFTL(((p) ^ G_MTX_PUSH), 0, 8)); _g->words.w1 = (u32)(m); }
 
 Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
     ActorTrailState *sub;
@@ -109,7 +110,7 @@ Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor) {
             guTranslateF(mtx1, actor->x + vx, actor->y, actor->z + vy);
             guMtxCatF(mtx2, mtx1, mtx2);
             guMtxF2L(mtx2, (Mtx *)(sub->unk4 + (((i * 2) + gGfxBufferIndex) << 6)));
-            _g = (Gfx *)(glist++); _g->words.w0 = 0xDA380003; _g->words.w1 = (u32)(sub->unk4 + (((i * 2) + gGfxBufferIndex) << 6)); // FAKE: shared Gfx pointer
+            gSPMatrixShared(glist++, sub->unk4 + (((i * 2) + gGfxBufferIndex) << 6), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
             gSPVertex(glist++, osVirtualToPhysical(&D_80750280), 4, 0);
             gSP2Triangles(glist++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(glist++);
