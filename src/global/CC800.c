@@ -1039,7 +1039,7 @@ void func_806F12FC(void);
 
 void func_806C93E4(Actor *arg0, Struct807FD580 *arg1) {
     func_806F12FC();
-    arg1->unk1F0 &= ~0x30;
+    arg1->stateFlags &= ~0x30;
     arg0->flags |= 0x8000;
     arg0->unk128 = 0xFF;
 }
