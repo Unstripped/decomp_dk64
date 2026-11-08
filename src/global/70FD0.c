@@ -1238,52 +1238,27 @@ ActorSub140 *actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, 
     return temp_v0;
 }
 
-typedef struct ActorModelSubNode {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ s32 unkC;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ s32 unk14;
-    /* 0x18 */ s32 unk18;
-    /* 0x1C */ struct ActorModelSubNode *next;
-} ActorModelSubNode;
 
-typedef struct ActorModelNode {
-    /* 0x00 */ f32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ s32 unk14;
-    /* 0x18 */ s32 unk18;
-    /* 0x1C */ s32 unk1C;
-    /* 0x20 */ s32 unk20;
-    /* 0x24 */ u16 unk24;
-    /* 0x26 */ u8 unk26;
-    /* 0x27 */ u8 unk27;
-    /* 0x28 */ struct ActorModelNode *next;
-} ActorModelNode;
 
 void actorAppendModelSubNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     f32 pad[3];
     ActorSub140 *sub;
-    ActorModelSubNode *node;
-    ActorModelSubNode **head;
-    ActorModelSubNode *curr;
+    ModelSubNode *node;
+    ModelSubNode **head;
+    ModelSubNode *curr;
 
     sub = arg0->unk140;
-    node = (ActorModelSubNode *)heapAlloc(sizeof(ActorModelSubNode));
+    node = (ModelSubNode *)heapAlloc(sizeof(ModelSubNode));
     node->next = NULL;
-    head = (ActorModelSubNode **)&sub->unk90;
-    node->unk0 = arg1;
-    node->unk4 = arg2;
-    node->unk8 = arg3;
+    head = (ModelSubNode **)&sub->subNodes;
+    node->x = arg1;
+    node->y = arg2;
+    node->z = arg3;
     node->unk18 = arg4;
     node->unkC = 0;
     node->unk10 = 0;
     node->unk14 = 0;
-    curr = (ActorModelSubNode *)sub->unk90;
+    curr = (ModelSubNode *)sub->subNodes;
     if (curr != NULL) {
         do {
             head = &curr->next;
@@ -1296,18 +1271,18 @@ void actorAppendModelSubNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4
 void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5) {
     f32 pad[3];
     ActorSub140 *sub;
-    ActorModelNode *node;
-    ActorModelNode **head;
-    ActorModelNode *curr;
+    ModelNode *node;
+    ModelNode **head;
+    ModelNode *curr;
 
     sub = arg0->unk140;
-    node = (ActorModelNode *)heapAlloc(sizeof(ActorModelNode));
+    node = (ModelNode *)heapAlloc(sizeof(ModelNode));
     node->next = NULL;
-    head = (ActorModelNode **)&sub->unk8C;
-    node->unk0 = arg1;
-    node->unk4 = arg2;
-    node->unk8 = arg3;
-    node->unkC = arg4;
+    head = (ModelNode **)&sub->nodes;
+    node->x = arg1;
+    node->y = arg2;
+    node->z = arg3;
+    node->scale = arg4;
     node->unk20 = arg5;
     node->unk10 = 0;
     node->unk14 = 0;
@@ -1316,7 +1291,7 @@ void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
     node->unk26 = 1;
     node->unk24 = 0;
     node->unk27 = 0;
-    curr = (ActorModelNode *)sub->unk8C;
+    curr = (ModelNode *)sub->nodes;
     if (curr != NULL) {
         do {
             head = &curr->next;
@@ -1325,6 +1300,7 @@ void actorAppendModelNode(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, s
     }
     *head = node;
 }
+
 
 void actorFreeModelNodeList(Actor *arg0) {
     ActorSub140 *sub;
@@ -1356,9 +1332,9 @@ f32 actorGetOrSetNodeScale(Actor *arg0, s32 arg1, f32 arg2) {
     }
     if (node != NULL) {
         if (arg2 != -1.0f) {
-            node->unkC = arg2;
+            node->scale = arg2;
         }
-        return node->unkC;
+        return node->scale;
     }
     return -1.0f;
 }

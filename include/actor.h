@@ -13,9 +13,15 @@ typedef struct ActorSub4 {
 } ActorSub4;
 
 typedef struct ModelNode {
-    /* 0x00 */ u8 pad0[0xC];
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ u8 pad10[0x14];
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+    /* 0x0C */ f32 scale;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
+    /* 0x1C */ s32 unk1C;
+    /* 0x20 */ s32 unk20;
     /* 0x24 */ u16 unk24;
     /* 0x26 */ u8 unk26;
     /* 0x27 */ u8 unk27;
@@ -23,7 +29,13 @@ typedef struct ModelNode {
 } ModelNode; // size = 0x2C
 
 typedef struct ModelSubNode {
-    /* 0x00 */ u8 pad0[0x1C];
+    /* 0x00 */ f32 x;
+    /* 0x04 */ f32 y;
+    /* 0x08 */ f32 z;
+    /* 0x0C */ s32 unkC;
+    /* 0x10 */ s32 unk10;
+    /* 0x14 */ s32 unk14;
+    /* 0x18 */ s32 unk18;
     /* 0x1C */ struct ModelSubNode *next;
 } ModelSubNode; // size = 0x20
 
@@ -50,17 +62,23 @@ typedef struct ActorSub140 {
     /* 0x80 */ s32 unk80;
     /* 0x84 */ s32 unk84;
     /* 0x88 */ s32 unk88;
-    /* 0x8C */ ModelNode *unk8C;
-    /* 0x90 */ ModelSubNode *unk90;
+    /* 0x8C */ ModelNode *nodes;
+    /* 0x90 */ ModelSubNode *subNodes;
     /* 0x94 */ s32 unk94;
     /* 0x98 */ void *unk98;
-    /* 0x9C */ s32 unk9C;
-    /* 0xA0 */ void *unkA0;
-    /* 0xA4 */ s32 unkA4;
-    /* 0xA8 */ s32 unkA8;
+    /* 0x9C */ s32 boxCount;
+    /* 0xA0 */ void *srcBoxes;
+    /* 0xA4 */ s32 boxes;
+    /* 0xA8 */ s32 activeBoxesEnd;
     /* 0xAC */ u8 unkAC;
     /* 0xAD */ u8 padAD[0x17];
 } ActorSub140; // size = 0xC4
+#define unk8C nodes
+#define unk90 subNodes
+#define unk9C boxCount
+#define unkA0 srcBoxes
+#define unkA4 boxes
+#define unkA8 activeBoxesEnd
 
 typedef struct ActorList {
     /* 0x00 */ s32 items[4];
