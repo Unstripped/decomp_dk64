@@ -134,7 +134,7 @@ typedef struct MeshBlobHeader {
 
 void *heapAlloc(s32);
 
-s32 func_80709890(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **arg2, s32 **arg3) {
+s32 hudDrawTextWithShadow(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **arg2, s32 **arg3) {
     s32 count;
     s32 k;
     s32 sum;
@@ -563,7 +563,7 @@ extern s32 *gFramebuffers[];
 
 void *heapAlloc(s32);
 s32 assetLoad();
-s32 func_80709890();
+s32 hudDrawTextWithShadow();
 s32 meshComputeVertexRanges();
 
 void transitionInit(void) {
@@ -579,7 +579,7 @@ void transitionInit(void) {
     D_807FD9B8 = assetLoad(0x13, 1, 1, 1);
     D_807FD9B0 = (s32)heapAlloc(gScreenWidth * gScreenHeight * 2);
     fbCopySetAlpha((s32 *)D_807FD9B0, gFramebuffers[gGfxBufferIndex]);
-    func_80709890((void *)D_807FD9B8, (void *)&D_807FD9A8, (void *)&D_807FD9AC, 0);
+    hudDrawTextWithShadow((void *)D_807FD9B8, (void *)&D_807FD9A8, (void *)&D_807FD9AC, 0);
     meshComputeVertexRanges((void *)D_807FD9A8);
     D_807FD9A4 = D_807FD9A8->unk8;
     D_807FD9A8->unk8 = heapAlloc(D_807FD9A8->unk0 * 0xC);

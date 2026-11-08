@@ -157,7 +157,7 @@ extern s32 gGlobalCutsceneFlags;
 void behaviourFrameBegin(void);
 void hudSpawnCountdownTimer(s32, s32, u8, s32 *);
 s32 camIsCutsceneActive(void);
-s32 func_8061CC00(void);
+s32 camIsFollowingActive(void);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void actorSetStateTwo(s32);
 s16 mathAngleArcMidpoint(s16, s16);
@@ -217,12 +217,12 @@ void func_806B7EA0(void) {
         }
     }
     if (gCurrentActor->state != 0x11) {
-        if (gCurrentActor->state == 0x23 && func_8061CC00() == 0) {
+        if (gCurrentActor->state == 0x23 && camIsFollowingActive() == 0) {
             camProjectToScreen(gBehaviourTargetActor->x, gBehaviourTargetActor->y + (u32)gBehaviourTargetActor->eyeHeight, gBehaviourTargetActor->z, &screenX, &screenY, 0, 1.0f, 0);
             actorCursorSteer(c, screenX, screenY);
         }
     } else {
-        if (func_8061CC00() == 0) {
+        if (camIsFollowingActive() == 0) {
             renderCallbacksRegister(actorCursorDrawBurst, gCurrentActor, 3);
         }
         if (BC3B0S90->unk2C != 0) {
@@ -241,7 +241,7 @@ void func_806B7EA0(void) {
         }
         camProjectToScreen(c->unk10, c->unk12, c->unk14, &c->x, &c->y, 0, 1.0f, 0);
     }
-    if (func_8061CC00() == 0) {
+    if (camIsFollowingActive() == 0) {
         renderCallbacksRegister(actorCursorDrawSprite, gCurrentActor, 3);
     }
 }

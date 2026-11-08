@@ -3602,7 +3602,7 @@ void playerClearPitchRollFlags(Actor *arg0) {
     arg0->flags &= ~1;
 }
 
-s32 func_8061CB80();
+s32 camIsPathFlag4Active();
 void mapChunkSetIndexOverride(s32);
 void sfxAllocateChannel(s32, f32);
 
@@ -3612,7 +3612,7 @@ void playerStateCutsceneIdle(void) {
 
     playerInputUpdate(1);
     if (G16_A->unk155 < 3 ||
-        (func_8061CB80() != 0 && (camIsPlayingPath(7) != 0 || camIsPlayingPath(0) != 0 || camIsPlayingPath(4) != 0 ||
+        (camIsPathFlag4Active() != 0 && (camIsPlayingPath(7) != 0 || camIsPlayingPath(0) != 0 || camIsPlayingPath(4) != 0 ||
                                   camIsPlayingPath(9) != 0 || camIsPlayingPath(8) != 0))) {
         mapChunkSetIndexOverride(1);
     }

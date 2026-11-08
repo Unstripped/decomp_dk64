@@ -2063,7 +2063,7 @@ void playerStateEnterDamageReaction(void) {
     gActivePlayerActor->state = 0x39;
     gActivePlayerActor->unk155[0] = 0;
     ((u8 *)gActivePlayerState)[0x11C] = 0x19;
-    func_8061B610(((void **)gActivePlayerState)[0x41]);
+    camSnapToTargetHeight(((void **)gActivePlayerState)[0x41]);
     if ((gCurrentMap != 0x52) && (gCurrentMap != 0xE)) {
         func_806C9974(gCurrentPlayerIndex, -0x40);
     } else {

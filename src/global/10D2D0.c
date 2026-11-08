@@ -115,7 +115,7 @@ typedef struct HealthHudInit {
 extern s32 gGlobalOverlayFlags;
 extern s32 func_807142D8();
 
-void func_80708BB8(HealthHudInit *hudInit) {
+void hudDrawItemWithAlpha(HealthHudInit *hudInit) {
     if (gGlobalOverlayFlags & 0x800) {
         hudInit->unk6 = 0x20;
     } else {

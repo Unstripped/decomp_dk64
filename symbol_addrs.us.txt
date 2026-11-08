@@ -3707,3 +3707,15 @@ behaviourCheckGroundImpactEffects = 0x8072A714; // type:func
 behaviourUpdateContactAndState = 0x8072B7CC; // type:func
 behaviourCheckTargetCollisionMode = 0x8072C670; // type:func
 behaviourCalculateDamageForce = 0x8072D714; // type:func
+
+camResetPlayerViewports = 0x8061B5C4; // type:func
+camSnapToTargetHeight = 0x8061B610; // type:func
+camSetSettleMode = 0x8061B840; // type:func
+camIsPathFlag4Active = 0x8061CB80; // type:func
+camIsFollowingActive = 0x8061CC00; // type:func
+camUpdateFollowTargetDistance = 0x8061D1FC; // type:func
+camCalculateTargetDistanceAndAngles = 0x8061D6A8; // type:func
+screenFadeOutCompleteCallback = 0x8061D9EC; // type:func
+screenFadeInStartCallback = 0x8061DA14; // type:func
+hudDrawTextWithShadow = 0x80709890; // type:func
+hudDrawItemWithAlpha = 0x80708BB8; // type:func

@@ -11,7 +11,7 @@ typedef struct MapFogEntry {
 
 extern MapFogEntry D_80748B70[];
 extern s32 gCurrentMap;
-s32 func_8061CC00(void);
+s32 camIsFollowingActive(void);
 
 void mapUpdateFogDistance(f32 *pDist, s16 characterId) {
     s16 limit = 6;
@@ -20,7 +20,7 @@ void mapUpdateFogDistance(f32 *pDist, s16 characterId) {
     s16 i;
 
     if (gCurrentMap == 0x57) {
-        if (func_8061CC00()) {
+        if (camIsFollowingActive()) {
             target = 2200.0f;
         } else {
             target = 900.0f;

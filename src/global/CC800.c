@@ -183,7 +183,7 @@ typedef struct G00Player306 {
 void *heapAlloc(s32);
 void heapClearBlock(void *);
 void playerSetupCharacterForSlot(s32, u8);
-void func_80708BB8(void *);
+void hudDrawItemWithAlpha(void *);
 void healthRefill(u8);
 void func_806C80E4(void);
 extern u8 gPlayerInventoryTable[][0x5E];
@@ -255,7 +255,7 @@ void playerAllocSlots(s32 arg0) {
         blk->unk2C1 = 1;
         blk->unk2EA = 0;
         blk->unk2EB = 0;
-        func_80708BB8(blk->unk2DC);
+        hudDrawItemWithAlpha(blk->unk2DC);
         if (((gGlobalOverlayFlags & 1) && !(gGlobalCutsceneFlags & 2)) ||
             (((G00Player306 *)gPlayerInventoryTable)[i].unk2FB + ((G00Player306 *)gPlayerInventoryTable)[i].unk2FD <= 0)) {
             healthRefill(sel);
