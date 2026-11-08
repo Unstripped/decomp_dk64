@@ -183,7 +183,8 @@ typedef struct Actor {
     /* 0x0C0 */ f32 speedY;
     /* 0x0C4 */ f32 accelY;
     /* 0x0C8 */ f32 terminalSpeedY;
-    /* 0x0CC */ u8 padCC[4];
+    /* 0x0CC */ u8 floorNodeId;
+    /* 0x0CD */ u8 padCD[3];
     /* 0x0D0 */ u8 floorSurfaceType;
     /* 0x0D1 */ u8 floorSlopeType;
     /* 0x0D2 */ u8 padD2[6];

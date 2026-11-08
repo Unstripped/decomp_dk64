@@ -111,8 +111,8 @@ void collisionQueryActorFloor(Actor *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg
 
     D_807F94BC = 0;
     D_807F94B3 = 0;
-    if (((u8 *)arg0)[0xCC] && arg0->attachMode == 0 && (arg0->flags & 0x10)) {
-        actorGetNodePos(arg0, ((u8 *)arg0)[0xCC], &sp3C, &sp38, &sp34);
+    if (arg0->floorNodeId && arg0->attachMode == 0 && (arg0->flags & 0x10)) {
+        actorGetNodePos(arg0, arg0->floorNodeId, &sp3C, &sp38, &sp34);
     } else {
         sp3C = arg0->x;
         sp38 = arg0->prevY;
@@ -2054,10 +2054,10 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
         do {
             actor = gActiveActors[i].actor;
             if (!(actor->flags & 0x2000)) {
-                if (actor->unk140 != NULL && arg0 != actor && (actor->flags & 0x10)) {
-                    tri = actor->unk140->unk98;
+                if (actor->collision != NULL && arg0 != actor && (actor->flags & 0x10)) {
+                    tri = actor->collision->triangles;
                     j = 0;
-                    if (actor->unk140->unk94 > 0) {
+                    if (actor->collision->triangleCount > 0) {
                         do {
                             if ((collisionCheckBoxTriangleBoundsXZ((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
                                 (collisionCheckBoxTriangleContainsPointXZ((struct CollisionBoxTriangle *)tri, arg1, arg2) != 0) &&
@@ -2096,7 +2096,7 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
                             }
                             j++;
                             tri++;
-                        } while (j < actor->unk140->unk94);
+                        } while (j < actor->collision->triangleCount);
                     }
                 }
             }
@@ -2149,7 +2149,7 @@ void collisionTransformPointToActorLocal(s32 arg0, Actor *arg1, CollisionVertexB
     Mtx *mtx;
 
     D_807F9470 = arg1;
-    sub = arg1->unk140;
+    sub = arg1->collision;
     if (gFrameCounter == sub->unk88) {
         idx = gGfxBufferIndex;
     } else {
@@ -2161,7 +2161,7 @@ void collisionTransformPointToActorLocal(s32 arg0, Actor *arg1, CollisionVertexB
     }
     D_807F9480 = arg2->unk48;
     if (arg2->unk48 == -1) {
-        memcpy(sp78, (void *)sub->unk70, 0x40);
+        memcpy(sp78, (void *)sub->boxBounds, 0x40);
     } else {
         guMtxL2F(sp78, (Mtx *)(((arg2->unk48 >> 6) << 6) + (u8 *)mtx));
     }
@@ -2181,7 +2181,7 @@ void collisionTransformPointByActorMtx(Actor *actor, u32 arg1, f32 *arg2, f32 ar
 
         sp78 = *arg2;
         sp74 = *arg4;
-        sub = actor->unk140;
+        sub = actor->collision;
         if (gFrameCounter == sub->unk88) {
             idx = gGfxBufferIndex;
         } else {
@@ -2190,7 +2190,7 @@ void collisionTransformPointByActorMtx(Actor *actor, u32 arg1, f32 *arg2, f32 ar
         }
         mtx = ((Mtx **)&sub->unk74)[idx];
         if (arg1 == -1) {
-            memcpy(sp28, (void *)sub->unk70, 0x40);
+            memcpy(sp28, (void *)sub->boxBounds, 0x40);
         } else {
             guMtxL2F(sp28, (Mtx *)(((arg1 >> 6) << 6) + (u8 *)mtx));
         }
