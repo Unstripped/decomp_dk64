@@ -8,18 +8,9 @@ struct Actor;
 typedef struct ActorSub4 {
     /* 0x00 */ void *model;
     /* 0x04 */ u8 pad04[0x30];
-    union {
-        /* 0x34 */ f32 unk34;
-        /* 0x34 */ f32 scaleX;
-    };
-    union {
-        /* 0x38 */ f32 unk38;
-        /* 0x38 */ f32 scaleY;
-    };
-    union {
-        /* 0x3C */ f32 unk3C;
-        /* 0x3C */ f32 scaleZ;
-    };
+    /* 0x34 */ f32 unk34;
+    /* 0x38 */ f32 unk38;
+    /* 0x3C */ f32 unk3C;
     /* 0x40 */ u8 pad40[0x24];
     /* 0x64 */ u16 animId;
 } ActorSub4;
