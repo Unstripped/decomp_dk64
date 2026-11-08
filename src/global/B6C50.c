@@ -72,7 +72,7 @@ void sfxPlayFromActorWithAltitudeCheck(B6C50Actor *, s16, u8, s16, u8);
 void sfxStopSlotSound(B6C50Actor *, u8);
 
 void func_806B1F50(void) {
-    u8 sp37;
+    u8 tint;
 
     behaviourFrameBegin();
     if (!(D_807FBB40->unk60 & 0x10)) {
@@ -151,9 +151,9 @@ void func_806B1F50(void) {
                 D_807FBB40->unk84 += 5.0f;
             }
             if (D_807FBB40->unk155 != 0 && actorTableContains(D_807FDC94) != 0 && gFrameCounter % 7 == 0) {
-                sp37 = -D_807FBB40->unk155 * 0x1E + 0xB4;
+                tint = -D_807FBB40->unk155 * 0x1E + 0xB4;
                 func_80714998(3);
-                func_807149C8(sp37, sp37, sp37 & 0xFF, D_807FBB40->unk129);
+                func_807149C8(tint, tint, tint & 0xFF, D_807FBB40->unk129);
                 effectSpawnBoneDefault((B6C50Actor *)D_807FDC94, 1, 1.0f, 0.0f, 0.0f, 0.0f, -0x96);
             }
             break;

@@ -84,7 +84,7 @@ void effectSparkSpawnUpdate(void);
 void func_80714CC0(void *, f32, f32, f32, f32);
 void actorUpdateModelMatrix(Actor *, s32);
 
-s32 func_806B5A90(s32 arg0, s32 arg1) {
+s32 func_806B5A90(s32 aggroRange, s32 unused) {
     u8 ret;
     s16 diff;
     s32 sel;
@@ -148,7 +148,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
         }
         actorMoveWithinZone(0x33, D_807FDC94->unk7C, D_807FDC94->unk84, x, 6.0f);
         if (D_807FBB40->unk58 == 0xB6) {
-            enemyAggroStateUpdate(arg0, 0x24E, 0x24D);
+            enemyAggroStateUpdate(aggroRange, 0x24E, 0x24D);
         }
         break;
     case 0:
@@ -164,7 +164,7 @@ s32 func_806B5A90(s32 arg0, s32 arg1) {
             } else {
                 x = 0x24C;
             }
-            enemyAggroStateUpdate(arg0, 0x24E, x);
+            enemyAggroStateUpdate(aggroRange, 0x24E, x);
         }
         if (D_807FBB40->unk154 == 0x33) {
             ret = 1;

@@ -85,8 +85,8 @@ s32 flagGet(s32, s32);
 void proxPathAdd(Actor *, u8, u8, u8, u8, f32, f32, f32, f32, f32, f32, u8, f32, f32, u8);
 void proxPathSetSegment(Actor *, u8, u8, u8, u8, f32, f32, f32, u8, s16, s16, s16, s16);
 
-void actorBoneChainSwingUpdate(arg0)
-u8 arg0;
+void actorBoneChainSwingUpdate(nodeCount)
+u8 nodeCount;
 {
     BoneChainData *data;
     BoneChainNode *node;
@@ -111,9 +111,9 @@ u8 arg0;
         data->unk24 = (f32)((f64)(s32)((randomNonNegative() >> 15) % 100) / 1000.0 + 0.1);
         data->unk18 = 0.0f;
         ((BoneChainSub4 *)D_807FBB40->unk4)->unk1C = heapAlloc(0x80);
-        proxPathAdd(D_807FBB40, 0, 0, 0, arg0, 0.0f, (f32)((f64)arg0 * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
+        proxPathAdd(D_807FBB40, 0, 0, 0, nodeCount, 0.0f, (f32)((f64)nodeCount * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
         if (D_80744478 == 0x50) {}  // FAKE: deadsweep; keeps the 0x50 store constant out of a register (a0 stays unk254, p takes v0)
-        for (i = 1; i <= arg0; i++) {
+        for (i = 1; i <= nodeCount; i++) {
             proxPathSetSegment(D_807FBB40, 0, i - 1, i, i + 1, 0.333333f, 0.0f, 0.0f, 0, 0, 0, 0, 0);
         }
         ((u8 *)D_807FBB40)[0x130] = 0x3C;

@@ -831,7 +831,7 @@ void func_806B4DCC(void) {
     f32 origScale;
     s32 deltaHeight;
     s16 timer;
-    u8 temp_v0_2;
+    u8 action;
 
     heightPtr = ((B7490Actor *) D_807FBB40)->unk178;
     behaviourFrameBegin();
@@ -854,8 +854,8 @@ void func_806B4DCC(void) {
         sfxAllocateChannel(0x14, 1.0f);
         csModelStateSetFirstByte(0x7F, 0xA);
     }
-    temp_v0_2 = D_807FBB40->unk154;
-    if ((temp_v0_2 != 0x37) && (temp_v0_2 != 0x40)) {
+    action = D_807FBB40->unk154;
+    if ((action != 0x37) && (action != 0x40)) {
         actorPlaceAttachedChildren(-0x1E);
     }
     curScale = D_807FBB40->unk4->unk34;
