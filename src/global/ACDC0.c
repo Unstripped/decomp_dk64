@@ -682,7 +682,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     f32 fc;
     f32 fd;
 
-    hud = actor->unk174;
+    hud = actor->customState;
     tab = (HudCountEntry *)((u8 *)D_807FC7F8 + 0x158);
     sp138 = mapGetHubWorldIndex(gCurrentWorldId, 1);
     list = heapAlloc(0x1F40);
@@ -710,7 +710,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     }
     switch (hud->unk12) {
         case 0:
-            if (D_807FC818) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             s2 = D_807FCC4B;
             y0 = 0x140; /* narrow var: keeps (f32)0x140 unfolded */
             y0 = 0xA0 - (s32)((f32)y0 * hud->unk0);
@@ -742,8 +741,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     fh = -fc;
                     dl = renderRotatedSprite(dl, 0x5D, 0, 2, 0x30, 0x2A, y, y0 + (s16)(s32)fe, fa, fh, 0, 0.0f);
                     gDPPipeSync(dl++);
-                    if (gFrameCounter && gFrameCounter) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                    if (D_80750538 && D_80750538) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     dl->words.w1 = 0xFFFFFFFF;
                     dl->words.w0 = 0xFA000000;
                     dl++;
@@ -755,7 +752,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     s2 = (s2 - 4 < 0) ? 0 : s2 - 4;
                     j++;
                 } while (j < ((u8 *)tab)[0x2FC]);
-                if (D_807FC80C && D_807FC80C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
             }
             gDPPipeSync(dl++);
             y = 0x198;
@@ -766,7 +762,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                 ang = 0;
             }
             if (ang >= 0x100) {
-                if (D_807505CC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 ang = 0xFF;
             }
             if (hud->unk17 != 3) {
@@ -815,7 +810,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         fb = 180.0f * fa;
                         fa = fa * 3.0f;
                         fc = 32.0f * fa;
-                        if (D_807FC828 == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                         fd = 6.0f * fa;
                         fe = 30.0f * fa;
                         fc = 480.0f + fc;
@@ -842,8 +836,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     f32 fa;
                     f32 fb;
                     f32 fc;
-                    if (D_807FC868 && D_807FC868) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-                    if (D_8075056C && D_8075056C) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     fb = hud->unk0;
                     fa = hud->unk4;
                     fc = 780.0f;
@@ -866,12 +858,10 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
             break;
         case 2:
             for (i = 0; i < 2; i++) {
-                if (list != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 off = hud->unkC[i] * 4;
                 if (off < 0x3B6 && off >= -0x3B5) {
                     dl = hudDrawItemLabel(dl, (HudEntry *)hud, i);
                 }
-                if (!D_807FC868) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 t0 = 0;
                 for (j = 0; j < 5; j++) {
                     t0 += gPlayerInventoryTable[j].unk42[D_80750560[hud->unk8[i]]];
@@ -880,14 +870,11 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                     f32 fa;
                     f32 fb;
                     fa = hud->unk4;
-                    if (D_807FC890 && D_807FC890) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     fb = hud->unk0;
-                    if (D_807FC868 && D_807FC868) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     fc = 780.0f;
                     if (fa < fb) {
                         fd = fb;
                     } else {
-                        if (hud != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                         fd = fa;
                     }
                     if (off == 0) {
@@ -918,7 +905,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     }
     dl->words.w0 = 0xDF000000;
     dl->words.w1 = 0;
-    if (gFrameCounter != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     return ret;
 }
 #else
