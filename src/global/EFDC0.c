@@ -667,7 +667,7 @@ typedef struct EfN3Actor {
     u8 padC4[0x2A];
     s16 unkEE;
     u8 padF0[4];
-    s16 unkF4;
+    s16 arcYawMin;
     u8 padF6[0x5E];
     u8 unk154;
     u8 unk155;
@@ -867,7 +867,7 @@ void func_806ECAC4(void) {
     EFN3_A48->unk155 = 0;
     EFN3_P->unk10C = (s8)value;
     EFN3_A48->unk80 = EFN3_P->unkF0 - EFN3_P->unk10C;
-    EFN3_A48->unkEE = EFN3_A48->unkF4 + 0x14;
+    EFN3_A48->unkEE = EFN3_A48->arcYawMin + 0x14;
     EFN3_A48->unkC0 = 0.0f;
     actorScriptStartByIndex(D_807FBB48, 0x75);
     actorScriptExecute(D_807FBB48);
@@ -2159,8 +2159,8 @@ void func_806EFB4C(void) {
     actorScriptStartByIndex(D_807FBB48, 0x5B);
     D_807FBB48->state = 0x70;
     D_807FBB48->unk155[0] = 0;
-    if (D_807FBB48->unkFC != 0) {
-        D_807FBB48->yaw = mathAngleArcMidpoint(D_807FBB48->unkF4, D_807FBB48->unkF6);
+    if (D_807FBB48->hasArcBounds != 0) {
+        D_807FBB48->yaw = mathAngleArcMidpoint(D_807FBB48->arcYawMin, D_807FBB48->arcYawMax);
     } else {
         D_807FBB48->yaw = mathAngleBetweenPoints2D(
             ((EfDNavigationPlayer *)gPlayerSlots)[gCurrentPlayerIndex].unk210,

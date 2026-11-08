@@ -3456,10 +3456,10 @@ typedef struct CamHeadTarget {
     /* 0x080 */ f32 unk80;
     /* 0x084 */ f32 unk84;
     /* 0x088 */ u8 pad88[0x6C];
-    /* 0x0F4 */ s16 unkF4;
-    /* 0x0F6 */ s16 unkF6;
+    /* 0x0F4 */ s16 arcYawMin;
+    /* 0x0F6 */ s16 arcYawMax;
     /* 0x0F8 */ u8 padF8[4];
-    /* 0x0FC */ u8 unkFC;
+    /* 0x0FC */ u8 hasArcBounds;
     /* 0x0FD */ u8 padFD[0x57];
     /* 0x154 */ u8 unk154;
     /* 0x155 */ u8 pad155[9];
@@ -3496,8 +3496,8 @@ void func_806228BC(CamActor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *foc
         *eyeY = h + tgt->unk80;
     }
     *eyeZ = tgt->unk84;
-    if (tgt->unkFC != 0) {
-        angle = mathAngleArcMidpoint(tgt->unkF4, tgt->unkF6);
+    if (tgt->hasArcBounds != 0) {
+        angle = mathAngleArcMidpoint(tgt->arcYawMin, tgt->arcYawMax);
         *eyeX += 5.0 * func_80612794(angle);
         *eyeZ += 5.0 * func_80612790(angle);
     }

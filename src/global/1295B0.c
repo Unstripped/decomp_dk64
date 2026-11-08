@@ -706,8 +706,8 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
     F1Ent *e;
     u8 sel;
 
-    arg0->unkF4 = 0;
-    arg0->unkF6 = 0xFFF;
+    arg0->arcYawMin = 0;
+    arg0->arcYawMax = 0xFFF;
     found = 0;
     x = arg0->x;
     y = arg0->y;
@@ -722,9 +722,9 @@ s32 zoneCheckActorInside(Actor *arg0, s32 arg1, s32 arg2, F1Tbl *arg3) {
                     if (e->flags != 0) {} // FAKE: live range steers flags/count10 colouring (a1/t0)
                     if (i == 5) {} // FAKE: steer s3 and s8 constant coloring
                     if (((x - (f32)e->x) * (x - (f32)e->x)) + ((z - (f32)e->z) * (z - (f32)e->z)) < (f32)(e->radius * e->radius)) {
-                        func_806755A8((s32)x, (s32)z, e->x, e->z, &arg0->unkF4, &arg0->unkF6);
+                        func_806755A8((s32)x, (s32)z, e->x, e->z, &arg0->arcYawMin, &arg0->arcYawMax);
                         found = 1;
-                        arg0->unkFC = 1;
+                        arg0->hasArcBounds = 1;
                         if (arg3) {} // FAKE: steers ret temps
                         arg0->unkFD = 1;
                     }

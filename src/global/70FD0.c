@@ -2285,21 +2285,21 @@ Actor *arg0;
                 }
             }
             if (hit != NULL && hit->unk53 != 0) {
-                ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->unkF4, &arg0->unkF6) & 0xFF;
+                ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->arcYawMin, &arg0->arcYawMax) & 0xFF;
             } else {
                 actorSetTargetAngleBounds(((s32 *)buf)[6] + sub->unk58 * 0x58);
                 switch (kind) {
                 case 0:
                     ret = func_806738D0(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, ((s32 *)buf)[6], ((s32 *)buf)[7]) & 0xFF;
-                    func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->unkF4, &arg0->unkF6);
+                    func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->arcYawMin, &arg0->arcYawMax);
                     break;
                 case 1:
                 case 2:
-                    ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->unkF4, &arg0->unkF6) & 0xFF;
+                    ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, sub->unk5C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->arcYawMin, &arg0->arcYawMax) & 0xFF;
                     break;
                 case 3:
                 case 4:
-                    ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, 0x64, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->unkF4, &arg0->unkF6) & 0xFF;
+                    ret = func_80673708(sub->unk0, sub->unk4, sub->unk8, 0x64, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->arcYawMin, &arg0->arcYawMax) & 0xFF;
                     break;
                 }
             }
@@ -2370,7 +2370,7 @@ Actor *arg0;
                 node = sub->unk8C;
                 while (node != NULL) {
                     if (node->unk26 != 0) {
-                        i = func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->unkF4, &arg0->unkF6); ret = (ret | i) & 0xFF; // LAYOUT: same-line call-result keeps 'or ret,ret,v0' operand order and no extra result var
+                        i = func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, ((s32 *)buf)[6], ((s32 *)buf)[7], &arg0->arcYawMin, &arg0->arcYawMax); ret = (ret | i) & 0xFF; // LAYOUT: same-line call-result keeps 'or ret,ret,v0' operand order and no extra result var
                     }
                     node = node->unk28;
                 }
@@ -3252,10 +3252,10 @@ typedef struct ActorMotionWork {
     u8 pad80[4];
     f32 unk84;
     u8 pad88[0x6C];
-    s16 unkF4;
-    s16 unkF6;
+    s16 arcYawMin;
+    s16 arcYawMax;
     u8 padF8[4];
-    u8 unkFC;
+    u8 hasArcBounds;
     u8 padFD[0x13];
     u8 unk110;
     u8 pad111[0x2F];
@@ -3273,7 +3273,7 @@ s16 arg1;
 {
     s16 sp24[2];
 
-    mathAngleClampToArc(sp24[0], arg1, arg0->unkF4, arg0->unkF6, &sp24[1]);
+    mathAngleClampToArc(sp24[0], arg1, arg0->arcYawMin, arg0->arcYawMax, &sp24[1]);
 }
 
 s32 mathAngleClampToArcWithMargin();
@@ -3296,7 +3296,7 @@ s16 arg2;
 {
     s16 sp24[2];
 
-    mathAngleClampToArcWithMargin(sp24[0], arg1, arg0->unkF4, arg0->unkF6, &sp24[1], arg2);
+    mathAngleClampToArcWithMargin(sp24[0], arg1, arg0->arcYawMin, arg0->arcYawMax, &sp24[1], arg2);
 }
 
 void mathAngleClampToArc(arg0, arg1, arg2, arg3, arg4)
@@ -3466,7 +3466,7 @@ void actorUpdateMovementFlags(ActorMotionWork *arg0) {
     if (arg0->unk144 & 8) {
         temp_v0 = arg0->unk140;
         if (temp_v0->unk6C != 0) {
-            arg0->unkFC |= actorResolveModelSlotCollision();
+            arg0->hasArcBounds |= actorResolveModelSlotCollision();
         } else {
             temp_v0->unk60 = 0;
         }

@@ -737,11 +737,11 @@ typedef struct ActorC71C {
     /* 0x0EE */ s16 unkEE;
     /* 0x0F0 */ u8 padF0[2];
     /* 0x0F2 */ s16 unkF2;
-    /* 0x0F4 */ s16 unkF4;
-    /* 0x0F6 */ s16 unkF6;
+    /* 0x0F4 */ s16 arcYawMin;
+    /* 0x0F6 */ s16 arcYawMax;
     /* 0x0F8 */ u8 padF8[2];
     /* 0x0FA */ s16 unkFA;
-    /* 0x0FC */ u8 unkFC;
+    /* 0x0FC */ u8 hasArcBounds;
     /* 0x0FD */ u8 padFD[0x13];
     /* 0x110 */ u8 unk110;
     /* 0x111 */ u8 pad111[7];
@@ -941,7 +941,7 @@ void actorTransformCameraUpdate(void) {
             ACTOR_C71C->unkC0 = (f32)D_807502D0;
         }
         temp_s1->unk14 -= 10.0f;
-        if (ACTOR_C71C->unkFC != 0 && actorAngleInArc(gCurrentActor, ACTOR_C71C->unkE6) == 0) {
+        if (ACTOR_C71C->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, ACTOR_C71C->unkE6) == 0) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x23, 0xFF, 0x7F, 1);
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x17, 0xFF, 0x7F, 1);
             ACTOR_C71C->unk154 = 8;
@@ -996,9 +996,9 @@ void actorTransformCameraUpdate(void) {
         } else {
             ACTOR_C71C->unkB8 = 0.0f;
         }
-        if (ACTOR_C71C->unkFC != 0) {
+        if (ACTOR_C71C->hasArcBounds != 0) {
             temp_a0 = ACTOR_C71C->unkEE;
-            mathAngleClampToArc(temp_a0, temp_a0, ACTOR_C71C->unkF4, ACTOR_C71C->unkF6, (s16 *)&ACTOR_C71C->unkF2);
+            mathAngleClampToArc(temp_a0, temp_a0, ACTOR_C71C->arcYawMin, ACTOR_C71C->arcYawMax, (s16 *)&ACTOR_C71C->unkF2);
             ACTOR_C71C->unkEE = ACTOR_C71C->unkF2;
         }
         break;
@@ -1920,8 +1920,8 @@ void func_8067FB6C(void) {
     sub = gCurrentActor->unk174;
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unk12A = 0x320;
-        gCurrentActor->unk12C[4] = 0x14;
-        gCurrentActor->unk12C[5] = 0x14;
+        gCurrentActor->unk130 = 0x14;
+        gCurrentActor->unk131 = 0x14;
         sub->unkC = 90.0f;
         sub->unk8 = gCurrentActor->y;
         sub->unk14 = (f64)((ActorFB6CSpawnData *)gCurrentActor->unk124)->unk0 / 200.0;
@@ -2284,8 +2284,8 @@ void tagBarrelActorUpdate(void) {
             temp_f = 0.0f;
         }
         val = (u32)(80.0f * temp_f + 20.0f);
-        gCurrentActor->unk12C[4] = val;
-        gCurrentActor->unk12C[5] = val;
+        gCurrentActor->unk130 = val;
+        gCurrentActor->unk131 = val;
     }
     for (i = 0; i < D_807FBDC4; i++) {
         ptr = D_807FBB70.unk278[i];

@@ -353,13 +353,13 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
         gCurrentActor->state = D_807FBB70.unk1[0];
     }
     func_8067ACB4(gCurrentActor);
-    if (gCurrentActor->unkFC != 0) {
+    if (gCurrentActor->hasArcBounds != 0) {
         if (actorAngleInArc(gCurrentActor, *(s16 *)((u8 *)gCurrentActor + 0xEE)) == 0) {
             s16 temp;
             s16 b;
             s16 c;
 
-            temp = mathAngleArcMidpoint(gCurrentActor->unkF4, gCurrentActor->unkF6);
+            temp = mathAngleArcMidpoint(gCurrentActor->arcYawMin, gCurrentActor->arcYawMax);
             b = (*(s16 *)((u8 *)gCurrentActor + 0xEE) + 0x800) & 0xFFF;
             c = temp - b;
             *(s16 *)((u8 *)gCurrentActor + 0xEE) = temp + c;
@@ -528,8 +528,8 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
         gCurrentActor->state = D_807FBB70.unk1[0];
     }
     func_8067ACB4(gCurrentActor);
-    if (gCurrentActor->unkFC != 0 && actorAngleInArc(gCurrentActor, AA960_PHY->unkEE) == 0) {
-        temp = mathAngleArcMidpoint(gCurrentActor->unkF4, gCurrentActor->unkF6);
+    if (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, AA960_PHY->unkEE) == 0) {
+        temp = mathAngleArcMidpoint(gCurrentActor->arcYawMin, gCurrentActor->arcYawMax);
         {
             s16 b = (AA960_PHY->unkEE + 0x800) & 0xFFF;
             s16 c = temp - b;

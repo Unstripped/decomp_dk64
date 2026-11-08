@@ -197,8 +197,8 @@ void func_806B7EA0(void) {
         D_807FBB64 |= 2;
     }
     if (((Actor *)gCurrentActor->unk11C)->state == 5 && gCurrentActor->state != 0x11) {
-        if (D_807FDC94->unkFC != 0) {
-            D_807FDC94->yaw = mathAngleArcMidpoint(D_807FDC94->unkF4, D_807FDC94->unkF6);
+        if (D_807FDC94->hasArcBounds != 0) {
+            D_807FDC94->yaw = mathAngleArcMidpoint(D_807FDC94->arcYawMin, D_807FDC94->arcYawMax);
         }
         camStartPath(0, 6, 5);
         gCurrentActor->state = 0x11;

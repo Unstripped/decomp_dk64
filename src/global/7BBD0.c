@@ -364,13 +364,13 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
     func_80672E90(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8);
     actorSetCameraBoundaryMode(other->actorType);
     if (flag != 0) {
-        hit = func_80673708(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8, hitRadius, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->unkF4, (s32)&other->unkF6);
+        hit = func_80673708(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8, hitRadius, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->arcYawMin, (s32)&other->arcYawMax);
     } else {
         actorSetTargetAngleBounds(selfBounds->unkA4 + otherBounds->unk58 * 0x58);
         if (!(self->unk64 & 0x10)) {
             hit = func_806738D0(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8, hitRadius, selfBounds->unkA4, selfBounds->unkA8);
         } else {
-            hit = func_80673708(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8, hitRadius, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->unkF4, (s32)&other->unkF6);
+            hit = func_80673708(otherBounds->unk0, otherBounds->unk4, otherBounds->unk8, hitRadius, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->arcYawMin, (s32)&other->arcYawMax);
         }
     }
     if ((*(u8 *)&flag != 0) && ((f64)*(f32 *)(D_807FD614 + playerFindIndexByActor(other) * 0x34) > 30.0)) {
@@ -441,13 +441,13 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
         func_8067A69C((s32)self, other, pushX, pushZ, 1, 1);
         for (node = otherBounds->unk8C; node != 0; node = node->next) {
             if (node->unk26 != 0) {
-                other->unkFC |= func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->unkF4, (s32)&other->unkF6);
+                other->hasArcBounds |= func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->arcYawMin, (s32)&other->arcYawMax);
             }
         }
     } else {
         for (node = otherBounds->unk8C; node != 0; node = node->next) {
             if (node->unk26 != 0) {
-                other->unkFC |= func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->unkF4, (s32)&other->unkF6);
+                other->hasArcBounds |= func_80673708(node->unk10, node->unk14, node->unk18, node->unk1C, selfBounds->unkA4, selfBounds->unkA8, (s32)&other->arcYawMin, (s32)&other->arcYawMax);
             }
         }
     }

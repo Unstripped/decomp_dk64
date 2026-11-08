@@ -1721,7 +1721,7 @@ typedef struct ProjectilePhysicsActor {
     s16 unkEE;
     u8 padF0[0xFA - 0xF0];
     s16 unkFA;
-    u8 unkFC;
+    u8 hasArcBounds;
     u8 unkFD;
     u8 padFE[0x11C - 0xFE];
     Actor *unk11C;
@@ -1806,7 +1806,7 @@ void projectileDespawnOrExplode(void) {
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 10, 10, 1, 0x96, 0x78, 0, 1.0f);
-    unkFC = G_PROJECTILE_ACTOR->unkFC;
+    unkFC = G_PROJECTILE_ACTOR->hasArcBounds;
     if (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1) || D_807FBB70.unk15 != 0 || D_807FBB70.unk200 == 9) {
         other = G_PROJECTILE_ACTOR->unk11C;
         if (other == NULL || other->actorType != 0x2E || (other->actorType == 0x2E && (unkFC != 0 || (G_PROJECTILE_ACTOR->unk6A & 1)))) {
@@ -1875,7 +1875,7 @@ void projectileHomingUpdate(void) {
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (gCurrentMap == 0xCC) {
         G_PROJECTILE_ACTOR->unkFA = 0x2328;
-        flag = (u8)(G_PROJECTILE_ACTOR->unkFC != 0 && actorAngleInArc(gCurrentActor, G_PROJECTILE_ACTOR->unkEE) == 0);
+        flag = (u8)(G_PROJECTILE_ACTOR->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, G_PROJECTILE_ACTOR->unkEE) == 0);
     } else {
         flag = G_PROJECTILE_ACTOR->unkFD;
     }
@@ -2039,11 +2039,11 @@ typedef struct ProjectileBounceExplodeActor {
     /* 0xC4 */ u8 padC4[0xEE - 0xC4];
     /* 0xEE */ s16 unkEE;
     /* 0xF0 */ u8 padF0[4];
-    /* 0xF4 */ s16 unkF4;
-    /* 0xF6 */ s16 unkF6;
+    /* 0xF4 */ s16 arcYawMin;
+    /* 0xF6 */ s16 arcYawMax;
     /* 0xF8 */ u8 padF8[2];
     /* 0xFA */ s16 unkFA;
-    /* 0xFC */ u8 unkFC;
+    /* 0xFC */ u8 hasArcBounds;
     /* 0xFD */ u8 unkFD;
     /* 0xFE */ u8 padFE[0x124 - 0xFE];
     /* 0x124 */ ProjectileSpawnCfgEx *unk124;
@@ -2122,9 +2122,9 @@ void projectileBounceExplodeScaledUpdate(void) {
     }
     projectileSteerTowardTarget(var_a0, gCurrentActor, NULL, 1);
     func_8067ACB4(gCurrentActor);
-    if (BOUNCE_EXPLODE_ACTOR->unkFC != 0 && actorAngleInArc(gCurrentActor, BOUNCE_EXPLODE_ACTOR->unkEE) == 0) {
+    if (BOUNCE_EXPLODE_ACTOR->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, BOUNCE_EXPLODE_ACTOR->unkEE) == 0) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF5, 0xFF, 0x7F, 0x1E);
-        var_a0 = mathAngleArcMidpoint(BOUNCE_EXPLODE_ACTOR->unkF4, BOUNCE_EXPLODE_ACTOR->unkF6);
+        var_a0 = mathAngleArcMidpoint(BOUNCE_EXPLODE_ACTOR->arcYawMin, BOUNCE_EXPLODE_ACTOR->arcYawMax);
         t = BOUNCE_EXPLODE_ACTOR->unkEE;
         t = (t + 0x800) & 0xFFF;
         var_a0 += (s16)(var_a0 - t);
@@ -2267,11 +2267,11 @@ typedef struct ProjectileBeamActor {
     /* 0xC4 */ u8 padC4[0xEE - 0xC4];
     /* 0xEE */ s16 unkEE;
     /* 0xF0 */ u8 padF0[4];
-    /* 0xF4 */ s16 unkF4;
-    /* 0xF6 */ s16 unkF6;
+    /* 0xF4 */ s16 arcYawMin;
+    /* 0xF6 */ s16 arcYawMax;
     /* 0xF8 */ u8 padF8[2];
     /* 0xFA */ s16 unkFA;
-    /* 0xFC */ u8 unkFC;
+    /* 0xFC */ u8 hasArcBounds;
     /* 0xFD */ u8 unkFD;
     /* 0xFE */ u8 padFE[0x124 - 0xFE];
     /* 0x124 */ ProjectileBeamConfig124 *unk124;
@@ -2336,11 +2336,11 @@ void projectileBounceExplodeGreenUpdate(void) {
     }
     projectileSteerTowardTarget(1, gCurrentActor, 0, 1);
     func_8067ACB4(gCurrentActor);
-    if (G_PROJECTILE_BEAM_ACTOR->unkFC != 0 && actorAngleInArc(gCurrentActor, G_PROJECTILE_BEAM_ACTOR->unkEE) == 0) {
+    if (G_PROJECTILE_BEAM_ACTOR->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, G_PROJECTILE_BEAM_ACTOR->unkEE) == 0) {
         s16 angle;
         s16 diff;
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF5, 0xFF, 0x7F, 0x1E);
-        temp_v0 = mathAngleArcMidpoint(G_PROJECTILE_BEAM_ACTOR->unkF4, G_PROJECTILE_BEAM_ACTOR->unkF6);
+        temp_v0 = mathAngleArcMidpoint(G_PROJECTILE_BEAM_ACTOR->arcYawMin, G_PROJECTILE_BEAM_ACTOR->arcYawMax);
         angle = G_PROJECTILE_BEAM_ACTOR->unkEE;
         angle = (angle + 0x800) & 0xFFF;
         diff = temp_v0 - angle;
@@ -2874,7 +2874,7 @@ typedef struct ProjectileParticleActor {
     s16 unkEE;
     u8 padF0[0xFA - 0xF0];
     s16 unkFA;
-    u8 unkFC;
+    u8 hasArcBounds;
     u8 padFD[0x124 - 0xFD];
     ProjectileBeamConfig124 *unk124;
     u8 pad128[0x144 - 0x128];
@@ -2923,7 +2923,7 @@ void projectileParticleSpawnerTick(void) {
         func_80714950((s32)gCurrentActor);
         func_80714CC0(&D_8071FC40, 0.3f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
-    if (((G_PROJECTILE_PARTICLE_ACTOR->unkFC != 0) && ((u32)(D_8076A068 - sp54->unk0) >= 6)) || D_807FBB85 != 0) {
+    if (((G_PROJECTILE_PARTICLE_ACTOR->hasArcBounds != 0) && ((u32)(D_8076A068 - sp54->unk0) >= 6)) || D_807FBB85 != 0) {
         if ((D_807FBB85 != 0) && (sp54->unk13 != 0xA)) {
             func_807149B8(1);
             func_80714950(0x100D2);
@@ -2970,7 +2970,7 @@ typedef struct ProjectileHomingActor {
     s16 unkEE;
     u8 padF0[0xFA - 0xF0];
     s16 unkFA;
-    u8 unkFC;
+    u8 hasArcBounds;
     u8 padFD[0x124 - 0xFD];
     ProjectileBeamConfig124 *unk124;
     u8 pad128[0x144 - 0x128];
@@ -3017,7 +3017,7 @@ void projectileHomingParticleUpdate(void) {
     }
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
     var_s1 = 0;
-    if ((G_PROJECTILE_HOMING_ACTOR->unk6A & 1) || ((G_PROJECTILE_HOMING_ACTOR->unkFC != 0) && ((u32)(D_8076A068 - *sp74) >= 6)) || D_807FBB85 != 0) {
+    if ((G_PROJECTILE_HOMING_ACTOR->unk6A & 1) || ((G_PROJECTILE_HOMING_ACTOR->hasArcBounds != 0) && ((u32)(D_8076A068 - *sp74) >= 6)) || D_807FBB85 != 0) {
         do {
             temp_fs2 = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
             temp_fs3 = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
@@ -3330,14 +3330,14 @@ void projectileChaseReflectUpdate(void) {
         G_PROJECTILE_ACTOR->unkFA = 0x2328;
     }
     projectileChaseTargetUpdate();
-    if (!gCurrentActor->unkFC) {
+    if (!gCurrentActor->hasArcBounds) {
         return;
     }
     if (actorAngleInArc(gCurrentActor, gCurrentActor->moveYaw)) {
         return;
     }
     sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF5, 0xFF, 0x7F, 0x1E);
-    temp_v0 = mathAngleArcMidpoint(gCurrentActor->unkF4, gCurrentActor->unkF6);
+    temp_v0 = mathAngleArcMidpoint(gCurrentActor->arcYawMin, gCurrentActor->arcYawMax);
     t = gCurrentActor->moveYaw;
     t = (t + 0x800) & 0xFFF;
     gCurrentActor->moveYaw = temp_v0 + (s16)(temp_v0 - t);

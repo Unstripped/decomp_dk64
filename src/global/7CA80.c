@@ -758,10 +758,10 @@ void func_80678E6C(Actor *actor) {
 
     if ((actor->unk144 & 4) && (D_807FBE08 == 0)) {
         if (actor->flags & 0x10000) {
-            actor->unkFC = 0;
+            actor->hasArcBounds = 0;
             actor->unkFD = 0;
         }
-        actor->unkFC |= actorClearTargetAngle(actor, &actor->unkF4, &actor->unkF6, &sp27);
+        actor->hasArcBounds |= actorClearTargetAngle(actor, &actor->arcYawMin, &actor->arcYawMax, &sp27);
         sp27 |= D_807FBC55;
         if (sp27 != 0) {
             if (!(actor->unk6A & 0x10)) {
@@ -775,7 +775,7 @@ void func_80678E6C(Actor *actor) {
             actor->unk6A &= ~0x10;
         }
     } else {
-        actor->unkFC = 0;
+        actor->hasArcBounds = 0;
         actor->unkFD = 0;
         actor->unk6A &= ~0x10;
     }

@@ -9,11 +9,11 @@ typedef struct ActorPhysicsWork {
     s16 unkEE;
     char padF0[2];
     s16 unkF2;
-    s16 unkF4;
-    s16 unkF6;
+    s16 arcYawMin;
+    s16 arcYawMax;
     s16 unkF8;
     s16 unkFA;
-    u8 unkFC;
+    u8 hasArcBounds;
 } ActorPhysicsWork;
 
 void func_8067ACB4(void);
@@ -28,9 +28,9 @@ s16 targetPitch;
 {
     func_8067ACB4();
     func_80665ACC((Actor *)actor);
-    if (actor->unkFC != 0) {
-        mathAngleClampToArc(actor->unkEE, targetYaw, actor->unkF4, actor->unkF6, &actor->unkF2);
-        actor->unkFA = func_80672134(actor->unkF4, actor->unkF6, targetPitch, actor->unkF8);
+    if (actor->hasArcBounds != 0) {
+        mathAngleClampToArc(actor->unkEE, targetYaw, actor->arcYawMin, actor->arcYawMax, &actor->unkF2);
+        actor->unkFA = func_80672134(actor->arcYawMin, actor->arcYawMax, targetPitch, actor->unkF8);
         if ((actor->unk64 & 0x200) && (actor->unk64 & 0x100)) {
             actor->unkFA = 0;
         }
@@ -61,7 +61,7 @@ typedef struct ActorVelocityWork {
     s16 unkEE;
     char padF0[0xA];
     s16 unkFA;
-    u8 unkFC;
+    u8 hasArcBounds;
 } ActorVelocityWork;
 
 f32 func_80612790(s16);
@@ -75,7 +75,7 @@ void actorApplyVelocity(ActorVelocityWork *actor) {
     f32 moveSpeed;
 
     moveSpeed = actor->unkB8;
-    if (actor->unkFC != 0) {
+    if (actor->hasArcBounds != 0) {
         if ((f32)actor->unkFA < moveSpeed) {
             moveSpeed = actor->unkFA;
         }
@@ -118,7 +118,7 @@ typedef struct ActorVelocityCustomWork {
     s16 unkEE;
     char padF0[0xA];
     s16 unkFA;
-    u8 unkFC;
+    u8 hasArcBounds;
 } ActorVelocityCustomWork;
 
 
@@ -126,7 +126,7 @@ void actorApplyVelocityCustom(ActorVelocityCustomWork *actor, f32 speedXZ, f32 s
     f32 scaleFactor;
     f32 scale;
 
-    if (actor->unkFC != 0) {
+    if (actor->hasArcBounds != 0) {
         if ((f32)actor->unkFA < speedXZ) {
             speedXZ = actor->unkFA;
         }

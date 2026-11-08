@@ -1954,7 +1954,7 @@ void func_806D5300(void) {
         G08_A40->unk155++;
         break;
     case 2:
-        if (gCurrentActor->unkFC != 0) {
+        if (gCurrentActor->hasArcBounds != 0) {
             f32 t = D_8075352C[D_807FD584];
 
             if (t < G08_A40->unkB8 && !(G12_P->unk1F4 & 8)) {
@@ -2382,10 +2382,10 @@ typedef struct G14Actor {
     /* 0xE8 */ u8 padE8[6];
     /* 0xEE */ s16 unkEE;
     /* 0xF0 */ u8 padF0[4];
-    /* 0xF4 */ s16 unkF4;
-    /* 0xF6 */ s16 unkF6;
+    /* 0xF4 */ s16 arcYawMin;
+    /* 0xF6 */ s16 arcYawMax;
     /* 0xF8 */ u8 padF8[4];
-    /* 0xFC */ u8 unkFC;
+    /* 0xFC */ u8 hasArcBounds;
     /* 0xFD */ u8 padFD[0x2B];
     /* 0x128 */ s16 unk128;
     /* 0x12A */ u8 pad12A[0x1A];
@@ -2434,8 +2434,8 @@ s32 randomLcgNext(void);
 void func_80714998(s32);
 
 s32 func_806D69A4(void) {
-    if (G14_A->unkFC != 0) {
-        if (mathAngleDistance(G14_A->unkE6, ((((G14_A->unkF6 - G14_A->unkF4) & 0xFFF) / 2) + G14_A->unkF4 + 0x800) & 0xFFF) < 0x2BC) {
+    if (G14_A->hasArcBounds != 0) {
+        if (mathAngleDistance(G14_A->unkE6, ((((G14_A->arcYawMax - G14_A->arcYawMin) & 0xFFF) / 2) + G14_A->arcYawMin + 0x800) & 0xFFF) < 0x2BC) {
             if (G14_A->unkB8 > 150.0f) {
                 actorScriptStartByIndex(gCurrentActor, 0x49);
                 G14_A->unkEE = (G14_A->unkE6 + 0x800) % 4096;
@@ -2663,14 +2663,14 @@ void func_806D7510(void) {
         playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
         playerInputUpdate(4);
         mathAngleStepToward(&G14_A->unkE6, (s16)((G14_A->unkEE + 0x800) & 0xFFF), (s16)(G14_P->unk48 * 2));
-        if (G14_A->unkFC != 0) {
+        if (G14_A->hasArcBounds != 0) {
             G14_A->unkB8 = G14_A->unkB8 * 0.5;
         }
         break;
     case 1:
         playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex);
         G14_P->unk4 = 0.0f;
-        if (G14_A->unkFC != 0) {
+        if (G14_A->hasArcBounds != 0) {
             G14_A->unkB8 = G14_A->unkB8 * 0.5;
         }
         break;
@@ -5260,10 +5260,10 @@ typedef struct LD5CActor {
     /* 0x0E8 */ u8 padE8[6];
     /* 0x0EE */ s16 unkEE;
     /* 0x0F0 */ u8 padF0[4];
-    /* 0x0F4 */ s16 unkF4;
-    /* 0x0F6 */ s16 unkF6;
+    /* 0x0F4 */ s16 arcYawMin;
+    /* 0x0F6 */ s16 arcYawMax;
     /* 0x0F8 */ u8 padF8[4];
-    /* 0x0FC */ u8 unkFC;
+    /* 0x0FC */ u8 hasArcBounds;
     /* 0x0FD */ u8 padFD[0x57];
     /* 0x154 */ u8 unk154;
     /* 0x155 */ u8 unk155;
@@ -5395,17 +5395,17 @@ void func_806DDAB0(void) {
             }
             sp60 = LD5C_P->unkEA + 0x400;
             sp60 &= 0xFFF;
-            LD5C_A->unkEE = LD5C_A->unkF4 + 0xA;
+            LD5C_A->unkEE = LD5C_A->arcYawMin + 0xA;
         } else if (LD5C_A->unkB8 > 0.0f) {
             sp60 = LD5C_P->unkEA - 0x400;
             sp60 &= 0xFFF;
-            LD5C_A->unkEE = LD5C_A->unkF6 - 0xA;
+            LD5C_A->unkEE = LD5C_A->arcYawMax - 0xA;
         }
         sp62 = actorSetTargetAngleAndCheck(gCurrentActor, sp60);
         if (sp62 == 0) {
             LD5C_A->unkB8 = 0.0f;
         }
-        LD5C_P->unkEC = mathAngleArcMidpoint(LD5C_A->unkF4, LD5C_A->unkF6) + 0x800;
+        LD5C_P->unkEC = mathAngleArcMidpoint(LD5C_A->arcYawMin, LD5C_A->arcYawMax) + 0x800;
         LD5C_P->unkEC &= 0xFFF;
         LD5C_A->unkE6 = mathAngleEaseToward(LD5C_A->unkE6, LD5C_P->unkEC, 3.0f);
         LD5C_A->unk7C = LD5C_P->unkE0;
@@ -5427,7 +5427,7 @@ void func_806DDAB0(void) {
     }
     v = 0;
     if (LD5C_P->unkF8 == 0) {
-        x = LD5C_A->unkFC == 0 || sp49 == 0;
+        x = LD5C_A->hasArcBounds == 0 || sp49 == 0;
         v = x;
         collisionGetCoords(&sp4C, &sp4A);
         if (sp4A < 0x385) {

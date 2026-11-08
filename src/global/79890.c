@@ -42,10 +42,10 @@ typedef struct CollisionHitActor {
     f32 unk80;
     f32 unk84;
     u8 pad88[0x6C];
-    s16 unkF4;
-    s16 unkF6;
+    s16 arcYawMin;
+    s16 arcYawMax;
     u8 padF8[4];
-    u8 unkFC;
+    u8 hasArcBounds;
     u8 unkFD;
     u8 padFE[0x3E];
     CollisionHitCallback *callbacks;
@@ -107,8 +107,8 @@ u8 actorCollisionGetNodeHitPoint(CollisionHitActor *self, CollisionHitActor *oth
                         matched = 1;
                         collisionNodeLocalToWorldXZ(self, elem, outX, outZ);
                     }
-                    func_806755A8((s32)(posX_f * 8.0f), (s32)(posZ_f * 8.0f), node->unk10, node->unk18, (s32)&other->unkF4, (s32)&other->unkF6);
-                    other->unkFC = 1;
+                    func_806755A8((s32)(posX_f * 8.0f), (s32)(posZ_f * 8.0f), node->unk10, node->unk18, (s32)&other->arcYawMin, (s32)&other->arcYawMax);
+                    other->hasArcBounds = 1;
                     other->unkFD = 1;
                 }
             }
