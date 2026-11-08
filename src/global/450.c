@@ -872,7 +872,7 @@ void playerViewsBuildMatrices(void *outMtx) {
             } else if (held->unkFA != 0 && PLAYER_VIEWS[i].unk220 < held->unk90 + 3.0f) {
                 fov += 0.04 * sinApprox(cc[0] * 0.1);
             }
-            guPerspective(&PLAYER_VIEWS[i].unk88[D_807444FC], (u16 *)(i * 0x2F0 + (s32)gPlayerSlots + 0x188), PLAYER_VIEWS[i].unk27C, fov * aspect, PLAYER_VIEWS[i].unk284, PLAYER_VIEWS[i].unk288, 1.0f);  // FAKE: operand order (i*0x2F0 first) keeps this address from CSE with the PLAYER_VIEWS[i] address
+            guPerspective(&PLAYER_VIEWS[i].unk88[D_807444FC], &(i + PLAYER_VIEWS)->unk188, PLAYER_VIEWS[i].unk27C, fov * aspect, PLAYER_VIEWS[i].unk284, PLAYER_VIEWS[i].unk288, 1.0f);
         }
     }
     if (ABS_DIFF(PLAYER_VIEWS->unk210, PLAYER_VIEWS->unk228) < 0.5 && ABS_DIFF(PLAYER_VIEWS->unk218, PLAYER_VIEWS->unk230) < 0.5) {
