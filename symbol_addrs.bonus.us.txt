@@ -1,5 +1,5 @@
 // Overlay bonus (ovl04, segment table entry 4)
-D_8002DDD4 = 0x8002DDD4; // segment:bonus force_migration:True function_owner:func_8002A398
+D_8002DDD4 = 0x8002DDD4; // segment:bonus force_migration:True function_owner:bonusPerilPathPanicGameUpdate
 bonusInitSounds = 0x800240F0; // type:func
 bonusSetupHudGdl = 0x80024D3C; // type:func
 bonusGetSoundForMap = 0x80024D8C; // type:func
@@ -34,3 +34,14 @@ bonusLightFlashGameUpdate = 0x80029364; // type:func
 bonusRenderScoreHud = 0x8002D010; // type:func
 bonusScoreHudUpdate = 0x8002D2F0; // type:func
 bonusQueueScore = 0x8002D6F8; // type:func
+bonusTurtleTroubleTurtleUpdate = 0x80028E3C; // type:func
+bonusLightFlashSpawnTargets = 0x80029E54; // type:func
+bonusLightFlashTargetUpdate = 0x8002A010; // type:func
+bonusPerilPathPanicGameUpdate = 0x8002A398; // type:func
+bonusPerilPathPanicKlaptrapUpdate = 0x8002AAA4; // type:func
+bonusPerilPathPanicFairyUpdate = 0x8002AD10; // type:func
+bonusBigBugBashGameUpdate = 0x8002AED8; // type:func
+bonusBigBugBashFlyUpdate = 0x8002B920; // type:func
+bonusBigBugBashSwatterShadowUpdate = 0x8002BE44; // type:func
+bonusSearchlightSeekGameUpdate = 0x8002BF98; // type:func
+bonusSearchlightSeekTargetUpdate = 0x8002C8EC; // type:func

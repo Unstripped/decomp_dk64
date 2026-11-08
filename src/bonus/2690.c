@@ -1104,7 +1104,7 @@ void func_8067ACB4(void *);
 void actorApplyVelocity(void *);
 void actorUpdateFloorContactAndTilt(void *, f32);
 
-void func_80028E3C(void) {
+void bonusTurtleTroubleTurtleUpdate(void) {
     BonusB_Sub8E3C *t0 = gCurrentActor->unk174;
     BonusB_Par8E3C *p40 = t0->unk0->unk174;
     f32 temp;
@@ -1188,7 +1188,7 @@ extern s16 D_8002D8F8;
 extern s16 D_8002D8FC;
 extern s16 D_8002D8EC[];
 void lightSetColor(f32, f32, f32, s32);
-void func_80029E54(void *);
+void bonusLightFlashSpawnTargets(void *);
 Gfx *func_80029B9C(Gfx *, Actor *);
 
 void bonusLightFlashGameUpdate(void) {
@@ -1245,7 +1245,7 @@ void bonusLightFlashGameUpdate(void) {
         do {
             t0->unk8[i] = i | 0x80;
         } while (++i < 6);
-        func_80029E54(gCurrentActor);
+        bonusLightFlashSpawnTargets(gCurrentActor);
     }
     if (t1->unk0 > 0) {
         if (gCurrentActor->state == 0) {
@@ -1462,7 +1462,7 @@ typedef struct {
     u8 unk4;
 } BonusC_9E54_S;
 
-void func_80029E54(void *ownerActor) {
+void bonusLightFlashSpawnTargets(void *ownerActor) {
     Actor *a = ownerActor;
     s32 i;
     s16 *X = &D_8002D8CA - 1;
@@ -1497,7 +1497,7 @@ void func_80029E54(void *ownerActor) {
     }
 }
 
-void func_8002A010(void) {
+void bonusLightFlashTargetUpdate(void) {
     f32 scale;
     Struct_Sp50 *subExt;
     Actor *owner;
@@ -1590,7 +1590,7 @@ typedef struct {
 
 extern s8 D_8002D904;
 
-void func_8002A398(void) {
+void bonusPerilPathPanicGameUpdate(void) {
     Struct_7548 *t3c = gCurrentActor->unk174;
     LargeB1_Sub178 *t0 = ((BonusActorExt *)gCurrentActor)->unk178;
     Point3f *p;
@@ -1753,7 +1753,7 @@ typedef struct {
     u8 unk4;
 } BonusC_AAA4_T;
 
-void func_8002AAA4(void) {
+void bonusPerilPathPanicKlaptrapUpdate(void) {
     Struct_AAA4_174 *actorExt;
     Actor_AAA4_Target *targetActor;
     f32 dx;
@@ -1810,7 +1810,7 @@ typedef struct {
     s8 unk4;
 } BonusC_AD10_S;
 
-void func_8002AD10(void) {
+void bonusPerilPathPanicFairyUpdate(void) {
     s32 pad;
     BonusC_AD10_S *subExt;
     Actor *owner;
@@ -1941,7 +1941,7 @@ typedef struct {
 
 #define LB5 ((LargeB5Actor *)gCurrentActor)
 
-void func_8002AED8(void) {
+void bonusBigBugBashGameUpdate(void) {
     s32 pad0[4];
     f32 fs0;
     f32 fs1;
@@ -2175,7 +2175,7 @@ typedef struct {
     s8 unk2D[2];
 } BonusDB920Tgt;
 
-void func_8002B920(void) {
+void bonusBigBugBashFlyUpdate(void) {
     BonusDB920Link *flyExt = gCurrentActor->unk174;
     Actor *targetActor = flyExt->unk0;
     BonusDB920Tgt *targetExt = targetActor->unk174;
@@ -2285,7 +2285,7 @@ typedef struct {
     Actor *unk0;
 } BonusDBE44Link;
 
-void func_8002BE44(void) {
+void bonusBigBugBashSwatterShadowUpdate(void) {
     BonusDBE44Link *link = gCurrentActor->unk174;
     Actor *targetActor = link->unk0;
     BonusDBE44Anim *selfAnim = ((BonusDBE44Model *)gCurrentActor->unk4)->unk0;
@@ -2348,7 +2348,7 @@ typedef struct {
 
 Gfx *func_8002CC08(Gfx *gdl, Actor *actor);
 
-void func_8002BF98(void) {
+void bonusSearchlightSeekGameUpdate(void) {
     f32 cosAngle;
     f32 sinAngle;
     f32 targetOffsetZ;
@@ -2531,7 +2531,7 @@ typedef struct {
     s16 unkC;
 } BonusDC8ECLink;
 
-void func_8002C8EC(void) {
+void bonusSearchlightSeekTargetUpdate(void) {
     s32 e1, e2, e3;
     f32 speed;
     s32 d1, d2, d3;
