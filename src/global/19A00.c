@@ -295,7 +295,7 @@ s32 scriptOpSetRandomByteInRange(Actor *arg0) {
     return 1;
 }
 
-s32 scriptOpSetFlag4(Actor *arg0) {
+s32 func_806152FC(Actor *arg0) {
     D_807F5AF0++;
     ((ScriptState *)arg0->unk4)->flags |= 4;
     return 0;
@@ -2594,7 +2594,7 @@ void *func_80619520(Actor *arg0) {
     return result;
 }
 
-void scriptCmdSetActor134Byte35(Actor *arg0) {
+void func_80619540(Actor *arg0) {
     u8 value;
     u8 *result;
 
@@ -2605,7 +2605,7 @@ void scriptCmdSetActor134Byte35(Actor *arg0) {
     }
 }
 
-void scriptCmdIncrementActor134Byte35(Actor *arg0) {
+void func_80619580(Actor *arg0) {
     u8 *result;
 
     result = func_80619520(arg0);
@@ -2614,7 +2614,7 @@ void scriptCmdIncrementActor134Byte35(Actor *arg0) {
     }
 }
 
-void scriptCmdCheckActor134Threshold(Actor *arg0) {
+void func_806195B4(Actor *arg0) {
     ActorScriptView *actor;
 
     actor = (ActorScriptView *)arg0;

@@ -304,7 +304,7 @@ void func_806F8278(s32);
 void eepromSavePlayerData(void);
 s32 camIsCutsceneActive(void);
 void playerStateQueueCallback(s32, void *, s32);
-void menuTransitionStateD(u8);
+void func_80712774(u8);
 s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 
@@ -400,7 +400,7 @@ void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
             menu->unk1 = ((menu->unk1 - 4) & 7) + 4;
         }
         if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
-            menuTransitionStateD(D_800330C0[menu->unk1]);
+            func_80712774(D_800330C0[menu->unk1]);
             D_80032F50 = 1;
             menu->unk1 = 0x37;
         }

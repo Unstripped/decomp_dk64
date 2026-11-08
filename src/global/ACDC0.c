@@ -204,7 +204,7 @@ s32 func_805FEF74();
 s32 menuGetTimerFlag();
 void eepromSavePlayerData();
 void menuReturnToTitle();
-void menuTransitionState7();
+void func_807127B4();
 s32 func_806C8DE0();
 s32 mathAngleSignedDistance(s16, s16);
 void mapTransitionToWorldHub();
@@ -414,7 +414,7 @@ void hudPauseMenuUpdate(void) {
                             mapCheckAutoTransition();
                         }
                     } else if (a2 == 7 || i != 0) {
-                        menuTransitionState7();
+                        func_807127B4();
                     }
                 }
                 break;
