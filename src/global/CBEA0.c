@@ -102,7 +102,7 @@ extern u8 *D_807FC8F0;
 
 u8 *assetLoad(s32, s32, s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
-Gfx *func_806C75A4(Gfx *, Actor *);
+Gfx *renderBannerText(Gfx *, Actor *);
 
 void spriteLinearInterpolateFrame(void) {
     f32 frac;
@@ -173,7 +173,7 @@ void spriteLinearInterpolateFrame(void) {
             D_807FC8EC = 1.0f;
         }
     }
-    renderCallbacksRegister(func_806C75A4, actor, 3);
+    renderCallbacksRegister(renderBannerText, actor, 3);
 }
 
 #define R1C2CB_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
@@ -199,7 +199,7 @@ void guTranslateF(f32 mf[4][4], f32 x, f32 y, f32 z);
 void guMtxCatF(f32 mf[4][4], f32 nf[4][4], f32 res[4][4]);
 void guMtxF2L(f32 mf[4][4], Mtx *m);
 
-Gfx *func_806C75A4(Gfx *gdl, Actor *arg1) {
+Gfx *renderBannerText(Gfx *gdl, Actor *actor) {
     f32 sx;
     f32 sy;
     u8 *p;

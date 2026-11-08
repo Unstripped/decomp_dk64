@@ -21,14 +21,14 @@ typedef struct {
 
 extern F9N5_MapHeight D_80753EA0[];
 
-f32 func_806F46B0(s16 arg0) {
+f32 mapGetVoidHeightForCharacter(s16 characterId) {
     s32 map;
     s32 lim;
     s16 i;
     F9N5_MapHeight *e;
 
     lim = 13;
-    i = 0; map = gCurrentMap; do { e = &D_80753EA0[i]; if (e->map == map && (arg0 == e->character || e->character == -1)) { return e->value; } // LAYOUT: statements joined on one line steer as1 scheduling
+    i = 0; map = gCurrentMap; do { e = &D_80753EA0[i]; if (e->map == map && (characterId == e->character || e->character == -1)) { return e->value; } // LAYOUT: statements joined on one line steer as1 scheduling
         i++;
     } while (i < lim);
     return 20000.0f;

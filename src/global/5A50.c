@@ -179,15 +179,15 @@ s32 seqPlayerGetState(u8 playerIndex) {
     return alCSPGetState(gSeqPlayers[playerIndex]);
 }
 
-void func_806011A0(u8 playerIndex, s32 arg1) {
-    func_80737E90(gSeqPlayers[playerIndex], arg1);
+void func_806011A0(u8 playerIndex, s32 val) {
+    func_80737E90(gSeqPlayers[playerIndex], val);
 }
 
 typedef struct {
     s32 a, b, c;
 } Struct806011D4;
 
-void func_806011D4(Struct806011D4 arg0) {
+void func_806011D4(Struct806011D4 unused) {
 }
 
 void seqPlayerSetChannelState(u8 playerIndex, s32 channel, u8 value) {

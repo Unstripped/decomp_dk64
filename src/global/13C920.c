@@ -7,7 +7,7 @@ extern u8 D_807FF0F4;
 extern u8 D_807FF0F6;
 extern u8 D_807FF0F8;
 
-void updateCSPOutputChannelMode(s32 arg0, s32 arg1);
+void updateCSPOutputChannelMode(s32 chan, s32 outputMode);
 
 void configureCSPOutputMode(u8 mode) {
     s32 i;

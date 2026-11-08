@@ -45,11 +45,11 @@ u8 func_805FF0C8(void);
 void modelSlotOrFlags(s32, s32);
 void func_806B8C78(void);
 
-void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 arg3) {
+void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 lifetime) {
     func_8071498C(effectWispWanderUpdate);
     func_807149FC(-1);
     func_807149B8(1);
-    func_8071496C(arg3);
+    func_8071496C(lifetime);
     func_80714CC0(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 1.8f, x, y, z);
 }
 

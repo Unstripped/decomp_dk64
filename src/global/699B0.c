@@ -11,8 +11,8 @@ extern ParticlePathHeader D_80748BA0[];
 extern u8 D_807F9440[];
 extern s32 D_807F9448;
 
-void particleFindPathIndices(arg0)
-s16 arg0;
+void particleFindPathIndices(pathType)
+s16 pathType;
 {
     s32 limit;
     u8 *ptr;
@@ -21,7 +21,7 @@ s16 arg0;
     limit = 13;
     D_807F9448 = 0;
     for (i = 0, ptr = (u8 *)D_80748BA0; i < limit; i++, ptr += 0x20) {
-        if (arg0 == *ptr) {
+        if (pathType == *ptr) {
             if (D_807F9448 != 8) {
                 D_807F9440[D_807F9448++] = i;
             }

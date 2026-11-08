@@ -970,7 +970,7 @@ extern s32 D_807FBB68;
 void func_80687400();
 s32 slotQueueGetValue();
 void slotQueueAddValue();
-f32 func_806F46B0(s16);
+f32 mapGetVoidHeightForCharacter(s16);
 s32 sfxPlayFromActorWithAltitudeCheck();
 
 typedef struct G10Actor4C {
@@ -1002,7 +1002,7 @@ void func_806D2E9C(void) {
         G10_A->unk144 &= 0xFFF7;
     }
     playerInputUpdate(0x1B);
-    r = func_806F46B0(((G10Actor4C *)D_807FBB4C)->unk12C);
+    r = mapGetVoidHeightForCharacter(((G10Actor4C *)D_807FBB4C)->unk12C);
     sel = 0x7E;
     if (r < G10_A->unk80) {
         G10_A->unkC4 = D_807536E4[D_807FD584];
