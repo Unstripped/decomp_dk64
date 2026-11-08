@@ -1,12 +1,11 @@
 #include "common.h"
 
-typedef struct Struct_807FBB40_174 {
-    s16 unk0;
-    u8 unk2;
+typedef struct CritterBattleArenaState {
+    s16 timer;
+    u8 textGfxHandle;
     u8 pad3;
-    s16 unk4;
-    u8 unk5;
-} Struct_807FBB40_174;
+    s16 timeLimit;
+} CritterBattleArenaState;
 
 typedef struct Struct_807FBB40 {
     char pad0[0x60];
@@ -16,7 +15,7 @@ typedef struct Struct_807FBB40 {
     char pad120[0x154 - 0x120];
     u8 unk154;
     char pad155[0x174 - 0x155];
-    Struct_807FBB40_174 *unk174;
+    CritterBattleArenaState *unk174;
 } Struct_807FBB40;
 
 s32 critterBitwiseNot(s32 val) {
@@ -50,10 +49,10 @@ void func_805FF628(s32, s32);
 void renderCallbacksRegister(void *, void *, s32);
 Gfx *critterRenderCenterImage(Gfx *, Struct_807FBB40 *);
 
-void func_80029118(void) {
+void critterBattleArenaUpdate(void) {
     s32 pad88;
     u16 tmp;
-    Struct_807FBB40_174 *challengeState;
+    CritterBattleArenaState *challengeState;
     s32 *alignedBuf;
     void (*dcacheFunc)(void *, s32);
     s32 pad2;
@@ -75,19 +74,19 @@ void func_80029118(void) {
         slotQueueSetShownValue(4, 0, 0);
         switch (gCurrentMap) {
         case 0xB1:
-            challengeState->unk4 = 0x3C;
+            challengeState->timeLimit = 0x3C;
             D_80029FA0 = 1;
             break;
         case 0xB6:
-            challengeState->unk4 = 0x3C;
+            challengeState->timeLimit = 0x3C;
             D_80029FA0 = 1;
             break;
         case 0xB4:
-            challengeState->unk4 = 0x3C;
+            challengeState->timeLimit = 0x3C;
             D_80029FA0 = 5;
             break;
         case 0xB5:
-            challengeState->unk4 = 0x3C;
+            challengeState->timeLimit = 0x3C;
             D_80029FA0 = 5;
             break;
         }
@@ -150,16 +149,16 @@ void func_80029118(void) {
         break;
     case 0x3:
         D_807FBB40->unk11C->unk154 = 1;
-        challengeState->unk2 = gfxResourceCreate(1, "WELL DONE!", 2, 160.0f, 100.0f, 0.0f);
+        challengeState->textGfxHandle = gfxResourceCreate(1, "WELL DONE!", 2, 160.0f, 100.0f, 0.0f);
         sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);
-        challengeState->unk0 = 0x78;
+        challengeState->timer = 0x78;
         D_807FBB40->unk154 = 0xFE;
         D_80029FA8 = 1;
         break;
     case 0xFE:
-        if (challengeState->unk0 > 0) {
-            challengeState->unk0--;
-            if (challengeState->unk0 == 0) {
+        if (challengeState->timer > 0) {
+            challengeState->timer--;
+            if (challengeState->timer == 0) {
                 if (D_80029FA8 != 0) {
                     if (gCurrentMap == 0xB4) {
                         D_80029FA4 = 0x14;
@@ -191,8 +190,8 @@ void func_80029118(void) {
         break;
     case 0xFF:
         D_80029FA8 = 0;
-        challengeState->unk2 = gfxResourceCreate(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
-        challengeState->unk0 = 0x78;
+        challengeState->textGfxHandle = gfxResourceCreate(1, "TIME OUT!", 2, 160.0f, 100.0f, 0.0f);
+        challengeState->timer = 0x78;
         D_807FBB40->unk154 = 0xFE;
         break;
     }
@@ -206,7 +205,7 @@ extern u8 D_2000180[];
 Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
 
 Gfx *critterRenderCenterImage(Gfx *glistp, Struct_807FBB40 *actor) {
-    Struct_807FBB40_174 *t1 = actor->unk174;
+    CritterBattleArenaState *t1 = actor->unk174;
 
     gSPDisplayList(glistp++, &D_1000118);
     gDPPipeSync(glistp++);
@@ -215,7 +214,7 @@ Gfx *critterRenderCenterImage(Gfx *glistp, Struct_807FBB40 *actor) {
     gDPSetRenderMode(glistp++, G_RM_OPA_SURF, G_RM_TEX_EDGE2);
     gSPMatrix(glistp++, &D_2000180, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     if (actor->unk154 == 0xFE) {
-        glistp = textDrawAnimated(glistp, t1->unk2, 2, 160.0f, 100.0f, 0.0f, 1.5f);
+        glistp = textDrawAnimated(glistp, t1->textGfxHandle, 2, 160.0f, 100.0f, 0.0f, 1.5f);
     }
     return glistp;
 }

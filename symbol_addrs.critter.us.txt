@@ -33,6 +33,7 @@ critterRenderText = 0x80028DE8; // type:func
 critterShowText = 0x80028EE8; // type:func
 critterUpdateText = 0x8002904C; // type:func
 critterBitwiseNot = 0x80029110; // type:func
+critterBattleArenaUpdate = 0x80029118; // type:func
 critterRenderCenterImage = 0x800296DC; // type:func
 critterGroups = 0x80029BA0;
 critterPlayerZone = 0x80029BA4;
