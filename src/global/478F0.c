@@ -2353,7 +2353,7 @@ void func_80649D74(CsState *cs, s16 csId, s16 b, s16 c) {
     csModelStateTrySetByte(0x3D, (*p)[1], 1);
 }
 
-void func_80649E00(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdCopyByteToSlotUnk14(CsState *cs, s16 csId, s16 b, s16 c) {
     cs->unk14[0] = *((u8 *)cs + 0x49);
 }
 
@@ -2411,7 +2411,7 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c)
   }
 }
 
-void func_80649F64(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdTrySetModelByte5F(CsState *cs, s16 csId, s16 b, s16 c) {
     csModelStateTrySetByte(0x5F, ((CsModelSlotView *)D_807F6000)[hashTableLookup(csId)].unk8A, 1);
 }
 
@@ -2704,7 +2704,7 @@ void func_8064A804(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void func_8064AAC4(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSetModelByte8A(CsState *cs, s16 csId, s16 b, s16 c) {
     func_806BD094(((CsSlotIdView *)D_807F6000)[hashTableLookup(csId)].unk8A, b);
 }
 
@@ -2867,7 +2867,7 @@ void func_8064AC28(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 void func_8002D6F8(s16);
-void func_8064B118(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdFreeModelSlotIndex(CsState *cs, s16 csId, s16 b, s16 c) {
     func_8002D6F8(csId);
 }
 
@@ -2875,7 +2875,7 @@ void csCmdVarAdd(CsState *cs, s16 csId, s16 b, s16 c) {
     cs->unk14[b] = cs->unk14[b] + cs->unk14[c];
 }
 
-void func_8064B190(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdCopyTargetPosSub10(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 t = -10.0 - cs->unk14[b];
     t = t / -10.0;
     cs->unk14[c] = t * -1.0;
@@ -2892,7 +2892,7 @@ typedef struct CsActorPosView {
     /* 0x104 */ f32 y;
     /* 0x108 */ f32 z;
 } CsActorPosView;
-void func_8064B260(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdDecayTargetPosDiff(CsState *cs, s16 csId, s16 b, s16 c) {
     cs->unk14[b] = ((CsActorPosView *)D_807FBB4C)->x;
     cs->unk14[b + 1] = ((CsActorPosView *)D_807FBB4C)->y;
     cs->unk14[b + 2] = ((CsActorPosView *)D_807FBB4C)->z;
@@ -2963,7 +2963,7 @@ void csCmdPosFromNode(CsState *cs, s16 csId, s16 b, s16 c) {
 void slotQueueSelectPlayerResource(u8);
 void slotQueueCancel(s32, s32);
 void slotQueueUpdate(s32, u8, s32);
-void func_8064B514(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSlotQueueSelectPlayer(CsState *cs, s16 csId, s16 b, s16 c) {
     slotQueueSelectPlayerResource(b);
     if (c != 0) {
         slotQueueCancel(0xD, 0);
@@ -2973,7 +2973,7 @@ void func_8064B514(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void func_80726EE0(u8);
-void func_8064B574(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdAudioFunc80726EE0(CsState *cs, s16 csId, s16 b, s16 c) {
     func_80726EE0(3);
 }
 
@@ -3024,7 +3024,7 @@ void csCmdStepLightColor(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void func_8064B798(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdModelApplyTranslation(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 *p = gPlayerSlots->unk4->unk174;
     p[0x1FC] = b;
 }
@@ -3032,23 +3032,23 @@ void func_8064B798(CsState *cs, s16 csId, s16 b, s16 c) {
 void func_8064B7C0(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
-void func_8064B7D4(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdAllocSlotPointer(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void effectNodeSetUnk4A(s32, u8);
 void effectNodeSetUnk4B(s32, u8);
 u8 effectNodeGetUnk4B(s32);
-void func_8064B7E8(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdEffectNodeSet4A_5_1(CsState *cs, s16 csId, s16 b, s16 c) {
     effectNodeSetUnk4A(5, 1);
     effectNodeSetUnk4A(6, 1);
 }
 
-void func_8064B828(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdEffectNodeSet4B_5_FF(CsState *cs, s16 csId, s16 b, s16 c) {
     effectNodeSetUnk4B(5, 0xFF);
     effectNodeSetUnk4B(6, 0xFF);
 }
 
-void func_8064B868(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdEffectNodeStepAlpha(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 v = effectNodeGetUnk4B(5);
     effectNodeSetUnk4B(5, v < 0xFC ? v + 3 : 0xFF);
     effectNodeSetUnk4B(6, v < 0xFC ? v + 3 : 0xFF);
@@ -3113,7 +3113,7 @@ s32 csCondVarLess(CsState *cs, s16 csId, s16 b, s16 c) {
     return (u8)(cs->unk14[b] < cs->unk14[c]);
 }
 
-void func_8064BB4C(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCondFlagGet82(CsState *cs, s16 csId, s16 b, s16 c) {
     func_805FF0C8();
 }
 
@@ -3164,7 +3164,7 @@ s32 csFindPlayerSlotByModel(s32 a, s32 b) {
 void modelSlotGetTransformVectors();
 void func_8067ABC0(s32, void *, s32, s16, s32, f32, f32, f32);
 
-s32 func_8064BD2C(CsState *cs, s16 csId, s16 b, s16 c) {
+s32 csCondFindPlayerSlotByModel(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x, y, z;
     f32 u50, u4C, u48, u44, u40;
     s32 id;
@@ -3220,7 +3220,7 @@ s32 csCondPlayerNearFixedPoint(CsState *cs, s16 csId, s16 b, s16 c) {
     return 0;
 }
 
-void func_8064BFD0(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdDecayTargetPosCoord(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 absv;
     f32 ratio;
 
@@ -4139,7 +4139,7 @@ void func_8064E65C(CsState *cs, s16 csId, s16 b, s16 c) {
 
 void flagSet(s32, s32, s32);
 
-void func_8064EA48(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSlotQueuePurchaseFlag(CsState *cs, s16 csId, s16 b, s16 c) {
     if (slotQueueGetValue(1, 0) >= 2) {
         slotQueueUpdate(1, 0, 0);
         slotQueueAddValue(1, 0, -2);
@@ -4147,7 +4147,7 @@ void func_8064EA48(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void func_8064EAB4(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdSumFlagsE6ToE7(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 sum;
 
     sum = flagGet(0xE6, 0);
@@ -4170,7 +4170,7 @@ s32 func_8064EB3C(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern u8 gPlayerCharacterId;
 
-u8 func_8064EB9C(CsState *cs, s16 csId, s16 b, s16 c) {
+u8 csCondCheckSlotMapIndex(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 idx;
     u8 v;
 
@@ -4186,7 +4186,7 @@ s32 frameTimingGetMapIndex(void);
 s32 func_806FB418(void);
 extern s16 D_807446D0[];
 
-s32 func_8064EC04(CsState *cs, s16 csId, s16 b, s16 c) {
+s32 csCondCheckFrameTimingMap(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 idx;
 
     idx = frameTimingGetMapIndex();
@@ -4375,7 +4375,7 @@ u8 csCondTrue(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern s8 D_807FC8D0;
 
-void func_8064F308(CsState *cs, s16 csId, s16 b, s16 c) {
+void csCmdMapExitCheck1C1(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 flag;
 
     if (D_807FC8D0 == 5) {

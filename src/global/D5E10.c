@@ -114,13 +114,13 @@ void func_806D1110(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D11FC(void) {
+void playerClampYAboveFloor(void) {
     if (gCurrentActor->unkAC < gCurrentActor->y + 4.5f) {
         gCurrentActor->y = gCurrentActor->unkAC - 4.5f;
     }
 }
 
-void func_806D1238(void) {
+void playerInputUpdate66(void) {
     playerInputUpdate(0x66);
     func_806CC8B8();
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -160,7 +160,7 @@ void func_806D12CC(void) {
             playerInputUpdate(0x67);
             break;
     }
-    func_806D11FC();
+    playerClampYAboveFloor();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -315,7 +315,7 @@ void func_806D19A8(void) {
             }
             break;
     }
-    func_806D11FC();
+    playerClampYAboveFloor();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -358,11 +358,11 @@ void func_806D1B60(void) {
             }
             break;
     }
-    func_806D11FC();
+    playerClampYAboveFloor();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_806D1D3C(void) {
+void playerInputUpdate65(void) {
     G08_P->unk4 = 0.0f;
     playerInputUpdate(0x65);
     func_806CC8B8();
@@ -470,7 +470,7 @@ void func_806D205C(void) {
 }
 
 
-void func_806D21E4(void) {
+void playerInputUpdate0(void) {
     playerInputUpdate(0);
     if (!(D_807FBB60 & 0x4000) && !(D_807FBB60 & 0x8000)) {
         playerResumeLocomotion(gCurrentActor);
@@ -514,7 +514,7 @@ void func_806D2238(void) {
     }
 }
 
-void func_806D22A0(void) {
+void playerInputUpdate1(void) {
     playerInputUpdate(1);
 }
 
@@ -598,7 +598,7 @@ void func_806D239C(void) {
     }
 }
 
-void func_806D24A8(void) {
+void playerInputUpdate5D(void) {
     actorRegisterSnapToBoneCallback();
     playerInputUpdate(0x5D);
     G09_A->unkC0 = G09_A->unkC8;
