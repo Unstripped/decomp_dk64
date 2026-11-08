@@ -1,4 +1,9 @@
 // Overlay boss (ovl07, segment table entry 7)
+bossArmydilloSpawnSmoke = 0x80024000; // type:func
+bossArmydilloInitArena = 0x8002413C; // type:func
+bossArmydilloDebrisUpdate = 0x80024300; // type:func
+bossPieceSetState = 0x8002450C; // type:func
+bossPieceSetAngle = 0x80024524; // type:func
 bossPieceStep = 0x80024568; // type:func
 bossPieceListStep = 0x800251A0; // type:func
 bossLerpCoords = 0x800278F4; // type:func

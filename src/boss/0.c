@@ -25,7 +25,7 @@ void func_807149B8(s32);
 void func_807149C8(s32, s32, s32, s32);
 void func_80714CC0(void *, f32, f32, f32, f32);
 
-void func_80024000(void) {
+void bossArmydilloSpawnSmoke(void) {
     BossByteTable6 sp48;
     s16 i;
 
@@ -110,7 +110,7 @@ void func_80724D28(s32, s32);
 void func_80724DB0(s32, s32);
 void func_80724CA4(s32, s32);
 
-void func_8002413C(void) {
+void bossArmydilloInitArena(void) {
     s32 pad[4];
     u8 mode;
     s16 i;
@@ -194,7 +194,7 @@ s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 f32 func_80612794(s16);
 f32 func_80612790(s16);
 
-void func_80024300(void) {
+void bossArmydilloDebrisUpdate(void) {
     s16 var_s2;
     BossA_Struct_8002413C_1 *var_s0;
     s32 var_a3;
@@ -263,11 +263,11 @@ void func_80024300(void) {
     } while (var_s2 < 13);
 }
 
-void func_8002450C(u8 *arg0, u8 arg1, u8 arg2) {
+void bossPieceSetState(u8 *arg0, u8 arg1, u8 arg2) {
     arg0[arg1 + 6] = arg2;
 }
 
-void func_80024524(u8 arg0, s16 arg1) {
+void bossPieceSetAngle(u8 arg0, s16 arg1) {
     BossA_Struct_80024524_Entry *entry = &D_807FBB40->sub->u1C.entries[arg0];
     if (arg0 == 3) {
         entry->unk1 = 0x2F;
@@ -486,7 +486,7 @@ void func_80024FA8(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     case 2:
         if (*arg3 != 0xFF) {
             do {
-                func_8002450C(arg1, arg3[i++], 1);
+                bossPieceSetState(arg1, arg3[i++], 1);
             } while (arg3[i] != 0xFF);
         }
         ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155 = 3;
@@ -520,7 +520,7 @@ void bossPieceListStep(void *arg0, u8 *arg1, s32 arg2, u8 *arg3) {
     case 2:
         if (*arg3 != 0xFF) {
             do {
-                func_8002450C(arg1, arg3[i++], 3);
+                bossPieceSetState(arg1, arg3[i++], 3);
             } while (arg3[i] != 0xFF);
         }
         ((Boss2A_Struct_807FBB40_4FA8 *)D_807FBB40)->unk155 = 3;
@@ -716,7 +716,7 @@ extern s16 D_80770628[];
 extern s16 D_80770710[];
 extern s32 gCamActor;
 
-void func_80024000();
+void bossArmydilloSpawnSmoke();
 void bossPieceListStep();
 void func_800253AC();
 void func_80027770();
@@ -787,7 +787,7 @@ void func_800254D0(void) {
         animSetSpeed(D_807FBB40, 1, 0.2f);
         animSetLoopMode(D_807FBB40, 1, 1);
         D_807FBB40->unk146 = 0;
-        func_8002413C();
+        bossArmydilloInitArena();
         D_807FBB40->unkB8 = 0.0f;
         scriptSetActorRampTarget(D_807FBB40, 0.0f, 0.0f);
         {
@@ -852,7 +852,7 @@ void func_800254D0(void) {
                 func_8067E2E4(D_807FBB40, (((randomNonNegative() >> 15) % 32767 % 10) + 0xD) & 0xFF, 1.0f);
             }
             if (currentActorTestClearFlag() != 0) {
-                func_80024000();
+                bossArmydilloSpawnSmoke();
                 actorScriptStart(D_807FBB40, 0x263);
                 D_807FDC90->unk2C = 0x14;
                 D_807FBB40->unk155 = 3;
@@ -865,7 +865,7 @@ void func_800254D0(void) {
         case 3:                                     /* switch 2 */
             if (D_807FDC90->unk2C != 0) {
                 D_807FDC90->unk2C--;
-                func_80024300();
+                bossArmydilloDebrisUpdate();
             } else if (currentActorTestClearFlag() != 0) {
                 if (D_807FBB40->unk70 == -1) {
                     sfxPlayActorSound(D_807FBB40, 0x131, 0x3C, 1, 1, 0xFF, 1.0f, 0);
@@ -959,8 +959,8 @@ void func_800254D0(void) {
                 func_8067E2E4(D_807FBB40, 6, 1.0f);
                 func_8067E2E4(D_807FBB40, 7, 1.0f);
                 actorScriptStart(D_807FBB40, 0x26C);
-                func_8002450C(sp78, 0, 5);
-                func_8002450C(sp78, 1, 5);
+                bossPieceSetState(sp78, 0, 5);
+                bossPieceSetState(sp78, 1, 5);
                 sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x22, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 sfxPlayAtPositionPooled(D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84, 0x3C, 0xFF, 0x7F, 1, 0x1E, 0.3f, 0);
                 D_807FBB40->unk155 = 2;
@@ -999,9 +999,9 @@ void func_800254D0(void) {
                 s16 val = sp78->unk10;
 
                 sp78->unk12 = sp78->unk10;
-                func_80024524(2, val);
+                bossPieceSetAngle(2, val);
             }
-            func_80024524(3, sp78->unk12);
+            bossPieceSetAngle(3, sp78->unk12);
             break;
         case 1:                                     /* switch 5 */
             D_807FDC90->unk2E += (D_807FBB40->unk154 == 0x2F) ? 10 : 4;
@@ -1066,8 +1066,8 @@ void func_800254D0(void) {
             s32 pad;
             sp78->unk10 = -sp78->unk10 * 0.1 + sp78->unk10;
             sp78->unk12 = -sp78->unk12 * 0.1 + sp78->unk12;
-            func_80024524(3, sp78->unk12);
-            func_80024524(2, sp78->unk10);
+            bossPieceSetAngle(3, sp78->unk12);
+            bossPieceSetAngle(2, sp78->unk10);
         }
         /* fallthrough */
     case 0x2B:                                      /* switch 1 */
