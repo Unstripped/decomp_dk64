@@ -113,8 +113,9 @@ look identical in the text).
 - Follow AGENTS.md "Decompiling a function" step 4 (stage order, permuter search-hint rule,
   NON_MATCHING parking) except: no ROM build (gates: `fdiff.sh` OK/TEXT OK, `--non-matching`);
   `uopt_trace.sh` before any register guess, `as1probe.py keep`+`scan` before any schedule-only
-  spelling search (aim at its routes; report hits C cannot emit with the edit); every `tools/dk`
-  call under ~10 min (permuter `-j 2 --seconds 600`, deadsweep `--rounds 1`); never bypass its lock.
+  spelling search (aim at its routes; report hits C cannot emit with the edit), `ringfifo.py sim`
+  when only `$tN` names differ (the first label whose queue diverges names the culprit statement);
+  every `tools/dk` call under ~10 min (permuter `-j 2 --seconds 600`, deadsweep `--rounds 1`); never bypass its lock.
   Order: callee prototypes vs definitions (`unit_check.py protos`, also arity), cfe hidden
   temps (nested calls), structural spelling grids, then `deadsweep.py sweep --extra <locals>`,
   then simulated annealing (`.scratch/*/anneal.py` from past units: dead tests + which local
