@@ -70,7 +70,7 @@ typedef struct {
 } BossWaypointPick;
 extern BossWaypointPick D_80035B80;
 
-u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
+u8 bossPickWaypointStep(BossE_F0D0_Sub14 *sub14, u8 *waypointIndices) {
     s32 min_dist;
     s32 dists[16];
     u8 i;
@@ -79,14 +79,14 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
     u8 val;
     u8 start_val;
 
-    val = arg1[0];
+    val = waypointIndices[0];
     min_dist = 0x98967F;
     start_val = val;
     for (i = 0; i < 16; i++) {
         dists[i] = (s32)(((f32)D_807FDCA0->unk14[i].unk0 - D_807FBB4C->unk7C) * ((f32)D_807FDCA0->unk14[i].unk0 - D_807FBB4C->unk7C) + ((f32)D_807FDCA0->unk14[i].unk4 - D_807FBB4C->unk84) * ((f32)D_807FDCA0->unk14[i].unk4 - D_807FBB4C->unk84));
         if (dists[i] < min_dist) {
             min_dist = dists[i];
-            arg1[3] = i;
+            waypointIndices[3] = i;
         }
     }
 
@@ -95,8 +95,8 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
         return center.b[(randomNonNegative() >> 15) % 4];
     }
 
-    diff_row = (s8)((s32)arg1[0] / 4 - (s32)arg1[3] / 4);
-    diff_col = (s8)((s32)arg1[0] % 4 - (s32)arg1[3] % 4);
+    diff_row = (s8)((s32)waypointIndices[0] / 4 - (s32)waypointIndices[3] / 4);
+    diff_col = (s8)((s32)waypointIndices[0] % 4 - (s32)waypointIndices[3] % 4);
 
     if (diff_row > 0) {
         val -= 4;
@@ -108,11 +108,11 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
         val += 1;
     }
 
-    if (arg0->unk14 >= 3) {
+    if (sub14->unk14 >= 3) {
         return val;
     }
-    if (arg1[2] - val == 0) {}  // FAKE: steers temp ring / beq operand order
-    if (arg1[2] - val == 0 || val == start_val) {  // FAKE: a - b == 0 keeps the load as first beq operand
+    if (waypointIndices[2] - val == 0) {}  // FAKE: steers temp ring / beq operand order
+    if (waypointIndices[2] - val == 0 || val == start_val) {  // FAKE: a - b == 0 keeps the load as first beq operand
         if (diff_row != 0 || val == start_val) {
             if (dists[(start_val - 1) & 0xF] < dists[(start_val + 1) & 0xF] && (start_val & 3) != 0) {
                 start_val--;
@@ -134,16 +134,16 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
     return val;
 }
 
-void func_8003340C(u8 *arg0) {
-    s32 temp_v0;
+void func_8003340C(u8 *waypointIndices) {
+    s32 animId;
 
-    temp_v0 = D_807FBB40->unk4->unk64;
-    if (temp_v0 != 0x223 && arg0[3] == arg0[1]) {
+    animId = D_807FBB40->unk4->unk64;
+    if (animId != 0x223 && waypointIndices[3] == waypointIndices[1]) {
         actorScriptStart(D_807FBB40, 0x223);
         actorScriptExecute(D_807FBB40);
         return;
     }
-    if (temp_v0 != 0x224 && arg0[3] != arg0[1]) {
+    if (animId != 0x224 && waypointIndices[3] != waypointIndices[1]) {
         actorScriptStart(D_807FBB40, 0x224);
         actorScriptExecute(D_807FBB40);
     }
@@ -153,86 +153,86 @@ f32 func_80612794(s16);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32);
 
-void bossInterpolateWaypoints(u8 *arg0, f32 arg1) {
+void bossInterpolateWaypoints(u8 *waypointPair, f32 progress) {
     f64 val;
-    f32 temp_f;
+    f32 factor;
 
-    val = (f64)(D_807FBB40->unk4->unk0->unk4 * arg1);
+    val = (f64)(D_807FBB40->unk4->unk0->unk4 * progress);
 
-    temp_f = (f32)(1.0 + (f64)func_80612794((s16)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
+    factor = (f32)(1.0 + (f64)func_80612794((s16)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
 
-    D_807FBB40->unk7C = (f32)D_807FDCA0->unk14[arg0[1]].unk0 + (f32)(D_807FDCA0->unk14[arg0[0]].unk0 - D_807FDCA0->unk14[arg0[1]].unk0) * temp_f;
-    D_807FBB40->unk84 = (f32)D_807FDCA0->unk14[arg0[1]].unk4 + (f32)(D_807FDCA0->unk14[arg0[0]].unk4 - D_807FDCA0->unk14[arg0[1]].unk4) * temp_f;
+    D_807FBB40->unk7C = (f32)D_807FDCA0->unk14[waypointPair[1]].unk0 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk0 - D_807FDCA0->unk14[waypointPair[1]].unk0) * factor;
+    D_807FBB40->unk84 = (f32)D_807FDCA0->unk14[waypointPair[1]].unk4 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk4 - D_807FDCA0->unk14[waypointPair[1]].unk4) * factor;
 
-    D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, mathAngleBetweenPoints2D(D_807FDCA0->unk14[arg0[1]].unk0, D_807FDCA0->unk14[arg0[1]].unk4, D_807FDCA0->unk14[arg0[0]].unk0, D_807FDCA0->unk14[arg0[0]].unk4), 10.0f);
+    D_807FBB40->unkE6 = mathAngleEaseToward(D_807FBB40->unkE6, mathAngleBetweenPoints2D(D_807FDCA0->unk14[waypointPair[1]].unk0, D_807FDCA0->unk14[waypointPair[1]].unk4, D_807FDCA0->unk14[waypointPair[0]].unk0, D_807FDCA0->unk14[waypointPair[0]].unk4), 10.0f);
 }
 
 void func_800336C0(void) {
-    f32 sp24;
+    f32 scale;
 
-    sp24 = (f32) ((f64) D_807FBB40->unk4->unk38 / 0.15);
+    scale = (f32) ((f64) D_807FBB40->unk4->unk38 / 0.15);
     func_80714998(2);
     func_8071498C(&effectPuffRiseUpdate);
     func_807149B8(1);
     func_80714950(1);
-    func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) sp24, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
+    func_80714CC0(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) scale, D_807FBB40->unk7C, D_807FBB40->unk80, D_807FBB40->unk84);
 }
 
 void csModelStateSetFirstByte(s16, u8);
 extern u8 D_80035BDC[];
 extern u8 D_80035BE4[];
 
-void bossSetRandomObjectPair(arg0, arg1)
-u8 *arg0;
-u8 arg1;
+void bossSetRandomObjectPair(pairArray, stateByte)
+u8 *pairArray;
+u8 stateByte;
 {
     u8 idx;
     u8 val;
-    if (arg1) {
+    if (stateByte) {
         do {
             idx = (randomNonNegative() >> 15) % 8;
-        } while (arg0[0] + 0x10 == (val = D_80035BDC[idx]) ||
-                  arg0[3] + 0x10 == D_80035BDC[idx] ||
-                  arg0[3] + 0x0F == D_80035BDC[idx] ||
-                  arg0[3] + 0x11 == D_80035BDC[idx] ||
-                  arg0[3] + 0x0C == D_80035BDC[idx] ||
-                  arg0[3] + 0x14 == D_80035BDC[idx]);
-        arg0[4] = val;
+        } while (pairArray[0] + 0x10 == (val = D_80035BDC[idx]) ||
+                  pairArray[3] + 0x10 == D_80035BDC[idx] ||
+                  pairArray[3] + 0x0F == D_80035BDC[idx] ||
+                  pairArray[3] + 0x11 == D_80035BDC[idx] ||
+                  pairArray[3] + 0x0C == D_80035BDC[idx] ||
+                  pairArray[3] + 0x14 == D_80035BDC[idx]);
+        pairArray[4] = val;
         do {
             idx = (randomNonNegative() >> 15) % 8;
-        } while (arg0[0] + 0x10 == (val = D_80035BE4[idx]) ||
-                  arg0[3] + 0x10 == D_80035BE4[idx] ||
-                  arg0[3] + 0x0F == D_80035BE4[idx] ||
-                  arg0[3] + 0x11 == D_80035BE4[idx] ||
-                  arg0[3] + 0x0C == D_80035BE4[idx] ||
-                  arg0[3] + 0x14 == D_80035BE4[idx]);
-        arg0[5] = val;
+        } while (pairArray[0] + 0x10 == (val = D_80035BE4[idx]) ||
+                  pairArray[3] + 0x10 == D_80035BE4[idx] ||
+                  pairArray[3] + 0x0F == D_80035BE4[idx] ||
+                  pairArray[3] + 0x11 == D_80035BE4[idx] ||
+                  pairArray[3] + 0x0C == D_80035BE4[idx] ||
+                  pairArray[3] + 0x14 == D_80035BE4[idx]);
+        pairArray[5] = val;
     }
 
-    if (arg0[4] != 0) {
-        csModelStateSetFirstByte((s16)arg0[4], arg1);
+    if (pairArray[4] != 0) {
+        csModelStateSetFirstByte((s16)pairArray[4], stateByte);
     }
-    if (arg0[5] != 0) {
-        csModelStateSetFirstByte((s16)arg0[5], arg1);
+    if (pairArray[5] != 0) {
+        csModelStateSetFirstByte((s16)pairArray[5], stateByte);
     }
-    if (arg1 == 0) {
-        arg0[4] = 0;
-        arg0[5] = 0;
+    if (stateByte == 0) {
+        pairArray[4] = 0;
+        pairArray[5] = 0;
     }
 }
 
 void projectileGetTargetCoords(void *, s32);
 void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
-void bossSpawnObjectAtWaypoint(u8 *arg0) {
+void bossSpawnObjectAtWaypoint(u8 *waypointIndex) {
     projectileGetTargetCoords(D_807FBB40, 1);
-    projectileAimAndSpawn(0x2C, 2, D_807FBB40->unk4->unk38, D_807FDCA0->unk14[arg0[3]].unk0, D_807FDCA0->unk14[arg0[3]].unk2, D_807FDCA0->unk14[arg0[3]].unk4, 1200.0f, D_807FBB40);
+    projectileAimAndSpawn(0x2C, 2, D_807FBB40->unk4->unk38, D_807FDCA0->unk14[waypointIndex[3]].unk0, D_807FDCA0->unk14[waypointIndex[3]].unk2, D_807FDCA0->unk14[waypointIndex[3]].unk4, 1200.0f, D_807FBB40);
 }
 
-s32 func_800339D8(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
-    if ((D_807FBB4C->unk80 < (D_807FBB40->unk80 - 10.0f)) && (arg0->unk14 < 5)) {
-        arg0->unk15 = arg0->unk16;
-        D_807FBB40->unk154 = arg1[arg0->unk15];
-        arg0->unk15++;
+s32 func_800339D8(BossE_F0D0_Sub14 *sub14, u8 *scriptOpcodes) {
+    if ((D_807FBB4C->unk80 < (D_807FBB40->unk80 - 10.0f)) && (sub14->unk14 < 5)) {
+        sub14->unk15 = sub14->unk16;
+        D_807FBB40->unk154 = scriptOpcodes[sub14->unk15];
+        sub14->unk15++;
         D_807FBB40->unk155 = 0;
         actorScriptStart(D_807FBB40, 0);
         return 1;
@@ -241,8 +241,8 @@ s32 func_800339D8(BossE_F0D0_Sub14 *arg0, u8 *arg1) {
 }
 
 
-void func_80033A80(s8 arg0) {
-    D_807FBB40->unk128 += arg0;
+void func_80033A80(s8 healthDelta) {
+    D_807FBB40->unk128 += healthDelta;
     if (D_807FBB40->unk128 < 0) {
         D_807FBB40->unk128 = 0;
         D_807FBB40->unk155++;
@@ -418,23 +418,23 @@ void func_80033AF0(void) {
     u8 idx;
     u8 v;
     s16 i;
-    f32 sp68;
-    f32 sp64;
-    f32 sp60;
+    f32 boneX;
+    f32 boneY;
+    f32 boneZ;
     u8 left;
 
-#define sp83 L.f83
-#define sp7F L.f7F
+#define playerAbove L.f83
+#define flag7F L.f7F
 #define col L.col
     st = BF->unk178;
     sub = BF->unk17C;
     tbl = D_80035B84[st->unk14];
     if (BP->unk80 < BF->unk80 - 10.0f) {
-        sp83 = 1;
+        playerAbove = 1;
     } else {
-        sp83 = 0;
+        playerAbove = 0;
     }
-    sp7F = 0;
+    flag7F = 0;
     behaviourFrameBegin();
     func_8067ACB4(D_807FBB40);
     if (!(BF->unk60 & 0x10)) {
@@ -497,7 +497,7 @@ void func_80033AF0(void) {
             BF->unk155 = 0;
         }
     }
-    if (BF->unk154 == 0x23 && BF->unk155 == 1 && sp83 == 0 && sub->unk6 != 0) {
+    if (BF->unk154 == 0x23 && BF->unk155 == 1 && playerAbove == 0 && sub->unk6 != 0) {
         BF->unk154 = 0x2B;
         BF->unk155 = 0;
     }
@@ -538,7 +538,7 @@ void func_80033AF0(void) {
         switch (BF->unk155) {
         case 0:
             effectSpawnBoneDebris(4, 1);
-            sp7F = 1;
+            flag7F = 1;
             actorApplyGravity();
             actorApplyVelocityCustom(D_807FBB40, 0.0f, BF->unkC0);
             actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
@@ -571,7 +571,7 @@ void func_80033AF0(void) {
             } else {
                 BF->unk6A = 0;
                 effectSpawnBoneDebris(4, 1);
-                sp7F = 1;
+                flag7F = 1;
             }
             break;
         case 5:
@@ -605,7 +605,7 @@ void func_80033AF0(void) {
             if (BF->unk4->unk38 < BX->unk30) {
                 actorSetUniformScale(D_807FBB40, BF->unk4->unk38 * 1.01);
                 func_800336C0();
-                sp7F = 1;
+                flag7F = 1;
             } else {
                 actorScriptStart(D_807FBB40, 0x227);
                 BF->unk155++;
@@ -661,7 +661,7 @@ void func_80033AF0(void) {
         case 1:
             BF->unk155 = 2;
             scriptSetActorRampTarget(D_807FBB40, D_80036C40[st->unk14], 0.0f);
-            sub->unk6 = sp83;
+            sub->unk6 = playerAbove;
         case 2:
             func_8067ACB4(D_807FBB40);
             actorUpdateFloorContactAndTilt(D_807FBB40, 0.0f);
@@ -676,13 +676,13 @@ void func_80033AF0(void) {
             } else {
                 BF->unk6A = 0;
                 effectSpawnBoneDebris(4, 1);
-                sp7F = 1;
+                flag7F = 1;
             }
             break;
         case 3:
             sub->unk2 = sub->unk0;
             sub->unk0 = sub->unk1;
-            if (sp83 != 0) {
+            if (playerAbove != 0) {
                 st->unk18 = st->unk19;
             }
             if (st->unk18 != 0) {
@@ -733,18 +733,18 @@ block_131:
             case 3:
                 if (BF->unk154 == 0x25) {
                     effectSpawnBoneDebris(3, 1);
-                    sp7F = 1;
+                    flag7F = 1;
                 } else {
-                    actorGetNodePos(D_807FBB40, 1, &sp68, &sp64, &sp60);
-                    sp68 += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
-                    sp64 += (f32)((randomNonNegative() >> 15) % 100 + 0x32);
-                    sp60 += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
-                    func_807149B8(1);
-                    func_8071498C(D_8071EDEC);
-                    func_80714950((s32)D_807FBB40);
-                    func_80714CC0(D_8071FC58, 1.5f, sp68, sp64, sp60);
-                    func_80714C08(D_80720054, 3.0f, D_807FBB40, 1, 2);
-                }
+            actorGetNodePos(D_807FBB40, 1, &boneX, &boneY, &boneZ);
+            boneX += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
+            boneY += (f32)((randomNonNegative() >> 15) % 100 + 0x32);
+            boneZ += (f32)((randomNonNegative() >> 15) % 100 - 0x32);
+            func_807149B8(1);
+            func_8071498C(D_8071EDEC);
+            func_80714950((s32)D_807FBB40);
+            func_80714CC0(D_8071FC58, 1.5f, boneX, boneY, boneZ);
+            func_80714C08(D_80720054, 3.0f, D_807FBB40, 1, 2);
+        }
                 break;
             case 4:
                 if (BF->unk154 == 0x25) {
@@ -844,12 +844,12 @@ block_131:
         case 2:
             effectSpawnBoneDebris(2, 1);
             effectSpawnBoneDebris(3, 1);
-            sp7F = 1;
+            flag7F = 1;
             break;
         case 3:
             effectSpawnBoneDebrisScaled(2, (randomNonNegative() >> 15) % 0x7FFF % 6 + 5, 0x28);
             effectSpawnBoneDebrisScaled(3, (randomNonNegative() >> 15) % 0x7FFF % 6 + 5, 0x28);
-            sp7F = 1;
+            flag7F = 1;
             break;
         case 4:
             func_80033A80(((s8 *)st)[9]);
@@ -932,7 +932,7 @@ block_131:
         bossScriptStep(tbl, 0, 0.0f);
         break;
     }
-    if (sp7F != 0) {
+    if (flag7F != 0) {
         if (BF->unk6E == -1) {
             sfxPlayActorSound(D_807FBB40, 0x135, 0x4B, 1, 0, 0xB4, 1.0f, 0);
         }
@@ -943,8 +943,8 @@ block_131:
 }
 #undef sub
 #undef tbl
-#undef sp83
-#undef sp7F
+#undef playerAbove
+#undef flag7F
 #undef col
 #undef BF
 #undef BP
