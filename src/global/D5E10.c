@@ -2101,7 +2101,7 @@ void playerStateBrake(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_807531FC[];
+extern f32 gKongTurnDecelRates[];
 
 void playerStateSlopeSlideByCharacter(void) {
     mathAngleStepToward(&G13_A->unkE6, G13_A->unkEE, G13_P->unk48);
@@ -2132,9 +2132,9 @@ void playerStateSlopeSlideByCharacter(void) {
                     playerApplyFullPhysics();
                     break;
                 case 1:
-                    G13_A->unkB8 = D_807531FC[gCurrentCharacterIndex];
+                    G13_A->unkB8 = gKongTurnDecelRates[gCurrentCharacterIndex];
                     G13_P->unk2C = 20.0f;
-                    G13_P->unk38 = D_807531FC[gCurrentCharacterIndex];
+                    G13_P->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex];
                     playerInputUpdate(0x15);
                     playerApplyGravityAndMotion();
                     break;
@@ -2169,7 +2169,7 @@ void playerStateSlopeSlideByCharacter(void) {
                 case 1:
                     G13_P->unk30 = 20.0f;
                     G13_P->unk2C = 20.0f;
-                    G13_P->unk38 = D_807531FC[gCurrentCharacterIndex];
+                    G13_P->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex];
                     playerInputUpdate(0x15);
                     playerApplyGravityAndMotion();
                     break;
@@ -2198,7 +2198,7 @@ void playerStateSlopeSlideByCharacter(void) {
                     break;
                 case 1:
                     G13_P->unk2C = 30.0f;
-                    G13_P->unk68 = D_807531FC[gCurrentCharacterIndex];
+                    G13_P->unk68 = gKongTurnDecelRates[gCurrentCharacterIndex];
                     playerApproachVelocity(G13_A->unkE6, G13_P->unk68, G13_P->unk68);
                     playerInputUpdate(0x15);
                     playerApplyGravityAndMotion();
@@ -2422,9 +2422,9 @@ typedef struct G14Player {
 #define G14_A ((G14Actor *)gCurrentActor)
 #define G14_P ((G14Player *)gActivePlayerState)
 
-extern f32 D_8075305C[];
-extern f32 D_807530F0[];
-extern f32 D_80753144[];
+extern f32 gKongSwimTurnSpeeds[];
+extern f32 gKongSwimPaddleSpeeds[];
+extern f32 gKongSwimSpeeds[];
 extern s16 D_807538C8[];
 s16 mathAngleEaseToward(s16, s16, f32);
 void effectSpawnJointBeam();
@@ -2549,7 +2549,7 @@ void playerStateSwimTurn(void) {
     switch (G14_A->unk155) {
     case 0:
         playerInputUpdate(3);
-        G14_P->unk4 = D_8075305C[gCurrentCharacterIndex];
+        G14_P->unk4 = gKongSwimTurnSpeeds[gCurrentCharacterIndex];
         G14_P->unkA = G14_A->unkEE;
         mathAngleStepToward(&G14_A->unkE6, (s16)((G14_A->unkEE + 0x800) & 0xFFF), (s16)(G14_P->unk48 * 2));
         break;
@@ -2621,7 +2621,7 @@ void playerStateSwimPaddle(void) {
     switch (G14_A->unk155) {
     case 0:
         playerInputUpdate(3);
-        G14_P->unk4 = D_807530F0[gCurrentCharacterIndex];
+        G14_P->unk4 = gKongSwimPaddleSpeeds[gCurrentCharacterIndex];
         G14_P->unkA = G14_A->unkEE;
         G14_A->unkE6 = mathAngleEaseToward(G14_A->unkE6, (s16)(G14_P->unkDC->unkE6 + 0x800), 8.0f);
         playerApplyFullPhysics();
@@ -2693,9 +2693,9 @@ void func_806D7704(void) {
     G14_A->unk64 |= 0x200;
     switch (G14_A->unk155) {
     case 0:
-        G14_A->unkB8 = D_80753144[gCurrentCharacterIndex];
+        G14_A->unkB8 = gKongSwimSpeeds[gCurrentCharacterIndex];
         playerInputUpdate(5);
-        G14_P->unk4 = D_80753144[gCurrentCharacterIndex];
+        G14_P->unk4 = gKongSwimSpeeds[gCurrentCharacterIndex];
         if (G14_P->unk1A3 != 0) {
             sfxStopSlotSound(gCurrentActor, 0);
             G14_P->unk1A3 = 0;
@@ -2770,7 +2770,7 @@ typedef struct G15PlayerB {
 #define G15_PB ((G15PlayerB *)gActivePlayerState)
 
 extern s32 gGlobalCutsceneFlags;
-extern f32 D_80753024[];
+extern f32 gKongSwimStrokeSpeeds[];
 extern f32 D_80753094[];
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void camStartPathNearWall(void *, s32, s32, s32);
@@ -2787,7 +2787,7 @@ void playerStateSwimStroke(void) {
     playerInputUpdate(1);
     switch (G08_A40->unk155) {
         case 0:
-            G08_A40->unkC4 = D_80753024[gCurrentCharacterIndex];
+            G08_A40->unkC4 = gKongSwimStrokeSpeeds[gCurrentCharacterIndex];
             if (gGlobalCutsceneFlags & 2) {
                 sfxPlayOnFreeSlot(0x424, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
@@ -3469,7 +3469,7 @@ f32 mathAtan2(f32, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void sfxPlayScriptActorSoundForPlayer(void *, s32, s32);
 extern f32 D_80753CD0[];
-extern f32 D_80753250[];
+extern f32 gKongCannonInitialPitch[];
 #define G16_E ((G16Actor *)gPrimaryPlayerActor)
 
 void playerStateDamageFallTumble(void) {
@@ -3551,7 +3551,7 @@ void playerStateDamageFallTumble(void) {
             break;
         case 3:
             sfxPlayScriptActorSoundForPlayer(gCurrentActor, 0x10, 0);
-            G16_P->unk30 = D_80753250[gCurrentCharacterIndex];
+            G16_P->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
             G16_A->unk155 = G16_A->unk155 + 1;
         case 4:
             playerApplyDeceleration();
@@ -3732,7 +3732,7 @@ s32 actorTableContains(void *);
 void actorAppendCallback(void *, void *, s32, s32, s32, s32);
 void actorAppendCallback4000(void *, void *, s16, f32, s32);
 void playerStartPickupApproach(void *);
-extern f32 D_807533B8[];
+extern f32 gKongHoldPutDownAngles[];
 #define G17_B48 ((G17Actor *)gActivePlayerActor)
 void playerRegisterHeldActorFollow(f32);
 void playerRegisterHeldActorAlign(void);
@@ -3967,7 +3967,7 @@ void playerStateHoldPickup(void) {
         break;
     case 4:
         playerInputUpdate(5);
-        actorAppendCallback4000(gCurrentActor, G17_P->unk1AC, G17_B48->unkE6, G17_A->unk4->unk34 * (D_807533B8[gCurrentCharacterIndex] * 3.0) / (new_var = 0.15), 0);
+        actorAppendCallback4000(gCurrentActor, G17_P->unk1AC, G17_B48->unkE6, G17_A->unk4->unk34 * (gKongHoldPutDownAngles[gCurrentCharacterIndex] * 3.0) / (new_var = 0.15), 0);
         G17_A->unk155++;
         break;
     case 5:
@@ -4139,7 +4139,7 @@ void playerStateHoldIdle(void) {
 
 extern f32 D_80753364[];
 extern f32 D_80753380[];
-extern f32 D_8075339C[];
+extern f32 gKongHoldPutDownOffsets[];
 
 void playerStateHoldPutDown(void) {
     G18_P->unk1F0 &= 0xFEFFFFFF;
@@ -4150,7 +4150,7 @@ void playerStateHoldPutDown(void) {
             G18_A->unkB8 = 0.0f;
             break;
         case 1:
-            actorAppendCallback4000(gCurrentActor, G18_P->unk1AC, gActivePlayerActor->yaw, D_807533B8[gCurrentCharacterIndex], (s32)D_8075339C[gCurrentCharacterIndex]);
+            actorAppendCallback4000(gCurrentActor, G18_P->unk1AC, gActivePlayerActor->yaw, gKongHoldPutDownAngles[gCurrentCharacterIndex], (s32)gKongHoldPutDownOffsets[gCurrentCharacterIndex]);
             G18_P->unk1AC = NULL;
             G18_P->unk1B0 = 0;
             G18_A->unk155++;
@@ -4171,8 +4171,8 @@ void playerStateHoldPutDown(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_807533D4[];
-extern f32 D_807533F0[];
+extern f32 gKongHoldThrowOffsets[];
+extern f32 gKongHoldThrowAngles[];
 
 void playerStateHoldThrow(void) {
     G18_P->unk1F0 &= 0xFEFFFFFF;
@@ -4183,7 +4183,7 @@ void playerStateHoldThrow(void) {
             G18_A->unkB8 = 0.0f;
             break;
         case 1:
-            actorAppendCallback4000(gCurrentActor, G18_P->unk1AC, gActivePlayerActor->yaw, D_807533F0[gCurrentCharacterIndex], (s32)D_807533D4[gCurrentCharacterIndex]);
+            actorAppendCallback4000(gCurrentActor, G18_P->unk1AC, gActivePlayerActor->yaw, gKongHoldThrowAngles[gCurrentCharacterIndex], (s32)gKongHoldThrowOffsets[gCurrentCharacterIndex]);
             G18_P->unk1AC = NULL;
             G18_P->unk1B0 = 0;
             G18_A->unk155++;
@@ -5192,7 +5192,7 @@ void playerStateAttachedCallbackFallCheck(void) {
 }
 
 
-extern f32 D_80753CB4[];
+extern f32 gKongKnockbackSpeeds[];
 
 void playerStateKnockbackBounce(void) {
     G19_A->unkFA = 0x12C;
@@ -5200,7 +5200,7 @@ void playerStateKnockbackBounce(void) {
     switch (G19_A->unk155) {
     case 1:
         G19_A->unkEE = (G19_A->unkE6 + 0x800) & 0xFFF;
-        G19_A->unkC0 = D_80753CB4[gCurrentCharacterIndex];
+        G19_A->unkC0 = gKongKnockbackSpeeds[gCurrentCharacterIndex];
         G19_A->unkB8 = 100.0f;
         playerSetTerminalVelocity5B0();
         G19_A->unk155++;
@@ -5654,7 +5654,7 @@ void func_806DE930(void) {
         func_806CDD24(gCurrentActor, G19_A->unkB8, 0, 1);
     }
     if (gCurrentMap == 0x52) {
-        G19_P->unk30 = D_80753250[gCurrentCharacterIndex] * 5.0;
+        G19_P->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex] * 5.0;
     }
     playerApplyFullPhysics();
     actorUpdateModelMatrix(gCurrentActor, 0);

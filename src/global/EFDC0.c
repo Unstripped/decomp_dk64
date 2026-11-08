@@ -686,7 +686,7 @@ typedef struct EfN3Camera {
 #define EFN3_C ((EfN3Camera *)gPlayerSlots)
 
 extern f32 D_807531C4[];
-extern f32 D_807531FC[];
+extern f32 gKongTurnDecelRates[];
 extern f32 D_807534E4[];
 extern f32 D_80753500[];
 extern s16 D_8075351C[];
@@ -696,7 +696,7 @@ extern f32 D_80753940[];
 extern f32 D_80753D70[];
 extern f32 D_80753D8C[];
 extern s32 D_80767CC0;
-extern f32 D_80753250[];
+extern f32 gKongCannonInitialPitch[];
 extern s16 D_8075388C[];
 extern s16 D_807538D8[];
 extern s16 D_807538E8[];
@@ -750,7 +750,7 @@ void playerStateCheckLandingAir(void) {
     EFN3_A48->unkC0 = var_fa1;
     EFN3_P->unk1C = var_ft5b;
     EFN3_P->unk10 = 0;
-    EFN3_P->unk30 = D_80753250[gCurrentCharacterIndex];
+    EFN3_P->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
     temp_fv0_3 = EFN3_A40->unkB8;
     temp_fv1 = D_80753988[gCurrentCharacterIndex];
     if (temp_fv0_3 < temp_fv1) {
@@ -770,7 +770,7 @@ void playerStateEnterKnockbackRecovery(void) {
     EFN3_A48->unk155 = 0;
     EFN3_P->unk54 = D_80753908[gCurrentCharacterIndex];
     EFN3_P->unk50 = 0;
-    EFN3_P->unk38 = D_807531FC[gCurrentCharacterIndex];
+    EFN3_P->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex];
     EFN3_P->unk2C = D_80753924[gCurrentCharacterIndex];
     EFN3_P->unk30 = D_80753940[gCurrentCharacterIndex];
     actorScriptStartByIndex(gActivePlayerActor, 0x3E);
@@ -793,7 +793,7 @@ void playerStateEnterDamageKnockback(void) {
     } else {
         EFN3_A40->unkB8 = limit;
     }
-    EFN3_P->unk38 = D_807531FC[gCurrentCharacterIndex];
+    EFN3_P->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex];
     actorScriptStartByIndex(gActivePlayerActor, 0x3C);
 }
 
@@ -1812,9 +1812,9 @@ typedef struct EfL2PlayerBlock {
 #define EfL2PS ((EfL2PlayerState *)gActivePlayerState)
 #define EfL2Player ((EfL2PlayerBlock *)gPlayerSlots)
 
-extern f32 D_80753024[], D_80753040[], D_8075305C[], D_80753078[];
+extern f32 gKongSwimStrokeSpeeds[], D_80753040[], gKongSwimTurnSpeeds[], D_80753078[];
 extern s16 D_807530B0[], D_807530D0[], D_807530E0[], D_80753160[], D_8075386C[];
-extern f32 D_807530F0[], D_8075310C[], D_80753128[], D_80753144[], D_807531FC[], D_8075389C[];
+extern f32 gKongSwimPaddleSpeeds[], D_8075310C[], D_80753128[], gKongSwimSpeeds[], gKongTurnDecelRates[], D_8075389C[];
 extern s32 gFrameCounter;
 extern s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void slotQueueCancel(s32, s32);
@@ -1848,7 +1848,7 @@ void playerTakeDamage(s16 arg0) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
         sfxStopChannel(0x6B, 0);
         gActivePlayerActor->flags |= 4;
-        EfL2PS->unk38 = D_807531FC[gCurrentCharacterIndex];
+        EfL2PS->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex];
         gActivePlayerActor->contactFlags &= 0xFFBF;
         slotQueueCancel(6, 1);
         if (EfL2PS->unkD4 == 0) {
@@ -1899,8 +1899,8 @@ void playerTakeDamage(s16 arg0) {
                     gActivePlayerActor->unk155[0] = 0;
                     if (func_80714608(0) != 0) {
                         gActivePlayerActor->speedY = D_80753128[gCurrentCharacterIndex] * 5.0f;
-                        gActivePlayerActor->speedXZ = D_80753144[gCurrentCharacterIndex] * 5.0f;
-                        EfL2PS->unk38 = D_807531FC[gCurrentCharacterIndex] * 5.0f;
+                        gActivePlayerActor->speedXZ = gKongSwimSpeeds[gCurrentCharacterIndex] * 5.0f;
+                        EfL2PS->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex] * 5.0f;
                         gActivePlayerActor->accelY = D_8075310C[gCurrentCharacterIndex];
                     }
                 } else {
@@ -1986,7 +1986,7 @@ void playerTakeDamage(s16 arg0) {
                 case 0x2E:
                 case 0x2F:
                     if (gActivePlayerActor->contactFlags & 4) {
-                        gActivePlayerActor->speedXZ = D_8075305C[gCurrentCharacterIndex];
+                        gActivePlayerActor->speedXZ = gKongSwimTurnSpeeds[gCurrentCharacterIndex];
                         EfL2PS->unkD4 = D_807530B0[gCurrentCharacterIndex];
                     } else {
                         if (gPlayerCount >= 2) {
@@ -1994,9 +1994,9 @@ void playerTakeDamage(s16 arg0) {
                                           gActivePlayerState);
                         }
                         gActivePlayerActor->speedY = D_80753040[gCurrentCharacterIndex];
-                        gActivePlayerActor->speedXZ = D_8075305C[gCurrentCharacterIndex];
+                        gActivePlayerActor->speedXZ = gKongSwimTurnSpeeds[gCurrentCharacterIndex];
                         EfL2PS->unkD4 = D_807530B0[gCurrentCharacterIndex];
-                        gActivePlayerActor->accelY = D_80753024[gCurrentCharacterIndex];
+                        gActivePlayerActor->accelY = gKongSwimStrokeSpeeds[gCurrentCharacterIndex];
                     }
                     break;
                 case 0x32:
@@ -2005,7 +2005,7 @@ void playerTakeDamage(s16 arg0) {
                                       gActivePlayerState);
                     }
                     EfL2PS->unkD4 = D_807530D0[gCurrentCharacterIndex];
-                    gActivePlayerActor->speedXZ = D_807530F0[gCurrentCharacterIndex];
+                    gActivePlayerActor->speedXZ = gKongSwimPaddleSpeeds[gCurrentCharacterIndex];
                     gActivePlayerActor->accelY = D_8075310C[gCurrentCharacterIndex];
                     break;
                 case 0xE:
@@ -2015,13 +2015,13 @@ void playerTakeDamage(s16 arg0) {
                     }
                     if (func_80714608(0) != 0) {
                         gActivePlayerActor->speedY = D_80753128[gCurrentCharacterIndex] * 10.0f;
-                        gActivePlayerActor->speedXZ = D_80753144[gCurrentCharacterIndex] * 10.0f;
-                        EfL2PS->unk38 = D_807531FC[gCurrentCharacterIndex] * 10.0f;
+                        gActivePlayerActor->speedXZ = gKongSwimSpeeds[gCurrentCharacterIndex] * 10.0f;
+                        EfL2PS->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex] * 10.0f;
                         EfL2PS->unkD4 = 0xA;
                         gActivePlayerActor->accelY = D_8075310C[gCurrentCharacterIndex];
                     } else {
                         gActivePlayerActor->speedY = D_80753128[gCurrentCharacterIndex];
-                        gActivePlayerActor->speedXZ = D_80753144[gCurrentCharacterIndex];
+                        gActivePlayerActor->speedXZ = gKongSwimSpeeds[gCurrentCharacterIndex];
                         if (arg0 != 0) {
                             EfL2PS->unkD4 = D_80753160[gCurrentCharacterIndex];
                         }
@@ -2308,7 +2308,7 @@ void playerStateClearCarriedSetFlags(void) {
     EfEPS->unk1F0 &= ~0x20;
     gActivePlayerActor->interactionType = 2;
     EfEPS->unk4C = -1;
-    EfEPS->unk30 = D_80753250[gCurrentCharacterIndex];
+    EfEPS->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
     gActivePlayerActor->state = 0x7A;
     gActivePlayerActor->unk155[0] = 0;
 }
@@ -2347,7 +2347,7 @@ void actorSetInteractionTimer(Actor *);
 
 void playerStateEnterKnockbackState(void) {
     EfEPS->unk4C = -1;
-    EfEPS->unk30 = D_80753250[gCurrentCharacterIndex];
+    EfEPS->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
     playerSetBaseGravity();
     if (gActivePlayerActor->state != 0x7C) {
         playerClearCarriedItemState();
@@ -2482,7 +2482,7 @@ void func_806F0878(void) {
     if (EfEActor->unk78 == 0xC) {
         sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0x76, 0x64, 0x7F, 0);
     }
-    EfEPS->unk38 = D_807531FC[gCurrentCharacterIndex];
+    EfEPS->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex];
     playerThrowHeldActor(gActivePlayerActor);
     gActivePlayerActor->state = 0x15;
     gActivePlayerActor->unk155[0] = 0;
@@ -2495,7 +2495,7 @@ void func_806F0930(void) {
     if (EfEActor->unk78 == 0xC) {
         sfxPlayFromActorWithAltitudeCheck(gActivePlayerActor, 0x76, 0xFF, 0x7F, 0);
     }
-    EfEPS->unk38 = D_807531FC[gCurrentCharacterIndex];
+    EfEPS->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex];
     playerThrowHeldActor(gActivePlayerActor);
     gActivePlayerActor->state = 0x16;
     gActivePlayerActor->unk155[0] = 0;

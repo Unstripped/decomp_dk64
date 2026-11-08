@@ -762,7 +762,7 @@ typedef struct LCEAE0bPlayer {
 #define LB_P ((LCEAE0bPlayer *)gActivePlayerState)
 #define LB_UNK120 (*(f32 *)&gCurrentActor->unk120)
 
-extern f32 D_807531FC[];
+extern f32 gKongTurnDecelRates[];
 extern f32 D_80753234[];
 extern s16 D_8075326C[];
 extern f32 D_80753218[];
@@ -925,7 +925,7 @@ void func_806CB53C(void) {
             if (LB_P->unk200 >= 2) {
                 scale = 0.5f;
             }
-            LB_P->unk38 = D_807531FC[gCurrentCharacterIndex] * scale;
+            LB_P->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex] * scale;
             LB_P->unk2C = D_80753234[gCurrentCharacterIndex] * scale;
             LB_P->unk48 = (s32)(D_8075326C[gCurrentCharacterIndex] * scale);
             w = LB_P->unk200;
@@ -958,7 +958,7 @@ void playerCheckQueueDropCallback(void) {
     }
 }
 
-extern f32 D_80753250[];
+extern f32 gKongCannonInitialPitch[];
 s32 mathAngleDistance(s16, s16);
 void actorScriptExecute(Actor *);
 
@@ -972,7 +972,7 @@ void playerCheckLandingSfx(void) {
             G02_A->unk155 = 0;
             G02_A->unkC8 = -900.0f;
             G02_P->unk48 = D_8075326C[gCurrentCharacterIndex];
-            G02_P->unk30 = D_80753250[gCurrentCharacterIndex];
+            G02_P->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
             G02_P->unk2C = D_80753234[gCurrentCharacterIndex];
             actorScriptStartByIndex(gCurrentActor, 0x5E);
             G02_A->unk6A |= 0x20;
@@ -2824,7 +2824,7 @@ extern f32 D_80753338[];
 void playerSetNormalMoveParams(void) {
     G06_P->unk48 = D_8075326C[gCurrentCharacterIndex];
     G06_P->unk2C = D_80753234[gCurrentCharacterIndex];
-    G06_P->unk30 = D_80753250[gCurrentCharacterIndex];
+    G06_P->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
     G06_P->unk34 = D_80753170[gCurrentCharacterIndex];
     if (G06_P->unk8C != 0) {
         G06_P->unk38 = D_80753338[gCurrentCharacterIndex];
@@ -2838,7 +2838,7 @@ void playerSetNormalMoveParams(void) {
         G06_P->unk38 = D_80753218[gCurrentCharacterIndex];
         return;
     }
-    G06_P->unk38 = D_807531FC[gCurrentCharacterIndex];
+    G06_P->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex];
 }
 
 void playerSetTerminalVelocity578(void) {
@@ -3211,7 +3211,7 @@ void func_806D0EBC(s32 arg0) {
         G03_A->unk80 = G03_A->unkAC - height;
         G03_A->unkC0 = 0.0f;
         actorScriptStartByIndex(gCurrentActor, 0x3D);
-        G06_P->unk30 = D_80753250[gCurrentCharacterIndex];
+        G06_P->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
         gCurrentActor->state = 0x4E;
         G02_A->unk155 = 0;
     }

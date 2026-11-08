@@ -1025,8 +1025,8 @@ typedef struct G23Player {
 #define G23_P ((G23Player *)gActivePlayerState)
 
 extern u32 D_80767CC0;
-extern f32 D_807531FC[];
-extern f32 D_80753250[];
+extern f32 gKongTurnDecelRates[];
+extern f32 gKongCannonInitialPitch[];
 extern f32 D_807535CC[];
 
 void playerInputCheckBButton(void) {
@@ -1046,8 +1046,8 @@ void playerInputCheckBButton(void) {
             G23_P->unk3C = 0;
             G23_P->unk54 = D_807535CC[gCurrentCharacterIndex];
         }
-        G23_P->unk38 = D_807531FC[gCurrentCharacterIndex];
-        G23_P->unk30 = D_80753250[gCurrentCharacterIndex];
+        G23_P->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex];
+        G23_P->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
         G23_A->unk154 = 0x17;
         G23_A->unk155 = 0;
         G23_P->unk50 = 0;
@@ -1061,8 +1061,8 @@ void playerInputHandleAButtonState0(void) {
         G23_P->unk58 = D_80767CC0;
     }
     if ((D_80767CC0 - G23_P->unk58 < 0xF) && (!(G23_A->unk6A & 1) || (G23_A->unkE0 == 0.0f))) {
-        G23_P->unk38 = D_807531FC[gCurrentCharacterIndex];
-        G23_P->unk30 = D_80753250[gCurrentCharacterIndex];
+        G23_P->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex];
+        G23_P->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
         G23_A->unk154 = 0x17;
         G23_A->unk155 = 0;
         G23_P->unk54 = D_807535CC[gCurrentCharacterIndex];
@@ -1080,13 +1080,13 @@ void playerInputHandleAButtonJump(void) {
         G23_P->unk58 = D_80767CC0;
     }
     if ((D_80767CC0 - G23_P->unk58 < 0xF) && (!(G23_A->unk6A & 1) || (G23_A->unkE0 == 0.0f))) {
-        G23_P->unk38 = D_807531FC[gCurrentCharacterIndex];
+        G23_P->unk38 = gKongTurnDecelRates[gCurrentCharacterIndex];
         if (G23_P->unk38 > (temp_fv0 = G23_A->unkB8)) {
             G23_A->unkB8 = temp_fv0;
         } else {
             G23_A->unkB8 = G23_P->unk38;
         }
-        G23_P->unk30 = D_80753250[gCurrentCharacterIndex];
+        G23_P->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
         G23_P->unk2C = 20.0f;
         G23_A->unk154 = 0x17;
         G23_A->unk155 = 0;
@@ -1702,16 +1702,16 @@ void playerFlipHeading180(void) {
 }
 
 
-extern s16 D_80753C94[];
-extern f32 D_80753D08[];
+extern s16 gKongCannonLaunchSpeeds[];
+extern f32 gKongCannonLaunchTimers[];
 
 void func_806E352C(void) {
     G24_A->unk6A &= 0xFFBF;
-    G24_M->unk100 = D_80753C94[gCurrentCharacterIndex];
+    G24_M->unk100 = gKongCannonLaunchSpeeds[gCurrentCharacterIndex];
     G24_A->unk154 = 0x17;
     G24_A->unk155 = 0;
     G24_A->unkB8 = 0.0f;
-    G24_M->unk54 = D_80753D08[gCurrentCharacterIndex];
+    G24_M->unk54 = gKongCannonLaunchTimers[gCurrentCharacterIndex];
     G24_M->unk50 = 0;
     actorScriptStartByIndex(gCurrentActor, 0x10);
 }
@@ -1810,7 +1810,7 @@ void func_806E384C(void) {
         G24_A->unkC4 = G24_A->unkC4 - G24_A->unkC0 / 100.0;
     }
     if (G24_A->unk6A & 1) {
-        G24_M->unk30 = D_80753250[gCurrentCharacterIndex];
+        G24_M->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
     } else {
         c = mathSinF(t) * 8.0f;
         if (c >= 0.0f) {
@@ -1878,7 +1878,7 @@ void playerInputStopSoundOnZRelease(void) {
 
 
 void func_806E3CEC(void) {
-    G24_M->unk30 = D_80753250[gCurrentCharacterIndex];
+    G24_M->unk30 = gKongCannonInitialPitch[gCurrentCharacterIndex];
 }
 
 
@@ -2887,7 +2887,7 @@ typedef G29BtnA G27Btn;
 #define G27_A ((G27Actor *)gCurrentActor)
 
 extern f32 D_80753988[];
-extern s16 D_80753B34[];
+extern s16 gKongStickTurnRates[];
 extern f32 D_8075396C[];
 extern f32 D_80753AC4[];
 extern f32 D_80753AA8[];
@@ -2928,7 +2928,7 @@ void playerInputCalculateStickTurnRate(void) {
     s16 var_a1;
 
     if (gPlayerPadState[gCurrentPlayerIndex].unk30 != 0) {
-        var_a1 = D_80753B34[gCurrentCharacterIndex] * ((gPlayerPadState[gCurrentPlayerIndex].unk2E >= 0) ? 1 : -1);
+        var_a1 = gKongStickTurnRates[gCurrentCharacterIndex] * ((gPlayerPadState[gCurrentPlayerIndex].unk2E >= 0) ? 1 : -1);
         var_a1 &= 0xFFF;
     } else {
         var_a1 = 0;
@@ -3049,7 +3049,7 @@ void func_806E6B98(void) {
             ang = (s16)(s32)((f64)ang - ((f64)gPlayerPadState[gCurrentPlayerIndex].unk2E * 0.5));
         }
         G27_A->unkE6 = ang & 0xFFF;
-        var_a1 = D_80753B34[gCurrentCharacterIndex] * ((gPlayerPadState[gCurrentPlayerIndex].unk2E >= 0) ? 1 : -1);
+        var_a1 = gKongStickTurnRates[gCurrentCharacterIndex] * ((gPlayerPadState[gCurrentPlayerIndex].unk2E >= 0) ? 1 : -1);
         var_a1 &= 0xFFF;
     } else {
         var_a1 = 0;
