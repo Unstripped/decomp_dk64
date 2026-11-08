@@ -290,8 +290,8 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     primary = &((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].a;
     secondary = &((Lights7 *)((u8 *)color_base + 0x270))[D_807FDB75].l[0];
 
-    if (actor->unkCD != 0) {
-        actorGetNodePos(targetActor, (void *)actor->unkCD, &x, &y, &z); // FAKE: pointer cast keeps the node id in v1 (move a1,v1)
+    if (actor->unkCD) {
+        actorGetNodePos(targetActor, actor->unkCD, &x, &y, &z);
     } else {
         x = actor->x;
         y = actor->y;
