@@ -107,7 +107,6 @@ void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackA
                 while (!done) {  // FAKE: while (not do-while) gives the post-loop its own lda web (remat lui/addiu s0)
                     entry = &((CollisionInteractionEntry *)res)[i];
                     if ((entry->unk0 & targetActor->unk132) && (entry->unk2 & attacker->unk132)) {
-                        if (D_8074C604) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                         if (entry->unk4 != NULL) {
                             entryAllowed = entry->unk4(targetActor, attacker, cbArg);
                         } else {
