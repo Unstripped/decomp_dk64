@@ -82,10 +82,10 @@ static void actorStub7CA80_03(void);
 static void actorStub7CA80_04(void);
 static void actorStub7CA80_05(void);
 static void actorStub7CA80_06(void);
-void func_80678B04(void);
+void actorUpdateLightingAndFog(void);
 void actorPreTick(Actor *);
-void func_80678DD8(Actor *);
-void func_80678E14(Actor *);
+void actorCheckBoundsAndMotion(Actor *);
+void actorUpdatePeakHeight(Actor *);
 void actorRiderListFree(Actor *);
 void actorRiderListAdd(Actor *, s32);
 s32 actorRiderListContains(Actor *, s32);
@@ -102,23 +102,23 @@ void actorAppendCallbackPayloadA69C(s32, Actor *, f32, f32, u8, u8);
 void actorAppendCallbackPayloadA70C(s32, Actor *, f32, f32, f32, u8, u8);
 void actorAppendCallback4000(s32, Actor *, s16, f32, s16);
 void actorAppendCallback10(s32, Actor *, f32, f32, f32, s32, u8);
-void func_8067A99C(s32, Actor *, s32);
-void func_8067A9F0(s32, Actor *, f32, f32, f32);
-void func_8067AA58(s32, Actor *, f32, f32);
-void func_8067AAB8(s32, Actor *, s16, f32, s16);
-void func_8067ABC0(s32, Actor *, u8, s16, s16, f32, f32, f32);
+void actorAppendCallbackS32(s32, Actor *, s32);
+void actorAppendCallbackVec3f(s32, Actor *, f32, f32, f32);
+void actorAppendCallbackVec2f(s32, Actor *, f32, f32);
+void actorAppendCallbackPayloadAAB8(s32, Actor *, s16, f32, s16);
+void actorAppendCallbackPayloadABC0(s32, Actor *, u8, s16, s16, f32, f32, f32);
 void actorGlobalStateClearEvents(void);
-void func_8067ACB4(Actor *);
-u16 func_8067ACC0(u16);
+void actorUpdatePrevContactFlags(Actor *);
+u16 actorLookupClass(u16);
 void actorTableClear(void);
 s32 actorTableContains();
 s32 actorTableBinarySearch();
 void playerSetActiveGlobals(Actor *);
 void func_8067B2B0(s32);
 void func_8067B2B8(s32);
-s32 func_8067B2C0(s32);
-s32 func_8067B3F4(s32);
-s32 func_8067B42C(s32);
+s32 actorInitFloorAttachment(s32);
+s32 actorInitCollisionFromModel(s32);
+s32 actorInitStaticMeshFlag(s32);
 void actorListUpdateSpawns(void);
 void actorListRemoveByActor(void);
 void playerStateDispatchQueuedCallback(void);
@@ -243,7 +243,7 @@ s32 actorSpawn(s32 arg0, s32 arg1) {
 
 s32 func_80678014(s32 arg0) {
     if (actorAllocate(arg0 & 0xFFFF) != 0) {
-        func_8067B2C0(0);
+        actorInitFloorAttachment(0);
         return 1;
     }
     return 0;
@@ -596,7 +596,7 @@ void actorGlobalCallbacksReset(void) {
     actorUpdateActiveList(1);
     actorUpdateActiveList(2);
     actorGlobalCallbacksDispatchAndFree(1);
-    func_80678B04();
+    actorUpdateLightingAndFog();
     D_807FBE09 = 0;
     actorFlushDespawnQueue();
     actorDelayedCallbacksTick();
@@ -641,10 +641,10 @@ void actorUpdateWhilePaused(void) {
         }
     }
     actorGlobalCallbacksDispatchAndFree(1);
-    func_80678B04();
+    actorUpdateLightingAndFog();
 }
 
-void func_80678B04(void) {
+void actorUpdateLightingAndFog(void) {
     s32 i;
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
@@ -694,18 +694,18 @@ typedef struct ActorUnk156View {
 } ActorUnk156View;
 
 void actorUpdatePositionAndSub140(Actor *);
-void func_80678E6C(Actor *);
+void actorUpdateArcBounds(Actor *);
 void actorUpdateModelMatrices(Actor *);
 void actorDispatchCollisionResults(Actor *);
 void actorUpdateEffects(Actor *);
 void animListUpdate(Actor *);
 
 void actorPostTick(Actor *actor) {
-    if ((void *)func_8067B3F4 == (void *)D_8074DA30[D_8074D8D4[actor->actorType]]) {
+    if ((void *)actorInitCollisionFromModel == (void *)D_8074DA30[D_8074D8D4[actor->actorType]]) {
         guTranslateF((void *)((u8 *)actor + 0xC), actor->x, actor->y, actor->z);
     }
     actorUpdatePositionAndSub140(actor);
-    func_80678E6C(actor);
+    actorUpdateArcBounds(actor);
     if (!(actor->flags & 0x08000000)) {
         actor->flags &= ~0x200;
         if (actor->sub4 != NULL) {
@@ -715,7 +715,7 @@ void actorPostTick(Actor *actor) {
             }
         }
     }
-    func_80678E14(actor);
+    actorUpdatePeakHeight(actor);
     actorUpdateModelMatrices(actor);
     actorGlobalCallbacksDispatchAndFree(0);
     actorDispatchCollisionResults(actor);
@@ -725,14 +725,14 @@ void actorPostTick(Actor *actor) {
     actor->flags |= 0x10;
 }
 
-void func_80678DD8(Actor *actor) {
+void actorCheckBoundsAndMotion(Actor *actor) {
     controllerStepMotionWindows();
     if (actor->flags & 0x500) {
         actorCheckWorldBounds(actor);
     }
 }
 
-void func_80678E14(Actor *actor) {
+void actorUpdatePeakHeight(Actor *actor) {
     f32 temp_fv0 = actor->y;
 
     if (actor->prevY < temp_fv0) {
@@ -753,7 +753,7 @@ extern u8 D_807FBC55;
 void playerStateQueueCallback(s32, s32, u8);
 extern u8 gCurrentPlayerIndex;
 
-void func_80678E6C(Actor *actor) {
+void actorUpdateArcBounds(Actor *actor) {
     u8 sp27;
 
     if ((actor->unk144 & 4) && (D_807FBE08 == 0)) {
@@ -1705,13 +1705,13 @@ void actorAppendCallbackPayloadA908(s32 arg0, Actor *arg1, void *arg2, void *arg
     actorAppendCallback(arg1, arg0, 0x20000, 0, 1, temp);
 }
 
-void func_8067A99C(s32 arg0, Actor *arg1, s32 arg2) {
+void actorAppendCallbackS32(s32 arg0, Actor *arg1, s32 arg2) {
     s32 *temp = heapAlloc(sizeof(s32));
     *temp = arg2;
     actorAppendCallback(arg1, arg0, 0x40000, 0, 1, temp);
 }
 
-void func_8067A9F0(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4) {
+void actorAppendCallbackVec3f(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 *temp = heapAlloc(3 * sizeof(f32));
     temp[0] = arg2;
     temp[1] = arg3;
@@ -1719,14 +1719,14 @@ void func_8067A9F0(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4) {
     actorAppendCallback(arg1, arg0, 0x100000, 0, 1, temp);
 }
 
-void func_8067AA58(s32 arg0, Actor *arg1, f32 arg2, f32 arg3) {
+void actorAppendCallbackVec2f(s32 arg0, Actor *arg1, f32 arg2, f32 arg3) {
     f32 *temp = heapAlloc(2 * sizeof(f32));
     temp[0] = arg2;
     temp[1] = arg3;
     actorAppendCallback(arg1, arg0, 0x200000, 0, 1, temp);
 }
 
-void func_8067AAB8(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
+void actorAppendCallbackPayloadAAB8(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
     ActorPayloadAAB8 *temp = heapAlloc(sizeof(ActorPayloadAAB8));
     temp->unk4 = arg3;
     temp->unk8 = arg4;
@@ -1734,7 +1734,7 @@ void func_8067AAB8(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
     actorAppendCallback(arg1, arg0, 0x400, 0, 1, temp);
 }
 
-void func_8067AB20(s32 arg0, Actor *arg1, s32 arg2, u8 arg3, void *arg4, u8 arg5) {
+void actorAppendCallbackMemcpy8(s32 arg0, Actor *arg1, s32 arg2, u8 arg3, void *arg4, u8 arg5) {
     void *temp = heapAlloc(8);
     memcpy(temp, arg4, 8);
     if (!arg5) {
@@ -1744,7 +1744,7 @@ void func_8067AB20(s32 arg0, Actor *arg1, s32 arg2, u8 arg3, void *arg4, u8 arg5
     }
 }
 
-void func_8067ABC0(s32 arg0, Actor *arg1, u8 arg2, s16 arg3, s16 arg4, f32 arg5, f32 arg6, f32 arg7) {
+void actorAppendCallbackPayloadABC0(s32 arg0, Actor *arg1, u8 arg2, s16 arg3, s16 arg4, f32 arg5, f32 arg6, f32 arg7) {
     ActorPayloadABC0 *temp = heapAlloc(sizeof(ActorPayloadABC0));
     temp->unk0 = arg5;
     temp->unk4 = arg6;
@@ -1784,11 +1784,11 @@ void actorGlobalStateClearEvents(void) {
     gActorGlobalState.unkF4 = 0.0f;
 }
 
-void func_8067ACB4(Actor *arg0) {
+void actorUpdatePrevContactFlags(Actor *arg0) {
     arg0->prevContactFlags = arg0->contactFlags;
 }
 
-u16 func_8067ACC0(u16 arg0) {
+u16 actorLookupClass(u16 arg0) {
     return D_8074D624[arg0];
 }
 
@@ -2015,7 +2015,7 @@ void func_8067B2B0(s32 arg0) {
 void func_8067B2B8(s32 arg0) {
 }
 
-s32 func_8067B2C0(s32 arg0) {
+s32 actorInitFloorAttachment(s32 arg0) {
     gSpawnedActor->unk144 = 1;
     return 1;
 }
@@ -2032,7 +2032,7 @@ typedef struct ActorInitArg {
     u16 unk2;
 } ActorInitArg;
 
-s32 func_8067B2DC(ActorInitArg *arg0) {
+s32 actorInitAnimAndCollision(ActorInitArg *arg0) {
     if (controllerAnimInit(gSpawnedActor, arg0->unk2, arg0) != 0) {
         gSpawnedActor->collision = actorSub140CreateFromModel(gSpawnedActor);
         gSpawnedActor->eyeHeight = (u32)(((f64)((ActorSub140View *)gSpawnedActor->collision)->unkC * 0.15) * 0.5);
@@ -2041,12 +2041,12 @@ s32 func_8067B2DC(ActorInitArg *arg0) {
     return 0;
 }
 
-s32 func_8067B3F4(s32 arg0) {
+s32 actorInitCollisionFromModel(s32 arg0) {
     gSpawnedActor->collision = actorSub140CreateFromModel(gSpawnedActor);
     return 1;
 }
 
-s32 func_8067B42C(s32 arg0) {
+s32 actorInitStaticMeshFlag(s32 arg0) {
     gSpawnedActor->flags |= 0x2000;
     return 1;
 }

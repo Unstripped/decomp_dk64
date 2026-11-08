@@ -575,18 +575,18 @@ typedef struct {
     s16 unk276;
 } PlayerViewScissor;
 
-extern s16 D_80744498;
-extern s16 D_8074449C;
-extern s16 D_807444A0;
-extern s16 D_807444A4;
+extern s16 gGfxScreenLeft;
+extern s16 gGfxScreenTop;
+extern s16 gGfxScreenRight;
+extern s16 gGfxScreenBottom;
 
 Gfx *gfxClearScreenSetViewportScissor(Gfx *glist) {
     gDPPipeSync(glist++);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0);
     gDPSetFillColor(glist++, 0x00010001);
     gSPSetOtherMode(glist++, G_SETOTHERMODE_H, 20, 2, 0x300000);
-    gDPSetScissor(glist++, G_SC_NON_INTERLACE, D_80744498, D_8074449C, D_807444A0, D_807444A4);
-    gDPFillRectangle(glist++, D_80744498, D_8074449C, D_807444A0 - 1, D_807444A4 - 1);
+    gDPSetScissor(glist++, G_SC_NON_INTERLACE, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight, gGfxScreenBottom);
+    gDPFillRectangle(glist++, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight - 1, gGfxScreenBottom - 1);
     gDPPipeSync(glist++);
     {
         Gfx *_g = (Gfx *)(glist++);

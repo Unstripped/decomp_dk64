@@ -877,7 +877,7 @@ void func_8060DEA8(void) {
     eepromDispatchCommand(2);
 }
 
-extern u32 func_805FC98C(void);
+extern u32 gfxSetupFrameViewports(void);
 extern s32 menuIsTransitionType7Or9(void);
 extern s32 menuIsTransitionType6(void);
 
@@ -894,7 +894,7 @@ void eepromSavePlayerData(void) {
         if (menuIsTransitionType7Or9() != 0 || menuIsTransitionType6() != 0) {
             base = (u8 *)((u32)gPlayerInventoryTable);
             entry = base;
-            total = func_805FC98C();
+            total = gfxSetupFrameViewports();
             value = func_8060C724(D_807467C8);
             if (total >= 0x400000U) {
                 total = -1;

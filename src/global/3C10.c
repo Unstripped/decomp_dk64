@@ -35,8 +35,8 @@ typedef struct {
 /* Extern variables */
 extern u8 gGameMode;
 extern u8 gNextGameMode;
-extern s32 D_807444E4;
-extern s32 D_807444E8;
+extern s32 gInitialMap;
+extern s32 gInitialExit;
 extern u8 D_807445E0[];
 extern u16 D_807446C0[];
 extern s32 D_80744720[];
@@ -129,7 +129,7 @@ u8 playerGetResolvedKongId(s32);
 void func_806F5378(void);
 void slotQueueUpdate(s32, s32, s32);
 s32 menuIsTransitionActive(void);
-void func_80712F10(s32 *, s32 *);
+void menuCheckCutsceneTransition(s32 *, s32 *);
 s32 menuIsTransitionTypeD(void);
 s32 menuIsTransitionTypeC(void);
 s32 flagGet(s32, s32);
@@ -302,15 +302,15 @@ void mapExecuteVoidTransition(void) {
 void mapRequestTransition(s32 map, s32 exitIndex) {
     func_806F5378();
     if ((gGameMode == 6) || (menuIsTransitionActive() == 0)) {
-        func_80712F10(&map, &exitIndex);
+        menuCheckCutsceneTransition(&map, &exitIndex);
         if (map != -1) {
             if ((s32) gPlayerCharacterId >= 6) {
                 gPlayerCharacterId = playerGetResolvedKongId(0);
             }
             gScreenRenderFlags |= 1;
             D_8076AEF2 = (s16) gCurrentMap;
-            D_807444E4 = map;
-            D_807444E8 = exitIndex;
+            gInitialMap = map;
+            gInitialExit = exitIndex;
             D_8076A0B2 = 3;
             screenApplyTransitionFadeType();
             gScreenFadeRate = 1.0f;
@@ -329,8 +329,8 @@ void mapRequestTransition(s32 map, s32 exitIndex) {
 void mapRequestTransitionFast(s32 map, s32 exitIndex) {
     func_806F5378();
     gGlobalPauseFlags |= 0x100;
-    D_807444E4 = map;
-    D_807444E8 = exitIndex;
+    gInitialMap = map;
+    gInitialExit = exitIndex;
     D_8076AEF2 = gCurrentMap;
     func_807313BC();
     func_805FF5A0(map);

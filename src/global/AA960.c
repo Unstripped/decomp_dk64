@@ -316,7 +316,7 @@ typedef struct BehaviourConfig {
 
 extern ActorGlobalState gActorGlobalState;
 extern s16 D_8075038C;
-void func_8067ACB4(Actor *);
+void actorUpdatePrevContactFlags(Actor *);
 s32 actorAngleInArc(Actor *, s16);
 s16 mathAngleArcMidpoint(s16, s16);
 void actorApplyVelocity(Actor *);
@@ -352,7 +352,7 @@ void actorDropBounceExpireUpdate(f32 floorOffset) {
     if (gActorGlobalState.unk0 != 0) {
         gCurrentActor->state = gActorGlobalState.unk1[0];
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     if (gCurrentActor->hasArcBounds != 0) {
         if (actorAngleInArc(gCurrentActor, *(s16 *)((u8 *)gCurrentActor + 0xEE)) == 0) {
             s16 temp;
@@ -476,7 +476,7 @@ extern s16 D_80750384;
 extern s16 D_8075038C;
 extern f32 D_80750388;
 void func_806C9974(s32, s32);
-void func_8067ACB4(Actor *);
+void actorUpdatePrevContactFlags(Actor *);
 s32 actorAngleInArc(Actor *, s16);
 s16 mathAngleArcMidpoint(s16, s16);
 void actorApplyVelocity(Actor *);
@@ -527,7 +527,7 @@ void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
     if (gActorGlobalState.unk0 != 0) {
         gCurrentActor->state = gActorGlobalState.unk1[0];
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     if (gCurrentActor->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, AA960_PHY->unkEE) == 0) {
         temp = mathAngleArcMidpoint(gCurrentActor->arcYawMin, gCurrentActor->arcYawMax);
         {
@@ -868,7 +868,7 @@ void effectActorSparkleTick(void) {
         gCurrentActor->floorY = 99999.0f;
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     if (flag != 0) {
         if (gBossFightPhase == 4) {
             if (gFrameCounter % 5 == 0) {

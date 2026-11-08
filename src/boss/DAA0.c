@@ -124,7 +124,7 @@ void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 void func_8068A764(void *, u8);
 void playerSetKongByActorType(s16);
 void func_806F09F0(void *, u16);
-void func_8067AAB8(void *, void *, s32, f32, s32);
+void actorAppendCallbackPayloadAAB8(void *, void *, s32, f32, s32);
 void sfxPlayOnFreeSlot();
 void camPausePath(void);
 void camResumePath(void);
@@ -220,7 +220,7 @@ void bossSpawnerUpdate(void) {
             func_806F09F0(gPrimaryPlayerActor, cutsceneId);
             SPAWNER_PLAYER->unk154 = 0xC;
             SPAWNER_PLAYER->unk155 = 0;
-            func_8067AAB8(gCurrentActor, gPrimaryPlayerActor, 0, 180.0f, 0x46);
+            actorAppendCallbackPayloadAAB8(gCurrentActor, gPrimaryPlayerActor, 0, 180.0f, 0x46);
             SPAWNER_ACTOR->unk154 = 1;
             SPAWNER_PLAYER->unk144 = D_80035B38;
         }

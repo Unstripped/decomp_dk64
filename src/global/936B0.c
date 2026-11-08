@@ -1433,7 +1433,7 @@ void effectSetDuration(s32);
 void actorSetCollisionRadius(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
-void func_8067ACB4(Actor *);
+void actorUpdatePrevContactFlags(Actor *);
 void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void effectSetFlags(s32);
@@ -1489,7 +1489,7 @@ void projectileBounceParticleUpdate(void *arg0) {
         PROJECTILE_BOUNCE_ACTOR->unk60 |= 0x80000;
         PROJECTILE_BOUNCE_ACTOR->unkEC = 0;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     if (PROJECTILE_BOUNCE_ACTOR->unk144 & 8) {
         actorUpdateFloorContactAndTilt(gCurrentActor, temp_s3->unk13 != 0 ? sp64 * 6.0 * 4.0 : 0.0);
@@ -1645,7 +1645,7 @@ void projectileSparkleUpdate(s32 arg0) {
         sp2C->unk12 = 0;
         G_SPARKLE_ACTOR->unk60 |= 0x80000;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
     if ((G_SPARKLE_ACTOR->unk6A & 1) || (G_SPARKLE_ACTOR->unkFC != 0) || (D_807FBB85 != 0) || ((u32)(sp2C->unk0 + 24) < gGameFrameCounter)) {
@@ -1802,7 +1802,7 @@ void projectileDespawnOrExplode(void) {
         effectCreateAtActorBone(&D_80720020, G_PROJECTILE_ACTOR->unk124->unkC, gCurrentActor, 1, 2);
         *sp44 = gGameFrameCounter;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 10, 10, 1, 0x96, 0x78, 0, 1.0f);
@@ -1870,7 +1870,7 @@ void projectileHomingUpdate(void) {
     if (sp44->unk13 & 4) {
         sp3C = D_80750364;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (gCurrentMap == 0xCC) {
@@ -1948,7 +1948,7 @@ void projectileMultiplayerUpdate(void) {
     if (sp44->unk13 & 4) {
         sp3C = D_80750370;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (G_PROJECTILE_ACTOR->unkFD != 0 ||
@@ -2121,7 +2121,7 @@ void projectileBounceExplodeScaledUpdate(void) {
         var_a0 = 3;
     }
     projectileSteerTowardTarget(var_a0, gCurrentActor, NULL, 1);
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     if (BOUNCE_EXPLODE_ACTOR->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, BOUNCE_EXPLODE_ACTOR->unkEE) == 0) {
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0xF5, 0xFF, 0x7F, 0x1E);
         var_a0 = mathAngleArcMidpoint(BOUNCE_EXPLODE_ACTOR->arcYawMin, BOUNCE_EXPLODE_ACTOR->arcYawMax);
@@ -2335,7 +2335,7 @@ void projectileBounceExplodeGreenUpdate(void) {
         G_PROJECTILE_BEAM_ACTOR->unk60 &= 0xFFF7FFFF;
     }
     projectileSteerTowardTarget(1, gCurrentActor, 0, 1);
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     if (G_PROJECTILE_BEAM_ACTOR->hasArcBounds != 0 && actorAngleInArc(gCurrentActor, G_PROJECTILE_BEAM_ACTOR->unkEE) == 0) {
         s16 angle;
         s16 diff;
@@ -2434,7 +2434,7 @@ void projectileBeamUpdate(void) {
     if (sp44->unk13 & 4) {
         sp3C = D_8075036C;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (actorGetFloorSnapped() != 0 ||
@@ -2506,7 +2506,7 @@ void projectileImpactExplosionUpdate(void) {
     if (sp34->unk13 & 4) {
         sp2C = D_8075036C;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (!gCurrentActor->state && (G_PROJECTILE_ACTOR->unkFD != 0 || (G_PROJECTILE_ACTOR->unk6A & 1) || D_807FBB85 != 0)) {
@@ -2640,7 +2640,7 @@ void projectileRotatingUpdate(void) {
     if (sp44->unk13 & 4) {
         sp3C = D_80750374;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     if (G_PROJECTILE_ACTOR->unkFD != 0 ||
@@ -2717,7 +2717,7 @@ void projectileMatrixRotationUpdate(void) {
     if (temp_s2->unk13 & 4) {
         sp84 = D_80750368;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     switch (G_PROJECTILE_ROT_ACTOR->unk154) {
@@ -2806,7 +2806,7 @@ void projectileRotatingLightUpdate(f32 arg0, u8 arg1) {
         temp_s2->unk10 = 0;
     }
     sp48 = arg1;
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, arg0);
     if (sp48 != 0) {
@@ -2912,7 +2912,7 @@ void projectileParticleSpawnerTick(void) {
             effectCreateAtPosition(&D_8071FBC8, 1.5f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
         }
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
@@ -3007,7 +3007,7 @@ void projectileHomingParticleUpdate(void) {
         *sp74 = gGameFrameCounter;
         G_PROJECTILE_HOMING_ACTOR->unk60 |= 0x80000;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
     G_PROJECTILE_HOMING_ACTOR->unkC0 += D_80750274;
@@ -3118,7 +3118,7 @@ void projectileFallBounceUpdate(void) {
         }
         if (gCurrentActor->state == 1) {
             collisionSetQueryMode(1);
-            func_8067ACB4(gCurrentActor);
+            actorUpdatePrevContactFlags(gCurrentActor);
             actorApplyVelocity(gCurrentActor);
             actorUpdateFloorContactAndTilt(gCurrentActor, (f32)(((f64)mathCosF((s16)(gCurrentActor->roll + 0x800)) * 0.5 + 0.5) * 15.0));
             flag = gCurrentActor->contactFlags & 1;

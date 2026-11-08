@@ -167,7 +167,7 @@ void scriptSetActorRampTarget(Actor *, f32, f32);
 void controllerAnimSetState(Actor *, s16, f32, f32);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void actorQueueDelayedCallback(Actor *, Actor *, s32, s32, s32, s32, s32);
-void func_8067AAB8(s32, Actor *, s16, f32, s16);
+void actorAppendCallbackPayloadAAB8(s32, Actor *, s16, f32, s16);
 void effectCreateAtActorBone(void *, f32, void *, s32, s32);
 
 void func_8067B4C8(void) {
@@ -228,7 +228,7 @@ void func_8067B4C8(void) {
             peer->unkB0 = sub->unk8;
             peer->unkB4 = sub->unkC;
             peer->unkB8 = sub->unk10;
-            func_8067AAB8((s32)gCurrentActor, sub->unk0, gCurrentActor->yaw, 0.0f, sub->unk4);
+            actorAppendCallbackPayloadAAB8((s32)gCurrentActor, sub->unk0, gCurrentActor->yaw, 0.0f, sub->unk4);
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
             effectSetMode(2);
             effectSetDepth(1);
@@ -808,7 +808,7 @@ s32 actorSpawn(s32, s32);
 void actorCallbackMaskEnable(Actor *, s32);
 void actorCallbackMaskDisable(Actor *, s32);
 void actorCollisionEventsCancel(Actor *, s32);
-void func_8067ACB4(Actor *);
+void actorUpdatePrevContactFlags(Actor *);
 void actorCopyPoseAndScale(Actor *, Actor *, f32);
 void tagBarrelSpawnActorSmokePuffs();
 void actorReleaseFromPlayerHold(Actor *);
@@ -896,7 +896,7 @@ void actorTransformCameraUpdate(void) {
         actorCollisionEventsCancel(temp_s1->unk0, 1);
     }
 
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     switch (ACTOR_C71C->unk154) {
     case 0:
         ACTOR_C71C->unk144 = 2;
@@ -1493,7 +1493,7 @@ void transformBarrelUpdate(void) {
             var_t0->unk1A = ((s32 *)gCurrentActor->spawnData)[1];
         }
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
 
     if (gCurrentActor->state == 0 && gActorGlobalState.unk200 == 4) {
         playerState = ((Actor *)gPrimaryPlayerActor)->customState;
@@ -1714,7 +1714,7 @@ void transformBarrelUpdate(void) {
             } else {
                 angle = var_t0->unk4->yaw;
             }
-            func_8067AAB8((s32)gCurrentActor, var_t0->unk4, angle, -40.0f, 0);
+            actorAppendCallbackPayloadAAB8((s32)gCurrentActor, var_t0->unk4, angle, -40.0f, 0);
         }
         actorSetInteractionTimer(var_t0->unk4);
         tagBarrelDespawnEffects();
@@ -2018,7 +2018,7 @@ void func_8067FB6C(void) {
             } else {
                 var_v0 = 0x2BC;
             }
-            func_8067AAB8((s32)gCurrentActor, sub->unk0, gCurrentActor->yaw, 0.0f, var_v0);
+            actorAppendCallbackPayloadAAB8((s32)gCurrentActor, sub->unk0, gCurrentActor->yaw, 0.0f, var_v0);
             actorQueueDelayedCallback(gCurrentActor, gCurrentActor, 0x800, 2, 0, 0, 0xA);
             effectSetMode(2);
             effectCreateAtActorBone(&D_8071FBC8, 1.6f, gCurrentActor, 1, 2);
@@ -2339,7 +2339,7 @@ void tagBarrelActorUpdate(void) {
             }
         }
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     switch (gCurrentActor->state) {
     case 0:
         if (gBossFightPhase == 4) {
@@ -2415,7 +2415,7 @@ void tagBarrelActorUpdate(void) {
         } else {
             angle = 0xB4;
         }
-        func_8067AAB8((s32)gCurrentActor, gPrimaryPlayerActor, (s16)((gCurrentActor->yaw + 0x800) & 0xFFF), (f32)angle, 0);
+        actorAppendCallbackPayloadAAB8((s32)gCurrentActor, gPrimaryPlayerActor, (s16)((gCurrentActor->yaw + 0x800) & 0xFFF), (f32)angle, 0);
         if (((TagBarrelSpawnParams *)gCurrentActor->spawnData)->unk18 == 1.0) {
             TagBarrelPlayerState *playerState = ((Actor *)gPrimaryPlayerActor)->customState;
             func_806C7BAC(gPrimaryPlayerActor, 0);
@@ -2658,7 +2658,7 @@ void rocketbarrelUpdate(void) {
         gCurrentActor->flags &= ~0x8000;
         gCurrentActor->alpha = 0;
         actorAppendCallback(var_v1->unk4, (s32)gCurrentActor, 0x40, 1, 0, 0);
-        func_8067AAB8((s32)gCurrentActor, var_v1->unk4, var_v1->unk4->yaw, (f32) D_80750390, 0);
+        actorAppendCallbackPayloadAAB8((s32)gCurrentActor, var_v1->unk4, var_v1->unk4->yaw, (f32) D_80750390, 0);
         func_806C7BAC(var_v1->unk4, gCurrentActor);
         ((PlayerStateD580Grab *)gActivePlayerState)->unk1A3 = 1;
         gCurrentActor->state = 3;
@@ -3619,7 +3619,7 @@ void tagBarrelUpdate(void) {
     }
     tagBarrelInitUnlockedKongs(actor);
     tagBarrelUpdateInteractable();
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actor = gCurrentActor;
     switch (actor->state) {
     case 0:
@@ -3651,7 +3651,7 @@ void tagBarrelUpdate(void) {
         if (sub->unk4 != 0) {
             sub->unk4--;
         } else {
-            func_8067AAB8((s32)actor, sub->unk0, sub->unk38, 180.0f, 0x46);
+            actorAppendCallbackPayloadAAB8((s32)actor, sub->unk0, sub->unk38, 180.0f, 0x46);
             actorAppendCallback(sub->unk0, (s32)gCurrentActor, 0x40, 1, 0, 0);
             slotQueuePopActiveMask();
             gCurrentActor->state = 0;

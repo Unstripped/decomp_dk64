@@ -136,7 +136,7 @@ void actorUpdateModelMatrix(void *, u8);
 void csModelStateSetFirstByte();
 void func_80641874(s16, s16);
 void actorAppendCallbackPayloadA69C(s32, void *, f32, f32, u8, u8);
-void func_8067AB20(s32, void *, s32, u8, void *, u8);
+void actorAppendCallbackMemcpy8(s32, void *, s32, u8, void *, u8);
 void actorCopyPoseAndScale(void *, void *, f32);
 void func_80687C48(void);
 void playerSetKongByActorType(s16);
@@ -149,7 +149,7 @@ void resQueueSetValue(s8);
 void menuTransitionToMap(s32, s32);
 void menuSetTransitionTypeBFlag(void);
 void menuTransitionToCreditsOrMap28(s32);
-void func_80712830(void *, s32);
+void playerRefillHealth(void *, s32);
 void func_80713EB0(s32, s32, s32);
 void func_80724994(u8, s16, s16, s16, s16);
 void zoneEntrySpawnEffect(s16, s16, s16, s16);
@@ -339,15 +339,15 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             screenWipeStart(((u32)arg1 >> 16) & 0xFF);
             return;
         case 0xC:
-            func_8067AB20((s32)gCamActor, sp94, 0x01000000, 1, spA0, 0);
+            actorAppendCallbackMemcpy8((s32)gCamActor, sp94, 0x01000000, 1, spA0, 0);
             return;
         case 0xD:
-            func_8067AB20((s32)gCamActor, sp94, 0x01000000, 0x10, spA0, 0);
+            actorAppendCallbackMemcpy8((s32)gCamActor, sp94, 0x01000000, 0x10, spA0, 0);
             spA0[3] = -1;
-            func_8067AB20((s32)gCamActor, sp94, 0x01000000, 0xE, spA0, 0);
+            actorAppendCallbackMemcpy8((s32)gCamActor, sp94, 0x01000000, 0xE, spA0, 0);
             return;
         case 0x12:
-            func_8067AB20((s32)gCamActor, sp94, 0x01000000, 0x14, spA0, 0);
+            actorAppendCallbackMemcpy8((s32)gCamActor, sp94, 0x01000000, 0x14, spA0, 0);
             return;
         case 0x31:
             if (d != 0) {
@@ -552,7 +552,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
                 mapRequestTransition(a, b);
                 return;
             }
-            func_80712830(gPrimaryPlayerActor, 0);
+            playerRefillHealth(gPrimaryPlayerActor, 0);
             return;
         case 0x23:
             D_8076AEE0 = a;

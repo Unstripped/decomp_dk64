@@ -2429,7 +2429,7 @@ extern s16 D_807538C8[];
 s16 mathAngleEaseToward(s16, s16, f32);
 void effectSpawnJointBeam();
 void effectSpawnRandomBoneDebris();
-void func_80712830(Actor *, u8);
+void playerRefillHealth(Actor *, u8);
 s32 randomLcgNext(void);
 void effectSetMode(s32);
 
@@ -2610,7 +2610,7 @@ void playerStateSwimDrown(void) {
     G14_A->unkB8 = 0.0f;
     playerApplyFullPhysics();
     if (G14_P->unk21E == 0) {
-        func_80712830(gCurrentActor, gCurrentPlayerIndex);
+        playerRefillHealth(gCurrentActor, gCurrentPlayerIndex);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -2739,7 +2739,7 @@ void playerStateSwimSink(void) {
         break;
     case 2:
         if (gCurrentMap != 0x52 && gCurrentMap != 0xE) {
-            func_80712830(gCurrentActor, gCurrentPlayerIndex);
+            playerRefillHealth(gCurrentActor, gCurrentPlayerIndex);
         }
         G14_A->unk155++;
         break;
@@ -2825,7 +2825,7 @@ void playerStateSwimStroke(void) {
                         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, (s16)(((v2 & 2) / 2) + 0x57), 0xFF, 0x7F, 0x1E);
                     }
                 } else if (flag) {
-                    func_80712830(gCurrentActor, gCurrentPlayerIndex);
+                    playerRefillHealth(gCurrentActor, gCurrentPlayerIndex);
                 }
             }
             if ((G15_PB->unk1F0 & 0x1000) && !(gFrameCounter & 3)) {
@@ -2838,7 +2838,7 @@ void playerStateSwimStroke(void) {
             break;
         default:
             if (gPlayerCount >= 2) {
-                func_80712830(gCurrentActor, gCurrentPlayerIndex);
+                playerRefillHealth(gCurrentActor, gCurrentPlayerIndex);
             }
             G15_PB->unk1F0 &= ~0x1000;
             break;
@@ -5500,7 +5500,7 @@ typedef struct LD5BPlayer {
 #define LD5B_A ((LD5BActor *)gCurrentActor)
 #define LD5B_P ((LD5BPlayer *)gActivePlayerState)
 
-void func_80678DD8(Actor *);
+void actorCheckBoundsAndMotion(Actor *);
 void actorCheckWorldBounds(Actor *);
 
 void func_806DE264(void) {
@@ -5530,7 +5530,7 @@ void func_806DE264(void) {
     LD5B_P->unkF4 = LD5B_P->unkF0;
     LD5B_A->unk60 |= 0x08000000;
     actorUpdateModelMatrix(gCurrentActor, 0);
-    func_80678DD8(gCurrentActor);
+    actorCheckBoundsAndMotion(gCurrentActor);
     switch (LD5B_A->unk155) {
     case 0:
         switch (LD5B_A->unk58) {

@@ -766,7 +766,7 @@ void func_806C1300(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_8067ACB4(Actor *);
+void actorUpdatePrevContactFlags(Actor *);
 s32 playerSelectMoveTier(Actor *, f32, f32, u8, s16);
 
 void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 animMax) {
@@ -775,7 +775,7 @@ void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 an
 
     if (!(R1V->unk60 & 0x10)) {
         R1V->unk6A |= 1;
-        func_8067ACB4(gCurrentActor);
+        actorUpdatePrevContactFlags(gCurrentActor);
         R1V->unkCC = 1;
     }
     val = ret = playerSelectMoveTier(gCurrentActor, R1V->unkB8, R1S90->unk26, R1S90->unk34, threshold);
@@ -1759,7 +1759,7 @@ void func_806C3A8C(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->eyeHeight = 0x19;
-        func_8067ACB4(gCurrentActor);
+        actorUpdatePrevContactFlags(gCurrentActor);
         if (flagGet(0x1E, 2) == 0) {
             camStartPath(gCurrentActor, 0x14, 1);
             flagSet(0x1E, 1, 2);

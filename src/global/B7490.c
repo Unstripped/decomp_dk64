@@ -49,7 +49,7 @@ extern s16 D_80750340;
 void actorScriptStart(void *, s32);
 s32 func_8072E0A8(s32, s32);
 void behaviourFrameBegin(void);
-void func_8067ACB4(Actor *);
+void actorUpdatePrevContactFlags(Actor *);
 void actorUpdateModelMatrix(void *, s32);
 void effectSpawnSparks(s32, s32);
 s32 actorMoveWithinZone(u8, f32, f32, u16, f32);
@@ -338,7 +338,7 @@ void func_806B3420(void) {
         gBehaviourWorkState->timer = 0x5A;
         gCurrentActor->state = 0;
         gCurrentActor->unk155[0] = 0;
-        func_8067ACB4(gCurrentActor);
+        actorUpdatePrevContactFlags(gCurrentActor);
         actorClearNodeFlag(gCurrentActor, 1);
     }
     dx = gCurrentActor->x - gBehaviourTargetActor->x;
@@ -411,7 +411,7 @@ void actorSwellBurstUpdate(void) {
     behaviourFrameBegin();
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->renderFlags |= 4;
-        func_8067ACB4(gCurrentActor);
+        actorUpdatePrevContactFlags(gCurrentActor);
     }
     if (((gActorGlobalState.unk200 == 9) || (gActorGlobalState.unk15 != 0)) && (gCurrentActor->state != 0x27)) {
         gCurrentActor->state = 0x27;
@@ -940,7 +940,7 @@ void func_806B52DC(void) {
         gCurrentActor->alpha = 0;
         ((B7490Actor *) gCurrentActor)->unkEC = ((randomNonNegative() >> 15) % 7) + 0xF;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocityCustom(gCurrentActor, gCurrentActor->speedXZ, 0.0f);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     switch (gCurrentActor->state) {

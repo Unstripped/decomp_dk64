@@ -3162,7 +3162,7 @@ s32 csFindPlayerSlotByModel(s32 a, s32 b) {
 }
 
 void modelSlotGetTransformVectors();
-void func_8067ABC0(s32, void *, s32, s16, s32, f32, f32, f32);
+void actorAppendCallbackPayloadABC0(s32, void *, s32, s16, s32, f32, f32, f32);
 
 s32 csCondFindPlayerSlotByModel(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x, y, z;
@@ -3181,7 +3181,7 @@ s32 csCondFindPlayerSlotByModel(CsState *cs, s16 csId, s16 b, s16 c) {
         return 0;
     }
     modelSlotGetTransformVectors(id, &x, &y, &z, &u50, &u4C, &u48, &u44, &u40, 1);
-    func_8067ABC0(0, ((CsPlayerSlot *)gPlayerSlots + idx)->unk4, 9, (s16)(s32)(u4C * 11.377778f), 0, x, y, z);
+    actorAppendCallbackPayloadABC0(0, ((CsPlayerSlot *)gPlayerSlots + idx)->unk4, 9, (s16)(s32)(u4C * 11.377778f), 0, x, y, z);
     return 0;
 }
 

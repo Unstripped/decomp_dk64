@@ -20,7 +20,7 @@ void *heapAlloc(s32);
 void heapClearBlock(void *);
 void heapFreeDeferred(void *);
 void actorFindActiveByType(s32, void *);
-void func_8067AB20(void *, void *, s32, s32, s16 *, s32);
+void actorAppendCallbackMemcpy8(void *, void *, s32, s32, s16 *, s32);
 
 void func_80724994(u8 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     s16 *sp24;
@@ -33,7 +33,7 @@ void func_80724994(u8 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     sp24[2] = arg3;
     sp24[3] = arg4;
     actorFindActiveByType(0xB, &sp20);
-    func_8067AB20(0, sp20, 0x01000000, arg0, sp24, 0);
+    actorAppendCallbackMemcpy8(0, sp20, 0x01000000, arg0, sp24, 0);
 }
 
 s32 func_80724A20(void) {
@@ -1320,7 +1320,7 @@ void func_80727678(void) {
                     case 3:
                     case 4:
                         if (node->unk42 == 5) {
-                            func_8067AB20(gCurrentActor, node->unk18, 0x01000000, gActorGlobalState.unk258[j] & 0xFF, ptr, 0);
+                            actorAppendCallbackMemcpy8(gCurrentActor, node->unk18, 0x01000000, gActorGlobalState.unk258[j] & 0xFF, ptr, 0);
                         }
                         break;
                 }

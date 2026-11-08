@@ -579,7 +579,7 @@ s16 mathAngleEaseToward(s16, s16, f32);
 f32 mathAtan2(f32, f32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void func_8067ACB4(void *);
+void actorUpdatePrevContactFlags(void *);
 void matrixMakeRotationZ(f32 (*)[4], f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
 void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimit) {
@@ -616,7 +616,7 @@ void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimi
     oldYaw = gCurrentActor->unkE6;
     lateralShift = 0;
     trackIndex = (*cart->unk34 + cart->unk3F) & 0xFF3F;
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     if (cart->unk34 != NULL && prevPrevPt == NULL) {
         gCurrentActor->unk144 = 0x24;
         targetPt = &D_807F5FD4[trackIndex][cart->unk10++];

@@ -891,7 +891,7 @@ typedef struct SiblingActor {
 
 s32 randomNonNegative(void);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
-void func_8067ACB4(Actor *);
+void actorUpdatePrevContactFlags(Actor *);
 void actorApplyVelocity(Actor *);
 extern f32 D_80750394;
 
@@ -910,7 +910,7 @@ void actorUpdateSpinAndVelocity(void) {
         sub->unk0 = (randomNonNegative() >> 15) % 0x46;
         sub->unk4 = (randomNonNegative() >> 15) % 0xC8;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     ATTACHED_ACTOR->unkC0 += D_80750394;
@@ -968,7 +968,7 @@ void actorFallAndBurstUpdate(void) {
     } else {
         ATTACHED_ACTOR->unk132 = 1;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
     ATTACHED_ACTOR->unkC0 += D_80750398;

@@ -1719,7 +1719,7 @@ typedef struct MapFileHeader {
 
 #define MAP_HDR ((MapFileHeader *)arg0)
 
-extern f32 D_807444C4;
+extern f32 gGfxFarClip;
 extern s32 D_807FB5E0;
 extern s32 D_807FB5E4;
 extern s16 D_807FB5E8;
@@ -1773,7 +1773,7 @@ void mapHeaderLoad(s32 arg0) {
     D_807F5FDC = cosApprox(0.7853981853f);
     fogSetParams(MAP_HDR->unk8 & 1);
     renderSetSegment6Override((MAP_HDR->unk8 >> 1) & 1);
-    D_807444C4 = MAP_HDR->unkA;
+    gGfxFarClip = MAP_HDR->unkA;
     D_807FB5E0 = MAP_HDR->unk14 << 3;
     D_807FB5E4 = MAP_HDR->unk16 << 3;
     D_807FB5E8 = MAP_HDR->unk10;

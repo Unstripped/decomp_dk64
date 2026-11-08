@@ -1100,7 +1100,7 @@ extern s16 D_8002D8C0[];
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-void func_8067ACB4(void *);
+void actorUpdatePrevContactFlags(void *);
 void actorApplyVelocity(void *);
 void actorUpdateFloorContactAndTilt(void *, f32);
 
@@ -1152,7 +1152,7 @@ void bonusTurtleTroubleTurtleUpdate(void) {
         }
         gCurrentActor->speedY = gCurrentActor->speedY + gCurrentActor->accelY;
         t0->unkC = gCurrentActor->speedY;
-        func_8067ACB4(gCurrentActor);
+        actorUpdatePrevContactFlags(gCurrentActor);
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     }

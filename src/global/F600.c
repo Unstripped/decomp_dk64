@@ -124,7 +124,7 @@ extern u8 gScreenRenderFlags;
 void heapTickDeferredFrees(void);
 void heapCodeEnd(void);
 s32 menuIsTransitionType6(void);
-void func_80712944(OSContPad *);
+void controllerFilterInput(OSContPad *);
 void func_8060B4D4(OSContPad *);
 void playerStateWaypointAimUpdate(OSContPad *, OSContPad *);
 void rumbleUpdate(void);
@@ -166,11 +166,11 @@ void controllerUpdate(void) {
         }
         switch (D_807463B8) {
         case 0:
-            func_80712944(D_807ECDE8);
+            controllerFilterInput(D_807ECDE8);
             controllerLatchPad(D_807ECDE8);
             break;
         case 2:
-            func_80712944(D_807ECDF4);
+            controllerFilterInput(D_807ECDF4);
             controllerLatchPad(D_807ECDF4);
             func_8060B4D4(D_807ECDE8);
             if (D_807ECD09) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -184,7 +184,7 @@ void controllerUpdate(void) {
             } while (i < 4);
             break;
         case 3:
-            func_80712944(D_807ECDF4);
+            controllerFilterInput(D_807ECDF4);
             controllerLatchPad(D_807ECDF4);
             playerStateWaypointAimUpdate(D_807ECDE8, D_807ECDF4);
             break;

@@ -759,7 +759,7 @@ s32 modelAnimEntryIsActive(s16, s16);
 s32 actorListGetOrSetState(s16, u8, u8);
 s32 flagGet();
 s32 actorListIsIdActive(s16);
-u16 func_8067ACC0(u16);
+u16 actorLookupClass(u16);
 s32 func_806419F8(void);
 void func_80641724(s16);
 s16 modelAnimEntryGetUnkC(s16, s16);
@@ -1121,7 +1121,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x10:
         if (CS_COND_STATE->unk5C != 0 && (cmd->b == -1 || CS_COND_STATE->unk5C == ((s16 *)cmd)[2]) &&
-            (func_8067ACC0(CS_COND_STATE->unk5E) & cmd->a) && func_806419F8() != 0) {
+            (actorLookupClass(CS_COND_STATE->unk5E) & cmd->a) && func_806419F8() != 0) {
             func_80641724(((CsCondSlot *)gModelSlots)[hashTableLookup(csId)].unk84);
             ret = 1;
         } else {
@@ -1322,8 +1322,8 @@ void csSnapToGround(s16, s16);
 void csSetRot(s16, s16, void *, s16, u8);
 void csSetPos(s16, s16, void *, s16, u8);
 void modelAnimEntrySetUnk13(s16, s16, u8, f32);
-void func_8067A9F0(s32, Actor *, f32, f32, f32);
-void func_8067ABC0(s32, Actor *, u8, s16, s32, f32, f32, f32);
+void actorAppendCallbackVec3f(s32, Actor *, f32, f32, f32);
+void actorAppendCallbackPayloadABC0(s32, Actor *, u8, s16, s32, f32, f32, f32);
 s32 cutsceneTriggerCheck(s16);
 void func_8068B830(s16, s16, s16);
 void enemyAggroDespawnBB(void);
@@ -1945,7 +1945,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         break;
     case 0x2C:
         modelSlotGetNodePos(csId, 1, cmd->a, &cx, &cy, &cz);
-        func_8067A9F0(0, gPlayerSlots->unk4, cx, cy, cz);
+        actorAppendCallbackVec3f(0, gPlayerSlots->unk4, cx, cy, cz);
         break;
     case 0x2B:
         func_80636014(csId, 1, CMDB(cmd)->a);
@@ -2047,7 +2047,7 @@ void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
         }
         break;
     case 0x49:
-        func_8067ABC0(0, gPlayerSlots->unk4, CMDB(cmd)->a, cmd->b, cmd->c, gCsPosX, gCsPosY, gCsPosZ);
+        actorAppendCallbackPayloadABC0(0, gPlayerSlots->unk4, CMDB(cmd)->a, cmd->b, cmd->c, gCsPosX, gCsPosY, gCsPosZ);
         break;
     case 0x4D:
         idx = modelSlotAppend(cmd->a, D_807F690C, D_807F6910, D_807F6914, D_807F6910 - D_807F6218, 0);
@@ -2112,7 +2112,7 @@ void func_80641724(s16 modelId) {
     }
 }
 
-void func_8067AB20(void *, void *, s32, s32, s16 *, s32);
+void actorAppendCallbackMemcpy8(void *, void *, s32, s32, s16 *, s32);
 
 void csSendMsgByActorType(s16 actorType, s16 msgParam) {
     s32 i;
@@ -2124,7 +2124,7 @@ void csSendMsgByActorType(s16 actorType, s16 msgParam) {
     for (i = 0; i < gActiveActorCount; i++) {
         actor = gActiveActors[i].actor;
         if ((u32)actor->actorType == actorType) {
-            func_8067AB20(0, actor, 0x01000000, 1, msgPayload, 0);
+            actorAppendCallbackMemcpy8(0, actor, 0x01000000, 1, msgPayload, 0);
         }
     }
 }
@@ -2141,7 +2141,7 @@ void func_80641874(s16 paramA, s16 paramB) {
     msgPayload[1] = paramA;
     msgPayload[0] = paramB;
     actorFindActiveByType(0xE, &targetActor);
-    func_8067AB20(0, targetActor, 0x01000000, 1, msgPayload, 0);
+    actorAppendCallbackMemcpy8(0, targetActor, 0x01000000, 1, msgPayload, 0);
 }
 
 s32 csModelStateTrySetByte(s16 a, s16 b, s16 c) {

@@ -140,7 +140,7 @@ void camStartPath(void *, s32, s32);
 s32 flagGet(s16, u8);
 s32 randomLcgNext();
 f32 randomFloat();
-void func_8067AB20(s32, s32, s32, s32, void *, s32);
+void actorAppendCallbackMemcpy8(s32, s32, s32, s32, void *, s32);
 void gfxSetBackgroundBlend(f32);
 void lightSetColor(f32, f32, f32, s32);
 void menuHandleScrollInput();
@@ -303,7 +303,7 @@ void menuUpdateMainScreen(void *actor, s32 buttons) {
             D_80033F55 = 1;
             camParam = 1;
         }
-        func_8067AB20(gCamActor, camTargetActor, 0x01000000, camParam & 0xFF, &pair, 0);
+        actorAppendCallbackMemcpy8(gCamActor, camTargetActor, 0x01000000, camParam & 0xFF, &pair, 0);
     }
     if (D_80033F56 != 0) {
         targetBrightness = 0.0f;
@@ -2057,7 +2057,7 @@ extern s8 D_8074453C[];
 extern s8 D_80744540;
 void menuTransitionRequestTypeB(s32, s32);
 void menuTransitionToCreditsOrMap28(s32);
-void func_807126B0(s16, s32, s16, s8, s32, s32, s32);
+void menuSetupPlayerInventory(s16, s32, s16, s8, s32, s32, s32);
 
 void menuHandleCheatsInput(MenuScreenActor *actor, s32 buttons) {
     MenuScreenState *state = actor->unk174;
@@ -2116,13 +2116,13 @@ void menuHandleCheatsInput(MenuScreenActor *actor, s32 buttons) {
                             D_800339A8 = 1;
                             break;
                         default:
-                            func_807126B0(D_80033978[sel][0], 0, D_80033978[sel][1], 3, 3, 1, 3);
+                            menuSetupPlayerInventory(D_80033978[sel][0], 0, D_80033978[sel][1], 3, 3, 1, 3);
                             D_80744514 = 5;
                             break;
                         }
                         break;
                     case 2:
-                        func_807126B0(D_80033938[sel].a, 0, D_80033938[sel].b, D_80033938[sel].c, D_80033938[sel].d, D_80033938[sel].e, D_80033938[sel].f);
+                        menuSetupPlayerInventory(D_80033938[sel].a, 0, D_80033938[sel].b, D_80033938[sel].c, D_80033938[sel].d, D_80033938[sel].e, D_80033938[sel].f);
                         D_80744514 = 4;
                         break;
                     }
@@ -2408,7 +2408,7 @@ void menuHandleHighScoreNameEntryInput(void *actor, s32 buttons) {
     if (state->unk0 == 0.0f) {
         if (D_80033F60 < 0) {
             if (buttons & 1) {
-                func_807126B0(D_800339B8[D_800339A8].unk0, 0, D_800339B8[D_800339A8].unk2, 3, 3, 1, 3);
+                menuSetupPlayerInventory(D_800339B8[D_800339A8].unk0, 0, D_800339B8[D_800339A8].unk2, 3, 3, 1, 3);
                 D_80744514 = D_800339A8 + 6;
             }
             if (buttons & 2) {

@@ -16,7 +16,7 @@ typedef struct ActorPhysicsWork {
     u8 hasArcBounds;
 } ActorPhysicsWork;
 
-void func_8067ACB4(void);
+void actorUpdatePrevContactFlags(void);
 void mathAngleClampToArc(s16, s16, s16, s16, void *);
 s16 func_80672134(s16, s16, s16, s16);
 void func_80665ACC(Actor *actor);
@@ -26,7 +26,7 @@ ActorPhysicsWork *actor;
 s16 targetYaw;
 s16 targetPitch;
 {
-    func_8067ACB4();
+    actorUpdatePrevContactFlags();
     func_80665ACC((Actor *)actor);
     if (actor->hasArcBounds != 0) {
         mathAngleClampToArc(actor->unkEE, targetYaw, actor->arcYawMin, actor->arcYawMax, &actor->unkF2);

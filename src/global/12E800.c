@@ -504,7 +504,7 @@ typedef struct E3DcA0 {
 #define E3CA0 ((E3DcA0 *)D_807FDCA0)
 
 s32 mathAngleDistance(s16, s16);
-void func_8067ACB4(Actor *);
+void actorUpdatePrevContactFlags(Actor *);
 void actorTurnTowardTarget(u8, f32, f32, u16);
 void collisionSetQueryMode(s32);
 void actorStepPhysics(Actor *, s16, s16);
@@ -536,7 +536,7 @@ u32 actorMoveWithinZone(u8 arg0, f32 arg1, f32 arg2, u16 arg3, f32 arg4) {
             E3A->unkB8 *= E3C98->unk34;
         }
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     if (E3A->unkB8 != 0.0f || (arg3 & 4)) {
         actorTurnTowardTarget(arg0, arg1, arg2, arg3);
     }
@@ -867,7 +867,7 @@ void func_80717D4C(void);
 extern u8 D_8071FC58[];
 
 void func_8072B7CC(s32 arg0) {
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     switch (F1A->unk154) {
         case 9:
             F1S98->unk46 |= 0x2040;

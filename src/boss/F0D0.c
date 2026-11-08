@@ -370,7 +370,7 @@ void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 s32 flagGet(s32, s32);
 s32 camStartPath(void *, s32, s32);
 void behaviourFrameBegin(void);
-void func_8067ACB4(void *);
+void actorUpdatePrevContactFlags(void *);
 void actorSetUniformScale(void *, f32);
 void actorUpdateModelMatrix(void *, s32);
 void actorApplyGravity(void);
@@ -436,7 +436,7 @@ void bossMainStep(void) {
     }
     flag7F = 0;
     behaviourFrameBegin();
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     if (!(BF->unk60 & 0x10)) {
         BF->unkCC = 1;
         BF->unk144 = 0x24;
@@ -563,7 +563,7 @@ void bossMainStep(void) {
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
             BF->unk155++;
         case 4:
-            func_8067ACB4(gCurrentActor);
+            actorUpdatePrevContactFlags(gCurrentActor);
             actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
             bossInterpolateWaypoints((u8 *)sub, 0.025f);
             if (BF->unk4->unk0->unk4 >= 40.0f) {
@@ -663,7 +663,7 @@ void bossMainStep(void) {
             scriptSetActorRampTarget(gCurrentActor, D_80036C40[st->unk14], 0.0f);
             sub->unk6 = playerAbove;
         case 2:
-            func_8067ACB4(gCurrentActor);
+            actorUpdatePrevContactFlags(gCurrentActor);
             actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
             bossInterpolateWaypoints((u8 *)sub, BF->unk4->unk64 == 0x223 ? 0.02173913f : 0.041666664f);
             if (BF->unk4->unk64 == 0x223) {

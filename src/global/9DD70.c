@@ -776,7 +776,7 @@ extern u8 D_80720E14[];
 void effectScaleSpinUpdate();
 void actorDespawn(Actor *);
 void actorSetCollisionRadius(Actor *, f32);
-void func_8067ACB4(Actor *);
+void actorUpdatePrevContactFlags(Actor *);
 void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void actorAppendCallback(Actor *, Actor *, s32, u8, s32, void *);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
@@ -808,7 +808,7 @@ void func_8069B010(void) {
         gCurrentActor->flags |= 0x80000;
         collisionCheckActorFloor(gCurrentActor, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, &gCurrentActor->floorY);
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x4B, 0x78, 0, 1.0f);
     link = (LinkedActorView *)gCurrentActor->parentActor;
     if (link != NULL) {
@@ -1138,7 +1138,7 @@ void textMarkerUpdateMatrix(void) {
             gCurrentActor->flags &= ~0x400;
         }
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     switch (gCurrentActor->actorType) {
     case 0x3F:
     case 0x40:

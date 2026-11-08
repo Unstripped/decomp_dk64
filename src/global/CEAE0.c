@@ -2365,7 +2365,7 @@ typedef struct G05CbArg2 {
 
 f32 acosApprox(f32);
 f32 asinApprox(f32);
-void func_8067AA58(Actor *, Actor *, f32, f32);
+void actorAppendCallbackVec2f(Actor *, Actor *, f32, f32);
 
 void func_806CF138(G05CbArg2 *arg0) {
     f32 sp74;
@@ -2399,7 +2399,7 @@ void func_806CF138(G05CbArg2 *arg0) {
     sp3C = dir[0] * delta[0] + dir[1] * delta[1];
     sp38 = sqrtf(dir[0] * dir[0] + dir[1] * dir[1]);
     sp34 = sqrtf(delta[0] * delta[0] + delta[1] * delta[1]);
-    func_8067AA58(arg0->unk0, arg0->unk4, sp54, 90.0 - acosApprox(sp3C / (sp38 * sp34)) * 57.29577637f);
+    actorAppendCallbackVec2f(arg0->unk0, arg0->unk4, sp54, 90.0 - acosApprox(sp3C / (sp38 * sp34)) * 57.29577637f);
 }
 
 s32 playerGetHoldNodeIndices(s32 *arg0, s32 *arg1) {

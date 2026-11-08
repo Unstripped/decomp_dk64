@@ -190,7 +190,7 @@ extern u8 gPlayerInventoryTable[][0x5E];
 extern G00Sub6 D_807ECD10[];
 extern s16 D_807ECD48[];
 extern u32 D_8074458C[];
-extern f32 D_807444C4;
+extern f32 gGfxFarClip;
 extern u8 D_80750AD0;
 extern s32 gGlobalOverlayFlags;
 extern u32 gGlobalCutsceneFlags;
@@ -246,7 +246,7 @@ void func_806C7D40(s32 arg0) {
         blk->unk27C = 45.0f;
         blk->unk284 = 10.0f;
         blk->unk280 = (f32)blk->unk278 / (f32)blk->unk27A;
-        blk->unk288 = D_807444C4;
+        blk->unk288 = gGfxFarClip;
         blk->unk290 = 0;
         blk->unk294 = &D_807ECD10[i];
         blk->unk298 = &D_807ECD48[i];
@@ -946,7 +946,7 @@ extern s32 gGlobalPauseFlags;
 extern s8 D_80770DC9;
 G01Pos *func_806C96C4(s32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
-void func_8067ACB4(Actor *);
+void actorUpdatePrevContactFlags(Actor *);
 void playerWaypointPathStartLineFromPoint(Actor *, void *, s32);
 
 void func_806C90C4(s32 arg0) {
@@ -962,7 +962,7 @@ void func_806C90C4(s32 arg0) {
         scriptSetActorRampTarget(gActivePlayerActor, 0.5f, 0.0f);
         sp24->unk50 = 1;
         G01A->unk6A |= 4;
-        func_8067ACB4(gActivePlayerActor);
+        actorUpdatePrevContactFlags(gActivePlayerActor);
         actorScriptStartByIndex(gActivePlayerActor, 0x34);
         /* fallthrough */
     case 0:

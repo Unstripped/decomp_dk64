@@ -4,8 +4,8 @@
 extern Actor *gCurrentActor;
 extern void *gPlayerSlots;
 extern s32 gCurrentMap;
-extern u8 D_80755314;
-extern u8 D_80755318;
+extern u8 gMenuCurrentMode;
+extern u8 gMenuTargetMode;
 
 extern u16 *D_807550E0;
 extern u8 D_807FDA1A;

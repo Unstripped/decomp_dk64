@@ -5,15 +5,15 @@ extern Actor *gCurrentActor;
 extern void *gPlayerSlots;
 extern s32 gCurrentMap;
 extern u32 gGlobalCutsceneFlags;
-extern u8 D_80755314;
-extern u8 D_80755318;
+extern u8 gMenuCurrentMode;
+extern u8 gMenuTargetMode;
 
 extern s32 flagCountRange(s32, s32, s32);
 extern s8 D_8075536C;
 extern s32 D_80755338;
 extern s32 D_8075533C;
 extern u8 D_80755350;
-extern s8 D_80755330;
+extern s8 gMenuTransitionFlag;
 extern s8 D_80750754;
 
 
@@ -23,7 +23,7 @@ void mapRequestTransition(s32, s32);
 
 void menuTransitionWithState(s32 arg0, s32 arg1, u8 arg2) {
     mapRequestTransition(arg0, arg1);
-    D_80755318 = arg2;
+    gMenuTargetMode = arg2;
 }
 
 void screenSetTransitionFadeType(s32);
@@ -40,7 +40,7 @@ void menuTransitionRequest(s32 arg0, s32 arg1, u8 arg2) {
 }
 
 void menuTransitionToMap(s32 arg0, s32 arg1) {
-    menuTransitionRequest(arg0, arg1, D_80755318);
+    menuTransitionRequest(arg0, arg1, gMenuTargetMode);
 }
 
 s32 menuCalculateBonusDuration(void) {
@@ -58,7 +58,7 @@ typedef struct R117gTimedState {
 extern R117gTimedState D_80755340;
 extern u16 D_80755358[];
 
-void func_80712574(void) {
+void menuTimerInit(void) {
     u32 i;
     s32 found = 0;
 
@@ -84,28 +84,28 @@ s32 menuGetTimerFlag(void) {
 
 void menuTransitionRequestTypeB(s32 arg0, s32 arg1) {
     menuTransitionRequest(arg0, arg1, 0xB);
-    D_80755330 = 0;
+    gMenuTransitionFlag = 0;
 }
 
 s32 menuIsTransitionTypeB(void) {
     s32 var_v0;
 
-    var_v0 = D_80755314 == 0xB;
+    var_v0 = gMenuCurrentMode == 0xB;
     if (var_v0 == 0) {
-        return D_80755318 == 0xB;
+        return gMenuTargetMode == 0xB;
     }
 }
 
 void menuSetTransitionTypeBFlag(void) {
-    if (D_80755314 == 0xB) {
-        D_80755330 = 1;
+    if (gMenuCurrentMode == 0xB) {
+        gMenuTransitionFlag = 1;
     }
 }
 
 extern u8 gPlayerInventoryTable[][0x5E];
 extern s8 gPlayerCharacterId;
 
-void func_807126B0(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4, s8 arg5, s8 arg6) {
+void menuSetupPlayerInventory(s32 arg0, s32 arg1, s32 arg2, s8 arg3, s8 arg4, s8 arg5, s8 arg6) {
     s32 i;
 
     gPlayerCharacterId = arg2;
@@ -124,7 +124,7 @@ void menuTransitionWithStateD(s32 arg0) {
 }
 
 s32 menuIsTransitionActive(void) {
-    return D_80755314 != D_80755318;
+    return gMenuCurrentMode != gMenuTargetMode;
 
 }
 void mapSlotArrayResetAll(void);
@@ -160,7 +160,7 @@ s32 mapFindPreviousSavedMap(s32 *, s32 *);
 void func_80026D40(void *);
 void mapExecuteDeathTransition(s32);
 
-void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
+void playerRefillHealth(R117d2MenuObject *arg0, s32 arg1) {
     s32 var_a0;
     s32 var_a1;
     s32 pad;
@@ -200,21 +200,21 @@ void func_80712830(R117d2MenuObject *arg0, s32 arg1) {
     mapExecuteDeathTransition(arg1);
 }
 
-extern u16 D_80755308;
-extern u8 D_8075530C;
-extern u8 D_80755310;
+extern u16 gControllerButtonMask;
+extern u8 gControllerStickXMask;
+extern u8 gControllerStickYMask;
 
-void func_80712944(OSContPad *arg0) {
+void controllerFilterInput(OSContPad *arg0) {
     s32 i;
 
     controllerGetReadData();
     for (i = 0; i < 4; i++) {
-        arg0[i].stick_x &= D_8075530C;
-        arg0[i].stick_y &= D_80755310;
-        arg0[i].button &= D_80755308;
+        arg0[i].stick_x &= gControllerStickXMask;
+        arg0[i].stick_y &= gControllerStickYMask;
+        arg0[i].button &= gControllerButtonMask;
     }
 }
-extern u8 D_80755324;
+extern u8 gMenuDemoActive;
 
 
 extern u64 D_807445B8;
@@ -226,21 +226,21 @@ extern s32 D_80755320;
 void func_8060B6CC(void);
 void setRandomSeed(u32);
 
-void func_80712A40(void) {
+void menuSeedRandom(void) {
     u64 elapsed;
 
     func_8060B6CC();
-    if ((D_80755318 == 3) || (D_80755318 == 4)) {
+    if ((gMenuTargetMode == 3) || (gMenuTargetMode == 4)) {
         setRandomSeed(0x8E32B6F7U);
         D_80746B60 = 1;
     } else {
         setRandomSeed((u32)osGetTime());
         D_80746B60 = 0;
     }
-    D_8075530C = 0;
-    D_80755310 = 0;
-    D_80755314 = D_80755318;
-    D_80755324 = 0;
+    gControllerStickXMask = 0;
+    gControllerStickYMask = 0;
+    gMenuCurrentMode = gMenuTargetMode;
+    gMenuDemoActive = 0;
     D_80755320 = 0;
     if (gGlobalPauseFlags & 2) {
         elapsed = osGetTime() - D_807445C0;
@@ -251,18 +251,18 @@ void func_80712A40(void) {
     }
 }
 
-extern u8 D_80755328;
+extern u8 gMenuBonusStageIndex;
 extern u8 gActivePlayerCount;
-extern u16 D_8075531C;
+extern u16 gMenuStateTimer;
 extern u16 D_807ECD66;
 extern u8 D_8075E5C0[];
 
 void func_8060B750(s32);
 s32 func_8060B7C4(void);
 
-void func_80712B80(void) {
-    if (D_80755318 == 3) {
-        func_8060B750(D_8075E5C0[D_80755328 * 4]);
+void menuSetupBonusCharacter(void) {
+    if (gMenuTargetMode == 3) {
+        func_8060B750(D_8075E5C0[gMenuBonusStageIndex * 4]);
         gPlayerCharacterId = func_8060B7C4();
     }
 }
@@ -276,7 +276,7 @@ extern u16 D_8075E5C2[];
 
 extern u8 D_807467CC;
 extern u8 gCurrentWorldId;
-extern u8 D_8075532C;
+extern u8 gMenuTransitionCounter;
 extern s32 D_80755334;
 extern s32 D_807552EC;
 extern Mtx D_807FDAC0;
@@ -284,16 +284,16 @@ s32 flagGet(s32, s32);
 s32 mapGetHubWorldIndex(u8, s32);
 s32 func_8060B49C(s32, s32);
 void eepromInit(void);
-void func_80712574(void);
+void menuTimerInit(void);
 void eepromSavePlayerData(void);
 void actorSpawn(s32, s32);
 
-void func_80712BD4(void) {
+void menuCheckMapTransitionOnLoad(void) {
     u8 blocked;
 
     blocked = flagGet(0x302, 0);
     D_80755334 = 0;
-    D_80755330 = 0;
+    gMenuTransitionFlag = 0;
     if (D_807467CC == 0) {
         eepromInit();
     }
@@ -302,71 +302,71 @@ void func_80712BD4(void) {
             if (gCurrentMap != 0xD6) {
                 if (menuGetTimerFlag() == 0) {
                     if (blocked == 0) {
-                        func_80712574();
+                        menuTimerInit();
                     }
                 }
             }
         }
     }
     guScale(&D_807FDAC0, 0.5f, 0.5f, 1.0f);
-    switch (D_80755314) {
+    switch (gMenuCurrentMode) {
     case 0:
-        D_8075531C = 0x708;
-        D_80755308 = 0;
+        gMenuStateTimer = 0x708;
+        gControllerButtonMask = 0;
         D_80755338 = 1;
         D_8075533C = 0;
         break;
     case 1:
-        D_8075531C = 0x708;
-        D_80755308 = 0x1000;
+        gMenuStateTimer = 0x708;
+        gControllerButtonMask = 0x1000;
         D_80755338 = 1;
         D_8075533C = 0;
         break;
     case 2:
-        D_8075531C = 0x1644;
-        D_80755308 = 0x1000;
+        gMenuStateTimer = 0x1644;
+        gControllerButtonMask = 0x1000;
         D_80755338 = 1;
         D_8075533C = 0;
         break;
     case 3:
-        D_8075532C++;
-        D_8075531C = func_8060B49C(((R117iPlayerView *)gPlayerSlots)->unk4, D_8075E5C0[D_80755328 * 4]);
-        if (D_8075531C < *(u16 *) ((u8 *) D_8075E5C2 + D_80755328 * 4)) {
-            D_8075531C = D_8075531C;
+        gMenuTransitionCounter++;
+        gMenuStateTimer = func_8060B49C(((R117iPlayerView *)gPlayerSlots)->unk4, D_8075E5C0[gMenuBonusStageIndex * 4]);
+        if (gMenuStateTimer < *(u16 *) ((u8 *) D_8075E5C2 + gMenuBonusStageIndex * 4)) {
+            gMenuStateTimer = gMenuStateTimer;
         } else {
-            D_8075531C = *(u16 *) ((u8 *) D_8075E5C2 + D_80755328 * 4);
+            gMenuStateTimer = *(u16 *) ((u8 *) D_8075E5C2 + gMenuBonusStageIndex * 4);
         }
-        D_80755328++;
-        D_80755328 = (u32) D_80755328 % 5U;
-        D_80755308 = 0x1000;
+        gMenuBonusStageIndex++;
+        gMenuBonusStageIndex = (u32) gMenuBonusStageIndex % 5U;
+        gControllerButtonMask = 0x1000;
         break;
     case 7:
-        D_8075531C = 0x410;
-        D_80755318 = D_80755314 = 9;
+        gMenuStateTimer = 0x410;
+        gMenuTargetMode = gMenuCurrentMode = 9;
     case 9:
-        D_80755308 = 0x9000;
+        gControllerButtonMask = 0x9000;
         break;
     case 5:
         D_807552EC = 0;
     case 6:
     case 12:
     case 13:
-        D_8075531C = 1;
-        D_80755308 = 0xFFFF;
-        D_8075530C = 0xFF;
-        D_80755310 = 0xFF;
+        gMenuStateTimer = 1;
+        gControllerButtonMask = 0xFFFF;
+        gControllerStickXMask = 0xFF;
+        gControllerStickYMask = 0xFF;
         break;
     case 10:
-        D_8075531C = 1;
-        D_8075530C = 0;
-        D_80755310 = 0;
-        D_80755308 = 0;
+        gMenuStateTimer = 1;
+        gControllerStickXMask = 0;
+        gControllerStickYMask = 0;
+        gControllerButtonMask = 0;
         actorSpawn(0x152, 0);
         break;
     case 14:
         actorSpawn(0x152, 0);
     case 11:
-        D_8075531C = 0x1E;
+        gMenuStateTimer = 0x1E;
         break;
     }
     eepromSavePlayerData();
@@ -377,22 +377,22 @@ void menuReturnToTitle(void) {
     menuTransitionWithState(0x50, 0, 5);
 }
 
-void func_80712F10(s32 *arg0, s32 *arg1) {
-    if (D_80755314 == 0xC) {
+void menuCheckCutsceneTransition(s32 *arg0, s32 *arg1) {
+    if (gMenuCurrentMode == 0xC) {
         if (((gGlobalCutsceneFlags & 2) == 0) || (gCurrentMap == 0xCF) || (*arg0 == 0x22)) {
             *arg0 = 0x50;
             *arg1 = 0;
-            D_80755318 = 5;
+            gMenuTargetMode = 5;
             return;
         }
     }
-    if ((D_80755314 == 0xD) && (gCurrentMap != *arg0)) {
+    if ((gMenuCurrentMode == 0xD) && (gCurrentMap != *arg0)) {
         *arg0 = 0xF;
         *arg1 = 0;
-        D_80755318 = 6;
+        gMenuTargetMode = 6;
         return;
     }
-    if (D_80755330 != 0) {
+    if (gMenuTransitionFlag != 0) {
         *arg0 = -1;
     }
 }
@@ -400,17 +400,17 @@ void func_80712F10(s32 *arg0, s32 *arg1) {
 
 void func_8060B7D0(s32 *, s32 *);
 extern u16 D_807ECD48;
-void func_80712FC8(void) {
+void menuUpdateTitleOrTransition(void) {
     s32 arg0;
     s32 arg1;
 
     if ((D_80755334 >= 0x5A) && (D_807ECD48 & 0x1000)) {
         menuReturnToTitle();
-    } else if (D_8075531C == 0) {
-        if (D_8075532C >= 3) {
+    } else if (gMenuStateTimer == 0) {
+        if (gMenuTransitionCounter >= 3) {
             menuTransitionRequest(0x28, 0, 1);
         } else {
-            func_8060B750(D_8075E5C0[D_80755328 * 4]);
+            func_8060B750(D_8075E5C0[gMenuBonusStageIndex * 4]);
             func_8060B7D0(&arg0, &arg1);
             screenSetTransitionFadeType(1);
             mapRequestTransition(arg0, arg1);
@@ -420,8 +420,8 @@ void func_80712FC8(void) {
 
 void transitionSetState(s32);
 
-void func_80713088(void) {
-    D_8075531C = 0x1E;
+void menuHandleTitleScreenTransition(void) {
+    gMenuStateTimer = 0x1E;
     if (D_807ECD66 & 0x8000) {
         transitionSetState(0);
         menuTransitionWithState(0x50, 0, 5);
@@ -430,24 +430,24 @@ void func_80713088(void) {
 
 s32 camIsCutsceneActive(void);
 
-void func_807130D4(void) {
+void menuHandleCutsceneScreenTransition(void) {
     if (camIsCutsceneActive()) {
-        D_8075531C = 0x1E;
+        gMenuStateTimer = 0x1E;
     }
-    if ((D_80755330 == 1) || (D_8075531C == 0) || (D_807ECD66 & 0x8000)) {
+    if ((gMenuTransitionFlag == 1) || (gMenuStateTimer == 0) || (D_807ECD66 & 0x8000)) {
         transitionSetState(0);
-        D_80755330 = 0;
+        gMenuTransitionFlag = 0;
         menuTransitionWithState(0x50, 0, 5);
-        D_80755330 = 2;
+        gMenuTransitionFlag = 2;
     }
 }
-void func_80713168(void) {
+void menuHandleIntroScreenTransition(void) {
     if (D_80755334 >= 0x1E) {
         if (D_807ECD66 & 0x9000) {
             goto block_5;
         }
     }
-    if (D_8075531C != 0) {
+    if (gMenuStateTimer != 0) {
         return;
     }
 block_5:
@@ -455,27 +455,27 @@ block_5:
 }
 
 
-void func_807131BC(void) {
+void menuStartSelectedBonusStage(void) {
     s32 arg0;
     s32 arg1;
 
-    D_8075532C = 0;
-    func_8060B750(D_8075E5C0[D_80755328 * 4]);
+    gMenuTransitionCounter = 0;
+    func_8060B750(D_8075E5C0[gMenuBonusStageIndex * 4]);
     func_8060B7D0(&arg0, &arg1);
     screenSetTransitionFadeType(1);
     menuTransitionWithState(arg0, arg1, 3);
 }
-void func_807131BC(void);
+void menuStartSelectedBonusStage(void);
 
-void func_8071321C(void) {
-    if ((D_8075531C == 0) || ((D_80755334 >= 0xA) && (D_807ECD48 & 0x1000))) {
-        func_807131BC();
+void menuHandleBonusStageTransition(void) {
+    if ((gMenuStateTimer == 0) || ((D_80755334 >= 0xA) && (D_807ECD48 & 0x1000))) {
+        menuStartSelectedBonusStage();
     }
 }
 
-void func_80713270(void) {
-    if (D_80755324 == 0) {
-        if (D_80755314 != 1) {
+void menuHandleDemoModeTransition(void) {
+    if (gMenuDemoActive == 0) {
+        if (gMenuCurrentMode != 1) {
             return;
         }
         if (D_80755334 < 0x5A) {
@@ -658,7 +658,7 @@ Gfx *func_80713B40(Gfx *arg0) {
     s16 temp_t0;
     s16 pad0;
     s16 var_v1;
-    temp_t0 = D_8075531C - 0x8C;
+    temp_t0 = gMenuStateTimer - 0x8C;
     if (temp_t0 >= 0) {
         if (temp_t0 < 0x96) {
             var_v1 = temp_t0 - 0x5A;
@@ -691,7 +691,7 @@ void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 void func_80713C8C(void) {
     u64 elapsed;
 
-    D_8075531C = 1;
+    gMenuStateTimer = 1;
     if (D_80755340.active != 0) {
         if (flagGet(0x302, 0) != 0) {
             menuClearTimerFlag();
@@ -744,7 +744,7 @@ void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
     s32 i;
 
     if (arg0 >= 0) {
-        if (D_80755314 == 0xE) {
+        if (gMenuCurrentMode == 0xE) {
             if (arg2 == 1) {
                 if (flagGet(0x2A, 1) == 0) {
                     arg0 = -1;
@@ -777,7 +777,7 @@ void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
             return;
         }
     }
-    if (D_80755314 == 0xE) {
+    if (gMenuCurrentMode == 0xE) {
         transitionSetState(0);
         menuTransitionWithState(0x50, 0, 5);
         return;
@@ -809,26 +809,26 @@ Gfx *screenStateTickAndDraw(Gfx *dl) {
     if (D_80755334 < 0x5A) {
         D_80755334++;
     }
-    if ((menuGetTimerFlag() != 0) && (D_80755314 != 6)) {
+    if ((menuGetTimerFlag() != 0) && (gMenuCurrentMode != 6)) {
         menuClearTimerFlag();
     }
-    if (D_8075531C != 0) {
-        if (D_80755314 == D_80755318) {
-            D_8075531C--;
-            switch (D_80755314) {
+    if (gMenuStateTimer != 0) {
+        if (gMenuCurrentMode == gMenuTargetMode) {
+            gMenuStateTimer--;
+            switch (gMenuCurrentMode) {
             case 0:
-            case 1: func_80713270(); break;
-            case 2: func_8071321C(); break;
-            case 3: func_80712FC8(); break;
+            case 1: menuHandleDemoModeTransition(); break;
+            case 2: menuHandleBonusStageTransition(); break;
+            case 3: menuUpdateTitleOrTransition(); break;
             case 7:
-            case 9: func_80713168(); break;
-            case 14: func_80713088(); break;
-            case 11: func_807130D4(); break;
+            case 9: menuHandleIntroScreenTransition(); break;
+            case 14: menuHandleTitleScreenTransition(); break;
+            case 11: menuHandleCutsceneScreenTransition(); break;
             case 6: func_80713C8C(); break;
             }
         }
     }
-    switch (D_80755314) {
+    switch (gMenuCurrentMode) {
     case 0:
     case 1: dl = (Gfx *)mathIdentityS32((s32)dl); break;
     case 2: dl = func_807138A4(dl); break;
@@ -863,13 +863,13 @@ extern s8 gSplitScreenMode;
 s32 func_807142D8(void) {
     s32 var_v0;
 
-    var_v0 = D_80755318 == 3;
+    var_v0 = gMenuTargetMode == 3;
     if (var_v0 == 0) {
-        var_v0 = D_80755318 == 4;
+        var_v0 = gMenuTargetMode == 4;
         if (var_v0 == 0) {
-            var_v0 = D_80755314 == 3;
+            var_v0 = gMenuCurrentMode == 3;
             if (var_v0 == 0) {
-                return D_80755314 == 4;
+                return gMenuCurrentMode == 4;
             }
         }
     }
@@ -878,31 +878,31 @@ s32 func_807142D8(void) {
 s32 menuIsTransitionType6(void) {
     s32 var_v0;
 
-    var_v0 = D_80755314 == 6;
+    var_v0 = gMenuCurrentMode == 6;
     if (var_v0 == 0) {
-        return D_80755318 == 6;
+        return gMenuTargetMode == 6;
     }
 }
 
 s32 menuIsTransitionType8(void) {
     s32 var_v0;
 
-    var_v0 = D_80755314 == 8;
+    var_v0 = gMenuCurrentMode == 8;
     if (var_v0 == 0) {
-        return D_80755318 == 8;
+        return gMenuTargetMode == 8;
     }
 }
 
 s32 menuIsTransitionType7Or9(void) {
     s32 var_v0;
 
-    var_v0 = D_80755314 == 7;
+    var_v0 = gMenuCurrentMode == 7;
     if (var_v0 == 0) {
-        var_v0 = D_80755318 == 7;
+        var_v0 = gMenuTargetMode == 7;
         if (var_v0 == 0) {
-            var_v0 = D_80755314 == 9;
+            var_v0 = gMenuCurrentMode == 9;
             if (var_v0 == 0) {
-                return D_80755318 == 9;
+                return gMenuTargetMode == 9;
             }
         }
     }
@@ -911,35 +911,35 @@ s32 menuIsTransitionType7Or9(void) {
 s32 menuIsTransitionTypeD(void) {
     s32 var_v0;
 
-    var_v0 = D_80755314 == 0xD;
+    var_v0 = gMenuCurrentMode == 0xD;
     if (var_v0 == 0) {
-        return D_80755318 == 0xD;
+        return gMenuTargetMode == 0xD;
     }
 }
 
 s32 menuIsTransitionTypeC(void) {
     s32 var_v0;
 
-    var_v0 = D_80755314 == 0xC;
+    var_v0 = gMenuCurrentMode == 0xC;
     if (var_v0 == 0) {
-        return D_80755318 == 0xC;
+        return gMenuTargetMode == 0xC;
     }
 }
 
 s32 menuIsTransitionType5(void) {
-    return D_80755314 == 5;
+    return gMenuCurrentMode == 5;
 }
 
 s32 menuIsTransitionTypeAOrE(void) {
     s32 var_v0;
 
-    var_v0 = D_80755314 == 0xA;
+    var_v0 = gMenuCurrentMode == 0xA;
     if (var_v0 == 0) {
-        var_v0 = D_80755314 == 0xE;
+        var_v0 = gMenuCurrentMode == 0xE;
         if (var_v0 == 0) {
-            var_v0 = D_80755318 == 0xA;
+            var_v0 = gMenuTargetMode == 0xA;
             if (var_v0 == 0) {
-                return D_80755318 == 0xE;
+                return gMenuTargetMode == 0xE;
             }
         }
     }
@@ -978,7 +978,7 @@ void func_807144B8(u8 arg0) {
         var_a1 = 0;
     }
     mapRequestTransitionFast(var_a0, var_a1);
-    D_80755318 = 6;
+    gMenuTargetMode = 6;
 }
 
 
@@ -998,7 +998,7 @@ void func_8071458C(void) {
 }
 
 void menuSetFlag5324(void) {
-    D_80755324 = 1;
+    gMenuDemoActive = 1;
 }
 
 

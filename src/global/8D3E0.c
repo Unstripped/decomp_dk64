@@ -70,7 +70,7 @@ void actorDespawn(Actor *);
 s16 mapChunkFindByPosition(f32, f32, f32, s32);
 s32 mapChunkIsVisible(s32, void *);
 void func_8066E6C8(Actor *, s32, s32);
-void func_8067AB20(s32, Actor *, s32, u8, void *, u8);
+void actorAppendCallbackMemcpy8(s32, Actor *, s32, u8, void *, u8);
 s32 actorListGetTypeIdCount(u16);
 s16 actorListAllocId(void);
 ActorListNode *actorListSpawnNodeInternal(s16, f32, f32, f32, s16, f32, void *, u8, s32, s16);
@@ -798,7 +798,7 @@ void actorListDispatchEvent(s16 targetId, void *eventData) {
     }
     if (found) {
         if (node->unk44 != NULL) {
-            func_8067AB20((s32)gCurrentActor, node->unk44, 0x1000000, 1, eventData, 0);
+            actorAppendCallbackMemcpy8((s32)gCurrentActor, node->unk44, 0x1000000, 1, eventData, 0);
         }
     }
 }

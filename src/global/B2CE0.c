@@ -92,7 +92,7 @@ void actorUpdateModelMatrix(B2CE0Actor *, s32);
 void matrixMakeRotationX(f32 (*)[4], f32);
 void collisionSetQueryMode(s32);
 void actorApplyGravity(void);
-void func_8067ACB4(B2CE0Actor *);
+void actorUpdatePrevContactFlags(B2CE0Actor *);
 void actorApplyVelocity(B2CE0Actor *);
 void actorUpdateFloorContactAndTilt(B2CE0Actor *, f32);
 void billboardSubmit(B2CE0Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
@@ -149,7 +149,7 @@ void func_806ADFE0(void) {
     }
     collisionSetQueryMode(1);
     actorApplyGravity();
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 10, 10, 1, 200, 0x80, 0, 1.0f);

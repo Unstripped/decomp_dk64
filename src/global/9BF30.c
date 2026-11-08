@@ -290,7 +290,7 @@ s32 randomNonNegative(void);
 void actorSetCollisionRadius(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
-void func_8067ACB4(Actor *);
+void actorUpdatePrevContactFlags(Actor *);
 void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
@@ -337,7 +337,7 @@ void projectileActorUpdate(void) {
         G_ACTOR->unk60 |= 0x80000;
         G_ACTOR->unk155 = sub->unk13;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x14, 0x14, 1, 0x96, 0x78, 0, 1.0f);

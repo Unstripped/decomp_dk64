@@ -135,7 +135,7 @@ extern u8 D_807FBDC4;
 extern s16 D_807FDCB8;
 extern s16 D_807FDCBA;
 extern s16 D_807FDCBC;
-void func_8067AB20(void *, void *, s32, s32, void *, s32);
+void actorAppendCallbackMemcpy8(void *, void *, s32, s32, void *, s32);
 s32 volumeTriggerUpdate(VolumeTrigger *);
 void volumeTriggerSetEnabled(s32 triggerId, u8 enabled);
 
@@ -173,7 +173,7 @@ void volumeTriggerUpdateAll(void) {
                 sub = (VolumeTriggerSubView *)&e->subs[j];
                 if (D_807557A0[e->subs[j].unk0].unkC == NULL || D_807557A0[e->subs[j].unk0].unkC()) {
                     flag = (u16)D_807557A0[sub->unk0].unk2 == 0xA ? 1 : 0;
-                    func_8067AB20(gCurrentActor, D_807557A0[sub->unk0].unk8, 0x01000000, D_807557A0[sub->unk0].unk7, e->subs[j].unk2, flag);
+                    actorAppendCallbackMemcpy8(gCurrentActor, D_807557A0[sub->unk0].unk8, 0x01000000, D_807557A0[sub->unk0].unk7, e->subs[j].unk2, flag);
                     D_807FDCB8 = e->unk0;
                     D_807FDCBA = e->unk2;
                     D_807FDCBC = e->unk4;

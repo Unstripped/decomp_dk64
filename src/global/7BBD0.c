@@ -324,7 +324,7 @@ void actorSetCameraBoundaryMode(s32);
 void actorSetTargetAngleBounds();
 u8 func_806738D0(s32, s32, s32, s32, s32, s32);
 u8 playerFindIndexByActor(Actor *);
-void func_8067A99C(s32, Actor *, s32);
+void actorAppendCallbackS32(s32, Actor *, s32);
 void actorAppendCallbackPayloadA69C(s32, Actor *, f32, f32, u8, u8);
 
 void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *verts, s8 mtxIndex, s32 hitRadius, s32 maxClamp, u8 flag) {
@@ -436,7 +436,7 @@ void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *v
             do {} while (0); // FAKE: splits BB so pushX/pushZ can reuse $f0 after the CSE'd division
             pushX = worldX - normal[0];
             pushZ = worldZ - normal[2];
-            func_8067A99C((s32)self, other, clamp);
+            actorAppendCallbackS32((s32)self, other, clamp);
         }
         actorAppendCallbackPayloadA69C((s32)self, other, pushX, pushZ, 1, 1);
         for (node = otherBounds->unk8C; node != 0; node = node->next) {

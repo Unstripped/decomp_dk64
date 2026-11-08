@@ -762,10 +762,10 @@ typedef struct {
 #define OVERLAY_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
 Gfx *func_80701CA0(Gfx *dl) {
-    extern s16 D_80744498;
-    extern s16 D_8074449C;
-    extern s16 D_807444A0;
-    extern s16 D_807444A4;
+    extern s16 gGfxScreenLeft;
+    extern s16 gGfxScreenTop;
+    extern s16 gGfxScreenRight;
+    extern s16 gGfxScreenBottom;
     PlayerOverlayState *a;
     CameraActorState *b;
     Vtx *vtx;
@@ -820,8 +820,8 @@ Gfx *func_80701CA0(Gfx *dl) {
                 vtx[3].v.ob[2] = -10;
                 gDPPipeSync(dl++);
                 dl = gfxSetViewportDisplayList(dl);
-                OVERLAY_GFX(dl++, (((s32)((f32)D_80744498 * 4.0f) & 0xFFF) << 0xC) | 0xED000000 | ((s32)((f32)D_8074449C * 4.0f) & 0xFFF),
-                      (((s32)((f32)D_807444A0 * 4.0f) & 0xFFF) << 0xC) | ((s32)((f32)D_807444A4 * 4.0f) & 0xFFF));
+                OVERLAY_GFX(dl++, (((s32)((f32)gGfxScreenLeft * 4.0f) & 0xFFF) << 0xC) | 0xED000000 | ((s32)((f32)gGfxScreenTop * 4.0f) & 0xFFF),
+                      (((s32)((f32)gGfxScreenRight * 4.0f) & 0xFFF) << 0xC) | ((s32)((f32)gGfxScreenBottom * 4.0f) & 0xFFF));
                 gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
                 OVERLAY_GFX(dl++, 0xFCFFFFFF, 0xFFFDF6FB);
                 v = PLAYER_VIEW_BLOCK(i)->unk24C - PLAYER_VIEW_BLOCK(i)->unk220;
@@ -1026,10 +1026,10 @@ void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4,
     *arg0 = dl;
 }
 
-extern s16 D_80744498;
-extern s16 D_8074449C;
-extern s16 D_807444A0;
-extern s16 D_807444A4;
+extern s16 gGfxScreenLeft;
+extern s16 gGfxScreenTop;
+extern s16 gGfxScreenRight;
+extern s16 gGfxScreenBottom;
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
@@ -1043,10 +1043,10 @@ Gfx *gfxFillScreenColor(Gfx *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4) {
         gDPSetPrimColor(arg0++, 0, 0, arg1, arg2, arg3, arg4);
         WRITE_GFX(arg0++, 0xE3000A01, 0);
         WRITE_GFX(arg0++, 0xFCFFFFFF, 0xFFFDF6FB);
-        WRITE_GFX(arg0++, (((s32)((f32)D_80744498 * 4.0f) & 0xFFF) << 0xC) | 0xED000000 | ((s32)((f32)D_8074449C * 4.0f) & 0xFFF),
-                  (((s32)((f32)D_807444A0 * 4.0f) & 0xFFF) << 0xC) | ((s32)((f32)D_807444A4 * 4.0f) & 0xFFF));
-        WRITE_GFX(arg0++, ((D_807444A0 & 0x3FF) << 0xE) | 0xF6000000 | ((D_807444A4 & 0x3FF) * 4),
-                  ((D_80744498 & 0x3FF) << 0xE) | ((D_8074449C & 0x3FF) * 4));
+        WRITE_GFX(arg0++, (((s32)((f32)gGfxScreenLeft * 4.0f) & 0xFFF) << 0xC) | 0xED000000 | ((s32)((f32)gGfxScreenTop * 4.0f) & 0xFFF),
+                  (((s32)((f32)gGfxScreenRight * 4.0f) & 0xFFF) << 0xC) | ((s32)((f32)gGfxScreenBottom * 4.0f) & 0xFFF));
+        WRITE_GFX(arg0++, ((gGfxScreenRight & 0x3FF) << 0xE) | 0xF6000000 | ((gGfxScreenBottom & 0x3FF) * 4),
+                  ((gGfxScreenLeft & 0x3FF) << 0xE) | ((gGfxScreenTop & 0x3FF) * 4));
     }
     WRITE_GFX(arg0++, 0xE7000000, 0);
     return arg0;
@@ -1091,14 +1091,14 @@ void viewportShrinkToCenter(u8 arg0) {
 
     scale = (f32)((f64)(f32)(u32)arg0 / 255.0);
     if (hudCanRender() != 0) {
-        VIEWPORT_INFO->unk272 = (s32)((f32)D_8074449C + ((f32)((gScreenHeight >> 1) - D_8074449C - 1) * scale));
-        VIEWPORT_INFO->unk276 = (s32)((f32)D_807444A4 + ((f32)((gScreenHeight >> 1) - D_807444A4) * scale));
+        VIEWPORT_INFO->unk272 = (s32)((f32)gGfxScreenTop + ((f32)((gScreenHeight >> 1) - gGfxScreenTop - 1) * scale));
+        VIEWPORT_INFO->unk276 = (s32)((f32)gGfxScreenBottom + ((f32)((gScreenHeight >> 1) - gGfxScreenBottom) * scale));
     } else {
         VIEWPORT_INFO->unk272 = (s32)((f32)D_807444AC + ((f32)((gScreenHeight >> 1) - D_807444AC - 1) * scale));
         VIEWPORT_INFO->unk276 = (s32)((f32)D_807444B0 + ((f32)((gScreenHeight >> 1) - D_807444B0) * scale));
     }
-    VIEWPORT_INFO->unk270 = (s32)((f32)D_80744498 + ((f32)((gScreenWidth >> 1) - D_80744498 - 1) * scale));
-    VIEWPORT_INFO->unk274 = (s32)((f32)D_807444A0 + ((f32)((gScreenWidth >> 1) - D_807444A0) * scale));
+    VIEWPORT_INFO->unk270 = (s32)((f32)gGfxScreenLeft + ((f32)((gScreenWidth >> 1) - gGfxScreenLeft - 1) * scale));
+    VIEWPORT_INFO->unk274 = (s32)((f32)gGfxScreenRight + ((f32)((gScreenWidth >> 1) - gGfxScreenRight) * scale));
     VIEWPORT_INFO->unk27A = VIEWPORT_INFO->unk276 - VIEWPORT_INFO->unk272;
     VIEWPORT_INFO->unk278 = VIEWPORT_INFO->unk274 - VIEWPORT_INFO->unk270;
     VIEWPORT_INFO->unk280 = (f32)VIEWPORT_INFO->unk278 / (f32)VIEWPORT_INFO->unk27A;

@@ -76,10 +76,10 @@ u8 type;
 extern u8 D_1000118;
 extern u8 D_2000140;
 extern u32 gFrameDelta;
-extern s16 D_80744498;
-extern s16 D_8074449C;
-extern s16 D_807444A0;
-extern s16 D_807444A4;
+extern s16 gGfxScreenLeft;
+extern s16 gGfxScreenTop;
+extern s16 gGfxScreenRight;
+extern s16 gGfxScreenBottom;
 extern s32 D_80747B24;
 extern f32 D_807F5D90;
 extern Mtx D_807F5D98;
@@ -117,7 +117,7 @@ Gfx *screenWipeDraw(Gfx *glist) {
         WIPE_GFX(0xE7000000, 0);
         WIPE_GFX(0xE3001201, 0);
         WIPE_GFX(0xE3001801, 0xC0);
-        WIPE_GFX(((s32)(D_80744498 * 4.0f) & 0xFFF) << 12 | 0xED000000 | ((s32)(D_8074449C * 4.0f) & 0xFFF), ((s32)(D_807444A0 * 4.0f) & 0xFFF) << 12 | ((s32)(D_807444A4 * 4.0f) & 0xFFF));
+        WIPE_GFX(((s32)(gGfxScreenLeft * 4.0f) & 0xFFF) << 12 | 0xED000000 | ((s32)(gGfxScreenTop * 4.0f) & 0xFFF), ((s32)(gGfxScreenRight * 4.0f) & 0xFFF) << 12 | ((s32)(gGfxScreenBottom * 4.0f) & 0xFFF));
         WIPE_GFX(0xE200001C, 0x504240);
         switch (D_807F5D85) {
             case 7:

@@ -411,7 +411,7 @@ typedef struct MidpointOrbitState {
 #define ORBIT_ACTOR ((MidpointOrbitActorView *)gCurrentActor)
 
 void billboardSetFlags(s16);
-void func_8067ACB4(Actor *);
+void actorUpdatePrevContactFlags(Actor *);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
@@ -442,7 +442,7 @@ void actorMidpointOrbitUpdate(void) {
         }
         sub->unk8 = gCurrentActor->splineT;
     }
-    func_8067ACB4(gCurrentActor);
+    actorUpdatePrevContactFlags(gCurrentActor);
     ratio = (sub->unk8 / gCurrentActor->splineT) * -4096.0 + 4096.0;
     sub->unk6 = gCurrentActor->yawSpeed + ratio;
     gCurrentActor->x = mathSinF(sub->unk6) * ORBIT_ACTOR->unkEC + sub->unk0;

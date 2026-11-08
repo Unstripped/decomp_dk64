@@ -175,7 +175,7 @@ void bossPufftossBobStep(void) {
     gCurrentActor->unk80 += 8.0 * (f64)mathSinF((s16)((f64)gFrameCounter * 200.0));
 }
 void *actorFindByType(s32);
-void func_8067AB20(void *, void *, s32, s32, void *, s32);
+void actorAppendCallbackMemcpy8(void *, void *, s32, s32, void *, s32);
 
 void bossPufftossNotifyLaser(u8 targetIndex) {
     void *target;
@@ -185,27 +185,27 @@ void bossPufftossNotifyLaser(u8 targetIndex) {
     case 0:
         target = actorFindByType(0x61);
         if (target != NULL) {
-            func_8067AB20(gCurrentActor, target, 0x01000000, 1, targetPos, 0);
+            actorAppendCallbackMemcpy8(gCurrentActor, target, 0x01000000, 1, targetPos, 0);
         }
         break;
     case 1:
         target = actorFindByType(0x60);
         if (target != NULL) {
-            func_8067AB20(gCurrentActor, target, 0x01000000, 1, targetPos, 0);
+            actorAppendCallbackMemcpy8(gCurrentActor, target, 0x01000000, 1, targetPos, 0);
         }
         target = actorFindByType(0x61);
         if (target != NULL) {
-            func_8067AB20(gCurrentActor, target, 0x01000000, 3, targetPos, 0);
+            actorAppendCallbackMemcpy8(gCurrentActor, target, 0x01000000, 3, targetPos, 0);
         }
         break;
     case 2:
         target = actorFindByType(0x60);
         if (target != NULL) {
-            func_8067AB20(gCurrentActor, target, 0x01000000, 1, targetPos, 0);
+            actorAppendCallbackMemcpy8(gCurrentActor, target, 0x01000000, 1, targetPos, 0);
         }
         target = actorFindByType(0x61);
         if (target != NULL) {
-            func_8067AB20(gCurrentActor, target, 0x01000000, 2, targetPos, 0);
+            actorAppendCallbackMemcpy8(gCurrentActor, target, 0x01000000, 2, targetPos, 0);
         }
         break;
     }
