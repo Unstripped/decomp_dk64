@@ -561,7 +561,7 @@ void func_8070D9AC(ChainNode *);
 void func_8070E808(Actor *, void *);
 
 
-void textBoxUpdateRows(Actor *arg0) {
+void textBoxUpdateRows(Actor *actor) {
     ChainState *state;
     ChainNode *node;
     ChainNode *cur;
@@ -574,7 +574,7 @@ void textBoxUpdateRows(Actor *arg0) {
     u8 last;
     s32 i;
 
-    state = arg0->unk174;
+    state = actor->unk174;
     node = state->unkC;
     stop = 0;
     lim = (f32) ((f64) (1.0f - state->unk20) * 1.47058823529411775);
@@ -582,11 +582,11 @@ void textBoxUpdateRows(Actor *arg0) {
         lim = 1.0f;
     }
     state->unk40 = lim;
-    mathAddWaveOffset(&arg0->x, &arg0->y, state->unk20, lim, (MotionAngles *) state);
-    state->unk44 = arg0->x - (f64) (state->unk20 * 136.8f) * 0.5;
-    state->unk48 = arg0->y - (f64) (state->unk20 * 79.799995f) * 0.5;
-    state->unk4C = arg0->x + (f64) (state->unk20 * 136.8f) * 0.5;
-    state->unk50 = arg0->y + (f64) (state->unk20 * 79.799995f) * 0.5;
+    mathAddWaveOffset(&actor->x, &actor->y, state->unk20, lim, (MotionAngles *) state);
+    state->unk44 = actor->x - (f64) (state->unk20 * 136.8f) * 0.5;
+    state->unk48 = actor->y - (f64) (state->unk20 * 79.799995f) * 0.5;
+    state->unk4C = actor->x + (f64) (state->unk20 * 136.8f) * 0.5;
+    state->unk50 = actor->y + (f64) (state->unk20 * 79.799995f) * 0.5;
     state->unk44 = ((f32) gPlayerSlots->unk270 < state->unk44) ? state->unk44 : (f32) gPlayerSlots->unk270;
     state->unk48 = ((f32) gPlayerSlots->unk272 < state->unk48) ? state->unk48 : (f32) gPlayerSlots->unk272;
     state->unk4C = (state->unk4C < (f32) gPlayerSlots->unk274) ? state->unk4C : (f32) gPlayerSlots->unk274;
@@ -596,11 +596,11 @@ void textBoxUpdateRows(Actor *arg0) {
     while (((s32) state->unk10 >= i) && (node != NULL) && (stop == 0)) {
         last = (i == state->unk10);
         dt = node->unk18;
-        if (((f64) (acc + dt) > 73.79999542236328) && (arg0->state == 1)) {
-            arg0->state = 2;
+        if (((f64) (acc + dt) > 73.79999542236328) && (actor->state == 1)) {
+            actor->state = 2;
             state->unk18 = (f32) ((f64) (acc + dt) - 73.79999542236328);
             stop = 1;
-        } else if (((acc + dt) < 0.0f) && (arg0->state == 2)) {
+        } else if (((acc + dt) < 0.0f) && (actor->state == 2)) {
             state->unk14 = state->unk14 + dt;
             state->unkC = node->unk1C;
             state->unk10--;
@@ -610,7 +610,7 @@ void textBoxUpdateRows(Actor *arg0) {
             node = node->unk1C;
             func_8070D9AC(cur);
         } else {
-            textBoxRowUpdateNodes(acc, (ActorStateView *) arg0, (SpriteChainState *) state, (SpriteHolder *) node, last, &stop);
+            textBoxRowUpdateNodes(acc, (ActorStateView *) actor, (SpriteChainState *) state, (SpriteHolder *) node, last, &stop);
             if (stop == 0) {
                 node = node->unk1C;
                 acc = acc + dt;
@@ -618,18 +618,18 @@ void textBoxUpdateRows(Actor *arg0) {
         }
         i++;
     }
-    mode = arg0->state;
+    mode = actor->state;
     if (mode == 3) {
         if (state->unk12 != 0) {
             state->unk12 = state->unk12 - 1;
-            mode = arg0->state;
+            mode = actor->state;
         } else {
-            mode = arg0->state = 1;
+            mode = actor->state = 1;
             if (acc && acc) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         }
     }
     if ((mode == 1) && (node == NULL)) {
-        func_8070E808(arg0, state->unk4);
+        func_8070E808(actor, state->unk4);
     }
 }
 
@@ -883,14 +883,14 @@ Gfx *textBoxRender(Gfx *, Actor *);
 
 void textBoxUpdate(void) {
     SpriteBehaviour *sub;
-    f32 sp18;
+    f32 stepSize;
     s32 v0;
     f32 f;
 
     sub = gCurrentActor->unk174;
-    sp18 = 0.05f;
+    stepSize = 0.05f;
     if (!(gCurrentActor->flags & 0x10)) {
-        sp18 = 1.0f;
+        stepSize = 1.0f;
         sub->unk34 = heapAlloc(0x280);
         sub->unk55 = 0;
     } else {
@@ -968,7 +968,7 @@ void textBoxUpdate(void) {
     }
     if (gCurrentActor->state != 5) {
         sub->unk20 = (f32)sub->unk0 * 0.033333335f;
-        textBoxUpdatePosition(gCurrentActor, sub, sp18);
+        textBoxUpdatePosition(gCurrentActor, sub, stepSize);
         if (sub->unk0 != 0) {
             textBoxUpdateRows(gCurrentActor);
             renderCallbacksRegister(textBoxRender, gCurrentActor, 3);
