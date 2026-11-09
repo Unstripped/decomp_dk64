@@ -331,7 +331,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
     f32 dz;
     f32 distToWaypoint;
     s32 pad_g48;
-    volatile u8 subFlag;
+    u8 subFlag;
     u8 prevTargetState;
     u8 prevSubPhase;
     f32 lo;
@@ -405,7 +405,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
                     s0->unk35 += 1;
                     break;
                 case 4:
-                    if (subFlag != 0) {
+                    if (subFlag) {
                         actorScriptStart(gCurrentActor, 0x2A2);
                         s0->unk35 += 1;
                         G2_F(0xC4) = -30.0f;
