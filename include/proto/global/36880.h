@@ -178,7 +178,7 @@ void modelQuadBuildOutput(struct ModelQuadOwner *, f32, f32, f32, f32, f32, f32,
 void modelSlotLoadAssetTextures(u8 *, struct ModelSlotAsset *);
 #endif
 #ifndef PROTO_SKIP_modelSlotClearAssetTextures
-void modelSlotClearAssetTextures(s32, u8 *);
+void modelSlotClearAssetTextures(s32, struct ModelSlotAsset *);
 #endif
 #ifndef PROTO_SKIP_modelSlotsFreeAll
 void modelSlotsFreeAll(void);
