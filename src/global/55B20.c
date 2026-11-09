@@ -2998,12 +2998,7 @@ extern s32 D_807F7290;
 extern s32 gFrameCounter;
 
 
-void mapSearchTableAddProbe(arg0, arg1, arg2, arg3)
-s32 arg0;
-s16 arg1;
-s16 arg2;
-s16 arg3;
-{
+void mapSearchTableAddProbe(void *arg0, s16 arg1, s16 arg2, s16 arg3) {
     s32 i;
     s32 found;
     MapSearchEntry *p;
@@ -3021,7 +3016,7 @@ s16 arg3;
         p = &((MapSearchEntry *)&D_807F7290)[i];
         p->unk10 = 1;
         p->unkC = gFrameCounter;
-        p->unk0 = arg0;
+        p->unk0 = (s32)arg0;
         p->unk4 = arg1;
         p->unk6 = arg2;
         p->unk8 = arg3;

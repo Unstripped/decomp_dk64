@@ -3134,7 +3134,7 @@ Gfx *renderModelQuadGfx(RenderQuadModelObj *obj, Gfx *gfx, f32 camX, f32 camY, f
     }
     if (obj->unk4E & 8) {
         camProjectToScreen(obj->unk0, obj->unk4, obj->unk8, &screenX, &screenY, 0, 1.0f, gCurrentPlayerIndex);
-        mapSearchTableAddProbe(obj, (s16)screenX, (s16)screenY, (s16)dist);
+        mapSearchTableAddProbe(obj, screenX, screenY, dist);
         if (mapSearchTableGetValue(obj) != 0) {
             return gfx;
         }

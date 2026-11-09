@@ -233,7 +233,7 @@ s16 mapObjectCollectIdsByType();
 void mapSearchTableReset(void);
 #endif
 #ifndef PROTO_SKIP_mapSearchTableAddProbe
-void mapSearchTableAddProbe();
+void mapSearchTableAddProbe(void *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_mapSearchTableUpdateVisibility
 void mapSearchTableUpdateVisibility(void);
