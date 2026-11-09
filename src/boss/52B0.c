@@ -22,8 +22,8 @@ typedef struct {
 extern BossB_ActorBB40 *gCurrentActor;
 extern BossB_ActorBB44 *gSpawnedActor;
 
-void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void projectileSpawnWithShockwave(s16, f32, u8, u8, u8, u8, f32, f32, f32, f32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 
@@ -38,9 +38,9 @@ void bossMadJackSpawnShockwave(f32 scale) {
 
 
 s32 randomNonNegative(void);
-void effectSetDepth(s32);
-void effectSetMode(s32);
-void effectSetColor(s32, s32, s32, s32);
+void effectSetDepth(s8);
+void effectSetMode(s8);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void bossMadJackSpawnSparkles(void) {
@@ -133,29 +133,29 @@ extern Boss3F_52B0_D580 *gActivePlayerState;
 extern Boss3F_52B0_DC90 *gBehaviourWorkState;
 extern Boss3F_52B0_DC94 *gBehaviourTargetActor;
 extern Boss3F_52B0_DC98 *gBehaviourAnimState;
-void bossScriptStep(u8 *, s32, f32);
+u8 bossScriptStep(u8 *, u16, f32);
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 void actorScriptStart(void *, s32);
-s32 camIsCutsceneActive(void);
-void camStartPath(void *, s32, s32);
+u8 camIsCutsceneActive(void);
+u16 camStartPath(void *, s16, u8);
 s32 currentActorTestClearFlag(void);
 void actorUpdateModelMatrix(void *, s32);
 void csModelStateSetFirstByte();
-void lightSetColor(f32, f32, f32, s32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+void lightSetColor(f32, f32, f32, s16);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void effectSpawnJointBeam(s32, s32, s32, s32);
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileGetTargetCoords(void *, s32);
-void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
-void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
+void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
+void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, s32);
 void actorAppendActiveCallback8(void);
 s32 mathAngleSignedDistance(s16, s16);
 s32 mathAngleDistance(s16, s16);
 s32 func_80724A20(void);
 void behaviourFrameBegin(void);
-void actorMoveWithinZone(s32, f32, f32, s32, f32);
+u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void actorTurnTowardActorYaw(s32, void *);
 
 #define ACTOR ((Boss3F_52B0_Actor *)gCurrentActor)
