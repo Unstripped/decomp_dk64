@@ -142,8 +142,7 @@ typedef struct ScriptLoadState {
 
 void actorScriptStart(Actor *actor, s32 scriptId) {
     ScriptLoadState *state;
-    unsigned int base;
-    s32 script;
+    u8 *base;
 
     state = (ScriptLoadState *)actor->sub4;
     state->unk70 = 0;
@@ -158,11 +157,10 @@ void actorScriptStart(Actor *actor, s32 scriptId) {
         return;
     }
     state->unk64 = scriptId;
-    base = (s32)gActorScriptAsset;
-    script = (long long)(*(s32 *)(base + (scriptId * 4)) + base); // FAKE: s64 round-trip gives the sum its own temp (t9) with base kept in v1
-    state->unk68 = (u8 *)script;
-    state->unk6C = (u8 *)script;
-    sScriptPc = (u8 *)script;
+    base = gActorScriptAsset;
+    state->unk68 = base + ((s32 *)base)[scriptId];
+    state->unk6C = state->unk68;
+    sScriptPc = state->unk68;
 }
 
 void scriptReadU8(void *dst) {

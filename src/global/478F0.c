@@ -2227,7 +2227,7 @@ extern s16 D_807481F6[];
 extern u8 D_80748212[];
 
 typedef struct CsPairState {
-    /* 0x0 */ s32 unk0;
+    /* 0x0 */ s32 reserved;
     /* 0x4 */ s32 lastValue;
 } CsPairState;
 
@@ -2239,7 +2239,7 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
     if (cs->data == NULL) {
         st = heapAlloc(8);
         cs->data = st;
-        st->unk0 = 0;
+        st->reserved = 0;
         st->lastValue = 0;
     }
     st = cs->data;
@@ -3040,10 +3040,14 @@ void csCmdSpawnFourNodeEntries(CsState *cs, s16 csId, s16 b, s16 c) {
     effectCreateAtPosition(sEffectSparkConfig, 2.5f, gCsPosX, gCsPosY + 30.0f, gCsPosZ);
 }
 
-typedef struct CsShake {
-    /* 0x0 */ s32 unk0;
-    /* 0x4 */ s32 unk4;
-} CsShake;
+typedef struct CsShakeCounter {
+    /* 0x0 */ s32 armed;
+    /* 0x4 */ s32 shakesLeft;
+} CsShakeCounter;
+typedef struct CsAnimPair {
+    /* 0x0 */ s32 lastAnimA;
+    /* 0x4 */ s32 lastAnimB;
+} CsAnimPair;
 
 void csCmdCamShakeOnAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 pad[4];
@@ -3051,28 +3055,28 @@ void csCmdCamShakeOnAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 anim;
     f32 animT;
     u8 animFlag;
-    CsShake *p;
+    CsShakeCounter *p;
     PlayerState *ps;
 
     ps = gPlayerSlots->unk4->customState;
     if (cs->data == NULL) {
         p = heapAlloc(8);
         cs->data = p;
-        p->unk0 = 0;
-        p->unk4 = 0;
+        p->armed = 0;
+        p->shakesLeft = 0;
     }
     p = cs->data;
     modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
     if (anim == 0) {
-        p->unk4 = 10;
+        p->shakesLeft = 10;
     }
     if (anim == 2 && animT >= 0.8) {
-        if (p->unk4 != 0) {
+        if (p->shakesLeft != 0) {
             camStartShakeFromPoint(ps->camActor, 4, 0xB, gCsPosX, gCsPosY, gCsPosZ, 200.0f, 600.0f);
-            p->unk4--;
+            p->shakesLeft--;
         }
     } else {
-        p->unk0 = 0;
+        p->armed = 0;
     }
     if (anim == 2) {
         cs->unk6E = 1;
@@ -3145,28 +3149,28 @@ void csCmdCameraShakeOnModelAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 anim;
     f32 animT;
     u8 animFlag;
-    CsShake *p;
+    CsAnimPair *p;
 
     if (cs->data == NULL) {
         p = heapAlloc(8);
         cs->data = p;
-        p->unk0 = 0;
-        p->unk4 = 0;
+        p->lastAnimA = 0;
+        p->lastAnimB = 0;
     }
     p = cs->data;
     modelAnimEntryGetState(csId, 2, &anim, &animT, &animFlag);
     anim = (f32)anim + animT;
     if (anim == 0x28 || anim == 0x32) {
-        if (anim != p->unk0) {
-            p->unk0 = anim;
+        if (anim != p->lastAnimA) {
+            p->lastAnimA = anim;
             modelSlotGetNodePos(csId, 1, 3, &x, &y, &z);
             sfxPlayAtPositionPooled(x, y, z, 0x32, 0xFF, 0x7F, 0xA, 0x50, 0.3f, 0);
         }
     }
     modelAnimEntryGetState(csId, 3, &anim, &animT, &animFlag);
     if (anim == 0x14 || anim == 0x18) {
-        if (anim != p->unk4) {
-            p->unk4 = anim;
+        if (anim != p->lastAnimB) {
+            p->lastAnimB = anim;
             modelSlotGetNodePos(csId, 1, 2, &x, &y, &z);
             sfxPlayAtPositionPooled(x, y, z, 0x332, 0xFF, 0x7F, 0, 0x50, 0.3f, 0);
         }
