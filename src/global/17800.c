@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/17800.h"
 
 f32 powfInt(f32 base, s16 exp) {
     f32 result;

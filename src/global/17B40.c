@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/17B40.h"
 
 f32 floatCeil(f32 val) {
     s32 intVal;

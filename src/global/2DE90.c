@@ -1,4 +1,11 @@
 #include "common.h"
+#include "proto/boot/3630.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/10E1D0.h"
+#include "proto/global/15050.h"
+#include "proto/global/2DE90.h"
+#include "proto/global/450.h"
+#include "proto/global/69E60.h"
 
 extern s8 D_807F5D84;
 
@@ -26,9 +33,6 @@ extern s16 D_807F5D88;
 extern f32 D_807F5D8C;
 extern f32 D_807F5D94;
 extern u16 *D_807F5D80;
-void *heapAlloc(s32);
-void blurBuildDivTable(void);
-void fbCopySetAlpha(void *, s32);
 
 void screenWipeStart(type)
 u8 type;
@@ -84,14 +88,6 @@ extern s32 D_80747B24;
 extern f32 D_807F5D90;
 extern Mtx D_807F5D98;
 extern s32 gGlobalPauseFlags;
-Gfx *gfxInit2DDisplayList(Gfx *);
-void heapFreeDeferred(void *);
-void screenBlurApply(void);
-void screenWipeAlphaRadialSweep(s32, s32, s32);
-void screenWipeAlphaFromCorner(s32, s32, s32);
-void screenWipeAlphaFromCentre(s32, s32, s32);
-void gfxDrawTexturedTileGridDefault(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32);
-void gfxDrawTexturedTileGrid(Gfx **, void *, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32, s32, void *);
 
 Gfx *screenWipeDraw(Gfx *glist) {
     s32 stepScale;
@@ -217,8 +213,6 @@ Gfx *screenWipeDraw(Gfx *glist) {
     return glist;
 }
 
-f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
-void vtxSetColor(s32, s32, s32, s32, s32, s32);
 
 void screenWipeAlphaRadialSweep(s32 x, s32 y, s32 vtx) {
     f32 ang;
@@ -245,7 +239,6 @@ void screenWipeAlphaRadialSweep(s32 x, s32 y, s32 vtx) {
 
 f32 sqrtf(f32);
 
-void screenWipeAlphaByDistance(s32 x, s32 y, s32 vtx, s32 originX, s32 originY);
 
 void screenWipeAlphaFromCorner(s32 x, s32 y, s32 vtx) {
     screenWipeAlphaByDistance(x, y, vtx, 0, 0);
@@ -291,7 +284,6 @@ void blurBuildDivTable(void) {
 extern s32 D_80747B30;
 extern s32 D_80747B34;
 extern s32 D_80747B3C;
-void heapFree(void *);
 
 void screenBlurApply(void) {
     u16 *src;
@@ -387,7 +379,6 @@ void screenBlurApply(void) {
 
 extern u8 D_80747B40;
 extern u8 *D_807F5DD8;
-void *_memset(u8 *, s32, u32);
 
 void screenBufferAllocate(void) {
     if (D_80747B40 == 0) {

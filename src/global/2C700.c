@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/2C700.h"
 
 extern f32 D_807F5D30[16];
 

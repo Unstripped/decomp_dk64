@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/144E00.h"
 
 typedef struct SynAllocAcmd {
     u32 w0;
@@ -14,8 +15,6 @@ typedef struct SynAllocSave {
     s32 flags;
 } SynAllocSave;
 
-extern SynAllocAcmd *n_alAdpcmPull(void *, s16 *, s32, SynAllocAcmd *);
-extern s32 _decodeChunk(void *, s32, void *);
 
 SynAllocAcmd *n_alSavePull(SynAllocSave *filter, s16 *outp, SynAllocAcmd *p) {
     SynAllocAcmd *result = p;

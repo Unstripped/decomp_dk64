@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/14CF0.h"
 
 extern u8 D_80741F40[];
 extern u8 D_807432D0[];

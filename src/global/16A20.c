@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/16A20.h"
 
 extern u16 D_80746A50[];
 extern u16 D_80746ACC[];
@@ -41,7 +42,6 @@ s32 mathFixedPointInterp(s32 inputVal) {
     return val - (((s32)(((u32)diff) * masked)) >> shift);
 }
 
-s32 mathFixedPointInterp(s32);
 
 s32 acosFixed16(s16 val) {
     s32 absVal;

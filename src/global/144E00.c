@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/144E00.h"
 
 struct AdpcmNMAcmd;
 struct AdpcmNMLoadFilter;
@@ -31,7 +32,6 @@ typedef struct AdpcmFilter {
     s32 unk3C;
 } AdpcmFilter;
 
-struct AdpcmNMAcmd *alLoadParam(struct AdpcmNMAcmd *ptr, struct AdpcmNMLoadFilter *filter, s32 samples, s32 count, s16 out, s16 state, s32 flags);
 
 struct AdpcmNMAcmd *n_alAdpcmPull(AdpcmFilter *filter, s16 *outp, s32 count, struct AdpcmNMAcmd *cmdList) {
     AdpcmAcmd *cmd;

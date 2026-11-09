@@ -1,6 +1,7 @@
 #include "common.h"
+#include "proto/global/16550.h"
+#include "proto/global/16A20.h"
 
-s32 acosFixed16(s16);
 
 f32 acosApprox(f32 val) {
     s16 fixedVal;
@@ -15,7 +16,6 @@ f32 acosApprox(f32 val) {
     return ((f32)(u32)acosFixed16(fixedVal) * 3.141592741f) / 65535.0f;
 }
 
-s16 asinFixed16(s16);
 
 f32 asinApprox(f32 val) {
     s16 fixedVal;

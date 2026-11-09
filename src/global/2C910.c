@@ -1,5 +1,36 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_csModelStateSetFirstByte // FAKE: callee prototype steer
+#define PROTO_SKIP_textSpawnMarkerChecked // FAKE: callee prototype steer
+#include "proto/boot/3630.h"
+#include "proto/global/100180.h"
+#include "proto/global/10E1D0.h"
+#include "proto/global/112080.h"
+#include "proto/global/117190.h"
+#include "proto/global/126260.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/1332B0.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
+#include "proto/global/2DE90.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/55B20.h"
+#include "proto/global/63EC0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/9DD70.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/F56F0.h"
 
 extern Actor *gSpawnedActor;
 
@@ -26,13 +57,7 @@ void actorSetTintFromPalette(u8 arg0) {
     gSpawnedActor->tintB = D_80757F70[arg0].b;
 }
 
-u8 *_strchr(u8 *, s32);
-u32 _strcspn(u8 *, char *);
-u8 *_strncpy(u8 *, u8 *, u32);
-s32 textGetStringWidth();
-u8 *textTableGetString(s32, s32, s32);
 void textSpawnMarkerChecked(s32, s32, s32, u8 *, s32, s32, s32, s32); // FAKE: callee prototype steer
-u32 strlen(u8 *);
 
 void textSpawnSubtitle(arg0, arg1, arg2)
 u8 arg0;
@@ -74,7 +99,6 @@ u8 arg2;
 }
 
 extern Actor *gPrimaryPlayerActor;
-Actor *spawnNodeActivate(s16, u16);
 
 Actor *actorFromSpawnNodeOrDefault(s16 arg0) {
     Actor *v;
@@ -107,66 +131,8 @@ extern s32 gGlobalCutsceneFlags;
 extern void *gPlayerSlots;
 extern f32 gScreenFadeRate;
 
-void actorClearMovementFlags(void *);
-s32 actorFindActiveByType(s16, void *);
-void actorScriptStart(void *, s32);
-s32 actorSpawn(s32, s32);
-void commandSetFlags(s8, s8);
-void commandSetParameters(s16, s16, s16, u8, u8, u8);
-void effectNodeSetTargetPosition(s32, f32, f32, f32);
 void func_80028EE8(s32, s32, s32, s32, s32, s32, s32, s32);
-void mapRequestTransition(s32, s32);
-void mapTransitionToMenuOrPrevious(void);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-void controllerAnimSetState(void *, s16, f32, f32);
-void controllerStepMotionWindows(void *);
-void actorCheckWorldBounds(void *);
-void scriptSetActorRampTarget(void *, f32, f32);
-u8 camCueTimerIsRunning(void);
-s32 camSetFlags(s32, s32);
-void camPausePath(void);
-void camSetPathLookAhead(s16);
-void camSetPathLookActor(void *, s16);
-void camSetPath(u8);
-void camLoopPathStep(u8, u8);
-void camSetRollBlend(s16, s16, u16);
-void camStartShake(s32, u8, u16);
-void screenWipeStart();
-void actorUpdateModelMatrix(void *, u8);
-void csModelStateSetFirstByte();
-void csSendActorMessagePayload(s16, s16);
-void actorAppendCallbackPayloadA69C(s32, void *, f32, f32, u8, u8);
-void actorAppendCallbackMemcpy8(s32, void *, s32, u8, void *, u8);
-void actorCopyPoseAndScale(void *, void *, f32);
-void func_80687C48(void);
-void playerSetKongByActorType(s16);
-void playerResumeLocomotion(void *);
-void playerKongStopSoundByState(void *);
-void playerWaypointPathStartPacked(s32, s32, s16, s16);
-void transitionSetState(u8);
-void resQueueAttachActor(void *, s32, u8);
-void resQueueSetValue(s8);
-void menuTransitionToMap(s32, s32);
-void menuSetTransitionTypeBFlag(void);
-void menuTransitionToCreditsOrMap28(s32);
-void playerRefillHealth(void *, s32);
-void func_80713EB0(s32, s32, s32);
-void func_80724994(u8, s16, s16, s16, s16);
-void zoneEntrySpawnEffect(s16, s16, s16, s16);
-void func_80729AA4(u8);
-void mapChunkEffectSetFlag(s16, s16, u8, u8);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void *n_alSndpPlay(void *, s16, u16, u8, f32, u8, void *);
-void n_alSndpStop(s32);
-s32 playerStateQueueCallback(s16, void *, u8);
-void sfxAllocateChannel(s32, f32);
-void sfxPlayActorSound(void *, s16, u8, u8, u8, u8, f32, s8);
-void sfxSetMode(s32);
-void sfxStopChannel(s32, s32);
-void sfxStopSlotSound(void *, u8);
-void *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
-void spawnNodesSetActorStateByFlag(u16, u8);
-void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
+void csModelStateSetFirstByte(); // FAKE: callee prototype steer
 
 void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
     s16 spA0[4];

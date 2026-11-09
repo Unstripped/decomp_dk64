@@ -1,5 +1,13 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
+#include "proto/global/15050.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/8CA50.h"
 
 extern s16 D_807FBB30;
 extern s16 D_807FBB32;
@@ -11,8 +19,6 @@ typedef struct ControllerView {
 } ControllerView;
 
 
-void *controllerAnimStateLoadAsset();
-void controllerAnimFreeSub();
 
 typedef struct ControllerStateEntryView {
     u16 unk0;
@@ -41,11 +47,6 @@ extern void *D_807FB634;
 void *assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
 extern u8 D_80746B64[];
 
-void animListInit(void *, void *);
-void controllerBuildSubcommandList();
-void renderReplaceSegment6Commands();
-void controllerCommandRelocateAssets();
-void gfxSwapGeometryModeCullBits();
 
 void *controllerAnimStateLoadAsset(controller, assetId, cullSwap)
 void *controller;
@@ -183,7 +184,6 @@ typedef struct ControllerSubNode {
     struct ControllerSubNode *next;
 } ControllerSubNode;
 
-void *heapAlloc(s32);
 
 void controllerBuildSubcommandList(ControllerSubCmd *cmdStart, ControllerSubCmd *cmdEnd, ControllerSubNode **pNodeList) {
     ControllerSubCmd *curr;
@@ -322,8 +322,6 @@ typedef struct ControllerAnimView {
     ControllerAnimData *unk4;
 } ControllerAnimView;
 
-void animListFree(void *);
-void heapFreeDeferred();
 
 typedef struct {
     void *unk0;
@@ -508,7 +506,6 @@ typedef struct {
     ControllerCmdListB *commands;
 } ControllerSubB;
 
-void assetFreeBuffer(void *, s32, s32);
 
 struct AnimCacheEntry {
     s32 id;
@@ -641,7 +638,6 @@ typedef struct AnimScaleState { u8 pad[0x14]; f32 a; f32 b; } AnimScaleState;
 typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } AnimScaleSpan;
 typedef struct { AnimScaleState *state; u8 pad[4]; AnimScaleSpan *scale; } AnimScaleHolder;
 typedef struct AnimScaleController { u8 pad[4]; AnimScaleHolder *holder; } AnimScaleController;
-void controllerApplyMotionWindow(AnimScaleController *controller, AnimScaleState *scaleState, f32 timePos);
 
 void controllerAnimScaleInterpolate(AnimScaleController *controller, s8 offset) {
     f32 temp;
@@ -665,7 +661,6 @@ typedef struct {
 
 extern u16 *gActorScriptAnimTable;
 struct ControllerStateView;
-void controllerAnimSetStateIfChanged(struct ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend);
 
 void controllerAnimSetStateRemap(struct ControllerStateView *stateView, s16 animIndex, f32 animSpeed, f32 blend) {
     s16 flag;
@@ -682,7 +677,6 @@ void controllerAnimSetStateRemap(struct ControllerStateView *stateView, s16 anim
     controllerAnimSetStateIfChanged(stateView, animIndex, animSpeed, blend);
 }
 
-void controllerAnimSetState(struct ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend);
 
 void controllerAnimSetStateRemapDirect(struct ControllerStateView *stateView, s16 animIndex, f32 animSpeed, f32 blend) {
     s16 flag;
@@ -717,7 +711,6 @@ typedef struct ControllerStateView {
 } ControllerStateView;
 
 
-void controllerAnimSetState(ControllerStateView *, s16, f32, f32);
 
 void controllerAnimSetStateIfChanged(ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend) {
     ControllerState *state;
@@ -774,7 +767,6 @@ typedef struct {
     s32 unk7C;
     f32 unk80;
 } AnimDataState;
-void *controllerAnimCacheGetOrLoad(s32 id);
 
 void controllerAnimSetState(ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend) {
     void *pad;
@@ -890,7 +882,6 @@ typedef struct ControllerActorTypeView {
 } ControllerActorTypeView;
 extern u16 *gActorScriptAnimTable;
 struct AnimControllerRef;
-void controllerAnimSetDirect(struct AnimControllerRef *controller, u16 animId, f32 animSpeed, u8 flags);
 
 void controllerAnimSetFromTable(ControllerActorTypeView *actorView, u16 animIndex, f32 animSpeed, u8 flags) {
     u16 x = animIndex;
@@ -1019,7 +1010,6 @@ void *controllerAnimCacheGetOrLoad(s32 id) {
 
 extern u32 gFrameDelta;
 extern u8 D_80746B60;
-void actorScriptExecute(void *);
 
 typedef struct {
     void *unk0;
@@ -1330,7 +1320,6 @@ typedef struct ControllerActorView {
 
 extern u8 gGfxBufferIndex;
 void func_806195D0(f32, f32);
-void actorTouchSub140Timestamp();
 void actorCheckWorldBounds(ControllerActorView *actor) {
     f32 x = actor->unk7C;
     if (x >= -8192.0f) {
@@ -1374,8 +1363,6 @@ typedef struct RenderActorView {
     u16 unk146;
 } RenderActorView;
 
-Gfx *animSetSegments(Gfx *, void *);
-Gfx *renderEmitSegmentNodes(Gfx *, RenderActorView *, DisplayListGroup *);
 
 Gfx *renderActorDisplayList(Gfx *gdl, RenderActorView *actor) {
     DisplayListGroup *display = actor->unk0;

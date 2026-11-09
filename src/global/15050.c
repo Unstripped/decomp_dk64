@@ -1,5 +1,9 @@
 #include "common.h"
 #include "heap.h"
+#include "proto/global/136820.h"
+#include "proto/global/15050.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/FE40.h"
 
 extern s32 sHeapReclaimFlag;
 extern u8 sHeapFlags;
@@ -16,11 +20,6 @@ extern u8 *gHeapGuardBlock;
 extern s32 gHeapSurvivorCount;
 extern void *gHeapSurvivorList[];
 
-s32 matrixCacheDecayLimit(void);
-void heapQueueDeferredFree(void *ptr);
-void heapFreeToPool(HeapBlock *block);
-HeapBlock *heapBestFitAlloc(s32 pool, u32 size);
-void heapTickDeferredFrees(void);
 
 typedef struct {
     u32 romStart;
@@ -45,14 +44,6 @@ extern s32 D_807F0980;
 extern s32 D_807F0984;
 extern s32 gHeapUnused5A60;
 
-void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
-void heapSortSurvivors(void);
-void heapMoveWords(u32 src, u32 dst, u32 size);
-void heapRebaseHandles(u32 oldBase, u32 newBase, u32 size);
-s32 heapInitGeneralPool(s32, s32, s32);
-s32 heapInitBlockPool(void *, u8 *, u32, u16);
-void *heapAlloc(u32);
-void heapLockBlock(u8 *ptr);
 
 
 void loadOverlay(u8 arg0, u8 arg1, s32 arg2) {
@@ -336,7 +327,6 @@ s32 heapInitGeneralPool(s32 owner, s32 start, s32 size) {
     return gHeapPoolCount++;
 }
 
-void heapSortPools(void);
 
 s32 heapInitBlockPool(void *owner, u8 *start, u32 size, u16 blockSize) {
     u32 bs;
@@ -462,7 +452,6 @@ s32 heapReleasePool(s32 idx) {
     return 0;
 }
 
-s32 heapReclaimMatrixCache(void);
 extern s32 sHeapReclaimMatrixFlag;
 
 void *heapAlloc(u32 size) { while (1) { // LAYOUT: loop header on the function line; a later .loc line makes as1 schedule the prologue differently
@@ -625,7 +614,6 @@ void heapQueueDeferredFree(void *ptr) {
     gHeapDeferredFreeCount = count + 1;
 }
 
-void heapCoalesce(HeapBlock *block);
 
 void heapFreeToPool(HeapBlock *block) {
     s32 i;
@@ -698,7 +686,6 @@ void heapLockBlock(u8 *ptr) {
     ptr[-5] = 1;
 }
 
-void faultSetMessage(u8, s32, s32, s32);
 
 void heapRegisterSurvivor(u8 **handle) {
     HeapBlock *b;

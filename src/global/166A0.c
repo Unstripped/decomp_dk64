@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/global/16550.h"
+#include "proto/global/166A0.h"
 
 extern s32 sRandomSeed;
 extern u64 __ll_mul(u64, u64);
@@ -13,7 +15,6 @@ void setRandomSeed(s32 seed) {
     sRandomSeed = seed;
 }
 
-s32 randomLcgNext(void);
 
 f32 randomFloat(void) {
     return (f32)(u32)randomLcgNext() * 2.3283064e-10f;
@@ -49,7 +50,6 @@ void mathNudgeCoords(f32 refX, f32 refY, f32 *outX, f32 *outY) {
     }
 }
 
-f32 acosApprox(f32);
 
 f32 mathAtan2(f32 dx, f32 dy) {
     f32 angleA;

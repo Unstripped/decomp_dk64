@@ -1,5 +1,32 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorCopyPoseAndScale // FAKE: callee prototype steer
+#define PROTO_SKIP_camStartShakeFromPoint // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
+#define PROTO_SKIP_mathAngleInArcWithMargin // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_n_alSndpStop // FAKE: callee prototype steer
+#include "proto/global/112080.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/12E800.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/936B0.h"
+#include "proto/global/D5E10.h"
+#include "proto/global/F4C0.h"
+#include "proto/global/FCCD0.h"
 
 extern u8 *sScriptPc;
 extern PlayerState *gActivePlayerState;
@@ -96,7 +123,6 @@ typedef struct ActorTypeView {
 
 extern u16 *gActorScriptIndexTable;
 
-void actorScriptStart(Actor *arg0, s32 arg1);
 
 void actorScriptStartByIndex(Actor *arg0, s32 arg1) {
     s32 index;
@@ -566,11 +592,6 @@ s32 func_806158E8(Actor *arg0) {
 }
 
 
-void controllerAnimSetStateIfChanged(s32, s16, f32, f32);
-void controllerAnimSetStateRemap(s32, s16, f32, f32);
-void controllerAnimSetStateRemapDirect(s32, s16, f32, f32);
-void controllerAnimScaleInterpolate(s32, s8);
-void controllerAnimSetFromTable(s32, u16, f32, u8);
 
 
 s32 scriptOpAnimSetRemapDefault(s32 arg0) {
@@ -589,7 +610,6 @@ s32 scriptOpAnimSetRemapDirectDefault(s32 arg0) {
     return 1;
 }
 
-void controllerAnimSetState(s32, s16, f32, f32);
 
 s32 scriptOpAnimSetStateDefault(s32 arg0) {
     s16 sp1E;
@@ -618,7 +638,6 @@ s32 scriptOpAnimScaleInterpolate(s32 arg0) {
     return 1;
 }
 
-void controllerAnimSetDirect(s32, u16, f32, u8);
 
 s32 scriptOpAnimSetDirect(s32 arg0) {
     u16 sp1E;
@@ -660,7 +679,6 @@ s32 scriptOpAnimSetFromTable(s32 arg0) {
     return 1;
 }
 
-void controllerApplyMotionWindow(Actor *, ScriptValue *, f32);
 
 s32 scriptOpReadRampInterpolation(Actor *arg0) {
     u8 sp27;
@@ -944,7 +962,6 @@ s32 scriptOpCapMotionVelocityMin(Actor *arg0) {
     return 1;
 }
 
-void scriptSetActorRampTarget(Actor *, f32, f32);
 
 s32 scriptOpSetActorRampTarget(Actor *arg0) {
     f32 sp1C;
@@ -962,8 +979,6 @@ typedef struct ScriptCursorView {
     u8 *unk6C;
 } ScriptCursorView;
 
-void actorScriptStartByIndex(Actor *, s32);
-void actorScriptStart(Actor *, s32);
 
 s32 scriptOpCallScriptByIndex(Actor *arg0) {
     u16 sp1E;
@@ -1251,7 +1266,6 @@ s32 scriptOpSetCommandHandler(Actor *arg0) {
     return sScriptContinueRunning;
 }
 
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 
 s32 scriptOpPlaySoundOnFreeSlot(s32 arg0) {
     s16 sp26;
@@ -1387,9 +1401,7 @@ typedef struct ActorSoundPosView {
     f32 unk84;
 } ActorSoundPosView;
 
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-void camStartShakeFromPoint(s32, u8, u16, s32, f32, f32, f32, f32);
-s16 mapActionLookupEntry(s16, Actor *, u8);
+void camStartShakeFromPoint(s32, u8, u16, s32, f32, f32, f32, f32); // FAKE: callee prototype steer
 
 
 s32 scriptOpPlaySoundAndShake(Actor *arg0) {
@@ -1453,8 +1465,7 @@ typedef struct ActorSoundView {
 
 extern s32 D_807457C8;
 
-void n_alSndpStop(s32);
-void sfxPlayFromActorDirect(Actor *, s16, u8, f32, u8, u8);
+void n_alSndpStop(s32); // FAKE: callee prototype steer
 
 s32 func_80617140(Actor *arg0) {
     s16 sp2E;
@@ -1549,7 +1560,6 @@ s32 func_80617400(Actor *arg0) {
     return 1;
 }
 
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 
 s32 func_806174B4(Actor *arg0) {
     f32 sp54;
@@ -1623,7 +1633,6 @@ typedef struct ScriptSoundState {
 } ScriptSoundState;
 
 extern s16 *gActorScriptSoundTable;
-void sfxPlayAtPositionForPlayer(f32, f32, f32, s16, u8, u8, u8, u8, f32);
 
 void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
     u8 pad0, pad1, pad2;
@@ -1655,14 +1664,6 @@ void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
     sfxPlayAtPositionForPlayer(arg0->x, arg0->y, arg0->z, arg1, var_v1, pitch, arg2, temp_v0, 0.3f);
 }
 
-void sfxPlayScriptActorSoundForPlayer(Actor *, s16, u8);
-void sfxStopSlotSound(Actor *, u8);
-void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
-void sfxSetVolumeAndPan(u8, f32, f32);
-void sfxAllocateChannel(s32, f32);
-void sfxStopChannel(s32, u8);
-void resQueueAttachActor(Actor *, s32, u8);
-s32 scriptOpBranchOnCondition(Actor *, s16);
 extern u8 sScriptChannelIndexTable[];
 
 typedef struct ActorStateSubView {
@@ -1961,16 +1962,7 @@ extern Actor *gActivePlayerActor;
 extern u8 gCurrentPlayerIndex;
 extern ProjectileDataView *D_807FD568;
 extern s16 gCurrentCharacterIndex;
-void slotQueueUpdate(s32, u8, s32);
-u16 slotQueueGetValue(u8, u8);
-void slotQueueAddValue(s32, u8, s32);
-s32 actorCountOwnedByClass(Actor *, s32, s32);
-s32 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, u8, u16);
 s32 mathAngleInArcWithMargin(s16, s16, s16, s32);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void projectileSetSpawnFlag(void);
-void projectileGetTargetCoords(Actor *, s32);
-void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
 
 void projectileTrySpawnFromSlot(Actor *arg0) {
     f32 var_fv0;
@@ -2019,33 +2011,16 @@ void projectileTrySpawnFromSlot(Actor *arg0) {
     }
 }
 
-void effectSetSpeed(s32);
-void effectSetCallback(void *);
 void effectSetMode(s32); // FAKE: callee prototype steer
-void effectSetMaxDistance(s16);
-void effectSetDepth(s8);
-void effectSetDuration(s32);
-void effectSetFlags(s16);
 void effectCreateAtActorBone(void *, f32, Actor *, u8, s32); // FAKE: callee prototype steer
 void *effectCreateAtPosition(void *, f32, f32, f32, f32);
-void effectSpawnBone(Actor *, s16, f32, f32, f32, f32, s32);
-void actorGetNodePosOrPosition(Actor *, s32 *, f32 *, f32 *);
-extern void effectDownwardDriftUpdate(void);
-extern void effectUpwardDriftUpdate(void);
-extern void effectSineDriftUpdate(void);
 extern u8 D_8071FE08[];
 extern u8 D_8071FF18[];
-extern void effectOrbitSourceUpdate(void);
 extern s32 gGlobalPauseFlags;
 extern f32 sSavedLightColorR;
 extern f32 sSavedLightColorG;
 extern f32 sSavedLightColorB;
-s32 actorSpawn(s32, s32);
-void actorDespawn(void *);
 void actorCopyPoseAndScale(Actor *, Actor *, s32); // FAKE: callee prototype steer
-void playerClearPitchRollFlags(Actor *);
-void lightGetColor(f32 *, f32 *, f32 *, s16);
-void lightSetColor(f32, f32, f32, s16);
 
 
 typedef struct ActorSpawnState {
@@ -2122,9 +2097,6 @@ void scriptCmdSetActorInteractionTimer(Actor *arg0) {
 extern s32 gGlobalCutsceneFlags;
 extern u8 D_8072006C;
 extern u8 D_80720B58;
-void effectTimedLightIntensityFade(void);
-void effectFloorFallUpdate(void);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 
 void scriptCmdSpawnAttachedActor(Actor *arg0) {
     u8 sp3F;
@@ -2296,9 +2268,6 @@ void scriptCmdSetActorAlpha(Actor *arg0) {
     camStartShakeFromPoint(((GlobalSpawnView *)gActivePlayerState)->unk104, sp2E, sp2F, sp3C, sp38, sp34, (f32)sp32, (f32)sp30);
 }
 
-void actorSpawnEffectChild(f32, f32, f32, f32, f32, Actor *, u8);
-void actorSetNodeFlag();
-void actorClearNodeFlag();
 
 typedef struct GlobalTimerView {
     u8 pad0[0xCA];
@@ -2354,7 +2323,6 @@ void scriptCmdClearActorNodeFlag(Actor *arg0) {
 }
 
 extern void *sScriptEffectSprites[];
-void effectSetAngle(s16);
 
 void scriptCmdSpawnOrbitEffects(Actor *arg0) {
     s32 i;
@@ -2440,8 +2408,6 @@ typedef struct FallingEffectView {
 
 extern u8 D_80750AD0;
 extern void (*sScriptEffectCallbacks[])(void);
-s32 effectFallStateInit(Actor *, void *, u8 *);
-void effectFreeAndUnlink(void *);
 
 void scriptCmdSpawnFallingEffect(Actor *arg0) {
     u16 sp4E;

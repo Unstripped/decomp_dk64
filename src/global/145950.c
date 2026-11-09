@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/global/140600.h"
+#include "proto/global/145D70.h"
 
 typedef struct SynAllocAcmd {
     u32 w0;
@@ -19,8 +21,6 @@ typedef struct SynAllocResample {
 } SynAllocResample;
 
 extern s32 _decodeChunk(void *, s32, void *);
-extern SynAllocAcmd *n_alSavePull(void *, s16 *, SynAllocAcmd *);
-extern void rebuildLowPassCoefficients(void *, f32);
 
 SynAllocAcmd *n_alResamplePull(SynAllocResample *filter, s16 *outp, s32 outCount, SynAllocAcmd *p) {
     SynAllocAcmd *result = p;

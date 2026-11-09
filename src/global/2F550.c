@@ -1,5 +1,32 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_assetFreeBuffer // FAKE: callee prototype steer
+#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
+#define PROTO_SKIP_mapChunkCheckActorCollision // FAKE: callee prototype steer
+#define PROTO_SKIP_mapChunksRender // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_mapSurfaceEffectDraw // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_renderSetSegment6Override // FAKE: callee prototype steer
+#include "proto/global/109660.h"
+#include "proto/global/117190.h"
+#include "proto/global/126260.h"
+#include "proto/global/136820.h"
+#include "proto/global/15050.h"
+#include "proto/global/2F550.h"
+#include "proto/global/35000.h"
+#include "proto/global/36880.h"
+#include "proto/global/41090.h"
+#include "proto/global/42630.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5DE10.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/63810.h"
+#include "proto/global/63EC0.h"
+#include "proto/global/67890.h"
+#include "proto/global/684C0.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/CC800.h"
 
 extern u8 gGfxBufferIndex;
 
@@ -85,7 +112,6 @@ extern f32 D_807F5E20[];
 extern f32 D_807F5E24[];
 extern f32 D_807F5E28[];
 
-s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
 
 void frustumCornersTransformByInverse(Mtx *arg0) {
     f32 sp98[4][4];
@@ -109,8 +135,6 @@ typedef struct PlanePoly {
     /* 0x38 */ f64 d;
 } PlanePoly; /* 0x40 */
 
-void polyFlipWinding(PlanePoly *);
-void planePolyCalcEquation(PlanePoly *);
 
 void frustumOrientPolyNormals(f32 arg0, f32 arg1, f32 arg2, PlanePoly *arg3, f32 *arg4) {
     s32 i;
@@ -244,7 +268,6 @@ typedef struct MapNodeEffects {
     /* 0xC5 */ u8 unkC5;
 } MapNodeEffects;
 
-void mapSurfaceEffectInit(s16);
 
 void mapNodeTreeInitSurfaceEffects(MapNodeEffects *arg0, s32 *arg1) {
     s32 i;
@@ -278,7 +301,6 @@ typedef struct MapOffsetSlot {
 extern MapOffsetSlot *D_807F5FB8;
 extern s32 D_807F5FBC;
 extern u8 D_807F5FC0;
-void *heapAlloc(s32);
 
 void mapOffsetSlotsInit(s32 arg0) {
     s32 i;
@@ -417,13 +439,9 @@ typedef struct MapVisNode {
     struct MapVisNode *unk10;
 } MapVisNode;
 
-void func_8062BB2C(MapBspNode *, MapVisNode *, u8);
 
 extern MapVisNode *D_807F5E60;
 
-void modelPendingCountsReset(void);
-void modelPendingEntriesProcess(void);
-void csFreeTrackedModels(void);
 
 void func_8062BAE4(void) {
     modelPendingCountsReset();
@@ -432,8 +450,6 @@ void func_8062BAE4(void) {
     csFreeTrackedModels();
 }
 
-void modelPendingQueueInsert(MapBspNode *, u8);
-void mapChunkUpdateModelNodes(void);
 
 void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
     MapBspNode *next;
@@ -486,8 +502,6 @@ void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
 
 extern MapBspNode *D_807F5FF4;
 
-u8 func_8062BDB0(void *, MapBspNode *, MapVisNode *, f32, f32, f32, s32);
-s32 collisionTestDynamicActorFloor(void *, s16, f32, f32, f32, s32);
 
 u8 func_8062BCC8(void *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     u8 result;
@@ -576,11 +590,6 @@ extern u8 D_807F5FED;
 extern u8 gCurrentPlayerIndex;
 extern void *gPlayerSlots;
 
-void mapFrameBegin(s32);
-void mapFrameEnd(void);
-f32 cameraStepAspectScale(void);
-Gfx *mapRenderPlayerView(Gfx *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
-ViewportRect *cameraFindViewportEntry(u8);
 
 Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
     s32 i;
@@ -621,13 +630,6 @@ Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
 }
 
 
-void lightFlushQueued(void);
-void mapDistributeEntries(MapBspNode *);
-void renderEntryListFreeTranslucent(void);
-void mapChunkAnimateTextures(u8);
-void mapChunkResetFlags(void);
-void lightApplyToActors(void);
-void effectUpdateNodes(void);
 
 void mapFrameBegin(s32 arg0) {
     lightFlushQueued();
@@ -642,15 +644,6 @@ void mapFrameBegin(s32 arg0) {
     D_807F5FEC = 1;
 }
 
-void mapChunkReleaseAndAdvance(void);
-void mapChunkFreeHiddenBuffers(void);
-void mapChunkFreeIdleBuffers(void);
-void mapChunkUpdateAssetStreaming(void);
-void mapChunkSetIndexOverride(s8);
-void mapSurfaceEffectsUpdate(void);
-void mapOffsetSlotsUpdate(void);
-void modelSlotsStepSegmentCommands(void);
-void displayListFreeQueueProcess(void);
 
 void mapFrameEnd(void) {
     if (gMapChunkCount != 0) {
@@ -702,16 +695,6 @@ extern s32 gGlobalPauseFlags;
 extern Mtx D_2000180;
 
 f32 cosApprox(f32);
-void frustumCalculateCornerRays(f32, f32, f32);
-void planeFromTwoPoints(f32, f32, f32, f32, f32, f32);
-void frustumOrientPolyNormals(f32, f32, f32, PlanePoly *, f32 *);
-void mapTreeFrameUpdate(MapBspNode *, MapVisNode *, struct MapDistributeEntry *, f32, f32, f32, u8, u8, u8);
-Gfx *actorBuildLightDisplayList(Gfx *, void *, s16);
-Gfx *gfxDrawPlayerViewBackground(Gfx *, s16);
-Gfx *fogApply(Gfx *);
-void mapSetClipBounds();
-Gfx *mapTreeRender(Gfx *, MapBspNode *, MapVisNode *, f32, f32, f32, s32);
-void viewportSetFromRect(s16 *, s32, s32, s32, s32);
 
 Gfx *mapRenderPlayerView(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9) {
     Gfx *dl;
@@ -768,7 +751,6 @@ void viewportSetFromRect(s16 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
 extern s32 D_807F5FF8;
 extern u8 D_807F6009;
 
-Gfx *renderEntryListBuildDisplayList(Gfx *, s32, f32, f32, f32, s32, s32, s32);
 
 void func_8062CA0C(Gfx *arg0, f32 arg1, f32 arg2, f32 arg3) {
     D_807F6009 = 0xFF;
@@ -790,13 +772,8 @@ typedef struct MapLeafLists {
 
 extern s32 D_807F5FFC;
 
-Gfx *mapViewDrawPass(Gfx *, struct MapViewEntries *, u8);
 Gfx *mapChunksRender(Gfx *, MapBspNode *, f32, f32, f32, s32);
-Gfx *fogRender(Gfx *);
 struct RawGfxCmd;
-struct RawGfxCmd *mapChunkEmitSegmentCommands();
-Gfx *spriteListRender(Gfx *, s32);
-Gfx *billboardRenderQueued(Gfx *, s16);
 
 #define MAP_LEAF(o) ((MapLeafLists *)(o))
 
@@ -885,7 +862,6 @@ typedef struct MapViewEntries {
 } MapViewEntries;
 
 
-s32 mapChunkIsActive(s16);
 Gfx *mapSurfaceEffectDraw(Gfx *, s16);
 
 Gfx *mapViewDrawPass(Gfx *gfx, MapViewEntries *arg1, u8 arg2) {
@@ -911,14 +887,11 @@ Gfx *mapViewDrawPass(Gfx *gfx, MapViewEntries *arg1, u8 arg2) {
     return gfx;
 }
 
-u8 func_8062D0CC(MapBspNode *, MapVisNode *, s32, u8);
 
 void func_8062D094(s32 arg0, u8 arg1) {
     func_8062D0CC(D_807F5DE4, D_807F5E60, arg0, arg1);
 }
 
-void mapChunkMarkRenderEntry(s32, u8);
-void renderEntrySetDistanceOverride(MapBspNode *, s32, s32, u8, u8 *);
 
 u8 func_8062D0CC(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, u8 arg3) {
     u8 unused;
@@ -943,8 +916,6 @@ u8 func_8062D0CC(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, u8 arg3) {
     }
 }
 
-s32 func_807142D8(void);
-void mapTreeResolveNodeAssets(MapBspNode *, MapVisNode *);
 
 void func_8062D1A8(void) {
     if (func_807142D8() == 0) {
@@ -952,8 +923,6 @@ void func_8062D1A8(void) {
     }
 }
 
-void modelNodeListSyncFlags(MapBspNode *);
-void mapChunkResolveNodeAssets(void);
 
 void mapTreeResolveNodeAssets(MapBspNode *arg0, MapVisNode *arg1) {
     for (;;) {
@@ -978,8 +947,6 @@ void mapTreeResolveNodeAssets(MapBspNode *arg0, MapVisNode *arg1) {
     }
 }
 
-MapBspNode *renderEntryRemove(MapBspNode *, s32, s32, u8 *);
-void mapPurgeNodeList(s32, s16 *, u8);
 
 void func_8062D26C(s32 arg0) {
     u8 sp1F;
@@ -989,13 +956,11 @@ void func_8062D26C(s32 arg0) {
     mapPurgeNodeList(arg0, &sp1C, 1);
 }
 
-u8 mapTreePurgeNodeList(MapBspNode *, MapVisNode *, s32, s16 *, u8);
 
 void mapPurgeNodeList(s32 arg0, s16 *arg1, u8 arg2) {
     mapTreePurgeNodeList(D_807F5DE4, D_807F5E60, arg0, arg1, arg2);
 }
 
-u8 mapChunkPurgeNodeList(s32, s16 *, u8);
 
 u8 mapTreePurgeNodeList(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, s16 *arg3, u8 arg4) {
     u8 sp27;
@@ -1034,16 +999,11 @@ typedef struct MapDistributeEntry {
     /* 0x24 */ u8 unk24;
 } MapDistributeEntry;
 
-void mapTreeDistributeEntries(MapBspNode *, MapVisNode *, MapDistributeEntry *);
 
 void mapDistributeEntries(MapBspNode *arg0) {
     mapTreeDistributeEntries(D_807F5DE4, D_807F5E60, (MapDistributeEntry *)arg0);
 }
 
-s32 renderEntryAddOrUpdate(s32, u8, s32, f32, f32, f32, s32, s32, s32, s32, s32);
-u8 mapBspPlaneSideTest(void *, u8 *, f32, f32, f32);
-void renderEntryListFree(s32);
-void mapChunkUpdateEntryNode(MapDistributeEntry *);
 
 void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *arg2) {
     s32 pad;
@@ -1103,16 +1063,6 @@ typedef struct MapNodeBounds {
 } MapNodeBounds;
 
 
-s32 mapNodeBoxInFrustum(MapBspNode *, f32, f32, f32);
-void mapChunkFrameUpdate(f32, f32, f32);
-void mapChunkClearNodeFlags(u8);
-void mapChunkFreeNodeLists(u8);
-void mapChunkRebuildNodeLists(f32, f32, f32, u8);
-void mapChunkBuildSpriteChains(f32, f32, f32, u8);
-s32 renderEntryListSortByDistance(s32, f32, f32, f32, void *);
-void renderEntryListClearTouched(s32);
-s32 renderEntryListPurgeUntouched(s32);
-s32 spriteListBuildDisplayChain(s32, s32, f32, f32, f32);
 
 void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *arg2, f32 arg3, f32 arg4, f32 arg5, u8 arg6, u8 arg7, u8 arg8) {
     s32 listA;
@@ -1203,7 +1153,6 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *
     }
 }
 
-s32 mapBspBoxInFrustum(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 
 s32 mapNodeBoxInFrustum(MapBspNode *arg0, f32 arg1, f32 arg2, f32 arg3) {
     MapNodeBounds *box;
@@ -1233,8 +1182,6 @@ typedef struct ClipPlane {
 } ClipPlane;
 
 
-f32 boxMinCornerDistance(s16, s16, s16, s16, s16, s16, f32, f32, f32);
-s32 clipPolyToBox(s32, s16, s16, s16, s16, s16, s16, void *);
 
 s32 mapBspBoxInFrustum(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, void *arg10) {
     s32 in1;
@@ -1328,7 +1275,6 @@ f32 boxMinCornerDistance(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 a
 }
 
 
-void clipPolyAgainstAxis(s16 *, s16 *, s32, s32 *, u8, f64, u8);
 
 s32 clipPolyToBox(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, void *arg7) {
     s16 sp88[0x24];
@@ -1365,9 +1311,6 @@ s32 clipPolyToBox(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s1
     return 0;
 }
 
-s32 clipVertexTestAxis(s16 *, u8, f64, u8);
-void clipVertexAppend(void *, s32 *, void *);
-void clipEdgeIntersectAxis(s16 *, s16 *, u8, f64, s16 *);
 
 void clipPolyAgainstAxis(s16 *arg0, s16 *arg1, s32 arg2, s32 *arg3, u8 arg4, f64 arg5, u8 arg6) {
     s32 i;
@@ -1431,7 +1374,6 @@ s32 clipVertexTestAxis(s16 *arg0, u8 arg1, f64 arg2, u8 arg3) {
     return 0;
 }
 
-void faultSetMessage(u8, s32, s32, s32);
 
 void clipVertexAppend(void *arg0, s32 *arg1, void *arg2) {
     memcpy((u8 *)arg2 + *arg1 * 6, arg0, 6);
@@ -1477,7 +1419,6 @@ typedef struct Bsp_Plane {
     /* 0x68 */ s16 unk68[3];
 } Bsp_Plane;
 
-s32 mapBspPlaneDistanceCheck(Bsp_Plane *, f32, f32, f32);
 
 
 #define arg0 ((Bsp_Plane *)arg0v)
@@ -1633,7 +1574,7 @@ typedef struct MapChunkAnim {
     /* 0x10 */ u8 pad10[0x6C];
 } MapChunkAnim; /* 0x7C */
 
-void assetFreeBuffer(s32, s32, s32);
+void assetFreeBuffer(s32, s32, s32); // FAKE: callee prototype steer
 s32 assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 #define MAP_CHUNK_ANIM ((MapChunkAnim *)sMapChunkAnims)[i]
@@ -1670,7 +1611,6 @@ void mapChunkAnimateTextures(u8 arg0) {
 #undef MAP_CHUNK_ANIM
 
 
-s32 mapChunkIsVisible(s16);
 
 void mapChunkFreeHiddenBuffers(void) {
     s32 i;
@@ -1740,23 +1680,8 @@ extern s32 *D_807F5FD4;
 extern s32 sMapSoundEmitterCount;
 extern s32 sMapSoundEmitters;
 
-void fogSetParams(u8);
 void renderSetSegment6Override(u8);  // FAKE: callee prototype steer
-void lightSetTargetColor(f32, f32, f32, s16);
-void lightCopyTargetColors(s16);
-void matrixCacheInit(s32);
 struct MapRelocNode;
-void mapTreeRelocate(struct MapRelocNode *, s32, s32);
-void displayListResolveTextureImages();
-void mapRelocateOffsetTable(s32);
-void mapSurfaceEffectsReset(void);
-void mapChunksInitFromMapData(void *);
-void collisionInitStaticCache(void *);
-void collisionBuildCellTable(void *);
-void effectWaterInitNodes(void *);
-void actorTargetTableLoad(void *);
-void triggerZoneInit(void *);
-void func_8062F318(void);
 
 void mapHeaderLoad(s32 arg0) {
     s32 off30;
@@ -1951,7 +1876,6 @@ void matrix3SwapRows(f32 (*arg0)[3], s32 arg1, s32 arg2, s32 arg3) {
     }
 }
 
-void matrix3SwapRows(f32 (*)[3], s32, s32, s32);
 
 s32 func_8062F640(f32 (*arg0)[3], f32 (*arg1)[3], s32 arg2) {
     s32 r0;

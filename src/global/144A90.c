@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/140600.h"
 
 typedef struct AdpcmNMAcmd {
     u32 w0;
@@ -36,7 +37,6 @@ typedef struct AdpcmNMSynth {
 extern AdpcmNMSynth *n_syn;
 extern u8 D_807FF0F4[];
 extern u8 D_807FF0F6[];
-extern void rebuildLowPassCoefficients(AdpcmNMFX *, f32);
 
 AdpcmNMAcmd *n_alMainBusPull(s32 sampleCount, AdpcmNMAcmd *ptr) {
     AdpcmNMAcmd *result;

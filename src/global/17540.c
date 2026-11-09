@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/17540.h"
 
 typedef struct Vec3f {
     f32 x;
