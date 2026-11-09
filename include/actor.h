@@ -337,7 +337,7 @@ typedef struct PlayerState {
     /* 0x08F */ u8 pad8F[2];
     /* 0x091 */ u8 unk91;
     /* 0x092 */ u8 pad92[0x32];
-    /* 0x0C4 */ s32 sfxHandle;
+    /* 0x0C4 */ struct GfSndState *sfxHandle;
     /* 0x0C8 */ u8 padC8[0xC];
     /* 0x0D4 */ s16 surfaceTimer;
     /* 0x0D6 */ s16 breathTimer;
