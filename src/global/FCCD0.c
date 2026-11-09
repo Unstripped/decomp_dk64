@@ -493,7 +493,6 @@ s32 slotQueueGetMaxValue(s32 arg0, s32 arg1) {
     var_a0 = 0x64;
     switch (arg0) {
     case 1:
-        if (arg1 == 0) {}
         var_a0 = 0x3E7;
         break;
     case 2:
@@ -526,7 +525,7 @@ s32 slotQueueGetMaxValue(s32 arg0, s32 arg1) {
             var_v1 = 1;
             if (temp_a0 & 1) {
                 var_v0 = temp_a0;
-                if (temp_a0 != 0) {
+                if (temp_a0) {
                     do {
                         var_v1 += 1;
                         var_v0 >>= 1;
