@@ -111,7 +111,7 @@ typedef struct ModelSlotBuf {
 } ModelSlotBuf;
 
 void modelSlotGetTransformVectors();
-void modelSlotTransformBoundsAndNodes(s16, s32, s32, s32, f32, f32, f32, f32, f32, s32, s32, s32, s32, s32);
+void modelSlotTransformBoundsAndNodes(s16, s32, s32, s32, f32, f32, f32, f32, f32, s32, s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 void modelSlotCopyData(arg0, arg1)
 s16 arg1;
@@ -537,7 +537,7 @@ typedef struct ModelAnimGroup {
 } ModelAnimGroup;
 
 extern MtxCopyRequest D_807F6960[];
-void faultSetMessage(s32, s32, s32, s32);
+void faultSetMessage(u8, s32, s32, s32);
 void modelAnimEntryQueueMatrixCopies();
 
 void mtxCopyQueueReset(void) {
