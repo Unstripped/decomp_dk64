@@ -523,27 +523,6 @@ typedef struct ActorC2B8State {
     u8 unk8;
 } ActorC2B8State;
 
-typedef struct ActorC2B8 {
-    /* 0x000 */ u8 unk00[0x60];
-    /* 0x060 */ u32 unk60;
-    /* 0x064 */ u8 unk64[4];
-    /* 0x068 */ u16 unk68;
-    /* 0x06A */ u8 unk6A[0x16];
-    /* 0x080 */ f32 unk80;
-    /* 0x084 */ u8 unk84[0x20];
-    /* 0x0A4 */ f32 unkA4;
-    /* 0x0A8 */ u8 unkA8[0x10];
-    /* 0x0B8 */ f32 unkB8;
-    /* 0x0BC */ u8 unkBC[0x32];
-    /* 0x0EE */ s16 unkEE;
-    /* 0x0F0 */ u8 unkF0[0xA];
-    /* 0x0FA */ s16 unkFA;
-    /* 0x0FC */ u8 unkFC[0x48];
-    /* 0x144 */ u8 unk144;
-    /* 0x145 */ u8 unk145[0x2F];
-    /* 0x174 */ void *unk174;
-} ActorC2B8;
-
 typedef struct ActorC2B8GlobalState {
     /* 0x000 */ u8 unk0[0x90];
     /* 0x090 */ u8 unk90;
@@ -552,7 +531,6 @@ typedef struct ActorC2B8GlobalState {
     /* 0x094 */ s16 unk94;
 } ActorC2B8GlobalState;
 
-#define ACTOR_C2B8 ((ActorC2B8 *)gCurrentActor)
 #define STATE_C2B8 ((ActorC2B8GlobalState *)&gActorGlobalState)
 
 void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
@@ -565,16 +543,16 @@ void tagBarrelRotateUpdate(void) {
     f32 temp_fv0;
     s16 temp_a1;
 
-    temp_v0 = (ActorC2B8State *) ACTOR_C2B8->unk174;
-    if (!(ACTOR_C2B8->unk60 & 0x10)) {
-        ACTOR_C2B8->unk68 |= 4;
-        ACTOR_C2B8->unk60 |= 0x80;
+    temp_v0 = (ActorC2B8State *) gCurrentActor->customState;
+    if (!(gCurrentActor->flags & 0x10)) {
+        gCurrentActor->flags2 |= 4;
+        gCurrentActor->flags |= 0x80;
         temp_v0->unk0 = 0;
         temp_v0->unk8 = 0;
         temp_v0->unk4 = 0.0f;
     }
-    if (!(ACTOR_C2B8->unk68 & 4)) {
-        ACTOR_C2B8->unkB8 = 0.0f;
+    if (!(gCurrentActor->flags2 & 4)) {
+        gCurrentActor->speedXZ = 0.0f;
     }
     if (STATE_C2B8->unk90 != 0) {
         temp_v0->unk8 = 1;
@@ -585,61 +563,61 @@ void tagBarrelRotateUpdate(void) {
             temp_v0->unk0 = 1;
         }
         temp_v0->unk4 = (f64) STATE_C2B8->unk94 / 1.1;
-        ACTOR_C2B8->unkEE = STATE_C2B8->unk92;
-        temp_fv1 = ACTOR_C2B8->unkB8;
+        gCurrentActor->moveYaw = STATE_C2B8->unk92;
+        temp_fv1 = gCurrentActor->speedXZ;
         if (temp_fv1 < temp_v0->unk4) {
-            ACTOR_C2B8->unkB8 = temp_fv1 + 0.8;
+            gCurrentActor->speedXZ = temp_fv1 + 0.8;
             temp_fv0 = temp_v0->unk4;
-            if (temp_fv0 < ACTOR_C2B8->unkB8) {
-                ACTOR_C2B8->unkB8 = temp_fv0;
+            if (temp_fv0 < gCurrentActor->speedXZ) {
+                gCurrentActor->speedXZ = temp_fv0;
             }
         } else {
-            ACTOR_C2B8->unkB8 = temp_fv1 - 1.5;
-            if (ACTOR_C2B8->unkB8 < 0.0f) {
-                ACTOR_C2B8->unkB8 = 0.0f;
+            gCurrentActor->speedXZ = temp_fv1 - 1.5;
+            if (gCurrentActor->speedXZ < 0.0f) {
+                gCurrentActor->speedXZ = 0.0f;
             }
         }
-        ACTOR_C2B8->unkFA = 0x64;
-        temp_a1 = ACTOR_C2B8->unkEE;
+        gCurrentActor->unkFA = 0x64;
+        temp_a1 = gCurrentActor->moveYaw;
         actorStepPhysics(gCurrentActor, temp_a1, temp_a1);
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-        ACTOR_C2B8->unk80 = ACTOR_C2B8->unkA4;
+        gCurrentActor->y = gCurrentActor->floorY;
         if (temp_v0->unk8 == 0) {
-            ACTOR_C2B8->unk144 = 0x3C;
+            gCurrentActor->unk144 = 0x3C;
         }
     } else {
-        if ((temp_v0->unk0 != 0) && ((f64) ACTOR_C2B8->unkB8 == 0.0)) {
+        if ((temp_v0->unk0 != 0) && ((f64) gCurrentActor->speedXZ == 0.0)) {
             temp_v0->unk0 = 0;
             sfxStopSlotSound(gCurrentActor, 0);
         }
         temp_v0->unk4 = 0.0f;
-        temp_fv1 = ACTOR_C2B8->unkB8;
+        temp_fv1 = gCurrentActor->speedXZ;
         if (temp_fv1 < 0.0f) {
-            ACTOR_C2B8->unkB8 = temp_fv1 + 0.8;
+            gCurrentActor->speedXZ = temp_fv1 + 0.8;
             temp_fv0 = temp_v0->unk4;
-            if (temp_fv0 < ACTOR_C2B8->unkB8) {
-                ACTOR_C2B8->unkB8 = temp_fv0;
+            if (temp_fv0 < gCurrentActor->speedXZ) {
+                gCurrentActor->speedXZ = temp_fv0;
             }
         } else {
-            ACTOR_C2B8->unkB8 = temp_fv1 - 1.5;
-            if (ACTOR_C2B8->unkB8 < 0.0f) {
-                ACTOR_C2B8->unkB8 = 0.0f;
+            gCurrentActor->speedXZ = temp_fv1 - 1.5;
+            if (gCurrentActor->speedXZ < 0.0f) {
+                gCurrentActor->speedXZ = 0.0f;
             }
         }
-        ACTOR_C2B8->unkFA = 0x64;
-        temp_a1 = ACTOR_C2B8->unkEE;
+        gCurrentActor->unkFA = 0x64;
+        temp_a1 = gCurrentActor->moveYaw;
         actorStepPhysics(gCurrentActor, temp_a1, temp_a1);
         actorApplyVelocity(gCurrentActor);
         actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
         if (temp_v0->unk8 == 0) {
-            if (((f64) ACTOR_C2B8->unkB8 == 0.0) || !(ACTOR_C2B8->unk60 & 0x10)) {
-                ACTOR_C2B8->unk144 = 2;
+            if (((f64) gCurrentActor->speedXZ == 0.0) || !(gCurrentActor->flags & 0x10)) {
+                gCurrentActor->unk144 = 2;
             } else {
-                ACTOR_C2B8->unk144 = 0x3C;
+                gCurrentActor->unk144 = 0x3C;
             }
         }
-        ACTOR_C2B8->unk80 = ACTOR_C2B8->unkA4;
+        gCurrentActor->y = gCurrentActor->floorY;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -1804,11 +1782,6 @@ typedef struct ActorFB6CState {
     u8 unk1C;
 } ActorFB6CState;
 
-typedef struct ActorFB6C {
-    u8 pad0[0xEE];
-    s16 unkEE;
-} ActorFB6C;
-
 extern Actor *gActivePlayerActor;
 extern s32 gGlobalCutsceneFlags;
 extern u16 D_807FD63C;
@@ -1930,7 +1903,7 @@ void tagBarrelParticleUpdate(void) {
                 camSetTargetScaled(temp_s0_2->unk104, sub->unk0, 4, 0x800, var_v0, 0, 0, 0x1E, 0x14, 0x50, 0.3f);
             }
             gActivePlayerActor->yaw = gCurrentActor->yaw;
-            ((ActorFB6C *)gActivePlayerActor)->unkEE = gCurrentActor->yaw;
+            gActivePlayerActor->moveYaw = gCurrentActor->yaw;
             actorAppendCallback(sub->unk0, (s32)gCurrentActor, 0x40, 1, 0, 0);
             if (gGlobalCutsceneFlags & 2) {
                 var_v0 = 0x1F4;
