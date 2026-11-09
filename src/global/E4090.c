@@ -1,11 +1,9 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_actorAngleInArcWithMargin // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_camSetZoomLevel // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
-#define PROTO_SKIP_mathAngleInArcWithMargin // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_modelSlotGetType // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #include "sched.h"
@@ -1073,7 +1071,6 @@ extern u8 D_8071FBC8;
 extern u8 D_807200D4;
 extern f32 D_80753E2C[];
 extern u8 *D_807FD568;
-s32 actorAngleInArcWithMargin(void *, s32, s32);
 s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);  // FAKE: callee prototype steer
 f32 cosApprox(f32);
 f32 sinApprox(f32);
@@ -1765,7 +1762,6 @@ extern f32 D_80750FF4;
 extern u8 D_807FC9AE[];
 extern u8 D_807FCA0C[];
 extern u8 D_807FCAC8[];
-s32 mathAngleInArcWithMargin();
 
 void playerInputHandleBButtonGun(void) {
     PadInputState *pad;

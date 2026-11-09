@@ -215,10 +215,10 @@ s32 actorCheckPointInAngleArc(Actor *, f32, f32);
 s32 actorAngleInArc();
 #endif
 #ifndef PROTO_SKIP_mathAngleInArcWithMargin
-void mathAngleInArcWithMargin();
+s32 mathAngleInArcWithMargin();
 #endif
 #ifndef PROTO_SKIP_actorAngleInArcWithMargin
-void actorAngleInArcWithMargin();
+s32 actorAngleInArcWithMargin();
 #endif
 #ifndef PROTO_SKIP_mathAngleClampToArc
 void mathAngleClampToArc();

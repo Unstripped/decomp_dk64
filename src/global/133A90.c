@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
-#define PROTO_SKIP_mathAngleInArcWithMargin // PROTO: The controlling expression of the if statement is not scalar
 #include "proto/global/117190.h"
 #include "proto/global/133A90.h"
 #include "proto/global/135D30.h"
@@ -398,7 +397,6 @@ s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *o
     return ret;
 }
 
-s32 mathAngleInArcWithMargin(s16, s16, s16, s32);
 
 s32 proxPathSegmentAngleCheck(ProxPath *path, s32 segmentIndex, s16 angle) {
     s16 slot;

@@ -3,7 +3,6 @@
 #define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
-#define PROTO_SKIP_mathAngleInArcWithMargin // PROTO: Reference of an expression of void type or an incomplete typ
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -1882,7 +1881,6 @@ extern Actor *gActivePlayerActor;
 extern u8 gCurrentPlayerIndex;
 extern ProjectileDataView *D_807FD568;
 extern s16 gCurrentCharacterIndex;
-s32 mathAngleInArcWithMargin(s16, s16, s16, s32);
 
 void projectileTrySpawnFromSlot(Actor *actor) {
     f32 radius;

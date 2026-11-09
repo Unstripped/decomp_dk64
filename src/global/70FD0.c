@@ -3182,7 +3182,7 @@ s16 arg1;
 }
 
 
-void mathAngleInArcWithMargin(arg0, arg1, arg2, arg3)
+s32 mathAngleInArcWithMargin(arg0, arg1, arg2, arg3)
 s16 arg0;
 s16 arg1;
 s16 arg2;
@@ -3190,17 +3190,17 @@ s16 arg3;
 {
     s16 sp24[2];
 
-    mathAngleClampToArcWithMargin(sp24[0], arg2, arg0, arg1, &sp24[1], arg3);
+    return mathAngleClampToArcWithMargin(sp24[0], arg2, arg0, arg1, &sp24[1], arg3);
 }
 
-void actorAngleInArcWithMargin(arg0, arg1, arg2)
+s32 actorAngleInArcWithMargin(arg0, arg1, arg2)
 Actor *arg0;
 s16 arg1;
 s16 arg2;
 {
     s16 sp24[2];
 
-    mathAngleClampToArcWithMargin(sp24[0], arg1, arg0->arcYawMin, arg0->arcYawMax, &sp24[1], arg2);
+    return mathAngleClampToArcWithMargin(sp24[0], arg1, arg0->arcYawMin, arg0->arcYawMax, &sp24[1], arg2);
 }
 
 void mathAngleClampToArc(arg0, arg1, arg2, arg3, arg4)
