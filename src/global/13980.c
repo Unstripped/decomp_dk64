@@ -401,10 +401,9 @@ s32 schedTaskDone(SchedStruct *sc, TaskNode *task) {
             if (D_807F04E0 == 0 || type != 1) {
                 if (task->flags & 0x40) {
                     schedSendMesgTimed(task->msgQ, task->msg, 0);
-                    ret = 1;
-                    goto end;
+                } else {
+                    osSendMesg(task->msgQ, task->msg, 0);
                 }
-                osSendMesg(task->msgQ, task->msg, 0);
             }
         }
         ret = 1;
@@ -412,7 +411,6 @@ s32 schedTaskDone(SchedStruct *sc, TaskNode *task) {
         ret = 0;
     }
 
-end:
     D_807F0564 = ret;
     return ret;
 }
