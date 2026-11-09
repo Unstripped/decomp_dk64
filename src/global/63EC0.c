@@ -92,7 +92,7 @@ typedef struct EffectBufferEntry {
     u8 pad1[0x1C7];
 } EffectBufferEntry;
 
-void *assetLoad(s32, s32, s32, s32);
+void * assetLoad(s32, u32, u8, u8);
 void effectNodeApproachTargetPos(EffectNode *node);
 void waterRippleStep(void);
 Gfx *effectWaterSetScissor(Gfx *, EffectNode *);
@@ -340,7 +340,7 @@ typedef struct WaterTargetUpdateView {
 s32 effectCheckTargetActive(EffectSubNode *subNode);
 void effectWaterSetMeshColors(Vtx *, EffectNode *);
 void effectNodeComputeBounds(EffectNode *node, f32 camX, f32 camY, f32 camZ, u8 playerIndex, void *invMtx, void *outBounds);
-s32 mapBspBoxInFrustum(s16, s16, s16, s16, s32, s16, f32, f32, f32, f32, void *);
+s32 mapBspBoxInFrustum(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
 extern f32 D_807F5FAC;
 extern void *gPlayerSlots;
@@ -488,7 +488,7 @@ extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
 
-s32 lightCollectVolumesInBounds(f32, f32, f32, s16, s32, s32, s32, s32, s32, s32, u8 *);
+s16 lightCollectVolumesInBounds(f32, f32, f32, s16, s16, s16, s16, s16, s16, s32, s8 *);
 void func_8065C990(s32, s32, s32, void *, s32, s32);
 
 void effectWaterApplyLights(f32 camX, f32 camY, f32 camZ) {
