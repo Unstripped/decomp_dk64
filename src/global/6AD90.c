@@ -994,7 +994,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                 ny = (dz01 * dx02) - (dx01 * dz02);
                 d = -((nx * tri->v[1]) + (ny * tri->v[4]) + (((dx01 * dy02) - (dy01 * dx02)) * tri->v[7]));
                 if (ny * 2000.0 > 0.01 || ny * 2000.0 < -0.01) {
-                    val = 0.0 - ((((arg0 * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * arg1) + d) / (ny * 2000.0)); // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                    val = 0.0 - ((((arg0 * nx) + (ny * -1000.0)) + (((dx01 * dy02) - (dy01 * dx02)) * arg1) + d) / (ny * 2000.0));
                     h2 = (2000.0 * val) - 1000.0;
                     if (tri->unk12 & 4) {
                         h2 = (f64)(mapOffsetSlotGetValue(tri->unk17) * 6.0f); // FAKE: assigning M first fixes add.d operand order
@@ -1565,7 +1565,7 @@ u8 collisionTestDynamicActorFloor(CollisionSlotActorView *arg0, s32 arg1, f32 ar
                 d = -((nx * (f64)tri->x[1]) + (ny * (f64)tri->y[1]) + ((nz_product - (dy01 * dx02)) * (f64)tri->z[1]));
                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
                 if (arg0 != NULL) {
-                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * (f64)arg3) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * (f64)arg3) + d) / (ny * 2000.0)));
                     y = (f32)((2000.0 * val) - 1000.0);
                     collisionCheckSlopeAngle(arg4, y, 0, (Actor *)arg0, 0);
                     if (collisionGetFloorTriangleNormal(arg4, y, 0, tri->unk24) != 0 && D_807F946D != 0) {
@@ -1574,11 +1574,11 @@ u8 collisionTestDynamicActorFloor(CollisionSlotActorView *arg0, s32 arg1, f32 ar
                     }
                 }
                 if (D_807F94BC != 0) {
-                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * (f64)arg3) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * (f64)arg3) + d) / (ny * 2000.0)));
                     collisionRecordTriangleF((struct CollisionTriF *)tri, (f32)((2000.0 * val) - 1000.0));
                 }
                 if (collisionCheckTriangleWindingF32((struct CollisionTriF *)tri) != 0) {
-                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * (f64)arg3) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                    val = (0.0 - ((((f64)arg2 * nx) + (ny * -1000.0) + ((nz_product - (dy01 * dx02)) * (f64)arg3) + d) / (ny * 2000.0)));
                     y = (f32)((2000.0 * val) - 1000.0);
                     if (mathCheckCloserFloatThreshold(hit_y, y, (f32)((f64)arg4 + 4.0), 0) != 0) {
                         hit_tri = tri;
@@ -2073,15 +2073,15 @@ s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *a
                                 d = -(nz * (f64)tri->unk40 + (nx * (f64)tri->unk28 + ny * (f64)tri->unk34));
                                 if (0.01 < ny * 2000.0 || ny * 2000.0 < -0.01) {
                                     if (arg0 != NULL) {
-                                        val = (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                                        val = (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)));
                                         collisionCheckSlopeAngle(arg3, (f32)((2000.0 * val) - 1000.0), 0, arg0, 0);
                                     }
                                     if (D_807F94BC != 0) {
-                                        val = (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                                        val = (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)));
                                         collisionRecordBoxTriangle(tri, (f32)((2000.0 * val) - 1000.0));
                                     }
                                     if (collisionCheckBoxTriangleWinding(tri) != 0) {
-                                        val = (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)));  // FAKE: temp var fixes mul.d operand order (2000.0 * val)
+                                        val = (0.0 - ((((f64)arg1 * nx) + (ny * -1000.0) + (nz * (f64)arg2) + d) / (ny * 2000.0)));
                                         y = (f32)((2000.0 * val) - 1000.0);
                                         if (mathCheckCloserFloatThreshold(hit_y, y, (f32)((f64)arg3 + 4.0), 0) != 0) {
                                             hit_tri = tri;
