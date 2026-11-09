@@ -11,8 +11,8 @@ extern s16 gCurrentCharacterIndex;
 extern u16 D_807FD63C;
 
 void playerUpdateCommon(s32);
-void playerWeaponSpawnMuzzleFlash(Actor *, s32);
-void actorOrNodeFlags(Actor *, s32, s32);
+void playerWeaponSpawnMuzzleFlash(Actor *, u16);
+void actorOrNodeFlags(Actor *, s32, u8);
 
 void playerUpdateSoundEffect0(void) {
     playerUpdateCommon(0);
@@ -123,7 +123,7 @@ typedef struct G02PlayerState {
 #define G02_ACTOR_P(a) ((G02PlayerState *)(a)->customState)
 #define G02_MODEL(a) (*(G02ModelRef **)(a)->sub4)
 
-void sfxStopSlotSound(Actor *, s32);
+void sfxStopSlotSound(Actor *, u8);
 s8 spawnNodeIdForActor(Actor *);
 
 void playerSetRecentAttacker(Actor *arg0, G02PlayerState *arg1) {
@@ -196,7 +196,7 @@ typedef struct G02PlayerSlot {
     /* 0x8 */ u8 pad8[0x2E8];
 } G02PlayerSlot;
 
-Actor *spawnNodeActivate(s32, s32);
+Actor * spawnNodeActivate(s16, u16);
 
 s32 playerHitSourceIsStale(s32 arg0) {
     s8 idx = G02_P->unk247;
@@ -260,15 +260,15 @@ typedef struct G02ActorView {
 extern s32 gFrameCounter;
 extern s32 gGlobalOverlayFlags;
 extern u16 D_807FD63A[][0x1A];
-s32 flagGet(s32, s32);
-s32 slotQueueGetValue(s32, u8);
-void effectSpawnBurst(s32);
-void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
-void slotQueueUpdate(s32, s32, s32);
+u8 flagGet(s16, u8);
+u16 slotQueueGetValue(u8, u8);
+void effectSpawnBurst(u8);
+void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
+void slotQueueUpdate(s32, u8, s32);
 s32 slotQueueGetCountStep(s32);
 void slotQueueAddValue(s32, u8, s16);
 void actorScriptStartByIndex(Actor *, s32);
-s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
+s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 void playerCheckAndClearCarriedItem(void) {
     if (G02_P->unkC8 != -1 && (flagGet(0x179, 0) == 0 || G02_A->unkE0 != 0.0f || (gGlobalOverlayFlags & 0x800000) || slotQueueGetValue(5, G02_P->unk1A4) == 0)) {
@@ -440,25 +440,25 @@ void playerCheckLedgeGrab(void);
 void sfxStopChannel(s32, s32);
 void gridSetNodeBounds(u8, f32, f32, f32, f32);
 void proxPathUpdateAllPlayers(void);
-s32 collisionGetHitStatus();
+u8 collisionGetHitStatus(void);
 u8 collisionIsGroundImpact();
 u8 collisionIsHeavyGroundImpact();
 u8 collisionGetFloorType();
 u8 collisionGetMaterialType();
 void func_80026D40(void *, u8);
-void mapSetPendingTransition(s32, s32);
-void mapExecuteDeathTransition(u8);
+void mapSetPendingTransition(s16, u8);
+void mapExecuteDeathTransition(s32);
 void mapExecuteVoidTransition();
 void healthRefill(u8);
 void effectEnableFade();
-void effectSetColor(s32, s32, s32, s32);
+void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
 void effectFreeAndUnlink(void *);
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, f32 *, f32, s32);
-s32 playerStateQueueCallback(s32, Actor *, u8);
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
+s32 playerStateQueueCallback(s16, void *, u8);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 sqrtf(f32);
 void effectSetDuration(s32);
-void effectSetMode(s32);
+void effectSetMode(s8);
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 void playerUpdateCommon(s32 arg0) {
@@ -773,17 +773,16 @@ extern s32 sEffectSparkConfig;
 extern s32 effectZSpinMatrixUpdate;
 extern s32 func_80717930;
 s32 randomNonNegative();
-s32 camIsCutsceneActive();
+u8 camIsCutsceneActive(void);
 void func_80687400();
 void actorScriptStart(Actor *, s32);
 void effectSetCallback(void *);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void effectSetDuration(s32);
-void effectSetFlags(s32);
+void effectSetFlags(s16);
 void effectSetSpeed(s32);
-void effectCreateAtActorBone(void *, f32, void *, s32, s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32);  // FAKE: callee prototype steer
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
-s32 playerStateQueueCallback(s32, Actor *, u8);
 void playerInitNormalMoveParams(void);
 void playerSetSizeMode(Actor *, u8);
 void playerScaleTransitionStep(void);
@@ -1754,7 +1753,7 @@ void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void controllerAnimScaleInterpolate(Actor *, s32);
 
 extern u8 gPlayerCharacterId[];
-void controllerAnimSetStateRemap(void *, s32, f32, f32);
+void controllerAnimSetStateRemap(struct ControllerStateView *, s16, f32, f32);
 void playerInitMoveParams(void);
 
 s16 playerSelectWalkRunState(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
@@ -2211,7 +2210,7 @@ s32 playerSelectCarryMoveTier(f32 arg0, f32 arg1) {
 }
 
 extern s16 D_807532A8[];
-f32 mathAngleBetweenPointsDeg(s16, s16, s16, s16);
+f32 mathAngleBetweenPointsDeg(s16, s16, s16, s16);  // FAKE: callee prototype steer
 
 void playerStartPickupApproach(Actor *arg0) {
     f32 radius;
@@ -2434,7 +2433,7 @@ s32 playerGetHoldNodeIndices(s32 *arg0, s32 *arg1) {
 
 extern s32 D_80753428[];
 extern f32 D_8075340C[];
-void actorAppendCallback4000(Actor *, Actor *, s16, s32, s32);
+void actorAppendCallback4000(Actor *, Actor *, s16, s32, s32);  // FAKE: callee prototype steer
 
 void playerThrowHeldActor(Actor *arg0) {
     G05PlayerView *p;
@@ -2496,13 +2495,13 @@ extern u8 D_80750AD0;
 extern u8 D_8071FC40;
 void effectWobbleRiseUpdate(void);
 void animSetSpeed(void *, s32, f32);
-void animSetLoopMode(void *, s32, s32);
-void animSetDirection(void *, s32, s32);
+void animSetLoopMode(void *, s32, u8);
+void animSetDirection(void *, s32, u8);
 void animResetEndFrame(void *, s32);
-void animSetStartFrame(void *, s32, s32);
-void animSetLoopLimit(void *, s32, s32);
+void animSetStartFrame(void *, s32, s16);
+void animSetLoopLimit(void *, s32, s16);
 void animSetFrameAndSubframe(void *, s32, s16, f32);
-s32 func_8072881C(s32, void *);
+u8 func_8072881C(u8, u32 *);
 u32 randomLcgNext(void);
 
 void func_806CF580(void) {
@@ -2548,7 +2547,6 @@ void func_806CF580(void) {
     }
 }
 
-void effectSetMode(s32);
 
 void playerSpawnJumpTrailEffects(void) {
     if (!(gFrameCounter & 3) && G02_A->unk155 >= 5 && G03_A->unkC0 > 30.0f) {
@@ -2609,7 +2607,7 @@ typedef struct G06PlayerView {
 
 u8 playerProbeLedgeAhead(Actor *, f32 *, u8, f32);
 s32 actorAngleInArc(Actor *, s16);
-s32 collisionGetHitFlags(void);
+u8 collisionGetHitFlags(void);
 void collisionGetCoords(void *, s16 *);
 extern f32 D_80753E10[];
 extern s16 D_80753E00[];
@@ -3012,7 +3010,6 @@ s32 func_806D0964(s32 arg0, u8 arg1) {
 }
 
 extern s32 gGlobalCutsceneFlags;
-s32 collisionGetHitStatus();
 
 typedef struct G07ActorD1 {
     /* 0x00 */ u8 pad0[0xD1];
