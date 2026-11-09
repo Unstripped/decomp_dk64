@@ -24,6 +24,7 @@ import os
 import re
 import shutil
 import signal
+import struct
 import subprocess
 import sys
 from pathlib import Path
@@ -97,6 +98,108 @@ def deduce_src(asm_path: Path, seg: str, func: str) -> Path:
     sys.exit(f"error: could not determine src C file for '{func}'")
 
 
+# MIPS REL relocation types IDO objects use in .text (ELF numbering).
+_MIPS_RELOC_NAMES = {
+    2: "R_MIPS_32",
+    4: "R_MIPS_26",
+    5: "R_MIPS_HI16",
+    6: "R_MIPS_LO16",
+    7: "R_MIPS_GPREL16",
+    8: "R_MIPS_LITERAL",
+    9: "R_MIPS_GOT16",
+    10: "R_MIPS_PC16",
+    11: "R_MIPS_CALL16",
+}
+
+
+def function_asm_from_object(obj: bytes, func: str) -> str:
+    """Return GNU as source reproducing only `func` from a big-endian ELF32 MIPS object.
+
+    The permuter scores every instruction of target.o's .text against the
+    candidate, whose .text holds just the one function, so a whole-TU object is
+    not a usable target. The function's words are emitted verbatim at offset 0
+    (REL addends live in the words) with its relocations as `.reloc` directives;
+    R_MIPS_26 section-relative jumps are rebased so that jumps inside the
+    function stay relative to it and calls into other functions of the file name
+    the callee, as the candidate's prototype-only calls do.
+    """
+    if obj[:4] != b"\x7fELF" or obj[4] != 1 or obj[5] != 2:
+        raise ValueError("not a big-endian ELF32 object")
+    e_shoff, = struct.unpack_from(">I", obj, 0x20)
+    e_shentsize, e_shnum, e_shstrndx = struct.unpack_from(">HHH", obj, 0x2E)
+    sections = [
+        struct.unpack_from(">10I", obj, e_shoff + i * e_shentsize) for i in range(e_shnum)
+    ]
+
+    def cstr(off: int) -> str:
+        return obj[off:obj.index(b"\0", off)].decode("ascii")
+
+    shstr_off = sections[e_shstrndx][4]
+    sec_names = [cstr(shstr_off + s[0]) for s in sections]
+
+    symtab_idx = next((i for i, s in enumerate(sections) if s[1] == 2), None)
+    if symtab_idx is None:
+        raise ValueError("object has no symbol table")
+    _, _, _, _, sym_off, sym_size, sym_link, _, _, _ = sections[symtab_idx]
+    str_off = sections[sym_link][4]
+    symbols = []  # (name, value, size, type, shndx)
+    for off in range(sym_off, sym_off + sym_size, 16):
+        st_name, st_value, st_size, st_info, _, st_shndx = struct.unpack_from(">IIIBBH", obj, off)
+        sym_type = st_info & 0xF
+        name = sec_names[st_shndx] if sym_type == 3 and st_shndx < e_shnum else cstr(str_off + st_name)
+        symbols.append((name, st_value, st_size, sym_type, st_shndx))
+
+    hits = [s for s in symbols if s[0] == func and s[3] == 2]
+    if len(hits) != 1:
+        raise ValueError(f"expected one FUNC symbol '{func}', found {len(hits)}")
+    _, start, size, _, shndx = hits[0]
+    if size == 0:
+        raise ValueError(f"symbol '{func}' has no size")
+    text_off = sections[shndx][4]
+    code = obj[text_off + start:text_off + start + size]
+    words = list(struct.unpack(f">{size // 4}I", code))
+    # Functions of this section by offset, to name the callee of a section-relative call.
+    funcs_at = {s[1]: s[0] for s in symbols if s[3] == 2 and s[4] == shndx}
+
+    relocs = []
+    for s in sections:
+        if s[7] != shndx or s[1] not in (4, 9):
+            continue
+        if s[1] == 4:
+            raise ValueError("RELA relocations are not supported")
+        for off in range(s[4], s[4] + s[5], 8):
+            r_offset, r_info = struct.unpack_from(">II", obj, off)
+            if not start <= r_offset < start + size:
+                continue
+            rtype = r_info & 0xFF
+            if rtype not in _MIPS_RELOC_NAMES:
+                raise ValueError(f"unsupported relocation type {rtype} at 0x{r_offset:X}")
+            sym_name, _, _, sym_type, sym_shndx = symbols[r_info >> 8]
+            idx = (r_offset - start) // 4
+            if rtype == 4 and sym_type == 3 and sym_shndx == shndx:
+                target = (words[idx] & 0x3FFFFFF) << 2
+                if start <= target < start + size:
+                    words[idx] = (words[idx] & ~0x3FFFFFF) | ((target - start) >> 2)
+                elif target in funcs_at:
+                    sym_name = funcs_at[target]
+                    words[idx] &= ~0x3FFFFFF
+            relocs.append((r_offset - start, _MIPS_RELOC_NAMES[rtype], sym_name))
+
+    lines = [
+        ".set noreorder",
+        ".set noat",
+        '.section .text, "ax"',
+        f".globl {func}",
+        f".type {func}, @function",
+        f"{func}:",
+    ]
+    lines += [f".word 0x{w:08X}" for w in words]
+    lines.append(f".size {func}, .-{func}")
+    lines += [f".reloc {func}+0x{off:X}, {rname}, {sym}" for off, rname, sym in sorted(relocs)]
+    return "\n".join(lines) + "\n"
+
+
+
 def get_compile_flags(src_file: Path) -> tuple[str, str]:
     """Determine the IDO compiler and CFLAGS make uses for this src file."""
     rel_src = src_file.relative_to(ROOT)
@@ -136,7 +239,7 @@ def extract_func_definition(source: str, func_name: str) -> str:
     """Extract a single function definition from C source text."""
     # Find start of function header
     kr_decl_pat = r"\s*(?:[a-zA-Z0-9_* \t,()]+;\s*)*"
-    pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + kr_decl_pat + r"\{{)", re.DOTALL)
+    pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + kr_decl_pat + r"\{)", re.DOTALL)
     m = pat.search(source)
     if not m:
         raise ValueError(f"function '{func_name}' definition not found in source")
@@ -283,7 +386,7 @@ def deduplicate_externs(source: str, func_name: str) -> str:
     """
     lines = source.splitlines()
     kr_decl_pat = r"\s*(?:[a-zA-Z0-9_* \t,()]+;\s*)*"
-    func_pat = re.compile(rf"\b{re.escape(func_name)}\s*\([^;]*$|\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + kr_decl_pat + r"\{{", re.DOTALL)
+    func_pat = re.compile(rf"\b{re.escape(func_name)}\s*\([^;]*$|\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + kr_decl_pat + r"\{", re.DOTALL)
     func_line = next((i for i, l in enumerate(lines) if func_pat.search(l) and not l.lstrip().startswith("extern")), len(lines))
     decl_re = re.compile(r"extern\s+[a-zA-Z0-9_* \t]+\b([A-Za-z0-9_]+)\s*(?:\[[^\]]*\])*\s*;")
     keep = {}
@@ -303,15 +406,106 @@ def deduplicate_externs(source: str, func_name: str) -> str:
     return "\n".join(new_lines)
 
 
+_CONTROL_HEADER = re.compile(r"(?<![\w.>])(?:if|while|for|switch)\s*\(\)$")
+_LEADING_KEYWORD = re.compile(r"(else|do)\b\s*(.+)")
+_LEADING_LABEL = re.compile(r"((?:case\b[^:]*|default|[A-Za-z_]\w*)\s*:)(?!:)\s*(.+)")
+
+
+def _mask_line(line: str) -> Optional[str]:
+    """Drop string/char literal and parenthesised contents; None if parens are unbalanced."""
+    out = []
+    depth = 0
+    i, n = 0, len(line)
+    while i < n:
+        c = line[i]
+        if c in "\"'":
+            j = i + 1
+            while j < n and line[j] != c:
+                j += 2 if line[j] == "\\" else 1
+            if depth == 0:
+                out.append(c + c)
+            i = j + 1
+            continue
+        if c == "(":
+            depth += 1
+            if depth == 1:
+                out.append(c)
+        elif c == ")":
+            depth -= 1
+            if depth < 0:
+                return None
+            if depth == 0:
+                out.append(c)
+        elif depth == 0:
+            out.append(c)
+        i += 1
+    return "".join(out) if depth == 0 else None
+
+
+def _line_pieces(masked: str) -> List[str]:
+    """Split a masked source line into the pieces pycparser prints on separate lines."""
+    pieces: List[str] = []
+    cur = ""
+
+    def flush() -> None:
+        nonlocal cur
+        rest = cur.strip()
+        cur = ""
+        while rest:
+            m = _LEADING_KEYWORD.fullmatch(rest) or _LEADING_LABEL.fullmatch(rest)
+            if not m:
+                pieces.append(rest)
+                return
+            pieces.append(m.group(1))
+            rest = m.group(2).strip()
+
+    for c in masked:
+        if c in "{}":
+            flush()
+            pieces.append(c)
+        elif c == ";":
+            cur += c
+            flush()
+        else:
+            cur += c
+            if c == ")" and _CONTROL_HEADER.search(cur):
+                flush()
+    flush()
+    return pieces
+
+
+def _needs_sameline(line: str) -> bool:
+    """True if pycparser would print two code pieces of this line on separate lines.
+
+    IDO schedules by source line (as1), so the permuter's reprint of e.g.
+    `i = 0; do {` or `if (x) return;` compiles differently from the original.
+    Pieces that carry no code of their own (`{`, `}`, `else`, an empty `;`) do not count.
+    """
+    masked = _mask_line(line.strip())
+    if masked is None or not masked or masked[-1] not in ";{}:":
+        return False
+    if re.search(r"=\s*\{", masked):  # aggregate initializer, not a block
+        return False
+    code = [p for p in _line_pieces(masked) if p not in ("{", "}", "else", ";")]
+    return len(code) > 1
+
+
 def wrap_multi_statement_lines(source: str, func_name: str) -> str:
-    """Wrap lines with multiple statements inside func_name in PERM_FORCE_SAMELINE."""
+    """Wrap lines of func_name whose pieces pycparser would split in PERM_FORCE_SAMELINE.
+
+    A wrapped line may open or close a block: the evaluated sameline pragmas
+    then sit at statement boundaries inside and outside it, which pycparser
+    accepts. A pragma never goes where it would end up as the body of an
+    `if`/`else`/`do` or split an `if` from its `else` or a do-body from its
+    `while`, so such lines stay unwrapped.
+    """
     kr_decl_pat = r"\s*(?:[a-zA-Z0-9_* \t,()]+;\s*)*"
-    pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + kr_decl_pat + r"\{{)", re.DOTALL)
+    pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + kr_decl_pat + r"\{)", re.DOTALL)
     m = pat.search(source)
     if not m:
         return source
     start_idx = m.start(2)
-    brace_idx = source.find("{", start_idx)
+    brace_idx = m.end(2) - 1
     level = 1
     i = brace_idx + 1
     n = len(source)
@@ -324,40 +518,35 @@ def wrap_multi_statement_lines(source: str, func_name: str) -> str:
     func_text = source[start_idx:i]
 
     lines = func_text.splitlines()
-    new_lines = []
-    for idx, line in enumerate(lines):
-        if idx == 0 or idx == len(lines) - 1:
-            new_lines.append(line)
-            continue
-        s = line.strip()
-        if not s or s.startswith("//") or s.startswith("/*") or s.startswith("#"):
-            new_lines.append(line)
-            continue
-        if "PERM_" in s:
-            new_lines.append(line)
-            continue
-        if re.match(r"^\s*for\s*\(", line):
-            paren_depth = 0
-            open_idx = line.find("(")
-            close_idx = -1
-            for j in range(open_idx, len(line)):
-                if line[j] == "(":
-                    paren_depth += 1
-                elif line[j] == ")":
-                    paren_depth -= 1
-                    if paren_depth == 0:
-                        close_idx = j
-                        break
-            if close_idx != -1:
-                after_for = line[close_idx + 1:]
-                if after_for.count(";") <= 1:
-                    new_lines.append(line)
-                    continue
-        if s.count(";") > 1:
+    body_first = func_text[:brace_idx - start_idx].count("\n") + 1
+    body = lines[body_first:-1]
+    code_idx = [k for k, line in enumerate(body) if line.strip() and not line.strip().startswith("#")]
+
+    def continues(prev_end: str, s: str) -> bool:
+        return bool(re.match(r"else\b", s)) or (prev_end == "}" and bool(re.match(r"while\b", s)))
+
+    wrap = set()
+    for pos, k in enumerate(code_idx):
+        s = body[k].strip()
+        prev_end = body[code_idx[pos - 1]].strip()[-1] if pos else "{"
+        nxt = body[code_idx[pos + 1]].strip() if pos + 1 < len(code_idx) else "}"
+        if (
+            "PERM_" not in s
+            and prev_end in ";{}:"
+            and not continues(prev_end, s)
+            and (s[-1] == "{" or not continues(s[-1], nxt))
+            and _needs_sameline(s)
+        ):
+            wrap.add(k)
+
+    new_lines = lines[:body_first]
+    for k, line in enumerate(body):
+        if k in wrap:
             indent = line[:len(line) - len(line.lstrip())]
-            new_lines.append(f"{indent}PERM_FORCE_SAMELINE({s})")
+            new_lines.append(f"{indent}PERM_FORCE_SAMELINE({line.strip()})")
         else:
             new_lines.append(line)
+    new_lines += lines[-1:] if len(lines) > body_first else []
 
     new_func_text = "\n".join(new_lines)
     return source[:start_idx] + new_func_text + source[i:]
@@ -425,32 +614,38 @@ def cmd_setup(args: argparse.Namespace) -> None:
     # 2. Build target.o
     target_o = out_dir / "target.o"
     if asm_path is None:
-        # Matched function: copy from expected/
+        # Matched function: rebuild just this function from expected/ (the whole
+        # TU object would be scored instruction by instruction against it).
         rel_src = src_path.relative_to(ROOT) if src_path.is_absolute() else src_path
         expected_o = ROOT / "expected" / "build" / rel_src.with_suffix(".o")
         if not expected_o.exists():
             sys.exit(f"error: expected object '{expected_o}' not found (run make expected)")
-        shutil.copy(expected_o, target_o)
-    else:
-        # Assemble with project prelude and VR4300 flags
-        as_bin = shutil.which("mips-linux-gnu-as") or "mips-linux-gnu-as"
-        as_cmd = [
-            as_bin,
-            "-EB",
-            "-march=vr4300",
-            "-mabi=32",
-            "-mgp32",
-            "-mfp32",
-            "-I",
-            "include",
-            "include/asm_prelude.inc",
-            str(asm_path),
-            "-o",
-            str(target_o),
-        ]
-        res_as = subprocess.run(as_cmd, cwd=ROOT, capture_output=True, text=True)
-        if res_as.returncode != 0:
-            sys.exit(f"error assembling target.o:\n{res_as.stderr}")
+        try:
+            target_asm = function_asm_from_object(expected_o.read_bytes(), func)
+        except ValueError as e:
+            sys.exit(f"error: cannot extract '{func}' from '{expected_o}': {e}")
+        asm_path = out_dir / "target.s"
+        asm_path.write_text(target_asm, encoding="utf-8")
+
+    # Assemble with project prelude and VR4300 flags
+    as_bin = shutil.which("mips-linux-gnu-as") or "mips-linux-gnu-as"
+    as_cmd = [
+        as_bin,
+        "-EB",
+        "-march=vr4300",
+        "-mabi=32",
+        "-mgp32",
+        "-mfp32",
+        "-I",
+        "include",
+        "include/asm_prelude.inc",
+        str(asm_path),
+        "-o",
+        str(target_o),
+    ]
+    res_as = subprocess.run(as_cmd, cwd=ROOT, capture_output=True, text=True)
+    if res_as.returncode != 0:
+        sys.exit(f"error assembling target.o:\n{res_as.stderr}")
 
     # 3. Build compile.sh
     cc, cflags = get_compile_flags(src_file=src_path)
