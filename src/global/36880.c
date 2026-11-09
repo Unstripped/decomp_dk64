@@ -65,7 +65,7 @@ s16 modelTypeCountGet(u8 arg0) {
 }
 
 u8 mapGetHubWorldIndex(u8, u8);
-void *assetLoad(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
 void modelAssetGetSubtables(u8 *, u8 **, u8 **);
 s32 modelTypeIsCounted(u16);
 void assetSetImmediateFree(void);
@@ -367,7 +367,7 @@ typedef struct ModelFlagNode {
     /* 0x24 */ u8 unk24;
 } ModelFlagNode;
 
-s32 flagGet(s32, s32);
+u8 flagGet(s16, u8);
 
 void modelNodeListSyncFlags(ModelFlagNode *arg0) {
     ModelFlagTarget *obj;
@@ -445,7 +445,7 @@ s32 modelSlotFindByType(s32 arg0, s32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, s1
 }
 
 extern u8 D_807F6008;
-void faultSetMessage(s32, s32, s32, s32);
+void faultSetMessage(u8, s32, s32, s32);
 f32 func_80636A44(s32);
 s16 csModelIdTableAlloc(s16, u8);
 
@@ -735,7 +735,7 @@ void modelFlagsApplyMapPairs(s16 arg0, u8 *arg1) {
     }
 }
 
-s32 func_80731654(s16, s16);
+u8 func_80731654(s16, s16);
 
 void modelFlagsApplyState(s16 arg0, s16 arg1, u8 *arg2) {
     switch (func_80731654(arg0, arg1)) {
@@ -1831,7 +1831,7 @@ typedef struct ModelSlotFreeView {
 
 void actorClearEntrySlot(s16);
 void hashTableRemove(s32);
-void proxPathRemoveActor(s16);
+void proxPathRemoveActor(Actor *);
 void sfxSlotFreeSource(s16);
 s32 mapPurgeNodeList();
 void renderEntryRemove(s32, s32, s32, u8 *);
@@ -2978,7 +2978,7 @@ typedef struct {
 void texAnimUpdateNodes(ModelSegmentData *);
 void csUpdateStepAndInterpolation(void *);
 void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
-void lightQueueKeyframed(u8, s16, f32, f32, f32, s32, f32, s32);
+void lightQueueKeyframed(u8, s16, f32, f32, f32, s16, f32, s16);
 s32 func_806D0964(s32, u8, s32);
 void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
 f32 renderScaleDistanceByFov(f32);
@@ -3196,9 +3196,8 @@ extern s32 D_807F600C;
 extern s32 D_807F5FD8;
 
 f32 renderScaleDistanceByFov(f32);
-void lightQueueKeyframed(u8, s16, f32, f32, f32, s32, f32, s32);
-s32 mapPointOutsideClipBounds(f32, f32, f32, s32, s32);
-void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+s32 mapPointOutsideClipBounds(f32, f32, f32, u8, u8);
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
 void mapSearchTableAddProbe(void *, s16, s16, s16);
 u8 mapSearchTableGetValue(void *);
 void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
