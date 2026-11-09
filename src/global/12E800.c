@@ -56,8 +56,8 @@ extern s32 gCurrentMap;
 extern u8 D_807FBB85;
 void actorScriptStart(Actor *, s32);
 void actorGlobalStateClearEvents(void);
-s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
-void sfxStopSlotSound(Actor *, s32);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
+void sfxStopSlotSound(Actor *, u8);
 void collisionClearFlags(void);
 
 void behaviourFrameBegin(void) {
@@ -186,7 +186,7 @@ typedef struct D1ActorViewJ {
 #define D1DC98J ((D1Dc98ViewJ *)gBehaviourAnimState)
 
 s32 randomNonNegative(void);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);  // FAKE: callee prototype steer
 s32 mathAngleSignedDistance(s16, s16);
 s16 mathAngleEaseToward(s16, s16, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
@@ -291,7 +291,7 @@ typedef struct D1Dc98ViewC {
 #define D1DC98C ((D1Dc98ViewC *)gBehaviourAnimState)
 
 extern D1Tbl8075EB80 D_8075EB80[];
-void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
 
 void behaviourUpdateShadowAlpha(void) {
     u8 a;
@@ -337,9 +337,9 @@ typedef struct D1ActorView3 {
 
 extern u8 D_80720120[];
 extern u16 D_80744508;
-s32 collisionIsGroundImpact();
-s32 collisionIsHeavyGroundImpact();
-s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
+u8 collisionIsGroundImpact(void);
+u8 collisionIsHeavyGroundImpact(void);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32);  // FAKE: callee prototype steer
 
 void behaviourCheckGroundImpactEffects(void) {
     if (D1A3->unk5C & 2) {
@@ -512,7 +512,7 @@ void actorApplyVelocityCustom(Actor *, f32, f32);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 void actorApproachTargetSpeed(u16);
 void actorApplyVelocity(Actor *);
-u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
+u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);  // FAKE: callee prototype steer
 s32 polygonContainsPoint2D(s16, s16, void *);
 s32 zoneCheckActorInside(Actor *, f32, f32, void *, s16 *);
 f32 mathCosF(s16);
@@ -729,7 +729,7 @@ void actorSetBehaviourState(u8 arg0, s16 arg1, s32 arg2) {
     actorSetTargetSpeed(gCurrentActor, arg1);
 }
 
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
 void actorAddPulsingLight(void) {
     u32 phase;
@@ -847,11 +847,11 @@ typedef struct F1Act {
 #define F1S9C ((F1Dc9c *)gBehaviourExtraState)
 
 s32 zoneFindBestReachablePoint(s32, Actor *, void *, s16 *, s16 *, s16 *);
-s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
+s32 pathPlaybackStart(s32, s32, u8, f32, f32, f32, u8);
 void pathPlaybackSetSpeed(s32, u8);
-void pathPlaybackSetLooping(s32, s32);
+void pathPlaybackSetLooping(s32, u8);
 void pathPlaybackSetLoopLimit(s32, s32);
-void pathPlaybackSetActive(s32, s32);
+void pathPlaybackSetActive(s32, u8);
 void pathPlaybackAdvance(s32);
 void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
 void func_80724E48(u8);
@@ -862,7 +862,7 @@ u8 sfxSlotAllocateActor(Actor *, s16, u8, u8, u8, f32, s8);
 void actorQueueDelayedCallback();
 void effectSetCallback(void *);
 void effectSetSpeed(s32);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void func_80717D4C(void);
 extern u8 D_8071FC58[];
 
@@ -1744,7 +1744,7 @@ void sfxPlayAtFBD6CPosition(void) {
     effectCreateAtPosition(&D_8071FB34, 0.55f, D_807FBD6C->x, D_807FBD6C->y, D_807FBD6C->z);
 }
 
-void effectSetMode(s32);
+void effectSetMode(s8);
 extern u8 D_8071FF18;
 extern void func_80717D4C(void);
 
@@ -1757,11 +1757,11 @@ void behaviourSpawnDropParticle(void) {
 }
 
 extern u8 gCurrentPlayerIndex;
-s32 slotQueueGetValue(s32, u8);
+u16 slotQueueGetValue(u8, u8);
 void slotQueueAddValue(s32, u8, s16);
-void slotQueueUpdate(s32, s32, s32);
+void slotQueueUpdate(s32, u8, s32);
 void sfxAllocateChannel(s32, f32);
-void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
+void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
 
 void behaviourAddSlotQueueValueB(s32 arg0) {
     u8 cnt;
@@ -1790,7 +1790,7 @@ void behaviourFadeOutWithinZone(u8 arg0) {
 }
 
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
-s32 camIsCutsceneActive(void);
+u8 camIsCutsceneActive(void);
 
 s32 actorIsTargetWithinAngleDeg(Actor *arg0, Actor *arg1, u16 arg2) {
     f32 deg = mathAngleBetweenPointsDeg((s32)arg1->x, (s32)arg1->z, (s32)arg0->x, (s32)arg0->z);
