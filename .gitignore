@@ -19,3 +19,4 @@ __pycache__/
 /emu/
 /.dkd/
 /compile_commands.json
+/.cache/

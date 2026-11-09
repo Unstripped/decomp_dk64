@@ -115,6 +115,10 @@ The hash proves the bytes; these rules cover what it does not:
 - **Unpark claims are re-verified.** A ROM gate passing does not prove the C was unparked. The orchestrator confirms the claimed match is in the plain C.
 - **Agents never edit `knowledge/`, `tools/`, the Makefile or splat configs.** They report; the orchestrator integrates.
 
+### The cleanup campaign
+
+Once every function matched, the work became making the matched C readable without losing a byte (`.omp/skills/cleanup-unit/`). Every C function gets a recorded review in `drafts/quality.jsonl`, not just the tagged sites, because many hacks were never tagged: `tools/clint.py metrics` finds dead `if`s, no-op arithmetic, `volatile` locals, punned casts and gotos by AST. Each site climbs a fixed ladder of methods (automatic sweeps first, then diagnosis, permuter and rewrites); it counts as exhausted only when every method its kind requires has a fresh result, and results go stale when the function's source, its headers or the IDO knowledge about it change. Shared prototype headers generated from the definitions (`tools/protos.py`, `include/proto/`) replace per-file declarations; a declaration that still steers codegen stays visible as a tagged skip. Renames go through `tools/rename.py`, which refuses names that encode addresses and references hidden in macros. The campaign uses whatever model the user names per run, not the router.
+
 ## Choosing models
 
 Early units used whatever model the session had. From 2026-10-29 on, every attempt was logged with its model, and `tools/ledger.py plan` picks a model per function by Thompson sampling over past outcomes, weighted by relative cost (`ARMS` in `tools/ledger.py`). It sends functions with 6+ tries, or of 400+ instructions, to stronger models alone, and holds functions that have no new evidence since their last failure. `.omp/extensions/decomp-router.ts` applies the chosen model when the subagent is spawned and logs the spawn to `drafts/spawns.jsonl`.
