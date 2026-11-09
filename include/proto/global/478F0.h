@@ -281,7 +281,7 @@ void csCmdSpawnActorNodeByCase(CsState *, s16, s16, s16);
 void csCmdSetPositionPreset(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCondVarLess
-s32 csCondVarLess(CsState *, s16, s16, s16);
+u8 csCondVarLess(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCmdCheckCollectedSufficientItems
 void csCmdCheckCollectedSufficientItems(CsState *, s16, s16, s16);
@@ -290,7 +290,7 @@ void csCmdCheckCollectedSufficientItems(CsState *, s16, s16, s16);
 void csCondWorldHubFlagSet(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCondActorFacingPos
-s32 csCondActorFacingPos(CsState *, s16, s16, s16);
+u8 csCondActorFacingPos(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csFindPlayerSlotByModel
 s32 csFindPlayerSlotByModel(s32, s32);
@@ -299,7 +299,7 @@ s32 csFindPlayerSlotByModel(s32, s32);
 s32 csCondFindPlayerSlotByModel(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCondTransitionState5
-s32 csCondTransitionState5(CsState *, s16, s16, s16);
+u8 csCondTransitionState5(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCondDepositItem
 s32 csCondDepositItem(CsState *, s16, s16, s16);
@@ -401,7 +401,7 @@ s32 csCondFlags82Or83(CsState *, s16, s16, s16);
 u8 csCondCheckSlotMapIndex(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCondCheckFrameTimingMap
-s32 csCondCheckFrameTimingMap(CsState *, s16, s16, s16);
+u8 csCondCheckFrameTimingMap(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCondCheckKongItems
 u8 csCondCheckKongItems(CsState *, s16, s16, s16);
