@@ -30,7 +30,7 @@ typedef struct SchedStruct {
     /* 0x274 */ TaskNode *curRSPTask;
     /* 0x278 */ TaskNode *curRDPTask;
     /* 0x27C */ u32 frameCount;
-    /* 0x280 */ s32 unk280;
+    /* 0x280 */ u32 unk280;
     /* 0x284 */ s32 unk284;
     /* 0x288 */ u64 unk288;
     /* 0x290 */ u64 unk290;
