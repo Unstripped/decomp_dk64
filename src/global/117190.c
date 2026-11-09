@@ -442,16 +442,9 @@ void menuHandleCutsceneScreenTransition(void) {
     }
 }
 void menuHandleIntroScreenTransition(void) {
-    if (D_80755334 >= 0x1E) {
-        if (D_807ECD66 & 0x9000) {
-            goto block_5;
-        }
+    if ((D_80755334 >= 0x1E && (D_807ECD66 & 0x9000)) || gMenuStateTimer == 0) {
+        menuTransitionRequest(0x28, 0, 1);
     }
-    if (gMenuStateTimer != 0) {
-        return;
-    }
-block_5:
-    menuTransitionRequest(0x28, 0, 1);
 }
 
 
