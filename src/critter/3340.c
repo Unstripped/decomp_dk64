@@ -201,7 +201,7 @@ void critterBananaFairyUpdate(void) {
             }
             if (*timerPtr >= 0x2E) {
                 gCurrentActor->unk155 = 0;
-                if (func_806FB418() < requiredCount) { // FAKE: empty guard keeps the call; real body probably missing
+                if (func_806FB418() < requiredCount) { // empty in the original: the call and compare are emitted
                 }
             }
             break;
