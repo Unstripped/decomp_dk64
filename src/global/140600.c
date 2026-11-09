@@ -178,11 +178,11 @@ void rebuildLowPassCoefficients(SynLPFilter *filter, f32 sampleRate) {
     do {
         filter->coeff[i] = 0;
     } while (++i < 8);
-    filter->coeff[0] = (s16)(s32)(((f32 *)&numCoeffs)[0] * (26768.0f - ((f32)filter->unk2 * 128.0f)));
-    filter->coeff[1] = (s16)(s32)(((f32 *)&numCoeffs)[1] * (26768.0f - ((f32)filter->unk2 * 128.0f)));
+    filter->coeff[0] = (s16)(((f32 *)&numCoeffs)[0] * (26768.0f - ((f32)filter->unk2 * 128.0f)));
+    filter->coeff[1] = (s16)(((f32 *)&numCoeffs)[1] * (26768.0f - ((f32)filter->unk2 * 128.0f)));
     filter->coeff[2] = 0;
-    filter->coeff[8] = (s16)(s32)(((f32 *)&denCoeffs)[1] * -16384.0f);
-    filter->coeff[9] = (s16)(s32)(((f32 *)&denCoeffs)[2] * -16384.0f);
+    filter->coeff[8] = (s16)(((f32 *)&denCoeffs)[1] * -16384.0f);
+    filter->coeff[9] = (s16)(((f32 *)&denCoeffs)[2] * -16384.0f);
     i = 10;
     do {
         filter->coeff[i] = 0;
