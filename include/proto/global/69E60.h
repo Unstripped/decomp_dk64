@@ -37,7 +37,7 @@ f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mathAngleBetweenPoints2D
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mathAngleBetweenPointsRad
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);

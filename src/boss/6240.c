@@ -13,6 +13,7 @@
 #include "proto/global/35000.h"
 #include "proto/global/63EC0.h"
 #include "proto/global/FCCD0.h"
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 typedef struct BossC_6240_17C {
     char pad[4];
@@ -321,7 +322,6 @@ s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
 void csModelStateSetFirstByte(s16, s32);
 void actorApplyVelocityCustom(void *, f32, f32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 void actorGetOrSetNodeScale(void *, s32, f32);
 s32 actorTableContains(void *);

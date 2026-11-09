@@ -9,6 +9,7 @@
 #include "proto/global/3C10.h"
 #include "proto/global/8CA50.h"
 #include "proto/global/FCCD0.h"
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 typedef struct {
     u8 unk0;
@@ -177,7 +178,6 @@ void csSendActorMessagePayload(s32, s32);
 void playerSetSizeMode(void *, s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(void *, s32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32);
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);

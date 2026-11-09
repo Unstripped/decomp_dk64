@@ -349,7 +349,7 @@ s16 mathAngleDiscrete(f32 x1, f32 y1, f32 x2, f32 y2, f32 dist) {
     return angleDiscrete;
 }
 
-s32 mathAngleBetweenPoints2D(f32 x1, f32 y1, f32 x2, f32 y2) {
+s16 mathAngleBetweenPoints2D(f32 x1, f32 y1, f32 x2, f32 y2) {
     f32 dx = x1 - x2;
     f32 dy = y1 - y2;
 

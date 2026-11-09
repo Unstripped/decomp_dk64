@@ -9,6 +9,7 @@
 #define PROTO_SKIP_sfxSetChannelPriority // FAKE: callee prototype steer
 #define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
 #define PROTO_SKIP_slotQueueGetValue // FAKE: callee prototype steer
+#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #include "proto/global/114270.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -40,6 +41,7 @@
 #include "proto/global/C0EE0.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/FCCD0.h"
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;

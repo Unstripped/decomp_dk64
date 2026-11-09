@@ -3,6 +3,7 @@
 #include "proto/boss/C920.h"
 #include "proto/global/135D30.h"
 #include "proto/global/35000.h"
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 typedef struct BossD_Actor {
     u8 pad0[0x7C];
@@ -54,7 +55,6 @@ extern void *gCamActor;
 
 s32 playerStateQueueCallback(s32, void *, s32);
 void zoneEntryGetPosition(s32, s32, void *, void *, void *);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void actorScriptStart(void *, s32);
 s32 camIsCutsceneActive(void);
 void camEndPath(void *);

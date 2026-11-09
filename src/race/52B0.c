@@ -8,6 +8,7 @@
 #include "proto/race/52B0.h"
 #include "proto/race/7BD0.h"
 #include "proto/race/A960.h"
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 extern s32 D_8002FC5C[];
 
@@ -279,7 +280,6 @@ extern f32 D_8002FC28;
 extern f32 D_8002FC58;
 s16 mathAngleSignedDistance(s16, s16);
 s16 mathAngleEaseToward(s16, s16, f32);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 extern f32 sqrtf(f32);
 

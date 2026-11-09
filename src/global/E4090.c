@@ -7,6 +7,7 @@
 #define PROTO_SKIP_modelSlotGetType // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #include "sched.h"
+#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #include "proto/global/10E1D0.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -38,6 +39,7 @@
 #include "proto/global/EFDC0.h"
 #include "proto/global/F56F0.h"
 #include "proto/global/FCCD0.h"
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;

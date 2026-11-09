@@ -6,6 +6,7 @@
 #include "proto/global/35000.h"
 #include "proto/global/8CA50.h"
 #include "proto/global/B1F60.h"
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 typedef struct BossA_Struct_807FBB40 {
     u8 pad0[0x7C];
@@ -227,7 +228,6 @@ s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 currentActorTestClearFlag(void);
 void actorSetTargetSpeed(void *, s32);
 void camSetSecondTarget(void *, s32, s32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 mathAngleEaseToward(s16, s16, s32);
 s32 spawnNodeHasActor(s32);
 s32 camIsCutsceneActive(void);

@@ -2,7 +2,6 @@
 #include "actor.h"
 #define PROTO_SKIP_collisionCheckActorFloor // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
 #define PROTO_SKIP_zoneCheckActorInside // PROTO: The number of arguments doesn't agree with the number in the
@@ -204,7 +203,6 @@ typedef struct D1ActorViewJ {
 #define D1DC90J ((D1Dc90ViewJ *)gBehaviourWorkState)
 #define D1DC98J ((D1Dc98ViewJ *)gBehaviourAnimState)
 
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);  // FAKE: callee prototype steer
 
 void actorTurnTowardTarget(u8 mode, f32 arg1, f32 arg2, u16 flags) {
     s16 *cur = &D1AJ->unkE6;

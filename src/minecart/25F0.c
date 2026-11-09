@@ -8,6 +8,7 @@
 #include "proto/global/8CA50.h"
 #include "proto/minecart/0.h"
 #include "proto/minecart/25F0.h"
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 sfxPlayFromActorWithAltitudeCheck(struct Actor *, s16, u8, s16, u8);
 
 typedef struct ModelSub_25F0 {
@@ -203,7 +204,6 @@ void actorDespawn(void *);
 void actorApplyGravity(void);
 void actorApplyVelocity(void *);
 void actorUpdateFloorContactAndTilt(void *, f32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);  // FAKE: callee prototype steer
 s32 mathAngleDistance(s16, s16);
 s32 playerStateQueueCallback(s16, void *, u8);
 

@@ -1,7 +1,6 @@
 #include "common.h"
 #define PROTO_SKIP_camStartPath // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_effectCreateAtActorBone // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
@@ -571,7 +570,6 @@ extern struct GfSndState *D_807457E4[];
 extern s16 D_80770628[];
 extern f32 D_80770B68[];
 extern s32 gFrameCounter;
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimit) {

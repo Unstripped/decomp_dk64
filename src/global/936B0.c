@@ -6,7 +6,6 @@
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_lensFlareAddSource // FAKE: callee prototype steer
 #define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
-#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Improper cast of non-scalar type expression.
 #define PROTO_SKIP_matrixMakeRotationX // FAKE: callee prototype steer
@@ -256,7 +255,6 @@ extern s32 gCurrentMap;
 extern Actor *gActivePlayerActor;
 void matrixMakeRotationX(void *, s32); // FAKE: callee prototype steer
 void lightAdd(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32, s32); // FAKE: callee prototype steer
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 
 #define PICK_MAX(a, b) ((a) < (b) ? (b) : (a))
 #define PICK_MIN(a, b) ((a) < (b) ? (a) : (b))

@@ -2,6 +2,7 @@
 #define PROTO_SKIP_actorDespawn // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_renderCallbacksRegister // PROTO: redeclaration of 'renderCallbacksRegister'; previous declara
+#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #include "proto/boot/3630.h"
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -27,6 +28,7 @@
 #include "proto/race/6650.h"
 #include "proto/race/7BD0.h"
 #include "proto/race/A960.h"
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 
 struct RaceUnknownActor;
 struct RaceStruct3;

@@ -4,6 +4,7 @@
 #include "proto/global/17B90.h"
 #include "proto/global/35000.h"
 #include "proto/global/3C10.h"
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 typedef struct BossC_9C60_Sub0 {
     char pad[0x10];
@@ -157,7 +158,6 @@ void camStartShake(s32, s32, s32);
 void camSetSecondTarget(s32, s32, s32);
 s32 currentActorTestClearFlag(void);
 void csModelStateSetFirstByte(s16, s32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void projectileGetTargetCoords(BossC_9C60_Actor *, s32);
 void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, BossC_9C60_Actor *);
 void func_80724CA4(s32, s32);

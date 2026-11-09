@@ -3,7 +3,6 @@
 #define PROTO_SKIP_func_80711F90 // FAKE: callee prototype steer
 #define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
 #define PROTO_SKIP_mapSetTransitionExtraCounter // FAKE: callee prototype steer
-#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #define PROTO_SKIP_playerWaypointPathStartPacked // FAKE: callee prototype steer
 #include "proto/global/109660.h"
 #include "proto/global/10E1D0.h"
@@ -656,7 +655,6 @@ typedef struct {
 } AimActorAngles;
 
 f32 mathSinF(s16);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 extern u8 gGameMode;
 extern s16 D_807FC624;
 
