@@ -411,10 +411,10 @@ void jetpacUpdatePlayerMovement(JetpacActor *player) {
         vx = player->vx;
         if (vx > 0.0f) {
             player->vx = vx - 0.16666667f;
-            u = (*(volatile s32 *)&player->unk30); // FAKE: volatile forces reload
+            u = player->unk30;
         } else if (vx < 0.0f) {
             player->vx = vx + 0.16666667f;
-            u = (*(volatile s32 *)&player->unk30); // FAKE: volatile forces reload
+            u = player->unk30;
         }
     }
     if (u != 0) {
