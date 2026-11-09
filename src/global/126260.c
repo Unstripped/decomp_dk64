@@ -247,7 +247,7 @@ extern f32 D_807444DC;
 extern f32 func_807444E0;
 
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 commandApplyToLight(u8, Command *, f32, f32, f32, s16);
 
 typedef struct {
