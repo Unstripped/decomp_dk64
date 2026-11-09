@@ -81,7 +81,7 @@ s32 randomNonNegative(void);
 f32 sinApprox(f32);
 s32 mathAngleDistance(s16, s16);
 s32 func_807142D8(void);
-s32 flagGet(s32, s32);
+u8 flagGet(s16, u8);
 void proxPathAdd(Actor *, u8, u8, u8, u8, f32, f32, f32, f32, f32, f32, u8, f32, f32, u8);
 void proxPathSetSegment(Actor *, u8, u8, u8, u8, f32, f32, f32, u8, s16, s16, s16, s16);
 
