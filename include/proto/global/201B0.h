@@ -6,7 +6,6 @@
 struct CamActor;
 struct CamBlendActor;
 struct CamEyeActor;
-struct CamFloorState;
 struct CamFocusState;
 struct CamFollowActor;
 struct CamFollowState;
@@ -44,7 +43,7 @@ void camSetSettleMode(struct CamState *, u8);
 void camSortFloorHits(void);
 #endif
 #ifndef PROTO_SKIP_camFloorSnap
-u8 camFloorSnap(struct CamActor *, struct CamFloorState *, f32, f32 *, f32, u8);
+u8 camFloorSnap(struct CamActor *, struct CamState *, f32, f32 *, f32, u8);
 #endif
 #ifndef PROTO_SKIP_camUpdatePlayerYaw
 void camUpdatePlayerYaw(struct CamStateViewAngle *);
@@ -179,7 +178,7 @@ void camStartShakeFromPoint(struct CamActor *, u8, u16, f32, f32, f32, f32, f32)
 void camStartShake(struct CamActor *, u8, u16);
 #endif
 #ifndef PROTO_SKIP_camStartBlendRamp
-void camStartBlendRamp();
+void camStartBlendRamp(struct CamState *, s16);
 #endif
 #ifndef PROTO_SKIP_func_8061F18C
 void func_8061F18C(struct CamActor *, f32, f32, f32);
