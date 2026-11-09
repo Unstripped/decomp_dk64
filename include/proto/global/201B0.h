@@ -4,17 +4,8 @@
 #include "common.h"
 #include "actor.h"
 struct CamActor;
-struct CamBlendActor;
-struct CamEyeActor;
-struct CamFocusState;
-struct CamFollowActor;
-struct CamFollowState;
 struct CamPathData;
-struct CamResetCam;
 struct CamState;
-struct CamStateFloor;
-struct CamStateViewAngle;
-struct CamStateYaw;
 #ifndef PROTO_SKIP_camCueTimerIsRunning
 u8 camCueTimerIsRunning(void);
 #endif
@@ -31,10 +22,10 @@ void camSnapToTargetHeight(struct CamActor *);
 void func_8061B650(struct CamActor *);
 #endif
 #ifndef PROTO_SKIP_camApplySway
-void camApplySway(struct CamStateYaw *, f32 *, f32 *, f32 *, f32, f32, f32, f32);
+void camApplySway(struct CamState *, f32 *, f32 *, f32 *, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camSampleFloorHeight
-void camSampleFloorHeight(struct CamActor *, struct CamStateFloor *, f32, f32);
+void camSampleFloorHeight(struct CamActor *, struct CamState *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camSetSettleMode
 void camSetSettleMode(struct CamState *, u8);
@@ -46,7 +37,7 @@ void camSortFloorHits(void);
 u8 camFloorSnap(struct CamActor *, struct CamState *, f32, f32 *, f32, u8);
 #endif
 #ifndef PROTO_SKIP_camUpdatePlayerYaw
-void camUpdatePlayerYaw(struct CamStateViewAngle *);
+void camUpdatePlayerYaw(struct CamState *);
 #endif
 #ifndef PROTO_SKIP_camSetFlags
 s32 camSetFlags(struct CamActor *, s32);
@@ -124,16 +115,16 @@ void camClearActorRefs(void *);
 void camNoop201B0(void);
 #endif
 #ifndef PROTO_SKIP_camUpdateFollowHeight
-void camUpdateFollowHeight(struct CamFollowState *);
+void camUpdateFollowHeight(struct CamState *);
 #endif
 #ifndef PROTO_SKIP_camUpdateFollowTargetDistance
-void camUpdateFollowTargetDistance(struct CamFollowActor *);
+void camUpdateFollowTargetDistance(struct CamActor *);
 #endif
 #ifndef PROTO_SKIP_camEndPath
-void camEndPath(struct CamFollowActor *);
+void camEndPath(struct CamActor *);
 #endif
 #ifndef PROTO_SKIP_camCalculateTargetDistanceAndAngles
-void camCalculateTargetDistanceAndAngles(struct CamFollowState *);
+void camCalculateTargetDistanceAndAngles(struct CamState *);
 #endif
 #ifndef PROTO_SKIP_camLoadPathPoint
 void camLoadPathPoint(void);
@@ -160,7 +151,7 @@ void camSetRollBlend(s16, s16, u16);
 void camSnapBehindTarget(struct CamActor *);
 #endif
 #ifndef PROTO_SKIP_camUpdate
-void camUpdate(struct CamResetCam *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
+void camUpdate(struct CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camResetAllPlayers
 void camResetAllPlayers(void);
@@ -211,7 +202,7 @@ u8 camShouldAutoRotate(struct CamActor *, struct CamState *, struct CamActor *);
 u8 camComputeFollowPos(struct CamActor *, struct CamActor *, f32 *, f32 *, f32 *, f32);
 #endif
 #ifndef PROTO_SKIP_camComputeFocusPos
-void camComputeFocusPos(struct CamFocusState *, f32 *, f32 *, f32 *);
+void camComputeFocusPos(struct CamState *, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camComputeFocusPosOffset
 void camComputeFocusPosOffset(struct CamState *, f32 *, f32 *, f32 *, f32);
@@ -247,19 +238,19 @@ void camComputeEyeFocus(struct CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f3
 void camTurnYawToward();
 #endif
 #ifndef PROTO_SKIP_camUpdateFollowBlend
-void camUpdateFollowBlend(struct CamBlendActor *);
+void camUpdateFollowBlend(struct CamActor *);
 #endif
 #ifndef PROTO_SKIP_camApproachFloat
 f32 camApproachFloat(f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camUpdateFollow
-void camUpdateFollow(struct CamEyeActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
+void camUpdateFollow(struct CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camUpdateEyePos
-void camUpdateEyePos(struct CamEyeActor *, f32, f32 *, f32 *, f32 *);
+void camUpdateEyePos(struct CamActor *, f32, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camUpdateFocusPos
-void camUpdateFocusPos(struct CamEyeActor *, f32, f32 *, f32 *, f32 *);
+void camUpdateFocusPos(struct CamActor *, f32, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camIsCellNeighbour
 s32 camIsCellNeighbour(s16, s16);
