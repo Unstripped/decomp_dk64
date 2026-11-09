@@ -10,9 +10,11 @@ method ladder that exhausts them, and the per-function `review` coverage.
   uv run tools/quality.py status [--file src/..c] [--func NAME]
   uv run tools/quality.py rank [--seg S] [--limit N]
   uv run tools/quality.py report [--baseline REV] [--markdown]
-  uv run tools/quality.py carry --rev REV --unit U [src.c...]   after renames: re-stamp results of
-                                         functions that changed since REV only by renames of declared
-                                         names (same type, field offset or symbol address; clang-checked)
+  uv run tools/quality.py carry --rev REV --unit U [src.c...]   re-stamp results of functions that
+                                         changed since REV only by renames of declared names (same type,
+                                         field offset or symbol address; clang-checked) or only by
+                                         file-scope/header text they do not use (same body tokens, same
+                                         text for every declaration/type/macro they reach)
 
 Ledger: drafts/quality.jsonl (env DK64_QUALITY_LEDGER overrides), append-only. Functions are keyed
 by (seg, vram): symbol file / asm / link map via tools/ledger.py, else the build ELF symbol table,
@@ -1084,11 +1086,59 @@ def carry_lines(fns, fn, nlines):
     return set(range(fn["line"], fn["end"] + 1)) | {i for i in range(1, nlines + 1) if i not in inside}
 
 
+def top_index(tu):
+    """name -> top-level cursors of the TU (main file and headers) declaring it: declarations,
+    typedefs, record/enum tags, enum constants (their enum), macro definitions."""
+    idx = collections.defaultdict(list)
+    for c in tu.cursor.get_children():
+        if c.location.file is None or c.kind in (CursorKind.MACRO_INSTANTIATION, CursorKind.INCLUSION_DIRECTIVE):
+            continue
+        if c.spelling and re.fullmatch(r"\w+", c.spelling):
+            idx[c.spelling].append(c)
+        if c.kind == CursorKind.ENUM_DECL:
+            for e in c.get_children():
+                idx[e.spelling].append(c)
+    return idx
+
+
+def decl_tokens(c):
+    """Non-comment tokens of a top-level cursor; a function definition only up to its body."""
+    stop = next((ch.extent.start.offset for ch in c.get_children() if ch.kind == CursorKind.COMPOUND_STMT), None)
+    return [t for t in c.get_tokens() if t.kind != TokenKind.COMMENT and (stop is None or t.extent.start.offset < stop)]
+
+
+def scope_closure(idx, toks):
+    """name -> sorted (file, text) of every top-level declaration TOKS name, transitively through
+    the declarations' own tokens (types, fields' types, macros, prototypes). Name-based, so it
+    over-includes (a local shadowing a global name pulls the global in), never under-includes."""
+    seen, stack = {}, [t.spelling for t in toks if t.kind == TokenKind.IDENTIFIER]
+    while stack:
+        name = stack.pop()
+        if name in seen or name not in idx:
+            continue
+        vals = []
+        for c in idx[name]:
+            dt = decl_tokens(c)
+            vals.append((rel(os.path.join(ROOT, c.location.file.name)), " ".join(t.spelling for t in dt)))
+            stack += [t.spelling for t in dt if t.kind == TokenKind.IDENTIFIER]
+        seen[name] = sorted(vals)
+    return seen
+
+
+def scope_equivalent(old_body, new_body, old_idx, new_idx):
+    """Whether a function is unchanged apart from file-scope or header text it does not use: same
+    body tokens, and every top-level declaration, typedef, record, enum or macro it reaches
+    (`scope_closure`) has the same text in both versions."""
+    if [(t.kind, t.spelling) for t in old_body] != [(t.kind, t.spelling) for t in new_body]:
+        return False
+    return scope_closure(old_idx, old_body) == scope_closure(new_idx, new_body)
+
+
 def cmd_carry(a):
-    """Re-stamp the newest fresh-at-REV events of every function whose source and file-level text
-    changed from REV to HEAD only by renames of declared names (`rename_equivalent`), with HEAD's
-    fingerprints and site keys. Events keep their time, so knowledge filed after them still makes
-    them stale."""
+    """Re-stamp the newest fresh-at-REV events of every function that changed from REV to HEAD only
+    by renames of declared names (`rename_equivalent` over its body and the file's top level), or
+    only by file-scope/header text it does not use (`scope_equivalent`), with HEAD's fingerprints
+    and site keys. Events keep their time, so knowledge filed after them still makes them stale."""
     files = a.files or [p for p in ledger.git("diff", "--name-only", a.rev, "HEAD", "--", "src").split()
                         if p.endswith(".c") and "/libultra/" not in p and os.path.exists(os.path.join(ROOT, p))]
     by_site, by_func = index_events(load_events())
@@ -1104,6 +1154,7 @@ def cmd_carry(a):
         full = os.path.join(ROOT, path)
         otu, ntu = clint.parse(path, unsaved=[(full, old_text)]), clint.parse(path, unsaved=[(full, new_text)])
         otoks, ntoks = file_tokens(otu, path), file_tokens(ntu, path)
+        oidx, nidx = top_index(otu), top_index(ntu)
         for fo, fn in zip(old["functions"], new["functions"]):
             if fn["vram"] is None or fo["vram"] not in (None, fn["vram"]):
                 skipped.append(f"{path}: {fn['name']}: identity changed")
@@ -1113,11 +1164,19 @@ def cmd_carry(a):
             sites_match = [s["kind"] for s in fo["sites"]] == [s["kind"] for s in fn["sites"]]
             lo = carry_lines(old["functions"], fo, old_text.count("\n") + 1)
             ln = carry_lines(new["functions"], fn, new_text.count("\n") + 1)
+            how = "identifier renames only"
             if not sites_match or not rename_equivalent(
                     [t for t in otoks if t.location.line in lo], [t for t in ntoks if t.location.line in ln],
                     lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None)):
-                skipped.append(f"{path}: {fn['name']}: not a pure rename")
-                continue
+                how = "unrelated file-scope changes only"
+                if not sites_match:
+                    skipped.append(f"{path}: {fn['name']}: sites changed")
+                    continue
+                if not scope_equivalent([t for t in otoks if fo["line"] <= t.location.line <= fo["end"]],
+                                        [t for t in ntoks if fn["line"] <= t.location.line <= fn["end"]],
+                                        oidx, nidx):
+                    skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed")
+                    continue
             vram = f"{fn['vram']:08X}"
             keys = [(None, None)] + [(s["key"], sn_) for s, sn_ in zip(fo["sites"], fn["sites"])]
             for okey, nsite in keys:
@@ -1127,11 +1186,11 @@ def cmd_carry(a):
                     if e["fp_local"] == fo["fp_local"] and (e["method"] not in AUTO or e["fp_hdr"] == fo["fp_hdr"]):
                         newest[e["method"]] = e
                 for e in newest.values():
-                    if e["method"] in AUTO and fo["fp_hdr"] != fn["fp_hdr"]:
-                        continue  # headers changed too: automatic results stay stale
+                    if e["method"] in AUTO and fo["fp_hdr"] != fn["fp_hdr"] and how == "identifier renames only":
+                        continue  # headers changed too and were not compared: automatic results stay stale
                     c = dict(e, unit=a.unit, agent="carry", name=fn["name"], file=path, fp_local=fn["fp_local"],
                              fp_hdr=fn["fp_hdr"], site=nsite["key"] if nsite else None,
-                             note=f"carried from {a.rev} (identifier renames only)"
+                             note=f"carried from {a.rev} ({how})"
                              + (f": {e['note']}" if e["note"] else ""))
                     out.append(c)
     for s in skipped:

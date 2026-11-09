@@ -223,3 +223,45 @@ def test_record_dry_run_validates_without_writing(tmp_path, monkeypatch, capsys)
         errs.append(capsys.readouterr().err)
     assert errs[0] == errs[1] and "kept is only for classify" in errs[0]
     assert ledger_path.read_bytes() == before
+
+
+def test_carry_across_unrelated_file_scope_changes(tmp_path, monkeypatch, capsys):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: {"f": 0x80600000, "h": 0x80600100}[name])
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    src = repo / "src" / "global" / "x.c"
+    tail = ("int f(ViewA *p) {\n    if (p->a) {} // FAKE: steers\n    return p->a;\n}\n"
+            "int h(ViewB *p) {\n    return p->b;\n}\n")
+    src.write_text("typedef struct { int a; } ViewA;\ntypedef struct { int b; } ViewB;\n"
+                   "typedef struct { int c; } ViewC;\n" + tail)
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fns = {fn["name"]: dict(fn, file="src/global/x.c") for fn in q.analyze("src/global/x.c", "global")["functions"]}
+    q.append_events([q.event("u1", "a", fns["f"], None, "review", "nohit", note="fake=1/0"),
+                     q.event("u1", "a", fns["f"], fns["f"]["sites"][0], "diagnose", "nohit", quirks=["Q0001"]),
+                     q.event("u1", "a", fns["h"], None, "review", "nohit", note="fake=0/0")])
+
+    # ViewC (used by nobody) deleted, ViewB (used by h) changed layout; f's body and ViewA untouched
+    src.write_text("typedef struct { int a; } ViewA;\ntypedef struct { int pad; int b; } ViewB;\n" + tail)
+    _git(repo, "commit", "-qam", "b")
+    capsys.readouterr()
+    q.main(["carry", "--rev", rev_a, "--unit", "u2"])
+    out = capsys.readouterr().out
+    carried = [e for e in q.load_events() if e.get("agent") == "carry"]
+    assert {(e["name"], e["method"]) for e in carried} == {("f", "review"), ("f", "diagnose")}
+    assert all("unrelated file-scope changes only" in e["note"] for e in carried)
+    assert "h: not a pure rename" in out
+    new = {fn["name"]: dict(fn, file="src/global/x.c") for fn in q.analyze("src/global/x.c", "global")["functions"]}
+    by_site, by_func = q.index_events(q.load_events())
+    assert q.function_state(new["f"], by_site, by_func)["review"] == "✓"
+    assert q.function_state(new["h"], by_site, by_func)["review"] != "✓"

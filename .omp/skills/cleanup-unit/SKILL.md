@@ -112,7 +112,9 @@ Once every agent of the round is idle:
 4. A rename changes the fingerprints of every function it touches: `uv run tools/quality.py
    carry --rev <commit before the renames> --unit "<unit>"` re-stamps their results (only
    renames that keep every name's type, field offset or symbol address; keywords, types and
-   macros unchanged; it lists what it skipped). Commit `drafts/quality.jsonl`.
+   macros unchanged; it lists what it skipped). Commit `drafts/quality.jsonl`. The same command
+   after a merge that deleted or edited file-scope declarations (views, externs, header fields)
+   re-stamps every function whose body and every declaration it reaches are unchanged.
 
 ## 7. Stop rule
 
