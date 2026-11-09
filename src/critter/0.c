@@ -1,4 +1,17 @@
 #include "common.h"
+#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
+#include "proto/critter/0.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17800.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/7130.h"
+#include "proto/global/CEAE0.h"
 
 typedef struct CritterZoneShape {
     /* 0x00 */ s16 unk0;
@@ -204,7 +217,7 @@ void critterInitGroupType2(CritterGroup *grp) {
     }
 }
 
-s32 assetLoad(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void critterPlayAudio(CritterObj *obj) {
     s32 i;
@@ -219,7 +232,6 @@ void critterPlayAudio(CritterObj *obj) {
     }
 }
 
-void assetFreeBuffer(s32, s32, s32);
 
 void critterStopAudio(CritterObj *obj) {
     s32 i;
@@ -242,9 +254,6 @@ void critterUpdateAudio(CritterObj *obj) {
     }
 }
 
-s32 randomLcgNext(void);
-void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
-void sfxPlayAtPosition(f32, f32, f32, s16, u8, f32, u8, u8);
 f32 mathCosF(s16);
 extern u8 D_80770DC9;
 
@@ -281,8 +290,6 @@ void critterUpdateObjType1(CritterObj *obj) {
     critterUpdateAudio(obj);
 }
 
-void critterBuildMatrix(CritterObj *obj);
-void matrixMakeRotationZ(f32 (*)[4], f32);
 extern u8 gGfxBufferIndex;
 extern Vtx D_80029870;
 extern Vtx D_800298D0;
@@ -365,12 +372,6 @@ Gfx *func_80024C88(Gfx *gdl, CritterObj *obj) {
     return gdl;
 }
 
-s16 mathAngleSignedDistance(s16, s16);
-void effectSetDepth(s32);
-void effectSetSpeed(s32);
-void effectSetDuration(s32);
-void effectSetCallback(void *);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern u8 effectWobbleRiseUpdate;
 extern u8 D_8071FC40;
 
@@ -419,10 +420,8 @@ void critterUpdateObjType2(CritterObj *obj) {
 
 extern s32 critterCurrentTexture;
 extern u8 gGfxBufferIndex;
-void critterBuildMatrix(CritterObj *);
 extern Vtx D_80029940[];
 extern Vtx D_80029980[];
-void matrixMakeRotationY(f32 (*)[4], f32);
 
 Gfx *func_8002516C(Gfx *gdl, CritterObj *obj) {
     f32 tailMtx[4][4];
@@ -461,7 +460,6 @@ Gfx *func_8002516C(Gfx *gdl, CritterObj *obj) {
 }
 
 
-s32 randomLcgNext(void);
 
 void critterUpdateObjType4(CritterObj *obj) {
     if (obj->state != 0 && (obj->flags & 1) && (s16)(randomLcgNext() % 255U) < 6) {
@@ -566,10 +564,6 @@ extern Gfx D_80029B30;
 extern Gfx D_80029B78;
 extern Gfx D_80029B88;
 extern s32 gMapChunkCount;
-Gfx *func_800247F4(Gfx *, CritterObj *);
-Gfx *func_80024C88(Gfx *, CritterObj *);
-Gfx *func_8002516C(Gfx *, CritterObj *);
-void lightSampleColorAtPosition(f32, f32, f32, s32, u8 *, u8 *, u8 *, s32);
 
 Gfx *critterRenderGroup(Gfx *gdl, CritterGroup *grp) {
     s32 col;
@@ -825,10 +819,7 @@ s32 critterSteerToTargetCallback(CritterObj *obj, CritterGroup *grp) {
 }
 
 extern f32 sqrtf(f32);
-f32 mathAtan2(f32, f32);
 f32 func_80612800(s16);
-s16 mathAngleEaseToward(s16, s16, f32);
-s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 
 void critterSteerToTarget(CritterObj *obj, CritterGroup *grp, void (*steerFunc)(CritterObj *, CritterGroup *), s32 (*targetPred)(CritterObj *, CritterGroup *)) {
     f32 tx;
@@ -914,7 +905,6 @@ void critterUpdateIdle(CritterObj *obj, CritterGroup *grp) {
     }
 }
 
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void critterUpdateFollowTarget(CritterObj *obj, CritterGroup *grp) {
     s16 angleDiff;
@@ -978,9 +968,6 @@ s32 critterCheckZoneState(CritterObj *obj, CritterGroup *grp) {
     }
     return 0;
 }
-void critterUpdateObjType1(CritterObj *);
-void critterUpdateObjType2(CritterObj *);
-void critterUpdateZoneProximity(CritterObj *);
 
 void critterDispatchAll(CritterGroup *grp) {
     s32 (*cb)(CritterObj *, CritterGroup *);
@@ -1057,10 +1044,6 @@ void critterUpdateGroups(CritterGroups *groups) {
 
 extern CritterGroups *critterGroups;
 void *memcpy(void *, const void *, unsigned int);
-void *heapAlloc(s32);
-void heapClearBlock(void *);
-s16 mapChunkFindByPosition(f32, f32, f32, s32);
-void critterInitGroup(CritterGroup *);
 
 void critterLoadData(u8 *data) {
     s32 g;
@@ -1116,7 +1099,6 @@ void critterInit(void *groups) {
 }
 
 extern s32 gGlobalPauseFlags;
-void critterUpdateGroups(CritterGroups *);
 
 Gfx *critterRender(Gfx *glist) {
     if (gGlobalPauseFlags & 0x10) {
@@ -1128,7 +1110,6 @@ Gfx *critterRender(Gfx *glist) {
     return glist;
 }
 
-void heapFreeDeferred(void *);
 
 void critterCleanup(CritterGroup *grp) {
     u8 objCount;
@@ -1152,7 +1133,6 @@ void critterCleanup(CritterGroup *grp) {
     grp->count = 0;
 }
 
-s32 func_807142D8(void);
 extern f32 D_80029F7C;
 
 void critterInitGroup(CritterGroup *grp) {

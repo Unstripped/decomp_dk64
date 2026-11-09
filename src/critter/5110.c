@@ -1,4 +1,14 @@
 #include "common.h"
+#include "proto/critter/5110.h"
+#include "proto/global/1025E0.h"
+#include "proto/global/112080.h"
+#include "proto/global/135D30.h"
+#include "proto/global/201B0.h"
+#include "proto/global/3C10.h"
+#include "proto/global/7130.h"
+#include "proto/global/90D80.h"
+#include "proto/global/A7710.h"
+#include "proto/global/FCCD0.h"
 
 typedef struct CritterBattleArenaState {
     s16 timer;
@@ -33,21 +43,6 @@ extern Struct_807FBB40 *gCurrentActor;
 extern u16 D_807FCC44;
 extern u8 D_807FCC40[];
 
-u16 camStartPath(void *, s16, u8);
-void slotQueueSetShownValue(u8, u8, s32);
-u8 camIsPathPaused(void);
-void resQueueAttachActor(void *, s32, s32);
-void hudSpawnCountdownTimer(s16, s16, u8);
-void camResumePath(void);
-void actorSetStateTwo(void *);
-void sfxAllocateChannel(s32, f32);
-void flagSet(s16, u8, u8);
-s16 gfxResourceCreate(s16, char *, u8, f32, f32, f32);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-s32 mapFindPreviousSavedMap(s32 *, s32 *);
-void mapTransitionExitCurrent(s32, s32);
-void renderCallbacksRegister(void *, void *, u8);
-Gfx *critterRenderCenterImage(Gfx *, Struct_807FBB40 *);
 
 void critterBattleArenaUpdate(void) {
     s32 pad88;
@@ -202,7 +197,6 @@ extern u8 D_1000118[];
 extern u8 D_2000180[];
 
 
-Gfx * textDrawAnimated(Gfx *, s16, s32, f32, f32, f32, f32);
 
 Gfx *critterRenderCenterImage(Gfx *glistp, Struct_807FBB40 *actor) {
     CritterBattleArenaState *t1 = actor->unk174;

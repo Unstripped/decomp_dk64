@@ -1,4 +1,13 @@
 #include "common.h"
+#define PROTO_SKIP_actorSpawn // FAKE: callee prototype steer
+#define PROTO_SKIP_textGetStringWidth // FAKE: callee prototype steer
+#include "proto/boot/3630.h"
+#include "proto/critter/4840.h"
+#include "proto/global/100180.h"
+#include "proto/global/15050.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/90D80.h"
 
 typedef struct TextData {
     s16 unk0;
@@ -11,13 +20,8 @@ typedef struct TextData {
     char text[32];
 } TextData;
 
-void *heapAlloc(s32);
-s16 critterLayoutWords(TextData *textData, char *text, s16 xOffset);
 
 extern u8 D_1000118[];
-char *_strcpy(char *, const char *);
-char *_strtok(char *, const char *);
-Gfx *critterDrawWord(Gfx *, TextData *, char *, u8);
 
 typedef struct Actor_4840 {
     char pad0[0x7C];
@@ -31,17 +35,13 @@ typedef struct Actor_4840 {
     TextData *unk174;
 } Actor_4840;
 
-s32 textGetStringWidth(s16, s32);
-void heapFree(void *);
-void actorSpawn(s32, s32);
+s32 textGetStringWidth(s16, s32); // FAKE: callee prototype steer
+void actorSpawn(s32, s32); // FAKE: callee prototype steer
 extern s16 gScreenWidth;
 extern Actor_4840 *gSpawnedActor;
 
 extern Actor_4840 *gCurrentActor;
-void renderCallbacksRegister(void *, void *, s32);
-Gfx *critterRenderText(Gfx *, Actor_4840 *);
 
-s32 assetLoad(s32, s32, s32, s32);
 extern s32 D_8002A1C0;
 extern Actor_4840 *D_8002A1C4;
 extern u16 *D_8002A1C8;
@@ -87,7 +87,6 @@ s16 critterLayoutWords(TextData *textData, char *text, s16 xOffset) {
 }
 
 f32 mathSinF(s16);
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, s32, s32);
 extern u8 gGfxBufferIndex;
 
 Gfx *critterDrawWord(Gfx *glistp, TextData *textData, char *word, u8 wordIndex) {

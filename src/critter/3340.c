@@ -1,4 +1,25 @@
 #include "common.h"
+#define PROTO_SKIP_currentActorTestClearFlag // PROTO: Type Actor_3340 *  of this argument  is incompatible with ty
+#define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
+#include "proto/critter/3340.h"
+#include "proto/global/112080.h"
+#include "proto/global/119370.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/7130.h"
+#include "proto/global/89250.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/FCCD0.h"
 
 typedef struct J0b2Sub {
     char pad0[0x34];
@@ -37,27 +58,8 @@ extern Actor_3340 *gPrimaryPlayerActor;
 extern Actor_3340 *gActivePlayerState;
 extern s32 gFrameCounter;
 
-void behaviourFrameBegin(void);
-void sfxPlayActorSound(Actor_3340 *, s32, s32, s32, s32, s32, f32, s32);
-s32 flagGet(s32, s32);
-void actorScriptStart(Actor_3340 *, s32);
-s32 flagCountRange(s32, s32, s32);
-void flagSet(s32, s32, s32);
-void camStartPath(Actor_3340 *, s32, s32);
-void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(Actor_3340 *);
-void effectSpawnBurst(s32);
-void actorScriptStartByIndex(Actor_3340 *, s32);
-void sfxPlayFromActorWithAltitudeCheck(Actor_3340 *, s32, s32, s32, s32);
-void sfxStopSlotSound(Actor_3340 *, s32);
-void slotQueueUpdate(s32, s32, s32);
-void slotQueueAddValue(s32, u8, s32);
-void actorUpdateModelMatrix(Actor_3340 *, s32);
 
-void animSetLoopLimit(void *, s32, s32);
-void animSetSpeed(void *, s32, f32);
-void animSetFrameAndSubframe(void *, s32, s16, f32);
-void animSetFinished(void *, s32, s32);
 
 
 void critterSetDigitFrames(s32 val) {
@@ -92,20 +94,7 @@ extern u8 D_8071FE08[];
 extern u8 D_80720A7C[];
 extern void *gCamActor;
 
-s32 mapGetHubWorldIndex(u8, s32);
-s32 camIsCutsceneActive(void);
-s32 camIsPathPaused(void);
-void camStartShake(void *, s32, s32);
-s32 func_806FB418(void);
-void resQueueSetValue(s32);
-void resQueueAttachActor(void *, s32, s32);
-void effectSetDepth(s32);
-void effectSetDuration(s32);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-f32 randomFloat(void);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 f32 sqrtf(f32);
-void critterSetDigitFrames(s32 val);
 
 void critterBananaFairyUpdate(void) {
     s32 worldIndex;
@@ -415,11 +404,7 @@ typedef struct FlutterActorView {
 extern u8 gBossFightPhase;
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 mathAngleSignedDistance(s16, s16);
-void billboardSubmit(Actor_3340 *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void actorUpdateFloorContactAndTilt(Actor_3340 *, f32);
-u8 func_8072881C(u8, u32 *);
+s32 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 
 void critterFlutterFlyUpdate(void) {
     f32 dx;
