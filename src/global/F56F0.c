@@ -1742,7 +1742,7 @@ void playerStateWaypointAimUpdate(F5L1Control *arg0, s32 arg1) {
     }
     if (gWaypointFlags || gWaypointCallbackParam) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if (close) {
-        eq = gWaypointIndex + 2 == gWaypointPathEntry->unk0; // FAKE: bool temp
+        eq = gWaypointIndex + 2 == gWaypointPathEntry->unk0;
         if (flags == 0) {}  // FAKE: dead test
         if (eq) {
             F5L1_B8 = 0;
