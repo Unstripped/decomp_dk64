@@ -1182,9 +1182,9 @@ ActorSub140 *actorSub140Alloc(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, 
     temp_v0->height = arg5;
     temp_v0->scaledRadius = (s32) (arg4 * arg3 * 8.0f);
     temp_v0->scaledHeight = (s32) (arg5 * arg3 * 8.0f);
-    temp_v0->boxBounds = arg6;
-    temp_v0->unk74 = arg7;
-    temp_v0->unk78 = arg8;
+    temp_v0->boxBounds = (void *)arg6;
+    temp_v0->unk74[0] = (Mtx *)arg7;
+    temp_v0->unk74[1] = (Mtx *)arg8;
     temp_v0->unk7C = -1;
     temp_v0->unk80 = -2;
     temp_v0->unk84 = -1;
@@ -1417,7 +1417,7 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
         } else {
             var_v1 = (gGfxBufferIndex ^ 1);
         }
-        mtx = ((Mtx **)&arg0->unk74)[var_v1];
+        mtx = arg0->unk74[var_v1];
         ent = arg0->boxes;
         box = (CollisionBox *)arg0->unkA4;
         i = 0;
@@ -1431,7 +1431,7 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
                 do {
                     unk24 = ent->boneOffset;
                     if (none == unk24) {
-                        memcpy(spCC, (void *)arg0->boxBounds, 0x40);
+                        memcpy(spCC, arg0->boxBounds, 0x40);
                         guMtxXFMF(spCC, var_s0[0], var_s0[3], var_s0[6], var_s2, var_s3, var_s1);
                     } else {
                         guMtxXFML((Mtx *)(((unk24 >> 6) << 6) + (u8 *)mtx), var_s0[0], var_s0[3], var_s0[6], var_s2, var_s3, var_s1);
@@ -1518,13 +1518,13 @@ void actorSub140TransformTriangles(ActorSub140 *arg0) {
         } else {
             var_v1 = (gGfxBufferIndex ^ 1);
         }
-        mtx = ((Mtx **)&arg0->unk74)[var_v1];
+        mtx = arg0->unk74[var_v1];
         curr = first;
         for (i = 0; i < arg0->triangleCount; i++) {
             for (j = 0; j < 3; j++) {
                 unk48 = (&curr->unk48)[j];
                 if ((unk48 ^ 0) == -1) { // FAKE: ^ 0 steers bne operand order
-                    memcpy(sp6C, (void *)arg0->boxBounds, 0x40);
+                    memcpy(sp6C, arg0->boxBounds, 0x40);
                     guMtxXFMF(sp6C, curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);
                 } else {
                     guMtxXFML((Mtx *)((((unk48 >> 6) << 6)) + (u8 *)mtx), curr->x[j], curr->x[j + 3], curr->x[j + 6], &curr->out[j], &curr->out[j + 3], &curr->out[j + 6]);

@@ -61,9 +61,8 @@ typedef struct ActorSub140 {
     /* 0x68 */ s32 unk68;
     /* 0x6C */ u8 unk6C;
     /* 0x6D */ u8 pad6D[3];
-    /* 0x70 */ s32 boxBounds;
-    /* 0x74 */ s32 unk74;
-    /* 0x78 */ s32 unk78;
+    /* 0x70 */ void *boxBounds;
+    /* 0x74 */ Mtx *unk74[2]; /* per gfx buffer, indexed by gGfxBufferIndex */
     /* 0x7C */ s32 unk7C;
     /* 0x80 */ s32 unk80;
     /* 0x84 */ s32 unk84;
