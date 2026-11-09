@@ -65,6 +65,10 @@ A successful build ends with `build/dk64.us.z64: OK`.
 
 Each code segment has its own splat config (`dk64.us.yaml`, `dk64.global.us.yaml`, `dk64.<overlay>.us.yaml`) and expected hashes (`*.sha1`). The full ROM map is in [ROADMAP.md](ROADMAP.md).
 
+## How this was made
+
+This decompilation was written by LLM coding agents (Claude, Gemini and GPT models, run through the [omp](https://github.com/can1357/oh-my-pi) harness), orchestrated and reviewed by one person. Every commit is gated on the byte-identical ROM hash; constructs kept only to steer the compiler are tagged `// FAKE`. The agent setup ships with the repository (`AGENTS.md`, `.omp/`, `knowledge/ido/`, `drafts/`, `tools/`), and [METHODOLOGY.md](METHODOLOGY.md) describes how it works and how to reuse it for another game.
+
 ## Contributing
 
 The workflow for decompiling a function, compiler notes and repository conventions are in [AGENTS.md](AGENTS.md). In short:
@@ -79,6 +83,6 @@ Never commit ROMs, extracted binaries (`bin/`, `assets/`) or generated asm (`asm
 
 The original work in this repository (decompiled C, headers, build configuration and tools) is dedicated to the public domain under [CC0 1.0 Universal](LICENSE). CC0 covers only the contributors' own work; it grants no rights in Donkey Kong 64 itself or in any third-party material.
 
-Excluded from this license: the libultra/SDK headers mirrored from [decompals/ultralib](https://github.com/decompals/ultralib) (`include/PR/`, `include/libultra/`, `include/sys/`, `include/ultra64.h`) and the ultralib-derived files in `src/boot/libultra/`. They keep their original Silicon Graphics / Nintendo copyright notices and are distributed as-is; this repository grants no permission to use or redistribute them.
+Excluded from this license: the libultra/SDK headers and other files mirrored from [decompals/ultralib](https://github.com/decompals/ultralib) (`include/PR/`, `include/PRinternal/`, `include/libultra/`, `include/sys/`, `include/compiler/`, `include/ultra64.h`, `include/ultrahost.h`, `include/asm.h`, `include/assert.h`, `include/regdef.h`, `include/fpregdef.h`, `include/sgidefs.h`) and the ultralib-derived files in `src/boot/libultra/`. They keep any original Silicon Graphics / Nintendo copyright notices and are distributed as-is; this repository grants no permission to use or redistribute them.
 
 This repository contains no ROM, game assets or game binaries; building requires your own legally obtained copy of the game. This project is not affiliated with or endorsed by Nintendo or Rare. Donkey Kong is a trademark of Nintendo.

@@ -9,6 +9,8 @@
 /assets/
 *.ld
 *.o
+# IDO `cc -S` listings and scratch asm at the repo root (experiments belong in .scratch/)
+/*.s
 undefined_*_auto.*.txt
 __pycache__/
 .splat/
