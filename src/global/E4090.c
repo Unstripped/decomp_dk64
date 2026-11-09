@@ -921,8 +921,7 @@ void playerInputNoop(void) {
 
 
 extern u32 D_80767CC0;
-extern u8 gScheduler[];
-#define G24_SCHED280 (*(u32 *)(gScheduler + 0x280)) // FAKE: gScheduler+0x280 keeps %lo(gScheduler) and the 0x280 load offset (D_80767CC0 changes the bytes)
+extern SchedStruct gScheduler;
 extern f32 gKongTurnDecelRates[];
 extern f32 gKongCannonInitialPitch[];
 extern f32 D_807535CC[];
@@ -1069,13 +1068,6 @@ void playerInputHandleAButtonState61(void) {
 
 f32 sqrtf(f32);
 
-typedef struct LE40BPlayer {
-    /* 0x000 */ u8 pad0[0x8F];
-    /* 0x08F */ u8 unk8F; // PlayerState +0x8F/+0x90: pending header
-    /* 0x090 */ u8 unk90;
-} LE40BPlayer;
-
-#define LE40B_S ((LE40BPlayer *)gActivePlayerState)
 
 extern u8 D_8071FBC8;
 extern u8 D_807200D4;
@@ -1123,11 +1115,11 @@ u8 force;
                 hasFlag = flags & 2;
                 slotQueueAddValue(sel, gCurrentPlayerIndex, -1);
                 if (!isFirstPerson) {
-                    s32 v = LE40B_S->unk8F + 1;
+                    s32 v = gActivePlayerState->unk8F + 1;
                     if (v >= 0x15) {
-                        LE40B_S->unk8F = 0x14;
+                        gActivePlayerState->unk8F = 0x14;
                     } else {
-                        LE40B_S->unk8F = v;
+                        gActivePlayerState->unk8F = v;
                     }
                 }
                 rumbleRequest(gActivePlayerState->playerIndex, 0xFF, 3);
@@ -1192,7 +1184,7 @@ u8 force;
                         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x1EE, 0xFF, 0x7F, 0xA);
                     }
                 }
-                gActivePlayerState->unk91 = LE40B_S->unk90;
+                gActivePlayerState->unk91 = gActivePlayerState->unk90;
                 if (isFirstPerson) {
                     ang = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ);
                 } else {
@@ -1221,7 +1213,7 @@ u8 force;
                         effectSetDepth(1);
                         effectSetSpeed(0x50);
                         effectSetCallback(effectLightPulseOscillate);
-                        effectCreateAtActorBone(&D_807200D4, 0.5f, gActivePlayerActor, LE40B_S->unk90 + 9, 2);
+                        effectCreateAtActorBone(&D_807200D4, 0.5f, gActivePlayerActor, gActivePlayerState->unk90 + 9, 2);
                         if (gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7) {
                             effectSetDepth(1);
                             effectSetSpeed(0x50);
@@ -1229,7 +1221,7 @@ u8 force;
                             effectCreateAtActorBone(&D_8071FBC8, 0.5f, gActivePlayerActor, 9, 2);
                         }
                     }
-                    projectileGetTargetCoords(gActivePlayerActor, LE40B_S->unk90 + 9);
+                    projectileGetTargetCoords(gActivePlayerActor, gActivePlayerState->unk90 + 9);
                     projectileSpawnNodeEntry(spawnId, (s16)flags, scale, gActivePlayerActor->yaw, D_80753E2C[gCurrentCharacterIndex], 0.0f, gActivePlayerActor);
                 }
                 if ((func_80714608(0) != 0) && (slotQueueGetValue((u8)sel, gCurrentPlayerIndex) == 0)) {
@@ -1451,14 +1443,14 @@ void playerInputHandleAButtonSub61(void) {
 
 void playerInputHandleAButtonSub58(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = G24_SCHED280;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((G24_SCHED280 - gActivePlayerState->jumpTimer) < 0xF) {
+    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer) < 0xF) {
         gCurrentActor->state = 0x58;
         gCurrentActor->unk155[0] = 0;
         gActivePlayerState->unk50 = 0;
         gActivePlayerState->approachTimer = 0;
-        gActivePlayerState->jumpTimer = G24_SCHED280 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
     }
 }
 
@@ -1758,20 +1750,7 @@ void playerInputHandlerStartScript15(void) {
     gCurrentActor->unk155[0] = 7;
 }
 
-typedef struct GlobalTriggerView { // gActorGlobalState trigger fields: pending header
-    /* 0x00 */ u8 pad0[2];
-    /* 0x02 */ u8 unk2;
-    /* 0x03 */ u8 pad3;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ u8 unk14;
-} GlobalTriggerView;
 
-
-#define GLOBAL_TRIGGER ((GlobalTriggerView *)&gActorGlobalState)
 
 extern u8 D_807FBB8C;
 extern f32 D_807531E0[];
@@ -1845,10 +1824,10 @@ void playerInputHandleBButtonGun(void) {
 }
 
 s32 playerInputCheckBButtonTarget(void) {
-    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) && GLOBAL_TRIGGER->unk2 && (GLOBAL_TRIGGER->unk14 == 8)) {
-        gActivePlayerState->unk220 = GLOBAL_TRIGGER->unk4;
-        gActivePlayerState->unk224 = GLOBAL_TRIGGER->unk8;
-        gActivePlayerState->unk228 = GLOBAL_TRIGGER->unkC;
+    if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) && gActorGlobalState.unk2 && (gActorGlobalState.unk14 == 8)) {
+        gActivePlayerState->unk220 = gActorGlobalState.unk4;
+        gActivePlayerState->unk224 = gActorGlobalState.unk8;
+        gActivePlayerState->unk228 = gActorGlobalState.unkC;
         playerStateQueueCallback(0x1F, 0, gCurrentPlayerIndex);
         return 1;
     }
@@ -2073,41 +2052,21 @@ s32 actorAnyActiveHasFlag2000000(void) {
     return ret;
 }
 
-typedef struct G26Mob {
-    /* 0x00 */ u8 pad0[0x58];
-    /* 0x58 */ s32 unk58;
-    /* 0x5C */ u8 pad5C[0x6A - 0x5C];
-    /* 0x6A */ u16 unk6A;
-    /* 0x6C */ u8 pad6C[0x7C - 0x6C];
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ f32 unk80;
-    /* 0x84 */ f32 unk84;
-    /* 0x88 */ f32 unk88;
-    /* 0x8C */ f32 unk8C;
-    /* 0x90 */ f32 unk90;
-    /* 0x94 */ f32 unk94;
-    /* 0x98 */ f32 unk98;
-    /* 0x9C */ u8 pad9C[0x10C - 0x9C];
-    /* 0x10C */ s16 unk10C;
-    /* 0x10E */ u8 pad10E[2];
-    /* 0x110 */ u8 unk110;
-} G26Mob;
-
 extern u32 gFrameCounter;
 extern s32 gGlobalCutsceneFlags;
 
 void playerInputCheckInstrumentPlayback(void) {
-    u8 r;
+    u8 isTarget;
     u32 n;
 
     if ((gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 8) && (gFrameCounter >= 3) && (D_807FD568[4] & 1) &&
         !(gGlobalOverlayFlags & 0x4000) && !(gGlobalCutsceneFlags & 1) &&
         (gPlayerSlots[gCurrentPlayerIndex].unk2C0 != 2) &&
-        (playerInputCheckTargetMoved((G26Mob *)gCurrentActor) == 0) && (actorAnyActiveHasFlag2000000() == 0) &&
+        (playerInputCheckTargetMoved(gCurrentActor) == 0) && (actorAnyActiveHasFlag2000000() == 0) &&
         (gActivePlayerState->damageCooldown == 0)) {
-        r = func_806E560C((G26Mob *)gCurrentActor);
-        if ((gCurrentMap != 0xCD) || (r != 0)) {
-            n = r;
+        isTarget = func_806E560C(gCurrentActor);
+        if ((gCurrentMap != 0xCD) || (isTarget != 0)) {
+            n = isTarget; // FAKE: widened copy keeps the u8 result in its own web (n == 0 tests)
             if ((slotQueueGetValue(7, gCurrentPlayerIndex) != 0) || (n != 0)) {
                 playerStateQueueCallback(0x53, 0, gActivePlayerState->playerIndex);
                 if (!(gGlobalCutsceneFlags & 2)) {
@@ -2126,66 +2085,66 @@ void playerInputCheckInstrumentPlayback(void) {
 
 s32 modelSlotGetType();
 
-u8 playerInputCheckTargetMoved(G26Mob *mob) {
+u8 playerInputCheckTargetMoved(Actor *mob) {
     f32 dx;
     f32 dy;
     f32 dz;
 
-    if (mob->unk110 == 1) {
-        dx = mob->unk94 - mob->unk88;
-        dz = mob->unk98 - mob->unk90;
+    if (mob->attachMode == 1) {
+        dx = mob->unk94 - mob->prevX;
+        dz = mob->unk98 - mob->prevZ;
         if (sqrtf(dx * dx + dz * dz) > 1.0) {
             return 1;
         }
     }
-    if (mob->unk6A & 8) {
-        dx = mob->unk7C - mob->unk88;
-        dz = mob->unk80 - mob->unk8C;
-        dy = mob->unk84 - mob->unk90;
+    if (mob->contactFlags & 8) {
+        dx = mob->x - mob->prevX;
+        dz = mob->y - mob->prevY;
+        dy = mob->z - mob->prevZ;
         if (sqrtf(dx * dx + dz * dz + dy * dy) > 1.0) {
             return 1;
         }
     }
-    if ((mob->unk110 == 1) && (modelSlotGetType(mob->unk10C) == 0x88)) {
+    if ((mob->attachMode == 1) && (modelSlotGetType(mob->cutsceneId) == 0x88)) {
         return 1;
     }
-    if ((mob->unk110 == 1) && (modelSlotGetType(mob->unk10C) == 0x219)) {
+    if ((mob->attachMode == 1) && (modelSlotGetType(mob->cutsceneId) == 0x219)) {
         return 1;
     }
-    if ((mob->unk110 == 1) && (modelSlotGetType(mob->unk10C) == 0x132)) {
+    if ((mob->attachMode == 1) && (modelSlotGetType(mob->cutsceneId) == 0x132)) {
         return 1;
     }
     return 0;
 }
 
-int func_806E560C(G26Mob *mob) {
+int func_806E560C(Actor *mob) {
     u8 ret;
 
     ret = 0;
-    if (mob->unk110 == 1) {
-        switch (modelSlotGetType(mob->unk10C, mob)) {
+    if (mob->attachMode == 1) {
+        switch (modelSlotGetType(mob->cutsceneId, mob)) {
             case 0xA8:
-                if (mob->unk58 == 2) {
+                if (mob->actorType == 2) {
                     ret = 1;
                 }
                 break;
             case 0xA9:
-                if (mob->unk58 == 3) {
+                if (mob->actorType == 3) {
                     ret = 1;
                 }
                 break;
             case 0xAA:
-                if (mob->unk58 == 5) {
+                if (mob->actorType == 5) {
                     ret = 1;
                 }
                 break;
             case 0xAB:
-                if (mob->unk58 == 6) {
+                if (mob->actorType == 6) {
                     ret = 1;
                 }
                 break;
             case 0xAC:
-                if (mob->unk58 == 4) {
+                if (mob->actorType == 4) {
                     ret = 1;
                 }
                 break;
@@ -2205,14 +2164,14 @@ void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototy
 s32 playerInputCheckMultiplayerPlayerTarget() {
     s32 i;
 
-    if (GLOBAL_TRIGGER->unk2 != 0) {
-        switch (GLOBAL_TRIGGER->unk14) {
+    if (gActorGlobalState.unk2 != 0) {
+        switch (gActorGlobalState.unk14) {
             case 9:
                 if (gActivePlayerState->transitionTimer == 0) {
-                    gActivePlayerState->unk204 = GLOBAL_TRIGGER->unk4;
-                    gActivePlayerState->unk208 = GLOBAL_TRIGGER->unk8;
-                    gActivePlayerState->unk20C = GLOBAL_TRIGGER->unkC;
-                    gActivePlayerState->unk21C = GLOBAL_TRIGGER->unk10;
+                    gActivePlayerState->unk204 = gActorGlobalState.unk4;
+                    gActivePlayerState->unk208 = gActorGlobalState.unk8;
+                    gActivePlayerState->unk20C = gActorGlobalState.unkC;
+                    gActivePlayerState->unk21C = gActorGlobalState.unk10;
                     playerStateQueueCallback(0x1E, 0, gCurrentPlayerIndex);
                     playerRestoreKongState(gCurrentActor, gActivePlayerState);
                     return 1;
@@ -2221,9 +2180,9 @@ s32 playerInputCheckMultiplayerPlayerTarget() {
             case 5:
                 if (D_807F6903 == 0) {
                     if (++D_8076A094 < 0x5DD) {
-                        gActivePlayerState->unk204 = GLOBAL_TRIGGER->unk4;
-                        gActivePlayerState->unk208 = GLOBAL_TRIGGER->unk8;
-                        gActivePlayerState->unk20C = GLOBAL_TRIGGER->unkC;
+                        gActivePlayerState->unk204 = gActorGlobalState.unk4;
+                        gActivePlayerState->unk208 = gActorGlobalState.unk8;
+                        gActivePlayerState->unk20C = gActorGlobalState.unkC;
                         playerStateQueueCallback(0x1C, 0, gCurrentPlayerIndex);
                         playerRestoreKongState(gCurrentActor, gActivePlayerState);
                         return 1;
@@ -2233,9 +2192,9 @@ s32 playerInputCheckMultiplayerPlayerTarget() {
             case 3:
                 if (D_807F6903 == 0) {
                     if (++D_8076A094 < 0x5DD) {
-                        gActivePlayerState->unk204 = GLOBAL_TRIGGER->unk4;
-                        gActivePlayerState->unk208 = GLOBAL_TRIGGER->unk8;
-                        gActivePlayerState->unk20C = GLOBAL_TRIGGER->unkC;
+                        gActivePlayerState->unk204 = gActorGlobalState.unk4;
+                        gActivePlayerState->unk208 = gActorGlobalState.unk8;
+                        gActivePlayerState->unk20C = gActorGlobalState.unkC;
                         playerStateQueueCallback(0x1D, 0, gCurrentPlayerIndex);
                         playerRestoreKongState(gCurrentActor, gActivePlayerState);
                         return 1;
@@ -2246,13 +2205,13 @@ s32 playerInputCheckMultiplayerPlayerTarget() {
                 if (D_8076A0B2 == 0) {
                     sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
                     screenSetTransitionFadeType(0);
-                    func_805FF9AC(GLOBAL_TRIGGER->unk10, GLOBAL_TRIGGER->unk12, 0, 0);
+                    func_805FF9AC(gActorGlobalState.unk10, gActorGlobalState.unk12, 0, 0);
                 }
                 return 1;
             case 4:
                 if (!(gActivePlayerState->stateFlags & 0x40)) {
                     playerTransformAnimalStartSfx(gPrimaryPlayerActor);
-                    gActivePlayerState->unk1FE = GLOBAL_TRIGGER->unk10;
+                    gActivePlayerState->unk1FE = gActorGlobalState.unk10;
                 }
                 return 1;
             case 0:
@@ -2265,7 +2224,7 @@ s32 playerInputCheckMultiplayerPlayerTarget() {
                     gActivePlayerState->jumpVelocityY = D_807535CC[gCurrentCharacterIndex] * 2.5;
                     gActivePlayerState->unk50 = 0x28;
                     actorScriptStartByIndex(gCurrentActor, 0x22);
-                    timerQueueAdd(playerInputStartTransitionToMap, 0x14, GLOBAL_TRIGGER->unk10, GLOBAL_TRIGGER->unk12, 0);
+                    timerQueueAdd(playerInputStartTransitionToMap, 0x14, gActorGlobalState.unk10, gActorGlobalState.unk12, 0);
                     for (i = 0; i != 0x14; i++) {
                         effectSetDepth(1);
                         effectSetCallback(func_8071F034);
@@ -2287,13 +2246,13 @@ s32 playerInputCheckMultiplayerPlayerTarget() {
                 gCurrentActor->state = 0x6E;
                 gCurrentActor->unk155[0] = 0;
                 gCurrentActor->speedY = 0.0f;
-                gCurrentActor->accelY = GLOBAL_TRIGGER->unk10 * 0.2 + 2.0;
-                gActivePlayerState->unkC0 = GLOBAL_TRIGGER->unk12;
+                gCurrentActor->accelY = gActorGlobalState.unk10 * 0.2 + 2.0;
+                gActivePlayerState->unkC0 = gActorGlobalState.unk12;
                 actorScriptStart(gCurrentActor, 0x169);
                 return 1;
             case 7:
                 gCurrentActor->unk144 = 1;
-                gActivePlayerState->unk242 = GLOBAL_TRIGGER->unk10;
+                gActivePlayerState->unk242 = gActorGlobalState.unk10;
                 gCurrentActor->state = 0x76;
                 gCurrentActor->unk155[0] = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x86);
@@ -2955,9 +2914,9 @@ void playerInputCheckLadderTopOrBottom(void) {
         }
         if ((*st->unk34 & 0xC0) &&
             ((G28_PADS->stickX >= 0x1F && st->unk3F > 0) || (G28_PADS->stickX < -0x1E && st->unk3F < a1))) {
-            gActivePlayerState->jumpTimer = G24_SCHED280; // FAKE: dead store, overwritten below (keeps the G24_SCHED280 load first)
+            gActivePlayerState->jumpTimer = gScheduler.unk280; // FAKE: dead store, overwritten below (keeps the gScheduler.unk280 load first)
             gActivePlayerState->actor->speedY = D_80750338;
-            gActivePlayerState->jumpTimer = G24_SCHED280 - 0x1E;
+            gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
             cnt = st->unk3F;
             st->unk2C = 1.0f;
             st->unk40 = cnt;
@@ -3449,11 +3408,11 @@ void func_806E9070(void) {
 
     st = gActivePlayerState->actor->customState;
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x8000) {
-        gActivePlayerState->jumpTimer = G24_SCHED280;
+        gActivePlayerState->jumpTimer = gScheduler.unk280;
     }
-    if ((G24_SCHED280 - gActivePlayerState->jumpTimer < 0xF) && (st->unk0 == 0)) {
+    if ((gScheduler.unk280 - gActivePlayerState->jumpTimer < 0xF) && (st->unk0 == 0)) {
         gActivePlayerState->actor->speedY = D_80750338;
-        gActivePlayerState->jumpTimer = G24_SCHED280 - 0x1E;
+        gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
         actorScriptStartByIndex(gCurrentActor, 0x7C);
         if (gCurrentActor->actorType == 2) {
             actorScriptStart(gActivePlayerState->actor, 0x294);

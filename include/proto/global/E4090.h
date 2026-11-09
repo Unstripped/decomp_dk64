@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_E4090_H
 #include "common.h"
 #include "actor.h"
-struct G26Mob;
 struct G29Act;
 struct G29State;
 #ifndef PROTO_SKIP_playerHolsterGun
@@ -247,10 +246,10 @@ s32 actorAnyActiveHasFlag2000000(void);
 void playerInputCheckInstrumentPlayback(void);
 #endif
 #ifndef PROTO_SKIP_playerInputCheckTargetMoved
-u8 playerInputCheckTargetMoved(struct G26Mob *);
+u8 playerInputCheckTargetMoved(Actor *);
 #endif
 #ifndef PROTO_SKIP_func_806E560C
-int func_806E560C(struct G26Mob *);
+int func_806E560C(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerInputCheckMultiplayerPlayerTarget
 s32 playerInputCheckMultiplayerPlayerTarget();
