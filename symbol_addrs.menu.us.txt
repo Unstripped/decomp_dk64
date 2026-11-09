@@ -112,3 +112,7 @@ menuLoadTextTable = 0x800324CC; // type:func
 menuLightSpotlightActorUpdate = 0x80032550; // type:func
 menuUpdateLightFadeActor = 0x8003264C; // type:func
 menuRenderOptionDescription = 0x8003292C; // type:func
+menuOptionDescFade = 0x800339D0;
+menuSpotlightR = 0x80033FB0;
+menuSpotlightG = 0x80033FB1;
+menuSpotlightB = 0x80033FB2;

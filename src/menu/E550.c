@@ -15,9 +15,9 @@
 
 
 extern Actor *gCurrentActor;
-extern u8 D_80033FB0;
-extern u8 D_80033FB1;
-extern u8 D_80033FB2;
+extern u8 menuSpotlightR;
+extern u8 menuSpotlightG;
+extern u8 menuSpotlightB;
 
 
 void menuLightSpotlightActorUpdate(void) {
@@ -29,7 +29,7 @@ void menuLightSpotlightActorUpdate(void) {
         gCurrentActor->flags &= ~4;
     }
     if (gCurrentActor->flags & 4) {
-        lightUpdateFromActorLighting(&D_80033FB0, &D_80033FB1, &D_80033FB2);
+        lightUpdateFromActorLighting(&menuSpotlightR, &menuSpotlightG, &menuSpotlightB);
     }
     switch (gCurrentActor->state) {
     case 0:
@@ -47,7 +47,7 @@ void menuLightSpotlightActorUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern u8 D_800339D0;
+extern u8 menuOptionDescFade;
 extern s32 gGlobalPauseFlags;
 
 void menuUpdateLightFadeActor(void) {
@@ -94,12 +94,12 @@ void menuUpdateLightFadeActor(void) {
             gCurrentActor->tintG = 0;
             gCurrentActor->tintB = 0;
             gCurrentActor->state = 3;
-            D_800339D0 = 0;
+            menuOptionDescFade = 0;
         }
         break;
     case 3:
-        if (D_800339D0 < maxLevel) {
-            D_800339D0++;
+        if (menuOptionDescFade < maxLevel) {
+            menuOptionDescFade++;
         }
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
@@ -147,7 +147,7 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x0F0A4000);
     gDPSetCombine(dl++, 0x119623, 0xFF2FFFFF);
     gSPMatrix(dl++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    alpha = D_800339D0 * 15;
+    alpha = menuOptionDescFade * 15;
     if (alpha > 0xFF) {
         alpha = 0xFF;
     }
@@ -167,8 +167,8 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
         y += 0x29;
         yo += 0x29;
     } while (y != 0x52);
-    if ((s8)D_800339D0 && xo) {}  // FAKE: keep xo below the row-mask priority while merging the post-loop packet block.
-    if ((s8)D_800339D0 && xo) {}  // FAKE: preserve xo's range length and the Combine packet's v0/v1 interference.
+    if ((s8)menuOptionDescFade && xo) {}  // FAKE: keep xo below the row-mask priority while merging the post-loop packet block.
+    if ((s8)menuOptionDescFade && xo) {}  // FAKE: preserve xo's range length and the Combine packet's v0/v1 interference.
     gDPSetTextureFilter(dl++, G_TF_BILERP);
     gDPSetTexturePersp(dl++, G_TP_PERSP);
     xo = (s32)((f32)(gScreenWidth - textGetStringWidth(1, headerStr)) * 0.5f);
