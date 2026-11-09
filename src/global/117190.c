@@ -8,7 +8,7 @@ extern u32 gGlobalCutsceneFlags;
 extern u8 gMenuCurrentMode;
 extern u8 gMenuTargetMode;
 
-extern s32 flagCountRange(s32, s32, s32);
+extern s32 flagCountRange(s32, s32, u8);
 extern s8 D_8075536C;
 extern s32 D_80755338;
 extern s32 D_8075533C;
@@ -26,7 +26,7 @@ void menuTransitionWithState(s32 arg0, s32 arg1, u8 arg2) {
     gMenuTargetMode = arg2;
 }
 
-void screenSetTransitionFadeType(s32);
+void screenSetTransitionFadeType(u8);
 s32 menuIsTransitionActive(void);
 
 void menuTransitionRequest(s32 arg0, s32 arg1, u8 arg2) {
@@ -128,7 +128,7 @@ s32 menuIsTransitionActive(void) {
 
 }
 void mapSlotArrayResetAll(void);
-void flagSet(s32, s32, s32);
+void flagSet(s16, u8, u8);
 
 void menuResetAndTransitionToCredits(void) {
     mapSlotArrayResetAll();
@@ -258,7 +258,7 @@ extern u16 D_807ECD66;
 extern u8 D_8075E5C0[];
 
 void func_8060B750(s32);
-s32 func_8060B7C4(void);
+u8 func_8060B7C4(void);
 
 void menuSetupBonusCharacter(void) {
     if (gMenuTargetMode == 3) {
@@ -280,13 +280,13 @@ extern u8 gMenuTransitionCounter;
 extern s32 D_80755334;
 extern s32 D_807552EC;
 extern Mtx D_807FDAC0;
-s32 flagGet(s32, s32);
-s32 mapGetHubWorldIndex(u8, s32);
+u8 flagGet(s16, u8);
+u8 mapGetHubWorldIndex(u8, u8);
 s32 func_8060B49C(s32, s32);
 void eepromInit(void);
 void menuTimerInit(void);
 void eepromSavePlayerData(void);
-void actorSpawn(s32, s32);
+s32 actorSpawn(s32, s32);
 
 void menuCheckMapTransitionOnLoad(void) {
     u8 blocked;
@@ -418,7 +418,7 @@ void menuUpdateTitleOrTransition(void) {
     }
 }
 
-void transitionSetState(s32);
+void transitionSetState(u8);
 
 void menuHandleTitleScreenTransition(void) {
     gMenuStateTimer = 0x1E;
@@ -428,7 +428,7 @@ void menuHandleTitleScreenTransition(void) {
     }
 }
 
-s32 camIsCutsceneActive(void);
+u8 camIsCutsceneActive(void);
 
 void menuHandleCutsceneScreenTransition(void) {
     if (camIsCutsceneActive()) {
@@ -499,7 +499,7 @@ void *func_807132DC() {
     return gfx;
 }
 void *textTableGetString(s32, s32, s32);
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
+Gfx * textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
 Gfx *func_8071338C(Gfx *arg0) {
     f32 temp_f0 = 20.0f;
@@ -590,7 +590,7 @@ s32 mathIdentityS32(s32 arg0) {
     return arg0;
 }
 extern s16 gScreenHeight;
-Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx * renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
 
 Gfx *func_80713764(Gfx *arg0, u8 arg1, f32 arg2) {
     f32 x;
@@ -679,7 +679,7 @@ Gfx *func_80713B40(Gfx *arg0) {
 
 extern u64 D_807445B0;
 void sfxAllocateChannel(s32, f32);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 
 void func_80713C8C(void) {
     u64 elapsed;
@@ -781,7 +781,7 @@ void func_80713EB0(s32 arg0, s32 arg1, s32 arg2) {
 Gfx *func_807138CC(Gfx *);
 Gfx *func_80713B40(Gfx *);
 extern s8 D_807552E0;
-void camStartPath(s32, s16, s32);
+u16 camStartPath(void *, s16, u8);
 
 Gfx *screenStateTickAndDraw(Gfx *dl) {
     char buffer[40];
@@ -943,7 +943,7 @@ extern u8 D_807467C8;
 void playerResetSpawnGlobals(void);
 void flagsClearAllBank2(void);
 void eepromLoadPlayerData(u8, s32);
-s32 eepromGetField(s32, s32, s32, u8);
+s32 eepromGetField(s32, u8, u8, u8);
 void mapRequestTransitionFast(s32, s32);
 
 void func_807144B8(u8 arg0) {
