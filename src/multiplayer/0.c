@@ -132,11 +132,11 @@ extern u8 D_1000118[];
 extern u8 D_20000C0[];
 
 Gfx *gfxInit2DDisplayList(Gfx *);
-Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
 Gfx *renderTimerMinutesSecondsHUD(Gfx *, f32, f32, s32);
 extern s32 D_807552E8;
 extern MpScore gPlayerInventoryTable[];
-s32 slotQueueGetValue(s32, u8);
+s32 slotQueueGetValue(s32, u8); // FAKE: callee prototype steer
 extern s32 D_807552EC;
 extern u8 gPlayerCount;
 extern s32 gGlobalPauseFlags;
@@ -160,10 +160,10 @@ typedef struct MpMapEntry {
 } MpMapEntry;
 extern MpMapEntry D_80026FA4[];
 extern s32 gCurrentMap;
-extern u64 __ll_mul(u64, u64);
-extern u64 __ull_div(u64, u64);
+extern unsigned long long __ll_mul(unsigned long long, unsigned long long);
+extern unsigned long long __ull_div(unsigned long long, unsigned long long);
 extern MpControllerActor *gCurrentActor;
-void renderCallbacksRegister(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, u8);
 extern MpSettings D_807552E4;
 extern MpPlayer *gPlayerSlots;
 
@@ -400,7 +400,7 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
 
 int _sprintf(char *, const char *, ...);
 s32 textGetStringWidth(s32, char *);
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
+Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spacing);
 
 Gfx *mpDrawPlayerScores(Gfx *glistp, MpControllerActor *controller) {
@@ -439,7 +439,7 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, MpControllerActor *controller) {
     return glistp;
 }
 
-u32 textGetFontHeight(s32);
+u8 textGetFontHeight(s16);
 
 Gfx *mpDrawPlayerViewportHud(Gfx *glist, MpControllerActor *controller) {
     MpControllerState *state;
@@ -557,10 +557,10 @@ extern u8 gPlayerCharacterId[];
 extern u8 D_8071F3C0;
 extern u8 D_807207BC;
 void effectFreeAndUnlink(s32);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void effectSetDuration(s32);
-void effectSetMode(s32);
-void effectSetColor(s32, s32, s32, s32);
+void effectSetMode(s8);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 void effectSetCallback(void *);
 s32 effectCreateAtActorBone(void *, f32, void *, s32, s32);
 
@@ -673,7 +673,7 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
 f32 randomFloat(void);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void func_806F5F2C(s32, s32, s16, s16, s32);
+void func_806F5F2C(s32, s32, s16, s16, s16);
 
 void mpUpdateItemSpawns(void) {
     MpMapEntry *mapEntry;
@@ -799,7 +799,7 @@ void playerSetSizeMode(void *, s32);
 void func_806F54E0(u8, s16, u8);
 void func_806C9974(u8, s32);
 void actorSpawnEffectChild(f32, f32, f32, f32, f32, void *, u8);
-void playerStateQueueCallback(s32, void *, u8);
+s32 playerStateQueueCallback(s16, void *, u8);
 
 void mpApplyPendingEffect(s32 playerIndex) {
     MpActor *act;
@@ -865,7 +865,7 @@ void mpApplyPendingEffect(s32 playerIndex) {
 }
 
 
-void csModelStateSetFirstByte(s16, s32);
+void csModelStateSetFirstByte(s16, s16);
 
 void mpResetMapModelStates(void) {
     MpMapEntry *mapEntry;
@@ -899,11 +899,11 @@ MpViewport *cameraFindViewportEntry(u8);
 void playerResetSpawnGlobals(void);
 s32 n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
 void n_alSndpPostEvent(void *, s32, s16);
-void sfxPlayOnFreeSlot(s16, s32, f32, f32, s32, s32);
-void func_806F5FA0(s32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
+void func_806F5FA0(s16, s16, s16);
 void slotQueueInit(s32);
 void *heapAlloc(s32);
-void *assetLoad(s32, s32, s32, s32);
+void *assetLoad(s32, u32, u8, u8);
 void effectEnableFade(void);
 void effectSetParam(s32);
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
@@ -1126,7 +1126,7 @@ void mpDeductDeathPenalty(MpKongState *kongState) {
     }
 }
 
-void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
+void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
 void mpDropItemsOnHit(u8 playerIndex, s8 dropCount) {
     s32 pad0;
     MpControllerState *ctrl;
