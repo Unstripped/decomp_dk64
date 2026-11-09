@@ -2238,24 +2238,24 @@ void modelSlotFreeTexAnimBuffers(ModelNodeBufferOwner *arg0, u8 arg1) {
     if (arg1 != 1) {
         if (arg1 == 2) {
             node = arg0->unk50;
-            goto walk;
+        } else {
+            return;
         }
     } else {
         node = arg0->unkB8;
-walk:
-        if (node != NULL) {
-            do {
-                if (node->unk3C != NULL && node->unkD0 == 0) {
-                    assetFreeBuffer(node->unk3C, 0xA09, 7);
-                    node->unk3C = NULL;
-                }
-                if (node->unk40 != NULL && node->unkD0 == 0) {
-                    assetFreeBuffer(node->unk40, 0xA0E, 7);
-                    node->unk40 = NULL;
-                }
-                node = node->unkD4;
-            } while (node != NULL);
-        }
+    }
+    if (node != NULL) {
+        do {
+            if (node->unk3C != NULL && node->unkD0 == 0) {
+                assetFreeBuffer(node->unk3C, 0xA09, 7);
+                node->unk3C = NULL;
+            }
+            if (node->unk40 != NULL && node->unkD0 == 0) {
+                assetFreeBuffer(node->unk40, 0xA0E, 7);
+                node->unk40 = NULL;
+            }
+            node = node->unkD4;
+        } while (node != NULL);
     }
 }
 
