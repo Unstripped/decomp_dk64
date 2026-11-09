@@ -216,7 +216,7 @@ void tagBarrelInitPeerState(void) {
         case 1:
             if (--sub->unk14 == 6) {
                 scriptSetActorRampTarget(gCurrentActor, 1.0f, 0);
-                controllerAnimSetState(gCurrentActor, 0x346, 0, 0.0f); // FAKE: int 0 and 0.0f give separate li a2/li a3 (0.0f twice is one mtc1)
+                controllerAnimSetState(gCurrentActor, 0x346, 0, 0.0f);
             }
             if (sub->unk14 == 0) {
                 gCurrentActor->state = 2;
