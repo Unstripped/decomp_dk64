@@ -161,13 +161,13 @@ void actorUpdateEntryEmitters(void) {
 
 
 s32 randomNonNegative(void);
-void effectSetDepth(s32);
-void effectSetMode(s32);
+void effectSetDepth(s8);
+void effectSetMode(s8);
 void effectSetSpeed(s32);
 void effectSetCallback(void *);
-void effectSetColor(s32, s32, s32, s32);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 void effectSetScale(f32, f32);
-void effectSetFlags(s32);
+void effectSetFlags(s16);
 void effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 extern u8 D_807213D0;
