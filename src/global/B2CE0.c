@@ -5,7 +5,6 @@
 #define PROTO_SKIP_behaviourCheckRandomAnimTrigger // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_behaviourSpawnExplosionAndSound // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_behaviourUpdateContactAndState // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -621,7 +620,6 @@ void func_806AF688(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void effectCreateAtActorBone(void *, f32, B2CE0Actor *, s32, s32); // FAKE: callee prototype steer
 extern u8 D_8072073C;
 
 void effectSpawnActorParticleBurst(u8 nodeIndex) {

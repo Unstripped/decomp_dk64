@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorListLookupEntry // FAKE: callee prototype steer
-#define PROTO_SKIP_effectCreateAtActorBone // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
 #define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
@@ -55,7 +54,6 @@ extern u8 D_80720A58[];
 extern u8 D_807211D0[];
 extern u8 D_80721378[];
 
-s32 effectCreateAtActorBone(void *, f32, void *, s32, s32);
 void effectSetColor(s32, s32, s32, u8); // FAKE: callee prototype steer
 
 void sfxSpawnTableNodes(Actor *actor) {

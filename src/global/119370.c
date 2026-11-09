@@ -194,8 +194,8 @@ void effectSetZOffset(s16 val) {
     sEffectPendingZOffset = val;
 }
 
-void effectSetCallback(s32 callback) {
-    sEffectPendingCallback = callback;
+void effectSetCallback(void *callback) {
+    sEffectPendingCallback = (s32)callback;
 }
 
 void effectSetMode(u8 mode) {
@@ -286,7 +286,8 @@ void effectCreateAtModelNode(void *asset, f32 scale, s32 modelSlot, s32 nodeInde
 }
 
 
-void effectCreateAtActorBone(s32 asset, f32 scale, void *actor, s32 boneIndex, u8 flags) {
+// no return statement: the original falls off the end and callers read effectCreate's result in v0
+void *effectCreateAtActorBone(void *asset, f32 scale, void *actor, s32 boneIndex, u8 flags) {
     f32 boneX;
     f32 boneY;
     f32 boneZ;
@@ -297,7 +298,7 @@ void effectCreateAtActorBone(s32 asset, f32 scale, void *actor, s32 boneIndex, u
     if ((!new_var && (((Actor *) actor)->sub4 != NULL)) && (sEffectPendingFlags & 0x80)) {
         effectFlagsOr(0x40);
     }
-    effectCreate(asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, (s32) flags);
+    effectCreate((s32)asset, scale, boneX, boneY, boneZ, actor, 0, boneIndex, (s32) flags);
 }
 
 void effectCreateAtPosition(s32 asset, f32 scale, f32 x, f32 y, f32 z) {

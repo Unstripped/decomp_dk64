@@ -3,7 +3,6 @@
 #include "sched.h"
 #define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
 #define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
-#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_playerApplyGravityAndMotion // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
 #define PROTO_SKIP_playerClampWaterSurfaceHeight // FAKE: callee prototype steer
@@ -2040,7 +2039,6 @@ s32 playerCheckSlopeLaunchArc(void) {
     return 0;
 }
 
-void effectCreateAtActorBone(void *, f32, void *, s32, s32); // FAKE: callee prototype steer
 extern u8 D_8071FF18;
 
 void playerStateSlopeSlideArc(void) {

@@ -39,7 +39,7 @@ void effectSetAngle(s16);
 void effectSetZOffset(s16);
 #endif
 #ifndef PROTO_SKIP_effectSetCallback
-void effectSetCallback(s32);
+void effectSetCallback(void *);
 #endif
 #ifndef PROTO_SKIP_effectSetMode
 void effectSetMode(u8);
@@ -78,7 +78,7 @@ void effectResetState(void);
 void effectCreateAtModelNode(void *, f32, s32, s32, u8);
 #endif
 #ifndef PROTO_SKIP_effectCreateAtActorBone
-void effectCreateAtActorBone(s32, f32, void *, s32, u8);
+void *effectCreateAtActorBone(void *, f32, void *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_effectCreateAtPosition
 void effectCreateAtPosition(s32, f32, f32, f32, f32);

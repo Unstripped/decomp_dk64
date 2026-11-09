@@ -10,7 +10,6 @@
 #define PROTO_SKIP_controllerAnimInit // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_controllerStepMotionWindows // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetCallback // FAKE: callee prototype steer
 #include "proto/global/112080.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -1321,7 +1320,6 @@ extern DamageReactionContext *gActivePlayerState;
 
 extern u8 D_807FBB85;
 extern s32 D_80720E2C;
-void effectSetCallback(void *); // FAKE: callee prototype steer
 s32 effectCreateAtActorBone(void *, s32, Actor *, s32, s32); // FAKE: callee prototype steer
 void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
     s32 sp3C;

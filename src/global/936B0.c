@@ -1,7 +1,6 @@
 #include "common.h"
 
 #include "actor.h"
-#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_lensFlareAddSource // FAKE: callee prototype steer
@@ -155,7 +154,6 @@ typedef struct PlayerCameraXZView {
     f32 unk218;
 } PlayerCameraXZView;
 void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32); // FAKE: callee prototype steer
 struct PlayerTrackEntry;
 extern struct PlayerTrackEntry *gPlayerSlots;
 extern Actor *gCurrentActor;
@@ -1416,7 +1414,6 @@ extern u8 D_8072038C;
 extern u32 gGameFrameCounter;
 extern s16 D_80750344;
 extern u8 D_807FBB85;
-s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32); // FAKE: callee prototype steer
 
 void projectileBounceParticleUpdate(void *arg0) {
     f32 sp48;

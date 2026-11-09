@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/boss/0.h"
@@ -566,7 +565,6 @@ typedef struct BossActorUnkC0 {
 extern u8 effectFollowParentUpdate;
 extern u8 D_80720120;
 
-void effectCreateAtActorBone(void *, f32, void *, s32, s32); // FAKE: callee prototype steer
 
 void bossArmydilloSpawnExhaustSmoke(void) {
     f32 val;

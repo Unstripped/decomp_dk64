@@ -1,5 +1,4 @@
 #include "common.h"
-#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
 #define PROTO_SKIP_rumbleRequest // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/117190.h"
@@ -264,7 +263,6 @@ f32 raceGetCompletionFraction(RaceCursor *cursor, RaceState *state, RaceState *l
 }
 
 extern void *D_80720120;
-void effectCreateAtActorBone(void *, f32, void *, s32, s32); // FAKE: callee prototype steer
 
 void raceTriggerBoostParticles(void) {
     s32 idx;

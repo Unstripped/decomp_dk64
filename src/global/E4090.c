@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_camSetZoomLevel // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #define PROTO_SKIP_modelSlotGetType // PROTO: The number of arguments doesn't agree with the number in the
@@ -1073,7 +1072,6 @@ extern u8 D_8071FBC8;
 extern u8 D_807200D4;
 extern f32 D_80753E2C[];
 extern u8 *D_807FD568;
-s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);  // FAKE: callee prototype steer
 f32 cosApprox(f32);
 f32 sinApprox(f32);
 extern s16 D_80753E64[];

@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorSub140CreateFromModel // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/112080.h"
@@ -824,7 +823,6 @@ void func_806C1640(void) {
 extern u32 gFrameCounter;
 extern u8 D_8071FB08;
 extern u8 D_807200D4;
-void effectCreateAtActorBone(void *, f32, void *, s32, s32); // FAKE: callee prototype steer
 
 void func_806C1734(void) {
     R1C46aSub4 *sub;

@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
@@ -152,7 +151,6 @@ extern u16 D_807446C0[];
 extern u16 gLevelCollectibleCounts[];
 extern u8 gPlayerInventoryTable[][0x5E];
 
-s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32); // FAKE: callee prototype steer
 
 void func_806BE09C(void) {
     R1C2CB_Sub174 *sub;

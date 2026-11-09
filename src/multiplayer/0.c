@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorResolveKillCreditOwner // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_effectCreateAtActorBone // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
@@ -572,7 +571,6 @@ extern u8 D_8071F3C0;
 extern u8 D_807207BC;
 void effectFreeAndUnlink(s32); // FAKE: callee prototype steer
 void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-s32 effectCreateAtActorBone(void *, f32, void *, s32, s32);
 
 s32 mpUpdateScoreEffects(void) {
     s32 i;
