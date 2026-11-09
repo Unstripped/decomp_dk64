@@ -58,7 +58,7 @@ extern AudioPlayer *gPlayerSlots;
 extern s32 gCurrentMap;
 extern AmbientSfxEntry sAmbientSfxTable[];
 
-s16 mapChunkFindByPosition(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s16);
 void sfxAllocateChannel(s32, f32);
 void sfxStartAreaAmbient(void) {
     u8 i;
@@ -114,8 +114,8 @@ typedef struct {
 extern SfxSignedBytes4 D_80745B20;
 extern SfxUnsignedBytes4 D_80745B24;
 
-void seqPlayerSetChannelControlMask(u8, s32, s32);
-void seqPlayerSetChannelStopControlMask(u8, s32, s32);
+void seqPlayerSetChannelControlMask(u8, s32, s32);  // FAKE: callee prototype steer
+void seqPlayerSetChannelStopControlMask(u8, s32, s32);  // FAKE: callee prototype steer
 void sfxStopChannel();
 void seqSetTargetVolume(s32, f32);
 void seqLoadAndPlayWithReverb(s32, u8, f32);
@@ -512,8 +512,8 @@ extern u32 gGlobalPauseFlags;
 extern SoundContextD580 *gActivePlayerState;
 
 s32 mapGetSoundEmitters(LevelSoundEmitter **);
-void actorTargetEntriesUpdateSfx(s32, s32, s32, f32);
-s32 flagGet(s32, s32);
+void actorTargetEntriesUpdateSfx(u8, u8, u8, f32);
+u8 flagGet(s16, u8);
 void n_alSndpPostEvent(s32, s32, ...);
 f32 mathAtan2(f32, f32);
 void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
@@ -1167,7 +1167,7 @@ void sfxStopSlotSound(Actor *arg0, u8 arg1) {
 }
 
 
-void faultSetMessage(s32, s32, s32, s32);
+void faultSetMessage(u8, s32, s32, s32);
 
 void sfxSlotFreeSource(s16 arg0) {
     D_80770740[D_80770628[arg0]]--; if (D_80770740[D_80770628[arg0]] != 0) { // LAYOUT:
@@ -1189,7 +1189,7 @@ void sfxSlotFreeSource(s16 arg0) {
     D_80770658[arg0] = -1;
 }
 
-s32 transitionGetState(void);
+u8 transitionGetState(void);
 void n_alSndpStopAll(void);
 
 extern u8 D_80750190;
@@ -1291,7 +1291,7 @@ extern f32 D_80770688[];
 extern u8 gPlayerCount;
 
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void modelSlotGetNodePos(s16, s32, s32, f32 *, f32 *, f32 *);
+void modelSlotGetNodePos(s32, u8, s32, f32 *, f32 *, f32 *);
 void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
 s32 hashTableLookup(s32);
 s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
@@ -2287,7 +2287,7 @@ extern u8 D_80770598[];
 
 void *heapAlloc(s32);
 void heapFree(void *);
-void dmaReadAssetDecompress(s32, void *, s32 *, s32, s32, s32, void *);
+void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
 void n_alCSeqNew(void *, void *);
 void resetCSPChannelStates(ALCSPlayer *);
 void seqUpdateVolume(s32);
