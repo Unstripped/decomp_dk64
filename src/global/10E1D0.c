@@ -467,7 +467,7 @@ void transitionRunFrame(s32 arg0, s32 arg1) {
     case 1:
         break;
     case 0:
-        *(u8 *)&D_807FD9BC = 1;
+        D_807FD9BC = 1;
         transitionInit();
         break;
     }
