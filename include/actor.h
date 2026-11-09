@@ -415,7 +415,10 @@ typedef struct PlayerState {
     /* 0x10E */ s16 targetPitch;
     /* 0x110 */ s16 targetRoll;
     /* 0x112 */ s16 targetYawAngle;
-    /* 0x114 */ u8 pad114[8];
+    /* 0x114 */ s16 unk114;
+    /* 0x116 */ s16 unk116;
+    /* 0x118 */ s16 unk118;
+    /* 0x11A */ s16 unk11A;
     /* 0x11C */ u8 unk11C;
     /* 0x11D */ u8 unk11D;
     /* 0x11E */ u8 pad11E[2];
