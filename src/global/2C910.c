@@ -31,7 +31,7 @@ u32 _strcspn(u8 *, char *);
 u8 *_strncpy(u8 *, u8 *, u32);
 s32 textGetStringWidth();
 u8 *textTableGetString(s32, s32, s32);
-void textSpawnMarkerChecked(s32, s32, s32, u8 *, s32, s32, s32, s32);
+void textSpawnMarkerChecked(s32, s32, s32, u8 *, s32, s32, s32, s32); // FAKE: callee prototype steer
 u32 strlen(u8 *);
 
 void textSpawnSubtitle(arg0, arg1, arg2)
@@ -74,7 +74,7 @@ u8 arg2;
 }
 
 extern Actor *gPrimaryPlayerActor;
-Actor *spawnNodeActivate(s16, s32);
+Actor *spawnNodeActivate(s16, u16);
 
 Actor *actorFromSpawnNodeOrDefault(s16 arg0) {
     Actor *v;
