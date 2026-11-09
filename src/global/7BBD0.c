@@ -161,10 +161,10 @@ s32 func_806744A8(void *, s32, s32, s32, s32);
 s32 actorCheckFacingTarget(Actor *);
 void actorGetMatrix(struct ActorMtxOwner *owner, CollisionMtxF dst, s8 mtxIndex);
 void matrix4Invert(CollisionMtxF, CollisionMtxF);
-void actorAppendCallbackPayloadA864(Actor *, Actor *, s16, s16, f32 *, f32 *, s8, s32, s32);
+void actorAppendCallbackPayloadA864(s32, Actor *, s16, s16, void *, void *, s32, s32, s32);
 void actorReflectCollisionAngle(Actor *, void *, void *);
 s32 actorGetCollisionThreshold(Actor *);
-void actorAppendCallbackPayloadA908(Actor *, Actor *, f32 *, f32 *, s8, s32, s32);
+void actorAppendCallbackPayloadA908(s32, Actor *, void *, void *, s32, s32, s32);
 s32 actorIsTargetWithinAngle(s16, s16);
 
 u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
