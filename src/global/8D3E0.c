@@ -467,7 +467,7 @@ ActorListNode *actorListSpawnNodeInternal(s16 actorType, f32 posX, f32 posY, f32
     s16 n;
     s16 key;
 
-    n = 0x80; // FAKE: loop bound in a local keeps IDO's entry-search loop in registers (frame 0x30)
+    n = 0x80;
     i = 0;
     found = 0;
     key = actorType + 0x10;
@@ -574,7 +574,7 @@ void actorListUpdateSpawns(void) {
     s32 i;
     s16 target;
 
-    n = 0x80; // FAKE: loop bound in a local keeps IDO's entry-search loop (and 0x80) in registers
+    n = 0x80;
     node = (ActorListNodeInternal *)D_807FC400;
     if (node != NULL) {
         do {
