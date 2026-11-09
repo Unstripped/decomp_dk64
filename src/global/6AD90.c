@@ -187,7 +187,7 @@ typedef struct CollisionQueryActor {
 u8 func_8062BCC8(void *, f32, f32, f32, s32);
 u8 collisionTestSubmeshBoundary(f32, f32, f32 *, s32);
 s32 collisionTestActorBoxFloor(Actor *, f32, f32, f32, f32 *);
-void actorAppendCallback10(Actor *, s32, s32, s32, f32, s32, u8);
+void actorAppendCallback10(Actor *, s32, s32, s32, f32, s32, u8);  // FAKE: callee prototype steer
 s32 mathCheckCloserFloatThreshold(f32, f32, f32, u8);
 extern f32 D_807F9460;
 extern s8 D_807F9464;
@@ -1195,7 +1195,7 @@ extern u8 D_807F951C;
 void actorClearBufferReferences(s32);
 void heapFree(void *);
 void *heapAlloc(s32);
-void dmaReadAssetDecompress(s32, void *, void *, s32, s32, s32, s32);
+void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
 
 void dynamicBufferAllocateEntry(s32 arg0) {
     u32 sp34;
@@ -2454,7 +2454,7 @@ void assetSetRomTableOffset(s32 offset) {
 void *heapAllocFromPool(s32, s32);
 void collisionBstInsertByHash();
 s32 assetGetTableEntry(s32, s32);
-void faultSetMessage(s32, s32, s32, s32);
+void faultSetMessage(u8, s32, s32, s32);
 extern OSIoMesg D_807F9688[];
 
 void *assetLoad(s32 arg0, u32 arg1, u8 arg2, u8 arg3) {
