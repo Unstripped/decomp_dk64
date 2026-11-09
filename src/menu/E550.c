@@ -1,6 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
 #include "proto/global/100180.h"
 #include "proto/global/112080.h"
 #include "proto/global/117190.h"
@@ -50,11 +49,11 @@ void menuLightSpotlightActorUpdate(void) {
 
 extern u8 D_800339D0;
 extern s32 gGlobalPauseFlags;
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void menuUpdateLightFadeActor(void) {
     s32 d;
     s32 cur;
+    int maxLevel = 0xFF; // FAKE: an int (not s32) limit local orders the case-1 beq operands (0xFF first).
 
     if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unk15F = 0;
@@ -75,8 +74,8 @@ void menuUpdateLightFadeActor(void) {
     case 1:
         lightSetFovAngles(20.0f, 40.0f);
         cur = gCurrentActor->unk15F;
-        if (gCurrentActor->unk15F != 0xFF) {
-            d = (0xFF - cur < 3) ? 0xFF - cur : 3;
+        if (cur != maxLevel) {
+            d = (maxLevel - cur < 3) ? maxLevel - cur : 3;
             gCurrentActor->unk15F = cur + d;
         }
         lightAdd(gCurrentActor->x, gCurrentActor->y + 20.0f, gCurrentActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 1, gCurrentActor->unk15F, gCurrentActor->unk15F, gCurrentActor->unk15F);
@@ -99,7 +98,7 @@ void menuUpdateLightFadeActor(void) {
         }
         break;
     case 3:
-        if (D_800339D0 < 0xFF) {
+        if (D_800339D0 < maxLevel) {
             D_800339D0++;
         }
         if (currentActorTestClearFlag() != 0) {
@@ -137,9 +136,7 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     char *descStr1;
     char *descStr2;
     s32 fontHeight;
-    s16 xx;
     s32 yo;
-    Gfx *loadTilePacket;
 
     headerStr = textTableGetString(0xD, 0, 1);
     descStr1 = textTableGetString(0xD, 1, 1);
@@ -147,7 +144,7 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     fontHeight = textGetFontHeight(1);
     gDPPipeSync(dl++);
     gSPDisplayList(dl++, D_1000118);
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, 3, 29, 0x0F0A4000);
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x0F0A4000);
     gDPSetCombine(dl++, 0x119623, 0xFF2FFFFF);
     gSPMatrix(dl++, &D_20000C0, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     alpha = D_800339D0 * 15;
@@ -155,24 +152,15 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
         alpha = 0xFF;
     }
     gDPSetPrimColor(dl++, 0, 0, alpha, alpha, alpha, 0xFF);
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0);
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0);
+    gDPSetTextureFilter(dl++, G_TF_POINT);
+    gDPSetTexturePersp(dl++, G_TP_NONE);
     tex = texCacheFindOrLoad(0xB0);
     yo = (s32)(((f32)gScreenHeight - 82.0f) * 0.5f);
     y = 0; do {  // LAYOUT: one source line removes a scheduling barrier before the loop.
         xo = (s32)(((f32)gScreenWidth - 204.0f) * 0.5f);
         for (x = 0; x != 0xCC; x += 0x66) { // LAYOUT: keep the induction update on the loop-header line.
             if (x) {} // FAKE: shorten the full-width induction range and raise its colouring priority.
-            { gDPSetTextureImage(dl++, G_IM_FMT_I, G_IM_SIZ_8b, 102, tex); \
-              gDPSetTile(dl++, G_IM_FMT_I, G_IM_SIZ_8b, (((((x + 0x66) - x + 1) >> 1) + 7) >> 3), 0, G_TX_LOADTILE, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0); \
-              gDPLoadSync(dl++); \
-              loadTilePacket = dl++; \
-              loadTilePacket->words.w0 = _SHIFTL(G_LOADTILE, 24, 8) | _SHIFTL(x << 1, 12, 12) | _SHIFTL(y << 2, 0, 12); \
-              loadTilePacket->words.w1 = _SHIFTL(G_TX_LOADTILE, 24, 3) | _SHIFTL((x + 0x66) << 1, 12, 12) | _SHIFTL((y + 0x29) << 2, 0, 12); \
-              gDPPipeSync(dl++); \
-              gDPSetTile(dl++, G_IM_FMT_I, G_IM_SIZ_4b, (((((x + 0x66) - x + 1) >> 1) + 7) >> 3), 0, G_TX_RENDERTILE, 0, G_TX_CLAMP, 0, 0, G_TX_CLAMP, 0, 0); \
-              gDPSetTileSize(dl++, G_TX_RENDERTILE, x << 2, y << 2, (x + 0x66) << 2, (y + 0x29) << 2); \
-              } // FAKE: expanded GBI packet reuse; continuations retain macro scheduling.
+            gDPLoadTextureTile_4b(dl++, tex, G_IM_FMT_I, 204, 0, x, y, x + 0x66, y + 0x29, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             gSPTextureRectangle(dl++, xo << 2, yo << 2, (xo + 0x66) << 2, (yo + 0x29) << 2, 0, x << 5, y << 5, 0x400, 0x400);
             xo += 0x66;
         }
@@ -181,20 +169,19 @@ Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     } while (y != 0x52);
     if ((s8)D_800339D0 && xo) {}  // FAKE: keep xo below the row-mask priority while merging the post-loop packet block.
     if ((s8)D_800339D0 && xo) {}  // FAKE: preserve xo's range length and the Combine packet's v0/v1 interference.
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 12, 2, 0x2000);
-    gSPSetOtherMode(dl++, G_SETOTHERMODE_H, 19, 1, 0x80000);
+    gDPSetTextureFilter(dl++, G_TF_BILERP);
+    gDPSetTexturePersp(dl++, G_TP_PERSP);
     xo = (s32)((f32)(gScreenWidth - textGetStringWidth(1, headerStr)) * 0.5f);
     yo = (s32)((((f32)gScreenHeight - 82.0f) * 0.5f) - (f32)fontHeight);
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, alpha);
-    loadTilePacket = dl++; loadTilePacket->words.w0 = 0xE200001C; loadTilePacket->words.w1 = 0x504240; // FAKE: reuse the t1 load-tile range for this packet.
-    actor = dl++; ((Gfx *)actor)->words.w0 = 0xFCFF97FF; ((Gfx *)actor)->words.w1 = 0xFF2CFE7F; // FAKE: reuse the consumed parameter's packet home.
+    gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
+    actor = dl++; ((Gfx *)actor)->words.w0 = 0xFCFF97FF; ((Gfx *)actor)->words.w1 = 0xFF2CFE7F; // FAKE: the consumed parameter carries this Combine packet so it takes no block-local _g home (frame 0xE8).
     dl = textDrawStringVtx(dl, 1, (s16)(xo * 4), (s16)(yo * 4), headerStr, 0);
     x = (s32)((f32)gScreenWidth * 0.5f);
     actor = &off;  // FAKE: address-taken offset retains its stack home across the first text draw.
     off = gHiResScale * 0xC8;
-    xx = x * 4;
-    dl = hudDrawScaledText(dl, xx, (s16)(*(s32 *)actor * 4), .5f, descStr1);  // FAKE: .5f spells a separate constant web (argument via lui a3, no mfc1).
+    dl = hudDrawScaledText(dl, x * 4, (s16)(off * 4), 0.5, descStr1);
     xo = (s32)((f64)off + (f64)fontHeight * 0.5);
-    fontHeight = xx; // FAKE: reuse the consumed font-height local to evaluate final y before the call arguments.
-    return hudDrawScaledText(dl, (s16)fontHeight, (s16)(xo * 4), .5f, descStr2);
+    fontHeight = x * 4; // FAKE: reuse the consumed font-height local to evaluate final y before the call arguments.
+    return hudDrawScaledText(dl, (s16)fontHeight, (s16)(xo * 4), 0.5, descStr2);
 }
