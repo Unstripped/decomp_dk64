@@ -1543,7 +1543,7 @@ void gridCollectActorsInRange(u8 arg0) {
                                             break;
                                         case 0x33:
                                             playerStateHandleSoundEffects(0x8F, arg0);
-                                            if ((func_80714608(0) != 0) && ((ps = player->customState)->unk8C == 0)) {  // FAKE: named ps local puts the player->customState reload in v0
+                                            if ((func_80714608(0) != 0) && ((ps = player->customState)->unk8C == 0)) {
                                                 playerKongPlaySoundByState(player);
                                                 playerResumeLocomotion(player);
                                             }
