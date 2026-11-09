@@ -26,10 +26,10 @@ extern ActorGlobalState gActorGlobalState;
 extern u16 gActiveActorCount;
 extern ActorEntry gActiveActors[];
 
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
-void actorSpawnNodeEntryScaled(s16, s32, s32, s32, s16, u8, s16, s32);
-void actorAppendCallbackPayloadA70C(Actor *, Actor *, s32, f32, f32, s32, s32);
+void actorSpawnNodeEntryScaled(s16, s32, s32, s32, s16, u8, s16, s32); // FAKE: callee prototype steer
+void actorAppendCallbackPayloadA70C(Actor *, Actor *, s32, f32, f32, s32, s32); // FAKE: callee prototype steer
 
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
@@ -37,9 +37,9 @@ Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32
                    f32);
 extern u32 gFrameDelta;
 extern u8 D_80750AD4;
-void renderCallbacksRegister(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, u8);
 s32 actorSpawn(s32, s32);
-s32 actorDespawn(Actor *);
+s32 actorDespawn(Actor *); // FAKE: callee prototype steer
 Gfx *actorBannerTextRender(Gfx *, Actor *);
 
 #define WRITE_GFX(pkt, _w0, _w1)                                               \
@@ -61,7 +61,7 @@ typedef struct ActorSub4Node {
 void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 void controllerAnimSetState(Actor *, s16, f32, f32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
-s32 actorListFindIdByActor(Actor *);
+s16 actorListFindIdByActor(Actor *);
 void actorUpdateModelMatrix(void *, s32);
 
 void actorTriggerRampWithSfx(void) {
@@ -217,19 +217,19 @@ void animSetLoopLimit(void *, s32, s32);
 void animSetSpeed(void *, s32, f32);
 void animSetFinished(void *, s32, s32);
 s32 animIsPlaying(void *, s32);
-s32 controllerLookupStateByHash(Actor *);
-s32 camIsCutsceneActive(void);
+u16 controllerLookupStateByHash(u32 *);
+u8 camIsCutsceneActive(void);
 void camStartShake(void *, s32, s32);
 f32 mathSinF(s16);
-void actorSetCollisionRadius(Actor *, f32);
-void playerStateQueueCallback(s32, void *, s32);
+ActorSub140 *actorSetCollisionRadius(Actor *, f32);
+void playerStateQueueCallback(s32, void *, s32); // FAKE: callee prototype steer
 s32 func_80714608(s32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
-void actorGetOrSetNodeScale(void *, s32, f32);
-void actorOrNodeFlags(void *, s32, s32);
+f32 actorGetOrSetNodeScale(Actor *, s32, f32);
+void actorOrNodeFlags(Actor *, s32, u8);
 void actorUpdateModelMatrix(void *, s32);
-void lightSetFlags(s32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, u32, u32, u32);
+void lightSetFlags(u8);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
 void func_8069E774(void) {
     u16 sp8E;
@@ -937,14 +937,14 @@ typedef struct {
     u8 padC[0x24];
 } NodePosition;
 
-void billboardSetFlags(s32);
-void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
+void billboardSetFlags(s16);
+void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void effectSetAngle(s16);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void effectSetCallback(void *);
-void effectSetColor(s32, s32, s32, s32);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectSpinBillboardingUpdate(void);
 extern void *gCamActor;
@@ -1182,7 +1182,7 @@ void actorMirrorParentModelAxis(void) {
 }
 
 
-void animSetFrameAndSubframe(void *, s32, s32, f32);
+void animSetFrameAndSubframe(void *, s32, s16, f32);
 
 void animSetChannelFrames(void *arg0, u8 arg1, u8 arg2) {
     animSetLoopLimit(arg0, 0, 1);
@@ -1222,8 +1222,8 @@ void actorSetNodeValuesForFrame(MatrixArray *arg0) {
     }
 }
 
-s32 assetLoad(s32, s32, s32, s32);
-void func_80724D28(s32, s32);
+void *assetLoad(s32, u32, u8, u8);
+void func_80724D28(s16, s16);
 f32 mathCosF(s16);
 void actorSetUniformScale(Actor *, f32);
 extern u8 D_807503D4[];
