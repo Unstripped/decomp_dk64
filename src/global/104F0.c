@@ -816,7 +816,7 @@ extern s32 D_80750AB0;
 extern u16 gLevelCollectibleCounts[];
 extern u8 gPlayerCount;
 
-void eepromLoadPlayerData(u8 arg0, s32 arg1) { u8 *base; s32 i; u8 *entry; s32 j; s32 k; base = (u8 *)((u32)gPlayerInventoryTable | 0); if (base) {} // LAYOUT: entry stmts on { line schedule addiu after lui; FAKE: `| 0` blocks address copy-propagation, dead if (base)
+void eepromLoadPlayerData(u8 arg0, s32 arg1) { u8 *base; s32 i; u8 *entry; s32 j; s32 k; base = (u8 *)((u32)gPlayerInventoryTable); if (base) {}
     entry = base;
     gActivePlayerCount = 1;
     playerResetSpawnGlobals();
@@ -921,7 +921,6 @@ void eepromThreadMain(void *arg0) {
     }
 }
 
-extern OSMesgQueue D_807ECCF0;
 extern OSMesg D_807EE0B0[];
 extern OSThread D_807EE0E8;
 extern u64 D_807F0298[];
