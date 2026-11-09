@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/global/137120.h"
+#include "proto/global/140600.h"
 
 typedef struct SynCoreParam {
     ALLink *next;

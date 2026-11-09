@@ -1,8 +1,6 @@
 #include "common.h"
+#include "proto/global/13D170.h"
 
-s32 __n_alCSeqTrackEvent(ALCSeq *seq, s32 track, ALEvent *event, s32 flag);
-u8 __getTrackByte(ALCSeq *seq, s32 track);
-s32 __readVarLen(ALCSeq *seq, s32 track);
 
 
 void n_alCSeqNew(ALCSeq *seq, ALCMidiHdr *base) {

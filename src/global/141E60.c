@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/global/140600.h"
+#include "proto/global/141E60.h"
 
 typedef struct SynAllocFx {
     u8 pad0[0x24];
@@ -12,7 +14,6 @@ typedef struct SynAllocSynthFx {
 } SynAllocSynthFx;
 
 extern SynAllocSynthFx *n_syn;
-extern void n_alFxNew(void *, void *, s16, void *);
 
 void *n_alSynNewFx(s16 fxId, void *c, void *bus) {
     n_alFxNew(&n_syn->fx[fxId].result, c, fxId, bus);

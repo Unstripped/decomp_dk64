@@ -1,4 +1,7 @@
 #include "common.h"
+#include "proto/global/13E160.h"
+#include "proto/global/140530.h"
+#include "proto/global/1435C0.h"
 
 typedef struct SynCoreParam {
     ALLink *next;
@@ -35,9 +38,6 @@ typedef struct SynCorePVoice {
 } SynCorePVoice;
 
 extern SynCoreSynth *n_syn;
-SynCoreParam *__n_allocParam(void);
-s32 _n_timeToSamples(s32);
-void n_alEnvmixerParam(void *, s32, SynCoreParam *);
 
 void n_alSynSetVol(ALVoice *voice, s16 volume, s32 delta) {
     SynCoreParam *param;

@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/global/13EC90.h"
+#include "proto/global/13FED0.h"
 
 void alSeqpSetVol(ALSeqPlayer *seqp, s16 vol) {
     ALEvent evt;

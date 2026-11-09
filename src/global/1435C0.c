@@ -1,4 +1,8 @@
 #include "common.h"
+#include "proto/global/13E160.h"
+#include "proto/global/1435C0.h"
+#include "proto/global/144E00.h"
+#include "proto/global/145950.h"
 
 
 
@@ -36,9 +40,6 @@ typedef struct EnvAcmd EnvAcmd;
 
 extern s16 D_80756490[];
 extern s16 D_8075658E[];
-extern EnvAcmd *_pullSubFrame(EnvMixerEnv *, s16 *, s16 *, s32, EnvAcmd *);
-extern s16 _getVol(s16, s32, s16, u16);
-extern s32 n_alEnvmixerParam(EnvMixerEnv *, s32, void *);
 
 typedef union EnvNodeData {
     f32 f;
@@ -317,8 +318,6 @@ struct EnvAcmd {
     u32 w1;
 };
 
-extern EnvAcmd *n_alResamplePull();
-s16 _getRate(f32, f32, s32, s16 *);
 
 EnvAcmd *_pullSubFrame(EnvMixerEnv *filter, s16 *outp, s16 *samplePtr, s32 count, EnvAcmd *cmdList) {
     EnvAcmd *ptr;

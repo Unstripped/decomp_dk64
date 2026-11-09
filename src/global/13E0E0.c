@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/13E0E0.h"
 
 void alLink(ALLink *element, ALLink *after) {
     element->next = after->next;

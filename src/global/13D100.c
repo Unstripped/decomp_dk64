@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/13D100.h"
 
 void postCSPChannelCommand(ALCSPlayer *seqp, u8 chan, u8 priority, u8 value, s32 command) {
     s32 unused;

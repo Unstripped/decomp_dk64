@@ -1,4 +1,8 @@
 #include "common.h"
+#include "proto/global/13E0E0.h"
+#include "proto/global/13E160.h"
+#include "proto/global/1417C0.h"
+#include "proto/global/1435C0.h"
 
 typedef struct SynAllocVoiceNode SynAllocVoiceNode;
 
@@ -48,9 +52,6 @@ typedef struct SynAllocSynth {
 } SynAllocSynth;
 
 extern SynAllocSynth *n_syn;
-s32 __n_allocPVoice(SynAllocVoiceNode **, s16);
-extern SynAllocParam *__n_allocParam(void);
-extern s32 n_alEnvmixerParam(void *, s32, void *);
 
 s32 n_alSynAllocVoice(SynAllocVoice *voice, SynAllocVoiceConfig *config) {
     SynAllocVoiceNode *pvoice = NULL;

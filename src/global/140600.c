@@ -1,4 +1,9 @@
 #include "common.h"
+#include "proto/global/137120.h"
+#include "proto/global/13E160.h"
+#include "proto/global/140600.h"
+#include "proto/global/1435C0.h"
+#include "proto/global/166A0.h"
 
 typedef struct SynVoiceParam {
     struct SynVoiceParam *next;
@@ -16,8 +21,6 @@ typedef struct {
 } SynPVoice;
 
 extern ALSynth *n_syn;
-SynVoiceParam *__n_allocParam(void);
-s32 n_alEnvmixerParam(void *, s32, SynVoiceParam *);
 
 void n_alSynSetPitch(ALVoice *voice, f32 pitch) {
     SynVoiceParam *param;
@@ -75,7 +78,6 @@ typedef struct LpfNMBiquad {
 } LpfNMBiquad;
 
 
-f32 mathAtan2(f32, f32);
 
 void computeBiquadCoefficients(f32 sampleRate, f32 cutoffFreq, f32 qFactor, LpfNMBiquad *numCoeffs, LpfNMBiquad *denCoeffs) {
     f32 omega;
@@ -159,7 +161,6 @@ f32 n_alSemitonesToPitchRatio(s32 semitones) {
     return sp0;
 }
 
-void computeBiquadCoefficients(f32, f32, f32, LpfNMBiquad *, LpfNMBiquad *);
 
 void rebuildLowPassCoefficients(SynLPFilter *filter, f32 sampleRate) {
     s32 i;

@@ -1,4 +1,8 @@
 #include "common.h"
+#include "proto/global/140600.h"
+#include "proto/global/141EF0.h"
+#include "proto/global/1445A0.h"
+#include "proto/global/144A90.h"
 
 
 typedef struct {
@@ -30,7 +34,6 @@ typedef struct FxParamState {
     u8 unk8;
 } FxParamState;
 
-void _init_lpfilter();
 typedef struct {
     u8 pad0[0x20];
     void *unk20;
@@ -53,11 +56,6 @@ typedef struct {
 
 extern u8 D_807FF0F4[];
 extern u8 D_807FF0F6[];
-Acmd *n_alAuxBusPull();
-Acmd *_n_saveBuffer();
-Acmd *_n_loadBuffer();
-Acmd *_n_loadOutputBuffer();
-Acmd *_n_filterBuffer();
 
 #define SWAP(in, out) { dmemTmp = out; out = in; in = dmemTmp; }
 
@@ -275,8 +273,6 @@ typedef struct FxNMOutputState {
     void *unk24;
 } FxNMOutputState;
 
-f32 _doModFunc();
-Acmd *_n_loadBuffer(void *, s32, u8 *, s32, s32, Acmd *);
 
 Acmd *_n_loadOutputBuffer(FxNMOutputRing *ring, FxNMOutputState *state, s32 bufIdx, s32 dmem, Acmd *cmdList) {
     Acmd *ptr;
@@ -451,7 +447,6 @@ f32 _doModFunc(FxNMModState *mod, s32 count) {
     return mod->unk1C * val;
 }
 
-extern Acmd *n_alMainBusPull();
 Acmd *n_alSynOutputPull(void *synth, s16 *cmdList) {
     Acmd *cmd;
     Acmd *syncCmd;

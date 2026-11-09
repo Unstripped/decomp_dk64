@@ -1,4 +1,9 @@
 #include "common.h"
+#include "proto/global/13E0E0.h"
+#include "proto/global/13ECE0.h"
+#include "proto/global/13FED0.h"
+#include "proto/global/140530.h"
+#include "proto/global/1435A0.h"
 
 typedef struct VoiceMapVoiceState {
     struct VoiceMapVoiceState *next;
@@ -340,8 +345,6 @@ u8 __n_vsPan(VoiceMapVoiceState *vs, VoiceMapCSPlayer *seqp) {
     return pan;
 }
 
-void __n_resetPerfChanState(VoiceMapCSPlayer *seqp, s32 chan);
-void __n_setInstChanState(VoiceMapCSPlayer *seqp, ALInstrument *inst, s32 chan);
 
 void __n_initFromBank(VoiceMapCSPlayer *seqp, ALBank *bank) {
     s32 chan;

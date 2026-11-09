@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/global/13EC00.h"
+#include "proto/global/13FED0.h"
 
 void alSeqpStop(ALSeqPlayer *seqp) {
     ALEvent evt;

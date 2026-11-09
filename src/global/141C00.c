@@ -1,4 +1,7 @@
 #include "common.h"
+#include "proto/global/13E160.h"
+#include "proto/global/141C00.h"
+#include "proto/global/1435C0.h"
 
 typedef struct SynAllocParam {
     struct SynAllocParam *next;
@@ -24,8 +27,6 @@ typedef struct SynAllocSynth {
 } SynAllocSynth;
 
 extern SynAllocSynth *n_syn;
-extern SynAllocParam *__n_allocParam(void);
-extern s32 n_alEnvmixerParam(void *, s32, void *);
 
 void n_alSynAllocVoicePriorityA(SynAllocVoice *voice, u8 priority) {
     SynAllocParam *param;

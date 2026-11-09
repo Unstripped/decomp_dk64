@@ -1,4 +1,9 @@
 #include "common.h"
+#include "proto/global/13E160.h"
+#include "proto/global/140600.h"
+#include "proto/global/141520.h"
+#include "proto/global/141EF0.h"
+#include "proto/global/1435C0.h"
 
 typedef struct {
     u8 unk0[4];
@@ -43,11 +48,6 @@ typedef struct SynFXFilter {
 } SynFXFilter;
 
 extern SynSynth *n_syn;
-SynVoiceParam *__n_allocParam(void);
-s32 n_alEnvmixerParam(void *, s32, SynVoiceParam *);
-void n_alFxPull(void);
-void n_alFxParamHdl(s32, s16, s32);
-void rebuildLowPassCoefficients(SynFXFilter *, f32);
 
 void n_alSynSetVoiceUnkC(ALVoice *voice, u8 val) {
     SynVoiceParam *param;

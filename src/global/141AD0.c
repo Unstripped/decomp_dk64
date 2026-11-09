@@ -1,4 +1,7 @@
 #include "common.h"
+#include "proto/global/13E160.h"
+#include "proto/global/141AD0.h"
+#include "proto/global/1435C0.h"
 
 typedef struct SynAllocStartPVoice {
     u8 pad0[0x88];
@@ -34,9 +37,6 @@ typedef struct SynAllocStartSynth {
 } SynAllocStartSynth;
 
 extern SynAllocStartSynth *n_syn;
-extern SynAllocStartParam *__n_allocParam(void);
-extern s32 n_alEnvmixerParam(void *, s32, void *);
-extern s32 _n_timeToSamples(s32);
 
 void n_alSynStartVoiceParams(SynAllocStartVoice *voice, void *wave, f32 pitch, s16 volume, u8 pan, u8 fxmix, u8 unity, f32 fxVolume, u8 fxDelay, s32 samples) {
     SynAllocStartParam *param;

@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/global/1435C0.h"
+#include "proto/global/1445A0.h"
 
 typedef struct AuxAcmd {
     u32 w0;
@@ -37,7 +39,6 @@ typedef struct AuxSynth {
 } AuxSynth;
 
 extern AuxSynth *n_syn;
-extern AuxAcmd *n_alEnvmixerPull();
 
 AuxAcmd *n_alAuxBusPull(void *time, AuxAcmd *cmdList, s32 busIndex, s32 *outCount) {
     AuxAcmd *ptr;
