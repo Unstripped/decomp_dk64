@@ -1,4 +1,20 @@
 #include "common.h"
+#define PROTO_SKIP_dlInitTextureDescriptor // FAKE: callee prototype steer
+#define PROTO_SKIP_dlSetTextureScaleAndFlip // FAKE: callee prototype steer
+#define PROTO_SKIP_n_alSndpStop // FAKE: callee prototype steer
+#include "proto/arcade/0.h"
+#include "proto/boot/3D20.h"
+#include "proto/boot/6690.h"
+#include "proto/global/100180.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/104F0.h"
+#include "proto/global/1135F0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/14CF0.h"
+#include "proto/global/3C10.h"
+#include "proto/global/450.h"
+#include "proto/global/F600.h"
 
 typedef struct ArcadeEntity {
     f32 unk0;
@@ -32,14 +48,7 @@ extern u8 D_8004A740;
 extern u8 D_8004A76C;
 extern s32 D_8004A308[];
 
-void arcadeInitTitleScreen(void);
-void arcadeDispatchEntities(void);
-void arcadeDrawBackground(Gfx **);
-void arcadeRenderEntities(Gfx **);
-void arcadeRenderEntity(Gfx **, s32);
-void arcadeInitStage(void);
 #define ArcR1_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-Gfx * textDrawString(Gfx *, u8, s16, s16, u8 *);
 extern s16 D_8004C72E;
 extern s16 D_8004C732;
 extern u8 D_8004C725;
@@ -47,15 +56,6 @@ extern u8 D_8004C726;
 extern u8 D_8004C727;
 extern u8 D_8004C728;
 
-void controllerStartRead(void);
-void controllerUpdate(void);
-void schedSubmitGfxTask(void *, s32, u8, u8, s32, u8);
-Gfx * screenFadeUpdate(Gfx *, u8);
-void gfxEndDisplayList(Gfx *, u8, s32 *, u8);
-void gfxEndSubDisplayList(Gfx *, s32, s32 *, u8);
-Gfx *gfxSetFrameBufferColorImage(Gfx *);
-void arcadeDispatchState(Gfx **);
-void arcadeBuildDisplayList(u8 *, Gfx **);
 
 extern u8 gGfxBufferIndex;
 extern Gfx *gGfxTaskBuffers[];
@@ -113,9 +113,6 @@ void arcadeBuildDisplayList(u8 *frameBuf, Gfx **glistp) {
     arcadeDispatchState(&glist);
     *glistp = glist;
 }
-void eepromSetField(s32, u8, u8, u8, s32);
-s32 eepromGetField(s32, u8, u8, u8);
-void func_8060DEA8(void);
 extern s32 D_8004A74C[5];
 extern u8 D_8004A778[5][3];
 extern s32 D_8004A760;
@@ -275,13 +272,6 @@ s32 arcadeCountEntitiesByType(s32 type) {
     }
     return count;
 }
-void arcadeTitleLoop(Gfx **);
-void arcadeStageIntroLoop(Gfx **);
-void arcadeGameplayLoop(Gfx **);
-void arcadePauseMenuLoop(Gfx **);
-void arcadeAttractLoop(Gfx **);
-void arcadeDemoLoop(Gfx **);
-void arcadeDrawHud(Gfx **);
 extern s32 D_8004A78C[];
 extern s32 D_8004A790;
 extern s32 D_8004C6D8;
@@ -350,7 +340,6 @@ void arcadeInsertHighScore(s32 rank) {
 extern ArcadeEntity D_8004A698;
 extern u8 D_8004A774[3];
 extern u8 D_8004C720;
-void arcadeInsertHighScore(s32);
 void arcadeCheckGameOver(void) {
     u8 rank;
     u8 i;
@@ -375,10 +364,6 @@ void arcadeCheckGameOver(void) {
     }
 }
 
-u8 flagGet(s16, u8);
-void flagSet(s16, u8, u8);
-void mapTransitionToPreviousOrExit(void);
-void mapRequestTransition(s32, s32);
 extern u8 D_8004A73C;
 extern u8 D_8004A770;
 void arcadeExit(void) {
@@ -495,7 +480,6 @@ void arcadeTitleLoop(Gfx **glistp) {
     *glistp = glist;
 }
 
-void arcadeFinishStageIntro(void);
 void arcadeStageIntroLoop(Gfx **glistp) {
     Gfx *glist = *glistp;
     arcadeDispatchEntities();
@@ -520,7 +504,7 @@ void arcadeSetStageMusic(void) {
     }
 }
 
-void n_alSndpStop(s32);
+void n_alSndpStop(s32); // FAKE: callee prototype steer
 extern s32 D_80770DF8;
 void arcadeStopSound(s32 soundId) {
     D_8004C714 = soundId;
@@ -531,10 +515,6 @@ void arcadeStopSound(s32 soundId) {
 
 extern u8 D_8004BCE9[];
 extern s32 D_8076D1F8;
-s32 n_alSndpPlay(s32, s32, s32, s32, f32, s32, s32);
-void arcadeOpenPauseMenu(void);
-void arcadeSpawnStage4Enemies(void);
-void arcadeSpawnStage2Enemies(void);
 void arcadeGameplayLoop(Gfx **glistp) {
     Gfx *glist = *glistp;
 
@@ -574,7 +554,6 @@ extern u8 *D_807ECDE8;
 extern s8 D_8004A768;
 extern s32 D_8004C70C;
 extern u8 D_8004A744;
-s32 arcadeFindFreeEntityReverse(void);
 
 void arcadeOpenPauseMenu(void) {
     s32 s4;
@@ -605,7 +584,6 @@ void arcadeClearEntitiesByType1C(void) {
     } while (index >= 0);
 }
 
-void eepromInitConfigs(u8);
 void arcadePauseMenuLoop(Gfx **glistp) {
     Gfx *glist;
 
@@ -707,11 +685,6 @@ extern u8 D_8004BB60[];
 extern u8 D_8004BB90[];
 extern u8 D_8004BBC0[];
 #define ArcR2_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-void arcadeDrawTitleText(Gfx **);
-void arcadeDrawStage1Background(Gfx **);
-void arcadeDrawStage2Background(Gfx **);
-void arcadeDrawStage3Background(Gfx **);
-void arcadeDrawStage4Background(Gfx **);
 typedef struct ArcR2_Entity {
     void *ptr;
 } ArcR2_Entity;
@@ -725,12 +698,8 @@ extern u8 gGfxBufferIndex;
 extern u8 D_8004BB00[];
 extern u8 D_80032C20[];
 extern u8 D_80032DF8[];
-void dlInitTextureDescriptor(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32);
-void dlAppendTextureLoad(Gfx **, void *);
+void dlInitTextureDescriptor(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32); // FAKE: callee prototype steer
 void dlSetTextureScaleAndFlip(s32, s16, s32, u8);  // FAKE: callee prototype steer
-void arcadeDrawLadder(Gfx **, s32, s32, s32);
-void dlAppendTextureRectangle(Gfx **, s16, s16);
-void arcadeStopSound(s32);
 extern s32 D_8076D1F8;
 void arcadeDrawBackground(Gfx **glistp) {
     Gfx *glist;
@@ -1400,19 +1369,11 @@ extern s32 D_8004C6F4;
 extern s32 D_8004C6F8;
 
 
-s32 arcadeCheckStage1Collision(s32, s32);
-s32 arcadeCheckStage2Collision(s32, s32);
-s32 arcadeCheckStage3Collision(s32, s32);
-s32 arcadeCheckStage4Collision(s32, s32);
 
 
-s32 arcadeCheckStage1Ladders(s32, s32);
-s32 arcadeCheckStage2Ladders(s32, s32);
-s32 arcadeCheckStage3Ladders(s32, s32);
-s32 arcadeCheckStage4Ladders(s32, s32);
 
 
-void dlInitTextureDescriptor(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32);
+void dlInitTextureDescriptor(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32); // FAKE: callee prototype steer
 void dlSetTextureScaleAndFlip(s32, s16, s32, u8);  // FAKE: callee prototype steer
 extern u8 D_8004A338[];
 extern u8 D_8004A358[];
@@ -1441,10 +1402,6 @@ extern s32 D_8004C710;
 extern u8 D_8004C718;
 extern u8 D_8004A764;
 
-void arcadeSpawnStage1Entities(void);
-void arcadeSpawnStage2Entities(void);
-void arcadeSpawnStage3Entities(void);
-void arcadeSpawnStage4Entities(void);
 
 extern ArcadeEntity D_8004A478;
 extern ArcadeEntity D_8004A598;
@@ -2352,8 +2309,6 @@ extern ArcadeEntity D_8004A5F8;
 extern u8 D_800383B8[];
 extern u8 D_800385C0[];
 extern u8 D_8003B180[];
-void arcadeUpdatePlayerAnimation(s32);
-void n_alSndpPostEvent(s32, s32, s32);
 #define E D_8004BCD0[entIndex]
 #define P D_8004BCD0[D_8004C71F]
 void arcadeUpdatePlayerEntity(s32 entIndex) {
@@ -3826,31 +3781,6 @@ void arcadeUpdateBonusBox(u8 entIndex) {
 }
 
 /* ArcS2 declarations */
-void arcadeUpdateBarrelEntity(s32);
-void arcadeUpdateBouncingBarrel(s32);
-void arcadeUpdateSpringEntity(s32);
-void arcadeUpdateOilDrumEntity(s32);
-void arcadeUpdatePlayerEntity(s32);
-void arcadeUpdatePaulineUpper(s32);
-void arcadeUpdateHeartEntity(s32);
-void arcadeUpdateHelpSpeechBubble(s32);
-void arcadeUpdatePaulineLower(s32);
-void arcadeUpdateConveyorPulleys(s32);
-void arcadeUpdateDonkeyKongIntro(s32);
-void arcadeUpdateDonkeyKongStage1(s32);
-void arcadeUpdateDonkeyKongStage4(s32);
-void arcadeUpdateDonkeyKongStage2(s32);
-void arcadeUpdateDonkeyKongStage3(s32);
-void arcadeUpdateScorePopup(s32);
-void arcadeUpdateCollectibleItem(s32);
-void arcadeUpdateHammerEntity(u8);
-void arcadeUpdateHammerSmash(u8);
-void arcadeUpdateRivetEntity(u8);
-void arcadeUpdateRetractableLadder(u8);
-void arcadeUpdateCementPanEntity(u8);
-void arcadeUpdateVictoryPauline(u8);
-void arcadeUpdateNameEntryCursor(u8);
-void arcadeUpdateBonusBox(u8);
 
 void arcadeDispatchEntities(void) {
     u8 i = 0;
@@ -4008,7 +3938,6 @@ void arcadeSpawnStage2Enemies(void) {
     }
 }
 
-s32 _sprintf(char *, const char *, ...);
 extern u8 D_8004A82C[5][3];
 extern u8 D_8004BCEC;
 
