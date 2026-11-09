@@ -24,8 +24,8 @@ typedef struct Actor146 {
 } Actor146;
 
 s32 controllerAnimStateLoadAsset(void *, s32, s32);
-void animSetLoopLimit(s32, s32, s32);
-void animSetFinished(s32, s32, s32);
+void animSetLoopLimit(void *, s32, s16);
+void animSetFinished(void *, s32, u8);
 void animSetFrameAndSubframe(s32, s32, s16, f32);
 
 void animStopAtFrame(s32 actor, s32 animSlot, s32 frame) {
