@@ -533,8 +533,13 @@ def fresh(e, now_fp, name):
 
 
 def mark(evs, method, now_fp, name):
-    """('✓' | 'stale' | '—', newest event of METHOD or None, whether it is fresh)."""
-    e = next((x for x in reversed(evs) if x["method"] == method), None)
+    """('✓' | 'stale' | '—', newest event of METHOD or None, whether it is fresh). Newest by `t`
+    (ties: ledger order): carried events keep their original time, so one appended after a later
+    agent event must not win."""
+    e = None
+    for x in evs:
+        if x["method"] == method and (e is None or x["t"] >= e["t"]):
+            e = x
     if e is None:
         return "—", None, False
     if not fresh(e, now_fp, name):

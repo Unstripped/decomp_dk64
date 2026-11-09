@@ -291,3 +291,10 @@ def test_review_freshness_ignores_checklist_tokens(monkeypatch):
     assert _real_knowledge_after("named", REVIEW, t)  # a file naming the function still stales it
     assert _real_knowledge_after("f", "regalloc swap " + REVIEW, t)  # free text still searched
     assert calls[-1] == "regalloc swap"
+
+
+def test_newest_by_time_wins_over_carried_older_event():
+    fresh = ev(SITE, "diagnose", "nohit", t="2026-01-02T00:00:00Z", quirks=["Q0001"])
+    carried = ev(SITE, "diagnose", "blocked", t="2026-01-01T00:00:00Z", agent="carry")
+    state, e, ok = q.mark([fresh, carried], "diagnose", FP, "f")
+    assert e is fresh and (state, ok) == ("✓", True)
