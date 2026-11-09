@@ -100,19 +100,18 @@ void alEvtqPostEvent(ALEventQueue *evtq, ALEvent *evt, ALMicroTime delta) {
         if (node->next == NULL) {
             item->delta = infinite != 0 ? 0 : delta;
             alLink(&item->node, node);
-            goto done;
+            break;
         } else {
             next = (ALEventListItem *)node->next;
             if (delta < next->delta) {
                 item->delta = delta;
                 next->delta -= delta;
                 alLink(&item->node, node);
-                goto done;
+                break;
             }
             delta -= next->delta;
         }
     } while ((node = node->next) != NULL);
-done:
     osGetIntMask(intMask);
 }
 
