@@ -1468,8 +1468,6 @@ void playerUpdateHorizontalVelocity(arg0) u8 arg0; {
             NMB_P->unkD8 = NMB_A->unkFC;
             D_807FD586 = 0;
             if (D_807FD586) {}
-            if (D_807FD586) {}
-            if (D_807FD586) {}
             fa1 = mathSinF(ang) * speed;
             sp44 = mathSinF(NMB_A->unkDC) * sp38;
             sp44 = fa1 + sp44;
