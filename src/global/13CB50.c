@@ -1,4 +1,7 @@
 #include "common.h"
+#include "proto/global/13CB50.h"
+#include "proto/global/13CFA0.h"
+#include "proto/global/13FED0.h"
 
 typedef struct {
     u8 pad0[0xD];

@@ -1,5 +1,20 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
+#define PROTO_SKIP_mathAngleInArcWithMargin // PROTO: The controlling expression of the if statement is not scalar
+#include "proto/global/117190.h"
+#include "proto/global/133A90.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C700.h"
+#include "proto/global/36880.h"
+#include "proto/global/5E020.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gActivePlayerActor;
@@ -45,8 +60,6 @@ typedef struct ProxPath {
 } ProxPath; // size = 0x3C
 
 extern ProxPath *D_807FDCC0;
-void *heapAlloc(s32);
-void heapFree(void *);
 
 void proxPathListClear(void) {
     D_807FDCC0 = NULL;
@@ -175,9 +188,6 @@ typedef struct PlayerSlot {
 
 extern u8 gPlayerCount;
 extern u32 gGlobalOverlayFlags;
-s32 flagGet(s32, s32);
-s32 func_807142D8(void);
-void proxPathAttachNearestToPlayer(Actor *, u8, u8);
 
 void proxPathUpdateAllPlayers(void) {
     u8 i;
@@ -214,11 +224,6 @@ typedef struct H1ActorState {
 } H1ActorState;
 
 f32 sqrtf(f32);
-u8 proxPathGetActorPosition(Actor *, u8, f32 *, f32 *, f32 *);
-s32 proxPathFindNearestSegment(Actor *, ProxPath *, f32 *, u8 *);
-f32 proxPathAttachToSegment(Actor *, H1ActorState *, ProxPath *, u8);
-void proxPathGetDistanceAt(ProxPath *, u8, f32, f32 *);
-void playerStateQueueCallback(s32, void *, s32);
 
 void proxPathAttachNearestToPlayer(Actor *playerActor, u8 playerIndex, u8 allowBoss) {
     f32 dx;
@@ -302,7 +307,6 @@ typedef struct H1SlotEntry {
 } H1SlotEntry; // size = 0x90
 
 extern H1SlotEntry *gModelSlots;
-s32 hashTableLookup();
 
 u8 proxPathGetActorPosition(Actor *actor, u8 mode, f32 *outX, f32 *outY, f32 *outZ) {
     s16 slot;
@@ -329,14 +333,9 @@ u8 proxPathGetActorPosition(Actor *actor, u8 mode, f32 *outX, f32 *outY, f32 *ou
     return ret;
 }
 
-void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void modelSlotGetNodePos(void *, s32, s32, f32 *, f32 *, f32 *);
 extern s16 gCurrentCharacterIndex;
 extern s16 D_80753B74[];
-s32 mathAngleDistance(s16, s16);
-f32 mathAtan2(f32, f32);
-s32 proxPathSegmentAngleCheck(ProxPath *, s32, s16);
+s32 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 
 s32 proxPathFindNearestSegment(Actor *actor, ProxPath *path, f32 *outDist, u8 *outSegment) {
     s32 i;
@@ -419,7 +418,6 @@ s32 proxPathSegmentAngleCheck(ProxPath *path, s32 segmentIndex, s16 angle) {
     return 0;
 }
 
-f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 void *memcpy(void *, const void *, unsigned int);
 
 f32 proxPathAttachToSegment(Actor *actor, H1ActorState *state, ProxPath *path, u8 segmentIndex) {
@@ -530,7 +528,6 @@ typedef struct H1ActorView {
 
 extern H1CamState *gActivePlayerState;
 extern u32 gFrameDelta;
-void playerResumeLocomotion(Actor *);
 
 void proxPathAdvance(f32 speedMultiplier) {
     f32 step;
@@ -597,10 +594,6 @@ typedef struct H1ActorB {
     /* 0x174 */ H1ActorState *unk174;
 } H1ActorB;
 
-void proxPathFindDistanceSegment(ProxPath *, f32, u8 *, f32 *);
-void proxPathGetSegmentMatrices(Actor *, u8, u8, u8, void **, void **);
-void mtxLerpL(Mtx *, Mtx *, f32, Mtx *);
-void proxPathActorFollowSpline(H1ActorB *, H1ActorState *, ProxPath *, u8, f32);
 
 void proxPathFollowerStep(H1ActorB **pActor) {
     H1ActorB *actor;
@@ -686,9 +679,6 @@ void proxPathFollowerStep(H1ActorB **pActor) {
     }
 }
 
-void splineSetBasisTension(f32);
-void mathNudgeCoords(f32, f32, f32 *, f32 *);
-void proxPathInterpolatePosition(u8, f32, ProxPath *, f32 *, f32 *, f32 *);
 
 
 void proxPathActorFollowSpline(H1ActorB *actor, H1ActorState *state, ProxPath *path, u8 segmentIndex, f32 t) {
@@ -791,7 +781,6 @@ void proxPathActorFollowSpline(H1ActorB *actor, H1ActorState *state, ProxPath *p
     }
 }
 
-f32 splineEvalCubic(f64, f32, f32, f32, f32);
 
 void proxPathInterpolatePosition(u8 segmentIndex, f32 t, ProxPath *path, f32 *outX, f32 *outY, f32 *outZ) {
     u8 ids[4];
@@ -821,9 +810,6 @@ void proxPathInterpolatePosition(u8 segmentIndex, f32 t, ProxPath *path, f32 *ou
     *outZ = splineEvalCubic(t, p[0][2], p[1][2], p[2][2], p[3][2]);
 }
 
-s32 actorStepSubNodeList(void *, s32);
-void *modelSlotGetNodeMatrix(Actor *, s32, s32);
-void heapFreeDeferred(void *);
 
 void proxPathGetSegmentMatrices(Actor *actor, u8 slotType, u8 nodeA, u8 nodeB, void **outMtxA, void **outMtxB) {
     void *tmp;

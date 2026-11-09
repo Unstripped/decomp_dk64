@@ -1,4 +1,7 @@
 #include "common.h"
+#include "proto/global/137120.h"
+#include "proto/global/137630.h"
+#include "proto/global/13ECE0.h"
 
 f32 sinApprox(f32);
 

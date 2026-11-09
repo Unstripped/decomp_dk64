@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/1371D0.h"
 
 void alSeqFileNew(ALSeqFile *f, u8 *base) {
     s32 offset = (s32)base;
@@ -9,10 +10,6 @@ void alSeqFileNew(ALSeqFile *f, u8 *base) {
     }
 }
 
-void _bnkfPatchBank(ALBank *bank, s32 offset, s32 table);
-void _bnkfPatchInst(ALInstrument *inst, s32 offset, s32 table);
-void _bnkfPatchSound(ALSound *s, s32 offset, s32 table);
-void _bnkfPatchWaveTable(ALWaveTable *w, s32 offset, s32 table);
 
 void alBnkfNew(ALBankFile *file, u8 *table) {
     s32 offset = (s32)file;

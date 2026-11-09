@@ -1,4 +1,7 @@
 #include "common.h"
+#include "proto/boot/3D20.h"
+#include "proto/global/136820.h"
+#include "proto/global/201B0.h"
 
 extern s32 D_807FEF80;
 extern s32 D_807FEF78;
@@ -58,7 +61,6 @@ void faultDrawGlyph(u8 c) {
 #include "compiler/ido/stdarg.h"
 
 extern s32 D_807FEF7C;
-int vsprintf(u8 *buf, const u8 *fmt, va_list ap);
 
 void faultPrintf(const char *fmt, ...) {
     u8 *p;
@@ -145,7 +147,6 @@ extern s32 D_807FF020;
 extern s32 D_807FF024;
 extern s32 D_807FF028;
 extern char *D_80756360[];
-void faultUnwindStack(OSThread *a0);
 
 void faultDrawRegs(OSThread *a0) {
     s32 y;
@@ -246,7 +247,6 @@ extern OSMesgQueue D_807FEF58;
 
 extern s32 gFramebuffers[];
 extern u8 D_807563B4;
-void faultDrawRegs(OSThread *a0);
 
 void faultThreadMain(void *arg) {
     OSMesg msg;
@@ -276,7 +276,6 @@ void faultThreadMain(void *arg) {
     }
 }
 
-void camEndPath(s32);
 
 void faultSetMessage(u8 a0, s32 a1, s32 a2, s32 a3) {
     D_807FF01C = a0;
@@ -289,7 +288,6 @@ void faultSetMessage(u8 a0, s32 a1, s32 a2, s32 a3) {
 extern OSMesg D_807FEF50;
 extern OSThread D_807FDDA0;
 extern u8 D_807563B0;
-void faultThreadMain(void *);
 
 void faultThreadInit(void) {
     __osSetFpcCsr(__osGetFpcCsr() | 0x400);

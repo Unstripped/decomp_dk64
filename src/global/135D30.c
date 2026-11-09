@@ -1,5 +1,9 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_func_8060E25C // FAKE: callee prototype steer
+#include "proto/global/104F0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/3C10.h"
 
 typedef struct FlagTableEntry {
     /* 0x0 */ u8 unk0;
@@ -29,11 +33,6 @@ extern FlagTableEntry D_80755EA0[];
 extern FlagTableEntry4 D_80755F4C[];
 extern FlagTableEntry4 D_80755F50[];
 
-u8 flagGet(s16 flag, u8 bank);
-void flagSet(s16 flag, u8 val, u8 bank);
-void flagUpdateRangeCompletion(s16 flag);
-s32 spawnFlagLookup(s16 map, s16 id, s32 *outIdx);
-s32 flagCountRange(s32 startFlag, s32 count, u8 bank);
 u8 *func_8060E25C(u8); // FAKE: callee prototype steer
 
 void flagsClearAllBank2(void) {
@@ -141,7 +140,6 @@ void flagSet(s16 flag, u8 val, u8 bank) {
 }
 
 extern FlagTableEntry D_807FDCD0[];
-s32 mapFindSlotByMap(s16);
 
 void func_807313BC(void) {
     s32 i;

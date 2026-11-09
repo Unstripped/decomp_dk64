@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/global/13CE70.h"
+#include "proto/global/13FED0.h"
 
 void alCSPSetChlFX1Mix(ALCSPlayer *seqp, u8 chan, u8 vol) {
     ALEvent evt;

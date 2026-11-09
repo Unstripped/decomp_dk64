@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/137120.h"
 
 void alHeapInit(ALHeap *hp, u8 *base, s32 len) {
     hp->base = base;

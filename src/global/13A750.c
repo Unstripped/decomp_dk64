@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/13A750.h"
 
 void alCSPSetBank(ALCSPlayer *seqp, ALBank *b) {
     ALEvent evt;

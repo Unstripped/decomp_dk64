@@ -1,5 +1,10 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/1332B0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/7CA80.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -38,7 +43,6 @@ typedef struct {
 } VolumeTriggerTable;
 
 extern VolumeTriggerTable *D_80755A14;
-void *heapAlloc(s32);
 
 void volumeTriggerTableLoad(s16 *data) {
     VolumeTriggerRaw *src;
@@ -77,9 +81,6 @@ typedef struct {
 } VolumeTriggerHook; // size = 0x10
 
 extern VolumeTriggerHook D_807557A0[];
-void *assetLoad(s32, s32, s32, s32);
-s32 assetFreeBuffer(void *, s32, s32);
-s32 actorFindActiveByType(s16 actorType, Actor **outActor);
 
 void volumeTriggerTableInit(s32 mapId) {
     VolumeTriggerHook *p;
@@ -135,9 +136,6 @@ extern u8 D_807FBDC4;
 extern s16 D_807FDCB8;
 extern s16 D_807FDCBA;
 extern s16 D_807FDCBC;
-void actorAppendCallbackMemcpy8(void *, void *, s32, s32, void *, s32);
-s32 volumeTriggerUpdate(VolumeTrigger *);
-void volumeTriggerSetEnabled(s32 triggerId, u8 enabled);
 
 typedef struct {
     s16 unk0;
@@ -191,7 +189,6 @@ typedef struct {
 
 extern u8 gPlayerCount;
 extern s16 gCurrentLevelIndex;
-s32 flagTryTriggerOnce(s16, s16);
 
 s32 volumeTriggerUpdate(VolumeTrigger *trigger) {
     u8 found = 0;

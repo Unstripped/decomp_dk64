@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/global/13D020.h"
+#include "proto/global/13FED0.h"
 
 void alCSPSetTempo(ALCSPlayer *seqp, s32 tempo) {
     ALEvent evt;

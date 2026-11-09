@@ -1,5 +1,29 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_collisionCheckActorFloor // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
+#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
+#define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
+#define PROTO_SKIP_zoneCheckActorInside // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/127B00.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/AA960.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -54,11 +78,6 @@ extern void *D_807FDCA0;
 extern u8 gGameMode;
 extern s32 gCurrentMap;
 extern u8 D_807FBB85;
-void actorScriptStart(Actor *, s32);
-void actorGlobalStateClearEvents(void);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
-void sfxStopSlotSound(Actor *, u8);
-void collisionClearFlags(void);
 
 void behaviourFrameBegin(void) {
     gBehaviourWorkState = gCurrentActor->customState;
@@ -185,11 +204,7 @@ typedef struct D1ActorViewJ {
 #define D1DC90J ((D1Dc90ViewJ *)gBehaviourWorkState)
 #define D1DC98J ((D1Dc98ViewJ *)gBehaviourAnimState)
 
-s32 randomNonNegative(void);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);  // FAKE: callee prototype steer
-s32 mathAngleSignedDistance(s16, s16);
-s16 mathAngleEaseToward(s16, s16, f32);
-void scriptSetActorRampTarget(void *, f32, f32);
 
 void actorTurnTowardTarget(u8 mode, f32 arg1, f32 arg2, u16 flags) {
     s16 *cur = &D1AJ->unkE6;
@@ -291,7 +306,6 @@ typedef struct D1Dc98ViewC {
 #define D1DC98C ((D1Dc98ViewC *)gBehaviourAnimState)
 
 extern D1Tbl8075EB80 D_8075EB80[];
-void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
 
 void behaviourUpdateShadowAlpha(void) {
     u8 a;
@@ -337,8 +351,6 @@ typedef struct D1ActorView3 {
 
 extern u8 D_80720120[];
 extern u16 D_80744508;
-u8 collisionIsGroundImpact(void);
-u8 collisionIsHeavyGroundImpact(void);
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);  // FAKE: callee prototype steer
 
 void behaviourCheckGroundImpactEffects(void) {
@@ -390,7 +402,6 @@ void actorUpdateStationaryTimer(void) {
 }
 
 f32 mathSinF(s16);
-u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 
 void actorSetPitchVelocity(s16 arg0, f32 arg1, f32 arg2, f32 arg3, u16 arg4) {
     D1A3->unkC0 = mathSinF(D1A3->unkF0) * -arg3;
@@ -503,17 +514,7 @@ typedef struct E3DcA0 {
 #define E3C98 ((E3Dc98 *)gBehaviourAnimState)
 #define E3CA0 ((E3DcA0 *)D_807FDCA0)
 
-s32 mathAngleDistance(s16, s16);
-void actorUpdatePrevContactFlags(Actor *);
-void actorTurnTowardTarget(u8, f32, f32, u16);
-void collisionSetQueryMode(s32);
-void actorStepPhysics(Actor *, s16, s16);
-void actorApplyVelocityCustom(Actor *, f32, f32);
-void actorUpdateFloorContactAndTilt(Actor *, f32);
-void actorApproachTargetSpeed(u16);
-void actorApplyVelocity(Actor *);
 u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);  // FAKE: callee prototype steer
-s32 polygonContainsPoint2D(s16, s16, void *);
 s32 zoneCheckActorInside(Actor *, f32, f32, void *, s16 *);
 f32 mathCosF(s16);
 
@@ -697,7 +698,6 @@ typedef struct D1Dc90ViewB {
 #define D1DC90B ((D1Dc90ViewB *)gBehaviourWorkState)
 
 extern u32 gFrameCounter;
-void behaviourSpawnDropParticle();
 
 void actorApproachTargetSpeed(u16 arg0) {
     s32 spd;
@@ -729,7 +729,6 @@ void actorSetBehaviourState(u8 arg0, s16 arg1, s32 arg2) {
     actorSetTargetSpeed(gCurrentActor, arg1);
 }
 
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
 void actorAddPulsingLight(void) {
     u32 phase;
@@ -846,24 +845,6 @@ typedef struct F1Act {
 #define F1S98 ((F1Dc98 *)gBehaviourAnimState)
 #define F1S9C ((F1Dc9c *)gBehaviourExtraState)
 
-s32 zoneFindBestReachablePoint(s32, Actor *, void *, s16 *, s16 *, s16 *);
-s32 pathPlaybackStart(s32, s32, u8, f32, f32, f32, u8);
-void pathPlaybackSetSpeed(s32, u8);
-void pathPlaybackSetLooping(s32, u8);
-void pathPlaybackSetLoopLimit(s32, s32);
-void pathPlaybackSetActive(s32, u8);
-void pathPlaybackAdvance(s32);
-void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
-void func_80724E48(u8);
-void behaviourFadeOutWithinZone(u8);
-void actorSetDefaultState(s32);
-void func_8072E320(f32);
-u8 sfxSlotAllocateActor(Actor *, s16, u8, u8, u8, f32, s8);
-void actorQueueDelayedCallback();
-void effectSetCallback(void *);
-void effectSetSpeed(s32);
-void effectSetDepth(s8);
-void func_80717D4C(void);
 extern u8 D_8071FC58[];
 
 void behaviourUpdateContactAndState(s32 arg0) {
@@ -1252,8 +1233,6 @@ typedef struct C1Dc9c {
 #define C1D98 ((C1Dc98 *)gBehaviourAnimState)
 #define C1D9C ((C1Dc9c *)gBehaviourExtraState)
 
-s32 zoneCanReachPoint(Actor *, s16, s16, s16, void *);
-s32 behaviourIsTargetWithinAngle(u16);
 
 void enemyAggroStateUpdate(s32 arg0, s32 arg1, s32 arg2) {
     D1S174 *st;
@@ -1424,7 +1403,6 @@ void patrolGetNextWaypointPos(s16 *arg0, s16 *arg1, s16 *arg2) {
 }
 
 
-void patrolGetNextWaypointPos(s16 *, s16 *, s16 *);
 
 s32 patrolGetTargetAngle(void) {
     u8 idx;
@@ -1653,9 +1631,7 @@ typedef struct D1ActorViewI {
 
 #define D1AI ((D1ActorViewI *)gCurrentActor)
 
-void actorSetBehaviourState(u8, s16, s32);
 void func_8002D7E8(s16);
-void behaviourSpawnPuffParticle(void);
 
 void behaviourCalculateDamageForce(D1ActorViewI *arg0, s32 arg1) {
     f64 unused;
@@ -1744,9 +1720,7 @@ void sfxPlayAtFBD6CPosition(void) {
     effectCreateAtPosition(&D_8071FB34, 0.55f, D_807FBD6C->x, D_807FBD6C->y, D_807FBD6C->z);
 }
 
-void effectSetMode(s8);
 extern u8 D_8071FF18;
-extern void func_80717D4C(void);
 
 void behaviourSpawnDropParticle(void) {
     effectSetMode(2);
@@ -1757,11 +1731,7 @@ void behaviourSpawnDropParticle(void) {
 }
 
 extern u8 gCurrentPlayerIndex;
-u16 slotQueueGetValue(u8, u8);
-void slotQueueAddValue(s32, u8, s16);
-void slotQueueUpdate(s32, u8, s32);
-void sfxAllocateChannel(s32, f32);
-void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
+void slotQueueAddValue(s32, u8, s16); // FAKE: callee prototype steer
 
 void behaviourAddSlotQueueValueB(s32 arg0) {
     u8 cnt;
@@ -1789,8 +1759,6 @@ void behaviourFadeOutWithinZone(u8 arg0) {
     }
 }
 
-f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
-u8 camIsCutsceneActive(void);
 
 s32 actorIsTargetWithinAngleDeg(Actor *arg0, Actor *arg1, u16 arg2) {
     f32 deg = mathAngleBetweenPointsDeg((s32)arg1->x, (s32)arg1->z, (s32)arg0->x, (s32)arg0->z);
@@ -1816,7 +1784,6 @@ s32 behaviourIsTargetWithinAngle(u16 arg0) {
     return actorIsTargetWithinAngleDeg(gCurrentActor, gBehaviourTargetActor, arg0);
 }
 
-void actorSetTargetSpeed(Actor *, s32);
 
 void actorSetDefaultState(s32 arg0) {
     gCurrentActor->state = gBehaviourExtraState->unk10;
@@ -1899,7 +1866,6 @@ u8 actorIsTargetWithinDistance(u16 arg0) {
     return (dx * dx + dy * dy + dz * dz) < (f32)(arg0 * arg0);
 }
 
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 
 void actorGetNodePosOrPosition(Actor *arg0, f32 *arg1, f32 *arg2, f32 *arg3) {
     if (((E2ActorView *)arg0)->unkCC != 0) {

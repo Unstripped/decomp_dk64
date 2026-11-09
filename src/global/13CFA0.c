@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/global/13CFA0.h"
+#include "proto/global/13FED0.h"
 
 void alCSPSendMidi(ALCSPlayer *seqp, s32 ticks, u8 status, u8 byte1, u8 byte2) {
     ALEvent evt;

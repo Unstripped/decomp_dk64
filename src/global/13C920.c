@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/13C920.h"
 
 extern u8 D_807FF0F0;
 extern u8 D_807FF0F1;
@@ -7,7 +8,6 @@ extern u8 D_807FF0F4;
 extern u8 D_807FF0F6;
 extern u8 D_807FF0F8;
 
-void updateCSPOutputChannelMode(s32 chan, s32 outputMode);
 
 void configureCSPOutputMode(u8 mode) {
     s32 i;
