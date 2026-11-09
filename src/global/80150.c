@@ -1553,7 +1553,7 @@ void transformBarrelUpdate(void) {
                 }
             }
         }
-        ((Actor *)*(s32 *)&var_t0->unk4)->unk144 = 1; // FAKE: s32 view keeps this load out of the var_t0->unk4 candidate (ring temp, not a1)
+        var_t0->unk4->unk144 = 1;
     }
 
     if (gCurrentActor->state < 0x14) {
