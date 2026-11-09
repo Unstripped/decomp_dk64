@@ -2569,17 +2569,17 @@ void mapChunkIdListAddUnique(s16 arg0) {
 
 
 typedef struct {
-    /* 0x00 */ f32 unk0[4];
-    /* 0x10 */ f32 unk10[4];
-    /* 0x20 */ f32 unk20;
-    /* 0x24 */ f32 unk24;
+    /* 0x00 */ f32 x[4];
+    /* 0x10 */ f32 y[4];
+    /* 0x20 */ f32 px;
+    /* 0x24 */ f32 py;
 } MapGridQuad;
 
 
 
 extern void mapGridPlaneProjectPoint(s32, f32, f32, f32, f32 *, f32 *, f32 *);
 extern void mapGridPointBuildVectors(s32, f32, f32, f32, MapGridQuad *);
-extern s32 mapGridQuadContainsPoint(u8 *);
+extern s32 mapGridQuadContainsPoint(MapGridQuad *);
 
 s32 mapGridPointEmit(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     f32 h;
@@ -2587,7 +2587,7 @@ s32 mapGridPointEmit(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     f32 sp7C;
     f32 sp78;
     f32 sp74;
-    u8 sp4C[0x28];
+    MapGridQuad quad;
     f32 sp48;
     f32 sp44;
     f32 sp40;
@@ -2604,22 +2604,14 @@ s32 mapGridPointEmit(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
         return 0;
     }
     mapGridPlaneProjectPoint(arg0, arg1, arg2, arg3, &sp7C, &sp78, &sp74);
-    mapGridPointBuildVectors(arg0, sp7C, sp78, sp74, (MapGridQuad *)sp4C);
-    if (mapGridQuadContainsPoint(sp4C)) {
+    mapGridPointBuildVectors(arg0, sp7C, sp78, sp74, &quad);
+    if (mapGridQuadContainsPoint(&quad)) {
         return 1;
     }
     return 0;
 }
 
-typedef struct {
-    f32 x[4];
-    f32 y[4];
-    f32 px;
-    f32 py;
-} MapGridQuadView;
-
-#define Q ((MapGridQuadView *)arg0)
-s32 mapGridQuadContainsPoint(u8 *arg0) {
+s32 mapGridQuadContainsPoint(MapGridQuad *quad) {
     f32 mx;
     f32 my;
     f32 ex;
@@ -2632,47 +2624,40 @@ s32 mapGridQuadContainsPoint(u8 *arg0) {
     f32 cross2;
     s32 i;
 
-    mx = (Q->x[0] + Q->x[2]) * 0.5;
-    my = (Q->y[0] + Q->y[2]) * 0.5;
+    mx = (quad->x[0] + quad->x[2]) * 0.5;
+    my = (quad->y[0] + quad->y[2]) * 0.5;
     for (i = 0; i != 4; i++) {
         switch (i) {
         case 0:
-            vy = Q->y[0];
-            vx = Q->x[0];
-            ex = Q->x[1] - vx;
-            ey = Q->y[1] - vy;
-            if (i && i) {} // FAKE: steers f32 web coloring/ring (dx f12, dy f14)
+            vx = quad->x[0];
+            vy = quad->y[0];
+            ex = quad->x[1] - quad->x[0];
+            ey = quad->y[1] - quad->y[0];
             break;
         case 1:
-            vx = Q->x[1];
-            vy = Q->y[1];
-            ey = Q->y[2] - vy;
-            ex = Q->x[2] - vx;
+            vx = quad->x[1];
+            vy = quad->y[1];
+            ex = quad->x[2] - quad->x[1];
+            ey = quad->y[2] - quad->y[1];
             break;
         case 2:
-            vy = Q->y[2];
-            vx = Q->x[2];
-            ex = Q->x[3] - vx;
-            ey = Q->y[3] - vy;
-            if (vx * 2.0f) {} // FAKE: steers f32 web coloring/ring (dx f12, dy f14)
+            vx = quad->x[2];
+            vy = quad->y[2];
+            ex = quad->x[3] - quad->x[2];
+            ey = quad->y[3] - quad->y[2];
             break;
         case 3:
-            vx = Q->x[3];
-            vy = Q->y[3];
-            ex = Q->x[0] - vx;
-            ey = Q->y[0] - vy;
-            if (!i) {} // FAKE: steers f32 web coloring/ring (dx f12, dy f14)
+            vx = quad->x[3];
+            vy = quad->y[3];
+            ex = quad->x[0] - quad->x[3];
+            ey = quad->y[0] - quad->y[3];
             break;
         }
-        if (i == 0) {} // FAKE: steers f32 web coloring/ring (dx f12, dy f14)
-        dx = Q->px - vx;
-        if (dx * 2.0f) {} // FAKE: steers f32 web coloring/ring (dx f12, dy f14)
-        dy = Q->py - vy;
+        dx = quad->px - vx;
+        dy = quad->py - vy;
         if (dx * ey - dy * ex != 0.0) {
             cross2 = (mx - vx) * ey - (my - vy) * ex;
-            if (dy < 0.0f) {} // FAKE: steers f32 web coloring/ring (dx f12, dy f14)
             if (dx * ey - dy * ex > 0.0) {
-                if (dx < 0.0f) {} // FAKE: steers f32 web coloring/ring (dx f12, dy f14)
                 if (cross2 <= 0.0) {
                     return 0;
                 }
@@ -2691,27 +2676,27 @@ void mapGridPointBuildVectors(s32 arg0, f32 arg1, f32 arg2, f32 arg3, MapGridQua
 
     switch (gMapGridTrianglePlanes[arg0].unk28) {
     case 0:
-        arg4->unk20 = arg1;
-        arg4->unk24 = arg2;
+        arg4->px = arg1;
+        arg4->py = arg2;
         for (k = 0; k < 4; k++) {
-            arg4->unk0[k] = D_807F6C14[arg0].unk0[k];
-            arg4->unk10[k] = D_807F6C14[arg0].unk10[k];
+            arg4->x[k] = D_807F6C14[arg0].unk0[k];
+            arg4->y[k] = D_807F6C14[arg0].unk10[k];
         }
         break;
     case 1:
-        arg4->unk20 = arg1;
-        arg4->unk24 = arg3;
+        arg4->px = arg1;
+        arg4->py = arg3;
         for (k = 0; k < 4; k++) {
-            arg4->unk0[k] = D_807F6C14[arg0].unk0[k];
-            arg4->unk10[k] = D_807F6C14[arg0].unk20[k];
+            arg4->x[k] = D_807F6C14[arg0].unk0[k];
+            arg4->y[k] = D_807F6C14[arg0].unk20[k];
         }
         break;
     case 2:
-        arg4->unk20 = arg2;
-        arg4->unk24 = arg3;
+        arg4->px = arg2;
+        arg4->py = arg3;
         for (k = 0; k < 4; k++) {
-            arg4->unk0[k] = D_807F6C14[arg0].unk10[k];
-            arg4->unk10[k] = D_807F6C14[arg0].unk20[k];
+            arg4->x[k] = D_807F6C14[arg0].unk10[k];
+            arg4->y[k] = D_807F6C14[arg0].unk20[k];
         }
         break;
     }
