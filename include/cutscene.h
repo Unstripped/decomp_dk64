@@ -27,7 +27,8 @@ typedef struct CsCmdBytes {
 
 // Per-cutscene playback state.
 typedef struct CsState {
-    /* 0x00 */ u8 pad0[8];
+    /* 0x00 */ void *data;
+    /* 0x04 */ u8 pad4[4];
     /* 0x08 */ f32 unk8;
     /* 0x0C */ f32 unkC;
     /* 0x10 */ s16 unk10[2];
@@ -39,12 +40,15 @@ typedef struct CsState {
     /* 0x4B */ u8 unk4B[4];
     /* 0x4F */ s8 unk4F;
     /* 0x50 */ s8 unk50;
-    /* 0x51 */ u8 pad51[0xF];
+    /* 0x51 */ u8 pad51[0xB];
+    /* 0x5C */ u8 unk5C;
+    /* 0x5D */ u8 unk5D;
+    /* 0x5E */ u16 unk5E;
     /* 0x60 */ s8 unk60;
     /* 0x61 */ u8 pad61;
     /* 0x62 */ s16 unk62;
     /* 0x64 */ u8 pad64[2];
-    /* 0x66 */ s8 unk66;
+    /* 0x66 */ u8 unk66;
     /* 0x67 */ s8 unk67;
     /* 0x68 */ s16 unk68;
     /* 0x6A */ s16 unk6A;
@@ -64,7 +68,8 @@ typedef struct CsState {
     /* 0x8A */ s16 unk8A;
     /* 0x8C */ u8 pad8C[8];
     /* 0x94 */ Actor *unk94;
-    /* 0x98 */ u8 pad98[3];
+    /* 0x98 */ s16 unk98;
+    /* 0x9A */ u8 unk9A;
     /* 0x9B */ u8 unk9B;
 } CsState;
 
