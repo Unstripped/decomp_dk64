@@ -1426,7 +1426,7 @@ void actorUpdateModelMatrices(Actor *arg0) {
 }
 
 void actorSub140BuildBoxes(ActorSub140 *arg0) {
-    s32 neg1;
+    s32 none;
     s32 i;
     ActorSub140SrcTri *ent;
     Mtx *mtx;
@@ -1444,7 +1444,7 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
     f32 sp68[3];
     s32 padE[5];
 
-    neg1 = -1;
+    none = -1;
     if (arg0->boxes != NULL) {
         if (gFrameCounter == arg0->unk88) {
             var_v1 = gGfxBufferIndex;
@@ -1464,7 +1464,7 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
                 var_s1 = sp80;
                 do {
                     unk24 = ent->boneOffset;
-                    if (neg1 == unk24) {
+                    if (none == unk24) {
                         memcpy(spCC, (void *)arg0->boxBounds, 0x40);
                         guMtxXFMF(spCC, var_s0[0], var_s0[3], var_s0[6], var_s2, var_s3, var_s1);
                     } else {
@@ -1479,8 +1479,8 @@ void actorSub140BuildBoxes(ActorSub140 *arg0) {
                     if (ent->unk2A == 0) {
                         box->unk4B = 0;
                     }
-                    if (ent->boneOffset == neg1) {
-                        box->unk4E = neg1;
+                    if (ent->boneOffset == none) {
+                        box->unk4E = none;
                     } else {
                         box->unk4E = (s8)(ent->boneOffset >> 6);
                     }
