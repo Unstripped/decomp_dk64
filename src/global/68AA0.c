@@ -95,19 +95,15 @@ extern PlayerAreaView *gPlayerSlots;
 f32 sfxUpdateDistanceVolumeAndPan(f32, f32, f32, u8, u8, f32);
 
 void actorTargetEntriesUpdateSfx(u8 targetType, u8 volume, u8 sfxId, f32 factor) {
-    ActorTargetEntry *entry;
     s32 i;
-    s32 stride;
     s32 j;
     s32 found;
 
     for (i = 0; i < D_807F9424; i++) {
-        stride = 12;  // FAKE: constant in a local, flips s2/s3 preheader order
         if (D_807F9420 == 0) {}  // FAKE: dead statement, steers P into a3 / s4-s6 order
         j = 0;
         found = 0;
-        entry = (ActorTargetEntry *)((s32)D_807F9420 + i * stride);
-        if (entry->unk6 == targetType) {
+        if (D_807F9420[i].unk6 == targetType) {
             do {
                 if (D_807F9420[i].u.unk7_arr[j] == gPlayerSlots[0].unk290) {
                     found = 1;
@@ -119,7 +115,7 @@ void actorTargetEntriesUpdateSfx(u8 targetType, u8 volume, u8 sfxId, f32 factor)
             } while (D_807F9420[i].u.unk7_arr[j] != -1);
 
             if (found) {
-                sfxUpdateDistanceVolumeAndPan(entry->unk0, entry->unk2, entry->unk4, volume, sfxId, factor);
+                sfxUpdateDistanceVolumeAndPan(D_807F9420[i].unk0, D_807F9420[i].unk2, D_807F9420[i].unk4, volume, sfxId, factor);
             }
         }
     }
