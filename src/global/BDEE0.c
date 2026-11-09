@@ -79,30 +79,30 @@ extern u8 D_80770629[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
 
-void behaviourSetAnimIds(s32, s32, s32);
-void func_80724CA4(s32, s32);
+void behaviourSetAnimIds(s16, s16, s16);
+void func_80724CA4(s16, s16);
 void actorClearNodeFlag(void *, s32);
 void behaviourCalculateDamageForce(s32, s32);
 void behaviourSpawnExplosionAndSound();
 void actorSetDefaultState();
 void actorSetTargetSpeed(Actor *, s32);
 void actorScriptStart(void *, s32);
-s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
+s32 actorMoveWithinZone(u8, f32, f32, s32, f32);  // FAKE: callee prototype steer
 void behaviourUpdateShadowAlpha();
 s32 randomNonNegative(void);
 void actorUpdateAnimSpeedFromSpeed();
-s32 behaviourCheckRandomAnimTrigger();
+u8 behaviourCheckRandomAnimTrigger(void);
 s32 behaviourIsTargetWithinAngle(u16);
-void behaviourFadeOutWithinZone(s32);
+void behaviourFadeOutWithinZone(u8);
 void behaviourUpdateContactAndState();
 void behaviourFrameBegin(void);
 void enemyAggroStateUpdate(s32, s32, s32);
-void patrolPathStep(u32, s32);
+u8 patrolPathStep(u8, u8);
 void actorUpdateModelMatrix(Actor *, s32);
-s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
-void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
+s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);  // FAKE: callee prototype steer
+void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 void sfxSpawnTableNodes(void *);
-void sfxStopSlotSound(Actor *, s32);
+void sfxStopSlotSound(Actor *, u8);
 
 void behaviourArmadilloPatrol(void) {
     u16 animFlags = 0;
@@ -304,7 +304,7 @@ void behaviourArmadilloUpdateMatrix(void) {
 
 void effectSetSpeed(s32);
 void effectSetCallback(void *);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectPuffRiseUpdate(void);
 void func_80717D4C(void);
@@ -410,10 +410,10 @@ typedef struct BDEE0DCA0Tgt {
 #define BDEE0DCA0T ((BDEE0DCA0Tgt *)D_807FDCA0)
 
 extern u8 D_8071FB34[];
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
-s32 playerStateQueueCallback(s32, void *, s32);
-s32 actorIsTargetWithinAngleDeg(void *, void *, s32);
+s32 playerStateQueueCallback(s16, void *, u8);
+s32 actorIsTargetWithinAngleDeg(Actor *, Actor *, u16);
 
 s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
     s16 *p;
@@ -610,7 +610,7 @@ void behaviourArmadilloStepPatrol(void);
 f32 cosApprox(f32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void matrixMakeRotationZ(f32 (*)[4], f32);
 s16 mathAngleEaseToward(s16, s16, f32);
 
@@ -748,7 +748,7 @@ void behaviourFairyUpdate(void) {
 
 void playerSetLargeModeScale(f32);
 void actorSetUniformScale(Actor *, f32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void behaviourFairyInitPlayerScale(void) {
     behaviourFrameBegin();
@@ -810,7 +810,7 @@ typedef struct BDEE0Sub174Hdr {
 
 extern Actor *gSpawnedActor;
 
-s32 spawnNodeSpawnById(u8, s16, s16, s16, s32, s32, s32);
+Actor * spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 
 s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, s32 extraParam) {
     BDEE0Sub174 *v;
@@ -869,18 +869,18 @@ extern s32 gCamActor;
 extern BDEE0Tbl D_80750638;
 
 void behaviourFairyPlaySound();
-s32 spawnNodeHasActor(s32);
-void csSendActorMessagePayload(s32, s32);
+u8 spawnNodeHasActor(u8);
+void csSendActorMessagePayload(s16, s16);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void camStartPath(void *, s32, s32);
+u16 camStartPath(void *, s16, u8);
 void camSetTarget(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void camSetTargetFocusActor(s32, void *);
 void camReturnToFollow(s32, void *);
-void func_80726EE0(s32);
-void playerSetSizeMode(void *, s32);
-void csModelStateSetFirstByte(s32, s32);
-void effectSpawnChildAtNode(s32, s16, s16);
+void func_80726EE0(u8);
+void playerSetSizeMode(Actor *, u8);
+void csModelStateSetFirstByte(s16, s16);
+void effectSpawnChildAtNode(u8, s16, s16);
 void sfxStopChannel();
 
 void behaviourFairyWanderUpdate(void) {
