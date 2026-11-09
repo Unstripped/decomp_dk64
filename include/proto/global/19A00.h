@@ -19,22 +19,22 @@ void actorScriptStartByIndex(Actor *, s32);
 void actorScriptStart(Actor *, s32);
 #endif
 #ifndef PROTO_SKIP_scriptReadU8
-void scriptReadU8(u8 *);
+void scriptReadU8(void *);
 #endif
 #ifndef PROTO_SKIP_scriptReadU16
-void scriptReadU16(u8 *);
+void scriptReadU16(void *);
 #endif
 #ifndef PROTO_SKIP_scriptReadU24
-void scriptReadU24(u8 *);
+void scriptReadU24(void *);
 #endif
 #ifndef PROTO_SKIP_scriptReadU32
-void scriptReadU32(u8 *);
+void scriptReadU32(void *);
 #endif
 #ifndef PROTO_SKIP_scriptOpNop
-s32 scriptOpNop(s32);
+s32 scriptOpNop(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpYield
-s32 scriptOpYield(s32);
+s32 scriptOpYield(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpSetRegister
 s32 scriptOpSetRegister(Actor *);
@@ -97,31 +97,31 @@ s32 scriptOpApproachActionTarget(Actor *);
 s32 func_806158E8(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpAnimSetRemapDefault
-s32 scriptOpAnimSetRemapDefault(s32);
+s32 scriptOpAnimSetRemapDefault(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpAnimSetRemapDirectDefault
-s32 scriptOpAnimSetRemapDirectDefault(s32);
+s32 scriptOpAnimSetRemapDirectDefault(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpAnimSetStateDefault
-s32 scriptOpAnimSetStateDefault(s32);
+s32 scriptOpAnimSetStateDefault(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpAnimSetRemapBlend
-s32 scriptOpAnimSetRemapBlend(s32);
+s32 scriptOpAnimSetRemapBlend(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpAnimScaleInterpolate
-s32 scriptOpAnimScaleInterpolate(s32);
+s32 scriptOpAnimScaleInterpolate(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpAnimSetDirect
-s32 scriptOpAnimSetDirect(s32);
+s32 scriptOpAnimSetDirect(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpAnimSetStateRemap
-s32 scriptOpAnimSetStateRemap(s32);
+s32 scriptOpAnimSetStateRemap(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpAnimSetStateRemapBlend
-s32 scriptOpAnimSetStateRemapBlend(s32);
+s32 scriptOpAnimSetStateRemapBlend(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpAnimSetFromTable
-s32 scriptOpAnimSetFromTable(s32);
+s32 scriptOpAnimSetFromTable(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpReadRampInterpolation
 s32 scriptOpReadRampInterpolation(Actor *);
@@ -217,7 +217,7 @@ s32 scriptOpRunCommand(Actor *);
 s32 scriptOpSetCommandHandler(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpPlaySoundOnFreeSlot
-s32 scriptOpPlaySoundOnFreeSlot(s32);
+s32 scriptOpPlaySoundOnFreeSlot(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpSetActorState
 s32 scriptOpSetActorState(Actor *);
@@ -244,7 +244,7 @@ s32 scriptOpEnableFlag84(Actor *);
 s32 scriptOpDisableFlag84(Actor *);
 #endif
 #ifndef PROTO_SKIP_scriptOpHalt
-s32 scriptOpHalt(s32);
+s32 scriptOpHalt(Actor *);
 #endif
 #ifndef PROTO_SKIP_func_80616DB4
 s32 func_80616DB4(Actor *);
