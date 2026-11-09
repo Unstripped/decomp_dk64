@@ -110,8 +110,9 @@ Once every agent of the round is idle:
 3. Commit `<seg>: name N symbols` (symbol files, renamed src, moved drafts, the `include/proto`
    headers `gen` rewrote).
 4. A rename changes the fingerprints of every function it touches: `uv run tools/quality.py
-   carry --rev <commit before the renames> --unit "<unit>"` re-stamps their results (pure
-   identifier renames only; it lists what it skipped). Commit `drafts/quality.jsonl`.
+   carry --rev <commit before the renames> --unit "<unit>"` re-stamps their results (only
+   renames that keep every name's type, field offset or symbol address; keywords, types and
+   macros unchanged; it lists what it skipped). Commit `drafts/quality.jsonl`.
 
 ## 7. Stop rule
 

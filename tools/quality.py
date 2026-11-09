@@ -11,7 +11,8 @@ method ladder that exhausts them, and the per-function `review` coverage.
   uv run tools/quality.py rank [--seg S] [--limit N]
   uv run tools/quality.py report [--baseline REV] [--markdown]
   uv run tools/quality.py carry --rev REV --unit U [src.c...]   after renames: re-stamp results of
-                                         functions that changed since REV only by identifier renames
+                                         functions that changed since REV only by renames of declared
+                                         names (same type, field offset or symbol address; clang-checked)
 
 Ledger: drafts/quality.jsonl (env DK64_QUALITY_LEDGER overrides), append-only. Functions are keyed
 by (seg, vram): symbol file / asm / link map via tools/ledger.py, else the build ELF symbol table,
@@ -69,7 +70,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import clint  # noqa: E402
 import ledger  # noqa: E402
 import quirks  # noqa: E402
-from clang.cindex import CursorKind, StorageClass, TypeKind  # noqa: E402
+from clang.cindex import CursorKind, StorageClass, TokenKind, TypeKind  # noqa: E402
 
 ROOT = clint.ROOT
 LEDGER = os.environ.get("DK64_QUALITY_LEDGER") or os.path.join(ROOT, "drafts", "quality.jsonl")
@@ -980,39 +981,111 @@ def cmd_rank(a):
 
 # ---------------------------------------------------------------- carry (renames keep results)
 
-CTOKEN = re.compile(r"/\*.*?\*/|//[^\n]*|\"(?:\\.|[^\"\\])*\"|'(?:\\.|[^'\\])*'|[A-Za-z_]\w*|\d[\w.]*|\S", re.S)
-IDENT = re.compile(r"[A-Za-z_]\w*")
+SYM_LINE = re.compile(r"^\s*(\w+)\s*=\s*0x([0-9A-Fa-f]+)\s*;", re.M)
+ADDR_NAME = re.compile(r"(?:D|func)_([0-9A-F]{8})")
+_symtext = {}
 
 
-def alpha_equal(old, new):
-    """Whether NEW is OLD with identifiers renamed one-to-one and every other token (comments
-    ignored) unchanged: a token rename, which leaves codegen and every ladder result intact."""
-    a = [t for t in CTOKEN.findall(old) if not t.startswith(("//", "/*"))]
-    b = [t for t in CTOKEN.findall(new) if not t.startswith(("//", "/*"))]
-    if len(a) != len(b):
+def sym_addr(seg, name, rev):
+    """Address of global symbol NAME seen from segment SEG in the symbol files at REV (None: the
+    working tree), or None. `D_XXXXXXXX`/`func_XXXXXXXX` names carry their address."""
+    m = ADDR_NAME.fullmatch(name)
+    if m:
+        return int(m.group(1), 16)
+    own = "symbol_addrs.us.txt" if seg in ("boot", "global") else f"symbol_addrs.{seg}.us.txt"
+    for f in dict.fromkeys([own, "symbol_addrs.us.txt", "undefined_syms.us.txt"]):
+        if (f, rev) not in _symtext:
+            if rev:
+                text = subprocess.run(["git", "show", f"{rev}:{f}"], cwd=ROOT, capture_output=True, text=True).stdout
+            else:
+                p = os.path.join(ROOT, f)
+                text = open(p).read() if os.path.exists(p) else ""
+            d = {}
+            for n, v in SYM_LINE.findall(text):
+                d.setdefault(n, int(v, 16))
+            _symtext[(f, rev)] = d
+        if name in _symtext[(f, rev)]:
+            return _symtext[(f, rev)][name]
+    return None
+
+
+def token_meaning(tok):
+    """What an identifier token denotes, ignoring its spelling, or None when it is not a
+    renameable declaration (type names, macros, labels, enum constants: their spelling must stay).
+    A local is its canonical type (declarations are in the compared text, so the one-to-one name
+    map pins which local); a global or function its kind and type (its address is checked
+    separately); a field its type, offset and record size."""
+    c = tok.cursor
+    ref = c.referenced or c
+    k = ref.kind
+    if k in (CursorKind.VAR_DECL, CursorKind.PARM_DECL):
+        local = ref.semantic_parent is not None and ref.semantic_parent.kind == CursorKind.FUNCTION_DECL
+        return ("local" if local else "global", ref.type.get_canonical().spelling)
+    if k == CursorKind.FUNCTION_DECL:
+        return ("func", ref.type.get_canonical().spelling)
+    if k == CursorKind.FIELD_DECL:
+        return ("field", ref.type.get_canonical().spelling, ref.get_field_offsetof(),
+                ref.semantic_parent.type.get_size() if ref.semantic_parent is not None else None)
+    return None
+
+
+def file_tokens(tu, path):
+    """Non-comment tokens of PATH's own text, in order."""
+    want = os.path.realpath(os.path.join(ROOT, path))
+    return [t for t in tu.get_tokens(extent=tu.cursor.extent)
+            if t.kind != TokenKind.COMMENT and t.location.file is not None
+            and os.path.realpath(os.path.join(ROOT, t.location.file.name)) == want]
+
+
+def rename_equivalent(old_toks, new_toks, addr_old, addr_new):
+    """Whether NEW_TOKS is OLD_TOKS with only declared names renamed: keywords, literals,
+    punctuation and every non-renameable identifier (types, macros, labels, enum constants) unchanged;
+    names mapped one-to-one; each renamed token keeping its declaration kind and canonical type, a
+    field its offset, a global or function its address (ADDR_OLD / ADDR_NEW: name -> address or
+    None). `PROTO_SKIP_<name>` follows the mapping of <name>."""
+    if len(old_toks) != len(new_toks):
         return False
     fwd, back = {}, {}
-    for x, y in zip(a, b):
-        if IDENT.fullmatch(x) and IDENT.fullmatch(y):
-            if fwd.setdefault(x, y) != y or back.setdefault(y, x) != x:
+    for x, y in zip(old_toks, new_toks):
+        if x.kind != y.kind:
+            return False
+        xs, ys = x.spelling, y.spelling
+        if x.kind != TokenKind.IDENTIFIER:
+            if xs != ys:
                 return False
-        elif x != y:
+            continue
+        px, py = xs.startswith("PROTO_SKIP_"), ys.startswith("PROTO_SKIP_")
+        if px or py:
+            if not (px and py):
+                return False
+            xs, ys = xs[len("PROTO_SKIP_"):], ys[len("PROTO_SKIP_"):]
+        else:
+            mx, my = token_meaning(x), token_meaning(y)
+            if mx != my:
+                return False
+            if xs != ys:
+                if mx is None:
+                    return False
+                if mx[0] in ("global", "func"):
+                    a = addr_old(xs)
+                    if a is None or a != addr_new(ys):
+                        return False
+        if fwd.setdefault(xs, ys) != ys or back.setdefault(ys, xs) != xs:
             return False
     return True
 
 
-def parts(text, fns):
-    """(function source texts, top-level text) as analyze() hashes them into fp_local."""
-    lines = text.split("\n")
-    inside = {i for fn in fns for i in range(fn["line"] - 1, fn["end"])}
-    return ["\n".join(lines[fn["line"] - 1:fn["end"]]) for fn in fns], \
-        "\n".join(l for i, l in enumerate(lines) if i not in inside)
+def carry_lines(fns, fn, nlines):
+    """1-based lines analyze() hashes into FN's fp_local: its body plus the file's top level."""
+    inside = {i for f in fns for i in range(f["line"], f["end"] + 1)}
+    return set(range(fn["line"], fn["end"] + 1)) | {i for i in range(1, nlines + 1) if i not in inside}
 
 
 def cmd_carry(a):
     """Re-stamp the newest fresh-at-REV events of every function whose source and file-level text
-    changed from REV to HEAD only by identifier renames (rename.py), with HEAD's fingerprints and
-    site keys. Events keep their time, so knowledge filed after them still makes them stale."""
+    changed from REV to HEAD only by renames of declared names (`rename_equivalent`), with HEAD's
+    fingerprints and site keys. Events keep their time, so knowledge filed after them still makes
+    them stale."""
     files = a.files or [p for p in ledger.git("diff", "--name-only", a.rev, "HEAD", "--", "src").split()
                         if p.endswith(".c") and "/libultra/" not in p and os.path.exists(os.path.join(ROOT, p))]
     by_site, by_func = index_events(load_events())
@@ -1025,15 +1098,21 @@ def cmd_carry(a):
         if len(old["functions"]) != len(new["functions"]):
             skipped.append(f"{path}: function count changed")
             continue
-        (ofn, otop), (nfn, ntop) = parts(old_text, old["functions"]), parts(new_text, new["functions"])
-        for fo, fn, so, sn in zip(old["functions"], new["functions"], ofn, nfn):
+        full = os.path.join(ROOT, path)
+        otu, ntu = clint.parse(path, unsaved=[(full, old_text)]), clint.parse(path, unsaved=[(full, new_text)])
+        otoks, ntoks = file_tokens(otu, path), file_tokens(ntu, path)
+        for fo, fn in zip(old["functions"], new["functions"]):
             if fn["vram"] is None or fo["vram"] not in (None, fn["vram"]):
                 skipped.append(f"{path}: {fn['name']}: identity changed")
                 continue
             if fo["fp_local"] == fn["fp_local"] and fo["fp_hdr"] == fn["fp_hdr"]:
                 continue  # unchanged: its events are as fresh as they were
             sites_match = [s["kind"] for s in fo["sites"]] == [s["kind"] for s in fn["sites"]]
-            if not alpha_equal(so + "\0" + otop, sn + "\0" + ntop) or not sites_match:
+            lo = carry_lines(old["functions"], fo, old_text.count("\n") + 1)
+            ln = carry_lines(new["functions"], fn, new_text.count("\n") + 1)
+            if not sites_match or not rename_equivalent(
+                    [t for t in otoks if t.location.line in lo], [t for t in ntoks if t.location.line in ln],
+                    lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None)):
                 skipped.append(f"{path}: {fn['name']}: not a pure rename")
                 continue
             vram = f"{fn['vram']:08X}"
