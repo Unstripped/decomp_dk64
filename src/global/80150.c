@@ -2778,7 +2778,6 @@ void cannonUpdate(void) {
         sub->unk3 = 0;
     }
     if (gCurrentActor->state == 2 || gCurrentActor->state == 3) {
-        if (D_8074E7FC && D_8074E7FC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         cam = ((CannonCamHolder *)sub->unk4->customState)->unk104;
         sub->unk8 = sub->unk8 - (f64)D_807FD63E * 0.08 * D_8074E7F8 * 4096.0 / 360.0;
         sub->unk8 = sub->unk8 & 0xFFF;
@@ -2793,9 +2792,8 @@ void cannonUpdate(void) {
         }
         x = gCurrentActor->x;
         z = gCurrentActor->z;
-        if (D_8074E7F8 && D_8074E7F8) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         y = gCurrentActor->y + D_8074E7FC;
-        camSetFixedView((s32)cam, x, y, z, x + sinOff, y + D_8074E804, z + cosOff, 0);
+        camSetFixedView((s32)cam, x, y, z, x + sinOff, y + D_8074E804, gCurrentActor->z + cosOff, 0);
         if (camIsCutsceneActive() == 0) {
             renderCallbacksRegister(func_806FF01C, gPrimaryPlayerActor, 3);
             renderCallbacksRegister(func_806FEF7C, gPrimaryPlayerActor, 3);
