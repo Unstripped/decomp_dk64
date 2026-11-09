@@ -12,14 +12,20 @@ TEXT OK, then full ROM `build/dk64.us.z64: OK`). Never paste permuter output int
 src unreviewed.
 
 Subcommands:
-  setup  Build permuter input directory (.scratch/permuter/<seg>_<FUNC>/)
-  run    Run permuter with --stack-diffs and optional wall-clock limit
+  setup  Build permuter input directory (.scratch/permuter/<seg>_<FUNC>/, or --out DIR)
+         and record its source, scores and file digests in setup.json; refuses a
+         directory set up for another function or source file unless --force
+  run    Run permuter with --stack-diffs and optional wall-clock limit; refuses a
+         directory whose base.c/target.o/compile.sh changed since its setup, or
+         whose setup baseline is already 0
   best   List best outputs and print diff against base.c
 """
 
 import argparse
 import difflib
 import glob
+import hashlib
+import json
 import os
 import re
 import shutil
@@ -235,36 +241,105 @@ def get_compile_flags(src_file: Path) -> tuple[str, str]:
     return cc, cflags
 
 
-def extract_func_definition(source: str, func_name: str) -> str:
-    """Extract a single function definition from C source text."""
-    # Find start of function header
-    kr_decl_pat = r"\s*(?:[a-zA-Z0-9_* \t,()]+;\s*)*"
-    pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + kr_decl_pat + r"\{)", re.DOTALL)
-    m = pat.search(source)
-    if not m:
-        raise ValueError(f"function '{func_name}' definition not found in source")
+# Text between a definition's `)` and its `{`: whitespace, comments and K&R
+# parameter declarations (`ActorHitView *arg1;`, `volatile u8 arg4; // FAKE: ...`).
+_C_COMMENT = r"(?://[^\n]*|/\*[\s\S]*?\*/)"
+_C_GAP = rf"(?:\s|{_C_COMMENT})*"
+_KR_DECLS = rf"{_C_GAP}(?:[a-zA-Z0-9_* \t,()\[\]]+;{_C_GAP})*"
 
-    start_idx = m.start(2)
-    brace_idx = source.find('{', start_idx)
-    level = 1
-    i = brace_idx + 1
-    n = len(source)
-    while i < n:
-        if source[i] == '{':
-            level += 1
-        elif source[i] == '}':
-            level -= 1
-            if level == 0:
-                return source[start_idx : i + 1].strip()
-        i += 1
-    raise ValueError(f"unclosed brace for function '{func_name}'")
+_C_TYPE_WORDS = {
+    "void", "char", "short", "int", "long", "float", "double", "signed", "unsigned",
+    "const", "volatile", "struct", "union", "enum",
+}
+
+
+def _is_knr_definition(params: str, decls: str) -> bool:
+    """True if a definition with this parameter text and pre-`{` text is K&R style.
+
+    K&R: parameter declarations between `)` and `{`, or an identifier list (every
+    ANSI definition parameter has a type and a name, so a lone word other than a
+    type keyword is an identifier).
+    """
+    if re.sub(_C_COMMENT, "", decls).strip():
+        return True
+    items = [p.strip() for p in params.split(",")]
+    if items == [""]:
+        return False
+    return all(re.fullmatch(r"[A-Za-z_]\w*", p) and p not in _C_TYPE_WORDS for p in items)
+
+
+def _fn_decl_re(fn_name: str) -> "re.Pattern[str]":
+    """Column-0 (file-scope) declarations of fn_name; group 1 is the parameter text."""
+    return re.compile(
+        rf"^(?!return\b)[A-Za-z_][\w \t*]*\b{re.escape(fn_name)}\s*\(([^;{{}}]*)\)\s*;[ \t]*\n?",
+        re.MULTILINE,
+    )
+
+
+def _resolve_knr_declarations(pieces: list) -> str:
+    """Join strip_other_fns pieces, replacing each stripped K&R definition.
+
+    Pieces are text, ("target", text) for the kept function, or ("knr", name, decl) for
+    a stripped K&R definition whose `T f();` is decl. Only the declarations in force at
+    the target affect its code, and IDO uses a function's prototype once one has been
+    seen before the call, before or after a K&R definition; otherwise a K&R definition
+    gives the non-prototype, default-promoted type `T f();`. A non-definition `T f();`
+    and a prototype with narrow parameters cannot both be declared (cfe error), so:
+    - K&R definition after the target: dropped.
+    - prototype before the target: definition dropped, and every `T f();` of f too.
+    - otherwise: definition becomes `T f();`, and prototypes after the target go.
+    """
+    merged: list = []
+    buf: List[str] = []
+    for p in pieces:
+        if isinstance(p, str):
+            buf.append(p)
+        else:
+            merged += ["".join(buf), p]
+            buf = []
+    pieces = merged + ["".join(buf)]
+    target = next((k for k, p in enumerate(pieces) if isinstance(p, tuple) and p[0] == "target"), len(pieces))
+    text_before = "".join(p for p in pieces[:target] if isinstance(p, str))
+    drop_nonproto, drop_proto_after = set(), set()
+    out = list(pieces)
+    for k, p in enumerate(pieces):
+        if not (isinstance(p, tuple) and p[0] == "knr"):
+            continue
+        _, name, decl = p
+        if k > target:
+            out[k] = ""
+        elif any(d.group(1).strip() for d in _fn_decl_re(name).finditer(text_before)):
+            out[k] = ""
+            drop_nonproto.add(name)
+        else:
+            out[k] = decl
+            drop_proto_after.add(name)
+
+    def drop_decls(text: str, names: set, prototypes: bool) -> str:
+        for name in names:
+            text = _fn_decl_re(name).sub(lambda d: "" if bool(d.group(1).strip()) == prototypes else d.group(0), text)
+        return text
+
+    joined = []
+    for k, p in enumerate(out):
+        if isinstance(p, tuple):
+            joined.append(p[1])
+            continue
+        p = drop_decls(p, drop_nonproto, prototypes=False)
+        if k > target:
+            p = drop_decls(p, drop_proto_after, prototypes=True)
+        joined.append(p)
+    return "".join(joined)
 
 
 def strip_other_fns(source: str, keep_fn: str) -> str:
-    """Turn all function bodies except keep_fn into forward declarations."""
-    kr_decl_pat = r"\s*(?:[a-zA-Z0-9_* \t,()]+;\s*)*"
+    """Turn all function bodies except keep_fn into forward declarations.
+
+    K&R definitions (identifier lists are only valid in a definition) become `T f();`
+    or nothing, never an ANSI prototype: see _resolve_knr_declarations.
+    """
     fn_regex = re.compile(
-        r"(?:([a-zA-Z0-9_*][a-zA-Z0-9_* \t]*?)\b)?(\w+)\s*\(([^;{}]*?)\)" + kr_decl_pat + r"\{"
+        r"(?:([a-zA-Z0-9_*][a-zA-Z0-9_* \t]*?)\b)?(\w+)\s*\(([^;{}]*?)\)" + _KR_DECLS + r"\{"
     )
     control_flow = {"if", "while", "for", "switch", "catch"}
 
@@ -321,8 +396,12 @@ def strip_other_fns(source: str, keep_fn: str) -> str:
                             level -= 1
                         i += 1
 
-                    if fn_name == keep_fn or fn_name.startswith("PERM"):
+                    if fn_name == keep_fn:
+                        result.append(("target", source[pos:i]))
+                    elif fn_name.startswith("PERM"):
                         result.append(source[pos:i])
+                    elif _is_knr_definition(m.group(3), source[m.end(3) + 1 : m.end() - 1]):
+                        result.append(("knr", fn_name, source[pos : m.start(3)].rstrip() + ");\n"))
                     else:
                         proto = source[pos : m.end(3) + 1].rstrip() + ";"
                         result.append(proto + "\n")
@@ -375,7 +454,7 @@ def strip_other_fns(source: str, keep_fn: str) -> str:
         result.append(c)
         pos += 1
 
-    return "".join(result)
+    return _resolve_knr_declarations(result)
 
 
 def deduplicate_externs(source: str, func_name: str) -> str:
@@ -385,8 +464,7 @@ def deduplicate_externs(source: str, func_name: str) -> str:
     kept function compiles against), or the first one when all follow it.
     """
     lines = source.splitlines()
-    kr_decl_pat = r"\s*(?:[a-zA-Z0-9_* \t,()]+;\s*)*"
-    func_pat = re.compile(rf"\b{re.escape(func_name)}\s*\([^;]*$|\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + kr_decl_pat + r"\{", re.DOTALL)
+    func_pat = re.compile(rf"\b{re.escape(func_name)}\s*\([^;]*$|\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + _KR_DECLS + r"\{", re.DOTALL)
     func_line = next((i for i, l in enumerate(lines) if func_pat.search(l) and not l.lstrip().startswith("extern")), len(lines))
     decl_re = re.compile(r"extern\s+[a-zA-Z0-9_* \t]+\b([A-Za-z0-9_]+)\s*(?:\[[^\]]*\])*\s*;")
     keep = {}
@@ -499,8 +577,7 @@ def wrap_multi_statement_lines(source: str, func_name: str) -> str:
     `if`/`else`/`do` or split an `if` from its `else` or a do-body from its
     `while`, so such lines stay unwrapped.
     """
-    kr_decl_pat = r"\s*(?:[a-zA-Z0-9_* \t,()]+;\s*)*"
-    pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + kr_decl_pat + r"\{)", re.DOTALL)
+    pat = re.compile(rf"(^|\n)([^\n;{{}}]*?\b{re.escape(func_name)}\s*\([^{{}}]*?\)" + _KR_DECLS + r"\{)", re.DOTALL)
     m = pat.search(source)
     if not m:
         return source
@@ -588,6 +665,75 @@ def preprocess_whole_source(source_text: str, extra_flags: List[str]) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Setup record: what setup built a directory from, checked by setup and run
+# ---------------------------------------------------------------------------
+SETUP_RECORD = "setup.json"
+_RECORDED_FILES = ("base.c", "target.o", "compile.sh")
+
+
+def _rel_to_root(path: Path) -> str:
+    path = path.resolve()
+    return str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path)
+
+
+def _file_digests(out_dir: Path) -> dict:
+    return {
+        name: hashlib.sha256((out_dir / name).read_bytes()).hexdigest()
+        for name in _RECORDED_FILES
+        if (out_dir / name).exists()
+    }
+
+
+def read_setup_record(out_dir: Path) -> Optional[dict]:
+    path = out_dir / SETUP_RECORD
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def write_setup_record(out_dir: Path, record: dict) -> None:
+    data = dict(record, digests=_file_digests(out_dir))
+    (out_dir / SETUP_RECORD).write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+
+
+def setup_conflict(previous: Optional[dict], record: dict) -> Optional[str]:
+    """Why setting up `record` must not silently replace the previous setup, or None.
+
+    Re-setup from the same source (an updated copy) is the normal workflow; another
+    function or another source file means the directory belongs to other work.
+    """
+    if previous is None:
+        return None
+    for key in ("func", "source"):
+        if previous.get(key) != record[key]:
+            return f"was set up for {previous.get('func')} from {previous.get('source')}, not {record['func']} from {record['source']}"
+    return None
+
+
+def run_record_problem(out_dir: Path, record: Optional[dict]) -> Optional[str]:
+    """Why run must not start on out_dir, or None.
+
+    The permuter scores its own compile of base.c against target.o; if another setup
+    replaced them, it starts from a different base (e.g. an already matching source,
+    base score 0, and a "zero" found at once).
+    """
+    if record is None:
+        return None
+    digests = _file_digests(out_dir)
+    changed = [name for name, digest in record.get("digests", {}).items() if digests.get(name) != digest]
+    origin = f"{record.get('func')} from {record.get('source')}"
+    if changed:
+        return f"{', '.join(changed)} changed since setup of {origin} (another setup into this directory?); re-run setup"
+    if record.get("baseline_score") == 0:
+        return f"setup of {origin} already scores 0 (permuter baseline); nothing to search"
+    return None
+
+
+
+# ---------------------------------------------------------------------------
 # Subcommand: setup
 # ---------------------------------------------------------------------------
 def cmd_setup(args: argparse.Namespace) -> None:
@@ -608,7 +754,50 @@ def cmd_setup(args: argparse.Namespace) -> None:
     if not src_path.exists():
         sys.exit(f"error: src file '{src_path}' not found")
 
-    out_dir = ROOT / ".scratch" / "permuter" / f"{seg}_{func}"
+    src_text = src_path.read_text(encoding="utf-8", errors="ignore")
+
+    # Source of base.c (picked before anything is written, for the overwrite check)
+    if args.from_file:
+        from_path = Path(args.from_file)
+        if not from_path.is_absolute():
+            from_path = ROOT / from_path
+        if not from_path.exists():
+            sys.exit(f"error: input file '{from_path}' not found")
+        from_text = from_path.read_text(encoding="utf-8", errors="ignore")
+    else:
+        # Check if func is parked inside #ifdef NON_MATCHING in src_text
+        pat_parked = rf"#if(?:def|\s+defined\s*\()\s*NON_MATCHING[\s\S]*?\b{re.escape(func)}\s*\([^{{}}]*?\)\s*[^{{}}]*?\{{"
+        if re.search(pat_parked, src_text):
+            from_path = src_path
+            from_text = src_text
+        else:
+            # A function already written as C in the given --src (e.g. a private copy) is
+            # taken from there; otherwise fall back to the stored draft.
+            src_has_c = re.search(rf"^[^\n;#]*\b{re.escape(func)}\s*\([^{{}}]*?\)\s*[^{{}}]*?\{{", src_text, re.M) and not re.search(
+                rf"#pragma\s+GLOBAL_ASM\(\"[^\"]*/{re.escape(func)}\.s\"\)", src_text
+            )
+            if src_has_c:
+                from_path = src_path
+                from_text = src_text
+            else:
+                from_path = ROOT / "drafts" / seg / f"{func}.c"
+                if not from_path.exists():
+                    sys.exit(f"error: input file '{from_path}' not found (provide a draft or --from FILE.c)")
+                from_text = from_path.read_text(encoding="utf-8", errors="ignore")
+
+    if args.out:
+        out_dir = Path(args.out)
+        if not out_dir.is_absolute():
+            out_dir = ROOT / out_dir
+    else:
+        out_dir = ROOT / ".scratch" / "permuter" / f"{seg}_{func}"
+    record = {"seg": seg, "func": func, "src": _rel_to_root(src_path), "source": _rel_to_root(from_path)}
+    conflict = setup_conflict(read_setup_record(out_dir), record)
+    if conflict and not args.force:
+        sys.exit(
+            f"error: {out_dir} {conflict}; another agent may be using it. Pass --out DIR "
+            "for a separate directory, or --force to replace it"
+        )
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # 2. Build target.o
@@ -662,37 +851,6 @@ def cmd_setup(args: argparse.Namespace) -> None:
 compiler_type = "ido"
 """
     settings_toml.write_text(settings_content, encoding="utf-8")
-
-    src_text = src_path.read_text(encoding="utf-8", errors="ignore")
-
-    # 5. Build base.c
-    if args.from_file:
-        from_path = Path(args.from_file)
-        if not from_path.is_absolute():
-            from_path = ROOT / from_path
-        if not from_path.exists():
-            sys.exit(f"error: input file '{from_path}' not found")
-        from_text = from_path.read_text(encoding="utf-8", errors="ignore")
-    else:
-        # Check if func is parked inside #ifdef NON_MATCHING in src_text
-        pat_parked = rf"#if(?:def|\s+defined\s*\()\s*NON_MATCHING[\s\S]*?\b{re.escape(func)}\s*\([^{{}}]*?\)\s*[^{{}}]*?\{{"
-        if re.search(pat_parked, src_text):
-            from_path = src_path
-            from_text = src_text
-        else:
-            # A function already written as C in the given --src (e.g. a private copy) is
-            # taken from there; otherwise fall back to the stored draft.
-            src_has_c = re.search(rf"^[^\n;#]*\b{re.escape(func)}\s*\([^{{}}]*?\)\s*[^{{}}]*?\{{", src_text, re.M) and not re.search(
-                rf"#pragma\s+GLOBAL_ASM\(\"[^\"]*/{re.escape(func)}\.s\"\)", src_text
-            )
-            if src_has_c:
-                from_path = src_path
-                from_text = src_text
-            else:
-                from_path = ROOT / "drafts" / seg / f"{func}.c"
-                if not from_path.exists():
-                    sys.exit(f"error: input file '{from_path}' not found (provide a draft or --from FILE.c)")
-                from_text = from_path.read_text(encoding="utf-8", errors="ignore")
 
     # Determine if NON_MATCHING should be enabled
     use_non_matching = bool(args.non_matching)
@@ -777,6 +935,7 @@ compiler_type = "ido"
         sys.exit(1)
 
     # Score base.o vs target.o and compute permuter baseline score
+    direct_score = cand_score = None
     sys.path.insert(0, "/opt/decomp-permuter")
     try:
         from src.scorer import Scorer
@@ -833,6 +992,10 @@ compiler_type = "ido"
         print(f"Permuter setup complete: {out_dir}")
         print(f"(Scorer check warning: {e})")
 
+    # What run checks the directory against (another setup into it changes base.c/target.o)
+    record.update(non_matching=use_non_matching, direct_score=direct_score, baseline_score=cand_score)
+    write_setup_record(out_dir, record)
+
 # ---------------------------------------------------------------------------
 # Subcommand: run
 # ---------------------------------------------------------------------------
@@ -847,6 +1010,19 @@ def cmd_run(args: argparse.Namespace, extra_args: List[str]) -> None:
     for req in ["base.c", "target.o", "compile.sh"]:
         if not (target_dir / req).exists():
             sys.exit(f"error: missing '{req}' in {target_dir}")
+
+    record = read_setup_record(target_dir)
+    if record is None:
+        print(f"warning: no {SETUP_RECORD} in {target_dir}: cannot check that it still holds what setup scored")
+    else:
+        problem = run_record_problem(target_dir, record)
+        if problem:
+            sys.exit(f"error: {target_dir}: {problem}")
+        print(
+            f"Setup: {record.get('func')} from {record.get('source')}, "
+            f"baseline {record.get('baseline_score')} (direct {record.get('direct_score')})",
+            flush=True,
+        )
 
     threads = args.threads
     if threads is None or threads <= 0:
@@ -867,7 +1043,7 @@ def cmd_run(args: argparse.Namespace, extra_args: List[str]) -> None:
         str(threads),
     ] + extra_args
 
-    print(f"Running permuter on {target_dir} ({threads} threads, --stack-diffs, stop-on-zero)...")
+    print(f"Running permuter on {target_dir} ({threads} threads, --stack-diffs, stop-on-zero)...", flush=True)
     if args.seconds is not None and args.seconds > 0:
         proc = subprocess.Popen(cmd)
         try:
@@ -962,6 +1138,8 @@ def main() -> None:
     p_setup.add_argument("--from", dest="from_file", help="Input C file (default: drafts/<seg>/<func>.c)")
     p_setup.add_argument("--src", help="Path to original C file in src/ (default: auto-detected)")
     p_setup.add_argument("--non-matching", action="store_true", help="Enable NON_MATCHING define for parked function definitions")
+    p_setup.add_argument("--out", help="Output directory (default: .scratch/permuter/<seg>_<FUNC>)")
+    p_setup.add_argument("--force", action="store_true", help="Replace a directory set up for another function or source file")
 
     # run
     p_run = sub.add_parser("run", help="Run permuter on an input directory")

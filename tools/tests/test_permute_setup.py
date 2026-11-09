@@ -1,5 +1,6 @@
-"""Regression tests for tools/permute.py setup: single-function target and same-line wrapping."""
+"""Regression tests for tools/permute.py: single-function target, same-line wrapping, K&R definitions, setup record."""
 
+import re
 import struct
 import sys
 from pathlib import Path
@@ -8,7 +9,15 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from tools.permute import function_asm_from_object, wrap_multi_statement_lines
+from tools.permute import (
+    function_asm_from_object,
+    read_setup_record,
+    run_record_problem,
+    setup_conflict,
+    strip_other_fns,
+    wrap_multi_statement_lines,
+    write_setup_record,
+)
 
 
 def build_object(text_words, symbols, relocs):
@@ -106,3 +115,136 @@ def test_single_pieces_are_left_alone():
 def test_no_pragma_between_if_and_else():
     body = "    if (g) g = 1;\n    else if (i) g = 2;"
     assert wrapped(body) == body
+
+
+KNR_SOURCE = """\
+short proto(short);
+short late_proto();
+
+short knr_new(a, b)
+short a;
+short *b;
+{
+    return a + *b;
+}
+
+short proto(a)
+short a;
+{
+    return a;
+}
+
+short late_proto(a)
+short a;
+{
+    return a;
+}
+
+short late_proto(short);
+
+short proto_after_target(a)
+short a;
+{
+    return a;
+}
+
+void knr_comment(a, b)
+int *a;
+volatile unsigned char b; // FAKE: comment inside the declaration list
+{
+    *a = b;
+}
+
+int knr_bare(a)
+{
+    return a;
+}
+
+int ansi(int a) // comment before the brace
+{
+    return a;
+}
+
+int target(a, b)
+short a;
+short b;
+{
+    return knr_new(a, &b) + proto(b) + late_proto(a) + proto_after_target(b);
+}
+
+short proto_after_target(short);
+
+int knr_after(a)
+short a;
+{
+    return a;
+}
+"""
+
+
+def test_knr_definitions_keep_their_type_at_the_target():
+    out = strip_other_fns(KNR_SOURCE, "target")
+    # Never an identifier list outside a definition, never a new ANSI prototype (IDO
+    # would convert arguments to the declared types instead of default-promoting them).
+    assert "(a, b);" not in out and "(a);" not in out
+    assert "return a + *b;" not in out and "*a = b;" not in out
+    # No declaration before the target: the definition becomes `T f();`.
+    assert "short knr_new();" in out
+    assert "void knr_comment();" in out
+    assert "int knr_bare();" in out
+    # A prototype seen before the target is in force there (IDO uses it before or after
+    # a K&R definition), and `T f();` beside a narrow prototype is a cfe error: only the
+    # prototype stays.
+    assert "short proto(short);" in out and len(re.findall(r"\bproto\(", out)) == 2
+    assert "short late_proto(short);" in out and "late_proto()" not in out
+    # Prototypes after the target do not affect it and would clash with `T f();`.
+    assert "short proto_after_target();" in out and "proto_after_target(short)" not in out
+    # K&R definitions after the target are dropped.
+    assert "knr_after" not in out
+    # ANSI definitions still become prototypes, also with a comment before the brace.
+    assert "int ansi(int a);" in out
+    # The kept K&R target is unchanged.
+    assert (
+        "int target(a, b)\nshort a;\nshort b;\n{\n"
+        "    return knr_new(a, &b) + proto(b) + late_proto(a) + proto_after_target(b);\n}"
+    ) in out
+
+
+def test_wrapping_finds_a_knr_target_with_comments_in_its_declarations():
+    src = "int g;\nvoid f(a)\nint a; // c\n{\n    g = a; g++;\n}\n"
+    assert "    PERM_FORCE_SAMELINE(g = a; g++;)" in wrap_multi_statement_lines(src, "f")
+
+
+def make_setup_dir(path: Path, baseline: int) -> dict:
+    for name, data in (("base.c", "int f(void) { return 1; }\n"), ("target.o", "obj"), ("compile.sh", "#!/bin/bash\n")):
+        (path / name).write_text(data)
+    record = {"seg": "boss", "func": "f", "src": "src/boss/F0D0.c", "source": ".scratch/A/F0D0.c", "baseline_score": baseline}
+    write_setup_record(path, record)
+    return read_setup_record(path)
+
+
+def test_run_refuses_a_directory_another_setup_rewrote(tmp_path):
+    record = make_setup_dir(tmp_path, baseline=160)
+    assert run_record_problem(tmp_path, record) is None
+    # Another agent's setup from the matched src replaced base.c and target.o: the
+    # permuter would start from base score 0 and report a "zero" at once.
+    (tmp_path / "base.c").write_text("int f(void) { return 2; }\n")
+    (tmp_path / "target.o").write_text("other obj")
+    problem = run_record_problem(tmp_path, record)
+    assert problem is not None and "base.c, target.o changed since setup of f from .scratch/A/F0D0.c" in problem
+
+
+def test_run_refuses_a_zero_baseline(tmp_path):
+    record = make_setup_dir(tmp_path, baseline=0)
+    assert "already scores 0" in run_record_problem(tmp_path, record)
+
+
+def test_setup_replaces_only_its_own_directory():
+    previous = {"func": "f", "source": ".scratch/A/F0D0.c"}
+    assert setup_conflict(None, {"func": "f", "source": "src/boss/F0D0.c"}) is None
+    # Re-setup from the same (updated) copy is the normal workflow.
+    assert setup_conflict(previous, {"func": "f", "source": ".scratch/A/F0D0.c"}) is None
+    assert "from .scratch/A/F0D0.c, not f from src/boss/F0D0.c" in setup_conflict(
+        previous, {"func": "f", "source": "src/boss/F0D0.c"}
+    )
+    assert setup_conflict(previous, {"func": "g", "source": ".scratch/A/F0D0.c"}) is not None
