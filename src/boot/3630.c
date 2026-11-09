@@ -1,10 +1,8 @@
 #include "common.h"
+#include "proto/boot/3630.h"
 
 extern u8 *strtokSavePtr;
 
-u8 *_strchr(u8 *s, s32 c);
-u8 *_strpbrk(u8 *s, u8 *set);
-u32 strlen(u8 *s);
 
 u8 *_strcpy(u8 *dst, u8 *src) {
     u8 *ret = dst;

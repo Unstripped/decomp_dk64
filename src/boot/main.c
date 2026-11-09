@@ -1,4 +1,7 @@
 #include "common.h"
+#include "proto/boot/1630.h"
+#include "proto/boot/30E0.h"
+#include "proto/boot/main.h"
 
 typedef struct {
     u32 romStart;
@@ -66,12 +69,6 @@ extern u8 global_LOAD_END[];
 extern u8 seg11_FALLBACK_START[];
 extern u8 seg11_FALLBACK_END[];
 
-void gunzip(void *, void *, u32);
-void noExpPakScreen(void);
-void decompressGlobal(void *, void *);
-void bootResetThread(void *);
-void bootMainThread(void *);
-void bootStartMainThread(void);
 
 void dmaCopy(u32 romStart, u32 romEnd, void *dest) {
     u32 size = romEnd - romStart;

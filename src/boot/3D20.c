@@ -1,9 +1,10 @@
 #include "common.h"
 #include "compiler/ido/stdarg.h"
+#include "proto/boot/3630.h"
+#include "proto/boot/3D20.h"
 
 unsigned long long __ull_div(unsigned long long, unsigned long long);
 unsigned long long __ull_rem(unsigned long long, unsigned long long);
-int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap);
 
 unsigned char digitsLower[] = "0123456789abcdefghijklmnopqrstuvwxyz";
 unsigned char digitsUpper[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -38,7 +39,6 @@ int _sprintf(unsigned char *buf, const unsigned char *fmt, ...) {
 }
 
 
-unsigned int strlen(unsigned char *s);
 
 int vsprintf(unsigned char *buf, const unsigned char *fmt, va_list ap) {
     const unsigned char *f;

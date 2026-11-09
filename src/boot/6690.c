@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/boot/6690.h"
 
 typedef struct TextureDescriptor {
     /* 0x00 */ s32 image;

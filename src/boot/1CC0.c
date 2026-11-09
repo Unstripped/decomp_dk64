@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/boot/1CC0.h"
 
 struct huft {
     u8 e;

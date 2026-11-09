@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/boot/1CC0.h"
+#include "proto/boot/30E0.h"
 
 extern s32 method;
 extern s32 exit_code;
@@ -12,9 +14,6 @@ extern s32 insize;
 extern s32 inptr;
 extern s32 outcnt;
 
-s32 inflate(void);
-s32 get_method(void);
-void clear_bufs(void);
 
 void gunzip(u8 **inBufPtr, u8 **outBufPtr, s32 huftStorage) {
     inbuf = *inBufPtr;

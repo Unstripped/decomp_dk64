@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/boot/1630.h"
+#include "proto/boot/30E0.h"
 
 typedef struct {
     u32 romStart;
@@ -38,13 +40,6 @@ extern u8 sNoExpPakTextLine4[];
 extern u8 sNoExpPakTextLine5[];
 extern u8 sNoExpPakTextLine6[];
 
-void gunzip(void *, void *, u32);
-void noExpPakThread(void *);
-void noExpPakDrawScreen(void);
-void noExpPakDrawText(u16 *);
-void bootDrawString(u16 *, s32, s32, const u8 *);
-void bootDrawGlyph(u16 *, s32, s32, u8);
-void dmaSegment11(s32, s32, void *);
 
 void noExpPakScreen(void) {
     D_80013A70 = (u8 *)0x80130000;
