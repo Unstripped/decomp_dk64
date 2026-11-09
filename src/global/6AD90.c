@@ -1930,8 +1930,7 @@ u8 collisionCheckTriangleContainsPointXZ(CollisionTriF *arg0, f32 arg1, f32 arg2
     b = (f64)(arg0->z[1] + arg0->z[2]) * 0.5;
     cx = (arg0->x[0] + a) * 0.5;
     cz = (arg0->z[0] + b) * 0.5;
-    i = 0; do { // LAYOUT: i = 0 joined to the loop head (move v0,zero lands after the hoisted ldc1s)
-        if (i && sideC) {}  // FAKE: dead test steers uopt (i != 0 guards: sideC is set by the previous iteration)
+    i = 0; sideC = 0; do { // LAYOUT: i = 0 joined to the loop head (move v0,zero lands after the hoisted ldc1s); FAKE: dead init sideC = 0 gives sideC an earlier first appearance than sideP (uopt colours ties in first-appearance order: sideC a0, sideP a1)
         switch (i) {
         case 0:
             dx = arg0->x[1] - arg0->x[0];
@@ -1970,7 +1969,6 @@ u8 collisionCheckTriangleContainsPointXZ(CollisionTriF *arg0, f32 arg1, f32 arg2
             outside = 1;
         }
     } while (i != 3);
-    if (sideC && sideC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     return outside == 0;
 }
 
@@ -2259,8 +2257,7 @@ u8 collisionCheckBoxTriangleContainsPointXZ(CollisionBoxTriangle *arg0, f32 arg1
     b = (f64)(arg0->tri.z[1] + arg0->tri.z[2]) * 0.5;
     cx = (arg0->tri.x[0] + a) * 0.5;
     cz = (arg0->tri.z[0] + b) * 0.5;
-    i = 0; do { // LAYOUT: i = 0 joined to the loop head (move v0,zero lands after the hoisted ldc1s)
-        if (i && sideC) {}  // FAKE: dead test steers uopt (i != 0 guards: sideC is set by the previous iteration)
+    i = 0; sideC = 0; do { // LAYOUT: i = 0 joined to the loop head (move v0,zero lands after the hoisted ldc1s); FAKE: dead init sideC = 0 gives sideC an earlier first appearance than sideP (uopt colours ties in first-appearance order: sideC a0, sideP a1)
         switch (i) {
         case 0:
             dx = arg0->tri.x[1] - arg0->tri.x[0];
@@ -2299,7 +2296,6 @@ u8 collisionCheckBoxTriangleContainsPointXZ(CollisionBoxTriangle *arg0, f32 arg1
             outside = 1;
         }
     } while (i != 3);
-    if (sideC && sideC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     return outside == 0;
 }
 
