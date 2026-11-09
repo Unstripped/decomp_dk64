@@ -506,7 +506,7 @@ extern u8 gCurrentPlayerIndex;
 
 void actorCheckWorldBounds(void *);
 void *renderActorDisplayList(void *, void *);
-s32 mapPointOutsideClipBounds(f32, f32, f32, u8, s32);
+s32 mapPointOutsideClipBounds(f32, f32, f32, u8, u8);
 void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
 void *actorBuildLightDisplayList(void *, void *, u8);
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
