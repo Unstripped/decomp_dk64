@@ -35,7 +35,7 @@ void texCacheUpdate(void) {
     }
 }
 
-s32 assetLoad(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 s32 texCacheFindOrLoad(u16 texId) {
     s16 i;
@@ -148,8 +148,8 @@ Gfx *renderRotatedQuad(Gfx *glist, s32 tex, s16 x, s16 y, s16 angle) {
 extern u16 D_807FC79E;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
-void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32);
-void vtxSetPosTex(Vtx *, s16, s16, s16, s16, s32);
+void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32);  // FAKE: callee prototype steer
+void vtxSetPosTex(s16 *, s16, s16, s16, s16, u8);
 
 Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 height, s16 x, s16 y, f32 scaleX, f32 scaleY, s32 angle, f32 texScale) {
     volatile s32 tex;
@@ -332,7 +332,7 @@ Gfx *renderBonusTargetMarker(Gfx *glist, s32 pad) {
     return renderRotatedSprite(glist, (u16)((((gFrameCounter >> 1) & 0xF) + 0x8F)), 0, 2, 0x20, 0x20, 0x118, 0xD2, 1.0f, 1.0f, 0, 0.0f);
 }
 
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
+Gfx * textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 int _sprintf();
 
 typedef struct CsCountdown {
@@ -517,7 +517,7 @@ Gfx *actorDrawAnimatedEffect(Gfx *glist, ActorEffect *effect) {
 }
 
 s32 textGetStringWidth(s32, char *);
-u32 textGetFontHeight(s32);
+u8 textGetFontHeight(s16);
 
 Gfx *renderTimerMinutesSecondsHUD(Gfx *glist, f32 x, f32 y, s32 totalSeconds) {
     f32 curX;
