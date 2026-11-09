@@ -3,7 +3,6 @@
 #define PROTO_GLOBAL_CEAE0_H
 #include "common.h"
 #include "actor.h"
-struct G02PlayerState;
 struct G05CbArg2;
 struct HeldActorFollowArg;
 #ifndef PROTO_SKIP_playerUpdateSoundEffect0
@@ -37,7 +36,7 @@ void playerCheckAndResetCarriedActor(Actor *);
 Actor *actorResolveKillCreditOwner(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerSetRecentAttacker
-void playerSetRecentAttacker(Actor *, struct G02PlayerState *);
+void playerSetRecentAttacker(Actor *, PlayerState *);
 #endif
 #ifndef PROTO_SKIP_playerRecordHitSource
 void playerRecordHitSource(Actor *, Actor *, s32);
@@ -172,7 +171,7 @@ void playerRegisterHeldActorAlign(void);
 void func_806CF138(struct G05CbArg2 *);
 #endif
 #ifndef PROTO_SKIP_playerGetHoldNodeIndices
-s32 playerGetHoldNodeIndices(s32 *, s32 *);
+void playerGetHoldNodeIndices(s32 *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerThrowHeldActor
 void playerThrowHeldActor(Actor *);
