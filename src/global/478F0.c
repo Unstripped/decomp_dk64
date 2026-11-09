@@ -135,11 +135,12 @@ void csCmdFlickerLight(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 t;
     s32 g;
 
-    if (*(s32 **)cs == NULL) {
-        *(s32 **)cs = heapAlloc(4);
-        **(s32 **)cs = b;
+    if (cs->data == NULL) {
+        p = heapAlloc(4);
+        cs->data = p;
+        *p = b;
     }
-    p = *(s32 **)cs;
+    p = cs->data;
     t = (20.0 - *p) / 20.0;
     if (t > 0.7) {
         t = 1.0f;
@@ -167,15 +168,15 @@ void csCmdBouncePos(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 groundY;
     CsBounce *n;
 
-    if (*(CsBounce **)cs == NULL) {
+    if (cs->data == NULL) {
         n = heapAlloc(0x10);
-        *(CsBounce **)cs = n;
+        cs->data = n;
         n->vy = 7.0f;
         n->angle = (u32)randomLcgNext() / 10000 % 1548 + 0x5DC;
         n->speed = (u32)randomLcgNext() / 10000 % 100 / 40.0 + 2.5;
         gCsScale = (u32)randomLcgNext() / 10000 % 100 / 500.0 + 0.14;
     }
-    p = *(CsBounce **)cs;
+    p = cs->data;
     groundY = gCsPosY;
     hit = collisionCheckGroundAtPoint(gCsPosX, gCsPosZ, &groundY);
     p->vy = p->vy + -0.64;
@@ -228,12 +229,12 @@ void csCmdBobbingLights(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 fy;
     f32 sn;
 
-    if (*(s16 **)cs == NULL) {
+    if (cs->data == NULL) {
         ang = heapAlloc(2);
-        *(s16 **)cs = ang;
+        cs->data = ang;
         *ang = 0;
     }
-    ang = *(s16 **)cs;
+    ang = cs->data;
     sn = mathSinF(*ang);
     p = D_807F5FD4[1];
     fy = p[0].y + (p[1].y - p[0].y) * (0, (sn * 0.5 + 0.5)); // FAKE: comma const keeps the M*D operand order
@@ -272,13 +273,13 @@ void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 y;
     s32 z;
 
-    if (*(CsCursor **)cs == NULL) {
+    if (cs->data == NULL) {
         st = heapAlloc(8);
-        *(CsCursor **)cs = st;
+        cs->data = st;
         st->timer = 0;
         st->idx = 0;
     }
-    st = *(CsCursor **)cs;
+    st = cs->data;
     if (st->timer == 0) {
         s32 len = D_807F5FD4[1] - D_807F5FD4[0];
         idx = ++st->idx;
@@ -371,8 +372,7 @@ void csCmdPeriodicEffectPair(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 typedef struct {
-    s32 *counter;
-    u8 pad4[0x45];
+    u8 pad0[0x49];
     u8 unk49;
 } CsLightView;
 
@@ -382,10 +382,10 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *q;
     f32 t;
     f32 f;
-    if (((CsLightView *)cs)->counter == NULL) {
-        ((CsLightView *)cs)->counter = heapAlloc(8);
+    if (cs->data == NULL) {
+        cs->data = heapAlloc(8);
     }
-    q = ((CsLightView *)cs)->counter;
+    q = cs->data;
     if (b == 1) {
         *q = 0;
     }
@@ -431,32 +431,27 @@ typedef struct {
     s32 ticks;
 } CsSfxState;
 
-typedef struct {
-    CsSfxState *state;
-    u8 pad4[0xC];
-    s16 sfxSlot;
-} CsSfxView;
 
 
 void csCmdPeriodicSfxAlloc(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSfxState *q;
     CsSfxState *t;
 
-    if (((CsSfxView *)cs)->state == NULL) {
+    if (cs->data == NULL) {
         t = heapAlloc(0xC);
-        ((CsSfxView *)cs)->state = t;
+        cs->data = t;
         t->phase = 0;
         t->frame = 0;
     }
-    q = ((CsSfxView *)cs)->state;
+    q = cs->data;
     switch (q->phase) {
         case 0:
             q->frame++;
             if (q->frame == 4) {
                 q->ticks = 0;
                 q->phase++;
-                if (((CsSfxView *)cs)->sfxSlot < 0) {
-                    ((CsSfxView *)cs)->sfxSlot = sfxSlotAllocateSource(csId, 0x12C, 0x3C, 1, 0x64, 1.0f, 0);
+                if (cs->unk10[0] < 0) {
+                    cs->unk10[0] = sfxSlotAllocateSource(csId, 0x12C, 0x3C, 1, 0x64, 1.0f, 0);
                 }
             }
             break;
@@ -468,9 +463,9 @@ void csCmdPeriodicSfxAlloc(CsState *cs, s16 csId, s16 b, s16 c) {
                 if (q->ticks == 0x1E) {
                     q->ticks = 0;
                     q->phase++;
-                    if (((CsSfxView *)cs)->sfxSlot >= 0) {
-                        sfxSlotFreeSource(((CsSfxView *)cs)->sfxSlot);
-                        ((CsSfxView *)cs)->sfxSlot = -1;
+                    if (cs->unk10[0] >= 0) {
+                        sfxSlotFreeSource(cs->unk10[0]);
+                        cs->unk10[0] = -1;
                     }
                     sfxPlayFromTargetSlot(csId, 0x74, 0xFF, 0x7F, 0, 0x50, 0.3f);
                 }
@@ -553,15 +548,15 @@ void csCmdStormLightningRain(CsState *cs, s16 csId, s16 b, s16 c) {
 
     ps = gPrimaryPlayerActor->customState;
     if (!(ps->stateFlags & 0x20000000)) {
-        if (*(CsFlicker **)cs == NULL) {
+        if (cs->data == NULL) {
             n = heapAlloc(0x10);
-            *(CsFlicker **)cs = n;
+            cs->data = n;
             n->timer = 0;
             n->red = 0.0f;
             n->green = 0.0f;
             n->blue = 0.0f;
         }
-        f = *(CsFlicker **)cs;
+        f = cs->data;
         dz = gPlayerSlots->z - gCsPosZ;
         dx = gPlayerSlots->x - gCsPosX;
         dy = gPlayerSlots->y - gCsPosY;
@@ -667,13 +662,13 @@ void csCmdSplineLights(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 *p;
     f32 *n;
 
-    if (*(f32 **)cs == NULL) {
+    if (cs->data == NULL) {
         n = heapAlloc(8);
-        *(f32 **)cs = n;
+        cs->data = n;
         n[0] = 0.0f;
         n[1] = 0.0f;
     }
-    p = *(f32 **)cs;
+    p = cs->data;
     csSplineLightStep(p, 2, 0x16, 1.0f);
     csSplineLightStep(p + 1, 4, 0x18, 0.8f);
 }
@@ -834,13 +829,13 @@ void csCmdInterpolateFloatPair(CsState *cs, s16 csId, s16 b, s16 c) {
     CsFloatPair *q;
     f32 f;
 
-    if (*(CsFloatPair **)cs == NULL && c != 0) {
+    if (cs->data == NULL && c != 0) {
         q = heapAlloc(8);
-        *(CsFloatPair **)cs = q;
+        cs->data = q;
         q->a = 0.0f;
         q->b = 0.0f;
     }
-    p = *(CsFloatPair **)cs;
+    p = cs->data;
 
     idx = (randomLcgNext() / 10000U) % (u32)b;
     effectSetDepth(1);
@@ -1042,9 +1037,9 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 vec[3];
 
     hit = 0;
-    if (*(CsPointHitState **)cs == NULL) {
+    if (cs->data == NULL) {
         n = heapAlloc(0x1C);
-        *(CsPointHitState **)cs = n;
+        cs->data = n;
         n->idx = 0;
         n->timer = D_807480F4;
         n->active = 0;
@@ -1054,7 +1049,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
         n->flag18 = 0;
         n->flag1C = 0;
     }
-    p = *(CsPointHitState **)cs;
+    p = cs->data;
     if (b == 0) {
         if (D_80748108 != 0) {
             return;
@@ -1429,11 +1424,12 @@ void csCmdPointListEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 z;
     CsPoint3f *p;
 
-    q = *(s32 **)cs;
+    q = cs->data;
     if (q == NULL) {
-        *(s32 **)cs = heapAlloc(4);
-        **(s32 **)cs = 0;
-        q = *(s32 **)cs;
+        q = heapAlloc(4);
+        cs->data = q;
+        *q = 0;
+        q = cs->data;
     }
     (*q)++;
     if (c == *q) {
@@ -1521,13 +1517,13 @@ void csCmdBlinkNodeFrames(CsState *cs, s16 csId, s16 b, s16 c) {
     CsBlink *p;
     CsBlink *n;
 
-    if (*(CsBlink **)cs == NULL) {
+    if (cs->data == NULL) {
         n = heapAlloc(8);
-        *(CsBlink **)cs = n;
+        cs->data = n;
         n->time = 0;
         n->state = 0;
     }
-    p = *(CsBlink **)cs;
+    p = cs->data;
     if (p->time + 50 < gFrameCounter) {
         if ((randomNonNegative() >> 15) % 1000 >= 0x353) {
             p->state = 1;
@@ -1589,11 +1585,6 @@ void csCmdSpawnDustPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-typedef struct CsMatrixState {
-    /* 0x00 */ f32 (*matrix)[4];
-    /* 0x04 */ u8 pad4[0x96];
-    /* 0x9A */ u8 unk9A;
-} CsMatrixState;
 
 void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 pad[20];
@@ -1605,17 +1596,16 @@ void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 z;
     f32 t;
     f32 (*m)[4];
-#define S ((CsMatrixState *)cs)
 
-    if (S->matrix == NULL && (S->unk9A & 1)) {
+    if (cs->data == NULL && (cs->unk9A & 1)) {
         m = heapAlloc(0x44);
-        S->matrix = m;
+        cs->data = m;
         modelSlotGetNodePos(csId, 1, 1, &x, &m[4][0], &z);
         m[4][0] -= 10.0;
         guRotateF(m, gCsRotY, 0.0f, 1.0f, 0.0f);
     }
-    if ((S->unk9A & 1) && (randomLcgNext() / 10000U) % 20U == 0) {
-        m = S->matrix;
+    if ((cs->unk9A & 1) && (randomLcgNext() / 10000U) % 20U == 0) {
+        m = cs->data;
         t = (randomNonNegative() >> 15) % 100;
         rx = t / 100.0;
         t = (randomNonNegative() >> 15) % 100;
@@ -1631,7 +1621,6 @@ void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetCallback(effectWobbleRiseUpdate);
         effectCreateAtPosition(D_8071FC40, 0.0f, x, m[4][0], z);
     }
-#undef S
 }
 
 typedef union CsAngleCounter {
@@ -1664,14 +1653,14 @@ void csCmdSpawnOrbitingSparks(CsState *cs, s16 csId, s16 b, s16 c) {
 
     sx = mathSinF((s16)((gCsRotY + 90.0f) * 4096.0f / 360.0f)) * 15.0f;
     sz = mathCosF((s16)((gCsRotY + 90.0f) * 4096.0f / 360.0f)) * 15.0f;
-    if (*(CsOrbitCounters **)cs == NULL) {
+    if (cs->data == NULL) {
         p = heapAlloc(0xC);
-        *(CsOrbitCounters **)cs = p;
+        cs->data = p;
         p->scaleX.full = 0;
         p->scaleY.full = 0;
         p->bob.full = 0;
     }
-    p = *(CsOrbitCounters **)cs;
+    p = cs->data;
     effectSetDepth(1);
     switch (b) {
         case 0:
@@ -1852,11 +1841,6 @@ typedef struct CsFade {
     /* 0x4 */ f32 level;
 } CsFade;
 
-typedef struct CsFadeView {
-    /* 0x00 */ CsFade *state;
-    /* 0x04 */ u8 pad4[0xC];
-    /* 0x10 */ s16 sfxSlot;
-} CsFadeView;
 
 typedef struct CsCamModeView {
     /* 0x00 */ u8 pad0[0xBC];
@@ -1873,14 +1857,14 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
     CsFade *q;
     u8 flag;
 
-    if (((CsFadeView *)cs)->state == NULL) {
+    if (cs->data == NULL) {
         q = heapAlloc(8);
-        ((CsFadeView *)cs)->state = q;
+        cs->data = q;
         q->phase = 0;
         q->timer = 0;
         q->level = 0.0f;
     }
-    q = ((CsFadeView *)cs)->state;
+    q = cs->data;
     if (gCurrentMap == 0x26) {
         flag = 1;
     } else {
@@ -1894,7 +1878,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
                     q->timer = 0x190;
                     q->level = 0.0f;
                     if (flag != 0) {
-                        ((CsFadeView *)cs)->sfxSlot = sfxSlotAllocateSource(csId, 0x11F, 0, 1, 0, 1.0f, 0);
+                        cs->unk10[0] = sfxSlotAllocateSource(csId, 0x11F, 0, 1, 0, 1.0f, 0);
                     }
                 }
             } else {
@@ -1910,7 +1894,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
                 }
             }
             if (flag != 0) {
-                sfxSetChannelPriority(((CsFadeView *)cs)->sfxSlot, q->level * 200.0f);
+                sfxSetChannelPriority(cs->unk10[0], q->level * 200.0f);
             }
             break;
         case 2:
@@ -1920,11 +1904,11 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
                 q->timer = 0x190;
                 q->level = 0.0f;
                 if (flag != 0) {
-                    sfxSlotFreeSource(((CsFadeView *)cs)->sfxSlot);
-                    ((CsFadeView *)cs)->sfxSlot = -1;
+                    sfxSlotFreeSource(cs->unk10[0]);
+                    cs->unk10[0] = -1;
                 }
             } else if (flag != 0) {
-                sfxSetChannelPriority(((CsFadeView *)cs)->sfxSlot, q->level * 200.0f);
+                sfxSetChannelPriority(cs->unk10[0], q->level * 200.0f);
             }
             break;
     }
@@ -1933,9 +1917,9 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
         q->timer = 0x190;
         q->level = 0.0f;
         if (flag != 0) {
-            if (((CsFadeView *)cs)->sfxSlot != -1) {
-                sfxSlotFreeSource(((CsFadeView *)cs)->sfxSlot);
-                ((CsFadeView *)cs)->sfxSlot = -1;
+            if (cs->unk10[0] != -1) {
+                sfxSlotFreeSource(cs->unk10[0]);
+                cs->unk10[0] = -1;
             }
         }
     }
@@ -2166,13 +2150,13 @@ void csCmdStepSequenceProgress(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 ok;
     s32 i;
 
-    if (*(CsStepState **)cs == NULL) {
+    if (cs->data == NULL) {
         st = heapAlloc(8);
-        *(CsStepState **)cs = st;
+        cs->data = st;
         st->cnt = 0;
         st->prev = -1;
     }
-    st = *(CsStepState **)cs;
+    st = cs->data;
     if (st->prev == -1) {
         st->prev = *((u8 *)cs + 0x48);
     } else {
@@ -2257,13 +2241,13 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 found;
     s32 i;
 
-    if (*(CsPairState **)cs == NULL) {
+    if (cs->data == NULL) {
         st = heapAlloc(8);
-        *(CsPairState **)cs = st;
+        cs->data = st;
         st->unk0 = 0;
         st->lastValue = 0;
     }
-    st = *(CsPairState **)cs;
+    st = cs->data;
     found = 0;
     if (*((u8 *)cs + 0x49) != (*st).lastValue) {
         if (D_807481F4) {} // FAKE: early read of the table address (raises its candidate priority)
@@ -2303,15 +2287,15 @@ void csCmdCountdownTimer(CsState *cs, s16 csId, s16 b, s16 c) {
     CsCountdown *t;
     u64 elapsed;
 
-    if (*(CsCountdown **)cs == NULL) {
-        *(CsCountdown **)cs = heapAlloc(0x20);
-        t = *(CsCountdown **)cs;
+    if (cs->data == NULL) {
+        cs->data = heapAlloc(0x20);
+        t = cs->data;
         t->last = osGetTime();
         t->duration = b;
         t->left = 0;
         t->fired = 0;
     }
-    t = *(CsCountdown **)cs;
+    t = cs->data;
     t->last += D_807445B0;
     elapsed = (osGetTime() - t->last) * 64;
     t->left = t->duration - elapsed / 3000 / 1000000;
@@ -2320,9 +2304,9 @@ void csCmdCountdownTimer(CsState *cs, s16 csId, s16 b, s16 c) {
         cs->unk4B[0] = 0x14;
     }
     if (t->left == 0) {
-        heapFreeDeferred(*(CsCountdown **)cs);
+        heapFreeDeferred(cs->data);
         cs->unk4B[0] = 0x1E;
-        *(CsCountdown **)cs = NULL;
+        cs->data = NULL;
     }
     renderCallbacksRegister(renderCountdownTimerHUD, t, 5);
 }
@@ -2379,14 +2363,6 @@ typedef struct CsFxSel {
     /* 0x13 */ u8 pad13[3];
     /* 0x16 */ u8 active;
 } CsFxSel;
-typedef struct CsFxView {
-    /* 0x00 */ u8 pad0[0x10];
-    /* 0x10 */ s16 slot;
-    /* 0x12 */ u8 pad12[0x4A];
-    /* 0x5C */ u8 unk5C;
-    /* 0x5D */ u8 pad5D;
-    /* 0x5E */ u16 unk5E;
-} CsFxView;
 extern f32 D_80770BC0[];
 
 void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -2412,9 +2388,9 @@ void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
     allDone = 1;
     timerRan = 0;
     count = 0;
-    if (*(CsFx **)cs == NULL) {
+    if (cs->data == NULL) {
         t = heapAlloc(0x50);
-        *(CsFx **)cs = t;
+        cs->data = t;
         t->unk4E = 0;
         t->ent[0].state = 0;
         t->ent[1].state = 1;
@@ -2433,9 +2409,9 @@ void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
         t->last = osGetTime();
         t->duration = 0x3C;
         t->left = 0;
-        ((CsFxView *)cs)->slot = sfxSlotAllocateSource(csId, 0x12F, 0, 1, 0xFF, 1.0f, 0);
+        cs->unk10[0] = sfxSlotAllocateSource(csId, 0x12F, 0, 1, 0xFF, 1.0f, 0);
     }
-    t = *(CsFx **)cs;
+    t = cs->data;
     t->last += D_807445B0;
     for (i = 0; i != 9; i++) {
         if (t->ent[i].active != 0) {
@@ -2463,19 +2439,19 @@ void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
     if (timerRan != 0) {
         t->last = osGetTime();
     }
-    if (((CsFxView *)cs)->slot != -1) {
-        D_80770BC0[((CsFxView *)cs)->slot] = count;
+    if (cs->unk10[0] != -1) {
+        D_80770BC0[cs->unk10[0]] = count;
         if (count == 0) {
-            sfxSlotFreeSource(((CsFxView *)cs)->slot);
-            ((CsFxView *)cs)->slot = -1;
+            sfxSlotFreeSource(cs->unk10[0]);
+            cs->unk10[0] = -1;
         }
     }
-    if (((CsFxView *)cs)->unk5C != 0 && ((CsFxView *)cs)->unk5E == 0x26) {
-        if (t->ent[((CsFxView *)cs)->unk5C - 1].active == 0 && t->cool == 0) {
-            t->ent[((CsFxView *)cs)->unk5C - 1].state++;
-            t->ent[((CsFxView *)cs)->unk5C - 1].state = t->ent[((CsFxView *)cs)->unk5C - 1].state % 4;
-            t->ent[((CsFxView *)cs)->unk5C - 1].active = 1;
-            modelAnimEntrySetUnkC(csId, ((CsFxView *)cs)->unk5C, 0x19);
+    if (cs->unk5C != 0 && cs->unk5E == 0x26) {
+        if (t->ent[cs->unk5C - 1].active == 0 && t->cool == 0) {
+            t->ent[cs->unk5C - 1].state++;
+            t->ent[cs->unk5C - 1].state = t->ent[cs->unk5C - 1].state % 4;
+            t->ent[cs->unk5C - 1].active = 1;
+            modelAnimEntrySetUnkC(csId, cs->unk5C, 0x19);
             t->cool = 5;
         }
     }
@@ -2485,13 +2461,13 @@ void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
     elapsed = (osGetTime() - t->last) * 64;
     t->left = t->duration - elapsed / 3000 / 1000000;
     if ((u64)t->left <= 0 || allDone) {
-        heapFreeDeferred(*(CsFx **)cs);
+        heapFreeDeferred(cs->data);
         if (allDone != 0) {
             cs->unk4B[0] = 0x28;
         } else {
             cs->unk4B[0] = 0x1E;
         }
-        *(CsFx **)cs = NULL;
+        cs->data = NULL;
     }
     renderCallbacksRegister(renderCountdownTimerHUD, t, 5);
 }
@@ -2512,14 +2488,14 @@ void csCmdResolveNodePair(CsState *cs, s16 csId, s16 b, s16 c) {
     CsNodePair *pr;
 
     found = 0;
-    if (*(u8 **)cs == NULL) {
-        *(u8 **)cs = heapAlloc(0xA);
-        p = *(u8 **)cs;
+    if (cs->data == NULL) {
+        cs->data = heapAlloc(0xA);
+        p = cs->data;
         for (row = 0; row < 6; row++) p[row] = 0;
         p[6] = 1;
         p[9] = 0;
     }
-    p = *(u8 **)cs;
+    p = cs->data;
     for (row = 0; row < 6 && !found; row++) {
         for (col = 0; col < 2 && !found; col++) {
             if (D_8074822C[row][col] == ((u8 *)cs)[0x49]) {
@@ -2603,8 +2579,8 @@ void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 d;
     f32 bestD;
 
-    if (*(CsFx **)cs == NULL) {
-        p = *(CsFx **)cs = heapAlloc(0x50);
+    if (cs->data == NULL) {
+        p = cs->data = heapAlloc(0x50);
         p->unk4E = 0;
         if (flagGet(0x146, 0) != 0) {
             for (i = 0; i < 9; i++) { p->ent[i].state = 3; } // LAYOUT: body on the for line
@@ -2625,7 +2601,7 @@ void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
         }
         p->cool = 0;
     }
-    p = *(CsFx **)cs;
+    p = cs->data;
     for (i = 0; i < 9; i++) {
         if (p->ent[i].active != 0) {
             j = i + 1;
@@ -2684,9 +2660,9 @@ void csCmdStepMultiModelAnimations(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     if (allDone != 0) {
         csModelStateSetFirstByte(0xF, 0xA);
-        heapFreeDeferred(*(void **)cs);
+        heapFreeDeferred(cs->data);
         cs->unk4B[0] = 0x28;
-        *(void **)cs = NULL;
+        cs->data = NULL;
     }
 }
 
@@ -2732,10 +2708,10 @@ typedef struct CsSavedTransform {
 void csCmdTransformSave(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSavedTransform *p;
 
-    if (*(CsSavedTransform **)cs == NULL) {
-        *(CsSavedTransform **)cs = heapAlloc(0x28);
+    if (cs->data == NULL) {
+        cs->data = heapAlloc(0x28);
     }
-    p = *(CsSavedTransform **)cs;
+    p = cs->data;
     p->v[0] = gCsPosX;
     p->v[1] = gCsPosY;
     p->v[2] = gCsPosZ;
@@ -2749,7 +2725,7 @@ void csCmdTransformSave(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdTransformRestore(CsState *cs, s16 csId, s16 b, s16 c) {
-    CsSavedTransform *p = *(CsSavedTransform **)cs;
+    CsSavedTransform *p = cs->data;
 
     gCsPosX = p->v[0];
     gCsPosY = p->v[1];
@@ -2764,7 +2740,7 @@ void csCmdTransformRestore(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdVarSlotDelta(CsState *cs, s16 csId, s16 b, s16 c) {
-    CsSavedTransform *p = *(CsSavedTransform **)cs;
+    CsSavedTransform *p = cs->data;
     s32 idx;
     f32 sx;
     f32 sy;
@@ -3089,13 +3065,13 @@ void csCmdCamShakeOnAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     PlayerState *ps;
 
     ps = gPlayerSlots->unk4->customState;
-    if (*(CsShake **)cs == NULL) {
+    if (cs->data == NULL) {
         p = heapAlloc(8);
-        *(CsShake **)cs = p;
+        cs->data = p;
         p->unk0 = 0;
         p->unk4 = 0;
     }
-    p = *(CsShake **)cs;
+    p = cs->data;
     modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
     if (anim == 0) {
         p->unk4 = 10;
@@ -3153,11 +3129,12 @@ void csCmdAllocAnimTracking(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 animFlag;
     s32 *p;
 
-    if (*(s32 **)cs == NULL) {
-        *(s32 **)cs = heapAlloc(4);
-        **(s32 **)cs = 0;
+    if (cs->data == NULL) {
+        p = heapAlloc(4);
+        cs->data = p;
+        *p = 0;
     }
-    p = *(s32 **)cs;
+    p = cs->data;
     modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
     if (*p == 0xB) {
         if (anim == 3) {
@@ -3180,13 +3157,13 @@ void csCmdCameraShakeOnModelAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 animFlag;
     CsShake *p;
 
-    if (*(CsShake **)cs == NULL) {
+    if (cs->data == NULL) {
         p = heapAlloc(8);
-        *(CsShake **)cs = p;
+        cs->data = p;
         p->unk0 = 0;
         p->unk4 = 0;
     }
-    p = *(CsShake **)cs;
+    p = cs->data;
     modelAnimEntryGetState(csId, 2, &anim, &animT, &animFlag);
     anim = (f32)anim + animT;
     if (anim == 0x28 || anim == 0x32) {
@@ -3215,11 +3192,12 @@ void csCmdSpawnSparksOnModelAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 animFlag;
     s32 *p;
 
-    if (*(s32 **)cs == NULL) {
-        *(s32 **)cs = heapAlloc(4);
-        **(s32 **)cs = 0;
+    if (cs->data == NULL) {
+        p = heapAlloc(4);
+        cs->data = p;
+        *p = 0;
     }
-    p = *(s32 **)cs;
+    p = cs->data;
     modelAnimEntryGetState(csId, 2, &anim, &animT, &animFlag);
     anim = (f32)anim + animT;
     if (anim == 0x22 || anim == 0x2E) {
@@ -3240,11 +3218,12 @@ void csCmdSpawnPuffsOnModelAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 animFlag;
     s32 *p;
 
-    if (*(s32 **)cs == NULL) {
-        *(s32 **)cs = heapAlloc(4);
-        **(s32 **)cs = 0;
+    if (cs->data == NULL) {
+        p = heapAlloc(4);
+        cs->data = p;
+        *p = 0;
     }
-    p = *(s32 **)cs;
+    p = cs->data;
     modelAnimEntryGetState(csId, 2, &anim, &animT, &animFlag);
     anim = (f32)anim + animT;
     if (anim != *p) {
@@ -3267,11 +3246,12 @@ void csCmdSfxOnAnimChange(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 animFlag;
     s32 *p;
 
-    if (*(s32 **)cs == NULL) {
-        *(s32 **)cs = heapAlloc(4);
-        **(s32 **)cs = 0x64;
+    if (cs->data == NULL) {
+        p = heapAlloc(4);
+        cs->data = p;
+        *p = 0x64;
     }
-    p = *(s32 **)cs;
+    p = cs->data;
     modelAnimEntryGetState(csId, 1, &anim, &animT, &animFlag);
     if (anim != *p) {
         *p = anim;
@@ -3310,12 +3290,12 @@ void csCmdSpawnParticleTrail(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 animFlag;
     CsTrailPoint *pts;
 
-    if (*(CsTrail **)cs == NULL) {
+    if (cs->data == NULL) {
         tr = heapAlloc(0x170);
-        *(CsTrail **)cs = tr;
+        cs->data = tr;
         for (i = 0; i < 30; i++) { tr->pts[i].x = D_807F61FC; tr->pts[i].y = D_807F6200; tr->pts[i].z = D_807F6204; }
     }
-    tr = *(CsTrail **)cs;
+    tr = cs->data;
     pts = tr->pts;
     groundY = gCsPosY;
     if (collisionCheckGroundAtPoint(gCsPosX, gCsPosZ, &groundY)) {
@@ -3399,14 +3379,14 @@ void csCmdSineMotionUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 ang;
     s32 e;
 
-    if (*(CsSineState **)cs == NULL) {
+    if (cs->data == NULL) {
         t = heapAlloc(0xC);
-        *(CsSineState **)cs = t;
+        cs->data = t;
         t->pause = 0;
         t->cooldown = 0;
         t->angle = 0xDAC;
     }
-    p = *(CsSineState **)cs;
+    p = cs->data;
     effectNodeSetTargetAndStep(0, mathSinF(p->angle) * 60.0 + 40.0, 20.0f);
     if (p->pause == 0) {
         ang = p->angle;
@@ -3477,9 +3457,9 @@ void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 animFlag;
     f32 d;
 
-    if (*(CsBeatState **)cs == NULL) {
+    if (cs->data == NULL) {
         t = heapAlloc(0x18);
-        *(CsBeatState **)cs = t;
+        cs->data = t;
         t->phase = 0;
         t->timer = 0;
         t->parity = 0;
@@ -3487,7 +3467,7 @@ void csCmdBeatSyncAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
         t->lastBeat = 0;
         t->ambientTimer = 0x14;
     }
-    p = *(CsBeatState **)cs;
+    p = cs->data;
     frame = modelAnimEntryGetUnkC(csId, 1);
     switch (p->phase) {
         case 0:
@@ -3624,12 +3604,12 @@ void csCmdAnimStepInterpolate(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 v;
     f32 w;
 
-    if (*(s32 **)cs == NULL) {
+    if (cs->data == NULL) {
         p = heapAlloc(4);
-        *(s32 **)cs = p;
+        cs->data = p;
         *p = 0;
     }
-    p = *(s32 **)cs;
+    p = cs->data;
     modelAnimEntryGetState(csId, 1, &anim, &t, &flag);
     if (anim != *p) {
         switch (anim) {
@@ -3650,12 +3630,6 @@ void csCmdAnimStepInterpolate(CsState *cs, s16 csId, s16 b, s16 c) {
     modelSlotSetNodeFrame(csId, 4, (s32)v, (s32)w);
 }
 
-typedef struct CsStateFlagView {
-    /* 0x00 */ u8 pad0[0x5C];
-    /* 0x5C */ u8 unk5C;
-    /* 0x5D */ u8 pad5D;
-    /* 0x5E */ u16 unk5E;
-} CsStateFlagView;
 
 
 void csCmdFindNearestActorToCamera(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -3673,8 +3647,8 @@ void csCmdFindNearestActorToCamera(CsState *cs, s16 csId, s16 b, s16 c) {
     best = NULL;
     bestDist = 99999.0f;
     ps = gPrimaryPlayerActor->customState;
-    if (((CsStateFlagView *)cs)->unk5C != 0) {
-        id = ((CsStateFlagView *)cs)->unk5E;
+    if (cs->unk5C != 0) {
+        id = cs->unk5E;
         for (i = 0; i < gActiveActorCount; i++) {
             a = gActiveActors[i].actor;
             if (a->actorType == id) {
@@ -3705,13 +3679,13 @@ void csCmdPatternBufferMatch(CsState *cs, s16 csId, s16 b, s16 c) {
     s8 i;
 
     full = 0;
-    if (*(u8 **)cs == NULL) {
+    if (cs->data == NULL) {
         p = heapAlloc(6);
-        *(u8 **)cs = p;
+        cs->data = p;
         p[4] = 0;
         p[5] = 0;
     }
-    p = *(u8 **)cs;
+    p = cs->data;
     if (b == -1) {
         p[4] = 0;
         p[5] = 0;
@@ -3762,13 +3736,13 @@ void csSeqMatch(CsState *cs, s16 csId, s16 val, u8 *pat, s32 len, s16 okId, s16 
     s32 cnt;
     s32 j;
 
-    if (*(u8 **)cs == NULL) {
+    if (cs->data == NULL) {
         p = heapAlloc(7);
-        *(u8 **)cs = p;
+        cs->data = p;
         p[5] = 0;
         p[6] = 0;
     }
-    p = *(u8 **)cs;
+    p = cs->data;
     p[p[5]] = val;
     i = p[5];
     p[5]++;
@@ -3842,7 +3816,7 @@ void csCmdRandomizeCutsceneTimer(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 old;
 
     old = cs->unk62;
-    *(u8 *)&cs->unk66 = 0xFF;
+    cs->unk66 = 0xFF;
     cs->unk60 = 1;
     if ((randomNonNegative() >> 15) % 100 > 40) {
         cs->unk62 = 0;
@@ -3854,10 +3828,6 @@ void csCmdRandomizeCutsceneTimer(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-typedef struct CsStateTailView {
-    /* 0x00 */ u8 pad0[0x98];
-    /* 0x98 */ s16 unk98;
-} CsStateTailView;
 
 void csCmdSpawnBurstColoredLights(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *q;
@@ -3870,12 +3840,13 @@ void csCmdSpawnBurstColoredLights(CsState *cs, s16 csId, s16 b, s16 c) {
     if (b != 11) {
         modelSlotGetNodePos(csId, 1, 1, &x, &y, &z);
     }
-    ((CsStateTailView *)cs)->unk98 = y - gCsPosY;
-    if (*(s32 **)cs == NULL) {
-        *(s32 **)cs = heapAlloc(4);
-        **(s32 **)cs = 0;
+    cs->unk98 = y - gCsPosY;
+    if (cs->data == NULL) {
+        q = heapAlloc(4);
+        cs->data = q;
+        *q = 0;
     }
-    q = *(s32 **)cs;
+    q = cs->data;
     switch (b) {
         case 10:
         case 11:
