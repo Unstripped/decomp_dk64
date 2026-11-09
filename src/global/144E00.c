@@ -14,7 +14,7 @@ typedef struct {
     s32 *loop;
 } AdpcmWave;
 
-typedef struct {
+typedef struct AdpcmFilter {
     u8 pad0[0xC];
     void *unkC;
     void *unk10;

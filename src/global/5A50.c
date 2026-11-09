@@ -183,7 +183,7 @@ void func_806011A0(u8 playerIndex, s32 val) {
     alCSPSetUnk84(gSeqPlayers[playerIndex], val);
 }
 
-typedef struct {
+typedef struct Struct806011D4 {
     s32 a, b, c;
 } Struct806011D4;
 

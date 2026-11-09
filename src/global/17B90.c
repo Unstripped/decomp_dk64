@@ -5,7 +5,7 @@ extern s16 D_807FBB30;
 extern s16 D_807FBB32;
 extern PlayerState *gActivePlayerState;
 
-typedef struct {
+typedef struct ControllerView {
     u8 unk0[0x50];
     void *unk50;
 } ControllerView;
@@ -231,7 +231,7 @@ void controllerBuildSubcommandList(ControllerSubCmd *cmdStart, ControllerSubCmd 
     *pNodeList = NULL;
 }
 
-typedef struct {
+typedef struct ControllerCommand {
     u32 unk0;
     u32 unk4;
 } ControllerCommand;
@@ -245,7 +245,7 @@ typedef struct {
     ControllerCommandArray *unk4;
 } ControllerCommandStorage;
 
-typedef struct {
+typedef struct ControllerCommandOwner {
     ControllerCommandStorage *unk0;
     u8 pad4[0x5C];
     u32 unk60;
@@ -317,7 +317,7 @@ typedef struct {
     void *unk24;
 } ControllerAnimData;
 
-typedef struct {
+typedef struct ControllerAnimView {
     void *unk0;
     ControllerAnimData *unk4;
 } ControllerAnimView;
@@ -377,7 +377,7 @@ typedef struct {
     s32 unk88;
 } AnimStateInit;
 
-typedef struct {
+typedef struct AnimControllerInit {
     void *unk0;
     AnimStateInit *unk4;
     u8 pad8[4];
@@ -487,7 +487,7 @@ void controllerAnimFree(ControllerAnimView *controller) {
     }
     heapFreeDeferred(controller->unk4);
 }
-typedef struct {
+typedef struct ControllerViewB {
     void *unk0;
     u8 pad4[0x48];
     void *unk4C;
@@ -637,10 +637,10 @@ int controllerAnimCacheFree(void *controller, void *pSlot) {
     }
 }
 
-typedef struct { u8 pad[0x14]; f32 a; f32 b; } AnimScaleState;
+typedef struct AnimScaleState { u8 pad[0x14]; f32 a; f32 b; } AnimScaleState;
 typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } AnimScaleSpan;
 typedef struct { AnimScaleState *state; u8 pad[4]; AnimScaleSpan *scale; } AnimScaleHolder;
-typedef struct { u8 pad[4]; AnimScaleHolder *holder; } AnimScaleController;
+typedef struct AnimScaleController { u8 pad[4]; AnimScaleHolder *holder; } AnimScaleController;
 void controllerApplyMotionWindow(AnimScaleController *controller, AnimScaleState *scaleState, f32 timePos);
 
 void controllerAnimScaleInterpolate(AnimScaleController *controller, s8 offset) {
@@ -884,7 +884,7 @@ void controllerAnimSetState(ControllerStateView *stateView, s16 animId, f32 anim
 }
 
 
-typedef struct {
+typedef struct ControllerActorTypeView {
     u8 pad0[0x58];
     s32 unk58;
 } ControllerActorTypeView;
@@ -1068,7 +1068,7 @@ typedef struct {
     s32 unk84;
 } MotionCore;
 
-typedef struct {
+typedef struct MotionOwner {
     u8 pad0[4];
     MotionCore *unk4;
 } MotionOwner;
@@ -1307,7 +1307,7 @@ typedef struct {
     ControllerParent *unk0;
 } ControllerSubState;
 
-typedef struct {
+typedef struct ControllerStateOwner {
     u8 pad0[4];
     ControllerSubState *unk4;
 } ControllerStateOwner;
@@ -1316,7 +1316,7 @@ f32 actorGetAnimProgress(ControllerStateOwner *actor) {
     return actor->unk4->unk0->unk4;
 }
 
-typedef struct {
+typedef struct ControllerActorView {
     u8 pad0[4];
     void *unk4;
     s32 unk8;
@@ -1354,7 +1354,7 @@ typedef struct SegmentNode {
     struct SegmentNode *unkC;
 } SegmentNode;
 
-typedef struct {
+typedef struct DisplayListGroup {
     void *unk0;
     Gfx **unk4;
     u8 pad8[0xC];
@@ -1363,7 +1363,7 @@ typedef struct {
     u8 unk21;
 } DisplayListGroup;
 
-typedef struct {
+typedef struct RenderActorView {
     DisplayListGroup *unk0;
     u8 pad4[4];
     void *unk8;

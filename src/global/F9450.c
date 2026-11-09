@@ -535,7 +535,7 @@ void gridFreeAllActiveNodes(void) {
     D_807FD730 = NULL;
 }
 
-typedef struct {
+typedef struct F9A_SourceNode {
     s16 unk0;
     s16 unk2;
     u8 pad4[0xC];
@@ -544,7 +544,7 @@ typedef struct {
     u8 unk13;
 } F9A_SourceNode;
 
-typedef struct {
+typedef struct F9A_DestinationNode {
     s16 unk0;
     s16 unk2;
     u8 pad4[0xC];
@@ -680,7 +680,7 @@ u8 arg2;
     }
 }
 
-typedef struct {
+typedef struct F9N2At58 {
     u8 pad0[0x58];
     s32 unk58;
 } F9N2At58;

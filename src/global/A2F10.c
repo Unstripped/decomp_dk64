@@ -1207,7 +1207,7 @@ void actorSetGroupState(u8 arg0, u8 arg1) {
     }
 }
 
-typedef struct {
+typedef struct MatrixArray {
     f32 *unk0;
 } MatrixArray;
 

@@ -25,7 +25,7 @@ typedef struct B7490Actor {
     /* 0x178 */ s16 *unk178;
 } B7490Actor;
 
-typedef struct {
+typedef struct B7490Pos {
     /* 0x00 */ u8 pad0[0xA];
     /* 0x0A */ s16 x;
     /* 0x0C */ s16 y;

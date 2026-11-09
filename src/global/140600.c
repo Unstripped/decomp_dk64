@@ -68,7 +68,7 @@ void n_alSynSetFXMix(ALVoice *voice, u8 fxmix) {
 }
 
 
-typedef struct {
+typedef struct LpfNMBiquad {
     f32 unk0;
     f32 unk4;
     f32 unk8;
@@ -101,7 +101,7 @@ void computeBiquadCoefficients(f32 sampleRate, f32 cutoffFreq, f32 qFactor, LpfN
     denCoeffs->unk8 = ((1.0f + omegaSq) - alpha) / (1.0f + omegaSq + alpha);
 }
 
-typedef struct {
+typedef struct SynLPFilter {
     s16 unk0;
     s16 unk2;
     u32 unk4;
@@ -309,7 +309,7 @@ void n_alFxNew(void **outFx, void *config, s16 busIndex, ALHeap *heap) {
     }
 }
 
-typedef struct {
+typedef struct SynPVoiceInit {
     u8 unk0[0xC];
     void *unkC;
     void *unk10;

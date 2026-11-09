@@ -277,7 +277,7 @@ void color5551CopyLerpToWhite(u16 *arg0, s16 **arg1, f32 arg2) {
     }
 }
 
-typedef struct {
+typedef struct LensFlarePoint {
     f32 unk0;
     f32 unk4;
     f32 unk8;
@@ -884,7 +884,7 @@ void gfxDrawTexturedTileGridSimple(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32
     gfxDrawTexturedTileGrid(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, 0, 0);
 }
 
-typedef struct {
+typedef struct VtxColorView {
     s16 unk0;
     s16 unk2;
     s16 unk4;

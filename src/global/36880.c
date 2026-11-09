@@ -2951,7 +2951,7 @@ typedef struct ModelRenderPlayerCtl {
     /* 0x58 */ s32 unk58;
 } ModelRenderPlayerCtl;
 
-typedef struct {
+typedef struct ModelRenderAnimObj {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
     /* 0x08 */ f32 unk8;

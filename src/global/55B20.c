@@ -2558,7 +2558,7 @@ void mapChunkIdListAddUnique(s16 arg0) {
 }
 
 
-typedef struct {
+typedef struct MapGridQuad {
     /* 0x00 */ f32 x[4];
     /* 0x10 */ f32 y[4];
     /* 0x20 */ f32 px;

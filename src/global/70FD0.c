@@ -1606,7 +1606,7 @@ typedef struct {
     u8 unk1A4;
 } ActorSub174State;
 
-typedef struct {
+typedef struct CollisionPlane {
     s64 unk0;
     s64 unk8;
     s64 unk10;
@@ -1615,13 +1615,13 @@ typedef struct {
     s16 unk48;
 } CollisionPlane;
 
-typedef struct {
+typedef struct CollisionVec3i {
     s32 x;
     s32 y;
     s32 z;
 } CollisionVec3i;
 
-typedef struct {
+typedef struct CollisionActor {
     u8 pad0[0x58];
     s32 unk58;
     u16 unk5C;
@@ -2468,7 +2468,7 @@ void actorCalcPlaneContactPoint(ActorPlaneContactView *arg0, s16 arg1, ActorHitP
     sub->unkE8 = 1;
 }
 
-typedef struct {
+typedef struct ActorTargetBounds {
     u8 pad0[0x48];
     s16 unk48;
 } ActorTargetBounds;

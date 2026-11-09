@@ -1,6 +1,6 @@
 #include "common.h"
 
-typedef struct {
+typedef struct RecordTargetView {
     u8 unk0[0x7C];
     f32 unk7C;
     f32 unk80;
@@ -9,7 +9,7 @@ typedef struct {
     s16 unkE6;
 } RecordTargetView;
 
-typedef struct {
+typedef struct PositionRecord {
     f32 unk0;
     f32 unk4;
     f32 unk8;

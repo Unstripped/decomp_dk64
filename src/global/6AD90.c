@@ -2,7 +2,7 @@
 #include "actor.h"
 
 
-typedef struct {
+typedef struct CollisionMeshHeader {
     u8 pad0[4];
     u32 unk4;
     u8 pad8;
@@ -1448,7 +1448,7 @@ typedef struct {
     u8 pad80[0x90 - 0x80];
 } ModelSlotCollisionView;
 
-typedef struct {
+typedef struct CollisionSlotActorView {
     u8 pad0[0x5C];
     u16 unk5C;
     u8 pad5E[0x78 - 0x5E];
@@ -1994,7 +1994,7 @@ typedef struct {
     u8 unk8;
 } DmaQueueEntry;
 
-typedef struct {
+typedef struct CollisionVertexBoneRefs {
     u8 pad0[0x48];
     u32 unk48;
     u32 unk4C;

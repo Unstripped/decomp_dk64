@@ -3,7 +3,7 @@
 
 void *heapAlloc(s32);
 
-typedef struct {
+typedef struct AnimationOwner {
     u8 unk0[0x118];
     void *unk118;
 } AnimationOwner;

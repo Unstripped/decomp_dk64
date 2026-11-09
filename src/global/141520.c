@@ -37,7 +37,7 @@ typedef struct {
     s32 delta;
 } SynPVoice;
 
-typedef struct {
+typedef struct SynFXFilter {
     s16 unk0;
     s16 unk2;
 } SynFXFilter;

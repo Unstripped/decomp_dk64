@@ -15,7 +15,7 @@ f32 mathSinF(s16);
 f32 cosApprox(f32);
 f32 sinApprox(f32);
 
-typedef struct {
+typedef struct RotatingEffectActorView {
     u8 pad0[0x32C];
     u8 unk32C;
     u8 pad32D[0x13];
@@ -140,7 +140,7 @@ typedef struct {
     s16 unk2;
 } ConfettiParams;
 
-typedef struct {
+typedef struct ConfettiActorView {
     u8 pad0[0x340];
     f32 unk340;
     f32 unk344;
@@ -250,7 +250,7 @@ typedef struct {
     ActorSub4 *unk4;
 } ScaleHolder;
 
-typedef struct {
+typedef struct OrbitEffectActorView {
     u8 pad0[0x32C];
     u8 unk32C;
     u8 pad32D[0xB];
@@ -311,7 +311,7 @@ void func_80717930(OrbitEffectActorView *effect, void *unused) {
     state->unk0 += state->unk6;
 }
 
-typedef struct {
+typedef struct TimedEffectActorView {
     u8 pad0[0x330];
     void *unk330;
     u8 pad334[4];
@@ -1226,7 +1226,7 @@ typedef struct {
     s16 unk16;
 } EffectTimer;
 
-typedef struct {
+typedef struct TimedLightActorView {
     u8 pad0[0x330];
     EffectTimer *unk330;
     u8 pad334[0xC];
@@ -1340,7 +1340,7 @@ typedef struct {
     f32 unkC;
 } RadialSprayMotion;
 
-typedef struct {
+typedef struct RadialSprayActorView {
     u8 pad0[0x340];
     f32 unk340;
     f32 unk344;
@@ -1430,7 +1430,7 @@ typedef struct {
     s16 angle;
 } ParentFollowView;
 
-typedef struct {
+typedef struct FollowParentActorView {
     u8 pad0[0x32C];
     u8 state;
     u8 pad32D[0x13];
@@ -1501,7 +1501,7 @@ typedef struct {
     f32 unk4;
 } MotionState;
 
-typedef struct {
+typedef struct MotionEffectActorView {
     u8 pad0[0x330];
     void *unk330;
     u8 pad334[4];
@@ -1579,7 +1579,7 @@ void effectSineDriftUpdate(MotionEffectActorView *arg0, s8 *arg1) {
     arg0->unk348 = (f32)(arg0->unk348 + (speed * call_result));
 }
 
-typedef struct {
+typedef struct GroundBounceActorView {
     u8 pad0[0x32C];
     u8 state;
     u8 pad32D[0x13];
@@ -1658,7 +1658,7 @@ void effectPuffExpandFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->unk364 = temp_fv0;
 }
 
-typedef struct {
+typedef struct SparkSpawnActorView {
     u8 pad0[0x340];
     f32 x;
     f32 y;
@@ -1782,7 +1782,7 @@ typedef struct {
     WaveMotionData *unk14;
 } WaveMotionState;
 
-typedef struct {
+typedef struct WaveMotionActorView {
     u8 pad0[0x32C];
     u8 unk32C;
     u8 pad32D[0x13];
@@ -1828,7 +1828,7 @@ typedef struct {
     s16 unk16;
 } PulseTimer;
 
-typedef struct {
+typedef struct PulseFadeActorView {
     u8 pad0[0x330];
     PulseTimer *unk330;
     u8 pad334[0xC];
@@ -1936,7 +1936,7 @@ typedef struct {
     s16 unk16;
 } LightTimer;
 
-typedef struct {
+typedef struct TimedLightEffectActorView {
     u8 pad0[0x330];
     LightTimer *unk330;
     u8 pad334[0xC];
@@ -2222,7 +2222,7 @@ void effectLifetimeCountdownUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 
 s32 playerStateQueueCallback(s16, void *, u8);
 
-typedef struct {
+typedef struct OrbitSourceActor {
     u8 pad0[0x7C];
     f32 unk7C;
     f32 unk80;
@@ -2777,7 +2777,7 @@ void effectProximityFadeUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 }
 
 
-typedef struct {
+typedef struct TargetTrackingActorView {
     u8 pad0[0x340];
     f32 unk340;
     f32 unk344;
@@ -2916,7 +2916,7 @@ typedef struct {
     f32 unk38;
 } ScaleSource;
 
-typedef struct {
+typedef struct FallingEffectActorView {
     u8 unk0[0x338];
     ScaleRoot *unk338;
     u8 unk33C[4];
@@ -3002,7 +3002,7 @@ void effectSwayRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 }
 
 
-typedef struct {
+typedef struct SineScaleActorView {
     u8 unk0[0x32C];
     u8 unk32C;
     u8 unk32D[0xB];

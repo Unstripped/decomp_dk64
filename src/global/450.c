@@ -9,7 +9,7 @@ typedef struct {
     s16 unkA;
 } Struct806C7C94;
 
-typedef struct {
+typedef struct Struct_8076A048 {
     Mtx unk0;
     Mtx unk40;
     Mtx unk80;

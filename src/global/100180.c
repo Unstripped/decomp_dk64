@@ -579,7 +579,7 @@ typedef struct {
     u8 pad34[4];
 } TextObjectElem;
 
-typedef struct {
+typedef struct TextObject {
     u8 pad0[4];
     u8 *unk4;
     TextObjectElem *unk8;

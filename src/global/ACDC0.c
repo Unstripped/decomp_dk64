@@ -1571,7 +1571,7 @@ typedef struct {
     s8 unk15;
 } HudIconSource;
 
-typedef struct {
+typedef struct HudIconObj {
     u8 pad0[0x340];
     f32 unk340;
     f32 unk344;

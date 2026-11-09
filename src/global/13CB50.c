@@ -9,7 +9,7 @@ typedef struct {
     u8 pad11[0x23];
 } CspApiChanState;
 
-typedef struct {
+typedef struct CspApiCSPlayer {
     u8 pad0[0x30];
     u16 chanMask;
     u8 pad32[2];

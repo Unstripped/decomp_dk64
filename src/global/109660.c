@@ -195,7 +195,7 @@ Gfx *gfxDrawBackgroundQuad(Gfx *gdl, void *tex, f32 angle, void *mtx, u8 skyType
     return gdl;
 }
 
-typedef struct {
+typedef struct ColorBytesView {
     u8 unk0[0xC];
     s8 unkC;
     s8 unkD;
@@ -296,7 +296,7 @@ Gfx *gfxDrawSkySprite(Gfx *dl, s16 azimuthAngle, s16 elevationAngle, u8 mode) {
     return dl;
 }
 
-typedef struct {
+typedef struct RectSpan {
     f32 v[3][2];
 } RectSpan;
 

@@ -9,7 +9,7 @@ extern s32 osGetIntMask(s32 unused);
 
 struct GeSndState;
 
-typedef struct {
+typedef struct GeSndEvt {
     u16 type;
     struct GeSndState *state;
     union {
@@ -19,7 +19,7 @@ typedef struct {
     s32 arg12;
 } GeSndEvt;
 
-typedef struct {
+typedef struct GeSndpConfig {
     s32 maxSounds;
     s32 maxEvents;
     s32 unk8;
@@ -405,7 +405,7 @@ typedef struct {
     s32 decayTime;
 } GfEnv;
 
-typedef struct {
+typedef struct GfSound {
     GfEnv *env;
     GfKeyMap *keymap;
 } GfSound;

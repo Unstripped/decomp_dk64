@@ -29,7 +29,7 @@ typedef struct {
     s8 unkE;
 } CommandState;
 
-typedef struct {
+typedef struct Command {
     s32 unk0;
     s16 unk4;
     s16 unk6;

@@ -520,7 +520,7 @@ void playerWeaponCalculateTrajectory4(s32 arg0, F5N3TableEntry1768 *arg1, s32 *a
     }
 }
 
-typedef struct {
+typedef struct F5BSlot {
     u8 unk0;
     u8 unk1;
     s16 unk2;
@@ -530,7 +530,7 @@ typedef struct {
 
 
 
-typedef struct {
+typedef struct F5BActor {
     u8 pad0[0x60];
     s32 unk60;
     u8 pad64[0x54];
@@ -541,7 +541,7 @@ typedef struct {
     s16 unkEE;
 } F5BActor;
 
-typedef struct {
+typedef struct F5BAccel {
     u8 pad0[0xC];
     f32 unkC;
 } F5BAccel;
@@ -584,7 +584,7 @@ void playerWeaponCalculateTrajectory23(s32 arg0, F5BSlot *arg1, s32 *arg2) {
     *arg2 += 1;
 }
 
-typedef struct {
+typedef struct F5N1Spring {
     f32 unk0;
     f32 unk4;
     f32 unk8;
@@ -615,7 +615,7 @@ f32 playerWeaponCalculateTrajectory25(F5BActor *arg0, F5BAccel *arg1, f32 arg2) 
     return (temp_fa0 + temp_fv1) * arg2;
 }
 
-typedef struct {
+typedef struct F5N1Predicate {
     u8 pad0[0x14];
     u8 unk14;
     u8 pad15[3];
@@ -1410,7 +1410,7 @@ void playerWaypointPathsLoad(s16 arg0) {
     }
 }
 
-typedef struct {
+typedef struct F5N4Coord {
     s16 unk0;
     s16 unk2;
     s16 unk4;
@@ -1490,7 +1490,7 @@ void playerWaypointPathStart(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4) {
 }
 
 
-typedef struct {
+typedef struct F5DDeferredEntry {
     s16 unk0;
     u8 pad2[2];
     void *unk4;
@@ -1539,7 +1539,7 @@ extern void heapClearBlock(void *);
 extern s32 gGlobalPauseFlags;
 
 
-typedef struct {
+typedef struct F5N6Input {
     s16 x;
     s16 y;
     s16 z;

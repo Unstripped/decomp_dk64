@@ -63,7 +63,7 @@ typedef struct {
     ALSound **soundArray;
 } VoiceMapInstrument;
 
-typedef struct {
+typedef struct VoiceMapCSPlayer {
     ALPlayer node;
     ALSynth *drvr;
     ALCSeq *target;

@@ -16,7 +16,7 @@ typedef struct {
     /* 0x00 */ u8 b[0x38];
 } VolumeTriggerRaw;
 
-typedef struct {
+typedef struct VolumeTrigger {
     /* 0x00 */ s16 unk0;
     /* 0x02 */ s16 unk2;
     /* 0x04 */ s16 unk4;

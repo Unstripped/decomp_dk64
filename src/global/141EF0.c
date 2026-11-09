@@ -24,7 +24,7 @@ typedef struct {
     void *unk24;
 } FxParamEntry;
 
-typedef struct {
+typedef struct FxParamState {
     s32 unk0;
     FxParamEntry *unk4;
     u8 unk8;
@@ -259,14 +259,14 @@ s32 n_alFxParamHdl(FxParamState *filter, s32 paramID, s32 *paramVal) {
     return 0;
 }
 
-typedef struct {
+typedef struct FxNMOutputRing {
     s32 unk0;
     u8 pad4[0x1C];
     u8 *unk20[2];
     u8 *unk28[2];
 } FxNMOutputRing;
 
-typedef struct {
+typedef struct FxNMOutputState {
     s32 unk0;
     s32 unk4;
     u8 pad8[0x10];
@@ -404,7 +404,7 @@ Acmd *_n_saveBuffer(void *fx, s32 bufIdx, u8 *dest, s32 dmem, Acmd *cmdList) {
     return ptr;
 }
 
-typedef struct {
+typedef struct ReverbFilterBuffer {
     u8 pad0[2];
     s16 unk2;
     u8 pad4[0x24];
@@ -428,7 +428,7 @@ Acmd *_n_filterBuffer(ReverbFilterBuffer *buf, s32 bufIdx, s32 gain, Acmd *cmdLi
     buf->unk28 = 0;
     return ptr;
 }
-typedef struct {
+typedef struct FxNMModState {
     u8 pad0[0x10];
     f32 unk10;
     f32 unk14;
