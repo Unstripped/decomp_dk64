@@ -7,7 +7,7 @@ typedef struct {
 } BossE_F0D0_SubSub0;
 
 
-typedef struct {
+typedef struct BossE_F0D0_Sub14 {
     u8 pad0[0x14];
     u8 unk14;
     u8 unk15;

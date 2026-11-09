@@ -33,7 +33,7 @@ void bossInitScriptData(u8 *data) {
     }
 }
 
-typedef struct {
+typedef struct BossB_Struct_800278F4 {
     char pad0[8];
     f32 unk8;
     f32 unkC;
@@ -44,7 +44,7 @@ void bossLerpCoords(BossB_Struct_800278F4 *coords, f32 factor, s16 targetY, s16 
     coords->unk8 += ((f32)targetX - coords->unk8) * factor;
 }
 
-typedef struct {
+typedef struct BossB_Struct_80027950 {
     char pad0[0x15];
     u8 unk15;
 } BossB_Struct_80027950;
