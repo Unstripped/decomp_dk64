@@ -133,7 +133,9 @@ typedef struct ActorGlobalState {
     /* 0x03A */ u8 unk3A[0x56];
     /* 0x090 */ u8 unk90;
     /* 0x091 */ u8 unk91;
-    /* 0x092 */ u8 unk92[0x52];
+    /* 0x092 */ s16 unk92;
+    /* 0x094 */ s16 unk94;
+    /* 0x096 */ u8 unk96[0x4E];
     /* 0x0E4 */ u8 unkE4;
     /* 0x0E5 */ u8 unkE5;
     /* 0x0E6 */ u8 unkE6[2];

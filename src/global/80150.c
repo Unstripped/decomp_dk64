@@ -523,15 +523,7 @@ typedef struct ActorC2B8State {
     u8 unk8;
 } ActorC2B8State;
 
-typedef struct ActorC2B8GlobalState {
-    /* 0x000 */ u8 unk0[0x90];
-    /* 0x090 */ u8 unk90;
-    /* 0x091 */ u8 unk91;
-    /* 0x092 */ s16 unk92;
-    /* 0x094 */ s16 unk94;
-} ActorC2B8GlobalState;
 
-#define STATE_C2B8 ((ActorC2B8GlobalState *)&gActorGlobalState)
 
 void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 void sfxStopSlotSound(Actor *, u8);
@@ -554,16 +546,16 @@ void tagBarrelRotateUpdate(void) {
     if (!(gCurrentActor->flags2 & 4)) {
         gCurrentActor->speedXZ = 0.0f;
     }
-    if (STATE_C2B8->unk90 != 0) {
+    if (gActorGlobalState.unk90 != 0) {
         temp_v0->unk8 = 1;
     }
-    if (STATE_C2B8->unk91 != 0) {
+    if (gActorGlobalState.unk91 != 0) {
         if (temp_v0->unk0 == 0) {
             sfxPlayActorSound(gCurrentActor, 0x10C, 0, 1, 0, 0xFF, 1.0f, 0);
             temp_v0->unk0 = 1;
         }
-        temp_v0->unk4 = (f64) STATE_C2B8->unk94 / 1.1;
-        gCurrentActor->moveYaw = STATE_C2B8->unk92;
+        temp_v0->unk4 = (f64) gActorGlobalState.unk94 / 1.1;
+        gCurrentActor->moveYaw = gActorGlobalState.unk92;
         temp_fv1 = gCurrentActor->speedXZ;
         if (temp_fv1 < temp_v0->unk4) {
             gCurrentActor->speedXZ = temp_fv1 + 0.8;
