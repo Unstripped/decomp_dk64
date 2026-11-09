@@ -10,7 +10,7 @@ struct ModelData;
 void modelSlotAllocAnimBuffers(struct ModelData **, u8 *);
 #endif
 #ifndef PROTO_SKIP_modelSlotDataSize
-u32 modelSlotDataSize();
+u32 modelSlotDataSize(s16);
 #endif
 #ifndef PROTO_SKIP_modelSlotCopyData
 void modelSlotCopyData();

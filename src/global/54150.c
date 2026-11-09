@@ -103,9 +103,7 @@ typedef struct ModelAnimEntryRaw {
 
 extern ModelSlot *gModelSlots;
 
-u32 modelSlotDataSize(arg0)
-s16 arg0;
-{
+u32 modelSlotDataSize(s16 arg0) {
     u8 *p = gModelSlots[arg0].unk24;
 
     return *(u32 *)(p + *(s32 *)(p + 0x68));

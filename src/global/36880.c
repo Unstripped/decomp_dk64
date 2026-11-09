@@ -4,7 +4,6 @@
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806D0964 // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_mapPurgeNodeList // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_modelSlotDataSize // FAKE: callee prototype steer
 #define PROTO_SKIP_modelSlotInitFromAsset // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_renderReplaceSegment6Commands // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/104F0.h"
@@ -4333,7 +4332,6 @@ typedef struct ModelSlotPackView {
     /* 0x8C */ u8 pad8C[4];
 } ModelSlotPackView; /* 0x90 */
 
-u32 modelSlotDataSize(s16); // FAKE: callee prototype steer
 
 #define MODEL_SLOT_PACKED_ENTRY(i) ((ModelSlotPackView *)((u8 *)gModelSlots + (i) * 0x90))
 
