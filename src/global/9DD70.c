@@ -1,7 +1,7 @@
 #include "common.h"
 #include "actor.h"
 
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 f32 mathAtan2(f32, f32);
 
 void mathAngleBetweenPoints3D(s16 *pitch, s16 *yaw, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
@@ -73,13 +73,13 @@ extern Actor *gCurrentActor;
 s32 func_806FFF88(void);
 void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
-void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
-void sfxStopSlotSound(Actor *, s32);
+void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
+void sfxStopSlotSound(Actor *, u8);
 void color5551CopyLerpToWhite(s16 *, s32 *, f32);
 void slotQueueAddValue(s32, u8, s32);
-s32 sfxAllocateChannel(s32, f32);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void renderCallbacksRegister(void *, void *, s32);
+s32 sfxAllocateChannel(s32, f32);  // FAKE: callee prototype steer
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
+void renderCallbacksRegister(void *, void *, u8);
 void mathAngleBetweenPoints3D(s16 *, s16 *, f32, f32, f32, f32, f32, f32);
 s32 playerStateQueueCallback(s16, void *, u8);
 void assetFreeBuffer(s32, s32, s32);
@@ -87,7 +87,7 @@ void heapFreeDeferred(Mtx *);
 void actorDespawn(Actor *);
 void actorUpdateModelMatrix(Actor *, s32);
 void renderSetupSegmentsAndFog(Gfx *, Actor *);
-void func_806FF628(void);
+Gfx * func_806FF628(Gfx *, Actor *);
 
 void actorPhotoUpdate(void) {
     PanSubState *subState;
@@ -691,7 +691,7 @@ void lightSetFovAngles(f32, f32);
 void lightSetFlags(u8);
 void lightSetTargetId(s16);
 s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
 void actorSpotLightUpdate(void) {
     f32 targetPos[3];
@@ -775,19 +775,19 @@ extern u8 D_8071FE08[];
 extern u8 D_80720E14[];
 void effectScaleSpinUpdate();
 void actorDespawn(Actor *);
-void actorSetCollisionRadius(Actor *, f32);
+ActorSub140 * actorSetCollisionRadius(Actor *, f32);
 void actorUpdatePrevContactFlags(Actor *);
-void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
+void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
 void actorAppendCallback(Actor *, Actor *, s32, u8, s32, void *);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 void effectSetCallback(void *);
-void effectSetDepth(u8);
+void effectSetDepth(u8);  // FAKE: callee prototype steer
 void effectSetDuration(s32);
-s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
-s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
+void effectCreateAtActorBone(s32, f32, void *, s32, u8);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32);  // FAKE: callee prototype steer
 f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 
 void func_8069B010(void) {
@@ -933,7 +933,7 @@ extern s16 gScreenWidth;
 s32 actorTableContains();
 void textMarkerUpdateMatrix(void);
 void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s16, f32, s32);
-s32 flagGet(s32, s32);
+u8 flagGet(s16, u8);
 
 s32 actorHasCallbackTargetThisFrame(void) {
     ActorCallbackNode *node = gCurrentActor->callbacks;
@@ -998,22 +998,22 @@ extern u8 D_80720340;
 extern ActorNamePair D_807503A4;
 
 s32 actorHasActiveMovementFlags(Actor *);
-s32 actorListFindIdByActor(Actor *);
+s16 actorListFindIdByActor(Actor *);
 void actorListSetPosByActor(Actor *, f32, f32, f32);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, s32);
 void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
 void actorCallbackMaskEnable(Actor *, s32);
 void actorCallbackMaskDisable(Actor *, s32);
-void actorCollisionEventsCancel(void *, s32);
+void actorCollisionEventsCancel(s32, u8);
 void func_8068A2FC(Actor *);
 void actorReleaseFromPlayerHold(Actor *);
 void sfxSetVolumeAndPan(u8, f32, f32);
-void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
+void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
 s32 actorAngleInArc(Actor *, s16);
 f32 randomFloat(void);
 void effectSetAngle(s16);
-void effectSetMode(s32);
+void effectSetMode(s8);
 void camStartShake(s32, s32, s32);
 void effectLightPulseOscillate(void);
 void effectTumbleBounceUpdate(void);
@@ -1486,7 +1486,7 @@ typedef struct TextMarkerState {
 } TextMarkerState;
 
 s32 actorSpawn(s32, s32);
-s32 gfxResourceCreate(s16, s32, s32, f32, f32, f32);
+s16 gfxResourceCreate(s16, char *, u8, f32, f32, f32);
 s32 textGetStringWidth(s16, s32);
 extern Actor *gSpawnedActor;
 
@@ -1651,7 +1651,7 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
 
 #define WRITE_GFX_U32(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
-Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
+Gfx * textDrawAnimated(Gfx *, s16, s32, f32, f32, f32, f32);
 
 Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
     void *model;
@@ -1670,7 +1670,6 @@ Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
     return gfx;
 }
 
-void renderCallbacksRegister(void *, void *, s32);
 void heapFree(void *);
 Gfx *textMarkerRenderString(Gfx *, Actor *);
 
@@ -1770,7 +1769,7 @@ extern u8 gCurrentWorldId;
 extern u16 gLevelCollectibleCounts[];
 extern u16 D_807446C0[];
 u8 mapGetHubWorldIndex(u8, u8);
-void csModelStateSetFirstByte(s32, s32);
+void csModelStateSetFirstByte(s16, s16);
 s32 textBuildDigitNode(u8, void *, u8, u8, u8);
 
 void textUpdateThreeDigitCounter(void) {
@@ -1838,8 +1837,8 @@ void actorPlaySoundAndFinish(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void flagSet(s32, s32, s32);
-void resQueueSetValue(s32);
+void flagSet(s16, u8, u8);
+void resQueueSetValue(s8);
 s32 frameTimingGetMapIndex(void);
 void resQueueAttachActor(Actor *, s32, u8);
 
