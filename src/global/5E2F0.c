@@ -580,7 +580,7 @@ void frustumCalculateCornerRays(f32, f32, f32);
 void frustumCornersTransformByInverse(Mtx *);
 void frustumOrientPolyNormals(f32, f32, f32, void *, void *);
 void planeFromTwoPoints(f32, f32, f32, f32, f32, f32);
-s32 mapBspBoxInFrustum(s16, s16, s16, s16, s32, s32, f32, f32, f32, f32, void *);
+s32 mapBspBoxInFrustum(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 extern u8 D_807F5E20[];
 extern u8 D_807F5E68[];
 
