@@ -104,7 +104,7 @@ void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackA
                     func_80675D70((s32)attacker);
                 }
             } else {
-                while (!done) {  // FAKE: while (not do-while) gives the post-loop its own lda web (remat lui/addiu s0)
+                while (!done) {
                     entry = &((CollisionInteractionEntry *)res)[i];
                     if ((entry->unk0 & targetActor->unk132) && (entry->unk2 & attacker->unk132)) {
                         if (entry->unk4 != NULL) {
