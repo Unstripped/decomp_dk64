@@ -1,9 +1,15 @@
 #include "common.h"
+#include "proto/global/117190.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/FCCD0.h"
+#include "proto/race/52B0.h"
+#include "proto/race/7BD0.h"
+#include "proto/race/A960.h"
 
 extern s32 D_8002FC5C[];
-void raceRenderHud(s32, void *, void *);
-void raceInitCompetitorRaceManager(void);
-s32 raceCheckLapCompletionThreshold(s32, s32, s32);
 
 typedef struct {
     u8 pad0[0x4];
@@ -92,11 +98,8 @@ typedef struct {
 extern u8 gPlayerCount;
 extern void *gCurrentActor;
 extern RaceC_Actor *gSpawnedActor;
-void raceInitParticipantArray(void *, s32);
 void actorSpawn(s32, s32);
-void raceRegisterParticipant(void *, s32, void *, void *);
 RaceC_Actor *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
-void raceGetParticipantPair(void *, s32, void *, void *);
 void actorInitFromSpawnPoint(void *, void *);
 
 void raceRacerRenderCallback(s32 renderContext, RaceC_Actor *actor) {
@@ -160,16 +163,11 @@ extern RaceC_Player *gPlayerSlots;
 void actorInitAnimations(void *, void *);
 void actorOrNodeFlags(void *, s32, s32);
 void func_80690190(void *, void *);
-void slotQueueUpdate(s32, s32, s32);
-void slotQueueCancel(s32, s32);
 void camSetTargetScaled(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-f32 raceGetHandicapSpeedBonus(void *);
 void func_8068F72C(void *, void *, s32, s32);
-s32 func_807142D8(void);
 void renderCallbacksRegister(void *, void *, s32);
 void sfxStopSlotSound(void *, u8);
 void actorInterpolateAngles(u8, void *, void *);
-void actorUpdateModelMatrix(void *, s32);
 
 void raceCompetitorMotionUpdate(void) {
     s32 v34;
@@ -276,15 +274,9 @@ extern u8 D_8002FC50[];
 extern f32 D_8002FC30;
 
 void actorScriptStart(void *, s32);
-void raceSetPiecewiseCurveMode(void *, s32, void *, void *);
 
 extern f32 D_8002FC28;
 extern f32 D_8002FC58;
-f32 raceEvaluateCurveWithRubberband(void *, f32, void *, void *);
-void *raceGetRoute(u8);
-f32 raceGetPathDistanceBetweenTrackers(void *, void *, void *);
-f32 raceGetProgressPercent(void *, void *, void *);
-s32 randomLcgNext(void);
 s16 mathAngleSignedDistance(s16, s16);
 s16 mathAngleEaseToward(s16, s16, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -524,11 +516,6 @@ s32 camStartPath(void *, s32, s32);
 void camResumePath(void);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
-s32 flagGet(s32, s32);
-void flagSet(s32, s32, s32);
-f32 raceRacerSteerTowardWaypoint(void);
-void raceHandleRacerCollision(void *);
-void mapCheckAutoTransition(void);
 void csModelStateSetFirstByte(s32, s32);
 void resQueueAttachActor(void *, s32, s32);
 void func_8072881C(s32, void *);

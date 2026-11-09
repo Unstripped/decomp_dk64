@@ -1,4 +1,18 @@
 #include "common.h"
+#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
+#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
+#define PROTO_SKIP_rumbleRequest // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/131B0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/FCCD0.h"
+#include "proto/race/1770.h"
+#include "proto/race/36B0.h"
+#include "proto/race/7BD0.h"
 
 typedef struct {
     f32 x, y, z;
@@ -102,7 +116,6 @@ struct RaceActor {
 extern Point3f **D_807F5FD4;
 extern RaceActor *gCurrentActor;
 
-s32 raceGetNextWaypointIndex(s32, s32);
 
 s32 raceGetWaypointDiff(s32 pathLength, RaceCursor *curA, RaceCursor *curB) {
     s32 diff;
@@ -202,7 +215,7 @@ f32 raceGetPathDistanceBetweenRacers(RaceActor *actorA, RaceCursor *curA, RaceAc
     return total;
 }
 
-u32 randomLcgNext(void);
+u32 randomLcgNext(void); // FAKE: callee prototype steer
 
 void raceChangeLaneRelative(RaceCursor *cursor, s8 dir) {
     if (dir > 0) {
@@ -251,8 +264,7 @@ f32 raceGetCompletionFraction(RaceCursor *cursor, RaceState *state, RaceState *l
 }
 
 extern void *D_80720120;
-void effectSetDepth(s32);
-void effectCreateAtActorBone(void *, f32, void *, s32, s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32); // FAKE: callee prototype steer
 
 void raceTriggerBoostParticles(void) {
     s32 idx;
@@ -265,8 +277,6 @@ void raceTriggerBoostParticles(void) {
 
 extern f32 D_8002FBD0[];
 extern u8 D_8002FC00[];
-f32 raceEvaluateCurveTargetSpeed(RaceAux *, f32, f32 *, u8 *);
-void raceSetPiecewiseCurveMode(RaceAux *, s32, f32 *, u8 *);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(void *, u8);
 s32 spawnNodeHasActor(u8);
@@ -438,28 +448,17 @@ void raceUpdateOpponentEnginePitch(f32 moveSpeed) {
 extern u8 gBossFightPhase;
 extern s16 D_80750AC8;
 extern s32 D_8002FC0C[];
-s32 raceGetPrevWaypointIndex(s32, s32);
 void behaviourFrameBegin(void);
 void actorClearNodeFlag(void *, s32);
-void actorUpdateModelMatrix(void *, s32);
-void racePathFollowStep(RaceCursor *, RaceState *, s32);
-void raceSetIntroCutscenePhase(void *);
-void raceClearIntroCutscenePhase(void *);
-s32 raceCheckLapCompletionThreshold(RaceState *, void *, s32);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
-s32 flagGet(s32, s32);
-void flagSet(s32, s32, s32);
 void camStartPath(void *, s16, s32);
 void camResumePath(void);
-void mapCheckAutoTransition(void);
 void csModelStateSetFirstByte(s32, s32);
-s32 slotQueueGetValue(s32, s32);
 void hudSpawnTextScreen(s32);
 s32 playerStateQueueCallback(s32, s32, s32);
 void spawnNodeSpawnById(s16, s32, s32, s32, s32, s32, s32);
 f32 mathSinF(s16);
-s32 func_807142D8(void);
 
 void raceOpponentCarBehaviorUpdate(void) {
     s32 pad70[2];

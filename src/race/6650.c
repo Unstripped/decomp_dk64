@@ -1,4 +1,15 @@
 #include "common.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
+#include "proto/race/1770.h"
+#include "proto/race/36B0.h"
+#include "proto/race/6650.h"
+#include "proto/race/7BD0.h"
+#include "proto/race/A960.h"
 
 typedef struct {
     char pad[0x25];
@@ -95,19 +106,13 @@ typedef struct Actor_BB40 {
 extern Actor_BB40 *gCurrentActor;
 
 void behaviourFrameBegin(void);
-void raceSetPiecewiseCurveMode(void *, s32, void *, void *);
 void actorOrNodeFlags(void *, s32, s32);
-void raceHandleRacerCollision(void *);
 typedef struct Struct_8002B180_Arg1 {
     char pad[0x4];
     void *unk4;
     char pad8[0xF - 0x8];
     u8 unkF;
 } Struct_8002B180_Arg1;
-void raceSteerTowardTargetWaypoint(Struct_sp58 *racerState, Struct_8002B180_Arg1 *aux);
-void raceUpdateRacerMotion(Struct_sp58 *racerState);
-void raceUpdateOpponentEnginePitch(f32);
-void actorUpdateModelMatrix(void *, s32);
 extern void *D_8002FC70;
 extern void *D_8002FCA0;
 extern s16 D_80750AC8;
@@ -117,14 +122,8 @@ void playerStateQueueCallback(); // FAKE: callee prototype steer
 s32 sfxStopSlotSound(Actor_BB40 *, u8);
 void resQueueAttachActor(Actor_BB40 *, s32, s32);
 void csModelStateSetFirstByte(s16, s16);
-void flagSet(s16, u8, u8);
 void hudSpawnTextScreen(u8);
-void racePlayEngineSfx(void);
-void raceUpdateEngineSoundPitch(f32);
 void actorSpawnNodeEffectFacingCamera(s32, u8);
-void slotQueueUpdate(s32, u8, s32);
-void slotQueueCancel(s32, s32);
-void gridSetNodeBounds(u8, f32, f32, f32, f32);
 void renderCallbacksRegister(void *, void *, u8);
 typedef struct {
     char pad[0x25];
@@ -161,22 +160,16 @@ extern Struct_DC98 *gBehaviourAnimState;
 extern Struct_DC9C *gBehaviourExtraState;
 extern Struct_FDCA0 *D_807FDCA0;
 
-s32 raceGetRoute(u8);
-f32 raceGetPathDistanceBetweenTrackers(s32, Struct_sp58 *, void *);
 s16 mathAngleDiscrete(f32, f32, f32, f32, f32);
 s16 mathAngleSignedDistance(s16, s16);
-f32 raceGetProgressPercent(s32, Struct_sp58 *, Struct_sp5C *);
-f32 raceEvaluateCurveTargetSpeed(void *, f32, void *, void *);
 extern s32 gGlobalOverlayFlags;
 f32 mathSinF(s16);
 f32 mathCosF(s16);
-f32 mathAtan2(f32, f32);
 s16 mathAngleFromVector2D(f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32, s16);
 void actorStepPhysics(Actor_BB40 *, s16, s16);
 void actorApplyVelocity(Actor_BB40 *);
 void actorUpdateFloorContactAndTilt(Actor_BB40 *, f32);
-void raceUpdateLapAndWaypointTracker(Struct_sp58 *);
 typedef struct {
     char pad[0x104];
     void *unk104;
@@ -206,19 +199,13 @@ typedef struct Struct_8002B610_Arg1 {
 } Struct_8002B610_Arg1;
 
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void racePlayTireScreechSfx(void);
 
-void raceSetIntroCutscenePhase(void *);
-void raceClearIntroCutscenePhase(void *);
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
 void camResumePath(void);
 
-void raceInitParticipantArray(void *, s32);
 s32 actorSpawn(s32, s32);
-void raceRegisterParticipant(void *, s32, void *, void *);
 void *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
-void raceGetParticipantPair(void *, s32, void *, void *);
 void actorInitFromSpawnPoint(void *, void *);
 
 void raceInitParticipants(Struct_arg0 *raceMgr) {
@@ -400,7 +387,6 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
     }
 }
 
-s32 raceRenderHud(void *, void *, void *);
 void actorDrawAnimatedEffect(s32, void *);
 
 void raceParticleRenderCallback(void *glist, Actor_BB40 *actor) {
@@ -577,17 +563,14 @@ void racePlayIntroCameraCutscene(Struct_sp58 *racerState, Struct_8002B610_Arg1 *
 }
 
 extern s32 D_8002FCAC[];
-s32 raceCheckLapCompletionThreshold(void *, void *, s32);
 
 s32 raceGetFinishCameraId(void *racerState, void *aux) {
     return D_8002FCAC[raceCheckLapCompletionThreshold(racerState, aux, 10)];
 }
 
 
-u8 flagGet(s16, u8);
 u16 camStartPath(void *, s16, u8);
 void currentActorClearFlag(void);
-void mapCheckAutoTransition(void);
 
 void raceFinishCameraCutscene(Struct_sp58 *racerState, void *aux) {
     if (racerState->unk35 == 0) {

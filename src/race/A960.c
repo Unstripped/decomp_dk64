@@ -1,4 +1,17 @@
 #include "common.h"
+#define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/CEAE0.h"
+#include "proto/race/1770.h"
+#include "proto/race/52B0.h"
+#include "proto/race/7BD0.h"
+#include "proto/race/A960.h"
 
 typedef struct RaceActorVel {
     u8 pad0[0x34];
@@ -121,9 +134,6 @@ RaceWaypoint *raceGetWaypoint(u8 idx) {
 }
 
 void *memcpy(void *, const void *, unsigned int);
-void *heapAlloc(s32);
-void heapClearBlock(void *);
-void raceInitGateActors(RaceWaypoint *node);
 
 void raceLoadRouteData(u8 *data) {
     u8 *src;
@@ -174,11 +184,6 @@ void raceLoadRouteData(u8 *data) {
     }
 }
 
-u8 *assetLoad(s32, s32, s32, s32);
-void raceInitSplineAndOpponent(void);
-void raceInitCompetitorsAndManager(void);
-void raceInitBeetleRaceManager(void);
-void raceInitGenericRaceManager(void);
 extern s16 D_80750AC4;
 
 void raceInitRoute(s32 routeAssetId) {
@@ -212,8 +217,6 @@ void raceScaleVelocity(RaceActor *actor, f32 scaleFactor) {
     actor->unk4->unk3C = actor->unk4->unk38;
 }
 
-void actorSpawn(s32, s32);
-void actorScriptStart(void *, s32);
 
 void raceSpawnGateActor(f32 scaleFactor, s32 kind, u8 mode) {
     RaceActorState *actorState;
@@ -340,8 +343,7 @@ u8 raceCheckGateCrossed(RaceWaypoint *node) {
     return crossed;
 }
 
-f32 mathAtan2(f32, f32);
-s32 mathAngleDistance(s16, s16);
+s32 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 
 u8 raceIsFacingWaypoint(RaceWaypoint *node) {
     f32 diff_x = gCurrentActor->x - (f32)node->x;
@@ -358,7 +360,6 @@ f32 raceGetNormalDistanceToWaypoint(RaceWaypoint *node, f32 x, f32 z) {
     return raceLineIntersectParam((f32)node->x, (f32)node->z, -normZ, normX, x, z, normX, normZ);
 }
 
-void raceSetGateVisualState(RaceWaypoint *node, s32 state);
 
 void raceActivateNextGate(RaceTracker *tracker, RaceRoute *route) {
     RaceWaypoint *node;
@@ -385,9 +386,6 @@ void raceAdvanceActiveGate(RaceTracker *tracker, RaceRoute *route) {
     }
 }
 
-f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
-void sfxAllocateChannel(s32, f32);
-s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
 void raceUpdateLapAndWaypointTracker(RaceTracker *tracker) {
     RaceActor *actor;
@@ -496,8 +494,6 @@ f32 raceGetProgressPercent(RaceRoute *route, RaceTracker *tracker, RaceActorStat
     return num / den;
 }
 
-void actorRegisterActive(void *);
-void actorDeregisterActive(void *);
 
 void raceUpdateWaypointActivation(RaceActorState *actorState) {
     RaceRoute *list;

@@ -1,4 +1,28 @@
 #include "common.h"
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_sfxStopSlotSound // FAKE: callee prototype steer
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/35000.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/90D80.h"
+#include "proto/global/936B0.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
+#include "proto/race/1770.h"
+#include "proto/race/7BD0.h"
 
 s32 raceGetNextWaypointIndex(s32 pathLength, s32 curWaypoint) {
     s32 next = curWaypoint + 1;
@@ -129,7 +153,6 @@ typedef struct {
 extern RaceAPoint3f **D_807F5FD4;
 extern RaceActor *gCurrentActor;
 f32 mathSinF(s16);
-s32 mathPickCloserTargetPoint3D(f32, f32, f32, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, RaceAPoint3f *, f32 *, f32 *, f32 *);
 
 void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPos, s32 nextWaypoint, s32 nextNextWaypoint) {
     s32 padA;
@@ -158,7 +181,6 @@ void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPo
 
 extern s32 D_807F5FD0;
 void *memcpy(void *, const void *, unsigned int);
-void *heapAlloc(s32);
 
 void raceInitSplinePoints(void) {
     RaceAPoint3f *buf;
@@ -194,9 +216,6 @@ void raceInitSplinePoints(void) {
 
 extern s16 D_80750AC4;
 extern RaceActor *gSpawnedActor;
-void raceInitParticipantArray(void *, s32);
-void raceRegisterParticipant(void *, s32, void *, void *);
-RaceNodeActor *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
 
 void raceInitOpponentEntities(RaceActor *parent) {
     RaceParticipant *parentPart;
@@ -245,15 +264,12 @@ void raceInitOpponentEntities(RaceActor *parent) {
     parentPart->unk25 = 1;
 }
 
-void raceInitSplinePoints(void);
-void raceInitCarRaceManager(void);
 
 void raceInitSplineAndOpponent(void) {
     raceInitSplinePoints();
     raceInitCarRaceManager();
 }
 
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
 
 void racePlayCheckpointSfx(RacePathState *pathState, u8 timer, f32 volume) {
     pathState->unk10 = timer;
@@ -276,12 +292,6 @@ void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participan
 }
 
 f32 mathCosF(s16);
-f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
-f32 mathAtan2(f32, f32);
-s16 mathAngleEaseToward(s16, s16, f32);
-void effectSetSpeed(void *);
-void effectSetCallback(void *);
-void timedLightOrbitUpdate();
 extern u8 D_8072006C;
 extern s32 D_8002FBB0[4];
 extern u8 D_8002FBC0;
@@ -301,7 +311,6 @@ void raceApplyPositionOffset(f32 *tgt, f32 *pos) {
     gCurrentActor->unk80 = gCurrentActor->unk80 + (tgt[1] - gCurrentActor->unk80) * 0.8;
 }
 
-s16 mathAngleSignedDistance();
 
 void raceUpdateOrientation(RacePathState *pathState) {
     s16 pad;
@@ -327,14 +336,7 @@ void raceUpdateOrientation(RacePathState *pathState) {
     gCurrentActor->unkE4 &= 0xFFF;
 }
 
-void raceInterpolateWaypointPos(RacePathState *pathState, f32 *outPos, f32 *inPos, s32 nextWaypoint, s32 nextNextWaypoint);
-void raceApplyPositionOffset(f32 *tgt, f32 *pos);
-void raceUpdateOrientation(RacePathState *pathState);
-s32 raceGetNextWaypointIndex(s32, s32);
-void raceAdvanceCheckpoint(RacePathState *pathState, RaceParticipant *participant, s32 pathLength);
-s32 randomLcgNext(void);
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
 void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, u8 spawnSparks) {
     s32 count;
@@ -439,7 +441,6 @@ void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, 
     }
 }
 
-s32 raceFindNearestParticipant(void *);
 
 void raceSpawnProjectile(RaceParticipant *participant) {
     RacePathState *projPath;
@@ -469,7 +470,6 @@ void raceSpawnProjectile(RaceParticipant *participant) {
     participant->unk29 = 0;
 }
 
-void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 
 void racePlayEngineSfx(void) {
     sfxPlayActorSound(gCurrentActor, 0x12D, 0, 1, 0, 0xFF, 1.0f, 0);
@@ -501,7 +501,6 @@ void raceUpdateEngineSoundPitch(f32 moveSpeed) {
     }
 }
 
-void raceRenderHud(void *, void *, void *);
 
 void raceVehicleRenderCallback(void *glist, RaceActor *actor) {
     raceRenderHud(glist, actor, actor->unk174);
@@ -509,23 +508,7 @@ void raceVehicleRenderCallback(void *glist, RaceActor *actor) {
 
 extern u8 gBossFightPhase;
 extern void *gPrimaryPlayerActor;
-s32 raceGetPrevWaypointIndex(s32, s32);
-void racePathFollowStep(RacePathState *pathState, RaceParticipant *participant, u8 spawnSparks);
-void actorUpdateModelMatrix(void *, s32);
-s32 func_807142D8(void);
-s32 flagGet(s32, s32);
-void playerStateQueueCallback(s32, void *, u8);
-void playerWaypointPathStartPacked(void *, void *, s32, s32);
-void actorClearNodeFlag(void *, s32);
-void behaviourAddSlotQueueValueB(s32);
-void slotQueueUpdate(s32, s32, s32);
-void slotQueueCancel(s32, s32);
-f32 raceGetHandicapSpeedBonus(void *);
-void gridSetNodeBounds(u8, f32, f32, f32, f32);
-void gridAppendPositionNode(u8, f32, f32, f32, f32);
-void actorSpawnNodeEffectFacingCamera(s32, s32);
-void sfxStopSlotSound(void *, s32);
-void renderCallbacksRegister(void *, void *, s32);
+void sfxStopSlotSound(void *, s32); // FAKE: callee prototype steer
 
 void raceVehicleBehaviorUpdate(void) {
     s32 len;
@@ -653,8 +636,6 @@ extern StructBB70_Race gActorGlobalState;
 extern u8 D_80720340[];
 extern u8 sEffectSparkConfig[];
 
-void effectSetDepth(s32);
-void raceDespawnProjectile(void *, void *);
 
 void raceProjectileBehaviorUpdate(void) {
     RaceParticipant *participant;

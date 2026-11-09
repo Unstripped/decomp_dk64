@@ -1,7 +1,33 @@
 #include "common.h"
+#define PROTO_SKIP_actorDespawn // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_renderCallbacksRegister // PROTO: redeclaration of 'renderCallbacksRegister'; previous declara
+#include "proto/boot/3630.h"
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/1025E0.h"
+#include "proto/global/112080.h"
+#include "proto/global/117190.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/35000.h"
+#include "proto/global/450.h"
+#include "proto/global/69E60.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/90D80.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/FCCD0.h"
+#include "proto/race/1770.h"
+#include "proto/race/52B0.h"
+#include "proto/race/6650.h"
+#include "proto/race/7BD0.h"
+#include "proto/race/A960.h"
 
-void *heapAlloc(s32);
-void heapClearBlock(void *);
 struct RaceUnknownActor;
 struct RaceStruct3;
 typedef struct Struct806C7C94 {
@@ -154,9 +180,6 @@ void raceInitParticipantArray(RaceUnknownActor *actor, s32 count) {
     actor->unk154 = 0;
 }
 
-u16 *raceGetRoute(u8);
-void raceActivateNextGate(void *, void *);
-s32 cameraFindViewportEntry(u8);
 #define RaceE3 ((RaceStruct3 *)participantData)
 
 void raceRegisterParticipant(RaceUnknownActor *manager, s32 slot, RaceUnknownActor *participant, RaceUnknown174 *participantData) {
@@ -240,7 +263,6 @@ void raceCalculatePathBoundingBox(RaceUnknownActor *actor) {
     race174->unk8 = 121.6f / (maxZ - minZ);
 }
 
-Gfx * renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
 
 Gfx *raceRenderMinimapIcon(Gfx *dl, RaceUnknownActor *actor, f32 posX, f32 posZ, u8 red, u8 green, u8 blue) {
     RaceUnknown174 *race174;
@@ -263,12 +285,6 @@ extern Mtx D_20000C0;
 extern Mtx D_2000180;
 extern u8 gGfxBufferIndex;
 extern s16 gScreenWidth;
-Gfx *gfxInit2DDisplayList(Gfx *);
-s32 _sprintf(char *, const char *, ...);
-void heapFreeDeferred(u8 *);
-void *textTableGetString(s32, s32, s32);
-s32 textGetStringWidth(s32, void *);
-Gfx * textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
 Gfx *raceRenderCountdownText(Gfx *dl, RaceUnknownActor *actor) {
     u8 alpha;
@@ -345,7 +361,6 @@ Gfx *raceRenderSpeedBoostHud(Gfx *dl, RaceUnknown174 *race174) {
     return dl;
 }
 
-u8 textGetFontHeight(s16);
 
 Gfx *raceRenderCoinHud(Gfx *dl, RaceUnknown174 *race174) {
     f32 posX;
@@ -428,8 +443,6 @@ typedef struct RaceE76CView {
     u8 unk46;
 } RaceE76CView;
 extern s32 D_8002FCC0[];
-u32 strlen(u8 *);
-Gfx * textDrawAnimated(Gfx *, s16, s32, f32, f32, f32, f32);
 #define RaceE76C ((RaceE76CView *)race174)
 
 Gfx *raceDrawHudText(Gfx *dl, RaceUnknown174 *race174) {
@@ -495,11 +508,6 @@ Gfx *raceDrawHudText(Gfx *dl, RaceUnknown174 *race174) {
 }
 
 
-s32 func_807142D8(void);
-Gfx *raceInitHudDisplayList(Gfx *, RaceUnknown174 *);
-Gfx *raceRenderCoinHud(Gfx *, RaceUnknown174 *);
-Gfx *raceRenderSpeedBoostHud(Gfx *, RaceUnknown174 *);
-Gfx *raceDrawHudText(Gfx *, RaceUnknown174 *);
 
 Gfx *raceRenderHud(Gfx *dl, RaceUnknownActor *actor, RaceUnknown174 *race174) {
     RaceUnknown174 *parent174;
@@ -618,13 +626,7 @@ Gfx *raceRenderMinimapAndCountdown(Gfx *dl, RaceUnknownActor *actor) {
 
 
 extern RaceUnknownActor *gSpawnedActor;
-s32 actorSpawn(s32, s32);
-void raceInitParticipants(RaceUnknownActor *);
-void raceSpawnCompetitors(RaceUnknownActor *);
-void raceInitBeetleRaceParticipants(RaceUnknownActor *);
 
-void raceInitOpponentEntities(RaceUnknownActor *);
-void raceCalculatePathBoundingBox(RaceUnknownActor *);
 
 void raceInitCarRaceManager(void) {
     RaceUnknown174 *race174;
@@ -676,7 +678,6 @@ void raceInitBeetleRaceManager(void) {
 
 extern RaceUnknownActor *gCurrentActor;
 extern s32 D_8002FCD4[];
-s16 gfxResourceCreate(s16, char *, u8, f32, f32, f32);
 
 void raceSetParticipantRaceStatus(RacePair *pair, u8 newStatus) {
     RaceUnknown174 *t;
@@ -698,7 +699,6 @@ void raceSetParticipantRaceStatus(RacePair *pair, u8 newStatus) {
     }
 }
 
-void raceSetParticipantRaceStatus(RacePair *, u8);
 
 void raceSetAllParticipantsStatus(u8 newStatus) {
     s32 i;
@@ -767,7 +767,6 @@ RaceUnknownActor *raceFindNearestParticipant(RaceUnknownActor *self) {
     return ret;
 }
 
-void sfxAllocateChannel(s32, f32);
 
 void racePlayResultSfx(void) {
     RaceUnknown174 *race174;
@@ -824,7 +823,6 @@ void racePlayStartRaceMusic(void) {
     }
     sfxAllocateChannel(soundId, vol);
 }
-void racePlayResultSfx(void);
 
 void raceUpdateStandings(void) {
     RaceUnknown174 *t;
@@ -910,10 +908,7 @@ typedef struct RaceFActorView {
     char padEA[0x128 - 0xEA];
     s16 unk128;
 } RaceFActorView;
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void raceUpdateWaypointActivation(RaceUnknown174 *);
 
-void raceUpdateStandings(void);
 
 void raceManagerBehaviorUpdate(void) {
     void renderCallbacksRegister(void *, RaceUnknownActor *, s32);
@@ -1040,10 +1035,6 @@ void raceUpdateFinishLineFlagBobbing(RaceUnknown174 *race174) {
     gCurrentActor->unk4->unk34[1] = scaleCopy;
     gCurrentActor->unk4->unk34[0] = scaleCopy;
 }
-void animSetSpeed(RaceUnknownActor *, s32, f32);
-void animSetLoopLimit(void *, s32, s16);
-void animSetFinished(void *, s32, u8);
-s32 animIsPlaying(RaceUnknownActor *, s32);
 
 void raceUpdateCheckeredFlagAnimation() {
     if (gCurrentActor->unk154 != 0) {
@@ -1060,8 +1051,6 @@ void raceUpdateCheckeredFlagAnimation() {
     }
 }
 
-void actorUpdateFloorContactAndTilt(RaceUnknownActor *, f32);
-void actorUpdateModelMatrix(RaceUnknownActor *, s32);
 
 void raceFinishBannerBehaviorUpdate(void) {
     RaceUnknown174 *race174 = gCurrentActor->unk174;
@@ -1190,7 +1179,6 @@ void raceSetPiecewiseCurveMode(RaceUnknownActor *actor, u8 mode, RaceCurvePoint 
     actor->unkF = mode;
 }
 
-s32 randomLcgNext(void);
 
 f32 raceEvaluateCurveWithRubberband(RaceUnknownActor *actor, f32 t, RaceCurvePoint *points, RaceVec3f *values) {
     f32 ret;
@@ -1282,8 +1270,6 @@ f32 raceEvaluateCurveTargetSpeed(RaceUnknownActor *actor, f32 t, RaceCurvePoint 
 }
 
 extern u8 gPlayerCount;
-RaceUnknownActor *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
-void raceRegisterParticipant(RaceUnknownActor *, s32, RaceUnknownActor *, RaceUnknown174 *);
 
 void raceInitBeetleRaceParticipants(RaceUnknownActor *raceManager) {
     RaceUnknown174 *managerData;
@@ -1338,7 +1324,6 @@ void racePlayerHudRenderCallback(void *gfx, RaceUnknownActor *actor) {
 }
 
 void playerStateQueueCallback(s32, RaceUnknownActor *, u8, RaceUnknownActor *);
-void raceUpdateLapAndWaypointTracker(RaceStruct3 *);
 void renderCallbacksRegister(void *, RaceUnknownActor *, s32);
 
 void racePlayerTrackerBehaviorUpdate(void) {
@@ -1393,11 +1378,7 @@ typedef struct RaceFE644Arg {
     f32 unk14;
 } RaceFE644Arg;
 extern u8 gBossFightPhase;
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 mathAngleDistance(s16, s16);
-f32 mathAtan2(f32, f32);
 f32 mathCosF(s16);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 
 void raceHandleRacerCollision(RaceFE644Arg *collision) {
     f32 distSq;
@@ -1450,7 +1431,6 @@ void raceHandleRacerCollision(RaceFE644Arg *collision) {
     }
 }
 
-u16 slotQueueGetValue(u8, u8);
 s32 raceCheckLapCompletionThreshold(RaceStruct3 *race3_0, RaceStruct3 *race3_1, s32 threshold) {
     s32 ret;
 

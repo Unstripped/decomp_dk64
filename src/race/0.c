@@ -1,4 +1,12 @@
 #include "common.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/FCCD0.h"
+#include "proto/race/0.h"
+#include "proto/race/7BD0.h"
+#include "proto/race/A960.h"
 
 typedef struct {
     s16 x;
@@ -62,7 +70,6 @@ extern RaceC_Row D_8002FB10[];
 extern RaceC_Row D_8002FB70[];
 #define RC_A ((RaceC_Act *)gCurrentActor)
 #define RC_B ((RaceC_Act *)gActivePlayerActor)
-f32 mathAtan2(f32, f32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 void actorScriptStart(void *, s32);
@@ -171,7 +178,6 @@ typedef struct RaceC_Arg0 {
     u8 active;
 } RaceC_Arg0;
 
-u8 flagGet(s16, u8);
 extern u16 D_80750AC4;
 
 int raceCheckCoinRequirement(RaceC_Arg0 *controller, RaceC_Arg1 *config) {
@@ -304,17 +310,11 @@ void actorApplyVelocity(void *);
 void actorApproachTargetSpeed(u16);
 void actorSetTargetSpeed(void *, s32);
 void actorStepPhysics(void *, s16, s16);
-void actorUpdateModelMatrix(void *, s32);
 void behaviourFrameBegin(void *);
 void camResumePath(void);
 u16 camStartPath(void *, s16, u8);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
-void flagSet(s16, u8, u8);
-void raceSetIntroCutscenePhase(void *);
-s32 raceCheckLapCompletionThreshold(void *, s32, s32);
-void raceUpdateLapAndWaypointTracker(void *);
-void mapCheckAutoTransition(void);
 void csModelStateSetFirstByte(s16, s16);
 f32 sqrtf(f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
@@ -325,8 +325,6 @@ s32 mathAngleStepToward(s16 *, s16, s32);  // FAKE: callee prototype steer
 s32 playerStateQueueCallback(s16, void *, u8);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 s32 sfxStopSlotSound(void *, s32);
-void slotQueueCancel(s32, s32);
-void slotQueueUpdate(s32, u8, s32);
 
 void raceOpponentBehaviourUpdate(void) {
     f32 dx;
