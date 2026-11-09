@@ -4280,6 +4280,7 @@ void modelPendingQueueInsert(ModelPendingEntry *arg0, u8 arg1) {
                 allow = arg1;
                 break;
             case 4:
+                newv = (u8 *)gPlayerSlots;  // FAKE: defines newv so the dead test below reads an assigned local
                 if (newv != 0) {}  // FAKE: dead test steers register colouring
                 allow = arg1;
             case 3:
