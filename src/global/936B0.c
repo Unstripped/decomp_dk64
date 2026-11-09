@@ -1338,7 +1338,7 @@ void projectileSpawnActor107(u8 arg0, u8 arg1, f32 arg2, f32 arg3, u8 arg4, u8 a
     sub->unk8 = arg2;
     sub->unkC = arg3;
     sub->unk0 = arg1;
-    gSpawnedActor->y = *(f32 *)gCurrentActor->unkA8;
+    gSpawnedActor->y = gCurrentActor->unkA8;
     gSpawnedActor->unk15F = arg4;
     gSpawnedActor->yawSpeed = arg5;
 }

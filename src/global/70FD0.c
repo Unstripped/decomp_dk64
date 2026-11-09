@@ -1366,7 +1366,7 @@ void actorSub140SetVectors(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) 
     ActorSub140 *sub = arg0->collision;
 
     if (arg0->renderFlags & 0x800) {
-        arg4 = *(f32 *)arg0->unk120;
+        arg4 = arg0->unk120;
     }
     sub->scaledX = (s32)(arg1 * 8.0f);
     sub->scaledY = (s32)(arg2 * 8.0f);

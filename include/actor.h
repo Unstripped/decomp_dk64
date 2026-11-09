@@ -196,7 +196,7 @@ typedef struct Actor {
     /* 0x09C */ f32 peakY;
     /* 0x0A0 */ f32 prevPeakY;
     /* 0x0A4 */ f32 floorY;
-    /* 0x0A8 */ u8 unkA8[4];
+    /* 0x0A8 */ f32 unkA8;
     /* 0x0AC */ f32 waterY;
     /* 0x0B0 */ s8 unkB0[4];
     /* 0x0B4 */ f32 distToFloor;
@@ -238,7 +238,7 @@ typedef struct Actor {
     /* 0x114 */ ActorList *riderList;
     /* 0x118 */ u8 unk118[4];
     /* 0x11C */ struct Actor *parentActor;
-    /* 0x120 */ u8 unk120[4];
+    /* 0x120 */ f32 unk120;
     /* 0x124 */ void *spawnData;
     /* 0x128 */ s16 alpha;
     /* 0x12A */ s16 drawDistance;
