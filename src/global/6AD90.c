@@ -1,5 +1,21 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorAppendCallback10 // FAKE: callee prototype steer
+#define PROTO_SKIP_assetEnsureTableLoaded // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_gunzip // FAKE: callee prototype steer
+#include "proto/boot/30E0.h"
+#include "proto/global/136820.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/2F550.h"
+#include "proto/global/36880.h"
+#include "proto/global/5E020.h"
+#include "proto/global/63EC0.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/FE40.h"
 
 
 typedef struct CollisionMeshHeader {
@@ -26,13 +42,7 @@ extern s32 D_807F9518;
 extern u8 D_807F951C;
 extern s32 gCurrentMap;
 extern u8 D_807F94B4;
-void *heapAlloc(s32);
-void *assetLoad(s32, u32, u8, u8);
-s32 assetGetSize(s32, s32);
-void assetSetImmediateFree(void);
-void assetFreeBuffer(void *, s32, s32);
-void gunzip(void *, void *, void *);
-void heapFree(void *);
+void gunzip(void *, void *, void *); // FAKE: callee prototype steer
 
 void collisionBuildCellTable(CollisionMeshHeader *arg0) {
     s32 off;
@@ -97,12 +107,10 @@ u8 arg0;
     D_807F94B4 = arg0;
 }
 
-s32 collisionFindFloorAtPoint(Actor *, f32, f32, f32, u8 *, f32 *, u8 *, f32 *, u8);
 extern u8 D_807F94B3;
 extern u8 D_807F94BC;
 extern f32 D_807F948C;
 
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 
 void collisionQueryActorFloor(Actor *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, u8 arg5) {
     f32 sp3C;
@@ -184,11 +192,7 @@ typedef struct CollisionQueryActor {
     CollisionQueryPlayerState *unk174;
 } CollisionQueryActor;
 
-u8 func_8062BCC8(void *, f32, f32, f32, s32);
-u8 collisionTestSubmeshBoundary(f32, f32, f32 *, s32);
-s32 collisionTestActorBoxFloor(Actor *, f32, f32, f32, f32 *);
 void actorAppendCallback10(Actor *, s32, s32, s32, f32, s32, u8);  // FAKE: callee prototype steer
-s32 mathCheckCloserFloatThreshold(f32, f32, f32, u8);
 extern f32 D_807F9460;
 extern s8 D_807F9464;
 extern f32 D_807F9468;
@@ -434,7 +438,6 @@ extern s16 D_807F9498;
 extern u8 D_807F949E;
 extern s16 D_807F94A6;
 extern s16 D_807F94A8;
-f32 mathAtan2(f32, f32);
 
 void collisionStoreSurfaceNormalAngles(s32 arg0, f32 arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5, u8 arg6) {
     f32 temp_fv0_2;
@@ -658,7 +661,6 @@ extern u8 D_807F9484;
 extern f32 D_807F9488;
 extern u8 D_807F94B5;
 extern u8 D_807F9510;
-u8 collisionTestSubmeshBoundary(f32, f32, f32 *, s32);
 
 s32 collisionCheckGroundAtPoint(f32 arg0, f32 arg1, void *arg2) {
     s32 ret;
@@ -680,8 +682,6 @@ u8 collisionGetSurfaceType(void) {
     return D_807F94B5;
 }
 
-s32 collisionTestGridMeshHeight(f32, f32, f32 *, s32);
-u8 collisionTestStaticMeshFloor(f32, f32, f32 *, Actor *);
 extern u8 D_807F94B6;
 
 u8 collisionTestSubmeshBoundary(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
@@ -747,10 +747,6 @@ typedef struct GridMeshNode {
 } GridMeshNode;
 
 extern GridMeshNode *gEffectNodeList;
-u8 effectGetTableFlag(GridMeshNode *);
-f32 effectWaterGetHeightAt(GridMeshNode *, s32, s32, u8);
-s32 collisionPointInTriangleXZS16(s16 *, f32, f32);
-f32 collisionTriangleHeightAtXZ(s16 *, f32, f32);
 
 s32 collisionTestGridMeshHeight(f32 arg0, f32 arg1, f32 *arg2, s32 arg3) {
     f32 temp_fs1;
@@ -913,14 +909,7 @@ extern u16 D_807F9456;
 extern u8 D_807F5FC0;
 extern struct CollisionQueryPlayerState *D_807F94B8;
 extern u8 D_807F94AB;
-u8 collisionTestHardcodedFloorPlane(f32 *, f32, f32, f32 *);
-void dynamicBufferAllocateEntry(s32);
-s32 collisionCheckTriangleXZBoundsS16();
-f32 mapOffsetSlotGetValue(s8);
-void collisionRecordTriangleS(struct CollisionTriS *, f32);
-s32 collisionCheckTriangleWindingS16();
 struct CollisionPlaneTriS;
-void collisionStoreTriangleNormalAnglesS16(s32, struct CollisionPlaneTriS *, u8);
 
 u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     s32 padTop;
@@ -1124,7 +1113,6 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
     return spS.cb;
 }
 
-s32 mathCheckCloserFloatThreshold(f32, f32, f32, u8);
 
 u8 collisionTestHardcodedFloorPlane(f32 *arg0, f32 arg1, f32 arg2, f32 *arg3) {
     f32 diff;
@@ -1192,10 +1180,6 @@ typedef struct CollisionBufferEntry {
 extern CollisionBufferEntry *D_807F9514;
 extern s32 gFrameCounter;
 extern u8 D_807F951C;
-void actorClearBufferReferences(s32);
-void heapFree(void *);
-void *heapAlloc(s32);
-void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
 
 void dynamicBufferAllocateEntry(s32 arg0) {
     u32 sp34;
@@ -1466,19 +1450,7 @@ struct CollisionTriF;
 extern struct CollisionModelEntry *gModelSlots;
 extern u8 D_807F946D;
 extern u8 D_807F94AC;
-s32 hashTableLookup();
-void actorCheckNearbyNodeInteractions();
-s32 collisionCheckBoundingBoxXZ(struct CollisionBoundingBox *, f32, f32);
-s32 func_806D0964(s32, u8);
-void modelSlotBuildTriangleBufferThunk(s32, void *, f32, f32, f32, f32, f32, f32, f32);
-s32 collisionCheckTriangleBoundingBoxXZ(struct CollisionTriF *, f32, f32);
-u8 collisionCheckTriangleContainsPointXZ(struct CollisionTriF *, f32, f32);
-s32 collisionCheckSurfaceFilter(u8, u8 *);
-void collisionRecordTriangleF(struct CollisionTriF *, f32);
-s32 collisionCheckTriangleWindingF32(struct CollisionTriF *);
-void collisionStoreTriangleNormalAnglesF32();
 struct CollisionActorWork;
-void collisionAttachActorToObjectNode(struct CollisionActorWork *, s16, s8, u8, f32, f32, f32);
 
 #define MODEL_SLOT_ENTRIES ((ModelSlotCollisionView *)gModelSlots)
 
@@ -1616,8 +1588,6 @@ typedef struct CollisionTriF {
     f32 z[3];
 } CollisionTriF;
 
-s32 collisionCheckTriangleWindingF32(CollisionTriF *);
-void collisionStoreTriangleNormalAnglesF32();
 
 void collisionRecordTriangleF(CollisionTriF *arg0, f32 arg1) {
     if (D_807F9510 != 10) {
@@ -1694,9 +1664,6 @@ typedef struct CollisionActorWork {
     u8 unk12F;
 } CollisionActorWork;
 
-void collisionAttachActorToObjectNode(CollisionActorWork *, s16, s8, u8, f32, f32, f32);
-void modelSlotBuildTransformMatrix(s16, s8, float [4][4]);
-s32 hashTableLookup();
 
 void actorCheckNearbyNodeInteractions(arg0, arg1, arg2)
 CollisionActorWork *arg0;
@@ -1774,7 +1741,6 @@ s32 collisionCheckTriangleWindingF32(CollisionTriF *arg0) {
     return 0;
 }
 
-void matrix4Invert(float [4][4], float [4][4]);
 
 void collisionAttachActorToObjectNode(CollisionActorWork *arg0, s16 arg1, s8 arg2, u8 arg3, f32 arg4, f32 arg5, f32 arg6) {
     f32 pad2[10];
@@ -1972,22 +1938,15 @@ u8 collisionCheckTriangleContainsPointXZ(CollisionTriF *arg0, f32 arg1, f32 arg2
     return outside == 0;
 }
 
-void gunzip(void *, void *, void *);
-void heapFreeDeferred(void *);
+void gunzip(void *, void *, void *); // FAKE: callee prototype steer
 extern void *D_80748E14;
 void assetEnsureTableLoaded();
-s32 assetResolveRomRange(s32, s32, s32 *, s32 *);
-s32 collisionBstLookupAndDecrementByHash();
-void collisionBstDeleteByHash();
-void assetSetTableEntry(s32, s32, s32);
 extern s32 D_807F9678;
 extern u8 D_807F967C;
 extern u8 D_807F967D;
 extern s32 *D_807F95A8[];
 extern u8 D_80748E18[];
 extern s32 *D_807FB1A0[];
-s32 collisionCheckBoxTriangleWinding();
-void collisionStoreBoxTriangleNormalAngles();
 typedef struct {
     void *unk0;
     void *unk4;
@@ -2018,10 +1977,6 @@ typedef struct {
 } CollisionBoxTriangleView;
 
 struct CollisionBoxTriangle;
-s32 collisionCheckBoxTriangleBoundsXZ(struct CollisionBoxTriangle *, f32, f32);
-u8 collisionCheckBoxTriangleContainsPointXZ(struct CollisionBoxTriangle *, f32, f32);
-void collisionTransformPointToActorLocal(s32, Actor *, CollisionVertexBoneRefs *, f32, f32, f32);
-void collisionRecordBoxTriangle(void *, f32);
 
 
 s32 collisionTestActorBoxFloor(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
@@ -2137,7 +2092,6 @@ extern f32 D_807F947C;
 extern u32 D_807F9480;
 extern s8 D_807F94B2;
 
-void matrix4Invert(float [4][4], float [4][4]);
 
 void collisionTransformPointToActorLocal(s32 arg0, Actor *arg1, CollisionVertexBoneRefs *arg2, f32 arg3, f32 arg4, f32 arg5) {
     float sp78[4][4];
@@ -2344,7 +2298,6 @@ extern void *D_807F9628[];
 extern s32 D_807F9680;
 extern u8 D_807FB220;
 extern u8 D_807FB221;
-void *assetLoad(s32, u32, u8, u8);
 
 void collisionInitTables(void) {
     s32 i;
@@ -2451,10 +2404,6 @@ void assetSetRomTableOffset(s32 offset) {
     D_807F9678 = offset;
 }
 
-void *heapAllocFromPool(s32, s32);
-void collisionBstInsertByHash();
-s32 assetGetTableEntry(s32, s32);
-void faultSetMessage(u8, s32, s32, s32);
 extern OSIoMesg D_807F9688[];
 
 void *assetLoad(s32 arg0, u32 arg1, u8 arg2, u8 arg3) {
@@ -2651,8 +2600,6 @@ s32 collisionBstCountNodes(CollisionBstNodeBase *node) {
     return collisionBstCountNodes(node->right) + count + 1;
 }
 
-u32 collisionGetBucketIndex(u32);
-void collisionBstLookupOrAssert();
 
 void collisionBstLookupByHash(s32 arg0, s32 arg1, s32 arg2) {
     collisionBstLookupOrAssert(D_807F9628[collisionGetBucketIndex(arg0)], arg0, arg1, arg2);
@@ -2668,7 +2615,6 @@ typedef struct CollisionBstNode {
     /* 0x18 */ struct CollisionBstNode *right;
 } CollisionBstNode;
 
-void collisionQueueSearch(s32, u8 *, u16 *, s32 *);
 void collisionBstLookupOrAssert(CollisionBstNode *arg0, u32 arg1, s32 *arg2, s32 *arg3) {
     u8 sp2F;
     u16 sp2C;
@@ -2691,7 +2637,6 @@ void collisionBstLookupOrAssert(CollisionBstNode *arg0, u32 arg1, s32 *arg2, s32
     }
 }
 
-CollisionBstNode *collisionBstInsert();
 
 void collisionBstInsertByHash(s32 arg0, s32 arg1, s32 arg2) {
     u32 index = collisionGetBucketIndex(arg0);
@@ -2722,7 +2667,6 @@ CollisionBstNode *collisionBstInsert(CollisionBstNode *node, u32 arg1, s32 arg2,
     return node;
 }
 
-s32 collisionBstLookupAndDecrement();
 
 s32 collisionBstLookupAndDecrementByHash(s32 arg0) {
     return collisionBstLookupAndDecrement(D_807F9628[collisionGetBucketIndex(arg0)], arg0);
@@ -2782,7 +2726,6 @@ u16 arg2;
     }
 }
 
-void collisionQueueAppend();
 
 s32 collisionBstLookupAndDecrement(CollisionBstNodeBase *node, u32 arg1) {
     u8 sp2F;
@@ -2809,7 +2752,6 @@ s32 collisionBstLookupAndDecrement(CollisionBstNodeBase *node, u32 arg1) {
     return collisionBstLookupAndDecrement(node->left, arg1);
 }
 
-CollisionBstNode *collisionBstDelete();
 
 void collisionBstDeleteByHash(s32 arg0, s32 arg1, s32 arg2) {
     u32 index = collisionGetBucketIndex(arg0);
@@ -2817,7 +2759,6 @@ void collisionBstDeleteByHash(s32 arg0, s32 arg1, s32 arg2) {
     D_807F9628[index] = collisionBstDelete(D_807F9628[index], arg0, arg1, arg2);
 }
 
-CollisionBstNode *collisionBstExtractMin();
 
 CollisionBstNode *collisionBstDelete(CollisionBstNode *node, u32 key, s32 *out_val1, s32 *out_val2) {
     CollisionBstNode *old;
@@ -2870,7 +2811,6 @@ CollisionBstNode *collisionBstExtractMin(CollisionBstNode *node, s32 *arg1, s32 
     return node;
 }
 
-void collisionBstRebalanceBucket(s32);
 
 void collisionBstRebalanceAll(void) {
     s32 i;
@@ -2888,10 +2828,6 @@ typedef struct CollisionBstFlatItem {
     /* 0x10 */ u8 unk10;
 } CollisionBstFlatItem;
 
-void collisionBstFlatten();
-void collisionBstSortFlatItems();
-CollisionBstNodeBase *collisionBstBuildBalanced(CollisionBstFlatItem *, s32, s32);
-void collisionBstFreeTree(CollisionBstNodeBase *);
 
 void collisionBstRebalanceBucket(s32 arg0) {
     s32 count;

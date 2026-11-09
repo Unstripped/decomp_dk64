@@ -1,5 +1,25 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorSpawn // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_sfxPlayAtPositionPooled // FAKE: callee prototype steer
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/684C0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/A2F10.h"
 
 typedef struct Struct_5390 {
     f32 arr[3];
@@ -38,55 +58,9 @@ extern s32 D_80721158;
 extern s32 D_8072139C;
 
 s32 actorSpawn();
-void actorDespawn(Actor *);
-void sfxAllocateChannel(s32, f32);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-s32 randomLcgNext(void);
-s32 randomNonNegative(void);
-void actorScriptStart(Actor *, s32);
-void actorUpdateModelMatrix(Actor *, s32);
-void triggerZoneCheckEntry(Actor *);
-u8 func_80665AAC(Actor *);
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void actorCopyPoseAndScale(Actor *, Actor *, f32);
-void effectSpawnBoneWhite(Actor *actor, s16 bone, f32 scale, f32 posX, f32 posY, f32 posZ, s32 moveSpeed);
-void effectSpawnBoneDefault(Actor *actor, s16 bone, f32 scale, f32 posX, f32 posY, f32 posZ, s32 moveSpeed);
-void effectSpawnBone(Actor *actor, s16 bone, f32 scale, f32 posX, f32 posY, f32 posZ, s32 moveSpeed);
-void effectActorCheckGroundScaleSpawn(Actor *);
-void effectSpawnDebrisParticles(Actor *actor, f32 scaleParam, f32 posX, f32 posY, f32 posZ);
-void animSetSpeed(Actor *, s32, f32);
-void animSetLoopLimit(void *, s32, s16);
-s32 animIsPlaying(Actor *, s32);
-void actorSpawnAttachedTo(Actor *);
-void effectSetSpeed();
-void effectEnableFade(void);
-void effectSetAngle(s16);
-void effectSetCallback(void (*)(void));
-void effectSetMode(s8);
-void effectSetDepth(s8);
 void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void effectSetDuration(s32);
-void effectSetFlags(s16);
 void effectCreateAtActorBone(void *, f32, Actor *, s32, s32); // FAKE: callee prototype steer
 Actor338 *effectCreateAtPosition(void *, f32, f32, f32, f32);
-void func_80717930(void);
-void func_80717D4C(void);
-void effectShrinkAndVelocityUpdate(void);
-void effectFadeOutMatrixUpdate(void);
-void effectGroundDecalSpinUpdate(void);
-void effectTumbleBounceUpdate(void);
-void effectDecelerateDriftUpdate(void);
-void timedEffectCountdownTick(void);
-void effectSpiralRiseUpdate(void);
-void effectSpriteMotionUpdate(void);
-void effectFollowParentUpdate(void);
-void effectFloorFallUpdate(void);
-void effectActorOrbitFollowUpdate(void);
-void func_8071E110(void *, s32, s32, f32, f32, s32);
-void effectArcAroundActorUpdate(void);
-void effectBurstParticleUpdate(void);
-void func_8071EFDC(void);
 
 void effectSpawnActorBone(s32 lifetime, u8 bone, f32 scale) {
     effectSetDepth(1);
@@ -157,7 +131,6 @@ void actorSpawnEffectChild(f32 posX, f32 posY, f32 posZ, f32 scaleXZ, f32 scaleY
 }
 
 extern s32 D_8071FF58;
-void effectWobbleScaleUpdate(void);
 
 void effectSpawnSmoke(u8 bone) {
     if (!(gFrameCounter & 0x1F)) {
@@ -204,7 +177,6 @@ void effectSpawnBoneDebris(s16 bone, s8 direction) {
                    (f32)((randomNonNegative() >> 15) % 20) + (nodeZ - 10.0f));
 }
 
-void func_8071F2F8(void);
 
 void effectSpawnBoneDebrisScaled(s16 bone, s16 baseSpeed, s16 lifetime) {
     f32 nodeX;
@@ -232,7 +204,6 @@ void effectSpawnBoneDebrisScaled(s16 bone, s16 baseSpeed, s16 lifetime) {
 }
 
 extern s32 D_8071FC40;
-void effectWobbleRiseUpdate(void);
 
 void effectSpawnAuraBurst(u8 rate) {
     s32 i;
@@ -433,7 +404,6 @@ void effectSpawnScatter(f32 scale, f32 posX, f32 posY, f32 posZ) {
         effectCreateAtPosition(&sEffectSparkConfig, scale, (f32)(((randVal >> 15) % mod100k) % mod10) + (posX - 5.0f), posY, (f32)(((randomNonNegative() >> 15) % mod100k) % mod10) + (posZ - 5.0f));
     }
 }
-void func_807180F4(s32, s32);
 
 void effectSpawnScatterRandom(void *texture, u8 colorMode, f32 scale, u8 count, u8 spread, s16 baseSpeed, s16 posX, s16 posY, s16 posZ) {
     s16 idx;
@@ -839,12 +809,7 @@ u8 bone;
     effectCreateAtActorBone(&D_8072006C, 1.0f, gCurrentActor, bone, 0);
 }
 
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void lightSetFlags(u8);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32); // FAKE: callee prototype steer
-void func_8071E028(void);
 extern s32 D_80720B24;
 
 void effectSpawnJointBeam(minBoneA, maxBoneA, minBoneB, maxBoneB)

@@ -1,5 +1,9 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorTableContains // PROTO: Type CollisionHitActor *  of this argument  is incompatible 
+#include "proto/global/70FD0.h"
+#include "proto/global/7A510.h"
+#include "proto/global/7CA80.h"
 
 typedef struct CollisionHitActorSub {
     u8 pad0[0xD4];
@@ -65,11 +69,6 @@ extern struct Beh798_8074C608 D_8074C608[];
 extern ActorGlobalState gActorGlobalState;
 
 s32 actorTableContains(void *);
-void func_80675D70(s32);
-s32 actorCollisionFindTableEntry(struct CollisionTableEntry *, s16, s16);
-s32 func_80676220(s16);
-void actorApplyDamage(struct Beh798_Actor *, struct Beh798_Actor *);
-void actorCollisionRunInteractionTable();
 
 void actorCollisionProcessHit(CollisionHitActor *targetActor, CollisionCallbackArg *cbArg) {
     CollisionInteractionEntry *entry;
@@ -176,7 +175,6 @@ typedef struct InteractionEntry {
     u8 unkC;
 } InteractionEntry;
 
-s32 actorCollisionPatternMatches(s16 actorType, s16 actorFlags, s16 pattern);
 extern ActorGlobalState gActorGlobalState;
 extern InteractionEntry D_8074ABCC[];
 
@@ -370,7 +368,6 @@ typedef struct CollisionThresholdEntry {
 } CollisionThresholdEntry;
 
 extern CollisionThresholdEntry D_80748FE8[];
-void actorCollisionUpdateNodeFlags(Actor *, u8);
 
 void actorCollisionCheckBoundingBoxes(CollisionBoundingActor *actor) {
     s16 targetType;
@@ -448,10 +445,6 @@ typedef struct CollisionNodeFlagEntry {
 extern s8 D_80748E50[][9];
 extern CollisionNodeFlagEntry D_80748F58[];
 
-void func_8067618C(Actor *, s8 *);
-void actorClearAllNodeFlags(Actor *);
-void actorSetNodeFlag(Actor *, s32);
-void actorSetNodeValue(Actor *, s32, u16);
 
 void actorCollisionUpdateNodeFlags(Actor *actor, u8 flagIndex) {
     s32 match;

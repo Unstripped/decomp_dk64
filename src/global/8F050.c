@@ -1,4 +1,9 @@
 #include "common.h"
+#define PROTO_SKIP_controllerAnimFreeSub // FAKE: callee prototype steer
+#include "proto/global/17B90.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/8F050.h"
 
 typedef struct ActorConfig8F050 {
     s16 unk0;
@@ -23,10 +28,6 @@ typedef struct Actor146 {
     s16 unk146;
 } Actor146;
 
-s32 controllerAnimStateLoadAsset(void *, s32, s32);
-void animSetLoopLimit(void *, s32, s16);
-void animSetFinished(void *, s32, u8);
-void animSetFrameAndSubframe(s32, s32, s16, f32);
 
 void animStopAtFrame(s32 actor, s32 animSlot, s32 frame) {
     animSetLoopLimit(actor, animSlot, -1);
@@ -72,7 +73,6 @@ void actorConfigApplyAnimFrame(Actor4C *actor, s32 cfgIndex, s32 frame) {
     }
 }
 
-s32 actorConfigLookup(s32, s32 *);
 
 void actorConfigApplyAnimFrameByType(s32 actor, s32 actorType, s32 frame) {
     s32 cfgIndex;
@@ -120,8 +120,7 @@ extern ProximityPlayerPos *gPlayerSlots;
 extern u8 gPlayerCount;
 extern s32 D_807552F4[];
 
-void controllerAnimFreeSub(void *, u32);
-f32 renderScaleDistanceByFov(f32);
+void controllerAnimFreeSub(void *, u32); // FAKE: callee prototype steer
 
 void actorProximityUpdate(void) {
     ProximitySub174 *sub;

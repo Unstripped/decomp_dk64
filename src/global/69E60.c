@@ -1,5 +1,14 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorUpdatePrevContactFlags // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
+#include "proto/global/166A0.h"
+#include "proto/global/35000.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/CEAE0.h"
 
 
 typedef struct ActorPhysicsWork {
@@ -17,9 +26,6 @@ typedef struct ActorPhysicsWork {
 } ActorPhysicsWork;
 
 void actorUpdatePrevContactFlags(void);
-void mathAngleClampToArc(s16, s16, s16, s16, void *);
-s16 func_80672134(s16, s16, s16, s16);
-void func_80665ACC(Actor *actor);
 
 void actorStepPhysics(actor, targetYaw, targetPitch)
 ActorPhysicsWork *actor;
@@ -186,9 +192,7 @@ extern s32 gCurrentMap;
 
 
 
-void collisionQueryActorFloor(Actor *, u8 *, f32 *, u8 *, void *, s32);
-void func_806D09E8(Actor *);
-s16 mathAngleSignedDistance(s16, s16);
+s16 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 void actorUpdateFloorContactAndTilt(Actor *actor, f32 floorYOffset) {
     f32 floorY;
     u8 hasFloor;
@@ -309,7 +313,6 @@ void func_80665ACC(Actor *actor) {
     actor->flags |= 0x20;
 }
 
-f32 mathAtan2(f32, f32);
 
 f32 mathAngleBetweenPointsDeg(s32 x1, s32 y1, s32 x2, s32 y2) {
     f32 angleRad;
@@ -399,7 +402,6 @@ typedef struct ActorTransformWork {
     u8 unkC[1];
 } ActorTransformWork;
 
-void actorSub140CreateFromData(f32, f32, f32, f32, f32, f32, void *, s32, s32, void *);
 
 void actorSub140CreateFromModel(ActorTransformWork *actor) {
     f32 fv0;
@@ -429,8 +431,6 @@ void actorSub140CreateFromModel(ActorTransformWork *actor) {
 }
 
 
-void renderEntryAddOrUpdate(s32, s32, Actor *, f32, f32, f32, s32, s32, s32, s32, s32);
-void actorSub140SetVectors(Actor *, f32, f32, f32, f32);
 extern s32 gFrameCounter;
 
 void actorUpdatePositionAndSub140(Actor *actor) {

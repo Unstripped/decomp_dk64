@@ -1,5 +1,10 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_mapObjectCollectIdsByType // FAKE: callee prototype steer
+#include "proto/global/15050.h"
+#include "proto/global/55B20.h"
+#include "proto/global/68AA0.h"
+#include "proto/global/7130.h"
 
 
 typedef struct ActorTargetSource {
@@ -30,10 +35,7 @@ extern ActorTargetEntry *D_807F9420;
 extern s16 D_807F9424;
 extern s32 D_80747D70;
 
-void *heapAlloc(s32);
-u8 mapObjectIsTargetType(s16);
-s16 mapChunkFindByPosition(f32, f32, f32, s16);
-s16 mapObjectCollectIdsByType(s8, void *, s16);
+s16 mapObjectCollectIdsByType(s8, void *, s16); // FAKE: callee prototype steer
 
 void actorInitTargetEntries(void) {
     s32 k = 0;
@@ -92,7 +94,6 @@ typedef struct PlayerAreaView {
 
 extern PlayerAreaView *gPlayerSlots;
 
-f32 sfxUpdateDistanceVolumeAndPan(f32, f32, f32, u8, u8, f32);
 
 void actorTargetEntriesUpdateSfx(u8 targetType, u8 volume, u8 sfxId, f32 factor) {
     s32 i;

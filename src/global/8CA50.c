@@ -1,4 +1,7 @@
 #include "common.h"
+#include "proto/global/15050.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/8CA50.h"
 
 typedef struct AnimNode {
     /* 0x00 */ void **unk0;
@@ -34,13 +37,6 @@ typedef struct AnimInitData {
 extern s32 gCurrentMap;
 extern u8 gPlayerCount;
 
-void *heapAlloc(s32);
-void * assetLoad(s32, u32, u8, u8);
-void animListFree(AnimNode **);
-void animNodeAdvanceTime(AnimNode *);
-AnimNode *animGetNodeByIndex(AnimActor *, u32);
-void assetFreeBuffer(void *, s32, s32);
-void heapFree(void *);
 
 void animListInit(AnimActor *actor, AnimInitData *initData) {
     AnimNode **next_ptr;

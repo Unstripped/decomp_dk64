@@ -1,5 +1,61 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorDespawn // FAKE: callee prototype steer
+#define PROTO_SKIP_actorQueueDelayedCallback // FAKE: callee prototype steer
+#define PROTO_SKIP_actorScriptStart // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetDepth // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
+#define PROTO_SKIP_effectZSpinMatrixUpdate // PROTO: not a function here
+#define PROTO_SKIP_flagGet // FAKE: callee prototype steer
+#define PROTO_SKIP_func_806C7BAC // FAKE: callee prototype steer
+#define PROTO_SKIP_mapGetConfigValue // FAKE: callee prototype steer
+#define PROTO_SKIP_mathAngleClampToArc // FAKE: callee prototype steer
+#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
+#define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
+#include "proto/global/100180.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/104F0.h"
+#include "proto/global/10D2D0.h"
+#include "proto/global/112080.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/1292F0.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/131B0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2DE90.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/450.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/80150.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/8F050.h"
+#include "proto/global/90D80.h"
+#include "proto/global/936B0.h"
+#include "proto/global/9DD70.h"
+#include "proto/global/A7710.h"
+#include "proto/global/AA960.h"
+#include "proto/global/ACDC0.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/FCCD0.h"
 
 typedef struct ActorMapFlag {
     u16 map;
@@ -65,46 +121,12 @@ extern u8 D_80720340;
 extern u8 D_8072038C;
 
 s32 mapGetConfigValue(s32, s32);  // FAKE: callee prototype steer
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-s32 randomNonNegative(void);
 void actorScriptStart();
-u16 camStartPath(void *, s16, u8);
-void actorUpdateModelMatrix(Actor *, s32);
-void actorUpdateFloorContactAndTilt(Actor *, f32);
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 s32 actorDespawn(Actor *);  // FAKE: callee prototype steer
-void tagBarrelInitPeerState(void);
-void tagBarrelAnimSetSpeed(s32);
-s32 tagBarrelCheckProximityAndFall(s32, u8 *, u8 *, u8 *);
-void actorTransformCameraUpdate(void);
-void tagBarrelDespawnEffects(void);
-void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
-void tagBarrelResetMovement(void);
-void tagBarrelTriggerRecoil(void);
-void tagBarrelCheckRecoil(void);
-void transformBarrelUpdate(void);
-void tagBarrelActorUpdate(void);
-void tagBarrelUpdate(void);
-void animSetFrameAndSubframe(Actor *, s32, s16, f32);
-void animSetLoopLimit(void *, s32, s16);
-void animSetFinished(void *, s32, u8);
-s16 actorListFindIdByActor(Actor *);
-void func_8068A764(Actor *, u8);
-void textMarkerUpdateMatrix(void);
-void slotQueueCancel(s32, s32);
-s32 textTableGetString(s32, s32, s32);
-void effectSetSpeed();
-void effectSetAngle(s16);
-void effectSetCallback(void *);
 void effectSetMode(u32);  // FAKE: callee prototype steer
 void effectSetDepth(u32);  // FAKE: callee prototype steer
-void effectSetDuration(s32);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void effectRadialSprayUpdate(void);
-void effectPuffExpandFadeUpdate(void);
-void effectSpinBillboardingUpdate(void);
+void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 s32 flagGet(s16, s32);  // FAKE: callee prototype steer
-void flagSet(s16, u8, u8);
 
 s32 tagBarrelIsSpecial(void *actor) {
     s32 count = 4;
@@ -162,13 +184,7 @@ typedef struct ActorB4C8PeerState {
 } ActorB4C8PeerState;
 
 extern u8 D_8071FBC8;
-void *heapAlloc(s32);
-void scriptSetActorRampTarget(Actor *, f32, f32);
-void controllerAnimSetState(Actor *, s16, f32, f32);
-void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void actorQueueDelayedCallback(Actor *, Actor *, s32, s32, s32, s32, s32);  // FAKE: callee prototype steer
-void actorAppendCallbackPayloadAAB8(s32, Actor *, s16, f32, s16);
-void effectCreateAtActorBone(s32, f32, void *, s32, u8);
 
 void tagBarrelInitPeerState(void) {
     ActorB4C8State *sub = gCurrentActor->customState;
@@ -292,11 +308,7 @@ void tagBarrelPeerUpdate(void) {
     tagBarrelInitPeerState();
 }
 
-void animSetSpeed(Actor *, s32, f32);
-void animSetLoopMode(void *, s32, u8);
-void animSetDirection(void *, s32, u8);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, u8);  // FAKE: callee prototype steer
-void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s16, f32, void *);
 extern u8 D_807FBBA8;
 
 
@@ -435,8 +447,6 @@ void tagBarrelCheckProximity1A(void) {
 
 extern u8 gPlayerCount;
 extern struct PlayerData *gPlayerSlots;
-void actorApplyVelocity(Actor *);
-s32 actorHasActiveMovementFlags(Actor *);
 typedef struct TagBarrelPlayerEntry {
     u8 unk0;
     u8 pad1[3];
@@ -525,9 +535,7 @@ typedef struct ActorC2B8State {
 
 
 
-void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
-void sfxStopSlotSound(Actor *, u8);
-void actorStepPhysics(Actor *, s16, s16);
+void actorStepPhysics(Actor *, s16, s16); // FAKE: callee prototype steer
 
 void tagBarrelRotateUpdate(void) {
     ActorC2B8State *temp_v0;
@@ -682,29 +690,9 @@ extern s16 D_807502D0;
 extern f32 D_807502E4;
 extern s16 D_80753444[];
 
-u32 randomLcgNext(void);
+u32 randomLcgNext(void); // FAKE: callee prototype steer
 f32 sinApprox(f32);
-u8 camIsCutsceneActive(void);
-void camStartShakeFromPoint(s32, s32, s32, f32, f32, f32, f32, f32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
-void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
-void func_8066E6C8(Actor *, s32, u8);
-void actorSetNodeFlag(Actor *, s32);
-void actorClearNodeFlag(Actor *, s32);
-s32 actorAngleInArc(Actor *, s16);
-void mathAngleClampToArc(s16, s16, s16, s16, s16 *);
-s32 actorSpawn(s32, s32);
-void actorCallbackMaskEnable(Actor *, s32);
-void actorCallbackMaskDisable(Actor *, s32);
-void actorCollisionEventsCancel(s32, u8);
-void actorUpdatePrevContactFlags(Actor *);
-void actorCopyPoseAndScale(Actor *, Actor *, f32);
-void tagBarrelSpawnActorSmokePuffs();
-void actorReleaseFromPlayerHold(Actor *);
-void effectSetMaxDistance(s16);
-void effectWobbleRiseUpdate(void);
-void pathFollowUpdateHeading(Actor *, s32);
-void animationOwnerFreeBuffer(Actor *);
+void mathAngleClampToArc(s16, s16, s16, s16, s16 *); // FAKE: callee prototype steer
 
 void actorTransformCameraUpdate(void) {
     ActorC71CState *temp_s1;
@@ -1082,8 +1070,6 @@ void actorTransformCameraUpdate(void) {
 extern s32 D_8071FE64;
 extern s32 D_8071FE88;
 extern s32 D_8071FEAC;
-void effectTumbleBounceUpdate(void);
-void rumbleRequest(u8, u8, s32);
 
 void tagBarrelDespawnEffects(void) {
     void (*sp5C)(void);
@@ -1316,18 +1302,6 @@ extern u8 gPlayerInventoryTable[][0x5E];
 extern s32 gGlobalPauseFlags;
 extern s32 gGlobalCutsceneFlags;
 
-void sfxAllocateChannel(s32, f32);
-void sfxStopChannel(s32, s32);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void camSetFollowMode(s32);
-void actorAppendCallbackPayloadA70C(Actor *, Actor *, f32, f32, f32, u8, u8);
-void animResetEndFrame(Actor *, s32);
-void animSetEndFrame(void *, s32, s16);
-void actorSetInteractionTimer(Actor *);
-u16 slotQueueGetValue(u8, u8);
-void slotQueueUpdate(s32, u8, s32);
-void slotQueueAddValue(s32, u8, s32);
-s32 slotQueueGetCountStep(s32);
 
 void transformBarrelUpdate(void) {
     TransformBarrelState *var_t0;
@@ -1777,17 +1751,9 @@ typedef struct ActorFB6CState {
 extern Actor *gActivePlayerActor;
 extern s32 gGlobalCutsceneFlags;
 extern u16 D_807FD63C;
-Gfx * func_806FF01C(Gfx *, Actor *);
 
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void controllerAnimLoadStateAsset(Actor *, s16);
-void controllerAnimFreeStateAsset(Actor *);
-void camSetFixedView(s32, f32, f32, f32, f32, f32, f32, u8);
-void camSetTargetScaled(s32, Actor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
-s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
-void actorAppendCallbackPayloadA70C(Actor *, Actor *, f32, f32, f32, u8, u8);
-void renderCallbacksRegister(void *, void *, u8);
 
 void tagBarrelParticleUpdate(void) {
     f64 pad;
@@ -2091,20 +2057,10 @@ extern u8 gBossFightPhase;
 extern u8 D_807FBDC4;
 extern u8 D_8071FC58[];
 extern s32 effectZSpinMatrixUpdate;
-void effectOrbitXZUpdate();
 
-s32 func_8073195C(s16);
-void actorListSetPosByActor(Actor *, f32, f32, f32);
-Actor * actorFindByType(u16);
-void actorSetCustomFloat(Actor *, s16, f32);
-void func_805FF9AC(s32, s32, s32, s16);
-void actorSetCustomInt(Actor *, s16, s32);
-void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
 
 extern s16 D_80750390;
-void effectSetFlags(s16);
-void sfxAllocateChannel(s32, f32);
-void func_806C7BAC(void *, Actor *);
+void func_806C7BAC(void *, Actor *); // FAKE: callee prototype steer
 
 void tagBarrelActorUpdate(void) {
     s16 kong;
@@ -2480,9 +2436,7 @@ typedef struct PlayerStateD580Grab {
 extern u8 gPlayerInventoryTable[][0x5E];
 extern s16 D_80750390;
 
-void sfxAllocateChannel(s32, f32);
-void slotQueueUpdate(s32, u8, s32);
-void func_806C7BAC(void *, Actor *);
+void func_806C7BAC(void *, Actor *); // FAKE: callee prototype steer
 
 void rocketbarrelUpdate(void) {
     RocketbarrelState *var_v1;
@@ -2629,16 +2583,6 @@ extern s8 D_807FD63E;
 extern s8 D_807FD63F;
 
 f32 cosApprox(f32);
-f32 mathAtan2(f32, f32);
-void csModelStateSetFirstByte(s16, s16);
-void hudSpawnCountdownTimer(s16, s16, u8);
-void actorSetStateTwo(Actor *);
-s32 actorCountOwnedByClass(Actor *, s32, s32);
-void playerResumeLocomotion(Actor *);
-void projectileSetTargetCoords(f32, f32, f32);
-void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
-Gfx *func_806FEF7C(Gfx *, Actor *);
-Gfx *renderRemainingShotsHUD(Gfx *, u8 *);
 
 void cannonUpdate(void) {
     CannonState *sub = gCurrentActor->customState;
@@ -2867,8 +2811,6 @@ typedef struct KongActionEntry {
     u8 unk5;
 } KongActionEntry;
 
-void playerKongStopAudioChannels(Actor *, u16);
-void tagBarrelOrbitKongs(void *);
 
 void tagBarrelSpawnKongs(TagBarrelSpawnArgs *arg0) {
     s32 i;
@@ -2952,13 +2894,6 @@ typedef struct ActorView3158 {
 } ActorView3158;
 
 
-void heapClearBlock(void *);
-void func_806C8220(s32, void *, s32);
-void playerWeaponAimTarget(Actor *, void *, s32 *);
-void playerWeaponInitCrosshair(Actor *, void *, s32 *);
-void playerWeaponSpawnProjectile(Actor *, void *, s32 *);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-u8 func_8072881C(u8, u32 *);
 
 void tagBarrelInteractiveUpdate(void) {
     s32 sp3C;
@@ -3000,7 +2935,6 @@ void tagBarrelInteractiveUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-s32 func_805FEF10(void *);
 
 s32 tagBarrelCheckKongFlag(s32 arg0, s32 arg1) {
     struct KongFlagInfo {
@@ -3079,15 +3013,6 @@ struct TagBarrelData;
 extern s32 D_8074E848[];
 extern s32 gGlobalPauseFlags;
 
-void playerRestoreKongState(Actor *, void *);
-void playerRevertAnimalTransformation(Actor *, void *);
-void lightGetColor(f32 *, f32 *, f32 *, s16);
-void lightSetColor(f32, f32, f32, s16);
-void sfxSetChannelParam(s32, s32, s32);
-void camSaveYaw(Actor *);
-void eepromSavePlayerData(void);
-void func_8061B650(Actor *);
-void slotQueueClearAllFlags(void);
 
 void tagBarrelStartSelection(struct TagBarrelData *arg0_in) {
 #define arg0 ((TagBarrelDataN3 *)arg0_in)
@@ -3213,14 +3138,6 @@ typedef struct TagBarrelOrbitActor {
 } TagBarrelOrbitActor;
 
 
-s32 hudCanRender(void);
-u8 screenWipeGetState(void);
-void screenWipeStart(s32);
-void healthRefill(u8);
-void sfxStopChannel(s32, s32);
-void camRestoreYaw(Actor *);
-void camResetPlayer(Actor *, u8);
-void playerSetKongByActorType(s16);
 struct TagBarrelData;
 
 void tagBarrelUpdateSelection(struct TagBarrelData *arg0_in) {
@@ -3328,9 +3245,6 @@ extern Mtx D_2000180;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 
-Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
-Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, s32);
-u8 textGetFontHeight(s16);
 
 Gfx *tagBarrelRenderSelectionHud(Gfx *arg0, Actor *arg1) {
     u8 padF8[0xC];
@@ -3460,13 +3374,6 @@ typedef struct TagBarrelData {
 } TagBarrelData;
 
 extern u8 D_8071FC8C[];
-s32 mapIsBossArena(void);
-s32 playerSpawnAllPlayers(void);
-s32 tagBarrelCheckKongFlag(s32, s32);
-void tagBarrelStartSelection(TagBarrelData *);
-void tagBarrelUpdateSelection(TagBarrelData *);
-Gfx *tagBarrelRenderSelectionHud(Gfx *, Actor *);
-void slotQueuePopActiveMask(void);
 
 void tagBarrelUpdate(void) {
     Actor *actor = gCurrentActor;

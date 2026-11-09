@@ -1,5 +1,12 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/36880.h"
+#include "proto/global/68EA0.h"
 
 
 typedef struct ActorProximityEntry {
@@ -30,9 +37,6 @@ extern s32 D_80747D70;
 extern ActorProximityEntry *D_807F9430;
 extern s16 D_807F9434;
 
-void *heapAlloc(s32);
-s32 actorEntryTypeIsEmitter(s16 actorType);
-void actorApplyRotatedOffset(s32 entryIdx, s32 actorType, f32 angle);
 void actorInitEntryPoints(void) {
     s32 count;
     s32 i;
@@ -121,9 +125,6 @@ typedef struct PlayerPositionView {
 extern PlayerPositionView *gPlayerSlots;
 extern u8 gPlayerCount;
 
-s32 func_8063C2A8(s16);
-void actorEntryEmitJitterParticle(s16 entryIdx);
-void actorEntryEmitScaledParticle(s16 entryIdx);
 
 void actorUpdateEntryEmitters(void) {
     s32 i;
@@ -160,18 +161,9 @@ void actorUpdateEntryEmitters(void) {
 }
 
 
-s32 randomNonNegative(void);
-void effectSetDepth(s8);
-void effectSetMode(s8);
-void effectSetSpeed(s32);
-void effectSetCallback(void *);
 void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void effectSetScale(f32, f32);
-void effectSetFlags(s16);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 extern u8 D_807213D0;
-void effectDriftXZUpdate(void);
 
 void actorEntryEmitJitterParticle(s16 entryIdx) {
     ActorProximityEntry *entry;

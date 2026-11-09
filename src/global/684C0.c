@@ -1,5 +1,9 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/15050.h"
+#include "proto/global/17B90.h"
+#include "proto/global/684C0.h"
+#include "proto/global/7CA80.h"
 
 typedef struct TriggerZoneActor {
     u8 pad0[0x54];
@@ -39,9 +43,6 @@ typedef struct TriggerZoneNode {
 
 extern TriggerZoneNode *D_807F9410;
 extern Actor *gSpawnedActor;
-void *heapAlloc(s32);
-s32 triggerZoneContainsActor();
-void triggerZoneSpawnTrigger();
 
 void triggerZoneInit(TriggerZoneActor *actor) {
     s32 i;
@@ -104,8 +105,6 @@ typedef struct TriggerSpawnSub174 {
     u8 unkF;
 } TriggerSpawnSub174;
 
-s32 controllerLookupStateByHash(TriggerZoneActor *);
-s32 actorSpawn(s32, s32);
 
 s32 triggerZoneContainsActor(TriggerZoneActor *actor, TriggerZoneSubNode *subNode) {
     while (subNode != NULL) {
@@ -129,8 +128,6 @@ void triggerZoneSpawnTrigger(TriggerZoneActor *actor, TriggerZoneData *zone) {
     actor->unk156++;
 }
 
-void actorDespawn(Actor *);
-void heapFree(void *);
 
 void triggerZoneUpdate(void) {
     TriggerZoneNode *node;

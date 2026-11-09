@@ -1,4 +1,10 @@
 #include "common.h"
+#define PROTO_SKIP_actorTableContains // PROTO: Type CollisionHitActor *  of this argument  is incompatible 
+#include "proto/global/15050.h"
+#include "proto/global/2F550.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/79890.h"
+#include "proto/global/7CA80.h"
 
 typedef struct CollisionSphereNode {
     u8 pad0[0x10];
@@ -54,10 +60,7 @@ typedef struct CollisionHitActor {
 
 extern u8 D_807FB606;
 s32 actorTableContains(void *);
-void actorUpdateCollisionSpheres(void *, s32);
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
-void collisionNodeLocalToWorldXZ();
-void func_806755A8();
 
 u8 actorCollisionGetNodeHitPoint(CollisionHitActor *self, CollisionHitActor *other, f32 *outX, f32 *outZ) {
     CollisionHitCallback *cb;
@@ -176,13 +179,7 @@ extern struct CollisionHitRecordNode *D_807FB620;
 extern struct CollisionHitRecordNode *D_807FB624;
 extern s32 D_807FB628;
 
-s32 actorRiderListContains(void *, void *);
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
-void actorUpdateCollisionSpheres(void *, s32);
-f32 collisionPointToSphereDistance(s32 ptX, s32 ptY, s32 ptZ, s32 sphereX, s32 sphereY, s32 sphereZ, s32 sphereRadius);
-void collisionWorldToNodeLocal(struct CollisionMtxOwner *owner, f32 worldX, f32 worldY, f32 worldZ, struct CollisionMtxNode *node, f32 *outX, f32 *outY, f32 *outZ);
-void collisionHitRecordAppend(s32 hitType, f32 dist, f32 localX, f32 localY, f32 localZ, s32 node1Idx, s32 node2Idx);
-void collisionHitRecordsFlush(s32 selfId, void *otherActor);
 
 void actorCollisionCheckNodeSpheres(CollisionCheckActor *self) {
     s32 i;
@@ -281,7 +278,6 @@ typedef struct CollisionMtxNode {
 } CollisionMtxNode;
 
 extern u8 gGfxBufferIndex;
-void matrix4Invert(float [4][4], float [4][4]);
 
 void collisionWorldToNodeLocal(CollisionMtxOwner *owner, f32 worldX, f32 worldY, f32 worldZ, CollisionMtxNode *node, f32 *outX, f32 *outY, f32 *outZ) {
     float worldMtx[4][4];
@@ -329,7 +325,6 @@ typedef struct CollisionHitRecordNode {
     struct CollisionHitRecordNode *next;
 } CollisionHitRecordNode;
 
-void *heapAlloc(s32);
 extern CollisionHitRecordNode *D_807FB620;
 extern CollisionHitRecordNode *D_807FB624;
 extern s32 D_807FB628;
@@ -365,8 +360,6 @@ typedef struct CollisionHitRecord {
     s32 unk18;
 } CollisionHitRecord;
 
-void heapFree(void *);
-void actorAppendCallback(void *, s32, s32, u8, s32, void *);
 
 void collisionHitRecordsFlush(s32 selfId, void *otherActor) {
     CollisionHitRecord *arr;

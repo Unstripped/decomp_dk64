@@ -1,6 +1,10 @@
 #include "common.h"
 
 #include "actor.h"
+#include "proto/global/2F550.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7BBD0.h"
+#include "proto/global/7CA80.h"
 
 typedef struct CollisionNode {
     u8 pad0[0x10];
@@ -45,7 +49,6 @@ extern u16 gActiveActorCount;
 
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 u8 func_80673708(s32, s32, s32, s32, s32, s32, s32, s32);
-u8 actorCollisionReflectAndPush(Actor *, Actor *);
 
 u8 actorCheckCollisionsAgainstActiveActors(CollisionActor *self, s32 anglePtr1, s32 anglePtr2) {
     ActorCollisionBounds *sub140;
@@ -158,14 +161,6 @@ extern s32 D_807FB5D0;
 extern struct CollisionTargetAngle *D_807FB5D8;
 
 s32 func_806744A8(void *, s32, s32, s32, s32);
-s32 actorCheckFacingTarget(Actor *);
-void actorGetMatrix(struct ActorMtxOwner *owner, CollisionMtxF dst, s8 mtxIndex);
-void matrix4Invert(CollisionMtxF, CollisionMtxF);
-void actorAppendCallbackPayloadA864(s32, Actor *, s16, s16, void *, void *, s32, s32, s32);
-void actorReflectCollisionAngle(Actor *, void *, void *);
-s32 actorGetCollisionThreshold(Actor *);
-void actorAppendCallbackPayloadA908(s32, Actor *, void *, void *, s32, s32, s32);
-s32 actorIsTargetWithinAngle(s16, s16);
 
 u8 actorCollisionReflectAndPush(Actor *self, Actor *other) {
     f32 posX;
@@ -320,12 +315,7 @@ extern s16 D_80753D60[];
 extern s16 gCurrentCharacterIndex;
 
 void func_80672E90(s32, s32, s32);
-void actorSetCameraBoundaryMode(s32);
-void actorSetTargetAngleBounds();
 u8 func_806738D0(s32, s32, s32, s32, s32, s32);
-u8 playerFindIndexByActor(Actor *);
-void actorAppendCallbackS32(s32, Actor *, s32);
-void actorAppendCallbackPayloadA69C(s32, Actor *, f32, f32, u8, u8);
 
 void actorCollisionResolveSurfaceHit(Actor *self, Actor *other, f32 *pos, f32 *verts, s8 mtxIndex, s32 hitRadius, s32 maxClamp, u8 flag) {
     ActorCollisionSub140 *selfBounds;

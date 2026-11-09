@@ -1,5 +1,19 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_controllerAnimFreeSub // FAKE: callee prototype steer
+#define PROTO_SKIP_mapChunkIsVisible // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/15050.h"
+#include "proto/global/17B90.h"
+#include "proto/global/36880.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/CC800.h"
 
 typedef struct ActorListRecord {
     /* 0x00 */ f32 unk00;
@@ -65,21 +79,7 @@ extern u8 D_807FC610;
 extern u8 D_807FC611;
 
 void *memcpy(void *, const void *, size_t);
-void heapFree(void *);
-void actorDespawn(Actor *);
-s16 mapChunkFindByPosition(f32, f32, f32, s16);
 s32 mapChunkIsVisible(s32, void *);
-void func_8066E6C8(Actor *, s32, u8);
-void actorAppendCallbackMemcpy8(s32, Actor *, s32, u8, void *, u8);
-s32 actorListGetTypeIdCount(u16);
-s16 actorListAllocId(void);
-ActorListNode *actorListSpawnNodeInternal(s16, f32, f32, f32, s16, f32, void *, u8, s32, s16);
-void actorListRemoveNodeInternal();
-f32 playerGetMinSquaredDist3D(f32, f32, f32);
-s32 mapIsBossArena(void);
-u8 actorListSpawnIfNear(ActorListNode *);
-u8 actorListDespawnIfFar(ActorListNode *);
-void actorListClearForcedIds(void);
 
 extern s16 gCurrentLevelIndex;
 extern u8 gCurrentWorldId;
@@ -101,17 +101,6 @@ typedef struct {
 } ModelAssetEntry178;
 extern ModelAssetEntry178 D_8076A178[];
 
-s32 mapFindSlotIndex(s32);
-u16 modelTypeCountBeforeMap(u8);
-void modelAssetGetSubtables(s32, s32 *, s32 **);
-void modelSlotsLoadMap(u8 *, s32, u8, u16, u8);
-void csTimerQueueFire(s16);
-void actorListSpawnFromRecords(s32 *);
-void modelSlotsApplyRecords(void *, void *);
-void lightSetColor(f32, f32, f32, s16);
-u8 mapGetHubWorldIndex(u8, u8);
-void actorListBuildLookupTable(void);
-s32 playerGetModelAssetId(void);
 
 void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
     s32 subtableCount;
@@ -168,9 +157,6 @@ void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
 extern u8 D_807500B0;
 extern s16 D_807FC408[];
 
-void *assetLoad(s32, u32, u8, u8);
-void assetSetImmediateFree(void);
-void assetFreeBuffer(void *, s32, s32);
 
 typedef struct ActorListContainer {
     s32 count;
@@ -209,7 +195,6 @@ void actorListInitOffsets(void) {
     }
 }
 
-void *heapAlloc(s32);
 
 void actorListBuildLookupTable(void) {
     s32 count;
@@ -557,11 +542,7 @@ typedef struct ActorListSpawnInfo {
 
 
 
-void actorDeregisterActive(Actor *);
-void actorRegisterActive(Actor *);
-s32 actorSpawnFromInfo(ActorListSpawnInfo *);
-s32 controllerAnimStateLoadAsset();
-void controllerAnimFreeSub(Actor *, u8);
+void controllerAnimFreeSub(Actor *, u8); // FAKE: callee prototype steer
 extern Actor *gSpawnedActor;
 
 void actorListUpdateSpawns(void) {

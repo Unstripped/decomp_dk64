@@ -1,8 +1,37 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_n_alSndpPostEvent // FAKE: callee prototype steer
+#define PROTO_SKIP_n_alSndpStop // FAKE: callee prototype steer
+#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
+#define PROTO_SKIP_seqPlayerSetChannelControlMask // FAKE: callee prototype steer
+#define PROTO_SKIP_seqPlayerSetChannelStopControlMask // FAKE: callee prototype steer
+#include "proto/global/10E1D0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/136820.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/13CB30.h"
+#include "proto/global/13CB50.h"
+#include "proto/global/13CE70.h"
+#include "proto/global/13D020.h"
+#include "proto/global/13D0B0.h"
+#include "proto/global/13D170.h"
+#include "proto/global/13EC00.h"
+#include "proto/global/13EC90.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2F550.h"
+#include "proto/global/36880.h"
+#include "proto/global/54150.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5A50.h"
+#include "proto/global/5E020.h"
+#include "proto/global/68AA0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/FE40.h"
 
-void alCSPSetChlPanVolume(ALCSPlayer *, f32, f32);
-void alCSPSetChlFX1Mix(ALCSPlayer *, u8, u8);
 
 extern u16 sSfxFlagTable[];
 
@@ -58,8 +87,6 @@ extern AudioPlayer *gPlayerSlots;
 extern s32 gCurrentMap;
 extern AmbientSfxEntry sAmbientSfxTable[];
 
-s16 mapChunkFindByPosition(f32, f32, f32, s16);
-void sfxAllocateChannel(s32, f32);
 void sfxStartAreaAmbient(void) {
     u8 i;
     s16 count;
@@ -90,7 +117,6 @@ void sfxStartAreaAmbient(void) {
 
     D_80770DD8[1] = 0xFF;
 }
-void sfxStartAreaAmbient(void);
 void sfxPlayCurrent(u8 arg0, u8 arg1, u8 arg2) {
     sfxStartAreaAmbient();
 }
@@ -116,9 +142,6 @@ extern SfxUnsignedBytes4 D_80745B24;
 
 void seqPlayerSetChannelControlMask(u8, s32, s32);  // FAKE: callee prototype steer
 void seqPlayerSetChannelStopControlMask(u8, s32, s32);  // FAKE: callee prototype steer
-void sfxStopChannel();
-void seqSetTargetVolume(s32, f32);
-void seqLoadAndPlayWithReverb(s32, u8, f32);
 
 // deadsweep round 3: full=62 text=62 inserted `if (sSfxChannelMasks && sSfxChannelMasks) {}` at line 18
 void sfxUpdateChannels(void) {
@@ -276,7 +299,6 @@ void sfxStopAllChannels(void) {
 }
 
 
-void seqSetTargetVolume(s32, f32);
 
 void seqRouteChannelVolume(s32 arg0, f32 arg1) {
     u8 v1 = sfxGetBankIndex((s16)arg0);
@@ -326,7 +348,6 @@ extern f32 D_80770DE0;
 extern f32 D_80770DE4;
 f32 sinApprox(f32);
 f32 cosApprox(f32);
-f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 f32 sqrtf(f32);
 #pragma intrinsic(sqrtf)
 
@@ -408,7 +429,6 @@ f32 sfxCalcDistanceVolumePan(f32 arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, f32
     return sp20;
 }
 
-f32 sfxCalcDistanceVolumePan(f32, f32, f32, u8, u8, f32);
 extern f32 D_80770DE8;
 extern f32 D_80770DEC;
 f32 D_80770DF0;
@@ -511,14 +531,8 @@ f32 D_80770EF8[16];
 extern u32 gGlobalPauseFlags;
 extern SoundContextD580 *gActivePlayerState;
 
-s32 mapGetSoundEmitters(LevelSoundEmitter **);
-void actorTargetEntriesUpdateSfx(u8, u8, u8, f32);
-u8 flagGet(s16, u8);
-void n_alSndpPostEvent(s32, s32, ...);
-f32 mathAtan2(f32, f32);
-void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
-void n_alSndpStop(s32);
-void seqSetVolumeInstant(s32, f32);
+void n_alSndpPostEvent(s32, s32, ...); // FAKE: callee prototype steer
+void n_alSndpStop(s32); // FAKE: callee prototype steer
 
 void sfxUpdateLevelAmbient(void) {
     s8 spE7;
@@ -896,7 +910,6 @@ void sfxUpdateLevelAmbient(void) {
 
 extern ALCSPlayer *D_8076BF24;
 
-void sfxSetChannelParam();
 
 void seqUpdateUnderwaterAudio(s32 arg0) {
     if (D_80745838 != 0) {
@@ -1003,8 +1016,6 @@ typedef struct AudioActor {
 
 extern s16 D_80770710[];
 
-u8 sfxSlotAllocateActor(Actor *, s16, u8, u8, u8, f32, s8);
-void sfxStopSlotSound(Actor *, u8);
 
 void sfxPlayActorSound(Actor *arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 arg6, s8 arg7) {
     if (((AudioActor *)arg0)->unk6E[arg4] != -1) {
@@ -1155,7 +1166,6 @@ u8 sfxSlotAllocateSource(s16 arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, f32 arg5
     return i;
 }
 
-void sfxSlotFreeSource(s16);
 void sfxStopSlotSound(Actor *arg0, u8 arg1) {
     if (((AudioActor *)arg0)->unk6E[arg1] >= 0) {
         sfxSlotFreeSource(((AudioActor *)arg0)->unk6E[arg1]);
@@ -1167,7 +1177,6 @@ void sfxStopSlotSound(Actor *arg0, u8 arg1) {
 }
 
 
-void faultSetMessage(u8, s32, s32, s32);
 
 void sfxSlotFreeSource(s16 arg0) {
     D_80770740[D_80770628[arg0]]--; if (D_80770740[D_80770628[arg0]] != 0) { // LAYOUT:
@@ -1189,8 +1198,6 @@ void sfxSlotFreeSource(s16 arg0) {
     D_80770658[arg0] = -1;
 }
 
-u8 transitionGetState(void);
-void n_alSndpStopAll(void);
 
 extern u8 D_80750190;
 extern u8 D_80770770[];
@@ -1290,12 +1297,7 @@ extern f32 D_80770594;
 extern f32 D_80770688[];
 extern u8 gPlayerCount;
 
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void modelSlotGetNodePos(s32, u8, s32, f32 *, f32 *, f32 *);
-void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
-s32 hashTableLookup(s32);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-u32 randomLcgNext(void);
+u32 randomLcgNext(void); // FAKE: callee prototype steer
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 
@@ -1911,7 +1913,6 @@ void sfxUpdateSourceGroups(void) {
     }
 }
 
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 
 void sfxPlayFromActorWithAltitudeCheck(Actor *arg0, s16 arg1, u8 arg2, s16 arg3, u8 arg4) {
     s32 var_v0;
@@ -1928,7 +1929,6 @@ void sfxPlayFromTargetSlot(s16 arg0, s16 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg
     sfxPlayAtPositionPooled(gModelSlots[arg0].unk0, gModelSlots[arg0].unk4, gModelSlots[arg0].unk8, arg1, arg2, arg3, arg4, arg5, arg6, 0);
 }
 
-void sfxPlayAtPosition(f32, f32, f32, s16, u8, f32, u8, u8);
 
 void sfxPlayFromActorDirect(Actor *arg0, s16 arg1, u8 arg2, f32 arg3, u8 arg4, u8 arg5) {
     sfxPlayAtPosition(arg0->x, arg0->y, arg0->z, arg1, arg2, arg3, arg4, arg5);
@@ -1936,8 +1936,6 @@ void sfxPlayFromActorDirect(Actor *arg0, s16 arg1, u8 arg2, f32 arg3, u8 arg4, u
 
 extern u8 gPlayerCount;
 
-void camGetPathStartPose(s16 *, s16 *, s16 *, s16 *);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 
 #pragma intrinsic(sqrtf)
 
@@ -2030,8 +2028,7 @@ s16 sfxPlayAtPositionPooled(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, s16
     return -1;
 }
 
-u32 randomLcgNext(void);
-void n_alSndpSetPriority(s32, s32);
+u32 randomLcgNext(void); // FAKE: callee prototype steer
 extern s32 D_807457D0[];
 extern u8 D_807457D8;
 extern s32 D_807457E4[];
@@ -2192,7 +2189,6 @@ typedef struct {
     s32 unkC4;
 } SoundContextD580Voice;
 
-void sfxPlayAtPositionForPlayer(f32, f32, f32, s16, u8, u8, u8, u8, f32);
 
 void sfxPlayAtPositionForPlayer(f32 arg0, f32 arg1, f32 arg2, s16 arg3, u8 arg4, u8 arg5, u8 arg6, u8 arg7, f32 arg8) {
     s32 dx;
@@ -2285,12 +2281,6 @@ extern void *D_8076BF38[];
 extern AudioCSeq D_8076BF48[];
 extern u8 D_80770598[];
 
-void *heapAlloc(s32);
-void heapFree(void *);
-void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
-void n_alCSeqNew(void *, void *);
-void resetCSPChannelStates(ALCSPlayer *);
-void seqUpdateVolume(s32);
 
 void seqLoadAndPlay(s32 arg0, u8 arg1, f32 arg2) {
     u32 temp;
@@ -2403,13 +2393,11 @@ void seqSetVolumeInstant(s32 seqIndex, f32 volume) {
 }
 
 extern f32 D_80770588;
-void seqLoadAndPlay(s32, u8, f32);
 
 void seqPlayWithDefaultVolume(s32 seqIndex, u8 seqId) {
     seqLoadAndPlay(seqIndex, seqId, D_80770588);
 }
 
-void seqUpdateUnderwaterAudio(s32);
 void seqLoadAndPlayWithReverb(s32 arg0, u8 arg1, f32 arg2) {
     f64 var_fv0;
     f32 pan, vol;

@@ -1,5 +1,41 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorClearTargetAngle // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_actorListRemoveByActor // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_actorSub140CreateFromModel // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_actorTableBinarySearch // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
+#define PROTO_SKIP_collisionClearFlags // PROTO: Type Actor *  of this argument  is incompatible with type vo
+#define PROTO_SKIP_controllerAnimFree // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_controllerAnimInit // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_controllerStepMotionWindows // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetCallback // FAKE: callee prototype steer
+#include "proto/global/112080.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/127B00.h"
+#include "proto/global/133A90.h"
+#include "proto/global/136820.h"
+#include "proto/global/15050.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/2F550.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/79890.h"
+#include "proto/global/7A510.h"
+#include "proto/global/7BBD0.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/90D80.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
 
 typedef struct ActorPayloadA69C {
     f32 unk0;
@@ -56,25 +92,9 @@ extern ActorCallbackNode *D_807FBFE0[];
 extern s32 D_807FBFF0[];
 extern s16 D_807FC3F0;
 
-void *heapAlloc(s32);
 void controllerStepMotionWindows();
-void actorCheckWorldBounds(Actor *);
 ActorSub140 *actorSub140CreateFromModel(Actor *);
 void collisionClearFlags(Actor *);
-void actorUpdateSubnodeRotationAndMtx(Actor *);
-void actorUpdateMovementFlags(Actor *);
-void actorCollisionCheckBoundingBoxes(Actor *);
-void actorInitDamage(Actor *);
-void func_80677EC8(s32);
-s32 func_80678014(s32);
-s32 actorAllocate();
-void actorDespawn(Actor *);
-s32 actorQueueOrDespawn(Actor *);
-void actorFlushDespawnQueue(void);
-void actorRegisterActive(Actor *);
-void actorDespawnByOwner(s32);
-void actorFreeImmediate(Actor *);
-void actorUpdateSpawnsWrapper(void);
 static void actorStub7CA80_00(void);
 static void actorStub7CA80_01(void);
 static void actorStub7CA80_02(void);
@@ -82,48 +102,9 @@ static void actorStub7CA80_03(void);
 static void actorStub7CA80_04(void);
 static void actorStub7CA80_05(void);
 static void actorStub7CA80_06(void);
-void actorUpdateLightingAndFog(void);
-void actorPreTick(Actor *);
-void actorCheckBoundsAndMotion(Actor *);
-void actorUpdatePeakHeight(Actor *);
-void actorRiderListFree(Actor *);
-void actorRiderListAdd(Actor *, s32);
-s32 actorRiderListContains(Actor *, s32);
-void actorRegisterGlobalCallback(ActorCallbackNode *);
-void actorFreeCallbackList(Actor *);
-void actorCallbackMaskEnable(Actor *, s32);
-void actorCallbackMaskDisable(Actor *, s32);
-void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
-void actorQueueDelayedCallback(s32, s32, s32, u8, s32, void *, s32);
-ActorCallbackNode *actorAllocCallbackNode(s32, s32, u8, s32, void *);
-void actorDispatchCallbacks(Actor *);
-void actorCollisionEventsCancel(s32, u8);
-void actorAppendCallbackPayloadA69C(s32, Actor *, f32, f32, u8, u8);
-void actorAppendCallbackPayloadA70C(s32, Actor *, f32, f32, f32, u8, u8);
-void actorAppendCallback4000(s32, Actor *, s16, f32, s16);
-void actorAppendCallback10(s32, Actor *, f32, f32, f32, s32, u8);
-void actorAppendCallbackS32(s32, Actor *, s32);
-void actorAppendCallbackVec3f(s32, Actor *, f32, f32, f32);
-void actorAppendCallbackVec2f(s32, Actor *, f32, f32);
-void actorAppendCallbackPayloadAAB8(s32, Actor *, s16, f32, s16);
-void actorAppendCallbackPayloadABC0(s32, Actor *, u8, s16, s16, f32, f32, f32);
-void actorGlobalStateClearEvents(void);
-void actorUpdatePrevContactFlags(Actor *);
-u16 actorLookupClass(u16);
-void actorTableClear(void);
 s32 actorTableContains();
 s32 actorTableBinarySearch();
-void playerSetActiveGlobals(Actor *);
-void func_8067B2B0(s32);
-void func_8067B2B8(s32);
-s32 actorInitFloorAttachment(s32);
-s32 actorInitCollisionFromModel(s32);
-s32 actorInitStaticMeshFlag(s32);
-void actorListUpdateSpawns(void);
 void actorListRemoveByActor(void);
-void playerStateDispatchQueuedCallback(void);
-void faultSetMessage(u8, s32, s32, s32);
-void heapFree(void *);
 
 typedef struct Struct807FB630 {
     s16 unk0;
@@ -155,7 +136,6 @@ extern void *gActorScriptAnimTable;
 extern void *gActorScriptSoundTable;
 extern s32 D_807FBB38;
 
-void *assetLoad(s32, u32, u8, u8);
 
 void actorInit(void) {
     u16 i;
@@ -207,7 +187,6 @@ typedef struct ActorSpawnInfo {
     s16 unk1A;
     s32 unk1C;
 } ActorSpawnInfo;
-void actorScriptStart(Actor *, s32);
 extern u8 D_8074D8D4[];
 extern s32 (*D_8074DA30[])(s32 *);
 
@@ -254,9 +233,6 @@ extern u16 D_8074DA58[];
 extern u32 gGlobalOverlayFlags;
 extern u16 D_80748D4A;
 extern u16 D_807FBB3E;
-void heapClearBlock(void *);
-void actorTableInsert(Actor *);
-void actorInitHealth(Actor *);
 
 typedef struct ActorAllocBlock {
     u8 pad0[0x54];
@@ -448,8 +424,6 @@ void actorRegisterActive(Actor *arg0) {
     gActiveActorCount++;
 }
 
-void sfxStopSlotSound(Actor *, u8);
-void func_8062D26C(Actor *);
 void actorDeregisterActive(Actor *arg0) {
     s16 i;
 
@@ -489,13 +463,6 @@ void actorDespawnByOwner(s32 arg0) {
 }
 
 void controllerAnimFree(void);
-void effectFreeByResource(Actor *);
-void pathPlaybackStopForActor(Actor *);
-void actorSub140Free(ActorSub140 *);
-void proxPathRemoveActor(Actor *);
-void resQueueRemove(Actor *);
-void renderCallbacksDisableForActor(Actor *);
-void actorTableRemove();
 typedef struct ActorBufferView {
     /* 0x000 */ s32 unk0;
     /* 0x004 */ u8 pad04[0x54];
@@ -579,9 +546,6 @@ static void actorStub7CA80_04(void) {}
 static void actorStub7CA80_05(void) {}
 static void actorStub7CA80_06(void) {}
 
-void actorUpdateActiveList(u8);
-void actorGlobalCallbacksDispatchAndFree();
-void actorDelayedCallbacksTick(void);
 
 ActorCallbackNode *D_807FBFE0[4];
 
@@ -603,7 +567,6 @@ void actorGlobalCallbacksReset(void) {
 }
 
 extern void (*D_8074C0A0[])(void);
-void actorPostTick(Actor *);
 
 extern u16 D_807FBB3C;
 
@@ -693,12 +656,6 @@ typedef struct ActorUnk156View {
     u8 unk156;
 } ActorUnk156View;
 
-void actorUpdatePositionAndSub140(Actor *);
-void actorUpdateArcBounds(Actor *);
-void actorUpdateModelMatrices(Actor *);
-void actorDispatchCollisionResults(Actor *);
-void actorUpdateEffects(Actor *);
-void animListUpdate(Actor *);
 
 void actorPostTick(Actor *actor) {
     if ((void *)actorInitCollisionFromModel == (void *)D_8074DA30[D_8074D8D4[actor->actorType]]) {
@@ -750,7 +707,6 @@ void actorUpdatePeakHeight(Actor *actor) {
 
 u8 actorClearTargetAngle();
 extern u8 D_807FBC55;
-s32 playerStateQueueCallback(s16, void *, u8);
 extern u8 gCurrentPlayerIndex;
 
 void actorUpdateArcBounds(Actor *actor) {
@@ -972,10 +928,6 @@ extern struct DamageReactionContext *gActivePlayerState;
 extern s32 D_807FBC08;
 extern s32 D_807FBC14;
 
-void actorCollisionProcessHit(Actor *, ActorCallbackNode *);
-void playerHandleDamageReaction(Actor *, Actor *, u8);
-ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *);
-s32 actorCheckPointInAngleArc(Actor *, f32, f32);
 
 typedef struct ActorCollisionHit {
     u8 unk0[0xC];
@@ -1369,14 +1321,8 @@ extern DamageReactionContext *gActivePlayerState;
 
 extern u8 D_807FBB85;
 extern s32 D_80720E2C;
-void effectSpawnBurstParticleCluster(Actor *);
-s32 func_80714608(s32);
-u8 playerIsSmallerThanAttacker(Actor *, Actor *);
-void effectSetDuration(s32);
-void effectSetDepth(s8);
-void effectSetCallback(void *);
+void effectSetCallback(void *); // FAKE: callee prototype steer
 s32 effectCreateAtActorBone(void *, s32, Actor *, s32, s32); // FAKE: callee prototype steer
-void effectPulseSpinUpdate(void);
 void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
     s32 sp3C;
     s32 var_a2;
@@ -1540,10 +1486,6 @@ typedef struct ActorCollisionState {
 
 #define COLLISION_STATE ((ActorCollisionState *)&gActorGlobalState)
 
-s32 actorCollisionGetNodeHitPoint(Actor *, s32, f32 *, f32 *);
-void collisionTransformPointByActorMtx(Actor *, u32, f32 *, f32, f32 *);
-void actorCollisionResolveSurfaceHit(Actor *, Actor *, f32 *, f32 *, s8, s32, s32, u8);
-void playerDropHeldActor(Actor *);
 
 void actorDispatchCollisionResults(Actor *arg0) {
     s32 i;
@@ -1820,7 +1762,6 @@ typedef struct PlayerTableEntry {
 extern PlayerTableEntry *gPlayerSlots;
 extern u8 gPlayerCount;
 
-void actorTableSort(void);
 
 Actor *actorFindByType(u16 arg0) {
     s32 i;

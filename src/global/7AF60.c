@@ -1,5 +1,12 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
+#define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Improper cast of non-scalar type expression.
+#include "proto/global/117190.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7AF60.h"
+#include "proto/global/CEAE0.h"
 
 typedef struct PlayerData {
     u8 pad[0x2C0];
@@ -11,17 +18,8 @@ extern u8 D_807F6902;
 extern u8 gPlayerCount;
 extern PlayerData *gPlayerSlots;
 
-void playerIsSmallerThanAttacker(s32, s32);
-s32 playerCanCollideWithActor(s32);
-s32 func_806767E0();
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
-void actorGetNodePos();
-u8 actorIsFacingTarget();
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 mathAngleDistance(s16, s16);
-s32 actorCheckPlayerProximityVertical();
-s32 actorListContainsId();
-u8 func_80714608();
+s32 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 void actorCheckPlayerSmallerThanAttacker(s32 actor, s32 attacker, s32 unused) {
     playerIsSmallerThanAttacker(actor, attacker);
 }

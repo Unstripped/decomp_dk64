@@ -1,5 +1,8 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/7130.h"
+#include "proto/global/7BA00.h"
+#include "proto/global/EFDC0.h"
 
 typedef struct PlayerData {
     u8 pad[0x2C0];
@@ -9,8 +12,6 @@ typedef struct PlayerData {
 
 extern PlayerData *gPlayerSlots;
 extern Actor *gPrimaryPlayerActor;
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-s32 playerCanTakeHit(Actor*);
 
 void actorTriggerPlayerKnockbackSound(Actor* attacker, Actor* target, s32 unused2, s32 unused3) {
     u8 kong;

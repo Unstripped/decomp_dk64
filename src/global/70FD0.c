@@ -1,5 +1,22 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorAngleInArc // FAKE: callee prototype steer
+#define PROTO_SKIP_actorCheckTargetAngle // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_mathAngleNearestArcPoint // FAKE: callee prototype steer
+#include "proto/boot/30E0.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2F550.h"
+#include "proto/global/36880.h"
+#include "proto/global/5E020.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/79890.h"
+#include "proto/global/7BBD0.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/FE40.h"
 
 typedef struct DynamicBuffer {
     /* 0x00 */ u8 pad0[0x10];
@@ -62,37 +79,7 @@ extern u8 D_807FB546;
 extern u8 D_807FB549;
 extern u8 D_807FB604;
 
-void *heapAlloc(s32);
-void heapFree(void *);
 
-void dynamicBufferPurgeExpired(void);
-void collisionBuildSlotBoxes(s32, s32, f32, f32, f32, f32, f32, f32, f32);
-void collisionTransformNode(s32, s32, f32, f32, f32, f32, f32, f32, f32);
-void dynamicBufferFree(DynamicBuffer *);
-void collisionBufferCacheUpdate(void);
-void collisionPurgeExpiredBuffers(void);
-s32 collisionIsTriangleDegenerate(CollisionTri *);
-s8 collisionTriangleSlopeClass(s16 *);
-s16 collisionTriangleNormalYaw();
-s32 collisionBuildPlane(CollisionBox *);
-void actorSub140Free(ActorSub140 *);
-void actorSetNodeValue(Actor *, s32, u16);
-void actorOrNodeFlags(Actor *, s32, u8);
-void actorClearNodeFlags(Actor *, s32, u8);
-ActorSub140 *actorSub140Alloc(f32, f32, f32, f32, f32, f32, s32, s32, s32);
-void actorFreeModelNodeList(Actor *);
-void actorSetNodeFlag(Actor *, s32);
-void actorClearNodeFlag(Actor *, s32);
-void actorClearAllNodeFlags(Actor *);
-ModelNode *actorGetModelNodeByIndex(Actor *, s32);
-ActorSub140 *actorSetCollisionRadius(Actor *, f32);
-void actorSub140SetVectors(Actor *, f32, f32, f32, f32);
-void actorUpdateModelMatrices(Actor *);
-void actorSub140BuildBoxes(ActorSub140 *);
-s32 collisionBuildBoxFromMatrix(f32 *, CollisionBox *);
-void actorSub140TransformTriangles(ActorSub140 *);
-u8 actorSetTargetAngleAndCheck(s32, s16);
-void actorClearTargetAngle(void);
 u8 actorCheckTargetAngle();
 
 typedef struct ModelSlotAsset {
@@ -124,8 +111,6 @@ typedef struct ModelSlot {
 extern u8 gGfxBufferIndex;
 extern ModelSlot *gModelSlots;
 
-void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, s32 *, u8);
-void modelBuildBoneChainMatrix();
 
 typedef struct ModelCollisionAsset {
     /* 0x00 */ u8 pad0[0x20];
@@ -151,7 +136,6 @@ typedef struct CollisionSlotBuffer {
 
 #define MODEL_COLLISION_ASSET ((ModelCollisionAsset *)arg1)
 
-s32 collisionTransformTriangle(u8 *, u8 *, f32 (*)[4]);
 
 void collisionBuildSlotBoxes(s32 arg0, s32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
     s32 off;
@@ -319,11 +303,6 @@ typedef struct CollisionStaticCellEntry {
 extern s32 gCurrentMap;
 extern s32 D_807FB530;
 
-void *assetLoad(s32, u32, u8, u8);
-s32 assetGetSize(s32, s32);
-void assetSetImmediateFree(void);
-void assetFreeBuffer(void *, s32, s32);
-void gunzip(void *, void *, void *);
 
 void collisionInitStaticCache(CollisionStaticHeader *arg0) {
     u8 *var_s0;
@@ -395,8 +374,6 @@ typedef struct CollisionStaticCellView {
 
 #define COLLISION_STATIC_CELLS ((CollisionStaticCellView *)D_807FB534)
 
-void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
-s32 collisionBuildStaticTri(void *, void *);
 
 void collisionLoadStaticCell(s32 arg0) {
     s32 sp54;
@@ -430,7 +407,6 @@ void collisionLoadStaticCell(s32 arg0) {
 extern s32 D_80747D70;
 extern s16 D_80748E40;
 
-void modelSlotTriBufferRelease(ModelSlotTriBuffer *);
 
 void modelSlotExpireNextBuffers(void) {
     DynamicBuffer *a0;
@@ -576,7 +552,6 @@ s32 collisionIsTriangleDegenerate(CollisionTri *arg0) {
     return 0;
 }
 
-f32 mathAtan2(f32, f32);
 
 s8 collisionTriangleSlopeClass(s16 *a) {
     f32 v2[3];
@@ -1649,13 +1624,6 @@ extern u8 D_807FB605;
 extern u8 D_807FB606;
 
 void func_80672E90(s32, s32, s32);
-void actorSetCameraBoundaryMode(s32);
-void actorCollisionCheckNodeSpheres(CollisionActor *);
-s32 actorCheckTargetAngleBounds();
-u8 actorCollideModelSlots(CollisionActor *, s16 *, s16 *);
-u8 actorCheckCollisionsAgainstActiveActors(CollisionActor *, s32, s32);
-void actorQueueCollisionCallbacks(CollisionActor *);
-void actorQueueDelayedCallback();
 
 u8 actorCheckTargetAngle(CollisionActor *arg0, s16 *arg1, s16 *arg2, s8 *arg3) {
     s32 pad;
@@ -1729,12 +1697,8 @@ typedef struct ActorSphereNodeHit {
 } ActorSphereNodeHit;
 
 struct ActorTargetWork;
-void actorUpdateSubActorOffsets(struct ActorTargetWork *, u8);
-void actorUpdateCollisionSpheres();
-void actorBuildCollisionHit();
 s32 collisionSpheresOverlap(s32, s32, s32, s32, s32, s32, s32, s32);
 s32 func_80673708(s32, s32, s32, s32, s32, s32, s16 *, s16 *);
-s32 func_806D0964(s32, u8);
 extern u8 D_807FB548;
 extern u8 D_807FB5FD;
 extern u8 D_807FB5FF;
@@ -1861,13 +1825,8 @@ extern s32 D_807FB5C8;
 extern s32 D_807FB5CC;
 extern s32 D_807FB5D0;
 extern CollisionBox *D_807FB5D8;
-s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
-void modelSlotBuildTransformMatrix(s16, s8, f32 [4][4]);
-void func_8066FE08();
 struct ActorFacingWork;
 s32 func_806744A8(struct ActorFacingWork *, s32, s32, s32, s32);
-void actorReflectCollisionAngle(CollisionActor *, CollisionPlane *, CollisionVec3i *);
-s32 actorGetCollisionThreshold(CollisionActor *);
 
 void actorBuildCollisionHit(arg0, arg1, arg2)
 s32 arg0;
@@ -2003,7 +1962,6 @@ typedef struct ModelSlotHitRecord {
 extern Actor *gCurrentActor;
 f32 sinApprox(f32);
 f32 cosApprox(f32);
-s32 camDistance3D(s32, s32, s32, s32, s32, s32);
 
 void func_8066FE08(s32 arg0) {
     s16 var_v1;
@@ -2214,14 +2172,9 @@ typedef struct ActorHitRecord {
 
 extern u8 D_807FB603;
 extern ActorHitRecord D_807FD614[];
-s32 hashTableLookup();
 s32 func_806738D0(s32, s32, s32, s32, s32, s32);
-u8 playerFindIndexByActor(Actor *);
-void actorSetTargetAngleBounds();
 struct ActorPlaneContactView;
 struct ActorHitPlane;
-void actorCalcPlaneContactPoint(struct ActorPlaneContactView *, s16, struct ActorHitPlane *);
-s32 actorCheckPointInAngleArc(Actor *, f32, f32);
 
 s32 actorResolveModelSlotCollision(arg0)
 Actor *arg0;
@@ -2559,8 +2512,6 @@ typedef struct ActorTargetWork {
 
 u8 func_806730A4(s32, s32, s32, s32);
 s32 func_806734E4();
-void actorUpdateCollisionExtents(ActorTargetWork *);
-s32 actorGetPlayerThreshold(ActorTargetWork *);
 s32 actorCheckTargetAngleBounds(ActorTargetWork *arg0, s32 arg1, s32 arg2) {
     s32 pad0;
     s32 pad1;
@@ -2623,13 +2574,10 @@ extern PlayerContext *gActivePlayerState;
 extern s32 D_807FB5DC;
 extern s16 D_807FB5F6;
 
-s32 mathAngleDistance(s16, s16);
 s32 func_806744A8(ActorFacingWork *, s32, s32, s32, s32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 s32 func_806732A8(s32, s16);
-void actorUpdateSubActorOffsets(ActorTargetWork *, u8);
-void actorComputeBoxNormal(ActorTargetWork *, f32 *, f32 *, f32 *, s32);
 
 void actorUpdateFacingAndOffset(ActorFacingWork *arg0, s32 arg1, s32 arg2, s32 arg3) {
     s16 sp36;
@@ -3023,7 +2971,6 @@ s32 actorStepSubNodeList(ActorTargetWork *arg0, s32 arg1) {
     return (((u32)node->unk18 >> 6) << 6) + base;
 }
 
-u8 collisionTestSphereSlots(f32, f32, f32, f32, s16 *, s16 *);
 
 s32 collisionTestSphere(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s16 *arg5, u8 arg6, u16 arg7) {
     u8 ret;
@@ -3106,7 +3053,6 @@ u8 collisionTestSphereSlots(f32 arg0, f32 arg1, f32 arg2, f32 arg3, s16 *arg4, s
     return var_fp;
 }
 
-s16 mathAngleArcMidpoint();
 
 s16 func_80672134(arg0, arg1, arg2, arg3)
 s16 arg0;
@@ -3174,7 +3120,7 @@ typedef struct ActorPosXZView {
 } ActorPosXZView;
 
 s32 mathAsinFixed(s32);
-s32 actorAngleInArc(Actor *, s16);
+s32 actorAngleInArc(Actor *, s16); // FAKE: callee prototype steer
 
 s32 actorCheckPointInAngleArc(Actor *arg0, f32 arg1, f32 arg2) {
     s32 sp28;
@@ -3234,7 +3180,6 @@ typedef struct ActorMotionSub174 {
 } ActorMotionSub174;
 
 
-void mathAngleClampToArc();
 
 s32 actorAngleInArc(arg0, arg1)
 Actor *arg0;
@@ -3245,7 +3190,6 @@ s16 arg1;
     mathAngleClampToArc(sp24[0], arg1, arg0->arcYawMin, arg0->arcYawMax, &sp24[1]);
 }
 
-s32 mathAngleClampToArcWithMargin();
 
 void mathAngleInArcWithMargin(arg0, arg1, arg2, arg3)
 s16 arg0;
@@ -3278,7 +3222,7 @@ s16 *arg4;
     mathAngleClampToArcWithMargin(arg0, arg1, arg2, arg3, arg4, 10);
 }
 
-s16 mathAngleNearestArcPoint(s16, s16, s16);
+s16 mathAngleNearestArcPoint(s16, s16, s16); // FAKE: callee prototype steer
 
 s32 mathAngleClampToArcWithMargin(arg0, arg1, arg2, arg3, arg4, arg5)
 s32 arg0;
@@ -3426,7 +3370,6 @@ void actorTouchSub140Timestamp(Actor *actor) {
     }
 }
 
-s32 actorResolveModelSlotCollision();
 
 void actorUpdateMovementFlags(Actor *arg0) {
     ActorMotionSub140 *temp_v0;
@@ -3547,7 +3490,6 @@ s32 actorCheckCameraBoundaryCondition(s8 arg0) {
 
 static void actorBoundaryStub(void) {
 }
-s32 randomLcgNext(void);
 
 s32 actorRng(void) {
     return randomLcgNext();

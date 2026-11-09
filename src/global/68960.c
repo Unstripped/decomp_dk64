@@ -1,5 +1,7 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/201B0.h"
+#include "proto/global/68960.h"
 
 
 typedef struct MapFogEntry {
@@ -11,7 +13,6 @@ typedef struct MapFogEntry {
 
 extern MapFogEntry D_80748B70[];
 extern s32 gCurrentMap;
-s32 camIsFollowingActive(void);
 
 void mapUpdateFogDistance(f32 *pDist, s16 characterId) {
     s16 limit = 6;
