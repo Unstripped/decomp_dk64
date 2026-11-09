@@ -104,7 +104,7 @@ typedef struct {
     s8 unk19;
 } MenuSubStruct_180;
 
-typedef struct {
+typedef struct MenuRenderActor {
     char pad0[0x60];
     s32 unk60;
     char pad64[0xF0];

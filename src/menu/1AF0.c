@@ -1,7 +1,7 @@
 #include "common.h"
 u8 flagGet(s16, u8);
 
-typedef struct {
+typedef struct Struct_80025D14 {
     char pad0[4];
     s16 unk4;
     char pad6[4];
@@ -35,7 +35,7 @@ s32 menuCheckBitgridOtherSlots(Struct_80025D14 *state, s32 bitOffset) {
 
 #pragma GLOBAL_ASM("asm/menu/nonmatchings/1AF0/D_80033A78.s")
 
-typedef struct {
+typedef struct MenuShopPromptActor {
     char pad0[0x15F];
     u8 unk15F;
     char pad160[0x178 - 0x160];
