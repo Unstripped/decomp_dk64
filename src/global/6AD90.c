@@ -171,11 +171,6 @@ u8 collisionGetStateByte(void) {
     return D_807F951D;
 }
 
-// Actor field include/actor.h types as u8[4] (header request pending).
-typedef struct CollisionQueryActor {
-    /* 0x00 */ u8 pad0[0xA8];
-    /* 0xA8 */ f32 unkA8;
-} CollisionQueryActor;
 
 extern f32 D_807F9460;
 extern u8 D_807F9464;
@@ -256,7 +251,7 @@ s32 collisionFindFloorAtPoint(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, u8 *arg
     meshY = arg2;
     meshHit = collisionTestSubmeshBoundary(arg1, arg3, &meshY, arg0);
     if ((meshHit != 0) && (arg0 != NULL)) {
-        ((CollisionQueryActor *)arg0)->unkA8 = meshY;
+        arg0->unkA8 = meshY;
         arg0->floorSurfaceType = D_807F949E[0];
     }
     if (D_807F94B4 != 2) {

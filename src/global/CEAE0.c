@@ -423,7 +423,7 @@ void playerUpdateCommon(s32 mode) {
         gCurrentActor->flags &= 0xFFBFFFFF;
     }
     gCurrentActor->flags &= 0xF7FFFFFF;
-    PLAYER_SLOT(gCurrentPlayerIndex).unk28C = gPlayerSlots[gCurrentPlayerIndex].fov;
+    gPlayerSlots[gCurrentPlayerIndex].prevFov = gPlayerSlots[gCurrentPlayerIndex].fov;
     if (gCurrentActor->renderFlags & 0x100) {
         gActivePlayerState->lastFrame = gGameFrameCounter;
     }
@@ -612,7 +612,7 @@ done:
         }
     }
     actorGetNodePos(gActivePlayerActor, 6, &PLAYER_SLOT(gCurrentPlayerIndex).unk2B4, &PLAYER_SLOT(gCurrentPlayerIndex).unk2B8, &PLAYER_SLOT(gCurrentPlayerIndex).unk2BC);
-    camProjectToScreen(gActivePlayerActor->x, PLAYER_SLOT(gCurrentPlayerIndex).unk2B8, gActivePlayerActor->z, &screenX, &screenY, NULL, 1.0f, gCurrentPlayerIndex);
+    camProjectToScreen(gActivePlayerActor->x, gPlayerSlots[gCurrentPlayerIndex].headY, gActivePlayerActor->z, &screenX, &screenY, NULL, 1.0f, gCurrentPlayerIndex);
     gActivePlayerState->targetPitch = screenX;
     gActivePlayerState->targetRoll = screenY;
     camProjectToScreen(gActivePlayerActor->x, gActivePlayerActor->y, gActivePlayerActor->z, &screenX, &screenY, NULL, 1.0f, gCurrentPlayerIndex);
