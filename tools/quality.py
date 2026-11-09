@@ -35,10 +35,13 @@ Ladder (required fresh methods per kind; first missing = next):
   proto-steer implicit-steer     consolidate diagnose
   goto                           goto-hand kept, or goto-hand permute
   proto-type                     never exhausted (its function ignores it after a fresh `views` blocked)
-Satisfied by the method's newest event when fresh and not `blocked`; a fresh `hit` means next=apply.
-Fresh: remove/plain/cond/classify/consolidate/views/names need equal fp_local and fp_hdr;
-diagnose/permute/reconstruct/goto-hand/review need equal fp_local and no knowledge/ido file
-committed after the event that names the function or is a top-8 hit for the event's note.
+Satisfied by the method's newest event (by time) when fresh and not `blocked`; a fresh `hit` means
+next=apply.
+Fresh: remove/plain/cond/classify/consolidate/views/names need equal fp_local and fp_hdr2 (hash of
+the include/ declarations, types and macros the function reaches; events without it: the whole
+header fp_hdr); diagnose/permute/reconstruct/goto-hand/review need equal fp_local and no
+knowledge/ido file committed after the event that names the function or is a top-8 hit for the
+free text of the event's note (key=value tokens and carry prefixes stripped).
 A function is EXHAUSTED with a fresh `review`, every site exhausted, and (3+ non-kept sites) a
 fresh function-level `reconstruct`; without a fresh review it is OPEN next=review.
 
@@ -382,6 +385,7 @@ def text_metrics(text):
 
 def analyze(path, seg, text=None, uninit=False, src=None):
     """dict(path, seg, fp_hdr, functions=[dict(name, static, line, end, seg, vram, fp_local, fp_hdr,
+    fp_hdr2 (`Scope.fp_hdr2`: only the include/ declarations the function reaches),
     metrics, int_locals, sites=[dict(key, kind, line, lines, tagged, code, name)])], unresolved,
     uninit=[(func, var, line)], text=text metrics, errors) of one C file (TEXT: its content, e.g. at a
     rev; SRC: the src file PATH is a copy of, for function identity)."""
@@ -404,6 +408,7 @@ def analyze(path, seg, text=None, uninit=False, src=None):
     inside = {i: k for k, d in enumerate(defs) for i in range(d["line"] - 1, d["end"])}
     top = "\n".join(l for i, l in enumerate(lines) if i not in inside)
     hdr = fp_hdr(text, os.path.dirname(path))
+    scope, by_line = Scope(tu), idents_by_line(file_tokens(tu, path))
     raw, park, paired = collections.defaultdict(list), parked_lines(lines), set()
     for i, l in enumerate(lines):
         if ("// FAKE" not in l and "// PROTO:" not in l) or i in park or i in paired:
@@ -429,6 +434,7 @@ def analyze(path, seg, text=None, uninit=False, src=None):
             unresolved.append(d["name"])
         d["fp_local"] = ledger.sha1("\n".join(lines[d["line"] - 1:d["end"]]) + "\0" + top)[:16]
         d["fp_hdr"] = hdr
+        d["fp_hdr2"] = scope.fp_hdr2(body_names(by_line, d))
         seen = collections.Counter()
         for idx, kind, tagged in sorted(raw[k], key=lambda r: (r[0][0], not r[2])):
             h = ledger.sha1(norm(lines[j] for j in idx))[:6]
@@ -491,7 +497,8 @@ def event(unit, agent, fn, site, method, outcome, quirks=(), seconds=None, base=
     return {"type": "quality", "t": ledger.now(), "unit": unit, "agent": agent, "seg": fn["seg"],
             "vram": f"{fn['vram']:08X}", "name": fn["name"], "file": fn["file"],
             "site": site["key"] if site else None, "kind": site["kind"] if site else None, "method": method,
-            "outcome": outcome, "fp_local": fn["fp_local"], "fp_hdr": fn["fp_hdr"], "quirks": list(quirks),
+            "outcome": outcome, "fp_local": fn["fp_local"], "fp_hdr": fn["fp_hdr"],
+            "fp_hdr2": fn.get("fp_hdr2"), "quirks": list(quirks),
             "seconds": seconds, "base": base, "best": best, "commit": commit, "note": note}
 
 
@@ -499,12 +506,13 @@ _know = {}
 
 
 KV_TOKEN = re.compile(r"\b\w+=\S*")
+CARRIED = re.compile(r"carried from \S+ \([^)]*\):?")
 
 
 def note_text(note):
     """NOTE without its structured `key=value` tokens (review checklist `fake=0/0 ... uninit=0`,
-    `quirks=`/`seconds=`/`base=`/`best=`), or None when nothing else is left."""
-    rest = KV_TOKEN.sub(" ", note or "")
+    `quirks=`/`seconds=`/`base=`/`best=`) and `carry` prefixes, or None when nothing else is left."""
+    rest = KV_TOKEN.sub(" ", CARRIED.sub(" ", note or ""))
     return rest.strip() if re.search(r"\w", rest) else None
 
 
@@ -524,11 +532,20 @@ def knowledge_after(name, note, t):
     return any((_know["times"].get(p) or "") > t for p in _know[key])
 
 
+def hdr_fresh(e, now_fp):
+    """Header part of an automatic method's freshness: the event's per-function `fp_hdr2` when
+    both sides have one, else the whole-header `fp_hdr` (events recorded before fp_hdr2)."""
+    if e.get("fp_hdr2") is not None and len(now_fp) > 2 and now_fp[2] is not None:
+        return e["fp_hdr2"] == now_fp[2]
+    return e["fp_hdr"] == now_fp[1]
+
+
 def fresh(e, now_fp, name):
+    """NOW_FP = (fp_local, fp_hdr[, fp_hdr2])."""
     if e["fp_local"] != now_fp[0]:
         return False
     if e["method"] in AUTO:
-        return e["fp_hdr"] == now_fp[1]
+        return hdr_fresh(e, now_fp)
     return not knowledge_after(name or e["name"], e["note"], e["t"])
 
 
@@ -575,7 +592,7 @@ def exhausted(site, events, now_fp):
 
 def function_state(fn, by_site, by_func):
     """dict(done, next, review, reconstruct, sites=[(site, ladder)], open=[(site, ladder)], waived)."""
-    fp, name = (fn["fp_local"], fn["fp_hdr"]), fn["name"]
+    fp, name = (fn["fp_local"], fn["fp_hdr"], fn.get("fp_hdr2")), fn["name"]
     fevs = by_func.get((fn["seg"], f"{fn['vram']:08X}"), [])
     review = mark(fevs, "review", fp, name)[0]
     _, ve, vf = mark(fevs, "views", fp, name)
@@ -1128,31 +1145,69 @@ def decl_tokens(c):
     return [t for t in c.get_tokens() if t.kind != TokenKind.COMMENT and (stop is None or t.extent.start.offset < stop)]
 
 
-def scope_closure(idx, toks):
-    """name -> sorted (file, text) of every top-level declaration TOKS name, transitively through
-    the declarations' own tokens (types, fields' types, macros, prototypes). Name-based, so it
-    over-includes (a local shadowing a global name pulls the global in), never under-includes."""
-    seen, stack = {}, [t.spelling for t in toks if t.kind == TokenKind.IDENTIFIER]
-    while stack:
-        name = stack.pop()
-        if name in seen or name not in idx:
-            continue
-        vals = []
-        for c in idx[name]:
-            dt = decl_tokens(c)
-            vals.append((rel(os.path.join(ROOT, c.location.file.name)), " ".join(t.spelling for t in dt)))
-            stack += [t.spelling for t in dt if t.kind == TokenKind.IDENTIFIER]
-        seen[name] = sorted(set(vals))
-    return seen
+class Scope:
+    """Name reachability over one TU's top-level declarations (`top_index`), memoized per name."""
+
+    def __init__(self, tu):
+        self.idx, self.memo = top_index(tu), {}
+
+    def direct(self, name):
+        """(sorted (file, text) of NAME's top-level declarations, identifiers their tokens name)."""
+        if name not in self.memo:
+            vals, names = set(), set()
+            for c in self.idx[name]:
+                dt = decl_tokens(c)
+                vals.add((rel(os.path.join(ROOT, c.location.file.name)), " ".join(t.spelling for t in dt)))
+                names.update(t.spelling for t in dt if t.kind == TokenKind.IDENTIFIER)
+            self.memo[name] = (sorted(vals), names)
+        return self.memo[name]
+
+    def closure(self, names):
+        """name -> sorted (file, text) of every top-level declaration NAMES reach, transitively
+        through the declarations' own tokens (types, fields' types, macros, prototypes). Name-based,
+        so it over-includes (a local shadowing a global name pulls the global in), never
+        under-includes."""
+        seen, stack = {}, list(names)
+        while stack:
+            name = stack.pop()
+            if name in seen or name not in self.idx:
+                continue
+            seen[name], more = self.direct(name)
+            stack += [n for n in more if n not in seen]
+        return seen
+
+    def fp_hdr2(self, names):
+        """sha1 of the include/ declarations NAMES reach: a function's own header fingerprint
+        (a regenerated proto header or an edited struct changes it only for its users)."""
+        inc = "include" + os.sep
+        h = hashlib.sha1()
+        for name, vals in sorted(self.closure(names).items()):
+            for f, text in vals:
+                if f.startswith(inc):
+                    h.update(f"{name}\0{f}\0{text}\0".encode("utf-8", "replace"))
+        return h.hexdigest()[:16]
 
 
-def scope_equivalent(old_body, new_body, old_idx, new_idx):
+def idents_by_line(toks):
+    """line -> identifier spellings of TOKS (one pass: token locations are slow to read)."""
+    out = collections.defaultdict(list)
+    for t in toks:
+        if t.kind == TokenKind.IDENTIFIER:
+            out[t.location.line].append(t.spelling)
+    return out
+
+
+def body_names(by_line, fn):
+    return [n for i in range(fn["line"], fn["end"] + 1) for n in by_line.get(i, ())]
+
+
+def scope_equivalent(old_body, new_body, old_names, new_names, old_scope, new_scope):
     """Whether a function is unchanged apart from file-scope text it does not use: same body tokens,
-    and every top-level declaration, typedef, record, enum or macro it reaches (`scope_closure`)
+    and every top-level declaration, typedef, record, enum or macro it reaches (`Scope.closure`)
     has the same text in both versions. Callers parse both versions against the current headers."""
     if [(t.kind, t.spelling) for t in old_body] != [(t.kind, t.spelling) for t in new_body]:
         return False
-    return scope_closure(old_idx, old_body) == scope_closure(new_idx, new_body)
+    return old_scope.closure(old_names) == new_scope.closure(new_names)
 
 
 def cmd_carry(a):
@@ -1174,8 +1229,10 @@ def cmd_carry(a):
             continue
         full = os.path.join(ROOT, path)
         otu, ntu = clint.parse(path, unsaved=[(full, old_text)]), clint.parse(path, unsaved=[(full, new_text)])
-        otoks, ntoks = file_tokens(otu, path), file_tokens(ntu, path)
-        oidx, nidx = top_index(otu), top_index(ntu)
+        otoks = [(t.location.line, t) for t in file_tokens(otu, path)]
+        ntoks = [(t.location.line, t) for t in file_tokens(ntu, path)]
+        oscope, nscope = Scope(otu), Scope(ntu)
+        onames, nnames = idents_by_line(t for _, t in otoks), idents_by_line(t for _, t in ntoks)
         for fo, fn in zip(old["functions"], new["functions"]):
             if fn["vram"] is None or fo["vram"] not in (None, fn["vram"]):
                 skipped.append(f"{path}: {fn['name']}: identity changed")
@@ -1187,15 +1244,15 @@ def cmd_carry(a):
             ln = carry_lines(new["functions"], fn, new_text.count("\n") + 1)
             how = "identifier renames only"
             if not sites_match or not rename_equivalent(
-                    [t for t in otoks if t.location.line in lo], [t for t in ntoks if t.location.line in ln],
+                    [t for i, t in otoks if i in lo], [t for i, t in ntoks if i in ln],
                     lambda n: sym_addr(seg, n, a.rev), lambda n: sym_addr(seg, n, None)):
                 how = "unrelated file-scope changes only"
                 if not sites_match:
                     skipped.append(f"{path}: {fn['name']}: sites changed")
                     continue
-                if not scope_equivalent([t for t in otoks if fo["line"] <= t.location.line <= fo["end"]],
-                                        [t for t in ntoks if fn["line"] <= t.location.line <= fn["end"]],
-                                        oidx, nidx):
+                if not scope_equivalent([t for i, t in otoks if fo["line"] <= i <= fo["end"]],
+                                        [t for i, t in ntoks if fn["line"] <= i <= fn["end"]],
+                                        body_names(onames, fo), body_names(nnames, fn), oscope, nscope):
                     skipped.append(f"{path}: {fn['name']}: not a pure rename; body or a declaration it uses changed")
                     continue
             vram = f"{fn['vram']:08X}"
@@ -1203,14 +1260,16 @@ def cmd_carry(a):
             for okey, nsite in keys:
                 evs = by_func[(seg, vram)] if okey is None else by_site.get(okey, [])
                 newest = {}
-                for e in evs:
-                    if e["fp_local"] == fo["fp_local"] and (e["method"] not in AUTO or e["fp_hdr"] == fo["fp_hdr"]):
-                        newest[e["method"]] = e
+                ofp = (fo["fp_local"], fo["fp_hdr"], fo.get("fp_hdr2"))
+                for e in evs:  # newest by time, as `mark` reads them (carried events keep their `t`)
+                    if e["fp_local"] == fo["fp_local"] and (e["method"] not in AUTO or hdr_fresh(e, ofp)):
+                        if e["method"] not in newest or e["t"] >= newest[e["method"]]["t"]:
+                            newest[e["method"]] = e
                 for e in newest.values():
                     if e["method"] in AUTO and fo["fp_hdr"] != fn["fp_hdr"] and how == "identifier renames only":
                         continue  # headers changed too and were not compared: automatic results stay stale
                     c = dict(e, unit=a.unit, agent="carry", name=fn["name"], file=path, fp_local=fn["fp_local"],
-                             fp_hdr=fn["fp_hdr"], site=nsite["key"] if nsite else None,
+                             fp_hdr=fn["fp_hdr"], fp_hdr2=fn.get("fp_hdr2"), site=nsite["key"] if nsite else None,
                              note=f"carried from {a.rev} ({how})"
                              + (f": {e['note']}" if e["note"] else ""))
                     out.append(c)

@@ -22,7 +22,7 @@ def ev(site, method, outcome, fp=FP, note=None, **kw):
     e = dict(type="quality", t="2026-01-01T00:00:00Z", unit="u", agent="a", seg="global", vram="80600000",
              name="f", file="src/global/x.c", site=site["key"] if site else None,
              kind=site["kind"] if site else None, method=method, outcome=outcome, fp_local=fp[0], fp_hdr=fp[1],
-             quirks=[], seconds=None, base=None, best=None, commit=None, note=note)
+             fp_hdr2=None, quirks=[], seconds=None, base=None, best=None, commit=None, note=note)
     e.update(kw)
     return e
 
@@ -298,3 +298,74 @@ def test_newest_by_time_wins_over_carried_older_event():
     carried = ev(SITE, "diagnose", "blocked", t="2026-01-01T00:00:00Z", agent="carry")
     state, e, ok = q.mark([fresh, carried], "diagnose", FP, "f")
     assert e is fresh and (state, ok) == ("✓", True)
+
+
+def test_per_function_header_fingerprint(tmp_path, monkeypatch):
+    root = tmp_path.resolve()
+    (root / "src" / "global").mkdir(parents=True)
+    (root / "include" / "proto" / "global").mkdir(parents=True)
+    monkeypatch.chdir(root)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(root))
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: {"f": 0x80600000, "h": 0x80600100}[name])
+    s_h, p_h = root / "include" / "s.h", root / "include" / "proto" / "global" / "p.h"
+    s_h.write_text("typedef struct S { int a; int b; } S;\n")
+    p_h.write_text("void g(int);\nvoid k(int);\n")
+    (root / "src" / "global" / "x.c").write_text(
+        '#include "s.h"\n#include "proto/global/p.h"\n'
+        "int f(S *p) {\n    return p->a;\n}\n"
+        "int h(int x) {\n    g(x);\n    return x;\n}\n")
+
+    def state():
+        monkeypatch.setattr(q, "_htext", {})
+        fns = {fn["name"]: dict(fn, file="src/global/x.c") for fn in q.analyze("src/global/x.c", "global")["functions"]}
+        return fns, {n: (fn["fp_local"], fn["fp_hdr"], fn["fp_hdr2"]) for n, fn in fns.items()}
+
+    fns, fp0 = state()
+    plain = {n: q.event("u", "sweep", fn, None, "plain", "nohit") for n, fn in fns.items()}
+    p_h.write_text("void g(int);\nvoid k(short);\n")  # regenerated proto: k is called by nobody
+    _, fp1 = state()
+    assert fp1["f"][1] != fp0["f"][1]  # whole-header fingerprint moved for everyone
+    assert q.fresh(plain["f"], fp1["f"], "f") and q.fresh(plain["h"], fp1["h"], "h")
+    s_h.write_text("typedef struct S { short a; int b; } S;\n")  # f's struct changed
+    _, fp2 = state()
+    assert not q.fresh(plain["f"], fp2["f"], "f")
+    assert q.fresh(plain["h"], fp2["h"], "h")
+    old = dict(plain["h"], fp_hdr2=None)  # an event from before fp_hdr2: whole-header rule
+    assert not q.fresh(old, fp2["h"], "h")
+
+
+def test_note_text_strips_carry_prefixes():
+    assert q.note_text("carried from abc^ (unrelated file-scope changes only): carried from def (identifier "
+                       "renames only): " + REVIEW) is None
+    assert q.note_text("carried from abc^ (identifier renames only): regalloc swap") == "regalloc swap"
+
+
+def test_carry_takes_newest_event_by_time(tmp_path, monkeypatch):
+    repo = tmp_path.resolve() / "repo"
+    (repo / "src" / "global").mkdir(parents=True)
+    monkeypatch.chdir(repo)
+    for mod in (q, q.clint, q.ledger):
+        monkeypatch.setattr(mod, "ROOT", str(repo))
+    monkeypatch.setattr(q, "LEDGER", str(tmp_path / "quality.jsonl"))
+    monkeypatch.setattr(q, "_know", {})
+    monkeypatch.setattr(q, "_symtext", {})
+    monkeypatch.setattr(q, "resolve_vram", lambda seg, name, src: 0x80600000)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "t@example.com")
+    _git(repo, "config", "user.name", "t")
+    src = repo / "src" / "global" / "x.c"
+    body = "int f(int x) {\n    return x + 1;\n}\n"
+    src.write_text("typedef struct { int c; } ViewC;\n" + body)
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "a")
+    rev_a = _git(repo, "rev-parse", "HEAD")
+    fn = dict(q.analyze("src/global/x.c", "global")["functions"][0], file="src/global/x.c")
+    agent = dict(q.event("u1", "a", fn, None, "review", "nohit", note=REVIEW), t="2026-01-02T00:00:00Z")
+    older = dict(agent, agent="carry", t="2026-01-01T00:00:00Z")  # an older carried event, later in file
+    q.append_events([agent, older])
+    src.write_text(body)  # ViewC deleted
+    _git(repo, "commit", "-qam", "b")
+    q.main(["carry", "--rev", rev_a, "--unit", "u2"])
+    carried = [e for e in q.load_events() if e.get("unit") == "u2" and e.get("type") == "quality"]
+    assert [e["t"] for e in carried] == ["2026-01-02T00:00:00Z"]

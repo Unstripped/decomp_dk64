@@ -62,14 +62,18 @@ A function with 3+ non-kept sites also needs a fresh function-level `reconstruct
 ## Freshness
 
 - `remove`, `plain`, `cond`, `classify`, `consolidate`, `views`, `names`: fresh while the
-  function's `fp_local` (its source extent + the file's top-level non-function text) and `fp_hdr`
-  (every `include/` header the file includes, transitively) equal the current values.
+  function's `fp_local` (its source extent + the file's top-level non-function text) and `fp_hdr2`
+  (only the `include/` declarations, types and macros the function reaches, so a regenerated
+  proto header or an edited struct stales only their users; events from before it fall back to
+  `fp_hdr`, every included header) equal the current values.
 - `diagnose`, `permute`, `reconstruct`, `goto-hand`, `review`: fresh while `fp_local` is equal
   and no `knowledge/ido` file committed after the event names the function or is among the top
   8 hits for the event's note (its free text only: `key=value` tokens such as the review
-  checklist or `quirks=` are stripped; a note of only such tokens gets the name check alone).
-- A method counts through its newest fresh event unless that is `blocked`. A fresh `hit` makes
-  the site OPEN `next=apply` (the sweep found a match nobody merged yet).
+  checklist or `quirks=`, and `carried from ...` prefixes, are stripped; a note of only such
+  tokens gets the name check alone).
+- A method counts through its newest event by time (carried events keep their original time) if
+  that is fresh and not `blocked`. A fresh `hit` makes the site OPEN `next=apply` (the sweep found
+  a match nobody merged yet).
 
 ## Function state
 
