@@ -580,9 +580,9 @@ s32 gridAdjustActorCollisionType(s32 arg0, s32 arg1, u8 arg2) {
     return arg0;
 }
 
-void camStartPath(Actor *, s32, s32);
-s32 flagGet(s32, s32);
-void flagSet(s32, s32, s32);
+u16 camStartPath(void *, s16, u8);
+u8 flagGet(s16, u8);
+void flagSet(s16, u8, u8);
 
 void cutsceneStartFlag16CPath(void) {
     if (flagGet(0x16C, 0) == 0) {
@@ -591,12 +591,12 @@ void cutsceneStartFlag16CPath(void) {
     }
 }
 
-s32 mapGetHubWorldIndex(u8, s32);
-s32 flagGridIndex(s32, s32, u8);
+u8 mapGetHubWorldIndex(u8, u8);
+s32 flagGridIndex(s32, s32, s32);
 s32 func_806C9974(u8, s8);
 void eepromSavePlayerData(void);
 void slotQueueAddValue(s32, u8, s32);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 extern s8 D_80029FA0;
 extern s8 D_80753EF2[];
 extern u8 gCurrentWorldId;
@@ -913,7 +913,7 @@ extern s32 camDistance3D(s32, s32, s32, s32, s32, s32);
 extern s32 func_8063C2A8(s16);
 extern s32 gridCheckNodeCondition(s16, u8, u16);
 extern void modelSlotFreeNestedBuffer(s32, u8);
-extern s32 mapGetHubWorldIndex(u8, s32);
+extern u8 mapGetHubWorldIndex(u8, u8);
 extern void func_8060E430(u16, u8, u8);
 extern void func_806F58A0(u8, s16, F9N2At58 *);
 extern void func_806F5A48(u8, s16, F9N2At58 *, u16);
@@ -1150,7 +1150,7 @@ void effectSpawnRandomSpread(f32, f32, f32, f32, f32, s32);
 void modelSlotTransformBoundsAndNodes(s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8, u8);
 void func_806398E4(s32, u8, u8);
 void slotQueueGetPosition(s32, f32 *, f32 *, f32 *);
-void slotQueueUpdate(s32, s32, s32);
+void slotQueueUpdate(s32, u8, s32);
 s16 csModelSlotGetTableIndex(s16);
 void func_807314F4(s16, s16);
 void playerStateHandleSoundEffects(s16, u8);
@@ -1390,7 +1390,7 @@ u32 randomLcgNext(void);
 void effectSetSpeed(s32);
 void effectSetAngle(s16);
 void effectSetCallback(void *);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern u8 D_8071FC58;
 extern u8 func_8071C48C;
@@ -1601,7 +1601,7 @@ extern u8 D_80745838;
 
 void func_80687C48(void);
 void func_80687CC8(void);
-void playerStateQueueCallback();
+s32 playerStateQueueCallback(s16, void *, u8);
 void sfxAllocateChannel(s32, f32);
 
 void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
