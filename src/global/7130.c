@@ -698,7 +698,7 @@ void sfxUpdateLevelAmbient(void) {
         }
         D_80770DCA = D_80770DC9;
         if (var_fs1 != 0.0f) {
-            if ((tD = spC0[spE7].unkD)) {  // FAKE: u8 copy steers the lbu/move a0 pair
+            if ((tD = spC0[spE7].unkD)) {
                 sfxAllocateChannel(tD, 1.0f);
             }
         }
@@ -723,7 +723,7 @@ void sfxUpdateLevelAmbient(void) {
     if (D_8077058E != D_8077058D) {
         var_fs0 = (f32)(((f64)(u32)D_8077058E * 0.3) / 255.0);
         var_fs1 = (f32)((((f64)(u32)D_8077058E * 0.35) / 255.0) + 1.0);
-        spC8 = D_8077058E;  // FAKE: u32 copy of the byte steers its typed-constant web (spC8 is reassigned below)
+        spC8 = D_8077058E;
         if (gCurrentMap == 0xE) {
             if (spC8 != 0) {
                 s0 = 4;  // FAKE: dead store stops uopt hoisting the loop-init s0 = 0 above the seqSetVolumeInstant calls
