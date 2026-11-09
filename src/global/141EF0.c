@@ -59,6 +59,8 @@ Acmd *_n_loadBuffer();
 Acmd *_n_loadOutputBuffer();
 Acmd *_n_filterBuffer();
 
+#define SWAP(in, out) { dmemTmp = out; out = in; in = dmemTmp; }
+
 Acmd *n_alFxPull(s32 time, Acmd *cmdList, s32 busIndex) {
     Acmd *ptr;
     FxPullRing *ring;
@@ -123,13 +125,10 @@ Acmd *n_alFxPull(s32 time, Acmd *cmdList, s32 busIndex) {
                     section->unkA = -section->unkA;
                 }
                 if (inPtr == lastInPtr) {
-                    dmemTmp = dmemOut;
-                    dmemOut = dmemIn;
-                    dmemIn = dmemTmp;
-                    goto after_load;
+                    SWAP(dmemIn, dmemOut);
+                } else {
+                    ptr = _n_loadBuffer(ring, busChan, inPtr, dmemIn, 0xB8, ptr);
                 }
-                ptr = _n_loadBuffer(ring, busChan, inPtr, dmemIn, 0xB8, ptr);
-            after_load:
                 ptr = _n_loadOutputBuffer(ring, section, busChan, dmemOut, ptr);
                 if (section->unk8 != 0) {
                     mixCmd1 = ptr++;
