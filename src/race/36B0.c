@@ -6,7 +6,7 @@ typedef struct {
 
 typedef struct RaceActor RaceActor;
 
-typedef struct {
+typedef struct RaceCursor {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 unk1;
     /* 0x02 */ u16 unk2;
@@ -25,7 +25,7 @@ typedef struct {
     /* 0x39 */ u8 unk39;
 } RaceCursor;
 
-typedef struct {
+typedef struct RaceState {
     /* 0x00 */ u8 pad0[4];
     /* 0x04 */ f32 unk4;
     /* 0x08 */ u8 pad8[0x14];

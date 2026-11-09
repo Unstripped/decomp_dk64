@@ -160,13 +160,13 @@ void raceOpponentFollowWaypoints(void) {
     }
 }
 
-typedef struct {
+typedef struct RaceC_Arg1 {
     u8 pad0[0x1A];
     s16 rewardFlag;
     s32 requiredCoins;
 } RaceC_Arg1;
 
-typedef struct {
+typedef struct RaceC_Arg0 {
     u8 pad0[0x36];
     u8 active;
 } RaceC_Arg0;

@@ -481,7 +481,7 @@ typedef struct {
     f32 unk24;
 } RaceC_Inner;
 
-typedef struct {
+typedef struct RaceC_Holder {
     u8 pad0[4];
     RaceC_Inner **unk4;
 } RaceC_Holder;

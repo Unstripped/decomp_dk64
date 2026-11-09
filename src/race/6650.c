@@ -6,7 +6,7 @@ typedef struct {
     u8 unk26;
 } Struct_sp5C;
 
-typedef struct {
+typedef struct Struct_sp58 {
     char pad0[0x4];
     f32 unk4;
     f32 unk8;
@@ -33,7 +33,7 @@ typedef struct {
     void *unk17C;
 } Struct_sp54;
 
-typedef struct {
+typedef struct Struct_arg0 {
     char pad[0x174];
     Struct_sp5C *unk174;
 } Struct_arg0;
@@ -52,7 +52,7 @@ typedef struct {
     u8 unk10;
 } Struct_sp20;
 
-typedef struct {
+typedef struct Actor_BB40 {
     char pad[0x4];
     Actor_BB40_Sub4 *unk4;
     char pad8[0x60 - 0x8];
@@ -98,7 +98,7 @@ void behaviourFrameBegin(void);
 void raceSetPiecewiseCurveMode(void *, s32, void *, void *);
 void actorOrNodeFlags(void *, s32, s32);
 void raceHandleRacerCollision(void *);
-typedef struct {
+typedef struct Struct_8002B180_Arg1 {
     char pad[0x4];
     void *unk4;
     char pad8[0xF - 0x8];
@@ -200,7 +200,7 @@ typedef struct {
     u8 unk28;
 } Struct_8002B610_Sub;
 
-typedef struct {
+typedef struct Struct_8002B610_Arg1 {
     void *unk0;
     Struct_8002B610_Sub *unk4;
 } Struct_8002B610_Arg1;

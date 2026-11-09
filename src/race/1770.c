@@ -22,7 +22,7 @@ typedef struct {
 struct RaceActor;
 
 /* Per-participant checkpoint path state (RaceActor.unk178). */
-typedef struct {
+typedef struct RacePathState {
     u8 unk0;
     u8 unk1;
     u16 unk2;
@@ -47,7 +47,7 @@ typedef struct {
 } RacePathState;
 
 /* Participant state (RaceActor.unk174). */
-typedef struct {
+typedef struct RaceParticipant {
     u8 pad0[4];
     f32 unk4;
     u8 pad8[0x14];
