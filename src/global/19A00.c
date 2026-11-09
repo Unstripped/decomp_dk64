@@ -1251,7 +1251,7 @@ s32 scriptOpSetCommandHandler(Actor *arg0) {
     return sScriptContinueRunning;
 }
 
-void sfxPlayOnFreeSlot(s16, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 
 s32 scriptOpPlaySoundOnFreeSlot(s32 arg0) {
     s16 sp26;
@@ -1387,7 +1387,7 @@ typedef struct ActorSoundPosView {
     f32 unk84;
 } ActorSoundPosView;
 
-void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void camStartShakeFromPoint(s32, u8, u16, s32, f32, f32, f32, f32);
 s16 mapActionLookupEntry(s16, Actor *, u8);
 
@@ -1454,7 +1454,7 @@ typedef struct ActorSoundView {
 extern s32 D_807457C8;
 
 void n_alSndpStop(s32);
-void sfxPlayFromActorDirect(Actor *, s16, u8, f32, s32, s32);
+void sfxPlayFromActorDirect(Actor *, s16, u8, f32, u8, u8);
 
 s32 func_80617140(Actor *arg0) {
     s16 sp2E;
@@ -1661,7 +1661,7 @@ void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 void sfxSetVolumeAndPan(u8, f32, f32);
 void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, u8);
-void resQueueAttachActor(Actor *, u16, u8);
+void resQueueAttachActor(Actor *, s32, u8);
 s32 scriptOpBranchOnCondition(Actor *, s16);
 extern u8 sScriptChannelIndexTable[];
 
@@ -1961,16 +1961,16 @@ extern Actor *gActivePlayerActor;
 extern u8 gCurrentPlayerIndex;
 extern ProjectileDataView *D_807FD568;
 extern s16 gCurrentCharacterIndex;
-void slotQueueUpdate(s32, s32, s32);
-s32 slotQueueGetValue(s32, u8);
+void slotQueueUpdate(s32, u8, s32);
+u16 slotQueueGetValue(u8, u8);
 void slotQueueAddValue(s32, u8, s32);
 s32 actorCountOwnedByClass(Actor *, s32, s32);
-s32 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, s32, s32);
+s32 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, u8, u16);
 s32 mathAngleInArcWithMargin(s16, s16, s16, s32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void projectileSetSpawnFlag(void);
 void projectileGetTargetCoords(Actor *, s32);
-void projectileSpawnNodeEntry(s32, u8, f32, s16, f32, f32, Actor *);
+void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
 
 void projectileTrySpawnFromSlot(Actor *arg0) {
     f32 var_fv0;
@@ -2021,14 +2021,14 @@ void projectileTrySpawnFromSlot(Actor *arg0) {
 
 void effectSetSpeed(s32);
 void effectSetCallback(void *);
-void effectSetMode(s32);
-void effectSetMaxDistance(s32);
-void effectSetDepth(s32);
+void effectSetMode(s32); // FAKE: callee prototype steer
+void effectSetMaxDistance(s16);
+void effectSetDepth(s8);
 void effectSetDuration(s32);
-void effectSetFlags(s32);
-void effectCreateAtActorBone(void *, f32, Actor *, u8, s32);
+void effectSetFlags(s16);
+void effectCreateAtActorBone(void *, f32, Actor *, u8, s32); // FAKE: callee prototype steer
 void *effectCreateAtPosition(void *, f32, f32, f32, f32);
-void effectSpawnBone(Actor *, s32, f32, f32, f32, f32, s32);
+void effectSpawnBone(Actor *, s16, f32, f32, f32, f32, s32);
 void actorGetNodePosOrPosition(Actor *, s32 *, f32 *, f32 *);
 extern void effectDownwardDriftUpdate(void);
 extern void effectUpwardDriftUpdate(void);
@@ -2040,9 +2040,9 @@ extern s32 gGlobalPauseFlags;
 extern f32 sSavedLightColorR;
 extern f32 sSavedLightColorG;
 extern f32 sSavedLightColorB;
-void actorSpawn(s32, s32);
+s32 actorSpawn(s32, s32);
 void actorDespawn(void *);
-void actorCopyPoseAndScale(Actor *, Actor *, s32);
+void actorCopyPoseAndScale(Actor *, Actor *, s32); // FAKE: callee prototype steer
 void playerClearPitchRollFlags(Actor *);
 void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetColor(f32, f32, f32, s16);
@@ -2124,7 +2124,7 @@ extern u8 D_8072006C;
 extern u8 D_80720B58;
 void effectTimedLightIntensityFade(void);
 void effectFloorFallUpdate(void);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, s16, s16, s32);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 
 void scriptCmdSpawnAttachedActor(Actor *arg0) {
     u8 sp3F;
@@ -2354,7 +2354,7 @@ void scriptCmdClearActorNodeFlag(Actor *arg0) {
 }
 
 extern void *sScriptEffectSprites[];
-void effectSetAngle(s32);
+void effectSetAngle(s16);
 
 void scriptCmdSpawnOrbitEffects(Actor *arg0) {
     s32 i;
@@ -2521,7 +2521,7 @@ typedef struct ChildEffectSub4View {
     u16 unk64;
 } ChildEffectSub4View;
 
-void effectSetColor(s32, s32, s32, s32);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void scriptCmdSpawnEffectChildAndNode(Actor *arg0) {
     u16 sp46;
