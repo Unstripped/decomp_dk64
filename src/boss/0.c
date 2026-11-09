@@ -1,4 +1,17 @@
 #include "common.h"
+#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#include "proto/boss/0.h"
+#include "proto/boss/3840.h"
+#include "proto/global/119370.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/35000.h"
+#include "proto/global/63EC0.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/8F050.h"
 
 typedef struct BossByteTable6 {
     u8 bytes[6];
@@ -18,12 +31,8 @@ extern u8 effectDecelDriftFadeUpdate;
 extern u8 sEffectSparkConfig;
 
 void tagBarrelSpawnNodeSmokePuffs(void *, s32, f32);
-void effectSetSpeed();
-void effectSetCallback(void *);
-void effectSetMode(s32);
-void effectSetDepth(s32);
-void effectSetColor(s32, s32, s32, s32);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
+void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 
 void bossArmydilloSpawnSmoke(void) {
     BossByteTable6 smokeBones;
@@ -105,7 +114,6 @@ extern u8 D_800358D8[5];
 extern BossA_Struct_8002413C_Template D_800358E0[][5];
 extern u8 D_80035994[8];
 
-s32 flagGet(s32, s32);
 void func_80724D28(s32, s32);
 void func_80724DB0(s32, s32);
 void func_80724CA4(s32, s32);
@@ -287,8 +295,6 @@ typedef struct BossPieceAnim {
     f32 f2[5];
 } BossPieceAnim;
 
-void func_8068A764(void *, u8);
-void func_8068A784(void *, u8);
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound();
 void actorScriptStart(void *, s32);
@@ -473,8 +479,6 @@ typedef struct Boss2A_Struct_807FBB40_4FA8 {
     u8 unk155;
 } Boss2A_Struct_807FBB40_4FA8;
 
-u8 bossPieceStep(u8 *, u8, f32, f32, f32);
-void animSetLoopLimit(void *, s32, s32);
 
 void bossArmydilloOpenCannons(void *boss, u8 *pieceData, s32 unused, u8 *pieceList) {
     u8 i;
@@ -562,8 +566,7 @@ typedef struct BossActorUnkC0 {
 extern u8 effectFollowParentUpdate;
 extern u8 D_80720120;
 
-void effectSetMaxDistance(s32);
-void effectCreateAtActorBone(void *, f32, void *, s32, s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32); // FAKE: callee prototype steer
 
 void bossArmydilloSpawnExhaustSmoke(void) {
     f32 val;
@@ -705,8 +708,6 @@ extern u8 D_80035988;
 extern u8 D_80035CB8;
 extern u8 D_80035CC0[];
 extern s32 camPathCommandDispatch;
-void effectUpdateAndDispatch(void);
-void effectNodeSetSubVal(s32, u8);
 extern u8 gGameMode;
 extern s8 D_80750190;
 extern s16 D_807502D8;
@@ -716,31 +717,16 @@ extern s16 D_80770628[];
 extern s16 D_80770710[];
 extern s32 gCamActor;
 
-void bossArmydilloSpawnSmoke();
-void bossPieceListStep();
-void bossArmydilloSpawnExhaustSmoke();
-void bossArmydilloDebrisFall();
-void bossInitScriptData();
-void bossScriptStep(u8 *, s32, f32);
-void bossSpawnParticleRing();
-s32 randomNonNegative();
-void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
-void controllerAnimSetState(s32, s16, f32, f32);
 s32 camIsCutsceneActive();
 void camStartPath(void *, s32, s32);
 void camStartShake();
 void camSetSecondTarget();
 s32 currentActorTestClearFlag();
 void currentActorClearFlag();
-void actorUpdateModelMatrix();
-void waterRippleStart(f32, f32, f32, f32, f32, f32);
 s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void effectSpawnBoneDebris();
 void effectSpawnBoneWhite(void *, s16, f32, f32, f32, f32, s32);
 void effectSpawnJointBeam();
-void animSetSpeed(void *, s32, f32);
-void animSetLoopMode();
-s32 animIsPlaying();
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileGetTargetCoords();
 void projectileSpawnNodeEntry(s32, s32, f32, s16, f32, f32, void *);
@@ -1382,7 +1368,6 @@ void bossArmydilloStep(void) {
 #undef gBehaviourWorkState
 #undef gBehaviourTargetActor
 
-s32 randomNonNegative(void);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void bossArmydilloDebrisFall(void) {

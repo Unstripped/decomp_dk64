@@ -1,4 +1,9 @@
 #include "common.h"
+#include "proto/boss/3840.h"
+#include "proto/boss/9C60.h"
+#include "proto/global/17B90.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
 
 typedef struct BossC_9C60_Sub0 {
     char pad[0x10];
@@ -49,7 +54,6 @@ extern BossC_9C60_Actor *gSpawnedActor;
 void actorSpawn(s32, s32);
 void actorCopyPoseAndScale(BossC_9C60_Actor *, BossC_9C60_Actor *, f32);
 void actorDespawn(void *);
-void actorUpdateModelMatrix(BossC_9C60_Actor *, s32);
 void bossAttachActor(void) {
     BossC_9C60_Actor **attachedActorSlot = gCurrentActor->unk178;
 
@@ -145,11 +149,6 @@ extern Boss2F_9C60_DC90 *gBehaviourWorkState;
 extern Boss2F_9C60_DC9C *gBehaviourExtraState;
 extern Boss2F_9C60_DCA0 *D_807FDCA0;
 
-void bossScriptStep(u8 *, s32, f32);
-void bossRoundFrame(u8 *);
-void screenSetTransitionFadeType(s32);
-void mapRequestTransition(s32, s32);
-void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
 void actorScriptExecute(BossC_9C60_Actor *);
 void actorScriptStart(BossC_9C60_Actor *, s32);
 s32 camIsCutsceneActive(void);

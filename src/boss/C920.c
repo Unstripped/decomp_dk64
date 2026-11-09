@@ -1,4 +1,8 @@
 #include "common.h"
+#include "proto/boss/3840.h"
+#include "proto/boss/C920.h"
+#include "proto/global/135D30.h"
+#include "proto/global/35000.h"
 
 typedef struct BossD_Actor {
     u8 pad0[0x7C];
@@ -48,7 +52,6 @@ extern BossD_D580 *gActivePlayerState;
 extern BossD_DC90 *gBehaviourWorkState;
 extern void *gCamActor;
 
-void bossSetCannonsVisible(s32);
 s32 playerStateQueueCallback(s32, void *, s32);
 void zoneEntryGetPosition(s32, s32, void *, void *, void *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
@@ -213,11 +216,9 @@ extern BossLayoutData *gBehaviourAnimState;
 extern BossConfig *gBehaviourExtraState;
 
 void behaviourFrameBegin(void);
-void bossRoundFrame(u8 *);
 void camSetSecondTarget(void *, s32, s32);
 void func_80724CA4(s32, s32);
 void playerSetLargeModeScale(f32);
-void flagSet(s32, s32, s32);
 void camStartPath(void *, s32, u8);
 void csSendActorMessagePayload(s32, s32);
 void actorSetTargetSpeed(void *, s32);
@@ -231,11 +232,9 @@ void actorSetGroupState(u8, s32);
 s16 mathAngleSignedDistance(s16, s16);
 s16 mathAngleEaseToward(s16, s16, f32);
 s32 currentActorTestClearFlag(void);
-s32 bossScriptStep(u8 *, s32, f32);
 void billboardSetFlags(s32);
 void billboardSubmit(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 func_8072881C(s32, void *);
-void actorUpdateModelMatrix(void *, s32);
 
 #define BOSS_ACTOR ((BossActor *)gCurrentActor)
 #define PLAYER_ACTOR ((BossActor *)gPrimaryPlayerActor)

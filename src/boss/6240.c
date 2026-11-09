@@ -1,4 +1,18 @@
 #include "common.h"
+#define PROTO_SKIP_bossSpawnParticleRing // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_n_alSndpStop // FAKE: callee prototype steer
+#include "proto/boss/3840.h"
+#include "proto/boss/6240.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/135D30.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/35000.h"
+#include "proto/global/63EC0.h"
+#include "proto/global/FCCD0.h"
 
 typedef struct BossC_6240_17C {
     char pad[4];
@@ -154,7 +168,6 @@ typedef struct BossC_6240_DCA0 {
 extern BossC_6240_Actor40 *gCurrentActor;
 extern u32 gFrameCounter;
 
-s32 randomNonNegative(void);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 
@@ -213,9 +226,7 @@ void bossPufftossNotifyLaser(u8 targetIndex) {
 
 extern u8 D_80720120[];
 
-void effectSetDepth(s32);
-void effectSetColor(s32, s32, s32, s32);
-void effectCreateAtActorBone(void *, f32, void *, s32, s32);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void bossPufftossSpawnGlow(u8 sparkleInterval, f32 scale) {
     if (!(sparkleInterval & gFrameCounter)) {
@@ -226,12 +237,6 @@ void bossPufftossSpawnGlow(u8 sparkleInterval, f32 scale) {
 }
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void effectSetCallback(void *);
-void effectSetSpeed(void *);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void effectSetMode(s32);
-void func_8071EDEC(void);
-void effectPuffRiseUpdate(void);
 extern void *D_8074E880[];
 
 void bossSpawnSparkles(void) {
@@ -299,13 +304,10 @@ extern BossC_6240_DC98 *gBehaviourAnimState;
 extern BossC_6240_DC9C *gBehaviourExtraState;
 extern BossC_6240_DCA0 *D_807FDCA0;
 
-void bossInitScriptData(void *);
-void bossScriptStep(u8 *, s32, f32);
-void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
+void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32); // FAKE: callee prototype steer
 void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 void actorScriptStart(void *, s32);
 void camSetTargetFocusActor(s32, void *);
@@ -317,10 +319,7 @@ void camSetFollowMode(s32);
 void camSetSecondTarget(s32, s32, s32);
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
-void actorUpdateModelMatrix(void *, s32);
 void csModelStateSetFirstByte(s16, s32);
-f32 effectNodeGetValue(s32);
-void waterRippleStop(void);
 void actorApplyVelocityCustom(void *, f32, f32);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
@@ -335,8 +334,6 @@ void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f
 void loadModelAssetTable(void);
 void playerSetLargeModeScale(f32);
 void playerSetSizeMode(void *, s32);
-void slotQueueSetDisplayMode(s32, s32, s32);
-void effectFreeAll(void);
 void func_8072881C(s32, void *);
 void behaviourFrameBegin(void);
 void actorApplyGravity(void);
@@ -345,9 +342,7 @@ void behaviourUpdateShadowAlpha(void);
 s32 actorMoveWithinZone(s32, f32, f32, s32, f32);
 void actorSetTargetSpeed(void *, u8);
 s32 patrolPathStep(s32, s32);
-s32 flagGet(s32, s32);
-void n_alSndpPlay(s32, s16, s32, s32, f32, s32, void *);
-void n_alSndpStop(s32);
+void n_alSndpStop(s32); // FAKE: callee prototype steer
 
 
 void bossPufftossStep(void) {

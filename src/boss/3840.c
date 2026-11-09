@@ -1,4 +1,18 @@
 #include "common.h"
+#include "proto/boot/3D20.h"
+#include "proto/boss/3840.h"
+#include "proto/global/100180.h"
+#include "proto/global/10D2D0.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/135D30.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/3C10.h"
+#include "proto/global/450.h"
+#include "proto/global/FCCD0.h"
 
 typedef struct {
     char pad[0x20];
@@ -13,8 +27,6 @@ typedef struct {
 extern BossB_Struct_DC98 *gBehaviourAnimState;
 extern BossB_Struct_DC9C *gBehaviourExtraState;
 
-void heapFree(void *);
-void *heapAlloc(s32);
 
 void bossInitScriptData(u8 *data) {
     s16 i;
@@ -56,7 +68,6 @@ typedef struct {
 
 extern BossB_Struct_DC90 *gBehaviourWorkState;
 
-s32 randomNonNegative(void);
 
 void bossPickRandomWaypoint(BossB_Struct_80027950 *state, u8 *waypointRanges) {
     u8 prev = gBehaviourWorkState->unk25;
@@ -205,7 +216,6 @@ void resQueueAttachActor(void *, s32, s32);
 u8 patrolPathStep(u8, u8);
 u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void actorScriptStart(void *, s32);
-void bossPickFarthestWaypoint(void *, u8 *);
 
 #define BA40 ((BossActor *)gCurrentActor)
 #define DC90 ((BossWorkState *)gBehaviourWorkState)
@@ -437,7 +447,6 @@ block_16:
 }
 
 
-void mapTransitionToMenuOrPrevious(void);
 
 void bossClearMinigame(void) {
     mapTransitionToMenuOrPrevious();
@@ -454,13 +463,6 @@ typedef struct {
 
 void sfxAllocateChannel(s32, f32);
 void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
-void effectSetSpeed(void *);
-void effectSetCallback(void *);
-void effectSetDepth(s8);
-void effectSetDuration(s32);
-void effectCreateAtPosition(s32, f32, f32, f32, f32);
-u8 flagGet(s16, u8);
-void effectWispHomeUpdate(void);
 
 extern s32 D_8074E880[];
 extern Boss3C_Struct_8478 *gBehaviourTargetActor;
@@ -511,9 +513,7 @@ extern Boss2C_Struct_807FC924 *gPlayerSlots;
 extern u8 D_80750AD4;
 extern Gfx D_1000118;
 
-void heapFreeDeferred(void *);
 void *func_8070068C(Gfx *);
-Gfx * textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
 void bossDrawRoundText(Gfx *glist, s32 unused) {
     Boss2C_MtxF scaleMtx;
@@ -539,7 +539,6 @@ void bossDrawRoundText(Gfx *glist, s32 unused) {
 
 static void bossRoundDummy(void) {}
 
-void flagSet(s16, u8, u8);
 
 void bossResetAudioChannels(void) {
     flagSet(0x51, 0, 2);
@@ -568,18 +567,11 @@ extern s32 D_8076D1F8;
 extern u32 D_80767CC0;
 extern s32 gCurrentMap;
 
-void slotQueueSetDisplayMode(u8, u8, u8);
-void healthRefill(u8);
 void sfxStopChannel(s32, s32);
-void menuTransitionToMap(s32, s32);
-void n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
-void n_alSndpPostEvent(s32, s32, s16);
 void func_80724A20(void);  // FAKE: callee prototype steer
 void actorSetStateOne(void *);
 void actorSetStateThree(void *);
-s32 menuIsTransitionTypeC(void);
 f32 sfxGetChannelVolume(s32);
-s32 hudCanRender(void);
 void renderCallbacksRegister(void *, void *, u8);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);  // FAKE: callee prototype steer
 

@@ -1,4 +1,14 @@
 #include "common.h"
+#define PROTO_SKIP_func_8002FDF8 // FAKE: callee prototype steer
+#include "proto/boss/3840.h"
+#include "proto/boss/B100.h"
+#include "proto/global/10E1D0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/17B90.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/FCCD0.h"
 
 typedef struct {
     u8 unk0;
@@ -50,17 +60,11 @@ extern BossE_B100_Actor *gSpawnedActor;
 extern u8 gBossFightPhase;
 extern s32 gFrameCounter;
 
-void animSetLoopLimit(s32, s32, s32);
-void animSetFinished(s32, s32, s32);
-void animSetFrameAndSubframe(s32, s32, s32, f32);
-void func_8002FB7C();
-void bossActorGroupCommand();
 void actorSpawn(s32, s32);
 void actorCopyPoseAndScale(void *, void *, f32);
 void actorScriptStart(void *, s32);
 void func_80724DB0();
 void sfxPlayAtFBD6CPosition(void);
-void actorUpdateModelMatrix(void *, s32);
 
 f32 mathSinF(s16);
 
@@ -89,8 +93,6 @@ typedef struct {
 extern BossPlayerActor *gPrimaryPlayerActor;
 extern BossWorkState *gBehaviourWorkState;
 extern BossWaypointListS16 *D_807FDCA0;
-s32 flagGet(s16, u8);
-void bossScriptStep(u8 *, s32, f32);
 
 typedef struct BossPhaseState {
     u8 pad0[0x14];
@@ -164,15 +166,11 @@ extern BossConfig *gBehaviourExtraState;
 extern void *gCamActor;
 
 void behaviourFrameBegin(void);
-void transitionSetState(s32);
 void camSetSecondTarget(void *, s32, s32);
 void func_80724CA4(s32, s32);
 void zoneEntryGetPosition(s32, s32, void *, void *, void *);
-void bossRoundFrame(u8 *);
 void camStartPath(void *, s32, u8);
 void hudCountdownTimerSaveElapsed(void *);
-void screenSetTransitionFadeType(s32);
-void mapRequestTransition(s32, s32);
 f32 mathCosF(s16);
 void playerWaypointPathStartLineFromActor(void *, s16, s16, s32);
 void csSendActorMessagePayload(s32, s32);
@@ -183,7 +181,6 @@ s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 mathAngleEaseToward(s16, s16, f32);
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 s32 currentActorTestClearFlag(void);
 void behaviourUpdateShadowAlpha(void);
@@ -524,17 +521,12 @@ typedef struct {
 extern BossPlayerData *gActivePlayerState;
 extern u8 *D_80035AA4[];
 
-void flagSet(s16, s32, s32);
-void transitionSetState(s32);
-void slotQueueSetDisplayMode(s32, s32, s32);
 void actorScriptStartByIndex(void *, s32);
-void screenSetTransitionFadeType(s32);
-void mapRequestTransition(s32, s32);
 void func_80724A20(void);
 void behaviourFrameBegin(void);
 void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
 
-void func_8002FDF8(s32, u8);
+void func_8002FDF8(s32, u8); // FAKE: callee prototype steer
 
 void bossKRoolTinyStep(void) {
     BossScriptState *st;

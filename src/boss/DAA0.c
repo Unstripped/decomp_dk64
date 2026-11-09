@@ -1,4 +1,25 @@
 #include "common.h"
+#define PROTO_SKIP_bossSpawnParticleRing // FAKE: callee prototype steer
+#define PROTO_SKIP_sfxAllocateChannel // FAKE: callee prototype steer
+#define PROTO_SKIP_sfxPlayOnFreeSlot // FAKE: callee prototype steer
+#include "proto/boss/3840.h"
+#include "proto/boss/DAA0.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/8F050.h"
+#include "proto/global/8F4B0.h"
+#include "proto/global/936B0.h"
+#include "proto/global/CC800.h"
+#include "proto/global/F56F0.h"
 
 // DAA0: hidden translation-unit boundary at 0x80031AA0 (C920's .data/.rodata end 16-/8-aligned before it)
 s16 D_80035B00[4] = { 0, 0x26C, 0, -0x26C };
@@ -40,10 +61,7 @@ typedef struct BossD_Actor {
 extern BossD_Actor *gCurrentActor;
 extern BossD_Actor *gPrimaryPlayerActor;
 
-u16 camStartPath(void *, s16, u8);
-u8 camIsCutsceneActive(void);
 f32 mathSinF(s16);
-void actorUpdateModelMatrix(void *, s32);
 
 typedef struct BossModelInfo {
     u8 pad0[0x34];
@@ -116,26 +134,9 @@ extern u8 D_807FBDC4;
 extern s8 D_80036DC0;
 extern f32 D_80036DC4;
 
-s32 actorSpawn(s32, s32);
-void *actorListFindActorById(s16);
-void actorDespawn(void *);
-void mapRequestTransition(s32, s32);
-void collisionCheckActorFloor(void *, f32, f32, f32, void *);
-void func_8068A764(void *, u8);
-void playerSetKongByActorType(s16);
-void playerKongStopAudioChannels(void *, u16);
-void actorAppendCallbackPayloadAAB8(void *, void *, s32, f32, s32);
 void sfxPlayOnFreeSlot();  // FAKE: callee prototype steer
-void camPausePath(void);
-void camResumePath(void);
-void func_80724994(u8, s16, s16, s16, s16);
-s32 randomLcgNext(void);
-f32 randomFloat(void);
 s32 sfxAllocateChannel();  // FAKE: callee prototype steer
-void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
-void lightSetColor(f32, f32, f32, s16);
-void enemyAggroEnable(void);
+void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32); // FAKE: callee prototype steer
 
 #define SPAWNER_ACTOR ((BossSpawnerActor *)gCurrentActor)
 #define SPAWNER_PLAYER ((BossSpawnerActor *)gPrimaryPlayerActor)
@@ -572,10 +573,6 @@ typedef struct BossFollowerActor {
     BossFollowerLink *unk174;
 } BossFollowerActor;
 
-void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
-void controllerApplyMotionWindow(void *, void *, f32);
-void projectileSetTargetCoords(f32, f32, f32);
-void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, void *);
 
 #define ACTOR ((BossFollowerActor *)gCurrentActor)
 

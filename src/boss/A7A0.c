@@ -1,4 +1,10 @@
 #include "common.h"
+#include "proto/boss/3840.h"
+#include "proto/boss/9C60.h"
+#include "proto/boss/A7A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
 
 typedef struct BossC_A7A0_178 {
     s32 unk0;
@@ -38,7 +44,6 @@ extern BossC_A7A0_BB70 gActorGlobalState;
 extern BossC_A7A0_Actor *gCurrentActor;
 extern BossC_A7A0_Actor *gPrimaryPlayerActor;
 void actorDespawn(BossC_A7A0_Actor *);
-void actorUpdateModelMatrix(BossC_A7A0_Actor *, s32);
 
 typedef struct {
     BossC_A7A0_Actor *actor;
@@ -104,7 +109,6 @@ void bossPhaseTick(void) {
 
 void actorScriptStart(BossC_A7A0_Actor *, s32);
 void actorScriptExecute(BossC_A7A0_Actor *);
-void controllerAnimSetState(s32, s16, f32, f32);
 
 void bossKRoolLankySetAnim(s32 scriptId, s16 animId) {
     BossC_A7A0_178 *link = gCurrentActor->unk178;
@@ -196,9 +200,7 @@ extern u8 *D_80035A80[];
 extern BossWorkState *gBehaviourWorkState;
 extern BossActorPos *gBehaviourTargetActor;
 void behaviourFrameBegin(void);
-void bossRoundFrame(u8 *);
 void func_80724CA4(s32, s32);
-void bossAttachActor(void);
 s32 camStartPath(void *, s32, s32);
 s32 camIsPlayingPath(s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
@@ -206,9 +208,6 @@ void playerStateQueueCallback(s32, void *, s32);
 void actorSetCollisionRadius(void *, f32);
 void actorOrNodeFlags(void *, s32, s32);
 s32 currentActorTestClearFlag(void);
-void screenSetTransitionFadeType(s32);
-void mapRequestTransition(s32, s32);
-void bossScriptStep(u8 *, s32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 void behaviourUpdateShadowAlpha(void);
 s32 func_8072881C(s32, void *);

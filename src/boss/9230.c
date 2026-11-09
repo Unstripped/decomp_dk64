@@ -1,4 +1,9 @@
 #include "common.h"
+#include "proto/boss/3840.h"
+#include "proto/boss/9230.h"
+#include "proto/global/17B90.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
 
 typedef struct Boss2F_9230_178 {
     char pad0[0x14];
@@ -64,19 +69,14 @@ extern Boss2F_9230_D580 *gActivePlayerState;
 extern Boss2F_9230_DC90 *gBehaviourWorkState;
 extern Boss2F_9230_DC9C *gBehaviourExtraState;
 
-void bossScriptStep(u8 *, s32, f32);
-void bossRoundFrame(u8 *);
 void csSendActorMessagePayload(s32, s32);
-void mapRequestTransition(s32, s32);
 void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 void actorScriptStart(Boss2F_9230_Actor *, s32);
 s32 camIsCutsceneActive(void);
 void camStartPath(Boss2F_9230_Actor *, s32, s32);
 void camSetSecondTarget(s32, s32, s32);
 s32 currentActorTestClearFlag();
-void actorUpdateModelMatrix(Boss2F_9230_Actor *, s32);
 void csSendActorMessagePayload();
 void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
 s32 func_8072881C(s32, void *);

@@ -1,4 +1,11 @@
 #include "common.h"
+#include "proto/boss/8520.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/35000.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/B1F60.h"
 
 typedef struct BossA_Struct_807FBB40 {
     u8 pad0[0x7C];
@@ -54,7 +61,6 @@ typedef struct BossA_Struct_807FDC90 {
 
 extern BossA_Struct_807FDC90 *gBehaviourWorkState;
 
-s32 randomNonNegative(void);
 void camStartPath(void *, s32, s32);
 
 void bossKutOutSpawnGhosts(void) {
@@ -68,9 +74,6 @@ void bossKutOutSpawnGhosts(void) {
     }
 }
 
-void animSetLoopLimit(void *, s32, s32);
-void animSetFinished(void *, s32, s32);
-void animSetFrameAndSubframe(void *, s32, s16, f32);
 
 void func_8002C748(animSlot)
 u8 animSlot;
@@ -118,7 +121,6 @@ typedef struct BossA_Struct_807FDC94 {
 
 extern BossA_Struct_807FDC94 *gBehaviourTargetActor;
 
-s32 randomNonNegative(void);
 void projectileGetTargetCoords(void *, s32);
 void projectileAimAndSpawn(s32, s16, f32, f32, f32, f32, f32, void *);
 
@@ -217,13 +219,10 @@ extern s32 D_807FBD6C;
 extern void *gCamActor;
 
 void behaviourFrameBegin(void);
-s32 flagGet(s32, s32);
 void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void behaviourCalculateDamageForce(s32, s32);
 void actorSetUniformScale(void *, f32);
-void actorSpawnLinkedFollower(void);
 void actorScriptStart(void *, s32);
-void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 s32 currentActorTestClearFlag(void);
 void actorSetTargetSpeed(void *, s32);
@@ -234,9 +233,6 @@ s32 spawnNodeHasActor(s32);
 s32 camIsCutsceneActive(void);
 void behaviourSpawnPuffParticle(void);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
-void actorPatrolFollowerUpdate(s32, s32, s32);
-void bossAnimFrameBounceStep(void);
-void actorUpdateModelMatrix(void *, s32);
 
 #define A40 ((BossActor *)gCurrentActor)
 #define DC90 ((BossWorkState *)gBehaviourWorkState)

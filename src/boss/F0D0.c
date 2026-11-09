@@ -1,5 +1,29 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_csModelStateSetFirstByte // FAKE: callee prototype steer
+#define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
+#include "proto/boss/3840.h"
+#include "proto/boss/F0D0.h"
+#include "proto/global/119370.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/1332B0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
+#include "proto/global/35000.h"
+#include "proto/global/42630.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/936B0.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
 
 typedef struct {
     u8 pad0[4];
@@ -29,17 +53,6 @@ typedef struct {
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern BossE_F0D0_FDCA0 *D_807FDCA0;
-void actorScriptStart(void *, s32);
-void actorScriptExecute(void *);
-void effectSetMode(s8);
-void effectSetCallback(void *);
-void effectSetDepth(s8);
-void effectSetSpeed(s32);
-s32 randomNonNegative(void);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void actorDespawn(void *);
-s32 playerStateQueueCallback(s16, void *, u8);
-void camStartShakeFromPoint(void *, s32, s32, f32, f32, f32, f32, f32);
 extern void *gCamActor;
 extern void *effectPuffRiseUpdate;
 extern void *D_8074E880[];
@@ -128,8 +141,6 @@ void bossSetAnimationByWaypoint(u8 *waypointIndices) {
 }
 
 f32 mathSinF(s16);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s16 mathAngleEaseToward(s16, s16, f32);
 
 void bossInterpolateWaypoints(u8 *waypointPair, f32 progress) {
     f64 val;
@@ -199,8 +210,6 @@ u8 stateByte;
     }
 }
 
-void projectileGetTargetCoords(void *, s32);
-void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, s32);
 void bossSpawnObjectAtWaypoint(u8 *waypointIndex) {
     projectileGetTargetCoords(gCurrentActor, 1);
     projectileAimAndSpawn(0x2C, 2, gCurrentActor->sub4->scaleY, D_807FDCA0->unk14[waypointIndex[3]].unk0, D_807FDCA0->unk14[waypointIndex[3]].unk2, D_807FDCA0->unk14[waypointIndex[3]].unk4, 1200.0f, gCurrentActor);
@@ -342,48 +351,7 @@ extern u8 D_8071FC58[];
 extern u8 D_80720054[];
 extern u8 D_80720BE8[];
 
-void lightSetRadius(s16);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32); // FAKE: callee prototype steer
-u8 flagGet(s16, u8);
-u16 camStartPath(void *, s16, u8);
-void behaviourFrameBegin(void);
-void actorUpdatePrevContactFlags(void *);
-void actorSetUniformScale(void *, f32);
-void actorUpdateModelMatrix(void *, s32);
-void actorApplyGravity(void);
-void behaviourUpdateShadowAlpha(void);
-void scriptSetActorRampTarget(void *, f32, f32);
-void actorUpdateFloorContactAndTilt(void *, f32);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-s32 currentActorTestClearFlag(void);
-void currentActorClearFlag(void);
-void volumeTriggerSetEnabled(s32, u8);
-s32 func_80724A20(void);
-u8 bossPickWaypointStep(BossE_F0D0_Sub14 *, u8 *);
-void bossSetAnimationByWaypoint(u8 *);
-void bossSpawnPuffDebris(void);
-void bossInterpolateWaypoints(u8 *, f32);
-void bossSpawnObjectAtWaypoint(u8 *);
-void actorTurnTowardActorYaw(s32, void *);
-void actorApplyVelocityCustom(void *, f32, f32);
-s32 bossCheckPlayerBelow(BossE_F0D0_Sub14 *, u8 *);
-void bossAdjustHealth(s8);
-void effectSpawnBoneDebris(s16, s8);
-void effectSpawnBoneDebrisScaled(s16, s16, s16);
-void effectSpawnJointBeam(s32, s32, s32, s32);
-void effectSpawnRandomBoneDebris(u8, u8);
-void actorSpawnAttachment(void *, f32);
-void actorAppendActiveCallback8(void);
-u8 camIsCutsceneActive(void);
-void camSetSecondTarget(void *, s32, s32);
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void effectSpawnScatterRandom(void *, u8, f32, u8, u8, s16, s16, s16, s16);
-void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
-void effectCreateAtActorBone(s32, f32, void *, s32, u8);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
-void sfxStopSlotSound(void *, u8);
-u8 bossScriptStep(u8 *, u16, f32);
 
 void bossMainStep(void) {
     BossF_State *st;

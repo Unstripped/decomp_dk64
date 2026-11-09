@@ -1,5 +1,25 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
+#include "proto/boss/3840.h"
+#include "proto/boss/52B0.h"
+#include "proto/global/119370.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
+#include "proto/global/35000.h"
+#include "proto/global/42630.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/7130.h"
+#include "proto/global/89250.h"
+#include "proto/global/936B0.h"
+#include "proto/global/CEAE0.h"
 
 typedef struct {
     char pad0[0x38];
@@ -23,10 +43,6 @@ typedef struct {
 extern BossB_ActorBB40 *gCurrentActor;
 extern BossB_ActorBB44 *gSpawnedActor;
 
-void projectileSpawnWithShockwave(s16, f32, u8, u8, u8, u8, f32, f32, f32, f32);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
-void scriptSetActorRampTarget(void *, f32, f32);
 
 void bossMadJackSpawnShockwave(f32 scale) {
     projectileSpawnWithShockwave(0x6A, 1.2f, 0, 0x96, 0xFF, 0xB, 1.015f, 0.0f, 0.0f, 0.0f);
@@ -38,11 +54,7 @@ void bossMadJackSpawnShockwave(f32 scale) {
 }
 
 
-s32 randomNonNegative(void);
-void effectSetDepth(s8);
-void effectSetMode(s8);
 void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void bossMadJackSpawnSparkles(void) {
     randomNonNegative();
@@ -112,30 +124,9 @@ extern u8 *D_80035A00[];
 extern s32 gFrameCounter;
 extern Boss3F_52B0_BB4C *gPrimaryPlayerActor;
 extern Boss3F_52B0_D580 *gActivePlayerState;
-u8 bossScriptStep(u8 *, u16, f32);
-void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void actorScriptStart(void *, s32);
-u8 camIsCutsceneActive(void);
-u16 camStartPath(void *, s16, u8);
-s32 currentActorTestClearFlag(void);
-void actorUpdateModelMatrix(void *, s32);
-void csModelStateSetFirstByte();
-void lightSetColor(f32, f32, f32, s16);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void effectSpawnJointBeam(s32, s32, s32, s32);
-void projectileSetTargetCoords(f32, f32, f32);
-void projectileGetTargetCoords(void *, s32);
-void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
-void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, s32);
-void actorAppendActiveCallback8(void);
-s32 mathAngleSignedDistance(s16, s16);
-s32 mathAngleDistance(s16, s16);
-s32 func_80724A20(void);
-void behaviourFrameBegin(void);
-u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
-void actorTurnTowardActorYaw(s32, void *);
+s32 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 
 #define ACTOR ((Boss3F_52B0_Actor *)gCurrentActor)
 
