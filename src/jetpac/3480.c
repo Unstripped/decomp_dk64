@@ -147,7 +147,7 @@ extern s32 D_8002F074;
 extern s32 D_8002F078;
 void jetpacPlaySound(s32);
 void jetpacSpawnFuelPod();
-void flagSet(s32, s32, s32);
+void flagSet(s16, u8, u8);
 void jetpacSpawnBonusItem(JetpacPlayer *);
 
 typedef struct JetW2FpABox {
@@ -280,7 +280,7 @@ void jetpacDrawItem(JetpacItem *item, s32 mode) {
 }
 
 
-s32 flagGet(s32, s32);
+u8 flagGet(s16, u8);
 extern u8 D_8002F3C8;
 extern JetpacSprite D_8002D968[];
 void jetpacBonusItemUpdate(JetpacItem *);
@@ -513,7 +513,7 @@ void jetpacPlaceRocketOnPad(void) {
 
 extern s32 D_80770DF8[];
 void jetpacPlaySound(s32);
-void jetpacSetSoundPitch(s32, f32);
+void jetpacSetSoundPitch(s32, f32);  // FAKE: callee prototype steer
 void jetpacStopSound(s32);
 void jetpacSetState(s32);
 void jetpacStartStage(void);
