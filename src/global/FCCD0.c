@@ -464,7 +464,7 @@ void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
     }
 }
 
-extern s32 flagCountRange(s32, s32, s32);
+extern s32 flagCountRange(s32, s32, u8);
 
 s32 func_806F8EB4(void) {
     return flagCountRange(0x24D, 0x14, 0);
@@ -794,10 +794,10 @@ void effectSetParam(s32);
 void effectSetSpeed(void *);
 void effectEnableFade(void);
 void effectSetCallback(void (*)(void));
-void effectSetMode(u8);
-void effectSetColor(s32, s32, s32, s32);
+void effectSetMode(u8); // FAKE: callee prototype steer
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 void effectSetDuration(s32);
-void effectSetFlags(s32);
+void effectSetFlags(s16);
 void *effectCreateAtPosition(s32, f32, f32, f32, f32);
 void effectWaveMotionUpdate(void);
 
