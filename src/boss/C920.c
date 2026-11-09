@@ -225,7 +225,7 @@ void actorSetTargetSpeed(void *, s32);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 void scriptSetActorRampTarget(void *, f32, f32);
 void playerSetSizeMode(void *, s32);
-s32 func_806C9974(s32, s32);
+s32 func_806C9974(u8, s8);
 void actorScriptStartByIndex(void *, s32);
 void patrolGetNextWaypointPos(s16 *, s16 *, s16 *);
 void actorSetGroupState(u8, s32);

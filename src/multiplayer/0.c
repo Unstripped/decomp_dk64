@@ -5,7 +5,6 @@
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
-#define PROTO_SKIP_func_806C9974 // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806F54E0 // FAKE: callee prototype steer
 #define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
 #define PROTO_SKIP_slotQueueGetValue // FAKE: callee prototype steer
@@ -798,7 +797,6 @@ void mpUpdateRandomSpawner(MpControllerState *controllerState) {
 }
 
 void func_806F54E0(u8, s16, u8); // FAKE: callee prototype steer
-void func_806C9974(u8, s32); // FAKE: callee prototype steer
 
 void mpApplyPendingEffect(s32 playerIndex) {
     MpActor *act;

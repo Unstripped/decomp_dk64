@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_func_806C9974 // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806F54E0 // FAKE: callee prototype steer
 #define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
 #include "proto/global/104F0.h"
@@ -28,14 +27,10 @@
 #include "proto/global/F9450.h"
 #include "proto/global/FCCD0.h"
 
-extern Actor *gCurrentActor;
-extern Actor *gSpawnedActor;
-extern Actor *gActivePlayerActor;
 extern void *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
-extern s16 gCurrentCharacterIndex;
 extern s32 gCurrentMap;
 extern u8 gPlayerCharacterId[];
 
@@ -595,7 +590,6 @@ void cutsceneStartFlag16CPath(void) {
     }
 }
 
-s32 func_806C9974(u8, s8); // FAKE: callee prototype steer
 void slotQueueAddValue(s32, u8, s32); // FAKE: callee prototype steer
 extern s8 D_80029FA0;
 extern s8 D_80753EF2[];

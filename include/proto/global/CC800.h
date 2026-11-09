@@ -88,7 +88,7 @@ struct G01Pos *func_806C96C4(s32);
 s8 func_806C9830();
 #endif
 #ifndef PROTO_SKIP_func_806C9974
-s32 func_806C9974();
+s32 func_806C9974(u8, s8);
 #endif
 #ifndef PROTO_SKIP_playerResetSpawnGlobals
 void playerResetSpawnGlobals(void);

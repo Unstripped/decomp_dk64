@@ -3,7 +3,6 @@
 #include "sched.h"
 #define PROTO_SKIP_actorAppendCallback4000 // FAKE: callee prototype steer
 #define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
-#define PROTO_SKIP_func_806C9974 // FAKE: callee prototype steer
 #include "proto/global/117190.h"
 #include "proto/global/12E800.h"
 #include "proto/global/135D30.h"
@@ -1085,7 +1084,6 @@ void playerStateThrowHeldActorWithScript(void) {
     gActivePlayerState->actor = gPlayerSlots[gCurrentPlayerIndex].queuedActor;
 }
 
-s32 func_806C9974(u8, s8); // FAKE: callee prototype steer
 
 void playerStateEnterDamageTake(void) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {

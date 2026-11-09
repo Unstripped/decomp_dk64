@@ -1176,10 +1176,7 @@ extern s32 D_807552EC;
 void func_80026E20(u8, s8);
 void rumbleRequest(u8, s32, s32, s8);
 
-s32 func_806C9974(arg0, arg1)
-u8 arg0;
-s8 arg1;
-{
+s32 func_806C9974(u8 arg0, s8 arg1) {
     G01PlayerFlags *pl;
 
     pl = (G01PlayerFlags *)&gPlayerSlots[arg0];
