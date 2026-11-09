@@ -1,33 +1,11 @@
 #include "common.h"
+#include "actor.h"
 
 typedef struct {
     u8 pad0[4];
     f32 unk4;
 } BossE_F0D0_SubSub0;
 
-typedef struct {
-    BossE_F0D0_SubSub0 *unk0;
-    u8 pad4[0x38 - 4];
-    f32 unk38;
-    u8 pad3C[0x64 - 0x3C];
-    u16 unk64;
-} BossE_F0D0_SubStruct;
-
-typedef struct {
-    u8 pad0[0x4];
-    BossE_F0D0_SubStruct *unk4;
-    u8 pad8[0x7C - 0x8];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    u8 pad88[0xE6 - 0x88];
-    s16 unkE6;
-    u8 padE8[0x128 - 0xE8];
-    s16 unk128;
-    u8 pad12A[0x154 - 0x12A];
-    u8 unk154;
-    u8 unk155;
-} BossE_F0D0_Actor;
 
 typedef struct {
     u8 pad0[0x14];
@@ -48,8 +26,8 @@ typedef struct {
     BossE_F0D0_FDCA0_Sub *unk14;
 } BossE_F0D0_FDCA0;
 
-extern BossE_F0D0_Actor *gCurrentActor;
-extern BossE_F0D0_Actor *gPrimaryPlayerActor;
+extern Actor *gCurrentActor;
+extern Actor *gPrimaryPlayerActor;
 extern BossE_F0D0_FDCA0 *D_807FDCA0;
 void actorScriptStart(void *, s32);
 void actorScriptExecute(void *);
@@ -83,14 +61,14 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *sub14, u8 *waypointIndices) {
     min_dist = 0x98967F;
     start_val = val;
     for (i = 0; i < 16; i++) {
-        dists[i] = (s32)(((f32)D_807FDCA0->unk14[i].unk0 - gPrimaryPlayerActor->unk7C) * ((f32)D_807FDCA0->unk14[i].unk0 - gPrimaryPlayerActor->unk7C) + ((f32)D_807FDCA0->unk14[i].unk4 - gPrimaryPlayerActor->unk84) * ((f32)D_807FDCA0->unk14[i].unk4 - gPrimaryPlayerActor->unk84));
+        dists[i] = (s32)(((f32)D_807FDCA0->unk14[i].unk0 - gPrimaryPlayerActor->x) * ((f32)D_807FDCA0->unk14[i].unk0 - gPrimaryPlayerActor->x) + ((f32)D_807FDCA0->unk14[i].unk4 - gPrimaryPlayerActor->z) * ((f32)D_807FDCA0->unk14[i].unk4 - gPrimaryPlayerActor->z));
         if (dists[i] < min_dist) {
             min_dist = dists[i];
             waypointIndices[3] = i;
         }
     }
 
-    if (gPrimaryPlayerActor->unk80 < gCurrentActor->unk80 - 10.0f) {
+    if (gPrimaryPlayerActor->y < gCurrentActor->y - 10.0f) {
         BossWaypointPick center = D_80035B80;
         return center.b[(randomNonNegative() >> 15) % 4];
     }
@@ -137,7 +115,7 @@ u8 bossPickWaypointStep(BossE_F0D0_Sub14 *sub14, u8 *waypointIndices) {
 void bossSetAnimationByWaypoint(u8 *waypointIndices) {
     s32 animId;
 
-    animId = gCurrentActor->unk4->unk64;
+    animId = gCurrentActor->sub4->animId;
     if (animId != 0x223 && waypointIndices[3] == waypointIndices[1]) {
         actorScriptStart(gCurrentActor, 0x223);
         actorScriptExecute(gCurrentActor);
@@ -157,25 +135,25 @@ void bossInterpolateWaypoints(u8 *waypointPair, f32 progress) {
     f64 val;
     f32 factor;
 
-    val = (f64)(gCurrentActor->unk4->unk0->unk4 * progress);
+    val = (f64)(((BossE_F0D0_SubSub0 *)gCurrentActor->sub4->model)->unk4 * progress);
 
     factor = (f32)(1.0 + (f64)mathSinF((s16)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
 
-    gCurrentActor->unk7C = (f32)D_807FDCA0->unk14[waypointPair[1]].unk0 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk0 - D_807FDCA0->unk14[waypointPair[1]].unk0) * factor;
-    gCurrentActor->unk84 = (f32)D_807FDCA0->unk14[waypointPair[1]].unk4 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk4 - D_807FDCA0->unk14[waypointPair[1]].unk4) * factor;
+    gCurrentActor->x = (f32)D_807FDCA0->unk14[waypointPair[1]].unk0 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk0 - D_807FDCA0->unk14[waypointPair[1]].unk0) * factor;
+    gCurrentActor->z = (f32)D_807FDCA0->unk14[waypointPair[1]].unk4 + (f32)(D_807FDCA0->unk14[waypointPair[0]].unk4 - D_807FDCA0->unk14[waypointPair[1]].unk4) * factor;
 
-    gCurrentActor->unkE6 = mathAngleEaseToward(gCurrentActor->unkE6, mathAngleBetweenPoints2D(D_807FDCA0->unk14[waypointPair[1]].unk0, D_807FDCA0->unk14[waypointPair[1]].unk4, D_807FDCA0->unk14[waypointPair[0]].unk0, D_807FDCA0->unk14[waypointPair[0]].unk4), 10.0f);
+    gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, mathAngleBetweenPoints2D(D_807FDCA0->unk14[waypointPair[1]].unk0, D_807FDCA0->unk14[waypointPair[1]].unk4, D_807FDCA0->unk14[waypointPair[0]].unk0, D_807FDCA0->unk14[waypointPair[0]].unk4), 10.0f);
 }
 
 void bossSpawnPuffDebris(void) {
     f32 scale;
 
-    scale = (f32) ((f64) gCurrentActor->unk4->unk38 / 0.15);
+    scale = (f32) ((f64) gCurrentActor->sub4->scaleY / 0.15);
     effectSetMode(2);
     effectSetCallback(&effectPuffRiseUpdate);
     effectSetDepth(1);
     effectSetSpeed(1);
-    effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) scale, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84);
+    effectCreateAtPosition(D_8074E880[((randomNonNegative() >> 15) % 1000) % 3], (f32) (f64) scale, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
 }
 
 void csModelStateSetFirstByte(s16, u8); // FAKE: callee prototype steer
@@ -225,15 +203,15 @@ void projectileGetTargetCoords(void *, s32);
 void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, s32);
 void bossSpawnObjectAtWaypoint(u8 *waypointIndex) {
     projectileGetTargetCoords(gCurrentActor, 1);
-    projectileAimAndSpawn(0x2C, 2, gCurrentActor->unk4->unk38, D_807FDCA0->unk14[waypointIndex[3]].unk0, D_807FDCA0->unk14[waypointIndex[3]].unk2, D_807FDCA0->unk14[waypointIndex[3]].unk4, 1200.0f, gCurrentActor);
+    projectileAimAndSpawn(0x2C, 2, gCurrentActor->sub4->scaleY, D_807FDCA0->unk14[waypointIndex[3]].unk0, D_807FDCA0->unk14[waypointIndex[3]].unk2, D_807FDCA0->unk14[waypointIndex[3]].unk4, 1200.0f, gCurrentActor);
 }
 
 s32 bossCheckPlayerBelow(BossE_F0D0_Sub14 *sub14, u8 *scriptOpcodes) {
-    if ((gPrimaryPlayerActor->unk80 < (gCurrentActor->unk80 - 10.0f)) && (sub14->unk14 < 5)) {
+    if ((gPrimaryPlayerActor->y < (gCurrentActor->y - 10.0f)) && (sub14->unk14 < 5)) {
         sub14->unk15 = sub14->unk16;
-        gCurrentActor->unk154 = scriptOpcodes[sub14->unk15];
+        gCurrentActor->state = scriptOpcodes[sub14->unk15];
         sub14->unk15++;
-        gCurrentActor->unk155 = 0;
+        gCurrentActor->unk155[0] = 0;
         actorScriptStart(gCurrentActor, 0);
         return 1;
     }
@@ -242,13 +220,13 @@ s32 bossCheckPlayerBelow(BossE_F0D0_Sub14 *sub14, u8 *scriptOpcodes) {
 
 
 void bossAdjustHealth(s8 healthDelta) {
-    gCurrentActor->unk128 += healthDelta;
-    if (gCurrentActor->unk128 < 0) {
-        gCurrentActor->unk128 = 0;
-        gCurrentActor->unk155++;
-    } else if (gCurrentActor->unk128 >= 0x100) {
-        gCurrentActor->unk128 = 0xFF;
-        gCurrentActor->unk155++;
+    gCurrentActor->alpha += healthDelta;
+    if (gCurrentActor->alpha < 0) {
+        gCurrentActor->alpha = 0;
+        gCurrentActor->unk155[0]++;
+    } else if (gCurrentActor->alpha >= 0x100) {
+        gCurrentActor->alpha = 0xFF;
+        gCurrentActor->unk155[0]++;
     }
 }
 
@@ -354,7 +332,6 @@ extern u8 D_80035BD8[];
 extern u8 D_80035BEC[];
 extern u8 D_80036DD0[];
 extern f32 D_80036C40[];
-extern void *gBehaviourWorkState;
 extern u8 D_807FBB85;
 extern u8 D_807FBDC4;
 extern s32 gFrameCounter;
@@ -951,16 +928,16 @@ void bossMainStep(void) {
 void bossShockwaveTriggerDamage(void) {
     f32 dx, dz;
 
-    switch (gCurrentActor->unk155) {
+    switch (gCurrentActor->unk155[0]) {
     case 1:
-        if (gCurrentActor->unk154 == 0) {
-            dx = gPrimaryPlayerActor->unk7C - gCurrentActor->unk7C;
-            dz = gPrimaryPlayerActor->unk84 - gCurrentActor->unk84;
+        if (gCurrentActor->state == 0) {
+            dx = gPrimaryPlayerActor->x - gCurrentActor->x;
+            dz = gPrimaryPlayerActor->z - gCurrentActor->z;
             if (dx * dx + dz * dz < 4225.0f) {
-                if (gPrimaryPlayerActor->unk154 != 0x31) {
+                if (gPrimaryPlayerActor->state != 0x31) {
                     playerStateQueueCallback(0x2E, gCurrentActor, 0);
                 }
-                gCurrentActor->unk154++;
+                gCurrentActor->state++;
             }
         }
         break;
@@ -968,7 +945,7 @@ void bossShockwaveTriggerDamage(void) {
         actorDespawn(gCurrentActor);
         break;
     }
-    camStartShakeFromPoint(gCamActor, 5, 0x14, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 200.0f, 400.0f);
+    camStartShakeFromPoint(gCamActor, 5, 0x14, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 200.0f, 400.0f);
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
