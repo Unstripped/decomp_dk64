@@ -43,14 +43,18 @@ void menuLightSpotlightActorUpdate(void) {
     if (gCurrentActor->unk60 & 4) {
         lightUpdateFromActorLighting(&D_80033FB0, &D_80033FB1, &D_80033FB2);
     }
-    if (gCurrentActor->unk154 == 0 && gCurrentActor->unk155 == 0) {
-        do {
+    switch (gCurrentActor->unk154) {
+    case 0:
+        switch (gCurrentActor->unk155) {
+        case 0:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
                 actorScriptStart(gCurrentActor, 0x2A7);
                 gCurrentActor->unk155++;
             }
-        } while (0); // FAKE: do/while(0) wrapper steers branch codegen
+            break;
+        }
+        break;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
