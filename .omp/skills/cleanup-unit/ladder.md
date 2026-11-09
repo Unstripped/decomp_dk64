@@ -21,7 +21,7 @@ have `u` as the first hash character: `global:8060ABCD:dead-if:u3f2a1`. Kinds:
 |`proto-steer` / `implicit-steer`|`// FAKE: callee prototype steer` / `implicit declaration steer`|
 |`proto-type`|a `// PROTO:` line|
 |`goto`|every goto statement (AST), tagged or not|
-|`other`|any other FAKE line; review findings (key from `status --func`)|
+|`other`|any other FAKE line; review findings (key from `sweep <copy> --copy-of <src>` output)|
 
 `// LAYOUT:` lines are not sites (as1 line-order scheduling is ordinary source layout).
 
@@ -35,7 +35,7 @@ have `u` as the first hash character: `global:8060ABCD:dead-if:u3f2a1`. Kinds:
 |`classify`|sweep|dead-if → `if (<int local>) {}`; match = class 1 (`kept`), none = class 2|
 |`consolidate`|protos.py|remove the file's declaration in favour of the shared header|
 |`diagnose`|agent|uopt/as1 diagnosis; `quirks=Q....` required|
-|`permute`|agent|`tools/permute.py run -j 2 --seconds ≥600`; `seconds=`, `base=`, `best=` required|
+|`permute`|agent|`tools/permute.py run -j 2 --seconds ≥600`; `seconds=`, `base=`, `best=` required (a run stopped at `best=0` may be shorter)|
 |`reconstruct`|agent|rewrite of the function from scratch around the steering|
 |`goto-hand`|agent|structured-control rewrite of a goto|
 |`views`|agent|types phase result (function-level)|

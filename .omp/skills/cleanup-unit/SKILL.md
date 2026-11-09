@@ -22,7 +22,9 @@ procedure is decomp-unit's (`skill://decomp-unit/merge.md`, failures:
 ## 0. Model
 
 Use the model the user named when starting the run for every worker spawn (`task` `model`
-field). None named: ask once before the first spawn. Never run `ledger.py plan`/`route`,
+field). None named: ask once before the first spawn. With `task.perCallModel: off` the field is
+rejected: spawn without it only if the default task agent runs that model (its transcript's
+`"model"` entries, `history://<agent>`), else tell the user. Never run `ledger.py plan`/`route`,
 never write `.scratch/routes/`, never use workpools routed by `.omp/extensions/decomp-router.ts`.
 
 ## 1. Ingest
@@ -62,9 +64,12 @@ Per-file phase order (one agent does all five):
 ## 4. Headers
 
 Agents never edit `include/`: they write the exact hunk to `.scratch/<A>/header-request.md`
-and message you. Apply it, then `uv run tools/clint.py layout --base HEAD include/<h>.h` must
-print `LAYOUT OK`, then
-`tools/merge_gate.sh --commit "include: <what>" --stage include/<h>.h - - src/<seg>/<agent file>.c`.
+and message you. Before applying, list every user of each renamed or split field yourself:
+`uv run tools/rename.py field --dry-run include/<h>.h <Struct> <field> zzProbe` (AST users only;
+agents miss files: the first pilot request missed `936B0.c`). Snapshot those files
+(`merge_drafts.py snapshot`), apply the hunk and their edits, then
+`uv run tools/clint.py layout --base HEAD include/<h>.h` must print `LAYOUT OK`, then
+`tools/merge_gate.sh --commit "include: <what>" --stage include/<h>.h - - <the edited src files>`.
 A layout change is refused, never committed. Then message every running agent (`write
 agent://<A>`) with the new HEAD and the hunk.
 
@@ -82,10 +87,14 @@ As each agent reports:
    `tools/merge_gate.sh --commit MSG --stage include/proto/<seg>/<f>.h [...] - - src/<seg>/<f>.c`
    (one `--stage` per header `gen` wrote; `--stage` copies files, never a directory). After
    every merge `uv run tools/protos.py gen --check` must exit 0.
-5. Record: save the LEDGER block to `.scratch/<A>/ledger.txt`, then
+5. Knowledge first: file the report's IDO findings (`quirks.py search`, then edit the entry or
+   `quirks.py add --source <path>@<merge commit>`; `quirks.py check`) and commit them BEFORE
+   recording. A knowledge commit after an event that names its function makes that event
+   stale (the pilot's own findings re-opened its file).
+6. Record: save the LEDGER block to `.scratch/<A>/ledger.txt`, then
    `uv run tools/quality.py record --unit "<unit>" --agent <A> --base <base> --batch .scratch/<A>/ledger.txt`
-   (all-or-nothing: fix the lines it rejects with the agent). Commit `drafts/quality.jsonl`
-   (`quality: <unit> <f>`).
+   (all-or-nothing: fix the lines it rejects with the agent; keys that exist only in the copy
+   resolve once it is merged). Commit `drafts/quality.jsonl` (`quality: <unit> <f>`).
 
 Invariants: `src/` and `include/` change only through the gate; every commit passes the full
 ROM gate; the net FAKE count of a merged file never rises.
@@ -94,11 +103,15 @@ ROM gate; the net FAKE count of a merged file never rises.
 
 Once every agent of the round is idle:
 1. Apply proposed `func_`/`D_`/shared-field names ([naming.md](naming.md)) with
-   `uv run tools/rename.py func|global|field ...` (dry-run first; check the evidence line).
+   `uv run tools/rename.py func|global|field ...` (dry-run first; check the evidence line: a
+   field read as a volume in one place and a pitch in another is not confirmed).
 2. `tools/dk make split`, `find src -name '*.c' -exec touch {} +`, `tools/dk make` OK,
    `tools/dk make expected`, `python3 tools/unit_check.py vanished` → `vanished OK`.
 3. Commit `<seg>: name N symbols` (symbol files, renamed src, moved drafts, the `include/proto`
    headers `gen` rewrote).
+4. A rename changes the fingerprints of every function it touches: `uv run tools/quality.py
+   carry --rev <commit before the renames> --unit "<unit>"` re-stamps their results (pure
+   identifier renames only; it lists what it skipped). Commit `drafts/quality.jsonl`.
 
 ## 7. Stop rule
 
@@ -113,6 +126,6 @@ function only once the types phase recorded `views` `blocked` with a reason.
 1. `uv run tools/quality.py report --baseline 2b2532bc --markdown` (campaign start) replaces
    the table in ROADMAP.md `### 11. Code quality (ongoing)` under "To do".
 2. Procedure lessons → this skill (caps: SKILL.md and reference files ≤150 lines, brief.md
-   ≤180; a lesson replaces or merges text). IDO facts → `knowledge/ido` via `quirks.py
-   search` then edit or `quirks.py add --source <path>@<HEAD>`, `quirks.py check`.
+   ≤180; a lesson replaces or merges text). IDO facts were filed per merge (§5.5); a fact filed
+   now stales the round's events for the functions it names: re-record those lines after it.
 3. Append one [run-log.md](run-log.md) row; commit `cleanup-unit skill: <what changed>`.

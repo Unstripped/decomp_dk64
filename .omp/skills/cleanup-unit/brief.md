@@ -52,7 +52,8 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
      `tools/dk python3 tools/as1probe.py keep|scan` for schedule; name the IDs (`quirks=`).
    - `permute`: `tools/permute.py setup <seg> FUNC --from .scratch/<You>/<file>.c --src <src>
      --out .scratch/<You>/perm_<FUNC>` after removing the site, then `run ... -j 2 --seconds 900`,
-     `best ...`; record `seconds= base= best=`.
+     `best ...`; record `seconds= base= best=`. Start each `run` as its own background command
+     (several `&` jobs in one shell loop ran only the last one).
    - `reconstruct` (functions with 3+ non-kept sites): rewrite the function body from its
      asm behaviour in natural C; fdiff; record the outcome.
    - `consolidate` (`proto-steer`/`implicit-steer`): delete the local declaration/skip define
@@ -68,17 +69,21 @@ Start state (`uv run tools/quality.py status --file <file>` at the base):
    locals, self-assignments, re-reads with no purpose); casts and views a shared type would
    replace; control flow (gotos, `do {} while (0)`, fall-through tricks); declarations it
    calls through; m2c-shaped names; `clint uninit` warnings. Each problem: fix it now (fdiff)
-   or make it a site (`other`, key from `uv run tools/quality.py status --func FUNC` on the
-   copy) and take it through phases 2–4. Then one `review` LEDGER line per function.
+   or make it a site (`other`; its key is in the output of `uv run tools/quality.py sweep
+   .scratch/<You>/<file>.c --copy-of <src>`: `status` reads `src/` only) and take it through
+   phases 2–4. Then one `review` LEDGER line per function.
 
 # Report (final message)
 1. Copy path, base commit, final `fdiff` and `clint uninit` results, FAKE/goto counts before → after.
 2. Per site: key, what you did, result.
-3. A fenced block tagged `LEDGER`, one line per (site or function, method), exactly:
+3. A fenced block tagged `LEDGER`, one line per (site or function, method), exactly as below.
+   Keys hash the site's code, local names included: a site still present uses its key in the
+   FINAL copy (`sweep <copy> --copy-of <src>`), a site you removed uses its base key. Finish
+   every permute run before reporting (an OPEN rung reopens the file next round):
    `<site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [seconds=N] [base=N] [best=N] [note="..."]`
    methods `remove plain cond classify consolidate diagnose permute reconstruct goto-hand
    views names review`; outcomes `hit fixed nohit kept blocked`. Rules: `diagnose` needs
-   `quirks=`; `permute` needs `seconds>=600 base= best=`; `kept` only for `classify`
+   `quirks=`; `permute` needs `base= best=` and `seconds>=600` (shorter only when it stopped at `best=0`); `kept` only for `classify`
    (`note="class 1"`) or `goto-hand` (note cites Q0591). A site you fixed: `fixed` on the
    method that fixed it. Every function: `func:<seg>:<name> review <fixed|nohit|blocked>
    note="fake=<kept>/<removed> goto=<n> casts=<n kept> views=<ok|n left> protos=<ok|n steer>
