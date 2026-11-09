@@ -268,7 +268,6 @@ void menuUpdateMainScreen(void *actor, s32 buttons) {
             startRandIdx = randIdx;
             if (D_800336A0 & (1 << randIdx)) {
                 do {
-                    if (D_800336A0 && D_800336A0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                     randIdx += 1;
                     if (randIdx == 0xB) {
                         randIdx = 0;
@@ -283,7 +282,6 @@ void menuUpdateMainScreen(void *actor, s32 buttons) {
                 do {
                     if (D_800336A4[D_80033F54] != -1) {
                         do {
-                            if (D_800337F0 && D_800337F0) {}  // FAKE: deadsweep: steers uopt colouring of the address/const webs
                             D_80033F54 += 1;
                         } while (D_800336A4[D_80033F54] != -1);
                     }
