@@ -740,10 +740,8 @@ void eepromSaveRecords(s32 arg0) {
             sector = offset / 8;
         }
         a = offset;
-        if (a) {}  // FAKE: live range / colouring of the narrowed index temp
         b = ((offset + 0x40) / 4) - 1;
         offset = 0;  // FAKE: dead store; the operand is redefined, so b's value is not copy-propagated into the index and b stays the variable (same colour as the loop's b)
-        if (b) {}  // FAKE: live range / colouring of the narrowed index temp
         ((u32 *)workingData)[b] = eepromCalculateCrc32(a + workingData, 0x3C);
         bzero(strlen(D_807467C0) - (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) + workingData + 0x840, (0x800 - ((((((((D_807ECEA0[0] + 0x6B7) & ~0x3F) + 0x27) & ~7) * 4) + 0x3F) & ~0x3F) / 8)) - strlen(D_807467C0) - 0x40);
         if (D_807ECEA0) {}  // FAKE: deadsweep dead statement (steers uopt)
