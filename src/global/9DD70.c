@@ -1,8 +1,42 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorTableContains // PROTO: Type s32  of this argument  is incompatible with type void  
+#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetDepth // FAKE: callee prototype steer
+#include "proto/boot/3630.h"
+#include "proto/global/100180.h"
+#include "proto/global/1025E0.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/112080.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/5230.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/90D80.h"
+#include "proto/global/9DD70.h"
+#include "proto/global/AA960.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/FCCD0.h"
 
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-f32 mathAtan2(f32, f32);
 
 void mathAngleBetweenPoints3D(s16 *pitch, s16 *yaw, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
     f32 dx;
@@ -20,8 +54,6 @@ extern u8 gGfxBufferIndex;
 extern s32 gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern Gfx D_2000180;
-Gfx *renderSetSegment6AndFog(Gfx *, s16, u8);
-Gfx *renderActorDisplayList(Gfx *, Actor *);
 
 void renderSetupSegmentsAndFog(Gfx *glistp, Actor *actor) {
     WRITE_GFX(glistp++, 0xDA380007, osVirtualToPhysical((void *)((u8 *)gPlayerSlots + (gCurrentPlayerIndex * 0x2F0) + (gGfxBufferIndex << 6) + 0x88)));
@@ -34,7 +66,6 @@ void renderSetupSegmentsAndFog(Gfx *glistp, Actor *actor) {
 }
 
 extern void *gActivePlayerState;
-void animSetNodeItem(Actor *, s32, s16, s32);
 
 typedef struct PlayerControlState {
     /* 0x000 */ u8 pad0[0x88];
@@ -70,24 +101,6 @@ typedef struct CameraView {
 
 extern Actor *gCurrentActor;
 
-s32 func_806FFF88(void);
-void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
-void scriptSetActorRampTarget(Actor *, f32, f32);
-void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
-void sfxStopSlotSound(Actor *, u8);
-void color5551CopyLerpToWhite(s16 *, s32 *, f32);
-void slotQueueAddValue(s32, u8, s32);
-s32 sfxAllocateChannel(s32, f32);  // FAKE: callee prototype steer
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void renderCallbacksRegister(void *, void *, u8);
-void mathAngleBetweenPoints3D(s16 *, s16 *, f32, f32, f32, f32, f32, f32);
-s32 playerStateQueueCallback(s16, void *, u8);
-void assetFreeBuffer(s32, s32, s32);
-void heapFreeDeferred(Mtx *);
-void actorDespawn(Actor *);
-void actorUpdateModelMatrix(Actor *, s32);
-void renderSetupSegmentsAndFog(Gfx *, Actor *);
-Gfx * func_806FF628(Gfx *, Actor *);
 
 void actorPhotoUpdate(void) {
     PanSubState *subState;
@@ -178,7 +191,6 @@ void actorPhotoUpdate(void) {
     }
 }
 
-void actorPhotoUpdate(void);
 
 void actorPhotoUpdateEntry(void) {
     actorPhotoUpdate();
@@ -189,7 +201,6 @@ void actorPhotoUpdateEntry(void) {
 void func_806998E8(void) {
 }
 
-void actorSagWaveUpdate(u8, u8);
 
 void func_806998F0(void) {
     actorSagWaveUpdate(8, 0);
@@ -248,12 +259,6 @@ typedef struct WaveState {
 
 extern u8 D_807FBBEC;
 extern ActorGlobalState gActorGlobalState;
-void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
-void scriptSetActorRampTarget(Actor *, f32, f32);
-Mtx *heapAlloc(s32);
-void actorUpdateModelMatrix(Actor *, s32);
-s32 actorCheckAlwaysFalse(void);
-void actorAddNodeForceSlot(f32, u8);
 f32 sinApprox(f32);
 void *memcpy(void *, const void *, unsigned int);
 
@@ -545,7 +550,6 @@ s32 actorCheckAlwaysFalse(void) {
     return 0;
 }
 
-Mtx *heapAlloc(s32);
 
 typedef struct {
     u8 unk0;
@@ -590,7 +594,6 @@ typedef struct {
 } ProximitySource;
 
 f32 sinApprox(f32);
-void actorUpdateModelMatrix(Actor *, s32);
 
 #define PROX_SRC ((ProximitySource *)&gActorGlobalState)
 
@@ -681,17 +684,9 @@ typedef struct {
     f32 unk14;
 } SpotLightConfig;
 
-void actorScriptStart(Actor *, s32);
-void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
-void actorUpdateModelMatrix(Actor *, s32);
 extern u8 gBossFightPhase;
 extern s32 gCurrentMap;
 extern s16 D_807503A0;
-void lightSetFovAngles(f32, f32);
-void lightSetFlags(u8);
-void lightSetTargetId(s16);
-s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
 void actorSpotLightUpdate(void) {
     f32 targetPos[3];
@@ -742,7 +737,6 @@ void actorSpotLightUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void actorSpotLightUpdate(void);
 
 void actorSpotLightUpdateEntry(void) {
     actorSpotLightUpdate();
@@ -773,22 +767,8 @@ extern s16 D_80750378;
 extern s32 gGameFrameCounter;
 extern u8 D_8071FE08[];
 extern u8 D_80720E14[];
-void effectScaleSpinUpdate();
-void actorDespawn(Actor *);
-ActorSub140 * actorSetCollisionRadius(Actor *, f32);
-void actorUpdatePrevContactFlags(Actor *);
-void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
-void actorAppendCallback(Actor *, Actor *, s32, u8, s32, void *);
-void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
-void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
-void collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
-void effectSetCallback(void *);
 void effectSetDepth(u8);  // FAKE: callee prototype steer
-void effectSetDuration(s32);
-void effectCreateAtActorBone(s32, f32, void *, s32, u8);
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);  // FAKE: callee prototype steer
-f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 
 void func_8069B010(void) {
     s32 *p = gCurrentActor->customState;
@@ -840,10 +820,6 @@ void func_8069B010(void) {
 extern u8 D_8071FC58;
 extern u8 D_8071FC8C;
 extern u8 D_8071FCC0;
-void func_80717D4C(void);
-s32 randomNonNegative(void);
-void effectSetSpeed(s32);
-void sfxStopChannel(s32, s32);
 
 void func_8069B3FC(void) {
     s16 *p = gCurrentActor->customState;
@@ -931,9 +907,6 @@ void func_8069B3FC(void) {
 
 extern s16 gScreenWidth;
 s32 actorTableContains();
-void textMarkerUpdateMatrix(void);
-void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s16, f32, s32);
-u8 flagGet(s16, u8);
 
 s32 actorHasCallbackTargetThisFrame(void) {
     ActorCallbackNode *node = gCurrentActor->callbacks;
@@ -997,26 +970,6 @@ extern f32 D_807502E4;
 extern u8 D_80720340;
 extern ActorNamePair D_807503A4;
 
-s32 actorHasActiveMovementFlags(Actor *);
-s16 actorListFindIdByActor(Actor *);
-void actorListSetPosByActor(Actor *, f32, f32, f32);
-void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, s32);
-void actorApplyVelocity(Actor *);
-void actorUpdateFloorContactAndTilt(Actor *, f32);
-void actorCallbackMaskEnable(Actor *, s32);
-void actorCallbackMaskDisable(Actor *, s32);
-void actorCollisionEventsCancel(s32, u8);
-void func_8068A2FC(Actor *);
-void actorReleaseFromPlayerHold(Actor *);
-void sfxSetVolumeAndPan(u8, f32, f32);
-void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
-s32 actorAngleInArc(Actor *, s16);
-f32 randomFloat(void);
-void effectSetAngle(s16);
-void effectSetMode(s8);
-void camStartShake(s32, s32, s32);
-void effectLightPulseOscillate(void);
-void effectTumbleBounceUpdate(void);
 
 void textMarkerUpdateMatrix(void) {
     ActorSub174View *markerView;
@@ -1485,9 +1438,6 @@ typedef struct TextMarkerState {
     u8 unkA;
 } TextMarkerState;
 
-s32 actorSpawn(s32, s32);
-s16 gfxResourceCreate(s16, char *, u8, f32, f32, f32);
-s32 textGetStringWidth(s16, s32);
 extern Actor *gSpawnedActor;
 
 void textSpawnMarker(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 delay, u8 colorMode, u8 extraFlags) {
@@ -1523,11 +1473,6 @@ void textSpawnMarker(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 
 }
 
 extern u8 gPlayerCount;
-s32 menuIsTransitionType5();
-s32 func_807142D8();
-s32 menuIsTransitionType6();
-s32 menuIsTransitionTypeB();
-void textSpawnMarker(u8, s16, s16, s32, u16, u16, u8, u8);
 
 void textSpawnMarkerChecked(u8 fontStyle, s16 x, s16 y, s32 textStr, u16 duration, u16 delay, u8 colorMode, u8 extraFlags) {
     if (gPlayerCount < 2) {
@@ -1547,7 +1492,6 @@ typedef struct ActorPositionView {
     f32 unk80;
 } ActorPositionView;
 
-void heapFreeDeferred(Mtx *);
 
 void *renderAppendScaledMatrix(void *glistp, ActorPositionView *actor, s16 xOffset, f32 scale) {
     Mtx *temp;
@@ -1570,10 +1514,6 @@ extern Gfx D_1000118;
 #define TEXT_MARKER_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
 extern s32 D_8074E880[];
-void effectConfettiPhysicsUpdate(void);
-void effectEnableFade(void);
-void vtxGradientSetPosition(s16);
-extern Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, char *, u8);
 
 Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
     char **sub;
@@ -1651,7 +1591,6 @@ Gfx *textMarkerRenderString(Gfx *gfx, Actor *actor) {
 
 #define WRITE_GFX_U32(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
-Gfx * textDrawAnimated(Gfx *, s16, s32, f32, f32, f32, f32);
 
 Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
     void *model;
@@ -1670,8 +1609,6 @@ Gfx *textMarkerRender(Gfx *gfx, Actor *actor) {
     return gfx;
 }
 
-void heapFree(void *);
-Gfx *textMarkerRenderString(Gfx *, Actor *);
 
 void textMarkerUpdate(void) {
     u8 *model;
@@ -1745,9 +1682,6 @@ void textCopyGlyphBlock(s32 *dst, s32 *src, u8 rowWidth) {
     } while (i < 0x20);
 }
 
-void *textFontLoadSheet(s16);
-void animSetLoopLimit(Actor *, s32, s16);
-void animSetSpeed(Actor *, s32, f32);
 
 s32 textBuildDigitNode(u8 baseFont, void *nodeBuffer, u8 nodeSlot, u8 digit, u8 glyphWidth) {
     void *temp;
@@ -1768,9 +1702,6 @@ s32 textBuildDigitNode(u8 baseFont, void *nodeBuffer, u8 nodeSlot, u8 digit, u8 
 extern u8 gCurrentWorldId;
 extern u16 gLevelCollectibleCounts[];
 extern u16 D_807446C0[];
-u8 mapGetHubWorldIndex(u8, u8);
-void csModelStateSetFirstByte(s16, s16);
-s32 textBuildDigitNode(u8, void *, u8, u8, u8);
 
 void textUpdateThreeDigitCounter(void) {
     s32 *model;
@@ -1837,10 +1768,6 @@ void actorPlaySoundAndFinish(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void flagSet(s16, u8, u8);
-void resQueueSetValue(s8);
-s32 frameTimingGetMapIndex(void);
-void resQueueAttachActor(Actor *, s32, u8);
 
 extern s8 D_807F6951;
 extern s8 D_807F6950;

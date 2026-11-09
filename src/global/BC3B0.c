@@ -1,5 +1,17 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_hudSpawnCountdownTimer // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/12E800.h"
+#include "proto/global/201B0.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/90D80.h"
+#include "proto/global/936B0.h"
+#include "proto/global/A7710.h"
+#include "proto/global/BC3B0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -24,7 +36,6 @@ typedef struct BC3B0CursorActor {
 extern u8 D_1000118[];
 extern u8 D_2000080[];
 
-Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
 
 Gfx *actorCursorDrawSprite(Gfx *dl, Actor *actor) {
     BC3B0CursorSub174 *sub = ((BC3B0CursorActor *)actor)->unk174;
@@ -74,8 +85,6 @@ Gfx *actorCursorDrawBurst(Gfx *dl, Actor *actor) {
     return dl;
 }
 
-void projectileSetTargetCoords(f32, f32, f32);
-void projectileAimAndSpawn(s16, s32, f32, f32, f32, f32, f32, void *);
 extern s32 gCurrentMap;
 
 void actorCursorFireProjectile(void *unused) {
@@ -154,16 +163,7 @@ typedef struct BC3B0CursorCfg {
 extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
 
-void behaviourFrameBegin(void);
 void hudSpawnCountdownTimer(s32, s32, u8, s32 *);
-s32 camIsCutsceneActive(void);
-s32 camIsFollowingActive(void);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void actorSetStateTwo(s32);
-s16 mathAngleArcMidpoint(s16, s16);
-s32 camStartPath(void *, s32, s32);
-void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
-void renderCallbacksRegister(void *, void *, s32);
 
 void func_806B7EA0(void) {
     BC3B0Cursor *c;
@@ -274,23 +274,7 @@ typedef struct BC3B0View9C {
 
 extern u32 gFrameCounter;
 extern u8 D_807201D4[];
-extern void func_80717D4C(void);
 
-void behaviourFrameBegin(void);
-void actorSetCollisionRadius(Actor *, f32);
-void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
-void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
-void actorSetNodeFlag(Actor *, s32);
-void actorClearNodeFlag(Actor *, s32);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-void effectSetDuration(s32);
-void effectSetDepth(s32);
-void effectSetSpeed(s32);
-void effectSetCallback(void *);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
-void actorUpdateBurstProjectileEmitter(void);
 
 void actorUpdatePeriodicParticleEmitter(void) {
     behaviourFrameBegin();

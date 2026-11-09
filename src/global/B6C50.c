@@ -1,5 +1,23 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#include "proto/global/119370.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
+#include "proto/global/35000.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/80150.h"
+#include "proto/global/89250.h"
+#include "proto/global/A7710.h"
+#include "proto/global/B6C50.h"
 
 typedef struct B6C50Actor {
     /* 0x000 */ u8 pad0[4];
@@ -41,35 +59,10 @@ extern ActorGlobalState gActorGlobalState;
 extern s32 D_8072030C;
 extern u32 gFrameCounter;
 
-void actorClearNodeFlag(B6C50Actor *, s32);
-void actorDespawn(B6C50Actor *);
-void actorSetStateTwo(B6C50Actor *);
-s32 actorSpawn(s32, s32);
 s32 actorTableContains();
-void effectSpawnBoneDefault(B6C50Actor *, s16, f32, f32, f32, f32, s32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void actorScriptStart(B6C50Actor *, s32);
-void camStartPath(B6C50Actor *, s32, s32);
-s32 currentActorTestClearFlag(void);
-void actorUpdateModelMatrix(B6C50Actor *, s32);
-void actorUpdateFloorContactAndTilt(B6C50Actor *, f32);
-void actorCopyPoseAndScale(B6C50Actor *, B6C50Actor *, f32);
-void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
-void hudSpawnCountdownTimer(s32, s32, u8);
-void effectSetMode(s32);
-void effectSetMaxDistance(s16);
-void effectSetDepth(s32);
-void effectSetColor(s32, s32, s32, s32);
-void effectSetDuration(s32);
-void effectCreateAtActorBone(void *, f32, void *, s32, s32);
-void effectFreeByResource(B6C50Actor *);
-void func_80726EE0(s32);
-void behaviourFrameBegin(void);
-s32 sfxAllocateChannel(s32, f32);
-void sfxPlayActorSound(B6C50Actor *, s16, u8, u8, u8, u8, f32, s8);
-void sfxPlayFromActorWithAltitudeCheck(B6C50Actor *, s16, u8, s16, u8);
-void sfxStopSlotSound(B6C50Actor *, u8);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void func_806B1F50(void) {
     u8 tint;
@@ -164,10 +157,6 @@ void func_806B1F50(void) {
 extern B6C50Actor *gPrimaryPlayerActor;
 extern s32 D_80720340;
 
-B6C50Actor *actorFindByType(s32);
-void controllerAnimSetStateIfChanged(B6C50Actor *, s16, f32, f32);
-void actorMoveWithinZone(s32, f32, f32, s32, f32);
-void behaviourUpdateContactAndState(s32);
 f32 sqrtf(f32);
 
 void func_806B24B8(void) {

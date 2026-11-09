@@ -1,5 +1,31 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorListLookupEntry // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtActorBone // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_flagGet // FAKE: callee prototype steer
+#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
+#define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/127B00.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/AA960.h"
+#include "proto/global/CC800.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
 
 typedef struct SfxTableEntry {
     /* 0x0 */ u16 unk0;
@@ -30,19 +56,8 @@ extern u8 D_80720A58[];
 extern u8 D_807211D0[];
 extern u8 D_80721378[];
 
-void actorSpawnNodeEntryScaled(s16 actorType, f32 x, f32 y, f32 z, s32 yaw, s32 pitch, s32 roll, s32 extraParam);
-void effectSpawnAttachedSpriteColored(void *, s32);
-void func_806A6230(void);
-void effectSetScale(f32, f32);
 s32 effectCreateAtActorBone(void *, f32, void *, s32, s32);
-void sfxAllocateChannel(s32, f32);
-void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
-void effectSetColor(s32, s32, s32, u8);
-void effectSetMode(s32);
-void effectSetDepth(s32);
-void effectSetDuration(s32);
-void actorDropBounceExpireUpdate(f32 floorOffset);
-void effectSpawnAttachedSprite(void *targetState, void *spriteAsset, f32 scale);
+void effectSetColor(s32, s32, s32, u8); // FAKE: callee prototype steer
 
 void sfxSpawnTableNodes(Actor *actor) {
     s32 i;
@@ -316,20 +331,8 @@ typedef struct BehaviourConfig {
 
 extern ActorGlobalState gActorGlobalState;
 extern s16 D_8075038C;
-void actorUpdatePrevContactFlags(Actor *);
-s32 actorAngleInArc(Actor *, s16);
-s16 mathAngleArcMidpoint(s16, s16);
-void actorApplyVelocity(Actor *);
-void actorUpdateFloorContactAndTilt(Actor *, f32);
-void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
-void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
-void actorSetCollisionRadius(Actor *, f32);
-u32 randomLcgNext(void);
-s32 camIsCutsceneActive(void);
-s32 actorTypeIsRespawnPickup(s32);
-void func_806F5F2C(s32, s32, s16, s16, s32);
-s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
-void actorDespawn(void *);
+u32 randomLcgNext(void); // FAKE: callee prototype steer
+s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8); // FAKE: callee prototype steer
 
 void actorDropBounceExpireUpdate(f32 floorOffset) {
     BehaviourState *state;
@@ -475,17 +478,6 @@ extern ActorGlobalState gActorGlobalState;
 extern s16 D_80750384;
 extern s16 D_8075038C;
 extern f32 D_80750388;
-void func_806C9974(s32, s32);
-void actorUpdatePrevContactFlags(Actor *);
-s32 actorAngleInArc(Actor *, s16);
-s16 mathAngleArcMidpoint(s16, s16);
-void actorApplyVelocity(Actor *);
-void actorUpdateFloorContactAndTilt(Actor *, f32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
-void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
-void actorSetCollisionRadius(Actor *, f32);
-void actorUpdateModelMatrix(Actor *, s32);
 
 typedef struct PhysicsActor {
     u8 pad0[0xC0];
@@ -498,7 +490,6 @@ typedef struct PhysicsActor {
 
 #define AA960_PHY ((PhysicsActor *)gCurrentActor)
 
-void actorBounceFadeInSpinUpdate(u8 fadeAlpha);
 
 void actorBounceFadeInSpinUpdate(u8 fadeAlpha) {
     EffectState *state;
@@ -631,8 +622,6 @@ typedef struct EffectCounter {
     u16 unk8;
 } EffectCounter;
 
-void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void effectSpawnBurstParticleCluster(Actor *);
 
 void actorUpdateSfxAndGround(void) {
     EffectCounter *counter;
@@ -658,7 +647,6 @@ void actorUpdateSfxAndGround(void) {
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 0x1E, 0x1E, 1, 0x96, 0x78, 0, 1.0f);
 }
 
-void effectSpawnRingBursts(Actor *, f32, f32, s32);
 
 void actorSpawnRingBurstAndUpdate(void) {
     if (!(gCurrentActor->flags & 0x10)) {
@@ -673,15 +661,7 @@ void actorSpawnRingBurstAndUpdate(void) {
     }
 }
 
-void actorDespawn(void *);
-void effectSetSpeed(s32);
-void effectSetCallback(void (*)(void));
-void effectOrbitSourceUpdate(void);
-void effectProximityFadeUpdate(void);
-void slotQueueUpdate(s32, s32, s32);
-void slotQueueAddValue(s32, s32, s32);
 
-void actorPathCollectibleUpdate(void *);
 
 typedef struct AA960ConfigInt {
     s32 unk0;
@@ -690,20 +670,9 @@ typedef struct AA960ConfigInt {
 
 extern u8 gBossFightPhase;
 extern u32 gGameFrameCounter;
-s32 actorListFindIdByActor(Actor *);
-s32 actorListLookupEntry(s32);
-s32 flagGet(s32, s32);
-void flagSet(s32, s32, s32);
-s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
-void pathPlaybackSetLooping(s32, s32);
-void pathPlaybackSetSpeed(s32, s32);
-void pathPlaybackSetLoopLimit(s32, s32);
-void pathPlaybackSetActive(s32, s32);
-void pathPlaybackAdvance(s32);
-void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
-void func_80724994(s32, s32, s32, s32, s32);
+s32 actorListLookupEntry(s32); // FAKE: callee prototype steer
+s32 flagGet(s32, s32); // FAKE: callee prototype steer
 f32 mathSinF(s16);
-void effectSetFlags(s32);
 
 void actorPathCollectibleUpdate(void *unused) {
     EffectState *state;
@@ -852,8 +821,6 @@ extern u8 D_807FC954[];
 extern u32 gFrameCounter;
 extern u8 D_80721170;
 extern SfxTable D_807504A4;
-s32 randomNonNegative(void);
-s32 slotQueueGetMaxValue(s32, s32);
 
 void effectActorSparkleTick(void) {
     s32 flag;
@@ -923,8 +890,6 @@ extern u8 D_807504CC;
 extern u8 D_807504D0;
 extern f32 D_807504C0;
 extern f32 D_807504C4;
-void *heapAlloc(s32);
-void heapClearBlock(void *);
 
 void effectActorShrinkTick(void) {
     SparkleState *state;

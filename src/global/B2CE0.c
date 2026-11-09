@@ -1,5 +1,35 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorSetDefaultState // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_actorSetUniformScale // FAKE: callee prototype steer
+#define PROTO_SKIP_behaviourCheckRandomAnimTrigger // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_behaviourSpawnExplosionAndSound // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_behaviourUpdateContactAndState // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
+#include "proto/global/103AB0.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17800.h"
+#include "proto/global/19A00.h"
+#include "proto/global/35000.h"
+#include "proto/global/42630.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/936B0.h"
+#include "proto/global/AA960.h"
+#include "proto/global/B1F60.h"
+#include "proto/global/B2CE0.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
 
 
 typedef struct B2CE0Sub178 {
@@ -86,48 +116,13 @@ typedef struct B2CE0View9C {
 extern B2CE0Actor *gCurrentActor;
 extern B2CE0Actor *gSpawnedActor;
 
-s32 randomNonNegative(void);
-void actorUpdateModelMatrix(B2CE0Actor *, s32);
 
-void matrixMakeRotationX(f32 (*)[4], f32);
-void collisionSetQueryMode(s32);
-void actorApplyGravity(void);
-void actorUpdatePrevContactFlags(B2CE0Actor *);
-void actorApplyVelocity(B2CE0Actor *);
-void actorUpdateFloorContactAndTilt(B2CE0Actor *, f32);
-void billboardSubmit(B2CE0Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void actorDespawn(B2CE0Actor *);
 extern u8 D_8071FBC8[];
 extern ActorGlobalState gActorGlobalState;
-void behaviourSetAnimIds(s32, s32, s32);
-void func_80724CA4(s32, s32);
-void actorScriptStart(B2CE0Actor *, s32);
-void func_80724E48(u8);
-u32 actorMoveWithinZone(u32, f32, f32, s32, f32);
-void actorSetTargetSpeed(B2CE0Actor *, s32);
-void behaviourUpdateShadowAlpha();
 void actorSetDefaultState();
 s32 behaviourCheckRandomAnimTrigger();
-void patrolPathStep(u32, s32);
 void behaviourUpdateContactAndState();
-void behaviourFrameBegin(void);
-s32 behaviourIsTargetWithinAngle(u16);
-s16 mathAngleEaseToward(s16, s16, f32);
-void enemyAggroStateUpdate(s32, s32, s32);
-void behaviourCalculateDamageForce(s32, s32);
-void behaviourFadeOutWithinZone(s32);
 void behaviourSpawnExplosionAndSound();
-void actorTurnTowardActorYaw(s32, void *);
-void sfxSpawnTableNodes(void *);
-void actorPatrolFollowerUpdate();
-void effectSpawnOctagonRing(f32, f32, f32, f32);
-s32 zoneCanReachPoint(B2CE0Actor *, s16, s16, s16, s32);
-void projectileGetTargetCoords(B2CE0Actor *, s32);
-void projectileSpawnNodeEntry(s32, s32, f32, s16, f32, f32, B2CE0Actor *);
-void func_8072881C(s32, void *);
-s32 actorIsTargetWithinDistance(s32);
 extern s32 D_807FDCA0;
 extern u16 gActiveActorCount;
 extern ActorEntry gActiveActors[];
@@ -175,9 +170,7 @@ void func_806ADFE0(void) {
     }
 }
 
-s32 actorSpawn(s32, s32);
-u32 actorGetNodePos(B2CE0Actor *, s16, f32 *, f32 *, f32 *);
-void actorSetUniformScale(void *, s32);
+void actorSetUniformScale(void *, s32); // FAKE: callee prototype steer
 
 void actorSpawnChildAtNode(s32 actorType, s16 angleOffset, s16 nodeIndex, s16 extraParam) {
     f32 nodeX;
@@ -197,12 +190,8 @@ void actorSpawnChildAtNode(s32 actorType, s16 angleOffset, s16 nodeIndex, s16 ex
     }
 }
 
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void lensFlareAddSource(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-void playerStateQueueCallback(s32, B2CE0Actor *, s32);
 
 void func_806AE394(f32 distOffset, f32 radius) {
     f32 node1X;
@@ -236,8 +225,6 @@ typedef struct B2CE0ActorView134 {
 } B2CE0ActorView134;
 
 extern s32 gCurrentMap;
-void actorClearNodeFlag(B2CE0Actor *, s32);
-void csModelStateSetFirstByte(s32, s32);
 
 void func_806AE588(void) {
     s32 sel;
@@ -634,13 +621,7 @@ void func_806AF688(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void effectSetDepth(s32);
-void effectSetDuration(s32);
-void effectSetCallback(void (*)());
-void effectSetMode(s32);
-void effectSetSpeed(s32);
-void effectCreateAtActorBone(void *, f32, B2CE0Actor *, s32, s32);
-void effectTumbleBounceUpdate();
+void effectCreateAtActorBone(void *, f32, B2CE0Actor *, s32, s32); // FAKE: callee prototype steer
 extern u8 D_8072073C;
 
 void effectSpawnActorParticleBurst(u8 nodeIndex) {
@@ -938,7 +919,6 @@ typedef struct B2CE0View90Ptr {
     /* 0x4 */ s32 unk4;
 } B2CE0View90Ptr;
 
-s32 func_806B0770();
 void behaviourSpawnExplosionAndSound(s32, s32, s32);
 extern s32 gFrameCounter;
 extern s32 gPrimaryPlayerActor;

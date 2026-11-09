@@ -1,12 +1,29 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorMoveWithinZone // FAKE: callee prototype steer
+#define PROTO_SKIP_actorSetDefaultState // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_func_80724E48 // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_mapGetWorldIndex // FAKE: callee prototype steer
+#define PROTO_SKIP_patrolPathStep // FAKE: callee prototype steer
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/89250.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/AA960.h"
+#include "proto/global/B5EC0.h"
+#include "proto/global/CEAE0.h"
 
 extern Actor *gCurrentActor;
 extern s32 sEffectSparkConfig;
 
-s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void effectSpawnScatterRandom(void *, s32, f32, s32, s32, s32, s32, s32, s32);
-void actorSpawnEffectChild(f32, f32, f32, f32, f32, Actor *, u8);
 
 typedef struct B5EC0Sub4 {
     /* 0x00 */ u8 pad0[0x24];
@@ -75,7 +92,6 @@ void actorSpawnGroundEffectAtNode(u8 nodeIndex) {
     actorSpawnEffectChild(x, gCurrentActor->floorY, z, 0.05f, 0.04f, gCurrentActor, 0);
 }
 
-s32 randomNonNegative(void);
 
 void func_806B1290(void) {
     if (((B5EC0View90 *)gBehaviourWorkState)->unk18 >= 0x65
@@ -88,7 +104,6 @@ void func_806B1290(void) {
 
 extern u8 gBossFightPhase;
 
-s32 behaviourIsTargetWithinAngle(s32);
 
 void func_806B1348(void) {
     if (((B5EC0View90 *)gBehaviourWorkState)->unk18 >= 0x65 && gBossFightPhase == 2 && behaviourIsTargetWithinAngle(0x2710) != 0) {
@@ -100,29 +115,10 @@ void func_806B1348(void) {
 extern ActorGlobalState gActorGlobalState;
 extern s32 gCurrentMap;
 
-void behaviourFrameBegin(void);
-void behaviourSetAnimIds(s32, s32, s32);
-void func_80724CA4(s32, s32);
-void behaviourCalculateDamageForce(s32, s32);
-void behaviourSpawnExplosionAndSound(s32, s32, s32);
 void actorSetDefaultState();
-void actorScriptStart(void *, s32);
-s32 camIsCutsceneActive(void);
-void actorSpawnGroundEffectAtNode(u8);
-s16 mathAngleEaseToward(s16, s16, f32);
 void func_80724E48();
-void actorMoveWithinZone(s32, f32, f32, s32, f32);
-void actorSetTargetSpeed(Actor *, s32);
-void behaviourUpdateShadowAlpha(void);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
-void sfxSpawnTableNodes(Actor *);
-void actorClearNodeFlag(Actor *, s32);
-void behaviourFadeOutWithinZone(s32);
-s32 behaviourCheckRandomAnimTrigger();
-void patrolPathStep(s32, s32);
-void enemyAggroStateUpdate(s32, s32, s32);
-void actorUpdateModelMatrix(Actor *, s32);
-void behaviourUpdateContactAndState();
+void actorMoveWithinZone(s32, f32, f32, s32, f32); // FAKE: callee prototype steer
+void patrolPathStep(s32, s32); // FAKE: callee prototype steer
 
 void func_806B13B4(u8 arg0) {
     s32 v;
@@ -332,9 +328,6 @@ void func_806B13B4(u8 arg0) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void animSetLoopLimit(Actor *, s32, s32);
-void animSetFinished(Actor *, s32, s32);
-void animSetFrameAndSubframe(Actor *, s32, u8, f32);
 
 void actorSetAnimStartFrame(u8 frame) {
     animSetLoopLimit(gCurrentActor, 0, 1);
@@ -345,10 +338,7 @@ void actorSetAnimStartFrame(u8 frame) {
 extern u8 gCurrentWorldId;
 extern s32 D_80750600[];
 
-s32 mapGetWorldIndex(u8);
-s32 mapGetHubWorldIndex(u8, s32);
-void func_806B13B4(u8);
-s32 flagGridSumRows(s32, s32, s32, s32);
+s32 mapGetWorldIndex(u8); // FAKE: callee prototype steer
 
 void func_806B1DD4(u8 mode) {
     u8 flag;

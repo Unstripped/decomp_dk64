@@ -1,5 +1,40 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorAppendCallbackPayloadA70C // FAKE: callee prototype steer
+#define PROTO_SKIP_actorDespawn // FAKE: callee prototype steer
+#define PROTO_SKIP_actorSpawnNodeEntryScaled // FAKE: callee prototype steer
+#define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
+#define PROTO_SKIP_animGetNodeByIndex // PROTO: 'unkC' undefined; reoccurrences will not be reported.
+#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_playerStateQueueCallback // FAKE: callee prototype steer
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/684C0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/90D80.h"
+#include "proto/global/A2F10.h"
+#include "proto/global/AA960.h"
+#include "proto/global/EFDC0.h"
 
 typedef struct ActorTail {
     /* 0x000 */ u8 pad0[0x60];
@@ -26,21 +61,14 @@ extern ActorGlobalState gActorGlobalState;
 extern u16 gActiveActorCount;
 extern ActorEntry gActiveActors[];
 
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 void actorSpawnNodeEntryScaled(s16, s32, s32, s32, s16, u8, s16, s32); // FAKE: callee prototype steer
 void actorAppendCallbackPayloadA70C(Actor *, Actor *, s32, f32, f32, s32, s32); // FAKE: callee prototype steer
 
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
-Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32,
-                   f32);
 extern u32 gFrameDelta;
 extern u8 D_80750AD4;
-void renderCallbacksRegister(void *, void *, u8);
-s32 actorSpawn(s32, s32);
 s32 actorDespawn(Actor *); // FAKE: callee prototype steer
-Gfx *actorBannerTextRender(Gfx *, Actor *);
 
 #define WRITE_GFX(pkt, _w0, _w1)                                               \
     {                                                                          \
@@ -58,11 +86,6 @@ typedef struct ActorSub4Node {
     /* 0x24 */ f32 unk24;
 } ActorSub4Node;
 
-void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
-void controllerAnimSetState(Actor *, s16, f32, f32);
-void scriptSetActorRampTarget(Actor *, f32, f32);
-s16 actorListFindIdByActor(Actor *);
-void actorUpdateModelMatrix(void *, s32);
 
 void actorTriggerRampWithSfx(void) {
     Actor *actor;
@@ -213,23 +236,8 @@ extern s32 gCurrentMap;
 extern u8 gPlayerCount;
 extern PlayerSlotView *gPlayerSlots;
 
-void animSetLoopLimit(void *, s32, s32);
-void animSetSpeed(void *, s32, f32);
-void animSetFinished(void *, s32, s32);
-s32 animIsPlaying(void *, s32);
-u16 controllerLookupStateByHash(u32 *);
-u8 camIsCutsceneActive(void);
-void camStartShake(void *, s32, s32);
 f32 mathSinF(s16);
-ActorSub140 *actorSetCollisionRadius(Actor *, f32);
 void playerStateQueueCallback(s32, void *, s32); // FAKE: callee prototype steer
-s32 func_80714608(s32);
-void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
-f32 actorGetOrSetNodeScale(Actor *, s32, f32);
-void actorOrNodeFlags(Actor *, s32, u8);
-void actorUpdateModelMatrix(void *, s32);
-void lightSetFlags(u8);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
 void func_8069E774(void) {
     u16 sp8E;
@@ -443,15 +451,7 @@ typedef struct ActorView {
     /* 0x16C */ u8 unk16C;
 } ActorView;
 
-void animSetLoopLimit(void *, s32, s32);
-void animSetFinished(void *, s32, s32);
 ModelNodeView *animGetNodeByIndex(void *, s32);
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
-void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
-void scriptSetActorRampTarget(Actor *, f32, f32);
-void actorCopyPoseAndScale(void *, void *, f32);
-void actorUpdateModelMatrix(void *, s32);
 extern u8 gGameMode;
 extern s32 gGlobalCutsceneFlags;
 
@@ -603,12 +603,6 @@ void renderScaledSprite(Gfx *arg0, Actor *arg1) {
 #pragma GLOBAL_ASM("asm/global/nonmatchings/A2F10/D_8075A44C.s")
 
 extern char *D_80750338[];
-Gfx *func_8070068C(Gfx *);
-s32 _sprintf(char *, const char *, ...);
-void *heapAlloc(s32);
-void heapFreeDeferred(void *);
-s32 textGetStringWidth(s16, char *);
-Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
 Gfx *actorBannerTextRender(Gfx *arg0, Actor *arg1) {
     f32 spFC;
@@ -889,10 +883,6 @@ typedef struct SiblingActor {
     /* 0x200 */ s16 unk200;
 } SiblingActor;
 
-s32 randomNonNegative(void);
-void actorUpdateFloorContactAndTilt(Actor *, f32);
-void actorUpdatePrevContactFlags(Actor *);
-void actorApplyVelocity(Actor *);
 extern f32 D_80750394;
 
 #define ATTACHED_ACTOR ((AttachedActor *) gCurrentActor)
@@ -937,16 +927,8 @@ typedef struct {
     u8 padC[0x24];
 } NodePosition;
 
-void billboardSetFlags(s16);
-void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void effectSetAngle(s16);
-void effectSetDepth(s8);
-void effectSetCallback(void *);
 void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void effectSpinBillboardingUpdate(void);
+void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 extern void *gCamActor;
 extern u8 gBossFightPhase;
 extern f32 D_80750398;
@@ -1046,10 +1028,7 @@ void actorSpawnAttachedTo(Actor *arg0) {
     arg0->contactFlags |= 0x800;
 }
 
-u8 func_80665AAC(Actor *);
-s32 actorIsActive(Actor *);
 s32 actorTableContains(Actor *);
-void controllerAnimLoadStateAsset1(void *, s16);
 extern u8 gGfxBufferIndex;
 
 void actorMirrorParentModelY(void) {
@@ -1108,7 +1087,6 @@ void actorMirrorParentModelY(void) {
 }
 
 
-void triggerZoneRemoveSpawned(void *);
 
 void actorMirrorParentModelAxis(void) {
     Mtx mtxL;
@@ -1182,7 +1160,6 @@ void actorMirrorParentModelAxis(void) {
 }
 
 
-void animSetFrameAndSubframe(void *, s32, s16, f32);
 
 void animSetChannelFrames(void *arg0, u8 arg1, u8 arg2) {
     animSetLoopLimit(arg0, 0, 1);
@@ -1222,10 +1199,7 @@ void actorSetNodeValuesForFrame(MatrixArray *arg0) {
     }
 }
 
-void *assetLoad(s32, u32, u8, u8);
-void func_80724D28(s16, s16);
 f32 mathCosF(s16);
-void actorSetUniformScale(Actor *, f32);
 extern u8 D_807503D4[];
 extern u8 D_807503E0[];
 

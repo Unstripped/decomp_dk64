@@ -1,5 +1,35 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
+#define PROTO_SKIP_hudPauseMenuRefreshTotals // PROTO: Type s8 [2] of this argument  is incompatible with type void
+#define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
+#define PROTO_SKIP_mapGetWorldIndex // FAKE: callee prototype steer
+#define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
+#define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/104F0.h"
+#include "proto/global/112080.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B40.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2DE90.h"
+#include "proto/global/3C10.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/90D80.h"
+#include "proto/global/ACDC0.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
 
 typedef struct HudTextEntry {
     /* 0x00 */ f32 unk0;
@@ -102,42 +132,10 @@ extern s8 gPausingPlayer;
 extern HudPlayerView *gPlayerSlots;
 extern s8 D_8076A105;
 
-void heapFree(void *);
-void heapFreeDeferred(void *);
-void *heapAlloc(s32);
-s32 _sprintf(char *, const char *, ...);
-Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
-s32 textGetStringWidth();
 Gfx *renderRotatedSprite(Gfx *, s32, s32, u8, s32, s32, s32, s32, f32, f32, s32, f32); // FAKE: callee prototype steer
-Gfx *gfxFillScreenColor(Gfx *, u8, u8, u8, u8);
-Gfx *hudSetupTextState(Gfx *);
-Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, void *);
-void hudPauseMenuBuildPage();
-void hudPauseMenuIconUpdate();
 void effectSetMode(u8); // FAKE: callee prototype steer
-void effectEnableFade(void);
-void effectSetDuration(s32);
-void effectSetSpeed(void *);
-void effectSetCallback(void (*)());
-void effectSetFlags(s16);
 HudTextObj *effectCreateAtPosition(s32, f32, f32, f32, f32);
-s32 slotQueueGetSpriteAsset(s32);
-f32 randomFloat(void);
 f32 sqrtf(f32);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-u8 flagGet(s16, u8);
-s32 flagCountRange(s32, s32, u8);
-s32 actorSpawn(s32, s32);
-void actorDespawn(Actor *);
-char *textTableGetString(s32, s32, s32);
-u16 camStartPath(void *, s16, u8);
-void func_80724994(u8, s16, s16, s16, s16);
-void mapRequestTransition(s32, s32);
-void mapCheckAutoTransition(void);
-void mapTransitionToPreviousOrExit(void);
-void screenWipeStart(s32);
-void menuReturnToTitleWithMode3(void);
-void renderCallbacksRegister(void *, void *, u8);
 
 s32 hudFindItemIndex(s8 itemId) {
     s32 i;
@@ -199,21 +197,9 @@ extern s8 D_807FC83C;
 extern s8 D_807FC8B8;
 
 s32 mapGetWorldIndex(); // FAKE: callee prototype steer
-s32 mapGetHubWorldIndex();
-s32 func_805FEF74();
-s32 menuGetTimerFlag();
-void eepromSavePlayerData();
-void menuReturnToTitle();
-void menuResetAndTransitionToCredits();
-s32 playerGetResolvedKongId();
-s32 mathAngleSignedDistance(s16, s16);
-void mapTransitionToWorldHub();
-void flagSet(s16, u8, u8);
+s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
+s32 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 void hudPauseMenuRefreshTotals();
-s32 hudPauseMenuSlidePage();
-Gfx *hudDrawDimOverlay(Gfx *, Actor *);
-Gfx *hudPauseMenuRender(Gfx *, Actor *);
-void hudFreeBuffers(void);
 
 #define HUD_PAUSE_MODE (*(s8 *)D_807505CC)
 #define HUD_PAUSE_LIST ((s8 *)&D_80750530)
@@ -642,10 +628,7 @@ typedef struct {
 
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-s32 mapGetHubWorldIndex(s32, s32);
-s32 menuGetTimerFlag(void);
-Gfx *hudDrawCountPair(s16, s16, s16, s16, Gfx *, s8, f32);
-Gfx *hudDrawItemLabel(Gfx *, HudEntry *, s32);
+s32 mapGetHubWorldIndex(s32, s32); // FAKE: callee prototype steer
 extern s16 D_807FC992[];
 extern u8 D_807FCC4C;
 extern s8 D_807FCC4B;
@@ -1004,15 +987,7 @@ extern s32 D_807211D0;
 extern s32 D_80721474;
 extern s32 D_80721518;
 
-s32 mapGetHubWorldIndex(s32, s32);
-f32 floatCeil(f32);
-s32 playerGetResolvedKongId(s32);
-s32 func_806F6E58(s16);
-s32 slotQueueGetCountStep(s32);
-s32 flagGridIndex(s32, s32, s32);
-s32 flagGridSumRows(s32, s32, s32, s32);
-void hudPauseMenuSpawnIcon(HudEntry *, s32, s32, s32, f32, u8, s32);
-void hudPauseMenuAddCounter(HudEntry *, s16, s16, s16, s16, s32, s32, s32);
+s32 mapGetHubWorldIndex(s32, s32); // FAKE: callee prototype steer
 
 void hudPauseMenuBuildPage(iconObj, arg1)
     HudEntry *iconObj;

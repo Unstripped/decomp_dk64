@@ -1,8 +1,22 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17800.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/90D80.h"
+#include "proto/global/936B0.h"
+#include "proto/global/9BF30.h"
 
-void *heapAlloc(s32);
-void * assetLoad(s32, u32, u8, u8);
 extern u8 *D_807FC7C0;
 
 typedef struct ActorTrailState {
@@ -23,12 +37,8 @@ extern Gfx D_80750280;
 extern u8 gGfxBufferIndex;
 extern u8 *gPlayerSlots;
 
-void actorFreeModelNodeList(Actor *);
-ActorSub140 * actorSetCollisionRadius(Actor *, f32);
-void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void matrixMakeRotationY(f32 (*)[4], f32);
 // Writes G_MTX through the function-scope _g pointer to avoid gbi.h's block-local phantom stack slot
 #define gSPMatrixShared(pkt, m, p) { _g = (Gfx *)(pkt); _g->words.w0 = (_SHIFTL(G_MTX, 24, 8) | _SHIFTL(((sizeof(Mtx) - 1) / 8), 19, 5) | _SHIFTL(((p) ^ G_MTX_PUSH), 0, 8)); _g->words.w1 = (u32)(m); }
 
@@ -147,12 +157,6 @@ typedef struct ProjectileState {
     u8 unk11;
 } ProjectileState;
 
-Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor);
-void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
-void actorDespawn(Actor *);
-void heapFree(void *);
-void projectileSpawnActor107(u8, u8, f32, f32, u8, u8);
-void renderCallbacksRegister(void *, void *, u8);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 
@@ -279,25 +283,8 @@ extern void *D_807502C0[];
 extern u8 D_8071FBA0;
 extern u32 gGameFrameCounter;
 extern u8 D_807FBB85;
-void effectSetDuration(s32);
-void effectSetMode(s8);
-void effectSetDepth(s8);
-void effectSetMaxDistance(s16);
 void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
-void effectSetCallback(void (*)(void));
-void effectSetSpeed();
-s32 randomNonNegative(void);
-void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
-void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
-void actorUpdatePrevContactFlags(Actor *);
-void actorApplyVelocity(Actor *);
-void actorUpdateFloorContactAndTilt(Actor *, f32);
-void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
-void effectCreateAtActorBone(s32, f32, void *, s32, u8);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void effectPulseSpinUpdate(void);
-void effectRadialSprayUpdate(void);
+void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 
 #define G_ACTOR ((ProjectileActor *)gCurrentActor)
 

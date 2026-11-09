@@ -1,5 +1,22 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/12E800.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/80150.h"
+#include "proto/global/89250.h"
+#include "proto/global/8F4B0.h"
+#include "proto/global/AA960.h"
+#include "proto/global/BA790.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -56,33 +73,7 @@ extern s32 gCamActor;
 extern BA790Actor *D_807FBD6C;
 extern u8 D_80720630;
 
-void behaviourSetFloorAndState40();
-void sfxSpawnTableNodes(void *);
-void tagBarrelDespawnEffects(void);
-void func_80685210(f32, s16, s16);
-void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
-void sfxStopSlotSound(Actor *, s32);
-u32 actorMoveWithinZone(u32, f32, f32, u16, f32);
-void enemyAggroStateUpdate(s32, s32, s32);
-void actorUpdateFloorContactAndTilt(Actor *, f32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void actorScriptStart(void *, s32);
-void tagBarrelSpawnActorSmokePuffs(s32, s32);
-void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-void behaviourUpdateContactAndState(s32);
-void actorSetNodeFlag(Actor *, s32);
-void actorClearNodeFlag(Actor *, s32);
-void camStartShakeFromPoint(s32, s32, s32, f32, f32, f32, f32, f32);
-void effectSetDuration(s32);
-void effectSetDepth(s32);
-void effectSetColor(s32, s32, s32, s32);
-void effectSetMode(s32);
-void effectSetScale(f32, f32);
-void effectSetCallback(void (*)(void));
-void effectSparkSpawnUpdate(void);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void actorUpdateModelMatrix(Actor *, s32);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 s32 func_806B5A90(s32 aggroRange, s32 unused) {
     u8 ret;
@@ -270,8 +261,6 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     return ret;
 }
 
-s32 func_806B5A90();
-void behaviourFrameBegin(void);
 
 void func_806B63E0(void) {
     behaviourFrameBegin();
@@ -281,10 +270,6 @@ void func_806B63E0(void) {
 extern u8 gGameMode;
 extern s32 gCurrentMap;
 
-void actorClearNodeFlag(Actor *, s32);
-void actorScriptStart(void *, s32);
-void lightUpdateFromActorLighting(void *, void *, void *);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
 
 void func_806B640C(void) {
     s16 *p = BA790A->unk178;

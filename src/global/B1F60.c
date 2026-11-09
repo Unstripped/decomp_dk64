@@ -1,5 +1,15 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_behaviourCalculateDamageForce // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/35000.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/AA960.h"
+#include "proto/global/B1F60.h"
 
 typedef struct B1F60Sub0 {
     /* 0x00 */ u8 pad0[4];
@@ -55,32 +65,9 @@ extern ActorGlobalState gActorGlobalState;
 extern s32 gCurrentMap;
 extern B1F60Global924 *gPlayerSlots;
 
-s32 actorSpawn(s32, s32);
-Actor * actorFindByType(u16);
-void actorDespawn(Actor *);
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void sfxSpawnTableNodes(Actor *);
-s32 randomNonNegative(void);
-void actorScriptStart(Actor *, s32);
-void actorUpdateModelMatrix(Actor *, s32);
-void func_80724CA4(s16, s16);
-void func_80724E48(u8);
-void behaviourFrameBegin(void);
-u8 func_8072881C(u8, u32 *);
-u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
-void actorSetTargetSpeed(Actor *, s32);
-void behaviourSetAnimIds(s16, s16, s16);
-void behaviourUpdateContactAndState(s32);
 void behaviourCalculateDamageForce();
-void behaviourFadeOutWithinZone(u8);
-void actorSetDefaultState(s32);
-void behaviourSpawnExplosionAndSound(void *, u8, Actor *);
-u8 actorIsTargetWithinDistance(u16);
-void actorPatrolFollowerUpdate();
 
 
-void enemyAggroStateUpdate(s32, s32, s32);
-u8 patrolPathStep(u8, u8);
 void actorPatrolFollowerUpdate(targetId, skipStep, movementFlags)
 s16 targetId;
 u8 skipStep;

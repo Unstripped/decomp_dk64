@@ -1,9 +1,32 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
+#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#include "proto/global/112080.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/9DD70.h"
+#include "proto/global/A6280.h"
+#include "proto/global/AA960.h"
+#include "proto/global/BB300.h"
 
 extern Actor *gCurrentActor;
 
-void actorUpdateModelMatrix(Actor *, s32);
 
 typedef struct ActorView {
     u8 pad0[0x130];
@@ -37,17 +60,6 @@ extern PlayerSlot_A6280 *gPlayerSlots;
 extern u8 D_807506C0[];
 extern u8 gBossFightPhase;
 
-s16 actorListFindIdByActor(Actor *);
-void *spawnNodeActivate(s32, s32);
-void animSetStartFrame(Actor *, s32, s32);
-s32 animIsPlaying(Actor *, s32);
-void animSetSpeed(Actor *, s32, f32);
-void animSetLoopLimit(Actor *, s32, s32);
-void animSetFinished(Actor *, s32, s32);
-void animSetFrameAndSubframe(Actor *, s32, s16, f32);
-f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
-void actorAppendCallback(void *, s32, s32, u8, s32, void *);
-void sfxAllocateChannel(s32, f32);
 
 void actorSeekTargetUpdate(void) {
     s16 actorId;
@@ -122,12 +134,6 @@ typedef struct ActorModelScript {
     u16 unk64;
 } ActorModelScript;
 
-void func_80724CA4(s32, s32);
-void actorCopyPoseAndScale(Actor *, void *, f32);
-void actorUpdatePulseIntensity(s32);
-void actorScriptStart(Actor *, s32);
-void scriptSetActorRampTarget(void *, f32, f32);
-void billboardSubmit(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
 void actorUpdateRampTarget(void) {
     ActorSub178 *rampState;
@@ -170,24 +176,8 @@ extern s32 gFrameCounter;
 extern s32 sEffectSparkConfig;
 extern ActorGlobalState gActorGlobalState;
 
-s32 flagGet(s16, s32);
-void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
-void func_80728950(s32);
-void actorSetUniformScale(Actor *, f32);
-void currentActorAnimSetFrame(s32, s32);
-void resQueueRemove(Actor *);
-void resQueueAttachActor(Actor *, s32, s32);
-void camStartPath(Actor *, s32, s32);
-void flagSet(s32, s32, s32);
-s32 randomNonNegative(void);
-void effectDecelDriftFadeUpdate(void);
-void effectSetCallback(void *);
-void effectSetSpeed(s32);
-void effectSetDepth(s32);
-void effectSetColor(s32, s32, s32, s32);
-void effectSetMode(s32);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void func_8072881C(s32, void *);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
+void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 
 void func_806A1AC4(void) {
     f32 driftSpeed;
@@ -274,7 +264,6 @@ void actorFinishInRange(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-s32 camIsCutsceneActive(void);
 
 void actorPlaySoundVariantAndFinish(void) {
     if (camIsCutsceneActive() != 0) {
@@ -297,14 +286,8 @@ typedef struct ActorSinkState {
 
 extern s32 D_8071FF18;
 
-void actorDespawn(Actor *);
-s32 actorListLookupEntry(u16);
 s32 actorTableContains(Actor *);
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void func_80717D4C(void);
 
-void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);
 
 void actorSinkAndDespawn(void) {
     s32 count;
@@ -410,13 +393,8 @@ typedef struct MidpointOrbitState {
 
 #define ORBIT_ACTOR ((MidpointOrbitActorView *)gCurrentActor)
 
-void billboardSetFlags(s16);
-void actorUpdatePrevContactFlags(Actor *);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void actorUpdateFloorContactAndTilt(Actor *, f32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void actorMidpointOrbitUpdate(void) {
     MidpointOrbitState *sub;
@@ -469,7 +447,6 @@ void actorMidpointOrbitUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void mathAngleBetweenPoints3D(s16 *, s16 *, f32, f32, f32, f32, f32, f32);
 
 void actorPlaceModelAtCamera(void) {
     s16 pitchAngle;

@@ -1,5 +1,18 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_texCacheFindOrLoad // FAKE: callee prototype steer
+#include "proto/global/100180.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/112080.h"
+#include "proto/global/119370.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/201B0.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/90D80.h"
+#include "proto/global/A8400.h"
 
 void func_806A3700(s32 arg0, s32 arg1) {
 }
@@ -39,8 +52,6 @@ extern u8 gGfxBufferIndex;
 extern u16 D_8075A740;
 
 f32 sinApprox(f32);
-s32 randomNonNegative(void);
-Gfx * textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
 void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     union { u16 h; u8 b; u8 pad[8]; } spE8;
@@ -104,7 +115,6 @@ void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     *arg0 = (s32) textDrawStringVtx(dl, 6, 0, 0, (u16 *) &spE8, 0);
 }
 
-void textBoxRenderNode(s32 *, void *, void *, void *);
 
 typedef struct DrawActor {
     /* 0x00 */ u8 pad0[0x11];
@@ -146,7 +156,6 @@ void renderAppendNodeChain(s32 *arg0, DrawActor *arg1, DrawListHead *arg2, u8 ar
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
 s32 texCacheFindOrLoad(s32);  // FAKE: callee prototype steer
-void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
 
 Gfx *renderTextureSprite(Gfx *arg0, s32 arg1, u8 arg2, s32 arg3) {
     s32 tex;
@@ -239,8 +248,6 @@ extern u8 gGfxBufferIndex;
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 
-void *heapAlloc(s32);
-void heapFreeDeferred(void *);
 
 typedef struct UINode UINode;
 
@@ -350,11 +357,6 @@ Gfx *textBoxRender(Gfx *arg0, Actor *arg1) {
     return arg0;
 }
 
-void effectEnableFade(void);
-void effectSetMode(s8);
-void effectSetDepth(s8);
-void effectSetDuration(s32);
-void effectSetBounds(s16, s16, s16, s16);
 void *effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern void *D_80755390[];
 
@@ -557,8 +559,6 @@ struct ChainNode {
     /* 0x1C */ ChainNode *unk1C;
 };
 
-void resNodeFree(ChainNode *);
-void resQueueProcessNext(Actor *, void *);
 
 
 void textBoxUpdateRows(Actor *actor) {
@@ -683,9 +683,6 @@ extern struct ScreenBounds *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern s16 gScreenWidth;
 
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-u16 controllerLookupStateByHash(u32 *);
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
 
 #define SPRITE_SUB ((SpriteSub *) arg1)
 #define SPRITE_BOUNDS ((MapBounds *) ((u8 *) gPlayerSlots + (gCurrentPlayerIndex * 0x2F0)))
@@ -872,14 +869,6 @@ extern u16 D_807ECD58;
 extern u16 D_807ECD66;
 extern u8 D_807503F0;
 
-void *heapAlloc(s32);
-void camResumePath(void);
-void textBoxUpdateRows(Actor *);
-void textBoxUpdatePosition(Actor *, SpriteBehaviour *, f32);
-void resNodeListFree(SpriteBehaviour *);
-void resQueueRemove(void *);
-void renderCallbacksRegister(void *, void *, u8);
-Gfx *textBoxRender(Gfx *, Actor *);
 
 void textBoxUpdate(void) {
     SpriteBehaviour *sub;

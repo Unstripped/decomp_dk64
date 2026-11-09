@@ -1,5 +1,32 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_behaviourSpawnExplosionAndSound // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_camIsCutsceneActive // PROTO: Type BehaviourWorkState *  of this argument  is incompatible
+#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
+#define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Reference of an expression of void type or an incomplete typ
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/42630.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/80150.h"
+#include "proto/global/89250.h"
+#include "proto/global/936B0.h"
+#include "proto/global/A2F10.h"
+#include "proto/global/AA960.h"
+#include "proto/global/B7490.h"
+#include "proto/global/CEAE0.h"
 
 typedef struct B7490Actor {
     /* 0x000 */ u8 pad0[0x6E];
@@ -46,62 +73,10 @@ extern s32 gCurrentMap;
 extern u8 D_8072073C[];
 extern s16 D_80750340;
 
-void actorScriptStart(void *, s32);
-u8 behaviourIsTargetWithinRadiusAndAngle(s32, s16);
-void behaviourFrameBegin(void);
-void actorUpdatePrevContactFlags(Actor *);
-void actorUpdateModelMatrix(void *, s32);
-void effectSpawnSparks(u8, u8);
-s32 actorMoveWithinZone(u8, f32, f32, u16, f32);
-void actorPitchEaseTowardPoint(s16, s16, f32, f32, f32, u8, f32, f32, u16);
-void actorSetPitchVelocity(s16, f32, f32, f32, u16);
-void behaviourUpdateContactAndState(s32);
-u8 patrolPathStep(u8, u8);
-void behaviourCalculateDamageForce(s32, s32);
-void actorSetDefaultState();
-void behaviourFadeOutWithinZone();
-void func_8072AA80(void);
-void enemyAggroStateUpdate(s32, s32, s32);
-s32 randomNonNegative(void);
 f32 mathSinF(s16);
-s16 mathAngleEaseToward(s16, s16, f32);
-void actorClearNodeFlag(Actor *, s32);
-void scriptSetActorRampTarget(void *, f32, f32);
-void actorTurnTowardActorYaw(u8, Actor *);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
-void actorSetUniformScale(void *, f32);
-void effectSetDepth(s8);
-void effectSetDuration(s32);
-void effectSetSpeed(s32);
-void effectSetCallback(void *);
-void effectRadialSprayUpdate();
-void effectSetMode(s8);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-void tagBarrelSpawnActorSmokePuffs(s32, s32);
-f32 actorGetOrSetNodeScale(Actor *, s32, f32);
-ActorSub140 *actorSetCollisionRadius(Actor *, f32);
-void projectileGetTargetCoords(void *, s32);
-void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
-void projectileSetTargetCoords(f32, f32, f32);
-void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, s32);
-s32 zoneCanReachPoint(void *, s16, s16, s16, s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 f32 sqrtf(f32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
-void func_8072881C();
-void actorSpawnPeriodicBoneEffect(void);
-void behaviourFlyPatrolWithCallback(void (*)(), u16, u16, s16);
-void actorAirPatrolStep(u8, s16, s16);
-void actorSpawnNodeEntryAtActor(s32, s16);
-void actorAttachChildCallbacks(void);
-void sfxAllocateChannel(s32, f32);
-void csModelStateSetFirstByte(s16, s16);
-void actorPlaceAttachedChildren(s16);
-void behaviourSpawnPuffParticle(void);
-u16 camStartPath(void *, s16, u8);
-void behaviourSetAnimIds(s16, s16, s16);
-void actorApplyVelocityCustom(void *, f32, f32);
-void actorUpdateFloorContactAndTilt(void *, f32);
 
 void func_806B2790(void) {
     u8 flag;
@@ -208,7 +183,6 @@ typedef struct {
 } B7490Sub4Ptr;
 
 void behaviourSpawnExplosionAndSound(s32, s32, s32, void *);
-void func_8072881C(s32, void *);
 
 void func_806B2D64(void) {
     s32 st;
@@ -570,7 +544,6 @@ s32 actorFlyTowardPosition(B7490Pos *targetPos, u8 action) {
 }
 
 void effectSetColor(u8, u8, u8, u8); // FAKE: callee prototype steer
-void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void actorSpawnPeriodicBoneEffect(void) {
     u8 col2;
@@ -605,9 +578,6 @@ void actorSpawnPeriodicBoneEffect(void) {
 }
 
 s32 camIsCutsceneActive(void *);
-void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
-void sfxStopSlotSound(Actor *, s32);
-void sfxSpawnTableNodes(Actor *);
 
 void behaviourFlyPatrolWithCallback(void (*callback)(), u16 animId1, u16 animId2, s16 sfxId) {
     s16 *heightTarget;
@@ -749,7 +719,6 @@ void behaviourFlyPatrolState4(void) {
 }
 
 extern f32 D_807502EC;
-void func_80724CA4(s16, s16);
 
 void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
     s16 *heightPtr;
@@ -976,15 +945,8 @@ typedef struct {
 } B7490St178;
 
 extern u16 D_80744508;
-s32 randomLcgNext(void);
-f32 randomFloat(void);
 f32 mathCosF(s16);
-s32 mathAngleSignedDistance(s16, s16);
-void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
-u8 flagGet(s16, u8);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
-void sfxStopSlotSound(Actor *, s32);
+s32 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 
 void behaviourEnemyFlyReturn(void) {
     f32 dead;

@@ -1,5 +1,17 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_behaviourUpdateContactAndState // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/35000.h"
+#include "proto/global/69E60.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/AA960.h"
+#include "proto/global/BB300.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -47,15 +59,7 @@ extern Actor *gSpawnedActor;
 extern s16 D_807502E0;
 extern f32 D_807502E8;
 
-s32 actorSpawn(s32, s32);
-void actorScriptStart(void *, s32);
-void actorCopyPoseAndScale(void *, void *, f32);
-void actorSetTargetSpeed(void *, s32);
 void *memcpy(void *, const void *, unsigned int);
-void behaviourFrameBegin(void);
-void func_80724C2C(s32);
-void func_806B6DB0();
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 
 void actorUpdatePulseIntensity(u8 active) {
     u8 *p = BB300A->unk178;
@@ -124,10 +128,6 @@ typedef struct BB300View90 {
 
 #define BB300S90 ((BB300View90 *)gBehaviourWorkState)
 
-void effectSpawnRing();
-void actorDespawn(Actor *);
-void actorUpdateModelMatrix(void *, s32);
-s32 actorMoveWithinZone(s32, f32, f32, s32, f32);
 void behaviourUpdateContactAndState();
 
 void func_806B6958(void) {
@@ -214,20 +214,6 @@ typedef struct BB300View9C {
 extern s32 gFrameCounter;
 extern s32 gCurrentMap;
 
-s32 randomNonNegative(void);
-void actorUpdatePulseIntensity(u8);
-void func_80724CA4(s32, s32);
-void func_80724E48();
-void func_8072881C(s32, void *);
-void actorSetBehaviourState();
-void enemyAggroStateUpdate(s32, s32, s32);
-void patrolPathStep(s32, s32);
-void behaviourCalculateDamageForce(s32, s32);
-void behaviourSpawnDropParticle();
-void behaviourFadeOutWithinZone(s32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void sfxSpawnTableNodes(Actor *);
-void sfxStopSlotSound(Actor *, s32);
 
 void func_806B6DB0(s32 aggroRange) {
     BB300Sub178 *p;

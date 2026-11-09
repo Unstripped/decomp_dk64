@@ -1,5 +1,15 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
+#define PROTO_SKIP_gfxDrawTexturedTileGridSimple // FAKE: callee prototype steer
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/15050.h"
+#include "proto/global/17800.h"
+#include "proto/global/450.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/90D80.h"
 
 typedef struct TexCacheEntry {
     /* 0x0 */ s32 unk0;
@@ -18,7 +28,6 @@ void texCacheReset(void) {
     }
 }
 
-void assetFreeBuffer(s32, s32, s32);
 
 void texCacheUpdate(void) {
     s16 i;
@@ -114,10 +123,7 @@ void renderCallbacksRegister(void *func, void *actor, u8 layer) {
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
-void *heapAlloc(s32);
-void heapFreeDeferred(void *);
 typedef f32 RenderMtxF[4][4];
-void matrixMakeRotationZ(RenderMtxF, f32);
 extern u32 D_807501E8;
 
 Gfx *renderRotatedQuad(Gfx *glist, s32 tex, s16 x, s16 y, s16 angle) {
@@ -149,7 +155,6 @@ extern u16 D_807FC79E;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
 void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, u8, u8, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32);  // FAKE: callee prototype steer
-void vtxSetPosTex(s16 *, s16, s16, s16, s16, u8);
 
 Gfx *renderRotatedSprite(Gfx *glist, u16 texId, s32 fmt, s32 siz, u8 width, u8 height, s16 x, s16 y, f32 scaleX, f32 scaleY, s32 angle, f32 texScale) {
     volatile s32 tex;
@@ -321,7 +326,6 @@ Gfx *renderScrollingBackdropQuad(Gfx *glist, f32 *alpha) {
 extern Gfx D_1000118;
 extern u32 gFrameCounter;
 
-Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
 
 Gfx *renderBonusTargetMarker(Gfx *glist, s32 pad) {
     WRITE_GFX(glist++, 0xDE000000, (u32)&D_1000118);
@@ -332,8 +336,6 @@ Gfx *renderBonusTargetMarker(Gfx *glist, s32 pad) {
     return renderRotatedSprite(glist, (u16)((((gFrameCounter >> 1) & 0xF) + 0x8F)), 0, 2, 0x20, 0x20, 0x118, 0xD2, 1.0f, 1.0f, 0, 0.0f);
 }
 
-Gfx * textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
-int _sprintf();
 
 typedef struct CsCountdown {
     u64 last;
@@ -375,7 +377,6 @@ Gfx *renderCountdownTimerHUD(Gfx *glist, CsCountdown *countdown) {
     return textDrawStringVtx(glist, 3, 0x370, 0x50, timeStr, 1);
 }
 
-Gfx *gfxInit2DDisplayList(Gfx *);
 f32 sinApprox(f32);
 
 Gfx *hudDrawRollingCounter(Gfx *glist, s16 x, s16 y, s16 *curVal, s16 targetVal, u8 *timer) {
@@ -516,8 +517,6 @@ Gfx *actorDrawAnimatedEffect(Gfx *glist, ActorEffect *effect) {
     return glist;
 }
 
-s32 textGetStringWidth(s32, char *);
-u8 textGetFontHeight(s16);
 
 Gfx *renderTimerMinutesSecondsHUD(Gfx *glist, f32 x, f32 y, s32 totalSeconds) {
     f32 curX;

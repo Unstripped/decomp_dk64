@@ -1,10 +1,22 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_gfxResourceFindById // PROTO: 'unk4' undefined; reoccurrences will not be reported.
+#include "proto/boot/3630.h"
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/1025E0.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/119370.h"
+#include "proto/global/166A0.h"
+#include "proto/global/450.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/90D80.h"
+#include "proto/global/A7710.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern void *gActivePlayerState;
-s32 actorSpawn(s32, s32);
 
 u64 D_807FC7D0;
 u8 D_807FC7D8;
@@ -70,15 +82,9 @@ extern Gfx D_1000118;
 extern Mtx D_2000180;
 extern Gfx D_8071FC58;
 extern RenderState *gPlayerSlots;
-s32 hudCanRender(void);
-Gfx *func_8070068C(Gfx *);
 GfxResource *gfxResourceFindById(u8);
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
-Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
 f32 sinApprox(f32);
 f32 cosApprox(f32);
-void effectEnableFade(void);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 Gfx *renderActorSpriteCallback(Gfx *gfx, Actor *actor) {
     RenderActorSub *sub;
@@ -139,15 +145,6 @@ u64 __ll_mul(u64, u64);
 u64 __ull_div(u64, u64);
 u64 __ull_rem(u64, u64);
 f64 __ull_to_d(u64);
-s32 _sprintf(char *, char *, ...);
-s32 strlen(char *);
-s16 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-s32 randomNonNegative(void);
-f32 func_806FDA8C(s16);
-void func_806FDAB8(s16, f32);
-s16 gfxResourceCreate(s16, char *, u8, f32, f32, f32);
-void gfxResourceSetString(s16, char *);
-void renderCallbacksRegister(void *, void *, s32);
 
 void hudCountdownTimerUpdate(void) {
     f32 nextBeepAngle;

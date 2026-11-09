@@ -1,7 +1,15 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/117190.h"
+#include "proto/global/133A90.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/35000.h"
+#include "proto/global/7130.h"
+#include "proto/global/9CE20.h"
+#include "proto/global/CEAE0.h"
 
-void actorBoneChainSwingUpdate();
 
 typedef struct BoneChainNode {
     s8 unk0;
@@ -74,16 +82,7 @@ extern s16 D_8075037C;
 extern s16 D_80750380;
 extern ActorGlobalState gActorGlobalState;
 
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
-void actorUpdateModelMatrix(Actor *, s32);
-void *heapAlloc(s32);
-s32 randomNonNegative(void);
 f32 sinApprox(f32);
-s32 mathAngleDistance(s16, s16);
-s32 func_807142D8(void);
-u8 flagGet(s16, u8);
-void proxPathAdd(Actor *, u8, u8, u8, u8, f32, f32, f32, f32, f32, f32, u8, f32, f32, u8);
-void proxPathSetSegment(Actor *, u8, u8, u8, u8, f32, f32, f32, u8, s16, s16, s16, s16);
 
 void actorBoneChainSwingUpdate(nodeCount)
 u8 nodeCount;

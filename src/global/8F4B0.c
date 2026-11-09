@@ -1,10 +1,35 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_func_80711F90 // FAKE: callee prototype steer
+#define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
+#define PROTO_SKIP_mapSetTransitionExtraCounter // FAKE: callee prototype steer
+#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
+#define PROTO_SKIP_playerWaypointPathStartPacked // FAKE: callee prototype steer
+#include "proto/global/109660.h"
+#include "proto/global/10E1D0.h"
+#include "proto/global/114270.h"
+#include "proto/global/117190.h"
+#include "proto/global/126260.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/1332B0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2F550.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/68EA0.h"
+#include "proto/global/699B0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/8F4B0.h"
+#include "proto/global/CC800.h"
+#include "proto/global/F56F0.h"
 
-s32 actorSpawn(s32, s32);
-void volumeTriggerUpdateAll(void);
-void func_80727678(void);
-void spawnNodesUpdate(void);
 
 void actorSpawnInitialSet(void) {
     actorSpawn(0xA, 0);
@@ -43,8 +68,6 @@ extern LightPosEntry D_80750194[];
 
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void lightSetFovAngles(f32, f32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
 void lightUpdateFromActorLighting(u8 *outR, u8 *outG, u8 *outB) {
     f32 pad;
@@ -92,10 +115,6 @@ set_color:
     }
 }
 
-u8 flagGet(s16, u8);
-void flagSet(s16, u8, u8);
-void mapRequestTransition();
-void menuTransitionToMap(s32, s32);
 extern s8 D_8074452C;
 extern u16 D_80744734[];
 extern s32 gCurrentMap;
@@ -209,40 +228,10 @@ typedef struct {
 } PlayerActorC4;
 struct ActorPlayerPos;
 
-void lightGetColor(f32 *, f32 *, f32 *, s16);
-void lightSetOverrideColor(f32, f32, f32);
-void transitionSetState(u8);
-void screenSetTransitionFadeType(u8);
-s32 cutsceneTriggerCheck(s16);
-void playerWaypointPathStartLineFromActor(void *, s16, s16, s32);
-void mapRequestTransitionFast(s32, s32);
-void func_805FF9AC(s32, s32, s32, s16);
-void mapTransitionExitCurrent(s32, s32);
-void playerRespawnResetPhysics(s32);
-void mapTransitionToPreviousOrExit(void);
-void mapTransitionToMenuOrPrevious(void);
 void mapSetTransitionExtraCounter(u8); // FAKE: callee prototype steer
 s32 mapGetHubWorldIndex(u8, s32); // FAKE: callee prototype steer
-void mapTransitionToWorldHub(s32);
 void playerWaypointPathStartPacked(void *, s32, s16, s32); // FAKE: callee prototype steer
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
-void sfxAllocateChannel(s32, f32);
-void sfxStopChannel(s16, s32);
-void commandSetColor(s8, s8, s8);
-void commandSetParameters(s16, s16, s16, u8, u8, u8);
-void mapChunkSetFlagBit3(s16);
-void lightLerpColors(f32, f32, f32, f32, s16);
-void lightSetTargetColor(f32, f32, f32, s16);
-void func_80711BD0(f32, s16, s16, u8);
-void func_80711950(f32, s16, s16);
 void func_80711F90(f32, s16, f32, s16, f32); // FAKE: callee prototype steer
-s32 randomNonNegative(void);
-void lightSetColor(f32, f32, f32, s16);
-void sfxPlayWithRandomPan(s32, s32, s32, s32, s32);
-void func_80711410(f32, s16, f32, s16, f32);
-s32 effectSpritePoolFadeOut(void);
-void actorUpdateEntryEmitters(void);
-void particleSpawnPathTrail(void);
 
 extern Actor *gCurrentActor;
 extern u8 D_807FBDC4;
@@ -533,7 +522,6 @@ typedef struct {
     /* 0x1E */ s16 unk1E;
 } Actor174;
 
-s32 actorFindActiveByType(s16, Actor * *);
 
 void func_8068B830(s16 stateVal, s16 pct, s16 timer) {
     Actor *actor;
@@ -570,9 +558,6 @@ void enemyAggroDespawnBB(void) {
     *ptr = 0xFF;
 }
 
-void csModelStateSetFirstByte(s16, s16);
-void func_8062BAE4(void);
-void actorListDispatchEvent(s16, void *);
 
 void func_8068B930(void) {
     s32 i;
@@ -623,9 +608,6 @@ typedef struct ActorPlayerPos {
 } ActorPlayerPos;
 
 extern ActorPlayerPos *gPlayerSlots;
-u16 camStartPath(void *, s16, u8);
-void func_8072167C(s16, s16, s16, s16);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
 void func_8068BA2C(void) {
     s32 pad;
@@ -673,12 +655,8 @@ typedef struct {
     s16 unkEC;
 } AimActorAngles;
 
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 f32 mathSinF(s16);
-void camUpdate(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
-f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
-void playerGetCharacterIndex(u8);
 extern u8 gGameMode;
 extern s16 D_807FC624;
 
