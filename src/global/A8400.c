@@ -40,7 +40,7 @@ extern u16 D_8075A740;
 
 f32 sinApprox(f32);
 s32 randomNonNegative(void);
-Gfx *textDrawStringVtx(Gfx *, s32, s32, s32, u16 *, s32);
+Gfx * textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
 void textBoxRenderNode(s32 *arg0, void *arg1, void *arg2, void *arg3) {
     union { u16 h; u8 b; u8 pad[8]; } spE8;
@@ -145,8 +145,8 @@ void renderAppendNodeChain(s32 *arg0, DrawActor *arg1, DrawListHead *arg2, u8 ar
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 
-s32 texCacheFindOrLoad(s32);
-void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, s32, s32);
+s32 texCacheFindOrLoad(s32);  // FAKE: callee prototype steer
+void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
 
 Gfx *renderTextureSprite(Gfx *arg0, s32 arg1, u8 arg2, s32 arg3) {
     s32 tex;
@@ -351,8 +351,8 @@ Gfx *textBoxRender(Gfx *arg0, Actor *arg1) {
 }
 
 void effectEnableFade(void);
-void effectSetMode(s32);
-void effectSetDepth(s32);
+void effectSetMode(s8);
+void effectSetDepth(s8);
 void effectSetDuration(s32);
 void effectSetBounds(s16, s16, s16, s16);
 void *effectCreateAtPosition(void *, f32, f32, f32, f32);
@@ -684,8 +684,8 @@ extern u8 gCurrentPlayerIndex;
 extern s16 gScreenWidth;
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-s32 controllerLookupStateByHash(void *);
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+u16 controllerLookupStateByHash(u32 *);
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
 
 #define SPRITE_SUB ((SpriteSub *) arg1)
 #define SPRITE_BOUNDS ((MapBounds *) ((u8 *) gPlayerSlots + (gCurrentPlayerIndex * 0x2F0)))
@@ -878,7 +878,7 @@ void textBoxUpdateRows(Actor *);
 void textBoxUpdatePosition(Actor *, SpriteBehaviour *, f32);
 void resNodeListFree(SpriteBehaviour *);
 void resQueueRemove(void *);
-void renderCallbacksRegister(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, u8);
 Gfx *textBoxRender(Gfx *, Actor *);
 
 void textBoxUpdate(void) {
