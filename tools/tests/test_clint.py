@@ -64,6 +64,10 @@ def test_layout_rejects_appended_field(tmp_path):
 def test_layout_accepts_named_padding_at_same_offset(tmp_path):
     assert layout(tmp_path, HEADER.replace("    char pad4[0xC];\n", "    s32 unk4;\n    char pad8[0x8];\n")) == []
 
+def test_layout_accepts_array_over_same_bytes(tmp_path):
+    assert layout(tmp_path, HEADER.replace("    s32 unk0;\n    char pad4[0xC];\n", "    s32 unk0[4];\n")) == []
+
+
 
 def test_layout_rejects_shifted_field(tmp_path):
     diffs = layout(tmp_path, HEADER.replace("char pad4[0xC]", "char pad4[0x10]"))

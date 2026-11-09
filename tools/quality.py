@@ -835,8 +835,9 @@ def validate(key, method, outcome, o):
         return "kept is only for classify (note \"class 1\") or goto-hand (note citing Q0591)"
     if method == "diagnose" and not o["quirks"]:
         return "diagnose needs quirks=Q1,Q2"
-    if method == "permute" and ((o["seconds"] or 0) < 600 or o["base"] is None or o["best"] is None):
-        return "permute needs seconds>=600, base= and best="
+    if method == "permute" and (o["base"] is None or o["best"] is None
+                                or ((o["seconds"] or 0) < 600 and o["best"] != 0)):
+        return "permute needs base= and best=, and seconds>=600 unless best=0 (the run stops on a zero score)"
     if method == "review":
         if outcome not in ("fixed", "nohit", "blocked"):
             return "review outcome is fixed, nohit or blocked"

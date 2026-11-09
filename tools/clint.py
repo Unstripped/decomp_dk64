@@ -300,8 +300,8 @@ def cmd_uninit(a):
 
 
 def records(args, rel):
-    """{type name: (size, [(field name, bit offset)])} of every complete named record of a TU that
-    includes common.h and REL (a path under the include roots of ARGS)."""
+    """{type name: (size, [(field name, bit offset, bit size)])} of every complete named record of a
+    TU that includes common.h and REL (a path under the include roots of ARGS)."""
     path = "/clint-virtual/layout.c"  # virtual: no directory whose headers could shadow REL
     tu = parse(path, args=args, unsaved=[(path, f'#include "common.h"\n#include "{rel}"\n')])
     if tu.diagnostics_errors:
@@ -313,7 +313,9 @@ def records(args, rel):
         t = t.get_canonical()
         if t.kind != TypeKind.RECORD or not name or t.get_size() < 0:
             return
-        out[name] = (t.get_size(), [(f.spelling, f.get_field_offsetof()) for f in t.get_fields()])
+        out[name] = (t.get_size(), [(f.spelling, f.get_field_offsetof(),
+                                     f.get_bitfield_width() if f.is_bitfield() else max(f.type.get_size(), 0) * 8)
+                                    for f in t.get_fields()])
 
     for c in walk(tu.cursor):
         if c.kind in (CursorKind.STRUCT_DECL, CursorKind.UNION_DECL) and c.is_definition() and c.spelling \
@@ -325,7 +327,9 @@ def records(args, rel):
 
 
 def layout_diff(old, new):
-    """['<Type> <detail>'] for records whose size changed or whose existing field offsets moved."""
+    """['<Type> <detail>'] for records whose size changed, whose surviving fields moved, or whose old
+    field start is no longer the start of or inside a new field (renaming or splitting padding, or
+    merging fields into an array over the same bytes, keeps the layout)."""
     out = []
     for name, (size, fields) in sorted(old.items()):
         if name not in new:
@@ -334,12 +338,11 @@ def layout_diff(old, new):
         nsize, nfields = new[name]
         if nsize != size:
             out.append(f"{name} size 0x{size:X} -> 0x{nsize:X}")
-        by_name = dict(nfields)
-        offsets = {o for _, o in nfields}
-        for f, o in fields:
+        by_name = {f: o for f, o, _ in nfields}
+        for f, o, _ in fields:
             if f in by_name and by_name[f] != o:
                 out.append(f"{name} {f} offset 0x{o // 8:X} -> 0x{by_name[f] // 8:X}")
-            elif f not in by_name and o not in offsets:
+            elif f not in by_name and not any(no <= o < no + max(nb, 1) for _, no, nb in nfields):
                 out.append(f"{name} {f or '<anonymous>'} at 0x{o // 8:X} gone")
     return out
 

@@ -100,3 +100,13 @@ def test_record_writes_full_schema(tmp_path, monkeypatch):
     assert unit["type"] == "unit" and unit["unit"] == "u1" and unit["commit"]
     assert set(e) == set(ev(SITE, "diagnose", "nohit"))
     assert (e["site"], e["kind"], e["quirks"], e["fp_local"]) == (SITE["key"], "dead-if", ["Q0001", "Q0002"], FP[0])
+
+
+def test_record_accepts_permute_stopped_on_zero(tmp_path, monkeypatch):
+    ledger_path = tmp_path / "quality.jsonl"
+    monkeypatch.setattr(q, "LEDGER", str(ledger_path))
+    monkeypatch.setattr(q.Resolver, "find", lambda self, key: (dict(FN, file="src/global/x.c"), SITE))
+    batch = tmp_path / "batch.txt"
+    batch.write_text(f'{SITE["key"]} permute nohit seconds=145 base=90 best=0 note="zero only via a hack"\n')
+    q.main(["record", "--unit", "u1", "--agent", "a", "--batch", str(batch)])
+    assert json.loads(ledger_path.read_text().splitlines()[-1])["seconds"] == 145
