@@ -2136,7 +2136,6 @@ void projectileBounceExplodeScaledUpdate(void) {
         sp64->unk4++;
         BOUNCE_EXPLODE_ACTOR->unkB8 = ((f64)BOUNCE_EXPLODE_ACTOR->unkB8 / 3.0) * 2.5;
     }
-    if (D_807200EC && D_807200EC) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
     if ((BOUNCE_EXPLODE_ACTOR->unk6A & 1) && (BOUNCE_EXPLODE_ACTOR->unk6C & 1)) {
         sp64->unk20++;
     } else {
