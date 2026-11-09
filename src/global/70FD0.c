@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "heap.h"
 #define PROTO_SKIP_actorAngleInArc // FAKE: callee prototype steer
 #define PROTO_SKIP_actorCheckTargetAngle // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_mathAngleNearestArcPoint // FAKE: callee prototype steer
@@ -17,16 +18,6 @@
 #include "proto/global/7CA80.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/FE40.h"
-
-typedef struct DynamicBuffer {
-    /* 0x00 */ u8 pad0[0x10];
-    /* 0x10 */ s32 unk10;
-    /* 0x14 */ u8 unk14;
-    /* 0x15 */ u8 unk15;
-    /* 0x16 */ u8 pad16[2];
-    /* 0x18 */ void *unk18;
-    /* 0x1C */ u8 pad1C[4];
-} DynamicBuffer; // size = 0x20
 
 typedef struct BufferCacheEntry {
     /* 0x00 */ void *unk0;
