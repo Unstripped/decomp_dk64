@@ -43,7 +43,7 @@ Agents multiply whatever the toolchain gives them, including its flakiness. Thes
 1. **A deterministic, containerised toolchain.** The `Dockerfile` image provides GNU MIPS binutils, IDO 5.3 and 7.1 (static recompilations), splat, asm-processor, m2c, asm-differ, decomp-permuter and GNU gzip 1.2.4, which reproduces the ROM's compressed segments (zlib and gzip 1.12 do not). Every build command runs through `tools/dk`, so host differences never reach a build.
 2. **Per-segment hashes.** `*.sha1` covers boot, the decompressed global segment and the text and data of each of the nine overlays, so a failure points at one segment instead of "the ROM differs".
 3. **A concurrency-safe build server.** `tools/dkd/` keeps one container per checkout and runs every `tools/dk` call under a reader/writer lock (per-object locks for single-object compiles, exclusive locks for `make split`). Under the earlier per-call `docker run` wrapper, parallel agents raced on shared build outputs.
-4. **Per-object compare tools** that never touch the shared build: `tools/objdiff.sh` and `tools/fdiff.sh` compile one file, or a private copy of it, against a snapshot of the expected objects.
+4. **Per-object compare tools** against a snapshot of the expected objects (`expected/`, from `make expected`). `tools/objdiff.sh` rebuilds one shared object (`build/src/...o`) and compares it: safe in parallel on different files, not on the same file. `tools/fdiff.sh` compiles a private copy into `build/.scratch/` with the original's flags, so several agents can work on the same file at once without touching the shared build.
 
 ## The repository is the agents' memory
 
