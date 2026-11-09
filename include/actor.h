@@ -246,7 +246,9 @@ typedef struct Actor {
     /* 0x13C */ ActorCallbackNode *callbacks;
     /* 0x140 */ ActorSub140 *collision;
     /* 0x144 */ u8 unk144;
-    /* 0x145 */ u8 unk145[0xB];
+    /* 0x145 */ u8 unk145;
+    /* 0x146 */ s16 unk146;
+    /* 0x148 */ u8 unk148[8];
     /* 0x150 */ struct CollisionStaticTri *floorTriangle;
     /* 0x154 */ u8 state;
     /* 0x155 */ u8 unk155[7];
@@ -375,7 +377,8 @@ typedef struct PlayerState {
     /* 0x0C2 */ s16 unkC2;
     /* 0x0C4 */ struct GfSndState *sfxHandle;
     /* 0x0C8 */ s16 unkC8;
-    /* 0x0CA */ u8 padCA[2];
+    /* 0x0CA */ u8 unkCA;
+    /* 0x0CB */ u8 padCB;
     /* 0x0CC */ s16 unkCC;
     /* 0x0CE */ u8 padCE[6];
     /* 0x0D4 */ s16 surfaceTimer;

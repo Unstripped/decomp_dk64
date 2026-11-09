@@ -3382,7 +3382,7 @@ void tagBarrelUpdate(void) {
     if (!(actor->flags & 0x10)) {
         sub->unk22 = actor->yaw;
         sub->unk24 = gCurrentActor->y;
-        *(s16 *)&gCurrentActor->unk145[1] = 0;
+        gCurrentActor->unk146 = 0;
         gCurrentActor->eyeHeight = 0;
         effectSetMode(2);
         effectSetDuration(-1);
