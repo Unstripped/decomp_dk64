@@ -2746,7 +2746,7 @@ typedef struct G07StateA {
 
 
 s32 actorTableContains(void *);
-void actorCopyPoseAndScale(void *, void *, s32, void *);
+void actorCopyPoseAndScale(void *, void *, f32, void *);
 
 void actorChildEffectUpdate(void) {
     G07StateA *state = gCurrentActor->customState;
@@ -2770,7 +2770,7 @@ void actorChildEffectUpdate(void) {
             if (target->sub4->animId != state->targetAnim) {
                 actorScriptStart(gCurrentActor, state->scriptB);
             } else {
-                actorCopyPoseAndScale(gCurrentActor, target, *(s32 *)&gCurrentActor->sub4->scaleX, state);
+                actorCopyPoseAndScale(gCurrentActor, target, gCurrentActor->sub4->scaleX, state);
                 gCurrentActor->y += state->yOffset;
             }
             break;
