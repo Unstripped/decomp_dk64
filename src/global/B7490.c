@@ -47,16 +47,16 @@ extern u8 D_8072073C[];
 extern s16 D_80750340;
 
 void actorScriptStart(void *, s32);
-s32 behaviourIsTargetWithinRadiusAndAngle(s32, s32);
+u8 behaviourIsTargetWithinRadiusAndAngle(s32, s16);
 void behaviourFrameBegin(void);
 void actorUpdatePrevContactFlags(Actor *);
 void actorUpdateModelMatrix(void *, s32);
-void effectSpawnSparks(s32, s32);
+void effectSpawnSparks(u8, u8);
 s32 actorMoveWithinZone(u8, f32, f32, u16, f32);
-void actorPitchEaseTowardPoint(s16, s32, f32, f32, f32, s32, f32, f32, s32);
-void actorSetPitchVelocity(s16, f32, f32, f32, s32);
+void actorPitchEaseTowardPoint(s16, s16, f32, f32, f32, u8, f32, f32, u16);
+void actorSetPitchVelocity(s16, f32, f32, f32, u16);
 void behaviourUpdateContactAndState(s32);
-s32 patrolPathStep(u8, s32);
+u8 patrolPathStep(u8, u8);
 void behaviourCalculateDamageForce(s32, s32);
 void actorSetDefaultState();
 void behaviourFadeOutWithinZone();
@@ -67,24 +67,24 @@ f32 mathSinF(s16);
 s16 mathAngleEaseToward(s16, s16, f32);
 void actorClearNodeFlag(Actor *, s32);
 void scriptSetActorRampTarget(void *, f32, f32);
-void actorTurnTowardActorYaw(s32, void *);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
+void actorTurnTowardActorYaw(u8, Actor *);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 void actorSetUniformScale(void *, f32);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void effectSetDuration(s32);
 void effectSetSpeed(s32);
 void effectSetCallback(void *);
 void effectRadialSprayUpdate();
-void effectSetMode(s32);
+void effectSetMode(s8);
 void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void tagBarrelSpawnActorSmokePuffs(s32, s32);
-void actorGetOrSetNodeScale(void *, s32, f32);
-void actorSetCollisionRadius(void *, f32);
+f32 actorGetOrSetNodeScale(Actor *, s32, f32);
+ActorSub140 *actorSetCollisionRadius(Actor *, f32);
 void projectileGetTargetCoords(void *, s32);
-void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
+void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
 void projectileSetTargetCoords(f32, f32, f32);
-void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
+void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, s32);
 s32 zoneCanReachPoint(void *, s16, s16, s16, s32);
 f32 sqrtf(f32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
@@ -92,14 +92,14 @@ void func_8072881C();
 void actorSpawnPeriodicBoneEffect(void);
 void behaviourFlyPatrolWithCallback(void (*)(), u16, u16, s16);
 void actorAirPatrolStep(u8, s16, s16);
-void actorSpawnNodeEntryAtActor(s32, s32);
+void actorSpawnNodeEntryAtActor(s32, s16);
 void actorAttachChildCallbacks(void);
 void sfxAllocateChannel(s32, f32);
-void csModelStateSetFirstByte(s32, s32);
-void actorPlaceAttachedChildren(s32);
+void csModelStateSetFirstByte(s16, s16);
+void actorPlaceAttachedChildren(s16);
 void behaviourSpawnPuffParticle(void);
-void camStartPath(void *, s32, s32);
-void behaviourSetAnimIds(s32, s32, s32);
+u16 camStartPath(void *, s16, u8);
+void behaviourSetAnimIds(s16, s16, s16);
 void actorApplyVelocityCustom(void *, f32, f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
 
@@ -569,7 +569,7 @@ s32 actorFlyTowardPosition(B7490Pos *targetPos, u8 action) {
     return actorMoveWithinZone(action, targetPos->x, targetPos->z, 0x2E0, 0.0f);
 }
 
-void effectSetColor(u8, u8, u8, u8);
+void effectSetColor(u8, u8, u8, u8); // FAKE: callee prototype steer
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
 
 void actorSpawnPeriodicBoneEffect(void) {
@@ -749,7 +749,7 @@ void behaviourFlyPatrolState4(void) {
 }
 
 extern f32 D_807502EC;
-void func_80724CA4(s32, s32);
+void func_80724CA4(s16, s16);
 
 void actorAirPatrolStep(u8 action, s16 animId1, s16 animId2) {
     s16 *heightPtr;
@@ -980,9 +980,9 @@ s32 randomLcgNext(void);
 f32 randomFloat(void);
 f32 mathCosF(s16);
 s32 mathAngleSignedDistance(s16, s16);
-void zoneEntryGetPosition(s32, s32, f32 *, f32 *, f32 *);
-s32 flagGet(s32, s32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
+u8 flagGet(s16, u8);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
 void sfxStopSlotSound(Actor *, s32);
 
