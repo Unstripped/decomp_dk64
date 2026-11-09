@@ -4,14 +4,19 @@
 #include "common.h"
 #include "actor.h"
 struct CamActor;
+struct CamBlendActor;
 struct CamEyeActor;
+struct CamFloorState;
+struct CamFocusState;
 struct CamFollowActor;
 struct CamFollowState;
 struct CamPathData;
 struct CamResetCam;
 struct CamState;
+struct CamStateFloor;
 struct CamStateSettle;
 struct CamStateViewAngle;
+struct CamStateYaw;
 #ifndef PROTO_SKIP_camCueTimerIsRunning
 u8 camCueTimerIsRunning(void);
 #endif
@@ -28,10 +33,10 @@ void camSnapToTargetHeight(struct CamActor *);
 void func_8061B650(struct CamActor *);
 #endif
 #ifndef PROTO_SKIP_camApplySway
-void camApplySway(struct CamState *, f32 *, f32 *, f32 *, f32, f32, f32, f32);
+void camApplySway(struct CamStateYaw *, f32 *, f32 *, f32 *, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camSampleFloorHeight
-void camSampleFloorHeight(struct CamActor *, struct CamState *, f32, f32);
+void camSampleFloorHeight(struct CamActor *, struct CamStateFloor *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camSetSettleMode
 void camSetSettleMode(struct CamStateSettle *, u8);
@@ -40,7 +45,7 @@ void camSetSettleMode(struct CamStateSettle *, u8);
 void camSortFloorHits(void);
 #endif
 #ifndef PROTO_SKIP_camFloorSnap
-u8 camFloorSnap(void *, void *, f32, f32 *, f32, s32);
+u8 camFloorSnap(struct CamActor *, struct CamFloorState *, f32, f32 *, f32, u8);
 #endif
 #ifndef PROTO_SKIP_camUpdatePlayerYaw
 void camUpdatePlayerYaw(struct CamStateViewAngle *);
@@ -166,7 +171,7 @@ void camResetAllPlayers(void);
 void camResetPlayer(Actor *, u8);
 #endif
 #ifndef PROTO_SKIP_camApplyShake
-void camApplyShake(struct CamState *, f32 *, f32 *, f32 *, s32, s32);
+void camApplyShake(struct CamState *, f32 *, f32 *, f32 *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_camStartShakeFromPoint
 void camStartShakeFromPoint(struct CamActor *, u8, u16, f32, f32, f32, f32, f32);
@@ -202,13 +207,13 @@ u8 camResolveWallCollision(struct CamActor *, f32, f32, f32 *, f32, f32 *, f32);
 s32 func_80620F00(struct CamActor *, u8, u8);
 #endif
 #ifndef PROTO_SKIP_camShouldAutoRotate
-u8 camShouldAutoRotate(s32, struct CamState *, struct CamActor *);
+u8 camShouldAutoRotate(struct CamActor *, struct CamState *, struct CamActor *);
 #endif
 #ifndef PROTO_SKIP_camComputeFollowPos
 u8 camComputeFollowPos(struct CamActor *, struct CamActor *, f32 *, f32 *, f32 *, f32);
 #endif
 #ifndef PROTO_SKIP_camComputeFocusPos
-void camComputeFocusPos(struct CamState *, f32 *, f32 *, f32 *);
+void camComputeFocusPos(struct CamFocusState *, f32 *, f32 *, f32 *);
 #endif
 #ifndef PROTO_SKIP_camComputeFocusPosOffset
 void camComputeFocusPosOffset(struct CamState *, f32 *, f32 *, f32 *, f32);
@@ -244,7 +249,7 @@ void camComputeEyeFocus(struct CamActor *, f32 *, f32 *, f32 *, f32 *, f32 *, f3
 void camTurnYawToward();
 #endif
 #ifndef PROTO_SKIP_camUpdateFollowBlend
-void camUpdateFollowBlend(struct CamEyeActor *);
+void camUpdateFollowBlend(struct CamBlendActor *);
 #endif
 #ifndef PROTO_SKIP_camApproachFloat
 f32 camApproachFloat(f32, f32, f32);
