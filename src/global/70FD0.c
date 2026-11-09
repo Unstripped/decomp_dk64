@@ -2221,8 +2221,7 @@ void actorSetTargetAngleBounds();
 struct ActorPlaneContactView;
 struct ActorHitPlane;
 void actorCalcPlaneContactPoint(struct ActorPlaneContactView *, s16, struct ActorHitPlane *);
-struct ActorMotionWork;
-s32 actorCheckPointInAngleArc(struct ActorMotionWork *, f32, f32);
+s32 actorCheckPointInAngleArc(Actor *, f32, f32);
 
 s32 actorResolveModelSlotCollision(arg0)
 Actor *arg0;
@@ -2361,7 +2360,7 @@ Actor *arg0;
                     out[0] = out[0] * scale;
                     out[1] = out[1] * scale;
                     out[2] = out[2] * scale;
-                    if (kind == 3 || actorCheckPointInAngleArc((struct ActorMotionWork *)arg0, x - out[0], z - out[2]) != 0) {
+                    if (kind == 3 || actorCheckPointInAngleArc((Actor *)arg0, x - out[0], z - out[2]) != 0) {
                         arg0->x = x - out[0];
                         arg0->z = z - out[2];
                     }
@@ -3174,11 +3173,10 @@ typedef struct ActorPosXZView {
     f32 unk90;
 } ActorPosXZView;
 
-struct ActorMotionWork;
 s32 mathAsinFixed(s32);
-s32 actorAngleInArc(struct ActorMotionWork *, s16);
+s32 actorAngleInArc(Actor *, s16);
 
-s32 actorCheckPointInAngleArc(struct ActorMotionWork *arg0, f32 arg1, f32 arg2) {
+s32 actorCheckPointInAngleArc(Actor *arg0, f32 arg1, f32 arg2) {
     s32 sp28;
     s32 sp24;
     s32 sp44;
@@ -3235,34 +3233,11 @@ typedef struct ActorMotionSub174 {
     f32 unk1CC;
 } ActorMotionSub174;
 
-typedef struct ActorMotionWork {
-    u8 pad0[0x60];
-    u32 unk60;
-    u32 unk64;
-    u16 unk68;
-    u16 unk6A;
-    u8 pad6C[0x10];
-    f32 unk7C;
-    u8 pad80[4];
-    f32 unk84;
-    u8 pad88[0x6C];
-    s16 arcYawMin;
-    s16 arcYawMax;
-    u8 padF8[4];
-    u8 hasArcBounds;
-    u8 padFD[0x13];
-    u8 unk110;
-    u8 pad111[0x2F];
-    ActorMotionSub140 *unk140;
-    u8 unk144;
-    u8 pad145[0x2F];
-    ActorMotionSub174 *unk174;
-} ActorMotionWork;
 
 void mathAngleClampToArc();
 
 s32 actorAngleInArc(arg0, arg1)
-ActorMotionWork *arg0;
+Actor *arg0;
 s16 arg1;
 {
     s16 sp24[2];
@@ -3284,7 +3259,7 @@ s16 arg3;
 }
 
 void actorAngleInArcWithMargin(arg0, arg1, arg2)
-ActorMotionWork *arg0;
+Actor *arg0;
 s16 arg1;
 s16 arg2;
 {
@@ -3444,62 +3419,61 @@ s16 arg1;
 
 
 
-void actorTouchSub140Timestamp(ActorMotionWork *actor) {
-    ActorMotionSub140 *sub = actor->unk140;
+void actorTouchSub140Timestamp(Actor *actor) {
+    ActorMotionSub140 *sub = actor->collision;
     if (sub != NULL) {
         sub->unk88 = gFrameCounter;
     }
 }
 
 s32 actorResolveModelSlotCollision();
-s32 actorCheckPointInAngleArc(ActorMotionWork *, f32, f32);
 
-void actorUpdateMovementFlags(ActorMotionWork *arg0) {
+void actorUpdateMovementFlags(Actor *arg0) {
     ActorMotionSub140 *temp_v0;
 
     if (arg0->unk144 & 8) {
-        temp_v0 = arg0->unk140;
+        temp_v0 = arg0->collision;
         if (temp_v0->unk6C != 0) {
             arg0->hasArcBounds |= actorResolveModelSlotCollision();
         } else {
             temp_v0->unk60 = 0;
         }
-        if (arg0->unk60 & 0x20) {
-            temp_v0 = arg0->unk140;
+        if (arg0->flags & 0x20) {
+            temp_v0 = arg0->collision;
             if (temp_v0->unk24 != 0 && actorCheckPointInAngleArc(arg0, temp_v0->unk1C, temp_v0->unk20) != 0) {
-                temp_v0 = arg0->unk140;
-                arg0->unk7C = temp_v0->unk1C;
-                arg0->unk84 = temp_v0->unk20;
+                temp_v0 = arg0->collision;
+                arg0->x = temp_v0->unk1C;
+                arg0->z = temp_v0->unk20;
             }
         }
     } else {
-        temp_v0 = arg0->unk140;
+        temp_v0 = arg0->collision;
         if (temp_v0 != NULL) {
             temp_v0->unk6C = 0;
         }
     }
 }
 
-u8 actorHasActiveMovementFlags(ActorMotionWork *arg0) {
-    return arg0->unk110 != 0
-        || arg0->unk140->unk6C != 0
-        || arg0->unk140->unk24 != 0
-        || (arg0->unk6A & 8) != 0
-        || (arg0->unk6A & 0x400) != 0;
+u8 actorHasActiveMovementFlags(Actor *arg0) {
+    return arg0->attachMode != 0
+        || arg0->collision->unk6C != 0
+        || arg0->collision->unk24 != 0
+        || (arg0->contactFlags & 8) != 0
+        || (arg0->contactFlags & 0x400) != 0;
 }
 
-void actorClearMovementFlags(ActorMotionWork *arg0) {
+void actorClearMovementFlags(Actor *arg0) {
     ActorMotionSub140 *temp_v0;
 
-    temp_v0 = arg0->unk140;
-    arg0->unk110 = 0;
+    temp_v0 = arg0->collision;
+    arg0->attachMode = 0;
     if (temp_v0 != NULL) {
         temp_v0->unk6C = 0;
-        arg0->unk140->unk24 = 0;
+        arg0->collision->unk24 = 0;
     }
-    arg0->unk6A &= ~8;
+    arg0->contactFlags &= ~8;
     *(u16*)((u8*)arg0 + 0x6A) &= ~0x400;
-    arg0->unk64 |= 0x2000;
+    arg0->renderFlags |= 0x2000;
 }
 
 extern s16 D_807FB5F8;
@@ -3516,7 +3490,7 @@ void actorSetCameraBoundaryMode(s32 arg0) {
     }
 }
 
-extern ActorMotionWork *gPrimaryPlayerActor;
+extern Actor *gPrimaryPlayerActor;
 
 s32 actorCheckCameraBoundaryCondition(s8 arg0) {
     ActorMotionSub174 *temp_v0;
@@ -3551,13 +3525,13 @@ s32 actorCheckCameraBoundaryCondition(s8 arg0) {
         D_807FB548 = 1;
         return 1;
     case 6:
-        temp_v0 = gPrimaryPlayerActor->unk174;
+        temp_v0 = gPrimaryPlayerActor->customState;
         if (D_807FB53C == 3 && temp_v0->unk1A3 != 0) {
             return 1;
         }
         break;
     case 7:
-        temp_v0 = gPrimaryPlayerActor->unk174;
+        temp_v0 = gPrimaryPlayerActor->customState;
         if (D_807FB53C == 6 && (gPlayerSlots->unk2C0 != 1 || temp_v0->unk1CC != temp_v0->unk1C0)) {
             return 1;
         }
