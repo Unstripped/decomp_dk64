@@ -1653,7 +1653,7 @@ void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
         temp_v0 = 10;
     } else if (temp_v0 == 0) {
         temp_v0 = 80;
-        var_v1 = (u8)(u32)((f64)(var_v1 ^ 0) * 0.5);
+        var_v1 = (u8)(u32)((f64)(var_v1) * 0.5);
     } else {
         if (arg0->actorType == 2 || arg0->actorType == 4) {
             temp_v0 = 50;
