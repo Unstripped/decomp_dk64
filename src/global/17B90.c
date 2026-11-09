@@ -38,7 +38,7 @@ struct ControllerStateEntry;
 extern struct ControllerStateEntry D_807FB630[];
 #define CONTROLLER_STATE_ENTRY(i) (((ControllerStateEntryView *)D_807FB630)[i])
 extern void *D_807FB634;
-void *assetLoad(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
 extern u8 D_80746B64[];
 
 void animListInit(void *, void *);
