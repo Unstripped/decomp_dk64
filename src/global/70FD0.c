@@ -319,7 +319,7 @@ typedef struct CollisionStaticCellEntry {
 extern s32 gCurrentMap;
 extern s32 D_807FB530;
 
-void *assetLoad(s32, s32, s32, s32);
+void *assetLoad(s32, u32, u8, u8);
 s32 assetGetSize(s32, s32);
 void assetSetImmediateFree(void);
 void assetFreeBuffer(void *, s32, s32);
@@ -395,7 +395,7 @@ typedef struct CollisionStaticCellView {
 
 #define COLLISION_STATIC_CELLS ((CollisionStaticCellView *)D_807FB534)
 
-void dmaReadAssetDecompress(s32, void *, void *, s32, s32, s32, s32);
+void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
 s32 collisionBuildStaticTri(void *, void *);
 
 void collisionLoadStaticCell(s32 arg0) {
@@ -1653,7 +1653,7 @@ void actorSetCameraBoundaryMode(s32);
 void actorCollisionCheckNodeSpheres(CollisionActor *);
 s32 actorCheckTargetAngleBounds();
 u8 actorCollideModelSlots(CollisionActor *, s16 *, s16 *);
-s8 actorCheckCollisionsAgainstActiveActors(CollisionActor *, s16 *, s16 *);
+u8 actorCheckCollisionsAgainstActiveActors(CollisionActor *, s32, s32);
 void actorQueueCollisionCallbacks(CollisionActor *);
 void actorQueueDelayedCallback();
 
