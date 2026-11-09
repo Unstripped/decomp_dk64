@@ -55,12 +55,10 @@ SynAllocAcmd *n_alSavePull(SynAllocSave *filter, s16 *outp, SynAllocAcmd *p) {
 s32 alSaveParam(void *filter, s32 paramID, void *param) {
     void *unused = filter;
 
-    goto decode;
-
-decode:
-    _decodeChunk(filter, paramID, param);
-    goto done;
-
-done:
+    switch (paramID) {
+    default:
+        _decodeChunk(filter, paramID, param);
+        break;
+    }
     return 0;
 }
