@@ -9,7 +9,7 @@ typedef struct PlayerData {
 
 extern PlayerData *gPlayerSlots;
 extern Actor *gPrimaryPlayerActor;
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 s32 playerCanTakeHit(Actor*);
 
 void actorTriggerPlayerKnockbackSound(Actor* attacker, Actor* target, s32 unused2, s32 unused3) {
