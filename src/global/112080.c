@@ -534,7 +534,7 @@ typedef struct S112bResNode {
     struct S112bResNode *next;
 } S112bResNode;
 
-extern void *assetLoad(s32, s32, s32, s32);
+extern void *assetLoad(s32, u32, u8, u8);
 extern void assetFreeBuffer(void *, s32, s32);
 
 S112aParsedList *resNodeGetOrLoad(u16 id, s32 kind) {
@@ -596,8 +596,8 @@ typedef struct S112cOwner {
     S112cRow *rows;
 } S112cOwner;
 
-extern u32 textGetFontHeight(s32);
-extern s16 textGetCharAdvance(s32, u8);
+extern u8 textGetFontHeight(s16);
+extern s16 textGetCharAdvance(s16, u8);
 extern s32 _sprintf(u8 *, char *, ...);
 extern void *D_8074E778[];
 extern u16 D_80750AC8;
@@ -966,7 +966,7 @@ char *textTableGetString(s32 tableId, s32 rowIndex, s32 flags) {
 
 extern void *resQueueGetOrCreate(void *);
 extern void timerQueueAdd();
-extern void camResumePathCallback(void);
+extern void camResumePathCallback(s32, s32, s32);
 
 typedef struct R112cE808State {
     u8 pad0[0x54];
