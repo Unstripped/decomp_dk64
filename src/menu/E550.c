@@ -62,9 +62,9 @@ void menuLightSpotlightActorUpdate(void) {
 extern u8 D_800339D0;
 extern s32 gGlobalPauseFlags;
 void lightSetFovAngles(f32, f32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32); // FAKE: callee prototype steer
 void menuSetFlag5324(void);
-void renderCallbacksRegister(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, u8);
 Gfx *menuRenderOptionDescription(Gfx *, void *);
 
 void menuUpdateLightFadeActor(void) {
@@ -141,10 +141,10 @@ extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 extern u8 gHiResScale;
 char *textTableGetString(s32, s32, s32);
-s32 textGetFontHeight(s32);
-s32 texCacheFindOrLoad(s32);
+u8 textGetFontHeight(s16);
+s32 texCacheFindOrLoad(u16);
 s32 textGetStringWidth(s32, char *);
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
+Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 
 Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
