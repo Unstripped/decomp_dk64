@@ -1444,21 +1444,21 @@ Gfx *hudDrawScaledText(Gfx *dl, s16 x, s16 y, f32 scale, void *text) {
 extern s8 D_807FC7F9;
 
 s32 hudPauseMenuSlidePage(HudEntry *iconObj, s32 arg1, s32 arg2) {
-    s32 dir;
     s32 idx;
     s32 v;
     s32 d;
 
     if (arg1 == 0) {
-        dir = 0;
+        d = 0;
         if (arg2 & 8) {
-            dir = 1;
+            d = 1;
         } else if (arg2 & 4) {
-            dir = -1;
+            d = -1;
         }
-        if (dir != 0) {
+        if (d != 0) {
             idx = iconObj->unk15;
-            v = iconObj->unk8[idx] + dir;
+            v = iconObj->unk8[idx];
+            v += d;
             if (v < 0) {
                 v = D_807505D0;
             }
@@ -1468,7 +1468,7 @@ s32 hudPauseMenuSlidePage(HudEntry *iconObj, s32 arg1, s32 arg2) {
             if (v != iconObj->unk8[idx]) {
                 iconObj->unk15 = 1 - idx;
                 iconObj->unk8[iconObj->unk15] = v;
-                iconObj->unkC[iconObj->unk15] = dir * 0xFA;
+                iconObj->unkC[iconObj->unk15] = d * 0xFA;
                 hudPauseMenuBuildPage(iconObj, 0, idx);
                 sfxPlayOnFreeSlot(0x2C9, 0x7FFF, 63.0f, 1.0f, 0, 0);
             }
@@ -1476,7 +1476,6 @@ s32 hudPauseMenuSlidePage(HudEntry *iconObj, s32 arg1, s32 arg2) {
     }
     if (arg1 != 0) {
         d = iconObj->unkC[iconObj->unk15];
-        if (iconObj->unk8[iconObj->unk15]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         if (d >= 0x15) {
             d = 0x14;
         }
@@ -1484,8 +1483,6 @@ s32 hudPauseMenuSlidePage(HudEntry *iconObj, s32 arg1, s32 arg2) {
             d = -0x14;
         }
         iconObj->unkC[0] -= d;
-        if (iconObj->unk8[iconObj->unk15]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-        if (iconObj->unkC[iconObj->unk15]) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         iconObj->unkC[1] -= d;
         if (iconObj->unkC[iconObj->unk15] == 0) {
             iconObj->unk8[1 - iconObj->unk15] = iconObj->unk8[iconObj->unk15];
