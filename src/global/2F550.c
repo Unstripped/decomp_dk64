@@ -504,7 +504,7 @@ u8 func_8062BCC8(void *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     return result;
 }
 
-u8 mapChunkCheckActorCollision(void *, f32, f32, f32, s32);
+u8 mapChunkCheckActorCollision(void *, f32, f32, f32, s32);  // FAKE: callee prototype steer
 
 u8 func_8062BDB0(void *arg0, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
     u8 result;
@@ -1431,7 +1431,7 @@ s32 clipVertexTestAxis(s16 *arg0, u8 arg1, f64 arg2, u8 arg3) {
     return 0;
 }
 
-void faultSetMessage(s32, s32, s32, s32);
+void faultSetMessage(u8, s32, s32, s32);
 
 void clipVertexAppend(void *arg0, s32 *arg1, void *arg2) {
     memcpy((u8 *)arg2 + *arg1 * 6, arg0, 6);
@@ -1634,7 +1634,7 @@ typedef struct MapChunkAnim {
 } MapChunkAnim; /* 0x7C */
 
 void assetFreeBuffer(s32, s32, s32);
-s32 assetLoad(s32, s32, s32, s32);
+s32 assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 #define MAP_CHUNK_ANIM ((MapChunkAnim *)sMapChunkAnims)[i]
 
@@ -1670,7 +1670,7 @@ void mapChunkAnimateTextures(u8 arg0) {
 #undef MAP_CHUNK_ANIM
 
 
-s32 mapChunkIsVisible(u8);
+s32 mapChunkIsVisible(s16);
 
 void mapChunkFreeHiddenBuffers(void) {
     s32 i;
@@ -1741,7 +1741,7 @@ extern s32 sMapSoundEmitterCount;
 extern s32 sMapSoundEmitters;
 
 void fogSetParams(u8);
-void renderSetSegment6Override(u8);
+void renderSetSegment6Override(u8);  // FAKE: callee prototype steer
 void lightSetTargetColor(f32, f32, f32, s16);
 void lightCopyTargetColors(s16);
 void matrixCacheInit(s32);
