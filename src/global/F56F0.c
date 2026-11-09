@@ -49,7 +49,7 @@ void playerKongStopAudioChannels(Actor *arg0, u16 arg1) {
     }
 }
 
-s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 
 void playerPlayKongSpecificSfx(Actor *arg0) {
     switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
@@ -131,7 +131,7 @@ void playerKongStopSoundByState(Actor *arg0) {
 }
 
 extern u8 D_807FC952[];
-s32 playerGetResolvedKongId(u8);
+s32 playerGetResolvedKongId(s32);
 s32 func_80714608(s32);
 void func_806F5A48(u8, s32, Actor *, s32);
 
@@ -290,7 +290,7 @@ typedef struct F5N3ActorExtra {
     s32 flags;
 } F5N3ActorExtra;
 
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, s32);
 extern s32 gGlobalCutsceneFlags;
@@ -348,7 +348,7 @@ typedef struct F5APlayerState {
 #define F5A_PS ((F5APlayerState *)gActivePlayerState)
 
 void scriptReadU8(u8 *);
-s32 playerSelectMoveTier(Actor *, f32, f32, s16, s16);
+s16 playerSelectMoveTier(Actor *, f32, f32, s16, s16);
 
 void scriptCmdCompareMoveTier(Actor *arg0) {
     u8 temp;
@@ -1453,7 +1453,7 @@ typedef struct {
 } F5N4ActorView;
 
 void actorClearMovementFlags(void *);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void actorSetPositionAndFacingAngle(Actor *arg0, F5N4Coord *arg1) {
     s16 angle;
