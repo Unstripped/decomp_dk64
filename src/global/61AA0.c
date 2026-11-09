@@ -193,26 +193,23 @@ void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16
         }
     } while ((i < 4) && !found);
 
-    if (found) {
-        goto block_21;
-    }
-    i = 0; found = FALSE;
-    if ((u32)gBillboardCache[i].unk0 == 0xFFFFFFFF) {} // FAKE: dead read of the typed -1 pushes its constant load ahead of the loop-2 induction setup
-    while ((i < 4) && !found) {
-        if ((u32)gBillboardCache[i].unk0 == 0xFFFFFFFF) {
-            found = TRUE;
-        } else {
-            i++;
-        }
-    }
-
     if (!found) {
-        return;
-    }
-    gBillboardCache[i].unk8 = assetLoad(7, assetId, 0, 0);
-    gBillboardCache[i].unk4 = assetId;
+        i = 0; found = FALSE;
+        if ((u32)gBillboardCache[i].unk0 == 0xFFFFFFFF) {} // FAKE: dead read of the typed -1 pushes its constant load ahead of the loop-2 induction setup
+        while ((i < 4) && !found) {
+            if ((u32)gBillboardCache[i].unk0 == 0xFFFFFFFF) {
+                found = TRUE;
+            } else {
+                i++;
+            }
+        }
 
-block_21:
+        if (!found) {
+            return;
+        }
+        gBillboardCache[i].unk8 = assetLoad(7, assetId, 0, 0);
+        gBillboardCache[i].unk4 = assetId;
+    }
     gBillboardCache[i * 1].unk0 = gFrameCounter; // FAKE: no-op index multiply keeps this address from being CSEd with the loop IV
     gBillboardQueue[gBillboardQueueCount].unk102 = i;
     gBillboardQueue[gBillboardQueueCount].unk106 = flags;
