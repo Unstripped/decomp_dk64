@@ -1589,7 +1589,7 @@ void actorAppendCallbackPayloadA70C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f
     actorAppendCallback(arg1, arg0, 0x20, 0, 1, temp);
 }
 
-void actorAppendCallback4000(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
+void actorAppendCallback4000(Actor *arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
     ActorPayloadAAB8 *temp = heapAlloc(sizeof(ActorPayloadAAB8));
     temp->unk0 = arg2;
     temp->unk4 = arg3;

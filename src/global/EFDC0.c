@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_actorAppendCallback4000 // FAKE: callee prototype steer
 #define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #include "proto/global/117190.h"
 #include "proto/global/12E800.h"
@@ -1101,7 +1100,6 @@ void playerStateEnterDamageTake(void) {
     }
 }
 
-void actorAppendCallback4000(Actor *, Actor *, s16, f32, s16); // FAKE: callee prototype steer
 
 void playerStateAttachHeldActorToPlayer(void) {
     Actor *held = gActivePlayerState->heldActor;

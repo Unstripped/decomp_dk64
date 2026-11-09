@@ -132,7 +132,7 @@ void actorAppendCallbackPayloadA69C(s32, Actor *, f32, f32, u8, u8);
 void actorAppendCallbackPayloadA70C(s32, Actor *, f32, f32, f32, u8, u8);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallback4000
-void actorAppendCallback4000(s32, Actor *, s16, f32, s16);
+void actorAppendCallback4000(Actor *, Actor *, s16, f32, s16);
 #endif
 #ifndef PROTO_SKIP_actorAppendCallback10
 void actorAppendCallback10(s32, Actor *, f32, f32, f32, s32, u8);

@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_actorAppendCallback4000 // FAKE: callee prototype steer
 #define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
 #define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
 #define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
@@ -3066,7 +3065,6 @@ void playerStateCutsceneIdle(void) {
 
 extern f32 D_807FBC58;
 s32 actorTableContains(void *);
-void actorAppendCallback4000(void *, void *, s16, f32, s32); // FAKE: callee prototype steer
 extern f32 gKongHoldPutDownAngles[];
 
 extern u8 D_8071FC8C;
