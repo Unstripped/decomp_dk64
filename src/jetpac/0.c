@@ -1,28 +1,31 @@
 #include "common.h"
+#define PROTO_SKIP_flagGet // FAKE: callee prototype steer
+#define PROTO_SKIP_jetpacDrawString // FAKE: callee prototype steer
+#define PROTO_SKIP_jetpacSetTextColor // FAKE: callee prototype steer
+#define PROTO_SKIP_n_alSndpPostEvent // FAKE: callee prototype steer
+#define PROTO_SKIP_n_alSndpStop // FAKE: callee prototype steer
+#include "proto/boot/3D20.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/104F0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/14CF0.h"
+#include "proto/global/15050.h"
+#include "proto/global/3C10.h"
+#include "proto/global/450.h"
+#include "proto/global/F600.h"
+#include "proto/jetpac/0.h"
+#include "proto/jetpac/1460.h"
+#include "proto/jetpac/1A60.h"
+#include "proto/jetpac/3480.h"
+#include "proto/jetpac/4FC0.h"
 
-void jetpacInitLedges(void);
-void jetpacResetPlayers(void);
-void jetpacStartStage(void);
-void jetpacDrawScoreboard(s32);
-void jetpacUpdateRocketFlight(void);
-void jetpacInitRdp(s32);
-void jetpacDrawLedges(void);
-void jetpacDrawRocket(void);
-void jetpacGridDraw(s32);
-void eepromSetField(s32, u8, u8, u8, s32);
-void func_8060DEA8(void);
 extern s32 D_8002EC48;
-void n_alSndpStop(s32);
+void n_alSndpStop(s32); // FAKE: callee prototype steer
 extern s32 D_80770DF8[];
-void n_alSndpPostEvent(s32, ...);
-void jetpacUpdateLasers(void);
-void jetpacUpdateActors(void);
-void jetpacDrawActors(void);
-void jetpacDrawBonusItem(void);
-void jetpacDrawLasers(void);
+void n_alSndpPostEvent(s32, ...); // FAKE: callee prototype steer
 extern s32 D_8076D1F8;
 extern s16 D_8002BA52[];
-void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
 typedef struct {
     u8 pad0[0x1C];
     s32 unk1C;
@@ -65,28 +68,8 @@ typedef struct {
 
 extern JetpacGlobal jetpacGame;
 
-void jetpacSpawnBonusItem(JetpacPlayer *);
-void jetpacInitRocketParts(JetpacPlayer *);
-void jetpacSpawnFuelPod(JetpacPlayer *);
-void jetpacSetState(s32);
-void jetpacPlaceRocketAboveScreen(void);
-void jetpacInitPlayer(void);
-void jetpacInitActors(void);
-void jetpacSetRocketSpriteFrames(JetpacPlayer *);
-void jetpacPlaceRocketOnPad(void);
 extern s32 D_8002F064;
 
-void controllerStartRead(void);
-void controllerUpdate(void);
-void schedSubmitGfxTask(void *, s32, u8, u8, s32, u8);
-Gfx *screenFadeUpdate(Gfx *, u8);
-void gfxEndDisplayList(Gfx *, u8, s32 *, u8);
-void gfxEndSubDisplayList(Gfx *, s32, s32 *, u8);
-Gfx *gfxSetFrameBufferColorImage(Gfx *);
-Gfx *heapAlloc(s32);
-void heapFreeDeferred(void *);
-void jetpacUpdateStateAndInput();
-void jetpacBuildDisplayList(u8 *, Gfx **);
 
 extern u8 gGfxBufferIndex;
 extern u8 gGameMode;
@@ -180,11 +163,8 @@ void jetpacResetPlayers(void) {
 }
 
 extern s32 D_8002BA6C;
-s32 jetpacIsSpawnDelay(void);
-void jetpacSetupTextRdp(s32);
 void jetpacSetTextColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void jetpacDrawString(s32, char *, s32, s32, s32);
-s32 _sprintf(char *, char *, ...);
+void jetpacDrawString(s32, char *, s32, s32, s32); // FAKE: callee prototype steer
 
 extern s32 D_8002EF74;
 extern s32 D_8002EC50;
@@ -271,9 +251,6 @@ void jetpacStateLanding(s32 glist) {
     jetpacGridDraw(glist);
 }
 
-void jetpacPlayerStateUpdate(void);
-void jetpacItemsUpdate(void);
-void jetpacDrawPlayer(void);
 
 void jetpacStateGameplay(s32 glist) {
     JetpacPlayer *player = &jetpacGame.players[jetpacGame.active_player];
@@ -315,10 +292,6 @@ void jetpacSaveHighScore(void) {
 }
 
 s32 flagGet(s32, s32); // FAKE: callee prototype steer
-void mapRequestTransition(s32, s32);
-s32 eepromGetField(s32, u8, u8, u8);
-void eepromInitConfigs(u8);
-void jetpacNextPlayerOrGameOver(JetpacPlayer *);
 
 
 void jetpacStatePause(s32 glist) {
@@ -487,8 +460,6 @@ typedef struct {
 
 extern u8 D_8002BA70;
 extern J0bPad *D_807ECDE8;
-void jetpacStateSelection(s32);
-void jetpacStateGameplay(s32);
 
 void jetpacUpdateStateAndInput(s32 glist) {
     u8 flag;

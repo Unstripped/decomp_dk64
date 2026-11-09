@@ -1,4 +1,10 @@
 #include "common.h"
+#define PROTO_SKIP_jetpacSetSoundPitch // FAKE: callee prototype steer
+#include "proto/global/135D30.h"
+#include "proto/jetpac/0.h"
+#include "proto/jetpac/1460.h"
+#include "proto/jetpac/3060.h"
+#include "proto/jetpac/3480.h"
 
 typedef struct {
     void *frame;
@@ -68,9 +74,6 @@ typedef struct {
 
 extern JetpacGlobal jetpacGame;
 
-f32 jetpacRandFloat(void);
-s32 jetpacCheckAabbOverlapWrapped(f32, f32, f32, f32, f32, f32, f32, f32);
-void jetpacGridAddTiledSprite(void *, s32, s32, void *, s32);
 extern s32 D_8002DC68[];
 s32 jetpacRandSpawnX(void) {
     return (s32)((jetpacRandFloat() * 200.0f) + 90.0f);
@@ -107,7 +110,6 @@ s32 jetpacItemOverlapsBox(JetpacItem *item, f32 x1, f32 y1, f32 x2, f32 y2, s32 
 extern JetpacSprite D_8002D1A0[];
 extern JetpacSprite D_8002D230[];
 extern JetpacItem D_8002DC9C;
-void jetpacSetRocketSpriteFrames(JetpacPlayer *player);
 
 void jetpacInitRocketParts(JetpacPlayer *player) {
     s32 j;
@@ -134,8 +136,6 @@ void jetpacInitRocketParts(JetpacPlayer *player) {
 
 
 
-s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
-s32 jetpacIsOverRocket(f32);
 extern s32 D_8002F064;
 extern f32 jetpacPlayer;
 extern f32 D_8002F054;
@@ -145,10 +145,6 @@ extern s32 D_8002F06C;
 extern s32 D_8002F070;
 extern s32 D_8002F074;
 extern s32 D_8002F078;
-void jetpacPlaySound(s32);
-void jetpacSpawnFuelPod();
-void flagSet(s16, u8, u8);
-void jetpacSpawnBonusItem(JetpacPlayer *);
 
 typedef struct JetW2FpABox {
     /* 0x0 */ s32 unk0;
@@ -248,7 +244,6 @@ typedef struct {
 
 J3Color D_8002DCE8 = {255, 255, 255, 1};
 extern s32 D_8002F3C0;
-f32 jetpacRoundFloat(f32);
 
 void jetpacDrawItem(JetpacItem *item, s32 mode) {
     s32 x;
@@ -280,10 +275,8 @@ void jetpacDrawItem(JetpacItem *item, s32 mode) {
 }
 
 
-u8 flagGet(s16, u8);
 extern u8 D_8002F3C8;
 extern JetpacSprite D_8002D968[];
-void jetpacBonusItemUpdate(JetpacItem *);
 
 JetpacItem D_8002DCEC = {
     {NULL, NULL},
@@ -512,11 +505,7 @@ void jetpacPlaceRocketOnPad(void) {
 }
 
 extern s32 D_80770DF8[];
-void jetpacPlaySound(s32);
 void jetpacSetSoundPitch(s32, f32);  // FAKE: callee prototype steer
-void jetpacStopSound(s32);
-void jetpacSetState(s32);
-void jetpacStartStage(void);
 
 void jetpacUpdateRocketFlight(void) {
     s32 i;
@@ -686,7 +675,6 @@ s32 jetpacCheckLedgeEdge(s32 ledgeIndex, s32 x1, s32 x2) {
 
 
 
-void jetpacGridAddTiledSprite(void *, s32, s32, void *, s32);
 extern void *D_8002DE68;
 extern void *D_8002DE80;
 extern void *D_8002DE98;

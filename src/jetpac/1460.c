@@ -1,4 +1,8 @@
 #include "common.h"
+#define PROTO_SKIP_dlSetTextureScaleAndFlip // FAKE: callee prototype steer
+#include "proto/global/1135F0.h"
+#include "proto/jetpac/1460.h"
+#include "proto/jetpac/3060.h"
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 typedef struct JetpacActor {
     f32 x;
@@ -30,11 +34,7 @@ typedef struct JetpacSprite {
 
 extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
-f32 jetpacRandFloat(void);
-void jetpacGridAddTiledSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flipFlag);
-void dlAppendTextureLoad(Gfx **glistp, s32 texture);
 void dlSetTextureScaleAndFlip(s32 width, s32 height, u8 flip, s32 unk);  // FAKE: callee prototype steer
-void dlAppendTextureRectangle(Gfx **glistp, s16 x, s16 y);
 typedef struct {
     u8 pad0[8];
     s32 lives;
@@ -143,7 +143,6 @@ typedef struct {
 
 extern J1aSprite D_80042BD0[][256];
 extern u8 gGfxBufferIndex;
-void jetpacGridAddSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flipFlag);
 
 void jetpacGridAddTiledSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flipFlag) {
     s32 ya;

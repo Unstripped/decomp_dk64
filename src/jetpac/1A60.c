@@ -1,4 +1,10 @@
 #include "common.h"
+#include "proto/jetpac/0.h"
+#include "proto/jetpac/1460.h"
+#include "proto/jetpac/1A60.h"
+#include "proto/jetpac/3060.h"
+#include "proto/jetpac/3480.h"
+#include "proto/jetpac/4FC0.h"
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 typedef struct JetpacActor {
     f32 x;
@@ -22,7 +28,6 @@ typedef struct JetpacActor {
     void (*unk48)(struct JetpacActor *);
     s32 unk4C;
 } JetpacActor;
-void jetpacSnapActorToGrid(JetpacActor *actor);
 typedef struct JetpacState {
     u8 pad0[0x4C];
     JetpacActor actors[4];
@@ -33,8 +38,6 @@ typedef struct {
 
 extern JetpacSprite D_8002C4D0[];
 extern JetpacSprite D_8002B9C0[];
-f32 jetpacRandFloat(void);
-void jetpacGridAddTiledSprite(JetpacSprite *, s32, s32, u8 *, s32);
 typedef struct {
     s32 stage;
     s32 score;
@@ -83,7 +86,6 @@ typedef struct {
 } JetpacGame;
 
 extern JetpacGame jetpacGame;
-void jetpacNextPlayerOrGameOver(JetpacPlayer *);
 typedef struct {
     s32 x;
     s32 y;
@@ -160,9 +162,6 @@ void jetpacResetActorState(JetpacActor *actor) {
     actor->unk14 = 4;
     actor->unk2C = 0;
 }
-s32 jetpacBoxOverlapsItems(f32, f32, f32, f32);
-s32 jetpacKillActorInBox(f32, f32, f32, f32);
-s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
 
 void jetpacUpdateLaser(JetpacActor *laser) {
     s32 pad1;
@@ -287,7 +286,6 @@ void jetpacDrawLaser(JetpacActor *laser) {
 }
 
 
-void jetpacPlaySound(s32);
 
 void jetpacFireLaser(player)
 JetpacActor *player;
@@ -348,9 +346,6 @@ JetpacActor *player;
 
 
 extern s32 D_8002EF74;
-s32 jetpacCheckLedgeEdge(s32, s32, s32);
-s32 jetpacIsOverRocket(f32);
-void jetpacSetState(s32);
 
 void jetpacUpdatePlayerMovement(JetpacActor *player) {
     JetpacPlayer *pData;
@@ -560,7 +555,6 @@ void jetpacDrawPlayer(void) {
 }
 
 extern JetpacActor jetpacLasers[];
-void jetpacDrawLaser(JetpacActor *);
 void jetpacDrawLasers(void) {
     s32 i;
 
@@ -582,8 +576,6 @@ void jetpacUpdateLasers(void) {
 }
 
 extern s32 D_8002F064;
-void jetpacUpdatePlayerMovement(JetpacActor *);
-s32 jetpacIsSpawnDelay(void);
 
 void jetpacPlayerStateUpdate(void) {
     if (!jetpacIsSpawnDelay()) {

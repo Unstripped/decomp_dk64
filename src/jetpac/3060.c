@@ -1,5 +1,6 @@
 #include "common.h"
-s32 randomNonNegative(void);
+#include "proto/global/166A0.h"
+#include "proto/jetpac/3060.h"
 
 
 u32 jetpacCheckAabbOverlap(f32 minX1, f32 minY1, f32 maxX1, f32 maxY1, f32 minX2, f32 minY2, f32 maxX2, f32 maxY2) {

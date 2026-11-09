@@ -1,4 +1,11 @@
 #include "common.h"
+#include "proto/global/100180.h"
+#include "proto/jetpac/0.h"
+#include "proto/jetpac/1460.h"
+#include "proto/jetpac/1A60.h"
+#include "proto/jetpac/3060.h"
+#include "proto/jetpac/3480.h"
+#include "proto/jetpac/4FC0.h"
 typedef struct JetpacActor {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -57,8 +64,6 @@ typedef struct {
 } JetpacGlobal;
 
 extern JetpacGlobal jetpacGame;
-s32 jetpacCheckAabbOverlapWrapped(f32, f32, f32, f32, f32, f32, f32, f32);
-void jetpacActorUpdateStraight(JetpacActor *actor);
 
 extern void *D_8002E890;
 extern void *D_8002E8C0;
@@ -67,38 +72,12 @@ extern void *D_8002E830;
 extern void *D_8002E8A8;
 extern s32 D_8002BA6C;
 extern void *D_8002E878;
-void jetpacActorUpdateFighter(JetpacActor *actor);
-void jetpacActorUpdateHop(JetpacActor *actor);
-void jetpacActorHopImpulse(JetpacActor *actor);
-void jetpacActorUpdateBounce(JetpacActor *actor);
-f32 jetpacActorAccelClamp(f32 targetDelta, f32 curVel);
-f32 jetpacRandFloat(void);
-void jetpacActorPickWanderDirection(JetpacActor *actor);
-void jetpacActorUpdateWander(JetpacActor *actor);
-void jetpacActorInitHoming(JetpacActor *actor);
-void jetpacActorUpdateHoming(JetpacActor *actor);
-f32 jetpacGetEntityCenterY(JetpacActor *);
 extern f32 D_8002F054;
 extern s32 D_8002F078;
-void jetpacActorSteerToPlayer(JetpacActor *actor);
-s32 jetpacIsSpawnDelay(void);
-void jetpacDrawActor(JetpacActor *actor);
-JetpacActor *jetpacFindFreeActor(void);
 extern JetpacActor jetpacActors[];
 extern JetpacActor D_8002E964;
 extern JetpacActor D_8002E914;
-JetpacActor *jetpacAllocActor(void);
 extern s32 D_8002E8F0;
-void jetpacSpawnActor(void);
-s32 jetpacCheckLedgeCollision(f32, f32, f32, f32, s32);
-s32 jetpacCheckPlayerHit(JetpacActor *actor);
-void jetpacBounceOffLedge(JetpacActor *actor, s32 ledgeIndex);
-void jetpacPlaySound(s32 soundId);
-void jetpacGridAddTiledSprite(void *, s32, s32, void *, s32);
-void jetpacUpdateExplosion(void *);
-Gfx *textDrawString(Gfx *, s32, s16, s16, s32);
-void jetpacActorInitStraight(JetpacActor *actor, f32 a1, f32 a2);
-void jetpacActorUpdateMeteor(JetpacActor *actor);
 extern u8 D_80045BE0, D_80045BE1, D_80045BE2, D_80045BE3;
 extern u8 D_8002E9C0, D_8002E9C4, D_8002E9C8, D_8002E9CC;
 
@@ -118,8 +97,6 @@ JetpacActor *jetpacFindFreeActor(void) {
 extern s32 D_8002F064;
 extern s32 D_8002F07C;
 extern JetpacActor jetpacPlayer;
-void jetpacSnapActorToGrid(JetpacActor *actor);
-void jetpacActorExplode(JetpacActor *actor);
 
 s32 jetpacCheckPlayerHit(JetpacActor *actor) {
     s32 pad[7];
@@ -556,7 +533,6 @@ f32 jetpacActorAccelClamp(f32 targetDelta, f32 curVel) {
     return r;
 }
 
-f32 jetpacGetEntityCenterX(JetpacActor *);
 
 void jetpacActorSteerToPlayer(JetpacActor *actor) {
     f32 cx2;
