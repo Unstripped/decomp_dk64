@@ -40,8 +40,8 @@ typedef struct BossD_Actor {
 extern BossD_Actor *gCurrentActor;
 extern BossD_Actor *gPrimaryPlayerActor;
 
-void camStartPath(void *, s32, u8);
-s32 camIsCutsceneActive(void);
+u16 camStartPath(void *, s16, u8);
+u8 camIsCutsceneActive(void);
 f32 mathSinF(s16);
 void actorUpdateModelMatrix(void *, s32);
 
@@ -119,22 +119,22 @@ extern f32 D_80036DC4;
 s32 actorSpawn(s32, s32);
 void *actorListFindActorById(s16);
 void actorDespawn(void *);
-s32 mapRequestTransition(s32, s32);
+void mapRequestTransition(s32, s32);
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
 void func_8068A764(void *, u8);
 void playerSetKongByActorType(s16);
 void playerKongStopAudioChannels(void *, u16);
 void actorAppendCallbackPayloadAAB8(void *, void *, s32, f32, s32);
-void sfxPlayOnFreeSlot();
+void sfxPlayOnFreeSlot();  // FAKE: callee prototype steer
 void camPausePath(void);
 void camResumePath(void);
-void func_80724994(s32, s32, s32, s32, s32);
+void func_80724994(u8, s16, s16, s16, s16);
 s32 randomLcgNext(void);
 f32 randomFloat(void);
-s32 sfxAllocateChannel();
+s32 sfxAllocateChannel();  // FAKE: callee prototype steer
 void bossSpawnParticleRing(s32, s16, s16, s16, s32, s32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
-void lightSetColor(f32, f32, f32, s32);
+void lightSetColor(f32, f32, f32, s16);
 void enemyAggroEnable(void);
 
 #define SPAWNER_ACTOR ((BossSpawnerActor *)gCurrentActor)
