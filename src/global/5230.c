@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/5230.h"
 
 extern u16 D_80744734[];
 extern s32 gCurrentMap;

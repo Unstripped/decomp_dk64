@@ -1,5 +1,38 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
+#define PROTO_SKIP_func_806D0964 // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_mapPurgeNodeList // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_mapSearchTableAddProbe // FAKE: callee prototype steer
+#define PROTO_SKIP_modelSlotDataSize // FAKE: callee prototype steer
+#define PROTO_SKIP_modelSlotInitFromAsset // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_renderReplaceSegment6Commands // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/104F0.h"
+#include "proto/global/119370.h"
+#include "proto/global/133A90.h"
+#include "proto/global/135D30.h"
+#include "proto/global/136820.h"
+#include "proto/global/15050.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2F550.h"
+#include "proto/global/35000.h"
+#include "proto/global/36880.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/54150.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5E020.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/63810.h"
+#include "proto/global/63EC0.h"
+#include "proto/global/68EA0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/CEAE0.h"
 
 typedef struct ModelSlot {
     /* 0x00 */ f32 unk0;
@@ -28,10 +61,6 @@ extern s32 gFrameCounter;
 extern s32 gCurrentMap;
 extern u8 gGfxBufferIndex;
 
-s32 hashTableLookup(s32);
-void heapFree(void *);
-void *heapAlloc(s32);
-void assetFreeBuffer(void *, s32, s32);
 
 extern u8 D_807F6148;
 
@@ -64,11 +93,7 @@ s16 modelTypeCountGet(u8 arg0) {
     return D_807F6150[arg0];
 }
 
-u8 mapGetHubWorldIndex(u8, u8);
 void *assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
-void modelAssetGetSubtables(u8 *, u8 **, u8 **);
-s32 modelTypeIsCounted(u16);
-void assetSetImmediateFree(void);
 
 extern u8 D_80747D78;
 
@@ -186,7 +211,6 @@ void modelAssetGetSubtables(u8 *arg0, u8 **arg1, u8 **arg2) {
 }
 
 extern s16 D_807F614A;
-void heapClearBlock(void *);
 
 s16 modelSlotsAllocate(s32 arg0, u8 arg1) {
     switch (arg0) {
@@ -255,21 +279,6 @@ typedef struct {
 extern s32 D_80747D70;
 extern s16 gCsModelIds[];
 extern s32 D_807F6004;
-void hashTableInit(void);
-void csModelIdTableReset(void);
-void mtxCopyQueueReset(void);
-u8 eepromReadChecksumBit(u16, u8);
-s32 modelSkipListContains(s16);
-s32 func_807315D4(s16, s16);
-s32 func_8063253C(s16, s32);
-s16 modelSlotInit(s32, s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, s32 *);
-void modelFlagsApplyState(s16, s16, u8 *);
-void mapDistributeEntries(s32);
-void renderEntryListFree(s32);
-void func_8062D1A8(void);
-void csScriptLoad(void *);
-void csModelStateSetVars(s32, u8 *);
-void modelSkipListClear(void);
 
 void modelSlotsLoadMap(u8 *arg0, s32 arg1, u8 arg2, u16 arg3, u8 arg4) {
     s32 sp94;
@@ -367,7 +376,6 @@ typedef struct ModelFlagNode {
     /* 0x24 */ u8 unk24;
 } ModelFlagNode;
 
-u8 flagGet(s16, u8);
 
 void modelNodeListSyncFlags(ModelFlagNode *arg0) {
     ModelFlagTarget *obj;
@@ -445,9 +453,6 @@ s32 modelSlotFindByType(s32 arg0, s32 *arg1, f32 *arg2, f32 *arg3, f32 *arg4, s1
 }
 
 extern u8 D_807F6008;
-void faultSetMessage(u8, s32, s32, s32);
-f32 func_80636A44(s32);
-s16 csModelIdTableAlloc(s16, u8);
 
 s16 modelSlotAppend(s32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5) {
     s32 sp5C;
@@ -579,31 +584,11 @@ extern s32 gGlobalOverlayFlags;
 extern s32 gGlobalCutsceneFlags;
 
 void modelSlotInitFromAsset();
-void modelSlotReplaceSegment6Commands(void *);
-s32 modelSlotResolveAssetTextures();
 struct ModelQuadOwner;
-void modelQuadBuildOutput(struct ModelQuadOwner *, f32, f32, f32, f32, f32, f32, f32, f32);
-void modelSlotLinkTexAnimTextures(u8 *, ModelSlot *);
-void modelSlotInitTexAnimNodes(u8 *, ModelSlot *, s32);
-void modelSlotAllocAnimBuffers(void *, void *);
-void collisionBuildSlotBoxes(s32, void *, f32, f32, f32, f32, f32, f32, f32);
 struct ModelAssetData;
-void modelSlotBuildTriangleBuffer(s32, struct ModelAssetData *, f32, f32, f32, f32, f32, f32, f32);
 struct ModelTriBuffer;
-void modelSlotTriBufferRelease(struct ModelTriBuffer *);
-void dynamicBufferFree(void *);
-void hashTableInsert(s32, s32);
-s32 renderEntryAddOrUpdate(s32, u8, void *, f32, f32, f32, s32, s32, s32, s32, s32);
-void modelFlagsApplyMapPairs(s16, u8 *);
-void modelApplyMapOverrideValue(s32, u8 *);
-s32 groundSurfaceTypeAt(f32, f32, f32);
-void modelSlotUpdateGroundCoords(s16, u8);
 struct ModelPathTable;
-void modelSlotBuildProxPaths(s16, struct ModelPathTable *, f32);
 struct ModelVertTable;
-void modelSlotBuildVertPosList(s32, struct ModelVertTable *, f32, f32, f32, f32, f32, f32, f32, u8);
-void modelSlotBuildNodePosList(s32, struct ModelVertTable *, f32, f32, f32, f32, f32, f32, f32, u8);
-void modelSlotClearTail(s32);
 
 #define MODEL_SLOT_BY_INDEX ((ModelSlotDetail *)((u8 *)gModelSlots + arg0 * 0x90))
 #define MODEL_SLOT_PTR ((ModelSlotDetail *)&gModelSlots[arg0])
@@ -735,7 +720,6 @@ void modelFlagsApplyMapPairs(s16 arg0, u8 *arg1) {
     }
 }
 
-u8 func_80731654(s16, s16);
 
 void modelFlagsApplyState(s16 arg0, s16 arg1, u8 *arg2) {
     switch (func_80731654(arg0, arg1)) {
@@ -778,8 +762,6 @@ void modelApplyMapOverrideValue(s32 arg0, u8 *arg1) {
     }
 }
 
-s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
-u8 collisionGetSurfaceType(void);
 
 s32 groundSurfaceTypeAt(f32 x, f32 y, f32 z) {
     f32 sp1C;
@@ -804,7 +786,6 @@ typedef struct ModelSlotObjCoordHolder {
     /* 0xBC */ ModelGroundCoordDst *unkBC;
 } ModelSlotObjCoordHolder;
 
-void collisionGetCoords(s16 *, s16 *);
 
 void modelSlotUpdateGroundCoords(s16 arg0, u8 arg1) {
     s32 padA[4];
@@ -870,9 +851,6 @@ typedef struct ModelPathTable {
     /* 0x5C */ s32 unk5C;
 } ModelPathTable;
 
-void modelSlotGetNodePos(s32, u8, s32, f32 *, f32 *, f32 *);
-void proxPathAdd(Actor *, u8, u8, u8, u8, f32, f32, f32, f32, f32, f32, u8, f32, f32, u8);
-void proxPathSetSegment(Actor *, u8, u8, u8, u8, f32, f32, f32, u8, s16, s16, s16, s16);
 
 void modelSlotBuildProxPaths(s16 arg0, ModelPathTable *arg1, f32 arg2) {
     s32 j;
@@ -906,7 +884,6 @@ void modelSlotBuildProxPaths(s16 arg0, ModelPathTable *arg1, f32 arg2) {
 }
 
 
-void modelSlotBuildTransformMatrix(s16, s8, f32 (*)[4]);
 
 typedef struct ModelPosNode {
     /* 0x0 */ f32 x;
@@ -1153,10 +1130,6 @@ typedef struct ModelAssetData {
     /* 0x60 */ s32 unk60;
 } ModelAssetData;
 
-void bboxExpandFromTriangle(f32 *, f32 *);
-void boundsTransformToAabb(f32 (*)[4], void *, void *);
-s32 modelTriangleTransform(void *, void *, f32 (*)[4]);
-void modelBuildBoneChainMatrix(void *, void *, f32 (*)[4]);
 
 void modelSlotBuildTriangleBuffer(s32 arg0, ModelAssetData *arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8) {
     s32 count;
@@ -1407,8 +1380,6 @@ void modelSlotLinkTexAnimTextures(u8 *arg0, ModelSlot *arg1) {
 
 
 void *memcpy(void *, const void *, unsigned int);
-s32 dlLengthToEndDL(u32 *);
-void dlFindTextureCommands(u32 *, s32, s32, s32, u32 **, u32 **, u32 **);
 
 void modelSlotInitTexAnimNodes(u8 *arg0, ModelSlot *arg1, s32 arg2) {
     s32 count;
@@ -1480,9 +1451,6 @@ void modelSlotInitTexAnimNodes(u8 *arg0, ModelSlot *arg1, s32 arg2) {
 }
 
 
-void modelSlotAccessNodeScrollSpeed(s32, s16, s16, s16, s16 *, s16 *, u8);
-void modelSlotAccessNodeAnimMode(s32, s16, u8, u8 *, u8);
-void modelSlotSetNodeFrame(s32, s16, s32, s32);
 
 void modelSlotSetNodeScrollSpeed(s32 arg0, s16 arg1, s16 arg2, s16 arg3) {
     modelSlotAccessNodeScrollSpeed(arg0, arg1, arg2, arg3, &arg2, &arg3, 0);
@@ -1495,7 +1463,6 @@ void modelSlotGetNodeScrollSpeed(s32 arg0, s16 arg1, s16 *arg2, s16 *arg3) {
     modelSlotAccessNodeScrollSpeed(arg0, arg1, sp2E, sp2C, arg2, arg3, 1);
 }
 
-void modelNodeAccessScrollSpeed(TexAnimNode *, s16, s16, s16, s16 *, s16 *, u8);
 
 void modelSlotAccessNodeScrollSpeed(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 *arg4, s16 *arg5, u8 arg6) {
     ModelSlot *slot;
@@ -1539,7 +1506,6 @@ void modelSlotGetNodeAnimMode(s32 arg0, s16 arg1, u8 *arg2) {
     modelSlotAccessNodeAnimMode(arg0, arg1, sp27, arg2, 1);
 }
 
-void modelNodeAccessAnimMode(TexAnimNode *, s16, u8, u8 *, u8);
 
 void modelSlotAccessNodeAnimMode(s32 arg0, s16 arg1, u8 arg2, u8 *arg3, u8 arg4) {
     ModelSlot *slot;
@@ -1571,7 +1537,6 @@ void modelNodeAccessAnimMode(TexAnimNode *arg0, s16 arg1, u8 arg2, u8 *arg3, u8 
     }
 }
 
-void modelNodeSetFrame(TexAnimNode *, s16, s32, s32);
 
 void modelSlotSetNodeFrame(s32 arg0, s16 arg1, s32 arg2, s32 arg3) {
     ModelSlot *slot;
@@ -1801,8 +1766,6 @@ void modelSlotClearAssetTextures(s32 arg0, u8 *arg1) {
     }
 }
 
-void modelSlotFreeByIndex();
-void hashTableClear(void);
 
 void modelSlotsFreeAll(void) {
     s32 i;
@@ -1829,15 +1792,7 @@ typedef struct ModelSlotFreeView {
     /* 0x8C */ u8 pad8C[4];
 } ModelSlotFreeView;
 
-void actorClearEntrySlot(s16);
-void hashTableRemove(s32);
-void proxPathRemoveActor(Actor *);
-void sfxSlotFreeSource(s16);
 s32 mapPurgeNodeList();
-void renderEntryRemove(s32, s32, s32, u8 *);
-void csStateFree(void *);
-void modelSlotFree(u8 **);
-void modelSlotFreeTexAnimNodes(ModelSlot *);
 
 void modelSlotFreeByIndex(arg0, arg1)
 s32 arg0;
@@ -1956,12 +1911,6 @@ typedef struct ModelTransformSlot {
 } ModelTransformSlot;
 
 extern u8 gPlayerCount;
-s32 activeActorBoxOverlapTest(f32, f32, f32, s16, s16, s16, u16);
-s32 collisionCheckBoundingBoxXZ(void *, f32, f32);
-s32 collisionCheckBoundingBoxY(void *, f32);
-void collisionTransformNode(s32, void *, f32, f32, f32, f32, f32, f32, f32);
-void modelSlotBuildTriangleBufferThunk(s32, void *, f32, f32, f32, f32, f32, f32, f32);
-void actorUpdateEntryCoordinates(s16, f32, f32, f32, f32, f32);
 
 #define MODEL_TRANSFORM_PLAYER(i) ((ModelTransformPlayer *)((u8 *)gPlayerSlots + (i) * 0x2F0U))
 #define MODEL_TRANSFORM_SLOT0 ((ModelTransformSlot *)((u8 *)gModelSlots + arg0 * 0x90))
@@ -2147,7 +2096,6 @@ s32 activeActorBoxOverlapTest(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, 
     return 0;
 }
 
-void func_8062D094(void *, u8);
 
 void func_80636014(s32 arg0, u8 arg1, u8 arg2) {
     if (arg1 == 1) {
@@ -2173,8 +2121,6 @@ typedef struct ModelChainOwner {
     /* 0xBC */ s32 *unkBC;
 } ModelChainOwner;
 
-void modelSegmentFreeUnusedTextures(ModelSlot *, void *, ModelChainOwner *);
-void modelSlotFreeAssetEntry(void *, ModelSlotAsset *);
 
 void modelSlotFreeTexAnimNodes(ModelSlot *arg0) {
     ModelNodeChain *node;
@@ -2322,7 +2268,6 @@ void modelSlotFreeNestedBuffer(s32 arg0, u8 arg1) {
     }
 }
 
-void heapFreeDeferred(void *);
 
 void modelSlotFreeAssetEntry(void *arg0, ModelSlotAsset *arg1) {
     s32 i;
@@ -2386,7 +2331,6 @@ typedef struct DisplayListFreeCounter {
     /* 0x3C */ s16 unk3C;
 } DisplayListFreeCounter;
 
-void dlFreeUnusedTextures();
 
 void displayListFreeQueueProcess(void) {
     DisplayListFreeRecord *cur;
@@ -2498,8 +2442,6 @@ typedef struct ModelSegmentOwner {
     /* 0x50 */ ModelSegmentNode *unk50;
 } ModelSegmentOwner;
 
-void texAnimNodeUpdateBuffers(ModelSegmentNode *, s32 *, s32 *, u8 *, s16 *);
-void collisionBstLookupByHash(s32, s32 *, s32 *);
 
 
 void modelSegmentFreeUnusedTextures(ModelSlot *arg0, void *arg1, ModelChainOwner *arg2) {
@@ -2641,7 +2583,6 @@ typedef struct ModelType2Obj {
 } ModelType2Obj;
 
 extern u8 gViewportCount;
-u8 func_80636A8C(s32);
 
 void modelSlotInitFromAsset(ModelSlot *arg0, s32 arg1) {
     ModelAssetHeader *hdr;
@@ -2823,7 +2764,6 @@ void modelSlotsStepSegmentCommands(void) {
 
 
 
-s32 dlResolveNodeTextures(DisplayListCmd *, DisplayListCmd *, ModelSegmentNode *, u8);
 
 s32 modelSlotResolveAssetTextures(arg0, arg1, arg2)
 ModelSlot *arg0;
@@ -2975,14 +2915,7 @@ typedef struct ModelRenderAnimObj {
     /* 0xC5 */ u8 unkC5;
 } ModelRenderAnimObj;
 
-void texAnimUpdateNodes(ModelSegmentData *);
-void csUpdateStepAndInterpolation(void *);
-void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
-void lightQueueKeyframed(u8, s16, f32, f32, f32, s16, f32, s16);
 s32 func_806D0964(s32, u8, s32);
-void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
-f32 renderScaleDistanceByFov(f32);
-Gfx *renderSetSegment6AndFog(Gfx *, s16, u8);
 
 #define MODEL_RENDER_PLAYER(i) (((ModelRenderPlayer *)gPlayerSlots)[i])
 
@@ -3195,15 +3128,7 @@ extern u8 D_807F6009;
 extern s32 D_807F600C;
 extern s32 D_807F5FD8;
 
-f32 renderScaleDistanceByFov(f32);
-s32 mapPointOutsideClipBounds(f32, f32, f32, u8, u8);
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
-void mapSearchTableAddProbe(void *, s16, s16, s16);
-u8 mapSearchTableGetValue(void *);
-void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
-void modelKongVisibilityCheck(s16, u8 *, s16 *);
-void texAnimFindNodeFrame(ModelSegmentOwner *, s32, s32 *, s32 *, u8 *, s16 *);
-void modelCalcFacingAngles(f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *, u8);
+void mapSearchTableAddProbe(void *, s16, s16, s16); // FAKE: callee prototype steer
 
 Gfx *renderModelQuadGfx(RenderQuadModelObj *arg0, Gfx *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, s16 arg6) {
     f32 sp238[4][4];
@@ -3653,7 +3578,6 @@ void texAnimUpdateNodes(ModelSegmentData *arg0) {
     }
 }
 
-void collisionResolveWallContact(void);
 
 void texAnimFindNodeFrame(ModelSegmentOwner *arg0, s32 arg1, s32 *arg2, s32 *arg3, u8 *arg4, s16 *arg5) {
     ModelSegmentNode *node;
@@ -3687,7 +3611,6 @@ void texAnimFindNodeFrame(ModelSegmentOwner *arg0, s32 arg1, s32 *arg2, s32 *arg
 }
 
 
-s32 texAnimNodeAdvance(ModelSegmentNode *, s32 *, s32 *);
 
 void texAnimNodeUpdateBuffers(ModelSegmentNode *arg0, s32 *arg1, s32 *arg2, u8 *arg3, s16 *arg4) {
     s32 var_v1;
@@ -3807,8 +3730,6 @@ typedef struct SpriteDisplayNode {
 } SpriteDisplayNode;
 
 s32 mathAsinFixed(s32);
-f32 distance3D(f32, f32, f32, f32, f32, f32);
-f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 
 void modelCalcFacingAngles(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 *arg6, f32 *arg7, f32 *arg8, u8 arg9) {
     f32 len;
@@ -3904,7 +3825,6 @@ typedef struct ModelSpriteSourceList {
     /* 0x24 */ u8 unk24;
 } ModelSpriteSourceList;
 
-SpriteDisplayNode *spriteListInsertByDepth(SpriteDisplayNode *, SpriteDisplayNode *);
 
 
 SpriteDisplayNode *spriteListBuildDisplayChain(ModelSpriteSourceList *arg0, ModelSpriteSourceList *arg1, f32 arg2, f32 arg3, f32 arg4) {
@@ -4229,8 +4149,6 @@ typedef struct ModelPendingQueueEntry {
 
 extern ModelPendingQueueEntry D_807F6030[];
 extern s16 D_807F60B0[];
-void csStateTickTimers(s32);
-void csStateUpdate(s32, s16);
 
 typedef struct ModelPendingEntry {
     /* 0x00 */ u8 pad0[4];
@@ -4401,8 +4319,6 @@ typedef struct ModelSlotSerializeView {
 extern u8 *D_807F6010;
 extern u8 gCsVarsDirty[];
 extern u8 D_807F6902;
-s32 actorListGetSerializedSize(void);
-void actorListSerialize(void *);
 
 #define MODEL_SLOT_SERIALIZE_ENTRY ((ModelSlotSerializeView *)((u8 *)gModelSlots + i * 0x90))
 
@@ -4484,11 +4400,7 @@ typedef struct ModelSlotPackView {
     /* 0x8C */ u8 pad8C[4];
 } ModelSlotPackView; /* 0x90 */
 
-u32 modelSlotDataSize(s16);
-void modelSlotGetNodeScrollSpeed(s32, s16, s16 *, s16 *);
-void modelSlotGetNodeAnimMode(s32, s16, u8 *);
-void mapOffsetSlotsGetTargets(f32 *);
-void effectNodeCopyValues(f32 *);
+u32 modelSlotDataSize(s16); // FAKE: callee prototype steer
 
 #define MODEL_SLOT_PACKED_ENTRY(i) ((ModelSlotPackView *)((u8 *)gModelSlots + (i) * 0x90))
 
@@ -4576,8 +4488,6 @@ typedef struct ModelSlotStateSnapshot {
     /* 0x98 */ u8 pad98[4];
 } ModelSlotStateSnapshot; /* 0x9C */
 
-void mapOffsetSlotsSetValues(f32 *);
-void effectNodeSetValues(f32 *);
 
 void modelSlotsApplyRecords(u8 *arg0, s32 arg1) {
     s32 k;

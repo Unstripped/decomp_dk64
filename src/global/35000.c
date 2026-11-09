@@ -1,4 +1,15 @@
 #include "common.h"
+#define PROTO_SKIP_renderModelQuadGfx // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/119370.h"
+#include "proto/global/126260.h"
+#include "proto/global/15050.h"
+#include "proto/global/17B90.h"
+#include "proto/global/35000.h"
+#include "proto/global/36880.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/70FD0.h"
 
 typedef struct RenderEntry RenderEntry;
 struct RenderEntry {
@@ -51,14 +62,12 @@ s32 renderEntryIsTranslucent(u8 renderType, u8 *entryData) {
     }
 }
 
-void renderEntryListFree(RenderEntry *list);
 
 void renderEntryListFreeTranslucent(void) {
     renderEntryListFree(D_807F5FF4);
     D_807F5FF4 = 0;
 }
 
-void *heapAlloc(s32);
 
 RenderEntry *renderEntryAddOrUpdate(RenderEntry *list, u8 type, s32 targetId, f32 posX, f32 posY, f32 posZ, s16 maxDist, s16 priority, u8 autoPurge, s16 chunkIndex, u8 listIndex) {
     s32 found;
@@ -137,7 +146,6 @@ RenderEntry *renderEntryAddOrUpdate(RenderEntry *list, u8 type, s32 targetId, f3
     return head;
 }
 
-void heapFree(void *);
 
 RenderEntry *renderEntryRemove(RenderEntry *list, s32 targetId, u8 listIndex, u8 *outFound) {
     u8 found;
@@ -383,10 +391,7 @@ extern u8 D_807F6009;
 extern s32 gGlobalPauseFlags;
 extern u8 D_2000180[];
 
-void *renderActorEntryBuildDisplayList(s32, void *, GfxWords *, u8);
-void *renderModelAnimatedSlot(void *, void *, f32, f32, f32, s32, s32, s32);
 void *renderModelQuadGfx(void *, void *, f32, f32, f32, s32, s32, s32);
-void *effectGridBuildDisplayList(void *, void *, s16);
 
 #define WRITE_GFX_WORDS(pkt, _w0, _w1) { GfxWords *_g = (GfxWords *)(pkt); _g->w0 = (_w0); _g->w1 = (u32)(_w1); }
 
@@ -504,15 +509,6 @@ extern PlayerView *gPlayerSlots;
 extern u8 gPlayerCount;
 extern u8 gCurrentPlayerIndex;
 
-void actorCheckWorldBounds(void *);
-void *renderActorDisplayList(void *, void *);
-s32 mapPointOutsideClipBounds(f32, f32, f32, u8, u8);
-void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
-void *actorBuildLightDisplayList(void *, void *, u8);
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void renderCalcPlayerDistanceAlpha(f32, f32, f32, f32, s16, s16 *);
-f32 renderScaleDistanceByFov(f32);
-void *renderSetSegment6AndFog(void *, s16, u8);
 
 #define RENDER_ACT ((RenderActor *)actor)
 #define CUR_PLAYER_VIEW ((PlayerView *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0))
@@ -756,8 +752,6 @@ void actorBuildModelMatrixFromAngles(MatrixActor *actor, f32 *dst, f32 angleA, f
     *dst = 1.0f;
 }
 
-void actorBuildModelMatrix(MatrixActor *actor, f32 *dst);
-void actorBuildModelMatrixFromAngles(MatrixActor *actor, f32 *dst, f32 angleA, f32 angleB, f32 angleC);
 
 void actorUpdateModelMatrix(MatrixActor *actor, u8 concat) {
     f32 tempMf[4][4];

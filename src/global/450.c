@@ -1,5 +1,64 @@
 #include "common.h"
 #include "sched.h"
+#define PROTO_SKIP_func_8062CA0C // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_playerViewsRender // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_vtxGradientSetColorA // FAKE: callee prototype steer
+#define PROTO_SKIP_vtxGradientSetColorB // FAKE: callee prototype steer
+#include "proto/boot/30E0.h"
+#include "proto/global/100180.h"
+#include "proto/global/1025E0.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/109660.h"
+#include "proto/global/10D2D0.h"
+#include "proto/global/10E1D0.h"
+#include "proto/global/112080.h"
+#include "proto/global/114270.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/126260.h"
+#include "proto/global/127B00.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/1332B0.h"
+#include "proto/global/133A90.h"
+#include "proto/global/135D30.h"
+#include "proto/global/136820.h"
+#include "proto/global/13980.h"
+#include "proto/global/14CF0.h"
+#include "proto/global/15050.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2DE90.h"
+#include "proto/global/2F550.h"
+#include "proto/global/35000.h"
+#include "proto/global/36880.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/450.h"
+#include "proto/global/5230.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5650.h"
+#include "proto/global/5A50.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/63EC0.h"
+#include "proto/global/684C0.h"
+#include "proto/global/68AA0.h"
+#include "proto/global/68EA0.h"
+#include "proto/global/699B0.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/8F050.h"
+#include "proto/global/8F4B0.h"
+#include "proto/global/90D80.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/F600.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
+#include "proto/global/FE40.h"
 
 typedef struct {
     u8 pad0[4];
@@ -25,156 +84,11 @@ typedef struct Struct_8076A048 {
 void func_80024000(void);
 void func_80026FD0(s32);
 void func_8002EC08(s32);
-void viModeApplyHighRes(void);
-void viModeSetup();
-void mainSystemInit(void);
-void mainResetEngineState(void);
-void mainThreadLoop(s32);
-void gfxSubmitFrame(void);
-s32 pauseStateUpdate(void);
-s32 gfxSetupFrameViewports(void);
-s32 hudCanRender(void);
-void playerViewsBuildMatrices(void *);
-Gfx *gfxSetViewportDisplayList(Gfx *);
-Gfx *gfxInit2DDisplayList(Gfx *);
-void gfxBuildFrameDisplayLists(Struct_8076A048 *, Gfx **, Gfx **);
-Gfx *gfxClearZBuffer(Gfx *);
-Gfx *gfxSetFrameBufferColorImage(Gfx *);
-void gfxAllocateBuffers(u8);
-Gfx *gfxClearFramebuffer(Gfx *, u8);
-void gfxEndDisplayList(Gfx *, u8, s32 *, u8);
-void gfxEndSubDisplayList(Gfx *, s32, s32 *, u8);
-void mapLoadLevel(void);
-void viewportSetMargins(s8, s8, s8, s8);
-void alignInt(s32 *, s32);
-void mapSlotArrayInit(void);
-void func_805FF670(void);
-void mapSlotFree(s32);
-void func_806003EC(s16);
-s32 func_8060042C(s16);
-void frameTimingReset(s32);
-void frameTimingUpdate(void);
-void timerQueueInit(void);
-void timerQueueAdd(void *, s32, s32, s32, s32);
-void timerQueueUpdate(void);
-void audioInit(void);
-void sfxPlayCurrent(u8, u8, u8);
-void sfxUpdateChannels(void);
-void sfxAllocateChannel(s32, f32);
-void sfxUpdateLevelAmbient(void);
-void audioResetAll(void);
-void sfxUpdateSourceGroups(void);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void seqSetChannelVolumeScale(s32, f32);
-u8 controllerInit(void);
-void controllerStartRead(void);
-void controllerWaitRead(void);
-void controllerUpdate(void);
-void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
-void func_8060FFF0(void);
-void schedSubmitGfxTask(void *, s32, u8, u8, s32, u8);
-void func_80610268(s32);
-void *heapAlloc(s32);
-void heapTickDeferredFrees(void);
-void camResetAllPlayers(void);
-void camInit(s32);
-void screenWipeReset(void);
-s32 screenWipeDraw(s32);
-f32 cameraStepAspectScale(void);
-Gfx *gfxPassThrough(s32);
 s32 playerViewsRender(Gfx *, Struct_8076A048 *, u32);
 s32 func_8062CA0C(s32, s32, s32, s32);
-void mapHeaderLoad(s32);
-void renderEntryListsReset(void);
-void modelSkipListClear(void);
-void modelTypeCountsInit(void);
-s16 modelSlotsAllocate(s32, u8);
-void displayListFreeQueueReset(void);
-void csTimerQueueClear(void);
-void mapChunkAllocLists(s32);
-void mapLoadNodeAsset(s32);
-void mapSearchTableReset(void);
-void mapSearchTableUpdateVisibility(void);
-void lightInitGlobals(void);
-void lightClearCount(void);
-void billboardCacheInit(void);
-void billboardCacheEvictStale(void);
-void effectUpdateAndDispatch(void);
-void triggerZoneUpdate(void);
-void actorInitTargetEntries(void);
-void actorInitEntryPoints(void);
-void particleFindPathIndices(s16);
-void collisionInitTables(void);
-void dmaDrainQueueAndFreeBuffer(void);
-void *assetLoad(s32, u32, u8, u8);
-void assetFreeBuffer(s32, s32, s32);
-void collisionBstRebalanceAll(void);
-void modelSlotExpireNextBuffers(void);
-void collisionBufferCacheUpdate(void);
-void actorInit(void);
-void actorUpdateSpawnsWrapper(void);
-void actorGlobalCallbacksReset(void);
-void actorUpdateWhilePaused(void);
-void actorMapModelsSetup(s32, u8, u8);
-void actorListInitOffsets(void);
-void actorProximityUpdate(void);
-void actorSpawnInitialSet(void);
-void texCacheReset(void);
-void texCacheUpdate(void);
-Gfx *renderCallbacksExecute(Gfx *, u8);
-void renderCallbacksReset(void);
-void playerSetupViewports(void);
-Struct806C7C94 *cameraFindViewportEntry(s32);
-void playerAllocSlots(s32);
-void playerLoadSpawnerAsset(s32);
-void playerResetSpawnGlobals(void);
-void playerSetLargeModeScale(f32);
-void playerWaypointPathsLoad(s16);
-void gridBuildNodeLists(void);
-s32 slotQueueBuildDisplayList(s32);
-void textFontInitTables(void);
-void textFontAgeSheets(void);
-void gfxResourceListReset(void);
-s32 lensFlareBuildDisplayList(s32);
-void func_80700BF4(void);
-void func_80701C90(void);
-s32 func_80701CA0(s32);
-void *screenFadeUpdate(void *, u8);
-Gfx *gfxDrawSplitScreenDividers(Gfx *);
 void vtxGradientSetColorA(s32, s32, s32); // FAKE: callee prototype steer
 void vtxGradientSetColorB(s32, s32, s32); // FAKE: callee prototype steer
-void gfxBackgroundReset(void);
-s32 healthHudDrawAll(s32);
-void func_807094D0(s32, u32 *);
-void transitionRunFrame(s32, s32);
-void transitionSetState(u8);
-u8 transitionGetState(void);
-void resListTick(void);
-void resListReset(void);
-void effectSpritePoolReset(void);
-void menuSeedRandom(void);
-void menuSetupBonusCharacter(void);
-void menuCheckMapTransitionOnLoad(void);
-s32 screenStateTickAndDraw(s32);
-s32 menuIsTransitionTypeAOrE(void);
-void effectResetLists(void);
-void effectUpdateAll(u8);
-void commandStateInit(void);
-void commandQueueReset(void);
-void pathFreeAsset(s32);
-void func_80724C78(s32);
-void volumeTriggerTableInit(s32);
-void proxPathListClear(void);
-void flagsClearAllBank2(void);
-u8 flagGet(s16, u8);
-void faultSetMessage(u8, s32, s32, s32);
-void faultThreadInit(void);
-void gridTickPlayers(void);
 
-void seg11DmaRead(s32, s32, void *);
-void gunzip(void *, void *, void *);
-void schedCreate(void *, void *, s32, u8, u8);
-void schedAddClient(void *, void *, OSMesgQueue *, s32, s32);
 extern unsigned long long __ll_mul(unsigned long long, unsigned long long);
 extern unsigned long long __ull_div(unsigned long long, unsigned long long);
 extern u8 D_1000020[];
@@ -421,7 +335,6 @@ void viModeApplyHighRes(void) {
 }
 
 
-void loadOverlay(u8, u8, s32);
 
 void viModeSetup(overlaySlot)
 u8 overlaySlot;
@@ -691,16 +604,6 @@ void gfxSubmitFrame(void) {
 #include "actor.h"
 
 extern Actor *gSpawnedActor;
-s32 menuIsTransitionType8(void);
-s32 menuIsTransitionType6(void);
-s32 menuIsTransitionTypeC(void);
-s32 menuIsTransitionTypeD(void);
-Actor *actorFindByType(u16);
-void actorDespawn(void *);
-s32 actorSpawn(s32, s32);
-void sfxStopChannel(s32, s32);
-void slotQueuePopActiveMask(void);
-void slotQueueReset(void);
 
 s32 pauseStateUpdate(void) {
     Actor *actor;
@@ -780,8 +683,6 @@ s32 hudCanRender(void) {
 }
 
 extern u8 gViewportCount;
-f32 func_806276AC(void);
-void func_8062754C(f32);
 f32 sinApprox(f32);
 
 typedef struct {

@@ -1,5 +1,8 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/5E020.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/63810.h"
 
 typedef struct QueuedLightEntry {
     s16 unk0;
@@ -112,10 +115,6 @@ extern Actor *gPrimaryPlayerActor;
 extern s32 gGlobalPauseFlags;
 extern s32 gGlobalCutsceneFlags;
 
-void lightSetFlags(u8);
-void lightSetTargetId(s16);
-void lightSetRadius(s16);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
 void lightFlushQueued(void) {
     s32 i;
@@ -147,7 +146,6 @@ typedef struct ActorSlotEntry {
 } ActorSlotEntry;
 
 extern ActorSlotEntry *gModelSlots;
-s32 hashTableLookup(s32);
 
 void actorSetTargetSlotByte(s32 key, u8 val) {
     u8 *volatile dst;

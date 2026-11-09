@@ -1,5 +1,12 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_modelSlotTransformBoundsAndNodes // FAKE: callee prototype steer
+#include "proto/global/136820.h"
+#include "proto/global/15050.h"
+#include "proto/global/17800.h"
+#include "proto/global/36880.h"
+#include "proto/global/54150.h"
+#include "proto/global/5E020.h"
 
 typedef struct ModelVertex {
     u32 unk0;
@@ -21,7 +28,6 @@ typedef struct ModelData {
     ModelVertex unk8[10];
 } ModelData; /* 0xD0 */
 
-void *heapAlloc(s32);
 void *memcpy(void *, const void *, unsigned int);
 
 void modelSlotAllocAnimBuffers(ModelData **outModel, u8 *animAsset) {
@@ -110,7 +116,6 @@ typedef struct ModelSlotBuf {
     u32 unk4;
 } ModelSlotBuf;
 
-void modelSlotGetTransformVectors();
 void modelSlotTransformBoundsAndNodes(s16, s32, s32, s32, f32, f32, f32, f32, f32, s32, s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 void modelSlotCopyData(arg0, arg1)
@@ -138,9 +143,6 @@ u8 *arg0;
     modelSlotTransformBoundsAndNodes(arg1, x, y, z, a, b, c, d, e, 0, 0, 0, 0, 1);
 }
 
-void heapFreeDeferred(void *);
-void heapFree(void *);
-void mtxCopyQueueCancelGroup();
 
 void modelSlotFree(u8 **arg0) {
     if (arg0 != NULL) {
@@ -156,9 +158,6 @@ extern u32 D_807F6BE4;
 extern u32 D_807F6BE8;
 extern u8 D_807F6BEC;
 extern u8 gGfxBufferIndex;
-s32 hashTableLookup();
-void mtxCopyQueueFlush();
-void modelAnimEntryStep(void *);
 
 u8 modelSlotStepAnimations(arg0)
 s16 arg0;
@@ -187,8 +186,6 @@ s16 arg0;
     return D_807F6BEC;
 }
 
-void modelAnimEntryAdvance();
-void modelAnimEntryBuildNodeMatrices(ModelAnimEntryRaw *);
 
 void modelAnimEntryStep(void *arg0) {
     modelAnimEntryAdvance(arg0);
@@ -212,9 +209,6 @@ typedef struct ModelBKey {
     f32 unk20;
 } ModelBKey; /* 0x24 */
 
-void modelAnimEntryBuildKeyMatrix(u8, f32, ModelBTrack *, u8 *, u8);
-void mtxCopyQueuePush();
-void mtxCopyQueueCancelDest();
 
 void modelAnimEntryBuildNodeMatrices(ModelAnimEntryRaw *arg0) {
     u8 *node;
@@ -271,9 +265,6 @@ void modelAnimEntryQueueMatrixCopies(u32 *arg0, u32 *arg1) {
     if (gGfxBufferIndex && gGfxBufferIndex) {}  // FAKE: deadsweep dead statement (extends gGfxBufferIndex live range: v1 not v0, address temps a2/a3)
 }
 
-void matrixMakeRotationX(f32 (*)[4], f32);
-void matrixMakeRotationY(f32 (*)[4], f32);
-void matrixMakeRotationZ(f32 (*)[4], f32);
 
 void modelAnimEntryBuildKeyMatrix(u8 arg0, f32 arg1, ModelBTrack *arg2, u8 *arg3, u8 arg4)
 {
@@ -537,8 +528,6 @@ typedef struct ModelAnimGroup {
 } ModelAnimGroup;
 
 extern MtxCopyRequest D_807F6960[];
-void faultSetMessage(u8, s32, s32, s32);
-void modelAnimEntryQueueMatrixCopies();
 
 void mtxCopyQueueReset(void) {
     s32 i;

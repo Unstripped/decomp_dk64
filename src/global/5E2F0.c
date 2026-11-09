@@ -1,5 +1,11 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/126260.h"
+#include "proto/global/2F550.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/69E60.h"
 
 extern u8 D_807F7EF8;
 extern s16 D_807F7EFA;
@@ -269,12 +275,8 @@ extern s32 D_80748308;
 extern u8 gPlayerCount;
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
-s32 lightCheckPlayerDistance(LightVolume *);
 
 
-void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
-void commandQueuePush(Actor *, s16, s16, s16, u8, u8, u8, u8, u8);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void lightApplyToActors(void) {
     s32 i;
     s32 j;
@@ -494,8 +496,6 @@ typedef struct LightTrigger {
 extern LightTrigger D_807F78C0[];
 extern LightTrigger D_807F7BC8[];
 extern s16 D_807F7BC0;
-void lightAddDedupEntry(s16);
-s32 lightCheckVolumeBounds(LightVolume *, f32, f32, f32, s16, s16, s16, s16, s16, s16, s32);
 s16 lightCollectVolumesInBounds(f32 arg0, f32 arg1, f32 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s32 arg9, s8 *arg10) {
     f32 diff[6];
     f32 temp_fa0;
@@ -576,11 +576,6 @@ void lightAddDedupEntry(s16 arg0) {
     }
 }
 
-void frustumCalculateCornerRays(f32, f32, f32);
-void frustumCornersTransformByInverse(Mtx *);
-void frustumOrientPolyNormals(f32, f32, f32, void *, void *);
-void planeFromTwoPoints(f32, f32, f32, f32, f32, f32);
-s32 mapBspBoxInFrustum(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 extern u8 D_807F5E20[];
 extern u8 D_807F5E68[];
 
@@ -651,7 +646,6 @@ s32 lightCheckPlayerDistance(LightVolume *arg0) {
     return 0;
 }
 
-s32 mapChunkIsInUse(s16);
 
 
 

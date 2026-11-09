@@ -1,6 +1,49 @@
 #include "common.h"
 #include "actor.h"
 #include "cutscene.h"
+#define PROTO_SKIP_actorListSpawnNodeEntry // FAKE: callee prototype steer
+#define PROTO_SKIP_collisionCheckGroundAtPoint // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtModelNode // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Improper cast of non-scalar type expression.
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetDepth // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
+#define PROTO_SKIP_flagSet // FAKE: callee prototype steer
+#define PROTO_SKIP_sfxPlayWithRandomPan // FAKE: callee prototype steer
+#define PROTO_SKIP_sfxSetChannelPriority // FAKE: callee prototype steer
+#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
+#define PROTO_SKIP_slotQueueGetValue // FAKE: callee prototype steer
+#include "proto/global/114270.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C700.h"
+#include "proto/global/36880.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/478F0.h"
+#include "proto/global/5230.h"
+#include "proto/global/54150.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5E020.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/63EC0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/80150.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/90D80.h"
+#include "proto/global/AA960.h"
+#include "proto/global/C0EE0.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -12,17 +55,11 @@ extern f32 gCsPosZ;
 extern CsPlayer *gPlayerSlots;
 extern u8 D_8071FF18[];
 extern u8 sEffectSparkConfig[];
-s32 randomLcgNext(void);
-void effectSetSpeed(s32);
-void effectSetCallback(void *);
-void func_80717D4C(void);
 void effectSetMode(u8);  // FAKE: callee prototype steer
 void effectSetDepth(u8);  // FAKE: callee prototype steer
 void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
 void effectCreateAtModelNode(void *, f32, s32, s32, s32);  // FAKE: callee prototype steer
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
-void *heapAlloc(s32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 u8 collisionCheckGroundAtPoint(f32, f32, f32 *);  // FAKE: callee prototype steer
 f32 mathCosF(s16);
 f32 mathSinF(s16);
@@ -31,7 +68,6 @@ typedef struct CsPoint3f {
     f32 x, y, z;
 } CsPoint3f;
 extern CsPoint3f **D_807F5FD4;
-void lightSetRadius(s16);
 
 
 void csCmdSpawnFixedNodeEffects(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -54,8 +90,6 @@ typedef struct CsSlot {
     /* 0x7C */ u8 pad7C[0x14];
 } CsSlot; /* 0x90 */
 extern CsSlot *gModelSlots;
-s32 hashTableLookup();
-void modelSlotGetNodePos(s32, u8, s32, f32 *, f32 *, f32 *);
 
 void csCmdSpawnSparksAtNodes(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -216,7 +250,6 @@ typedef struct CsCursor {
     /* 0x4 */ s32 idx;
 } CsCursor;
 extern u8 D_8071FB54[];
-void timedLightPulse(void);
 
 void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     CsCursor *st;
@@ -252,7 +285,6 @@ void csCmdPointCycleEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     st->timer--;
 }
 
-void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
 
 void csCmdTagBarrelSpawnSmokeAndPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSlot *slot = &gModelSlots[hashTableLookup(csId)];
@@ -263,9 +295,6 @@ extern u8 D_8071FE08[];
 extern u8 D_8071FE64[];
 extern u8 D_8071FE88[];
 extern u8 D_8071FEAC[];
-void effectSetDuration(s32);
-void effectTumbleBounceUpdate();
-void effectLightPulseOscillate();
 
 void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -334,7 +363,6 @@ typedef struct {
 } CsLightView;
 
 extern u8 D_807201D4[];
-void func_80717CE8();
 
 void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *q;
@@ -373,8 +401,6 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern void *D_8074E880[];
-void effectSetAngle(s16);
-void effectBurstParticleUpdate();
 
 void csCmdSpawnEffectsAtPos(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 i;
@@ -400,10 +426,6 @@ typedef struct {
     s16 unk10;
 } CsSfxView;
 
-void sfxSlotFreeSource(s16);
-void modelSlotSetNodeFrame(s32, s16, s32, s32);
-void sfxPlayFromTargetSlot(s16, s16, u8, u8, u8, u8, f32);
-u8 sfxSlotAllocateSource(s16, s16, u8, u8, u8, f32, s8);
 
 void csCmdPeriodicSfxAlloc(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSfxState *q;
@@ -516,11 +538,7 @@ extern f32 D_80770DCC;
 extern f32 D_80770DD0;
 extern f32 D_80770DD4;
 
-s32 randomNonNegative(void);
-void sfxPlayWithRandomPan(s32, u8, s32, s32, s32);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void func_80711410(f32, s16, f32, s16, f32);
-void lightSetColor(f32, f32, f32, s16);
+void sfxPlayWithRandomPan(s32, u8, s32, s32, s32); // FAKE: callee prototype steer
 
 void csCmdStormLightningRain(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     CsFlicker *f;
@@ -608,9 +626,7 @@ void csCmdSpawnEffectAtNode(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     effectCreateAtModelNode(D_8071FBC8, 1.5f, arg1, arg2, 1);
 }
 
-void csSplineLightStep(f32 *, s16, s16, f32);
 
-f32 splineEvalCubic(f64, f32, f32, f32, f32);
 
 void csSplineLightStep(f32 *arg0, s16 arg1, s16 arg2, f32 arg3) {
     f32 frac;
@@ -664,7 +680,6 @@ void csCmdSplineLights(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     csSplineLightStep(p + 1, 4, 0x18, 0.8f);
 }
 
-void lightSetFovAngles(f32, f32);
 extern f32 D_807480E0;
 extern f32 D_807480E4;
 
@@ -682,7 +697,6 @@ void csCmdNodeSpotLightFov(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     lightAdd(x1, y1, z1, x2, y2, z2, 0.0f, 1, D_807480D0, D_807480D4, D_807480D8);
 }
 
-void effectTimerCountdownAlphaUpdate(void);
 
 void csCmdSpawnRandomEffectAtPos(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     effectSetDuration(-1);
@@ -691,7 +705,6 @@ void csCmdSpawnRandomEffectAtPos(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     effectCreateAtPosition(D_8074E880[(randomNonNegative() >> 15) % 1000 % 3], 0.5f, gCsPosX, gCsPosY, gCsPosZ);
 }
 
-void effectLightFlickerDecay(void);
 extern u8 D_80720A7C[];
 
 void csCmdRandomPointEffects(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
@@ -718,7 +731,6 @@ void csCmdRandomPointEffects(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
 extern f32 D_807480E8;
 extern u8 D_807480EF;
 extern u8 D_80720CD8[];
-void effectFallUpdate(void);
 
 void csCmdGroundPointEffect(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 idx;
@@ -743,8 +755,6 @@ extern u8 D_80720E44[];
 extern u8 D_80720E5C[];
 extern u8 D_80720E74[];
 extern u8 D_80720E8C[];
-void effectTumbleBounceUpdate(void);
-void effectLightPulseOscillate(void);
 
 void csCmdSpawnMultiRingParticles(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 r1;
@@ -818,10 +828,7 @@ typedef struct CsFloatPair {
     f32 b;
 } CsFloatPair;
 
-void effectSetMaxDistance(s16);
-void func_805FF9AC(s32, s32, s32, s16);
 extern u8 D_80720BC4[];
-void effectLightGrowShrinkUpdate(void);
 
 void csCmdInterpolateFloatPair(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 idx;
@@ -905,8 +912,6 @@ void csCmdPeriodicSfx(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void lightSetTargetId(s16);
-void lightSetFlags(u8);
 
 void csCmdNodeTargetLights(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x;
@@ -948,7 +953,6 @@ typedef struct CsPlayerHeightView {
     /* 0x214 */ f32 unk214;
 } CsPlayerHeightView;
 
-void mapChunkEffectSetFlag(s16, s16, u8, u8);
 
 void csCmdExtraObjectAttach(s32 **slot, s16 csId, s16 b, s16 c) {
     s32 *p;
@@ -997,7 +1001,6 @@ void csCmdExtraObjectAttach(s32 **slot, s16 csId, s16 b, s16 c) {
 }
 
 extern u8 D_80720B00;
-void effectProximityFadeUpdate(void);
 
 void csCmdPeriodicProximityEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x = 0.0f;
@@ -1065,13 +1068,8 @@ extern s32 D_80748110;
 extern s32 D_80748114;
 extern f32 D_807480F0;
 f32 sqrtf(f32);
-u8 flagGet(s16, u8);
 void flagSet(s32, s32, s32);  // FAKE: callee prototype steer
-void sfxStopChannel(s32, s32);
-void sfxAllocateChannel(s32, f32);
-u16 camStartPath(void *, s16, u8);
-void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
-Actor *spawnNodeActivate(s16, u16);
+void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *); // FAKE: callee prototype steer
 
 #define CS_ACTOR ((CsActorView *)gPrimaryPlayerActor)
 #define CS_PLAYER ((CsPlayerPosView *)gPlayerSlots)
@@ -1316,9 +1314,7 @@ extern f32 D_8074814C;
 extern s32 D_80748150;
 extern u8 D_80748154[];
 extern u8 D_80720BE8[];
-void effectSpinBillboardingUpdate(void);
-void effectDecelDriftFadeUpdate(void);
-void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
+void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *); // FAKE: callee prototype steer
 
 void csCmdSpawnDirectionalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -1370,7 +1366,6 @@ void csCmdSpawnDirectionalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-f32 randomFloat(void);
 
 void csCmdSpawnScaledSphereEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 pad0;
@@ -1476,7 +1471,6 @@ void csCmdSpawnRandomJitterEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void effectSetParam(s32);
 
 void csCmdSpawnEffectAtRandomNode(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 node;
@@ -1568,7 +1562,6 @@ void csCmdSpawnTumbleBounceRing(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern u8 D_8071FC8C[];
-void effectCircleRiseFadeUpdate(void);
 
 void csCmdSpawnOrbitingPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -1645,7 +1638,6 @@ void csCmdSpawnPointParticles(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern u8 D_8071FC40[];
-void effectWobbleRiseUpdate(void);
 
 void csCmdSpawnDustPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -1725,9 +1717,6 @@ extern u8 D_80721238[];
 extern u8 D_80721250[];
 extern u8 D_8072126C[];
 extern u32 gGameFrameCounter;
-void effectZRotationMatrixUpdate(void);
-void effectSetScale(f32, f32);
-void effectSetFlags(s16);
 
 void csCmdSpawnOrbitingSparks(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 *tex;
@@ -1950,9 +1939,7 @@ extern CsCamModeView *gActivePlayerState;
 extern s32 gCurrentMap;
 extern s16 D_807F7366;
 extern f32 D_807F6940;
-void sfxSetChannelPriority(u8, u8);
-Gfx * renderScrollingBackdropQuad(Gfx *, f32 *);
-void renderCallbacksRegister(void *, void *, u8);
+void sfxSetChannelPriority(u8, u8); // FAKE: callee prototype steer
 
 void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
     CsFade *q;
@@ -2052,8 +2039,6 @@ extern s16 D_80744710[];
 extern s8 D_80748170[];
 extern s8 D_80748178;
 extern s16 D_807505AE[];
-u8 mapGetHubWorldIndex(u8, u8);
-u8 mapHasCollectedSufficientItems(void);
 
 void csCmdHubWorldItemsAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 idx;
@@ -2103,7 +2088,6 @@ void csCmdHubWorldItemsAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-void func_8071F660(void);
 extern u8 D_80721298[];
 
 void csCmdSpawnRandomNodeParticles(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -2143,7 +2127,6 @@ void csCmdShowRemainingDigits(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void effectLerpPathUpdate(void);
 
 typedef struct CsCamVecView {
     /* 0x000 */ u8 pad0[0x220];
@@ -2254,7 +2237,6 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-s32 csModelStateTrySetByte(s16, s16, s16);
 
 extern s16 D_80748180[][2];
 
@@ -2360,7 +2342,6 @@ extern s16 gCsModelIds[];
 extern s16 D_807481F4[];
 extern s16 D_807481F6[];
 extern u8 D_80748212[];
-void csSetObjectTrackParam(void *, s16, s16);
 
 typedef struct CsPairState {
     /* 0x0 */ s32 unk0;
@@ -2422,8 +2403,6 @@ typedef struct CsCountdown {
 } CsCountdown; /* 0x20 */
 extern u64 D_807445B0;
 extern u64 osGetTime(void);
-void heapFreeDeferred(void *);
-Gfx * renderCountdownTimerHUD(Gfx *, CsCountdown *);
 
 void csCmdCountdownTimer(CsState *cs, s16 csId, s16 b, s16 c) {
     CsCountdown *t;
@@ -2462,7 +2441,6 @@ typedef struct CsSlotIdView {
     /* 0x8C */ u8 pad8C[4];
 } CsSlotIdView; /* 0x90 */
 extern u8 D_80748214[];
-void func_806BD094(s16, s8);
 
 void csCmdFindSlotIdMatch(CsState *cs, s16 csId, s16 b, s16 c) {
     u8 found;
@@ -2529,10 +2507,6 @@ typedef struct CsFxView {
     /* 0x5E */ u16 unk5E;
 } CsFxView;
 extern f32 D_80770BC0[];
-void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
-void modelAnimEntrySetUnkC(s16, s16, s16);
-void modelAnimEntrySetTime(s16, s16, s16, f32);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 
 void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 u1; /* unused: reserves frame slots */
@@ -2709,8 +2683,6 @@ void csCmdUpdateSlotIdView8A(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
-void modelAnimEntryStart(s16, s16, s16);
-void csSendActorMessagePayload(s16, s16);
 
 s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
@@ -2732,7 +2704,6 @@ s32 csCondSyncActorAnim(CsState *cs, s16 csId, s16 b, s16 c) {
 
 
 
-void csModelStateSetFirstByte(s16, s16);
 extern u8 gPlayerCharacterId;
 typedef struct CsEntry {
     /* 0x0 */ u8 state;
@@ -2959,9 +2930,6 @@ void csCmdPosFromNode(CsState *cs, s16 csId, s16 b, s16 c) {
     modelSlotGetNodePos(gCsModelIds[b], 1, c, &gCsPosX, &gCsPosY, &gCsPosZ);
 }
 
-void slotQueueSelectPlayerResource(u8);
-void slotQueueCancel(s32, s32);
-void slotQueueUpdate(s32, u8, s32);
 void csCmdSlotQueueSelectPlayer(CsState *cs, s16 csId, s16 b, s16 c) {
     slotQueueSelectPlayerResource(b);
     if (c != 0) {
@@ -2971,7 +2939,6 @@ void csCmdSlotQueueSelectPlayer(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void func_80726EE0(u8);
 void csCmdSetAudioUnk3(CsState *cs, s16 csId, s16 b, s16 c) {
     func_80726EE0(3);
 }
@@ -2980,7 +2947,6 @@ extern f32 D_80748280[];
 extern f32 D_8074828C[];
 extern f32 D_807482A4;
 extern s32 gMapChunkCount;
-void lightGetColor(f32 *, f32 *, f32 *, s16);
 void csCmdStepLightColor(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 r, g, bl;
     s32 i;
@@ -3034,9 +3000,6 @@ void csCmdNoop(CsState *cs, s16 csId, s16 b, s16 c) {
 void csCmdAllocSlotPointer(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
-void effectNodeSetUnk4A(s32, u8);
-void effectNodeSetUnk4B(s32, u8);
-u8 effectNodeGetUnk4B(s32);
 void csCmdEnableEffectNodes5And6(CsState *cs, s16 csId, s16 b, s16 c) {
     effectNodeSetUnk4A(5, 1);
     effectNodeSetUnk4A(6, 1);
@@ -3056,10 +3019,6 @@ void csCmdEffectNodeStepAlpha(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern Actor *gSpawnedActor;
-Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
-Actor *spawnNodeActivate(s16, u16);
-void actorScriptStart(void *, s32);
-void scriptSetActorRampTarget(void *, f32, f32);
 void csCmdSpawnActorNodeByCase(CsState *cs, s16 csId, s16 b, s16 c) {
     Actor *a;
     switch (b) {
@@ -3084,7 +3043,6 @@ void csCmdSpawnActorNodeByCase(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void actorListSetPosById(s16, f32, f32, f32);
 
 void csCmdSetPositionPreset(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 x, y, z;
@@ -3124,8 +3082,6 @@ void csCondWorldHubFlagSet(CsState *cs, s16 csId, s16 b, s16 c) {
     flagGet(D_80744710[idx], 0);
 }
 
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 mathAngleDistance(s16, s16);
 
 s32 csCondActorFacingPos(CsState *cs, s16 csId, s16 b, s16 c) {
     s16 ang = mathAngleBetweenPoints2D((s16)gCsPosX, (s16)gCsPosZ, (s16)gPrimaryPlayerActor->x, (s16)gPrimaryPlayerActor->z);
@@ -3160,8 +3116,6 @@ s32 csFindPlayerSlotByModel(s32 a, s32 b) {
     return -1;
 }
 
-void modelSlotGetTransformVectors();
-void actorAppendCallbackPayloadABC0(s32, Actor *, u8, s16, s16, f32, f32, f32);
 
 s32 csCondFindPlayerSlotByModel(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x, y, z;
@@ -3192,7 +3146,7 @@ s32 csCondTransitionState5(CsState *cs, s16 csId, s16 b, s16 c) {
 
 extern s32 D_807552F0;
 s32 slotQueueGetValue(s32, u8);  // FAKE: callee prototype steer
-void slotQueueAddValue(s32, u8, s16);
+void slotQueueAddValue(s32, u8, s16); // FAKE: callee prototype steer
 
 s32 csCondDepositItem(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 q;
@@ -3261,7 +3215,6 @@ void csCmdRotXAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
 
 void csCmdSpawnFourNodeEntries(CsState *cs, s16 csId, s16 b, s16 c) {
     actorSpawnNodeEntryScaled(0x2F, gCsPosX, gCsPosY + 15.0f, gCsPosZ, 0, 1, -1, 0);
@@ -3280,7 +3233,6 @@ typedef struct CsShake {
     /* 0x0 */ s32 unk0;
     /* 0x4 */ s32 unk4;
 } CsShake;
-void camStartShakeFromPoint(s32, s32, s32, f32, f32, f32, f32, f32);
 
 void csCmdCamShakeOnAnim(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 pad[4];
@@ -3495,8 +3447,6 @@ extern f32 D_807F61FC;
 extern f32 D_807F6200;
 extern f32 D_807F6204;
 extern s16 D_807482B0;
-f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
-u8 collisionGetFloorHeight(f32 *);
 
 void csCmdSpawnParticleTrail(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 pad0;
@@ -3559,8 +3509,6 @@ void csCmdSpawnParticleTrail(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-u8 modelAnimEntryIsActive(s16, s16);
-void modelAnimEntryStop(s16, s16);
 
 void csCmdSetCeilAndFloorAtPos(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 ceil;
@@ -3599,7 +3547,6 @@ typedef struct {
     s32 unk8;
 } CsSineState;
 
-void effectNodeSetTargetAndStep(s32, f32, f32);
 
 void csCmdSineMotionUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSineState *p;
@@ -3652,7 +3599,6 @@ void csCmdSineMotionUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-s16 modelAnimEntryGetUnkC(s16, s16);
 extern s32 D_807482B4;
 extern s32 D_807482B8;
 extern s32 D_807482BC;
@@ -3869,7 +3815,6 @@ typedef struct CsStateFlagView {
     /* 0x5E */ u16 unk5E;
 } CsStateFlagView;
 
-void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 
 void csCmdFindNearestActorToCamera(CsState *cs, s16 csId, s16 b, s16 c) {
     Actor *best;
@@ -4077,7 +4022,6 @@ typedef struct CsStateTailView {
     /* 0x00 */ u8 pad0[0x98];
     /* 0x98 */ s16 unk98;
 } CsStateTailView;
-s32 actorSpawn(s32, s32);
 
 void csCmdSpawnBurstColoredLights(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *q;
@@ -4181,8 +4125,6 @@ u8 csCondCheckSlotMapIndex(CsState *cs, s16 csId, s16 b, s16 c) {
     return gPlayerCharacterId == v;
 }
 
-s32 frameTimingGetMapIndex(void);
-s32 func_806FB418(void);
 extern s16 D_807446D0[];
 
 s32 csCondCheckFrameTimingMap(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -4262,8 +4204,6 @@ typedef struct CsEffView {
     /* 0x368 */ u8 pad368[0x1C];
     /* 0x384 */ CsEffState *unk384;
 } CsEffView;
-u8 camIsPathPaused(void);
-u8 camIsCutsceneActive(void);
 extern s8 D_807F6950;
 extern s8 D_807F6951;
 
@@ -4315,7 +4255,6 @@ void csEffectUpdateAlphaState(CsEffView *e, u8 *flag) {
     e->unk364 = e->unk360;
 }
 
-void sfxAllocateChannel(s32, f32);
 extern u8 D_80721530[];
 
 void csCmdSpawnActorAtPoint(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -4340,7 +4279,6 @@ void csCmdSpawnActorAtPoint(CsState *cs, s16 csId, s16 b, s16 c) {
     D_807F6950 = 0;
 }
 
-void sfxStopChannel(s32, s32);
 
 u8 csCondAudioFlag(CsState *cs, s16 csId, s16 b, s16 c) {
     if (D_807F6950) {
@@ -4403,7 +4341,6 @@ u8 csCondKongHasHubItems(CsState *cs, s16 csId, s16 b, s16 c) {
     return p->e[(&gPlayerCharacterId)[gCurrentPlayerIndex]].v[idx] > 0;
 }
 
-s32 flagCountRange(s32, s32, u8);
 
 u8 csCondCountFlags261Ge4(CsState *cs, s16 csId, s16 b, s16 c) {
     return flagCountRange(0x261, 0xA, 0) >= 4;

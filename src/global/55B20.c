@@ -1,5 +1,22 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_effectWaterRenderSurfaces // FAKE: callee prototype steer
+#define PROTO_SKIP_mapChunkEmitSegmentCommands // FAKE: callee prototype steer
+#define PROTO_SKIP_renderEntryListBuildDisplayList // FAKE: callee prototype steer
+#include "proto/global/103AB0.h"
+#include "proto/global/15050.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2F550.h"
+#include "proto/global/35000.h"
+#include "proto/global/36880.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5DE10.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/63EC0.h"
+#include "proto/global/67890.h"
+#include "proto/global/68960.h"
+#include "proto/global/6AD90.h"
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
@@ -86,7 +103,6 @@ extern s32 D_8076A0BC;
 extern s32 D_8076A0C0;
 extern s32 D_8076A0C4;
 extern s32 D_8076A0C8;
-void *heapAlloc(s32);
 
 void mapChunkAllocLists(MapHeader *arg0) {
     s32 temp;
@@ -162,10 +178,6 @@ extern MapGridPoint *gMapGridTrianglePlanes;
 extern struct MapCell *D_807F70B0;
 extern struct MapBox *D_807F70B4;
 
-void lightSetTargetColor(f32, f32, f32, s16);
-void lightCopyTargetColors(s16);
-void mapChunkBuildCellTable(s32, s32, void *, s32 *, s32, s32);
-void mapGridTriangleBuildPlane(s32, void *);
 extern s16 D_807F6C30[20];
 extern s16 D_807F6C58[20];
 extern u8 D_807F6CB8[0xC0];
@@ -345,7 +357,6 @@ typedef struct MapNodeEntry {
 } MapNodeEntry;
 
 extern void *D_807F70B8[];
-void heapFree(void *);
 
 void mapFaceBuildTriangleFan(s32 arg0) {
     MapNodeEntry *var_v1;
@@ -614,9 +625,6 @@ typedef struct MapActorEntry {
     /* 0x024 */ u8 unk24;
 } MapActorEntry;
 
-s32 renderEntryAddOrUpdate(s32, s32, s32, f32, f32, f32, s32, s32, s32, s32, s32);
-s32 renderEntryIsTranslucent(s32, s32);
-s16 mapChunkFindByPosition(f32, f32, f32, s16);
 
 void mapChunkUpdateEntryNode(MapActorEntry *arg0) {
     s32 temp_v1;
@@ -640,7 +648,6 @@ void mapChunkUpdateEntryNode(MapActorEntry *arg0) {
     *sp40 = renderEntryAddOrUpdate(*sp40, arg0->unk24, arg0->unk0, arg0->unk4, arg0->unk8, arg0->unkC, arg0->unk1C, arg0->unk1E, arg0->unk22, *level, 0);
 }
 
-void renderEntrySetDistanceOverride(s32, s32, s32, u8, u8 *);
 
 void mapChunkMarkRenderEntry(s32 arg0, u8 arg1) {
     u8 flag;
@@ -655,7 +662,6 @@ void mapChunkMarkRenderEntry(s32 arg0, u8 arg1) {
     }
 }
 
-s32 renderEntryRemove(s32, s32, s32, u8 *);
 
 u8 mapChunkPurgeNodeList(s32 arg0, s16 *arg1, u8 arg2) {
     u8 flag;
@@ -681,16 +687,6 @@ struct MapCell;
 struct MapBox;
 extern u8 D_807F7140;
 
-void renderEntryListClearTouched(s32);
-s32 renderEntryListPurgeUntouched(s32);
-s32 renderEntryListSortByDistance(s32, f32, f32, f32, void *);
-void modelNodeListSyncFlags(s32);
-s32 spriteListBuildDisplayChain(s32, s32, f32, f32, f32);
-s32 mapNodeBoxContainsPoint(void *, f32, f32);
-s32 mapNodeTriangleContainsPoint(void *, f32, f32);
-void mapCellFindAtPoint(f32, f32, f32, s16, s16, s16 *);
-s32 mapFloorHeightIsBetter(f32, f32, f32);
-s32 mapChunkFindNodeAtPoint(f32, f32, f32, s16, u8 *, f32 *);
 
 void mapChunkClearNodeFlags(u8 arg0) {
     s32 i;
@@ -781,7 +777,6 @@ typedef struct MapNode {
     /* 0x24 */ u8 unk24;
 } MapNode; /* 0x28 */
 
-void modelPendingQueueInsert(void *, u8);
 
 void mapChunkUpdateModelNodes(void) {
     u8 flag;
@@ -813,7 +808,6 @@ void mapChunkUpdateModelNodes(void) {
 
 #define MAP_CHUNK_AT(o) ((MapChunk *)((u8 *)gMapChunks + (o)))
 
-extern s32 collisionTestDynamicActorFloor(s32, s16, f32, f32, f32, s32);
 
 s32 mapChunkCheckActorCollision(s32 arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     MapNode *node;
@@ -1288,19 +1282,6 @@ void mapChunkSetIndexOverride(s8 arg0) {
     D_807F70AB = arg0;
 }
 
-void frustumOrientPolyNormals(f32, f32, f32, void *, void *);
-void frustumCornersTransformByInverse(Mtx *);
-void frustumCalculateCornerRays(f32, f32, f32);
-void mapUpdateFogDistance(f32 *, s16);
-void mapChunkClearBounds();
-void mapChunkActivate(s16);
-void mapTriggerCollectZonesAtPoint(f32, f32, f32);
-void mapChunkRenderNodes(f32, f32, f32);
-void mapTriggerApplyZones(f32, f32, f32);
-void mapChunkTraversePortals(s16, s32, s32, s32, s32, s32, f32, f32, f32);
-void effectWaterUpdateMeshes(f32, f32, f32, u8);
-void actorCalculateTargetDistancesAndAngles(f32, f32, f32);
-void mapChunksApplyLights(f32, f32, f32);
 extern u8 D_807F5E20[];
 extern u8 D_807F5E68[];
 extern u8 gGfxBufferIndex;
@@ -1330,7 +1311,6 @@ void mapChunkFrameUpdate(f32 arg0, f32 arg1, f32 arg2) {
     mapChunksApplyLights(arg0, arg1, arg2);
 }
 
-extern s32 assetLoad(s32, s32, s32, s32);
 
 u8 *mapChunkLoadAssetRefs(u8 *arg0, u8 *arg1, s16 arg2) {
     s32 count;
@@ -1356,8 +1336,6 @@ u8 *mapChunkLoadAssetRefs(u8 *arg0, u8 *arg1, s16 arg2) {
 }
 
 
-extern void collisionBstLookupByHash(u32, u32 *, u32 *);
-extern s32 assetFreeBuffer(void *, s32, s32);
 
 void mapChunkReleaseAssets(u8 *arg0, u8 *arg1) {
     s32 pad[2];
@@ -1388,7 +1366,6 @@ void mapChunkSetFlagBit3(s16 arg0) {
 
 extern u32 gGlobalCutsceneFlags;
 extern s32 gFrameCounter;
-s16 mapObjectCollectIdsByType();
 
 void mapChunkUpdateAssetStreaming(void) {
     s32 i;
@@ -1457,8 +1434,6 @@ void mapChunkUpdateAssetStreaming(void) {
     }
 }
 
-extern void mapChunkBuildClipFrusta(f32, f32, f32);
-extern void mapCellUpdateVisibility(f32, f32, f32, s32);
 
 void mapChunkRenderNodes(f32 arg0, f32 arg1, f32 arg2) {
     s32 i;
@@ -1479,8 +1454,6 @@ void mapChunkRenderNodes(f32 arg0, f32 arg1, f32 arg2) {
 extern f32 D_807F5FAC;
 extern s32 D_807482F4;
 extern u8 D_807F7148[];
-void matrix4Invert(f32 (*)[4], f32 (*)[4]);
-void mapScreenRectBuildFrustum(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *);
 
 void mapChunkBuildClipFrusta(f32 arg0, f32 arg1, f32 arg2) {
     f32 spF8[4][4];
@@ -1575,9 +1548,6 @@ extern void *D_807F70B8[];
 extern u8 D_807F7048[];
 extern u8 D_807F7060[];
 
-s32 mapTriangleBoundsContainPoint(MapTriangle *, f32, f32);
-s32 mapTriangleContainsPoint(void *, f32, f32);
-f32 mapTriangleHeightAtPoint(MapTriangle *, f32, f32);
 
 void mapTriggerCollectZonesAtPoint(f32 arg0, f32 arg1, f32 arg2) {
     s32 pad[10];
@@ -1640,7 +1610,6 @@ typedef struct MapTrigger {
 } MapTrigger;
 
 
-void mapCellSetFlag(s32, u8);
 
 void mapTriggerApplyZones(f32 arg0, f32 arg1, f32 arg2) {
     s32 i;
@@ -1809,7 +1778,6 @@ s32 mapTriangleContainsPoint(void *arg0, f32 arg1, f32 arg2) {
     return (flag == 0) & 0xFF;
 }
 
-s32 mapBspBoxInFrustum(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
 
 void mapCellUpdateVisibility(f32 arg0, f32 arg1, f32 arg2, s32 arg3) {
     s32 idx;
@@ -1879,13 +1847,7 @@ typedef struct MapChunkLightView {
     /* 0x070 */ u8 pad70[0x158];
 } MapChunkLightView;
 
-void matrixCacheResetStats(void);
-void lightClearActiveCount(void);
-s32 lightCollectVolumesInBounds(f32, f32, f32, s16, s16, s16, s16, s16, s16, s32, u8 *);
-void *matrixCacheLookup(s32, s32, s16, u8);
-void *matrixCacheInsert(s32, s32, s16, u8, s32, u8);
 void func_8065C990(void *, void *, s32, void *, s32, s32);
-void effectWaterApplyLights(f32, f32, f32);
 extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
@@ -1995,10 +1957,6 @@ typedef struct {
 } MapChunkDraw;
 
 
-void modelSlotFreeTexAnimBuffers(s32, u8);
-void modelSlotFreeAssetTextures(s32, u8);
-s32 matrixCacheEvict(s32, s32);
-void heapFree(void *);
 
 void mapChunkFreeIdleBuffers(void) {
     s32 i;
@@ -2130,18 +2088,10 @@ extern s32 D_807F5FFC;
 extern Gfx D_2000180;
 
 u32 osVirtualToPhysical(void *);
-Gfx *mapViewDrawPass(Gfx *, void *, s32);
-Gfx *mapChunkEmitSegmentCommands(Gfx *, u8);
-void mapChunkAnimateTextures(u8);
-s32 mapChunkEmitLayerDisplayLists();
-Gfx *spriteListRender(Gfx *, s32);
-Gfx *billboardRenderQueued(Gfx *, s16);
-Gfx *renderEntryListBuildDisplayList(Gfx *, s32, s32, s32, f32, s32, s16, s32);
+Gfx *mapChunkEmitSegmentCommands(Gfx *, u8); // FAKE: callee prototype steer
+Gfx *renderEntryListBuildDisplayList(Gfx *, s32, s32, s32, f32, s32, s16, s32); // FAKE: callee prototype steer
 Gfx *func_80027034(Gfx *);
-Gfx *effectWaterRenderSurfaces();
-Gfx *fogRender(Gfx *);
-Gfx *renderDepthSortedTargets(Gfx *);
-void mapSetClipBounds();
+Gfx *effectWaterRenderSurfaces(); // FAKE: callee prototype steer
 
 void mapChunksRender(Gfx *gfx, void *arg1, s32 arg2, s32 arg3, f32 arg4, s32 arg5) {
     s32 i;
@@ -2402,16 +2352,6 @@ typedef struct {
     /* 0x6 */ u8 pad6[0xA];
 } MapATpCand;
 
-extern s32 actorTargetTableContainsId(s32);
-void mapChunkIdListAddUniqueLimited(s32);
-void mapChunkIdListAddUnique(s16);
-s32 mapChunkHitListExcludes(s32);
-s32 mapGridPointEmit(s32, f32, f32, f32);
-s32 mapGridPointPlaneDistanceWithin(s32, f32, f32, f32, s16);
-s32 mapGridQuadClipToFrustum(s32, f32, f32, f32);
-void mapPolyProjectToScreenRect(s32, s32 *, s32 *, s32 *, s32 *);
-void mapRectIntersect(s32, s32, s32, s32, s32, s32, s32, s32, s32 *, s32 *, s32 *, s32 *);
-s32 mapRectOverlapTest(s32, s32, s32, s32, s32, s32, s32, s32, s32 *, s32 *, s32 *, s32 *);
 
 void mapChunkTraversePortals(s16 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, f32 arg6, f32 arg7, f32 arg8) {
     s32 s1;
@@ -2567,9 +2507,6 @@ typedef struct MapGridQuad {
 
 
 
-extern void mapGridPlaneProjectPoint(s32, f32, f32, f32, f32 *, f32 *, f32 *);
-extern void mapGridPointBuildVectors(s32, f32, f32, f32, MapGridQuad *);
-extern s32 mapGridQuadContainsPoint(MapGridQuad *);
 
 s32 mapGridPointEmit(s32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     f32 h;
@@ -2763,7 +2700,6 @@ extern f32 D_807F6E68[];
 extern f32 D_807F6F58[];
 extern f32 D_807F6D78[];
 
-void mapPolyClipToFrustumPlane(f32 *, f32 *, s32, s32 *, s32);
 
 s32 mapGridQuadClipToFrustum(s32 arg0, f32 arg1, f32 arg2, f32 arg3)
 {
@@ -2818,7 +2754,6 @@ typedef struct MapVec3 {
     /* 0x8 */ f32 z;
 } MapVec3;
 
-void mapFrustumPlaneIntersectEdge(f32 *, f32 *, s32, f32 *);
 
 void mapPolyClipToFrustumPlane(f32 *arg0, f32 *arg1, s32 arg2, s32 *arg3, s32 arg4) {
     f32 sp7C[3];
@@ -2877,7 +2812,6 @@ typedef struct MapPolyVertex {
     /* 0x08 */ f32 unk8;
 } MapPolyVertex;
 
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
 
 void mapPolyProjectToScreenRect(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *arg4) {
     f32 sp7C;
@@ -2927,7 +2861,6 @@ void mapPolyProjectToScreenRect(s32 arg0, s32 *arg1, s32 *arg2, s32 *arg3, s32 *
     }
 }
 
-void mapNodeAssetParse(u8 *);
 
 void mapLoadNodeAsset(s32 arg0) {
     u8 *p;
@@ -3065,7 +2998,6 @@ void mapSearchTableReset(void) {
 extern s32 D_807F7290;
 extern s32 gFrameCounter;
 
-void mapSearchTableAddProbe();
 
 void mapSearchTableAddProbe(arg0, arg1, arg2, arg3)
 s32 arg0;
@@ -3098,8 +3030,6 @@ s16 arg3;
     }
 }
 
-extern s32 zbufferReadDepth(s16, s16);
-extern s32 zbufferDepthToDistance(s32);
 
 void mapSearchTableUpdateVisibility(void) {
     s32 i;

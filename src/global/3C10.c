@@ -1,6 +1,23 @@
 #include "common.h"
 #include "sched.h"
 #include "actor.h"
+#define PROTO_SKIP_flagSet // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_func_805FF5A0 // PROTO: Type s32  of this argument  is incompatible with type void  
+#define PROTO_SKIP_mapFindSlotIndex // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/117190.h"
+#include "proto/global/135D30.h"
+#include "proto/global/136820.h"
+#include "proto/global/15050.h"
+#include "proto/global/201B0.h"
+#include "proto/global/36880.h"
+#include "proto/global/3C10.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/7130.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/AA960.h"
+#include "proto/global/CC800.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
 
 typedef struct {
     u8 unk0;
@@ -82,60 +99,14 @@ extern u16 gLevelCollectibleCounts[];
 extern f32 gScreenFadeRate;
 
 /* Function declarations */
-s32 func_805FEF74(s32 map);
-u8 mapGetWorldIndex(u8 map);
-s32 mapGetConfigValue(u8 unused, s32 index);
-u8 mapGetHubWorldIndex(u8 map, u8 checkBossMap);
-u8 mapHasCollectedSufficientItems(void);
-void mapSlotArrayInit(void);
-void screenSetTransitionFadeType(u8 fadeType);
-void screenApplyTransitionFadeType(void);
-void mapSetPendingTransition(s16 map, u8 exitIndex);
-void mapExecuteDeathTransition(s32 unused);
-void mapExecuteVoidTransition(void);
-void mapRequestTransition(s32 map, s32 exitIndex);
-void mapRequestTransitionFast(s32 map, s32 exitIndex);
-void mapCheckAutoTransition(void);
 void func_805FF5A0();
-void mapTransitionExitCurrent(s32 map, s32 exitIndex);
-void mapSetTransitionExtraCounter(s8 count);
-void func_805FF670(void);
-s32 mapFindPreviousSavedMap(s32 *outMap, s32 *outExitIndex);
-void mapTransitionToPreviousOrExit(void);
-void mapTransitionToMenuOrPrevious(void);
-s32 mapFindSlotByMap(s16 target);
-s32 func_805FFE50(s32 map, s16 recordId, s16 value);
-void mapSlotFree(s32 map);
-void mapSlotArrayResetAll(void);
 s32 mapFindSlotIndex();
-s16 func_80600174(f32 *, f32 *, f32 *);
-s32 func_80600340(s32 actorType, u8 flags, s32 *outMap);
-void modelAssetGetSubtables(s32, s32 *, s32 *);
-void func_806003EC(s16 index);
-s32 func_8060042C(s16 index);
-u8 func_80600454(s16 id, u8 *outVal);
 
 /* External functions */
 void func_8002920C(void);
-void sfxAllocateChannel(s32, f32);
-void heapUnregisterSurvivor(void *);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-u16 camStartPath(void *, s16, u8);
-void modelRecordFindAndSet(void *, void *, s16, s16);
-s32 actorListFindClosestTargetIndex(s32, s32, u8, f32, f32, f32);
-void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
-s32 playerGetResolvedKongId(s32);
-void gridFreeAllActiveNodes(void);
-void slotQueueUpdate(s32, u8, s32);
-s32 menuIsTransitionActive(void);
-void menuCheckCutsceneTransition(s32 *, s32 *);
-s32 menuIsTransitionTypeD(void);
-s32 menuIsTransitionTypeC(void);
-u8 flagGet(s16, u8);
 void flagSet();
-void func_807313BC(void);
-void heapFree(void *);
 
 // .bss 0x8076A160-0x8076AF00
 Struct8076A160 D_8076A160[18];
@@ -469,12 +440,6 @@ extern s8 D_80750ACC;
 extern s32 gMapChunkCount;
 extern s32 D_807FD56C;
 extern s16 D_807FD570;
-void gridFreeAllActiveNodes();
-void heapRegisterSurvivor(u8 **);
-void modelSlotSerializeAll(u8 **, s32 *);
-void modelSlotsPackRecords(u8 **, s32 *);
-void lightGetColor(f32 *, f32 *, f32 *, s16);
-void faultSetMessage(u8, s32, s32, s32);
 
 void func_805FF9AC(s32 map, s32 exitIndex, s32 returnExitIndex, s16 flags) {
     Actor *cam;

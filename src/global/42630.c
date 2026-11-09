@@ -1,6 +1,52 @@
 #include "common.h"
 #include "actor.h"
 #include "cutscene.h"
+#define PROTO_SKIP_camStartPath // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
+#define PROTO_SKIP_flagGet // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_hudSpawnCountdownTimer // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_mapByteArraySet // FAKE: callee prototype steer
+#define PROTO_SKIP_modelAnimEntrySetUnkC // FAKE: callee prototype steer
+#define PROTO_SKIP_modelSlotStepAnimations // FAKE: callee prototype steer
+#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
+#define PROTO_SKIP_sfxPlayOnFreeSlot // FAKE: callee prototype steer
+#define PROTO_SKIP_sfxSlotAllocateSource // FAKE: callee prototype steer
+#include "proto/global/10130.h"
+#include "proto/global/104F0.h"
+#include "proto/global/10E1D0.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/127B00.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/1332B0.h"
+#include "proto/global/133A90.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2F550.h"
+#include "proto/global/36880.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/54150.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5E020.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/63810.h"
+#include "proto/global/63EC0.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/8F4B0.h"
+#include "proto/global/A7710.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -73,7 +119,6 @@ void csModelIdTableReset(void) {
 
 struct CsModelSlot;
 extern struct CsModelSlot *gModelSlots;
-s32 hashTableLookup();
 
 typedef struct CsLoadNode {
     /* 0x00 */ u8 unk0;
@@ -119,7 +164,6 @@ s16 csModelIdTableAlloc(s16 modelId, u8 isLowTable) {
     return i;
 }
 
-void csModelStateSetByte(s16, s16, s16);
 
 void csModelStateSetFirstByte(s16 modelIndex, s16 val) {
     csModelStateSetByte(modelIndex, val, 0);
@@ -181,9 +225,7 @@ extern s8 D_807F6903;
 extern s16 D_807F693C;
 extern u8 D_807F693E;
 extern s8 D_807F693F;
-void *heapAlloc(s32);
 struct CsStateFull;
-void csStateInit(struct CsStateFull *);
 void *memcpy(void *, const void *, unsigned int);
 
 typedef struct CsLoadSpawn {
@@ -265,7 +307,6 @@ void csScriptLoad(s16 *scriptData) {
     ((CsLoadSpawn *)&D_807F61F0)->unk8 = 0;
 }
 
-void heapFree(void *);
 
 void csStateFree(CsLoadState *loadState) {
     CsLoadNode *node;
@@ -465,14 +506,7 @@ extern s16 D_807F6908;
 extern f32 D_807F690C;
 extern f32 D_807F6910;
 extern f32 D_807F6914;
-void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, u8);
-void csStateEndUpdate(CsStateFull *);
-void csStateIntegrateMotion(CsStateFull *);
-s32 csCondEval(CsCmd *, CsState *, s16);
-void csCmdExec(CsCmd *, CsState *, s16);
-s32 modelSlotStepAnimations(s16);
-void modelSlotUpdateGroundCoords(s16, u8);
-void modelSlotTransformBoundsAndNodes(s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8, u8);
+s32 modelSlotStepAnimations(s16); // FAKE: callee prototype steer
 
 void csStateUpdate(CsStateFull *cs, s16 csId) {
     CsNode *node;
@@ -532,7 +566,6 @@ void csStateUpdate(CsStateFull *cs, s16 csId) {
 }
 
 extern u32 gGlobalPauseFlags;
-void actorDespawn(Actor *);
 
 void csStateEndUpdate(CsStateFull *cs) {
     Actor *actor;
@@ -754,28 +787,7 @@ extern u8 gPlayerCharacterId;
 extern s16 D_8076AEF2;
 extern s32 (*gCsCondTable[])(CsState *, s16, s16, s16);
 
-void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
-u8 modelAnimEntryIsActive(s16, s16);
-s32 actorListGetOrSetState(s16, u8, u8);
 s32 flagGet();
-s32 actorListIsIdActive(s16);
-u16 actorLookupClass(u16);
-s32 csIsPlayerInCutsceneState(void);
-void csSetCameraFollowModel(s16);
-s16 modelAnimEntryGetUnkC(s16, s16);
-Actor *spawnNodeActivate(s16, u16);
-u8 spawnNodeHasActor(u8);
-u8 spawnNodeIsInCooldown(u8);
-s32 listContainsS16(s16);
-f32 actorGetAnimProgress(void *);
-u8 playerLookupKongByActorType(s16);
-u8 pathPlaybackIsActive(s32);
-u8 csPosOnScreenOfNearPlayer(s16);
-s32 csPlayerNearPos(s16);
-s32 csPlayerSavedPosNearPos(s16);
-s32 csSpawnNodeNearPos(s16, s16, s16);
-s32 csCompareVar(f32 *, s16, s16);
-s32 csEvaluateParamCondition(s16, s16);
 
 #define CS_COND_STATE ((CsCondState *)cs)
 #define CS_COND_PLAYER ((CsCondPlayer *)gPlayerSlots)
@@ -1271,109 +1283,11 @@ extern Actor *gSpawnedActor;
 extern Actor *gActivePlayerActor;
 extern u32 gGlobalCutsceneFlags;
 
-void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
-void actorSetStateTwo(Actor *);
-void actorSetTargetSlotByte(s32, u8);
-s32 actorSpawn(s32, s32);
-void dynamicBufferFree(void *);
-void effectNodeAddTargetAndStep(s32, f32, f32);
-void effectNodeSetSubVal(s32, u8);
-void effectNodeSetTargetAndStep(s32, f32, f32);
-s32 func_805FEF74(s32);
-u8 mapGetHubWorldIndex(u8, u8);
-void screenSetTransitionFadeType(u8);
-void mapRequestTransition(s32, s32);
-void mapTransitionExitCurrent(s32, s32);
-void mapTransitionToPreviousOrExit(void);
-void func_805FF9AC(s32, s32, s32, s16);
-s32 func_805FFE50(s32, s16, s16);
-void mapTransitionToWorldHub(s32);
-void sfxSlotFreeSource(s16);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 s16 sfxPlayOnFreeSlot(s16, s32, s32, f32, s32, s32);  // FAKE: callee prototype steer
-void func_8060B49C(Actor *, s16);
-void eepromSavePlayerData(void);
-void camStartShakeFromPoint(s32, u8, u16, f32, f32, f32, f32, f32);
-void camSetZoneWeight(u8, u8);
-void mapOffsetSlotSetEnabled(s16, u8);
-void mapOffsetSlotSetTarget(s32, f32, f32);
-void mapOffsetSlotAddTarget(s32, f32, f32);
-void func_8062D1A8(void);
-void modelSkipListAdd(s16);
-s16 modelSlotAppend(s32, f32, f32, f32, f32, u8);
-void modelSlotGetNodePos(s32, u8, s32, f32 *, f32 *, f32 *);
-void modelSlotUpdateTailKey(s32, u8, u8, u8);
-void modelSlotTriBufferRelease(void *);
-void modelSlotSetNodeScrollSpeed(s32, s16, s16, s16);
-void modelSlotSetNodeAnimMode(s32, s16, u8);
-void modelSlotSetNodeFrame(s32, s16, s32, s32);
-void func_80636014(s32, u8, u8);
-void func_8063A8C4(s16, u8, f32);
-void csTimerQueueAdd(s16, s16, s16);
-void csSendMsgByActorType(s16, s16);
-void csSendActorMessagePayload(s16, s16);
-s32 csModelStateTrySetByte(s16, s16, s16);
-void csSetObjectTrackParam(void *, s16, s16);
-void csStateShareScript(s16, s16, s16);
-void csSetActorAlphaByType(s16, s16, s16);
-void csSetActorScaleFadeByType(s16, s16, s16);
-void csStartCamPath(void *, s16, s16, s16);
-void csSnapToGround(s16, s16);
-void csSetRot(s16, s16, void *, s16, u8);
-void csSetPos(s16, s16, void *, s16, u8);
-void modelAnimEntrySetUnk13(s16, s16, u8, f32);
-void actorAppendCallbackVec3f(s32, Actor *, f32, f32, f32);
-void actorAppendCallbackPayloadABC0(s32, Actor *, u8, s16, s16, f32, f32, f32);
-s32 cutsceneTriggerCheck(s16);
-void func_8068B830(s16, s16, s16);
-void enemyAggroDespawnBB(void);
 void hudSpawnCountdownTimer(s32, s32, u8, void *);
-void playerRespawnResetPhysics(s32);
-void playerThrowHeldActor(Actor *);
-s32 playerStateQueueCallback(s16, void *, u8);
-void playerStateSetCallbackParameters(s32, s32, s32, s32);
-void gridMoveNode(s16, f32, f32, f32);
-void slotQueueSetDisplayMode(u8, u8, u8);
-void transitionSetState(u8);
-s32 effectGridFindByTargetId(s32);
-void effectSetDepth(s8);
-void effectCreateAtModelNode(s32, f32, s32, s32, u8);
-s32 pathPlaybackStart(s32, s32, u8, f32, f32, f32, u8);
-void pathPlaybackSetSpeed(s32, u8);
-void pathPlaybackSetLoopMode(s32, u8);
-void pathPlaybackSetLoopLimit(s32, s32);
-void pathPlaybackSetActive(s32, u8);
-void pathPlaybackSetDirection(s32, u8);
-void pathPlaybackFree(s32);
-void pathPlaybackAdvance(s32);
-void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
-void func_80724994(u8, s16, s16, s16, s16);
-void zoneEntrySetDisabled(u8, u8, u8);
-void volumeTriggerSetEnabled(s32, u8);
-s32 volumeTriggerSetPosition(s32, s16, s16, s16);
-void proxPathSetEnabled(Actor *, u8, u8);
-void proxPathSetEndBehavior(Actor *, u8, u8);
-void flagSet(s16, u8, u8);
-void lightGetColor(f32 *, f32 *, f32 *, s16);
-void lightSetColor(f32, f32, f32, s16);
 void mapByteArraySet(s16, u8);  // FAKE: callee prototype steer
-void mapObjectSetByte(s16, u8, u8);
-void modelAnimEntryClearTime(s16, s16);
-void modelAnimEntryResetFrame(s16, s16, s16);
-void modelAnimEntrySetTime(s16, s16, s16, f32);
-void modelAnimEntrySetUnk10(s16, s16, s16);
-void modelAnimEntrySetUnk12(s16, s16, s16);
-void modelAnimEntrySetUnkC();
-void modelAnimEntrySetUnkF(s16, s16, s16);
-void modelAnimEntryStart(s16, s16, s16);
-void modelAnimEntryStop(s16, s16);
-void seqRouteChannelVolume(s32, f32);
-void sfxAllocateChannel(s32, f32);
-void sfxPlayFromTargetSlot(s16, s16, u8, u8, u8, u8, f32);
-void sfxSetChannelTempo(s32, f32);
-void sfxSetVolumeAndPan(u8, f32, f32);
+void modelAnimEntrySetUnkC(); // FAKE: callee prototype steer
 u8 sfxSlotAllocateSource(s16, s16, s32, s32, u8, f32, s8);  // FAKE: callee prototype steer
-void sfxStopChannel(s32, s32);
 
 void csCmdExec(CsCmd *cmd, CsState *cs, s16 csId) {
     void *dm = &csId; // unused: address-taken csId, keeps found at sp+0xC3
@@ -2112,7 +2026,6 @@ void csSetCameraFollowModel(s16 modelId) {
     }
 }
 
-void actorAppendCallbackMemcpy8(s32, Actor *, s32, u8, void *, u8);
 
 void csSendMsgByActorType(s16 actorType, s16 msgParam) {
     s32 i;
@@ -2129,8 +2042,6 @@ void csSendMsgByActorType(s16 actorType, s16 msgParam) {
     }
 }
 
-void heapFreeDeferred(void *);
-s32 actorFindActiveByType(s16, Actor **);
 
 void csSendActorMessagePayload(s16 paramA, s16 paramB) {
     s16 *msgPayload;
@@ -2202,7 +2113,6 @@ s32 csIsPlayerInCutsceneState(void) {
     return 1;
 }
 
-void modelSlotFreeByIndex(s16, s32);
 
 void csFreeTrackedModels(void) {
     s32 i;
@@ -2268,7 +2178,6 @@ void csSetActorScaleFadeByType(s16 a, s16 b, s16 csId) {
     }
 }
 
-s32 func_80678014(s32);
 u16 camStartPath(void *, s16, s32);  // FAKE: callee prototype steer
 
 void csStartCamPath(void *cs, s16 camIdx, s16 mode, s16 c) {
@@ -2308,7 +2217,6 @@ void func_80641F68(void) {
 
 extern u8 gViewportCount;
 f32 sqrtf(f32);
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
 
 typedef struct CsPlayerScreenView {
     /* 0x000 */ u8 unk0;
@@ -2376,7 +2284,6 @@ typedef struct CsPlayerPosView {
     /* 0x21C */ u8 pad21C[0x2F0 - 0x21C];
 } CsPlayerPosView; // size = 0x2F0
 
-s32 csPosWithinRadius(s16, f32, f32, f32);
 
 s32 csPlayerNearPos(s16 targetPosIndex) {
     u8 i;
@@ -2425,7 +2332,6 @@ s32 csSpawnNodeNearPos(s16 targetPosIndex, s16 minNodeIndex, s16 maxNodeIndex) {
     return 0;
 }
 
-s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 
 void csSnapToGround(s16 mode, s16 csId) {
     s32 pad;
@@ -2591,13 +2497,8 @@ void csSetPos(s16 modeAndAxis, s16 posValue, void *cs, s16 csId, u8 isRelative) 
     }
 }
 
-u32 randomLcgNext(void);
-void effectSetDuration(s32);
-void effectSetSpeed(s32);
-void effectSetCallback(void *);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void func_80717D4C(void);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
+u32 randomLcgNext(void); // FAKE: callee prototype steer
+void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 extern u8 D_8071FC58[];
 
 void csCmdSpawnSparkAndLight(CsState *cs, s16 csId, s16 b, s16 c) {

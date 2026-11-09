@@ -1,5 +1,7 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/15050.h"
+#include "proto/global/5E020.h"
 
 typedef struct HashNode {
     s32 key;
@@ -34,8 +36,6 @@ void hashTableClear(void) {
     hashTableInit();
 }
 
-s32 hashTableHashKey(s32);
-void *heapAlloc(s32);
 
 void hashTableInsert(s32 key, s32 value) {
     HashNode *node;

@@ -1,5 +1,11 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
+#define PROTO_SKIP_heapAlloc // FAKE: callee prototype steer
+#include "proto/global/15050.h"
+#include "proto/global/61AA0.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
 
 extern s8 D_807F7F00;
 
@@ -41,8 +47,6 @@ typedef struct {
 extern PlayerCameraData *gPlayerSlots;
 extern u8 gCurrentPlayerIndex;
 extern s32 gCurrentMap;
-f32 renderAdjustActorDistance(s16, f32);
-f32 renderScaleDistanceByFov(f32);
 #define R2A_SQ(x) ((x) * (x))
 
 void renderCalcPlayerDistanceAlpha(f32 x, f32 y, f32 z, f32 maxDist, s16 actorType, s16 *outAlpha) {
@@ -126,7 +130,6 @@ void billboardCacheInit(void) {
 
 extern u8 gBillboardQueueCount;
 extern s32 gFrameCounter;
-void assetFreeBuffer(void *, s32, s32);
 
 void billboardCacheEvictStale(void) {
     s32 i;
@@ -158,9 +161,7 @@ typedef struct {
 extern BillboardData gBillboardQueue[16];
 extern u8 gGfxBufferIndex;
 
-void billboardSetVertex(s16 *, s16, s16, s16, s16);
 void *assetLoad(s32, s32, s32, s32); // FAKE: callee prototype steer
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 #define ACTOR_FIELD(T, off) (*(T *)((u8 *)actor + (off)))
 
 void billboardSubmit(Actor *actor, s16 assetId, s16 texWidth, s16 texHeight, s16 halfWidth, s16 halfHeight, u8 texFormat, s16 fadeDistance, u8 flags, s16 rotY, f32 xRatio) {
@@ -426,7 +427,6 @@ extern MatrixCacheNode *D_807F9054;
 extern s32 D_807F905C;
 extern u16 D_807F9060;
 extern s32 D_807F9064;
-s32 mapIsBonusOrSpecial(void);
 
 void matrixCacheInit(s32 limit) {
     s32 i;
@@ -464,10 +464,7 @@ extern f32 *D_8076A0B4;
 extern f32 *D_8076A0B8;
 extern f32 *D_8076A0BC;
 extern MatrixCacheSub D_807F78C0[];
-s32 matrixCacheHash(s32, s16, u8);
-void *heapAlloc(s32);
-void heapFree(void *);
-void heapFreeDeferred(void *);
+void *heapAlloc(s32); // FAKE: callee prototype steer
 
 #define DIFF(a, b) (((b) < (a)) ? ((a) - (b)) : -((a) - (b)))
 

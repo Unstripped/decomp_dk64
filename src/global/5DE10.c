@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/5DE10.h"
 
 extern s32 gCurrentMap;
 extern u8 D_807F7360;

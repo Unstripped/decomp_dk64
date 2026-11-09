@@ -1,4 +1,6 @@
 #include "common.h"
+#include "proto/global/15050.h"
+#include "proto/global/5650.h"
 
 typedef struct QueuedFunction {
     struct QueuedFunction *next;
@@ -11,8 +13,6 @@ typedef struct QueuedFunction {
 
 extern s32 gGameFrameCounter;
 extern QueuedFunction *gTimerQueue;
-void heapFree(void *);
-void *heapAlloc(s32);
 s32 osPiReadIo(u32, u32 *);
 
 void timerQueueInit(void) {

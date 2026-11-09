@@ -1,5 +1,12 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/137120.h"
+#include "proto/global/13980.h"
+#include "proto/global/13D170.h"
+#include "proto/global/13E0E0.h"
+#include "proto/global/13E160.h"
+#include "proto/global/6710.h"
+#include "proto/global/7130.h"
 
 typedef struct AudioDmaNode {
     struct AudioDmaNode *next;
@@ -118,9 +125,6 @@ OSMesg D_807704C0[32];
 u8 D_80770540[0x18];
 s32 D_80770558[2];
 
-void *audioDmaNew(AudioDmaContext **outContext);
-void n_alInit(s32 *, AudioInitArgs *);
-void audioThreadMain();
 #include "common.h"
 #include "actor.h"
 
@@ -187,13 +191,7 @@ typedef struct AudioSched {
 } AudioSched;
 
 extern AudioSched gScheduler;
-s32 audioDmaCallback();
 
-void schedAddClient(void *, void *, OSMesgQueue *, s32, s32);
-s32 audioBuildTask();
-void audioCheckAiLength(s32 unused);
-void seqUpdateVolumeFades(void);
-void n_alClose(void *);
 void audioThreadMain(s32 isFirstFrame) {
     s32 done;
     OSMesg receivedMsg;
@@ -242,9 +240,6 @@ extern u32 D_805FB0D0[];
 extern u32 func_80741310[];
 extern u64 D_80760590[];
 
-void audioDmaFrameUpdate(void);
-s32 n_alAudioFrame(s32, s32 *, s32, s32);
-OSMesgQueue *schedGetCmdQueue(void *);
 
 s32 audioBuildTask(AudioTask *task, AudioAiBuffer *aiBuf) {
     u32 physSampleBuf;

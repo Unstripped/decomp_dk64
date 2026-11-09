@@ -1,5 +1,12 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/2F550.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/63EC0.h"
+#include "proto/global/6AD90.h"
 
 #define WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
@@ -92,12 +99,6 @@ typedef struct EffectBufferEntry {
     u8 pad1[0x1C7];
 } EffectBufferEntry;
 
-void * assetLoad(s32, u32, u8, u8);
-void effectNodeApproachTargetPos(EffectNode *node);
-void waterRippleStep(void);
-Gfx *effectWaterSetScissor(Gfx *, EffectNode *);
-void effectWaterBuildMeshGdl(void *, void *, EffectNode *);
-Gfx *effectBuildMipmapGdl(Gfx *glist, s32 unusedParam, u8 tableIndex);
 
 extern EffectNode *gEffectNodeList;
 extern EffectTableEntry D_80748A90[];
@@ -172,9 +173,6 @@ typedef struct WaterTypeEntry {
 
 extern s32 gCurrentMap;
 
-void *heapAlloc(s32);
-void effectWaterSetMeshPositionsUV(Vtx *, EffectNode *);
-void effectWaterSetMeshHeightsAlpha(Vtx *, EffectNode *);
 
 void effectWaterInitNodes(u8 *mapData) {
     u8 pad[0x1C];
@@ -337,11 +335,6 @@ typedef struct WaterTargetUpdateView {
     u8 unk67;
 } WaterTargetUpdateView;
 
-s32 effectCheckTargetActive(EffectSubNode *subNode);
-void effectWaterSetMeshColors(Vtx *, EffectNode *);
-void effectNodeComputeBounds(EffectNode *node, f32 camX, f32 camY, f32 camZ, u8 playerIndex, void *invMtx, void *outBounds);
-s32 mapBspBoxInFrustum(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
-s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
 extern f32 D_807F5FAC;
 extern void *gPlayerSlots;
 
@@ -393,8 +386,6 @@ void effectWaterUpdateMeshes(f32 camX, f32 camY, f32 camZ, u8 playerIndex) {
     }
 }
 
-void mapRectIntersect(s32, s32, s32, s32, s32, s32, s32, s32, s32 *, s32 *, s32 *, s32 *);
-void mapScreenRectBuildFrustum(s32, s32, s32, s32, f32, f32, f32, u8, void *, void *, void *);
 void effectNodeComputeBounds(EffectNode *node, f32 camX, f32 camY, f32 camZ, u8 playerIndex, void *invMtx, void *outBounds) {
     s32 s2 = 0;
     s32 s3 = 0;
@@ -488,7 +479,6 @@ extern f32 D_807F7EEC;
 extern f32 D_807F7EF0;
 extern f32 D_807F7EF4;
 
-s16 lightCollectVolumesInBounds(f32, f32, f32, s16, s16, s16, s16, s16, s16, s32, s8 *);
 void func_8065C990(s32, s32, s32, void *, s32, s32);
 
 void effectWaterApplyLights(f32 camX, f32 camY, f32 camZ) {
@@ -657,7 +647,6 @@ typedef struct WaterHeightView {
     u8 unk66;
 } WaterHeightView;
 
-f32 effectWaterGetHeightAt(EffectNode *water, s32 worldX, s32 worldZ, u8 type);
 
 #define WATER_HEIGHT ((WaterHeightView *)water->unk0)
 void effectWaterSetMeshHeightsAlpha(Vtx *vtx, EffectNode *water) {
@@ -928,7 +917,6 @@ s32 mathBitwiseNot(s32 val) {
     return ~val;
 }
 
-s32 randomLcgNext(void);
 extern s8 D_80746834;
 extern OSMesgQueue D_807655F0;
 extern OSIoMesg D_807ECE00;

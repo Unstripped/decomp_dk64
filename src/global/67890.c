@@ -1,5 +1,10 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/67890.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
 
 struct ActorTargetEntry;
 struct ActorTargetDistanceEntry;
@@ -31,8 +36,6 @@ extern s32 D_807F93F8;
 extern ActorTargetVtx *D_807F93FC;
 extern u32 D_807F9400;
 
-void *heapAlloc(s32);
-s32 assetLoad(s32, s32, s32, s32);
 
 #define TARGET_QUAD(i) (&((ActorTargetQuadRaw *)D_807F93F0)[i])
 #define TARGET_VTX(off) ((ActorTargetVtx *)((u8 *)D_807F93FC + (off)))
@@ -116,8 +119,6 @@ typedef struct ActorTargetDistanceEntry {
 
 extern u8 *D_807F6C2C;
 extern ActorTargetDistanceEntry *D_807F93F4;
-f32 mathAtan2(f32, f32);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void actorCalculateTargetDistancesAndAngles(f32 camX, f32 camY, f32 camZ) {
     s32 i;
@@ -153,7 +154,6 @@ void actorCalculateTargetDistancesAndAngles(f32 camX, f32 camY, f32 camZ) {
     }
 }
 
-Gfx *renderTargetQuad(Gfx *, s32);
 
 Gfx *renderDepthSortedTargets(Gfx *glist) {
     s32 pad;

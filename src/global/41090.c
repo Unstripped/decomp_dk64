@@ -1,5 +1,8 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/41090.h"
+#include "proto/global/5DE10.h"
+#include "proto/global/6AD90.h"
 
 extern s32 gCurrentMap;
 
@@ -16,8 +19,6 @@ extern f32 D_807F6174;
 extern f32 D_807F6178;
 extern void *D_807F617C;
 
-void *assetLoad(s32, s32, s32, s32);
-u8 fogGetEnabled(void);
 
 void mapSurfaceEffectsReset(void) {
     s32 i;
