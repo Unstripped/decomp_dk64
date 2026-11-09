@@ -54,7 +54,7 @@ typedef struct {
     u8 unk1A4;
 } ActorPlayerState;
 
-Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32); // FAKE: callee prototype steer
 
 Gfx *func_806FEF7C(Gfx *arg0, Actor *arg1) {
     arg0 = playerViewGfxSetup(arg0, ((ActorPlayerState *)arg1->customState)->unk1A4);
@@ -64,7 +64,7 @@ Gfx *func_806FEF7C(Gfx *arg0, Actor *arg1) {
 }
 
 extern u8 *D_807FD568;
-s32 slotQueueGetValue(s32, u8);
+u16 slotQueueGetValue(u8, u8);
 s32 projectileFindHomingTarget(s32, void *, Actor *, s32, s32, s32, void *, void *, void *);
 
 Gfx *func_806FF01C(Gfx *arg0, Actor *arg1) {
@@ -308,7 +308,7 @@ extern LensFlarePoint D_807FD808[2];
 extern f32 D_807FD840[2][3][3];
 extern f32 D_807FD848[2][3][3];
 void vec3fNormalize(f32 *, Vec3f);
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
 
 #define LENS_FLARE_CAM ((LensFlareCamView *)gPlayerSlots)
 #define LENS_FLARE_DIST2 ((LENS_FLARE_CAM->unk224 - arg2) * (LENS_FLARE_CAM->unk224 - arg2)) + (((LENS_FLARE_CAM->unk21C - arg0) * (LENS_FLARE_CAM->unk21C - arg0)) + ((LENS_FLARE_CAM->unk220 - arg1) * (LENS_FLARE_CAM->unk220 - arg1)))
@@ -722,7 +722,7 @@ void func_80701C90(void) {
 extern Mtx D_2000000;
 extern Mtx D_2000200;
 Gfx *gfxSetViewportDisplayList(Gfx *);
-s32 flagGet(s32, s32);
+u8 flagGet(s16, u8);
 
 typedef struct {
     u8 unk0;
@@ -1297,10 +1297,10 @@ extern ScreenFadeChannels D_80754CC8;
 u8 mapGetWorldIndex(u8);
 u8 func_80600454(s16, u8 *);
 s32 textTableGetString(s32, s32, s32);
-void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
+void textSpawnMarkerChecked(u8, s16, s16, s32, u16, u16, u8, u8);
 void sfxStopChannel(s32, s32);
-s32 transitionGetState(void);
-void transitionSetState(s32);
+u8 transitionGetState(void);
+void transitionSetState(u8);
 void osViBlack(u8);
 void transitionSetAudioVolume(f32, s32, void *);
 
