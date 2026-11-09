@@ -2805,26 +2805,20 @@ volatile u8 arg4; // FAKE: reload arg4 from its stack home after the calls
 s32 actorGetPlayerThreshold(ActorTargetWork *arg0) {
     ActorTargetSub174 *sub;
 
-    if (arg0->unk58 == 2) {
-        goto ret_32_2;
+    switch (arg0->unk58) {
+    case 5:
+        sub = arg0->unk174;
+        if (gPlayerSlots[sub->unk1A4].unk2C0 != 1) {
+            return 0x14;
+        }
+        return 0x32;
+    case 3:
+        return 0x32;
+    case 2:
+        return 0x32;
+    default:
+        return 0x32;
     }
-    if (arg0->unk58 == 3) {
-        goto ret_32_1;
-    }
-    if (arg0->unk58 != 5) {
-        goto ret_32_3;
-    }
-    sub = arg0->unk174;
-    if (gPlayerSlots[sub->unk1A4].unk2C0 != 1) {
-        return 0x14;
-    }
-    return 0x32;
-ret_32_1:
-    return 0x32;
-ret_32_2:
-    return 0x32;
-ret_32_3:
-    return 0x32;
 }
 
 typedef struct ActorSphereNode {
