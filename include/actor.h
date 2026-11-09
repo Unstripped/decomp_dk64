@@ -360,7 +360,8 @@ typedef struct PlayerState {
     /* 0x078 */ f32 unk78;
     /* 0x07C */ f32 unk7C;
     /* 0x080 */ s16 unk80;
-    /* 0x082 */ u8 pad82[6];
+    /* 0x082 */ u8 pad82[2];
+    /* 0x084 */ u32 unk84;
     /* 0x088 */ Actor *actor;
     /* 0x08C */ u8 gunDrawn;
     /* 0x08D */ u8 hitStatus;
@@ -388,10 +389,12 @@ typedef struct PlayerState {
     /* 0x0CA */ u8 unkCA;
     /* 0x0CB */ u8 padCB;
     /* 0x0CC */ s16 unkCC;
-    /* 0x0CE */ u8 padCE[6];
+    /* 0x0CE */ u8 padCE[2];
+    /* 0x0D0 */ u32 unkD0;
     /* 0x0D4 */ s16 surfaceTimer;
     /* 0x0D6 */ s16 breathTimer;
-    /* 0x0D8 */ u8 padD8[4];
+    /* 0x0D8 */ u8 prevHasArcBounds;
+    /* 0x0D9 */ u8 padD9[3];
     /* 0x0DC */ Actor *damageSource;
     /* 0x0E0 */ f32 unkE0;
     /* 0x0E4 */ f32 unkE4;
@@ -439,7 +442,8 @@ typedef struct PlayerState {
     /* 0x1B0 */ Actor *queuedHeldActor;
     /* 0x1B4 */ s32 queuedHeldActorId;
     /* 0x1B8 */ u16 heldActorType;
-    /* 0x1BA */ u8 pad1BA[6];
+    /* 0x1BA */ u8 pad1BA[2];
+    /* 0x1BC */ f32 holdPitch;
     /* 0x1C0 */ f32 targetScale[3];
     /* 0x1CC */ f32 currentScale[3];
     /* 0x1D8 */ f32 scaleChangeRate;
@@ -472,7 +476,8 @@ typedef struct PlayerState {
     /* 0x234 */ f32 savedZ;
     /* 0x238 */ f32 unk238;
     /* 0x23C */ u16 unk23C;
-    /* 0x23E */ u8 pad23E[2];
+    /* 0x23E */ u8 sparkTimer;
+    /* 0x23F */ u8 padHintTimer;
     /* 0x240 */ u8 unk240;
     /* 0x241 */ u8 pad241;
     /* 0x242 */ u16 unk242;
@@ -483,7 +488,9 @@ typedef struct PlayerState {
     /* 0x248 */ s8 attackerPlayerIndex;
     /* 0x249 */ u8 attackerSpawnNodeId;
     /* 0x24A */ u8 attackTimer;
-    /* 0x24B */ u8 pad24B[5];
+    /* 0x24B */ u8 pad24B;
+    /* 0x24C */ u16 hitModelId;
+    /* 0x24E */ u16 hitStrength;
     /* 0x250 */ s32 effectTimer;
     /* 0x254 */ void *effectObj;
     /* 0x258 */ f32 unk258;
