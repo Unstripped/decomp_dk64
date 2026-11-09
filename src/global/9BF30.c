@@ -2,7 +2,7 @@
 #include "actor.h"
 
 void *heapAlloc(s32);
-s32 assetLoad(s32, s32, s32, s32);
+void * assetLoad(s32, u32, u8, u8);
 extern u8 *D_807FC7C0;
 
 typedef struct ActorTrailState {
@@ -24,7 +24,7 @@ extern u8 gGfxBufferIndex;
 extern u8 *gPlayerSlots;
 
 void actorFreeModelNodeList(Actor *);
-void actorSetCollisionRadius(Actor *, f32);
+ActorSub140 * actorSetCollisionRadius(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
@@ -148,7 +148,7 @@ typedef struct ProjectileState {
 } ProjectileState;
 
 Gfx *projectileRenderSpriteRing(Gfx *glist, Actor *actor);
-void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 void actorDespawn(Actor *);
 void heapFree(void *);
 void projectileSpawnActor107(u8, u8, f32, f32, u8, u8);
@@ -280,22 +280,21 @@ extern u8 D_8071FBA0;
 extern u32 gGameFrameCounter;
 extern u8 D_807FBB85;
 void effectSetDuration(s32);
-void effectSetMode(s32);
-void effectSetDepth(s32);
-void effectSetMaxDistance(s32);
-void effectSetColor(s32, s32, s32, s32);
+void effectSetMode(s8);
+void effectSetDepth(s8);
+void effectSetMaxDistance(s16);
+void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
 void effectSetCallback(void (*)(void));
 void effectSetSpeed();
 s32 randomNonNegative(void);
-void actorSetCollisionRadius(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void actorUpdatePrevContactFlags(Actor *);
 void actorApplyVelocity(Actor *);
 void actorUpdateFloorContactAndTilt(Actor *, f32);
-void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-void effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
+void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
+void effectCreateAtActorBone(s32, f32, void *, s32, u8);
 void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void effectPulseSpinUpdate(void);
 void effectRadialSprayUpdate(void);
