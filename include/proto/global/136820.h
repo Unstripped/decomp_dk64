@@ -33,7 +33,7 @@ void faultUnwindStack(OSThread *);
 void faultThreadMain(void *);
 #endif
 #ifndef PROTO_SKIP_faultSetMessage
-void faultSetMessage(u8, s32, s32, s32);
+void faultSetMessage(u8, u32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_faultThreadInit
 void faultThreadInit(void);

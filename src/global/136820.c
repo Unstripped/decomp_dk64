@@ -277,7 +277,7 @@ void faultThreadMain(void *arg) {
 }
 
 
-void faultSetMessage(u8 a0, s32 a1, s32 a2, s32 a3) {
+void faultSetMessage(u8 a0, u32 a1, s32 a2, s32 a3) {
     D_807FF01C = a0;
     D_807FF020 = a1;
     D_807FF024 = a2;
