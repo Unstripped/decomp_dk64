@@ -7,6 +7,7 @@
 #include "proto/race/0.h"
 #include "proto/race/7BD0.h"
 #include "proto/race/A960.h"
+s16 sfxPlayFromActorWithAltitudeCheck(struct Actor *, s16, u8, s16, u8);
 
 typedef struct {
     s16 x;
@@ -323,7 +324,6 @@ s32 playerIsDamageOrKnockbackState(void);
 void hudSpawnTextScreen(u8);
 s32 mathAngleStepToward(s16 *, s16, s32);  // FAKE: callee prototype steer
 s32 playerStateQueueCallback(s16, void *, u8);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 s32 sfxStopSlotSound(void *, s32);
 
 void raceOpponentBehaviourUpdate(void) {

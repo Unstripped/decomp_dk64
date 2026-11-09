@@ -8,6 +8,7 @@
 #include "proto/global/8CA50.h"
 #include "proto/minecart/0.h"
 #include "proto/minecart/25F0.h"
+s16 sfxPlayFromActorWithAltitudeCheck(struct Actor *, s16, u8, s16, u8);
 
 typedef struct ModelSub_25F0 {
     u8 pad0[4];
@@ -186,7 +187,6 @@ f32 mathSinF(s16);
 f32 mathCosF(s16);
 void actorGetOrSetNodeScale(Actor_25F0 *, s32, f32);
 void func_80724CA4(s16, s16);
-void sfxPlayFromActorWithAltitudeCheck(Actor_25F0 *, s16, u8, s16, u8);
 void camStartShake(s32, s32, s32);
 void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void func_80724E48(u8);

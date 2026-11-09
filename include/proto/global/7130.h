@@ -82,7 +82,7 @@ void audioResetAll(void);
 void sfxUpdateSourceGroups(void);
 #endif
 #ifndef PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
+s16 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 #endif
 #ifndef PROTO_SKIP_sfxPlayFromTargetSlot
 void sfxPlayFromTargetSlot(s16, s16, u8, u8, u8, u8, f32);

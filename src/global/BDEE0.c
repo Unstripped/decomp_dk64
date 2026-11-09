@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorMoveWithinZone // FAKE: callee prototype steer
-#define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/1295B0.h"
@@ -102,7 +101,6 @@ extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
 
 s32 actorMoveWithinZone(u8, f32, f32, s32, f32);  // FAKE: callee prototype steer
-s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 void behaviourArmadilloPatrol(void) {
     u16 animFlags = 0;

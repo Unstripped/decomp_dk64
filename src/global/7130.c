@@ -1852,7 +1852,7 @@ void sfxUpdateSourceGroups(void) {
 }
 
 
-void sfxPlayFromActorWithAltitudeCheck(Actor *actor, s16 sfxId, u8 volume, s16 pitch, u8 spread) {
+s16 sfxPlayFromActorWithAltitudeCheck(Actor *actor, s16 sfxId, u8 volume, s16 pitch, u8 spread) {
     s32 fx;
 
     if (actor->y + 20.0f < actor->waterY && (sfxId < 0x355 || sfxId >= 0x35E)) {
@@ -1860,7 +1860,7 @@ void sfxPlayFromActorWithAltitudeCheck(Actor *actor, s16 sfxId, u8 volume, s16 p
     } else {
         fx = 0;
     }
-    sfxPlayAtPositionPooled(actor->x, actor->y, actor->z, sfxId, volume, pitch, spread, 0x4B, 0.3f, fx);
+    return sfxPlayAtPositionPooled(actor->x, actor->y, actor->z, sfxId, volume, pitch, spread, 0x4B, 0.3f, fx);
 }
 
 void sfxPlayFromTargetSlot(s16 modelSlot, s16 sfxId, u8 volume, u8 pitch, u8 spread, u8 range, f32 directionality) {

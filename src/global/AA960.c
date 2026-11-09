@@ -5,7 +5,6 @@
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
 #define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
-#define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/127B00.h"
@@ -332,7 +331,6 @@ typedef struct BehaviourConfig {
 extern ActorGlobalState gActorGlobalState;
 extern s16 D_8075038C;
 u32 randomLcgNext(void); // FAKE: callee prototype steer
-s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8); // FAKE: callee prototype steer
 
 void actorDropBounceExpireUpdate(f32 floorOffset) {
     BehaviourState *state;

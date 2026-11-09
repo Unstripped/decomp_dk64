@@ -10,7 +10,6 @@
 #define PROTO_SKIP_playerClampWaterSurfaceHeight // FAKE: callee prototype steer
 #define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
 #include "proto/global/103AB0.h"
 #include "proto/global/10D2D0.h"
 #include "proto/global/117190.h"
@@ -184,7 +183,6 @@ void playerStateSurfaceDiving(void) {
 
 extern f32 D_80753AFC[];
 extern s16 D_80753A78[];
-s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8); // FAKE: callee prototype steer
 
 void playerStateUnderwaterSwimming(void) {
     f64 scaledXZ;
