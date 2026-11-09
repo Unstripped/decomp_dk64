@@ -244,10 +244,10 @@ s16 camClampEyeAngle(CamState *, f32 *, f32 *, f32, f32, f32);
 f32 splineEvalCubic(f64, f32, f32, f32, f32);
 s32 func_8062773C(CamActor *);
 s16 mathAngleLerp(s16, s16, f32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);  // FAKE: callee prototype steer
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
-void renderBonusTargetMarker();
-void renderCallbacksRegister(void *, void *, s32);
+Gfx * renderBonusTargetMarker(Gfx *, s32);
+void renderCallbacksRegister(void *, void *, u8);
 f32 sqrtf(f32);
 
 #define CAM_LERP(a, b, t) ((a) + ((b) - (a)) * (t))
@@ -256,8 +256,8 @@ u8 camCueTimerIsRunning(void) {
     return gCamCueStartTime != 0;
 }
 
-extern u64 __ll_mul(u64, u64);
-extern u64 __ull_div(u64, u64);
+extern unsigned long long __ll_mul(unsigned long long, unsigned long long);
+extern unsigned long long __ull_div(unsigned long long, unsigned long long);
 void menuTransitionToMap(s32, s32);
 
 void camCueTimerTick(void) {
@@ -923,7 +923,7 @@ void func_80029140(s16 *);
 void currentActorClearFlag(void);
 s16 camPathGetLength(s16);
 void setRandomSeed(s32);
-s32 transitionGetState(void);
+u8 transitionGetState(void);
 
 u16 camStartPath(void *arg0, s16 arg1, u8 arg2) {
     u16 ret = 0;
@@ -1513,7 +1513,7 @@ extern u32 gFrameDelta;
 
 s16 mathAngleEaseToward(s16, s16, f32);
 s32 func_807142D8(void);
-void sfxAllocateChannel(u16, f32);
+void sfxAllocateChannel(s32, f32);
 void sfxStartAreaAmbient(void);
 void camPathCommandDispatch(s32, s32, s32);
 void camPolarFromPoints(f32 *, f32 *, f32, f32, f32, f32, f32, f32);
@@ -1862,7 +1862,7 @@ typedef struct CamPlayerRecUp {
 } CamPlayerRecUp;
 
 void camUpdate(CamResetCam *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *);
-s16 mapChunkFindByPosition(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s16);
 
 #define CAM_PLAYER_REC(i) ((CamPlayerRecUp *)&gPlayerSlots[i])
 
@@ -2526,7 +2526,7 @@ typedef struct CamPlayerRecSaved {
     /* 0x2C1 */ u8 pad2C1[0x2F];
 } CamPlayerRecSaved; // size = 0x2F0
 
-s32 collisionTestSphere(f32, f32, f32, f32, void *, void *, s32, s32);
+s32 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, u8, u16);
 
 void camFindClearYaw(CamActor *arg0, f32 arg1, s16 arg2, u8 arg3) {
     CamFindYawTarget *tgt;
@@ -3301,7 +3301,7 @@ typedef struct CamReturnState {
 } CamReturnState;
 
 extern CamPlayerActorSlot *gActivePlayerActor;
-void sfxStopSlotSound(void *, s32);
+void sfxStopSlotSound(Actor *, u8);
 void camReturnToFollow(CamActor *camActor, CamActor *targetActor) {
     CamReturnState *s;
     s32 pad1;
@@ -4537,7 +4537,7 @@ typedef struct CamSecondState {
     /* 0xB2 */ s16 unkB2;
 } CamSecondState;
 
-CamSecondNode *spawnNodeActivate(s32, s32);
+Actor * spawnNodeActivate(s16, u16);
 
 void camSetSecondTarget(CamActor *arg0, s16 arg1, s16 arg2) {
     CamSecondState *st = (CamSecondState *)arg0->unk174;
@@ -4575,7 +4575,7 @@ void camLoadPathTable(void *arg0, CamPathData *arg1, u8 arg2) {
     arg1->unkD8[53].unk1 = 8;
 }
 
-void *assetLoad(s32, s32, s32, s32);
+void * assetLoad(s32, u32, u8, u8);
 void splineSetBasisTension(f32);
 void assetFreeBuffer(void *, s32, s32);
 void camInitZones(void);
