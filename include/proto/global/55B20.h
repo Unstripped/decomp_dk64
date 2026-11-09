@@ -4,6 +4,7 @@
 #include "common.h"
 struct MapActorEntry;
 struct MapData;
+struct MapGridQuad;
 struct MapHeader;
 struct MapTriangle;
 #ifndef PROTO_SKIP_mapChunkAllocLists
@@ -188,6 +189,12 @@ void mapChunkIdListAddUnique(s16);
 #endif
 #ifndef PROTO_SKIP_mapGridPointEmit
 s32 mapGridPointEmit(s32, f32, f32, f32);
+#endif
+#ifndef PROTO_SKIP_mapGridQuadContainsPoint
+s32 mapGridQuadContainsPoint(struct MapGridQuad *);
+#endif
+#ifndef PROTO_SKIP_mapGridPointBuildVectors
+void mapGridPointBuildVectors(s32, f32, f32, f32, struct MapGridQuad *);
 #endif
 #ifndef PROTO_SKIP_mapGridPlaneProjectPoint
 void mapGridPlaneProjectPoint(s32, f32, f32, f32, f32 *, f32 *, f32 *);

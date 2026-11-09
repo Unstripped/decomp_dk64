@@ -2,8 +2,12 @@
 #ifndef PROTO_GLOBAL_1292F0_H
 #define PROTO_GLOBAL_1292F0_H
 #include "common.h"
+struct AnimationOwner;
 struct PathFollowOwner;
 #ifndef PROTO_SKIP_pathFollowUpdateHeading
 void pathFollowUpdateHeading(struct PathFollowOwner *, u8);
+#endif
+#ifndef PROTO_SKIP_animationOwnerFreeBuffer
+void animationOwnerFreeBuffer(struct AnimationOwner *);
 #endif
 #endif

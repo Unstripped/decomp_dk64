@@ -3,6 +3,7 @@
 #define PROTO_RACE_52B0_H
 #include "common.h"
 struct RaceC_Actor;
+struct RaceC_Holder;
 #ifndef PROTO_SKIP_raceRacerRenderCallback
 void raceRacerRenderCallback(s32, struct RaceC_Actor *);
 #endif
@@ -17,6 +18,9 @@ void raceCompetitorMotionUpdate(void);
 #endif
 #ifndef PROTO_SKIP_raceRacerSteerTowardWaypoint
 f32 raceRacerSteerTowardWaypoint(void);
+#endif
+#ifndef PROTO_SKIP_raceAdjustRubberbandTargetSpeed
+void raceAdjustRubberbandTargetSpeed(struct RaceC_Holder *, void *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_raceGetFinishCutsceneCam
 s32 raceGetFinishCutsceneCam(s32, s32);

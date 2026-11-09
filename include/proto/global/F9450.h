@@ -2,8 +2,11 @@
 #ifndef PROTO_GLOBAL_F9450_H
 #define PROTO_GLOBAL_F9450_H
 #include "common.h"
+struct F9A_DestinationNode;
+struct F9A_SourceNode;
 struct F9F1_Node;
 struct F9F1_Rect;
+struct F9N2At58;
 #ifndef PROTO_SKIP_gridRebuildNodeLists
 void gridRebuildNodeLists(void);
 #endif
@@ -34,6 +37,9 @@ void gridFreeAllNodeLists(void);
 #ifndef PROTO_SKIP_gridFreeAllActiveNodes
 void gridFreeAllActiveNodes(void);
 #endif
+#ifndef PROTO_SKIP_func_806F53EC
+struct F9A_DestinationNode *func_806F53EC(struct F9A_SourceNode *);
+#endif
 #ifndef PROTO_SKIP_gridAdjustActorCollisionType
 s32 gridAdjustActorCollisionType(s32, s32, u8);
 #endif
@@ -42,6 +48,12 @@ void cutsceneStartFlag16CPath(void);
 #endif
 #ifndef PROTO_SKIP_func_806F54E0
 void func_806F54E0();
+#endif
+#ifndef PROTO_SKIP_func_806F58A0
+void func_806F58A0(u8, s16, struct F9N2At58 *);
+#endif
+#ifndef PROTO_SKIP_func_806F5A48
+void func_806F5A48(u8, s16, struct F9N2At58 *, u16);
 #endif
 #ifndef PROTO_SKIP_actorTypeIsRespawnPickup
 s32 actorTypeIsRespawnPickup(s32);

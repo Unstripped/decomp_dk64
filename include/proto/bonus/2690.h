@@ -3,6 +3,8 @@
 #define PROTO_BONUS_2690_H
 #include "common.h"
 #include "actor.h"
+struct BonusB_Sub178;
+struct Struct_174;
 struct Struct_71B4;
 #ifndef PROTO_SKIP_bonusRenderCrosshair
 Gfx *bonusRenderCrosshair(Gfx *, Actor *);
@@ -15,6 +17,9 @@ Gfx *bonusRenderPopupGameHud(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_bonusSpawnTarget
 void bonusSpawnTarget(s16, s16, s16, u8, struct Struct_71B4 *);
+#endif
+#ifndef PROTO_SKIP_bonusDespawnTarget
+void bonusDespawnTarget(struct Struct_174 *, struct Struct_71B4 *);
 #endif
 #ifndef PROTO_SKIP_bonusResetAmmo
 void bonusResetAmmo(void *);
@@ -33,6 +38,9 @@ void bonusPopupGameUpdate(void);
 #endif
 #ifndef PROTO_SKIP_bonusTargetUpdate
 void bonusTargetUpdate(void);
+#endif
+#ifndef PROTO_SKIP_bonusPopupSpawnActors
+void bonusPopupSpawnActors(struct BonusB_Sub178 *);
 #endif
 #ifndef PROTO_SKIP_bonusActorUpdateVertexPositions
 void bonusActorUpdateVertexPositions(void);

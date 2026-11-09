@@ -3,11 +3,16 @@
 #define PROTO_RACE_1770_H
 #include "common.h"
 struct RaceActor;
+struct RaceParticipant;
+struct RacePathState;
 #ifndef PROTO_SKIP_raceGetNextWaypointIndex
 s32 raceGetNextWaypointIndex(s32, s32);
 #endif
 #ifndef PROTO_SKIP_raceGetPrevWaypointIndex
 s32 raceGetPrevWaypointIndex(s32, s32);
+#endif
+#ifndef PROTO_SKIP_raceInterpolateWaypointPos
+void raceInterpolateWaypointPos(struct RacePathState *, f32 *, f32 *, s32, s32);
 #endif
 #ifndef PROTO_SKIP_raceInitSplinePoints
 void raceInitSplinePoints(void);
@@ -18,8 +23,23 @@ void raceInitOpponentEntities(struct RaceActor *);
 #ifndef PROTO_SKIP_raceInitSplineAndOpponent
 void raceInitSplineAndOpponent(void);
 #endif
+#ifndef PROTO_SKIP_racePlayCheckpointSfx
+void racePlayCheckpointSfx(struct RacePathState *, u8, f32);
+#endif
+#ifndef PROTO_SKIP_raceAdvanceCheckpoint
+void raceAdvanceCheckpoint(struct RacePathState *, struct RaceParticipant *, s32);
+#endif
 #ifndef PROTO_SKIP_raceApplyPositionOffset
 void raceApplyPositionOffset(f32 *, f32 *);
+#endif
+#ifndef PROTO_SKIP_raceUpdateOrientation
+void raceUpdateOrientation(struct RacePathState *);
+#endif
+#ifndef PROTO_SKIP_racePathFollowStep
+void racePathFollowStep(struct RacePathState *, struct RaceParticipant *, u8);
+#endif
+#ifndef PROTO_SKIP_raceSpawnProjectile
+void raceSpawnProjectile(struct RaceParticipant *);
 #endif
 #ifndef PROTO_SKIP_racePlayEngineSfx
 void racePlayEngineSfx(void);

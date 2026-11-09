@@ -2,6 +2,8 @@
 #ifndef PROTO_GLOBAL_109660_H
 #define PROTO_GLOBAL_109660_H
 #include "common.h"
+struct ColorBytesView;
+struct RectSpan;
 #ifndef PROTO_SKIP_gfxDrawSplitScreenDividers
 Gfx *gfxDrawSplitScreenDividers(Gfx *);
 #endif
@@ -11,6 +13,9 @@ void lightSetOverrideColor(f32, f32, f32);
 #ifndef PROTO_SKIP_gfxDrawBackgroundQuad
 Gfx *gfxDrawBackgroundQuad(Gfx *, void *, f32, void *, u8, u8, u8, s8, f32);
 #endif
+#ifndef PROTO_SKIP_gfxDrawSkybox
+void gfxDrawSkybox(struct ColorBytesView *, s8, s8, s8);
+#endif
 #ifndef PROTO_SKIP_gfxBackgroundReset
 void gfxBackgroundReset(void);
 #endif
@@ -19,6 +24,9 @@ void lensFlareAddFromAngle(s16, s16, u8);
 #endif
 #ifndef PROTO_SKIP_gfxDrawSkySprite
 Gfx *gfxDrawSkySprite(Gfx *, s16, s16, u8);
+#endif
+#ifndef PROTO_SKIP_gfxWrapRectSpan
+void gfxWrapRectSpan(struct RectSpan *, u8 *, u8, f32);
 #endif
 #ifndef PROTO_SKIP_gfxGetBackgroundTint
 void gfxGetBackgroundTint(s16, u8 *, u8 *, u8 *);

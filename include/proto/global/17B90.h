@@ -2,28 +2,65 @@
 #ifndef PROTO_GLOBAL_17B90_H
 #define PROTO_GLOBAL_17B90_H
 #include "common.h"
+struct AnimControllerInit;
 struct AnimControllerRef;
+struct AnimScaleController;
+struct AnimScaleState;
+struct ControllerActorTypeView;
+struct ControllerActorView;
+struct ControllerAnimView;
+struct ControllerCommand;
+struct ControllerCommandOwner;
+struct ControllerStateOwner;
 struct ControllerStateView;
 struct ControllerSubCmd;
 struct ControllerSubNode;
+struct ControllerView;
+struct DisplayListGroup;
 struct GfxCmdWords;
+struct MotionOwner;
+struct RenderActorView;
 #ifndef PROTO_SKIP_controllerAnimStateLoadAsset
 void *controllerAnimStateLoadAsset();
 #endif
 #ifndef PROTO_SKIP_gfxSwapGeometryModeCullBits
 void gfxSwapGeometryModeCullBits(struct GfxCmdWords *, struct GfxCmdWords *);
 #endif
+#ifndef PROTO_SKIP_controllerAnimLoadStateAsset
+void controllerAnimLoadStateAsset(struct ControllerView *, s16);
+#endif
+#ifndef PROTO_SKIP_controllerAnimLoadStateAsset1
+void controllerAnimLoadStateAsset1(struct ControllerView *, s16);
+#endif
+#ifndef PROTO_SKIP_controllerAnimFreeStateAsset
+void controllerAnimFreeStateAsset(struct ControllerView *);
+#endif
 #ifndef PROTO_SKIP_controllerBuildSubcommandList
 void controllerBuildSubcommandList(struct ControllerSubCmd *, struct ControllerSubCmd *, struct ControllerSubNode **);
 #endif
+#ifndef PROTO_SKIP_controllerSetCommand
+void controllerSetCommand(struct ControllerCommandOwner *, s32, struct ControllerCommand *);
+#endif
+#ifndef PROTO_SKIP_controllerCommandRelocateAssets
+void controllerCommandRelocateAssets(struct ControllerCommand *, struct ControllerCommand *);
+#endif
 #ifndef PROTO_SKIP_controllerLookupStateByHash
 u16 controllerLookupStateByHash(u32 *);
+#endif
+#ifndef PROTO_SKIP_controllerAnimInit
+s32 controllerAnimInit(struct AnimControllerInit *, u16);
+#endif
+#ifndef PROTO_SKIP_controllerAnimFree
+void controllerAnimFree(struct ControllerAnimView *);
 #endif
 #ifndef PROTO_SKIP_controllerAnimFreeSub
 void controllerAnimFreeSub();
 #endif
 #ifndef PROTO_SKIP_controllerAnimCacheFree
 int controllerAnimCacheFree(void *, void *);
+#endif
+#ifndef PROTO_SKIP_controllerAnimScaleInterpolate
+void controllerAnimScaleInterpolate(struct AnimScaleController *, s8);
 #endif
 #ifndef PROTO_SKIP_controllerAnimSetStateRemap
 void controllerAnimSetStateRemap(struct ControllerStateView *, s16, f32, f32);
@@ -37,10 +74,31 @@ void controllerAnimSetStateIfChanged(struct ControllerStateView *, s16, f32, f32
 #ifndef PROTO_SKIP_controllerAnimSetState
 void controllerAnimSetState(struct ControllerStateView *, s16, f32, f32);
 #endif
+#ifndef PROTO_SKIP_controllerAnimSetFromTable
+void controllerAnimSetFromTable(struct ControllerActorTypeView *, u16, f32, u8);
+#endif
 #ifndef PROTO_SKIP_controllerAnimSetDirect
 void controllerAnimSetDirect(struct AnimControllerRef *, u16, f32, u8);
 #endif
 #ifndef PROTO_SKIP_controllerAnimCacheGetOrLoad
 void *controllerAnimCacheGetOrLoad(s32);
+#endif
+#ifndef PROTO_SKIP_controllerStepMotionWindows
+void controllerStepMotionWindows(struct MotionOwner *);
+#endif
+#ifndef PROTO_SKIP_controllerApplyMotionWindow
+void controllerApplyMotionWindow(struct AnimScaleController *, struct AnimScaleState *, f32);
+#endif
+#ifndef PROTO_SKIP_actorGetAnimProgress
+f32 actorGetAnimProgress(struct ControllerStateOwner *);
+#endif
+#ifndef PROTO_SKIP_actorCheckWorldBounds
+void actorCheckWorldBounds(struct ControllerActorView *);
+#endif
+#ifndef PROTO_SKIP_renderActorDisplayList
+Gfx *renderActorDisplayList(Gfx *, struct RenderActorView *);
+#endif
+#ifndef PROTO_SKIP_renderEmitSegmentNodes
+Gfx *renderEmitSegmentNodes(Gfx *, struct RenderActorView *, struct DisplayListGroup *);
 #endif
 #endif

@@ -2,6 +2,7 @@
 #ifndef PROTO_GLOBAL_100180_H
 #define PROTO_GLOBAL_100180_H
 #include "common.h"
+struct TextObject;
 #ifndef PROTO_SKIP_func_806FB480
 void func_806FB480(void);
 #endif
@@ -40,6 +41,12 @@ Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
 #endif
 #ifndef PROTO_SKIP_textDrawStringVtx
 Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
+#endif
+#ifndef PROTO_SKIP_textObjectDrawFlat
+Gfx *textObjectDrawFlat(Gfx *, struct TextObject *);
+#endif
+#ifndef PROTO_SKIP_textObjectDrawRotated
+Gfx *textObjectDrawRotated(Gfx *, struct TextObject *);
 #endif
 #ifndef PROTO_SKIP_textDrawString
 Gfx *textDrawString(Gfx *, u8, s16, s16, u8 *);

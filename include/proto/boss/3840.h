@@ -2,8 +2,16 @@
 #ifndef PROTO_BOSS_3840_H
 #define PROTO_BOSS_3840_H
 #include "common.h"
+struct BossB_Struct_800278F4;
+struct BossB_Struct_80027950;
 #ifndef PROTO_SKIP_bossInitScriptData
 void bossInitScriptData(u8 *);
+#endif
+#ifndef PROTO_SKIP_bossLerpCoords
+void bossLerpCoords(struct BossB_Struct_800278F4 *, f32, s16, s16);
+#endif
+#ifndef PROTO_SKIP_bossPickRandomWaypoint
+void bossPickRandomWaypoint(struct BossB_Struct_80027950 *, u8 *);
 #endif
 #ifndef PROTO_SKIP_bossPickFarthestWaypoint
 void bossPickFarthestWaypoint(void *, u8 *);

@@ -2,11 +2,54 @@
 #ifndef PROTO_GLOBAL_13ECE0_H
 #define PROTO_GLOBAL_13ECE0_H
 #include "common.h"
+struct VoiceMapCSPlayer;
 struct VoiceMapVoiceState;
 #ifndef PROTO_SKIP_alCents2Ratio
 f32 alCents2Ratio(s32);
 #endif
+#ifndef PROTO_SKIP___n_unmapVoice
+void __n_unmapVoice(struct VoiceMapCSPlayer *, ALVoice *);
+#endif
+#ifndef PROTO_SKIP___n_seqpReleaseVoice
+void __n_seqpReleaseVoice(struct VoiceMapCSPlayer *, ALVoice *, s32);
+#endif
+#ifndef PROTO_SKIP___n_voiceNeedsNoteKill
+u8 __n_voiceNeedsNoteKill(struct VoiceMapCSPlayer *, ALVoice *, s32);
+#endif
+#ifndef PROTO_SKIP___n_mapVoice
+struct VoiceMapVoiceState *__n_mapVoice(struct VoiceMapCSPlayer *, u8, u8, u8);
+#endif
+#ifndef PROTO_SKIP___n_lookupVoice
+struct VoiceMapVoiceState *__n_lookupVoice(struct VoiceMapCSPlayer *, u8, u8);
+#endif
+#ifndef PROTO_SKIP___n_lookupSoundQuick
+ALSound *__n_lookupSoundQuick(struct VoiceMapCSPlayer *, u8, u8, u8);
+#endif
+#ifndef PROTO_SKIP___n_vsVol
+s16 __n_vsVol(struct VoiceMapVoiceState *, struct VoiceMapCSPlayer *);
+#endif
+#ifndef PROTO_SKIP_n_alCSPClampVoiceFXMix
+u8 n_alCSPClampVoiceFXMix(struct VoiceMapVoiceState *, struct VoiceMapCSPlayer *);
+#endif
 #ifndef PROTO_SKIP___n_vsDelta
 s32 __n_vsDelta(struct VoiceMapVoiceState *, s32);
+#endif
+#ifndef PROTO_SKIP___n_vsPan
+u8 __n_vsPan(struct VoiceMapVoiceState *, struct VoiceMapCSPlayer *);
+#endif
+#ifndef PROTO_SKIP___n_initFromBank
+void __n_initFromBank(struct VoiceMapCSPlayer *, ALBank *);
+#endif
+#ifndef PROTO_SKIP___n_initChanState
+void __n_initChanState(struct VoiceMapCSPlayer *);
+#endif
+#ifndef PROTO_SKIP___n_resetPerfChanState
+void __n_resetPerfChanState(struct VoiceMapCSPlayer *, s32);
+#endif
+#ifndef PROTO_SKIP___n_setInstChanState
+void __n_setInstChanState(struct VoiceMapCSPlayer *, ALInstrument *, s32);
+#endif
+#ifndef PROTO_SKIP___n_seqpStopOsc
+void __n_seqpStopOsc(struct VoiceMapCSPlayer *, struct VoiceMapVoiceState *);
 #endif
 #endif

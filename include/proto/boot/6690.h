@@ -2,4 +2,8 @@
 #ifndef PROTO_BOOT_6690_H
 #define PROTO_BOOT_6690_H
 #include "common.h"
+struct TextureDescriptor;
+#ifndef PROTO_SKIP_dlInitTextureDescriptor
+void dlInitTextureDescriptor(struct TextureDescriptor *, s32, s32, s16, s16, s16, u8, u8, s16, s16);
+#endif
 #endif

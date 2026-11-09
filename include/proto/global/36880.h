@@ -11,6 +11,7 @@ struct ModelNodeBufferOwner;
 struct ModelPathTable;
 struct ModelPendingEntry;
 struct ModelQuadOwner;
+struct ModelRenderAnimObj;
 struct ModelSegmentData;
 struct ModelSegmentNode;
 struct ModelSegmentOwner;
@@ -250,6 +251,9 @@ s32 modelSlotResolveAssetTextures();
 #endif
 #ifndef PROTO_SKIP_dlResolveNodeTextures
 s32 dlResolveNodeTextures(struct DisplayListCmd *, struct DisplayListCmd *, struct ModelSegmentNode *, u8);
+#endif
+#ifndef PROTO_SKIP_renderModelAnimatedSlot
+Gfx *renderModelAnimatedSlot(struct ModelRenderAnimObj *, Gfx *, f32, f32, f32, u8, s16, s32);
 #endif
 #ifndef PROTO_SKIP_renderModelQuadGfx
 Gfx *renderModelQuadGfx(struct RenderQuadModelObj *, Gfx *, f32, f32, f32, u8, s16);

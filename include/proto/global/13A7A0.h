@@ -2,9 +2,18 @@
 #ifndef PROTO_GLOBAL_13A7A0_H
 #define PROTO_GLOBAL_13A7A0_H
 #include "common.h"
+struct GeSndEvt;
+struct GeSndpConfig;
 struct GfSndState;
+struct GfSound;
+#ifndef PROTO_SKIP_n_alSndpNew
+void n_alSndpNew(struct GeSndpConfig *);
+#endif
 #ifndef PROTO_SKIP___n_sndpVoiceHandler
 ALMicroTime __n_sndpVoiceHandler(void *);
+#endif
+#ifndef PROTO_SKIP___n_handleEvent
+void __n_handleEvent(struct GeSndEvt *);
 #endif
 #ifndef PROTO_SKIP___n_sndpDestroyState
 void __n_sndpDestroyState(struct GfSndState *);
@@ -17,6 +26,9 @@ void __n_removeEvents();
 #endif
 #ifndef PROTO_SKIP_n_alSndpCountStates
 u16 n_alSndpCountStates(u16 *, u16 *);
+#endif
+#ifndef PROTO_SKIP___n_allocState
+struct GfSndState *__n_allocState(void *, struct GfSound *);
 #endif
 #ifndef PROTO_SKIP___n_freeState
 void __n_freeState(struct GfSndState *);

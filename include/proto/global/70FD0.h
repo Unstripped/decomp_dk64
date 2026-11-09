@@ -7,10 +7,14 @@ struct ActorFacingWork;
 struct ActorHitPlane;
 struct ActorPlaneContactView;
 struct ActorSub140PointView;
+struct ActorTargetBounds;
 struct ActorTargetWork;
+struct CollisionActor;
 struct CollisionBox;
+struct CollisionPlane;
 struct CollisionStaticHeader;
 struct CollisionTri;
+struct CollisionVec3i;
 struct DynamicBuffer;
 #ifndef PROTO_SKIP_collisionBuildSlotBoxes
 void collisionBuildSlotBoxes(s32, s32, f32, f32, f32, f32, f32, f32, f32);
@@ -132,8 +136,23 @@ u8 actorSetTargetAngleAndCheck(s32, s16);
 #ifndef PROTO_SKIP_actorClearTargetAngle
 void actorClearTargetAngle(void);
 #endif
+#ifndef PROTO_SKIP_actorCheckTargetAngle
+u8 actorCheckTargetAngle(struct CollisionActor *, s16 *, s16 *, s8 *);
+#endif
+#ifndef PROTO_SKIP_actorQueueCollisionCallbacks
+void actorQueueCollisionCallbacks(struct CollisionActor *);
+#endif
+#ifndef PROTO_SKIP_actorCollideModelSlots
+u8 actorCollideModelSlots(struct CollisionActor *, s16 *, s16 *);
+#endif
 #ifndef PROTO_SKIP_actorBuildCollisionHit
 void actorBuildCollisionHit();
+#endif
+#ifndef PROTO_SKIP_actorReflectCollisionAngle
+void actorReflectCollisionAngle(struct CollisionActor *, struct CollisionPlane *, struct CollisionVec3i *);
+#endif
+#ifndef PROTO_SKIP_actorGetCollisionThreshold
+s32 actorGetCollisionThreshold(struct CollisionActor *);
 #endif
 #ifndef PROTO_SKIP_func_8066FE08
 void func_8066FE08(s32);
@@ -143,6 +162,9 @@ s32 actorResolveModelSlotCollision();
 #endif
 #ifndef PROTO_SKIP_actorCalcPlaneContactPoint
 void actorCalcPlaneContactPoint(struct ActorPlaneContactView *, s16, struct ActorHitPlane *);
+#endif
+#ifndef PROTO_SKIP_actorSetTargetAngleBounds
+void actorSetTargetAngleBounds(struct ActorTargetBounds *);
 #endif
 #ifndef PROTO_SKIP_actorCheckTargetAngleBounds
 s32 actorCheckTargetAngleBounds(struct ActorTargetWork *, s32, s32);

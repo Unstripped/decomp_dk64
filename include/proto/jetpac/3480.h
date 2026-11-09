@@ -3,6 +3,8 @@
 #define PROTO_JETPAC_3480_H
 #include "common.h"
 struct JetpacItem;
+struct JetpacLedge;
+struct JetpacPlayer;
 #ifndef PROTO_SKIP_jetpacRandSpawnX
 s32 jetpacRandSpawnX(void);
 #endif
@@ -12,14 +14,23 @@ s32 jetpacRandItemX(void);
 #ifndef PROTO_SKIP_jetpacItemOverlapsBox
 s32 jetpacItemOverlapsBox(struct JetpacItem *, f32, f32, f32, f32, s32);
 #endif
+#ifndef PROTO_SKIP_jetpacInitRocketParts
+void jetpacInitRocketParts(struct JetpacPlayer *);
+#endif
 #ifndef PROTO_SKIP_jetpacRocketItemUpdate
 void jetpacRocketItemUpdate(struct JetpacItem *);
 #endif
 #ifndef PROTO_SKIP_jetpacDrawItem
 void jetpacDrawItem(struct JetpacItem *, s32);
 #endif
+#ifndef PROTO_SKIP_jetpacSpawnBonusItem
+void jetpacSpawnBonusItem(struct JetpacPlayer *);
+#endif
 #ifndef PROTO_SKIP_jetpacBonusItemUpdate
 void jetpacBonusItemUpdate(struct JetpacItem *);
+#endif
+#ifndef PROTO_SKIP_jetpacSpawnFuelPod
+void jetpacSpawnFuelPod(struct JetpacPlayer *);
 #endif
 #ifndef PROTO_SKIP_jetpacBoxOverlapsItems
 s32 jetpacBoxOverlapsItems(f32, f32, f32, f32);
@@ -41,6 +52,12 @@ void jetpacPlaceRocketAboveScreen(void);
 #endif
 #ifndef PROTO_SKIP_jetpacDrawRocket
 void jetpacDrawRocket(void);
+#endif
+#ifndef PROTO_SKIP_jetpacSetRocketSpriteFrames
+void jetpacSetRocketSpriteFrames(struct JetpacPlayer *);
+#endif
+#ifndef PROTO_SKIP_jetpacInitLedge
+void jetpacInitLedge(struct JetpacLedge *, s32, s32, s32, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_jetpacInitLedges
 void jetpacInitLedges(void);

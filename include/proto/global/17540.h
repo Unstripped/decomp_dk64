@@ -2,4 +2,8 @@
 #ifndef PROTO_GLOBAL_17540_H
 #define PROTO_GLOBAL_17540_H
 #include "common.h"
+struct Vec3f;
+#ifndef PROTO_SKIP_vec3fSet
+void vec3fSet(struct Vec3f *, f32, f32, f32);
+#endif
 #endif

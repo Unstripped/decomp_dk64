@@ -2,6 +2,9 @@
 #ifndef PROTO_GLOBAL_140600_H
 #define PROTO_GLOBAL_140600_H
 #include "common.h"
+struct LpfNMBiquad;
+struct SynLPFilter;
+struct SynPVoiceInit;
 #ifndef PROTO_SKIP_n_alSynSetPitch
 void n_alSynSetPitch(ALVoice *, f32);
 #endif
@@ -11,10 +14,22 @@ void n_alSynSetPan(ALVoice *, f32);
 #ifndef PROTO_SKIP_n_alSynSetFXMix
 void n_alSynSetFXMix(ALVoice *, u8);
 #endif
+#ifndef PROTO_SKIP_computeBiquadCoefficients
+void computeBiquadCoefficients(f32, f32, f32, struct LpfNMBiquad *, struct LpfNMBiquad *);
+#endif
+#ifndef PROTO_SKIP__init_lpfilter
+void _init_lpfilter(struct SynLPFilter *);
+#endif
 #ifndef PROTO_SKIP_n_alSemitonesToPitchRatio
 f32 n_alSemitonesToPitchRatio(s32);
 #endif
+#ifndef PROTO_SKIP_rebuildLowPassCoefficients
+void rebuildLowPassCoefficients(struct SynLPFilter *, f32);
+#endif
 #ifndef PROTO_SKIP_n_alFxNew
 void n_alFxNew(void **, void *, s16, ALHeap *);
+#endif
+#ifndef PROTO_SKIP_alN_PVoiceNew
+void alN_PVoiceNew(struct SynPVoiceInit *, s32 (*)(void *), ALHeap *);
 #endif
 #endif

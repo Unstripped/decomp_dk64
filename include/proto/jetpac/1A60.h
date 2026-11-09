@@ -3,7 +3,11 @@
 #define PROTO_JETPAC_1A60_H
 #include "common.h"
 struct JetpacActor;
+struct JetpacExplosion;
 struct JetpacState;
+#ifndef PROTO_SKIP_jetpacUpdateExplosion
+void jetpacUpdateExplosion(struct JetpacExplosion *);
+#endif
 #ifndef PROTO_SKIP_jetpacGetAnimFrame
 s32 jetpacGetAnimFrame(struct JetpacActor *);
 #endif

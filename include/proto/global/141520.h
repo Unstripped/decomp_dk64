@@ -2,6 +2,7 @@
 #ifndef PROTO_GLOBAL_141520_H
 #define PROTO_GLOBAL_141520_H
 #include "common.h"
+struct SynFXFilter;
 #ifndef PROTO_SKIP_n_alSynSetVoiceUnkC
 void n_alSynSetVoiceUnkC(ALVoice *, u8);
 #endif
@@ -13,5 +14,8 @@ s32 n_alSynGetFXFeedback(s16);
 #endif
 #ifndef PROTO_SKIP_n_alSynSetFXParam
 void n_alSynSetFXParam(s32, s16, s32);
+#endif
+#ifndef PROTO_SKIP_n_alSynSetFXFilterParam
+void n_alSynSetFXFilterParam(struct SynFXFilter *, s16, s32 *);
 #endif
 #endif

@@ -2,11 +2,18 @@
 #ifndef PROTO_JETPAC_1460_H
 #define PROTO_JETPAC_1460_H
 #include "common.h"
+struct JetpacSprite;
 #ifndef PROTO_SKIP_jetpacInitGrid
 void jetpacInitGrid(void);
 #endif
+#ifndef PROTO_SKIP_jetpacGridAddSprite
+void jetpacGridAddSprite(struct JetpacSprite *, s32, s32, u8 *, s32);
+#endif
 #ifndef PROTO_SKIP_jetpacInitRdp
 void jetpacInitRdp(Gfx **);
+#endif
+#ifndef PROTO_SKIP_jetpacGridAddTiledSprite
+void jetpacGridAddTiledSprite(struct JetpacSprite *, s32, s32, u8 *, s32);
 #endif
 #ifndef PROTO_SKIP_jetpacGridDraw
 void jetpacGridDraw(Gfx **);

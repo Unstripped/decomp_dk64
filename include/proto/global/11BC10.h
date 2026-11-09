@@ -2,6 +2,47 @@
 #ifndef PROTO_GLOBAL_11BC10_H
 #define PROTO_GLOBAL_11BC10_H
 #include "common.h"
+struct ConfettiActorView;
+struct FallingEffectActorView;
+struct FollowParentActorView;
+struct GroundBounceActorView;
+struct MotionEffectActorView;
+struct OrbitEffectActorView;
+struct OrbitSourceActor;
+struct PulseFadeActorView;
+struct RadialSprayActorView;
+struct RotatingEffectActorView;
+struct SineScaleActorView;
+struct SparkSpawnActorView;
+struct TargetTrackingActorView;
+struct TimedEffectActorView;
+struct TimedLightActorView;
+struct TimedLightEffectActorView;
+struct WaveMotionActorView;
+#ifndef PROTO_SKIP_effectZRotationMatrixUpdate
+void effectZRotationMatrixUpdate(struct RotatingEffectActorView *, void *);
+#endif
+#ifndef PROTO_SKIP_effectZSpinMatrixUpdate
+void effectZSpinMatrixUpdate(struct RotatingEffectActorView *, void *);
+#endif
+#ifndef PROTO_SKIP_effectOrbitXZUpdate
+void effectOrbitXZUpdate(struct RotatingEffectActorView *, void *);
+#endif
+#ifndef PROTO_SKIP_effectPuffRiseUpdate
+void effectPuffRiseUpdate(struct RotatingEffectActorView *, void *);
+#endif
+#ifndef PROTO_SKIP_effectConfettiPhysicsUpdate
+void effectConfettiPhysicsUpdate(struct ConfettiActorView *, void *);
+#endif
+#ifndef PROTO_SKIP_effectTimerCountdownAlphaUpdate
+void effectTimerCountdownAlphaUpdate(struct RotatingEffectActorView *, u8 *);
+#endif
+#ifndef PROTO_SKIP_effectRandomDriftVelocityUpdate
+void effectRandomDriftVelocityUpdate(struct RotatingEffectActorView *, void *);
+#endif
+#ifndef PROTO_SKIP_func_80717930
+void func_80717930(struct OrbitEffectActorView *, void *);
+#endif
 #ifndef PROTO_SKIP_effectPlayerDistanceFadeUpdate
 void effectPlayerDistanceFadeUpdate();
 #endif
@@ -11,13 +52,229 @@ void func_80717CE8();
 #ifndef PROTO_SKIP_func_80717D4C
 void func_80717D4C();
 #endif
+#ifndef PROTO_SKIP_effectLinearFadeAlphaUpdate
+void effectLinearFadeAlphaUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectDriftXZUpdate
+void effectDriftXZUpdate(struct RotatingEffectActorView *, void *);
+#endif
 #ifndef PROTO_SKIP_effectShrinkOffsetUpdate
 void effectShrinkOffsetUpdate();
+#endif
+#ifndef PROTO_SKIP_effectShrinkAndVelocityUpdate
+void effectShrinkAndVelocityUpdate(struct TimedEffectActorView *);
 #endif
 #ifndef PROTO_SKIP_func_807180F4
 void func_807180F4(s32, s32);
 #endif
 #ifndef PROTO_SKIP_effectSpawnImpactPuff
 void effectSpawnImpactPuff(f32, f32, f32, f32);
+#endif
+#ifndef PROTO_SKIP_effectFallUpdate
+void effectFallUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectFadeOutMatrixUpdate
+void effectFadeOutMatrixUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectRandomYRotDecalUpdate
+void effectRandomYRotDecalUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectGroundDecalSpinUpdate
+void effectGroundDecalSpinUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectInterpolationUpdate
+void effectInterpolationUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectProjectileDriftUpdate
+void effectProjectileDriftUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectWobbleRiseUpdate
+void effectWobbleRiseUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectTumbleBounceUpdate
+void effectTumbleBounceUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectSpiralDriftMatrixUpdate
+void effectSpiralDriftMatrixUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectWobbleScaleUpdate
+void effectWobbleScaleUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectDecelerateDriftUpdate
+void effectDecelerateDriftUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_timedEffectCountdownTick
+void timedEffectCountdownTick(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectSpiralRiseUpdate
+void effectSpiralRiseUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectSpriteMotionUpdate
+void effectSpriteMotionUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectSpriteMatrixUpdate
+void effectSpriteMatrixUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectParticleArcUpdate
+void effectParticleArcUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectTimedLightIntensityFade
+void effectTimedLightIntensityFade(struct TimedLightActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_timedLightOrbitUpdate
+void timedLightOrbitUpdate(struct TimedLightActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectLightPulseOscillate
+void effectLightPulseOscillate(struct TimedLightActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectLightFlickerDecay
+void effectLightFlickerDecay(struct TimedLightActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectRadialSprayUpdate
+void effectRadialSprayUpdate(struct RadialSprayActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectFollowParentUpdate
+void effectFollowParentUpdate(struct FollowParentActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectDownwardDriftUpdate
+void effectDownwardDriftUpdate(struct MotionEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectUpwardDriftUpdate
+void effectUpwardDriftUpdate(struct MotionEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectSineHorizontalDriftUpdate
+void effectSineHorizontalDriftUpdate(struct MotionEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectSineDriftUpdate
+void effectSineDriftUpdate(struct MotionEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectGroundBounceUpdate
+void effectGroundBounceUpdate(struct GroundBounceActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectFadeRatioStepUpdate
+void effectFadeRatioStepUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectPuffExpandFadeUpdate
+void effectPuffExpandFadeUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectSparkSpawnUpdate
+void effectSparkSpawnUpdate(struct SparkSpawnActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectSpinBillboardingUpdate
+void effectSpinBillboardingUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_func_8071BC80
+void func_8071BC80(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectWaveMotionUpdate
+void effectWaveMotionUpdate(struct WaveMotionActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_timedLightPulse
+void timedLightPulse(struct PulseFadeActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectFallingSparkUpdate
+void effectFallingSparkUpdate(struct TimedEffectActorView *, u8 *);
+#endif
+#ifndef PROTO_SKIP_func_8071C48C
+void func_8071C48C(struct TimedLightEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_func_8071C620
+void func_8071C620(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectShrinkFadeMatrixUpdate
+void effectShrinkFadeMatrixUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectGrowExpandMatrixUpdate
+void effectGrowExpandMatrixUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectWispWanderUpdate
+void effectWispWanderUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectWispHomeUpdate
+void effectWispHomeUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectConvergeOnNodeUpdate
+void effectConvergeOnNodeUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectLifetimeCountdownUpdate
+void effectLifetimeCountdownUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectOrbitSourceUpdate
+void effectOrbitSourceUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectShockwaveRingUpdate
+void effectShockwaveRingUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectBallisticUpdate
+void effectBallisticUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectFallStateInit
+void effectFallStateInit(struct OrbitSourceActor *, struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectFloorFallUpdate
+void effectFloorFallUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectActorOrbitFollowUpdate
+void effectActorOrbitFollowUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_func_8071E028
+void func_8071E028(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_func_8071E110
+void func_8071E110(struct TimedEffectActorView *, u8, u16, f32, f32, s32);
+#endif
+#ifndef PROTO_SKIP_effectArcAroundActorUpdate
+void effectArcAroundActorUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectLightGrowShrinkUpdate
+void effectLightGrowShrinkUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectDecelDriftFadeUpdate
+void effectDecelDriftFadeUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectBurstParticleUpdate
+void effectBurstParticleUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectProximityFadeUpdate
+void effectProximityFadeUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_func_8071EDEC
+void func_8071EDEC(struct TargetTrackingActorView *, s32);
+#endif
+#ifndef PROTO_SKIP_func_8071EEA4
+void func_8071EEA4(struct TimedEffectActorView *, s32);
+#endif
+#ifndef PROTO_SKIP_effectScaleSpinUpdate
+void effectScaleSpinUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_func_8071EFDC
+void func_8071EFDC(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_func_8071F034
+void func_8071F034(struct TimedEffectActorView *, s32);
+#endif
+#ifndef PROTO_SKIP_effectScatterFallUpdate
+void effectScatterFallUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectCircleRiseFadeUpdate
+void effectCircleRiseFadeUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_func_8071F2F8
+void func_8071F2F8(struct FallingEffectActorView *, s32);
+#endif
+#ifndef PROTO_SKIP_func_8071F3C0
+void func_8071F3C0(struct FallingEffectActorView *, s32);
+#endif
+#ifndef PROTO_SKIP_effectSwayRiseUpdate
+void effectSwayRiseUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_func_8071F660
+void func_8071F660(struct SineScaleActorView *, void *);
+#endif
+#ifndef PROTO_SKIP_effectPulseSpinUpdate
+void effectPulseSpinUpdate(struct TimedEffectActorView *, s8 *);
+#endif
+#ifndef PROTO_SKIP_effectLerpPathUpdate
+void effectLerpPathUpdate(struct TimedEffectActorView *, s8 *);
 #endif
 #endif

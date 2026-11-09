@@ -10,10 +10,16 @@ struct CollisionBoxTriangleWork;
 struct CollisionBstFlatItem;
 struct CollisionBstNode;
 struct CollisionBstNodeBase;
+struct CollisionMeshHeader;
 struct CollisionMeshTriS;
 struct CollisionPlaneTriS;
+struct CollisionSlotActorView;
 struct CollisionTriF;
 struct CollisionTriS;
+struct CollisionVertexBoneRefs;
+#ifndef PROTO_SKIP_collisionBuildCellTable
+void collisionBuildCellTable(struct CollisionMeshHeader *);
+#endif
 #ifndef PROTO_SKIP_collisionSetQueryMode
 void collisionSetQueryMode();
 #endif
@@ -116,6 +122,9 @@ s32 collisionCheckTriangleXZBoundsS16(struct CollisionMeshTriS *, s32, s32);
 #ifndef PROTO_SKIP_collisionPointInTriangleXZS16
 s32 collisionPointInTriangleXZS16(s16 *, f32, f32);
 #endif
+#ifndef PROTO_SKIP_collisionTestDynamicActorFloor
+u8 collisionTestDynamicActorFloor(struct CollisionSlotActorView *, s32, f32, f32, f32, f32 *);
+#endif
 #ifndef PROTO_SKIP_collisionRecordTriangleF
 void collisionRecordTriangleF(struct CollisionTriF *, f32);
 #endif
@@ -154,6 +163,9 @@ s32 collisionTestActorBoxFloor(Actor *, f32, f32, f32, f32 *);
 #endif
 #ifndef PROTO_SKIP_collisionRecordBoxTriangle
 void collisionRecordBoxTriangle(void *, f32);
+#endif
+#ifndef PROTO_SKIP_collisionTransformPointToActorLocal
+void collisionTransformPointToActorLocal(s32, Actor *, struct CollisionVertexBoneRefs *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_collisionTransformPointByActorMtx
 void collisionTransformPointByActorMtx(Actor *, u32, f32 *, f32, f32 *);

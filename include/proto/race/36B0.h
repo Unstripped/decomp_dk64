@@ -2,14 +2,38 @@
 #ifndef PROTO_RACE_36B0_H
 #define PROTO_RACE_36B0_H
 #include "common.h"
+struct RaceActor;
+struct RaceCursor;
+struct RaceState;
+#ifndef PROTO_SKIP_raceGetWaypointDiff
+s32 raceGetWaypointDiff(s32, struct RaceCursor *, struct RaceCursor *);
+#endif
+#ifndef PROTO_SKIP_raceGetWaypointSegmentFraction
+f32 raceGetWaypointSegmentFraction(s32, struct RaceActor *, struct RaceCursor *);
+#endif
 #ifndef PROTO_SKIP_raceGetPathDistance
 f32 raceGetPathDistance(s32, u16, u16);
+#endif
+#ifndef PROTO_SKIP_raceGetPathDistanceBetweenRacers
+f32 raceGetPathDistanceBetweenRacers(struct RaceActor *, struct RaceCursor *, struct RaceActor *, struct RaceCursor *);
+#endif
+#ifndef PROTO_SKIP_raceChangeLaneRelative
+void raceChangeLaneRelative(struct RaceCursor *, s8);
+#endif
+#ifndef PROTO_SKIP_raceChangeLaneRandom
+void raceChangeLaneRandom(struct RaceCursor *);
+#endif
+#ifndef PROTO_SKIP_raceGetCompletionFraction
+f32 raceGetCompletionFraction(struct RaceCursor *, struct RaceState *, struct RaceState *);
 #endif
 #ifndef PROTO_SKIP_raceTriggerBoostParticles
 void raceTriggerBoostParticles(void);
 #endif
 #ifndef PROTO_SKIP_raceAiUpdateSpeedAndLane
 void raceAiUpdateSpeedAndLane(void);
+#endif
+#ifndef PROTO_SKIP_raceHandleCollisionRumble
+void raceHandleCollisionRumble(struct RaceCursor *);
 #endif
 #ifndef PROTO_SKIP_racePlayTireScreechSfx
 void racePlayTireScreechSfx(void);
@@ -22,6 +46,9 @@ void raceOpponentCarBehaviorUpdate(void);
 #endif
 #ifndef PROTO_SKIP_raceCameraBehaviorUpdate
 void raceCameraBehaviorUpdate(void);
+#endif
+#ifndef PROTO_SKIP_raceFindNearestWaypoint
+void raceFindNearestWaypoint(struct RaceCursor *);
 #endif
 #ifndef PROTO_SKIP_raceObstacleCarBehaviorUpdate
 void raceObstacleCarBehaviorUpdate(void);

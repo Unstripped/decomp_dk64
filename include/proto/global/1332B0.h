@@ -3,6 +3,7 @@
 #define PROTO_GLOBAL_1332B0_H
 #include "common.h"
 #include "actor.h"
+struct VolumeTrigger;
 #ifndef PROTO_SKIP_func_8072E5B0
 u8 func_8072E5B0(void);
 #endif
@@ -17,6 +18,9 @@ s32 actorFindActiveByType(s16, Actor **);
 #endif
 #ifndef PROTO_SKIP_volumeTriggerUpdateAll
 void volumeTriggerUpdateAll(void);
+#endif
+#ifndef PROTO_SKIP_volumeTriggerUpdate
+s32 volumeTriggerUpdate(struct VolumeTrigger *);
 #endif
 #ifndef PROTO_SKIP_volumeTriggerSetEnabled
 void volumeTriggerSetEnabled(s32, u8);

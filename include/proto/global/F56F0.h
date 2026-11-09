@@ -3,13 +3,20 @@
 #define PROTO_GLOBAL_F56F0_H
 #include "common.h"
 #include "actor.h"
+struct F5BAccel;
+struct F5BActor;
+struct F5BSlot;
 struct F5CEntry;
 struct F5COutput;
 struct F5CPlayerActor;
 struct F5CTurnActor;
 struct F5CTurnEntry;
+struct F5DDeferredEntry;
 struct F5L1Control;
+struct F5N1Predicate;
+struct F5N1Spring;
 struct F5N3TableEntry1768;
+struct F5N4Coord;
 struct F5N5CameraActor;
 struct F5N5CameraEntry;
 struct F5N5EffectState;
@@ -67,8 +74,32 @@ void playerWeaponCalculateTrajectory7(s32, struct F5N3TableEntry1768 *, s32 *);
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory4
 void playerWeaponCalculateTrajectory4(s32, struct F5N3TableEntry1768 *, s32 *);
 #endif
+#ifndef PROTO_SKIP_playerWeaponCalculateTrajectory22
+void playerWeaponCalculateTrajectory22(s32, struct F5BSlot *, s32 *);
+#endif
+#ifndef PROTO_SKIP_playerWeaponCalculateTrajectory23
+void playerWeaponCalculateTrajectory23(s32, struct F5BSlot *, s32 *);
+#endif
+#ifndef PROTO_SKIP_playerWeaponCalculateTrajectory24
+void playerWeaponCalculateTrajectory24(f32, f32, struct F5N1Spring *, f32 *);
+#endif
+#ifndef PROTO_SKIP_playerWeaponCalculateTrajectory25
+f32 playerWeaponCalculateTrajectory25(struct F5BActor *, struct F5BAccel *, f32);
+#endif
+#ifndef PROTO_SKIP_playerWeaponCalculateTrajectory26
+s32 playerWeaponCalculateTrajectory26(struct F5BActor *, struct F5N1Predicate *, s32);
+#endif
 #ifndef PROTO_SKIP_mathAngleRadDeltaTurns
 f32 mathAngleRadDeltaTurns(f32 *, f32);
+#endif
+#ifndef PROTO_SKIP_playerWeaponAimTarget
+void playerWeaponAimTarget(Actor *, struct F5BSlot *, s32 *);
+#endif
+#ifndef PROTO_SKIP_playerWeaponSpawnProjectile
+void playerWeaponSpawnProjectile(Actor *, struct F5BSlot *, s32 *);
+#endif
+#ifndef PROTO_SKIP_playerWeaponInitCrosshair
+void playerWeaponInitCrosshair(Actor *, struct F5BSlot *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCrosshairUpdate
 void playerWeaponCrosshairUpdate(struct F5N5CameraActor *, struct F5N5CameraEntry *, s32 *);
@@ -91,8 +122,14 @@ void playerWeaponSpawnMuzzleFlash(Actor *, u16);
 #ifndef PROTO_SKIP_playerWaypointPathsLoad
 void playerWaypointPathsLoad(s16);
 #endif
+#ifndef PROTO_SKIP_actorSetPositionAndFacingAngle
+void actorSetPositionAndFacingAngle(Actor *, struct F5N4Coord *);
+#endif
 #ifndef PROTO_SKIP_playerWaypointPathStart
 void playerWaypointPathStart(u8, s32, s32, s16, u8);
+#endif
+#ifndef PROTO_SKIP_deferredEntryFree
+void deferredEntryFree(struct F5DDeferredEntry *);
 #endif
 #ifndef PROTO_SKIP_playerWaypointPathStartPacked
 void playerWaypointPathStartPacked(s32, s32, s16, s16);

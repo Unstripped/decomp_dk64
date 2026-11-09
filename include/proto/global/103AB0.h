@@ -3,6 +3,7 @@
 #define PROTO_GLOBAL_103AB0_H
 #include "common.h"
 #include "actor.h"
+struct VtxColorView;
 #ifndef PROTO_SKIP_playerViewGfxSetup
 Gfx *playerViewGfxSetup(Gfx *, u8);
 #endif
@@ -107,6 +108,12 @@ void vtxGradientSetColorA(s8, s8, s8);
 #endif
 #ifndef PROTO_SKIP_vtxGradientSetColorB
 void vtxGradientSetColorB(s8, s8, s8);
+#endif
+#ifndef PROTO_SKIP_vtxSetColor
+void vtxSetColor(struct VtxColorView *, u8, u8, u8, u8, u8);
+#endif
+#ifndef PROTO_SKIP_vtxSetQuadGradientColors
+void vtxSetQuadGradientColors(struct VtxColorView *, u8, u8);
 #endif
 #ifndef PROTO_SKIP_vtxSetPosTex
 void vtxSetPosTex(s16 *, s16, s16, s16, s16, u8);

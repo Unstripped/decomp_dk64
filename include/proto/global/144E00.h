@@ -2,10 +2,14 @@
 #ifndef PROTO_GLOBAL_144E00_H
 #define PROTO_GLOBAL_144E00_H
 #include "common.h"
+struct AdpcmFilter;
 struct AdpcmNMAcmd;
 struct AdpcmNMLoadFilter;
 struct DecodeFilter;
 struct DecodeWave;
+#ifndef PROTO_SKIP_n_alAdpcmPull
+struct AdpcmNMAcmd *n_alAdpcmPull(struct AdpcmFilter *, s16 *, s32, struct AdpcmNMAcmd *);
+#endif
 #ifndef PROTO_SKIP__decodeChunk
 void _decodeChunk(struct DecodeFilter *, s32, struct DecodeWave *);
 #endif

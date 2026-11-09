@@ -2,6 +2,7 @@
 #ifndef PROTO_JETPAC_3060_H
 #define PROTO_JETPAC_3060_H
 #include "common.h"
+struct JetpacEntity;
 #ifndef PROTO_SKIP_jetpacCheckAabbOverlap
 u32 jetpacCheckAabbOverlap(f32, f32, f32, f32, f32, f32, f32, f32);
 #endif
@@ -16,6 +17,12 @@ int jetpacCheckAabbOverlapWrapped(f32, f32, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_jetpacIsOverRocket
 int jetpacIsOverRocket(f32);
+#endif
+#ifndef PROTO_SKIP_jetpacGetEntityCenterX
+f32 jetpacGetEntityCenterX(struct JetpacEntity *);
+#endif
+#ifndef PROTO_SKIP_jetpacGetEntityCenterY
+f32 jetpacGetEntityCenterY(struct JetpacEntity *);
 #endif
 #ifndef PROTO_SKIP_jetpacRoundFloat
 f32 jetpacRoundFloat(f32);

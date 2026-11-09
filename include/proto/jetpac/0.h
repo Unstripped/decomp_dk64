@@ -2,6 +2,7 @@
 #ifndef PROTO_JETPAC_0_H
 #define PROTO_JETPAC_0_H
 #include "common.h"
+struct JetpacPlayer;
 #ifndef PROTO_SKIP_jetpacRunFrame
 void jetpacRunFrame(void);
 #endif
@@ -55,5 +56,8 @@ void jetpacStartStage(void);
 #endif
 #ifndef PROTO_SKIP_jetpacUpdateStateAndInput
 void jetpacUpdateStateAndInput(s32);
+#endif
+#ifndef PROTO_SKIP_jetpacNextPlayerOrGameOver
+void jetpacNextPlayerOrGameOver(struct JetpacPlayer *);
 #endif
 #endif

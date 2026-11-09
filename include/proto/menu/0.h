@@ -2,6 +2,7 @@
 #ifndef PROTO_MENU_0_H
 #define PROTO_MENU_0_H
 #include "common.h"
+struct MenuRenderActor;
 struct MenuStruct_80024000;
 #ifndef PROTO_SKIP_menuPlaySoundFromTable
 void menuPlaySoundFromTable(struct MenuStruct_80024000 *);
@@ -21,6 +22,9 @@ void menuMainStateStep(struct MenuStruct_80024000 *, s32);
 #ifndef PROTO_SKIP_menuTransitionStep
 void menuTransitionStep();
 #endif
+#ifndef PROTO_SKIP_menuDrawOptionsOverlay
+Gfx *menuDrawOptionsOverlay(Gfx *, struct MenuRenderActor *);
+#endif
 #ifndef PROTO_SKIP_menuUpdateOptionsState
 void menuUpdateOptionsState(struct MenuStruct_80024000 *);
 #endif
@@ -32,6 +36,9 @@ void menuDispatchAction(void);
 #endif
 #ifndef PROTO_SKIP_menuUpdateProgressGrid
 void menuUpdateProgressGrid(void);
+#endif
+#ifndef PROTO_SKIP_menuDrawProgressGrid
+Gfx *menuDrawProgressGrid(Gfx *, struct MenuRenderActor *);
 #endif
 #ifndef PROTO_SKIP_menuProgressGridNoop
 void menuProgressGridNoop(void);

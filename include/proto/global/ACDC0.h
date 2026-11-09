@@ -4,6 +4,7 @@
 #include "common.h"
 #include "actor.h"
 struct HudEntry;
+struct HudIconObj;
 #ifndef PROTO_SKIP_hudFindItemIndex
 s32 hudFindItemIndex(s8);
 #endif
@@ -45,6 +46,9 @@ void hudPauseMenuRefreshTotals(void);
 #endif
 #ifndef PROTO_SKIP_hudDrawDimOverlay
 Gfx *hudDrawDimOverlay(Gfx *, Actor *);
+#endif
+#ifndef PROTO_SKIP_hudPauseMenuIconUpdate
+void hudPauseMenuIconUpdate(struct HudIconObj *, s8 *);
 #endif
 #ifndef PROTO_SKIP_hudDrawTextScreen
 Gfx *hudDrawTextScreen(Gfx *, Actor *);
