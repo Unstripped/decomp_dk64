@@ -122,7 +122,7 @@ s32 actorInitStaticMeshFlag(s32);
 void actorListUpdateSpawns(void);
 void actorListRemoveByActor(void);
 void playerStateDispatchQueuedCallback(void);
-void faultSetMessage(s32, s32, s32, s32);
+void faultSetMessage(u8, s32, s32, s32);
 void heapFree(void *);
 
 typedef struct Struct807FB630 {
@@ -155,7 +155,7 @@ extern void *gActorScriptAnimTable;
 extern void *gActorScriptSoundTable;
 extern s32 D_807FBB38;
 
-void *assetLoad(s32, s32, s32, s32);
+void *assetLoad(s32, u32, u8, u8);
 
 void actorInit(void) {
     u16 i;
@@ -448,7 +448,7 @@ void actorRegisterActive(Actor *arg0) {
     gActiveActorCount++;
 }
 
-void sfxStopSlotSound(Actor *, s32);
+void sfxStopSlotSound(Actor *, u8);
 void func_8062D26C(Actor *);
 void actorDeregisterActive(Actor *arg0) {
     s16 i;
@@ -750,7 +750,7 @@ void actorUpdatePeakHeight(Actor *actor) {
 
 u8 actorClearTargetAngle();
 extern u8 D_807FBC55;
-void playerStateQueueCallback(s32, s32, u8);
+s32 playerStateQueueCallback(s16, void *, u8);
 extern u8 gCurrentPlayerIndex;
 
 void actorUpdateArcBounds(Actor *actor) {
@@ -1373,9 +1373,9 @@ void effectSpawnBurstParticleCluster(Actor *);
 s32 func_80714608(s32);
 u8 playerIsSmallerThanAttacker(Actor *, Actor *);
 void effectSetDuration(s32);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void effectSetCallback(void *);
-s32 effectCreateAtActorBone(void *, s32, Actor *, s32, s32);
+s32 effectCreateAtActorBone(void *, s32, Actor *, s32, s32); // FAKE: callee prototype steer
 void effectPulseSpinUpdate(void);
 void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
     s32 sp3C;
@@ -1542,7 +1542,7 @@ typedef struct ActorCollisionState {
 
 s32 actorCollisionGetNodeHitPoint(Actor *, s32, f32 *, f32 *);
 void collisionTransformPointByActorMtx(Actor *, u32, f32 *, f32, f32 *);
-void actorCollisionResolveSurfaceHit(Actor *, s32, void *, void *, s32, s32, s32, s32);
+void actorCollisionResolveSurfaceHit(Actor *, Actor *, f32 *, f32 *, s8, s32, s32, u8);
 void playerDropHeldActor(Actor *);
 
 void actorDispatchCollisionResults(Actor *arg0) {
