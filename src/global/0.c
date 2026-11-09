@@ -138,7 +138,7 @@ void mainThreadHalt(OSMesgQueue *queue, s32 haltCode) {
     D_80744460 = 1;
     audioThreadStop(1);
     osStopThread(&D_80761430);
-    p = &D_807655E8; // FAKE: keeps the D_807655E8 address web split so IDO does not hoist it into $s0
+    p = &D_807655E8;
     osSetThreadPri(NULL, 0xB);
     D_807655E8 = osGetTime();
     while (osGetTime() < *(q = p) + 0x22ADD7) { // FAKE: second pointer copy, see above
