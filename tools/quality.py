@@ -1088,10 +1088,13 @@ def carry_lines(fns, fn, nlines):
 
 def top_index(tu):
     """name -> top-level cursors of the TU (main file and headers) declaring it: declarations,
-    typedefs, record/enum tags, enum constants (their enum), macro definitions."""
+    typedefs, record/enum definitions (forward `struct T;` lines change no layout and are left
+    out), enum constants (their enum), macro definitions."""
     idx = collections.defaultdict(list)
     for c in tu.cursor.get_children():
         if c.location.file is None or c.kind in (CursorKind.MACRO_INSTANTIATION, CursorKind.INCLUSION_DIRECTIVE):
+            continue
+        if c.kind in (CursorKind.STRUCT_DECL, CursorKind.UNION_DECL, CursorKind.ENUM_DECL) and not c.is_definition():
             continue
         if c.spelling and re.fullmatch(r"\w+", c.spelling):
             idx[c.spelling].append(c)
@@ -1121,7 +1124,7 @@ def scope_closure(idx, toks):
             dt = decl_tokens(c)
             vals.append((rel(os.path.join(ROOT, c.location.file.name)), " ".join(t.spelling for t in dt)))
             stack += [t.spelling for t in dt if t.kind == TokenKind.IDENTIFIER]
-        seen[name] = sorted(vals)
+        seen[name] = sorted(set(vals))
     return seen
 
 
