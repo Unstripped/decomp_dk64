@@ -1,13 +1,13 @@
 #include "common.h"
+#include "proto/boot/30E0.h"
+#include "proto/global/15050.h"
+#include "proto/global/FE40.h"
 
 
 extern s8 D_80746834;
 extern OSMesgQueue D_807655F0;
 extern OSIoMesg D_807ECE00;
 extern void *D_807ECE18;
-void *heapAlloc(s32);
-void heapFree(void *);
-void gunzip(void *, void *, void *);
 void func_80002790(void *, void *, void *, s32);
 
 void dmaReadAssetDecompress(u32 romAddr, void *dst, s32 *sizePtr, u8 decompressFlag1, u8 decompressFlag2, u8 compressType, void *scratchBuf) {
