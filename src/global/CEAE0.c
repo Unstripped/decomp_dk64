@@ -2836,7 +2836,7 @@ extern s16 D_807538C8[];
 extern s16 D_8075387C[];
 extern s16 D_807538B8[];
 
-void playerClampWaterSurfaceHeight(s32 unused) {
+void playerClampWaterSurfaceHeight(Actor *unused) {
     f32 height;
     f32 limit;
     s32 pad[1];

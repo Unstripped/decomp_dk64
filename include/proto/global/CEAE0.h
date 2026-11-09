@@ -270,7 +270,7 @@ void actorChildEffectUpdate(void);
 u8 playerIsSmallerThanAttacker(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_playerClampWaterSurfaceHeight
-void playerClampWaterSurfaceHeight(s32);
+void playerClampWaterSurfaceHeight(Actor *);
 #endif
 #ifndef PROTO_SKIP_mathAngleFromVector2D
 s16 mathAngleFromVector2D(f32, f32);

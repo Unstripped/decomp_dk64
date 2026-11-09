@@ -5,7 +5,6 @@
 #define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_playerApplyGravityAndMotion // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
-#define PROTO_SKIP_playerClampWaterSurfaceHeight // FAKE: callee prototype steer
 #define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/103AB0.h"
@@ -2698,7 +2697,6 @@ void playerStateSurfaceSwimStroke(void) {
 
 extern s16 D_80753A88[];
 extern f32 D_80753AE0[];
-void playerClampWaterSurfaceHeight(void *); // FAKE: callee prototype steer
 
 void playerStateSurfaceTreadWater(void) {
     f32 t;
