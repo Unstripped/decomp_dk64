@@ -8,7 +8,7 @@ u8 D_807EDEA8[4];
 s32 D_807EDEAC;
 extern u8 D_807467C8;
 
-extern s32 modelTypeCountGet(s32);
+extern s32 modelTypeCountGet(s32);  // FAKE: callee prototype steer
 
 void func_8060B7F0(void) {
     s32 temp_v0;
@@ -785,7 +785,7 @@ void eepromSaveRecordsOffset(void) {
     eepromSaveRecords(1);
 }
 
-extern s32 flagGet(s32, s32);
+extern u8 flagGet(s16, u8);
 extern s32 func_806F6EDC(void);
 extern s32 slotQueueGetMaxValue(s32, s32);
 extern u8 gPlayerInventoryTable[];
@@ -824,7 +824,7 @@ void eepromHalveRecords(void) {
 extern void collectibleCountsClear(void);
 extern void eepromCopySlot(void);
 extern void playerResetSpawnGlobals(void);
-extern void healthRefill(s32);
+extern void healthRefill(u8);
 extern u8 gActivePlayerCount;
 extern s32 D_80750AB0;
 extern u16 gLevelCollectibleCounts[];
