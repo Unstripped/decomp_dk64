@@ -171,7 +171,7 @@ typedef struct {
     u8 active;
 } RaceC_Arg0;
 
-s32 flagGet(s16, s32);
+u8 flagGet(s16, u8);
 extern u16 D_80750AC4;
 
 int raceCheckCoinRequirement(RaceC_Arg0 *controller, RaceC_Arg1 *config) {
@@ -301,16 +301,16 @@ extern s32 D_8002FB94[];
 
 void actorApplyGravity(void);
 void actorApplyVelocity(void *);
-void actorApproachTargetSpeed(s32);
+void actorApproachTargetSpeed(u16);
 void actorSetTargetSpeed(void *, s32);
 void actorStepPhysics(void *, s16, s16);
 void actorUpdateModelMatrix(void *, s32);
 void behaviourFrameBegin(void *);
 void camResumePath(void);
-s32 camStartPath(void *, s16, s32);
+u16 camStartPath(void *, s16, u8);
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
-void flagSet(s16, s32, s32);
+void flagSet(s16, u8, u8);
 void raceSetIntroCutscenePhase(void *);
 s32 raceCheckLapCompletionThreshold(void *, s32, s32);
 void raceUpdateLapAndWaypointTracker(void *);
@@ -320,13 +320,13 @@ f32 sqrtf(f32);
 void actorUpdateFloorContactAndTilt(void *, f32);
 void billboardSubmit(void *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 s32 playerIsDamageOrKnockbackState(void);
-void hudSpawnTextScreen(s32);
-s32 mathAngleStepToward(s16 *, s16, s32);
-void playerStateQueueCallback(s16, void *, u8);
+void hudSpawnTextScreen(u8);
+s32 mathAngleStepToward(s16 *, s16, s32);  // FAKE: callee prototype steer
+s32 playerStateQueueCallback(s16, void *, u8);
 void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
 s32 sfxStopSlotSound(void *, s32);
 void slotQueueCancel(s32, s32);
-void slotQueueUpdate(s32, s32, s32);
+void slotQueueUpdate(s32, u8, s32);
 
 void raceOpponentBehaviourUpdate(void) {
     f32 dx;
