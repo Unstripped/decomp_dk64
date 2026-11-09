@@ -503,7 +503,6 @@ void pathFindClosestPoint(s32 pathId, f32 x, f32 y, f32 z, s32 *outPointIndex, f
     f32 d;
     s32 bestIdx;
     s32 i;
-    s32 end;
 
     best = 999999.0f;
     frac = 0.0f;
@@ -517,15 +516,12 @@ void pathFindClosestPoint(s32 pathId, f32 x, f32 y, f32 z, s32 *outPointIndex, f
             best = d;
         }
     }
-    end = bestIdx;
     if (bestIdx - 1 < 0) {
         i = 0;
     } else {
         i = bestIdx - 1;
     }
-    end++;
-    goto fake_label; fake_label: ; // FAKE: block boundary before refinement loop (register/scheduling steer)
-    while (i <= end) {
+    while (i <= bestIdx + 1) {
         d = pathSplineDistance(pathId, x, y, z, i, frac);
         if (d < best) {
             *outPointIndex = i;
