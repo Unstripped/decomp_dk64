@@ -159,7 +159,7 @@ extern BillboardData gBillboardQueue[16];
 extern u8 gGfxBufferIndex;
 
 void billboardSetVertex(s16 *, s16, s16, s16, s16);
-void *assetLoad(s32, s32, s32, s32);
+void *assetLoad(s32, s32, s32, s32); // FAKE: callee prototype steer
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 #define ACTOR_FIELD(T, off) (*(T *)((u8 *)actor + (off)))
 
