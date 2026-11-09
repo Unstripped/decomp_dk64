@@ -114,7 +114,7 @@ void csCmdSpawnSparksAtNodes(CsState *cs, s16 csId, s16 b, s16 c) {
 
     type = gModelSlots[(s16)hashTableLookup(csId)].anim->type;
     if (type == 0xD || type == 0x15 || type == 0x19) {
-        for (i = 1; i != 0xF; i++) {
+        for (i = 1; i < 15; i++) {
             modelSlotGetNodePos(csId, 1, i, &x, &y, &z);
             effectSetDepth(1);
             effectSetMode(2);
@@ -3003,9 +3003,9 @@ s32 csCondDepositItem(CsState *cs, s16 csId, s16 b, s16 c) {
     if (idx < 0) {
         return 0;
     }
-    if (slotQueueGetValue(1, (u8)idx)) {
-        slotQueueAddValue(7, (u8)idx, 1);
-        q = (f32)slotQueueGetValue(7, (u8)idx) / (f32)D_807552F0;
+    if (slotQueueGetValue(1, idx)) {
+        slotQueueAddValue(7, idx, 1);
+        q = (f32)slotQueueGetValue(7, idx) / (f32)D_807552F0;
         q = (f32)0.5 * q + 0.5f;
         sfxPlayOnFreeSlot(0x2A1, 0x7FFF, 63.0f, q, 5, 0);
         return 1;
