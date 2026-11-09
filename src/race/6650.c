@@ -272,7 +272,7 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
     f32 velX;
     f32 velZ;
     f32 forwardAccel;
-    volatile u8 onGround; // FAKE: keeps onGround in its stack slot (reloaded after calls)
+    u8 onGround;
     s16 a1;
     s16 targetTilt;
     s16 a3;
@@ -322,7 +322,7 @@ void raceUpdateRacerMotion(Struct_sp58 *racerState) {
     velZ += mathCosF(a1) * forwardAccel;
     gCurrentActor->unkB8 = sqrtf((velX * velX) + (velZ * velZ));
     gCurrentActor->unkEE = (s16)(s32)(mathAtan2(velX, velZ) * 651.8986f);
-    if (onGround != 0) {
+    if (onGround) {
         pitchAngle = 0x400 - gCurrentActor->unkDE;
         signedDist = mathAngleSignedDistance(gCurrentActor->unkDC, gCurrentActor->unkE6);
         tiltScale = (f32)pitchAngle;
