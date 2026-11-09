@@ -823,7 +823,7 @@ s32 csCondEval(CsCmd *cmd, CsState *cs, s16 csId) {
         ret = 1;
         break;
     case 0x3D:
-        ret = *(u8 *)&D_807F6903;
+        ret = D_807F6903;
         break;
     case 0x3C:
         ret = cmd->a == CS_COND_PLAYER->unk290;
