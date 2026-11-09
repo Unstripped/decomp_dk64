@@ -256,15 +256,14 @@ void controllerSetCommand(ControllerCommandOwner *owner, s32 commandIndex, Contr
     ControllerCommand *commands;
     ControllerCommand *destination;
 
+    if (owner->unk60 & 0x10) {
+        return;
+    }
     arg2_words = &command->unk0;
-    if (!(owner->unk60 & 0x10)) {
-        goto command_lookup;
-command_lookup:
-        commands = owner->unk0->unk4->unk0;
-        destination = commands + commandIndex;
-        if ((destination->unk0 != *arg2_words) || (command->unk4 != destination->unk4)) {
-            memcpy(destination, command, 8);
-        }
+    commands = owner->unk0->unk4->unk0;
+    destination = commands + commandIndex;
+    if ((destination->unk0 != *arg2_words) || (command->unk4 != destination->unk4)) {
+        memcpy(destination, command, 8);
     }
 }
 
