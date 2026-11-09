@@ -348,10 +348,10 @@ void meshApplyAnimation(void *arg0, s32 arg1, s32 frame) {
     if (i && i) {}
 
     idx = 0;
-    while (ANIM_TABLE->entries[idx].kind != 0) {
+    for (; ANIM_TABLE->entries[idx].kind != 0; idx++) {
         end = frame;
         if (frame < ANIM_TABLE->entries[idx].start) {
-            goto next;
+            continue;
         }
         kindv = ANIM_TABLE->entries[idx].kind;
         if (i && i) {}
@@ -396,8 +396,6 @@ void meshApplyAnimation(void *arg0, s32 arg1, s32 frame) {
             ANIM_MODEL->vertices[sidx].z = ANIM_MODEL->vertices[didx].z;
             break;
         }
-next:
-        idx++;
     }
 }
 
