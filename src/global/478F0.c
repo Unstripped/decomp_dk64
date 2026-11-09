@@ -16,14 +16,14 @@ s32 randomLcgNext(void);
 void effectSetSpeed(s32);
 void effectSetCallback(void *);
 void func_80717D4C(void);
-void effectSetMode(u8);
-void effectSetDepth(u8);
-void effectSetColor(s32, s32, s32, s32);
-void effectCreateAtModelNode(void *, f32, s32, s32, s32);
+void effectSetMode(u8);  // FAKE: callee prototype steer
+void effectSetDepth(u8);  // FAKE: callee prototype steer
+void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
+void effectCreateAtModelNode(void *, f32, s32, s32, s32);  // FAKE: callee prototype steer
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 void *heapAlloc(s32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-u8 collisionCheckGroundAtPoint(f32, f32, f32 *);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
+u8 collisionCheckGroundAtPoint(f32, f32, f32 *);  // FAKE: callee prototype steer
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 extern u32 gFrameCounter;
@@ -31,7 +31,7 @@ typedef struct CsPoint3f {
     f32 x, y, z;
 } CsPoint3f;
 extern CsPoint3f **D_807F5FD4;
-void lightSetRadius(s32);
+void lightSetRadius(s16);
 
 
 void csCmdSpawnFixedNodeEffects(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -402,8 +402,8 @@ typedef struct {
 
 void sfxSlotFreeSource(s16);
 void modelSlotSetNodeFrame(s32, s16, s32, s32);
-void sfxPlayFromTargetSlot(s16, s32, s32, s32, s32, s32, f32);
-s16 sfxSlotAllocateSource(s16, s32, s32, u8, s32, f32, s32);
+void sfxPlayFromTargetSlot(s16, s16, u8, u8, u8, u8, f32);
+u8 sfxSlotAllocateSource(s16, s16, u8, u8, u8, f32, s8);
 
 void csCmdPeriodicSfxAlloc(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSfxState *q;
@@ -518,9 +518,9 @@ extern f32 D_80770DD4;
 
 s32 randomNonNegative(void);
 void sfxPlayWithRandomPan(s32, u8, s32, s32, s32);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void func_80711410(f32, s32, f32, s32, f32);
-void lightSetColor(f32, f32, f32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
+void func_80711410(f32, s16, f32, s16, f32);
+void lightSetColor(f32, f32, f32, s16);
 
 void csCmdStormLightningRain(CsState *arg0, s16 arg1, s16 arg2, s16 arg3) {
     CsFlicker *f;
@@ -818,8 +818,8 @@ typedef struct CsFloatPair {
     f32 b;
 } CsFloatPair;
 
-void effectSetMaxDistance(s32);
-void func_805FF9AC(s32, s32, s32, s32);
+void effectSetMaxDistance(s16);
+void func_805FF9AC(s32, s32, s32, s16);
 extern u8 D_80720BC4[];
 void effectLightGrowShrinkUpdate(void);
 
@@ -905,8 +905,8 @@ void csCmdPeriodicSfx(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void lightSetTargetId(s32);
-void lightSetFlags(s32);
+void lightSetTargetId(s16);
+void lightSetFlags(u8);
 
 void csCmdNodeTargetLights(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x;
@@ -1065,11 +1065,11 @@ extern s32 D_80748110;
 extern s32 D_80748114;
 extern f32 D_807480F0;
 f32 sqrtf(f32);
-s32 flagGet(s32, s32);
-void flagSet(s32, s32, s32);
+u8 flagGet(s16, u8);
+void flagSet(s32, s32, s32);  // FAKE: callee prototype steer
 void sfxStopChannel(s32, s32);
 void sfxAllocateChannel(s32, f32);
-void camStartPath(void *, s32, s32);
+u16 camStartPath(void *, s16, u8);
 void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
 Actor *spawnNodeActivate(s16, u16);
 
@@ -1951,8 +1951,8 @@ extern s32 gCurrentMap;
 extern s16 D_807F7366;
 extern f32 D_807F6940;
 void sfxSetChannelPriority(u8, u8);
-void renderScrollingBackdropQuad(void);
-void renderCallbacksRegister(void *, void *, s32);
+Gfx * renderScrollingBackdropQuad(Gfx *, f32 *);
+void renderCallbacksRegister(void *, void *, u8);
 
 void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
     CsFade *q;
@@ -2052,7 +2052,6 @@ extern s16 D_80744710[];
 extern s8 D_80748170[];
 extern s8 D_80748178;
 extern s16 D_807505AE[];
-s32 flagGet(s32, s32);
 u8 mapGetHubWorldIndex(u8, u8);
 u8 mapHasCollectedSufficientItems(void);
 
@@ -2424,7 +2423,7 @@ typedef struct CsCountdown {
 extern u64 D_807445B0;
 extern u64 osGetTime(void);
 void heapFreeDeferred(void *);
-void renderCountdownTimerHUD(void);
+Gfx * renderCountdownTimerHUD(Gfx *, CsCountdown *);
 
 void csCmdCountdownTimer(CsState *cs, s16 csId, s16 b, s16 c) {
     CsCountdown *t;
@@ -2533,7 +2532,7 @@ extern f32 D_80770BC0[];
 void modelAnimEntryGetState(s16, s16, s16 *, f32 *, u8 *);
 void modelAnimEntrySetUnkC(s16, s16, s16);
 void modelAnimEntrySetTime(s16, s16, s16, f32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 
 void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 u1; /* unused: reserves frame slots */
@@ -3125,7 +3124,7 @@ void csCondWorldHubFlagSet(CsState *cs, s16 csId, s16 b, s16 c) {
     flagGet(D_80744710[idx], 0);
 }
 
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 mathAngleDistance(s16, s16);
 
 s32 csCondActorFacingPos(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -3162,7 +3161,7 @@ s32 csFindPlayerSlotByModel(s32 a, s32 b) {
 }
 
 void modelSlotGetTransformVectors();
-void actorAppendCallbackPayloadABC0(s32, void *, s32, s16, s32, f32, f32, f32);
+void actorAppendCallbackPayloadABC0(s32, Actor *, u8, s16, s16, f32, f32, f32);
 
 s32 csCondFindPlayerSlotByModel(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 x, y, z;
@@ -3192,7 +3191,7 @@ s32 csCondTransitionState5(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 extern s32 D_807552F0;
-s32 slotQueueGetValue(s32, u8);
+s32 slotQueueGetValue(s32, u8);  // FAKE: callee prototype steer
 void slotQueueAddValue(s32, u8, s16);
 
 s32 csCondDepositItem(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -3262,7 +3261,7 @@ void csCmdRotXAdjust(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
+void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
 
 void csCmdSpawnFourNodeEntries(CsState *cs, s16 csId, s16 b, s16 c) {
     actorSpawnNodeEntryScaled(0x2F, gCsPosX, gCsPosY + 15.0f, gCsPosZ, 0, 1, -1, 0);
@@ -4137,7 +4136,7 @@ void csCmdSpawnBurstColoredLights(CsState *cs, s16 csId, s16 b, s16 c) {
     }
 }
 
-void flagSet(s32, s32, s32);
+void flagSet(s32, s32, s32);  // FAKE: callee prototype steer
 
 void csCmdSlotQueuePurchaseFlag(CsState *cs, s16 csId, s16 b, s16 c) {
     if (slotQueueGetValue(1, 0) >= 2) {
@@ -4263,8 +4262,8 @@ typedef struct CsEffView {
     /* 0x368 */ u8 pad368[0x1C];
     /* 0x384 */ CsEffState *unk384;
 } CsEffView;
-s32 camIsPathPaused(void);
-s32 camIsCutsceneActive(void);
+u8 camIsPathPaused(void);
+u8 camIsCutsceneActive(void);
 extern s8 D_807F6950;
 extern s8 D_807F6951;
 
@@ -4316,7 +4315,6 @@ void csEffectUpdateAlphaState(CsEffView *e, u8 *flag) {
     e->unk364 = e->unk360;
 }
 
-void camStartPath(void *, s32, s32);
 void sfxAllocateChannel(s32, f32);
 extern u8 D_80721530[];
 
@@ -4405,7 +4403,7 @@ u8 csCondKongHasHubItems(CsState *cs, s16 csId, s16 b, s16 c) {
     return p->e[(&gPlayerCharacterId)[gCurrentPlayerIndex]].v[idx] > 0;
 }
 
-s32 flagCountRange(s32, s32, s32);
+s32 flagCountRange(s32, s32, u8);
 
 u8 csCondCountFlags261Ge4(CsState *cs, s16 csId, s16 b, s16 c) {
     return flagCountRange(0x261, 0xA, 0) >= 4;
