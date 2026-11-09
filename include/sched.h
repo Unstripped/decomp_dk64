@@ -60,7 +60,8 @@ struct Actor;
 
 // Player struct array (stride 0x2F0) pointed to by gPlayerSlots
 typedef struct {
-    u8 pad0[0x210];
+    u8 unk0;
+    u8 pad1[0x20F];
     f32 camX;
     f32 camY;
     f32 camZ;
@@ -80,7 +81,8 @@ typedef struct {
     s32 queuedParam2;
     u8 pad2B4[0x2C0 - 0x2B4];
     u8 unk2C0;
-    u8 pad2C1[0x2EB - 0x2C1];
+    u8 pad2C1[0x2EA - 0x2C1];
+    u8 unk2EA;
     u8 unk2EB;
     u8 pad2EC[4];
 } PlayerStruct;
