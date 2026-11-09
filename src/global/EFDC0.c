@@ -81,9 +81,9 @@ extern EfAParameters gPlayerStateCallbackParams;
 void scriptSetRampValue(Actor *, f32, f32);
 void actorScriptStartByIndex(Actor *, s32);
 void actorScriptStart(Actor *, s32);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 void playerResumeLocomotion(Actor *);
-void slotQueueUpdate(s32, s32, s32);
+void slotQueueUpdate(s32, u8, s32);
 
 s32 playerStateQueueCallback(s16 priority, void *actor, u8 player) {
     u8 playerByte;
@@ -206,7 +206,7 @@ void playerStateInitState5F(void) {
     actorScriptStartByIndex(gCurrentActor, 0x4A);
 }
 
-extern s32 slotQueueGetValue(s32, u8);
+extern u16 slotQueueGetValue(u8, u8);
 
 void playerStateInitState60(void) {
     s32 selector;
@@ -1083,7 +1083,7 @@ typedef struct EfN8PlayerD4 {
     s16 unkD4;
 } EfN8PlayerD4;
 extern s16 D_807530B0[];
-s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 
 typedef struct EfdAPlayer {
     u8 pad0[0x88];
@@ -1144,8 +1144,8 @@ void playerStateDamageCheck4(void) {
     }
 }
 
-s32 flagGet(s16, s32);
-void flagSet(s16, s32, s32);
+u8 flagGet(s16, u8);
+void flagSet(s16, u8, u8);
 
 void playerStatePlayAnimationByDamageType(u16 arg0) {
     u16 ev;
@@ -1277,14 +1277,14 @@ typedef struct EfL1Global568 {
 #define EfL1A48 ((EfL1Actor *)gActivePlayerActor)
 
 extern void *D_807FD568;
-Actor *actorFindByType(s32);
+Actor *actorFindByType(u16);
 void actorSpawnChildActor(Actor *);
 void effectSpawnActorOrbitParticles(Actor *);
 void actorSetInteractionTimer(Actor *);
 s32 playerGetResolvedKongId(s32);
 void playerSetKongByActorType(s16);
 void playerEnterFall(Actor *);
-void playerSetSizeMode(Actor *, s32);
+void playerSetSizeMode(Actor *, s32); // FAKE: callee prototype steer
 void playerStatePlayAnimationByDamageType(u16);
 void playerStateApplyAttackerDamage(Actor *);
 
@@ -1523,7 +1523,7 @@ typedef struct EfCActorC0S32 {
     s32 unkC0;
 } EfCActorC0S32;
 
-void actorAppendCallback4000(Actor *, s32, s16, s32, s32);
+void actorAppendCallback4000(Actor *, s32, s16, s32, s32); // FAKE: callee prototype steer
 
 void playerStateAttachHeldActorToPlayer(void) {
     s32 value = (s32)gActivePlayerState->heldActor;
@@ -1693,7 +1693,7 @@ void playerTakeQueuedDamage(void) {
 }
 
 extern void playerKongClearFlagsByActorType(Actor *);
-extern s32 camIsCutsceneActive(void);
+extern u8 camIsCutsceneActive(void);
 
 void playerStateCutsceneDamageCheck(void) {
     if ((gGlobalCutsceneFlags & 2) != 0) {
