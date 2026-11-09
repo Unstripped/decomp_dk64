@@ -825,7 +825,6 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
                         fe = 30.0f * fa;
                         ff = (f32)((f64)fa * 1.33);
                         for (j = 0; j < 5; j++) {
-                            if (angv) {} // FAKE: keep the angle in s2.
                             sa = angv;
                             yy = (s32)(mathSinF(sa) * fb);
                             yy += 0x280;
