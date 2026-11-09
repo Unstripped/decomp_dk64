@@ -35,7 +35,7 @@ extern s32 gCurrentMap;
 extern u8 gPlayerCount;
 
 void *heapAlloc(s32);
-void *assetLoad(s32, s32, u8, s32);
+void * assetLoad(s32, u32, u8, u8);
 void animListFree(AnimNode **);
 void animNodeAdvanceTime(AnimNode *);
 AnimNode *animGetNodeByIndex(AnimActor *, u32);
