@@ -72,3 +72,12 @@ def test_layout_accepts_array_over_same_bytes(tmp_path):
 def test_layout_rejects_shifted_field(tmp_path):
     diffs = layout(tmp_path, HEADER.replace("char pad4[0xC]", "char pad4[0x10]"))
     assert "Fix unk10 offset 0x10 -> 0x14" in diffs
+
+
+def test_metrics_punned_scalar_only(tmp_path):
+    c = tmp_path / "p.c"
+    c.write_text('#include "common.h"\ntypedef struct A { s32 x; } A;\ntypedef struct B { s32 y; } B;\n'
+                 "f32 g; A a;\ns32 f(void) {\n    B *b = (B *)&a;\n    return *(s32 *)&g + b->y;\n}\n")
+    m = clint.metrics(str(c))["f"]
+    assert m["punned"] == 1
+    assert [(line, kind) for line, kind, _ in m["untagged"]] == [(7, "punned-cast")]

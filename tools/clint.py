@@ -172,7 +172,9 @@ def unop(c):
 
 
 def punned(c):
-    """A cast to a pointer type of `&expr` whose type differs from the pointee (void pointee excluded)."""
+    """A cast to a scalar pointer type of `&expr` whose type differs from the pointee: reading an
+    object as another scalar (`*(s32 *)&f`, `*(u8 *)&s8var`). Void pointees and struct/union
+    pointees (views and API type bridges, handled by the types phase) are excluded."""
     t = c.type.get_canonical()
     if t.kind != TypeKind.POINTER:
         return False
@@ -187,7 +189,7 @@ def punned(c):
         return False
     pointee = t.get_pointee().get_canonical()
     src = inner[0].type.get_canonical()
-    if pointee.kind == TypeKind.VOID:
+    if pointee.kind in (TypeKind.VOID, TypeKind.RECORD):
         return False
     return pointee.spelling.replace("volatile ", "").replace("const ", "") != \
         src.spelling.replace("volatile ", "").replace("const ", "")
