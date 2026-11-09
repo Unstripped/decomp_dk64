@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "sched.h"
 #define PROTO_SKIP_actorAppendCallback4000 // FAKE: callee prototype steer
 #define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
 #define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type void  of function prototype description
@@ -59,120 +60,18 @@ extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
 extern s16 gCurrentCharacterIndex;
 
-// Views of shared structs for the fields include/actor.h does not name yet.
-typedef struct PlayerStateExt {
-    /* 0x000 */ u8 pad0[0xC];
-    /* 0x00C */ s16 unkC;
-    /* 0x00E */ s16 unkE;
-    /* 0x010 */ u8 pad10[0x8];
-    /* 0x018 */ s16 unk18;
-    /* 0x01A */ u8 pad1A[0xA];
-    /* 0x024 */ s16 unk24;
-    /* 0x026 */ u8 pad26[0x2A];
-    /* 0x050 */ s16 unk50;
-    /* 0x052 */ u8 pad52[0x1A];
-    /* 0x06C */ f32 unk6C;
-    /* 0x070 */ s16 unk70;
-    /* 0x072 */ u8 pad72[0x6];
-    /* 0x078 */ f32 unk78;
-    /* 0x07C */ f32 unk7C;
-    /* 0x080 */ s16 unk80;
-    /* 0x082 */ u8 pad82[0x12];
-    /* 0x094 */ f32 unk94;
-    /* 0x098 */ f32 unk98;
-    /* 0x09C */ f32 unk9C;
-    /* 0x0A0 */ f32 unkA0;
-    /* 0x0A4 */ f32 unkA4;
-    /* 0x0A8 */ f32 unkA8;
-    /* 0x0AC */ f32 unkAC;
-    /* 0x0B0 */ f32 unkB0;
-    /* 0x0B4 */ f32 unkB4;
-    /* 0x0B8 */ f32 unkB8;
-    /* 0x0BC */ u8 padBC[0x4];
-    /* 0x0C0 */ s16 unkC0;
-    /* 0x0C2 */ s16 unkC2;
-    /* 0x0C4 */ u8 padC4[0x8];
-    /* 0x0CC */ s16 unkCC;
-    /* 0x0CE */ u8 padCE[0xE];
-    /* 0x0DC */ Actor *unkDC;
-    /* 0x0E0 */ f32 unkE0;
-    /* 0x0E4 */ f32 unkE4;
-    /* 0x0E8 */ u8 padE8[0x2];
-    /* 0x0EA */ s16 unkEA;
-    /* 0x0EC */ s16 unkEC;
-    /* 0x0EE */ u8 padEE[0x2];
-    /* 0x0F0 */ f32 unkF0;
-    /* 0x0F4 */ f32 unkF4;
-    /* 0x0F8 */ u8 unkF8;
-    /* 0x0F9 */ u8 padF9[0xF];
-    /* 0x108 */ f32 unk108;
-    /* 0x10C */ u8 pad10C[0x10];
-    /* 0x11C */ u8 unk11C;
-    /* 0x11D */ u8 unk11D;
-    /* 0x11E */ u8 pad11E[0x12];
-    /* 0x130 */ Actor *unk130;
-    /* 0x134 */ u8 pad134[0x18];
-    /* 0x14C */ f32 unk14C;
-    /* 0x150 */ f32 unk150;
-    /* 0x154 */ s16 unk154;
-    /* 0x156 */ u8 pad156[0x2];
-    /* 0x158 */ Actor *unk158;
-    /* 0x15C */ u8 pad15C[0x44];
-    /* 0x1A0 */ u16 unk1A0;
-    /* 0x1A2 */ u8 unk1A2;
-    /* 0x1A3 */ u8 pad1A3[0x11];
-    /* 0x1B4 */ s32 unk1B4;
-    /* 0x1B8 */ u8 pad1B8[0x4C];
-    /* 0x204 */ f32 unk204;
-    /* 0x208 */ f32 unk208;
-    /* 0x20C */ f32 unk20C;
-    /* 0x210 */ f32 unk210;
-    /* 0x214 */ f32 unk214;
-    /* 0x218 */ f32 unk218;
-    /* 0x21C */ s16 unk21C;
-    /* 0x21E */ u8 pad21E[0x2];
-    /* 0x220 */ f32 unk220;
-    /* 0x224 */ u8 pad224[0x4];
-    /* 0x228 */ f32 unk228;
-    /* 0x22C */ f32 unk22C;
-    /* 0x230 */ u8 pad230[0x4];
-    /* 0x234 */ f32 unk234;
-    /* 0x238 */ f32 unk238;
-    /* 0x23C */ u16 unk23C;
-    /* 0x23E */ u8 pad23E[0x2];
-    /* 0x240 */ u8 unk240;
-    /* 0x241 */ u8 pad241[0x1];
-    /* 0x242 */ u16 unk242;
-} PlayerStateExt;
-
+// The player's sub4 and actor are larger than the shared ActorSub4/Actor.
 typedef struct ActorSub4Ext {
-    /* 0x000 */ u8 pad0[0x48];
-    /* 0x048 */ f32 unk48;
-    /* 0x04C */ u8 pad4C[0x2C];
-    /* 0x078 */ s32 unk78;
+    /* 0x00 */ u8 pad0[0x78];
+    /* 0x78 */ s32 unk78;
 } ActorSub4Ext;
 
 typedef struct ActorExt {
     /* 0x000 */ u8 pad0[0x4];
     /* 0x004 */ ActorSub4Ext *sub4;
-    /* 0x008 */ u8 pad8[0x4C];
-    /* 0x054 */ s32 unk54;
-    /* 0x058 */ u8 pad58[0x92];
-    /* 0x0EA */ s16 unkEA;
-    /* 0x0EC */ u8 padEC[0xC];
-    /* 0x0F8 */ s16 unkF8;
-    /* 0x0FA */ u8 padFA[0x7E];
+    /* 0x008 */ u8 pad8[0x170];
     /* 0x178 */ void *unk178;
 } ActorExt;
-
-typedef struct ActorGlobalStateExt {
-    /* 0x000 */ u8 pad0[0xD8];
-    /* 0x0D8 */ f32 unkD8;
-    /* 0x0DC */ u8 padDC[0x4];
-    /* 0x0E0 */ f32 unkE0;
-    /* 0x0E4 */ u8 padE4[0x8];
-    /* 0x0EC */ Actor *unkEC;
-} ActorGlobalStateExt;
 
 // What ActorSub4::model points at, as far as this file reads it.
 typedef struct ActorModel {
@@ -180,9 +79,7 @@ typedef struct ActorModel {
     /* 0x04 */ f32 unk4;
 } ActorModel;
 
-#define PLAYER_EXT ((PlayerStateExt *)gActivePlayerState)
 #define ACTOR_EXT ((ActorExt *)gCurrentActor)
-#define ACTOR_GLOBAL_EXT ((ActorGlobalStateExt *)&gActorGlobalState)
 
 // One per-player 0x34-byte slot of gPlayerPadState, anchored at a field offset (the
 // original references the fields through these labels, not through gPlayerPadState).
@@ -240,7 +137,7 @@ void playerStateUnderwaterSwim(void) {
     gCurrentActor->speedY = mathApproachF32(gCurrentActor->speedY, 50.0f, 4.0f);
     switch (gCurrentActor->unk155[0]) {
         case 0:
-            PLAYER_EXT->unk24 = 0;
+            gActivePlayerState->unk24 = 0;
             gActivePlayerState->targetSpeed = 100.0f;
             playerInputUpdate(0x67);
             playerApplyMotionWithHorizontalVelocity();
@@ -265,7 +162,7 @@ void playerApplyGravityAndMotion();
 void playerStateSurfaceDiving(void) {
     Actor *a;
 
-    PLAYER_EXT->unk24 = 0;
+    gActivePlayerState->unk24 = 0;
     if (gCurrentActor->unk155[0] == 0) {
         gActivePlayerState->turnRate = 0xA;
         gCurrentActor->accelY = -8.0f;
@@ -294,14 +191,14 @@ void playerStateUnderwaterSwimming(void) {
     f64 scaledY;
     f32 step;
 
-    PLAYER_EXT->unk24++;
+    gActivePlayerState->unk24++;
     gActivePlayerState->airAccel = D_80753AFC[gCurrentCharacterIndex];
     switch (gCurrentActor->unk155[0]) {
         case 0:
             playerInputUpdate(0x4C);
             step = -gCurrentActor->speedY * 0.125;
             gCurrentActor->speedY = mathApproachF32(gCurrentActor->speedY, 0.0f, step);
-            if (PLAYER_EXT->unk24 >= 6) {
+            if (gActivePlayerState->unk24 >= 6) {
                 if ((gCurrentActor->speedXZ != 0.0f) || (gActivePlayerState->actionTimer != 0)) {
                     gCurrentActor->unk155[0] = 3;
                 } else {
@@ -325,12 +222,12 @@ void playerStateUnderwaterSwimming(void) {
             playerApplyDecelVelocityVector(0.0f);
             if (gCurrentActor->state == 0x7F) {
                 if (gCurrentActor->speedXZ != 0.0f) {
-                    PLAYER_EXT->unk18 = 0;
+                    gActivePlayerState->unk18 = 0;
                     gCurrentActor->unk155[0] = 3;
                 } else {
-                    if (PLAYER_EXT->unk50 != 0) {
-                        PLAYER_EXT->unk50--;
-                        if (PLAYER_EXT->unk50 == 0) {
+                    if (gActivePlayerState->unk50 != 0) {
+                        gActivePlayerState->unk50--;
+                        if (gActivePlayerState->unk50 == 0) {
                             actorScriptStart(gCurrentActor, 0x315);
                         }
                     }
@@ -347,9 +244,9 @@ void playerStateUnderwaterSwimming(void) {
             scaledXZ = gCurrentActor->speedXZ / 200.0;
             scaledY = gCurrentActor->speedY / 200.0;
             scriptSetActorRampTarget(gCurrentActor, sqrtf(scaledXZ * scaledXZ + scaledY * scaledY), 5.0f);
-            if ((gCurrentActor->speedXZ == 0.0f) || (PLAYER_EXT->unk18 != 0)) {
-                PLAYER_EXT->unk50 = D_80753A78[gCurrentCharacterIndex];
-                scriptSetActorRampTarget(gCurrentActor, 0.5f, PLAYER_EXT->unk50);
+            if ((gCurrentActor->speedXZ == 0.0f) || (gActivePlayerState->unk18 != 0)) {
+                gActivePlayerState->unk50 = D_80753A78[gCurrentCharacterIndex];
+                scriptSetActorRampTarget(gCurrentActor, 0.5f, gActivePlayerState->unk50);
                 gCurrentActor->unk155[0] = 2;
             }
             if (gCurrentActor->waterY < gCurrentActor->y + 4.0f) {
@@ -465,7 +362,7 @@ void playerStateDeathTransition(void) {
     gActivePlayerState->maxSpeed = 0.0f;
     gActivePlayerState->decelRate = 20.0f;
     playerApplyFullPhysics();
-    if ((currentActorTestClearFlag() != 0) || (gCurrentActor->unk155[0] == 1) || --PLAYER_EXT->unk23C == 0) {
+    if ((currentActorTestClearFlag() != 0) || (gCurrentActor->unk155[0] == 1) || --gActivePlayerState->unk23C == 0) {
         mapTransitionToMenuOrPrevious();
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -498,7 +395,7 @@ void playerStateGameOver(void) {
         gCurrentActor->speedY = gCurrentActor->speedY * 0.25;
         playerApplyFullPhysics();
     }
-    if ((currentActorTestClearFlag() != 0) || --PLAYER_EXT->unk23C == 0) {
+    if ((currentActorTestClearFlag() != 0) || --gActivePlayerState->unk23C == 0) {
         hudSpawnTextScreen(0);
         gCurrentActor->unk155[0]++;
     }
@@ -530,7 +427,7 @@ void playerStateSquishDeath(void) {
         gCurrentActor->speedY = gCurrentActor->speedY * 0.25;
         playerApplyMotionWithHorizontalVelocity();
     }
-    if ((currentActorTestClearFlag() != 0) || --PLAYER_EXT->unk23C == 0) {
+    if ((currentActorTestClearFlag() != 0) || --gActivePlayerState->unk23C == 0) {
         if (menuIsTransitionTypeD() == 0) {
             r = func_80600340(&table, 3, out);
             actorListSetCustomFloat(out[1], r, 7, 2.0f);
@@ -733,13 +630,13 @@ void playerStateRidingActor(void) {
     } else {
         playerStateQueueCallback(0x3C, 0, gCurrentPlayerIndex, counter);
     }
-    *counter += PLAYER_EXT->unkC2;
-    if (PLAYER_EXT->unkC2 >= 8) {
-        PLAYER_EXT->unkC2 -= 7;
-    } else if (PLAYER_EXT->unkC2 < -7) {
-        PLAYER_EXT->unkC2 += 7;
+    *counter += gActivePlayerState->unkC2;
+    if (gActivePlayerState->unkC2 >= 8) {
+        gActivePlayerState->unkC2 -= 7;
+    } else if (gActivePlayerState->unkC2 < -7) {
+        gActivePlayerState->unkC2 += 7;
     } else {
-        PLAYER_EXT->unkC2 = 0;
+        gActivePlayerState->unkC2 = 0;
     }
     playerSyncParentAndInputUpdate(1);
 }
@@ -922,8 +819,8 @@ void playerStateVineSwing(void) {
             gCurrentActor->speedY = gCurrentActor->speedY * 0.7;
         }
     }
-    if (PLAYER_EXT->unk1A2 != 0) {
-        s32 x = PLAYER_EXT->unk1A0;
+    if (gActivePlayerState->unk1A2 != 0) {
+        s32 x = gActivePlayerState->unk1A0;
 
         if (x >= 0x8000) {
             x -= 0x10000;
@@ -942,14 +839,14 @@ void playerStateVineSwing(void) {
     if ((sel != gCurrentActor->sub4->animId) && (gCurrentActor->sub4->animId != 0x81)) {
         actorScriptStart(gCurrentActor, sel);
     }
-    if ((gActivePlayerState->stateFlags & 0x40000000) && (PLAYER_EXT->unk240 == 0)) {
+    if ((gActivePlayerState->stateFlags & 0x40000000) && (gActivePlayerState->unk240 == 0)) {
         func_80687400();
-        PLAYER_EXT->unk240 = 0x1E;
+        gActivePlayerState->unk240 = 0x1E;
     }
-    if (PLAYER_EXT->unk240 != 0) {
-        PLAYER_EXT->unk240--;
+    if (gActivePlayerState->unk240 != 0) {
+        gActivePlayerState->unk240--;
     }
-    if ((gCurrentActor->contactFlags & 1) || (PLAYER_EXT->unk240 == 1)) {
+    if ((gCurrentActor->contactFlags & 1) || (gActivePlayerState->unk240 == 1)) {
         if (gGlobalCutsceneFlags & 2) {
             gCurrentActor->unk144 |= 8;
         }
@@ -996,8 +893,8 @@ void playerStateClimbLadder(void) {
 
     if (gCurrentActor->unk155[0] == 0) {
         gCurrentActor->unk155[0]++;
-        PLAYER_EXT->unkC = -1;
-        PLAYER_EXT->unkE = -1;
+        gActivePlayerState->unkC = -1;
+        gActivePlayerState->unkE = -1;
     }
     if (playerInputUpdate(0x13) == 0) {
         s16 temp = playerSelectWalkRunState(gCurrentActor, gCurrentActor->speedXZ, gActivePlayerState->maxSpeed, 1);
@@ -1008,7 +905,7 @@ void playerStateClimbLadder(void) {
         }
     }
     if ((camIsCutsceneActive() == 0) && ((f = D_807531E0[gCurrentCharacterIndex]) < gCurrentActor->speedXZ) && (f < gActivePlayerState->maxSpeed) &&
-        (PLAYER_EXT->unkC >= 0) && (mathAngleDistance(PLAYER_EXT->unkC, gActivePlayerState->targetYaw) >= 0x401) &&
+        (gActivePlayerState->unkC >= 0) && (mathAngleDistance(gActivePlayerState->unkC, gActivePlayerState->targetYaw) >= 0x401) &&
         (mathAngleDistance(gCurrentActor->moveYaw, gActivePlayerState->targetYaw) >= 0x539)) {
         gCurrentActor->state = 0xE;
         gCurrentActor->unk155[0] = 0;
@@ -1016,8 +913,8 @@ void playerStateClimbLadder(void) {
     } else {
         playerApplyFullPhysics();
     }
-    PLAYER_EXT->unkC = PLAYER_EXT->unkE;
-    PLAYER_EXT->unkE = gActivePlayerState->targetYaw;
+    gActivePlayerState->unkC = gActivePlayerState->unkE;
+    gActivePlayerState->unkE = gActivePlayerState->targetYaw;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -1115,7 +1012,7 @@ void playerStateFallDamageCrouch(void) {
 
 void playerApplyImpactRumble(s32 inputId) {
     func_80685210(0.5f, 0x64, 5);
-    ACTOR_EXT->unkF8 = 0x12C;
+    gCurrentActor->unkF8 = 0x12C;
     if ((gCurrentActor->y - gCurrentActor->floorY) > 5.0f) {
         if (gCurrentActor->accelY == -260.0f) {
             playerSetBaseGravity();
@@ -1127,7 +1024,7 @@ void playerApplyImpactRumble(s32 inputId) {
         gCurrentActor->state = 0x14;
         gCurrentActor->unk155[0] = 0;
         gActivePlayerState->jumpVelocityY = gCurrentActor->speedY;
-        PLAYER_EXT->unk50 = 0;
+        gActivePlayerState->unk50 = 0;
         actorScriptStartByIndex(gCurrentActor, 0x67);
     }
     playerInputUpdate(inputId);
@@ -1273,9 +1170,9 @@ void playerStateSkidTurn(void) {
 
 void playerUpdateTargetYawFromStick(void) {
     if (D_807FD618[gCurrentPlayerIndex].value != 0.0f) {
-        ACTOR_EXT->unkEA = gActivePlayerState->targetYaw;
+        gCurrentActor->unkEA = gActivePlayerState->targetYaw;
     } else {
-        ACTOR_EXT->unkEA = gCurrentActor->yaw;
+        gCurrentActor->unkEA = gCurrentActor->yaw;
     }
 }
 
@@ -1315,7 +1212,7 @@ void playerStateDoubleJump(void) {
                 gCurrentActor->state = 0x1A;
                 gCurrentActor->unk155[0] = 0;
                 gActivePlayerState->jumpVelocityY = D_80753604[gCurrentCharacterIndex];
-                PLAYER_EXT->unk50 = 0;
+                gActivePlayerState->unk50 = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x13);
             }
             playerInputUpdate(0x30);
@@ -1350,7 +1247,7 @@ void playerStateLongJump(void) {
                 gActivePlayerState->airAccel = 0.0f;
                 playerApplyFullPhysics();
                 gActivePlayerState->airTimer--;
-                ACTOR_EXT->unkEA = gCurrentActor->yaw;
+                gCurrentActor->unkEA = gCurrentActor->yaw;
             } else {
                 playerUpdateTargetYawFromStick();
                 playerApplyFullPhysics();
@@ -1387,7 +1284,7 @@ void playerStateLongJump(void) {
                 gCurrentActor->state = 0x1A;
                 gCurrentActor->unk155[0] = 0;
                 gActivePlayerState->jumpVelocityY = D_80753604[gCurrentCharacterIndex];
-                PLAYER_EXT->unk50 = 0;
+                gActivePlayerState->unk50 = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x13);
             }
             playerInputUpdate(0x30);
@@ -2262,7 +2159,7 @@ void playerStateSwimTread(void) {
     gCurrentActor->renderFlags |= 0x200;
     switch (gCurrentActor->unk155[0]) {
     case 0:
-        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, (s16)(PLAYER_EXT->unkDC->yaw + 0x800), 8.0f);
+        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, (s16)(gActivePlayerState->damageSource->yaw + 0x800), 8.0f);
         gActivePlayerState->maxSpeed = 0.0f;
         gCurrentActor->speedXZ = 0.0f;
         playerApplyFullPhysics();
@@ -2314,7 +2211,7 @@ void playerStateSwimPaddle(void) {
         playerInputUpdate(3);
         gActivePlayerState->maxSpeed = gKongSwimPaddleSpeeds[gCurrentCharacterIndex];
         gActivePlayerState->targetYaw = gCurrentActor->moveYaw;
-        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, (s16)(PLAYER_EXT->unkDC->yaw + 0x800), 8.0f);
+        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, (s16)(gActivePlayerState->damageSource->yaw + 0x800), 8.0f);
         playerApplyFullPhysics();
         break;
     case 1:
@@ -2422,7 +2319,7 @@ void playerStateSwimSink(void) {
         break;
     case 1:
         playerApplyFullPhysics();
-        if (PLAYER_EXT->unk11C-- == 0) {
+        if (gActivePlayerState->unk11C-- == 0) {
             gCurrentActor->unk155[0]++;
         }
         break;
@@ -2468,8 +2365,8 @@ void playerStateSwimStroke(void) {
             gActivePlayerState->targetYaw = gCurrentActor->moveYaw;
             mathAngleStepToward(&gCurrentActor->yaw, (s16)((gCurrentActor->moveYaw + 0x800) & 0xFFF), (s16)(gActivePlayerState->turnRate * 2));
             playerApplyFullPhysics();
-            PLAYER_EXT->unk11C = 0xF;
-            PLAYER_EXT->unk11D = 0;
+            gActivePlayerState->unk11C = 0xF;
+            gActivePlayerState->unk11D = 0;
             break;
         case 2:
             gCurrentActor->unk155[0]++;
@@ -2478,16 +2375,16 @@ void playerStateSwimStroke(void) {
             break;
         case 3:
             flag = func_80714608(0);
-            if (PLAYER_EXT->unk11C == 0 && PLAYER_EXT->unk11D == 0) {
+            if (gActivePlayerState->unk11C == 0 && gActivePlayerState->unk11D == 0) {
                 if (!flag) {
                     playerSpawnSpiralDriftEffects();
                 }
-                PLAYER_EXT->unk11D = 1;
+                gActivePlayerState->unk11D = 1;
             } else {
-                PLAYER_EXT->unk11C = PLAYER_EXT->unk11C - 1;
+                gActivePlayerState->unk11C = gActivePlayerState->unk11C - 1;
             }
-            if (PLAYER_EXT->unk11D != 0) {
-                timer = PLAYER_EXT->unk11C;
+            if (gActivePlayerState->unk11D != 0) {
+                timer = gActivePlayerState->unk11C;
                 if (timer >= 0xBF) {
                     if (!flag && timer % 3 == 0) {
                         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, (s16)(((timer & 2) / 2) + 0x57), 0xFF, 0x7F, 0x1E);
@@ -2645,7 +2542,7 @@ extern f32 D_807537C4[];
 void playerStateDive(void) {
     switch (gCurrentActor->unk155[0]) {
         case 0:
-            ACTOR_EXT->unkEA = gCurrentActor->moveYaw;
+            gCurrentActor->unkEA = gCurrentActor->moveYaw;
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 0);
             playerInputUpdate(0x48);
             playerApplyGravityAndMotion();
@@ -2654,7 +2551,7 @@ void playerStateDive(void) {
             gCurrentActor->speedY = gActivePlayerState->jumpVelocityY;
             gCurrentActor->accelY = D_807537A8[gCurrentCharacterIndex];
             gCurrentActor->speedXZ = D_80753770[gCurrentCharacterIndex];
-            ACTOR_EXT->unkEA = gCurrentActor->moveYaw;
+            gCurrentActor->unkEA = gCurrentActor->moveYaw;
             gCurrentActor->unk155[0]++;
             playerInputUpdate(0x48);
             playerSetTerminalVelocity754();
@@ -2685,18 +2582,7 @@ void playerStateDive(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-// sched.h PlayerStruct (stride 0x2F0) with the fields it does not name yet.
-typedef struct PlayerSlotExt {
-    /* 0x000 */ u8 unk0;
-    /* 0x001 */ u8 pad1[0x2BF];
-    /* 0x2C0 */ u8 unk2C0;
-    /* 0x2C1 */ u8 pad2C1[0x29];
-    /* 0x2EA */ u8 unk2EA;
-    /* 0x2EB */ u8 unk2EB;
-    /* 0x2EC */ u8 pad2EC[4];
-} PlayerSlotExt;
-
-extern PlayerSlotExt *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern s16 D_8075387C[];
 extern s16 D_8075388C[];
 extern s16 D_807538B8[];
@@ -2763,7 +2649,7 @@ void playerStateSurfaceSwim(void) {
     }
     curSpeedY = gCurrentActor->speedY;
     gCurrentActor->speedY = mathApproachF32(curSpeedY, target, step);
-    PLAYER_EXT->unk24 = 0;
+    gActivePlayerState->unk24 = 0;
     switch (gCurrentActor->unk155[0]) {
         case 0:
             playerInputUpdate(0x4E);
@@ -2785,7 +2671,7 @@ void playerStateSurfaceSwim(void) {
                 gCurrentActor->unk155[0] = 1;
             } else {
                 t = gActivePlayerState->maxSpeed * 1.5 / 40.0;
-                if (ACTOR_EXT->sub4->unk48 < t) {
+                if (gCurrentActor->sub4->unk48 < t) {
                     scriptSetActorRampTarget(gCurrentActor, t, 0.0f);
                 } else {
                     scriptSetActorRampTarget(gCurrentActor, t, 5.0f);
@@ -2799,7 +2685,7 @@ void playerStateSurfaceSwim(void) {
 }
 
 void playerStateSurfaceSwimStroke(void) {
-    PLAYER_EXT->unk24 = 0;
+    gActivePlayerState->unk24 = 0;
     switch (gCurrentActor->unk155[0]) {
         case 0:
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 0);
@@ -2824,7 +2710,7 @@ void playerStateSurfaceTreadWater(void) {
     f32 waterLevel;
     s16 v;
 
-    PLAYER_EXT->unk24 = PLAYER_EXT->unk24 + 1;
+    gActivePlayerState->unk24 = gActivePlayerState->unk24 + 1;
     gActivePlayerState->airAccel = D_80753AFC[gCurrentCharacterIndex];
     switch (gCurrentActor->unk155[0]) {
         case 0:
@@ -2849,7 +2735,7 @@ void playerStateSurfaceTreadWater(void) {
                 gCurrentActor->unk155[0] = 3;
             }
             t = gActivePlayerState->actionTimer / 7.5 + 1.0;
-            if (ACTOR_EXT->sub4->unk48 < t) {
+            if (gCurrentActor->sub4->unk48 < t) {
                 scriptSetActorRampTarget(gCurrentActor, t, 0.0f);
             } else {
                 scriptSetActorRampTarget(gCurrentActor, t, 15.0f);
@@ -2864,12 +2750,12 @@ void playerStateSurfaceTreadWater(void) {
             playerInputUpdate(0x54);
             playerApplyDecelVelocityVector(D_80753A5C[gCurrentCharacterIndex]);
             if (gCurrentActor->speedXZ != 0.0f) {
-                PLAYER_EXT->unk18 = 0;
+                gActivePlayerState->unk18 = 0;
                 gCurrentActor->unk155[0] = 3;
             } else {
-                if (PLAYER_EXT->unk50 != 0) {
-                    PLAYER_EXT->unk50 = PLAYER_EXT->unk50 - 1;
-                    if (PLAYER_EXT->unk50 == 0) {
+                if (gActivePlayerState->unk50 != 0) {
+                    gActivePlayerState->unk50 = gActivePlayerState->unk50 - 1;
+                    if (gActivePlayerState->unk50 == 0) {
                         actorScriptStartByIndex(gCurrentActor, 0x34);
                     }
                 }
@@ -2906,9 +2792,9 @@ void playerStateSurfaceTreadWater(void) {
             playerApplyDecelVelocityVector(0.0f);
             break;
     }
-    if (gCurrentActor->speedXZ == 0.0f || PLAYER_EXT->unk18 != 0) {
-        PLAYER_EXT->unk50 = D_80753A78[gCurrentCharacterIndex];
-        scriptSetActorRampTarget(gCurrentActor, 0.5f, (f32)PLAYER_EXT->unk50);
+    if (gCurrentActor->speedXZ == 0.0f || gActivePlayerState->unk18 != 0) {
+        gActivePlayerState->unk50 = D_80753A78[gCurrentCharacterIndex];
+        scriptSetActorRampTarget(gCurrentActor, 0.5f, (f32)gActivePlayerState->unk50);
         gCurrentActor->unk155[0] = 2;
     }
     playerClampWaterSurfaceHeight(gCurrentActor);
@@ -2917,7 +2803,7 @@ end:
 }
 
 void playerStateSurfacePaddleTurn(void) {
-    PLAYER_EXT->unk24 = 0;
+    gActivePlayerState->unk24 = 0;
     gCurrentActor->pitch = 0;
     gCurrentActor->roll = 0;
     switch (gCurrentActor->unk155[0]) {
@@ -3046,12 +2932,12 @@ void playerStateDamageFallTumble(void) {
                 gCurrentActor->speedXZ = gCurrentActor->speedXZ - (f32)n;
             }
             gCurrentActor->roll = mathAtan2(gCurrentActor->speedXZ, gCurrentActor->speedY) * 4096.0f / 6.2831855f;
-            gCurrentActor->yaw = (mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, PLAYER_EXT->unkB0, PLAYER_EXT->unkB8) + 0x800) % 4095;
+            gCurrentActor->yaw = (mathAngleBetweenPoints2D(gCurrentActor->x, gCurrentActor->z, gActivePlayerState->unkB0, gActivePlayerState->unkB8) + 0x800) % 4095;
             gCurrentActor->moveYaw = gCurrentActor->yaw;
-            dy = PLAYER_EXT->unkB4 - gPrimaryPlayerActor->y;
+            dy = gActivePlayerState->unkB4 - gPrimaryPlayerActor->y;
             dy = dy / (gPrimaryPlayerActor->sub4->scaleY * 0.16666666675);
-            dx = PLAYER_EXT->unkB8 - gPrimaryPlayerActor->z;
-            dz = PLAYER_EXT->unkB0 - gPrimaryPlayerActor->x;
+            dx = gActivePlayerState->unkB8 - gPrimaryPlayerActor->z;
+            dz = gActivePlayerState->unkB0 - gPrimaryPlayerActor->x;
             dist = sqrtf(dx * dx + dz * dz) / (gPrimaryPlayerActor->sub4->scaleY * 0.16666666675);
             fa0 = gPrimaryPlayerActor->speedXZ;
             if (fa0 == 0.0) {
@@ -3100,9 +2986,9 @@ void playerStateDamageFallTumble(void) {
 void playerApproachAirVelocity(void) {
     playerInputUpdate(5);
     if (gCurrentActor->speedY < 0.0f) {
-        PLAYER_EXT->unk6C = 0.0f;
+        gActivePlayerState->unk6C = 0.0f;
     }
-    playerApproachVelocity(PLAYER_EXT->unk70, PLAYER_EXT->unk6C, gActivePlayerState->targetSpeed);
+    playerApproachVelocity(gActivePlayerState->unk70, gActivePlayerState->unk6C, gActivePlayerState->targetSpeed);
     playerApplyGravityAndMotion();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -3200,27 +3086,27 @@ void playerStateTransformSparkles(void) {
         posY = (s32)(randomNonNegative() >> 15) % 30 + gCurrentActor->y;
         randomNonNegative();
         effectSetDepth(1);
-        effectSetSpeed((PLAYER_EXT->unk23C << 16) + (s32)(15.0 * (gCurrentActor->alpha / 255.0)));
+        effectSetSpeed((gActivePlayerState->unk23C << 16) + (s32)(15.0 * (gCurrentActor->alpha / 255.0)));
         effectSetCallback(effectOrbitXZUpdate);
         effectCreateAtPosition((s32)&D_8071FC8C, 0.5f, gCurrentActor->x, posY, gCurrentActor->z);
         sel = gCurrentActor->unk155[0];
     }
     switch (sel) {
     case 0:
-        PLAYER_EXT->unk23C = 0;
+        gActivePlayerState->unk23C = 0;
         gCurrentActor->unk155[0]++;
         gCurrentActor->flags &= 0xFFFF7FFF;
         gCurrentActor->alpha = 0xFF;
         break;
     case 1:
-        PLAYER_EXT->unk23C += 0x1E;
-        if (PLAYER_EXT->unk23C >= 0x191) {
-            PLAYER_EXT->unk23C = 0x190;
+        gActivePlayerState->unk23C += 0x1E;
+        if (gActivePlayerState->unk23C >= 0x191) {
+            gActivePlayerState->unk23C = 0x190;
         }
-        if (PLAYER_EXT->unk23C == 0xD2) {
+        if (gActivePlayerState->unk23C == 0xD2) {
             sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x264, 0xFF, 0x64, 0x19);
         }
-        if (PLAYER_EXT->unk23C >= 0x12D) {
+        if (gActivePlayerState->unk23C >= 0x12D) {
             gActivePlayerState->stateFlags &= ~0x40;
             gCurrentActor->alpha -= 5;
             if (gCurrentActor->alpha < 0xA) {
@@ -3229,7 +3115,7 @@ void playerStateTransformSparkles(void) {
         }
         break;
     case 2:
-        func_805FF9AC(PLAYER_EXT->unk242, 0, 0, 3);
+        func_805FF9AC((u16)gActivePlayerState->unk242, 0, 0, 3);
         gCurrentActor->unk155[0]++;
         break;
     }
@@ -3246,21 +3132,21 @@ void playerStatePonytailFloat(void) {
         gActivePlayerState->decelRate = 1.0f;
         gActivePlayerState->airAccel = 3.0f;
         gCurrentActor->accelY = 2.0f;
-        PLAYER_EXT->unk23C = 0;
-        PLAYER_EXT->unk238 = gCurrentActor->y;
+        gActivePlayerState->unk23C = 0;
+        gActivePlayerState->unk238 = gCurrentActor->y;
         gCurrentActor->unk155[0]++;
         break;
     case 1:
         playerInputUpdate(0x43);
         mathAngleStepToward(&gCurrentActor->yaw, gCurrentActor->moveYaw, 0x32);
-        gCurrentActor->y = PLAYER_EXT->unk238;
+        gCurrentActor->y = gActivePlayerState->unk238;
         playerApplyFullPhysics();
-        if (PLAYER_EXT->unk238 - gCurrentActor->yawSpeed > 50.0f) {
+        if (gActivePlayerState->unk238 - gCurrentActor->yawSpeed > 50.0f) {
             gCurrentActor->y -= 1.0;
         }
-        PLAYER_EXT->unk238 = gCurrentActor->y;
-        gCurrentActor->y = mathSinF((s16)PLAYER_EXT->unk23C) * 10.0 + PLAYER_EXT->unk238;
-        PLAYER_EXT->unk23C += 0x64;
+        gActivePlayerState->unk238 = gCurrentActor->y;
+        gCurrentActor->y = mathSinF((s16)gActivePlayerState->unk23C) * 10.0 + gActivePlayerState->unk238;
+        gActivePlayerState->unk23C += 0x64;
         if (gCurrentActor->yawSpeed < gCurrentActor->y) {
             v = gCurrentActor->y - gCurrentActor->yawSpeed;
         } else {
@@ -3311,8 +3197,8 @@ void playerStatePonytailTwirl(void) {
         gCurrentActor->y += mathSinF(gCurrentActor->yawSpeed << 5) * 0.25;
         playerApplyMotionWithHorizontalVelocity();
         sfxSetChannelTempo(0x6B, 0.995f);
-        PLAYER_EXT->unkC0--;
-        if (PLAYER_EXT->unkC0 < 0 || (D_807FD63C[gCurrentPlayerIndex].value & 0x2000)) {
+        gActivePlayerState->unkC0--;
+        if (gActivePlayerState->unkC0 < 0 || (D_807FD63C[gCurrentPlayerIndex].value & 0x2000)) {
             gCurrentActor->unk155[0]++;
         }
         break;
@@ -3361,9 +3247,9 @@ void playerStateThrowCarried(void) {
     playerClearCarriedItemState();
     playerInputUpdate(5);
     gCurrentActor->speedXZ = 0.0f;
-    gCurrentActor->x = (PLAYER_EXT->unk22C - gCurrentActor->x) * 0.2 + gCurrentActor->x;
-    gCurrentActor->z = (PLAYER_EXT->unk234 - gCurrentActor->z) * 0.2 + gCurrentActor->z;
-    mathAngleStepToward(&gCurrentActor->yaw, (s16)mathAngleBetweenPoints2D(PLAYER_EXT->unk220, PLAYER_EXT->unk228, gCurrentActor->x, gCurrentActor->z), 0x32);
+    gCurrentActor->x = (gActivePlayerState->savedX - gCurrentActor->x) * 0.2 + gCurrentActor->x;
+    gCurrentActor->z = (gActivePlayerState->savedZ - gCurrentActor->z) * 0.2 + gCurrentActor->z;
+    mathAngleStepToward(&gCurrentActor->yaw, (s16)mathAngleBetweenPoints2D(gActivePlayerState->unk220, gActivePlayerState->unk228, gCurrentActor->x, gCurrentActor->z), 0x32);
     playerApplyMotion();
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -3371,7 +3257,7 @@ void playerStateThrowCarried(void) {
 void playerStateHoldPickup(void) {
     f64 new_var;
 
-    if (actorTableContains(gActivePlayerState->queuedHeldActor) == 0 || ((ActorExt *)gActivePlayerState->queuedHeldActor)->unk54 != PLAYER_EXT->unk1B4) {
+    if (actorTableContains(gActivePlayerState->queuedHeldActor) == 0 || gActivePlayerState->queuedHeldActor->instanceId != gActivePlayerState->queuedHeldActorId) {
         gActivePlayerState->heldActor = NULL;
         gActivePlayerState->queuedHeldActor = NULL;
         playerResumeLocomotion(gCurrentActor);
@@ -3384,15 +3270,15 @@ void playerStateHoldPickup(void) {
         gCurrentActor->speedXZ = 0.0f;
         gActivePlayerState->maxSpeed = 0.0f;
         playerStartPickupApproach(gActivePlayerState->queuedHeldActor);
-        gCurrentActor->x += PLAYER_EXT->unk78;
-        gCurrentActor->z += PLAYER_EXT->unk7C;
-        gCurrentActor->yaw = PLAYER_EXT->unk80;
+        gCurrentActor->x += gActivePlayerState->unk78;
+        gCurrentActor->z += gActivePlayerState->unk7C;
+        gCurrentActor->yaw = gActivePlayerState->unk80;
         gCurrentActor->unk155[0]++;
         break;
     case 1:
-        gCurrentActor->x += PLAYER_EXT->unk78;
-        gCurrentActor->z += PLAYER_EXT->unk7C;
-        gCurrentActor->yaw = PLAYER_EXT->unk80;
+        gCurrentActor->x += gActivePlayerState->unk78;
+        gCurrentActor->z += gActivePlayerState->unk7C;
+        gCurrentActor->yaw = gActivePlayerState->unk80;
         break;
     case 2:
         gActivePlayerState->heldActor = gActivePlayerState->queuedHeldActor;
@@ -3613,34 +3499,34 @@ void playerStateTransformHold(void) {
     f32 dz;
 
     if (gActorGlobalState.unkE4 != 0) {
-        PLAYER_EXT->unkDC = ACTOR_GLOBAL_EXT->unkEC;
-        PLAYER_EXT->unk9C = gCurrentActor->x;
-        PLAYER_EXT->unkA0 = gCurrentActor->z;
-        PLAYER_EXT->unkA4 = ACTOR_GLOBAL_EXT->unkD8;
-        PLAYER_EXT->unkA8 = ACTOR_GLOBAL_EXT->unkE0;
-        PLAYER_EXT->unkAC = 0.0f;
-        dx = PLAYER_EXT->unkA4 - PLAYER_EXT->unk9C;
-        dz = PLAYER_EXT->unkA8 - PLAYER_EXT->unkA0;
-        PLAYER_EXT->unk94 = sqrtf(dx * dx + dz * dz) * 0.8;
-        PLAYER_EXT->unk98 = mathAtan2(dx, dz) * 4096.0f / 6.2831855f;
+        gActivePlayerState->damageSource = gActorGlobalState.unkEC;
+        gActivePlayerState->unk9C = gCurrentActor->x;
+        gActivePlayerState->unkA0 = gCurrentActor->z;
+        gActivePlayerState->unkA4 = gActorGlobalState.unkD8;
+        gActivePlayerState->unkA8 = gActorGlobalState.unkE0;
+        gActivePlayerState->unkAC = 0.0f;
+        dx = gActivePlayerState->unkA4 - gActivePlayerState->unk9C;
+        dz = gActivePlayerState->unkA8 - gActivePlayerState->unkA0;
+        gActivePlayerState->unk94 = sqrtf(dx * dx + dz * dz) * 0.8;
+        gActivePlayerState->unk98 = mathAtan2(dx, dz) * 4096.0f / 6.2831855f;
         gActivePlayerState->unk4C = -1;
     }
-    PLAYER_EXT->unkAC += 0.02;
-    if (PLAYER_EXT->unkAC > 1.0) {
-        if (PLAYER_EXT->unkDC != NULL) {
-            PLAYER_EXT->unk98 = mathAtan2(PLAYER_EXT->unkDC->x - PLAYER_EXT->unk9C, PLAYER_EXT->unkDC->z - PLAYER_EXT->unkA0) * 4096.0f / 6.2831855f;
-            if ((s16)PLAYER_EXT->unk98 == gCurrentActor->yaw) {
+    gActivePlayerState->unkAC += 0.02;
+    if (gActivePlayerState->unkAC > 1.0) {
+        if (gActivePlayerState->damageSource != NULL) {
+            gActivePlayerState->unk98 = mathAtan2(gActivePlayerState->damageSource->x - gActivePlayerState->unk9C, gActivePlayerState->damageSource->z - gActivePlayerState->unkA0) * 4096.0f / 6.2831855f;
+            if ((s16)gActivePlayerState->unk98 == gCurrentActor->yaw) {
                 playerResumeLocomotion(gCurrentActor);
             }
         }
-        PLAYER_EXT->unkAC = 1.0f;
+        gActivePlayerState->unkAC = 1.0f;
     }
-    dx = PLAYER_EXT->unkAC;
-    gCurrentActor->x = PLAYER_EXT->unk9C + (PLAYER_EXT->unkA4 - PLAYER_EXT->unk9C) * dx;
-    gCurrentActor->z = PLAYER_EXT->unkA0 + (PLAYER_EXT->unkA8 - PLAYER_EXT->unkA0) * PLAYER_EXT->unkAC;
+    dx = gActivePlayerState->unkAC;
+    gCurrentActor->x = gActivePlayerState->unk9C + (gActivePlayerState->unkA4 - gActivePlayerState->unk9C) * dx;
+    gCurrentActor->z = gActivePlayerState->unkA0 + (gActivePlayerState->unkA8 - gActivePlayerState->unkA0) * gActivePlayerState->unkAC;
     playerApplyMotion();
-    playerSelectWalkRunState(gCurrentActor, PLAYER_EXT->unk94, PLAYER_EXT->unk94, 0);
-    mathAngleStepToward(&gCurrentActor->yaw, (s16)PLAYER_EXT->unk98, (s16)(D_8075326C[gCurrentCharacterIndex] / 2));
+    playerSelectWalkRunState(gCurrentActor, gActivePlayerState->unk94, gActivePlayerState->unk94, 0);
+    mathAngleStepToward(&gCurrentActor->yaw, (s16)gActivePlayerState->unk98, (s16)(D_8075326C[gCurrentCharacterIndex] / 2));
     gCurrentActor->moveYaw = gCurrentActor->yaw;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -3664,20 +3550,20 @@ void playerStateTagBarrelFade(void) {
             break;
         case 2:
             actorClearMovementFlags(gCurrentActor);
-            gCurrentActor->x = PLAYER_EXT->unk204;
-            gCurrentActor->y = PLAYER_EXT->unk208 + 10.0;
+            gCurrentActor->x = gActivePlayerState->unk204;
+            gCurrentActor->y = gActivePlayerState->unk208 + 10.0;
             gCurrentActor->prevY = gCurrentActor->y;
-            gCurrentActor->z = PLAYER_EXT->unk20C;
+            gCurrentActor->z = gActivePlayerState->unk20C;
             func_806C8220(0, ACTOR_EXT->unk178, gCurrentActor->actorType);
             camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
             screenWipeStart(6);
-            PLAYER_EXT->unk23C = 0x14;
+            gActivePlayerState->unk23C = 0x14;
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0xE6, 0xFF, 0x7F, 0, 0, 0.3f, 0);
             gCurrentActor->unk155[0]++;
             break;
         case 3:
-            PLAYER_EXT->unk23C--;
-            if (PLAYER_EXT->unk23C == 0) {
+            gActivePlayerState->unk23C--;
+            if (gActivePlayerState->unk23C == 0) {
                 gCurrentActor->unk155[0]++;
             }
             break;
@@ -3711,15 +3597,15 @@ void playerStateTagBarrelPadEnter(void) {
             break;
         case 1:
             gCurrentActor->unk155[0]++;
-            PLAYER_EXT->unk23C = 4;
+            gActivePlayerState->unk23C = 4;
             break;
         case 2:
-            gCurrentActor->x = (PLAYER_EXT->unk210 - gCurrentActor->x) * 0.5 + gCurrentActor->x;
-            gCurrentActor->y = (PLAYER_EXT->unk214 - gCurrentActor->y) * 0.5 + gCurrentActor->y;
-            gCurrentActor->z = (PLAYER_EXT->unk218 - gCurrentActor->z) * 0.5 + gCurrentActor->z;
-            if (PLAYER_EXT->unk23C != 0) {
-                PLAYER_EXT->unk23C--;
-                if (PLAYER_EXT->unk23C == 0) {
+            gCurrentActor->x = (gActivePlayerState->unk210 - gCurrentActor->x) * 0.5 + gCurrentActor->x;
+            gCurrentActor->y = (gActivePlayerState->unk214 - gCurrentActor->y) * 0.5 + gCurrentActor->y;
+            gCurrentActor->z = (gActivePlayerState->unk218 - gCurrentActor->z) * 0.5 + gCurrentActor->z;
+            if (gActivePlayerState->unk23C != 0) {
+                gActivePlayerState->unk23C--;
+                if (gActivePlayerState->unk23C == 0) {
                     gCurrentActor->flags &= 0xFFFF7FFF;
                     gCurrentActor->alpha = 0;
                 }
@@ -3731,11 +3617,11 @@ void playerStateTagBarrelPadEnter(void) {
             gCurrentActor->unk155[0]++;
             break;
         case 5:
-            PLAYER_EXT->unk23C = 0x14;
+            gActivePlayerState->unk23C = 0x14;
             break;
         case 6:
-            PLAYER_EXT->unk23C--;
-            if (PLAYER_EXT->unk23C == 0) {
+            gActivePlayerState->unk23C--;
+            if (gActivePlayerState->unk23C == 0) {
                 matrixCacheSetDefaultLimit();
                 gCurrentActor->unk155[0]++;
             }
@@ -3743,35 +3629,35 @@ void playerStateTagBarrelPadEnter(void) {
         case 7:
             gGlobalPauseFlags &= 0xFFFCFFDF;
             actorClearMovementFlags(gCurrentActor);
-            gCurrentActor->x = PLAYER_EXT->unk204;
-            gCurrentActor->y = PLAYER_EXT->unk208;
+            gCurrentActor->x = gActivePlayerState->unk204;
+            gCurrentActor->y = gActivePlayerState->unk208;
             gCurrentActor->prevY = gCurrentActor->y;
-            gCurrentActor->z = PLAYER_EXT->unk20C;
+            gCurrentActor->z = gActivePlayerState->unk20C;
             func_806C8220(0, ACTOR_EXT->unk178, gCurrentActor->actorType);
             camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
-            PLAYER_EXT->unk23C = 0x14;
+            gActivePlayerState->unk23C = 0x14;
             screenWipeStart(2);
             gCurrentActor->unk155[0]++;
             break;
         case 8:
             gGlobalPauseFlags |= 0x30020;
-            PLAYER_EXT->unk23C--;
-            if (PLAYER_EXT->unk23C == 0) {
+            gActivePlayerState->unk23C--;
+            if (gActivePlayerState->unk23C == 0) {
                 sfxStartAreaAmbient();
                 if (actorSpawn(0x3C, 0x98)) {
                     actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 0.15f);
                 }
                 gCurrentActor->unk155[0]++;
-                PLAYER_EXT->unk23C = 0xC;
+                gActivePlayerState->unk23C = 0xC;
             }
             break;
         case 10:
-            if (PLAYER_EXT->unk23C != 0) {
-                PLAYER_EXT->unk23C--;
-                if (PLAYER_EXT->unk23C == 0) {
-                    gCurrentActor->x = PLAYER_EXT->unk210;
-                    gCurrentActor->y = PLAYER_EXT->unk214;
-                    gCurrentActor->z = PLAYER_EXT->unk218;
+            if (gActivePlayerState->unk23C != 0) {
+                gActivePlayerState->unk23C--;
+                if (gActivePlayerState->unk23C == 0) {
+                    gCurrentActor->x = gActivePlayerState->unk210;
+                    gCurrentActor->y = gActivePlayerState->unk214;
+                    gCurrentActor->z = gActivePlayerState->unk218;
                     gCurrentActor->flags |= 0x8000;
                 }
             }
@@ -3816,38 +3702,38 @@ void playerStateKnockbackTumble(void) {
     playerInputUpdate(1);
     switch (gCurrentActor->unk155[0]) {
     case 0:
-        PLAYER_EXT->unk108 = 50.0f;
+        gActivePlayerState->unk108 = 50.0f;
         gCurrentActor->unk155[0] = gCurrentActor->unk155[0] + 1;
         break;
     case 1:
-        if (PLAYER_EXT->unk108 != 0.0f) {
-            PLAYER_EXT->unk108 = PLAYER_EXT->unk108 - 1.0f;
+        if (gActivePlayerState->unk108 != 0.0f) {
+            gActivePlayerState->unk108 = gActivePlayerState->unk108 - 1.0f;
         } else if (gCurrentActor->y - gCurrentActor->floorY < 60.0f) {
             gCurrentActor->y = gCurrentActor->y + 1.0f;
         } else {
-            PLAYER_EXT->unk108 = 150.0f;
+            gActivePlayerState->unk108 = 150.0f;
             gCurrentActor->unk155[0] = gCurrentActor->unk155[0] + 1;
             camSetTargetScaled(gActivePlayerState->camActor, gCurrentActor, 6, 0, 0x1E, 0, 5, 0x2D, 0x14, 0xC8, 0.15f);
         }
         break;
     case 2:
-        PLAYER_EXT->unk108 = PLAYER_EXT->unk108 - 1.0f;
-        if (PLAYER_EXT->unk108 == 0.0f) {
-            PLAYER_EXT->unk108 = 150.0f;
+        gActivePlayerState->unk108 = gActivePlayerState->unk108 - 1.0f;
+        if (gActivePlayerState->unk108 == 0.0f) {
+            gActivePlayerState->unk108 = 150.0f;
             gCurrentActor->unk155[0] = gCurrentActor->unk155[0] + 1;
         }
-        s = (mathSinF(PLAYER_EXT->unkCC) > 0.0f) ? mathSinF(PLAYER_EXT->unkCC) : -mathSinF(PLAYER_EXT->unkCC);
+        s = (mathSinF(gActivePlayerState->unkCC) > 0.0f) ? mathSinF(gActivePlayerState->unkCC) : -mathSinF(gActivePlayerState->unkCC);
         gCurrentActor->yaw = (f64)gCurrentActor->yaw + 120.0 * (0.5 + (f64)s);
         break;
     case 3:
-        PLAYER_EXT->unk108 = PLAYER_EXT->unk108 - 1.0f;
-        if (PLAYER_EXT->unk108 == 0.0f) {
-            PLAYER_EXT->unk108 = 500.0f;
+        gActivePlayerState->unk108 = gActivePlayerState->unk108 - 1.0f;
+        if (gActivePlayerState->unk108 == 0.0f) {
+            gActivePlayerState->unk108 = 500.0f;
             gCurrentActor->unk155[0] = gCurrentActor->unk155[0] + 1;
         }
-        s = (mathSinF(PLAYER_EXT->unkCC) > 0.0f) ? mathSinF(PLAYER_EXT->unkCC) : -mathSinF(PLAYER_EXT->unkCC);
+        s = (mathSinF(gActivePlayerState->unkCC) > 0.0f) ? mathSinF(gActivePlayerState->unkCC) : -mathSinF(gActivePlayerState->unkCC);
         gCurrentActor->yaw = (f64)gCurrentActor->yaw + 120.0 * (0.5 + (f64)s);
-        s = mathSinF((s16)(PLAYER_EXT->unkCC + 0x400));
+        s = mathSinF((s16)(gActivePlayerState->unkCC + 0x400));
         gCurrentActor->pitch = (f32)gCurrentActor->pitch + 60.0f * s;
         break;
     case 4:
@@ -3857,8 +3743,8 @@ void playerStateKnockbackTumble(void) {
         gCurrentActor->yaw = 0;
         break;
     }
-    PLAYER_EXT->unkCC = PLAYER_EXT->unkCC + 6;
-    PLAYER_EXT->unkCC = PLAYER_EXT->unkCC & 0xFFF;
+    gActivePlayerState->unkCC = gActivePlayerState->unkCC + 6;
+    gActivePlayerState->unkCC = gActivePlayerState->unkCC & 0xFFF;
     if (!(gFrameCounter & 1)) {
         kind = (randomNonNegative() >> 15) % 65535 % 3;
         actorGetNodePos(gCurrentActor, 5, &px, &py, &pz);
@@ -3895,24 +3781,24 @@ void playerStateStationaryInteraction(void) {
     switch (gCurrentActor->unk155[0]) {
     case 0:
         gCurrentActor->unk144 = 1;
-        PLAYER_EXT->unk23C = 0xA;
+        gActivePlayerState->unk23C = 0xA;
         gCurrentActor->unk155[0]++;
         sfxPlayFromActorWithAltitudeCheck(gCurrentActor, 0x2EB, 0xFF, 0x7F, 2);
         break;
     case 1:
-        if (PLAYER_EXT->unk23C >= 2) {
-            PLAYER_EXT->unk23C--;
+        if (gActivePlayerState->unk23C >= 2) {
+            gActivePlayerState->unk23C--;
         } else {
             gCurrentActor->unk155[0]++;
         }
         break;
     case 2:
         actorClearMovementFlags(gCurrentActor);
-        gCurrentActor->x = PLAYER_EXT->unk204;
-        gCurrentActor->y = PLAYER_EXT->unk208;
+        gCurrentActor->x = gActivePlayerState->unk204;
+        gCurrentActor->y = gActivePlayerState->unk208;
         gCurrentActor->prevY = gCurrentActor->y;
-        gCurrentActor->z = PLAYER_EXT->unk20C;
-        t = PLAYER_EXT->unk21C;
+        gCurrentActor->z = gActivePlayerState->unk20C;
+        t = gActivePlayerState->unk21C;
         gCurrentActor->moveYaw = t;
         gCurrentActor->yaw = t;
         camResetPlayer(gCurrentActor, gActivePlayerState->playerIndex);
@@ -3920,8 +3806,8 @@ void playerStateStationaryInteraction(void) {
         gCurrentActor->unk155[0]++;
         break;
     case 3:
-        if (PLAYER_EXT->unk23C < 0xA) {
-            PLAYER_EXT->unk23C++;
+        if (gActivePlayerState->unk23C < 0xA) {
+            gActivePlayerState->unk23C++;
         } else {
             gCurrentActor->unk155[0]++;
         }
@@ -3931,7 +3817,7 @@ void playerStateStationaryInteraction(void) {
         playerResumeLocomotion(gCurrentActor);
         break;
     }
-    f = (f32)PLAYER_EXT->unk23C * 0.015;
+    f = (f32)gActivePlayerState->unk23C * 0.015;
     for (i = 0; i < 3; i++) {
         (&gCurrentActor->sub4->scaleX)[i] = f;
     }
@@ -3940,7 +3826,7 @@ void playerStateStationaryInteraction(void) {
 }
 
 void playerStepForwardSpeedTowardTarget(f32 step) {
-    f32 cur = PLAYER_EXT->unk94;
+    f32 cur = gActivePlayerState->unk94;
     f32 tgt = gActivePlayerState->maxSpeed;
 
     if (cur < tgt) {
@@ -3954,7 +3840,7 @@ void playerStepForwardSpeedTowardTarget(f32 step) {
             cur = tgt;
         }
     }
-    PLAYER_EXT->unk94 = cur;
+    gActivePlayerState->unk94 = cur;
 }
 
 extern s16 D_80753C84[];
@@ -3989,10 +3875,10 @@ void playerStateAttachedCallbackFall(void) {
     switch (gCurrentActor->unk155[0]) {
     case 0:
         playerInputUpdate(5);
-        PLAYER_EXT->unk94 = 0.0f;
-        PLAYER_EXT->unk158 = 0;
-        gCurrentActor->moveYaw = PLAYER_EXT->unk130->yaw;
-        if (mathAngleDistance(gCurrentActor->yaw, PLAYER_EXT->unk130->yaw) >= 0x400) {
+        gActivePlayerState->unk94 = 0.0f;
+        gActivePlayerState->unk158 = 0;
+        gCurrentActor->moveYaw = gActivePlayerState->unk130->yaw;
+        if (mathAngleDistance(gCurrentActor->yaw, gActivePlayerState->unk130->yaw) >= 0x400) {
             gCurrentActor->moveYaw = (gCurrentActor->moveYaw + 0x800) & 0xFFF;
         }
         break;
@@ -4019,18 +3905,18 @@ void playerStateAttachedCallbackFall(void) {
         break;
     case 2:
         if (playerInputUpdate(0x58) == 0) {
-            if (PLAYER_EXT->unk94 == 0.0f && gActivePlayerState->maxSpeed == 0.0f) {
+            if (gActivePlayerState->unk94 == 0.0f && gActivePlayerState->maxSpeed == 0.0f) {
                 gCurrentActor->unk155[0] = 1;
                 actorScriptStartByIndex(gActivePlayerActor, 0x6C);
-            } else if (PLAYER_EXT->unk94 > 0.0f && gActivePlayerState->maxSpeed > 0.0f) {
+            } else if (gActivePlayerState->unk94 > 0.0f && gActivePlayerState->maxSpeed > 0.0f) {
                 gCurrentActor->unk155[0] = 3;
                 actorScriptStartByIndex(gActivePlayerActor, 0x6A);
-            } else if (PLAYER_EXT->unk94 < 0.0f && gActivePlayerState->maxSpeed < 0.0f) {
+            } else if (gActivePlayerState->unk94 < 0.0f && gActivePlayerState->maxSpeed < 0.0f) {
                 gCurrentActor->unk155[0] = 4;
                 actorScriptStartByIndex(gActivePlayerActor, 0x6B);
             }
             playerStepForwardSpeedTowardTarget(D_80753C68[gCurrentCharacterIndex]);
-            d = PLAYER_EXT->unk94 * 0.025;
+            d = gActivePlayerState->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
             } else {
@@ -4041,7 +3927,7 @@ void playerStateAttachedCallbackFall(void) {
         break;
     case 3:
         if (playerInputUpdate(0x58) == 0) {
-            if (PLAYER_EXT->unk94 <= 0.0f) {
+            if (gActivePlayerState->unk94 <= 0.0f) {
                 gCurrentActor->unk155[0] = 2;
             }
             switch (gActivePlayerState->unk8) {
@@ -4056,7 +3942,7 @@ void playerStateAttachedCallbackFall(void) {
                 break;
             }
             playerStepForwardSpeedTowardTarget(targetSpeed);
-            d = PLAYER_EXT->unk94 * 0.025;
+            d = gActivePlayerState->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
             } else {
@@ -4067,7 +3953,7 @@ void playerStateAttachedCallbackFall(void) {
         break;
     case 4:
         if (playerInputUpdate(0x58) == 0) {
-            if (PLAYER_EXT->unk94 >= 0.0f) {
+            if (gActivePlayerState->unk94 >= 0.0f) {
                 gCurrentActor->unk155[0] = 2;
             }
             switch (gActivePlayerState->unk8) {
@@ -4082,7 +3968,7 @@ void playerStateAttachedCallbackFall(void) {
                 break;
             }
             playerStepForwardSpeedTowardTarget(targetSpeed);
-            d = PLAYER_EXT->unk94 * 0.025;
+            d = gActivePlayerState->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
             } else {
@@ -4114,8 +4000,8 @@ void func_806DCA7C(void) {
     switch (gCurrentActor->unk155[0]) {
     case 0:
         playerFindClosestTargetActor();
-        gCurrentActor->speedXZ = PLAYER_EXT->unk14C / 2;
-        gCurrentActor->moveYaw = PLAYER_EXT->unk154;
+        gCurrentActor->speedXZ = gActivePlayerState->unk14C / 2;
+        gCurrentActor->moveYaw = gActivePlayerState->unk154;
         diff = gCurrentActor->moveYaw - gCurrentActor->yaw;
         if (diff < -0x800) {
             diff += 0x1000;
@@ -4134,14 +4020,14 @@ void func_806DCA7C(void) {
             actorScriptStartByIndex(gCurrentActor, 0x6E);
         }
         mathAngleStepTowardThreshold(&gCurrentActor->yaw, gCurrentActor->moveYaw, 0x78, 0x600);
-        gCurrentActor->speedY = PLAYER_EXT->unk150;
+        gCurrentActor->speedY = gActivePlayerState->unk150;
         gCurrentActor->unk155[0]++;
         playerInputUpdate(0x27);
         gActivePlayerState->decelRate = gActivePlayerState->decelRate / 2;
         playerApplyGravityAndMotion();
         break;
     case 2:
-        if (PLAYER_EXT->unk158 == 0) {
+        if (gActivePlayerState->unk158 == 0) {
             actorScriptStartByIndex(gActivePlayerActor, 0x6F);
             gCurrentActor->unk155[0] = 3;
             break;
@@ -4153,14 +4039,14 @@ void func_806DCA7C(void) {
         } else {
             playerInputUpdate(0x27);
         }
-        gCurrentActor->speedXZ = PLAYER_EXT->unk14C;
-        gCurrentActor->moveYaw = PLAYER_EXT->unk154;
+        gCurrentActor->speedXZ = gActivePlayerState->unk14C;
+        gCurrentActor->moveYaw = gActivePlayerState->unk154;
         mathAngleStepTowardThreshold(&gCurrentActor->yaw, gCurrentActor->moveYaw, 0x78, 0x600);
         gActivePlayerState->targetYaw = gCurrentActor->moveYaw;
         gActivePlayerState->maxSpeed = 150.0f;
         gActivePlayerState->targetSpeed = 150.0f;
-        if (PLAYER_EXT->unk158 != 0) {
-            actorGetNodePos(PLAYER_EXT->unk158, 1, &nodeX, &nodeY, &nodeZ);
+        if (gActivePlayerState->unk158 != 0) {
+            actorGetNodePos(gActivePlayerState->unk158, 1, &nodeX, &nodeY, &nodeZ);
             dy = nodeY - gActivePlayerActor->y;
             dy = (f64)dy / ((f64)gActivePlayerActor->sub4->scaleY * 0.16666666675);
             dist = (f32)((f64)sqrtf((nodeX - gActivePlayerActor->x) * (nodeX - gActivePlayerActor->x) + (nodeZ - gActivePlayerActor->z) * (nodeZ - gActivePlayerActor->z)) / ((f64)gActivePlayerActor->sub4->scaleY * 0.16666666675));
@@ -4170,11 +4056,11 @@ void func_806DCA7C(void) {
                 time = 1.0f;
             }
         }
-        if ((PLAYER_EXT->unk158 != 0) && (time < 30.0f)) {
+        if ((gActivePlayerState->unk158 != 0) && (time < 30.0f)) {
             gActivePlayerActor->speedY = (0.0 - ((D_80753CD0[gCurrentCharacterIndex] * 0.5 * (f64)(time * time)) - (f64)dy)) / (f64)time;
             gActivePlayerActor->accelY = -0.001f;
         } else {
-            PLAYER_EXT->unk158 = 0;
+            gActivePlayerState->unk158 = 0;
             playerSetBaseGravity();
         }
         playerApplyGravityAndMotion();
@@ -4194,7 +4080,7 @@ extern u16 gActiveActorCount;
 
 void playerFindClosestTargetActor(void) {
     f32 best = 100.0f;
-    Actor *cur = PLAYER_EXT->unk158;
+    Actor *cur = gActivePlayerState->unk158;
     Actor *a;
     s16 ang;
     s16 d;
@@ -4208,9 +4094,9 @@ void playerFindClosestTargetActor(void) {
         if (cur == NULL) {
             for (i = 0; i < gActiveActorCount; i++) {
                 a = gActiveActors[i].actor;
-                if (!(a->flags & 0x2000) && (a->flags & 0x04000000) && (a != PLAYER_EXT->unk130) && (a != gActivePlayerActor)) {
+                if (!(a->flags & 0x2000) && (a->flags & 0x04000000) && (a != gActivePlayerState->unk130) && (a != gActivePlayerActor)) {
                     ang = (s32)(((f64)(mathAngleBetweenPointsRad(a->x, a->z, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f) / 360.0) * 4095.0);
-                    d = mathAngleDistance(ang, PLAYER_EXT->unk154);
+                    d = mathAngleDistance(ang, gActivePlayerState->unk154);
                     dx = a->x - gActivePlayerActor->x;
                     dz = a->z - gActivePlayerActor->z;
                     dist = sqrtf(dx * dx + dz * dz);
@@ -4222,16 +4108,16 @@ void playerFindClosestTargetActor(void) {
                         }
                         if (v < 100.0) {
                             best = dist;
-                            PLAYER_EXT->unk154 = ang;
-                            PLAYER_EXT->unk158 = a;
+                            gActivePlayerState->unk154 = ang;
+                            gActivePlayerState->unk158 = a;
                         }
                     }
                 }
             }
         } else {
             ang = (s32)(((f64)(mathAngleBetweenPointsRad(cur->x, cur->z, gActivePlayerActor->x, gActivePlayerActor->z) * 57.295776f) / 360.0) * 4095.0);
-            if (mathAngleDistance(ang, PLAYER_EXT->unk154) < 0x258) {
-                PLAYER_EXT->unk154 = ang;
+            if (mathAngleDistance(ang, gActivePlayerState->unk154) < 0x258) {
+                gActivePlayerState->unk154 = ang;
             }
         }
     }
@@ -4264,7 +4150,7 @@ void playerStateAttachedCallbackFallCheck(void) {
     switch (gCurrentActor->unk155[0]) {
     case 0:
         playerInputUpdate(5);
-        PLAYER_EXT->unk94 = 0.0f;
+        gActivePlayerState->unk94 = 0.0f;
         break;
     case 1:
         if (playerInputUpdate(0x59) == 0) {
@@ -4289,18 +4175,18 @@ void playerStateAttachedCallbackFallCheck(void) {
         break;
     case 2:
         if (playerInputUpdate(0x59) == 0) {
-            if (PLAYER_EXT->unk94 == 0.0f && gActivePlayerState->maxSpeed == 0.0f) {
+            if (gActivePlayerState->unk94 == 0.0f && gActivePlayerState->maxSpeed == 0.0f) {
                 gCurrentActor->unk155[0] = 1;
                 actorScriptStartByIndex(gActivePlayerActor, 0x73);
-            } else if (PLAYER_EXT->unk94 > 0.0f && gActivePlayerState->maxSpeed > 0.0f) {
+            } else if (gActivePlayerState->unk94 > 0.0f && gActivePlayerState->maxSpeed > 0.0f) {
                 gCurrentActor->unk155[0] = 3;
                 actorScriptStartByIndex(gActivePlayerActor, 0x71);
-            } else if (PLAYER_EXT->unk94 < 0.0f && gActivePlayerState->maxSpeed < 0.0f) {
+            } else if (gActivePlayerState->unk94 < 0.0f && gActivePlayerState->maxSpeed < 0.0f) {
                 gCurrentActor->unk155[0] = 4;
                 actorScriptStartByIndex(gActivePlayerActor, 0x72);
             }
             playerStepForwardSpeedTowardTarget(D_80753C68[gCurrentCharacterIndex]);
-            d = PLAYER_EXT->unk94 * 0.025;
+            d = gActivePlayerState->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
             } else {
@@ -4311,7 +4197,7 @@ void playerStateAttachedCallbackFallCheck(void) {
         break;
     case 3:
         if (playerInputUpdate(0x59) == 0) {
-            if (PLAYER_EXT->unk94 <= 0.0f) {
+            if (gActivePlayerState->unk94 <= 0.0f) {
                 gCurrentActor->unk155[0] = 2;
             }
             switch (gActivePlayerState->unk8) {
@@ -4326,7 +4212,7 @@ void playerStateAttachedCallbackFallCheck(void) {
                 break;
             }
             playerStepForwardSpeedTowardTarget(targetSpeed);
-            d = PLAYER_EXT->unk94 * 0.025;
+            d = gActivePlayerState->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
             } else {
@@ -4337,7 +4223,7 @@ void playerStateAttachedCallbackFallCheck(void) {
         break;
     case 4:
         if (playerInputUpdate(0x59) == 0) {
-            if (PLAYER_EXT->unk94 >= 0.0f) {
+            if (gActivePlayerState->unk94 >= 0.0f) {
                 gCurrentActor->unk155[0] = 2;
             }
             switch (gActivePlayerState->unk8) {
@@ -4352,7 +4238,7 @@ void playerStateAttachedCallbackFallCheck(void) {
                 break;
             }
             playerStepForwardSpeedTowardTarget(targetSpeed);
-            d = PLAYER_EXT->unk94 * 0.025;
+            d = gActivePlayerState->unk94 * 0.025;
             if (d > 0.0) {
                 f = d;
             } else {
@@ -4460,15 +4346,15 @@ void playerStateBounceRecover(void) {
     switch (gCurrentActor->unk155[0]) {
     case 0:
         playerInputUpdate(0x5A);
-        PLAYER_EXT->unkEC = gCurrentActor->yaw;
-        PLAYER_EXT->unkF8 = 5;
+        gActivePlayerState->unkEC = gCurrentActor->yaw;
+        gActivePlayerState->unkF8 = 5;
         gCurrentActor->unk155[0] = 2;
         break;
     case 1:
     case 2:
     case 3:
-        if (PLAYER_EXT->unkF8 != 0) {
-            PLAYER_EXT->unkF8 -= 1;
+        if (gActivePlayerState->unkF8 != 0) {
+            gActivePlayerState->unkF8 -= 1;
         }
         if (playerInputUpdate(0x5A) == 0) {
             switch (gActivePlayerState->unk8) {
@@ -4514,11 +4400,11 @@ void playerStateBounceRecover(void) {
             } else {
                 gCurrentActor->speedXZ = -gCurrentActor->speedXZ;
             }
-            angle = PLAYER_EXT->unkEA + 0x400;
+            angle = gActivePlayerState->unkEA + 0x400;
             angle &= 0xFFF;
             gCurrentActor->moveYaw = gCurrentActor->arcYawMin + 0xA;
         } else if (gCurrentActor->speedXZ > 0.0f) {
-            angle = PLAYER_EXT->unkEA - 0x400;
+            angle = gActivePlayerState->unkEA - 0x400;
             angle &= 0xFFF;
             gCurrentActor->moveYaw = gCurrentActor->arcYawMax - 0xA;
         }
@@ -4526,11 +4412,11 @@ void playerStateBounceRecover(void) {
         if (angleOk == 0) {
             gCurrentActor->speedXZ = 0.0f;
         }
-        PLAYER_EXT->unkEC = mathAngleArcMidpoint(gCurrentActor->arcYawMin, gCurrentActor->arcYawMax) + 0x800;
-        PLAYER_EXT->unkEC &= 0xFFF;
-        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, PLAYER_EXT->unkEC, 3.0f);
-        gCurrentActor->x = PLAYER_EXT->unkE0;
-        gCurrentActor->z = PLAYER_EXT->unkE4;
+        gActivePlayerState->unkEC = mathAngleArcMidpoint(gCurrentActor->arcYawMin, gCurrentActor->arcYawMax) + 0x800;
+        gActivePlayerState->unkEC &= 0xFFF;
+        gCurrentActor->yaw = mathAngleEaseToward(gCurrentActor->yaw, gActivePlayerState->unkEC, 3.0f);
+        gCurrentActor->x = gActivePlayerState->unkE0;
+        gCurrentActor->z = gActivePlayerState->unkE4;
         if (angleOk == 0 || gCurrentActor->speedXZ == 0.0) {
             gCurrentActor->flags |= 0x800;
         } else {
@@ -4547,7 +4433,7 @@ void playerStateBounceRecover(void) {
         a |= gCurrentActor->y - gCurrentActor->floorY < D_80753DB8[gCurrentCharacterIndex];
     }
     v = 0;
-    if (PLAYER_EXT->unkF8 == 0) {
+    if (gActivePlayerState->unkF8 == 0) {
         x = gCurrentActor->hasArcBounds == 0 || onLedge == 0;
         v = x;
         collisionGetCoords(&hitA, &hitB);
@@ -4563,12 +4449,12 @@ void playerStateBounceRecover(void) {
         playerResumeLocomotion(gCurrentActor);
         gCurrentActor->flags &= ~0x800;
     }
-    if (D_807FD63F[gCurrentPlayerIndex].value >= 0x33 && PLAYER_EXT->unkF8 == 0 && v == 0) {
+    if (D_807FD63F[gCurrentPlayerIndex].value >= 0x33 && gActivePlayerState->unkF8 == 0 && v == 0) {
         actorScriptStartByIndex(gActivePlayerActor, 0x79);
         gCurrentActor->state = 0x5C;
         gCurrentActor->unk155[0] = 0;
-        PLAYER_EXT->unkF0 = gCurrentActor->y + ledgeOffset;
-        PLAYER_EXT->unkF4 = PLAYER_EXT->unkF0;
+        gActivePlayerState->unkF0 = gCurrentActor->y + ledgeOffset;
+        gActivePlayerState->unkF4 = gActivePlayerState->unkF0;
     }
     actorStepPhysics(gCurrentActor, gCurrentActor->moveYaw, gCurrentActor->moveYaw);
     actorApplyVelocity(gCurrentActor);
@@ -4589,19 +4475,19 @@ void playerStateLandRecover(void) {
     gCurrentActor->speedXZ = 0.0f;
     playerInputUpdate(1);
     if (playerProbeLedgeAhead(gCurrentActor, &ledgeY, 1, 15.0f) != 0) {
-        PLAYER_EXT->unkF0 = ledgeY;
+        gActivePlayerState->unkF0 = ledgeY;
     }
-    if (PLAYER_EXT->unkF0 < PLAYER_EXT->unkF4) {
-        f = PLAYER_EXT->unkF4 - PLAYER_EXT->unkF0;
+    if (gActivePlayerState->unkF0 < gActivePlayerState->unkF4) {
+        f = gActivePlayerState->unkF4 - gActivePlayerState->unkF0;
     } else {
-        f = -(PLAYER_EXT->unkF4 - PLAYER_EXT->unkF0);
+        f = -(gActivePlayerState->unkF4 - gActivePlayerState->unkF0);
     }
     if (f > 20.0) {
         playerEnterFall(gCurrentActor);
         actorUpdateModelMatrix(gCurrentActor, 0);
         return;
     }
-    PLAYER_EXT->unkF4 = PLAYER_EXT->unkF0;
+    gActivePlayerState->unkF4 = gActivePlayerState->unkF0;
     gCurrentActor->flags |= 0x08000000;
     actorUpdateModelMatrix(gCurrentActor, 0);
     actorCheckBoundsAndMotion(gCurrentActor);
@@ -4613,18 +4499,18 @@ void playerStateLandRecover(void) {
             if (f < 25.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
                 d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = PLAYER_EXT->unkF0 - d;
+                gCurrentActor->y = gActivePlayerState->unkF0 - d;
                 f = ((ActorModel *)gCurrentActor->sub4->model)->unk4;
             }
             if (f < 25.0f) {
-                gCurrentActor->x = PLAYER_EXT->unkE0;
-                gCurrentActor->z = PLAYER_EXT->unkE4;
+                gCurrentActor->x = gActivePlayerState->unkE0;
+                gCurrentActor->z = gActivePlayerState->unkE4;
             } else if (f < 31.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->speedXZ = 70.0f;
-                gCurrentActor->y = PLAYER_EXT->unkF0;
+                gCurrentActor->y = gActivePlayerState->unkF0;
             } else {
-                gCurrentActor->y = PLAYER_EXT->unkF0;
+                gCurrentActor->y = gActivePlayerState->unkF0;
             }
             break;
         case 5:
@@ -4632,31 +4518,31 @@ void playerStateLandRecover(void) {
             if (f < 17.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
                 d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = PLAYER_EXT->unkF0 - d;
+                gCurrentActor->y = gActivePlayerState->unkF0 - d;
                 f = ((ActorModel *)gCurrentActor->sub4->model)->unk4;
             }
             if (f < 19.0f) {
-                gCurrentActor->x = PLAYER_EXT->unkE0;
-                gCurrentActor->z = PLAYER_EXT->unkE4;
+                gCurrentActor->x = gActivePlayerState->unkE0;
+                gCurrentActor->z = gActivePlayerState->unkE4;
             } else if (f < 29.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->speedXZ = 40.0f;
-                gCurrentActor->y = PLAYER_EXT->unkF0;
+                gCurrentActor->y = gActivePlayerState->unkF0;
             } else {
-                gCurrentActor->y = PLAYER_EXT->unkF0;
+                gCurrentActor->y = gActivePlayerState->unkF0;
             }
             break;
         case 2:
             actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
             d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = PLAYER_EXT->unkF0 - d;
+                gCurrentActor->y = gActivePlayerState->unkF0 - d;
             if (((ActorModel *)gCurrentActor->sub4->model)->unk4 > 16.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
-                gCurrentActor->y = PLAYER_EXT->unkF0;
+                gCurrentActor->y = gActivePlayerState->unkF0;
                 gCurrentActor->speedXZ = 30.0f;
             } else {
-                gCurrentActor->x = PLAYER_EXT->unkE0;
-                gCurrentActor->z = PLAYER_EXT->unkE4;
+                gCurrentActor->x = gActivePlayerState->unkE0;
+                gCurrentActor->z = gActivePlayerState->unkE4;
             }
             break;
         case 6:
@@ -4665,18 +4551,18 @@ void playerStateLandRecover(void) {
             if (f < 18.0f) {
                 actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
                 d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = PLAYER_EXT->unkF0 - d;
-                gCurrentActor->x = PLAYER_EXT->unkE0;
-                gCurrentActor->z = PLAYER_EXT->unkE4;
+                gCurrentActor->y = gActivePlayerState->unkF0 - d;
+                gCurrentActor->x = gActivePlayerState->unkE0;
+                gCurrentActor->z = gActivePlayerState->unkE4;
             } else if (f < 26.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->speedXZ = 50.0f;
-                gCurrentActor->y = PLAYER_EXT->unkF0;
+                gCurrentActor->y = gActivePlayerState->unkF0;
             } else {
-                if (PLAYER_EXT->unkF0 < gCurrentActor->floorY) {
-                    f = gCurrentActor->floorY - PLAYER_EXT->unkF0;
+                if (gActivePlayerState->unkF0 < gCurrentActor->floorY) {
+                    f = gCurrentActor->floorY - gActivePlayerState->unkF0;
                 } else {
-                    f = -(gCurrentActor->floorY - PLAYER_EXT->unkF0);
+                    f = -(gCurrentActor->floorY - gActivePlayerState->unkF0);
                 }
                 if (f >= 20.0) {
                     playerEnterFall(gCurrentActor);
@@ -4688,14 +4574,14 @@ void playerStateLandRecover(void) {
         default:
             actorGetNodePos(gCurrentActor, 7, &nodeX, &nodeY, &nodeZ);
             d = nodeY - gCurrentActor->y;
-                gCurrentActor->y = PLAYER_EXT->unkF0 - d;
+                gCurrentActor->y = gActivePlayerState->unkF0 - d;
             if (((ActorModel *)gCurrentActor->sub4->model)->unk4 > 14.0f) {
                 gCurrentActor->moveYaw = gCurrentActor->yaw;
                 gCurrentActor->speedXZ = 10.0f;
-                gCurrentActor->y = PLAYER_EXT->unkF0;
+                gCurrentActor->y = gActivePlayerState->unkF0;
             } else {
-                gCurrentActor->x = PLAYER_EXT->unkE0;
-                gCurrentActor->z = PLAYER_EXT->unkE4;
+                gCurrentActor->x = gActivePlayerState->unkE0;
+                gCurrentActor->z = gActivePlayerState->unkE4;
             }
             break;
         }
@@ -4703,10 +4589,10 @@ void playerStateLandRecover(void) {
         break;
     case 1:
         playerApplyMotion();
-        if (PLAYER_EXT->unkF0 < gCurrentActor->floorY) {
-            f = gCurrentActor->floorY - PLAYER_EXT->unkF0;
+        if (gActivePlayerState->unkF0 < gCurrentActor->floorY) {
+            f = gCurrentActor->floorY - gActivePlayerState->unkF0;
         } else {
-            f = -(gCurrentActor->floorY - PLAYER_EXT->unkF0);
+            f = -(gCurrentActor->floorY - gActivePlayerState->unkF0);
         }
         if (f < 20.0) {
             gCurrentActor->y = gCurrentActor->floorY;
