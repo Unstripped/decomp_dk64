@@ -3,18 +3,17 @@
 #define PROTO_GLOBAL_E4090_H
 #include "common.h"
 #include "actor.h"
-struct G21Actor1A0;
 struct G26Mob;
 struct G29Act;
 struct G29State;
 #ifndef PROTO_SKIP_playerHolsterGun
-void playerHolsterGun(s32, struct G21Actor1A0 *, u8);
+void playerHolsterGun(Actor *, PlayerState *, u8);
 #endif
 #ifndef PROTO_SKIP_playerDrawGun
-void playerDrawGun(s32, struct G21Actor1A0 *, u8);
+void playerDrawGun(Actor *, PlayerState *, u8);
 #endif
 #ifndef PROTO_SKIP_playerToggleGun
-void playerToggleGun(s32, struct G21Actor1A0 *, u8);
+void playerToggleGun(Actor *, PlayerState *, u8);
 #endif
 #ifndef PROTO_SKIP_mathAngleStepToward
 void mathAngleStepToward(s16 *, s16, s16);

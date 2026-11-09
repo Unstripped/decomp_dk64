@@ -8,6 +8,7 @@
 #define PROTO_SKIP_mathAngleInArcWithMargin // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_modelSlotGetType // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
+#include "sched.h"
 #include "proto/global/10E1D0.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -50,44 +51,35 @@ extern u8 gCurrentPlayerIndex;
 extern PlayerState *gActivePlayerState;
 extern s16 gCurrentCharacterIndex;
 
-typedef struct G21Actor1A0 {
-    /* 0x00 */ u8 pad0[0x8C];
-    /* 0x8C */ u8 unk8C;
-    /* 0x8D */ u8 pad8D[0x1A3 - 0x8D];
-    /* 0x1A3 */ u8 unk1A3;
-    /* 0x1A4 */ u8 unk1A4;
-} G21Actor1A0;
-
-
-void playerHolsterGun(s32 actor, G21Actor1A0 *state, u8 isFirstPerson) {
+void playerHolsterGun(Actor *actor, PlayerState *state, u8 isFirstPerson) {
     s32 id;
 
     id = 0x4A;
     if (isFirstPerson) {
         id = 0x4C;
     }
-    state->unk1A3 = 0;
-    actorScriptStartByIndex((void *)actor, id);
+    state->isHoldingObject = 0;
+    actorScriptStartByIndex(actor, id);
 }
 
-void playerDrawGun(s32 actor, G21Actor1A0 *state, u8 isFirstPerson) {
+void playerDrawGun(Actor *actor, PlayerState *state, u8 isFirstPerson) {
     s32 id;
     s32 a;
 
     id = 0x4B;
     a = 2;
-    if (slotQueueGetValue(3, state->unk1A4)) {
+    if (slotQueueGetValue(3, state->playerIndex)) {
         a = 3;
     }
     slotQueueUpdate(a, 0, 0);
     if (isFirstPerson) {
         id = 0x4D;
     }
-    actorScriptStartByIndex((void *)actor, id);
+    actorScriptStartByIndex(actor, id);
 }
 
-void playerToggleGun(s32 actor, G21Actor1A0 *state, u8 isFirstPerson) {
-    if (state->unk8C) {
+void playerToggleGun(Actor *actor, PlayerState *state, u8 isFirstPerson) {
+    if (state->gunDrawn) {
         playerHolsterGun(actor, state, isFirstPerson);
     } else {
         playerDrawGun(actor, state, isFirstPerson);
@@ -210,12 +202,6 @@ typedef struct PadStickSlot {
 extern PadStickSlot D_807FD63E[]; // gPlayerPadState[].stickX
 extern PadStickSlot D_807FD63F[]; // gPlayerPadState[].stickY
 
-typedef struct G24Main {
-    /* 0x000 */ u8 pad0[0x1A0];
-    /* 0x1A0 */ u16 unk1A0; // PlayerState +0x1A0: pending header (s16/u16 conflict)
-} G24Main;
-
-#define G24_M ((G24Main *)gActivePlayerState)
 
 typedef struct PlayerInputHandlers {
     void (*fn[17])(void);
@@ -224,26 +210,8 @@ typedef struct PlayerInputHandlers {
 #define INPUT_MAX(a, b) ((a) > (b) ? (a) : (b))
 #define INPUT_MIN(a, b) ((a) < (b) ? (a) : (b))
 
-typedef struct G31Cam {
-    /* 0x000 */ u8 pad0[0x210];
-    /* 0x210 */ f32 unk210;
-    /* 0x214 */ f32 unk214;
-    /* 0x218 */ f32 unk218;
-    /* 0x21C */ u8 pad21C[0xC];
-    /* 0x228 */ f32 unk228;
-    /* 0x22C */ f32 unk22C;
-    /* 0x230 */ f32 unk230;
-    /* 0x234 */ u8 pad234[0x48];
-    /* 0x27C */ f32 unk27C;
-    /* 0x280 */ u8 pad280[0x40];
-    /* 0x2C0 */ u8 unk2C0;
-    /* 0x2C1 */ u8 pad2C1[7];
-    /* 0x2C8 */ s16 unk2C8;
-    /* 0x2CA */ u8 pad2CA[0x26];
-} G31Cam;
 
-
-extern G31Cam *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 extern PadRawInput *D_807ECDEC;
 extern u16 D_807ECDF0;
 extern u16 D_80750FF0[];
@@ -472,11 +440,6 @@ typedef struct AnimModelView { // ActorSub4.model as seen by the animation contr
     /* 0x24 */ f32 unk24;
 } AnimModelView;
 
-typedef struct G21ActorEE {
-    /* 0x00 */ u8 pad0[0xEA];
-    /* 0xEA */ s16 unkEA; // Actor +0xEA as s16: pending header (Actor has u8 unkEA[])
-} G21ActorEE;
-
 
 void playerInputUpdateStickFacingYaw(void) {
     f32 dist;
@@ -604,7 +567,7 @@ void playerInputUpdateStickMoveTarget(void) {
 
 void playerStepYawTowardTarget(void) {
     playerUpdateMoveTargetFromStick();
-    mathAngleStepToward(&gCurrentActor->yaw, ((G21ActorEE *)gCurrentActor)->unkEA, gActivePlayerState->turnRate);
+    mathAngleStepToward(&gCurrentActor->yaw, gCurrentActor->unkEA, gActivePlayerState->turnRate);
 }
 
 void playerStepYawTowardAngle(void) {
@@ -795,7 +758,7 @@ void playerTurnByStickX(void) {
     }
     pad = &gPlayerPadState[gCurrentPlayerIndex];
     if (!(pad->heldButtons & 0x2000)) {
-        G24_M->unk1A0 = (u32)((f64)(pad->stickY * 0xCC) * 0.6 + 63000.0);
+        gActivePlayerState->unk1A0 = (u32)((f64)(pad->stickY * 0xCC) * 0.6 + 63000.0);
     }
 }
 
@@ -1231,7 +1194,7 @@ u8 force;
                 }
                 gActivePlayerState->unk91 = LE40B_S->unk90;
                 if (isFirstPerson) {
-                    ang = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].unk228, gPlayerSlots[gCurrentPlayerIndex].unk230, gPlayerSlots[gCurrentPlayerIndex].unk210, gPlayerSlots[gCurrentPlayerIndex].unk218);
+                    ang = mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ);
                 } else {
                     ang = gCurrentActor->yaw;
                 }
@@ -1243,15 +1206,15 @@ u8 force;
                     projectileSetSpawnFlag();
                 }
                 if (isFirstPerson) {
-                    ang2 = gPlayerSlots[gCurrentPlayerIndex].unk218;
-                    projectileSetTargetCoords(gPlayerSlots[gCurrentPlayerIndex].unk210, gPlayerSlots[gCurrentPlayerIndex].unk214, ang2);
-                    dz = gPlayerSlots[gCurrentPlayerIndex].unk230 - gPlayerSlots[gCurrentPlayerIndex].unk218;
-                    dx = gPlayerSlots[gCurrentPlayerIndex].unk228 - gPlayerSlots[gCurrentPlayerIndex].unk210;
-                    ang2 = mathAtan2(gPlayerSlots[gCurrentPlayerIndex].unk22C - gPlayerSlots[gCurrentPlayerIndex].unk214, sqrtf(dz * dz + dx * dx));
+                    ang2 = gPlayerSlots[gCurrentPlayerIndex].camZ;
+                    projectileSetTargetCoords(gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camY, ang2);
+                    dz = gPlayerSlots[gCurrentPlayerIndex].focusZ - gPlayerSlots[gCurrentPlayerIndex].camZ;
+                    dx = gPlayerSlots[gCurrentPlayerIndex].focusX - gPlayerSlots[gCurrentPlayerIndex].camX;
+                    ang2 = mathAtan2(gPlayerSlots[gCurrentPlayerIndex].focusY - gPlayerSlots[gCurrentPlayerIndex].camY, sqrtf(dz * dz + dx * dx));
                     speedY = D_80753E2C[gCurrentCharacterIndex] * sinApprox(ang2);
                     speedXZ = D_80753E2C[gCurrentCharacterIndex] * cosApprox(ang2);
                     projectileSpawnNodeEntry(spawnId, (s16)flags, scale,
-                                             mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].unk228, gPlayerSlots[gCurrentPlayerIndex].unk230, gPlayerSlots[gCurrentPlayerIndex].unk210, gPlayerSlots[gCurrentPlayerIndex].unk218),
+                                             mathAngleBetweenPoints2D(gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusZ, gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camZ),
                                              speedXZ, speedY, gActivePlayerActor);
                 } else {
                     if ((gCurrentActor->actorType == 2 || gCurrentActor->actorType == 3 || gCurrentActor->actorType == 6 || gCurrentActor->actorType == 7)) {
@@ -1595,7 +1558,7 @@ void playerInputStepCannonPitch(void) {
     f32 a;
     s32 t;
 
-    a = G24_M->unk1A0 + 0x9E8;
+    a = gActivePlayerState->unk1A0 + 0x9E8;
     if (a >= 32768.0f) {
         a -= 65536.0f;
     }
@@ -1681,12 +1644,12 @@ void playerInputResetCannonPitch(void) {
 
 
 void playerStepPitchAngleToward(f32 target) {
-    G24Main *m;
+    PlayerState *ps;
     f32 pitch;
     u16 raw;
 
-    m = G24_M;
-    raw = m->unk1A0;
+    ps = gActivePlayerState;
+    raw = ps->unk1A0;
     if ((s32)raw < 0x8000) {
         pitch = (s32)raw + 0x10000;
     } else {
@@ -1704,7 +1667,7 @@ void playerStepPitchAngleToward(f32 target) {
             pitch = target;
         }
     }
-    m->unk1A0 = (u32)pitch;
+    ps->unk1A0 = (u32)pitch;
 }
 
 void playerInputHandleStickAction(void) {
@@ -1868,7 +1831,7 @@ void playerInputHandleBButtonGun(void) {
             actorScriptStartByIndex(gCurrentActor, 0x44);
             gCurrentActor->state = 0x29;
             gCurrentActor->unk155[0] = 0;
-            ((G21ActorEE *)gCurrentActor)->unkEA = gCurrentActor->moveYaw;
+            gCurrentActor->unkEA = gCurrentActor->moveYaw;
             gCurrentActor->speedXZ = 150.0f;
             gActivePlayerState->targetSpeed = 150.0f;
         } else {
@@ -2059,7 +2022,7 @@ void playerInputHandleZButtonFire(void) {
         } else if (!func_80714608(0) && !(gGlobalOverlayFlags & 0x80000200) && (D_807FD568[2] & 1) &&
                    !(gActivePlayerState->stateFlags & 0x30) &&
                    (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
-            playerToggleGun((s32)gCurrentActor, (G21Actor1A0 *)gActivePlayerState, 1);
+            playerToggleGun(gCurrentActor, gActivePlayerState, 1);
         }
         gActivePlayerState->unk60 = D_80767CC0;
     }
@@ -2079,8 +2042,8 @@ void playerInputHandleZButtonShoot(void) {
             func_806EAB44(gCurrentActor, 0);
         } else if (!func_80714608(0) && !(gGlobalOverlayFlags & 0x200) && (D_807FD568[2] & 1) &&
                    (gPlayerSlots[gCurrentPlayerIndex].unk2C0 == 1)) {
-            playerToggleGun((s32)gCurrentActor, (G21Actor1A0 *)gActivePlayerState, 1);
-            gPlayerSlots[gCurrentPlayerIndex].unk27C = 45.0f;
+            playerToggleGun(gCurrentActor, gActivePlayerState, 1);
+            gPlayerSlots[gCurrentPlayerIndex].fov = 45.0f;
         }
         gActivePlayerState->unk60 = D_80767CC0;
     }
@@ -2231,12 +2194,6 @@ int func_806E560C(G26Mob *mob) {
     return ret;
 }
 
-typedef struct G26Plr {
-    /* 0x000 */ u8 pad0[0x1FE];
-    /* 0x1FE */ s16 unk1FE; // PlayerState +0x1FE: inside cartDamage, pending header
-} G26Plr;
-
-#define G26_PL ((G26Plr *)gActivePlayerState)
 
 extern u8 D_807F6903;
 extern s32 D_8076A094;
@@ -2295,7 +2252,7 @@ s32 playerInputCheckMultiplayerPlayerTarget() {
             case 4:
                 if (!(gActivePlayerState->stateFlags & 0x40)) {
                     playerTransformAnimalStartSfx(gPrimaryPlayerActor);
-                    G26_PL->unk1FE = GLOBAL_TRIGGER->unk10;
+                    gActivePlayerState->unk1FE = GLOBAL_TRIGGER->unk10;
                 }
                 return 1;
             case 0:
@@ -3074,14 +3031,8 @@ typedef struct G29Act {
     G29Obj178 *unk178;
 } G29Act;
 
-typedef struct G29Main {
-    /* 0x000 */ u8 pad0[0x23C];
-    /* 0x23C */ u16 unk23C; // PlayerState +0x23C: pending header
-} G29Main;
 
 
-
-#define G29_M ((G29Main *)gActivePlayerState)
 
 extern f32 D_80750FF8;
 extern f32 D_80750FFC;
@@ -3121,13 +3072,13 @@ void playerInputRegisterAnimatedEffect(void) {
         pad->stickY = -t;
     }
     if (pad->stickX < -0x1E) {
-        G29_M->unk23C = 0x28;
+        gActivePlayerState->unk23C = 0x28;
         st->unk42 = 1;
     } else if (pad->stickX >= 0x1F) {
-        G29_M->unk23C = 0x28;
+        gActivePlayerState->unk23C = 0x28;
         st->unk42 = 2;
-    } else if (G29_M->unk23C != 0) {
-        G29_M->unk23C--;
+    } else if (gActivePlayerState->unk23C != 0) {
+        gActivePlayerState->unk23C--;
     } else {
         st->unk42 = 0;
     }
@@ -3145,8 +3096,8 @@ void playerInputSetClimbTimer100(void) {
 
     st = gActivePlayerState->actor->customState;
     st->unk3E = 0x64;
-    if (G29_M->unk23C != 0) {
-        G29_M->unk23C--;
+    if (gActivePlayerState->unk23C != 0) {
+        gActivePlayerState->unk23C--;
     }
 }
 
@@ -3644,7 +3595,7 @@ void func_806E9804(callbackId) s16 callbackId; {
 void func_806E9874(void) {
     if (!(gGlobalOverlayFlags & 2) && (gPlayerCharacterId[gCurrentPlayerIndex] < 5)) {
         func_806E9804(6);
-        gPlayerSlots[gCurrentPlayerIndex].unk27C = 45.0f;
+        gPlayerSlots[gCurrentPlayerIndex].fov = 45.0f;
     }
 }
 
@@ -3694,7 +3645,7 @@ void func_806E9B3C(void) {
 
 
 void func_806E9BA8(s32 newState) {
-    G31Cam *cam;
+    PlayerStruct *cam;
 
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
         if (!(gActivePlayerState->stateFlags & 0x8000)) {
@@ -3703,8 +3654,8 @@ void func_806E9BA8(s32 newState) {
                 gCurrentActor->state = newState;
                 gCurrentActor->unk155[0] = 0;
                 slotQueueAddValue(6, gCurrentPlayerIndex, -1);
-                cam = (G31Cam *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0); // FAKE: byte-offset slot pointer keeps the multu stride (Q0303)
-                lightAdd(cam->unk210, cam->unk214, cam->unk218, cam->unk228, cam->unk22C, cam->unk230, 0.0f, 1, 0xFF, 0xFF, 0xFF);
+                cam = (PlayerStruct *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0); // FAKE: byte-offset slot pointer keeps the multu stride (Q0303)
+                lightAdd(cam->camX, cam->camY, cam->camZ, cam->focusX, cam->focusY, cam->focusZ, 0.0f, 1, 0xFF, 0xFF, 0xFF);
             }
         }
     }
@@ -3862,39 +3813,39 @@ f32 aimStickSpeedScale(void) {
 void cameraZoomIn(void) {
     f32 limit;
     f32 next;
-    G31Cam *cam;
+    PlayerStruct *cam;
     s32 buttons;
 
     buttons = gPlayerPadState[gCurrentPlayerIndex].heldButtons;
     if (!(buttons & 0x2000) && !(buttons & 2) && (gCurrentActor->state == 2)) {
         limit = (gCurrentMap == 0x22) ? 15.0 : 13.0;
-        cam = (G31Cam *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0); // FAKE: byte-offset slot pointer keeps the multu stride (Q0303)
-        next = cam->unk27C - 1.5f;
+        cam = (PlayerStruct *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0); // FAKE: byte-offset slot pointer keeps the multu stride (Q0303)
+        next = cam->fov - 1.5f;
         if (limit < next) {
-            cam->unk27C = next;
+            cam->fov = next;
             sfxPlayActorSound(gCurrentActor, 0x1F0, 0, 0, 0, 0xFF, 1.0f, -1);
             return;
         }
-        cam->unk27C = limit;
+        cam->fov = limit;
         sfxStopSlotSound(gCurrentActor, 0);
     }
 }
 
 void cameraZoomOut(void) {
     f32 next;
-    G31Cam *cam;
+    PlayerStruct *cam;
     s32 buttons;
 
     buttons = gPlayerPadState[gCurrentPlayerIndex].heldButtons;
     if (!(buttons & 0x2000) && !(buttons & 1) && (gCurrentActor->state == 2)) {
-        cam = (G31Cam *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0); // FAKE: byte-offset slot pointer keeps the multu stride (Q0303)
-        next = cam->unk27C + 1.5f;
+        cam = (PlayerStruct *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0); // FAKE: byte-offset slot pointer keeps the multu stride (Q0303)
+        next = cam->fov + 1.5f;
         if (next < 45.0) {
-            cam->unk27C = next;
+            cam->fov = next;
             sfxPlayActorSound(gCurrentActor, 0x1F0, 0, 0, 0, 0xFF, 1.0f, -1);
             return;
         }
-        cam->unk27C = 45.0f;
+        cam->fov = 45.0f;
         sfxStopSlotSound(gCurrentActor, 0);
     }
 }
