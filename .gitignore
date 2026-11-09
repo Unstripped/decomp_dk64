@@ -18,3 +18,4 @@ __pycache__/
 /.scratch/
 /emu/
 /.dkd/
+/compile_commands.json

@@ -1,0 +1,1073 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["libclang==18.1.1"]
+# ///
+"""Code-quality ledger of the cleanup campaign: FAKE/goto/untagged-hack sites per C function, the
+method ladder that exhausts them, and the per-function `review` coverage.
+
+  uv run tools/quality.py sweep <src.c>... [-j N] [--copy-of <src.c>] [--record --unit U]
+  uv run tools/quality.py record --unit U --agent A [--base REV] --batch FILE|-
+  uv run tools/quality.py status [--file src/..c] [--func NAME]
+  uv run tools/quality.py rank [--seg S] [--limit N]
+  uv run tools/quality.py report [--baseline REV] [--markdown]
+
+Ledger: drafts/quality.jsonl (env DK64_QUALITY_LEDGER overrides), append-only. Functions are keyed
+by (seg, vram): symbol file / asm / link map via tools/ledger.py, else the build ELF symbol table,
+else (statics IDO keeps out of the symbol table) the object's .mdebug procedure symbol plus its
+link-map .text address; an unresolvable function is an error.
+
+Sites: every `// FAKE` or `// PROTO:` line outside `#ifdef NON_MATCHING` (file-scope lines belong
+to the first later function that names the declared symbol), plus clint's AST `untagged` hits
+(gotos always). Key `<seg>:<VRAM8>:<kind>:<sha1(code without comments/whitespace)[:6]>[#n]`; an
+untagged site's hash starts with `u`; #n (n >= 2) orders identical sites within the function.
+
+Ladder (required fresh methods per kind; first missing = next):
+  dead-if                        remove cond classify, then diagnose permute unless classify kept
+  volatile do-while0 dead-store  remove cond diagnose permute
+  noop-arith comma punned-cast other  plain diagnose permute
+  proto-steer implicit-steer     consolidate diagnose
+  goto                           goto-hand kept, or goto-hand permute
+  proto-type                     never exhausted (its function ignores it after a fresh `views` blocked)
+Satisfied by the method's newest event when fresh and not `blocked`; a fresh `hit` means next=apply.
+Fresh: remove/plain/cond/classify/consolidate/views/names need equal fp_local and fp_hdr;
+diagnose/permute/reconstruct/goto-hand/review need equal fp_local and no knowledge/ido file
+committed after the event that names the function or is a top-8 hit for the event's note.
+A function is EXHAUSTED with a fresh `review`, every site exhausted, and (3+ non-kept sites) a
+fresh function-level `reconstruct`; without a fresh review it is OPEN next=review.
+
+sweep: remove (dead ifs, (void)x, dead stores, do{}while(0) wrappers, volatile; all together,
+  singles, pairs if >2, triples if 3..6), plain (one rewrite per site line), cond (condition flips
+  with all / each removal, pre-scored by deadsweep score --body), classify (dead if -> `if (<int
+  local>) {}`: kept = class 1). A hit needs tools/fdiff.sh exit 0 and no new clint uninit pair; it
+  is written to .scratch/quality/hits/<seg>_<file>_<n>.c (`HIT <keys> <method> <path>`), never
+  applied. --record appends one event per site and method (agent `sweep`).
+record line: <site-key|func:<seg>:<name>> <method> <outcome> [quirks=Q1,Q2] [seconds=N] [base=N]
+  [best=N] [commit=H] [note="..."]; all lines validated (keys at HEAD, fixed sites at --base REV)
+  before anything is written.
+"""
+import argparse
+import collections
+import hashlib
+import itertools
+import json
+import multiprocessing
+import os
+import re
+import shlex
+import shutil
+import struct
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import clint  # noqa: E402
+import ledger  # noqa: E402
+import quirks  # noqa: E402
+from clang.cindex import CursorKind, StorageClass, TypeKind  # noqa: E402
+
+ROOT = clint.ROOT
+LEDGER = os.environ.get("DK64_QUALITY_LEDGER") or os.path.join(ROOT, "drafts", "quality.jsonl")
+SCRATCH = os.path.join(ROOT, ".scratch", "quality")
+
+KINDS = ("dead-if", "volatile", "do-while0", "dead-store", "noop-arith", "comma", "punned-cast",
+         "proto-steer", "implicit-steer", "proto-type", "goto", "other")
+LADDER = {"dead-if": ("remove", "cond", "classify", "diagnose", "permute"),
+          **dict.fromkeys(("volatile", "do-while0", "dead-store"), ("remove", "cond", "diagnose", "permute")),
+          **dict.fromkeys(("noop-arith", "comma", "punned-cast", "other"), ("plain", "diagnose", "permute")),
+          **dict.fromkeys(("proto-steer", "implicit-steer"), ("consolidate", "diagnose")),
+          "goto": ("goto-hand", "permute"), "proto-type": ()}
+METHODS = ("remove", "plain", "cond", "classify", "consolidate", "diagnose", "permute", "reconstruct",
+           "goto-hand", "views", "names", "review")
+AUTO = {"remove", "plain", "cond", "classify", "consolidate", "views", "names"}
+FUNC_ONLY = {"views", "names", "review"}
+OUTCOMES = ("hit", "fixed", "nohit", "kept", "blocked")
+CHECKLIST = ("fake", "goto", "casts", "views", "protos", "temps", "names", "uninit")
+PLAIN_KINDS = {"noop-arith", "comma", "punned-cast", "other"}
+
+DEAD_IF = re.compile(r"if \(.*\)\s*\{\s*\}")
+NOOP = re.compile(r"\^ ?0\b|\| ?0\b|& ?0\b|\* ?0\b|\+ ?0U?\b")
+DO_WHILE = re.compile(r"\bdo \{|while \(0\)")
+PUN = re.compile(r"\*\([^)]*\*\)&")
+GUARD = re.compile(r"^(\s*)if \((.*)\)\s*\{\s*\}\s*(//.*)?$")
+VOID = re.compile(r"^\s*\(void\)[^;]*;\s*(//.*)?$")
+STORE = re.compile(r"^\s*[A-Za-z_]\w*(\[[^\]]*\])?\s*=\s*[^=;][^;]*;\s*//")
+DEAD_WORD = re.compile(r"dead|kill|no-code|extra web|ghost", re.I)
+DO_OPEN = re.compile(r"^\s*do \{\s*$")
+DO_CLOSE = re.compile(r"^\s*\}\s*while \(0\);\s*$")
+GOTO = re.compile(r"\bgoto\b")
+SITE_KEY = re.compile(r"^(\w+):([0-9A-F]{8}):([a-z0-9-]+):([0-9a-fu][0-9a-f]{5})(?:#(\d+))?$")
+FUNC_KEY = re.compile(r"^func:(\w+):(\w+)$")
+INCLUDE = re.compile(r'^[ \t]*#[ \t]*include[ \t]+"([^"]+)"', re.M)
+HDR_DIRS = ("include", "include/PR", "include/libultra", "include/compiler/ido")
+INT_KINDS = {TypeKind.BOOL, TypeKind.CHAR_U, TypeKind.UCHAR, TypeKind.USHORT, TypeKind.UINT, TypeKind.ULONG,
+             TypeKind.ULONGLONG, TypeKind.CHAR_S, TypeKind.SCHAR, TypeKind.SHORT, TypeKind.INT, TypeKind.LONG,
+             TypeKind.LONGLONG}
+PLAIN = [(re.compile(r"\s*\^\s*0\b"), ""), (re.compile(r"\s*\|\s*0\b"), ""), (re.compile(r"\s*\+\s*0U?\b"), ""),
+         (re.compile(r"\s*&\s*0xFFFFFFFF\b"), ""), (re.compile(r"\(0,\s*"), "("),
+         (re.compile(r"\*\(\w+\s*\*\)&(\w+)"), r"\1"), (re.compile(r"\(s16\)\(s32\)"), "(s16)"),
+         (re.compile(r"\[([^\]]+) \* 1\]"), r"[\1]")]
+FLIPS = [(re.compile(r"\bif \(([^()]*?) != 0\)"), r"if (\1)"),
+         (re.compile(r"\bif \(([^()]*?) == 0\)"), r"if (!\1)"),
+         (re.compile(r"\bif \(!([A-Za-z_][\w\->\.\[\]]*)\)"), r"if (\1 == 0)"),
+         (re.compile(r"\bif \(([A-Za-z_][\w\->\.\[\]]*)\) \{(?!\})"), r"if (\1 != 0) {")]
+
+
+def rel(p):
+    return os.path.relpath(os.path.abspath(p), ROOT)
+
+
+def seg_of(path):
+    parts = rel(path).split(os.sep)
+    if len(parts) < 3 or parts[0] != "src":
+        sys.exit(f"quality: {path}: not a src/<seg>/ file (sweep a copy with --copy-of <src.c>)")
+    return parts[1]
+
+
+def seg_files(seg):
+    d = os.path.join(ROOT, "src", seg)
+    return sorted(os.path.join("src", seg, f) for f in os.listdir(d) if f.endswith(".c"))
+
+
+# ---------------------------------------------------------------- function identity
+
+_elf, _mdebug, _text = {}, {}, {}
+
+
+def elf_secs(d):
+    shoff, = struct.unpack_from(">I", d, 0x20)
+    shentsize, shnum = struct.unpack_from(">HH", d, 0x2E)
+    return [struct.unpack_from(">IIIIIIIIII", d, shoff + i * shentsize) for i in range(shnum)]
+
+
+def cstr(d, a):
+    return d[a:d.index(b"\0", a)].decode("latin-1")
+
+
+def elf_funcs(seg):
+    """{name: [(vram, object stem)]} of every FUNC symbol of the segment's build ELF (local ones included)."""
+    if seg not in _elf:
+        path = os.path.join(ROOT, "build", "dk64.us.elf" if seg == "boot" else f"{seg}.elf")
+        out = collections.defaultdict(list)
+        if os.path.exists(path):
+            d = open(path, "rb").read()
+            secs = elf_secs(d)
+            for s in secs:
+                if s[1] != 2:  # SHT_SYMTAB
+                    continue
+                strtab, stem = secs[s[6]][4], None
+                for i in range(s[5] // (s[9] or 16)):
+                    nm, val, _, info, _, _ = struct.unpack_from(">IIIBBH", d, s[4] + i * (s[9] or 16))
+                    if info & 0xF == 4:  # STT_FILE: the locals that follow belong to it
+                        stem = os.path.splitext(os.path.basename(cstr(d, strtab + nm)))[0]
+                    elif info & 0xF == 2:
+                        out[cstr(d, strtab + nm)].append((val, stem if info >> 4 == 0 else None))
+        _elf[seg] = dict(out)
+    return _elf[seg]
+
+
+def mdebug_procs(obj):
+    """{name: .text offset} of the procedure symbols of an IDO object's .mdebug (static functions,
+    which IDO leaves out of the ELF symbol table, included)."""
+    if obj not in _mdebug:
+        out, path = {}, os.path.join(ROOT, obj)
+        if os.path.exists(path):
+            d = open(path, "rb").read()
+            for s in elf_secs(d):
+                if s[1] != 0x70000005:  # SHT_MIPS_DEBUG (ECOFF symbolic header)
+                    continue
+                h = struct.unpack_from(">hh" + "I" * 23, d, s[4])[2:]
+                sym_off, ss_off, nfd, fd_off = h[8], h[14], h[17], h[18]
+                for f in range(nfd):
+                    _, _, iss_base, _, isym_base, csym = struct.unpack_from(">IIIIII", d, fd_off + f * 72)
+                    for i in range(csym):
+                        iss, val, bits = struct.unpack_from(">III", d, sym_off + (isym_base + i) * 12)
+                        if bits >> 26 in (6, 14):  # stProc, stStaticProc
+                            out.setdefault(cstr(d, ss_off + iss_base + iss), val)
+        _mdebug[obj] = out
+    return _mdebug[obj]
+
+
+def text_base(seg, obj):
+    """Link-map .text address of one object of SEG."""
+    if seg not in _text:
+        path, out = os.path.join(ROOT, "build", "dk64.us.map" if seg == "boot" else f"{seg}.map"), {}
+        if os.path.exists(path):
+            for line in open(path):
+                m = re.match(r"\s*\.text\s+0x([0-9a-f]+)\s+0x[0-9a-f]+\s+(\S+\.o)\s*$", line)
+                if m:
+                    out.setdefault(m.group(2), int(m.group(1), 16))
+        _text[seg] = out
+    return _text[seg].get(obj)
+
+
+def resolve_vram(seg, name, src):
+    """VRAM of function NAME defined in SRC: symbol file / asm / link map (tools/ledger.py), else the
+    build ELF symbol table, else the object's .mdebug procedure plus its link-map .text address."""
+    v = ledger.vram_of(seg, name)
+    if v is not None:
+        return v
+    cands = elf_funcs(seg).get(name, [])
+    stem = os.path.splitext(os.path.basename(src))[0]
+    mine = [x for x, f in cands if f == stem]
+    if len(mine) == 1:
+        return mine[0]
+    if len(cands) == 1:
+        return cands[0][0]
+    obj = "build/" + src[:-2] + ".o"
+    off, base = mdebug_procs(obj).get(name), text_base(seg, obj)
+    return None if off is None or base is None else base + off
+
+
+def names_at(seg, vram):
+    return [ledger.name_of(seg, vram)] + [n for n, c in elf_funcs(seg).items() if any(v == vram for v, _ in c)]
+
+
+def require_resolved(analyses):
+    bad = [(an["path"], n) for an in analyses for n in an["unresolved"]]
+    for p, n in bad:
+        print(f"quality: cannot resolve {n} ({p}): not in the symbol file, asm, link map or build ELF",
+              file=sys.stderr)
+    if bad:
+        sys.exit(1)
+
+
+# ---------------------------------------------------------------- sites
+
+def split_comment(line):
+    i = line.find("//")
+    return (line, "") if i < 0 else (line[:i], line[i:])
+
+
+def dead_store(line):
+    code, cm = split_comment(line)
+    return bool(STORE.match(line)) and code.count(";") == 1 and "while" not in code and bool(DEAD_WORD.search(cm))
+
+
+def kind_of(line):
+    """Kind of a tagged (`// FAKE` / `// PROTO:`) line, from its comment text and code."""
+    code, cm = split_comment(line)
+    if "callee prototype steer" in cm:
+        return "proto-steer"
+    if "implicit declaration steer" in cm:
+        return "implicit-steer"
+    if "// PROTO:" in line:
+        return "proto-type"
+    for kind, rx in (("dead-if", DEAD_IF), ("volatile", re.compile("volatile")), ("noop-arith", NOOP),
+                     ("do-while0", DO_WHILE), ("comma", re.compile(r"\(0, ")), ("punned-cast", PUN)):
+        if rx.search(code):
+            return kind
+    return "dead-store" if dead_store(line) else "other"
+
+
+def norm(lines):
+    return re.sub(r"\s+", "", ledger.COMMENT.sub("", "\n".join(lines)))
+
+
+def parked_lines(lines):
+    """Line indexes inside the NON_MATCHING side of `#ifdef NON_MATCHING` / `#ifndef` conditionals."""
+    out, stack = set(), []
+    for i, l in enumerate(lines):
+        m = re.match(r"\s*#\s*(ifdef|ifndef|if|elif|else|endif)\b(.*)", l)
+        if m:
+            d, rest = m.groups()
+            if d in ("ifdef", "ifndef", "if"):
+                nm = "NON_MATCHING" in rest
+                neg = d == "ifndef" or "!" in rest
+                stack.append(("live" if neg else "park") if nm else "other")
+            elif d in ("else", "elif") and stack:
+                stack[-1] = {"park": "live", "live": "park"}.get(stack[-1], "other")
+            elif d == "endif" and stack:
+                stack.pop()
+            continue
+        if "park" in stack:
+            out.add(i)
+    return out
+
+
+def do_pair(lines, i):
+    """(open, close) line indexes of the `do {` ... `} while (0);` wrapper tagged at line I, or None."""
+    code = split_comment(lines[i])[0]
+    if DO_CLOSE.match(code):
+        depth = 0
+        for j in range(i - 1, -1, -1):
+            t = split_comment(lines[j])[0]
+            depth += t.count("}") - t.count("{")
+            if DO_OPEN.match(t) and depth < 0:
+                return (j, i)
+    elif DO_OPEN.match(code):
+        depth = 1
+        for j in range(i + 1, len(lines)):
+            t = split_comment(lines[j])[0]
+            if DO_CLOSE.match(t) and depth == 1:
+                return (i, j)
+            depth += t.count("{") - t.count("}")
+    return None
+
+
+def owner_of(i, code, defs, lines):
+    """Index into DEFS of the function a file-scope site at line index I serves: the first later
+    definition whose body names the declared symbol, else any that does, else the next one."""
+    m = (re.search(r"PROTO_SKIP_(\w+)", code) or re.search(r"(\w+)\s*\(", code)
+         or re.search(r"(\w+)\s*(?:\[[^\]]*\]\s*)*[=;]", code))
+    if m:
+        rx = re.compile(rf"\b{re.escape(m.group(1))}\b")
+        use = [k for k, d in enumerate(defs) if rx.search("\n".join(lines[d["line"]:d["end"]]))]
+        after = [k for k in use if d_after(defs[k], i)]
+        if after or use:
+            return (after or use)[0]
+    nxt = [k for k, d in enumerate(defs) if d_after(d, i)]
+    return nxt[0] if nxt else (len(defs) - 1 if defs else None)
+
+
+def d_after(d, i):
+    return d["line"] - 1 >= i
+
+
+_htext = {}
+
+
+def header_text(p):
+    if p not in _htext:
+        _htext[p] = open(os.path.join(ROOT, p), encoding="utf-8", errors="replace").read()
+    return _htext[p]
+
+
+def fp_hdr(text, here):
+    """sha1 of every include/ header TEXT quote-includes, transitively."""
+    seen = set()
+
+    def visit(text, here):
+        for inc in INCLUDE.findall(text):
+            for d in (here, *HDR_DIRS):
+                p = os.path.normpath(os.path.join(d, inc))
+                if os.path.isfile(os.path.join(ROOT, p)):
+                    break
+            else:
+                continue
+            if p.startswith("include" + os.sep) and p not in seen:
+                seen.add(p)
+                visit(header_text(p), os.path.dirname(p))
+
+    visit(text, here)
+    h = hashlib.sha1()
+    for p in sorted(seen):
+        h.update(f"{p}\0{header_text(p)}\0".encode("utf-8", "replace"))
+    return h.hexdigest()[:16]
+
+
+def text_metrics(text):
+    c = collections.Counter()
+    for line in text.split("\n"):
+        if "// FAKE" in line:
+            c["FAKE"] += 1
+            c["FAKE " + kind_of(line)] += 1
+        if "// LAYOUT" in line:
+            c["LAYOUT"] += 1
+        if "// PROTO:" in line:
+            c["proto-type"] += 1
+    c["goto"] = len(GOTO.findall(ledger.COMMENT.sub("", text)))
+    return c
+
+
+def analyze(path, seg, text=None, uninit=False, src=None):
+    """dict(path, seg, fp_hdr, functions=[dict(name, static, line, end, seg, vram, fp_local, fp_hdr,
+    metrics, int_locals, sites=[dict(key, kind, line, lines, tagged, code, name)])], unresolved,
+    uninit=[(func, var, line)], text=text metrics, errors) of one C file (TEXT: its content, e.g. at a
+    rev; SRC: the src file PATH is a copy of, for function identity)."""
+    path = rel(path)
+    full = os.path.join(ROOT, path)
+    if text is None:
+        text = open(full, encoding="utf-8", errors="replace").read()
+    lines = text.split("\n")
+    args = clint.clang_args(warnings=True) if uninit else None
+    tu = clint.parse(path, args=args, unsaved=[(full, text)])
+    defs = []
+    for name, st, d, _, s, e, c in clint.functions(tu, path):
+        if not d:
+            continue
+        m, hits = clint.function_metrics(c, lines)
+        locs = [(x.spelling, x.location.line) for x in clint.walk(c) if x.kind == CursorKind.VAR_DECL
+                and x.storage_class != StorageClass.STATIC and x.type.get_canonical().kind in INT_KINDS]
+        defs.append(dict(name=name, static=st, line=s, end=e, seg=seg, metrics=m, untagged=hits,
+                         int_locals=locs, sites=[]))
+    inside = {i: k for k, d in enumerate(defs) for i in range(d["line"] - 1, d["end"])}
+    top = "\n".join(l for i, l in enumerate(lines) if i not in inside)
+    hdr = fp_hdr(text, os.path.dirname(path))
+    raw, park, paired = collections.defaultdict(list), parked_lines(lines), set()
+    for i, l in enumerate(lines):
+        if ("// FAKE" not in l and "// PROTO:" not in l) or i in park or i in paired:
+            continue
+        code = split_comment(l)[0]
+        if GOTO.search(code):
+            continue  # gotos are AST sites
+        kind, idx = kind_of(l), (i,)
+        if kind == "do-while0":
+            idx = do_pair(lines, i) or idx
+            paired.update(idx)
+        k = inside.get(i)
+        if k is None:
+            k = owner_of(i, code, defs, lines)
+        if k is not None:
+            raw[k].append((idx, kind, True))
+    for k, d in enumerate(defs):
+        raw[k] += [((line - 1,), kind, False) for line, kind, _ in d.pop("untagged")]
+    unresolved = []
+    for k, d in enumerate(defs):
+        v = d["vram"] = resolve_vram(seg, d["name"], src or path)
+        if v is None:
+            unresolved.append(d["name"])
+        d["fp_local"] = ledger.sha1("\n".join(lines[d["line"] - 1:d["end"]]) + "\0" + top)[:16]
+        d["fp_hdr"] = hdr
+        seen = collections.Counter()
+        for idx, kind, tagged in sorted(raw[k], key=lambda r: (r[0][0], not r[2])):
+            h = ledger.sha1(norm(lines[j] for j in idx))[:6]
+            if not tagged:
+                h = "u" + h[1:]
+            seen[(kind, h)] += 1
+            n = seen[(kind, h)]
+            key = None if v is None else f"{seg}:{v:08X}:{kind}:{h}" + (f"#{n}" if n > 1 else "")
+            d["sites"].append(dict(key=key, kind=kind, line=idx[0] + 1, lines=list(idx), tagged=tagged,
+                                   code=lines[idx[0]].strip(), name=d["name"]))
+    unin = [(f, var, line) for (f, var), line in clint.uninit(path, tu).items()] if uninit else []
+    return dict(path=path, seg=seg, fp_hdr=hdr, functions=defs, unresolved=unresolved, uninit=unin,
+                text=dict(text_metrics(text)), errors=tu.diagnostics_errors)
+
+
+def _analyze_job(job):
+    return analyze(*job)
+
+
+def analyze_many(paths, uninit=False):
+    jobs = [(p, seg_of(p), None, uninit) for p in paths]
+    if len(jobs) <= 2:
+        return [_analyze_job(j) for j in jobs]
+    with multiprocessing.get_context("spawn").Pool(min(os.cpu_count() or 4, len(jobs))) as pool:
+        return pool.map(_analyze_job, jobs, chunksize=2)
+
+
+# ---------------------------------------------------------------- ledger and exhaustion
+
+def load_events():
+    if not os.path.exists(LEDGER):
+        return []
+    return [json.loads(line) for line in open(LEDGER) if line.strip()]
+
+
+def index_events(events):
+    """(site key -> events, (seg, VRAM8) -> function-level events), each in ledger order."""
+    by_site, by_func = collections.defaultdict(list), collections.defaultdict(list)
+    for e in events:
+        if e.get("type") == "quality":
+            (by_site[e["site"]] if e["site"] else by_func[(e["seg"], e["vram"])]).append(e)
+    return by_site, by_func
+
+
+def append_events(events):
+    os.makedirs(os.path.dirname(LEDGER), exist_ok=True)
+    with open(LEDGER, "a") as f:
+        for e in events:
+            f.write(json.dumps(e) + "\n")
+
+
+def unit_events(unit, events):
+    if any(e.get("type") == "unit" and e.get("unit") == unit for e in events):
+        return []
+    return [{"type": "unit", "t": ledger.now(), "unit": unit, "commit": ledger.git("rev-parse", "HEAD").strip()}]
+
+
+def event(unit, agent, fn, site, method, outcome, quirks=(), seconds=None, base=None, best=None, commit=None,
+          note=None):
+    return {"type": "quality", "t": ledger.now(), "unit": unit, "agent": agent, "seg": fn["seg"],
+            "vram": f"{fn['vram']:08X}", "name": fn["name"], "file": fn["file"],
+            "site": site["key"] if site else None, "kind": site["kind"] if site else None, "method": method,
+            "outcome": outcome, "fp_local": fn["fp_local"], "fp_hdr": fn["fp_hdr"], "quirks": list(quirks),
+            "seconds": seconds, "base": base, "best": best, "commit": commit, "note": note}
+
+
+_know = {}
+
+
+def knowledge_after(name, note, t):
+    """Whether a knowledge/ido file committed after T names NAME or is a top-8 hit for NOTE."""
+    if "times" not in _know:
+        _know["times"] = ledger.knowledge_times()
+        _know["newest"] = max((v for v in _know["times"].values() if v), default="")
+    if _know["newest"] <= t:
+        return False
+    if "corpus" not in _know:
+        _know["corpus"] = quirks.load()
+    key = (name, note or "")
+    if key not in _know:
+        _know[key] = ledger.related_knowledge(_know["corpus"], name, note)
+    return any((_know["times"].get(p) or "") > t for p in _know[key])
+
+
+def fresh(e, now_fp, name):
+    if e["fp_local"] != now_fp[0]:
+        return False
+    if e["method"] in AUTO:
+        return e["fp_hdr"] == now_fp[1]
+    return not knowledge_after(name or e["name"], e["note"], e["t"])
+
+
+def mark(evs, method, now_fp, name):
+    """('✓' | 'stale' | '—', newest event of METHOD or None, whether it is fresh)."""
+    e = next((x for x in reversed(evs) if x["method"] == method), None)
+    if e is None:
+        return "—", None, False
+    if not fresh(e, now_fp, name):
+        return "stale", e, False
+    return ("—" if e["outcome"] == "blocked" else "✓"), e, True
+
+
+def ladder(site, events, now_fp):
+    """dict(done, next, marks={method: mark}, kept) of one site."""
+    evs = [e for e in events if e.get("site") == site["key"]]
+    kind, name = site["kind"], site.get("name")
+    marks, last = {}, {}
+    for m in dict.fromkeys([*LADDER[kind], *(e["method"] for e in evs)]):
+        marks[m], last[m], _ = mark(evs, m, now_fp, name)
+    term = {"dead-if": "classify", "goto": "goto-hand"}.get(kind)
+    kept = bool(term) and marks.get(term) == "✓" and last[term]["outcome"] == "kept"
+    shown = {m: marks[m] for m in LADDER[kind]}
+    if kind == "proto-type":
+        return dict(done=False, next="views", marks=shown, kept=False)
+    if any(marks[m] == "✓" and last[m]["outcome"] == "hit" for m in marks):
+        return dict(done=False, next="apply", marks=shown, kept=kept)
+    need = (LADDER[kind][:3] if kind == "dead-if" else (term,)) if kept else LADDER[kind]
+    missing = [m for m in need if marks[m] != "✓"]
+    return dict(done=not missing, next=missing[0] if missing else None, marks=shown, kept=kept)
+
+
+def exhausted(site, events, now_fp):
+    """(done, next method or None, {method: '✓'|'stale'|'—'}) of SITE under EVENTS at fingerprints
+    NOW_FP = (fp_local, fp_hdr)."""
+    r = ladder(site, events, now_fp)
+    return r["done"], r["next"], r["marks"]
+
+
+def function_state(fn, by_site, by_func):
+    """dict(done, next, review, reconstruct, sites=[(site, ladder)], open=[(site, ladder)], waived)."""
+    fp, name = (fn["fp_local"], fn["fp_hdr"]), fn["name"]
+    fevs = by_func.get((fn["seg"], f"{fn['vram']:08X}"), [])
+    review = mark(fevs, "review", fp, name)[0]
+    _, ve, vf = mark(fevs, "views", fp, name)
+    waived = vf and ve["outcome"] == "blocked" and bool(ve["note"])
+    sites = [(s, ladder(s, by_site.get(s["key"], []), fp)) for s in fn["sites"]]
+    open_ = [(s, r) for s, r in sites if not r["done"] and not (s["kind"] == "proto-type" and waived)]
+    rec = mark(fevs, "reconstruct", fp, name)[0] if sum(not r["kept"] for _, r in sites) >= 3 else None
+    nxt = ("review" if review != "✓" else open_[0][1]["next"] if open_
+           else "reconstruct" if rec not in (None, "✓") else None)
+    return dict(done=nxt is None, next=nxt, review=review, reconstruct=rec, sites=sites, open=open_, waived=waived)
+
+
+# ---------------------------------------------------------------- sweep
+
+_seq = itertools.count(1)
+_lock = threading.Lock()
+_base_uninit = {}
+
+
+def job_dir():
+    d = os.path.join(SCRATCH, "sweep", f"{os.getpid()}_{next(_seq)}")
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
+def cleanup(d, copy):
+    shutil.rmtree(d, ignore_errors=True)
+    obj = os.path.join(ROOT, "build", ".scratch", copy.replace("/", "_") + ".o")
+    if os.path.exists(obj):
+        os.remove(obj)
+
+
+def fdiff(copy, src):
+    return subprocess.run(["tools/fdiff.sh", copy, src], cwd=ROOT, capture_output=True).returncode
+
+
+def new_uninit(copy, src):
+    with _lock:  # one libclang user at a time
+        if src not in _base_uninit:
+            _base_uninit[src] = set(clint.uninit(src))
+        return set(clint.uninit(copy)) - _base_uninit[src]
+
+
+def check(text, path, src, uninit=True):
+    """Whole-object match of TEXT as a copy of PATH (fdiff exit 0) without a new uninitialised read."""
+    d = job_dir()
+    copy = rel(os.path.join(d, os.path.basename(path)))
+    open(os.path.join(ROOT, copy), "w").write(text)
+    try:
+        return fdiff(copy, src) == 0 and not (uninit and new_uninit(copy, src))
+    finally:
+        cleanup(d, copy)
+
+
+def cond_check(text, body, path, src, func):
+    d = job_dir()
+    bf = rel(os.path.join(d, "body.c"))
+    open(os.path.join(ROOT, bf), "w").write(body)
+    try:
+        r = subprocess.run(["tools/dk", "python3", "tools/deadsweep.py", "score", path, src, func, "--body", bf],
+                           cwd=ROOT, capture_output=True, text=True)
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+    m = re.search(r" full=(\d+) ", r.stdout)
+    return bool(m) and m.group(1) == "0" and check(text, path, src)
+
+
+def apply(lines, edits, lo=0, hi=None):
+    """Lines LO..HI joined, with EDITS {index: replacement or None (delete)}."""
+    return "\n".join(edits.get(i, l) for i, l in enumerate(lines[:hi]) if i >= lo and edits.get(i, l) is not None)
+
+
+def untag(line):
+    code, cm = split_comment(line)
+    return code.rstrip() if "FAKE" in cm else line
+
+
+def remove_edit(site, lines, fn):
+    """{line index: replacement or None} deleting / neutralising SITE, or None when it has no removal."""
+    idx = site["lines"]
+    if not all(fn["line"] - 1 <= i < fn["end"] for i in idx):
+        return None
+    l = lines[idx[0]]
+    if site["kind"] == "do-while0":
+        return {i: None for i in idx} if len(idx) == 2 else None
+    if site["kind"] == "volatile" and "volatile " in split_comment(l)[0]:
+        return {idx[0]: untag(l.replace("volatile ", "", 1))}
+    if site["kind"] == "dead-if" and GUARD.match(l):
+        return {idx[0]: None}
+    if site["tagged"] and (VOID.match(l) or dead_store(l)):
+        return {idx[0]: None}
+    return None
+
+
+def combos(items):
+    n, out, seen = len(items), [tuple(items)], set()
+    if n > 1:
+        out += [(x,) for x in items]
+    if n > 2:
+        out += list(itertools.combinations(items, 2))
+    if 3 <= n <= 6:
+        out += list(itertools.combinations(items, 3))
+    for c in out:
+        k = frozenset(s["key"] for s, _ in c)
+        if k not in seen:
+            seen.add(k)
+            yield c
+
+
+def merged(group):
+    out = {}
+    for _, e in group:
+        out.update(e)
+    return out
+
+
+def plan_file(an, path, src, pool):
+    """Submit every sweep candidate of one file: dict(an, path, src, jobs=[(method, keys, future or
+    classify futures, variant text)], tried={(key, method): note of a method run without a hit})."""
+    lines = open(os.path.join(ROOT, path), encoding="utf-8", errors="replace").read().split("\n")
+    jobs, tried = [], {}
+
+    def submit(method, group, fn, text, *args):
+        jobs.append((method, [s["key"] for s, _ in group], pool.submit(fn, text, *args), text))
+
+    for fn in an["functions"]:
+        rem = [(s, e) for s in fn["sites"] if (e := remove_edit(s, lines, fn)) is not None]
+        for c in combos(rem) if rem else ():
+            submit("remove", c, check, apply(lines, merged(c)), path, src)
+        flips = 0
+        for rs in ([rem] + ([[x] for x in rem] if len(rem) > 1 else [])) if rem else ():
+            base = merged(rs)
+            for i in range(fn["line"] - 1, fn["end"]):
+                if i in base or "// FAKE" in lines[i]:
+                    continue
+                for rx, rep in FLIPS:
+                    if rx.search(lines[i]):
+                        ed = {**base, i: rx.sub(rep, lines[i], count=1)}
+                        submit("cond", rs, cond_check, apply(lines, ed), apply(lines, ed, fn["line"] - 1, fn["end"]),
+                               path, src, fn["name"])
+                        flips += 1
+        for s, _ in rem:
+            tried[(s["key"], "remove")] = None
+            tried[(s["key"], "cond")] = None if flips else "no flips"
+        for s in fn["sites"]:
+            i = s["lines"][0]
+            if s["kind"] in PLAIN_KINDS:
+                code, cm = split_comment(lines[i])
+                tail = "" if "FAKE" in cm or not cm else " " + cm
+                n = 0
+                for rx, rep in PLAIN:
+                    new = rx.sub(rep, code)
+                    if new != code:
+                        submit("plain", [(s, None)], check, apply(lines, {i: new.rstrip() + tail}), path, src)
+                        n += 1
+                tried[(s["key"], "plain")] = None if n else "no rewrite"
+            m = GUARD.match(lines[i])
+            if s["kind"] == "dead-if" and m:
+                cands = [v for v, ln in fn["int_locals"] if ln < s["line"] and not re.search(rf"\b{re.escape(v)}\b", m.group(2))]
+                cands = list(dict.fromkeys(cands))[:3]
+                tried[(s["key"], "classify")] = None if cands else "no local"
+                if cands:
+                    futs = [pool.submit(check, apply(lines, {i: f"{m.group(1)}if ({v}) {{}}"}), path, src, False)
+                            for v in cands]
+                    jobs.append(("classify", [s["key"]], futs, None))
+    return dict(an=an, path=path, src=src, jobs=jobs, tried=tried)
+
+
+def write_hit(seg, src, text):
+    stem = os.path.splitext(os.path.basename(src))[0]
+    d = os.path.join(SCRATCH, "hits")
+    os.makedirs(d, exist_ok=True)
+    for n in itertools.count(1):
+        p = os.path.join(d, f"{seg}_{stem}_{n}.c")
+        if not os.path.exists(p):
+            open(p, "w").write(text)
+            return rel(p)
+
+
+def finish(plan):
+    """({(key, method): [outcome, note]}, [(keys, method, hit text)], checks run) once PLAN's futures are done."""
+    out = {k: ["nohit", note] for k, note in plan["tried"].items()}
+    hits, checks = [], 0
+    for method, keys, fut, text in plan["jobs"]:
+        if method == "classify":
+            rs = [f.result() for f in fut]
+            checks += len(rs)
+            out[(keys[0], method)] = ["kept", "class 1"] if any(rs) else ["nohit", "class 2"]
+            continue
+        checks += 1
+        if fut.result():
+            hits.append((keys, method, text))
+            for k in keys:
+                out[(k, method)] = ["hit", None]
+    return out, hits, checks
+
+
+def cmd_sweep(a):
+    if a.copy_of and len(a.files) != 1:
+        sys.exit("quality: --copy-of takes exactly one copy")
+    if a.record and not a.unit:
+        sys.exit("quality: --record needs --unit")
+    t0, plans, events = time.time(), [], []
+    nchecks = nhits = 0
+    with ThreadPoolExecutor(a.j) as pool:
+        for f in a.files:
+            path = rel(f)
+            src = rel(a.copy_of) if a.copy_of else path
+            an = analyze(path, seg_of(src), src=src)
+            require_resolved([an])
+            if not any(fn["sites"] for fn in an["functions"]):
+                print(f"{path}: no sites")
+                continue
+            rc = fdiff(path, src)
+            if rc != 0:
+                print(f"SKIP {path}: does not match before the sweep (fdiff exit {rc})")
+                continue
+            plans.append(plan_file(an, path, src, pool))
+        for p in plans:
+            out, hits, checks = finish(p)
+            an = p["an"]
+            sites = {s["key"]: (fn, s) for fn in an["functions"] for s in fn["sites"]}
+            print(f"{p['path']}: {len(sites)} sites, {checks} checks, {len(hits)} hits")
+            for keys, method, text in hits:
+                hp = write_hit(an["seg"], p["src"], text)
+                print(f"HIT {','.join(keys)} {method} {hp}")
+            for (key, method), (outcome, note) in sorted(out.items(), key=lambda x: (sites[x[0][0]][1]["line"], x[0])):
+                print(f"  {key} {method} {outcome}" + (f" ({note})" if note else ""))
+                fn, s = sites[key]
+                events.append(event(a.unit, "sweep", dict(fn, file=p["path"]), s, method, outcome, note=note))
+            nchecks += checks
+            nhits += len(hits)
+    print(f"sweep: {len(plans)} files, {nchecks} checks, {nhits} hits in {time.time() - t0:.0f}s")
+    if a.record:
+        ev = unit_events(a.unit, load_events()) + events
+        append_events(ev)
+        print(f"recorded {len(events)} events to {rel(LEDGER)}")
+
+
+# ---------------------------------------------------------------- record
+
+def parse_line(line):
+    toks = shlex.split(line)
+    if len(toks) < 3:
+        raise ValueError("need <key> <method> <outcome> [field=value...]")
+    opts = dict(quirks=[], seconds=None, base=None, best=None, commit=None, note=None)
+    for t in toks[3:]:
+        k, eq, v = t.partition("=")
+        if not eq or k not in opts:
+            raise ValueError(f"unknown field {t!r}")
+        if k == "quirks":
+            opts[k] = [q for q in v.split(",") if q]
+        elif k in ("seconds", "base", "best"):
+            if not re.fullmatch(r"\d+", v):
+                raise ValueError(f"{k} must be an integer")
+            opts[k] = int(v)
+        else:
+            opts[k] = v
+    return toks[0], toks[1], toks[2], opts
+
+
+def validate(key, method, outcome, o):
+    """Error message for one record line's method/outcome/evidence rules, or None."""
+    fk, sk = FUNC_KEY.match(key), SITE_KEY.match(key)
+    note = o["note"] or ""
+    if not fk and not sk:
+        return f"bad key {key!r} (<seg>:<VRAM8>:<kind>:<hash>[#n] or func:<seg>:<name>)"
+    if sk and sk.group(3) not in KINDS:
+        return f"unknown site kind {sk.group(3)!r}"
+    if method not in METHODS:
+        return f"unknown method {method!r} (one of {' '.join(METHODS)})"
+    if outcome not in OUTCOMES:
+        return f"unknown outcome {outcome!r} (one of {' '.join(OUTCOMES)})"
+    if method in FUNC_ONLY and not fk:
+        return f"{method} is function-level: key func:<seg>:<name>"
+    if fk and method not in FUNC_ONLY and method != "reconstruct":
+        return f"{method} needs a site key"
+    if outcome == "kept" and not ((method == "classify" and "class 1" in note) or
+                                  (method == "goto-hand" and "Q0591" in note)):
+        return "kept is only for classify (note \"class 1\") or goto-hand (note citing Q0591)"
+    if method == "diagnose" and not o["quirks"]:
+        return "diagnose needs quirks=Q1,Q2"
+    if method == "permute" and ((o["seconds"] or 0) < 600 or o["base"] is None or o["best"] is None):
+        return "permute needs seconds>=600, base= and best="
+    if method == "review":
+        if outcome not in ("fixed", "nohit", "blocked"):
+            return "review outcome is fixed, nohit or blocked"
+        missing = [c + "=" for c in CHECKLIST if not re.search(rf"(?<![\w-]){c}=", note)]
+        if missing:
+            return "review note lacks " + " ".join(missing)
+    return None
+
+
+class Resolver:
+    """Finds the function (and site) a record key names in the C files at HEAD, else at BASE."""
+
+    def __init__(self, base):
+        self.revs = ["HEAD"] + ([base] if base else [])
+        self.cache = {}
+
+    def analysis(self, path, seg, rev):
+        if (path, rev) not in self.cache:
+            text = subprocess.run(["git", "show", f"{rev}:{path}"], cwd=ROOT, capture_output=True, text=True).stdout
+            self.cache[(path, rev)] = analyze(path, seg, text=text)
+        return self.cache[(path, rev)]
+
+    def files(self, seg, names, rev):
+        r = subprocess.run(["git", "grep", "-l", "-w", "-F", *sum((["-e", n] for n in names), []), rev, "--",
+                            f"src/{seg}"], cwd=ROOT, capture_output=True, text=True)
+        paths = [line.split(":", 1)[1] for line in r.stdout.splitlines()]
+        return [p for p in paths if os.path.dirname(p) == f"src/{seg}" and p.endswith(".c")]
+
+    def find(self, key):
+        """(fn with file, site or None) or an error message."""
+        fk, sk = FUNC_KEY.match(key), SITE_KEY.match(key)
+        seg = (fk or sk).group(1)
+        if not os.path.isdir(os.path.join(ROOT, "src", seg)):
+            return f"unknown segment {seg!r}"
+        vram = int(sk.group(2), 16) if sk else None
+        names = [fk.group(2)] if fk else names_at(seg, vram)
+        for rev in self.revs:
+            for path in self.files(seg, names, rev):
+                an = self.analysis(path, seg, rev)
+                for fn in an["functions"]:
+                    if fk and fn["name"] == fk.group(2):
+                        if fn["vram"] is None:
+                            return f"cannot resolve {fn['name']} ({path})"
+                        return dict(fn, file=path), None
+                    if sk and fn["vram"] == vram:
+                        s = next((s for s in fn["sites"] if s["key"] == key), None)
+                        if s:
+                            return dict(fn, file=path), s
+        where = " or ".join(self.revs)
+        return f"no {'C function' if fk else 'site'} {key} at {where}"
+
+
+def cmd_record(a):
+    if not ledger.AGENT.fullmatch(a.agent):
+        sys.exit(f"quality: bad agent name {a.agent!r}")
+    src = sys.stdin if a.batch == "-" else open(a.batch)
+    rows, errors = [], []
+    for n, line in enumerate(src.read().split("\n"), 1):
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        try:
+            key, method, outcome, o = parse_line(line)
+        except ValueError as ex:
+            errors.append(f"line {n}: {ex}")
+            continue
+        err = validate(key, method, outcome, o)
+        if err:
+            errors.append(f"line {n}: {key} {method}: {err}")
+        else:
+            rows.append((n, key, method, outcome, o))
+    res, events = Resolver(a.base), []
+    for n, key, method, outcome, o in rows if not errors else ():
+        found = res.find(key)
+        if isinstance(found, str):
+            errors.append(f"line {n}: {found}")
+            continue
+        fn, site = found
+        events.append(event(a.unit, a.agent, fn, site, method, outcome, **o))
+    if errors:
+        for e in errors:
+            print(f"record: {e}", file=sys.stderr)
+        print("record: nothing written", file=sys.stderr)
+        sys.exit(1)
+    append_events(unit_events(a.unit, load_events()) + events)
+    print(f"recorded {len(events)} events (unit {a.unit}) to {rel(LEDGER)}")
+
+
+# ---------------------------------------------------------------- status / rank / report
+
+def grep_files(name):
+    r = subprocess.run(["git", "grep", "-l", "-w", "-F", name, "--", "src"], cwd=ROOT, capture_output=True, text=True)
+    return [p for p in r.stdout.split() if p.endswith(".c") and "/libultra/" not in p]
+
+
+def cmd_status(a):
+    files = [rel(a.file)] if a.file else grep_files(a.func) if a.func else clint.src_files()
+    ans = analyze_many(files)
+    require_resolved(ans)
+    by_site, by_func = index_events(load_events())
+    for an in ans:
+        fns = [fn for fn in an["functions"] if not a.func or fn["name"] == a.func]
+        if not fns:
+            continue
+        states = [(fn, function_state(fn, by_site, by_func)) for fn in fns]
+        print(f"{an['path']}: {len(fns)} functions ({sum(st['done'] for _, st in states)} EXHAUSTED), "
+              f"{sum(len(fn['sites']) for fn in fns)} sites")
+        for fn, st in states:
+            print(f"{fn['name']} {fn['seg']}:{fn['vram']:08X} line {fn['line']} review={st['review']}"
+                  + (f" reconstruct={st['reconstruct']}" if st["reconstruct"] else "")
+                  + (" EXHAUSTED" if st["done"] else f" OPEN next={st['next']}"))
+            for s, r in st["sites"]:
+                state = ("EXHAUSTED" if r["done"] else "WAIVED (views blocked)"
+                         if s["kind"] == "proto-type" and st["waived"] else f"OPEN next={r['next']}")
+                marks = " ".join(f"{m}={v}" for m, v in r["marks"].items())
+                print(f"  {s['key']} line {s['line']} {s['kind']} {marks} {state} | {s['code'][:70]}")
+
+
+def cmd_rank(a):
+    files = seg_files(a.seg) if a.seg else clint.src_files()
+    ans = analyze_many(files)
+    require_resolved(ans)
+    by_site, by_func = index_events(load_events())
+    rows = []
+    for an in ans:
+        states = [function_state(fn, by_site, by_func) for fn in an["functions"]]
+        opened = [st for st in states if not st["done"]]
+        kinds = collections.Counter(s["kind"] for st in states for s, _ in st["open"])
+        if opened:
+            rows.append((len(opened), sum(kinds.values()), an["path"], len(states),
+                         sum(st["review"] != "✓" for st in states), kinds, opened[0]["next"]))
+    rows.sort(key=lambda r: (-r[0], -r[1], r[2]))
+    print(f"{'open':>9} {'unrev':>5} {'sites':>5}  file  next  open sites by kind")
+    for o, ns, path, n, unrev, kinds, nxt in rows[:a.limit]:
+        ks = " ".join(f"{k}={v}" for k, v in sorted(kinds.items()))
+        print(f"{o:>4}/{n:<4} {unrev:>5} {ns:>5}  {path}  next={nxt}  {ks}")
+    print(f"{len(rows)} files with OPEN functions, {sum(r[0] for r in rows)} OPEN functions")
+
+
+TEXT_ROWS = ["FAKE", *(f"FAKE {k}" for k in KINDS if k not in ("goto", "proto-type")), "LAYOUT", "goto", "proto-type"]
+ROWS = TEXT_ROWS + ["protos mismatch", "sites open", "sites exhausted", "functions", "reviewed",
+                    "exhausted functions", "uninit warnings", "func_ defs", "m2c names", "unk fields", "D_ refs"]
+
+
+def baseline(rev):
+    tot = collections.Counter()
+    with tempfile.TemporaryDirectory() as tmp:
+        arc = subprocess.Popen(["git", "archive", rev, "src", "include"], cwd=ROOT, stdout=subprocess.PIPE)
+        subprocess.run(["tar", "-x", "-C", tmp], stdin=arc.stdout, check=True)
+        if arc.wait():
+            sys.exit(f"quality: git archive {rev} failed")
+        for root, _, names in os.walk(os.path.join(tmp, "src")):
+            for n in names:
+                p = os.path.join(root, n)
+                if n.endswith(".c") and not os.path.relpath(p, tmp).startswith(os.path.join("src", "boot", "libultra")):
+                    tot.update(text_metrics(open(p, encoding="utf-8", errors="replace").read()))
+    return tot
+
+
+def cmd_report(a):
+    files = clint.src_files()
+    ans = analyze_many(files, uninit=True)
+    require_resolved(ans)
+    by_site, by_func = index_events(load_events())
+    cols = collections.defaultdict(collections.Counter)
+    for an in ans:
+        c = cols[an["seg"]]
+        c.update(an["text"])
+        c["uninit warnings"] += len(an["uninit"])
+        for fn in an["functions"]:
+            st = function_state(fn, by_site, by_func)
+            m = fn["metrics"]
+            c.update({"functions": 1, "reviewed": st["review"] == "✓", "exhausted functions": st["done"],
+                      "sites open": len(st["open"]), "sites exhausted": len(st["sites"]) - len(st["open"]),
+                      "func_ defs": m["func_name"], "m2c names": m["m2c_names"], "unk fields": m["unk_fields"],
+                      "D_ refs": m["d_refs"]})
+    r = subprocess.run([sys.executable, "tools/unit_check.py", "protos", *files], cwd=ROOT, capture_output=True,
+                       text=True)
+    for line in r.stdout.splitlines():
+        m = re.match(r"src/(\w+)/[^:\s]+:\d+ ", line)
+        if m:
+            cols[m.group(1)]["protos mismatch"] += 1
+    segs = sorted(cols, key=lambda s: (s not in ("boot", "global"), s != "boot", s))
+    total = sum(cols.values(), collections.Counter())
+    start = baseline(a.baseline) if a.baseline else None
+    head = ["metric", *segs, "total"] + (["start"] if start is not None else [])
+    body = [[row, *(str(cols[s][row]) for s in segs), str(total[row])]
+            + ([str(start[row]) if row in TEXT_ROWS else "-"] if start is not None else []) for row in ROWS]
+    if a.markdown:
+        print("| " + " | ".join(head) + " |")
+        print("|" + "|".join(["---"] + ["--:"] * (len(head) - 1)) + "|")
+        for b in body:
+            print("| " + " | ".join(b) + " |")
+    else:
+        w = [max(len(x[i]) for x in [head] + body) for i in range(len(head))]
+        for b in [head] + body:
+            print("  ".join(x.ljust(w[0]) if i == 0 else x.rjust(w[i]) for i, x in enumerate(b)))
+    print(f"\nreviewed {total['reviewed']}/{total['functions']}")
+    print(f"exhausted {total['exhausted functions']}/{total['functions']}")
+
+
+def main(argv=None):
+    p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    s = p.add_subparsers(dest="cmd", required=True)
+    c = s.add_parser("sweep")
+    c.add_argument("files", nargs="+")
+    c.add_argument("-j", type=int, default=2)
+    c.add_argument("--copy-of")
+    c.add_argument("--record", action="store_true")
+    c.add_argument("--unit")
+    c.set_defaults(fn=cmd_sweep)
+    c = s.add_parser("record")
+    c.add_argument("--unit", required=True)
+    c.add_argument("--agent", required=True)
+    c.add_argument("--base")
+    c.add_argument("--batch", required=True)
+    c.set_defaults(fn=cmd_record)
+    c = s.add_parser("status")
+    c.add_argument("--file")
+    c.add_argument("--func")
+    c.set_defaults(fn=cmd_status)
+    c = s.add_parser("rank")
+    c.add_argument("--seg")
+    c.add_argument("--limit", type=int)
+    c.set_defaults(fn=cmd_rank)
+    c = s.add_parser("report")
+    c.add_argument("--baseline")
+    c.add_argument("--markdown", action="store_true")
+    c.set_defaults(fn=cmd_report)
+    a = p.parse_args(argv)
+    a.fn(a)
+
+
+if __name__ == "__main__":
+    main()
