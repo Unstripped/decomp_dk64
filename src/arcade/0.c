@@ -39,7 +39,7 @@ void arcadeRenderEntities(Gfx **);
 void arcadeRenderEntity(Gfx **, s32);
 void arcadeInitStage(void);
 #define ArcR1_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-Gfx *textDrawString(Gfx *, s32, s16, s16, char *);
+Gfx * textDrawString(Gfx *, u8, s16, s16, u8 *);
 extern s16 D_8004C72E;
 extern s16 D_8004C732;
 extern u8 D_8004C725;
@@ -49,10 +49,10 @@ extern u8 D_8004C728;
 
 void controllerStartRead(void);
 void controllerUpdate(void);
-void schedSubmitGfxTask(Gfx *, s32, s32, s32, s32, s32);
-Gfx *screenFadeUpdate(Gfx *, s32);
-void gfxEndDisplayList(Gfx *, u8, s32 *, s32);
-void gfxEndSubDisplayList(Gfx *, u8 *, s32 *, s32);
+void schedSubmitGfxTask(void *, s32, u8, u8, s32, u8);
+Gfx * screenFadeUpdate(Gfx *, u8);
+void gfxEndDisplayList(Gfx *, u8, s32 *, u8);
+void gfxEndSubDisplayList(Gfx *, s32, s32 *, u8);
 Gfx *gfxSetFrameBufferColorImage(Gfx *);
 void arcadeDispatchState(Gfx **);
 void arcadeBuildDisplayList(u8 *, Gfx **);
@@ -113,8 +113,8 @@ void arcadeBuildDisplayList(u8 *frameBuf, Gfx **glistp) {
     arcadeDispatchState(&glist);
     *glistp = glist;
 }
-void eepromSetField(s32, s32, u8, s32, s32);
-s32 eepromGetField(s32, s32, u8, s32);
+void eepromSetField(s32, u8, u8, u8, s32);
+s32 eepromGetField(s32, u8, u8, u8);
 void func_8060DEA8(void);
 extern s32 D_8004A74C[5];
 extern u8 D_8004A778[5][3];
@@ -375,8 +375,8 @@ void arcadeCheckGameOver(void) {
     }
 }
 
-s32 flagGet(s32, s32);
-void flagSet(s32, s32, s32);
+u8 flagGet(s16, u8);
+void flagSet(s16, u8, u8);
 void mapTransitionToPreviousOrExit(void);
 void mapRequestTransition(s32, s32);
 extern u8 D_8004A73C;
@@ -605,7 +605,7 @@ void arcadeClearEntitiesByType1C(void) {
     } while (index >= 0);
 }
 
-void eepromInitConfigs(s32);
+void eepromInitConfigs(u8);
 void arcadePauseMenuLoop(Gfx **glistp) {
     Gfx *glist;
 
@@ -727,7 +727,7 @@ extern u8 D_80032C20[];
 extern u8 D_80032DF8[];
 void dlInitTextureDescriptor(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32);
 void dlAppendTextureLoad(Gfx **, void *);
-void dlSetTextureScaleAndFlip(s32, s16, s32, u8);
+void dlSetTextureScaleAndFlip(s32, s16, s32, u8);  // FAKE: callee prototype steer
 void arcadeDrawLadder(Gfx **, s32, s32, s32);
 void dlAppendTextureRectangle(Gfx **, s16, s16);
 void arcadeStopSound(s32);
@@ -1413,7 +1413,7 @@ s32 arcadeCheckStage4Ladders(s32, s32);
 
 
 void dlInitTextureDescriptor(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32);
-void dlSetTextureScaleAndFlip(s32, s16, s32, u8);
+void dlSetTextureScaleAndFlip(s32, s16, s32, u8);  // FAKE: callee prototype steer
 extern u8 D_8004A338[];
 extern u8 D_8004A358[];
 extern u8 D_8004A378[];
