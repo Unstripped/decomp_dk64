@@ -398,13 +398,16 @@ void viModeApplyHighRes(void) {
     i = 0;
     do {
         j = 0;
-loop_5:
-        *fb++ = *src++;
-        *fb++ = *src++;
-        *fb++ = *src++;
-        *fb++ = *src++;
-        j += 4;
-        if (j != 0xC0) goto loop_5;
+        for (;;) {
+            *fb++ = *src++;
+            *fb++ = *src++;
+            *fb++ = *src++;
+            *fb++ = *src++;
+            j += 4;
+            if (j == 0xC0) {
+                break;
+            }
+        }
         fb = (u16 *)((u8 *)fb + 0x100);
         i++;
     } while (i < 0x30);
