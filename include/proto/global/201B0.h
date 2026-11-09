@@ -14,7 +14,6 @@ struct CamPathData;
 struct CamResetCam;
 struct CamState;
 struct CamStateFloor;
-struct CamStateSettle;
 struct CamStateViewAngle;
 struct CamStateYaw;
 #ifndef PROTO_SKIP_camCueTimerIsRunning
@@ -39,7 +38,7 @@ void camApplySway(struct CamStateYaw *, f32 *, f32 *, f32 *, f32, f32, f32, f32)
 void camSampleFloorHeight(struct CamActor *, struct CamStateFloor *, f32, f32);
 #endif
 #ifndef PROTO_SKIP_camSetSettleMode
-void camSetSettleMode(struct CamStateSettle *, u8);
+void camSetSettleMode(struct CamState *, u8);
 #endif
 #ifndef PROTO_SKIP_camSortFloorHits
 void camSortFloorHits(void);

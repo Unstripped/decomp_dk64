@@ -31,13 +31,22 @@
 #include "proto/global/F56F0.h"
 
 typedef struct CamState {
-    /* 0x00 */ u8 pad0[0xC];
+    /* 0x00 */ struct CamActor *unk0;
+    /* 0x04 */ struct CamActor *unk4;
+    /* 0x08 */ u8 pad8[4];
     /* 0x0C */ f32 unkC;
-    /* 0x10 */ u8 pad10[0x34];
+    /* 0x10 */ u8 pad10[2];
+    /* 0x12 */ s16 unk12;
+    /* 0x14 */ s16 unk14;
+    /* 0x16 */ u8 pad16[0x2E];
     /* 0x44 */ s32 unk44;
     /* 0x48 */ u8 pad48[0x24];
     /* 0x6C */ f32 unk6C;
-    /* 0x70 */ u8 pad70[0x24];
+    /* 0x70 */ u8 pad70[8];
+    /* 0x78 */ f32 unk78;
+    /* 0x7C */ f32 unk7C;
+    /* 0x80 */ f32 unk80;
+    /* 0x84 */ u8 pad84[0x10];
     /* 0x94 */ f32 unk94;
     /* 0x98 */ f32 unk98;
     /* 0x9C */ u8 pad9C[2];
@@ -45,19 +54,33 @@ typedef struct CamState {
     /* 0xA0 */ f32 unkA0;
     /* 0xA4 */ u8 padA4[8];
     /* 0xAC */ s32 unkAC;
-    /* 0xB0 */ u8 padB0[0x10];
+    /* 0xB0 */ s16 unkB0;
+    /* 0xB2 */ s16 unkB2;
+    /* 0xB4 */ s16 unkB4;
+    /* 0xB6 */ u8 padB6[2];
+    /* 0xB8 */ f32 unkB8;
+    /* 0xBC */ u8 padBC[4];
     /* 0xC0 */ s32 unkC0;
     /* 0xC4 */ u8 padC4[4];
     /* 0xC8 */ s16 unkC8;
     /* 0xCA */ s16 unkCA;
-    /* 0xCC */ u8 padCC[0x23];
+    /* 0xCC */ u8 padCC[0x21];
+    /* 0xED */ u8 unkED;
+    /* 0xEE */ u8 padEE;
     /* 0xEF */ u8 unkEF;
-    /* 0xF0 */ u8 padF0[2];
+    /* 0xF0 */ u8 unkF0;
+    /* 0xF1 */ u8 unkF1;
     /* 0xF2 */ u8 unkF2;
     /* 0xF3 */ u8 unkF3;
-    /* 0xF4 */ u8 padF4[7];
+    /* 0xF4 */ u8 unkF4;
+    /* 0xF5 */ u8 unkF5;
+    /* 0xF6 */ u8 unkF6;
+    /* 0xF7 */ u8 unkF7;
+    /* 0xF8 */ u8 padF8[3];
     /* 0xFB */ u8 unkFB;
     /* 0xFC */ u8 unkFC;
+    /* 0xFD */ u8 padFD[2];
+    /* 0xFF */ u8 unkFF;
 } CamState;
 
 typedef struct CamActor {
@@ -65,10 +88,13 @@ typedef struct CamActor {
     /* 0x004 */ struct CamActorModelScale *unk4;
     /* 0x008 */ u8 pad8[0x50];
     /* 0x058 */ s32 unk58;
-    /* 0x05C */ u8 pad5C[0xE];
+    /* 0x05C */ u8 pad5C[4];
+    /* 0x060 */ s32 unk60;
+    /* 0x064 */ u8 pad64[6];
     /* 0x06A */ u16 unk6A;
     /* 0x06C */ u16 unk6C;
-    /* 0x06E */ u8 pad6E[0xE];
+    /* 0x06E */ s16 unk6E;
+    /* 0x070 */ u8 pad70[0xC];
     /* 0x07C */ f32 unk7C;
     /* 0x080 */ f32 unk80;
     /* 0x084 */ f32 unk84;
@@ -92,11 +118,14 @@ typedef struct CamActor {
     /* 0x0EE */ s16 unkEE;
     /* 0x0F0 */ u8 padF0[2];
     /* 0x0F2 */ s16 unkF2;
-    /* 0x0F4 */ u8 padF4[8];
+    /* 0x0F4 */ s16 arcYawMin;
+    /* 0x0F6 */ s16 arcYawMax;
+    /* 0x0F8 */ u8 padF8[4];
     /* 0x0FC */ u8 unkFC;
     /* 0x0FD */ u8 padFD[0x57];
     /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 pad155[9];
+    /* 0x155 */ u8 unk155;
+    /* 0x156 */ u8 pad156[8];
     /* 0x15E */ u8 unk15E;
     /* 0x15F */ u8 unk15F;
     /* 0x160 */ f64 unk160;
@@ -204,7 +233,7 @@ s16 gCamZoneMaxX;
 s16 gCamZoneGridWidth;
 s16 gCamZoneGroupCount;
 u64 gCamCueStartTime;
-void *gCamPathLookActor;
+CamActor *gCamPathLookActor;
 s16 gCamPathFramesLeft;
 s16 gCamPathLookAhead;
 u16 gCamPathStep;
@@ -219,7 +248,7 @@ s16 gCamPathStartX;
 s16 gCamPathStartY;
 s16 gCamPathStartZ;
 s16 gCamPathStartYaw;
-void *gCamPathActor;
+CamActor *gCamPathActor;
 CamActor *gCamActor;
 u8 gCamCueIndex;
 f32 D_807F5D18;
@@ -293,47 +322,13 @@ void camCueTimerTick(void) {
     }
 }
 
-typedef struct CamPlayerRec {
-    /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ void *unk4;
-    /* 0x008 */ u8 pad8[0x214];
-    /* 0x21C */ f32 unk21C;
-    /* 0x220 */ f32 unk220;
-    /* 0x224 */ f32 unk224;
-    /* 0x228 */ f32 unk228;
-    /* 0x22C */ f32 unk22C;
-    /* 0x230 */ f32 unk230;
-    /* 0x234 */ u8 pad234[0xC];
-    /* 0x240 */ f32 unk240;
-    /* 0x244 */ f32 unk244;
-    /* 0x248 */ f32 unk248;
-    /* 0x24C */ u8 pad24C[0x30];
-    /* 0x27C */ f32 unk27C;
-    /* 0x280 */ u8 pad280[4];
-    /* 0x284 */ f32 unk284;
-    /* 0x288 */ u8 pad288[0x3C];
-    /* 0x2C4 */ f32 unk2C4;
-    /* 0x2C8 */ s16 unk2C8;
-    /* 0x2CA */ u8 pad2CA[6];
-    /* 0x2D0 */ f32 unk2D0;
-    /* 0x2D4 */ u8 pad2D4[0x15];
-    /* 0x2E9 */ u8 unk2E9;
-    /* 0x2EA */ u8 pad2EA[6];
-} CamPlayerRec; // size = 0x2F0
-
 void camResetPlayerViewports(s16 playerIndex) {
-    ((CamPlayerRec *)gPlayerSlots)[playerIndex].unk2D0 = ((CamPlayerRec *)gPlayerSlots)[playerIndex].unk2C4;
-    ((CamPlayerRec *)gPlayerSlots)[playerIndex].unk2E9 = 0x18;
+    gPlayerSlots[playerIndex].unk2D0 = gPlayerSlots[playerIndex].unk2C4;
+    gPlayerSlots[playerIndex].unk2E9 = 0x18;
 }
 
-typedef struct CamStateTargetMode {
-    /* 0x00 */ CamActor *unk0;
-    /* 0x04 */ u8 pad4[0xEF];
-    /* 0xF3 */ u8 unkF3;
-} CamStateTargetMode;
-
 void camSnapToTargetHeight(CamActor *cam) {
-    CamStateTargetMode *st = (CamStateTargetMode *)cam->unk174;
+    CamState *st = cam->unk174;
 
     cam->unk7C = st->unk0->unk7C;
     cam->unk80 = st->unk0->unk80 + 170.0f;
@@ -380,12 +375,7 @@ void camSampleFloorHeight(CamActor *camActor, CamStateFloor *state, f32 sampleX,
     state->unkFA = collisionGetFloorHeight(&state->unk90);
 }
 
-typedef struct CamStateSettle {
-    /* 0x00 */ u8 pad0[0xF7];
-    /* 0xF7 */ u8 unkF7;
-} CamStateSettle;
-
-void camSetSettleMode(CamStateSettle *st, u8 mode) {
+void camSetSettleMode(CamState *st, u8 mode) {
     st->unkF7 = mode;
 }
 
@@ -584,21 +574,21 @@ typedef struct CamStateViewAngle {
 
 
 void camUpdatePlayerYaw(CamStateViewAngle *st) {
-    ((CamPlayerRec *)gPlayerSlots)[st->unkFB].unk2C4 = mathAngleBetweenPointsRad(gPlayerSlots[st->unkFB].camX, gPlayerSlots[st->unkFB].camZ, ((CamPlayerRec *)gPlayerSlots)[st->unkFB].unk228, ((CamPlayerRec *)gPlayerSlots)[st->unkFB].unk230);
-    st->unkA8 = ((CamPlayerRec *)gPlayerSlots)[st->unkFB].unk2C4;
+    gPlayerSlots[st->unkFB].unk2C4 = mathAngleBetweenPointsRad(gPlayerSlots[st->unkFB].camX, gPlayerSlots[st->unkFB].camZ, gPlayerSlots[st->unkFB].focusX, gPlayerSlots[st->unkFB].focusZ);
+    st->unkA8 = gPlayerSlots[st->unkFB].unk2C4;
     switch (D_807463B8) {
         case 0:
-            ((CamPlayerRec *)gPlayerSlots)[st->unkFB].unk2C8 = st->unkA8 * 4096.0 / 6.2831855f;
+            gPlayerSlots[st->unkFB].unk2C8 = st->unkA8 * 4096.0 / 6.2831855f;
             break;
         case 2:
-            func_8060B55C(&((CamPlayerRec *)&gPlayerSlots[st->unkFB])->unk2C8);
+            func_8060B55C(&gPlayerSlots[st->unkFB].unk2C8);
             break;
         case 3:
-            ((CamPlayerRec *)gPlayerSlots)[st->unkFB].unk2C8 = st->unkA8 * 4096.0 / 6.2831855f;
+            gPlayerSlots[st->unkFB].unk2C8 = st->unkA8 * 4096.0 / 6.2831855f;
             break;
     }
-    if (((CamPlayerRec *)gPlayerSlots)[st->unkFB].unk2E9 != 0) {
-        ((CamPlayerRec *)gPlayerSlots)[st->unkFB].unk2E9--;
+    if (gPlayerSlots[st->unkFB].unk2E9 != 0) {
+        gPlayerSlots[st->unkFB].unk2E9--;
     }
 }
 
@@ -670,9 +660,9 @@ void camApplyFixedView(CamActor *cam) {
     gPlayerSlots[s->unkFB].camX = s->unk20;
     gPlayerSlots[s->unkFB].camY = s->unk24;
     gPlayerSlots[s->unkFB].camZ = s->unk28;
-    ((CamPlayerRec *)gPlayerSlots)[s->unkFB].unk228 = s->unk2C;
-    ((CamPlayerRec *)gPlayerSlots)[s->unkFB].unk22C = s->unk30;
-    ((CamPlayerRec *)gPlayerSlots)[s->unkFB].unk230 = s->unk34;
+    gPlayerSlots[s->unkFB].focusX = s->unk2C;
+    gPlayerSlots[s->unkFB].focusY = s->unk30;
+    gPlayerSlots[s->unkFB].focusZ = s->unk34;
 }
 
 void camSetTargetFocusActor(CamActor *cam, CamActor *target) {
@@ -827,14 +817,14 @@ s16 camPathGetLength(s16 startPath) {
                     break;
                 default:
                     if (first == 0) {
-                        saved = ((CamActor *)gCamPathLookActor)->unk168;
+                        saved = gCamPathLookActor->unk168;
                         first = 1;
                         eyeX = gPlayerSlots->camX;
                         eyeY = gPlayerSlots->camY;
                         eyeZ = gPlayerSlots->camZ;
-                        focusX = ((CamPlayerRec *)gPlayerSlots)->unk228;
-                        focusY = ((CamPlayerRec *)gPlayerSlots)->unk22C;
-                        focusZ = ((CamPlayerRec *)gPlayerSlots)->unk230;
+                        focusX = gPlayerSlots->focusX;
+                        focusY = gPlayerSlots->focusY;
+                        focusZ = gPlayerSlots->focusZ;
                         D_807F5CFC = 1.0f;
                         D_807F5D00 = 0.0f;
                         gCamPathIndex = path;
@@ -849,7 +839,7 @@ s16 camPathGetLength(s16 startPath) {
                         gCamPathStartYaw = mathAngleBetweenPoints2D(focusX, focusZ, eyeX, eyeZ);
                         gCamPathFlags |= 0x20;
                         gCamPathFramesLeft = 0;
-                        ((CamActor *)gCamPathLookActor)->unk168 = saved;
+                        gCamPathLookActor->unk168 = saved;
                     }
                     total += CAM_PATH_LISTS->unkD0[path].unk8[i];
                     break;
@@ -915,7 +905,7 @@ void camRequestPathLength(void) {
 
 extern CamPathData gCamGlobalPaths;
 extern CamPathData gCamMapPaths;
-extern void *gCamPathActor;
+extern CamActor *gCamPathActor;
 extern Actor *gSpawnedActor;
 extern u8 gCamPathLoopCount;
 extern s16 gCamPathFrameCount;
@@ -956,7 +946,7 @@ u16 camStartPath(void *actor, s16 pathIndex, u8 flags) {
     if (actor != NULL) {
         gCamPathLookActor = actor;
     } else {
-        gCamPathLookActor = ((CamPlayerRec *)gPlayerSlots)->unk4;
+        gCamPathLookActor = gPlayerSlots->actor;
     }
     gGameMode = 1;
     if (!(flags & 8)) {
@@ -1018,7 +1008,7 @@ void camSetPathLookActor(void *actor, s16 node) {
     if (actor != NULL) {
         gCamPathLookActor = actor;
     } else {
-        gCamPathLookActor = ((CamPlayerRec *)gPlayerSlots)->unk4;
+        gCamPathLookActor = gPlayerSlots->actor;
     }
     gCamPathLookNode = node;
 }
@@ -1239,7 +1229,7 @@ void camEndPath(CamFollowActor *camActor) {
             gGlobalPauseFlags |= 0x2000;
             camResetPlayerViewports(cam->unkFB);
         }
-        ((CamPlayerRec *)gPlayerSlots)[cam->unkFB].unk27C = 45.0f;
+        gPlayerSlots[cam->unkFB].fov = 45.0f;
         camActor->unkE4 = 0;
         D_80770DC9 = D_807F5CF6;
         gGameFrameCounter += 0x1869F;
@@ -1291,8 +1281,8 @@ typedef struct CamPathStepListRaw {
 } CamPathStepListRaw;
 
 void camLoadPathPoint(void) {
-    ((CamActor *)gCamPathActor)->unk168 = 0;
-    ((CamActor *)gCamPathActor)->unk160 = 0.0;
+    gCamPathActor->unk168 = 0;
+    gCamPathActor->unk160 = 0.0;
     gCamPathNode = gCamActivePaths->unkD0[gCamPathIndex].unk4[gCamPathStep];
     gCamPathFramesLeft = ((CamPathStepListRaw *)&gCamActivePaths->unkD0[gCamPathIndex])->unk8[gCamPathStep];
     playerWaypointSnapInput();
@@ -1397,31 +1387,8 @@ void camSnapBehindTarget(CamActor *camActor) {
     cam->unkAC &= ~0x100000;
 }
 
-typedef struct CamUpdateTarget {
-    /* 0x00 */ u8 pad0[0x60];
-    /* 0x60 */ s32 unk60;
-    /* 0x64 */ u8 pad64[0x18];
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ f32 unk80;
-    /* 0x84 */ f32 unk84;
-    /* 0x88 */ u8 pad88[0x1C];
-    /* 0xA4 */ f32 unkA4;
-    /* 0xA8 */ u8 padA8[4];
-    /* 0xAC */ f32 unkAC;
-    /* 0xB0 */ u8 padB0[4];
-    /* 0xB4 */ f32 unkB4;
-    /* 0xB8 */ u8 padB8[0x2E];
-    /* 0xE6 */ s16 unkE6;
-    /* 0xE8 */ s16 unkE8;
-    /* 0xEA */ u8 padEA[0x6A];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 unk155;
-    /* 0x156 */ u8 pad156[8];
-    /* 0x15E */ u8 unk15E;
-} CamUpdateTarget;
-
 typedef struct CamUpdateState {
-    /* 0x00 */ CamUpdateTarget *unk0;
+    /* 0x00 */ CamActor *unk0;
     /* 0x04 */ u8 pad4[0xC];
     /* 0x10 */ s16 unk10;
     /* 0x12 */ u8 pad12[0x26];
@@ -1514,7 +1481,7 @@ void camUpdate(struct CamResetCam *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f3
     s32 done;
     s32 *w;
     u16 t0;
-    CamUpdateTarget *target = st->unk0;
+    CamActor *target = st->unk0;
     f32 len;
     u64 now;
     f32 yaw;
@@ -1584,7 +1551,7 @@ void camUpdate(struct CamResetCam *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f3
             camApplyFixedView((CamActor *)camActor);
         } else {
             camComputeEyeFocus((CamActor *)camActor, &CAM_UPDATE_CAM->unk7C, &CAM_UPDATE_CAM->unk80, &CAM_UPDATE_CAM->unk84, &st->unk78, &st->unk7C,
-                          &st->unk80, (CamActor *)target);
+                          &st->unk80, target);
             if ((gGlobalPauseFlags & 0x2000) || (st->unkAC & 0x100000)) {
                 if (st->unkAC & 0x100000) {
                     st->unkAC &= ~0x100000;
@@ -1727,17 +1694,17 @@ void camUpdate(struct CamResetCam *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f3
                 switch (CAM_PATH_NODE.unk1) {
                     case 4:
                     case 5:
-                        ((CamUpdateTarget *)gCamPathActor)->unk7C = ((CamUpdateTarget *)gCamPathLookActor)->unk7C;
-                        ((CamUpdateTarget *)gCamPathActor)->unk80 = ((CamUpdateTarget *)gCamPathLookActor)->unk80;
-                        ((CamUpdateTarget *)gCamPathActor)->unk84 = ((CamUpdateTarget *)gCamPathLookActor)->unk84;
-                        if (((CamUpdateTarget *)gCamPathLookActor)->unk15E >= 0x15) {
-                            ((CamUpdateTarget *)gCamPathActor)->unk15E = 0x14;
+                        gCamPathActor->unk7C = gCamPathLookActor->unk7C;
+                        gCamPathActor->unk80 = gCamPathLookActor->unk80;
+                        gCamPathActor->unk84 = gCamPathLookActor->unk84;
+                        if (gCamPathLookActor->unk15E >= 0x15) {
+                            gCamPathActor->unk15E = 0x14;
                         } else {
-                            ((CamUpdateTarget *)gCamPathActor)->unk15E = ((CamUpdateTarget *)gCamPathLookActor)->unk15E;
+                            gCamPathActor->unk15E = gCamPathLookActor->unk15E;
                         }
-                        ((CamUpdateTarget *)gCamPathActor)->unkE6 = ((CamUpdateTarget *)gCamPathLookActor)->unkE6;
+                        gCamPathActor->unkE6 = gCamPathLookActor->unkE6;
                         camComputeEyeFocus((CamActor *)camActor, eyeX, eyeY, eyeZ, &st->unk78, &st->unk7C, &st->unk80,
-                                      (CamActor *)gCamPathActor);
+                                      gCamPathActor);
                         *focusX = st->unk78;
                         *focusY = st->unk7C;
                         *focusZ = st->unk80;
@@ -1748,9 +1715,9 @@ void camUpdate(struct CamResetCam *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f3
                     default:
                         gCamFocusBlendRate = 0.3f;
                         camComputeEyeFocus((CamActor *)camActor, eyeX, eyeY, eyeZ, &st->unk78, &st->unk7C, &st->unk80,
-                                      (CamActor *)gCamPathLookActor);
+                                      gCamPathLookActor);
                         if (CAM_PATH_NODE.unk1 != 7 && CAM_PATH_NODE.unk1 != 0xF && CAM_PATH_NODE.unk1 != 0x11) {
-                            camUpdateFocusPos((struct CamEyeActor *)camActor, (0.0f != ((CamUpdateTarget *)gCamPathLookActor)->unkB4) ? 0.3 : 0.1, focusX, focusY, focusZ);
+                            camUpdateFocusPos((struct CamEyeActor *)camActor, (0.0f != gCamPathLookActor->unkB4) ? 0.3 : 0.1, focusX, focusY, focusZ);
                         }
                         if ((gGlobalPauseFlags & 0x2000) || CAM_PATH_NODE.unk1 == 7 || CAM_PATH_NODE.unk1 == 0xF ||
                             CAM_PATH_NODE.unk1 == 0x11) {
@@ -1795,7 +1762,7 @@ void camResetAllPlayers(void) {
 
     for (i = 0; i < gPlayerCount; i++) {
         if (gPlayerSlots[i].unk0) {
-            camResetPlayer(((CamPlayerRec *)gPlayerSlots)[i].unk4, i);
+            camResetPlayer(gPlayerSlots[i].actor, i);
         }
     }
 }
@@ -1820,7 +1787,6 @@ typedef struct CamPlayerCamLink {
 } CamPlayerCamLink;
 
 
-#define CAM_PLAYER_REC(i) ((CamPlayerRec *)&gPlayerSlots[i])
 
 void camResetPlayer(Actor *player, u8 playerIndex) {
     CamPlayerCamLink *ps = player->customState;
@@ -1856,8 +1822,8 @@ void camResetPlayer(Actor *player, u8 playerIndex) {
     st->unkC = -32768.0f;
     player->chunkIndex = mapChunkFindByPosition(player->x, player->y, player->z, 0);
     camUpdate(cam, &gPlayerSlots[playerIndex].camX, &gPlayerSlots[playerIndex].camY, &gPlayerSlots[playerIndex].camZ,
-                  &CAM_PLAYER_REC(playerIndex)->unk228, &CAM_PLAYER_REC(playerIndex)->unk22C, &CAM_PLAYER_REC(playerIndex)->unk230,
-                  &CAM_PLAYER_REC(playerIndex)->unk240, &CAM_PLAYER_REC(playerIndex)->unk244, &CAM_PLAYER_REC(playerIndex)->unk248);
+                  &gPlayerSlots[playerIndex].focusX, &gPlayerSlots[playerIndex].focusY, &gPlayerSlots[playerIndex].focusZ,
+                  &gPlayerSlots[playerIndex].upX, &gPlayerSlots[playerIndex].upY, &gPlayerSlots[playerIndex].upZ);
     st->unkAC &= ~0x100;
     cam->unk88 = gPlayerSlots[playerIndex].camX;
     cam->unk8C = gPlayerSlots[playerIndex].camY;
@@ -1929,12 +1895,8 @@ void camStartBlendRamp(st, frames) CamState *st; s16 frames; {
 
 s16 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 
-typedef struct CamStateTarget {
-    /* 0x00 */ CamActor *unk0;
-} CamStateTarget;
-
 void func_8061F18C(CamActor *camActor, f32 targetX, f32 targetY, f32 targetZ) {
-    CamStateTarget *cam;
+    CamState *cam;
     s16 ang;
     s16 pad;
     s16 diff;
@@ -1942,14 +1904,14 @@ void func_8061F18C(CamActor *camActor, f32 targetX, f32 targetY, f32 targetZ) {
     f32 dist;
     f64 r;
 
-    cam = (CamStateTarget *)camActor->unk174;
+    cam = camActor->unk174;
     ang = mathAngleBetweenPoints2D(cam->unk0->unk7C, cam->unk0->unk84, targetX, targetZ);
     diff = mathAngleDistance(ang, mathAngleBetweenPoints2D(cam->unk0->unk7C, cam->unk0->unk84, camActor->unk88, camActor->unk90));
     dist = sqrtf((targetX - camActor->unk88) * (targetX - camActor->unk88)
                + (targetY - camActor->unk8C) * (targetY - camActor->unk8C)
                + (targetZ - camActor->unk90) * (targetZ - camActor->unk90));
     r = diff * 0.0009765625;
-    camStartBlendRamp((CamState *)cam, (s16)((r < 1.0 ? 1.0 : r) * dist));
+    camStartBlendRamp(cam, (s16)((r < 1.0 ? 1.0 : r) * dist));
 }
 
 void camClosestPointOnSegment(f32 px, f32 py, f32 pz, f32 ax, f32 ay, f32 az, f32 bx, f32 by, f32 bz, f32 *outX, f32 *outY, f32 *outZ) {
@@ -2403,7 +2365,7 @@ s32 camEvaluateZones(CamActor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
             st->unkB2 = mathAngleBetweenPoints2D(tgt->unk7C, tgt->unk84, *eyeX, *eyeZ);
         }
         if (gCamTargetDist > 150.0f) {
-            camSetSettleMode((CamStateSettle *)st, 0xF);
+            camSetSettleMode(st, 0xF);
         }
     }
     if (handled == 0) {
@@ -2415,11 +2377,6 @@ s32 camEvaluateZones(CamActor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *f
     st->unkAC &= ~2;
     return 0;
 }
-
-typedef struct CamFindYawTarget {
-    /* 0x00 */ u8 pad0[0x58];
-    /* 0x58 */ s32 unk58;
-} CamFindYawTarget;
 
 typedef struct CamFindYawState {
     /* 0x00 */ CamActor *unk0;
@@ -2451,7 +2408,7 @@ typedef struct CamFindYawState {
 
 
 void camFindClearYaw(CamActor *camActor, f32 unused, s16 yaw, u8 failCount) {
-    CamFindYawTarget *tgt;
+    CamActor *tgt;
     s32 ret;
     s16 cnt;
     s16 saved;
@@ -2471,7 +2428,7 @@ void camFindClearYaw(CamActor *camActor, f32 unused, s16 yaw, u8 failCount) {
     f32 f;
 
     cam = (CamFindYawState *)camActor->unk174;
-    tgt = (CamFindYawTarget *)cam->unk0;
+    tgt = cam->unk0;
     cnt = 0;
     out0 = 0xFFF;
     out1 = 0;
@@ -2540,9 +2497,9 @@ void camFindClearYaw(CamActor *camActor, f32 unused, s16 yaw, u8 failCount) {
         camSetZoomForDistance(camActor, (s16)cam->unkA0);
     } else {
         cam->unkFF += failCount;
-        x = ((CamPlayerRec *)gPlayerSlots)->unk21C;
-        y = ((CamPlayerRec *)gPlayerSlots)->unk220;
-        z = ((CamPlayerRec *)gPlayerSlots)->unk224;
+        x = gPlayerSlots->unk21C;
+        y = gPlayerSlots->unk220;
+        z = gPlayerSlots->unk224;
         camSetZoomLevel(camActor, 1);
         cam->unkA0 = cam->unkA4;
         camActor->unkB4 = cam->unkB8;
@@ -2632,7 +2589,7 @@ u8 camResolveWallCollision(CamActor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, 
         if (st->unkF5 != 0) {
             st->unkA0 -= 5.0f;
         } else {
-            st->unkB2 = mathAngleBetweenPoints2D(((CamActor *)st->unk0)->unk7C, ((CamActor *)st->unk0)->unk84, *eyeX, *eyeZ);
+            st->unkB2 = mathAngleBetweenPoints2D(st->unk0->unk7C, st->unk0->unk84, *eyeX, *eyeZ);
         }
         st->unkF1 = 0;
         camActor->unkF2 = pushYaw;
@@ -2650,16 +2607,6 @@ u8 camResolveWallCollision(CamActor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, 
     return camActor->unkFC;
 }
 
-typedef struct CamStepState {
-    /* 0x00 */ CamActor *unk0;
-    /* 0x04 */ u8 pad4[0xAE];
-    /* 0xB2 */ s16 unkB2;
-    /* 0xB4 */ u8 padB4[0x40];
-    /* 0xF4 */ u8 unkF4;
-    /* 0xF5 */ u8 padF5[0xA];
-    /* 0xFF */ u8 unkFF;
-} CamStepState;
-
 typedef struct CamActorLimits {
     /* 0x000 */ u8 pad0[0x114];
     /* 0x114 */ s16 unk114;
@@ -2668,13 +2615,8 @@ typedef struct CamActorLimits {
     /* 0x11A */ s16 unk11A;
 } CamActorLimits;
 
-typedef struct CamActorSpeed {
-    /* 0x00 */ u8 pad0[0xB8];
-    /* 0xB8 */ f32 unkB8;
-} CamActorSpeed;
-
 s32 func_80620F00(CamActor *camActor, u8 allowNudge, u8 requireSide) {
-    CamStepState *st = (CamStepState *)camActor->unk174;
+    CamState *st = camActor->unk174;
     CamActor *actor;
     f32 diff;
     u8 x;
@@ -2684,7 +2626,7 @@ s32 func_80620F00(CamActor *camActor, u8 allowNudge, u8 requireSide) {
     CamActorLimits *st2;
 
     actor = st->unk0;
-    diff = gCamTargetDist - ((CamPlayerRec *)gPlayerSlots)[((CamState *)st)->unkFB].unk284;
+    diff = gCamTargetDist - gPlayerSlots[st->unkFB].unk284;
     st2 = (CamActorLimits *)actor->unk174;
     x = 40.0f < gCamTargetDist && (f32)st2->unk114 < diff;
     y = (f32)st2->unk118 < diff;
@@ -2694,20 +2636,20 @@ s32 func_80620F00(CamActor *camActor, u8 allowNudge, u8 requireSide) {
         x = 0;
     }
     if (x != 0) {
-        if (allowNudge && ((CamActorSpeed *)actor)->unkB8 != 0.0f) {
+        if (allowNudge && actor->unkB8 != 0.0f) {
             if (y && !z) {
                 st->unkB2 += 0x32;
-                camSetSettleMode((CamStateSettle *)st, 0xA);
+                camSetSettleMode(st, 0xA);
             } else if (z && !y) {
                 st->unkB2 -= 0x32;
-                camSetSettleMode((CamStateSettle *)st, 0xA);
+                camSetSettleMode(st, 0xA);
             }
         }
         st->unkF4++;
         if (w && st->unkF4 >= 0x15) {
             actor = st->unk0;
             st->unkF4 = 0;
-            if (((CamActorSpeed *)actor)->unkB8 != 0.0f && actor->unk154 != 0x59) {
+            if (actor->unkB8 != 0.0f && actor->unk154 != 0x59) {
                 camFindClearYaw(camActor, 0.0f, st->unkB2, 1);
             } else {
                 camFindClearYaw(camActor, 0.0f, actor->unkE6, 1);
@@ -3138,34 +3080,15 @@ void camSetZoomForDistance(CamActor *cam, s16 distance) {
     camSetZoomLevel(cam, best);
 }
 
-typedef struct CamPlayerActorSlot {
-    /* 0x00 */ u8 pad0[0x6E];
-    /* 0x6E */ s16 unk6E;
-} CamPlayerActorSlot;
-
-typedef struct CamReturnState {
-    /* 0x00 */ u8 pad0[0xC];
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ u8 pad10[0x34];
-    /* 0x44 */ s32 unk44;
-    /* 0x48 */ u8 pad48[0x68];
-    /* 0xB0 */ s16 unkB0;
-    /* 0xB2 */ s16 unkB2;
-    /* 0xB4 */ u8 padB4[0x39];
-    /* 0xED */ u8 unkED;
-    /* 0xEE */ u8 padEE[5];
-    /* 0xF3 */ u8 unkF3;
-} CamReturnState;
-
-extern CamPlayerActorSlot *gActivePlayerActor;
+extern CamActor *gActivePlayerActor;
 void camReturnToFollow(CamActor *camActor, CamActor *targetActor) {
-    CamReturnState *s;
+    CamState *s;
     s32 pad1;
     s32 pad2;
     u8 pad3;
     u8 prev;
 
-    s = (CamReturnState *)camActor->unk174;
+    s = camActor->unk174;
     prev = s->unkF3;
 
     if (gActivePlayerActor->unk6E != -1) {
@@ -3178,7 +3101,7 @@ void camReturnToFollow(CamActor *camActor, CamActor *targetActor) {
     switch (prev) {
         case 3:
         case 0xB:
-            camStartBlendRamp((CamState *)s, 0xA);
+            camStartBlendRamp(s, 0xA);
             s->unkB2 = targetActor->unkE6;
             break;
         case 2:
@@ -3189,7 +3112,7 @@ void camReturnToFollow(CamActor *camActor, CamActor *targetActor) {
             }
             s->unkED = 0xFF;
         default:
-            camStartBlendRamp((CamState *)s, 0x14);
+            camStartBlendRamp(s, 0x14);
             break;
     }
 }
@@ -3305,32 +3228,10 @@ void camComputeTargetFocusPos(CamState *st, f32 *outX, f32 *outY, f32 *outZ) {
     *outY = p->unk4->unk80 + p->unk12;
 }
 
-typedef struct CamHeadTarget {
-    /* 0x000 */ u8 pad0[0x7C];
-    /* 0x07C */ f32 unk7C;
-    /* 0x080 */ f32 unk80;
-    /* 0x084 */ f32 unk84;
-    /* 0x088 */ u8 pad88[0x6C];
-    /* 0x0F4 */ s16 arcYawMin;
-    /* 0x0F6 */ s16 arcYawMax;
-    /* 0x0F8 */ u8 padF8[4];
-    /* 0x0FC */ u8 hasArcBounds;
-    /* 0x0FD */ u8 padFD[0x57];
-    /* 0x154 */ u8 unk154;
-    /* 0x155 */ u8 pad155[9];
-    /* 0x15E */ u8 unk15E;
-} CamHeadTarget;
-
-typedef struct CamHeadState {
-    /* 0x00 */ CamHeadTarget *unk0;
-    /* 0x04 */ u8 pad4[0xAE];
-    /* 0xB2 */ s16 unkB2;
-} CamHeadState;
-
 
 void func_806228BC(CamActor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *focusX, f32 *focusY, f32 *focusZ) {
-    CamHeadState *st = (CamHeadState *)camActor->unk174;
-    CamHeadTarget *tgt = st->unk0;
+    CamState *st = camActor->unk174;
+    CamActor *tgt = st->unk0;
     s16 angle;
     s32 h;
 
@@ -3346,7 +3247,7 @@ void func_806228BC(CamActor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32 *foc
         *eyeY = h + tgt->unk80;
     }
     *eyeZ = tgt->unk84;
-    if (tgt->hasArcBounds != 0) {
+    if (tgt->unkFC != 0) {
         angle = mathAngleArcMidpoint(tgt->arcYawMin, tgt->arcYawMax);
         *eyeX += 5.0 * mathSinF(angle);
         *eyeZ += 5.0 * mathCosF(angle);
@@ -3563,7 +3464,7 @@ void camComputeEyeFocus(CamActor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32
                     posX = mathSinF(target->unkE6 - angle) * dist + target->unk7C;
                     posZ = mathCosF(target->unkE6 - angle) * dist + target->unk84;
                     posY = target->unk80 + height;
-                    ((CamPlayerRec *)gPlayerSlots)[cam->unkFB].unk27C = CAM_LERP(pos->unkD, pos->unkC, t);
+                    gPlayerSlots[cam->unkFB].fov = CAM_LERP(pos->unkD, pos->unkC, t);
                     if (p->unk1 == 16) {
                         lookX = posX + D_807F5D24;
                         lookY = posY + D_807F5D28;
@@ -3610,7 +3511,7 @@ void camComputeEyeFocus(CamActor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32
                     lookX = splineEvalCubic(target->unk160, e0->unk6, e1->unk6, e2->unk6, e3->unk6);
                     lookY = splineEvalCubic(target->unk160, e0->unk8, e1->unk8, e2->unk8, e3->unk8);
                     lookZ = splineEvalCubic(target->unk160, e0->unkA, e1->unkA, e2->unkA, e3->unkA);
-                    ((CamPlayerRec *)gPlayerSlots)[cam->unkFB].unk27C =
+                    gPlayerSlots[cam->unkFB].fov =
                         splineEvalCubic(target->unk160, e0->unkC, e1->unkC, e2->unkC, e3->unkC);
                     if (gCamRollFramesLeft == 0) {
                         camActor->unkE4 =
@@ -3625,7 +3526,7 @@ void camComputeEyeFocus(CamActor *camActor, f32 *eyeX, f32 *eyeY, f32 *eyeZ, f32
                     posX = splineEvalCubic(target->unk160, k0->unk0, k1->unk0, k2->unk0, k3->unk0);
                     posY = splineEvalCubic(target->unk160, k0->unk2, k1->unk2, k2->unk2, k3->unk2);
                     posZ = splineEvalCubic(target->unk160, k0->unk4, k1->unk4, k2->unk4, k3->unk4);
-                    ((CamPlayerRec *)gPlayerSlots)[cam->unkFB].unk27C =
+                    gPlayerSlots[cam->unkFB].fov =
                         splineEvalCubic(target->unk160, k0->unk6, k1->unk6, k2->unk6, k3->unk6);
                     if (gCamRollFramesLeft == 0) {
                         camActor->unkE4 =
@@ -4213,15 +4114,8 @@ extern s16 gCamZoneMinX;
 extern s16 gCamZoneMinZ;
 extern s16 gCamZoneGridWidth;
 
-typedef struct CamFocusTarget {
-    /* 0x00 */ u8 pad0[0x78];
-    /* 0x78 */ f32 unk78;
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ f32 unk80;
-} CamFocusTarget;
-
 void camUpdateFocusPos(CamEyeActor *camActor, f32 blendY, f32 *focusX, f32 *focusY, f32 *focusZ) {
-    CamFocusTarget *st = (CamFocusTarget *)camActor->unk174;
+    CamState *st = camActor->unk174;
 
     *focusX = *focusX + (st->unk78 - *focusX) * gCamFocusBlendRate;
     *focusY = *focusY + (st->unk7C - *focusY) * blendY;
@@ -4360,30 +4254,9 @@ void camInitZones(void) {
     CAM_ZONE_GROUP[k].unk2 = CAM_ZONE_ENTRIES_PATH->unkC0;
 }
 
-typedef struct CamSecondNode {
-    /* 0x00 */ u8 pad0[0x7C];
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ u8 pad80[4];
-    /* 0x84 */ f32 unk84;
-    /* 0x88 */ u8 pad88[0x5E];
-    /* 0xE6 */ s16 unkE6;
-} CamSecondNode;
-
-typedef struct CamSecondState {
-    /* 0x00 */ CamSecondNode *unk0;
-    /* 0x04 */ CamSecondNode *unk4;
-    /* 0x08 */ u8 pad8[0xA];
-    /* 0x12 */ s16 unk12;
-    /* 0x14 */ s16 unk14;
-    /* 0x16 */ u8 pad16[0x96];
-    /* 0xAC */ s32 unkAC;
-    /* 0xB0 */ u8 padB0[2];
-    /* 0xB2 */ s16 unkB2;
-} CamSecondState;
-
 
 void camSetSecondTarget(CamActor *cam, s16 targetX, s16 targetZ) {
-    CamSecondState *st = (CamSecondState *)cam->unk174;
+    CamState *st = cam->unk174;
 
     st->unk4 = spawnNodeActivate(1, 0);
     if (st->unk4 != NULL) {
@@ -4400,7 +4273,7 @@ void camSetSecondTarget(CamActor *cam, s16 targetX, s16 targetZ) {
 }
 
 void camClearSecondTarget(CamActor *cam) {
-    CamSecondState *st = (CamSecondState *)cam->unk174;
+    CamState *st = cam->unk174;
 
     st->unk4 = NULL;
     st->unkAC &= ~0x10004;
@@ -4731,21 +4604,6 @@ s16 camClampEyeAngle(CamState *camState, f32 *eyeX, f32 *eyeZ, f32 focusX, f32 f
     return ang;
 }
 
-typedef struct CamPlayerRecView {
-    /* 0x000 */ u8 pad0[8];
-    /* 0x008 */ Mtx m8[2];
-    /* 0x088 */ Mtx m88[2];
-    /* 0x108 */ u8 pad108[0x80];
-    /* 0x188 */ u16 unk188;
-    /* 0x18A */ u8 pad18A[0xE6];
-    /* 0x270 */ s16 unk270;
-    /* 0x272 */ s16 unk272;
-    /* 0x274 */ u8 pad274[4];
-    /* 0x278 */ s16 unk278;
-    /* 0x27A */ s16 unk27A;
-    /* 0x27C */ u8 pad27C[0x74];
-} CamPlayerRecView; // size = 0x2F0
-
 extern u8 gGfxBufferIndex;
 
 s32 camProjectToScreen(f32 x, f32 y, f32 z, f32 *screenX, f32 *screenY, Mtx *modelMtx, f32 scaleFactor, u8 playerIndex) {
@@ -4756,14 +4614,14 @@ s32 camProjectToScreen(f32 x, f32 y, f32 z, f32 *screenX, f32 *screenY, Mtx *mod
     if (modelMtx != NULL) {
         camTransformPoint(modelMtx, x, y, z, w, &x, &y, &z, &w);
     }
-    camTransformPoint(&((CamPlayerRecView *)gPlayerSlots)[playerIndex].m8[gGfxBufferIndex], x, y, z, w, &x, &y, &z, &w);
+    camTransformPoint(&gPlayerSlots[playerIndex].viewMtx[gGfxBufferIndex], x, y, z, w, &x, &y, &z, &w);
     if (0.0 <= z) {
         *screenX = 16384.0f;
         *screenY = 16384.0f;
         return 1;
     }
-    camTransformPoint(&((CamPlayerRecView *)gPlayerSlots)[playerIndex].m88[gGfxBufferIndex], x, y, z, w, &x, &y, &z, &w);
-    scale = ((CamPlayerRecView *)gPlayerSlots)[playerIndex].unk188 / 65535.0;
+    camTransformPoint(&gPlayerSlots[playerIndex].projMtx[gGfxBufferIndex], x, y, z, w, &x, &y, &z, &w);
+    scale = gPlayerSlots[playerIndex].perspNorm / 65535.0;
     x *= scale;
     y *= scale;
     w *= scale;
@@ -4806,10 +4664,10 @@ void camPolarFromPoints(f32 *outYaw, f32 *outPitch, f32 x1, f32 y1, f32 z1, f32 
 void func_8062754C(f32 t) {
     s16 i;
 
-    camClosestPointOnSegment(((CamPlayerRec *)gPlayerSlots)->unk228, ((CamPlayerRec *)gPlayerSlots)->unk22C, ((CamPlayerRec *)gPlayerSlots)->unk230, 517.0f, 312.0f, 346.0f, 347.0f, 312.0f, 494.0f, &gPlayerSlots->camX, &gPlayerSlots->camY, &gPlayerSlots->camZ);
-    gPlayerSlots->camX = (gPlayerSlots->camX - ((CamPlayerRec *)gPlayerSlots)->unk228) * t + ((CamPlayerRec *)gPlayerSlots)->unk228;
-    gPlayerSlots->camY = (gPlayerSlots->camY - ((CamPlayerRec *)gPlayerSlots)->unk22C) * t + ((CamPlayerRec *)gPlayerSlots)->unk22C;
-    gPlayerSlots->camZ = (gPlayerSlots->camZ - ((CamPlayerRec *)gPlayerSlots)->unk230) * t + ((CamPlayerRec *)gPlayerSlots)->unk230;
+    camClosestPointOnSegment(gPlayerSlots->focusX, gPlayerSlots->focusY, gPlayerSlots->focusZ, 517.0f, 312.0f, 346.0f, 347.0f, 312.0f, 494.0f, &gPlayerSlots->camX, &gPlayerSlots->camY, &gPlayerSlots->camZ);
+    gPlayerSlots->camX = (gPlayerSlots->camX - gPlayerSlots->focusX) * t + gPlayerSlots->focusX;
+    gPlayerSlots->camY = (gPlayerSlots->camY - gPlayerSlots->focusY) * t + gPlayerSlots->focusY;
+    gPlayerSlots->camZ = (gPlayerSlots->camZ - gPlayerSlots->focusZ) * t + gPlayerSlots->focusZ;
     for (i = 1; i < gPlayerCount; i++) {
         gPlayerSlots[i].camX = gPlayerSlots->camX;
         gPlayerSlots[i].camY = gPlayerSlots->camY;
@@ -4821,40 +4679,16 @@ f32 func_806276AC(void) {
     s16 i;
 
     for (i = 0; i < gPlayerCount; i++) {
-        ((CamPlayerRec *)gPlayerSlots)[i].unk228 = 586.0f;
-        ((CamPlayerRec *)gPlayerSlots)[i].unk22C = 205.0f;
-        ((CamPlayerRec *)gPlayerSlots)[i].unk230 = 584.0f;
+        gPlayerSlots[i].focusX = 586.0f;
+        gPlayerSlots[i].focusY = 205.0f;
+        gPlayerSlots[i].focusZ = 584.0f;
     }
     return 1.0f;
 }
 
-typedef struct CamResumeState {
-    /* 0x00 */ CamActor *unk0;
-    /* 0x04 */ u8 pad4[0x74];
-    /* 0x78 */ f32 unk78;
-    /* 0x7C */ f32 unk7C;
-    /* 0x80 */ f32 unk80;
-    /* 0x84 */ u8 pad84[0x10];
-    /* 0x94 */ f32 unk94;
-    /* 0x98 */ u8 pad98[8];
-    /* 0xA0 */ f32 unkA0;
-    /* 0xA4 */ u8 padA4[0xE];
-    /* 0xB2 */ s16 unkB2;
-    /* 0xB4 */ s16 unkB4;
-    /* 0xB6 */ u8 padB6[2];
-    /* 0xB8 */ f32 unkB8;
-    /* 0xBC */ u8 padBC[0x34];
-    /* 0xF0 */ u8 unkF0;
-    /* 0xF1 */ u8 unkF1;
-    /* 0xF2 */ u8 padF2;
-    /* 0xF3 */ u8 unkF3;
-    /* 0xF4 */ u8 padF4[7];
-    /* 0xFB */ u8 unkFB;
-} CamResumeState;
-
 
 s32 func_8062773C(CamActor *cam) {
-    CamResumeState *st = (CamResumeState *)cam->unk174;
+    CamState *st = cam->unk174;
     s16 ang;
 
     ang = st->unkB2 + 0x800;
@@ -4868,24 +4702,24 @@ s32 func_8062773C(CamActor *cam) {
     st->unkF3 = 1;
     camRestoreYaw(cam);
     st->unk94 = st->unkA0 / 3.0;
-    ((CamPlayerRec *)gPlayerSlots)[st->unkFB].unk27C = 45.0f;
+    gPlayerSlots[st->unkFB].fov = 45.0f;
     st->unk78 = st->unk0->unk7C;
     st->unk7C = st->unk0->unk80 + st->unk0->unk15E;
     st->unk80 = st->unk0->unk84;
-    camSetSettleMode((CamStateSettle *)st, 0xB);
+    camSetSettleMode(st, 0xB);
     sfxStopSlotSound(st->unk0, 0);
     st->unk0->unk6A &= ~0x2000;
     return ang;
 }
 
 void camSaveYaw(CamActor *cam) {
-    CamResumeState *st = (CamResumeState *)cam->unk174;
+    CamState *st = cam->unk174;
 
     st->unkB4 = st->unkB2;
 }
 
 void camRestoreYaw(CamActor *cam) {
-    CamResumeState *st = (CamResumeState *)cam->unk174;
+    CamState *st = cam->unk174;
 
     st->unkB2 = st->unkB4;
     cam->unk15F = (f64)st->unkB2 / 4095.0 * 255.0;
