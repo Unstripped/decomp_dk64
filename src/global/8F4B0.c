@@ -92,8 +92,8 @@ set_color:
     }
 }
 
-s32 flagGet(s16, s32);
-void flagSet(s16, s32, s32);
+u8 flagGet(s16, u8);
+void flagSet(s16, u8, u8);
 void mapRequestTransition();
 void menuTransitionToMap(s32, s32);
 extern s8 D_8074452C;
@@ -209,33 +209,33 @@ typedef struct {
 } PlayerActorC4;
 struct ActorPlayerPos;
 
-void lightGetColor(void *, void *, void *, s32);
+void lightGetColor(f32 *, f32 *, f32 *, s16);
 void lightSetOverrideColor(f32, f32, f32);
-void transitionSetState(s32);
-void screenSetTransitionFadeType(s32);
+void transitionSetState(u8);
+void screenSetTransitionFadeType(u8);
 s32 cutsceneTriggerCheck(s16);
 void playerWaypointPathStartLineFromActor(void *, s16, s16, s32);
-void mapRequestTransitionFast(s16, s16);
-void func_805FF9AC(s16, s16, s16, s32);
-void mapTransitionExitCurrent(s16, s16);
-void playerRespawnResetPhysics(s16);
+void mapRequestTransitionFast(s32, s32);
+void func_805FF9AC(s32, s32, s32, s16);
+void mapTransitionExitCurrent(s32, s32);
+void playerRespawnResetPhysics(s32);
 void mapTransitionToPreviousOrExit(void);
 void mapTransitionToMenuOrPrevious(void);
-void mapSetTransitionExtraCounter(u8);
-s32 mapGetHubWorldIndex(u8, s32);
+void mapSetTransitionExtraCounter(u8); // FAKE: callee prototype steer
+s32 mapGetHubWorldIndex(u8, s32); // FAKE: callee prototype steer
 void mapTransitionToWorldHub(s32);
-void playerWaypointPathStartPacked(void *, s32, s16, s32);
-void sfxPlayFromActorWithAltitudeCheck(void *, s16, s32, s32, s32);
-void sfxAllocateChannel(s16, f32);
+void playerWaypointPathStartPacked(void *, s32, s16, s32); // FAKE: callee prototype steer
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
+void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s16, s32);
-void commandSetColor(s32, s32, s32);
-void commandSetParameters(s32, s32, s32, s32, s32, s32);
+void commandSetColor(s8, s8, s8);
+void commandSetParameters(s16, s16, s16, u8, u8, u8);
 void mapChunkSetFlagBit3(s16);
 void lightLerpColors(f32, f32, f32, f32, s16);
 void lightSetTargetColor(f32, f32, f32, s16);
-void func_80711BD0(f32, s16, s16, s32);
+void func_80711BD0(f32, s16, s16, u8);
 void func_80711950(f32, s16, s16);
-void func_80711F90(f32, s16, f32, s16, f32);
+void func_80711F90(f32, s16, f32, s16, f32); // FAKE: callee prototype steer
 s32 randomNonNegative(void);
 void lightSetColor(f32, f32, f32, s16);
 void sfxPlayWithRandomPan(s32, s32, s32, s32, s32);
@@ -533,7 +533,7 @@ typedef struct {
     /* 0x1E */ s16 unk1E;
 } Actor174;
 
-void actorFindActiveByType(s32, void *);
+s32 actorFindActiveByType(s16, Actor * *);
 
 void func_8068B830(s16 stateVal, s16 pct, s16 timer) {
     Actor *actor;
@@ -623,7 +623,7 @@ typedef struct ActorPlayerPos {
 } ActorPlayerPos;
 
 extern ActorPlayerPos *gPlayerSlots;
-void camStartPath(s32, s32, u8);
+u16 camStartPath(void *, s16, u8);
 void func_8072167C(s16, s16, s16, s16);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
@@ -673,10 +673,10 @@ typedef struct {
     s16 unkEC;
 } AimActorAngles;
 
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 f32 mathSinF(s16);
 void camUpdate(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
 void playerGetCharacterIndex(u8);
 extern u8 gGameMode;
