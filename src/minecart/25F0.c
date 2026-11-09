@@ -1,4 +1,13 @@
 #include "common.h"
+#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
+#include "proto/global/119370.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/35000.h"
+#include "proto/global/8CA50.h"
+#include "proto/minecart/0.h"
+#include "proto/minecart/25F0.h"
 
 typedef struct ModelSub_25F0 {
     u8 pad0[4];
@@ -170,48 +179,27 @@ void behaviourFrameBegin(void);
 void actorScriptStart(Actor_25F0 *, s32);
 s32 actorSpawn(s32, s32);
 void actorCopyPoseAndScale(void *, void *, f32);
-u16 controllerLookupStateByHash(u32 *);
-void controllerAnimLoadStateAsset1(void *, s16);
 s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 s32 func_80724A20(void);
 s16 mathAngleEaseToward(s16, s16, f32);
 f32 mathSinF(s16);
 f32 mathCosF(s16);
-void actorUpdateModelMatrix(Actor_25F0 *, s32);
 void actorGetOrSetNodeScale(Actor_25F0 *, s32, f32);
-void effectSetDuration(s32);
-void effectCreateAtActorBone(s32, f32, void *, s32, u8);
-void minecartApplyJunction(MinecartCart *, void *, s32, s32);
-s32 randomNonNegative(void);
-void effectSetSpeed(s32);
-void effectSetCallback(s32 *);
-void effectSetDepth(s8);
-void effectSetFlags(s16);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
 void func_80724CA4(s16, s16);
 void sfxPlayFromActorWithAltitudeCheck(Actor_25F0 *, s16, u8, s16, u8);
 void camStartShake(s32, s32, s32);
 void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void func_80724E48(u8);
 s32 behaviourIsTargetWithinAngle(u16);
-void minecartStartScriptNearPlayer(void);
 void actorSpawnNodeEffectFacingCamera(s32, u8);
 void actorApproachTargetSpeed(u16);
-void minecartFollowTrack(MinecartCart *, s16, u8);
 void actorGetNodePos(Actor_25F0 *, s32, f32 *, f32 *, f32 *);
 void commandQueuePush(s32, s16, s16, s16, u8, u8, u8, u8, u8);
-void minecartPlayPassBySfx(MinecartCart *cart);
-void minecartChooseBranchSide(MinecartCart *cart);
-u8 *heapAlloc(s32);
 f32 sqrtf(f32);
-u32 randomLcgNext(void);
+u32 randomLcgNext(void); // FAKE: callee prototype steer
 void camSetTarget(void *, void *, s32, s16, s32, s32, s32, s32, s32, s32, f32);
 void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void actorDespawn(void *);
-void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
-void animSetSpeed(void *, s32, f32);
-void animSetLoopMode(void *, s32, u8);
-void animSetLoopLimit(void *, s32, s16);
 void actorApplyGravity(void);
 void actorApplyVelocity(void *);
 void actorUpdateFloorContactAndTilt(void *, f32);

@@ -1,4 +1,32 @@
 #include "common.h"
+#define PROTO_SKIP_camStartPath // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_effectCreateAtActorBone // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
+#define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
+#include "proto/global/112080.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/126260.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17800.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/936B0.h"
+#include "proto/global/9DD70.h"
+#include "proto/global/A7710.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/FCCD0.h"
+#include "proto/minecart/0.h"
 
 typedef struct Struct_807FBB40_11C {
     char pad0[0x154];
@@ -114,17 +142,6 @@ extern Struct_807FC924 *gPlayerSlots;
 extern s16 D_80750AC4;
 extern s32 gCurrentMap;
 
-void slotQueueUpdate(s32, s32, s32);
-void actorUpdateModelMatrix(void *, s32);
-void minecartFollowTrack(struct MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimit);
-void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-s32 camIsCutsceneActive(void);
-void actorSpawnNodeEffectFacingCamera(s32, s32);
-void commandQueuePush(void *, s16, s16, s16, s32, s32, s32, s32, s32);
-s32 actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void lightSetDistanceThreshold(s32);
-void lightSetFovAngles(f32, f32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
 
 typedef struct Struct_807FBB4C {
     char pad0[0x12C];
@@ -136,11 +153,6 @@ typedef struct Struct_807FBB4C {
 extern Struct_807FBB40 *gCurrentActor;
 extern Struct_807FBB4C *gPrimaryPlayerActor;
 
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-s32 textTableGetString();
-void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
-void sfxAllocateChannel(s32, f32);
-s32 playerStateQueueCallback();
 void camStartPath();
 
 void minecartTriggerLoss(u8 useCutsceneCam, u8 textIndex) {
@@ -168,13 +180,9 @@ void minecartTriggerWin(u8 useCutsceneCam, u8 textIndex) {
 }
 
 extern s32 D_80028C30;
-void effectTimedLightIntensityFade();
 extern s32 D_8072006C;
 
-s32 randomLcgNext();
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-void effectSetSpeed(void *);
-void effectSetCallback(void *);
+void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32); // FAKE: callee prototype steer
 s32 effectCreateAtActorBone(void *, s32, void *, s32, s32);
 
 void minecartSpawnWheelEffect(MinecartCart *cart, u8 side, u8 probabilityThreshold) {
@@ -335,8 +343,7 @@ extern f32 D_807502F8;
 extern s16 D_80750338;
 extern s32 D_80028C40;
 
-void actorApplyGravity(void);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void minecartUpdatePhysics(void) {
     s32 pad0;
@@ -388,7 +395,6 @@ extern s32 D_807F5FD0;
 extern MinecartTrackPoint **D_807F5FD4;
 extern s32 D_80028C48;
 extern s32 D_80028C50;
-void actorSetUniformScale(void *, f32);
 
 void minecartReverseTrackBehaviour(void) {
     s32 padA;
@@ -454,8 +460,6 @@ typedef struct MinecartElem {
 } MinecartElem;
 
 
-void heapFree(void *);
-void *heapAlloc(s32);
 
 void minecartApplyJunction(MinecartCart *cart, MinecartElem **junctionTable, u8 minTrack, u8 maxTrack) {
     u8 i = 0;
@@ -482,11 +486,6 @@ void minecartApplyJunction(MinecartCart *cart, MinecartElem **junctionTable, u8 
 }
 
 extern s32 D_80028C20;
-void actorScriptStart(void *, s32);
-void actorSetStateTwo(void *);
-void hudSpawnCountdownTimer(s32, s32, u8);
-void func_80726EE0(s32);
-void camSetFixedView(void *, f32, f32, f32, f32, f32, f32, s32);
 
 void minecartPlayerCartJunctionBehaviour(void) {
     MinecartCart *cart;
@@ -572,16 +571,9 @@ extern s32 D_807457E4[];
 extern s16 D_80770628[];
 extern f32 D_80770B68[];
 extern s32 gFrameCounter;
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 mathPickCloserTargetPoint3D(f32, f32, f32, MinecartTrackPoint *, MinecartTrackPoint *, MinecartTrackPoint *, MinecartTrackPoint *, f32 *, f32 *, f32 *);
-void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
-s16 mathAngleEaseToward(s16, s16, f32);
-f32 mathAtan2(f32, f32);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void actorUpdatePrevContactFlags(void *);
-void matrixMakeRotationZ(f32 (*)[4], f32);
-void actorUpdateFloorContactAndTilt(void *, f32);
 void minecartFollowTrack(MinecartCart *cart, s16 angleDeltaInput, u8 maxTiltLimit) {
     u8 i;
     u8 cnt;
