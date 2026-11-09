@@ -98,7 +98,7 @@ void csCmdPeriodicSfx(CsState *, s16, s16, s16);
 void csCmdNodeTargetLights(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCmdExtraObjectAttach
-void csCmdExtraObjectAttach(s32 **, s16, s16, s16);
+void csCmdExtraObjectAttach(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCmdPeriodicProximityEffects
 void csCmdPeriodicProximityEffects(CsState *, s16, s16, s16);
@@ -107,7 +107,7 @@ void csCmdPeriodicProximityEffects(CsState *, s16, s16, s16);
 void csCmdPointHitEffectSpawn(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCmdPlayerProximityPointCheck
-void csCmdPlayerProximityPointCheck(s32 **, s16, s16, s16);
+void csCmdPlayerProximityPointCheck(CsState *, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_csCmdSpawnDirectionalEffects
 void csCmdSpawnDirectionalEffects(CsState *, s16, s16, s16);

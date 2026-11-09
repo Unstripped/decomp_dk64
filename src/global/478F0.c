@@ -314,7 +314,7 @@ extern u8 D_8071FEAC[];
 void csCmdSpawnBurstAtNodeOrPos(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 i;
     s32 r;
-    s32 q;
+    s32 pad;
     f32 x;
     f32 y;
     f32 z;
@@ -383,7 +383,8 @@ void csCmdLightPulse(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 t;
     f32 f;
     if (cs->data == NULL) {
-        cs->data = heapAlloc(8);
+        q = heapAlloc(8);
+        cs->data = q;
     }
     q = cs->data;
     if (b == 1) {
@@ -750,9 +751,9 @@ extern u8 D_80720E74[];
 extern u8 D_80720E8C[];
 
 void csCmdSpawnMultiRingParticles(CsState *cs, s16 csId, s16 b, s16 c) {
-    u32 r1;
-    u32 r2;
-    u32 r3;
+    u32 pad0;
+    u32 pad1;
+    u32 pad2;
     u8 *p;
     s32 i;
     s32 sel;
@@ -927,22 +928,23 @@ typedef struct CsExtraObj3 {
 
 
 
-void csCmdExtraObjectAttach(s32 **slot, s16 csId, s16 b, s16 c) {
+void csCmdExtraObjectAttach(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *p;
-    PlayerState *a;
-    Actor *b2;
-    CsExtraObj3 *o;
+    PlayerState *ps;
+    Actor *cam;
+    CsExtraObj3 *camState;
     u8 near = 0;
 
-    if (*slot == NULL) {
-        *slot = heapAlloc(4);
-        **slot = 1;
+    if (cs->data == NULL) {
+        p = heapAlloc(4);
+        cs->data = p;
+        *p = 1;
     }
-    p = *slot;
-    a = gPlayerSlots->unk4->customState;
-    b2 = a->camActor;
-    o = b2->customState;
-    if (o->active != 0 && gPlayerSlots->y < o->surfaceY + 3.0f) {
+    p = cs->data;
+    ps = gPlayerSlots->unk4->customState;
+    cam = ps->camActor;
+    camState = cam->customState;
+    if (camState->active != 0 && gPlayerSlots->y < camState->surfaceY + 3.0f) {
         near = 1;
     }
     if (*p != 0 && near == 0) {
@@ -1182,10 +1184,7 @@ void csCmdPointHitEffectSpawn(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
-extern f32 D_807480F0;
-f32 sqrtf(f32);
-
-void csCmdPlayerProximityPointCheck(s32 **slot, s16 csId, s16 b, s16 c) {
+void csCmdPlayerProximityPointCheck(CsState *cs, s16 csId, s16 b, s16 c) {
     s32 *p;
     s32 cnt;
     s32 start;
@@ -1197,11 +1196,12 @@ void csCmdPlayerProximityPointCheck(s32 **slot, s16 csId, s16 b, s16 c) {
     f32 dz;
 
     hit = 0;
-    if (*slot == NULL) {
-        *slot = heapAlloc(4);
-        **slot = 0;
+    if (cs->data == NULL) {
+        p = heapAlloc(4);
+        cs->data = p;
+        *p = 0;
     }
-    p = *slot;
+    p = cs->data;
     start = *p;
     cnt = D_807F5FD4[1] - D_807F5FD4[0];
     (*p)++;
@@ -1252,7 +1252,7 @@ void csCmdSpawnDirectionalEffects(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 fx;
     f32 fy;
     f32 fz;
-    s32 e;
+    s32 pad;
     f32 vec[3];
     f64 d0;
     f64 d1;
@@ -1842,12 +1842,7 @@ typedef struct CsFade {
 } CsFade;
 
 
-typedef struct CsCamModeView {
-    /* 0x00 */ u8 pad0[0xBC];
-    /* 0xBC */ s16 unkBC;
-} CsCamModeView;
-
-extern CsCamModeView *gActivePlayerState;
+extern PlayerState *gActivePlayerState;
 extern s32 gCurrentMap;
 extern s16 D_807F7366;
 extern f32 D_807F6940;
@@ -1912,7 +1907,7 @@ void csCmdSfxFadeLoop(CsState *cs, s16 csId, s16 b, s16 c) {
             }
             break;
     }
-    if ((gPrimaryPlayerActor->state == 0x42 && gActivePlayerState->unkBC == 0x62) || gPrimaryPlayerActor->state == 0x67) {
+    if ((gPrimaryPlayerActor->state == 0x42 && gActivePlayerState->hitActorType == 0x62) || gPrimaryPlayerActor->state == 0x67) {
         q->phase = 0;
         q->timer = 0x190;
         q->level = 0.0f;
@@ -2102,7 +2097,7 @@ void csCmdCameraVectorTargetUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     negCos = -p->unk228;
     sinA = p->unk220;
-    px = gCsPosX; py = gCsPosY + 15.0; pz = gCsPosZ;
+    px = gCsPosX; py = gCsPosY + 15.0; pz = gCsPosZ; // LAYOUT: one line keeps as1's px/py/pz load order (Q0183)
     ex = p->unk220 * 50.0 + px;
     ang = 0;
     cb = effectLerpPathUpdate;
@@ -2223,7 +2218,7 @@ void csCmdLookupSlotKey(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 void csCmdSetParam49(CsState *cs, s16 csId, s16 b, s16 c) {
-    cs->unk14[0] = *((u8 *)cs + 0x49);
+    cs->unk14[0] = (u8)cs->unk44[2];
 }
 
 extern s16 gCsModelIds[];
@@ -2249,11 +2244,11 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
     }
     st = cs->data;
     found = 0;
-    if (*((u8 *)cs + 0x49) != (*st).lastValue) {
+    if ((u8)cs->unk44[2] != (*st).lastValue) {
         if (D_807481F4) {} // FAKE: early read of the table address (raises its candidate priority)
         i = 0;
         do {
-            if (D_807481F4[i] == *((u8 *)cs + 0x49)) {
+            if (D_807481F4[i] == (u8)cs->unk44[2]) {
                 found = 1;
             } else {
                 i++;
@@ -2266,7 +2261,7 @@ void csCmdModelStepAnimation(CsState *cs, s16 csId, s16 b, s16 c) {
         if (&D_807481F4[i] >= D_807481F6) {
             csModelStateTrySetByte(D_807481F4[i - 1], 0x14, 0);
         }
-        st->lastValue = *((u8 *)cs + 0x49);
+        st->lastValue = (u8)cs->unk44[2];
     }
 }
 
@@ -2357,12 +2352,6 @@ typedef struct CsFx {
     /* 0x4E */ u8 unk4E;
     /* 0x4F */ u8 cool;
 } CsFx; /* 0x50 */
-typedef struct CsFxSel {
-    /* 0x00 */ u8 pad0[0x12];
-    /* 0x12 */ u8 state;
-    /* 0x13 */ u8 pad13[3];
-    /* 0x16 */ u8 active;
-} CsFxSel;
 extern f32 D_80770BC0[];
 
 void csCmdStepCameraFrac(CsState *cs, s16 csId, s16 b, s16 c) {
@@ -2489,16 +2478,16 @@ void csCmdResolveNodePair(CsState *cs, s16 csId, s16 b, s16 c) {
 
     found = 0;
     if (cs->data == NULL) {
-        cs->data = heapAlloc(0xA);
-        p = cs->data;
-        for (row = 0; row < 6; row++) p[row] = 0;
+        p = heapAlloc(0xA);
+        cs->data = p;
+        for (row = 0; row < 6; row++) { p[row] = 0; } // LAYOUT: body on the for line
         p[6] = 1;
         p[9] = 0;
     }
     p = cs->data;
     for (row = 0; row < 6 && !found; row++) {
         for (col = 0; col < 2 && !found; col++) {
-            if (D_8074822C[row][col] == ((u8 *)cs)[0x49]) {
+            if (D_8074822C[row][col] == (u8)cs->unk44[2]) {
                 found = 1;
             }
         }
@@ -2709,7 +2698,8 @@ void csCmdTransformSave(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSavedTransform *p;
 
     if (cs->data == NULL) {
-        cs->data = heapAlloc(0x28);
+        p = heapAlloc(0x28);
+        cs->data = p;
     }
     p = cs->data;
     p->v[0] = gCsPosX;
@@ -3293,7 +3283,11 @@ void csCmdSpawnParticleTrail(CsState *cs, s16 csId, s16 b, s16 c) {
     if (cs->data == NULL) {
         tr = heapAlloc(0x170);
         cs->data = tr;
-        for (i = 0; i < 30; i++) { tr->pts[i].x = D_807F61FC; tr->pts[i].y = D_807F6200; tr->pts[i].z = D_807F6204; }
+        for (i = 0; i < 30; i++) {
+            tr->pts[i].x = D_807F61FC;
+            tr->pts[i].y = D_807F6200;
+            tr->pts[i].z = D_807F6204;
+        }
     }
     tr = cs->data;
     pts = tr->pts;
@@ -3377,7 +3371,7 @@ void csCmdSineMotionUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     CsSineState *p;
     CsSineState *t;
     s32 ang;
-    s32 e;
+    s32 dist;
 
     if (cs->data == NULL) {
         t = heapAlloc(0xC);
@@ -3405,8 +3399,8 @@ void csCmdSineMotionUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
             cs->unk10[0] = sfxSlotAllocateSource(csId, 0x138, 1, 1, 0x78, 1.0f, -1);
             ang = p->angle;
         }
-        e = ang - 0x400 > 0 ? ang - 0x400 : 0x400 - ang;
-        if (e < 10 || (ang - 0xC00 > 0 ? ang - 0xC00 : 0xC00 - ang) < 10) {
+        dist = ang - 0x400 > 0 ? ang - 0x400 : 0x400 - ang;
+        if (dist < 10 || (ang - 0xC00 > 0 ? ang - 0xC00 : 0xC00 - ang) < 10) {
             if (p->cooldown == 0) {
                 p->pause = 0x12C;
             }
