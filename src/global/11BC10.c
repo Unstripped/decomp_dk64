@@ -1897,7 +1897,7 @@ void effectFallingSparkUpdate(TimedEffectActorView *arg0, u8 *arg1) {
     s16 sp48[3];
     f32 *temp_v0;
 
-    if (*(s32 *)&arg0->unk384 == 0) {
+    if (arg0->unk384 == 0) {
         temp_v0 = heapAlloc(0xC);
         arg0->unk384 = temp_v0;
         *temp_v0 = 6.0f;
