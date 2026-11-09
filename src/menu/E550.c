@@ -1,26 +1,8 @@
 #include "common.h"
+#include "actor.h"
 
-typedef struct {
-    char pad0[0x60];
-    s32 unk60;
-    char pad64[0x7C - 0x64];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-    char pad88[0xCD - 0x88];
-    u8 unkCD;
-    char padCE[0x154 - 0xCE];
-    u8 unk154;
-    u8 unk155;
-    char pad156[0x15F - 0x156];
-    u8 unk15F;
-    char pad160[0x16A - 0x160];
-    u8 unk16A;
-    u8 unk16B;
-    u8 unk16C;
-} MenuLightFadeActor;
 
-extern MenuLightFadeActor *gCurrentActor;
+extern Actor *gCurrentActor;
 extern u8 D_80033FB0;
 extern u8 D_80033FB1;
 extern u8 D_80033FB2;
@@ -29,28 +11,28 @@ void behaviourFrameBegin(void);
 void lightUpdateFromActorLighting(u8 *, u8 *, u8 *);
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
-void actorScriptStart(MenuLightFadeActor *, s32);
-void actorUpdateModelMatrix(MenuLightFadeActor *, s32);
+void actorScriptStart(Actor *, s32);
+void actorUpdateModelMatrix(Actor *, s32);
 
 void menuLightSpotlightActorUpdate(void) {
     behaviourFrameBegin();
-    if (!(gCurrentActor->unk60 & 0x10)) {
-        gCurrentActor->unk154 = 0;
-        gCurrentActor->unk155 = 0;
+    if (!(gCurrentActor->flags & 0x10)) {
+        gCurrentActor->state = 0;
+        gCurrentActor->unk155[0] = 0;
         gCurrentActor->unkCD = 1;
-        gCurrentActor->unk60 &= ~4;
+        gCurrentActor->flags &= ~4;
     }
-    if (gCurrentActor->unk60 & 4) {
+    if (gCurrentActor->flags & 4) {
         lightUpdateFromActorLighting(&D_80033FB0, &D_80033FB1, &D_80033FB2);
     }
-    switch (gCurrentActor->unk154) {
+    switch (gCurrentActor->state) {
     case 0:
-        switch (gCurrentActor->unk155) {
+        switch (gCurrentActor->unk155[0]) {
         case 0:
             if (currentActorTestClearFlag() != 0) {
                 currentActorClearFlag();
                 actorScriptStart(gCurrentActor, 0x2A7);
-                gCurrentActor->unk155++;
+                gCurrentActor->unk155[0]++;
             }
             break;
         }
@@ -71,19 +53,19 @@ void menuUpdateLightFadeActor(void) {
     s32 d;
     s32 cur;
 
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    if (!(gCurrentActor->flags & 0x10)) {
         gCurrentActor->unk15F = 0;
         currentActorClearFlag();
-        gCurrentActor->unk154 = 0;
+        gCurrentActor->state = 0;
     }
     behaviourFrameBegin();
-    switch (gCurrentActor->unk154) {
+    switch (gCurrentActor->state) {
     case 0:
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
             actorScriptStart(gCurrentActor, 0x2D6);
-            gCurrentActor->unk154++;
-            gCurrentActor->unk155 = 0;
+            gCurrentActor->state++;
+            gCurrentActor->unk155[0] = 0;
             gGlobalPauseFlags &= ~0x30;
         }
         break;
@@ -94,22 +76,22 @@ void menuUpdateLightFadeActor(void) {
             d = (0xFF - cur < 3) ? 0xFF - cur : 3;
             gCurrentActor->unk15F = cur + d;
         }
-        lightAdd(gCurrentActor->unk7C, gCurrentActor->unk80 + 20.0f, gCurrentActor->unk84, gCurrentActor->unk7C, gCurrentActor->unk80, gCurrentActor->unk84, 0.0f, 1, gCurrentActor->unk15F, gCurrentActor->unk15F, gCurrentActor->unk15F);
+        lightAdd(gCurrentActor->x, gCurrentActor->y + 20.0f, gCurrentActor->z, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0.0f, 1, gCurrentActor->unk15F, gCurrentActor->unk15F, gCurrentActor->unk15F);
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            gCurrentActor->unk60 |= 0x800000;
-            gCurrentActor->unk154 = 2;
+            gCurrentActor->flags |= 0x800000;
+            gCurrentActor->state = 2;
         }
         break;
     case 2:
-        gCurrentActor->unk16A -= 8;
-        gCurrentActor->unk16B -= 8;
-        gCurrentActor->unk16C -= 8;
-        if (gCurrentActor->unk16A < 9) {
-            gCurrentActor->unk16A = 0;
-            gCurrentActor->unk16B = 0;
-            gCurrentActor->unk16C = 0;
-            gCurrentActor->unk154 = 3;
+        gCurrentActor->tintR -= 8;
+        gCurrentActor->tintG -= 8;
+        gCurrentActor->tintB -= 8;
+        if (gCurrentActor->tintR < 9) {
+            gCurrentActor->tintR = 0;
+            gCurrentActor->tintG = 0;
+            gCurrentActor->tintB = 0;
+            gCurrentActor->state = 3;
             D_800339D0 = 0;
         }
         break;
@@ -119,15 +101,15 @@ void menuUpdateLightFadeActor(void) {
         }
         if (currentActorTestClearFlag() != 0) {
             currentActorClearFlag();
-            gCurrentActor->unk154 = 4;
+            gCurrentActor->state = 4;
         }
         break;
     case 4:
         menuSetFlag5324();
-        gCurrentActor->unk154++;
+        gCurrentActor->state++;
         break;
     }
-    if (gCurrentActor->unk154 >= 3) {
+    if (gCurrentActor->state >= 3) {
         renderCallbacksRegister(menuRenderOptionDescription, gCurrentActor, 3);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
