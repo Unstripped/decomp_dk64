@@ -33,7 +33,18 @@ typedef struct ArcadeEntity {
 } ArcadeEntity;
 
 extern ArcadeEntity D_8004BCD0[];
-extern ArcadeEntity D_8004C6D0;
+
+/* One double-buffered texture descriptor slot (0x18 bytes) for dlInitTextureDescriptor. */
+typedef struct ArcadeGfxSlot {
+    u8 data[0x18];
+} ArcadeGfxSlot;
+extern void *D_8004C6D0;
+typedef union ArcadeTexScale {
+    s32 word;
+    s16 half[2];
+} ArcadeTexScale;
+extern ArcadeTexScale D_8004C6D4;
+extern s16 D_8004C6D6;
 
 extern s8 D_8004C71E;
 extern u8 D_8004C71D;
@@ -47,7 +58,6 @@ extern u8 D_8004A740;
 extern u8 D_8004A76C;
 extern s32 D_8004A308[];
 
-#define ArcR1_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
 extern s16 D_8004C72E;
 extern s16 D_8004C732;
 extern u8 D_8004C725;
@@ -118,14 +128,12 @@ extern s32 D_8004A760;
 
 void arcadeSaveHighScores(void) {
     s32 i;
-    u8 temp;
 
     for (i = 0; i < 5; i++) {
-        temp = i;
-        eepromSetField(0x15, 0, temp, 0, D_8004A74C[i]);
-        eepromSetField(0x12, 0, temp, 0, D_8004A778[i][0]);
-        eepromSetField(0x13, 0, temp, 0, D_8004A778[i][1]);
-        eepromSetField(0x14, 0, temp, 0, D_8004A778[i][2]);
+        eepromSetField(0x15, 0, i, 0, D_8004A74C[i]);
+        eepromSetField(0x12, 0, i, 0, D_8004A778[i][0]);
+        eepromSetField(0x13, 0, i, 0, D_8004A778[i][1]);
+        eepromSetField(0x14, 0, i, 0, D_8004A778[i][2]);
     }
     D_8004A760 = D_8004A74C[0];
     func_8060DEA8();
@@ -133,14 +141,12 @@ void arcadeSaveHighScores(void) {
 
 void arcadeLoadHighScores(void) {
     s32 i;
-    u8 temp;
 
     for (i = 0; i < 5; i++) {
-        temp = i;
-        D_8004A74C[i] = eepromGetField(0x15, 0, temp, 0);
-        D_8004A778[i][0] = eepromGetField(0x12, 0, temp, 0);
-        D_8004A778[i][1] = eepromGetField(0x13, 0, temp, 0);
-        D_8004A778[i][2] = eepromGetField(0x14, 0, temp, 0);
+        D_8004A74C[i] = eepromGetField(0x15, 0, i, 0);
+        D_8004A778[i][0] = eepromGetField(0x12, 0, i, 0);
+        D_8004A778[i][1] = eepromGetField(0x13, 0, i, 0);
+        D_8004A778[i][2] = eepromGetField(0x14, 0, i, 0);
     }
     D_8004A760 = D_8004A74C[0];
 }
@@ -171,8 +177,8 @@ void arcadeDrawString(Gfx **glistp, char *str) {
     gSPClearGeometryMode(g++, -1);
     gSPSetGeometryMode(g++, 0x200004);
     gDPSetPrimColor(g++, 0, 0, D_8004C725, D_8004C726, D_8004C727, D_8004C728);
-    ArcR1_WRITE_GFX(g++, 0xFC119623, 0xFF2FFFFF);
-    ArcR1_WRITE_GFX(g++, 0xE200001C, 0x00504240);
+    gDPSetCombine(g++, 0x119623, 0xFF2FFFFF);
+    gSPSetOtherMode(g++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x00504240);
     *glistp = textDrawString(g, 2, D_8004C72E, D_8004C732, str);
 }
 
@@ -411,7 +417,7 @@ void arcadeInitTitleScreen(void) {
     for (e = D_8004BCD0;;) {
         e->unk18 = 0;
         e++;
-        if (e >= &D_8004C6D0) {
+        if (e >= &D_8004BCD0[80]) {
             break;
         }
     }
@@ -511,7 +517,6 @@ void arcadeStopSound(s32 soundId) {
     }
 }
 
-extern u8 D_8004BCE9[];
 extern s32 D_8076D1F8;
 void arcadeGameplayLoop(Gfx **glistp) {
     Gfx *glist = *glistp;
@@ -548,27 +553,27 @@ void arcadeGameplayLoop(Gfx **glistp) {
     *glistp = glist;
 }
 extern ArcadeEntity D_8004A6B8;
-extern u8 *D_807ECDE8;
+extern OSContPad *D_807ECDE8;
 extern s8 D_8004A768;
 extern s32 D_8004C70C;
 extern u8 D_8004A744;
 
 void arcadeOpenPauseMenu(void) {
-    s32 s4;
-    s32 s0;
-    f32 fs0;
+    s32 col;
+    s32 row;
+    f32 colX;
 
-    for (s4 = 0x60; s4 != 0xE0; s4 += 0x10) {
-        fs0 = s4;
-        for (s0 = 0x8C; s0 != 0xCC; s0 += 0x10) {
+    for (col = 0x60; col != 0xE0; col += 0x10) {
+        colX = col;
+        for (row = 0x8C; row != 0xCC; row += 0x10) {
             s32 index = arcadeFindFreeEntityReverse();
             D_8004BCD0[index] = D_8004A6B8;
-            D_8004BCD0[index].unk0 = fs0;
-            D_8004BCD0[index].unk4 = s0;
+            D_8004BCD0[index].unk0 = colX;
+            D_8004BCD0[index].unk4 = row;
         }
     }
     D_8004A768 = 0;
-    D_8004C70C = (s8)D_807ECDE8[3];
+    D_8004C70C = D_807ECDE8->stick_y;
     D_8004A744 = 0;
 }
 
@@ -588,10 +593,10 @@ void arcadePauseMenuLoop(Gfx **glistp) {
     glist = *glistp;
     arcadeDrawBackground(&glist);
     arcadeRenderEntities(&glist);
-    if ((D_807ECD48 & 0x800) || ((s8)D_807ECDE8[3] >= 0x1F && D_8004C70C < 0x1F)) {
+    if ((D_807ECD48 & 0x800) || (D_807ECDE8->stick_y >= 0x1F && D_8004C70C < 0x1F)) {
         D_8004A768--;
     }
-    if ((D_807ECD48 & 0x400) || ((s8)D_807ECDE8[3] < -0x1E && D_8004C70C >= -0x1E)) {
+    if ((D_807ECD48 & 0x400) || (D_807ECDE8->stick_y < -0x1E && D_8004C70C >= -0x1E)) {
         D_8004A768++;
     }
     if (D_8004A768 >= 3) {
@@ -600,7 +605,7 @@ void arcadePauseMenuLoop(Gfx **glistp) {
     if (D_8004A768 < 0) {
         D_8004A768 = 2;
     }
-    D_8004C70C = (s8)D_807ECDE8[3];
+    D_8004C70C = D_807ECDE8->stick_y;
     if (D_807ECD48 & 0x1000) {
         arcadeClearEntitiesByType1C();
         D_8004C724 = 5;
@@ -632,17 +637,16 @@ void arcadePauseMenuLoop(Gfx **glistp) {
 
 extern ArcadeEntity D_8004A5D8;
 extern f32 D_8004BCD4;
-extern s32 D_8004C6D4;
 void arcadeFinishStageIntro(void) {
     ArcadeEntity *e;
     s32 i;
     s32 idx;
     s32 rank;
 
-    for (e = (ArcadeEntity *)((u8 *)&D_8004BCD4 - 4);;) {
+    for (e = (ArcadeEntity *)((u8 *)&D_8004BCD4 - 4);;) { // FAKE: offset-symbol bases (Q0028) steer the loop pointer (natural &D_8004BCD0[80]: text=16)
         e->unk18 = 0;
         e++;
-        if ((u8 *)e >= (u8 *)&D_8004C6D4 - 4) {
+        if ((u8 *)e >= (u8 *)&D_8004C6D4 - 4) { // FAKE: offset-symbol bases (Q0028) steer the loop pointer (natural &D_8004BCD0[80]: text=16)
             break;
         }
     }
@@ -674,18 +678,13 @@ void arcadeDemoLoop(Gfx **glistp) {
     *glistp = glist;
 }
 
-extern s16 D_8004C6D6;
 extern u8 D_80032B48[];
 extern u8 D_80032B90[];
 extern u8 D_80032BD8[];
-extern u8 D_8004BB30[];
-extern u8 D_8004BB60[];
-extern u8 D_8004BB90[];
-extern u8 D_8004BBC0[];
-#define ArcR2_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (_w1); }
-typedef struct ArcR2_Entity {
-    void *ptr;
-} ArcR2_Entity;
+extern ArcadeGfxSlot D_8004BB30[];
+extern ArcadeGfxSlot D_8004BB60[];
+extern ArcadeGfxSlot D_8004BB90[];
+extern ArcadeGfxSlot D_8004BBC0[];
 typedef struct ArcadeTitleBitmap {
     s32 words[12];
 } ArcadeTitleBitmap;
@@ -693,7 +692,7 @@ extern ArcadeTitleBitmap D_8004A798;
 extern u8 D_8004C719;
 extern u8 D_8004C71A;
 extern u8 gGfxBufferIndex;
-extern u8 D_8004BB00[];
+extern ArcadeGfxSlot D_8004BB00[];
 extern u8 D_80032C20[];
 extern u8 D_80032DF8[];
 void dlInitTextureDescriptor(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32); // FAKE: callee prototype steer
@@ -703,17 +702,17 @@ void arcadeDrawBackground(Gfx **glistp) {
     Gfx *glist;
 
     glist = *glistp;
-    ArcR2_WRITE_GFX(glist++, 0xE2001E01, 0);
-    ArcR2_WRITE_GFX(glist++, 0xE3000C00, 0);
-    ArcR2_WRITE_GFX(glist++, 0xE3001201, 0x2000);
-    ArcR2_WRITE_GFX(glist++, 0xE3001402, 0xC00);
-    ArcR2_WRITE_GFX(glist++, 0xE3000D01, 0);
-    ArcR2_WRITE_GFX(glist++, 0xE3000F00, 0);
-    ArcR2_WRITE_GFX(glist++, 0xE3001001, 0);
-    ArcR2_WRITE_GFX(glist++, 0xFA000000, 0xFFFFFFFF);
-    ArcR2_WRITE_GFX(glist++, 0xE200001C, 0x504240);
-    ArcR2_WRITE_GFX(glist++, 0xFC11FE23, 0xFFFFF3F9);
-    ArcR2_WRITE_GFX(glist++, 0xED0C0090, 0x4403A0);
+    gDPSetAlphaCompare(glist++, G_AC_NONE);
+    gDPSetTexturePersp(glist++, G_TP_NONE);
+    gDPSetTextureFilter(glist++, G_TF_BILERP);
+    gDPSetTextureConvert(glist++, G_TC_FILT);
+    gDPSetTextureDetail(glist++, G_TD_CLAMP);
+    gDPSetTextureLOD(glist++, G_TL_TILE);
+    gDPSetTextureLUT(glist++, G_TT_NONE);
+    gDPSetPrimColor(glist++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
+    gSPSetOtherMode(glist++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x00504240);
+    gDPSetCombine(glist++, 0x11FE23, 0xFFFFF3F9);
+    gDPSetScissor(glist++, G_SC_NON_INTERLACE, 48, 36, 272, 232);
 
     switch (D_8004C724) {
     case 0:
@@ -743,23 +742,22 @@ void arcadeDrawBackground(Gfx **glistp) {
     *glistp = glist;
 }
 
-#define ArcA1_D6D0 (*(void **)&D_8004C6D0)
 void arcadeDrawLadder(Gfx **glistp, s32 x, s32 y, s32 height) {
     s32 i;
     Gfx *glist;
 
     D_8004C719 = 8;
     D_8004C71A = 4;
-    D_8004C6D4 = 0x400;
-    if (D_8004C722 == 2) ArcA1_D6D0 = D_80032B90;
-    else if (D_8004C722 == 4) ArcA1_D6D0 = D_80032BD8;
-    else ArcA1_D6D0 = D_80032B48;
-    dlInitTextureDescriptor(D_8004BB30 + gGfxBufferIndex * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlInitTextureDescriptor(D_8004BB60 + gGfxBufferIndex * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 1, 0, 2, 0, 0);
-    dlInitTextureDescriptor(D_8004BB90 + gGfxBufferIndex * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 2, 0, 2, 0, 0);
-    dlInitTextureDescriptor(D_8004BBC0 + gGfxBufferIndex * 0x18, ArcA1_D6D0, 0, D_8004C719, D_8004C719, 3, 0, 2, 0, 0);
+    D_8004C6D4.word = 0x400;
+    if (D_8004C722 == 2) D_8004C6D0 = D_80032B90;
+    else if (D_8004C722 == 4) D_8004C6D0 = D_80032BD8;
+    else D_8004C6D0 = D_80032B48;
+    dlInitTextureDescriptor(&D_8004BB30[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlInitTextureDescriptor(&D_8004BB60[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, 1, 0, 2, 0, 0);
+    dlInitTextureDescriptor(&D_8004BB90[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, 2, 0, 2, 0, 0);
+    dlInitTextureDescriptor(&D_8004BBC0[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, 3, 0, 2, 0, 0);
     glist = *glistp;
-    dlAppendTextureLoad(&glist, D_8004BB30 + gGfxBufferIndex * 0x18);
+    dlAppendTextureLoad(&glist, &D_8004BB30[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     for (i = 0; i < height / 4; i++) {
         dlAppendTextureRectangle(&glist, x * 4, (s32)((f64)(i * 4 + y + 8) * 4.0));
@@ -768,13 +766,13 @@ void arcadeDrawLadder(Gfx **glistp, s32 x, s32 y, s32 height) {
     if (D_8004C71A != 0) {
         switch (D_8004C71A) {
         case 1:
-            dlAppendTextureLoad(&glist, D_8004BB60 + gGfxBufferIndex * 0x18);
+            dlAppendTextureLoad(&glist, &D_8004BB60[gGfxBufferIndex]);
             break;
         case 2:
-            dlAppendTextureLoad(&glist, D_8004BB90 + gGfxBufferIndex * 0x18);
+            dlAppendTextureLoad(&glist, &D_8004BB90[gGfxBufferIndex]);
             break;
         case 3:
-            dlAppendTextureLoad(&glist, D_8004BBC0 + gGfxBufferIndex * 0x18);
+            dlAppendTextureLoad(&glist, &D_8004BBC0[gGfxBufferIndex]);
             break;
         }
         dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
@@ -888,7 +886,6 @@ void arcadeDrawStage4Ladders(Gfx **glistp) {
     *glistp = glist;
 }
 
-#define ArcA1_P6D0 (*(void **)&D_8004C6D0)
 void arcadeDrawTitleText(Gfx **glistp) {
     s32 row;
     s32 j;
@@ -900,12 +897,12 @@ void arcadeDrawTitleText(Gfx **glistp) {
     glist = *glistp;
     D_8004C719 = 8;
     D_8004C71A = 8;
-    D_8004C6D4 = 0x400;
-    if (D_8004C6DC & 0x182) ArcA1_P6D0 = D_80032C20;
-    else ArcA1_P6D0 = D_80032DF8;
-    dlInitTextureDescriptor(D_8004BB00 + gGfxBufferIndex * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BB00 + gGfxBufferIndex * 0x18);
-    dlSetTextureScaleAndFlip(0x400, ((s16 *)&D_8004C6D4)[1], 0, 0);
+    D_8004C6D4.word = 0x400;
+    if (D_8004C6DC & 0x182) D_8004C6D0 = D_80032C20;
+    else D_8004C6D0 = D_80032DF8;
+    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
+    dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (i = 0; i < 12; i++) {
         row = titleBitmap.words[i];
         for (j = 0; j < 25; j++) {
@@ -917,7 +914,6 @@ void arcadeDrawTitleText(Gfx **glistp) {
     *glistp = glist;
 }
 
-#define ArcL1_P6D0 (*(void **)&D_8004C6D0)
 extern u8 D_80034568[];
 void arcadeDrawStage1Background(Gfx **glistp) {
     s32 i;
@@ -925,12 +921,12 @@ void arcadeDrawStage1Background(Gfx **glistp) {
 
     D_8004C719 = 8;
     D_8004C71A = 0xA;
-    D_8004C6D4 = 0x492;
-    ArcL1_P6D0 = D_80034568;
-    dlInitTextureDescriptor(D_8004BB00 + gGfxBufferIndex * 0x18, ArcL1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    D_8004C6D4.word = 0x492;
+    D_8004C6D0 = D_80034568;
+    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     glist = *glistp;
-    dlAppendTextureLoad(&glist, D_8004BB00 + gGfxBufferIndex * 0x18);
-    dlSetTextureScaleAndFlip(0x400, ((s16 *)&D_8004C6D4)[1], 0, 0);
+    dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
+    dlSetTextureScaleAndFlip(0x400, D_8004C6D4.half[1], 0, 0);
     for (i = 0; i < 6; i++) {
         dlAppendTextureRectangle(&glist, i * 0x20 + 0x220, 0xE0);
     }
@@ -998,9 +994,8 @@ void arcadeDrawStage1Background(Gfx **glistp) {
     *glistp = glist;
 }
 
-#define ArcA1_P6D0 (*(void **)&D_8004C6D0)
 extern u8 D_80032F18[];
-extern u8 D_8004BC50[];
+extern ArcadeGfxSlot D_8004BC50[];
 void arcadeDrawStage2Background(Gfx **glistp) {
     s32 i;
     Gfx *glist;
@@ -1009,10 +1004,10 @@ void arcadeDrawStage2Background(Gfx **glistp) {
     if (D_8004C708 < 2) {
         D_8004C719 = 2;
         D_8004C71A = 8;
-        D_8004C6D4 = 0x400;
-        ArcA1_P6D0 = D_80032F18;
-        dlInitTextureDescriptor(D_8004BC50 + (gGfxBufferIndex * 3 * 8), ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-        dlAppendTextureLoad(&glist, D_8004BC50 + (gGfxBufferIndex * 3 * 8));
+        D_8004C6D4.word = 0x400;
+        D_8004C6D0 = D_80032F18;
+        dlInitTextureDescriptor(&D_8004BC50[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+        dlAppendTextureLoad(&glist, &D_8004BC50[gGfxBufferIndex]);
         dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
         for (i = 0; i < 4; i++) {
             dlAppendTextureRectangle(&glist, 0x1DC, (s32)((f64)(s32)((f64)(i * 8) + 51.625 + 8.0) * 4.0));
@@ -1023,10 +1018,10 @@ void arcadeDrawStage2Background(Gfx **glistp) {
     }
     D_8004C719 = 8;
     D_8004C71A = 8;
-    D_8004C6D4 = 0x400;
-    ArcA1_P6D0 = D_80032C20;
-    dlInitTextureDescriptor(D_8004BB00 + (gGfxBufferIndex * 3 * 8), ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BB00 + (gGfxBufferIndex * 3 * 8));
+    D_8004C6D4.word = 0x400;
+    D_8004C6D0 = D_80032C20;
+    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     for (i = 0; i < 0x1C; i++) {
         dlAppendTextureRectangle(&glist, i * 0x20 + 0xC0, 0x380);
@@ -1100,7 +1095,6 @@ void arcadeDrawGirderSpan(Gfx **glistp, u8 startX, u8 endX, s16 yVal) {
     *glistp = glist;
 }
 
-#define ArcA1_P6D0 (*(void **)&D_8004C6D0)
 typedef struct ArcadeGirderSpan {
     u8 x;
     u8 y;
@@ -1114,7 +1108,6 @@ typedef struct ArcadeLift {
 extern ArcadeLift D_8004BC88[];
 extern u8 D_80032F40[];
 extern ArcadeGirderSpan D_8004A7C8[];
-extern u8 D_8004BC50[];
 void arcadeDrawStage3Background(Gfx **glistp) {
     s32 i;
     s32 j;
@@ -1126,10 +1119,10 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     glist = *glistp;
     D_8004C719 = 2;
     D_8004C71A = 8;
-    D_8004C6D4 = 0x400;
-    ArcA1_P6D0 = D_80032F40;
-    dlInitTextureDescriptor(D_8004BC50 + gGfxBufferIndex * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BC50 + gGfxBufferIndex * 0x18);
+    D_8004C6D4.word = 0x400;
+    D_8004C6D0 = D_80032F40;
+    dlInitTextureDescriptor(&D_8004BC50[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, &D_8004BC50[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     for (j = 5; j < 0x14; j++) {
         dlAppendTextureRectangle(&glist, 0x15C, (s32)((f64)(s32)((f64)(j * 8) + 51.625 + 8.0) * 4.0));
@@ -1139,16 +1132,16 @@ void arcadeDrawStage3Background(Gfx **glistp) {
     }
     D_8004C719 = 8;
     D_8004C71A = 0xA;
-    D_8004C6D4 = 0x492;
-    ArcA1_P6D0 = D_80034568;
-    dlInitTextureDescriptor(D_8004BB00 + gGfxBufferIndex * 0x18, ArcA1_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BB00 + gGfxBufferIndex * 0x18);
+    D_8004C6D4.word = 0x492;
+    D_8004C6D0 = D_80034568;
+    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     pt = D_8004A7C8;
     do {
         arcadeDrawGirderSpan(&glist, pt->x, pt->y, pt->z);
         pt++;
-    } while (pt < (ArcadeGirderSpan *)((s32)D_8004A7C8 + 0x54));
+    } while (pt < (ArcadeGirderSpan *)((s32)D_8004A7C8 + 0x54)); // FAKE: (s32) address arithmetic end pointer steers codegen (&D_8004A7C8[21]: text=16)
     for (bar = D_8004BC88;;) {
         if (D_8004C71D == 0 && D_8004C724 == 5) {
             bar->y = bar->y + bar->vy;
@@ -1163,17 +1156,16 @@ void arcadeDrawStage3Background(Gfx **glistp) {
             dlAppendTextureRectangle(&glist, (s32)((bar->x + 40.0f + (f32)(j * 8)) * 4.0f), (s32)(((f64)bar->y * 0.875 + 8.0) * 4.0));
         }
         bar++;
-        if (bar == (ArcadeLift *)D_8004BCD0) break;
+        if (bar == (ArcadeLift *)D_8004BCD0) break; // FAKE: end pointer via D_8004BCD0 symbol steers codegen (&D_8004BC88[6]: text=17)
     }
     arcadeDrawStage3Ladders(&glist);
     *glistp = glist;
 }
 
-#define ArcA3_P6D0 (*(void **)&D_8004C6D0)
 extern u8 D_80032CA8[];
 extern u8 D_80032D50[];
 extern u8 D_800342B8[];
-extern u8 D_8004BC20[];
+extern ArcadeGfxSlot D_8004BC20[];
 void arcadeDrawStage4Background(Gfx **glistp) {
     s32 step;
     s32 one;
@@ -1182,14 +1174,14 @@ void arcadeDrawStage4Background(Gfx **glistp) {
     s32 i;
 
     glist = *glistp;
-    step = 0x20;
-    one = 1;
+    step = 0x20; // FAKE: value-named constant local steers regalloc (literal: text=15)
+    one = 1; // FAKE: value-named constant local steers regalloc
     D_8004C719 = 8;
     D_8004C71A = 0xA;
-    D_8004C6D4 = 0x492;
-    ArcA3_P6D0 = D_80032D50;
-    dlInitTextureDescriptor(D_8004BB00 + gGfxBufferIndex * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BB00 + gGfxBufferIndex * 0x18);
+    D_8004C6D4.word = 0x492;
+    D_8004C6D0 = D_80032D50;
+    dlInitTextureDescriptor(&D_8004BB00[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, &D_8004BB00[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     x = 0x220;
     do {
@@ -1208,9 +1200,9 @@ void arcadeDrawStage4Background(Gfx **glistp) {
         }
         i += one;
     } while (i < 0x1B);
-    ArcA3_P6D0 = D_80032CA8;
-    dlInitTextureDescriptor(D_8004BC20 + gGfxBufferIndex * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BC20 + gGfxBufferIndex * 0x18);
+    D_8004C6D0 = D_80032CA8;
+    dlInitTextureDescriptor(&D_8004BC20[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, &D_8004BC20[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     x = 0xE0;
     do {
@@ -1229,9 +1221,9 @@ void arcadeDrawStage4Background(Gfx **glistp) {
         dlAppendTextureRectangle(&glist, x, 0x2F4);
         x += step;
     } while (x < 0x420);
-    ArcA3_P6D0 = D_800342B8;
-    dlInitTextureDescriptor(D_8004BC50 + gGfxBufferIndex * 0x18, ArcA3_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
-    dlAppendTextureLoad(&glist, D_8004BC50 + gGfxBufferIndex * 0x18);
+    D_8004C6D0 = D_800342B8;
+    dlInitTextureDescriptor(&D_8004BC50[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlAppendTextureLoad(&glist, &D_8004BC50[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     x = 0x240;
     do {
@@ -1262,13 +1254,14 @@ extern ArcadeEntity D_8004A638;
 extern ArcadeEntity D_8004A718;
 extern ArcadeEntity D_8004C170;
 void arcadeSpawnStage1Entities(void) {
-    float new_var;
+    float oilDrumY;
     s32 i;
 
+    i = 0;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4D8;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4B8;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A518;
-    new_var = 110.0f;
+    oilDrumY = 110.0f;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A558;
     if (D_8004A76C == 2 && D_8004A740 != 0) {
         D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4F8;
@@ -1277,12 +1270,11 @@ void arcadeSpawnStage1Entities(void) {
     D_8004C71F = arcadeFindFreeEntity();
     D_8004BCD0[D_8004C71F] = D_8004A398;
     D_8004C170 = D_8004A458;
-    i = D_8004C71F & 0; // FAKE: `& 0` load steers codegen (i = 0)
     i = i + 0x24;
     D_8004BCD0[i--] = D_8004A638;
     D_8004BCD0[i] = D_8004A638;
     D_8004BCD0[i].unk0 = 68.0f;
-    D_8004BCD0[i].unk4 = new_var;
+    D_8004BCD0[i].unk4 = oilDrumY;
     i--;
     D_8004BCD0[i] = D_8004A718;
     i--;
@@ -1376,7 +1368,7 @@ void dlSetTextureScaleAndFlip(s32, s16, s32, u8);  // FAKE: callee prototype ste
 extern u8 D_8004A338[];
 extern u8 D_8004A358[];
 extern u8 D_8004A378[];
-extern u8 D_8004AC00[];
+extern ArcadeGfxSlot D_8004AC00[][80];
 extern u8 gGfxBufferIndex;
 
 extern f32 D_8004BCF4;
@@ -1416,13 +1408,13 @@ void arcadeSpawnStage3Entities(void) {
     if (D_8004A76C == 2 && D_8004A740 != 0) {
         D_8004BCD0[arcadeFindFreeEntity()] = D_8004A4F8;
     }
+    i = 0;
     D_8004BCD0[arcadeFindFreeEntity()] = D_8004A438;
     D_8004C71F = arcadeFindFreeEntity();
     D_8004BCD0[D_8004C71F] = D_8004A398;
     D_8004BCD0[D_8004C71F].unk0 = 56.0f;
     D_8004BCD0[D_8004C71F].unk4 = 231.0f;
     D_8004C170 = D_8004A478;
-    i = D_8004C71F & 0; // FAKE: `& 0` load steers codegen (i = 0)
     i = i + 0x24;
     p = &D_8004BCD0[i];
     *p = D_8004A478;
@@ -1808,7 +1800,7 @@ s32 arcadeCheckStage3Collision(s32 posX, s32 posY) {
         }
     }
     if (posX >= 0x4D && posX < 0x64) {
-        end = (ArcadeLift *)(s32)&D_8004BCAC;
+        end = (ArcadeLift *)(s32)&D_8004BCAC; // FAKE: (s32) cast end pointer steers codegen (D_8004BCAC: text=18)
         for (bar = D_8004BC88; ; ) {
             f32 y = bar->y;
             bar++;
@@ -2103,7 +2095,7 @@ s32 arcadeCheckStageLadders(s32 posX, s32 posY) {
 
 void arcadeRenderEntity(Gfx **glistp, s32 entIndex) {
     Gfx *glist;
-    s32 off;
+    s32 yOffset;
     f32 scale;
 
     if (D_8004A338[D_8004BCD0[entIndex].unk18] & 1) {
@@ -2111,23 +2103,22 @@ void arcadeRenderEntity(Gfx **glistp, s32 entIndex) {
     } else {
         scale = 1170.2858f;
     }
-    off = entIndex * 0x18;
-    dlInitTextureDescriptor(D_8004AC00 + gGfxBufferIndex * 0x780 + off, D_8004BCD0[entIndex].unk14, 0, D_8004BCD0[entIndex].unk1E, D_8004BCD0[entIndex].unk1E, D_8004BCD0[entIndex].unk1F, 0, 2, 0, 0);
+    dlInitTextureDescriptor(&D_8004AC00[gGfxBufferIndex][entIndex], D_8004BCD0[entIndex].unk14, 0, D_8004BCD0[entIndex].unk1E, D_8004BCD0[entIndex].unk1E, D_8004BCD0[entIndex].unk1F, 0, 2, 0, 0);
     glist = *glistp;
-    dlAppendTextureLoad(&glist, D_8004AC00 + gGfxBufferIndex * 0x780 + off);
+    dlAppendTextureLoad(&glist, &D_8004AC00[gGfxBufferIndex][entIndex]);
     dlSetTextureScaleAndFlip(0x400, (s32)scale, (u8)(D_8004BCD0[entIndex].unk1A & 1), D_8004BCD0[entIndex].unk1B);
     if (D_8004A338[D_8004BCD0[entIndex].unk18] & 2) {
         dlAppendTextureRectangle(&glist, (s32)(D_8004BCD0[entIndex].unk0 - (f32)(u32)D_8004A358[D_8004BCD0[entIndex].unk18]) * 4, (s32)((f64)(D_8004BCD0[entIndex].unk4 - (f32)(u32)D_8004A378[D_8004BCD0[entIndex].unk18]) * 0.875 + 8.0) * 4);
     } else {
         if (D_8004BCD0[entIndex].unk18 == 2) {
-            off = (s32)D_8004BCD0[entIndex].unk10;
-            if (off >= 3) {
-                off = 5 - off;
+            yOffset = (s32)D_8004BCD0[entIndex].unk10;
+            if (yOffset >= 3) {
+                yOffset = 5 - yOffset;
             }
         } else {
-            off = 0;
+            yOffset = 0;
         }
-        dlAppendTextureRectangle(&glist, (s32)(D_8004BCD0[entIndex].unk0 - (f32)(u32)D_8004A358[D_8004BCD0[entIndex].unk18]) * 4, (s32)(((f64)(D_8004BCD0[entIndex].unk4 - (f32)off - (f32)(u32)D_8004A378[D_8004BCD0[entIndex].unk18]) * 0.875 + 8.0) * 4.0));
+        dlAppendTextureRectangle(&glist, (s32)(D_8004BCD0[entIndex].unk0 - (f32)(u32)D_8004A358[D_8004BCD0[entIndex].unk18]) * 4, (s32)(((f64)(D_8004BCD0[entIndex].unk4 - (f32)yOffset - (f32)(u32)D_8004A378[D_8004BCD0[entIndex].unk18]) * 0.875 + 8.0) * 4.0));
     }
     *glistp = glist;
 }
@@ -2176,9 +2167,9 @@ extern s32 D_8004A75C;
 void arcadeUpdatePlayerAnimation(s32 entIndex) {
     s32 val;
     s32 b;
-    s32 s4;
-    s32 s0;
-    f32 fs0;
+    s32 col;
+    s32 row;
+    f32 colX;
     f32 y;
 
     b = D_8004BCD0[entIndex].unk1A & 2;
@@ -2262,13 +2253,13 @@ void arcadeUpdatePlayerAnimation(s32 entIndex) {
                 }
                 if (D_8004A764 == 0) {
                     D_8004A764 = 1;
-                    for (s4 = 0x6C; s4 != 0xCC; s4 += 0x10) {
-                        fs0 = s4;
-                        for (s0 = 0xA6; s0 != 0xC6; s0 += 0x10) {
+                    for (col = 0x6C; col != 0xCC; col += 0x10) {
+                        colX = col;
+                        for (row = 0xA6; row != 0xC6; row += 0x10) {
                             s32 index = arcadeFindFreeEntitySlot39();
                             D_8004BCD0[index] = D_8004A6B8;
-                            D_8004BCD0[index].unk0 = fs0;
-                            D_8004BCD0[index].unk4 = s0;
+                            D_8004BCD0[index].unk0 = colX;
+                            D_8004BCD0[index].unk4 = row;
                         }
                     }
                 }
@@ -2310,7 +2301,10 @@ extern u8 D_8003B180[];
 #define E D_8004BCD0[entIndex]
 #define P D_8004BCD0[D_8004C71F]
 void arcadeUpdatePlayerEntity(s32 entIndex) {
-    f32 soundPitch;
+    union {
+        f32 f;
+        s32 bits;
+    } soundPitch;
     s32 coll;
     s32 i;
     s32 n;
@@ -2325,11 +2319,11 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             } else if (E.unk8 > 0.0f) {
                 E.unk1A = E.unk1A | 2;
             }
-            if (((*(u16 *)D_807ECDE8 & 0x200) || (s8)D_807ECDE8[2] < -0x14) && (f32)D_8004C6F0 < E.unk0) {
+            if (((D_807ECDE8->button & 0x200) || D_807ECDE8->stick_x < -0x14) && (f32)D_8004C6F0 < E.unk0) {
                 D_8004BC80 += 3;
                 E.unk8 = -0.7f;
                 E.unk10 = (f32)((f64)E.unk10 + 0.3);
-            } else if (((*(u16 *)D_807ECDE8 & 0x100) || (s8)D_807ECDE8[2] >= 0x15) && E.unk0 < (f32)D_8004C6F4) {
+            } else if (((D_807ECDE8->button & 0x100) || D_807ECDE8->stick_x >= 0x15) && E.unk0 < (f32)D_8004C6F4) {
                 D_8004BC80 += 3;
                 E.unk8 = 0.7f;
                 E.unk10 = (f32)((f64)E.unk10 + 0.3);
@@ -2373,18 +2367,18 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                 E.unk0 = (f32)D_8004C6F4;
             }
             if ((f32)D_8004C6EC < E.unk4 &&
-                ((((s8)D_807ECDE8[3] >= 0x15) | (*(u16 *)D_807ECDE8 & 0x800)) != 0) &&
-                (s8)D_807ECDE8[2] < 0x29 && (s8)D_807ECDE8[2] >= -0x28 &&
-                !(*(u16 *)D_807ECDE8 & 0x300) && D_8004C710 == 0) {
+                (((D_807ECDE8->stick_y >= 0x15) | (*(u16 *)D_807ECDE8 & 0x800)) != 0) && // FAKE: u16 cast read of the pad steers codegen (->button mismatches in this | chain)
+                D_807ECDE8->stick_x < 0x29 && D_807ECDE8->stick_x >= -0x28 &&
+                !(D_807ECDE8->button & 0x300) && D_8004C710 == 0) {
                 E.unk19 = 5;
                 E.unk8 = 0.0f;
                 E.unk4 = E.unk4 - 1.0f;
                 E.unk0 = (f32)D_8004C6E0;
                 break;
             } else if (E.unk4 < (f32)D_8004C6E8 && (f32)D_8004C6EC <= E.unk4 &&
-                       !(*(u16 *)D_807ECDE8 & 0x300) &&
-                       (s8)D_807ECDE8[2] < 0x29 && (s8)D_807ECDE8[2] >= -0x28 &&
-                       ((((s8)D_807ECDE8[3] < -0x14) | (*(u16 *)D_807ECDE8 & 0x400)) != 0) &&
+                       !(D_807ECDE8->button & 0x300) &&
+                       D_807ECDE8->stick_x < 0x29 && D_807ECDE8->stick_x >= -0x28 &&
+                       (((D_807ECDE8->stick_y < -0x14) | (*(u16 *)D_807ECDE8 & 0x400)) != 0) && // FAKE: u16 cast read of the pad steers codegen (->button mismatches in this | chain)
                        D_8004C710 == 0) {
                 E.unk19 = 5;
                 E.unk8 = 0.0f;
@@ -2404,7 +2398,7 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             break;
         case 5:
             if ((f32)coll == E.unk4 &&
-                (((((s8)D_807ECDE8[2] >= 0x15) | ((s8)D_807ECDE8[2] < -0x14)) | (*(u16 *)D_807ECDE8 & 0x300)) ||
+                ((((D_807ECDE8->stick_x >= 0x15) | (D_807ECDE8->stick_x < -0x14)) | (*(u16 *)D_807ECDE8 & 0x300)) || // FAKE: u16 cast read of the pad steers codegen (->button mismatches in this | chain)
                  (D_8004C6F8 == 2 && D_8004A308[2] != 0) ||
                  (D_8004C6F8 == 1 && D_8004A308[1] != 0) ||
                  (D_8004C6F8 == 3 && D_8004A308[3] != 0))) {
@@ -2427,11 +2421,11 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
                     }
                 } else {
                     if ((f32)D_8004C6EC < E.unk4 &&
-                        ((((s8)D_807ECDE8[3] >= 0x15) | (*(u16 *)D_807ECDE8 & 0x800)) != 0)) {
+                        (((D_807ECDE8->stick_y >= 0x15) | (*(u16 *)D_807ECDE8 & 0x800)) != 0)) { // FAKE: u16 cast read of the pad steers codegen (->button mismatches in this | chain)
                         E.unkC = -0.5f;
                         D_8004BC80 += 2;
                     } else if (E.unk4 < (f32)D_8004C6E8 &&
-                               ((((s8)D_807ECDE8[3] < -0x14) | (*(u16 *)D_807ECDE8 & 0x400)) != 0)) {
+                               (((D_807ECDE8->stick_y < -0x14) | (*(u16 *)D_807ECDE8 & 0x400)) != 0)) { // FAKE: u16 cast read of the pad steers codegen (->button mismatches in this | chain)
                         E.unkC = 0.5f;
                         D_8004BC80 += 2;
                     } else {
@@ -2528,12 +2522,12 @@ void arcadeUpdatePlayerEntity(s32 entIndex) {
             }
             D_8004BC84 = phase;
             if (phase & 1) {
-                soundPitch = 1.0f;
+                soundPitch.f = 1.0f;
             } else {
-                soundPitch = 0.7071120143f;
+                soundPitch.f = 0.7071120143f;
             }
             n_alSndpPlay(D_8076D1F8, 0x40, 0x7FFF, 0x3F, 1.0f, 0, (s32)&D_80770DFC);
-            n_alSndpPostEvent(D_80770DFC, 0x10, *(s32 *)&soundPitch);
+            n_alSndpPostEvent(D_80770DFC, 0x10, soundPitch.bits);
         }
         coll = arcadeCheckPlayerCollision((s32)E.unk0, (s32)E.unk4);
         if (D_8004BC80 && D_8004BC80) {} // FAKE: empty guard steers regalloc
@@ -2735,10 +2729,10 @@ void arcadeUpdateBarrelEntity(s32 entIndex) {
                 n_alSndpPlay(D_8076D1F8, 0x42, 0x7FFF, 0x3F, 1.0f, 0, 0);
                 floorY = arcadeFindEntityByType(0x13);
                 if (floorY < 0) {
-                    floorY = arcadeFindFreeEntity();
+                    floorY = arcadeFindFreeEntity(); // FAKE: floorY reused as entity index steers regalloc (separate local mismatches)
                     D_8004BCD0[floorY] = D_8004A3F8;
                 }
-                D_8004BCE9[floorY << 5] = 3;
+                D_8004BCD0[floorY].unk19 = 3;
                 e->unk18 = 0;
             } else {
                 D_8004BCD0[entIndex].unk18 = 0;
@@ -2773,10 +2767,8 @@ extern u8 D_80038BD8[];
 extern u8 D_8003E680[];
 extern u8 D_8003E868[];
 extern s32 D_8076D1F8;
-/* ArcR4 declarations */
 extern ArcadeEntity D_8004A5F8;
 extern s32 D_8004A318[];
-extern u8 D_8004BCE9[];
 
 extern u8 D_80035EF0[];
 extern u8 D_80036138[];
@@ -2788,7 +2780,7 @@ extern u8 D_80036CA0[];
 extern u8 D_80036EE8[];
 void arcadeUpdateBouncingBarrel(s32 entIndex) {
     s32 floorY;
-    s32 a0;
+    s32 bias;
 
     if (D_8004C71D == 0) {
         D_8004BCD0[entIndex].unk10 = (f32)((f64)D_8004BCD0[entIndex].unk10 + 0.15);
@@ -2823,9 +2815,9 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
         switch (D_8004BCD0[entIndex].unk19) {
         case 2:
             if ((f32)arcadeRand() < arcadeMinFloat((f32)(u32)D_8004A76C, 5.0f) * 60.0f + 256.0f) {
-                a0 = D_8004BCD0[entIndex].unk0 < D_8004BCD0[D_8004C71F].unk0;
-                a0 += ((D_8004BCD0[D_8004C71F].unk1A & 2) * 3) / 2;
-                D_8004BCD0[entIndex].unk1A = (arcadeRand() + a0 * 0xFB8) - 0x1F70 >= 0x4001;
+                bias = D_8004BCD0[entIndex].unk0 < D_8004BCD0[D_8004C71F].unk0;
+                bias += ((D_8004BCD0[D_8004C71F].unk1A & 2) * 3) / 2;
+                D_8004BCD0[entIndex].unk1A = (arcadeRand() + bias * 0xFB8) - 0x1F70 >= 0x4001;
             }
             if ((f32)arcadeCheckPlayerCollision((s32)(D_8004BCD0[entIndex].unk0 + D_8004BCD0[entIndex].unk8 * 8.0f), (s32)D_8004BCD0[entIndex].unk4) - D_8004BCD0[entIndex].unk4 > 5.0f) {
                 if (D_8004BCD0[entIndex].unk1A == 0) {}  // FAKE: dead test makes the unk1A load a candidate (a0)
@@ -2834,14 +2826,14 @@ void arcadeUpdateBouncingBarrel(s32 entIndex) {
                 D_8004BCD0[entIndex].unk0 += D_8004BCD0[entIndex].unk8;
             }
             D_8004BCD0[entIndex].unk8 = (f32)(((f64)(u32)D_8004BCD0[entIndex].unk1A - 0.5) * (((f64)arcadeMinFloat((f32)(u32)D_8004A76C, 5.0f) / 15.0) + 1.0));
-            a0 = (s32)((D_8004BCD0[entIndex].unk4 - D_8004BCD0[D_8004C71F].unk4) * arcadeMinFloat((f32)(u32)D_8004A76C, 5.0f) * 3.0f);
-            if (D_8004BCD0[entIndex].unk4 < (f32)D_8004C6E8 && arcadeRand() < 0x400 - a0) {
+            bias = (s32)((D_8004BCD0[entIndex].unk4 - D_8004BCD0[D_8004C71F].unk4) * arcadeMinFloat((f32)(u32)D_8004A76C, 5.0f) * 3.0f);
+            if (D_8004BCD0[entIndex].unk4 < (f32)D_8004C6E8 && arcadeRand() < 0x400 - bias) {
                 D_8004BCD0[entIndex].unk19 = 5;
                 D_8004BCD0[entIndex].unk8 = 0.0f;
                 D_8004BCD0[entIndex].unk4 = D_8004BCD0[entIndex].unk4 + 1.0f;
                 D_8004BCD0[entIndex].unkC = (f32)(2.0 * (((f64)arcadeMinFloat((f32)(u32)D_8004A76C, 5.0f) / 30.0) + 0.2));
                 D_8004BCD0[entIndex].unk0 = (f32)D_8004C6E0;
-            } else if ((f32)D_8004C6E4 < D_8004BCD0[entIndex].unk4 && arcadeRand() < a0 + 0x400) {
+            } else if ((f32)D_8004C6E4 < D_8004BCD0[entIndex].unk4 && arcadeRand() < bias + 0x400) {
                 D_8004BCD0[entIndex].unk19 = 6;
                 D_8004BCD0[entIndex].unk8 = 0.0f;
                 D_8004BCD0[entIndex].unk4 = D_8004BCD0[entIndex].unk4 - 1.0f;
@@ -3470,7 +3462,7 @@ void arcadeUpdateDonkeyKongStage2(s32 entIndex) {
         }
         if ((s32)D_8004BCD0[entIndex].unk10 % (0x72 - (s32)arcadeMinFloat((u32)D_8004A76C, 4.0f) * 0xC) == 0) {
             D_8004C71E -= 1;
-            entIndex = arcadeFindFreeEntity();
+            entIndex = arcadeFindFreeEntity(); // FAKE: parameter reused as new entity index steers regalloc
             D_8004BCD0[entIndex] = D_8004A418;
             D_8004BCD0[entIndex].unk0 = (arcadeRand() & 0xF) - 0x1C;
             D_8004BCD0[entIndex].unk19 = 2;
@@ -3480,10 +3472,11 @@ void arcadeUpdateDonkeyKongStage2(s32 entIndex) {
 
 void arcadeUpdateDonkeyKongStage3(s32 entIndex) {
     s32 tmp;
+    s32 flash;
 
     switch (D_8004BCD0[entIndex].unk19) {
     case 2:
-        tmp = 0;
+        tmp = 0; // FAKE: tmp holds 0 then the frame count; the reuse steers regalloc
         if (D_8004C71D != tmp) {
             return;
         }
@@ -3497,11 +3490,13 @@ void arcadeUpdateDonkeyKongStage3(s32 entIndex) {
             D_8004BCD0[entIndex].unk8 = 1.0f;
         }
         D_8004BCD0[entIndex].unk10 += 1.0f;
-        if ((u8)(s32)(tmp = D_8004BCD0[entIndex].unk10) < 0xA0) {
+        tmp = D_8004BCD0[entIndex].unk10;
+        if ((u8)tmp < 0xA0) {
             D_8004BCD0[entIndex].unk14 = D_80040540;
         } else {
             D_8004BCD0[entIndex].unk14 = D_800424D0;
-            D_8004BCD0[entIndex].unk1A = (((s32)D_8004BCD0[entIndex].unk10 & 0x20) / 32) == ((((s32)D_8004BCD0[entIndex].unk10 & 0x20) / 32) * 0); // FAKE: `x == x * 0` steers scheduling (x == 0)
+            flash = (((s32)D_8004BCD0[entIndex].unk10 & 0x20) / 32) == 0;
+            D_8004BCD0[entIndex].unk1A = flash;
         }
         break;
     case 5:
@@ -3677,16 +3672,16 @@ void arcadeUpdateRivetEntity(u8 entIndex) {
 }
 
 void arcadeUpdateRetractableLadder(u8 entIndex) {
-    f32 new_var;
+    f32 step;
 
     if (D_8004C71D == 0) {
         D_8004BCD0[entIndex].unk10 -= 1.0f;
-        new_var = D_8004BCD0[entIndex].unk10;
-        if (new_var < 0.0f) {
+        step = D_8004BCD0[entIndex].unk10;
+        if (step < 0.0f) {
             D_8004BCD0[entIndex].unk10 = (arcadeRand() & 0x7F) + 0x1C2;
         }
-        new_var = D_8004BCD0[entIndex].unk10 < 200.0f ? 0.2f : -0.2f;
-        D_8004BCD0[entIndex].unk4 += new_var;
+        step = D_8004BCD0[entIndex].unk10 < 200.0f ? 0.2f : -0.2f;
+        D_8004BCD0[entIndex].unk4 += step;
         if (D_8004BCD0[entIndex].unk4 < 97.0f) {
             D_8004BCD0[entIndex].unk4 = 97.0f;
         }
@@ -3721,7 +3716,7 @@ extern u8 *D_80746800;
 
 void arcadeUpdateNameEntryCursor(u8 entIndex) {
     if (D_8004BCD0[entIndex].unk19 != 4) {
-        if ((*(u16 *)D_807ECDE8 & 0x200) || (s8)D_807ECDE8[2] < -0x14) {
+        if ((D_807ECDE8->button & 0x200) || D_807ECDE8->stick_x < -0x14) {
             switch (--D_8004C720) {
             case 0:
                 D_8004C720 = 8;
@@ -3732,7 +3727,7 @@ void arcadeUpdateNameEntryCursor(u8 entIndex) {
                 }
                 break;
             }
-        } else if ((*(u16 *)D_807ECDE8 & 0x100) || (s8)D_807ECDE8[2] >= 0x15) {
+        } else if ((D_807ECDE8->button & 0x100) || D_807ECDE8->stick_x >= 0x15) {
             switch (--D_8004C720) {
             case 0:
                 D_8004C720 = 8;
@@ -3778,7 +3773,6 @@ void arcadeUpdateBonusBox(u8 entIndex) {
     }
 }
 
-/* ArcS2 declarations */
 
 void arcadeDispatchEntities(void) {
     u8 i = 0;
@@ -4014,11 +4008,7 @@ void arcadeSetStageTextColor(s8 stageIndex) {
 
 extern s32 D_8004A83C;
 extern u8 D_8003DA90[];
-typedef struct ArcadeGfxSlot {
-    u8 pad[0x18];
-} ArcadeGfxSlot;
 extern ArcadeGfxSlot D_8004BBF0[];
-#define ArcL8_P6D0 (*(void **)&D_8004C6D0)
 
 void arcadeDrawHud(Gfx **glistp) {
     s32 i;
@@ -4028,14 +4018,14 @@ void arcadeDrawHud(Gfx **glistp) {
     u8 n;
 
     g = *glistp;
-    p = (char *)g++;
+    p = (char *)g++; // FAKE: p reused as scissor packet pointer steers regalloc (gDPSetScissor: text=6)
     ((Gfx *)p)->words.w0 = 0xED000000; ((Gfx *)p)->words.w1 = 0x5003C0;
     p = buf;
-    D_8004C6D4 = 0x400;
+    D_8004C6D4.word = 0x400;
     D_8004C719 = 8;
-    ArcL8_P6D0 = D_8003DA90;
+    D_8004C6D0 = D_8003DA90;
     D_8004C71A = 8;
-    dlInitTextureDescriptor(&D_8004BBF0[gGfxBufferIndex], ArcL8_P6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
+    dlInitTextureDescriptor(&D_8004BBF0[gGfxBufferIndex], D_8004C6D0, 0, D_8004C719, D_8004C719, D_8004C71A, 0, 2, 0, 0);
     dlAppendTextureLoad(&g, &D_8004BBF0[gGfxBufferIndex]);
     dlSetTextureScaleAndFlip(0x400, D_8004C6D6, 0, 0);
     if (D_8004A83C == 0) { // FAKE: empty guard steers regalloc
