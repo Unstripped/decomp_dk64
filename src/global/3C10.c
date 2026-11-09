@@ -632,23 +632,24 @@ s32 mapFindSlotIndex(s32 map) {
     }
     i = 2;
     ptr = D_8076A2E0;
-loop:
-    if (ptr[0].unk0 != 0 && map == ptr[0].unk12) {
-        return i;
-    }
-    if (ptr[1].unk0 != 0 && map == ptr[1].unk12) {
-        return i + 1;
-    }
-    if (ptr[2].unk0 != 0 && map == ptr[2].unk12) {
-        return i + 2;
-    }
-    if (ptr[3].unk0 != 0 && map == ptr[3].unk12) {
-        return i + 3;
-    }
-    i += 4;
-    ptr += 4;
-    if (i != 18) {
-        goto loop;
+    for (;;) {
+        if (ptr[0].unk0 != 0 && map == ptr[0].unk12) {
+            return i;
+        }
+        if (ptr[1].unk0 != 0 && map == ptr[1].unk12) {
+            return i + 1;
+        }
+        if (ptr[2].unk0 != 0 && map == ptr[2].unk12) {
+            return i + 2;
+        }
+        if (ptr[3].unk0 != 0 && map == ptr[3].unk12) {
+            return i + 3;
+        }
+        i += 4;
+        ptr += 4;
+        if (i == 18) {
+            break;
+        }
     }
     return -1;
 }
