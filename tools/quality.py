@@ -924,6 +924,9 @@ def cmd_record(a):
             print(f"record: {e}", file=sys.stderr)
         print("record: nothing written", file=sys.stderr)
         sys.exit(1)
+    if a.dry_run:
+        print(f"would record {len(events)} events (unit {a.unit}) to {rel(LEDGER)}")
+        return
     append_events(unit_events(a.unit, load_events()) + events)
     print(f"recorded {len(events)} events (unit {a.unit}) to {rel(LEDGER)}")
 
@@ -1215,6 +1218,7 @@ def main(argv=None):
     c.add_argument("--agent", required=True)
     c.add_argument("--base")
     c.add_argument("--batch", required=True)
+    c.add_argument("--dry-run", action="store_true")
     c.set_defaults(fn=cmd_record)
     c = s.add_parser("status")
     c.add_argument("--file")

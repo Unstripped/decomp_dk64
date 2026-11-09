@@ -200,3 +200,26 @@ def test_carry_end_to_end(tmp_path, monkeypatch, capsys):
     q.main(["carry", "--rev", rev_b, "--unit", "u3"])
     assert "f: not a pure rename" in capsys.readouterr().out
     assert len(q.load_events()) == before
+
+
+def test_record_dry_run_validates_without_writing(tmp_path, monkeypatch, capsys):
+    ledger_path = tmp_path / "quality.jsonl"
+    ledger_path.write_text('{"type": "unit", "unit": "u0"}\n')
+    before = ledger_path.read_bytes()
+    monkeypatch.setattr(q, "LEDGER", str(ledger_path))
+    monkeypatch.setattr(q.Resolver, "find", lambda self, key: (dict(FN, file="src/global/x.c"), SITE))
+    good = tmp_path / "good.txt"
+    good.write_text(f'{SITE["key"]} diagnose nohit quirks=Q0001\n')
+    q.main(["record", "--unit", "u1", "--agent", "a", "--batch", str(good), "--dry-run"])
+    assert "would record 1 events" in capsys.readouterr().out
+    assert ledger_path.read_bytes() == before
+    bad = tmp_path / "bad.txt"
+    bad.write_text(f"{SITE['key']} remove kept\n")
+    errs = []
+    for extra in (["--dry-run"], []):
+        with pytest.raises(SystemExit) as ex:
+            q.main(["record", "--unit", "u1", "--agent", "a", "--batch", str(bad), *extra])
+        assert ex.value.code == 1
+        errs.append(capsys.readouterr().err)
+    assert errs[0] == errs[1] and "kept is only for classify" in errs[0]
+    assert ledger_path.read_bytes() == before
