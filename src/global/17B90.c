@@ -148,11 +148,7 @@ void gfxSwapGeometryModeCullBits(GfxCmdWords *cmdStart, GfxCmdWords *cmdEnd) {
                 }
             }
             if (command && command) {} // FAKE: retains the opcode variable rather than a forwarded shift
-            cmdStart++;
-            if (cmdStart == cmdEnd) {
-                break;
-            }
-        } while (1);
+        } while (++cmdStart != cmdEnd);
     }
 }
 
