@@ -148,3 +148,19 @@ def test_local_renames_kr_param_and_refuses_collisions(tmp_path):
     text = (tmp_path / path).read_text()
     assert "s32 f(base, arg1) s32 base; u8 arg1; {\n    s32 total = base;\n" in text
     assert "return total + arg1 + gCount + count;" in text
+
+
+def test_field_dry_run_lists_every_reference_and_flags_macros(tmp_path, capsys):
+    _tree(tmp_path, {"include/types.h": TYPES,
+                     "src/global/one.c": '#include "common.h"\n#include "types.h"\n'
+                                         "s32 f(A *a) {\n    return AX(a) + a->x;\n}\n",
+                     "src/global/two.c": '#include "common.h"\n#include "types.h"\n'
+                                         "s32 g(A *a) {\n    return a->x;\n}\n"})
+    before = _snapshot(tmp_path)
+    assert _run(tmp_path, "field", "--dry-run", "include/types.h", "A", "x", "count", "-j", "1") == 1
+    cap = capsys.readouterr()
+    assert "src/global/one.c:4:23 x→count" in cap.out  # the plain reference after the macro one
+    assert "src/global/two.c:4:15 x→count" in cap.out  # files after the macro one are still scanned
+    assert "MACRO AX src/global/one.c:4:12" in cap.out
+    assert "reference inside a macro" in cap.err
+    assert _snapshot(tmp_path) == before

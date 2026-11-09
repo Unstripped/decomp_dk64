@@ -18,6 +18,8 @@ func/global edit src/<seg>/ for an overlay, every non-libultra src/ file plus th
 (include/*.h) for global and boot. AST renames also parse files with #ifdef NON_MATCHING a second time
 with -DNON_MATCHING, so parked C is renamed too.
 Every subcommand takes --dry-run (print `file:line:col old→new`, write nothing) and --root DIR (tests).
+`field --dry-run` lists every reference even when some lie inside macro expansions: those print as
+`MACRO <macro> file:line:col` after the others, and the command still exits 1 at the end.
 Exit 1 with nothing written when <new> encodes an address/offset or is m2c-shaped, <new> already names a
 symbol, macro or field in scope, a reference lies inside a macro expansion, or (func) <old> is declared
 in include/PR, include/PRinternal or include/libultra (`header-prototyped: <header>`).
@@ -249,7 +251,8 @@ def macro_names(tu):
 
 
 def scan_members(job):
-    """Member references to the FIELD_DECL at KEY in one TU: ([(file, line, col)], [macro sites])."""
+    """Member references to the FIELD_DECL at KEY in one TU: ([(file, line, col)], [(file, line, col,
+    macro name)] for references inside a macro expansion)."""
     root, f, k, old = job
     set_root(root)
     lines_of, hits, macro = line_cache(), set(), set()
@@ -263,7 +266,11 @@ def scan_members(job):
                     r = c.referenced
                     if r is not None and r.kind == CursorKind.FIELD_DECL and key(r) == k:
                         s, ok = site(c, old, lines_of)
-                        (hits if ok else macro).add(s)
+                        if ok:
+                            hits.add(s)
+                        else:  # the expansion site spells the macro's name
+                            m = IDENT.match(lines_of(s[0])[s[1] - 1], s[2] - 1)
+                            macro.add((*s, m.group(0) if m else "?"))
     return sorted(hits), sorted(macro)
 
 
@@ -321,10 +328,14 @@ def cmd_field(a):
     else:
         res = [scan_members(j) for j in jobs]
     set_root(ROOT)
-    macro = [m for _, ms in res for m in ms]
-    if macro:
-        raise Refuse("reference inside a macro: " + " ".join(f"{f}:{l}:{c}" for f, l, c in macro))
+    macro = sorted({m for _, ms in res for m in ms})
     edits = [(*s, old, new)] + [(f, l, c, old, new) for hs, _ in res for f, l, c in hs]
+    if macro:
+        if a.dry_run:  # list every reference, then refuse: a real rename cannot edit macro bodies
+            apply(edits, True)
+            for f, l, c, name in macro:
+                print(f"MACRO {name} {f}:{l}:{c}")
+        raise Refuse("reference inside a macro: " + " ".join(f"{f}:{l}:{c}" for f, l, c, _ in macro))
     apply(edits, a.dry_run)
     return 0
 
