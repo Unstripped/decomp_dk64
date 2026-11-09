@@ -34,7 +34,7 @@ void flagSet(s16 flag, u8 val, u8 bank);
 void flagUpdateRangeCompletion(s16 flag);
 s32 spawnFlagLookup(s16 map, s16 id, s32 *outIdx);
 s32 flagCountRange(s32 startFlag, s32 count, u8 bank);
-u8 *func_8060E25C(u8);
+u8 *func_8060E25C(u8); // FAKE: callee prototype steer
 
 void flagsClearAllBank2(void) {
     s32 i;
