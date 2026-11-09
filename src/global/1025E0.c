@@ -74,12 +74,8 @@ GfxResourceNode *gfxResourceFindById(s16 resourceId) {
     GfxResourceNode *node;
 
     node = gGfxResourceList;
-    if ((node != NULL) && (resourceId != node->unk1C)) {
-loop_2:
+    while ((node != NULL) && (resourceId != node->unk1C)) {
         node = node->next;
-        if ((node != NULL) && (resourceId != node->unk1C)) {
-            goto loop_2;
-        }
     }
     return node;
 }
@@ -105,13 +101,9 @@ void gfxResourceFree(s16 resourceId) {
 
     cur = gGfxResourceList;
     prev = NULL;
-    if ((cur != NULL) && (resourceId != cur->unk1C)) {
-loop_2:
+    while ((cur != NULL) && (resourceId != cur->unk1C)) {
         prev = cur;
         cur = cur->next;
-        if ((cur != NULL) && (resourceId != cur->unk1C)) {
-            goto loop_2;
-        }
     }
     if (prev != NULL) {
         prev->next = cur->next;
