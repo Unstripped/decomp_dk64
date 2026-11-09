@@ -13,8 +13,10 @@ method ladder that exhausts them, and the per-function `review` coverage.
   uv run tools/quality.py carry --rev REV --unit U [src.c...]   re-stamp results of functions that
                                          changed since REV only by renames of declared names (same type,
                                          field offset or symbol address; clang-checked) or only by
-                                         file-scope/header text they do not use (same body tokens, same
-                                         text for every declaration/type/macro they reach)
+                                         file-scope text of the .c they do not use (same body tokens,
+                                         same text for every declaration/type/macro they reach; both
+                                         versions parse against the current headers, so header changes
+                                         are not compared and automatic results from older headers stay stale)
 
 Ledger: drafts/quality.jsonl (env DK64_QUALITY_LEDGER overrides), append-only. Functions are keyed
 by (seg, vram): symbol file / asm / link map via tools/ledger.py, else the build ELF symbol table,
@@ -1129,9 +1131,9 @@ def scope_closure(idx, toks):
 
 
 def scope_equivalent(old_body, new_body, old_idx, new_idx):
-    """Whether a function is unchanged apart from file-scope or header text it does not use: same
-    body tokens, and every top-level declaration, typedef, record, enum or macro it reaches
-    (`scope_closure`) has the same text in both versions."""
+    """Whether a function is unchanged apart from file-scope text it does not use: same body tokens,
+    and every top-level declaration, typedef, record, enum or macro it reaches (`scope_closure`)
+    has the same text in both versions. Callers parse both versions against the current headers."""
     if [(t.kind, t.spelling) for t in old_body] != [(t.kind, t.spelling) for t in new_body]:
         return False
     return scope_closure(old_idx, old_body) == scope_closure(new_idx, new_body)
@@ -1140,7 +1142,7 @@ def scope_equivalent(old_body, new_body, old_idx, new_idx):
 def cmd_carry(a):
     """Re-stamp the newest fresh-at-REV events of every function that changed from REV to HEAD only
     by renames of declared names (`rename_equivalent` over its body and the file's top level), or
-    only by file-scope/header text it does not use (`scope_equivalent`), with HEAD's fingerprints
+    only by file-scope text of the .c it does not use (`scope_equivalent`), with HEAD's fingerprints
     and site keys. Events keep their time, so knowledge filed after them still makes them stale."""
     files = a.files or [p for p in ledger.git("diff", "--name-only", a.rev, "HEAD", "--", "src").split()
                         if p.endswith(".c") and "/libultra/" not in p and os.path.exists(os.path.join(ROOT, p))]
