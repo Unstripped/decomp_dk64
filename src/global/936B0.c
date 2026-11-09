@@ -135,7 +135,7 @@ void actorSpawnNodeEffectFacingCamera(s32 arg0, u8 arg1) {
     f32 sp40;
 
     actorGetNodePos(gCurrentActor, arg0, &sp48, &sp44, &sp40);
-    tgt = sp48 - ((PlayerCameraXZView *)gPlayerSlots)->unk210;  // FAKE: tgt holds the 2nd arg so it is evaluated first
+    tgt = sp48 - ((PlayerCameraXZView *)gPlayerSlots)->unk210;
     tgt = (s16)(mathAtan2(((PlayerCameraXZView *)gPlayerSlots)->unk218 - sp40, tgt) * 651.8986f + 1024.0f) & 0xFFF;
     cur = gCurrentActor->yaw;
     if (cur < tgt) {
