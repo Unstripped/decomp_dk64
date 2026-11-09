@@ -2,8 +2,8 @@
 #include "actor.h"
 
 s32 hudCanRender(void);
-Gfx *hudDrawRollingCounter(Gfx *, s32, s32, void *, s16, void *);
-Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
+Gfx *hudDrawRollingCounter(Gfx *, s16, s16, s16 *, s16, u8 *);
+Gfx *textDrawAnimated(Gfx *, s16, s32, f32, f32, f32, f32);
 Gfx *func_8070068C(Gfx *);
 extern Gfx D_1000118;
 extern Gfx D_2000180;
@@ -33,7 +33,7 @@ Gfx *bonusRenderCounterHud(Gfx *gdl, Actor *actor) {
     return gdl;
 }
 
-void spawnNodeActivateAndSetState(s32, s32, s32);
+void spawnNodeActivateAndSetState(s16, u8, u16);
 void bonusInitSounds(void) {
     spawnNodeActivateAndSetState(1, 0x40, 0);
     spawnNodeActivateAndSetState(2, 0x40, 0);
@@ -70,40 +70,40 @@ extern LB3bTbl gActorGlobalState;
 extern u8 D_8002D863[];
 
 void behaviourFrameBegin(void);
-void commandQueuePush(void *, s16, s16, s16, s32, s32, s32, s32, s32);
+void commandQueuePush(void *, s16, s16, s16, s32, s32, s32, s32, s32); // FAKE: callee prototype steer
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag(void);
-void slotQueueSetDisplayMode(s32, s32, s32);
-void hudSpawnCountdownTimer(s32, s32, u8);
+void slotQueueSetDisplayMode(u8, u8, u8);
+void hudSpawnCountdownTimer(s16, s16, u8);
 s32 randomNonNegative(void);
-void csModelStateSetByte(s16, s32, s32);
-void csModelStateSetFirstByte(s32, s32);
-void playerSetKongByActorType(s32);
+void csModelStateSetByte(s16, s16, s16);
+void csModelStateSetFirstByte(s16, s16);
+void playerSetKongByActorType(s16);
 void actorScriptStartByIndex(void *, s32);
 void playerInitMoveParams(void);
 char *textTableGetString(s32, s32, s32);
-s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
-void func_806FDAB8(u8, f32);
-void *spawnNodeActivate(s16, s32);
+s16 gfxResourceCreate(s16, char *, u8, f32, f32, f32);
+void func_806FDAB8(s16, f32);
+Actor *spawnNodeActivate(s16, u16);
 s32 strlen(char *);
 char *heapAlloc(s32);
 void heapFreeDeferred(void *);
 s32 _sprintf(char *, const char *, ...);
-void textSpawnMarkerChecked(s32, s32, s32, char *, s32, s32, s32, s32);
-s32 slotQueueGetValue(s32, s32);
+void textSpawnMarkerChecked(u8, s16, s16, s32, u16, u16, u8, u8);
+s32 slotQueueGetValue(s32, s32); // FAKE: callee prototype steer
 void bonusEndWin(u8, u8);
 void bonusEndLose(u8, u8);
-void func_80726EE0(s32);
-void func_80724A20(void);
-void csSendActorMessagePayload(s32, s32);
+void func_80726EE0(u8);
+s32 func_80724A20(void);
+void csSendActorMessagePayload(s16, s16);
 void camResumePath(void *);
 void actorSetStateTwo(void *);
-void resQueueSetValue(s32);
+void resQueueSetValue(s8);
 void resQueueAttachActor(void *, s32, u8);
 void sfxAllocateChannel(s32, f32);
-u16 camStartPath(void *, s32, s32);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-void renderCallbacksRegister(void *, void *, s32);
+u16 camStartPath(void *, s16, u8);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
+void renderCallbacksRegister(void *, void *, u8);
 
 void bonusControllerUpdate(void) {
     s16 i;
@@ -457,11 +457,11 @@ s32 bonusGetSoundForMap(void) {
 
 void n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
 void camRequestPathLength(void);
-void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
+void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
 void mapTransitionToPreviousOrExit(void);
 void func_806C9974(s32, s32);
 void n_alSndpPostEvent(void *, s32, s16);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 extern s32 D_8076D1F8;
 extern void *gActivePlayerState;
 
