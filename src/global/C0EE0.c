@@ -65,24 +65,24 @@ Gfx *func_806BCF98(Gfx *, Actor *);
 void behaviourFrameBegin(void);
 void func_806BD0CC(void);
 void currentActorClearFlag(void);
-s32 flagGet(s32, s32);
-void camStartPath();
+u8 flagGet(s16, u8);
+u16 camStartPath(void *, s16, u8);
 s32 currentActorTestClearFlag(void);
-void renderCallbacksRegister(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, u8);
 void camResumePath(void);
 void playerResumeLocomotion(void *);
-s32 camIsCutsceneActive(void);
+u8 camIsCutsceneActive(void);
 void actorScriptStart(void *, s32);
-void hudSpawnCountdownTimer(s32, s32, s32);
+void hudSpawnCountdownTimer(s16, s16, u8);
 void flagSet();
 void sfxAllocateChannel(s32, f32);
 void sfxStopChannel(s32, s32);
 void actorSetStateTwo(void *);
 void actorDespawn(void *);
 void csModelStateSetFirstByte(s16, s32);
-void csModelStateSetByte(s16, s32, s32);
+void csModelStateSetByte(s16, s16, s16);
 f32 randomFloat(void);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
 void controllerApplyMotionWindow(void *, void *, f32);
 void actorUpdateModelMatrix(void *, s32);
@@ -343,7 +343,6 @@ void enemyGridStateStep(void) {
         }
         break;
     default:
-        if (adx && adx) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         break;
     }
     BC1E0_LGB->unk60 |= 0x400;
@@ -408,7 +407,7 @@ extern u8 D_1000118[];
 extern u8 D_2000180[];
 #define R1C0C1_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
-Gfx *textDrawStringVtx(Gfx *, s32, s32, s32, char *, s32);
+Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
 Gfx *func_806BCF98(Gfx *dl, Actor *actor) {
     R1C0C1_WRITE_GFX(dl++, 0xDE000000, D_1000118);
