@@ -498,8 +498,19 @@ def event(unit, agent, fn, site, method, outcome, quirks=(), seconds=None, base=
 _know = {}
 
 
+KV_TOKEN = re.compile(r"\b\w+=\S*")
+
+
+def note_text(note):
+    """NOTE without its structured `key=value` tokens (review checklist `fake=0/0 ... uninit=0`,
+    `quirks=`/`seconds=`/`base=`/`best=`), or None when nothing else is left."""
+    rest = KV_TOKEN.sub(" ", note or "")
+    return rest.strip() if re.search(r"\w", rest) else None
+
+
 def knowledge_after(name, note, t):
-    """Whether a knowledge/ido file committed after T names NAME or is a top-8 hit for NOTE."""
+    """Whether a knowledge/ido file committed after T names NAME or is a top-8 hit for NOTE's free
+    text (checklist tokens stripped: they match every broad entry)."""
     if "times" not in _know:
         _know["times"] = ledger.knowledge_times()
         _know["newest"] = max((v for v in _know["times"].values() if v), default="")
@@ -507,9 +518,9 @@ def knowledge_after(name, note, t):
         return False
     if "corpus" not in _know:
         _know["corpus"] = quirks.load()
-    key = (name, note or "")
+    key = (name, note_text(note))
     if key not in _know:
-        _know[key] = ledger.related_knowledge(_know["corpus"], name, note)
+        _know[key] = ledger.related_knowledge(_know["corpus"], name, key[1])
     return any((_know["times"].get(p) or "") > t for p in _know[key])
 
 

@@ -66,7 +66,8 @@ A function with 3+ non-kept sites also needs a fresh function-level `reconstruct
   (every `include/` header the file includes, transitively) equal the current values.
 - `diagnose`, `permute`, `reconstruct`, `goto-hand`, `review`: fresh while `fp_local` is equal
   and no `knowledge/ido` file committed after the event names the function or is among the top
-  8 hits for the event's note.
+  8 hits for the event's note (its free text only: `key=value` tokens such as the review
+  checklist or `quirks=` are stripped; a note of only such tokens gets the name check alone).
 - A method counts through its newest fresh event unless that is `blocked`. A fresh `hit` makes
   the site OPEN `next=apply` (the sweep found a match nobody merged yet).
 

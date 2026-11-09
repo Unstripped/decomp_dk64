@@ -265,3 +265,29 @@ def test_carry_across_unrelated_file_scope_changes(tmp_path, monkeypatch, capsys
     by_site, by_func = q.index_events(q.load_events())
     assert q.function_state(new["f"], by_site, by_func)["review"] == "✓"
     assert q.function_state(new["h"], by_site, by_func)["review"] != "✓"
+
+
+_real_knowledge_after = q.knowledge_after
+
+
+def test_review_freshness_ignores_checklist_tokens(monkeypatch):
+    calls = []
+
+    def related(corpus, name, note):
+        calls.append(note)
+        paths = {"knowledge/ido/entries/Q9001.md"} if note else set()  # broad entry: top-8 for any note
+        if name == "named":
+            paths.add("knowledge/ido/entries/Q9002.md")
+        return paths
+
+    times = {"knowledge/ido/entries/Q9001.md": "2026-02-01T00:00:00Z",
+             "knowledge/ido/entries/Q9002.md": "2026-02-01T00:00:00Z"}
+    monkeypatch.setattr(q, "_know", {"times": times, "newest": max(times.values()), "corpus": []})
+    monkeypatch.setattr(q.ledger, "related_knowledge", related)
+    t = "2026-01-01T00:00:00Z"
+    assert q.note_text(REVIEW) is None
+    assert not _real_knowledge_after("f", REVIEW, t)  # checklist only: name-based check only
+    assert calls[-1] is None
+    assert _real_knowledge_after("named", REVIEW, t)  # a file naming the function still stales it
+    assert _real_knowledge_after("f", "regalloc swap " + REVIEW, t)  # free text still searched
+    assert calls[-1] == "regalloc swap"
