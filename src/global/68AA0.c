@@ -32,7 +32,7 @@ extern s32 D_80747D70;
 
 void *heapAlloc(s32);
 u8 mapObjectIsTargetType(s16);
-s8 mapChunkFindByPosition(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s16);
 s16 mapObjectCollectIdsByType(s8, void *, s16);
 
 void actorInitTargetEntries(void) {
