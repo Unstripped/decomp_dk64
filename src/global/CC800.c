@@ -731,38 +731,24 @@ void actorSetInteractionTimer(Actor *arg0) {
     arg0->unk144 = 0x3C;
 }
 
-extern f32 D_8075C4B0;
 extern u8 D_8075C417;
 extern s32 D_8075C420;
 extern u8 D_8075C427;
 extern G00Row D_8075C430[];
 
 u8 playerLookupKongByActorType(s16 arg0) {
-    G00Row *p;
+    s32 i;
 
     if (arg0 == D_8075C410[0].unk0) {
         return D_8075C417;
     }
-    p = D_8075C430;
     if (arg0 == D_8075C420) {
         return D_8075C427;
     }
-loop:
-    if (arg0 == p[0].unk0) {
-        return *((u8 *)&p[0].unk4 + 3);
-    }
-    if (arg0 == p[1].unk0) {
-        return *((u8 *)&p[1].unk4 + 3);
-    }
-    if (arg0 == p[2].unk0) {
-        return *((u8 *)&p[2].unk4 + 3);
-    }
-    if (arg0 == p[3].unk0) {
-        return *((u8 *)&p[3].unk4 + 3);
-    }
-    p += 4;
-    if (p != (G00Row *)&D_8075C4B0) {
-        goto loop;
+    for (i = 0; i < 8; i++) {
+        if (arg0 == D_8075C430[i].unk0) {
+            return *((u8 *)&D_8075C430[i].unk4 + 3);
+        }
     }
     return 0;
 }
