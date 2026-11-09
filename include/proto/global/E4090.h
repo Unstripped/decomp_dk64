@@ -476,7 +476,7 @@ void func_806E9874(void);
 void func_806E98F8(void);
 #endif
 #ifndef PROTO_SKIP_func_806E9964
-void func_806E9964();
+void func_806E9964(PlayerState *);
 #endif
 #ifndef PROTO_SKIP_func_806E9A5C
 void func_806E9A5C(void);
@@ -488,7 +488,7 @@ void func_806E9ACC(void);
 void func_806E9B3C(void);
 #endif
 #ifndef PROTO_SKIP_func_806E9BA8
-void func_806E9BA8();
+void func_806E9BA8(s32);
 #endif
 #ifndef PROTO_SKIP_func_806E9CDC
 void func_806E9CDC(void);
