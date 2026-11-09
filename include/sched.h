@@ -88,7 +88,9 @@ typedef struct {
     /* 0x27C */ f32 fov;
     /* 0x280 */ f32 unk280;
     /* 0x284 */ f32 unk284;
-    /* 0x288 */ u8 pad288[0x29C - 0x288];
+    /* 0x288 */ u8 pad288[4];
+    /* 0x28C */ f32 prevFov;
+    /* 0x290 */ u8 pad290[0x29C - 0x290];
     s16 queuedState;
     u8 pad29E[2];
     struct Actor *queuedActor;
@@ -96,9 +98,12 @@ typedef struct {
     s32 queuedParam0;
     s32 queuedParam1;
     s32 queuedParam2;
-    u8 pad2B4[0x2C0 - 0x2B4];
+    /* 0x2B4 */ f32 headX;
+    /* 0x2B8 */ f32 headY;
+    /* 0x2BC */ f32 headZ;
     u8 unk2C0;
-    /* 0x2C1 */ u8 pad2C1[3];
+    /* 0x2C1 */ u8 sizeModeDirty;
+    /* 0x2C2 */ u8 pad2C2[2];
     /* 0x2C4 */ f32 unk2C4;
     /* 0x2C8 */ s16 unk2C8;
     /* 0x2CA */ u8 pad2CA[6];
