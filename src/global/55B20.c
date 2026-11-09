@@ -878,14 +878,12 @@ s32 mapPointIsInRenderedChunk(f32 arg0, f32 arg1, f32 arg2) {
         return 0xFF;
     }
     chunk = mapChunkFindByPosition(arg0, arg1, arg2, 0);
-    if (D_807F6C80 > 0) {
-        do {
-            if (chunk == D_807F6C58[i]) {
-                return 1;
-            }
-            i++;
-            if (D_807F6C80 > 0) {} // FAKE: second read of D_807F6C80 inside the loop makes IDO strength-reduce the index (end pointer)
-        } while (i < D_807F6C80);
+    while (i < D_807F6C80) {
+        if (chunk == D_807F6C58[i]) {
+            return 1;
+        }
+        i++;
+        continue;
     }
     return 0;
 }
