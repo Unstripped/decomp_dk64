@@ -238,7 +238,7 @@ void bonusReelGameUpdate(void) {
             if (obj->unk10 >= 0x800) {
                 obj->unk12 = -0x40;
                 bonusInitActors(obj, (u32)((f32)obj->unk1E + (f32)(obj->unk1D - obj->unk1E) * ((f32)(obj->unk16 - 1) / (f32)two)));
-                gCurrentActor->soundSlot = sfxPlayOnFreeSlot(0x24D, 0x7FFF, 64.0f, 1.0f, 0, 0);
+                gCurrentActor->soundSlots[0] = sfxPlayOnFreeSlot(0x24D, 0x7FFF, 64.0f, 1.0f, 0, 0);
                 camSetTarget(player->unk104, gActivePlayerActor, 4, 0, 0x78, 0, 0, 0, 0, 0, 0.09f);
             } else if (obj->unk10 < 0x400) {
                 gCurrentActor->state = 5;
@@ -262,8 +262,8 @@ void bonusReelGameUpdate(void) {
         }
         break;
     case 7:
-        if (D_807457E4[gCurrentActor->soundSlot] != 0) {
-            n_alSndpStop(D_807457E4[gCurrentActor->soundSlot]);
+        if (D_807457E4[gCurrentActor->soundSlots[0]] != 0) {
+            n_alSndpStop(D_807457E4[gCurrentActor->soundSlots[0]]);
         }
     case 1:
         if (gCurrentActor->parentActor->state != 5) {

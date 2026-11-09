@@ -1047,7 +1047,7 @@ u8 collisionTestStaticMeshFloor(f32 arg0, f32 arg1, f32 *arg2, Actor *arg3) {
                                 }
                                 collisionStoreTriangleNormalAnglesS16((s32)arg3, (struct CollisionPlaneTriS *)tri, 1);
                                 if (arg3 != NULL) {
-                                    arg3->unk70[8] = tri->unk15;
+                                    arg3->unk78[0] = tri->unk15;
                                     arg3->tintA = D_807F94B5;
                                 }
                                 D_807F94B1 = tri->unk15;

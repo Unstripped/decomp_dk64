@@ -169,8 +169,10 @@ typedef struct Actor {
     /* 0x068 */ u16 flags2;
     /* 0x06A */ u16 contactFlags;
     /* 0x06C */ u16 prevContactFlags;
-    /* 0x06E */ s16 soundSlot;
-    /* 0x070 */ u8 unk70[0xC];
+    /* 0x06E */ s16 soundSlots[2];
+    /* 0x072 */ s16 unk72;
+    /* 0x074 */ f32 unk74;
+    /* 0x078 */ u8 unk78[4];
     /* 0x07C */ f32 x;
     /* 0x080 */ f32 y;
     /* 0x084 */ f32 z;
@@ -334,7 +336,9 @@ typedef struct PlayerState {
     /* 0x08E */ u8 unk8E;
     /* 0x08F */ u8 pad8F[2];
     /* 0x091 */ u8 unk91;
-    /* 0x092 */ u8 pad92[0x42];
+    /* 0x092 */ u8 pad92[0x32];
+    /* 0x0C4 */ s32 sfxHandle;
+    /* 0x0C8 */ u8 padC8[0xC];
     /* 0x0D4 */ s16 surfaceTimer;
     /* 0x0D6 */ s16 breathTimer;
     /* 0x0D8 */ u8 padD8[0x10];

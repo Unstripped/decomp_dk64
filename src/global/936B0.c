@@ -726,7 +726,7 @@ s16 arg1;
 {
     s16 idx;
 
-    idx = D_80770628[gCurrentActor->soundSlot];
+    idx = D_80770628[gCurrentActor->soundSlots[0]];
     if (gCurrentActor->y < gCurrentActor->waterY + 4.0f) {
         D_80770B68[idx] = ((f64)gCurrentActor->speedXZ / 300.0) + 1.0;
         D_80770BC0[idx] = 1.0f;
@@ -735,7 +735,7 @@ s16 arg1;
         D_80770BC0[idx] = 5.0f;
     }
 
-    idx = D_80770628[*(s16 *)gCurrentActor->unk70];
+    idx = D_80770628[gCurrentActor->soundSlots[1]];
     if (gCurrentActor->y < gCurrentActor->waterY + 4.0f) {
         if (D_80770BC0[idx] == 0.0f) {
             D_80770B68[idx] = (((f64)(u32)randomLcgNext() / 4294967295.0) * 0.05 + 0.975) * (0.2 + ((f64)gCurrentActor->speedXZ / 300.0));
