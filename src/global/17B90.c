@@ -274,9 +274,8 @@ void controllerCommandRelocateAssets(ControllerCommand *cmdStart, ControllerComm
         do {
             word = cmdStart->unk0;
             if ((word >> 0x18) == (0, 0xFD)) { // FAKE: keeps bnel operand order
-                word = cmdStart->unk4;
-                if (((word * 0x10) >> 0x1C) == 0) {
-                    cmdStart->unk4 = (u32)assetLoad(0x19, word ^ 0, 0, 0); // FAKE: steers move a1, v0 into delay slot
+                if (((cmdStart->unk4 * 0x10) >> 0x1C) == 0) {
+                    cmdStart->unk4 = (u32)assetLoad(0x19, cmdStart->unk4, 0, 0);
                 }
             }
             cmdStart++;
