@@ -340,12 +340,7 @@ void scriptCmdCompareSpeedXZ(Actor *arg0) {
     ((F5AActorSub4 *)arg0->sub4)->unk88 = (s32)(arg0->speedXZ - temp);
 }
 
-typedef struct F5APlayerState {
-    u8 pad0[0x4C];
-    s16 unk4C;
-} F5APlayerState;
 
-#define F5A_PS ((F5APlayerState *)gActivePlayerState)
 
 void scriptReadU8(u8 *);
 s16 playerSelectMoveTier(Actor *, f32, f32, s16, s16);
@@ -355,7 +350,7 @@ void scriptCmdCompareMoveTier(Actor *arg0) {
 
     scriptReadU8(&temp);
     ((F5AActorSub4 *)arg0->sub4)->unk88 =
-        playerSelectMoveTier(arg0, arg0->speedXZ, arg0->speedXZ, F5A_PS->unk4C, gCurrentCharacterIndex) - temp;
+        playerSelectMoveTier(arg0, arg0->speedXZ, arg0->speedXZ, gActivePlayerState->unk4C, gCurrentCharacterIndex) - temp;
 }
 
 typedef struct F5APlayerCoefficient {
@@ -479,12 +474,6 @@ s32 mathCalculateRatioClamped(f32 arg0, f32 arg1, f32 arg2, f32 arg3) {
     return (s32)(res + 0.5);
 }
 
-typedef struct F5N3PlayerState1768 {
-    u8 pad0[0x8E];
-    u8 unk8E;
-    u8 pad8F[2];
-    u8 unk91;
-} F5N3PlayerState1768;
 
 typedef struct F5N3TableEntry1768 {
     u8 unk0;
@@ -494,7 +483,6 @@ typedef struct F5N3TableEntry1768 {
     s16 unk6;
 } F5N3TableEntry1768;
 
-#define F5N3_PLAYER_1768 ((F5N3PlayerState1768 *) gActivePlayerState)
 
 extern u16 D_80752F20[];
 
@@ -502,13 +490,13 @@ void playerWeaponCalculateTrajectory7(s32 arg0, F5N3TableEntry1768 *arg1, s32 *a
     s32 temp_v1;
     u16 temp_v0;
     temp_v0 = 7U;
-    temp_v1 = F5N3_PLAYER_1768->unk8E - 0x14;
+    temp_v1 = gActivePlayerState->unk8E - 0x14;
     if ((temp_v1 >= 0) && ((u32) temp_v1 < temp_v0)) {
         temp_v0 = D_80752F20[temp_v1];
         arg1[*arg2].unk0 = 0x7F;
-        arg1[*arg2].unk1 = F5N3_PLAYER_1768->unk91 != 0 ? 9 : 8;
+        arg1[*arg2].unk1 = gActivePlayerState->unk91 != 0 ? 9 : 8;
         arg1[*arg2].unk2 = 0;
-        arg1[*arg2].unk4 = F5N3_PLAYER_1768->unk91 != 0 ? temp_v0 : -temp_v0;
+        arg1[*arg2].unk4 = gActivePlayerState->unk91 != 0 ? temp_v0 : -temp_v0;
         arg1[*arg2].unk6 = 0;
         *arg2 += 1;
     }
@@ -520,7 +508,7 @@ void playerWeaponCalculateTrajectory4(s32 arg0, F5N3TableEntry1768 *arg1, s32 *a
     s32 temp_v1;
     u16 temp_v0;
     temp_v0 = 4U;
-    temp_v1 = F5N3_PLAYER_1768->unk8E - 0x14;
+    temp_v1 = gActivePlayerState->unk8E - 0x14;
     if ((temp_v1 >= 0) && ((u32) temp_v1 < temp_v0)) {
         temp_v0 = D_80752F30[temp_v1];
         arg1[*arg2].unk0 = 0x7F;
@@ -541,10 +529,6 @@ typedef struct {
 } F5BSlot;
 
 
-typedef struct {
-    u8 pad0[0x8E];
-    u8 unk8E;
-} F5BPlayerState;
 
 typedef struct {
     u8 pad0[0x60];
@@ -562,7 +546,6 @@ typedef struct {
     f32 unkC;
 } F5BAccel;
 
-#define F5B_PLAYER_STATE ((F5BPlayerState *)gActivePlayerState)
 
 extern u16 D_80752F38[];
 extern u16 D_80752F40[];
@@ -574,7 +557,7 @@ void playerWeaponCalculateTrajectory22(s32 arg0, F5BSlot *arg1, s32 *arg2) {
     s32 zero;
 
     angle = 0x16;
-    tableIndex = F5B_PLAYER_STATE->unk8E - angle;
+    tableIndex = gActivePlayerState->unk8E - angle;
     if ((tableIndex >= 0) && ((u32)tableIndex < 4U)) {
         angle = D_80752F38[tableIndex];
         arg1[*arg2].unk0 = 0x7F;
@@ -592,7 +575,7 @@ void playerWeaponCalculateTrajectory22(s32 arg0, F5BSlot *arg1, s32 *arg2) {
 void playerWeaponCalculateTrajectory23(s32 arg0, F5BSlot *arg1, s32 *arg2) {
     u16 temp_v0;
 
-    temp_v0 = D_80752F40[F5B_PLAYER_STATE->unk8E];
+    temp_v0 = D_80752F40[gActivePlayerState->unk8E];
     arg1[*arg2].unk0 = 0x7F;
     arg1[*arg2].unk1 = 1;
     arg1[*arg2].unk2 = temp_v0;
@@ -1034,13 +1017,6 @@ void playerWeaponCrosshairUpdate(F5N5CameraActor *arg0, F5N5CameraEntry *arg1, s
 }
 
 
-typedef struct F5CPlayerState {
-    u8 pad0[0x21E];
-    u16 unk21E;
-    u8 pad220[0x38];
-    f32 unk258;
-    f32 unk25C;
-} F5CPlayerState;
 typedef struct F5CPlayerActor {
     u8 pad0[0x60];
     u32 unk60;
@@ -1057,7 +1033,6 @@ typedef struct F5COutput {
     f32 unk8;
     f32 unkC;
 } F5COutput;
-#define F5C_PS ((F5CPlayerState *)gActivePlayerState)
 void playerWeaponCrosshairRender(F5CPlayerActor *arg0, F5COutput *arg1, s32 *arg2) {
     f32 temp_fv0;
     f32 var_fa0;
@@ -1067,32 +1042,32 @@ void playerWeaponCrosshairRender(F5CPlayerActor *arg0, F5COutput *arg1, s32 *arg
     s32 inc;
     s32 sel;
     if (gActivePlayerState && gActivePlayerState) {}  // FAKE: dead global test steers uopt (ps in v0, u16 in v1)
-    temp_v1 = F5C_PS->unk21E;
+    temp_v1 = gActivePlayerState->unk21E;
     temp_fv0 = (f32)temp_v1 * 0.03333333507f;
     if ((f64)temp_fv0 < 1e-05) temp_fv0 = 0.000009999999747f;
     sel = arg0->unk154;
     if ((sel == 0x34) || (sel == 0x84)) {
-        if ((f64)F5C_PS->unk25C > 0.01) {
-            F5C_PS->unk258 = (f32)((f64)F5C_PS->unk258 * 1.07);
-            F5C_PS->unk25C = (f32)((f64)F5C_PS->unk25C * 0.7);
+        if ((f64)gActivePlayerState->unk25C > 0.01) {
+            gActivePlayerState->unk258 = (f32)((f64)gActivePlayerState->unk258 * 1.07);
+            gActivePlayerState->unk25C = (f32)((f64)gActivePlayerState->unk25C * 0.7);
         } else {
             arg0->unk60 &= ~0x8000;
-            if (F5C_PS->unk21E != 0) F5C_PS->unk21E -= 1;
+            if (gActivePlayerState->unk21E != 0) gActivePlayerState->unk21E -= 1;
             arg0->unk128 = (s16)(255.0f * temp_fv0);
         }
-        var_fv1 = F5C_PS->unk258;
-        var_fa0 = F5C_PS->unk25C;
+        var_fv1 = gActivePlayerState->unk258;
+        var_fa0 = gActivePlayerState->unk25C;
     } else {
         var_fa0 = temp_fv0;
         var_fv1 = temp_fv0;
         if (temp_v1 < 0x1E) {
             arg0->unk60 |= 0x8000;
-            adj = 0x1E - F5C_PS->unk21E;
+            adj = 0x1E - gActivePlayerState->unk21E;
             if (temp_v1 == 0) {}  // FAKE: dead use steers uopt priority
             inc = (adj >= 3) ? 2 : adj;
-            F5C_PS->unk21E += inc;
-            F5C_PS->unk258 = 1.0f;
-            F5C_PS->unk25C = F5C_PS->unk258;
+            gActivePlayerState->unk21E += inc;
+            gActivePlayerState->unk258 = 1.0f;
+            gActivePlayerState->unk25C = gActivePlayerState->unk258;
         }
     }
     if (arg1 && arg1) {}  // FAKE: dead use of arg1 raises its uopt priority (arg1 in s0, arg2 stays in a2)

@@ -317,7 +317,9 @@ typedef struct PlayerState {
     /* 0x042 */ u8 fallTimer;
     /* 0x043 */ u8 pad43[5];
     /* 0x048 */ s16 turnRate;
-    /* 0x04A */ u8 pad4A[0xA];
+    /* 0x04A */ u8 pad4A[2];
+    /* 0x04C */ s16 unk4C;
+    /* 0x04E */ u8 pad4E[6];
     /* 0x054 */ f32 jumpVelocityY;
     /* 0x058 */ s32 jumpTimer;
     /* 0x05C */ u32 jumpStartTime;
@@ -327,7 +329,10 @@ typedef struct PlayerState {
     /* 0x088 */ Actor *actor;
     /* 0x08C */ u8 gunDrawn;
     /* 0x08D */ u8 hitStatus;
-    /* 0x08E */ u8 pad8E[0x46];
+    /* 0x08E */ u8 unk8E;
+    /* 0x08F */ u8 pad8F[2];
+    /* 0x091 */ u8 unk91;
+    /* 0x092 */ u8 pad92[0x42];
     /* 0x0D4 */ s16 surfaceTimer;
     /* 0x0D6 */ s16 breathTimer;
     /* 0x0D8 */ u8 padD8[0x10];
@@ -363,7 +368,9 @@ typedef struct PlayerState {
     /* 0x1F8 */ s32 prevStateFlags;
     /* 0x1FC */ s32 cartDamage;
     /* 0x200 */ s16 unk200;
-    /* 0x202 */ u8 pad202[0x42];
+    /* 0x202 */ u8 pad202[0x1C];
+    /* 0x21E */ u16 unk21E;
+    /* 0x220 */ u8 pad220[0x24];
     /* 0x244 */ u8 idleTimeoutFlag;
     /* 0x245 */ u8 damageCooldown;
     /* 0x246 */ s8 attackerValid;
@@ -374,7 +381,9 @@ typedef struct PlayerState {
     /* 0x24B */ u8 pad24B[5];
     /* 0x250 */ s32 effectTimer;
     /* 0x254 */ void *effectObj;
-    /* 0x258 */ u8 pad258[0x10];
+    /* 0x258 */ f32 unk258;
+    /* 0x25C */ f32 unk25C;
+    /* 0x260 */ u8 pad260[8];
     /* 0x268 */ u8 transitionTimer;
     /* 0x269 */ u8 pad269[3];
 } PlayerState;
