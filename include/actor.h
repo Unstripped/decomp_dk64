@@ -264,7 +264,7 @@ typedef struct BehaviourWorkState {
     /* 0x1C */ u8 pad1C[0xC];
     /* 0x28 */ u8 unk28[4];
     /* 0x2C */ s16 timer;
-    /* 0x2E */ u8 pad2E[2];
+    /* 0x2E */ s16 unk2E;
     /* 0x30 */ f32 scale;
 } BehaviourWorkState;
 
