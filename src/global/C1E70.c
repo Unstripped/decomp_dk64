@@ -10,7 +10,7 @@ extern s8 D_807506A4;
 extern s8 D_80750660;
 extern u8 D_807FC8D0;
 
-s32 flagGet(s16, s32);
+u8 flagGet(s16, u8);
 s32 actorSpawn();
 f32 mathCosF(s16);
 f32 mathSinF(s16);
@@ -87,15 +87,15 @@ extern s32 gCamActor;
 
 s32 func_806BDD2C(void);
 void actorCopyPoseAndScale(void *, void *, f32);
-s32 actorScriptStart(void *, s32);
+s32 actorScriptStart(void *, s32);  // FAKE: callee prototype steer
 void actorUpdateModelMatrix(void *, s32);
-s32 camStartPath(void *, s32, s32);
+u16 camStartPath(void *, s16, u8);
 s32 currentActorTestClearFlag();
-s32 camIsCutsceneActive(void);
+u8 camIsCutsceneActive(void);
 void camStartShake(s32, s32, s32);
-s32 sfxAllocateChannel(s32, f32);
+void sfxAllocateChannel(s32, f32);
 s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void flagSet(s16, s32, s32);
+void flagSet(s16, u8, u8);
 
 typedef struct RingNodePtr178 {
     /* 0x00 */ Actor *unk0;
@@ -227,13 +227,13 @@ extern R1C0C1Blob8 D_807506B8;
 extern u8 D_80720A7C;
 
 void sfxStopChannel(s32, s32);
-void csModelStateSetFirstByte(s32, s32);
+void csModelStateSetFirstByte(s16, s16);
 void camResumePath(void);
 void menuTransitionToMap(s32, s32);
 void effectSetSpeed(s32);
 void effectSetCallback(void (*)(void));
 void effectLightFlickerDecay(void);
-void effectSetColor(s32, s32, s32, s32);
+void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
 void effectCreateAtPosition(void *, f32, f32, f32, f32);
 f32 randomFloat(void);
 
