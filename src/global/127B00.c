@@ -30,7 +30,7 @@ extern PathEntry *D_807FDB90[];
 
 
 void assetFreeBuffer(s32, s32, s32);
-s32 assetLoad(s32, s32, s32, s32);
+void * assetLoad(s32, u32, u8, u8);
 void pathTableLoad(s16 *);
 
 void pathFreeAsset(s32 assetId) {
