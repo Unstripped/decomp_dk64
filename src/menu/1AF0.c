@@ -1,5 +1,5 @@
 #include "common.h"
-s32 flagGet(s16, s32);
+u8 flagGet(s16, u8);
 
 typedef struct {
     char pad0[4];
@@ -134,9 +134,9 @@ typedef struct {
 } MenuM1_C924;
 extern MenuM1_C924 *gPlayerSlots;
 extern u8 D_800334DC[];
-u8 func_806F6E58(u8);
+s32 func_806F6E58(s16);
 void slotQueueAddValue(s32, s32, s16);
-void healthRefill(s32);
+void healthRefill(u8);
 void eepromSavePlayerData(void);
 
 void menuApplyPurchase(Struct_80025D14 *state, u8 *inventory) {
@@ -202,7 +202,7 @@ extern MenuM1_Entry D_80033260[][7];
 extern MenuM1_Entry D_80033334[][7];
 extern MenuM1_Entry D_80033408[][7];
 extern u8 gCurrentWorldId;
-s32 mapGetHubWorldIndex(s32, s32);
+u8 mapGetHubWorldIndex(u8, u8);
 
 void menuCheckInventoryItemPurchased(Struct_80025D14 *state, u8 *inventory, s32 isExiting) {
     MenuM1_Entry *tbl;
@@ -265,7 +265,7 @@ void menuCheckInventoryItemPurchased(Struct_80025D14 *state, u8 *inventory, s32 
     state->unk10 = D_807FCC4C;
 }
 
-s32 slotQueueGetValue(s32, s32);
+s32 slotQueueGetValue(s32, s32); // FAKE: callee prototype steer
 
 s32 menuGetOptionAvailability(Struct_80025D14 *state, s32 optionIdx) {
     s32 ret = 0;
@@ -314,11 +314,11 @@ extern u16 D_80033528[];
 extern u8 D_800334DD[];
 void currentActorClearFlag(void);
 s32 currentActorTestClearFlag();
-s32 flagSet(s16, s32, s32);
-s32 flagCountRange(s16, s32, s32);
+void flagSet(s16, u8, u8);
+s32 flagCountRange(s32, s32, u8);
 void resQueueAttachActor(void *, u16, u8);
 void slotQueueInit(s32);
-void slotQueueUpdate(s32, s32, s32);
+void slotQueueUpdate(s32, u8, s32);
 typedef struct {
     u8 hi;
     u8 lo;
@@ -462,10 +462,10 @@ void menuDispatchSubmenuAction(Struct_80025D14 *state, u8 *inventory, s32 flag) 
 
 
 extern void *gPrimaryPlayerActor;
-void playerWaypointPathStartPacked(void *, void *, s32, s32);
-void camStartPath(void *, s32, s32);
+void playerWaypointPathStartPacked(s32, s32, s16, s16);
+u16 camStartPath(void *, s16, u8);
 void menuCheckInventoryItemPurchased(Struct_80025D14 *, u8 *, s32);
-s32 playerStateQueueCallback(s32, void *, s32);
+s32 playerStateQueueCallback(s16, void *, u8);
 
 s32 menuExitSubmenu(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
     s32 flag = flagGet((s16)flagId, 0) == 0;
@@ -911,7 +911,7 @@ s32 menuDecodeAddressConstant(s32 val) {
 
 extern s32 csCmdExec;
 void controllerUpdate(void);
-void controllerLatchPad(void);
+void controllerLatchPad(OSContPad *);
 
 void menuCheckControllerAntiPiracy(void) {
     Struct_80025D14 *temp;
@@ -1008,7 +1008,7 @@ extern s32 D_80033634[];
 extern s32 D_80033648[];
 extern s16 D_80033542;
 Struct_BB40_58 *spawnNodeActivate(s32, s32);
-s32 textGetFontHeight(s32);
+u8 textGetFontHeight(s16);
 void actorDespawn(void *);
 void renderCallbacksRegister(void *, void *, s32);
 
