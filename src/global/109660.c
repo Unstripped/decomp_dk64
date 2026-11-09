@@ -226,7 +226,7 @@ typedef struct {
 
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void lensFlareAddSource(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
+void lensFlareAddSource(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8);
 
 void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
     f32 lightR;
@@ -253,8 +253,8 @@ void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
 }
 
 extern f32 gBackgroundBlend;
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
-Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
+Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
 Gfx *playerViewGfxSetup(Gfx *, u8);
 extern u8 D_2000100[];
 
@@ -415,7 +415,7 @@ typedef struct {
 
 extern Mtx D_807FD8A8[];
 extern f32 D_80754CE4;
-s32 assetLoad(s32, s32, s32, s32);
+void *assetLoad(s32, u32, u8, u8);
 void gfxWrapRectSpan(RectSpan *spans, u8 *pCount, u8 axis, f32 maxCoord);
 void gfxGetBackgroundTint(s16 yPos, u8 *outR, u8 *outG, u8 *outB);
 void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
@@ -597,7 +597,7 @@ Gfx *gfxClearScreenSetViewportScissor(Gfx *glist) {
     return glist;
 }
 
-s32 camIsCutsceneActive(void);
+u8 camIsCutsceneActive(void);
 void func_8068B830(s16, s16, s16);
 void enemyAggroSetIntensityBB(f32);
 void enemyAggroDespawnBB(void);
