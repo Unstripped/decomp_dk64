@@ -1,5 +1,9 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/126260.h"
+#include "proto/global/15050.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
 
 extern s32 gGfxCurrentFrameBuffer;
 extern u8 D_807FDB74;
@@ -13,7 +17,6 @@ extern u8 D_807FDB7E;
 extern u8 D_807FDB7F;
 extern u8 D_807FDB80;
 
-void *heapAlloc(s32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 
@@ -246,9 +249,6 @@ extern f32 D_807444D8;
 extern f32 D_807444DC;
 extern f32 func_807444E0;
 
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 commandApplyToLight(u8, Command *, f32, f32, f32, s16);
 
 typedef struct {
     u8 pad0[0xD4];

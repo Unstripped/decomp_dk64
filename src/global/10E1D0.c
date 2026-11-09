@@ -1,5 +1,18 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_n_alSndpPostEvent // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_transitionBeginDisplayList // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/10E1D0.h"
+#include "proto/global/110F00.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/14CF0.h"
+#include "proto/global/15050.h"
+#include "proto/global/201B0.h"
+#include "proto/global/3C10.h"
+#include "proto/global/450.h"
+#include "proto/global/5650.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/7130.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -25,8 +38,6 @@ extern s8 D_807FD9BC;
 extern u8 D_807FD9BD;
 extern f32 D_807FD9C4;
 extern s32 D_807FD9C8;
-void timerQueueCancel(void *);
-void n_alSndpPlay(s32, s16, s32, s32, f32, s32, s32 *);
 
 void func_807094D0(arg0)
 u8 arg0;
@@ -132,7 +143,6 @@ typedef struct MeshBlobHeader {
     s32 *unk20;
 } MeshBlobHeader;
 
-void *heapAlloc(s32);
 
 s32 hudDrawTextWithShadow(MeshBlobHeader *arg0, MeshBlobHeader **arg1, MeshBlobTail **arg2, s32 **arg3) {
     s32 count;
@@ -314,9 +324,6 @@ typedef struct AnimTable {
     AnimEntry *entries;
 } AnimTable;
 
-void mtxMulAffineF(f32 *, f32 *, f32 *);
-void mtxRotateZDegF(f32 *, f32);
-void mtxLookDirPosF(f32 *, f32 *, f32, f32, f32, f32, f32, f32);
 
 #define ANIM_MODEL ((AnimModel *)arg0)
 #define ANIM_TABLE ((AnimTable *)arg1)
@@ -445,16 +452,7 @@ extern TransitionBuffers *D_807FD9A8;
 extern s32 D_807FD9B0;
 extern s32 D_807FD9B8;
 
-void gfxEndDisplayList(Gfx *, u8, s32 *, u8);
-void gfxEndSubDisplayList(Gfx *, s32, s32 *, u8);
-void mapRequestTransition(s32, s32);
-void schedSubmitGfxTask(void *, s32, u8, u8, s32, u8);
 void transitionBeginDisplayList();
-void transitionInit(void);
-u8 transitionRender(Gfx **, s32, s32);
-void heapFreeDeferred(void *);
-void assetFreeBuffer(s32, s32, s32);
-void camRestartPath(void);
 
 void transitionRunFrame(s32 arg0, s32 arg1) {
     Gfx *sp34;
@@ -522,9 +520,6 @@ extern void *D_8076A080;
 extern u16 D_8076A09C;
 extern Gfx D_1000090[];
 
-Gfx *gfxSetViewportDisplayList();
-Gfx *gfxClearZBuffer();
-Gfx *gfxSetFrameBufferColorImage();
 
 void transitionBeginDisplayList(void *arg0, Gfx **arg1) {
     Gfx *dl = gGfxTaskBuffers[gGfxBufferIndex];
@@ -559,10 +554,6 @@ extern void *D_807FD9A4;
 extern s32 D_807FD9AC;
 extern s32 *gFramebuffers[];
 
-void *heapAlloc(s32);
-s32 assetLoad();
-s32 hudDrawTextWithShadow();
-s32 meshComputeVertexRanges();
 
 void transitionInit(void) {
     switch (gNextGameMode) {
@@ -630,8 +621,6 @@ u8 transitionGetState(void) {
 extern s8 gSfxVolume;
 extern s32 D_807550A4;
 
-void n_alSndpSetGroupVol(u8, u16);
-void seqSetChannelVolumeScale(s32, f32);
 
 void transitionSetAudioVolume(f32 volumeScale, s32 isGroupActive, s32 *channels) {
     s32 oldPri;
@@ -676,9 +665,7 @@ extern Gfx D_1000020[];
 extern Mtx D_2000000;
 extern Mtx D_2000200;
 
-void meshApplyAnimation(void *, s32, s32);
 void n_alSndpPostEvent();
-void n_alSndpStop(s32);
 
 #define TRANS_RAW(pkt, a, b)              \
     {                                    \

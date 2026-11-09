@@ -1,5 +1,12 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
+#include "proto/boot/3630.h"
+#include "proto/global/100180.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/15050.h"
+#include "proto/global/450.h"
+#include "proto/global/6AD90.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -23,7 +30,6 @@ void func_806FB480(void) {
 void textBlitNoop100180(void) {
 }
 
-s32 textBlitGlyph(u8, s32, s32, s16, u8, s8 *, u8);
 
 
 s32 textBlitGlyph(u8 arg0, s32 arg1, s32 arg2, s16 arg3, u8 arg4, s8 *arg5, u8 arg6) {
@@ -101,8 +107,6 @@ typedef struct {
     u8 unk17E;
 } TextGlyphTable;
 
-s32 textMapCharToGlyph(s16, u8 *);
-void *textFontLoadSheet(s16);
 extern TextGlyphTable *D_80754A18[];
 extern void *gTextFontSheets;
 extern u8 D_80754A35[];
@@ -159,7 +163,6 @@ typedef struct { u8 b[0x3A]; } FcDStr3A;
 extern FcDStr39 D_80754A64;
 extern FcDStr30 D_80754AA0;
 extern FcDStr3A D_8075DC20;
-u8 *_strchr(u8 *, s32);
 
 s32 textMapCharToGlyph(s16 arg0, u8 *arg1) {
     s8 spDF;
@@ -218,8 +221,6 @@ s32 textMapCharToGlyph(s16 arg0, u8 *arg1) {
     return spDF;
 }
 
-s32 heapAlloc(s32);
-void heapClearBlock(s32);
 extern u8 *gTextFontSheetAges;
 
 void textFontInitTables(void) {
@@ -259,7 +260,6 @@ void *textFontLoadSheet(s16 sheetIndex) {
 }
 
 extern u8 D_80754A34[];
-void assetFreeBuffer(void *, s32, s32);
 
 void textFontAgeSheets(void) {
     s16 i;
@@ -285,7 +285,6 @@ void textFontAgeSheets(void) {
     }
 }
 
-s32 strlen(u8 *);
 extern u8 D_80754A39[];
 
 s32 textGetStringWidth(arg0, arg1)
@@ -377,10 +376,6 @@ Gfx *textLoadFontSheetGfx(Gfx *arg0, u8 arg1, s32 arg2) {
 
 extern Mtx D_20000C0;
 extern Gfx D_2000180;
-Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
-void heapFreeDeferred(void *);
-Gfx *gfxInit2DDisplayList(Gfx *);
-void vtxSetQuadGradientColors(void *, u8, u8);
 
 #define TEXT_GFX_CMD(g, a, b) \
     { (g) = (Gfx *)(dl++); (g)->words.w0 = (a); (g)->words.w1 = (b); }
@@ -564,7 +559,6 @@ Gfx *textDrawStringVtx(Gfx *dl, s16 font, s16 x, s16 y, u8 *str, u8 flags) {
 extern Mtx D_2000000;
 extern Mtx D_2000080;
 extern Gfx D_2000180;
-Gfx *textLoadFontSheetGfx(Gfx *, u8, s32);
 
 typedef struct {
     f32 unk0;
@@ -589,8 +583,6 @@ typedef struct TextObject {
 
 extern u8 D_80754A36[];
 extern u8 D_2000200[];
-void heapFreeDeferred(void *);
-Gfx *func_8070068C(Gfx *);
 
 typedef struct { s16 unk0; u8 unk2; u8 unk3; } TextObjectGlyph;
 Gfx *textObjectDrawFlat(Gfx *dl, TextObject *textObj) {

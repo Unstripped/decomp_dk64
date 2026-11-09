@@ -1,5 +1,13 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/109660.h"
+#include "proto/global/17800.h"
+#include "proto/global/201B0.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/8F4B0.h"
+#include "proto/global/90D80.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -94,8 +102,6 @@ extern void *D_80754ED8[];
 extern Mtx D_2000080;
 extern Gfx D_2000180;
 f32 cosApprox(f32);
-void matrixMakeRotationZ(f32 (*)[4], f32);
-void lightGetColor(f32 *, f32 *, f32 *, s16);
 
 #define BG_BLEND_B(off, mul) \
     ((u32)((mul) * ((f32)D_80754EF8[skyTypeA * 12 + (off)] + ((f32)(D_80754EF8[skyTypeB * 12 + (off)] - D_80754EF8[skyTypeA * 12 + (off)]) * alpha))))
@@ -226,7 +232,6 @@ typedef struct {
 
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void lensFlareAddSource(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8);
 
 void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
     f32 lightR;
@@ -253,9 +258,6 @@ void lensFlareAddFromAngle(s16 azimuthAngle, s16 elevationAngle, u8 colorMode) {
 }
 
 extern f32 gBackgroundBlend;
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
-Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
-Gfx *playerViewGfxSetup(Gfx *, u8);
 extern u8 D_2000100[];
 
 Gfx *gfxDrawSkySprite(Gfx *dl, s16 azimuthAngle, s16 elevationAngle, u8 mode) {
@@ -415,10 +417,6 @@ typedef struct {
 
 extern Mtx D_807FD8A8[];
 extern f32 D_80754CE4;
-void *assetLoad(s32, u32, u8, u8);
-void gfxWrapRectSpan(RectSpan *spans, u8 *pCount, u8 axis, f32 maxCoord);
-void gfxGetBackgroundTint(s16 yPos, u8 *outR, u8 *outG, u8 *outB);
-void gfxDrawTexturedTileGridSimple(Gfx **, s32, s32, s32, s32, s32, s32, f32, f32, f32, f32, f32, f32, u8, u8);
 
 Gfx *gfxDrawRotatedTiledBackground(Gfx *glist, f32 rotX, f32 rotY, s32 assetId, f32 width, f32 height) {
     f32 lo;
@@ -597,10 +595,6 @@ Gfx *gfxClearScreenSetViewportScissor(Gfx *glist) {
     return glist;
 }
 
-u8 camIsCutsceneActive(void);
-void func_8068B830(s16, s16, s16);
-void enemyAggroSetIntensityBB(f32);
-void enemyAggroDespawnBB(void);
 extern f32 gScreenFadeRate;
 extern u8 D_8076AEE0;
 extern s16 D_807FD800;
@@ -794,8 +788,6 @@ typedef struct {
     u8 unk2DC[0x14];
 } PlayerViewWithBg;
 
-Gfx *gfxBuildScrollingBackground(Gfx *);
-Gfx *gfxDrawMapBackground(Gfx *, void *, void *, void *, s32);
 extern s32 gGlobalPauseFlags;
 extern s32 D_807552EC;
 

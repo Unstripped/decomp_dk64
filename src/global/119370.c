@@ -1,12 +1,23 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/119370.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17800.h"
+#include "proto/global/2F550.h"
+#include "proto/global/35000.h"
+#include "proto/global/36880.h"
+#include "proto/global/450.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
 
 extern u8 gGfxBufferIndex;
 extern u8 gViewportCount;
 extern s16 sEffectPendingZOffset;
 
-void *heapAlloc(s32);
-u32 randomLcgNext(void);
 
 
 typedef struct EffectGridNode {
@@ -71,7 +82,6 @@ extern s16 sEffectPendingBoundsMinY;
 extern s16 sEffectPendingBoundsMaxX;
 extern s16 sEffectPendingBoundsMaxY;
 
-void effectResetState(void);
 
 void effectResetLists(void) {
     sEffectGridHead = NULL;
@@ -265,8 +275,6 @@ void effectResetState(void) {
     sEffectPendingMaxDist = 0x258;
 }
 
-void modelSlotGetNodePos();
-EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, void *owner, s32 boneIndex, s32 subIndex, u8 flags);
 
 void effectCreateAtModelNode(s32 asset, f32 scale, s32 modelSlot, s32 nodeIndex, u8 flags) {
     f32 nodeX;
@@ -277,7 +285,6 @@ void effectCreateAtModelNode(s32 asset, f32 scale, s32 modelSlot, s32 nodeIndex,
     effectCreate(asset, scale, nodeX, nodeY, nodeZ, NULL, modelSlot, nodeIndex, (s32) flags);
 }
 
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 
 void effectCreateAtActorBone(s32 asset, f32 scale, void *actor, s32 boneIndex, u8 flags) {
     f32 boneX;
@@ -298,7 +305,6 @@ void effectCreateAtPosition(s32 asset, f32 scale, f32 x, f32 y, f32 z) {
 }
 
 extern s32 gGlobalOverlayFlags;
-void effectBuildGridVertices(EffectNode *);
 #define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 
 EffectNode *effectCreate(s32 asset, f32 scale, f32 posX, f32 posY, f32 posZ, void *owner, s32 boneIndex, s32 subIndex, u8 flags) {
@@ -491,12 +497,6 @@ void effectBuildGridVertices(EffectNode *effect) {
 #define UA1_D08_FIELD(type, effect, offset) (*(type *)((u8 *)(effect) + (offset)))
 extern u32 gFrameCounter;
 extern s32 gPlayerSlots;
-void assetFreeBuffer(s32, s32, s32);
-s16 mapChunkFindByPosition(f32, f32, f32, s16);
-s32 renderEntryAddOrUpdate(s32, u8, void *, f32, f32, f32, s32, s32, s32, s32, s32);
-void effectLoadFrameAssets(s16 *, u8, u8 *, s32, s32, s32 *);
-void effectFreeAndUnlink(EffectNode *);
-void effectComputeTransformMatrix(Mtx *, u8, f32, f32, f32, f32, f32, f32, f32, f32, u8);
 
 void effectUpdateAll(u8 pGlist) {
     EffectNode *effect;
@@ -667,7 +667,6 @@ void effectUpdateAll(u8 pGlist) {
 }
 #undef UA1_D08_FIELD
 
-void effectFreeAndUnlink(EffectNode *);
 
 void effectFreeByResource(s32 resource) {
     EffectNode *effect;
@@ -697,9 +696,6 @@ void effectFreeAll(void) {
     }
 }
 
-void renderEntryRemove(s32, s32, s32, void *);
-void func_8062D26C(void *);
-void heapFreeDeferred(void *);
 
 void effectFreeAndUnlink(EffectNode *effect) {
     u8 layer;
@@ -753,7 +749,6 @@ typedef struct EffectRouteEntry {
     s32 column;
 } EffectRouteEntry;
 
-void *assetLoad(s32, u32, u8, u8);
 
 void effectLoadFrameAssets(s16 *effect, u8 inX, u8 *inY, s32 inZ, s32 screenX, s32 *screenY) {
     u8 category;
@@ -791,9 +786,6 @@ void effectLoadFrameAssets(s16 *effect, u8 inX, u8 *inY, s32 inZ, s32 screenX, s
 }
 
 s32 mathAsinFixed(s32);
-void matrixMakeRotationZ(f32 (*)[4], f32);
-f32 mathAngleBetweenPointsRad(f32, f32, f32, f32);
-f32 distance3D(f32, f32, f32, f32, f32, f32);
 
 void effectComputeTransformMatrix(Mtx *dst, u8 x, f32 y, f32 z, f32 scaleX, f32 scaleY, f32 pitch, f32 yaw, f32 roll, f32 mode, u8 depthScale) {
     f32 pad[2];
@@ -919,10 +911,6 @@ extern Mtx D_2000000;
 extern Mtx D_20000C0;
 extern Mtx D_2000180;
 extern Mtx D_2000200;
-Gfx *gfxInit2DDisplayList(Gfx *);
-void lightSampleColorAtPosition(f32, f32, f32, s16, u8 *, u8 *, u8 *, s16);
-s32 mapChunkContainsPoint(s16, s16, s16);
-s32 mapChunkIsInUse(s16);
 
 Gfx *effectGridBuildDisplayList(EffectDrawView *drawView, Gfx *inGlist, s16 alpha) {
     s32 i;

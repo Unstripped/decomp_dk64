@@ -1,4 +1,7 @@
 #include "common.h"
+#include "proto/global/10130.h"
+#include "proto/global/15050.h"
+#include "proto/global/6AD90.h"
 
 typedef struct RecordTargetView {
     u8 unk0[0x7C];
@@ -72,7 +75,6 @@ extern s16 *D_807463A8;
 extern s16 *D_807ECE90;
 
 
-void *heapAlloc(s32);
 
 void recordInitPositionBuffers(s32 src) {
     s32 byteCount;
@@ -108,7 +110,6 @@ void func_8060B6CC(void) {
     D_807463B8 = 0;
 }
 
-void heapFree(void *);
 
 void func_8060B700(void) {
     if (D_807463A8 != NULL) {
@@ -120,9 +121,6 @@ void func_8060B700(void) {
     func_8060B6CC();
 }
 
-s32 assetLoad(s32, s32, s32, s32);
-void assetFreeBuffer(s32, s32, s32);
-void recordInitPositionBuffers(s32 src);
 
 void func_8060B750(s32 assetIndex) {
     s32 assetData;

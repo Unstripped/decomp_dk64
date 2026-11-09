@@ -1,7 +1,10 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/127B00.h"
+#include "proto/global/15050.h"
+#include "proto/global/2C700.h"
+#include "proto/global/6AD90.h"
 
-void *heapAlloc(s32);
 typedef struct PathEntry {
     u8 *unk0;
     s16 unk4;
@@ -29,9 +32,6 @@ typedef struct PathPlayback {
 extern PathEntry *D_807FDB90[];
 
 
-void assetFreeBuffer(s32, s32, s32);
-void * assetLoad(s32, u32, u8, u8);
-void pathTableLoad(s16 *);
 
 void pathFreeAsset(s32 assetId) {
     s32 loadedAsset;
@@ -223,7 +223,6 @@ void pathPlaybackSetDirection(s32 slot, u8 direction) {
     }
 }
 
-void pathPlaybackFree(s32);
 
 void pathPlaybackStopForActor(s32 actor) {
     PathPlayback **playbacks;
@@ -242,7 +241,6 @@ void pathPlaybackStopForActor(s32 actor) {
     } while (i != 0x20);
 }
 
-void heapFree(void *);
 
 void pathPlaybackFree(s32 slot) {
     if ((slot == -1) || (D_807FDBF8[slot] != NULL)) {
@@ -403,9 +401,6 @@ typedef struct SplinePlayback {
     u8 unk16;
 } SplinePlayback;
 
-f32 splineEvalCubic(f64, f32, f32, f32, f32);
-void splineSetBasisTension(f32);
-f32 pathSplineDistance(s32, f32, f32, f32, s32, f32);
 
 void pathPlaybackGetPosition(s32 slot, f32 *outX, f32 *outY, f32 *outZ) {
     u8 ids[4];

@@ -1,14 +1,16 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/127B00.h"
+#include "proto/global/1292F0.h"
+#include "proto/global/15050.h"
+#include "proto/global/69E60.h"
 
-void *heapAlloc(s32);
 
 typedef struct AnimationOwner {
     u8 unk0[0x118];
     void *unk118;
 } AnimationOwner;
 
-void heapFree(void *);
 
 typedef struct PathFollowState {
     u8 pad0[4];
@@ -32,12 +34,6 @@ typedef struct PathFollowOwner {
     PathFollowState *unk118;
 } PathFollowOwner;
 
-s32 pathExists(u8);
-void pathFindClosestPoint(s32, f32, f32, f32, s32 *, f32 *);
-void pathRefineClosestPoint(s32, f32, f32, f32, s32 *, f32 *);
-void pathSplineSample(s32, s32, f32, f32 *, f32 *, f32 *);
-f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
-s16 pathEntryCount(s32);
 
 void pathFollowUpdateHeading(PathFollowOwner *owner, u8 continuous) {
     s32 fresh;

@@ -1,5 +1,18 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP__strchr // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_modelTypeCountGet // FAKE: callee prototype steer
+#include "proto/boot/3630.h"
+#include "proto/boot/3D20.h"
+#include "proto/global/104F0.h"
+#include "proto/global/10D2D0.h"
+#include "proto/global/117190.h"
+#include "proto/global/135D30.h"
+#include "proto/global/36880.h"
+#include "proto/global/450.h"
+#include "proto/global/CC800.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
 
 s16 D_807ECEA0[4];
 u8 D_807ECEA8[0x800];
@@ -82,8 +95,6 @@ u8 eepromGetSectorForSlot(s32 slot) {
 }
 
 
-extern s32 menuIsTransitionType6(void);
-extern s32 menuIsTransitionType7Or9(void);
 
 void eepromCopySlot(void) {
     u8 original;
@@ -373,9 +384,6 @@ s32 func_8060C430(s32 arg0, u32 arg1, s32 arg2) {
     return arg1;
 }
 
-extern u8 eepromGetSectorForSlot();
-extern void eepromWriteBitfield();
-extern void eepromGetSectorOffset();
 
 void eepromSetField(s32 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4) {
     u16 sp26;
@@ -385,7 +393,6 @@ void eepromSetField(s32 arg0, u8 arg1, u8 arg2, u8 arg3, s32 arg4) {
     eepromWriteBitfield(func_8060C430(arg0, arg4, 1), sp26, sp25);
 }
 
-extern s32 eepromReadBitfield();
 
 s32 eepromGetField(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
     s32 new_var;
@@ -398,13 +405,11 @@ s32 eepromGetField(s32 arg0, u8 arg1, u8 arg2, u8 arg3) {
     func_8060C430(arg0, new_var, 0);
 }
 
-extern s32 eepromGetField(s32, u8, u8, u8);
 
 s32 func_8060C724(u8 arg0) {
     return eepromGetField(0x10, 0, 0, arg0) + 1;
 }
 
-void eepromClearSlotData();
 
 void eepromClearSlotData(arg0, arg1)
 unsigned char arg0;
@@ -504,23 +509,17 @@ void eepromInitConfigs(u8 arg0) {
     }
 }
 
-extern void flagsClearAllBank1(void);
-extern void eepromInitConfigs(u8);
 
 void func_8060CB74(void) {
     flagsClearAllBank1();
     eepromInitConfigs(0xFF);
 }
 
-extern void eepromDispatchCommand(s32);
 
 void func_8060CB9C(void) {
     eepromDispatchCommand(3);
 }
 
-extern void eepromClearSlotData();
-extern s32 eepromGetField(s32, u8, u8, u8);
-extern void func_8060CB74(void);
 extern u8 sLanguageIndex;
 extern u8 D_80744530;
 
@@ -623,8 +622,6 @@ void eepromValidateSaveSlots(void) {
     if (failed != 0) eepromDispatchCommand(1);
 }
 
-extern void eepromClearSlotData();
-extern void func_8060CB74(void);
 
 void func_8060D0A8(void) {
     s32 unused;
@@ -651,7 +648,6 @@ void func_8060D0A8(void) {
 }
 
 extern OSMesgQueue D_807ECCF0;
-extern s32 _strcasecmp(char *, char *);
 extern char *D_807467C0;
 extern s8 D_807467C4;
 extern s8 D_807467CC;
@@ -688,8 +684,6 @@ void eepromReadAllSectors(void) {
     func_8060CB9C();
 }
 
-extern s32 _sprintf();
-extern void eepromCopySlot(void);
 extern char *D_807467C0;
 extern s8 D_807467C4;
 extern s8 D_807467E4;
@@ -775,7 +769,6 @@ void eepromSaveRecords(s32 arg0) {
     }
 }
 
-extern void eepromSaveRecords(s32);
 
 void eepromSaveRecordsAll(void) {
     eepromSaveRecords(0);
@@ -785,9 +778,6 @@ void eepromSaveRecordsOffset(void) {
     eepromSaveRecords(1);
 }
 
-extern u8 flagGet(s16, u8);
-extern s32 func_806F6EDC(void);
-extern s32 slotQueueGetMaxValue(s32, s32);
 extern u8 gPlayerInventoryTable[];
 extern u8 D_807FC952;
 extern u8 gPlayerCharacterId;
@@ -821,10 +811,6 @@ void eepromHalveRecords(void) {
     gPlayerCharacterId = 0;
 }
 
-extern void collectibleCountsClear(void);
-extern void eepromCopySlot(void);
-extern void playerResetSpawnGlobals(void);
-extern void healthRefill(u8);
 extern u8 gActivePlayerCount;
 extern s32 D_80750AB0;
 extern u16 gLevelCollectibleCounts[];
@@ -875,9 +861,6 @@ void func_8060DEA8(void) {
     eepromDispatchCommand(2);
 }
 
-extern u32 gfxSetupFrameViewports(void);
-extern s32 menuIsTransitionType7Or9(void);
-extern s32 menuIsTransitionType6(void);
 
 void eepromSavePlayerData(void) {
     u8 *entry;
@@ -955,9 +938,6 @@ void eepromInit(void) {
     eepromDispatchCommand(0);
 }
 
-extern u8 eepromGetSectorForSlot();
-extern s32 func_807142D8(void);
-extern void flagsClearAllBank2(void);
 extern u8 D_807EDEB0[];
 
 u8 *func_8060E25C(s32 arg0) {
@@ -998,9 +978,6 @@ u8 eepromReadChecksumBit(u16 arg0, u8 arg1) {
     return result;
 }
 
-extern u8 eepromGetSectorForSlot();
-extern void eepromWriteBitfield();
-extern void eepromGetSectorOffset();
 
 void func_8060E430(u16 arg0, u8 arg1, u8 arg2) {
     u16 value;

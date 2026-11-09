@@ -1,13 +1,11 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/110F00.h"
 
 typedef struct Mat4F {
     f32 m[4][4];
 } Mat4F;
 
-void mtxIdentityF();
-void mtxLookDirF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz);
-void mtxLookDirPosF(Mat4F *view, Mat4F *cam, f32 dx, f32 dy, f32 dz, f32 px, f32 py, f32 pz);
 
 void mtxScaleTranslateF(Mat4F *mf, f32 sx, f32 sy, f32 sz, f32 x, f32 y, f32 z) {
     mtxIdentityF(mf);
@@ -137,10 +135,7 @@ void mtxRotateYRatioF(Mat4F *mf, f32 z, f32 x, f32 dist) {
 
 f32 sinApprox(f32);
 f32 cosApprox(f32);
-void mtxRotateXRatioF(f32 mf[4][4], f32 y, f32 z, f32 dist);
 
-void mtxIdentityF(f32 mf[4][4]);
-void mtxRotateZRatioF(f32 mf[4][4], f32 x, f32 y, f32 dist);
 
 void mtxRotateZRatioF(f32 mf[4][4], f32 x, f32 y, f32 dist) {
     f32 sin;

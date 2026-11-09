@@ -1,5 +1,16 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorSpawn // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_heapAlloc // FAKE: callee prototype steer
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/112080.h"
+#include "proto/global/119370.h"
+#include "proto/global/15050.h"
+#include "proto/global/201B0.h"
+#include "proto/global/5650.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/7CA80.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -16,7 +27,7 @@ typedef struct S112a2Record {
     u8 *data;
 } S112a2Record;
 
-extern void *heapAlloc(s32);
+extern void *heapAlloc(s32); // FAKE: callee prototype steer
 
 void resParseRecord(S112a2Record *rec, s32 *src) {
     s32 i;
@@ -116,7 +127,6 @@ typedef struct S112aItemList {
     void *items;
 } S112aItemList;
 
-void resParseItem(S112a2ItemList *, s32 *);
 
 void resParseItemList(S112aItemList *list, s32 *src) {
     s32 i;
@@ -168,7 +178,6 @@ typedef struct S112dActorKeyState {
 
 extern void *sResQueueHead;
 extern s8 sResQueueValue;
-extern void heapClearBlock(void *);
 extern unsigned long actorSpawn(s32, s32, void *);
 
 void *resQueueGetOrCreate(void *key) {
@@ -285,8 +294,6 @@ typedef struct S112aFreeNode {
     struct S112aFreeNode *next;
 } S112aFreeNode;
 
-void effectFreeAndUnlink(s32);
-extern void heapFreeDeferred();
 
 void resNodeFree(S112aFreeNode *freeNode) {
     s32 handle;
@@ -354,7 +361,6 @@ typedef struct S112bQueueEntry {
     struct S112bQueueEntry *next;
 } S112bQueueEntry;
 
-extern void actorDespawn(void *);
 
 void resQueueRemove(Actor *targetActor) {
     Actor *actor;
@@ -534,8 +540,6 @@ typedef struct S112bResNode {
     struct S112bResNode *next;
 } S112bResNode;
 
-extern void *assetLoad(s32, u32, u8, u8);
-extern void assetFreeBuffer(void *, s32, s32);
 
 S112aParsedList *resNodeGetOrLoad(u16 id, s32 kind) {
     S112bResNode *node;
@@ -596,9 +600,6 @@ typedef struct S112cOwner {
     S112cRow *rows;
 } S112cOwner;
 
-extern u8 textGetFontHeight(s16);
-extern s16 textGetCharAdvance(s16, u8);
-extern s32 _sprintf(u8 *, char *, ...);
 extern void *D_8074E778[];
 extern u16 D_80750AC8;
 
@@ -703,7 +704,6 @@ s32 textLayoutAppendRows(s32 owner, s32 textBytes, u16 length) {
     }
 }
 
-extern s32 textLayoutAppendRows(s32 owner, s32 textBytes, u16 length);
 extern u8 sLanguageIndex;
 
 typedef struct R112cDrawCommand {
@@ -792,7 +792,6 @@ typedef struct S112bGridRequest {
 } S112bGridRequest;
 
 extern void *D_80755390[];
-extern void effectGridGetScaledDimensions(void *, s16 *, s16 *);
 
 void resGridBuildGroups(S112bGridOwner *owner, S112bGridRequest *req, void *unused) {
     S112bGridGroup **link;
@@ -964,9 +963,6 @@ char *textTableGetString(s32 tableId, s32 rowIndex, s32 flags) {
     return dest;
 }
 
-extern void *resQueueGetOrCreate(void *);
-extern void timerQueueAdd();
-extern void camResumePathCallback(s32, s32, s32);
 
 typedef struct R112cE808State {
     u8 pad0[0x54];

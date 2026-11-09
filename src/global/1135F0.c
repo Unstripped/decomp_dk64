@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/1135F0.h"
 
 extern Actor *gCurrentActor;
 

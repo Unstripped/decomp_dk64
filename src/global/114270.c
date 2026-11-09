@@ -1,5 +1,17 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
+#include "proto/global/114270.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17800.h"
+#include "proto/global/55B20.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/90D80.h"
+#include "proto/global/CEAE0.h"
 
 extern Actor *gCurrentActor;
 extern void *gPlayerSlots;
@@ -40,7 +52,6 @@ typedef struct AngAPlayer {
 
 #define ANGA_PLAYER ((AngAPlayer *)gPlayerSlots)
 
-s32 randomNonNegative(void);
 
 typedef struct EffectSpriteParticle {
     s16 unk0;
@@ -88,9 +99,6 @@ extern u8 D_807FDA18;
 extern u8 D_807FDA19;
 extern s32 D_807FDA20;
 extern s32 D_807FDA24;
-void *heapAlloc(s32);
-void heapClearBlock(void *);
-void *assetLoad(s32, u32, u8, u8);
 
 #define ANGA_SETUP ((EffectSpriteTextureSetup *)(&D_80755264 + poolType * 0x14))
 #define ANGA_POP_SLOT(out) \
@@ -173,8 +181,6 @@ typedef struct AngAAngle {
 extern s16 D_807FDA1E;
 f32 sinApprox(f32);
 f32 mathSinF(s16);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s16 mathAngleSignedDistance(s16, s16);
 
 void effectSpriteParticleTrackCamera(struct M114aAngle *particle) {
 #define p ((AngAAngle *)particle)
@@ -260,12 +266,6 @@ extern u32 gGlobalCutsceneFlags;
 extern f32 D_807FD9EC;
 extern u8 sEffectImpactPuffConfig;
 f32 cosApprox(f32);
-void effectSetDepth(s8);
-void effectSetCallback(void *);
-void effectSetLifetime(s16);
-void effectSetFlags(s16);
-void effectCreateAtPosition(s32, f32, f32, f32, f32);
-void effectRandomYRotDecalUpdate();
 
 #define ANGA_CAM ((AngACamState *)gCamActor->customState)
 #define ANGA_A8 (*(f32 *)&gPrimaryPlayerActor->unkA8)
@@ -321,7 +321,6 @@ s32 func_8070FCCC(AngAFcccView *particle) {
 #undef ANGA_A8
 #undef ANGA_DIST
 
-void effectSpriteParticleTrackCamera(M114aAngle *);
 
 
 s32 func_8071006C(M114aAngle *particle) {
@@ -522,8 +521,6 @@ extern s16 D_807FDAB4;
 extern u8 gGfxBufferIndex;
 extern u8 D_807FDA1B;
 extern u8 D_1000020, D_1000118, D_20000C0;
-void matrixMakeRotationZ(f32 (*)[4], f32);
-s32 mapChunkContainsPoint(s16, s16, s16);
 
 #define L10CA0_POOL ((L10CA0Header *)D_807550E0)
 #define L10CA0_TEX (&D_80755264)[D_807FDA1C * 0x14]
@@ -631,9 +628,6 @@ extern s32 gGlobalPauseFlags;
 extern u8 D_807FDA1B;
 extern f32 *D_8076A0B4;
 extern u8 D_8077058C[];
-void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s32 spawnY, u8 initialAlpha);
-Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor);
-void renderCallbacksRegister(void *, void *, u8);
 
 void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scale) {
     f32 randX;
@@ -683,7 +677,7 @@ typedef struct R114cPlayerView {
     f32 unk2C4;
 } R114cPlayerView;
 
-u32 randomLcgNext(void);
+u32 randomLcgNext(void); // FAKE: callee prototype steer
 
 void func_80711950(f32 density, s16 windAngle, s16 mapChunk) {
     s32 random;
@@ -721,9 +715,6 @@ void func_80711950(f32 density, s16 windAngle, s16 mapChunk) {
 
 
 extern u8 D_807212E0;
-void effectSetDuration(s32);
-void effectEnableFade(void);
-void effectSwayRiseUpdate(void);
 
 void func_80711BD0(f32 density, s16 windAngle, s16 mapChunk, u8 poolType) {
     f32 randScale;
@@ -807,8 +798,6 @@ void func_80711F90(f32 density, s16 windAngle, s32 unused, s16 mapChunk, f32 sca
     }
 }
 
-void assetFreeBuffer(void *, s32, s32);
-void heapFreeDeferred(void *);
 
 s32 effectSpritePoolFadeOut(void) {
     s16 i;

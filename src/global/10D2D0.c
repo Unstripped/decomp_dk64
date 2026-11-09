@@ -1,5 +1,12 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
+#include "proto/global/10D2D0.h"
+#include "proto/global/117190.h"
+#include "proto/global/450.h"
+#include "proto/global/7130.h"
+#include "proto/global/90D80.h"
+#include "proto/global/CC800.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -34,15 +41,13 @@ typedef struct HealthStats {
     u8 unk2FC;
 } HealthStats;
 
-Gfx *healthHudDraw();
 
 extern Gfx D_1000118;
 extern Mtx D_20000C0;
 extern s32 gFrameCounter;
 extern s32 gGlobalPauseFlags;
 f32 mathSinF(s16);
-s32 menuIsTransitionTypeAOrE();
-Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32); // FAKE: callee prototype steer
 
 Gfx *healthHudDraw(Gfx *glist, HealthStats *stats, void *elem, HealthHudState *hudState) {
     s16 i;
@@ -113,7 +118,6 @@ typedef struct HealthHudInit {
 } HealthHudInit;
 
 extern s32 gGlobalOverlayFlags;
-extern s32 func_807142D8();
 
 void hudDrawItemWithAlpha(HealthHudInit *hudInit) {
     if (gGlobalOverlayFlags & 0x800) {
@@ -147,11 +151,6 @@ typedef struct HealthPlayerState {
 } HealthPlayerState;
 
 void func_80026B0C(s32);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-s32 hudCanRender(void);
-s32 menuIsTransitionType6(void);
-s32 menuIsTransitionTypeC(void);
-s32 healthGetPerMelon(void);
 
 void healthApplyPendingDelta(s32 playerIndex, HealthPlayerState *hudState, HealthPlayerState *playerState, s32 newHealth) {
     u8 state;
@@ -194,7 +193,6 @@ void healthApplyPendingDelta(s32 playerIndex, HealthPlayerState *hudState, Healt
     }
 }
 
-s32 playerGetResolvedKongId(s32);
 f32 sinApprox(f32);
 
 s32 healthHudUpdateDraw(glist, playerIndex, hudState)
@@ -293,7 +291,6 @@ typedef struct HealthHudPlayerView {
 } HealthHudPlayerView;
 
 extern s8 D_80744504;
-s32 healthHudUpdateDraw();
 
 s32 healthHudDrawAll(s32 glist) {
     s16 playerIndex;

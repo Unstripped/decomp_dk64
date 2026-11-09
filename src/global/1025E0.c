@@ -1,5 +1,14 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_textGetCharAdvance // FAKE: callee prototype steer
+#define PROTO_SKIP_textGetStringWidth // FAKE: callee prototype steer
+#include "proto/boot/3630.h"
+#include "proto/global/100180.h"
+#include "proto/global/1025E0.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/450.h"
+#include "proto/global/CEAE0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -17,8 +26,7 @@ extern s16 gScreenHeight;
 extern u8 gNextGameMode;
 extern u8 gGfxBufferIndex;
 
-extern s32 textGetStringWidth(s16, s32);
-void textDrawStringVtx(s32, s16, s16, s16, s32, u8);
+extern s32 textGetStringWidth(s16, s32); // FAKE: callee prototype steer
 
 void textDrawStringCentered(s32 glist, s16 font, s32 str, s16 y, u8 flags) {
     s16 width;
@@ -93,7 +101,6 @@ void func_806FDAB8(s16 resourceId, f32 timer) {
     gfxResourceFindById(resourceId)->unk18 = timer;
 }
 
-void heapFree(void *);
 
 void gfxResourceFree(s16 resourceId) {
     GfxResourceNode *cur;
@@ -115,13 +122,7 @@ void gfxResourceFree(s16 resourceId) {
     heapFree(cur);
 }
 
-void _strcpy(s32, s32);
 extern u8 gHiResScale;
-s32 randomNonNegative();
-s32 strlen(char *);
-void *heapAlloc(s32);
-void heapClearBlock(void *);
-s16 textCountNonSpace(char *);
 
 s16 gfxResourceCreate(s16 font, char *str, u8 mode, f32 posX, f32 posY, f32 posZ) {
     GfxResourceNode *node;
@@ -184,7 +185,6 @@ void gfxResourceSetString(s16 resourceId, s32 str) {
     _strcpy((s32)gfxResourceFindById(resourceId)->unk4, str);
 }
 
-s16 mathAngleEaseToward(s16, s16, f32);
 
 void func_806FDF54(f32 *pAngle, f32 *pTarget) {
     if (*pTarget < 0.0f) {
@@ -214,10 +214,7 @@ typedef struct GfxResourceNodeView {
 } GfxResourceNodeView;
 
 extern u8 D_80754A37[];
-extern s32 hudCanRender();
-extern s16 textGetCharAdvance(s16, s32);
-extern Gfx *textObjectDrawFlat(Gfx *, GfxResourceNodeView *);
-extern Gfx *textObjectDrawRotated(Gfx *, GfxResourceNodeView *);
+extern s16 textGetCharAdvance(s16, s32); // FAKE: callee prototype steer
 f32 sinApprox(f32);
 f32 cosApprox(f32);
 

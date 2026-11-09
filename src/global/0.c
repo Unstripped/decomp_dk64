@@ -1,5 +1,9 @@
 #include "common.h"
 #include "sched.h"
+#include "proto/global/0.h"
+#include "proto/global/131B0.h"
+#include "proto/global/450.h"
+#include "proto/global/6710.h"
 
 typedef struct {
     s32 unk0;
@@ -16,10 +20,6 @@ typedef struct {
     u32 bssEnd;
 } SegEntry;
 
-void mainThreadHalt(OSMesgQueue *, s32);
-void mainThreadLoop(s32);
-void audioThreadStop(s32);
-void rumbleShutdown(void);
 
 extern u8 boot_VRAM[];
 extern u8 boot_VRAM_END[];

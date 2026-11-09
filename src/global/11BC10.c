@@ -1,15 +1,30 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorTableContains // PROTO: Type ArcAroundTarget *  of this argument  is incompatible wi
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
+#define PROTO_SKIP_lightSetFlags // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17800.h"
+#include "proto/global/3C10.h"
+#include "proto/global/55B20.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
 
 extern u8 gGfxBufferIndex;
 extern u32 gFrameCounter;
 extern s32 gCurrentMap;
 extern Actor *gPrimaryPlayerActor;
 
-void *heapAlloc(s32);
-u32 randomLcgNext(void);
-f32 randomFloat(void);
-s32 randomNonNegative(void);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
 f32 cosApprox(f32);
@@ -191,11 +206,6 @@ void effectConfettiPhysicsUpdate(ConfettiActorView *effect, void *unused) {
 }
 
 
-void effectSetSpeed(s32);
-void effectConfettiPhysicsUpdate();
-void effectSetCallback(void *);
-void effectSetDepth(s8);
-void effectCreateAtPosition(s32, f32, f32, f32, f32);
 extern s32 D_8074E880[];
 
 void effectTimerCountdownAlphaUpdate(RotatingEffectActorView *effect, u8 *isDone) {
@@ -334,8 +344,6 @@ typedef struct TimedEffectActorView {
 } TimedEffectActorView;
 
 
-void effectSetMode(s8);
-void effectRandomYRotDecalUpdate();
 extern u8 sEffectImpactPuffConfig;
 
 typedef struct {
@@ -777,8 +785,6 @@ typedef struct {
     f32 unk1C;
 } GroundBounceMotionState;
 
-s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
-u8 collisionGetFloorHeight(f32 *);
 
 #define WOBBLE_STATE ((GroundBounceMotionState *)arg0->unk384)
 void effectWobbleRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
@@ -846,7 +852,6 @@ void effectWobbleRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 #undef WOBBLE_STATE
 
 
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -856,7 +861,6 @@ typedef struct {
     s32 unk14;
 } TumbleBounceState;
 
-s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 extern s32 D_8072073C;
 extern s32 D_807212B0;
 extern s32 D_807212C8;
@@ -1040,7 +1044,6 @@ void effectDecelerateDriftUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     arg0->unk348 += temp_fv1;
 }
 
-void effectDecelerateDriftUpdate(TimedEffectActorView *, s8 *);
 
 void timedEffectCountdownTick(TimedEffectActorView *arg0, s8 *arg1) {
     u8 temp_t6;
@@ -1598,7 +1601,6 @@ typedef struct GroundBounceActorView {
     u8 brightness;
 } GroundBounceActorView;
 
-s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
 
 void effectGroundBounceUpdate(GroundBounceActorView *arg0, s8 *arg1) {
     f32 mtx0[4][4];
@@ -1843,8 +1845,6 @@ typedef struct PulseFadeActorView {
     u32 unk35C;
 } PulseFadeActorView;
 
-void effectSetDuration(s32);
-void effectFallingSparkUpdate();
 extern u8 D_807201D4;
 
 void timedLightPulse(PulseFadeActorView *arg0, s8 *arg1) {
@@ -1889,7 +1889,6 @@ void timedLightPulse(PulseFadeActorView *arg0, s8 *arg1) {
     }
 }
 
-void effectSetParam(s32);
 extern u8 D_8071FB54;
 
 void effectFallingSparkUpdate(TimedEffectActorView *arg0, u8 *arg1) {
@@ -2048,8 +2047,6 @@ s16 D_80755650[18] = {
     0x01D4, 0x0078, 0x026D, 0x01EE, 0x0082, 0x02F6, 0x02E5, 0x008C, 0x0254,
     0x02C3, 0x0078, 0x02FA, 0x025A, 0x006E, 0x0312, 0x025E, 0x0096, 0x026A,
 };
-s16 mathAngleEaseToward(s16, s16, f32);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 extern s32 D_8071FB08;
 
 void effectWispWanderUpdate(TimedEffectActorView *arg0, s8 *arg1) {
@@ -2173,8 +2170,6 @@ typedef struct {
     f32 unkC;
 } LightApproachMotionState;
 
-s32 actorGetNodePos(s32, s32, f32 *, f32 *, f32 *);
-u8 mapGetHubWorldIndex(u8, u8);
 extern u8 gCurrentWorldId;
 extern u16 gLevelCollectibleCounts[];
 
@@ -2220,7 +2215,6 @@ void effectLifetimeCountdownUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     }
 }
 
-s32 playerStateQueueCallback(s16, void *, u8);
 
 typedef struct OrbitSourceActor {
     u8 pad0[0x7C];
@@ -2259,9 +2253,7 @@ typedef struct {
     f32 unkC;
 } FallInitState;
 
-void effectFallStateInit(OrbitSourceActor *, TimedEffectActorView *, s8 *);
 
-void effectSetFlags(s16);
 
 void effectOrbitSourceUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     OrbitSourceState *var_v1;
@@ -2605,9 +2597,6 @@ void effectArcAroundActorUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     }
 }
 
-s16 mapChunkFindByPosition(f32, f32, f32, s16);
-void lightSetRadius(s16);
-void lightSetTargetId(s16);
 
 void effectLightGrowShrinkUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f64 var_fv0;
@@ -2802,7 +2791,6 @@ void func_8071EEA4(TimedEffectActorView *arg0, s32 arg1) {
     arg0->unk364 = (f32) (((f64) arg0->unk35C / 100.0) + 1.0);
 }
 
-void matrixMakeRotationZ(f32 (*arg0)[4], f32 arg1);
 
 void effectScaleSpinUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     TimedMotionState *var_v1;

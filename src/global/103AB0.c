@@ -1,5 +1,23 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_renderRotatedSprite // FAKE: callee prototype steer
+#include "proto/global/103AB0.h"
+#include "proto/global/10E1D0.h"
+#include "proto/global/112080.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17540.h"
+#include "proto/global/17800.h"
+#include "proto/global/201B0.h"
+#include "proto/global/3C10.h"
+#include "proto/global/450.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/7130.h"
+#include "proto/global/90D80.h"
+#include "proto/global/936B0.h"
+#include "proto/global/9DD70.h"
+#include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -64,8 +82,6 @@ Gfx *func_806FEF7C(Gfx *arg0, Actor *arg1) {
 }
 
 extern u8 *D_807FD568;
-u16 slotQueueGetValue(u8, u8);
-s32 projectileFindHomingTarget(s32, void *, Actor *, s32, s32, s32, void *, void *, void *);
 
 Gfx *func_806FF01C(Gfx *arg0, Actor *arg1) {
     u8 player;
@@ -219,14 +235,12 @@ s16 *func_806FFEAC(s16 *arg0, s32 arg1) {
     return arg0;
 }
 
-s32 assetLoad();
 
 void func_806FFF5C(void) {
     assetLoad(0x19, 0x138B, 1, 1);
 }
 
 extern void *gFramebuffers[];
-s32 heapAlloc(s32);
 
 s32 func_806FFF88(void) {
     s32 sp34;
@@ -262,8 +276,6 @@ u16 color5551LerpToWhite(f32 arg0, u16 arg1) {
     return ((u8)((((arg1 & 0xF800) >> 11) - 0x1F) * arg0 + 31.0f) << 11) + ((u8)((((arg1 & 0x7C0) >> 6) - 0x1F) * arg0 + 31.0f) << 6) + ((u8)((((arg1 & 0x3E) >> 1) - 0x1F) * arg0 + 31.0f) << 1) + lsb;
 }
 
-s32 heapAlloc(s32);
-void heapFreeDeferred(void *);
 
 void color5551CopyLerpToWhite(u16 *arg0, s16 **arg1, f32 arg2) {
     s16 *var_s0;
@@ -308,7 +320,6 @@ extern LensFlarePoint D_807FD808[2];
 extern f32 D_807FD840[2][3][3];
 extern f32 D_807FD848[2][3][3];
 void vec3fNormalize(f32 *, Vec3f);
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
 
 #define LENS_FLARE_CAM ((LensFlareCamView *)gPlayerSlots)
 #define LENS_FLARE_DIST2 ((LENS_FLARE_CAM->unk224 - arg2) * (LENS_FLARE_CAM->unk224 - arg2)) + (((LENS_FLARE_CAM->unk21C - arg0) * (LENS_FLARE_CAM->unk21C - arg0)) + ((LENS_FLARE_CAM->unk220 - arg1) * (LENS_FLARE_CAM->unk220 - arg1)))
@@ -381,7 +392,6 @@ Gfx *func_8070068C(Gfx *arg0) {
 
 extern u8 D_807FD838[2][3];
 extern u8 D_2000180;
-Gfx *lensFlareDrawSource();
 
 Gfx *lensFlareBuildDisplayList(Gfx *arg0) {
     s16 i;
@@ -554,7 +564,6 @@ typedef struct {
     PlayerStateDepth *unk174;
 } ActorWithPlayerState;
 
-s32 zbufferReadDepth(s16, s16);
 
 void func_80700BF4(void) {
     u8 i;
@@ -632,12 +641,10 @@ typedef struct {
 } LensFlareSprite;
 
 extern LensFlareSprite D_80754AF0[];
-void vec3fSet(f32 *, f32, f32, f32);
 Vec3f vec3fSub(Vec3f, Vec3f);
 Vec3f vec3fAdd(Vec3f, Vec3f);
 Vec3f vec3fScale(Vec3f, f32);
 f32 vec3fDot(Vec3f, Vec3f);
-Gfx *gfxFillScreenColor(Gfx *, u8, u8, u8, u8);
 
 /* K&R: `i` is a 4th (unused input) parameter, the loop counter has no frame home; callers pass 3 args. */
 /* padX/padY are unused locals that keep the original frame layout. */
@@ -721,8 +728,6 @@ void func_80701C90(void) {
 
 extern Mtx D_2000000;
 extern Mtx D_2000200;
-Gfx *gfxSetViewportDisplayList(Gfx *);
-u8 flagGet(s16, u8);
 
 typedef struct {
     u8 unk0;
@@ -874,7 +879,6 @@ Gfx *func_80701CA0(Gfx *dl) {
     return dl;
 }
 
-void gfxDrawTexturedTileGrid(Gfx **, s32, s32, u32, s32, u32, u32, f32, f32, f32, f32, f32, f32, u8, u8, u8, void (*)());
 
 void gfxDrawTexturedTileGridDefault(Gfx **arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12) {
     gfxDrawTexturedTileGrid(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, 1, 0x10, 0, 0);
@@ -898,8 +902,6 @@ typedef struct VtxColorView {
 } VtxColorView;
 
 
-void vtxSetColor(VtxColorView *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4, u8 arg5);
-void vtxSetPosTex(s16 *arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, u8 arg5);
 void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4, u32 arg5, u32 arg6, f32 arg7, f32 arg8, f32 arg9, f32 arg10, f32 arg11, f32 arg12, u8 arg13, u8 arg14, u8 arg15, void (*arg16)()) {
     Gfx *dl;
     s32 y;
@@ -1052,7 +1054,6 @@ Gfx *gfxFillScreenColor(Gfx *arg0, u8 arg1, u8 arg2, u8 arg3, u8 arg4) {
     return arg0;
 }
 
-s32 randomNonNegative(void);
 
 Gfx *gfxBuildScanlineNoise(Gfx *arg0, s32 arg1) {
     s16 i;
@@ -1084,7 +1085,6 @@ Gfx *gfxBuildScanlineNoise(Gfx *arg0, s32 arg1) {
 
 extern s16 D_807444AC;
 extern s16 D_807444B0;
-s32 hudCanRender();
 
 void viewportShrinkToCenter(u8 arg0) {
     f32 scale;
@@ -1150,9 +1150,7 @@ Gfx *screenFadeDrawGradient(Gfx *arg0, u8 arg1) {
 
 extern u8 gHiResScale;
 extern u8 D_80754C08[];
-void assetFreeBuffer(s32, s32, s32);
 f32 sinApprox(f32);
-void matrixMakeRotationZ(f32 (*)[4], f32);
 
 Gfx *screenFadeDrawSpinTexture(Gfx *arg0, u8 arg1) {
     Mtx *mtx;
@@ -1294,15 +1292,7 @@ extern s16 gCurrentLevelIndex;
 extern u8 gActivePlayerCount;
 extern ScreenFadeChannels D_80754CC8;
 
-u8 mapGetWorldIndex(u8);
-u8 func_80600454(s16, u8 *);
-s32 textTableGetString(s32, s32, s32);
-void textSpawnMarkerChecked(u8, s16, s16, s32, u16, u16, u8, u8);
-void sfxStopChannel(s32, s32);
-u8 transitionGetState(void);
-void transitionSetState(u8);
 void osViBlack(u8);
-void transitionSetAudioVolume(f32, s32, void *);
 
 Gfx *screenFadeUpdate(Gfx *arg0, u8 arg1) {
     s32 p0;
