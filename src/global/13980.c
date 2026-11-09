@@ -10,7 +10,7 @@ typedef u32 OSHWIntr;
 #include "sched.h"
 
 extern s32 osGetIntMask(s32 arg0);
-extern u64 __ull_div(u64, u64);
+extern unsigned long long __ull_div(unsigned long long, unsigned long long);
 
 extern SchedConfig D_80746838;
 extern s32 D_80746820;
