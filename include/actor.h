@@ -111,7 +111,13 @@ typedef struct ActorGlobalState {
     /* 0x000 */ u8 unk0;
     /* 0x001 */ u8 unk1[1];
     /* 0x002 */ u8 unk2;
-    /* 0x003 */ u8 unk3[0x12];
+    /* 0x003 */ u8 unk3;
+    /* 0x004 */ f32 unk4;
+    /* 0x008 */ f32 unk8;
+    /* 0x00C */ f32 unkC;
+    /* 0x010 */ s16 unk10;
+    /* 0x012 */ s16 unk12;
+    /* 0x014 */ u8 unk14;
     /* 0x015 */ u8 unk15;
     /* 0x016 */ u8 unk16;
     /* 0x017 */ u8 unk17;
@@ -185,7 +191,8 @@ typedef struct Actor {
     /* 0x088 */ f32 prevX;
     /* 0x08C */ f32 prevY;
     /* 0x090 */ f32 prevZ;
-    /* 0x094 */ u8 unk94[8];
+    /* 0x094 */ f32 unk94;
+    /* 0x098 */ f32 unk98;
     /* 0x09C */ f32 peakY;
     /* 0x0A0 */ f32 prevPeakY;
     /* 0x0A4 */ f32 floorY;
@@ -358,7 +365,8 @@ typedef struct PlayerState {
     /* 0x08C */ u8 gunDrawn;
     /* 0x08D */ u8 hitStatus;
     /* 0x08E */ u8 unk8E;
-    /* 0x08F */ u8 pad8F[2];
+    /* 0x08F */ u8 unk8F;
+    /* 0x090 */ u8 unk90;
     /* 0x091 */ u8 unk91;
     /* 0x092 */ u8 pad92[2];
     /* 0x094 */ f32 unk94;

@@ -944,7 +944,7 @@ void playerUpdateScaleAndPhysics(void) {
 
 
 void playerCheckQueueDropCallback(void) {
-    if (gActorGlobalState.unk2 != 0 && gActorGlobalState.unk3[0x11] == 1) {
+    if (gActorGlobalState.unk2 != 0 && gActorGlobalState.unk14 == 1) {
         playerStateQueueCallback(0x20, NULL, gCurrentPlayerIndex);
     }
 }
