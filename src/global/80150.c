@@ -1828,9 +1828,9 @@ void tagBarrelParticleUpdate(void) {
             sp4E = (gCurrentActor->yaw + (s32)(sub->unk14 * 200.0f)) & 0xFFF;
             break;
         case 1:
-            gCurrentActor->yaw = ((s16)(s32)(sinApprox((f32)sub->unk4 * sub->unk14) * ((sub->unk10 * 4096.0f) / 360.0f)) + sub->unk18) & 0xFFF; // FAKE: (s16) narrowing cast steers the temp register ring
+            gCurrentActor->yaw = ((s16)(sinApprox((f32)sub->unk4 * sub->unk14) * ((sub->unk10 * 4096.0f) / 360.0f)) + sub->unk18) & 0xFFF;
             sub->unk4++;
-            sp4E = ((s16)(s32)(sinApprox((f32)sub->unk4 * sub->unk14) * ((sub->unk10 * 4096.0f) / 360.0f)) + sub->unk18) & 0xFFF; // FAKE: (s16) narrowing cast steers the temp register ring
+            sp4E = ((s16)(sinApprox((f32)sub->unk4 * sub->unk14) * ((sub->unk10 * 4096.0f) / 360.0f)) + sub->unk18) & 0xFFF;
             break;
         case 3:
             sp4E = gCurrentActor->yaw;
