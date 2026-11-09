@@ -432,6 +432,7 @@ s32 chunk;
     s32 idx;
     s32 cfound;
     s32 cidx;
+    s32 k;
 
     key = 0;  // FAKE: makes key the first unconstrained register candidate
     if (size != 0) {
@@ -463,10 +464,9 @@ s32 chunk;
                 } while (cfound == 0);
                 if (found == 0) {
                     ((MapChunkCellRefs *)buf)[n].unk0 = key;
-                    ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 1 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
-                    ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 2 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
-                    ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 3 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
-                    ((MapChunkCellRefs *)buf)[*count].unk4[(kind & 0) + 4 - 1] = -1;  // FAKE: zero index keeps the stride in uixa, avoiding a count-load candidate
+                    for (k = 0; k < 4; k++) {
+                        ((MapChunkCellRefs *)buf)[*count].unk4[k] = -1;
+                    }
                     ((MapChunkCellRefs *)buf)[*count].unk4[kind] = list + 8;
                     ((MapChunkCellRefs *)buf)[*count].unk14[kind] = (((MapCellOffsets *)D_807F70B0)[cidx].unk8[kind] << 4) + (gMapChunks + chunk)->unk58;
                     *count += 1;
