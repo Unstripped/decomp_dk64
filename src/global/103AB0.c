@@ -970,8 +970,8 @@ void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4,
             } else if (arg14 == 4) {
                 gDPLoadTextureTile_4b(dl++, arg1, arg2, arg3, 0, uls, ult, lrs, lrt, 0, G_TX_CLAMP, G_TX_CLAMP, 0, 0, 0, 0);
             }
-            fsc = (f32)y - 16.0;  // FAKE: creates the f64 (f32)y - 16.0 chain before (f32)tw (CM emission and spill-slot order)
-            twf = (f32)(arg5 << 5);  // FAKE: f32 local keeps `xf + twf` operand order, creates (f32)tw after the f64 chain
+            fsc = (f32)y - 16.0;
+            twf = (f32)(arg5 << 5);
             vb = (s16)(v + vstep);
             if (arg15) {
                 if (x == xs && arg15 == 1) {
