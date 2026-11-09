@@ -1,5 +1,30 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_assetLoad // FAKE: implicit declaration steer
+#define PROTO_SKIP_controllerAnimFreeStateAsset // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_controllerLookupStateByHash // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
+#define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_playerResumeLocomotion // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/117190.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/8F050.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/E4090.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/F9450.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -12,8 +37,6 @@ extern s16 gCurrentCharacterIndex;
 extern s32 gCurrentMap;
 extern u8 gPlayerCharacterId[];
 
-void func_8068A764(Actor *, u8);
-void func_8068A784(Actor *, u8);
 void playerKongStopAudioChannels(Actor *arg0, u16 arg1) {
     switch (arg1) {
     case 0xC5:
@@ -49,7 +72,6 @@ void playerKongStopAudioChannels(Actor *arg0, u16 arg1) {
     }
 }
 
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 
 void playerPlayKongSpecificSfx(Actor *arg0) {
     switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
@@ -131,9 +153,6 @@ void playerKongStopSoundByState(Actor *arg0) {
 }
 
 extern u8 D_807FC952[];
-s32 playerGetResolvedKongId(s32);
-s32 func_80714608(s32);
-void func_806F5A48(u8, s32, Actor *, s32);
 
 void playerKongPlaySoundByState(Actor *arg0) {
     s32 pad;
@@ -209,7 +228,6 @@ typedef struct F5N2ActorState {
 } F5N2ActorState;
 
 void controllerAnimFreeStateAsset(void);
-void actorSetInteractionTimer(Actor *);
 
 void playerKongClearFlagsByActorType(Actor *arg0) {
     F5N2ActorState *state = arg0->customState;
@@ -246,10 +264,6 @@ typedef struct F5N3ActorSub10E8 {
     f32 unk38;
 } F5N3ActorSub10E8;
 
-void playerKongStopSoundByState(Actor *);
-s32 actorSpawn(s32, s32);
-void actorCopyPoseAndScale(Actor *, Actor *, f32);
-void controllerAnimLoadStateAsset(Actor *, s32);
 
 void playerKongSpawnTransformationSmoke(Actor *arg0) {
     switch (((F5N3ActorState *) arg0)->state) {
@@ -290,9 +304,6 @@ typedef struct F5N3ActorExtra {
     s32 flags;
 } F5N3ActorExtra;
 
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-void sfxAllocateChannel(s32, f32);
-void sfxStopChannel(s32, s32);
 extern s32 gGlobalCutsceneFlags;
 
 void playerTransformAnimalStartSfx(Actor *arg0) {
@@ -318,7 +329,6 @@ void playerTransformAnimalEndSfx(Actor *arg0) {
     extra->flags &= ~0x40;
 }
 
-void playerFireWeapon();
 
 void playerFireWeaponPrimary(s32 arg0) {
     playerFireWeapon(0, 1);
@@ -331,7 +341,6 @@ typedef struct F5AActorSub4 {
     s32 unk88;
 } F5AActorSub4;
 
-void scriptReadU32(f32 *);
 
 void scriptCmdCompareSpeedXZ(Actor *arg0) {
     f32 temp;
@@ -342,8 +351,6 @@ void scriptCmdCompareSpeedXZ(Actor *arg0) {
 
 
 
-void scriptReadU8(u8 *);
-s16 playerSelectMoveTier(Actor *, f32, f32, s16, s16);
 
 void scriptCmdCompareMoveTier(Actor *arg0) {
     u8 temp;
@@ -370,7 +377,6 @@ void playerResumeLocomotionDecel(void) {
         D_807FD618[gCurrentPlayerIndex].value * (value - (value / 2)) + (value / 2);
 }
 
-void playerEnterBarrelTransition(Actor *);
 
 void playerD0150Wrapper(Actor *arg0) {
     playerEnterBarrelTransition(arg0);
@@ -408,8 +414,6 @@ typedef struct F5N3Actor14BC {
     f32 unkC8;
 } F5N3Actor14BC;
 
-s32 mathCalculateRatioClamped(f32, f32, f32, f32);
-void scriptSetActorRampTarget(Actor *, f32, f32);
 
 #define F5N3_A ((F5N3Actor14BC *) arg0)
 
@@ -681,8 +685,6 @@ typedef struct {
     F56AState *unk178;
 } F56AActor;
 
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-f32 mathAtan2(f32, f32);
 
 void playerWeaponAimTarget(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     F56AState *state = ((F56AActor *) arg0)->unk178;
@@ -844,7 +846,6 @@ void playerWeaponSpawnProjectile(Actor *arg0, F5BSlot *arg1, s32 *arg2) {
     *arg2 = index;
 }
 
-s32 randomNonNegative(void);
 extern s8 D_80752D4E[];
 extern f32 D_80752F4C;
 
@@ -986,7 +987,6 @@ typedef struct F5N5CameraEntry {
     s16 unk6;
 } F5N5CameraEntry;
 
-extern f32 mathAtan2(f32, f32);
 #define F5N5_PATH_SAMPLE ((F5N5PathSample *)gPlayerSlots + gCurrentPlayerIndex)
 
 void playerWeaponCrosshairUpdate(F5N5CameraActor *arg0, F5N5CameraEntry *arg1, s32 *arg2) {
@@ -1083,7 +1083,7 @@ typedef struct F5CState16 { u8 pad0[0x16]; s16 unk16; } F5CState16;
 typedef struct F5CTurnActor { u8 pad0[0x6A]; u16 unk6A; u8 pad6C[0xDC - 0x6C]; s16 unkDC; s16 unkDE; u8 padE0[6]; s16 unkE6; } F5CTurnActor;
 typedef struct F5CTurnEntry { s8 unk0; u8 unk1; s16 unk2; s16 unk4; s16 unk6; } F5CTurnEntry;
 #define F5C_S16 ((F5CState16 *)gActivePlayerState)
-s16 mathAngleSignedDistance(s16, s16);
+s16 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 extern f32 mathSinF(s16);
 void playerWeaponUpdateHomingTarget(F5CTurnActor *arg0, F5CTurnEntry *arg1, s32 *arg2) {
     s32 entry_index;
@@ -1163,7 +1163,6 @@ typedef struct F5N5EffectState {
     u8 unk91;
 } F5N5EffectState;
 
-void effectSpawnBoneWhite(Actor *, s16, f32, f32, f32, f32, s32);
 
 void playerWeaponReload(Actor *arg0, F5N5EffectState *arg1, u16 arg2) {
     u8 state0;
@@ -1255,9 +1254,6 @@ typedef struct {
     u16 unk21E;
 } F56CExtra;
 
-void playerWeaponSpawnProjectile();
-void playerWeaponInitCrosshair();
-void playerWeaponCrosshairRender();
 
 void playerWeaponSpawnMuzzleFlash(Actor *arg0, u16 arg1) {
     F56CExtra *sp74;
@@ -1396,7 +1392,6 @@ void playerWeaponSpawnMuzzleFlash(Actor *arg0, u16 arg1) {
 }
 
 
-void playerWaypointPathsParse(void *);
 
 void playerWaypointPathsLoad(s16 arg0) {
     s32 sp1C;
@@ -1427,8 +1422,6 @@ typedef struct {
     s16 unkEE;
 } F5N4ActorView;
 
-void actorClearMovementFlags(void *);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void actorSetPositionAndFacingAngle(Actor *arg0, F5N4Coord *arg1) {
     s16 angle;
@@ -1496,7 +1489,6 @@ typedef struct F5DDeferredEntry {
     void *unk4;
 } F5DDeferredEntry;
 
-void heapFreeDeferred(void *);
 
 void deferredEntryFree(F5DDeferredEntry *arg0) {
     heapFreeDeferred(arg0->unk4);
@@ -1504,7 +1496,6 @@ void deferredEntryFree(F5DDeferredEntry *arg0) {
 }
 
 
-void playerWaypointPathStart(u8, s32, s32, s16, u8);
 
 void playerWaypointPathStartPacked(s32 arg0, s32 arg1, s16 arg2, s16 arg3) {
     s32 var_v0;
@@ -1534,8 +1525,6 @@ typedef struct {
     F5N6Point *unk4;
 } F56CEnt;
 
-extern void *heapAlloc(s32);
-extern void heapClearBlock(void *);
 extern s32 gGlobalPauseFlags;
 
 
@@ -1671,9 +1660,7 @@ typedef struct F5L1CamBlock {
 #define F5L1_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define F5L1_CLAMP(x) F5L1_MIN(F5L1_MAX(x, -128.0f), 127.0f)
 
-void playerInitMoveParams(void);
 s32 playerStateQueueCallback();
-f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 f32 mathCalculatePitchAngle(f32, f32, f32, f32, f32, f32, s32);
 extern u8 gGameMode;
 extern u8 sHudDisabled;

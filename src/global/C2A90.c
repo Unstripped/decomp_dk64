@@ -1,5 +1,34 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/103AB0.h"
+#include "proto/global/112080.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/1332B0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/90D80.h"
+#include "proto/global/AA960.h"
+#include "proto/global/ACDC0.h"
+#include "proto/global/C2A90.h"
+#include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -20,12 +49,6 @@ typedef struct R1C2CB_Actor {
 
 #define R1C2CBA ((R1C2CB_Actor *)gCurrentActor)
 
-void behaviourFrameBegin(void);
-void actorApplyGravity(void);
-u8 mapHasCollectedSufficientItems(void);
-void func_80724CA4(s32, s32);
-void actorApplyVelocity(Actor *);
-void actorUpdateFloorContactAndTilt(Actor *, f32);
 
 u8 func_806BDD90(void) {
     s16 i;
@@ -66,10 +89,6 @@ typedef struct R1C2CB_ActorC0 {
 
 #define R1C2CBC0 ((R1C2CB_ActorC0 *)gCurrentActor)
 
-void actorScriptStart(void *, s32);
-void actorUpdateModelMatrix(Actor *, s32);
-void camSetTargetCutscene(s32, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-s32 func_8072881C(s32, void *);
 
 void func_806BDEC8(void) {
     R1C2CB_Sub174 *sub = gPrimaryPlayerActor->customState;
@@ -132,23 +151,8 @@ extern u8 gPlayerCharacterId;
 extern u16 D_807446C0[];
 extern u16 gLevelCollectibleCounts[];
 extern u8 gPlayerInventoryTable[][0x5E];
-extern void effectConvergeOnNodeUpdate(void);
 
-u8 mapGetHubWorldIndex(u8, s32);
-s32 slotQueueGetValue(s32, s32);
-void slotQueueCancel(s32, s32);
-void slotQueueAddValue(s32, s32, s32, void *);
-void camSetTargetCutsceneUnscaled(s32, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void actorSetUniformScale(Actor *, f32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void func_80724E48(s32);
-void effectSpawnMultiTierRing(f32, s32, f32, f32, f32);
-void effectSetCallback(void (*)(void));
-void effectSetDuration(s32);
-void effectSetDepth(s32);
-void effectSetSpeed(void *);
-void *slotQueueGetSpriteAsset(s32);
-s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
+s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32); // FAKE: callee prototype steer
 
 void func_806BE09C(void) {
     R1C2CB_Sub174 *sub;
@@ -252,8 +256,6 @@ void func_806BE09C(void) {
 }
 
 extern u8 D_807506C0[];
-void actorListForceSpawnId(u8);
-void actorListForceDespawnId(u8);
 
 void func_806BE674(u8 spawn) {
     s16 i;
@@ -267,12 +269,6 @@ void func_806BE674(u8 spawn) {
     }
 }
 
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-s32 _sprintf(char *, const char *, ...);
-s32 textGetStringWidth();
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
-Gfx *func_8070068C(Gfx *);
-s32 textTableGetString(s32, s32, s32);
 extern Gfx D_1000118;
 
 Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
@@ -377,37 +373,6 @@ typedef struct LgBE8S9C {
 extern void *gCamActor;
 extern s32 gGlobalOverlayFlags;
 
-void effectSpawnSmoke(s32);
-void actorClearMovementFlags(void *);
-void hudSpawnTextScreen(s32);
-void camPausePath(void);
-void camResumePath(void);
-s32 camStartPath(void *, s32, s32);
-void camSetZoneWeight(s32, s32);
-void camSetZoomLevel(void *, s32);
-s32 currentActorTestClearFlag();
-void csModelStateSetFirstByte(s32, s32);
-void csSendActorMessagePayload(s32, s32);
-void actorDrawAnimatedEffect(void);
-void resQueueAttachActor(void *, s32, s32);
-void resQueueSetValue(s32);
-void func_80726EE0(s32);
-void func_80728950(s32);
-void currentActorAnimSetFrame(s32, s32);
-void behaviourUpdateShadowAlpha(void);
-void actorMoveWithinZone(s32, f32, f32, s32, f32);
-void actorSetTargetSpeed(Actor *, s32);
-s32 patrolPathStep(u8, s32);
-void behaviourFadeOutWithinZone(s32);
-void volumeTriggerSetEnabled(s32, s32);
-s32 flagGet(s32, s32);
-void flagSet(s32, s32, s32);
-void renderCallbacksRegister(void *, void *, s32);
-void sfxAllocateChannel(s32, f32);
-void sfxStopChannel(s32, s32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 randomNonNegative(void);
-void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
 
 void func_806BE8BC(void) {
     u8 sp37;
@@ -676,20 +641,6 @@ extern LgBF218Global *D_80755690;
 #define LA ((LgBF218Actor *)gCurrentActor)
 #define LB ((LgBF218Actor *)gPrimaryPlayerActor)
 
-void actorDespawn(void *);
-void actorClearMovementFlags(void *);
-void actorListSpawnNodeEntry(s16, f32, f32, f32, s16, f32, s32, void *);
-void camResumePath(void);
-s32 camStartPath(void *, s32, s32);
-void csModelStateSetFirstByte(s32, s32);
-void actorCopyPoseAndScale(void *, void *, f32);
-void func_8068A2FC(void *);
-void resQueueAttachActor(void *, s32, s32);
-void resQueueSetValue(s32);
-void zoneEntryGetPosition(s32, s32, void *, void *, void *);
-s32 spawnNodeIsInCooldown(s32);
-s32 flagGet(s32, s32);
-void flagSet(s32, s32, s32);
 void *memcpy(void *, const void *, u32);
 
 void func_806BF218(void) {

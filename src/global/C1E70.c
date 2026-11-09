@@ -1,5 +1,21 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorScriptStart // FAKE: callee prototype steer
+#define PROTO_SKIP_actorSpawn // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
+#include "proto/global/35000.h"
+#include "proto/global/42630.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/C1E70.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -10,7 +26,6 @@ extern s8 D_807506A4;
 extern s8 D_80750660;
 extern u8 D_807FC8D0;
 
-u8 flagGet(s16, u8);
 s32 actorSpawn();
 f32 mathCosF(s16);
 f32 mathSinF(s16);
@@ -85,17 +100,7 @@ extern s8 D_807506A8[];
 extern f32 D_807FC8D4;
 extern s32 gCamActor;
 
-s32 func_806BDD2C(void);
-void actorCopyPoseAndScale(void *, void *, f32);
 s32 actorScriptStart(void *, s32);  // FAKE: callee prototype steer
-void actorUpdateModelMatrix(void *, s32);
-u16 camStartPath(void *, s16, u8);
-s32 currentActorTestClearFlag();
-u8 camIsCutsceneActive(void);
-void camStartShake(s32, s32, s32);
-void sfxAllocateChannel(s32, f32);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void flagSet(s16, u8, u8);
 
 typedef struct RingNodePtr178 {
     /* 0x00 */ Actor *unk0;
@@ -226,16 +231,7 @@ extern s16 D_80750684[];
 extern R1C0C1Blob8 D_807506B8;
 extern u8 D_80720A7C;
 
-void sfxStopChannel(s32, s32);
-void csModelStateSetFirstByte(s16, s16);
-void camResumePath(void);
-void menuTransitionToMap(s32, s32);
-void effectSetSpeed(s32);
-void effectSetCallback(void (*)(void));
-void effectLightFlickerDecay(void);
 void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-f32 randomFloat(void);
 
 void func_806BD7B0(void) {
     R1C0C1Sub174 *st = gCurrentActor->customState;

@@ -1,5 +1,32 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
+#define PROTO_SKIP_func_806C9974 // FAKE: callee prototype steer
+#define PROTO_SKIP_func_806F54E0 // FAKE: callee prototype steer
+#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
+#include "proto/global/104F0.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2F550.h"
+#include "proto/global/36880.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/5E020.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/AA960.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -12,8 +39,6 @@ extern s16 gCurrentCharacterIndex;
 extern s32 gCurrentMap;
 extern u8 gPlayerCharacterId[];
 
-void gridFreeAllNodeLists(void);
-void gridBuildNodeLists(void);
 
 void gridRebuildNodeLists(void) {
     gridFreeAllNodeLists();
@@ -82,18 +107,7 @@ extern struct F9F1_Node *D_807FD72C;
 extern struct F9A_LinkedNode *D_807FD730;
 extern u8 D_807FD738;
 extern u8 D_807FD798;
-void *heapAlloc(s32);
-void heapClearBlock(void *);
-void heapFree(void *);
 void *memcpy(void *, const void *, unsigned int);
-u16 modelTypeCountBeforeMap(u8);
-s32 modelTypeIsCounted(u16);
-void modelAssetGetSubtables(u8 *, u8 **, u8 **);
-s32 modelSlotFindByType(s32, s32 *, f32 *, f32 *, f32 *, s16 *, s16 *);
-void *assetLoad(s32, u32, u8, u8);
-void assetSetImmediateFree(void);
-void assetFreeBuffer(void *, s32, s32);
-void slotQueueInit(s32);
 
 void gridBuildNodeLists(void) {
     s32 cookie;
@@ -270,7 +284,6 @@ typedef struct F9A_PositionNode {
     struct F9A_PositionNode *next;
 } F9A_PositionNode;
 
-void heapFreeDeferred(void *);
 
 void gridAppendPositionNode(u8 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4) {
     F9A_PositionNode **var_v1;
@@ -352,9 +365,7 @@ typedef struct F9F1_Node {
 extern s8 D_807FCC4B[];
 extern F9F1_Node **D_80754244;
 extern F9F1_Node *D_807FD72C;
-void func_806F6204(F9F1_Node *, u8, F9F1_Rect *);
 
-s32 gridCoordsToIndex(f32, f32);
 
 void gridMoveNode(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
     s32 pad[4];
@@ -394,8 +405,6 @@ void gridMoveNode(s16 arg0, f32 arg1, f32 arg2, f32 arg3) {
 }
 
 extern s16 D_80753EFC[];
-void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, u8);
-s32 gridIsSpecialActorType(s16);
 
 void gridAddModelNode(s16 arg0, s16 arg1, s16 arg2, u8 arg3, u8 arg4, u8 arg5) {
     F9F1_Node *node;
@@ -456,7 +465,6 @@ typedef struct F9A_LinkedNode {
 } F9A_LinkedNode;
 
 extern F9A_LinkedNode *D_807FD730;
-void slotQueueReleaseAll(void);
 
 void gridFreeAllNodeLists(void) {
     s32 var_s2;
@@ -516,8 +524,7 @@ typedef struct F9A_CleanupNode {
 
 
 
-void func_806F54E0(u8, s32, u8);
-void modelSlotFreeByIndex(s16, s32);
+void func_806F54E0(u8, s32, u8); // FAKE: callee prototype steer
 
 void gridFreeAllActiveNodes(void) {
     F9A_LinkedNode *var_s0;
@@ -580,9 +587,6 @@ s32 gridAdjustActorCollisionType(s32 arg0, s32 arg1, u8 arg2) {
     return arg0;
 }
 
-u16 camStartPath(void *, s16, u8);
-u8 flagGet(s16, u8);
-void flagSet(s16, u8, u8);
 
 void cutsceneStartFlag16CPath(void) {
     if (flagGet(0x16C, 0) == 0) {
@@ -591,12 +595,8 @@ void cutsceneStartFlag16CPath(void) {
     }
 }
 
-u8 mapGetHubWorldIndex(u8, u8);
-s32 flagGridIndex(s32, s32, s32);
-s32 func_806C9974(u8, s8);
-void eepromSavePlayerData(void);
-void slotQueueAddValue(s32, u8, s32);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
+s32 func_806C9974(u8, s8); // FAKE: callee prototype steer
+void slotQueueAddValue(s32, u8, s32); // FAKE: callee prototype steer
 extern s8 D_80029FA0;
 extern s8 D_80753EF2[];
 extern u8 gCurrentWorldId;
@@ -685,9 +685,6 @@ typedef struct F9N2At58 {
     s32 unk58;
 } F9N2At58;
 
-extern s16 modelSlotAppend(s32, f32, f32, f32, f32, u8);
-extern void modelSlotGetTransformVectors(s32, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, f32 *, u8);
-extern void gridAddModelNode(s16, s16, s16, u8, u8, u8);
 
 void func_806F58A0(u8 arg0, s16 arg1, F9N2At58 *arg2) {
     s32 var_s0;
@@ -794,7 +791,6 @@ s32 arg0;
     return 0;
 }
 
-extern s32 randomNonNegative(void);
 
 void func_806F5D80(s32 *arg0, s32 *arg1) {
     *arg0 = D_80754248[((u32) (randomNonNegative() >> 0xF) % 7U)];
@@ -844,9 +840,6 @@ s32 delayedSpawnQueueContains(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4) 
     return found;
 }
 
-s32 actorTypeIsRespawnPickup(s32);
-void delayedSpawnQueueAdd(s32, s32, s16, s16, s16, s32);
-s32 func_80714608(s32);
 
 void func_806F5F2C(s32 arg0, s32 arg1, s16 arg2, s16 arg3, s16 arg4) {
     if ((func_80714608(0) != 0) && (actorTypeIsRespawnPickup(arg0) != 0)) {
@@ -859,7 +852,6 @@ void func_806F5FA0(s16 arg0, s16 arg1, s16 arg2) {
     func_806F5F2C(0x76, 0, arg0, arg1, arg2);
 }
 
-s32 func_806F5CE4();
 
 void func_806F5FE8(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s32 arg4) {
     if (func_806F5CE4() != 0) {
@@ -867,9 +859,6 @@ void func_806F5FE8(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s32 arg4) {
     }
 }
 
-extern void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
-extern void effectSpawnParticleRingAtPosition(f32, f32, f32, s32);
-extern s32 menuIsTransitionType6(void);
 extern s32 gGlobalPauseFlags;
 
 void delayedSpawnQueueTick(void) {
@@ -909,15 +898,6 @@ typedef struct {
 } F9N6_TableEntry;
 
 extern F9A_LinkedNode *D_807FD734;
-extern s32 camDistance3D(s32, s32, s32, s32, s32, s32);
-extern s32 func_8063C2A8(s16);
-extern s32 gridCheckNodeCondition(s16, u8, u16);
-extern void modelSlotFreeNestedBuffer(s32, u8);
-extern u8 mapGetHubWorldIndex(u8, u8);
-extern void func_8060E430(u16, u8, u8);
-extern void func_806F58A0(u8, s16, F9N2At58 *);
-extern void func_806F5A48(u8, s16, F9N2At58 *, u16);
-extern void playerStateHandleSoundEffects(s16, u8);
 
 void func_806F6204(F9F1_Node *arg0, u8 arg1, F9F1_Rect *arg2) {
     F9N2At58 *player;
@@ -1054,7 +1034,6 @@ typedef struct F9N7_KongArr {
 } F9N7_KongArr;
 
 extern F9N7_KongArr D_807FC952[];
-s32 hashTableLookup();
 
 #define F9N7_PLAYER ((F9N7_Player *)gPlayerSlots)
 
@@ -1145,16 +1124,6 @@ typedef struct F9N8_Type {
 extern s16 D_807FD790;
 extern u8 gGfxBufferIndex;
 extern s16 gCurrentLevelIndex;
-void gridCollectActorsInRange(u8);
-void effectSpawnRandomSpread(f32, f32, f32, f32, f32, s32);
-void modelSlotTransformBoundsAndNodes(s32, f32, f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8, u8);
-void func_806398E4(s32, u8, u8);
-void slotQueueGetPosition(s32, f32 *, f32 *, f32 *);
-void slotQueueUpdate(s32, u8, s32);
-s16 csModelSlotGetTableIndex(s16);
-void func_807314F4(s16, s16);
-void playerStateHandleSoundEffects(s16, u8);
-s32 matrix4Invert(f32 (*)[4], f32 (*)[4]);
 void guMtxL2F(f32 (*)[4], Mtx *);
 void guMtxXFML(Mtx *, f32, f32, f32, f32 *, f32 *, f32 *);
 void guMtxXFMF(f32 (*)[4], f32, f32, f32, f32 *, f32 *, f32 *);
@@ -1320,8 +1289,6 @@ typedef struct F94C_PlayerBlock {
     u8 pad8[0x2E8];
 } F94C_PlayerBlock;
 
-void delayedSpawnQueueTick(void);
-void gridUpdatePlayerNodes(u8);
 
 void gridTickPlayers(void) {
     s16 var_fp;
@@ -1386,12 +1353,7 @@ s32 listContainsS16(s16 value) {
 }
 
 
-u32 randomLcgNext(void);
-void effectSetSpeed(s32);
-void effectSetAngle(s16);
-void effectSetCallback(void *);
-void effectSetDepth(s8);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 extern u8 D_8071FC58;
 extern u8 func_8071C48C;
 extern u8 func_8071C620;
@@ -1431,8 +1393,6 @@ f32 func_806F7378(s32 arg0) {
     return 0.0f;
 }
 
-extern s32 camDistance3D(s32, s32, s32, s32, s32, s32);
-extern s16 modelSlotAppend(s32, f32, f32, f32, f32, u8);
 
 typedef struct {
     u8 pad0[4];
@@ -1475,12 +1435,6 @@ typedef struct {
 
 extern u16 gActiveActorCount;
 extern F94D_ActiveEntry gActiveActors[];
-void actorDespawn(void *);
-void playerResumeLocomotion(void *);
-void playerKongPlaySoundByState(void *);
-void func_80731410(s16, s16, s16, u8);
-u8 func_8073198C(s16);
-void modelFlagsApplyState(s16, s16, u8 *);
 
 #define F94D_ENTRY (&((F94D_Entry *) &D_80753EF0)[k])
 
@@ -1599,10 +1553,6 @@ typedef struct {
 extern Actor *gPrimaryPlayerActor;
 extern u8 D_80745838;
 
-void func_80687C48(void);
-void func_80687CC8(void);
-s32 playerStateQueueCallback(s16, void *, u8);
-void sfxAllocateChannel(s32, f32);
 
 void playerStateHandleSoundEffects(s16 arg0, u8 arg1) {
     f32 temp_fv0;

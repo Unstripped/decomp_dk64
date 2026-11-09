@@ -1,5 +1,6 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/F93B0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;

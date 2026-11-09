@@ -1,5 +1,45 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorAngleInArcWithMargin // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_camSetZoomLevel // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
+#define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
+#define PROTO_SKIP_mathAngleInArcWithMargin // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_modelSlotGetType // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_n_alSndpStop // FAKE: callee prototype steer
+#define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
+#include "proto/global/10E1D0.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/131B0.h"
+#include "proto/global/133A90.h"
+#include "proto/global/135D30.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2DE90.h"
+#include "proto/global/36880.h"
+#include "proto/global/3C10.h"
+#include "proto/global/450.h"
+#include "proto/global/5650.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/90D80.h"
+#include "proto/global/936B0.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/E4090.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -20,9 +60,6 @@ typedef struct G21Actor1A0 {
     /* 0x1A4 */ u8 unk1A4;
 } G21Actor1A0;
 
-void actorScriptStartByIndex(void *, s32);
-u16 slotQueueGetValue(u8, u8);
-void slotQueueUpdate(s32, u8, s32);
 
 void playerHolsterGun(s32 actor, G21Actor1A0 *state, u8 isFirstPerson) {
     s32 id;
@@ -152,8 +189,6 @@ typedef struct PadInputState {
 
 extern PadInputState gPlayerPadState[];
 
-u16 inputRemapButtons(u16, u16 *);
-f32 mathAtan2(f32, f32);
 f32 sqrtf(f32);
 
 typedef struct PadRawInput {
@@ -662,11 +697,7 @@ extern f32 D_80753BF8[];
 extern f32 D_80753DC8[];
 extern f32 D_80753DE4[];
 extern u16 *gActorScriptIndexTable;
-void actorScriptStart(void *, s32);
-void scriptSetActorRampTarget(void *, f32, f32);
-void proxPathAdvance(f32);
-s16 mathAngleDistance(s16, s16);
-void playerClampYawToArc(void);
+s16 mathAngleDistance(s16, s16); // FAKE: callee prototype steer
 
 extern u8 gPlayerCharacterId[];
 
@@ -1113,7 +1144,6 @@ void playerInputHandleAButtonState17(void) {
     }
 }
 
-void playerSetBaseGravity();
 
 void playerInputHandleAButtonGravity(void) {
     if (gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) {
@@ -1150,7 +1180,6 @@ void playerInputHandleAButtonState41(void) {
 
 extern s32 gCurrentMap;
 extern u8 D_807FCA6A[];
-s32 playerStateQueueCallback(s16, void *, u8);
 
 void playerInputCheckBButtonChargeCallback(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) && (D_807FCA6A[gCurrentPlayerIndex * 0x306] >= 2) && (gCurrentMap != 0xE)) {
@@ -1173,7 +1202,6 @@ void playerInputHandleAButtonState61(void) {
     }
 }
 
-f32 mathAtan2(f32, f32);
 f32 sqrtf(f32);
 extern struct G31Cam *gPlayerSlots;
 
@@ -1196,32 +1224,11 @@ extern u8 D_8071FBC8;
 extern u8 D_807200D4;
 extern f32 D_80753E2C[];
 extern u8 *D_807FD568;
-void effectLightPulseOscillate(void);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void projectileGetTargetCoords(void *, s32);
-void projectileSetSpawnFlag(void);
-void projectileSetTargetCoords(f32, f32, f32);
-void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
-void rumbleRequest(u8, u8, s32);
-void camStartShake(s32, s32, s32);
 s32 actorAngleInArcWithMargin(void *, s32, s32);
-void effectSetSpeed(s32);
 s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);  // FAKE: callee prototype steer
 f32 cosApprox(f32);
 f32 sinApprox(f32);
-u8 actorTestNodeSegmentCollision(void *);
-void playerInputToggleActiveState(Actor *);
-s32 actorIsActiveType2B(Actor *);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 extern s16 D_80753E64[];
-s32 func_80714608(s32);
-s32 actorCountOwnedByClass(void *, s32, s32);
-void playerKongStopSoundByState(void *);
-void playerResumeLocomotion(Actor *);
-void slotQueueAddValue(s32, s32, s32);
-void effectSetDepth(s8);
-void effectSetCallback(void *);
 
 typedef struct LE40BObj {
     /* 0x000 */ u8 pad0[0x210];
@@ -1420,8 +1427,6 @@ u8 arg1;
     }
 }
 
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-s32 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, u8, u16);
 
 u8 actorTestNodeSegmentCollision(void *arg0) {
     f32 temp3;
@@ -1474,9 +1479,6 @@ void playerInputToggleActiveState(Actor *arg0) {
 }
 
 extern s32 gGlobalOverlayFlags;
-u8 flagGet(s16, u8);
-s32 func_807142D8(void);
-s32 menuIsTransitionTypeC(void);
 
 s32 playerInputCanFireWeapon(void) {
     s32 var_v1;
@@ -1521,7 +1523,6 @@ void playerInputHandlerCheckZAndTriggerState2C(void) {
     }
 }
 
-void playerFireWeapon();
 
 void playerFireWeaponIfOwned(void) {
     if (D_807FD568[2] & 1) {
@@ -1542,7 +1543,6 @@ void playerInputHandlerCheckBAndFireWeapon(void) {
 }
 
 extern s16 D_80753354[];
-s32 playerInputCheckMultiplayerPlayerTarget();
 
 void playerInputHandleZButtonCrouch(void) {
     s32 var_v1;
@@ -1769,14 +1769,12 @@ void playerInputUpdateCannonAim(void) {
 }
 
 
-void playerSetTerminalVelocity594(void);
 
 void playerInputClearVelocity(void) {
     playerSetTerminalVelocity594();
 }
 
 
-void playerSetBaseGravity(void);
 
 void playerInputSetBaseGravity(void) {
     playerSetBaseGravity();
@@ -1784,9 +1782,7 @@ void playerInputSetBaseGravity(void) {
 
 
 extern f32 D_807536E4[];
-void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 f32 mathSinF(s16);
-void playerApproachVelocity(s16, f32, f32);
 
 void playerInputStepCannonPitch(void) {
     f32 b;
@@ -1834,8 +1830,6 @@ void playerInputStepCannonPitch(void) {
 }
 
 
-void sfxStopSlotSound();
-void playerApplyDeceleration(void);
 extern struct G29BtnA D_807FD63A[];
 
 void playerInputHandleCannonBButton(void) {
@@ -2089,12 +2083,7 @@ extern f32 D_80750FF4;
 extern u8 D_807FC9AE[];
 extern u8 D_807FCA0C[];
 extern u8 D_807FCAC8[];
-s32 playerInputCheckBButtonTarget(void);
 s32 mathAngleInArcWithMargin();
-void projectileTrySpawnFromSlot(void *);
-void sfxPlayScriptActorSoundForPlayer(Actor *, s16, u8);
-void playerPlayKongSpecificSfx(void *);
-void func_806EAB44();
 
 void playerInputHandleBButtonGun(void) {
     PadInputState *pad;
@@ -2403,8 +2392,6 @@ typedef struct G26Mob {
 
 extern u32 gFrameCounter;
 extern s32 gGlobalCutsceneFlags;
-u8 playerInputCheckTargetMoved(G26Mob *arg0);
-int func_806E560C(G26Mob *arg0);
 
 void playerInputCheckInstrumentPlayback(void) {
     u8 r;
@@ -2563,18 +2550,7 @@ extern s32 D_8076A094;
 extern u8 D_8076A0B2;
 extern f32 D_807536AC[];
 extern u8 D_8072014C[];
-void func_8071F034(void);
-void screenSetTransitionFadeType(u8);
-void func_805FF9AC(s32, s32, s32, s16);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-void playerRestoreKongState(void *, void *);
-u16 camStartPath(void *, s16, u8);
-void playerTransformAnimalStartSfx(Actor *);
-void timerQueueAdd(void *, s32, s32, s32, s32);
-void effectSetAngle(s16);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void effectSpawnBurstParticleCluster(Actor *);
-void playerInputStartTransitionToMap(s32, s32, s32);
+void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 
 s32 playerInputCheckMultiplayerPlayerTarget() {
     s32 i;
@@ -2677,7 +2653,6 @@ s32 playerInputCheckMultiplayerPlayerTarget() {
     return 0;
 }
 
-void transitionSetState(u8);
 
 void playerInputStartTransitionToMap(s32 arg0, s32 arg1, s32 arg2) {
     if (arg1 != 0) {
@@ -2736,7 +2711,6 @@ int func_806E5C74(void) {
            (gPlayerCharacterId[gCurrentPlayerIndex] != 6) && (D_807FD568[1] != 0);
 }
 
-void controllerAnimSetStateRemap(struct ControllerStateView *, s16, f32, f32);
 
 void playerInputCheckEnterLongJump(void) {
     if (func_806E5C74() != 0) {
@@ -2792,8 +2766,6 @@ void playerInputHandleBButtonFairyCamera(void) {
     }
 }
 
-void camClearSecondTarget(void *);
-void camSetSecondTarget(void *, s32, s32);
 
 void playerInputHandleRButtonCameraLock(void) {
     G26Obj *obj;
@@ -2834,10 +2806,6 @@ void playerInputHandleRButtonReleaseCameraLock(void) {
 extern u8 gPausingPlayer;
 extern s32 gGlobalPauseFlags;
 extern f32 gScreenFadeProgress;
-u8 camIsCutsceneActive(void);
-s32 menuIsTransitionType6(void);
-u8 screenWipeGetState(void);
-u8 screenWipeGetCooldown(void);
 
 void playerInputRequestPause(void) {
     if ((G25_PAD(D_807FD63C, u16) & 0x1000) && (camIsCutsceneActive() == 0) && (gScreenFadeProgress == 0.0f) &&
@@ -3276,7 +3244,6 @@ void playerInputHandleBButtonDashAttack(void) {
     }
 }
 
-void func_806E9804();
 
 void playerInputHandleCDownFairyCheck(void) {
     if ((G28_PAD(D_807FD63C, u16) & 4) && !(gGlobalOverlayFlags & 2)) {
@@ -3566,11 +3533,6 @@ typedef PadInputState G29Stick;
 extern f32 D_80750FF8;
 extern f32 D_80750FFC;
 extern f32 D_80751000;
-s32 hudCanRender(void);
-void renderCallbacksRegister(void *, void *, u8);
-void actorDrawAnimatedEffect(s32, void *);
-void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
-void scriptSetRampValue(void *, f32, f32);
 
 void playerInputRegisterAnimatedEffect(void) {
     G29State *st;
@@ -3992,8 +3954,6 @@ extern f32 D_807537E0[];
 extern s16 D_80750338;
 extern s16 D_807539DC[];
 extern s16 D_807539EC[];
-s32 func_806E9D1C();
-void slotQueueCancel(s32, s32);
 
 void func_806E8F04(void) {
     if (G29_PAR->unk155 == 1) {
@@ -4038,9 +3998,6 @@ void func_806E9070(void) {
     }
 }
 
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-void camSetFixedView(void *, f32, f32, f32, f32, f32, f32, s32);
-void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
 void func_806E918C(void) {
     f32 x1;
@@ -4103,8 +4060,7 @@ void func_806E9468(void) {
 
 extern s16 D_8075388C[];
 extern s16 D_807538C8[];
-void n_alSndpStop(s32);
-void playerClearCarriedItemState(void);
+void n_alSndpStop(s32); // FAKE: callee prototype steer
 
 s32 playerInputPostUpdate(void) {
     f32 diff;
@@ -4233,7 +4189,6 @@ typedef struct G30Cam {
     /* 0x230 */ f32 unk230;
 } G30Cam;
 
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
 void func_806E9BA8(arg0) s32 arg0; {
     G30Cam *cam;
@@ -4260,7 +4215,6 @@ void func_806E9CFC(void) {
     func_806E9BA8(0x65);
 }
 
-void playerStateSetCallbackParameters(s32, s32, s32, s32);
 
 s32 func_806E9D1C(arg0, arg1, arg2) s16 arg0; u8 arg1; u8 arg2; {
     if (((gPlayerCount < 2) || (gSplitScreenMode != 1)) && (gScreenFadeProgress == 0.0f) && (G30_A->unkE0 == 0.0f)) {
@@ -4341,7 +4295,6 @@ typedef struct G31Link {
 #define G31_PAD(sym, T) (*(T *)((u8 *)&(sym) + gCurrentPlayerIndex * 0x34))
 #define G31_PLAYER ((G31Player *)gActivePlayerState)
 
-s32 func_80714608();
 
 void func_806E9ECC(void) {
     G31State *state;
@@ -4484,7 +4437,6 @@ void cameraZoomStopSound(void) {
     }
 }
 
-s32 playerInputPostUpdate();
 
 void playerInputPostUpdateFirstPerson(void) {
     if (playerInputPostUpdate()) {
@@ -4550,7 +4502,6 @@ void func_806EA958(void) {
     }
 }
 
-void func_806E9874();
 
 void func_806EA9B4(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2A & 0x2000) && (gPlayerPadState[gCurrentPlayerIndex].unk2C & 4)) {
@@ -4605,9 +4556,6 @@ void func_806EAAA0(void) {
     }
 }
 
-void playerSetTerminalVelocity5B0(void);
-void playerKongPlaySoundByState(void *);
-s16 func_8062773C(void *);
 
 void func_806EAB44(arg0, arg1)
 G32Act *arg0;

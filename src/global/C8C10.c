@@ -1,5 +1,34 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/104F0.h"
+#include "proto/global/112080.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/90D80.h"
+#include "proto/global/A2F10.h"
+#include "proto/global/ACDC0.h"
+#include "proto/global/B7490.h"
+#include "proto/global/C4620.h"
+#include "proto/global/C8C10.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -76,14 +105,6 @@ extern s32 gCamActor;
 extern s32 gFrameCounter;
 extern s32 gCurrentMap;
 
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
-void camSetTarget(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void camSetTargetCutsceneUnscaled(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void camStartPath(void *, s32, s32);
-void camSetFollowMode(s32);
-void actorAirPatrolStep(u8, s16, s16);
-void resQueueAttachActor(Actor *, s32, u8);
-void playerStateQueueCallback();
 
 void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
     s16 *durationPtr = R1C8aA->unk178;
@@ -164,7 +185,6 @@ void func_806C3F10(u8 startActionId, u8 exitActionId, u8 camPathId) {
     }
 }
 
-void sfxAllocateChannel(s32, f32);
 
 void func_806C43A8(void) {
     s32 sfx = 0;
@@ -187,17 +207,8 @@ void func_806C43A8(void) {
 
 extern s16 D_80750AC8;
 
-s32 flagGet(s16, s32);
-s32 func_807142D8();
-s32 slotQueueGetValue(s32, s32);
-void func_80724CA4(s32, s32);
-void func_80724E48(u8);
-void actorSpawnNodeEntryAtActor(s32, s16);
-void actorPlaceAttachedChildren(s32);
 f32 mathSinF(s16);
 f32 mathCosF(s16);
-void mapCheckAutoTransition(void);
-void hudSpawnTextScreen(s32);
 
 void func_806C4414(s32 defaultPathId, s32 lowCountPathId, s32 rewardPathId, s32 initialCutsceneId, s32 rewardCutsceneId, s32 targetCount, s32 rewardFlag) {
     s16 *heightOffsetPtr = R1C8aA->unk178;
@@ -301,8 +312,6 @@ void func_806C498C(void) {
     func_806C4414(1, 2, 3, 4, 5, 0x19, 0x13E);
 }
 
-void behaviourFrameBegin(void);
-void actorUpdateModelMatrix(Actor *, s32);
 
 void func_806C49D0(void) {
     behaviourFrameBegin();
@@ -333,12 +342,6 @@ void func_806C49D0(void) {
 extern u8 gPlayerCharacterId;
 extern Actor *gSpawnedActor;
 
-f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void actorSpawn(s32, s32);
-void actorMoveWithinZone(s32, f32, f32, s32, f32);
-void renderCallbacksRegister(void *, void *, s32);
-void actorDrawAnimatedEffect();
 
 u8 func_806C4AC4(u16 spawnCooldown, u16 maxSpawns) {
     u8 ret = 0;
@@ -408,20 +411,17 @@ u8 func_806C4AC4(u16 spawnCooldown, u16 maxSpawns) {
     return ret;
 }
 
-void slotQueueSetDisplayMode();
 
 void func_806C4E8C(void) {
     slotQueueSetDisplayMode(5, 0, 0);
 }
 
-void csModelStateSetFirstByte();
 
 void func_806C4EB4(void) {
     csModelStateSetFirstByte(0x2C, 0xB);
     func_806C4E8C();
 }
 
-void resQueueSetValue();
 
 void func_806C4EE0(u8 subAction, u8 stateValue) {
     R1C8aS->unk2E = 0;
@@ -480,20 +480,6 @@ typedef struct LgC4F5CS90 {
 #define LgG ((LgC4F5CG *)gActivePlayerState)
 #define LgS ((LgC4F5CS90 *)gBehaviourWorkState)
 
-void behaviourSetAnimIds(s32, s32, s32);
-void actorScriptedCommandUpdate(void);
-s32 currentActorTestClearFlag(void);
-void csModelStateSetFirstByte(s32, s32);
-void actorScriptStart(Actor *, s32);
-void resQueueSetValue(s32);
-s32 camIsCutsceneActive(void);
-void slotQueueSetDisplayMode(s32, s32, s32);
-void behaviourUpdateShadowAlpha(void);
-void func_806C4EB4(void);
-s32 func_80724A20(void);
-void zoneEntryGetPosition(s32, s32, f32 *, f32 *, f32 *);
-void actorClearMovementFlags(void *);
-s32 func_8072881C(s32, void *);
 
 void func_806C4F5C(void) {
     s32 pad;
@@ -678,15 +664,6 @@ typedef struct LgC55E0S90 {
 #define LG ((LgC55E0G *)gActivePlayerState)
 #define LS90 ((LgC55E0S90 *)gBehaviourWorkState)
 
-void func_80728950(s32);
-void currentActorAnimSetFrame(s32, s32);
-void camResumePath(void);
-void slotQueueUpdate(s32, s32, s32);
-void func_806C4E8C(void);
-void behaviourFadeOutWithinZone(s32);
-void actorSetPositionFromPoint(Actor *, BehaviourExtraState *);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void effectSpawnSmoke(u8);
 
 void func_806C55E0(void) {
     s32 pad;
@@ -908,24 +885,7 @@ extern u32 gGlobalPauseFlags;
 extern s16 D_807FD802;
 extern s16 D_807FD804;
 extern s16 D_807FD806;
-void actorAttachChildCallbacks(void);
-void actorDespawn(Actor *);
-void actorScriptStartByIndex(Actor *, s32);
-s32 randomNonNegative(void);
-void effectSetDepth(s32);
-void effectShrinkFadeMatrixUpdate(void);
-void effectSetCallback(void (*)(void));
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
 f32 sqrtf(f32);
-s32 behaviourIsTargetWithinAngle(u16);
-s32 spawnNodeIdForActor(Actor *);
-s32 spawnFlagLookup(s16, s16, s32 *);
-void flagSet(s16, s32, s32);
-void eepromSavePlayerData();
-void camProjectToScreen(f32, f32, f32, f32 *, f32 *, s32, f32, s32);
-s32 func_8073195C(s16);
-void lightSetColor(f32, f32, f32, s16);
-void sfxStopChannel();
 
 void func_806C5C20(void) {
     f32 screenX;

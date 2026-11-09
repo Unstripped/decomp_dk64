@@ -1,5 +1,50 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorAppendCallback4000 // FAKE: callee prototype steer
+#define PROTO_SKIP_actorCopyPoseAndScale // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
+#define PROTO_SKIP_actorTableContains // PROTO: Type G07Target *  of this argument  is incompatible with typ
+#define PROTO_SKIP_collisionCheckActorFloor // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Improper cast of non-scalar type expression.
+#define PROTO_SKIP_effectSetCallback // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSpiralDriftMatrixUpdate // PROTO: not a function here
+#define PROTO_SKIP_effectZSpinMatrixUpdate // PROTO: not a function here
+#define PROTO_SKIP_func_806EAB44 // FAKE: callee prototype steer
+#define PROTO_SKIP_func_80717930 // PROTO: not a function here
+#define PROTO_SKIP_mathAngleBetweenPointsDeg // FAKE: callee prototype steer
+#define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
+#define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
+#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
+#include "proto/global/10D2D0.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/133A90.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/16550.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/E4090.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gActivePlayerActor;
@@ -10,9 +55,6 @@ extern PlayerState *gActivePlayerState;
 extern s16 gCurrentCharacterIndex;
 extern u16 D_807FD63C;
 
-void playerUpdateCommon(s32);
-void playerWeaponSpawnMuzzleFlash(Actor *, u16);
-void actorOrNodeFlags(Actor *, s32, u8);
 
 void playerUpdateSoundEffect0(void) {
     playerUpdateCommon(0);
@@ -56,9 +98,8 @@ void playerUpdateSoundEffect5(void) {
 }
 
 extern s16 gPlayerStateFlags[][4];
-void func_806EAB44(Actor *, u8);
+void func_806EAB44(Actor *, u8); // FAKE: callee prototype steer
 
-void func_806E9964(PlayerState *);
 
 void playerCheckAndResetCarriedActor(Actor *arg0) {
     u8 temp_v0 = arg0->state;
@@ -123,8 +164,6 @@ typedef struct G02PlayerState {
 #define G02_ACTOR_P(a) ((G02PlayerState *)(a)->customState)
 #define G02_MODEL(a) (*(G02ModelRef **)(a)->sub4)
 
-void sfxStopSlotSound(Actor *, u8);
-s8 spawnNodeIdForActor(Actor *);
 
 void playerSetRecentAttacker(Actor *arg0, G02PlayerState *arg1) {
     s32 flag = 0;
@@ -188,7 +227,6 @@ typedef struct G03PlayerSlot {
 } G03PlayerSlot;
 
 extern G03PlayerSlot *gPlayerSlots;
-s32 playerHitSourceIsStale(s32);
 
 typedef struct G02PlayerSlot {
     /* 0x0 */ s32 unk0;
@@ -196,7 +234,6 @@ typedef struct G02PlayerSlot {
     /* 0x8 */ u8 pad8[0x2E8];
 } G02PlayerSlot;
 
-Actor * spawnNodeActivate(s16, u16);
 
 s32 playerHitSourceIsStale(s32 arg0) {
     s8 idx = G02_P->unk247;
@@ -260,14 +297,7 @@ typedef struct G02ActorView {
 extern s32 gFrameCounter;
 extern s32 gGlobalOverlayFlags;
 extern u16 D_807FD63A[][0x1A];
-u8 flagGet(s16, u8);
-u16 slotQueueGetValue(u8, u8);
-void effectSpawnBurst(u8);
-void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
-void slotQueueUpdate(s32, u8, s32);
-s32 slotQueueGetCountStep(s32);
-void slotQueueAddValue(s32, u8, s16);
-void actorScriptStartByIndex(Actor *, s32);
+void slotQueueAddValue(s32, u8, s16); // FAKE: callee prototype steer
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 void playerCheckAndClearCarriedItem(void) {
@@ -433,32 +463,9 @@ extern s16 D_807F5FE8;
 extern s16 D_807F5FEA;
 extern s32 D_80720020;
 
-void playerUpdateScaleAndPhysics();
-void playerCheckQueueDropCallback(void);
-void func_806CF580(void);
-void playerCheckLedgeGrab(void);
-void sfxStopChannel(s32, s32);
-void gridSetNodeBounds(u8, f32, f32, f32, f32);
-void proxPathUpdateAllPlayers(void);
-u8 collisionGetHitStatus(void);
-u8 collisionIsGroundImpact();
-u8 collisionIsHeavyGroundImpact();
-u8 collisionGetFloorType();
-u8 collisionGetMaterialType();
 void func_80026D40(void *, u8);
-void mapSetPendingTransition(s16, u8);
-void mapExecuteDeathTransition(s32);
-void mapExecuteVoidTransition();
-void healthRefill(u8);
-void effectEnableFade();
 void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
-void effectFreeAndUnlink(void *);
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
-s32 playerStateQueueCallback(s16, void *, u8);
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 sqrtf(f32);
-void effectSetDuration(s32);
-void effectSetMode(s8);
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 
 void playerUpdateCommon(s32 arg0) {
@@ -772,24 +779,9 @@ extern s32 D_8071FB08;
 extern s32 sEffectSparkConfig;
 extern s32 effectZSpinMatrixUpdate;
 extern s32 func_80717930;
-s32 randomNonNegative();
-u8 camIsCutsceneActive(void);
-void func_80687400();
-void actorScriptStart(Actor *, s32);
-void effectSetCallback(void *);
-void effectSetDepth(s8);
-void effectSetDuration(s32);
-void effectSetFlags(s16);
-void effectSetSpeed(s32);
+void effectSetCallback(void *); // FAKE: callee prototype steer
 void effectCreateAtActorBone(void *, f32, void *, s32, s32);  // FAKE: callee prototype steer
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
-void playerInitNormalMoveParams(void);
-void playerSetSizeMode(Actor *, u8);
-void playerScaleTransitionStep(void);
-void sfxStopChannel(s32, s32);
-void playerTransformAnimalEndSfx(Actor *);
-void playerResumeLocomotion(Actor *);
-void playerCheckAndResetCarriedActor(Actor *);
 
 void playerUpdateScaleAndPhysics(void) {
     s32 a0;
@@ -958,8 +950,6 @@ void playerCheckQueueDropCallback(void) {
 }
 
 extern f32 gKongCannonInitialPitch[];
-s32 mathAngleDistance(s16, s16);
-void actorScriptExecute(Actor *);
 
 void playerCheckLandingSfx(void) {
     if ((G02_A->unk6A & 0x21) == 1) {
@@ -1136,11 +1126,6 @@ typedef struct G03PlayerView {
 #define G03_A ((G03ActorView *)gCurrentActor)
 #define G03_P ((G03PlayerView *)gActivePlayerState)
 
-void playerUpdateHorizontalVelocity(s32);
-void playerCheckLandingSfx(void);
-void playerApplyMotion(void);
-void playerApplyGravity(void);
-f32 mathApproachF32(f32, f32, f32);
 
 extern s16 D_80753A3C[];
 extern s16 D_80753A4C[];
@@ -1185,10 +1170,7 @@ void playerDecelerateAndApplyMotion(void) {
 
 extern s16 D_80753A2C[];
 extern f32 D_80753A5C[];
-void actorApplyVelocityCustom(Actor *, f32, f32);
-void actorStepPhysics(Actor *, s16, s16);
-void actorApplyVelocity(Actor *);
-void actorUpdateFloorContactAndTilt(Actor *, f32);
+void actorStepPhysics(Actor *, s16, s16); // FAKE: callee prototype steer
 
 void playerApplyDecelVelocityVector(f32 arg0) {
     f32 vx;
@@ -1307,9 +1289,6 @@ void playerApplyGravity(void) {
     }
 }
 
-f32 mathScaleByAngleDeltaCos(f32, s16, s16);
-void playerApproachVelocity(s16, f32, f32);
-void playerApplyDeceleration(void);
 
 void playerApproachOrApplyMotion(void) {
     f32 temp = mathScaleByAngleDeltaCos(G03_P->unk4, G03_P->unkA, G03_A->unkE6);
@@ -1383,7 +1362,6 @@ typedef struct NmCEAE0bActor {
 #define NMB_A ((NmCEAE0bActor *)gCurrentActor)
 #define NMB_P ((NmCEAE0bPlayer *)gActivePlayerState)
 
-f32 mathAtan2(f32, f32);
 
 void playerUpdateHorizontalVelocity(arg0) u8 arg0; {
     f32 fa1;
@@ -1747,14 +1725,8 @@ typedef struct G04ActorView {
     /* 0xC0 */ f32 unkC0;
 } G04ActorView;
 
-s16 playerSelectSurfaceMoveTier(Actor *, f32, f32, s16, s16);
-void scriptSetActorRampTarget(Actor *, f32, f32);
-void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
-void controllerAnimScaleInterpolate(Actor *, s32);
 
 extern u8 gPlayerCharacterId[];
-void controllerAnimSetStateRemap(struct ControllerStateView *, s16, f32, f32);
-void playerInitMoveParams(void);
 
 s16 playerSelectWalkRunState(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
     s16 sp36;
@@ -2116,7 +2088,6 @@ typedef struct G05Model {
     /* 0x24 */ f32 unk24;
 } G05Model;
 
-s32 playerSelectCarryMoveTier(f32, f32);
 
 s16 playerSelectCarryMoveState(Actor *arg0, f32 arg1, f32 arg2, s32 arg3) {
     s16 sp26;
@@ -2258,9 +2229,6 @@ typedef struct G05Node {
     /* 0x10 */ Actor *unk10;
 } G05Node;
 
-void playerHeldActorFollowStep();
-void *heapAlloc(s32);
-void actorRegisterGlobalCallback(void *);
 
 void playerRegisterHeldActorFollow(f32 arg0) {
     G05Node *node;
@@ -2276,8 +2244,6 @@ void playerRegisterHeldActorFollow(f32 arg0) {
     }
 }
 
-s32 playerGetHoldNodeIndices(s32 *, s32 *);
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 
 void playerComputePickupHoldPitch(void) {
     f32 sp44;
@@ -2306,7 +2272,6 @@ typedef struct HeldActorFollowArg {
     /* 0x8 */ Actor *unk8;
 } HeldActorFollowArg;
 
-void actorAppendCallbackPayloadA70C(s32, Actor *, f32, f32, f32, u8, u8);
 
 void playerHeldActorFollowStep(HeldActorFollowArg *arg0) {
     f32 nodeX[2];
@@ -2342,7 +2307,6 @@ typedef struct G05Node2 {
     /* 0x10 */ s32 unk10;
 } G05Node2;
 
-void func_806CF138();
 
 void playerRegisterHeldActorAlign(void) {
     G05Node2 *node;
@@ -2362,9 +2326,6 @@ typedef struct G05CbArg2 {
     /* 0x4 */ Actor *unk4;
 } G05CbArg2;
 
-f32 acosApprox(f32);
-f32 asinApprox(f32);
-void actorAppendCallbackVec2f(Actor *, Actor *, f32, f32);
 
 void func_806CF138(G05CbArg2 *arg0) {
     f32 sp74;
@@ -2448,7 +2409,6 @@ void playerThrowHeldActor(Actor *arg0) {
     }
 }
 
-void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
 
 void playerDropHeldActor(Actor *arg0) {
     G05PlayerView *p;
@@ -2493,16 +2453,7 @@ void actorReleaseFromPlayerHold(Actor *arg0) {
 
 extern u8 D_80750AD0;
 extern u8 D_8071FC40;
-void effectWobbleRiseUpdate(void);
-void animSetSpeed(void *, s32, f32);
-void animSetLoopMode(void *, s32, u8);
-void animSetDirection(void *, s32, u8);
-void animResetEndFrame(void *, s32);
-void animSetStartFrame(void *, s32, s16);
-void animSetLoopLimit(void *, s32, s16);
-void animSetFrameAndSubframe(void *, s32, s16, f32);
-u8 func_8072881C(u8, u32 *);
-u32 randomLcgNext(void);
+u32 randomLcgNext(void); // FAKE: callee prototype steer
 
 void func_806CF580(void) {
     if (!(gCurrentActor->flags & 0x10)) {
@@ -2605,10 +2556,6 @@ typedef struct G06PlayerView {
 
 #define G06_P ((G06PlayerView *)gActivePlayerState)
 
-u8 playerProbeLedgeAhead(Actor *, f32 *, u8, f32);
-s32 actorAngleInArc(Actor *, s16);
-u8 collisionGetHitFlags(void);
-void collisionGetCoords(void *, s16 *);
 extern f32 D_80753E10[];
 extern s16 D_80753E00[];
 
@@ -2653,7 +2600,6 @@ void playerCheckLedgeGrab(void) {
 }
 
 u8 collisionCheckActorFloor(Actor *, f32, f32, f32, f32 *);
-u8 collisionGetSurfaceFlags(void);
 
 u8 playerProbeLedgeAhead(Actor *arg0, f32 *arg1, u8 arg2, f32 arg3) {
     f32 dx;
@@ -2672,7 +2618,6 @@ u8 playerProbeLedgeAhead(Actor *arg0, f32 *arg1, u8 arg2, f32 arg3) {
     return ret;
 }
 
-void playerSetBaseGravity(void);
 
 void playerSetBaseGravityIfFalling(void) {
     if (G03_A->unkC0 < 0.0f) {
@@ -2742,11 +2687,6 @@ void playerEnterFall(Actor *arg0) {
     }
 }
 
-s16 playerSelectWalkRunState(Actor *, f32, f32, s32);
-s16 playerSelectCarryState(Actor *, f32, f32, s32);
-s16 playerSelectSurfaceState(Actor *, f32, f32, s32);
-void actorSetInteractionTimer(Actor *);
-void playerEnterBarrelTransition(Actor *);
 
 void playerResumeLocomotion(Actor *arg0) {
     G06PlayerView *p = arg0->customState;
@@ -2845,7 +2785,6 @@ void playerSetTerminalVelocity578(void) {
     G06_P->unk28 = 1;
 }
 
-void playerSetNormalMoveParams(void);
 
 void playerInitMoveParams(void) {
     if (G06_P->unk1AC != 0) {
@@ -2893,7 +2832,6 @@ typedef struct G07StateB {
     /* 0x1E4 */ s32 unk1E4;
 } G07StateB;
 
-void camSetZoomLevel(void *, s32);
 
 void playerSetSizeMode(Actor *arg0, u8 arg1) {
     G07StateB *state = arg0->customState;
@@ -3085,10 +3023,8 @@ typedef struct G07ActorA {
 
 #define G07_A ((G07ActorA *)gCurrentActor)
 
-void actorDespawn(Actor *);
 s32 actorTableContains(void *);
 void actorCopyPoseAndScale(void *, void *, s32, void *);
-void actorUpdateModelMatrix(Actor *, s32);
 
 void actorChildEffectUpdate(void) {
     G07StateA *state = G07_A->unk174;

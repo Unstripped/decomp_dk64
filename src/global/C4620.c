@@ -1,5 +1,41 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorSub140CreateFromModel // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
+#include "proto/global/103AB0.h"
+#include "proto/global/112080.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/126260.h"
+#include "proto/global/127B00.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
+#include "proto/global/35000.h"
+#include "proto/global/36880.h"
+#include "proto/global/42630.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/8CA50.h"
+#include "proto/global/8F4B0.h"
+#include "proto/global/90D80.h"
+#include "proto/global/936B0.h"
+#include "proto/global/A2F10.h"
+#include "proto/global/C4620.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/F56F0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -65,11 +101,6 @@ typedef struct R1C46aActor {
 
 #define R1V ((R1C46aActor *)gCurrentActor)
 
-void *heapAlloc(s32);
-void func_806C8220();
-void playerWeaponInitCrosshair(Actor *, void *, s32 *);
-void playerWeaponSpawnProjectile(Actor *, void *, s32 *);
-void playerWeaponAimTarget(Actor *, void *, s32 *);
 
 void func_806BF920(void) {
     u16 *state;
@@ -122,12 +153,6 @@ void func_806BF920(void) {
     }
 }
 
-void playerKongPlaySoundByState();
-void func_806C7BAC();
-void playerKongStopSoundByState(void *);
-void playerKongSpawnTransformationSmoke();
-void controllerAnimFreeStateAsset();
-void controllerAnimSetState(Actor *, s16, f32, f32);
 
 void func_806BFA8C(u16 animId) {
     switch (animId) {
@@ -163,9 +188,6 @@ void func_806BFA8C(u16 animId) {
     }
 }
 
-void controllerStepMotionWindows();
-void actorUpdateModelMatrix(Actor *, s32);
-void actorCheckWorldBounds(Actor *);
 
 void func_806BFBB4(void) {
     controllerStepMotionWindows(gCurrentActor);
@@ -316,40 +338,8 @@ extern u8 D_80747B00[];
 extern void *sScriptEffectSprites[];
 extern LgBFDCA0 *D_807FDCA0;
 
-void playerKongStopAudioChannels(Actor *, u16);
-void actorSetTargetSpeed(Actor *, s32);
-void actorScriptStart(void *, s32);
-void scriptSetActorRampTarget(Actor *, f32, f32);
-s32 pathPlaybackStart(s32, s32, u8, f32, f32, f32, u8);
-void pathPlaybackSetSpeed(s32, u8);
-void pathPlaybackSetLoopLimit(s32, s32);
-void pathPlaybackSetActive(s32, u8);
-void pathPlaybackAdvance(s32);
-void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
-u8 pathPlaybackIsActive(s32);
-void actorSetUniformScale(Actor *, f32);
-Actor *spawnNodeActivate(s16, u16);
-s32 func_8072881C(s32, void *);
-void actorApplyGravity(void);
-void behaviourUpdateShadowAlpha(void);
-void behaviourFadeOutWithinZone(u8);
-void func_8072E320(f32);
-s16 mathAngleLerp(s16, s16, f32);
-void lightUpdateFromActorLighting(void *, void *, void *);
-void heapFree(void *);
-s32 randomNonNegative(void);
-void effectSetSpeed(s32);
-void effectSetCallback(void *);
-void effectSetMode(s32);
-void effectSetMaxDistance(s32);
-void effectSetDepth(s32);
-void effectSetColor(s32, s32, s32, s32);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void func_80717D4C(void);
-void actorApplyVelocityCustom(void *, f32, f32);
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
-s32 patrolPathStep(u8, s32);
+void effectSetMode(s32); // FAKE: callee prototype steer
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void actorScriptedCommandUpdate(void) {
     s16 j;
@@ -687,17 +677,6 @@ typedef struct R1C46aS90 {
 #define R1S90 ((R1C46aS90 *)gBehaviourWorkState)
 
 extern Actor *gSpawnedActor;
-void actorScriptStart(void *, s32);
-void resQueueAttachActor(Actor *, s32, u8);
-void actorSetTargetSpeed(Actor *, s32);
-s32 actorMoveWithinZone(u8, f32, f32, s32, f32);
-s32 patrolPathStep(u8, s32);
-s32 func_80724A20(void);
-s32 currentActorTestClearFlag(void);
-s32 actorSpawn(s32, s32);
-void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
-void actorCopyPoseAndScale(void *, void *, f32);
-void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 
 void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
     f32 nodeY;
@@ -747,8 +726,6 @@ void func_806C10A0(u8 paramA, u16 actionId, s16 scriptId) {
     }
 }
 
-void camEndPath(void *);
-void actorDespawn(Actor *);
 extern void *gCamActor;
 
 void func_806C1300(void) {
@@ -766,8 +743,6 @@ void func_806C1300(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void actorUpdatePrevContactFlags(Actor *);
-s16 playerSelectMoveTier(Actor *, f32, f32, s16, s16);
 
 void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 animMax) {
     s16 val;
@@ -800,8 +775,6 @@ void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 an
     }
 }
 
-u8 flagGet(s16, u8);
-void flagSet(s16, u8, u8);
 
 void func_806C151C(u16 actionId, u8 actionParam, s16 flagId) {
     f32 dx;
@@ -831,9 +804,7 @@ void func_806C15E8(void) {
     R1V->unkCC = 1;
 }
 
-void behaviourFrameBegin(void);
 extern s32 gCurrentMap;
-void actorScriptedCommandUpdate(void);
 
 void func_806C1640(void) {
     behaviourFrameBegin();
@@ -855,17 +826,8 @@ void func_806C1640(void) {
 extern u32 gFrameCounter;
 extern u8 D_8071FB08;
 extern u8 D_807200D4;
-void effectSetMode(s32);
-void effectSetDepth(s32);
-void effectSetCallback(void *);
-void effectShrinkFadeMatrixUpdate(void);
-void effectSetSpeed(s32);
-void effectLightPulseOscillate(void);
+void effectSetMode(s32); // FAKE: callee prototype steer
 void effectCreateAtActorBone(void *, f32, void *, s32, s32); // FAKE: callee prototype steer
-void playerKongClearFlagsByActorType();
-s32 randomNonNegative(void);
-void projectileGetTargetCoords(void *, s32);
-void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
 
 void func_806C1734(void) {
     R1C46aSub4 *sub;
@@ -927,10 +889,7 @@ void func_806C1734(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_80724CA4(s16, s16);
-void playerKongStopAudioChannels(Actor *, u16);
-void effectSetColor(s32, s32, s32, s32);
-void func_80724E48(u8);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 extern Actor *gBehaviourTargetActor;
 extern u8 D_8071FBA0;
 
@@ -1002,9 +961,6 @@ done:
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void controllerAnimLoadStateAsset();
-void renderCallbacksRegister(void *, void *, u8);
-Gfx *gfxBuildScanlineNoise(Gfx *, s32);
 
 void func_806C1CCC(void) {
     behaviourFrameBegin();
@@ -1036,12 +992,6 @@ void func_806C1CCC(void) {
 
 extern u8 D_8071FF58[];
 extern u8 D_80720B58[];
-void effectWobbleScaleUpdate();
-void effectScatterFallUpdate();
-void animSetLoopLimit(void *, s32, s16);
-void animSetFinished(void *, s32, u8);
-void animSetFrameAndSubframe(Actor *, s32, s16, f32);
-void effectSetDuration(s32);
 
 void func_806C1E44(void) {
     s32 i;
@@ -1148,18 +1098,6 @@ extern s16 gCsModelIds[];
 extern u8 gPlayerCharacterId;
 extern s32 D_807FBDC8[];
 extern u8 D_8071FC40;
-void effectWobbleRiseUpdate(void);
-void actorPitchEaseTowardPoint(s16, s16, f32, f32, f32, u8, f32, f32, u16);
-void modelSlotGetNodePos(s32, u8, s32, f32 *, f32 *, f32 *);
-s16 mathAngleEaseToward(s16, s16, f32);
-void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
-void actorTurnTowardActorYaw(u8, Actor *);
-u8 actorIsTargetWithinDistance(u16);
-s32 func_8072881C(s32, void *);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-u16 camStartPath(void *, s16, u8);
-u8 camIsCutsceneActive(void);
-void resQueueSetValue(s8);
 
 typedef struct R1C46bActor {
     /* 0x00 */ u8 pad0[0xC0];
@@ -1272,8 +1210,6 @@ void func_806C226C(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
-void effectSpawnActorBone(Actor *, u8, f32);
 
 void actorPlaySoundSpawnBoneEffects(void) {
     f32 scale = gCurrentActor->sub4->scaleY / 0.15;
@@ -1288,7 +1224,6 @@ void actorPlaySoundSpawnBoneEffects(void) {
     }
 }
 
-void effectSpawnOctagonRing(f32, f32, f32, f32);
 
 typedef struct R1C46bInner {
     /* 0x0 */ u8 pad0[4];
@@ -1326,9 +1261,6 @@ void actorSpawnOctagonRingsByTimer(void) {
     }
 }
 
-void effectSetMaxDistance(s32);
-void effectSetParam(s32);
-void effectLinearFadeAlphaUpdate();
 
 void effectSpawnColoredParticleAtPoint(u8 r, u8 g, u8 b, f32 x, f32 y, f32 z, void *particleGfx, f32 scale) {
     effectSetMaxDistance(1000);
@@ -1441,23 +1373,7 @@ typedef struct LgC2DF4S9C {
 
 #define LgV ((LgC2DF4Actor *)gCurrentActor)
 
-void controllerAnimFree(Actor *);
-void controllerAnimInit(Actor *, u16);
 ActorSub140 *actorSub140CreateFromModel(Actor *);
-void actorSetUniformScale(Actor *, f32);
-void func_80728950(u8);
-void currentActorAnimSetFrame(u8, u8);
-void actorGetNodePosOrPosition(Actor *, s32 *, s32 *, s32 *);
-void effectSpawnActorBoneEffects(u8);
-void effectSpawnChildAtNode(u8, s16, s16);
-void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
-void effectSpawnActorScale(Actor *);
-void effectActorCheckGroundScaleSpawn(Actor *);
-void sfxStopSlotSound(Actor *, u8);
-void actorSetGroupState(u8, u8);
-void commandQueuePush(s32, s16, s16, s16, u8, u8, u8, u8, u8);
-void effectSpawnJointBeam(s32, s32, s32, s32);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 extern s32 gGlobalCutsceneFlags;
 
 void func_806C2DF4(void) {
@@ -1744,7 +1660,6 @@ void func_806C2DF4(void) {
 }
 
 extern s16 D_80750AC8;
-void csModelStateSetFirstByte(s16, s16);
 
 void func_806C3A8C(void) {
     s32 dist;

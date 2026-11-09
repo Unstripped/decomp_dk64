@@ -1,5 +1,20 @@
 #include "common.h"
 #include "actor.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/A7710.h"
+#include "proto/global/CB230.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -43,21 +58,12 @@ typedef struct R1C8CBView98 {
 #define R1V ((R1C8CBActor *)gCurrentActor)
 
 f32 sqrtf(f32);
-void behaviourFrameBegin(void);
-void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
-void actorSetTargetSpeed(Actor *, s32);
-void actorPitchEaseTowardPoint(s32, s32, f32, f32, f32, s32, f32, f32, s32);
-s32 func_8072881C(s32, void *);
-void actorUpdateModelMatrix(Actor *, s32);
 
 extern ActorEntry gActiveActors[];
 extern u16 gActiveActorCount;
 extern u32 gFrameCounter;
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void lightSetFovAngles(f32, f32);
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
 void actorUpdateNearestSpotlight(void) {
     R1C8CBSub178 *p;
@@ -174,20 +180,6 @@ void func_806C6BA0(void) {
 }
 
 extern Actor *gSpawnedActor;
-void hudSpawnCountdownTimer(s32, s32, u8);
-void actorSetStateTwo(Actor *);
-void func_805FF9AC(s32, s32, s32, s32);
-void actorSetUniformScale(Actor *, f32);
-void actorScriptStart(Actor *, s32);
-void scriptSetActorRampTarget(Actor *, f32, f32);
-void camRequestPathLength(void);
-s32 camStartPath(Actor *, s32, s32);
-void effectSpawnSparks(s32, s32);
-s32 randomNonNegative(void);
-void csModelStateSetFirstByte(s32, s32);
-void actorDespawn(Actor *);
-void patrolPathStep(s32, s32);
-void behaviourFadeOutWithinZone(s32);
 
 #define R1S ((R1C8CBState *)gBehaviourWorkState)
 

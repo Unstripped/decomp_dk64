@@ -1,5 +1,29 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorAppendCallback4000 // FAKE: callee prototype steer
+#define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
+#define PROTO_SKIP_func_806C9974 // FAKE: callee prototype steer
+#define PROTO_SKIP_playerSetSizeMode // FAKE: callee prototype steer
+#include "proto/global/117190.h"
+#include "proto/global/12E800.h"
+#include "proto/global/135D30.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/5E020.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/936B0.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/E4090.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/FCCD0.h"
 
 
 extern Actor *gCurrentActor;
@@ -78,12 +102,6 @@ typedef struct EfAParameters {
 #define EfA_A40 ((EfAActor *)gCurrentActor)
 
 extern EfAParameters gPlayerStateCallbackParams;
-void scriptSetRampValue(Actor *, f32, f32);
-void actorScriptStartByIndex(Actor *, s32);
-void actorScriptStart(Actor *, s32);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void playerResumeLocomotion(Actor *);
-void slotQueueUpdate(s32, u8, s32);
 
 s32 playerStateQueueCallback(s16 priority, void *actor, u8 player) {
     u8 playerByte;
@@ -134,8 +152,6 @@ void playerStateDispatchQueuedCallback(void) {
 }
 
 
-void playerApproachVelocity(s16, f32, f32);
-void playerSetTerminalVelocity5B0(void);
 
 void playerStateInitApproachVelocity(void) {
     playerSetTerminalVelocity5B0();
@@ -206,7 +222,6 @@ void playerStateInitState5F(void) {
     actorScriptStartByIndex(gCurrentActor, 0x4A);
 }
 
-extern u16 slotQueueGetValue(u8, u8);
 
 void playerStateInitState60(void) {
     s32 selector;
@@ -282,10 +297,6 @@ typedef struct EfN2TargetActor {
     f32 unkB4;
 } EfN2TargetActor;
 
-void camSaveYaw(void *);
-void camSetZoomLevel(void *, s32);
-void playerKongPlaySoundByState(Actor *);
-void sfxStopSlotSound(Actor *, u8);
 
 void playerStateTakeDamagePrep(void) {
     Actor *actor;
@@ -452,10 +463,7 @@ typedef struct EfBCamera {
 
 #define EFB_P ((EfBPlayer *)gActivePlayerState)
 
-void playerDropHeldActor(Actor *);
-void behaviourAddSlotQueueValueB(s32);
 void func_80026004();
-void playerTransformAnimalStartSfx(Actor *);
 
 void playerStateEnterSquish(void) {
     ((EfBActor *)gActivePlayerActor)->unk154 = 7;
@@ -547,14 +555,6 @@ typedef struct EfN2PlayerState {
 extern EfN2ModelSlot *gModelSlots;
 extern s16 D_807539DC[];
 extern s16 D_807539EC[];
-void scriptSetActorRampTarget(Actor *, f32, f32);
-void playerKongStopSoundByState(void *);
-void actorClearMovementFlags(void *);
-s32 hashTableLookup(s32);
-void camStartPath(Actor *, s32, s32);
-void controllerAnimSetStateIfChanged(Actor *, s32, f32, f32);
-void actorCopyPoseAndScale(Actor *, Actor *, f32);
-void controllerAnimSetStateRemap(Actor *, s32, f32, f32);
 
 void playerStateEnterFlattened(void) {
     f32 speed;
@@ -704,7 +704,6 @@ extern s16 D_807538F8[];
 extern f32 D_80753988[];
 extern s16 D_807539FC[];
 extern f32 D_80753A5C[];
-void playerThrowHeldActor(Actor *);
 
 void playerStateCheckLandingAir(void) {
     f32 temp_fa0;
@@ -853,7 +852,6 @@ void playerStateEnterAction24(void) {
     EFB_P->unkC8 = 0x32;
 }
 
-void actorScriptExecute(Actor *);
 
 void playerStateEnterHoldThrow(void) {
     f32 value;
@@ -926,10 +924,6 @@ typedef struct EfN4ActorC0 {
 extern s32 gGlobalCutsceneFlags;
 extern f32 D_807535CC[];
 extern s16 D_8075380C[];
-void camStartBlendRamp(void *, s32);
-s16 actorListFindIdByActor(Actor *);
-void playerSetBaseGravity(void);
-void playerClearCarriedItemState(void);
 
 
 
@@ -965,8 +959,6 @@ void playerStateEnterState17(void) {
 }
 
 
-s32 playerCanTakeHit(Actor *);
-void playerTakeDamage(s16);
 
 void playerStateTakeHitAndDamage(void) {
     s32 value;
@@ -1083,7 +1075,6 @@ typedef struct EfN8PlayerD4 {
     s16 unkD4;
 } EfN8PlayerD4;
 extern s16 D_807530B0[];
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 
 typedef struct EfdAPlayer {
     u8 pad0[0x88];
@@ -1144,8 +1135,6 @@ void playerStateDamageCheck4(void) {
     }
 }
 
-u8 flagGet(s16, u8);
-void flagSet(s16, u8, u8);
 
 void playerStatePlayAnimationByDamageType(u16 arg0) {
     u16 ev;
@@ -1277,16 +1266,7 @@ typedef struct EfL1Global568 {
 #define EfL1A48 ((EfL1Actor *)gActivePlayerActor)
 
 extern void *D_807FD568;
-Actor *actorFindByType(u16);
-void actorSpawnChildActor(Actor *);
-void effectSpawnActorOrbitParticles(Actor *);
-void actorSetInteractionTimer(Actor *);
-s32 playerGetResolvedKongId(s32);
-void playerSetKongByActorType(s16);
-void playerEnterFall(Actor *);
 void playerSetSizeMode(Actor *, s32); // FAKE: callee prototype steer
-void playerStatePlayAnimationByDamageType(u16);
-void playerStateApplyAttackerDamage(Actor *);
 
 void playerStateSetLaunchVelocity(void) {
     u8 flag;
@@ -1453,7 +1433,6 @@ typedef struct EfCPlayerState {
     s16 unk1EE;
 } EfCPlayerState;
 
-void playerSetKongByActorType(s16);
 
 void playerRevertToSavedKong(void) {
     playerSetKongByActorType(((EfCPlayerState *)gActivePlayerState)->unk1EE);
@@ -1499,7 +1478,7 @@ typedef struct EfCPlayerD4 {
     s16 unkD4;
 } EfCPlayerD4;
 
-s32 func_806C9974(u8, s8);
+s32 func_806C9974(u8, s8); // FAKE: callee prototype steer
 
 void playerStateEnterDamageTake(void) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
@@ -1619,9 +1598,6 @@ typedef struct {
     u8 pad2AC[0x44];
 } EfDE5Player;
 
-extern void playerClearCarriedItemState(void);
-extern void actorScriptStartByIndex(Actor *, s32);
-extern void sfxStopChannel(s32, s32);
 
 void playerStateStopSfxAndClearCarried(void) {
     playerClearCarriedItemState();
@@ -1632,16 +1608,12 @@ void playerStateStopSfxAndClearCarried(void) {
     gActivePlayerActor->unk155[0] = 0;
 }
 
-extern void playerSetBaseGravity(void);
-extern void playerEnterFall(Actor *);
 
 void playerStateEnterFallAndSetGravity(void) {
     playerSetBaseGravity();
     playerEnterFall(gCurrentActor);
 }
 
-extern void playerThrowHeldActor(Actor *);
-extern void playerResumeLocomotion(Actor *);
 
 void playerStateSwimTreadWithScript(void) {
     playerThrowHeldActor(gActivePlayerActor);
@@ -1664,9 +1636,7 @@ void playerResumeLocomotionAndThrow(void) {
     gActivePlayerActor->unk155[0] = 0;
 }
 
-extern s32 playerCanTakeHit(Actor *);
 extern s16 D_807FD6F2;
-extern void playerTakeDamage(s16);
 
 typedef struct EfN7TransitionState {
     u8 pad0[0x88];
@@ -1692,8 +1662,6 @@ void playerTakeQueuedDamage(void) {
     }
 }
 
-extern void playerKongClearFlagsByActorType(Actor *);
-extern u8 camIsCutsceneActive(void);
 
 void playerStateCutsceneDamageCheck(void) {
     if ((gGlobalCutsceneFlags & 2) != 0) {
@@ -1722,8 +1690,6 @@ typedef struct {
 
 #define EfDStateDc ((EfDPlayerStateDc *)gActivePlayerState)
 #define EfDPlayer ((EfDPlayerBlock *)gPlayerSlots)
-extern void actorSpawnAttachment(Actor *, f32);
-extern void actorAppendActiveCallback8(void);
 
 void playerStateDamageCheck5(void) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
@@ -1746,8 +1712,6 @@ void playerStateTakeDamageAndDrop(void) {
     }
 }
 
-extern void actorScriptStart(Actor *, s32);
-extern void scriptSetActorRampTarget(Actor *, f32, f32);
 
 void playerStateDamageCheck2(void) {
     if (playerCanTakeHit(gCurrentActor) != 0) {
@@ -1816,16 +1780,6 @@ extern f32 gKongSwimStrokeSpeeds[], D_80753040[], gKongSwimTurnSpeeds[], D_80753
 extern s16 D_807530B0[], D_807530D0[], D_807530E0[], D_80753160[], D_8075386C[];
 extern f32 gKongSwimPaddleSpeeds[], D_8075310C[], D_80753128[], gKongSwimSpeeds[], gKongTurnDecelRates[], D_8075389C[];
 extern s32 gFrameCounter;
-extern s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-void slotQueueCancel(s32, s32);
-extern void sfxPlayScriptActorSoundForPlayer(Actor *, s16, u8);
-extern s8 func_806C9830(s8, Actor *);
-extern Actor *actorResolveKillCreditOwner(Actor *);
-extern void playerSetRecentAttacker(Actor *, PlayerState *);
-extern void playerRecordHitSource(Actor *, Actor *, s32);
-extern s32 playerHitSourceIsStale(s32);
-extern s32 func_807142D8(void);
-extern s32 func_80714608(s32);
 
 void playerTakeDamage(s16 arg0) {
     s16 var_a0;
@@ -2072,8 +2026,6 @@ void playerStateEnterDamageReaction(void) {
     }
 }
 
-extern void playerDropHeldActor(Actor *);
-extern void camStartPath(Actor *, s32, s32);
 
 void playerStateEnterDamageReaction2(void) {
     if (playerCanTakeHit(gActivePlayerActor) != 0) {
@@ -2107,7 +2059,6 @@ typedef struct EfN7SpawnParams {
 } EfN7SpawnParams;
 
 extern EfN7SpawnParams D_8075D380;
-extern void actorSpawn(s32, s32);
 
 void playerStateSpawnParticles(void) {
     EfN7SpawnParams spawnParams;
@@ -2137,10 +2088,6 @@ typedef struct {
     u8 pad21C[0xD4];
 } EfDNavigationPlayer;
 
-extern void playerCheckAndResetCarriedActor(Actor *);
-extern s16 mathAngleArcMidpoint(s16, s16);
-extern s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-extern void camStartPathNearWall(Actor *, s32, s32, s32);
 
 void playerStateStopChannelAndClearCarried(void) {
     sfxStopChannel(0x6B, 0);
@@ -2225,7 +2172,6 @@ typedef struct EfECamBlock {
 } EfECamBlock;
 
 #define EfECam ((EfECamBlock *)gPlayerSlots)
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void playerStateDropHeldActorAndScript(void) {
     playerClearCarriedItemState();
@@ -2342,8 +2288,6 @@ void playerStateEnterClimbTree(void) {
     gActivePlayerActor->unk155[0] = 0;
 }
 
-void actorSpawn(s32, s32);
-void actorSetInteractionTimer(Actor *);
 
 void playerStateEnterKnockbackState(void) {
     EfEPS->unk4C = -1;
@@ -2421,7 +2365,6 @@ void playerStateSetFlagsByActorType(void) {
     gActivePlayerActor->unk155[0] = 0;
 }
 
-void func_806E9964(EfEPlayerState *);
 
 void func_806F0624(void) {
     EfEPS->unk1F4 |= 0x10;

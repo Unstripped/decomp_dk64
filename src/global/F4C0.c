@@ -1,4 +1,5 @@
 #include "common.h"
+#include "proto/global/F4C0.h"
 
 typedef struct {
     s16 unk0;

@@ -1,5 +1,19 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/12E800.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/35000.h"
+#include "proto/global/36880.h"
+#include "proto/global/3C10.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/63810.h"
+#include "proto/global/7130.h"
+#include "proto/global/BD820.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -26,24 +40,8 @@ typedef struct BD820View9C {
 
 extern void *D_8074E880[];
 extern u8 sEffectSparkConfig[];
-extern void effectWispWanderUpdate(void);
-extern void func_80717D4C(void);
 
-s32 randomNonNegative(void);
-void behaviourFrameBegin(void);
-void actorUpdateModelMatrix(Actor *, s32);
-void effectSetAngle(s16);
-void effectSetCallback(void *);
-void effectSetDepth(s32);
-void effectSetDuration(s32);
-void effectSetSpeed(s32);
-void effectSetMode(s32);
-void effectSetColor(s32, s32, s32, s32);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void controllerAnimSetStateIfChanged(Actor *, s32, f32, f32);
-u8 mapHasCollectedSufficientItems(void);
-void modelSlotOrFlags(s32, s32);
-void func_806B8C78(void);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 
 void effectSpawnRandomParticleAtPoint(s16 x, s16 y, s16 z, s16 lifetime) {
     effectSetCallback(effectWispWanderUpdate);
@@ -64,12 +62,6 @@ void func_806B8BDC(s16 x, s16 y, s16 z) {
 
 extern s16 gCsModelIds[];
 
-void actorScriptStart(Actor *, s32);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void sfxAllocateChannel(s32, f32);
-void actorSetTargetSlotByte(s32, u8);
-void lightSetColor(f32, f32, f32, s16);
-void modelSlotClearFlags(s32, s32);
 
 void func_806B8C78(void) {
     f64 t;

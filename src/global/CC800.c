@@ -1,5 +1,33 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorSub140CreateFromModel // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_controllerAnimFree // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_playerSetSizeMode // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_playerTransformAnimalEndSfx // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_rumbleRequest // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
+#include "proto/global/10D2D0.h"
+#include "proto/global/126260.h"
+#include "proto/global/131B0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/5650.h"
+#include "proto/global/69E60.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/8D3E0.h"
+#include "proto/global/936B0.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/E4090.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/F600.h"
+#include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -48,8 +76,6 @@ typedef struct G00SpawnSub {
     /* 0x8 */ u8 unk8;
 } G00SpawnSub;
 
-s32 actorSpawn(s32, s32);
-void actorCopyPoseAndScale(Actor *, Actor *, f32);
 
 void func_806C7B50(s32 arg0, u8 arg1, Actor *arg2) {
     G00SpawnSub *sub;
@@ -185,12 +211,6 @@ typedef struct G00Player306 {
     /* 0x2FE */ u8 pad2FE[8];
 } G00Player306;
 
-void *heapAlloc(s32);
-void heapClearBlock(void *);
-void playerSetupCharacterForSlot(s32, u8);
-void hudDrawItemWithAlpha(void *);
-void healthRefill(u8);
-void func_806C80E4(void);
 extern u8 gPlayerInventoryTable[][0x5E];
 extern G00Sub6 D_807ECD10[];
 extern s16 D_807ECD48[];
@@ -284,7 +304,6 @@ typedef struct G00View1F0 {
 
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void actorListSpawnNodeEntryDefault(s16, f32, f32, f32, s32, f32, Actor *);
 
 void func_806C80E4(void) {
     f32 sp34;
@@ -505,19 +524,11 @@ typedef struct G00Slot34 {
 #define G00_P ((G00Player *)gActivePlayerState)
 #define G00_A48 ((G00ActorView *)gActivePlayerActor)
 
-extern s32 controllerGetPort(s32);
 extern s32 gCurrentMap;
 extern Actor *gCamActor;
 extern f32 D_80753578[];
 extern f32 D_807535E8[];
 extern G00Slot34 gPlayerPadState[];
-void playerInputToggleActiveState(Actor *);
-s32 flagGet(s32, s32);
-void playerKongStopAudioChannels(Actor *, u16);
-void playerResumeLocomotion(Actor *);
-void playerWarpToSpawnPoint(s32);
-void playerSpawnMapHelpers(void);
-void actorSetInteractionTimer(Actor *);
 
 void playerSetupCharacterForSlot(s32 arg0, u8 arg1) {
     G00Row *row;
@@ -620,17 +631,7 @@ typedef struct L6C8984View {
 
 #define L6V ((L6C8984View *)gActivePlayerState)
 
-void actorScriptStart(Actor *, s32);
-void actorScriptStartByIndex(Actor *, s32);
-void controllerAnimSetStateIfChanged(Actor *, s32, f32, f32);
-void playerSetBaseGravity(void);
-void playerKongPlaySoundByState(Actor *);
-void commandSetFlags(s32, s32);
-void commandSetColor(s32, s32, s32);
-void commandSetParameters(s32, s32, s32, s32, s32, s32);
 void func_80028840(void);
-void actorSpawnChildActor(Actor *);
-void func_806C7B50(s32, u8, Actor *);
 
 void playerSpawnMapHelpers(void) {
     f32 scale;
@@ -767,7 +768,6 @@ s32 playerGetResolvedKongId(s32 arg0) {
     return var_v1;
 }
 
-void playerApplyCharacterModel(void *);
 
 void playerSetKongByActorType(s16 arg0) {
     s32 found;
@@ -790,8 +790,6 @@ typedef struct G00View8C {
     /* 0x8C */ u8 unk8C;
 } G00View8C;
 
-void playerInitKongActor();
-void timerQueueAdd(void *, s32, s32, s32, s32);
 
 void playerCycleKongDebug(void) {
     gPlayerCharacterId[gCurrentPlayerIndex]++;
@@ -880,8 +878,6 @@ typedef struct G01Pos {
 
 #define G01A ((G01Act *)gActivePlayerActor)
 
-void func_806C8220(s32, void *, s32);
-void slotQueueInit(s32);
 
 typedef struct G01Arg8F8C {
     /* 0x00 */ s32 unk0;
@@ -892,8 +888,6 @@ typedef struct G01Arg8F8C {
 } G01Arg8F8C;
 
 void controllerAnimFree(Actor *, void *);
-void actorSub140Free(ActorSub140 *);
-void controllerAnimInit(Actor *, u16);
 ActorSub140 *actorSub140CreateFromModel(Actor *);
 
 void playerApplyCharacterModel(void *arg) {
@@ -925,10 +919,6 @@ void playerApplyCharacterModel(void *arg) {
 extern s16 D_8076AEE2;
 extern s32 gGlobalPauseFlags;
 extern s8 D_80770DC9;
-G01Pos *func_806C96C4(s32);
-void scriptSetActorRampTarget(Actor *, f32, f32);
-void actorUpdatePrevContactFlags(Actor *);
-void playerWaypointPathStartLineFromPoint(Actor *, void *, s32);
 
 void playerWarpToSpawnPoint(s32 arg0) {
     G01Ctl *sp24 = G01A->unk174;
@@ -965,8 +955,6 @@ void playerWarpToSpawnPoint(s32 arg0) {
     }
 }
 
-void playerSyncInventoryOnSpawn(s32);
-void actorClearMovementFlags(void *);
 
 void playerRespawnResetPhysics(s32 arg0) {
     actorClearMovementFlags(gActivePlayerActor);
@@ -1026,13 +1014,6 @@ void playerRestoreKongState(Actor *arg0, PlayerState *arg1) {
 }
 
 void func_800268DC(Actor *, void *, void *); /* mpResetPlayerOnRespawn (multiplayer) */
-void sfxStopSlotSound(Actor *, u8);
-s32 camIsCutsceneActive(void);
-void camResetAllPlayers(void);
-void camResetPlayer(Actor *, u8);
-void actorSetInteractionTimer(Actor *);
-void playerResumeLocomotion(Actor *);
-void playerWarpToSpawnPoint(s32);
 
 void playerSyncInventoryOnSpawn(s32 arg0) {
     G01Ctl *ctl = G01A->unk174;
@@ -1078,9 +1059,6 @@ extern G01Pos *D_807FC900;
 extern u8 D_807FC904;
 extern G01Pos D_807FC908;
 extern G01Pos D_807FD574;
-void *assetLoad(s32, s32, s32, s32);
-u32 assetGetCachedSizeOrResolve(s32, s32);
-void playerCheckSpawnerFlagFixup(s32);
 
 void playerLoadSpawnerAsset(s32 arg0) {
     D_807FC900 = assetLoad(0x17, arg0, 1, 1);
@@ -1092,7 +1070,6 @@ void playerLoadSpawnerAsset(s32 arg0) {
     D_807FC908.unk4 = D_807FD574.unk4;
 }
 
-s32 flagGet(s32, s32);
 
 void playerCheckSpawnerFlagFixup(s32 arg0) {
     if (arg0 == 0x1E) {
@@ -1226,7 +1203,6 @@ s8 arg1;
 extern s32 D_807552E4;
 extern s8 D_80750ACC;
 extern s32 D_807FD56C;
-void collectibleCountsClear();
 
 void playerResetSpawnGlobals(void) {
     G01Slot *p = (G01Slot *)gPlayerInventoryTable;
@@ -1256,10 +1232,9 @@ void playerResetSpawnGlobals(void) {
     D_807FD56C = 0;
 }
 
-void playerSpawnMapActors(s32);
 
 extern s32 D_80750B34[];
-void slotQueueAddValue(s32, u8, s32);
+void slotQueueAddValue(s32, u8, s32); // FAKE: callee prototype steer
 
 void playerSpawnMapActors(s32 arg0) {
     s32 i;
@@ -1270,7 +1245,6 @@ void playerSpawnMapActors(s32 arg0) {
     slotQueueInit(0);
 }
 
-void flagSet(s32, s32, s32);
 
 void playerInitKongActor(s32 arg0, s32 arg1, s32 arg2) {
     s32 idx = playerGetResolvedKongId(arg0);

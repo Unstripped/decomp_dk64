@@ -1,5 +1,22 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_flagSet // PROTO: The number of arguments doesn't agree with the number in the
+#include "proto/global/100180.h"
+#include "proto/global/12E800.h"
+#include "proto/global/135D30.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
+#include "proto/global/35000.h"
+#include "proto/global/42630.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/90D80.h"
+#include "proto/global/A7710.h"
+#include "proto/global/C0EE0.h"
+#include "proto/global/CEAE0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -61,31 +78,7 @@ extern s8 D_80750650;
 extern s8 D_807FC8C0[16];
 extern u16 D_807ECD58;
 extern u16 D_807ECD60;
-Gfx *func_806BCF98(Gfx *, Actor *);
-void behaviourFrameBegin(void);
-void func_806BD0CC(void);
-void currentActorClearFlag(void);
-u8 flagGet(s16, u8);
-u16 camStartPath(void *, s16, u8);
-s32 currentActorTestClearFlag(void);
-void renderCallbacksRegister(void *, void *, u8);
-void camResumePath(void);
-void playerResumeLocomotion(void *);
-u8 camIsCutsceneActive(void);
-void actorScriptStart(void *, s32);
-void hudSpawnCountdownTimer(s16, s16, u8);
 void flagSet();
-void sfxAllocateChannel(s32, f32);
-void sfxStopChannel(s32, s32);
-void actorSetStateTwo(void *);
-void actorDespawn(void *);
-void csModelStateSetFirstByte(s16, s32);
-void csModelStateSetByte(s16, s16, s16);
-f32 randomFloat(void);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
-void controllerAnimSetStateIfChanged(void *, s32, f32, f32);
-void controllerApplyMotionWindow(void *, void *, f32);
-void actorUpdateModelMatrix(void *, s32);
 
 extern s8 D_807FC8D0;
 
@@ -407,7 +400,6 @@ extern u8 D_1000118[];
 extern u8 D_2000180[];
 #define R1C0C1_WRITE_GFX(pkt, _w0, _w1) { Gfx *_g = (Gfx *)(pkt); _g->words.w0 = (_w0); _g->words.w1 = (u32)(_w1); }
 
-Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
 Gfx *func_806BCF98(Gfx *dl, Actor *actor) {
     R1C0C1_WRITE_GFX(dl++, 0xDE000000, D_1000118);
@@ -428,7 +420,6 @@ void func_806BD094(s16 idx, s8 val) {
 }
 
 void flagSet(s32, s32, s32);
-void csModelStateSetFirstByte(s16, s32);
 
 void func_806BD0CC(void) {
     s32 i;

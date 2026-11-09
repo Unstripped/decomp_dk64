@@ -1,5 +1,27 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorMoveWithinZone // FAKE: callee prototype steer
+#define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17800.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/42630.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/89250.h"
+#include "proto/global/AA960.h"
+#include "proto/global/B1F60.h"
+#include "proto/global/BDEE0.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -79,30 +101,8 @@ extern u8 D_80770629[];
 extern f32 D_80770B68[];
 extern f32 D_80770BC0[];
 
-void behaviourSetAnimIds(s16, s16, s16);
-void func_80724CA4(s16, s16);
-void actorClearNodeFlag(void *, s32);
-void behaviourCalculateDamageForce(s32, s32);
-void behaviourSpawnExplosionAndSound();
-void actorSetDefaultState();
-void actorSetTargetSpeed(Actor *, s32);
-void actorScriptStart(void *, s32);
 s32 actorMoveWithinZone(u8, f32, f32, s32, f32);  // FAKE: callee prototype steer
-void behaviourUpdateShadowAlpha();
-s32 randomNonNegative(void);
-void actorUpdateAnimSpeedFromSpeed();
-u8 behaviourCheckRandomAnimTrigger(void);
-s32 behaviourIsTargetWithinAngle(u16);
-void behaviourFadeOutWithinZone(u8);
-void behaviourUpdateContactAndState();
-void behaviourFrameBegin(void);
-void enemyAggroStateUpdate(s32, s32, s32);
-u8 patrolPathStep(u8, u8);
-void actorUpdateModelMatrix(Actor *, s32);
 s32 sfxPlayFromActorWithAltitudeCheck(Actor *, s32, s32, s32, s32);  // FAKE: callee prototype steer
-void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
-void sfxSpawnTableNodes(void *);
-void sfxStopSlotSound(Actor *, u8);
 
 void behaviourArmadilloPatrol(void) {
     u16 animFlags = 0;
@@ -302,12 +302,6 @@ void behaviourArmadilloUpdateMatrix(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void effectSetSpeed(s32);
-void effectSetCallback(void *);
-void effectSetDepth(s8);
-void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void effectPuffRiseUpdate(void);
-void func_80717D4C(void);
 extern void *D_8074E880[];
 
 void actorSpawnRandomParticleNearActor(u8 particleType, s8 yOffset) {
@@ -340,11 +334,6 @@ typedef struct BDEE0DCA0 {
 } BDEE0DCA0;
 
 extern BDEE0DCA0 *D_807FDCA0;
-s32 actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
-void mathNudgeCoords(f32, f32, f32 *, f32 *);
-f32 mathAtan2(f32, f32);
-void matrixMakeRotationX(f32 (*)[4], f32);
-void matrixMakeRotationY(f32 (*)[4], f32);
 
 s32 actorBuildNodeAlignedMatrix(u8 nodeLookupIdx, u8 yOffset, f32 x, f32 y, f32 z) {
     f32 spA[4][4];
@@ -399,7 +388,6 @@ typedef struct BDEE0DC924 {
 } BDEE0DC924;
 
 extern BDEE0DC924 *gPlayerSlots;
-s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId);
 
 typedef struct BDEE0DCA0Tgt {
     /* 0x00 */ u8 pad0[0x1C];
@@ -410,10 +398,6 @@ typedef struct BDEE0DCA0Tgt {
 #define BDEE0DCA0T ((BDEE0DCA0Tgt *)D_807FDCA0)
 
 extern u8 D_8071FB34[];
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
-s32 playerStateQueueCallback(s16, void *, u8);
-s32 actorIsTargetWithinAngleDeg(Actor *, Actor *, u16);
 
 s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
     s16 *p;
@@ -514,7 +498,6 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
     return 0;
 }
 
-void behaviourUpdateContactAndState(s32);
 
 void behaviourArmadilloMoveTowardTarget(f32 speedMultiplier) {
     s16 *p;
@@ -605,14 +588,9 @@ typedef struct BDEE0Actor {
 } BDEE0Actor;
 #define BDEE0A ((BDEE0Actor *)gCurrentActor)
 
-void behaviourArmadilloMoveTowardTarget(f32);
-void behaviourArmadilloStepPatrol(void);
 f32 cosApprox(f32);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-void matrixMakeRotationZ(f32 (*)[4], f32);
-s16 mathAngleEaseToward(s16, s16, f32);
 
 void func_806BA93C(sideOffset, rollAmount, pivotZ)
 u8 sideOffset;
@@ -746,9 +724,6 @@ void behaviourFairyUpdate(void) {
     }
 }
 
-void playerSetLargeModeScale(f32);
-void actorSetUniformScale(Actor *, f32);
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void behaviourFairyInitPlayerScale(void) {
     behaviourFrameBegin();
@@ -810,7 +785,6 @@ typedef struct BDEE0Sub174Hdr {
 
 extern Actor *gSpawnedActor;
 
-Actor * spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 
 s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, s32 extraParam) {
     BDEE0Sub174 *v;
@@ -847,7 +821,6 @@ s32 actorSpawnJitteredChild(u8 actorType, s16 animId, s16 subId, s32 extraParam)
     return 0;
 }
 
-void sfxAllocateChannel(s32, f32);
 
 void behaviourFairyPlaySound(void) {
     sfxPlayActorSound(gCurrentActor, 0x11F, 0, 0, 0, 0xFF, 1.0f, 0);
@@ -868,20 +841,8 @@ extern s32 gGlobalCutsceneFlags;
 extern s32 gCamActor;
 extern BDEE0Tbl D_80750638;
 
-void behaviourFairyPlaySound();
-u8 spawnNodeHasActor(u8);
-void csSendActorMessagePayload(s16, s16);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-u16 camStartPath(void *, s16, u8);
-void camSetTarget(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void camSetTargetFocusActor(s32, void *);
-void camReturnToFollow(s32, void *);
-void func_80726EE0(u8);
-void playerSetSizeMode(Actor *, u8);
-void csModelStateSetFirstByte(s16, s16);
-void effectSpawnChildAtNode(u8, s16, s16);
-void sfxStopChannel();
 
 void behaviourFairyWanderUpdate(void) {
     s16 i;
@@ -1036,7 +997,6 @@ void behaviourFairyWanderUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void actorPatrolFollowerUpdate();
 
 void behaviourFairyIdle1(void) {
     behaviourFairyUpdate();
@@ -1062,7 +1022,6 @@ void behaviourFairyIdle3(void) {
     }
 }
 
-void func_806BA93C();
 
 void behaviourFairyIdle4(void) {
     behaviourFairyUpdate();

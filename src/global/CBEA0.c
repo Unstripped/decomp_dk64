@@ -1,5 +1,12 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_viewportSetMargins // FAKE: callee prototype steer
+#include "proto/global/100180.h"
+#include "proto/global/15050.h"
+#include "proto/global/450.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/90D80.h"
+#include "proto/global/CBEA0.h"
 
 void actorStubCBEA0_00(void) {
 }
@@ -100,9 +107,6 @@ extern f32 D_807FC8E8;
 extern f32 D_807FC8EC;
 extern u8 *D_807FC8F0;
 
-u8 *assetLoad(s32, s32, s32, s32);
-void renderCallbacksRegister(void *, void *, s32);
-Gfx *renderBannerText(Gfx *, Actor *);
 
 void spriteLinearInterpolateFrame(void) {
     f32 frac;
@@ -189,11 +193,7 @@ extern R1C2CB_Col D_80750814;
 extern f32 D_80750818[];
 extern f32 D_80750828[];
 
-void viewportSetMargins(u8, u8, u8, u8);
-void *heapAlloc(s32);
-void heapFreeDeferred(void *);
-s32 textGetStringWidth();
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
+void viewportSetMargins(u8, u8, u8, u8); // FAKE: callee prototype steer
 void guScaleF(f32 mf[4][4], f32 x, f32 y, f32 z);
 void guTranslateF(f32 mf[4][4], f32 x, f32 y, f32 z);
 void guMtxCatF(f32 mf[4][4], f32 nf[4][4], f32 res[4][4]);

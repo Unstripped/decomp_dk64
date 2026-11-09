@@ -1,5 +1,23 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
+#define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/17B40.h"
+#include "proto/global/3C10.h"
+#include "proto/global/7130.h"
+#include "proto/global/89250.h"
+#include "proto/global/CC800.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
 
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
@@ -54,7 +72,6 @@ void func_806F8004(f32 arg0, f32 arg1, f32 *arg2, f32 *arg3, f32 *arg4) {
     *arg4 = (f32)((f64)*arg4 * 10.5);
 }
 
-void func_806F8004(f32, f32, f32 *, f32 *, f32 *);
 
 typedef struct SlotQueuePosSlot {
     void *unk0;
@@ -137,16 +154,9 @@ extern s16 D_80744544;
 extern u16 D_80750AC4;
 extern u16 D_80750AC8;
 extern void *gSlotQueueMaskList;
-void *heapAlloc(s32);
-void heapClearBlock(void *);
-s32 playerGetResolvedKongId(s32);
-s32 slotQueueGetMaxValue();
-void slotQueueSetDisplayMode(u8, u8, u8);
-s32 func_807142D8();
 #ifndef NON_MATCHING
-void func_806F8278(u8);
 #endif
-extern s32 mapGetHubWorldIndex();
+extern s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
 
 /* Initialises the per-player slot queue (15 slots of 0x30 bytes per player): sets each slot's text pointer, size and
  * screen position (func_806F8004). Formatting is load-bearing: the unk8/unkC stores share one line and the dead
@@ -323,9 +333,8 @@ void slotQueueSetShownValue(u8 arg0, u8 arg1, s32 arg2) {
     *(s16 *)((u8 *)slotQueueGetAddress(arg1 & 0xFF) + (arg0 * 0x30) + 4) = arg2;
 }
 
-s32 flagGridSumRows(s32, s32, s32, s32);
 
-extern s32 mapGetHubWorldIndex();
+extern s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
 u16 slotQueueGetValue(u8 arg0, u8 arg1) {
     u16 var_a2;
     u16 sp26;
@@ -440,7 +449,7 @@ s32 arg0;
     slotQueueClearFlags();
 }
 
-extern s32 mapGetHubWorldIndex();
+extern s32 mapGetHubWorldIndex(); // FAKE: callee prototype steer
 
 void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
     s32 sp1C;
@@ -464,14 +473,11 @@ void func_806F8DC4(s8 *arg0, s32 arg1, s32 arg2) {
     }
 }
 
-extern s32 flagCountRange(s32, s32, u8);
 
 s32 func_806F8EB4(void) {
     return flagCountRange(0x24D, 0x14, 0);
 }
 
-extern s32 func_806F6EDC();
-extern s32 flagGet(s32, s32);
 extern u8 D_807FC953[];
 extern u8 D_807FC954[];
 
@@ -555,11 +561,6 @@ typedef struct SlotQueueStatSlot {
 } SlotQueueStatSlot;
 
 extern u8 gPlayerCharacterId;
-extern s32 func_805FEF10(s32 *);
-extern void func_80687C48(void);
-extern void flagSet(s16, u8, u8);
-extern s32 flagGridIndex(s32, s32, s32);
-extern void sfxAllocateChannel(s32, f32);
 
 void slotQueueAddValue(arg0, arg1, arg2)
 s32 arg0;
@@ -675,8 +676,6 @@ typedef struct SlotQueueNode {
     struct SlotQueueNode *next;
 } SlotQueueNode;
 
-void effectFreeAndUnlink(s32);
-void heapFree(void *);
 
 void slotQueueReleaseSlot(s32 arg0) {
     SlotQueueNode **var_s1;
@@ -706,7 +705,6 @@ void slotQueueReleaseSlot(s32 arg0) {
     }
 }
 
-void slotQueueReleaseSlot(s32);
 
 void slotQueueReleaseAll(void) {
     s32 i;
@@ -788,18 +786,9 @@ typedef struct SlotQueueEffectNode {
     void *unk8;
 } SlotQueueEffectNode;
 
-void slotQueueNormalizeSpriteScale(void *, s32);
-s32 slotQueueGetSpriteAsset(s32);
-void effectSetParam(s32);
-void effectSetSpeed(void *);
-void effectEnableFade(void);
-void effectSetCallback(void (*)(void));
 void effectSetMode(u8); // FAKE: callee prototype steer
 void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void effectSetDuration(s32);
-void effectSetFlags(s16);
 void *effectCreateAtPosition(s32, f32, f32, f32, f32);
-void effectWaveMotionUpdate(void);
 
 void effectSpawnSprite(void *arg0, s32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     u8 unused_byte;
@@ -1013,11 +1002,6 @@ extern Gfx D_1000118;
 extern Mtx D_2000080;
 extern u8 D_807FD7E4;
 extern f32 mathSinF(s16);
-extern f32 floatCeil(f32);
-extern s32 _sprintf(char *, const char *, ...);
-extern s32 textGetStringWidth(s16, char *);
-extern Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, char *, u8);
-extern ViewportRect *cameraFindViewportEntry(s32);
 
 #define SLOT_QUEUE_DRAW_SLOT ((SlotQueueDrawSlot *)((u8 *)gSlotQueue + arg0 * 0x30))
 Gfx *slotQueueDrawLabel(s32 arg0, SlotQueueDrawNode *arg1, Gfx *arg2) {
@@ -1067,7 +1051,6 @@ Gfx *slotQueueDrawLabel(s32 arg0, SlotQueueDrawNode *arg1, Gfx *arg2) {
 extern s16 D_807505AE[];
 extern u8 D_807FC992[];
 extern Gfx D_2000180;
-extern s32 flagGet(s32, s32);
 
 Gfx *slotQueueDrawPlayerLabels(s32 arg0, SlotQueueDrawNode *arg1, Gfx *arg2) {
     s32 active;
@@ -1353,7 +1336,6 @@ s32 slotQueueStateFadeOut(s32 arg0, s32 arg1) {
     return arg1;
 }
 
-s32 slotQueueStateMoveToTarget(s32, s32);
 
 Gfx *slotQueueBuildDisplayList(Gfx *arg0) {
     s32 i;

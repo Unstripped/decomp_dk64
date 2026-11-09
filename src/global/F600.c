@@ -1,4 +1,10 @@
 #include "common.h"
+#include "proto/global/10130.h"
+#include "proto/global/117190.h"
+#include "proto/global/131B0.h"
+#include "proto/global/15050.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/F600.h"
 
 extern volatile u8 D_807467C4;
 extern s8 D_80746834;
@@ -29,9 +35,6 @@ u8 D_807ECDFA;
 u8 D_807ECDFB;
 u8 D_807ECDFC[4];
 
-void controllerWaitRead(void);
-void controllerSetActiveMask(u8 mask);
-void rumbleInit(void);
 
 u8 controllerInit(void) {
     osCreateMesgQueue(&D_807ECCF0, D_807ECCE0, 4);
@@ -121,14 +124,6 @@ void controllerGetReadData(OSContPad *pad) {
 extern u8 D_807463B8;
 extern s32 gFrameCounter;
 extern u8 gScreenRenderFlags;
-void heapTickDeferredFrees(void);
-void heapCodeEnd(void);
-s32 menuIsTransitionType6(void);
-void controllerFilterInput(OSContPad *);
-void func_8060B4D4(OSContPad *);
-void playerStateWaypointAimUpdate(OSContPad *, OSContPad *);
-void rumbleUpdate(void);
-void controllerLatchPad(OSContPad *pad);
 
 #define CtrlAHeld ((u16 *)D_807ECD40)
 #define CtrlAPressed ((u16 *)D_807ECD48)
