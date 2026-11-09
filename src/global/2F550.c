@@ -1507,7 +1507,7 @@ s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     ny = arg0->unk50;
     nz = arg0->unk54;
     do {
-        dx = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 0) - arg1;
+        dx = *(f32 *)((u8 *)D_807F5E20 + i * 12) - arg1;
         dy = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 4) - arg2;
         dz = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 8) - arg3;
         if (dx) {}  // FAKE: lowers dx priority (extra block in its range)
