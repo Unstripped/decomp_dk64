@@ -320,21 +320,21 @@ void playerKongStopAudioChannels(Actor *, u16);
 void actorSetTargetSpeed(Actor *, s32);
 void actorScriptStart(void *, s32);
 void scriptSetActorRampTarget(Actor *, f32, f32);
-s32 pathPlaybackStart(void *, s32, s32, f32, f32, f32, s32);
+s32 pathPlaybackStart(s32, s32, u8, f32, f32, f32, u8);
 void pathPlaybackSetSpeed(s32, u8);
 void pathPlaybackSetLoopLimit(s32, s32);
-void pathPlaybackSetActive(s32, s32);
+void pathPlaybackSetActive(s32, u8);
 void pathPlaybackAdvance(s32);
 void pathPlaybackGetPosition(s32, f32 *, f32 *, f32 *);
-s32 pathPlaybackIsActive();
+u8 pathPlaybackIsActive(s32);
 void actorSetUniformScale(Actor *, f32);
-void *spawnNodeActivate(s32, s32);
+Actor *spawnNodeActivate(s16, u16);
 s32 func_8072881C(s32, void *);
 void actorApplyGravity(void);
 void behaviourUpdateShadowAlpha(void);
-void behaviourFadeOutWithinZone(s32);
+void behaviourFadeOutWithinZone(u8);
 void func_8072E320(f32);
-s32 mathAngleLerp(s16, s16, f32);
+s16 mathAngleLerp(s16, s16, f32);
 void lightUpdateFromActorLighting(void *, void *, void *);
 void heapFree(void *);
 s32 randomNonNegative(void);
@@ -767,7 +767,7 @@ void func_806C1300(void) {
 }
 
 void actorUpdatePrevContactFlags(Actor *);
-s32 playerSelectMoveTier(Actor *, f32, f32, u8, s16);
+s16 playerSelectMoveTier(Actor *, f32, f32, s16, s16);
 
 void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 animMax) {
     s16 val;
@@ -800,8 +800,8 @@ void func_806C13AC(s16 threshold, s16 animLow, s16 animMid, s16 animHigh, s16 an
     }
 }
 
-s32 flagGet(s32, s32);
-void flagSet(s32, s32, s32);
+u8 flagGet(s16, u8);
+void flagSet(s16, u8, u8);
 
 void func_806C151C(u16 actionId, u8 actionParam, s16 flagId) {
     f32 dx;
@@ -861,11 +861,11 @@ void effectSetCallback(void *);
 void effectShrinkFadeMatrixUpdate(void);
 void effectSetSpeed(s32);
 void effectLightPulseOscillate(void);
-void effectCreateAtActorBone(void *, f32, void *, s32, s32);
+void effectCreateAtActorBone(void *, f32, void *, s32, s32); // FAKE: callee prototype steer
 void playerKongClearFlagsByActorType();
 s32 randomNonNegative(void);
 void projectileGetTargetCoords(void *, s32);
-void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, void *);
+void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
 
 void func_806C1734(void) {
     R1C46aSub4 *sub;
@@ -927,7 +927,7 @@ void func_806C1734(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void func_80724CA4(s32, s32);
+void func_80724CA4(s16, s16);
 void playerKongStopAudioChannels(Actor *, u16);
 void effectSetColor(s32, s32, s32, s32);
 void func_80724E48(u8);
@@ -1003,8 +1003,8 @@ done:
 }
 
 void controllerAnimLoadStateAsset();
-void renderCallbacksRegister(void *, void *, s32);
-void gfxBuildScanlineNoise();
+void renderCallbacksRegister(void *, void *, u8);
+Gfx *gfxBuildScanlineNoise(Gfx *, s32);
 
 void func_806C1CCC(void) {
     behaviourFrameBegin();
@@ -1038,8 +1038,8 @@ extern u8 D_8071FF58[];
 extern u8 D_80720B58[];
 void effectWobbleScaleUpdate();
 void effectScatterFallUpdate();
-void animSetLoopLimit(Actor *, s32, s32);
-void animSetFinished(Actor *, s32, s32);
+void animSetLoopLimit(void *, s32, s16);
+void animSetFinished(void *, s32, u8);
 void animSetFrameAndSubframe(Actor *, s32, s16, f32);
 void effectSetDuration(s32);
 
@@ -1149,17 +1149,17 @@ extern u8 gPlayerCharacterId;
 extern s32 D_807FBDC8[];
 extern u8 D_8071FC40;
 void effectWobbleRiseUpdate(void);
-void actorPitchEaseTowardPoint(s16, s32, f32, f32, f32, s32, f32, f32, s32);
-void modelSlotGetNodePos(s16, s32, s32, f32 *, f32 *, f32 *);
+void actorPitchEaseTowardPoint(s16, s16, f32, f32, f32, u8, f32, f32, u16);
+void modelSlotGetNodePos(s32, u8, s32, f32 *, f32 *, f32 *);
 s16 mathAngleEaseToward(s16, s16, f32);
-void zoneEntryGetPosition(s32, s32, f32 *, f32 *, f32 *);
-void actorTurnTowardActorYaw(s32, void *);
-s32 actorIsTargetWithinDistance(s32);
+void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
+void actorTurnTowardActorYaw(u8, Actor *);
+u8 actorIsTargetWithinDistance(u16);
 s32 func_8072881C(s32, void *);
 void effectCreateAtPosition(void *, f32, f32, f32, f32);
-void camStartPath(void *, s32, s32);
-s32 camIsCutsceneActive(void);
-void resQueueSetValue(s32);
+u16 camStartPath(void *, s16, u8);
+u8 camIsCutsceneActive(void);
+void resQueueSetValue(s8);
 
 typedef struct R1C46bActor {
     /* 0x00 */ u8 pad0[0xC0];
@@ -1272,7 +1272,7 @@ void func_806C226C(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 void effectSpawnActorBone(Actor *, u8, f32);
 
 void actorPlaySoundSpawnBoneEffects(void) {
@@ -1445,19 +1445,19 @@ void controllerAnimFree(Actor *);
 void controllerAnimInit(Actor *, u16);
 ActorSub140 *actorSub140CreateFromModel(Actor *);
 void actorSetUniformScale(Actor *, f32);
-void func_80728950(s32);
-void currentActorAnimSetFrame(s32, s32);
+void func_80728950(u8);
+void currentActorAnimSetFrame(u8, u8);
 void actorGetNodePosOrPosition(Actor *, s32 *, s32 *, s32 *);
-void effectSpawnActorBoneEffects(s32);
-void effectSpawnChildAtNode(s32, s16, s16);
+void effectSpawnActorBoneEffects(u8);
+void effectSpawnChildAtNode(u8, s16, s16);
 void effectSpawnBoneDefault(Actor *, s16, f32, f32, f32, f32, s32);
 void effectSpawnActorScale(Actor *);
 void effectActorCheckGroundScaleSpawn(Actor *);
-void sfxStopSlotSound(Actor *, s32);
+void sfxStopSlotSound(Actor *, u8);
 void actorSetGroupState(u8, u8);
-void commandQueuePush(Actor *, s16, s16, s16, s32, s32, s32, s32, s32);
+void commandQueuePush(s32, s16, s16, s16, u8, u8, u8, u8, u8);
 void effectSpawnJointBeam(s32, s32, s32, s32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 extern s32 gGlobalCutsceneFlags;
 
 void func_806C2DF4(void) {
@@ -1744,7 +1744,7 @@ void func_806C2DF4(void) {
 }
 
 extern s16 D_80750AC8;
-void csModelStateSetFirstByte(s32, s32);
+void csModelStateSetFirstByte(s16, s16);
 
 void func_806C3A8C(void) {
     s32 dist;
