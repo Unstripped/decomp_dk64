@@ -1,5 +1,38 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorResolveKillCreditOwner // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_effectCreateAtActorBone // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
+#define PROTO_SKIP_func_806C9974 // FAKE: callee prototype steer
+#define PROTO_SKIP_func_806F54E0 // FAKE: callee prototype steer
+#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
+#define PROTO_SKIP_slotQueueGetValue // FAKE: callee prototype steer
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/36880.h"
+#include "proto/global/42630.h"
+#include "proto/global/450.h"
+#include "proto/global/6AD90.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/89250.h"
+#include "proto/global/90D80.h"
+#include "proto/global/AA960.h"
+#include "proto/global/CC800.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
+#include "proto/multiplayer/0.h"
 
 typedef struct MpActor MpActor;
 
@@ -125,9 +158,6 @@ extern s16 gScreenHeight;
 extern u8 D_1000118[];
 extern u8 D_20000C0[];
 
-Gfx *gfxInit2DDisplayList(Gfx *);
-Gfx *renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
-Gfx *renderTimerMinutesSecondsHUD(Gfx *, f32, f32, s32);
 extern s32 D_807552E8;
 extern MpScore gPlayerInventoryTable[];
 s32 slotQueueGetValue(s32, u8); // FAKE: callee prototype steer
@@ -135,8 +165,6 @@ extern s32 D_807552EC;
 extern u8 gPlayerCount;
 extern s32 gGlobalPauseFlags;
 extern s8 D_8076A105;
-void menuReturnToTitleWithMode3(void);
-s32 randomNonNegative(void);
 typedef struct MpSpawnPoint {
     s16 x;
     s16 y;
@@ -157,7 +185,6 @@ extern s32 gCurrentMap;
 extern unsigned long long __ll_mul(unsigned long long, unsigned long long);
 extern unsigned long long __ull_div(unsigned long long, unsigned long long);
 extern Actor *gCurrentActor;
-void renderCallbacksRegister(void *, void *, u8);
 extern MpSettings D_807552E4;
 extern MpPlayer *gPlayerSlots;
 
@@ -392,10 +419,6 @@ Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spac
     return glistp;
 }
 
-int _sprintf(char *, const char *, ...);
-s32 textGetStringWidth(s32, char *);
-Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
-Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spacing);
 
 Gfx *mpDrawPlayerScores(Gfx *glistp, Actor *controller) {
     char scoreStr[32];
@@ -433,7 +456,6 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, Actor *controller) {
     return glistp;
 }
 
-u8 textGetFontHeight(s16);
 
 Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
     MpControllerState *state;
@@ -511,7 +533,6 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
     return curGlist;
 }
 
-Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller);
 
 Gfx *mpDrawHud(Gfx *glistp, Actor *controller) {
     s32 t0 = D_807552E4.unk8 >= 2;
@@ -550,12 +571,8 @@ s32 mpRandomSpawnDelay(void) {
 extern u8 gPlayerCharacterId[];
 extern u8 D_8071F3C0;
 extern u8 D_807207BC;
-void effectFreeAndUnlink(s32);
-void effectSetDepth(s8);
-void effectSetDuration(s32);
-void effectSetMode(s8);
+void effectFreeAndUnlink(s32); // FAKE: callee prototype steer
 void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
-void effectSetCallback(void *);
 s32 effectCreateAtActorBone(void *, f32, void *, s32, s32);
 
 s32 mpUpdateScoreEffects(void) {
@@ -614,7 +631,6 @@ s32 mpUpdateScoreEffects(void) {
     return ret;
 }
 
-s32 modelSlotFindByType(s32, s32 *, f32 *, f32 *, f32 *, s16 *, s16 *);
 
 s32 mpFindModelSlotByType(s32 slotType) {
     s32 slotIndex;
@@ -630,10 +646,6 @@ s32 mpFindModelSlotByType(s32 slotType) {
     return modelSlotFindByType(slotType, &slotIndex, &slotX, &slotY, &slotZ, &angleA, &angleB);
 }
 
-s32 menuIsTransitionType6(void);
-void *actorFindByType();
-s32 delayedSpawnQueueContains(s32, s32, s16, s16, s16);
-void func_806F5FE8(s32, s16, s16, s16, s32);
 
 extern s32 D_807552F0;
 
@@ -664,10 +676,8 @@ void mpUpdateCrownSpawns(MpControllerState *controllerState) {
     }
 }
 
-f32 randomFloat(void);
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void func_806F5F2C(s32, s32, s16, s16, s16);
 
 void mpUpdateItemSpawns(void) {
     MpMapEntry *mapEntry;
@@ -749,8 +759,6 @@ void mpUpdateItemSpawns(void) {
     }
 }
 
-void *spawnNodeActivate(s16, s32);
-void *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
 
 void mpUpdateRandomSpawner(MpControllerState *controllerState) {
     s32 spawnNodeId;
@@ -789,11 +797,8 @@ void mpUpdateRandomSpawner(MpControllerState *controllerState) {
     }
 }
 
-void playerSetSizeMode(void *, s32);
-void func_806F54E0(u8, s16, u8);
-void func_806C9974(u8, s32);
-void actorSpawnEffectChild(f32, f32, f32, f32, f32, void *, u8);
-s32 playerStateQueueCallback(s16, void *, u8);
+void func_806F54E0(u8, s16, u8); // FAKE: callee prototype steer
+void func_806C9974(u8, s32); // FAKE: callee prototype steer
 
 void mpApplyPendingEffect(s32 playerIndex) {
     MpActor *act;
@@ -859,7 +864,6 @@ void mpApplyPendingEffect(s32 playerIndex) {
 }
 
 
-void csModelStateSetFirstByte(s16, s16);
 
 void mpResetMapModelStates(void) {
     MpMapEntry *mapEntry;
@@ -888,18 +892,7 @@ void mpFreeHudIcons(MpControllerState *controllerState) {
     controllerState->unk70 = 0;
 }
 
-void slotQueueAddValue(s32, u8, s32);
-MpViewport *cameraFindViewportEntry(u8);
-void playerResetSpawnGlobals(void);
-s32 n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
-void n_alSndpPostEvent(void *, s32, s16);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
-void func_806F5FA0(s16, s16, s16);
-void slotQueueInit(s32);
-void *heapAlloc(s32);
-void *assetLoad(s32, u32, u8, u8);
-void effectEnableFade(void);
-void effectSetParam(s32);
+void slotQueueAddValue(s32, u8, s32); // FAKE: callee prototype steer
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern s32 D_8076D1F8;
 extern u32 D_80767CC0;
@@ -1092,8 +1085,6 @@ void mpSetFlags(u8 flags) {
     D_80026F70 |= flags;
 }
 
-extern void playerKongStopSoundByState(void *);
-extern s32 func_80714608(s32);
 extern MpFlagState *gActivePlayerState;
 
 void mpResetPlayerOnRespawn(MpActor *playerActor, MpKongState *kongState, MpScore *playerScore) {
@@ -1120,7 +1111,6 @@ void mpDeductDeathPenalty(MpKongState *kongState) {
     }
 }
 
-void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
 void mpDropItemsOnHit(u8 playerIndex, s8 dropCount) {
     s32 pad0;
     MpControllerState *ctrl;
@@ -1171,7 +1161,6 @@ typedef struct MpSpawnCoord {
     s16 z;
 } MpSpawnCoord;
 
-MpSpawnCoord *func_806C96C4(s32);
 
 s32 mpFindFurthestSpawn(s32 pos) {
     s32 i;
@@ -1212,8 +1201,6 @@ s32 mpFindFurthestSpawn(s32 pos) {
     return best_i;
 }
 
-void playerSyncInventoryOnSpawn(s32);
-void playerResumeLocomotion(void *);
 
 void mpRespawnPlayer(MpActor *playerIndex, s32 isTeamSpawn) {
     if (D_807552E8 == 4 && mpGetPlayerScore(isTeamSpawn) == 0) {
