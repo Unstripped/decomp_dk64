@@ -121,7 +121,6 @@ void enemyGridStateStep(void) {
         st->unk24 = BC1E0_LGB->unk7C;
         st->unk28 = BC1E0_LGB->unk80;
         st->unk2C = BC1E0_LGB->unk84;
-        if (targetScaleY != 0) {}  // FAKE: dummy statement steers uopt
         st->unk30 = BC1E0_LGB->unk4->unk38;
         currentActorClearFlag();
     }
@@ -376,7 +375,6 @@ void enemyGridStateStep(void) {
             t = st->unk0;
             if (D_80750650 == 0) {
                 t = st->unk0;
-                if (t == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
                 t = 2.0 * (f64)t;
                 if ((f64)t > 1.0) {
                     t = 1.0f;
