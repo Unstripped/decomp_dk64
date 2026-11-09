@@ -475,7 +475,7 @@ typedef struct PlayerState {
     /* 0x23E */ u8 pad23E[2];
     /* 0x240 */ u8 unk240;
     /* 0x241 */ u8 pad241;
-    /* 0x242 */ s16 unk242;
+    /* 0x242 */ u16 unk242;
     /* 0x244 */ u8 idleTimeoutFlag;
     /* 0x245 */ u8 damageCooldown;
     /* 0x246 */ s8 attackerValid;
