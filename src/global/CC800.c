@@ -26,11 +26,16 @@ extern u8 gPlayerCharacterId[];
 
 typedef struct G00Row {
     /* 0x0 */ s32 unk0;
-    /* 0x4 */ s32 unk4;
+    /* 0x4 */ union {
+        s32 unk4;
+        struct {
+            u8 pad[3];
+            u8 characterId;
+        } b;
+    };
     /* 0x8 */ s32 unk8;
     /* 0xC */ s32 unkC;
 } G00Row;
-
 extern G00Row D_8075C410[];
 
 s32 playerGetModelAssetId(void) {
@@ -731,23 +736,13 @@ void actorSetInteractionTimer(Actor *arg0) {
     arg0->unk144 = 0x3C;
 }
 
-extern u8 D_8075C417;
-extern s32 D_8075C420;
-extern u8 D_8075C427;
-extern G00Row D_8075C430[];
 
 u8 playerLookupKongByActorType(s16 arg0) {
     s32 i;
 
-    if (arg0 == D_8075C410[0].unk0) {
-        return D_8075C417;
-    }
-    if (arg0 == D_8075C420) {
-        return D_8075C427;
-    }
-    for (i = 0; i < 8; i++) {
-        if (arg0 == D_8075C430[i].unk0) {
-            return *((u8 *)&D_8075C430[i].unk4 + 3);
+    for (i = 0; i < 10; i++) {
+        if (arg0 == D_8075C410[i].unk0) {
+            return D_8075C410[i].b.characterId;
         }
     }
     return 0;
