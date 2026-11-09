@@ -85,7 +85,7 @@ void func_80024000(void);
 void func_80026FD0(s32);
 void func_8002EC08(s32);
 s32 playerViewsRender(Gfx *, Struct_8076A048 *, u32);
-s32 func_8062CA0C(s32, s32, s32, s32);
+s32 func_8062CA0C(s32, f32, f32, f32);
 void vtxGradientSetColorA(s32, s32, s32); // FAKE: callee prototype steer
 void vtxGradientSetColorB(s32, s32, s32); // FAKE: callee prototype steer
 
@@ -952,7 +952,7 @@ void gfxBuildFrameDisplayLists(Struct_8076A048 *frameGfx, Gfx **outGlist, Gfx **
         gSPSetOtherMode(glist++, G_SETOTHERMODE_L, 3, 29, 0x0F0A4000);
     }
 
-    glist = (Gfx *)renderCallbacksExecute(renderCallbacksExecute(func_8062CA0C(renderCallbacksExecute((s32)gfxInit2DDisplayList(glist), 3), gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218), 5), 7);
+    glist = (Gfx *)renderCallbacksExecute(renderCallbacksExecute(func_8062CA0C(renderCallbacksExecute((s32)gfxInit2DDisplayList(glist), 3), gPlayerSlots->camX, gPlayerSlots->camY, gPlayerSlots->camZ), 5), 7);
     if (D_807467E4 != 0) {
         D_807467E4 -= 1;
     }

@@ -56,19 +56,31 @@ typedef struct {
     /* 0x13 */ u8 pad13;
 } RumbleInfo;
 
+struct Actor;
+
 // Player struct array (stride 0x2F0) pointed to by gPlayerSlots
 typedef struct {
     u8 pad0[0x210];
-    s32 unk210;
-    s32 unk214;
-    s32 unk218;
+    f32 camX;
+    f32 camY;
+    f32 camZ;
     u8 pad21C[0x270 - 0x21C];
     s16 rect[4];
     s16 unk278;
     s16 unk27A;
     u8 pad27C[4];
     f32 unk280;
-    u8 pad284[0x2EB - 0x284];
+    u8 pad284[0x29C - 0x284];
+    s16 queuedState;
+    u8 pad29E[2];
+    struct Actor *queuedActor;
+    s32 queuedActorId;
+    s32 queuedParam0;
+    s32 queuedParam1;
+    s32 queuedParam2;
+    u8 pad2B4[0x2C0 - 0x2B4];
+    u8 unk2C0;
+    u8 pad2C1[0x2EB - 0x2C1];
     u8 unk2EB;
     u8 pad2EC[4];
 } PlayerStruct;
