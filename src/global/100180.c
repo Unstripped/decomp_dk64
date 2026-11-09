@@ -236,7 +236,7 @@ void textFontInitTables(void) {
     heapClearBlock(allocation);
 }
 
-void *assetLoad(s32, s16, u8, s32);
+void *assetLoad(s32, s16, u8, s32);  // FAKE: callee prototype steer
 
 
 void *textFontLoadSheet(s16 sheetIndex) {
