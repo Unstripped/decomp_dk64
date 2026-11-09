@@ -222,16 +222,16 @@ extern Actor *gActivePlayerActor;
 void sfxStopChannel(s32, s32);
 void slotQueueCancel(s32, s32);
 void playerKongStopSoundByState(void *);
-void effectSpawnActorBone(void *, s32, f32);
-s32 mathNudgeCoords(f32, f32, f32 *, f32 *);
+void effectSpawnActorBone(s32, u8, f32);
+s32 mathNudgeCoords(f32, f32, f32 *, f32 *); // FAKE: callee prototype steer
 void matrixMakeRotationY(f32 (*)[4], f32);
 void matrixMakeRotationX(void *, s32);
-s32 camIsCutsceneActive(void);
-void lightAdd(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32, s32);
+u8 camIsCutsceneActive(void);
+void lightAdd(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32, s32); // FAKE: callee prototype steer
 void actorDespawn(Actor *);
-void sfxStopSlotSound(Actor *, s32);
+void sfxStopSlotSound(Actor *, u8);
 void actorAppendCallback(Actor *, s32, s32, u8, s32, void *);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s16 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 void *heapAlloc(s32);
 
 #define PICK_MAX(a, b) ((a) < (b) ? (b) : (a))
@@ -674,10 +674,10 @@ void actorAllocSubBuffer(Actor *arg0, s32 arg1) {
     heapClearBlock(((ProjectileActorBase *)arg0)->unk4->unk1C);
 }
 
-void playerStateQueueCallback(s32, Actor *, u8);
-void sfxPlayActorSound(Actor *, s32, s32, s32, s32, s32, f32, s32);
+s32 playerStateQueueCallback(s16, void *, u8);
+void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 void animSetSpeed(Actor *, s32, f32);
-void animSetLoopLimit(Actor *, s32, s32);
+void animSetLoopLimit(void *, s32, s16);
 void actorCopyPoseAndScale(Actor *, Actor *, f32);
 
 void actorInitAnimations(Actor *arg0, Actor *arg1) {
@@ -768,7 +768,7 @@ void actorInitFromSpawnPoint(SpawnPointActor *arg0, ProjectileActorSub174 *arg1)
     arg1->unk0 = temp;
 }
 
-void actorSpawn(s32, s32);
+s32 actorSpawn(s32, s32);
 void actorInitAnimations(Actor *, Actor *);
 extern Actor *gSpawnedActor;
 
@@ -840,8 +840,8 @@ extern Actor *gPrimaryPlayerActor;
 void camSetTargetScaled(void *, Actor *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 void func_8068F72C();
 void func_80690190();
-void lensFlareAddSource(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32);
-s32 flagGet(s32, s32);
+void lensFlareAddSource(f32, f32, s32, f32, f32, f32, f32, s32, s32, s32); // FAKE: callee prototype steer
+u8 flagGet(s16, u8);
 
 void actorUpdatePlayerInteraction(void) {
     ProjectileActorSub174 *sp5C;
@@ -931,9 +931,9 @@ typedef struct {
 extern s32 gCamActor;
 void waterRippleStart(f32, f32, f32, f32, f32, f32);
 void camStartShake(s32, s32, s32);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void effectSetSpeed(s32);
-void effectSetMode(s32);
+void effectSetMode(s8);
 void effectSetCallback(void *);
 void effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern u8 D_80750AD0;
@@ -1427,16 +1427,16 @@ void billboardSetFlags(s16);
 void effectLightPulseOscillate(void);
 void effectSpinBillboardingUpdate(void);
 void func_8071BC80(void);
-void effectSetMaxDistance(s32);
+void effectSetMaxDistance(s16);
 void effectSetDuration(s32);
-void actorSetCollisionRadius(Actor *, f32);
+ActorSub140 *actorSetCollisionRadius(Actor *, f32);
 void actorAppendModelNode(Actor *, f32, f32, f32, f32, s32);
 void actorAppendModelSubNode(Actor *, f32, f32, f32, s32);
 void actorUpdatePrevContactFlags(Actor *);
-void billboardSubmit(Actor *, s32, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
-void effectSetFlags(s32);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
+void billboardSubmit(Actor *, s16, s16, s16, s16, s16, u8, s16, u8, s16, f32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
+void effectSetFlags(s16);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
 
 void projectileBounceParticleUpdate(void *arg0) {
@@ -1753,8 +1753,8 @@ void effectRadialSprayUpdate(void);
 void camStartShakeFromPoint(s32, s32, s32, f32, f32, f32, f32, f32);
 void actorSpawnSparkleBurst(void);
 void projectileSteerTowardTarget(s32, Actor *, void *, s32);
-s32 actorGetFloorSnapped(void);
-s32 collisionGetStateByte(void);
+u8 actorGetFloorSnapped(void);
+u8 collisionGetStateByte(void);
 
 void projectileSpawnParticleEffect2(void) {
     projectileBounceParticleUpdate(&D_807201D4);
@@ -2769,7 +2769,7 @@ void projectileMatrixRotationUpdate(void) {
 
 extern u8 D_8072006C;
 void effectSpawnBoneWhite(Actor *, s16, f32, f32, f32, f32, s32);
-void lightSetFlags(s32);
+void lightSetFlags(u8);
 
 void projectileRotatingLightUpdate(f32 arg0, u8 arg1) {
     ProjectileRotActorExtra *temp_s2;
@@ -3066,9 +3066,9 @@ typedef struct ActorBounceCountView {
 
 extern f32 D_807502F8;
 extern void *gActivePlayerState;
-void collisionQueryActorFloor(Actor *, u8 *, f32 *, u8 *, void *, s32);
+void collisionQueryActorFloor(Actor *, s32, s32, s32, s32, u8);
 void collisionSetQueryMode(s32);
-void effectSpawnScatterRandom(void *, s32, f32, s32, s32, s32, s32, s32, s32);
+void effectSpawnScatterRandom(void *, u8, f32, u8, u8, s16, s16, s16, s16);
 
 void projectileFallBounceUpdate(void) {
     u32 *temp_v0;
