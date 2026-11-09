@@ -33,20 +33,20 @@ extern Struct_807FBB40 *gCurrentActor;
 extern u16 D_807FCC44;
 extern u8 D_807FCC40[];
 
-u16 camStartPath(s32, s32, s32);
-void slotQueueSetShownValue(s32, s32, s32);
-s32 camIsPathPaused(void);
+u16 camStartPath(void *, s16, u8);
+void slotQueueSetShownValue(u8, u8, s32);
+u8 camIsPathPaused(void);
 void resQueueAttachActor(void *, s32, s32);
-void hudSpawnCountdownTimer(s32, s32, s32);
+void hudSpawnCountdownTimer(s16, s16, u8);
 void camResumePath(void);
 void actorSetStateTwo(void *);
 void sfxAllocateChannel(s32, f32);
-void flagSet(s16, s32, s32);
-s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void mapFindPreviousSavedMap(s32 *, s32 *);
+void flagSet(s16, u8, u8);
+s16 gfxResourceCreate(s16, char *, u8, f32, f32, f32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
+s32 mapFindPreviousSavedMap(s32 *, s32 *);
 void mapTransitionExitCurrent(s32, s32);
-void renderCallbacksRegister(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, u8);
 Gfx *critterRenderCenterImage(Gfx *, Struct_807FBB40 *);
 
 void critterBattleArenaUpdate(void) {
@@ -202,7 +202,7 @@ extern u8 D_1000118[];
 extern u8 D_2000180[];
 
 
-Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
+Gfx * textDrawAnimated(Gfx *, s16, s32, f32, f32, f32, f32);
 
 Gfx *critterRenderCenterImage(Gfx *glistp, Struct_807FBB40 *actor) {
     CritterBattleArenaState *t1 = actor->unk174;
