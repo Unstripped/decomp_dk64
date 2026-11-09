@@ -53,7 +53,7 @@ void rumbleRequest(u8, u8, s32);
 void bonusResetAmmo(void *);
 extern u16 D_807FD63C;
 struct Struct_71B4;
-typedef struct {
+typedef struct Struct_174 {
     struct Struct_71B4 *unk0;
     u8 unk4[4];
     u8 unk8;
@@ -668,7 +668,7 @@ void bonusTargetGameUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-typedef struct {
+typedef struct BonusB_Sub178 {
     Actor *unk0[6];
     char pad18[2];
     u8 unk1A;
