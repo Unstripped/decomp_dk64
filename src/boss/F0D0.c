@@ -715,20 +715,17 @@ void bossMainStep(void) {
             case 2:
                 if (BF->unk154 == 0x25) {
                     actorScriptStart(gCurrentActor, 0x228);
-                    goto block_131;
-                }
-                if (!(BX->unk1A & 0x8000)) {
-                    if (BP->unk110 == 1) {
+                } else {
+                    if (!(BX->unk1A & 0x8000)) {
+                        if (BP->unk110 != 1) {
+                            break;
+                        }
                         camStartPath(gCurrentActor, 0xF, 1);
                         BX->unk1A |= 0x8000;
-                        goto block_130;
                     }
-                } else {
-block_130:
                     actorScriptStart(gCurrentActor, 0x22F);
-block_131:
-                    BF->unk155 = 3;
                 }
+                BF->unk155 = 3;
                 break;
             case 3:
                 if (BF->unk154 == 0x25) {
