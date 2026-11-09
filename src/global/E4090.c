@@ -21,8 +21,8 @@ typedef struct G21Actor1A0 {
 } G21Actor1A0;
 
 void actorScriptStartByIndex(void *, s32);
-s32 slotQueueGetValue(u8, u8);
-void slotQueueUpdate(s32, s32, s32);
+u16 slotQueueGetValue(u8, u8);
+void slotQueueUpdate(s32, u8, s32);
 
 void playerHolsterGun(s32 actor, G21Actor1A0 *state, u8 isFirstPerson) {
     s32 id;
@@ -1150,7 +1150,7 @@ void playerInputHandleAButtonState41(void) {
 
 extern s32 gCurrentMap;
 extern u8 D_807FCA6A[];
-void playerStateQueueCallback(s32, s32, u8);
+s32 playerStateQueueCallback(s16, void *, u8);
 
 void playerInputCheckBButtonChargeCallback(void) {
     if ((gPlayerPadState[gCurrentPlayerIndex].unk2C & 0x8000) && (D_807FCA6A[gCurrentPlayerIndex * 0x306] >= 2) && (gCurrentMap != 0xE)) {
@@ -1201,26 +1201,26 @@ s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 void projectileGetTargetCoords(void *, s32);
 void projectileSetSpawnFlag(void);
 void projectileSetTargetCoords(f32, f32, f32);
-void projectileSpawnNodeEntry(s32, s32, f32, s16, f32, f32, void *);
+void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
 void rumbleRequest(u8, u8, s32);
 void camStartShake(s32, s32, s32);
 s32 actorAngleInArcWithMargin(void *, s32, s32);
 void effectSetSpeed(s32);
-s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);
+s32 effectCreateAtActorBone(void *, f32, Actor *, s32, s32);  // FAKE: callee prototype steer
 f32 cosApprox(f32);
 f32 sinApprox(f32);
 u8 actorTestNodeSegmentCollision(void *);
 void playerInputToggleActiveState(Actor *);
 s32 actorIsActiveType2B(Actor *);
-s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
+void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
 extern s16 D_80753E64[];
 s32 func_80714608(s32);
 s32 actorCountOwnedByClass(void *, s32, s32);
 void playerKongStopSoundByState(void *);
 void playerResumeLocomotion(Actor *);
 void slotQueueAddValue(s32, s32, s32);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void effectSetCallback(void *);
 
 typedef struct LE40BObj {
@@ -1421,7 +1421,7 @@ u8 arg1;
 }
 
 void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-s32 collisionTestSphere(f32, f32, f32, f32, void *, void *, s32, s32);
+s32 collisionTestSphere(f32, f32, f32, f32, s16 *, s16 *, u8, u16);
 
 u8 actorTestNodeSegmentCollision(void *arg0) {
     f32 temp3;
@@ -1474,7 +1474,7 @@ void playerInputToggleActiveState(Actor *arg0) {
 }
 
 extern s32 gGlobalOverlayFlags;
-s32 flagGet(s32, s32);
+u8 flagGet(s16, u8);
 s32 func_807142D8(void);
 s32 menuIsTransitionTypeC(void);
 
@@ -1784,7 +1784,7 @@ void playerInputSetBaseGravity(void) {
 
 
 extern f32 D_807536E4[];
-void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 f32 mathSinF(s16);
 void playerApproachVelocity(s16, f32, f32);
 
@@ -2091,9 +2091,8 @@ extern u8 D_807FCA0C[];
 extern u8 D_807FCAC8[];
 s32 playerInputCheckBButtonTarget(void);
 s32 mathAngleInArcWithMargin();
-s32 collisionTestSphere(f32, f32, f32, f32, void *, void *, s32, s32);
 void projectileTrySpawnFromSlot(void *);
-void sfxPlayScriptActorSoundForPlayer(void *, s32, s32);
+void sfxPlayScriptActorSoundForPlayer(Actor *, s16, u8);
 void playerPlayKongSpecificSfx(void *);
 void func_806EAB44();
 
@@ -2565,11 +2564,11 @@ extern u8 D_8076A0B2;
 extern f32 D_807536AC[];
 extern u8 D_8072014C[];
 void func_8071F034(void);
-void screenSetTransitionFadeType(s32);
-void func_805FF9AC(s32, s32, s32, s32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void screenSetTransitionFadeType(u8);
+void func_805FF9AC(s32, s32, s32, s16);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void playerRestoreKongState(void *, void *);
-s32 camStartPath(void *, s32, s32);
+u16 camStartPath(void *, s16, u8);
 void playerTransformAnimalStartSfx(Actor *);
 void timerQueueAdd(void *, s32, s32, s32, s32);
 void effectSetAngle(s16);
@@ -2678,7 +2677,7 @@ s32 playerInputCheckMultiplayerPlayerTarget() {
     return 0;
 }
 
-void transitionSetState(s32);
+void transitionSetState(u8);
 
 void playerInputStartTransitionToMap(s32 arg0, s32 arg1, s32 arg2) {
     if (arg1 != 0) {
@@ -2737,7 +2736,7 @@ int func_806E5C74(void) {
            (gPlayerCharacterId[gCurrentPlayerIndex] != 6) && (D_807FD568[1] != 0);
 }
 
-void controllerAnimSetStateRemap(void *, s32, f32, f32);
+void controllerAnimSetStateRemap(struct ControllerStateView *, s16, f32, f32);
 
 void playerInputCheckEnterLongJump(void) {
     if (func_806E5C74() != 0) {
@@ -2835,10 +2834,10 @@ void playerInputHandleRButtonReleaseCameraLock(void) {
 extern u8 gPausingPlayer;
 extern s32 gGlobalPauseFlags;
 extern f32 gScreenFadeProgress;
-s32 camIsCutsceneActive(void);
+u8 camIsCutsceneActive(void);
 s32 menuIsTransitionType6(void);
-s32 screenWipeGetState(void);
-s32 screenWipeGetCooldown(void);
+u8 screenWipeGetState(void);
+u8 screenWipeGetCooldown(void);
 
 void playerInputRequestPause(void) {
     if ((G25_PAD(D_807FD63C, u16) & 0x1000) && (camIsCutsceneActive() == 0) && (gScreenFadeProgress == 0.0f) &&
@@ -3568,7 +3567,7 @@ extern f32 D_80750FF8;
 extern f32 D_80750FFC;
 extern f32 D_80751000;
 s32 hudCanRender(void);
-void renderCallbacksRegister(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, u8);
 void actorDrawAnimatedEffect(s32, void *);
 void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
 void scriptSetRampValue(void *, f32, f32);
@@ -4234,7 +4233,7 @@ typedef struct G30Cam {
     /* 0x230 */ f32 unk230;
 } G30Cam;
 
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 
 void func_806E9BA8(arg0) s32 arg0; {
     G30Cam *cam;
@@ -4261,7 +4260,7 @@ void func_806E9CFC(void) {
     func_806E9BA8(0x65);
 }
 
-s32 playerStateSetCallbackParameters();
+void playerStateSetCallbackParameters(s32, s32, s32, s32);
 
 s32 func_806E9D1C(arg0, arg1, arg2) s16 arg0; u8 arg1; u8 arg2; {
     if (((gPlayerCount < 2) || (gSplitScreenMode != 1)) && (gScreenFadeProgress == 0.0f) && (G30_A->unkE0 == 0.0f)) {
