@@ -33,7 +33,7 @@ extern JetpacSprite D_8002B9C0[];
 f32 jetpacRandFloat(void);
 void jetpacGridAddTiledSprite(JetpacSprite *sprite, s32 x, s32 y, u8 *color, s32 flipFlag);
 void dlAppendTextureLoad(Gfx **glistp, s32 texture);
-void dlSetTextureScaleAndFlip(s32 width, s32 height, u8 flip, s32 unk);
+void dlSetTextureScaleAndFlip(s32 width, s32 height, u8 flip, s32 unk);  // FAKE: callee prototype steer
 void dlAppendTextureRectangle(Gfx **glistp, s16 x, s16 y);
 typedef struct {
     u8 pad0[8];
