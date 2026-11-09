@@ -202,8 +202,8 @@ void currentActorClearFlag();
 s32 currentActorTestClearFlag(void);
 void actorSetTargetSpeed(void *, s32);
 void resQueueAttachActor(void *, s32, s32);
-s32 patrolPathStep(s32, s32);
-void actorMoveWithinZone(s32, f32, f32, s32, f32);
+u8 patrolPathStep(u8, u8);
+u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void actorScriptStart(void *, s32);
 void bossPickFarthestWaypoint(void *, u8 *);
 
@@ -453,13 +453,13 @@ typedef struct {
 } Boss3C_Struct_8478;
 
 void sfxAllocateChannel(s32, f32);
-void actorSpawnNodeEntryScaled(s32, f32, f32, f32, s32, s32, s32, s32);
+void actorSpawnNodeEntryScaled(s16, f32, f32, f32, s32, s32, s32, s32);
 void effectSetSpeed(void *);
 void effectSetCallback(void *);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void effectSetDuration(s32);
 void effectCreateAtPosition(s32, f32, f32, f32, f32);
-s32 flagGet(s16, s32);
+u8 flagGet(s16, u8);
 void effectWispHomeUpdate(void);
 
 extern s32 D_8074E880[];
@@ -490,7 +490,7 @@ u8 unkScale;
     actorSpawnNodeEntryScaled(0x48, (f32)x, (f32)y, (f32)z, (s32)unkRot, (s32)unkScale, (s16)flag, 0);
 }
 
-void hudSpawnCountdownTimer(s32, s32, s32);
+void hudSpawnCountdownTimer(s16, s16, u8);
 void actorSetStateTwo(s32);
 
 void bossStartCountdownTimer(void) {
@@ -513,7 +513,7 @@ extern Gfx D_1000118;
 
 void heapFreeDeferred(void *);
 void *func_8070068C(Gfx *);
-void textDrawStringVtx(void *, s32, s32, s32, char *, s32);
+Gfx * textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
 void bossDrawRoundText(Gfx *glist, s32 unused) {
     Boss2C_MtxF scaleMtx;
@@ -539,7 +539,7 @@ void bossDrawRoundText(Gfx *glist, s32 unused) {
 
 static void bossRoundDummy(void) {}
 
-void flagSet(s16, s32, s32);
+void flagSet(s16, u8, u8);
 
 void bossResetAudioChannels(void) {
     flagSet(0x51, 0, 2);
@@ -568,20 +568,20 @@ extern s32 D_8076D1F8;
 extern u32 D_80767CC0;
 extern s32 gCurrentMap;
 
-void slotQueueSetDisplayMode(s32, s32, s32);
+void slotQueueSetDisplayMode(u8, u8, u8);
 void healthRefill(u8);
 void sfxStopChannel(s32, s32);
 void menuTransitionToMap(s32, s32);
 void n_alSndpPlay(s32, s32, s32, s32, f32, s32, void *);
 void n_alSndpPostEvent(s32, s32, s16);
-void func_80724A20(void);
+void func_80724A20(void);  // FAKE: callee prototype steer
 void actorSetStateOne(void *);
 void actorSetStateThree(void *);
 s32 menuIsTransitionTypeC(void);
 f32 sfxGetChannelVolume(s32);
 s32 hudCanRender(void);
-void renderCallbacksRegister(void *, void *, s32);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
+void renderCallbacksRegister(void *, void *, u8);
+void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);  // FAKE: callee prototype steer
 
 
 void bossRoundFrame(u8 *script) {
@@ -789,7 +789,6 @@ typedef struct {
 
 extern BossB_Struct_800359D0 D_800359D0[];
 
-s32 flagGet(s16, s32);
 
 void bossUpdateStageState(s16 *outStage) {
     s16 i = 0;
