@@ -19,8 +19,8 @@ void actorSetUniformScale(Actor *actor, f32 scale) {
 void *heapAlloc(s32);
 void heapClearBlock(void *);
 void heapFreeDeferred(void *);
-void actorFindActiveByType(s32, void *);
-void actorAppendCallbackMemcpy8(void *, void *, s32, s32, s16 *, s32);
+s32 actorFindActiveByType(s16, Actor * *);
+void actorAppendCallbackMemcpy8(void *, void *, s32, s32, s16 *, s32); // FAKE: callee prototype steer
 
 void func_80724994(u8 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4) {
     s16 *sp24;
@@ -886,10 +886,10 @@ extern u8 gPlayerCount;
 extern u8 D_80755698[];
 extern s32 gCurrentMap;
 void actorScriptStart(void *, s32);
-s16 controllerLookupStateByHash(void *);
+u16 controllerLookupStateByHash(u32 *);
 void actorUpdateFloorContactAndTilt(void *, f32);
 void behaviourSetAnimIds(s16, s16, s16, s16);
-void actorSetTargetSpeed(void *, u8);
+void actorSetTargetSpeed(Actor *, s32);
 s32 randomNonNegative(void);
 #define A4P4 ((A4Player *)gPlayerSlots)
 
@@ -1115,7 +1115,7 @@ void spawnNodesSetActorStateByFlag(u16 arg0, u8 arg1) {
 }
 
 void actorDespawn(void *);
-void actorQueueDelayedCallback(void *, s32, s32, s32, s32, s32, s32);
+void actorQueueDelayedCallback(void *, s32, s32, s32, s32, s32, s32); // FAKE: callee prototype steer
 void camClearActorRefs(void *);
 
 void func_80726EE0(u8 arg0) {
@@ -1244,7 +1244,7 @@ typedef struct C1TblA0 {
 } C1TblA0;
 
 extern C1TblA0 *D_807FDCA0;
-f32 mathAngleBetweenPointsDeg(s32, s32, s16, s16);
+f32 mathAngleBetweenPointsDeg(s32, s32, s32, s32);
 
 #define C1PTS ((C1Pt *)D_807FDCA0->unk14)
 #define C1PT(i) ((C1Pt *)(D_807FDCA0->unk14 + (i)))
@@ -1263,7 +1263,7 @@ void spawnNodeSpawnAtTablePoint(s16 arg0, u8 arg1) {
     }
 }
 
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 void spawnNodeSpawnFacingPoint(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, s16 arg7, s16 arg8) {
     s16 sp46;
@@ -1382,13 +1382,13 @@ extern s16 gCurrentLevelIndex;
 extern s32 gGlobalOverlayFlags;
 extern u8 gPlayerCount;
 void actorDeregisterActive(void *);
-s16 mapChunkFindByPosition(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s16);
 u8 spawnNodeInRangeAndVisible(SpawnNode *, s32);
 u8 spawnNodeActorInRangeAndVisible(SpawnNode *, s32);
 u8 spawnNodeActorOutOfRangeOrHidden(SpawnNode *, s32);
 u8 spawnNodeActorOutOfRangeScaled(SpawnNode *, s32);
 void sfxStopChannel(s32, s32);
-void sfxStopSlotSound(void *, s32);
+void sfxStopSlotSound(Actor *, u8);
 
 void spawnNodesUpdate(void) {
     s16 i;
@@ -1507,7 +1507,7 @@ void spawnNodesUpdate(void) {
     }
 }
 
-s32 mapChunkIsVisibleForPlayer(s32, s16);
+s32 mapChunkIsVisibleForPlayer(s16, s16);
 
 u8 spawnNodeInRangeAndVisible(SpawnNode *arg0, s32 arg1) {
     f32 dx;
@@ -1834,13 +1834,13 @@ void spawnNodeListInitFromMap(s16 *arg0, MidARec24List *arg1, SpawnNodeList *arg
     }
 }
 
-void animSetLoopLimit(void *, s32, s32);
-void animSetFinished(void *, s32, s32);
-void animSetFrameAndSubframe(void *, s32, s32, f32);
+void animSetLoopLimit(void *, s32, s16);
+void animSetFinished(void *, s32, u8);
+void animSetFrameAndSubframe(void *, s32, s16, f32);
 void animSetSpeed(void *, s32, f32);
-void animSetLoopMode(void *, s32, s32);
-void animSetDirection(void *, s32, s32);
-void animSetEndFrame(void *, s32, s32);
+void animSetLoopMode(void *, s32, u8);
+void animSetDirection(void *, s32, u8);
+void animSetEndFrame(void *, s32, s16);
 void animClearStartFrame(void *, s32);
 s32 animIsPlaying(void *, s32);
 extern u32 gFrameCounter;
@@ -1906,7 +1906,7 @@ extern s32 gCamActor;
 #define A2B44V ((A2B44 *)gSpawnedActor)
 
 u32 randomLcgNext(void);
-void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 void actorScriptStart(void *, s32);
 void camStartShake(s32, s32, s32);
 void tagBarrelSpawnSmokeAndPuffs(f32, f32, f32, f32, u8, u8);
@@ -1916,20 +1916,20 @@ void effectEnableFade(void);
 void effectSetSpeed(s32);
 void effectSetAngle(s16);
 void effectSetCallback(void *);
-void effectSetMode(u8);
-void effectSetMaxDistance(s32);
-void effectSetDepth(s32);
-void effectSetColor(s32, s32, s32, s32);
+void effectSetMode(u8); // FAKE: callee prototype steer
+void effectSetMaxDistance(s16);
+void effectSetDepth(s8);
+void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 void effectSetDuration(s32);
-void effectSetFlags(s32);
-s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
+void effectSetFlags(s16);
+s32 effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 void effectPuffRiseUpdate(void);
 void effectConfettiPhysicsUpdate(void);
 void func_80717D4C(void);
 void effectWobbleRiseUpdate(void);
 void actorSpawnEffectChild(f32, f32, f32, f32, f32, void *, u8);
 void effectSpawnBoneDefault(void *, s16, f32, f32, f32, f32, s32);
-void effectSpawnMultiTierRing(f32, s32, f32, f32, f32);
+void effectSpawnMultiTierRing(f32, u8, f32, f32, f32);
 
 void zoneEntrySpawnEffect(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
     Zone *group;
