@@ -1,5 +1,30 @@
 #include "common.h"
-u8 flagGet(s16, u8);
+#define PROTO_SKIP_resQueueAttachActor // FAKE: callee prototype steer
+#define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
+#define PROTO_SKIP_slotQueueGetValue // FAKE: callee prototype steer
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/104F0.h"
+#include "proto/global/10D2D0.h"
+#include "proto/global/112080.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/12E800.h"
+#include "proto/global/135D30.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/90D80.h"
+#include "proto/global/C4620.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/F600.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
+#include "proto/menu/1AF0.h"
 
 typedef struct Struct_80025D14 {
     char pad0[4];
@@ -43,9 +68,6 @@ typedef struct MenuShopPromptActor {
 } MenuShopPromptActor;
 extern Gfx D_1000118[];
 extern Mtx D_20000C0;
-Gfx *textDrawStringVtx();
-char *textTableGetString(s32, s32, s32);
-s32 _sprintf(char *, const char *, ...);
 
 Gfx *menuDrawShopCostPrompt(Gfx *dl, MenuShopPromptActor *actor) {
     Struct_80025D14 *st = actor->unk178;
@@ -134,10 +156,7 @@ typedef struct {
 } MenuM1_C924;
 extern MenuM1_C924 *gPlayerSlots;
 extern u8 D_800334DC[];
-s32 func_806F6E58(s16);
-void slotQueueAddValue(s32, s32, s16);
-void healthRefill(u8);
-void eepromSavePlayerData(void);
+void slotQueueAddValue(s32, s32, s16); // FAKE: callee prototype steer
 
 void menuApplyPurchase(Struct_80025D14 *state, u8 *inventory) {
     s16 queueItemId = -1;
@@ -202,7 +221,6 @@ extern MenuM1_Entry D_80033260[][7];
 extern MenuM1_Entry D_80033334[][7];
 extern MenuM1_Entry D_80033408[][7];
 extern u8 gCurrentWorldId;
-u8 mapGetHubWorldIndex(u8, u8);
 
 void menuCheckInventoryItemPurchased(Struct_80025D14 *state, u8 *inventory, s32 isExiting) {
     MenuM1_Entry *tbl;
@@ -312,13 +330,7 @@ extern u16 D_80033500[];
 extern u16 D_80033514[];
 extern u16 D_80033528[];
 extern u8 D_800334DD[];
-void currentActorClearFlag(void);
-s32 currentActorTestClearFlag();
-void flagSet(s16, u8, u8);
-s32 flagCountRange(s32, s32, u8);
-void resQueueAttachActor(void *, u16, u8);
-void slotQueueInit(s32);
-void slotQueueUpdate(s32, u8, s32);
+void resQueueAttachActor(void *, u16, u8); // FAKE: callee prototype steer
 typedef struct {
     u8 hi;
     u8 lo;
@@ -442,8 +454,6 @@ void menuFormatShopPurchaseText(Struct_80025D14 *state, void *inventory, s32 has
     }
 }
 
-void menuFormatShopPurchaseText(Struct_80025D14 *, void *, s32);
-void camResumePath(void);
 
 void menuDispatchSubmenuAction(Struct_80025D14 *state, u8 *inventory, s32 flag) {
     switch (state->unkE) {
@@ -462,10 +472,6 @@ void menuDispatchSubmenuAction(Struct_80025D14 *state, u8 *inventory, s32 flag) 
 
 
 extern void *gPrimaryPlayerActor;
-void playerWaypointPathStartPacked(s32, s32, s16, s16);
-u16 camStartPath(void *, s16, u8);
-void menuCheckInventoryItemPurchased(Struct_80025D14 *, u8 *, s32);
-s32 playerStateQueueCallback(s16, void *, u8);
 
 s32 menuExitSubmenu(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
     s32 flag = flagGet((s16)flagId, 0) == 0;
@@ -503,12 +509,7 @@ void menuTransitionToSubmenu(Struct_80025D14 *state, u8 *inventory) {
 }
 
 extern s32 gGlobalPauseFlags;
-s32 slotQueueGetMaxValue(s32, s32);
 
-void renderCallbacksRegister(void *, void *, s32);
-void slotQueueCancel(s32, s32);
-s32 actorSpawn(s32, s32);
-void actorScriptStartByIndex(void *, s32);
 
 void menuUpdateShopPurchaseStep(Struct_80025D14 *state, u8 *inventory) {
     s32 textParam1;
@@ -665,8 +666,6 @@ void menuUpdateShopDialogueStep(Struct_80025D14 *state, void *inventory, s32 fla
     }
 }
 
-void mapTransitionToPreviousOrExit(void);
-void playerResumeLocomotion(void *);
 
 void menuUpdateShopExitingStep(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
     s32 x;
@@ -746,8 +745,6 @@ void menuUpdateShopExitingStep(Struct_80025D14 *state, u8 *inventory, s32 flagId
     }
 }
 
-void menuUpdateShopDialogueStep(Struct_80025D14 *, void *, s32);
-void menuUpdateShopExitingStep(Struct_80025D14 *, u8 *, s32);
 
 void menuDispatchCurrentMenuAction(Struct_80025D14 *state, u8 *inventory, s32 flagId) {
     s32 flag = flagGet((s16)flagId, 0) == 0;
@@ -769,10 +766,6 @@ void menuDispatchCurrentMenuAction(Struct_80025D14 *state, u8 *inventory, s32 fl
 }
 
 extern s32 gCurrentMap;
-void behaviourFrameBegin(void);
-void actorScriptedCommandUpdate(void);
-void actorUpdateModelMatrix(void *, s32);
-void actorScriptStart(void *, s32);
 
 void menuUpdateCrankyShopActor(void) {
     s32 i;
@@ -910,8 +903,6 @@ s32 menuDecodeAddressConstant(s32 val) {
 
 
 extern s32 csCmdExec;
-void controllerUpdate(void);
-void controllerLatchPad(OSContPad *);
 
 void menuCheckControllerAntiPiracy(void) {
     Struct_80025D14 *temp;
@@ -1007,10 +998,6 @@ extern s32 D_80033628[];
 extern s32 D_80033634[];
 extern s32 D_80033648[];
 extern s16 D_80033542;
-Struct_BB40_58 *spawnNodeActivate(s32, s32);
-u8 textGetFontHeight(s16);
-void actorDespawn(void *);
-void renderCallbacksRegister(void *, void *, s32);
 
 void menuUpdateTransformedWidgets(void) {
     MenuWidgetState *fp = gCurrentActor->unk174;
@@ -1113,7 +1100,6 @@ void menuUpdateTransformedWidgets(void) {
     }
 }
 
-void menuUpdateTransformedWidgets(void);
 
 void menuUpdateOverlayWidgetActor(void) {
     menuUpdateTransformedWidgets();

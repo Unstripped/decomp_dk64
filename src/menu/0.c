@@ -1,4 +1,32 @@
 #include "common.h"
+#define PROTO_SKIP_currentActorClearFlag // PROTO: Type MenuStruct_80024000 *  of this argument  is incompatibl
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_listContainsS16 // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_menuCalculateBonusDuration // PROTO: Type MenuStruct_80024000 *  of this argument  is incompatibl
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/104F0.h"
+#include "proto/global/112080.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/12E800.h"
+#include "proto/global/135D30.h"
+#include "proto/global/15050.h"
+#include "proto/global/201B0.h"
+#include "proto/global/2C910.h"
+#include "proto/global/35000.h"
+#include "proto/global/3C10.h"
+#include "proto/global/42630.h"
+#include "proto/global/7130.h"
+#include "proto/global/90D80.h"
+#include "proto/global/ACDC0.h"
+#include "proto/global/C4620.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/F9450.h"
+#include "proto/global/FCCD0.h"
+#include "proto/menu/0.h"
 
 typedef struct {
     char pad0[0x340];
@@ -32,9 +60,6 @@ extern u8 gCurrentWorldId;
 extern s32 D_80032F48[][6];
 extern MenuStruct_30A2 D_800330A2[];
 
-s32 mapGetHubWorldIndex(s32, s32);
-void csModelStateSetFirstByte(s16, s32);
-void camStartPath(s32, s32, s32);
 
 void menuPlaySoundFromTable(MenuStruct_80024000 *menu) {
     s32 soundId = D_80032F48[mapGetHubWorldIndex(gCurrentWorldId, 0)][menu->unk1];
@@ -54,9 +79,6 @@ void menuPlaySoundFromTable(MenuStruct_80024000 *menu) {
 
 
 extern u8 D_80720268;
-void effectSetMode(s32);
-void effectSetDepth(s32);
-void effectSetDuration(s32);
 MenuActor_340 *effectCreateAtPosition(void *, s32, s32, s32, f32);
 
 void menuSpawnPositionalActor(MenuStruct_80024000 *menu) {
@@ -71,7 +93,6 @@ void menuSpawnPositionalActor(MenuStruct_80024000 *menu) {
     menu->unk8 = effectCreateAtPosition(&D_80720268, 0x3E99999A, 0x43350000, 0x40400000, 82.0f);
 }
 
-void effectFreeAndUnlink(MenuActor_340 *);
 
 void menuUpdateFallingActor(MenuStruct_80024000 *menu) {
     MenuActor_340 *actor = menu->unk8;
@@ -88,8 +109,6 @@ void menuUpdateFallingActor(MenuStruct_80024000 *menu) {
 }
 
 extern void *gPrimaryPlayerActor;
-void playerResumeLocomotion(void *);
-void mapTransitionToPreviousOrExit(void);
 
 void menuResetAudioState(void) {
     playerResumeLocomotion(gPrimaryPlayerActor);
@@ -118,13 +137,8 @@ typedef struct MenuRenderActor {
 } MenuRenderActor;
 extern MenuRenderActor *gCurrentActor;
 extern s16 D_80750AC8;
-s32 currentActorTestClearFlag(void);
-void resQueueAttachActor(void *, s32, u8);
-void camResumePath(void);
 void currentActorClearFlag();
 
-void menuPlaySoundFromTable(MenuStruct_80024000 *menu);
-void menuUpdateFallingActor(MenuStruct_80024000 *menu);
 
 void menuMainStateStep(MenuStruct_80024000 *menu, s32 playVoice) {
     s32 mode;
@@ -233,10 +247,6 @@ extern u8 D_1000118[];
 extern u8 D_20000C0[];
 extern u8 D_2000180[];
 
-s32 _sprintf(char *, const char *, ...);
-Gfx *hudDrawScaledText(Gfx *, s32, s16, f32, char *);
-Gfx *textDrawStringVtx(Gfx *, s32, s32, s32, char *, s32);
-char *textTableGetString(s32, s32, s32);
 
 Gfx *menuDrawOptionsOverlay(Gfx *glist, MenuRenderActor *actor) {
     s32 y;
@@ -297,16 +307,6 @@ extern u8 D_80032F50;
 extern s16 D_800330D8;
 
 s32 listContainsS16(s32, s16 *);
-s32 flagGridIndex();
-s32 flagGet(s32, s32);
-void flagSet(s32, s32, s32);
-void func_806F8278(s32);
-void eepromSavePlayerData(void);
-s32 camIsCutsceneActive(void);
-void playerStateQueueCallback(s32, void *, s32);
-void menuTransitionWithStateD(u8);
-s32 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void renderCallbacksRegister(void *, void *, s32);
 
 void menuUpdateOptionsState(MenuStruct_80024000 *menu) {
     s32 i;
@@ -433,13 +433,6 @@ void menuProcessOptionInput(MenuStruct_80024000 *menu) {
 
 extern s16 D_8076AEF2;
 
-void playerWaypointPathStartPacked(void *, s32, s32, s32);
-u8 flagCountRange(s32, s32, s32);
-u8 flagGridSumRows(s32, s32, s32, u8);
-void menuUpdateOptionsState(MenuStruct_80024000 *menu);
-void behaviourFrameBegin(void);
-void actorScriptedCommandUpdate(void);
-void actorUpdateModelMatrix(void *, s32);
 
 void menuDispatchAction(void) {
     s32 pad;
@@ -539,8 +532,6 @@ extern u8 D_80033228[];
 extern s8 D_80033258;
 extern MenuProgressGridVtx *D_80033F10;
 
-void *heapAlloc(s32);
-Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor);
 void *memcpy(void *, const void *, s32);
 
 void menuUpdateProgressGrid(void) {
@@ -623,7 +614,6 @@ void menuUpdateProgressGrid(void) {
 
 extern u8 gGfxBufferIndex;
 extern s32 gFrameCounter;
-s32 texCacheFindOrLoad(s32);
 
 Gfx *menuDrawProgressGrid(Gfx *g, MenuRenderActor *actor) {
     s32 pad;

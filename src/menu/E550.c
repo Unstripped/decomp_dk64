@@ -1,5 +1,18 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_lightAdd // FAKE: callee prototype steer
+#include "proto/global/100180.h"
+#include "proto/global/112080.h"
+#include "proto/global/117190.h"
+#include "proto/global/12E800.h"
+#include "proto/global/19A00.h"
+#include "proto/global/2C910.h"
+#include "proto/global/35000.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/8F4B0.h"
+#include "proto/global/90D80.h"
+#include "proto/global/ACDC0.h"
+#include "proto/menu/E550.h"
 
 
 extern Actor *gCurrentActor;
@@ -7,12 +20,6 @@ extern u8 D_80033FB0;
 extern u8 D_80033FB1;
 extern u8 D_80033FB2;
 
-void behaviourFrameBegin(void);
-void lightUpdateFromActorLighting(u8 *, u8 *, u8 *);
-s32 currentActorTestClearFlag(void);
-void currentActorClearFlag(void);
-void actorScriptStart(Actor *, s32);
-void actorUpdateModelMatrix(Actor *, s32);
 
 void menuLightSpotlightActorUpdate(void) {
     behaviourFrameBegin();
@@ -43,11 +50,7 @@ void menuLightSpotlightActorUpdate(void) {
 
 extern u8 D_800339D0;
 extern s32 gGlobalPauseFlags;
-void lightSetFovAngles(f32, f32);
 void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32); // FAKE: callee prototype steer
-void menuSetFlag5324(void);
-void renderCallbacksRegister(void *, void *, u8);
-Gfx *menuRenderOptionDescription(Gfx *, void *);
 
 void menuUpdateLightFadeActor(void) {
     s32 d;
@@ -122,12 +125,6 @@ extern Mtx D_20000C0;
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
 extern u8 gHiResScale;
-char *textTableGetString(s32, s32, s32);
-u8 textGetFontHeight(s16);
-s32 texCacheFindOrLoad(u16);
-s32 textGetStringWidth(s32, char *);
-Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
-Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
 
 Gfx *menuRenderOptionDescription(Gfx *dl, void *actor) {
     u32 tex;

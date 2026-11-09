@@ -1,4 +1,42 @@
 #include "common.h"
+#define PROTO_SKIP_actorAppendCallbackMemcpy8 // FAKE: callee prototype steer
+#define PROTO_SKIP_actorConfigApplyAnimFrameByType // FAKE: callee prototype steer
+#define PROTO_SKIP_actorUpdateCollisionSpheres // PROTO: not a function here
+#define PROTO_SKIP_configureCSPOutputMode // FAKE: callee prototype steer
+#define PROTO_SKIP_controllerSetActiveMask // FAKE: callee prototype steer
+#define PROTO_SKIP_eepromGetField // FAKE: callee prototype steer
+#define PROTO_SKIP_eepromSetCurrentSlot // FAKE: callee prototype steer
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
+#define PROTO_SKIP_func_807144B8 // FAKE: callee prototype steer
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/104F0.h"
+#include "proto/global/109660.h"
+#include "proto/global/112080.h"
+#include "proto/global/117190.h"
+#include "proto/global/119370.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/1332B0.h"
+#include "proto/global/135D30.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/13C920.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/8F050.h"
+#include "proto/global/90D80.h"
+#include "proto/global/ACDC0.h"
+#include "proto/global/C4620.h"
+#include "proto/global/F56F0.h"
+#include "proto/global/F600.h"
+#include "proto/menu/3E10.h"
 
 typedef struct MenuScreenActor {
     char pad0[0x174];
@@ -36,9 +74,6 @@ void menuSetAudioMode(void) {
     configureCSPOutputMode(val);
 }
 
-Gfx *menuUpdateStateDispatch();
-void camEndPath(s32);
-s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 extern s8 D_80033734;
 extern s32 gCamActor;
 
@@ -133,20 +168,7 @@ extern f32 D_80033F58;
 extern f32 D_80033F5C;
 extern s8 D_8076A0D2;
 
-void actorFindActiveByType(s32, s32 *);
-void actorScriptStart(void *, s32);
-u8 camIsCutsceneActive(void);
-u16 camStartPath(void *, s16, u8);
-u8 flagGet(s16, u8);
-s32 randomLcgNext();
-f32 randomFloat();
-void actorAppendCallbackMemcpy8(s32, s32, s32, s32, void *, s32);
-void gfxSetBackgroundBlend(f32);
-void lightSetColor(f32, f32, f32, s16);
-void menuHandleScrollInput();
-void menuUpdateItemTransition(void *, MenuScreenState *, s32);
-void menuUpdateScrollAnimation();
-void spawnNodesSetActorStateByFlag(u16, u8);
+void actorAppendCallbackMemcpy8(s32, s32, s32, s32, void *, s32); // FAKE: callee prototype steer
 
 void menuUpdateMainScreen(void *actor, s32 buttons) {
     MenuScreenState *state;
@@ -323,11 +345,7 @@ void menuUpdateMainScreen(void *actor, s32 buttons) {
 }
 
 extern char **D_80033F28;
-s32 menuComputeElementPosition(MenuScreenState *, f32, f32, f32 *, f32 *, s32, s8, f32);
 
-void *heapAlloc(s32);
-void heapFreeDeferred(void *);
-Gfx * textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
 Gfx *menuDrawMainScreenTitle(MenuScreenActor *actor, Gfx *dl) {
     Gfx *g;
@@ -366,7 +384,6 @@ extern u8 D_807210EC;
 extern u8 D_80721170;
 extern u8 D_807211D0;
 extern u8 D_80721444;
-void menuSpawnUiElementEffect(MenuScreenState *, void *, s32, s32, f32, s32, s32);
 s32 eepromGetField(s32, s32, u8, s32);  // FAKE: callee prototype steer
 
 void menuInitMainScreen(MenuScreenActor *actor, s32 unused) {
@@ -450,9 +467,6 @@ void menuHandleSelectionInput(MenuScreenActor *actor, s32 buttons) {
     menuUpdateItemTransition(actor, state, 1);
 }
 
-int _sprintf(char *, const char *, ...);
-Gfx *hudDrawScaledText(Gfx *, s16, s16, f32, char *);
-s32 menuCheckSaveFile();
 
 Gfx *menuDrawAdventureFileSelectTitle(MenuScreenActor *actor, Gfx *dl) {
     void *state = actor->unk174;
@@ -523,7 +537,6 @@ void menuCheckCheatCodeSequence(void) {
     }
 }
 
-void menuUpdateCameraPositions(void);
 void controllerSetActiveMask(s32);  // FAKE: callee prototype steer
 void func_807144B8(s8);  // FAKE: callee prototype steer
 extern s8 D_80033F48;
@@ -551,8 +564,6 @@ extern u32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
 extern u32 gFrameCounter;
-Gfx *menuSetElementCoordinates(Gfx *, s32, f32, f32, f32);
-Gfx * renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
 f32 mathSinF(s16);
 
 s32 menuDrawFileSummary(void *actor, Gfx *dl) {
@@ -643,8 +654,6 @@ extern u32 D_80033814;
 extern f32 D_80033F4C;
 extern s8 D_80033F51;
 extern u32 actorUpdateCollisionSpheres;
-void eepromLoadPlayerData(s32, s32);
-s32 menuCalculateGamePercentage(void);
 
 extern s8 D_80033809;
 void menuInitFileSummary(void *actor, s32 unused) {
@@ -782,9 +791,8 @@ void menuInitFileSelect(MenuScreenActor *actor, s32 unused) {
 
 extern u8 D_8071FBC8;
 extern u8 D_8071FE08;
-void effectEnableFade(void);
 void *effectCreateAtPosition(void *, f32, f32, f32, f32);
-void eepromSetCurrentSlot(u8, s32);
+void eepromSetCurrentSlot(u8, s32); // FAKE: callee prototype steer
 extern s8 D_80033FAC;
 
 void menuMysteryHandleInput(MenuScreenActor *actor, s32 buttons) {
@@ -1083,7 +1091,6 @@ extern u8 gActivePlayerCount;
 extern s32 D_807552E4[];
 extern u8 D_807ECD09;
 extern OSContPad D_807ECD10[];
-void func_8071458C(void);
 
 void menuHandleControllerSlotInput(MenuScreenActor *actor, s32 buttons) {
     MenuScreenState *state = actor->unk174;
@@ -1299,7 +1306,6 @@ extern s8 D_80744534;
 extern s8 D_8076A0E5;
 extern s8 D_8076A0E6;
 extern s8 D_8076A0E7;
-Gfx *menuSetElementCoordinates(Gfx *, s32, f32, f32, f32);
 
 Gfx *menuDrawCharacterSelect(MenuScreenActor *actor, Gfx *dl) {
     MenuScreenState *state = actor->unk174;
@@ -1423,7 +1429,6 @@ extern s16 D_80744544;
 extern u8 D_80720D5C;
 extern u8 D_80720D80;
 extern u8 D_807211AC;
-s32 actorSpawn(s32, s32);
 
 void menuInitCharacterSelect(MenuScreenActor *actor, s32 unused) {
     MenuScreenState *state = actor->unk174;
@@ -1632,11 +1637,7 @@ typedef struct Menu6B_Pair {
 #define Menu6B_N ((Menu6B_Actor *)gSpawnedActor)
 extern s32 D_800338B4[];
 extern Menu6B_Pair D_80033894[];
-void actorDespawn(void *);
-void actorUpdateModelMatrix(void *, s32);
-void func_806BF920(void);
-void playerKongStopSoundByState(void *);
-void actorConfigApplyAnimFrameByType(void *, s32, s32);
+void actorConfigApplyAnimFrameByType(void *, s32, s32); // FAKE: callee prototype steer
 
 void menuCharacterSelectUpdateActor(void) {
     s32 step;
@@ -1721,10 +1722,6 @@ void menuCharacterSelectUpdateActor(void) {
 
 extern s8 gSfxVolume;
 extern s8 gMusicVolume;
-void n_alSndpSetGroupVol(u8, u16);
-void seqUpdateVolume(s32);
-void eepromSetField(s32, u8, u8, u8, s32);
-void func_8060DEA8(void);
 
 void menuHandleSoundOptionsInput(MenuScreenActor *actor, s32 buttons) {
     MenuScreenState *state = actor->unk174;
@@ -1824,7 +1821,6 @@ void menuHandleSoundOptionsInput(MenuScreenActor *actor, s32 buttons) {
 
 extern s16 D_80033674;
 extern s8 gAudioOutputMode;
-Gfx *menuDrawScrollSelector(Gfx *, MenuScreenState *, char **, s32, u32 *, s16, f32 *, f32, s16);
 
 Gfx *menuFormatOptionValues(MenuScreenActor *actor, Gfx *dl) {
     void *state;
@@ -1891,9 +1887,6 @@ extern s8 D_8074452C;
 extern u8 D_80744530;
 extern u8 sLanguageIndex;
 extern u16 D_807ECD66;
-void heapFreeDeferred(void *);
-void eepromInitConfigs(u8);
-void menuLoadTextTable(void);
 
 void menuHandleGameOptionsInput(MenuScreenActor *actor, s32 buttons) {
     MenuScreenState *state = actor->unk174;
@@ -2052,9 +2045,6 @@ extern s16 D_80033998[];
 extern s8 D_8074453C[];
 
 extern s8 D_80744540;
-void menuTransitionRequestTypeB(s32, s32);
-void menuTransitionToCreditsOrMap28(s32);
-void menuSetupPlayerInventory(s32, s32, s32, s8, s8, s8, s8);
 
 void menuHandleCheatsInput(MenuScreenActor *actor, s32 buttons) {
     MenuScreenState *state = actor->unk174;
@@ -2756,12 +2746,6 @@ extern s8 D_80033738;
 extern f32 D_8003369C;
 extern void *D_80033F34;
 extern s8 D_80033F30;
-void func_8061B650(s32);
-void func_8060CB9C(void);
-void menuInsertHighScore(void);
-void renderCallbacksRegister(void *, void *, u8);
-void *heapAlloc(s32);
-void menuInitGfxState(Gfx *, s32);
 
 void menuInit(void) {
     MenuScreenState *sub = gCurrentActor->unk174;
@@ -2874,29 +2858,6 @@ typedef struct MenuStickAxis {
 } MenuStickAxis;
 
 extern MenuStickAxis *D_807ECDEC;
-void menuUpdateMainScreen();
-Gfx *menuDrawMainScreenTitle();
-void menuInitMainScreen();
-Gfx *menuDrawAdventureFileSelectTitle();
-void menuInitAdventureFileSelect();
-s32 menuDrawFileSummary();
-void menuInitFileSummary();
-Gfx *menuDrawFileSlotLabel();
-void menuInitFileSelect();
-Gfx *menuMysteryDrawFileSlotLabel();
-Gfx *menuDrawSubmenuRing();
-void menuInitControllerSlots();
-void menuHandleControllerSlotInput();
-Gfx *menuDrawCharacterSelect();
-void menuInitCharacterSelect();
-s32 menuDrawMultiplayerResults();
-void menuInitMultiplayerResults();
-void menuHandleSoundOptionsInput();
-void menuHandleGameOptionsInput();
-void menuHandleCheatsInput();
-Gfx *menuDrawCheats();
-void menuInitCheats();
-void menuHandleHighScoreNameEntryInput();
 
 Gfx *menuUpdateStateDispatch(MenuScreenActor *actor, s32 opMode, Gfx *dl, s32 subArg) {
     MenuScreenState *state = actor->unk174;
@@ -3108,12 +3069,7 @@ typedef struct Menu10_Fx {
     Menu10_Burst *unk384;
 } Menu10_Fx;
 
-void effectSetSpeed(void *);
-void effectSetCallback(void *);
 void effectSetMode(u8);  // FAKE: callee prototype steer
-void effectSetDuration(s32);
-void effectSetFlags(s16);
-void menuUpdateElementTargetAndColor();
 f32 sqrtf(f32);
 
 void menuSpawnUiElementEffect(MenuScreenState *state, void *assetPtr, s32 posX, s32 posY, f32 elemScale, s32 flags, s32 fxType) {
@@ -3271,7 +3227,6 @@ typedef struct MenuUiElemActor {
 } MenuUiElemActor;
 
 extern MenuUiRgba D_800337DC[];
-s32 menuEvaluateSelectorSpline(void *, s32, f32 *, f32 *, f32 *, s16 *, s16 *);
 
 void menuUpdateElementTargetAndColor(MenuUiElemActor *elemActor, u8 *outFlag) {
     MenuUiElemCfg *p = elemActor->unk35C;
@@ -3508,7 +3463,6 @@ typedef struct MenuA_SelectorView {
 
 extern f32 D_8003373C[];
 extern f32 D_8003378C[];
-f32 menuEvaluateSpline(f32 *, f32, f32 *);
 
 s32 menuEvaluateSelectorSpline(void *view, s32 index, f32 *outPosX, f32 *outPosY, f32 *outScale, s16 *outColor, s16 *outAlpha) {
     f32 v;
@@ -3638,7 +3592,6 @@ void menuActorStateDispatch(void) {
 }
 
 
-void actorUpdateModelMatrix(void *, s32);
 
 extern f32 D_80033678[];
 extern s16 D_80754CE0;
@@ -3739,9 +3692,6 @@ void menuUpdateKioskActor(void) {
 }
 
 extern f32 D_8003378C[];
-void actorDespawn(void *);
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
 
 void menuUpdateKioskPodActor(void) {
     Menu10_Sub174 *pos;
@@ -3819,7 +3769,6 @@ typedef struct Menu3R3_StructC828 {
 } Menu3R3_StructC828;
 
 extern Menu3R3_StructC828 D_807FC828;
-void hudPauseMenuRefreshTotals(void);
 
 s32 menuCalculateGamePercentage(void) {
     f32 pct;
@@ -3847,7 +3796,6 @@ s32 menuCalculateGamePercentage(void) {
     return pct;
 }
 
-char *textTableGetString(s32, s32, s32);
 
 void menuLoadTextTable(void) {
     s32 i;
