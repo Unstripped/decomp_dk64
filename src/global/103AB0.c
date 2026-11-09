@@ -910,20 +910,20 @@ void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4,
     s16 xa;
     s32 uls;
     s32 vb;
-    s32 vc;
+    s32 rowY;
     s32 x;
     s32 lrs;
     f32 xf;
     u32 xs;
     s32 ua;
     u32 ys;
-    s32 pad1;
+    s32 rowT;
     s32 lrt;
     u32 xe;
     s32 ult;
     u32 ye;
     u8 flag;
-    s32 ylo;
+    s32 colS;
     f32 fsc;
     u32 tw;
     f32 twf;
@@ -951,10 +951,10 @@ void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4,
     gDPPipeSync(dl++);
     for (y = ys, v = (s32)((f32)arg13 * arg12); y < ye; y += th, v += vstep) {
         u = ((s32)((f32)arg13 * arg11));
-        pad1 = v;  // FAKE: copy of v for the vertex args (spill-chain bit order)
-        vc = y;  // FAKE: copy of y for the vertex y positions (spill-chain bit order)
+        rowT = v;
+        rowY = y;
         for (x = xs; x < xe; x += tw, u += ustep) {
-            ylo = u;  // FAKE: copy of u for the vertex args (spill-chain bit order)
+            colS = u;
             uls = ((x >> 5) - 1) > 0 ? ((x >> 5) - 1) : 0;
             xf = (f32)x - 16.0;
             ua = (s16)(u + ustep);
@@ -983,7 +983,7 @@ void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4,
             if (arg16 != NULL) {
                 arg16(u, v, vtx);
             }
-            vtxSetPosTex((s16 *)vtx++, ylo, pad1, xf, (s16)(f32)((f32)vc - 16.0), flag);
+            vtxSetPosTex((s16 *)vtx++, colS, rowT, xf, (s16)(f32)((f32)rowY - 16.0), flag);
             if (arg15) {
                 if ((x + (arg5 << 5)) >= xe && arg15 == 2) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -995,7 +995,7 @@ void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4,
                 arg16((s16)(u + ustep), v, vtx);
             }
             xa = xf + twf;
-            vtxSetPosTex((s16 *)vtx++, ua, pad1, xa, (s16)(f32)((f32)vc - 16.0), flag);
+            vtxSetPosTex((s16 *)vtx++, ua, rowT, xa, (s16)(f32)((f32)rowY - 16.0), flag);
             if (arg15) {
                 if ((x + (arg5 << 5)) >= xe && arg15 == 2) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -1006,7 +1006,7 @@ void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4,
             if (arg16 != NULL) {
                 arg16(ua, vb, vtx);
             }
-            vtxSetPosTex((s16 *)vtx++, ua, vb, xa, (s16)((f32)(f32)((f32)vc - 16.0) + (f32)th), flag);
+            vtxSetPosTex((s16 *)vtx++, ua, vb, xa, (s16)((f32)(f32)((f32)rowY - 16.0) + (f32)th), flag);
             if (arg15) {
                 if (x == xs && arg15 == 1) {
                     vtxSetColor(vtx, 0xFF, 0xFF, 0xFF, 0, 0);
@@ -1017,7 +1017,7 @@ void gfxDrawTexturedTileGrid(Gfx **arg0, s32 arg1, s32 arg2, u32 arg3, s32 arg4,
             if (arg16 != NULL) {
                 arg16(u, vb, vtx);
             }
-            vtxSetPosTex((s16 *)vtx++, ylo, vb, xf, (s16)((f32)(f32)((f32)vc - 16.0) + (f32)th), flag);
+            vtxSetPosTex((s16 *)vtx++, colS, vb, xf, (s16)((f32)(f32)((f32)rowY - 16.0) + (f32)th), flag);
             gSPVertex(dl++, osVirtualToPhysical(vtx - 4), 4, 0);
             gSP2Triangles(dl++, 0, 1, 2, 0, 0, 2, 3, 0);
             gDPPipeSync(dl++);
