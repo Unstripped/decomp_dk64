@@ -90,7 +90,7 @@ extern s32 D_807FDA20;
 extern s32 D_807FDA24;
 void *heapAlloc(s32);
 void heapClearBlock(void *);
-void *assetLoad(s32, s32, s32, s32);
+void *assetLoad(s32, u32, u8, u8);
 
 #define ANGA_SETUP ((EffectSpriteTextureSetup *)(&D_80755264 + poolType * 0x14))
 #define ANGA_POP_SLOT(out) \
@@ -173,7 +173,7 @@ typedef struct AngAAngle {
 extern s16 D_807FDA1E;
 f32 sinApprox(f32);
 f32 mathSinF(s16);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 mathAngleSignedDistance(s16, s16);
 
 void effectSpriteParticleTrackCamera(struct M114aAngle *particle) {
@@ -260,7 +260,7 @@ extern u32 gGlobalCutsceneFlags;
 extern f32 D_807FD9EC;
 extern u8 sEffectImpactPuffConfig;
 f32 cosApprox(f32);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void effectSetCallback(void *);
 void effectSetLifetime(s16);
 void effectSetFlags(s16);
@@ -633,7 +633,7 @@ extern f32 *D_8076A0B4;
 extern u8 D_8077058C[];
 void effectSpritePoolSpawn(u8 poolType, s16 mapChunk, f32 scale, s16 spawnX, s32 spawnY, u8 initialAlpha);
 Gfx *effectSpriteRenderPool(Gfx *glist, Actor *actor);
-void renderCallbacksRegister(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, u8);
 
 void func_80711410(f32 density, s16 windAngle, f32 alpha, s16 mapChunk, f32 scale) {
     f32 randX;
@@ -721,7 +721,7 @@ void func_80711950(f32 density, s16 windAngle, s16 mapChunk) {
 
 
 extern u8 D_807212E0;
-s32 effectSetDuration(s32);
+void effectSetDuration(s32);
 void effectEnableFade(void);
 void effectSwayRiseUpdate(void);
 
