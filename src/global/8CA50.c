@@ -249,11 +249,9 @@ void animNodeAdvanceTime(AnimNode *node) {
 
 s32 animGetNodeItem(void *actor, s32 index, s16 itemIndex) {
     AnimNode *node = animGetNodeByIndex(actor, index);
-    if (node) {
-        goto yes;
+    if (!node) {
+        return 0;
     }
-    return 0;
-yes:
     return ((s32 *)node->unk0)[itemIndex];
 }
 
@@ -341,11 +339,9 @@ void animClearStartFrame(void *actor, s32 index) {
 
 s32 animIsPlaying(void *actor, s32 index) {
     AnimNode *node = animGetNodeByIndex(actor, index);
-    if (node) {
-        goto yes;
+    if (!node) {
+        return 0;
     }
-    return 0;
-yes:
     return (node->unk22 == 0) ? 1 : 0;
 }
 
