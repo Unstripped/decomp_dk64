@@ -564,7 +564,7 @@ u8 arg3;
         sp54 = ACTOR_MOVE_VIEW->unkAC;
         if (fa0 < sp54) {
             if (fl[3] != 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
-            ACTOR_MOVE_VIEW->unkC0 = ACTOR_MOVE_VIEW->unkC0 + ((sp54 - fa0) * 3.0f + 15.0f);
+            ACTOR_MOVE_VIEW->unkC0 = ACTOR_MOVE_VIEW->unkC0 + ((ACTOR_MOVE_VIEW->unkAC - fa0) * 3.0f + 15.0f);
             fv0 = ACTOR_MOVE_VIEW->unkC0;
             if (fv0 > 0.0f) {
                 fa0 = fv0;
@@ -601,7 +601,6 @@ u8 arg3;
         if (ACTOR_MOVE_VIEW->unk80 < ACTOR_MOVE_VIEW->unkAC) {
             ACTOR_MOVE_VIEW->unk80 = ACTOR_MOVE_VIEW->unkAC;
             ACTOR_MOVE_VIEW->unkC0 = ACTOR_MOVE_VIEW->unkC4;
-            if (S->unk4 && S->unk4) {}  // FAKE: dead test steers the FP colouring of the unkAC load in the !arg2 block
         }
     }
     if (gGlobalOverlayFlags & 0x2000) {
