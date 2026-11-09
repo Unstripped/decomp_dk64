@@ -2,7 +2,6 @@
 #include "actor.h"
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
 #define PROTO_SKIP_mapGetHubWorldIndex // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -785,7 +784,6 @@ typedef struct SlotQueueEffectNode {
     void *unk8;
 } SlotQueueEffectNode;
 
-void effectSetMode(u8); // FAKE: callee prototype steer
 void effectSetColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 void *effectCreateAtPosition(s32, f32, f32, f32, f32);
 

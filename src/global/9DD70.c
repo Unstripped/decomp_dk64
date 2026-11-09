@@ -2,7 +2,6 @@
 #include "actor.h"
 #define PROTO_SKIP_actorTableContains // PROTO: Type s32  of this argument  is incompatible with type void  
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetDepth // FAKE: callee prototype steer
 #include "proto/boot/3630.h"
 #include "proto/global/100180.h"
 #include "proto/global/1025E0.h"
@@ -767,7 +766,6 @@ extern s16 D_80750378;
 extern s32 gGameFrameCounter;
 extern u8 D_8071FE08[];
 extern u8 D_80720E14[];
-void effectSetDepth(u8);  // FAKE: callee prototype steer
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);  // FAKE: callee prototype steer
 
 void func_8069B010(void) {

@@ -3,7 +3,6 @@
 #define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleInArcWithMargin // PROTO: Reference of an expression of void type or an incomplete typ
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
@@ -1932,7 +1931,6 @@ void projectileTrySpawnFromSlot(Actor *actor) {
     }
 }
 
-void effectSetMode(u8); // FAKE: callee prototype steer (shared header has s8; u8 keeps lbu, not lb)
 void effectCreateAtActorBone(void *, f32, void *, s32, u8); // FAKE: callee prototype steer (shared header has s32 asset; pointer asset avoids the int conversion, Q0508)
 void *effectCreateAtPosition(void *, f32, f32, f32, f32);
 extern u8 D_8071FE08[];

@@ -42,13 +42,13 @@ void effectSetZOffset(s16);
 void effectSetCallback(s32);
 #endif
 #ifndef PROTO_SKIP_effectSetMode
-void effectSetMode(s8);
+void effectSetMode(u8);
 #endif
 #ifndef PROTO_SKIP_effectSetMaxDistance
 void effectSetMaxDistance(s16);
 #endif
 #ifndef PROTO_SKIP_effectSetDepth
-void effectSetDepth(s8);
+void effectSetDepth(u8);
 #endif
 #ifndef PROTO_SKIP_effectSetColor
 void effectSetColor(s8, s8, s8, s8);
@@ -75,7 +75,7 @@ void effectSetBounds(s16, s16, s16, s16);
 void effectResetState(void);
 #endif
 #ifndef PROTO_SKIP_effectCreateAtModelNode
-void effectCreateAtModelNode(s32, f32, s32, s32, u8);
+void effectCreateAtModelNode(void *, f32, s32, s32, u8);
 #endif
 #ifndef PROTO_SKIP_effectCreateAtActorBone
 void effectCreateAtActorBone(s32, f32, void *, s32, u8);

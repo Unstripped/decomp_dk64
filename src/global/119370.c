@@ -198,7 +198,7 @@ void effectSetCallback(s32 callback) {
     sEffectPendingCallback = callback;
 }
 
-void effectSetMode(s8 mode) {
+void effectSetMode(u8 mode) {
     sEffectPendingMode = mode;
 }
 
@@ -206,7 +206,7 @@ void effectSetMaxDistance(s16 val) {
     sEffectPendingMaxDist = val;
 }
 
-void effectSetDepth(s8 val) {
+void effectSetDepth(u8 val) {
     sEffectPendingDepth = val;
 }
 
@@ -276,13 +276,13 @@ void effectResetState(void) {
 }
 
 
-void effectCreateAtModelNode(s32 asset, f32 scale, s32 modelSlot, s32 nodeIndex, u8 flags) {
+void effectCreateAtModelNode(void *asset, f32 scale, s32 modelSlot, s32 nodeIndex, u8 flags) {
     f32 nodeX;
     f32 nodeY;
     f32 nodeZ;
 
     modelSlotGetNodePos(modelSlot, 1, nodeIndex, &nodeX, &nodeY, &nodeZ);
-    effectCreate(asset, scale, nodeX, nodeY, nodeZ, NULL, modelSlot, nodeIndex, (s32) flags);
+    effectCreate((s32)asset, scale, nodeX, nodeY, nodeZ, NULL, modelSlot, nodeIndex, (s32) flags);
 }
 
 

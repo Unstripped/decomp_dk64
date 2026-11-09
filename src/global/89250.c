@@ -5,6 +5,8 @@
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxPlayAtPositionPooled // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetDepth // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
 #include "proto/global/166A0.h"
@@ -20,6 +22,8 @@
 #include "proto/global/89250.h"
 #include "proto/global/8CA50.h"
 #include "proto/global/A2F10.h"
+void effectSetDepth(s8); // FAKE: callee prototype steer (shared header has u8)
+void effectSetMode(s8); // FAKE: callee prototype steer (shared header has u8)
 
 typedef struct Struct_5390 {
     f32 arr[3];

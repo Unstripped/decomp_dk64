@@ -7,7 +7,6 @@
 #define PROTO_SKIP_eepromGetField // FAKE: callee prototype steer
 #define PROTO_SKIP_eepromSetCurrentSlot // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
 #define PROTO_SKIP_func_807144B8 // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/100180.h"
@@ -3069,7 +3068,6 @@ typedef struct Menu10_Fx {
     Menu10_Burst *unk384;
 } Menu10_Fx;
 
-void effectSetMode(u8);  // FAKE: callee prototype steer
 f32 sqrtf(f32);
 
 void menuSpawnUiElementEffect(MenuScreenState *state, void *assetPtr, s32 posX, s32 posY, f32 elemScale, s32 flags, s32 fxType) {

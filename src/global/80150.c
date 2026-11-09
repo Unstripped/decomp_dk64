@@ -5,8 +5,6 @@
 #define PROTO_SKIP_actorScriptStart // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_actorStepPhysics // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetDepth // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
 #define PROTO_SKIP_effectZSpinMatrixUpdate // PROTO: not a function here
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806C7BAC // FAKE: callee prototype steer
@@ -123,8 +121,6 @@ extern u8 D_8072038C;
 s32 mapGetConfigValue(s32, s32);  // FAKE: callee prototype steer
 void actorScriptStart();
 s32 actorDespawn(Actor *);  // FAKE: callee prototype steer
-void effectSetMode(u32);  // FAKE: callee prototype steer
-void effectSetDepth(u32);  // FAKE: callee prototype steer
 void effectCreateAtPosition(void *, f32, f32, f32, f32); // FAKE: callee prototype steer
 s32 flagGet(s16, s32);  // FAKE: callee prototype steer
 

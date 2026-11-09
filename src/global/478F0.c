@@ -3,11 +3,8 @@
 #include "cutscene.h"
 #define PROTO_SKIP_actorListSpawnNodeEntry // FAKE: callee prototype steer
 #define PROTO_SKIP_collisionCheckGroundAtPoint // FAKE: callee prototype steer
-#define PROTO_SKIP_effectCreateAtModelNode // FAKE: callee prototype steer
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Improper cast of non-scalar type expression.
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetDepth // FAKE: callee prototype steer
-#define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxPlayWithRandomPan // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxSetChannelPriority // FAKE: callee prototype steer
 #define PROTO_SKIP_slotQueueAddValue // FAKE: callee prototype steer
@@ -66,10 +63,7 @@ typedef struct CsPlayerSlot {
 extern CsPlayerSlot *gPlayerSlots;
 extern u8 D_8071FF18[];
 extern u8 sEffectSparkConfig[];
-void effectSetMode(u8);  // FAKE: callee prototype steer
-void effectSetDepth(u8);  // FAKE: callee prototype steer
 void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
-void effectCreateAtModelNode(void *, f32, s32, s32, s32);  // FAKE: callee prototype steer
 void *effectCreateAtPosition(void *, f32, f32, f32, f32);
 u8 collisionCheckGroundAtPoint(f32, f32, f32 *);  // FAKE: callee prototype steer
 f32 mathCosF(s16);

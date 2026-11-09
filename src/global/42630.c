@@ -11,6 +11,7 @@
 #define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxPlayOnFreeSlot // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxSlotAllocateSource // FAKE: callee prototype steer
+#define PROTO_SKIP_effectSetDepth // FAKE: callee prototype steer
 #include "proto/global/10130.h"
 #include "proto/global/104F0.h"
 #include "proto/global/10E1D0.h"
@@ -47,6 +48,7 @@
 #include "proto/global/EFDC0.h"
 #include "proto/global/F9450.h"
 #include "proto/global/FCCD0.h"
+void effectSetDepth(s8); // FAKE: callee prototype steer (shared header has u8)
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
