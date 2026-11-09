@@ -110,3 +110,10 @@ def test_record_accepts_permute_stopped_on_zero(tmp_path, monkeypatch):
     batch.write_text(f'{SITE["key"]} permute nohit seconds=145 base=90 best=0 note="zero only via a hack"\n')
     q.main(["record", "--unit", "u1", "--agent", "a", "--batch", str(batch)])
     assert json.loads(ledger_path.read_text().splitlines()[-1])["seconds"] == 145
+
+
+def test_alpha_equal_accepts_renames_only():
+    old = "void f(s32 a) { g = a + D_80001234; /* x */ }"
+    assert q.alpha_equal(old, "void f(s32 count) { g = count + menuFade; // y\n }")
+    assert not q.alpha_equal("void f(s32 a, s32 b) { g = a + b; }", "void f(s32 a, s32 b) { g = b + b; }")
+    assert not q.alpha_equal(old, "void f(s32 a) { g = a + D_80001234 + 0; }")
