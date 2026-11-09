@@ -243,7 +243,7 @@ extern u32 func_80741310[];
 extern u64 D_80760590[];
 
 void audioDmaFrameUpdate(void);
-s32 n_alAudioFrame(void *, s32 *, u32, s16);
+s32 n_alAudioFrame(s32, s32 *, s32, s32);
 OSMesgQueue *schedGetCmdQueue(void *);
 
 s32 audioBuildTask(AudioTask *task, AudioAiBuffer *aiBuf) {
