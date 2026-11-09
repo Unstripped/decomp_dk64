@@ -101,7 +101,7 @@ typedef struct {
 } PuffRiseMotionState;
 
 void lightSetFlags();
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 void effectPuffRiseUpdate(RotatingEffectActorView *effect, void *unused) {
     PuffRiseMotionState *state;
@@ -194,7 +194,7 @@ void effectConfettiPhysicsUpdate(ConfettiActorView *effect, void *unused) {
 void effectSetSpeed(s32);
 void effectConfettiPhysicsUpdate();
 void effectSetCallback(void *);
-void effectSetDepth(s32);
+void effectSetDepth(s8);
 void effectCreateAtPosition(s32, f32, f32, f32, f32);
 extern s32 D_8074E880[];
 
@@ -334,7 +334,7 @@ typedef struct {
 } TimedEffectActorView;
 
 
-void effectSetMode(s32);
+void effectSetMode(s8);
 void effectRandomYRotDecalUpdate();
 extern u8 sEffectImpactPuffConfig;
 
@@ -778,7 +778,7 @@ typedef struct {
 } GroundBounceMotionState;
 
 s32 collisionCheckGroundAtPoint(f32, f32, f32 *);
-s32 collisionGetFloorHeight(s32 *);
+u8 collisionGetFloorHeight(f32 *);
 
 #define WOBBLE_STATE ((GroundBounceMotionState *)arg0->unk384)
 void effectWobbleRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
@@ -846,7 +846,7 @@ void effectWobbleRiseUpdate(TimedEffectActorView *arg0, s8 *arg1) {
 #undef WOBBLE_STATE
 
 
-s32 sfxPlayAtPositionPooled(f32, f32, f32, s16, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 typedef struct {
     f32 unk0;
     f32 unk4;
@@ -1240,7 +1240,7 @@ typedef struct {
 } TimedLightActorView;
 
 void lightSetFlags();
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);
+void lightAdd(f32, f32, f32, f32, f32, f32, f32, s32, s32, s32, s32);  // FAKE: callee prototype steer
 
 typedef struct {
     u8 pad0[0x88];
@@ -1672,7 +1672,7 @@ typedef struct {
     u8 brightness;
 } SparkSpawnActorView;
 
-void effectSetColor(s32, s32, s32, s32);
+void effectSetColor(s32, s32, s32, s32);  // FAKE: callee prototype steer
 extern u8 sEffectSparkConfig;
 
 void effectSparkSpawnUpdate(SparkSpawnActorView *arg0, s8 *arg1) {
@@ -2049,7 +2049,7 @@ s16 D_80755650[18] = {
     0x02C3, 0x0078, 0x02FA, 0x025A, 0x006E, 0x0312, 0x025E, 0x0096, 0x026A,
 };
 s16 mathAngleEaseToward(s16, s16, f32);
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 extern s32 D_8071FB08;
 
 void effectWispWanderUpdate(TimedEffectActorView *arg0, s8 *arg1) {
@@ -2220,7 +2220,7 @@ void effectLifetimeCountdownUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     }
 }
 
-void playerStateQueueCallback();
+s32 playerStateQueueCallback(s16, void *, u8);
 
 typedef struct {
     u8 pad0[0x7C];
@@ -2605,9 +2605,9 @@ void effectArcAroundActorUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     }
 }
 
-s16 mapChunkFindByPosition(f32, f32, f32, s32);
-void lightSetRadius(s32);
-void lightSetTargetId(s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s16);
+void lightSetRadius(s16);
+void lightSetTargetId(s16);
 
 void effectLightGrowShrinkUpdate(TimedEffectActorView *arg0, s8 *arg1) {
     f64 var_fv0;
