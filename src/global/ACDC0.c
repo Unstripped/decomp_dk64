@@ -686,7 +686,7 @@ Gfx *hudPauseMenuRender(Gfx *dl, Actor *actor) {
     u8 framePad[4];
 
     hud = actor->customState;
-    fadeInput0 = hud->unk0; // FAKE: first appearance orders the fade candidates (fadeInput0 -> f2, fadeInput4 -> f12).
+    fadeInput0 = hud->unk0;
     tab = gPlayerInventoryTable;
     sp138 = mapGetHubWorldIndex(gCurrentWorldId, 1);
     list = heapAlloc(0x1F40);
