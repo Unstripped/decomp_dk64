@@ -3532,27 +3532,27 @@ s32 actorCheckCameraBoundaryCondition(s8 arg0) {
         if (D_807FB53C == 0xBC) {
             return 1;
         }
-        goto ret_0;
+        break;
     case 1:
         if (D_807FB53C != 0xBC) {
             return 1;
         }
-        goto ret_0;
+        break;
     case 2:
         if (D_807FB53C != 5 || gPlayerSlots->unk2C0 == 1) {
             return 1;
         }
-        goto ret_0;
+        break;
     case 3:
         if (D_807FB53C == 5 && gPlayerSlots->unk2C0 != 1) {
             return 1;
         }
-        goto ret_0;
+        break;
     case 4:
         if (D_807FB53C == 8) {
             return 1;
         }
-        goto ret_0;
+        break;
     case 5:
         D_807FB548 = 1;
         return 1;
@@ -3561,20 +3561,19 @@ s32 actorCheckCameraBoundaryCondition(s8 arg0) {
         if (D_807FB53C == 3 && temp_v0->unk1A3 != 0) {
             return 1;
         }
-        goto ret_0;
+        break;
     case 7:
         temp_v0 = gPrimaryPlayerActor->unk174;
         if (D_807FB53C == 6 && (gPlayerSlots->unk2C0 != 1 || temp_v0->unk1CC != temp_v0->unk1C0)) {
             return 1;
         }
-        goto ret_0;
+        break;
     case 8:
         if (D_807FB53C == 9) {
             return 1;
         }
-        goto ret_0;
+        break;
     }
-ret_0:
     return 0;
 }
 
