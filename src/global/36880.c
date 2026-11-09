@@ -4080,20 +4080,20 @@ Gfx *spriteListRender(Gfx *arg0, SpriteGfxNode *arg1) {
                 }
                 lastTex = arg1->unk0;
             }
-            vtxs[vtxIdx + 0].v.tc[0] = 0;
-            vtxs[vtxIdx + 0].v.tc[1] = 0;
+            vtxs[vtxIdx].v.tc[0] = 0;
+            vtxs[vtxIdx].v.tc[1] = 0;
             vtxs[vtxIdx + 1].v.tc[0] = arg1->unk8 << 5;
             vtxs[vtxIdx + 1].v.tc[1] = 0;
             vtxs[vtxIdx + 2].v.tc[0] = arg1->unk8 << 5;
             vtxs[vtxIdx + 2].v.tc[1] = arg1->unk9 << 5;
             vtxs[vtxIdx + 3].v.tc[0] = 0;
             vtxs[vtxIdx + 3].v.tc[1] = arg1->unk9 << 5;
-            vtxs[vtxIdx + 0].v.ob[1] = 0;
+            vtxs[vtxIdx].v.ob[1] = 0;
             vtxs[vtxIdx + 1].v.ob[1] = 0;
             vtxs[vtxIdx + 2].v.ob[1] = 0;
             vtxs[vtxIdx + 3].v.ob[1] = 0;
-            vtxs[vtxIdx + 0].v.ob[0] = -arg1->unk10;
-            vtxs[vtxIdx + 0].v.ob[2] = -arg1->unk12;
+            vtxs[vtxIdx].v.ob[0] = -arg1->unk10;
+            vtxs[vtxIdx].v.ob[2] = -arg1->unk12;
             vtxs[vtxIdx + 1].v.ob[0] = arg1->unk10;
             vtxs[vtxIdx + 1].v.ob[2] = -arg1->unk12;
             vtxs[vtxIdx + 2].v.ob[0] = arg1->unk10;
@@ -4194,7 +4194,6 @@ void modelPendingQueueInsert(ModelPendingEntry *arg0, u8 arg1) {
                 allow = arg1;
                 break;
             case 4:
-                newv = (u8 *)gPlayerSlots;  // FAKE: defines newv so the dead test below reads an assigned local
                 if (newv != 0) {}  // FAKE: dead test steers register colouring
                 allow = arg1;
             case 3:
