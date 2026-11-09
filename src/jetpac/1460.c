@@ -24,7 +24,7 @@ typedef struct JetpacState {
     u8 pad0[0x4C];
     JetpacActor actors[4];
 } JetpacState;
-typedef struct {
+typedef struct JetpacSprite {
     u8 pad0[0x18];
 } JetpacSprite;
 

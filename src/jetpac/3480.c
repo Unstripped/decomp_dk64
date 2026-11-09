@@ -30,7 +30,7 @@ typedef struct JetpacItem {
     void (*unk48)(struct JetpacItem *, s32);
 } JetpacItem;
 
-typedef struct {
+typedef struct JetpacPlayer {
     s32 unk0;
     s32 unk4;
     s32 unk8;
@@ -41,7 +41,7 @@ typedef struct {
     JetpacItem bonus;
 } JetpacPlayer;
 
-typedef struct {
+typedef struct JetpacLedge {
     f32 unk0;
     f32 unk4;
     f32 unk8;

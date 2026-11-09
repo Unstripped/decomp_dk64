@@ -31,7 +31,7 @@ typedef struct {
     u8 pad48[4];
 } J0aItem;
 
-typedef struct {
+typedef struct JetpacPlayer {
     s32 stage;
     s32 score;
     s32 lives;

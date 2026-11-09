@@ -72,7 +72,7 @@ int jetpacIsOverRocket(f32 x) {
     return (165.0f <= x) && (x <= 171.0f);
 }
 
-typedef struct {
+typedef struct JetpacEntity {
     f32 x;
     f32 y;
     s32 pad8[5];

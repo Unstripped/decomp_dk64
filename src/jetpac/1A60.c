@@ -101,7 +101,7 @@ typedef struct JetpacCell {
 extern JetpacCell jetpacGrid[24][32];
 
 
-typedef struct {
+typedef struct JetpacExplosion {
     s32 x;
     s32 y;
     s32 timer;
