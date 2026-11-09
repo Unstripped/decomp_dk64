@@ -221,7 +221,7 @@ s32 mathAngleInArcWithMargin();
 s32 actorAngleInArcWithMargin();
 #endif
 #ifndef PROTO_SKIP_mathAngleClampToArc
-void mathAngleClampToArc();
+void mathAngleClampToArc(s16, s16, s16, s16, s16 *);
 #endif
 #ifndef PROTO_SKIP_mathAngleClampToArcWithMargin
 s32 mathAngleClampToArcWithMargin();

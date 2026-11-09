@@ -3203,13 +3203,7 @@ s16 arg2;
     return mathAngleClampToArcWithMargin(sp24[0], arg1, arg0->arcYawMin, arg0->arcYawMax, &sp24[1], arg2);
 }
 
-void mathAngleClampToArc(arg0, arg1, arg2, arg3, arg4)
-s16 arg0;
-s16 arg1;
-s16 arg2;
-s16 arg3;
-s16 *arg4;
-{
+void mathAngleClampToArc(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 *arg4) {
     mathAngleClampToArcWithMargin(arg0, arg1, arg2, arg3, arg4, 10);
 }
 

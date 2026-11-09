@@ -9,7 +9,6 @@
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
 #define PROTO_SKIP_func_806C7BAC // FAKE: callee prototype steer
 #define PROTO_SKIP_mapGetConfigValue // FAKE: callee prototype steer
-#define PROTO_SKIP_mathAngleClampToArc // FAKE: callee prototype steer
 #define PROTO_SKIP_randomLcgNext // FAKE: callee prototype steer
 #define PROTO_SKIP_sfxPlayFromActorWithAltitudeCheck // FAKE: callee prototype steer
 #include "proto/global/100180.h"
@@ -688,7 +687,6 @@ extern s16 D_80753444[];
 
 u32 randomLcgNext(void); // FAKE: callee prototype steer
 f32 sinApprox(f32);
-void mathAngleClampToArc(s16, s16, s16, s16, s16 *); // FAKE: callee prototype steer
 
 void actorTransformCameraUpdate(void) {
     ActorC71CState *temp_s1;

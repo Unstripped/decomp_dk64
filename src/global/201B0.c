@@ -4,7 +4,6 @@
 #define PROTO_SKIP_camLoadPathData // FAKE: callee prototype steer
 #define PROTO_SKIP_collisionCheckActorFloor // PROTO: The controlling expression of the if statement is not scalar
 #define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
-#define PROTO_SKIP_mathAngleClampToArc // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleDistance // FAKE: callee prototype steer
 #define PROTO_SKIP_mathCalculatePitchAngle // PROTO: Reference of an expression of void type or an incomplete typ
 #include "proto/global/10130.h"
@@ -2515,7 +2514,6 @@ typedef struct CamWallState {
 
 extern u8 D_807FB606;
 extern f32 D_807476AC;
-void mathAngleClampToArc(s16, s16, s16, s16, void *); // FAKE: callee prototype steer
 
 u8 camResolveWallCollision(CamActor *camActor, f32 prevX, f32 prevZ, f32 *eyeX, f32 eyeY, f32 *eyeZ, f32 maxPush) {
     CamWallState *st = (CamWallState *)camActor->unk174;
