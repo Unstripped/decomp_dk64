@@ -74,7 +74,6 @@ void sfxStartAreaAmbient(void) {
     }
 
     count = 29;
-    if (count) {}  // FAKE: dead use of count steers uopt register priority (t0 instead of a0)
     v0 = mapChunkFindByPosition(gPlayerSlots->unk210, gPlayerSlots->unk214, gPlayerSlots->unk218, 0);
 
     i = 0; do {
@@ -82,8 +81,8 @@ void sfxStartAreaAmbient(void) {
             D_80770DC9 = sAmbientSfxTable[i].unk8;
             sfxAllocateChannel(sAmbientSfxTable[i].unk4, 1.0f);
             if (sAmbientSfxTable[i].unk6 != 0) {
-                count = sAmbientSfxTable[i].unk6;
-                D_80770DD8[1] = sAmbientSfxTable[i].unk6;
+                count = (u8)sAmbientSfxTable[i].unk6;
+                D_80770DD8[1] = count;
             }
             return;
         }
