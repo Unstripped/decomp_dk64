@@ -115,7 +115,7 @@ Actor *actorFromSpawnNodeOrDefault(s16 arg0) {
 
 #define Matcher14_OFF(p, T, o) (*(T *)((u8 *)(p) + (o)))
 
-extern u8 D_807457E4[];
+extern struct GfSndState *D_807457E4[];
 extern u16 D_80747750[];
 extern s8 D_8075536C;
 extern s8 D_8076AEE0;
@@ -430,7 +430,7 @@ void camPathCommandDispatch(s32 arg0, s32 arg1, s32 arg2) {
             n_alSndpStop(*(s32 *)(D_807F5D70 + sp72 * 4));
             return;
         case 0x1A:
-            n_alSndpStop(*(s32 *)(D_807457E4 + D_807F5D7C * 4));
+            n_alSndpStop(D_807457E4[D_807F5D7C]);
             return;
         case 0x38:
             if (a != 0) {

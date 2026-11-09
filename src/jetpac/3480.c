@@ -504,7 +504,7 @@ void jetpacPlaceRocketOnPad(void) {
     }
 }
 
-extern s32 D_80770DF8[];
+extern struct GfSndState *D_80770DF8[];
 void jetpacSetSoundPitch(s32, f32);  // FAKE: callee prototype steer
 
 void jetpacUpdateRocketFlight(void) {

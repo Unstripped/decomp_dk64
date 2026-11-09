@@ -1,7 +1,6 @@
 #include "common.h"
 #define PROTO_SKIP_dlInitTextureDescriptor // FAKE: callee prototype steer
 #define PROTO_SKIP_dlSetTextureScaleAndFlip // FAKE: callee prototype steer
-#define PROTO_SKIP_n_alSndpStop // FAKE: callee prototype steer
 #include "proto/arcade/0.h"
 #include "proto/boot/3D20.h"
 #include "proto/boot/6690.h"
@@ -504,8 +503,7 @@ void arcadeSetStageMusic(void) {
     }
 }
 
-void n_alSndpStop(s32); // FAKE: callee prototype steer
-extern s32 D_80770DF8;
+extern struct GfSndState *D_80770DF8;
 void arcadeStopSound(s32 soundId) {
     D_8004C714 = soundId;
     if (D_80770DF8 != 0) {
@@ -523,7 +521,7 @@ void arcadeGameplayLoop(Gfx **glistp) {
         arcadeStopSound(0x48);
     }
     if ((D_80770DF8 == 0) && (D_8004C714 > 0)) {
-        n_alSndpPlay(D_8076D1F8, (s16)D_8004C714, 0x7FFF, 0x3F, 1.0f, 0, (s32)&D_80770DF8);
+        n_alSndpPlay(D_8076D1F8, (s16)D_8004C714, 0x7FFF, 0x3F, 1.0f, 0, &D_80770DF8);
     }
     if (D_8004A760 < D_8004A748) {
         D_8004A760 = D_8004A748;

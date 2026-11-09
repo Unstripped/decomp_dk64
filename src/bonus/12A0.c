@@ -2,7 +2,6 @@
 #include "actor.h"
 #define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
 #define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
-#define PROTO_SKIP_n_alSndpStop // FAKE: callee prototype steer
 #include "proto/bonus/12A0.h"
 #include "proto/global/1025E0.h"
 #include "proto/global/112080.h"
@@ -130,9 +129,8 @@ void bonusInitActors(LB3Obj *obj, u8 timerVal) {
 extern s32 gCurrentMap;
 extern Actor *gActivePlayerActor;
 extern u8 gGameMode;
-extern s32 D_807457E4[];
+extern struct GfSndState *D_807457E4[];
 extern u8 D_80720CF0;
-void n_alSndpStop(s32); // FAKE: callee prototype steer
 void effectFreeAndUnlink(s32); // FAKE: callee prototype steer
 f32 mathSinF(s16);
 

@@ -7,7 +7,6 @@
 #define PROTO_SKIP_effectSetColor // FAKE: callee prototype steer
 #define PROTO_SKIP_effectSetMode // FAKE: callee prototype steer
 #define PROTO_SKIP_mathAngleInArcWithMargin // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_n_alSndpStop // FAKE: callee prototype steer
 #include "proto/global/112080.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -1463,9 +1462,8 @@ typedef struct ActorSoundView {
     u8 unk78;
 } ActorSoundView;
 
-extern s32 D_807457C8;
+extern struct GfSndState *D_807457C8;
 
-void n_alSndpStop(s32); // FAKE: callee prototype steer
 
 s32 func_80617140(Actor *arg0) {
     s16 sp2E;
@@ -1625,13 +1623,6 @@ s32 scriptOpPlayDistanceVolumeSound(Actor *arg0) {
     return 1;
 }
 
-typedef struct ScriptSoundState {
-    u8 pad0[0xC4];
-    s32 unkC4;
-    u8 padC8[0xDC];
-    u8 unk1A4;
-} ScriptSoundState;
-
 extern s16 *gActorScriptSoundTable;
 
 void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
@@ -1643,11 +1634,11 @@ void sfxPlayScriptActorSoundForPlayer(Actor *arg0, s16 arg1, u8 arg2) {
     arg1 = gActorScriptSoundTable[temp_v0];
     var_v1 = 0xFF;
     if (arg1 == 0) {
-        if (((ScriptSoundState *)gActivePlayerState)->unkC4 != 0) {
-            n_alSndpStop(((ScriptSoundState *)gActivePlayerState)->unkC4);
+        if (gActivePlayerState->sfxHandle != 0) {
+            n_alSndpStop(gActivePlayerState->sfxHandle);
         }
     }
-    temp_v0 = gPlayerSlots[((ScriptSoundState *)gActivePlayerState)->unk1A4].unk2C0;
+    temp_v0 = gPlayerSlots[gActivePlayerState->playerIndex].unk2C0;
     pitch = 0x7F;
     if (temp_v0 == 2U) {
         temp_v0 = 10;

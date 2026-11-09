@@ -2,8 +2,6 @@
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
 #define PROTO_SKIP_jetpacDrawString // FAKE: callee prototype steer
 #define PROTO_SKIP_jetpacSetTextColor // FAKE: callee prototype steer
-#define PROTO_SKIP_n_alSndpPostEvent // FAKE: callee prototype steer
-#define PROTO_SKIP_n_alSndpStop // FAKE: callee prototype steer
 #include "proto/boot/3D20.h"
 #include "proto/global/103AB0.h"
 #include "proto/global/104F0.h"
@@ -21,9 +19,7 @@
 #include "proto/jetpac/4FC0.h"
 
 extern s32 D_8002EC48;
-void n_alSndpStop(s32); // FAKE: callee prototype steer
-extern s32 D_80770DF8[];
-void n_alSndpPostEvent(s32, ...); // FAKE: callee prototype steer
+extern struct GfSndState *D_80770DF8[];
 extern s32 D_8076D1F8;
 extern s16 D_8002BA52[];
 typedef struct {
