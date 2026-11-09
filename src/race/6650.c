@@ -113,19 +113,19 @@ extern void *D_8002FCA0;
 extern s16 D_80750AC8;
 extern Actor_BB40 *gCurrentActor;
 
-void playerStateQueueCallback();
+void playerStateQueueCallback(); // FAKE: callee prototype steer
 s32 sfxStopSlotSound(Actor_BB40 *, u8);
 void resQueueAttachActor(Actor_BB40 *, s32, s32);
-void csModelStateSetFirstByte(s32, s32);
-void flagSet(s32, s32, s32);
-void hudSpawnTextScreen(s32);
+void csModelStateSetFirstByte(s16, s16);
+void flagSet(s16, u8, u8);
+void hudSpawnTextScreen(u8);
 void racePlayEngineSfx(void);
 void raceUpdateEngineSoundPitch(f32);
 void actorSpawnNodeEffectFacingCamera(s32, u8);
-void slotQueueUpdate(s32, s32, s32);
+void slotQueueUpdate(s32, u8, s32);
 void slotQueueCancel(s32, s32);
 void gridSetNodeBounds(u8, f32, f32, f32, f32);
-void renderCallbacksRegister(void *, void *, s32);
+void renderCallbacksRegister(void *, void *, u8);
 typedef struct {
     char pad[0x25];
     u8 unk25;
@@ -215,7 +215,7 @@ void currentActorClearFlag(void);
 void camResumePath(void);
 
 void raceInitParticipantArray(void *, s32);
-void actorSpawn(s32, s32);
+s32 actorSpawn(s32, s32);
 void raceRegisterParticipant(void *, s32, void *, void *);
 void *spawnNodeSpawnById(s32, s32, s32, s32, s32, s32, s32);
 void raceGetParticipantPair(void *, s32, void *, void *);
@@ -584,8 +584,8 @@ s32 raceGetFinishCameraId(void *racerState, void *aux) {
 }
 
 
-s32 flagGet(s32, s32);
-void camStartPath(void *, s32, s32);
+u8 flagGet(s16, u8);
+u16 camStartPath(void *, s16, u8);
 void currentActorClearFlag(void);
 void mapCheckAutoTransition(void);
 
