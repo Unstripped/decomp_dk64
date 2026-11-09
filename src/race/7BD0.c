@@ -240,7 +240,7 @@ void raceCalculatePathBoundingBox(RaceUnknownActor *actor) {
     race174->unk8 = 121.6f / (maxZ - minZ);
 }
 
-Gfx *renderRotatedSprite(Gfx *, s32, s32, s32, s32, s32, s32, s32, f32, f32, s32, f32);
+Gfx * renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
 
 Gfx *raceRenderMinimapIcon(Gfx *dl, RaceUnknownActor *actor, f32 posX, f32 posZ, u8 red, u8 green, u8 blue) {
     RaceUnknown174 *race174;
@@ -265,10 +265,10 @@ extern u8 gGfxBufferIndex;
 extern s16 gScreenWidth;
 Gfx *gfxInit2DDisplayList(Gfx *);
 s32 _sprintf(char *, const char *, ...);
-void *heapFreeDeferred(void *);
+void heapFreeDeferred(u8 *);
 void *textTableGetString(s32, s32, s32);
 s32 textGetStringWidth(s32, void *);
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, void *, s32);
+Gfx * textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 
 Gfx *raceRenderCountdownText(Gfx *dl, RaceUnknownActor *actor) {
     u8 alpha;
@@ -345,7 +345,7 @@ Gfx *raceRenderSpeedBoostHud(Gfx *dl, RaceUnknown174 *race174) {
     return dl;
 }
 
-u32 textGetFontHeight(s32);
+u8 textGetFontHeight(s16);
 
 Gfx *raceRenderCoinHud(Gfx *dl, RaceUnknown174 *race174) {
     f32 posX;
@@ -429,7 +429,7 @@ typedef struct RaceE76CView {
 } RaceE76CView;
 extern s32 D_8002FCC0[];
 u32 strlen(u8 *);
-Gfx *textDrawAnimated(Gfx *, s32, s32, f32, f32, f32, f32);
+Gfx * textDrawAnimated(Gfx *, s16, s32, f32, f32, f32, f32);
 #define RaceE76C ((RaceE76CView *)race174)
 
 Gfx *raceDrawHudText(Gfx *dl, RaceUnknown174 *race174) {
@@ -618,7 +618,7 @@ Gfx *raceRenderMinimapAndCountdown(Gfx *dl, RaceUnknownActor *actor) {
 
 
 extern RaceUnknownActor *gSpawnedActor;
-void actorSpawn(s32, s32);
+s32 actorSpawn(s32, s32);
 void raceInitParticipants(RaceUnknownActor *);
 void raceSpawnCompetitors(RaceUnknownActor *);
 void raceInitBeetleRaceParticipants(RaceUnknownActor *);
@@ -676,7 +676,7 @@ void raceInitBeetleRaceManager(void) {
 
 extern RaceUnknownActor *gCurrentActor;
 extern s32 D_8002FCD4[];
-s32 gfxResourceCreate(s32, void *, s32, f32, f32, f32);
+s16 gfxResourceCreate(s16, char *, u8, f32, f32, f32);
 
 void raceSetParticipantRaceStatus(RacePair *pair, u8 newStatus) {
     RaceUnknown174 *t;
@@ -910,7 +910,7 @@ typedef struct RaceFActorView {
     char padEA[0x128 - 0xEA];
     s16 unk128;
 } RaceFActorView;
-void sfxPlayOnFreeSlot(s16, s32, f32, f32, s32, s32);
+s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 void raceUpdateWaypointActivation(RaceUnknown174 *);
 
 void raceUpdateStandings(void);
@@ -1041,8 +1041,8 @@ void raceUpdateFinishLineFlagBobbing(RaceUnknown174 *race174) {
     gCurrentActor->unk4->unk34[0] = scaleCopy;
 }
 void animSetSpeed(RaceUnknownActor *, s32, f32);
-void animSetLoopLimit(RaceUnknownActor *, s32, s32);
-void animSetFinished(RaceUnknownActor *, s32, s32);
+void animSetLoopLimit(void *, s32, s16);
+void animSetFinished(void *, s32, u8);
 s32 animIsPlaying(RaceUnknownActor *, s32);
 
 void raceUpdateCheckeredFlagAnimation() {
@@ -1393,11 +1393,11 @@ typedef struct RaceFE644Arg {
     f32 unk14;
 } RaceFE644Arg;
 extern u8 gBossFightPhase;
-s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
+s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s32 mathAngleDistance(s16, s16);
 f32 mathAtan2(f32, f32);
 f32 mathCosF(s16);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 
 void raceHandleRacerCollision(RaceFE644Arg *collision) {
     f32 distSq;
@@ -1450,7 +1450,7 @@ void raceHandleRacerCollision(RaceFE644Arg *collision) {
     }
 }
 
-s32 slotQueueGetValue(s32, s32);
+u16 slotQueueGetValue(u8, u8);
 s32 raceCheckLapCompletionThreshold(RaceStruct3 *race3_0, RaceStruct3 *race3_1, s32 threshold) {
     s32 ret;
 
