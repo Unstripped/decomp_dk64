@@ -492,7 +492,7 @@ void effectBuildGridVertices(EffectNode *effect) {
 extern u32 gFrameCounter;
 extern s32 gPlayerSlots;
 void assetFreeBuffer(s32, s32, s32);
-s16 mapChunkFindByPosition(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s16);
 s32 renderEntryAddOrUpdate(s32, u8, void *, f32, f32, f32, s32, s32, s32, s32, s32);
 void effectLoadFrameAssets(s16 *, u8, u8 *, s32, s32, s32 *);
 void effectFreeAndUnlink(EffectNode *);
@@ -753,7 +753,7 @@ typedef struct EffectRouteEntry {
     s32 column;
 } EffectRouteEntry;
 
-s32 assetLoad(s32, s16, s32, s32);
+void *assetLoad(s32, u32, u8, u8);
 
 void effectLoadFrameAssets(s16 *effect, u8 inX, u8 *inY, s32 inZ, s32 screenX, s32 *screenY) {
     u8 category;
