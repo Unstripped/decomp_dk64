@@ -1426,7 +1426,7 @@ void actorUpdateModelMatrices(Actor *arg0) {
 }
 
 void actorSub140BuildBoxes(ActorSub140 *arg0) {
-    s32 neg1; // FAKE: one -1 variable shares the compares and the s8 store in one register
+    s32 neg1;
     s32 i;
     ActorSub140SrcTri *ent;
     Mtx *mtx;
