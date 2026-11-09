@@ -9,7 +9,7 @@ void jetpacInitRdp(s32);
 void jetpacDrawLedges(void);
 void jetpacDrawRocket(void);
 void jetpacGridDraw(s32);
-void eepromSetField(s32, s32, s32, s32, s32);
+void eepromSetField(s32, u8, u8, u8, s32);
 void func_8060DEA8(void);
 extern s32 D_8002EC48;
 void n_alSndpStop(s32);
@@ -78,10 +78,10 @@ extern s32 D_8002F064;
 
 void controllerStartRead(void);
 void controllerUpdate(void);
-void schedSubmitGfxTask(Gfx *, s32, s32, s32, s32, s32);
-Gfx *screenFadeUpdate(Gfx *, s32);
-void gfxEndDisplayList(Gfx *, u8, s32 *, s32);
-void gfxEndSubDisplayList(Gfx *, u8 *, s32 *, s32);
+void schedSubmitGfxTask(void *, s32, u8, u8, s32, u8);
+Gfx *screenFadeUpdate(Gfx *, u8);
+void gfxEndDisplayList(Gfx *, u8, s32 *, u8);
+void gfxEndSubDisplayList(Gfx *, s32, s32 *, u8);
 Gfx *gfxSetFrameBufferColorImage(Gfx *);
 Gfx *heapAlloc(s32);
 void heapFreeDeferred(void *);
@@ -182,7 +182,7 @@ void jetpacResetPlayers(void) {
 extern s32 D_8002BA6C;
 s32 jetpacIsSpawnDelay(void);
 void jetpacSetupTextRdp(s32);
-void jetpacSetTextColor(s32, s32, s32, s32);
+void jetpacSetTextColor(s32, s32, s32, s32); // FAKE: callee prototype steer
 void jetpacDrawString(s32, char *, s32, s32, s32);
 s32 _sprintf(char *, char *, ...);
 
@@ -314,10 +314,10 @@ void jetpacSaveHighScore(void) {
     func_8060DEA8();
 }
 
-s32 flagGet(s32, s32);
+s32 flagGet(s32, s32); // FAKE: callee prototype steer
 void mapRequestTransition(s32, s32);
-s32 eepromGetField(s32, s32, s32, s32);
-void eepromInitConfigs(s32);
+s32 eepromGetField(s32, u8, u8, u8);
+void eepromInitConfigs(u8);
 void jetpacNextPlayerOrGameOver(JetpacPlayer *);
 
 
