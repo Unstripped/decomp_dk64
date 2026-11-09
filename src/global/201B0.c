@@ -2616,17 +2616,16 @@ void camFindClearYaw(CamActor *arg0, f32 arg1, s16 arg2, u8 arg3) {
     if (found || (cnt < 0x1000 && !sawCol)) {
         cam->unkA4 = cam->unkA0;
         camSetZoomForDistance(arg0, (s16)cam->unkA0);
-        goto done;
+    } else {
+        cam->unkFF += arg3;
+        x = ((CamPlayerRecSaved *)gPlayerSlots)->unk21C;
+        y = ((CamPlayerRecSaved *)gPlayerSlots)->unk220;
+        z = ((CamPlayerRecSaved *)gPlayerSlots)->unk224;
+        camSetZoomLevel(arg0, 1);
+        cam->unkA0 = cam->unkA4;
+        ((CamActorHeightSpeed *)arg0)->unkB4 = cam->unkB8;
+        cam->unkB2 = base;
     }
-    cam->unkFF += arg3;
-    x = ((CamPlayerRecSaved *)gPlayerSlots)->unk21C;
-    y = ((CamPlayerRecSaved *)gPlayerSlots)->unk220;
-    z = ((CamPlayerRecSaved *)gPlayerSlots)->unk224;
-    camSetZoomLevel(arg0, 1);
-    cam->unkA0 = cam->unkA4;
-    ((CamActorHeightSpeed *)arg0)->unkB4 = cam->unkB8;
-    cam->unkB2 = base;
-done:
     cam->unkB0 = 0;
     cam->unkAC |= 0x100000;
     cam->unk38 = x;
