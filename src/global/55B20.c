@@ -49,16 +49,8 @@ typedef struct MapChunk {
     /* 0x088 */ u8 pad88[0x140];
 } MapChunk;
 
-extern u8 D_807F7078[0x32];
-extern s32 gMapChunkCount;
-extern s32 D_807F6C28;
 extern MapChunk *gMapChunks;
 extern u8 *D_807F6C1C;
-extern s32 D_807F6C20;
-extern u8 *D_807F6C2C;
-extern s32 D_807F6C80;
-extern s32 D_807F6C84;
-extern f32 D_807F6C88[12];
 
 s32 D_807F6C20;
 struct MapGridPoint *gMapGridTrianglePlanes;
