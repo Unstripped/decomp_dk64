@@ -1,4 +1,5 @@
 #include "common.h"
+#include "actor.h"
 
 typedef struct MpActor MpActor;
 
@@ -36,13 +37,6 @@ typedef struct MpControllerState {
     u8 unk70;
 } MpControllerState;
 
-typedef struct MpControllerActor {
-    char pad0[0x60];
-    s32 unk60;
-    s32 unk64;
-    char pad68[0x174 - 0x68];
-    MpControllerState *unk174;
-} MpControllerActor;
 
 // Kong actor state (actor +0x174 of a player actor).
 typedef struct MpKongState {
@@ -162,17 +156,17 @@ extern MpMapEntry D_80026FA4[];
 extern s32 gCurrentMap;
 extern unsigned long long __ll_mul(unsigned long long, unsigned long long);
 extern unsigned long long __ull_div(unsigned long long, unsigned long long);
-extern MpControllerActor *gCurrentActor;
+extern Actor *gCurrentActor;
 void renderCallbacksRegister(void *, void *, u8);
 extern MpSettings D_807552E4;
 extern MpPlayer *gPlayerSlots;
 
-Gfx *mpDrawTimer(Gfx *glistp, MpControllerActor *controller) {
+Gfx *mpDrawTimer(Gfx *glistp, Actor *controller) {
     MpControllerState *state;
     f32 posX;
     f32 posY;
 
-    state = controller->unk174;
+    state = controller->customState;
     if (gSplitScreenMode == 1) {
         posX = 278.0f;
         posY = 210.0f;
@@ -265,7 +259,7 @@ void mpUpdateMatchTimer(void) {
     MpControllerState *state;
     u64 x;
 
-    state = gCurrentActor->unk174;
+    state = gCurrentActor->customState;
     x = __ull_div(__ll_mul(osGetTime() - state->unk0, 0x40), 0xBB8);
     if (!(gGlobalPauseFlags & 2)) {
         x = __ull_div(x, 0xF4240);
@@ -287,7 +281,7 @@ void mpCheckScoreLimit(void) {
         do {
             score = mpGetPlayerScore(i);
             if ((score >= D_807552E4.unkC) || (score < -0x3E7)) {
-                mpDetermineWinner(gCurrentActor->unk174);
+                mpDetermineWinner(gCurrentActor->customState);
                 return;
             }
             i++;
@@ -310,7 +304,7 @@ void mpCheckLastPlayerStanding(void) {
         } while (i < gPlayerCount);
     }
     if (aliveCount < 2) {
-        mpDetermineWinner(gCurrentActor->unk174);
+        mpDetermineWinner(gCurrentActor->customState);
     }
 }
 
@@ -403,7 +397,7 @@ s32 textGetStringWidth(s32, char *);
 Gfx *textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 Gfx *mpDrawScoreGlyphs(Gfx *glistp, MpControllerState *controllerState, f32 spacing);
 
-Gfx *mpDrawPlayerScores(Gfx *glistp, MpControllerActor *controller) {
+Gfx *mpDrawPlayerScores(Gfx *glistp, Actor *controller) {
     char scoreStr[32];
     f32 posY;
     f32 posXStep;
@@ -411,7 +405,7 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, MpControllerActor *controller) {
     MpControllerState *state;
     void *temp;
 
-    state = controller->unk174;
+    state = controller->customState;
     temp = state->unk20[0];
     posXStep = (f32) gScreenWidth / (f32) (gPlayerCount + 1);
     posY = (f32) (((MpViewport *)temp)->unk6 + 8);
@@ -441,7 +435,7 @@ Gfx *mpDrawPlayerScores(Gfx *glistp, MpControllerActor *controller) {
 
 u8 textGetFontHeight(s16);
 
-Gfx *mpDrawPlayerViewportHud(Gfx *glist, MpControllerActor *controller) {
+Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller) {
     MpControllerState *state;
     Gfx *g0;
     f32 fx;
@@ -457,7 +451,7 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, MpControllerActor *controller) {
     MpViewport *rect;
     Gfx *g2;
 
-    state = controller->unk174;
+    state = controller->customState;
     fontHeight = (f32) textGetFontHeight(1);
     fontHeight2 = (f32) textGetFontHeight(1);
     curGlist = mpDrawScoreGlyphs(glist, state, 0.0f);
@@ -517,9 +511,9 @@ Gfx *mpDrawPlayerViewportHud(Gfx *glist, MpControllerActor *controller) {
     return curGlist;
 }
 
-Gfx *mpDrawPlayerViewportHud(Gfx *glist, MpControllerActor *controller);
+Gfx *mpDrawPlayerViewportHud(Gfx *glist, Actor *controller);
 
-Gfx *mpDrawHud(Gfx *glistp, MpControllerActor *controller) {
+Gfx *mpDrawHud(Gfx *glistp, Actor *controller) {
     s32 t0 = D_807552E4.unk8 >= 2;
     s32 cond = gGlobalPauseFlags & 3;
 
@@ -933,8 +927,8 @@ void mpUpdate(void) {
     s32 vb;
     s32 vc;
 
-    s7 = gCurrentActor->unk174;
-    if (!(gCurrentActor->unk60 & 0x10)) {
+    s7 = gCurrentActor->customState;
+    if (!(gCurrentActor->flags & 0x10)) {
         flag = 0;
         playerResetSpawnGlobals();
         for (i = 0; i < gPlayerCount; i++) {
@@ -975,7 +969,7 @@ void mpUpdate(void) {
         guScale(s7->unk30, 0.5f, 0.5f, 1.0f);
         s7->unkC = D_807552E4.unkC;
         s7->unkC = s7->unkC * 60;
-        gCurrentActor->unk64 |= 2;
+        gCurrentActor->renderFlags |= 2;
         s7->unk44 = assetLoad(0xE, 0xB9, 0, 0);
         s7->unk48 = assetLoad(0xE, 0xBA, 0, 0);
         s7->unk10 = 0;
@@ -1140,7 +1134,7 @@ void mpDropItemsOnHit(u8 playerIndex, s8 dropCount) {
     ammoCount = s1->unk2FB + s1->unk2FD + dropCount;
     orangeCount = s1->unk2FA - ammoCount;
     if (slotQueueGetValue(1, playerIndex) != 0 && (ammoCount <= 0 || orangeCount >= 2)) {
-        ctrl = ((MpControllerActor *)actorFindByType(0x13E))->unk174;
+        ctrl = ((Actor *)actorFindByType(0x13E))->customState;
         ctrl->unk4C = 1;
         slotQueueAddValue(1, playerIndex, -10);
         if (D_807552E8 == 5) {
