@@ -1,6 +1,6 @@
 #include "common.h"
 
-typedef struct {
+typedef struct TextureDescriptor {
     /* 0x00 */ s32 image;
     /* 0x04 */ s32 pal;
     /* 0x08 */ s16 width;
