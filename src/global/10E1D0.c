@@ -448,7 +448,7 @@ extern s32 D_807FD9B8;
 void gfxEndDisplayList(Gfx *, u8, s32 *, u8);
 void gfxEndSubDisplayList(Gfx *, s32, s32 *, u8);
 void mapRequestTransition(s32, s32);
-void schedSubmitGfxTask(Gfx *, s32, s32, u8, s32, s32);
+void schedSubmitGfxTask(void *, s32, u8, u8, s32, u8);
 void transitionBeginDisplayList();
 void transitionInit(void);
 u8 transitionRender(Gfx **, s32, s32);
