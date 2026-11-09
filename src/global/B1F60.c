@@ -55,27 +55,27 @@ extern ActorGlobalState gActorGlobalState;
 extern s32 gCurrentMap;
 extern B1F60Global924 *gPlayerSlots;
 
-void actorSpawn(s32, s32);
-Actor *actorFindByType(s32);
+s32 actorSpawn(s32, s32);
+Actor * actorFindByType(u16);
 void actorDespawn(Actor *);
 void actorGetNodePos(Actor *, s32, f32 *, f32 *, f32 *);
 void sfxSpawnTableNodes(Actor *);
 s32 randomNonNegative(void);
 void actorScriptStart(Actor *, s32);
 void actorUpdateModelMatrix(Actor *, s32);
-void func_80724CA4(s32, s32);
+void func_80724CA4(s16, s16);
 void func_80724E48(u8);
 void behaviourFrameBegin(void);
-void func_8072881C(s32, void *);
+u8 func_8072881C(u8, u32 *);
 u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void actorSetTargetSpeed(Actor *, s32);
-void behaviourSetAnimIds(s32, s32, s32);
+void behaviourSetAnimIds(s16, s16, s16);
 void behaviourUpdateContactAndState(s32);
 void behaviourCalculateDamageForce();
-void behaviourFadeOutWithinZone(s32);
+void behaviourFadeOutWithinZone(u8);
 void actorSetDefaultState(s32);
-void behaviourSpawnExplosionAndSound(s32, s32, s32);
-s32 actorIsTargetWithinDistance(s32);
+void behaviourSpawnExplosionAndSound(void *, u8, Actor *);
+u8 actorIsTargetWithinDistance(u16);
 void actorPatrolFollowerUpdate();
 
 
