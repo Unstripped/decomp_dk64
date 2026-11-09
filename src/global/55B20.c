@@ -328,7 +328,6 @@ void mapChunksInitFromMapData(MapData *arg0) {
             }
             gMapChunks[n].unk50 = count;
         }
-        if (D_807F70AC == 0) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
         gMapGridTrianglePlanes = heapAlloc(D_807F6C20 / 2 * 0x30);
         for (k = 0; k < D_807F6C20 / 2; k++) {
             mapGridTriangleBuildPlane(k, &gMapGridTrianglePlanes[k]);
@@ -387,7 +386,7 @@ void mapFaceBuildTriangleFan(s32 arg0) {
                 temp_lo = var_a3 * 6;
                 if (var_a1 && var_a1) {}  // FAKE: deadsweep: steers uopt coloring (keeps unk4 temp in a0)
                 var_a3 = var_a2;
-                *(s16 *)(var_v1->unk8 + var_v0 - 0x24) = *(s16 *)(var_v1->unk0 + 0);
+                *(s16 *)(var_v1->unk8 + var_v0 - 0x24) = *(s16 *)(var_v1->unk0);
                 var_a2 += 1;
                 *(s16 *)(var_v1->unk8 + var_v0 - 0x1E) = *(s16 *)(var_v1->unk0 + 2);
                 *(s16 *)(var_v1->unk8 + var_v0 - 0x18) = *(s16 *)(var_v1->unk0 + 4);
