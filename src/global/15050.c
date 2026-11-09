@@ -45,7 +45,7 @@ extern s32 D_807F0980;
 extern s32 D_807F0984;
 extern s32 gHeapUnused5A60;
 
-void dmaReadAssetDecompress(s32, void *, void *, s32, s32, s32, s32);
+void dmaReadAssetDecompress(u32, void *, s32 *, u8, u8, u8, void *);
 void heapSortSurvivors(void);
 void heapMoveWords(u32 src, u32 dst, u32 size);
 void heapRebaseHandles(u32 oldBase, u32 newBase, u32 size);
@@ -698,7 +698,7 @@ void heapLockBlock(u8 *ptr) {
     ptr[-5] = 1;
 }
 
-void faultSetMessage(s32, s32, s32, s32);
+void faultSetMessage(u8, s32, s32, s32);
 
 void heapRegisterSurvivor(u8 **handle) {
     HeapBlock *b;
