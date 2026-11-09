@@ -1,11 +1,28 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
+#define PROTO_SKIP_n_alSndpStop // FAKE: callee prototype steer
+#include "proto/bonus/12A0.h"
+#include "proto/global/1025E0.h"
+#include "proto/global/112080.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/13A7A0.h"
+#include "proto/global/16550.h"
+#include "proto/global/166A0.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/90D80.h"
+#include "proto/global/9DD70.h"
+#include "proto/global/A7710.h"
+#include "proto/global/EFDC0.h"
 
 extern Gfx D_1000118;
 extern Mtx D_2000080;
 extern Mtx D_2000180;
-Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
-Gfx *hudDrawRollingCounter(Gfx *, s32, s32, void *, s16, void *);
 
 typedef struct LB3Obj {
     Actor *act[4];
@@ -34,7 +51,6 @@ typedef struct BonusEObj {
     s16 unk4;
 } BonusEObj;
 
-s32 actorSpawn(s32, s32);
 extern Actor *gCurrentActor;
 extern Actor *gSpawnedActor;
 extern Actor *gPrimaryPlayerActor;
@@ -72,13 +88,8 @@ u8 bonusGetReelSymbol(LB3Obj *obj, u8 reelIndex) {
     return D_8002D8B0[idx][obj->act[idx]->unk15F];
 }
 
-void effectSetDepth(s32);
-s32 effectSetCallback(void (*)(void));
-void effectSetSpeed(s32);
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
-s32 randomNonNegative();
 extern void *D_8074E880[];
-void effectConfettiPhysicsUpdate(void);
 
 void bonusSpawnEffectBurst(s16 x, s16 y, s16 z, s16 count) {
     s16 i;
@@ -91,7 +102,6 @@ void bonusSpawnEffectBurst(s16 x, s16 y, s16 z, s16 count) {
     }
 }
 
-void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
 
 void bonusReelNextRound(LB3Obj *obj) {
     LB3Player *player = gPrimaryPlayerActor->customState;
@@ -122,29 +132,9 @@ extern Actor *gActivePlayerActor;
 extern u8 gGameMode;
 extern s32 D_807457E4[];
 extern u8 D_80720CF0;
-s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
-void func_806FDAB8(u8, f32);
-s32 playerStateQueueCallback(s32, s32, s32);
-void camSetTargetScaled(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-unsigned int camStartPath(s32, s32, s32);
-void resQueueAttachActor(void *, s32, u8);
-void effectEnableFade(void);
-void effectSetMode(s32);
-void effectSetDuration(s32);
-void hudSpawnCountdownTimer(s32, s32, s32);
-void actorSetStateTwo(void *);
-void n_alSndpStop(s32);
-void effectFreeAndUnlink(s32);
-void renderCallbacksRegister(void *, void *, s32);
+void n_alSndpStop(s32); // FAKE: callee prototype steer
+void effectFreeAndUnlink(s32); // FAKE: callee prototype steer
 f32 mathSinF(s16);
-s16 sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);
-void bonusEndWin(u8, u8);
-void bonusEndLose(u8, u8);
-void textSpawnMarkerChecked(s32, s32, s32, s32, s32, s32, s32, s32);
-void sfxAllocateChannel(s32, f32);
-s32 textTableGetString(s32, s32, s32);
-void sfxPlayFromActorWithAltitudeCheck(void *, s32, s32, s32, s32);
-void actorUpdateModelMatrix(void *, s32);
 
 void bonusReelGameUpdate(void) {
     LB3Player *player;
@@ -327,7 +317,6 @@ void bonusReelGameUpdate(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-f32 asinApprox(f32);
 f32 sinApprox(f32);
 
 void bonusReelUpdate(void) {
@@ -381,7 +370,6 @@ void bonusReelUpdate(void) {
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
-void camStartPathNearWall(void *, s32, s32, s32);
 
 void bonusEndWin(u8 useCutsceneCam, u8 textIndex) {
     sfxPlayOnFreeSlot(0x143, 0x7FFF, 63.0f, 1.0f, 0, 0);

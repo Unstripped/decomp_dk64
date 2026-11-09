@@ -1,6 +1,15 @@
 
 #include "common.h"
 #include "actor.h"
+#include "proto/bonus/9010.h"
+#include "proto/boot/3D20.h"
+#include "proto/global/100180.h"
+#include "proto/global/1025E0.h"
+#include "proto/global/112080.h"
+#include "proto/global/201B0.h"
+#include "proto/global/3C10.h"
+#include "proto/global/90D80.h"
+#include "proto/global/A7710.h"
 
 extern Gfx D_1000118;
 extern Mtx D_2000180;
@@ -8,11 +17,6 @@ extern s8 D_8002D92C;
 extern s8 D_8002DEF0[];
 extern s32 gCurrentMap;
 extern Actor *gCurrentActor;
-s32 _sprintf(char *, const char *, ...);
-Gfx *textDrawAnimated(Gfx *, u8, s32, f32, f32, f32, f32);
-Gfx *hudDrawRollingCounter(Gfx *, s32, s32, void *, s16, void *);
-s32 textGetStringWidth(s32, char *);
-Gfx *textDrawStringVtx(Gfx *, s32, s16, s16, char *, s32);
 
 typedef struct BonusEHud {
     s16 unk0;
@@ -83,15 +87,6 @@ extern s8 D_8002D920;
 extern s8 D_8002D924;
 extern s8 D_8002D928;
 extern s8 D_8002D930;
-void camStartPath(void *, s32, s32);
-s32 camIsPathPaused(void);
-void camResumePath(void);
-void actorSetStateTwo(void *);
-void mapRequestTransition(s32, s32);
-void hudSpawnCountdownTimer(s32, s32, s32);
-s32 gfxResourceCreate(s32, char *, s32, f32, f32, f32);
-void resQueueAttachActor(void *, s32, u8);
-void renderCallbacksRegister(void *, void *, s32);
 
 void bonusScoreHudUpdate(void) {
     BonusEHud *hud = gCurrentActor->customState;

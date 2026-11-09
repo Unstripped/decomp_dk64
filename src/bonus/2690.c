@@ -1,5 +1,40 @@
 #include "common.h"
 #include "actor.h"
+#define PROTO_SKIP_actorScriptStart // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_effectCreateAtPosition // PROTO: Reference of an expression of void type or an incomplete typ
+#define PROTO_SKIP_effectFreeAndUnlink // FAKE: callee prototype steer
+#define PROTO_SKIP_func_806FDAB8 // FAKE: callee prototype steer
+#define PROTO_SKIP_func_8072881C // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_mathAngleSignedDistance // FAKE: callee prototype steer
+#define PROTO_SKIP_playerKongStopSoundByState // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_sfxPlayOnFreeSlot // FAKE: callee prototype steer
+#include "proto/bonus/12A0.h"
+#include "proto/bonus/2690.h"
+#include "proto/global/100180.h"
+#include "proto/global/1025E0.h"
+#include "proto/global/112080.h"
+#include "proto/global/119370.h"
+#include "proto/global/11BC10.h"
+#include "proto/global/1295B0.h"
+#include "proto/global/131B0.h"
+#include "proto/global/15050.h"
+#include "proto/global/166A0.h"
+#include "proto/global/17B90.h"
+#include "proto/global/19A00.h"
+#include "proto/global/201B0.h"
+#include "proto/global/35000.h"
+#include "proto/global/5E2F0.h"
+#include "proto/global/69E60.h"
+#include "proto/global/70FD0.h"
+#include "proto/global/7130.h"
+#include "proto/global/7CA80.h"
+#include "proto/global/90D80.h"
+#include "proto/global/936B0.h"
+#include "proto/global/A7710.h"
+#include "proto/global/C4620.h"
+#include "proto/global/CEAE0.h"
+#include "proto/global/EFDC0.h"
+#include "proto/global/F56F0.h"
 
 typedef struct {
     f32 pad0;
@@ -41,16 +76,8 @@ typedef struct BonusActorExt {
 
 extern Actor *gCurrentActor;
 
-void actorDespawn(void *);
 void sfxPlayOnFreeSlot(s32, s32, f32, f32, s32, s32);  // FAKE: callee prototype steer
-void projectileSetTargetCoords(f32, f32, f32);
-void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, s32);
 
-s32 camProjectToScreen(f32, f32, f32, f32 *, f32 *, Mtx *, f32, u8);
-s16 mathAngleEaseToward(s16, s16, f32);
-f32 mathAtan2(f32, f32);
-void rumbleRequest(u8, u8, s32);
-void bonusResetAmmo(void *);
 extern u16 D_807FD63C;
 struct Struct_71B4;
 typedef struct Struct_174 {
@@ -175,58 +202,28 @@ extern Point3f **D_807F5FD4;
 extern u8 D_807FBB85;
 void func_8072881C(s32, void *, void *, void *);
 void func_806FDAB8(u8, f32);  // FAKE: callee prototype steer
-void actorUpdateModelMatrix(void *, s32);
 
 extern u8 D_1000118[];
 extern u8 D_2000180[];
-Gfx * textDrawAnimated(Gfx *, s16, s32, f32, f32, f32, f32);
-Gfx * hudDrawRollingCounter(Gfx *, s16, s16, s16 *, s16, u8 *);
 extern u8 D_20000C0[];
 extern u32 gFrameCounter;
 extern u8 gCurrentPlayerIndex;
-Gfx * renderRotatedSprite(Gfx *, u16, s32, s32, u8, u8, s16, s16, f32, f32, s32, f32);
 extern s16 D_8002D8CA;
 extern s16 D_8002D8D4[];
 extern s16 D_8002D8E0[];
-void actorClearAllNodeFlags(void *);
-void actorAppendModelNode(void *, f32, f32, f32, f32, s32);
-void lightGetColor(f32 *, f32 *, f32 *, s16);
-void func_806BF920(void);
 extern s16 gScreenWidth;
 extern s16 gScreenHeight;
-s32 textTableGetString(s32, s32, s32);
-s32 textGetStringWidth(s32, s32);
-u8 textGetFontHeight(s16);
-Gfx * textDrawStringVtx(Gfx *, s16, s16, s16, u8 *, u8);
 void playerKongStopSoundByState(void *, s16 *);
-void controllerAnimSetStateIfChanged(void *, s16, f32, f32);
-void controllerApplyMotionWindow(void *, void *, f32);
 extern f32 D_8002D90C;
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
-void sfxPlayFromActorDirect(Actor *, s16, u8, f32, u8, u8);
-void sfxStopSlotSound();
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32);
-s32 mathAngleSignedDistance(s16, s16);
-s32 randomLcgNext(void);
-f32 randomFloat(void);
-void effectSpriteMatrixUpdate();
+s32 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 extern u8 D_8071FFD4[];
-void effectSetParam(s32);
-void effectSetSpeed(void *);
-void effectEnableFade(void);
-void effectSetCallback(void *);
-void effectSetMode(s8);
-void effectSetDuration(s32);
 s32 effectCreateAtPosition(void *, f32, f32, f32, f32);
-void effectFreeAndUnlink(s32);
+void effectFreeAndUnlink(s32); // FAKE: callee prototype steer
 
 extern Actor *gSpawnedActor;
-s32 randomNonNegative(void);
-s32 actorSpawn(s32, s32);
 void actorScriptStart();
-void scriptSetActorRampTarget(void *, f32, f32);
 
 Gfx *bonusRenderCrosshair(Gfx *gdl, Actor *actor) {
     Struct_7548 *bonusExt = actor->customState;
@@ -327,8 +324,6 @@ typedef struct {
 typedef struct {
     BonusA_CF0_Actor *unk0[6];
 } BonusA_CF0_List;
-s16 gfxResourceCreate(s16, char *, u8, f32, f32, f32);
-void gfxResourceFree(s16);
 
 Gfx *bonusRenderPopupGameHud(Gfx *gdl, Actor *actor) {
     Struct_7548 *bonusExt = actor->customState;
@@ -530,17 +525,7 @@ typedef struct {
 
 extern BonusB_Ctrl gPlayerPadState;
 extern u8 gGameMode;
-s32 playerStateQueueCallback(s16, void *, u8);
-void camSetTarget(void *, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-u16 camStartPath(void *, s16, u8);
-void bonusEndLose(u8, u8);
-void bonusEndWin(u8, u8);
-void actorSetStateTwo(void *);
-void sfxAllocateChannel(s32, f32);
-void hudSpawnCountdownTimer(s16, s16, u8);
-void resQueueAttachActor(Actor *, s32, u8);
 
-void renderCallbacksRegister(void *, void *, u8);
 
 void bonusTargetGameUpdate(void) {
     Struct_7548 *t3c = gCurrentActor->customState;
@@ -678,7 +663,6 @@ typedef struct BonusB_Sub178 {
     f32 unk20;
 } BonusB_Sub178;
 
-void bonusPopupSpawnActors(BonusB_Sub178 *);
 
 void bonusPopupGameUpdate(void) {
     Struct_7548 *t0 = gCurrentActor->customState;
@@ -956,8 +940,6 @@ typedef struct {
 #define BONUS_VTX_ACTOR ((BonusVtxActor *)gCurrentActor)
 
 extern u8 gBossFightPhase;
-void *heapAlloc(s32);
-void heapClearBlock(void *);
 
 void bonusActorUpdateVertexPositions(void) {
     BonusVtxLink *link = BONUS_VTX_ACTOR->unk174;
@@ -1097,12 +1079,6 @@ typedef struct {
 } BonusB_Sub8E3C;
 
 extern s16 D_8002D8C0[];
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
-s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
-void sfxPlayFromActorWithAltitudeCheck(Actor *, s16, u8, s16, u8);
-void actorUpdatePrevContactFlags(void *);
-void actorApplyVelocity(void *);
-void actorUpdateFloorContactAndTilt(void *, f32);
 
 void bonusTurtleTroubleTurtleUpdate(void) {
     BonusB_Sub8E3C *t0 = gCurrentActor->customState;
@@ -1187,9 +1163,6 @@ extern s8 D_8002D8F4;
 extern s16 D_8002D8F8;
 extern s16 D_8002D8FC;
 extern s16 D_8002D8EC[];
-void lightSetColor(f32, f32, f32, s16);
-void bonusLightFlashSpawnTargets(void *);
-Gfx *func_80029B9C(Gfx *, Actor *);
 
 void bonusLightFlashGameUpdate(void) {
     Struct_7548 *t1 = gCurrentActor->customState;
@@ -1871,7 +1844,6 @@ typedef struct {
 extern Actor *gPrimaryPlayerActor;
 extern LargeB4Player *gPlayerSlots;
 extern LargeB4Ctrl *D_807ECDEC;
-void lightAdd(f32, f32, f32, f32, f32, f32, f32, u8, u8, u8, u8);
 typedef struct {
     char pad0[4];
     f32 unk4;
@@ -2345,7 +2317,6 @@ typedef struct {
     s16 unkC;
 } LargeB4Spawn;
 
-Gfx *func_8002CC08(Gfx *gdl, Actor *actor);
 
 void bonusSearchlightSeekGameUpdate(void) {
     f32 cosAngle;
