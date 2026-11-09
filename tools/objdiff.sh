@@ -24,8 +24,9 @@ if [ ! -f "$EXP" ]; then
     exit 1
 fi
 
-# Build ONLY this object (quietly, leaving other outputs untouched)
-make "$OBJ" > /dev/null
+# Build ONLY this object (quietly, leaving other outputs untouched). -B: the Makefile has no
+# header dependencies, so an object built before a header edit would otherwise be reused.
+make -B "$OBJ" > /dev/null
 
 # Compare sections and relocations
 python3 tools/objdiff.py "$OBJ" "$EXP" "$2"
