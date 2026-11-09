@@ -67,9 +67,9 @@ extern u8 D_807FC611;
 void *memcpy(void *, const void *, size_t);
 void heapFree(void *);
 void actorDespawn(Actor *);
-s16 mapChunkFindByPosition(f32, f32, f32, s32);
+s16 mapChunkFindByPosition(f32, f32, f32, s16);
 s32 mapChunkIsVisible(s32, void *);
-void func_8066E6C8(Actor *, s32, s32);
+void func_8066E6C8(Actor *, s32, u8);
 void actorAppendCallbackMemcpy8(s32, Actor *, s32, u8, void *, u8);
 s32 actorListGetTypeIdCount(u16);
 s16 actorListAllocId(void);
@@ -104,12 +104,12 @@ extern ModelAssetEntry178 D_8076A178[];
 s32 mapFindSlotIndex(s32);
 u16 modelTypeCountBeforeMap(u8);
 void modelAssetGetSubtables(s32, s32 *, s32 **);
-void modelSlotsLoadMap(s32, s32, u8, u16, s32);
+void modelSlotsLoadMap(u8 *, s32, u8, u16, u8);
 void csTimerQueueFire(s16);
 void actorListSpawnFromRecords(s32 *);
 void modelSlotsApplyRecords(void *, void *);
 void lightSetColor(f32, f32, f32, s16);
-s32 mapGetHubWorldIndex(u8, s32);
+u8 mapGetHubWorldIndex(u8, u8);
 void actorListBuildLookupTable(void);
 s32 playerGetModelAssetId(void);
 
@@ -168,7 +168,7 @@ void actorMapModelsSetup(s32 modelAsset, u8 loadMode, u8 skipExtra) {
 extern u8 D_807500B0;
 extern s16 D_807FC408[];
 
-void *assetLoad(s32, s32, s32, s32);
+void *assetLoad(s32, u32, u8, u8);
 void assetSetImmediateFree(void);
 void assetFreeBuffer(void *, s32, s32);
 
