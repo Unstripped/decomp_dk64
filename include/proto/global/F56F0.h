@@ -3,23 +3,14 @@
 #define PROTO_GLOBAL_F56F0_H
 #include "common.h"
 #include "actor.h"
-struct F5BAccel;
-struct F5BActor;
+struct F56AState;
 struct F5BSlot;
 struct F5CEntry;
-struct F5COutput;
-struct F5CPlayerActor;
-struct F5CTurnActor;
-struct F5CTurnEntry;
 struct F5DDeferredEntry;
 struct F5L1Control;
-struct F5N1Predicate;
 struct F5N1Spring;
-struct F5N3TableEntry1768;
-struct F5N4Coord;
-struct F5N5CameraActor;
-struct F5N5CameraEntry;
-struct F5N5EffectState;
+struct F5N6Input;
+struct WaypointNode;
 #ifndef PROTO_SKIP_playerKongStopAudioChannels
 void playerKongStopAudioChannels(Actor *, u16);
 #endif
@@ -69,25 +60,25 @@ void playerKongCalculateHealthScale(Actor *);
 s32 mathCalculateRatioClamped(f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory7
-void playerWeaponCalculateTrajectory7(s32, struct F5N3TableEntry1768 *, s32 *);
+void playerWeaponCalculateTrajectory7(Actor *, struct F5BSlot *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory4
-void playerWeaponCalculateTrajectory4(s32, struct F5N3TableEntry1768 *, s32 *);
+void playerWeaponCalculateTrajectory4(Actor *, struct F5BSlot *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory22
-void playerWeaponCalculateTrajectory22(s32, struct F5BSlot *, s32 *);
+void playerWeaponCalculateTrajectory22(Actor *, struct F5BSlot *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory23
-void playerWeaponCalculateTrajectory23(s32, struct F5BSlot *, s32 *);
+void playerWeaponCalculateTrajectory23(Actor *, struct F5BSlot *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory24
 void playerWeaponCalculateTrajectory24(f32, f32, struct F5N1Spring *, f32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory25
-f32 playerWeaponCalculateTrajectory25(struct F5BActor *, struct F5BAccel *, f32);
+f32 playerWeaponCalculateTrajectory25(Actor *, struct F56AState *, f32);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCalculateTrajectory26
-s32 playerWeaponCalculateTrajectory26(struct F5BActor *, struct F5N1Predicate *, s32);
+s32 playerWeaponCalculateTrajectory26(Actor *, struct F56AState *, s32);
 #endif
 #ifndef PROTO_SKIP_mathAngleRadDeltaTurns
 f32 mathAngleRadDeltaTurns(f32 *, f32);
@@ -102,19 +93,19 @@ void playerWeaponSpawnProjectile(Actor *, struct F5BSlot *, s32 *);
 void playerWeaponInitCrosshair(Actor *, struct F5BSlot *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCrosshairUpdate
-void playerWeaponCrosshairUpdate(struct F5N5CameraActor *, struct F5N5CameraEntry *, s32 *);
+void playerWeaponCrosshairUpdate(Actor *, struct F5BSlot *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponCrosshairRender
-void playerWeaponCrosshairRender(struct F5CPlayerActor *, struct F5COutput *, s32 *);
+void playerWeaponCrosshairRender(Actor *, struct F5CEntry *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponUpdateHomingTarget
-void playerWeaponUpdateHomingTarget(struct F5CTurnActor *, struct F5CTurnEntry *, s32 *);
+void playerWeaponUpdateHomingTarget(Actor *, struct F5BSlot *, s32 *);
 #endif
 #ifndef PROTO_SKIP_playerWeaponFireGun
-void playerWeaponFireGun(s32, struct F5CEntry *, s32 *, u8, u8, f32, f32);
+void playerWeaponFireGun(Actor *, struct F5CEntry *, s32 *, u8, u8, f32, f32);
 #endif
 #ifndef PROTO_SKIP_playerWeaponReload
-void playerWeaponReload(Actor *, struct F5N5EffectState *, u16);
+void playerWeaponReload(Actor *, PlayerState *, u16);
 #endif
 #ifndef PROTO_SKIP_playerWeaponSpawnMuzzleFlash
 void playerWeaponSpawnMuzzleFlash(Actor *, u16);
@@ -123,22 +114,22 @@ void playerWeaponSpawnMuzzleFlash(Actor *, u16);
 void playerWaypointPathsLoad(s16);
 #endif
 #ifndef PROTO_SKIP_actorSetPositionAndFacingAngle
-void actorSetPositionAndFacingAngle(Actor *, struct F5N4Coord *);
+void actorSetPositionAndFacingAngle(Actor *, struct WaypointNode *);
 #endif
 #ifndef PROTO_SKIP_playerWaypointPathStart
-void playerWaypointPathStart(u8, s32, s32, s16, u8);
+void playerWaypointPathStart(u8, Actor *, s32, s16, u8);
 #endif
 #ifndef PROTO_SKIP_deferredEntryFree
 void deferredEntryFree(struct F5DDeferredEntry *);
 #endif
 #ifndef PROTO_SKIP_playerWaypointPathStartPacked
-void playerWaypointPathStartPacked(s32, s32, s16, s16);
+void playerWaypointPathStartPacked(Actor *, s32, s16, s16);
 #endif
 #ifndef PROTO_SKIP_playerWaypointPathStartLineFromPoint
-void playerWaypointPathStartLineFromPoint();
+void playerWaypointPathStartLineFromPoint(Actor *, struct F5N6Input *, u8);
 #endif
 #ifndef PROTO_SKIP_playerWaypointPathStartLineFromActor
-void playerWaypointPathStartLineFromActor();
+void playerWaypointPathStartLineFromActor(Actor *, s16, s16, u8);
 #endif
 #ifndef PROTO_SKIP_playerWaypointSnapInput
 void playerWaypointSnapInput(void);
