@@ -279,7 +279,8 @@ typedef struct BehaviourWorkState {
     /* 0x0A */ s16 targetX;
     /* 0x0C */ s16 targetY;
     /* 0x0E */ s16 targetZ;
-    /* 0x10 */ u8 pad10[8];
+    /* 0x10 */ u8 pad10[6];
+    /* 0x16 */ s16 unk16;
     /* 0x18 */ u16 stepCount;
     /* 0x1A */ u16 flags;
     /* 0x1C */ u8 pad1C[9];
@@ -298,7 +299,9 @@ typedef struct BehaviourAnimState {
     /* 0x26 */ s16 animId0;
     /* 0x28 */ s16 animId1;
     /* 0x2A */ s16 animId2;
-    /* 0x2C */ u8 pad2C[0x46 - 0x2C];
+    /* 0x2C */ u8 pad2C[4];
+    /* 0x30 */ f32 unk30;
+    /* 0x34 */ u8 pad34[0x46 - 0x34];
     /* 0x46 */ u16 stateFlags;
 } BehaviourAnimState;
 
