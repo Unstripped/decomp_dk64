@@ -46,22 +46,9 @@ typedef struct {
     u16 unkA;
 } RaceC_Target;
 
-typedef struct {
-    u8 pad0[0x10];
-    s16 unk10;
-    u8 pad12[0xB8 - 0x12];
-    f32 unkB8;
-} RaceC_Obj;
-
-typedef struct {
-    RaceC_Obj *unk0;
-    u8 pad4[0x64 - 0x4];
-    u16 unk64;
-} RaceC_Sub;
-
 struct RaceC_Actor {
     u8 pad0[0x4];
-    RaceC_Sub *unk4;
+    ActorSub4 *unk4;
     u8 pad8[0x60 - 0x8];
     u32 unk60;
     u8 pad64[0x6A - 0x64];
@@ -350,7 +337,7 @@ f32 raceRacerSteerTowardWaypoint(void) {
         case 1:
             switch (s0->unk35) {
                 case 0:
-                    if (RC_A->unk4->unk64 == 0x29E && targetView->unk10 != 0 && D_8002FC28 < leadDistance && leadDistance < D_8002FC30 && (randomLcgNext() & 0xFF) < 0xFU) {
+                    if (RC_A->unk4->animId == 0x29E && targetView->unk10 != 0 && D_8002FC28 < leadDistance && leadDistance < D_8002FC30 && (randomLcgNext() & 0xFF) < 0xFU) {
                         actorScriptStart(gCurrentActor, 0x29F);
                     }
                     break;
@@ -585,7 +572,7 @@ void raceOpponentRacerBehaviorUpdate(void) {
             break;
         }
     }
-    switch (RC_A->unk4->unk64) {
+    switch (RC_A->unk4->animId) {
     case 0x29E:
     case 0x2A2:
         fv1 = RC_A->unkB8 * 0.0025f;
@@ -593,12 +580,12 @@ void raceOpponentRacerBehaviorUpdate(void) {
         scriptSetActorRampTarget(gCurrentActor, fv1, 10.0f);
         break;
     case 0x2A0:
-        if (RC_A->unk4->unk0->unk10 == 0x4A7) {
+        if (RC_A->unk4->model->animId == 0x4A7) {
             raceAdjustRubberbandTargetSpeed(gCurrentActor, s0, RC_A->unkB8 - targetView->unk0->unkB8, (leadDistance - D_8002FC30) * 40.0f, 23.0f);
             break;
         }
     default:
-        if (RC_A->unk4->unk0->unk10 != 0x49B) {
+        if (RC_A->unk4->model->animId != 0x49B) {
             scriptSetActorRampTarget(gCurrentActor, 1.0f, 10.0f);
         }
         break;

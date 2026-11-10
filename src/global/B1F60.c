@@ -11,21 +11,10 @@
 #include "proto/global/AA960.h"
 #include "proto/global/B1F60.h"
 
-typedef struct B1F60Sub0 {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
-} B1F60Sub0;
-
-typedef struct B1F60Sub4 {
-    /* 0x00 */ B1F60Sub0 *unk0;
-    /* 0x04 */ u8 pad4[0x60];
-    /* 0x64 */ u16 unk64;
-} B1F60Sub4;
-
 // File-local view of Actor for the fields the shared Actor lacks or types differently.
 typedef struct B1F60Actor {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ B1F60Sub4 *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 pad8[0xB8];
     /* 0x0C0 */ f32 unkC0;
     /* 0x0C4 */ u8 padC4[0x24];
@@ -300,7 +289,7 @@ void func_806ADDD8(void) {
             }
             break;
         case 4:
-            if (B1F60A->unk4->unk64 != 0x319) {
+            if (B1F60A->sub4->animId != 0x319) {
                 gCurrentActor->state = 0x23;
                 B1F60A->unk155 = 0;
             } else if (actorIsTargetWithinDistance(0x64) != 0) {
@@ -310,13 +299,13 @@ void func_806ADDD8(void) {
             }
             break;
         case 0x1E:
-            if (B1F60A->unk4->unk64 == 0x31A) {
+            if (B1F60A->sub4->animId == 0x31A) {
                 gCurrentActor->state = 0x23;
                 B1F60A->unk155 = 0;
             }
             break;
         case 0x23:
-            if (B1F60A->unk4->unk64 == 0x31A && B1F60A->unk4->unk0->unk4 > 4.0f) {
+            if (B1F60A->sub4->animId == 0x31A && B1F60A->sub4->model->frame > 4.0f) {
                 actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);
             }
             if (actorIsTargetWithinDistance(0x12C) == 0) {

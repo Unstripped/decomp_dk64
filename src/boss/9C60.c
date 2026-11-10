@@ -7,26 +7,9 @@
 #include "proto/global/3C10.h"
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
-typedef struct BossC_9C60_Sub0 {
-    char pad[0x10];
-    s16 unk10;
-    char pad12[0x12];
-    f32 unk24;
-} BossC_9C60_Sub0;
-
-typedef struct BossC_9C60_Sub4 {
-    BossC_9C60_Sub0 *unk0;
-    char pad4[0x18];
-    void *unk1C;
-    char pad20[0x18];
-    f32 unk38;
-    char pad3C[0xC];
-    f32 unk48;
-} BossC_9C60_Sub4;
-
 typedef struct BossC_9C60_Actor {
     char pad[4];
-    BossC_9C60_Sub4 *unk4;
+    ActorSub4 *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x18];
@@ -63,13 +46,13 @@ void bossAttachActor(void) {
     gSpawnedActor->unk60 |= 0x400;
     gSpawnedActor->unk11C = gCurrentActor;
     *attachedActorSlot = gSpawnedActor;
-    actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->unk4->unk38);
+    actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->unk4->scaleY);
 }
 
 void bossUpdateAttachment(void) {
-    actorCopyPoseAndScale(gCurrentActor, gCurrentActor->unk11C, gCurrentActor->unk4->unk38);
+    actorCopyPoseAndScale(gCurrentActor, gCurrentActor->unk11C, gCurrentActor->unk4->scaleY);
     gCurrentActor->unk4->unk48 = gCurrentActor->unk11C->unk4->unk48;
-    if (gCurrentActor->unk4->unk0->unk10 == 0x675 && gCurrentActor->unk4->unk0->unk24 == 0.0f) {
+    if (gCurrentActor->unk4->model->animId == 0x675 && gCurrentActor->unk4->model->speed == 0.0f) {
         actorDespawn(gCurrentActor);
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
@@ -118,11 +101,6 @@ typedef struct Boss2F_9C60_BB4C {
 } Boss2F_9C60_BB4C;
 
 
-
-typedef struct Boss2F_9C60_Sub1C {
-    char pad[2];
-    u16 unk2;
-} Boss2F_9C60_Sub1C;
 
 extern u8 *D_80035A60[];
 extern s32 gCamActor;
@@ -234,7 +212,7 @@ void bossKRoolDiddyStep(void) {
         case 3:
             gCurrentActor->unk146 = 6;
             projectileGetTargetCoords(gCurrentActor, 4);
-            projectileSpawnNodeEntry(0xAA, 1, gCurrentActor->unk4->unk38, 0, (f32)scriptState->unk19 * projectileScale, 0.0f, gCurrentActor);
+            projectileSpawnNodeEntry(0xAA, 1, gCurrentActor->unk4->scaleY, 0, (f32)scriptState->unk19 * projectileScale, 0.0f, gCurrentActor);
             gCurrentActor->unk155++;
             break;
         case 5:
@@ -247,8 +225,8 @@ void bossKRoolDiddyStep(void) {
             /* fallthrough */
         case 8:
             func_80724E48(0);
-            if (((Boss2F_9C60_Sub1C *)gCurrentActor->unk4->unk1C)->unk2 < 0x7FFF) {
-                ((Boss2F_9C60_Sub1C *)gCurrentActor->unk4->unk1C)->unk2 = 0xFFFF;
+            if (gCurrentActor->unk4->boneRotations->rotX < 0x7FFF) {
+                gCurrentActor->unk4->boneRotations->rotX = 0xFFFF;
             }
             actorTurnTowardActorYaw(0xA, gPrimaryPlayerActor);
             if (gBehaviourWorkState->timer != 0) {

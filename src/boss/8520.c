@@ -132,15 +132,9 @@ typedef struct BossSwayState {
     s16 unk4;
 } BossSwayState;
 
-typedef struct BossModelInfo {
-    char pad0[0x34];
-    f32 unk34;
-    f32 unk38;
-} BossModelInfo;
-
 typedef struct BossActor {
     char pad0[4];
-    BossModelInfo *unk4;
+    ActorSub4 *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x18];
@@ -211,7 +205,7 @@ void bossKutOutStep(void) {
         A40->unk60 |= 0x400;
         A40->unk132 = 4;
         A40->unk154 = 0x1E;
-        actorSetUniformScale(gCurrentActor, 2.0 * A40->unk4->unk34);
+        actorSetUniformScale(gCurrentActor, 2.0 * A40->unk4->scaleX);
         actorSpawnLinkedFollower();
     }
     if (((gBossFightPhase == 9) || (D_807FBB85 != 0)) && (A40->unk154 != 0x37)) {
@@ -242,7 +236,7 @@ void bossKutOutStep(void) {
             }
             A40->unk80 += 2.0f;
             A40->unkE6 += gBehaviourWorkState->timer;
-            actorSetUniformScale(gCurrentActor, ((0.3 - A40->unk4->unk38) * 0.05) + A40->unk4->unk38);
+            actorSetUniformScale(gCurrentActor, ((0.3 - A40->unk4->scaleY) * 0.05) + A40->unk4->scaleY);
             break;
         case 2: {
             s16 v;

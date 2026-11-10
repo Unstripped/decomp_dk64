@@ -672,7 +672,7 @@ void controllerAnimSetState(Actor *actor, s16 animId, f32 animSpeed, f32 blend) 
     anim->loopCount = 0;
     anim->waitFrame = 0.0;
     anim->blendFrom = slot0;
-    slotFlags = ((u8 *)&anim->layerWeight)[1];
+    slotFlags = anim->layerWeight;
     anim->blendFromLayer = slot4;
     anim->model = slot8;
     anim->layer = slotC;

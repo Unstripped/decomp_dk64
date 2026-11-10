@@ -49,30 +49,6 @@ void bossArmydilloSpawnSmoke(void) {
     }
 }
 
-typedef struct BossA_Struct_80024524_Entry {
-    u8 pad0;
-    u8 unk1;
-    s16 unk2;
-    u8 pad4[4];
-} BossA_Struct_80024524_Entry;
-
-typedef struct BossA_Struct_8002413C_1 {
-    u8 id;
-    u8 unk1;
-    u8 pad2[2];
-    f32 x;
-    f32 y;
-    f32 z;
-} BossA_Struct_8002413C_1;
-
-typedef struct BossA_Struct_8002413C_3 {
-    s8 unk0;
-    u8 id;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-} BossA_Struct_8002413C_3;
-
 typedef struct BossA_Struct_8002413C_Template {
     s8 x;
     s8 y;
@@ -83,21 +59,9 @@ typedef struct BossA_Struct_8002413C_Template {
     f32 rotZ;
 } BossA_Struct_8002413C_Template;
 
-typedef struct BossA_Struct_807FBB40_Sub {
-    u8 pad0[0x1C];
-    union {
-        BossA_Struct_80024524_Entry *entries;
-        BossA_Struct_8002413C_3 *arr3;
-    } u1C;
-    BossA_Struct_8002413C_1 *arr2;
-    BossA_Struct_8002413C_1 *arr1;
-    u8 pad28[0x64 - 0x28];
-    u16 unk64;
-} BossA_Struct_807FBB40_Sub;
-
 typedef struct BossA_Struct_807FBB40 {
     u8 pad0[4];
-    BossA_Struct_807FBB40_Sub *sub;
+    ActorSub4 *sub;
     u8 pad8[0xE6 - 8];
     s16 unkE6;
     u8 padE8[0x146 - 0xE8];
@@ -118,10 +82,10 @@ void bossArmydilloInitArena(void) {
     s32 pad[4];
     u8 mode;
     s16 i;
-    BossA_Struct_807FBB40_Sub *sub;
-    BossA_Struct_8002413C_1 *v0;
-    BossA_Struct_8002413C_1 *a0;
-    BossA_Struct_8002413C_3 *a1;
+    ActorSub4 *sub;
+    BoneVector *v0;
+    BoneVector *a0;
+    BoneRotation *a1;
     BossA_Struct_8002413C_Template *t;
 
     if (gCurrentMap == 8) {
@@ -141,28 +105,28 @@ void bossArmydilloInitArena(void) {
 
     sub = gCurrentActor->sub;
     t = D_800358E0[mode];
-    v0 = sub->arr1;
-    a0 = sub->arr2;
-    a1 = sub->u1C.arr3;
+    v0 = sub->boneOffsets;
+    a0 = sub->boneScales;
+    a1 = sub->boneRotations;
 
     for (i = 0; i < 5; i++) {
-        v0->id = D_800358D8[i];
-        v0->unk1 = 0xFF;
+        v0->bone = D_800358D8[i];
+        v0->lastBone = 0xFF;
         v0->x = t[i].x;
         v0->y = t[i].y;
         v0->z = t[i].z;
 
-        a0->id = D_800358D8[i];
-        a0->unk1 = 0xFF;
+        a0->bone = D_800358D8[i];
+        a0->lastBone = 0xFF;
         a0->x = t[i].rotX;
         a0->y = t[i].rotY;
         a0->z = t[i].rotZ;
 
-        a1->unk0 = -0x80;
-        a1->id = D_800358D8[i];
-        a1->unk2 = 0;
-        a1->unk4 = 0;
-        a1->unk6 = 0;
+        a1->weight = -0x80;
+        a1->bone = D_800358D8[i];
+        a1->rotX = 0;
+        a1->rotY = 0;
+        a1->rotZ = 0;
 
         v0++;
         a0++;
@@ -170,8 +134,8 @@ void bossArmydilloInitArena(void) {
     }
 
     for (i = 0; i < 8; i++) {
-        v0->id = D_80035994[i];
-        v0->unk1 = 0xFF;
+        v0->bone = D_80035994[i];
+        v0->lastBone = 0xFF;
         v0->x = 0.0f;
         v0->y = 0.0f;
         v0->z = 0.0f;
@@ -181,7 +145,7 @@ void bossArmydilloInitArena(void) {
 
 typedef struct Boss2A_Struct_807FBB40_4300 {
     u8 pad0[4];
-    BossA_Struct_807FBB40_Sub *sub;
+    ActorSub4 *sub;
     u8 pad8[0x7C - 8];
     f32 unk7C;
     f32 unk80;
@@ -194,12 +158,12 @@ f32 mathCosF(s16);
 
 void bossArmydilloDebrisUpdate(void) {
     s16 i;
-    BossA_Struct_8002413C_1 *debris;
+    BoneVector *debris;
     s32 soundId;
     s32 soundVol;
     s16 angle;
 
-    debris = gCurrentActor->sub->arr1;
+    debris = gCurrentActor->sub->boneOffsets;
     soundId = 0;
     soundVol = 0xFF;
     switch (gBehaviourWorkState->timer) {
@@ -243,7 +207,7 @@ void bossArmydilloDebrisUpdate(void) {
     }
 
     i = 0;
-    gCurrentActor->sub->arr1[5].x = 99999.0f;
+    gCurrentActor->sub->boneOffsets[5].x = 99999.0f;
     do {
         if (debris->y >= 1800.0f) {
             debris->x = 99999.0f;
@@ -266,11 +230,11 @@ void bossPieceSetState(u8 *pieceData, u8 index, u8 state) {
 }
 
 void bossPieceSetAngle(u8 index, s16 angle) {
-    BossA_Struct_80024524_Entry *entry = &gCurrentActor->sub->u1C.entries[index];
+    BoneRotation *entry = &gCurrentActor->sub->boneRotations[index];
     if (index == 3) {
-        entry->unk1 = 0x2F;
+        entry->bone = 0x2F;
     }
-    entry->unk2 = angle;
+    entry->rotX = angle;
 }
 
 
@@ -300,14 +264,14 @@ typedef struct BossActorState {
 
 u8 bossPieceStep(u8 *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 endTimer) {
     u8 ret;
-    BossA_Struct_8002413C_1 *p1;
-    BossA_Struct_8002413C_1 *p2;
+    BoneVector *p1;
+    BoneVector *p2;
     BossA_Struct_807FBB40 *boss;
 
     boss = gCurrentActor;
     ret = 0;
-    p1 = &boss->sub->arr1[pieceIdx];
-    p2 = &boss->sub->arr2[pieceIdx];
+    p1 = &boss->sub->boneOffsets[pieceIdx];
+    p2 = &boss->sub->boneScales[pieceIdx];
     switch (OBJ->state[pieceIdx]) {
     case 5:
         OBJ->f1[pieceIdx] = 30.0f;
@@ -433,7 +397,7 @@ void bossArmydilloAimTowardTarget(void) {
     s32 res;
     u16 animState;
 
-    animState = gCurrentActor->sub->unk64;
+    animState = gCurrentActor->sub->animId;
     mathAngleSignedDistance(gBehaviourWorkState->unk8, gCurrentActor->unkE6);
     actorMoveWithinZone(0x45, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x16, 0.0f);
     res = mathAngleSignedDistance(gBehaviourWorkState->unk8, gCurrentActor->unkE6);
@@ -580,19 +544,9 @@ typedef struct Boss3B_Sp78 {
     s16 unk10;
     s16 unk12;
 } Boss3B_Sp78;
-typedef struct Boss3B_Sub4 {
-    u8 pad0[0x10];
-    s16 unk10;
-} Boss3B_Sub4;
-typedef struct Boss3B_Unk4 {
-    Boss3B_Sub4 *unk0;
-    u8 pad4[0x34 - 4];
-    f32 unk34;
-    f32 unk38;
-} Boss3B_Unk4;
 typedef struct Boss3B_Actor {
     u8 pad0[4];
-    Boss3B_Unk4 *unk4;
+    ActorSub4 *unk4;
     u8 pad8[0x60 - 8];
     u32 unk60;
     u8 pad64[0x6A - 0x64];
@@ -808,9 +762,9 @@ void bossArmydilloStep(void) {
             } else {
                 gCurrentActor->unkEE += 10;
             }
-            actorSetUniformScale(gCurrentActor, (f32) ((f64) gCurrentActor->unk4->unk34 * 0.99));
+            actorSetUniformScale(gCurrentActor, (f32) ((f64) gCurrentActor->unk4->scaleX * 0.99));
             gCurrentActor->unk80 = (f32) ((f64) gCurrentActor->unk80 + ((f64) (356.0f - gCurrentActor->unk80) * 0.03));
-            if ((f64) gCurrentActor->unk4->unk38 < 0.04) {
+            if ((f64) gCurrentActor->unk4->scaleY < 0.04) {
                 gCurrentActor->unk155 = 5;
             }
             break;
@@ -1276,7 +1230,7 @@ void bossArmydilloStep(void) {
         break;
     case 0x23:                                      /* switch 1 */
     case 0x42:                                      /* switch 1 */
-        if (gCurrentActor->unk4->unk0->unk10 != 0x39A) {
+        if (gCurrentActor->unk4->model->animId != 0x39A) {
             actorScriptStart(gCurrentActor, 0x256);
         }
         /* fallthrough */

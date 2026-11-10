@@ -12,27 +12,11 @@
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 s16 sfxPlayFromActorWithAltitudeCheck(struct Actor *, s16, u8, s16, u8);
 
-typedef struct ModelSub_25F0 {
-    u8 pad0[4];
-    u16 unk4;
-} ModelSub_25F0;
-
-typedef struct Model_25F0 {
-    f32 *unk0;
-    u8 pad4[0x1C - 4];
-    ModelSub_25F0 *unk1C;
-    u8 pad20[0x34 - 0x20];
-    f32 unk34;
-    f32 unk38;
-    u8 pad3C[0x64 - 0x3C];
-    u16 unk64;
-} Model_25F0;
-
 struct MinecartCart;
 
 typedef struct Actor_25F0 {
     u8 pad0[4];
-    Model_25F0 *unk4;
+    ActorSub4 *unk4;
     u8 pad8[0x60 - 8];
     s32 unk60;
     u8 pad64[0x7C - 0x64];
@@ -197,14 +181,14 @@ void minecartFollowerBehaviour(void) {
     if (!(gCurrentActor->unk60 & 0x10)) {
         actorScriptStart(gCurrentActor, 0x310);
         actorSpawn(0x11C, 0x4C);
-        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 1.5 * gCurrentActor->unk4->unk38);
+        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 1.5 * gCurrentActor->unk4->scaleY);
         gSpawnedActor->unk11C = gCurrentActor;
         gSpawnedActor->unk168 = -1;
-        gSpawnedActor->unk4->unk34 *= -1.0f;
+        gSpawnedActor->unk4->scaleX *= -1.0f;
         gSpawnedActor->unkEC = 0x2BC;
         controllerAnimLoadStateAsset1(gSpawnedActor, controllerLookupStateByHash(gSpawnedActor));
         actorSpawn(0x11C, 0x4C);
-        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 1.5 * gCurrentActor->unk4->unk38);
+        actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, 1.5 * gCurrentActor->unk4->scaleY);
         gSpawnedActor->unk11C = gCurrentActor;
         gSpawnedActor->unk168 = 1;
         gSpawnedActor->unkEC = 0x2BC;
@@ -330,13 +314,13 @@ void minecartFollowerChildBehaviour(void) {
                 }
                 break;
             case 1:
-                d = gCurrentActor->unk4->unk0[1] / 17.0;
+                d = gCurrentActor->unk4->model->frame / 17.0;
                 var = MIN(1.0, d);
                 x = mathCosF(var * 2048.0f + 2048.0f) * 0.5 + 0.5;
                 gCurrentActor->unk7C = (targetState->unkA - gCurrentActor->unk7C) * x + gCurrentActor->unk7C;
                 gCurrentActor->unk80 = (gCurrentActor->unk80 + 10.0f) + ((gActivePlayerState->actor->unkA4 - (gCurrentActor->unk80 + 10.0f)) * x);
                 gCurrentActor->unk84 = (targetState->unkE - gCurrentActor->unk84) * x + gCurrentActor->unk84;
-                if (gPrimaryPlayerActor->unk4->unk64 == 0x294 || (gCurrentActor->unk4->unk0[1] > 16.0f && gCurrentActor->unk4->unk0[1] < 18.0f)) {
+                if (gPrimaryPlayerActor->unk4->animId == 0x294 || (gCurrentActor->unk4->model->frame > 16.0f && gCurrentActor->unk4->model->frame < 18.0f)) {
                     gCurrentActor->unk132 = 1;
                 } else {
                     gCurrentActor->unk132 = 0;
@@ -557,7 +541,7 @@ void minecartAdjustTargetSpeed(void) {
     u16 targetAngle;
     PlayerState_25F0 *comp = gBehaviourTargetActor->customState;
 
-    targetAngle = gCurrentActor->unk4->unk1C->unk4;
+    targetAngle = gCurrentActor->unk4->boneRotations->rotY;
     if (targetAngle >= 0x47D1 && targetAngle < 0xB830) {
         gBehaviourWorkState->unk26 = MAX(9, gBehaviourWorkState->unk26 - 5);
     } else if (targetAngle < 0x3830 || targetAngle >= 0xC7D1) {

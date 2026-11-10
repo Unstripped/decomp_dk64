@@ -11,14 +11,6 @@
 #include "proto/global/CEAE0.h"
 
 
-typedef struct BoneChainNode {
-    s8 unk0;
-    u8 unk1;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-} BoneChainNode;
-
 typedef struct BoneChainData {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -68,11 +60,6 @@ typedef struct BoneChainActor2 {
     /* 0x154 */ u8 unk154;
 } BoneChainActor2;
 
-typedef struct BoneChainSub4 {
-    /* 0x1C */ u8 pad0[0x1C];
-    /* 0x1C */ BoneChainNode *unk1C;
-} BoneChainSub4;
-
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern void *gPlayerSlots;
@@ -88,7 +75,7 @@ void actorBoneChainSwingUpdate(nodeCount)
 u8 nodeCount;
 {
     BoneChainData *data;
-    BoneChainNode *node;
+    BoneRotation *node;
     s16 i;
     f32 padA;
     BoneChainPlayerState *player;
@@ -109,7 +96,7 @@ u8 nodeCount;
         data->unk20 = 0.000f;
         data->unk24 = (f32)((f64)(s32)((randomNonNegative() >> 15) % 100) / 1000.0 + 0.1);
         data->unk18 = 0.0f;
-        ((BoneChainSub4 *)gCurrentActor->sub4)->unk1C = heapAlloc(0x80);
+        gCurrentActor->sub4->boneRotations = heapAlloc(0x80);
         proxPathAdd(gCurrentActor, 0, 0, 0, nodeCount, 0.0f, (f32)((f64)nodeCount * 0.333333), 0.15f, 100.0f, 20.0f, 8.0f, 0, 0.0f, 0.0f, 0);
         if (gFrameDelta == 0x50) {}  // FAKE: deadsweep; keeps the 0x50 store constant out of a register (a0 stays unk254, p takes v0)
         for (i = 1; i <= nodeCount; i++) {
@@ -139,7 +126,7 @@ u8 nodeCount;
         data->unk16--;
         data->unk1C -= 1.0;
     }
-    node = ((BoneChainSub4 *)gCurrentActor->sub4)->unk1C;
+    node = gCurrentActor->sub4->boneRotations;
     if (data->unk0 > 2.0f) {
         if (data->unkC < 3.926991f && data->unkC + data->unk4 >= 3.926991f) {
             if (gCurrentActor->actorType == 0x74) {
@@ -177,26 +164,26 @@ u8 nodeCount;
     data->unkC = data->unkC + data->unk4 * gFrameDelta * 0.5;
     data->unk10 = sinApprox(data->unkC) * data->unk0;
     for (i = 0; i < 0xE; i++) {
-        node[i].unk0 = -0x80;
-        node[i].unk1 = i + dir;
-        node[i].unk4 = 0;
-        node[i].unk2 = (s16)(s32)((f64)data->unk10 / 360.0 * 65535.0);
-        node[i].unk6 = 0;
+        node[i].weight = -0x80;
+        node[i].bone = i + dir;
+        node[i].rotY = 0;
+        node[i].rotX = (s16)(s32)((f64)data->unk10 / 360.0 * 65535.0);
+        node[i].rotZ = 0;
         data->unk10 = data->unk10 * data->unk8;
     }
     if (gCurrentActor->actorType == 0x45 || gCurrentActor->actorType == 0x21) {
-        node[i].unk0 = -0x80;
-        node[i].unk1 = 1;
-        node[i].unk4 = (s16)(s32)((f64)data->unk18 / 360.0 * 65535.0);
-        node[i].unk2 = 0;
-        node[i].unk6 = 0;
+        node[i].weight = -0x80;
+        node[i].bone = 1;
+        node[i].rotY = (s16)(s32)((f64)data->unk18 / 360.0 * 65535.0);
+        node[i].rotX = 0;
+        node[i].rotZ = 0;
         i++;
         data->unk18 += 20.0f;
         if (data->unk18 > 360.0f) {
             data->unk18 -= 360.0f;
         }
     }
-    node[i].unk0 = 0;
+    node[i].weight = 0;
     if (gPrimaryPlayerActor->state == 0x58) {
         data->unk15 = 5;
     } else if (data->unk15 != 0) {

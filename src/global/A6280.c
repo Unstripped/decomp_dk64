@@ -126,11 +126,6 @@ typedef struct ActorParentRamp {
     f32 unkB8;
 } ActorParentRamp;
 
-typedef struct ActorModelScript {
-    u8 pad0[0x64];
-    u16 unk64;
-} ActorModelScript;
-
 
 void actorUpdateRampTarget(void) {
     ActorSub178 *rampState;
@@ -149,16 +144,16 @@ void actorUpdateRampTarget(void) {
         }
     }
     if (0.0f != parentRamp->unkB8) {
-        if (parentRamp->unkB8 > 50.0f && ((ActorModelScript *)gCurrentActor->sub4)->unk64 != 0x233) {
+        if (parentRamp->unkB8 > 50.0f && gCurrentActor->sub4->animId != 0x233) {
             actorScriptStart(gCurrentActor, 0x233);
         } else if (50.0f >= parentRamp->unkB8) {
-            if (((ActorModelScript *)gCurrentActor->sub4)->unk64 != 0x232) {
+            if (gCurrentActor->sub4->animId != 0x232) {
                 actorScriptStart(gCurrentActor, 0x232);
             }
         }
         scriptSetActorRampTarget(gCurrentActor, parentRamp->unkB8 * 0.01, 4.0f);
     } else {
-        if (((ActorModelScript *)gCurrentActor->sub4)->unk64 != 0x234) {
+        if (gCurrentActor->sub4->animId != 0x234) {
             actorScriptStart(gCurrentActor, 0x234);
         }
     }

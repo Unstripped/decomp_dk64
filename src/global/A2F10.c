@@ -74,15 +74,6 @@ s32 actorDespawn(Actor *); // FAKE: callee prototype steer
         _g->words.w1 = (_w1);                                                  \
     }
 
-typedef struct ActorSub4Head {
-    /* 0x00 */ void *unk0;
-} ActorSub4Head;
-
-typedef struct ActorSub4Node {
-    /* 0x00 */ u8 pad0[0x24];
-    /* 0x24 */ f32 unk24;
-} ActorSub4Node;
-
 
 void actorTriggerRampWithSfx(void) {
     Actor *actor;
@@ -129,7 +120,7 @@ void actorTriggerRampWithSfx(void) {
             actor = gCurrentActor;
         }
     }
-    if (0.0f == ((ActorSub4Node *)((ActorSub4Head *)actor->sub4)->unk0)->unk24) {
+    if (0.0f == actor->sub4->model->speed) {
         actor->flags &= ~4;
         actor = *p;
     }
@@ -404,28 +395,9 @@ s32 actorIsTargetInCylinder(s16 arg0, s16 arg1, s16 arg2, s16 arg3, f32 arg4) {
     return 0;
 }
 
-typedef struct ModelNodeView {
-    /* 0x00 */ u8 pad0[0x4];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ u8 pad8[0x4];
-    /* 0x0C */ s16 unkC;
-    /* 0x0E */ u8 padE[0x16];
-    /* 0x24 */ f32 unk24;
-} ModelNodeView;
-
-typedef struct ModelSubView {
-    /* 0x00 */ ModelNodeView *unk0;
-    /* 0x04 */ u8 pad4[0x30];
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ f32 unk3C;
-    /* 0x40 */ u8 pad40[0x8];
-    /* 0x48 */ f32 unk48;
-} ModelSubView;
-
 typedef struct ActorView {
     /* 0x000 */ u8 pad0[0x4];
-    /* 0x004 */ ModelSubView *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 pad8[0x58];
     /* 0x060 */ u32 unk60;
     /* 0x064 */ u8 pad64[0x18];
@@ -447,6 +419,12 @@ typedef struct ActorView {
     /* 0x16B */ u8 unk16B;
     /* 0x16C */ u8 unk16C;
 } ActorView;
+
+/* animGetNodeByIndex's result: a node of the actor's 0x158 animation list (8CA50 AnimNode), not an AnimSlot. */
+typedef struct ModelNodeView {
+    /* 0x00 */ u8 pad0[0xC];
+    /* 0x0C */ s16 unkC;
+} ModelNodeView;
 
 ModelNodeView *animGetNodeByIndex(void *, s32);
 extern u8 gGameMode;
@@ -484,40 +462,40 @@ void actorShockwaveUpdate(void) {
         }
         lightSetFlags(1);
         lightAdd(CUR_ACTOR->unk7C, CUR_ACTOR->unk80, CUR_ACTOR->unk84, 0.0f, 0.0f, 0.0f,
-                 CUR_ACTOR->unk4->unk34 * 300.0f, 0,
+                 CUR_ACTOR->sub4->scaleX * 300.0f, 0,
                  (u32)((f32)CUR_ACTOR->unk16A * sp60),
                  (u32)((f32)CUR_ACTOR->unk16B * sp60),
                  (u32)((f32)CUR_ACTOR->unk16C * sp60));
-        CUR_ACTOR->unk4->unk34 = (f32)((f64)CUR_ACTOR->unk4->unk34 * CUR_ACTOR->unk160);
-        CUR_ACTOR->unk4->unk3C = (f32)((f64)CUR_ACTOR->unk4->unk3C * CUR_ACTOR->unk160);
+        CUR_ACTOR->sub4->scaleX = (f32)((f64)CUR_ACTOR->sub4->scaleX * CUR_ACTOR->unk160);
+        CUR_ACTOR->sub4->scaleZ = (f32)((f64)CUR_ACTOR->sub4->scaleZ * CUR_ACTOR->unk160);
     }
     switch (CUR_ACTOR->unk154) {
     case 0:
         if (CUR_ACTOR->unk168 == 0) {
-            CUR_ACTOR->unk4->unk34 =
-                (f32)((f64)CUR_ACTOR->unk4->unk34 * CUR_ACTOR->unk160);
-            CUR_ACTOR->unk4->unk3C =
-                (f32)((f64)CUR_ACTOR->unk4->unk3C * CUR_ACTOR->unk160);
+            CUR_ACTOR->sub4->scaleX =
+                (f32)((f64)CUR_ACTOR->sub4->scaleX * CUR_ACTOR->unk160);
+            CUR_ACTOR->sub4->scaleZ =
+                (f32)((f64)CUR_ACTOR->sub4->scaleZ * CUR_ACTOR->unk160);
         }
-        if (CUR_ACTOR->unk4->unk0->unk24 == 0.0f ||
-            CUR_ACTOR->unk4->unk0->unk4 > 5.0f) {
+        if (CUR_ACTOR->sub4->model->speed == 0.0f ||
+            CUR_ACTOR->sub4->model->frame > 5.0f) {
             CUR_ACTOR->unk154 = 1;
             animSetFinished(gCurrentActor, 0, 0);
         }
         break;
     case 1:
-        if ((CUR_ACTOR->unk4->unk0->unk24 == 0.0f && animGetNodeByIndex(CUR_ACTOR, 0)->unkC >= 0xE) ||
-            CUR_ACTOR->unk4->unk0->unk4 > 9.0f) {
+        if ((CUR_ACTOR->sub4->model->speed == 0.0f && animGetNodeByIndex(CUR_ACTOR, 0)->unkC >= 0xE) ||
+            CUR_ACTOR->sub4->model->frame > 9.0f) {
             CUR_ACTOR->unk154 = 2;
             if (CUR_ACTOR->unk15F != 0 && actorSpawn(0x102, CUR_ACTOR->unkF0) != 0) {
-                if (CUR_ACTOR->unk4->unk0->unk4 > 9.0f) {
+                if (CUR_ACTOR->sub4->model->frame > 9.0f) {
                     controllerAnimSetStateIfChanged(gSpawnedActor, 0x4F9, 0.0f, 0.0f);
-                    scriptSetActorRampTarget(gSpawnedActor, CUR_ACTOR->unk4->unk48, 0.0f);
+                    scriptSetActorRampTarget(gSpawnedActor, CUR_ACTOR->sub4->unk48, 0.0f);
                 }
-                actorCopyPoseAndScale(gSpawnedActor, CUR_ACTOR, CUR_ACTOR->unk4->unk38);
+                actorCopyPoseAndScale(gSpawnedActor, CUR_ACTOR, CUR_ACTOR->sub4->scaleY);
                 SPAWNED_ACTOR->unkF0 = CUR_ACTOR->unkF0;
-                SPAWNED_ACTOR->unk4->unk34 = (f32)((f64)CUR_ACTOR->unk4->unk34 + 0.02);
-                SPAWNED_ACTOR->unk4->unk3C = (f32)((f64)CUR_ACTOR->unk4->unk3C + 0.02);
+                SPAWNED_ACTOR->sub4->scaleX = (f32)((f64)CUR_ACTOR->sub4->scaleX + 0.02);
+                SPAWNED_ACTOR->sub4->scaleZ = (f32)((f64)CUR_ACTOR->sub4->scaleZ + 0.02);
                 SPAWNED_ACTOR->unk15F = CUR_ACTOR->unk15F - 1;
                 SPAWNED_ACTOR->unk160 = CUR_ACTOR->unk160;
             }
@@ -555,10 +533,10 @@ void actorShockwaveUpdate(void) {
     if (CUR_ACTOR->unk168 == 0 || CUR_ACTOR->unk154 != 3) {
         if (actorIsTargetInCylinder((s16)CUR_ACTOR->unk7C, (s16)(CUR_ACTOR->unk80 - 20.0f),
                           (s16)CUR_ACTOR->unk84, sp67,
-                          CUR_ACTOR->unk4->unk34 * (f32)sp64) != 0 &&
+                          CUR_ACTOR->sub4->scaleX * (f32)sp64) != 0 &&
             actorIsTargetInCylinder((s16)CUR_ACTOR->unk7C, (s16)(CUR_ACTOR->unk80 - 20.0f),
                           (s16)CUR_ACTOR->unk84, sp67,
-                          CUR_ACTOR->unk4->unk34 * (f32)(sp64 - 0x14)) == 0) {
+                          CUR_ACTOR->sub4->scaleX * (f32)(sp64 - 0x14)) == 0) {
             playerStateQueueCallback(0x2E, CUR_ACTOR, 0);
         }
     }
@@ -748,13 +726,6 @@ typedef struct {
     f32 unk0;
     f32 unk4;
     f32 unk8;
-    f32 unkC;
-} NodeQuad;
-
-typedef struct {
-    f32 unk0;
-    f32 unk4;
-    f32 unk8;
 } Position3f;
 
 typedef struct {
@@ -770,7 +741,7 @@ typedef struct {
 
 typedef struct {
     /* 0x000 */ struct ActorModel *unk0;
-    /* 0x004 */ struct ActorSub4View *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ void *unk8;
     /* 0x00C */ u8 padC[0x50];
     /* 0x05C */ u16 unk5C;
@@ -822,15 +793,6 @@ typedef struct {
     /* 0x16D */ u8 pad16D[7];
     /* 0x174 */ SubStateView *unk174;
 } AttachedActor;
-
-typedef struct ActorSub4View {
-    /* 0x000 */ u8 pad0[0x24];
-    /* 0x024 */ NodeQuad *unk24;
-    /* 0x028 */ u8 pad28[0xC];
-    /* 0x034 */ f32 unk34;
-    /* 0x038 */ f32 unk38;
-    /* 0x03C */ f32 unk3C;
-} ActorSub4View;
 
 typedef struct ActorModel {
     /* 0x000 */ u8 pad0[0x20];
@@ -996,11 +958,11 @@ void actorShadowFollowUpdate(void) {
     ATTACHED_ACTOR->unk80 = ATTACHED_ACTOR->unk11C->unk80;
     ATTACHED_ACTOR->unk84 = ATTACHED_ACTOR->unk11C->unk84;
     if (ATTACHED_ACTOR->unk128 & 8) {
-        ATTACHED_ACTOR->unk4->unk34 = (ATTACHED_ACTOR->unk160 * 0.8 - ATTACHED_ACTOR->unk4->unk34) * 0.3 + ATTACHED_ACTOR->unk4->unk34;
+        ATTACHED_ACTOR->sub4->scaleX = (ATTACHED_ACTOR->unk160 * 0.8 - ATTACHED_ACTOR->sub4->scaleX) * 0.3 + ATTACHED_ACTOR->sub4->scaleX;
     } else {
-        ATTACHED_ACTOR->unk4->unk34 = (ATTACHED_ACTOR->unk160 * 1.2 - ATTACHED_ACTOR->unk4->unk34) * 0.3 + ATTACHED_ACTOR->unk4->unk34;
+        ATTACHED_ACTOR->sub4->scaleX = (ATTACHED_ACTOR->unk160 * 1.2 - ATTACHED_ACTOR->sub4->scaleX) * 0.3 + ATTACHED_ACTOR->sub4->scaleX;
     }
-    ATTACHED_ACTOR->unk4->unk3C = ATTACHED_ACTOR->unk4->unk34;
+    ATTACHED_ACTOR->sub4->scaleZ = ATTACHED_ACTOR->sub4->scaleX;
     temp = sub->unk200;
     v = temp > 0 ? temp : 0;
     if (v < 0xFF) {
@@ -1061,7 +1023,7 @@ void actorMirrorParentModelY(void) {
         ATTACHED_ACTOR->unkA8 = ((ParentActor *) sub->unk0)->unkA8;
         ATTACHED_ACTOR->unk84 = ((ParentActor *) sub->unk0)->unk84;
         ATTACHED_ACTOR->unk60 |= 0x200;
-        ATTACHED_ACTOR->unk8 = ((void **) ((u8 *) ATTACHED_ACTOR->unk4 + 0x14))[gGfxBufferIndex];
+        ATTACHED_ACTOR->unk8 = ATTACHED_ACTOR->sub4->boneMtx[gGfxBufferIndex];
         memcpy(ATTACHED_ACTOR->unk8, ATTACHED_ACTOR->unk11C->unk8, ATTACHED_ACTOR->unk0->unk20 << 6);
         guMtxIdentF(mtx1);
         mtx1[1][1] = -1.0f;
@@ -1119,7 +1081,7 @@ void actorMirrorParentModelAxis(void) {
     ATTACHED_ACTOR->unkA8 = ATTACHED_ACTOR->unk11C->unkA8;
     ATTACHED_ACTOR->unk84 = ATTACHED_ACTOR->unk11C->unk84;
     ATTACHED_ACTOR->unk60 |= 0x200;
-    ATTACHED_ACTOR->unk8 = ((void **) ((u8 *) ATTACHED_ACTOR->unk4 + 0x14))[gGfxBufferIndex];
+    ATTACHED_ACTOR->unk8 = ATTACHED_ACTOR->sub4->boneMtx[gGfxBufferIndex];
     memcpy(ATTACHED_ACTOR->unk8, ATTACHED_ACTOR->unk11C->unk8, ATTACHED_ACTOR->unk0->unk20 << 6);
     guMtxIdentF(mtx1);
     if (sub->unkE & 1) {
@@ -1183,12 +1145,12 @@ typedef struct MatrixArray {
 } MatrixArray;
 
 void actorSetNodeValuesForFrame(MatrixArray *arg0) {
-    NodeQuad *dst;
+    BoneVector *dst;
     s16 i;
 
-    dst = ATTACHED_ACTOR->unk4->unk24;
+    dst = ATTACHED_ACTOR->sub4->boneOffsets;
     for (i = 0; i < 7; i++) {
-        dst->unkC = (f64) arg0->unk0[i * 0x34 + ATTACHED_ACTOR->unk168];
+        dst->z = (f64) arg0->unk0[i * 0x34 + ATTACHED_ACTOR->unk168];
         dst++;
     }
 }
@@ -1212,11 +1174,11 @@ void func_806A112C(void) {
         ATTACHED_ACTOR->unk60 |= 0x400;
         func_80724D28(0, 7);
         for (i = 0; i < 7; i++) {
-            ((u8 *) ATTACHED_ACTOR->unk4->unk24)[i * 0x10] = i;
-            ((u8 *) ATTACHED_ACTOR->unk4->unk24)[i * 0x10 + 1] = 0xFF;
+            ((u8 *) ATTACHED_ACTOR->sub4->boneOffsets)[i * 0x10] = i;
+            ((u8 *) ATTACHED_ACTOR->sub4->boneOffsets)[i * 0x10 + 1] = 0xFF;
         }
         if (ATTACHED_ACTOR->unk15F == 0) {
-            val = (f32) ((f64) ATTACHED_ACTOR->unk4->unk38 / 0.15);
+            val = (f32) ((f64) ATTACHED_ACTOR->sub4->scaleY / 0.15);
             sub->unk0 = assetLoad(0x13, 6, 1, 1);
             n = 0;
             animSetChannelFrames(gCurrentActor, D_807503D4[n], D_807503E0[n++]);
@@ -1233,7 +1195,7 @@ void func_806A112C(void) {
                     (f32) ((u8) (i % 3) * 17);
                 ATTACHED_ACTOR_SPAWNED->unk84 = ATTACHED_ACTOR->unk84 -
                     mathCosF(ATTACHED_ACTOR_SPAWNED->unkE6) * d;
-                actorSetUniformScale(gSpawnedActor, ATTACHED_ACTOR->unk4->unk38);
+                actorSetUniformScale(gSpawnedActor, ATTACHED_ACTOR->sub4->scaleY);
                 animSetChannelFrames(gSpawnedActor, D_807503D4[n], D_807503E0[n++]);
             }
             ATTACHED_ACTOR->unk7C -= d * mathSinF(ATTACHED_ACTOR->unkE6);

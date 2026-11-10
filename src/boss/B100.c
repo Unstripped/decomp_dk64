@@ -12,22 +12,6 @@
 s16 mathAngleBetweenPoints2D(f32, f32, f32, f32);
 
 typedef struct {
-    u8 unk0;
-    u8 unk1;
-    u8 pad2[2];
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-} BossE_B100_Sub20;
-
-typedef struct {
-    u8 pad0[0x20];
-    BossE_B100_Sub20 *unk20;
-    u8 pad24[0x38 - 0x24];
-    f32 unk38;
-} BossE_B100_Sub4;
-
-typedef struct {
     u8 pad0[0x14];
     u8 unk14;
 } BossE_B100_Sub178;
@@ -39,7 +23,7 @@ typedef struct {
 
 typedef struct BossE_B100_Actor {
     u8 pad0[0x4];
-    BossE_B100_Sub4 *unk4;
+    ActorSub4 *unk4;
     u8 pad8[0x60 - 0x8];
     s32 unk60;
     u8 pad64[0x11C - 0x64];
@@ -355,17 +339,17 @@ void bossDogadonStep(void) {
 void func_8002FB7C(scaleFactor)
 u8 scaleFactor;
 {
-    BossE_B100_Sub20 *sub;
+    BoneVector *sub;
     f32 sin_val;
 
-    sub = gCurrentActor->unk4->unk20;
-    sub->unk0 = 2;
-    sub->unk1 = 4;
-    sub->unk4 = 1.0f;
+    sub = gCurrentActor->unk4->boneScales;
+    sub->bone = 2;
+    sub->lastBone = 4;
+    sub->x = 1.0f;
     sin_val = mathSinF((s16)(gFrameCounter << 7));
-    sub->unk4 += (f64)scaleFactor * (0.04 + 0.04 * (f64)sin_val);
-    sub->unk8 = sub->unk4;
-    sub->unkC = 1.0f;
+    sub->x += (f64)scaleFactor * (0.04 + 0.04 * (f64)sin_val);
+    sub->y = sub->x;
+    sub->z = 1.0f;
 }
 void func_8002FC48(actorObj, frame)
 s32 actorObj;
@@ -440,7 +424,7 @@ u8 slotIndex;
 s32 modelId;
 {
     actorSpawn(0xE5, modelId);
-    actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->unk4->unk38);
+    actorCopyPoseAndScale(gSpawnedActor, gCurrentActor, gCurrentActor->unk4->scaleY);
     gSpawnedActor->unk60 |= 0x1400;
     gSpawnedActor->unk11C = gCurrentActor;
     gSpawnedActor->unk144 = gCurrentActor->unk144;

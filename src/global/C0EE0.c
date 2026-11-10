@@ -21,17 +21,6 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 
-typedef struct BC1E0_Obj {
-    /* 0x00 */ u8 pad0[0x10];
-    /* 0x10 */ s16 unk10;
-} BC1E0_Obj;
-
-typedef struct BC1E0_Model {
-    /* 0x00 */ BC1E0_Obj *unk0;
-    /* 0x04 */ u8 pad4[0x34];
-    /* 0x38 */ f32 unk38;
-} BC1E0_Model;
-
 typedef struct BC1E0_State {
     /* 0x00 */ f32 unk0;
     /* 0x04 */ f32 unk4;
@@ -55,7 +44,7 @@ typedef struct BC1E0_State {
 
 typedef struct BC1E0_Actor {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ BC1E0_Model *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 pad8[0x58];
     /* 0x060 */ u32 unk60;
     /* 0x064 */ u8 pad64[0x18];
@@ -92,7 +81,7 @@ void enemyGridStateStep(void) {
     s16 i;
     s16 adx;
     BC1E0_State *st;
-    BC1E0_Obj *obj;
+    AnimSlot *obj;
     s32 j;
     s32 dx;
     s32 dy;
@@ -104,7 +93,7 @@ void enemyGridStateStep(void) {
     f64 fx;
 
     st = BC1E0_LGB->unk178;
-    obj = BC1E0_LGB->unk4->unk0;
+    obj = BC1E0_LGB->sub4->model;
     behaviourFrameBegin();
     if (!(BC1E0_LGB->unk60 & 0x10)) {
         st->unk4 = 0.0f;
@@ -114,7 +103,7 @@ void enemyGridStateStep(void) {
         st->unk24 = BC1E0_LGB->unk7C;
         st->unk28 = BC1E0_LGB->unk80;
         st->unk2C = BC1E0_LGB->unk84;
-        st->unk30 = BC1E0_LGB->unk4->unk38;
+        st->unk30 = BC1E0_LGB->sub4->scaleY;
         currentActorClearFlag();
     }
     switch (st->unk38) {
@@ -386,13 +375,13 @@ void enemyGridStateStep(void) {
             }
         }
         if (D_80750650 == 0 && obj != NULL && st->unk0 != 0.0f) {
-            if (obj->unk10 != 0x5C3) {
+            if (obj->animId != 0x5C3) {
                 controllerAnimSetStateIfChanged(gCurrentActor, 0x5C3, 0.0f, 0.0f);
             }
             controllerApplyMotionWindow(gCurrentActor, obj, st->unk0 * 40.0f);
         }
     }
-    BC1E0_LGB->unk4->unk38 = BC1E0_LGB->unk4->unk38 + (targetScaleY - BC1E0_LGB->unk4->unk38) * 0.25f;
+    BC1E0_LGB->sub4->scaleY = BC1E0_LGB->sub4->scaleY + (targetScaleY - BC1E0_LGB->sub4->scaleY) * 0.25f;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 

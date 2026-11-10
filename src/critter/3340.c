@@ -19,16 +19,9 @@
 #include "proto/global/CEAE0.h"
 #include "proto/global/FCCD0.h"
 
-typedef struct J0b2Sub {
-    char pad0[0x34];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-} J0b2Sub;
-
 typedef struct Actor_3340 {
     char pad0[4];
-    J0b2Sub *unk4;
+    ActorSub4 *unk4;
     char pad8[0x60 - 0x8];
     s32 unk60;
     s32 unk64;
@@ -230,9 +223,9 @@ void critterBananaFairyUpdate(void) {
                     effectCreateAtPosition(D_80720A7C, 0.5f, (f32)(((f64)randomFloat() * 35.0 + (f64)gCurrentActor->unk7C) - 15.0), (f32)((f64)randomFloat() * 35.0 + (f64)gCurrentActor->unk80), (f32)(((f64)randomFloat() * 35.0 + (f64)gCurrentActor->unk84) - 15.0));
                 }
                 if (*timerPtr >= 0x51) {
-                    gCurrentActor->unk4->unk34 = (f32)((f64)gCurrentActor->unk4->unk34 * 0.9);
-                    gCurrentActor->unk4->unk38 = gCurrentActor->unk4->unk34;
-                    gCurrentActor->unk4->unk3C = gCurrentActor->unk4->unk34;
+                    gCurrentActor->unk4->scaleX = (f32)((f64)gCurrentActor->unk4->scaleX * 0.9);
+                    gCurrentActor->unk4->scaleY = gCurrentActor->unk4->scaleX;
+                    gCurrentActor->unk4->scaleZ = gCurrentActor->unk4->scaleX;
                 }
                 *timerPtr += 1;
             } else {
@@ -242,9 +235,9 @@ void critterBananaFairyUpdate(void) {
             }
             break;
         case 3:
-            gCurrentActor->unk4->unk34 = 0.0f;
-            gCurrentActor->unk4->unk38 = 0.0f;
-            gCurrentActor->unk4->unk3C = 0.0f;
+            gCurrentActor->unk4->scaleX = 0.0f;
+            gCurrentActor->unk4->scaleY = 0.0f;
+            gCurrentActor->unk4->scaleZ = 0.0f;
             sfxStopSlotSound(gCurrentActor, 0);
             gCurrentActor->unk155 = 4;
             effectSetDepth(0);
@@ -252,9 +245,9 @@ void critterBananaFairyUpdate(void) {
             effectCreateAtPosition(D_8071FE08, 0.5f, gCurrentActor->unk7C, gCurrentActor->unk80 + 7.0f, gCurrentActor->unk84);
             break;
         case 4:
-            gCurrentActor->unk4->unk34 = 0.0f;
-            gCurrentActor->unk4->unk38 = 0.0f;
-            gCurrentActor->unk4->unk3C = 0.0f;
+            gCurrentActor->unk4->scaleX = 0.0f;
+            gCurrentActor->unk4->scaleY = 0.0f;
+            gCurrentActor->unk4->scaleZ = 0.0f;
             break;
         }
         D_8002A1B0 = dist;

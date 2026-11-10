@@ -165,15 +165,6 @@ void func_806B2790(void) {
 void actorEmptyStub(void) {
 }
 
-typedef struct {
-    /* 0x00 */ u8 pad0[0x24];
-    /* 0x24 */ f32 unk24;
-} B7490Node;
-
-typedef struct {
-    /* 0x00 */ B7490Node *unk0;
-} B7490Sub4Ptr;
-
 void behaviourSpawnExplosionAndSound(s32, s32, s32, void *);
 
 void func_806B2D64(void) {
@@ -195,7 +186,7 @@ void func_806B2D64(void) {
     switch (st) {
         case 0x31:
             effectSpawnSparks(0x1F, 2);
-            if ((gCurrentActor->unk155 != 0) || (((B7490Sub4Ptr *)gCurrentActor->sub4)->unk0->unk24 == 0.0f)) {
+            if ((gCurrentActor->unk155 != 0) || (gCurrentActor->sub4->model->speed == 0.0f)) {
                 actorSetDefaultState(0x2E2);
             }
             break;

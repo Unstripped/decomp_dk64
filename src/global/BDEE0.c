@@ -27,32 +27,10 @@ extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
 extern u8 gBossFightPhase;
 
-typedef struct BDEE0Node {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ u8 pad8[8];
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ u8 pad12[0x12];
-    /* 0x24 */ f32 unk24;
-} BDEE0Node;
-
-typedef struct BDEE0Sub1C {
-    /* 0x00 */ u8 pad0[6];
-    /* 0x06 */ u16 unk6;
-} BDEE0Sub1C;
-
-typedef struct BDEE0Sub4 {
-    /* 0x00 */ BDEE0Node *unk0;
-    /* 0x04 */ u8 pad4[0x18];
-    /* 0x1C */ BDEE0Sub1C *unk1C;
-    /* 0x20 */ u8 pad20[0x44];
-    /* 0x64 */ u16 unk64;
-} BDEE0Sub4;
-
 // Actor view whose unk178 is a s16 array (behaviourArmadilloPatrol, behaviourArmadilloInitRollState, behaviourArmadilloAimAndShoot).
 typedef struct BDEE0ActorAlt {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ BDEE0Sub4 *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 pad8[0x68];
     /* 0x070 */ s16 unk70;
     /* 0x072 */ u8 pad72[0x4E];
@@ -103,7 +81,7 @@ void behaviourArmadilloPatrol(void) {
                 gCurrentActor->unk155++;
                 gBehaviourWorkState->timer = 0xD;
             }
-            BDEE0AA->unk4->unk1C->unk6 += 0x7D0;
+            BDEE0AA->sub4->boneRotations->rotZ += 0x7D0;
             break;
         case 1:
             if (gBehaviourWorkState->timer != 0) {
@@ -122,7 +100,7 @@ void behaviourArmadilloPatrol(void) {
         }
         break;
     case 0x31:
-        if ((gCurrentActor->unk155 != 0) || (BDEE0AA->unk4->unk0->unk24 == 0.0f)) {
+        if ((gCurrentActor->unk155 != 0) || (BDEE0AA->sub4->model->speed == 0.0f)) {
             actorSetDefaultState(0x322);
         }
         actorMoveWithinZone(0, 0.0f, 0.0f, 0x4300, 0.0f);
@@ -148,7 +126,7 @@ void behaviourArmadilloPatrol(void) {
         }
         break;
     case 0x27:
-        BDEE0AA->unk4->unk1C->unk6 -= gCurrentActor->speedXZ * 50.0f;
+        BDEE0AA->sub4->boneRotations->rotZ -= gCurrentActor->speedXZ * 50.0f;
         actorMoveWithinZone(0x23, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0x200, 0.0f);
         switch (gCurrentActor->unk155) {
         case 0:
@@ -201,7 +179,7 @@ void behaviourArmadilloPatrol(void) {
                 }
             }
         }
-        BDEE0AA->unk4->unk1C->unk6 -= gCurrentActor->speedXZ * 50.0f;
+        BDEE0AA->sub4->boneRotations->rotZ -= gCurrentActor->speedXZ * 50.0f;
         actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, animFlags, 0.0f);
         break;
     case 2:
@@ -211,7 +189,7 @@ void behaviourArmadilloPatrol(void) {
         actorMoveWithinZone(gCurrentActor->state, (f32)gBehaviourWorkState->targetX, (f32)gBehaviourWorkState->targetZ, 0, 0.0f);
         break;
     case 0x37:
-        BDEE0AA->unk4->unk1C->unk6 -= gBehaviourWorkState->timer;
+        BDEE0AA->sub4->boneRotations->rotZ -= gBehaviourWorkState->timer;
         if (gBehaviourWorkState->timer != 0) {
             gBehaviourWorkState->timer -= 0x32;
         }
@@ -381,7 +359,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
     if (gCurrentActor->state == 0x15) {
         node = gBehaviourExtraState->unkA;
         if (node == 5 || node == 7) {
-            if ((((BDEE0Sub4 *)tgt->sub4)->unk64 == 0x21E || ((BDEE0Sub4 *)tgt->sub4)->unk64 == 0x21F) && ((BDEE0Sub4 *)tgt->sub4)->unk0->unk4 >= 4.0f && ((BDEE0Sub4 *)tgt->sub4)->unk0->unk4 <= 12.0f) {
+            if ((tgt->sub4->animId == 0x21E || tgt->sub4->animId == 0x21F) && tgt->sub4->model->frame >= 4.0f && tgt->sub4->model->frame <= 12.0f) {
                 gCurrentActor->interactionType = 4;
             } else {
                 gCurrentActor->interactionType = 2;
@@ -407,7 +385,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
                     tgt->unk155 = 2;
                 }
             } else if (gBossFightPhase == 4) {
-                gBehaviourWorkState->unk16 = ((BDEE0Sub4 *)gBehaviourTargetActor->sub4)->unk0->unk10;
+                gBehaviourWorkState->unk16 = gBehaviourTargetActor->sub4->model->animId;
                 gCurrentActor->flags |= 0x20000000;
                 if (BDEE0AA->unkF0 == 0) {
                     BDEE0AA->unkF0 = 0x28;
@@ -707,7 +685,7 @@ void behaviourFairyInitPlayerScale(void) {
                     goto join;
                 join:
                 case 1:
-                    if (((BDEE0Sub4 *)gCurrentActor->sub4)->unk64 != 0x21C) {
+                    if (gCurrentActor->sub4->animId != 0x21C) {
                         actorScriptStart(gCurrentActor, 0x21C);
                     }
                     actorMoveWithinZone(gCurrentActor->state, gBehaviourTargetActor->x, gBehaviourTargetActor->z, 0, 0.0f);

@@ -580,14 +580,9 @@ void func_806C4F5C(void) {
 void func_806C55D8(void) {
 }
 
-typedef struct LgC55E0Sub4 {
-    /* 0x00 */ u8 pad0[0x64];
-    /* 0x64 */ u16 unk64;
-} LgC55E0Sub4;
-
 typedef struct LgC55E0A {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ LgC55E0Sub4 *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 pad8[0x58];
     /* 0x060 */ u32 unk60;
     /* 0x064 */ u8 pad64[0x18];
@@ -708,7 +703,7 @@ void func_806C55E0(void) {
                     if (!(LA->unk60 & 0x2000000)) {
                         camResumePath();
                         func_806C4E8C();
-                        if (LA->unk4->unk64 == 0x35A && LA4C->unk154 == 0x63) {
+                        if (LA->sub4->animId == 0x35A && LA4C->unk154 == 0x63) {
                             hudSpawnTextScreen(4);
                             LA->unk155 = 3;
                         } else {

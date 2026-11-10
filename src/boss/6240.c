@@ -34,11 +34,6 @@ typedef struct BossC_6240_178 {
     struct GfSndState *unk1C;
 } BossC_6240_178;
 
-typedef struct BossC_6240_Model_0 {
-    char pad[4];
-    f32 unk4;
-} BossC_6240_Model_0;
-
 typedef struct BossC_6240_Actor40 {
     Actor base;
     BossC_6240_178 *scriptState;
@@ -48,11 +43,6 @@ typedef struct BossC_6240_Actor40 {
 
 
 
-
-typedef struct BossC_6240_Model {
-    char pad[0x10];
-    s16 unk10;
-} BossC_6240_Model;
 
 
 extern BossC_6240_Actor40 *gCurrentActor;
@@ -295,7 +285,7 @@ void bossPufftossStep(void) {
         if (gCurrentActor->base.health == 1) {
             gBehaviourWorkState->flags |= 0x8000;
         }
-        gBehaviourWorkState->unk16 = (s16) ((BossC_6240_Model *)gBehaviourTargetActor->sub4->model)->unk10;
+        gBehaviourWorkState->unk16 = (s16) gBehaviourTargetActor->sub4->model->animId;
         gCurrentActor->base.flags |= 0x20000000;
         effectCreateAtPosition(&D_8071FB34, 2.0f, ((randomNonNegative() >> 0xF) % 30 + nodeX) - 15.0f, ((randomNonNegative() >> 0xF) % 30 + nodeY) - 15.0f, ((randomNonNegative() >> 0xF) % 30 + nodeZ) - 15.0f);
         sfxPlayOnFreeSlot(0x1CA, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -584,7 +574,7 @@ void bossPufftossStep(void) {
             gCurrentActor->base.unk155 = 2;
             break;
         case 2:
-            bossPufftossSpawnGlow(0, (f32) (((f64) ((BossC_6240_Model_0 *)gCurrentActor->base.sub4->model)->unk4 * 0.06) + 2.0));
+            bossPufftossSpawnGlow(0, (f32) (((f64) gCurrentActor->base.sub4->model->frame * 0.06) + 2.0));
             break;
         case 3:
             projectileGetTargetCoords(gCurrentActor, 1);

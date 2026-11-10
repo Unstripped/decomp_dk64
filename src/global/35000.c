@@ -448,11 +448,6 @@ GfxWords *renderEntryListBuildDisplayList(GfxWords *glist, RenderEntry *list, f3
     return glist;
 }
 
-typedef struct ModelInfo {
-    /* 0x00 */ u8 pad0[0x38];
-    /* 0x38 */ f32 unk38;
-} ModelInfo;
-
 typedef struct ActorCtl {
     /* 0x000 */ u8 pad0[0x1A4];
     /* 0x1A4 */ u8 unk1A4;
@@ -460,7 +455,7 @@ typedef struct ActorCtl {
 
 typedef struct RenderActor {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ ModelInfo *unk4;
+    /* 0x004 */ ActorSub4 *unk4;
     /* 0x008 */ u8 pad8[0x50];
     /* 0x058 */ s32 unk58;
     /* 0x05C */ u16 unk5C;
@@ -607,7 +602,7 @@ void *renderActorEntryBuildDisplayList(s32 context, void *actor, GfxWords *glist
             dxb = RENDER_ACT->unk7C - CUR_PLAYER_VIEW->unk21C;
             flag = (s32)(dy * dy + dxb * dxb);
             if (flag && flag) {} // FAKE: keep flag a candidate
-            dz = RENDER_ACT->unk4->unk38;
+            dz = RENDER_ACT->unk4->scaleY;
             if (dz < 0.01) {
                 dz = 0.01f;
             }

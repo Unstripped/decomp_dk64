@@ -63,13 +63,6 @@ extern BossD_Actor *gPrimaryPlayerActor;
 
 f32 mathSinF(s16);
 
-typedef struct BossModelInfo {
-    u8 pad0[0x34];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-} BossModelInfo;
-
 typedef struct BossSpawnState {
     void *unk0;
     s8 unk4;
@@ -93,7 +86,7 @@ typedef struct BossSpawnerState {
 
 typedef struct BossSpawnerActor {
     u8 pad0[4];
-    BossModelInfo *unk4;
+    ActorSub4 *unk4;
     u8 pad8[0x60 - 8];
     s32 unk60;
     u8 pad64[0x7C - 0x64];
@@ -120,7 +113,7 @@ typedef struct BossSpawnerActor {
 
 typedef struct BossSpawnedActor {
     u8 pad0[4];
-    BossModelInfo *unk4;
+    ActorSub4 *unk4;
     u8 pad8[0x60 - 8];
     s32 unk60;
     u8 pad64[0x80 - 0x64];
@@ -182,9 +175,9 @@ void bossSpawnerUpdate(void) {
                 st->unk4 = i >> 1;
                 st->unk5 = i & 1;
                 gSpawnedActor->unk80 = SPAWNER_ACTOR->unk80 + 50.0f;
-                gSpawnedActor->unk4->unk34 = 0.1;
-                gSpawnedActor->unk4->unk38 = 0.1;
-                gSpawnedActor->unk4->unk3C = 0.1;
+                gSpawnedActor->unk4->scaleX = 0.1;
+                gSpawnedActor->unk4->scaleY = 0.1;
+                gSpawnedActor->unk4->scaleZ = 0.1;
                 gSpawnedActor->unk60 |= 0x400;
             }
         }
@@ -509,17 +502,6 @@ void bossSpawnerUpdate(void) {
 }
 
 
-typedef struct BossAnimState {
-    char pad0[4];
-    f32 unk4;
-    char pad8[8];
-    s16 unk10;
-} BossAnimState;
-
-typedef struct BossModelRef {
-    BossAnimState *unk0;
-} BossModelRef;
-
 typedef struct BossParentState {
     char pad0[4];
     f32 unk4;
@@ -550,7 +532,7 @@ typedef struct BossFollowerLink {
 
 typedef struct BossFollowerActor {
     char pad0[4];
-    BossModelRef *unk4;
+    ActorSub4 *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x18];
@@ -579,7 +561,7 @@ typedef struct BossFollowerActor {
 void bossFollowerActorUpdate(void) {
     BossFollowerLink *sub174 = ACTOR->unk174;
     BossParentState *parentState = sub174->unk0->unk174;
-    BossAnimState *sub4_0 = ACTOR->unk4->unk0;
+    AnimSlot *sub4_0 = ACTOR->unk4->model;
     static s16 D_80035B74 = 0x78; // function-local static (only user; shadows the file-scope definition, which the .data carve moves here) keeps uopt from pointerizing D_80035B74
 
     if (sub174->unk5 == 0) {
@@ -595,7 +577,7 @@ void bossFollowerActorUpdate(void) {
         ACTOR->unkE8 = (s16)(parentState->unk4 * 1024.0) - 0x400;
         ACTOR->unkE4 = D_80035B2C;
         if (sub4_0 != NULL) {
-            if (D_80035B3C != sub4_0->unk4) {
+            if (D_80035B3C != sub4_0->frame) {
                 controllerApplyMotionWindow(ACTOR, sub4_0, D_80035B3C);
             }
         }
@@ -603,26 +585,26 @@ void bossFollowerActorUpdate(void) {
         ACTOR->unkE8 = 0;
         if (sub4_0 != NULL) {
             s32 v0 = sub174->unk4 + 0x66B;
-            if (v0 != sub4_0->unk10) {
+            if (v0 != sub4_0->animId) {
                 controllerAnimSetStateIfChanged(ACTOR, v0, 0.0f, 0.0f);
                 sfxPlayOnFreeSlot(0x38D, 0x7D00, 0x427C0000, 0x3F800000, 0, 0);
             } else {
-                controllerApplyMotionWindow(ACTOR, sub4_0, sub4_0->unk4 + 0.75f);
+                controllerApplyMotionWindow(ACTOR, sub4_0, sub4_0->frame + 0.75f);
             }
             if (sub174->unk4 == 1) {
-                if (sub4_0->unk4 > 24.0f) {
-                    sub4_0->unk4 = 24.0f;
+                if (sub4_0->frame > 24.0f) {
+                    sub4_0->frame = 24.0f;
                 }
-                if (sub4_0->unk4 > 15.0f) {
+                if (sub4_0->frame > 15.0f) {
                     ACTOR->unk80 -= 10.0f;
                 }
             } else {
-                if (sub4_0->unk4 > 37.0f) {
-                    sub4_0->unk4 = 37.0f;
+                if (sub4_0->frame > 37.0f) {
+                    sub4_0->frame = 37.0f;
                 }
-                if (sub4_0->unk4 > 26.0f) {
+                if (sub4_0->frame > 26.0f) {
                     ACTOR->unk80 -= 10.0f;
-                    if (sub4_0->unk10 == 1) {} // FAKE: steers uopt colouring (const 35 -> a1)
+                    if (sub4_0->animId == 1) {} // FAKE: steers uopt colouring (const 35 -> a1)
                 }
             }
             if ((f64)ACTOR->unk80 < 0.0) {

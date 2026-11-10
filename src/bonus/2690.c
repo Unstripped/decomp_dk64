@@ -32,23 +32,6 @@
 #include "proto/global/EFDC0.h"
 #include "proto/global/F56F0.h"
 
-typedef struct {
-    f32 pad0;
-    f32 unk4;
-} Struct_4_Unk0;
-
-typedef struct {
-    Struct_4_Unk0 *unk0;
-    char pad4[0x30];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-    char pad40[0x64 - 0x40];
-    u16 unk64;
-    char pad66[2];
-    s32 unk68;
-} Struct_4;
-
 typedef struct Struct_7548 {
     s16 unk0;
     char pad2[2];
@@ -175,7 +158,7 @@ typedef struct {
 
 struct Actor_B920 {
     char pad[4];
-    Struct_4 *unk4;
+    ActorSub4 *unk4;
     char pad8[0x74];
     f32 unk7C;
     f32 unk80;
@@ -876,19 +859,6 @@ void bonusPopupSpawnActors(BonusB_Sub178 *popupState) {
 }
 
 typedef struct {
-    s8 unk0;
-    u8 unk1;
-    u16 unk2;
-    s16 unk4;
-    s16 unk6;
-} BonusVtxEntry;
-
-typedef struct {
-    char pad0[0x1C];
-    BonusVtxEntry *unk1C;
-} BonusVtxModel;
-
-typedef struct {
     char pad0[0x20];
     f32 unk20;
 } BonusVtxInfo;
@@ -902,7 +872,7 @@ typedef struct {
 typedef struct BonusVtxActor BonusVtxActor;
 struct BonusVtxActor {
     char pad0[4];
-    BonusVtxModel *unk4;
+    ActorSub4 *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x82];
@@ -938,10 +908,10 @@ void bonusActorUpdateVertexPositions(void) {
     s16 *timerPtr = link->unk0->unk174;
     BonusVtxInfo *vtxInfo = link->unk0->unk178;
     BonusVtxSub *sub;
-    BonusVtxEntry *chk;
+    BoneRotation *chk;
     s32 vb[2];
     f32 invScale;
-    BonusVtxEntry *p;
+    BoneRotation *p;
     f32 fx;
     f32 fy;
     f32 zOffset;
@@ -951,8 +921,8 @@ void bonusActorUpdateVertexPositions(void) {
         link->unkC = 275.0f;
         link->unk8 = 275.0f;
         link->unk10 = link->unk11;
-        BONUS_VTX_ACTOR->unk4->unk1C = heapAlloc(0x38);
-        heapClearBlock(BONUS_VTX_ACTOR->unk4->unk1C);
+        BONUS_VTX_ACTOR->unk4->boneRotations = heapAlloc(0x38);
+        heapClearBlock(BONUS_VTX_ACTOR->unk4->boneRotations);
     }
     sub = link->unk4->unk174;
     if (gBossFightPhase == 4 && sub->unk4 == 0 && link->unk10 == -1) {
@@ -986,7 +956,7 @@ void bonusActorUpdateVertexPositions(void) {
             actorScriptStart(gCurrentActor, 0x1F6);
         }
     }
-    chk = BONUS_VTX_ACTOR->unk4->unk1C;
+    chk = BONUS_VTX_ACTOR->unk4->boneRotations;
     if (chk != 0) {
         vb[1] = 0;
         vb[0] = (s32)chk;
@@ -1001,13 +971,13 @@ void bonusActorUpdateVertexPositions(void) {
             fy = 65535.0f + fy;
         }
         i = 4;
-        p = (BonusVtxEntry *)(vb[1] * 8 + vb[0]);
+        p = (BoneRotation *)(vb[1] * 8 + vb[0]);
         for (; i < 7; i++) {
-            p->unk1 = i;
-            p->unk0 = (s32)zOffset;
-            p->unk2 = (u32)fx;
-            p->unk4 = 0;
-            p->unk6 = (u32)fy;
+            p->bone = i;
+            p->weight = (s32)zOffset;
+            p->rotX = (u32)fx;
+            p->rotY = 0;
+            p->rotZ = (u32)fy;
             if (fx > 32767.0f) {
                 fx = fx + (65535.0f - fx) * 0.5;
             } else {
@@ -1029,23 +999,23 @@ void bonusActorUpdateVertexPositions(void) {
             link->unk18 = link->unk18 + (0.0 - link->unk18) * 0.1;
             break;
         }
-        p->unk0 = (s32)(link->unk18 * -128.0f);
-        p->unk1 = 0xE;
-        p->unk2 = 0x61A8;
-        p->unk4 = 0;
-        p->unk6 = 0;
+        p->weight = (s32)(link->unk18 * -128.0f);
+        p->bone = 0xE;
+        p->rotX = 0x61A8;
+        p->rotY = 0;
+        p->rotZ = 0;
         p++;
         i = 0xC;
         do {
-            p->unk0 = (s32)(link->unk18 * -128.0f);
-            p->unk1 = i;
+            p->weight = (s32)(link->unk18 * -128.0f);
+            p->bone = i;
             i++;
             p += 2;
-            p[-2].unk2 = 0xD8F0;
-            p[-2].unk4 = 0;
-            p[-2].unk6 = 0;
+            p[-2].rotX = 0xD8F0;
+            p[-2].rotY = 0;
+            p[-2].rotZ = 0;
         } while (i < 0xD);
-        p->unk0 = 0;
+        p->weight = 0;
     }
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
@@ -1503,7 +1473,7 @@ void bonusLightFlashTargetUpdate(void) {
         if (flags & 0x80) {
             base->unk8[subExt->unk4] = flags & 0x7F;
             actorScriptStart(gCurrentActor, D_8002D8D4[subExt->unk4]);
-        } else if (lightR < 0.05f && ((Struct_4 *)gCurrentActor->sub4)->unk68 != 0) {
+        } else if (lightR < 0.05f && gCurrentActor->sub4->scriptStart != NULL) {
             actorScriptStart(gCurrentActor, 0);
         }
         if (isHit != 0) {
@@ -1724,20 +1694,20 @@ void bonusPerilPathPanicKlaptrapUpdate(void) {
     f32 dx;
     f32 dz;
     s32 animScript;
-    Struct_4_Unk0 *animSub;
-    Struct_4 *modelData;
+    AnimSlot *animSub;
+    ActorSub4 *modelData;
     BonusC_AAA4_T *targetExt;
     s32 i;
 
     actorExt = (Struct_AAA4_174 *)gCurrentActor->customState;
-    modelData = (Struct_4 *)gCurrentActor->sub4;
-    animSub = modelData->unk0;
+    modelData = gCurrentActor->sub4;
+    animSub = modelData->model;
     if (!(gCurrentActor->flags & 0x10)) {
         actorScriptStart(gCurrentActor, 0x239);
         gCurrentActor->unk144 = 0x24;
-        modelData = (Struct_4 *)gCurrentActor->sub4;
+        modelData = gCurrentActor->sub4;
     }
-    animScript = modelData->unk64;
+    animScript = modelData->animId;
     if (animScript == 0x239) {
         for (i = 0; i < gActiveActorCount; i++) {
             targetActor = gActiveActors[i].actor;
@@ -1752,7 +1722,7 @@ void bonusPerilPathPanicKlaptrapUpdate(void) {
             }
         }
     }
-    if ((animScript == 0x239 || animScript == 0x23B || (animScript == 0x238 && animSub != NULL && animSub->unk4 > 48.0f)) && D_807FBB85 == 1) {
+    if ((animScript == 0x239 || animScript == 0x23B || (animScript == 0x238 && animSub != NULL && animSub->frame > 48.0f)) && D_807FBB85 == 1) {
         actorScriptStart(gCurrentActor, 0x23C);
         actorExt->unk6 = ((randomLcgNext() & 7) + 6) * D_8002D900;
     }
@@ -1836,24 +1806,9 @@ typedef struct {
 extern Actor *gPrimaryPlayerActor;
 extern LargeB4Player *gPlayerSlots;
 extern LargeB4Ctrl *D_807ECDEC;
-typedef struct {
-    char pad0[4];
-    f32 unk4;
-    char pad8[0x1C];
-    f32 unk24;
-} LargeB5Anim;
-
-typedef struct {
-    LargeB5Anim *unk0;
-    char pad4[0x30];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-} LargeB5Model;
-
 typedef struct LargeB5Actor {
     char pad0[4];
-    LargeB5Model *unk4;
+    ActorSub4 *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x18];
@@ -1909,7 +1864,7 @@ void bonusBigBugBashGameUpdate(void) {
     f32 fs0;
     f32 fs1;
     f32 diffDelta;
-    LargeB5Anim *animData = LB5->unk4->unk0;
+    AnimSlot *animData = LB5->unk4->model;
     LargeB5State *t = LB5->unk174;
     s32 i;
     u8 c;
@@ -1948,9 +1903,9 @@ void bonusBigBugBashGameUpdate(void) {
         LB5->unkE8 = 0;
         LB5->unkE6 = 0x800;
         controllerAnimSetStateIfChanged(gCurrentActor, 0x5FB, 0.0f, 0.0f);
-        LB5->unk4->unk34 = 0.2f;
-        LB5->unk4->unk38 = 0.2f;
-        LB5->unk4->unk3C = 0.2f;
+        LB5->unk4->scaleX = 0.2f;
+        LB5->unk4->scaleY = 0.2f;
+        LB5->unk4->scaleZ = 0.2f;
         camStartPath(0, 0, 1);
         LB5->unk154 = 3;
         t->unk1C = 0.0f;
@@ -2053,12 +2008,12 @@ void bonusBigBugBashGameUpdate(void) {
     }
     case 1:
     case 2:
-        if (animData->unk4 > 10.0f && animData->unk4 < 14.0f) {
+        if (animData->frame > 10.0f && animData->frame < 14.0f) {
             LB5->unk154 = 2;
         } else {
             LB5->unk154 = 1;
         }
-        if (animData->unk24 == 0.0f) {
+        if (animData->speed == 0.0f) {
             controllerAnimSetStateIfChanged(gCurrentActor, 0x5FC, 0.0f, 1.0f);
             LB5->unk154 = 0;
             t->unk1C = 0.0f;
@@ -2230,29 +2185,14 @@ void bonusBigBugBashFlyUpdate(void) {
 }
 
 typedef struct {
-    char pad0[4];
-    f32 unk4;
-    char pad8[8];
-    s16 unk10;
-} BonusDBE44Anim;
-
-typedef struct {
-    BonusDBE44Anim *unk0;
-    char pad4[0x30];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-} BonusDBE44Model;
-
-typedef struct {
     Actor *unk0;
 } BonusDBE44Link;
 
 void bonusBigBugBashSwatterShadowUpdate(void) {
     BonusDBE44Link *link = gCurrentActor->customState;
     Actor *targetActor = link->unk0;
-    BonusDBE44Anim *selfAnim = ((BonusDBE44Model *)gCurrentActor->sub4)->unk0;
-    BonusDBE44Anim *targetAnim = ((BonusDBE44Model *)targetActor->sub4)->unk0;
+    AnimSlot *selfAnim = gCurrentActor->sub4->model;
+    AnimSlot *targetAnim = targetActor->sub4->model;
     s16 animId;
 
     if (!(gCurrentActor->flags & 0x10)) {
@@ -2268,14 +2208,14 @@ void bonusBigBugBashSwatterShadowUpdate(void) {
     gCurrentActor->z = targetActor->z;
     if (selfAnim != NULL) {
         if (targetAnim != NULL) {
-            animId = targetAnim->unk10;
+            animId = targetAnim->animId;
             if (animId == 0x5FD) {
                 animId = 0x5FE;
             }
-            if (animId != selfAnim->unk10) {
+            if (animId != selfAnim->animId) {
                 controllerAnimSetStateIfChanged(gCurrentActor, animId, 0, 0);
             }
-            controllerApplyMotionWindow(gCurrentActor, selfAnim, targetAnim->unk4);
+            controllerApplyMotionWindow(gCurrentActor, selfAnim, targetAnim->frame);
         }
     }
     actorUpdateModelMatrix(gCurrentActor, 0);

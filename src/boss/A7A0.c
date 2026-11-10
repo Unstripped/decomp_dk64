@@ -136,11 +136,6 @@ typedef struct BossScriptState {
     u8 unk15;
 } BossScriptState;
 
-typedef struct BossModelInfo {
-    char pad0[0x64];
-    u16 unk64;
-} BossModelInfo;
-
 typedef struct BossActorSub140 {
     char pad0[0xC];
     s32 unkC;
@@ -148,7 +143,7 @@ typedef struct BossActorSub140 {
 
 typedef struct BossActor {
     char pad0[4];
-    BossModelInfo *unk4;
+    ActorSub4 *unk4;
     char pad8[0x58];
     s32 unk60;
     char pad64[0x60];
@@ -325,7 +320,7 @@ void bossKRoolLankyStep(void) {
             bossScriptStep(scriptOpcodes, 0x10, 0.0f);
             break;
         }
-    } else if (ACTOR40->unk4->unk64 == 0x406) {
+    } else if (ACTOR40->unk4->animId == 0x406) {
         scriptSetActorRampTarget(ACTOR40, 0.0f, 0.0f);
     }
     behaviourUpdateShadowAlpha();

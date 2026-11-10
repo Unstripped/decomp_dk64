@@ -212,20 +212,6 @@ void func_80699914(void) {
     actorSagWaveUpdate(0x1C, 1);
 }
 
-typedef struct WaveNode {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 unk1;
-    /* 0x02 */ u8 pad2[2];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-} WaveNode;
-
-typedef struct NodeListHead {
-    /* 0x00 */ u8 pad0[0x24];
-    /* 0x24 */ WaveNode *unk24;
-} NodeListHead;
-
 
 
 typedef struct WaveState {
@@ -258,19 +244,19 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
 
     state = (WaveState *)gCurrentActor->customState;
     if (!(gCurrentActor->flags & 0x10)) {
-        ((NodeListHead *)gCurrentActor->sub4)->unk24 = (WaveNode *)heapAlloc((numNodes + 1) * 0x10);
+        gCurrentActor->sub4->boneOffsets = (BoneVector *)heapAlloc((numNodes + 1) * 0x10);
         for (i = 0; i < numNodes; i++) {
-            ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unk0 = i;
+            gCurrentActor->sub4->boneOffsets[i].bone = i;
             if (i != numNodes - 1) {
-                ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unk1 = i + 1;
+                gCurrentActor->sub4->boneOffsets[i].lastBone = i + 1;
             } else {
-                ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unk1 = 0xFF;
+                gCurrentActor->sub4->boneOffsets[i].lastBone = 0xFF;
             }
-            ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unk4 = 0.0f;
-            ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unkC = 0.0f;
-            ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unk8 = 0.0f;
+            gCurrentActor->sub4->boneOffsets[i].x = 0.0f;
+            gCurrentActor->sub4->boneOffsets[i].z = 0.0f;
+            gCurrentActor->sub4->boneOffsets[i].y = 0.0f;
         }
-        ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[numNodes].unk0 = 0xFF;
+        gCurrentActor->sub4->boneOffsets[numNodes].bone = 0xFF;
         for (i = 0; i < numNodes; i++) {
             state->unk4[i] = 0.0f;
         }
@@ -451,10 +437,10 @@ void actorSagWaveUpdate(u8 numNodes, u8 waveType) {
                 state->unk4[i] = posOffsets[i];
             }
         }
-        ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[i].unk8 = state->unk4[i] + nodeForces[i];
+        gCurrentActor->sub4->boneOffsets[i].y = state->unk4[i] + nodeForces[i];
     }
-    ((WaveNode *)((NodeListHead *)gCurrentActor->sub4)->unk24)[0].unk8 = 0.0f;
-    *(f32 *)((u8 *)((NodeListHead *)gCurrentActor->sub4)->unk24 + (numNodes << 4) - 8) = 0.0f;  // FAKE: byte-offset form stops the CSE of numNodes * 16 across the calls
+    gCurrentActor->sub4->boneOffsets[0].y = 0.0f;
+    *(f32 *)((u8 *)gCurrentActor->sub4->boneOffsets + (numNodes << 4) - 8) = 0.0f;  // FAKE: byte-offset form stops the CSE of numNodes * 16 across the calls
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
@@ -532,22 +518,6 @@ s32 actorCheckAlwaysFalse(void) {
 
 
 typedef struct {
-    u8 unk0;
-    u8 unk1;
-    u8 pad2[2];
-    f32 unk4;
-    f32 unk8;
-    f32 unkC;
-    u8 unk10;
-    u8 pad11[3];
-} ModelNodeRecord;
-
-typedef struct {
-    u8 pad0[0x24];
-    ModelNodeRecord *unk24;
-} ModelNodeList;
-
-typedef struct {
     f32 unk0;
     u8 unk4;
     u8 pad5[3];
@@ -574,13 +544,13 @@ void actorSagSingleUpdate(void) {
     state = (ProximityState *)gCurrentActor->customState;
     if (!(flags & 0x10)) {
         gCurrentActor->flags = flags | 0x400;
-        ((ModelNodeList *)gCurrentActor->sub4)->unk24 = (ModelNodeRecord *)heapAlloc(0x20);
-        ((ModelNodeList *)gCurrentActor->sub4)->unk24->unk0 = 1;
-        ((ModelNodeList *)gCurrentActor->sub4)->unk24->unk1 = 0xFF;
-        ((ModelNodeList *)gCurrentActor->sub4)->unk24->unk4 = 0.0f;
-        ((ModelNodeList *)gCurrentActor->sub4)->unk24->unkC = 0.0f;
-        ((ModelNodeList *)gCurrentActor->sub4)->unk24->unk8 = 0.0f;
-        ((ModelNodeList *)gCurrentActor->sub4)->unk24->unk10 = 0xFF;
+        gCurrentActor->sub4->boneOffsets = (BoneVector *)heapAlloc(0x20);
+        gCurrentActor->sub4->boneOffsets->bone = 1;
+        gCurrentActor->sub4->boneOffsets->lastBone = 0xFF;
+        gCurrentActor->sub4->boneOffsets->x = 0.0f;
+        gCurrentActor->sub4->boneOffsets->z = 0.0f;
+        gCurrentActor->sub4->boneOffsets->y = 0.0f;
+        gCurrentActor->sub4->boneOffsets[1].bone = 0xFF;
         gCurrentActor->drawDistance = 0x3E8;
         state->unk4 = 0;
         state->unkC = 0;
@@ -627,7 +597,7 @@ void actorSagSingleUpdate(void) {
     if ((f64)state->unk8 < 0.5) {
         state->unk8 = 0.0f;
     }
-    ((ModelNodeList *)gCurrentActor->sub4)->unk24->unk8 = 0.0 - (sinApprox((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
+    gCurrentActor->sub4->boneOffsets->y = 0.0 - (sinApprox((f32)((f64)state->unkC * 0.5)) * state->unk8 + state->unk0);
     state->unk4 = gActorGlobalState.unk39;
     actorUpdateModelMatrix(gCurrentActor, 0);
 }

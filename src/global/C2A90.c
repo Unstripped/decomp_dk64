@@ -302,14 +302,9 @@ Gfx *func_806BE6F0(Gfx *gdl, Actor *actor) {
     return gdl;
 }
 
-typedef struct LgBE8Sub4 {
-    /* 0x00 */ u8 pad0[0x64];
-    /* 0x64 */ u16 unk64;
-} LgBE8Sub4;
-
 typedef struct LgBE8A {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ LgBE8Sub4 *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 pad8[0x58];
     /* 0x060 */ u32 unk60;
     /* 0x064 */ u8 pad64[0x18];
@@ -494,7 +489,7 @@ void func_806BE8BC(void) {
                     if (gBehaviourWorkState->flags & 0x8000) {
                         LgBA->unk154 = 0x40;
                     } else {
-                        if (LgBA->unk4->unk64 != 0x308) {
+                        if (LgBA->sub4->animId != 0x308) {
                             hudSpawnTextScreen(2);
                         }
                         csModelStateSetFirstByte(0x1F, 1);
@@ -512,7 +507,7 @@ void func_806BE8BC(void) {
             if (LgBA->unk15F < 0x10U) {
                 renderCallbacksRegister(actorDrawAnimatedEffect, gCurrentActor, 3);
             }
-            if (((randomNonNegative() >> 0xF) % 1000) >= 0x3DF && LgBA->unk4->unk64 == 0x302) {
+            if (((randomNonNegative() >> 0xF) % 1000) >= 0x3DF && LgBA->sub4->animId == 0x302) {
                 if (gFrameCounter & 1) {
                     sel = 0x303;
                 } else {
@@ -545,7 +540,7 @@ void func_806BE8BC(void) {
             patrolPathStep(LgBA->unk154, 0);
             break;
     }
-    if (LgBA->unk4->unk64 == 0x301 || LgBA->unk4->unk64 == 0x302) {
+    if (LgBA->sub4->animId == 0x301 || LgBA->sub4->animId == 0x302) {
         func_80724E48(0);
     }
     behaviourUpdateShadowAlpha();

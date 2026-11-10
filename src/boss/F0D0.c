@@ -25,11 +25,6 @@
 #include "proto/global/CEAE0.h"
 #include "proto/global/EFDC0.h"
 
-typedef struct {
-    u8 pad0[4];
-    f32 unk4;
-} BossE_F0D0_SubSub0;
-
 
 typedef struct BossE_F0D0_Sub14 {
     u8 pad0[0x14];
@@ -133,7 +128,7 @@ void bossInterpolateWaypoints(u8 *waypointPair, f32 progress) {
     f64 val;
     f32 factor;
 
-    val = (f64)(((BossE_F0D0_SubSub0 *)gCurrentActor->sub4->model)->unk4 * progress);
+    val = (f64)(gCurrentActor->sub4->model->frame * progress);
 
     factor = (f32)(1.0 + (f64)mathSinF((s16)((f32)(1.0 - (1.0 < val ? 1.0 : val)) * 1024.0f + 3072.0f)));
 
@@ -226,19 +221,6 @@ void bossAdjustHealth(s8 healthDelta) {
     }
 }
 
-typedef struct BossF_Model {
-    struct BossF_ModelSub *unk0;
-    u8 padF4[0x38 - 4];
-    f32 unk38;
-    u8 pad3C[0x64 - 0x3C];
-    u16 unk64;
-} BossF_Model;
-
-struct BossF_ModelSub {
-    u8 pad0[4];
-    f32 unk4;
-};
-
 typedef struct BossF_State {
     u8 pad0[8];
     s16 unk8;
@@ -262,9 +244,7 @@ typedef struct BossF_Sub {
 } BossF_Sub;
 
 typedef struct BossF_Actor {
-    u8 pad0[4];
-    BossF_Model *unk4;
-    u8 pad8[0x60 - 0x8];
+    u8 pad0[0x60];
     s32 unk60;
     u8 pad64[0x6A - 0x64];
     u16 unk6A;
@@ -359,7 +339,7 @@ void bossMainStep(void) {
             BF->unk110 = 0;
         } else {
             BF->unk146 = 0;
-            gBehaviourWorkState->scale = BF->unk4->unk38;
+            gBehaviourWorkState->scale = gCurrentActor->sub4->scaleY;
             actorSetUniformScale(gCurrentActor, gBehaviourWorkState->scale * 0.333);
             BF->unk154 = 0x1E;
             BF->unk155 = 0;
@@ -474,7 +454,7 @@ void bossMainStep(void) {
             actorUpdatePrevContactFlags(gCurrentActor);
             actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
             bossInterpolateWaypoints((u8 *)sub, 0.025f);
-            if (BF->unk4->unk0->unk4 >= 40.0f) {
+            if (gCurrentActor->sub4->model->frame >= 40.0f) {
                 BF->unk6A |= 1;
             } else {
                 BF->unk6A = 0;
@@ -510,8 +490,8 @@ void bossMainStep(void) {
             }
             break;
         case 9:
-            if (BF->unk4->unk38 < gBehaviourWorkState->scale) {
-                actorSetUniformScale(gCurrentActor, BF->unk4->unk38 * 1.01);
+            if (gCurrentActor->sub4->scaleY < gBehaviourWorkState->scale) {
+                actorSetUniformScale(gCurrentActor, gCurrentActor->sub4->scaleY * 1.01);
                 bossSpawnPuffDebris();
                 flag7F = 1;
             } else {
@@ -573,13 +553,13 @@ void bossMainStep(void) {
         case 2:
             actorUpdatePrevContactFlags(gCurrentActor);
             actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-            bossInterpolateWaypoints((u8 *)sub, BF->unk4->unk64 == 0x223 ? 0.02173913f : 0.041666664f);
-            if (BF->unk4->unk64 == 0x223) {
+            bossInterpolateWaypoints((u8 *)sub, gCurrentActor->sub4->animId == 0x223 ? 0.02173913f : 0.041666664f);
+            if (gCurrentActor->sub4->animId == 0x223) {
                 v = 0x35;
             } else {
                 v = 0x17;
             }
-            if ((f32)(s32)v <= BF->unk4->unk0->unk4) {
+            if ((f32)(s32)v <= gCurrentActor->sub4->model->frame) {
                 BF->unk6A |= 1;
             } else {
                 BF->unk6A = 0;

@@ -18,22 +18,9 @@ extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
 extern u8 gBossFightPhase;
 
-typedef struct BB300Quad {
-    /* 0x0 */ u8 unk0;
-    /* 0x1 */ u8 unk1;
-    /* 0x2 */ s16 unk2;
-    /* 0x4 */ s16 unk4;
-    /* 0x6 */ s16 unk6;
-} BB300Quad;
-
-typedef struct BB300Sub4 {
-    /* 0x00 */ u8 pad0[0x1C];
-    /* 0x1C */ BB300Quad *unk1C;
-} BB300Sub4;
-
 typedef struct BB300Actor {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ BB300Sub4 *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 pad8[0x9C];
     /* 0x0A4 */ f32 unkA4;
     /* 0x0A8 */ u8 padA8[0x10];
@@ -64,7 +51,7 @@ void *memcpy(void *, const void *, unsigned int);
 void actorUpdatePulseIntensity(u8 active) {
     u8 *p = BB300A->unk178;
     s32 pad1;
-    BB300Quad *q = BB300A->unk4->unk1C;
+    BoneRotation *q = BB300A->sub4->boneRotations;
     s32 pad2;
     f32 f;
     f32 x;
@@ -101,13 +88,13 @@ void actorUpdatePulseIntensity(u8 active) {
     }
     x = (u32)p[0] / 255.0;
     f = 8000.0f * x;
-    q->unk2 = (u32)-f;
-    q[1].unk1 = 3;
+    q->rotX = (u32)-f;
+    q[1].bone = 3;
     q++;
-    q->unk0 = 0x7F;
-    q->unk2 = (u32)f;
-    q->unk4 = 0;
-    q->unk6 = 0;
+    q->weight = 0x7F;
+    q->rotX = (u32)f;
+    q->rotY = 0;
+    q->rotZ = 0;
 }
 
 void behaviourUpdateContactAndState();

@@ -957,11 +957,6 @@ void sfxSetChannelPriority(u8 source, u8 volume) {
     }
 }
 
-typedef struct AudioActorModel {
-    char pad0[0x10];
-    s16 unk10;
-} AudioActorModel;
-
 extern s16 D_80770710[];
 
 
@@ -1762,7 +1757,7 @@ void sfxUpdateSourceGroups(void) {
                         }
                     }
                     if (actor != NULL) {
-                        if (actor->unk72 != 0 && D_80770710[i] != 0x131 && ((AudioActorModel *)actor->sub4->model)->unk10 != actor->unk72) {
+                        if (actor->unk72 != 0 && D_80770710[i] != 0x131 && actor->sub4->model->animId != actor->unk72) {
                             sfxStopSlotSound(actor, 0);
                         }
                     }

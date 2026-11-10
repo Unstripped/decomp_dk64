@@ -38,30 +38,9 @@ extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
 extern u8 D_807FBDC4;
 
-typedef struct R1C46aInner {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ u8 pad8[8];
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ u8 pad12[0x12];
-    /* 0x24 */ f32 unk24;
-} R1C46aInner;
-
-typedef struct R1C46aSub4 {
-    /* 0x00 */ R1C46aInner *unk0;
-    /* 0x04 */ u8 pad4[4];
-    /* 0x08 */ s32 *unk8;
-    /* 0x0C */ u8 padC[0x10];
-    /* 0x1C */ u8 *unk1C;
-    /* 0x20 */ u8 pad20[0x14];
-    /* 0x34 */ f32 unk34;
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ f32 unk3C;
-} R1C46aSub4;
-
 typedef struct R1C46aActor {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ R1C46aSub4 *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 pad8[0x52];
     /* 0x05A */ u16 unk5A;
     /* 0x05C */ u8 pad5C[4];
@@ -124,7 +103,7 @@ void func_806BF920(void) {
                 break;
         }
         if (bufferSize != 0) {
-            R1V->unk4->unk1C = heapAlloc(0x100);
+            R1V->sub4->boneRotations = heapAlloc(0x100);
             func_806C8220(0, R1V->unk178, bufferSize);
         }
     }
@@ -132,20 +111,20 @@ void func_806BF920(void) {
         case 1:
         case 2:
         case 3:
-            playerWeaponInitCrosshair(gCurrentActor, R1V->unk4->unk1C, &outCount);
+            playerWeaponInitCrosshair(gCurrentActor, R1V->sub4->boneRotations, &outCount);
             break;
         case 9:
         case 10:
         case 11:
-            playerWeaponSpawnProjectile(gCurrentActor, R1V->unk4->unk1C, &outCount);
+            playerWeaponSpawnProjectile(gCurrentActor, R1V->sub4->boneRotations, &outCount);
             break;
         case 4:
         case 5:
-            playerWeaponAimTarget(gCurrentActor, R1V->unk4->unk1C, &outCount);
+            playerWeaponAimTarget(gCurrentActor, R1V->sub4->boneRotations, &outCount);
             break;
     }
     if (outCount != 0) {
-        R1V->unk4->unk1C[outCount * 8] = 0;
+        R1V->sub4->boneRotations[outCount].weight = 0;
     }
 }
 
@@ -191,19 +170,6 @@ void func_806BFBB4(void) {
     actorCheckWorldBounds(gCurrentActor);
 }
 
-typedef struct LgBFInner {
-    /* 0x00 */ u8 pad0[0x10];
-    /* 0x10 */ s16 unk10;
-} LgBFInner;
-
-typedef struct LgBFInnerPtr {
-    /* 0x00 */ LgBFInner *unk0;
-    /* 0x04 */ u8 pad4[0x34];
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ u8 pad3C[0x28];
-    /* 0x64 */ u16 unk64;
-} LgBFInnerPtr;
-
 typedef struct LgBFState {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ s16 unk2;
@@ -242,7 +208,7 @@ typedef struct LgBFState {
 
 typedef struct LgBFActor {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ LgBFInnerPtr *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 pad8[0x58];
     /* 0x060 */ u32 unk60;
     /* 0x064 */ u8 pad64[0x18];
@@ -364,14 +330,14 @@ void actorScriptedCommandUpdate(void) {
                 LgBV->unkEE = (cmd->unk6 << 12) / 360;
                 break;
             case 2:
-                LgBV->unk4->unk0->unk10 = -1;
+                LgBV->sub4->model->animId = -1;
                 actorScriptStart(gCurrentActor, D_80747750[cmd->unk4]);
                 if (cmd->unk6 != 0) {
                     scriptSetActorRampTarget(gCurrentActor, cmd->unk6 / 100.0, 0.0f);
                 }
                 break;
             case 3:
-                if (LgBV->unk4->unk64 != 0) {
+                if (LgBV->sub4->animId != 0) {
                     actorScriptStart(gCurrentActor, 0);
                 }
                 controllerAnimSetState(gCurrentActor, cmd->unk6 - (0 - D_80747904[cmd->unk4]), 0.0f, 0.0f); // FAKE: cmd6 evaluated before the table lookup (ring order)
@@ -379,7 +345,7 @@ void actorScriptedCommandUpdate(void) {
                 func_806BFA8C(cmd->unk6 - (0 - D_80747904[cmd->unk4])); // FAKE: cmd6 evaluated before the table lookup (ring order)
                 break;
             case 13:
-                if (LgBV->unk4->unk64 != 0) {
+                if (LgBV->sub4->animId != 0) {
                     actorScriptStart(gCurrentActor, 0);
                 }
                 controllerAnimSetState(gCurrentActor, cmd->unk6 - (0 - D_80747904[cmd->unk4]), 0.0f, 8.0f); // FAKE: cmd6 evaluated before the table lookup (ring order)
@@ -448,7 +414,7 @@ void actorScriptedCommandUpdate(void) {
                 break;
             case 16:
                 if (cmd->unk6 != 0) {
-                    state->unk14 = LgBV->unk4->unk38;
+                    state->unk14 = LgBV->sub4->scaleY;
                     gBehaviourWorkState->scale = cmd->unk4 * 0.01;
                     state->unk29 = cmd->unk6;
                     state->unk2A = cmd->unk6;
@@ -750,9 +716,9 @@ void func_806C1640(void) {
     if (!(R1V->unk60 & 0x10)) {
         func_806C15E8();
         if (gCurrentMap == 0x4C) {
-            R1V->unk4->unk34 *= 0.8;
-            R1V->unk4->unk38 *= 0.8;
-            R1V->unk4->unk3C *= 0.8;
+            R1V->sub4->scaleX *= 0.8;
+            R1V->sub4->scaleY *= 0.8;
+            R1V->sub4->scaleZ *= 0.8;
         }
     }
     func_806BF920();
@@ -767,9 +733,9 @@ extern u8 D_8071FB08;
 extern u8 D_807200D4;
 
 void func_806C1734(void) {
-    R1C46aSub4 *sub;
+    ActorSub4 *sub;
     s32 rnd;
-    R1C46aInner *inner;
+    AnimSlot *inner;
     s16 animFrame;
     u8 nodeIndex;
 
@@ -779,12 +745,12 @@ void func_806C1734(void) {
     }
     func_806BF920();
     if (R1V->unk60 & 0x10000000) {
-        animFrame = R1V->unk4->unk0->unk4;
+        animFrame = R1V->sub4->model->frame;
         actorScriptedCommandUpdate();
-        sub = R1V->unk4;
-        if (*sub->unk8 == 0) {
-            inner = sub->unk0;
-            switch (inner->unk10) {
+        sub = R1V->sub4;
+        if (sub->blendFrom->clip == NULL) {
+            inner = sub->model;
+            switch (inner->animId) {
                 case 0xBB:
                     if (30.0f < R1V->unkC0 && !(gFrameCounter & 3)) {
                         effectSetMode(2);
@@ -794,7 +760,7 @@ void func_806C1734(void) {
                     }
                     break;
                 case 0x114:
-                    if (0.0f == inner->unk24) {
+                    if (0.0f == inner->speed) {
                         playerKongClearFlagsByActorType(gCurrentActor);
                     }
                     break;
@@ -839,7 +805,7 @@ void func_806C19F4(void) {
     }
     if (R1V->unk60 & 0x10000000) {
         actorScriptedCommandUpdate();
-        if (R1V->unk4->unk0->unk10 == 0x1A4) {
+        if (R1V->sub4->model->animId == 0x1A4) {
             effectSetDepth(1);
             effectSetColor(0x96, 0xFF, 0xFF, 0xFF);
             effectCreateAtActorBone(&D_8071FBA0, 0.7f, gCurrentActor, 5, 0);
@@ -868,7 +834,7 @@ void func_806C1B50(void) {
     if (R1V->unk60 & 0x10000000) {
         actorScriptedCommandUpdate();
         if ((R1V->unk60 & 4) && R1V->unk155 != 0) {
-            switch (R1V->unk4->unk0->unk10) {
+            switch (R1V->sub4->model->animId) {
                 case 0x23E:
                     kind = 0xD;
                     thr = 7;
@@ -884,7 +850,7 @@ void func_806C1B50(void) {
                 default:
                     goto done;
             }
-            if ((f32)thr < R1V->unk4->unk0->unk4) {
+            if ((f32)thr < R1V->sub4->model->frame) {
                 effectCreateAtActorBone(&D_8071FB34, 0.5f, gCurrentActor, kind, 0);
                 R1V->unk155 = 0;
             }
@@ -913,7 +879,7 @@ void func_806C1CCC(void) {
     if (R1V->unk60 & 0x10000000) {
         actorScriptedCommandUpdate();
         if (R1V->unk60 & 4) {
-            if (R1V->unk4->unk0->unk10 == 0x2C4 && 25.0f < R1V->unk4->unk0->unk4) {
+            if (R1V->sub4->model->animId == 0x2C4 && 25.0f < R1V->sub4->model->frame) {
                 renderCallbacksRegister(gfxBuildScanlineNoise, 0, 3);
             }
         }
@@ -1156,15 +1122,6 @@ void actorPlaySoundSpawnBoneEffects(void) {
 }
 
 
-typedef struct R1C46bInner {
-    /* 0x0 */ u8 pad0[4];
-    /* 0x4 */ f32 unk4;
-} R1C46bInner;
-
-typedef struct R1C46bSub4 {
-    /* 0x0 */ R1C46bInner *unk0;
-} R1C46bSub4;
-
 void actorSpawnOctagonRingsByTimer(void) {
     f32 v;
     f32 nodeX;
@@ -1174,10 +1131,10 @@ void actorSpawnOctagonRingsByTimer(void) {
     f32 pad;
     s16 i;
 
-    v = ((R1C46bSub4 *)gCurrentActor->sub4)->unk0->unk4;
+    v = gCurrentActor->sub4->model->frame;
     if (v > 83.0f) {
         actorPlaySoundSpawnBoneEffects();
-        v = ((R1C46bSub4 *)gCurrentActor->sub4)->unk0->unk4;
+        v = gCurrentActor->sub4->model->frame;
     }
     if (v > 2.0f && v < 90.0f) {
         i = 1;
@@ -1242,23 +1199,6 @@ void actorSpawnParticlesAlongNodeRanges(void) {
     actorSpawnParticlesAlongNodeLoop(0x17, 0x1F, 2, sEffectSparkConfig);
 }
 
-typedef struct LgC2DF4Inner {
-    /* 0x00 */ u8 pad0[4];
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ u8 pad8[8];
-    /* 0x10 */ s16 unk10;
-    /* 0x12 */ u8 pad12[0x12];
-    /* 0x24 */ f32 unk24;
-} LgC2DF4Inner;
-
-typedef struct LgC2DF4Sub4 {
-    /* 0x00 */ LgC2DF4Inner *unk0;
-    /* 0x04 */ u8 pad4[0x34];
-    /* 0x38 */ f32 unk38;
-    /* 0x3C */ u8 pad3C[0x28];
-    /* 0x64 */ u16 unk64;
-} LgC2DF4Sub4;
-
 typedef struct LgC2DF4State {
     /* 0x00 */ u16 unk0;
     /* 0x02 */ u8 pad2[0x2A];
@@ -1267,7 +1207,7 @@ typedef struct LgC2DF4State {
 
 typedef struct LgC2DF4Actor {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ LgC2DF4Sub4 *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 pad8[0x58];
     /* 0x060 */ u32 unk60;
     /* 0x064 */ u8 pad64[6];
@@ -1312,7 +1252,7 @@ void func_806C2DF4(void) {
     state = LgV->unk17C;
     behaviourFrameBegin();
     if (!(LgV->unk60 & 0x10)) {
-        scale = LgV->unk4->unk38;
+        scale = LgV->sub4->scaleY;
         controllerAnimFree(gCurrentActor);
         controllerAnimInit(gCurrentActor, state->unk0);
         LgV->unk140 = actorSub140CreateFromModel(gCurrentActor);
@@ -1453,7 +1393,7 @@ void func_806C2DF4(void) {
     if (gBehaviourTargetActor != gPrimaryPlayerActor) {
         func_80724E48(7);
     }
-    switch (LgV->unk4->unk0->unk10) {
+    switch (LgV->sub4->model->animId) {
         case 0x3EA:
             LgV->unk146 = 0;
             break;
@@ -1483,13 +1423,13 @@ void func_806C2DF4(void) {
             }
             break;
         case 0x92:
-            if (!(gBehaviourAnimState->flags & 0x1000) && LgV->unk4->unk0->unk4 >= 127.0f) {
+            if (!(gBehaviourAnimState->flags & 0x1000) && LgV->sub4->model->frame >= 127.0f) {
                 gBehaviourAnimState->flags |= 0x1000;
                 currentActorAnimSetFrame(0, 0);
             }
             break;
         case 0x434:
-            if (LgV->unk4->unk0->unk4 < 60.0f) {
+            if (LgV->sub4->model->frame < 60.0f) {
                 break;
             }
         case 0x436:
@@ -1512,29 +1452,29 @@ void func_806C2DF4(void) {
             }
             break;
         case 0x4C7:
-            if (LgV->unk4->unk0->unk4 >= 23.0f && LgV->unk155 != 0) {
+            if (LgV->sub4->model->frame >= 23.0f && LgV->unk155 != 0) {
                 LgV->unk155 = 0;
                 projectileGetTargetCoords(gCurrentActor, 2);
                 projectileSpawnNodeEntry(0x29, 0xCB, 0.4f, LgV->unkE6, 400.0f, 0, gCurrentActor);
             }
             break;
         case 0x54D:
-            if (LgV->unk4->unk0->unk24 == 0) {
+            if (LgV->sub4->model->speed == 0) {
                 LgV->unk154 = 0x40;
-            } else if (LgV->unk4->unk0->unk4 < 210.0f) {
+            } else if (LgV->sub4->model->frame < 210.0f) {
                 effectSpawnActorBoneEffects(2);
-            } else if (LgV->unk4->unk0->unk4 < 235.0f) {
+            } else if (LgV->sub4->model->frame < 235.0f) {
                 effectSpawnActorBoneEffects(3);
             }
             break;
         case 0x549:
-            if (LgV->unk4->unk0->unk4 > 65.0f && LgV->unk4->unk0->unk4 < 101.0f) {
+            if (LgV->sub4->model->frame > 65.0f && LgV->sub4->model->frame < 101.0f) {
                 rnd = randomNonNegative();
                 effectSpawnChildAtNode(2, (rnd >> 15) % 2048 + LgV->unkE6 - 0x400, (randomNonNegative() >> 15) % 2048);
             }
             break;
         case 0x498:
-            if (LgV->unk4->unk0->unk4 < 2.0f) {
+            if (LgV->sub4->model->frame < 2.0f) {
                 effectSpawnActorScale(gCurrentActor);
             }
             effectActorCheckGroundScaleSpawn(gCurrentActor);
@@ -1547,15 +1487,15 @@ void func_806C2DF4(void) {
             actorPlaySoundSpawnBoneEffects();
             break;
         case 0x43F:
-            if (LgV->unk4->unk0->unk4 < 68.0f) {
+            if (LgV->sub4->model->frame < 68.0f) {
                 actorPlaySoundSpawnBoneEffects();
             }
-            if (65.0f < LgV->unk4->unk0->unk4) {
+            if (65.0f < LgV->sub4->model->frame) {
                 sfxStopSlotSound(gCurrentActor, 0);
             }
             break;
         case 0x52E:
-            if (LgV->unk4->unk0->unk4 < 2.0f) {
+            if (LgV->sub4->model->frame < 2.0f) {
                 effectCreateAtActorBone(&D_8071FB34, 1.5f, gCurrentActor, 6, 0);
             }
             break;
@@ -1570,7 +1510,7 @@ void func_806C2DF4(void) {
     if (gCurrentMap == 0xD0 && (LgV->unk60 & 0x1000)) {
         commandQueuePush(gCurrentActor, LgV->unk7C, LgV->unk80 + 30.0f, LgV->unk84, 0xFF, 0xFF, 0xFF, 0xFF, 0);
     }
-    if (LgV->unk4->unk64 == 0x22A) {
+    if (LgV->sub4->animId == 0x22A) {
         if ((randomNonNegative() >> 15) % 100 >= 0x47 || LgV->unk155 != 0) {
             effectSpawnJointBeam(7, 0xB, 0x11, 0x20);
             effectSpawnJointBeam(0xC, 0x10, 0x11, 0x20);

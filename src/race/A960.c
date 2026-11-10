@@ -12,13 +12,6 @@
 #include "proto/race/7BD0.h"
 #include "proto/race/A960.h"
 
-typedef struct RaceActorVel {
-    u8 pad0[0x34];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-} RaceActorVel;
-
 typedef struct RaceActorState {
     s8 unk0;
     u8 pad1[0x23];
@@ -29,7 +22,7 @@ typedef struct RaceActorState {
 
 typedef struct RaceActor {
     u8 pad0[4];
-    RaceActorVel *unk4;
+    ActorSub4 *unk4;
     u8 pad8[0x7C - 8];
     f32 x;
     f32 y;
@@ -211,9 +204,9 @@ void raceInitRoute(s32 routeAssetId) {
 }
 
 void raceScaleVelocity(RaceActor *actor, f32 scaleFactor) {
-    actor->unk4->unk34 *= scaleFactor;
-    actor->unk4->unk38 = actor->unk4->unk34;
-    actor->unk4->unk3C = actor->unk4->unk38;
+    actor->unk4->scaleX *= scaleFactor;
+    actor->unk4->scaleY = actor->unk4->scaleX;
+    actor->unk4->scaleZ = actor->unk4->scaleY;
 }
 
 

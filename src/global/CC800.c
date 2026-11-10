@@ -431,13 +431,6 @@ void func_806C8220(s32 arg0, void *arg1, s32 arg2) {
 }
 
 
-typedef struct G00Sub4 {
-    /* 0x00 */ u8 pad0[0x1C];
-    /* 0x1C */ u8 *unk1C;
-    /* 0x20 */ u8 *unk20;
-    /* 0x24 */ u8 *unk24;
-} G00Sub4;
-
 typedef struct G00ActorView {
     /* 0x000 */ u8 pad0[0xC4];
     /* 0x0C4 */ f32 unkC4;
@@ -547,12 +540,12 @@ void playerSetupCharacterForSlot(s32 arg0, u8 arg1) {
         gSpawnedActor->renderFlags |= 0x200;
     }
     gSpawnedActor->flags2 |= 0xC0;
-    ((G00Sub4 *)gSpawnedActor->sub4)->unk1C = heapAlloc(0x100);
-    *((G00Sub4 *)gSpawnedActor->sub4)->unk1C = 0;
-    ((G00Sub4 *)gSpawnedActor->sub4)->unk20 = heapAlloc(0x200);
-    *((G00Sub4 *)gSpawnedActor->sub4)->unk20 = 0xFF;
-    ((G00Sub4 *)gSpawnedActor->sub4)->unk24 = heapAlloc(0x200);
-    *((G00Sub4 *)gSpawnedActor->sub4)->unk24 = 0xFF;
+    gSpawnedActor->sub4->boneRotations = heapAlloc(0x100);
+    gSpawnedActor->sub4->boneRotations->weight = 0;
+    gSpawnedActor->sub4->boneScales = heapAlloc(0x200);
+    gSpawnedActor->sub4->boneScales->bone = 0xFF;
+    gSpawnedActor->sub4->boneOffsets = heapAlloc(0x200);
+    gSpawnedActor->sub4->boneOffsets->bone = 0xFF;
     gActivePlayerActor = gSpawnedActor;
     gActivePlayerState = gActivePlayerActor->customState;
     G00_P->unk247 = -1;
@@ -793,13 +786,6 @@ void playerCycleKongDebug(void) {
     timerQueueAdd(playerInitKongActor, 0x14, gCurrentPlayerIndex, 0, 0);
 }
 
-typedef struct G01Sub4 {
-    /* 0x00 */ u8 pad0[0x1C];
-    /* 0x1C */ u8 *unk1C;
-    /* 0x20 */ u8 *unk20;
-    /* 0x24 */ u8 *unk24;
-} G01Sub4;
-
 typedef struct G01Sub104 {
     /* 0x000 */ u8 pad0[0x15F];
     /* 0x15F */ u8 unk15F;
@@ -827,7 +813,7 @@ typedef struct G01Ctl {
 
 typedef struct G01Act {
     /* 0x000 */ u8 pad0[4];
-    /* 0x004 */ G01Sub4 *unk4;
+    /* 0x004 */ ActorSub4 *sub4;
     /* 0x008 */ u8 pad8[0x50];
     /* 0x058 */ s32 unk58;
     /* 0x05C */ u8 pad5C[4];
@@ -893,12 +879,12 @@ void playerApplyCharacterModel(void *arg) {
     G01A->unk140 = actorSub140CreateFromModel(gActivePlayerActor);
     G01A->unk60 &= ~0x1000;
     G01A->unk60 |= arg0->unkC;
-    G01A->unk4->unk1C = heapAlloc(0x100);
-    *G01A->unk4->unk1C = 0;
-    G01A->unk4->unk20 = heapAlloc(0x100);
-    *G01A->unk4->unk20 = 0xFF;
-    G01A->unk4->unk24 = heapAlloc(0x100);
-    *G01A->unk4->unk24 = 0xFF;
+    G01A->sub4->boneRotations = heapAlloc(0x100);
+    G01A->sub4->boneRotations->weight = 0;
+    G01A->sub4->boneScales = heapAlloc(0x100);
+    G01A->sub4->boneScales->bone = 0xFF;
+    G01A->sub4->boneOffsets = heapAlloc(0x100);
+    G01A->sub4->boneOffsets->bone = 0xFF;
     func_806C8220(1, G01A->unk178, G01A->unk58);
     slotQueueInit(0);
 }

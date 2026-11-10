@@ -103,11 +103,6 @@ typedef struct RingNodePtr178 {
     /* 0x00 */ Actor *unk0;
 } RingNodePtr178;
 
-typedef struct RingNodeSub4 {
-    /* 0x00 */ u8 pad0[0x64];
-    /* 0x64 */ u16 unk64;
-} RingNodeSub4;
-
 typedef struct RingNodeActor178 {
     /* 0x000 */ u8 pad0[0x178];
     /* 0x178 */ RingNodePtr178 *unk178;
@@ -182,7 +177,7 @@ void actorNodeRingUpdate(void) {
             break;
     }
     if (camIsCutsceneActive() == 0) {
-        if (((RingNodeSub4 *)gCurrentActor->sub4)->unk64 != 0x2F0) {
+        if (gCurrentActor->sub4->animId != 0x2F0) {
             actorScriptStart(gCurrentActor, 0x2F0);
         }
     }

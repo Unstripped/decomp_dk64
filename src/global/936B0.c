@@ -217,27 +217,6 @@ typedef struct OwnerLinkState {
     s32 unk8;
 } OwnerLinkState;
 
-typedef struct OwnerModelInfo {
-    u8 pad0[4];
-    f32 unk4;
-    u8 pad8[8];
-    s16 unk10;
-} OwnerModelInfo;
-
-typedef struct ActorSub4Buf {
-    s8 unk0;
-    u8 unk1;
-    u16 unk2;
-    u16 unk4;
-    u16 unk6;
-    u8 unk8;
-} ActorSub4Buf;
-
-typedef struct ActorSub4BufView {
-    u8 pad0[0x1C];
-    ActorSub4Buf *unk1C;
-} ActorSub4BufView;
-
 extern u32 gFrameCounter;
 extern s32 gCurrentMap;
 extern Actor *gActivePlayerActor;
@@ -260,23 +239,23 @@ void func_8068EF54(void) {
     OwnerLinkState *link;
     OwnerPlayerState *playerState;
     Actor *owner;
-    OwnerModelInfo *model;
+    AnimSlot *model;
     f32 nodeX;
     f32 nodeY;
     f32 nodeZ;
-    ActorSub4Buf *buf;
+    BoneRotation *buf;
 
     link = gCurrentActor->customState;
     owner = link->unk0;
     if (!(gCurrentActor->flags & 0x10)) {
-        ((ActorSub4BufView *)gCurrentActor->sub4)->unk1C = heapAlloc(0x10);
-        buf = ((ActorSub4BufView *)gCurrentActor->sub4)->unk1C;
-        buf->unk0 = -0x80;
-        buf->unk1 = 1;
-        buf->unk2 = 0;
-        buf->unk4 = 0;
-        buf->unk6 = 0;
-        buf->unk8 = 0;
+        gCurrentActor->sub4->boneRotations = heapAlloc(0x10);
+        buf = gCurrentActor->sub4->boneRotations;
+        buf->weight = -0x80;
+        buf->bone = 1;
+        buf->rotX = 0;
+        buf->rotY = 0;
+        buf->rotZ = 0;
+        buf[1].weight = 0;
         gCurrentActor->yaw = 0;
         if (owner->actorType == 0xC5) {
             gCurrentActor->tintR = 0xFF;
@@ -286,11 +265,11 @@ void func_8068EF54(void) {
         }
         link->unk8 = 0;
     }
-    buf = ((ActorSub4BufView *)gCurrentActor->sub4)->unk1C;
+    buf = gCurrentActor->sub4->boneRotations;
     switch (owner->collisionFlags) {
     case 1:
         playerState = owner->customState;
-        buf->unk2 = playerState->unk1A0;
+        buf->rotX = playerState->unk1A0;
         if ((owner->contactFlags & 5) || playerState->unk240 == 1 || (owner->state == 0x42 && playerState->unkBC != 0x31) || owner->state == 0x87) {
             actorAppendCallback(link->unk4, gCurrentActor, 0x2000000, 0, 0, 0);
             playerState->unk1A3 = 0;
@@ -322,17 +301,17 @@ void func_8068EF54(void) {
         }
         break;
     case 0x40:
-        model = *(OwnerModelInfo **)owner->sub4;
-        switch (model->unk10) {
+        model = owner->sub4->model;
+        switch (model->animId) {
         case 0x113:
-            if (model->unk4 < 70.0f) {
-                var = PICK_MIN(PICK_MAX(0.1, (model->unk4 - 39.0f) / 30.0), 0.49);
+            if (model->frame < 70.0f) {
+                var = PICK_MIN(PICK_MAX(0.1, (model->frame - 39.0f) / 30.0), 0.49);
             } else {
                 var = 0.5f;
             }
             break;
         case 0x12C:
-            var = PICK_MAX(0.5 - model->unk4 / 50.0f, 0.01);
+            var = PICK_MAX(0.5 - model->frame / 50.0f, 0.01);
             break;
         case 0x12F:
         case 0x130:
@@ -346,7 +325,7 @@ void func_8068EF54(void) {
             var = 0.5f;
             break;
         }
-        buf->unk2 = 0;
+        buf->rotX = 0;
         if (!(owner->flags & 4) || owner->state == 0x3C) {
             actorDespawn(gCurrentActor);
         } else if (var > 0.05) {
@@ -611,16 +590,6 @@ u8 tilt;
 }
 #undef S
 
-typedef struct ProjectileActorSub4 {
-    u8 pad0[0x1C];
-    void *unk1C;
-} ProjectileActorSub4;
-
-typedef struct ProjectileActorBase {
-    u8 pad0[4];
-    ProjectileActorSub4 *unk4;
-} ProjectileActorBase;
-
 typedef struct ProjectileAngleTarget {
     u8 pad0[0xC];
     f32 unkC;
@@ -631,23 +600,14 @@ typedef struct ProjectileAngleStep {
     s16 unk2;
 } ProjectileAngleStep;
 
-typedef struct ProjectileAngleSub1C {
-    s8 unk0;
-    u8 unk1;
-    s16 unk2;
-    s16 unk4;
-    s16 unk6;
-    u8 unk8;
-} ProjectileAngleSub1C;
-
 
 
 void actorInterpolateAngles(u8 resetting, ProjectileAngleTarget *target, ProjectileAngleStep *step) {
     f32 pitchGoal;
     f32 yawGoal;
-    ProjectileAngleSub1C *angles;
+    BoneRotation *angles;
 
-    angles = ((ProjectileActorSub4 *)gCurrentActor->sub4)->unk1C;
+    angles = gCurrentActor->sub4->boneRotations;
     if (resetting) {
         pitchGoal = 500.0f;
         yawGoal = 0.0f;
@@ -657,18 +617,18 @@ void actorInterpolateAngles(u8 resetting, ProjectileAngleTarget *target, Project
     }
     step->unk2 = mathAngleEaseToward(step->unk2, (s16)(s32)pitchGoal, 5.0f);
     step->unk0 = mathAngleEaseToward(step->unk0, (s16)((s32)yawGoal & 0xFFF), 3.0f);
-    angles->unk0 = -0x80;
-    angles->unk1 = 1;
-    angles->unk2 = (u16)step->unk2 * 16;
-    angles->unk4 = (u16)step->unk0 * 16;
-    angles->unk6 = 0;
-    angles->unk8 = 0;
+    angles->weight = -0x80;
+    angles->bone = 1;
+    angles->rotX = (u16)step->unk2 * 16;
+    angles->rotY = (u16)step->unk0 * 16;
+    angles->rotZ = 0;
+    angles[1].weight = 0;
 }
 
 
 void actorAllocSubBuffer(Actor *actor, s32 count) {
-    ((ProjectileActorBase *)actor)->unk4->unk1C = heapAlloc(count * 8);
-    heapClearBlock(((ProjectileActorBase *)actor)->unk4->unk1C);
+    actor->sub4->boneRotations = heapAlloc(count * 8);
+    heapClearBlock(actor->sub4->boneRotations);
 }
 
 
