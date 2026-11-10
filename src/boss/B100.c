@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_func_8002FDF8 // FAKE: callee prototype steer
+#define PROTO_SKIP_func_8002FDF8
 #include "proto/boss/3840.h"
 #include "proto/boss/B100.h"
 #include "proto/global/10E1D0.h"
@@ -432,10 +432,7 @@ u8 param;
 }
 
 
-void func_8002FDF8(actorObj, scaleVal)
-s32 actorObj;
-u8 scaleVal;
-{
+void func_8002FDF8(s32 actorObj, u8 scaleVal) {
     s32 finalScale;
     s32 animFrame;
 
@@ -512,7 +509,6 @@ void func_80724A20(void);
 void behaviourFrameBegin(void);
 void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
 
-void func_8002FDF8(s32, u8); // FAKE: callee prototype steer
 
 void bossKRoolTinyStep(void) {
     BossScriptState *st;
