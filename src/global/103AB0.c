@@ -38,16 +38,9 @@ extern s16 gGfxScreenBottom;
 extern Gfx D_1000118;
 extern Mtx D_2000080;
 
-/* PlayerStruct with its per-buffer viewports at 0x250 (header request: PlayerStruct.viewport). */
-typedef struct {
-    u8 pad0[0x250];
-    Vp viewport[2];
-    u8 pad270[0x2F0 - 0x270];
-} PlayerViewport;
-
 Gfx *playerViewGfxSetup(Gfx *dl, u8 playerIndex) {
     gDPPipeSync(dl++);
-    gSPViewport(dl++, osVirtualToPhysical(&((PlayerViewport *)gPlayerSlots)[playerIndex].viewport[gGfxBufferIndex]));
+    gSPViewport(dl++, osVirtualToPhysical(&gPlayerSlots[playerIndex].viewport[gGfxBufferIndex]));
     gDPSetScissor(dl++, G_SC_NON_INTERLACE, gPlayerSlots[playerIndex].rect[0], gPlayerSlots[playerIndex].rect[1], gPlayerSlots[playerIndex].rect[2], gPlayerSlots[playerIndex].rect[3]);
     gSPDisplayList(dl++, &D_1000118);
     gDPSetCombineMode(dl++, G_CC_MODULATERGBA_PRIM, G_CC_MODULATERGBA_PRIM);
@@ -101,17 +94,10 @@ void func_806FF32C(Gfx *dl, Actor *actor) {
     func_806FF144(playerViewGfxSetup(dl, ((PlayerState *)actor->customState)->playerIndex));
 }
 
-typedef struct {
-    u8 unk0[0x1EC];
-    u8 unk1EC;
-    u8 unk1ED[3];
-    s32 unk1F0;
-} ActorHudState;
-
 Gfx *func_806FF358(Gfx *dl, Actor *actor) {
-    ActorHudState *state;
+    PlayerState *state;
 
-    state = (ActorHudState *)gPlayerSlots->actor->customState;
+    state = gPlayerSlots->actor->customState;
     gDPSetPrimColor(dl++, 0, 0, 0xFF, 0xFF, 0xFF, 0xC8);
     dl = renderRotatedSprite(dl, 0x39, 3, 1, 0x40, 0x40, 0x50, 0x50, 0.5f, 0.5f, 0, 0.0f);
     dl = renderRotatedSprite(dl, 0x39, 3, 1, 0x40, 0x40, 0xF0, 0x50, 0.5f, 0.5f, 0x5A, 0.0f);
@@ -119,7 +105,7 @@ Gfx *func_806FF358(Gfx *dl, Actor *actor) {
     dl = renderRotatedSprite(dl, 0x39, 3, 1, 0x40, 0x40, 0x50, 0xA0, 0.5f, 0.5f, 0x10E, 0.0f);
     dl = renderRotatedSprite(dl, 0x3B, 3, 1, 0x30, 0x30, 0xA0, 0x78, 1.0f, 1.0f, 0, 0.0f);
     gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504240);
-    if (!(state->unk1F0 & 0x8000)) {
+    if (!(state->stateFlags & 0x8000)) {
         if (state->unk1EC == 2) {
             gDPSetPrimColor(dl++, 0, 0, 0xFF, 0, 0, 0xFF);
             dl = renderRotatedSprite(dl, 0x43, 3, 1, 0x40, 0x40, 0x118, 0x28, 0.5f, 0.5f, 0, 0.0f);
@@ -132,10 +118,10 @@ Gfx *func_806FF358(Gfx *dl, Actor *actor) {
 }
 
 Gfx *func_806FF628(Gfx *dl, Actor *actor) {
-    ActorHudState *state;
+    PlayerState *state;
 
-    state = (ActorHudState *)gPlayerSlots->actor->customState;
-    dl = playerViewGfxSetup(dl, ((PlayerState *)state)->playerIndex);
+    state = gPlayerSlots->actor->customState;
+    dl = playerViewGfxSetup(dl, state->playerIndex);
     if (state->unk1EC == 2) {
         gDPSetPrimColor(dl++, 0, 0, 0xFF, 0, 0, 0x64);
         dl = renderRotatedSprite(dl, 0x45, 3, 1, 0x40, 0x40, 0xA0, 0x78, 2.0f, 2.0f, 0, 0.0f);
@@ -353,7 +339,7 @@ extern u8 D_2000100[];
 
 Gfx *func_8070068C(Gfx *dl) {
     gSPMatrix(dl++, &D_2000100, G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPViewport(dl++, osVirtualToPhysical(&((PlayerViewport *)gPlayerSlots)->viewport[gGfxBufferIndex]));
+    gSPViewport(dl++, osVirtualToPhysical(&gPlayerSlots->viewport[gGfxBufferIndex]));
     gDPSetScissor(dl++, G_SC_NON_INTERLACE, gPlayerSlots->rect[0], gPlayerSlots->rect[1], gPlayerSlots->rect[2], gPlayerSlots->rect[3]);
     return dl;
 }
@@ -524,13 +510,6 @@ void func_80700BF4(void) {
 }
 
 typedef struct {
-    u8 unk0[0x21C];
-    Vec3f unk21C;
-    u8 unk228[0xC];
-    Vec3f unk234;
-} CameraAxes;
-
-typedef struct {
     f32 scale;
     f32 axisPos;
     u8 r;
@@ -573,7 +552,7 @@ s16 i;
     alpha = fade / 5.0;
     vec3fSet(&src, pt.x, pt.y, pt.z);
     vec3fSet(&eye, gPlayerSlots->unk21C, gPlayerSlots->unk220, gPlayerSlots->unk224);
-    vec3fSet(&at, ((CameraAxes *)gPlayerSlots)->unk234.x, ((CameraAxes *)gPlayerSlots)->unk234.y, ((CameraAxes *)gPlayerSlots)->unk234.z);
+    vec3fSet(&at, gPlayerSlots->unk234, gPlayerSlots->unk238, gPlayerSlots->unk23C);
     vec3fNormalize(&viewDir, vec3fSub(at, eye));
     axisEnd = vec3fAdd(eye, vec3fScale(viewDir, 5000.0f));
     vec3fNormalize(&srcDir, vec3fSub(src, eye));
@@ -629,45 +608,17 @@ extern Mtx D_2000000;
 extern Mtx D_2000200;
 
 typedef struct {
-    u8 unk0;
-    u8 pad1[3];
-    Actor *unk4;
-    u8 unk8[0x218];
-    f32 unk220;
-    u8 pad224[0x28];
-    f32 unk24C;
-    u8 pad250[0x20];
-    s16 unk270;
-    s16 unk272;
-    s16 unk274;
-    s16 unk276;
-    u8 pad278[0x18];
-    s16 unk290;
-    u8 pad292[0x56];
-    u8 unk2E8;
-    u8 pad2E9[7];
-} PlayerViewBlock;
-
-typedef struct {
-    u8 pad0[0x104];
-    Actor *unk104;
-    u8 pad108[0xE0];
-    f32 unk1E8;
-} PlayerOverlayState;
-
-typedef struct {
     u8 pad0[0x90];
     f32 unk90;
     u8 pad94[0x66];
     u8 unkFA;
 } CameraActorState;
 
-#define PLAYER_VIEW_BLOCK(i) (&((PlayerViewBlock *)gPlayerSlots)[i])
 Gfx *func_80701CA0(Gfx *dl) {
-    PlayerOverlayState *overlay;
+    PlayerState *playerState;
     CameraActorState *camState;
+    Actor *camActor;
     Vtx *vtx;
-    u8 *forcePtr;
     f32 depthDiff;
     u8 drew;
     u32 alphaBase;
@@ -677,7 +628,6 @@ Gfx *func_80701CA0(Gfx *dl) {
     drew = 0;
     alphaBase = 100;
     force = 0;
-    forcePtr = &force; // FAKE: dead address-taken keeps the flag memory-resident (Q0195)
     switch (gCurrentMap) {
     case 0x2D:
         force = 1;
@@ -688,38 +638,38 @@ Gfx *func_80701CA0(Gfx *dl) {
     case 0xB3:
         return dl;
     case 0x1E:
-        if ((PLAYER_VIEW_BLOCK(0)->unk290 == 9 || PLAYER_VIEW_BLOCK(0)->unk290 == 0xA) && flagGet(0x9C, 0) != 0) {
+        if ((gPlayerSlots[0].unk290 == 9 || gPlayerSlots[0].unk290 == 0xA) && flagGet(0x9C, 0) != 0) {
             return dl;
         }
     default:
         break;
     }
     for (i = 0; i < gPlayerCount; i++) {
-        if (PLAYER_VIEW_BLOCK(i)->unk0 != 0) {
-            overlay = (PlayerOverlayState *)PLAYER_VIEW_BLOCK(i)->unk4->customState;
-            if (overlay->unk104 == 0) {} // FAKE: dead check makes overlay->unk104 a shared load candidate
-            camState = (CameraActorState *)overlay->unk104->customState;
-            if (force != 0 || (PLAYER_VIEW_BLOCK(i)->unk2E8 != 0 && PLAYER_VIEW_BLOCK(i)->unk220 < PLAYER_VIEW_BLOCK(i)->unk24C + 3.0f)) {
+        if (gPlayerSlots[i].unk0 != 0) {
+            playerState = gPlayerSlots[i].actor->customState;
+            camActor = playerState->camActor;
+            camState = camActor->customState;
+            if (force != 0 || (gPlayerSlots[i].unk2E8 != 0 && gPlayerSlots[i].unk220 < gPlayerSlots[i].unk24C + 3.0f)) {
                 vtx = (Vtx *)heapAlloc(0x40);
                 heapFreeDeferred(vtx);
-                vtx[0].v.ob[0] = PLAYER_VIEW_BLOCK(i)->unk270;
-                vtx[0].v.ob[1] = PLAYER_VIEW_BLOCK(i)->unk272;
+                vtx[0].v.ob[0] = gPlayerSlots[i].rect[0];
+                vtx[0].v.ob[1] = gPlayerSlots[i].rect[1];
                 vtx[0].v.ob[2] = -10;
-                vtx[1].v.ob[0] = PLAYER_VIEW_BLOCK(i)->unk274;
-                vtx[1].v.ob[1] = PLAYER_VIEW_BLOCK(i)->unk272;
+                vtx[1].v.ob[0] = gPlayerSlots[i].rect[2];
+                vtx[1].v.ob[1] = gPlayerSlots[i].rect[1];
                 vtx[1].v.ob[2] = -10;
-                vtx[2].v.ob[0] = PLAYER_VIEW_BLOCK(i)->unk274;
-                vtx[2].v.ob[1] = PLAYER_VIEW_BLOCK(i)->unk276;
+                vtx[2].v.ob[0] = gPlayerSlots[i].rect[2];
+                vtx[2].v.ob[1] = gPlayerSlots[i].rect[3];
                 vtx[2].v.ob[2] = -10;
-                vtx[3].v.ob[0] = PLAYER_VIEW_BLOCK(i)->unk270;
-                vtx[3].v.ob[1] = PLAYER_VIEW_BLOCK(i)->unk276;
+                vtx[3].v.ob[0] = gPlayerSlots[i].rect[0];
+                vtx[3].v.ob[1] = gPlayerSlots[i].rect[3];
                 vtx[3].v.ob[2] = -10;
                 gDPPipeSync(dl++);
                 dl = gfxSetViewportDisplayList(dl);
                 gDPSetScissor(dl++, G_SC_NON_INTERLACE, gGfxScreenLeft, gGfxScreenTop, gGfxScreenRight, gGfxScreenBottom);
                 gSPSetOtherMode(dl++, G_SETOTHERMODE_L, G_MDSFT_RENDERMODE, 29, 0x504340);
                 gDPSetCombineMode(dl++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
-                depthDiff = PLAYER_VIEW_BLOCK(i)->unk24C - PLAYER_VIEW_BLOCK(i)->unk220;
+                depthDiff = gPlayerSlots[i].unk24C - gPlayerSlots[i].unk220;
                 switch (gCurrentMap) {
                 case 0x1E:
                     depthDiff = depthDiff * 0.07;
@@ -736,13 +686,12 @@ Gfx *func_80701CA0(Gfx *dl) {
                 }
                 if (depthDiff > 80.0f) {
                     depthDiff = 80.0f;
-                    if (D_2000180 == 0) {} // FAKE: dead use of D_2000180 shifts uopt priorities (s5/s6 pairing)
                 }
                 if (D_807FD890 != 0) {
-                    overlay->unk1E8 = depthDiff;
+                    playerState->unk1E8 = depthDiff;
                 } else {
-                    overlay->unk1E8 = overlay->unk1E8 + (f64)(depthDiff - overlay->unk1E8) * 0.05;
-                    depthDiff = (u32)overlay->unk1E8 & 0xFF;
+                    playerState->unk1E8 = playerState->unk1E8 + (f64)(depthDiff - playerState->unk1E8) * 0.05;
+                    depthDiff = (u32)playerState->unk1E8 & 0xFF;
                 }
                 gDPSetPrimColor(dl++, 0, 0, 0, 0, 0x3C, (u32)((f32)alphaBase + depthDiff));
                 gDPSetCycleType(dl++, G_CYC_1CYCLE);
@@ -753,8 +702,8 @@ Gfx *func_80701CA0(Gfx *dl) {
                 drew = 1;
                 gDPPipeSync(dl++);
             }
-            PLAYER_VIEW_BLOCK(i)->unk2E8 = camState->unkFA;
-            PLAYER_VIEW_BLOCK(i)->unk24C = camState->unk90;
+            gPlayerSlots[i].unk2E8 = camState->unkFA;
+            gPlayerSlots[i].unk24C = camState->unk90;
         }
     }
     if (drew != 0) {
