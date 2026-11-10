@@ -186,13 +186,13 @@ void actorTableClear(void);
 void actorTableInsert(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorTableRemove
-void actorTableRemove();
+void actorTableRemove(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorTableContains
-s32 actorTableContains(void);
+s32 actorTableContains(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorTableBinarySearch
-s32 actorTableBinarySearch(u32);
+s32 actorTableBinarySearch(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorTableSort
 void actorTableSort(void);

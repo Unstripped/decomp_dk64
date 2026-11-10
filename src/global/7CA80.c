@@ -1,15 +1,11 @@
 #include "common.h"
 #include "actor.h"
 #define PROTO_SKIP_actorClearTargetAngle // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_actorListRemoveByActor // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_actorSub140CreateFromModel // PROTO: Reference of an expression of void type or an incomplete typ
-#define PROTO_SKIP_actorTableBinarySearch // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_actorTableContains // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #define PROTO_SKIP_collisionClearFlags // PROTO: Type Actor *  of this argument  is incompatible with type vo
-#define PROTO_SKIP_controllerAnimFree // PROTO: The number of arguments doesn't agree with the number in the
+#define PROTO_SKIP_controllerAnimFree // PROTO: owner 17B90.c types the param as its file-local ControllerAnimView; callers pass Actor *
 #define PROTO_SKIP_controllerAnimInit // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_controllerStepMotionWindows // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_effectCreateAtActorBone // FAKE: callee prototype steer
+#define PROTO_SKIP_controllerStepMotionWindows // PROTO: owner 17B90.c types the param as its file-local MotionOwner; callers pass Actor *
 #include "proto/global/112080.h"
 #include "proto/global/117190.h"
 #include "proto/global/119370.h"
@@ -91,7 +87,6 @@ extern ActorCallbackNode *D_807FBFE0[];
 extern s32 D_807FBFF0[];
 extern s16 D_807FC3F0;
 
-void controllerStepMotionWindows();
 ActorSub140 *actorSub140CreateFromModel(Actor *);
 void collisionClearFlags(Actor *);
 static void actorStub7CA80_00(void);
@@ -101,9 +96,8 @@ static void actorStub7CA80_03(void);
 static void actorStub7CA80_04(void);
 static void actorStub7CA80_05(void);
 static void actorStub7CA80_06(void);
-s32 actorTableContains();
-s32 actorTableBinarySearch();
-void actorListRemoveByActor(void);
+void controllerAnimFree(Actor *actor);
+void controllerStepMotionWindows(Actor *actor);
 
 typedef struct Struct807FB630 {
     s16 unk0;
@@ -172,7 +166,7 @@ void actorInit(void) {
     gActivePlayerActor = NULL;
 }
 
-void func_80677EC8(s32 arg0) {
+void func_80677EC8(s32 unused) {
 }
 
 typedef struct ActorSpawnInfo {
@@ -189,38 +183,38 @@ typedef struct ActorSpawnInfo {
 extern u8 D_8074D8D4[];
 extern s32 (*D_8074DA30[])(s32 *);
 
-s32 actorSpawnFromInfo(ActorSpawnInfo *arg0) {
+s32 actorSpawnFromInfo(ActorSpawnInfo *info) {
     u8 temp;
-    if (actorAllocate((u16)arg0->unk0)) {
-        temp = D_8074D8D4[arg0->unk0];
-        if (D_8074DA30[temp](&arg0->unk4)) {
-            gSpawnedActor->x = arg0->unkC;
-            gSpawnedActor->y = arg0->unk10;
-            gSpawnedActor->z = arg0->unk14;
-            gSpawnedActor->spawnData = arg0->unk1C;
-            gSpawnedActor->yaw = arg0->unk18;
-            gSpawnedActor->spawnTimer = arg0->unk1A;
-            if (arg0->unk8 != 0) {
-                actorScriptStart(gSpawnedActor, arg0->unk8);
+    if (actorAllocate((u16)info->unk0)) {
+        temp = D_8074D8D4[info->unk0];
+        if (D_8074DA30[temp](&info->unk4)) {
+            gSpawnedActor->x = info->unkC;
+            gSpawnedActor->y = info->unk10;
+            gSpawnedActor->z = info->unk14;
+            gSpawnedActor->spawnData = info->unk1C;
+            gSpawnedActor->yaw = info->unk18;
+            gSpawnedActor->spawnTimer = info->unk1A;
+            if (info->unk8 != 0) {
+                actorScriptStart(gSpawnedActor, info->unk8);
             }
             return 1;
         }
     }
     return 0;
 }
-s32 actorSpawn(s32 arg0, s32 arg1) {
+s32 actorSpawn(s32 type, s32 spawnArg) {
     u8 temp;
-    if (actorAllocate((u16)arg0)) {
-        temp = D_8074D8D4[arg0];
-        if (D_8074DA30[temp](&arg1)) {
+    if (actorAllocate((u16)type)) {
+        temp = D_8074D8D4[type];
+        if (D_8074DA30[temp](&spawnArg)) {
             return 1;
         }
     }
     return 0;
 }
 
-s32 func_80678014(s32 arg0) {
-    if (actorAllocate(arg0 & 0xFFFF) != 0) {
+s32 func_80678014(s32 type) {
+    if (actorAllocate(type & 0xFFFF) != 0) {
         actorInitFloorAttachment(0);
         return 1;
     }
@@ -293,8 +287,8 @@ typedef struct ActorAllocBlock {
     /* 0x174 */ void *unk174;
 } ActorAllocBlock;
 
-s32 actorAllocate(arg0)
-u16 arg0;
+s32 actorAllocate(type)
+u16 type;
 {
     ActorAllocBlock *actor;
     u16 *types;
@@ -303,7 +297,7 @@ u16 arg0;
     u16 headerSize;
     u16 totalDataSize;
 
-    types = D_8074E218[arg0];
+    types = D_8074E218[type];
     headerSize = 0x174;
     totalDataSize = 0;
     if (*types != 0) {
@@ -318,7 +312,7 @@ u16 arg0;
     actor = (ActorAllocBlock *)heapAlloc(totalDataSize);
     if (actor != NULL) {
         heapClearBlock(actor);
-        types = D_8074E218[arg0];
+        types = D_8074E218[type];
         ptrArray = (void **)&actor->unk174;
         dataPtr = (u8 *)actor + ((u16)((headerSize + 7) & 0xFFF8));
         if (*types != 0) {
@@ -335,7 +329,7 @@ u16 arg0;
         actor->unk60 = 0x58144;
         actor->unk64 = 0;
         actor->unk128 = 0xFF;
-        actor->unk58 = arg0;
+        actor->unk58 = type;
         if (gGlobalOverlayFlags & 0x100) {
             actor->unk12A = 0x7D0;
         } else {
@@ -358,7 +352,7 @@ u16 arg0;
         actor->unk14C = NULL;
         actor->unkD4 = &D_80748D4A;
         actor->unk146 = -1;
-        actor->unk5C = D_8074D624[arg0];
+        actor->unk5C = D_8074D624[type];
         actor->unkDA = 0x400;
         actor->unkCC = 0;
         actor->unkCD = 0;
@@ -381,30 +375,30 @@ u16 arg0;
     return 0;
 }
 
-void actorDespawn(Actor *arg0) {
-    actorListRemoveByActor();
-    actorQueueOrDespawn(arg0);
+void actorDespawn(Actor *actor) {
+    actorListRemoveByActor(actor);
+    actorQueueOrDespawn(actor);
 }
 
-s32 actorQueueOrDespawn(Actor *arg0) {
+s32 actorQueueOrDespawn(Actor *actor) {
     s32 i;
 
     if (D_807FBE09 != 0) {
         if (D_807FBF10 == 0x40) {
             faultSetMessage(0xC, 0, 0, 0);
         }
-        if (arg0 == gCurrentActor) {
+        if (actor == gCurrentActor) {
             D_807FBE08 = 1;
         }
         for (i = 0; i < D_807FBF10; i++) {
-            if (arg0 == D_807FBE10[i]) {
+            if (actor == D_807FBE10[i]) {
                 return 0;
             }
         }
-        D_807FBE10[D_807FBF10] = arg0;
+        D_807FBE10[D_807FBF10] = actor;
         D_807FBF10++;
     } else {
-        actorFreeImmediate(arg0);
+        actorFreeImmediate(actor);
     }
     return 1;
 }
@@ -417,22 +411,22 @@ void actorFlushDespawnQueue(void) {
     D_807FBF10 = 0;
 }
 
-void actorRegisterActive(Actor *arg0) {
-    gActiveActors[gActiveActorCount].actor = arg0;
+void actorRegisterActive(Actor *actor) {
+    gActiveActors[gActiveActorCount].actor = actor;
     gActiveActors[gActiveActorCount].unk4 = 0;
     gActiveActorCount++;
 }
 
-void actorDeregisterActive(Actor *arg0) {
+void actorDeregisterActive(Actor *actor) {
     s16 i;
 
-    sfxStopSlotSound(arg0, 0);
-    sfxStopSlotSound(arg0, 1);
+    sfxStopSlotSound(actor, 0);
+    sfxStopSlotSound(actor, 1);
     i = 0;
-    if (arg0 != gActiveActors[0].actor && gActiveActorCount > 0) {
+    if (actor != gActiveActors[0].actor && gActiveActorCount > 0) {
         do {
             i++;
-            if (arg0 == gActiveActors[i].actor) {
+            if (actor == gActiveActors[i].actor) {
                 break;
             }
         } while (i < gActiveActorCount);
@@ -441,27 +435,26 @@ void actorDeregisterActive(Actor *arg0) {
         gActiveActors[i].actor = gActiveActors[gActiveActorCount].actor;
         gActiveActors[i].unk4 = gActiveActors[gActiveActorCount].unk4;
     }
-    func_8062D26C(arg0);
-    arg0->floorTriangle = NULL;
+    func_8062D26C(actor);
+    actor->floorTriangle = NULL;
 }
 
-void actorDespawnByOwner(s32 arg0) {
+void actorDespawnByOwner(s32 owner) {
     s32 i;
 
     D_807FBE09 = 1;
     D_807FBF10 = 0;
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
-        if (arg0 == (s32)actor->parentActor) {
+        if (owner == (s32)actor->parentActor) {
             actorDespawn(actor);
-            actor->parentActor = 0;
+            actor->parentActor = NULL;
         }
     }
     D_807FBE09 = 0;
     actorFlushDespawnQueue();
 }
 
-void controllerAnimFree(void);
 typedef struct ActorBufferView {
     /* 0x000 */ s32 unk0;
     /* 0x004 */ u8 pad04[0x54];
@@ -476,32 +469,32 @@ typedef struct ActorBufferView {
     /* 0x14C */ void *unk14C;
 } ActorBufferView;
 
-void actorFreeImmediate(Actor *arg0) {
+void actorFreeImmediate(Actor *actor) {
     s16 i;
     Actor *temp;
 
-    if (((ActorBufferView *)arg0)->unk0 != 0) {
-        controllerAnimFree();
+    if (((ActorBufferView *)actor)->unk0 != 0) {
+        controllerAnimFree(actor);
     }
-    temp = (Actor *)arg0->parentActor;
+    temp = actor->parentActor;
     if (temp != NULL) {
-        actorAppendCallback(temp, (s32)arg0, 0x80000, 0, 0, NULL);
+        actorAppendCallback(temp, (s32)actor, 0x80000, 0, 0, NULL);
     }
     for (i = 0; i < gActiveActorCount; i++) {
-        if ((s32)arg0 == (s32)gActiveActors[i].actor->parentActor) {
-            gActiveActors[i].actor->parentActor = 0;
+        if (actor == gActiveActors[i].actor->parentActor) {
+            gActiveActors[i].actor->parentActor = NULL;
         }
     }
     i = 0;
-    effectFreeByResource(arg0);
-    pathPlaybackStopForActor(arg0);
-    sfxStopSlotSound(arg0, 0);
-    sfxStopSlotSound(arg0, 1);
-    if (gActiveActors[0].actor != arg0) {
+    effectFreeByResource(actor);
+    pathPlaybackStopForActor(actor);
+    sfxStopSlotSound(actor, 0);
+    sfxStopSlotSound(actor, 1);
+    if (gActiveActors[0].actor != actor) {
         if (gActiveActorCount > 0) {
             do {
                 i++;
-                if (gActiveActors[i].actor == arg0) {
+                if (gActiveActors[i].actor == actor) {
                     break;
                 }
             } while (i < gActiveActorCount);
@@ -513,24 +506,24 @@ void actorFreeImmediate(Actor *arg0) {
             gActiveActors[i].unk4 = gActiveActors[gActiveActorCount].unk4;
         }
     }
-    actorSub140Free(arg0->collision);
-    proxPathRemoveActor(arg0);
-    if (((ActorBufferView *)arg0)->unk118 != NULL) {
-        heapFree(((ActorBufferView *)arg0)->unk118);
+    actorSub140Free(actor->collision);
+    proxPathRemoveActor(actor);
+    if (((ActorBufferView *)actor)->unk118 != NULL) {
+        heapFree(((ActorBufferView *)actor)->unk118);
     }
-    if (((ActorBufferView *)arg0)->unk148 != NULL) {
-        heapFree(((ActorBufferView *)arg0)->unk148);
+    if (((ActorBufferView *)actor)->unk148 != NULL) {
+        heapFree(((ActorBufferView *)actor)->unk148);
     }
-    if (((ActorBufferView *)arg0)->unk14C != NULL) {
-        heapFree(((ActorBufferView *)arg0)->unk14C);
+    if (((ActorBufferView *)actor)->unk14C != NULL) {
+        heapFree(((ActorBufferView *)actor)->unk14C);
     }
-    func_8062D26C(arg0);
-    if (arg0->actorType != 0x12B) {
-        resQueueRemove(arg0);
+    func_8062D26C(actor);
+    if (actor->actorType != 0x12B) {
+        resQueueRemove(actor);
     }
-    renderCallbacksDisableForActor(arg0);
-    actorTableRemove(arg0);
-    heapFree(arg0);
+    renderCallbacksDisableForActor(actor);
+    actorTableRemove(actor);
+    heapFree(actor);
 }
 
 void actorUpdateSpawnsWrapper(void) {
@@ -569,13 +562,13 @@ extern void (*D_8074C0A0[])(void);
 
 extern u16 D_807FBB3C;
 
-void actorUpdateActiveList(u8 arg0) {
+void actorUpdateActiveList(u8 flags) {
     s32 i;
 
     for (i = D_807FBB3C = 0; i < gActiveActorCount; i = D_807FBB3C = i + 1) {
         D_807FBE08 = 0;
         gCurrentActor = gActiveActors[i].actor;
-        if ((arg0 == 1 && !(gCurrentActor->flags & 0x100000)) || (arg0 == 2 && (gCurrentActor->flags & 0x100000))) {
+        if ((flags == 1 && !(gCurrentActor->flags & 0x100000)) || (flags == 2 && (gCurrentActor->flags & 0x100000))) {
             actorPreTick(gCurrentActor);
             D_8074C0A0[gCurrentActor->actorType]();
             actorPostTick(gCurrentActor);
@@ -617,36 +610,36 @@ void actorUpdateLightingAndFog(void) {
     }
 }
 
-void actorPreTick(Actor *arg0) {
-    collisionClearFlags(arg0);
-    if (arg0->collisionFlags & 1) {
-        playerSetActiveGlobals(arg0);
+void actorPreTick(Actor *actor) {
+    collisionClearFlags(actor);
+    if (actor->collisionFlags & 1) {
+        playerSetActiveGlobals(actor);
     }
-    arg0->prevX = arg0->x;
-    arg0->prevY = arg0->y;
-    arg0->prevZ = arg0->z;
-    arg0->prevSpeedXZ = arg0->speedXZ;
+    actor->prevX = actor->x;
+    actor->prevY = actor->y;
+    actor->prevZ = actor->z;
+    actor->prevSpeedXZ = actor->speedXZ;
     D_807F94B4 = 0;
-    if (arg0->collision != NULL) {
-        arg0->collision->unk68 = 0;
+    if (actor->collision != NULL) {
+        actor->collision->unk68 = 0;
     }
-    actorRiderListFree(arg0);
-    if (arg0 == gActivePlayerActor) {
-        actorCollisionCheckBoundingBoxes(arg0);
+    actorRiderListFree(actor);
+    if (actor == gActivePlayerActor) {
+        actorCollisionCheckBoundingBoxes(actor);
     } else {
-        actorInitDamage(arg0);
+        actorInitDamage(actor);
     }
-    actorDispatchCallbacks(arg0);
-    if (arg0 == gActivePlayerActor) {
+    actorDispatchCallbacks(actor);
+    if (actor == gActivePlayerActor) {
         playerStateDispatchQueuedCallback();
     }
-    if (arg0->unk144 & 4) {
-        actorUpdateMovementFlags(arg0);
-    } else if (arg0->collision != NULL) {
-        arg0->collision->unk6C = 0;
+    if (actor->unk144 & 4) {
+        actorUpdateMovementFlags(actor);
+    } else if (actor->collision != NULL) {
+        actor->collision->unk6C = 0;
     }
-    if (arg0->attachMode != 0) {
-        actorUpdateSubnodeRotationAndMtx(arg0);
+    if (actor->attachMode != 0) {
+        actorUpdateSubnodeRotationAndMtx(actor);
     }
 }
 
@@ -682,22 +675,22 @@ void actorPostTick(Actor *actor) {
 }
 
 void actorCheckBoundsAndMotion(Actor *actor) {
-    controllerStepMotionWindows();
+    controllerStepMotionWindows(actor);
     if (actor->flags & 0x500) {
         actorCheckWorldBounds(actor);
     }
 }
 
 void actorUpdatePeakHeight(Actor *actor) {
-    f32 temp_fv0 = actor->y;
+    f32 y = actor->y;
 
-    if (actor->prevY < temp_fv0) {
-        actor->peakY = temp_fv0;
+    if (actor->prevY < y) {
+        actor->peakY = y;
         return;
     }
     if (actor->contactFlags & 5) {
         if (actor->prevContactFlags & 5) {
-            actor->peakY = temp_fv0;
+            actor->peakY = y;
             return;
         }
         actor->prevPeakY = actor->peakY;
@@ -709,16 +702,16 @@ extern u8 D_807FBC55;
 extern u8 gCurrentPlayerIndex;
 
 void actorUpdateArcBounds(Actor *actor) {
-    u8 sp27;
+    u8 arcFlags;
 
     if ((actor->unk144 & 4) && (D_807FBE08 == 0)) {
         if (actor->flags & 0x10000) {
             actor->hasArcBounds = 0;
             actor->collisionHit = 0;
         }
-        actor->hasArcBounds |= actorClearTargetAngle(actor, &actor->arcYawMin, &actor->arcYawMax, &sp27);
-        sp27 |= D_807FBC55;
-        if (sp27 != 0) {
+        actor->hasArcBounds |= actorClearTargetAngle(actor, &actor->arcYawMin, &actor->arcYawMax, &arcFlags);
+        arcFlags |= D_807FBC55;
+        if (arcFlags != 0) {
             if (!(actor->contactFlags & 0x10)) {
                 actor->contactFlags |= 0x10;
                 if (actor == gActivePlayerActor) {
@@ -726,7 +719,7 @@ void actorUpdateArcBounds(Actor *actor) {
                 }
             }
         }
-        if (sp27 == 0) {
+        if (arcFlags == 0) {
             actor->contactFlags &= ~0x10;
         }
     } else {
@@ -769,7 +762,7 @@ s32 actorRiderListContains(Actor *actor, s32 item) {
     return 0;
 }
 
-void actorRegisterGlobalCallback(ActorCallbackNode *arg0) {
+void actorRegisterGlobalCallback(ActorCallbackNode *node) {
     s32 i = 0;
     s32 found = 0;
 
@@ -783,14 +776,14 @@ void actorRegisterGlobalCallback(ActorCallbackNode *arg0) {
     if (!found) {
         faultSetMessage(0xE, 0, 0, 0);
     } else {
-        D_807FBFE0[i] = arg0;
+        D_807FBFE0[i] = node;
     }
 }
 
-void actorGlobalCallbacksDispatchAndFree(arg0)
-u8 arg0;
+void actorGlobalCallbacksDispatchAndFree(id)
+u8 id;
 {
-    ActorCallbackNode **ptr = D_807FBFE0; do { if (((*ptr) != 0) && ((*ptr)->unk4 == arg0)) { ((void (*)(void *)) (*ptr)->callback)(&(*ptr)->unk8); heapFree(*ptr); *ptr = 0; } ptr++; } while (ptr != ((ActorCallbackNode **) (&D_807FBFF0))); // LAYOUT: one-line statement line coordinates steer mirrored-pair scheduling
+    ActorCallbackNode **ptr = D_807FBFE0; do { if (((*ptr) != 0) && ((*ptr)->unk4 == id)) { ((void (*)(void *)) (*ptr)->callback)(&(*ptr)->unk8); heapFree(*ptr); *ptr = 0; } ptr++; } while (ptr != ((ActorCallbackNode **) (&D_807FBFF0))); // LAYOUT: one-line statement line coordinates steer mirrored-pair scheduling
 }
 
 void actorFreeCallbackList(Actor *actor) {
@@ -818,7 +811,7 @@ void actorCallbackMaskDisable(Actor *actor, s32 mask) {
     actor->callbackMask &= ~mask;
 }
 
-void actorAppendCallback(Actor *actor, s32 arg1, s32 arg2, u8 arg3, s32 arg4, void *arg5) {
+void actorAppendCallback(Actor *actor, s32 source, s32 type, u8 subtype, s32 ownsPayload, void *payload) {
     s32 pad;
     ActorCallbackNode **link;
     ActorCallbackNode *prev;
@@ -836,19 +829,19 @@ void actorAppendCallback(Actor *actor, s32 arg1, s32 arg2, u8 arg3, s32 arg4, vo
                 curr = curr->next;
             } while (curr != NULL);
         }
-        node = actorAllocCallbackNode(arg1, arg2, arg3, arg4, arg5);
+        node = actorAllocCallbackNode(source, type, subtype, ownsPayload, payload);
         *link = node;
         node->prev = prev;
     }
 }
 
-void actorQueueDelayedCallback(s32 arg0, s32 arg1, s32 arg2, u8 arg3, s32 arg4, void *arg5, s32 arg6) {
+void actorQueueDelayedCallback(s32 target, s32 source, s32 type, u8 subtype, s32 ownsPayload, void *payload, s32 delay) {
     if (D_807FBFD8 == 16) {
         faultSetMessage(0xF, 0, 0, 0);
     }
-    D_807FBF18[D_807FBFD8].node = actorAllocCallbackNode(arg1, arg2, arg3, arg4, arg5);
-    D_807FBF18[D_807FBFD8].arg0 = arg0;
-    D_807FBF18[D_807FBFD8].arg6 = arg6;
+    D_807FBF18[D_807FBFD8].node = actorAllocCallbackNode(source, type, subtype, ownsPayload, payload);
+    D_807FBF18[D_807FBFD8].arg0 = target;
+    D_807FBF18[D_807FBFD8].arg6 = delay;
     D_807FBFD8++;
 }
 
@@ -901,14 +894,14 @@ void actorDelayedCallbacksTick(void) {
     } while (changed);
 }
 
-ActorCallbackNode *actorAllocCallbackNode(s32 arg0, s32 arg1, u8 arg2, s32 arg3, void *arg4) {
+ActorCallbackNode *actorAllocCallbackNode(s32 source, s32 type, u8 subtype, s32 ownsPayload, void *payload) {
     ActorCallbackNode *node = heapAlloc(sizeof(ActorCallbackNode));
 
-    node->callback = (void *)arg1;
-    node->unk4 = arg2;
-    node->unk8 = arg0;
-    node->unkC = arg3;
-    node->unk10 = arg4;
+    node->callback = (void *)type;
+    node->unk4 = subtype;
+    node->unk8 = source;
+    node->unkC = ownsPayload;
+    node->unk10 = payload;
     node->next = NULL;
     return node;
 }
@@ -1024,275 +1017,276 @@ typedef struct ActorPlayerState {
     u8 pad0[0x1A];
     u16 unk1A;
 } ActorPlayerState;
-void actorDispatchCallbacks(Actor *arg0) {
+void actorDispatchCallbacks(Actor *actor) {
     s16 pad[2];
-    s32 sp50;
-    f32 sp4C;
-    f32 sp48;
-    f32 sp44;
-    s32 sp40;
-    s16 sp3E;
-    s8 var_s7;
-    u8 temp_v1_2;
-    u8 temp_v1_3;
-    ActorPayloadA7EC *temp_s0;
-    ActorCollisionHit *temp_s0_2;
-    ActorPayload10000 *temp_s0_3;
-    ActorCallbackNode *temp_v0;
-    f32 *temp_v0_10;
-    ActorPayloadABC0 *temp_v0_11;
-    ActorPlayerState *temp_v0_3;
-    ActorPayloadAAB8 *temp_v0_4;
-    ActorPayloadA69C *temp_v0_5;
-    ActorPayloadA70C *temp_v0_6;
-    f32 *temp_v0_7;
-    ActorPayloadAAB8 *temp_v0_8;
-    ActorSub140 *temp_v0_9;
-    s32 *temp_v1_4;
-    Actor *temp_v1;
-    ActorCallbackNode *var_s2;
+    s32 mask;
+    f32 targetX;
+    f32 targetY;
+    f32 targetZ;
+    s32 bestType;
+    u8 pad1;
+    u8 skipArcCheck;
+    s8 bestPriority;
+    u8 priority10;
+    u8 priority20;
+    ActorPayloadA7EC *riderPayload;
+    ActorCollisionHit *hit;
+    ActorPayload10000 *surfacePayload;
+    ActorCallbackNode *sorted;
+    f32 *pointPair;
+    ActorPayloadABC0 *eventPayload;
+    ActorPlayerState *playerState;
+    ActorPayloadAAB8 *viewPayload;
+    ActorPayloadA69C *payload10;
+    ActorPayloadA70C *payload20;
+    f32 *vecPayload;
+    ActorPayloadAAB8 *statePayload;
+    ActorSub140 *collision;
+    s32 *collisionValue;
+    Actor *player;
+    ActorCallbackNode *node;
 
-    var_s7 = -1;
+    bestPriority = -1;
     actorGlobalStateClearEvents();
-    temp_v0 = actorCallbackListSort(arg0->callbacks);
-    arg0->callbacks = temp_v0;
-    var_s2 = temp_v0;
-    sp50 = arg0->callbackMask;
-    if (temp_v0 != NULL) {
+    sorted = actorCallbackListSort(actor->callbacks);
+    actor->callbacks = sorted;
+    node = sorted;
+    mask = actor->callbackMask;
+    if (sorted != NULL) {
         do {
-            if ((s32)var_s2->callback == 0) {}  // FAKE: dead test steers uopt colouring of the callback id (a0 vs a1)
-            if ((s32)var_s2->callback & sp50) {
-                switch ((s32)var_s2->callback) {
+            if ((s32)node->callback == 0) {}  // FAKE: dead test steers uopt colouring of the callback id (a0 vs a1)
+            if ((s32)node->callback & mask) {
+                switch ((s32)node->callback) {
                 case 0x8000:
-                    actorCollisionProcessHit(arg0, var_s2);
-                    if (((GSTATE.unk200 == 9) || (GSTATE.unk200 == 0xA)) && (arg0->collisionFlags & 1)) {
-                        playerHandleDamageReaction(arg0, GSTATE.unk1FC, (GSTATE.unk200 == 0xA));
+                    actorCollisionProcessHit(actor, node);
+                    if (((GSTATE.unk200 == 9) || (GSTATE.unk200 == 0xA)) && (actor->collisionFlags & 1)) {
+                        playerHandleDamageReaction(actor, GSTATE.unk1FC, (GSTATE.unk200 == 0xA));
                     }
                     break;
                 case 0x2:
-                    switch (var_s2->unk4) {
+                    switch (node->unk4) {
                     case 0:
                         GSTATE.unk16 = 1;
-                        if (arg0 == gActivePlayerActor) {
+                        if (actor == gActivePlayerActor) {
                             playerStateQueueCallback(0x10, NULL, gCurrentPlayerIndex);
                         }
                         break;
                     case 1:
                         GSTATE.unk17 = 1;
-                        if (arg0 == gActivePlayerActor) {
-                            playerStateQueueCallback(0xE, var_s2->unk8, gCurrentPlayerIndex);
+                        if (actor == gActivePlayerActor) {
+                            playerStateQueueCallback(0xE, node->unk8, gCurrentPlayerIndex);
                         }
                         break;
                     case 2:
                         GSTATE.unk18 = 1;
-                        if (arg0 == gActivePlayerActor) {
+                        if (actor == gActivePlayerActor) {
                             playerStateQueueCallback(0x12, NULL, gCurrentPlayerIndex);
                         }
                         break;
                     case 3:
                         GSTATE.unk19 = 1;
-                        if (arg0 == gActivePlayerActor) {
+                        if (actor == gActivePlayerActor) {
                             playerStateQueueCallback(0x13, NULL, gCurrentPlayerIndex);
                         }
                         break;
                     case 6:
                         GSTATE.unk1B = 1;
-                        if (arg0 == gActivePlayerActor) {
-                            playerStateQueueCallback(0x36, var_s2->unk8, gCurrentPlayerIndex);
+                        if (actor == gActivePlayerActor) {
+                            playerStateQueueCallback(0x36, node->unk8, gCurrentPlayerIndex);
                         }
                         break;
                     case 4:
                     case 5:
-                        if (arg0 == gActivePlayerActor) {
-                            if (var_s2->unk4 == 4) {
-                                playerStateQueueCallback(0x2B, var_s2->unk8, gCurrentPlayerIndex);
+                        if (actor == gActivePlayerActor) {
+                            if (node->unk4 == 4) {
+                                playerStateQueueCallback(0x2B, node->unk8, gCurrentPlayerIndex);
                             } else {
-                                playerStateQueueCallback(0x32, var_s2->unk8, gCurrentPlayerIndex);
+                                playerStateQueueCallback(0x32, node->unk8, gCurrentPlayerIndex);
                             }
-                            temp_v1 = (Actor *)var_s2->unk8;
-                            if ((temp_v1 != NULL) && (temp_v1->collisionFlags & 2)) {
-                                temp_v0_3 = (ActorPlayerState *)temp_v1->customState;
-                                temp_v0_3->unk1A = (u16)(temp_v0_3->unk1A | 0x100);
+                            player = (Actor *)node->unk8;
+                            if ((player != NULL) && (player->collisionFlags & 2)) {
+                                playerState = (ActorPlayerState *)player->customState;
+                                playerState->unk1A = (u16)(playerState->unk1A | 0x100);
                             }
                         }
                         break;
                     }
                     break;
                 case 0x8:
-                    playerHandleDamageReaction(arg0, (Actor *)var_s2->unk8, 0);
+                    playerHandleDamageReaction(actor, (Actor *)node->unk8, 0);
                     break;
                 case 0x4:
-                    playerHandleDamageReaction(arg0, (Actor *)var_s2->unk8, 1);
+                    playerHandleDamageReaction(actor, (Actor *)node->unk8, 1);
                     break;
                 case 0x800:
-                    arg0->unk144 = (u8)var_s2->unk4;
+                    actor->unk144 = (u8)node->unk4;
                     GSTATE.unk90 = 1;
                     break;
                 case 0x400:
-                    temp_v0_4 = (ActorPayloadAAB8 *)var_s2->unk10;
-                    PLAYER_STATE_VIEW->unk70 = temp_v0_4->unk0;
-                    PLAYER_STATE_VIEW->unk74 = temp_v0_4->unk4;
-                    PLAYER_STATE_VIEW->unk6C = (f32)temp_v0_4->unk8;
+                    viewPayload = (ActorPayloadAAB8 *)node->unk10;
+                    PLAYER_STATE_VIEW->unk70 = viewPayload->unk0;
+                    PLAYER_STATE_VIEW->unk74 = viewPayload->unk4;
+                    PLAYER_STATE_VIEW->unk6C = (f32)viewPayload->unk8;
                     GSTATE.unk1A = 1;
-                    if (arg0 == gActivePlayerActor) {
-                        playerStateQueueCallback(0x17, var_s2->unk8, gCurrentPlayerIndex);
+                    if (actor == gActivePlayerActor) {
+                        playerStateQueueCallback(0x17, node->unk8, gCurrentPlayerIndex);
                     }
                     break;
                 case 0x10:
-                    temp_v0_5 = (ActorPayloadA69C *)var_s2->unk10;
-                    temp_v1_2 = temp_v0_5->unk8;
-                    if (var_s7 < (s32)temp_v1_2) {
-                        sp4C = temp_v0_5->unk0;
-                        var_s7 = (s8)temp_v1_2;
-                        sp44 = temp_v0_5->unk4;
-                        sp40 = (s32)var_s2->callback;
-                        *(u8 *)&sp3E = temp_v0_5->unk9;
+                    payload10 = (ActorPayloadA69C *)node->unk10;
+                    priority10 = payload10->unk8;
+                    if (bestPriority < (s32)priority10) {
+                        targetX = payload10->unk0;
+                        bestPriority = (s8)priority10;
+                        targetZ = payload10->unk4;
+                        bestType = (s32)node->callback;
+                        skipArcCheck = payload10->unk9;
                     }
                     break;
                 case 0x20:
-                    temp_v0_6 = (ActorPayloadA70C *)var_s2->unk10;
-                    temp_v1_3 = temp_v0_6->unkC;
-                    if (var_s7 < (s32)temp_v1_3) {
-                        sp4C = temp_v0_6->unk0;
-                        var_s7 = (s8)temp_v1_3;
-                        sp48 = temp_v0_6->unk4;
-                        sp44 = temp_v0_6->unk8;
-                        sp40 = (s32)var_s2->callback;
-                        *(u8 *)&sp3E = temp_v0_6->unkD;
+                    payload20 = (ActorPayloadA70C *)node->unk10;
+                    priority20 = payload20->unkC;
+                    if (bestPriority < (s32)priority20) {
+                        targetX = payload20->unk0;
+                        bestPriority = (s8)priority20;
+                        targetY = payload20->unk4;
+                        targetZ = payload20->unk8;
+                        bestType = (s32)node->callback;
+                        skipArcCheck = payload20->unkD;
                     }
                     break;
                 case 0x100000:
-                    temp_v0_7 = (f32 *)var_s2->unk10;
-                    GSTATE.unkD8 = temp_v0_7[0];
-                    GSTATE.unkDC = temp_v0_7[1];
-                    GSTATE.unkE0 = temp_v0_7[2];
+                    vecPayload = (f32 *)node->unk10;
+                    GSTATE.unkD8 = vecPayload[0];
+                    GSTATE.unkDC = vecPayload[1];
+                    GSTATE.unkE0 = vecPayload[2];
                     GSTATE.unkE4 = 1;
-                    GSTATE.unkEC = (Actor *)var_s2->unk8;
+                    GSTATE.unkEC = (Actor *)node->unk8;
                     break;
                 case 0x1000:
                     GSTATE.unk1C = 1;
-                    GSTATE.unk20 = (Actor *)var_s2->unk8;
+                    GSTATE.unk20 = (Actor *)node->unk8;
                     break;
                 case 0x4000:
-                    temp_v0_8 = (ActorPayloadAAB8 *)var_s2->unk10;
+                    statePayload = (ActorPayloadAAB8 *)node->unk10;
                     GSTATE.unk2C = 1;
-                    GSTATE.unk30 = temp_v0_8->unk4;
-                    GSTATE.unk34 = temp_v0_8->unk8;
-                    GSTATE.unk36 = temp_v0_8->unk0;
+                    GSTATE.unk30 = statePayload->unk4;
+                    GSTATE.unk34 = statePayload->unk8;
+                    GSTATE.unk36 = statePayload->unk0;
                     break;
                 case 0x2000:
-                    if (var_s2->unk4 != 0) {
+                    if (node->unk4 != 0) {
                         GSTATE.unk24 = 1;
                     } else {
                         GSTATE.unk25 = 1;
                     }
-                    GSTATE.unk28 = (Actor *)var_s2->unk8;
+                    GSTATE.unk28 = (Actor *)node->unk8;
                     break;
                 case 0x80:
-                    arg0->flags = (s32)(arg0->flags | 8);
-                    if (arg0 == gActivePlayerActor) {
-                        playerStateQueueCallback(0x16, var_s2->unk8, gCurrentPlayerIndex);
+                    actor->flags = (s32)(actor->flags | 8);
+                    if (actor == gActivePlayerActor) {
+                        playerStateQueueCallback(0x16, node->unk8, gCurrentPlayerIndex);
                     }
                     break;
                 case 0x40:
-                    if (var_s2->unk4 != 0) {
-                        arg0->flags = (s32)(arg0->flags | 4);
+                    if (node->unk4 != 0) {
+                        actor->flags = (s32)(actor->flags | 4);
                     } else {
-                        arg0->flags = (s32)(arg0->flags & ~4);
+                        actor->flags = (s32)(actor->flags & ~4);
                     }
                     break;
                 case 0x1:
-                    temp_s0 = (ActorPayloadA7EC *)var_s2->unk10;
-                    if (actorTableContains(var_s2->unk8) != 0 && GSTATE.unk39 != 4) {
-                        GSTATE.unk3C[GSTATE.unk39][0] = temp_s0->unk0;
-                        GSTATE.unk3C[GSTATE.unk39][1] = temp_s0->unk4;
-                        GSTATE.unk3C[GSTATE.unk39][2] = temp_s0->unk8;
-                        GSTATE.unk6C[GSTATE.unk39] = temp_s0->unkC;
-                        GSTATE.unk7C[GSTATE.unk39] = (Actor *)var_s2->unk8;
-                        GSTATE.unk8C[GSTATE.unk39] = temp_s0->unk10;
+                    riderPayload = (ActorPayloadA7EC *)node->unk10;
+                    if (actorTableContains(node->unk8) != 0 && GSTATE.unk39 != 4) {
+                        GSTATE.unk3C[GSTATE.unk39][0] = riderPayload->unk0;
+                        GSTATE.unk3C[GSTATE.unk39][1] = riderPayload->unk4;
+                        GSTATE.unk3C[GSTATE.unk39][2] = riderPayload->unk8;
+                        GSTATE.unk6C[GSTATE.unk39] = riderPayload->unkC;
+                        GSTATE.unk7C[GSTATE.unk39] = (Actor *)node->unk8;
+                        GSTATE.unk8C[GSTATE.unk39] = riderPayload->unk10;
                         GSTATE.unk39++;
-                        actorRiderListAdd(arg0, var_s2->unk8);
+                        actorRiderListAdd(actor, node->unk8);
                     }
                     break;
                 case 0x20000:
-                    temp_s0_2 = (ActorCollisionHit *)var_s2->unk10;
+                    hit = (ActorCollisionHit *)node->unk10;
                     if (GSTATE.unk1F8 != 4) {
-                        memcpy(&GSTATE.unkF8[GSTATE.unk1F8], temp_s0_2, 0xC);
-                        memcpy(GSTATE.unkF8[GSTATE.unk1F8].unkC, temp_s0_2->unkC, 0x24);
-                        GSTATE.unkF8[GSTATE.unk1F8].unk30 = temp_s0_2->unk30;
-                        GSTATE.unkF8[GSTATE.unk1F8].unk34 = temp_s0_2->unk34;
-                        GSTATE.unkF8[GSTATE.unk1F8].unk38 = temp_s0_2->unk38;
-                        GSTATE.unkF8[GSTATE.unk1F8].unk3C = (Actor *)var_s2->unk8;
+                        memcpy(&GSTATE.unkF8[GSTATE.unk1F8], hit, 0xC);
+                        memcpy(GSTATE.unkF8[GSTATE.unk1F8].unkC, hit->unkC, 0x24);
+                        GSTATE.unkF8[GSTATE.unk1F8].unk30 = hit->unk30;
+                        GSTATE.unkF8[GSTATE.unk1F8].unk34 = hit->unk34;
+                        GSTATE.unkF8[GSTATE.unk1F8].unk38 = hit->unk38;
+                        GSTATE.unkF8[GSTATE.unk1F8].unk3C = (Actor *)node->unk8;
                         GSTATE.unk1F8++;
                     }
                     break;
                 case 0x10000:
-                    temp_s0_3 = (ActorPayload10000 *)var_s2->unk10;
+                    surfacePayload = (ActorPayload10000 *)node->unk10;
                     GSTATE.unk91 = 1;
-                    GSTATE.unk92 = temp_s0_3->unk0;
-                    GSTATE.unk94 = temp_s0_3->unk2;
-                    memcpy(&D_807FBC08, temp_s0_3->unk4, 0xC);
-                    memcpy(&D_807FBC14, temp_s0_3->unk10, 0x24);
-                    GSTATE.unkC8 = temp_s0_3->unk34;
-                    GSTATE.unkCC = (Actor *)var_s2->unk8;
-                    GSTATE.unkD0 = temp_s0_3->unk38;
-                    GSTATE.unkD4 = temp_s0_3->unk3C;
+                    GSTATE.unk92 = surfacePayload->unk0;
+                    GSTATE.unk94 = surfacePayload->unk2;
+                    memcpy(&D_807FBC08, surfacePayload->unk4, 0xC);
+                    memcpy(&D_807FBC14, surfacePayload->unk10, 0x24);
+                    GSTATE.unkC8 = surfacePayload->unk34;
+                    GSTATE.unkCC = (Actor *)node->unk8;
+                    GSTATE.unkD0 = surfacePayload->unk38;
+                    GSTATE.unkD4 = surfacePayload->unk3C;
                     break;
                 case 0x40000:
-                    temp_v1_4 = var_s2->unk10;
-                    temp_v0_9 = arg0->collision;
-                    if (temp_v0_9 != NULL) {
-                        temp_v0_9->unk68 = *temp_v1_4;
+                    collisionValue = node->unk10;
+                    collision = actor->collision;
+                    if (collision != NULL) {
+                        collision->unk68 = *collisionValue;
                     }
                     break;
                 case 0x80000:
                     GSTATE.unk38 = 1;
                     break;
                 case 0x200000:
-                    temp_v0_10 = (f32 *)var_s2->unk10;
-                    GSTATE.unkF0 = temp_v0_10[0];
-                    GSTATE.unkF4 = temp_v0_10[1];
+                    pointPair = (f32 *)node->unk10;
+                    GSTATE.unkF0 = pointPair[0];
+                    GSTATE.unkF4 = pointPair[1];
                     break;
                 case 0x400000:
-                    GSTATE.unkE8 = (f32)(u32)var_s2->unk4;
+                    GSTATE.unkE8 = (f32)(u32)node->unk4;
                     GSTATE.unkE5 = 1;
                     break;
                 case 0x1000000:
                     if (GSTATE.unk254 < 8) {
-                        GSTATE.unk258[GSTATE.unk254] = var_s2->unk4;
-                        GSTATE.unk278[GSTATE.unk254] = var_s2->unk10;
+                        GSTATE.unk258[GSTATE.unk254] = node->unk4;
+                        GSTATE.unk278[GSTATE.unk254] = node->unk10;
                         GSTATE.unk254++;
                     }
                     break;
                 case 0x800000:
-                    temp_v0_11 = (ActorPayloadABC0 *)var_s2->unk10;
-                    GSTATE.unk4 = temp_v0_11->unk0;
-                    GSTATE.unk8 = temp_v0_11->unk4;
-                    GSTATE.unkC = temp_v0_11->unk8;
-                    GSTATE.unk10 = temp_v0_11->unkC;
-                    GSTATE.unk12 = temp_v0_11->unkE;
+                    eventPayload = (ActorPayloadABC0 *)node->unk10;
+                    GSTATE.unk4 = eventPayload->unk0;
+                    GSTATE.unk8 = eventPayload->unk4;
+                    GSTATE.unkC = eventPayload->unk8;
+                    GSTATE.unk10 = eventPayload->unkC;
+                    GSTATE.unk12 = eventPayload->unkE;
                     GSTATE.unk2 = 1;
-                    GSTATE.unk14 = var_s2->unk4;
+                    GSTATE.unk14 = node->unk4;
                     break;
                 case 0x2000000:
                     GSTATE.unk0 = 1;
-                    GSTATE.unk1 = var_s2->unk4;
+                    GSTATE.unk1 = node->unk4;
                     break;
                 }
             }
-            var_s2 = var_s2->next;
-        } while (var_s2 != NULL);
+            node = node->next;
+        } while (node != NULL);
     }
-    if ((var_s7 != -1) && ((*(u8 *)&sp3E == 1) || (actorCheckPointInAngleArc(arg0, sp4C, sp44) != 0))) {
-        switch (sp40) {
+    if ((bestPriority != -1) && ((skipArcCheck == 1) || (actorCheckPointInAngleArc(actor, targetX, targetZ) != 0))) {
+        switch (bestType) {
         case 16:
-            arg0->x = sp4C;
-            arg0->z = sp44;
+            actor->x = targetX;
+            actor->z = targetZ;
             return;
         case 32:
-            arg0->x = sp4C;
-            arg0->y = sp48;
-            arg0->z = sp44;
+            actor->x = targetX;
+            actor->y = targetY;
+            actor->z = targetZ;
             break;
         }
     }
@@ -1320,70 +1314,69 @@ extern DamageReactionContext *gActivePlayerState;
 
 extern u8 D_807FBB85;
 extern s32 D_80720E2C;
-s32 effectCreateAtActorBone(void *, s32, Actor *, s32, s32); // FAKE: callee prototype steer
-void playerHandleDamageReaction(Actor *arg0, Actor *arg1, u8 arg2) {
-    s32 sp3C;
-    s32 var_a2;
-    void *sp24;
+void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
+    s32 reaction;
+    s32 queueReaction;
+    void *pulseCallback;
     s32 pad;
-    s32 var_v0;
+    s32 damageLevel;
 
     D_807FBB85 = 1;
-    if (arg0 == gActivePlayerActor) {
-        if (!(((DamageReactionPlayerEntry *)gPlayerSlots)[gActivePlayerState->playerIndex].unk2C0 == 2 && arg1 != NULL && (arg1->collisionFlags & 2))) {
-            sp3C = 0x2E;
-            var_a2 = 1;
-            if (arg2 != 0) {
-                sp3C = 0x30;
+    if (actor == gActivePlayerActor) {
+        if (!(((DamageReactionPlayerEntry *)gPlayerSlots)[gActivePlayerState->playerIndex].unk2C0 == 2 && attacker != NULL && (attacker->collisionFlags & 2))) {
+            reaction = 0x2E;
+            queueReaction = 1;
+            if (heavy != 0) {
+                reaction = 0x30;
             }
-            if (arg1 != NULL && arg1->actorType == 0x116) {
-                effectSpawnBurstParticleCluster(arg0);
-                switch (arg1->unk155[0]) {
+            if (attacker != NULL && attacker->actorType == 0x116) {
+                effectSpawnBurstParticleCluster(actor);
+                switch (attacker->unk155[0]) {
                 case 1:
-                    var_a2 = 0;
+                    queueReaction = 0;
                     gActivePlayerState->stateFlags ^= 0x80;
                     break;
                 case 2:
-                    sp3C = 0x27;
+                    reaction = 0x27;
                     break;
                 case 3:
                     effectSetDuration(0xF0);
                     effectSetDepth(1);
-                    sp24 = &effectPulseSpinUpdate;
+                    pulseCallback = &effectPulseSpinUpdate;
                     effectSetCallback(&effectPulseSpinUpdate);
-                    effectCreateAtActorBone(&D_80720E2C, 0x3ECCCCCD, arg0, 1, 2);
+                    effectCreateAtActorBone(&D_80720E2C, 0.4f, actor, 1, 2);
                     effectSetDuration(0xF0);
                     effectSetDepth(1);
-                    effectSetCallback(sp24);
-                    effectCreateAtActorBone(&D_80720E2C, 0x3EC28F5C, arg0, 5, 2);
+                    effectSetCallback(pulseCallback);
+                    effectCreateAtActorBone(&D_80720E2C, 0.38f, actor, 5, 2);
                     effectSetDuration(0xF0);
                     effectSetDepth(1);
-                    effectSetCallback(sp24);
-                    effectCreateAtActorBone(&D_80720E2C, 0x3E99999A, arg0, 6, 2);
-                    var_a2 = 0;
+                    effectSetCallback(pulseCallback);
+                    effectCreateAtActorBone(&D_80720E2C, 0.3f, actor, 6, 2);
+                    queueReaction = 0;
                     gActivePlayerState->stateFlags |= 0x08000000;
                     break;
                 }
                 gActivePlayerState->unk200 = 0xF0;
-            } else if (arg1 != NULL && ((arg1->collisionFlags & 1) || (arg1->collisionFlags & 4) || (arg1->collisionFlags & 2))) {
+            } else if (attacker != NULL && ((attacker->collisionFlags & 1) || (attacker->collisionFlags & 4) || (attacker->collisionFlags & 2))) {
                 if (func_80714608(0) != 0) {
-                    if (playerIsSmallerThanAttacker(arg0, arg1) != 0) {
-                        sp3C = 0x31;
+                    if (playerIsSmallerThanAttacker(actor, attacker) != 0) {
+                        reaction = 0x31;
                     } else {
-                        var_v0 = 1;
-                        if (arg1->collisionFlags & 4) {
-                            var_v0 = 3;
+                        damageLevel = 1;
+                        if (attacker->collisionFlags & 4) {
+                            damageLevel = 3;
                         }
-                        if (arg1->state != 0x28 && var_v0 < 3) {
-                            sp3C = 0x2B;
+                        if (attacker->state != 0x28 && damageLevel < 3) {
+                            reaction = 0x2B;
                         } else {
-                            sp3C = 0xE;
+                            reaction = 0xE;
                         }
                     }
                 }
             }
-            if (var_a2 != 0) {
-                playerStateQueueCallback((s16)sp3C, (s32)arg1, gCurrentPlayerIndex);
+            if (queueReaction != 0) {
+                playerStateQueueCallback((s16)reaction, (s32)attacker, gCurrentPlayerIndex);
             }
         }
     }
@@ -1438,11 +1431,11 @@ ActorCallbackNode *actorCallbackListSort(ActorCallbackNode *head) {
     return new_head;
 }
 
-void actorCollisionEventsCancel(s32 arg0, u8 arg1) {
+void actorCollisionEventsCancel(s32 node, u8 event) {
     s32 i;
 
     for (i = 0; i < gActorGlobalState.unk201; i++) {
-        if ((gActorGlobalState.unk244[i] == arg1) && (gActorGlobalState.unk204[i] == arg0)) {
+        if ((gActorGlobalState.unk244[i] == event) && (gActorGlobalState.unk204[i] == node)) {
             gActorGlobalState.unk244[i] = 0;
         }
     }
@@ -1451,158 +1444,126 @@ void actorCollisionEventsCancel(s32 arg0, u8 arg1) {
 extern u8 D_807FBC68[][0x40];
 extern u8 D_807FBC74[][0x40];
 
-typedef struct ActorVec3f {
-    f32 x;
-    f32 y;
-    f32 z;
-} ActorVec3f;
-
-typedef struct ActorCollisionSlot {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ s32 unk4;
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ s32 unkC;
-    u8 pad10[0x30];
-} ActorCollisionSlot;
-
-typedef struct ActorCollisionState {
-    u8 pad0[0x3C];
-    ActorVec3f unk3C[4];
-    s32 unk6C[4];
-    s32 unk7C[4];
-    u8 unk8C[4];
-    u8 unk90;
-    u8 unk91;
-    u8 pad92[0x36];
-    s32 unkC8;
-    s32 unkCC;
-    s32 unkD0;
-    s32 unkD4;
-    u8 padD8[0x50];
-    ActorCollisionSlot unk128[1];
-} ActorCollisionState;
-
-#define COLLISION_STATE ((ActorCollisionState *)&gActorGlobalState)
 
 
-void actorDispatchCollisionResults(Actor *arg0) {
+void actorDispatchCollisionResults(Actor *actor) {
     s32 i;
-    f32 sp68;
-    f32 sp64;
+    f32 hitX;
+    f32 hitZ;
     s32 pad60;
-    f32 sp5C;
-    f32 sp58;
+    f32 otherX;
+    f32 otherZ;
 
     for (i = 0; i < gActorGlobalState.unk201; i++) {
         switch (gActorGlobalState.unk244[i]) {
         case 0:
             break;
         case 1:
-            if (actorCollisionGetNodeHitPoint(arg0, gActorGlobalState.unk204[i], &sp68, &sp64) != 0) {
-                actorAppendCallbackPayloadA69C((s32)arg0, (Actor *)gActorGlobalState.unk204[i], sp68, sp64, 0, 1);
+            if (actorCollisionGetNodeHitPoint(actor, gActorGlobalState.unk204[i], &hitX, &hitZ) != 0) {
+                actorAppendCallbackPayloadA69C((s32)actor, (Actor *)gActorGlobalState.unk204[i], hitX, hitZ, 0, 1);
             }
             break;
         case 2:
-            actorCollisionGetNodeHitPoint(arg0, gActorGlobalState.unk204[i], &sp5C, &sp58);
+            actorCollisionGetNodeHitPoint(actor, gActorGlobalState.unk204[i], &otherX, &otherZ);
             break;
         case 4:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 1, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 1, 0, 0);
             break;
         case 3:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 0, 0, 0);
             break;
         case 8:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 2, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 2, 0, 0);
             break;
         case 10:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 3, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 3, 0, 0);
             break;
         case 13:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 6, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 6, 0, 0);
             break;
         case 11:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 4, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 4, 0, 0);
             break;
         case 12:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 2, 5, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 2, 5, 0, 0);
             break;
         case 6:
         case 7:
             if (gActorGlobalState.unk244[i] == 6) {
-                actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 0x40, 0, 0, 0);
+                actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 0x40, 0, 0, 0);
             }
-            actorAppendCallbackPayloadA70C((s32)arg0, (Actor *)gActorGlobalState.unk204[i], arg0->x, arg0->y, arg0->z, 2, 1);
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 0x80, 0, 0, 0);
-            playerDropHeldActor(arg0);
+            actorAppendCallbackPayloadA70C((s32)actor, (Actor *)gActorGlobalState.unk204[i], actor->x, actor->y, actor->z, 2, 1);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 0x80, 0, 0, 0);
+            playerDropHeldActor(actor);
             break;
         case 5:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 8, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 8, 0, 0, 0);
             break;
         case 15:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 4, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 4, 0, 0, 0);
             break;
         case 9:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 0x1000, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 0x1000, 0, 0, 0);
             break;
         case 14:
-            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)arg0, 0x02000000, 0, 0, 0);
+            actorAppendCallback((Actor *)gActorGlobalState.unk204[i], (s32)actor, 0x02000000, 0, 0, 0);
             break;
         }
     }
 
     if (gActorGlobalState.unk39) {
         for (i = 0; i < gActorGlobalState.unk39; i++) {
-            if (COLLISION_STATE->unk8C[i] == 0) {
-                collisionTransformPointByActorMtx(arg0, COLLISION_STATE->unk6C[i], &COLLISION_STATE->unk3C[i].x, COLLISION_STATE->unk3C[i].y, &COLLISION_STATE->unk3C[i].z);
-                actorAppendCallbackPayloadA69C((s32)arg0, (Actor *)COLLISION_STATE->unk7C[i], COLLISION_STATE->unk3C[i].x, COLLISION_STATE->unk3C[i].z, 1, 1);
+            if (GSTATE.unk8C[i] == 0) {
+                collisionTransformPointByActorMtx(actor, GSTATE.unk6C[i], &GSTATE.unk3C[i][0], GSTATE.unk3C[i][1], &GSTATE.unk3C[i][2]);
+                actorAppendCallbackPayloadA69C((s32)actor, GSTATE.unk7C[i], GSTATE.unk3C[i][0], GSTATE.unk3C[i][2], 1, 1);
             }
         }
     }
 
     if (gActorGlobalState.unk91 != 0) {
-        actorCollisionResolveSurfaceHit(arg0, COLLISION_STATE->unkCC, &D_807FBC08, &D_807FBC14, COLLISION_STATE->unkC8, COLLISION_STATE->unkD0, COLLISION_STATE->unkD4, 1);
+        actorCollisionResolveSurfaceHit(actor, GSTATE.unkCC, &D_807FBC08, &D_807FBC14, GSTATE.unkC8, GSTATE.unkD0, GSTATE.unkD4, 1);
     }
 
     for (i = 0; i < gActorGlobalState.unk1F8; i++) {
-        actorCollisionResolveSurfaceHit(arg0, COLLISION_STATE->unk128[i].unkC, D_807FBC68[i], D_807FBC74[i], COLLISION_STATE->unk128[i].unk0, COLLISION_STATE->unk128[i].unk4, COLLISION_STATE->unk128[i].unk8, 0);
+        actorCollisionResolveSurfaceHit(actor, GSTATE.unkF8[i].unk3C, D_807FBC68[i], D_807FBC74[i], GSTATE.unkF8[i].unk30, GSTATE.unkF8[i].unk34, GSTATE.unkF8[i].unk38, 0);
     }
 }
 
-void actorAppendCallbackPayloadA69C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, u8 arg4, u8 arg5) {
+void actorAppendCallbackPayloadA69C(s32 source, Actor *target, f32 x, f32 z, u8 arg4, u8 arg5) {
     ActorPayloadA69C *temp = heapAlloc(sizeof(ActorPayloadA69C));
-    temp->unk0 = arg2;
-    temp->unk4 = arg3;
+    temp->unk0 = x;
+    temp->unk4 = z;
     temp->unk8 = arg4;
     temp->unk9 = arg5;
-    actorAppendCallback(arg1, arg0, 0x10, 0, 1, temp);
+    actorAppendCallback(target, source, 0x10, 0, 1, temp);
 }
 
-void actorAppendCallbackPayloadA70C(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6) {
+void actorAppendCallbackPayloadA70C(s32 source, Actor *target, f32 x, f32 y, f32 z, u8 arg5, u8 arg6) {
     ActorPayloadA70C *temp = heapAlloc(sizeof(ActorPayloadA70C));
-    temp->unk0 = arg2;
-    temp->unk4 = arg3;
-    temp->unk8 = arg4;
+    temp->unk0 = x;
+    temp->unk4 = y;
+    temp->unk8 = z;
     temp->unkC = arg5;
     temp->unkD = arg6;
-    actorAppendCallback(arg1, arg0, 0x20, 0, 1, temp);
+    actorAppendCallback(target, source, 0x20, 0, 1, temp);
 }
 
-void actorAppendCallback4000(Actor *arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
+void actorAppendCallback4000(Actor *source, Actor *target, s16 arg2, f32 arg3, s16 arg4) {
     ActorPayloadAAB8 *temp = heapAlloc(sizeof(ActorPayloadAAB8));
     temp->unk0 = arg2;
     temp->unk4 = arg3;
     temp->unk8 = arg4;
-    actorAppendCallback(arg1, arg0, 0x4000, 0, 1, temp);
+    actorAppendCallback(target, source, 0x4000, 0, 1, temp);
 }
 
-void actorAppendCallback10(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4, s32 arg5, u8 arg6) {
+void actorAppendCallback10(s32 source, Actor *target, f32 arg2, f32 arg3, f32 arg4, s32 arg5, u8 arg6) {
     ActorPayloadA7EC *temp = heapAlloc(sizeof(ActorPayloadA7EC));
     temp->unk0 = arg2;
     temp->unk4 = arg3;
     temp->unk8 = arg4;
     temp->unkC = arg5;
     temp->unk10 = arg6;
-    actorAppendCallback(arg1, arg0, 0x1, 0, 1, temp);
+    actorAppendCallback(target, source, 0x1, 0, 1, temp);
 }
 
 typedef struct ActorPayloadA864 {
@@ -1615,7 +1576,7 @@ typedef struct ActorPayloadA864 {
     s32 unk3C;
 } ActorPayloadA864;
 
-void actorAppendCallbackPayloadA864(s32 arg0, Actor *arg1, s16 arg2, s16 arg3, void *arg4, void *arg5, s32 arg6, s32 arg7, s32 arg8) {
+void actorAppendCallbackPayloadA864(s32 source, Actor *target, s16 arg2, s16 arg3, void *arg4, void *arg5, s32 arg6, s32 arg7, s32 arg8) {
     ActorPayloadA864 *temp = heapAlloc(sizeof(ActorPayloadA864));
     temp->unk0 = arg2;
     temp->unk2 = arg3;
@@ -1624,7 +1585,7 @@ void actorAppendCallbackPayloadA864(s32 arg0, Actor *arg1, s16 arg2, s16 arg3, v
     temp->unk34 = arg6;
     temp->unk38 = arg7;
     temp->unk3C = arg8;
-    actorAppendCallback(arg1, arg0, 0x10000, 0, 1, temp);
+    actorAppendCallback(target, source, 0x10000, 0, 1, temp);
 }
 
 typedef struct ActorPayloadA908 {
@@ -1635,63 +1596,63 @@ typedef struct ActorPayloadA908 {
     s32 unk38;
 } ActorPayloadA908;
 
-void actorAppendCallbackPayloadA908(s32 arg0, Actor *arg1, void *arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6) {
+void actorAppendCallbackPayloadA908(s32 source, Actor *target, void *arg2, void *arg3, s32 arg4, s32 arg5, s32 arg6) {
     ActorPayloadA908 *temp = heapAlloc(sizeof(ActorPayloadA908));
     memcpy(temp, arg2, 0xC);
     memcpy((u8 *)temp + 0xC, arg3, 0x24);
     temp->unk30 = arg4;
     temp->unk34 = arg5;
     temp->unk38 = arg6;
-    actorAppendCallback(arg1, arg0, 0x20000, 0, 1, temp);
+    actorAppendCallback(target, source, 0x20000, 0, 1, temp);
 }
 
-void actorAppendCallbackS32(s32 arg0, Actor *arg1, s32 arg2) {
+void actorAppendCallbackS32(s32 source, Actor *target, s32 value) {
     s32 *temp = heapAlloc(sizeof(s32));
-    *temp = arg2;
-    actorAppendCallback(arg1, arg0, 0x40000, 0, 1, temp);
+    *temp = value;
+    actorAppendCallback(target, source, 0x40000, 0, 1, temp);
 }
 
-void actorAppendCallbackVec3f(s32 arg0, Actor *arg1, f32 arg2, f32 arg3, f32 arg4) {
+void actorAppendCallbackVec3f(s32 source, Actor *target, f32 x, f32 y, f32 z) {
     f32 *temp = heapAlloc(3 * sizeof(f32));
-    temp[0] = arg2;
-    temp[1] = arg3;
-    temp[2] = arg4;
-    actorAppendCallback(arg1, arg0, 0x100000, 0, 1, temp);
+    temp[0] = x;
+    temp[1] = y;
+    temp[2] = z;
+    actorAppendCallback(target, source, 0x100000, 0, 1, temp);
 }
 
-void actorAppendCallbackVec2f(s32 arg0, Actor *arg1, f32 arg2, f32 arg3) {
+void actorAppendCallbackVec2f(s32 source, Actor *target, f32 x, f32 z) {
     f32 *temp = heapAlloc(2 * sizeof(f32));
-    temp[0] = arg2;
-    temp[1] = arg3;
-    actorAppendCallback(arg1, arg0, 0x200000, 0, 1, temp);
+    temp[0] = x;
+    temp[1] = z;
+    actorAppendCallback(target, source, 0x200000, 0, 1, temp);
 }
 
-void actorAppendCallbackPayloadAAB8(s32 arg0, Actor *arg1, s16 arg2, f32 arg3, s16 arg4) {
+void actorAppendCallbackPayloadAAB8(s32 source, Actor *target, s16 arg2, f32 arg3, s16 arg4) {
     ActorPayloadAAB8 *temp = heapAlloc(sizeof(ActorPayloadAAB8));
     temp->unk4 = arg3;
     temp->unk8 = arg4;
     temp->unk0 = arg2;
-    actorAppendCallback(arg1, arg0, 0x400, 0, 1, temp);
+    actorAppendCallback(target, source, 0x400, 0, 1, temp);
 }
 
-void actorAppendCallbackMemcpy8(s32 arg0, Actor *arg1, s32 arg2, u8 arg3, void *arg4, u8 arg5) {
+void actorAppendCallbackMemcpy8(s32 source, Actor *target, s32 type, u8 subtype, void *data, u8 delayed) {
     void *temp = heapAlloc(8);
-    memcpy(temp, arg4, 8);
-    if (!arg5) {
-        actorAppendCallback(arg1, arg0, arg2, arg3, 1, temp);
+    memcpy(temp, data, 8);
+    if (!delayed) {
+        actorAppendCallback(target, source, type, subtype, 1, temp);
     } else {
-        actorQueueDelayedCallback((s32)arg1, arg0, arg2, arg3, 1, temp, 1);
+        actorQueueDelayedCallback((s32)target, source, type, subtype, 1, temp, 1);
     }
 }
 
-void actorAppendCallbackPayloadABC0(s32 arg0, Actor *arg1, u8 arg2, s16 arg3, s16 arg4, f32 arg5, f32 arg6, f32 arg7) {
+void actorAppendCallbackPayloadABC0(s32 source, Actor *target, u8 arg2, s16 arg3, s16 arg4, f32 arg5, f32 arg6, f32 arg7) {
     ActorPayloadABC0 *temp = heapAlloc(sizeof(ActorPayloadABC0));
     temp->unk0 = arg5;
     temp->unk4 = arg6;
     temp->unk8 = arg7;
     temp->unkC = arg3;
     temp->unkE = arg4;
-    actorAppendCallback(arg1, arg0, 0x800000, arg2, 1, temp);
+    actorAppendCallback(target, source, 0x800000, arg2, 1, temp);
 }
 
 void actorGlobalStateClearEvents(void) {
@@ -1724,26 +1685,26 @@ void actorGlobalStateClearEvents(void) {
     gActorGlobalState.unkF4 = 0.0f;
 }
 
-void actorUpdatePrevContactFlags(Actor *arg0) {
-    arg0->prevContactFlags = arg0->contactFlags;
+void actorUpdatePrevContactFlags(Actor *actor) {
+    actor->prevContactFlags = actor->contactFlags;
 }
 
-u16 actorLookupClass(u16 arg0) {
-    return D_8074D624[arg0];
+u16 actorLookupClass(u16 type) {
+    return D_8074D624[type];
 }
 
-s32 actorCountOwnedByClass(arg0, arg1, arg2)
-s32 arg0;
-u16 arg1;
-s32 (*arg2)(Actor *);
+s32 actorCountOwnedByClass(owner, actorClass, filter)
+s32 owner;
+u16 actorClass;
+s32 (*filter)(Actor *);
 {
     u16 count = 0;
     s32 i;
 
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
-        if (arg0 == (s32)actor->parentActor && actor->collisionFlags == arg1) {
-            if (arg2 == NULL || arg2(actor)) {
+        if (owner == (s32)actor->parentActor && actor->collisionFlags == actorClass) {
+            if (filter == NULL || filter(actor)) {
                 count++;
             }
         }
@@ -1761,22 +1722,22 @@ extern PlayerTableEntry *gPlayerSlots;
 extern u8 gPlayerCount;
 
 
-Actor *actorFindByType(u16 arg0) {
+Actor *actorFindByType(u16 type) {
     s32 i;
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
-        if (actor->actorType == arg0) {
+        if (actor->actorType == type) {
             return actor;
         }
     }
     return NULL;
 }
 
-s32 actorIsActive(Actor *arg0) {
+s32 actorIsActive(Actor *target) {
     s32 i;
     for (i = 0; i < gActiveActorCount; i++) {
         Actor *actor = gActiveActors[i].actor;
-        if (arg0 == actor) {
+        if (target == actor) {
             return 1;
         }
     }
@@ -1791,17 +1752,17 @@ void actorTableClear(void) {
     D_807FC3F0 = 0;
 }
 
-void actorTableInsert(Actor *arg0) {
+void actorTableInsert(Actor *actor) {
     if (D_807FC3F0 < 256) {
-        D_807FBFF0[D_807FC3F0++] = (s32)arg0;
+        D_807FBFF0[D_807FC3F0++] = (s32)actor;
     } else {
-        faultSetMessage(0x13, arg0->actorType, 0, 0);
+        faultSetMessage(0x13, actor->actorType, 0, 0);
     }
     actorTableSort();
 }
 
-void actorTableRemove() {
-    s32 res = actorTableBinarySearch();
+void actorTableRemove(Actor *actor) {
+    s32 res = actorTableBinarySearch(actor);
     s16 idx = res;
     if ((u32)res != (u32)-1) {
         D_807FBFF0[idx] = -1;
@@ -1809,14 +1770,14 @@ void actorTableRemove() {
     }
 }
 
-s32 actorTableContains(void) {
-    if (actorTableBinarySearch() != -1) {
+s32 actorTableContains(Actor *actor) {
+    if (actorTableBinarySearch(actor) != -1) {
         return 1;
     }
     return 0;
 }
 
-s32 actorTableBinarySearch(u32 arg0) {
+s32 actorTableBinarySearch(Actor *key) {
     s16 low = 0;
     s16 high = D_807FC3F0 - 1;
 
@@ -1826,10 +1787,10 @@ s32 actorTableBinarySearch(u32 arg0) {
     while (low <= high) {
         s16 mid = (low + high) >> 1;
 
-        if (arg0 == D_807FBFF0[mid]) {
+        if (key == (Actor *)D_807FBFF0[mid]) {
             return mid;
         }
-        if (arg0 < D_807FBFF0[mid]) {
+        if (key < (Actor *)D_807FBFF0[mid]) {
             high = mid - 1;
         } else {
             low = mid + 1;
@@ -1903,41 +1864,41 @@ extern u16 D_807ECDF0;
 extern PlayerContext5C414 D_8075C414[];
 extern s16 gCurrentCharacterIndex;
 
-void playerSetActiveGlobals(Actor *arg0) {
-    u8 temp_v0;
+void playerSetActiveGlobals(Actor *actor) {
+    u8 character;
     PlayerContextEntry *player;
 
-    gActivePlayerState = arg0->customState;
+    gActivePlayerState = actor->customState;
     gCurrentPlayerIndex = ((PlayerContextSub174 *)gActivePlayerState)->playerIndex;
-    temp_v0 = gPlayerCharacterId[gCurrentPlayerIndex];
+    character = gPlayerCharacterId[gCurrentPlayerIndex];
     player = (PlayerContextEntry *)gPlayerSlots + gCurrentPlayerIndex;
     gActivePlayerActor = player->actor;
-    D_807FD568 = &gPlayerInventoryTable[gCurrentPlayerIndex].sub[temp_v0];
+    D_807FD568 = &gPlayerInventoryTable[gCurrentPlayerIndex].sub[character];
     D_807ECDEC = player->unk294;
     D_807ECDF0 = *player->unk298;
-    gCurrentCharacterIndex = D_8075C414[temp_v0].unk0;
+    gCurrentCharacterIndex = D_8075C414[character].unk0;
     player->unk2C1 = 0;
 }
 
-u8 playerFindIndexByActor(s32 arg0) {
+u8 playerFindIndexByActor(s32 actor) {
     s32 i;
     for (i = 0; i < gPlayerCount; i++) {
-        if (gPlayerSlots[i].unk0 != 0 && arg0 == gPlayerSlots[i].unk4) {
+        if (gPlayerSlots[i].unk0 != 0 && actor == gPlayerSlots[i].unk4) {
             return (u8)i;
         }
     }
     return 0;
 }
 
-void actorCopyPoseAndScale(Actor *arg0, Actor *arg1, f32 arg2) {
-    arg0->x = arg1->x;
-    arg0->y = arg1->y;
-    arg0->z = arg1->z;
-    arg0->yaw = arg1->yaw;
-    if (arg0->sub4 != NULL) {
-        arg0->sub4->scaleX = arg2;
-        arg0->sub4->scaleY = arg2;
-        arg0->sub4->scaleZ = arg2;
+void actorCopyPoseAndScale(Actor *dest, Actor *src, f32 scale) {
+    dest->x = src->x;
+    dest->y = src->y;
+    dest->z = src->z;
+    dest->yaw = src->yaw;
+    if (dest->sub4 != NULL) {
+        dest->sub4->scaleX = scale;
+        dest->sub4->scaleY = scale;
+        dest->sub4->scaleZ = scale;
     }
 }
 
@@ -1948,13 +1909,13 @@ void func_8067B298(void) {}
 void func_8067B2A0(void) {}
 void func_8067B2A8(void) {}
 
-void func_8067B2B0(s32 arg0) {
+void func_8067B2B0(s32 unused) {
 }
 
-void func_8067B2B8(s32 arg0) {
+void func_8067B2B8(s32 unused) {
 }
 
-s32 actorInitFloorAttachment(s32 arg0) {
+s32 actorInitFloorAttachment(s32 unused) {
     gSpawnedActor->unk144 = 1;
     return 1;
 }
@@ -1971,8 +1932,8 @@ typedef struct ActorInitArg {
     u16 unk2;
 } ActorInitArg;
 
-s32 actorInitAnimAndCollision(ActorInitArg *arg0) {
-    if (controllerAnimInit(gSpawnedActor, arg0->unk2, arg0) != 0) {
+s32 actorInitAnimAndCollision(ActorInitArg *init) {
+    if (controllerAnimInit(gSpawnedActor, init->unk2, init) != 0) {
         gSpawnedActor->collision = actorSub140CreateFromModel(gSpawnedActor);
         gSpawnedActor->eyeHeight = (u32)(((f64)((ActorSub140View *)gSpawnedActor->collision)->unkC * 0.15) * 0.5);
         return 1;
@@ -1980,12 +1941,12 @@ s32 actorInitAnimAndCollision(ActorInitArg *arg0) {
     return 0;
 }
 
-s32 actorInitCollisionFromModel(s32 arg0) {
+s32 actorInitCollisionFromModel(s32 unused) {
     gSpawnedActor->collision = actorSub140CreateFromModel(gSpawnedActor);
     return 1;
 }
 
-s32 actorInitStaticMeshFlag(s32 arg0) {
+s32 actorInitStaticMeshFlag(s32 unused) {
     gSpawnedActor->flags |= 0x2000;
     return 1;
 }
