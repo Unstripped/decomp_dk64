@@ -53,7 +53,7 @@ typedef struct BossC_9C60_Actor {
 extern BossC_9C60_Actor *gCurrentActor;
 extern BossC_9C60_Actor *gSpawnedActor;
 
-void actorSpawn(s32, s32);
+s32 actorSpawn(s32, s32);
 void actorCopyPoseAndScale(BossC_9C60_Actor *, BossC_9C60_Actor *, f32);
 void actorDespawn(void *);
 void bossAttachActor(void) {
@@ -130,21 +130,21 @@ extern Boss2F_9C60_BB4C *gPrimaryPlayerActor;
 
 void actorScriptExecute(BossC_9C60_Actor *);
 void actorScriptStart(BossC_9C60_Actor *, s32);
-s32 camIsCutsceneActive(void);
-void camStartPath(BossC_9C60_Actor *, s32, s32);
-void camStartShake(s32, s32, s32);
-void camSetSecondTarget(s32, s32, s32);
+u8 camIsCutsceneActive(void);
+u16 camStartPath(void *, s16, u8);
+void camStartShake(struct CamActor *, u8, u16);
+void camSetSecondTarget(struct CamActor *, s16, s16);
 s32 currentActorTestClearFlag(void);
-void csModelStateSetFirstByte(s16, s32);
+void csModelStateSetFirstByte(s16, s16);
 void projectileGetTargetCoords(BossC_9C60_Actor *, s32);
-void projectileSpawnNodeEntry(s32, s32, f32, s32, f32, f32, BossC_9C60_Actor *);
-void func_80724CA4(s32, s32);
-void func_80724E48(s32);
-s32 func_8072881C(s32, void *);
+void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
+void func_80724CA4(s16, s16);
+void func_80724E48(u8);
+u8 func_8072881C(u8, u32 *);
 void behaviourFrameBegin(void);
 void behaviourUpdateShadowAlpha(void);
 void actorSetTargetSpeed(BossC_9C60_Actor *, s32);
-void actorTurnTowardActorYaw(s32, void *);
+void actorTurnTowardActorYaw(u8, Actor *);
 
 void bossKRoolDiddyStep(void) {
     Boss2F_9C60_178 *scriptState;

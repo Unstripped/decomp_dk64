@@ -59,22 +59,22 @@ extern u8 gBossFightPhase;
 extern Boss2F_9230_D580 *gActivePlayerState;
 
 void csSendActorMessagePayload(s32, s32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void scriptSetActorRampTarget(void *, f32, f32);
 void actorScriptStart(Boss2F_9230_Actor *, s32);
-s32 camIsCutsceneActive(void);
-void camStartPath(Boss2F_9230_Actor *, s32, s32);
-void camSetSecondTarget(s32, s32, s32);
+u8 camIsCutsceneActive(void);
+u16 camStartPath(void *, s16, u8);
+void camSetSecondTarget(struct CamActor *, s16, s16);
 s32 currentActorTestClearFlag();
 void csSendActorMessagePayload();
-void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
-s32 func_8072881C(s32, void *);
+void projectileSpawnWithShockwave(s16, f32, u8, u8, u8, u8, f32, f32, f32, f32);
+u8 func_8072881C(u8, u32 *);
 void behaviourFrameBegin(void);
 void behaviourUpdateShadowAlpha(void);
-void actorMoveWithinZone(s32, f32, f32, s32, f32);
+u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void actorSetTargetSpeed(Boss2F_9230_Actor *, s32);
-void behaviourSpawnExplosionAndSound(s32, s32, void *);
-void actorTurnTowardActorYaw(s32, void *);
+void behaviourSpawnExplosionAndSound(void *, u8, Actor *);
+void actorTurnTowardActorYaw(u8, Actor *);
 
 void bossKRoolDkStep(void) {
     Boss2F_9230_178 *scriptState;

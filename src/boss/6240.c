@@ -77,8 +77,8 @@ void bossPufftossBobStep(void) {
     }
     gCurrentActor->base.y += 8.0 * (f64)mathSinF((s16)((f64)gFrameCounter * 200.0));
 }
-void *actorFindByType(s32);
-void actorAppendCallbackMemcpy8(void *, void *, s32, s32, void *, s32);
+Actor *actorFindByType(u16);
+void actorAppendCallbackMemcpy8(s32, Actor *, s32, u8, void *, u8);
 
 void bossPufftossNotifyLaser(u8 targetIndex) {
     void *target;
@@ -125,7 +125,7 @@ void bossPufftossSpawnGlow(u8 sparkleInterval, f32 scale) {
     }
 }
 
-void actorGetNodePos(void *, s32, f32 *, f32 *, f32 *);
+s32 actorGetNodePos(struct ActorTargetWork *, s32, f32 *, f32 *, f32 *);
 extern void *D_8074E880[];
 
 void bossSpawnSparkles(void) {
@@ -177,42 +177,42 @@ extern ActorGlobalState gActorGlobalState;
 extern PlayerStruct *gPlayerSlots;
 extern PlayerState *gActivePlayerState;
 
-void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 s16 sfxPlayOnFreeSlot(s16, s32, f32, f32, u8, u8);
 void scriptSetActorRampTarget(void *, f32, f32);
 void actorScriptStart(void *, s32);
 void camSetTargetFocusActor(s32, void *);
-void camSetTarget(s32, void *, s32, s32, s32, s32, s32, s32, s32, s32, f32);
-s32 camIsCutsceneActive(void);
-void camStartPath(void *, s32, s32);
+void camSetTarget(struct CamActor *, struct CamActor *, u8, s16, s16, s16, s16, s16, s16, s16, f32);
+u8 camIsCutsceneActive(void);
+u16 camStartPath(void *, s16, u8);
 void camReturnToFollow(s32, void *);
 void camSetFollowMode(s32);
-void camSetSecondTarget(s32, s32, s32);
+void camSetSecondTarget(struct CamActor *, s16, s16);
 s32 currentActorTestClearFlag(void);
 void currentActorClearFlag(void);
-void csModelStateSetFirstByte(s16, s32);
+void csModelStateSetFirstByte(s16, s16);
 void actorApplyVelocityCustom(void *, f32, f32);
 void collisionCheckActorFloor(void *, f32, f32, f32, void *);
-void actorGetOrSetNodeScale(void *, s32, f32);
+f32 actorGetOrSetNodeScale(Actor *, s32, f32);
 s32 actorTableContains(void *);
-void effectSpawnChildAtNode(s32, s16, s16);
-void effectSpawnActorBoneEffects(s32);
+void effectSpawnChildAtNode(u8, s16, s16);
+void effectSpawnActorBoneEffects(u8);
 void projectileGetTargetCoords(void *, s32);
-void projectileAimAndSpawn(s32, s32, f32, f32, f32, f32, f32, void *);
-void projectileClampAngleAndSpawn(s16, s32, s32, s32, f32, f32, f32, f32, f32, void *);
-void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
+void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, s32);
+void projectileClampAngleAndSpawn(s16, s16, s16, s16, f32, f32, f32, f32, f32, s32);
+void projectileSpawnWithShockwave(s16, f32, u8, u8, u8, u8, f32, f32, f32, f32);
 void loadModelAssetTable(void);
 void playerSetLargeModeScale(f32);
-void playerSetSizeMode(void *, s32);
-void func_8072881C(s32, void *);
+void playerSetSizeMode(Actor *, u8);
+u8 func_8072881C(u8, u32 *);
 void behaviourFrameBegin(void);
 void actorApplyGravity(void);
-void actorTurnTowardTarget(s32, f32, f32, s32);
+void actorTurnTowardTarget(u8, f32, f32, u16);
 void behaviourUpdateShadowAlpha(void);
-s32 actorMoveWithinZone(s32, f32, f32, s32, f32);
-void actorSetTargetSpeed(void *, u8);
-s32 patrolPathStep(s32, s32);
+u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
+void actorSetTargetSpeed(Actor *, s32);
+u8 patrolPathStep(u8, u8);
 
 
 void bossPufftossStep(void) {

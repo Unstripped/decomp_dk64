@@ -149,11 +149,11 @@ void __n_removeEvents();
 u16 n_alSndpCountStates();
 struct GfSndState *n_alSndpPlay(void *, s16, u16, u8, f32, u8, struct GfSndState **);
 s32 n_alSynAllocVoice(void *, void *);
-void n_alSynSetVol(void *, s32, s32);
-void n_alSynStartVoiceParams(void *, void *, f32, s32, u8, s32, s32, f32, s32, s32);
+void n_alSynSetVol(ALVoice *, s16, s32);
+void n_alSynStartVoiceParams(struct SynAllocStartVoice *, void *, f32, s16, u8, u8, u8, f32, u8, s32);
 void n_alSynSetPitch(void *, f32);
 void n_alSynAllocVoicePriorityA(void *, u8);
-void n_alSynSetVoiceUnkC(void *, s32);
+void n_alSynSetVoiceUnkC(ALVoice *, u8);
 
 #define GE_STATE_VOL(st, km, snd) \
     (D_807FF0E4[(km)->volIndex & 0x1F] * (((st)->envVol * (st)->vol * (snd)->sampleVolume) / 0x3F01) / 0x7FFF)

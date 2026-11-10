@@ -29,7 +29,7 @@ extern BossA_Struct_807FBB44 *gSpawnedActor;
 
 f32 mathCosF(s16);
 f32 mathSinF(s16);
-void spawnNodeSpawnById(s16, s16, s16, s16, s32, s32, s32);
+Actor *spawnNodeSpawnById(s16, s16, s16, s16, s16, s16, s16);
 
 void bossKutOutSpawnGhost(s16 actorType, s16 distance, s16 angle) {
     f32 pad;
@@ -51,7 +51,7 @@ void bossKutOutSpawnGhost(s16 actorType, s16 distance, s16 angle) {
 
 
 
-void camStartPath(void *, s32, s32);
+u16 camStartPath(void *, s16, u8);
 
 void bossKutOutSpawnGhosts(void) {
     bossKutOutSpawnGhost(2, ((randomNonNegative() >> 15) % 100) + 300, (randomNonNegative() >> 15) % 4096);
@@ -110,7 +110,7 @@ void bossAnimFrameBounceStep(void) {
 
 
 void projectileGetTargetCoords(void *, s32);
-void projectileAimAndSpawn(s32, s16, f32, f32, f32, f32, f32, void *);
+void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, s32);
 
 void bossKutOutFireLaser(void) {
     projectileGetTargetCoords(gCurrentActor, 1);
@@ -185,15 +185,15 @@ void tagBarrelSpawnActorSmokePuffs(s32, s32);
 void behaviourCalculateDamageForce(s32, s32);
 void actorSetUniformScale(void *, f32);
 void actorScriptStart(void *, s32);
-s32 sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 s32 currentActorTestClearFlag(void);
 void actorSetTargetSpeed(void *, s32);
-void camSetSecondTarget(void *, s32, s32);
+void camSetSecondTarget(struct CamActor *, s16, s16);
 s16 mathAngleEaseToward(s16, s16, s32);
-s32 spawnNodeHasActor(s32);
-s32 camIsCutsceneActive(void);
+u8 spawnNodeHasActor(u8);
+u8 camIsCutsceneActive(void);
 void behaviourSpawnPuffParticle(void);
-void actorMoveWithinZone(s32, f32, f32, s32, f32);
+u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 
 #define A40 ((BossActor *)gCurrentActor)
 

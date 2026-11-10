@@ -61,7 +61,7 @@ extern BossE_B100_Actor *gSpawnedActor;
 extern u8 gBossFightPhase;
 extern s32 gFrameCounter;
 
-void actorSpawn(s32, s32);
+s32 actorSpawn(s32, s32);
 void actorCopyPoseAndScale(void *, void *, f32);
 void actorScriptStart(void *, s32);
 void func_80724DB0();
@@ -135,24 +135,24 @@ extern BossGlobalC924 *gPlayerSlots;
 extern void *gCamActor;
 
 void behaviourFrameBegin(void);
-void camSetSecondTarget(void *, s32, s32);
-void func_80724CA4(s32, s32);
-void zoneEntryGetPosition(s32, s32, void *, void *, void *);
-void camStartPath(void *, s32, u8);
+void camSetSecondTarget(struct CamActor *, s16, s16);
+void func_80724CA4(s16, s16);
+void zoneEntryGetPosition(u8, u8, f32 *, f32 *, f32 *);
+u16 camStartPath(void *, s16, u8);
 void hudCountdownTimerSaveElapsed(void *);
 f32 mathCosF(s16);
-void playerWaypointPathStartLineFromActor(void *, s16, s16, s32);
-void csSendActorMessagePayload(s32, s32);
-void playerSetSizeMode(void *, s32);
-void actorMoveWithinZone(s32, f32, f32, s32, f32);
+void playerWaypointPathStartLineFromActor(Actor *, s16, s16, u8);
+void csSendActorMessagePayload(s16, s16);
+void playerSetSizeMode(Actor *, u8);
+u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void actorSetTargetSpeed(void *, s32);
 s16 mathAngleEaseToward(s16, s16, f32);
-void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
-void sfxPlayAtPositionPooled(f32, f32, f32, s32, s32, s32, s32, s32, f32, s32);
+void projectileSpawnWithShockwave(s16, f32, u8, u8, u8, u8, f32, f32, f32, f32);
+s16 sfxPlayAtPositionPooled(f32, f32, f32, s16, u8, s16, u8, u8, f32, u8);
 void scriptSetActorRampTarget(void *, f32, f32);
 s32 currentActorTestClearFlag(void);
 void behaviourUpdateShadowAlpha(void);
-s32 func_8072881C(s32, void *);
+u8 func_8072881C(u8, u32 *);
 
 #define MAIN_ACTOR ((BossMainActor *)gCurrentActor)
 #define PLAYER_ACTOR ((BossMainActor *)gPrimaryPlayerActor)
@@ -486,7 +486,7 @@ extern BossPlayerData *gActivePlayerState;
 extern u8 *D_80035AA4[];
 
 void actorScriptStartByIndex(void *, s32);
-void func_80724A20(void);
+s32 func_80724A20(void);
 void behaviourFrameBegin(void);
 void camClosestPointOnSegment(f32, f32, f32, f32, f32, f32, f32, f32, f32, f32 *, f32 *, f32 *);
 

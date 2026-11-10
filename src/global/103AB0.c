@@ -286,7 +286,6 @@ typedef struct Vec3f {
 extern u8 D_80754BC0;
 extern LensFlarePoint D_807FD808[2];
 extern f32 D_807FD848[2][3][3];
-void vec3fNormalize(Vec3f *, Vec3f);
 
 
 void lensFlareAddSource(f32 x, f32 y, f32 z, f32 dirX, f32 dirY, f32 dirZ, f32 minDot, u8 r, u8 g, u8 b) {

@@ -113,7 +113,7 @@ void camEndPath(s32);
 void currentActorClearFlag();
 s32 currentActorTestClearFlag(void);
 void actorSetTargetSpeed(void *, s32);
-void resQueueAttachActor(void *, s32, s32);
+void resQueueAttachActor(Actor *, s32, u8);
 u8 patrolPathStep(u8, u8);
 u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
 void actorScriptStart(void *, s32);

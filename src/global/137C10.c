@@ -163,7 +163,7 @@ f32 n_alSemitonesToPitchRatio(s32);
 void __n_CSPHandleNextSeqEvent(GcCSPlayer *);
 void __n_seqpStopOsc(GcCSPlayer *, GcVoiceState *);
 void __n_unmapVoice(GcCSPlayer *, ALVoice *);
-s32 __n_voiceNeedsNoteKill(GcCSPlayer *, ALVoice *, s32);
+u8 __n_voiceNeedsNoteKill(struct VoiceMapCSPlayer *, ALVoice *, s32);
 void __n_seqpReleaseVoice(GcCSPlayer *, ALVoice *, s32);
 void __n_initFromBank(GcCSPlayer *, ALBank *);
 void n_alSynStopVoice(ALVoice *);
@@ -171,10 +171,10 @@ void n_alSynFreeVoice(ALVoice *);
 void n_alSynSetPitch(ALVoice *, f32);
 u8 n_alCSPClampVoiceFXMix(GcVoiceState *, GcCSPlayer *);
 void n_alSynSetVoiceUnkC(ALVoice *, u8);
-void *n_alSynGetFXDelay(u8);
-void n_alSynSetFXParam(void *, s32, void *);
-void *n_alSynGetFXFeedback(u8);
-void n_alSynSetFXFilterParam(void *, u8, void *);
+s32 n_alSynGetFXDelay(s16);
+void n_alSynSetFXParam(s32, s16, s32);
+s32 n_alSynGetFXFeedback(s16);
+void n_alSynSetFXFilterParam(struct SynFXFilter *, s16, s32 *);
 
 ALMicroTime __n_CSPVoiceHandler(void *node) {
     GcCSPlayer *seqp = node;
@@ -461,11 +461,11 @@ extern s32 D_807FF040[];
 ALSound *__n_lookupSoundQuick(GcCSPlayer *seqp, u8 key, u8 vel, u8 chan);
 GcVoiceState *__n_mapVoice(GcCSPlayer *seqp, u8 key, u8 vel, u8 chan);
 GcVoiceState *__n_lookupVoice(GcCSPlayer *seqp, u8 key, u8 chan);
-void __n_setInstChanState(GcCSPlayer *seqp, ALInstrument *inst, u8 chan);
+void __n_setInstChanState(struct VoiceMapCSPlayer *, ALInstrument *, s32);
 u8 __n_vsPan(GcVoiceState *vs, GcCSPlayer *seqp);
 void n_alSynAllocVoicePriorityA(ALVoice *voice, u8 arg);
 void n_alSynAllocVoicePriorityB(ALVoice *voice, u8 arg);
-void n_alSynAllocVoice(ALVoice *voice, ALVoiceConfig *config);
+s32 n_alSynAllocVoice(struct SynAllocVoice *, struct SynAllocVoiceConfig *);
 void n_alSynStartVoiceParams(ALVoice *voice, ALWaveTable *w, f32 pitch, s16 vol, u8 pan, u8 fxmix, u8 unityPitch, f32 fxVolume, u8 fxDelay, s32 samples);
 
 #define GdCH(seqp, c) (((GdChanState *)(seqp)->chanState)[c])

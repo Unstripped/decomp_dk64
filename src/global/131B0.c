@@ -35,10 +35,10 @@ int rumbleShouldPause(void);
 void rumbleUpdate(void);
 void rumbleSetPaused(s32 paused);
 
-extern s32 controllerGetPort(s32);
+u8 controllerGetPort(s32);
 extern u8 controllerGetActiveMask(void);
-extern u32 screenWipeGetState(void);
-extern u32 camIsCutsceneActive(void);
+u8 screenWipeGetState(void);
+u8 camIsCutsceneActive(void);
 extern s32 menuIsTransitionType6(void);
 extern s32 menuIsTransitionTypeC(void);
 extern s32 menuIsTransitionTypeD(void);

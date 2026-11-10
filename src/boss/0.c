@@ -110,9 +110,9 @@ extern u8 D_800358D8[5];
 extern BossA_Struct_8002413C_Template D_800358E0[][5];
 extern u8 D_80035994[8];
 
-void func_80724D28(s32, s32);
-void func_80724DB0(s32, s32);
-void func_80724CA4(s32, s32);
+void func_80724D28(s16, s16);
+void func_80724DB0(s16, s16);
+void func_80724CA4(s16, s16);
 
 void bossArmydilloInitArena(void) {
     s32 pad[4];
@@ -285,7 +285,7 @@ typedef struct BossPieceAnim {
     f32 f2[5];
 } BossPieceAnim;
 
-void sfxPlayActorSound(void *, s32, s32, s32, s32, s32, f32, s32);
+void sfxPlayActorSound(Actor *, s16, u8, u8, u8, u8, f32, s8);
 void sfxStopSlotSound();
 void actorScriptStart(void *, s32);
 
@@ -426,7 +426,7 @@ u8 bossPieceStep(u8 *animData, u8 pieceIdx, f32 maxTimer, f32 scriptTimer, f32 e
 
 
 void scriptSetActorRampTarget(void *, f32, f32);
-s32 mathAngleSignedDistance(s16, s16);
+s16 mathAngleSignedDistance(s16, s16);
 void actorMoveWithinZone(s32, f32, f32, s32, f32);
 
 void bossArmydilloAimTowardTarget(void) {
@@ -655,8 +655,8 @@ extern s16 D_80770628[];
 extern s16 D_80770710[];
 extern s32 gCamActor;
 
-s32 camIsCutsceneActive();
-void camStartPath(void *, s32, s32);
+u8 camIsCutsceneActive(void);
+u16 camStartPath(void *, s16, u8);
 void camStartShake();
 void camSetSecondTarget();
 s32 currentActorTestClearFlag();
@@ -667,15 +667,15 @@ void effectSpawnBoneWhite(void *, s16, f32, f32, f32, f32, s32);
 void effectSpawnJointBeam();
 void projectileSetTargetCoords(f32, f32, f32);
 void projectileGetTargetCoords();
-void projectileSpawnNodeEntry(s32, s32, f32, s16, f32, f32, void *);
-void projectileAimAndSpawn(s32, s16, f32, f32, f32, f32, f32, void *);
-void projectileClampAngleAndSpawn(s16, s32, s32, s32, f32, f32, f32, f32, f32, void *);
-void projectileSpawnWithShockwave(s32, f32, s32, s32, s32, s32, f32, f32, f32, f32);
+void projectileSpawnNodeEntry(s16, s16, f32, s16, f32, f32, s32);
+void projectileAimAndSpawn(s16, s16, f32, f32, f32, f32, f32, s32);
+void projectileClampAngleAndSpawn(s16, s16, s16, s16, f32, f32, f32, f32, f32, s32);
+void projectileSpawnWithShockwave(s16, f32, u8, u8, u8, u8, f32, f32, f32, f32);
 void actorSetUniformScale(void *, f32);
-s32 func_8072881C();
+u8 func_8072881C(u8, u32 *);
 void behaviourFrameBegin();
 void behaviourUpdateShadowAlpha();
-s32 patrolPathStep();
+u8 patrolPathStep(u8, u8);
 
 #define gCurrentActor ((Boss3B_Actor *)gCurrentActor)
 

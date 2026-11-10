@@ -178,17 +178,17 @@ typedef struct BossStageInfo {
 
 extern u8 *D_80035A80[];
 void behaviourFrameBegin(void);
-void func_80724CA4(s32, s32);
-s32 camStartPath(void *, s32, s32);
-s32 camIsPlayingPath(s32);
-void actorMoveWithinZone(s32, f32, f32, s32, f32);
-void playerStateQueueCallback(s32, void *, s32);
-void actorSetCollisionRadius(void *, f32);
-void actorOrNodeFlags(void *, s32, s32);
+void func_80724CA4(s16, s16);
+u16 camStartPath(void *, s16, u8);
+u8 camIsPlayingPath(u8);
+u32 actorMoveWithinZone(u8, f32, f32, u16, f32);
+s32 playerStateQueueCallback(s16, void *, u8);
+ActorSub140 *actorSetCollisionRadius(Actor *, f32);
+void actorOrNodeFlags(Actor *, s32, u8);
 s32 currentActorTestClearFlag(void);
 void scriptSetActorRampTarget(void *, f32, f32);
 void behaviourUpdateShadowAlpha(void);
-s32 func_8072881C(s32, void *);
+u8 func_8072881C(u8, u32 *);
 
 #define ACTOR40 ((BossActor *)gCurrentActor)
 #define ACTOR4C ((BossActor *)gPrimaryPlayerActor)
