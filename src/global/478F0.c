@@ -2,7 +2,6 @@
 #include "actor.h"
 #include "cutscene.h"
 #define PROTO_SKIP_collisionCheckGroundAtPoint // FAKE: callee prototype steer
-#define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
 #include "proto/global/114270.h"
 #include "proto/global/119370.h"
 #include "proto/global/11BC10.h"
@@ -34,7 +33,6 @@
 #include "proto/global/C0EE0.h"
 #include "proto/global/CEAE0.h"
 #include "proto/global/FCCD0.h"
-s32 mathAngleBetweenPoints2D(f32, f32, f32, f32); // FAKE: callee prototype steer
 
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
@@ -1572,6 +1570,11 @@ void csCmdSpawnDustPuffs(CsState *cs, s16 csId, s16 b, s16 c) {
 }
 
 
+typedef struct CsLookAt {
+    /* 0x00 */ f32 mtx[4][4];
+    /* 0x40 */ f32 y;
+} CsLookAt;
+
 void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     u32 pad[20];
     void *dm = &cs; // FAKE: address-taken cs stays in its stack home and is reloaded at every use
@@ -1581,14 +1584,14 @@ void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
     f32 y;
     f32 z;
     f32 t;
-    f32 (*m)[4];
+    CsLookAt *m;
 
     if (cs->data == NULL && (cs->unk9A & 1)) {
         m = heapAlloc(0x44);
         cs->data = m;
-        modelSlotGetNodePos(csId, 1, 1, &x, &m[4][0], &z);
-        m[4][0] -= 10.0;
-        guRotateF(m, gCsRotY, 0.0f, 1.0f, 0.0f);
+        modelSlotGetNodePos(csId, 1, 1, &x, &m->y, &z);
+        m->y -= 10.0;
+        guRotateF(m->mtx, gCsRotY, 0.0f, 1.0f, 0.0f);
     }
     if ((cs->unk9A & 1) && (randomLcgNext() / 10000U) % 20U == 0) {
         m = cs->data;
@@ -1596,7 +1599,7 @@ void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         rx = t / 100.0;
         t = (randomNonNegative() >> 15) % 100;
         rz = t / (f64)100;
-        guMtxXFMF(m, rx * 100.0 + -50.0, 0.0f, rz * 150.0 + -75.0, &x, &y, &z);
+        guMtxXFMF(m->mtx, rx * 100.0 + -50.0, 0.0f, rz * 150.0 + -75.0, &x, &y, &z);
         x *= gCsScale;
         z *= gCsScale;
         x += gCsPosX;
@@ -1605,7 +1608,7 @@ void csCmdCameraLookAtMatrixUpdate(CsState *cs, s16 csId, s16 b, s16 c) {
         effectSetSpeed(2);
         effectSetDuration(-1);
         effectSetCallback(effectWobbleRiseUpdate);
-        effectCreateAtPosition(D_8071FC40, 0.0f, x, m[4][0], z);
+        effectCreateAtPosition(D_8071FC40, 0.0f, x, m->y, z);
     }
 }
 
