@@ -785,7 +785,7 @@ void mpFreeHudIcons(MpControllerState *controllerState) {
 }
 
 extern ALBank *D_8076D1F8;
-extern u32 D_80767CC0;
+extern SchedStruct gScheduler;
 extern u64 D_807445B0;
 extern u8 D_80026F70;
 
@@ -819,7 +819,7 @@ void mpUpdate(void) {
         }
         D_807552E4.unk8 = 1;
         state->unk0 = osGetTime();
-        state->unk34 = D_80767CC0;
+        state->unk34 = gScheduler.unk280;
         state->unk38 = 0;
         state->unk42 = 0;
         state->unk40 = 0;
@@ -934,8 +934,8 @@ void mpUpdate(void) {
         D_80026F70 &= ~0x80;
     }
     if (D_80026F70 & 7) {
-        if (D_80767CC0 - state->unk34 >= 6) {
-            state->unk34 = D_80767CC0;
+        if (gScheduler.unk280 - state->unk34 >= 6) {
+            state->unk34 = gScheduler.unk280;
             state->unk38 = 0;
             sfxId = 0x1E8;
             if (D_80026F70 & 4) {
@@ -959,12 +959,12 @@ void mpUpdate(void) {
         }
         D_80026F70 &= ~7;
     }
-    if (state->unk38 * 35 + 0x384 < D_80767CC0 - state->unk34) {
+    if (state->unk38 * 35 + 0x384 < gScheduler.unk280 - state->unk34) {
         sfxPlayOnFreeSlot(0x1E9, state->unk38 * 3000 + 0x511F, 64.0f, 1.0f, 0xA, 0x80);
         state->unk38++;
         if (state->unk38 == 5) {
             state->unk38 = 0;
-            state->unk34 = D_80767CC0;
+            state->unk34 = gScheduler.unk280;
         }
     }
     renderCallbacksRegister(mpDrawHud, gCurrentActor, 7);

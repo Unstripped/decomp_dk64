@@ -3,7 +3,8 @@
 
 extern u16 D_80744734[];
 extern s32 gCurrentMap;
-extern s32 D_80767CC4;
+#include "sched.h"
+extern SchedStruct gScheduler;
 
 // .bss 0x8076AF00-0x8076AF20
 s16 D_8076AF00[7];
@@ -40,7 +41,7 @@ void frameTimingReset(s32 mapId) {
         D_8076AF00[i] = 2;
     }
 
-    D_8076AF10 = D_80767CC4;
+    D_8076AF10 = gScheduler.unk284;
     switch (mapId) {
     case 0x6:
     case 0x1B:
@@ -64,8 +65,7 @@ void frameTimingReset(s32 mapId) {
 extern u32 gFrameDelta;
 extern u8 D_80745290;
 extern s32 gFrameCounter;
-extern u8 gScheduler[];
-#define SCHED284 (*(volatile s32 *)(gScheduler + 0x284))
+#define SCHED284 (*(volatile s32 *)&gScheduler.unk284)
 
 void frameTimingUpdate(void) {
     s32 max;
@@ -121,7 +121,7 @@ void frameTimingUpdate(void) {
             gFrameDelta = sample;
         }
         if ((u32)gFrameCounter >= 0xB) {
-            p = &D_80767CC4;
+            p = &gScheduler.unk284;
             limit = D_8076AF10 + gFrameDelta;
             if (SCHED284 < limit) {
                 do {

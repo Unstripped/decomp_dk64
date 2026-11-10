@@ -186,10 +186,7 @@ u32 D_807656EC;
 u8 D_807656F0[760];
 OSMesgQueue D_807659E8;
 OSMesg D_80765A00[0x810];
-u8 gScheduler[0x280];
-u32 D_80767CC0;
-s32 D_80767CC4;
-u8 D_80767CC8[16];
+SchedStruct gScheduler;
 u8 D_80767CD8[0x10];
 FrameMatrices D_80767CE8[2];
 FrameMatrices *gGfxCurrentFrameBuffer;
@@ -447,7 +444,7 @@ void mainThreadLoop(s32 unused) {
     mainSystemInit();
     osViSetSpecialFeatures(0x42);
     mainResetEngineState();
-    D_8076A070[0] = D_80767CC0 - 2;
+    D_8076A070[0] = gScheduler.unk280 - 2;
     osRecvMesg(&D_8076A110, &receivedMesg, 1);
     while (1) {
         D_8074682C = 0xC8;

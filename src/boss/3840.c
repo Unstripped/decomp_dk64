@@ -448,7 +448,7 @@ extern s16 D_800359B8[];
 extern s16 D_800359C4[];
 extern u8 D_8071FE08[];
 extern s32 D_8076D1F8;
-extern u32 D_80767CC0;
+extern SchedStruct gScheduler;
 extern s32 gCurrentMap;
 
 void sfxStopChannel(s32, s32);
@@ -589,8 +589,8 @@ void bossRoundFrame(u8 *script) {
     n_alSndpPostEvent(s0->sndHandleB, 8, s0->targetVolume);
     if (s0->flags & 0x17) {
         s16 snd = 0x1E8;
-        if ((D_80767CC0 - s0->lastTick) >= 6U) {
-            s0->lastTick = D_80767CC0;
+        if ((gScheduler.unk280 - s0->lastTick) >= 6U) {
+            s0->lastTick = gScheduler.unk280;
             s0->stepCount = 0;
             if (s0->flags & 0x10) {
                 snd = 0x42B;
@@ -609,9 +609,9 @@ void bossRoundFrame(u8 *script) {
         s0->flags &= 0xFFE0;
     }
     if (s0->flags & 8) {
-        if ((D_80767CC0 - s0->lastTick) >= 6U) {
+        if ((gScheduler.unk280 - s0->lastTick) >= 6U) {
             if (s0->stepCount == 0) {
-                s0->lastTick = D_80767CC0;
+                s0->lastTick = gScheduler.unk280;
             }
             s0->stepCount++;
             switch (s0->stepCount) {

@@ -1152,7 +1152,7 @@ void playerUpdateTargetYawFromStick(void) {
 }
 
 extern u8 gPlayerCharacterId[];
-extern s32 D_80767CC0;
+extern SchedStruct gScheduler;
 extern f32 D_80753604[];
 
 void playerStateDoubleJump(void) {
@@ -1181,9 +1181,9 @@ void playerStateDoubleJump(void) {
             break;
         case 3:
             if (D_807FD63C[gCurrentPlayerIndex].value & 0x8000) {
-                gActivePlayerState->jumpTimer = D_80767CC0;
+                gActivePlayerState->jumpTimer = gScheduler.unk280;
             }
-            if ((u32)(D_80767CC0 - gActivePlayerState->jumpTimer) < 0xA && gPlayerCharacterId[gCurrentPlayerIndex] == 1 && gCurrentActor->floorSlopeFactor == 0.0f) {
+            if ((u32)(gScheduler.unk280 - gActivePlayerState->jumpTimer) < 0xA && gPlayerCharacterId[gCurrentPlayerIndex] == 1 && gCurrentActor->floorSlopeFactor == 0.0f) {
                 gCurrentActor->state = 0x1A;
                 gCurrentActor->unk155 = 0;
                 gActivePlayerState->jumpVelocityY = D_80753604[gCurrentCharacterIndex];
@@ -1253,9 +1253,9 @@ void playerStateLongJump(void) {
         case 3:
             gActivePlayerState->airTimer = 0;
             if (D_807FD63C[gCurrentPlayerIndex].value & 0x8000) {
-                gActivePlayerState->jumpTimer = D_80767CC0;
+                gActivePlayerState->jumpTimer = gScheduler.unk280;
             }
-            if ((u32)(D_80767CC0 - gActivePlayerState->jumpTimer) < 0xA && gPlayerCharacterId[gCurrentPlayerIndex] == 1 && gCurrentActor->floorSlopeFactor == 0.0f) {
+            if ((u32)(gScheduler.unk280 - gActivePlayerState->jumpTimer) < 0xA && gPlayerCharacterId[gCurrentPlayerIndex] == 1 && gCurrentActor->floorSlopeFactor == 0.0f) {
                 gCurrentActor->state = 0x1A;
                 gCurrentActor->unk155 = 0;
                 gActivePlayerState->jumpVelocityY = D_80753604[gCurrentCharacterIndex];
@@ -1368,7 +1368,7 @@ void playerStateCrouchJump(void) {
             break;
         case 3:
             if (D_807FD63C[gCurrentPlayerIndex].value & 0x8000) {
-                gActivePlayerState->jumpTimer = D_80767CC0;
+                gActivePlayerState->jumpTimer = gScheduler.unk280;
             }
             playerInputUpdate(0x34);
             playerApplyFullPhysics();
@@ -1661,7 +1661,7 @@ void playerStateRunDecel(void) {
     case 0:
         gActivePlayerState->decelRate = gActivePlayerState->decelRate / 1.8;
         gCurrentActor->unk155++;
-        gActivePlayerState->jumpStartTime = D_80767CC0 - 0x64;
+        gActivePlayerState->jumpStartTime = gScheduler.unk280 - 0x64;
         gActivePlayerState->turnRate = 0x50;
     case 1:
         playerInputUpdate(9);
@@ -1670,7 +1670,7 @@ void playerStateRunDecel(void) {
         mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, (s16)(gActivePlayerState->turnRate * 1.25));
         break;
     case 2:
-        if ((u32)(D_80767CC0 - gActivePlayerState->jumpStartTime) < 0x32) {
+        if ((u32)(gScheduler.unk280 - gActivePlayerState->jumpStartTime) < 0x32) {
             switch (gPlayerCharacterId[gCurrentPlayerIndex]) {
                 case 2:
                     gCurrentActor->state = 0x27;
@@ -1695,7 +1695,7 @@ void playerStateWalkDecel(void) {
         case 0:
             gActivePlayerState->decelRate = gActivePlayerState->decelRate / 1.8;
             gCurrentActor->unk155++;
-            gActivePlayerState->jumpStartTime = D_80767CC0 - 0x64;
+            gActivePlayerState->jumpStartTime = gScheduler.unk280 - 0x64;
         case 1:
             playerInputUpdate(9);
             gActivePlayerState->decelRate = 10.0f;
@@ -1703,7 +1703,7 @@ void playerStateWalkDecel(void) {
             mathAngleStepToward(&gCurrentActor->moveYaw, gCurrentActor->yaw, (s16)(gActivePlayerState->turnRate * 1.25));
             break;
         case 2:
-            if ((u32)(D_80767CC0 - gActivePlayerState->jumpStartTime) < 0x32) {
+            if ((u32)(gScheduler.unk280 - gActivePlayerState->jumpStartTime) < 0x32) {
                 gCurrentActor->state = 0x28;
                 gCurrentActor->unk155 = 0;
                 actorScriptStartByIndex(gCurrentActor, 0x41);
@@ -1811,7 +1811,7 @@ void playerStateSlopeSlideByCharacter(void) {
                     break;
                 case 2:
                     gActivePlayerState->unk28 = 1;
-                    if ((u32)(D_80767CC0 - gActivePlayerState->jumpStartTime) < 0x14) {
+                    if ((u32)(gScheduler.unk280 - gActivePlayerState->jumpStartTime) < 0x14) {
                         gCurrentActor->state = 0x26;
                         gCurrentActor->unk155 = 0;
                         actorScriptStartByIndex(gCurrentActor, 0x3F);

@@ -475,7 +475,7 @@ extern f32 D_80753924[];
 extern f32 D_80753940[];
 extern f32 D_80753D70[];
 extern f32 D_80753D8C[];
-extern s32 D_80767CC0;
+extern SchedStruct gScheduler;
 extern f32 gKongCannonInitialPitch[];
 extern s16 D_8075388C[];
 extern s16 D_807538D8[];
@@ -553,7 +553,7 @@ void playerStateEnterKnockbackRecovery(void) {
     gActivePlayerState->decelRate = D_80753940[gCurrentCharacterIndex];
     actorScriptStartByIndex(gActivePlayerActor, 0x3E);
     scriptSetActorRampTarget(gCurrentActor, 1.0f, 0.0f);
-    gActivePlayerState->jumpTimer = D_80767CC0 - 0x1E;
+    gActivePlayerState->jumpTimer = gScheduler.unk280 - 0x1E;
 }
 
 void playerStateEnterDamageKnockback(void) {

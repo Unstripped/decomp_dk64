@@ -491,7 +491,8 @@ extern AmbientEmitter D_8074627C[];
 extern AmbientAudioParam D_80745B28[];
 extern u8 D_80745BDC[][4];
 
-extern u32 D_80767CC0;
+#include "sched.h"
+extern SchedStruct gScheduler;
 extern s32 D_8076D1F8;
 extern s32 D_8076D1FC;
 extern struct GfSndState *D_807457DC;
@@ -772,8 +773,8 @@ void sfxUpdateLevelAmbient(void) {
         }
         if (D_80745B28[group].sfxId == 0x1E) {
             volume = (f32)((f64)volume * 0.6);
-            if ((D_80767CC0 / 12U) != D_80770E38[group]) {
-                D_80770E38[group] = (D_80767CC0 / 12U);
+            if ((gScheduler.unk280 / 12U) != D_80770E38[group]) {
+                D_80770E38[group] = (gScheduler.unk280 / 12U);
                 if (volume > 10.0f) {
                     n_alSndpPlay(D_8076D1F8, D_80745B28[group].sfxId, (u16)volume, 0x3F, 0.4f, 0, &D_80770DF8[group]);
                     D_80770EB8[group] = volume + 1.0f;
