@@ -33,7 +33,7 @@ typedef struct {
 } CommandState;
 
 typedef struct Command {
-    s32 unk0;
+    Actor *unk0;
     s16 unk4;
     s16 unk6;
     s16 unk8;
@@ -92,7 +92,7 @@ void func_8072167C(s16 targetRed, s16 targetBlue, s16 targetGreen, s16 targetRot
     D_8075568C = (f32) ((f64) D_8075568C + ((f64) ((f32) targetGreen - D_8075568C) * 0.1));
 }
 
-void commandQueuePush(s32 actor, s16 x, s16 y, s16 z, u8 radius, u8 red, u8 green, u8 blue, u8 type) {
+void commandQueuePush(Actor *actor, s16 x, s16 y, s16 z, u8 radius, u8 red, u8 green, u8 blue, u8 type) {
     s32 queueIndex;
     s32 wrappedIndex;
     Command *cmd;
@@ -365,7 +365,7 @@ Gfx *actorBuildLightDisplayList(Gfx *glist, Actor *targetActor, s16 playerSlotIn
     }
 
     for (i = 0; i < D_807FDB74; i++) {
-        if (((Command *)D_807FDB70)[i].unk0 == (s32)targetActor && commandApplyToLight(command, (Command *)(D_807FDB70 + (i << 4)), x, y, z, playerSlotIndex) != 0) {
+        if (((Command *)D_807FDB70)[i].unk0 == targetActor && commandApplyToLight(command, (Command *)(D_807FDB70 + (i << 4)), x, y, z, playerSlotIndex) != 0) {
             command++;
         }
     }

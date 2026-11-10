@@ -20,7 +20,7 @@ void commandStateInit(void);
 void func_8072167C(s16, s16, s16, s16);
 #endif
 #ifndef PROTO_SKIP_commandQueuePush
-void commandQueuePush(s32, s16, s16, s16, u8, u8, u8, u8, u8);
+void commandQueuePush(Actor *, s16, s16, s16, u8, u8, u8, u8, u8);
 #endif
 #ifndef PROTO_SKIP_commandApplyToLight
 s32 commandApplyToLight(u8, struct Command *, f32, f32, f32, s16);

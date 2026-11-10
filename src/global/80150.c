@@ -3,7 +3,6 @@
 #include "actor.h"
 #define PROTO_SKIP_actorDespawn // FAKE: callee prototype steer
 #define PROTO_SKIP_flagGet // FAKE: callee prototype steer
-#define PROTO_SKIP_playerMountBarrel // FAKE: callee prototype steer
 #include "proto/global/100180.h"
 #include "proto/global/103AB0.h"
 #include "proto/global/104F0.h"
@@ -1942,7 +1941,6 @@ extern u8 D_8071FC58[];
 
 
 extern s16 D_80750390;
-void playerMountBarrel(void *, Actor *); // FAKE: callee prototype steer
 
 void tagBarrelActorUpdate(void) {
     s16 kong;

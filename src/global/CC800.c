@@ -72,7 +72,7 @@ s32 playerGetModelAssetId(void) {
 }
 
 typedef struct G00SpawnSub {
-    /* 0x0 */ s32 unk0;
+    /* 0x0 */ Actor *unk0;
     /* 0x4 */ Actor *unk4;
     /* 0x8 */ u8 unk8;
 } G00SpawnSub;
@@ -88,13 +88,13 @@ void func_806C7B50(s32 actorType, u8 param, Actor *parent) {
     sub->unk8 = param;
 }
 
-void playerMountBarrel(s32 value, Actor *target) {
+void playerMountBarrel(Actor *rider, Actor *target) {
     G00SpawnSub *sub;
 
     actorSpawn(0x25, 0x8C);
     actorCopyPoseAndScale(gSpawnedActor, gActivePlayerActor, 0.15f);
     sub = gSpawnedActor->customState;
-    sub->unk0 = value;
+    sub->unk0 = rider;
     sub->unk4 = target;
 }
 

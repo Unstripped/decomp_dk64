@@ -13,7 +13,7 @@ s32 playerGetModelAssetId(void);
 void func_806C7B50(s32, u8, Actor *);
 #endif
 #ifndef PROTO_SKIP_playerMountBarrel
-void playerMountBarrel(s32, Actor *);
+void playerMountBarrel(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_playerSetupViewports
 void playerSetupViewports(void);

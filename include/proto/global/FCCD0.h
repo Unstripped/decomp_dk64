@@ -119,7 +119,7 @@ Gfx *slotQueueBuildDisplayList(Gfx *);
 void slotQueueSelectPlayerResource(u8);
 #endif
 #ifndef PROTO_SKIP_slotQueueGetSpriteAsset
-s32 slotQueueGetSpriteAsset(s32);
+void *slotQueueGetSpriteAsset(s32);
 #endif
 #ifndef PROTO_SKIP_slotQueuePushActiveMask
 void slotQueuePushActiveMask(void);

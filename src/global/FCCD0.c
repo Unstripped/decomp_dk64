@@ -1272,8 +1272,8 @@ void slotQueueSelectPlayerResource(u8 player) {
 
 extern s32 D_807200A0, D_807201A0, D_80720268, D_8072029C, D_807203B0, D_807203D4, D_807203F8, D_8072041C, D_80720440, D_80720488, D_807204BC, D_80720508, D_8072052C, D_80720558, D_8072057C, D_807205A0, D_807205C4, D_807205E8, D_8072060C, D_807206A8, D_807207BC, D_807207E0, D_80720854, D_80720878, D_80720890, D_807208A8, D_807208C0, D_807208D8, D_807209EC, D_80720A10, D_80720A34, D_80720A58, D_80721200, D_8072121C, D_80721250, D_8072145C, D_807214A0, D_807214B8, D_807214D0, D_807214E8, D_80721500;
 
-s32 slotQueueGetSpriteAsset(s32 slot) {
-    s32 result;
+void *slotQueueGetSpriteAsset(s32 slot) {
+    void *result;
     u32 player;
 
     result = 0;
@@ -1286,49 +1286,49 @@ s32 slotQueueGetSpriteAsset(s32 slot) {
     case 13:
         switch (player) {
         case 1:
-            result = (s32)&D_8072057C;
+            result = &D_8072057C;
             break;
         case 0:
-            result = (s32)&D_807205E8;
+            result = &D_807205E8;
             break;
         case 3:
-            result = (s32)&D_8072060C;
+            result = &D_8072060C;
             break;
         case 2:
-            result = (s32)&D_807205C4;
+            result = &D_807205C4;
             break;
         case 4:
         case 5:
-            result = (s32)&D_807205A0;
+            result = &D_807205A0;
             break;
         }
         break;
     case 6:
-        result = (s32)&D_80720488;
+        result = &D_80720488;
         break;
     case 4:
-        result = (s32)&D_807204BC;
+        result = &D_807204BC;
         break;
     case 2:
     case 3:
         switch (player) {
         case 1:
-            result = (s32)&D_807200A0;
+            result = &D_807200A0;
             break;
         case 0:
-            result = (s32)&D_807206A8;
+            result = &D_807206A8;
             break;
         case 3:
-            result = (s32)&D_80720854;
+            result = &D_80720854;
             break;
         case 2:
-            result = (s32)&D_8072029C;
+            result = &D_8072029C;
             break;
         case 4:
-            result = (s32)&D_807201A0;
+            result = &D_807201A0;
             break;
         case 5:
-            result = (s32)&D_80720268;
+            result = &D_80720268;
             break;
         }
         break;
@@ -1336,104 +1336,104 @@ s32 slotQueueGetSpriteAsset(s32 slot) {
     case 14:
         switch (player) {
         case 1:
-            result = (s32)&D_807203B0;
+            result = &D_807203B0;
             break;
         case 0:
-            result = (s32)&D_8072041C;
+            result = &D_8072041C;
             break;
         case 3:
-            result = (s32)&D_80720440;
+            result = &D_80720440;
             break;
         case 2:
-            result = (s32)&D_807203F8;
+            result = &D_807203F8;
             break;
         case 4:
         case 5:
-            result = (s32)&D_807203D4;
+            result = &D_807203D4;
             break;
         }
         break;
     case 11:
-        result = (s32)&D_807207BC;
+        result = &D_807207BC;
         break;
     case 7:
         switch (player) {
         case 1:
-            result = (s32)&D_80720878;
+            result = &D_80720878;
             break;
         case 0:
-            result = (s32)&D_80720890;
+            result = &D_80720890;
             break;
         case 3:
-            result = (s32)&D_807208A8;
+            result = &D_807208A8;
             break;
         case 2:
-            result = (s32)&D_807208D8;
+            result = &D_807208D8;
             break;
         case 4:
         case 5:
-            result = (s32)&D_807208C0;
+            result = &D_807208C0;
             break;
         }
         break;
     case 5:
-        result = (s32)&D_80720508;
+        result = &D_80720508;
         break;
     case 8:
-        result = (s32)&D_8072052C;
+        result = &D_8072052C;
         break;
     case 9:
-        result = (s32)&D_8072052C;
+        result = &D_8072052C;
         break;
     case 10:
-        result = (s32)&D_80720558;
+        result = &D_80720558;
         break;
     case 12:
         switch (player) {
         case 1:
-            result = (s32)&D_807209EC;
+            result = &D_807209EC;
             break;
         case 0:
-            result = (s32)&D_80720A34;
+            result = &D_80720A34;
             break;
         case 3:
-            result = (s32)&D_80720A58;
+            result = &D_80720A58;
             break;
         case 2:
-            result = (s32)&D_807207E0;
+            result = &D_807207E0;
             break;
         case 4:
         case 5:
-            result = (s32)&D_80720A10;
+            result = &D_80720A10;
             break;
         }
         break;
     case 16:
-        result = (s32)&D_8072145C;
+        result = &D_8072145C;
         break;
     case 17:
-        result = (s32)&D_80721250;
+        result = &D_80721250;
         break;
     case 18:
-        result = (s32)&D_80721200;
+        result = &D_80721200;
         break;
     case 19:
-        result = (s32)&D_8072121C;
+        result = &D_8072121C;
         break;
     case 20:
-        result = (s32)&D_807214A0;
+        result = &D_807214A0;
         break;
     case 21:
-        result = (s32)&D_807214B8;
+        result = &D_807214B8;
         break;
     case 22:
-        result = (s32)&D_807214D0;
+        result = &D_807214D0;
         break;
     case 23:
-        result = (s32)&D_807214E8;
+        result = &D_807214E8;
         break;
     case 24:
-        result = (s32)&D_80721500;
+        result = &D_80721500;
         break;
     }
     return result;
