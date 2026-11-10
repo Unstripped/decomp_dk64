@@ -13,13 +13,6 @@ extern s16 D_807FBB30;
 extern s16 D_807FBB32;
 extern PlayerState *gActivePlayerState;
 
-typedef struct ControllerView {
-    u8 unk0[0x50];
-    void *unk50;
-} ControllerView;
-
-
-
 typedef struct ControllerStateEntryView {
     u16 unk0;
     u16 unk2;
@@ -159,22 +152,22 @@ void gfxSwapGeometryModeCullBits(GfxCmdWords *cmdStart, GfxCmdWords *cmdEnd) {
     }
 }
 
-void controllerAnimLoadStateAsset(ControllerView *controller, s16 assetId) {
-    if (controller->unk50 == NULL) {
-        controller->unk50 = controllerAnimStateLoadAsset(controller, assetId, 0);
+void controllerAnimLoadStateAsset(Actor *actor, s16 assetId) {
+    if (actor->stateModel == NULL) {
+        actor->stateModel = controllerAnimStateLoadAsset(actor, assetId, 0);
     }
 }
 
-void controllerAnimLoadStateAsset1(ControllerView *controller, s16 assetId) {
-    if (controller->unk50 == NULL) {
-        controller->unk50 = controllerAnimStateLoadAsset(controller, assetId, 1);
+void controllerAnimLoadStateAsset1(Actor *actor, s16 assetId) {
+    if (actor->stateModel == NULL) {
+        actor->stateModel = controllerAnimStateLoadAsset(actor, assetId, 1);
     }
 }
 
-void controllerAnimFreeStateAsset(ControllerView *controller) {
-    if (controller->unk50 != NULL) {
-        controllerAnimFreeSub(controller, 2);
-        controller->unk50 = NULL;
+void controllerAnimFreeStateAsset(Actor *actor) {
+    if (actor->stateModel != NULL) {
+        controllerAnimFreeSub(actor, 2);
+        actor->stateModel = NULL;
     }
 }
 
@@ -304,151 +297,73 @@ u16 controllerLookupStateByHash(u32 *pHash) {
 }
 
 typedef struct {
-    void *unk0;
-    void *unk4;
-    void *unk8;
-    void *unkC;
-    u8 pad10[0xC];
-    void *unk1C;
-    void *unk20;
-    void *unk24;
-} ControllerAnimData;
-
-typedef struct ControllerAnimView {
-    void *unk0;
-    ControllerAnimData *unk4;
-} ControllerAnimView;
-
-
-typedef struct {
-    void *unk0;
-    f32 unk4;
-    f32 unk8;
-    u8 padC[4];
-    s16 unk10;
-    u8 pad12[2];
-    f32 unk14;
-    f32 unk18;
-    u16 unk1C;
-    u8 pad1E[6];
-    f32 unk24;
-    f32 unk28;
-    f32 unk2C;
-    f32 unk30;
-    f32 unk34;
-} AnimSlotInit;
-
-typedef struct {
-    AnimSlotInit *unk0;
-    AnimSlotInit *unk4;
-    AnimSlotInit *unk8;
-    AnimSlotInit *unkC;
-    f32 unk10;
-    Mtx *unk14;
-    Mtx *unk18;
-    void *unk1C;
-    void *unk20;
-    void *unk24;
-    u8 pad28[0xC];
-    f32 unk34;
-    f32 unk38;
-    f32 unk3C;
-    u8 pad40[4];
-    f32 unk44;
-    f32 unk48;
-    u8 pad4C[0xC];
-    f32 unk58;
-    u8 pad5C[8];
-    s16 unk64;
-    u8 pad66[2];
-    s32 unk68;
-    u8 pad6C[4];
-    s32 unk70;
-    u8 pad74[4];
-    s32 unk78;
-    s32 unk7C;
-    f32 unk80;
-    s32 unk84;
-    s32 unk88;
-} AnimStateInit;
-
-typedef struct AnimControllerInit {
-    void *unk0;
-    AnimStateInit *unk4;
-    u8 pad8[4];
-    f32 unkC[4][4];
-    s32 unk4C;
-    s32 unk50;
-} AnimControllerInit;
-
-typedef struct {
     u8 pad[0x20];
     u8 unk20;
 } AnimAssetEntry;
 
-s32 controllerAnimInit(AnimControllerInit *controller, u16 assetId) {
+s32 controllerAnimInit(Actor *actor, u16 assetId) {
     AnimAssetEntry *resource;
     s32 i;
     void *alloc;
-    AnimStateInit *anim;
-    resource = controllerAnimStateLoadAsset(controller, assetId, 0);
+    ActorSub4 *anim;
+    resource = controllerAnimStateLoadAsset(actor, assetId, 0);
     if (resource != NULL) {
-        controller->unk0 = resource;
-        controller->unk4C = 0;
-        controller->unk50 = 0;
+        actor->animState = resource;
+        actor->overrideModel = NULL;
+        actor->stateModel = NULL;
 
         alloc = heapAlloc((resource->unk20 << 7) + 0x170);
-        controller->unk4 = (AnimStateInit *)alloc;
-        controller->unk4->unk0 = (AnimSlotInit *)((u8 *)alloc + 0x90);
-        controller->unk4->unk4 = (AnimSlotInit *)((u8 *)alloc + 0xC8);
-        controller->unk4->unk8 = (AnimSlotInit *)((u8 *)alloc + 0x100);
-        controller->unk4->unkC = (AnimSlotInit *)((u8 *)alloc + 0x138);
-        controller->unk4->unk14 = (Mtx *)((u8 *)alloc + 0x170);
-        controller->unk4->unk18 = (Mtx *)((u8 *)controller->unk4->unk14 + (resource->unk20 << 6));
+        actor->sub4 = (ActorSub4 *)alloc;
+        actor->sub4->model = (AnimSlot *)((u8 *)alloc + 0x90);
+        actor->sub4->layer = (AnimSlot *)((u8 *)alloc + 0xC8);
+        actor->sub4->blendFrom = (AnimSlot *)((u8 *)alloc + 0x100);
+        actor->sub4->blendFromLayer = (AnimSlot *)((u8 *)alloc + 0x138);
+        actor->sub4->boneMtx[0] = (Mtx *)((u8 *)alloc + 0x170);
+        actor->sub4->boneMtx[1] = (Mtx *)((u8 *)actor->sub4->boneMtx[0] + (resource->unk20 << 6));
 
         for (i = 0; i < resource->unk20; i++) {
-            guMtxIdent((Mtx *)((u8 *)controller->unk4->unk14 + (i << 6)));
-            guMtxIdent((Mtx *)((u8 *)controller->unk4->unk18 + (i << 6)));
+            guMtxIdent((Mtx *)((u8 *)actor->sub4->boneMtx[0] + (i << 6)));
+            guMtxIdent((Mtx *)((u8 *)actor->sub4->boneMtx[1] + (i << 6)));
         }
 
-        guMtxIdentF(controller->unkC);
-        anim = controller->unk4;
-        anim->unk1C = NULL;
-        anim->unk20 = NULL;
-        anim->unk24 = NULL;
-        anim->unk34 = 0.15f;
-        anim->unk38 = 0.15f;
-        anim->unk3C = 0.15f;
-        anim->unk0->unk4 = 0.0f;
-        anim->unk0->unk8 = 0.0f;
-        anim->unk0->unk0 = NULL;
-        anim->unk0->unk10 = -1;
-        anim->unk0->unk1C = 0;
-        anim->unk0->unk14 = 0.0f;
-        anim->unk0->unk18 = 0.0f;
-        anim->unk0->unk24 = 1.0f;
-        anim->unk0->unk34 = 0.0f;
+        guMtxIdentF(actor->modelMtx);
+        anim = actor->sub4;
+        anim->boneRotations = NULL;
+        anim->boneScales = NULL;
+        anim->boneOffsets = NULL;
+        anim->scaleX = 0.15f;
+        anim->scaleY = 0.15f;
+        anim->scaleZ = 0.15f;
+        anim->model->frame = 0.0f;
+        anim->model->frameFrac = 0.0f;
+        anim->model->clip = NULL;
+        anim->model->animId = -1;
+        anim->model->flags = 0;
+        anim->model->firstFrame = 0.0f;
+        anim->model->lastFrame = 0.0f;
+        anim->model->speed = 1.0f;
+        anim->model->speedRampDuration = 0.0f;
 
-        anim->unk4->unk0 = NULL;
-        anim->unk4->unk34 = 0.0f;
-        anim->unk8->unk0 = NULL;
-        anim->unk8->unk34 = 0.0f;
-        anim->unkC->unk0 = NULL;
-        anim->unkC->unk34 = 0.0f;
+        anim->layer->clip = NULL;
+        anim->layer->speedRampDuration = 0.0f;
+        anim->blendFrom->clip = NULL;
+        anim->blendFrom->speedRampDuration = 0.0f;
+        anim->blendFromLayer->clip = NULL;
+        anim->blendFromLayer->speedRampDuration = 0.0f;
 
-        anim->unk68 = 0;
-        anim->unk64 = 0;
-        anim->unk70 = 0;
-        anim->unk78 = 0;
-        anim->unk7C = 0;
-        anim->unk84 = 0;
-        anim->unk88 = 0;
+        anim->scriptStart = NULL;
+        anim->animId = 0;
+        anim->scriptCommand = NULL;
+        anim->scriptWaitFlags = 0;
+        anim->loopCount = 0;
+        anim->waitOnLayer = 0;
+        anim->scriptResult = 0;
 
-        anim->unk10 = 0.0f;
-        anim->unk44 = 0.0f;
-        anim->unk58 = 0.0f;
+        anim->blendWeight = 0.0f;
+        anim->blendDuration = 0.0f;
+        anim->speedRampDuration = 0.0f;
         anim->unk48 = 1.0f;
-        anim->unk80 = 0.0;
+        anim->waitFrame = 0.0;
 
         return 1;
     }
@@ -456,39 +371,32 @@ s32 controllerAnimInit(AnimControllerInit *controller, u16 assetId) {
 }
 
 void controllerAnimFree(Actor *actor) {
-    ControllerAnimView *controller = (ControllerAnimView *)actor;
     void *buffer1;
     void *temp_a1_2;
     void *temp_a1_3;
 
-    controllerAnimFreeSub((ControllerView *)controller, 0);
-    controllerAnimFreeSub((ControllerView *)controller, 1);
-    controllerAnimFreeSub((ControllerView *)controller, 2);
-    animListFree((u8 *)controller + 0x158);
-    controllerAnimCacheFree(controller, controller->unk4->unk0);
-    controllerAnimCacheFree(controller, controller->unk4->unk4);
-    controllerAnimCacheFree(controller, controller->unk4->unk8);
-    controllerAnimCacheFree(controller, controller->unk4->unkC);
-    buffer1 = controller->unk4->unk1C;
+    controllerAnimFreeSub(actor, 0);
+    controllerAnimFreeSub(actor, 1);
+    controllerAnimFreeSub(actor, 2);
+    animListFree((u8 *)actor + 0x158);
+    controllerAnimCacheFree(actor, actor->sub4->model);
+    controllerAnimCacheFree(actor, actor->sub4->layer);
+    controllerAnimCacheFree(actor, actor->sub4->blendFrom);
+    controllerAnimCacheFree(actor, actor->sub4->blendFromLayer);
+    buffer1 = actor->sub4->boneRotations;
     if (buffer1 != NULL) {
         heapFreeDeferred(buffer1);
     }
-    temp_a1_2 = controller->unk4->unk20;
+    temp_a1_2 = actor->sub4->boneScales;
     if (temp_a1_2 != NULL) {
         heapFreeDeferred(temp_a1_2);
     }
-    temp_a1_3 = controller->unk4->unk24;
+    temp_a1_3 = actor->sub4->boneOffsets;
     if (temp_a1_3 != NULL) {
         heapFreeDeferred(temp_a1_3);
     }
-    heapFreeDeferred(controller->unk4);
+    heapFreeDeferred(actor->sub4);
 }
-typedef struct ControllerViewB {
-    void *unk0;
-    u8 pad4[0x48];
-    void *unk4C;
-    void *unk50;
-} ControllerViewB;
 
 typedef struct {
     u32 unk0;
@@ -520,7 +428,7 @@ typedef struct {
 
 #define FREESUB_SLOT(i) (((AnimStateSlot *)D_807FB630)[i])
 void controllerAnimFreeSub(controller, slotIndex)
-ControllerViewB *controller;
+Actor *controller;
 u8 slotIndex;
 {
     ControllerSubB *sub;
@@ -530,16 +438,16 @@ u8 slotIndex;
     s32 i;
     switch (slotIndex) {
     case 0:
-        sub = controller->unk0;
-        controller->unk0 = NULL;
+        sub = controller->animState;
+        controller->animState = NULL;
         break;
     case 1:
-        sub = controller->unk4C;
-        controller->unk4C = NULL;
+        sub = controller->overrideModel;
+        controller->overrideModel = NULL;
         break;
     case 2:
-        sub = controller->unk50;
-        controller->unk50 = NULL;
+        sub = controller->stateModel;
+        controller->stateModel = NULL;
         break;
     }
 
@@ -583,31 +491,12 @@ u8 slotIndex;
     }
 }
 
-
-typedef struct {
-    void *unk0;
-    void *unk4;
-    void *unk8;
-    void *unkC;
-} ControllerAnimDataView;
-
-typedef struct {
-    void *unk0;
-    ControllerAnimDataView *unk4;
-} ControllerAnimRefView;
-
-typedef struct {
-    u8 pad0[0x84];
-    s32 unk84;
-} ControllerAnimDataBlock;
-
-
-int controllerAnimCacheFree(void *controller, void *pSlot) {
+int controllerAnimCacheFree(Actor *actor, AnimSlot *slot) {
     void *asset;
     s32 i;
     s32 count;
 
-    asset = *(void **)pSlot;
+    asset = slot->clip;
     if (asset != NULL) {
         count = *(u16 *)&D_807FBB32;
         for (i = 0; i + 1 <= count; i++) { // LAYOUT: plain `i < count` is rewritten to a bne latch by uopt's LFTR
@@ -625,343 +514,216 @@ int controllerAnimCacheFree(void *controller, void *pSlot) {
                 break;
             }
         }
-        *(void **)pSlot = NULL;
+        slot->clip = NULL;
     }
-    if ((void *)pSlot == ((ControllerAnimRefView *)controller)->unk4->unk4) {
-        ((ControllerAnimDataBlock *)((ControllerAnimRefView *)controller)->unk4)->unk84 = 0;
+    if (slot == actor->sub4->layer) {
+        actor->sub4->waitOnLayer = 0;
     }
 }
 
-typedef struct AnimScaleState { u8 pad[0x14]; f32 a; f32 b; } AnimScaleState;
-typedef struct { u8 pad[4]; f32 scale; u8 pad2[0xC]; f32 a; f32 b; } AnimScaleSpan;
-typedef struct { AnimScaleState *state; u8 pad[4]; AnimScaleSpan *scale; } AnimScaleHolder;
-typedef struct AnimScaleController { u8 pad[4]; AnimScaleHolder *holder; } AnimScaleController;
-
-void controllerAnimScaleInterpolate(AnimScaleController *controller, s8 offset) {
+void controllerAnimScaleInterpolate(Actor *actor, s8 offset) {
     f32 temp;
-    s16 count = (s32)((controller->holder->state->b - controller->holder->state->a) + 1.0f);
-    s16 span = (s32)((controller->holder->scale->b - controller->holder->scale->a) + 1.0f);
-    temp = (controller->holder->scale->scale * (f32)count) / (f32)span;
+    s16 count = (s32)((actor->sub4->model->lastFrame - actor->sub4->model->firstFrame) + 1.0f);
+    s16 span = (s32)((actor->sub4->blendFrom->lastFrame - actor->sub4->blendFrom->firstFrame) + 1.0f);
+    temp = (actor->sub4->blendFrom->frame * (f32)count) / (f32)span;
     temp += (f32)offset;
-    controllerApplyMotionWindow(controller, controller->holder->state, temp);
+    controllerApplyMotionWindow(actor, actor->sub4->model, temp);
 }
-
-
-typedef struct {
-    u8 pad0[0x4E];
-    s16 unk4E;
-} GlobalPlayerAnimView;
-
-typedef struct {
-    u8 pad0[0x58];
-    s32 unk58;
-} ControllerStateParamView;
 
 extern u16 *gActorScriptAnimTable;
-struct ControllerStateView;
 
-void controllerAnimSetStateRemap(struct ControllerStateView *stateView, s16 animIndex, f32 animSpeed, f32 blend) {
+void controllerAnimSetStateRemap(Actor *actor, s16 animIndex, f32 animSpeed, f32 blend) {
     s16 flag;
     s32 sum;
     if (animIndex >= 0) {
         flag = animIndex & 0x4000;
         animIndex -= flag;
-        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
-        sum = (animIndex * 7 + ((ControllerStateParamView *)stateView)->unk58 - 2) & 0xFFFF;
+        gActivePlayerState->unk4E = animIndex;
+        sum = (animIndex * 7 + actor->actorType - 2) & 0xFFFF;
         animIndex = gActorScriptAnimTable[sum] + flag;
     } else {
-        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
+        gActivePlayerState->unk4E = animIndex;
     }
-    controllerAnimSetStateIfChanged(stateView, animIndex, animSpeed, blend);
+    controllerAnimSetStateIfChanged(actor, animIndex, animSpeed, blend);
 }
 
 
-void controllerAnimSetStateRemapDirect(struct ControllerStateView *stateView, s16 animIndex, f32 animSpeed, f32 blend) {
+void controllerAnimSetStateRemapDirect(Actor *actor, s16 animIndex, f32 animSpeed, f32 blend) {
     s16 flag;
     s32 sum;
     if (animIndex >= 0) {
         flag = animIndex & 0x4000;
         animIndex -= flag;
-        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
-        sum = (animIndex * 7 + ((ControllerStateParamView *)stateView)->unk58 - 2) & 0xFFFF;
+        gActivePlayerState->unk4E = animIndex;
+        sum = (animIndex * 7 + actor->actorType - 2) & 0xFFFF;
         animIndex = gActorScriptAnimTable[sum] + flag;
     } else {
-        ((GlobalPlayerAnimView *)gActivePlayerState)->unk4E = animIndex;
+        gActivePlayerState->unk4E = animIndex;
     }
-    controllerAnimSetState(stateView, animIndex, animSpeed, blend);
+    controllerAnimSetState(actor, animIndex, animSpeed, blend);
 }
 
-typedef struct {
-    void *unk0;
-    u8 pad4[0xC];
-    s16 unk10;
-    u8 pad12[0x12];
-    f32 unk24;
-} ControllerState;
+void controllerAnimSetStateIfChanged(Actor *actor, s16 animId, f32 animSpeed, f32 blend) {
+    AnimSlot *state;
 
-typedef struct {
-    ControllerState *unk0;
-} ControllerStateHolder;
-
-typedef struct ControllerStateView {
-    u8 pad0[4];
-    ControllerStateHolder *unk4;
-} ControllerStateView;
-
-
-
-void controllerAnimSetStateIfChanged(ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend) {
-    ControllerState *state;
-
-    state = stateView->unk4->unk0;
-    if (animId == state->unk10) {
-        state->unk24 = *(f32 *)state->unk0;
+    state = actor->sub4->model;
+    if (animId == state->animId) {
+        state->speed = state->clip->speed;
         return;
     }
-    controllerAnimSetState(stateView, animId, animSpeed, blend);
+    controllerAnimSetState(actor, animId, animSpeed, blend);
 }
 
-typedef struct {
-    f32 unk0;
-    u16 unk4;
-    u8 pad6[0xC];
-    u8 unk12;
-} AnimResourceState;
-
-typedef struct {
-    AnimResourceState *unk0;
-    f32 unk4;
-    f32 unk8;
-    s16 unkC;
-    s16 unkE;
-    s16 unk10;
-    u8 pad12[2];
-    f32 unk14;
-    f32 unk18;
-    s16 unk1C;
-    u8 pad1E[6];
-    f32 unk24;
-    f32 unk28;
-    f32 unk2C;
-    f32 unk30;
-    f32 unk34;
-} AnimSlotState;
-
-typedef struct {
-    AnimSlotState *unk0;
-    AnimSlotState *unk4;
-    AnimSlotState *unk8;
-    AnimSlotState *unkC;
-    f32 unk10;
-    u8 pad14[0x14];
-    s16 unk28;
-    s16 unk2A;
-    u8 pad2C[0x14];
-    f32 unk40;
-    f32 unk44;
-    f32 unk48;
-    u8 pad4C[0x2C];
-    s32 unk78;
-    s32 unk7C;
-    f32 unk80;
-} AnimDataState;
-
-void controllerAnimSetState(ControllerStateView *stateView, s16 animId, f32 animSpeed, f32 blend) {
+void controllerAnimSetState(Actor *actor, s16 animId, f32 animSpeed, f32 blend) {
     void *pad;
-    AnimDataState *anim;
-    AnimSlotState *slot0;
-    AnimSlotState *slot4;
-    AnimSlotState *slot8;
-    AnimSlotState *slotC;
-    AnimResourceState *resource;
+    ActorSub4 *anim;
+    AnimSlot *slot0;
+    AnimSlot *slot4;
+    AnimSlot *slot8;
+    AnimSlot *slotC;
+    AnimClip *resource;
     f32 animTimer;
     u8 slotFlags;
 
-    anim = (AnimDataState *)stateView->unk4;
-    slot0 = anim->unk0;
-    slot8 = anim->unk8;
-    slot4 = anim->unk4;
-    slotC = anim->unkC;
+    anim = actor->sub4;
+    slot0 = anim->model;
+    slot8 = anim->blendFrom;
+    slot4 = anim->layer;
+    slotC = anim->blendFromLayer;
 
-    if (slot8->unk0 != NULL) {
-        controllerAnimCacheFree(stateView, slot8);
+    if (slot8->clip != NULL) {
+        controllerAnimCacheFree(actor, slot8);
     }
-    if (slotC->unk0 != NULL) {
-        controllerAnimCacheFree(stateView, slotC);
+    if (slotC->clip != NULL) {
+        controllerAnimCacheFree(actor, slotC);
     }
 
     if ((animId & 0x4000) == 0x4000) {
         animId -= 0x4000;
-        if (slot4->unk0 != NULL) {
-            slotC->unk0 = controllerAnimCacheGetOrLoad(slot4->unk10);
-            slotC->unk4 = slot4->unk4;
-            slotC->unk8 = slot4->unk8;
-            slotC->unkC = slot4->unkC;
-            slotC->unkE = slot4->unkE;
-            slotC->unk10 = slot4->unk10;
-            slotC->unk1C = slot4->unk1C;
-            slotC->unk14 = slot4->unk14;
-            slotC->unk18 = slot4->unk18;
-            slotC->unk34 = slot4->unk34;
-            slotC->unk24 = slot4->unk24;
-            slotC->unk2C = slot4->unk2C;
-            slotC->unk28 = slot4->unk28;
-            slotC->unk30 = slot4->unk30;
-            anim->unk2A = anim->unk28;
+        if (slot4->clip != NULL) {
+            slotC->clip = controllerAnimCacheGetOrLoad(slot4->animId);
+            slotC->frame = slot4->frame;
+            slotC->frameFrac = slot4->frameFrac;
+            slotC->frameIndex = slot4->frameIndex;
+            slotC->nextFrameIndex = slot4->nextFrameIndex;
+            slotC->animId = slot4->animId;
+            slotC->flags = slot4->flags;
+            slotC->firstFrame = slot4->firstFrame;
+            slotC->lastFrame = slot4->lastFrame;
+            slotC->speedRampDuration = slot4->speedRampDuration;
+            slotC->speed = slot4->speed;
+            slotC->speedTo = slot4->speedTo;
+            slotC->speedFrom = slot4->speedFrom;
+            slotC->speedRampTime = slot4->speedRampTime;
+            anim->blendFromLayerWeight = anim->layerWeight;
         } else {
-            anim->unk2A = 0;
+            anim->blendFromLayerWeight = 0;
         }
     }
 
     if (blend > 0.0f) {
         animTimer = anim->unk48;
         if (animTimer > (f32)0) {
-            anim->unk40 = animTimer;
+            anim->blendTime = animTimer;
         } else {
-            anim->unk40 = -animTimer;
+            anim->blendTime = -animTimer;
         }
-        if (anim->unk40 < blend) {
-            anim->unk44 = blend;
+        if (anim->blendTime < blend) {
+            anim->blendDuration = blend;
         } else {
-            anim->unk44 = anim->unk40;
+            anim->blendDuration = anim->blendTime;
         }
-        anim->unk10 = (anim->unk44 - anim->unk40) / anim->unk44;
+        anim->blendWeight = (anim->blendDuration - anim->blendTime) / anim->blendDuration;
     } else {
-        if (slot0->unk0 != NULL) {
-            controllerAnimCacheFree(stateView, slot0);
+        if (slot0->clip != NULL) {
+            controllerAnimCacheFree(actor, slot0);
         }
-        if (slot4->unk0 != NULL) {
-            controllerAnimCacheFree(stateView, slot4);
+        if (slot4->clip != NULL) {
+            controllerAnimCacheFree(actor, slot4);
         }
     }
 
     resource = controllerAnimCacheGetOrLoad(animId);
     if (resource != NULL) {
-        slot8->unk0 = resource;
-        slot8->unk10 = animId;
-        slot8->unk1C = resource->unk4;
-        slot8->unk14 = 0.0f;
-        slot8->unk18 = (f32)(resource->unk12 - 1);
-        slot8->unk34 = 0.0f;
-        slot8->unk24 = resource->unk0;
-        slot8->unk2C = resource->unk0;
-        slot8->unk28 = resource->unk0;
-        slot8->unk30 = 0.0f;
+        slot8->clip = resource;
+        slot8->animId = animId;
+        slot8->flags = resource->flags;
+        slot8->firstFrame = 0.0f;
+        slot8->lastFrame = (f32)(resource->frameCount - 1);
+        slot8->speedRampDuration = 0.0f;
+        slot8->speed = resource->speed;
+        slot8->speedTo = resource->speed;
+        slot8->speedFrom = resource->speed;
+        slot8->speedRampTime = 0.0f;
     } else {
-        slot8->unk0 = NULL;
-        slot8->unk10 = -1;
-        slot8->unk1C = 0;
-        slot8->unk14 = 0.0f;
-        slot8->unk18 = 0.0;
-        slot8->unk34 = 0.0f;
-        slot8->unk24 = 0.0f;
-        slot8->unk2C = 0.0f;
-        slot8->unk28 = 0.0f;
-        slot8->unk30 = 0.0f;
+        slot8->clip = NULL;
+        slot8->animId = -1;
+        slot8->flags = 0;
+        slot8->firstFrame = 0.0f;
+        slot8->lastFrame = 0.0;
+        slot8->speedRampDuration = 0.0f;
+        slot8->speed = 0.0f;
+        slot8->speedTo = 0.0f;
+        slot8->speedFrom = 0.0f;
+        slot8->speedRampTime = 0.0f;
     }
 
-    anim->unk78 = 0;
-    anim->unk7C = 0;
-    anim->unk80 = 0.0;
-    anim->unk8 = slot0;
-    slotFlags = ((u8 *)&anim->unk28)[1];
-    anim->unkC = slot4;
-    anim->unk0 = slot8;
-    anim->unk4 = slotC;
-    anim->unk28 = anim->unk2A;
-    anim->unk2A = slotFlags;
-    controllerApplyMotionWindow((AnimScaleController *)stateView, (AnimScaleState *)slot8, animSpeed);
+    anim->scriptWaitFlags = 0;
+    anim->loopCount = 0;
+    anim->waitFrame = 0.0;
+    anim->blendFrom = slot0;
+    slotFlags = ((u8 *)&anim->layerWeight)[1];
+    anim->blendFromLayer = slot4;
+    anim->model = slot8;
+    anim->layer = slotC;
+    anim->layerWeight = anim->blendFromLayerWeight;
+    anim->blendFromLayerWeight = slotFlags;
+    controllerApplyMotionWindow(actor, slot8, animSpeed);
 }
 
-
-typedef struct ControllerActorTypeView {
-    u8 pad0[0x58];
-    s32 unk58;
-} ControllerActorTypeView;
-extern u16 *gActorScriptAnimTable;
-struct AnimControllerRef;
-
-void controllerAnimSetFromTable(ControllerActorTypeView *actorView, u16 animIndex, f32 animSpeed, u8 flags) {
+void controllerAnimSetFromTable(Actor *actor, u16 animIndex, f32 animSpeed, u8 flags) {
     u16 x = animIndex;
-    u16 idx = (u16)(7 * x + actorView->unk58 - 2);
+    u16 idx = (u16)(7 * x + actor->actorType - 2);
     if (x) {} // FAKE: dead test makes the copy of animIndex a ring temp (move t6,a1) and the sum v0
-    controllerAnimSetDirect((struct AnimControllerRef *)actorView, gActorScriptAnimTable[idx], animSpeed, flags);
+    controllerAnimSetDirect(actor, gActorScriptAnimTable[idx], animSpeed, flags);
 }
 
-typedef struct {
-    f32 unk0;
-    u16 unk4;
-    u8 pad6[0xC];
-    u8 unk12;
-} AnimResourceSlot;
+void controllerAnimSetDirect(Actor *actor, u16 animId, f32 animSpeed, u8 flags) {
+    AnimSlot *slot;
+    AnimClip *resource;
 
-typedef struct {
-    AnimResourceSlot *unk0;
-    u8 pad4[0xC];
-    s16 unk10;
-    f32 unk14;
-    f32 unk18;
-    u16 unk1C;
-    u8 pad1E[6];
-    f32 unk24;
-    f32 unk28;
-    f32 unk2C;
-    f32 unk30;
-    f32 unk34;
-} AnimSlotRef;
-
-typedef struct {
-    void *unk0;
-    AnimSlotRef *unk4;
-    u8 pad8[0x20];
-    s16 unk28;
-    u8 pad2A[2];
-    s16 unk2C;
-    s16 unk2E;
-} AnimDataRef;
-
-typedef struct AnimControllerRef {
-    void *unk0;
-    AnimDataRef *unk4;
-} AnimControllerRef;
-
-
-void controllerAnimSetDirect(AnimControllerRef *controller, u16 animId, f32 animSpeed, u8 flags) {
-    AnimSlotRef *slot;
-    AnimResourceSlot *resource;
-
-    slot = controller->unk4->unk4;
-    if (slot->unk0 != NULL) {
-        controllerAnimCacheFree(controller, slot);
+    slot = actor->sub4->layer;
+    if (slot->clip != NULL) {
+        controllerAnimCacheFree(actor, slot);
     }
     resource = controllerAnimCacheGetOrLoad(animId);
     if (resource != NULL) {
-        slot->unk0 = resource;
-        slot->unk10 = animId;
-        slot->unk1C = resource->unk4;
-        slot->unk14 = 0.0f;
-        slot->unk18 = (f32)(resource->unk12 - 1);
-        slot->unk34 = 0.0f;
-        slot->unk24 = resource->unk0;
-        slot->unk2C = resource->unk0;
-        slot->unk28 = resource->unk0;
-        slot->unk30 = 0.0f;
-        controller->unk4->unk28 = 0;
-        controller->unk4->unk2C = 0xFF;
-        controller->unk4->unk2E = flags;
+        slot->clip = resource;
+        slot->animId = animId;
+        slot->flags = resource->flags;
+        slot->firstFrame = 0.0f;
+        slot->lastFrame = (f32)(resource->frameCount - 1);
+        slot->speedRampDuration = 0.0f;
+        slot->speed = resource->speed;
+        slot->speedTo = resource->speed;
+        slot->speedFrom = resource->speed;
+        slot->speedRampTime = 0.0f;
+        actor->sub4->layerWeight = 0;
+        actor->sub4->layerWeightTarget = 0xFF;
+        actor->sub4->layerWeightStep = flags;
     } else {
-        slot->unk0 = NULL;
-        slot->unk10 = -1;
-        slot->unk1C = 0;
-        slot->unk14 = 0.0f;
-        slot->unk34 = 0.0f;
-        slot->unk24 = 0.0f;
-        slot->unk2C = 0.0f;
-        slot->unk28 = 0.0f;
-        slot->unk30 = 0.0f;
-        slot->unk18 = 0;
+        slot->clip = NULL;
+        slot->animId = -1;
+        slot->flags = 0;
+        slot->firstFrame = 0.0f;
+        slot->speedRampDuration = 0.0f;
+        slot->speed = 0.0f;
+        slot->speedTo = 0.0f;
+        slot->speedFrom = 0.0f;
+        slot->speedRampTime = 0.0f;
+        slot->lastFrame = 0;
     }
-    controllerApplyMotionWindow((AnimScaleController *)controller, (AnimScaleState *)slot, animSpeed);
+    controllerApplyMotionWindow(actor, slot, animSpeed);
 }
 
 typedef struct AnimCacheEntry AnimCacheEntry;
@@ -1009,142 +771,90 @@ void *controllerAnimCacheGetOrLoad(s32 id) {
 extern u32 gFrameDelta;
 extern u8 D_80746B60;
 
-typedef struct {
-    void *unk0;
-    f32 unk4;
-    f32 unk8;
-    s16 unkC;
-    s16 unkE;
-    u8 pad10[4];
-    f32 unk14;
-    f32 unk18;
-    u16 unk1C;
-    s16 unk1E;
-    s16 unk20;
-    u8 pad22[2];
-    f32 unk24;
-    f32 unk28;
-    f32 unk2C;
-    f32 unk30;
-    f32 unk34;
-} MotionWindow;
-
-typedef struct {
-    MotionWindow *unk0;
-    MotionWindow *unk4;
-    void *unk8;
-    void *unkC;
-    f32 unk10;
-    u8 pad14[0x14];
-    s16 unk28;
-    u8 pad2A[2];
-    s16 unk2C;
-    s16 unk2E;
-    s16 unk30;
-    u8 pad32[0xE];
-    f32 unk40;
-    f32 unk44;
-    f32 unk48;
-    f32 unk4C;
-    f32 unk50;
-    f32 unk54;
-    f32 unk58;
-    u8 pad5C[0x1C];
-    s32 unk78;
-    s32 unk7C;
-    f32 unk80;
-    s32 unk84;
-} MotionCore;
-
-typedef struct MotionOwner {
-    u8 pad0[4];
-    MotionCore *unk4;
-} MotionOwner;
-
 void controllerStepMotionWindows(Actor *owner) {
-    MotionCore *core;
-    MotionWindow *win0;
-    MotionWindow *win4;
-    void *unk8;
-    void *unkC;
+    ActorSub4 *core;
+    AnimSlot *win0;
+    AnimSlot *win4;
+    AnimSlot *unk8;
+    AnimSlot *unkC;
     f32 pos;
     f32 rate;
     f32 step;
 
-    core = (MotionCore *)owner->sub4;
-    win0 = core->unk0;
-    win4 = core->unk4;
-    unk8 = core->unk8;
-    unkC = core->unkC;
-    pos = win0->unk4;
-    if (core->unk30 & 1) {
+    core = owner->sub4;
+    win0 = core->model;
+    win4 = core->layer;
+    unk8 = core->blendFrom;
+    unkC = core->blendFromLayer;
+    pos = win0->frame;
+    if (core->motionFlags & 1) {
         rate = (f32) ((f64) (u32) gFrameDelta * 0.5);
     } else {
         rate = 1.0f;
     }
-    core->unk30 &= ~1;
+    core->motionFlags &= ~1;
     if (D_80746B60 == 0) {
-        core->unk30 |= (*(s16 *)&core->unk0->unk1C & 1);
+        core->motionFlags |= (core->model->flags & 1);
     }
-    if (core->unk58 > 0.0f) {
-        core->unk54 += rate;
-        if (core->unk54 < core->unk58) {
-            core->unk48 = core->unk4C + (((core->unk50 - core->unk4C) * core->unk54) / core->unk58);
+    if (core->speedRampDuration > 0.0f) {
+        core->speedRampTime += rate;
+        if (core->speedRampTime < core->speedRampDuration) {
+            core->unk48 = core->speedFrom + (((core->speedTo - core->speedFrom) * core->speedRampTime) / core->speedRampDuration);
         } else {
-            core->unk58 = 0.0f;
-            core->unk48 = core->unk50;
+            core->speedRampDuration = 0.0f;
+            core->unk48 = core->speedTo;
         }
     }
     step = core->unk48 * rate;
-    if (win0->unk34 > 0.0f) {
-        win0->unk30 += (step > 0) ? step : -step;
-        if (win0->unk30 < win0->unk34) {
-            win0->unk24 = win0->unk28 + (((win0->unk2C - win0->unk28) * win0->unk30) / win0->unk34);
+    if (win0->speedRampDuration > 0.0f) {
+        win0->speedRampTime += (step > 0) ? step : -step;
+        if (win0->speedRampTime < win0->speedRampDuration) {
+            win0->speed = win0->speedFrom + (((win0->speedTo - win0->speedFrom) * win0->speedRampTime) / win0->speedRampDuration);
         } else {
-            win0->unk34 = 0.0f;
-            win0->unk24 = win0->unk2C;
+            win0->speedRampDuration = 0.0f;
+            win0->speed = win0->speedTo;
         }
     }
-    if (win4->unk34 > 0.0f) {
-        win4->unk30 += (step > 0) ? step : -step;
-        if (win4->unk30 < win4->unk34) {
-            win4->unk24 = win4->unk28 + (((win4->unk2C - win4->unk28) * win4->unk30) / win4->unk34);
+    if (win4->speedRampDuration > 0.0f) {
+        win4->speedRampTime += (step > 0) ? step : -step;
+        if (win4->speedRampTime < win4->speedRampDuration) {
+            win4->speed = win4->speedFrom + (((win4->speedTo - win4->speedFrom) * win4->speedRampTime) / win4->speedRampDuration);
         } else {
-            win4->unk34 = 0.0f;
-            win4->unk24 = win4->unk2C;
+            win4->speedRampDuration = 0.0f;
+            win4->speed = win4->speedTo;
         }
     }
-    if (*(s32 *)unk8 != 0) {
-        core->unk40 += (step > 0) ? step : -step;
-        if (core->unk40 < core->unk44) {
-            core->unk10 = (core->unk44 - core->unk40) / core->unk44;
+    if (unk8->clip != NULL) {
+        core->blendTime += (step > 0) ? step : -step;
+        if (core->blendTime < core->blendDuration) {
+            core->blendWeight = (core->blendDuration - core->blendTime) / core->blendDuration;
         } else {
             controllerAnimCacheFree(owner, unk8);
             controllerAnimCacheFree(owner, unkC);
-            core->unk78 &= ~0x10;
+            core->scriptWaitFlags &= ~0x10;
         }
-        pos += ((step * win0->unk24) / 2) * (1.0f - core->unk10);
+        pos += ((step * win0->speed) / 2) * (1.0f - core->blendWeight);
     } else {
-        pos += step * win0->unk24;
+        pos += step * win0->speed;
     }
-    controllerApplyMotionWindow((AnimScaleController *)owner, (AnimScaleState *)win0, pos);
-    if (win4->unk0 != NULL) {
-        if (core->unk28 < core->unk2C) {
-            core->unk28 += core->unk2E;
-            if (core->unk28 > core->unk2C) {
-                core->unk28 = core->unk2C;
+    controllerApplyMotionWindow(owner, win0, pos);
+    if (win4->clip != NULL) {
+        if (core->layerWeight < core->layerWeightTarget) {
+            core->layerWeight += core->layerWeightStep;
+            if (core->layerWeight > core->layerWeightTarget) {
+                core->layerWeight = core->layerWeightTarget;
             }
-        } else if (core->unk28 > core->unk2C) {
-            core->unk28 -= core->unk2E;
-            if (core->unk28 < core->unk2C) {
-                core->unk28 = core->unk2C;
+        } else if (core->layerWeight > core->layerWeightTarget) {
+            core->layerWeight -= core->layerWeightStep;
+            if (core->layerWeight < core->layerWeightTarget) {
+                core->layerWeight = core->layerWeightTarget;
             }
         }
-        pos = win4->unk4 + win4->unk24;
-        controllerApplyMotionWindow((AnimScaleController *)owner, (AnimScaleState *)win4, pos);
-        if ((win4->unk24 == 0) && (*(s16 *)&win4->unk1C & 0x10)) {
-            core->unk2C = 0;
-            if (core->unk28 == 0) {
+        pos = win4->frame + win4->speed;
+        controllerApplyMotionWindow(owner, win4, pos);
+        if ((win4->speed == 0) && (win4->flags & 0x10)) {
+            core->layerWeightTarget = 0;
+            if (core->layerWeight == 0) {
                 controllerAnimCacheFree(owner, win4);
             }
         }
@@ -1152,183 +862,155 @@ void controllerStepMotionWindows(Actor *owner) {
     actorScriptExecute(owner);
 }
 
-void controllerApplyMotionWindow(AnimScaleController *arg0_raw, AnimScaleState *arg1_raw, f32 timePos) {
-    MotionOwner *controller = (MotionOwner *)arg0_raw;
-    MotionWindow *scaleState = (MotionWindow *)arg1_raw;
-    s8 new_var;
+void controllerApplyMotionWindow(Actor *actor, AnimSlot *slot, f32 frame) {
+    s8 notJump;
     f32 diff;
-    f32 temp_fa0_2;
-    f32 invSpan;
-    f32 basePos;
-    f32 lerpFactor;
-    s16 temp_v0_2;
-    s32 animData;
+    f32 waitFrame;
+    f32 prevFrame;
+    f32 firstFrame;
+    f32 lastFrame;
+    s16 frameIndex;
+    s32 loopCount;
     s32 span;
-    void *targetIdx;
-    s32 prevIdx;
-    s32 nextIdx;
-    s32 rotOffset;
-    u16 clampedPos;
-    MotionCore *scaledPos;
+    AnimSlot *watched;
+    s32 wrapped;
+    s32 bounced;
+    s32 waitFlags;
+    u16 flags;
+    ActorSub4 *anim;
 
 
-    scaledPos = controller->unk4;
-    clampedPos = scaleState->unk1C;
-    basePos = scaleState->unk14;
-    lerpFactor = scaleState->unk18;
-    prevIdx = 0;
-    nextIdx = 0;
-    if (scaledPos->unk84 != 0) {
-        targetIdx = scaledPos->unk4;
+    anim = actor->sub4;
+    flags = slot->flags;
+    firstFrame = slot->firstFrame;
+    lastFrame = slot->lastFrame;
+    wrapped = 0;
+    bounced = 0;
+    if (anim->waitOnLayer != 0) {
+        watched = anim->layer;
     } else {
-        targetIdx = scaledPos->unk0;
+        watched = anim->model;
     }
-    if (clampedPos & 8) {
-        diff = timePos - (f32) scaleState->unk1E;
+    if (flags & 8) {
+        diff = frame - (f32) slot->jumpFrom;
         if (diff > 0) {
-            scaleState->unk8 = diff;
+            slot->frameFrac = diff;
         } else {
-            scaleState->unk8 = -diff;
+            slot->frameFrac = -diff;
         }
-        if ((f64) scaleState->unk8 < 1.0) {
-            scaleState->unk4 = timePos;
-            scaleState->unkC = scaleState->unk1E;
-            scaleState->unkE = scaleState->unk20;
+        if ((f64) slot->frameFrac < 1.0) {
+            slot->frame = frame;
+            slot->frameIndex = slot->jumpFrom;
+            slot->nextFrameIndex = slot->jumpTo;
             return;
         }
-        timePos += (f32) ((scaleState->unk20 - scaleState->unk1E) - (s32) diff);
-        new_var = ~8;
-        scaleState->unk1C = (u16) ((s16) scaleState->unk1C & new_var);
-        if (scaleState == targetIdx) {
-            scaledPos->unk78 &= ~0x20;
+        frame += (f32) ((slot->jumpTo - slot->jumpFrom) - (s32) diff);
+        notJump = ~8;
+        slot->flags = slot->flags & notJump;
+        if (slot == watched) {
+            anim->scriptWaitFlags &= ~0x20;
         }
     }
-    if (clampedPos & 4) {
-        if (lerpFactor < timePos) {
-            nextIdx = 1;
-            timePos = (2 * lerpFactor) - timePos;
-        } else if (timePos < basePos) {
-            nextIdx = 1;
-            prevIdx = 1;
-            timePos = (2 * basePos) - timePos;
+    if (flags & 4) {
+        if (lastFrame < frame) {
+            bounced = 1;
+            frame = (2 * lastFrame) - frame;
+        } else if (frame < firstFrame) {
+            bounced = 1;
+            wrapped = 1;
+            frame = (2 * firstFrame) - frame;
         }
-        if (nextIdx != 0) {
-            scaleState->unk24 = 0.0f - scaleState->unk24;
-            if (scaleState->unk34 != 0) {
-                scaleState->unk2C = 0.0f - scaleState->unk2C;
-                scaleState->unk28 = 0.0f - scaleState->unk28;
+        if (bounced != 0) {
+            slot->speed = 0.0f - slot->speed;
+            if (slot->speedRampDuration != 0) {
+                slot->speedTo = 0.0f - slot->speedTo;
+                slot->speedFrom = 0.0f - slot->speedFrom;
             }
-            if (scaleState == targetIdx) {
-                scaledPos->unk78 &= ~4;
+            if (slot == watched) {
+                anim->scriptWaitFlags &= ~4;
             }
         }
-    } else if (clampedPos & 2) {
-        if (((f64) lerpFactor + 1.0) <= (f64) timePos) {
-            prevIdx = 1;
-            timePos -= (1.0f + lerpFactor) - basePos;
-        } else if (timePos < basePos) {
-            prevIdx = 1;
-            timePos += (1.0f + lerpFactor) - basePos;
+    } else if (flags & 2) {
+        if (((f64) lastFrame + 1.0) <= (f64) frame) {
+            wrapped = 1;
+            frame -= (1.0f + lastFrame) - firstFrame;
+        } else if (frame < firstFrame) {
+            wrapped = 1;
+            frame += (1.0f + lastFrame) - firstFrame;
         }
-    } else if (lerpFactor <= timePos) {
-        timePos = lerpFactor;
-        if (scaleState->unk24 >= 0.0f) {
-            scaleState->unk24 = 0.0f;
-            scaleState->unk34 = 0.0f;
-            prevIdx = 1;
+    } else if (lastFrame <= frame) {
+        frame = lastFrame;
+        if (slot->speed >= 0.0f) {
+            slot->speed = 0.0f;
+            slot->speedRampDuration = 0.0f;
+            wrapped = 1;
         }
-    } else if (timePos < basePos) {
-        timePos = basePos;
-        prevIdx = 1;
-        if (scaleState->unk24 <= 0.0f) {
-            scaleState->unk24 = 0.0f;
-            scaleState->unk34 = 0.0f;
+    } else if (frame < firstFrame) {
+        frame = firstFrame;
+        wrapped = 1;
+        if (slot->speed <= 0.0f) {
+            slot->speed = 0.0f;
+            slot->speedRampDuration = 0.0f;
         }
     }
-    if (scaleState == targetIdx) {
-        rotOffset = scaledPos->unk78;
-        if (rotOffset & 0x3F) {
-            if (prevIdx != 0) {
-                animData = scaledPos->unk7C;
-                scaledPos->unk78 = rotOffset & ~1;
-                if (animData != 0) {
-                    scaledPos->unk7C = animData - 1;
-                    rotOffset = scaledPos->unk78;
+    if (slot == watched) {
+        waitFlags = anim->scriptWaitFlags;
+        if (waitFlags & 0x3F) {
+            if (wrapped != 0) {
+                loopCount = anim->loopCount;
+                anim->scriptWaitFlags = waitFlags & ~1;
+                if (loopCount != 0) {
+                    anim->loopCount = loopCount - 1;
+                    waitFlags = anim->scriptWaitFlags;
                 } else {
-                    rotOffset = (scaledPos->unk78 &= ~2);
+                    waitFlags = (anim->scriptWaitFlags &= ~2);
                 }
             }
-            if (rotOffset & 8) {
-                temp_fa0_2 = scaledPos->unk80;
-                invSpan = scaleState->unk4;
-                if (timePos == temp_fa0_2) {
-                    if (invSpan != temp_fa0_2) scaledPos->unk78 = rotOffset & ~8;
-                } else if (temp_fa0_2 < timePos) {
-                    if ((invSpan < temp_fa0_2) && (prevIdx == 0)) scaledPos->unk78 = rotOffset & ~8;
-                    else if ((temp_fa0_2 < invSpan) && (prevIdx != 0)) scaledPos->unk78 = rotOffset & ~8;
-                } else if ((temp_fa0_2 < invSpan) && (prevIdx == 0)) scaledPos->unk78 = rotOffset & ~8;
-                else if ((invSpan < temp_fa0_2) && (prevIdx != 0)) scaledPos->unk78 = rotOffset & ~8;
+            if (waitFlags & 8) {
+                waitFrame = anim->waitFrame;
+                prevFrame = slot->frame;
+                if (frame == waitFrame) {
+                    if (prevFrame != waitFrame) anim->scriptWaitFlags = waitFlags & ~8;
+                } else if (waitFrame < frame) {
+                    if ((prevFrame < waitFrame) && (wrapped == 0)) anim->scriptWaitFlags = waitFlags & ~8;
+                    else if ((waitFrame < prevFrame) && (wrapped != 0)) anim->scriptWaitFlags = waitFlags & ~8;
+                } else if ((waitFrame < prevFrame) && (wrapped == 0)) anim->scriptWaitFlags = waitFlags & ~8;
+                else if ((prevFrame < waitFrame) && (wrapped != 0)) anim->scriptWaitFlags = waitFlags & ~8;
             }
         }
     }
-    scaleState->unk4 = timePos;
-    scaleState->unkC = (s16) timePos;
-    temp_v0_2 = scaleState->unkC;
-    scaleState->unkE = temp_v0_2 + 1;
-    scaleState->unk8 = timePos - (f32) temp_v0_2;
-    if (lerpFactor < (f32) scaleState->unkE) {
-        if (clampedPos & 2) {
-            scaleState->unkE = (s16) basePos;
+    slot->frame = frame;
+    slot->frameIndex = (s16) frame;
+    frameIndex = slot->frameIndex;
+    slot->nextFrameIndex = frameIndex + 1;
+    slot->frameFrac = frame - (f32) frameIndex;
+    if (lastFrame < (f32) slot->nextFrameIndex) {
+        if (flags & 2) {
+            slot->nextFrameIndex = (s16) firstFrame;
             return;
         }
-        scaleState->unkE = temp_v0_2;
+        slot->nextFrameIndex = frameIndex;
     }
 }
 
 
-typedef struct {
-    u8 pad0[4];
-    f32 unk4;
-} ControllerParent;
-
-typedef struct {
-    ControllerParent *unk0;
-} ControllerSubState;
-
-typedef struct ControllerStateOwner {
-    u8 pad0[4];
-    ControllerSubState *unk4;
-} ControllerStateOwner;
-
-f32 actorGetAnimProgress(ControllerStateOwner *actor) {
-    return actor->unk4->unk0->unk4;
+f32 actorGetAnimProgress(Actor *actor) {
+    return actor->sub4->model->frame;
 }
-
-typedef struct ControllerActorView {
-    u8 pad0[4];
-    void *unk4;
-    s32 unk8;
-    u8 padC[0x54];
-    s32 unk60;
-    u8 pad64[0x18];
-    f32 unk7C;
-    f32 unk80;
-    f32 unk84;
-} ControllerActorView;
 
 extern u8 gGfxBufferIndex;
 void func_806195D0(f32, f32);
-void actorCheckWorldBounds(ControllerActorView *actor) {
-    f32 x = actor->unk7C;
+void actorCheckWorldBounds(Actor *actor) {
+    f32 x = actor->x;
     if (x >= -8192.0f) {
-        f32 y = actor->unk80;
+        f32 y = actor->y;
         if (y >= -8192.0f) {
-            f32 z = actor->unk84;
+            f32 z = actor->z;
             if ((z >= -8192.0f) && (x <= 8192.0f) && (y <= 8192.0f) && (z <= 8192.0f)) {
-                actor->unk8 = *(s32 *) ((u8 *) actor->unk4 + (gGfxBufferIndex * 4) + 0x14);
+                actor->boneMtx = actor->sub4->boneMtx[gGfxBufferIndex];
                 func_806195D0(z, 8192.0f);
                 actorTouchSub140Timestamp(actor);
-                actor->unk60 |= 0x200;
+                actor->flags |= 0x200;
             }
         }
     }
@@ -1350,31 +1032,19 @@ typedef struct DisplayListGroup {
     u8 unk21;
 } DisplayListGroup;
 
-typedef struct RenderActorView {
-    DisplayListGroup *unk0;
-    u8 pad4[4];
-    void *unk8;
-    u8 padC[0x40];
-    DisplayListGroup *unk4C;
-    DisplayListGroup *unk50;
-    u8 pad54[0xF2];
-    u16 unk146;
-} RenderActorView;
-
-
-Gfx *renderActorDisplayList(Gfx *gdl, RenderActorView *actor) {
-    DisplayListGroup *display = actor->unk0;
+Gfx *renderActorDisplayList(Gfx *gdl, Actor *actor) {
+    DisplayListGroup *display = actor->animState;
     s32 i;
 
-    if (actor->unk4C != NULL) {
-        display = actor->unk4C;
+    if (actor->overrideModel != NULL) {
+        display = actor->overrideModel;
     }
-    if (actor->unk50 != NULL) {
-        display = actor->unk50;
+    if (actor->stateModel != NULL) {
+        display = actor->stateModel;
     }
     gdl = animSetSegments(gdl, actor);
     gdl = renderEmitSegmentNodes(gdl, actor, display);
-    gSPSegment(gdl++, 4, osVirtualToPhysical(actor->unk8));
+    gSPSegment(gdl++, 4, osVirtualToPhysical(actor->boneMtx));
     gSPSegment(gdl++, 3, osVirtualToPhysical(display->unk0));
     for (i = 0; i < display->unk21; i++) {
         gSPDisplayList(gdl++, display->unk4[i]);
@@ -1382,7 +1052,7 @@ Gfx *renderActorDisplayList(Gfx *gdl, RenderActorView *actor) {
     return gdl;
 }
 
-Gfx *renderEmitSegmentNodes(Gfx *gdl, RenderActorView *actor, DisplayListGroup *group) {
+Gfx *renderEmitSegmentNodes(Gfx *gdl, Actor *actor, DisplayListGroup *group) {
     u16 flags = actor->unk146;
     SegmentNode *node = group->unk14;
     s32 shift;

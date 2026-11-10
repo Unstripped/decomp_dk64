@@ -3,22 +3,12 @@
 #define PROTO_GLOBAL_17B90_H
 #include "common.h"
 #include "actor.h"
-struct AnimControllerInit;
-struct AnimControllerRef;
-struct AnimScaleController;
-struct AnimScaleState;
-struct ControllerActorTypeView;
-struct ControllerActorView;
 struct ControllerCommand;
 struct ControllerCommandOwner;
-struct ControllerStateOwner;
-struct ControllerStateView;
 struct ControllerSubCmd;
 struct ControllerSubNode;
-struct ControllerView;
 struct DisplayListGroup;
 struct GfxCmdWords;
-struct RenderActorView;
 #ifndef PROTO_SKIP_controllerAnimStateLoadAsset
 void *controllerAnimStateLoadAsset();
 #endif
@@ -26,13 +16,13 @@ void *controllerAnimStateLoadAsset();
 void gfxSwapGeometryModeCullBits(struct GfxCmdWords *, struct GfxCmdWords *);
 #endif
 #ifndef PROTO_SKIP_controllerAnimLoadStateAsset
-void controllerAnimLoadStateAsset(struct ControllerView *, s16);
+void controllerAnimLoadStateAsset(Actor *, s16);
 #endif
 #ifndef PROTO_SKIP_controllerAnimLoadStateAsset1
-void controllerAnimLoadStateAsset1(struct ControllerView *, s16);
+void controllerAnimLoadStateAsset1(Actor *, s16);
 #endif
 #ifndef PROTO_SKIP_controllerAnimFreeStateAsset
-void controllerAnimFreeStateAsset(struct ControllerView *);
+void controllerAnimFreeStateAsset(Actor *);
 #endif
 #ifndef PROTO_SKIP_controllerBuildSubcommandList
 void controllerBuildSubcommandList(struct ControllerSubCmd *, struct ControllerSubCmd *, struct ControllerSubNode **);
@@ -47,7 +37,7 @@ void controllerCommandRelocateAssets(struct ControllerCommand *, struct Controll
 u16 controllerLookupStateByHash(u32 *);
 #endif
 #ifndef PROTO_SKIP_controllerAnimInit
-s32 controllerAnimInit(struct AnimControllerInit *, u16);
+s32 controllerAnimInit(Actor *, u16);
 #endif
 #ifndef PROTO_SKIP_controllerAnimFree
 void controllerAnimFree(Actor *);
@@ -56,28 +46,28 @@ void controllerAnimFree(Actor *);
 void controllerAnimFreeSub();
 #endif
 #ifndef PROTO_SKIP_controllerAnimCacheFree
-int controllerAnimCacheFree(void *, void *);
+int controllerAnimCacheFree(Actor *, AnimSlot *);
 #endif
 #ifndef PROTO_SKIP_controllerAnimScaleInterpolate
-void controllerAnimScaleInterpolate(struct AnimScaleController *, s8);
+void controllerAnimScaleInterpolate(Actor *, s8);
 #endif
 #ifndef PROTO_SKIP_controllerAnimSetStateRemap
-void controllerAnimSetStateRemap(struct ControllerStateView *, s16, f32, f32);
+void controllerAnimSetStateRemap(Actor *, s16, f32, f32);
 #endif
 #ifndef PROTO_SKIP_controllerAnimSetStateRemapDirect
-void controllerAnimSetStateRemapDirect(struct ControllerStateView *, s16, f32, f32);
+void controllerAnimSetStateRemapDirect(Actor *, s16, f32, f32);
 #endif
 #ifndef PROTO_SKIP_controllerAnimSetStateIfChanged
-void controllerAnimSetStateIfChanged(struct ControllerStateView *, s16, f32, f32);
+void controllerAnimSetStateIfChanged(Actor *, s16, f32, f32);
 #endif
 #ifndef PROTO_SKIP_controllerAnimSetState
-void controllerAnimSetState(struct ControllerStateView *, s16, f32, f32);
+void controllerAnimSetState(Actor *, s16, f32, f32);
 #endif
 #ifndef PROTO_SKIP_controllerAnimSetFromTable
-void controllerAnimSetFromTable(struct ControllerActorTypeView *, u16, f32, u8);
+void controllerAnimSetFromTable(Actor *, u16, f32, u8);
 #endif
 #ifndef PROTO_SKIP_controllerAnimSetDirect
-void controllerAnimSetDirect(struct AnimControllerRef *, u16, f32, u8);
+void controllerAnimSetDirect(Actor *, u16, f32, u8);
 #endif
 #ifndef PROTO_SKIP_controllerAnimCacheGetOrLoad
 void *controllerAnimCacheGetOrLoad(s32);
@@ -86,18 +76,18 @@ void *controllerAnimCacheGetOrLoad(s32);
 void controllerStepMotionWindows(Actor *);
 #endif
 #ifndef PROTO_SKIP_controllerApplyMotionWindow
-void controllerApplyMotionWindow(struct AnimScaleController *, struct AnimScaleState *, f32);
+void controllerApplyMotionWindow(Actor *, AnimSlot *, f32);
 #endif
 #ifndef PROTO_SKIP_actorGetAnimProgress
-f32 actorGetAnimProgress(struct ControllerStateOwner *);
+f32 actorGetAnimProgress(Actor *);
 #endif
 #ifndef PROTO_SKIP_actorCheckWorldBounds
-void actorCheckWorldBounds(struct ControllerActorView *);
+void actorCheckWorldBounds(Actor *);
 #endif
 #ifndef PROTO_SKIP_renderActorDisplayList
-Gfx *renderActorDisplayList(Gfx *, struct RenderActorView *);
+Gfx *renderActorDisplayList(Gfx *, Actor *);
 #endif
 #ifndef PROTO_SKIP_renderEmitSegmentNodes
-Gfx *renderEmitSegmentNodes(Gfx *, struct RenderActorView *, struct DisplayListGroup *);
+Gfx *renderEmitSegmentNodes(Gfx *, Actor *, struct DisplayListGroup *);
 #endif
 #endif

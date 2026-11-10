@@ -26,26 +26,84 @@ typedef struct BoneVector {
     /* 0xC */ f32 z;
 } BoneVector; // size = 0x10
 
+// Animation clip asset (asset table 0xB), shared through controllerAnimCacheGetOrLoad's
+// reference-counted cache. Only the fields animation code reads are named; its size is
+// not known.
+typedef struct AnimClip {
+    /* 0x00 */ f32 speed;      // a slot's starting speed
+    /* 0x04 */ u16 flags;      // a slot's starting flags
+    /* 0x06 */ u16 unk6;       // advanced by 6 when the clip is loaded
+    /* 0x08 */ u8 pad8[0xA];
+    /* 0x12 */ u8 frameCount;
+} AnimClip;
+
+// One playing animation: four of these follow the ActorSub4 head (controllerAnimInit).
+typedef struct AnimSlot {
+    /* 0x00 */ AnimClip *clip;
+    /* 0x04 */ f32 frame;            // playback position, firstFrame..lastFrame
+    /* 0x08 */ f32 frameFrac;        // frame - frameIndex
+    /* 0x0C */ s16 frameIndex;
+    /* 0x0E */ s16 nextFrameIndex;
+    /* 0x10 */ s16 animId;
+    /* 0x12 */ u8 pad12[2];
+    /* 0x14 */ f32 firstFrame;
+    /* 0x18 */ f32 lastFrame;        // clip->frameCount - 1
+    /* 0x1C */ s16 flags;            // 2 loop, 4 ping-pong, 8 jump from jumpFrom to jumpTo
+    /* 0x1E */ s16 jumpFrom;
+    /* 0x20 */ s16 jumpTo;
+    /* 0x22 */ u8 pad22[2];
+    /* 0x24 */ f32 speed;            // frames per step, ramped from speedFrom to speedTo
+    /* 0x28 */ f32 speedFrom;
+    /* 0x2C */ f32 speedTo;
+    /* 0x30 */ f32 speedRampTime;
+    /* 0x34 */ f32 speedRampDuration; // 0: no ramp
+} AnimSlot; // size = 0x38
+
 // Animation state: the 0x90-byte head of the block controllerAnimInit allocates
 // (boneCount * 0x80 + 0x170 bytes: this head, four 0x38-byte animation slots at 0x90,
-// then two arrays of boneCount matrices at 0x170).
+// then two arrays of boneCount matrices at 0x170). Its tail (0x5C..0x8C) is the state of
+// the animation script the actor runs (actorScriptExecute).
 typedef struct ActorSub4 {
-    /* 0x00 */ void *model;
-    /* 0x04 */ u8 pad04[0x18];
+    /* 0x00 */ AnimSlot *model;          // current animation
+    /* 0x04 */ AnimSlot *layer;          // layered animation, weighted by layerWeight
+    /* 0x08 */ AnimSlot *blendFrom;      // previous animation while blendTime < blendDuration
+    /* 0x0C */ AnimSlot *blendFromLayer; // previous layer, weighted by blendFromLayerWeight
+    /* 0x10 */ f32 blendWeight;          // (blendDuration - blendTime) / blendDuration
+    /* 0x14 */ Mtx *boneMtx[2];          // boneCount matrices each, indexed by gGfxBufferIndex
     /* 0x1C */ BoneRotation *boneRotations;
     /* 0x20 */ BoneVector *boneScales;
     /* 0x24 */ BoneVector *boneOffsets;
-    /* 0x28 */ u8 pad28[0xC];
+    /* 0x28 */ s16 layerWeight;          // steps by layerWeightStep towards layerWeightTarget
+    /* 0x2A */ s16 blendFromLayerWeight;
+    /* 0x2C */ s16 layerWeightTarget;
+    /* 0x2E */ s16 layerWeightStep;
+    /* 0x30 */ s16 motionFlags;          // 1: step by the frame delta
+    /* 0x32 */ u8 pad32[2];
     /* 0x34 */ f32 scaleX;
     /* 0x38 */ f32 scaleY;
     /* 0x3C */ f32 scaleZ;
-    /* 0x40 */ u8 pad40[8];
-    /* 0x48 */ f32 unk48;
-    /* 0x4C */ u8 pad4C[0x18];
-    /* 0x64 */ u16 animId;
-    /* 0x66 */ u8 pad66[0x22];
-    /* 0x88 */ s32 scriptResult; // comparison result of animation script commands
-    /* 0x8C */ u8 pad8C[4];
+    /* 0x40 */ f32 blendTime;
+    /* 0x44 */ f32 blendDuration;
+    /* 0x48 */ f32 unk48;                // playback speed, ramped from speedFrom to speedTo
+    /* 0x4C */ f32 speedFrom;
+    /* 0x50 */ f32 speedTo;
+    /* 0x54 */ f32 speedRampTime;
+    /* 0x58 */ f32 speedRampDuration;    // 0: no ramp
+    /* 0x5C */ u16 returnScriptId;       // script call: animId and offset to resume at
+    /* 0x5E */ u8 pad5E[2];
+    /* 0x60 */ s32 returnOffset;
+    /* 0x64 */ u16 animId;               // id of the running script (actorScriptStart)
+    /* 0x66 */ u8 pad66[2];
+    /* 0x68 */ u8 *scriptStart;          // NULL: no script
+    /* 0x6C */ u8 *scriptPc;
+    /* 0x70 */ void (*scriptCommand)(struct Actor *); // run after the script each frame
+    /* 0x74 */ u8 *scriptCommandPc;
+    /* 0x78 */ s32 scriptWaitFlags;      // the script runs while this is 0
+    /* 0x7C */ s32 loopCount;
+    /* 0x80 */ f32 waitFrame;
+    /* 0x84 */ s32 waitOnLayer;          // script waits watch layer instead of model
+    /* 0x88 */ s32 scriptResult;         // comparison result of animation script commands
+    /* 0x8C */ f32 scriptTimer;
 } ActorSub4; // size = 0x90
 
 typedef struct ModelNode {
@@ -212,9 +270,10 @@ typedef struct ActorFloorContact {
 typedef struct Actor {
     /* 0x000 */ void *animState;
     /* 0x004 */ ActorSub4 *sub4;
-    /* 0x008 */ u8 unk08[4];
+    /* 0x008 */ Mtx *boneMtx;               // sub4->boneMtx[gGfxBufferIndex] (actorCheckWorldBounds)
     /* 0x00C */ f32 modelMtx[4][4];
-    /* 0x04C */ u8 unk4C[8];
+    /* 0x04C */ void *overrideModel;        // drawn instead of animState when set
+    /* 0x050 */ void *stateModel;           // drawn instead of both when set
     /* 0x054 */ s32 instanceId;
     /* 0x058 */ u32 actorType;
     /* 0x05C */ u16 collisionFlags;
