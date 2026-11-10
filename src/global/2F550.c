@@ -8,6 +8,7 @@
 #include "proto/global/126260.h"
 #include "proto/global/136820.h"
 #include "proto/global/15050.h"
+#define PROTO_SKIP_func_8062CA0C
 #include "proto/global/2F550.h"
 #include "proto/global/35000.h"
 #include "proto/global/36880.h"
@@ -734,9 +735,9 @@ extern s32 D_807F5FF8;
 extern u8 D_807F6009;
 
 
-void func_8062CA0C(Gfx *arg0, f32 arg1, f32 arg2, f32 arg3) {
+Gfx *func_8062CA0C(Gfx *arg0, f32 arg1, f32 arg2, f32 arg3) {
     D_807F6009 = 0xFF;
-    renderEntryListBuildDisplayList(arg0, D_807F5FF8, arg1, arg2, arg3, 0x30030, -1, 0);
+    return renderEntryListBuildDisplayList(arg0, D_807F5FF8, arg1, arg2, arg3, 0x30030, -1, 0);
 }
 
 struct MapViewEntries;

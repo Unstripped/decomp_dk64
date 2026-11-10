@@ -4,7 +4,7 @@
 #define PROTO_SKIP_assetLoad // FAKE: implicit declaration steer
 #define PROTO_SKIP_controllerAnimFreeStateAsset // FAKE: callee prototype steer
 #define PROTO_SKIP_controllerLookupStateByHash // FAKE: callee prototype steer
-#define PROTO_SKIP_playerResumeLocomotion // FAKE: callee prototype steer
+#define PROTO_SKIP_playerResumeLocomotionDecel
 #define PROTO_SKIP_playerStateQueueCallback // PROTO: The number of arguments doesn't agree with the number in the
 #include "proto/global/117190.h"
 #include "proto/global/15050.h"
@@ -342,12 +342,11 @@ typedef struct F5APlayerCoefficient {
 } F5APlayerCoefficient;
 
 extern F5APlayerCoefficient D_807FD618[];
-void playerResumeLocomotion(void);
 
-void playerResumeLocomotionDecel(void) {
+void playerResumeLocomotionDecel(Actor *actor) {
     f32 value;
 
-    playerResumeLocomotion();
+    playerResumeLocomotion(actor);
     value = gCurrentActor->speedXZ;
     gCurrentActor->speedXZ =
         D_807FD618[gCurrentPlayerIndex].value * (value - (value / 2)) + (value / 2);
