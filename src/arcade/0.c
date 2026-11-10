@@ -71,7 +71,7 @@ extern s32 D_8076A088;
 extern s32 D_8076A08C;
 extern s32 gFrameCounter;
 extern u8 *gGfxCurrentFrameBuffer;
-extern u8 D_80767CE8;
+extern u8 D_80767CE8[];
 extern u8 gScreenRenderFlags;
 extern f32 gScreenFadeProgress;
 extern u8 gGameMode;
@@ -81,13 +81,13 @@ extern Gfx D_1000040;
 
 void arcadeRunFrame(void) {
     Gfx *glist;
-    u8 *frameBuf;
+    Gfx *subList;
 
     controllerStartRead();
     schedSubmitGfxTask(gGfxTaskBuffers[gGfxBufferIndex], D_8076A088, 3, 1, 0x4D2, 1);
     gGfxBufferIndex ^= 1;
     gFrameCounter++;
-    gGfxCurrentFrameBuffer = (u8 *)&D_80767CE8 + gGfxBufferIndex * 0x11B0;
+    gGfxCurrentFrameBuffer = D_80767CE8 + gGfxBufferIndex * 0x11B0;
     controllerUpdate();
     if ((gScreenRenderFlags & 1) && gScreenFadeProgress == 31.0f) {
         glist = gGfxTaskBuffers[gGfxBufferIndex];
@@ -96,9 +96,9 @@ void arcadeRunFrame(void) {
     }
     glist = screenFadeUpdate(glist, 0);
     if (gGameMode != 3) {
-        frameBuf = gGfxCurrentFrameBuffer + 0xDB0;
+        subList = (Gfx *)(gGfxCurrentFrameBuffer + 0xDB0);
         gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 0);
-        gfxEndSubDisplayList((Gfx *)frameBuf, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
+        gfxEndSubDisplayList(subList, gGfxCurrentFrameBuffer, &D_8076A08C, 1);
     } else {
         gfxEndDisplayList(glist, gGfxBufferIndex, &D_8076A088, 1);
     }
@@ -1352,13 +1352,6 @@ extern s32 D_8004C6F0;
 extern s32 D_8004C6F4;
 extern s32 D_8004C6F8;
 
-
-
-
-
-
-void dlInitTextureDescriptor(void *, void *, s32, u8, u8, u8, s32, s32, s32, s32); // FAKE: callee prototype steer
-void dlSetTextureScaleAndFlip(s32, s16, s32, u8);  // FAKE: callee prototype steer
 extern u8 D_8004A338[];
 extern u8 D_8004A358[];
 extern u8 D_8004A378[];
