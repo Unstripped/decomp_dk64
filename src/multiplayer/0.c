@@ -932,7 +932,7 @@ void mpUpdate(void) {
             break;
         case 4:
             for (i = 0; i < gPlayerCount; i++) {
-                slotQueueAddValue(7, i, ((s16 *)&D_807552E4.unkC)[1]);
+                slotQueueAddValue(7, i, D_807552E4.unkC);
             }
             slotQueueInit(0);
             break;
