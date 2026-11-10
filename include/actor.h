@@ -358,7 +358,7 @@ typedef struct PlayerState {
     /* 0x010 */ s16 actionTimer;
     /* 0x012 */ s16 subTimer;
     /* 0x014 */ s16 pitchAngle;
-    /* 0x016 */ u8 pad16[2];
+    /* 0x016 */ s16 homingStrength;
     /* 0x018 */ s16 unk18;
     /* 0x01A */ u8 pad1A[2];
     /* 0x01C */ f32 slideSpeed;

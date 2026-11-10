@@ -942,8 +942,6 @@ void playerWeaponCrosshairRender(Actor *actor, F5CEntry *entries, s32 *count) {
     *count += 1;
 }
 
-typedef struct F5CState16 { u8 pad0[0x16]; s16 homingStrength; } F5CState16;
-#define F5C_S16 ((F5CState16 *)gActivePlayerState)
 s16 mathAngleSignedDistance(s16, s16); // FAKE: callee prototype steer
 extern f32 mathSinF(s16);
 void playerWeaponUpdateHomingTarget(Actor *actor, F5BSlot *slots, s32 *count) {
@@ -956,13 +954,13 @@ void playerWeaponUpdateHomingTarget(Actor *actor, F5BSlot *slots, s32 *count) {
     f32 cosine;
     entry_index = *count;
     if (actor->contactFlags & 1) {
-        F5C_S16->homingStrength += 2;
-        if (F5C_S16->homingStrength >= 0x80) F5C_S16->homingStrength = 0x7F;
+        gActivePlayerState->homingStrength += 2;
+        if (gActivePlayerState->homingStrength >= 0x80) gActivePlayerState->homingStrength = 0x7F;
     } else {
-        F5C_S16->homingStrength -= 2;
-        if (F5C_S16->homingStrength < 0) F5C_S16->homingStrength = 0;
+        gActivePlayerState->homingStrength -= 2;
+        if (gActivePlayerState->homingStrength < 0) gActivePlayerState->homingStrength = 0;
     }
-    if (F5C_S16->homingStrength != 0) {
+    if (gActivePlayerState->homingStrength != 0) {
         yaw = (actor->floorSlopeYaw - 0x800) & 0xFFF;
         scaled = (0x400 - actor->floorSlopePitch) & 0xFFF;
         if (scaled >= 0x156) scaled = 0x155;
@@ -970,7 +968,7 @@ void playerWeaponUpdateHomingTarget(Actor *actor, F5BSlot *slots, s32 *count) {
         angle = mathAngleSignedDistance(actor->yaw, yaw);
         amplitude = mathCosF(angle) * (f32)scaled;
         cosine = mathSinF(angle);
-        v = (s8)((F5C_S16->homingStrength * 6) / 10);
+        v = (s8)((gActivePlayerState->homingStrength * 6) / 10);
         if (v != 0) {
             slots[entry_index].bone = 1;
             slots[entry_index].rotY = 0;
@@ -979,7 +977,7 @@ void playerWeaponUpdateHomingTarget(Actor *actor, F5BSlot *slots, s32 *count) {
             slots[entry_index].rotZ = (s16)((-cosine) * (f32)scaled);
             entry_index += 1;
         }
-        v = (s8)((F5C_S16->homingStrength * 3) / 10);
+        v = (s8)((gActivePlayerState->homingStrength * 3) / 10);
         if (v != 0) {
             slots[entry_index].bone = 2;
             slots[entry_index].rotY = 0;
