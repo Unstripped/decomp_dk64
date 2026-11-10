@@ -42,7 +42,7 @@ typedef struct MapChunk {
     /* 0x018 */ struct RenderEntry *opaqueTail;
     /* 0x01C */ struct RenderEntry *translucentList;
     /* 0x020 */ struct RenderEntry *translucentTail;
-    /* 0x024 */ s32 sprites;
+    /* 0x024 */ struct SpriteDisplayNode *sprites;
     /* 0x028 */ s32 lastSeenFrame;
     /* 0x02C */ s32 layerDl0;
     /* 0x030 */ s32 layerDl1;
@@ -477,13 +477,12 @@ s32 chunk;
     s32 cidx;
     s32 k;
 
-    key = 0;  // FAKE: makes key the first unconstrained register candidate
     if (size != 0) {
         do {
+            key = ((MapDlCommand *)list)->w0;
             idx = 0;
             found = 0;
             size -= 8;
-            key = ((MapDlCommand *)list)->w0;
             if (((u32)key >> 24) == 0) {
                 n = *count;
                 key = ((MapDlCommand *)list)->w1;
@@ -620,13 +619,10 @@ void mapChunkClearBounds(void) {
 }
 
 s32 mapChunkContainsPoint(s16 x, s16 y, s16 chunk) {
-    MapChunk *entry;
-
-    entry = (MapChunk *)((s32)gMapChunks + chunk * 0x1C8);
-    if (entry->playerMask == 0) {
+    if (gMapChunks[chunk].playerMask == 0) {
         return 0;
     }
-    if ((x >= entry->clipLeft) && (y >= entry->clipTop) && (entry->clipRight >= x) && (entry->clipBottom >= y)) {
+    if ((x >= gMapChunks[chunk].clipLeft) && (y >= gMapChunks[chunk].clipTop) && (gMapChunks[chunk].clipRight >= x) && (gMapChunks[chunk].clipBottom >= y)) {
         return 1;
     }
     return 0;
@@ -958,7 +954,7 @@ void mapCellFindAtPoint(f32 x, f32 y, f32 z, s16 chunk, s16 parent, s16 *outCell
             if ((chunk == gMapCells[i].chunk) && (parent == gMapCells[i].parent)) {
                 id = gMapCells[i].id;
                 if (id) {} // FAKE: raises id's adjsave so the table address is not hoisted into a saved register
-                box = (MapBox *)((u8 *)gMapCellBoxes + id * 12);
+                box = (MapBox *)((u8 *)gMapCellBoxes + id * 12); // FAKE: byte-offset box address steers codegen (&gMapCellBoxes[id] fdiff=1)
                 if (box && box) {} // FAKE: keeps box's live range apart from the hoisted cell table address
                 if (((f32)box->minX <= x) && (x <= (f32)box->maxX) && ((f32)box->minY <= y) && (y <= (f32)box->maxY) && ((f32)box->minZ <= z) && (z <= (f32)box->maxZ)) {
                     *outCell = id;
@@ -1105,23 +1101,21 @@ s32 mapNodeTriangleContainsPoint(MapCollisionNode *, f32, f32);
 s32 mapChunkFindNodeAtPoint(f32 x, f32 y, f32 z, s16 chunk, u8 *outBlocked, f32 *outHeight) {
     MapCollisionNode *node;
     MapCollisionNode *end;
-    MapChunk *entry;
 
-    entry = (MapChunk *)((u8 *)gMapChunks + chunk * 0x1C8);
-    if (x < (f32)entry->minX) {
+    if (x < (f32)gMapChunks[chunk].minX) {
         return 0;
     }
-    if (z < (f32)entry->minZ) {
+    if (z < (f32)gMapChunks[chunk].minZ) {
         return 0;
     }
-    if ((f32)entry->maxX < x) {
+    if ((f32)gMapChunks[chunk].maxX < x) {
         return 0;
     }
-    if ((f32)entry->maxZ < z) {
+    if ((f32)gMapChunks[chunk].maxZ < z) {
         return 0;
     }
-    node = (MapCollisionNode *)entry->collStart;
-    end = (MapCollisionNode *)entry->collEnd;
+    node = (MapCollisionNode *)gMapChunks[chunk].collStart;
+    end = (MapCollisionNode *)gMapChunks[chunk].collEnd;
     if (node != end) {
         do {
             if ((mapNodeBoxContainsPoint(node, x, z) != 0) && (mapNodeTriangleContainsPoint(node, x, z) != 0)) {
@@ -1295,7 +1289,7 @@ void mapChunkSetIndexOverride(s8 index) {
     D_807F70AB = index;
 }
 
-extern u8 D_807F5E20[];
+extern f32 D_807F5E20[];
 typedef struct MapPlane {
     /* 0x00 */ s16 verts[12];
     /* 0x18 */ u8 type;
@@ -1321,7 +1315,7 @@ void mapChunkFrameUpdate(f32 x, f32 y, f32 z) {
     D_807F7138 = (s16)(s32)gPlayerSlots[gCurrentPlayerIndex].fogDist;
     frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, (f32)D_807F7138);
     frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
-    frustumOrientPolyNormals(x, y, z, &gFrustumPlanes, &D_807F5E20);
+    frustumOrientPolyNormals(x, y, z, &gFrustumPlanes, D_807F5E20);
     mapChunkClearBounds();
     mapChunkActivate(gPlayerSlots[gCurrentPlayerIndex].chunk);
     mapTriggerCollectZonesAtPoint(x, y, z);
@@ -1347,7 +1341,7 @@ u8 *mapChunkLoadAssetRefs(u8 *cmd, u8 *end, s16 limit) {
             if (kind == 0xFD) {
                 if (((u32)(*(s32 *)(cmd + 4) * 0x10) >> 0x1C) == 0) {
                     addr = *(s32 *)(cmd + 4);
-                    *(s32 *)(cmd + 4) = assetLoad(0x19, addr, 0, 0);
+                    *(void **)(cmd + 4) = assetLoad(0x19, addr, 0, 0);
                     count++;
                 }
                 if (cmd && cmd) {}  // FAKE: deadsweep dead statement (steers uopt; replace with natural C)
@@ -1777,29 +1771,23 @@ s32 mapTriangleContainsPoint(MapTriangle *tri, f32 x, f32 z) {
 void mapCellUpdateVisibility(f32 x, f32 y, f32 z, s32 parent) {
     s32 idx;
     s32 i;
-    s32 off;
 
-    i = 0;
-    if (gMapCellCount > 0) {
-        off = 0; do { // LAYOUT: scheduling (joins the loop preheader store)
-            if (parent == ((MapCell *)((u8 *)gMapCells + off))->parent) {
-                if (gMapChunks[((MapCell *)((u8 *)gMapCells + off))->chunk].state == 1) {
-                    idx = ((MapCell *)((u8 *)gMapCells + off))->id;
-                    if (mapBspBoxInFrustum(gMapCellBoxes[idx].minX, gMapCellBoxes[idx].minY, gMapCellBoxes[idx].minZ,
-                                      gMapCellBoxes[idx].maxX, gMapCellBoxes[idx].maxY, gMapCellBoxes[idx].maxZ,
-                                      x, y, z, D_807F5FAC,
-                                      &gMapChunks[((MapCell *)((u8 *)gMapCells + off))->chunk].frustum) != 0) {
-                        ((MapCell *)((u8 *)gMapCells + off))->visible = 1;
-                        ((MapCell *)((u8 *)gMapCells + off))->seen = 1;
-                    }
-                    if (((MapCell *)((u8 *)gMapCells + off))->visible != 0) {
-                        mapCellUpdateVisibility(x, y, z, ((MapCell *)((u8 *)gMapCells + off))->id);
-                    }
+    for (i = 0; i < gMapCellCount; i++) {
+        if (parent == gMapCells[i].parent) {
+            if (gMapChunks[gMapCells[i].chunk].state == 1) {
+                idx = gMapCells[i].id;
+                if (mapBspBoxInFrustum(gMapCellBoxes[idx].minX, gMapCellBoxes[idx].minY, gMapCellBoxes[idx].minZ,
+                                  gMapCellBoxes[idx].maxX, gMapCellBoxes[idx].maxY, gMapCellBoxes[idx].maxZ,
+                                  x, y, z, D_807F5FAC,
+                                  &gMapChunks[gMapCells[i].chunk].frustum) != 0) {
+                    gMapCells[i].visible = 1;
+                    gMapCells[i].seen = 1;
+                }
+                if (gMapCells[i].visible != 0) {
+                    mapCellUpdateVisibility(x, y, z, gMapCells[i].id);
                 }
             }
-            i++;
-            off += 0x1C;
-        } while (i < gMapCellCount);
+        }
     }
 }
 
@@ -1893,69 +1881,36 @@ void mapChunksApplyLights(f32 x, f32 y, f32 z) {
     effectWaterApplyLights(x, y, z);
 }
 
-typedef struct {
-    /* 0x000 */ u8 unk0;
-    /* 0x001 */ u8 unk1;
-    /* 0x002 */ u8 unk2;
-    /* 0x003 */ u8 unk3;
-    /* 0x004 */ u8 unk4;
-    /* 0x005 */ u8 unk5;
-    /* 0x006 */ u8 pad6[0x0E];
-    /* 0x014 */ MapNode *opaqueList;
-    /* 0x018 */ u8 pad18[4];
-    /* 0x01C */ MapNode *translucentList;
-    /* 0x020 */ u8 pad20[0x40];
-    /* 0x060 */ void *unk60[4];
-    /* 0x070 */ u8 pad70[0x158];
-} MapChunkDraw;
 
 
 
 void mapChunkFreeIdleBuffers(void) {
     s32 i;
-    s32 off;
-    MapChunk *chunk;
 
     if (D_807F713A != 0) {
         matrixCacheEvict(0, 0x190);
     }
-    i = 0;
-    off = 0;
-    while (i < gMapChunkCount) {
-        chunk = (MapChunk *)((u8 *)gMapChunks + off);
-        if (chunk->lightMode != 0 && chunk->kind != 2 && chunk->lightsDone == 0) {
+    for (i = 0; i < gMapChunkCount; i++) {
+        if (gMapChunks[i].lightMode != 0 && gMapChunks[i].kind != 2 && gMapChunks[i].lightsDone == 0) {
             if (gMapChunks[i].litVtx[gGfxBufferIndex] != NULL) {
                 heapFree(gMapChunks[i].litVtx[gGfxBufferIndex]);
                 gMapChunks[i].litVtx[gGfxBufferIndex] = NULL;
             }
         }
-        i++;
-        off += 0x1C8;
     }
 }
 
 void mapChunkReleaseAndAdvance(void) {
-    MapChunkDraw *chunk;
     MapNode *node;
 
     if (!mapChunkIsVisible(D_807F70AA)) {
-        chunk = &((MapChunkDraw *)gMapChunks)[D_807F70AA];
-        node = chunk->opaqueList;
-        if (node) {
-            do {
-                modelSlotFreeTexAnimBuffers(node->model, node->kind);
-                modelSlotFreeAssetTextures(node->model, node->kind);
-                node = node->next;
-            } while (node);
-            chunk = &((MapChunkDraw *)gMapChunks)[D_807F70AA];
+        for (node = (MapNode *)gMapChunks[D_807F70AA].opaqueList; node != NULL; node = node->next) {
+            modelSlotFreeTexAnimBuffers(node->model, node->kind);
+            modelSlotFreeAssetTextures(node->model, node->kind);
         }
-        node = chunk->translucentList;
-        if (node) {
-            do {
-                modelSlotFreeTexAnimBuffers(node->model, node->kind);
-                modelSlotFreeAssetTextures(node->model, node->kind);
-                node = node->next;
-            } while (node);
+        for (node = (MapNode *)gMapChunks[D_807F70AA].translucentList; node != NULL; node = node->next) {
+            modelSlotFreeTexAnimBuffers(node->model, node->kind);
+            modelSlotFreeAssetTextures(node->model, node->kind);
         }
     }
     D_807F70AA++;
@@ -2157,19 +2112,6 @@ Gfx *mapChunksRender(Gfx *gfx, void *view, f32 x, f32 y, f32 z, s32 flags) {
     return billboardRenderQueued(gfx, -1);
 }
 
-typedef struct {
-    /* 0x000 */ u8 pad0[0x5];
-    /* 0x005 */ u8 kind;
-    /* 0x006 */ u8 pad6[0x26];
-    /* 0x02C */ s32 unk2C;
-    /* 0x030 */ s32 unk30;
-    /* 0x034 */ s32 unk34;
-    /* 0x038 */ s32 unk38;
-    /* 0x03C */ u8 pad3C[0x10];
-    /* 0x04C */ MapChunkCell *cells;
-    /* 0x050 */ s32 cellCount;
-    /* 0x054 */ u8 pad54[0x174];
-} MapChunkEffect;
 
 
 
@@ -2232,15 +2174,14 @@ u8 layer;
 }
 
 void mapChunkEffectSetFlag(s16 chunk, s16 cellId, u8 layer, u8 set) {
-    s32 i = 0;
-    MapChunkEffect *slot = (MapChunkEffect *)gMapChunks + chunk;
+    s32 i;
 
-    for (; i < slot->cellCount; i++) {
-        if (cellId == slot->cells[i].id) {
+    for (i = 0; i < gMapChunks[chunk].cellCount; i++) {
+        if (cellId == gMapChunks[chunk].cells[i].id) {
             if (set != 0) {
-                slot->cells[i].layerMask |= 1 << layer;
+                gMapChunks[chunk].cells[i].layerMask |= 1 << layer;
             } else {
-                slot->cells[i].layerMask &= ~(1 << layer);
+                gMapChunks[chunk].cells[i].layerMask &= ~(1 << layer);
             }
             return;
         }
@@ -2671,7 +2612,7 @@ void mapFrustumPlaneIntersectEdge(f32 *a, f32 *b, s32 planeIdx, f32 *out) {
     f64 s;
     f64 dist;
 
-    m = (f64 *)(gFrustumPlanes + planeIdx);
+    m = (f64 *)(gFrustumPlanes + planeIdx); // FAKE: f64 word view of MapPlane steers codegen (m->a..d fdiff=1)
     dist = (((m[4] * a[0]) + (m[5] * a[1])) + (m[6] * a[2])) + m[7];
     bx = b[0];
     s = dist / (((m[4] * (a[0] - bx)) + (m[5] * (a[1] - b[1]))) + (m[6] * (a[2] - b[2])));
@@ -2840,7 +2781,7 @@ void mapSearchTableReset(void) {
     }
 }
 
-extern s32 gMapSearchTable;
+extern MapSearchEntry gMapSearchTable[];
 extern s32 gFrameCounter;
 
 
@@ -2852,7 +2793,7 @@ void mapSearchTableAddProbe(void *key, s16 x, s16 y, s16 maxDepth) {
     found = 0;
     i = 0;
     while ((i < 10) && !found) {
-        entry = &((MapSearchEntry *)&gMapSearchTable)[i];
+        entry = &gMapSearchTable[i];
         if (entry->active != 0) {
             i++;
         } else {
@@ -2860,7 +2801,7 @@ void mapSearchTableAddProbe(void *key, s16 x, s16 y, s16 maxDepth) {
         }
     }
     if (found) {
-        entry = &((MapSearchEntry *)&gMapSearchTable)[i];
+        entry = &gMapSearchTable[i];
         entry->active = 1;
         entry->frame = gFrameCounter;
         entry->key = (s32)key;
@@ -2875,17 +2816,17 @@ void mapSearchTableUpdateVisibility(void) {
     s32 i;
 
     for (i = 0; i < 10; i++) {
-        if (((MapSearchEntry *)&gMapSearchTable)[i].active != 0) {
-            if (gFrameCounter == ((MapSearchEntry *)&gMapSearchTable)[i].frame) {
-                if ((f32)zbufferDepthToDistance((s16)zbufferReadDepth(((MapSearchEntry *)&gMapSearchTable)[i].x, ((MapSearchEntry *)&gMapSearchTable)[i].y)) <= (f32)((MapSearchEntry *)&gMapSearchTable)[i].maxDepth) {
-                    ((MapSearchEntry *)&gMapSearchTable)[i].visible = 1;
+        if (gMapSearchTable[i].active != 0) {
+            if (gFrameCounter == gMapSearchTable[i].frame) {
+                if ((f32)zbufferDepthToDistance((s16)zbufferReadDepth(gMapSearchTable[i].x, gMapSearchTable[i].y)) <= (f32)gMapSearchTable[i].maxDepth) {
+                    gMapSearchTable[i].visible = 1;
                 } else {
-                    ((MapSearchEntry *)&gMapSearchTable)[i].visible = 0;
+                    gMapSearchTable[i].visible = 0;
                 }
             }
         }
-        if ((u32)(gFrameCounter - ((MapSearchEntry *)&gMapSearchTable)[i].frame) >= 3) {
-            ((MapSearchEntry *)&gMapSearchTable)[i].active = 0;
+        if ((u32)(gFrameCounter - gMapSearchTable[i].frame) >= 3) {
+            gMapSearchTable[i].active = 0;
         }
     }
 }
@@ -2897,7 +2838,7 @@ extern u8 D_807F72B5;
 u8 mapSearchTableGetValue(s32 key) {
     s32 i;
 
-    if (key == gMapSearchTable) { return D_807F72A1; } if (key == D_807F72A4) { return D_807F72B5; } // LAYOUT: same-line tests steer as1 scheduling
+    if (key == gMapSearchTable[0].key) { return D_807F72A1; } if (key == D_807F72A4) { return D_807F72B5; } // LAYOUT: same-line tests steer as1 scheduling
     for (i = 0; i < 8; i++) {
         if (key == D_807F72B8[i].key) {
             return D_807F72B8[i].visible;
@@ -2919,12 +2860,6 @@ s16 bottom;
     D_807F735E = bottom;
 }
 
-typedef struct MapPlayerPosition {
-    /* 0x000 */ u8 pad0[0x21C];
-    /* 0x21C */ f32 posX;
-    /* 0x220 */ f32 posY;
-    /* 0x224 */ f32 posZ;
-} MapPlayerPosition;
 
 s32 mapPointOutsideClipBounds(f32 x, f32 y, f32 z, u8 marginX, u8 marginY) {
     f32 sx;
@@ -2941,9 +2876,9 @@ s32 mapPointOutsideClipBounds(f32 x, f32 y, f32 z, u8 marginX, u8 marginY) {
     camProjectToScreen(x, y, z, &sx, &sy, 0, 1.0f, gCurrentPlayerIndex);
     px = (s16)sx;
     py = (s16)sy;
-    dist = sqrtf((((f32)z - ((MapPlayerPosition *)&gPlayerSlots[gCurrentPlayerIndex])->posZ) * (z - ((MapPlayerPosition *)&gPlayerSlots[gCurrentPlayerIndex])->posZ))
-            + (((x - ((MapPlayerPosition *)&gPlayerSlots[gCurrentPlayerIndex])->posX) * (x - ((MapPlayerPosition *)&gPlayerSlots[gCurrentPlayerIndex])->posX))
-            + ((y - ((MapPlayerPosition *)&gPlayerSlots[gCurrentPlayerIndex])->posY) * (y - ((MapPlayerPosition *)&gPlayerSlots[gCurrentPlayerIndex])->posY))));  // FAKE: (f32)z cast shifts the t5-t7 temp rotation
+    dist = sqrtf((x - gPlayerSlots[gCurrentPlayerIndex].posX) * (x - gPlayerSlots[gCurrentPlayerIndex].posX)
+                 + (y - gPlayerSlots[gCurrentPlayerIndex].posY) * (y - gPlayerSlots[gCurrentPlayerIndex].posY)
+                 + (z - gPlayerSlots[gCurrentPlayerIndex].posZ) * (z - gPlayerSlots[gCurrentPlayerIndex].posZ));
     if (dist < 90.0f) {
         return 0;
     }
