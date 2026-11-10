@@ -1,7 +1,6 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
-#define PROTO_SKIP_actorCopyPoseAndScale // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_collisionCheckActorFloor // PROTO: Reference of an expression of void type or an incomplete typ
 #include "proto/global/10D2D0.h"
 #include "proto/global/119370.h"
@@ -2538,7 +2537,6 @@ typedef struct ChildEffectState {
 } ChildEffectState;
 
 
-void actorCopyPoseAndScale(void *, void *, f32, void *);
 
 void actorChildEffectUpdate(void) {
     ChildEffectState *state = gCurrentActor->customState;
@@ -2562,7 +2560,7 @@ void actorChildEffectUpdate(void) {
             if (target->sub4->animId != state->targetAnim) {
                 actorScriptStart(gCurrentActor, state->scriptB);
             } else {
-                actorCopyPoseAndScale(gCurrentActor, target, gCurrentActor->sub4->scaleX, state);
+                actorCopyPoseAndScale(gCurrentActor, target, gCurrentActor->sub4->scaleX);
                 gCurrentActor->y += state->yOffset;
             }
             break;
