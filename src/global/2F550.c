@@ -1,6 +1,6 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_assetFreeBuffer // FAKE: callee prototype steer
+#include "sched.h"
 #define PROTO_SKIP_assetLoad // FAKE: callee prototype steer
 #define PROTO_SKIP_mapChunkCheckActorCollision // FAKE: callee prototype steer
 #define PROTO_SKIP_mapChunksRender // PROTO: Reference of an expression of void type or an incomplete typ
@@ -77,29 +77,29 @@ f32 D_807F5DF0[12];
 
 void frustumCalculateCornerRays(f32 arg0, f32 arg1, f32 arg2) {
     f32 scale;
-    f32 sp54;
-    f32 spB0[4][4];
-    f32 sp70[4][4];
-    f32 sp6C;
-    f32 sp68;
-    f32 sp64;
-    f32 sp58;
+    f32 halfYaw;
+    f32 pitchMtx[4][4];
+    f32 yawMtx[4][4];
+    f32 dirZ;
+    f32 dirY;
+    f32 dirX;
+    f32 halfPitch;
     s32 i;
 
-    sp58 = arg0 * 0.5;
-    sp54 = sp58 * arg1;
-    guRotateF(spB0, sp58, 1.0f, 0.0f, 0.0f);
-    guMtxXFMF(spB0, 0.0f, 0.0f, (-arg2), &sp64, &sp68, &sp6C);
-    guRotateF(sp70, sp54, 0.0f, 1.0f, 0.0f);
-    guMtxXFMF(sp70, sp64, sp68, sp6C, &D_807F5DF0[0], &D_807F5DF0[1], &D_807F5DF0[2]);
-    guRotateF(sp70, -sp54, 0.0f, 1.0f, 0.0f);
-    guMtxXFMF(sp70, sp64, sp68, sp6C, &D_807F5DF0[3], &D_807F5DF0[4], &D_807F5DF0[5]);
-    guRotateF(spB0, -sp58, 1.0f, 0.0f, 0.0f);
-    guMtxXFMF(spB0, 0.0f, 0.0f, (-arg2), &sp64, &sp68, &sp6C);
-    guRotateF(sp70, sp54, 0.0f, 1.0f, 0.0f);
-    guMtxXFMF(sp70, sp64, sp68, sp6C, &D_807F5DF0[6], &D_807F5DF0[7], &D_807F5DF0[8]);
-    guRotateF(sp70, -sp54, 0.0f, 1.0f, 0.0f);
-    guMtxXFMF(sp70, sp64, sp68, sp6C, &D_807F5DF0[9], &D_807F5DF0[10], &D_807F5DF0[11]);
+    halfPitch = arg0 * 0.5;
+    halfYaw = halfPitch * arg1;
+    guRotateF(pitchMtx, halfPitch, 1.0f, 0.0f, 0.0f);
+    guMtxXFMF(pitchMtx, 0.0f, 0.0f, (-arg2), &dirX, &dirY, &dirZ);
+    guRotateF(yawMtx, halfYaw, 0.0f, 1.0f, 0.0f);
+    guMtxXFMF(yawMtx, dirX, dirY, dirZ, &D_807F5DF0[0], &D_807F5DF0[1], &D_807F5DF0[2]);
+    guRotateF(yawMtx, -halfYaw, 0.0f, 1.0f, 0.0f);
+    guMtxXFMF(yawMtx, dirX, dirY, dirZ, &D_807F5DF0[3], &D_807F5DF0[4], &D_807F5DF0[5]);
+    guRotateF(pitchMtx, -halfPitch, 1.0f, 0.0f, 0.0f);
+    guMtxXFMF(pitchMtx, 0.0f, 0.0f, (-arg2), &dirX, &dirY, &dirZ);
+    guRotateF(yawMtx, halfYaw, 0.0f, 1.0f, 0.0f);
+    guMtxXFMF(yawMtx, dirX, dirY, dirZ, &D_807F5DF0[6], &D_807F5DF0[7], &D_807F5DF0[8]);
+    guRotateF(yawMtx, -halfYaw, 0.0f, 1.0f, 0.0f);
+    guMtxXFMF(yawMtx, dirX, dirY, dirZ, &D_807F5DF0[9], &D_807F5DF0[10], &D_807F5DF0[11]);
     for (i = 0; i < 4; i++) {
         scale = (-arg2) / D_807F5DF0[i * 3 + 2];
         D_807F5DF0[i * 3] *= scale;
@@ -114,14 +114,14 @@ extern f32 D_807F5E28[];
 
 
 void frustumCornersTransformByInverse(Mtx *arg0) {
-    f32 sp98[4][4];
-    f32 sp58[4][4];
+    f32 viewMtx[4][4];
+    f32 invMtx[4][4];
     s32 i;
 
-    guMtxL2F(sp98, arg0);
-    matrix4Invert(sp58, sp98);
+    guMtxL2F(viewMtx, arg0);
+    matrix4Invert(invMtx, viewMtx);
     for (i = 0; i < 4; i++) {
-        guMtxXFMF(sp58, D_807F5DF0[i * 3], D_807F5DF0[i * 3 + 1], D_807F5DF0[i * 3 + 2], &D_807F5E20[i * 3], &D_807F5E24[i * 3], &D_807F5E28[i * 3]);
+        guMtxXFMF(invMtx, D_807F5DF0[i * 3], D_807F5DF0[i * 3 + 1], D_807F5DF0[i * 3 + 2], &D_807F5E20[i * 3], &D_807F5E24[i * 3], &D_807F5E28[i * 3]);
     }
 }
 
@@ -385,24 +385,56 @@ void mapOffsetSlotsSetValues(f32 *arg0) {
     }
 }
 
-typedef struct MapTreeLinks {
-    struct MapTreeLinks *unk0;
-    struct MapTreeLinks *unk4;
-} MapTreeLinks;
+typedef struct MapDistributeEntry {
+    /* 0x00 */ s32 unk0;
+    /* 0x04 */ f32 unk4;
+    /* 0x08 */ f32 unk8;
+    /* 0x0C */ f32 unkC;
+    /* 0x10 */ u8 pad10[4];
+    /* 0x14 */ struct MapDistributeEntry *unk14;
+    /* 0x18 */ u8 pad18[4];
+    /* 0x1C */ s16 unk1C;
+    /* 0x1E */ s16 unk1E;
+    /* 0x20 */ s16 unk20;
+    /* 0x22 */ u8 unk22;
+    /* 0x23 */ u8 pad23;
+    /* 0x24 */ u8 unk24;
+} MapDistributeEntry;
 
-typedef struct MapVisNodeNew {
-    u8 pad0;
+typedef struct MapBspNode {
+    struct MapBspNode *unk0;
+    struct MapBspNode *unk4;
+    u8 pad8[0x4C - 0x8];
+    /* 0x4C */ f32 unk4C; /* split plane normal x */
+    /* 0x50 */ f32 unk50;
+    /* 0x54 */ f32 unk54;
+    /* 0x58 */ f32 unk58; /* split plane d */
+    /* 0x5C */ s16 unk5C[3];
+    /* 0x62 */ s16 unk62[3];
+    /* 0x68 */ s16 unk68[3];
+    u8 pad6E[0xA0 - 0x6E];
+    /* 0xA0 */ s16 unkA0; /* bounds min x/y/z, max x/y/z */
+    /* 0xA2 */ s16 unkA2;
+    /* 0xA4 */ s16 unkA4;
+    /* 0xA6 */ s16 unkA6;
+    /* 0xA8 */ s16 unkA8;
+    /* 0xAA */ s16 unkAA;
+    u8 padAC[0xB8 - 0xAC];
+    /* 0xB8 */ u8 unkB8;
+} MapBspNode;
+
+typedef struct MapVisNode {
+    u8 unk0;
     u8 unk1;
     u8 pad2[2];
-    s32 unk4;
+    struct MapDistributeEntry *unk4; /* render entry list */
     s32 unk8;
-    struct MapVisNodeNew *unkC;
-    struct MapVisNodeNew *unk10;
-} MapVisNodeNew;
+    struct MapVisNode *unkC;
+    struct MapVisNode *unk10;
+} MapVisNode;
 
-
-MapVisNodeNew *mapTreeCloneShape(MapTreeLinks *arg0) {
-    MapVisNodeNew *node;
+MapVisNode *mapTreeCloneShape(MapBspNode *arg0) {
+    MapVisNode *node;
 
     if (arg0 == NULL) {
         return NULL;
@@ -415,29 +447,6 @@ MapVisNodeNew *mapTreeCloneShape(MapTreeLinks *arg0) {
     node->unk10 = mapTreeCloneShape(arg0->unk4);
     return node;
 }
-
-typedef struct MapBspNode {
-    struct MapBspNode *unk0;
-    struct MapBspNode *unk4;
-    u8 pad8[0xC];
-    struct MapBspNode *unk14;
-    u8 pad18[6];
-    s16 unk1E;
-    u8 pad20[4];
-    u8 unk24;
-    u8 pad25[0x93];
-    u8 unkB8;
-} MapBspNode;
-
-typedef struct MapVisNode {
-    u8 unk0;
-    u8 unk1;
-    u8 pad2[2];
-    MapBspNode *unk4;
-    s32 unk8;
-    struct MapVisNode *unkC;
-    struct MapVisNode *unk10;
-} MapVisNode;
 
 
 extern MapVisNode *D_807F5E60;
@@ -452,7 +461,8 @@ void func_8062BAE4(void) {
 
 
 void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
-    MapBspNode *next;
+    MapDistributeEntry *entry;
+    MapDistributeEntry *next;
 
     if (arg0 == NULL) {
         return;
@@ -467,11 +477,11 @@ void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
             mapChunkUpdateModelNodes();
             break;
         case 1:
-            arg0 = arg1->unk4;
-            while (arg0 != NULL) {
-                next = arg0->unk14;
-                modelPendingQueueInsert(arg0, arg2);
-                arg0 = next;
+            entry = arg1->unk4;
+            while (entry != NULL) {
+                next = entry->unk14;
+                modelPendingQueueInsert(entry, arg2);
+                entry = next;
             }
             break;
         case 0:
@@ -500,12 +510,12 @@ void func_8062BB2C(MapBspNode *arg0, MapVisNode *arg1, u8 arg2) {
     }
 }
 
-extern MapBspNode *D_807F5FF4;
+extern struct MapDistributeEntry *D_807F5FF4;
 
 
-u8 func_8062BCC8(void *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
+u8 func_8062BCC8(Actor *arg0, f32 arg1, f32 arg2, f32 arg3, f32 *arg4) {
     u8 result;
-    MapBspNode *item;
+    MapDistributeEntry *item;
 
     result = func_8062BDB0(arg0, D_807F5DE4, D_807F5E60, arg1, arg2, arg3, arg4);
     item = D_807F5FF4;
@@ -518,12 +528,12 @@ u8 func_8062BCC8(void *arg0, f32 arg1, f32 arg2, f32 arg3, s32 arg4) {
     return result;
 }
 
-u8 mapChunkCheckActorCollision(void *, f32, f32, f32, s32);  // FAKE: callee prototype steer
+u8 mapChunkCheckActorCollision(Actor *, f32, f32, f32, f32 *);  // FAKE: callee prototype steer
 
-u8 func_8062BDB0(void *arg0, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
+u8 func_8062BDB0(Actor *arg0, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 arg4, f32 arg5, f32 *arg6) {
     u8 result;
     s32 other;
-    MapBspNode *item;
+    MapDistributeEntry *item;
 
     result = 0;
     switch (arg1->unkB8) {
@@ -546,11 +556,6 @@ u8 func_8062BDB0(void *arg0, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 a
     return 0;
 }
 
-typedef struct PlayerCamera {
-    u8 pad0[0x129];
-    u8 unk129;
-} PlayerCamera;
-
 typedef struct ViewportRect {
     u8 pad0[4];
     s16 unk4;
@@ -559,27 +564,17 @@ typedef struct ViewportRect {
     s16 unkA;
 } ViewportRect;
 
+// PlayerStruct fields include/sched.h does not have yet (header request): look target
+// 0x234..0x23C and 0x288.
 typedef struct PlayerViewState {
-    u8 unk0;
-    u8 pad1[3];
-    PlayerCamera *unk4;
-    u8 pad8[0x214];
-    s32 unk21C;
-    s32 unk220;
-    s32 unk224;
-    u8 pad228[0xC];
-    f32 unk234;
-    f32 unk238;
-    f32 unk23C;
-    u8 pad240[0x40];
-    f32 unk280;
-    u8 pad284[4];
-    f32 unk288;
-    f32 unk28C;
-    u8 pad290[0x5A];
-    u8 unk2EA;
-    u8 pad2EB[5];
-} PlayerViewState;
+    /* 0x000 */ u8 pad0[0x234];
+    /* 0x234 */ f32 unk234;
+    /* 0x238 */ f32 unk238;
+    /* 0x23C */ f32 unk23C;
+    /* 0x240 */ u8 pad240[0x288 - 0x240];
+    /* 0x288 */ f32 unk288;
+    /* 0x28C */ u8 pad28C[0x2F0 - 0x28C];
+} PlayerViewState; // size = 0x2F0
 
 #define PLAYER_VIEW(i) (((PlayerViewState *)gPlayerSlots)[i])
 
@@ -588,7 +583,7 @@ extern u8 gViewportCount;
 extern u8 D_807F5FEC;
 extern u8 D_807F5FED;
 extern u8 gCurrentPlayerIndex;
-extern void *gPlayerSlots;
+extern PlayerStruct *gPlayerSlots;
 
 
 Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
@@ -604,16 +599,16 @@ Gfx *playerViewsRender(Gfx *gfx, s32 arg1) {
         gSPSetOtherMode(gfx++, G_SETOTHERMODE_H, G_MDSFT_PIPELINE, 1, G_PM_NPRIMITIVE);
     }
     for (i = 0; i < gViewportCount; i++) {
-        if (PLAYER_VIEW(i).unk0 != 0) {
+        if (gPlayerSlots[i].unk0 != 0) {
             gCurrentPlayerIndex = i;
-            gfx = mapRenderPlayerView(gfx, PLAYER_VIEW(i).unk21C, PLAYER_VIEW(i).unk220, PLAYER_VIEW(i).unk224,
+            gfx = mapRenderPlayerView(gfx, gPlayerSlots[i].unk21C, gPlayerSlots[i].unk220, gPlayerSlots[i].unk224,
                                 PLAYER_VIEW(i).unk234, PLAYER_VIEW(i).unk238, PLAYER_VIEW(i).unk23C,
-                                PLAYER_VIEW(i).unk28C, PLAYER_VIEW(i).unk280 * cameraStepAspectScale(),
+                                gPlayerSlots[i].prevFov, gPlayerSlots[i].unk280 * cameraStepAspectScale(),
                                 PLAYER_VIEW(i).unk288);
             D_807F5FEC = 0;
         }
-        if (PLAYER_VIEW(i).unk0 == 0 || PLAYER_VIEW(i).unk2EA != 0) {
-            alpha = PLAYER_VIEW(i).unk4->unk129;
+        if (gPlayerSlots[i].unk0 == 0 || gPlayerSlots[i].unk2EA != 0) {
+            alpha = gPlayerSlots[i].actor->alpha;
             vp = cameraFindViewportEntry(i);
             gSPDisplayList(gfx++, &D_1000118);
             gSPTexture(gfx++, 0xFFFF, 0xFFFF, 0, 0, G_OFF);
@@ -659,28 +654,19 @@ void mapFrameEnd(void) {
     displayListFreeQueueProcess();
 }
 
+// PlayerStruct fields include/sched.h does not have yet (header request): per-buffer
+// lookAt, tile sizes, segment-5 display list and viewport.
 typedef struct L8062C29CPlayer {
-    u8 pad0[4];
-    void *unk4;
-    Mtx unk8[2];
-    Mtx unk88[2];
-    u8 pad108[0x80];
-    u16 unk188;
-    u8 pad18A[6];
-    u8 unk190[2][0x20];
-    u32 unk1D0[2][4];
-    Gfx unk1F0[2][2];
-    u8 pad210[0x40];
-    s16 unk250[2][8];
-    s16 unk270;
-    s16 unk272;
-    s16 unk274;
-    s16 unk276;
-    u8 pad278[0x78];
-} L8062C29CPlayer;
+    /* 0x000 */ u8 pad0[0x190];
+    /* 0x190 */ u8 unk190[2][0x20];
+    /* 0x1D0 */ u32 unk1D0[2][4];
+    /* 0x1F0 */ Gfx unk1F0[2][2];
+    /* 0x210 */ u8 pad210[0x40];
+    /* 0x250 */ s16 unk250[2][8];
+    /* 0x270 */ u8 pad270[0x80];
+} L8062C29CPlayer; // size = 0x2F0
 
 #define L8062C29CP (((L8062C29CPlayer *)gPlayerSlots)[gCurrentPlayerIndex])
-#define L8062C29CF(x) (*(f32 *)&(x))
 
 extern s32 D_807F5E64;
 extern f32 D_807F5FB4;
@@ -689,14 +675,14 @@ extern f32 D_807F5FAC;
 extern f32 D_807F5FA8;
 extern f32 D_807F5FE0;
 extern f32 D_807F5FDC;
-extern u8 D_807F5E68[];
+extern PlanePoly D_807F5E68[];
 extern struct MapDistributeEntry *D_807F5FF0;
 extern s32 gGlobalPauseFlags;
 extern Mtx D_2000180;
 
 f32 cosApprox(f32);
 
-Gfx *mapRenderPlayerView(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9) {
+Gfx *mapRenderPlayerView(Gfx *gfx, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9) {
     Gfx *dl;
     s32 pad2[1];
     s32 pad[24];
@@ -709,30 +695,30 @@ Gfx *mapRenderPlayerView(Gfx *gfx, s32 arg1, s32 arg2, s32 arg3, f32 arg4, f32 a
     D_807F5FA8 = D_807F5FAC;
     D_807F5FE0 = cosApprox(arg7 * 0.01745329238f);
     D_807F5FE0 = (D_807F5FE0 - D_807F5FDC) * 3.0 + D_807F5FDC;
-    planeFromTwoPoints(L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), arg4, arg5, arg6);
+    planeFromTwoPoints(arg1, arg2, arg3, arg4, arg5, arg6);
     frustumCalculateCornerRays(D_807F5FB4, D_807F5FB0, D_807F5FA8);
-    frustumCornersTransformByInverse(&L8062C29CP.unk8[gGfxBufferIndex]);
-    frustumOrientPolyNormals(L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), (PlanePoly *)D_807F5E68, D_807F5E20);
-    mapTreeFrameUpdate(D_807F5DE4, D_807F5E60, D_807F5FF0, L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), 0, !D_807F5FEC, gViewportCount >= 2);
+    frustumCornersTransformByInverse(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]);
+    frustumOrientPolyNormals(arg1, arg2, arg3, D_807F5E68, D_807F5E20);
+    mapTreeFrameUpdate(D_807F5DE4, D_807F5E60, D_807F5FF0, arg1, arg2, arg3, 0, !D_807F5FEC, gViewportCount >= 2);
     gSPSegment(gfx++, 6, osVirtualToPhysical((void *)D_807F5DE8));
     gSPSegment(gfx++, 7, osVirtualToPhysical(D_807F5DEC));
-    gfx = actorBuildLightDisplayList(gfx, L8062C29CP.unk4, gCurrentPlayerIndex);
+    gfx = actorBuildLightDisplayList(gfx, gPlayerSlots[gCurrentPlayerIndex].actor, gCurrentPlayerIndex);
     gSPSegment(gfx++, 5, osVirtualToPhysical(dl));
     gDPSetTileSize(dl++, 0, L8062C29CP.unk1D0[gGfxBufferIndex][0] & 0xFFF, L8062C29CP.unk1D0[gGfxBufferIndex][1] & 0xFFF,
                    (L8062C29CP.unk1D0[gGfxBufferIndex][0] + 0x7C) & 0xFFF, (L8062C29CP.unk1D0[gGfxBufferIndex][1] + 0x7C) & 0xFFF);
     gSPEndDisplayList(dl++);
-    viewportSetFromRect(L8062C29CP.unk250[gGfxBufferIndex], L8062C29CP.unk270, L8062C29CP.unk272, L8062C29CP.unk274, L8062C29CP.unk276);
-    gSPPerspNormalize(gfx++, L8062C29CP.unk188);
+    viewportSetFromRect(L8062C29CP.unk250[gGfxBufferIndex], gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
+    gSPPerspNormalize(gfx++, gPlayerSlots[gCurrentPlayerIndex].perspNorm);
     gSPViewport(gfx++, osVirtualToPhysical(&L8062C29CP.unk250[gGfxBufferIndex]));
-    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, L8062C29CP.unk270, L8062C29CP.unk272, L8062C29CP.unk274, L8062C29CP.unk276);
+    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
     gSPLookAtX(gfx++, osVirtualToPhysical(&L8062C29CP.unk190[gGfxBufferIndex]));
     gSPLookAtY(gfx++, osVirtualToPhysical(&L8062C29CP.unk190[gGfxBufferIndex]) + 0x10);
-    mapSetClipBounds(L8062C29CP.unk270, L8062C29CP.unk272, L8062C29CP.unk274, L8062C29CP.unk276);
+    mapSetClipBounds(gPlayerSlots[gCurrentPlayerIndex].rect[0], gPlayerSlots[gCurrentPlayerIndex].rect[1], gPlayerSlots[gCurrentPlayerIndex].rect[2], gPlayerSlots[gCurrentPlayerIndex].rect[3]);
     gfx = gfxDrawPlayerViewBackground(fogApply(gfx), gCurrentPlayerIndex);
-    gSPMatrix(gfx++, osVirtualToPhysical(&L8062C29CP.unk88[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPMatrix(gfx++, osVirtualToPhysical(&L8062C29CP.unk8[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
+    gSPMatrix(gfx++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].projMtx[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(gfx++, osVirtualToPhysical(&gPlayerSlots[gCurrentPlayerIndex].viewMtx[gGfxBufferIndex]), G_MTX_PROJECTION | G_MTX_MUL | G_MTX_NOPUSH);
     gSPMatrix(gfx++, &D_2000180, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gfx = mapTreeRender(gfx, D_807F5DE4, D_807F5E60, L8062C29CF(arg1), L8062C29CF(arg2), L8062C29CF(arg3), gGlobalPauseFlags);
+    gfx = mapTreeRender(gfx, D_807F5DE4, D_807F5E60, arg1, arg2, arg3, gGlobalPauseFlags);
     gDPPipeSync(gfx++);
     return gfx;
 }
@@ -778,7 +764,7 @@ struct RawGfxCmd;
 #define MAP_LEAF(o) ((MapLeafLists *)(o))
 
 Gfx *mapTreeRender(Gfx *gfx, MapBspNode *arg1, MapVisNode *arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
-    Gfx *sp84;
+    Gfx *pad;
 
     if (arg1 == NULL) {
         return gfx;
@@ -894,10 +880,10 @@ void func_8062D094(s32 arg0, u8 arg1) {
 
 
 u8 func_8062D0CC(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, u8 arg3) {
-    u8 unused;
-    u8 sp26;
+    u8 pad;
+    u8 found;
 
-    sp26 = 0;
+    found = 0;
     if (arg0 == NULL) {
         return 0;
     }
@@ -906,8 +892,8 @@ u8 func_8062D0CC(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, u8 arg3) {
             mapChunkMarkRenderEntry(arg2, arg3);
             return 1;
         case 1:
-            renderEntrySetDistanceOverride(arg1->unk4, arg2, 0, arg3, &sp26);
-            return sp26;
+            renderEntrySetDistanceOverride(arg1->unk4, arg2, 0, arg3, &found);
+            return found;
         case 0:
             if (func_8062D0CC(arg0->unk0, arg1->unkC, arg2, arg3) != 0) {
                 return 1;
@@ -949,11 +935,11 @@ void mapTreeResolveNodeAssets(MapBspNode *arg0, MapVisNode *arg1) {
 
 
 void func_8062D26C(s32 arg0) {
-    u8 sp1F;
-    s16 sp1C;
+    u8 removed;
+    s16 count;
 
-    renderEntryRemove(NULL, arg0, 1, &sp1F);
-    mapPurgeNodeList(arg0, &sp1C, 1);
+    renderEntryRemove(NULL, arg0, 1, &removed);
+    mapPurgeNodeList(arg0, &count, 1);
 }
 
 
@@ -963,7 +949,7 @@ void mapPurgeNodeList(s32 arg0, s16 *arg1, u8 arg2) {
 
 
 u8 mapTreePurgeNodeList(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, s16 *arg3, u8 arg4) {
-    u8 sp27;
+    u8 removed;
 
     if (arg0 == NULL) {
         return 0;
@@ -972,8 +958,8 @@ u8 mapTreePurgeNodeList(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, s16 *arg3,
         case 2:
             return mapChunkPurgeNodeList(arg2, arg3, arg4);
         case 1:
-            arg1->unk4 = renderEntryRemove(arg1->unk4, arg2, 0, &sp27);
-            return sp27;
+            arg1->unk4 = renderEntryRemove(arg1->unk4, arg2, 0, &removed);
+            return removed;
         case 0:
             if (mapTreePurgeNodeList(arg0->unk0, arg1->unkC, arg2, arg3, arg4) != 0 && arg4 == 0) {
                 return 1;
@@ -983,25 +969,9 @@ u8 mapTreePurgeNodeList(MapBspNode *arg0, MapVisNode *arg1, s32 arg2, s16 *arg3,
     return 0;
 }
 
-typedef struct MapDistributeEntry {
-    /* 0x00 */ s32 unk0;
-    /* 0x04 */ f32 unk4;
-    /* 0x08 */ f32 unk8;
-    /* 0x0C */ f32 unkC;
-    /* 0x10 */ u8 pad10[4];
-    /* 0x14 */ struct MapDistributeEntry *unk14;
-    /* 0x18 */ u8 pad18[4];
-    /* 0x1C */ s16 unk1C;
-    /* 0x1E */ s16 unk1E;
-    /* 0x20 */ s16 unk20;
-    /* 0x22 */ u8 unk22;
-    /* 0x23 */ u8 pad23;
-    /* 0x24 */ u8 unk24;
-} MapDistributeEntry;
 
-
-void mapDistributeEntries(MapBspNode *arg0) {
-    mapTreeDistributeEntries(D_807F5DE4, D_807F5E60, (MapDistributeEntry *)arg0);
+void mapDistributeEntries(MapDistributeEntry *arg0) {
+    mapTreeDistributeEntries(D_807F5DE4, D_807F5E60, arg0);
 }
 
 
@@ -1009,7 +979,8 @@ void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, MapDistributeE
     s32 pad;
     s32 listA;
     s32 listB;
-    s32 sp58;
+    u8 pad2;
+    u8 side;
 
     listA = 0;
     listB = 0;
@@ -1028,7 +999,7 @@ void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, MapDistributeE
         case 1:
             if (arg2 != NULL) {
                 do {
-                    arg1->unk4 = (MapBspNode *)renderEntryAddOrUpdate((s32)arg1->unk4, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                    arg1->unk4 = (MapDistributeEntry *)renderEntryAddOrUpdate((s32)arg1->unk4, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
                     arg2 = arg2->unk14;
                 } while (arg2 != NULL);
             }
@@ -1036,7 +1007,7 @@ void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, MapDistributeE
         case 0:
             if (arg2 != NULL) {
                 do {
-                    if (mapBspPlaneSideTest(arg0, (u8 *)&sp58 + 2, arg2->unk4, arg2->unk8, arg2->unkC) != 0) {
+                    if (mapBspPlaneSideTest(arg0, &side, arg2->unk4, arg2->unk8, arg2->unkC) != 0) {
                         listB = renderEntryAddOrUpdate(listB, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
                     } else {
                         listA = renderEntryAddOrUpdate(listA, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
@@ -1052,26 +1023,17 @@ void mapTreeDistributeEntries(MapBspNode *arg0, MapVisNode *arg1, MapDistributeE
     }
 }
 
-typedef struct MapNodeBounds {
-    /* 0x00 */ u8 pad0[0xA0];
-    /* 0xA0 */ s16 unkA0;
-    /* 0xA2 */ s16 unkA2;
-    /* 0xA4 */ s16 unkA4;
-    /* 0xA6 */ s16 unkA6;
-    /* 0xA8 */ s16 unkA8;
-    /* 0xAA */ s16 unkAA;
-} MapNodeBounds;
-
 
 
 void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *arg2, f32 arg3, f32 arg4, f32 arg5, u8 arg6, u8 arg7, u8 arg8) {
     s32 listA;
     s32 listB;
     s32 kind;
-    s32 sp58;
-    s16 sp56;
+    s32 sortCount;
+    u8 pad2;
+    u8 side;
 
-    if (0) {
+    if (0) { // FAKE: dead address-of arg6 keeps it in its stack home
         mapChunkUpdateEntryNode((MapDistributeEntry *)&arg6);
     }
     listA = 0;
@@ -1100,7 +1062,7 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *
                     mapChunkFreeNodeLists(arg8);
                     mapChunkRebuildNodeLists(arg3, arg4, arg5, arg8);
                     mapChunkBuildSpriteChains(arg3, arg4, arg5, arg8);
-                    D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, arg3, arg4, arg5, &sp58);
+                    D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, arg3, arg4, arg5, &sortCount);
                 }
             }
         } else {
@@ -1109,20 +1071,20 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *
                 renderEntryListClearTouched((s32)arg1->unk4);
                 if (arg2 != NULL) {
                     do {
-                        arg1->unk4 = (MapBspNode *)renderEntryAddOrUpdate((s32)arg1->unk4, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
+                        arg1->unk4 = (MapDistributeEntry *)renderEntryAddOrUpdate((s32)arg1->unk4, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
                         arg2 = arg2->unk14;
                     } while (arg2 != NULL);
                 }
-                arg1->unk4 = (MapBspNode *)renderEntryListPurgeUntouched((s32)arg1->unk4);
-                arg1->unk4 = (MapBspNode *)renderEntryListSortByDistance((s32)arg1->unk4, arg3, arg4, arg5, &sp58);
+                arg1->unk4 = (MapDistributeEntry *)renderEntryListPurgeUntouched((s32)arg1->unk4);
+                arg1->unk4 = (MapDistributeEntry *)renderEntryListSortByDistance((s32)arg1->unk4, arg3, arg4, arg5, &sortCount);
                 arg1->unk8 = spriteListBuildDisplayChain((s32)arg1->unk4, 0, arg3, arg4, arg5);
-                D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, arg3, arg4, arg5, &sp58);
+                D_807F5FFC = renderEntryListSortByDistance(D_807F5FFC, arg3, arg4, arg5, &sortCount);
             }
         }
     } else {
         if (arg2 != NULL) {
             do {
-                if (mapBspPlaneSideTest(arg0, (u8 *)&sp56, arg2->unk4, arg2->unk8, arg2->unkC) != 0) {
+                if (mapBspPlaneSideTest(arg0, &side, arg2->unk4, arg2->unk8, arg2->unkC) != 0) {
                     listB = renderEntryAddOrUpdate(listB, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
                 } else {
                     listA = renderEntryAddOrUpdate(listA, arg2->unk24, arg2->unk0, arg2->unk4, arg2->unk8, arg2->unkC, arg2->unk1C, arg2->unk1E, arg2->unk22, arg2->unk20, 0);
@@ -1155,10 +1117,7 @@ void mapTreeFrameUpdate(MapBspNode *arg0, MapVisNode *arg1, MapDistributeEntry *
 
 
 s32 mapNodeBoxInFrustum(MapBspNode *arg0, f32 arg1, f32 arg2, f32 arg3) {
-    MapNodeBounds *box;
-
-    box = (MapNodeBounds *)arg0;
-    return mapBspBoxInFrustum(box->unkA0, box->unkA2, box->unkA4, box->unkA6, box->unkA8, box->unkAA, arg1, arg2, arg3, D_807F5FA8, D_807F5E68);
+    return mapBspBoxInFrustum(arg0->unkA0, arg0->unkA2, arg0->unkA4, arg0->unkA6, arg0->unkA8, arg0->unkAA, arg1, arg2, arg3, D_807F5FA8, D_807F5E68);
 }
 
 extern f32 D_807F5E50[];
@@ -1171,19 +1130,9 @@ void planeFromTwoPoints(f32 arg0, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 ar
 }
 
 
-typedef struct ClipPlane {
-    /* 0x00 */ u8 pad0[0x18];
-    /* 0x18 */ u8 unk18;
-    /* 0x19 */ u8 pad19[7];
-    /* 0x20 */ f64 unk20;
-    /* 0x28 */ f64 unk28;
-    /* 0x30 */ f64 unk30;
-    /* 0x38 */ f64 unk38;
-} ClipPlane;
 
 
-
-s32 mapBspBoxInFrustum(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, void *arg10) {
+s32 mapBspBoxInFrustum(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, f32 arg6, f32 arg7, f32 arg8, f32 arg9, PlanePoly *arg10) {
     s32 in1;
     s32 in2;
     s32 behind;
@@ -1208,11 +1157,11 @@ s32 mapBspBoxInFrustum(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
         return 1;
     }
     for (i = 0; i < 5 && behind == 0; i++) {
-        d = ((((ClipPlane *)arg10)[i].unk20 * arg0 + ((ClipPlane *)arg10)[i].unk28 * arg1) + ((ClipPlane *)arg10)[i].unk30 * arg2) + ((ClipPlane *)arg10)[i].unk38;
+        d = ((arg10[i].a * arg0 + arg10[i].b * arg1) + arg10[i].c * arg2) + arg10[i].d;
         if (d < 0.00) {
             in1 = 1;
         }
-        d = ((((ClipPlane *)arg10)[i].unk20 * arg0 + ((ClipPlane *)arg10)[i].unk28 * arg4) + ((ClipPlane *)arg10)[i].unk30 * arg2) + ((ClipPlane *)arg10)[i].unk38;
+        d = ((arg10[i].a * arg0 + arg10[i].b * arg4) + arg10[i].c * arg2) + arg10[i].d;
         if (d < 0.00) {
             if (arg4 && arg4) {} // FAKE: lowers arg4's cvt candidate priority (FP colouring of the head)
             in2 = 1;
@@ -1233,79 +1182,77 @@ s32 mapBspBoxInFrustum(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg
 }
 
 f32 boxMinCornerDistance(s16 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, f32 arg6, f32 arg7, f32 arg8) {
-    f32 new_var;
-    f32 sp30;
-    f32 var_fs0;
-    f32 sp58;
-    f32 temp_fs1;
-    f32 sp38;
-    f32 sp3C;
-    f32 temp_fs2;
+    f32 dy1Sq;
+    f32 dist;
+    f32 best;
+    f32 pad;
+    f32 dz0Sq;
+    f32 dy0Sq;
+    f32 dx0Sq;
+    f32 dz1Sq;
 
-    var_fs0 = (f32)arg0;
-    sp3C = (var_fs0 - arg6) * (var_fs0 - arg6);
-    sp38 = (((f32)arg1 - arg7) * ((f32)arg1 - arg7));
-    temp_fs1 = (((f32)arg2 - arg8) * ((f32)arg2 - arg8));
-    new_var = (((f32)arg4 - arg7) * ((f32)arg4 - arg7));
-    temp_fs2 = (((f32)arg5 - arg8) * ((f32)arg5 - arg8));
-    var_fs0 = (sp3C + sp38) + temp_fs1;
-    sp30 = (sp58 = (sp3C + sp38) + temp_fs2);
-    if (sp30 < var_fs0) {
-        var_fs0 = sp30;
+    best = (f32)arg0;
+    dx0Sq = (best - arg6) * (best - arg6);
+    dy0Sq = (((f32)arg1 - arg7) * ((f32)arg1 - arg7));
+    dz0Sq = (((f32)arg2 - arg8) * ((f32)arg2 - arg8));
+    dy1Sq = (((f32)arg4 - arg7) * ((f32)arg4 - arg7));
+    dz1Sq = (((f32)arg5 - arg8) * ((f32)arg5 - arg8));
+    best = (dx0Sq + dy0Sq) + dz0Sq;
+    dist = (dx0Sq + dy0Sq) + dz1Sq;
+    if (dist < best) {
+        best = dist;
     }
-    if ((sp3C + new_var) + temp_fs1 < var_fs0) {
-        var_fs0 = (sp3C + new_var) + temp_fs1;
+    if ((dx0Sq + dy1Sq) + dz0Sq < best) {
+        best = (dx0Sq + dy1Sq) + dz0Sq;
     }
-    if ((sp3C + new_var) + temp_fs2 < var_fs0) {
-        var_fs0 = (sp3C + new_var) + temp_fs2;
+    if ((dx0Sq + dy1Sq) + dz1Sq < best) {
+        best = (dx0Sq + dy1Sq) + dz1Sq;
     }
-    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + sp38) + temp_fs1 < var_fs0) {
-        var_fs0 = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + sp38) + temp_fs1;
+    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy0Sq) + dz0Sq < best) {
+        best = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy0Sq) + dz0Sq;
     }
-    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + sp38) + temp_fs2 < var_fs0) {
-        var_fs0 = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + sp38) + temp_fs2;
+    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy0Sq) + dz1Sq < best) {
+        best = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy0Sq) + dz1Sq;
     }
-    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + new_var) + temp_fs1 < var_fs0) {
-        var_fs0 = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + new_var) + temp_fs1;
+    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy1Sq) + dz0Sq < best) {
+        best = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy1Sq) + dz0Sq;
     }
-    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + new_var) + temp_fs2 < var_fs0) {
-        var_fs0 = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + new_var) + temp_fs2;
+    if (((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy1Sq) + dz1Sq < best) {
+        best = ((((f32)arg3 - arg6) * ((f32)arg3 - arg6)) + dy1Sq) + dz1Sq;
     }
-    return sqrtf(var_fs0);
+    return sqrtf(best);
 }
 
 
 
-s32 clipPolyToBox(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, void *arg7) {
-    s16 sp88[0x24];
-    s16 sp40[0x24];
-    s32 sp3C;
+s32 clipPolyToBox(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s16 arg6, PlanePoly *arg7) {
+    s16 bufA[0x24];
+    s16 bufB[0x24];
+    s32 count;
     char pad;
 
-    clipPolyAgainstAxis((s16 *)((u8 *)arg7 + (arg0 << 6)), sp88, ((ClipPlane *)((u8 *)arg7 + (arg0 << 6)))->unk18, &sp3C, 0, arg1, 0);
-    if (sp3C == 0) {
-        return 0;
-        do {
-        } while (0);
-    }
-    clipPolyAgainstAxis(sp88, sp40, sp3C, &sp3C, 0, arg4, 1);
-    if (sp3C == 0) {
+    clipPolyAgainstAxis(arg7[arg0].v, bufA, arg7[arg0].type, &count, 0, arg1, 0);
+    if (count == 0) {
         return 0;
     }
-    clipPolyAgainstAxis(sp40, sp88, sp3C, &sp3C, 1, arg2, 0);
-    if (sp3C == 0) {
+    clipPolyAgainstAxis(bufA, bufB, count, &count, 0, arg4, 1);
+    if (count == 0) {
         return 0;
     }
-    clipPolyAgainstAxis(sp88, sp40, sp3C, &sp3C, 1, arg5, 1);
-    if (sp3C == 0) {
+    clipPolyAgainstAxis(bufB, bufA, count, &count, 1, arg2, 0);
+    if (count == 0) {
         return 0;
     }
-    clipPolyAgainstAxis(sp40, sp88, sp3C, &sp3C, 2, arg3, 0);
-    if (sp3C == 0) {
+    clipPolyAgainstAxis(bufA, bufB, count, &count, 1, arg5, 1);
+    if (count == 0) {
         return 0;
     }
-    clipPolyAgainstAxis(sp88, sp40, sp3C, &sp3C, 2, arg6, 1);
-    if (sp3C != 0) {
+    clipPolyAgainstAxis(bufB, bufA, count, &count, 2, arg3, 0);
+    if (count == 0) {
+        return 0;
+    }
+    clipPolyAgainstAxis(bufA, bufB, count, &count, 2, arg6, 1);
+    if (count != 0) {
         return 1;
     }
     return 0;
@@ -1315,7 +1262,7 @@ s32 clipPolyToBox(s32 arg0, s16 arg1, s16 arg2, s16 arg3, s16 arg4, s16 arg5, s1
 void clipPolyAgainstAxis(s16 *arg0, s16 *arg1, s32 arg2, s32 *arg3, u8 arg4, f64 arg5, u8 arg6) {
     s32 i;
     s16 *prev;
-    s16 sp60[3];
+    s16 hit[3];
     s16 *cur;
     s16 *last;
 
@@ -1330,13 +1277,13 @@ void clipPolyAgainstAxis(s16 *arg0, s16 *arg1, s32 arg2, s32 *arg3, u8 arg4, f64
                 if (clipVertexTestAxis(prev, arg4, arg5, arg6) != 0) {
                     clipVertexAppend(cur, arg3, arg1);
                 } else {
-                    clipEdgeIntersectAxis(prev, cur, arg4, arg5, sp60);
-                    clipVertexAppend(sp60, arg3, arg1);
+                    clipEdgeIntersectAxis(prev, cur, arg4, arg5, hit);
+                    clipVertexAppend(hit, arg3, arg1);
                     clipVertexAppend(cur, arg3, arg1);
                 }
             } else if (clipVertexTestAxis(prev, arg4, arg5, arg6) != 0) {
-                clipEdgeIntersectAxis(prev, cur, arg4, arg5, sp60);
-                clipVertexAppend(sp60, arg3, arg1);
+                clipEdgeIntersectAxis(prev, cur, arg4, arg5, hit);
+                clipVertexAppend(hit, arg3, arg1);
             }
             i++;
             cur += 3;
@@ -1408,21 +1355,9 @@ void clipEdgeIntersectAxis(s16 *arg0, s16 *arg1, u8 arg2, f64 arg3, s16 *arg4) {
     }
 }
 
-typedef struct Bsp_Plane {
-    /* 0x00 */ u8 pad0[0x4C];
-    /* 0x4C */ f32 unk4C;
-    /* 0x50 */ f32 unk50;
-    /* 0x54 */ f32 unk54;
-    /* 0x58 */ f32 unk58;
-    /* 0x5C */ s16 unk5C[3];
-    /* 0x62 */ s16 unk62[3];
-    /* 0x68 */ s16 unk68[3];
-} Bsp_Plane;
 
 
-
-#define arg0 ((Bsp_Plane *)arg0v)
-u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
+u8 mapBspPlaneSideTest(MapBspNode *arg0, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     f32 ea[3];
     f32 eb[3];
     f32 c[3];
@@ -1473,9 +1408,8 @@ u8 mapBspPlaneSideTest(void *arg0v, u8 *arg1, f32 arg2, f32 arg3, f32 arg4) {
     }
     return 1;
 }
-#undef arg0
 
-s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
+s32 mapBspPlaneDistanceCheck(MapBspNode *arg0, f32 arg1, f32 arg2, f32 arg3) {
     s32 pad[14];
     s32 i;
     f64 dot;
@@ -1507,7 +1441,7 @@ s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
     ny = arg0->unk50;
     nz = arg0->unk54;
     do {
-        dx = *(f32 *)((u8 *)D_807F5E20 + i * 12) - arg1;
+        dx = *(f32 *)((u8 *)D_807F5E20 + i * 12) - arg1; // FAKE: byte-offset corner address keeps base+offset addu order (Q0175)
         dy = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 4) - arg2;
         dz = *(f32 *)((u8 *)D_807F5E20 + i * 12 + 8) - arg3;
         if (dx) {}  // FAKE: lowers dx priority (extra block in its range)
@@ -1524,43 +1458,6 @@ s32 mapBspPlaneDistanceCheck(Bsp_Plane *arg0, f32 arg1, f32 arg2, f32 arg3) {
 }
 
 
-typedef struct MapChunkRecord {
-    /* 0x00 */ u8 unk0;
-    /* 0x01 */ u8 unk1;
-    /* 0x02 */ u8 pad2[6];
-    /* 0x08 */ s32 unk8;
-    /* 0x0C */ u8 padC[0x70];
-} MapChunkRecord; /* 0x7C */
-
-extern u8 sMapChunkAnimCount;
-extern MapChunkRecord *sMapChunkAnims;
-
-typedef struct RawGfxCmd {
-    u32 unk0;
-    u32 unk4;
-} RawGfxCmd;
-
-RawGfxCmd *mapChunkEmitSegmentCommands(arg0, arg1)
-RawGfxCmd *arg0;
-u8 arg1;
-{
-    RawGfxCmd *q;
-    MapChunkRecord *c;
-    s32 i;
-    s32 sel;
-
-    for (i = 0; i < sMapChunkAnimCount; i++) {
-        sel = arg1;
-        c = (MapChunkRecord *)((u8 *)sMapChunkAnims + i * 0x7C);
-        if (sel == c->unk1) {
-            q = arg0++;
-            q->unk0 = ((c->unk0 * 4) & 0xFFFF) | 0xDB060000;
-            q->unk4 = sMapChunkAnims[i].unk8;
-        }
-    }
-    return arg0;
-}
-
 typedef struct MapChunkAnim {
     /* 0x00 */ u8 unk0;
     /* 0x01 */ u8 unk1;
@@ -1569,46 +1466,65 @@ typedef struct MapChunkAnim {
     /* 0x04 */ u8 unk4;
     /* 0x05 */ u8 unk5;
     /* 0x06 */ u8 pad6[2];
-    /* 0x08 */ s32 unk8;
+    /* 0x08 */ void *unk8;
     /* 0x0C */ s32 unkC[1];
     /* 0x10 */ u8 pad10[0x6C];
 } MapChunkAnim; /* 0x7C */
 
-void assetFreeBuffer(s32, s32, s32); // FAKE: callee prototype steer
+extern u8 sMapChunkAnimCount;
+extern MapChunkAnim *sMapChunkAnims;
+
+typedef struct RawGfxCmd {
+    u32 unk0;
+    u32 unk4;
+} RawGfxCmd;
+
+RawGfxCmd *mapChunkEmitSegmentCommands(RawGfxCmd *arg0, u8 arg1) {
+    RawGfxCmd *q;
+    s32 i;
+
+    for (i = 0; i < sMapChunkAnimCount; i++) {
+        if (arg1 == sMapChunkAnims[i].unk1) {
+            q = arg0++;
+            q->unk0 = ((sMapChunkAnims[i].unk0 * 4) & 0xFFFF) | 0xDB060000;
+            q->unk4 = (u32)sMapChunkAnims[i].unk8;
+        }
+    }
+    return arg0;
+}
+
 s32 assetLoad(s32, s32, s32, s32);  // FAKE: callee prototype steer
 
-#define MAP_CHUNK_ANIM ((MapChunkAnim *)sMapChunkAnims)[i]
 
 void mapChunkAnimateTextures(u8 arg0) {
     s32 i;
     s32 flag;
 
     for (i = 0; i < sMapChunkAnimCount; i++) {
-        if (arg0 == MAP_CHUNK_ANIM.unk1) {
+        if (arg0 == sMapChunkAnims[i].unk1) {
             flag = 0;
-            MAP_CHUNK_ANIM.unk4++;
-            if (MAP_CHUNK_ANIM.unk4 == MAP_CHUNK_ANIM.unk2) {
-                MAP_CHUNK_ANIM.unk4 = 0;
-                MAP_CHUNK_ANIM.unk5++;
-                if (MAP_CHUNK_ANIM.unk5 == MAP_CHUNK_ANIM.unk3) {
-                    MAP_CHUNK_ANIM.unk5 = 0;
+            sMapChunkAnims[i].unk4++;
+            if (sMapChunkAnims[i].unk4 == sMapChunkAnims[i].unk2) {
+                sMapChunkAnims[i].unk4 = 0;
+                sMapChunkAnims[i].unk5++;
+                if (sMapChunkAnims[i].unk5 == sMapChunkAnims[i].unk3) {
+                    sMapChunkAnims[i].unk5 = 0;
                 }
                 flag = 1;
             }
-            if (MAP_CHUNK_ANIM.unk8 == 0) {
+            if (sMapChunkAnims[i].unk8 == NULL) {
                 flag = 1;
             }
             if (flag) {
-                if (MAP_CHUNK_ANIM.unk8 != 0) {
-                    assetFreeBuffer(MAP_CHUNK_ANIM.unk8, 0x7E3, 5);
+                if (sMapChunkAnims[i].unk8 != NULL) {
+                    assetFreeBuffer(sMapChunkAnims[i].unk8, 0x7E3, 5);
                 }
-                MAP_CHUNK_ANIM.unk8 = assetLoad(7, MAP_CHUNK_ANIM.unkC[MAP_CHUNK_ANIM.unk5], 0, 0);
+                sMapChunkAnims[i].unk8 = (void *)assetLoad(7, sMapChunkAnims[i].unkC[sMapChunkAnims[i].unk5], 0, 0);
             }
         }
     }
 }
 
-#undef MAP_CHUNK_ANIM
 
 
 
@@ -1617,9 +1533,9 @@ void mapChunkFreeHiddenBuffers(void) {
 
     for (i = 0; i < sMapChunkAnimCount; i++) {
         if (mapChunkIsVisible(sMapChunkAnims[i].unk1) == 0) {
-            if (sMapChunkAnims[i].unk8 != 0) {
+            if (sMapChunkAnims[i].unk8 != NULL) {
                 assetFreeBuffer(sMapChunkAnims[i].unk8, 0x7FB, 5);
-                sMapChunkAnims[i].unk8 = 0;
+                sMapChunkAnims[i].unk8 = NULL;
             }
         }
     }
@@ -1657,7 +1573,6 @@ typedef struct MapFileHeader {
     /* 0x48 */ s32 unk48;
 } MapFileHeader;
 
-#define MAP_HDR ((MapFileHeader *)arg0)
 
 extern f32 gGfxFarClip;
 extern s32 D_807FB5E0;
@@ -1683,7 +1598,7 @@ extern s32 sMapSoundEmitters;
 void renderSetSegment6Override(u8);  // FAKE: callee prototype steer
 struct MapRelocNode;
 
-void mapHeaderLoad(s32 arg0) {
+void mapHeaderLoad(MapFileHeader *arg0) {
     s32 off30;
     s32 off34;
     s32 off38;
@@ -1691,64 +1606,63 @@ void mapHeaderLoad(s32 arg0) {
     s32 off40;
     s32 off48;
     s32 pad[5];
-    s32 sp28;
+    s32 effectSlotCount;
 
     D_807F5DE0 = (u8 *)arg0;
-    sp28 = 0;
+    effectSlotCount = 0;
     D_807F5FDC = cosApprox(0.7853981853f);
-    fogSetParams(MAP_HDR->unk8 & 1);
-    renderSetSegment6Override((MAP_HDR->unk8 >> 1) & 1);
-    gGfxFarClip = MAP_HDR->unkA;
-    D_807FB5E0 = MAP_HDR->unk14 << 3;
-    D_807FB5E4 = MAP_HDR->unk16 << 3;
-    D_807FB5E8 = MAP_HDR->unk10;
-    D_807FB5EA = MAP_HDR->unk12;
-    D_807F9450 = MAP_HDR->unk1C;
-    D_807F9452 = MAP_HDR->unk1E;
-    D_807F9454 = MAP_HDR->unk18;
-    D_807F9456 = MAP_HDR->unk1A;
-    D_807FD574 = MAP_HDR->unk20;
-    D_807FD576 = MAP_HDR->unk22;
-    D_807FD578 = MAP_HDR->unk24;
-    D_807F5FE4 = MAP_HDR->unk26;
-    D_807F5FE6 = MAP_HDR->unk28;
-    D_807F5FE8 = MAP_HDR->unk2A;
-    D_807F5FEA = MAP_HDR->unk2C;
-    off40 = MAP_HDR->unk40;
-    off30 = MAP_HDR->unk30;
-    off34 = MAP_HDR->unk34;
-    off38 = MAP_HDR->unk38;
-    off44 = MAP_HDR->unk44;
-    off48 = MAP_HDR->unk48;
+    fogSetParams(arg0->unk8 & 1);
+    renderSetSegment6Override((arg0->unk8 >> 1) & 1);
+    gGfxFarClip = arg0->unkA;
+    D_807FB5E0 = arg0->unk14 << 3;
+    D_807FB5E4 = arg0->unk16 << 3;
+    D_807FB5E8 = arg0->unk10;
+    D_807FB5EA = arg0->unk12;
+    D_807F9450 = arg0->unk1C;
+    D_807F9452 = arg0->unk1E;
+    D_807F9454 = arg0->unk18;
+    D_807F9456 = arg0->unk1A;
+    D_807FD574 = arg0->unk20;
+    D_807FD576 = arg0->unk22;
+    D_807FD578 = arg0->unk24;
+    D_807F5FE4 = arg0->unk26;
+    D_807F5FE6 = arg0->unk28;
+    D_807F5FE8 = arg0->unk2A;
+    D_807F5FEA = arg0->unk2C;
+    off40 = arg0->unk40;
+    off30 = arg0->unk30;
+    off34 = arg0->unk34;
+    off38 = arg0->unk38;
+    off44 = arg0->unk44;
+    off48 = arg0->unk48;
     D_807F5FD0 = *(s32 *)(D_807F5DE0 + off40) + 1;
     D_807F5FD4 = (s32 *)(D_807F5DE0 + off40 + 4);
     sMapSoundEmitterCount = *(s32 *)(D_807F5DE0 + off44);
     sMapSoundEmitters = (s32)(D_807F5DE0 + off44 + 4);
     sMapChunkAnimCount = *(s32 *)(D_807F5DE0 + off48);
-    sMapChunkAnims = (MapChunkRecord *)(D_807F5DE0 + off48 + 4);
+    sMapChunkAnims = (MapChunkAnim *)(D_807F5DE0 + off48 + 4);
     D_807F5DE4 = (MapBspNode *)(D_807F5DE0 + off30);
     D_807F5DE8 = (s32)(D_807F5DE0 + off38);
     D_807F5DEC = D_807F5DE0 + off34;
     lightSetTargetColor(1.0f, 1.0f, 1.0f, -1);
     lightCopyTargetColors(-1);
-    matrixCacheInit(MAP_HDR->unkE << 10);
+    matrixCacheInit(arg0->unkE << 10);
     mapTreeRelocate((struct MapRelocNode *)(s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off30), (s32)(D_807F5DE0 + off34));
     displayListResolveTextureImages(D_807F5DE0 + off34, D_807F5DE0 + off38);
     mapRelocateOffsetTable((s32)(D_807F5DE0 + off40));
     mapSurfaceEffectsReset();
-    mapNodeTreeInitSurfaceEffects((MapNodeEffects *)D_807F5DE4, &sp28);
-    mapOffsetSlotsInit(sp28);
-    D_807F5E60 = (MapVisNode *)mapTreeCloneShape((MapTreeLinks *)D_807F5DE4);
-    mapChunksInitFromMapData((void *)arg0);
-    collisionInitStaticCache((void *)arg0);
-    collisionBuildCellTable((void *)arg0);
-    effectWaterInitNodes((void *)arg0);
-    actorTargetTableLoad((void *)arg0);
-    triggerZoneInit((void *)arg0);
+    mapNodeTreeInitSurfaceEffects((MapNodeEffects *)D_807F5DE4, &effectSlotCount);
+    mapOffsetSlotsInit(effectSlotCount);
+    D_807F5E60 = mapTreeCloneShape(D_807F5DE4);
+    mapChunksInitFromMapData(arg0);
+    collisionInitStaticCache(arg0);
+    collisionBuildCellTable(arg0);
+    effectWaterInitNodes(arg0);
+    actorTargetTableLoad(arg0);
+    triggerZoneInit(arg0);
     func_8062F318();
 }
 
-#undef MAP_HDR
 
 void func_8062F318(void) {
     D_807F5FED = 1;
@@ -1782,7 +1696,7 @@ void displayListResolveTextureImages(RawGfxCmd *arg0, RawGfxCmd *arg1) {
 
     for (; arg0 != arg1; arg0++) {
         w = arg0->unk0;
-        if ((w >> 24) == (0, 0xFD)) {
+        if ((w >> 24) == (0, 0xFD)) { // FAKE: comma-wrapped constant and the empty statement below keep w/arg1 in s1 (Q0434)
             if (((arg0->unk4 << 4) >> 28) == 0) {
                 arg0->unk4 = assetLoad(0x19, arg0->unk4, 1, 0);
             }

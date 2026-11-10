@@ -2,15 +2,14 @@
 #ifndef PROTO_GLOBAL_2F550_H
 #define PROTO_GLOBAL_2F550_H
 #include "common.h"
-struct Bsp_Plane;
+#include "actor.h"
 struct MapBspNode;
 struct MapDistributeEntry;
+struct MapFileHeader;
 struct MapNodeEffects;
 struct MapRelocNode;
-struct MapTreeLinks;
 struct MapViewEntries;
 struct MapVisNode;
-struct MapVisNodeNew;
 struct PlanePoly;
 struct RawGfxCmd;
 #ifndef PROTO_SKIP_cameraStepAspectScale
@@ -59,7 +58,7 @@ void mapOffsetSlotsGetTargets(f32 *);
 void mapOffsetSlotsSetValues(f32 *);
 #endif
 #ifndef PROTO_SKIP_mapTreeCloneShape
-struct MapVisNodeNew *mapTreeCloneShape(struct MapTreeLinks *);
+struct MapVisNode *mapTreeCloneShape(struct MapBspNode *);
 #endif
 #ifndef PROTO_SKIP_func_8062BAE4
 void func_8062BAE4(void);
@@ -68,10 +67,10 @@ void func_8062BAE4(void);
 void func_8062BB2C(struct MapBspNode *, struct MapVisNode *, u8);
 #endif
 #ifndef PROTO_SKIP_func_8062BCC8
-u8 func_8062BCC8(void *, f32, f32, f32, s32);
+u8 func_8062BCC8(Actor *, f32, f32, f32, f32 *);
 #endif
 #ifndef PROTO_SKIP_func_8062BDB0
-u8 func_8062BDB0(void *, struct MapBspNode *, struct MapVisNode *, f32, f32, f32, s32);
+u8 func_8062BDB0(Actor *, struct MapBspNode *, struct MapVisNode *, f32, f32, f32, f32 *);
 #endif
 #ifndef PROTO_SKIP_playerViewsRender
 Gfx *playerViewsRender(Gfx *, s32);
@@ -83,7 +82,7 @@ void mapFrameBegin(s32);
 void mapFrameEnd(void);
 #endif
 #ifndef PROTO_SKIP_mapRenderPlayerView
-Gfx *mapRenderPlayerView(Gfx *, s32, s32, s32, f32, f32, f32, f32, f32, f32);
+Gfx *mapRenderPlayerView(Gfx *, f32, f32, f32, f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_viewportSetFromRect
 void viewportSetFromRect(s16 *, s32, s32, s32, s32);
@@ -119,7 +118,7 @@ void mapPurgeNodeList(s32, s16 *, u8);
 u8 mapTreePurgeNodeList(struct MapBspNode *, struct MapVisNode *, s32, s16 *, u8);
 #endif
 #ifndef PROTO_SKIP_mapDistributeEntries
-void mapDistributeEntries(struct MapBspNode *);
+void mapDistributeEntries(struct MapDistributeEntry *);
 #endif
 #ifndef PROTO_SKIP_mapTreeDistributeEntries
 void mapTreeDistributeEntries(struct MapBspNode *, struct MapVisNode *, struct MapDistributeEntry *);
@@ -134,13 +133,13 @@ s32 mapNodeBoxInFrustum(struct MapBspNode *, f32, f32, f32);
 void planeFromTwoPoints(f32, f32, f32, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapBspBoxInFrustum
-s32 mapBspBoxInFrustum(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, void *);
+s32 mapBspBoxInFrustum(s16, s16, s16, s16, s16, s16, f32, f32, f32, f32, struct PlanePoly *);
 #endif
 #ifndef PROTO_SKIP_boxMinCornerDistance
 f32 boxMinCornerDistance(s16, s16, s16, s16, s16, s16, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_clipPolyToBox
-s32 clipPolyToBox(s32, s16, s16, s16, s16, s16, s16, void *);
+s32 clipPolyToBox(s32, s16, s16, s16, s16, s16, s16, struct PlanePoly *);
 #endif
 #ifndef PROTO_SKIP_clipPolyAgainstAxis
 void clipPolyAgainstAxis(s16 *, s16 *, s32, s32 *, u8, f64, u8);
@@ -155,13 +154,13 @@ void clipVertexAppend(void *, s32 *, void *);
 void clipEdgeIntersectAxis(s16 *, s16 *, u8, f64, s16 *);
 #endif
 #ifndef PROTO_SKIP_mapBspPlaneSideTest
-u8 mapBspPlaneSideTest(void *, u8 *, f32, f32, f32);
+u8 mapBspPlaneSideTest(struct MapBspNode *, u8 *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapBspPlaneDistanceCheck
-s32 mapBspPlaneDistanceCheck(struct Bsp_Plane *, f32, f32, f32);
+s32 mapBspPlaneDistanceCheck(struct MapBspNode *, f32, f32, f32);
 #endif
 #ifndef PROTO_SKIP_mapChunkEmitSegmentCommands
-struct RawGfxCmd *mapChunkEmitSegmentCommands();
+struct RawGfxCmd *mapChunkEmitSegmentCommands(struct RawGfxCmd *, u8);
 #endif
 #ifndef PROTO_SKIP_mapChunkAnimateTextures
 void mapChunkAnimateTextures(u8);
@@ -170,7 +169,7 @@ void mapChunkAnimateTextures(u8);
 void mapChunkFreeHiddenBuffers(void);
 #endif
 #ifndef PROTO_SKIP_mapHeaderLoad
-void mapHeaderLoad(s32);
+void mapHeaderLoad(struct MapFileHeader *);
 #endif
 #ifndef PROTO_SKIP_func_8062F318
 void func_8062F318(void);
