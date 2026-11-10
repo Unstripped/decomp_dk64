@@ -1,6 +1,7 @@
 #include "common.h"
 #include "actor.h"
 #include "sched.h"
+#include "segment.h"
 #define PROTO_SKIP_vtxGradientSetColorA // FAKE: callee prototype steer
 #define PROTO_SKIP_vtxGradientSetColorB // FAKE: callee prototype steer
 #include "proto/boot/30E0.h"
@@ -99,7 +100,6 @@ extern u8 D_2000200[];
 
 extern s32 D_8000DDCC;
 extern s32 D_8000DDE4;
-extern u32 gSegmentTable[];
 
 extern u8 D_8074458B[][4];
 
@@ -407,7 +407,7 @@ u8 overlaySlot;
 }
 
 void mainSystemInit(void) {
-    D_8076A084 = gSegmentTable[0x49] - gSegmentTable[0x48];
+    D_8076A084 = gSegmentTable[12].romEnd - gSegmentTable[12].romStart;
     osCreateMesgQueue(&D_807655F0, &D_80765608, 0x32);
     osCreateMesgQueue(&D_807656D0, &D_807656E8, 0xC0);
     schedCreate(&gScheduler, &D_80765A00[0x810], 0x19, D_8074458B[osTvType + osTvType][0], 1);

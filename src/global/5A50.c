@@ -2,6 +2,7 @@
 #include "common.h"
 #undef alCSPSendMidi
 #include "audio_config.h"
+#include "segment.h"
 #include "proto/global/13A7A0.h"
 #include "proto/global/6710.h"
 #include "proto/global/13D170.h"
@@ -35,7 +36,6 @@ extern ALBank *D_8076D1FC;
 extern u16 D_8076BF30[];
 extern void *D_8076BF38[];
 extern s32 D_807452B0[];
-extern u32 gSegmentTable[];
 void alHeapInit(ALHeap *, u8 *, s32);
 void *heapAlloc(s32);
 void heapFree(u8 *);
@@ -72,19 +72,19 @@ void audioInit(void) {
     task.framesPerField = 2;
     task.cmdCount = 0xC00;
     audioThreadInit(&args, 0x14, &task);
-    len = gSegmentTable[0x5B] - gSegmentTable[0x5A];
+    len = gSegmentTable[15].romEnd - gSegmentTable[15].romStart;
     tmp = heapAlloc(0x38000);
-    dmaReadAssetDecompress(gSegmentTable[0x5A], tmp, &len, 0xD, 0, 2, 0);
+    dmaReadAssetDecompress(gSegmentTable[15].romStart, tmp, &len, 0xD, 0, 2, 0);
     bankA = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, len);
-    dmaReadAssetDecompress(gSegmentTable[0x5A], bankA, &len, 0xD, 0, 2, 0);
-    alBnkfNew(bankA, (u8 *)gSegmentTable[0x54]);
+    dmaReadAssetDecompress(gSegmentTable[15].romStart, bankA, &len, 0xD, 0, 2, 0);
+    alBnkfNew(bankA, (u8 *)gSegmentTable[14].romStart);
     D_8076D1FC = bankA->bankArray[0];
-    len = gSegmentTable[0x61] - gSegmentTable[0x60];
-    dmaReadAssetDecompress(gSegmentTable[0x60], tmp, &len, 0xD, 0, 2, 0);
+    len = gSegmentTable[16].romEnd - gSegmentTable[16].romStart;
+    dmaReadAssetDecompress(gSegmentTable[16].romStart, tmp, &len, 0xD, 0, 2, 0);
     heapFree(tmp);
     bankB = alHeapDBAlloc(NULL, 0, &D_8076D1E8, 1, len);
-    dmaReadAssetDecompress(gSegmentTable[0x60], bankB, &len, 0xD, 0, 2, 0);
-    alBnkfNew(bankB, (u8 *)gSegmentTable[0x66]);
+    dmaReadAssetDecompress(gSegmentTable[16].romStart, bankB, &len, 0xD, 0, 2, 0);
+    alBnkfNew(bankB, (u8 *)gSegmentTable[17].romStart);
     D_8076D1F8 = bankB->bankArray[0];
     seqp.maxVoices = 0x2C;
     seqp.maxEvents = 0x40;
