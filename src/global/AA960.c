@@ -626,7 +626,6 @@ typedef struct AA960ConfigInt {
     s32 unk4;
 } AA960ConfigInt;
 
-extern u8 gBossFightPhase;
 extern u32 gGameFrameCounter;
 f32 mathSinF(s16);
 
@@ -716,7 +715,7 @@ void actorPathCollectibleUpdate(void *spriteAsset) {
                 gCurrentActor->unk144 = 1;
             }
         }
-        if (gBossFightPhase == 4) {
+        if (gActorGlobalState.unk200 == 4) {
             effectSpawnBurstParticleCluster(gCurrentActor);
             sfxPlayAtPositionPooled(gCurrentActor->x, gCurrentActor->y, gCurrentActor->z, 0x2BF, 0xFF, 0x7F, 0x1E, 0, 0.0f, 0);
             actorDespawn(gCurrentActor);
@@ -791,7 +790,7 @@ void effectActorSparkleTick(void) {
         actorUpdateFloorContactAndTilt(gCurrentActor, 0);
     }
     actorUpdatePrevContactFlags(gCurrentActor);
-    if (flag != 0 && gBossFightPhase == 4 && gFrameCounter % 5 == 0) {
+    if (flag != 0 && gActorGlobalState.unk200 == 4 && gFrameCounter % 5 == 0) {
         idx = (randomNonNegative() >> 15) % 0xFF % 7;
         table = D_807504A4;
         effectSetCallback(&effectOrbitSourceUpdate);

@@ -682,7 +682,6 @@ void actorUpdatePeakHeight(Actor *actor) {
     }
 }
 
-extern u8 D_807FBC55;
 extern u8 gCurrentPlayerIndex;
 
 void actorUpdateArcBounds(Actor *actor) {
@@ -694,7 +693,7 @@ void actorUpdateArcBounds(Actor *actor) {
             actor->collisionHit = 0;
         }
         actor->hasArcBounds |= actorClearTargetAngle(actor, &actor->arcYawMin, &actor->arcYawMax, &arcFlags);
-        arcFlags |= D_807FBC55;
+        arcFlags |= gActorGlobalState.unkE5;
         if (arcFlags != 0) {
             if (!(actor->contactFlags & 0x10)) {
                 actor->contactFlags |= 0x10;
@@ -901,8 +900,6 @@ struct DamageReactionContext;
 extern struct DamageReactionContext *gActivePlayerState;
 #define PLAYER_STATE_VIEW ((ActorPlayerStateView *)gActivePlayerState)
 
-extern s32 D_807FBC08;
-extern s32 D_807FBC14;
 
 
 typedef struct ActorCollisionHit {
@@ -955,7 +952,9 @@ typedef struct ActorDispatchState {
     u8 unk91;
     s16 unk92;
     s16 unk94;
-    u8 pad96[0x32];
+    u8 pad96[2];
+    u8 unk98[0xC];
+    u8 unkA4[0x24];
     s32 unkC8;
     Actor *unkCC;
     s32 unkD0;
@@ -1209,8 +1208,8 @@ void actorDispatchCallbacks(Actor *actor) {
                     GSTATE.unk91 = 1;
                     GSTATE.unk92 = surfacePayload->unk0;
                     GSTATE.unk94 = surfacePayload->unk2;
-                    memcpy(&D_807FBC08, surfacePayload->unk4, 0xC);
-                    memcpy(&D_807FBC14, surfacePayload->unk10, 0x24);
+                    memcpy(GSTATE.unk98, surfacePayload->unk4, 0xC);
+                    memcpy(GSTATE.unkA4, surfacePayload->unk10, 0x24);
                     GSTATE.unkC8 = surfacePayload->unk34;
                     GSTATE.unkCC = node->source;
                     GSTATE.unkD0 = surfacePayload->unk38;
@@ -1296,7 +1295,6 @@ typedef struct DamageReactionContext {
 } DamageReactionContext;
 extern DamageReactionContext *gActivePlayerState;
 
-extern u8 D_807FBB85;
 extern s32 D_80720E2C;
 void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
     s32 reaction;
@@ -1305,7 +1303,7 @@ void playerHandleDamageReaction(Actor *actor, Actor *attacker, u8 heavy) {
     s32 pad;
     s32 damageLevel;
 
-    D_807FBB85 = 1;
+    gActorGlobalState.unk15 = 1;
     if (actor == gActivePlayerActor) {
         if (!(((DamageReactionPlayerEntry *)gPlayerSlots)[gActivePlayerState->playerIndex].unk2C0 == 2 && attacker != NULL && (attacker->collisionFlags & 2))) {
             reaction = 0x2E;
@@ -1425,8 +1423,6 @@ void actorCollisionEventsCancel(s32 node, u8 event) {
     }
 }
 
-extern u8 D_807FBC68[][0x40];
-extern u8 D_807FBC74[][0x40];
 
 
 
@@ -1505,11 +1501,11 @@ void actorDispatchCollisionResults(Actor *actor) {
     }
 
     if (gActorGlobalState.unk91 != 0) {
-        actorCollisionResolveSurfaceHit(actor, GSTATE.unkCC, &D_807FBC08, &D_807FBC14, GSTATE.unkC8, GSTATE.unkD0, GSTATE.unkD4, 1);
+        actorCollisionResolveSurfaceHit(actor, GSTATE.unkCC, GSTATE.unk98, GSTATE.unkA4, GSTATE.unkC8, GSTATE.unkD0, GSTATE.unkD4, 1);
     }
 
     for (i = 0; i < gActorGlobalState.unk1F8; i++) {
-        actorCollisionResolveSurfaceHit(actor, GSTATE.unkF8[i].unk3C, D_807FBC68[i], D_807FBC74[i], GSTATE.unkF8[i].unk30, GSTATE.unkF8[i].unk34, GSTATE.unkF8[i].unk38, 0);
+        actorCollisionResolveSurfaceHit(actor, GSTATE.unkF8[i].unk3C, GSTATE.unkF8[i].unk0, GSTATE.unkF8[i].unkC, GSTATE.unkF8[i].unk30, GSTATE.unkF8[i].unk34, GSTATE.unkF8[i].unk38, 0);
     }
 }
 

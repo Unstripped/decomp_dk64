@@ -1318,7 +1318,7 @@ extern u8 D_80720340;
 extern u8 D_8072038C;
 extern u32 gGameFrameCounter;
 extern s16 D_80750344;
-extern u8 D_807FBB85;
+extern ActorGlobalState gActorGlobalState;
 
 void projectileBounceParticleUpdate(void *effectCfg) {
     f32 radius;
@@ -1420,7 +1420,7 @@ void projectileBounceParticleUpdate(void *effectCfg) {
             PROJECTILE_BOUNCE_ACTOR->unkEC = PROJECTILE_BOUNCE_ACTOR->unkEC + 1;
         }
     }
-    if (PROJECTILE_BOUNCE_ACTOR->unkFC != 0 || state->unk12 == 1 || D_807FBB85 != 0) {
+    if (PROJECTILE_BOUNCE_ACTOR->unkFC != 0 || state->unk12 == 1 || gActorGlobalState.unk15 != 0) {
         effectSetDepth(1);
         effectSetDuration(1);
         if (PROJECTILE_BOUNCE_ACTOR->unk58 != 0x3B && state->unk13 != 0x63) {
@@ -1526,7 +1526,7 @@ void projectileSparkleUpdate(s32 silver) {
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 4.0f);
-    if ((G_SPARKLE_ACTOR->unk6A & 1) || (G_SPARKLE_ACTOR->unkFC != 0) || (D_807FBB85 != 0) || ((u32)(state->unk0 + 24) < gGameFrameCounter)) {
+    if ((G_SPARKLE_ACTOR->unk6A & 1) || (G_SPARKLE_ACTOR->unkFC != 0) || (gActorGlobalState.unk15 != 0) || ((u32)(state->unk0 + 24) < gGameFrameCounter)) {
         actorDespawn(gCurrentActor);
     }
 }
@@ -1611,7 +1611,6 @@ extern u8 D_80720020;
 extern u8 D_807202D0;
 extern s16 D_807502D0;
 extern f32 D_807502E4;
-extern ActorGlobalState gActorGlobalState;
 extern u8 D_807200EC;
 extern u8 gPlayerCount;
 extern u8 D_8072029C;
@@ -1744,7 +1743,7 @@ void projectileHomingUpdate(void) {
     if (flag ||
         actorGetFloorSnapped() != 0 ||
         ((G_PROJECTILE_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
-        D_807FBB85 != 0 ||
+        gActorGlobalState.unk15 != 0 ||
         (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(extra->unk0 + 1) < gGameFrameCounter)) {
         effectSetDepth(1);
         effectSetSpeed(0x1006E);
@@ -1816,7 +1815,7 @@ void projectileMultiplayerUpdate(void) {
     if (G_PROJECTILE_ACTOR->unkFD != 0 ||
         actorGetFloorSnapped() != 0 ||
         ((G_PROJECTILE_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
-        D_807FBB85 != 0 ||
+        gActorGlobalState.unk15 != 0 ||
         (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(extra->unk0 + 1) < gGameFrameCounter)) {
         if (D_80750AD0 == 0) {
             for (i = 0; i != 0xC; i += 2) {
@@ -2243,9 +2242,9 @@ void projectileBounceExplodeGreenUpdate(void) {
         G_PROJECTILE_BEAM_ACTOR->unkB8 = (f32)(((f64)G_PROJECTILE_BEAM_ACTOR->unkB8 / 3.0) * 2.5);
     }
     if ((G_PROJECTILE_BEAM_ACTOR->unk64 & 0x100) || outOfArc != 0) {
-        D_807FBB85 = 1;
+        gActorGlobalState.unk15 = 1;
     }
-    if (((G_PROJECTILE_BEAM_ACTOR->unk6A & 1) && state->unk4 == 4) || D_807FBB85 != 0) {
+    if (((G_PROJECTILE_BEAM_ACTOR->unk6A & 1) && state->unk4 == 4) || gActorGlobalState.unk15 != 0) {
         projectileSpawnExplosion();
         actorDespawn(gCurrentActor);
     }
@@ -2298,7 +2297,7 @@ void projectileBeamUpdate(void) {
     if (actorGetFloorSnapped() != 0 ||
         G_PROJECTILE_BEAM_ACTOR->unkFD != 0 ||
         ((G_PROJECTILE_BEAM_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
-        D_807FBB85 != 0 ||
+        gActorGlobalState.unk15 != 0 ||
         (G_PROJECTILE_BEAM_ACTOR->unk124->unk14 != 0.0f && (u32)(extra->unk0 + 1) < gGameFrameCounter)) {
         effectSetDepth(1);
         effectSetSpeed(0x1006E);
@@ -2367,7 +2366,7 @@ void projectileImpactExplosionUpdate(void) {
     actorUpdatePrevContactFlags(gCurrentActor);
     actorApplyVelocity(gCurrentActor);
     actorUpdateFloorContactAndTilt(gCurrentActor, 0.0f);
-    if (!gCurrentActor->state && (G_PROJECTILE_ACTOR->unkFD != 0 || (G_PROJECTILE_ACTOR->unk6A & 1) || D_807FBB85 != 0)) {
+    if (!gCurrentActor->state && (G_PROJECTILE_ACTOR->unkFD != 0 || (G_PROJECTILE_ACTOR->unk6A & 1) || gActorGlobalState.unk15 != 0)) {
         exploding = 1;
     } else if (gCurrentActor->state) {
         if (gCurrentActor->state++ == 2) {
@@ -2501,7 +2500,7 @@ void projectileRotatingUpdate(void) {
     if (G_PROJECTILE_ACTOR->unkFD != 0 ||
         actorGetFloorSnapped() != 0 ||
         ((G_PROJECTILE_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) ||
-        D_807FBB85 != 0 ||
+        gActorGlobalState.unk15 != 0 ||
         (G_PROJECTILE_ACTOR->unk124->unk14 != 0.0f && (u32)(extra->unk0 + 1) < gGameFrameCounter)) {
         effectSetDepth(1);
         effectSetSpeed(0x1006E);
@@ -2608,7 +2607,7 @@ void projectileMatrixRotationUpdate(void) {
         }
         break;
     }
-    if (((G_PROJECTILE_ROT_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) || D_807FBB85 != 0) {
+    if (((G_PROJECTILE_ROT_ACTOR->unk6A & 1) && collisionGetStateByte() == 1) || gActorGlobalState.unk15 != 0) {
         actorDespawn(gCurrentActor);
     }
     if (gPlayerCount >= 2) {
@@ -2676,7 +2675,7 @@ void projectileRotatingLightUpdate(f32 floorOffset, u8 variant) {
     lightSetFlags(1);
     lightAdd(G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, *(s32 *)&G_PROJECTILE_ROT_ACTOR->unk84, 0.0f, 0.0f, 0.0f, 80.0f, 0, red, green, blue);
     if (mode == 1) {
-        if (!extra->unk12 && ((G_PROJECTILE_ROT_ACTOR->unk6A & 1) || G_PROJECTILE_ROT_ACTOR->unkFD != 0 || D_807FBB85 != 0)) {
+        if (!extra->unk12 && ((G_PROJECTILE_ROT_ACTOR->unk6A & 1) || G_PROJECTILE_ROT_ACTOR->unkFD != 0 || gActorGlobalState.unk15 != 0)) {
             effectSetSpeed(0x1006E);
             effectSetCallback(effectLightPulseOscillate);
             effectCreateAtPosition(&D_8072006C, 1.2f, G_PROJECTILE_ROT_ACTOR->unk7C, G_PROJECTILE_ROT_ACTOR->unk80, G_PROJECTILE_ROT_ACTOR->unk84);
@@ -2775,8 +2774,8 @@ void projectileParticleSpawnerTick(void) {
         effectSetSpeed((s32)gCurrentActor);
         effectCreateAtPosition(&D_8071FC40, 0.3f, gCurrentActor->x, gCurrentActor->y, gCurrentActor->z);
     }
-    if (((G_PROJECTILE_PARTICLE_ACTOR->hasArcBounds != 0) && ((u32)(gGameFrameCounter - extra->unk0) >= 6)) || D_807FBB85 != 0) {
-        if ((D_807FBB85 != 0) && (extra->unk13 != 0xA)) {
+    if (((G_PROJECTILE_PARTICLE_ACTOR->hasArcBounds != 0) && ((u32)(gGameFrameCounter - extra->unk0) >= 6)) || gActorGlobalState.unk15 != 0) {
+        if ((gActorGlobalState.unk15 != 0) && (extra->unk13 != 0xA)) {
             effectSetDepth(1);
             effectSetSpeed(0x100D2);
             effectSetCallback(effectLightPulseOscillate);
@@ -2868,7 +2867,7 @@ void projectileHomingParticleUpdate(void) {
     }
     billboardSubmit(gCurrentActor, 0x3C8, 0x40, 0x40, 14, 14, 1, 150, 120, 0, 1.0f);
     i = 0;
-    if ((G_PROJECTILE_HOMING_ACTOR->unk6A & 1) || ((G_PROJECTILE_HOMING_ACTOR->hasArcBounds != 0) && ((u32)(gGameFrameCounter - *spawnFrame) >= 6)) || D_807FBB85 != 0) {
+    if ((G_PROJECTILE_HOMING_ACTOR->unk6A & 1) || ((G_PROJECTILE_HOMING_ACTOR->hasArcBounds != 0) && ((u32)(gGameFrameCounter - *spawnFrame) >= 6)) || gActorGlobalState.unk15 != 0) {
         do {
             jitterX = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
             jitterY = ((f64)((randomNonNegative() >> 15) % 8191) / 200.0) - 20.0;
@@ -3102,7 +3101,7 @@ void projectileChaseTargetUpdate(void) {
     if ((u32)(state->unk0 - 100) < gGameFrameCounter) {
         CHASE_ACTOR->unk60 &= ~0x80000;
     }
-    if (((u32)(state->unk0 + D_80750344) < gGameFrameCounter) || ((CHASE_ACTOR->unkFD != 0) && (CHASE_ACTOR->unk58 != 0xA9)) || (D_807FBB85 != 0)) {
+    if (((u32)(state->unk0 + D_80750344) < gGameFrameCounter) || ((CHASE_ACTOR->unkFD != 0) && (CHASE_ACTOR->unk58 != 0xA9)) || (gActorGlobalState.unk15 != 0)) {
         tagBarrelSpawnActorSmokePuffs(0, 1);
         sfxStopSlotSound(gCurrentActor, 0);
         actorDespawn(gCurrentActor);

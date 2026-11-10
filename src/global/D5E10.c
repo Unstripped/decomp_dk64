@@ -3029,7 +3029,6 @@ void playerStateCutsceneIdle(void) {
     actorUpdateModelMatrix(gCurrentActor, 0);
 }
 
-extern f32 D_807FBC58;
 extern f32 gKongHoldPutDownAngles[];
 
 extern u8 D_8071FC8C;
@@ -3187,8 +3186,8 @@ void playerStatePonytailTwirl(void) {
 
 void playerStateHoldMoveRamp(void) {
     f32 v;
-    if (D_807FBC58 != 0.0) {
-        v = D_807FBC58;
+    if (gActorGlobalState.unkE8 != 0.0) {
+        v = gActorGlobalState.unkE8;
     } else {
         v = gCurrentActor->speedXZ;
     }

@@ -25,7 +25,6 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
-extern u8 gBossFightPhase;
 
 // Actor view whose unk178 is a s16 array (behaviourArmadilloPatrol, behaviourArmadilloInitRollState, behaviourArmadilloAimAndShoot).
 typedef struct BDEE0ActorAlt {
@@ -372,7 +371,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
             BDEE0AA->unkF0 = BDEE0AA->unkF0 - 1;
         }
         if (tgt->unk155 != 0) {
-            if (tgt->unk155 == 1 && gBossFightPhase == 2 && actorIsTargetWithinAngleDeg(tgt, gPrimaryPlayerActor, 0x1F40) != 0) {
+            if (tgt->unk155 == 1 && gActorGlobalState.unk200 == 2 && actorIsTargetWithinAngleDeg(tgt, gPrimaryPlayerActor, 0x1F40) != 0) {
                 if (gPlayerSlots->unk2C0 == 1) {
                     playerStateQueueCallback(0x32, gCurrentActor, 0);
                 } else {
@@ -384,7 +383,7 @@ s32 behaviourArmadilloAimAndShoot(u8 action, s16 animId) {
                     actorScriptStart(tgt, var);
                     tgt->unk155 = 2;
                 }
-            } else if (gBossFightPhase == 4) {
+            } else if (gActorGlobalState.unk200 == 4) {
                 gBehaviourWorkState->unk16 = gBehaviourTargetActor->sub4->model->animId;
                 gCurrentActor->flags |= 0x20000000;
                 if (BDEE0AA->unkF0 == 0) {

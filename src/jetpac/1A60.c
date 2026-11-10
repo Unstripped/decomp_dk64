@@ -405,8 +405,6 @@ extern u8 D_8002F060[];
 extern s32 D_8002F064;
 extern s32 D_8002F068;
 extern s32 D_8002F080;
-extern JetpacExplosion D_8002F08C;
-extern s32 D_8002F094;
 extern JetpacSprite D_8002C330;
 extern JetpacSprite D_8002C348[];
 extern JetpacSprite D_8002C3A8[];
@@ -422,7 +420,7 @@ void jetpacDrawPlayer(void) {
     pad = 0;
     draw = 1;
     if (D_8002F064 >= 2) {
-        if (*(s32 *)&D_8002F060[4] == 4 && D_8002F094 >= 8) {
+        if (*(s32 *)&D_8002F060[4] == 4 && jetpacPlayer.player.explosion.timer >= 8) {
             draw = 0;
         }
         idx = jetpacGetAnimFrame(&jetpacPlayer.player);
@@ -449,18 +447,17 @@ void jetpacDrawPlayer(void) {
                 jetpacGridAddTiledSprite(&D_8002C348[idx], (s32)x, (s32)(y + 18.0f), color, D_8002F068);
             }
         }
-        if (D_8002F094 < 14) {
-            jetpacUpdateExplosion(&D_8002F08C);
+        if (jetpacPlayer.player.explosion.timer < 14) {
+            jetpacUpdateExplosion(&jetpacPlayer.player.explosion);
         }
     }
 }
 
-extern JetpacActor jetpacLasers[];
 void jetpacDrawLasers(void) {
     s32 i;
 
     for (i = 0; i < 4; i++) {
-        jetpacDrawLaser(&jetpacLasers[i]);
+        jetpacDrawLaser(&jetpacPlayer.lasers[i]);
     }
 }
 
@@ -499,7 +496,6 @@ void jetpacPlayerStateUpdate(void) {
 
 
 extern JetpacActor D_8002C518;
-extern s32 D_8002F084;
 extern s32 D_8002F088;
 
 void jetpacInitPlayer(void) {
@@ -526,22 +522,21 @@ void jetpacInitPlayer(void) {
     g->x = 126.0f;
     g->y = 160.0f;
     jetpacSetFlying(&jetpacPlayer.player, 0);
-    D_8002F084 = 3;
+    jetpacPlayer.player.ledge = 3;
     D_8002F088 = 4;
     {
         s32 i;
         for (i = 0; i < 4; i++) {
-            jetpacLasers[i] = tmpl;
+            jetpacPlayer.lasers[i] = tmpl;
         }
     }
 }
 
-extern s32 D_8002F07C;
 s32 jetpacIsSpawnDelay(void) {
     s32 ret = D_8002F064 == 1;
 
     if (ret) {
-        return D_8002F07C < 180;
+        return jetpacPlayer.player.timer < 180;
     }
 }
 

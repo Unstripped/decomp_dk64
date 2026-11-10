@@ -20,7 +20,6 @@
 extern Actor *gCurrentActor;
 extern Actor *gPrimaryPlayerActor;
 extern ActorGlobalState gActorGlobalState;
-extern u8 gBossFightPhase;
 
 // View of the current actor (gCurrentActor) with the fields func_806B5A90 and func_806B640C need typed.
 typedef struct BA790Actor {
@@ -55,13 +54,11 @@ typedef struct BA790Actor {
 
 #define BA790A ((BA790Actor *)gCurrentActor)
 
-extern u8 D_807FBB85;
 extern u8 gGameMode;
 extern s32 gFrameCounter;
 extern s16 D_80770628[];
 extern s16 D_80770710[];
 extern s32 gCamActor;
-extern BA790Actor *D_807FBD6C;
 extern u8 D_80720630;
 
 
@@ -81,7 +78,7 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     } else {
         diff = BA790A->unkEE - BA790A->unkE6;
     }
-    if (gBossFightPhase == 9 || D_807FBB85 != 0) {
+    if (gActorGlobalState.unk200 == 9 || gActorGlobalState.unk15 != 0) {
         if (gCurrentActor->state != 0x37 && gCurrentActor->state != 0x38) {
             switch (gCurrentActor->actorType) {
             case 0xAF:
@@ -118,9 +115,9 @@ s32 func_806B5A90(s32 aggroRange, s32 unused) {
     }
     switch (gCurrentActor->state) {
     case 0x33:
-        if (gBossFightPhase == 2) {
+        if (gActorGlobalState.unk200 == 2) {
             BA790A->unkC0 = 150.0f;
-            BA790A->unkEE = D_807FBD6C->unkEE;
+            BA790A->unkEE = gActorGlobalState.targetActor->moveYaw;
         }
         if (BA790A->unk155) {
             x = 0;
