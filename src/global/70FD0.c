@@ -10,6 +10,7 @@
 #include "proto/global/36880.h"
 #include "proto/global/5E020.h"
 #include "proto/global/6AD90.h"
+#define PROTO_SKIP_actorSetTargetAngleAndCheck
 #include "proto/global/70FD0.h"
 #include "proto/global/79890.h"
 #include "proto/global/7BBD0.h"
@@ -62,7 +63,7 @@ typedef struct CollisionBox {
 extern s32 gFrameCounter;
 extern BufferCacheEntry *D_807FB534;
 extern s32 D_807FB538;
-extern s32 D_807FB540;
+extern Actor *D_807FB540;
 extern s16 D_807FB544;
 extern u8 D_807FB546;
 extern u8 D_807FB549;
@@ -1548,7 +1549,7 @@ void actorSub140TransformTriangles(ActorSub140 *arg0) {
     }
 }
 
-u8 actorSetTargetAngleAndCheck(s32 arg0, s16 arg1) {
+u8 actorSetTargetAngleAndCheck(Actor *arg0, s16 arg1) {
     s16 arcMin;
     s16 arcMax;
     s8 actorHit;
