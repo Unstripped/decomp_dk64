@@ -5,7 +5,6 @@
 #include "actor.h"
 struct CamActor;
 struct CamPathData;
-struct CamState;
 #ifndef PROTO_SKIP_camCueTimerIsRunning
 u8 camCueTimerIsRunning(void);
 #endif
