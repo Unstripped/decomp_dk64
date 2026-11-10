@@ -3,92 +3,85 @@
 #define PROTO_GLOBAL_112080_H
 #include "common.h"
 #include "actor.h"
-struct M112bFreeEntry;
-struct M112bRecord;
-struct M112bRecordList;
-struct M112bRecordListArray;
-struct M112bRecordListHolder;
-struct S112a2ItemList;
-struct S112a2Record;
-struct S112aFreeNode;
-struct S112aItemList;
-struct S112aListNode;
-struct S112aParsedList;
-struct S112bGridOwner;
-struct S112bGridRequest;
-struct S112bNodeList;
-struct S112dContainer;
+struct ResItem;
+struct ResItemList;
+struct ResNode;
+struct ResParsedList;
+struct ResQueueActorState;
+struct ResQueueLink;
+struct ResRecord;
+struct ResRow;
 #ifndef PROTO_SKIP_streamReadBytes
 void streamReadBytes(s32, void *, s32 *);
 #endif
 #ifndef PROTO_SKIP_resParseRecord
-void resParseRecord(struct S112a2Record *, s32 *);
+void resParseRecord(struct ResRecord *, s32 *);
 #endif
 #ifndef PROTO_SKIP_resParseVariant
-void resParseVariant(void *, s32 *);
+void resParseVariant(struct ResItem *, s32 *);
 #endif
 #ifndef PROTO_SKIP_resParseItem
-void resParseItem(struct S112a2ItemList *, s32 *);
+void resParseItem(struct ResItemList *, s32 *);
 #endif
 #ifndef PROTO_SKIP_resParseItemList
-void resParseItemList(struct S112aItemList *, s32 *);
+void resParseItemList(struct ResParsedList *, s32 *);
 #endif
 #ifndef PROTO_SKIP_resParseList
-struct S112aParsedList *resParseList(s32);
+struct ResParsedList *resParseList(s32);
 #endif
 #ifndef PROTO_SKIP_resQueueGetOrCreate
-void *resQueueGetOrCreate(void *);
+struct ResQueueLink *resQueueGetOrCreate(Actor *);
 #endif
 #ifndef PROTO_SKIP_resQueueAddEntry
-void resQueueAddEntry(struct S112dContainer *, u16, u8);
+void resQueueAddEntry(struct ResQueueLink *, u16, u8);
 #endif
 #ifndef PROTO_SKIP_resQueueAttachActor
 void resQueueAttachActor(Actor *, s32, u8);
 #endif
 #ifndef PROTO_SKIP_resNodeFindById
-struct S112aListNode *resNodeFindById(u16);
+struct ResNode *resNodeFindById(u16);
 #endif
 #ifndef PROTO_SKIP_resNodeDecRef
-void resNodeDecRef();
+void resNodeDecRef(u16);
 #endif
 #ifndef PROTO_SKIP_resNodeFree
-void resNodeFree(struct S112aFreeNode *);
+void resNodeFree(struct ResRow *);
 #endif
 #ifndef PROTO_SKIP_resNodeListFree
-void resNodeListFree(struct S112bNodeList *);
+void resNodeListFree(struct ResQueueActorState *);
 #endif
 #ifndef PROTO_SKIP_resQueueRemove
 void resQueueRemove(Actor *);
 #endif
 #ifndef PROTO_SKIP_resFreeEntry
-void resFreeEntry(struct M112bFreeEntry *);
+void resFreeEntry(struct ResRecord *);
 #endif
 #ifndef PROTO_SKIP_resFreeRecord
-void resFreeRecord(struct M112bRecord *);
+void resFreeRecord(struct ResItem *);
 #endif
 #ifndef PROTO_SKIP_resFreeRecordList
-void resFreeRecordList(struct M112bRecordList *);
+void resFreeRecordList(struct ResItemList *);
 #endif
 #ifndef PROTO_SKIP_resFreeRecordListArray
-void resFreeRecordListArray(struct M112bRecordListArray *);
+void resFreeRecordListArray(struct ResParsedList *);
 #endif
 #ifndef PROTO_SKIP_resFreeRecordListHolder
-void resFreeRecordListHolder(struct M112bRecordListHolder *);
+void resFreeRecordListHolder(struct ResNode *);
 #endif
 #ifndef PROTO_SKIP_resListTick
 void resListTick(void);
 #endif
 #ifndef PROTO_SKIP_resNodeGetOrLoad
-struct S112aParsedList *resNodeGetOrLoad(u16, s32);
+struct ResParsedList *resNodeGetOrLoad(u16, s32);
 #endif
 #ifndef PROTO_SKIP_textLayoutAppendRows
-s32 textLayoutAppendRows(s32, s32, u16);
+void textLayoutAppendRows(struct ResQueueActorState *, u8 *, u16);
 #endif
 #ifndef PROTO_SKIP_textLayoutAppendCommandList
-void textLayoutAppendCommandList(s32, void *, void *);
+void textLayoutAppendCommandList(struct ResQueueActorState *, struct ResItem *, struct ResParsedList *);
 #endif
 #ifndef PROTO_SKIP_resGridBuildGroups
-void resGridBuildGroups(struct S112bGridOwner *, struct S112bGridRequest *, void *);
+void resGridBuildGroups(struct ResQueueActorState *, struct ResItem *, struct ResParsedList *);
 #endif
 #ifndef PROTO_SKIP_resApplyKind
 void resApplyKind(Actor *, u16, u8);
@@ -97,7 +90,7 @@ void resApplyKind(Actor *, u16, u8);
 char *textTableGetString(s32, s32, s32);
 #endif
 #ifndef PROTO_SKIP_resQueueProcessNext
-void resQueueProcessNext(Actor *, void *);
+void resQueueProcessNext(Actor *, Actor *);
 #endif
 #ifndef PROTO_SKIP_resListReset
 void resListReset(void);
