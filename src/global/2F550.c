@@ -9,6 +9,8 @@
 #include "proto/global/126260.h"
 #include "proto/global/136820.h"
 #include "proto/global/15050.h"
+#define PROTO_SKIP_mapPurgeNodeList
+s32 mapPurgeNodeList(s32, s16 *, u8);
 #include "proto/global/2F550.h"
 #include "proto/global/35000.h"
 #include "proto/global/36880.h"
@@ -939,8 +941,8 @@ void func_8062D26C(s32 arg0) {
 }
 
 
-void mapPurgeNodeList(s32 arg0, s16 *arg1, u8 arg2) {
-    mapTreePurgeNodeList(D_807F5DE4, D_807F5E60, arg0, arg1, arg2);
+s32 mapPurgeNodeList(s32 arg0, s16 *arg1, u8 arg2) {
+    return mapTreePurgeNodeList(D_807F5DE4, D_807F5E60, arg0, arg1, arg2);
 }
 
 
