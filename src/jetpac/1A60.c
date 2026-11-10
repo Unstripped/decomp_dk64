@@ -420,7 +420,7 @@ void jetpacDrawPlayer(void) {
     pad = 0;
     draw = 1;
     if (D_8002F064 >= 2) {
-        if (*(s32 *)&D_8002F060[4] == 4 && jetpacPlayer.player.explosion.timer >= 8) {
+        if (*(s32 *)&D_8002F060[4] == 4 && jetpacPlayer.player.explosion.timer >= 8) { // FAKE: punned re-read of player.state forces a second load (plain D_8002F064 is CSE'd)
             draw = 0;
         }
         idx = jetpacGetAnimFrame(&jetpacPlayer.player);
