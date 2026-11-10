@@ -1,7 +1,5 @@
 #include "common.h"
 #include "actor.h"
-#define PROTO_SKIP_camSetZoomLevel // PROTO: The number of arguments doesn't agree with the number in the
-#define PROTO_SKIP_modelSlotGetType // PROTO: The number of arguments doesn't agree with the number in the
 #define PROTO_SKIP_playerResumeLocomotionDecel // PROTO: Type Actor *  of this argument  is incompatible with type vo
 #include "sched.h"
 #define PROTO_SKIP_mathAngleBetweenPoints2D // FAKE: callee prototype steer
@@ -1074,10 +1072,7 @@ f32 sinApprox(f32);
 extern s16 D_80753E64[];
 
 
-void playerFireWeapon(isFirstPerson, force)
-u8 isFirstPerson;
-u8 force;
-{
+void playerFireWeapon(u8 isFirstPerson, u8 force) {
     s16 spawnId;
     f32 scale;
     u16 sfx;
@@ -2076,7 +2071,6 @@ void playerInputCheckInstrumentPlayback(void) {
     }
 }
 
-s32 modelSlotGetType();
 
 u8 playerInputCheckTargetMoved(Actor *mob) {
     f32 dx;
@@ -2115,7 +2109,7 @@ int func_806E560C(Actor *mob) {
 
     ret = 0;
     if (mob->attachMode == 1) {
-        switch (modelSlotGetType(mob->cutsceneId, mob)) {
+        switch (modelSlotGetType(mob->cutsceneId)) {
             case 0xA8:
                 if (mob->actorType == 2) {
                     ret = 1;
@@ -2153,7 +2147,7 @@ extern u8 D_8076A0B2;
 extern f32 D_807536AC[];
 extern u8 D_8072014C[];
 
-s32 playerInputCheckMultiplayerPlayerTarget() {
+s32 playerInputCheckMultiplayerPlayerTarget(void) {
     s32 i;
 
     if (gActorGlobalState.unk2 != 0) {
@@ -3535,7 +3529,7 @@ s32 playerInputPostUpdate(void) {
     return ret;
 }
 
-void func_806E9804(callbackId) s16 callbackId; {
+void func_806E9804(s16 callbackId) {
     if (flagGet(0x179, 0)) {
         if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 4) {
             func_806E9D1C(callbackId, 0xB, 0);
@@ -3596,8 +3590,6 @@ void func_806E9B3C(void) {
 
 
 void func_806E9BA8(s32 newState) {
-    PlayerStruct *cam;
-
     if (gPlayerPadState[gCurrentPlayerIndex].pressedButtons & 0x4000) {
         if (!(gActivePlayerState->stateFlags & 0x8000)) {
             if (slotQueueGetValue(6, gCurrentPlayerIndex) > 0) {
@@ -3605,8 +3597,7 @@ void func_806E9BA8(s32 newState) {
                 gCurrentActor->state = newState;
                 gCurrentActor->unk155 = 0;
                 slotQueueAddValue(6, gCurrentPlayerIndex, -1);
-                cam = (PlayerStruct *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0); // FAKE: byte-offset slot pointer keeps the multu stride (Q0303)
-                lightAdd(cam->camX, cam->camY, cam->camZ, cam->focusX, cam->focusY, cam->focusZ, 0.0f, 1, 0xFF, 0xFF, 0xFF);
+                lightAdd(gPlayerSlots[gCurrentPlayerIndex].camX, gPlayerSlots[gCurrentPlayerIndex].camY, gPlayerSlots[gCurrentPlayerIndex].camZ, gPlayerSlots[gCurrentPlayerIndex].focusX, gPlayerSlots[gCurrentPlayerIndex].focusY, gPlayerSlots[gCurrentPlayerIndex].focusZ, 0.0f, 1, 0xFF, 0xFF, 0xFF);
             }
         }
     }
@@ -3621,7 +3612,7 @@ void func_806E9CFC(void) {
 }
 
 
-s32 func_806E9D1C(callbackId, param1, param2) s16 callbackId; u8 param1; u8 param2; {
+s32 func_806E9D1C(s16 callbackId, u8 param1, u8 param2) {
     if (((gPlayerCount < 2) || (gSplitScreenMode != 1)) && (gScreenFadeProgress == 0.0f) && (gCurrentActor->floorSlopeFactor == 0.0f)) {
         playerStateSetCallbackParameters(gCurrentPlayerIndex, param1, param2, 0);
         playerStateQueueCallback(callbackId, 0, gCurrentPlayerIndex);
@@ -3705,7 +3696,6 @@ void func_806EA04C(void) {
     }
 }
 
-void camSetZoomLevel();
 
 void playerInputCycleCameraZoom(void) {
     G31State *state;
@@ -3726,7 +3716,7 @@ void playerInputCycleCameraZoom(void) {
         } else {
             state->unkEF = 1;
         }
-        camSetZoomLevel(gActivePlayerState->camActor, state->unkEF, &gActivePlayerState);
+        camSetZoomLevel(gActivePlayerState->camActor, state->unkEF);
         state->unkEE = state->unkEF;
         if ((state->unkEF != state->unkF0) && ((state->unk8 == 0) || (state->unk8 >= 0x96)) && (state->unkF3 != 2)) {
             sfxPlayOnFreeSlot(0x27, 0x7FFF, 63.0f, 1.0f, 0, 0);
@@ -3764,39 +3754,35 @@ f32 aimStickSpeedScale(void) {
 void cameraZoomIn(void) {
     f32 limit;
     f32 next;
-    PlayerStruct *cam;
     s32 buttons;
 
     buttons = gPlayerPadState[gCurrentPlayerIndex].heldButtons;
     if (!(buttons & 0x2000) && !(buttons & 2) && (gCurrentActor->state == 2)) {
         limit = (gCurrentMap == 0x22) ? 15.0 : 13.0;
-        cam = (PlayerStruct *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0); // FAKE: byte-offset slot pointer keeps the multu stride (Q0303)
-        next = cam->fov - 1.5f;
+        next = gPlayerSlots[gCurrentPlayerIndex].fov - 1.5f;
         if (limit < next) {
-            cam->fov = next;
+            gPlayerSlots[gCurrentPlayerIndex].fov = next;
             sfxPlayActorSound(gCurrentActor, 0x1F0, 0, 0, 0, 0xFF, 1.0f, -1);
             return;
         }
-        cam->fov = limit;
+        gPlayerSlots[gCurrentPlayerIndex].fov = limit;
         sfxStopSlotSound(gCurrentActor, 0);
     }
 }
 
 void cameraZoomOut(void) {
     f32 next;
-    PlayerStruct *cam;
     s32 buttons;
 
     buttons = gPlayerPadState[gCurrentPlayerIndex].heldButtons;
     if (!(buttons & 0x2000) && !(buttons & 1) && (gCurrentActor->state == 2)) {
-        cam = (PlayerStruct *)((u8 *)gPlayerSlots + gCurrentPlayerIndex * 0x2F0); // FAKE: byte-offset slot pointer keeps the multu stride (Q0303)
-        next = cam->fov + 1.5f;
+        next = gPlayerSlots[gCurrentPlayerIndex].fov + 1.5f;
         if (next < 45.0) {
-            cam->fov = next;
+            gPlayerSlots[gCurrentPlayerIndex].fov = next;
             sfxPlayActorSound(gCurrentActor, 0x1F0, 0, 0, 0, 0xFF, 1.0f, -1);
             return;
         }
-        cam->fov = 45.0f;
+        gPlayerSlots[gCurrentPlayerIndex].fov = 45.0f;
         sfxStopSlotSound(gCurrentActor, 0);
     }
 }

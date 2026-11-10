@@ -123,7 +123,7 @@ void playerInputCheckBButtonChargeCallback(void);
 void playerInputHandleAButtonState61(void);
 #endif
 #ifndef PROTO_SKIP_playerFireWeapon
-void playerFireWeapon();
+void playerFireWeapon(u8, u8);
 #endif
 #ifndef PROTO_SKIP_actorTestNodeSegmentCollision
 u8 actorTestNodeSegmentCollision(void *);
@@ -252,7 +252,7 @@ u8 playerInputCheckTargetMoved(Actor *);
 int func_806E560C(Actor *);
 #endif
 #ifndef PROTO_SKIP_playerInputCheckMultiplayerPlayerTarget
-s32 playerInputCheckMultiplayerPlayerTarget();
+s32 playerInputCheckMultiplayerPlayerTarget(void);
 #endif
 #ifndef PROTO_SKIP_playerInputStartTransitionToMap
 void playerInputStartTransitionToMap(s32, s32, s32);
@@ -465,7 +465,7 @@ void func_806E9468(void);
 s32 playerInputPostUpdate(void);
 #endif
 #ifndef PROTO_SKIP_func_806E9804
-void func_806E9804();
+void func_806E9804(s16);
 #endif
 #ifndef PROTO_SKIP_func_806E9874
 void func_806E9874(void);
@@ -495,7 +495,7 @@ void func_806E9CDC(void);
 void func_806E9CFC(void);
 #endif
 #ifndef PROTO_SKIP_func_806E9D1C
-s32 func_806E9D1C();
+s32 func_806E9D1C(s16, u8, u8);
 #endif
 #ifndef PROTO_SKIP_playerInputHandleCUpCameraZoomIn
 void playerInputHandleCUpCameraZoomIn(void);
