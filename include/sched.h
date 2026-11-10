@@ -91,10 +91,12 @@ typedef struct {
     /* 0x27C */ f32 fov;
     /* 0x280 */ f32 unk280;
     /* 0x284 */ f32 unk284;
-    /* 0x288 */ u8 pad288[4];
+    /* 0x288 */ f32 farClip;
     /* 0x28C */ f32 prevFov;
     /* 0x290 */ s16 unk290;
-    /* 0x292 */ u8 pad292[0x29C - 0x292];
+    /* 0x292 */ u8 pad292[2];
+    /* 0x294 */ OSContPad *contPad;
+    /* 0x298 */ u16 *heldButtonsPtr;
     s16 queuedState;
     u8 pad29E[2];
     struct Actor *queuedActor;
@@ -112,7 +114,8 @@ typedef struct {
     /* 0x2C8 */ s16 unk2C8;
     /* 0x2CA */ u8 pad2CA[6];
     /* 0x2D0 */ f32 unk2D0;
-    /* 0x2D4 */ u8 pad2D4[0x2E2 - 0x2D4];
+    /* 0x2D4 */ u8 pad2D4[0x2DC - 0x2D4];
+    /* 0x2DC */ u8 unk2DC[0x2E2 - 0x2DC];
     /* 0x2E2 */ u16 unk2E2;
     /* 0x2E4 */ u8 pad2E4[4];
     /* 0x2E8 */ u8 unk2E8;

@@ -348,10 +348,11 @@ typedef struct Actor {
     /* 0x0C8 */ f32 terminalSpeedY;
     /* 0x0CC */ u8 floorNodeId;
     /* 0x0CD */ u8 unkCD;
-    /* 0x0CE */ u8 padCE[2];
+    /* 0x0CE */ s16 unkCE;
     /* 0x0D0 */ u8 floorSurfaceType;
     /* 0x0D1 */ u8 floorSlopeType;
-    /* 0x0D2 */ u8 padD2[6];
+    /* 0x0D2 */ u8 padD2[2];
+    /* 0x0D4 */ void *unkD4;
     /* 0x0D8 */ s16 floorTiltYaw;
     /* 0x0DA */ s16 floorTiltPitch;
     /* 0x0DC */ s16 floorSlopeYaw;
@@ -398,7 +399,8 @@ typedef struct Actor {
     /* 0x144 */ u8 unk144;
     /* 0x145 */ u8 unk145;
     /* 0x146 */ s16 unk146;
-    /* 0x148 */ u8 unk148[8];
+    /* 0x148 */ void *unk148;
+    /* 0x14C */ void *unk14C;
     /* 0x150 */ struct CollisionStaticTri *floorTriangle;
     /* 0x154 */ u8 state;
     /* 0x155 */ u8 unk155;
@@ -556,7 +558,7 @@ typedef struct PlayerState {
     /* 0x014 */ s16 pitchAngle;
     /* 0x016 */ s16 homingStrength;
     /* 0x018 */ s16 unk18;
-    /* 0x01A */ u8 pad1A[2];
+    /* 0x01A */ u16 unk1A;
     /* 0x01C */ f32 slideSpeed;
     /* 0x020 */ f32 unk20;
     /* 0x024 */ s16 unk24;
@@ -654,7 +656,7 @@ typedef struct PlayerState {
     /* 0x11A */ s16 depthRight;
     /* 0x11C */ u8 unk11C;
     /* 0x11D */ u8 unk11D;
-    /* 0x11E */ u8 pad11E[2];
+    /* 0x11E */ s16 unk11E;
     /* 0x120 */ s32 lastFrame;
     /* 0x124 */ f32 unk124;
     /* 0x128 */ u8 pad128[8];
