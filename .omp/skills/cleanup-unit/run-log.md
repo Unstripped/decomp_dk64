@@ -24,6 +24,7 @@ One row per cleanup round, newest last; keep the last ~10. Read when sizing a ro
 - 5A50 seqPlayerSetChannelState: the callee header 13CB50 setCSPChannelStateValue(…, s32, s32) is too wide (real parameter u8); fixing it is a callee batch.
 - QualityTools callee batches left: hudSpawnCountdownTimer, effectSpawnParticleRingAtPosition last param, collisionCheckActorFloor, mathAngleBetweenPoints2D (see round-5 notes in git history).
 - Later-pass views: E4090/478F0 CamState views (`.scratch/Clean103AB0/camstate/later-pass.md`); 12E800 ExtraState 0x0A s16.
+- Round 9 render batch leftovers (`.scratch/CleanGlobal36880/renderbatch/`): 5E2F0 fails fdiff with RenderEntry, RenderEntry.unk0 type undecided, renderEntryListBuildDisplayList and mapChunkEmitSegmentCommands should return `Gfx *`, 36880 modelNodeListSyncFlags/spriteListBuildDisplayChain.
 - Round 9 owner/callee batches (blocked retypes): 450: gunzip 3rd param `void *` (boot/30E0.c), `SchedStruct gScheduler` carve (fold D_80767CC0/C4/C8), `SchedClient` type + schedAddClient (13980.c), healthHudDrawAll `Gfx *(Gfx *)` (10D2D0.c), playerViewsRender 2nd param FrameMatrices * (2F550.c), actorMapModelsSetup asset param (8D3E0.c); 36880: collisionBstLookupByHash out-pointers (6AD90.c), CsStateFull from 42630.c into include/, a shared render-entry type for 35000/2F550, 70FD0/54150/133A90/55B20/8D3E0 protos, modelSlotInit asset header views (`.scratch/CleanGlobal36880/header-request.md`); menu: textDrawStringVtx text `char *` (100180.c).
 
 ## Proposed names (not yet applied)
