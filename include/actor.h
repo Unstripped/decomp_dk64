@@ -594,8 +594,8 @@ typedef struct PlayerState {
     /* 0x1F4 */ s32 stateFlags2;
     /* 0x1F8 */ s32 prevStateFlags;
     /* 0x1FC */ u8 cartDamage;
-    /* 0x1FD */ u8 pad1FD;
-    /* 0x1FE */ s16 unk1FE;
+    /* 0x1FD */ u8 unk1FD;
+    /* 0x1FE */ u16 unk1FE;
     /* 0x200 */ s16 unk200;
     /* 0x202 */ u8 pad202[2];
     /* 0x204 */ f32 unk204;
@@ -633,7 +633,8 @@ typedef struct PlayerState {
     /* 0x254 */ void *effectObj;
     /* 0x258 */ f32 unk258;
     /* 0x25C */ f32 unk25C;
-    /* 0x260 */ u8 pad260[8];
+    /* 0x260 */ u8 pad260[4];
+    /* 0x264 */ s32 unk264;
     /* 0x268 */ u8 transitionTimer;
     /* 0x269 */ u8 pad269[3];
 } PlayerState;
